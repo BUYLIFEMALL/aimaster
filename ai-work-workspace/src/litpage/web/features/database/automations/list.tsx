@@ -19,6 +19,7 @@ import './automations.css';
 import { openKeepMenu } from './keepMenu.ts';
 import { ScheduleLine } from './scheduleLine.tsx'; // AIMaster U11: 정시 실행 상태 줄
 import { getLocale, tx } from '../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
+import { runMessageKo } from './runMessageKo.ts';
 
 export function automationDisplayName(a: AutomationRecord): string {
   if (a.properties?.name) return a.properties.name;
@@ -85,7 +86,7 @@ async function openRuns(anchor: HTMLElement, a: AutomationRecord) {
           <div key={r.id} className={`nc-autorun ${r.status}`}>
             <span className="dot" />
             <span>{new Date(r.time).toLocaleString(getLocale(), { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
-            <span style={{ color: r.status === 'error' ? 'var(--lp-red-text-secondary, #c4554d)' : 'var(--lp-text-tertiary)' }}>{r.status === 'success' ? 'Completed' : r.status === 'error' ? r.message ?? 'Failed' : r.message ?? 'Skipped'}</span>
+            <span style={{ color: r.status === 'error' ? 'var(--lp-red-text-secondary, #c4554d)' : 'var(--lp-text-tertiary)' }}>{(() => { const m = r.status === 'success' ? 'Completed' : r.status === 'error' ? r.message ?? 'Failed' : r.message ?? 'Skipped'; return getLocale() === 'ko-KR' ? runMessageKo(m) : m; })()}</span>
           </div>
         ))}
       </div>
@@ -102,7 +103,7 @@ function SummaryCard({ a, canEdit }: { a: AutomationRecord; canEdit: boolean }) 
       <div className="nc-autocard-text">
         <div className="nc-autocard-name"><span>{automationDisplayName(a)}</span>{token && <span className={`nc-autocard-token ${token.cls}`}>{token.label}</span>}</div>
         <div className="nc-autocard-caption">{caption(a)}</div>
-        {a.status === 'paused' && a.last_error && <div className="nc-autocard-caption" style={{ color: 'var(--lp-red-text-secondary, #c4554d)' }}>{a.last_error.message}</div>}
+        {a.status === 'paused' && a.last_error && <div className="nc-autocard-caption" style={{ color: 'var(--lp-red-text-secondary, #c4554d)' }}>{getLocale() === 'ko-KR' ? runMessageKo(a.last_error.message) : a.last_error.message}</div>}
       </div>
       <span role="button" className={`nc-auto-icon-btn nc-autocard-more ${menu ? 'open' : ''}`} aria-label={tx('More')} data-tooltip={tx('More')} onClick={(e) => { e.stopPropagation(); cardMenu(e.currentTarget, a, canEdit, () => {}, setMenu); }}>
         <Icon name="ellipsisSmall" size={16} />

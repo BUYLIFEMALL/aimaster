@@ -125,6 +125,10 @@ async function sendKakao(n: ExternalNotifyInput, link: string): Promise<string |
 }
 
 // ---------------------------------------------------------------- 연결
+export function failText(channel: Channel, reason: string): string {
+  return `${channel === 'email' ? '메일' : '카카오톡'} 알림을 보내지 못했습니다: ${reason}`;
+}
+
 function failNotice(n: ExternalNotifyInput, channel: Channel, reason: string) {
   const key = `${n.userId}:${channel}`;
   const at = failNoticeAt.get(key) ?? 0;
@@ -132,23 +136,26 @@ function failNotice(n: ExternalNotifyInput, channel: Channel, reason: string) {
   failNoticeAt.set(key, Date.now());
   pushNotification({
     user_id: n.userId, space_id: n.spaceId, type: 'automation' as NotificationRecord['type'], navigable_block_id: n.pageId,
-    activity: { kind: 'message', automation_name: n.automationName, message: `${channel === 'email' ? '메일' : '카카오톡'} 알림을 보내지 못했습니다: ${reason}`, page_id: n.pageId },
+    activity: { kind: 'message', automation_name: n.automationName, message: failText(channel, reason), page_id: n.pageId },
   } as Parameters<typeof pushNotification>[0]);
 }
 
-export async function sendExternal(n: ExternalNotifyInput): Promise<void> {
+/** 보낸 결과: 실패한 채널마다 「메일 알림을 보내지 못했습니다: 사유」 한 줄(같은 내용 중복 막기는 실패가 아님) — 자동화 실행 기록에 남긴다(2026-11-15) */
+export async function sendExternal(n: ExternalNotifyInput): Promise<string[]> {
+  const fails: string[] = [];
   const page = getRecord<BlockRecord>('block', n.pageId);
   const domain = getRecord<SpaceRecord>('space', n.spaceId)?.domain ?? 'workspace';
   const link = `${SITE}/${domain}/${pageSlug(toPlainText(page?.properties?.title), n.pageId)}`;
   for (const channel of n.channels) {
     const gate = externalGate(n.userId, channel, n.text);
     if (gate) {
-      if (!gate.startsWith('같은 내용')) failNotice(n, channel, gate);
+      if (!gate.startsWith('같은 내용')) { failNotice(n, channel, gate); fails.push(failText(channel, gate)); }
       continue;
     }
     const err = await (channel === 'email' ? sendEmail(n, link) : sendKakao(n, link)).catch(() => '잠시 후 다시 시도해 주세요.');
-    if (err) failNotice(n, channel, err);
+    if (err) { failNotice(n, channel, err); fails.push(failText(channel, err)); }
   }
+  return fails;
 }
 
 setExternalNotifyHandler(sendExternal);

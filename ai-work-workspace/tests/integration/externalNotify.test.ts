@@ -51,13 +51,15 @@ describe('자동화 알림 — 내 메일·카카오톡으로도', () => {
   it('메일 계정·카카오 연결이 없으면 보내지 않고 이유를 한 시간에 한 번 앱 알림으로 알린다', async () => {
     db.putRecord('lit_user', { id: 'ex-c', email: 'ex-c@example.com', version: 1 } as never);
     const n = { userId: 'ex-c', channels: ['email', 'kakao'] as ('email' | 'kakao')[], automationName: '새 주문', text: '주문 1건', pageId: 'p-1', spaceId: 's-1' };
-    await ext.sendExternal(n);
+    // 2026-11-15: 실패 목록을 돌려줘 자동화 실행 기록에 남긴다(앱 알림이 한 시간에 한 번으로 막혀도 기록은 매번)
+    const fails = await ext.sendExternal(n);
+    expect(fails).toEqual([expect.stringMatching(/^메일 알림을 보내지 못했습니다/), expect.stringMatching(/^카카오톡 알림을 보내지 못했습니다/)]);
     expect(notices.filter((x) => x.user_id === 'ex-c').map((x) => x.message)).toEqual([
       expect.stringMatching(/^메일 알림을 보내지 못했습니다: 보낼 메일 계정\(SMTP\)이 없습니다/),
       expect.stringMatching(/^카카오톡 알림을 보내지 못했습니다: 카카오가 아직 연결되지 않았습니다/),
     ]);
     expect(tables).toEqual(expect.arrayContaining(['user_smtp_accounts', 'member_platform_accounts']));
-    await ext.sendExternal({ ...n, text: '주문 2건' });
+    expect(await ext.sendExternal({ ...n, text: '주문 2건' })).toHaveLength(2);
     expect(notices.filter((x) => x.user_id === 'ex-c')).toHaveLength(2);
   });
 

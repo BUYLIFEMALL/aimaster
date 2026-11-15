@@ -25,7 +25,8 @@ import { collectionName, deleteAutomation, loadAutomations, saveAutomation, useA
 import { StepList } from './steps.tsx';
 import { ButtonTriggerSection, TriggerSection } from './triggers.tsx';
 import './automations.css';
-import { tx } from '../../shell/i18n.ts';
+import { getLocale, tx } from '../../shell/i18n.ts';
+import { runMessageKo } from './runMessageKo.ts';
 
 function lookups(collectionId: string, surface: 'automation' | 'button_property', webhooksAllowed: boolean) {
   return {
@@ -98,7 +99,7 @@ function AutomationBuilder({ collectionId, automationId, close, state, initial }
   useEffect(() => {
     void loadAutomations(collectionId);
   }, [collectionId]);
-  const pausedReason = existing?.status === 'paused' && existing.last_error ? existing.last_error.message : null;
+  const pausedReason = existing?.status === 'paused' && existing.last_error ? (getLocale() === 'ko-KR' ? runMessageKo(existing.last_error.message) : existing.last_error.message) : null;
   const scopeMenu = (anchor: HTMLElement) => openKeepMenu(anchor, {
     width: 300,
     sections: [

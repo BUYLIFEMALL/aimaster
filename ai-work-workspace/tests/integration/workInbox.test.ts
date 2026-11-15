@@ -128,3 +128,17 @@ describe("work inbox", () => {
     expect(validateWorkInboxItem({ ...ok, targetSlug: "ai-task-planner" })).toBeNull();
   });
 });
+
+// 2026-11-15 자동화 실행 기록 한국어 표시(화면 함수 — 순수)
+import { runMessageKo } from "@/litpage/web/features/database/automations/runMessageKo.ts";
+describe("자동화 실행 기록 한국어", () => {
+  it("완료·실패·건너뜀과 웹훅 실패 사유를 한국어로, 모르는 문구는 그대로", () => {
+    expect(runMessageKo("Completed")).toBe("완료");
+    expect(runMessageKo("Failed")).toBe("실패");
+    expect(runMessageKo("hooks.example.com returned HTTP 500")).toBe("hooks.example.com이(가) 오류로 응답했습니다(HTTP 500)");
+    expect(runMessageKo("Could not reach hooks.example.com")).toBe("hooks.example.com에 연결하지 못했습니다");
+    expect(runMessageKo("Webhook request timed out")).toBe("웹훅 응답 시간이 초과됐습니다");
+    expect(runMessageKo("카카오톡 알림을 보내지 못했습니다: 키가 없습니다")).toBe("카카오톡 알림을 보내지 못했습니다: 키가 없습니다");
+    expect(runMessageKo("constructor")).toBe("constructor");
+  });
+});

@@ -233,7 +233,7 @@ async function sendWebhook(a: AutomationRecord, step: Extract<AutomationAction, 
 
 // AIMaster 2026-11-13(플랜 §2-2): 「내 메일·카카오톡으로도 받기」 — 실제 발송은 AIMaster 쪽(src/server/externalNotify.ts)이 붙인다.
 export type ExternalNotifyInput = { userId: string; channels: ('email' | 'kakao')[]; automationName: string; text: string; pageId: string; spaceId: string };
-let externalNotify: ((n: ExternalNotifyInput) => Promise<void>) | null = null;
+let externalNotify: ((n: ExternalNotifyInput) => Promise<string[] | void>) | null = null;
 export function setExternalNotifyHandler(fn: typeof externalNotify) {
   externalNotify = fn;
 }
@@ -254,7 +254,10 @@ function sendNotifications(a: AutomationRecord, step: Extract<AutomationAction, 
   }
   // 받는 사람은 자동화를 만든 회원 본인뿐. 실패해도 자동화는 계속(안내는 앱 알림으로)
   if (step.external?.length && externalNotify) {
-    void externalNotify({ userId: a.created_by_id, channels: step.external, automationName: automationName(a), text: text.slice(0, LIMITS.messageLength), pageId, spaceId: host.space_id }).catch(() => {});
+    // 2026-11-15: 보내지 못한 채널은 자동화 실행 기록에도 「실패」 한 줄로 남긴다(앱 알림은 한 시간에 한 번이라 놓치기 쉬움)
+    void externalNotify({ userId: a.created_by_id, channels: step.external, automationName: automationName(a), text: text.slice(0, LIMITS.messageLength), pageId, spaceId: host.space_id })
+      .then((fails) => { for (const message of fails ?? []) recordRun(a, { status: 'error', page_id: pageId, step_id: step.id, message }); })
+      .catch(() => {});
   }
 }
 
