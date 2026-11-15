@@ -225,7 +225,7 @@ function popupFields(storeId: string) {
         getItemSummary: (_: unknown, i?: number) => `${(i ?? 0) + 1}번째 그림`,
         defaultItemProps: { image: "", link: "" },
         arrayFields: {
-          image: { type: "custom", label: "그림(필수)", render: ({ value, onChange }: { value: string; onChange: (v: string) => void }) => <ImagePicker storeId={storeId} value={value ?? ""} onChange={onChange} /> },
+          image: { type: "custom", label: "그림(필수, 권장 가로 800px · 세로 자유)", render: ({ value, onChange }: { value: string; onChange: (v: string) => void }) => <ImagePicker storeId={storeId} value={value ?? ""} onChange={onChange} /> },
           link: { type: "text", label: "누르면 갈 곳(선택)" },
         },
       },
@@ -281,7 +281,7 @@ function detailFields(storeId: string) {
     getItemSummary: (_: unknown, i?: number) => `${(i ?? 0) + 1}번째 그림`,
     defaultItemProps: { image: "", link: "" },
     arrayFields: {
-      image: { type: "custom", label: "그림(필수)", render: ({ value, onChange }: { value: string; onChange: (v: string) => void }) => <ImagePicker storeId={storeId} value={value ?? ""} onChange={onChange} /> },
+      image: { type: "custom", label: "그림(필수, 권장 가로 2200px × 세로 400~600px)", render: ({ value, onChange }: { value: string; onChange: (v: string) => void }) => <ImagePicker storeId={storeId} value={value ?? ""} onChange={onChange} /> },
       link: { type: "text", label: "누르면 갈 곳(선택)" },
     },
   });

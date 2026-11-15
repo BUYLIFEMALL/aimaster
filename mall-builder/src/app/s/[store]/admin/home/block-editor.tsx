@@ -295,6 +295,7 @@ export function SettingsForm({ storeId, block, categories, products, onChange }:
               <button type="button" onClick={() => onChange({ ...s, items: s.items.filter((_, j) => j !== i) })} className="text-xs text-red-700">빼기</button>
             </div>
             <div className="mt-1"><ImagePicker storeId={storeId} value={it.image} onChange={(image) => setItem(i, { image })} clearable /></div>
+            <p className="mt-1 text-[11px] text-gray-500" data-size-hint>📐 권장 정사각형 160×160px 이상(아이콘 칸에 꽉 차게 잘림)</p>
           </div>
         ))}
         {s.items.length < 12 && <button type="button" onClick={() => onChange({ ...s, items: [...s.items, { category_id: "", image: "", emoji: "" }] })} className="rounded border px-2 py-1 text-xs">+ 카테고리 추가</button>}
@@ -315,6 +316,7 @@ export function SettingsForm({ storeId, block, categories, products, onChange }:
               <button type="button" onClick={() => onChange({ ...s, items: s.items.filter((_, j) => j !== i) })} className="text-red-700">빼기</button>
             </div>
             <div className="mt-1"><ImagePicker storeId={storeId} value={it.image} onChange={(image) => setItem(i, { image })} /></div>
+            <p className="mt-1 text-[11px] text-gray-500" data-size-hint>📐 권장 정사각형 800×800px(정사각형으로 잘려 보임)</p>
             <div className="mt-1"><LinkInput value={it.link} onChange={(link) => setItem(i, { link })} /></div>
           </div>
         ))}
@@ -358,6 +360,7 @@ export function SettingsForm({ storeId, block, categories, products, onChange }:
               <button type="button" onClick={() => onChange({ ...s, slides: s.slides.filter((_, j) => j !== i) })} className="text-red-700">빼기</button>
             </div>
             <div className="mt-1"><ImagePicker storeId={storeId} value={sl.image} onChange={(image) => setSlide(i, { image })} /></div>
+            <p className="mt-1 text-[11px] text-gray-500" data-size-hint>📐 권장 가로 2200px × 세로 {s.height * 2}px(높이 설정의 2배 — 가장자리는 잘릴 수 있으니 글자는 가운데에)</p>
             <div className="mt-1"><MobileImagePicker storeId={storeId} value={sl.mobile_image ?? ""} onChange={(mobile_image) => setSlide(i, { mobile_image })} /></div>
             <div className="mt-1"><LinkInput value={sl.link} onChange={(link) => setSlide(i, { link })} /></div>
           </div>
@@ -452,6 +455,7 @@ export function SettingsForm({ storeId, block, categories, products, onChange }:
   return (
     <div className="space-y-3">
       <ImagePicker storeId={storeId} value={s.image} onChange={(image) => onChange({ ...s, image })} />
+      <p className="mt-1 text-[11px] text-gray-500" data-size-hint>📐 권장 가로 2200px(세로는 자유 — 잘리지 않고 비율 그대로 보임)</p>
       <MobileImagePicker storeId={storeId} value={s.mobile_image ?? ""} onChange={(mobile_image) => onChange({ ...s, mobile_image })} />
       <LinkInput value={s.link} onChange={(link) => onChange({ ...s, link })} />
       <NumberInput label="최대 너비(px, 320~1600)" value={s.max_width} min={320} max={1600} onChange={(max_width) => onChange({ ...s, max_width })} />
