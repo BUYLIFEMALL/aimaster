@@ -1,5 +1,7 @@
 # 개선사항 기록 (shorts-onestop-studio)
 
+> ✅ **v1.59 배포됨(2026-11-15, `a61100cdb`)** — 아래 Gemini 낱말 시각(B안)과 공용 사본 2개(`storage-quota-client`·`browser-mp4-encoder` 11-14 안정화)가 함께 나감, 운영 `icn1` 확인. 남은 것: 시험 계정 로그인 뒤 `wordsVia:"gemini"` 1회 시험(요청함 32673863). 다음 배포 대기: 공용 `browser-mp4-encoder` 멈춤 대비(`44db8e230`).
+
 > **⏳ 미배포 대기 (2026-11-15, 영상 담당 `claude-win-video`) — Gemini 낱말 시각(B안, whisper-1 2027-02-26 종료 대비)**: AI 음성(OpenAI·Gemini)의 낱말 시각을 Whisper로 못 받으면(OpenAI 키 없음·실패) 회원 본인 Gemini 키로 `gemini-3.8-flash`에 음성 + 대본을 주고 「낱말마다 시작 초」를 JSON 스키마로 받음(`src/lib/tts.ts` `geminiWordStarts`, 순수 함수 `src/lib/transcribeModels.ts` `geminiWordPrompt`·`GEMINI_WORD_SCHEMA`·`parseGeminiWords`, 연결 `src/app/api/ai/tts/route.ts`). 재시도 없음, 믿을 수 없는 답(거꾸로 가는 시각 4분의 1 초과·2개 미만)은 버리고 글자 수 비율로. 응답에 `wordsBy`(elevenlabs·whisper·gemini) 추가, 본문 `wordsVia:"gemini"`면 Whisper를 건너뜀(비교 시험용). 시험 92·tsc 통과. **다음 원스톱 배포 때 함께 내보낸 뒤 시험 계정으로 1회(약 1원) 시험**해 자막이 맞는지 확인 — 요청함 32673863.
 
 > **✅ 배포됨 v1.58 (2026-11-15 `shorts-onestop-studio-jy9kbljqd`, 주인님 채팅 승인) — 버그 (영상 담당 `claude-win-video`)** · 운영 확인: 시험 계정 자료함 음악 8곡(Suno·AI 음악 스튜디오) 목록·미리 듣기 주소 표시: 「🗂️ 내 자료함 음악에서 고르기」 자료함 번호 검사식에 역슬래시가 빠져(`:d{1,4}$` → 끝 순번이 숫자가 아니라 글자 d여야 통과) **자료함 곡이 목록에 하나도 안 나오고 고를 수도 없던 문제** — `src/lib/amsSongs.ts` `LIBRARY_REF`를 `:\d{1,4}$`로 `70528df0f`. 11-12 `626c01d61`(자료함 음악 넓히기) 때 생긴 것으로 보임, 원스톱·뮤직비디오 두 곳 같음(저장소의 다른 곳에는 없음). 회원 기능이 안 되는 버그라 따로 배포를 주인님께 여쭘.
