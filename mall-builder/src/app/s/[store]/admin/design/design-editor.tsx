@@ -21,6 +21,7 @@ import HomePopup from "../../(shop)/home-popup";
 import { BlockView } from "../../home-blocks";
 import { renderSlot, SLOT_BLOCK_TYPES, type SlotData } from "../../home-slots";
 import { CardOptionsForm, ImagePicker, SettingsForm, fromLocalKst, toLocalKst, type Option } from "../home/block-editor";
+import { MySectionsButtons } from "./my-sections";
 
 const DICTIONARY: Record<string, string> = {
   "header-publish": "게시",
@@ -500,6 +501,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
           overrides={{
             headerActions: () => (
             <div className="flex items-center gap-2">
+              <MySectionsButtons storeId={storeId} />
               <button type="button" disabled={pending} onClick={() => run("save")} className="rounded border bg-white px-3 py-1.5 text-sm disabled:opacity-40" data-design-save>
                 초안 저장
               </button>
