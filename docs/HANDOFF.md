@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 [역할: mac-mini] 카페 A-4 수신 알림까지 통과
+
+- 사용자 로그인 후 링크를 연 공간8에서 kkuleomi24 계정 확인→카페 내소식의 BUYLIFE 초대 알림(대상buylife, 2026.11.12.) 실제 확인. A-4 완료, 재초대/명단 재실행/가입0. [원 요청서](../naver-cafe-recruit/docs/REQUEST_20261106_MACMINI_INVITE_TEST.md)·INVITE_TEST·IMPROVEMENTS·[통합표](REQUEST_20261115_MACMINI_BLOG_CHECKLIST.md)·역할 갱신, 대상알림PNG/JSON 보존.
+- WP는 검수공간5 새로고침/공간8 사용자WP탭 모두 기존buylifemall@naver.com. 새 무기간·무키 시험 이메일 질문, P3/P7/API/생성0. A-1·배포뒤B검수는 기존 대기. A-3는 기완료 반복없음.
+- 기존사용자공간의 티스토리 미발행 편집기·다른탭은 보존. AI/비용/빌드/배포/운영DB직접쓰기/앱소스변경0. 본인검수문서·대상알림근거만커밋, 푸시없음.
+
 ## 2026-11-15 10:30 KST [역할: mac-mini] 블로그 A1~A4 순차 검수·영상 요청 접수
 
 - A1 관리자·기기55c19089·v1.20·지정 이웃 글 실제 전경 완료. 실제 툴바 팝업이 WP Space5/window566을 대상으로 잡고, 보이는 글은Space9/window598인 불일치 확인. 잘못된읽기0·수락0에서보류. [이웃 결과·근거](../blog-neighbor-care/docs/REQUEST_20261113_MACMINI_V120_RECHECK.md) 맨끝, 검사우회/재전송 없음.
