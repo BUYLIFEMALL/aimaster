@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 ✅ [역할: design] Antigravity(윈도우) · 세션 `agy-win-ssr-v1` — 바나나 캔버스(`banana-canvas` v1.48) F-09 결함 수정본 프로덕션 배포 완료
+- 지시: 주인님 「1번부터 진행해」 (바나나 캔버스 F-09 결함 해결본 프로덕션 배포 및 라이브 검수).
+- 한 일: 상세페이지/쇼핑몰 수신 후 파일모드 재매칭으로 `jobs` 빈배열 초기화되는 F-09 결함 해결(`isLinkedMode` 가드 신설, 조기 도착 ACK 보존 병합), 회귀 단위 테스트 통과(98/98 전수 통과), `tsc --noEmit` 통과.
+- 배포: `node scripts/deploy.mjs banana-canvas --go --from-head --owner agy-win-ssr-v1`
+  - Vercel: `https://banana-canvas-refbkuq86-buylife.vercel.app` (Ready), 운영 도메인 `https://banana-canvas.buylife.xyz`
+  - 화면/DB 버전: `v1.48` 일치 확인, 0번 규칙 저작권 고지 확인, 저장공간 위젯 탑재 확인.
+- 검증: 라이브 서비스 HTTP 200 OK, 타이틀 `AI 바나나 캔버스 | AIMaster` 확인, 저장공간 위젯 태그 탑재 확인, 캡처 `scratch/banana_canvas_live.png`.
+- 비용: Vercel 빌드 1회 (주인님 승인), 유료 AI 호출 0.
+
 ## 2026-11-15 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 메이커 v0.3.3 후속 M2 GIF 변환 v1.30·v1.31 「🛍 상품 사진 영상」
 - 한 일: `/product-video` — 사진 1~6장 → MP4(공용 인코더 새 사본)·상세페이지 애니메이션 WebP(`ffmpeg.wasm` `libwebp_anim`, 10MB 단계 줄이기), 템포 3·움직임 6·넘김 5(우리 종류), 문구 3층·`{상품코드}`, 9:16/1:1/860×1076, 상품코드_1~6 일괄·ZIP. 키·AI·서버 업로드 없음. `bf972755f`·`aab624bc3`.
 - 배포: v1.30 `video-to-l1kescyg8`(승인 1회) → 운영에서 상세페이지 크기 MP4 실패(860×1075 홀수) 발견 → 주인님 추가 승인 v1.31 `video-to-b5ch93cuq`. DB·확장·ZIP v1.31, `check-extension-release` OK.
