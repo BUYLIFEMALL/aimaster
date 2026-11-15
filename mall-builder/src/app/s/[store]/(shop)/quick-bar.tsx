@@ -1,24 +1,95 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronUp,
-  Clock,
-  Eye,
-  ShoppingBag,
-  Trash2,
-  X,
-} from "lucide-react";
 import {
   getRecentProducts,
   removeRecentProduct,
   clearRecentProducts,
   type RecentProduct,
 } from "@/lib/recent-products";
+
+// 외부 패키지(lucide-react) 의존성 없는 자체 인라인 SVG 아이콘 (빌드 안전성 100% 보장)
+function IconChevronLeft({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  );
+}
+
+function IconChevronRight({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m9 18 6-6-6-6" />
+    </svg>
+  );
+}
+
+function IconChevronUp({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m18 15-6-6-6 6" />
+    </svg>
+  );
+}
+
+function IconChevronDown({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+}
+
+function IconShoppingBag({ size = 18, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+      <path d="M3 6h18" />
+      <path d="M16 10a4 4 0 0 1-8 0" />
+    </svg>
+  );
+}
+
+function IconEye({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function IconClock({ size = 16, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  );
+}
+
+function IconTrash2({ size = 10 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 6h18" />
+      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+      <line x1="10" x2="10" y1="11" y2="17" />
+      <line x1="14" x2="14" y1="11" y2="17" />
+    </svg>
+  );
+}
+
+function IconX({ size = 10 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
+    </svg>
+  );
+}
 
 interface QuickBarProps {
   slug: string;
@@ -33,7 +104,6 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 3;
 
-  // 최근 본 상품 로드 및 실시간 동기화
   const loadRecent = () => {
     const list = getRecentProducts(slug);
     setItems(list);
@@ -52,7 +122,6 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
     window.addEventListener("mb_recent_updated", handleUpdate);
     window.addEventListener("storage", loadRecent);
 
-    // 스크롤 감지 (Top 버튼 활성화)
     const handleScroll = () => {
       setShowTopBtn(window.scrollY > 250);
     };
@@ -92,7 +161,7 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
           aria-label={isCollapsed ? "퀵바 펼치기" : "퀵바 접기"}
           className="absolute -left-5 top-1/2 -translate-y-1/2 z-10 flex h-10 w-5 items-center justify-center rounded-l-lg border-y border-l border-slate-300 bg-white/95 text-slate-500 shadow-md backdrop-blur-md hover:bg-slate-50 hover:text-blue-600 transition [data-mall-mode='dark']_:bg-slate-800 [data-mall-mode='dark']_:border-slate-700 [data-mall-mode='dark']_:text-slate-300"
         >
-          {isCollapsed ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+          {isCollapsed ? <IconChevronLeft size={14} /> : <IconChevronRight size={14} />}
         </button>
 
         {isCollapsed ? (
@@ -104,7 +173,7 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
               title="장바구니"
               className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition [data-mall-mode='dark']_:bg-slate-800 [data-mall-mode='dark']_:text-slate-200"
             >
-              <ShoppingBag size={18} />
+              <IconShoppingBag size={18} />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-blue-600 px-1 text-[10px] font-black text-white">
                   {cartCount > 99 ? "99+" : cartCount}
@@ -119,7 +188,7 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
               title="최근 본 상품 열기"
               className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition [data-mall-mode='dark']_:bg-slate-800 [data-mall-mode='dark']_:text-slate-200"
             >
-              <Eye size={18} />
+              <IconEye size={18} />
               {items.length > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] font-black text-white">
                   {items.length}
@@ -136,7 +205,7 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
                 showTopBtn ? "opacity-100" : "opacity-40"
               }`}
             >
-              <ChevronUp size={18} />
+              <IconChevronUp size={18} />
             </button>
           </div>
         ) : (
@@ -148,7 +217,7 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
               className="group relative flex w-full flex-col items-center rounded-xl bg-slate-50 p-2 text-center border border-slate-200/70 hover:border-blue-300 hover:bg-blue-50/50 transition [data-mall-mode='dark']_:bg-slate-800/80 [data-mall-mode='dark']_:border-slate-700"
             >
               <div className="relative">
-                <ShoppingBag size={18} className="text-slate-700 group-hover:text-blue-600 transition [data-mall-mode='dark']_:text-slate-200" />
+                <IconShoppingBag size={18} className="text-slate-700 group-hover:text-blue-600 transition [data-mall-mode='dark']_:text-slate-200" />
                 {cartCount > 0 && (
                   <span className="absolute -top-2 -right-3 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-blue-600 px-1 text-[10px] font-black text-white">
                     {cartCount > 99 ? "99+" : cartCount}
@@ -177,7 +246,7 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
               {items.length === 0 ? (
                 /* 최근 본 상품 없음 */
                 <div className="flex h-20 w-full flex-col items-center justify-center rounded-xl bg-slate-50/80 p-2 text-center [data-mall-mode='dark']_:bg-slate-800/40">
-                  <Clock size={16} className="text-slate-300 [data-mall-mode='dark']_:text-slate-600" />
+                  <IconClock size={16} className="text-slate-300 [data-mall-mode='dark']_:text-slate-600" />
                   <span className="mt-1 text-[9px] text-slate-400 [data-mall-mode='dark']_:text-slate-500 leading-tight">
                     기록 없음
                   </span>
@@ -201,7 +270,7 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
                         aria-label="최근 본 상품 삭제"
                         className="absolute -top-1.5 -right-1.5 z-10 hidden h-4 w-4 items-center justify-center rounded-full bg-slate-800 text-white shadow-xs group-hover:flex hover:bg-red-500 transition"
                       >
-                        <X size={10} />
+                        <IconX size={10} />
                       </button>
 
                       {/* 상품 링크 및 썸네일 */}
@@ -245,7 +314,7 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
                         aria-label="이전 상품"
                         className="p-0.5 rounded hover:bg-slate-100 disabled:opacity-20 transition [data-mall-mode='dark']_:hover:bg-slate-800"
                       >
-                        <ChevronUp size={12} />
+                        <IconChevronUp size={12} />
                       </button>
                       <span className="font-bold text-[9px]">
                         {currentPage + 1}/{totalPages}
@@ -257,7 +326,7 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
                         aria-label="다음 상품"
                         className="p-0.5 rounded hover:bg-slate-100 disabled:opacity-20 transition [data-mall-mode='dark']_:hover:bg-slate-800"
                       >
-                        <ChevronDown size={12} />
+                        <IconChevronDown size={12} />
                       </button>
                     </div>
                   )}
@@ -268,7 +337,7 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
                     onClick={() => clearRecentProducts(slug)}
                     className="mt-1 flex w-full items-center justify-center gap-1 py-1 text-[9px] text-slate-400 hover:text-red-500 transition [data-mall-mode='dark']_:text-slate-500"
                   >
-                    <Trash2 size={10} />
+                    <IconTrash2 size={10} />
                     <span>전체비우기</span>
                   </button>
                 </div>
@@ -286,7 +355,7 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
                 title="맨 위로"
                 className="flex flex-1 flex-col items-center justify-center rounded-lg border border-slate-200 bg-slate-50 py-1.5 text-slate-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition [data-mall-mode='dark']_:bg-slate-800 [data-mall-mode='dark']_:border-slate-700 [data-mall-mode='dark']_:text-slate-300"
               >
-                <ChevronUp size={14} />
+                <IconChevronUp size={14} />
                 <span className="text-[9px] font-black tracking-tight">TOP</span>
               </button>
               <button
@@ -295,7 +364,7 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
                 title="맨 아래로"
                 className="flex flex-1 flex-col items-center justify-center rounded-lg border border-slate-200 bg-slate-50 py-1.5 text-slate-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition [data-mall-mode='dark']_:bg-slate-800 [data-mall-mode='dark']_:border-slate-700 [data-mall-mode='dark']_:text-slate-300"
               >
-                <ChevronDown size={14} />
+                <IconChevronDown size={14} />
                 <span className="text-[9px] font-black tracking-tight">DOWN</span>
               </button>
             </div>

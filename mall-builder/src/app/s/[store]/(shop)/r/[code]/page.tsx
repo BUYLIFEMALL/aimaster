@@ -1,12 +1,82 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowRight, Boxes, ChevronRight, ShieldCheck, Sparkles, Star, Store } from "lucide-react";
 import { getStoreBySlug } from "@/lib/store";
 import { getResellerShopData } from "@/lib/reseller-shop";
 import ResellerShareButton from "./share-button";
 
 export const dynamic = "force-dynamic";
+
+// 외부 패키지(lucide-react) 의존성 없는 자체 인라인 SVG 아이콘 (빌드 안전성 100% 보장)
+function IconChevronRight({ size = 12, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <polyline points="9 18 15 12 9 6" />
+    </svg>
+  );
+}
+
+function IconStore({ size = 26, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+      <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
+      <path d="M2 7h20" />
+      <path d="M22 7a2 2 0 0 1-2 2 2 2 0 0 1-2-2" />
+      <path d="M18 7a2 2 0 0 1-2 2 2 2 0 0 1-2-2" />
+      <path d="M14 7a2 2 0 0 1-2 2 2 2 0 0 1-2-2" />
+      <path d="M10 7a2 2 0 0 1-2 2 2 2 0 0 1-2-2" />
+      <path d="M6 7a2 2 0 0 1-2 2 2 2 0 0 1-2-2" />
+    </svg>
+  );
+}
+
+function IconSparkles({ size = 11, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+    </svg>
+  );
+}
+
+function IconArrowRight({ size = 14, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+}
+
+function IconShieldCheck({ size = 14, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  );
+}
+
+function IconBoxes({ size = 36, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l6 3.43a2 2 0 0 0 1.94 0l6-3.43a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L11 9.49a2 2 0 0 0-2.06 0l-5.97 3.43z" />
+      <path d="m12 22 4-2.28" />
+      <path d="M12 13v9" />
+      <path d="M12 13 8 10.72" />
+      <path d="m12 13 4-2.28" />
+    </svg>
+  );
+}
+
+function IconStar({ size = 10, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth={1} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  );
+}
 
 export async function generateMetadata({
   params,
@@ -51,11 +121,11 @@ export default async function ResellerShopPage({
         <Link href={base} className="hover:text-blue-600 transition">
           {store.name}
         </Link>
-        <ChevronRight size={12} className="text-slate-300" />
+        <IconChevronRight size={12} className="text-slate-300" />
         <span className="font-bold text-slate-800 [data-mall-mode='dark']_:text-slate-200">
           파트너 링크샵
         </span>
-        <ChevronRight size={12} className="text-slate-300" />
+        <IconChevronRight size={12} className="text-slate-300" />
         <span className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-black text-blue-700 [data-mall-mode='dark']_:bg-blue-900/60 [data-mall-mode='dark']_:text-blue-300">
           CODE: {reseller.code}
         </span>
@@ -66,12 +136,12 @@ export default async function ResellerShopPage({
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-4">
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25">
-              <Store size={26} />
+              <IconStore size={26} />
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50/80 px-2.5 py-0.5 text-[10px] font-extrabold uppercase text-blue-700 [data-mall-mode='dark']_:bg-blue-900/40 [data-mall-mode='dark']_:border-blue-700 [data-mall-mode='dark']_:text-blue-300">
-                  <Sparkles size={11} />
+                  <IconSparkles size={11} />
                   <span>공식 파트너 셀렉트샵</span>
                 </span>
                 <span className="text-xs font-bold text-slate-500">
@@ -95,7 +165,7 @@ export default async function ResellerShopPage({
               className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition"
             >
               <span>몰 전체 둘러보기</span>
-              <ArrowRight size={14} />
+              <IconArrowRight size={14} />
             </Link>
           </div>
         </div>
@@ -103,7 +173,7 @@ export default async function ResellerShopPage({
         {/* 하단 신뢰 지표 안내선 */}
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/80 pt-4 text-[11px] text-slate-500 [data-mall-mode='dark']_:border-slate-800">
           <div className="flex items-center gap-1.5 font-medium">
-            <ShieldCheck size={14} className="text-emerald-500" />
+            <IconShieldCheck size={14} className="text-emerald-500" />
             <span>{store.name} 본사 100% 정품 보증 및 안전 결제·직배송</span>
           </div>
           <div>
@@ -132,7 +202,7 @@ export default async function ResellerShopPage({
 
         {products.length === 0 ? (
           <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center [data-mall-mode='dark']_:bg-slate-900 [data-mall-mode='dark']_:border-slate-800">
-            <Boxes size={36} className="mx-auto text-slate-300 [data-mall-mode='dark']_:text-slate-600" />
+            <IconBoxes size={36} className="mx-auto text-slate-300 [data-mall-mode='dark']_:text-slate-600" />
             <p className="mt-3 text-sm font-bold text-slate-700 [data-mall-mode='dark']_:text-slate-300">
               진열된 상품이 없습니다.
             </p>
@@ -182,7 +252,7 @@ export default async function ResellerShopPage({
                     <div className="absolute top-2 left-2 flex flex-col gap-1">
                       {prod.isPicked && (
                         <span className="inline-flex items-center gap-0.5 rounded-md bg-amber-500 px-1.5 py-0.5 text-[10px] font-black text-white shadow-xs">
-                          <Star size={10} className="fill-white" />
+                          <IconStar size={10} className="fill-white" />
                           <span>MD 픽</span>
                         </span>
                       )}

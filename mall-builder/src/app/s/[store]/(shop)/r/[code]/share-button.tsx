@@ -1,7 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, Share2 } from "lucide-react";
+
+// 외부 패키지(lucide-react) 의존성 없는 자체 인라인 SVG 아이콘 (빌드 안전성 100% 보장)
+function IconCheck({ size = 14, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+function IconShare2({ size = 14, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+    </svg>
+  );
+}
 
 export default function ResellerShareButton({ code, title }: { code: string; title: string }) {
   const [copied, setCopied] = useState(false);
@@ -36,12 +56,12 @@ export default function ResellerShareButton({ code, title }: { code: string; tit
     >
       {copied ? (
         <>
-          <Check size={14} className="text-emerald-500" />
+          <IconCheck size={14} className="text-emerald-500" />
           <span className="text-emerald-600">링크 복사됨!</span>
         </>
       ) : (
         <>
-          <Share2 size={14} />
+          <IconShare2 size={14} />
           <span>샵 링크 공유</span>
         </>
       )}
