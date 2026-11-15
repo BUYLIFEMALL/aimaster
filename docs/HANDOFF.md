@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 ⏸ [역할: ecommerce-image] Claude Code(윈도우, ego) · `claude-win-sdp` — 바나나 M1·상세페이지 WebP 받기·ESM 화면 분석 (미배포 대기)
+- ESM+ 「상품등록 2.0」 읽기 전용 분석(저장·등록 0): `docs/ESM_FORM_ANALYSIS_20261115.md` `495dd5057`. 다음: 주인님 고객센터 답(판매자 본인 API 키) → API/확장 결정.
+- 바나나 M1(주인님 결정: 범위 1~7·참고 기준 20%·모아서 배포): `f19f2bdcc` 원형 틀·테두리 굵기/색·틀 배경·틀 안 확대/위치·서브 면적 %·결과 PNG 클립보드·메인 원본 크기·CSV size 칸·판번호 c2, CSV 판번호 고정값 버그 수정. 시험 104·tsc·build. v1.49 버전 커밋은 되돌림(`b47aa728c`).
+- 상세페이지 애니메이션 WebP 받기(영상 담당 요청): `1ed1fde1b` 공용 `gif-handoff` WebP 허용 + 움직이는 WebP 원본 지키기(ZIP·문구 버튼), `video-to-gif` 사본 sync. 시험 14·build. **배포 뒤 영상 담당께 알림.**
+- 배포: 둘 다 미배포 대기(`docs/PENDING_DEPLOYS.md`). 비용: 없음(빌드 0).
+
 ## 2026-11-15 ✅ [역할: workspace] Claude Code(윈도우, 엣지) · `claude-win-20261025-workspace` — 업무 워크스페이스 v1.46
 - 지시: 주인님 「진행해」(미배포 3건 배포, 빌드 1회). 버전 커밋 `3510f720f`, 배포 `ai-work-workspace-343yjyxjb` Ready, DB v1.46.
 - 함께 나감: `94b208d8f` 받은 업무 표 「보낸 프로그램」 한국어 이름(공용 이름표 `src/lib/programLabels.ts`), `72a727cbf` 공개 페이지 1단계 빈틈 2개(공유 탭 「링크가 있는 누구나」 숨김, 관리자 내리기·게시자 이용 기간 종료를 로그인한 다른 회원 화면에도), `e8dd04103` 데스크톱 알림 제목 7가지·업데이트 패널 줄 한국어 어순(알림함 줄은 이미 한국어였음).

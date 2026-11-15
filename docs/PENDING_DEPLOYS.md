@@ -2,6 +2,7 @@
 
 > 2026-10-22 신설(Claude Code 윈도우, 주인님 승인 — 추가개선 제안 「미배포 대기 항목을 한곳에」).
 | `banana-canvas` | 메이커 후속 M1 대표사진 합성 보강: 원형 틀·테두리 굵기/색·틀 배경(흰/투명/직접)·틀 안 확대/위치·서브 면적 %(참고 기준 20%, 규정 아님)·결과 PNG 클립보드 복사·메인 원본 크기 저장·결과표 size 칸·판번호 c2. tsc·시험 104·로컬 빌드 통과 | `f19f2bdcc` | 2026-11-15 · [역할: ecommerce-image] `claude-win-sdp` | `banana-canvas/docs/PLAN_20261115_MAKER_M1_FRAME.md` | 다음 바나나 배포 때 함께(주인님 「필요하면 하고 아니면 모았다가」) → v1.49, 배포 뒤 ego 검수(원형·투명 PNG·클립보드 붙여넣기·원본 크기·375px) |
+| `shop-detail-page` (+ 공용 사본 `video-to-gif/lib/gifHandoff.ts`) | 「GIF 받기」가 **애니메이션 WebP(10MB)도** 받음(영상 담당 요청): `readFileMessage`가 `image/webp` 허용·이름 끝 `.webp` 유지, 받는 창이 받은 형식대로 저장, 올릴 때 움직이는 WebP는 `-anim.webp` 표시, 섹션 ZIP은 움직이는 WebP 원본 그대로, 움직이는 섹션은 「✏️ 문구」「✂ 누끼」 숨김, 문구 「GIF·WebP」. 시험 14·tsc 2개·로컬 build·공용 사본 OK | `1ed1fde1b` | 2026-11-15 · [역할: ecommerce-image] `claude-win-sdp` | `shop-detail-page/docs/IMPROVEMENTS.md` 맨 위 | 다음 상세페이지 배포 때 함께(버전 +0.01). **배포 뒤 영상 담당께 알림** → 영상 담당이 「상품 사진 영상」 결과에 「🛍 상세페이지로」 붙임(그 전에 붙이면 받는 쪽이 거절). `video-to-gif` 사본은 다음 GIF 배포 때 같이 나가도 됨(보내는 쪽 동작 변화 없음) |
 > 근거 지침: 루트 `CLAUDE.md` 최상단 「작은 소스 수정은 모았다가 배포한다」(2026-10-22 23:17) · [`docs/VERCEL_COST_REDUCTION_PLAN.md`](VERCEL_COST_REDUCTION_PLAN.md) 맨 위.
 
 ## 쓰는 법 (모든 CLI 공통)
