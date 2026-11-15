@@ -16,7 +16,8 @@ export class ApiError extends Error {
 }
 
 /** 이식판 2026-11-14: 로그인 없이 보는 게시 페이지(/public/…) — 명령은 공개 입구(/api/public, 허용 명령만)로 보낸다 */
-export const isPublicView = () => typeof location !== 'undefined' && location.pathname.startsWith('/public/');
+// 2026-11-15 공개 폼: /form/… 을 로그인 없이(또는 이용 권한 없이) 열었을 때도 공개 입구로 — 서버가 #lit-app의 회원 이메일을 비워 보냄
+export const isPublicView = () => typeof location !== 'undefined' && (location.pathname.startsWith('/public/') || (location.pathname.startsWith('/form/') && typeof document !== 'undefined' && document.getElementById('lit-app')?.dataset.memberEmail === ''));
 
 export async function api<T = any>(name: string, body: unknown = {}, init?: { signal?: AbortSignal }): Promise<T> {
   const res = await fetch(`${isPublicView() ? '/api/public' : '/api/rpc'}/${name}`, {

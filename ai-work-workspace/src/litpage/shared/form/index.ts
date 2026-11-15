@@ -70,6 +70,9 @@ export interface FormConfig {
   submitScreen?: FormSubmitScreen;
   /** user whose access writes anonymous / non-editor submissions */
   ownerId?: string;
+  /** 이식판 2026-11-15 공개 폼: 개인정보 수집·이용 동의 문구의 목적·보관 기간(회원이 고침, 비우면 기본 문구) */
+  awwConsentPurpose?: string;
+  awwConsentRetention?: string;
   /** the "Auto-create form questions" choice was made */
   initialized?: boolean;
   /** Form settings › Select template: a database template applied to every new submission */

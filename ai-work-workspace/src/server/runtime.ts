@@ -190,6 +190,11 @@ export async function runRpc(name: string, body: unknown, member: Member, client
         const { closedForOutsider } = await import('./publicPages');
         if (await closedForOutsider(name, input, member.id, memberSpaceIds(member.id))) throw new ApiError('이 페이지는 지금 볼 수 없습니다(관리자가 공개를 내렸거나 게시한 회원의 이용 기간이 끝났습니다).', 404);
       }
+      if (name === 'submitFormResponse') {
+        const { memberFormGate } = await import('./publicForms');
+        const why = memberFormGate(name, input as Record<string, unknown>, member.id, memberSpaceIds(member.id));
+        if (why) throw new ApiError(why, 429);
+      }
       if (name === 'applyChanges') {
         const problem = sharingChangeProblem(input, {
           block: (id) => getRecord<BlockRecord>('block', id) as any,

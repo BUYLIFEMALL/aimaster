@@ -45,6 +45,8 @@ export interface PublicForm {
   questions: PublicQuestion[];
   members: { id: string; name: string; email?: string }[];
   relationRows: Record<string, { id: string; title: string }[]>;
+  /** 이식판 2026-11-15 공개 폼: 로그인 없이 응답할 때 보여 주는 개인정보 수집·이용 동의(서버 src/server/publicForms.ts가 붙임) */
+  awwConsent?: { collector: string; items: string[]; purpose: string; retention: string };
 }
 
 const asQuestion = (q: PublicQuestion): FormQuestion => ({ id: q.id, config: { propertyId: q.propertyId, isRequired: q.required, maxSelection: q.maxSelection, condition: q.condition } });
@@ -228,6 +230,7 @@ export function FormRenderer({ form, preview, onDone }: { form: PublicForm; prev
   const [done, setDone] = useState<string | null>(null);
   const [canView, setCanView] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
+  const [consent, setConsent] = useState(false);
   // conditional logic: only the questions whose conditions hold are asked, validated and sent
   const shown = useMemo(() => visibleQuestionIds(form.questions.map(asQuestion), answers), [form.questions, answers]);
   const qs = form.questions.filter((q) => shown.has(q.id));
@@ -243,6 +246,10 @@ export function FormRenderer({ form, preview, onDone }: { form: PublicForm; prev
       if (err) errs[q.id] = err;
     }
     setErrors(errs);
+    if (form.awwConsent && !consent && !preview) {
+      setFailure('개인정보 수집·이용에 동의해 주세요.');
+      return;
+    }
     if (Object.keys(errs).length) {
       document.querySelector(`[data-question-id="${Object.keys(errs)[0]}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
       return;
@@ -252,7 +259,7 @@ export function FormRenderer({ form, preview, onDone }: { form: PublicForm; prev
     try {
       const sent: Record<string, FormAnswer> = {};
       for (const q of qs) if (answers[q.id] !== undefined) sent[q.id] = answers[q.id];
-      const res = await api<{ pageId?: string; canView?: boolean; errors?: Record<string, string> }>('submitFormResponse', { viewId: form.viewId, answers: sent, preview: !!preview });
+      const res = await api<{ pageId?: string; canView?: boolean; errors?: Record<string, string> }>('submitFormResponse', { viewId: form.viewId, answers: sent, preview: !!preview, ...(form.awwConsent ? { consent } : {}) });
       if (res.errors) setErrors(res.errors);
       else if (res.pageId) {
         setDone(res.pageId);
@@ -315,7 +322,23 @@ export function FormRenderer({ form, preview, onDone }: { form: PublicForm; prev
             {errors[q.id] && <div className="nc-form-error" role="alert">{errors[q.id]}</div>}
           </div>
         ))}
-        {failure && <div className="nc-form-error big" role="alert">Something went wrong while processing that request. {failure}</div>}
+        {form.awwConsent && !preview && (
+          <div className="nc-form-r-q" data-testid="form-consent" style={{ fontSize: 13 }}>
+            <div className="nc-form-r-qtitle">개인정보 수집·이용 동의<span className="nc-form-req"> *</span></div>
+            <div className="nc-form-r-qdesc">
+              받는 곳: {form.awwConsent.collector}(이 폼을 만든 회원 — AIMaster는 응답을 따로 모으지 않습니다)<br />
+              수집 항목: {form.awwConsent.items.join(', ') || '이 폼의 질문'}<br />
+              목적: {form.awwConsent.purpose}<br />
+              보관 기간: {form.awwConsent.retention}<br />
+              동의하지 않으면 응답을 보낼 수 없습니다.
+            </div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+              <input type="checkbox" checked={consent} disabled={busy} onChange={(e) => { setConsent(e.target.checked); if (e.target.checked) setFailure(null); }} />
+              위 내용에 동의합니다
+            </label>
+          </div>
+        )}
+        {failure && <div className="nc-form-error big" role="alert">{form.awwConsent ? failure : `Something went wrong while processing that request. ${failure}`}</div>}
         <div className="nc-form-r-submit">
           <div role="button" className={`nc-form-btn primary ${busy ? 'busy' : ''}`} data-testid="form-submit" style={{ background: submitColor(form.submitScreen.submitButtonColor) }} onClick={() => !busy && void submit()}>{busy ? tx('Submitting…') : form.submitScreen.submitButtonText?.trim() || 'Submit'}</div>
         </div>

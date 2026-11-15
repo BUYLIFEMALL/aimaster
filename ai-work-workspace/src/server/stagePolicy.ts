@@ -25,7 +25,8 @@ const LATER_RPCS = new Set([
   'requestMembershipByTeamInvite', 'requestJoinTeam',
   'getPublishedPage', 'duplicatePublicPage', 'requestGuestInvite',
   'requestRestrictedMemberAccess', 'getPublicPages',
-  'getPublicForm', 'submitFormResponse', 'emailFormResponse', 'setSiteSettings', 'getSite', 'getSiteHome', 'searchSite',
+  // 2026-11-15 공개 폼: getPublicForm·submitFormResponse는 엶(남의 공개 폼 응답은 runtime이 동의·한도 확인). 응답 사본 메일은 계속 닫음
+  'emailFormResponse', 'setSiteSettings', 'getSite', 'getSiteHome', 'searchSite',
   // 4단계 자동화: U11(2026-11-10)에서 엶 — saveAutomation·setAutomationStatus·deleteAutomation·duplicateAutomation·runButtonServerSteps.
   // 단, 웹훅(바깥 호출, U14 판단)·에이전트(U12) 동작이 든 자동화는 아래 stageBodyBlock이 거절한다.
   // 회의록: U6-A(2026-10-24)에서 정지·요약, U6-B(2026-11-03)에서 음성 파일 받아쓰기(회원 Gemini·OpenAI 키)를 엶

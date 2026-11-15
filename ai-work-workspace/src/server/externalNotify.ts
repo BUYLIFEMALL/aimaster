@@ -21,6 +21,8 @@ import type { BlockRecord, NotificationRecord, SpaceRecord, UserRecord, UserSett
 import { newId, pageSlug } from '#shared/ids.ts';
 import { toPlainText } from '#shared/richtext.ts';
 import { webhookUsedToday, WEBHOOK_PER_DAY } from '@/litpage/server/aimasterWebhookGuard.ts';
+import { memberFormMaxToday, FORM_PER_DAY } from './publicForms';
+import { memberSpaceIds } from './workInbox';
 
 export const EXTERNAL_PER_DAY = 100;
 const DUP_MS = 60_000;
@@ -188,6 +190,8 @@ export const notifyPrefHandlers: Record<string, (ctx: Ctx, body: any) => unknown
       { key: 'webhook', label: '웹훅 보내기', used: webhookUsedToday(ctx.userId), limit: WEBHOOK_PER_DAY },
       { key: 'email', label: '메일 알림', used: externalUsedToday(ctx.userId, 'email'), limit: EXTERNAL_PER_DAY },
       { key: 'kakao', label: '카카오톡 알림', used: externalUsedToday(ctx.userId, 'kakao'), limit: EXTERNAL_PER_DAY },
+      // 2026-11-15 공개 폼: 폼마다 하루 300건 — 가장 많이 받은 폼 기준
+      { key: 'forms', label: '공개 폼 응답(가장 많은 폼)', used: memberFormMaxToday(memberSpaceIds(ctx.userId)), limit: FORM_PER_DAY },
     ];
     return { reminder: reminderChannels(ctx.userId), usage };
   },

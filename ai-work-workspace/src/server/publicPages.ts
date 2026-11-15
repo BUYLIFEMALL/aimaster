@@ -17,6 +17,7 @@ import { blockRole } from "@/litpage/server/records.ts";
 import { hit } from "@/litpage/server/ratelimit.ts";
 import { runPublicRpc, type RpcResult } from "./runtime";
 import { tokenOwnerAllowed } from "./tokenOwnerAccess";
+import { FORM_RPCS, handlePublicForm, publicFormInfo, setFormOwnerCheck } from "./publicForms";
 
 export const PUBLIC_RPCS = new Set(["getSite", "getPublishedPage", "loadPage", "loadPageCached"]);
 const NOT_FOUND: RpcResult = { status: 404, body: { name: "NotFound", message: "페이지를 찾을 수 없습니다." } };
@@ -62,6 +63,7 @@ async function ownerAllowed(userId: string): Promise<boolean> {
 export function setPublicOwnerCheckForTests(fn: (userId: string) => Promise<boolean>) {
   ownerCheck = fn;
   ownerCache.clear();
+  setFormOwnerCheck(fn);
 }
 
 function takenDown(rootId: string): boolean {
@@ -105,6 +107,8 @@ export async function handlePublicRpc(name: string, body: unknown, ip: string): 
   if (!hit(`aww-public-ip:${ip}`, 120, 60_000)) return { status: 429, body: { name: "RateLimitedError", message: "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요." } };
   const input = (body && typeof body === "object" && !Array.isArray(body) ? body : {}) as Record<string, unknown>;
   if (name === "awwReportPublicPage") return reportPublicPage(input, ip);
+  // 2026-11-15 공개 폼(2단계): 폼 보기·응답 제출·신고 — 동의·한도·내리기·주인 이용 기간은 publicForms.ts
+  if (FORM_RPCS.has(name)) return handlePublicForm(name, input, ip, runPublicRpc);
   if (!PUBLIC_RPCS.has(name)) return NOT_FOUND;
   const pageId = pageIdOfRequest(name, input);
   if (!pageId || !(await publicPageOpen(pageId))) return NOT_FOUND;
@@ -174,6 +178,17 @@ export function adminListPublicPages(): AdminPublicRow[] {
         indexing: !!p.allow_search_engine_indexing,
         takenDown: down.has(b.id),
         reports: reps.filter((x) => x.page_id === b.id).slice(0, 20).map((x) => ({ reason: x.reason, time: Number(x.created_time) })),
+      });
+    }
+    // 2026-11-15 공개 폼(「누구나(공개)」 폼 보기)도 같은 목록에 — 내리기 키는 폼 보기 id
+    const views = db.prepare(`SELECT id FROM records WHERE tbl = 'collection_view' AND alive = 1 AND data LIKE '%"permission":"public"%' LIMIT 2000`).all() as { id: string }[];
+    for (const v of views) {
+      const f = publicFormInfo(v.id);
+      if (!f) continue;
+      out.push({
+        pageId: f.viewId, title: `📝 폼: ${f.title}`, ownerId: f.ownerId, publishedTime: null, indexing: false,
+        takenDown: down.has(f.viewId),
+        reports: reps.filter((x) => x.page_id === f.viewId).slice(0, 20).map((x) => ({ reason: x.reason, time: Number(x.created_time) })),
       });
     }
     return out.sort((a, b) => (b.reports.length - a.reports.length) || ((b.publishedTime ?? 0) - (a.publishedTime ?? 0))).slice(0, 500);

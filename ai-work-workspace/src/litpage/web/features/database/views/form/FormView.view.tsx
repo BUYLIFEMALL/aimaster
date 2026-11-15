@@ -351,6 +351,21 @@ function ShareMenu({ viewId, collectionId }: { viewId: string; collectionId: str
         }, { placement: 'bottom-end' })} />
         <SettingsRow icon="user" label={tx('Anonymous submissions')} chevron={false} disabled={perm === 'public'} right={<Toggle on={perm === 'public' || !!cfg.anonymous} disabled={perm === 'public'} onChange={(v) => save({ ...cfg, anonymous: v }, 'FormShareMenu.setAnonymous')} />} onClick={() => perm !== 'public' && save({ ...cfg, anonymous: !cfg.anonymous }, 'FormShareMenu.setAnonymous')} />
       </div>
+      {perm === 'public' && (
+        // 이식판 2026-11-15 공개 폼: 응답자에게 보이는 개인정보 수집·이용 동의 문구(수집 항목은 질문에서 자동, 목적·보관 기간은 여기서 고침)
+        <div className="nc-menu-section" data-testid="form-consent-settings" style={{ padding: '6px 12px', fontSize: 12 }}>
+          <div style={{ fontWeight: 600, marginBottom: 4 }}>개인정보 수집·이용 동의 문구</div>
+          <div style={{ opacity: 0.75, marginBottom: 6 }}>로그인 없이 응답하는 사람은 아래 내용에 동의해야 제출할 수 있습니다. 수집 항목은 질문에서 자동으로 채웁니다. 응답자당 1분 5번, 하루 300건까지 받습니다.</div>
+          <label style={{ display: 'block', marginBottom: 4 }}>수집 목적
+            <input defaultValue={cfg.awwConsentPurpose ?? ''} placeholder={`「${cfg.title?.trim() || '폼'}」 응답 확인과 연락`} maxLength={200} style={{ width: '100%' }}
+              onBlur={(e) => { const v = e.currentTarget.value.trim(); if (v !== (cfg.awwConsentPurpose ?? '')) save({ ...cfg, awwConsentPurpose: v }, 'FormShareMenu.setConsentPurpose'); }} />
+          </label>
+          <label style={{ display: 'block' }}>보관 기간
+            <input defaultValue={cfg.awwConsentRetention ?? ''} placeholder="목적을 이룰 때까지(폼 운영자가 지울 때까지)" maxLength={200} style={{ width: '100%' }}
+              onBlur={(e) => { const v = e.currentTarget.value.trim(); if (v !== (cfg.awwConsentRetention ?? '')) save({ ...cfg, awwConsentRetention: v }, 'FormShareMenu.setConsentRetention'); }} />
+          </label>
+        </div>
+      )}
       <div className="nc-form-share-link">
         <input readOnly value={formLink(viewId)} onFocus={(e) => e.currentTarget.select()} aria-label={tx('Form link')} />
         <div role="button" className="nc-form-btn primary small" data-testid="copy-form-link" onClick={copy}>{copied ? tx('Copied') : tx('Copy the form link')}</div>
