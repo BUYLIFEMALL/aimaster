@@ -9,17 +9,19 @@ import { parseSearch, planSearch, runWebSearch, runWebSearchTool, setWebSearchFe
 const NAVER = { naver_client_id: 'id', naver_client_secret: 'sec' };
 
 describe('검색 고르기', () => {
-  it('자동·내장: Claude·OpenAI는 내장, Gemini는 등록된 외부 검색을 차례로', () => {
+  it('자동·내장: Claude·OpenAI·Gemini(구글 검색) 모두 내장, 모델을 모르면 등록된 외부 검색을 차례로', () => {
     expect(planSearch('auto', 'anthropic', NAVER)).toBe('builtin');
     expect(planSearch('builtin', 'openai', {})).toBe('builtin');
-    expect(planSearch('auto', 'gemini', { kakao_rest_api_key: 'k', serpapi: 's' })).toBe('kakao');
-    expect(planSearch('auto', 'gemini', {})).toBeNull();
+    expect(planSearch('auto', 'gemini', { kakao_rest_api_key: 'k' })).toBe('builtin');
+    expect(planSearch('auto', null, { kakao_rest_api_key: 'k', serpapi: 's' })).toBe('kakao');
+    expect(planSearch('auto', null, {})).toBeNull();
   });
   it('직접 고른 서비스: 키가 있으면 그것, 없으면 내장 → 다른 외부 키', () => {
     expect(planSearch('perplexity', 'anthropic', { perplexity: 'p' })).toBe('perplexity');
     expect(planSearch('perplexity', 'anthropic', {})).toBe('builtin');
-    expect(planSearch('tavily', 'gemini', NAVER)).toBe('naver');
-    expect(planSearch('naver', 'gemini', { naver_client_id: 'only-id' })).toBeNull(); // 네이버는 두 키가 다 있어야
+    expect(planSearch('tavily', null, NAVER)).toBe('naver');
+    expect(planSearch('naver', null, { naver_client_id: 'only-id' })).toBeNull(); // 네이버는 두 키가 다 있어야
+    expect(planSearch('kakao', 'gemini', { kakao_rest_api_key: 'k' })).toBe('kakao'); // 직접 고르면 Gemini도 그 외부 검색
   });
 });
 

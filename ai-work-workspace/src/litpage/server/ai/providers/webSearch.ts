@@ -1,7 +1,7 @@
 // 2026-11-15 AI 비서 「검색 도구 고르기」(플랜 docs/PLAN_20261115_SEARCH_TOOL_CHOICE.md, 주인님 「여러 가지 검색 도구를 제시」).
 // · 회원 본인 키만(공용 user_api_keys — 다른 프로그램에서 등록한 키 그대로). 운영자 키 없음, 다른 회원 키로 대신하지 않음.
 // · 외부 검색은 모델 종류와 상관없이 「web_search」 함수 도구로 넣고 서버가 실행한다 → Claude·OpenAI·Gemini 모두 같은 방식.
-// · 「자동」: Claude·OpenAI는 모델 내장 검색, Gemini(내장 검색 아직 미연결)는 등록된 외부 검색 키를 차례로.
+// · 「자동」: 모델 내장 검색(Claude·OpenAI 내장, Gemini는 구글 검색 — 2026-11-15 연결). 내장이 없을 때만 등록된 외부 검색 키를 차례로.
 // · 키 값은 기록에 남기지 않는다. 결과는 제목·주소·요약 최대 8개.
 import { memberSearch } from './config.ts';
 
@@ -29,10 +29,10 @@ export const hasSearchKeys = (keys: Partial<Record<string, string>>, s: External
 
 /**
  * 이번 대화에서 쓸 검색: 'builtin'(모델 내장 서버 도구) · 외부 검색 이름 · null(검색 없음).
- * modelProvider: 지금 모델의 회사. 내장 검색은 anthropic·openai만(Gemini 내장은 미연결).
+ * modelProvider: 지금 모델의 회사. 내장 검색은 anthropic·openai·gemini(구글 검색).
  */
 export function planSearch(choice: SearchChoice, modelProvider: string | null | undefined, keys: Partial<Record<string, string>>): 'builtin' | ExternalSearch | null {
-  const builtinOk = modelProvider === 'anthropic' || modelProvider === 'openai';
+  const builtinOk = modelProvider === 'anthropic' || modelProvider === 'openai' || modelProvider === 'gemini'; // 2026-11-15 Gemini 구글 검색 연결
   const firstExternal = EXTERNAL_ORDER.find((s) => hasSearchKeys(keys, s)) ?? null;
   if (choice === 'auto' || choice === 'builtin') return builtinOk ? 'builtin' : firstExternal;
   if (hasSearchKeys(keys, choice)) return choice;

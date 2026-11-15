@@ -17,8 +17,8 @@ export function readSearchChoice(userId: string): SearchChoice {
 }
 
 const NOTE: Record<SearchChoice, string> = {
-  auto: "Claude·OpenAI 키는 모델 내장 검색, Gemini 키는 아래에 등록된 검색 키를 차례로 씁니다.",
-  builtin: "Claude·OpenAI가 가진 검색(회원 AI 키 요금). Gemini는 등록된 검색 키로 대신합니다.",
+  auto: "AI 모델이 가진 검색을 씁니다(Claude·OpenAI 내장, Gemini는 구글 검색). 회원 AI 키 요금.",
+  builtin: "Claude·OpenAI 내장 검색, Gemini는 구글 검색(유료 등급 키 월 5,000회 무료 뒤 1,000회당 $14).",
   naver: "국내 웹문서에 강함 · 무료(하루 한도)",
   kakao: "다음 웹문서 · 무료(하루 한도)",
   tavily: "AI용 검색 · 요약 포함 · 무료 한도 뒤 사용량 과금",
@@ -32,7 +32,7 @@ export const searchPrefHandlers: Record<string, (ctx: Ctx, body: any) => unknown
     if (!ctx.userId) throw new ApiError("Unauthorized", 401);
     const keys = await loadMemberAiKeys(ctx.userId).catch(() => ({}) as Awaited<ReturnType<typeof loadMemberAiKeys>>);
     const sk = keys.search?.keys ?? {};
-    const hasAi = !!(keys.anthropicKey || keys.openaiKey);
+    const hasAi = !!(keys.anthropicKey || keys.openaiKey || keys.geminiKey);
     return {
       selected: readSearchChoice(ctx.userId),
       options: SEARCH_CHOICES.map((id) => ({

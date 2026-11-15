@@ -6,7 +6,7 @@
 //   system → systemInstruction · user 글/이미지(base64)/PDF → text / inlineData · tool_result → functionResponse
 //   assistant 글 / tool_use → model text / functionCall(+ 받은 thoughtSignature를 그대로 되돌려 보냄 — Gemini 3 필수)
 //   client tools → functionDeclarations(parametersJsonSchema로 JSON 스키마 그대로) · web_fetch 서버 도구 → 어댑터가
-//   직접 읽는 `web_fetch` 함수(OpenAI 어댑터와 같은 safefetch 사용) · web_search → 1차에서는 쓰지 않음
+//   직접 읽는 `web_fetch` 함수(OpenAI 어댑터와 같은 safefetch 사용) · web_search → google_search(2026-11-15, 함수 도구와 함께면 includeServerSideToolInvocations)
 //   output_config.effort → thinkingConfig(Gemini 3 계열만) · cache_control / betas / fallbacks / mcp_servers → 버림
 type Json = Record<string, any>;
 
@@ -110,6 +110,8 @@ function buildContents(messages: Json[], names: GeminiNames, known: Set<string>)
           const api = names.api(String(b.name));
           callName.set(String(b.id), api);
           push('model', [functionCallPart(api, b.input, g?.signature)]);
+        } else if (b.type === 'server_tool_use' && Array.isArray(g?.raw)) {
+          push('model', g.raw as Json[]); // 2026-11-15 구글 검색 toolCall·toolResponse 원래 조각(서명 포함)을 그대로
         } else if (b.type === 'server_tool_use' && g?.fetch) {
           callName.set(String(b.id), GEMINI_WEB_FETCH);
           push('model', [functionCallPart(GEMINI_WEB_FETCH, b.input, g?.signature)]);
@@ -159,7 +161,8 @@ export function buildGeminiRequest(params: Json, model: string): GeminiRequest &
 
   const decls: Json[] = [];
   let webFetch: GeminiWebFetch | null = null;
-  let webSearchDropped = false;
+  const webSearchDropped = false;
+  let googleSearch = false;
   const clientNames = new Set<string>();
   for (const t of Array.isArray(params.tools) ? params.tools : []) {
     const type = typeof t?.type === 'string' ? t.type : '';
@@ -168,7 +171,7 @@ export function buildGeminiRequest(params: Json, model: string): GeminiRequest &
       clientNames.add(t.name);
       decls.push({ name: names.api(t.name), description: String(t.description ?? ''), parametersJsonSchema: t.input_schema ?? { type: 'object', properties: {} } });
     } else if (type.startsWith('web_search_')) {
-      webSearchDropped = true;
+      googleSearch = true; // 2026-11-15: 구글 검색(google_search)으로 — 실제 호출 확인(검색어·출처 groundingMetadata)
     } else if (type.startsWith('web_fetch_')) {
       webFetch = { allowedDomains: domains(t.allowed_domains), blockedDomains: domains(t.blocked_domains), maxUses: Math.max(1, Math.min(20, Number(t.max_uses) || 5)), maxChars: Math.max(4_000, Math.min(200_000, (Number(t.max_content_tokens) || 20_000) * 4)) };
     }
@@ -189,7 +192,13 @@ export function buildGeminiRequest(params: Json, model: string): GeminiRequest &
   const body: Json = {
     contents,
     ...(instructions ? { systemInstruction: { parts: [{ text: instructions }] } } : {}),
-    ...(decls.length ? { tools: [{ functionDeclarations: decls }], toolConfig: { functionCallingConfig: { mode } } } : {}),
+    // 2026-11-15 구글 검색 + 함수 도구를 함께 쓰려면 includeServerSideToolInvocations가 필요(공식 오류 문구로 확인)
+    ...(decls.length || googleSearch
+      ? {
+          tools: [...(googleSearch ? [{ google_search: {} }] : []), ...(decls.length ? [{ functionDeclarations: decls }] : [])],
+          ...(decls.length ? { toolConfig: { functionCallingConfig: { mode }, ...(googleSearch ? { includeServerSideToolInvocations: true } : {}) } } : {}),
+        }
+      : {}),
     generationConfig: {
       ...(Number(params.max_tokens) > 0 ? { maxOutputTokens: Math.min(Number(params.max_tokens), 65_536) } : {}),
       ...(thinking ? { thinkingConfig: thinking } : {}),
@@ -220,6 +229,9 @@ export class GeminiTranslator {
   private finish = '';
   private refused = false;
   private pendingFetches: PendingGeminiFetch[] = [];
+  /** 2026-11-15 이번 요청의 구글 검색 단계 블록 위치·출처 처리 여부 */
+  private searchIndex = -1;
+  private searchDone = false;
   readonly usage = { input_tokens: 0, output_tokens: 0, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 };
   private roundUsage = { input: 0, output: 0, cached: 0 };
   modelVersion = '';
@@ -236,6 +248,8 @@ export class GeminiTranslator {
     this.emittedRound = false;
     this.roundUsage = { input: 0, output: 0, cached: 0 };
     this.finish = '';
+    this.searchIndex = -1;
+    this.searchDone = false;
   }
 
   start(): Json[] {
@@ -297,6 +311,22 @@ export class GeminiTranslator {
         if (part.thoughtSignature) block._gemini = { signature: String(part.thoughtSignature) };
         out.push({ type: 'content_block_delta', index: this.textIndex, delta: { type: 'text_delta', text: part.text } });
         this.emittedRound = true;
+      } else if (part.toolCall || part.toolResponse) {
+        // 2026-11-15 구글 검색(서버 쪽 도구) 실행 조각: 「검색 중」 단계로 보여 주고 원래 조각은 보관(다음 요청에 그대로)
+        out.push(...this.closeText());
+        this.emittedRound = true;
+        if (part.toolCall || this.searchIndex < 0) {
+          const args = (part.toolCall?.args ?? {}) as Json;
+          const q = Array.isArray(args.queries) ? args.queries.join(' · ') : typeof args.query === 'string' ? args.query : '';
+          const id = newCallId();
+          this.content.push({ type: 'server_tool_use', id, name: 'web_search', input: { query: q }, _gemini: { raw: [part] } });
+          this.searchIndex = this.content.length - 1;
+          out.push({ type: 'content_block_start', index: this.searchIndex, content_block: { type: 'server_tool_use', id, name: 'web_search', input: {} } });
+          out.push({ type: 'content_block_delta', index: this.searchIndex, delta: { type: 'input_json_delta', partial_json: JSON.stringify({ query: q }) } });
+          out.push({ type: 'content_block_stop', index: this.searchIndex });
+        } else {
+          (this.content[this.searchIndex]._gemini.raw as Json[]).push(part);
+        }
       } else if (part.functionCall) {
         out.push(...this.closeText());
         const fc = part.functionCall;
@@ -323,6 +353,24 @@ export class GeminiTranslator {
         out.push({ type: 'content_block_delta', index: idx, delta: { type: 'input_json_delta', partial_json: JSON.stringify(args) } });
         out.push({ type: 'content_block_stop', index: idx });
       }
+    }
+    // 2026-11-15 구글 검색 출처(마지막 조각) → 「검색함」 결과 블록
+    const gm = cand.groundingMetadata;
+    if (gm && Array.isArray(gm.groundingChunks) && gm.groundingChunks.length && this.searchIndex >= 0 && !this.searchDone) {
+      this.searchDone = true;
+      out.push(...this.closeText());
+      const call = this.content[this.searchIndex];
+      const results = gm.groundingChunks
+        .map((c: Json) => c?.web)
+        .filter((w: Json) => w && typeof w.uri === 'string')
+        .slice(0, 10)
+        .map((w: Json) => ({ type: 'web_search_result', url: String(w.uri), title: String(w.title ?? w.uri) }));
+      const block = { type: 'web_search_tool_result', tool_use_id: call.id, content: results };
+      this.content.push(block);
+      const idx = this.content.length - 1;
+      out.push({ type: 'content_block_start', index: idx, content_block: block });
+      out.push({ type: 'content_block_stop', index: idx });
+      if (!(call.input as Json)?.query && Array.isArray(gm.webSearchQueries)) (call.input as Json).query = gm.webSearchQueries.join(' · ');
     }
     if (cand.finishReason) {
       this.finish = String(cand.finishReason);

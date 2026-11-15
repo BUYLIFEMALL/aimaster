@@ -47,3 +47,8 @@
 
 ### 다음 단계
 - 「검색 도구 고르기」(`docs/PLAN_20261115_SEARCH_TOOL_CHOICE.md`)의 「모델 내장 검색」 선택지에 Gemini `google_search`를 넣는다. 구현 때 설정을 켠 호출 1회로 함수 도구 조합을 확인한다(주인님 승인 필요).
+
+## 7. 연결 (2026-11-15, 주인님 「진행해」)
+- 확인 호출 1회(스트리밍, `toolConfig.includeServerSideToolInvocations: true` + 함수 도구): ✅ 200. 응답 조각 순서 `toolCall` → `toolResponse` → 글 → 마지막 조각 `groundingMetadata`(검색어 2·출처 2, moel.go.kr), 답 「시급 10,320원」.
+- 어댑터(`geminiTranslate.ts`): web_search 서버 도구 → `{google_search:{}}`(함수 도구가 있으면 설정 켬), `toolCall`·`toolResponse` → 「검색 중」 단계 블록(원래 조각·서명 보관, 다음 요청에 그대로), `groundingMetadata` → `web_search_tool_result`(출처). `webSearch.ts` 「자동·내장」에 Gemini 포함.
+- 시험: gemini.test.ts 기대값 갱신 + 구글 검색 응답 변환 시험 추가.

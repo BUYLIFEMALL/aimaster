@@ -1,7 +1,7 @@
 // U4: Gemini 제공자 — 요청 변환·스트림 글자·도구 호출 왕복(생각 서명)·오류 문구·재시도·키가 주소에 안 들어감·
 // 모델 목록(기본 Flash·빠른 작업 Flash-Lite)·모델별 제공자 선택. 모두 가짜 fetch로 돌며 실제 Google 서버에는 가지 않는다(비용 없음).
 import { afterEach, describe, expect, it } from 'vitest';
-import { buildGeminiRequest } from '@/litpage/server/ai/providers/geminiTranslate.ts';
+import { buildGeminiRequest, GeminiTranslator } from '@/litpage/server/ai/providers/geminiTranslate.ts';
 import { geminiClient, geminiError } from '@/litpage/server/ai/providers/gemini.ts';
 import { parseGeminiModels, pickGemini, setGeminiModelsFetch, warmGeminiModels } from '@/litpage/server/ai/providers/geminiModels.ts';
 import { availableProviders, providerForModel, scrub, withMemberAiKeys } from '@/litpage/server/ai/providers/config.ts';
@@ -48,7 +48,7 @@ async function collect(stream: any) {
 const textOf = (events: Json[]) => events.filter((e) => e.delta?.type === 'text_delta').map((e) => e.delta.text).join('');
 
 describe('Gemini 요청 변환(U4)', () => {
-  it('지시문·도구·글자 수 한도를 Gemini 형식으로 바꾸고 웹 검색은 뺀다', () => {
+  it('지시문·도구·글자 수 한도를 Gemini 형식으로 바꾸고, 웹 검색은 구글 검색으로(2026-11-15)', () => {
     const r = buildGeminiRequest({
       model: 'gemini-3-flash',
       system: [{ type: 'text', text: '당신은 AI 비서입니다.' }],
@@ -63,9 +63,11 @@ describe('Gemini 요청 변환(U4)', () => {
     }, 'gemini-3-flash');
     expect(r.body.systemInstruction).toEqual({ parts: [{ text: '당신은 AI 비서입니다.' }] });
     expect(r.body.contents).toEqual([{ role: 'user', parts: [{ text: '안녕하세요' }] }]);
-    expect(r.body.tools[0].functionDeclarations.map((d: Json) => d.name)).toEqual(['create_page', 'web_fetch']);
+    expect(r.body.tools[0]).toEqual({ google_search: {} });
+    expect(r.body.tools[1].functionDeclarations.map((d: Json) => d.name)).toEqual(['create_page', 'web_fetch']);
+    expect(r.body.toolConfig).toMatchObject({ includeServerSideToolInvocations: true }); // 함수 도구와 함께 쓸 때 필수
     expect(r.body.generationConfig).toEqual({ maxOutputTokens: 65_536, thinkingConfig: { thinkingLevel: 'low' } });
-    expect(r.webSearchDropped).toBe(true);
+    expect(r.webSearchDropped).toBe(false);
     expect(r.webFetch?.maxUses).toBe(3);
   });
 
@@ -255,5 +257,32 @@ describe('Gemini 모델 목록과 제공자 선택(U4)', () => {
       expect(models.autoModel()).toBe('gemini-flash-lite-latest');
       expect(models.fastModel()).toBe('gemini-flash-lite-latest');
     });
+  });
+});
+
+// 2026-11-15 구글 검색 응답(실제 호출에서 본 순서: toolCall → toolResponse → 글 → 마지막 조각 groundingMetadata)
+describe('Gemini 구글 검색 응답 변환', () => {
+  it('검색 중 단계·출처 결과 블록을 만들고, 원래 조각(서명 포함)을 다음 요청에 그대로 되돌려 보낸다', () => {
+    const req = buildGeminiRequest({ messages: [{ role: 'user', content: '최저임금' }], tools: [{ type: 'web_search_20250305', name: 'web_search' }] }, 'gemini-3.8-flash');
+    expect(req.body.tools).toEqual([{ google_search: {} }]); // 함수 도구가 없으면 설정 없이 검색만
+    const t = new GeminiTranslator(req.names, 'gemini-3.8-flash');
+    t.beginRound();
+    const ev: Json[] = [];
+    ev.push(...t.handle({ candidates: [{ content: { parts: [{ toolCall: { args: { queries: ['2026 최저임금'] } }, thoughtSignature: 'SIG1' }] } }] }));
+    ev.push(...t.handle({ candidates: [{ content: { parts: [{ toolResponse: { output: '…' }, thoughtSignature: 'SIG2' }] } }] }));
+    ev.push(...t.handle({ candidates: [{ content: { parts: [{ text: '시급은 10,320원입니다.' }] } }] }));
+    ev.push(...t.handle({ candidates: [{ content: { parts: [{ text: '' }] }, finishReason: 'STOP', groundingMetadata: { webSearchQueries: ['2026 최저임금'], groundingChunks: [{ web: { uri: 'https://vertexaisearch.cloud.google.com/x', title: 'moel.go.kr' } }] } }] }));
+    const starts = ev.filter((e) => e.type === 'content_block_start').map((e) => e.content_block.type);
+    expect(starts).toEqual(['server_tool_use', 'text', 'web_search_tool_result']);
+    const call = t.content.find((b) => b.type === 'server_tool_use');
+    expect(call.input).toEqual({ query: '2026 최저임금' });
+    expect(call._gemini.raw.map((p: Json) => p.thoughtSignature)).toEqual(['SIG1', 'SIG2']);
+    const res = t.content.find((b) => b.type === 'web_search_tool_result');
+    expect(res).toMatchObject({ tool_use_id: call.id, content: [{ type: 'web_search_result', title: 'moel.go.kr' }] });
+    // 다음 요청: 원래 조각을 같은 순서로
+    const next = buildGeminiRequest({ messages: [{ role: 'user', content: '최저임금' }, { role: 'assistant', content: t.content }, { role: 'user', content: '고마워' }] }, 'gemini-3.8-flash');
+    const modelParts = next.body.contents.find((c: Json) => c.role === 'model').parts;
+    expect(modelParts.slice(0, 2).map((p: Json) => Object.keys(p).filter((k) => k !== 'thoughtSignature')[0])).toEqual(['toolCall', 'toolResponse']);
+    expect(modelParts[2].text).toBe('시급은 10,320원입니다.');
   });
 });
