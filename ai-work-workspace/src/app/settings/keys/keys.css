@@ -24,3 +24,14 @@
 button.aww-btn { font: inherit; cursor: pointer; }
 button.aww-btn:not(.primary) { background: var(--lp-bg-secondary, transparent); color: var(--lp-text-primary, inherit); }
 button.aww-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* 2026-11-15 AI 비서 웹 검색 도구 고르기 */
+.aww-search-card { grid-column: 1 / -1; }
+.aww-search-opts { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; margin: 8px 0; }
+.aww-search-opt { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--lp-border-primary); cursor: pointer; }
+.aww-search-opt.on { border-color: #4f46e5; background: color-mix(in srgb, #4f46e5 8%, transparent); }
+.aww-search-opt > span { display: flex; flex-direction: column; gap: 2px; font-size: 13.5px; }
+.aww-search-opt small { font-size: 12px; color: var(--lp-text-tertiary); line-height: 1.5; }
+.aww-search-ok { font-size: 12px; color: #059669; }
+.aww-search-no { font-size: 12px; color: var(--lp-text-tertiary); }
+@media (max-width: 767px) { .aww-search-opts { grid-template-columns: 1fr; } }

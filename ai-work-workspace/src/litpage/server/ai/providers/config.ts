@@ -29,6 +29,13 @@ export interface MemberAiKeys {
   geminiKey?: string;
   /** 2026-11-14 주인님 「플랫폼별 모델을 선택할 수 있게」: 회원이 고른 플랫폼별 기본 모델(회원 설정 aww_ai_models) — 「자동」일 때 그 플랫폼에서 쓴다 */
   models?: Partial<Record<'anthropic' | 'openai' | 'gemini', string>>;
+  /** 2026-11-15 「검색 도구 고르기」: 회원이 고른 검색(회원 설정 aww_search_tool)과 공용 user_api_keys의 검색 키(webSearch.ts SEARCH_KEY_PROVIDERS) */
+  search?: { choice: string; keys: Partial<Record<string, string>> };
+}
+
+/** 2026-11-15 지금 요청 회원의 검색 선택·검색 키(없으면 null) */
+export function memberSearch(): { choice: string; keys: Partial<Record<string, string>> } | null {
+  return memberKeys.getStore()?.search ?? null;
 }
 const memberKeys = new AsyncLocalStorage<MemberAiKeys>();
 

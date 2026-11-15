@@ -25,6 +25,8 @@ import {
 } from './threads.ts';
 import { effectiveApprovalMode, userAiPrefs, workspaceAiPolicy, type ApprovalMode } from './aiPolicy.ts';
 import { autoEffort, capabilities, modelLabel, resolveModel, webToolDefs, type TaskKind } from './models.ts';
+import { searchPlanFor, runWebSearchTool, WEB_SEARCH_TOOL } from './providers/webSearch.ts'; // 2026-11-15 검색 도구 고르기
+import { providerForModel as providerOfModel } from './providers/config.ts';
 import { waitForApproval } from './approvals.ts';
 import { turnChanges, type TouchedPage } from './changes.ts';
 import { fileResolver, prepareAttachments } from './attachments.ts';
@@ -372,7 +374,9 @@ export async function executeChatTurn(prep: PreparedChat, ev: TurnEvents = {}, s
   // web only; Research reads only): their tools are client tools this server runs, so approvals apply (.x)
   const litOnly = scope?.kind === 'workspace' || scope?.kind === 'page' || scope?.kind === 'teamspace';
   const mcpTools = mode !== 'ask' && !litOnly && scope?.kind !== 'web' ? chatMcpTools(p.userId, p.spaceId, p.connections ?? null, { readOnly: mode === 'research' }) : null;
+  let externalSearchRun: ((input: Record<string, unknown>, id: string) => Promise<{ content: string }>) | null = null;
   const executeTool = async (name: string, input: Record<string, unknown>, id: string) => {
+    if (name === 'web_search' && externalSearchRun) return externalSearchRun(input, id);
     const mcpTool = mcpTools?.map.get(name);
     if (mcpTool) return runChatMcpTool(env, mcpTool, input, id);
     if (name === 'search_workspace') ev.status?.({ phase: 'searching', detail: String(input.query ?? '') });
@@ -394,8 +398,16 @@ export async function executeChatTurn(prep: PreparedChat, ev: TurnEvents = {}, s
   if (mcpTools?.defs.length) req.tools = [...(req.tools ?? []), ...mcpTools.defs.map((d) => ({ ...d, eager_input_streaming: true }) as never)];
   // sources: workspace only / one page / one teamspace -> no web, no connected apps; Web only -> web on
   const webOn = (scope?.kind === 'web' || ((p.web ?? false) && !litOnly)) && policy.webSearch;
-  const serverTools: Record<string, unknown>[] = webOn ? webToolDefs(model, { fetch: !policy.webConfirm }) : [];
+  // 2026-11-15 검색 도구 고르기: 회원이 고른 외부 검색(네이버·카카오·Tavily·Perplexity·SerpAPI)이면 「web_search」 함수 도구로(모든 모델 공통),
+  // 모델 내장이면 지금처럼 서버 도구. 페이지 읽기(web_fetch)는 그대로.
+  const searchPlan = webOn ? searchPlanFor(providerOfModel(model)) : null;
+  const externalSearch = searchPlan && searchPlan !== 'builtin' ? searchPlan : null;
+  const serverTools: Record<string, unknown>[] = webOn ? webToolDefs(model, { fetch: !policy.webConfirm }).filter((d) => searchPlan === 'builtin' || d.name !== 'web_search') : [];
   if (serverTools.length) req.serverTools = serverTools;
+  if (externalSearch) {
+    req.tools = [...(req.tools ?? []), WEB_SEARCH_TOOL as never];
+    externalSearchRun = (input, id) => runWebSearchTool(externalSearch, input, id, { step: emitStep as never, cite: (r) => cite({ url: r.url, title: r.title }), status: (q) => ev.status?.({ phase: 'searching', detail: q }) });
+  }
 
   const serverCalls = new Map<string, { name: string; detail: string }>();
   let result: RunResult | null = null;

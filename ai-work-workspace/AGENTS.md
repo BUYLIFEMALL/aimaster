@@ -2,7 +2,7 @@
 
 - 주소: https://ai-work-workspace.buylife.xyz · 메인 상세: https://www.buylife.xyz/programs/ai-work-workspace
 - 카테고리: **업무자동화**(2026-10-24 신설) · 이용 권한: 최소 등급 「일반」, FREE 없음(일반 등급 이상 + 관리자 사용기간 또는 구독)
-- 현재 버전: **v1.42** (13번 스마트 프로 인디고 워크스페이스 스타일) · 화면 버전은 **`src/lib/version.ts` 한 곳**만 올린다(왼쪽 메뉴 `AimasterSidebar.tsx`가 불러 씀, 2026-11-14부터 · 시험 명령 `npx vitest run --config tests/vitest.config.mjs` 155개)
+- 현재 버전: **v1.43** (13번 스마트 프로 인디고 워크스페이스 스타일) · 화면 버전은 **`src/lib/version.ts` 한 곳**만 올린다(왼쪽 메뉴 `AimasterSidebar.tsx`가 불러 씀, 2026-11-14부터 · 시험 명령 `npx vitest run --config tests/vitest.config.mjs` 155개)
 - **🔁 최신 인수인계(2026-11-13, v1.30~v1.35 + 미배포 묶음): 아래 §3 「지금 열린 기능」·§4·§5, 플랜 [`docs/PLAN_20261113_U14_AND_DEFERRED.md`](docs/PLAN_20261113_U14_AND_DEFERRED.md)**
 - 원본: [litmers-dev/litpage](https://github.com/litmers-dev/litpage) 커밋 `81665d4` (MIT, © 씨그로 주식회사(리트머스)) — `LICENSE`·`THIRD_PARTY_NOTICES.md` 유지. 화면 이름 「Litpage」는 주인님 지시로 「Workspace」, 「Litpage AI」는 「AIMaster」로 모두 바꿈(2026-10-24).
 - **🔁 인수인계(2026-11-06, 받아쓰기 엔진 선택·v1.22 배포·모델 교체 7개 배포 준비): [`docs/IMPROVEMENT_HANDOFF_20261106_STT_DEPLOY.md`](docs/IMPROVEMENT_HANDOFF_20261106_STT_DEPLOY.md)** — 남은 것: 배포 기록 정리, OpenAI 실제 받아쓰기 확인, 모델 교체 7개 배포(명령은 주인님 `!` 실행).
@@ -35,6 +35,7 @@
 ## 4. 버전·변경 이력
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| v1.43 | 2026-11-15 | AI 비서·에이전트 **「🔎 웹 검색 도구」 고르기** — 자동 · AI 모델 내장 · 네이버 · 카카오(다음) · Tavily · Perplexity · 구글(SerpAPI). 외부 검색은 「web_search」 함수 도구로 모든 모델 공통(Gemini 키 회원도 검색 가능), 회원 본인 키(공용 user_api_keys 그대로), 설정 `user_settings.aww_search_tool`, 화면 키 화면 카드. 코드 `src/litpage/server/ai/providers/webSearch.ts`·`src/server/searchPrefs.ts`. 시험 171개. 플랜 `docs/PLAN_20261115_SEARCH_TOOL_CHOICE.md`. Gemini 내장 구글 검색(`google_search`)은 다음 단계 |
 | v1.42 | 2026-11-15 | 받은 업무 「🧾 세금계산서 초안」(회원 AI 키로 주문·견적 글에서 거래처·품목·금액을 읽어 영수증·세금계산서 발행 칸에 채움, `a8a495cbf`) · 「📊 표에 행으로 넣기」 넣을 표 고르기(`9b9f3bb11`) · 매뉴얼 「🔌 MCP·REST API」 단락(`5e591b63c`) |
 | v1.41 | 2026-11-15 | v1.40 운영 검수(시험 계정 테스트 키, 엣지)에서 찾은 수정: 수정발행 입력칸에 마이너스(-) 입력 가능(`a48a8e4cb`), 수정발행 카드 가로 넘침 해소, PDF는 같은 화면에서 바로 내려받기(볼타 주소가 attachment라 새 탭이 비던 문제), PDF는 발급한 키 종류로만 한국어 안내(`6e4314eb1`) |
 | v1.40 | 2026-11-15 | 볼타 **수정발행 5가지**(계약의 해제·착오에 의한 이중발급·공급가액 변동·환입·기재사항 착오정정 — 「발급 취소」는 계약의 해제·이중발급) + **발급 완료 PDF 내려받기**(원본·수정분·취소분). 서버 `btAmend`·`btAmendCheck`·`btPdf`(src/server/bolta.ts), 본문 순수 함수 `boltaAmendBody`(boltaCore.ts), 웹훅이 수정분·취소분 번호도 반영, 화면 `src/app/receipts/AmendPanel.tsx`(표 아래 카드). 이중 발급 방지 규칙은 정발행과 같음(요청 번호·본문 먼저 저장 → 불확실하면 다시 보내지 않고 번호로 조회). 실제 키는 동의 뒤에만. 시험 164개(+9). 함께 나간 것: 남은 영어 한국어화 `ed54706b1`·`f489ea353`. 플랜 `docs/PLAN_20261115_BOLTA_AMEND.md` |

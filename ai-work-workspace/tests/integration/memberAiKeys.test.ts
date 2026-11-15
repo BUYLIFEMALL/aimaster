@@ -40,7 +40,8 @@ describe('회원 본인 AI 키 읽기(U3)', () => {
   it('요청한 회원의 OpenAI·Claude·Gemini 줄만 읽고 Claude를 우선한다', async () => {
     const k = await mod.loadMemberAiKeys('alice');
     expect(k).toEqual({ anthropicKey: 'sk-ant-alice-own-key-0000000000', geminiKey: 'AIzaSyAlice-gemini-own-key-00000', provider: 'anthropic' });
-    expect(queries).toEqual([{ user: 'alice', providers: ['anthropic', 'openai', 'gemini'] }]);
+    // 2026-11-15 검색 도구 고르기: 같은 조회에서 회원 본인 검색 키(공용 저장소)도 함께 읽는다
+    expect(queries).toEqual([{ user: 'alice', providers: ['anthropic', 'openai', 'gemini', 'naver_client_id', 'naver_client_secret', 'kakao_rest_api_key', 'tavily', 'perplexity', 'serpapi'] }]);
   });
 
   it('다른 회원의 키를 대신 쓰지 않는다(키 없는 회원은 빈 값)', async () => {

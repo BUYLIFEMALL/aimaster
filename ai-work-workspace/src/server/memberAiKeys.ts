@@ -1,6 +1,9 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { MemberAiKeys } from "@/litpage/server/ai/providers/config.ts";
+import { SEARCH_KEY_PROVIDERS } from "@/litpage/server/ai/providers/webSearch.ts";
+
+const SEARCH_KEY_NAMES = [...new Set(Object.values(SEARCH_KEY_PROVIDERS).flat())];
 
 /**
  * U3(플랜 docs/PLAN_20261024_U3_MEMBER_AI_KEYS.md): 이 회원 본인의 AI 키만 공용 표 user_api_keys에서 읽는다.
@@ -19,15 +22,17 @@ export async function loadMemberAiKeys(userId: string): Promise<MemberAiKeys> {
     .from("user_api_keys")
     .select("provider, api_key")
     .eq("user_id", userId)
-    .in("provider", ["anthropic", "openai", "gemini"]);
+    .in("provider", ["anthropic", "openai", "gemini", ...SEARCH_KEY_NAMES]); // 2026-11-15 검색 도구 키도 함께(공용 저장소 그대로)
   if (error) throw new Error("본인 AI 키 등록 상태를 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.");
   const keys: MemberAiKeys = {};
+  const searchKeys: Record<string, string> = {};
   for (const row of data ?? []) {
     const value = typeof row.api_key === "string" ? row.api_key.trim() : "";
     if (!value) continue;
     if (row.provider === "anthropic") keys.anthropicKey = value;
     if (row.provider === "openai") keys.openaiKey = value;
     if (row.provider === "gemini") keys.geminiKey = value;
+    if ((SEARCH_KEY_NAMES as string[]).includes(row.provider)) searchKeys[row.provider] = value;
   }
   if (keys.anthropicKey) keys.provider = "anthropic";
   else if (keys.openaiKey) keys.provider = "openai";
@@ -40,6 +45,15 @@ export async function loadMemberAiKeys(userId: string): Promise<MemberAiKeys> {
   } catch {
     /* 설정 없음 */
   }
+  // 2026-11-15 검색 도구 고르기: 회원이 고른 검색(회원 설정 aww_search_tool) + 검색 키
+  // 고른 것도 키도 없으면 붙이지 않는다(키 없는 회원은 빈 값 그대로)
+  let choice = "auto";
+  try {
+    choice = (await import("./searchPrefs")).readSearchChoice(userId);
+  } catch {
+    /* 설정 없음 */
+  }
+  if (choice !== "auto" || Object.keys(searchKeys).length) keys.search = { choice, keys: searchKeys };
   cache.set(userId, { at: Date.now(), keys });
   return keys;
 }

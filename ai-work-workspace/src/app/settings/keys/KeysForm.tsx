@@ -101,6 +101,7 @@ export function KeysForm() {
           </div>
         ))}
         {g.providers.includes("anthropic") && <AiModelPrefs reloadTag={JSON.stringify(keys)} />}
+        {g.providers.includes("anthropic") && <SearchToolPrefs reloadTag={JSON.stringify(keys)} />}
       </div>
       </section>
         );
@@ -223,6 +224,53 @@ function AiModelPrefs({ reloadTag }: { reloadTag: string }) {
           <button className="aww-btn primary small" disabled={busy || !changed} onClick={() => void save()}>{busy ? "저장 중…" : "모델 저장"}</button>
         </div>
       )}
+      {msg && <p className="aww-key-msg">{msg}</p>}
+    </div>
+  );
+}
+
+// 2026-11-15 AI 비서 「🔎 웹 검색 도구」 고르기 — 키는 공용 저장소에 등록된 것 그대로(다른 프로그램에서 등록한 키 포함)
+interface SearchOpt { id: string; label: string; note: string; ready: boolean }
+function SearchToolPrefs({ reloadTag }: { reloadTag: string }) {
+  const [opts, setOpts] = useState<SearchOpt[] | null>(null);
+  const [sel, setSel] = useState("auto");
+  const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    rpc<{ selected: string; options: SearchOpt[] }>("awwSearchPrefs", {})
+      .then((r) => { setOpts(r.options); setSel(r.selected); })
+      .catch(() => setOpts([]));
+  }, [reloadTag]);
+  const save = async (id: string) => {
+    setBusy(true);
+    setMsg("");
+    try {
+      const r = await rpc<{ selected: string }>("awwSaveSearchPrefs", { choice: id });
+      setSel(r.selected);
+      setMsg("저장했습니다. 다음 대화부터 이 검색을 씁니다.");
+    } catch (e) {
+      setMsg((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  if (!opts?.length) return null;
+  return (
+    <div className="aww-key-card aww-search-card">
+      <div className="aww-key-head"><b>🔎 AI 비서 웹 검색 도구</b></div>
+      <p className="aww-key-desc">AI 비서·에이전트가 「웹 검색」을 할 때 쓸 서비스를 고르세요. 모두 회원님 본인 키로 검색하고, 요금은 그 서비스가 회원님 계정에 청구합니다. 키가 없는 서비스를 고르면 내장 검색 → 등록된 다른 검색 순서로 대신합니다.</p>
+      <div className="aww-search-opts" role="radiogroup" aria-label="웹 검색 도구">
+        {opts.map((o) => (
+          <label key={o.id} className={`aww-search-opt${sel === o.id ? " on" : ""}`}>
+            <input type="radio" name="aww-search" checked={sel === o.id} disabled={busy} onChange={() => void save(o.id)} />
+            <span>
+              <b>{o.label}</b> <span className={o.ready ? "aww-search-ok" : "aww-search-no"}>{o.ready ? "✅ 사용 가능" : "키 없음"}</span>
+              <small>{o.note}</small>
+            </span>
+          </label>
+        ))}
+      </div>
+      <p className="aww-key-desc">네이버·카카오·Tavily·Perplexity·SerpAPI 키는 메인 사이트 <a href="https://www.buylife.xyz/api-settings" target="_blank" rel="noreferrer">API 설정</a>(또는 그 키를 쓰는 다른 자동화 프로그램)에서 한 번 등록하면 여기서 그대로 씁니다.</p>
       {msg && <p className="aww-key-msg">{msg}</p>}
     </div>
   );

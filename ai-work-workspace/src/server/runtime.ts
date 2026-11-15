@@ -28,6 +28,7 @@ import { memberSpaceIds } from './workInbox';
 import './agentRuns'; // U12: 에이전트 백그라운드 실행을 주인 회원 본인 키로 감싸는 연결(불러오면 바로 설치됨)
 import { notifyPrefHandlers } from './externalNotify';
 import { aiModelPrefHandlers } from './aiModelPrefs'; // 2026-11-13: 자동화 알림·리마인더를 회원 본인 메일·카카오톡으로도(불러오면 바로 설치됨)
+import { searchPrefHandlers } from './searchPrefs'; // 2026-11-15 AI 비서 검색 도구 고르기
 
 type Handler = (ctx: Ctx, body: any) => any | Promise<any>;
 
@@ -141,6 +142,7 @@ const OVERRIDES: Record<string, Handler> = {
   ...boltaHandlers, // 2026-11-13: 볼타 세금계산서 발급(회원 본인 키)
   ...boltaWebhookHandlers, // 2026-11-13: 볼타 결과 자동 수신(웹훅 주소 만들기)
   ...notifyPrefHandlers, // 2026-11-13: 리마인더를 내 메일·카카오톡으로도(설정 읽기·저장)
+  ...searchPrefHandlers, // 2026-11-15 AI 비서 「🔎 웹 검색 도구」 고르기(읽기·저장)
   ...aiModelPrefHandlers, // 2026-11-14: AI 비서 플랫폼별 기본 모델(설정 읽기·저장)
   // 구글 캘린더 연동(2026-11-11, src/server/calendarSync.ts)
   ...calendarHandlers,

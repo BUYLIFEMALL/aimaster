@@ -23,6 +23,7 @@ import { addMessage, createThread, listMessages, markRead, setAutoTitle, setThre
 import { effectiveApprovalMode, userAiPrefs, workspaceAiPolicy, type ApprovalMode } from '../ai/aiPolicy.ts';
 import { autoEffort, capabilities, offeredModels, resolveModel, webToolDefs } from '../ai/models.ts';
 import { providerForModel } from '../ai/providers/config.ts';
+import { searchPlanFor, runWebSearchTool, WEB_SEARCH_TOOL } from '../ai/providers/webSearch.ts'; // 2026-11-15 검색 도구 고르기
 import { waitForApproval } from '../ai/approvals.ts';
 import { turnChanges, type TouchedPage } from '../ai/changes.ts';
 import { toolParams } from '../ai/tools/defs.ts';
@@ -604,9 +605,13 @@ async function runModel(agent: AgentRecord, run: RunRow, opts: ModelOptions): Pr
   // "Wait until available" retries with backoff, "Fail in case of outage" fails the run
   const fallbackMode = cfg.fallback ?? 'auto';
   const allowedModels = mp.allowed.length ? mp.allowed : policy.allowedModels;
+  // 2026-11-15 검색 도구 고르기: 주인 회원이 고른 외부 검색이면 「web_search」 함수 도구(모든 모델 공통), 내장이면 서버 도구
+  const searchPlan = webOn ? searchPlanFor(providerForModel(model)) : null;
+  const externalSearch = searchPlan && searchPlan !== 'builtin' ? searchPlan : null;
+  if (externalSearch) req.tools = [...(req.tools ?? []), WEB_SEARCH_TOOL as never];
   const buildWeb = () => {
     if (!webOn) return [];
-    const defs = webToolDefs(model, { fetch: webMode.fetch });
+    const defs = webToolDefs(model, { fetch: webMode.fetch }).filter((d) => !externalSearch || d.name !== 'web_search');
     return defs.map((d) => {
       if (d.name === 'web_search' && cfg.web_domains?.length) return { ...d, allowed_domains: cfg.web_domains };
       if (d.name === 'web_fetch' && !allowAll) return allowedHosts.size ? { ...d, allowed_domains: [...allowedHosts] } : null;
@@ -676,6 +681,7 @@ async function runModel(agent: AgentRecord, run: RunRow, opts: ModelOptions): Pr
   const allowed = new Set(names);
   const executeTool = async (name: string, input: Record<string, unknown>, id: string) => {
     toolsUsed.add(name.startsWith('mcp_') ? 'mcp' : name);
+    if (name === 'web_search' && externalSearch) return runWebSearchTool(externalSearch, input, id, { step: emitStep as never, cite: (r) => cite({ url: r.url, title: r.title }), status: (q) => ev.status?.({ phase: 'searching', detail: q }) });
     const own = await runAgentTool(ctx, env, name, input as Record<string, any>, id);
     if (own) return own;
     return runTool(env, name, input, id, allowed);
