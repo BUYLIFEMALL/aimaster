@@ -359,7 +359,8 @@ export async function executeChatTurn(prep: PreparedChat, ev: TurnEvents = {}, s
       ev.changes?.({ turnId, pages: touchedPages });
     },
     approve: async (req) => {
-      if (!needsApproval(approvalMode, req.risk)) return 'accept';
+      // AIMaster 2026-11-15: 바깥 MCP의 쓰기·삭제 도구는 「모두 건너뛰기」여도 항상 확인(읽기 도구는 원래 확인 없음)
+      if (req.tool !== 'mcp' && !needsApproval(approvalMode, req.risk)) return 'accept';
       const wait = waitForApproval(p.userId, thread.id, signal);
       const cur = steps.get(req.stepId);
       emitStep({ id: req.stepId, tool: req.tool, status: 'waiting', label: 'Awaiting your approval', detail: cur?.detail, refs: cur?.refs, approval: { id: wait.id, ...req.payload } });

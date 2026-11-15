@@ -31,7 +31,8 @@ const LATER_RPCS = new Set([
   // 단, 웹훅(바깥 호출, U14 판단)·에이전트(U12) 동작이 든 자동화는 아래 stageBodyBlock이 거절한다.
   // 회의록: U6-A(2026-10-24)에서 정지·요약, U6-B(2026-11-03)에서 음성 파일 받아쓰기(회원 Gemini·OpenAI 키)를 엶
   // U3 이후에도 닫음: 외부 연결·MCP(U14), AI 채팅 공유(협업 단계), AI 그림(U2 숨김 → ai-image-studio)
-  'aiListConnections', 'aiUpdateConnection', 'aiRemoveConnection', 'aiDisconnectAllConnections', 'aiUpdateMcpAllowlist',
+  // 2026-11-15(주인님 「둘 다 권장대로」): AI 채팅의 바깥 MCP 연결(목록·추가·수정·삭제·허용 주소)은 엶 — 호출 한도 litpage/server/aimasterMcpGuard.ts.
+  // 에이전트 연결(정시 실행 가능)·MCP 프리셋은 계속 닫음
   'aiShareThread', 'aiSharedThreads',
   'aiImageStatus', 'aiGenerateImageBlock', 'aiEditImageBlock', 'aiImageInfo', 'aiGenerateImage',
   // ③ 회원끼리 섞임: 템플릿 후기는 다른 모든 회원에게 보인다

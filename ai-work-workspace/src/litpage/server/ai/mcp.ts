@@ -9,6 +9,7 @@
 import { newId } from '#shared/ids.ts';
 import { db } from '../db.ts';
 import { FetchBlockedError, safeFetch } from '../safefetch.ts';
+import { memberMcpGate } from '../aimasterMcpGuard.ts';
 import { mcpServerAllowed, workspaceAiPolicy } from './aiPolicy.ts';
 import { AiError, scrub } from './client.ts';
 import { registerDynamicTools } from './tools/defs.ts';
@@ -301,6 +302,9 @@ export async function callMcpTool(ownerId: string, connectionId: string, tool: s
   if (!r) throw new AiError('not_found', 'That connection doesn’t exist.', 404);
   if (!r.enabled) throw new AiError('forbidden', 'That connection is turned off.', 403);
   assertAllowed(r.space_id, r.url);
+  // AIMaster 2026-11-15: 회원당 1분 30번·하루 500번(aimasterMcpGuard.ts)
+  const limited = memberMcpGate(ownerId);
+  if (limited) throw new AiError('rate_limited', limited, 429);
   try {
     const init = await rpc(r.url, r.token, null, 1, 'initialize', { protocolVersion: PROTOCOL, capabilities: {}, clientInfo: { name: 'Workspace', version: '1.0.0' } });
     await rpc(r.url, r.token, init.session, null, 'notifications/initialized');
