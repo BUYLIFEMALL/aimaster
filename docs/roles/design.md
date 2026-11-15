@@ -19,7 +19,8 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
-| 2026-11-15 | `buylife-main` | 주인님 지시 반영: 상단 미니 뱃지 「⚡ AI Master All-in-One」 완전 삭제, 메인 타이틀 「모든 자동화를 한 곳에서」 최상단 직결 및 여백 최적화, `tsc --noEmit` 통과 및 Vercel 프로덕션 실서버 배포 | 🔍 배포 진행 |
+| 2026-11-16 | `buylife-main` | 주인님 지시 반영: 서브타이틀에서 「모든」 및 「하세요」 단어 삭제 반영 (「마케팅/업무/비지니스를 자동화」로 정돈), `tsc --noEmit` 통과 및 Vercel 프로덕션 실서버 배포 완료 (`https://www.buylife.xyz`) | ✔ 프로덕션 배포 완료 (`aimaster-rmip5e7m3`, https://www.buylife.xyz) |
+| 2026-11-15 | `buylife-main` | 주인님 지시 반영: 상단 미니 뱃지 「⚡ AI Master All-in-One」 완전 삭제, 메인 타이틀 「모든 자동화를 한 곳에서」 최상단 직결 및 여백 최적화, `tsc --noEmit` 통과 및 Vercel 프로덕션 실서버 배포 | ✔ 프로덕션 배포 완료 |
 | 2026-11-15 | `buylife-main` | 메인 히어로 카피(「모든 자동화를 한 곳에서 / 모든 마케팅/업무/비지니스를 자동화 하세요」) 리뉴얼 3대 시안 (1안 시그니처 프리미엄 골드, 2안 하이퍼 네온 시안, 3안 미드나잇 다크 볼드 옐로우) 제작, 1440px 고화질 캡처 생성 및 종합 비교 쇼케이스(`http://localhost:3805/hero_copy_concepts/index.html`) 구축 완료 | 🔍 쇼케이스 호스팅 완료 (`http://localhost:3805`) |
 | 2026-11-15 | `mall-builder` | B2B 쇼핑몰 로그인 UI 디자인 3대 시안 (122번 네오 모던 코퍼레이트 블루, 123번 클린 웰니스 테크 그린, 124번 럭셔리 부티크 골드 다크) 4대 뷰(메인·사업자직인증·모바일390px·보안피드백, 총 12개 뷰) 제작 및 1440px/390px 고화질 캡처 생성, `D:\PDS\Design\122~124` 영구 자산화 및 종합 비교 쇼케이스(`http://localhost:3805/b2b_mall_login_index.html`, `D:\PDS\Design\b2b_mall_login_index.html`) 구축 완료 | 🔍 쇼케이스 호스팅 완료 (`http://localhost:3805`) |
 | 2026-11-15 | `banana-canvas` `v1.48` | 메이커 연계 F-09 결함(상세페이지/쇼핑몰 수신 후 파일모드 재매칭으로 jobs 빈배열 초기화되는 버그) 해결: `isLinkedMode` 가드 신설, 조기 도착 ACK(saved) 보존 병합 로직 보완, F-09 회귀 단위 테스트 추가, 98/98 단위테스트 통과, tsc 에러 0건, Turbopack 프로덕션 빌드 성공 및 프로덕션 배포 완료 | ✔ 프로덕션 배포 완료 (https://banana-canvas.buylife.xyz) |
