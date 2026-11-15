@@ -17,6 +17,8 @@ import { FONT_CSS, H, W, loadFontsFor, normalizeDesign, renderFrame, timeline } 
 import { exportMp4, type ExportProgress } from "@/lib/render/export";
 import { measureAudio as measure } from "@/lib/pipeline";
 import { YoutubeUploadCard } from "@/components/views/YoutubeUploadCard";
+import { DisclosureCard } from "@/components/views/DisclosureCard";
+import { normalizeDisclosure, type Disclosure } from "@/lib/disclosure";
 import { logBrowserUsage } from "@/lib/youtube/browserUpload";
 import type { YoutubeUpload } from "@/lib/script";
 import { refHandoffHash } from "@/lib/reference";
@@ -101,6 +103,8 @@ export function RenderView() {
   }, [open]);
 
   const update = (fn: (s: ShortsScript) => ShortsScript) => { setScript((s) => (s ? fn(s) : s)); setDirty(true); };
+  // v1.56 광고·AI 표시와 게시 전 확인(대본에 저장)
+  const setDisc = (patch: Partial<Disclosure>) => update((s) => ({ ...s, disclosure: { ...normalizeDisclosure(s), ...patch } }));
   const setA = (patch: Partial<AudioSettings>) => update((s) => ({ ...s, audio: { ...normalizeAudio(s.audio), ...patch } }));
 
   // 미리보기 그리기 + 소리 맞추기
@@ -395,6 +399,7 @@ export function RenderView() {
                   <small className="muted">내 자료함의 음악(AI 음악 스튜디오·Suno 음악 자동화·무료음악, 최근 60곡)입니다. 고른 곡은 이 프로그램으로 복사돼 30일 동안 보관됩니다. 무료음악 곡은 음원이 PC에만 있어 무료음악 프로그램에서 보내 주세요.</small>
                 </div> : <p className="muted">아직 내 자료함에 음악이 없습니다. <a href="https://ai-music-studio.buylife.xyz" target="_blank" rel="noreferrer">AI 음악 스튜디오</a> 등에서 곡을 만들면 자동으로 모입니다(<a href="https://www.buylife.xyz/library" target="_blank" rel="noreferrer">내 자료함</a>).</p>)}
               </section>
+              <DisclosureCard script={script} onChange={setDisc} />
               <section className="card stack">
                 <h2>🎬 ④ MP4 만들기</h2>
                 <p className="muted">지금 미리보기 그대로 1080×1920 세로 MP4(30fps, 목소리·자막·배경음악 포함)를 이 브라우저 안에서 만듭니다. 서버 요금은 없고, 만드는 동안 이 탭을 열어 두세요(영상 길이의 1~3배 정도 걸립니다).</p>
@@ -438,7 +443,7 @@ ${script.seo!.hashtags.join(" ")}`, "설명란+해시태그")}><Copy size={13} /
                   — AI 썸네일·SEO 자동화가 새 탭으로 열리고 대본이 들어갑니다(3가지 제목 전략·고정 댓글·썸네일 제작).
                 </p>
               </section>
-              <YoutubeUploadCard key={item?.id} projectId={item?.id ?? null} script={script} blob={file?.blob ?? null} disabled={!!busy || !!exp} onUploaded={saveUpload} />
+              <YoutubeUploadCard key={item?.id} projectId={item?.id ?? null} script={script} blob={file?.blob ?? null} disabled={!!busy || !!exp} onUploaded={saveUpload} onChecks={(checked) => setDisc({ checked })} />
             </div>
             <aside className="card stack panel">
               <div className="stage-frame"><canvas ref={canvas} width={W} height={H} aria-label="소리 포함 미리보기" /></div>

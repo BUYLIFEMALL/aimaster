@@ -8,6 +8,7 @@ import { CATEGORIES, FORMATS, MAX_CARDS, MIN_CARDS, TONES, guessFromTopic, type 
 import { MAX_PLAN_TOPICS, STAGES, UPLOAD_TIMES, sortEntries, type PlanData, type PlanEntry, type Stage } from "@/lib/plan";
 import { fillBackgrounds, makeVoices, prepareMedia } from "@/lib/pipeline";
 import { exportMp4 } from "@/lib/render/export";
+import { CHECKS, CHECK_KEYS, type CheckKey } from "@/lib/disclosure";
 import { DAILY_UPLOAD_LIMIT, isQuotaMessage, logBrowserUsage, planSlotIso, uploadDefaults, uploadToYoutube } from "@/lib/youtube/browserUpload";
 
 type Steps = { bg: boolean; voice: boolean; mp4: boolean; yt: boolean };
@@ -27,6 +28,9 @@ export function PlanView() {
   const [sel, setSel] = useState<Set<number>>(new Set()), [tone, setTone] = useState<Tone>("friendly"), [cards, setCards] = useState(4), [useGuide, setUseGuide] = useState(true);
   const [busy, setBusy] = useState(""), [msg, setMsg] = useState<Msg>(null), [prog, setProg] = useState<{ done: number; total: number; ok: number } | null>(null);
   const [steps, setSteps] = useState<Steps>({ bg: true, voice: false, mp4: false, yt: false });
+  // v1.56 게시 전 확인 — 유튜브 예약을 켜면 일괄 시작 전에 한 번 체크(이 묶음 전체에 적용)
+  const [ytChecks, setYtChecks] = useState<Partial<Record<CheckKey, boolean>>>({});
+  const ytChecksOk = CHECK_KEYS.every((k) => ytChecks[k]);
   const [seconds, setSeconds] = useState(45); // 일괄 대본 목표 길이(0 = 제한 없음)
   const [adding, setAdding] = useState<{ title: string; date: string; time: string; category: string; format: string } | null>(null);
   const [edit, setEdit] = useState<{ i: number; title: string; date: string; time: string } | null>(null);
@@ -289,6 +293,11 @@ export function PlanView() {
               <button type="button" className={`chip ${steps.mp4 ? "on" : ""}`} disabled={!!busy} onClick={() => setSteps((x) => ({ ...x, mp4: !x.mp4, yt: x.mp4 ? false : x.yt }))}>🎬 MP4</button>
               <button type="button" className={`chip ${steps.yt ? "on" : ""}`} disabled={!!busy || !steps.mp4} title={steps.mp4 ? "일정 시각으로 비공개 예약 업로드" : "🎬 MP4를 켜야 올릴 수 있습니다"} onClick={() => setSteps((x) => ({ ...x, yt: !x.yt }))}>📤 유튜브 예약</button>
             </div>
+            {steps.yt && <div className="stack" style={{ gap: 6, padding: 12, border: "1px solid var(--line)", borderRadius: 12 }}>
+              <strong>✅ 게시 전 확인 <small className="muted">(유튜브 예약을 켜면 4개를 모두 체크해야 시작됩니다 — 이번에 만드는 모든 편에 적용)</small></strong>
+              {CHECK_KEYS.map((k) => <label key={k} className="row" style={{ gap: 8, alignItems: "center", fontWeight: 500 }}><input type="checkbox" checked={!!ytChecks[k]} onChange={(e) => setYtChecks((c) => ({ ...c, [k]: e.target.checked }))} style={{ width: "auto" }} />{CHECKS[k]}</label>)}
+              <small className="muted">설명란 맨 아래에 AI 제작 표기가 자동으로 들어가고, 유튜브에도 「합성 콘텐츠」로 알립니다. 광고·협찬 영상은 일괄 대신 ④ 렌더 화면에서 「📢 광고·AI 표시」를 켜고 한 편씩 올려 주세요.</small>
+            </div>}
             <div className="field-grid">
               <label>말투<select value={tone} onChange={(e) => setTone(e.target.value as Tone)}>{Object.entries(TONES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></label>
               <label>목표 길이<select value={seconds} onChange={(e) => { const v = Number(e.target.value); setSeconds(v); if (v) setCards(({ 30: 3, 45: 4, 60: 5 } as Record<number, number>)[v]); }}><option value={0}>제한 없음</option>{[30, 45, 60].map((v) => <option key={v} value={v}>약 {v}초</option>)}</select></label>
@@ -298,7 +307,7 @@ export function PlanView() {
             {prog && <div className="stack" style={{ gap: 6 }}><div style={{ height: 10, borderRadius: 6, background: "var(--line)", overflow: "hidden" }}><div style={{ width: `${Math.round((prog.done / prog.total) * 100)}%`, height: "100%", background: "var(--brand)", transition: "width .3s" }} /></div><small className="muted">{prog.done}/{prog.total} 처리 · 성공 {prog.ok}편</small></div>}
             <div className="actions">
               {busy && !busy.startsWith("AI") ? <button type="button" className="danger" onClick={() => { stopRef.current = true; abortRef.current?.abort(); }}><Square size={13} />멈추기</button>
-                : <button className="primary" disabled={!!busy || sel.size === 0} onClick={() => void bulk()}><Layers size={14} />{sel.size}편 만들기</button>}
+                : <button className="primary" disabled={!!busy || sel.size === 0 || (steps.yt && !ytChecksOk)} onClick={() => void bulk()}><Layers size={14} />{sel.size}편 만들기</button>}
               <Busy on={!!busy && !busy.startsWith("AI")} label={busy} />
             </div>
             {sel.size > 0 && <small className="muted">💸 예상(본인 키): 텍스트 약 {est.text}회{est.tts ? ` · 음성 약 ${est.tts}회` : ""} · 스톡 검색 무료{est.mp4 ? ` · MP4 ${est.mp4}편(편당 영상 길이의 약 2~3배 시간, 서버 비용 없음)` : ""}{steps.yt ? ` · 유튜브 예약 ${selE.filter((e) => !e.done?.yt).length}편(하루 약 ${DAILY_UPLOAD_LIMIT}편 한도, 요금 없음)` : ""}</small>}

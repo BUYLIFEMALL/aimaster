@@ -63,6 +63,8 @@ export interface ShortsScript {
   youtube?: YoutubeUpload[];
   /** v1.52 상품 홍보 쇼츠의 상품 기록(상품ID·옵션·주소·확정 설명·사진 권리 — src/lib/productShorts.ts ProductRecord) */
   product?: import("@/lib/productShorts").ProductRecord;
+  /** v1.56 광고 고지·AI 제작 표기·게시 전 확인(src/lib/disclosure.ts normalizeDisclosure로 읽는다) */
+  disclosure?: import("@/lib/disclosure").Disclosure;
 }
 export interface YoutubeUpload { videoId: string; url: string; title: string; privacy: "private" | "unlisted" | "public"; publishAt?: string | null; channel?: string | null; uploadedAt: string }
 

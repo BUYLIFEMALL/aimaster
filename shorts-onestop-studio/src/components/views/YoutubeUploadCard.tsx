@@ -7,6 +7,8 @@ import type { ShortsScript, YoutubeUpload } from "@/lib/script";
 import { SendToWorkspaceButton } from "./SendToWorkspaceButton";
 import type { PlanData } from "@/lib/plan";
 import { planSlotIso, toLocalInput, uploadDefaults as defaults, uploadToYoutube } from "@/lib/youtube/browserUpload";
+import { aiMarkOn, allChecked, ensureAdLead, normalizeDisclosure, type CheckKey } from "@/lib/disclosure";
+import { PrepublishChecks } from "./DisclosureCard";
 
 // v1.19 ⑥ 유튜브에 올리기 — 서버는 업로드 주소만 만들고(/api/youtube/upload-session), 영상은 이 브라우저가 유튜브로 바로 보낸다.
 // v1.21: 업로드는 src/lib/youtube/browserUpload.ts(일괄 제작과 공용), 이 대본이 발행 계획에 있으면 그 일정으로 예약 공개를 미리 채운다.
@@ -25,12 +27,15 @@ const PRIVACY_LABEL: Record<YoutubeUpload["privacy"], string> = { private: "비�
 /** v1.47 V7 올린 뒤 운영 안내 */
 const CTR_TIP = " 48시간 뒤 YouTube Studio 「분석」에서 노출 클릭률(CTR)을 확인하고, 낮으면 ⑤의 다른 제목 후보나 썸네일로 바꿔 보세요.";
 
-export function YoutubeUploadCard({ projectId, script, blob, disabled, onUploaded }: { projectId: string | null; script: ShortsScript; blob: Blob | null; disabled: boolean; onUploaded: (rec: YoutubeUpload) => Promise<void> }) {
+export function YoutubeUploadCard({ projectId, script, blob, disabled, onUploaded, onChecks }: { projectId: string | null; script: ShortsScript; blob: Blob | null; disabled: boolean; onUploaded: (rec: YoutubeUpload) => Promise<void>; onChecks: (checked: Partial<Record<CheckKey, boolean>>) => void }) {
   const [status, setStatus] = useState<Status | null>(null);
   const [form, setForm] = useState(() => ({ ...defaults(script), privacy: "private" as YoutubeUpload["privacy"], categoryId: "22", schedule: false, publishAt: "" }));
   const [pct, setPct] = useState<number | null>(null);
   const [msg, setMsg] = useState<Msg>(null);
-  const seoKey = script.seo ? script.seo.titles.join("|") + script.seo.description : "";
+  const disc = normalizeDisclosure(script);
+  // v1.56 광고·AI 표시를 바꾸면 설명란도 다시 채운다(체크 목록은 제외)
+  const seoKey = (script.seo ? script.seo.titles.join("|") + script.seo.description : "") + `|${disc.ad}|${disc.custom ?? ""}|${aiMarkOn(script)}`;
+  const checksOk = allChecked(script);
 
   async function check() {
     setStatus(null);
@@ -63,7 +68,8 @@ export function YoutubeUploadCard({ projectId, script, blob, disabled, onUploade
     try {
       const publishAt = form.schedule && form.publishAt ? new Date(form.publishAt).toISOString() : null;
       if (form.schedule && !publishAt) throw new Error("예약 공개 날짜와 시각을 정해 주세요.");
-      const rec = await uploadToYoutube({ blob, title: form.title, description: form.description, tags: form.tags, privacy: form.privacy, categoryId: form.categoryId, publishAt, channel: status?.channelTitle ?? null, onPct: setPct, projectId });
+      if (!checksOk) throw new Error("게시 전 확인 4가지를 모두 체크해 주세요.");
+      const rec = await uploadToYoutube({ blob, synthetic: aiMarkOn(script), title: form.title, description: ensureAdLead(form.description, script), tags: form.tags, privacy: form.privacy, categoryId: form.categoryId, publishAt, channel: status?.channelTitle ?? null, onPct: setPct, projectId });
       await onUploaded(rec);
       setMsg({ text: `${publishAt ? `유튜브에 올렸습니다. ${new Date(publishAt).toLocaleString("ko-KR")}에 공개됩니다(그때까지 비공개). 처리에 몇 분 걸릴 수 있습니다.` : `유튜브에 ${PRIVACY_LABEL[form.privacy]}로 올렸습니다. 유튜브가 영상을 처리하는 데 몇 분 걸릴 수 있습니다.`}${CTR_TIP}`, ok: true });
     } catch (e) {
@@ -102,9 +108,10 @@ export function YoutubeUploadCard({ projectId, script, blob, disabled, onUploade
         {planNote && <small className="muted">{planNote}</small>}
         <label className="row" style={{ gap: 8, alignItems: "center" }}><input type="checkbox" checked={form.schedule} onChange={(e) => setForm({ ...form, schedule: e.target.checked })} style={{ width: "auto" }} />정한 시각에 자동 공개(예약 — 그때까지 비공개)</label>
         {form.schedule && <label>공개 시각<input type="datetime-local" value={form.publishAt} onChange={(e) => setForm({ ...form, publishAt: e.target.value })} /></label>}
+        <PrepublishChecks script={script} onChange={onChecks} />
         {!blob && <small className="muted">먼저 ④에서 [MP4 만들기]를 눌러 주세요. 만든 MP4는 이 화면을 떠나면 사라집니다.</small>}
         {pct !== null && <div className="stack" style={{ gap: 6 }}><div style={{ height: 10, borderRadius: 6, background: "var(--line)", overflow: "hidden" }}><div style={{ width: `${pct}%`, height: "100%", background: "var(--brand)", transition: "width .3s" }} /></div><small className="muted">{pct < 100 ? `유튜브로 보내는 중 ${pct}% — 이 탭을 닫지 마세요` : "유튜브가 받은 영상을 확인하는 중…"}</small></div>}
-        <div className="actions"><button type="button" className="primary" disabled={!blob || disabled || pct !== null || !form.title.trim()} onClick={() => void upload()}><Upload size={14} />{done.length ? "유튜브에 한 번 더 올리기" : "유튜브에 올리기"}</button></div>
+        <div className="actions"><button type="button" className="primary" disabled={!blob || disabled || pct !== null || !form.title.trim() || !checksOk} onClick={() => void upload()}><Upload size={14} />{done.length ? "유튜브에 한 번 더 올리기" : "유튜브에 올리기"}</button></div>
         {done.length > 0 && <small className="muted">⚠️ 이 대본은 이미 {done.length}번 올렸습니다. 다시 누르면 새 영상으로 하나 더 올라갑니다.</small>}
       </>}
       {done.length > 0 && <div className="list">{done.map((d) => (

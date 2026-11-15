@@ -126,6 +126,8 @@ export interface UploadYoutubeVideoInput {
   privacyStatus?: "public" | "unlisted" | "private";
   /** 예약 공개 시각(ISO). 있으면 유튜브 규칙에 따라 privacyStatus는 private로 보낸다(2026-10-21 Shots v1.28) */
   publishAt?: string | null;
+  /** 2026-11-15 AI로 만든(합성) 콘텐츠임을 유튜브에 밝힌다(status.containsSyntheticMedia, videos.insert에서 설정 가능). 없으면 보내지 않음 */
+  containsSyntheticMedia?: boolean;
 }
 
 export interface UploadYoutubeVideoResult {
@@ -145,6 +147,7 @@ export async function uploadYoutubeVideo(input: UploadYoutubeVideoInput): Promis
       privacyStatus: input.publishAt ? "private" : (input.privacyStatus ?? "public"),
       ...(input.publishAt ? { publishAt: input.publishAt } : {}),
       selfDeclaredMadeForKids: false,
+      ...(input.containsSyntheticMedia ? { containsSyntheticMedia: true } : {}),
     },
   };
 
@@ -184,6 +187,8 @@ export interface CreateYoutubeUploadSessionInput {
   privacyStatus: "public" | "unlisted" | "private";
   /** 예약 공개 시각(ISO). 있으면 유튜브 규칙에 따라 privacyStatus는 private로 보낸다 */
   publishAt?: string | null;
+  /** 2026-11-15 AI로 만든(합성) 콘텐츠임을 유튜브에 밝힌다(status.containsSyntheticMedia). 없으면 보내지 않음 */
+  containsSyntheticMedia?: boolean;
   /** 영상 파일 크기(바이트) */
   contentLength: number;
   /** 브라우저가 업로드 주소로 직접 보낼 때 그 화면의 출처(예: https://shorts-onestop-studio.buylife.xyz) — 구글이 이 출처의 브라우저 요청을 허용한다 */
@@ -207,6 +212,7 @@ export async function createYoutubeResumableSession(input: CreateYoutubeUploadSe
       privacyStatus: input.publishAt ? "private" : input.privacyStatus,
       ...(input.publishAt ? { publishAt: input.publishAt } : {}),
       selfDeclaredMadeForKids: false,
+      ...(input.containsSyntheticMedia ? { containsSyntheticMedia: true } : {}),
     },
   };
 

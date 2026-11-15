@@ -46,6 +46,8 @@ export async function POST(request: NextRequest) {
     const uploadUrl = await createYoutubeResumableSession({
       accessToken: t.token, title, description, categoryId, tags, privacyStatus: privacy, publishAt,
       contentLength: size, origin: request.headers.get("origin") ?? undefined,
+      // v1.56 AI 제작 표기를 켠 영상은 유튜브 「합성 콘텐츠」 표시도 함께 켠다
+      containsSyntheticMedia: b.synthetic === true,
     });
     return json({ uploadUrl });
   } catch (e) {

@@ -2,17 +2,19 @@
 // 영상은 이 브라우저가 유튜브로 바로 보낸다. 유튜브 API 한도: 회원 Google 앱 하루 10,000단위, 업로드 1회 1,600단위 → 하루 약 6편.
 import { api } from "@/components/ui/api";
 import { FREE_VOICE_NOTE, usesFreeVoice, type ShortsScript, type YoutubeUpload } from "@/lib/script";
+import { adDescLine, aiDescLine, aiMarkOn } from "@/lib/disclosure";
 
 export const DAILY_UPLOAD_LIMIT = 6;
 const MIN_LEAD_MS = 15 * 60_000;
 
-/** 업로드 문구(SEO)가 있으면 그것, 없으면 대본 제목 + #Shorts */
+/** 업로드 문구(SEO)가 있으면 그것, 없으면 대본 제목 + #Shorts. v1.56 설명란 맨 첫 줄 = 광고 고지, 아래에 AI 제작 표기 */
 export function uploadDefaults(s: ShortsScript) {
   const tags = [...new Set([...(s.seo?.hashtags ?? []), "#Shorts"])];
   return {
     title: (s.seo?.titles?.[0] ?? s.intro.title).slice(0, 100),
-    description: [s.seo?.description ?? "", s.product?.url ? `🛒 상품 보기: ${s.product.url}` : "", usesFreeVoice(s) ? FREE_VOICE_NOTE : "", tags.join(" ")].filter(Boolean).join("\n\n").slice(0, 5000),
+    description: [adDescLine(s), s.seo?.description ?? "", s.product?.url ? `🛒 상품 보기: ${s.product.url}` : "", usesFreeVoice(s) ? FREE_VOICE_NOTE : "", aiDescLine(s), tags.join(" ")].filter(Boolean).join("\n\n").slice(0, 5000),
     tags: (s.seo?.tags ?? []).join(", "),
+    synthetic: aiMarkOn(s),
   };
 }
 
@@ -51,10 +53,11 @@ function putVideo(url: string, blob: Blob, onPct: (n: number) => void): Promise<
 export async function uploadToYoutube(o: {
   blob: Blob; title: string; description: string; tags: string; privacy: YoutubeUpload["privacy"]; categoryId: string;
   publishAt: string | null; channel: string | null; onPct: (n: number) => void; projectId?: string | null; batch?: boolean;
+  /** v1.56 유튜브 「합성 콘텐츠」 표시 */ synthetic?: boolean;
 }): Promise<YoutubeUpload> {
   const tags = o.tags.split(/\s*,\s*/).filter(Boolean);
   const { uploadUrl } = await api<{ uploadUrl: string }>("/api/youtube/upload-session", {
-    body: { title: o.title, description: o.description, tags, privacy: o.privacy, categoryId: o.categoryId, publishAt: o.publishAt, size: o.blob.size },
+    body: { title: o.title, description: o.description, tags, privacy: o.privacy, categoryId: o.categoryId, publishAt: o.publishAt, size: o.blob.size, synthetic: !!o.synthetic },
   });
   const videoId = await putVideo(uploadUrl, o.blob, o.onPct);
   void logBrowserUsage({ action: "youtube_uploaded", projectId: o.projectId ?? null, youtubeVideoId: videoId, batch: !!o.batch });

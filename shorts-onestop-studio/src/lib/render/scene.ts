@@ -3,6 +3,7 @@
 // 둥근 사각형 그리기는 yt-playlist-studio/src/lib/render/color-utils.ts의 drawRoundRect 패턴을 따랐다.
 import { normalizeBackdrop, sceneVoices, type Bg, type ShortsScript } from "@/lib/script";
 import { captionChunks, normalizeAudio, timedCaptionChunks } from "@/lib/voice";
+import { adBand, aiBand } from "@/lib/disclosure";
 
 export const W = 1080, H = 1920, FPS = 30;
 
@@ -222,7 +223,7 @@ export function renderFrame(ctx: CanvasRenderingContext2D, s: ShortsScript, d: D
   if (opts.media) {
     const bg = bgFor(s, seg);
     const el = bg ? opts.media(bg) : null;
-    if (el) { if (bg?.source === "product") drawProduct(ctx, el, u / seg.dur, bd.dim, seg.kind === "card" ? PRODUCT_BOX : PRODUCT_BOX_TOP); else drawMedia(ctx, el, u / seg.dur, bd.dim); }
+    if (el) { if (bg?.source === "product") drawProduct(ctx, el, u / seg.dur, bd.dim, belowBands(seg.kind === "card" ? PRODUCT_BOX : PRODUCT_BOX_TOP, s)); else drawMedia(ctx, el, u / seg.dur, bd.dim); }
   }
   ctx.globalAlpha = out;
 
@@ -277,22 +278,58 @@ export function renderFrame(ctx: CanvasRenderingContext2D, s: ShortsScript, d: D
   }
   ctx.restore();
   ctx.save(); ctx.globalAlpha = out; drawCaption(ctx, s, seg, u, th.accent, !!opts.final); ctx.restore();
+  drawDisclosure(ctx, s);
   if (opts.safe) drawSafeArea(ctx);
 }
 
-/** 유튜브 쇼츠 UI가 덮는 영역(오른쪽 버튼·아래 제목/설명·위쪽 바) — 미리보기에만 그린다 */
+// v1.56 광고 고지 띠(위쪽 가림 영역 바로 아래, 영상 처음부터 끝까지) + 그 아래 작은 AI 제작 표기. 미리보기와 MP4에 똑같이 그린다.
+const BAND_Y = 196, BAND_H = 54, AI_H = 36;
+/** 띠가 차지하는 아래 끝(y). 띠가 없으면 0 */
+export function bandsBottom(s: ShortsScript): number {
+  const ad = !!adBand(s), ai = !!aiBand(s);
+  if (!ad && !ai) return 0;
+  return ad ? BAND_Y + BAND_H / 2 + (ai ? AI_H + 8 : 0) : BAND_Y + AI_H / 2;
+}
+/** 띠가 있으면 상품 사진 상자 위쪽을 띠 아래로 내린다(상품이 띠에 가리지 않게) */
+function belowBands(box: Box, s: ShortsScript): Box {
+  const b = bandsBottom(s); if (!b) return box;
+  const top = Math.max(box.y, b + 14); return { ...box, y: top, h: box.h - (top - box.y) };
+}
+export function drawDisclosure(ctx: CanvasRenderingContext2D, s: ShortsScript) {
+  const ad = adBand(s), ai = aiBand(s);
+  if (!ad && !ai) return;
+  ctx.save(); ctx.globalAlpha = 1; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  let y = BAND_Y;
+  if (ad) {
+    let px = 34; ctx.font = `800 ${px}px "Noto Sans KR", sans-serif`;
+    while (px > 22 && ctx.measureText(ad).width > W - 200) { px -= 2; ctx.font = `800 ${px}px "Noto Sans KR", sans-serif`; }
+    const w = Math.min(W - 120, ctx.measureText(ad).width + 56);
+    ctx.fillStyle = "rgba(0,0,0,0.66)"; roundRect(ctx, (W - w) / 2, y - BAND_H / 2, w, BAND_H, 14); ctx.fill();
+    ctx.fillStyle = "#ffffff"; ctx.fillText(ad, W / 2, y + 2);
+    y += BAND_H / 2 + 8 + AI_H / 2;
+  }
+  if (ai) {
+    ctx.font = `700 24px "Noto Sans KR", sans-serif`;
+    const w = ctx.measureText(ai).width + 36;
+    ctx.fillStyle = "rgba(0,0,0,0.5)"; roundRect(ctx, (W - w) / 2, y - AI_H / 2, w, AI_H, AI_H / 2); ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.92)"; ctx.fillText(ai, W / 2, y + 1);
+  }
+  ctx.restore();
+}
+
+/** 쇼츠·릴스·틱톡 UI가 덮는 영역(오른쪽 버튼·아래 제목/설명·위쪽 바, v1.56 세 플랫폼을 합친 범위) — 미리보기에만 그린다 */
 export function drawSafeArea(ctx: CanvasRenderingContext2D) {
   ctx.save(); ctx.fillStyle = "rgba(239,68,68,0.22)"; ctx.strokeStyle = "rgba(239,68,68,0.9)"; ctx.lineWidth = 4; ctx.setLineDash([18, 12]);
-  const zones: [number, number, number, number][] = [[0, 0, W, 160], [0, H - 420, W, 420], [W - 170, 760, 170, 740]];
+  const zones: [number, number, number, number][] = [[0, 0, W, 160], [0, H - 440, W, 440], [W - 180, 700, 180, 780]];
   zones.forEach(([x, y, w, h]) => { ctx.fillRect(x, y, w, h); ctx.strokeRect(x, y, w, h); });
   ctx.setLineDash([]); ctx.fillStyle = "#fff"; ctx.font = `700 34px "Noto Sans KR", sans-serif`; ctx.textAlign = "left"; ctx.textBaseline = "top";
-  ctx.fillText("유튜브 화면 가림 영역", 30, H - 400); ctx.restore();
+  ctx.fillText("쇼츠·릴스·틱톡 버튼에 가리는 영역", 30, H - 420); ctx.restore();
 }
 
 /** 웹 글꼴은 글자 묶음(unicode-range)별로 나뉘어 받아진다 — 그리기 전에 대본에 실제로 쓰인 글자로 미리 불러온다(미리보기·MP4 공통) */
 export async function loadFontsFor(s: ShortsScript, d: Design): Promise<void> {
   if (typeof document === "undefined" || !document.fonts) return;
-  const text = Array.from(new Set([s.intro.eyebrow, s.intro.title, ...s.cards.flatMap((c) => [c.tag ?? "", c.title, c.desc]), s.outro.title, s.outro.subtitle, ...s.outro.cta, s.intro.narration, ...s.cards.map((c) => c.narration), s.outro.narration, "끝까지 보면 확실히 알게 됩니다 ↓ 구독 좋아요 0123456789", "유튜브 화면 가림 영역"].join(""))).join("");
+  const text = Array.from(new Set([s.intro.eyebrow, s.intro.title, ...s.cards.flatMap((c) => [c.tag ?? "", c.title, c.desc]), s.outro.title, s.outro.subtitle, ...s.outro.cta, s.intro.narration, ...s.cards.map((c) => c.narration), s.outro.narration, "끝까지 보면 확실히 알게 됩니다 ↓ 구독 좋아요 0123456789", "쇼츠·릴스·틱톡 버튼에 가리는 영역", adBand(s), aiBand(s)].join(""))).join("");
   const f = FONTS[d.font];
   await Promise.all([
     document.fonts.load(`${f.weight} 64px "${f.family}"`, text),
