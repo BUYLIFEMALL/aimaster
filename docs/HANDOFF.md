@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 ✅ [역할: workspace] Claude Code(윈도우, 엣지) · 세션 `claude-win-20261025-workspace` — 중앙 정리 제외·U10 확인·v1.42·v1.43
+- 메인 DB 0073: 중앙 정리 `member_storage_expired_files`에서 `workspace-files` 제외(주인님 「너가 해」), 실행 결과 0건
+- U10 유튜브 보내기: 세 프로그램 모두 실제 업로드 결과가 받은 업무에 와 있었음 → 확인 끝
+- v1.42(`ai-work-workspace-o7ghkedhf`): 받은 업무 「🧾 세금계산서 초안」(회원 AI 키로 글 읽기)·넣을 표 고르기·매뉴얼 「🔌 MCP·REST API」 — 엣지 확인 통과
+- Gemini 검색 실제 호출(시험 계정 키 3회): generateContent + google_search 단독 ✅, 함수 도구와 함께는 `toolConfig.includeServerSideToolInvocations` 필요(검토 `ai-work-workspace/docs/REVIEW_20261115_GEMINI_WEB_SEARCH.md`)
+- v1.43(`ai-work-workspace-6m31l2l6z`): AI 비서·에이전트 「🔎 웹 검색 도구」 고르기 — 외부 검색은 `web_search` 함수 도구로 모든 모델 공통, 회원 본인 키(공용 저장소). 카카오·Perplexity 실제 검색 ✅, 네이버·Tavily는 시험 계정 키 값이 틀림(401)
+- 남은 일: Gemini 내장 구글 검색 연결(확인 호출 1회 필요), 비서 채팅에서 검색 단계 화면 확인, 할 일 플래너 1·2번, 알림 줄 영어(화면 예시 필요)
+- 링크: https://ai-work-workspace.buylife.xyz/settings/keys
+
 ## 2026-11-15 ✅ [역할: mall-design-builder] Claude Code(윈도우) · 세션 `claude-win-20261114-mall-design` — 협업 작업 핵심 지침 맨 위 등록
 - 주인님 지시로 루트 `CLAUDE.md`·`AGENTS.md`·`GEMINI.md` 맨 위(0번 저작권 규칙 바로 아래)에 「🤝 협업 작업 핵심 지침」 블록 추가: 시작 전 확인 / 커밋 직전 `git diff`로 남의 줄 확인(있으면 그 파일 커밋 안 함) / 새 파일 불러오기는 같은 커밋 / 공용 파일 작게·즉시 커밋 / 남의 서버·탭·파일 손대지 않기 / 배포는 담당 한 세션이 묶어서 / 끝나면 기록.
 - 계기: agy 커밋 `c2e4d2f0a`에 디자인 빌더 미커밋 두 줄이 섞여 HEAD가 없는 파일을 부름 → `e87a08fdb`로 맞춤.
