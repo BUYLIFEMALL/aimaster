@@ -7,7 +7,7 @@
 - 핵심 배포 원칙 (2026-10-29 주인님 지시): 작업한 내용의 실제 배포는 비용 절감을 위해 꼭 당장 필요한 것(긴급/치명 오류)이 아니면 로컬 검수 완료 상태로 모아두었다가 **한 번에 묶음(Batch)으로 반영**한다. 급한 것만 최소한으로 단독 반영.
 - **[필수 배포 관문 — 크롬 확장 버전 일치 검증 의무 (2026-11-13)]**: 크롬 확장이 포함된 프로그램을 배포할 때는 반드시 `programs.version`과 함께 `programs.extension_version`도 동일하게 올리고, 배포 직후 `node scripts/check-extension-release.mjs <slug>`를 실행하여 `OK DB vX.XX / ext vX.XX / zip vX.XX` 무결성을 확인한다(핵심 원칙 10 & 2026-11-13 부동산 담당 요청 및 영구 지침 등록).
 - 마지막 갱신: 2026-11-15 00:52 (agy-win-ssr-v1)
-- 최신 갱신: 2026-11-15 00:52 (agy-win-ssr-v1, banana-canvas F-09 결함 해결 및 검증 완료, smartstore/elevenst 배포 완료)
+- 최신 갱신: 2026-11-15 16:11 (agy-win-ssr-v1, banana-canvas v1.48 F-09 결함 수정본 프로덕션 배포 완료)
 - 이전 갱신: 2026-11-14 22:40 (agy-win-ssr-v1, smartstore-register 1안 110번 네이버 스마트스토어 오리지널 그린 전면 구현 및 검증 완료)
 
 ## 지금 하는 일
