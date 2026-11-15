@@ -5,6 +5,7 @@ import { AiError } from "@/lib/ai";
 import { BUCKET } from "@/lib/media";
 import { UserError } from "@/lib/errors";
 import { startsFromChars, startsFromWords, type TtsProvider } from "@/lib/voice";
+import { GEMINI_WORD_MODEL, GEMINI_WORD_SCHEMA, geminiWordPrompt, parseGeminiWords } from "@/lib/transcribeModels";
 
 // 내레이션 음성 합성(회원 본인 키) → 비공개 버킷 <user_id>/voice/ 에 저장. 재생 길이는 브라우저가 파일을 읽어 잰다.
 function err(provider: TtsProvider, status: number): never {
@@ -100,5 +101,23 @@ export async function wordStarts(key: string, audio: { bytes: Buffer; mime: stri
     if (!res.ok) return null;
     const d = (await res.json()) as { words?: { word: string; start: number }[] };
     return d.words?.length ? startsFromWords(text, d.words) : null;
+  } catch { return null; }
+}
+
+/** v1.59 Gemini 낱말 시각(B안): 회원 본인 Gemini 키로 음성 + 대본 → 낱말마다 시작 초(JSON). 1분 약 15원.
+ *  유료 호출이라 다시 시도하지 않고, 실패·믿을 수 없는 답이면 null(자막은 글자 수 비율) — 음성 만들기는 실패시키지 않는다 */
+export async function geminiWordStarts(key: string, audio: { bytes: Buffer; mime: string }, text: string): Promise<number[] | null> {
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_WORD_MODEL}:generateContent`, {
+      method: "POST", headers: { "x-goog-api-key": key, "content-type": "application/json" }, cache: "no-store", signal: AbortSignal.timeout(45_000),
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ inline_data: { mime_type: audio.mime, data: audio.bytes.toString("base64") } }, { text: geminiWordPrompt(text) }] }],
+        generationConfig: { temperature: 0, responseMimeType: "application/json", responseSchema: GEMINI_WORD_SCHEMA },
+      }),
+    });
+    if (!res.ok) return null;
+    const j = await res.json();
+    const words = parseGeminiWords((j.candidates?.[0]?.content?.parts ?? []).map((p: { text?: string }) => p.text ?? "").join(""));
+    return words ? startsFromWords(text, words) : null;
   } catch { return null; }
 }

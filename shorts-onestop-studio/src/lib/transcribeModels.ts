@@ -31,3 +31,39 @@ export function cleanTranscript(raw: unknown): string {
   t = t.replace(/^\s*(받아쓰기|받아쓴 글|transcript)\s*[:：]\s*/i, "");
   return t.split(/\r?\n/).map((l) => l.replace(/\s+/g, " ").trim()).filter(Boolean).join("\n").slice(0, 8000);
 }
+
+// v1.59 Gemini 낱말 시각(PLAN_20261111_WORD_TIMING_AFTER_WHISPER.md B안): whisper-1(2027-02-26 종료) 대신·보조로
+// 만든 음성 + 대본을 Gemini에 주고 「낱말마다 시작 초」를 JSON으로 받는다. 화면 자막 시각에만 쓰므로 실패하면 null(글자 수 비율로 동작).
+export const GEMINI_WORD_MODEL = "gemini-3.8-flash";
+
+export function geminiWordPrompt(script: string): string {
+  return [
+    "이 소리는 아래 대본을 읽은 한국어 음성입니다. 소리에서 말한 낱말(띄어쓰기 단위)마다 말하기 시작한 시각을 초 단위로 적어 주세요.",
+    "낱말은 말한 순서대로, 대본의 낱말을 그대로 쓰세요. 시각은 소리 맨 앞을 0초로 하고 소수 둘째 자리까지 쓰세요.",
+    "설명 없이 JSON 배열만 답하세요.",
+    "대본:",
+    script.slice(0, 1000),
+  ].join("\n");
+}
+
+/** Gemini generationConfig.responseSchema — [{ word, start }] */
+export const GEMINI_WORD_SCHEMA = {
+  type: "ARRAY",
+  items: { type: "OBJECT", properties: { word: { type: "STRING" }, start: { type: "NUMBER" } }, required: ["word", "start"] },
+} as const;
+
+/** Gemini 답 → 낱말 시각. 숫자가 아니거나 음수·너무 큰 값은 버리고, 거꾸로 가는 시각이 많거나(4분의 1 넘게) 2개 미만이면 믿지 않는다(null) */
+export function parseGeminiWords(raw: unknown, maxSec = 120): { word: string; start: number }[] | null {
+  let v: unknown = raw;
+  if (typeof raw === "string") {
+    try { v = JSON.parse(raw.replace(/^```[a-z]*\s*/i, "").replace(/```\s*$/, "").trim()); } catch { return null; }
+  }
+  if (!Array.isArray(v)) return null;
+  const out = v
+    .map((x) => ({ word: String((x as { word?: unknown })?.word ?? "").trim(), start: Number((x as { start?: unknown })?.start) }))
+    .filter((x) => x.word && Number.isFinite(x.start) && x.start >= 0 && x.start <= maxSec);
+  if (out.length < 2) return null;
+  let back = 0; for (let i = 1; i < out.length; i++) if (out[i].start < out[i - 1].start) back++;
+  if (back > (out.length - 1) / 4) return null;
+  return out;
+}
