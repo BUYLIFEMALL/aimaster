@@ -1,0 +1,16 @@
+import type { Metadata } from "next";
+import Script from "next/script";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "AI G마켓·옥션 상품 자동등록기 | AIMaster",
+  description: "AI 상세페이지로 만든 상품을 크롬 확장이 ESM+ 상품등록 화면에 채워 G마켓·옥션에 한 번에 올리는 등록 도우미",
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <html lang="ko" className="h-full antialiased">
+      <body className="flex min-h-full flex-col bg-[var(--bg)] text-slate-900">{children}<Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" /></body>
+    </html>
+  );
+}

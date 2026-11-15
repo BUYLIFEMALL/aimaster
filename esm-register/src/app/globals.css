@@ -1,0 +1,186 @@
+@import "tailwindcss";
+
+/* AI 스마트스토어 상품 자동등록기 - 110. 네이버 스마트스토어 오리지널 그린 & 화이트 셀러 스튜디오 스타일 */
+:root {
+  --bg: #F5F6F8;
+  --surface: #FFFFFF;
+  --surface-raised: #F1F5F9;
+  --border: #E5E8EB;
+  --border-bright: #CBD5E1;
+  --text: #111827;
+  --muted: #6B7280;
+  --brand: #03C75A;
+  --brand-dark: #029643;
+  --brand-light: rgba(3, 199, 90, 0.12);
+  --accent: #03C75A;
+  --accent-hover: #029643;
+  --accent-soft: rgba(3, 199, 90, 0.08);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard, "Segoe UI", "Malgun Gothic", Roboto, Arial, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 네이버 스마트스토어 프리미엄 카드 */
+.slw-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* 3D 엠보싱 네이버 그린 버튼 (110번 시안 핵심) - 4px 깊이감 & 전역 1행 유지 */
+.btn-3d-naver,
+.btn-3d-green,
+.btn-3d-primary,
+.btn-3d,
+.slw-primary {
+  background: linear-gradient(180deg, #03C75A 0%, #029643 100%) !important;
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  padding: 8px 18px !important;
+  border-radius: 8px !important;
+  border: 1px solid #1EC800 !important;
+  box-shadow: 0 4px 0 #027A36, 0 6px 14px rgba(3, 199, 90, 0.25) !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  text-decoration: none;
+  transition: all 0.12s ease;
+  min-height: 38px;
+  white-space: nowrap !important;
+}
+
+.btn-3d-naver:hover:not(:disabled),
+.btn-3d-green:hover:not(:disabled),
+.btn-3d-primary:hover:not(:disabled),
+.btn-3d:hover:not(:disabled),
+.slw-primary:hover:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 2px 0 #027A36, 0 4px 8px rgba(3, 199, 90, 0.2) !important;
+  background: linear-gradient(180deg, #1EC800 0%, #029643 100%) !important;
+}
+
+.btn-3d-naver:disabled,
+.btn-3d-green:disabled,
+.btn-3d-primary:disabled,
+.btn-3d:disabled,
+.slw-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none !important;
+}
+
+/* 3D 보조 버튼 (화이트 & 쿨 그레이) */
+.btn-3d-secondary {
+  background: #FFFFFF !important;
+  color: #111827 !important;
+  font-weight: 700 !important;
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  border: 1px solid #E5E8EB !important;
+  box-shadow: 0 3px 0 #CBD5E1 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+  transition: all 0.12s ease;
+  min-height: 38px;
+  white-space: nowrap !important;
+  cursor: pointer;
+}
+
+.btn-3d-secondary:hover:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 #CBD5E1 !important;
+  background: #F8FAFC !important;
+}
+
+/* 기본 버튼 */
+.slw-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  min-height: 38px;
+  background: #FFFFFF;
+  color: var(--text);
+  border: 1px solid var(--border-bright);
+  transition: all 0.12s ease;
+  cursor: pointer;
+  white-space: nowrap !important;
+}
+.slw-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent-hover);
+  background: #F8FAFC;
+}
+.slw-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.slw-field {
+  width: 100%;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  background: #FFFFFF;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--text);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.slw-field:focus {
+  outline: none;
+  border-color: #03C75A;
+  box-shadow: 0 0 0 3px rgba(3, 199, 90, 0.2);
+}
+.slw-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.slw-drop {
+  border: 2px dashed #CBD5E1;
+  border-radius: 12px;
+  background: #F8FAFC;
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.slw-drop:hover,
+.slw-drop[data-over="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* 네이버 시그니처 뱃지 */
+.naver-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(3, 199, 90, 0.12);
+  color: #03C75A;
+  border: 1px solid rgba(3, 199, 90, 0.25);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
