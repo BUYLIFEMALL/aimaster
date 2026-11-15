@@ -184,7 +184,7 @@ export default async function StoreSettingsPage({ params }: { params: Promise<{ 
     <AdminShell slug={store.slug} storeName={store.name} active="/settings">
       <SettingsForm slug={store.slug} name={store.name} info={readBusinessInfo(store.business_info)} />
       <div className="mt-6">
-        <PaymentForm slug={store.slug} status={payment} />
+        <PaymentForm slug={store.slug} status={payment} resale={store.kind === "resale"} />
       </div>
       <div className="mt-6">
         <TaxForm slug={store.slug} status={tax} />

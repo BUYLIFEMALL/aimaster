@@ -7,11 +7,24 @@ import { savePaymentAction, type PaymentState } from "./payment-actions";
 
 export type PaymentStatus = { clientKey: string; enabled: boolean; hasSecret: boolean; secretMode: string };
 
-export default function PaymentForm({ slug, status }: { slug: string; status: PaymentStatus }) {
+export default function PaymentForm({ slug, status, resale = false }: { slug: string; status: PaymentStatus; resale?: boolean }) {
   const initial: PaymentState = { error: null, message: null, clientKey: status.clientKey, enabled: status.enabled };
   const [state, formAction, pending] = useActionState(savePaymentAction.bind(null, slug), initial);
   const mode = keyMode(status.clientKey);
   const label = !status.enabled ? "꺼짐" : `켜짐 · ${mode ? MODE_LABEL[mode] : "키 확인 필요"}`;
+
+  // M5-2(0094): 분양몰은 본사 토스 키를 자동으로 그대로 씀(결정 5) — 입력 칸 없이 상태만
+  if (resale) {
+    return (
+      <fieldset className="rounded-lg border p-4" data-card-payment data-resale>
+        <legend className="px-1 text-sm font-semibold">카드 결제(토스페이먼츠)</legend>
+        <p className="text-sm text-gray-600">
+          분양몰의 카드 결제는 <b>본사 토스페이먼츠 계정</b>으로 받습니다(입금 계좌와 같은 방식). 본사가 카드 결제를 켜면 이 몰 주문서에도 자동으로 켜지고, 결제가 끝나면 본사로 주문이 바로 전달됩니다. 분양 마진은 구매 확정 뒤 「매출·정산」 장부에 쌓입니다.
+        </p>
+        <p className="mt-2 text-sm" data-card-status>상태 <b>{label}</b> <span className="text-gray-500">(본사 설정)</span></p>
+      </fieldset>
+    );
+  }
 
   return (
     <fieldset className="rounded-lg border p-4" data-card-payment>
