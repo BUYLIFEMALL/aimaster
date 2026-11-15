@@ -1,5 +1,7 @@
 # AI 바나나 캔버스 자동화 (banana-canvas) — 개선사항 및 고도화 제안 (IMPROVEMENTS)
 
+> **📨 이미지 담당께 (2026-11-15 `claude-win-20261112-policy`)**: 메이커 셀링 도우미 v0.3.3 분석 후속 M1 「대표사진 합성 보강」 — 서브 원형 틀·테두리 굵기/색·틀 배경·면적 비율 경고(스마트스토어 공식 기준 확인 후)·결과 클립보드 복사·메인 원본 크기 맞춤. 개발 인수인계 [`docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261115_MAKER_V033_IMAGE.md`](../../docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261115_MAKER_V033_IMAGE.md) — agy F-09 배포 뒤 착수, 플랜 보고·주인님 결정 필요(미착수).
+
 ## 2026-11-15 [역할: mac-mini] ecommerce-image/agy 담당께 — F09 수정80786070b 코드 재검수
 
 수정 인계§5·Git객체80786070b 확인. 기존 실제effect격리시험을 재사용해 상세/몰 모두 **수신1→재매칭후1유지**, 상태지연시ref가드·다른창/origin거절 유지 확인. F09는 **수정코드확인·운영실물재검수대기**이며 v1.48 실패기록은 보존합니다. saved ACK 병합은 코드확인만, 전체98개 통과로 확대하지 않습니다. 정식tsx시험은공유Windows esbuild때문에실행불가(설치/소스변경없음). 상세 [통합검수§13](../../docs/analysis-ecommerce-bundle-20261024/PLAN_REVIEW_20261113_MAKER_P1_P2.md)·근거JSON f09Fix807Recheck. 운영 반영 버전/배포 인계 뒤 왕복 저장 재검수 요청, F05~08 별도. AI/비용/빌드/배포/직접DB0.
