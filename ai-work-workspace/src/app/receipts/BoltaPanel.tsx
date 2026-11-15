@@ -3,7 +3,7 @@
 // 처음 설정 4단계: 1 볼타 API 키 등록 → 2 발급자(내 사업자) 등록 → 3 공동인증서 등록 → 4 테스트 발급 확인 뒤 live_ 키로 바꾸고 실제 발급 동의.
 import { useCallback, useEffect, useState } from "react";
 import { rpc } from "@/lib/standaloneRpc";
-import { certDaysLeft } from "@/server/boltaCert";
+import { boltaNextStep, certDaysLeft, type BoltaNextStep } from "@/server/boltaCert";
 
 interface BtStatus { keys: boolean; keyOk: boolean; mode: "test" | "live" | null; bizNo: boolean; issuer: boolean | null; cert: boolean | null; certExpires: string | null; liveAgreed: boolean; problem: string | null; webhookUrl?: boolean }
 
@@ -40,8 +40,16 @@ export function BoltaPanel({ notify }: { notify: (n: { text: string; error?: boo
   });
   const cert = () => run(async () => {
     const r = await rpc<{ url: string }>("btCertUrl", {});
-    window.open(r.url, "bolta-cert", "width=640,height=760,scrollbars=yes,resizable=yes");
-    notify({ text: "볼타 공동인증서 등록 창을 열었습니다(5분 안에 진행). 등록을 마친 뒤 「상태 새로고침」을 눌러 주세요." });
+    const w = window.open(r.url, "bolta-cert", "width=640,height=760,scrollbars=yes,resizable=yes");
+    notify({ text: "볼타 공동인증서 등록 창을 열었습니다(5분 안에 진행). 등록 창을 닫으면 상태를 자동으로 다시 확인합니다." });
+    // 2026-11-15: 등록 창이 닫히면 상태를 자동으로 다시 불러온다(최대 10분 지켜봄)
+    const started = Date.now();
+    const timer = window.setInterval(() => {
+      if (!w || w.closed || Date.now() - started > 600_000) {
+        window.clearInterval(timer);
+        void load();
+      }
+    }, 1500);
   });
   const agree = () => run(async () => {
     if (!window.confirm("실제 발급 키(live_)로 발급합니다. 「볼타 발급」을 누르면 국세청에 실제 세금계산서가 발급되고, 건당 요금(정발행 1건 90원, 볼타 공개 요금 기준)이 볼타 포인트에서 차감됩니다. 동의하십니까?")) return;
@@ -76,14 +84,13 @@ export function BoltaPanel({ notify }: { notify: (n: { text: string; error?: boo
                 {step(st.cert, `3. 공동인증서(사업자용) 등록${st.certExpires ? ` — 만료 ${st.certExpires.slice(0, 10)}${certNote(st.certExpires)}` : ""}`)}
                 {step(st.mode === "live" && st.liveAgreed, "4. 테스트 발급 확인 뒤 live_ 키로 바꾸고 실제 발급 동의")}
               </ol>
+              <NextStep step={boltaNextStep(st)} busy={busy} register={() => void register()} cert={() => void cert()} agree={() => void agree()} />
               <p className="rc-hint">지금 키: <b>{st.mode === "live" ? "🔴 실제 발급(live_)" : st.mode === "test" ? "🧪 테스트(test_)" : "없음"}</b></p>
               {st.problem && <p className="rc-hint">⚠️ {st.problem}</p>}
               {!st.bizNo && <p className="rc-hint">⚠️ 위 「내 사업자」에 사업자등록번호·이메일을 먼저 저장해 주세요.</p>}
               {(!st.keys || !st.keyOk) && <p className="rc-hint">➡️ <a href="/settings/keys">API키등록·플랫폼연동</a>에서 볼타 API 키를 등록해 주세요(<a href="https://docs.bolta.io" target="_blank" rel="noreferrer">볼타 개발자 문서 ↗</a>).</p>}
               <div className="rc-row-btns">
-                {st.keyOk && st.bizNo && st.issuer === false && <button type="button" className="rc-btn" disabled={busy} onClick={() => void register()}>발급자 등록</button>}
-                {st.issuer && <button type="button" className="rc-btn ghost" disabled={busy} onClick={() => void cert()}>🔐 공동인증서 등록 창 열기</button>}
-                {st.mode === "live" && !st.liveAgreed && <button type="button" className="rc-btn ghost" disabled={busy} onClick={() => void agree()}>실제 발급 동의</button>}
+                {st.issuer && st.cert && <button type="button" className="rc-btn ghost" disabled={busy} onClick={() => void cert()}>🔐 공동인증서 다시 등록</button>}
                 <button type="button" className="rc-btn ghost" disabled={busy} onClick={() => void load()}>상태 새로고침</button>
               </div>
               <p className="rc-hint">⚠️ 테스트 키와 실제 키는 볼타 안에서 발급자·인증서가 따로입니다. live_ 키로 바꾸면 2·3단계를 한 번 더 해 주세요. 발급은 문서마다 「📤 볼타 발급」을 직접 누를 때만 하며, 볼타가 접수한 뒤 결과가 나오면(테스트 10~30초, 실제 약 10분) 같은 버튼으로 확인합니다. 응답이 불확실하면 자동으로 다시 보내지 않습니다.</p>
@@ -106,4 +113,30 @@ function certNote(expiresAt: string): string {
   const d = certDaysLeft(expiresAt);
   if (d === null || d > 30) return "";
   return d < 0 ? " · ⚠️ 만료됨 — 새 인증서를 다시 등록해 주세요" : ` · ⚠️ D-${d} 갱신 필요`;
+}
+
+// 2026-11-15: 처음 설정 중 「지금 할 일」 하나만 크게(버튼도 그 단계 것만). 판단은 server/boltaCert.ts boltaNextStep
+const NEXT_TEXT: Record<BoltaNextStep, string> = {
+  key: "API키등록·플랫폼연동에서 볼타 API 키(test_로 시작하는 키부터)를 등록해 주세요.",
+  biz: "위 「내 사업자」에 사업자등록번호·상호·대표자·이메일을 저장해 주세요.",
+  issuer: "「내 사업자」를 볼타 발급자로 등록합니다.",
+  cert: "사업자용 공동인증서를 볼타에 등록합니다. 창을 닫으면 상태를 자동으로 다시 확인합니다.",
+  renew: "공동인증서 만료가 30일 안으로 다가왔습니다. 갱신한 인증서를 볼타에 다시 등록해 주세요.",
+  test: "테스트 키로 세금계산서 하나를 「📤 볼타 발급」해 보고, 잘 되면 live_ 키로 바꿔 등록해 주세요(바꾼 뒤 2·3단계를 한 번 더).",
+  agree: "실제 발급(live_ 키)에 동의하면 발급을 시작할 수 있습니다.",
+  done: "설정이 끝났습니다. 세금계산서마다 「📤 볼타 발급」을 누르면 실제로 발급됩니다.",
+};
+function NextStep({ step, busy, register, cert, agree }: { step: BoltaNextStep; busy: boolean; register: () => void; cert: () => void; agree: () => void }) {
+  const button =
+    step === "key" ? <a className="rc-btn" href="/settings/keys">🔑 키 등록하러 가기</a>
+    : step === "issuer" ? <button type="button" className="rc-btn" disabled={busy} onClick={register}>발급자 등록</button>
+    : step === "cert" || step === "renew" ? <button type="button" className="rc-btn" disabled={busy} onClick={cert}>🔐 공동인증서 등록 창 열기</button>
+    : step === "agree" ? <button type="button" className="rc-btn" disabled={busy} onClick={agree}>실제 발급 동의</button>
+    : null;
+  return (
+    <div className="rc-card" style={{ margin: "8px 0", borderColor: step === "done" ? undefined : "#6366f1" }}>
+      <p style={{ margin: 0 }}><b>{step === "done" ? "✅ " : "👉 지금 할 일: "}</b>{NEXT_TEXT[step]}</p>
+      {button && <div className="rc-row-btns" style={{ marginTop: 6 }}>{button}</div>}
+    </div>
+  );
 }

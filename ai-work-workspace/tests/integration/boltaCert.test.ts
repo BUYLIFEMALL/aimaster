@@ -56,3 +56,21 @@ describe('공동인증서 만료 — 매일 알림', () => {
     expect(sent).toHaveLength(3);
   });
 });
+
+import { boltaNextStep } from '@/server/boltaCert';
+describe('볼타 처음 설정 — 지금 할 일 하나', () => {
+  it('키 → 내 사업자 → 발급자 → 인증서 → (만료 임박 갱신) → 테스트 → 실제 발급 동의 → 끝', () => {
+    const now = kst('2026-11-15');
+    const base = { keys: true, keyOk: true, mode: 'test' as const, bizNo: true, issuer: true, cert: true, certExpires: '2027-07-27T00:00:00+09:00', liveAgreed: false };
+    expect(boltaNextStep({ ...base, keys: false }, now)).toBe('key');
+    expect(boltaNextStep({ ...base, keyOk: false }, now)).toBe('key');
+    expect(boltaNextStep({ ...base, bizNo: false }, now)).toBe('biz');
+    expect(boltaNextStep({ ...base, issuer: false }, now)).toBe('issuer');
+    expect(boltaNextStep({ ...base, cert: false }, now)).toBe('cert');
+    expect(boltaNextStep({ ...base, certExpires: '2026-12-01T00:00:00+09:00' }, now)).toBe('renew');
+    expect(boltaNextStep(base, now)).toBe('test');
+    expect(boltaNextStep({ ...base, mode: 'live' }, now)).toBe('agree');
+    expect(boltaNextStep({ ...base, mode: 'live', liveAgreed: true }, now)).toBe('done');
+    expect(boltaNextStep({ ...base, issuer: null, cert: null }, now)).toBe('test'); // 상태 조회 실패(null)는 막지 않음
+  });
+});

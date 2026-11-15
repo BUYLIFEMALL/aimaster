@@ -20,3 +20,20 @@ export function certReminderText(expiresAt: string, now = Date.now()): string {
     ? `볼타에 등록한 공동인증서가 ${day}에 만료됐습니다. 새 인증서를 볼타에 다시 등록해야 세금계산서를 발급할 수 있습니다.`
     : `볼타에 등록한 공동인증서가 ${d}일 뒤(${day}) 만료됩니다. 만료 전에 인증서를 갱신해 볼타에 다시 등록해 주세요.`;
 }
+
+// 2026-11-15 볼타 처음 설정: 「지금 할 일」 하나만 고른다(화면이 그 단계 버튼만 크게 보여 줌) — 순수 함수
+export interface BoltaSetupState { keys: boolean; keyOk: boolean; mode: 'test' | 'live' | null; bizNo: boolean; issuer: boolean | null; cert: boolean | null; certExpires: string | null; liveAgreed: boolean }
+export type BoltaNextStep = 'key' | 'biz' | 'issuer' | 'cert' | 'renew' | 'test' | 'agree' | 'done';
+export function boltaNextStep(st: BoltaSetupState, now = Date.now()): BoltaNextStep {
+  if (!st.keys || !st.keyOk) return 'key';
+  if (!st.bizNo) return 'biz';
+  if (st.issuer === false) return 'issuer';
+  if (st.cert === false) return 'cert';
+  if (st.cert && st.certExpires) {
+    const d = certDaysLeft(st.certExpires, now);
+    if (d !== null && d <= 30) return 'renew';
+  }
+  if (st.mode === 'test') return 'test';
+  if (st.mode === 'live' && !st.liveAgreed) return 'agree';
+  return 'done';
+}
