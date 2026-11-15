@@ -137,7 +137,7 @@ const indexHtml = `<!DOCTYPE html>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=1440, initial-scale=1" />
-  <title>AIMaster AI 쇼핑몰 빌더 손님 화면 템플릿 카탈로그 (9종 종합 비교)</title>
+  <title>AIMaster AI 쇼핑몰 빌더 유저 화면 템플릿 카탈로그 (9종 종합 비교)</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -266,10 +266,10 @@ const indexHtml = `<!DOCTYPE html>
           AIMASTER OFFICIAL MALL TEMPLATES
         </div>
         <h1 style="font-size: 32px; font-weight: 900; letter-spacing: -0.02em;">
-          AI 쇼핑몰 빌더 손님 화면 템플릿 카탈로그 (9종 종합 비교)
+          AI 쇼핑몰 빌더 유저 화면 템플릿 카탈로그 (9종 종합 비교)
         </h1>
         <p style="color: #94A3B8; font-size: 14.5px; margin-top: 6px;">
-          주인님께서 손님 화면 디자인을 한눈에 보시고 바로 채택·지정하실 수 있는 마스터 갤러리 덱입니다.
+          주인님께서 유저 화면 디자인을 한눈에 보시고 바로 채택·지정하실 수 있는 마스터 갤러리 덱입니다.
         </p>
       </div>
       <div style="text-align: right;">
