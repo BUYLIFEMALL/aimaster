@@ -438,3 +438,8 @@
   - ⚠ 발견(렌더러와 무관, 윈도우 영상 담당 참고): `/edit` 「영상 만들기」(브라우저 안 렌더)가 맥미니(인텔 i7-8700B)에서 5초 영상 하나에 약 25분 걸렸다(21:20 시작 → 21:25 8% → 21:49 완성). 콘솔 오류 없음, 크롬 CPU 약 25%만 사용, 같은 영상을 반복해서 받지는 않음(서명 주소 44건·고유 18). 콘솔에 「Noto Sans KR 글꼴 요청 121건」 경고. 진행이 매우 느리다는 안내나 「내 PC 렌더러로 만들기」 대안 검토 필요.
   - 요금 드는 버튼(음성 만들기·이 설정으로 다시 만들기)은 누르지 않음 — 코드(`components/edit/EditStudio.tsx`)로 「영상 만들기」가 음성을 자동 생성하지 않음을 먼저 확인.
 - 참고(같은 날 확인 중 발견): 맥에서 확장을 SMB 폴더로 불러온 경우 폴더가 끊겼다 다시 붙으면 옛 작동 코드가 남을 수 있다 — ↻를 다시 누를 것(v1.22 맥 확인 항목). 커밋 중 한 번 「index file corrupt」가 떴으나 다른 세션이 같은 순간 커밋 중이던 일시 현상이었고, 바로 뒤 확인에서 스테이징 11,866개·잠금 없음 정상이었다(아무것도 고치지 않음).
+
+## 2026-11-15 v1.30·v1.31 ✅ 배포 — 🛍 상품 사진 영상(메이커 v0.3.3 후속 M2, Claude Code 윈도우 `claude-win-video`)
+- 한 일: `/product-video` + `components/ProductVideoStudio.tsx`(그리기·만들기·일괄·ZIP) + `lib/productVideo.ts`(시간표·움직임·넘김·파일 이름 묶기·WebP 단계, 시험 9개) + 공용 `browser-mp4-encoder` 사본 `lib/mp4Encoder.ts`(새 사본, `mp4-muxer` 의존성 추가) + 좌측 메뉴 항목. 확장·렌더러 ZIP v1.31, DB SQL `supabase/migrations/20261115_v1_30_product_video.sql`·`20261115_v1_31_product_video_fix.sql`.
+- 주의: MP4 크기는 가로·세로 모두 짝수(H.264) — 상세페이지는 860×1076. WebP는 MP4를 `ffmpeg.wasm`(코어 0.12.6 `libwebp_anim`)으로 바꾸고 10MB 넘으면 `WEBP_LADDER`로 줄인다. 작은 글자는 노토 산스 700. 「상세페이지로」 넘기기는 받는 쪽이 GIF만 받아 아직 없음.
+- 상세 기록: `docs/IMPROVEMENTS.md` 맨 위, 플랜 `docs/PLAN_20261115_MAKER_M2_PRODUCT_PHOTO_VIDEO.md`.

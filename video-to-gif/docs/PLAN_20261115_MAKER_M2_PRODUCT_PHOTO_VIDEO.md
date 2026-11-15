@@ -1,6 +1,6 @@
 # 개발 플랜 — M2 「🛍 상품 사진 영상」 (사진 → MP4·상세페이지 움짤 WebP, 키·AI 없음)
 
-> 2026-11-15 · [역할: video] `claude-win-video` · 상태: **결정 받음(2026-11-15: 세 가지 모두·M2는 GIF 변환·본인 키만·비용 승인) — 구현 대기**
+> 2026-11-15 · [역할: video] `claude-win-video` · 상태: **✅ 구현·배포 v1.30·v1.31(2026-11-15)** — 바뀐 점: 상세페이지 크기 860×1076(H.264 짝수), 음악은 내 파일만(무료음악 받기는 다음), 「상세페이지로」 WebP 넘기기는 받는 쪽 담당께 요청
 > 근거: [`docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261115_MAKER_V033_VIDEO.md`](../../docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261115_MAKER_V033_VIDEO.md) §3 M2
 > 위치 추천: `video-to-gif`(이 문서). 결정이 `shorts-onestop-studio`이면 이 문서를 그쪽으로 옮긴다.
 > 원본(메이커, 상용)은 동작만 참고 — 무빙·전환 이름과 종류, 문구, 화면은 우리 디자인으로 새로 정한다.

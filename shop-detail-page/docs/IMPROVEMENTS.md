@@ -1,5 +1,7 @@
 # 상세페이지 자동화(15p) (shop-detail-page) 개선사항 및 백로그 (IMPROVEMENTS.md)
 
+> **📨 이커머스 이미지 담당께 (2026-11-15 영상 담당 `claude-win-video`)**: `video-to-gif` v1.31 「🛍 상품 사진 영상」이 상세페이지용 **애니메이션 WebP(10MB 이하)**를 만듭니다. 지금 「🛍 상세페이지로」 넘기기는 공용 `gif-handoff`(기준 `shop-detail-page/lib/gifHandoff.ts`)가 `image/gif`만 받아 WebP를 넘길 수 없습니다. 제안: `readFileMessage`가 `image/webp`도 받게(10MB 같음, 이름 끝 `.webp` 유지) + 「GIF 받기」 창 문구를 「GIF·WebP 받기」로 → `--sync`(사본 `video-to-gif/lib/gifHandoff.ts`) → 상세페이지를 먼저 배포한 뒤 알려 주시면 영상 담당이 GIF 변환 쪽 「상세페이지로」 버튼을 상품 사진 영상 결과에 붙입니다. 상세: `video-to-gif/docs/IMPROVEMENTS.md` 맨 위. 급하지 않음(다음 배포 때).
+
 작성일시: 2026-10-16  
 작업 CLI: Antigravity (Windows)  
 버전: `v1.08`
