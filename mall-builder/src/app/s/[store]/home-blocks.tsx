@@ -179,12 +179,12 @@ function Gallery({ s }: { s: GallerySettings }) {
 }
 
 /** D28 탭 상품 — 서버가 탭마다 만든 상품 격자를 받아 누르면 바꿔 보인다 */
-export function TabsView({ title, labels, panels }: { title: string; labels: string[]; panels: ReactNode[] }) {
+export function TabsView({ title, labels, panels, skin }: { title: string; labels: string[]; panels: ReactNode[]; skin?: "line" }) {
   const [i, setI] = useState(0);
   return (
     <div className="px-4 sm:px-6" data-tabs>
       {title && <h2 className="mb-4 text-xl font-black tracking-tight text-slate-900" data-edit-field="title">{title}</h2>}
-      <div className="mb-5 flex gap-2 overflow-x-auto pb-1 scrollbar-none" role="tablist">
+      <div className={skin === "line" ? "mb-5 flex gap-6 overflow-x-auto border-b border-slate-200 scrollbar-none" : "mb-5 flex gap-2 overflow-x-auto pb-1 scrollbar-none"} role="tablist" data-tabs-skin={skin ?? "pill"}>
         {labels.map((l, j) => (
           <button
             key={j}
@@ -192,11 +192,13 @@ export function TabsView({ title, labels, panels }: { title: string; labels: str
             role="tab"
             aria-selected={i === j}
             onClick={() => setI(j)}
-            className={`whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
-              i === j
-                ? "bg-slate-900 text-white shadow-xs"
-                : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-            }`}
+            className={
+              skin === "line"
+                ? `-mb-px whitespace-nowrap border-b-2 px-1 pb-2.5 text-sm font-semibold transition-colors ${i === j ? "border-slate-900 text-slate-900" : "border-transparent text-slate-500 hover:text-slate-800"}`
+                : `whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
+                    i === j ? "bg-slate-900 text-white shadow-xs" : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                  }`
+            }
           >
             {l}
           </button>

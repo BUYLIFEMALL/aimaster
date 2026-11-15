@@ -22,9 +22,9 @@ export type NoticeSettings = { title: string; count: number; skin?: "line" }; //
 // D28 새 블록 6종(2026-11-11, 주인님 「추천안 4가지 그대로」)
 export type VideoSettings = { url: string; title: string }; // 유튜브·비메오 주소만(저장 비용 없음)
 export type ProductSource = { source: ShowcaseSource; category_id: string; product_ids: string[] };
-export type TabsSettings = { title: string; tabs: ({ label: string } & ProductSource)[]; columns: number; limit: number; card?: CardOptions };
+export type TabsSettings = { title: string; tabs: ({ label: string } & ProductSource)[]; columns: number; limit: number; card?: CardOptions; skin?: "line" }; // skin 없음 = 알약 탭(기본)
 export type TimesaleSettings = { title: string; subtitle: string; ends_at: string; columns: number; limit: number; card?: CardOptions } & ProductSource; // 표시만(가격은 그대로), 끝나면 자동 숨김
-export type ReviewsSettings = { title: string; count: number; min_rating: number };
+export type ReviewsSettings = { title: string; count: number; min_rating: number; skin?: "slide" }; // skin 없음 = 카드 격자(기본)
 export type CategoryIconsSettings = { title: string; items: { category_id: string; image: string; emoji: string }[]; skin?: "circle" | "chip" }; // skin 없음 = 둥근 사각(기본)
 export type GallerySettings = { title: string; columns: number; items: { image: string; link: string }[] }; // 인스타 대신 운영사가 직접 올리는 사진 격자
 // D5-8 글 히어로(2026-11-15) — 그림 없이 맨 위 큰 제목·설명·단추 2개, 오른쪽 대표 상품 1개(선택). agy 115 시안 맨 위 영역
@@ -186,6 +186,8 @@ export const BLOCK_SKINS: Partial<Record<BlockType, { id: string; label: string 
   banner: [{ id: "", label: "둥근 카드" }, { id: "full", label: "꽉 찬 띠" }, { id: "overlay", label: "글 얹은 배너" }],
   category_icons: [{ id: "", label: "둥근 사각" }, { id: "circle", label: "동그라미" }, { id: "chip", label: "글자 칩" }],
   notice: [{ id: "", label: "목록" }, { id: "line", label: "한 줄 띠" }],
+  tabs: [{ id: "", label: "알약 탭" }, { id: "line", label: "밑줄 탭" }],
+  reviews: [{ id: "", label: "카드 격자" }, { id: "slide", label: "가로 넘김 인용" }],
 };
 
 export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
@@ -318,7 +320,7 @@ export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
         if (!src.ok) return { ok: false, error: `${i + 1}번째 탭: ${src.error}` };
         out.push({ label, ...src.value });
       }
-      return { ok: true, value: { title: str(s.title).slice(0, 40), tabs: out, columns: int(s.columns, 2, 5, 4), limit: int(s.limit, 2, 24, 8), ...cardOf(s) } };
+      return { ok: true, value: { title: str(s.title).slice(0, 40), tabs: out, columns: int(s.columns, 2, 5, 4), limit: int(s.limit, 2, 24, 8), ...cardOf(s), ...(s.skin === "line" ? { skin: "line" as const } : {}) } };
     },
   },
   timesale: {
@@ -343,7 +345,7 @@ export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
     defaults: () => ({ title: "생생한 구매 후기", count: 6, min_rating: 4 }),
     validate: (raw) => {
       const s = (raw ?? {}) as Partial<ReviewsSettings>;
-      return { ok: true, value: { title: str(s.title).slice(0, 40) || "구매 후기", count: int(s.count, 3, 12, 6), min_rating: int(s.min_rating, 1, 5, 4) } };
+      return { ok: true, value: { title: str(s.title).slice(0, 40) || "구매 후기", count: int(s.count, 3, 12, 6), min_rating: int(s.min_rating, 1, 5, 4), ...(s.skin === "slide" ? { skin: "slide" as const } : {}) } };
     },
   },
   category_icons: {

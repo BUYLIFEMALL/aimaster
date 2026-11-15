@@ -85,6 +85,7 @@ export function renderSlot(b: Block, base: string, d: SlotData): ReactNode {
       <TabsView
         title={s.title}
         labels={s.tabs.map((t) => t.label)}
+        skin={s.skin}
         panels={s.tabs.map((_, i) => <ProductGrid key={i} base={base} products={lists[i] ?? []} columns={s.columns} card={s.card} empty="보여 줄 상품이 없습니다." />)}
       />
     );
@@ -118,9 +119,10 @@ export function renderSlot(b: Block, base: string, d: SlotData): ReactNode {
     return list.length ? (
       <div className="px-4 sm:px-6" data-reviews-block>
         <h2 className="mb-4 text-xl font-black tracking-tight text-slate-900" data-edit-field="title">{s.title}</h2>
-        <ul className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className={s.skin === "slide" ? "flex snap-x gap-3.5 overflow-x-auto pb-2 scrollbar-none" : "grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3"} data-reviews-skin={s.skin ?? "grid"}>
           {list.map((rv) => (
-            <li key={rv.id} className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs transition-shadow hover:shadow-md">
+            <li key={rv.id} className={`rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs transition-shadow hover:shadow-md ${s.skin === "slide" ? "w-72 shrink-0 snap-start sm:w-80" : ""}`}>
+              {s.skin === "slide" && <p className="text-3xl font-black leading-none text-slate-200" aria-hidden>“</p>}
               <p className="text-amber-400 text-sm tracking-wider" aria-label={`별점 ${rv.rating}점`}>
                 {"★".repeat(rv.rating)}
                 <span className="text-slate-200">{"★".repeat(5 - rv.rating)}</span>

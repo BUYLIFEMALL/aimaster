@@ -52,3 +52,11 @@ test("바로 편집: 글 얹은 배너의 큰 글·작은 글을 고칠 수 있�
   assert.equal(r.doc.blocks[0].settings.headline, "새 글");
   assert.equal(r.doc.blocks[0].settings.image, IMG);
 });
+
+test("2차: 탭은 밑줄 탭, 후기는 가로 넘김 인용만 저장(그 밖은 기본)", () => {
+  const tabs = (skin) => BLOCK_DEFS.tabs.validate({ title: "", tabs: [{ label: "새", source: "new", category_id: "", product_ids: [] }, { label: "옛", source: "new", category_id: "", product_ids: [] }], columns: 4, limit: 8, skin });
+  assert.equal(tabs("line").value.skin, "line");
+  assert.equal("skin" in tabs("x").value, false);
+  assert.equal(BLOCK_DEFS.reviews.validate({ title: "후기", count: 6, min_rating: 4, skin: "slide" }).value.skin, "slide");
+  assert.equal("skin" in BLOCK_DEFS.reviews.validate({ title: "후기", count: 6, min_rating: 4 }).value, false);
+});

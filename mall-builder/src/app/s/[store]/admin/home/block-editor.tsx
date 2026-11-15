@@ -246,6 +246,7 @@ export function SettingsForm({ storeId, block, categories, products, onChange }:
     const setTab = (i: number, patch: Partial<TabsSettings["tabs"][number]>) => onChange({ ...s, tabs: s.tabs.map((t, j) => (j === i ? { ...t, ...patch } : t)) });
     return (
       <div className="space-y-3">
+        <SkinPicker type="tabs" value={s.skin} onChange={(v) => onChange({ ...s, skin: v as TabsSettings["skin"] })} />
         <TitleInput value={s.title} onChange={(title) => onChange({ ...s, title })} />
         {s.tabs.map((t, i) => (
           <div key={i} className="rounded border p-2">
@@ -291,6 +292,7 @@ export function SettingsForm({ storeId, block, categories, products, onChange }:
     const s = block.settings as ReviewsSettings;
     return (
       <div className="space-y-3">
+        <SkinPicker type="reviews" value={s.skin} onChange={(v) => onChange({ ...s, skin: v as ReviewsSettings["skin"] })} />
         <TitleInput value={s.title} onChange={(title) => onChange({ ...s, title })} hint="제목" />
         <div className="grid grid-cols-2 gap-2">
           <NumberInput label="보여 줄 후기 수(3~12)" value={s.count} min={3} max={12} onChange={(count) => onChange({ ...s, count })} />
