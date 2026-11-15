@@ -4,9 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Mail, MessageSquare, KeyRound } from "lucide-react";
-import GlassCard from "@/components/ui/GlassCard";
-import GoldButton from "@/components/ui/GoldButton";
-import GoldGradientText from "@/components/ui/GoldGradientText";
+import { AuthButton, AuthShell } from "../_components/AuthShell";
 import { formatPhoneNumber } from "@/lib/utils/format";
 import { isValidPhone } from "@/lib/utils/phone";
 import CodeTimer from "../_components/CodeTimer";
@@ -96,23 +94,7 @@ export default function ForgotPasswordForm() {
     }`;
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gold/5 rounded-full blur-[100px]" />
-      </div>
-
-      <div className="relative w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold to-gold-light flex items-center justify-center">
-              <span className="text-black font-black">AI</span>
-            </div>
-            <GoldGradientText className="text-2xl font-black">AI Master</GoldGradientText>
-          </Link>
-          <p className="text-subtext mt-3">본인 인증 후 새 비밀번호를 설정하세요</p>
-        </div>
-
-        <GlassCard>
+    <AuthShell subtitle="본인 인증 후 새 비밀번호를 설정하세요">
           <div className="flex gap-2 mb-6">
             <button type="button" className={tabClass("email")} onClick={() => switchTab("email")}>
               <Mail size={16} /> 이메일로 인증
@@ -129,12 +111,12 @@ export default function ForgotPasswordForm() {
               </p>
               <div>
                 <label className="block text-sm font-medium text-white mb-2">가입 이메일</label>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-dark w-full" placeholder="your@email.com" required autoFocus />
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="auth-input w-full" placeholder="your@email.com" required autoFocus />
               </div>
               <Messages notice={notice} error={error} />
-              <GoldButton type="submit" fullWidth size="lg" disabled={loading}>
+              <AuthButton type="submit" fullWidth size="lg" disabled={loading}>
                 {loading ? "보내는 중..." : <><Mail size={18} /> 재설정 메일 받기</>}
-              </GoldButton>
+              </AuthButton>
             </form>
           ) : (
             <form onSubmit={codeSent ? handleVerify : handleSendCode} className="space-y-5">
@@ -143,11 +125,11 @@ export default function ForgotPasswordForm() {
               </p>
               <div>
                 <label className="block text-sm font-medium text-white mb-2">가입 이메일</label>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-dark w-full" placeholder="your@email.com" required disabled={codeSent} />
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="auth-input w-full" placeholder="your@email.com" required disabled={codeSent} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-white mb-2">핸드폰</label>
-                <input type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(formatPhoneNumber(e.target.value))} className="input-dark w-full" placeholder="010-1234-5678" required disabled={codeSent} />
+                <input type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(formatPhoneNumber(e.target.value))} className="auth-input w-full" placeholder="010-1234-5678" required disabled={codeSent} />
               </div>
               {codeSent && (
                 <div>
@@ -159,7 +141,7 @@ export default function ForgotPasswordForm() {
                     maxLength={6}
                     value={code}
                     onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, ""))}
-                    className="input-dark w-full tracking-[0.4em] text-center text-lg"
+                    className="auth-input w-full tracking-[0.4em] text-center text-lg"
                     placeholder="000000"
                     required
                     autoFocus
@@ -171,9 +153,9 @@ export default function ForgotPasswordForm() {
                 </div>
               )}
               <Messages notice={notice} error={error} />
-              <GoldButton type="submit" fullWidth size="lg" disabled={loading}>
+              <AuthButton type="submit" fullWidth size="lg" disabled={loading}>
                 {loading ? "처리 중..." : codeSent ? <><KeyRound size={18} /> 인증하고 비밀번호 바꾸기</> : <><MessageSquare size={18} /> 인증번호 받기</>}
-              </GoldButton>
+              </AuthButton>
             </form>
           )}
 
@@ -189,9 +171,7 @@ export default function ForgotPasswordForm() {
               이메일 찾기
             </Link>
           </p>
-        </GlassCard>
-      </div>
-    </div>
+    </AuthShell>
   );
 }
 

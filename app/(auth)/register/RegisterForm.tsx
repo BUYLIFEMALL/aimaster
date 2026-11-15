@@ -5,9 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import GlassCard from "@/components/ui/GlassCard";
-import GoldButton from "@/components/ui/GoldButton";
-import GoldGradientText from "@/components/ui/GoldGradientText";
+import { AuthButton, AuthShell } from "../_components/AuthShell";
 import { formatPhoneNumber } from "@/lib/utils/format";
 import { isValidPhone } from "@/lib/utils/phone";
 
@@ -123,30 +121,13 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      {/* BG glow */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gold/5 rounded-full blur-[100px]" />
-      </div>
-
-      <div className="relative w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold to-gold-light flex items-center justify-center">
-              <span className="text-black font-black">AI</span>
-            </div>
-            <GoldGradientText className="text-2xl font-black">AI Master</GoldGradientText>
-          </Link>
-          <p className="text-subtext mt-3">무료로 시작하세요</p>
+    <AuthShell subtitle="무료로 시작하세요" tab="register" extra={<>
           {refCode && (
-            <div className="mt-2 inline-flex items-center gap-1 text-xs text-gold bg-gold/10 px-3 py-1 rounded-full border border-gold/20">
+            <div className="mt-3 inline-flex items-center gap-1 text-xs text-gold bg-gold/10 px-3 py-1 rounded-full border border-gold/20">
               추천 코드: {refCode}
             </div>
           )}
-        </div>
-
-        <GlassCard>
+        </>}>
           <form onSubmit={handleRegister} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-white mb-2">이름 <span className="text-red-400">*</span></label>
@@ -154,7 +135,7 @@ export default function RegisterPage() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="input-dark w-full"
+                className="auth-input w-full"
                 placeholder="홍길동"
                 required
                 autoFocus
@@ -167,7 +148,7 @@ export default function RegisterPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="input-dark w-full"
+                className="auth-input w-full"
                 placeholder="your@email.com"
                 required
               />
@@ -180,7 +161,7 @@ export default function RegisterPage() {
                 inputMode="tel"
                 value={phone}
                 onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
-                className="input-dark w-full"
+                className="auth-input w-full"
                 placeholder="010-1234-5678"
                 required
               />
@@ -194,7 +175,7 @@ export default function RegisterPage() {
                   type={showPw ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="input-dark w-full pr-10"
+                  className="auth-input w-full pr-10"
                   placeholder="8자 이상"
                   required
                 />
@@ -214,14 +195,14 @@ export default function RegisterPage() {
               </p>
             )}
 
-            <GoldButton type="submit" fullWidth size="lg" disabled={loading}>
+            <AuthButton type="submit" fullWidth size="lg" disabled={loading}>
               {loading ? "가입 중..." : (
                 <>
                   <UserPlus size={18} />
                   무료 회원가입
                 </>
               )}
-            </GoldButton>
+            </AuthButton>
           </form>
 
           <p className="text-center text-subtext text-sm mt-6">
@@ -230,8 +211,6 @@ export default function RegisterPage() {
               로그인
             </Link>
           </p>
-        </GlassCard>
-      </div>
-    </div>
+    </AuthShell>
   );
 }

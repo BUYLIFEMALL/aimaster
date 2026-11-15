@@ -4,9 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MessageSquare, Search, UserRound } from "lucide-react";
-import GlassCard from "@/components/ui/GlassCard";
-import GoldButton from "@/components/ui/GoldButton";
-import GoldGradientText from "@/components/ui/GoldGradientText";
+import { AuthButton, AuthShell } from "../_components/AuthShell";
 import { formatPhoneNumber } from "@/lib/utils/format";
 import { isValidPhone } from "@/lib/utils/phone";
 import CodeTimer from "../_components/CodeTimer";
@@ -74,23 +72,7 @@ export default function FindEmailForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gold/5 rounded-full blur-[100px]" />
-      </div>
-
-      <div className="relative w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold to-gold-light flex items-center justify-center">
-              <span className="text-black font-black">AI</span>
-            </div>
-            <GoldGradientText className="text-2xl font-black">AI Master</GoldGradientText>
-          </Link>
-          <p className="text-subtext mt-3">가입한 이메일(아이디)을 찾습니다</p>
-        </div>
-
-        <GlassCard>
+    <AuthShell subtitle="가입한 이메일(아이디)을 찾습니다">
           {emails ? (
             <div className="space-y-5">
               <p className="text-sm text-subtext">본인 인증이 완료되었습니다. 가입한 이메일은 아래와 같습니다.</p>
@@ -103,8 +85,8 @@ export default function FindEmailForm() {
               </ul>
               <p className="text-xs text-subtext">개인정보 보호를 위해 이메일 일부를 가려서 보여드립니다.</p>
               <div className="flex gap-2">
-                <GoldButton type="button" fullWidth onClick={() => router.push("/login")}>로그인하기</GoldButton>
-                <GoldButton type="button" variant="outline" fullWidth onClick={() => router.push("/forgot-password")}>비밀번호 찾기</GoldButton>
+                <AuthButton type="button" fullWidth onClick={() => router.push("/login")}>로그인하기</AuthButton>
+                <AuthButton type="button" variant="outline" fullWidth onClick={() => router.push("/forgot-password")}>비밀번호 찾기</AuthButton>
               </div>
             </div>
           ) : (
@@ -114,11 +96,11 @@ export default function FindEmailForm() {
               </p>
               <div>
                 <label className="block text-sm font-medium text-white mb-2">이름</label>
-                <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="input-dark w-full" placeholder="홍길동" required autoFocus disabled={codeSent} />
+                <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="auth-input w-full" placeholder="홍길동" required autoFocus disabled={codeSent} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-white mb-2">핸드폰</label>
-                <input type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(formatPhoneNumber(e.target.value))} className="input-dark w-full" placeholder="010-1234-5678" required disabled={codeSent} />
+                <input type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(formatPhoneNumber(e.target.value))} className="auth-input w-full" placeholder="010-1234-5678" required disabled={codeSent} />
               </div>
               {codeSent && (
                 <div>
@@ -130,7 +112,7 @@ export default function FindEmailForm() {
                     maxLength={6}
                     value={code}
                     onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, ""))}
-                    className="input-dark w-full tracking-[0.4em] text-center text-lg"
+                    className="auth-input w-full tracking-[0.4em] text-center text-lg"
                     placeholder="000000"
                     required
                     autoFocus
@@ -143,9 +125,9 @@ export default function FindEmailForm() {
               )}
               {notice && <p className="text-sm bg-gold/10 border border-gold/30 text-gold-light rounded-lg px-4 py-3">{notice}</p>}
               {error && <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">{error}</p>}
-              <GoldButton type="submit" fullWidth size="lg" disabled={loading}>
+              <AuthButton type="submit" fullWidth size="lg" disabled={loading}>
                 {loading ? "처리 중..." : codeSent ? <><Search size={18} /> 인증하고 이메일 찾기</> : <><MessageSquare size={18} /> 인증번호 받기</>}
-              </GoldButton>
+              </AuthButton>
             </form>
           )}
 
@@ -154,8 +136,6 @@ export default function FindEmailForm() {
             <span className="mx-2 text-subtext/50">|</span>
             <Link href="/forgot-password" className="text-gold hover:underline font-medium">비밀번호 찾기</Link>
           </p>
-        </GlassCard>
-      </div>
-    </div>
+    </AuthShell>
   );
 }

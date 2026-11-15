@@ -5,9 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, KeyRound } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import GlassCard from "@/components/ui/GlassCard";
-import GoldButton from "@/components/ui/GoldButton";
-import GoldGradientText from "@/components/ui/GoldGradientText";
+import { AuthButton, AuthShell } from "../_components/AuthShell";
 
 export default function ResetPasswordForm() {
   const router = useRouter();
@@ -58,23 +56,7 @@ export default function ResetPasswordForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gold/5 rounded-full blur-[100px]" />
-      </div>
-
-      <div className="relative w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold to-gold-light flex items-center justify-center">
-              <span className="text-black font-black">AI</span>
-            </div>
-            <GoldGradientText className="text-2xl font-black">AI Master</GoldGradientText>
-          </Link>
-          <p className="text-subtext mt-3">새 비밀번호를 설정하세요</p>
-        </div>
-
-        <GlassCard>
+    <AuthShell subtitle="새 비밀번호를 설정하세요">
           {!tokenHash ? (
             <div className="space-y-5 text-center">
               <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">
@@ -93,7 +75,7 @@ export default function ResetPasswordForm() {
                     type={showPw ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="input-dark w-full pr-10"
+                    className="auth-input w-full pr-10"
                     placeholder="6자 이상"
                     autoComplete="new-password"
                     required
@@ -110,20 +92,18 @@ export default function ResetPasswordForm() {
                   type={showPw ? "text" : "password"}
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
-                  className="input-dark w-full"
+                  className="auth-input w-full"
                   placeholder="한 번 더 입력"
                   autoComplete="new-password"
                   required
                 />
               </div>
               {error && <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">{error}</p>}
-              <GoldButton type="submit" fullWidth size="lg" disabled={loading}>
+              <AuthButton type="submit" fullWidth size="lg" disabled={loading}>
                 {loading ? "저장 중..." : <><KeyRound size={18} /> 새 비밀번호 저장</>}
-              </GoldButton>
+              </AuthButton>
             </form>
           )}
-        </GlassCard>
-      </div>
-    </div>
+    </AuthShell>
   );
 }
