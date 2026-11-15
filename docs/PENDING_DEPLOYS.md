@@ -15,9 +15,6 @@
 
 ## 대기 중
 
-- **`ai-work-workspace` — Gemini 출처가 다음 요청에 올 때도 「검색함」에 붙이기(2026-11-15 [역할: workspace], `c05873844`)**: v1.44 운영 확인에서 구글 검색과 워크스페이스 검색을 같은 단계에 쓰면 출처(groundingMetadata)가 다음 요청 답에 와서 버려지던 것 수정(답은 정상). 시험 173. 다음 배포 때 함께.
-- **`ai-task-planner` — 받은 할 일 한꺼번에 추가·분류 고르기·메뉴 개수 배지(2026-11-15 [역할: workspace], `457855225`)**: 「넣을 분류」 선택, 「➕ 모두 추가 (N개)」(기록 저장 1번), 메뉴 「대시보드」 옆 `📥 N`. 저장공간 위젯 한 줄·로그아웃 `scope: "local"` 함께. 단위 29·브라우저 모의 31·빌드 통과. 플래너 2번과 함께 v1.14로.
-- **`ai-work-workspace` — 할 일 플래너 2번: 표에서 여러 행 보내기·중복 보내기 막기(2026-11-15 [역할: workspace], `35e680abb`)**: 표 행·선택 막대 「•••」 → 「📨 할 일 플래너로 보내기 (N개)」(최대 50개, 마감일·우선순위), 플래너에 대기 중인 같은 항목은 건너뜀, 「N개 선택됨」 한국어화. 시험 174·빌드 통과. 위 `c05873844`와 함께.
 
 
 - **음악 6개 공통 보완 `b4403e8bd`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: `free-music-studio`·`music`·`ai-music-studio`·`ai-mastering-studio`·`lyric-video-studio`·`music-video-studio` — 로그아웃 local 9곳·서버 `User-Agent` 5곳·저장공간 위젯 4곳. tsc·시험 통과. 단독 배포 안 함, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). ✅ `lyric-video-studio`는 11-13 v1.14, `music`은 11-13 v1.51에 함께 나감.
@@ -92,6 +89,8 @@
 - 2026-11-11 메인 사이트(세션 `claude-win-rea`): 저작권·AI 분석 금지 고지 — `public/ai.txt`, 응답 헤더 `X-Robots-Tag: noai, noimageai`, 하단 저작권 한 줄(약관 제14조 링크) — 저장공간 2단계(관리자 미리보기)와 같은 빌드로 내보냄.
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 | `tistory-auto-blog` | v1.97 · 2026-11-15 ([역할: blog] `claude-win-photo`, 주인님 「미배포 대기 순서대로 배포 진행해」 빌드 4/4, `tistory-auto-blog-odn5g7qv5` Ready, DB·확장·ZIP v1.97 OK) | 결정 4번 모델 교체(gpt-4.1·4o·4o-mini → gpt-6.1-terra·gpt-6-luna, 저장된 옛 값 변환) · 열외 회원 배지 `ae8ea7473` · 공통 3가지(저장공간 위젯·로그아웃 범위·서버 기기 정보), 시험 175 통과 |
+| `ai-work-workspace` | v1.45 · 2026-11-15 ([역할: workspace], 주인님 「진행해」 빌드 2/2, `ai-work-workspace-pdn8met3d` Ready, DB v1.45) | 플래너 2번 표에서 여러 행 보내기·중복 막기 `35e680abb` + Gemini 출처 연결 `c05873844` — 엣지 확인: 콘텐츠 캘린더 3행 → 「3개 선택됨」 → 「📨 할 일 플래너로 보내기 (3개)」 도착(예정일 함께), 다시 보내기 「3개는 건너뜀」 |
+| `ai-task-planner` | v1.14 · 2026-11-15 (같은 세션, 빌드 1/2, `ai-task-planner-g1hq7qoay` Ready, DB v1.14) | 플래너 1번 받은 할 일 분류 고르기·모두 추가·메뉴 배지 + 위젯 한 줄·로그아웃 범위 `457855225` — 엣지 확인: 메뉴 「📥 3」, 분류 「학습」 → 「모두 추가 (3개)」 → 3개 학습 분류·예정일 유지, 받은편지함 3줄 같은 시각 가져감(저장 1번) |
 | `naver-cafe-recruit` | v1.04 · 2026-11-15 (같은 세션, 빌드 3/4, `naver-cafe-recruit-o20i9q5s2` Ready, DB·확장·ZIP v1.04 OK, ZIP에 NOTICE 포함) | 운영진 제외·C모드 숨김 `b61270d8f` · 명단 인원·카운터·팝업 버전 `1bd454187`·`7a85de294` · 공통 3가지, 시험 17 통과 |
 | `wp-blogger-auto` | v1.05 · 2026-11-15 (같은 세션, 빌드 2/4, `wp-blogger-auto-dribyffs2` Ready, DB v1.05) | 화면 제목 `190f971dc` · 발행 용어 `e9e218165`(맥미니) · 공통 3가지, 시험 76 통과 |
 | `blog-neighbor-care` | v1.21 · 2026-11-15 (같은 세션, 빌드 1/4, `blog-neighbor-care-2xbauc6k4` Ready, DB·확장·ZIP v1.21 OK) | 답방 탭 사전 확인·실패 진단 표시 `85eedc18b`, 시험 385 통과 |
