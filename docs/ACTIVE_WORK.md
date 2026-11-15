@@ -1,4 +1,5 @@
-WORK.md) — 동시 작업 방지
+WORK.md) — 동시 작업 | `esm-register/` (새 프로그램) | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-15 | G마켓·옥션 등록기 트랙 1(크롬 확장) 단계 1 웹 뼈대 v1.01 → 단계 2 확장. 플랜 `docs/PLAN_20261115_ESM_EXTENSION.md` |
+방지
 
 
 
