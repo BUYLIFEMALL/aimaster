@@ -1,0 +1,20 @@
+{
+  "observedAt": "2026-11-15T07:33:48.730Z",
+  "kind": "return_post",
+  "message": "브라우저의 현재 탭을 화면에 유지해 주세요.",
+  "focus": false,
+  "visibility": "visible",
+  "version": "v1.21",
+  "tab": [
+    {
+      "id": 940869600,
+      "windowId": 940869598,
+      "url": "https://blog.naver.com/dewdawn5/224231976765"
+    }
+  ],
+  "previewVisible": false,
+  "acceptState": "수락 상태: idle",
+  "uiReadAttempts": 1,
+  "confirmClicks": 0,
+  "acceptClicks": 0
+}
