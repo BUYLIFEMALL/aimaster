@@ -212,21 +212,21 @@ export default async function HomePage() {
           <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] bg-gold/3 rounded-full blur-[80px]" />
         </div>
 
-        <div className="relative text-center max-w-4xl mx-auto">
+        <div className="relative text-center max-w-5xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-bold mb-6 shadow-sm shadow-gold/10">
             <Zap size={13} className="text-gold" />
             <span>AI Master All-in-One</span>
           </div>
 
-          {/* 메인 타이틀: 핵심 캐치프레이즈 키워드 */}
-          <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-4 leading-tight break-keep tracking-tight">
+          {/* 메인 타이틀: 핵심 캐치프레이즈 키워드 (데스크톱 한 줄 고정) */}
+          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-[64px] xl:text-[72px] font-black mb-4 leading-tight tracking-tight break-keep sm:whitespace-nowrap">
             <GoldGradientText className="drop-shadow-[0_4px_24px_rgba(245,158,11,0.35)]">
               모든 자동화를 한 곳에서
             </GoldGradientText>
           </h1>
 
-          {/* 서브 타이틀: 마케팅 / 업무 / 비즈니스 자동화 */}
-          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mb-10 tracking-tight break-keep">
+          {/* 서브 타이틀: 마케팅 / 업무 / 비즈니스 자동화 (데스크톱 한 줄 고정) */}
+          <h2 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mb-10 tracking-tight break-keep sm:whitespace-nowrap">
             모든 마케팅/업무/비지니스를{" "}
             <span className="text-gold">자동화 하세요</span>
           </h2>
