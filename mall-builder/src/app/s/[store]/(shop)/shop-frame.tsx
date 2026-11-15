@@ -129,7 +129,7 @@ export function ShopHeader({ base, storeName, header, categories, showShop, righ
 export function ShopFooter({ storeName, info, footer, logo }: { storeName: string; info: BusinessInfo; footer: FooterDesign; logo: string }) {
   const name = info.company_name || storeName;
   return (
-    <footer className="border-t border-slate-200 bg-slate-900 text-slate-400">
+    <footer className="border-t border-slate-200 bg-slate-900 text-slate-400" data-footer-fixed>
       <div className="mx-auto max-w-6xl px-4 py-12 text-xs leading-relaxed sm:px-6">
         {footer.columns.length > 0 && (
           <div className="mb-8 grid grid-cols-2 gap-6 border-b border-slate-800/80 pb-8 sm:grid-cols-3" data-footer-columns>

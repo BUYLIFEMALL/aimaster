@@ -142,3 +142,18 @@ input[type="submit"] {
 [data-mall-mode="dark"] .mall-html hr { border-color: var(--color-slate-200); }
 /* 진한 회색 칩·단추(bg-slate-900 + text-white 등)는 어둡게에서 바탕이 밝게 뒤집히므로 글자를 진하게(2026-11-15 118 시험에서 발견 — 선택된 탭 글자 안 보임) */
 [data-mall-mode="dark"] :is(.bg-slate-700, .bg-slate-800, .bg-slate-900, .bg-slate-950, .bg-gray-700, .bg-gray-800, .bg-gray-900, .bg-gray-950).text-white { color: var(--color-slate-50); }
+/* I27 바닥글은 원래 어두운 띠 — 어둡게 모드에서 뒤집힌 slate를 바닥글 안에서만 원래 값으로 되돌린다 */
+[data-mall-mode="dark"] [data-footer-fixed] {
+  --color-slate-50: oklch(98.4% 0.003 247.858);
+  --color-slate-100: oklch(96.8% 0.007 247.896);
+  --color-slate-200: oklch(92.9% 0.013 255.508);
+  --color-slate-300: oklch(86.9% 0.022 252.894);
+  --color-slate-400: oklch(70.4% 0.04 256.788);
+  --color-slate-500: oklch(55.4% 0.046 257.417);
+  --color-slate-600: oklch(44.6% 0.043 257.281);
+  --color-slate-700: oklch(37.2% 0.044 257.287);
+  --color-slate-800: oklch(27.9% 0.041 260.031);
+  --color-slate-900: oklch(20.8% 0.042 265.755);
+  --color-slate-950: oklch(12.9% 0.042 264.695);
+  border-top-color: oklch(27.9% 0.041 260.031);
+}
