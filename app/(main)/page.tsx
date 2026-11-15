@@ -213,15 +213,17 @@ export default async function HomePage() {
         </div>
 
         <div className="relative text-center max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/10 border border-gold/30 text-gold text-sm font-medium mb-8">
-            <Zap size={14} />
-            모든 자동화를 한 곳에서
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs sm:text-sm font-bold mb-6 shadow-sm shadow-gold/10">
+            <Zap size={14} className="text-gold" />
+            <span>모든 자동화를 한 곳에서</span>
+            <span className="w-1 h-1 rounded-full bg-gold inline-block" />
+            <span className="text-gold-light/80 font-normal">AI Master All-in-One</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight break-keep">
-            <span className="text-white">모든 마케팅/업무/비지니스를</span>
+          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight break-keep tracking-tight">
+            <span className="text-white drop-shadow-sm">모든 마케팅/업무/비지니스를</span>
             <br />
-            <GoldGradientText>자동화 하세요</GoldGradientText>
+            <GoldGradientText className="drop-shadow-[0_4px_16px_rgba(245,158,11,0.3)]">자동화 하세요</GoldGradientText>
           </h1>
 
           <p className="text-subtext text-lg sm:text-xl md:text-2xl mb-10 max-w-2xl mx-auto leading-relaxed break-keep">
