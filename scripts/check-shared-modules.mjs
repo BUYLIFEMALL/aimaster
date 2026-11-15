@@ -379,7 +379,7 @@ const MODULES = [
     // 브라우저 안 MP4 만들기(WebCodecs + mp4-muxer, 내레이션·배경음악 섞기). 2026-10-21 엔진 공유 2번 — Shots 「브라우저에서 만들기(무료)」에 사용
     id: "browser-mp4-encoder",
     source: "shorts-onestop-studio/src/lib/render/mp4Encoder.ts",
-    copies: ["shots/src/lib/render/mp4Encoder.ts", "lyric-video-studio/src/lib/render/mp4Encoder.ts"],
+    copies: ["shots/src/lib/render/mp4Encoder.ts", "lyric-video-studio/src/lib/render/mp4Encoder.ts", "video-to-gif/lib/mp4Encoder.ts"], // 2026-11-15 video-to-gif 「상품 사진 영상」(메이커 후속 M2)
   },
   {
     // 가사 시간표 읽기·쓰기(.srt·.lrc·붙여넣기, 형식 오류에 너그러움, 탭 싱크·줄 끝·파형 끌기 규칙). 2026-10-21 — 기준 시험 lyric-video-studio/tests/lyrics.test.ts

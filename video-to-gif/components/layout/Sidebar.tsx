@@ -44,6 +44,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
   const isDashboard = pathname === "/dashboard" || pathname === "/";
   const isGuide = pathname === "/guide";
   const isErase = pathname === "/erase";
+  const isProductVideo = pathname === "/product-video";
 
   return (
     <>
@@ -188,6 +189,26 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
             <div className="px-2 pb-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">
               내 영상 편집 도구
             </div>
+            <Link
+              href="/product-video"
+              onClick={() => setMobileOpen(false)}
+              className={`group mb-1 flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-semibold transition-all ${
+                isProductVideo
+                  ? "border border-amber-500/40 bg-gradient-to-r from-amber-500/20 to-transparent text-amber-300 shadow-sm"
+                  : "text-gray-300 hover:bg-[#1f2937] hover:text-white"
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 text-sm">🛍</span>
+                <div>
+                  <div className="font-bold">🛍 상품 사진 영상</div>
+                  <div className="text-[10px] text-gray-400 font-normal">사진 → MP4·상세페이지 움짤</div>
+                </div>
+              </div>
+              <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-300 border border-emerald-500/30">
+                NEW
+              </span>
+            </Link>
             <Link
               href="/erase"
               onClick={() => setMobileOpen(false)}
