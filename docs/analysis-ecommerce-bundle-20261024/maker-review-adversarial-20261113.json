@@ -1511,5 +1511,58 @@
     "runCount": 0,
     "returnCount": 0,
     "saveCount": 0
+  },
+  "f09Fix807Recheck": {
+    "commit": "80786070b",
+    "scope": "actual effect statements extracted by TS AST from Git commit; injected pure dependencies, simulated effect scheduling, no browser/DB",
+    "results": {
+      "method": "actual effect statements extracted with TS AST; imports replaced by injected pure dependencies; React effect scheduling simulated, no DOM/DB",
+      "evidence": [
+        {
+          "from": "shop-detail",
+          "readyTarget": "https://shop-detail-page.buylife.xyz",
+          "wrongWindowRejected": true,
+          "wrongOriginRejected": true,
+          "afterReceive": {
+            "count": 1,
+            "keys": [
+              "11111111-1111-4111-8111-111111111111#0"
+            ],
+            "step": 2
+          },
+          "afterFileEffect": {
+            "count": 1
+          },
+          "linkedJobsLost": false
+        },
+        {
+          "from": "mall",
+          "readyTarget": "https://mall-builder.buylife.xyz",
+          "wrongWindowRejected": true,
+          "wrongOriginRejected": true,
+          "afterReceive": {
+            "count": 1,
+            "keys": [
+              "11111111-1111-4111-8111-111111111111#0"
+            ],
+            "step": 2
+          },
+          "afterFileEffect": {
+            "count": 1
+          },
+          "linkedJobsLost": false
+        }
+      ]
+    },
+    "assertions": [
+      "both sender modes keep one received job after file matching effect",
+      "linkedJobId ref keeps job while isLinkedMode state is stale",
+      "wrong window and origin remain rejected"
+    ],
+    "limitations": [
+      "runtime React end-to-end unverified after fix",
+      "early saved ACK merge read in code only",
+      "standard tsx runner blocked by shared Windows esbuild binary; no install attempted"
+    ]
   }
 }

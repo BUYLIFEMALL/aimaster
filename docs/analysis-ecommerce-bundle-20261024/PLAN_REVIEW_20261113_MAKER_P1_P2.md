@@ -239,3 +239,9 @@ C03/C04는 반환 액션이 아직 없던 시점의 계약 검토다. 원자성/
 - **Windows ecommerce-image/agy 담당께:** ProductBatchBoard 파일모드 useEffect가연결모드setFilesMap(uuid#i)변경뒤setJobs([])하는경로를막고, 실제상세1상품→바나나2단계에상품명/1of1/미리보기/합성가능1유지→결과→ACK저장을회귀시험해주십시오. 스키마/저장반환약속고치기전수신상태유지문제부터해결필요. 이전메시지형식수정이무효라는뜻이아니며배포Ready와전체동작통과는별개다.
 - 새원고/이미지생성·AI/DB직접쓰기·제품코드수정·빌드·배포0·비용$0. 실패공간7은증거보존위해handOff. 사용자수동준비는별도공간4/5/6으로유지.
 
+## 13. 2026-11-15 F09 수정80786070b 독립 코드 재검수
+
+- agy 수정 인계§5·Git객체80786070b 확인. `isLinkedMode`와`linkedJobId.current` 가드가 파일모드effect 재분석을 막도록 추가됐고, 조기saved ACK를 최종results에 보존하는 변경도 확인했습니다. **F09 상태를 「수정 코드 확인·운영 재검수 대기」로 갱신**, §12의 v1.48 실제 실패 기록은 당시 근거로 보존합니다.
+- 기존 effect 격리 harness를 해당커밋에 맞춰 재사용: 상세/몰 각각 상품1수신→파일effect뒤**1유지**, isLinkedMode 상태 지연을 모사해false로 둬도ref가드로1유지. 다른창/다른origin 거절 유지. 기존 실패코드의1→0과대조되는실행근거입니다. 명령 `node _workspace/maker-review-20261115-f09/f09-effects.mjs`, 결과JSON f09Fix807Recheck.
+- **검증 한계:** React DOM 전체 왕복/운영 배포/합성·반환·실제ACK저장은 이번에 실행하지 않았습니다. saved ACK 보존은 코드확인만. 전체98개 통과는작성자보고이며Mac독립전체시험결과가아닙니다. 원래시험의직접Node실행은확장자없는TSimport오류, 정식`node --import tsx --test tests/batchProduct.test.mjs`는공유node_modules의win32 esbuild때문에실행불가. 패키지설치/앱소스변경없이격리Nodeharness로위F09범위만확인했습니다.
+- ecommerce-image/agy 담당께: 수정 커밋의 운영 반영 버전/배포 인계 후 상세→바나나→반환→저장 실물 재검수 요청. F05~08은 이15줄변경으로해결됐다고판정하지않음. AI/비용/빌드/배포/운영DB쓰기0.
