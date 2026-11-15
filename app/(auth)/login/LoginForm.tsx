@@ -3,10 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Eye, EyeOff, LogIn } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import GlassCard from "@/components/ui/GlassCard";
-import GoldButton from "@/components/ui/GoldButton";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import { formatPhoneNumber } from "@/lib/utils/format";
 import { PHONE_REQUIRED_MESSAGE, hasRegisteredPhone, isValidPhone } from "@/lib/utils/phone";
@@ -136,26 +134,35 @@ export default function LoginPage() {
     setLoading(false);
   };
 
+  // 2026-11-15 주인님 선택 B안 「누아르 골드 라운지」(시안 D:\PDS\Design\aimaster_main_login_20261115) — DESIGN.md 로그인 5단계 골격.
+  // 화면 모양만 바꿈: 로그인·세션 제한·핸드폰 받기·이메일/비밀번호 찾기·가입 링크 동작은 그대로
+  const field = "flex items-center gap-2.5 rounded-xl border border-[#2a2a36] bg-[#13131b] px-3.5 py-3 transition focus-within:border-[#d4af37] focus-within:shadow-[0_0_0_3px_rgba(212,175,55,0.15)]";
+  const inputCls = "w-full bg-transparent text-[15px] text-slate-100 outline-none placeholder:text-zinc-600";
+  const goldBtn = "mt-1 flex w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-b from-[#f5c842] to-[#d4af37] py-3.5 text-base font-extrabold text-[#1a1405] shadow-[0_5px_0_#8a6d12,0_12px_30px_rgba(245,200,66,0.25)] transition active:translate-y-[3px] active:shadow-[0_2px_0_#8a6d12] disabled:opacity-60";
+
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      {/* BG glow */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gold/5 rounded-full blur-[100px]" />
-      </div>
+    <div
+      className="relative min-h-screen flex items-center justify-center px-4 py-12"
+      style={{
+        backgroundColor: "#0a0a0f",
+        backgroundImage:
+          "radial-gradient(circle at 50% 30%, rgba(212,175,55,0.16), transparent 45%), linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)",
+        backgroundSize: "auto, 40px 40px, 40px 40px",
+      }}
+    >
+      <div className="relative w-full max-w-[440px] text-center">
+        {/* 1. 로고 */}
+        <Link href="/" aria-label="AI Master 홈" className="mx-auto grid h-[68px] w-[68px] place-items-center rounded-2xl border border-amber-400/30 bg-gradient-to-br from-[#2a2412] to-[#14120a] shadow-[0_0_40px_rgba(212,175,55,0.25)]">
+          <GoldGradientText className="text-2xl font-black">AI</GoldGradientText>
+        </Link>
+        {/* 2. 영문명 배지 */}
+        <span className="mt-4 inline-block rounded-full border border-amber-400/40 bg-amber-400/10 px-4 py-1 text-[11px] font-extrabold uppercase tracking-[0.18em] text-amber-300">AI MASTER · BUYLIFE</span>
+        {/* 3. 한글명 */}
+        <h1 className="mt-3 text-[26px] font-black tracking-tight"><GoldGradientText>AI 마스터</GoldGradientText></h1>
+        <p className="mt-1.5 text-sm text-slate-400">AIMaster 계정(이메일·비밀번호)으로 로그인하세요.</p>
 
-      <div className="relative w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold to-gold-light flex items-center justify-center">
-              <span className="text-black font-black">AI</span>
-            </div>
-            <GoldGradientText className="text-2xl font-black">AI Master</GoldGradientText>
-          </Link>
-          <p className="text-subtext mt-3">계정에 로그인하세요</p>
-        </div>
-
-        <GlassCard>
+        {/* 4. 폼 카드 */}
+        <section className="mt-7 rounded-[28px] border border-white/10 bg-[rgba(22,22,30,0.72)] p-7 text-left shadow-[0_30px_80px_rgba(0,0,0,0.6)] backdrop-blur-xl">
           {needPhone ? (
             <form onSubmit={handleSavePhone} className="space-y-5">
               <p role="alert" className="rounded-lg border border-gold/40 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold-light">
@@ -163,94 +170,65 @@ export default function LoginPage() {
                 <span className="mt-1 block text-xs font-normal text-gold-light/80">아래 회원정보에서 핸드폰 번호를 저장하면 정상적으로 로그인됩니다.</span>
               </p>
               <div>
-                <label className="block text-sm font-medium text-white mb-2">이름</label>
-                <input type="text" value={phoneName} onChange={(e) => setPhoneName(e.target.value)} className="input-dark w-full" placeholder="홍길동" required />
+                <label className="mb-2 block text-[13px] font-bold text-slate-200">이름</label>
+                <div className={field}><input type="text" value={phoneName} onChange={(e) => setPhoneName(e.target.value)} className={inputCls} placeholder="홍길동" required /></div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-white mb-2">핸드폰</label>
-                <input type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(formatPhoneNumber(e.target.value))} className="input-dark w-full" placeholder="010-1234-5678" required autoFocus />
+                <label className="mb-2 block text-[13px] font-bold text-slate-200">핸드폰</label>
+                <div className={field}><input type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(formatPhoneNumber(e.target.value))} className={inputCls} placeholder="010-1234-5678" required autoFocus /></div>
               </div>
-              {error && (
-                <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">{error}</p>
-              )}
-              <GoldButton type="submit" fullWidth size="lg" disabled={loading}>
-                {loading ? "저장 중..." : "핸드폰 번호 저장하고 계속하기"}
-              </GoldButton>
+              {error && <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">{error}</p>}
+              <button type="submit" disabled={loading} className={goldBtn}>{loading ? "저장 중..." : "핸드폰 번호 저장하고 계속하기"}</button>
             </form>
           ) : (
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-white mb-2">이메일</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input-dark w-full"
-                placeholder="your@email.com"
-                required
-                autoFocus
-              />
-            </div>
+            <>
+              {/* 로그인 / 회원가입 탭 */}
+              <div className="grid grid-cols-2 rounded-xl bg-white/5 p-1 text-sm font-semibold">
+                <span className="rounded-lg bg-amber-400/15 py-2.5 text-center text-amber-300 ring-1 ring-amber-400/30">로그인</span>
+                <Link href="/register" className="py-2.5 text-center text-slate-400 hover:text-slate-200">회원가입</Link>
+              </div>
+              <form onSubmit={handleLogin} className="mt-6 space-y-4">
+                <div>
+                  <label htmlFor="login-email" className="mb-2 block text-[13px] font-bold text-slate-200">이메일 주소</label>
+                  <div className={field}>
+                    <Mail size={18} className="shrink-0 text-zinc-400" aria-hidden />
+                    <input id="login-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} placeholder="your@email.com" required autoFocus autoComplete="email" />
+                  </div>
+                </div>
+                <div>
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <label htmlFor="login-password" className="text-[13px] font-bold text-slate-200">비밀번호</label>
+                    <span className="whitespace-nowrap text-xs font-semibold">
+                      <Link href="/find-email" className="text-amber-300/90 hover:underline">이메일 찾기</Link>
+                      <span className="mx-1 text-zinc-600">·</span>
+                      <Link href="/forgot-password" className="text-amber-300/90 hover:underline">비밀번호 찾기?</Link>
+                    </span>
+                  </div>
+                  <div className={field}>
+                    <Lock size={18} className="shrink-0 text-zinc-400" aria-hidden />
+                    <input id="login-password" type={showPw ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} placeholder="••••••••" required autoComplete="current-password" />
+                    <button type="button" onClick={() => setShowPw(!showPw)} aria-label={showPw ? "비밀번호 숨기기" : "비밀번호 보기"} className="shrink-0 text-zinc-500 hover:text-slate-200">
+                      {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
 
-            <div>
-              <label className="block text-sm font-medium text-white mb-2">비밀번호</label>
-              <div className="relative">
-                <input
-                  type={showPw ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input-dark w-full pr-10"
-                  placeholder="••••••••"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-subtext hover:text-white"
-                >
-                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                {isPasswordReset && !error && (
+                  <p className="text-sm bg-gold/10 border border-gold/30 text-gold-light rounded-lg px-4 py-3">비밀번호가 변경되었습니다. 새 비밀번호로 로그인해주세요.</p>
+                )}
+                {error && <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">{error}</p>}
+
+                <button type="submit" disabled={loading} className={goldBtn}>
+                  {loading ? "로그인 중..." : <>로그인 <ArrowRight size={18} aria-hidden /></>}
                 </button>
-              </div>
-              <div className="mt-2 flex justify-end gap-3 text-xs">
-                <Link href="/find-email" className="text-subtext hover:text-gold hover:underline">
-                  이메일 찾기
-                </Link>
-                <Link href="/forgot-password" className="text-subtext hover:text-gold hover:underline">
-                  비밀번호를 잊으셨나요?
-                </Link>
-              </div>
-            </div>
-
-            {isPasswordReset && !error && (
-              <p className="text-sm bg-gold/10 border border-gold/30 text-gold-light rounded-lg px-4 py-3">
-                비밀번호가 변경되었습니다. 새 비밀번호로 로그인해주세요.
-              </p>
-            )}
-
-            {error && (
-              <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">
-                {error}
-              </p>
-            )}
-
-            <GoldButton type="submit" fullWidth size="lg" disabled={loading}>
-              {loading ? "로그인 중..." : (
-                <>
-                  <LogIn size={18} />
-                  로그인
-                </>
-              )}
-            </GoldButton>
-          </form>
+              </form>
+            </>
           )}
-
-          <p className="text-center text-subtext text-sm mt-6">
-            계정이 없으신가요?{" "}
-            <Link href="/register" className="text-gold hover:underline font-medium">
-              무료로 가입하기
-            </Link>
+          {/* 5. 약관 1행 */}
+          <p className="mt-5 whitespace-nowrap text-center text-xs text-slate-500">
+            진행 시 <Link href="/terms" className="font-bold text-amber-300">이용약관</Link> 및 <Link href="/privacy" className="font-bold text-amber-300">개인정보 처리방침</Link>에 동의합니다.
           </p>
-        </GlassCard>
+        </section>
       </div>
     </div>
   );
