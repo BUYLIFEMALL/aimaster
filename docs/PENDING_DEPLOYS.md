@@ -16,8 +16,6 @@
 ## 대기 중
 
 
-- **`ai-work-workspace` — Gemini 내장 구글 검색 연결(2026-11-15 [역할: workspace], `81b56f898`)**: Gemini 키 회원도 「자동·내장」에서 구글 검색(검색어·출처 표시). 확인 호출 1회 통과, 시험 172. 다음 배포 때 함께.
-- **`ai-work-workspace` — 웹 검색 키를 워크스페이스 키 화면에서 등록(2026-11-15 [역할: workspace], `90c190a96`)**: 「🔎 AI 비서 웹 검색」 묶음(네이버 ID·Secret·카카오 REST·Tavily·Perplexity·SerpAPI 칸 + 검색 도구 고르기 카드), v1.43 카드의 틀린 「메인 사이트 API 설정에서 등록」 안내 수정(메인에는 Perplexity 칸만 있음), Tavily `tvly-`·Perplexity `pplx-` 형식 확인. tsc·빌드·시험 171 통과. 다음 배포 때 함께.
 - **`blog-neighbor-care` — 답방 글 읽기 탭 사전 확인 + 실패 진단(단계·HTTP·BNC code) 팝업 전달 + 409 코드별 안내 `85eedc18b`(2026-11-14 [역할: blog] `claude-win-photo`)**: 작은 수정, 다음 배포 때 함께(확장 ZIP·manifest·DB 버전 같이). 상세 `blog-neighbor-care/docs/IMPROVEMENTS.md` 2026-11-14.
 - **`naver-cafe-recruit` — 명단에서 카페 운영진(매니저·스탭 등급) 제외 + 아직 없는 「C. 카페 홍보 글」 칸 숨김(저장 때 꺼짐) `b61270d8f`(2026-11-15 [역할: blog] `claude-win-photo`, 주인님 결정 5건 중 2번)**: 시험 17개·tsc 통과. 다음 카페 모집 배포(v1.03, `1bd454187`·`7a85de294`와 함께) 때 manifest·ZIP·DB 버전 맞춤, 검수는 `docs/REQUEST_20261115_MACMINI_BLOG_CHECKLIST.md` B-3.
 - **`wp-blogger-auto` — 로그인·회원가입 제목이 「네이버 카페 포스팅 자동화」로 나오던 것을 「AI 워드프레스·구글블로그 자동화」로 `190f971dc`(2026-11-14 [역할: blog] `claude-win-photo`)**: 맥미니 P2 검수 지적. tsc 통과. 다음 WP 배포 때 함께, 배포 뒤 로그인·회원가입·모바일 제목 확인.
@@ -128,6 +126,7 @@
 | `shots` | v1.48 · 2026-11-12 ([역할: video] `claude-win-video`, 주인님 「진행해」 승인 빌드 1회, `shots-607ynfsog` Ready, DB v1.48) | 대본·주제 후보 행 30일 정리 `44a9df352`(발행 무관, `retention_exempt` 제외, 배경음악 파일 포함) + 매뉴얼 보관 문구 + 저장공간 위젯 + 공용 `ai-video-client` 사본 + 서버 지역 서울(`icn1::icn1` 확인). 시험 22·tsc 통과 |
 | `blog-neighbor-care` | v1.20 · 2026-11-13 ([역할: blog] `claude-win-blog`, 주인님 승인 빌드 1회, `blog-neighbor-care-4u1h4uflh` Ready, DB·확장·ZIP v1.20 검증 OK) | 시계 보정 — 미리보기·수락 409 수정(`1dbf5937a`·`3c913dd80`), 409에 RPC `code`, 한 줄 소개 갱신 |
 | `blog-neighbor-care` | v1.19 · 2026-11-12 ([역할: blog] `claude-win-blog`, 주인님 「순서대로 진행」+환경변수 허락, 빌드 1회, `blog-neighbor-care-ctfwl3obf` Ready, DB·확장 v1.19) | 「🤖 자동 운영」 칸 항상 펼침 `02029e8f4` + 감시 AI 켜짐(환경변수 2개) + 저장공간 위젯 |
+| `ai-work-workspace` | v1.44 · 2026-11-15 ([역할: workspace], 주인님 「배포해」 빌드 1회, `ai-work-workspace-864l3l83a` Ready, DB v1.44) | Gemini 내장 구글 검색 `81b56f898` + 키 화면 「🔎 AI 비서 웹 검색」 등록 칸 `90c190a96` — 엣지 확인: 키 화면 v1.44·검색 묶음(등록 5/6)·Gemini 구글 검색 안내, AI 비서 채팅(Gemini 3.5 Flash Lite, 시험 계정 키 1회) 「검색함 최저임금」 → 10,320원 답. 출처 칩 빠짐은 `c05873844`로 수정(미배포) |
 | `ai-work-workspace` | v1.43 · 2026-11-15 ([역할: workspace], 주인님 승인 빌드 1회, `ai-work-workspace-6m31l2l6z` Ready, DB v1.43) | AI 비서·에이전트 「🔎 웹 검색 도구」 고르기(자동·내장·네이버·카카오·Tavily·Perplexity·SerpAPI, 회원 본인 키) — 엣지 카드 확인, 카카오·Perplexity 실제 검색 통과(네이버·Tavily는 시험 계정 키 값 문제) |
 | `ai-work-workspace` | v1.42 · 2026-11-15 ([역할: workspace], 주인님 「진행해」 빌드 1회, `ai-work-workspace-o7ghkedhf` Ready, DB v1.42) | 받은 업무 세금계산서 초안·표 고르기·매뉴얼 MCP/REST — 엣지 확인: 시험 주문서 → 「제목 없는 표」에 행 넣기 통과, 「🧾 세금계산서 초안」 → 발행 탭에 거래처·품목 2줄·비고 채워짐(시험 계정 AI 키 1회, 저장 안 함) |
 | `ai-work-workspace` | v1.41 · 2026-11-15 ([역할: workspace], 주인님 「배포해」 빌드 1회, `ai-work-workspace-l38wi8ovh` Ready, DB v1.41) | v1.40 검수 수정 묶음(`6e4314eb1`·`a48a8e4cb`) — 엣지 운영 확인: 환입 단가 「-5000」 직접 입력·미리보기 -5,500원, 화면 가로 밀림 없음, PDF 같은 화면에서 내려받기(새 탭 없음) |
