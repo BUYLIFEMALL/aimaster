@@ -12,6 +12,8 @@ import ClosedForm, { type ClosedStatus } from "./closed-form";
 import AutoProgressForm, { type AutoProgressStatus } from "./auto-progress-form";
 import GuestForm from "./guest-form";
 import LogoForm from "./logo-form";
+import DomainForm from "./domain-form";
+import { mallSubdomainUrl } from "@/lib/host";
 import { appLogoOf } from "@/lib/pwa";
 import RestockForm, { type RestockStatus } from "./restock-form";
 import AiForm, { type AiStatus } from "./ai-form";
@@ -165,6 +167,8 @@ export default async function StoreSettingsPage({ params }: { params: Promise<{ 
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/settings`);
   if (!staff) return <NoPermission />;
   const deposit = await depositStatus(store.id);
+  const { data: domainRow } = await (await createClient()).from("mall_builder_stores").select("custom_domain").eq("id", store.id).maybeSingle(); // M5-1b
+
   const [notify, email, log, payment, restock, tax, closed, ai] = await Promise.all([
     notifyStatus(store.id, deposit),
     emailStatus(store.id, deposit),
@@ -187,6 +191,9 @@ export default async function StoreSettingsPage({ params }: { params: Promise<{ 
       </div>
       <div className="mt-6">
         <LogoForm slug={store.slug} storeId={store.id} logo={appLogoOf(store.settings)} />
+      </div>
+      <div className="mt-6">
+        <DomainForm slug={store.slug} domain={(domainRow?.custom_domain as string | null) ?? ""} subdomainUrl={mallSubdomainUrl(store.slug, process.env.MALL_ROOT_DOMAIN)} gated={PLATFORM_AIMASTER} />
       </div>
       <div className="mt-6">
         <AiForm slug={store.slug} status={ai} />

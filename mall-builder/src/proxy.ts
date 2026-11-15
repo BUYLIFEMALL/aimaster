@@ -1,15 +1,24 @@
 // 요청 경로를 머리글로 넘김 — 유저 레이아웃이 폐쇄몰(D20)에서 「가입·마이페이지만 열어 두기」를 서버에서 판단할 때 쓴다(Next 16 proxy)
 // 하위 도메인(2026-11-10): `<몰>.<MALL_ROOT_DOMAIN>` 으로 들어오면 `/s/<몰>/…` 로 바꿔 읽는다(주소창은 그대로). 기본값 localhost = 내 PC 시험용
+// 자기 도메인(M5-1b 2026-11-15): 운영사가 등록한 몰 도메인(예: myshop.co.kr)으로 들어와도 같은 방식으로 그 몰을 읽는다
 // 운영 관문(T0 2026-11-12): 운영 스위치가 켜진 배포에서만 모든 요청이 로그인(메인 사이트 공유)·프로그램 이용 권한을 먼저 지난다(lib/platform-gate.ts)
 import { NextResponse, type NextRequest } from "next/server";
-import { mallSlugFromHost, singleMallSlug, subdomainRewritePath } from "@/lib/host";
+import { customDomainCandidate, mallSlugFromHost, singleMallSlug, subdomainRewritePath } from "@/lib/host";
+import { slugForCustomDomain } from "@/lib/custom-domain";
 import { PLATFORM_AIMASTER } from "@/lib/platform";
 import { isOpenPath, platformGate } from "@/lib/platform-gate";
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   // 단일 몰 모드(T3 H1): MALL_SINGLE_SLUG가 있으면 주소와 상관없이 그 몰 하나로 읽는다
-  const slug = singleMallSlug(process.env.MALL_SINGLE_SLUG) ?? mallSlugFromHost(request.headers.get("host"), process.env.MALL_ROOT_DOMAIN ?? "localhost");
+  const host = request.headers.get("host");
+  const root = process.env.MALL_ROOT_DOMAIN ?? "localhost";
+  let slug = singleMallSlug(process.env.MALL_SINGLE_SLUG) ?? mallSlugFromHost(host, root);
+  // 자기 도메인(M5-1b): 플랫폼 주소가 아니면 DB에 등록된 몰 도메인인지 찾는다(60초 보관)
+  if (!slug) {
+    const domain = customDomainCandidate(host, root);
+    if (domain) slug = await slugForCustomDomain(domain);
+  }
   const rewritten = slug ? subdomainRewritePath(pathname, slug) : null;
   const path = rewritten ?? pathname;
 

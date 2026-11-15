@@ -47,3 +47,18 @@ export function singleMallSlug(value: string | null | undefined): string | null 
   const v = (value ?? "").trim().toLowerCase();
   return v && slugError(v) === null ? v : null;
 }
+
+/**
+ * M5-1b 자기 도메인(2026-11-15) — 이 요청 주소를 「자기 도메인 몰」로 찾아볼 만한가. 찾아볼 주소 이름(소문자, 포트 뺌) 또는 null.
+ * 플랫폼 주소(MALL_ROOT_DOMAIN과 그 하위, buylife.xyz 계열), vercel.app, localhost, IP 주소, 점 없는 이름은 찾지 않는다(DB 조회를 줄임).
+ */
+export function customDomainCandidate(host: string | null | undefined, rootDomain: string | null | undefined): string | null {
+  const name = (host ?? "").trim().toLowerCase().replace(/:\d+$/, "").replace(/\.+$/, "");
+  if (!name || !name.includes(".") || name.length > 253) return null;
+  if (/^[\d.]+$/.test(name) || name.startsWith("[")) return null;
+  const root = cleanRoot(rootDomain);
+  const platform = ["buylife.xyz", "vercel.app", "localhost"];
+  if (root) platform.push(root);
+  if (platform.some((p) => name === p || name.endsWith("." + p))) return null;
+  return /^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z][a-z0-9-]{1,62}$/.test(name) ? name : null;
+}

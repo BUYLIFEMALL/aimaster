@@ -1,7 +1,7 @@
 // 실행: node --test tests/   — 하위 도메인(2026-11-10): 주소 이름 → 몰, 경로 바꿔 읽기
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mallSlugFromHost, subdomainRewritePath, mallSubdomainUrl } from "../src/lib/host.ts";
+import { mallSlugFromHost, subdomainRewritePath, mallSubdomainUrl, customDomainCandidate } from "../src/lib/host.ts";
 
 test("하위 도메인에서 몰 이름을 뽑는다", () => {
   assert.equal(mallSlugFromHost("aimaster-b2b.localhost:3210", "localhost"), "aimaster-b2b");
@@ -65,4 +65,18 @@ test("단일 몰 모드 — 환경 설정 값이 맞는 몰 주소일 때만 켜
   assert.equal(subdomainRewritePath("/admin", "my-shop"), "/s/my-shop/admin");
   assert.equal(subdomainRewritePath("/s/my-shop/cart", "my-shop"), null);
   assert.equal(subdomainRewritePath("/login", "my-shop"), null);
+});
+
+test("M5-1b 자기 도메인 후보: 직접 산 도메인만 찾고 플랫폼 주소·IP·localhost는 찾지 않는다", () => {
+  assert.equal(customDomainCandidate("myshop.co.kr", "buylife.xyz"), "myshop.co.kr");
+  assert.equal(customDomainCandidate("WWW.MyShop.com:443", "buylife.xyz"), "www.myshop.com");
+  assert.equal(customDomainCandidate("aimaster-b2b.buylife.xyz", "buylife.xyz"), null);
+  assert.equal(customDomainCandidate("mall-builder.buylife.xyz", undefined), null);
+  assert.equal(customDomainCandidate("buylife.xyz", "buylife.xyz"), null);
+  assert.equal(customDomainCandidate("mall-builder-abc.vercel.app", "buylife.xyz"), null);
+  assert.equal(customDomainCandidate("localhost:3210", "localhost"), null);
+  assert.equal(customDomainCandidate("shop.localhost", "localhost"), null);
+  assert.equal(customDomainCandidate("127.0.0.1:3210", "localhost"), null);
+  assert.equal(customDomainCandidate("intranet", "buylife.xyz"), null);
+  assert.equal(customDomainCandidate(null, "buylife.xyz"), null);
 });
