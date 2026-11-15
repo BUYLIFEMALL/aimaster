@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 [역할: mac-mini] 이웃 순서1 v1.21 — 전경연동 차단·진단 인계
+
+- Gmail관리자로그인·기존dewdawn5대상·웹확장v1.21·buylifemall기존연결확인, 로그인/설치대기해소. 실제사용자팝업은지정이웃글(window598/tab600)일치, 과거다른Space대상오류이번미재현. 자동클릭은창오류로실행0.
+- 사용자직접클릭1회는 relationship(신청수락상태)로실행돼 **HTTP409/BNC_REQUEST_RECEIPT_REQUIRED/16:27:44** 표시. [캡처·JSON/원요청서](../blog-neighbor-care/docs/REQUEST_20261113_MACMINI_V120_RECHECK.md) 기록. B-1오류진단표시일부통과, return_post답방정상성공/실패판정아님. 열린팝업을정상UI로return_post/동의true준비한뒤 아래 후속 답방 읽기1회를 진행했습니다.
+- 후속 return_post/동의/지정글확인 후 해당종류읽기UI1회→**「브라우저의현재탭을화면에유지해주세요」**·popupfocusfalse·미리보기없음. [별도PNG/JSON](../blog-neighbor-care/docs/evidence/v121-20261115-return-post-focus.json). 같은조건재시도안함·로그인/설치/팝업열기반복요청안함. ⏸순서1은도구/팝업전경연동진단대기,확인저장/수락0. 정상사람조작과ego제어의focus조건대조를Windows담당에게요청.
+- [윈도우블로그담당께](../blog-neighbor-care/docs/IMPROVEMENTS.md): 읽기종류혼동P3개선제안(팝업기본선택/이번읽기종류명확표시), 자동재요청/보안완화추가안함. 순서2이후미진행,실수락/등록/AI/빌드/배포/직접DB쓰기0·비용0.
+
 ## 2026-11-15 ✅ [역할: design] Antigravity(윈도우) · 세션 `agy-win-ssr-v1` — 바나나 캔버스(`banana-canvas` v1.48) F-09 결함 수정본 프로덕션 배포 완료
 - 지시: 주인님 「1번부터 진행해」 (바나나 캔버스 F-09 결함 해결본 프로덕션 배포 및 라이브 검수).
 - 한 일: 상세페이지/쇼핑몰 수신 후 파일모드 재매칭으로 `jobs` 빈배열 초기화되는 F-09 결함 해결(`isLinkedMode` 가드 신설, 조기 도착 ACK 보존 병합), 회귀 단위 테스트 통과(98/98 전수 통과), `tsc --noEmit` 통과.
