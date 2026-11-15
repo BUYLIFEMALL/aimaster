@@ -1,0 +1,6 @@
+{
+  "kind": "relationship",
+  "message": "이 이웃에게 보낸 신청 기록을 찾지 못했습니다. 신청을 보낸 이웃의 블로그에서 읽어 주세요. [진단: 읽기 시작 · HTTP 409 · BNC_REQUEST_RECEIPT_REQUIRED · 16시 27분 44초]",
+  "focus": false,
+  "version": "v1.21"
+}
