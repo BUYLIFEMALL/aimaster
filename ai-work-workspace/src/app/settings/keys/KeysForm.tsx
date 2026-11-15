@@ -135,9 +135,12 @@ export function KeysForm() {
 // 2026-11-13: 일정 리마인더를 내 메일·카카오톡으로도 받기(기본 꺼짐). 연결은 다른 프로그램에서 등록한 것을 그대로 쓴다.
 function NotifyPrefs() {
   const [on, setOn] = useState<string[] | null>(null);
+  const [usage, setUsage] = useState<{ key: string; label: string; used: number; limit: number }[]>([]);
   const [msg, setMsg] = useState("");
   useEffect(() => {
-    rpc<{ reminder: string[] }>("awwNotifyPrefs", {}).then((r) => setOn(r.reminder)).catch(() => setOn([]));
+    rpc<{ reminder: string[]; usage?: { key: string; label: string; used: number; limit: number }[] }>("awwNotifyPrefs", {})
+      .then((r) => { setOn(r.reminder); setUsage(r.usage ?? []); })
+      .catch(() => setOn([]));
   }, []);
   const toggle = async (k: "email" | "kakao") => {
     const next = (on ?? []).includes(k) ? (on ?? []).filter((x) => x !== k) : [...(on ?? []), k];
@@ -165,6 +168,19 @@ function NotifyPrefs() {
         <p style={{ fontSize: 12, opacity: 0.75 }}>💡 메일은 「예약(취소)방지 리마인드 자동화」 등에서 등록한 내 메일 계정으로, 카카오톡은 「부동산 실시간 매물 알림」 등에서 연결한 내 카카오로 보냅니다. 연결이 없으면 보내지 않고 앱 알림으로 이유를 알려 드립니다. 자동화의 「알림 보내기」는 자동화마다 따로 켭니다.</p>
         {msg && <p className="aww-key-msg">{msg}</p>}
       </div>
+      {usage.length > 0 && (
+        <div className="aww-key-card">
+          <div className="aww-key-head"><b>오늘 쓴 횟수</b></div>
+          <p>자동화·버튼이 오늘(한국 시간) 쓴 양입니다. 하루 한도에 닿으면 그날은 보내지 않고 다음 날 0부터 다시 셉니다.</p>
+          {usage.map((u) => (
+            <div key={u.key} style={{ display: "flex", justifyContent: "space-between", margin: "4px 0", color: u.used >= u.limit ? "#c4554d" : undefined }}>
+              <span>{u.label}</span>
+              <b>{u.used.toLocaleString("ko-KR")} / {u.limit.toLocaleString("ko-KR")}{u.used >= u.limit ? " · 오늘 한도 도달" : ""}</b>
+            </div>
+          ))}
+          <p style={{ fontSize: 12, opacity: 0.75 }}>💡 웹훅은 1분에 20번, 같은 내용의 알림은 1분 안에 한 번만 보냅니다. MCP 연결은 1분에 60번까지입니다.</p>
+        </div>
+      )}
     </section>
   );
 }

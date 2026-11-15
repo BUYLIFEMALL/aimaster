@@ -46,6 +46,20 @@ describe('자동화 알림 — 내 메일·카카오톡으로도', () => {
     expect(ext.externalGate('ex-a', 'email', '101번째', t0 + 200_000)).toMatch(/하루 100건/);
     expect(ext.externalGate('ex-a', 'kakao', '101번째', t0 + 200_000)).toBeNull();
     expect(ext.externalGate('ex-b', 'email', '101번째', t0 + 200_000)).toBeNull();
+    // 2026-11-15 키 화면 「오늘 쓴 횟수」
+    expect(ext.externalUsedToday('ex-a', 'email', t0)).toBe(100);
+    expect(ext.externalUsedToday('ex-a', 'kakao', t0)).toBe(1);
+    expect(ext.externalUsedToday('ex-z', 'email', t0)).toBe(0);
+  });
+
+  it('웹훅 오늘 쓴 횟수는 보낸 만큼(https 아닌 주소처럼 막힌 것은 세지 않음)', async () => {
+    const guard = await import('../../src/litpage/server/aimasterWebhookGuard.ts');
+    const t0 = Date.parse('2026-11-14T01:00:00Z');
+    expect(guard.memberWebhookGate('wh-a', 'https://hooks.example.com/x', t0)).toBeNull();
+    expect(guard.memberWebhookGate('wh-a', 'https://hooks.example.com/x', t0 + 1000)).toBeNull();
+    expect(guard.memberWebhookGate('wh-a', 'http://hooks.example.com/x', t0 + 2000)).toMatch(/https/);
+    expect(guard.webhookUsedToday('wh-a', t0)).toBe(2);
+    expect(guard.webhookUsedToday('wh-b', t0)).toBe(0);
   });
 
   it('메일 계정·카카오 연결이 없으면 보내지 않고 이유를 한 시간에 한 번 앱 알림으로 알린다', async () => {
@@ -71,7 +85,7 @@ describe('자동화 알림 — 내 메일·카카오톡으로도', () => {
   it('리마인더 받기 설정: 기본 꺼짐, 저장하면 그 채널만(모르는 값은 버림), 회원마다 따로', () => {
     for (const id of ['ex-d', 'ex-e']) db.putRecord('user_settings', { id, version: 1, settings: {} } as never);
     const h = ext.notifyPrefHandlers;
-    expect(h.awwNotifyPrefs({ userId: 'ex-d' } as never, {})).toEqual({ reminder: [] });
+    expect(h.awwNotifyPrefs({ userId: 'ex-d' } as never, {})).toMatchObject({ reminder: [], usage: [{ key: 'webhook', used: 0, limit: 500 }, { key: 'email', used: 0, limit: 100 }, { key: 'kakao', used: 0, limit: 100 }] });
     expect(h.awwSaveNotifyPrefs({ userId: 'ex-d' } as never, { reminder: ['kakao', 'sms', 'kakao'] })).toEqual({ reminder: ['kakao'] });
     expect(ext.reminderChannels('ex-d')).toEqual(['kakao']);
     expect(ext.reminderChannels('ex-e')).toEqual([]);

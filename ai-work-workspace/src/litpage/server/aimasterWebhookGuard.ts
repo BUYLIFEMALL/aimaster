@@ -34,3 +34,10 @@ export function memberWebhookGate(userId: string, url: string, now = Date.now())
   db.prepare('INSERT INTO aww_webhook_usage (user_id, day, count) VALUES (?, ?, 1) ON CONFLICT (user_id, day) DO UPDATE SET count = aww_webhook_usage.count + 1').run(userId, day);
   return null;
 }
+
+/** 2026-11-15: 오늘(한국 날짜) 보낸 웹훅 횟수 — 키 화면 「오늘 쓴 횟수」 */
+export function webhookUsedToday(userId: string, now = Date.now()): number {
+  ensureTable();
+  const row = db.prepare('SELECT count FROM aww_webhook_usage WHERE user_id = ? AND day = ?').get(userId, kstDay(now)) as { count: number } | undefined;
+  return row?.count ?? 0;
+}

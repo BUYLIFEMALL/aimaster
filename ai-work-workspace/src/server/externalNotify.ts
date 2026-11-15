@@ -20,6 +20,7 @@ import { setExternalNotifyHandler, type ExternalNotifyInput } from '@/litpage/se
 import type { BlockRecord, NotificationRecord, SpaceRecord, UserRecord, UserSettingsRecord } from '#shared/records.ts';
 import { newId, pageSlug } from '#shared/ids.ts';
 import { toPlainText } from '#shared/richtext.ts';
+import { webhookUsedToday, WEBHOOK_PER_DAY } from '@/litpage/server/aimasterWebhookGuard.ts';
 
 export const EXTERNAL_PER_DAY = 100;
 const DUP_MS = 60_000;
@@ -39,6 +40,13 @@ function ensureTable() {
 const kstDay = (now: number) => new Date(now + 9 * 3_600_000).toISOString().slice(0, 10);
 const recent = new Map<string, number>();
 const failNoticeAt = new Map<string, number>();
+
+/** 2026-11-15: 오늘(한국 날짜) 보낸 메일·카카오톡 알림 건수 — 키 화면 「오늘 쓴 횟수」 */
+export function externalUsedToday(userId: string, channel: Channel, now = Date.now()): number {
+  ensureTable();
+  const row = db.prepare('SELECT count FROM aww_external_notify_usage WHERE user_id = ? AND day = ? AND channel = ?').get(userId, kstDay(now), channel) as { count: number } | undefined;
+  return row?.count ?? 0;
+}
 
 /** 보낼 수 있으면 null(그리고 하루 횟수 +1), 아니면 이유 */
 export function externalGate(userId: string, channel: Channel, text: string, now = Date.now()): string | null {
@@ -175,7 +183,13 @@ export const notifyPrefHandlers: Record<string, (ctx: Ctx, body: any) => unknown
   /** 리마인더를 내 메일·카카오톡으로도 받을지 — 읽기 */
   awwNotifyPrefs(ctx) {
     if (!ctx.userId) throw new ApiError('Unauthorized', 401);
-    return { reminder: reminderChannels(ctx.userId) };
+    // 2026-11-15: 오늘 쓴 횟수(웹훅·메일·카카오톡 하루 한도)를 한곳에 — 막혔을 때 이유를 바로 알 수 있게
+    const usage = [
+      { key: 'webhook', label: '웹훅 보내기', used: webhookUsedToday(ctx.userId), limit: WEBHOOK_PER_DAY },
+      { key: 'email', label: '메일 알림', used: externalUsedToday(ctx.userId, 'email'), limit: EXTERNAL_PER_DAY },
+      { key: 'kakao', label: '카카오톡 알림', used: externalUsedToday(ctx.userId, 'kakao'), limit: EXTERNAL_PER_DAY },
+    ];
+    return { reminder: reminderChannels(ctx.userId), usage };
   },
   /** 저장({ reminder: ['email','kakao'] }) */
   awwSaveNotifyPrefs(ctx, body) {
