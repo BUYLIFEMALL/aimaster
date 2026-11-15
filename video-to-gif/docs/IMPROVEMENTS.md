@@ -1,5 +1,8 @@
 # 36번 상세페이지 GIF 자동화 (`video-to-gif`) 개선 제안서 (IMPROVEMENTS.md)
 
+> **영상 담당께 (맥미니, 2026-11-15)**: ① 운영 설치 스크립트 재설치 성공(약2초), 브라우저4곳 JSON 동일·path/allowed_origins 기대값 일치, Perl구문·CLI ping→Host1.30/ffmpeg8.1 pong 통과(브라우저 연결 통과와 구별). ② Chrome 탭 목록 조회는 되지만 시험용 새 탭 이동이 `Cannot read properties of undefined (reading 'timeoutMs')`로 실패해 웹 배지·확장설치버전·silent.mp4 변환/다운로드 미검수. ③ V4 녹화0회·화면기록권한/화면선택 미진입(연결 복구 뒤 사용자 직접). ④ 표준/사용자 Applications에서 웨일·엣지 미설치, Aside는 설치돼 있지만 지정 전이라 시험 안 함. 근거 `_workspace/video-v129-macmini-20261115/install.log`·`install-check.json`; AI/비용/빌드/배포/운영DB직접쓰기/소스수정0.
+
+
 > **2026-11-15 남은 작업 진행(영상 담당)**: 첫째, V4 화면 녹화 — ego 자동 조작 클릭으로는 선택 창이 뜨지 않음(브라우저가 사람 클릭에만 화면 공유를 열어 줌, 우회 안 함) → 사람 클릭 시험으로 남김(윈도우는 주인님, 맥은 맥미니 요청). 둘째, Aside — `C:/Program Files/Aside/Application/1.0.1022.1/Aside.dll`에 크로미움·크롬 두 연결 경로(`SOFTWARE\Chromium\NativeMessagingHosts`, `SOFTWARE\Google\Chrome\NativeMessagingHosts`)가 모두 들어 있음(ego lite와 같고, ego lite는 실제 연결 성공) → 다운로드 센터 배지에 「Aside」 추가(미배포). Aside는 Claude Code 지정 브라우저가 아니라 실제 설치 시험은 하지 않음. 셋째, 맥 실물(설치 스크립트 4곳 등록·크롬 연결·V4 녹화와 화면 기록 권한·웨일/Aside) → 맥미니 요청 [`REQUEST_20261115_MACMINI_V129_CHECK.md`](REQUEST_20261115_MACMINI_V129_CHECK.md).
 
 > **⏳ 미배포 대기 (2026-11-15, 영상 담당)**: 확장 카드 배지 「… / ego lite / Aside」(`components/LocalRendererHub.tsx`, `c579c2a23`), 왼쪽 메뉴 「로컬 렌더러 받기 · 최신 v1.26」 고정 글자 → `{APP_VERSION}`(`components/layout/Sidebar.tsx`). tsc 통과. 다음 배포 때 함께.
