@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { noResetSubmit } from "@/lib/no-reset-submit";
 import { MAX_GROUPS, buildVariants, splitValues, validateGroups, type OptionGroup, type Variant } from "@/lib/options";
 import { formatWon } from "@/lib/products";
+import { rateSupply } from "@/lib/supplier";
 import { saveOptionsAction, saveSupplierOptionsAction, type OptionsState } from "./options-actions";
 
 type GroupDraft = { name: string; values: string };
@@ -17,6 +18,7 @@ export default function OptionsEditor({
   initialGroups,
   initialVariants,
   mode = "admin",
+  saleRate = null,
 }: {
   slug: string;
   productId: string;
@@ -26,8 +28,12 @@ export default function OptionsEditor({
   initialVariants: Variant[];
   /** supplier = 공급사 화면(0060): 추가금 칸이 「추가 공급가」, 판매가는 운영사가 승인 때 정함 */
   mode?: "admin" | "supplier";
+  /** M3-S1(0091): 수수료율 몰의 공급사 화면 — 추가금 칸이 「추가 판매가」(그대로 유저 판매 추가금), 내 공급가는 두 율로 계산해 보여 줌 */
+  saleRate?: { hqRate: number; resellerRate: number } | null;
 }) {
   const supplier = mode === "supplier";
+  const sale = supplier && !!saleRate;
+  const extraLabel = sale ? "추가 판매가" : supplier ? "추가 공급가" : "추가금";
   const [state, formAction, pending] = useActionState((supplier ? saveSupplierOptionsAction : saveOptionsAction).bind(null, slug, productId), initial);
   const [groups, setGroups] = useState<GroupDraft[]>(initialGroups.map((g) => ({ name: g.name, values: g.values.join(", ") })));
   const [variants, setVariants] = useState<Variant[]>(initialVariants);
@@ -55,7 +61,7 @@ export default function OptionsEditor({
       <input
         type="hidden"
         name="options"
-        value={JSON.stringify({ groups, variants: variants.map(({ key, extra_price, stock, sku, is_active }) => ({ key, extra_price, stock, sku, is_active })) })}
+        value={JSON.stringify({ groups, variants: variants.map(({ key, extra_price, stock, sku, is_active }) => ({ key, extra_price, stock, sku, is_active })), sale })}
       />
 
       <div className="space-y-2">
@@ -99,8 +105,9 @@ export default function OptionsEditor({
             <thead className="text-left text-xs text-gray-500">
               <tr>
                 <th className="py-1">조합</th>
-                <th>{supplier ? "추가 공급가(원)" : "추가금(원)"}</th>
-                {!supplier && <th>판매가</th>}
+                <th>{extraLabel}(원)</th>
+                {(!supplier || sale) && <th>판매가</th>}
+                {sale && <th>내 공급가</th>}
                 <th>재고{stockByOption ? "" : " (수량 관리 시)"}</th>
                 <th>품번</th>
                 <th>사용</th>
@@ -111,9 +118,10 @@ export default function OptionsEditor({
                 <tr key={v.key} className="border-t">
                   <td className="py-1 pr-2">{v.key}</td>
                   <td>
-                    <input type="number" min={supplier ? 0 : undefined} value={v.extra_price} onChange={(e) => setVariant(i, { extra_price: supplier ? Math.max(0, Math.trunc(Number(e.target.value) || 0)) : Math.trunc(Number(e.target.value) || 0) })} aria-label={`${v.key} ${supplier ? "추가 공급가" : "추가금"}`} className="w-24 rounded border px-1 py-0.5" />
+                    <input type="number" min={supplier ? 0 : undefined} value={v.extra_price} onChange={(e) => setVariant(i, { extra_price: supplier ? Math.max(0, Math.trunc(Number(e.target.value) || 0)) : Math.trunc(Number(e.target.value) || 0) })} aria-label={`${v.key} ${extraLabel}`} className="w-24 rounded border px-1 py-0.5" />
                   </td>
-                  {!supplier && <td className="whitespace-nowrap pr-2 text-gray-500">{formatWon(basePrice + v.extra_price)}</td>}
+                  {(!supplier || sale) && <td className="whitespace-nowrap pr-2 text-gray-500">{formatWon(basePrice + v.extra_price)}</td>}
+                  {sale && saleRate && <td className="whitespace-nowrap pr-2 text-emerald-700">{formatWon(rateSupply(basePrice, saleRate.hqRate, saleRate.resellerRate) + rateSupply(v.extra_price, saleRate.hqRate, saleRate.resellerRate))}</td>}
                   <td>
                     <input type="number" min={0} value={v.stock} disabled={!stockByOption} onChange={(e) => setVariant(i, { stock: Math.max(0, Math.trunc(Number(e.target.value) || 0)) })} className="w-20 rounded border px-1 py-0.5 disabled:bg-gray-50" />
                   </td>
@@ -133,7 +141,8 @@ export default function OptionsEditor({
 
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
       {state.saved && <p className="text-sm text-green-700">{state.message ?? "옵션을 저장했습니다."}</p>}
-      {supplier && <p className="text-xs text-gray-500">옵션 구성이나 추가 공급가를 바꾸면 운영사가 다시 확인할 때까지 유저에게 보이지 않습니다. 재고·품번·사용 여부만 바꾸면 그대로 판매됩니다.</p>}
+      {sale && saleRate && <p className="text-xs text-gray-500">추가 판매가는 유저가 그 옵션을 고를 때 판매가에 더해지는 금액입니다. 내 공급가는 상품과 같은 본사 {saleRate.hqRate}% · 리셀러 {saleRate.resellerRate}%를 빼서 계산합니다(원 단위 버림).</p>}
+      {supplier && <p className="text-xs text-gray-500">옵션 구성이나 {extraLabel}를 바꾸면 운영사가 다시 확인할 때까지 유저에게 보이지 않습니다. 재고·품번·사용 여부만 바꾸면 그대로 판매됩니다.</p>}
       <button disabled={pending || outdated || (!!groupError && groups.length > 0)} className="min-h-11 rounded bg-gray-900 px-4 text-sm text-white disabled:opacity-50">
         {pending ? "저장 중…" : "옵션 저장"}
       </button>

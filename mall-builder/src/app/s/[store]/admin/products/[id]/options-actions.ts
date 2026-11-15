@@ -6,7 +6,7 @@ import { buildVariants, splitValues, validateGroups, validateVariant, type Optio
 
 export type OptionsState = { saved: boolean; error: string | null; message?: string };
 
-type Submitted = { groups: { name: string; values: string }[]; variants: Pick<Variant, "key" | "extra_price" | "stock" | "sku" | "is_active">[] };
+type Submitted = { groups: { name: string; values: string }[]; variants: Pick<Variant, "key" | "extra_price" | "stock" | "sku" | "is_active">[]; sale?: boolean };
 
 export async function saveOptionsAction(slug: string, productId: string, _prev: OptionsState, form: FormData): Promise<OptionsState> {
   let submitted: Submitted;
@@ -79,7 +79,7 @@ export async function saveOptionsAction(slug: string, productId: string, _prev: 
   return { saved: true, error: null };
 }
 
-/** 공급사 화면(0060): 내 상품 옵션 저장 — 추가금 칸 = 추가 공급가. 조합은 서버에서 다시 만들고 DB 함수가 다시 검사·승인 대기 처리 */
+/** 공급사 화면(0060): 내 상품 옵션 저장 — 추가금 칸 = 추가 공급가(수수료율 몰은 M3-S1·0091부터 추가 판매가 → extra_sale, DB가 몰 방식을 다시 확인). 조합은 서버에서 다시 만들고 DB 함수가 다시 검사·승인 대기 처리 */
 export async function saveSupplierOptionsAction(slug: string, productId: string, _prev: OptionsState, form: FormData): Promise<OptionsState> {
   let submitted: Submitted;
   try {
@@ -105,7 +105,7 @@ export async function saveSupplierOptionsAction(slug: string, productId: string,
   const { data, error } = await supabase.rpc("mall_builder_supplier_options_save", {
     p_product_id: productId,
     p_groups: groups,
-    p_variants: variants.map((v) => ({ key: v.key, values: v.values, extra_supply: v.extra_price, stock: v.stock, sku: v.sku, is_active: v.is_active })),
+    p_variants: variants.map((v) => ({ key: v.key, values: v.values, [submitted.sale ? "extra_sale" : "extra_supply"]: v.extra_price, stock: v.stock, sku: v.sku, is_active: v.is_active })),
   });
   if (error) return { saved: false, error: error.message };
   revalidatePath(`/s/${slug}/supplier/products`);

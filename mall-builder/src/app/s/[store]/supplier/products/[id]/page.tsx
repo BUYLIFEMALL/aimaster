@@ -28,7 +28,7 @@ export default async function SupplierProductEditPage({ params, searchParams }: 
           <h2 className="mt-2 text-lg font-semibold">{product.name} <span className="ml-1 text-sm font-normal text-gray-500">{APPROVAL_LABEL[product.approval]}</span></h2>
           {product.approval === "rejected" && product.approval_note && <p className="mt-2 rounded bg-red-50 px-3 py-2 text-sm text-red-700">반려 사유: {product.approval_note} — 고쳐서 저장하면 다시 승인 요청됩니다.</p>}
           <div className="mt-4"><SupplierProductForm slug={store.slug} storeId={store.id} supplierId={me.id} product={product} rate={supply.mode === "rate" ? { hqRate: me.hq_fee_rate ?? supply.hqRate } : null} /></div>
-          {/* T1(0060) 옵션 — 추가 공급가를 적으면 운영사가 승인 때 판매 추가금을 정함(기본값 = 마진 비율) */}
+          {/* T1(0060) 옵션 — 추가 공급가를 적으면 운영사가 승인 때 판매 추가금을 정함(기본값 = 마진 비율). M3-S1(0091) 수수료율 몰은 추가 판매가를 바로 적고 공급가는 계산 */}
           <div className="mt-8" data-supplier-options>
             <OptionsEditor
               slug={store.slug}
@@ -36,8 +36,9 @@ export default async function SupplierProductEditPage({ params, searchParams }: 
               basePrice={product.base_price}
               stockByOption={product.stock_mode === "product"}
               initialGroups={opts.groups}
-              initialVariants={opts.variants.map((v) => ({ ...v, extra_price: v.extra_supply }))}
+              initialVariants={supply.mode === "rate" ? opts.variants : opts.variants.map((v) => ({ ...v, extra_price: v.extra_supply }))}
               mode="supplier"
+              saleRate={supply.mode === "rate" ? { hqRate: product.hq_rate ?? me.hq_fee_rate ?? supply.hqRate, resellerRate: product.reseller_rate } : null}
             />
           </div>
         </>
