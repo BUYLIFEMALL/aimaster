@@ -13,6 +13,9 @@ import { db } from '@/litpage/server/db.ts';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { ensureReceiptTables } from './receipts';
 import type { BizInfo, HometaxDoc } from './receiptsCore';
+import { certReminderStage, certReminderText } from './boltaCert';
+import { pushNotification } from '@/litpage/server/notify.ts';
+import { memberSpace } from './workInbox';
 import { boltaAmendBody, boltaAuth, boltaErrorText, boltaInvoice, boltaModeOf, isAmendReason, newClientRef, BOLTA_API, BOLTA_KEY_PROVIDER, type AmendReason, type BoltaMode } from './boltaCore';
 
 type Handler = (ctx: Ctx, body: any) => any | Promise<any>;
@@ -46,6 +49,9 @@ function ensureTable() {
   // 2026-11-13 웹훅(boltaWebhook.ts): 회원 전용 주소의 토큰(해시만 저장)과 받은 알림 번호(중복 방지)
   db.exec('ALTER TABLE aww_bolta ADD COLUMN IF NOT EXISTS webhook_token_hash TEXT');
   db.exec('CREATE TABLE IF NOT EXISTS aww_bolta_webhook_seen (webhook_id TEXT PRIMARY KEY, user_id TEXT NOT NULL, seen_time INTEGER NOT NULL)');
+  // 2026-11-15 공동인증서 만료 알림: 상태 확인 때 받은 만료일(볼타를 따로 부르지 않음)과 마지막으로 보낸 알림 단계
+  db.exec('ALTER TABLE aww_bolta ADD COLUMN IF NOT EXISTS cert_expires TEXT');
+  db.exec('ALTER TABLE aww_bolta ADD COLUMN IF NOT EXISTS cert_notified TEXT');
   ready = true;
 }
 /** boltaWebhook.ts가 함께 쓰는 것 */
@@ -206,6 +212,36 @@ async function sendAmend(key: string, userId: string, docId: string, idx: number
   }
 }
 
+/** 상태 확인 때 받은 만료일을 저장(바뀌었을 때만, 알림 단계는 새 만료일 기준으로 다시) */
+function saveCertExpires(userId: string, expires: string | null) {
+  const row = db.prepare('SELECT cert_expires FROM aww_bolta WHERE user_id = ?').get(userId) as { cert_expires: string | null } | undefined;
+  if (row && (row.cert_expires ?? null) === expires) return;
+  if (row) db.prepare('UPDATE aww_bolta SET cert_expires = ?, cert_notified = NULL, updated_time = ? WHERE user_id = ?').run(expires, Date.now(), userId);
+  else db.prepare('INSERT INTO aww_bolta (user_id, cert_expires, updated_time) VALUES (?, ?, ?)').run(userId, expires, Date.now());
+}
+
+/** 매일 정리 작업(/api/cron/jobs)에서: 저장된 만료일로 30일 전·7일 전·만료 뒤 앱 알림을 단계마다 한 번 */
+export function runBoltaCertReminders(now = Date.now()): { notified: number } {
+  ensureTable();
+  const rows = db.prepare('SELECT user_id, cert_expires, cert_notified FROM aww_bolta WHERE cert_expires IS NOT NULL').all() as { user_id: string; cert_expires: string; cert_notified: string | null }[];
+  let notified = 0;
+  for (const r of rows) {
+    const stage = certReminderStage(r.cert_expires, now);
+    if (!stage) continue;
+    const mark = `${r.cert_expires}:${stage}`;
+    if (r.cert_notified === mark) continue;
+    let spaceId = '';
+    try { spaceId = memberSpace(r.user_id).id; } catch { continue; }
+    pushNotification({
+      user_id: r.user_id, space_id: spaceId, type: 'automation',
+      activity: { kind: 'message', automation_name: '볼타 전자세금계산서', message: certReminderText(r.cert_expires, now) },
+    } as Parameters<typeof pushNotification>[0]);
+    db.prepare('UPDATE aww_bolta SET cert_notified = ? WHERE user_id = ?').run(mark, r.user_id);
+    notified++;
+  }
+  return { notified };
+}
+
 export const boltaHandlers: Record<string, Handler> = {
   /** 처음 설정 4단계 상태: 키 · 발급자(내 사업자) · 공동인증서 · 실제 발급 동의 */
   async btStatus(ctx) {
@@ -222,6 +258,7 @@ export const boltaHandlers: Record<string, Handler> = {
       out.issuer = !!iss;
       out.cert = !!iss?.certificate;
       out.certExpires = iss?.certificate?.expiresAt ?? null;
+      saveCertExpires(userId, (out.certExpires as string | null) ?? null);
     } catch (e) {
       out.problem = e instanceof Error ? e.message : '볼타 상태를 확인하지 못했습니다.';
     }

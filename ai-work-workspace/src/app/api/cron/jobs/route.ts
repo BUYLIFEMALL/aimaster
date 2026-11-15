@@ -14,6 +14,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { operatorJobFilter } from "@/server/memberJobs";
 import { runAutomationRetention } from "@/server/automationRetention";
 import { runReceiptRetention } from "@/server/receipts";
+import { runBoltaCertReminders } from "@/server/bolta";
 import { runMediaRetention } from "@/server/mediaRetention";
 import { cleanupPendingUploads, removeStorageObjects } from "@/server/fileStorage";
 
@@ -82,5 +83,12 @@ export async function GET(request: NextRequest) {
       inbox = { error: "failed" };
     }
   }
-  return NextResponse.json({ ran, ai, inbox, automation, receipts, media });
+  // 2026-11-15 볼타 공동인증서 만료 30일·7일 전·만료 뒤 앱 알림(저장된 만료일만 봄 — 볼타 호출 없음)
+  let boltaCert: unknown = null;
+  try {
+    boltaCert = withRequestCache(() => runBoltaCertReminders(Date.now()));
+  } catch (e) {
+    console.error(`[cron] bolta cert reminders failed: ${String((e as Error)?.message ?? e).slice(0, 200)}`);
+  }
+  return NextResponse.json({ ran, ai, inbox, automation, receipts, media, boltaCert });
 }

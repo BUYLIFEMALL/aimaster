@@ -3,6 +3,7 @@
 // 처음 설정 4단계: 1 볼타 API 키 등록 → 2 발급자(내 사업자) 등록 → 3 공동인증서 등록 → 4 테스트 발급 확인 뒤 live_ 키로 바꾸고 실제 발급 동의.
 import { useCallback, useEffect, useState } from "react";
 import { rpc } from "@/lib/standaloneRpc";
+import { certDaysLeft } from "@/server/boltaCert";
 
 interface BtStatus { keys: boolean; keyOk: boolean; mode: "test" | "live" | null; bizNo: boolean; issuer: boolean | null; cert: boolean | null; certExpires: string | null; liveAgreed: boolean; problem: string | null; webhookUrl?: boolean }
 
@@ -72,7 +73,7 @@ export function BoltaPanel({ notify }: { notify: (n: { text: string; error?: boo
               <ol style={{ listStyle: "none", paddingLeft: 0 }}>
                 {step(st.keyOk, "1. 볼타 API 키 등록")}
                 {step(st.issuer, "2. 「내 사업자」를 볼타 발급자로 등록")}
-                {step(st.cert, `3. 공동인증서(사업자용) 등록${st.certExpires ? ` — 만료 ${st.certExpires.slice(0, 10)}` : ""}`)}
+                {step(st.cert, `3. 공동인증서(사업자용) 등록${st.certExpires ? ` — 만료 ${st.certExpires.slice(0, 10)}${certNote(st.certExpires)}` : ""}`)}
                 {step(st.mode === "live" && st.liveAgreed, "4. 테스트 발급 확인 뒤 live_ 키로 바꾸고 실제 발급 동의")}
               </ol>
               <p className="rc-hint">지금 키: <b>{st.mode === "live" ? "🔴 실제 발급(live_)" : st.mode === "test" ? "🧪 테스트(test_)" : "없음"}</b></p>
@@ -98,4 +99,11 @@ export function BoltaPanel({ notify }: { notify: (n: { text: string; error?: boo
       )}
     </div>
   );
+}
+
+// 2026-11-15: 만료 30일 이내면 남은 날과 갱신 안내(매일 앱 알림과 같은 기준 — server/boltaCore.ts certDaysLeft)
+function certNote(expiresAt: string): string {
+  const d = certDaysLeft(expiresAt);
+  if (d === null || d > 30) return "";
+  return d < 0 ? " · ⚠️ 만료됨 — 새 인증서를 다시 등록해 주세요" : ` · ⚠️ D-${d} 갱신 필요`;
 }
