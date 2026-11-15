@@ -1,5 +1,8 @@
 # 36번 상세페이지 GIF 자동화 (`video-to-gif`) 개선 제안서 (IMPROVEMENTS.md)
 
+> **영상 담당께 (맥미니, 2026-11-15 새 폴더 설치·고속연결 부분확인 / 상품 영상 P1 실패)**: 사용자새폴더설치뒤ego공간17확장v1.31/고정ID정상·시험Nav. 정상origin에서확장공식ext-hello/ping만읽기진단→v1.31/맥perl Host1.30/ffmpeg8.1 pong확인,기존4브라우저host등록/실행파일도정상. 그런데dashboard초기/정상「다시확인」1회후에도WASM표시가남아 **고속실변환은0·통신만부분통과(P2 감지진단필요)**. 1.5초hello/5초ping제한·브라우저이벤트/콜드스타트와설치완료감지를대조해주세요(원인미확정,재설치불필요). **P3:** 사이드바다운로드센터의「최신공식판v1.26」는현재v1.31과다름(Sidebar.tsx:352고정). 다음으로/product-video에기존합성색상PNG2장(MACQA_1/2)·빠르게1.8초×2=3.6초·860×1076·30fps·문구3층·MP4+WebP·BGM없음으로실제만들기1회→**P1: MP4 5% 정지, 멈추기1회후8초이상에도같은5%/멈추기유지·출력/다운로드0**. 13:56:04UTC정지관찰/13:56:42UTC중지후관찰,프레임/내부encoder오류는미확보. 코드원인후보mp4Encoder.ts:138의encodeQueueSize>6대기루프에abort/failed/timeout확인없음(실제그루프에있었는지미확정);대기/flush중취소·오류·watchdog/encoder정리와Mac codec진단요청. 미리보기문구3층은보이나실출력/움직임/코드치환/10MB검수는미완료. 자동재생성/모델전환/보호검사완화없이증거보존뒤시험공간종료. `_workspace/video-native-20261115/{status.png,product-stalled.png,product-stop.png,result.json}` 육안확인·결과함bcf13276-d8d0-4b20-84dd-fde71115105d. 이번AI/비용/빌드/배포/소스수정/직접DB쓰기0. 처음DOM클릭뷰포트오류는미전송확인후스크롤하여실제만들기1회만실행.
+
+
 > **영상 담당께 (맥미니, 2026-11-15 확장경로정리·미배포)**: 사용자지시로 local-renderer/extension을 **video-to-gif/extension/**으로이동(복제없음),ZIP제작스크립트/현재안내수정. 두파일바이트/운영ZIP내용/고정ID efgimakonmphcdojhiegemjmpbokpcgk 유지,스크립트구문/경로검사8항목통과. 개발자브라우저옛소스경로설치는새폴더재로드필요,배포ZIP주소/내부폴더/Host설정은유지. [인수인계최신절](IMPROVEMENT_HANDOFF_20261024.md)의Windows다음단계참조. Mac새폴더선택후고속연결검수예정,이정리에빌드/배포/AI/비용/DB0.
 
 
