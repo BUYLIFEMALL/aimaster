@@ -44,7 +44,7 @@ describe("work inbox", () => {
     });
     const [head, row] = csv.trim().split("\n");
     expect(head).toBe("이름,보낸 프로그램,종류,받은 날,원본 링크,마감일,담당");
-    expect(row).toBe('"보고서, ""초안""",ai-task-planner,할 일,2026-10-25,https://ai-task-planner.buylife.xyz/x,2026-10-30,"나, 팀"');
+    expect(row).toBe('"보고서, ""초안""",AI 할 일 플래너,할 일,2026-10-25,https://ai-task-planner.buylife.xyz/x,2026-10-30,"나, 팀"');
   });
 
   it("U8-B: picks unchecked to-dos (nested, not inside sub-pages) and reads row date/priority", () => {

@@ -2,6 +2,7 @@
 // U7: 받은 업무 목록·미리보기·가져오기 버튼. 워크스페이스 명령(/api/rpc/workInbox*)을 부른다.
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { rpc } from "@/lib/standaloneRpc"; // 2026-11-13: 로그인 끊김(401) 안내 띠 포함
+import { PROGRAM_LABEL } from "@/lib/programLabels";
 
 interface Item {
   id: string;
@@ -31,27 +32,8 @@ const KIND: Record<string, { icon: string; label: string }> = {
   link: { icon: "🔗", label: "링크" },
 };
 
-// 보낸 프로그램 이름(모르는 slug는 그대로 보여 줌)
-const SOURCE: Record<string, string> = {
-  "ai-task-planner": "AI 할 일 플래너",
-  "ai-audio-analyzer": "AI 음성 분석",
-  "ai-doc-chatbot": "AI 문서 챗봇",
-  "document-translator": "문서 번역",
-  "ai-slide-builder": "AI 슬라이드",
-  "ai-work-workspace": "업무 워크스페이스",
-  // U10 발행·분석·수집
-  "naver-blog-agent": "네이버 블로그 에이전트",
-  "ai-auto-blog": "블로그 포스팅 자동화",
-  "threads-content-ops": "Threads 콘텐츠 운영",
-  "auto-instagram-posting": "INSTA 포스팅 자동화",
-  "auto-shorts-posting": "YOUTUBE Shots 자동화",
-  "shorts-onestop-studio": "AI 쇼츠 원스톱 제작 자동화",
-  "playlist-channel-studio": "플레이리스트 채널 제작 자동화",
-  "competitor-analysis": "키워드·경쟁사 분석",
-  "longtail-keyword-expander": "롱테일 키워드",
-  "blog-keyword": "블로그 키워드",
-  "web-crawler-saas": "웹 크롤러", // programs.slug(폴더 web-crawler)
-};
+// 보낸 프로그램 이름: 공용 표 src/lib/programLabels.ts(모르는 slug는 그대로)
+const SOURCE = PROGRAM_LABEL;
 
 
 function when(iso: string): string {

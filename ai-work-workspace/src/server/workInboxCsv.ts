@@ -1,3 +1,4 @@
+import { programLabel } from "@/lib/programLabels";
 // U7 업무 받은편지함: 표 행 CSV 만들기(DB 연결 없는 순수 함수 — 시험에서 바로 불러 씀)
 export interface InboxCsvRow {
   title: string;
@@ -23,7 +24,7 @@ export function kstDate(iso: string): string {
 
 export function inboxRowCsv(row: InboxCsvRow): string {
   const header = ["이름", "보낸 프로그램", "종류", "받은 날", "원본 링크"];
-  const values: unknown[] = [row.title, row.source_slug, KIND_LABEL[row.kind] ?? row.kind, kstDate(row.created_at), row.source_url ?? ""];
+  const values: unknown[] = [row.title, programLabel(row.source_slug), KIND_LABEL[row.kind] ?? row.kind, kstDate(row.created_at), row.source_url ?? ""];
   for (const [k, v] of Object.entries(row.data ?? {}).slice(0, 10)) {
     if (!k.trim() || header.includes(k)) continue;
     if (v == null || (typeof v === "object" && !Array.isArray(v))) continue;
@@ -47,15 +48,6 @@ export function isCalendarItem(data: Record<string, unknown> | null | undefined)
 }
 
 const CHANNELS = ["네이버 블로그", "블로그", "Threads", "인스타그램", "유튜브"];
-const PROGRAM_LABEL: Record<string, string> = {
-  "naver-blog-agent": "네이버 블로그 에이전트",
-  "ai-auto-blog": "블로그 포스팅 자동화",
-  "threads-content-ops": "Threads 콘텐츠 운영",
-  "auto-instagram-posting": "INSTA 포스팅 자동화", // programs.slug(폴더 insta_auto_poster)
-  "auto-shorts-posting": "YOUTUBE Shots 자동화", // programs.slug(폴더 shots) — 2026-11-12 U10 유튜브
-  "shorts-onestop-studio": "AI 쇼츠 원스톱 제작 자동화",
-  "playlist-channel-studio": "플레이리스트 채널 제작 자동화",
-};
 
 /** 보낸 쪽 상태 값(영어·한국어 섞임) → 캘린더 상태 선택지 */
 export function calendarStatus(v: unknown): string {
@@ -75,7 +67,7 @@ export function calendarRowCsv(row: InboxCsvRow & { body_md?: string | null }): 
   const url = typeof d["발행 주소"] === "string" ? d["발행 주소"] : "";
   const memo = (row.body_md ?? "").split("\n").find((l) => l.trim())?.trim().slice(0, 200) ?? "";
   const header = ["제목", "날짜", "채널", "상태", "발행 주소", "보낸 프로그램", "원본 링크", "메모"];
-  const values = [row.title, String(date).slice(0, 10), channel, calendarStatus(d["상태"]), url, PROGRAM_LABEL[row.source_slug] ?? row.source_slug, row.source_url ?? "", memo];
+  const values = [row.title, String(date).slice(0, 10), channel, calendarStatus(d["상태"]), url, programLabel(row.source_slug), row.source_url ?? "", memo];
   return `${header.map(csvCell).join(",")}\n${values.map(csvCell).join(",")}\n`;
 }
 
