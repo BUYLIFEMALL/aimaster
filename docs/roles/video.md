@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령) · 실제로 함께 맡아 온 폴더: `shorts-onestop-studio/`(v1.53) · `shots/`(v1.50) · `music-video-studio/`(v1.30, 음악 담당과 겹침) · `video-to-gif/`(v1.28)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-15 `claude-win-video` (메이커 v0.3.3 후속 세 가지 끝 — M3-① 원스톱 v1.56, M2 GIF 변환 v1.30·v1.31, M3-② 원스톱 v1.57)
+- 마지막 갱신: 2026-11-15 `claude-win-video` (원스톱 v1.59 배포 · GIF 변환 v1.32 맥 검수 문제 3건 수정 배포)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -16,12 +16,15 @@
 |---|---|---|---|
 | `ai-video-studio`·`shorts-onestop-studio` | Vidu Q3 Turbo·Pro 연동, 원스톱 「상품 장면도 AI 영상 허용」 — **코드·배포 완료**. 실생성 확인(Vidu 약 360원·상품 장면 변형 약 $0.25)만 남음 | 주인님 2026-11-15 「나중에 필요할 때 연동, 작업만 해놔」 | `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md` |
 | `ai-image-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
-| `video-to-gif` | v1.29 맥 실물 확인(설치 스크립트 4곳 등록·크롬 연결·V4 녹화·웨일/Aside) — 맥미니 요청. V4 윈도우 실제 녹화는 사람 클릭 필요(주인님) | 맥미니 결과 · 주인님 V4 | `video-to-gif/docs/REQUEST_20261115_MACMINI_V129_CHECK.md` |
+| `video-to-gif` | v1.32 배포(11-15) — 맥 재확인: 상품 영상 완료·멈추기, 고속 변환 감지, 고속 실변환 1회. V4 윈도우 실제 녹화는 사람 클릭 필요(주인님) | 맥미니 결과 · 주인님 V4 | `video-to-gif/docs/IMPROVEMENTS.md` 맨 위 |
+| `shorts-onestop-studio`·`shots`·`lyric-video-studio` | 공용 `browser-mp4-encoder` 멈춤 대비 사본(`44db8e230`) | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `shots` | v1.51 배포됨(11-14) — 「모든 장면 영상으로」 실제 유료 실행은 회원 첫 사용 때 오류가 나면 시험 | — | `shots/docs/IMPROVEMENTS.md` |
 | 영상 프로그램 6개 | 서버 지역 서울(`icn1`) 설정 완료 — 각 프로그램 다음 배포 때 반영, 배포 뒤 `x-vercel-id` 확인 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
-| `shorts-onestop-studio` | v1.55 배포됨(11-14). 남은 것: 영상 주소를 상품 쪽으로 반환 | 받는 쪽 상품ID 형식 | `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md` |
+| `shorts-onestop-studio` | v1.59 배포됨(11-15). 남은 것: Gemini 낱말 시각 1원 시험(시험 계정 로그인 대기), 영상 주소를 상품 쪽으로 반환(상품 번호는 uuid — `product-id`, 받는 쪽 화면은 상품 담당과 협의) | 주인님 로그인 · 상품 담당 | `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md` |
 
 ## 최근 완료 (최근 10개)
+- 2026-11-15 GIF 변환 v1.32: 맥미니 검수 P1(상품 영상 5% 정지·멈추기 무반응 — 공용 인코더 대기 반복 고침)·P2(고속 변환 감지 시간 제한)·P3(사이드바 버전 고정) 수정 배포, `44db8e230`
+- 2026-11-15 원스톱 v1.59: Gemini 낱말 시각(B안) 배포, `a61100cdb`
 - 2026-11-15 `shorts-onestop-studio` v1.58·`music-video-studio` v1.31 배포: 「내 자료함」 음악 검사식 역슬래시 버그 `70528df0f`(자료함 음악 8곡 표시 확인) + 원스톱 화면 수정 2건 + 뮤직비디오 위젯·로그인 정책·서울 지역
 - 2026-11-15 `shorts-onestop-studio` v1.57 배포(`shorts-onestop-studio-hr4wf7vab`, DB v1.57, `584ca0d4e` 외): 메이커 후속 M3-② 상품 숏폼 템플릿 4종·검증 다시 쓰기 1회·단어 강조 자막 3종·합성 효과음 박자 맞춤·버전 되돌리기 — ego 시험 계정 Haiku 5.5 4회·실제 MP4 확인
 - 2026-11-15 `video-to-gif` v1.30·v1.31 배포(`video-to-b5ch93cuq`, DB·확장 v1.31): 메이커 후속 M2 「🛍 상품 사진 영상」 — 사진 1~6장 → MP4·상세페이지 WebP(10MB), 상품코드 일괄·ZIP. 운영 실제 파일 확인. 「상세페이지로」 WebP는 이커머스 이미지 담당께 요청.

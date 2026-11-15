@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 ✅ [역할: video] Claude Code(윈도우) · `claude-win-video` — 원스톱 v1.59 · GIF 변환 v1.32(맥 검수 3건)
+- 원스톱 v1.59 배포(`a61100cdb`): Gemini 낱말 시각(B안)+공용 사본 2개, `icn1` 확인. Gemini 1원 시험은 ego가 관리자 계정이라 보류 — 시험 계정 로그인 대기(요청함 32673863).
+- GIF 변환 v1.32 배포(`44db8e230`): 맥미니 검수 P1 상품 영상 MP4 5% 정지(공용 `browser-mp4-encoder` 대기열 무한 대기 → 멈추기·오류·10초 진행 없음 확인, 메모리 방식은 하드웨어 가속 끄고 1회 다시, flush 30초 제한)·P2 고속 변환 감지 제한(확장 4초+1회 재연결, 렌더러 15초)·P3 사이드바 버전 고정. 확장 ZIP·DB(`version`·`extension_version`) v1.32, `check-extension-release` OK. 윈도우 운영에서 상품 영상 MP4 생성 확인.
+- 남은 일: 맥 재확인(`video-to-gif/docs/IMPROVEMENTS.md` 맨 위), 공용 인코더 사본 원스톱·shots·lyric 다음 배포(`docs/PENDING_DEPLOYS.md`).
+
 ## 2026-11-15 ✅ [역할: workspace] Claude Code(윈도우, 엣지) · `claude-win-20261025-workspace` — 업무 워크스페이스 v1.50 공개 폼
 - 지시: 주인님 「공개 폼도 진행해」→「둘 다 권장대로 진행해」(공개 폼 → MCP 순서). 배포 `ai-work-workspace-39oi4w9fx` Ready, DB v1.50, 커밋 `fbab4e479`. 플랜 `ai-work-workspace/docs/PLAN_20261115_PUBLIC_FORM_AND_MCP.md`.
 - 구현: 로그인 없는 `/form/<id>` + 공개 입구 폼 명령 3개(`src/server/publicForms.ts`), 개인정보 수집·이용 동의 필수(목적·보관 기간 공유 메뉴에서 회원이 고침), 응답자 1분 5번·폼 하루 300건, 관리자 공개 페이지 목록에 「📝 폼」·내리기·신고, 주인 이용 기간 종료 시 닫힘, 응답 사본 메일·파일 올리기 닫음, 오늘 쓴 횟수에 공개 폼.

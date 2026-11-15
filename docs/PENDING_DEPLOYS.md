@@ -17,6 +17,8 @@
 
 ## 대기 중
 
+- **공용 `browser-mp4-encoder` 멈춤 대비 `44db8e230`(2026-11-15 [역할: video] `claude-win-video`)**: `shorts-onestop-studio`(기준)·`shots`·`lyric-video-studio` — 인코더 대기열 대기 중 멈추기·오류 확인, 10초 진행 없으면 오류(메모리 방식은 하드웨어 가속 끄고 1회 다시), flush도 같은 제한. 맥 상품 영상 5% 정지 대응(`video-to-gif` v1.32로 먼저 배포). 시험·tsc 통과. 각 프로그램 다음 배포 때 함께(버전 +0.01).
+
 
 
 
