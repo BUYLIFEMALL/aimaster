@@ -12,7 +12,7 @@ function Pad({ platform, conn, next }: { platform: "wordpress" | "blogger"; conn
   if (!conn) {
     return (
       <div className="lp-pad lp-pad-off">
-        <div className="font-extrabold">{platform === "wordpress" ? "🅦" : "🅑"} {label} 발사대</div>
+        <div className="font-extrabold">{platform === "wordpress" ? "🅦" : "🅑"} {label}</div>
         <div className="mt-3 text-2xl font-black">아직 연결 전</div>
         <p className="mt-1 text-sm opacity-90">한 번만 연결하면 다음부터는 묻지 않습니다.</p>
         <Link href="/connect" className="mt-4 inline-block rounded-xl bg-white px-4 py-2 text-sm font-extrabold text-slate-700">🔗 연결하러 가기</Link>
@@ -21,7 +21,7 @@ function Pad({ platform, conn, next }: { platform: "wordpress" | "blogger"; conn
   }
   return (
     <div className={`lp-pad ${platform === "wordpress" ? "lp-pad-wp" : "lp-pad-blogger"}`}>
-      <div className="font-extrabold">{platform === "wordpress" ? "🅦" : "🅑"} {label} 발사대 · {conn.name || conn.address}</div>
+      <div className="font-extrabold">{platform === "wordpress" ? "🅦" : "🅑"} {label} · {conn.name || conn.address}</div>
       <div className="lp-count mt-2 text-5xl">{next?.scheduled_at ? countdown(next.scheduled_at) : "대기"}</div>
       <div className="mt-1 text-sm">{next ? `다음: ${next.title} · ${kstLabel(next.scheduled_at!)}` : "예약된 글이 없습니다"}</div>
       <div className="mt-2 text-xs opacity-90">{conn.needsReconnect ? "⚠️ 다시 연결이 필요합니다" : "연결됨"}</div>
@@ -50,7 +50,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <span className="inline-block rounded-full bg-blue-100 px-3 py-1 text-xs font-extrabold text-blue-700">🚀 발사 관제실</span>
+        <span className="inline-block rounded-full bg-blue-100 px-3 py-1 text-xs font-extrabold text-blue-700">📋 발행관리</span>
         <h1 className="mt-2 text-3xl font-black">오늘의 발행</h1>
       </div>
 
@@ -69,7 +69,7 @@ export default async function DashboardPage() {
       </div>
 
       <section>
-        <h2 className="text-xl font-black">⏱ 발사 순서</h2>
+        <h2 className="text-xl font-black">⏱ 발행 순서</h2>
         {upcoming.length === 0 ? (
           <p className="lp-card mt-3 text-sm text-[color:var(--muted)]">예약된 글이 없습니다. 원고를 만들고 「예약 발행」을 고르면 여기에 나옵니다.</p>
         ) : (

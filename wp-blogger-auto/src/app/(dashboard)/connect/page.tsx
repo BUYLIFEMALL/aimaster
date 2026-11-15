@@ -23,7 +23,7 @@ export default async function ConnectPage({ searchParams }: { searchParams: Prom
   return (
     <div className="space-y-6">
       <div>
-        <span className="inline-block rounded-full bg-blue-100 px-3 py-1 text-xs font-extrabold text-blue-700">🔧 발사대 정비</span>
+        <span className="inline-block rounded-full bg-blue-100 px-3 py-1 text-xs font-extrabold text-blue-700">🔧 연결 설정</span>
         <h1 className="mt-2 text-3xl font-black">블로그 연결</h1>
         <p className="mt-1 text-sm text-[color:var(--muted)]">한 번만 연결하면 다음부터는 묻지 않고, 다른 AIMaster 프로그램에서도 그대로 씁니다. 연결 정보는 회원님 계정에만 저장됩니다.</p>
       </div>

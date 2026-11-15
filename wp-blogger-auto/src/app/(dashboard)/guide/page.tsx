@@ -57,7 +57,7 @@ export default function GuidePage() {
 
       {/* ② 히어로 */}
       <div className="lp-pad lp-pad-wp" style={{ background: "linear-gradient(135deg,#2271b1,#ff8a1f)" }}>
-        <h2 className="text-2xl font-black">원고 한 번, 두 블로그로 발사</h2>
+        <h2 className="text-2xl font-black">원고 한 번, 두 블로그에 발행</h2>
         <p className="mt-2 text-sm leading-6 opacity-95">주제를 넣으면 구글 검색에 맞춘 원고와 이미지를 만들고, 워드프레스·구글 블로그에 <b>발행 전까지(초안) · 바로 발행 · 예약</b> 중 고른 방식으로 올립니다. 확장 프로그램 없이 블로그의 공식 연결로 올라가고, 예약은 블로그가 직접 실행하므로 PC를 꺼 두어도 됩니다.</p>
       </div>
 
