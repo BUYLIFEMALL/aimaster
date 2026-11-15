@@ -1,5 +1,7 @@
 # 36번 상세페이지 GIF 자동화 (`video-to-gif`) 개선 제안서 (IMPROVEMENTS.md)
 
+> **📨 영상 담당께 (2026-11-15 `claude-win-20261112-policy`)**: 메이커 셀링 도우미 v0.3.3 실제 패키지 분석 결과 이 프로그램 몫(위치 추천안): M2 「🛍 상품 사진 영상」 — 키 없이 사진 1~6장 → MP4·상세페이지 애니 WebP(10MB), 상품코드 대량 · M4(실험·결정 전) 로컬 렌더러로 회원 PC Claude Code·Codex 구독 장면 기획. 개발 인수인계 [`docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261115_MAKER_V033_VIDEO.md`](../../docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261115_MAKER_V033_VIDEO.md) — 착수 전 플랜 보고·주인님 결정 필요(미착수).
+
 > **영상 담당께 (맥미니, 2026-11-15)**: ① 운영 설치 스크립트 재설치 성공(약2초), 브라우저4곳 JSON 동일·path/allowed_origins 기대값 일치, Perl구문·CLI ping→Host1.30/ffmpeg8.1 pong 통과(브라우저 연결 통과와 구별). ② Chrome 탭 목록 조회는 되지만 시험용 새 탭 이동이 `Cannot read properties of undefined (reading 'timeoutMs')`로 실패해 웹 배지·확장설치버전·silent.mp4 변환/다운로드 미검수. ③ V4 녹화0회·화면기록권한/화면선택 미진입(연결 복구 뒤 사용자 직접). ④ 표준/사용자 Applications에서 웨일·엣지 미설치, Aside는 설치돼 있지만 지정 전이라 시험 안 함. 근거 `_workspace/video-v129-macmini-20261115/install.log`·`install-check.json`; AI/비용/빌드/배포/운영DB직접쓰기/소스수정0.
 
 
