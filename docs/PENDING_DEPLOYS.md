@@ -94,6 +94,7 @@
 
 - 2026-11-11 메인 사이트(세션 `claude-win-rea`): 저작권·AI 분석 금지 고지 — `public/ai.txt`, 응답 헤더 `X-Robots-Tag: noai, noimageai`, 하단 저작권 한 줄(약관 제14조 링크) — 저장공간 2단계(관리자 미리보기)와 같은 빌드로 내보냄.
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
+| `shorts-onestop-studio` | v1.56 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 메이커 후속 결정 「비용 승인」 빌드 1회, `shorts-onestop-studio-7axgp8ug3` Ready, DB v1.56) | 메이커 v0.3.3 후속 M3-① 광고 고지(쿠팡 파트너스·제휴·협찬·직접 입력) 띠·AI 제작 표기·설명란 첫 줄 고지·유튜브 합성 콘텐츠 표시·게시 전 확인 4가지·안전 영역 3개 플랫폼 `0807cf180`. ego 운영 화면 v1.56, 실제 MP4(58.2초) 처음·중간·끝 프레임에 띠·AI 표기 확인. 게시 전 확인 화면은 시험 계정 확인 남음 |
 | `smartstore-register` | v1.28 · 2026-11-15 ([역할: design] Antigravity, 주인님 승인 빌드 1회, `smartstore-register-mxv57n8mv` Ready, DB v1.28) | 1안(110. 네이버 스마트스토어 오리지널 그린 & 화이트) 공식 채택 전면 구현 + E2-4 검색 태그(`597e912cc`) + `markPosted` 사진 표시(`6a17c6123`) + 3D 엠보싱 버튼 + 1행 유지 규격 준수 |
 | `elevenst-register` | v1.07 · 2026-11-15 ([역할: design] Antigravity, 주인님 승인 빌드 1회, `elevenst-register-dub6wjt88` Ready, DB v1.07) | 1안(107. 11번가 오리지널 레드 & 화이트) 공식 채택 전면 구현 + 전역 1행 고정(nowrap) 최적화 |
 | `stepmail` v1.30 | 2026-11-14 ([역할: policy] `claude-win-20261112-policy`, 주인님 승인 빌드 1회, Ready·DB 버전) | 메일 `{닉네임}` 개인화·2~5초 간격·계정별 하루 한도(`b3a93984f`) + 전체 점검 매뉴얼·30일 정리 등 그동안의 대기분 · 회원 공지 `notices` 3f946b70(메인 공지·프로그램 상세에 고정) · 실제 발송 시험은 안 함(시험 계정에 메일 계정 없음, 관리자는 실제 명단) |

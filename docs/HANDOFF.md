@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 메이커 v0.3.3 후속 M3-① 원스톱 v1.56 광고 고지·AI 표기
+- 결정(주인님): 세 가지 모두·추천 순서(M3-① → M2 → M3-②)·M2는 `video-to-gif`·AI는 회원 본인 키만(M4 안 함)·빌드와 Haiku 시험 호출 승인. 플랜 3개 `fe70e669c` 커밋: `shorts-onestop-studio/docs/PLAN_20261115_MAKER_M3_DISCLOSURE.md`·`PLAN_20261115_MAKER_M3_PRODUCT_SHORTS_UPGRADE.md`, `video-to-gif/docs/PLAN_20261115_MAKER_M2_PRODUCT_PHOTO_VIDEO.md`.
+- 한 일: 광고 고지 띠(쿠팡 파트너스·제휴·협찬·직접 입력, 쿠팡 주소면 자동)·「AI로 만든 영상」 표기(AI 음성이면 끌 수 없음)·설명란 첫 줄 `[광고]`·유튜브 `containsSyntheticMedia`·게시 전 확인 4가지(단건·발행 계획 일괄)·가림 영역 3개 플랫폼. 공용 `youtube-upload-client`에 선택값 추가(기준 `shots`, 사본 lyric·playlist 미배포). `0807cf180`.
+- 배포: `shorts-onestop-studio-7axgp8ug3` Ready, DB v1.56. 운영 MP4(58.2초) 처음·중간·끝 프레임에 띠 확인(ego, 관리자 계정·저장 안 함).
+- 못 한 것: 유튜브 「유료 프로모션」 칸은 업로드 API로 못 켬(안내로 대체). 시험 계정 ⑥ 게시 전 확인 화면 확인.
+- 다음 첫 단계: M2 `video-to-gif` 「🛍 상품 사진 영상」 — `ffmpeg.wasm` 애니메이션 WebP 사전 검증부터.
+- https://shorts-onestop-studio.buylife.xyz
+
 ## 2026-11-15 ✅ [역할: workspace] Claude Code(윈도우, 엣지) · `claude-win-20261025-workspace` — `ai-work-workspace` v1.44 배포 + 출처 연결 수정(미배포)
 
 - 배포: v1.44(`ai-work-workspace-864l3l83a` Ready, DB v1.44) — Gemini 내장 구글 검색 `81b56f898`, 키 화면 「🔎 AI 비서 웹 검색」 등록 칸 `90c190a96`.
