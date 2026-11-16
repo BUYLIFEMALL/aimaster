@@ -47,7 +47,14 @@ check("A 시나리오 종료 코드 0", A.status === 0, A.status + " " + (A.stde
 const notices = A.stderr;
 const rows = A.stdout.split("\n").map((l) => l.replace(/\s+/g, " ").trim()); // 칸 사이 공백을 한 칸으로
 const row = (id) => rows.find((l) => l.startsWith(id + " |")) ?? "(없음)";
-const has = (id, ...parts) => { const r = row(id); check(id, parts.every((p) => r.includes(p)), r); };
+// 칸 위치별 비교(Workspace 지적 WS-20261116-11 §5: 줄 전체 포함 검사는 줄 끝 「기대 …」 칸 때문에 틀린 값도 통과했다)
+// 결과 줄을 |로 나눠 첫 칸(번호)과 「기대」로 시작하는 칸을 빼고, 칸 수와 각 칸을 비교한다. 「~」로 시작하는 기대값만 그 칸에 포함되는지 본다(긴 JSON·문구)
+const cells = (id) => row(id).split("|").map((c) => c.trim()).slice(1).filter((c) => !c.startsWith("기대"));
+const has = (id, ...exp) => {
+  const got = cells(id);
+  const ok = got.length === exp.length && exp.every((e, i) => (e.startsWith("~") ? got[i].includes(e.slice(1)) : got[i] === e));
+  check(id, ok, `[${got.join(" | ")}] 기대 [${exp.join(" | ")}]`);
+};
 const blocked = (id, msg) => { const m = notices.match(new RegExp(`NOTICE:  ${id} (막힘[^\\n]*|통과됨[^\\n]*)`)); check(id + " 막힘", Boolean(m && m[1].startsWith("막힘") && m[1].includes(msg)), m ? m[1] : "(알림 없음)"); };
 blocked("C1", "신청을 받지 않습니다");
 blocked("C2a", "카드 매출전표");
@@ -56,26 +63,26 @@ blocked("C2c", "주문을 찾을 수 없습니다");
 blocked("C4", "세금계산서를 함께 요청할 수 없습니다");
 blocked("C7", "주문을 찾을 수 없습니다");
 blocked("P7a", "주문을 찾을 수 없습니다"); // 주문 권한 없는 직원의 상태 다시 확인
-has("C3", "requested", "| 0");
-has("C5", "issuing", "33000", "INCOME_DEDUCTION", '"vatAmount": 3000');
+has("C3", "requested", "0");
+has("C5", "issuing", "33000", "~INCOME_DEDUCTION", '~"vatAmount": 3000', "~아주 긴 이름의 시험 상품");
 has("C6", "issued", "AP123");
 has("C8a", "cancelling", "3000");
-has("C8b", "issuing", "3000", "| 2");
-has("C8c", '"vatAmount": 273', '"supplyAmount": 2727');
-has("C9", "issuing", "EXPENSE_PROOF");
-has("C10", "failed", "사업자등록번호");
+has("C8b", "issuing", "3000", "2");
+has("C8c", '~"vatAmount": 273, "supplyAmount": 2727');
+has("C9", "issuing", "EXPENSE_PROOF", "1234567890");
+has("C10", "failed", "~사업자등록번호");
 has("P1a", "unknown");
-has("P1b", "cancelling", "ik-mbcr-");
-has("P1c", "cancelled", "| 1");
-has("P1d", "1 |", "1");
-has("P2", "cancel_failed", "볼타 발급 번호를 몰라");
-has("P2b", "0 |", "1");
+has("P1b", "cancelling", "~ik-mbcr-");
+has("P1c", "cancelled", "1");
+has("P1d", "1", "1");
+has("P2", "cancel_failed", "~볼타 발급 번호를 몰라");
+has("P2b", "0", "1");
 has("P3a", "cancelling", "3000");
-has("P3b", "issuing", "3000", "| 2");
+has("P3b", "issuing", "3000", "2");
 has("P4b", "issued");
 has("P4c", "cancelling", "11000");
-has("P4d", "cancelled", "| 1");
-has("P5a", "issuing", "| t");
+has("P4d", "cancelled", "1");
+has("P5a", "issuing", "t");
 has("P5b", "issued");
 has("P5c", "issued", "0");
 has("P6a", "cancel_failed");
@@ -83,7 +90,7 @@ has("P6b", "cancelling");
 has("P6c", "cancelled");
 has("P6d", "1");
 has("P7b", "issued");
-has("P8a", "cancelled", "자동 발급을 멈춘 상태");
+has("P8a", "cancelled", "~자동 발급을 멈춘 상태");
 has("P8b", "0");
 
 // ── B. 되돌리기 2단계 4경우 ──
