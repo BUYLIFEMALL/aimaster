@@ -500,5 +500,5 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 ## 2026-11-17 v1.47 ✅ 배포 — 바나나 연결 저장 확인 약속(ECOM-17) (Claud(ecommerce) `claude-win-sdp` [역할: ecommerce-image], 주인님 「상세페이지 먼저 배포해」)
 - `components/products/MainPhotoBatch.tsx`: 바나나 결과를 저장한 뒤 보내는 응답에 받은 `resultId`(있을 때만)·`settingsVersion`을 되돌림, 저장 중 예외(`.catch`)에도 실패 응답. 공용 사본 `lib/productPhotoHandoff.ts`는 기준 `banana-canvas/src/lib/productPhotoHandoff.ts`에서 `--module product-photo-handoff --sync`(직접 수정 금지). 커밋 `60860337b`, 버전 `0e418bab9`.
 - 운영 바나나 v1.48과 함께 써도 동작 변화 없음(옛 바나나는 resultId를 안 보내 응답에서 생략). 바나나 v1.49를 이 다음에 배포해야 「확인 필요」 없이 정상.
-- 배포 `shop-detail-page-6esxwz43i` Ready, DB v1.46→v1.47, 로그인 화면 200, ego(관리자 세션) 상품 화면 v1.47·위젯 확인. 실제 저장 응답 왕복은 실저장이 필요해 미검수.
+- 배포 `shop-detail-page-6esxwz43i` Ready, DB v1.46→v1.47, 로그인 화면 200, ego(관리자 세션) 상품 화면 v1.47·위젯 확인. 배포 직후에는 실제 저장 응답 왕복이 미검수였음 → 같은 날 아래 줄에서 검수 완료로 해소.
 - 2026-11-17 운영 실저장 왕복 검수 ✅(주인님 「진행해」, ego, 시험 계정 `buylifemall@naver.com`): 상세 「대표사진 일괄 만들기」→ 시험용 텀블러 1개 → 바나나 v1.49 새 창 상품 1개 수신·첫 미리보기 → 합성 1/1·「반환 완료 ✓」1·확인 필요 0·응답 대기 0 → 상세 줄 「저장됨」·DB main_image_url 저장 확인 → 같은 설정 재합성은 다시 보내지 않음(저장 1 유지) → 「원본으로」로 복원·DB main_image_url 비움 확인. AI·빌드 비용 0. 남은 미검수: 실기기.
