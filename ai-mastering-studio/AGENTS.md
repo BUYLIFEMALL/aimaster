@@ -152,3 +152,6 @@ ai-mastering-studio/
 - 함께 나감: ① Gemini 2.5 선택지 제거·저장된 옛 값 → `gemini-3.8-flash`/`gemini-3.5-flash-lite` 변환 `946660f65`(맥미니, 12-01 종료 대비) ② API 키 안내 문구 `b16550ad4` ③ 권한 판정 동시 조회 `d1e710d68`. 버전 커밋 `cb0529c1b`.
 - 검수: `tsc --noEmit` 통과 · 시험 22개 통과 · 배포 `ai-mastering-studio-bqrif5nxh` Ready(production, `ai-mastering-studio.buylife.xyz` 연결) · DB `programs.version` v1.15 → v1.16 · ego lite 운영 `/studio`(로그인 상태): 화면 v1.16, 페이지 안 `gemini-2.5` 없음, AI 제안 모델 선택지 Gemini 3.8 Flash·3.5 Flash-Lite·4 Argon / GPT-6 계열 / Claude 5.5 계열.
 - 발견(미처리): Claude 선택지에 `claude-fable-5-1`(Fable 5.1)이 있음 — 현재 최신은 Fable 5.2(`claude-fable-5-2`). 급하지 않음, 다음 작업 때 `docs/AI_MODEL_CATALOG.md` 기준으로 확인.
+
+## 2026-11-16 v1.17 — 공통 보완 배포 (Claud(Music) `claude-win-20261024-music`, 주인님 「미배포 묶음 배포 진행해」 승인 빌드 5회 중 1회)
+- 내보낸 것: 공통 보완 `b4403e8bd`(로그아웃 local·서버 `User-Agent`·저장공간 위젯). 시험 22·tsc 통과, 배포 `ai-mastering-studio-ogvm79lj1` Ready·DB v1.17, ego lite 화면 v1.17·위젯 확인.

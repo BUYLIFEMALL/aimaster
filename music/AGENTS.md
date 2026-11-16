@@ -484,3 +484,6 @@ POST 콜백을 보낸다. 이 라우트는:
 - 화면 `components/studio/LibraryGallery.tsx`: 카드에 「🔗 Suno 공식 장르: 한글 · 영어」(약한 연결은 점선 「(참고)」), 누르면 「Suno 공식 장르」 분류 + 그 장르 카드로. 라이브러리 안내 한 줄.
 - 검수: 시험 71(새 `tests/presetGenreLink.test.mjs` 5개)·tsc·lint·build, 배포 `music-h7adu4ta4` Ready·DB v1.57, ego lite 시험 계정: 화면 v1.57, 한국 가요 카드 배지·Style, 트로트 배지 → 엔카 카드 1개로 이동. Suno 실제 생성 시험은 하지 않음(바뀐 Style 소리는 다음 실제 생성 때 확인). 비용: Vercel 빌드 1회.
 - 커밋 `fd5a19180`. 별칭을 고칠 때는 검토표를 다시 만들어 틀린 연결이 없는지 보고 시험의 고정 사례를 함께 늘린다.
+
+## 2026-11-16 v1.58 — 미배포 메뉴 수정 배포 (Claud(Music) `claude-win-20261024-music`, 주인님 「미배포 묶음 배포 진행해」 승인 빌드 5회 중 1회)
+- 내보낸 것: 왼쪽 메뉴 두 개 동시 선택 수정 `db08afdd6`(`/plannings/new`에서 「빠른 음악 기획」 하나만). 시험 71·tsc 통과, 배포 `music-b8m2pihnu` Ready·DB v1.58. ego lite: 화면 v1.58·💾 위젯, 새 기획 화면 켜진 메뉴 1개(빠른 음악 기획)·목록 화면 1개(음악 생성) 확인.

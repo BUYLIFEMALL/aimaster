@@ -88,3 +88,6 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## 2026-10-23 v1.10 — AI 음악 스튜디오 곡 가져오기(?ams=) (Claude Code 윈도우)
 - `/source?ams=<생성 번호>&i=<곡 순서>`로 들어오면 한 번만 가져온다(`src/components/studio/AmsImportCard.tsx`, 음악 넣기 화면 위). 서버 `src/lib/ams.ts` + `GET /api/ams/song` — 공용 DB `ams_generations`를 회원 본인 행만 읽기, 비공개 저장소 `ai-music-studio` 1시간 서명 주소. **Lyria 시간 가사(`[0.0:3.7] 가사`)는 `src/lib/amsLyrics.ts`(공용 모듈 `ams-timed-lyrics` 기준, 시험 3개)로 줄 시간표로 바꿔 그대로 넣음**, 없으면 가사 글(구간 표시 제거), 연주곡은 빈 가사. 외부 AI 호출 없음. 기존 `?suno=` 흐름은 그대로.
 - 검수: 시험 14·tsc·build, 배포 `lyric-video-studio-ewv8hq0sy` Ready·DB v1.10, 크롬 시험 계정 — Lyria 3 Clip 곡으로 들어가 음악·제목과 시간 가사 8줄 자동 입력 확인. 비용: Vercel 빌드 1회.
+
+## 2026-11-16 v1.15 — 미배포 묶음 배포 (Claud(Music) `claude-win-20261024-music`, 주인님 「미배포 묶음 배포 진행해」 승인 빌드 5회 중 1회)
+- 내보낸 것: 공통 보완 `b4403e8bd` + 공용 사본 `browser-mp4-encoder` 안정화(`4faaadaf2` 하드웨어 가속 우선·화면 꺼짐 방지, `44db8e230` 멈춤 10초 감지) + `youtube-upload-client` `containsSyntheticMedia`(`0807cf180`). 시험 36·tsc 통과, 배포 `lyric-video-studio-71roglhks` Ready·DB v1.15, ego lite 화면 v1.15·위젯 확인. **남은 확인**: 운영에서 MP4 1회 만들어 보기(인코더 변경, 회원 비용 없음).

@@ -115,3 +115,6 @@
 - 로드맵 5단계(`../docs/analysis-pc-renderer-20261024/ROADMAP.md`). 곡 카드(`GenerationCard`) 내려받기 옆 「내 PC로 저장(MP3·FLAC)」(`components/studio/PcSaveButton.tsx`) → 펼치면 실행기 확인 → MP3 320k·AAC·FLAC·WAV24 + 스트리밍 기준 음량(-14 LUFS·-1 dBTP) → 곡 파일(1시간 서명 주소)을 브라우저가 받아 회원 PC 실행기로 변환 → 파일 내려받기 + 음량 전·후. 확장·실행기 없으면 설치 안내.
 - 공용 기준 코드 사본: `lib/pcRenderer.ts`(`pc-renderer-client`)·`lib/pcAudio.ts`(`pc-audio-command`, 기준 `ai-mastering-studio`). 직접 고치지 말 것.
 - 검수: 시험 53·tsc·build · 배포 `ai-music-studio-aif3nqs2q` Ready·DB v1.14 · 크롬 시험 계정 보관함 곡 16개에 단추, 「Lyria RealTime 시험」(30초) → MP3(ID3, 1.2MB), 음량 -16.2 → -14.0 LUFS·최대 -1.1 dBTP. 커밋 `3e625741c`. 플랜 `docs/PLAN_20261024_PC_SAVE.md`.
+
+## 2026-11-16 v1.16 — 공통 보완 배포 (Claud(Music) `claude-win-20261024-music`, 주인님 「미배포 묶음 배포 진행해」 승인 빌드 5회 중 1회)
+- 내보낸 것: 공통 보완 `b4403e8bd`(로그아웃 local·서버 `User-Agent`·저장공간 위젯). 시험 54·tsc 통과, 배포 `ai-music-studio-m3k7uuwmi` Ready·DB v1.16, ego lite 화면 v1.16·위젯 확인.

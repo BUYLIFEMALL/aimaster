@@ -261,3 +261,6 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 ## 2026-11-03 v1.34 ✅ 배포 — 종료 모델 긴급 교체 (Claude Code 윈도우 · 세션 claude-win-20261024-music, 맥미니 요청 `docs/DEPLOY_REQUEST_20261103_RETIRED_MODELS.md`)
 - 함께 나감: 이미지 `87b12267e`(GPT Image 1·1 mini·1.5 목록 제거, 옛 값 → flare). 버전 커밋 `d9448b5bb`, 배포 `playlist-channel-studio-e5lnm0rdl` Ready, DB v1.34. tsc(시험 있으면 npm test) 통과.
 - 실제 시험(시험 계정 본인 키, 재시도 없음): 참조 이미지 편집(`/v1/images/edits`) flare 1장 통과(15.1초) — flare가 편집 지원함 확인.
+
+## 2026-11-16 v1.42 — 미배포 묶음 배포 (Claud(Music) `claude-win-20261024-music`, 주인님 「미배포 묶음 배포 진행해」 승인 빌드 5회 중 1회)
+- 내보낸 것: 곡 없이도 「내가 올린 영상」 목록·보내기 단추 `16439a8e9` + 공용 사본 `youtube-upload-client` 선택값 `containsSyntheticMedia`(`0807cf180`, 영상 담당). 시험 37·tsc 통과, 배포 `playlist-channel-studio-icbwj5qia` Ready·DB v1.42, ego lite 화면 v1.42·위젯 확인.
