@@ -14,6 +14,8 @@
 
 ## 현재 조정 범위
 
+MOV-20261117-04 / CC-MOVIE-01: AGY DES17-01 전달대기/착수미확인으로Workspace캘린더직접지시2커밋독립검토이관. 실제원본CalendarView/calendar.css ROW240/월주/위치·ko/en·현황판undefined/false보존 정적대조중심, 기존도구실원본안전렌더가능할때만측정·불가시미검수. 제품/설치/build/dev/deploy/운영DB/회원쓰기없음·고유결과만. AGY이전배정취소공지·이미착수시부분근거반환/추가중복금지. WS17-05 7f2d2a2ee 직접지시원문/승인/한계취합수락·구현ready_review유지, v1.55쌓인미배포자동포함금지.
+
 WS-20261117-05 / CC-WORKSPACE-01: 주인님직접「노션처럼기능확장·년월표기·캘린더세로·꽉차게」11-17KST지시취합.370e05836 ko날짜/ROW240·12a5ff17d현황판새전체너비/기존undefined만변경false보존 코드접수·6/6/type보고. 현재추가제품수정/버전/build/deploy/운영DB0, 고유직접지시/결과기록만.
 
 DES-20261117-01 / AG-UI-01: 위2커밋CalendarView/calendar.css ROW240·일정/확장/월전환·ko/en분기/요일·넘침독립읽기검토. 실제원본하네스기존도구로안전가능할때만측정·별도모형제품PASS금지·불가시정적/미검수. 제품/CSS/설치/앱build/dev/배포/운영DB/회원데이터쓰기0·고유결과/artifact만. 운영1.54미포함으로운영PASS아님.
