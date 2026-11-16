@@ -66,6 +66,7 @@ const cases = [
   ["needs_review NOT NULL 제거", `alter table ${T} alter column needs_review drop not null;`, 4],
   ["결제 상태 제약 제거", `alter table ${T} drop constraint mall_builder_exchange_fee_payments_status_check;`, 6],
   ["시도 이력 사유 제약 제거", `alter table ${A} drop constraint mall_builder_exchange_fee_payment_attempts_reason_check;`, 7],
+  ["조건 없는 INSERT 정책 추가(조건식 NULL·쓰기 조건 true)", `create policy qa_extra_insert on ${T} for insert to authenticated with check (true);`, 8],
   ["결제 기록 읽기 정책 조건 바꿈", `drop policy mall_builder_exchange_fee_payments_read on ${T}; create policy mall_builder_exchange_fee_payments_read on ${T} for select to authenticated using (true);`, 8],
   ["지킴 트리거 꺼짐", `alter table public.mall_builder_exchanges disable trigger mall_builder_exchanges_fee_card_guard;`, 15],
   ["지킴 트리거 잘못 연결(AFTER·다른 함수)", `create function public.qa_dummy_trg() returns trigger language plpgsql as $$ begin return new; end $$; drop trigger mall_builder_exchanges_fee_card_guard on public.mall_builder_exchanges; create trigger mall_builder_exchanges_fee_card_guard after update on public.mall_builder_exchanges for each row execute function public.qa_dummy_trg();`, 15],

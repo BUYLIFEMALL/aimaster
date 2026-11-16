@@ -12,8 +12,8 @@
 | `build.mjs` | 원문 지문 확인 뒤 `apply.sql` 생성(DB 접속 0) | `c25d19458bc57394887d096cf938c215b7658a14e680da67d5bc6b28bc8fdbbc` |
 | `apply.sql` | 한 트랜잭션 적용(`lock_timeout 5s`·`statement_timeout 60s`), 시작 조건 확인 → 원문 → 적용 기록 1줄(version은 UTC) | `d06b9bba18a1dd4e6610a056f8fc05bc951fbbc300e73167b47ce74b4b1a1bd3` |
 | `precheck.sql` | 실행 전 읽기 전용 16항목 + 기준값 2개 | `f271c35f64b05877f1856e93d4b06f4cf72e8c9f036209447996b8de4b48c510` |
-| `verify.sql` | 적용 뒤 읽기 전용 20항목 엄격 판정(줄 수 20·NULL·필수 줄 없음은 불일치). 구조 1~15는 12절 카탈로그 목록 대조, 자료 16~20 | `3ad21b5c72f92b9e63c8c22f4d942ab39c3f029df025201686b07bff0c6cb760` |
-| `check-local.mjs` | 로컬 격리 DB 리허설 + 반례 18개(Docker `aww-pg-test`, `qa_` DB 만들고 끝에 지움) | `7b0c9b3ee5004a7e2f93cfdf1dcfda2978e0d4b109af55b0b8a6daf64b9e65f7` |
+| `verify.sql` | 적용 뒤 읽기 전용 20항목 엄격 판정(줄 수 20·NULL·필수 줄 없음은 불일치). 구조 1~15는 12절 카탈로그 목록 대조, 자료 16~20 | `393c5d7de44760d9ed865b9723b4990c7bbd4cf251dd9f16f2ef9b21d08f12fb` |
+| `check-local.mjs` | 로컬 격리 DB 리허설 + 반례 19개(Docker `aww-pg-test`, `qa_` DB 만들고 끝에 지움) | `b171457b7b6801c24f5776488897cd91b696fd4e7acf0dde60971a79e2b0d59d` |
 
 ## 3. 실행 순서(지시가 있을 때)
 1. `node mall-builder/docs/handoff-0104-lab/build.mjs` → 두 지문이 위 표와 같은지 확인(원문 739b35e9…, apply d06b9bba…).
@@ -40,7 +40,7 @@
 
 ## 8. 확인한 것과 못 한 것
 - 2026-11-17 Lab에서 `precheck.sql` 1~16번 실제 실행(읽기): 16/16 OK, 17번 `c56e3560d4f9b4d98c724cbfc93ed228`, 18번 `ec616aef65e7059c3c4c7dbc7a38ec5e`.
-- 로컬 리허설(`check-local.mjs`, 0001~0103만 적용한 새 `qa_` DB, 2026-11-17 실행 23/23 통과): 원본 `apply.sql`은 로컬에 `http` 확장이 없어 `[멈춤]`·기록 0(멈춤 조건 확인). 그 한 줄만 뺀 **사본**으로 적용 → 새 `verify` 구조 1~15 모두 OK → 반례 18개 모두 해당 항목 「확인 필요」(13절) → 두 번째 적용 `[멈춤] 0104 적용 기록이 이미 있습니다`·기록 1줄 유지 → DB 삭제.
+- 로컬 리허설(`check-local.mjs`, 0001~0103만 적용한 새 `qa_` DB, 2026-11-17 실행 24/24 통과): 원본 `apply.sql`은 로컬에 `http` 확장이 없어 `[멈춤]`·기록 0(멈춤 조건 확인). 그 한 줄만 뺀 **사본**으로 적용 → 새 `verify` 구조 1~15 모두 OK → 반례 19개 모두 해당 항목 「확인 필요」(13절) → 두 번째 적용 `[멈춤] 0104 적용 기록이 이미 있습니다`·기록 1줄 유지 → DB 삭제.
   - 구분: 사본 리허설은 **흐름·문법·구조 항목 확인**이지 원본 `apply.sql` 그대로의 완전 실행 증거가 아니다. 원본의 완전성은 `build.mjs` 지문(원문 739b35e9…, apply d06b9bba…)으로만 보장한다.
   - **verify 16~20번(결제 기록 0줄·기존 자료 보존)은 빈 시험 DB라 미검증**이다(16번 0줄은 사본 적용 뒤 0이었으나 기준 자료가 없어 판정 제외) — Lab 실제 적용 뒤 verify에서만 확인된다.
 - 못 한 것: Lab 실제 적용·verify, 실제 토스, 실제 화면. EXQA-1이 11-18 03:31(KST) 이후 자동 확정되면 precheck 15·16번 기준값이 바뀌므로 그때는 Master에 새 기준값을 받는다.
@@ -89,7 +89,7 @@
 - 결제 기록 칸: `id uuid NN D=gen_random_uuid()` … `needs_review boolean NN D=false` … `updated_at timestamptz NN D=now()` — 18칸 전체 문자열은 verify 4번 기대값.
 - 시도 이력 칸: 19칸 — verify 5번 기대값.
 - 제약: 결제 기록 9개(금액>0, 상태 6종 prepared·requested·done·failed·unknown·canceled, 토스 주문 번호 `^exfee-[0-9a-f-]{36}$`, 교환·토스 주문 번호 유일, 외래 키 3개 cascade, 기본 키) / 시도 이력 6개(사유 3종, 외래 키 4개 cascade, 기본 키) — verify 6·7번.
-- 정책: 결제 기록 `mall_builder_exchange_fee_payments_read`·SELECT·authenticated·조건식 md5 `be5456c1963d9d605fc4e16d3f384b8e`(직원 orders 권한 또는 본인 주문) / 시도 이력 0개 — verify 8번.
+- 정책: 결제 기록 정책 **개수 정확히 1**(모든 명령·역할) + `mall_builder_exchange_fee_payments_read`·SELECT(r)·허용형·authenticated·조건식 md5 `be5456c1963d9d605fc4e16d3f384b8e`(직원 orders 권한 또는 본인 주문)·쓰기 조건 없음(-) / 시도 이력 0개 — verify 8번. 조건식·쓰기 조건이 비어 있는(NULL) 정책도 「-」로 남겨 집계에서 빠지지 않게 했다(QA015 잔여 P2).
 - 권한: 회원 읽기 칸 16개(결제 키·멱등키 제외), 직접 부여는 회원 칸 SELECT뿐, 비로그인 0, 쓰기 0 / 시도 이력은 PUBLIC·anon·authenticated 부여 0 — verify 9~11번.
 - 함수: 공개 3개 security definer·`search_path=""`·회원 실행만 / 내부 4개(지킴 함수만 security definer)·회원·비로그인 실행 0 — verify 12~14번.
 - 트리거: `mall_builder_exchanges_fee_card_guard`·켜짐(O)·BEFORE UPDATE·FOR EACH ROW·`mall_builder_private.exchanges_fee_card_guard()`, 교환 표 트리거는 이것 하나 — verify 15번.
@@ -106,10 +106,11 @@
 | needs_review 기본값 제거 / NOT NULL 제거 | 4번 막음(2건) | 거짓 통과(2건) |
 | 결제 상태 제약 제거 | 6번 막음 | 거짓 통과 |
 | 시도 이력 사유 제약 제거 | 7번 막음 | 거짓 통과 |
+| 조건 없는 INSERT 정책 추가(조건식 NULL·쓰기 조건 true) | 8번 막음 | 거짓 통과(ee9c725ca·5dca84102 모두) |
 | 결제 기록 읽기 정책 조건 바꿈 | 8번 막음 | 거짓 통과 |
 | 지킴 트리거 꺼짐 / 잘못 연결(AFTER·다른 함수) | 15번 막음(2건) | 거짓 통과(2건) |
 | 내부 함수 회원 실행 부여 | 14번 막음 | 막음 |
 | 공개 함수 search_path 바뀜 | 12번 막음 | 막음 |
 | 공개 함수 비로그인 실행 부여 | 13번 막음 | 막음 |
-합계 18건: 새 verify 18건 모두 막음, 이전 verify 15건 거짓 통과. 실행: `node mall-builder/docs/handoff-0104-lab/check-local.mjs` → 「합계 통과 23 / 실패 0」.
+합계 19건: 새 verify 19건 모두 막음, 이전 verify(ee9c725ca) 16건 거짓 통과. 마지막 반례(조건 없는 INSERT 정책)는 직전 판 verify(5dca84102)도 거짓 통과했음을 같은 리허설로 확인. 실행: `node mall-builder/docs/handoff-0104-lab/check-local.mjs` → 「합계 통과 24 / 실패 0」.
 

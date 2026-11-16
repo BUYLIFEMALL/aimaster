@@ -35,8 +35,13 @@ chk as (
   union all select 7, '시도 이력 제약(사유 3종·외래 키) = 목록',
     'mall_builder_exchange_fee_payment_attempts_exchange_id_fkey:f:FOREIGN KEY (exchange_id) REFERENCES mall_builder_exchanges(id) ON DELETE CASCADE ; mall_builder_exchange_fee_payment_attempts_order_id_fkey:f:FOREIGN KEY (order_id) REFERENCES mall_builder_orders(id) ON DELETE CASCADE ; mall_builder_exchange_fee_payment_attempts_payment_id_fkey:f:FOREIGN KEY (payment_id) REFERENCES mall_builder_exchange_fee_payments(id) ON DELETE CASCADE ; mall_builder_exchange_fee_payment_attempts_pkey:p:PRIMARY KEY (id) ; mall_builder_exchange_fee_payment_attempts_reason_check:c:CHECK ((reason = ANY (ARRAY[''replaced_failed''::text, ''toss_canceled''::text, ''toss_partial_canceled''::text]))) ; mall_builder_exchange_fee_payment_attempts_store_id_fkey:f:FOREIGN KEY (store_id) REFERENCES mall_builder_stores(id) ON DELETE CASCADE',
     (select s from cons where conrelid = (select t from att))
-  union all select 8, '정책: 결제 기록 읽기 1개(로그인 회원·SELECT·조건식 지문) / 시도 이력 0개', 'mall_builder_exchange_fee_payments_read:r:authenticated:be5456c1963d9d605fc4e16d3f384b8e / 0',
-    (select string_agg(polname || ':' || polcmd::text || ':' || array_to_string(polroles::regrole[], ',') || ':' || md5(pg_get_expr(polqual, polrelid)), ' ; ') from pg_policy where polrelid = (select t from pay))
+  -- 정책 개수를 따로 세고(모든 명령·역할), 조건식·쓰기 조건이 비어도(NULL) 「-」로 남겨 줄이 사라지지 않게 한다(QA015 잔여 P2)
+  union all select 8, '정책: 결제 기록 정확히 1개 = 읽기·허용형·로그인 회원·조건식 지문·쓰기 조건 없음 / 시도 이력 0개',
+    '1 | mall_builder_exchange_fee_payments_read:r:permissive:authenticated:be5456c1963d9d605fc4e16d3f384b8e:- / 0',
+    (select count(*) from pg_policy where polrelid = (select t from pay)) || ' | '
+    || coalesce((select string_agg(polname || ':' || polcmd::text || ':' || case when polpermissive then 'permissive' else 'restrictive' end || ':'
+         || coalesce(array_to_string(polroles::regrole[], ','), '-') || ':' || coalesce(md5(pg_get_expr(polqual, polrelid)), '-') || ':'
+         || coalesce(md5(pg_get_expr(polwithcheck, polrelid)), '-'), ' ; ' order by polname) from pg_policy where polrelid = (select t from pay)), '(정책 없음)')
     || ' / ' || (select count(*) from pg_policy where polrelid = (select t from att))
   union all select 9, '결제 기록 로그인 회원이 읽을 수 있는 칸 = 화면 필수 칸 포함 16개(결제 키·멱등키 제외)',
     'id,exchange_id,store_id,order_id,toss_order_id,amount,status,prepared_at,requested_at,needs_review,method,approved_at,receipt_url,error,created_at,updated_at',
