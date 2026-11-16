@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T17:46:06.843Z",
+  "checkedAt": "2026-11-16T17:57:35.931Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -1950,16 +1950,17 @@
       "title": "Workspace 전면디자인3안·12뷰",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:43:08.436Z",
+      "lastReviewedAt": "2026-11-16T17:57:35.931Z",
       "status": "running",
-      "delivery": "acknowledged",
-      "evidence": "msg_dad4be088afc / QA005보완",
-      "next": "145~147목업누락/4x3매트릭스/긴제목8개일정월전체·한글요일/마스킹보완착수·새해시후재동결·제품0",
+      "delivery": "delivered",
+      "evidence": "주인님146확정 / msg_1520725b2cce",
+      "next": "3안선택대기종료·145/147보존후추가보완중단,146명세/자산인계·캘린더보조증거→Workspace단독구현·AGY제품코드0",
       "reviewFreeze": {
         "state": "released_for_scoped_revision",
         "evidence": "msg_6fd67439debd",
         "scope": "Workspace145/146/147 디자인원본만·타시안보존"
-      }
+      },
+      "selectedDesign": "146 Professional Studio"
     },
     {
       "task_id": "B2B-20261117-03",
@@ -1968,12 +1969,12 @@
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "title": "교환 접수·단계 UI 구현",
-      "status": "running",
-      "delivery": "acknowledged",
-      "evidence": "QA006 msg_f2d4650872b4 / Lab41715a3dc / msg_b340cb91fd62",
-      "next": "UI P2두건수정중·Lab패키지는hidden RLS옵션0/verify NULL누락으로실행보류. 합성Lab가시성/일반회원SELECT·verify각항목coalesce/행수보완→Mac판정",
-      "lastReviewedAt": "2026-11-16T17:46:06.843Z",
-      "sha": "ab3150c0fdee04a083de401c7de0742b21a001ad + a86c53dc1"
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "msg_f932bc2350bf / msg_50c4cd5924a5",
+      "next": "UI P2수정독립PASS·실Lab흐름전fixture RLS/verify엄격화패키지반환대기,운영/Lab0102/빌드0",
+      "lastReviewedAt": "2026-11-16T17:57:35.931Z",
+      "sha": "4985bf6ab3574fe915b8af41c26688a47aceefdb"
     },
     {
       "task_id": "QA-20261117-005",
@@ -1986,8 +1987,8 @@
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "evidence": "msg_39d507d68539 / QA17-005",
       "completion": "3안12뷰·독립뷰어/비교/확대/키/한글가독성·누락·안별추천근거를반환. 제품동작PASS와구분",
-      "next": "실HTML확대/키/독립뷰어확인·디자인표현누락P2보완AGY반환. 실제제품PASS아님·선택전보완필수",
-      "lastReviewedAt": "2026-11-16T17:40:39.149Z"
+      "next": "주인님146선택으로기존선택대기종료·과거P2결과보존,146최종기준참조검수/구현인계지원만.145/147추가검사반복없음",
+      "lastReviewedAt": "2026-11-16T17:57:35.931Z"
     },
     {
       "task_id": "WS-20261117-11",
@@ -2013,11 +2014,11 @@
       "title": "교환 UI 서버권한·단계·오류 독립검수",
       "status": "ready_review",
       "delivery": "returned",
-      "sha": "ab3150c0f + a86c53dc1",
-      "evidence": "msg_f2d4650872b4 / QA17-006",
+      "sha": "4985bf6ab3574fe915b8af41c26688a47aceefdb",
+      "evidence": "msg_50c4cd5924a5 / QA17-006",
       "completion": "서버권한/몰범위/backPath/재고·옵션·미적용오류의 정확성,정적·모의·실화면범위구분",
-      "next": "UI encoded경로/문의안내 P2 반환·Lab패키지실행준비PASS불가(hidden상품RLS/verifyNULL). 새SHA/fixture정적재검수,적용0",
-      "lastReviewedAt": "2026-11-16T17:46:06.843Z"
+      "next": "원UI P2두건독립PASS·모의RLS몰/RPC0·11시험수락. Labfixture/verify별도보완대기·실적용흐름미검수",
+      "lastReviewedAt": "2026-11-16T17:57:35.931Z"
     },
     {
       "task_id": "QA-20261117-007",
@@ -2041,12 +2042,114 @@
       "parent_task_id": "PLAN-20261117-01",
       "owner": "CC-WORKSPACE-01",
       "title": "E2-7-3 손님 포털 구현·외부공개권한 경계",
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "6e7ee35119733d1066e00487cb0247e87028e05e / portal結果SHA정정",
+      "completion": "기능OFF때DDL/DB접속/노출0·공유권한/행범위/속성투영/토큰폐기·권한철회·noStore·격리시험",
+      "next": "OFF포털작성자258/type0·QA009독립검수대기. 기회정리실삭제일미보장/owner기간5분캐시한계,운영DDL/공개0",
+      "lastReviewedAt": "2026-11-16T17:57:35.931Z",
+      "sha": "a09825904568962b292fd05b80781942bb2ee4b0"
+    },
+    {
+      "task_id": "ESM-20261117-01",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "parent_task_id": "OPS-20261116-002",
+      "owner": "CC-ECOM-01",
+      "title": "주인님 직접 ESM 썸네일 등록·사용자 매뉴얼",
+      "status": "running",
+      "delivery": "acknowledged",
+      "evidence": "주인님 URL/직접지시 / msg_bbe06d5eb57d",
+      "completion": "기존기능기준매뉴얼보완·실사썸네일지정row등록/공개이미지확인·backup비공개유지,마켓실등록없음",
+      "next": "guide/자기문서·catalog/esm-register-thumbnail 및program4afa81e5의thumbnail_url만·새비용필요시구체안,QA008누락결과취합·새빌드0",
+      "lastReviewedAt": "2026-11-16T17:57:35.931Z"
+    },
+    {
+      "task_id": "QA-20261117-008",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "parent_task_id": "ESM-20261117-01",
+      "owner": "CX-QA-01",
+      "title": "ESM 운영안내·매뉴얼 누락 독립점검",
+      "status": "running",
+      "delivery": "acknowledged",
+      "evidence": "msg_475c6753422e / msg_50c4cd5924a5",
+      "next": "QA006수정PASS후ESM홈/guide와소스대조진행ACK,입력/임시저장/등록/외부API0",
+      "lastReviewedAt": "2026-11-16T17:57:35.931Z"
+    },
+    {
+      "task_id": "QA-20261117-009",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "parent_task_id": "WS-20261117-12",
+      "owner": "CX-QA-01",
+      "title": "OFF 포털 공유권한·토큰·속성투영 독립검수",
       "status": "ready",
       "delivery": "delivered",
-      "evidence": "정확경로/공유권한보고 / msg_ff74e723fba8",
-      "completion": "기능OFF때DDL/DB접속/노출0·공유권한/행범위/속성투영/토큰폐기·권한철회·noStore·격리시험",
-      "next": "portal/page/dialog/test/runtime/RowMenu/ko 정확범위구현승인·OFF모든경로DB/DDL0·기존editor/publish권한재사용·기간5분캐시한계. 예약계획정정·외부0",
-      "lastReviewedAt": "2026-11-16T17:43:08.436Z"
+      "sha": "a09825904",
+      "evidence": "msg_32791f44db6e",
+      "next": "QA008후권한/투영/OFFimport/토큰철회경계만·고유결과009·실공개/DB운영0",
+      "lastReviewedAt": "2026-11-16T17:57:35.931Z"
+    },
+    {
+      "task_id": "WS-20261117-13",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "parent_task_id": "DES-20261117-02",
+      "owner": "CC-WORKSPACE-01",
+      "title": "주인님 선택146 Professional Studio 전면리뉴얼",
+      "status": "ready",
+      "delivery": "delivered",
+      "evidence": "주인님 2번안으로작업지시/146-01참조 / msg_7197b56a1015",
+      "decision": {
+        "chosen": "146 Professional Studio",
+        "reference": "[5/12] 146 Professional Studio - 01. 메인 관제 대시보드",
+        "scope": "메인기준 전체화면 일관스타일 적용·기존기능/회원데이터유지",
+        "source": "주인님 직접 채팅 2026-11-17 KST"
+      },
+      "next": "AGY146명세인계·Workspace제품코드단독수정,정확파일/단계계획→Master충돌조정. 선택재질문/샘플KPI데이터복제/빌드0",
+      "lastReviewedAt": "2026-11-16T17:57:35.931Z"
+    },
+    {
+      "task_id": "REL-20261117-006",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "parent_task_id": "RE-20261117-04",
+      "owner": "CC-REALTY-01",
+      "title": "주인님 직접승인 매물알림v1.46 운영배포",
+      "status": "done",
+      "delivery": "integrated",
+      "sha": "3e9ed6c57 (버전/확장릴리스)",
+      "evidence": "msg_660d42aadeed / msg_4a22a489f8aa / dpl_Go6dkxsaGG5pt5DU5QGvPqbkyFbq",
+      "completion": "승인1빌드·6kxzrn0il Ready·DBversion/extension_version1.46·check-release·작성자확장재로드보고대조,첫회차실물/독립운영검수별도",
+      "next": "QA010읽기확인배정·ZIP압축해시차이/내부파일동일근거보존,새수집/알림/추가빌드0",
+      "lastReviewedAt": "2026-11-16T17:57:35.931Z"
+    },
+    {
+      "task_id": "QA-20261117-010",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "parent_task_id": "REL-20261117-006",
+      "owner": "CX-QA-01",
+      "title": "매물알림v1.46 운영·확장버전 읽기확인",
+      "status": "ready",
+      "delivery": "delivered",
+      "evidence": "msg_add11c0bb9f7",
+      "next": "운영/guide/ZIP/확장상태읽기·불가한메인실행은Master요청,첫회차수집/실회원/실SW수명미검수·직접쓰기0",
+      "lastReviewedAt": "2026-11-16T17:57:35.931Z"
+    },
+    {
+      "task_id": "RE-20261117-05",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "parent_task_id": "OPS-20261116-002",
+      "owner": "CC-REALTY-01",
+      "title": "주인님 직접 상가 층진단 n30 재측정1회",
+      "status": "running",
+      "delivery": "acknowledged",
+      "evidence": "msg_d568c33c16a2 / msg_6f45523bbaf6",
+      "next": "로그인직접조치후floor-probe n30 단독1회·429재시도/우회0·실성공실패건수근거회수·코드/DB/빌드0",
+      "lastReviewedAt": "2026-11-16T17:57:35.931Z"
     }
   ],
   "programOverrides": [
@@ -2273,10 +2376,10 @@
     {
       "slug": "realty-listing-alert",
       "owner": "CC-REALTY-01",
-      "reportedVersion": "v1.45",
-      "stage": "운영1.45·계정격리 보완 독립검수범위 완료/미배포",
-      "completed": "사용자 직접 승인·8w5x0eynp Ready·103시험·DB버전 일치 보고",
-      "next": "79e2972df Mac 경계PASS·릴리스영향/보존복구안 준비. 실SW/실계정/운영반영 미검수·임의배포없음",
+      "reportedVersion": "v1.46",
+      "stage": "주인님직접승인 운영Ready·독립읽기검수대기",
+      "completed": "6kxzrn0il Ready·DB/ext1.46·120/type0·메인확장재로드보고·격리코드독립PASS",
+      "next": "QA010운영읽기확인·실첫회차격리/실회원설치는미검수·보관복구영향유지",
       "evidence": ".ai/results/RE-20261116-04-CC-REALTY-01.md",
       "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
     },
