@@ -14,6 +14,10 @@
 
 ## 현재 조정 범위
 
+RE-20261117-02 / CC-REALTY-01: 주인님직접작업점검/지휘요청취합(msg_3fd0bc6d19bc). commercial-land-trade-alert/src/lib/supabase/server.ts·realty-client-desk/src/lib/supabase/server.ts UA전달, 고객관리src/app/layout.tsx위젯1줄·본인개선/역할/고유결과만. Master현재dirty/점유겹침없음확인, 편집직전재확인예약·기존지침/고지check필수. 인증/쿠키다른변경/로그아웃/수집/새버전/설치/build/dev/deploy/운영DB0. 관련타입/검사후미배포묶음. 뉴스개선은08시결과전착수없음.
+
+ECOM-20261117-02 / CC-ECOM-01: MOV17-03 pending독립PASS로ECOM17범위완료후 바나나1.49·상세1.47 최소릴리스명세/후보버전파일(점유없을때만)·본인개선/고유결과준비. 실제SHA/구상대호환·상세먼저바나나다음·각1빌드/메타계획·고지/위젯·운영읽기검수·미검수명시. 운영쓰기/실저장/build/deploy/유료API/새기능0, 바나나DEC004요청유지·상세새1회는준비검토후Master취합.
+
 TAP17-03 보완 / CC-B2B-BACK-01: build-extension-archive.mjs 옛버전ZIP삭제루프제거만추가허용·v1.88보존/현재latest동기화/로컬압축멱등검증. docs/handoff-tap189-prod/ precheck/apply/verify/README는정확원SQL+실제이력표기록을단일트랜잭션·사전멈춤/사후권한검증으로준비, qa_tap_고유DB래핑실패rollback증명. 메타UPDATE는배포Ready후별도초안, 운영시각정밀화·TAP확인창실패미실행이면가설로기록. 운영쓰기/앱build/deploy/설치/실수집없음·B2B0100과분리.
 
 MOV-20261117-03 / CC-MOVIE-01: ECOM17 pending보완87267c4cb 원무응답총3전송반례·동일/다른판자동0·명시confirm거절0승인1·정확ACK해제·다른상품독립성만최소재검수. 원MOV11 V2는새정책에맞춰명시수동송신후늦은ACK회귀. 제품/실저장/DB/설치/build/deploy0·고유결과/fixture만. Ecom추가코드동결·점유해제, 타이머자동재시도/대기임의확정없음확인.
