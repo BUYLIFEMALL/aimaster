@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T17:24:41.978Z",
+  "checkedAt": "2026-11-16T17:27:39.759Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -1841,8 +1841,8 @@
       "title": "Workspace 큰기능4건 기존기능대조·확장계획",
       "sha": "be8de2080 + 147733f3d",
       "evidence": "계획§5-0 주인님직접 A/전면3안/E1/추천8개전부/연계Master배정 결정",
-      "next": "E1 보완우선. E2-7-1 국소코드 허용·연결파일예약선행. 예약/포털은 동시성/부분실패/공개권한 설계보완 및 운영DDL별도승인",
-      "lastReviewedAt": "2026-11-16T17:09:05.345Z"
+      "next": "E1 claimRetry보완우선. E2 PresenceLayer기존위치표시발견→새Badge/Block중복계획철회, sync복귀조회·기존말풍선현지화만. 예약/포털설계보완·운영DDL별도",
+      "lastReviewedAt": "2026-11-16T17:27:39.759Z"
     },
     {
       "task_id": "MOV-20261117-06",
@@ -1904,12 +1904,12 @@
       "title": "교환0102 구현·독립지적 수정",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:24:41.978Z",
-      "status": "running",
+      "lastReviewedAt": "2026-11-16T17:27:39.759Z",
+      "status": "ready_review",
       "delivery": "returned",
-      "evidence": "msg_4166c1943286 / B2B17-05結果",
-      "next": "원무옵션→옵션신설시재고skip발송은과판매로판명,0102재발송거절·A21반례수정승인→Mac. 운영/Lab/UI0",
-      "sha": "d9f5906c5a6085d41483f5147cc2289f0a5ab2a6"
+      "evidence": "msg_41696c47d764 / B2B17-05",
+      "next": "무옵션→옵션신설 재발송차단·메인22/1→23/0,Mac최종검수전달. 운영0102/Lab/UI/빌드0",
+      "sha": "1401c5c1a1b56408f9b16793835e8696129c6956"
     },
     {
       "task_id": "WS-20261117-10",
@@ -1932,12 +1932,12 @@
       "title": "확장 E1·notify_me 중복 차단",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:24:41.978Z",
-      "status": "ready_review",
-      "delivery": "returned",
+      "lastReviewedAt": "2026-11-16T17:27:39.759Z",
+      "status": "running",
+      "delivery": "acknowledged",
       "sha": "ce458cc2a + f2792fb2543520aaedc7fbc6b3277f231a3ce953",
-      "evidence": "15b3f53e/E1§11·242작성자시험/type0",
-      "next": "루트CAS·승인판정함수 Mac재검수전달. markRetried stalepayload가선점지우는도달경로조사요청·전체E2E미검수/실발송0"
+      "evidence": "Mac msg_071cfe09841f / a1e686d02/E1§12 / msg_54873d545291",
+      "next": "루트CAS/승인24조합 독립PASS. 다중worker stale markRetried가notifyflag지우는경계 claimRetry CAS수정승인·성공자만자식enqueue→Mac,실발송0"
     },
     {
       "task_id": "DES-20261117-02",

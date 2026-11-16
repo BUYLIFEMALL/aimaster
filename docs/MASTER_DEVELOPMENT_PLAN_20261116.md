@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 02:24:44 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 02:27:42 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -176,14 +176,14 @@
 | MOV-20261117-05 | CC-MOVIE-01 | done / integrated | 갤러리키보드·가사취소 안내 독립검토 | 각실컴포넌트/실Lab PASS·운영미배포·fallback소규모후속코드대조 |
 | B2B-20261117-01 | CC-B2B-BACK-01 | done / integrated | 메시지 safeupdate 미리보기·알림라벨 보완(Lab) | Mac정적PASS/동일Lab작성자preview증거 재사용. 운영0101·실발송·제품배포 미완료 유지 |
 | WS-20261117-08 | CC-WORKSPACE-01 | ready_review / returned | 주인님 직접 소규모5건 캘린더·번역 묶음 | ⑤기존구현조사/4영역코드변경·MOV17-06독립검토·906여백과미배포묶음 |
-| PLAN-20261117-01 | CC-WORKSPACE-01 | done / integrated | Workspace 큰기능4건 기존기능대조·확장계획 | E1 보완우선. E2-7-1 국소코드 허용·연결파일예약선행. 예약/포털은 동시성/부분실패/공개권한 설계보완 및 운영DDL별도승인 |
+| PLAN-20261117-01 | CC-WORKSPACE-01 | done / integrated | Workspace 큰기능4건 기존기능대조·확장계획 | E1 claimRetry보완우선. E2 PresenceLayer기존위치표시발견→새Badge/Block중복계획철회, sync복귀조회·기존말풍선현지화만. 예약/포털설계보완·운영DDL별도 |
 | MOV-20261117-06 | CC-MOVIE-01 | ready / delivered | Workspace소규모캘린더/번역/여백 독립검토 | 8150da176/90612778f 원본정적검토·제품/빌드0 |
 | QA-20261117-002 | CX-QA-01 | waiting_human / returned | 실제Intel Mac MP4파일내보내기 보조검수 | Intel x86_64·AppleSilicon불가. ego20 handoff에서MP4신뢰클릭/저장위치선택필요, 실제인코딩0·우회없음 |
 | QA-20261117-003 | CX-QA-01 | ready_review / returned | B2B Lab·RE계정격리·Workspace묶음 독립검수 | RE 정상legacy배열 VM PASS/비배열소실P2 반환. E1 승인·열람보완반환,루트CAS/판정행렬 추가수정대기. 실제발송·실계정0 |
 | QA-20261117-004 | CX-QA-01 | ready_review / returned | 교환0102 독립검토 | 559085a40 기존P1 정적PASS·실제SQL은작성자근거재사용/Mac미실행. 모든옵션삭제후재발송 P2 추가반환, 전체PASS아님 |
-| B2B-20261117-02 | CC-B2B-BACK-01 | running / returned | 교환0102 구현·독립지적 수정 | 원무옵션→옵션신설시재고skip발송은과판매로판명,0102재발송거절·A21반례수정승인→Mac. 운영/Lab/UI0 |
+| B2B-20261117-02 | CC-B2B-BACK-01 | ready_review / returned | 교환0102 구현·독립지적 수정 | 무옵션→옵션신설 재발송차단·메인22/1→23/0,Mac최종검수전달. 운영0102/Lab/UI/빌드0 |
 | WS-20261117-10 | CC-WORKSPACE-01 | ready_review / returned | 보기 이름 저장값 보존 | 저장된 Table/한글 이름 그대로 표시·서버3경로 보류. 최종MacQA후 다음배포묶음 |
-| WS-20261117-09 | CC-WORKSPACE-01 | ready_review / returned | 확장 E1·notify_me 중복 차단 | 루트CAS·승인판정함수 Mac재검수전달. markRetried stalepayload가선점지우는도달경로조사요청·전체E2E미검수/실발송0 |
+| WS-20261117-09 | CC-WORKSPACE-01 | running / acknowledged | 확장 E1·notify_me 중복 차단 | 루트CAS/승인24조합 독립PASS. 다중worker stale markRetried가notifyflag지우는경계 claimRetry CAS수정승인·성공자만자식enqueue→Mac,실발송0 |
 | DES-20261117-02 | AG-UI-01 | ready_review / returned | Workspace 전면디자인3안·12뷰 | 독립뷰어13KB+ 보완보고·PNG12개2880×1800확인. 기존쇼케이스보존/실화면검수별도, 주인님3안선택전제품미반영 |
 
 ## 현재 담당 회신이 확보된 프로젝트
