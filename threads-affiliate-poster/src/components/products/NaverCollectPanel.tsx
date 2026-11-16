@@ -120,6 +120,15 @@ export function NaverCollectPanel() {
         브랜드커넥트에서 발급한 <b>naver.me</b> 링크를 줄마다 하나씩 붙여 넣으면, 크롬 확장이 <b>내 브라우저</b>에서 링크를 열어 실제 상품 페이지의
         상품명·이미지·후기(최대 8개)를 가져옵니다. 가져온 정보는 글 생성 근거로만 쓰이고 30일 뒤 자동 삭제됩니다.
       </p>
+      <details className="rounded-md bg-neutral-50 p-2 text-xs leading-relaxed text-neutral-700">
+        <summary className="cursor-pointer font-semibold text-neutral-800">❓ 왜 네이버만 확장이 필요한가요?</summary>
+        <ol className="mt-2 list-decimal space-y-1 pl-4">
+          <li><b>공식 API가 없습니다.</b> 브랜드커넥트에는 쿠팡처럼 링크로 상품 정보를 주는 공개 API가 없어 실제 상품 화면을 열어 읽어야 합니다.</li>
+          <li><b>서버에서 대신 열면 막힙니다.</b> 네이버는 서버의 반복 접속을 봇으로 보고 차단하거나 보안문자를 띄웁니다.</li>
+          <li><b>내 브라우저에서 직접 읽습니다.</b> 우리 서버의 고정 IP로 수집하지 않고, 회원님 브라우저에서 직접 열어 읽는 방식이라 안전합니다.</li>
+        </ol>
+        <p className="mt-2">💡 확장은 선택입니다. 쿠팡·알리·토스는 확장 없이 동작하고, 네이버도 아래 직접 입력으로 한두 개씩은 확장 없이 등록할 수 있습니다.</p>
+      </details>
       {!ext.ok && ext.checked && (
         <ol className="space-y-1 rounded-md bg-amber-50 p-3 text-xs leading-relaxed text-neutral-800">
           <li><b>1단계.</b> <a href={EXTENSION_ZIP} className="font-semibold text-blue-700 underline">확장 ZIP 내려받기</a> 후 압축을 풉니다.</li>

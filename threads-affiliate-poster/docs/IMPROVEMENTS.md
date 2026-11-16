@@ -103,3 +103,7 @@ F-004: 네이버 검색/트렌드 캐시 회원 간 공유 — 제안·미수정
 - **릴리스 준비(로컬만)**: `src/lib/version.ts` v1.89, `extension/manifest.json` 1.89.0/v1.89, `public/downloads/threads-affiliate-poster-extension-v1.89.zip`·`-latest.zip`(sha256 `b15ae2ef1552f9495cd6dbd2633c4452d3773d58381d56580d2f2334681a4169`) — 기존 `node scripts/build-extension-archive.mjs`로 만듦. 스크립트가 지우는 v1.88 ZIP은 저장소 밖 사본으로 되돌려 보존(sha256 `2f237b94…`, git 변경 없음). ZIP 8항목이 `extension/`과 바이트 같음, NOTICE 포함, background.js = `eaaebe027`.
 - **운영 DB에 먼저 넣을 것**: `supabase/migrations/20261117100000_tap_collect_queue_atomic.sql`(LF sha256 `22b95ccdd740d99a6a537d580503ae05895d61f402e5b580ac39f65bfdbd09cc`) — 기존 중복이 있으면 스스로 멈춤. 적용 전후 확인·실패 때 처리·DB 버전 칸 초안·배포 순서: `.ai/results/TAP-20261117-03-CC-B2B-BACK-01.md`. **마이그레이션 → 코드 배포 순서를 바꾸면 네이버 등록이 「함수 없음」 오류**.
 - 미검수: 운영 PostgREST 경로(upsert·rpc·조건부 update), 확장 실제 설치·naver.me 실수집. 독립 검수 근거는 Workspace WS-20261117-01·02·03·04.
+
+## 2026-11-17 [역할: ecommerce-image] ⏸ 미배포 대기 — 네이버 수집 칸에 「왜 네이버만 확장이 필요한가요?」 안내 (주인님 「진행해」, 공통지침 v1.4 묶음)
+- `src/components/products/NaverCollectPanel.tsx`: 설명 문단 아래 접이식 안내 — 공식 API 없음 / 서버에서 열면 차단 / 내 브라우저에서 직접 읽음(서버 고정 IP 수집 안 함) + 「확장은 선택, 쿠팡·알리·토스는 확장 없이, 네이버도 아래 직접 입력으로 등록 가능」. 화면 문구만, 동작 변화 없음. tsc 0.
+- 다음 배포 때 함께(버전 +0.01). 단독 빌드 하지 않음.
