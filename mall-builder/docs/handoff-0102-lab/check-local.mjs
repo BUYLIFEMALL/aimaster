@@ -4,7 +4,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { execFileSync, spawnSync } from "node:child_process";
+import { execFileSync, spawnSync, spawn } from "node:child_process";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const MB = join(here, "..", "..");
@@ -107,6 +107,12 @@ ok("10일 지난 EXQA-2는 유저 신청 막힘", r.status !== 0 && /7일/.test(
 // Lab 발견 재현: 시험 주문에 리셀러가 붙었는지, EXQA-2 구매 확정(자동 확정 흉내) 뒤 리워드·장부가 생기는지
 const rsInfo = psql(`select count(*) from mall_builder_orders where id::text like 'e0102000%' and reseller_id = '${RS}';`).stdout.trim();
 psql(`update mall_builder_orders set status = 'confirmed' where id = 'e0102000-0000-4000-8000-000000000032';`);
+// Lab과 같은 상태로: EXQA-2 장부 id를 Lab 실측값(7203b416…)으로 맞춤(되돌리기는 정확한 id만 지움). 로컬 격리 DB에서만
+psql(`begin;
+update mall_builder_reseller_rewards set ledger_id = null where order_id = 'e0102000-0000-4000-8000-000000000032';
+update mall_builder_reseller_ledger set id = '7203b416-e791-487c-8708-36e9503493e8' where order_id = 'e0102000-0000-4000-8000-000000000032';
+update mall_builder_reseller_rewards set ledger_id = '7203b416-e791-487c-8708-36e9503493e8' where order_id = 'e0102000-0000-4000-8000-000000000032';
+commit;`);
 const led = () => psql(`select (select count(*) from mall_builder_reseller_ledger where reseller_id = '${RS}') || '/' || (select count(*) from mall_builder_reseller_rewards where reseller_id = '${RS}');`).stdout.trim();
 const beforeRb = led();
 ok("Lab 재현: 시험 주문 2건에 추천 리셀러가 붙고 EXQA-2 구매 확정 뒤 장부·리워드 생김", rsInfo === "2" && beforeRb !== "0/0", `리셀러 붙은 주문 ${rsInfo} · 장부/리워드 ${beforeRb}`);
@@ -114,6 +120,39 @@ ok("Lab 재현: 시험 주문 2건에 추천 리셀러가 붙고 EXQA-2 구매 �
 const oldRb = execFileSync("git", ["-C", MB, "show", "41715a3dc:mall-builder/docs/handoff-0102-lab/rollback.sql"], { encoding: "utf8" }).replace(/\r\n/g, "\n").replace(/^begin;$/m, "").replace(/^commit;$/m, "");
 r = psql(`begin;\n${oldRb}\nselect 'LEFT=' || (select count(*) from mall_builder_reseller_ledger where reseller_id = '${RS}' and order_id is null);\nrollback;`);
 ok("빨강: 고치기 전 되돌리기(41715a3dc)는 리셀러 장부를 주문 번호 빈 채 남김", /LEFT=[1-9]/.test(r.stdout), r.stdout.slice(-200) + r.stderr.slice(-200));
+// 지금 Lab과 같은 상태(EXQA-2만 확정, EXQA-1 배송 완료·교환 진행 중)에서도 되돌리기가 정상으로 끝나는지 — 트랜잭션 안에서 실행 뒤 되돌림
+{
+  const rNow = psql(`begin;\n${H("rollback.sql").replace(/^begin;$/m, "").replace(/^commit;$/m, "")}\nselect 'LEFT=' || (select count(*) from mall_builder_reseller_ledger where order_id::text like 'e0102000%' or (reseller_id = '${RS}' and order_id is null)) || '/' || (select count(*) from mall_builder_orders where id::text like 'e0102000%');\nrollback;`);
+  ok("지금 Lab 상태(EXQA-2만 확정)에서 새 되돌리기 성공·시험 장부 0·시험 주문 0", rNow.status === 0 && /LEFT=0\/0/.test(rNow.stdout), rNow.stdout.slice(-80) + rNow.stderr.slice(-200));
+}
+// 두 주문 모두 구매 확정(Master msg_c44cb959c1b1: EXQA-1은 500이 아니라 품목별 계산 1,400) — 원형 트리거 그대로.
+// 0102 지킴이가 진행 중 교환 주문의 확정을 막으므로(새 0103이 고칠 문제) 로컬 격리 DB에서만 앞 시험의 교환 줄을 지운 뒤 확정한다.
+psql(`delete from mall_builder_exchanges where order_id = 'e0102000-0000-4000-8000-000000000031';`);
+r = psql(`update mall_builder_orders set status = 'confirmed' where id = 'e0102000-0000-4000-8000-000000000031';`);
+const amts = psql(`select string_agg(o.order_no || '=' || l.amount || '/' || (select count(*) from mall_builder_reseller_rewards w where w.ledger_id = l.id), ',' order by o.order_no)
+  from mall_builder_reseller_ledger l join mall_builder_orders o on o.id = l.order_id where l.reseller_id = '${RS}';`).stdout.trim();
+ok("두 주문 확정 실측: EXQA-1 장부 1,400(리워드 2줄 1,000+400)·EXQA-2 500(1줄)", r.status === 0 && amts === "EXQA-1=1400/2,EXQA-2=500/1", amts + r.stderr.slice(-150));
+{
+  const body = (f) => f.replace(/^begin;$/m, "").replace(/^commit;$/m, "");
+  // 빨강: 직전 되돌리기(b69693055, 모든 줄 500 고정)는 EXQA-1까지 확정되면 정리 불가([멈춤])
+  const rPrev = psql(`begin;\n${body(execFileSync("git", ["-C", MB, "show", "b69693055:mall-builder/docs/handoff-0102-lab/rollback.sql"], { encoding: "utf8" }).replace(/\r\n/g, "\n"))}\nrollback;`);
+  ok("빨강: 직전 되돌리기(b69693055, 500 고정)는 EXQA-1 확정 뒤 정리 못 함([멈춤])", rPrev.status !== 0 && /\[멈춤\]/.test(rPrev.stderr), rPrev.stderr.slice(-160));
+  // 반례: 금액이 기대와 1원만 달라도 멈춤(조건을 넓혀 지우지 않음)
+  const rAmt = psql(`begin;\nupdate mall_builder_reseller_ledger set amount = 1399 where order_id = 'e0102000-0000-4000-8000-000000000031';\n${body(H("rollback.sql"))}\nrollback;`);
+  ok("반례: EXQA-1 장부 금액이 기대(1,400)와 다르면 [멈춤]", rAmt.status !== 0 && /기대\(manifest\)와 다릅니다:.*EXQA-1 장부 금액 1399/.test(rAmt.stderr), rAmt.stderr.slice(-200));
+  const rRw = psql(`begin;\nupdate mall_builder_reseller_rewards set amount = 401 where order_item_id = 'e0102000-0000-4000-8000-000000000042';\n${body(H("rollback.sql"))}\nrollback;`);
+  ok("반례: 리워드 품목 금액이 기대와 다르면 [멈춤]", rRw.status !== 0 && /리워드 기대와 다름/.test(rRw.stderr), rRw.stderr.slice(-200));
+}
+// 잠금: 다른 세션이 출금 신청·적립과 같은 리셀러 자문 잠금을 쥐고 있으면 되돌리기는 기다린다(시간 제한이면 전체 무변경)
+{
+  const before = led();
+  const holder = spawn("docker", ["exec", "-i", C, "psql", "-X", "-U", "postgres", "-d", DB, "-q", "-c", `select pg_advisory_lock(hashtext('mall_builder_reseller:${RS}')); select pg_sleep(6);`]);
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 2000);
+  const rLock = psql(`set lock_timeout = '1500ms';\n${H("rollback.sql")}`);
+  await new Promise((res) => holder.on("exit", res));
+  ok("잠금: 리셀러 자문 잠금을 다른 세션이 쥐면 되돌리기는 기다리다 시간 제한으로 멈추고 아무것도 안 바뀜", rLock.status !== 0 && /lock timeout/.test(rLock.stderr) && led() === before
+     && psql(`select count(*) from mall_builder_orders where id::text like 'e0102000%';`).stdout.trim() === "2", rLock.stderr.slice(-160) + ` ${before}→${led()}`);
+}
 // 반례: 기존 주문(NF)이 시험 장부 뒤에 확정돼 리셀러 장부가 이어지면(balance_after 연쇄) — 새 되돌리기는 [멈춤], 예전(084e5b667)은 지워서 잔액 흐름을 깸
 {
   const newRb = H("rollback.sql").replace(/^begin;$/m, "").replace(/^commit;$/m, "");
@@ -130,7 +169,9 @@ const keep = () => psql(`select (select string_agg(id || ':' || status || ':' ||
   || '|' || (select status from mall_builder_orders where id = '${NF}');`).stdout.trim();
 const keepBefore = keep();
 r = psql(H("rollback.sql")); ok("rollback 성공", r.status === 0, r.stderr.slice(-300));
-ok("되돌린 뒤 시험 리셀러 장부·리워드 0", led() === (() => { const k = psql(`select (select count(*) from mall_builder_reseller_ledger where reseller_id = '${RS}') || '/' || (select count(*) from mall_builder_reseller_rewards where reseller_id = '${RS}');`).stdout.trim(); return k; })() && psql(`select count(*) from mall_builder_reseller_ledger where order_id::text like 'e0102000%' or (reseller_id = '${RS}' and order_id is null);`).stdout.trim() === "0", led());
+const testLeft = psql(`select (select count(*) from mall_builder_reseller_ledger where order_id::text like 'e0102000%' or (reseller_id = '${RS}' and order_id is null))
+  || '/' || (select count(*) from mall_builder_reseller_rewards where order_id::text like 'e0102000%');`).stdout.trim();
+ok("되돌린 뒤 시험 주문 리셀러 장부·리워드 0(주문 번호 빈 장부도 0)", testLeft === "0/0", testLeft);
 ok("되돌린 뒤 기존(시험 아닌) 리셀러 리워드·장부·주문 상태 완전히 같음(대기 리워드 보존)", keep() === keepBefore && /pending/.test(keepBefore), `${keepBefore} → ${keep()}`);
 const left = psql(`select (to_regclass('public.mall_builder_exchanges') is null)::text || '/' ||
   (select count(*) from pg_proc where proname in ('mall_builder_request_exchange','mall_builder_exchange_step','mall_builder_exchange_fee','mall_builder_exchange_fee_paid','delivered_at','variant_label','exchange_event','exchange_stock','lock_exchange','exchange_order_delivered','orders_exchange_guard')) || '/' ||
