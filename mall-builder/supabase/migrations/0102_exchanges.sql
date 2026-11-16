@@ -244,12 +244,12 @@ begin
       raise exception '재발송 택배사와 송장 번호를 넣어 주세요.';
     end if;
     -- 바꿀 옵션 재고에서만 뺀다. 옵션 상품인데 바꿀 옵션이 지워졌으면 무엇을 보낼지 몰라 막음(QA-20261117-004).
-    -- 옵션 없던 상품에 옵션이 생겼으면 재고를 바꾸지 않고(본체로 대신 처리 금지) 발송은 진행
+    -- 옵션 없던 상품에 옵션이 생겼으면 실물 재고가 어느 옵션 칸인지 알 수 없다 → 재발송 거절(재고 0, 단계 collected 유지). 주문은 옵션 재고로만 판매를 막으므로 건너뛰고 보내면 과판매 우회(QA-20261117-004)
     v_cur_opt := exists (select 1 from public.mall_builder_product_variants v where v.product_id = i.product_id);
     if x.to_option_based then
       if x.to_variant_id is null then raise exception '바꿀 옵션이 삭제되어 재발송할 수 없습니다. 교환을 거절하거나 고객과 다시 정해 주세요.'; end if;
       v_applied := mall_builder_private.exchange_stock(i.product_id, x.to_variant_id, -x.qty, i.name_snapshot || coalesce(' ' || nullif(x.to_option, ''), ''));
-    elsif v_cur_opt then v_skip := '옵션 없던 상품에 옵션이 생겨 재고는 빼지 않음';
+    elsif v_cur_opt then raise exception '상품에 옵션이 새로 생겨 재고를 맞출 수 없어 재발송할 수 없습니다. 교환을 거절하고 옵션을 정해 다시 접수해 주세요.';
     else v_applied := mall_builder_private.exchange_stock(i.product_id, null, -x.qty, i.name_snapshot);
     end if;
     update public.mall_builder_exchanges set step = 'reshipped', reship_deducted = v_applied, reship_courier = btrim(p_courier), reship_tracking = btrim(p_tracking), updated_at = now() where id = x.id;

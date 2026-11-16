@@ -227,16 +227,21 @@ insert into mall_builder_order_events (order_id, from_status, to_status, actor_r
   check("A20 회수 전 옵션 전부 삭제 → 입고 됨·본체 그대로·restocked=f, 재발송 막힘",
     r20.ok && col(i20, "restocked") === "f" && !r20b.ok && /바꿀 옵션이 삭제/.test(r20b.err) && body(p20) === 30, `${r20.err} / ${r20b.ok} ${r20b.err} 본체 ${body(p20)}`);
 
-  // A21 옵션 없던 상품에 접수 뒤 옵션 추가 → 입고·재발송 진행, 재고 둘 다 안 바꿈(이유 기록)
+  // A21 옵션 없던 상품에 접수 뒤 옵션 추가 → 입고는 진행·재고 안 바꿈(이유 기록), 재발송은 거절·재고 0·단계 collected 유지
+  // 기대 정정(Master msg_af1c2ddad104, 2026-11-17): 처음엔 「재발송 재고 건너뛰고 발송」을 기대했으나, 주문은 옵션이 생기면 옵션 재고로만 판매를 막으므로
+  // 실물 출고 + 장부 그대로 = 과판매 우회 → 재발송을 막는 것이 맞음(근거 .ai/results/B2B-20261117-05 「추가 근거」)
   const p21 = id(0xa21), v21 = id(0xb21);
   prod(p21, 30, []); const i21 = mk({ pid: p21, line: { vid: null, snap: "" } });
   const r21a = tryAs(U1, `select public.mall_builder_request_exchange('${i21}', 1, null, 'defect');`);
   run(`insert into mall_builder_product_variants (id, product_id, store_id, key, "values", stock) values ('${v21}','${p21}','${STORE}','새옵션','["새옵션"]',7);`);
   const r21b = tryAs(OWNER, `select public.mall_builder_exchange_step(${exi(i21)}, 'collected');`);
+  const note21 = lastNote(i21);
   const r21c = tryAs(OWNER, `select public.mall_builder_exchange_step(${exi(i21)}, 'reshipped', 'CJ', '21');`);
-  check("A21 옵션 없던 상품에 옵션 추가 → 입고·재발송 됨, 본체·새 옵션 재고 그대로, 두 플래그 f, 이유 기록",
-    r21a.ok && r21b.ok && r21c.ok && body(p21) === 30 && vstock(v21) === 7 && col(i21, "restocked") === "f" && col(i21, "reship_deducted") === "f" && /옵션이 생겨/.test(lastNote(i21)),
-    `${r21a.err}|${r21b.err}|${r21c.err} 본체 ${body(p21)} 새옵션 ${vstock(v21)}`);
+  check("A21 옵션 없던 상품에 옵션 추가 → 입고 됨·재고 그대로·이유 기록, 재발송 막힘·재고 0·단계 collected",
+    r21a.ok && r21b.ok && /옵션이 생겨/.test(note21) && col(i21, "restocked") === "f"
+      && !r21c.ok && /옵션이 새로 생겨/.test(r21c.err) && col(i21, "step") === "collected" && col(i21, "reship_deducted") === "f"
+      && body(p21) === 30 && vstock(v21) === 7,
+    `${r21a.err}|${r21b.err}|재발송 ${r21c.ok} ${r21c.err} 단계 ${col(i21, "step")} 본체 ${body(p21)} 새옵션 ${vstock(v21)}`);
 
   // A22 옵션 없던 상품(지금은 옵션 있음)에 바꿀 옵션 지정 → 막힘
   const p22 = id(0xa22), v22 = id(0xb22);
