@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-16 ✅ [역할: video] Claude(Movie) Claude Code(윈도우) · 세션 `claude-win-video` — 유튜브 떡상 분석 v1.30 운영 배포
+- 주인님 「유튜브 떡상 분석 v1.30 배포 진행해」 → 빌드 1회 `youtube-viral-studio-i71hni371`(`dpl_6ZW5BA88C1vb6cfUtmUY2u5QcJR3`) Ready. DB 버전 v1.30, 프로그램 비교표 갱신. 커밋 `87ebcae7d`(떡상 시장 탐색, boks-youtube-finder MIT 이식) + `1fe195bdf`(버전·저장공간 위젯·로그인 정책 2건).
+- 운영 확인: 비로그인 화면 로그인 이동·API 401, 로그인 화면에서 v1.30·새 메뉴·위젯 확인. 실제 검색 시험은 ego 로그인 계정이 관리자라 하지 않음(시험 계정 로그인 뒤 진행).
+- 남은 것: DB SQL `youtube-viral-studio/supabase/migrations/20261116120000_yvs_viral_finder_usage_cache.sql` 적용(요청함), 시험 계정 실제 검색·AI 기획안 1회.
+- 링크: https://youtube-viral-studio.buylife.xyz/viral-finder
+
 ## 2026-11-16 ✅ [역할: video] Claude(Movie) Claude Code(윈도우) · 세션 `claude-win-video` — 유튜브 떡상 분석 「떡상 시장 탐색」(boks-youtube-finder 이식) 구현 · 미배포
 - 배정: Codex(Master) 휴식 중 주인님 직접 배정(인수인계 `youtube-viral-studio/docs/HANDOFF_20261116_BOKS_FINDER_PORT.md`). 주인님 결정 6건 모두 권장안(1단계만·평소 대비 중앙값 기본·쇼츠 180초·종교 기본 제외·DB 표 2개·AI 기획안 별도 버튼).
 - 커밋 `87ebcae7d`(31개 파일): 원본(MIT, 커밋 3aacecf) 판정·필터·시장 분석·트렌드·기획안 이식 `src/lib/youtube/boks/`, 새 화면 `/viral-finder`, API 2개, 쇼츠 떡상 트리거 배수 → 평소 대비, 쇼츠 180초 통일, `NOTICE.md`(MIT), DB SQL 파일.

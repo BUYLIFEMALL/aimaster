@@ -42,7 +42,6 @@ WORK.md) — 동시 작업 | `esm-register/` (새 프로그램) | [역할: ecomm
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `youtube-viral-studio/` | [역할: video] Claude Code(윈도우, ego) · 세션 `claude-win-video` | 2026-11-16 | boks-youtube-finder(MIT) 1단계 병합 — **구현·커밋 완료 `87ebcae7d`, v1.30 배포 승인·DB SQL 적용 대기**(이 폴더 수정 전 영상 담당께 알려 주세요) |
 | `threads/` (범위: 독립 모드 스위치·`KIT/` 신규 — `src/lib/version.ts`는 남의 미커밋이라 안 건드림) → 다음 `insta_auto_poster/KIT`·`ai-auto-blog` | [역할: support] Claude Code(윈도우) · Claude(Support) `CC-SUPPORT-01` · 세션 `claude-win-20261112-policy` | 2026-11-16 | 수강생 배포 키트 3종 — 지금: Threads 키트(`auto-threads-posting`) 신규 작성. 운영 동작 변화 없음·배포 없음 |
 | `ai-work-workspace/` | [역할: workspace] Claude(Workspace) Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` · **브라우저: 엣지(주인님 지정)** | 2026-11-16 | v1.54 배포·확인 끝(`ai-work-workspace-aolp0pevu`). WS-11 B2B 0100 독립 SQL 검증 끝(`5c4918054`, ready_review) — Master 판정 대기 |
 | `elevenst-register/` | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-11 | v1.07 운영(2026-11-14 `claude-win-photo` 배포에 상세사진 `markPosted`·안내 문구 함께 나감). 시험 상품 9752929791은 주인님이 나중에 직접 삭제(11-15 지시, 에이전트는 손대지 않음). 다음: G마켓·옥션 플랜(주인님 지시 대기) |
