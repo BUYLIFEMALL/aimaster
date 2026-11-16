@@ -90,3 +90,9 @@
   - `youtubeData.ts` 머리 주석의 기준 프로그램 표기(옛 consultant) 정정 — 고치면 다른 담당 사본 5곳이 함께 바뀌므로 다음 공용 모듈 수정 때 묶어서.
   - 2·3단계(쇼츠 공식 분석기·사본 4곳 검색 품질, 썸네일·원스톱 연결)는 별도 배정.
 - **발견(다른 세션 몫)**: `tests/favorites.test.mjs` 4건 실패 — 커밋 `0a91cba19`(정책 담당)가 보관함 API에 `isRetentionExempt`(profiles 조회)를 넣었는데 시험의 가짜 DB가 `profiles`를 모름. 시험 가짜 DB에 `profiles` 응답 추가 필요. 정책 담당께.
+
+### 2026-11-16 v1.30 운영 배포 (영상 담당)
+- 주인님 「유튜브 떡상 분석 v1.30 배포 진행해」 → 빌드 1회 `youtube-viral-studio-i71hni371`(`dpl_6ZW5BA88C1vb6cfUtmUY2u5QcJR3`) Ready, 운영 https://youtube-viral-studio.buylife.xyz , DB `programs.version` v1.29→v1.30, 프로그램 비교표 버전 갱신. 커밋 `87ebcae7d`(기능) + `1fe195bdf`(버전·저장공간 위젯·로그아웃 local·서버 User-Agent — `pending-check` 대기 0).
+- 운영 확인: 비로그인 `/viral-finder` → 로그인으로 이동(307), `/api/youtube/viral-finder`·`/api/ai/viral-plan` 401. ego lite 로그인 화면에서 v1.30·새 메뉴·위젯 스크립트 확인.
+- **미검수**: ego에 로그인된 계정이 관리자 계정이라 시험 계정 규칙대로 실제 YouTube 검색·차트 실행은 하지 않음 → 시험 계정(`buylifemall@naver.com`)으로 다시 로그인되면 인기 차트(검색 횟수 0, 약 80유닛) → 키워드 검색 순서로 확인. AI 기획안 실호출 1회는 그 뒤 승인 받아서.
+- DB SQL 적용 대기 그대로(요청함 DB 항목).
