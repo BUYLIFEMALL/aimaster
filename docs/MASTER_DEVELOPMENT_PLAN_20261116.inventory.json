@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 03:13:58 KST",
+  "checkedAt": "2026-11-17 03:23:06 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4120,10 +4120,10 @@
       "title": "주인님 직접 ESM 썸네일 등록·사용자 매뉴얼",
       "status": "ready_review",
       "delivery": "returned",
-      "evidence": "msg_1f10eefcd164 / QA008보완후source",
+      "evidence": "QA008 msg_aa660ef0cc98 sourcePASS / pending0dbd919dd/AGENTSf9b8839e9",
       "completion": "기존기능기준매뉴얼보완·실사썸네일지정row등록/공개이미지확인·backup비공개유지,마켓실등록없음",
-      "next": "QA008누락source반영·tsc0/작성자15시험미배포,맥후속정적검수대기·공개200썸네일실등록완료·운영화면아직v1.01",
-      "lastReviewedAt": "2026-11-16T18:10:12.306Z",
+      "next": "썸네일실등록및독립이미지PASS·매뉴얼27ae+c909독립내용PASS/미배포묶음(v1.02후보),운영가이드아직v1.01·실ESM등록미검수",
+      "lastReviewedAt": "2026-11-16T18:22:59.686Z",
       "sha": "27ae7af4c + c909b67e6 + 6a7792e37"
     },
     {
@@ -4133,11 +4133,12 @@
       "parent_task_id": "ESM-20261117-01",
       "owner": "CX-QA-01",
       "title": "ESM 운영안내·매뉴얼 누락 독립점검",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "msg_a9b362b047f0 / QA17-008",
-      "next": "운영v1.01안내누락반환·새매뉴얼27ae와대조후담당국소수정,실ESM입력/등록미검수",
-      "lastReviewedAt": "2026-11-16T18:02:49.452Z"
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_aa660ef0cc98 c909소스PASS / msg_6f98e5fbdf7e 이미지PASS",
+      "next": "다음esm묶음배포뒤운영가이드반영확인만·같은소스재검수없음",
+      "lastReviewedAt": "2026-11-16T18:22:59.686Z",
+      "completion": "ESM 매뉴얼지적후source검수·정확공개이미지독립읽기/시각검수완료. 운영미배포가이드/관리자카드/실ESM입력등록미검수"
     },
     {
       "task_id": "QA-20261117-009",
@@ -4240,10 +4241,10 @@
       "status": "done",
       "delivery": "integrated",
       "sha": "6a7792e37 (등록기록)",
-      "evidence": "msg_76e8468e9b69 / program-images/catalog/esm-register-thumbnail.jpg?v=1794851519633",
-      "completion": "주인님별도생성승인·1회자산/공개200image/jpeg·해당program.thumbnail_url만갱신·원null복구값기록·backup비공개유지. 관리자카드실화면미검수",
-      "next": "정확URL/이미지크기추가근거회수·재생성/루트배포0",
-      "lastReviewedAt": "2026-11-16T18:02:49.452Z"
+      "evidence": "msg_76e8468e9b69 / msg_6f98e5fbdf7e / QA008",
+      "completion": "공개JPEG1376x768·602954B·실사/무문자/식별상표없음/피사체독립시각PASS,정확URL+query등록담당보고. 관리자카드crop/DB독립확인은미검수분리",
+      "next": "등록/독립공개이미지검수범위완료·backup비공개유지·이미지재생성/루트배포0",
+      "lastReviewedAt": "2026-11-16T18:22:59.686Z"
     },
     {
       "task_id": "B2B-20261117-06",
@@ -4252,12 +4253,12 @@
       "parent_task_id": "B2B-20261117-03",
       "owner": "CC-B2B-BACK-01",
       "title": "Lab0102 안전fixture·실행패키지 준비",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "ready",
+      "delivery": "delivered",
       "sha": "186bf278f262d7dc0a8d56f3ced6f0d38a9b14f2",
-      "evidence": "msg_883b6e13ff69 / actualanon役18/18작성자",
-      "next": "실ROLEanon/current_user/auth.uid null·옵션0 로컬추가증거반환·다른파일해시그대로,Mac최종읽기마감→Master실행지시·현재적용0",
-      "lastReviewedAt": "2026-11-16T18:13:55.498Z"
+      "evidence": "Macactualanon최종PASS·MasterLF6파일일치 / msg_677a6ee94688",
+      "next": "기존주인님Lab범위로메인precheck10→0102apply/합성fixture→verify13·일반회원옵션3준비실행지시,실행성공아직미확인. 운영/0103/실결제/발송0·rollback은검수회수후별도",
+      "lastReviewedAt": "2026-11-16T18:22:59.686Z"
     },
     {
       "task_id": "B2B-20261117-07",
@@ -4266,13 +4267,13 @@
       "parent_task_id": "B2B-20261117-02",
       "owner": "CC-B2B-BACK-01",
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
-      "status": "running",
+      "status": "ready_review",
       "delivery": "returned",
-      "evidence": "QA012 msg_82bdd83232f8 / UI계획880125fe2",
+      "evidence": "msg_80731a601ec0 / 함수오류mock20/0·기존17/3",
       "decision": "Master조정 E1납부후거절차단 E2로그인본인 E3카드미설정은행 E4Backend신규경로;실환불미구현명시",
-      "next": "외부DONE후금액/날짜cast·markpaid예외의내부tx롤백 의심→메인qa_잘못응답주입재현요청·unknown/키보존/재승인0 기대. 수정안검토전UI단계2보류·실Toss/DB운영0",
-      "lastReviewedAt": "2026-11-16T18:11:44.226Z",
-      "sha": "d91f16033f22fba8121b4d30422fb76d7c6a8985"
+      "next": "내부parse/markpaid예외unknown·key보존→Mac국소검수. SQL전체중단구조는배포차단잔여·별도prepare committed intent 방향채택/정확상태안요청,실Toss/0103Lab운영0",
+      "lastReviewedAt": "2026-11-16T18:22:59.686Z",
+      "sha": "80a00923daa5c4c4bd045cba40e4f716c6f1e729"
     },
     {
       "task_id": "WS-20261117-15",
@@ -4281,12 +4282,12 @@
       "parent_task_id": "WS-20261117-13",
       "owner": "CC-WORKSPACE-01",
       "title": "주인님 직접 Alt/Option 달력카드 드래그 복사",
-      "status": "ready_review",
-      "delivery": "returned",
-      "sha": "ada3911482f99b268ef894a86d9ae04e3351354f",
+      "status": "running",
+      "delivery": "acknowledged",
+      "sha": "ada3911482 + ee049e811cee91982043b00b48af08bc17434fe8",
       "evidence": "주인님직접캡처/ALT복사동작수정지시·작성자tsc0",
-      "next": "월/주 drop시Alt+날짜이동이면duplicateRows→복제본날짜이동·원본유지,QA011실패/중복/기간/일반이동 검수배정·미배포",
-      "lastReviewedAt": "2026-11-16T18:10:12.306Z"
+      "next": "dragSession취소/해제7시험반환→Mac검수. dbstruct/actions/calendar date-only root override를동일applyTransactions에합치는원자복제API확장승인·기존권한검증/새행0실패시험,실데이터/빌드0",
+      "lastReviewedAt": "2026-11-16T18:22:59.686Z"
     },
     {
       "task_id": "QA-20261117-011",
@@ -4295,12 +4296,12 @@
       "parent_task_id": "WS-20261117-15",
       "owner": "CX-QA-01",
       "title": "달력 Alt복사·월구분 기능회귀 독립검수",
-      "status": "running",
-      "delivery": "acknowledged",
-      "sha": "ada3911482 + 928c359ff",
+      "status": "ready",
+      "delivery": "delivered",
+      "sha": "ee049e811",
       "evidence": "msg_d86532a3ad1a",
-      "next": "Alt드롭복사 실제소스/모의경계검수진행,원본보존/기간/실패·중복집중·제품/실데이터쓰기0",
-      "lastReviewedAt": "2026-11-16T18:13:55.498Z"
+      "next": "pointercancel나중up복제잔류 수정경계재검수·원자날짜는새코드미반환/한계유지·실DBdrag미검수",
+      "lastReviewedAt": "2026-11-16T18:22:59.686Z"
     },
     {
       "task_id": "QA-20261117-012",
@@ -4309,12 +4310,12 @@
       "parent_task_id": "B2B-20261117-07",
       "owner": "CX-QA-01",
       "title": "교환비 카드결제 0103 모의/권한 독립검수",
-      "status": "ready_review",
-      "delivery": "returned",
-      "sha": "d91f16033",
+      "status": "ready",
+      "delivery": "delivered",
+      "sha": "80a00923",
       "evidence": "msg_d86532a3ad1a / QA17-012",
-      "next": "권한/guard정적양호·외부DONE뒤parse/markpaid예외P1후보전체PASS보류·메인격리반례대기. 동일tx모의호출로그도rollback될수있어외부증거분리",
-      "lastReviewedAt": "2026-11-16T18:13:55.498Z"
+      "next": "함수안3예외보완20/0변경경계독립재검수·hardabort내기록소실구조별도/실서비스배포차단·실Toss0",
+      "lastReviewedAt": "2026-11-16T18:22:59.686Z"
     }
   ]
 }
