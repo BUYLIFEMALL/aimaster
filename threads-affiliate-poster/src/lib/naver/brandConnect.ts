@@ -34,6 +34,8 @@ export function naverProductIdentity(finalUrl: string): { kind: NaverConnectKind
   let url: URL;
   try { url = new URL(finalUrl); } catch { return null; }
   if (url.protocol !== "https:") return null;
+  // 계정 정보·비표준 포트가 붙은 주소는 상품 페이지로 보지 않는다(확장 productIdentity와 같은 규칙, :443은 URL이 포트를 비워 허용)
+  if (url.username || url.password || url.port) return null;
   if (url.hostname === "pkgtour.naver.com") {
     const travel = /^\/products\/([A-Za-z0-9_-]+)\/([A-Za-z0-9_-]+)\/?$/.exec(url.pathname);
     return travel ? { kind: "TRAVEL", productKey: `${url.hostname}:${travel[1]}:${travel[2]}` } : null;

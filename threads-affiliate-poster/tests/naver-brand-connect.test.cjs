@@ -65,3 +65,38 @@ test("고지 문구 쇼핑/여행과 근거 문구의 지어내기 금지 안내
   assert.match(t, /\[평점 5\] 좋아요/);
   assert.match(t, /지어내지 말고/);
 });
+
+// WS-20261117-02: 도착 주소 판정 — 계정 정보·비표준 포트 거부를 서버(naverProductIdentity)와 확장(productIdentity)이 똑같이 한다.
+// https 기본 포트를 적은 :443은 URL 정규화로 포트가 비므로 허용(정상 주소와 같음).
+const extSource = fs.readFileSync(path.join(__dirname, "../extension/background.js"), "utf8");
+const extCtx = { URL, setTimeout, chrome: { runtime: { onMessage: { addListener() {} }, getManifest: () => ({}) } } };
+vm.runInNewContext(`${extSource}\n;globalThis.__productIdentity = productIdentity;`, extCtx);
+const extIdentity = extCtx.__productIdentity;
+
+test("도착 주소: 계정 정보·비표준 포트는 서버·확장 모두 거부, 정상 쇼핑·여행과 :443은 허용", () => {
+  const rejected = [
+    "https://u:p@smartstore.naver.com/s/products/1",
+    "https://u@brand.naver.com/b/products/2",
+    "https://smartstore.naver.com:8443/s/products/1",
+    "https://shopping.naver.com:80/products/3",
+    "https://user@pkgtour.naver.com/products/AB12/cd-34",
+    "https://pkgtour.naver.com:8080/products/AB12/cd-34",
+    "https://smartstore.naver.com.evil.com/s/products/1",
+    "https://evil.com/products/1",
+  ];
+  for (const u of rejected) {
+    assert.equal(nb.naverProductIdentity(u), null, `서버 거부: ${u}`);
+    assert.equal(extIdentity(u), false, `확장 거부: ${u}`);
+  }
+  const allowed = [
+    ["https://smartstore.naver.com/s/products/1", { kind: "SHOPPING", productKey: "smartstore.naver.com:1" }],
+    ["https://smartstore.naver.com:443/s/products/1", { kind: "SHOPPING", productKey: "smartstore.naver.com:1" }],
+    ["https://brand.naver.com/b/products/987", { kind: "SHOPPING", productKey: "brand.naver.com:987" }],
+    ["https://shopping.naver.com/window-products/products/5", { kind: "SHOPPING", productKey: "shopping.naver.com:5" }],
+    ["https://pkgtour.naver.com/products/AB12/cd-34", { kind: "TRAVEL", productKey: "pkgtour.naver.com:AB12:cd-34" }],
+  ];
+  for (const [u, want] of allowed) {
+    assert.deepEqual(plain(nb.naverProductIdentity(u)), want, `서버 허용: ${u}`);
+    assert.equal(extIdentity(u), true, `확장 허용: ${u}`);
+  }
+});
