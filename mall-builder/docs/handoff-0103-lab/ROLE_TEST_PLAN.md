@@ -3,9 +3,10 @@
 작성: CC-B2B-BACK-01 · 2026-11-17 · 지시: Master msg_35ee61d8b63f · 전제: Lab 0103 적용 기록 `20261116193438`, verify 14/14
 **이 문서는 계획이다. 실제 시험 쓰기·새 로그인·외부 발송·구매 확정·정리·빌드는 하지 않았다.**
 
-## 1. 지금 Lab 앱에 교환 화면이 있나 — 없음
-- Vercel `buylife/dev-mall-builder` 배포 목록(CLI 읽기, MCP는 403): **마지막 Production 배포 6일 전**(약 11-11, Ready). 그 앞도 6~10일 전.
-- 교환 화면 커밋 `ab3150c0f`(11-17 02:35)·`4985bf6ab`(11-17 02:47)는 그 뒤 → **Lab 앱에 교환 화면 미포함**. 화면 시험에는 Lab 빌드가 최소 1회 필요.
+## 1. 지금 Lab 앱에 교환 화면이 있나 — 없음(실제 화면 근거, 2026-11-17 정정)
+- **정정(Master msg_46a32b358b79)**: 처음 판은 「배포 시각이 커밋보다 이르다」만으로 미포함을 확정했음 — 그것만으로는 근거 부족(작업 트리에서 커밋 전 코드가 배포될 수 있음). 아래 두 근거로 다시 판정.
+- 배포 정보(CLI `vercel inspect`, MCP는 403): 지금 Lab Production = `dpl_3NsADKBJn6pX5CpnBuK4EhR8YoeZ`(`dev-mall-builder-myohmxyip-buylife.vercel.app`), 생성 11-11 14:21 KST. **CLI로 올린 배포라 소스 커밋 SHA가 연결돼 있지 않음** → 어느 커밋인지 배포 정보만으로는 증명 불가.
+- **실제 화면 근거**: 운영자 세션으로 Lab 관리자 주문 상세 `…/s/aimaster-b2b/admin/orders/e0102000-…032`(EXQA-2, 구매 확정) 확인 — 교환 패널 코드가 구매 확정 주문에 반드시 보여 주는 「운영사 대리 접수」 문구가 없고 「교환」 글자는 시험 자료 이름(`[교환QA]`·입금자명)뿐 → **Lab 앱에 교환 화면 미포함**. 화면 시험에는 Lab 빌드가 최소 1회 필요.
 - **다음 배포 묶음 후보로만 기록(실행 0)**: Lab `dev-mall-builder` 빌드 1회. 들어갈 교환 화면 파일 — `src/lib/exchanges.ts`, `src/lib/exchanges-server.ts`, `src/lib/exchange-actions.ts`, `src/app/exchange-panels.tsx`, 연결 `src/app/s/[store]/(shop)/orders/[id]/page.tsx`·`src/app/s/[store]/admin/orders/[id]/page.tsx`(각 2줄), 시험 `tests/exchanges.test.mjs`. Lab 배포는 그 시점 작업 트리 전체가 올라가므로 6일 사이 다른 커밋도 함께 나감(빌드 전 `git log` 범위 확인). 비용 승인 필요.
 
 ## 2. 이미 있는 로그인 세션(읽기 확인, 로그인 요청 0)
