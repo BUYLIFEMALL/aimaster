@@ -69,6 +69,14 @@
 
 ### 19:07 대기 해소·다음 작업
 
+QA-20261116-07 / CX-QA-01: B2B修正 `355193d75`·`49d3eab46` 0100/scenario/rollback1 3파일을 우선 독립검토. P1~P8 상태전이·중지후POST0·권한/중복호출을 확인, 기존 설치 로컬격리DB 가능할 때만 모의볼타 시나리오 실행(공유/운영DB·새설치없음). 실행불가항목은 미검수로 반환. 그다음 QA-20261116-08에서 WS09 `ed7a5f200` 동치승인CAS 수정 독립검증. 고유결과는 각각 분리하고 DB점유조정 필수.
+
+B2B07 추가: 새 helper `cash_receipt_target`에 맞춰 `rollback-0100-step2-remove.sql` 해당함수 제거 한곳만 추가 허용, 삭제순서/의존확인·모의 rollback 적용후잔존객체 확인. 기존영수증/주문기록 삭제범위 확대 금지. 이 추가 SHA는 QA07에 따로 반환.
+
+ECOM-20261116-09 / CC-ECOM-01: MOV07 재현 P2 긴 공용서브 파일명 문서넘침/미리보기순번줄바꿈 P3를 ProductBatchBoard.tsx 해당 span/표시만 최소수정. 같은하네스에긴파일명고정조건 추가해320/375 정상/키보드·25MB/2건합성 보존 검증, 제품다른경로/공통CSS/배포없음. 고유결과 제출.
+
+WS-20261116-10 / CC-WORKSPACE-01: Blog에게운영읽기연결이없으므로 Workspace의기존운영연결이있는경우에만 website-scraper 프로그램메타1행(slug/version/is_active/카테고리공개여부) 읽기확인을 인계. 실제스키마먼저확인·다른회원/키접근없음·새연결/운영쓰기/배포없음. 고유결과를Master와Blog에반환, 연결없으면미확인유지.
+
 BLOG-20261116-06 / CC-BLOG-01: Movie `cd83a1daf`로 공용비교표 본인미커밋2줄을 정리한 뒤, `docs/PROGRAM_CAPABILITY_MAP.md` website-scraper 요약행/카드주소행만 v1.15·병합/숨김·11-12 배포기록·현재live미확인과 일치하게 정정. 다른현재diff있으면중지. 그뒤 `docs/SCRAPING_CONSOLIDATION_TASKS.md` T11 문서정합성 완료만 갱신, T12담당결정/제품/DB/PENDING_FREE는 그대로. safe-commit 기준사본/재확인 필수.
 
 MOV-20261116-07 / CC-MOVIE-01: Tester가 B2B 중요검토 중이고 AGY수락이 확인되지 않아, 바나나45e04a14d 모바일수정의 독립 읽기검토를 가용Movie에 배정. ProductBatchBoard.tsx 실제diff/고정하네스결과·접근이름/키보드/320·375줄바꿈·의도된표안가로스크롤과문서넘침 구분 검토, 필요시 기존격리하네스만 재사용(비용없는국소실행). 제품수정·배포·운영쓰기없음. 고유결과만, Ecom추가수정은 Master를 통해 조정.
