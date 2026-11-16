@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T17:33:55.016Z",
+  "checkedAt": "2026-11-16T17:35:05.261Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -1968,6 +1968,20 @@
       "evidence": "UI계획結果03 / msg_5e76183068a2 / Front msg_030a0dfe4078 / AGY msg_b19f24492917",
       "next": "신규5파일+고객/관리자주문상세패널연결 Backend단독배정, 최신옵션flags/서버권한/안전backPath·정확오류. 불가능복구안내정정·빌드/실결제/발송/0102Lab운영0",
       "lastReviewedAt": "2026-11-16T17:30:25.609Z"
+    },
+    {
+      "task_id": "QA-20261117-005",
+      "parent_task_id": "DES-20261117-02",
+      "owner": "CX-QA-01",
+      "title": "Workspace 디자인3안·독립뷰어 시각검수",
+      "status": "ready",
+      "delivery": "delivered",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "evidence": "msg_2bebbd030741 기존마운트실제HTML접근확인",
+      "completion": "3안12뷰·독립뷰어/비교/확대/키/한글가독성·누락·안별추천근거를반환. 제품동작PASS와구분",
+      "next": "기존/Volumes/gt1_mega/Antigravity/Design 읽기전용,고유결과파일만작성·불가한시각검수는메인확인요청. 원본/서버/설치/빌드/DB0",
+      "lastReviewedAt": "2026-11-16T17:35:05.261Z"
     }
   ],
   "programOverrides": [
