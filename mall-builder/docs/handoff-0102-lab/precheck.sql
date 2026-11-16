@@ -1,4 +1,4 @@
--- Lab 0102 실행 전 확인(읽기 전용) — 대상: Lab(AIMaster_dev, ref rjjtjakljjxsgjelqgek). 모든 줄이 OK여야 apply.sql → fixture.sql
+-- Lab 0102 실행 전 확인(읽기 전용) — 대상: Lab(AIMaster_dev, ref rjjtjakljjxsgjelqgek). 10줄 모두 OK여야 apply.sql → fixture.sql
 with s as (select id, owner_id from public.mall_builder_stores where slug = 'aimaster-b2b')
 select 1 순서, '몰 aimaster-b2b 있음' 항목, case when exists (select 1 from s) then 'OK' else '멈춤' end 판정
 union all select 2, '시험 회원(6fbce7f8…) 있음·이 몰 유저', case when exists (select 1 from public.mall_builder_store_customers c join s on c.store_id = s.id where c.user_id = '6fbce7f8-b54e-462e-8e4b-4391b2603f65') then 'OK' else '멈춤' end
@@ -10,4 +10,8 @@ union all select 7, '선행 함수 mall_builder_staff_can 있음', case when exi
 union all select 8, '시험 자료 번호 비어 있음(EXQA-·seq 900001~2·고정 id)', case when not exists (select 1 from public.mall_builder_orders o join s on o.store_id = s.id where o.order_no like 'EXQA-%' or o.seq in (900001, 900002))
   and not exists (select 1 from public.mall_builder_products where id in ('e0102000-0000-4000-8000-000000000011','e0102000-0000-4000-8000-000000000012'))
   and not exists (select 1 from public.mall_builder_shipping_policies where id = 'e0102000-0000-4000-8000-000000000001') then 'OK' else '멈춤' end
+-- 시험 상품은 사업자 전용 판매 중 → 일반 회원(시험 회원)이 옵션을 읽으려면 승인된 사업자 회원이어야 함(권한 확대 없이 기존 규칙으로)
+union all select 9, '시험 회원 = 이 몰 승인 사업자 회원(승인·사업자 등급·회원 승인)', case when exists (select 1 from public.mall_builder_store_customers c join s on c.store_id = s.id join public.mall_builder_customer_grades g on g.id = c.grade_id
+  where c.user_id = '6fbce7f8-b54e-462e-8e4b-4391b2603f65' and c.approval_status = 'approved' and g.is_business and c.member_status = 'approved') then 'OK' else '멈춤' end
+union all select 10, '몰 운영 중(active)', case when exists (select 1 from public.mall_builder_stores where slug = 'aimaster-b2b' and status = 'active') then 'OK' else '멈춤' end
 order by 1;

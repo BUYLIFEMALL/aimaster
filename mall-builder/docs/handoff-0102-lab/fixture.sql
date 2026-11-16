@@ -11,9 +11,11 @@ end $pre$;
 insert into public.mall_builder_shipping_policies (id, store_id, name, type, exchange_fee)
 select 'e0102000-0000-4000-8000-000000000001', s.id, '[교환QA] 교환비', 'free', 3000 from public.mall_builder_stores s where s.slug = 'aimaster-b2b';
 
--- 상품: 티셔츠(옵션 S 5·M 5·L 0, 재고 관리) / 머그컵(옵션 없음, 본체 재고 10, 재고 관리). 판매 중지(hidden)로 둬서 실제 손님 화면에 안 나오게
-insert into public.mall_builder_products (id, store_id, name, base_price, stock_mode, stock, shipping_policy_id, status)
-select v.id::uuid, s.id, v.name, v.price, 'product', v.stock, 'e0102000-0000-4000-8000-000000000001', 'hidden'
+-- 상품: 티셔츠(옵션 S 5·M 5·L 0, 재고 관리) / 머그컵(옵션 없음, 본체 재고 10, 재고 관리).
+-- 판매 중(on_sale) + 사업자 전용(business_only): 일반 회원 옵션 읽기(RLS product_visible)가 되도록 하되, 손님·소비자 회원에게는 안 보임(권한 확대 없음).
+-- 시험 회원은 이 몰의 승인된 사업자 회원(precheck 9번).
+insert into public.mall_builder_products (id, store_id, name, base_price, stock_mode, stock, shipping_policy_id, status, visibility)
+select v.id::uuid, s.id, v.name, v.price, 'product', v.stock, 'e0102000-0000-4000-8000-000000000001', 'on_sale', 'business_only'
   from public.mall_builder_stores s, (values ('e0102000-0000-4000-8000-000000000011', '[교환QA] 티셔츠', 10000, 0), ('e0102000-0000-4000-8000-000000000012', '[교환QA] 머그컵', 8000, 10)) v(id, name, price, stock)
  where s.slug = 'aimaster-b2b';
 insert into public.mall_builder_product_variants (id, product_id, store_id, key, "values", stock, sort)
