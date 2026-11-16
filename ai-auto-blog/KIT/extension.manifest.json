@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "블로그 포스팅 네이버 입력기",
+  "version": "1.87.0",
+  "version_name": "v1.87",
+  "description": "블로그 포스팅 자동화에서 보낸 글을 네이버 블로그 글쓰기 화면에 사람처럼 입력하는 확장 프로그램",
+  "minimum_chrome_version": "120",
+  "permissions": [
+    "sidePanel",
+    "storage",
+    "scripting",
+    "tabs",
+    "debugger",
+    "alarms",
+    "notifications"
+  ],
+  "host_permissions": [
+    "https://*.naver.com/*",
+    "__SITE_URL__/*",
+    "__SUPABASE_URL__/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "__SITE_URL__/*"
+      ],
+      "js": [
+        "web-bridge.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "action": {
+    "default_title": "블로그 포스팅 네이버 입력기",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

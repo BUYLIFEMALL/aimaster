@@ -159,6 +159,25 @@ drop policy if exists post_images_delete_own on storage.objects;
 create policy post_images_delete_own on storage.objects for delete to authenticated using (bucket_id = 'post-images' and auth.uid()::text = (storage.foldername(name))[1]);
 
 -- ---------------------------------------------------------------------
+-- 8-2. 크롬 확장 연결 코드(2026-11-16 확장 포함판) — 코드 원문은 저장하지 않고 해시만, 회원 본인 것만 읽음
+-- ---------------------------------------------------------------------
+create table if not exists public.personal_access_tokens (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  program_slug text not null,
+  label text,
+  token_hash text not null unique,
+  created_at timestamptz not null default now(),
+  last_used_at timestamptz,
+  revoked_at timestamptz
+);
+create index if not exists personal_access_tokens_user_id_idx on public.personal_access_tokens (user_id);
+alter table public.personal_access_tokens enable row level security;
+drop policy if exists personal_access_tokens_select_own on public.personal_access_tokens;
+create policy personal_access_tokens_select_own on public.personal_access_tokens for select to authenticated using (auth.uid() = user_id);
+grant select on public.personal_access_tokens to authenticated;
+
+-- ---------------------------------------------------------------------
 -- 9. NewsBlur 계정(선택 — RSS 글감 수집에서 NewsBlur를 쓸 때만)
 --    설치마법사가 이 표로 DB 만들기 성공을 확인하므로 항상 파일 맨 끝에 둡니다.
 -- ---------------------------------------------------------------------

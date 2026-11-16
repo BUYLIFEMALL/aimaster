@@ -2,6 +2,7 @@ import 'server-only'
 import crypto from 'node:crypto'
 import { createAdminClient } from '@/blog/utils/supabase/admin'
 import { checkProgramAccess } from '@/lib/access/checkProgramAccess'
+import { IS_STANDALONE } from '@/lib/deployment'
 
 // BLOG 크롬 확장 연동 토큰 확인(2026-10-01). 토큰은 설정 화면에서 발급하고(app/settings/extensionTokenActions.ts),
 // 공용 personal_access_tokens 테이블에 program_slug = 'ai-auto-blog'로 해시만 저장한다(원문은 발급 순간 한 번만 보여줌).
@@ -29,6 +30,13 @@ export async function verifyExtensionToken(request: Request): Promise<ExtensionU
     .is('revoked_at', null)
     .maybeSingle()
   if (!tokenRow) return null
+
+  // 독립 운영(수강생 배포 키트)에는 AIMaster 이용 권한·profiles 표가 없다 — 유효한 토큰이면 그 회원 본인으로 본다.
+  if (IS_STANDALONE) {
+    const { data: authUser } = await supabase.auth.admin.getUserById(tokenRow.user_id)
+    await supabase.from('personal_access_tokens').update({ last_used_at: new Date().toISOString() }).eq('id', tokenRow.id)
+    return { userId: tokenRow.user_id, email: authUser?.user?.email ?? null, name: null, isAdmin: false }
+  }
 
   const access = await checkProgramAccess(supabase, tokenRow.user_id, EXTENSION_PROGRAM_SLUG)
   if (!access.allowed) return null

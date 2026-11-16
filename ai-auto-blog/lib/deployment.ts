@@ -2,17 +2,17 @@
 // - AIMaster(기본): 가입·로그인·이용 권한은 메인 사이트(buylife.xyz)와 공용 DB가 맡는다.
 // - 독립 운영(NEXT_PUBLIC_STANDALONE_MODE=true): 수강생 본인 Vercel·Supabase에 설치한 복사본. 자체 가입·로그인을 쓰고,
 //   로그인한 본인은 바로 사용하며(등급·구독·핸드폰 판정 없음) AIMaster 링크와 buylife.xyz 주소 이동을 끈다.
-//   이 배포판은 「콘텐츠 만들기 전용」이라 크롬 확장 자동 포스팅(네이버 입력기)도 끈다. 설치 안내: KIT/README.md.
+//   2026-11-16 주인님 지시로 배포판에도 크롬 확장 자동 포스팅(네이버 입력기)을 넣는다 — 확장 ZIP은 빌드 때 수강생 사이트 주소로 만든다(scripts/build-extension-archive.mjs). 설치 안내: KIT/README.md.
 // NEXT_PUBLIC_* 값은 빌드할 때 박혀 들어가므로 화면 코드에서도 안전하게 쓸 수 있다.
 
 // 값 앞뒤 공백·보이지 않는 문자(BOM)는 지우고 비교한다 — 윈도우 마법사가 "﻿true"를 넣어 독립 모드가 꺼진 사례(2026-10-20 리허설)
 export const IS_STANDALONE = (process.env.NEXT_PUBLIC_STANDALONE_MODE ?? "").replace(/^﻿/, "").trim() === "true";
 
-/** 크롬 확장 자동 포스팅 사용 여부 — 독립 운영(콘텐츠 만들기 전용 배포판)에서는 끈다. */
-export const EXTENSION_ENABLED = !IS_STANDALONE;
+/** 크롬 확장 자동 포스팅 사용 여부 — 2026-11-16부터 운영·배포판 모두 켠다(호출부 호환을 위해 값은 남겨 둔다). */
+export const EXTENSION_ENABLED = true;
 
-/** 프로그램 화면 이름 — 콘텐츠 만들기 전용 배포판은 자동 포스팅이 없어 이름을 구분한다. */
-export const APP_TITLE = IS_STANDALONE ? "블로그 콘텐츠 자동화" : "블로그 포스팅 자동화";
+/** 프로그램 화면 이름 — 2026-11-16 배포판도 자동 포스팅을 넣어 이름이 같다. */
+export const APP_TITLE = "블로그 포스팅 자동화";
 
 /** 독립 운영 사이트 주소(끝 / 없이). 예: https://my-blog.vercel.app */
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "").trim().replace(/\/$/, "");
