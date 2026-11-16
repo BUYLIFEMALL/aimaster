@@ -17,7 +17,7 @@
 - 용량: 직접 추가·공용 서브도 사진 25MB 넘으면 빼고 알림(전에는 검사 없음), 업로드 줄에 「한 장 25MB · 결과는 움직이지 않는 JPG/PNG · 돌려보내기 10MB(넘으면 반환 실패, ZIP)」. 자동 줄이기 없음(실제 동작 그대로).
 - 검증: `npm test` 104 통과·tsc 0. 미실행: 실제 375px 화면 검수(배포 뒤 ego).
 
-## 2026-11-15 [역할: ecommerce-image] ⏸ 미배포 대기 — 메이커 후속 M1 대표사진 합성 보강 (`f19f2bdcc`)
+## 2026-11-15 [역할: ecommerce-image] ✅ v1.49 배포됨(2026-11-17) — 메이커 후속 M1 대표사진 합성 보강 (`f19f2bdcc`)
 
 - 플랜 [`PLAN_20261115_MAKER_M1_FRAME.md`](PLAN_20261115_MAKER_M1_FRAME.md), 주인님 결정: 범위 1~7 전부 · 면적은 참고 기준 20%(조절 10~50, 규정이라 쓰지 않음, 저장 안 막음) · 배포는 모았다가.
 - 바뀐 곳: `composite.ts`(subShape·subOutlineWidth/Color·subFrameBg·subZoom/FocusX/Y·subAreaWarn·sizeMode, `fitRect` 확대·초점, `subAreaPercent`, `resolveSize`, 판번호 c2) · `compositeRender.ts`(틀을 따로 그려 모양대로 그림자) · `ProductBatchBoard.tsx`(설정 칸·면적 안내·「📋 결과 복사」·「메인 원본 크기」, CSV 판번호 고정값 "c1-batch" 버그 수정, 모서리 막대 추가) · `productJobs.ts`(CSV size 칸).
