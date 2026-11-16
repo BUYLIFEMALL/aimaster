@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 04:00:30 KST",
+  "checkedAt": "2026-11-17 04:05:58 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4261,10 +4261,10 @@
       "title": "Lab0102 안전fixture·실행패키지 준비",
       "status": "running",
       "delivery": "acknowledged",
-      "sha": "186bf278f262d7dc0a8d56f3ced6f0d38a9b14f2",
-      "evidence": "msg_44c7752222b8 / 084e5b667 / b69693055 strictcleanup",
-      "next": "EXQA2자동confirmed로OWNER1reward500/ledger1 발생. rollback원잔류문제보완24/24작성자보고·타주문대기reward2300보존필수. EXQA1 total28000금액별manifest/동일advisory락 추가지시·실Lab정리/추가확정0",
-      "lastReviewedAt": "2026-11-16T19:00:28.107Z"
+      "sha": "436ccc1bb (cleanup패키지·실Lab미실행)",
+      "evidence": "msg_ed745466e467 / 375da3a8 / Masterrollbackhead직접대조",
+      "next": "1400/500주문manifest/보존guard30시험반환. exchange DELETE가order락보다앞인잠금역전·precheck후새비시험행경계 추가보완지시(전체teardown후보)→새hash·Mac·별도실행,실Lab정리0",
+      "lastReviewedAt": "2026-11-16T19:05:56.297Z"
     },
     {
       "task_id": "B2B-20261117-07",
