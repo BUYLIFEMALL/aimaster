@@ -263,3 +263,7 @@ DES-20261117-02 AG-UI-01: QA005 누락 보완을 위해 145/146/147 목업/PNG/R
 - WS17-13: 주인님 선택 146 Professional Studio. AGY는 명세/자산/시각검토, Workspace 한 명만 제품코드 수정. 정확경로 계획/예약 후 단계구현. WS17-14 달별상자 928c359ff는 기존 직접지시로 통합·중복구현 없음. 포털 만료토큰 P2는 portal.ts/관련시험 국소보완 우선.
 - ESM17-01: CC-ECOM-01 guide/home/extension 안내·자기문서 및 catalog/esm-register-thumbnail 자산/해당thumbnail_url만. 매뉴얼 QA008 누락 보완, 코어 확장/실ESM입력등록/카테고리공개/빌드 없음.
 - B2B17-07: 단계1 Backend만 mall-builder/supabase/migrations/0103_exchange_fee_payments.sql·scripts/qa/run-0103-feepay.mjs. 격리qa_ 모의Toss만, 실제키/결제/발송/운영/Lab/빌드0. 신규 (shop)/orders/[id]/exchange-pay/** UI는 단계2에서 정확경로예약·Master통지 뒤. 기존Front디자인/AGY상품화면범위 보존.
+
+### 2026-11-17 03:09 KST · 146 S0-S2 단독 구현 승인
+
+CC-WORKSPACE-01만 tokens.css·features/shell/Workspace.tsx·Sidebar/sidebar.css·AimasterSidebar/aimaster.css·새features/home/StudioDashboard.tsx/studio.css·관련ko사전/국소시험을 수정. S0 light aww-studio 토큰, S1 회원폭보존/260기본·767모바일, S2 기존RPC 실제값/빈상태 홈. 서버함수 client import·가짜KPI·새DB·빌드0. S2 반환후 S3-S5 범위조정. CalendarView/calendar.css 달별928/Alt복사ada391은 별도직접지시로 같은Workspace책임·덮어쓰기금지. MacTester QA011/012 신규검수는고유결과만.
