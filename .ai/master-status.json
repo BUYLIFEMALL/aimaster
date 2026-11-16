@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T21:04:53.694Z",
+  "checkedAt": "2026-11-16T21:06:27.464Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2214,10 +2214,10 @@
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
       "status": "ready_review",
       "delivery": "delivered",
-      "evidence": "msg_6d7a93569589 Mac QA012 누적소스PASS·hash739b35일치·작성자62근거분리 / msg_e7bf9e5ec131 릴리스초안 문구4건P2 / msg_7908deab7eff 20e51e602 객체이름의존성표·문서4건정정 / msg_2c7fadd530f9 bbca7e002 핵심RPC20인자대조 + Master Vercel project/env 직접확인",
+      "evidence": "msg_6d7a93569589 Mac QA012 누적소스PASS·hash739b35일치·작성자62근거분리 / msg_e7bf9e5ec131 릴리스초안 문구4건P2 / msg_7908deab7eff 20e51e602 객체이름의존성표·문서4건정정 / msg_2c7fadd530f9 bbca7e002 핵심RPC20인자대조 + Master Vercel project/env 직접확인 / msg_059ac8eead6e 로컬공개모드덮어쓰기0·운영배포스크립트고정대상발견",
       "decision": "Master조정 E1납부후거절차단 E2로그인본인 E3카드미설정은행 E4Backend신규경로;실환불미구현명시",
-      "next": "Master 정확Lab project접근성공·env총3/hiddenProduction0·공개모드키미등록확인. Backend source미설정false/로컬build덮어쓰기 읽기확인,사용자연결요청불필요. DB컬럼/RLS전체·실Toss/0104적용/UI실화면/빌드미완료",
-      "lastReviewedAt": "2026-11-16T21:04:53.694Z",
+      "next": "Lab에서deploy-prod/prod-env-setup사용금지. Backend고정0104 Lab pre/apply/verify 준비만배정·공개RPC와실키존재위험명시,실적용/실Toss/빌드0. 빌드직전공개모드재확인필수",
+      "lastReviewedAt": "2026-11-16T21:06:27.464Z",
       "sha": "37fdcabb4 / 0104 739b35e9f20b45ba7c83309918da0cc099ca6a0b5715bf5514e755cb108662e6",
       "plannedMigration": "0104_exchange_fee_payments.sql (기존미적용0103 rename)",
       "migrationPath": "mall-builder/supabase/migrations/0104_exchange_fee_payments.sql",
