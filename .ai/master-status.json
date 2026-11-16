@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T18:46:53.546Z",
+  "checkedAt": "2026-11-16T18:50:11.080Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2100,23 +2100,23 @@
       "parent_task_id": "DES-20261117-02",
       "owner": "CC-WORKSPACE-01",
       "title": "주인님 선택146 Professional Studio 전면리뉴얼",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "S3~5結果618f7356/ QA013 context보완075fcb4 / 301작성자시험/type0",
+      "status": "running",
+      "delivery": "acknowledged",
+      "evidence": "QA013 msg_a7a09148cda1 / DB분리b3998651",
       "decision": {
         "chosen": "146 Professional Studio",
         "reference": "[5/12] 146 Professional Studio - 01. 메인 관제 대시보드",
         "scope": "메인기준 전체화면 일관스타일 적용·기존기능/회원데이터유지",
         "source": "주인님 직접 채팅 2026-11-17 KST"
       },
-      "next": "S0~5코드반환·QA013새문맥/범위라벨검수·jsdom실DOM하네스허용(시각아님). dev/testDB동일발견으로로그인보류/분리우선",
-      "lastReviewedAt": "2026-11-16T18:46:53.546Z",
-      "sha": "eb42a03e+d2ef2cad+21d057941+df53bbad859f31ec1ed69731e42958f9bdfa9949+990ec9075c5de513cbaa68dae6db5781fed46713+075fcb4e277269452bcb93bd044886e4872c573c",
+      "next": "S0~5반환·문맥/상한보완확인,unmount늦은응답 records.merge/setResult잔류P2→effectcleanup무효화/실DOM시험수정승인. dev분리완료·로그인뒤시각검수",
+      "lastReviewedAt": "2026-11-16T18:50:11.080Z",
+      "sha": "S0~5+075fcb4 (unmount추가보완예정)",
       "validationPending": {
-        "scope": "개발DB분리 후 메인엣지 실제화면",
-        "reason": "dev3457와vitest가동일aww DB·reset으로개발자료초기화가능",
-        "action": "주인님로컬로그인보류통지·Workspace aww_dev 보존분리/환경실연결증거대기",
-        "url": "http://localhost:3457/login (분리후재안내)"
+        "scope": "메인엣지 실제화면",
+        "reason": "개발DB분리완료·실화면로그인세션부재",
+        "action": "주인님 localhost3457 본인로그인 1회·담당이로컬workspace준비",
+        "url": "http://localhost:3457/"
       }
     },
     {
@@ -2217,9 +2217,11 @@
       "evidence": "2fe06c45c 상태안 / msg_02fc9d3c39ac",
       "decision": "Master조정 E1납부후거절차단 E2로그인본인 E3카드미설정은행 E4Backend신규경로;실환불미구현명시",
       "next": "prepare별도commit+confirm mock구현승인·금액/key/시한고정·고정멱등요청·30분초과POST0·장기404unknown임의해제미구현·별도세션hardabort키보존시험,실Toss/Lab0103/운영0",
-      "lastReviewedAt": "2026-11-16T18:46:53.546Z",
+      "lastReviewedAt": "2026-11-16T18:50:11.080Z",
       "sha": "80a00923daa5c4c4bd045cba40e4f716c6f1e729",
-      "plannedMigration": "0104_exchange_fee_payments.sql (기존미적용0103 rename)"
+      "plannedMigration": "0104_exchange_fee_payments.sql (기존미적용0103 rename)",
+      "migrationPath": "mall-builder/supabase/migrations/0104_exchange_fee_payments.sql",
+      "previousMigrationPath": "0103_exchange_fee_payments.sql (미적용상태rename)"
     },
     {
       "task_id": "WS-20261117-15",
@@ -2271,12 +2273,12 @@
       "parent_task_id": "WS-20261117-13",
       "owner": "CX-QA-01",
       "title": "146 studio S0~2 라우트·실데이터·테마 독립검수",
-      "status": "ready",
-      "delivery": "delivered",
+      "status": "ready_review",
+      "delivery": "returned",
       "sha": "075fcb4e + df53bbad + 990ec907",
-      "evidence": "msg_e0c194e5cf0b / context7시험DB미사용",
-      "next": "문맥키user|space/기존자료숨김/늦은병합0·계정전체inbox/조회상한보완독립검수. DB분리전integrated쓰기0·실시각미검수",
-      "lastReviewedAt": "2026-11-16T18:46:53.546Z"
+      "evidence": "msg_a7a09148cda1 / QA17-013",
+      "next": "context/range수정확인·언마운트cleanup없어늦은merge1/setResult1 추가P2반환. 실제React/브라우저미실증·새effect/jsdom반환후변경검수",
+      "lastReviewedAt": "2026-11-16T18:50:11.080Z"
     },
     {
       "task_id": "WS-20261117-16",
@@ -2285,12 +2287,12 @@
       "parent_task_id": "WS-20261117-13",
       "owner": "CC-WORKSPACE-01",
       "title": "로컬 개발·시험 DB 분리 및 기존자료 보존",
-      "status": "ready",
-      "delivery": "delivered",
-      "evidence": "CC직접동일DB확인·msg_f7ffff59de97",
-      "completion": "개발aww_dev/시험aww 실제연결분리·현재로컬자료보존·시험reset이dev스키마/자료영향0 증명·본인3457재시작·운영DB0",
-      "next": "127.0.0.1:55432 로컬only·aww_dev없을때새로현재aww보존복제/.env.local DB명만변경·기존DB/타인접속drop/kill0·주인님로그인보류",
-      "lastReviewedAt": "2026-11-16T18:46:53.546Z"
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "b3998651263da47ff96dafbf4078dc3f5263d451 / dev/schema OID/testreset증거",
+      "completion": "aww_dev개발/aww시험분리·localonly원자료보존복제(0records)·환경다른줄hash동일·test27전후dev OID/schema10불변·PID44692 재시작",
+      "next": "개발3457사용가능·주인님본인로그인1회재안내,로컬검수workspace는담당생성·운영자료이전0",
+      "lastReviewedAt": "2026-11-16T18:50:11.080Z"
     },
     {
       "task_id": "B2B-20261117-08",
@@ -2299,11 +2301,12 @@
       "parent_task_id": "B2B-20261117-06",
       "owner": "CC-B2B-BACK-01",
       "title": "자동 구매확정과 교환7일 상태정합성 수정",
-      "status": "running",
-      "delivery": "acknowledged",
-      "evidence": "9738efd80 계획·msg_01c570014805 경로예약 / msg_abc5861bd197",
-      "next": "기적용0102동결·신규0103confirmed_window/runner·카드미적용0103→0104rename·UI eligible집합 맞춤,qa원형auto_progress회차rollback빨강→정상확정·7일정책초록. 새Lab적용/실17주문변경0",
-      "lastReviewedAt": "2026-11-16T18:46:53.546Z"
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "msg_2c4c518855b8 / confirmed0103 PG red7/2→green9/0",
+      "next": "동일회차자동확정5건/4일유저허용·8일거절·10일직원·미납/반품guard작성자근거→Mac독립검수. 새Lab0103패키지준비·공용cron/실17주문변경0",
+      "lastReviewedAt": "2026-11-16T18:50:11.080Z",
+      "sha": "0edda866671c727c2605331bfb0b7415b06c234c"
     }
   ],
   "programOverrides": [
@@ -2491,9 +2494,9 @@
       "slug": "ai-work-workspace",
       "owner": "CC-WORKSPACE-01",
       "reportedVersion": "v1.55",
-      "stage": "운영v1.55·146 S0/S1커밋/S2구현·E1/포털OFF검수완료",
+      "stage": "운영v1.55·146 S0~5코드반환/라이프사이클P2 보완·dev/test분리완료",
       "completed": "E1 작성자245/type0·승인/owner/루트/재시도 경계독립PASS(정적·모의,실모델미검수)",
-      "next": "studio새경로회원시작설정보존·실데이터홈구현,Alt복사QA011·월상자검수연결·새빌드/운영DDL0",
+      "next": "효과cleanup 늦은응답차단·로컬로그인후실화면검수,Alt복사코드지정검수완료·모든후보미배포",
       "evidence": "Workspace직접배포보고 / DIR-20261117-003",
       "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
     },
