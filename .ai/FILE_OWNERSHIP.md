@@ -14,6 +14,8 @@
 
 ## 현재 조정 범위
 
+23:05 후속 판정: WS11 독립엄격37/37·역할권한·rollback 보존/되살리기 근거로 현재0100/rollback1·2의P1 해결 기술판정. B2B-20261116-09는 CC-B2B-BACK-01이 `mall-builder/scripts/qa/run-0100-independent.mjs` 한파일의 has 부분포함판정을 실제열동등비교로 보강하고 수정전/1차/현재3판의 실패·통과를 qa_격리DB에서 증명한다. 원래42조건보존, 운영/공유DB·실외부·제품SQL 변경없음. 현재SQL판정과 검증기결함을 혼동하지 않는다. v1.16 소스분리·Supabase실행확인창·기승인1빌드 범위는 별도로 유지한다.
+
 | 작업 | 책임 세션 | 허용 수정/동작 | 상태·경계 |
 |---|---|---|---|
 | OPS-20261116-001 | CX-MASTER-01 | AI_TEAM_RULES.md·.ai/TEAM/PROJECT/TRANSPORT/FILE_OWNERSHIP/CHANGELOG·tasks/decisions·총괄플랜·루트지침3종 본인블록·공용문서 본인항목·문서목록 | Master 전용 공식배정/완료상태 |
