@@ -88,17 +88,23 @@ export function readProductJob(origin: string, data: unknown, expectedOrigin: st
 
 /** 상세페이지 쪽: 바나나가 돌려보낸 결과 검사(같은 작업·보낸 상품만) */
 export function readProductResult(origin: string, data: unknown, jobId: string, productIds: ReadonlySet<string>):
-  { productId: string; file: Blob; settingsVersion: string } | { error: string; productId?: string } | null {
+  { productId: string; file: Blob; settingsVersion: string; resultId: string | null } | { error: string; productId?: string } | null {
   if (origin !== PRODUCT_RECEIVER_ORIGIN || !isRecord(data) || data.type !== PRODUCT_MSG_RESULT || data.jobId !== jobId) return null;
   if (!isUuid(data.productId) || !productIds.has(data.productId)) return { error: "이번 작업에서 보낸 상품이 아닙니다." };
   const file = data.file;
   if (!(file instanceof Blob) || !RESULT_TYPES.includes(file.type)) return { error: "PNG·JPG 결과만 받을 수 있습니다.", productId: data.productId };
   if (file.size === 0 || file.size > PRODUCT_RESULT_MAX_BYTES) return { error: "결과가 10MB를 넘습니다.", productId: data.productId };
-  return { productId: data.productId, file, settingsVersion: shortText(data.settingsVersion, 40) };
+  // ECOM-17: 결과마다 붙는 1회용 번호(UUID) — 저장 응답에 그대로 되돌려 보내 바나나가 「어느 결과가 저장됐는지」 정확히 안다. 옛 바나나는 없음(null)
+  return { productId: data.productId, file, settingsVersion: shortText(data.settingsVersion, 40), resultId: isUuid(data.resultId) ? data.resultId : null };
 }
 
 /** 바나나 쪽: 보낸 프로그램(기본 상세페이지)의 저장 결과 알림 검사 */
-export function readProductSaved(origin: string, data: unknown, jobId: string, expectedOrigin: string = PRODUCT_SENDER_ORIGIN): { productId: string; ok: boolean; error: string } | null {
+export function readProductSaved(origin: string, data: unknown, jobId: string, expectedOrigin: string = PRODUCT_SENDER_ORIGIN):
+  { productId: string; ok: boolean; error: string; resultId: string | null; settingsVersion: string } | null {
   if (origin !== expectedOrigin || !isRecord(data) || data.type !== PRODUCT_MSG_SAVED || data.jobId !== jobId || !isUuid(data.productId)) return null;
-  return { productId: data.productId, ok: data.ok === true, error: shortText(data.error, 200) };
+  // ECOM-17: resultId가 없으면 옛 보낸 프로그램의 응답 — 어느 결과의 응답인지 증명할 수 없어 바나나가 「확인 필요」로 다룬다
+  return {
+    productId: data.productId, ok: data.ok === true, error: shortText(data.error, 200),
+    resultId: isUuid(data.resultId) ? data.resultId : null, settingsVersion: shortText(data.settingsVersion, 40),
+  };
 }

@@ -60,9 +60,13 @@ export function MainPhotoBatch({ products }: { products: BatchProduct[] }) {
       if (!got) return;
       if ("error" in got) { if (got.productId) mark(got.productId, got.error); return; }
       // 결과는 한 개씩 차례로 저장(같은 상품 이력 덮어쓰기 방지)
+      // ECOM-17: 저장 응답에 받은 결과 번호(resultId)·판번호를 그대로 되돌려 바나나가 「어느 결과가 저장됐는지」 정확히 알게 한다(옛 바나나는 resultId 없음 → 생략)
+      const reply = (ok: boolean, error = "") => winRef.current?.postMessage({
+        type: PRODUCT_MSG_SAVED, jobId: job.jobId, productId: got.productId, ok, error,
+        ...(got.resultId ? { resultId: got.resultId } : {}), settingsVersion: got.settingsVersion,
+      }, PRODUCT_RECEIVER_ORIGIN);
       chain.current = chain.current.then(async () => {
         mark(got.productId, "저장 중");
-        const reply = (ok: boolean, error = "") => winRef.current?.postMessage({ type: PRODUCT_MSG_SAVED, jobId: job.jobId, productId: got.productId, ok, error }, PRODUCT_RECEIVER_ORIGIN);
         const up = await uploadMainPhoto(got.productId, got.file);
         if (!up.url) { mark(got.productId, up.error ?? "올리지 못했습니다."); reply(false, up.error); return; }
         const res = await setMainPhotoAction(got.productId, up.url, job.revisions.get(got.productId) ?? "");
@@ -70,7 +74,7 @@ export function MainPhotoBatch({ products }: { products: BatchProduct[] }) {
         if (res.updatedAt) job.revisions.set(got.productId, res.updatedAt);
         mark(got.productId, "저장됨"); reply(true);
         router.refresh();
-      }).catch(() => mark(got.productId, "저장 중 오류가 났습니다."));
+      }).catch(() => { mark(got.productId, "저장 중 오류가 났습니다."); reply(false, "저장 중 오류가 났습니다."); }); // 예외에도 실패 응답(바나나가 「전송 중」에 머물지 않게)
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);

@@ -56,6 +56,20 @@ import {
   readProductJob,
   readProductSaved,
 } from "@/lib/productPhotoHandoff";
+import {
+  alreadySaved,
+  applyAck,
+  createSaveTracker,
+  isUncertain,
+  photoFingerprint,
+  recordSend,
+  resetForJob,
+  resultKeyOf,
+  type SaveTracker,
+} from "@/lib/batch/saveTracker";
+
+/** ECOM-17: 옛 응답이라 저장 여부를 증명할 수 없는 상태(자동 재전송 안 함) */
+const RETURN_UNCERTAIN = "확인 필요";
 import { settingsVersion } from "@/lib/batch/composite";
 
 const STORAGE_SETTINGS_KEY = "bnc-product-batch-settings-v1";
@@ -74,6 +88,8 @@ interface RenderResultItem {
   status: "done" | "failed";
   error?: string;
   returned?: string;
+  /** ECOM-17: 부모로 보낸 이 결과의 1회용 번호 — 저장 응답과 정확히 맞출 때 쓴다 */
+  resultId?: string;
   /** 실제 저장 크기(예: 1000x1000) — 「메인 원본 크기」면 상품마다 다름 */
   size?: string;
 }
@@ -109,11 +125,11 @@ export function ProductBatchBoard() {
   const [streamRecent, setStreamRecent] = useState<RenderResultItem[]>([]);
   const abortCtrlRef = useRef<AbortController | null>(null);
   const linkedJobId = useRef<string | null>(null);
-  // ECOM-15: 같은 저장인지는 「연결 작업(linkedJobId) + 상품 번호 + 합성 설정 판번호」로 판단한다.
-  // 상품 번호만 쓰면 설정을 바꾼 새 결과까지 「저장됨」으로 잘못 보이고, 시작 때 결과를 비우면 저장됨이 사라져 같은 그림을 다시 보낸다.
-  const sentVerRef = useRef<Map<string, string>>(new Map()); // 상품 → 마지막으로 보낸 결과의 판번호
-  const savedVerRef = useRef<Map<string, string>>(new Map()); // 상품 → 저장 확인된 판번호
-  const runVerRef = useRef<string>(""); // 지금 화면 결과를 만든 실행의 판번호
+  // ECOM-17: 「어느 결과가 저장됐는지」는 결과마다 붙인 resultId와 정확히 맞는 응답으로만 판단한다(src/lib/batch/saveTracker.ts).
+  // ECOM-15의 「상품 + 마지막 보낸 판번호」 추정은 늦은 옛 응답을 새 결과 저장으로 오인해 폐기(MOV-11 재현).
+  const trackerRef = useRef<SaveTracker>(createSaveTracker());
+  const ackRef = useRef<Map<string, string>>(new Map()); // resultId → 표에 보일 반환 상태(실행 중 도착분 보존)
+  const runVerRef = useRef<string>(""); // 지금 화면 결과를 만든 실행의 합성 설정 판번호
   const senderOriginRef = useRef<string | null>(null);
   const senderLabelRef = useRef<string>("상세페이지");
 
@@ -174,31 +190,34 @@ export function ProductBatchBoard() {
             status: "ready" as const,
           };
         });
-        // 새 작업이면 이전 작업의 보냄·저장 기록을 섞지 않는다(같은 상품 번호라도 다른 작업)
-        if (linkedJobId.current !== got.jobId) {
-          sentVerRef.current = new Map();
-          savedVerRef.current = new Map();
-        }
-        linkedJobId.current = got.jobId;
-        setIsLinkedMode(true);
-        setFilesMap(map);
-        setJobs(list);
-        setStep(2); // 상품을 받았으므로 2단계(합성 규칙 & 미리보기)로 직행
-        setNotice(`📥 ${label}에서 상품 ${list.length}개를 받았습니다. 합성 규칙을 확인하고 [일괄 실행]을 진행하세요.`);
+        void (async () => {
+          // 상품별 입력 내용 지문 — 같은 작업 번호로 사진이 바뀌어 다시 와도 이전 저장 기록을 쓰지 않게(작업 번호가 다르면 전부 비움)
+          const fps = new Map<string, string>(
+            await Promise.all(got.products.map(async (p) => [p.productId, await photoFingerprint(p.photos)] as [string, string]))
+          );
+          if (linkedJobId.current !== got.jobId) ackRef.current = new Map();
+          resetForJob(trackerRef.current, got.jobId, fps);
+          linkedJobId.current = got.jobId;
+          setIsLinkedMode(true);
+          setFilesMap(map);
+          setJobs(list);
+          setStep(2); // 상품을 받았으므로 2단계(합성 규칙 & 미리보기)로 직행
+          setNotice(`📥 ${label}에서 상품 ${list.length}개를 받았습니다. 합성 규칙을 확인하고 [일괄 실행]을 진행하세요.`);
+        })();
         return;
       }
       const saved = linkedJobId.current ? readProductSaved(e.origin, e.data, linkedJobId.current, origin) : null;
       if (saved) {
-        // 저장 확인은 그 상품에 마지막으로 보낸 결과의 판번호로 기록(실행 중에 도착해도 잃지 않게)
-        const sentVer = sentVerRef.current.get(saved.productId);
-        if (saved.ok && sentVer) savedVerRef.current.set(saved.productId, sentVer);
-        setResults((xs) =>
-          xs.map((r) =>
-            r.productId === saved.productId
-              ? { ...r, returned: saved.ok ? "saved" : saved.error || "저장 실패" }
-              : r
-          )
-        );
+        const outcome = applyAck(trackerRef.current, saved);
+        if (outcome.kind === "matched") {
+          // 정확히 그 결과(resultId)의 줄만 바꾼다 — 다른 판의 줄·다른 상품은 건드리지 않음
+          const status = outcome.ok ? "saved" : saved.error || "저장 실패";
+          ackRef.current.set(outcome.resultId, status);
+          setResults((xs) => xs.map((r) => (r.resultId === outcome.resultId ? { ...r, returned: status } : r)));
+        } else if (outcome.kind === "legacy") {
+          // 결과 번호 없는 옛 응답 — 어느 결과의 것인지 증명할 수 없어 「확인 필요」(자동 재전송 안 함)
+          setResults((xs) => xs.map((r) => (r.productId === saved.productId && r.returned !== "saved" ? { ...r, returned: RETURN_UNCERTAIN } : r)));
+        }
       }
     };
     window.addEventListener("message", onMessage);
@@ -452,10 +471,15 @@ export function ProductBatchBoard() {
 
         // 부모 창(상세페이지 또는 쇼핑몰) 연결 시 개별 결과 즉시 전송 (P2 / M1)
         if (linkedJobId.current && job.productId && senderOriginRef.current && window.opener && !window.opener.closed) {
-          if (savedVerRef.current.get(job.productId) === runVer) {
-            // ECOM-15: 같은 작업·같은 설정으로 이미 저장된 상품 — 같은 그림을 다시 보내지 않는다(중복 저장 방지)
+          const key = resultKeyOf(trackerRef.current, job.productId, runVer);
+          if (isUncertain(trackerRef.current, job.productId)) {
+            // ECOM-17: 옛 응답으로 저장 여부를 모르는 상품 — 자동으로 다시 보내지 않는다(「반영하기」에서 확인 뒤 수동)
+            resItem.returned = RETURN_UNCERTAIN;
+          } else if (alreadySaved(trackerRef.current, job.productId, key)) {
+            // 같은 설정·같은 입력으로 만든 결과가 이미 마지막으로 저장돼 있음 — 같은 그림을 다시 보내지 않는다
             resItem.returned = "saved";
           } else if (blob.size <= PRODUCT_RESULT_MAX_BYTES) {
+            const resultId = recordSend(trackerRef.current, job.productId, key);
             window.opener.postMessage(
               {
                 type: PRODUCT_MSG_RESULT,
@@ -463,10 +487,11 @@ export function ProductBatchBoard() {
                 productId: job.productId,
                 file: blob,
                 settingsVersion: runVer,
+                resultId,
               },
               senderOriginRef.current
             );
-            sentVerRef.current.set(job.productId, runVer);
+            resItem.resultId = resultId;
             resItem.returned = "sending";
           } else {
             resItem.returned = "10MB 초과로 반환 실패";
@@ -511,15 +536,8 @@ export function ProductBatchBoard() {
 
     setRunning(false);
     setCurrentRunningKey(null);
-    // ECOM-15: 시작 때 결과를 비우므로 이전 결과와 비교하지 않고, 판번호 기록으로 판단한다
-    // (실행 중 도착한 저장 확인도 여기서 반영 — 다른 상품·다른 설정의 결과는 「저장됨」이 되지 않음)
-    setResults(
-      finalResults.map((fr) =>
-        fr.returned === "sending" && fr.productId && savedVerRef.current.get(fr.productId) === runVer
-          ? { ...fr, returned: "saved" }
-          : fr
-      )
-    );
+    // ECOM-17: 실행 중 도착한 응답은 그 결과(resultId)의 줄에만 반영
+    setResults(finalResults.map((fr) => (fr.resultId && ackRef.current.has(fr.resultId) ? { ...fr, returned: ackRef.current.get(fr.resultId) } : fr)));
     setStep(4);
   };
 
@@ -624,26 +642,27 @@ export function ProductBatchBoard() {
     // 부모 창(상세페이지 또는 쇼핑몰)에 postMessage로 개별 전송 — 이미 저장된 상품은 다시 보내지 않는다(중복 저장 방지)
     const jobId = linkedJobId.current;
     if (window.opener && !window.opener.closed && targetOrigin && jobId) {
-      const sentIds = new Set<string>();
-      for (const r of successList) {
-        // ECOM-15: 화면 결과는 runVerRef 판번호로 만든 것 — 그 판번호로 이미 저장됐으면 다시 보내지 않는다
-        const resultVer = runVerRef.current;
-        if (r.productId && r.blob && r.returned !== "saved" && savedVerRef.current.get(r.productId) !== resultVer && r.blob.size <= PRODUCT_RESULT_MAX_BYTES) {
-          window.opener.postMessage(
-            {
-              type: PRODUCT_MSG_RESULT,
-              jobId,
-              productId: r.productId,
-              file: r.blob,
-              settingsVersion: resultVer,
-            },
-            targetOrigin
-          );
-          sentVerRef.current.set(r.productId, resultVer);
-          sentIds.add(r.productId);
-        }
+      const resultVer = runVerRef.current; // 화면 결과를 만든 실행의 판번호
+      const t = trackerRef.current;
+      const candidates = successList.filter((r) => r.productId && r.blob && r.returned !== "saved" && r.blob.size <= PRODUCT_RESULT_MAX_BYTES);
+      const sure = candidates.filter((r) => !isUncertain(t, r.productId!) && !alreadySaved(t, r.productId!, resultKeyOf(t, r.productId!, resultVer)));
+      const unsure = candidates.filter((r) => isUncertain(t, r.productId!));
+      // ECOM-17: 저장 여부를 모르는 상품은 중복 가능성을 알리고 회원이 명시적으로 확인할 때만 다시 보낸다
+      const resendUnsure = unsure.length > 0 && window.confirm(
+        `${unsure.length}개 상품은 ${targetLabel}에 이미 저장됐는지 확인하지 못했습니다(예전 방식 응답).
+다시 보내면 같은 사진이 한 번 더 저장될 수 있습니다. 그래도 보낼까요?`
+      );
+      const sentResult = new Map<string, string>(); // 줄 key → resultId
+      for (const r of resendUnsure ? [...sure, ...unsure] : sure) {
+        const resultId = recordSend(t, r.productId!, resultKeyOf(t, r.productId!, resultVer));
+        window.opener.postMessage(
+          { type: PRODUCT_MSG_RESULT, jobId, productId: r.productId, file: r.blob, settingsVersion: resultVer, resultId },
+          targetOrigin
+        );
+        sentResult.set(r.key, resultId);
       }
-      setResults((xs) => xs.map((r) => (r.productId && sentIds.has(r.productId) ? { ...r, returned: "sending" } : r)));
+      const sentIds = sentResult;
+      setResults((xs) => xs.map((r) => (sentResult.has(r.key) ? { ...r, resultId: sentResult.get(r.key), returned: "sending" } : r)));
       setNotice(
         sentIds.size
           ? `📤 ${targetLabel}으로 ${sentIds.size}건을 보냈습니다. 저장 결과는 표의 「반환」 칸에 표시됩니다.`
@@ -2014,7 +2033,13 @@ export function ProductBatchBoard() {
                           전송 중...
                         </span>
                       )}
-                      {r.returned && r.returned !== "saved" && r.returned !== "sending" && (
+                      {r.returned === RETURN_UNCERTAIN && (
+                        // ECOM-17: 옛 방식 응답이라 저장됐는지 모름 — 자동으로 다시 보내지 않음(반영하기에서 확인 뒤 수동)
+                        <span style={{ background: "#FEF3C7", color: "#92400E", fontSize: 11, fontWeight: 800, padding: "2px 6px", borderRadius: 4 }} title="저장 여부를 확인하지 못했습니다. 다시 보내면 중복 저장될 수 있습니다.">
+                          확인 필요
+                        </span>
+                      )}
+                      {r.returned && r.returned !== "saved" && r.returned !== "sending" && r.returned !== RETURN_UNCERTAIN && (
                         <span style={{ background: "#FEE2E2", color: "#B91C1C", fontSize: 11, fontWeight: 800, padding: "2px 6px", borderRadius: 4 }} title={r.returned}>
                           반환 실패
                         </span>

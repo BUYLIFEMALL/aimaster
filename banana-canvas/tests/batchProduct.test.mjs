@@ -129,7 +129,7 @@ test("P2 결과·저장 알림: 바나나 주소·같은 작업·보낸 상품�
   assert.equal(readProductResult(PRODUCT_RECEIVER_ORIGIN, res(), JOB, ids).productId, ID);
   assert.match(readProductResult(PRODUCT_RECEIVER_ORIGIN, res({ productId: ID2 }), JOB, ids).error, /보낸 상품이 아닙니다/);
   assert.match(readProductResult(PRODUCT_RECEIVER_ORIGIN, res({ file: img("image/webp") }), JOB, ids).error, /PNG·JPG/);
-  assert.deepEqual(readProductSaved(PRODUCT_SENDER_ORIGIN, { type: PRODUCT_MSG_SAVED, jobId: JOB, productId: ID, ok: false, error: "바뀜" }, JOB), { productId: ID, ok: false, error: "바뀜" });
+  assert.deepEqual(readProductSaved(PRODUCT_SENDER_ORIGIN, { type: PRODUCT_MSG_SAVED, jobId: JOB, productId: ID, ok: false, error: "바뀜" }, JOB), { productId: ID, ok: false, error: "바뀜", resultId: null, settingsVersion: "" }); // ECOM-17: 옛 응답은 resultId 없음(null)
   assert.equal(readProductSaved(PRODUCT_RECEIVER_ORIGIN, { type: PRODUCT_MSG_SAVED, jobId: JOB, productId: ID, ok: true }, JOB), null);
 });
 

@@ -81,6 +81,8 @@ await page.evaluate(() => { window.__pbLinked = null; (async () => {
   send({ type: "aimaster-product-photos-saved", jobId: job, productId: id1, ok: true });
   await sleep(800);
   out.savedMarks = (txt().match(/반환 완료 ✓/g) || []).length;
+  // ECOM-17 뒤: 여기 넣는 저장 응답은 resultId 없는 옛 방식이라 「반환 완료」가 아니라 「확인 필요」가 정상
+  out.unsureMarks = (txt().match(/확인 필요/g) || []).length;
   // 다른 작업 번호의 saved는 무시
   send({ type: "aimaster-product-photos-saved", jobId: "44444444-4444-4444-8444-444444444444", productId: id2, ok: true });
   await sleep(600);

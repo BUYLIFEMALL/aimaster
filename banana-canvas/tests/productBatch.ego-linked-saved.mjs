@@ -1,3 +1,4 @@
+// ⚠ ECOM-17(2026-11-17)로 대체됨: 이 검사는 resultId 없는 옛 저장 응답을 넣어 ECOM-15 규칙을 쟀다. 지금 약속은 tests/productBatch.ego-linked-contract.mjs.
 // ECOM-15 고정 조건(ego lite에서 실행) — 연결 모드에서 다시 합성·다시 반영할 때 「저장됨」 보존과 중복 전송 막기.
 // 같은 하네스 주소의 부모 창이 ?from=shop-detail 자식 창을 열고 상세페이지 주소의 모의 메시지를 넣는다. 자식이 부모로 보내는
 // 결과 메시지는 부모 창의 postMessage를 바꿔 끼워 횟수만 센다(실제 상세·쇼핑몰 송수신·상품 저장·AI·DB 0).
