@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T19:20:41.918Z",
+  "checkedAt": "2026-11-16T19:25:32.144Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2304,9 +2304,9 @@
       "title": "자동 구매확정과 교환7일 상태정합성 수정",
       "status": "ready_review",
       "delivery": "returned",
-      "evidence": "msg_93009725d156 / confirmed0103독립순수12/12",
-      "next": "confirmed7일/helper/guard 지정정적·순수PASS/PG9작성자근거. 새Lab패키지cleanup금액/장부락마감전추가적용0",
-      "lastReviewedAt": "2026-11-16T19:00:28.107Z",
+      "evidence": "msg_5521b71724dd / 9e9120183 Lab0103 단독패키지·작성자24/24·Lab읽기precheck10/10",
+      "next": "Mac에0103 원문/적용/검증/정리연결 독립검토 배정. 실제0103·정리·추가확정0, LabUI미배포·빌드미승인. Backend 공용자동확정시계 재시작 영향 읽기조사",
+      "lastReviewedAt": "2026-11-16T19:25:32.144Z",
       "sha": "0edda866671c727c2605331bfb0b7415b06c234c"
     },
     {
