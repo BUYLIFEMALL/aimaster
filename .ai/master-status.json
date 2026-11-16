@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T17:13:59.558Z",
+  "checkedAt": "2026-11-16T17:16:58.608Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -1780,13 +1780,13 @@
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "owner": "CC-REALTY-01",
-      "status": "running",
-      "delivery": "acknowledged",
+      "status": "ready_review",
+      "delivery": "returned",
       "title": "지역·단지 감시 겹침 안내",
-      "evidence": "msg_77710e928a5e / msg_be0b733b23fb",
-      "next": "수정반환·VM8/116시험. legacy자동현재계정귀속 위험으로 추가반환: 원자료삭제대신격리보존·실패비파괴차단·SW재시작증명→Mac",
-      "lastReviewedAt": "2026-11-16T17:11:42.222Z",
-      "sha": "b175feca7 + 406e475e0"
+      "evidence": "msg_f0c0ca27cc85 / 결과§8",
+      "next": "legacy격리보존·VM14/단위119/type0 작성자반환→Mac독립재검수전달. 옛통계화면새누적/복구UI없음 배포전영향검토, 실제계정/수집/배포0",
+      "lastReviewedAt": "2026-11-16T17:16:58.608Z",
+      "sha": "b175feca7 + 1a6d013a8"
     },
     {
       "task_id": "MOV-20261117-05",
@@ -1903,11 +1903,11 @@
       "title": "교환0102 구현·독립지적 수정",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:13:59.558Z",
+      "lastReviewedAt": "2026-11-16T17:16:58.608Z",
       "status": "running",
-      "delivery": "returned",
-      "evidence": ".ai/results/B2B-20261117-04-CC-B2B-BACK-01.md",
-      "next": "QA004 기존P1 정적해소·작성자15/0 증거수락. 옵션전체삭제시 본체재고차감 P2 추가반례 메인재현/최소안 요청, Lab0102/운영/UI 보류",
+      "delivery": "acknowledged",
+      "evidence": "msg_1a1fc5f1e192 / msg_f3c2e6dad411",
+      "next": "A16 전옵션삭제 본체50→49 실제재현/무옵션A17정상. 원주문·대상옵션이력 스냅샷 수정승인(0102+runner만), 접수전후삭제/회수전삭제/무옵션→옵션추가 검증→Mac. 운영/Lab/UI0",
       "sha": "559085a407c687f82d10b621e88b0b7cd16339d8"
     },
     {
