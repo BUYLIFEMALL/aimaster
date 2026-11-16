@@ -5,6 +5,15 @@
 //  - lastResult(2026-10-25): 최근 수집 결과 표를 같은 화면(우리 사이트)에만 돌려준다 — 서버로 가지 않는다. 확장에 연결된 계정과 웹 로그인 계정이 같을 때만.
 //  - stats(2026-10-25): 통계·추이 요약 기록을 같은 화면에만 돌려준다 — 조건은 lastResult와 같다.
 (() => {
+  // QA17-003(2026-11-17): 웹 로그인 계정 = 확장 연결 계정 = 기록 소유 계정(dataOwner)일 때만 기록을 넘긴다
+  // (extension/lib/ownership.js mayShare와 같은 규칙 — 이 파일은 모듈로 불러올 수 없어 그대로 옮김). 소유 표시 없는 옛 기록은 넘기지 않는다.
+  const norm = (e) => String(e ?? "").trim().toLowerCase();
+  async function sameOwner(requestEmail) {
+    const { extToken, dataOwner } = await chrome.storage.local.get(["extToken", "dataOwner"]).catch(() => ({}));
+    const who = extToken ? await chrome.runtime.sendMessage({ type: "whoami" }).catch(() => null) : null;
+    const r = norm(requestEmail);
+    return !!r && r === norm(who?.email) && r === norm(dataOwner);
+  }
   if (location.origin !== "https://realty-listing-alert.vercel.app" && location.origin !== "https://realty-listing-alert.buylife.xyz") return;
   window.addEventListener("message", async (event) => {
     if (event.source !== window || event.origin !== location.origin) return;
@@ -23,23 +32,20 @@
       const usage = { pagesToday: pagesDay?.date === today ? pagesDay.count : 0, maxPages: rulesCache?.maxPagesPerDay || 300, limitToday: limitDate === today, exempt: !!rulesCache?.noDailyLimit };
       result = { ok: true, version: chrome.runtime.getManifest().version_name || "", connected: !!extToken, email: who?.email || null, usage };
     } else if (message.type === "lastResult") {
-      const { extToken, lastResult } = await chrome.storage.local.get(["extToken", "lastResult"]).catch(() => ({}));
-      const who = extToken ? await chrome.runtime.sendMessage({ type: "whoami" }).catch(() => null) : null;
-      const same = who?.email && String(message.email || "").toLowerCase() === String(who.email).toLowerCase();
+      const same = await sameOwner(message.email);
+      const { lastResult } = same ? await chrome.storage.local.get("lastResult").catch(() => ({})) : {};
+      // 결과에도 소유 계정이 같아야(owner 없는 옛 결과는 다음 회차부터 보임)
+      const ownResult = lastResult && norm(lastResult.owner) === norm(message.email) ? lastResult : null;
       result = same
-        ? { ok: true, lastResult: lastResult ? { at: lastResult.at, result: lastResult.result, columns: lastResult.columns || null, table: (lastResult.table || []).slice(0, 5000), perTarget: lastResult.perTarget || [], overlapCheck: lastResult.overlapCheck || null } : null }
+        ? { ok: true, lastResult: ownResult ? { at: ownResult.at, result: ownResult.result, columns: ownResult.columns || null, table: (ownResult.table || []).slice(0, 5000), perTarget: ownResult.perTarget || [], overlapCheck: ownResult.overlapCheck || null } : null }
         : { ok: false };
     } else if (message.type === "stats") {
       // 통계·추이 요약(2026-10-25) — lastResult와 같은 조건(확장 연결 계정 = 웹 로그인 계정)일 때만, 같은 화면에만
-      const { extToken } = await chrome.storage.local.get("extToken").catch(() => ({}));
-      const who = extToken ? await chrome.runtime.sendMessage({ type: "whoami" }).catch(() => null) : null;
-      const same = who?.email && String(message.email || "").toLowerCase() === String(who.email).toLowerCase();
+      const same = await sameOwner(message.email);
       result = same ? await chrome.runtime.sendMessage({ type: "stats" }).catch(() => ({ ok: false })) : { ok: false };
     } else if (message.type === "aiAnalyze") {
       // 분석 버튼: 화면은 어느 AI인지만 알려 주고, 보낼 자료는 확장이 자기 기록에서 만든다
-      const { extToken } = await chrome.storage.local.get("extToken").catch(() => ({}));
-      const who = extToken ? await chrome.runtime.sendMessage({ type: "whoami" }).catch(() => null) : null;
-      const same = who?.email && String(message.email || "").toLowerCase() === String(who.email).toLowerCase();
+      const same = await sameOwner(message.email);
       result = same ? await chrome.runtime.sendMessage({ type: "aiAnalyze", provider: message.provider }).catch(() => ({ ok: false, error: "확장 프로그램을 새로고침하고 이 화면도 새로고침해 주세요." })) : { ok: false, error: "확장을 연결한 계정으로 로그인해 주세요." };
     } else {
       try { result = await chrome.runtime.sendMessage({ type: "connect", token: String(message.token || ""), closeTab: message.closeTab === true }); }

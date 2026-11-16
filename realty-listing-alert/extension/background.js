@@ -13,6 +13,7 @@ import { compareToTrades, gapText } from "./lib/tradeCompare.js";
 import { findBargains } from "./lib/bargain.js";
 import { makeAiAnalysis, makeAiSummary } from "./lib/aiSummary.js";
 import { findStale } from "./lib/stale.js";
+import { ACCOUNT_KEYS, connectPlan, normEmail, sameOwnerGen } from "./lib/ownership.js";
 import { WEEKLY_AI_MAX, WEEKLY_URL, buildWeeklyPrompt, buildWeeklyReport, shouldSendWeekly } from "./lib/weekly.js";
 
 const WEB = "https://realty-listing-alert.buylife.xyz";
@@ -104,6 +105,43 @@ async function reportStatus(result, count, error) {
 }
 
 let busy = false;
+// QA17-003(2026-11-17): 계정 연결 교체는 한 번에 하나씩(connectChain), 교체 중에는 수집을 시작하지 않는다(connecting)
+let connecting = false;
+let connectChain = Promise.resolve();
+
+/** 새 연결 코드로 서버에 계정을 묻는다(저장 전 확인, 8초 제한). 실패면 null */
+async function whoamiWith(token) {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 8000);
+  try {
+    const r = await fetch(WEB + "/api/extension/whoami", { headers: { authorization: `Bearer ${token}` }, signal: ctl.signal });
+    if (!r.ok) return null;
+    return (await r.json().catch(() => null))?.email || null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+async function ownerState() {
+  const { dataOwner, ownerGen = 0 } = await get(["dataOwner", "ownerGen"]);
+  return { owner: dataOwner || "", gen: ownerGen };
+}
+/** 소유자가 아직 없으면(옛 형식) 지금 연결 계정으로 정한다 — 수집 시작 때만 */
+async function ensureOwner() {
+  const s = await ownerState();
+  if (s.owner) return s;
+  const { connectedEmail } = await get("connectedEmail");
+  const email = normEmail(connectedEmail || (await api("/api/extension/whoami").catch(() => null))?.email);
+  if (!email) return s;
+  await set({ dataOwner: email, ownerGen: s.gen });
+  return { owner: email, gen: s.gen };
+}
+class OwnerChanged extends Error {}
+/** 저장 직전 소유자 재확인 — 수집 시작 뒤 계정이 바뀌었으면 이번 회차 기록을 저장하지 않는다 */
+async function assertOwner(start) {
+  if (!sameOwnerGen(start, await ownerState())) throw new OwnerChanged("계정 연결이 바뀌어 이번 회차 결과는 저장하지 않았어요");
+}
 
 // 하루 목록 페이지 수(한국 날짜 기준) — 상한을 넘으면 그날 쉰다(2026-10-25 주인님 지시 「문제 안 되게 상한선」)
 async function pagesToday() {
@@ -130,10 +168,13 @@ async function addPages(n) {
 /** 수집 1회: 감시 대상 → 수집 → 거르기 → 비교 → 파일 → 텔레그램 → 상태 보고. trigger: "schedule" | "manual" */
 async function runCollection(trigger) {
   if (busy) return { ok: false, error: "이미 수집 중이에요. 끝날 때까지 기다려 주세요." };
+  if (connecting) return { ok: false, error: "계정 연결을 바꾸는 중이에요. 잠시 뒤 다시 눌러 주세요." };
   busy = true;
   const startedAt = new Date().toISOString();
   await set({ running: { startedAt, trigger, done: 0, total: 0 } });
   try {
+    const ownerAtStart = await ensureOwner();
+    if (!ownerAtStart.owner) return { ok: false, error: "연결한 계정을 확인하지 못했어요. 웹에서 다시 연결해 주세요." };
     const settings = await loadSettings();
     const rules = await loadRules();
     // 시험 계정 예외면 오늘 한도 기록을 지워 예약 수집도 다시 돈다
@@ -210,6 +251,7 @@ async function runCollection(trigger) {
       const { slice, nextCursor } = pickRunSlice(work, cap, runCursor);
       await addLog(`이번 회차는 ${cap}곳만 읽어요(전체 ${work.length}곳 — 나머지는 다음 회차에 차례로)`);
       work.splice(0, work.length, ...slice);
+      await assertOwner(ownerAtStart);
       await set({ runCursor: nextCursor });
     }
     await set({ running: { startedAt, trigger, done: 0, total: work.length } });
@@ -305,13 +347,15 @@ async function runCollection(trigger) {
     // 기억한 번호는 30일이 지나면 지운다(그 사이 다시 보이면 다시 읽음)
     const cut = Date.now() - 30 * 24 * 3600 * 1000;
     for (const [no, ph] of Object.entries(phones)) if (!ph?.at || new Date(ph.at).getTime() < cut) delete phones[no];
+    await assertOwner(ownerAtStart);
     await set({ phones });
-    await set({ states, lastRunAt: startedAt, lastResult: { at: startedAt, trigger, result, error: errMsg, columns: COLUMNS, table, perTarget: perTarget.map((p) => ({ name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun })), overlapCheck } });
+    await set({ states, lastRunAt: startedAt, lastResult: { owner: ownerAtStart.owner, at: startedAt, trigger, result, error: errMsg, columns: COLUMNS, table, perTarget: perTarget.map((p) => ({ name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun })), overlapCheck } });
     // 통계·추이(2026-10-25): 회차마다 요약만 회원 PC에 쌓는다(90일) — 웹 「수집 결과」 대시보드가 확장에 물어 그린다
     if (table.length) {
       const { history = [], eventLog = [] } = await get(["history", "eventLog"]);
       // 변동 기록: 새 매물·가격 내림/오름·사라짐 줄만 따로 1년(중개사 전화번호도 그대로 — 주인님 「필요하면 중개사한테 전화해야 하니 없애면 안 된다」) — 「변동 기록」 탭용. 통계 요약도 1년(주인님 결정 2026-10-25)
       const nextHistory = pushHistory(history, summarizeTable(COLUMNS, table, startedAt));
+      await assertOwner(ownerAtStart);
       await set({ history: nextHistory, eventLog: pushEvents(eventLog, pickEvents(COLUMNS, table, startedAt)) });
       // 🤖 AI 시세 요약(v1.22): 켠 회원만, 그날 첫 수집 때 1번 — 회원 본인 AI 키로 회원 PC에서 직접 부른다(통계 숫자만 보냄). 실패해도 알림은 평소대로.
       if (settings.ai?.error) await addLog(`AI 요약: ${settings.ai.error}`);
@@ -320,19 +364,23 @@ async function runCollection(trigger) {
         if (aiSummary?.date !== kstDate()) {
           try {
             const text = await makeAiSummary(settings.ai, nextHistory);
+            await assertOwner(ownerAtStart);
             await set({ aiSummary: { text, at: new Date().toISOString(), date: kstDate(), provider: settings.ai.provider, model: settings.ai.model || null } });
             await addLog("AI 요약을 만들었어요.");
-          } catch (e) { await addLog(`AI 요약 실패: ${e.message || e}`); }
+          } catch (e) { if (e instanceof OwnerChanged) throw e; await addLog(`AI 요약 실패: ${e.message || e}`); }
         }
       }
     }
 
+    await assertOwner(ownerAtStart);
     await deliver({ settings, perTarget, table, result, errMsg, trigger, limitHit, maxPages: rules.maxPagesPerDay || 300 });
     if (result !== "blocked") await sendWeekly(settings, states).catch((e) => addLog(`주간 리포트 실패: ${e.message || e}`));
     await reportStatus(result, total, errMsg);
     await addLog(`수집 끝 · ${result === "ok" ? "정상" : result} · 매물 ${total}건 · 알림 ${perTarget.reduce((n, p) => n + p.events.length, 0)}건`);
     return { ok: result === "ok", result, total, error: errMsg };
   } catch (e) {
+    // 계정이 바뀐 뒤면 새 계정 기록(log 포함)에 옛 계정 내용을 남기지 않는다
+    if (e instanceof OwnerChanged) return { ok: false, error: e.message };
     await addLog(`수집 오류: ${e.message || e}`);
     await reportStatus("error", 0, String(e.message || e)).catch(() => {});
     return { ok: false, error: String(e.message || e) };
@@ -525,11 +573,30 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
       if (msg.type === "connect") {
         // 웹 「바로 연결」: 연결 코드를 이 기기(chrome.storage.local)에만 저장한다.
         if (!/^pat_[0-9a-f]{64}$/.test(msg.token || "")) return reply({ ok: false, error: "연결 코드 형식이 올바르지 않습니다." });
-        await set({ extToken: msg.token, connectedAt: new Date().toISOString(), connectedEmail: null });
-        // 어느 계정에 연결됐는지 기억(웹 「시작하기」가 로그인 계정과 대조) — 이메일만
-        api("/api/extension/whoami").then((w) => set({ connectedEmail: w.email || null })).catch(() => {});
-        if (msg.closeTab && sender?.tab?.id) chrome.tabs.remove(sender.tab.id).catch(() => {});
-        return reply({ ok: true });
+        // QA17-003(2026-11-17): 저장 전에 새 연결 코드의 계정을 확인하고, 다른 계정이면 계정 기록 칸만 지운다(같은 계정은 그대로).
+        // 교체는 한 번에 하나씩, 수집 중이면 거절, 확인 실패면 아무것도 바꾸지 않는다(비파괴·차단).
+        const prev = connectChain;
+        let release;
+        connectChain = new Promise((r) => { release = r; });
+        await prev;
+        connecting = true;
+        try {
+          if (busy) return reply({ ok: false, error: "수집 중에는 연결을 바꿀 수 없어요. 수집이 끝난 뒤 다시 연결해 주세요." });
+          const email = await whoamiWith(msg.token);
+          const { dataOwner, connectedEmail: prevEmail, ownerGen = 0 } = await get(["dataOwner", "connectedEmail", "ownerGen"]);
+          const plan = connectPlan({ newEmail: email, dataOwner, prevConnectedEmail: prevEmail, busy });
+          if (plan.action === "reject") {
+            return reply({ ok: false, error: plan.reason === "running" ? "수집 중에는 연결을 바꿀 수 없어요. 수집이 끝난 뒤 다시 연결해 주세요." : "연결한 계정을 확인하지 못했어요. 잠시 뒤 다시 연결해 주세요." });
+          }
+          if (plan.action === "wipe") await chrome.storage.local.remove(ACCOUNT_KEYS);
+          // 어느 계정에 연결됐는지 기억(웹 「시작하기」가 로그인 계정과 대조) — 이메일만. 교체마다 세대 번호를 올려 진행 중이던 회차의 저장을 막는다
+          await set({ extToken: msg.token, connectedAt: new Date().toISOString(), connectedEmail: email, dataOwner: plan.owner, ownerGen: plan.action === "wipe" ? ownerGen + 1 : ownerGen });
+          if (msg.closeTab && sender?.tab?.id) chrome.tabs.remove(sender.tab.id).catch(() => {});
+          return reply({ ok: true, switched: plan.action === "wipe" });
+        } finally {
+          connecting = false;
+          release();
+        }
       }
       if (msg.type === "consent") {
         await set({ consentAt: new Date().toISOString() });
