@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 04:56:58 KST",
+  "checkedAt": "2026-11-17 04:57:48 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4273,12 +4273,12 @@
       "parent_task_id": "B2B-20261117-02",
       "owner": "CC-B2B-BACK-01",
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "delivered",
-      "evidence": "msg_7380483e3191 작성자격리mock33/33·강제중단 prepared보존/별도외부효과기록 / msg_d9dfbc33ec13 UI계획8dce72a9d",
+      "evidence": "msg_ded90d965405 QA012 応答paymentKey未검증P2·failed교체이력/취소재결제위험",
       "decision": "Master조정 E1납부후거절차단 E2로그인본인 E3카드미설정은행 E4Backend신규경로;실환불미구현명시",
-      "next": "Mac QA012 구현독립검토대기·UI연결0. Backend provider최초URL키노출과처리후제거/불확실재진입GET우선·제어된동일멱등재시도계약 문구정확화. 실제Toss/Lab0104/빌드0",
-      "lastReviewedAt": "2026-11-16T19:56:55.682Z",
+      "next": "Backend POST/GET DONE paymentKey정확일치 국소수정·wrong/missing빨강초록배정. failed이전attempt보존최소안·CANCELED확인필요잠금/paid0반환,UI/실Toss/Lab0104/빌드0",
+      "lastReviewedAt": "2026-11-16T19:57:45.613Z",
       "sha": "f1938ec12 / 0104 e8fdf8ba390d7c7b81309a645bd35227022d6aaf973cb8d5ecce32a5911b46ce",
       "plannedMigration": "0104_exchange_fee_payments.sql (기존미적용0103 rename)",
       "migrationPath": "mall-builder/supabase/migrations/0104_exchange_fee_payments.sql",
