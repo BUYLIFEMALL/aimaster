@@ -73,18 +73,31 @@ export async function encodeMp4(o: EncodeOptions): Promise<Blob> {
 
 /** 인코더가 정해진 시간 동안 진행하지 않음(출력 없이 멈춤). hardware: 하드웨어 가속 설정이었는지 */
 export class EncoderStallError extends Error {
-  constructor(readonly hardware: boolean) { super("영상 인코더가 응답하지 않습니다. 브라우저를 다시 열거나 크롬·엣지 최신 버전에서 다시 시도해 주세요."); }
+  readonly hardware: boolean; // 필드로 선언(Node 시험의 타입 제거 실행이 생성자 매개변수 속성을 읽지 못함 — 2026-11-16)
+  constructor(hardware: boolean) { super("영상 인코더가 응답하지 않습니다. 브라우저를 다시 열거나 크롬·엣지 최신 버전에서 다시 시도해 주세요."); this.hardware = hardware; }
 }
 const STALL_MS = 10_000;
 
 /** 긴 영상용: 회원이 고른 파일(크롬·엣지 showSaveFilePicker의 쓰기 스트림)에 조금씩 바로 쓴다 — 메모리에 영상 전체를 모으지 않는다.
- *  끝나면 스트림을 닫고, 실패·취소하면 스트림을 버려 반쯤 쓴 파일이 남지 않게 한다. (2026-10-21 lyric-video-studio에서 추가) */
-export async function encodeMp4ToFile(o: EncodeOptions & { stream: FileSystemWritableFileStream }): Promise<void> {
+ *  끝나면 스트림을 닫고, 실패·취소하면 스트림을 버려 반쯤 쓴 파일이 남지 않게 한다. (2026-10-21 lyric-video-studio에서 추가)
+ *  reopenStream(선택, 2026-11-16 MOV-05): 그래픽 가속 인코더가 멈추면 이전 스트림을 버린 뒤 이 함수로 같은 파일의 새 스트림을 열어
+ *  기본 방식으로 한 번만 다시 쓴다(메모리 방식 encodeMp4와 같은 대체). 없으면 예전처럼 멈춤 오류를 그대로 던진다. */
+export async function encodeMp4ToFile(o: EncodeOptions & { stream: FileSystemWritableFileStream; reopenStream?: () => Promise<FileSystemWritableFileStream> }): Promise<void> {
   try {
     await encodeInto(o, new FileSystemWritableFileStreamTarget(o.stream), false, false);
     await o.stream.close();
+    return;
   } catch (e) {
     await o.stream.abort().catch(() => undefined);
+    if (!(e instanceof EncoderStallError) || !e.hardware || o.signal.aborted || !o.reopenStream) throw e;
+  }
+  o.onProgress({ pct: o.pctFrom ?? 5, status: "영상 인코더가 응답하지 않아 기본 방식으로 다시 만드는 중…" });
+  const retry = await o.reopenStream(); // 실패하면 그 오류를 그대로 알림(이전 스트림은 이미 버림)
+  try {
+    await encodeInto(o, new FileSystemWritableFileStreamTarget(retry), false, true);
+    await retry.close();
+  } catch (e) {
+    await retry.abort().catch(() => undefined);
     throw e;
   }
 }

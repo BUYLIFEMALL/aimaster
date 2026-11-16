@@ -53,5 +53,6 @@ export async function exportLyricVideoToFile(o: { scene: Scene; audio: AudioBuff
   const stream = await o.file.createWritable();
   let opts: EncodeOptions;
   try { opts = await prepare(o, MAX_FILE_EXPORT_SECONDS); } catch (e) { await stream.abort().catch(() => undefined); throw e; }
-  await encodeMp4ToFile({ ...opts, stream });
+  // 그래픽 가속 인코더가 멈추면 같은 파일에서 새 쓰기 스트림을 열어 기본 방식으로 한 번 다시 쓴다(MOV-20261116-05, 파일 고르기 창은 다시 묻지 않음)
+  await encodeMp4ToFile({ ...opts, stream, reopenStream: () => o.file.createWritable() });
 }
