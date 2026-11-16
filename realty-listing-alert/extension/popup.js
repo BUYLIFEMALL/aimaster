@@ -40,6 +40,9 @@ function stateLine(s) {
   if (!s.connected) return ["todo", "⚠ 웹과 연결이 필요해요", "🔗 연결하기", "settings"];
   if (s.telegramLinked === false) return ["todo", "⚠ 텔레그램을 연결해야 알림을 받아요", "📨 연결하기", "delivery"];
   if (s.telegramFailed) return ["todo", "⚠ 지난 알림 보내기에 실패했어요 — 텔레그램 연결을 확인해 주세요", "📨 확인", "delivery"];
+  // 카톡 실패(L-6, 2026-11-16): 401·403은 다시 연결, 그 밖은 다음 회차에 다시 보낸다는 안내
+  if (s.kakaoFailed?.kind === "reconnect") return ["todo", `⚠ 카카오 연결이 끊겨 카톡을 못 보냈어요(코드 ${s.kakaoFailed.status}) — 다시 연결해 주세요`, "💬 다시 연결", "delivery"];
+  if (s.kakaoFailed) return ["todo", "⚠ 지난 카톡 보내기에 실패했어요 — 다음 회차에 다시 보내요", "📨 확인", "delivery"];
   if (s.targetCount === 0) return ["todo", "⚠ 감시할 단지를 추가해 주세요", "🎯 추가하기", "targets"];
   if (s.schedule && !s.schedule.enabled) return ["todo", `✅ ${s.targetCount}곳 감시 준비 · 예약은 꺼져 있어요`, "⏰ 예약 켜기", "schedule"];
   const lr = s.lastResult;

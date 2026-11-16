@@ -7,10 +7,12 @@ export const ALERT_PREFIX = "🏠 [매물 알림]";
 const MAX_LINES = 15; // 텔레그램 4096자 제한 안에서 읽기 좋게
 
 /** perTarget: [{ name, total, events: [...], firstRun, complete }] → 요약 글(HTML 없이 보통 글자) */
-export function buildSummary(perTarget, { failedBefore = false, now = new Date() } = {}) {
+export function buildSummary(perTarget, { failedBefore = false, kakaoNotice = "", now = new Date() } = {}) {
   const time = now.toLocaleString("ko-KR", { timeZone: "Asia/Seoul", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false });
   const lines = [`${ALERT_PREFIX} ${time}`];
   if (failedBefore) lines.push("⚠ 지난 회차 알림 보내기에 실패했어요. 이번 내용을 확인해 주세요.");
+  // 카톡 실패(L-6): 카톡으로는 실패를 알릴 수 없으니 회원이 함께 고른 텔레그램·이메일 요약 맨 위에 한 줄
+  if (kakaoNotice) lines.push(`⚠ 카톡: ${kakaoNotice}`);
   let shown = 0;
   let hidden = 0;
   for (const t of perTarget) {

@@ -7,7 +7,7 @@ import { compareComplex, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, pickRunSlice, shouldRunScheduled } from "./lib/guard.js";
 import { COLUMNS, toCsv, toTable, toXlsx } from "./lib/sheet.js";
 import { buildSummary, sendDocument, sendMessage } from "./lib/telegram.js";
-import { buildKakaoText, buildMailHtml, buildMailSubject, kakaoButtonFor, kakaoLinkFor, sendKakaoMemo, sendResendMail } from "./lib/notify.js";
+import { buildKakaoText, buildMailHtml, buildMailSubject, kakaoButtonFor, kakaoFailMessage, kakaoLinkFor, makeKakaoSender, sendKakaoMemo, sendResendMail } from "./lib/notify.js";
 import { pickEvents, pushEvents, pushHistory, summarizeTable } from "./lib/stats.js";
 import { compareToTrades, gapText } from "./lib/tradeCompare.js";
 import { findBargains } from "./lib/bargain.js";
@@ -259,7 +259,10 @@ async function runCollection(trigger) {
       const name = (!isGenericName(t.complex_name) && t.complex_name) || realName || `단지 ${t.complex_no}`;
       // 이름이 비었거나 탭 제목 같은 일반 이름이면 웹 감시 대상 이름을 실제 단지명으로 고친다(단지 번호·이름만 보냄)
       if (isGenericName(t.complex_name) && realName) {
-        api("/api/extension/targets", { method: "POST", body: JSON.stringify({ complexNo: t.complex_no, complexName: realName, rename: true }) }).catch(() => {});
+        // L-7(2026-11-16): 결과를 기록에 남긴다 — 단지 번호·공개 단지명·성공/실패 사유만(개인정보 없음)
+        api("/api/extension/targets", { method: "POST", body: JSON.stringify({ complexNo: t.complex_no, complexName: realName, rename: true }) })
+          .then(() => addLog(`단지 ${t.complex_no} 이름을 「${realName}」(으)로 고쳤어요`.slice(0, 200)))
+          .catch((e) => addLog(`단지 ${t.complex_no} 이름 고치기 실패: ${String(e?.message || e).slice(0, 120)}`));
       }
       // 실거래가 비교 대상(지역 감시는 그 동 코드, 단지 감시는 단지 화면에서 읽은 코드)
       if (r.cortarNo) complexInfo[t.complex_no] = { cortarNo: r.cortarNo, at: nowIso };
@@ -388,6 +391,11 @@ async function attachTradeGaps(fileRows, perTarget, tradeTargets) {
   for (const m of lastMissed || []) await addLog(`실거래 이름 후보: ${m.name} → ${m.similar?.length ? m.similar.join(", ") : "비슷한 이름 없음(최근 6개월 매매 신고가 없을 수 있어요)"}`.slice(0, 300));
 }
 
+/** 카톡 한 번 보내기(L-6, 2026-11-16). 성공하면 지난 실패 표시를 지우고 true, 실패하면 상태를 저장·기록하고 false.
+ *  같은 회차 안에서도, 다음 회차에서도 자동으로 다시 보내지 않는다(즉시 재시도 없음 — 다음 회차가 정상 흐름으로 보냄).
+ *  「연결 끊김(401·403)」으로 확인된 같은 토큰이면(캐시된 옛 설정 포함) 보내지 않고 안내만 남긴다. */
+const sendKakao = makeKakaoSender({ get, set, log: addLog, send: sendKakaoMemo });
+
 async function deliver({ settings, perTarget, table, result, errMsg, trigger, limitHit = false, maxPages = 300 }) {
   // 채널별로 따로 보낸다(2026-10-25 카톡·이메일 추가) — 한 채널이 실패해도 다른 채널은 보낸다.
   const tg = settings.telegram;
@@ -398,11 +406,15 @@ async function deliver({ settings, perTarget, table, result, errMsg, trigger, li
   if (!tg && !kakao && !email) { await addLog("받는 곳(텔레그램·카톡·이메일)이 연결되지 않아 보내지 않았어요(웹 📨 받는 방법)."); return; }
   const d = settings.delivery || {};
   const { telegramFailed = false } = await get("telegramFailed");
+  // 카톡 실패 상태(L-6): 회원이 카톡 받기를 끄면 지난 실패 표시도 지운다. 켜져 있으면 텔레그램·이메일 요약 맨 위에 한 줄.
+  let { kakaoFailed = null } = await get("kakaoFailed");
+  if (kakaoFailed && !settings.kakao) { await set({ kakaoFailed: null }); kakaoFailed = null; }
+  const kakaoNotice = kakaoFailMessage(kakaoFailed);
 
   // 짧은 안내(차단·하루 한도)는 텔레그램·카톡으로
   async function notice(text) {
     if (tg) await sendMessage(tg.botToken, tg.chatId, text).catch((e) => addLog(`텔레그램 보내기 실패: ${e.message}`));
-    if (kakao) await sendKakaoMemo(kakao.accessToken, text.slice(0, 200)).catch((e) => addLog(`카톡 보내기 실패: ${e.message}`));
+    if (kakao) await sendKakao(kakao, "카톡 보내기", text.slice(0, 200));
   }
   if (result === "blocked") { await notice(`🏠 [매물 알림] ⛔ 네이버가 잠시 이용을 제한해 수집을 멈췄어요.\n${errMsg || ""}\n\n이렇게 해 주세요:\n1) 네이버 부동산을 직접 열어 보안 문자·본인 확인이 나오면 풀어 주세요.\n2) 제한은 보통 몇 시간~하루 지나면 풀려요. 오늘 예약 수집은 쉬고 내일 다시 시작해요.\n3) 자주 걸리면 예약 간격을 길게(2~3시간 이상), 감시 단지 수를 줄여 주세요.`); return; }
   if (limitHit) {
@@ -421,7 +433,7 @@ async function deliver({ settings, perTarget, table, result, errMsg, trigger, li
   const summary = (aiLine ? `🤖 AI 한 줄 요약
 ${aiLine}
 
-` : "") + buildSummary(perTarget, { failedBefore: telegramFailed });
+` : "") + buildSummary(perTarget, { failedBefore: telegramFailed, kakaoNotice });
   const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const aiHtml = aiLine ? `<div style="background:#eef6ff;border:1px solid #cfe0ff;border-radius:10px;padding:10px 14px;margin:0 0 14px"><b>🤖 AI 한 줄 요약</b><br>${esc(aiLine)}</div>` : "";
   let file = null;
@@ -442,10 +454,11 @@ ${aiLine}
       await addLog(`텔레그램 보내기 실패: ${e.message}`);
     }
   }
-  if (kakao) await sendKakaoMemo(kakao.accessToken, buildKakaoText(perTarget), kakaoLinkFor(perTarget), kakaoButtonFor(perTarget)).catch((e) => addLog(`카톡 보내기 실패: ${e.message}`));
+  if (kakao) await sendKakao(kakao, "카톡 보내기", buildKakaoText(perTarget), kakaoLinkFor(perTarget), kakaoButtonFor(perTarget));
   if (email) {
     if (aiLine) await set({ aiSentDate: kstDate() });
-    await sendResendMail(email.apiKey, { to: email.to, subject: buildMailSubject(perTarget), text: summary, html: aiHtml + buildMailHtml(perTarget), file })
+    const kakaoHtml = kakaoNotice ? `<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 14px;margin:0 0 14px">⚠ 카톡: ${esc(kakaoNotice)}</div>` : "";
+    await sendResendMail(email.apiKey, { to: email.to, subject: buildMailSubject(perTarget), text: summary, html: kakaoHtml + aiHtml + buildMailHtml(perTarget), file })
       .catch((e) => addLog(`이메일 보내기 실패: ${e.message}`));
   }
 }
@@ -469,7 +482,7 @@ async function sendWeekly(settings, states) {
   if (!rep) return;
   let sent = false;
   if (tg) await sendMessage(tg.botToken, tg.chatId, rep.text).then(() => { sent = true; }).catch((e) => addLog(`주간 리포트 텔레그램 실패: ${e.message}`));
-  if (kakao) await sendKakaoMemo(kakao.accessToken, rep.kakao, WEEKLY_URL, "주간 통계 보기").then(() => { sent = true; }).catch((e) => addLog(`주간 리포트 카톡 실패: ${e.message}`));
+  if (kakao && (await sendKakao(kakao, "주간 리포트 카톡", rep.kakao, WEEKLY_URL, "주간 통계 보기"))) sent = true;
   if (email) await sendResendMail(email.apiKey, { to: email.to, subject: rep.subject, text: rep.text, html: rep.html }).then(() => { sent = true; }).catch((e) => addLog(`주간 리포트 이메일 실패: ${e.message}`));
   if (!sent) return; // 다 실패하면 다음 수집 때 다시 시도
   await set({ weeklySentKey: key, weeklyReport: { text: rep.text, at: rep.at, from: rep.from, to: rep.to } });
@@ -567,7 +580,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
         return reply({ ok: true });
       }
       if (msg.type === "state") {
-        const s = await get(["extToken", "connectedEmail", "connectedAt", "consentAt", "lastRunAt", "stoppedDate", "limitDate", "nextDueAt", "pagesDay", "running", "lastResult", "settingsCache", "rulesCache", "log", "telegramFailed"]);
+        const s = await get(["extToken", "connectedEmail", "connectedAt", "consentAt", "lastRunAt", "stoppedDate", "limitDate", "nextDueAt", "pagesDay", "running", "lastResult", "settingsCache", "rulesCache", "log", "telegramFailed", "kakaoFailed"]);
         // 끊긴 수집 정리(2026-10-26 v1.32): 수집 중 확장을 업데이트·새로고침하거나 크롬이 닫히면 「수집 중」 기록만 남아
         // 「지금 수집」이 영영 잠겼다. 이 서비스 워커에서 실제로 돌고 있지 않으면(busy=false) 남은 기록을 지운다.
         if (s.running && !busy) {
@@ -593,6 +606,8 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
           telegramLinked: s.settingsCache ? !!s.settingsCache.telegram : null,
           latestVersion: s.settingsCache?.latestVersion || null,
           telegramFailed: !!s.telegramFailed,
+          // 카톡 실패(L-6): 종류·코드만 넘긴다(토큰 지문은 팝업에 보내지 않음)
+          kakaoFailed: s.kakaoFailed ? { kind: s.kakaoFailed.kind, status: s.kakaoFailed.status } : null,
           // 팝업 「최근 기록」은 쉬운 줄만(2026-10-26 주인님 — 「단지·지역 … 진단:」 개발용 줄이 중요한 줄을 밀어냄). 기록 자체는 그대로 남는다.
           recent: (s.log || []).filter((l) => !/(단지|지역) \S+ 진단:/.test(String(l))).slice(-6),
         });

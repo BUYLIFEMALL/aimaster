@@ -64,8 +64,65 @@ export async function sendKakaoMemo(accessToken, text, url = RESULT_URL, buttonT
   });
   if (!res.ok) {
     const j = await res.json().catch(() => ({}));
-    throw new Error(`카카오 보내기 실패(${res.status}) ${j.msg || ""}`.trim());
+    const err = new Error(`카카오 보내기 실패(${res.status}) ${j.msg || ""}`.trim());
+    err.status = res.status; // 실패 종류 판정용(L-6) — 문구는 예전 그대로
+    throw err;
   }
+}
+
+// ── 카톡 실패 알리기(L-6, 2026-11-16) ──────────────────────────────
+// 실패를 확장 기록 한 줄로만 남기면 회원이 모른다(11-13 시험 계정 401). 실패 상태를 저장해 팝업·다른 채널 요약에 알린다.
+// 자동으로 다시 보내지 않는다(결과 불확실 시 재실행 금지) — 다음 회차가 정상 흐름으로 보낸다.
+// 저장하는 것은 상태 코드·종류·시각·토큰 지문(되돌릴 수 없는 해시 앞 16자리)뿐 — 토큰·매물 내용은 저장하지 않는다.
+
+/** 실패 종류: 401·403 = 연결이 끊김(다시 연결 필요) / 다른 응답 코드 = 카카오가 거절 / 응답 코드 없음 = 네트워크 */
+export function kakaoFailState(err, fingerprint, at = new Date().toISOString()) {
+  const status = Number.isInteger(err?.status) ? err.status : 0;
+  const kind = status === 401 || status === 403 ? "reconnect" : status ? "rejected" : "network";
+  return { kind, status, fp: String(fingerprint || ""), at };
+}
+
+/** 이미 「연결 끊김」으로 확인된 같은 토큰이면 보내지 않는다 — 저장해 둔 옛 설정(캐시)의 토큰을 다시 쓰거나 401을 반복하지 않게.
+ *  다시 연결하면 서버가 새 토큰을 주므로 지문이 달라져 다시 보낸다. 네트워크·거절은 다음 회차에 그대로 보낸다. */
+export function shouldSkipKakao(failed, fingerprint) {
+  return !!failed && failed.kind === "reconnect" && !!failed.fp && failed.fp === String(fingerprint || "");
+}
+
+/** 회원에게 보여 줄 한 줄(코드 번호만, 카카오 응답 원문은 넣지 않음) */
+export function kakaoFailMessage(failed) {
+  if (!failed) return "";
+  if (failed.kind === "reconnect") return `카카오 연결이 끊겼어요(코드 ${failed.status}) — 웹 「📨 받는 방법」에서 「💬 카카오 연결하기」를 다시 눌러 주세요`;
+  if (failed.kind === "rejected") return `카카오가 메시지를 받지 않았어요(코드 ${failed.status}) — 다음 회차에 다시 보내요`;
+  return "카카오 서버에 닿지 못했어요(인터넷 연결) — 다음 회차에 다시 보내요";
+}
+
+/** 카톡 보내기 도우미 — 저장소(get/set)·기록(log)·발송(send)을 넣어 만든다(확장은 chrome.storage, 시험은 가짜).
+ *  반환 함수 (kakao, label, ...sendArgs) → 성공 true / 실패·건너뜀 false. 한 번만 보내고 실패해도 바로 다시 보내지 않는다. */
+export function makeKakaoSender({ get, set, log, send }) {
+  return async function sendKakao(kakao, label, ...args) {
+    const fp = await tokenFingerprint(kakao.accessToken);
+    const { kakaoFailed = null } = await get("kakaoFailed");
+    if (shouldSkipKakao(kakaoFailed, fp)) {
+      await log(`${label} 건너뜀: ${kakaoFailMessage(kakaoFailed)}`);
+      return false;
+    }
+    try {
+      await send(kakao.accessToken, ...args);
+      if (kakaoFailed) await set({ kakaoFailed: null }); // 성공하면 실패 표시 해제
+      return true;
+    } catch (e) {
+      const failed = kakaoFailState(e, fp);
+      await set({ kakaoFailed: failed });
+      await log(`${label} 실패: ${kakaoFailMessage(failed)}`);
+      return false;
+    }
+  };
+}
+
+/** 토큰 지문: SHA-256 앞 16자리(토큰을 저장하지 않고 「같은 토큰인지」만 알기 위함) */
+export async function tokenFingerprint(token) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(token || "")));
+  return [...new Uint8Array(buf)].slice(0, 8).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 function toBase64(bytes) {
