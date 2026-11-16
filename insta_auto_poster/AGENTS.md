@@ -419,3 +419,13 @@
 - 함께 나감: 피드 이미지 JPEG 저장(`8b44df90d`), 자동 채우기 설명 한 줄(`8022fbf0a`), 공용 사전 `photo-keywords` 사본(자동 채우기가 장 제목을 영어로 먼저 검색·검색 칸 「🔤」, `93b2aac56`). 새로: 영어 결과 0장이면 「한국어로 다시 찾기 (「…」)」(직접 고치면 기억 지움, `search(override)`).
 - 검수: `test:cardnews` 78·`test:import` 2·`test:own-meta`, tsc, 로컬 build, 배포 `insta-auto-poster-ex0m69nqd` Ready, DB v1.67. 크롬(시험 회원 본인 Pixabay 키): 제목 「아침 커피 루틴」·「미용실 창업」 자동 채우기 → 검색어 morning coffee · hair salon startup(요청 기록 확인), 두 장에 맞는 사진(커피잔·업스타일 머리) · 설명 「AI 비용 없이 · 본인 무료 키」 · 0장일 때 「한국어로 다시 찾기」 표시 · 피드 새 글에 PNG(600×600 반투명) 첨부 → `.jpeg`·`image/jpeg`·첫 바이트 `ff d8 ff`. 시험 작업·첨부 삭제. Pixabay는 모르는 단어가 섞여도 아는 단어로 결과를 돌려줘서 실제 0장은 드묾(버튼은 안전장치).
 - 발견·후속(미배포 `4bebfb016`): 원래 영어였던 검색어도 「한국어」로 기억하던 틈 → 한글 있을 때만. 비용: 빌드 1회(제안에 적힌 범위), Pixabay 무료 약 6회, AI 0.
+
+
+
+
+
+
+## 2026-11-16 🟡 미배포 대기 — 수강생 배포 키트 `Insta_Auto_Posting_Kit_v1.10` (Claude Code 윈도우 · Claude(Support) `claude-win-20261112-policy`)
+- `src/app/(dashboard)/posts/new/page.tsx`: 독립 모드에서는 상세페이지 이미지 받기(`from=shop-detail`)를 하지 않음(배포판 DB에 `shop-detail-images` 없음). 운영 동작 같음 — **다음 배포 때 함께, 버전 +0.01**.
+- `KIT/`: `kit.json`(예외 표 3개·`tests` 제외), `env.example`(예시 값 비움), `README.md`(업데이트 내역 v1.10). DB 구조 변경 없음(운영 칸과 대조 일치).
+- 검수: tsc 0, DB 대조, 새 폴더 build·start(로그인 브랜드·가입/대시보드 이동·업무 워크스페이스 404·예약 실행 401), 운영·Lab DB 식별자 0건. 다시 포장: `python scripts/make_lecture_kit.py --version v1.11 --name Insta_Auto_Posting_Kit --programs insta_auto_poster --out D:\PDS\AIMater_KIT\`.
