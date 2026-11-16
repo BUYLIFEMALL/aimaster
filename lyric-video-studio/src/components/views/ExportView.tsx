@@ -15,6 +15,8 @@ const safeName = (s: string) => s.replace(/[\\/:*?"<>|]/g, "_").trim().slice(0, 
 export function ExportView() {
   const s = useStudio(), d = s.design;
   const [prog, setProg] = useState<ExportProgress | null>(null), [error, setError] = useState("");
+  // MUS-20261117-01: 회원이 「■ 취소」를 눌러 멈춘 것은 실패가 아니므로 오류 상자(문의 안내) 대신 일반 안내로 보여 준다
+  const [canceled, setCanceled] = useState(false);
   const [result, setResult] = useState<{ url: string; size: number; name: string; savedTo?: string; blob?: Blob } | null>(null);
   const abort = useRef<AbortController | null>(null);
   const [supported, setSupported] = useState(true), [fileOk, setFileOk] = useState(false), [toFile, setToFile] = useState(false);
@@ -65,7 +67,7 @@ export function ExportView() {
       if (!file) return; // 회원이 취소
     }
     s.player?.pause();
-    setError(""); setResult(null); setProg({ pct: 0, status: "준비 중…" });
+    setError(""); setCanceled(false); setResult(null); setProg({ pct: 0, status: "준비 중…" });
     const ctrl = new AbortController(); abort.current = ctrl;
     const started = performance.now();
     diagStart.current = started; lastStage.current = ""; setDiag([{ sec: 0, level: "info", text: `시작 · ${file ? "파일로 바로 저장" : "메모리에 모으기"}` }]);
@@ -81,7 +83,8 @@ export function ExportView() {
       setProg({ pct: 100, status: `완료 · ${Math.round(took)}초 걸림` });
       note("info", `완료 · ${took.toFixed(1)}초 · 재생 시간의 ${(dur / Math.max(0.1, took)).toFixed(2)}배 속도`);
     } catch (e) {
-      if (e instanceof DOMException && e.name === "AbortError") { setProg(null); setError("영상 만들기를 취소했습니다."); note("warn", "회원이 취소함"); }
+      // 취소로 보는 것은 이번 실행의 신호를 회원이 실제로 멈췄을 때뿐 — 다른 곳에서 난 AbortError는 진짜 실패로 그대로 알린다
+      if (ctrl.signal.aborted && e instanceof DOMException && e.name === "AbortError") { setProg(null); setCanceled(true); note("warn", "회원이 취소함"); }
       else { setError(e instanceof Error ? e.message : "영상을 만들지 못했습니다. 다시 시도해 주세요."); note("error", `실패: ${e instanceof Error ? `${e.name}: ${e.message}` : String(e)}`); }
     } finally { abort.current = null; }
   }
@@ -111,6 +114,7 @@ export function ExportView() {
           )}
           {!running && warns.length > 0 && <div className="notice warning">{warns.map((w) => <div key={w}>⚠️ {w}</div>)}</div>}
           {error && <div className="notice error-box">{error} <small>— 아래 「렌더 진단 기록」을 복사해 문의에 붙여 주시면 원인을 빨리 찾을 수 있습니다.</small></div>}
+          {canceled && !running && <div className="notice" role="status">⏹ 영상 만들기를 취소했습니다. 다시 만들려면 「🎬 MP4 만들기」를 누르세요.</div>}
           <details className="notice">
             <summary style={{ cursor: "pointer", fontWeight: 700 }}>🩺 렌더 진단 기록{diag.length ? ` (${diag.length})` : ""}</summary>
             <pre style={{ whiteSpace: "pre-wrap", fontSize: 11, margin: "8px 0", maxHeight: 220, overflow: "auto" }}>{formatDiag(diagHeader(), diag)}</pre>
