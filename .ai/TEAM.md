@@ -17,7 +17,7 @@
 | Claude(RealEstate) | CC-REALTY-01 | realty | claude-win-20261024-realty · aimaster-73 · GT1_Mega | available · 실제 보고 회수 | 실거래 미배포·상가 재측정 조건 |
 | Claude(Workspace) | CC-WORKSPACE-01 | workspace | aimaster-46 · session dea6e4f6-37c0-4be8-ad50-8746e0f1c517 · GT1_Mega | busy · 실제 식별/구현결과 회수 | WS-02 영속승인소모 보완 |
 | Claude(Blog) | CC-BLOG-01 | blog | claude-win-blog · aimaster-92 · GT1_Mega | available · 실제 보고 회수 | BLOG-01 국소수정완료·맥재검수 준비 |
-| 정책 기존 담당 | 기존 policy 유지 | policy | claude-win-20261112-policy · GT1_Mega | blocked · 사용자 보류 지시 유지 | WP기간 등 기존담당보존·추가편집없음 |
+| Claude(Support) | CC-SUPPORT-01 | support · policy | claude-win-20261112-policy · term_e4de9dda · GT1_Mega | busy · 수강생 배포키트 3종 플랜 승인대기 | 다른 세션 몫이 아닌 자잘한 일 전반·**모든 폴더/작업 권한(11-16 사용자 지시, AI_TEAM_RULES §3.6)**·기존 policy(사이트 정책·WP기간) 유지 |
 
 `CC-ENG-01`은 Claude 공통 역할 지침의 예시 ID이며 모든 Claude 세션을 합치는 ID가 아니다. 위 세부 팀 ID가 실제 배정 단위다. 호칭 표기의 Claud/Claude 차이는 같은 사용자 지정 호칭의 표기 차이이며 별도 세션으로 세지 않는다.
 

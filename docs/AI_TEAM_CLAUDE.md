@@ -32,4 +32,4 @@
 - 남은 문제
 - Master가 통합할 때 주의할 사항
 
-추가 Claude Code 세션을 사용할 경우 고유 세션 ID와 구체적인 담당 범위를 별도로 지정한다. Movie·Music·ecommerce·B2BFront·B2BBackend·RealEstate·Workspace를 서로 다른 담당자로 취급한다.
+추가 Claude Code 세션을 사용할 경우 고유 세션 ID와 구체적인 담당 범위를 별도로 지정한다. Movie·Music·ecommerce·B2BFront·B2BBackend·RealEstate·Workspace·Support를 서로 다른 담당자로 취급한다. Claude(Support) `CC-SUPPORT-01`은 다른 세션이 맡지 않는 자잘한 일 전반을 맡고 모든 폴더·작업 권한을 가진다(2026-11-16 사용자 지시, 조건은 [AI_TEAM_RULES.md](../AI_TEAM_RULES.md) §3.6).

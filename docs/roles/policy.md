@@ -1,5 +1,7 @@
 # 사이트 정책 · 메인 사이트 전담
 
+> **2026-11-16 사용자 지시 — 이 세션의 이름은 Claude(Support) `CC-SUPPORT-01`.** 다른 세션이 맡지 않는 자잘한 일 전반을 맡고 **모든 폴더·작업 권한**을 가진다(편집 직전 점유·git 확인, 남의 미커밋 비침범, Master 보고·완료 판정은 Master). 상세: [AI_TEAM_RULES.md](../../AI_TEAM_RULES.md) §3.6. 기존 사이트 정책·메인 사이트 담당은 그대로 유지.
+
 - 담당: Claude Code(윈도우) `claude-win-20261112-policy`
 - 맡은 폴더: 루트 메인 사이트(`app/`·`components/`·`lib/`·`middleware.ts`·`supabase/migrations/`)와 사이트 전반 정책 문서
 - 카테고리: 공통(회원·로그인·권한·보관·정책)
