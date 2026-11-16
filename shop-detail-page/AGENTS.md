@@ -496,3 +496,8 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 
 ## 2026-11-14 (미배포 대기) — E2-4 검색 태그 받기 ([역할: ecommerce-image] `claude-win-sdp`)
 - 상품소싱 「상품명·태그 초안」 → 새 상품 화면 주소 `tags`(쉼표, 최대 10) → 폼 「검색 태그」 칸(넘어왔을 때만 보임) → `shop_products.search_tags`(text[], 10개 제한 검사, 운영 DB 적용 완료 `supabase/migrations/20261114_search_tags_e2_4.sql`). 정리 규칙 `lib/searchTags.ts`(시험 `tests/searchTags.test.mjs`). 스마트스토어 등록기가 처음 값으로 씀. 시험 10·tsc·build. 커밋 E2-4.
+
+## 2026-11-17 v1.47 ✅ 배포 — 바나나 연결 저장 확인 약속(ECOM-17) (Claud(ecommerce) `claude-win-sdp` [역할: ecommerce-image], 주인님 「상세페이지 먼저 배포해」)
+- `components/products/MainPhotoBatch.tsx`: 바나나 결과를 저장한 뒤 보내는 응답에 받은 `resultId`(있을 때만)·`settingsVersion`을 되돌림, 저장 중 예외(`.catch`)에도 실패 응답. 공용 사본 `lib/productPhotoHandoff.ts`는 기준 `banana-canvas/src/lib/productPhotoHandoff.ts`에서 `--module product-photo-handoff --sync`(직접 수정 금지). 커밋 `60860337b`, 버전 `0e418bab9`.
+- 운영 바나나 v1.48과 함께 써도 동작 변화 없음(옛 바나나는 resultId를 안 보내 응답에서 생략). 바나나 v1.49를 이 다음에 배포해야 「확인 필요」 없이 정상.
+- 배포 `shop-detail-page-6esxwz43i` Ready, DB v1.46→v1.47, 로그인 화면 200, ego(관리자 세션) 상품 화면 v1.47·위젯 확인. 실제 저장 응답 왕복은 실저장이 필요해 미검수.
