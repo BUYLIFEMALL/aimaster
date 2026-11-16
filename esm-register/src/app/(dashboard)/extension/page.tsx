@@ -11,6 +11,10 @@ export default async function ExtensionPage() {
       <PageHeader emoji="🧩" title="확장 연결" description="ESM+ 「상품등록」 칸을 대신 채우는 크롬 확장을 설치하고 내 계정과 연결합니다." />
       <ExtensionConnect myEmail={user.email ?? null} />
       <Notice tone="tip">
+        📁 압축은 <b>지우지 않을 폴더</b>에 풀고, 로드할 때는 <b>manifest.json 파일이 바로 들어 있는 폴더</b>를 고르세요. 확장은 그 폴더를 계속 읽으므로 폴더를 지우거나 옮기면 동작하지 않습니다.
+        설치 뒤 확장 목록에 「AI G마켓·옥션 상품 자동등록기」가 보이면 이 화면을 새로고침하고 「🔗 확장 연결하기」를 누르세요.
+      </Notice>
+      <Notice tone="tip">
         💡 연결한 뒤에는 크롬에서 <b>ESM+(esmplus.com)에 로그인</b>해 두세요. 「등록할 상품」에서 확장으로 보내면 확장이 ESM+ 「상품등록」 화면을 지금 창의 새 탭(같은 탭이 있으면 그 탭)에 열고 칸을 순서대로 채웁니다. 처음에는 「입력만」으로 확인해 보세요.
       </Notice>
       <Notice tone="warn">

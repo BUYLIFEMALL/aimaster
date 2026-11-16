@@ -38,6 +38,7 @@ const RECOVERY = [
   ["🔐 로그인이 풀렸다고 나와요", "확장은 비밀번호를 다루지 않고 그 자리에서 멈춥니다. 크롬에서 ESM+에 다시 로그인한 뒤 「등록할 상품」에서 다시 보내 주세요."],
   ["⏸ 중간 칸에서 멈췄어요", "「등록 기록」에 멈춘 칸이 남습니다. 열려 있는 ESM+ 탭에서 그 칸부터 직접 채우고 「임시저장」 또는 「등록하기」를 누르면 됩니다."],
   ["❓ 등록이 됐는지 모르겠어요", "결과가 불확실하면 확장이 자동으로 다시 등록하지 않습니다(중복 상품 방지). ESM+ 「상품관리」에서 먼저 확인하고, 없을 때만 다시 보내 주세요."],
+  ["📝 「입력만」 뒤 직접 등록했는데 기록이 그대로예요", "정상입니다. 「입력만」은 칸을 다 채운 순간 「입력 완료」로 기록을 끝내고, 그 뒤 회원이 직접 누른 임시저장·등록과 상품번호는 프로그램이 알 수 없습니다. 결과는 ESM+ 「상품관리」에서 확인해 주세요."],
   ["🔁 같은 상품을 또 올리고 싶어요", "「바로 등록」에 이미 성공한 상품은 「한 번 더 등록합니다」를 체크해야 다시 보낼 수 있습니다."],
 ];
 
@@ -93,7 +94,9 @@ export default async function GuidePage() {
         <ol className="list-decimal space-y-1 pl-5">
           <li>크롬에서 ESM+에 로그인합니다(G마켓·옥션 판매자 회원).</li>
           <li>「판매자정보 → 배송정보관리」에서 출고지·반품지 주소와 <b>배송비 정책</b>을 하나 이상 만들어 둡니다. 배송비는 상품등록 화면에서 새로 만들 수 없습니다.</li>
+          <li>상품등록 화면에서 회원이 직접 확인할 칸: <b>반품/교환</b>(반품 교환지·편도 배송비), 카테고리에 따라 생기는 <b>영업허가증</b>(업종·기관·번호), <b>원산지</b>, 식품·화장품의 <b>제조일자·소비기한</b>.</li>
         </ol>
+        <p className="text-[11px] text-slate-500">ESM+ 메뉴 이름·위치는 2026-11-15 화면 분석 기준이며 ESM+ 개편으로 바뀔 수 있습니다. 화면 캡처 안내는 실제 시험이 끝난 뒤 추가합니다.</p>
         <CopyBox text="https://www.esmplus.com" label="ESM+ 주소 복사" />
 
         <h2 className="pt-2 text-base font-black text-slate-900">2. 기본값 적기</h2>
@@ -105,9 +108,12 @@ export default async function GuidePage() {
 
         <h2 className="pt-2 text-base font-black text-slate-900">3. 확장 연결</h2>
         <ol className="list-decimal space-y-1 pl-5">
-          <li><Link href="/extension" className="font-bold text-emerald-700 underline">확장 연결</Link>에서 ZIP을 받아 압축을 풉니다.</li>
-          <li>크롬 주소창에 아래 주소 → 오른쪽 위 「개발자 모드」 켜기 → 「압축해제된 확장 프로그램을 로드합니다」 → 풀어 둔 폴더 선택.</li>
-          <li>확장 연결 화면에서 「이 계정으로 연결」을 누릅니다.</li>
+          <li><Link href="/extension" className="font-bold text-emerald-700 underline">확장 연결</Link>에서 ZIP을 받아 <b>지우지 않을 폴더</b>(예: 문서 폴더 안 새 폴더)에 압축을 풉니다. 다운로드 폴더처럼 정리하다 지우기 쉬운 곳은 피하세요.</li>
+          <li>크롬 주소창에 아래 주소 → 오른쪽 위 「개발자 모드」 켜기 → 「압축해제된 확장 프로그램을 로드합니다」 → <b>manifest.json 파일이 바로 들어 있는 폴더</b>를 고릅니다.</li>
+          <li>확장 목록에 「AI G마켓·옥션 상품 자동등록기」와 버전이 보이는지 확인합니다.</li>
+          <li>확장 연결 화면을 새로고침한 뒤 <b>「🔗 확장 연결하기」</b>를 누릅니다. 「✅ 이 계정과 연결됨」과 내 이메일이 보이면 끝입니다.</li>
+          <li>다른 AIMaster 계정으로 연결돼 있으면 「다른 계정과 연결돼 있습니다」가 뜹니다 — 그때는 <b>「🔗 이 계정으로 다시 연결」</b>을 누르세요.</li>
+          <li><b>새 버전이 나오면</b>: ZIP을 다시 받아 같은 폴더에 덮어쓰기 → <code>chrome://extensions</code>에서 확장의 새로고침(↻) → 이 화면도 새로고침합니다.</li>
         </ol>
         <CopyBox text="chrome://extensions" label="확장 관리 주소 복사" />
 
@@ -116,8 +122,8 @@ export default async function GuidePage() {
           <li><a className="font-bold text-emerald-700 underline" href={`${SHOP_DETAIL_SITE}/products`} target="_blank" rel="noreferrer">AI 상세페이지 자동화</a>에서 상품을 만들고 「검토 완료」를 누릅니다.</li>
           <li><Link href="/products" className="font-bold text-emerald-700 underline">등록할 상품</Link>에서 상품을 고르고 카테고리 검색어·판매가를 확인합니다.</li>
           <li>등록 방식은 처음에 <b>「입력만」</b>을 고르고 보냅니다. ESM+에 로그인된 크롬에서 확장이 새 탭으로 「상품등록」을 열고 채웁니다.</li>
-          <li>채운 화면을 확인한 뒤 「임시저장」 또는 「등록하기」를 직접 누르거나, 다음부터 「임시저장까지」·「바로 등록」을 고릅니다.</li>
-          <li><Link href="/history" className="font-bold text-emerald-700 underline">등록 기록</Link>에서 결과·상품번호·수수료·멈춘 칸을 봅니다.</li>
+          <li>채운 화면을 확인한 뒤 「임시저장」 또는 「등록하기」를 직접 누릅니다. 「임시저장까지」·「바로 등록」 방식도 있지만, 실제 ESM+ 시험이 끝나기 전까지는 「입력만」을 권장합니다.</li>
+          <li><Link href="/history" className="font-bold text-emerald-700 underline">등록 기록</Link>에서 결과·수수료·멈춘 칸을 봅니다. 상품번호는 「바로 등록」으로 확장이 등록까지 했을 때만 남습니다.</li>
         </ol>
       </section>
 

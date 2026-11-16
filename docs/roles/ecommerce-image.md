@@ -19,7 +19,7 @@
 |---|---|---|---|
 | `banana-canvas` | 메이커 후속 M1 대표사진 합성 보강 `f19f2bdcc` 미배포 대기(주인님 「필요하면 하고 아니면 모았다가」) | 다음 바나나 배포(v1.49) → ego 검수 | `banana-canvas/docs/PLAN_20261115_MAKER_M1_FRAME.md` |
 | `shop-detail-page` | 애니메이션 WebP 받기 `1ed1fde1b` 미배포 대기 | 다음 상세페이지 배포 → 영상 담당께 알림 | `shop-detail-page/docs/IMPROVEMENTS.md` 맨 위 |
-| `esm-register` (새) | **API 방식(회원 본인 키) 확정**. 주인님이 2026-11-15 `etapihelp@gmail.com`로 API 사용 신청 메일 보냄 | G마켓 답장(승인·IP 등록 조건) → 주인님이 알려 주시면 고정 IP 여부 정하고 API 방식 구현 플랜 | `docs/PLAN_20261115_ESM_REGISTER.md` §6 |
+| `esm-register` v1.01 운영(2026-11-16) | **지금은 트랙 1 크롬 확장 방식으로 운영**(실제 ESM+ 「입력만」 시험은 맥미니 결과 대기). 트랙 2 ESM Trading API 방식은 2026-11-15 신청 메일 뒤 **승인 회신 대기·미구현**. 2026-11-17 썸네일 등록·매뉴얼 보완(미배포 대기) | 맥미니 실물 시험 결과로 칸 찾기 보정 → 임시저장·등록 시험 / API는 G마켓 답장 오면 구현 플랜 | `esm-register/AGENTS.md` §5, `docs/PLAN_20261115_ESM_REGISTER.md` §6 |
 | `shop-order-report` | 마켓별 열 이름·상태 사전 보정 | 주인님 실제 주문 파일(개인정보 지운 사본) | `shop-order-report/docs/IMPROVEMENT_BACKLOG.md` |
 | `coupang-ops` | 임시저장 상품 16433545652 중지 유지(2026-10-31 주인님 지시: 삭제하지 말고 중지만). 승인 요청·삭제 금지, 다시 지시가 있을 때만 재개 | 주인님 재지시 | `coupang-ops/AGENTS.md` 2026-10-31 |
 | `coupang-ops` | 주문 쓰기 실제 1건 시험(상품준비중·송장 등록/수정·출고중지 완료·이미출고·판매자 취소)·발주서 화면 모양 확인 | 실제 주문이 들어온 뒤(주인님 10-30 「시험은 아직 주문이 안되니 나중에」) | `coupang-ops/AGENTS.md` 2026-10-30 |

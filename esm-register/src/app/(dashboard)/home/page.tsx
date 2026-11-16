@@ -98,16 +98,16 @@ export default async function HomePage() {
           </div>
         </div>
 
-        {/* KPI 3: 30일 등록 성공 건수 */}
+        {/* KPI 3: 30일 보낸 작업 수(입력 완료·임시저장·실제 등록을 모두 셈) */}
         <div className="slw-card p-5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-[#6B7280]">30일 등록 기록</span>
             <span className="rounded bg-[rgba(3,199,90,0.12)] px-1.5 py-0.5 text-[10px] font-extrabold text-[#03C75A]">
-              성공 {successRate}%
+              {jobs.rows.length > 0 ? `완료 ${successRate}%` : "기록 없음"}
             </span>
           </div>
           <p className="mt-2 text-2xl font-black text-[#03C75A]">
-            {jobs.rows.length} <span className="text-sm font-bold text-[#111827]">건 등록</span>
+            {jobs.rows.length} <span className="text-sm font-bold text-[#111827]">건 보냄</span>
           </p>
           <div className="mt-2 flex items-center justify-between text-xs">
             <span className="text-[#9CA3AF]">
@@ -139,10 +139,10 @@ export default async function HomePage() {
         </div>
       )}
 
-      {/* 3단계 작업 순서 워크스페이스 */}
+      {/* 4단계 작업 순서 워크스페이스 */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-extrabold text-[#111827]">G마켓·옥션 등록 3단계</h2>
+          <h2 className="text-base font-extrabold text-[#111827]">G마켓·옥션 등록 4단계</h2>
           <span className="text-xs text-[#9CA3AF]">처음에는 「입력만」으로 확인하세요</span>
         </div>
         <div className="grid gap-3.5 sm:grid-cols-3">
