@@ -77,6 +77,30 @@ describe('에이전트 바깥 MCP — 회원 없는 실행', () => {
     await tools.runAgentTool(ctx, env, 'mcp_x', {}, 'st1');
     expect(calls).toEqual([{ owner: 'bot-1', tool: 'list_rows', meter: 'member-1' }]);
   });
+  // WS-20261116-05: 서버가 읽기 표시와 삭제 가능 표시를 함께 보낸 모순 도구
+  it('읽기·삭제 가능 표시가 함께 온 도구는 혼자 실행에서 검토 필요로 멈춤(「바로 실행」 모드여도)', async () => {
+    const ctx = makeCtx(false, { name: 'purge_rows', readOnly: true, destructive: true }, 'auto');
+    const out = await tools.runAgentTool(ctx, env, 'mcp_x', { all: true }, 'st1');
+    expect(calls).toHaveLength(0);
+    expect(ctx.review).toMatchObject({ kind: 'tool', connectionId: 'c1', tool: 'purge_rows' });
+    expect(out?.content).toMatch(/needs approval/);
+  });
+  it('모순 도구도 회원이 「허용」한 그 호출은 한 번만 실행', async () => {
+    const ctx = makeCtx(false, { name: 'purge_rows', readOnly: true, destructive: true }, 'allow');
+    ctx.approvedCalls.add(tools.callKey('c1', 'purge_rows', { all: true }));
+    await tools.runAgentTool(ctx, env, 'mcp_x', { all: true }, 'st1');
+    expect(calls).toHaveLength(1);
+    expect(ctx.review).toBeNull();
+    await tools.runAgentTool(ctx, env, 'mcp_x', { all: true }, 'st2');
+    expect(calls).toHaveLength(1);
+    expect(ctx.review).toMatchObject({ kind: 'tool', tool: 'purge_rows' });
+  });
+  it('삭제 가능 표시가 없는 읽기 도구는 그대로 혼자 실행', async () => {
+    const ctx = makeCtx(false, { name: 'list_rows', readOnly: true, destructive: false }, 'auto');
+    await tools.runAgentTool(ctx, env, 'mcp_x', {}, 'st1');
+    expect(calls).toHaveLength(1);
+    expect(ctx.review).toBeNull();
+  });
 });
 
 describe('에이전트 바깥 MCP — 채팅 중(회원이 보고 있음)', () => {

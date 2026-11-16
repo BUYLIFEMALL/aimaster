@@ -273,7 +273,8 @@ async function mcpTool(ctx: RunToolContext, env: AgentEnv, name: string, input: 
   const key = callKey(m.connectionId, m.tool.name, input);
   // AIMaster 2026-11-16(플랜 PLAN_20261116_AGENT_MCP.md): 회원이 없는 실행(정시·이벤트)에서는 쓰기·삭제 도구를
   // 「항상 허용」으로 해 두었어도 검토 필요로 멈춤 — 혼자 실행되는 것은 읽기 도구뿐. 채팅 중에는 회원 설정을 따름.
-  const needsApproval = m.mode === 'ask' || (!ctx.interactive && !m.tool.readOnly);
+  // 2026-11-16(WS-20261116-05): 서버가 읽기 표시와 삭제 가능 표시를 함께 보낸 모순 도구도 혼자 실행에서는 검토로(삭제 가능 표시 우선)
+  const needsApproval = m.mode === 'ask' || (!ctx.interactive && (!m.tool.readOnly || !!m.tool.destructive));
   // 「허용」 승인은 한 번만: 메모리에서 지우고, 실행 기록에서도 조건부로 소진해 성공한 쪽만 실행(다른 서버·다시 실행과 겨뤄도 1번).
   // 소진에 실패하면(이미 쓰임) 승인이 없는 것으로 보고 다시 검토 필요로 멈춤. 호출이 실패해도 승인은 돌려놓지 않음(자동 재호출 없음).
   let preApproved = false;
