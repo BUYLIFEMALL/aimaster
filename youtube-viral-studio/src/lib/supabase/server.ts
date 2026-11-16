@@ -9,6 +9,8 @@ export async function createClient() {
     headerStore.get("x-forwarded-host") ?? headerStore.get("host")
   );
 
+  const ua = headerStore.get("user-agent") ?? "";
+
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim())!,
@@ -31,6 +33,8 @@ export async function createClient() {
           }
         },
       },
+      // 서버 로그인도 브라우저 기기 정보로 기록(동시 접속 규칙, docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md 2-2)
+      global: { headers: { "User-Agent": ua } },
     }
   );
 }
