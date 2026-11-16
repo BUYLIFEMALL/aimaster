@@ -89,3 +89,10 @@
 - `approvedCalls`: 막힌 루트 payload에는 처음부터 없음(385줄 생성값: facts·blocked·mention) → 지워질 승인 키 없음. 영향은 `notifyMeSent`와 재시도 중복.
 - **결론**: 「계보 전체 1회」는 **여러 프로세스 + 동시 권한 부여 + 프로세스 정지라는 경계까지는 남아 있음**(한 프로세스에서는 성립). 
 - 수정안(범위 `agents/triggers.ts` `markRetried`·시험 1파일, 새 스키마 0): `markRetried`를 `claimRetry(runId): boolean`로 — 원문 payload를 다시 읽어 `retried`면 false, 아니면 `UPDATE … WHERE id = ? AND payload = 읽은 원문`(NULL은 `IS NULL`)으로 `{...최신 payload, retried: true}` 기록, 5회 충돌 → false. `retryBlockedMentions` 481을 `if (!claimRetry(run.id)) continue;`로 — 최신 payload를 합쳐 쓰므로 `notifyMeSent` 등 보존, 동시 호출은 한 쪽만 자식 생성. 시험: 루트에 `notifyMeSent`가 있는 막힌 행에 `claimRetry` → 표시 보존 / 두 번 호출 → 한 번만 true / 묵은 원문으로 쓰려 하면 0건(조건 불일치) / 다른 칸(facts·mention) 보존. 승인 후 진행.
+
+## 13. 막힌 멘션 재시도 조건부 저장 (Master `msg_54873d545291` 승인) · 커밋 `93eabfc2e9f46e00f74f518b0c960049961b9243`
+- `agents/triggers.ts`: `markRetried`(조건 없는 덮어쓰기) 삭제 → `export function claimRetry(runId)`: 최신 원문을 다시 읽어 `retried`면 false, 아니면 `payload = 읽은 원문`(NULL은 `IS NULL`) 조건으로 `{...최신, retried: true}`, 5회 충돌·없는 실행·JSON 아님·객체 아님·DB 예외 → false. `retryBlockedMentions` 481줄은 `if (!claimRetry(run.id)) continue;` — 성공한 쪽만 자식 생성. 낡은 입력 payload를 UPDATE에 쓰지 않음.
+- 시험 새 파일 `tests/integration/agentRetryCas.test.ts`(실제 시험 DB, 모델·발송 없음 — 대기열 대신 기록만): ① 막힌 실행 읽기 직후 다른 worker가 재시도하고 자식이 루트 선점 → 처음 재시도 계속: **수정 전 자식 2개(실패 재현)** → 후 자식 1개·루트 `notifyMeSent` 보존·`retried`·facts·mention 보존·자식 추가 선점 false ② 정상 재시도 1회 → 자식 1, 다시 불러도 0, 다른 칸 보존(수정 전후 통과, 회귀) ③ `claimRetry`: 다른 쪽이 남긴 표시를 최신 재읽기로 보존·두 번째 false·없는 실행·배열 payload·깨진 JSON false(수정 전 함수 없음 실패).
+- 명령: `cd ai-work-workspace && npx vitest run --config tests/vitest.config.mjs integration/agentRetryCas.test.ts`(3/3), 전체 **30파일 245/245**, `npx tsc --noEmit -p .` 0. 실발송·운영 DB·빌드 0.
+- 기존 정책 영향: 표시를 먼저 남긴 뒤 자식 생성(`enqueueRun`)이 실패하면 그 멘션은 다시 재시도하지 않음 — 예전과 같은 순서(표시 → 생성)라 정책 변화 없음, 이번에 새 큐 보장은 넣지 않음.
+- 남은 경계: 루트 선점 계보 1회는 이제 동시 재시도·낡은 덮어쓰기까지 막음. `executeRun` 같은 runId 이중 실행 자체(다른 도구)는 여전히 범위 밖. 깊이 32는 부모 링크 32개(=33행)까지 허용.
