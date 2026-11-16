@@ -138,3 +138,10 @@ prepare 재진입·다른 키 교체 거절·failed 뒤 교체 허용 / prepare 
   - ABORTED·EXPIRED → failed(돈 안 나감, 새 결제 허용) 유지.
   - CANCELED·PARTIAL_CANCELED → 결제 기록이 prepared·requested·unknown이면 unknown 유지 + 사유 「승인 뒤 취소됨 — 관리자 확인」(같은 키 준비·새 키 교체 모두 막힘). done이면 done 유지 + 사유 표시(0029처럼 숫자 안 바꿈).
   - 잠금: 0104 교환 지킴 트리거에 「확인 필요(unknown·requested·prepared) 카드 결제가 있으면 재발송(reshipped) 전이 금지」를 더하고, done 기록에 취소 사유가 붙으면 같은 잠금 → 재발송·paid 0 유지, 화면 「관리자(대표 운영사) 문의」. 자동 환불·수동 해제 추가 0. 공용 0032·toss_call·0102·0103 변경 0.
+
+### 7-8. 시도 이력·취소 보류 구현(2026-11-17, Master msg_4ffc6cca7adb 최소 범위 — 0104 미적용 원문)
+- **이력 표** `mall_builder_exchange_fee_payment_attempts`(추가만): RLS 켬·정책 0·`public, anon, authenticated` 권한 회수, 소유자 권한 함수(`exchange_fee_attempt_archive`)만 쓴다. 남기는 때는 두 번뿐 — 실패한 결제를 새 결제 키로 바꾸기 직전(`replaced_failed`), 토스 취소로 보류할 때(`toss_canceled`·`toss_partial_canceled`). 같은 키 재준비·재승인은 남기지 않음. 지우는 범위는 결제 기록과 같음(교환·주문 삭제 시 함께).
+- **취소 보류**: 다시 확인이 같은 결제(응답 결제 키 글자·준비 키 일치 + 주문 번호 일치)의 CANCELED·PARTIAL_CANCELED를 확인하면 → 그 순간 기록을 이력에 남기고 결제 기록 `canceled`, 교환비 `paid`였으면 `waiting`·입금 시각 비움, 주문 이력에 키 없는 메모. 교환 단계·재고는 자동으로 되돌리지 않음. 보류 중에는 같은 키·새 키 준비·승인·무통장 확인·금액 변경·거절·재발송이 모두 막힘(지킴 트리거에 canceled·재발송 잠금 추가). 자동 환불·수동 해제 0, 화면은 관리자 문의.
+- **다시 확인 경로**: 예전엔 done이면 바로 돌아가 취소를 볼 수 없었음 → 이제 done도 실제 조회(직원 주문 권한·주문 → 교환 → 결제 잠금 그대로). DONE이면 변화 0(이력 중복 0). failed·canceled는 끝난 상태라 조회 안 함. 다른 결제 키·주문 번호 응답이면 어떤 상태로도 안 풀림(done이면 그대로+사유, 그 밖은 unknown). ABORTED·EXPIRED는 같은 결제일 때만 failed.
+- **원문 비노출**: 승인 실패 기록은 토스 HTTP 상태·오류 코드·상태 이름만(영문 대문자·숫자·밑줄), 유저 문구는 우리 문구. 다시 확인 오류도 HTTP 상태만. 「결제 키」는 항목 이름으로만 쓰고 값은 남기지 않음.
+- 시험 50/50(두 번 같음): C1 done 다시 확인 = 실제 GET·변화 0·이력 0 / C2 done+CANCELED → 보류·waiting·이력 1(승인 증거)·다시 확인 조회 0 / C3 보류 잠금 7가지·외부 POST 0 / C4 PARTIAL / C5 unknown+CANCELED / C6 다른 키 CANCELED(done 유지) / C7 다른 주문 번호 CANCELED(unknown 유지) / C8 다른 키 ABORTED(failed 아님) / C9 실패→새 키 교체 직전 1줄·같은 키 재시도 이력 0 / C10 원문 메시지 없음 / C11 회원·직원·비로그인 읽기·쓰기·수정·삭제 거부 / C12 교환 삭제 시 함께 삭제. 직전 판(`--mig0104-from e0dfdbf19`)은 C1~C12만 실패(38/12). 모의 시험이라 실제 멱등·이중 과금 0 증명 아님.

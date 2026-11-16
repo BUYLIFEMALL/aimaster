@@ -41,9 +41,10 @@ begin
   if p_method = 'GET' then
     select v into m from public.qa_toss_mode where k = 'get';
     if m = 'get_404' then return query select 404, '{"code":"NOT_FOUND_PAYMENT","message":"결제 정보를 찾을 수 없습니다"}'::jsonb; return; end if;
-    return query select 200, (case when m = 'get_missing_key' then '{}'::jsonb else jsonb_build_object('paymentKey', case when m = 'get_wrong_key' then 'qa_other_key_9999' else substr(p_path, 14) end) end) || jsonb_build_object('status', case when m = 'get_aborted' then 'ABORTED' else 'DONE' end,
+    return query select 200, (case when m = 'get_missing_key' then '{}'::jsonb else jsonb_build_object('paymentKey', case when m in ('get_wrong_key', 'get_canceled_wrong_key', 'get_aborted_wrong_key') then 'qa_other_key_9999' else substr(p_path, 14) end) end) || jsonb_build_object('status', case when m in ('get_aborted', 'get_aborted_wrong_key') then 'ABORTED' when m in ('get_canceled', 'get_canceled_wrong_key', 'get_canceled_wrong_order') then 'CANCELED' when m = 'get_partial' then 'PARTIAL_CANCELED' else 'DONE' end,
       'orderId', (select 'exfee-' || x.id from public.mall_builder_exchanges x join public.mall_builder_exchange_fee_payments p on p.exchange_id = x.id where '/v1/payments/' || p.payment_key = p_path limit 1),
-      'totalAmount', (select p.amount from public.mall_builder_exchange_fee_payments p where '/v1/payments/' || p.payment_key = p_path limit 1), 'method', '카드');
+      'totalAmount', (select p.amount from public.mall_builder_exchange_fee_payments p where '/v1/payments/' || p.payment_key = p_path limit 1), 'method', '카드')
+      || case when m = 'get_canceled_wrong_order' then '{"orderId":"exfee-00000000-0000-0000-0000-000000000000"}'::jsonb else '{}'::jsonb end;
     return;
   end if;
   select v into m from public.qa_toss_mode where k = 'post';
@@ -84,7 +85,7 @@ if (NO_GUARD) run("drop trigger mall_builder_exchanges_fee_card_guard on public.
 const id = (n) => `00000000-0000-0000-0000-${String(n).padStart(12, "0")}`;
 const STORE = "00000000-0000-0000-0000-00000000005a", OWNER = "00000000-0000-0000-0000-0000000000a1";
 const U1 = id(0xf1), U2 = id(0xf2), S3 = id(0xf3), P = id(0xc1), V1 = id(0xd1), V2 = id(0xd2), POL = id(0xb1);
-const N = 40; // 주문 o1~o20, 각 티셔츠 V1 2개, 배송 완료 1일 전, 주인 U1
+const N = 50; // 주문 o1~o20, 각 티셔츠 V1 2개, 배송 완료 1일 전, 주인 U1
 const O = (n) => id(0xe00 + n), I = (n) => id(0x1000 + n);
 {
   const fx = [
@@ -364,6 +365,72 @@ const getCase = (tag, n, getMode) => {
 };
 getCase("K4 GET DONE 응답에 paymentKey 없음", 33, "get_missing_key");
 getCase("K5 GET DONE 응답 paymentKey가 다른 키", 34, "get_wrong_key");
+
+// ── 취소 보류·시도 이력 C1~C12(Master msg_4ffc6cca7adb) ──
+mode("post", "done"); mode("get", "get_done");
+const HAS_ATT = () => val("select (to_regclass('public.mall_builder_exchange_fee_payment_attempts') is not null)::text;") === "true";
+const zatt = (e) => !HAS_ATT() ? "(표 없음)" : val(`select count(*) from mall_builder_exchange_fee_payment_attempts where exchange_id = '${e}';`);
+const zattRow = (e) => !HAS_ATT() ? "(표 없음)" : val(`select coalesce(string_agg(reason || ':' || status || ':' || payment_key || ':' || idempotency_key || ':' || amount || ':' || (approved_at is not null) || ':' || (prepared_at is not null), ' | ' order by archived_at), '-') from mall_builder_exchange_fee_payment_attempts where exchange_id = '${e}';`);
+const zrecheck = (e) => tryAs(OWNER, `select public.mall_builder_exchange_fee_card_recheck('${e}');`);
+const zgets = () => Number(val("select count(*) from public.qa_toss_calls where method = 'GET';"));
+const zstate = (e) => `${payCol(e, "status")}/${exCol(e, "fee_status")}/${exCol(e, "coalesce(fee_paid_at::text, 'null') = 'null'")}`;
+// C1 done을 다시 확인(GET DONE 같은 결제) → 변화 0·이력 0, 두 번 해도 같음(실제로 조회함)
+ex = mkEx(35); confirm(U1, ex, KEY(35)); let zg0 = zgets();
+const c1a = zrecheck(ex), zc1b = zrecheck(ex);
+check("C1 완료(done)도 다시 확인 때 실제 조회(GET 2회)·DONE이면 변화 0·이력 0", c1a.ok && zc1b.ok && zgets() === zg0 + 2 && zstate(ex) === "done/paid/f" && zatt(ex) === "0", `${zstate(ex)} GET ${zgets() - zg0} 이력 ${zatt(ex)} ${c1a.err}`);
+// C2 done + GET CANCELED(같은 결제) → 취소 보류: canceled·교환비 waiting·입금 시각 비움·이력 1(원래 승인 증거)·주문 이력 메모 / 다시 확인 → 조회 0·이력 그대로
+ex = mkEx(36); confirm(U1, ex, KEY(36)); mode("get", "get_canceled");
+const zc2 = zrecheck(ex); zg0 = zgets(); const zc2b = zrecheck(ex); mode("get", "get_done");
+const znote2 = val(`select string_agg(note, ' | ') from mall_builder_order_events where order_id = '${O(36)}';`);
+check("C2 완료 뒤 토스 CANCELED → 보류(canceled)·교환비 waiting·입금 시각 비움·이력 1(done·승인 시각·키·멱등키 보존)·이력 메모(키 없음), 다시 확인은 조회 0",
+  zc2.ok && /"held": true/.test(zc2.out) && zstate(ex) === "canceled/waiting/t" && zattRow(ex) === `toss_canceled:done:${KEY(36)}:exfee-confirm-${KEY(36)}:3000:true:true` && /토스에서 취소됨/.test(znote2) && !znote2.includes(KEY(36)) && zc2b.ok && zgets() === zg0 && zatt(ex) === "1",
+  `${zc2.out} ${zstate(ex)} ${zattRow(ex)} GET ${zgets() - zg0}`);
+// C3 보류 뒤 잠금: 같은 키·새 키 준비, 승인, 무통장 확인, 금액 변경, 거절, 재발송 모두 막힘(외부 POST 0)
+let ze0c = ext();
+const zc3 = [prep(U1, ex, KEY(36)), prep(U1, ex, KEY(360)), conf(U1, ex, KEY(36)),
+  tryAs(OWNER, `select public.mall_builder_exchange_fee_paid('${ex}');`), tryAs(OWNER, `select public.mall_builder_exchange_fee('${ex}', 0);`),
+  tryAs(OWNER, `select public.mall_builder_exchange_step('${ex}', 'rejected', '', '', '취소');`),
+  tryAs(OWNER, `select public.mall_builder_exchange_step('${ex}', 'collected'); select public.mall_builder_exchange_step('${ex}', 'reshipped', 'CJ', '1');`)];
+check("C3 취소 보류 중 같은 키·새 키 준비·승인·무통장 확인·금액 변경·거절·재발송 → 모두 막힘·외부 POST 0·이력 그대로",
+  zc3.every((x) => !x.ok) && ext() === ze0c && payCol(ex, "status") === "canceled" && exCol(ex, "fee_status") === "waiting" && exCol(ex, "step") !== "reshipped" && zatt(ex) === "1",
+  zc3.map((x) => `${x.ok}:${x.err.slice(0, 30)}`).join(" | "));
+// C4 done + PARTIAL_CANCELED → 같은 보류(이유 부분 취소)
+ex = mkEx(37); confirm(U1, ex, KEY(37)); mode("get", "get_partial"); const zc4 = zrecheck(ex); mode("get", "get_done");
+check("C4 완료 뒤 PARTIAL_CANCELED → 보류·교환비 waiting·이력 1(부분 취소)", zc4.ok && zstate(ex) === "canceled/waiting/t" && zattRow(ex).startsWith("toss_partial_canceled:done:"), `${zstate(ex)} ${zattRow(ex)}`);
+// C5 확인 중(unknown) + CANCELED(같은 결제) → 보류·이력 1(unknown)
+ex = mkEx(38); mode("post", "err5xx"); confirm(U1, ex, KEY(38)); mode("post", "done"); mode("get", "get_canceled"); const zc5 = zrecheck(ex); mode("get", "get_done");
+check("C5 확인 중(unknown)에서 CANCELED → 보류·교환비 waiting·이력 1(unknown)", zc5.ok && payCol(ex, "status") === "canceled" && exCol(ex, "fee_status") === "waiting" && zattRow(ex).startsWith("toss_canceled:unknown:"), `${payCol(ex, "status")} ${zattRow(ex)}`);
+// C6 done + 다른 결제 키의 CANCELED → 보류 안 함(done·paid 그대로, 사유만)·이력 0
+ex = mkEx(39); confirm(U1, ex, KEY(39)); mode("get", "get_canceled_wrong_key"); const zc6 = zrecheck(ex); mode("get", "get_done");
+check("C6 완료 뒤 다른 결제 키의 CANCELED 응답 → 상태 안 풀림(done·paid)·이력 0·사유 「결제 키·주문 번호」", zc6.ok && /"mismatch": true/.test(zc6.out) && zstate(ex) === "done/paid/f" && zatt(ex) === "0" && /결제 키·주문 번호/.test(payCol(ex, "error")), `${zc6.out} ${zstate(ex)} ${payCol(ex, "error")}`);
+// C7 unknown + 다른 주문 번호의 CANCELED → unknown 그대로(취소·실패로 안 풀림)·이력 0
+ex = mkEx(40); mode("post", "err5xx"); confirm(U1, ex, KEY(40)); mode("post", "done"); mode("get", "get_canceled_wrong_order"); const zc7 = zrecheck(ex); mode("get", "get_done");
+check("C7 확인 중 + 다른 주문 번호의 CANCELED → unknown 그대로·교환비 waiting·이력 0", zc7.ok && /"mismatch": true/.test(zc7.out) && zstate(ex) === "unknown/waiting/t" && zatt(ex) === "0", `${zc7.out} ${zstate(ex)}`);
+// C8 unknown + 다른 결제 키의 ABORTED → failed로 안 풀림(새 키 결제 허용 0)
+ex = mkEx(41); mode("post", "err5xx"); confirm(U1, ex, KEY(41)); mode("post", "done"); mode("get", "get_aborted_wrong_key"); const zc8 = zrecheck(ex); mode("get", "get_done");
+const zc8b = prep(U1, ex, KEY(410));
+check("C8 확인 중 + 다른 결제 키의 ABORTED → unknown 그대로(failed 아님)·새 키 준비 막힘", zc8.ok && payCol(ex, "status") === "unknown" && zc8b.ok && /확인하고 있습니다/.test(zc8b.out), `${payCol(ex, "status")} ${zc8b.out}`);
+// C9 실패 → 새 키 교체 직전 이력 1줄(앞 시도 키·멱등키·상태·금액·시각), 같은 키 재준비·승인 재시도는 이력 추가 0
+ex = mkEx(42); mode("post", "fail4xx"); confirm(U1, ex, KEY(42)); mode("post", "done");
+const za0 = zatt(ex); prep(U1, ex, KEY(420)); const za1 = zattRow(ex); prep(U1, ex, KEY(420)); const zc9 = conf(U1, ex, KEY(420)); conf(U1, ex, KEY(420));
+const zerrKept = !HAS_ATT() ? "(표 없음)" : val(`select error from mall_builder_exchange_fee_payment_attempts where exchange_id = '${ex}';`);
+check("C9 실패 뒤 새 키로 교체 → 직전에 앞 시도 1줄 보존(failed·앞 키·앞 멱등키·3000·준비 시각), 같은 키 재준비·재승인은 이력 추가 0",
+  za0 === "0" && za1 === `replaced_failed:failed:${KEY(42)}:exfee-confirm-${KEY(42)}:3000:false:true` && zc9.ok && payCol(ex, "status") === "done" && zatt(ex) === "1",
+  `${za0} → ${za1} · 최종 ${payCol(ex, "status")} 이력 ${zatt(ex)}`);
+// C10 오류 기록에 토스 원문 메시지 없음(코드만)
+check("C10 실패 기록에 토스 원문 메시지 없음·오류 코드만(REJECT_CARD_COMPANY)", /REJECT_CARD_COMPANY/.test(zerrKept) && !/카드사 거절/.test(zerrKept), zerrKept);
+// C11 권한: 이력 표는 회원·직원·비로그인 모두 읽기·쓰기·수정·삭제 거부
+const zdeny = (who, sqlx) => { const r = who === "anon" ? run(`begin; set local role anon;\n${sqlx}\ncommit;`) : asRole(who, sqlx); return r.status !== undefined ? r.status !== 0 : !r.ok; };
+const zT = "public.mall_builder_exchange_fee_payment_attempts";
+const zc11 = [
+  ["유저 읽기", zdeny(U1, `select count(*) from ${zT};`)], ["직원 읽기", zdeny(OWNER, `select count(*) from ${zT};`)], ["비로그인 읽기", zdeny("anon", `select count(*) from ${zT};`)],
+  ["유저 쓰기", zdeny(U1, `insert into ${zT} (payment_id, exchange_id, store_id, order_id, toss_order_id, payment_key, idempotency_key, amount, status, reason) select payment_id, exchange_id, store_id, order_id, toss_order_id, 'x', 'x', 1, 'failed', 'replaced_failed' from ${zT} limit 1;`)],
+  ["직원 수정", zdeny(OWNER, `update ${zT} set error = 'x';`)], ["직원 삭제", zdeny(OWNER, `delete from ${zT};`)],
+];
+check("C11 이력 표 회원·직원·비로그인 읽기·쓰기·수정·삭제 모두 거부", zc11.every(([, d]) => d) && zatt(ex) === "1", zc11.map(([n, d]) => `${n} ${d ? "거부" : "허용"}`).join(" · "));
+// C12 지우는 범위: 교환이 지워지면 결제 기록·이력도 함께(기존 보관 정책 범위)
+run(`delete from mall_builder_exchanges where id = '${ex}';`);
+check("C12 교환 삭제 시 결제 기록·이력 함께 삭제(부모와 같은 범위)", zatt(ex) === "0" && payCol(ex, "status") === "(없음)", `이력 ${zatt(ex)} 결제 ${payCol(ex, "status")}`);
 
 adm(`drop database if exists ${DB}`);
 console.log(`합계 통과 ${pass} / 실패 ${fail}${NO_GUARD ? " (지킴 트리거 뺀 빨강 확인)" : ""}${MIG0104_FROM ? " (0104 = " + MIG0104_FROM + " 판)" : ""}`);
