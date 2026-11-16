@@ -1,5 +1,10 @@
 # 역할별 현황 파일 (모든 CLI 공통)
 
+<!-- AI_TEAM_MASTER_ROLE_20261116 -->
+> **자동 협업 운영(2026-11-16):** [Codex Master](codex-master.md)가 전체 세션의 기본 승인·파일 범위 조정·보고 검토·공식 완료를 맡는다. [공통 지침](../../AI_TEAM_RULES.md)·[실제 세션 등록부](../../.ai/TEAM.md)·[편집 전 점유표](../../.ai/FILE_OWNERSHIP.md)·[총괄 개발 플랜](../MASTER_DEVELOPMENT_PLAN_20261116.md)을 확인한다. 기존 역할 문서는 보존하고, 팀 ID와 기존 역할 ID를 매핑한다.
+
+
+
 > **2026-10-24 주인님 지시:** 「이후 각각의 CLI나 세션에서 작업 중인 에이전트들이 작업 전 읽거나 분석하고 또 결과를 갱신해 놓으면 나도 쉽게 이해하고 작업 진행을 할 수 있을 것 같아」.
 > 근거 플랜: [`docs/PLAN_20261024_ADMIN_DEV_DOCS_CENTER.md`](../PLAN_20261024_ADMIN_DEV_DOCS_CENTER.md) §2-1. 관리자 「개발 현황·지침 센터」(2단계 예정)가 이 파일들을 그대로 읽어 화면에 보여 준다.
 
@@ -20,6 +25,7 @@
 
 | 역할 | 파일 | 담당(CLI·세션) | 맡은 범위(요약) | 카테고리 |
 |---|---|---|---|---|
+| AI 자동운영 총괄 | [codex-master.md](codex-master.md) | Codex(Master) `CX-MASTER-01` · `codex-win-20261116-auto-team` | 전체 세션 지휘·기본 승인·파일 조정·결과 검토·공식 완료 | 전체 |
 | 새 프로그램 분석·개발 플랜 | [analysis-planning.md](analysis-planning.md) | Claude Code(윈도우) `claude-win-20261027-analysis`(이전 `claude-win-dotori`) | 외부 분석·비교·플랜·인계(구현 안 함) | 전체 |
 | 블로그 | [blog.md](blog.md) | Codex(윈도우·엣지) `codex-win-20261025-blog` | 블로그 9개 폴더 | 블로그 |
 | 음악 | [music.md](music.md) | Claude Code(윈도우) `claude-win-20261024-music` | 음악 프로그램·배경음악 공용화 | 음악 |

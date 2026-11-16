@@ -1,5 +1,19 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+<!-- MASTER_INIT_HANDOFF_20261116 -->
+## 2026-11-16 [역할: codex-master] Codex(Master) — 자동 협업 운영 구성·총괄 개발 플랜
+
+- 세션 codex-win-20261116-auto-team / CX-MASTER-01, 메인 GT1_Mega·D:\AIMaster. 사용자 지정으로 전체 세션의 지휘·기본 승인·파일 범위 조정·완료 처리를 맡음. 사람의 필수 조치·범위 밖 결정만 취합.
+- AI_TEAM_RULES.md 정본과 루트 AGENTS/CLAUDE/GEMINI 0번 고지 아래 시작 포인터, .ai/TEAM·TRANSPORT·FILE_OWNERSHIP·decisions·tasks 및 Master 역할을 등록. 매 편집 직전 점유/status/diff/최근커밋→예약→재조회, 범위 추가는 Master 조정. 작업자는 ready_review, Master만 done.
+- Orca run_6e348395e1fe: 메인 기존 Claude 9·AGY 1과 현재 Master 확인, MacMini Tester ACK/공유문서 읽기 확인. 자동연결·보고회수는 실제 메시지ID로 증명하며 terminal-only mailbox의 영속성 한계 기록. policy 보류 지시 유지, 기존 담당을 임의 교체하지 않음.
+- 총괄 플랜 docs/MASTER_DEVELOPMENT_PLAN_20261116.md 및 전체 CSV/JSON: 비교표102+신규ESM=103개, 담당 보고·Git·문서 대조. 완료율/전체 운영 재시험으로 표시하지 않음. .ai/master-status.json을 Master가 갱신하고 node .ai/build-master-report.mjs로 내보냄.
+- 실제 지휘: WebP수신계약→영상송신수정, 바나나375px/25MB/빈상태와 AG 정적독립검토, Workspace무인쓰기검토/회원한도·영속승인소모, B2B0100/415시험·Lab복구·Front합의, 부동산카톡실패/로그아웃, Blog소제목·전경진단, Music기배포5건/MP4·빈화면검증. 정확SHA·검증·미배포·실물한계를 분리해 결과 회수.
+- 안전 대조: B2B과거v1.09→v1.15, 음악 공통6곳 기배포, ESM웹v1.01·상세v1.46 Ready 등 낡은 대기 정정. Movie/Blog의 다른 세션 전역HEAD 오기는 실제 파일 커밋 efc72da60/e35947191로 정정. Tester가 동시 작성한 docs/AI_TEAM_TESTER.md는 원문 보존, Master 공통13절은 AI_TEAM_QA_STANDARD.md로 분리.
+- 다음: QA의 영상 efc72da60 우선 판정·Workspace d8290ffb6 후속, 준비된 기존 사용자 승인 배포만 담당에게 지시. Front E3 Lab 실물·정확 파일 템플릿 결과 회수. 미확인 외부발행/회원수락/결제는 임의 실행하지 않음.
+- 0번 규칙 고지: node scripts/apply-source-notice.mjs --check . 결과 고칠 곳0개. 이번 Master 자체 제품 빌드·배포·운영DB쓰기·환경변수/예약등록 없음. 담당의 직접 사용자 승인에 따른 기존 배포는 별도 보고로 기록.
+
+
+
 ## 2026-11-16 ✅ [역할: ecommerce-image] Claud(ecommerce) Claude Code(윈도우) · 세션 `claude-win-sdp` — 상세페이지 v1.46 배포
 - 주인님 「상세페이지 배포 진행해」 빌드 1회. 커밋본만 `shop-detail-page-8hr5j0q71` Ready, DB `programs.version` v1.46, 프로그램 비교표 버전 2곳.
 - 함께 나간 것: 애니메이션 WebP 받기 `1ed1fde1b` · E2-4 검색 태그 받기 `597e912cc` · 바나나 전달 사본 `31dd0b632`.

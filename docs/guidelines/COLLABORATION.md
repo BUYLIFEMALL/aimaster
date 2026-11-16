@@ -1,5 +1,9 @@
 # CLI 협업·작업 환경 지침 요약
 
+<!-- AI_TEAM_GUIDE_20261116 -->
+> **자동 협업 필독:** [AI_TEAM_RULES.md](../../AI_TEAM_RULES.md)·[Master](../roles/codex-master.md)·[팀 등록부](../../.ai/TEAM.md)·[파일 점유표](../../.ai/FILE_OWNERSHIP.md)·[총괄 개발 플랜](../MASTER_DEVELOPMENT_PLAN_20261116.md). 편집 전 다른 세션의 작업을 확인하고 빈 범위만 예약·재확인한다. 작업자는 ready_review로 제출하고 Master가 범위별 완료를 처리한다.
+
+
 [분야별 색인](README.md) · 모든 CLI와 장비에 적용하며 상세 작업법은 [협업 원문](../CLI_COLLABORATION_RULES.md)을 확인합니다.
 
 **여러 세션의 동시 작업은 [멀티에이전트·멀티세션 공동 작업 규칙](../MULTI_AGENT_SESSION_RULES.md)을 먼저 읽습니다.** 주인님의 2026-10-23 추가 요청으로 등록한 세션 식별·공용 자원·데이터 수정·인계 기준입니다. 아래는 빠른 안내입니다.
