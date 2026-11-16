@@ -672,7 +672,7 @@ async function runModel(agent: AgentRecord, run: RunRow, opts: ModelOptions): Pr
   };
   const ctx: RunToolContext = {
     agent, runId: run.id, kind: run.kind, interactive: opts.interactive, actorId: actorId ?? null, canConfigure, chain: run.chain, allowedHosts, allowAllUrls: allowAll,
-    mcp: mcp.map, approvedCalls: new Set(run.payload.approvedCalls ?? []), consumeApproval: (key: string) => consumeApprovedCall(run.id, key), review: null, notificationsSent: 0,
+    mcp: mcp.map, approvedCalls: new Set(run.payload.approvedCalls ?? []), consumeApproval: (keys: string[]) => consumeApprovedCall(run.id, keys), review: null, notificationsSent: 0,
     callSubAgent: (id, task) => runSubAgent(agent, run, id, task, opts),
     onHostsChanged: () => {
       req.serverTools = buildWeb();
@@ -852,15 +852,19 @@ export function setRunStatus(runId: string, status: RunStatus, error?: string | 
 // AIMaster 2026-11-16(Codex(Master) 지휘 WS-20261116-02): 「허용」 한 번 = 바깥 호출 한 번.
 // 승인은 실행 기록의 payload.approvedCalls(기존 칸)에만 두고, 쓸 때는 「payload가 읽은 그대로일 때만」 지우는
 // 조건부 갱신으로 소진한다 — 같은 실행을 여러 서버가 동시에 집어 가거나 다시 실행돼도 한 번만 성공한다.
-/** 이 실행에 저장된 승인 하나를 소진. 소진에 성공했을 때만 true(이미 썼거나 없으면 false). */
-export function consumeApprovedCall(runId: string, key: string): boolean {
+/**
+ * 이 실행에 저장된 승인을 소진. 소진에 성공했을 때만 true(이미 썼거나 없으면 false).
+ * WS-20261116-09: 같은 논리 호출의 동치 승인(새·옛 형식) 여러 개를 한 번의 조건부 갱신으로 함께 지움 — 하나라도 남아 있어야 성공.
+ */
+export function consumeApprovedCall(runId: string, key: string | string[]): boolean {
+  const keys = Array.isArray(key) ? key : [key];
   for (let i = 0; i < 5; i++) {
     const row = db.prepare('SELECT payload FROM agent_runs WHERE id = ?').get(runId) as { payload: string | null } | undefined;
     if (!row || row.payload == null) return false;
     const p = json(row.payload, {}) as RunPayload;
     const list = p.approvedCalls ?? [];
-    if (!list.includes(key)) return false;
-    const next = JSON.stringify({ ...p, approvedCalls: list.filter((k) => k !== key) });
+    if (!list.some((k) => keys.includes(k))) return false;
+    const next = JSON.stringify({ ...p, approvedCalls: list.filter((k) => !keys.includes(k)) });
     if (db.prepare('UPDATE agent_runs SET payload = ? WHERE id = ? AND payload = ?').run(next, runId, row.payload).changes === 1) return true;
   }
   return false;

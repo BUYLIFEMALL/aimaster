@@ -145,7 +145,7 @@ export interface RunToolContext {
   /** calls already approved for this run (re-runs after "Allow") */
   approvedCalls: Set<string>;
   /** AIMaster 2026-11-16: 저장된 승인을 실행 기록에서 한 번만 소진(성공 시 true). 없으면 메모리 승인만 씀(시험용). */
-  consumeApproval?: (key: string) => boolean;
+  consumeApproval?: (keys: string[]) => boolean;
   /** a triggered run hit something that needs a person: the run ends as "Needs review" */
   review: PendingReview | null;
   notificationsSent: number;
@@ -170,6 +170,23 @@ export function callKey(connectionId: string, tool: string, input: unknown): str
 /** 배포 전(정렬 없음) 형식 — 이미 실행 기록에 저장된 승인을 같은 입력 순서일 때만 한 번 인정하기 위한 호환용 */
 export function legacyCallKey(connectionId: string, tool: string, input: unknown): string {
   return `${connectionId}:${tool}:${JSON.stringify(input ?? {})}`;
+}
+
+/**
+ * 2026-11-16(WS-20261116-09): 저장된 승인 키가 이 호출과 같은 논리 호출인지(새 형식·옛 형식 모두).
+ * 경계는 알려진 연결·도구 접두(`connectionId:tool:`)로만 자르고 나머지 전체를 JSON으로 읽어 정렬 비교 —
+ * 값 속 「:」나 「__proto__」 키를 접두로 잘못 읽지 않음. 읽을 수 없는 키는 같지 않음.
+ */
+export function approvalMatches(stored: string, connectionId: string, tool: string, input: unknown): boolean {
+  const prefix = `${connectionId}:${tool}:`;
+  if (!stored.startsWith(prefix)) return false;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(stored.slice(prefix.length));
+  } catch {
+    return false;
+  }
+  return JSON.stringify(canonicalJson(parsed)) === JSON.stringify(canonicalJson(input ?? {}));
 }
 
 // ---------------------------------------------------------------- MCP tools of an agent
@@ -295,8 +312,11 @@ async function mcpTool(ctx: RunToolContext, env: AgentEnv, name: string, input: 
   const legacy = legacyCallKey(m.connectionId, m.tool.name, input);
   const hit = ctx.approvedCalls.has(key) ? key : legacy !== key && ctx.approvedCalls.has(legacy) ? legacy : null;
   if (needsApproval && hit) {
-    ctx.approvedCalls.delete(hit);
-    preApproved = ctx.consumeApproval ? ctx.consumeApproval(hit) : true;
+    // WS-20261116-09: 쓸 수 있는지는 위 그대로(새 키 또는 같은 순서 옛 키), 쓸 때는 이 실행의 동치 승인(새·옛 형식)을 모두 함께 소진 —
+    // 같은 논리 호출을 회원이 다시 허용해 키가 둘 남아도 실제 호출은 1번. 실행 기록 소진(CAS)에 성공한 쪽만 실행.
+    const same = [...ctx.approvedCalls].filter((k) => k === hit || approvalMatches(k, m.connectionId, m.tool.name, input));
+    for (const k of same) ctx.approvedCalls.delete(k);
+    preApproved = ctx.consumeApproval ? ctx.consumeApproval(same) : true;
   }
   if (needsApproval && !preApproved) {
     if (!ctx.interactive) {

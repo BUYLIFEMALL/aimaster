@@ -278,3 +278,88 @@ describe('에이전트 바깥 MCP — 승인 키 키 순서', () => {
     expect(ctx.review).toMatchObject({ tool: 'delete_row' });
   });
 });
+
+// ---------------------------------------------------------------- WS-20261116-09: 같은 실행의 동치 승인(새 형식·옛 형식)은 함께 소진, 실제 호출은 1번
+describe('에이전트 바깥 MCP — 동치 승인 함께 소진', () => {
+  const agent = { id: 'a1', space_id: 's1' } as never;
+  const ORDER1 = { b: 1, a: { y: [2, { q: 'x:y', p: 1 }], x: 1 } }; // 정렬 안 된 순서(옛 형식 키 L)
+  const ORDER2 = { a: { x: 1, y: [2, { p: 1, q: 'x:y' }] }, b: 1 }; // 같은 값, 다른 키 순서
+  const L = () => tools.legacyCallKey('c1', 'delete_row', ORDER1);
+  const C = () => tools.callKey('c1', 'delete_row', ORDER2);
+  function runWith(approvedCalls: string[]) {
+    return runs.insertRun({ agent, kind: 'trigger', label: '다시 실행', payload: { approvedCalls } as never }).id;
+  }
+  function ctxFor(runId: string) {
+    const ctx = makeCtx(false, { name: 'delete_row', readOnly: false }, 'allow');
+    const run = runs.getRun(runId)!;
+    Object.assign(ctx, { runId, approvedCalls: new Set(run.payload.approvedCalls ?? []), consumeApproval: (k: string | string[]) => runs.consumeApprovedCall(runId, k) });
+    return ctx;
+  }
+
+  it('전제: 옛 키와 새 키는 문자열이 다르다', () => {
+    expect(L()).not.toBe(C());
+  });
+
+  for (const [name, first, second] of [['새 순서로 먼저', ORDER2, ORDER1], ['옛 순서로 먼저', ORDER1, ORDER2]] as const) {
+    it(`옛 키·새 키가 함께 남아도 같은 호출은 1번만(${name})`, async () => {
+      const r = runWith([L(), C()]);
+      const ctx = ctxFor(r);
+      await tools.runAgentTool(ctx, env, 'mcp_x', first, 's1');
+      expect(calls).toHaveLength(1);
+      expect(runs.getRun(r)!.payload.approvedCalls).toEqual([]);
+      expect([...ctx.approvedCalls]).toEqual([]);
+      await tools.runAgentTool(ctx, env, 'mcp_x', second, 's2');
+      expect(calls).toHaveLength(1);
+      expect(ctx.review).toMatchObject({ tool: 'delete_row' });
+    });
+  }
+
+  it('다른 값·다른 연결·다른 도구 승인과 다른 실행의 승인은 그대로 남음', async () => {
+    const otherValue = tools.callKey('c1', 'delete_row', { ...ORDER2, b: 2 });
+    const otherConn = tools.callKey('c2', 'delete_row', ORDER2);
+    const otherTool = tools.callKey('c1', 'delete_rows', ORDER2);
+    const r = runWith([L(), otherValue, C(), otherConn, otherTool]);
+    const rOther = runWith([C()]);
+    await tools.runAgentTool(ctxFor(r), env, 'mcp_x', ORDER2, 's1');
+    expect(calls).toHaveLength(1);
+    expect(runs.getRun(r)!.payload.approvedCalls).toEqual([otherValue, otherConn, otherTool]);
+    expect(runs.getRun(rOther)!.payload.approvedCalls).toEqual([C()]);
+  });
+
+  it('두 서버가 같은 실행을 동시에 집어 가도 동치 승인으로 1번만', async () => {
+    const r = runWith([L(), C()]);
+    const a = ctxFor(r);
+    const b = ctxFor(r);
+    await tools.runAgentTool(a, env, 'mcp_x', ORDER1, 's1');
+    await tools.runAgentTool(b, env, 'mcp_x', ORDER2, 's1');
+    expect(calls).toHaveLength(1);
+    expect(b.review).toMatchObject({ tool: 'delete_row' });
+  });
+
+  it('호출이 실패해도 남은 동치 승인으로 다시 부르지 않음, 다음에 새로 허용하면 정상 1번', async () => {
+    const r = runWith([L(), C()]);
+    const ctx = ctxFor(r);
+    fail.next = true;
+    await tools.runAgentTool(ctx, env, 'mcp_x', ORDER2, 's1');
+    expect(calls).toHaveLength(1);
+    await tools.runAgentTool(ctx, env, 'mcp_x', ORDER1, 's2');
+    expect(calls).toHaveLength(1);
+    expect(runs.getRun(r)!.payload.approvedCalls).toEqual([]);
+    // 회원이 명시적으로 새로 허용 → 다음 실행에서 정상 1번
+    runs.setRunStatus(r, 'needs_review' as never, null);
+    runs.setRunReview(r, { kind: 'tool', connectionId: 'c1', tool: 'delete_row', input: ORDER1 as never, label: 'Run delete_row' });
+    const d = runs.decideRunReview(r, true, 'member-1')!;
+    const r2 = runs.insertRun({ agent, kind: 'trigger', label: '다시 실행', payload: d.payload, parentRunId: r }).id;
+    await tools.runAgentTool(ctxFor(r2), env, 'mcp_x', ORDER2, 's1');
+    expect(calls).toHaveLength(2);
+  });
+
+  it('값 속 「:」·「__proto__」 키를 접두로 잘못 읽지 않음', () => {
+    const input = JSON.parse('{"__proto__":{"z":"a:b"},"k":"c1:delete_row:{}"}');
+    expect(tools.approvalMatches(tools.legacyCallKey('c1', 'delete_row', input), 'c1', 'delete_row', input)).toBe(true);
+    expect(tools.approvalMatches(tools.callKey('c1', 'delete_row', input), 'c1', 'delete_row', input)).toBe(true);
+    expect(tools.approvalMatches(tools.callKey('c1', 'delete_row', {}), 'c1', 'delete_row', input)).toBe(false);
+    expect(tools.approvalMatches('c1:delete_row:not json', 'c1', 'delete_row', {})).toBe(false);
+    expect(tools.approvalMatches(tools.callKey('c1', 'delete_row', input), 'c1', 'delete_ro', input)).toBe(false);
+  });
+});
