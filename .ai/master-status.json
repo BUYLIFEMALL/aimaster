@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T19:45:56.208Z",
+  "checkedAt": "2026-11-16T19:55:27.169Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2212,13 +2212,13 @@
       "parent_task_id": "B2B-20261117-02",
       "owner": "CC-B2B-BACK-01",
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
-      "status": "running",
+      "status": "ready_review",
       "delivery": "delivered",
-      "evidence": "2fe06c45c 상태안 / msg_02fc9d3c39ac",
+      "evidence": "msg_7380483e3191 작성자격리mock33/33·강제중단 prepared보존/별도외부효과기록",
       "decision": "Master조정 E1납부후거절차단 E2로그인본인 E3카드미설정은행 E4Backend신규경로;실환불미구현명시",
-      "next": "기승인0104 prepare별도commit/confirm 영속성보완 이어서 로컬구현·격리mock검증 지시, 기존구현진척확인후중복0. 실Toss/Lab0104/운영/빌드0",
-      "lastReviewedAt": "2026-11-16T19:45:08.538Z",
-      "sha": "80a00923daa5c4c4bd045cba40e4f716c6f1e729",
+      "next": "Mac QA012 두단계prepare/confirm·hardabort·동시/30분/GET/금액권한 독립검수배정. BackendUI연결계획정합성조사만,장기unknown수동해제미구현/문의. 실제Toss/Lab0104/운영/빌드0",
+      "lastReviewedAt": "2026-11-16T19:55:27.169Z",
+      "sha": "f1938ec12 / 0104 e8fdf8ba390d7c7b81309a645bd35227022d6aaf973cb8d5ecce32a5911b46ce",
       "plannedMigration": "0104_exchange_fee_payments.sql (기존미적용0103 rename)",
       "migrationPath": "mall-builder/supabase/migrations/0104_exchange_fee_payments.sql",
       "previousMigrationPath": "0103_exchange_fee_payments.sql (미적용상태rename)"
