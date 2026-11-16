@@ -257,3 +257,9 @@ B2B-20261117-03 책임 CC-B2B-BACK-01. 신규 mall-builder/src/lib/exchanges-ser
 
 WS-20261117-12 CC-WORKSPACE-01: ai-work-workspace/src/server/portal.ts·src/app/portal/[...path]/page.tsx·tests/integration/portal.test.ts 및 기능OFF가드 국소구현. 행메뉴 정확연결파일은 확인/예약보고 선행. 기능OFF는 import부터 DDL/운영DB접속/공개노출 없음, 격리시험만. 예약 booking/googleCalendar 구현은 오류분류·멱등/스케줄러·보관계획 보완 후 별도배정.
 DES-20261117-02 AG-UI-01: QA005 누락 보완을 위해 145/146/147 목업/PNG/README·Workspace네임스페이스 종합/비교HTML만 동결해제. 다른시안/제품소스/서버/빌드 변경없음. 새해시 반환 후 MacTester 재검수.
+
+### 2026-11-17 03:01 KST · 146 확정 및 새 작업 범위
+
+- WS17-13: 주인님 선택 146 Professional Studio. AGY는 명세/자산/시각검토, Workspace 한 명만 제품코드 수정. 정확경로 계획/예약 후 단계구현. WS17-14 달별상자 928c359ff는 기존 직접지시로 통합·중복구현 없음. 포털 만료토큰 P2는 portal.ts/관련시험 국소보완 우선.
+- ESM17-01: CC-ECOM-01 guide/home/extension 안내·자기문서 및 catalog/esm-register-thumbnail 자산/해당thumbnail_url만. 매뉴얼 QA008 누락 보완, 코어 확장/실ESM입력등록/카테고리공개/빌드 없음.
+- B2B17-07: 단계1 Backend만 mall-builder/supabase/migrations/0103_exchange_fee_payments.sql·scripts/qa/run-0103-feepay.mjs. 격리qa_ 모의Toss만, 실제키/결제/발송/운영/Lab/빌드0. 신규 (shop)/orders/[id]/exchange-pay/** UI는 단계2에서 정확경로예약·Master통지 뒤. 기존Front디자인/AGY상품화면범위 보존.
