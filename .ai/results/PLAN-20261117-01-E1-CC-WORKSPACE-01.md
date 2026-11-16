@@ -41,3 +41,10 @@
 
 ## 비용
 없음(빌드 0·AI 0·운영 DB 0·외부 호출 0).
+
+## 7. 결함 수정 — notify_me 계보 1회 (Mac QA `msg_cd9ac04abae3`, Master 승인 `msg_cfa0dc4481e5`) · 커밋 `22177c868`
+- 원인(경로 확인): 「허용」 다시 실행은 `api/modules/agents.ts` 618~624 `decideRunReview` → `enqueueRun`(새 runId, payload 복사), 같은 실행 이중 처리는 `runs.ts` `pump()`(메모리 대기열) — 메모리 플래그는 둘 다 못 막음.
+- 수정: `runs.ts` `claimNotifyMe(runId)` — `agent_runs.payload`에 `notifyMeSent`를 `UPDATE … WHERE payload = 읽은 값`(NULL이면 `IS NULL`)으로 한 번만 기록, 다른 payload 칸 보존, 이미 있음·실행 없음·payload 못 읽음·5번 충돌·예외 → false(발송 0). 실행 맥락에 `claimNotifyMe` 연결(675줄). `tools.ts` `notifyMe`는 입력 검사 뒤·발송 전에 선점 성공일 때만 보냄 — **선점 함수가 없으면 보내지 않음(메모리 대체 없음, 시험 맥락은 「시험 전용 메모리 선점」을 명시)**. `decideRunReview`가 payload를 복사하므로 다시 실행이 `notifyMeSent`를 물려받아 계보 전체 1회.
+- 정책: 선점 뒤 발송 실패 → 자동 재발송 0(중복보다 미발송). 실패 이유는 단계 오류·기존 외부 알림의 앱 알림(채널별 시간당 1회). 매뉴얼(`src/app/guide/page.tsx` 업무 비서 STEP 04)에 「한 번만·실패하면 다시 보내지 않음·이유는 알림함」 명시.
+- 빨강→초록: 새 시험 4개(같은 실행 두 worker+다른 문구 / 보낸 뒤 「허용」 다시 실행 + 다른 payload 칸 보존 / 선점 뒤 실패 재발송 0 / 동시 선점 1·없는 실행 0·선점 함수 없는 운영 맥락 발송 0)가 **수정 전 4 실패** → 수정 후 통과. 관계없는 새 정시 실행 2개는 각각 1회(수정 전후 통과). 에이전트 시험 3파일 48/48, **전체 29파일 230/230**, tsc 0. 실제 발송·운영 DB 0.
+- **범위 밖(알려진 위험)**: `executeRun`이 같은 runId를 두 프로세스에서 실행할 수 있는 구조 자체는 그대로 — 이번 수정은 notify_me 발송만 1회로 막은 것이며 다른 도구(페이지 쓰기·MCP 등)의 중복 실행을 해결하지 않음(MCP 쓰기는 기존 승인 CAS가 별도로 막음).
