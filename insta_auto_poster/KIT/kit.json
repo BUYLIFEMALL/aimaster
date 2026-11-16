@@ -10,7 +10,8 @@
   "exclude": [
     "scripts",
     "README.md",
-    "vercel.json"
+    "vercel.json",
+    "tests"
   ],
   "overrides": {
     ".env.example": "KIT/env.example"
@@ -22,7 +23,10 @@
     "cns_templates",
     "cns_insta_posts",
     "cardnews-images",
-    "notices"
+    "notices",
+    "work_inbox",
+    "member_watch_accounts",
+    "shop-detail-images"
   ],
   "schema": {
     "mode": "static"

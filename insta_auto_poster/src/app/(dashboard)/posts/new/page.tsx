@@ -7,6 +7,7 @@ import { getRegisteredProviders } from "@/lib/apiKeys";
 import { acceptImportImage } from "@/lib/importImage";
 import { requireProgramAccess } from "@/lib/access";
 import { importShopDetailImage } from "@/lib/shopDetailImport";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 // "즉시 게시" 선택 시 이 페이지의 서버 액션(createPostAction)이 publishPost()까지 호출한다.
 // 카드뉴스(캐러셀, 최대 4장)는 이미지마다 컨테이너 생성+FINISHED 대기를 반복해 기본 실행
@@ -59,7 +60,8 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
 
   // v1.53: 상세페이지 섹션 이미지를 「직접 첨부」와 같은 공개 저장소로 복사해 첨부한다(쓰기 작업이라 프로그램 권한까지 확인).
   let shopImport: { url?: string; error?: string } | null = null;
-  if (sp.from === "shop-detail" && sp.shopImage) {
+  // 독립 운영(배포 키트)에는 AIMaster 상세페이지 저장소(shop-detail-images)가 없다 — 받기를 하지 않는다.
+  if (!IS_STANDALONE && sp.from === "shop-detail" && sp.shopImage) {
     await requireProgramAccess();
     shopImport = await importShopDetailImage(user.id, sp.shopImage);
   }
