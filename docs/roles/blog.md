@@ -1,5 +1,7 @@
 # 블로그
 
+> [역할: blog] **블로그 총괄 지정(2026-11-16 주인님 지시: 「너의 이름은 Claude(Blog) 야」「블로그 관련 작업을 총괄해」)** — 윈도우 Claude Code 세션 **Claude(Blog)**가 블로그 카테고리 작업 전체를 총괄합니다. 우선순위 결정, 미배포 묶음 관리, 맥미니 검수 요청과 결과 대조, 다른 담당과의 조율을 맡습니다. 「담당 제외」 칸의 범위(백업 5개·`blog-keyword`=agy·5번 연계 작업)는 그대로 두고, 디버깅·실물 시험은 계속 맥미니에 요청합니다.
+
 > [역할: blog] **이웃 소통 v1.05 새 글 확인 켜짐(2026-11-01)** — 환경변수 2개·빌드 1회. 회원 PC 확장으로만 RSS를 읽고 서버 읽기는 꺼짐. 새 ZIP 설치 후 Edge 실검수 대기. 화면의 서버 RSS 불러오기 버튼은 운영 준비 오류가 납니다(결과 보며 정리).
 
 > [역할: blog] **이웃 소통 v1.04 운영 배포(2026-11-01)** — SQL 10개·빌드 1회 완료, DB·ZIP v1.04 일치. 회원 PC 확장 새 글 확인 포함. 운영 `BNC_` 환경변수가 없어 새 글 확인·AI 초안은 아직 꺼짐. 실제 Edge·네이버·AI 검수 미실행.
@@ -165,6 +167,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 
 - **전담 재확인(2026-10-27 사용자 지시): 이 세션은 블로그 작업 전담입니다.** 이웃 소통 프로그램뿐 아니라 위 맡은 블로그 프로그램의 개발·개선·검수·문서·묶음 배포를 담당합니다. 현재 우선순위는 이웃 소통 후속이며, 다른 세션에 명시 배정된 작업 구분은 유지합니다.
 
+- **총괄(2026-11-16~): Claude(Blog) — 윈도우 Claude Code.** 아래 「담당」 줄은 이전 이력입니다.
 - 담당: **Codex(윈도우·엣지), 재개 세션 `codex-win-20261026-blog-check`** (이전 `codex-win-20261025-blog`) — 2026-10-25 주인님 명시 인수. 이전 Claude Code `claude-win-20261024-blog3`. [인계 문서](../HANDOFF_20261025_BLOG_TO_CODEX.md).
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
