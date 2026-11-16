@@ -288,9 +288,9 @@ begin
   return jsonb_build_object('campaign_id', v_campaign, 'targets', v_targets, 'will_send', v_n, 'no_agree', v_no_agree, 'no_contact', v_no_contact);
 end;
 $$;
-revoke all on function public.mall_builder_message_send(uuid, text, boolean, text, text, uuid[], uuid, boolean) from public;
+revoke all on function public.mall_builder_message_send(uuid, text, boolean, text, text, uuid[], uuid, boolean) from public, anon;
 grant execute on function public.mall_builder_message_send(uuid, text, boolean, text, text, uuid[], uuid, boolean) to authenticated;
-revoke all on function public.mall_builder_message_settings_save(uuid, integer, integer, text, text[], text[]) from public;
+revoke all on function public.mall_builder_message_settings_save(uuid, integer, integer, text, text[], text[]) from public, anon;
 grant execute on function public.mall_builder_message_settings_save(uuid, integer, integer, text, text[], text[]) to authenticated;
-revoke all on function public.mall_builder_notify_template_save(uuid, text, text, text, text) from public;
+revoke all on function public.mall_builder_notify_template_save(uuid, text, text, text, text) from public, anon;
 grant execute on function public.mall_builder_notify_template_save(uuid, text, text, text, text) to authenticated;

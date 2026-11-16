@@ -97,3 +97,7 @@ select 'M8' t, kind, to_phone, body from mall_builder_notifications where order_
 -- M9 빈 문구 저장 = 기본 문구로 되돌림
 select public.mall_builder_notify_template_save('00000000-0000-0000-0000-00000000005a','customer_shipped','sms','','');
 select 'M9' t, count(*) left_templates from mall_builder_notify_templates where store_id = '00000000-0000-0000-0000-00000000005a';
+-- M11 비로그인(anon)은 새 공개 함수 3개를 실행할 수 없음(Supabase 기본 권한으로 anon이 따로 받는 것까지 거둠) → 기대 0
+select 'M11' t, count(*) anon_exec from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+ where n.nspname = 'public' and p.proname in ('mall_builder_message_send','mall_builder_message_settings_save','mall_builder_notify_template_save')
+   and has_function_privilege('anon', p.oid, 'execute');
