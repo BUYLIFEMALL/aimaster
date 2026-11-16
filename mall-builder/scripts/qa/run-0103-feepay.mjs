@@ -40,12 +40,20 @@ begin
   select v into m from public.qa_toss_mode where k = 'post';
   if m = 'exception' then raise exception 'qa 연결 끊김'; end if;
   if m = 'slow_done' then perform pg_sleep(2); end if;
+  if m = 'done_bad_total' then return query select 200, jsonb_build_object('status', 'DONE', 'orderId', p_body ->> 'orderId', 'method', '카드', 'totalAmount', 'bad', 'approvedAt', '2026-11-17T10:00:00+09:00'); return; end if;
+  if m = 'done_bad_date' then return query select 200, jsonb_build_object('status', 'DONE', 'orderId', p_body ->> 'orderId', 'method', '카드', 'totalAmount', (p_body ->> 'amount')::bigint, 'approvedAt', 'bad'); return; end if;
   if m = 'fail4xx' then return query select 400, '{"code":"REJECT_CARD_COMPANY","message":"카드사 거절"}'::jsonb; return; end if;
   if m = 'err5xx' then return query select 500, '{"code":"FAILED_INTERNAL","message":"토스 내부 오류"}'::jsonb; return; end if;
   return query select 200, jsonb_build_object('status', 'DONE', 'orderId', p_body ->> 'orderId', 'method', '카드',
     'totalAmount', case when m = 'wrong_amount' then (p_body ->> 'amount')::bigint + 1 else (p_body ->> 'amount')::bigint end,
     'approvedAt', '2026-11-17T10:00:00+09:00', 'receipt', jsonb_build_object('url', 'https://receipt.qa'));
-end $m$;`;
+end $m$;
+-- 교환 반영(paid) 실패 주입: qa_fail_mark.on_ = true면 교환 fee_status → paid 갱신에서 오류(QA012 반례)
+create table public.qa_fail_mark (on_ boolean); insert into public.qa_fail_mark values (false);
+create or replace function public.qa_fail_mark_trg() returns trigger language plpgsql as $t$ begin
+  if new.fee_status = 'paid' and old.fee_status is distinct from 'paid' and (select on_ from public.qa_fail_mark) then raise exception 'qa 교환 반영 실패 주입'; end if;
+  return new; end $t$;
+create trigger qa_fail_mark_trg before update on public.mall_builder_exchanges for each row execute function public.qa_fail_mark_trg();`;
 
 const psqlArgs = ["exec", "-i", C, "psql", "-X", "-U", "postgres", "-d", DB, "-v", "ON_ERROR_STOP=1", "-q", "-At", "-f", "-"];
 const run = (sql) => spawnSync("docker", psqlArgs, { input: sql, encoding: "utf8", maxBuffer: 64 << 20 });
@@ -182,6 +190,26 @@ check("F17 카드 결제 요청 중(requested) → 무통장 확인·거절·금
 // F18 세션 설정값으로 우회 시도 → 여전히 막힘(지킴은 결제 기록·금액으로만 판단)
 const f18 = tryAs(OWNER, `select set_config('mall_builder.exfee_card', 'on', false); select public.mall_builder_exchange_fee_paid('${ex}');`);
 check("F18 세션 설정값(mall_builder.exfee_card=on)을 켜도 확인 중 결제가 있으면 무통장 확인 막힘", !f18.ok && exCol(ex, "fee_status") === "waiting", f18.ok ? "통과됨(우회)" : f18.err);
+
+// F19~F21(QA012 반례): 토스는 DONE(돈 나감)인데 그 뒤 내부 처리에서 오류 — 기대: 오류로 끝나지 않고 결제 기록 unknown·결제 키 보존,
+// 다시 승인해도 토스 승인 0, 직원 다시 확인(조회)으로 복구. 실측값을 함께 출력(지금 코드는 SQL 오류·결제 기록 0으로 사라지는지)
+const keyKept = (ex, key) => val(`select count(*) from mall_builder_exchange_fee_payments where exchange_id = '${ex}' and payment_key = '${key}';`);
+for (const [tag, n, setup, teardown] of [
+  ["F19 응답 totalAmount 숫자 아님", 17, () => mode("post", "done_bad_total"), () => mode("post", "done")],
+  ["F20 응답 approvedAt 시각 아님", 18, () => mode("post", "done_bad_date"), () => mode("post", "done")],
+  ["F21 교환 반영(paid) 단계 오류 주입", 19, () => run("update public.qa_fail_mark set on_ = true;"), () => run("update public.qa_fail_mark set on_ = false;")],
+]) {
+  const exN = mkEx(n); setup(); const cA = calls();
+  const first = confirm(U1, exN, KEY(n));
+  const afterFirst = calls(), st = payCol(exN, "status"), kept = keyKept(exN, KEY(n));
+  const again = confirm(U1, exN, KEY(n)); const againCalls = calls() - afterFirst;
+  teardown();
+  const rec = tryAs(OWNER, `select public.mall_builder_exchange_fee_card_recheck('${exN}');`);
+  const fin = `${payCol(exN, "status")}/${exCol(exN, "fee_status")}`;
+  console.log(`  ${tag} 실측: 첫 승인 ${first.ok ? "응답 " + first.out.slice(0, 80) : "SQL 오류 " + first.err.slice(0, 60)} · 토스 승인 ${afterFirst - cA}회 · 결제 기록 ${st} · 결제 키 보존 ${kept} · 재승인 토스 ${againCalls}회 · 다시 확인 ${rec.ok ? "됨" : "막힘 " + rec.err.slice(0, 50)} → ${fin}`);
+  check(`${tag} → 오류 아닌 unknown·결제 키 보존·재승인 토스 0·다시 확인으로 done/paid 복구`,
+    first.ok && st === "unknown" && kept === "1" && againCalls === 0 && rec.ok && fin === "done/paid", `위 실측 참고`);
+}
 
 // F11 두 연결 동시 승인 → 토스 1번만(나중 연결은 잠금 대기 1초 넘겨 토스 부르기 전에 끝남)
 ex = mkEx(15); mode("post", "slow_done"); c0 = calls();
