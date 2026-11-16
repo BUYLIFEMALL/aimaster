@@ -16,7 +16,8 @@
 
 ## 대기 중
 
-- **공용 `browser-mp4-encoder` 멈춤 대비 `44db8e230`(2026-11-15 [역할: video] `claude-win-video`)**: `shorts-onestop-studio`(기준)·`shots`·`lyric-video-studio` — 인코더 대기열 대기 중 멈추기·오류 확인, 10초 진행 없으면 오류(메모리 방식은 하드웨어 가속 끄고 1회 다시), flush도 같은 제한. 맥 상품 영상 5% 정지 대응(`video-to-gif` v1.32로 먼저 배포). 시험·tsc 통과. 각 프로그램 다음 배포 때 함께(버전 +0.01).
+- **공용 `browser-mp4-encoder` 멈춤 대비 `44db8e230`(2026-11-15 [역할: video] `claude-win-video`)**: `shorts-onestop-studio`(기준)·`shots`·~~`lyric-video-studio`~~(v1.15로 배포됨 — `f78967bad` 포함 확인, MUS-07·MOV-06) — 인코더 대기열 대기 중 멈추기·오류 확인, 10초 진행 없으면 오류(메모리 방식은 하드웨어 가속 끄고 1회 다시), flush도 같은 제한. 맥 상품 영상 5% 정지 대응(`video-to-gif` v1.32로 먼저 배포). 시험·tsc 통과. 각 프로그램 다음 배포 때 함께(버전 +0.01).
+- **공용 `browser-mp4-encoder` 「파일로 바로 저장」 그래픽 가속 멈춤 대체 `4936c5e72`(2026-11-16 [역할: video] `claude-win-video`, MOV-20261116-05)**: 선택 `reopenStream`으로 같은 파일 새 스트림에 기본 방식 1회 다시 쓰기. **실제 사용처 `lyric-video-studio`**(`export.ts` 연결, Master DEC003 빌드 1건 등록) · 사본 동기화만(동작 변화 없음) `shorts-onestop-studio`(기준)·`shots`·`video-to-gif`. 회귀 7/7·tsc 4개·MUS-06 독립 PASS. 각 프로그램 다음 배포 때 함께.
 
 
 
@@ -52,7 +53,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `lyric-video-studio` | 공용 `browser-mp4-encoder` 영상 저장 안정화 3가지 사본(원스톱 v1.55·shots v1.51은 11-14 배포됨) | `4faaadaf2` | 2026-11-14 · [역할: video] `claude-win-video` | `lyric-video-studio/docs/IMPROVEMENTS.md` 맨 위 | 음악 담당 다음 배포 때 함께, 배포 뒤 MP4 1회 확인 |
 | `ui-canvas` `ai-writing-editor`(✅ `tarot`는 2026-11-14 v1.29로 배포됨) | 2026-11-13 전체 점검(매뉴얼·링크 버튼·상태 요약) + 30일 자동 정리 새로 추가(2026-12-14까지 유예). **2026-11-14 모아서 배포 때 건너뜀 — 각 Vercel 프로젝트에 `CRON_SECRET` 환경변수가 없음**(추가는 주인님 승인) | 정책 담당 2026-11-13 | 보관 규칙 | 각 폴더 `vercel.json`·IMPROVEMENTS | `CRON_SECRET` 추가 뒤 배포, 버전 +0.01 |
 | **권한 판정 동시 조회 56개**(목록: `docs/ACCESS_CHECK_PARALLEL_20261106.md`) | 회원 권한 판정의 순차 조회 4회 → 두 묶음 동시 조회(판정 순서·결과 그대로, 첫 화면만 빨라짐). 주인님 결정 A-7 | `d1e710d68` | 2026-11-06 · [역할: music] `claude-win-20261024-music` | `docs/ACCESS_CHECK_PARALLEL_20261106.md` | 그 프로그램 다음 배포 때 함께(급하지 않음, 따로 배포 안 함). 배포한 세션은 문서 목록에서 그 줄에 ✅ |
 | **12월 모델 교체 묶음 A (12-11 호출 실패 — 기한 있음)** ~~`ai-auto-blog` `142cb45ec` · `tistory-auto-blog` `7eb961fbd` · `naver-blog-seo-studio` `6103af9a8`~~(✅ 11-10 배포: v1.87 · v1.96 · v2.26, [역할: blog] `claude-win-blog`) · ~~`real_estate_sales` `7b55bd09d`~~(✅ v1.42 배포에 실림, 11-03 realty 세션) · `threads-affiliate-poster` `0caadc5ee` | `gpt-5`·`o3`·`gemini-2.5` 선택지 삭제 + 저장된 옛 값을 대체 모델로 읽기(`gpt-5`/`o3`→`gpt-5.6-sol`, 2.5→`3.8-flash`). tsc 통과, SEO 시험 158 통과 | 각 프로그램 줄 | 2026-11-03 · [역할: mac-mini] Claude Code(맥미니) | `docs/PLAN_20261103_MODEL_MIGRATION_DEC.md` | **12-05까지 다른 배포가 없으면 12-10 전에 이 5개만 배포 여쭘**(주인님 11-03). ⚠ MAC 7개 배포(요청 63ff201b)는 11-03 08:32~08:45에 `claude-win-sdp`가 이미 끝냈고 이 교체 커밋(10:24~)보다 먼저라 **실리지 않음** — 블로그·티스토리·SEO·threads·blog-keyword 모두 아직 미배포(11-03 14:31 배포 시각 대조, `claude-win-20261103-deploy`) · ✅ 11-06 `threads-affiliate-poster` v1.86 배포(`claude-win-20261106-ytreply`) — 남은 A: 블로그·티스토리·SEO 3개 |
@@ -92,6 +92,7 @@
 
 - 2026-11-11 메인 사이트(세션 `claude-win-rea`): 저작권·AI 분석 금지 고지 — `public/ai.txt`, 응답 헤더 `X-Robots-Tag: noai, noimageai`, 하단 저작권 한 줄(약관 제14조 링크) — 저장공간 2단계(관리자 미리보기)와 같은 빌드로 내보냄.
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
+| `lyric-video-studio` | v1.15 · 2026-11-16 (음악 담당 배포 `lyric-video-studio-71roglhks` — 이 줄은 [역할: video] `claude-win-video`가 MOV-20261116-06에서 정정) | 영상 담당 공용 사본 대기분이 함께 나감: `browser-mp4-encoder` 안정화 3가지 `4faaadaf2` · 멈춤 감지 `44db8e230` · `youtube-upload-client` `containsSyntheticMedia` `0807cf180` (+ 음악 공통 보완 `b4403e8bd`) — 모두 `git merge-base --is-ancestor <c> f78967bad` 확인(MUS-07). 새 `4936c5e72`는 미포함(대기 중) |
 | `shop-detail-page` | v1.46 · 2026-11-16 ([역할: ecommerce-image] Claud(ecommerce) `claude-win-sdp`, 주인님 「상세페이지 배포 진행해」 빌드 1회, 커밋본만 `shop-detail-page-8hr5j0q71` Ready, DB v1.46) | 애니메이션 WebP 받기 `1ed1fde1b`(영상 담당 연결 대기 — Master MOV-01로 전달) · E2-4 검색 태그 받기 `597e912cc` · 바나나 전달 사본 `31dd0b632` |
 | `tistory-auto-blog` | v1.97 · 2026-11-15 ([역할: blog] `claude-win-photo`, 주인님 「미배포 대기 순서대로 배포 진행해」 빌드 4/4, `tistory-auto-blog-odn5g7qv5` Ready, DB·확장·ZIP v1.97 OK) | 결정 4번 모델 교체(gpt-4.1·4o·4o-mini → gpt-6.1-terra·gpt-6-luna, 저장된 옛 값 변환) · 열외 회원 배지 `ae8ea7473` · 공통 3가지(저장공간 위젯·로그아웃 범위·서버 기기 정보), 시험 175 통과 |
 | `ai-work-workspace` | v1.51 · 2026-11-15 ([역할: workspace], 주인님 「둘 다 권장대로 진행해」·「진행해」 빌드 1회, `ai-work-workspace-jxs37pc9i` Ready, DB v1.51) | 업무 비서 바깥 MCP 호출 `e7b01344a` — 운영 확인(엣지·시험 계정): 채팅 「+ › 연결 › 연결 추가」 창 열림, `aiListConnections` 200(연결 0개·사용자 지정 MCP 허용), 에이전트 연결 `addAgentConnection`은 계속 403 「준비 중」 |
