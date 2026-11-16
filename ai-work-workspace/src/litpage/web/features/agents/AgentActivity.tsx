@@ -8,7 +8,7 @@ import { useSession } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { t } from '../shell/i18n.ts';
 import { AiMarkdown } from '../ai/AiMarkdown.tsx';
-import { ChangesCard, StepsList } from '../ai/AgentSteps.tsx';
+import { ChangesCard, StepsList, stepText } from '../ai/AgentSteps.tsx';
 import type { AgentStep, SourceRef, TurnChanges } from '../ai/aiApi.ts';
 import { agentApi, toastError, type AgentDetail, type RunJson } from './agentsApi.ts';
 import { canEditAgent, useAgentPage } from './agentPage.ts';
@@ -281,7 +281,7 @@ function ReviewCard({ run, canDecide, onDone }: { run: RunJson; canDecide: boole
   return (
     <div className="nc-agent-review" data-testid="agent-run-review">
       <div className="ttl">{r.kind === 'url' ? t('lp.agents.the_agent_wants_to_open_a', 'The agent wants to open a website') : t('lp.agents.the_agent_wants_to_use_a', 'The agent wants to use a tool')}</div>
-      <div className="desc">{r.label}{r.reason ? ` — ${r.reason}` : ''}</div>
+      <div className="desc">{stepText(r.label)}{r.reason ? ` — ${r.reason}` : ''}</div>
       {r.kind === 'url' && r.url && <div className="nc-agent-review-url">{r.url}</div>}
       {canDecide ? (
         <div className="nc-agent-review-actions">

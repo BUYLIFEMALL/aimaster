@@ -318,7 +318,8 @@ function CalendarView(props: ViewProps) {
           const placed = layoutWeek(shown, ws, cols);
           const laneCount = placed.reduce((m, p) => Math.max(m, p.lane + 1), 0);
           const isWeek = range === 'week';
-          const limit = isWeek || expanded[ws] ? Infinity : MAX_LANES;
+          // 2026-11-17: 칸 높이(ROW_HEIGHT)에 들어가는 만큼 보여 준다(「더 보기」 줄 26px 남김, 최소 MAX_LANES)
+          const limit = isWeek || expanded[ws] ? Infinity : Math.max(MAX_LANES, Math.floor((ROW_HEIGHT - TOP - 26) / lane));
           const visible = placed.filter((p) => p.lane < limit);
           const hiddenByDay = new Map<number, number>();
           for (const p of placed) if (p.lane >= limit) for (let c = p.startCol; c < p.startCol + p.span; c++) hiddenByDay.set(c, (hiddenByDay.get(c) ?? 0) + 1);
@@ -349,7 +350,7 @@ function CalendarView(props: ViewProps) {
                       {first && d !== today ? (getLocale() === 'ko-KR' ? `${Number(iso.slice(5, 7))}월 1일` : `${monthName(Number(iso.slice(5, 7)), true)} 1`) : Number(iso.slice(8))}
                     </div>
                     {hidden > 0 && (
-                      <div role="button" className="nc-cal-more" style={{ top: TOP + lanesShown * lane }} onClick={() => setExpanded((x) => ({ ...x, [ws]: true }))}>{hidden} more</div>
+                      <div role="button" className="nc-cal-more" style={{ top: TOP + lanesShown * lane }} onClick={() => setExpanded((x) => ({ ...x, [ws]: true }))}>{getLocale() === 'ko-KR' ? `${hidden}개 더 보기` : `${hidden} more`}</div>
                     )}
                   </div>
                 );

@@ -10,12 +10,13 @@ import type { AgentStep, ApprovalPayload, StepRef, TouchedPage, TurnChanges } fr
 import { tx } from '../shell/i18n.ts';
 
 // AIMaster 2026-11-13: 서버가 영어로 보내는 단계 문구(Viewing·Searched·Updated settings 등)를 표시할 때 한국어로 바꾼다(사전에 없으면 그대로).
-function stepText(label: string): string {
+// 2026-11-17: 에이전트 검토 상자(「Run 도구 (연결)」·「Open 사이트」)에서도 쓰도록 내보냄
+export function stepText(label: string): string {
   const hit = tx(label);
   if (hit !== label) return hit;
-  const m = /^(Viewed|Open|Ran MCP tool:|Called by) (.+)$/.exec(label);
+  const m = /^(Viewed|Open|Run|Ran MCP tool:|Called by) (.+)$/.exec(label);
   if (!m || tx('Viewed') === 'Viewed') return label; // 영어 화면이면 그대로
-  const head = ({ Viewed: '확인함', Open: '열기', 'Ran MCP tool:': 'MCP 도구 실행:', 'Called by': '호출한 에이전트:' } as Record<string, string>)[m[1]];
+  const head = ({ Viewed: '확인함', Open: '열기', Run: '실행:', 'Ran MCP tool:': 'MCP 도구 실행:', 'Called by': '호출한 에이전트:' } as Record<string, string>)[m[1]];
   return `${head} ${m[2]}`;
 }
 const stepDetail = (d: string) => d.split(', ').map((x) => tx(x)).join(', ');

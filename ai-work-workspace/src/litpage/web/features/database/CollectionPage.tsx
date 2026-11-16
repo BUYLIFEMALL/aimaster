@@ -40,17 +40,17 @@ export function CollectionPage({ block, inPeek }: { block: BlockRecord; inPeek?:
       <div className="lit-page-controls nc-db-page-controls" style={{ opacity: hover && !readOnly ? 1 : 0, pointerEvents: hover && !readOnly ? 'auto' : 'none' }}>
         {!icon && (
           <div role="button" className="nc-page-control" onClick={() => run('addPageIcon', (tx) => setFormat(tx, b.id, { page_icon: randomEmoji() }))}>
-            <Icon name="emojiFace" size={14} />Add icon
+            <Icon name="emojiFace" size={14} />{tx('Add icon')}
           </div>
         )}
         {!hasCover && (
           <div role="button" className="nc-page-control" onClick={() => run('addPageCover', (tx) => setFormat(tx, b.id, { page_cover: randomCover(), page_cover_position: 0.5 }))}>
-            <Icon name="photo" size={14} />Add cover
+            <Icon name="photo" size={14} />{tx('Add cover')}
           </div>
         )}
         {!desc.length && !showDesc && (
           <div role="button" className="nc-page-control" onClick={() => setShowDesc(true)}>
-            <Icon name="info" size={14} />Add description
+            <Icon name="info" size={14} />{tx('Add description')}
           </div>
         )}
       </div>

@@ -34,7 +34,10 @@ import {
 } from '../../advanced/viewKit.tsx';
 import '../calendar/calendar.css';
 import './timeline.css';
-import { tx } from '../../../shell/i18n.ts';
+import { getLocale, tx } from '../../../shell/i18n.ts';
+// 2026-11-17: 한국어 화면이면 날짜 이름을 한국어로(캘린더 보기와 같은 표기)
+const isKo = () => getLocale() === 'ko-KR';
+const KO_WD = ['월', '화', '수', '목', '금', '토', '일']; // ISO 요일 1=월 … 7=일
 
 export type ZoomLevel = 'hours' | 'day' | 'week' | 'bi_week' | 'month' | 'quarter' | 'year' | '5_years';
 type Unit = 'fifteen_minutes' | 'hour' | 'day' | 'week' | 'month' | 'year';
@@ -108,7 +111,7 @@ function primaryLabel(d: DT, unit: Unit, zoom: ZoomLevel): Label {
     case 'hour': return { darker: String(h12), lighter: ap };
     case 'day':
     case 'week':
-      if (zoom === 'week' || zoom === 'bi_week') return { lighter: NARROW_WEEKDAY[d.weekday - 1], darker: String(d.day), lighterFirst: true };
+      if (zoom === 'week' || zoom === 'bi_week') return { lighter: isKo() ? KO_WD[(d.weekday - 1 + 7) % 7] : NARROW_WEEKDAY[d.weekday - 1], darker: String(d.day), lighterFirst: true };
       return { single: String(d.day) };
     case 'month': return { single: String(d.month) };
     default: return { single: String(d.year) };
@@ -118,16 +121,16 @@ function primaryLabel(d: DT, unit: Unit, zoom: ZoomLevel): Label {
 /** Sticky header title: day → "October 20, 2026", month → "October 2026", year → "2026". */
 function secondaryTitle(ms: number, unit: ZoomConfig['secondary'], tz: string): string {
   const d = new DT(ms, zoneOrSystem(tz));
-  if (unit === 'day') return `${monthName(d.month)} ${d.day}, ${d.year}`;
-  if (unit === 'year') return String(d.year);
-  return `${monthName(d.month)} ${d.year}`;
+  if (unit === 'day') return isKo() ? `${d.year}년 ${d.month}월 ${d.day}일` : `${monthName(d.month)} ${d.day}, ${d.year}`;
+  if (unit === 'year') return isKo() ? `${d.year}년` : String(d.year);
+  return isKo() ? `${d.year}년 ${d.month}월` : `${monthName(d.month)} ${d.year}`;
 }
 
 /** In-canvas secondary labels at each unit start (peek out between the sticky title and the controls). */
 function secondaryShort(d: DT, unit: ZoomConfig['secondary']): string {
-  if (unit === 'day') return `${weekdayName(d.weekday, 'short')} ${monthName(d.month, true)} ${d.day}`;
-  if (unit === 'year') return String(d.year);
-  return monthName(d.month);
+  if (unit === 'day') return isKo() ? `${KO_WD[(d.weekday - 1 + 7) % 7]} ${d.month}월 ${d.day}일` : `${weekdayName(d.weekday, 'short')} ${monthName(d.month, true)} ${d.day}`;
+  if (unit === 'year') return isKo() ? `${d.year}년` : String(d.year);
+  return isKo() ? `${d.month}월` : monthName(d.month);
 }
 
 interface Item {
@@ -559,7 +562,7 @@ function TimelineView(props: ViewProps) {
                     if (Math.abs(left + w / 2 - (nowLeft + nowW / 2)) < Math.max(w, nowW) / 2 + (z.align === 'middle' ? -4 : 2)) return null;
                     const inRange = !!active && z.highlight && t.ms >= active.s && t.ms < active.e;
                     return (
-                      <div key={t.ms} className={`nc-tl-tick ${inRange ? 'active' : ''}`} style={{ insetInlineStart: left, width: w }} data-tooltip={z.primary === 'day' ? weekdayName(t.d.weekday) : undefined}>
+                      <div key={t.ms} className={`nc-tl-tick ${inRange ? 'active' : ''}`} style={{ insetInlineStart: left, width: w }} data-tooltip={z.primary === 'day' ? (isKo() ? `${KO_WD[(t.d.weekday - 1 + 7) % 7]}요일` : weekdayName(t.d.weekday)) : undefined}>
                         <div className="nc-tl-tick-label"><LabelView l={primaryLabel(t.d, z.primary, zoom)} accent={inRange} /></div>
                       </div>
                     );
