@@ -237,6 +237,10 @@ let externalNotify: ((n: ExternalNotifyInput) => Promise<string[] | void>) | nul
 export function setExternalNotifyHandler(fn: typeof externalNotify) {
   externalNotify = fn;
 }
+/** 2026-11-17 PLAN-20261117-01 E1: 에이전트 「나에게 메일·카카오톡 보내기」도 같은 경로(받는 사람 = 에이전트 주인 본인). 연결 안 됐으면 null */
+export function sendExternalNotify(n: ExternalNotifyInput): Promise<string[] | void> | null {
+  return externalNotify ? externalNotify(n) : null;
+}
 
 /** Recipients come from the run (`planner`), the message from the creator's view (`payload`, see payloadPlanner). */
 function sendNotifications(a: AutomationRecord, step: Extract<AutomationAction, { type: 'notify' }>, planner: AutomationPlanner, payload: AutomationPlanner, host: BlockRecord) {

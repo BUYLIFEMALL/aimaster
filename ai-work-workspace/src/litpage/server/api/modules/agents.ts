@@ -377,7 +377,7 @@ export const handlers: Record<string, Handler> = {
     const template = templateById(str(body?.templateId, 64));
     const tz = timeZoneOf(userId);
     const config: Partial<AgentConfig> = template
-      ? { name: template.title, icon: template.icon, description: template.description, triggers: templateTriggers(template, tz, todayIn(tz)), web_access: !!template.web, people_directory: !!template.people }
+      ? { name: template.title, icon: template.icon, description: template.description, triggers: templateTriggers(template, tz, todayIn(tz), userId), web_access: !!template.web, people_directory: !!template.people }
       : { name: str(body?.name, 100).trim() || '새 에이전트', ...(str(body?.icon, 16) ? { icon: str(body.icon, 16) } : {}) };
     const agent = createAgent({ spaceId: space.id, userId, config, instructions: template?.instructions ?? '', templateId: template?.id });
     auditAgent('custom_agent_created', agent, userId, template ? { template: template.title } : {});

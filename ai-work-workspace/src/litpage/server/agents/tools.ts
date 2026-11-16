@@ -24,6 +24,7 @@ import { runTool } from '../ai/tools/registry.ts';
 import type { AgentEnv, ToolOutput } from '../ai/tools/types.ts';
 import { blockLabel, grantProblem } from './access.ts';
 import { agentRole, getAgent, patchAgent, workingConfig } from './model.ts';
+import { sendExternalNotify } from '../automations/engine.ts';
 
 const str = (description: string, extra: Record<string, unknown> = {}) => ({ type: 'string', description, ...extra });
 
@@ -33,6 +34,22 @@ export const AGENT_TOOL_DEFS: ToolDef[] = [
     access: 'write',
     description: 'Hand a task to another custom agent you can reach (listed in your instructions context) and receive its answer. Include everything it needs in `task`; it works with its own access and instructions.',
     input_schema: { type: 'object', properties: { agent_id: str('The agent id.'), task: str('What the agent should do and what to return.') }, required: ['agent_id', 'task'], additionalProperties: false },
+  },
+  {
+    // 2026-11-17 PLAN-20261117-01 E1: 주간 요약 등 결과를 에이전트 주인 본인 메일·카카오톡으로(회원 본인 메일 계정·카카오 연결, 채널별 하루 100건)
+    name: 'notify_me',
+    access: 'write',
+    description: 'Send a short summary to the agent owner by email and/or KakaoTalk (only the owner, using the owner\x27s own connected mail account / KakaoTalk). Link the page you wrote. Use it at most once per run.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        channels: { type: 'array', items: { type: 'string', enum: ['email', 'kakao'] }, minItems: 1, maxItems: 2, description: 'email, kakao or both.' },
+        message: str('The message (plain text, up to 1000 characters).'),
+        page_id: str('The page to link (you must be able to open it).'),
+      },
+      required: ['channels', 'message', 'page_id'],
+      additionalProperties: false,
+    },
   },
   {
     name: 'send_notification',
@@ -149,6 +166,8 @@ export interface RunToolContext {
   /** a triggered run hit something that needs a person: the run ends as "Needs review" */
   review: PendingReview | null;
   notificationsSent: number;
+  /** 2026-11-17 E1: notify_me는 한 실행에 한 번만 */
+  notifyMeSent?: boolean;
   /** run a sub-agent and return its final text */
   callSubAgent: (agentId: string, task: string) => Promise<string>;
   /** web fetch allowlist changed (rebuild the server tool) */
@@ -232,6 +251,25 @@ async function callAgent(ctx: RunToolContext, env: AgentEnv, input: Record<strin
   const text = await ctx.callSubAgent(id, String(input.task).slice(0, 20_000));
   env.step({ id: stepId, tool: 'call_agent', status: 'done', label: 'Asked agent', detail: sub.data.name });
   return { content: `${sub.data.name} answered:\n\n${text || '(no answer)'}` };
+}
+
+/** 2026-11-17 E1: 에이전트 주인 본인에게만 메일·카카오톡(자동화 「내 메일·카카오톡으로도 받기」와 같은 발송·한도) */
+async function notifyMe(ctx: RunToolContext, env: AgentEnv, input: Record<string, any>, stepId: string): Promise<ToolOutput> {
+  const message = trim(input.message, 1000);
+  if (!message) return { content: 'The message is empty.', isError: true };
+  const channels = [...new Set((Array.isArray(input.channels) ? input.channels : []).map(String))].filter((c): c is 'email' | 'kakao' => c === 'email' || c === 'kakao');
+  if (!channels.length) return { content: 'Choose email and/or kakao.', isError: true };
+  if (ctx.notifyMeSent || !hit(`agent-notify-me:${ctx.agent.id}`, 10, 3600_000)) return { content: 'Already sent to the owner in this run (or too many recently).', isError: true };
+  const pageId = normalizeId(input.page_id);
+  if (!pageId || !canRead(pageId, env.userId)) return { content: 'You can’t open that page, so it can’t be linked.', isError: true };
+  const owner = ctx.agent.owner_id ?? ctx.agent.created_by_id;
+  env.step({ id: stepId, tool: 'notify_me', status: 'running', label: 'Sending to the owner', detail: channels.join(', ') });
+  const sending = sendExternalNotify({ userId: owner, channels, automationName: ctx.agent.data.name, text: message, pageId, spaceId: ctx.agent.space_id });
+  if (!sending) return { content: 'Email/KakaoTalk sending is not available here.', isError: true };
+  ctx.notifyMeSent = true;
+  const fails = (await sending) ?? [];
+  env.step({ id: stepId, tool: 'notify_me', status: fails.length ? 'error' : 'done', label: 'Sent to the owner', detail: channels.join(', '), ...(fails.length ? { error: fails.join(' / ').slice(0, 300) } : {}) });
+  return fails.length ? { content: `Some channels failed: ${fails.join(' / ')}`, isError: true } : { content: `Sent to the owner by ${channels.join(' and ')}.` };
 }
 
 async function sendNotification(ctx: RunToolContext, env: AgentEnv, input: Record<string, any>, stepId: string): Promise<ToolOutput> {
@@ -460,6 +498,7 @@ export async function runAgentTool(ctx: RunToolContext, env: AgentEnv, name: str
   try {
     if (name === 'call_agent') return await callAgent(ctx, env, input, stepId);
     if (name === 'send_notification') return await sendNotification(ctx, env, input, stepId);
+    if (name === 'notify_me') return await notifyMe(ctx, env, input, stepId);
     if (name === 'request_url_access') return await requestUrlAccess(ctx, env, input, stepId);
     if (name === 'update_agent_settings') return await updateAgentSettings(ctx, env, input, stepId);
     if (name === 'read_agent_history') return await readAgentHistory(ctx, env, input, stepId);
@@ -474,7 +513,7 @@ export async function runAgentTool(ctx: RunToolContext, env: AgentEnv, name: str
 
 /** Tools an agent run offers, including agent-only tools enabled by its configuration. */
 export function agentToolNames(cfg: AgentConfig, opts: { canConfigure: boolean; web: boolean }): string[] {
-  const names = ['search_workspace', 'read_page', 'query_database', 'read_comments', 'view_version_history', 'create_pages', 'update_page', 'delete_pages', 'move_pages', 'create_database', 'update_database', 'add_comment', 'send_notification', 'read_agent_history'];
+  const names = ['search_workspace', 'read_page', 'query_database', 'read_comments', 'view_version_history', 'create_pages', 'update_page', 'delete_pages', 'move_pages', 'create_database', 'update_database', 'add_comment', 'send_notification', 'notify_me', 'read_agent_history'];
   if (cfg.people_directory) names.push('list_people');
   if (cfg.sub_agents.length) names.push('call_agent');
   if (opts.web) names.push('request_url_access');

@@ -47,7 +47,8 @@ export function isCalendarItem(data: Record<string, unknown> | null | undefined)
   return typeof data["채널"] === "string" && !!(data["채널"] as string).trim() && hasDate;
 }
 
-const CHANNELS = ["네이버 블로그", "블로그", "Threads", "인스타그램", "유튜브"];
+// 2026-11-17 PLAN-20261117-01 E1: 티스토리·워드프레스·구글 블로그(블로그스팟)도 따로 보이게(예전엔 「기타」)
+const CHANNELS = ["네이버 블로그", "티스토리", "워드프레스", "구글 블로그", "블로그", "Threads", "인스타그램", "유튜브"];
 
 /** 보낸 쪽 상태 값(영어·한국어 섞임) → 캘린더 상태 선택지 */
 export function calendarStatus(v: unknown): string {

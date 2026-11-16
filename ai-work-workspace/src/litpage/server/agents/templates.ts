@@ -14,6 +14,8 @@ export interface AgentTemplate {
   instructions: string;
   /** schedule suggestion (frequency, time) — the time zone is the creator's */
   schedule?: { frequency: 'day' | 'week' | 'month'; weekdays?: number[]; time: string };
+  /** 2026-11-17 PLAN-20261117-01 E1: 만든 사람의 AI 회의록 요약이 끝나면 실행 */
+  onMeetingNote?: boolean;
   web?: boolean;
   people?: boolean;
   badge?: 'New';
@@ -37,7 +39,8 @@ export const AGENT_TEMPLATES: AgentTemplate[] = [
   },
   {
     id: 'meeting-prep', title: '회의 준비·정리', icon: '🗓️', categories: ['everyone'],
-    description: '회의 전에 관련 자료를 모으고, 회의록이 생기면 할 일과 담당을 뽑아 줍니다',
+    description: '회의 전에 관련 자료를 모으고, AI 회의록 요약이 끝나면 자동으로 할 일과 담당을 뽑아 줍니다',
+    onMeetingNote: true,
     instructions: steps('회의 시간을 아깝지 않게 만듭니다.',
       ['회의 전: 관련 페이지·열린 할 일·지난 결정을 모읍니다.', '안건을 다섯 개 이하로 제안합니다.', '회의 뒤 AI 회의록이 생기면 실행 항목을 담당·기한과 함께 할 일로 정리합니다.'],
       '회의 준비 메모와, 회의 뒤 「할 일 목록」 블록이 든 정리 페이지.', COMMON_LIMITS),
@@ -67,6 +70,15 @@ export const AGENT_TEMPLATES: AgentTemplate[] = [
       '「주간 보고 초안 (날짜)」 페이지 — 그대로 다듬어 보낼 수 있는 문장으로.', COMMON_LIMITS),
   },
   {
+    // 2026-11-17 PLAN-20261117-01 E1 「주간 요약」: 월요일 아침 한 장 + 원하면 내 메일·카카오톡으로
+    id: 'weekly-summary', title: '월요일 주간 요약', icon: '🗞️', categories: ['everyone'],
+    description: '매주 월요일 아침, 지난주 끝낸 일·이번 주 마감·콘텐츠 발행·남은 받은 업무를 한 장으로 정리하고 내 메일·카카오톡으로도 보내 줍니다',
+    schedule: { frequency: 'week', weekdays: [1], time: '08:00' },
+    instructions: steps('한 주를 시작할 때 지난주 결과와 이번 주 할 일을 한눈에 봅니다.',
+      ['지난 7일 동안 완료로 바뀐 할 일과 수정된 페이지를 찾습니다.', '이번 주(오늘부터 7일)에 마감인 할 일을 마감 순서로 모읍니다.', '「📅 콘텐츠 캘린더」에서 지난주 발행 완료 수와 이번 주 예약 글을 셉니다(없으면 건너뜀).', '「받은 업무」에서 가져온 뒤 아직 끝나지 않은 페이지를 찾습니다.', '정리한 페이지를 만든 뒤, notify_me 도구로 핵심 세 줄과 페이지 링크를 주인에게 한 번 보냅니다(메일·카카오톡 중 주인이 연결한 쪽, 실패해도 페이지는 남김).'],
+      '「주간 요약 (날짜)」 페이지 — 지난주 끝낸 일, 이번 주 마감, 콘텐츠 발행, 남은 받은 업무 순서. 숫자는 실제로 센 것만.', [...COMMON_LIMITS, '할 일·캘린더의 상태는 바꾸지 않습니다.']),
+  },
+  {
     id: 'task-tidy', title: '할 일 정리 도우미', icon: '✅', categories: ['everyone'],
     description: '부탁하면 흩어진 메모·회의록에서 할 일을 찾아 우선순위와 함께 한곳에 모아 줍니다',
     instructions: steps('흩어진 할 일을 한곳에 모읍니다.',
@@ -86,10 +98,13 @@ export function templateById(id: string | undefined | null): AgentTemplate | und
 }
 
 /** The template's suggested schedule as a trigger (in the creator's time zone). */
-export function templateTriggers(t: AgentTemplate, timeZone: string, today: string): AgentTrigger[] {
-  if (!t.schedule) return [];
-  return [{
+export function templateTriggers(t: AgentTemplate, timeZone: string, today: string, creatorId?: string): AgentTrigger[] {
+  const out: AgentTrigger[] = [];
+  if (t.schedule) out.push({
     id: `trg_${t.id.slice(0, 12)}`, type: 'recurrence', enabled: true,
     recurrence: { frequency: t.schedule.frequency, interval: 1, ...(t.schedule.weekdays ? { weekdays: t.schedule.weekdays } : {}), time: t.schedule.time, start: today, time_zone: timeZone },
-  }];
+  });
+  // 회의록 요약 트리거는 만든 사람의 회의록에서만(다른 사람이 회의록을 만들어 주인의 AI 키 비용이 나가지 않게)
+  if (t.onMeetingNote && creatorId) out.push({ id: `trg_mtg_${t.id.slice(0, 8)}`, type: 'lit.meeting_note_summarized', enabled: true, user_filter: [creatorId] });
+  return out;
 }

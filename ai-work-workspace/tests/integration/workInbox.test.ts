@@ -92,6 +92,11 @@ describe("work inbox", () => {
     // 모르는 채널은 「기타」, 예약 글은 예약일·예약됨
     const r2 = calendarRowCsv({ title: "t", source_slug: "x", kind: "document", created_at: "2026-11-06T10:00:00.000Z", source_url: null, data: { 채널: "카카오", 상태: "scheduled", 예약일: "2026-11-10" } }).trim().split("\n")[1];
     expect(r2).toBe("t,2026-11-10,기타,예약됨,,x,,");
+    // 2026-11-17 E1: 티스토리·워드프레스·구글 블로그는 「기타」가 아니라 그 이름 그대로
+    for (const ch of ["티스토리", "워드프레스", "구글 블로그"]) {
+      const r3 = calendarRowCsv({ title: "t", source_slug: "x", kind: "document", created_at: "2026-11-06T10:00:00.000Z", source_url: null, data: { 채널: ch, 상태: "published", 발행일: "2026-11-10" } }).trim().split(String.fromCharCode(10))[1];
+      expect(r3.split(",")[2]).toBe(ch);
+    }
     expect(calendarStatus("failed")).toBe("실패");
     expect(calendarStatus(undefined)).toBe("초안");
     expect(isCalendarItem({ 채널: "Threads", 예약일: "2026-11-10" })).toBe(true);

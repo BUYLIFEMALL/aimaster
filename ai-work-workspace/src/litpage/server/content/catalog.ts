@@ -93,7 +93,7 @@ export const TEMPLATES: TemplateDef[] = [
         schema: {
           title: { name: '제목', type: 'title' },
           cDat: { name: '날짜', type: 'date' },
-          cChn: { name: '채널', type: 'select', options: [{ value: '네이버 블로그', color: 'green' }, { value: '블로그', color: 'blue' }, { value: 'Threads', color: 'gray' }, { value: '인스타그램', color: 'pink' }, { value: '유튜브', color: 'red' }, { value: '기타', color: 'default' }] },
+          cChn: { name: '채널', type: 'select', options: [{ value: '네이버 블로그', color: 'green' }, { value: '티스토리', color: 'orange' }, { value: '워드프레스', color: 'purple' }, { value: '구글 블로그', color: 'yellow' }, { value: '블로그', color: 'blue' }, { value: 'Threads', color: 'gray' }, { value: '인스타그램', color: 'pink' }, { value: '유튜브', color: 'red' }, { value: '기타', color: 'default' }] },
           cSta: { name: '상태', type: 'status', options: ['초안', '예약됨', '발행 완료', '실패'] },
           cUrl: { name: '발행 주소', type: 'url' },
           cSrc: { name: '보낸 프로그램', type: 'select', options: ['네이버 블로그 에이전트', '블로그 포스팅 자동화', 'Threads 콘텐츠 운영', 'INSTA 포스팅 자동화', '직접 입력'] },
