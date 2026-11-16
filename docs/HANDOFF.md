@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-17 ✅ [역할: ecommerce-image] Claud(ecommerce) Claude Code(윈도우) · 세션 `claude-win-sdp` — 쇼핑제휴 v1.89 (네이버 브랜드커넥트 수집·중복 등록 방지)
+- 주인님 「쇼핑제휴 배포해」(DEC006) → 운영 DB `threads-affiliate-poster/docs/handoff-tap189-prod/` precheck 7/7 → apply(한 트랜잭션) → verify 8/8 → 빌드 1회 `threads-affiliate-poster-qkncpet55` Ready → programs v1.89·확장 칸 → `check-extension-release` OK.
+- 운영 확인: /login 200, 옛 v1.88 ZIP 200, 정리 경로 무토큰 401, ego(시험 계정) 상품 화면 v1.89·네이버 수집·확장 안내·위젯. 미검수: 실제 확장 설치→수집→등록→글 생성, 쿠팡 실호출.
+- 상세 `threads-affiliate-poster/AGENTS.md` 2026-11-17. 비용: Vercel 빌드 1회(주인님 승인).
+
 ## 2026-11-17 ✅ [역할: ecommerce-image] Claud(ecommerce) Claude Code(윈도우) · 세션 `claude-win-sdp` — 바나나 캔버스 v1.49
 - 주인님 「바나나 배포해」(DEC004) → 빌드 1회 `banana-canvas-c41203srg` Ready, DB v1.48→v1.49. 제품 커밋 9개(M1 합성 틀·F-09·휴대폰 화면 3·공용 서브·첫 미리보기·저장 확인 약속 2), 상세 v1.47 다음 순서.
 - 운영 확인(ego, 375·320, 저장 없이): v1.49·위젯·공용 서브만 합성 2/2·첫 미리보기·M1 틀·넘침 0. 미검수: 실저장 resultId 왕복·실기기.
