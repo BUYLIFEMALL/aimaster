@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T17:43:08.436Z",
+  "checkedAt": "2026-11-16T17:46:06.843Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -1971,8 +1971,8 @@
       "status": "running",
       "delivery": "acknowledged",
       "evidence": "QA006 msg_f2d4650872b4 / Lab41715a3dc / msg_b340cb91fd62",
-      "next": "QA006 encodeddot戻り경로/옵션0문의안내숨김 P2 국소보완승인. Lab패키지정적판정/수정QA전적용보류",
-      "lastReviewedAt": "2026-11-16T17:43:08.436Z",
+      "next": "UI P2두건수정중·Lab패키지는hidden RLS옵션0/verify NULL누락으로실행보류. 합성Lab가시성/일반회원SELECT·verify각항목coalesce/행수보완→Mac판정",
+      "lastReviewedAt": "2026-11-16T17:46:06.843Z",
       "sha": "ab3150c0fdee04a083de401c7de0742b21a001ad + a86c53dc1"
     },
     {
@@ -1996,13 +1996,13 @@
       "parent_task_id": "PLAN-20261117-01",
       "owner": "CC-WORKSPACE-01",
       "title": "E2-7-1 포커스복귀 동기화·기존말풍선 현지화",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "sha": "3f32871e2d3804aab61df837a10105aaa9f06fd1",
-      "evidence": "17030fb420566d70fcd96cf9f182908768d6d87e / PLAN7-1결과",
-      "completion": "기존poll복귀즉시확인·중복합치기·리스너수명·숨김회귀·기존presence표시유지",
-      "next": "작성자5빨강초록·250/type0,QA007 독립검수배정·미배포,예약/포털은계획보완문서만",
-      "lastReviewedAt": "2026-11-16T17:37:22.516Z"
+      "evidence": "msg_2a90a09c17c1 / QA17-007 / 3f32871e2",
+      "completion": "복귀sync 지정정적/실소스모의PASS·250작성자시험증거재사용·실브라우저/계정전환미검수",
+      "next": "미배포묶음유지·기존disconnect poll타이머/inflight/currentPage잔류는별도한계,포털계속",
+      "lastReviewedAt": "2026-11-16T17:46:06.843Z"
     },
     {
       "task_id": "QA-20261117-006",
@@ -2016,8 +2016,8 @@
       "sha": "ab3150c0f + a86c53dc1",
       "evidence": "msg_f2d4650872b4 / QA17-006",
       "completion": "서버권한/몰범위/backPath/재고·옵션·미적용오류의 정확성,정적·모의·실화면범위구분",
-      "next": "실action모의타몰/없음8건RPC0·권한정적확인,encoded경로/earlyreturn안내 P2 반환·새SHA 및 Lab패키지읽기판정",
-      "lastReviewedAt": "2026-11-16T17:43:08.436Z"
+      "next": "UI encoded경로/문의안내 P2 반환·Lab패키지실행준비PASS불가(hidden상품RLS/verifyNULL). 새SHA/fixture정적재검수,적용0",
+      "lastReviewedAt": "2026-11-16T17:46:06.843Z"
     },
     {
       "task_id": "QA-20261117-007",
@@ -2026,13 +2026,13 @@
       "parent_task_id": "WS-20261117-11",
       "owner": "CX-QA-01",
       "title": "E2 복귀동기화·리스너수명 독립검수",
-      "status": "ready",
-      "delivery": "delivered",
+      "status": "done",
+      "delivery": "integrated",
       "sha": "3f32871e2",
-      "evidence": "msg_95b17778b57d",
+      "evidence": "msg_2a90a09c17c1 / QA17-007",
       "completion": "focus/visible즉시조회·중복합치기·숨김0·등록해제·기존표시보존 검수",
-      "next": "QA006후국소검수·기존E1검사반복없음·실브라우저동작확인범위분리",
-      "lastReviewedAt": "2026-11-16T17:37:22.516Z"
+      "next": "지정경계PASS수락·기존타이머취소/실네트워크/전체계정전환검수아님·재반복없음",
+      "lastReviewedAt": "2026-11-16T17:46:06.843Z"
     },
     {
       "task_id": "WS-20261117-12",

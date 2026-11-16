@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 02:43:11 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 02:46:09 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -39,7 +39,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 148개: done 125개 · cancelled 6개 · ready_review 10개 · running 3개 · ready 3개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 148개: done 127개 · cancelled 6개 · ready_review 9개 · running 3개 · ready 2개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -185,11 +185,11 @@
 | WS-20261117-10 | CC-WORKSPACE-01 | ready_review / returned | 보기 이름 저장값 보존 | 저장된 Table/한글 이름 그대로 표시·서버3경로 보류. 최종MacQA후 다음배포묶음 |
 | WS-20261117-09 | CC-WORKSPACE-01 | done / integrated | 확장 E1·notify_me 중복 차단 | 독립경계완료·소규모미배포묶음유지. claim후enqueue실패소진/전체execute중복별도한계. E2축소진행 |
 | DES-20261117-02 | AG-UI-01 | running / acknowledged | Workspace 전면디자인3안·12뷰 | 145~147목업누락/4x3매트릭스/긴제목8개일정월전체·한글요일/마스킹보완착수·새해시후재동결·제품0 |
-| B2B-20261117-03 | CC-B2B-BACK-01 | running / acknowledged | 교환 접수·단계 UI 구현 | QA006 encodeddot戻り경로/옵션0문의안내숨김 P2 국소보완승인. Lab패키지정적판정/수정QA전적용보류 |
+| B2B-20261117-03 | CC-B2B-BACK-01 | running / acknowledged | 교환 접수·단계 UI 구현 | UI P2두건수정중·Lab패키지는hidden RLS옵션0/verify NULL누락으로실행보류. 합성Lab가시성/일반회원SELECT·verify각항목coalesce/행수보완→Mac판정 |
 | QA-20261117-005 | CX-QA-01 | ready_review / returned | Workspace 디자인3안·독립뷰어 시각검수 | 실HTML확대/키/독립뷰어확인·디자인표현누락P2보완AGY반환. 실제제품PASS아님·선택전보완필수 |
-| WS-20261117-11 | CC-WORKSPACE-01 | ready_review / returned | E2-7-1 포커스복귀 동기화·기존말풍선 현지화 | 작성자5빨강초록·250/type0,QA007 독립검수배정·미배포,예약/포털은계획보완문서만 |
-| QA-20261117-006 | CX-QA-01 | ready_review / returned | 교환 UI 서버권한·단계·오류 독립검수 | 실action모의타몰/없음8건RPC0·권한정적확인,encoded경로/earlyreturn안내 P2 반환·새SHA 및 Lab패키지읽기판정 |
-| QA-20261117-007 | CX-QA-01 | ready / delivered | E2 복귀동기화·리스너수명 독립검수 | QA006후국소검수·기존E1검사반복없음·실브라우저동작확인범위분리 |
+| WS-20261117-11 | CC-WORKSPACE-01 | done / integrated | E2-7-1 포커스복귀 동기화·기존말풍선 현지화 | 미배포묶음유지·기존disconnect poll타이머/inflight/currentPage잔류는별도한계,포털계속 |
+| QA-20261117-006 | CX-QA-01 | ready_review / returned | 교환 UI 서버권한·단계·오류 독립검수 | UI encoded경로/문의안내 P2 반환·Lab패키지실행준비PASS불가(hidden상품RLS/verifyNULL). 새SHA/fixture정적재검수,적용0 |
+| QA-20261117-007 | CX-QA-01 | done / integrated | E2 복귀동기화·리스너수명 독립검수 | 지정경계PASS수락·기존타이머취소/실네트워크/전체계정전환검수아님·재반복없음 |
 | WS-20261117-12 | CC-WORKSPACE-01 | ready / delivered | E2-7-3 손님 포털 구현·외부공개권한 경계 | portal/page/dialog/test/runtime/RowMenu/ko 정확범위구현승인·OFF모든경로DB/DDL0·기존editor/publish권한재사용·기간5분캐시한계. 예약계획정정·외부0 |
 
 ## 현재 담당 회신이 확보된 프로젝트
