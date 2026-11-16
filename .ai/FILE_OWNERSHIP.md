@@ -69,6 +69,10 @@
 
 ### 19:07 대기 해소·다음 작업
 
+BLOG-20261116-06 / CC-BLOG-01: Movie `cd83a1daf`로 공용비교표 본인미커밋2줄을 정리한 뒤, `docs/PROGRAM_CAPABILITY_MAP.md` website-scraper 요약행/카드주소행만 v1.15·병합/숨김·11-12 배포기록·현재live미확인과 일치하게 정정. 다른현재diff있으면중지. 그뒤 `docs/SCRAPING_CONSOLIDATION_TASKS.md` T11 문서정합성 완료만 갱신, T12담당결정/제품/DB/PENDING_FREE는 그대로. safe-commit 기준사본/재확인 필수.
+
+MOV-20261116-07 / CC-MOVIE-01: Tester가 B2B 중요검토 중이고 AGY수락이 확인되지 않아, 바나나45e04a14d 모바일수정의 독립 읽기검토를 가용Movie에 배정. ProductBatchBoard.tsx 실제diff/고정하네스결과·접근이름/키보드/320·375줄바꿈·의도된표안가로스크롤과문서넘침 구분 검토, 필요시 기존격리하네스만 재사용(비용없는국소실행). 제품수정·배포·운영쓰기없음. 고유결과만, Ecom추가수정은 Master를 통해 조정.
+
 B2B07 추가 범위: `mall-builder/scripts/rollback-0100-step1-stop-auto.sql`도 수정 허용. QA05 P1-2(중지 뒤 recheck 취소완료 경로가 issue POST를 일으킬 수 있음)를 보완해 step1이 실제 신규발급/재발급을 중지하게 하고, 남는 조회/취소 기능과 제한을 명시한다. 운영 실행은 금지, 격리DB에서 중지 후 POST0을 검증한다. 그 밖 cancel_failed 불확실응답 새ref 재시도·직원 recheck권한 지적도 같은0100/시나리오 범위에서 먼저 판정해 미해결위험을 반환한다.
 
 WS-20261116-09 / CC-WORKSPACE-01: `tools.ts`·`agents/runs.ts`·`tests/integration/agentMcp.test.ts`의 같은 실행 내 canonical/legacy 동치 승인 집합 소진 보완. 제품판정: 옛 허용 미실행 후 순서변경 재검토·재허용은 동일 논리 호출의 재확인이며, 별도 실행횟수2를 허용한 것으로 취급하지 않는다. 정상화 동치 키를 메모리/DB에서 함께 제거하고 실제payload CAS 성공자만 1회 실행한다. 다른연결/도구/회원/실행/다른인자 승인 보존·단일키호환·새허용 이후정상재호출·동시실행/실패시재호출금지 회귀. 새스키마/실MCP/배포 없음. 공유시험DB 점유 확인 필수, QA06은 이 보완 전단계 검토로 보존하고 수정후 새 독립검증을 배정한다.
