@@ -118,6 +118,33 @@
   - 선택 보강(미승인, 구현 0): `already` 응답에 `needs_review`를 함께 담는 0104 소변경 — 화면은 위 다시 읽기로 충분하므로 필수 아님.
 - 시험(구현 때, 6-4에 더함): `feePayState` — done+needs_review(유저 확인 중·직원 확인 필요·재발송 비활성), done 정상, canceled, error 글자만 다르고 칸 값이 같으면 결과 같음(글자 비의존), 성공 주소가 `already`에서 `?ok=1`을 쓰지 않음.
 
+### 6-8. 단계2 구현 준비(읽기 정리, 2026-11-17 Master msg_d1f6a71521ce — 새 화면 코드 0, QA 판정 뒤 범위 등록)
+**겹침·미커밋 확인**: `docs/ACTIVE_WORK.md` mall-builder 두 줄 — 내 줄(B2BBackend)과 디자인 빌더 범위(`src/lib/builder/**`·`theme.ts`·`blocks.ts`·`admin/design/**`·`admin/home/**`·`home-blocks.tsx`, B2BFront)뿐, 아래 파일과 겹침 없음. 아래 고칠 파일 모두 `git status` 미커밋 변경 0(37fdcabb4 시점).
+
+**정확한 경로**
+| 구분 | 경로 | 할 일 |
+|---|---|---|
+| 새 | `src/app/s/[store]/(shop)/orders/[id]/exchange-pay/[exchangeId]/page.tsx` | 서버: `requireUser`·`getStoreBySlug`(기존 `pay/page.tsx`와 같은 순서) → 주문 주인 확인 → 교환이 이 주문 것 → 결제 기록(칸 나열, 결제 키 없음)·`store_payment_settings`(`toss_client_key`·`card_enabled`, 기존 결제 화면과 같은 읽기) → 표시 상태(6-6·6-7)에 따라 위젯 또는 안내 |
+| 새 | `.../exchange-pay/[exchangeId]/success/page.tsx` | 6-5 순서: 형식 확인 → rpc `card_prepare` → `prepared: true`일 때만 rpc `card_confirm` → 결제 키 없는 주문 상세(중립 `?pay=returned`, 확인 중 `?pay=checking`, 오류는 **우리 오류 코드**만 — 기존 `pay/success`가 DB 오류 원문(`error.message`)을 주소에 넣는 방식은 따르지 않음) |
+| 새 | `.../exchange-pay/[exchangeId]/fail/page.tsx` | 토스 실패 코드만(영문 대문자·숫자·밑줄 걸러) 표시, 원문 메시지·쿼리 복사 0, 주문 상세로 |
+| 재사용(수정 0) | `src/app/s/[store]/(shop)/orders/[id]/pay/pay-widget.tsx` | import만. 넘기는 값: `clientKey`·`customerKey`(기존 화면과 같은 규칙)·`amount`(교환비)·`orderId = 'exfee-<교환 id>'`(0104가 고정한 토스 주문 번호와 같아야 함)·`orderName = '교환비 · <상품명>'`·`customerName`·`successPath`·`failPath`. `deadline`은 없음 |
+| 재사용(수정 0) | `src/lib/payment.ts` `parseSuccessParams(orderId, q)` | `orderId`에 `'exfee-<교환 id>'`를 넘기면 그대로 씀(주문 번호 같음·결제 키 형식·금액 숫자 검사). `CARD_STATUS_LABEL`은 주문 결제용이라 prepared·canceled 없음 → 교환비 표시는 `exchanges.ts`의 새 표로(공용 파일 수정 0) |
+| 고침 | `src/lib/exchanges.ts` | 순수: `feePayState({status, needs_review, fee, fee_status, step}, cardEnabled)` → 유저 단추·직원 단추·문구(입력에 `error` 없음), `exchangePayPath(slug, orderId, exchangeId)`(4985bf6ab 주소 규칙 — 형식 검사 뒤에만 조립) |
+| 고침 | `src/lib/exchanges-server.ts` `getExchangeData` | 결제 기록을 **칸 이름 나열로** 함께 읽기: `exchange_id, status, needs_review, amount, approved_at, receipt_url, error, prepared_at, requested_at`(결제 키·멱등키 칸은 권한 없음 — `select *`면 권한 오류). 시도 이력 표는 읽지 않음. 표 없음(0104 전 DB)은 결제 기능만 숨김(기존 `isMissingTable` 재사용) |
+| 고침 | `src/lib/exchange-actions.ts` | `exchangeFeeCardRecheckAction(slug, exchangeId)`: 기존 `exchangeOrderInStore`로 몰 소속 먼저 → rpc `mall_builder_exchange_fee_card_recheck` → 결과는 우리 문구로만(응답 원문 0) |
+| 고침 | `src/app/exchange-panels.tsx` | 유저: 교환비 대기·카드 설정 몰·진행 중 카드 결제 없음이면 「카드로 결제」 링크(`exchangePayPath`), 확인 중·hold·취소 보류 문구 / 직원: 승인 기록 줄·지금 상태 줄 분리, 「다시 확인」 단추(확인 필요·hold일 때), 재발송 단추 비활성(이유 표시) |
+| 고침(2줄씩, 이미 연결) | `(shop)/orders/[id]/page.tsx`·`admin/orders/[id]/page.tsx` | 이미 `CustomerExchangePanel`·`StaffExchangePanel` 연결됨 — `?pay=returned·checking` 안내 줄만 추가 여부 확인(필요 없으면 수정 0) |
+| 시험 | `tests/exchanges.test.mjs` | 아래 완료 조건 |
+
+**직원 결제 상태 읽기(목록·상세)**: 결제 기록 RLS 읽기 정책 = 주문 권한 직원(`mall_builder_staff_can(store_id, 'orders')`) 또는 주문 주인(0104 45행), 칸 권한 = 결제 키·멱등키 제외(52행). 직원도 결제 키를 못 읽는다. 시도 이력 표는 정책·권한 0이라 직원 화면에서도 읽지 않는다.
+
+**흐름**: 유저 「카드로 결제」 → `exchange-pay/[exchangeId]`(위젯) → 토스 → `success`(준비 → 승인 → 키 없는 주소) 또는 `fail` → 주문 상세가 결제 기록을 다시 읽어 표시(`already`·`ok`만으로 완료 단정 0) / 확인 필요·hold → 직원 「다시 확인」(GET) → 주문 상세 다시 읽기.
+
+**완료 조건(구현 때)**
+1. `tests/exchanges.test.mjs`: `feePayState` — 결제 기록 없음/prepared/requested/unknown/done/done+needs_review/failed/canceled × 카드 설정 유무 × 단계, `error` 글자만 바뀌어도 결과 같음, failed의 「다시 결제」는 미확인 표기(6-5).
+2. 소스 경계 시험: success 페이지가 prepare를 confirm보다 먼저 별도 await·`prepared`일 때만 confirm·`?ok=1` 미사용·`paymentKey`를 redirect 주소·console에 넣지 않음, fail 페이지가 원문 메시지 미사용, 서버 읽기 코드에 `payment_key`·`idempotency_key`·`payment_attempts` 문자열 없음, recheck 동작이 몰 소속 확인을 rpc보다 먼저.
+3. 전체 `npm test`·`npx tsc --noEmit` 통과. 실 토스·실 키·Lab·빌드·배포 0(이번 범위). Lab 화면 확인은 별도 빌드 승인 묶음.
+
 ## 7. 두 단계(준비 기록 확정 → 승인) 설계 — Master msg_b96fa60fd0cf 채택 방향, 코드 전 보고(실서비스 해제 아님)
 ### 7-1. 상태 전이(교환비 결제 기록 1개/교환)
 | 상태 | 들어오는 길 | 의미 | 나가는 길 |
