@@ -49,9 +49,11 @@ create policy mall_builder_exchanges_read on public.mall_builder_exchanges for s
 revoke insert, update, delete on public.mall_builder_exchanges from anon, authenticated;
 
 -- 배송 완료로 바뀐 마지막 시각(주문 이력 기준 — 주문 표에 배송 완료 시각 칸이 없음)
+-- 실제 상태 전이(다른 상태 → delivered)만 센다. 교환·반품 회수 기록은 delivered → delivered로 남으므로 기준 시각을 바꾸지 못한다(QA-20261117-004 P1-1)
 create or replace function mall_builder_private.delivered_at(p_order_id uuid)
 returns timestamptz language sql stable set search_path = '' as $$
-  select max(e.created_at) from public.mall_builder_order_events e where e.order_id = p_order_id and e.to_status = 'delivered'
+  select max(e.created_at) from public.mall_builder_order_events e
+   where e.order_id = p_order_id and e.to_status = 'delivered' and e.from_status is distinct from 'delivered'
 $$;
 revoke all on function mall_builder_private.delivered_at(uuid) from public;
 
@@ -147,6 +149,54 @@ end;
 $$;
 revoke all on function mall_builder_private.exchange_stock(uuid, uuid, integer, text) from public;
 
+-- 운영사 교환 함수 공통: 권한 확인 → 잠금 순서 「주문 → 교환」 고정(교환 접수·반품·취소와 같은 주문 잠금으로 줄 세움, QA-20261117-004 P1-2)
+create or replace function mall_builder_private.lock_exchange(p_exchange_id uuid)
+returns public.mall_builder_exchanges language plpgsql set search_path = '' as $$
+declare v_order uuid; v_store uuid; x public.mall_builder_exchanges%rowtype;
+begin
+  select e.order_id, e.store_id into v_order, v_store from public.mall_builder_exchanges e where e.id = p_exchange_id;
+  if v_order is null or not public.mall_builder_staff_can(v_store, 'orders') then raise exception '이 교환을 바꿀 권한이 없습니다.'; end if;
+  perform 1 from public.mall_builder_orders o where o.id = v_order for update;
+  select * into x from public.mall_builder_exchanges e where e.id = p_exchange_id for update;
+  -- 잠근 뒤 다시 확인(그사이 지워졌거나 연결이 다르면 멈춤)
+  if not found or x.order_id <> v_order or not public.mall_builder_staff_can(x.store_id, 'orders') then
+    raise exception '이 교환을 바꿀 권한이 없습니다.';
+  end if;
+  return x;
+end;
+$$;
+revoke all on function mall_builder_private.lock_exchange(uuid) from public;
+
+-- 교환을 진행(회수·입고·재발송·완료·교환비)하려면 주문이 지금 배송 완료 상태여야 한다
+create or replace function mall_builder_private.exchange_order_delivered(p_order_id uuid)
+returns void language plpgsql set search_path = '' as $$
+declare v_status text;
+begin
+  select o.status into v_status from public.mall_builder_orders o where o.id = p_order_id;
+  if v_status is distinct from 'delivered' then
+    raise exception '주문이 배송 완료 상태가 아니라(지금 %) 교환을 진행할 수 없습니다.', coalesce(v_status, '없음');
+  end if;
+end;
+$$;
+revoke all on function mall_builder_private.exchange_order_delivered(uuid) from public;
+
+-- 반품·취소·상태 변경과 상호 배제: 진행 중 교환이 있는 주문은 배송 완료에서 다른 상태로 못 바꾼다(모든 경로 — 반품 요청·운영사 상태 변경·취소)
+create or replace function mall_builder_private.orders_exchange_guard()
+returns trigger language plpgsql security definer set search_path = '' as $$
+begin
+  if old.status = 'delivered' and new.status is distinct from 'delivered' and exists (
+    select 1 from public.mall_builder_exchanges x where x.order_id = new.id and x.step in ('requested', 'collecting', 'collected', 'reshipped')
+  ) then
+    raise exception '교환이 진행 중인 주문입니다. 교환을 끝내거나 거절한 뒤 반품·취소해 주세요.';
+  end if;
+  return new;
+end;
+$$;
+revoke all on function mall_builder_private.orders_exchange_guard() from public;
+drop trigger if exists mall_builder_orders_exchange_guard on public.mall_builder_orders;
+create trigger mall_builder_orders_exchange_guard before update of status on public.mall_builder_orders
+  for each row execute function mall_builder_private.orders_exchange_guard();
+
 -- ── 운영사: 교환 단계 바꾸기 ──
 -- collecting(회수 송장) → collected(입고·원래 옵션 재고 +) → reshipped(새 송장·새 옵션 재고 −, 교환비 결제 확인 뒤) → done / rejected(회수 완료 전까지)
 create or replace function public.mall_builder_exchange_step(p_exchange_id uuid, p_step text, p_courier text default '', p_tracking text default '', p_note text default '')
@@ -154,8 +204,8 @@ returns text language plpgsql security definer set search_path = '' as $$
 declare x public.mall_builder_exchanges%rowtype; i public.mall_builder_order_items%rowtype; v_note text;
 begin
   if auth.uid() is null then raise exception '로그인이 필요합니다.'; end if;
-  select * into x from public.mall_builder_exchanges where id = p_exchange_id for update;
-  if not found or not public.mall_builder_staff_can(x.store_id, 'orders') then raise exception '이 교환을 바꿀 권한이 없습니다.'; end if;
+  x := mall_builder_private.lock_exchange(p_exchange_id);
+  if p_step <> 'rejected' then perform mall_builder_private.exchange_order_delivered(x.order_id); end if;
   select * into i from public.mall_builder_order_items where id = x.item_id;
 
   if p_step = 'collecting' then
@@ -177,6 +227,10 @@ begin
     if x.fee > 0 and x.fee_status <> 'paid' then raise exception '교환비(%원) 결제가 확인되지 않아 재발송할 수 없습니다.', x.fee; end if;
     if char_length(btrim(coalesce(p_courier, ''))) not between 1 and 30 or char_length(btrim(coalesce(p_tracking, ''))) not between 1 and 40 then
       raise exception '재발송 택배사와 송장 번호를 넣어 주세요.';
+    end if;
+    -- 바꿀 옵션이 삭제되면 to_variant_id가 비워진다 → 원래 옵션 재고를 대신 빼지 않도록 막음(QA-20261117-004)
+    if x.to_variant_id is null and exists (select 1 from public.mall_builder_product_variants v where v.product_id = i.product_id) then
+      raise exception '바꿀 옵션이 삭제되어 재발송할 수 없습니다. 교환을 거절하거나 고객과 다시 정해 주세요.';
     end if;
     if not x.reship_deducted then
       perform mall_builder_private.exchange_stock(i.product_id, coalesce(x.to_variant_id, x.from_variant_id), -x.qty,
@@ -207,8 +261,8 @@ returns text language plpgsql security definer set search_path = '' as $$
 declare x public.mall_builder_exchanges%rowtype;
 begin
   if auth.uid() is null then raise exception '로그인이 필요합니다.'; end if;
-  select * into x from public.mall_builder_exchanges where id = p_exchange_id for update;
-  if not found or not public.mall_builder_staff_can(x.store_id, 'orders') then raise exception '이 교환을 바꿀 권한이 없습니다.'; end if;
+  x := mall_builder_private.lock_exchange(p_exchange_id);
+  perform mall_builder_private.exchange_order_delivered(x.order_id);
   if x.step not in ('requested', 'collecting', 'collected') then raise exception '재발송 전의 교환만 교환비를 바꿀 수 있습니다.'; end if;
   if x.fee_status = 'paid' then raise exception '이미 결제된 교환비는 바꿀 수 없습니다.'; end if;
   if p_fee is null or p_fee < 0 or p_fee > 10000000 then raise exception '교환비는 0원 이상 1,000만 원 이하로 넣어 주세요.'; end if;
@@ -224,8 +278,8 @@ returns text language plpgsql security definer set search_path = '' as $$
 declare x public.mall_builder_exchanges%rowtype;
 begin
   if auth.uid() is null then raise exception '로그인이 필요합니다.'; end if;
-  select * into x from public.mall_builder_exchanges where id = p_exchange_id for update;
-  if not found or not public.mall_builder_staff_can(x.store_id, 'orders') then raise exception '이 교환을 바꿀 권한이 없습니다.'; end if;
+  x := mall_builder_private.lock_exchange(p_exchange_id);
+  perform mall_builder_private.exchange_order_delivered(x.order_id);
   if x.fee_status <> 'waiting' then raise exception '결제를 기다리는 교환비가 없습니다.'; end if;
   update public.mall_builder_exchanges set fee_status = 'paid', fee_paid_at = now(), updated_at = now() where id = x.id;
   perform mall_builder_private.exchange_event(x.order_id, 'staff', '교환비 ' || x.fee || '원 입금 확인');
