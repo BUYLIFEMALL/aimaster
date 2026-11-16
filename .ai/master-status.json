@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T20:14:54.641Z",
+  "checkedAt": "2026-11-16T20:17:11.746Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2212,12 +2212,12 @@
       "parent_task_id": "B2B-20261117-02",
       "owner": "CC-B2B-BACK-01",
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "delivered",
-      "evidence": "msg_53f0fde062ab 작성자모의50/50·취소/감사12반례 빨강→초록",
+      "evidence": "msg_78f4eaa003d2 QA012 done불일치 재발송허용P1/rawSQLERRM P2 + msg_6b024849e54f Backend동일틈보고35b4e3ccc",
       "decision": "Master조정 E1납부후거절차단 E2로그인본인 E3카드미설정은행 E4Backend신규경로;실환불미구현명시",
-      "next": "Mac QA012 응답키/attempt보존/취소hold/done GET/불일치 재발송잠금 독립검토배정. Backend UI계획정합성 읽기작업만,실Toss/Lab0104/빌드/UI연결0",
-      "lastReviewedAt": "2026-11-16T20:14:54.641Z",
+      "next": "Master needs_review 별도표시채택: 원승인보존+DB재발송차단·정확GET일치만해제. rawSQLERRM노출제거/원상태정확판정·실로컬RPC반례수정배정. 실제Toss/Lab0104/UI/빌드0",
+      "lastReviewedAt": "2026-11-16T20:17:11.746Z",
       "sha": "45c2c3a15 / 0104 6ea1aba40be8a2bc2a2f317898fb83e41cafb671c6bda5ed2c412d93965a86ac",
       "plannedMigration": "0104_exchange_fee_payments.sql (기존미적용0103 rename)",
       "migrationPath": "mall-builder/supabase/migrations/0104_exchange_fee_payments.sql",
