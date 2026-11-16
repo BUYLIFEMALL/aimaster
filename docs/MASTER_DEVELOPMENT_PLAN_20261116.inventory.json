@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 02:30:35 KST",
+  "checkedAt": "2026-11-17 02:32:12 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -3995,12 +3995,12 @@
       "title": "확장 E1·notify_me 중복 차단",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:27:39.759Z",
-      "status": "running",
-      "delivery": "acknowledged",
-      "sha": "ce458cc2a + f2792fb2543520aaedc7fbc6b3277f231a3ce953",
-      "evidence": "Mac msg_071cfe09841f / a1e686d02/E1§12 / msg_54873d545291",
-      "next": "루트CAS/승인24조합 독립PASS. 다중worker stale markRetried가notifyflag지우는경계 claimRetry CAS수정승인·성공자만자식enqueue→Mac,실발송0"
+      "lastReviewedAt": "2026-11-16T17:32:09.196Z",
+      "status": "ready_review",
+      "delivery": "returned",
+      "sha": "ce458cc2a + f2792fb25 + 93eabfc2e9f46e00f74f518b0c960049961b9243",
+      "evidence": "E1§13 / 39d6300d1c0f81b3a8d0aa0123736c796ee9e9ab / Master소스범위확인",
+      "next": "claimRetry stale쓰기→자식2 반례 실DB수정전후1개보완·작성자전체245/type0. Mac최종잔여경계검수전달,실모델/발송미검수·E2축소독립진행"
     },
     {
       "task_id": "DES-20261117-02",

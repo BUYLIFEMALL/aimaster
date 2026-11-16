@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 02:30:35 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 02:32:12 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -39,7 +39,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 143개: done 123개 · cancelled 6개 · ready_review 9개 · running 2개 · ready 2개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 143개: done 123개 · cancelled 6개 · ready_review 10개 · running 1개 · ready 2개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -183,7 +183,7 @@
 | QA-20261117-004 | CX-QA-01 | done / integrated | 교환0102 독립검토 | DB검수배정범위완료·맥DB/실UI/운영미검수;불가능복구문구후속정정. Lab0102/운영0 |
 | B2B-20261117-02 | CC-B2B-BACK-01 | done / integrated | 교환0102 구현·독립지적 수정 | 코어가드범위완료·불가능한거절/재접수안내P2문구는후속UI와국소정정. Lab0102/운영미적용 |
 | WS-20261117-10 | CC-WORKSPACE-01 | ready_review / returned | 보기 이름 저장값 보존 | 저장된 Table/한글 이름 그대로 표시·서버3경로 보류. 최종MacQA후 다음배포묶음 |
-| WS-20261117-09 | CC-WORKSPACE-01 | running / acknowledged | 확장 E1·notify_me 중복 차단 | 루트CAS/승인24조합 독립PASS. 다중worker stale markRetried가notifyflag지우는경계 claimRetry CAS수정승인·성공자만자식enqueue→Mac,실발송0 |
+| WS-20261117-09 | CC-WORKSPACE-01 | ready_review / returned | 확장 E1·notify_me 중복 차단 | claimRetry stale쓰기→자식2 반례 실DB수정전후1개보완·작성자전체245/type0. Mac최종잔여경계검수전달,실모델/발송미검수·E2축소독립진행 |
 | DES-20261117-02 | AG-UI-01 | ready_review / returned | Workspace 전면디자인3안·12뷰 | 독립뷰어13KB+ 보완보고·PNG12개2880×1800확인. 기존쇼케이스보존/실화면검수별도, 주인님3안선택전제품미반영 |
 | B2B-20261117-03 | CC-B2B-BACK-01 | ready / delivered | 교환 접수·단계 UI 구현 | 신규5파일+고객/관리자주문상세패널연결 Backend단독배정, 최신옵션flags/서버권한/안전backPath·정확오류. 불가능복구안내정정·빌드/실결제/발송/0102Lab운영0 |
 
