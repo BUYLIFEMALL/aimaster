@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T18:35:52.225Z",
+  "checkedAt": "2026-11-16T18:46:53.546Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2100,23 +2100,23 @@
       "parent_task_id": "DES-20261117-02",
       "owner": "CC-WORKSPACE-01",
       "title": "주인님 선택146 Professional Studio 전면리뉴얼",
-      "status": "running",
+      "status": "ready_review",
       "delivery": "returned",
-      "evidence": "S2 load4/route3·전체283/type0 작성자보고 / msg_2566cc17369d",
+      "evidence": "S3~5結果618f7356/ QA013 context보완075fcb4 / 301작성자시험/type0",
       "decision": {
         "chosen": "146 Professional Studio",
         "reference": "[5/12] 146 Professional Studio - 01. 메인 관제 대시보드",
         "scope": "메인기준 전체화면 일관스타일 적용·기존기능/회원데이터유지",
         "source": "주인님 직접 채팅 2026-11-17 KST"
       },
-      "next": "S0~2코드반환QA013진행·local3457/PID44944/Edge1553942690 로그인대기. S3~5제출정확CSS/클래스경로승인·동작/다크/240/24/보기명보존·독립스타일계속",
-      "lastReviewedAt": "2026-11-16T18:35:52.225Z",
-      "sha": "eb42a03e + d2ef2cad + 21d05794108d8668d27405af039724582645b537",
+      "next": "S0~5코드반환·QA013새문맥/범위라벨검수·jsdom실DOM하네스허용(시각아님). dev/testDB동일발견으로로그인보류/분리우선",
+      "lastReviewedAt": "2026-11-16T18:46:53.546Z",
+      "sha": "eb42a03e+d2ef2cad+21d057941+df53bbad859f31ec1ed69731e42958f9bdfa9949+990ec9075c5de513cbaa68dae6db5781fed46713+075fcb4e277269452bcb93bd044886e4872c573c",
       "validationPending": {
-        "scope": "메인엣지 실제화면",
-        "reason": "local3457 로그인세션없음·자격증명미제공",
-        "action": "주인님 로컬로그인 1회 요청취합",
-        "url": "http://localhost:3457/login"
+        "scope": "개발DB분리 후 메인엣지 실제화면",
+        "reason": "dev3457와vitest가동일aww DB·reset으로개발자료초기화가능",
+        "action": "주인님로컬로그인보류통지·Workspace aww_dev 보존분리/환경실연결증거대기",
+        "url": "http://localhost:3457/login (분리후재안내)"
       }
     },
     {
@@ -2217,8 +2217,9 @@
       "evidence": "2fe06c45c 상태안 / msg_02fc9d3c39ac",
       "decision": "Master조정 E1납부후거절차단 E2로그인본인 E3카드미설정은행 E4Backend신규경로;실환불미구현명시",
       "next": "prepare별도commit+confirm mock구현승인·금액/key/시한고정·고정멱등요청·30분초과POST0·장기404unknown임의해제미구현·별도세션hardabort키보존시험,실Toss/Lab0103/운영0",
-      "lastReviewedAt": "2026-11-16T18:31:02.337Z",
-      "sha": "80a00923daa5c4c4bd045cba40e4f716c6f1e729"
+      "lastReviewedAt": "2026-11-16T18:46:53.546Z",
+      "sha": "80a00923daa5c4c4bd045cba40e4f716c6f1e729",
+      "plannedMigration": "0104_exchange_fee_payments.sql (기존미적용0103 rename)"
     },
     {
       "task_id": "WS-20261117-15",
@@ -2227,12 +2228,13 @@
       "parent_task_id": "WS-20261117-13",
       "owner": "CC-WORKSPACE-01",
       "title": "주인님 직접 Alt/Option 달력카드 드래그 복사",
-      "status": "running",
-      "delivery": "returned",
-      "sha": "ee049e811 + a575d3606b8d903924ce7dce57321a6ebbf52f67",
-      "evidence": "QA011 msg_515daaeb9018 / ba23f5a권한11/11",
-      "next": "원자API날짜validator가bad끝/2026-99-99통과P2·strict양끝실재날짜/형식/기간검증수정승인,권한403실DB추가증거수락·새SHA후Mac",
-      "lastReviewedAt": "2026-11-16T18:35:52.225Z"
+      "status": "done",
+      "delivery": "integrated",
+      "sha": "ee049e811 + a575d3606 + ba23f5a + 6d211a0d582bc0ce23fd1abe67533468fa3403c1",
+      "evidence": "msg_24a3ba1880e9 / QA17-011",
+      "next": "배정코드검수완료·미배포묶음/146실화면으로연결,개발시험DB분리완료전DB시험재실행0",
+      "lastReviewedAt": "2026-11-16T18:46:53.546Z",
+      "completion": "취소후나중up복제0·복제날짜원자apply·권한403/실재날짜 검증배정범위 독립정적/모의PASS·작성자PG27수용. 실DOM/배포미검수"
     },
     {
       "task_id": "QA-20261117-011",
@@ -2241,12 +2243,12 @@
       "parent_task_id": "WS-20261117-15",
       "owner": "CX-QA-01",
       "title": "달력 Alt복사·월구분 기능회귀 독립검수",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "sha": "a575d3606",
-      "evidence": "msg_515daaeb9018 / QA17-011",
-      "next": "원자구조/쓰기권한양호·시작/끝불능날짜통과P2 반환. 취소PASS유지,엄격날짜수정전전체PASS아님",
-      "lastReviewedAt": "2026-11-16T18:35:52.225Z"
+      "evidence": "msg_24a3ba1880e9 / QA17-011",
+      "next": "취소/원자구조/엄격날짜/권한작성자증거지정검수완료·실DOM146시각미검수·같은검사재반복0",
+      "lastReviewedAt": "2026-11-16T18:46:53.546Z"
     },
     {
       "task_id": "QA-20261117-012",
@@ -2271,10 +2273,37 @@
       "title": "146 studio S0~2 라우트·실데이터·테마 독립검수",
       "status": "ready",
       "delivery": "delivered",
-      "sha": "21d057941 + eb42a03e + d2ef2cad",
-      "evidence": "msg_2566cc17369d",
-      "next": "기존startprefs/route·권한RPC/조회limit/오류빈상태/light범위·폭/모바일 검수. 실화면인증대기·정적/모의선행,시각PASS아님",
-      "lastReviewedAt": "2026-11-16T18:31:02.337Z"
+      "sha": "075fcb4e + df53bbad + 990ec907",
+      "evidence": "msg_e0c194e5cf0b / context7시험DB미사용",
+      "next": "문맥키user|space/기존자료숨김/늦은병합0·계정전체inbox/조회상한보완독립검수. DB분리전integrated쓰기0·실시각미검수",
+      "lastReviewedAt": "2026-11-16T18:46:53.546Z"
+    },
+    {
+      "task_id": "WS-20261117-16",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "parent_task_id": "WS-20261117-13",
+      "owner": "CC-WORKSPACE-01",
+      "title": "로컬 개발·시험 DB 분리 및 기존자료 보존",
+      "status": "ready",
+      "delivery": "delivered",
+      "evidence": "CC직접동일DB확인·msg_f7ffff59de97",
+      "completion": "개발aww_dev/시험aww 실제연결분리·현재로컬자료보존·시험reset이dev스키마/자료영향0 증명·본인3457재시작·운영DB0",
+      "next": "127.0.0.1:55432 로컬only·aww_dev없을때새로현재aww보존복제/.env.local DB명만변경·기존DB/타인접속drop/kill0·주인님로그인보류",
+      "lastReviewedAt": "2026-11-16T18:46:53.546Z"
+    },
+    {
+      "task_id": "B2B-20261117-08",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "parent_task_id": "B2B-20261117-06",
+      "owner": "CC-B2B-BACK-01",
+      "title": "자동 구매확정과 교환7일 상태정합성 수정",
+      "status": "running",
+      "delivery": "acknowledged",
+      "evidence": "9738efd80 계획·msg_01c570014805 경로예약 / msg_abc5861bd197",
+      "next": "기적용0102동결·신규0103confirmed_window/runner·카드미적용0103→0104rename·UI eligible집합 맞춤,qa원형auto_progress회차rollback빨강→정상확정·7일정책초록. 새Lab적용/실17주문변경0",
+      "lastReviewedAt": "2026-11-16T18:46:53.546Z"
     }
   ],
   "programOverrides": [
