@@ -14,6 +14,8 @@
 
 ## 현재 조정 범위
 
+TAP17-03 보완 / CC-B2B-BACK-01: build-extension-archive.mjs 옛버전ZIP삭제루프제거만추가허용·v1.88보존/현재latest동기화/로컬압축멱등검증. docs/handoff-tap189-prod/ precheck/apply/verify/README는정확원SQL+실제이력표기록을단일트랜잭션·사전멈춤/사후권한검증으로준비, qa_tap_고유DB래핑실패rollback증명. 메타UPDATE는배포Ready후별도초안, 운영시각정밀화·TAP확인창실패미실행이면가설로기록. 운영쓰기/앱build/deploy/설치/실수집없음·B2B0100과분리.
+
 MOV-20261117-03 / CC-MOVIE-01: ECOM17 pending보완87267c4cb 원무응답총3전송반례·동일/다른판자동0·명시confirm거절0승인1·정확ACK해제·다른상품독립성만최소재검수. 원MOV11 V2는새정책에맞춰명시수동송신후늦은ACK회귀. 제품/실저장/DB/설치/build/deploy0·고유결과/fixture만. Ecom추가코드동결·점유해제, 타이머자동재시도/대기임의확정없음확인.
 
 TAP-20261117-03 / CC-B2B-BACK-01: WS17-04 독립경합해소수락후v1.89릴리스준비. threads-affiliate-poster version.ts·extension/manifest.json·public/downloads v1.89/latest ZIP·본인IMPROVEMENTS/고유결과만점유. 기존build-extension-archive.mjs직접로컬압축·바이트대조(구v1.88버전ZIP보존). 현재운영1.88/후보1.89분리, SQL정확해시/선행중복검사·실패복구·programs확장metadata변경초안·독립검토/미검수명세. 운영DB/설치/build/deploy/실수집없음. Ecom은바나나담당·TAP해당경로편집금지. 준비검토후Master가빌드1회요청취합.
