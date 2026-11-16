@@ -6,16 +6,16 @@
 
 | 사용자 호칭 | 팀 ID | 기존 역할 ID | 실제 세션·장비 | 연결 상태 | 현재 작업 |
 |---|---|---|---|---|---|
-| Codex(Master) | CX-MASTER-01 | codex-master | codex-win-20261116-auto-team · GT1_Mega | busy · 현재 세션 | OPS-20261116-002 결과 검토·파일 범위 조정·다음 지휘 |
-| Codex(Tester) | CX-QA-01 | mac-mini | codex-mac-20261116-tester-role · 대화01a1c5a4-68b7-7c51-b919-9bc56cd17af5 · MacMini | busy · QA003/004 결과반환 | 독립검수 총괄·RE격리/0102 P1·E1중복 보완재검수, Mac빌드/배포금지 |
-| Antigravity | AG-UI-01 | design | agy-win-hero-copy · GT1_Mega | 결과반환·보완지시전달 | DES17-02 시안145/146/147·12뷰·독립뷰어보완, 제품미반영/주인님선택 |
+| Codex(Master) | CX-MASTER-01 | codex-master | codex-win-20261116-auto-team · GT1_Mega | busy · 공식상태/파일범위 통합 | 146 구현·ESM 매뉴얼·결제예외/실행패키지 지휘 |
+| Codex(Tester) | CX-QA-01 | mac-mini | codex-mac-20261116-tester-role · 대화01a1c5a4-68b7-7c51-b919-9bc56cd17af5 · MacMini | busy · QA012 반환/QA011 진행 | Alt복사→ESM수정본·Lab최종읽기; 메인실행 요청은Master경유 |
+| Antigravity | AG-UI-01 | design | agy-win-hero-copy · GT1_Mega | 146 인계완료·제품시각검수 준비 | Workspace 제품코드 편집0,146 S0~2 결과반환후디자인검토 |
 | Claude(Movie) | CC-MOVIE-01 | video | claude-win-video · aimaster-57 · GT1_Mega | 배정전달·착수/결과는작업판참조 | MOV17-05 UI2건검토완료, MOV17-06 Workspace묶음독립검토 |
 | Claude(Music) | CC-MUSIC-01 | music | claude-win-20261024-music · GT1_Mega | 코드완료·점유충돌정리대기 | MUS17-01 취소안내 독립PASS·미배포묶음, 공용점유표타인4줄삭제미접촉 |
-| Claude(ecommerce) | CC-ECOM-01 | ecommerce-image | claude-win-sdp · GT1_Mega | 배포완료보고수락 | 상세1.47·바나나1.49/실저장왕복·쇼핑제휴1.89 완료; 실네이버확장미검수 |
+| Claude(ecommerce) | CC-ECOM-01 | ecommerce-image | claude-win-sdp · GT1_Mega | 썸네일등록완료·매뉴얼수정반환 | ESM c909/27ae 미배포·QA008후속검수,실ESM등록0 |
 | Claude(B2BFront) | CC-B2B-FRONT-01 | mall-design-builder | claude-win-20261114-mall-design · aimaster-64 · GT1_Mega | 결과반환·코드편집종료보고 | FRONT17-01 Tab76/선택fallback보완·미배포묶음, 추가배포없음 |
-| Claude(B2BBackend) | CC-B2B-BACK-01 | mall-builder | claude-win-20261025-workspace · GT1_Mega | QA P1 수정계획 수락 | 0102 배송7일/반품경합 수정·메인격리실행, Lab0102/운영/UI 보류 |
-| Claude(RealEstate) | CC-REALTY-01 | realty | claude-win-20261024-realty · aimaster-73 · GT1_Mega | VM재현·격리수정 배정 | RE17-04 계정전환결과격리·세대검사 우선, 실제수집0 |
-| Claude(Workspace) | CC-WORKSPACE-01 | workspace | aimaster-46 · session dea6e4f6-37c0-4be8-ad50-8746e0f1c517 · GT1_Mega | E1 보완·WS10 검수대기 | E1 notify_me 영속CAS 수정→Mac, E2-7-1 국소허용·디자인선택전구조유지 |
+| Claude(B2BBackend) | CC-B2B-BACK-01 | mall-builder | claude-win-20261025-workspace · GT1_Mega | 0103 예외경계 격리재현 배정 | Lab186bf 실제anon18증거반환·카드UI2단계보류 |
+| Claude(RealEstate) | CC-REALTY-01 | realty | claude-win-20261024-realty · aimaster-73 · GT1_Mega | v1.46 운영/독립읽기검수 완료 | 첫회차/실회원미검수·층진단1회응답회수실패종료·재호출0 |
+| Claude(Workspace) | CC-WORKSPACE-01 | workspace | aimaster-46 · session dea6e4f6-37c0-4be8-ad50-8746e0f1c517 · GT1_Mega | 146 S0/S1 구현·S2 진행범위 승인 | 포털OFF검수완료·studio 새주소/기존시작설정 유지·Alt복사QA중 |
 | Claude(Blog) | CC-BLOG-01 | blog | claude-win-blog · aimaster-92 · GT1_Mega | 결과반환·점유없음보고 | BLOG17-01 운영메타/미배포표 정정완료, T12미정·키트전담미침범 |
 | Claude(Support) | CC-SUPPORT-01 | support · policy | claude-win-20261112-policy · term_e4de9dda · GT1_Mega | busy · 사용자 전담 / Master 배정제외 | 사용자와 키트설치 전담. 타업무/독립검토대응 배정금지(사용자직접지시) |
 

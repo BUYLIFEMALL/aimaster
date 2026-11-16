@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T18:11:44.226Z",
+  "checkedAt": "2026-11-16T18:13:55.498Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2099,18 +2099,18 @@
       "parent_task_id": "DES-20261117-02",
       "owner": "CC-WORKSPACE-01",
       "title": "주인님 선택146 Professional Studio 전면리뉴얼",
-      "status": "ready",
-      "delivery": "delivered",
-      "evidence": "146계획 / msg_7eff31662982",
+      "status": "running",
+      "delivery": "acknowledged",
+      "evidence": "S0/S1작성자대비보정/type0·S2경로보고 / msg_4e5b31709cee",
       "decision": {
         "chosen": "146 Professional Studio",
         "reference": "[5/12] 146 Professional Studio - 01. 메인 관제 대시보드",
         "scope": "메인기준 전체화면 일관스타일 적용·기존기능/회원데이터유지",
         "source": "주인님 직접 채팅 2026-11-17 KST"
       },
-      "next": "S0 light토큰/S1 260사이드바/S2 실제RPC홈 정확파일구현승인·단독Workspace. 관련검사→묶음끝전체1회·S2반환후S3~5조정·빌드0",
-      "lastReviewedAt": "2026-11-16T18:10:12.306Z",
-      "sha": "d0356c425a07703799ae6e98fdacdee8fb83b68e (계획)"
+      "next": "S0light/S1네이비커밋완료·실화면미검수. S2 /<domain>/studio새route·설정선택·기본/최소260승인,회원저장폭/시작설정변경0. S0~2묶음화면검수→Mac",
+      "lastReviewedAt": "2026-11-16T18:13:55.498Z",
+      "sha": "eb42a03e17741fb37bc2b4e945abf8b2050cbfde + d2ef2cadcb89673731982d83e9c0162b95167927"
     },
     {
       "task_id": "REL-20261117-006",
@@ -2193,10 +2193,10 @@
       "title": "Lab0102 안전fixture·실행패키지 준비",
       "status": "ready_review",
       "delivery": "returned",
-      "sha": "0afeb4b98f849e0b03d06bbaad148bae7846ea11",
-      "evidence": "msg_54e445ea53b0 / Lab0afeb",
-      "next": "hidden/RLS·NULL집계정적해소PASS·실anon권한증거부족(현재authenticated uid빈값). actualROLEanon단일추가검사요청·적용0",
-      "lastReviewedAt": "2026-11-16T18:10:12.306Z"
+      "sha": "186bf278f262d7dc0a8d56f3ced6f0d38a9b14f2",
+      "evidence": "msg_883b6e13ff69 / actualanon役18/18작성자",
+      "next": "실ROLEanon/current_user/auth.uid null·옵션0 로컬추가증거반환·다른파일해시그대로,Mac최종읽기마감→Master실행지시·현재적용0",
+      "lastReviewedAt": "2026-11-16T18:13:55.498Z"
     },
     {
       "task_id": "B2B-20261117-07",
@@ -2234,12 +2234,12 @@
       "parent_task_id": "WS-20261117-15",
       "owner": "CX-QA-01",
       "title": "달력 Alt복사·월구분 기능회귀 독립검수",
-      "status": "ready",
-      "delivery": "delivered",
+      "status": "running",
+      "delivery": "acknowledged",
       "sha": "ada3911482 + 928c359ff",
-      "evidence": "msg_68e476ad56f7",
-      "next": "월주/Alt드롭원본보존·실패/부분복제/중복·resize/취소/날짜기간경계검수,실원본fixture브라우저필요시Master요청·실데이터추가0",
-      "lastReviewedAt": "2026-11-16T18:10:12.306Z"
+      "evidence": "msg_d86532a3ad1a",
+      "next": "Alt드롭복사 실제소스/모의경계검수진행,원본보존/기간/실패·중복집중·제품/실데이터쓰기0",
+      "lastReviewedAt": "2026-11-16T18:13:55.498Z"
     },
     {
       "task_id": "QA-20261117-012",
@@ -2248,12 +2248,12 @@
       "parent_task_id": "B2B-20261117-07",
       "owner": "CX-QA-01",
       "title": "교환비 카드결제 0103 모의/권한 독립검수",
-      "status": "running",
-      "delivery": "acknowledged",
+      "status": "ready_review",
+      "delivery": "returned",
       "sha": "d91f16033",
-      "evidence": "msg_82bdd83232f8",
-      "next": "정적예외반례메인격리실측요청전달,권한/guard검토계속. 실제PG/Toss0·모의응답파싱과SQL전체rollback구조한계분리",
-      "lastReviewedAt": "2026-11-16T18:11:44.226Z"
+      "evidence": "msg_d86532a3ad1a / QA17-012",
+      "next": "권한/guard정적양호·외부DONE뒤parse/markpaid예외P1후보전체PASS보류·메인격리반례대기. 동일tx모의호출로그도rollback될수있어외부증거분리",
+      "lastReviewedAt": "2026-11-16T18:13:55.498Z"
     }
   ],
   "programOverrides": [
@@ -2441,9 +2441,9 @@
       "slug": "ai-work-workspace",
       "owner": "CC-WORKSPACE-01",
       "reportedVersion": "v1.55",
-      "stage": "운영v1.55·E1보안경계독립검수완료/미배포·E2진행",
+      "stage": "운영v1.55·146 S0/S1커밋/S2구현·E1/포털OFF검수완료",
       "completed": "E1 작성자245/type0·승인/owner/루트/재시도 경계독립PASS(정적·모의,실모델미검수)",
-      "next": "E1+906/8150/ad65 소규모묶음유지·E2복귀조회국소진행·AGY3안주인님선택전제품미반영",
+      "next": "studio새경로회원시작설정보존·실데이터홈구현,Alt복사QA011·월상자검수연결·새빌드/운영DDL0",
       "evidence": "Workspace직접배포보고 / DIR-20261117-003",
       "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
     },
