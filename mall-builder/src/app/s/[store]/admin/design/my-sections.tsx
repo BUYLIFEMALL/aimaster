@@ -3,7 +3,7 @@
 // 디자인 빌더 E3 「내 섹션」 — 편집기 머리 단추 2개(저장·넣기)와 창(2026-11-15, 플랜 docs/PLAN_20261115_MY_SECTIONS.md)
 // 넣기는 편집기 안에서만 바뀌고(초안 저장·게시는 평소 단추), 다른 몰 섹션은 sections.ts prepareInsert가 상품 출처를 「신상품」으로 바꾼다
 
-import { useState } from "react";
+import { useSyncExternalStore } from "react";
 import { useGetPuck } from "@puckeditor/core";
 import { BLOCK_DEFS, SCHEMA_VERSION, type Block } from "@/lib/blocks";
 import { fromPuckRaw, toPuck } from "@/lib/builder/puck-adapter";
@@ -22,17 +22,37 @@ async function safe<T>(fn: () => Promise<T>): Promise<T | { ok: false; error: st
   }
 }
 
+// 창 상태는 컴포넌트 밖에 둔다 — 편집기(design-editor.tsx)가 overrides.headerActions에 매번 새 함수를 넘겨,
+// 블록을 넣어 편집 내용이 바뀌면 Puck이 이 단추 영역을 새로 만든다(안쪽 useState가 처음 값으로 돌아가 창·안내 문구가 사라졌음)
+type Ui = { storeId: string; mode: Mode; msg: string; busy: boolean; current: Block[]; picked: Set<number>; name: string; list: MySection[] | null };
+const fresh = (storeId: string): Ui => ({ storeId, mode: null, msg: "", busy: false, current: [], picked: new Set(), name: "", list: null });
+let ui: Ui = fresh("");
+const subs = new Set<() => void>();
+const patch = (p: Partial<Ui>) => {
+  ui = { ...ui, ...p };
+  subs.forEach((fn) => fn());
+};
+const subscribe = (fn: () => void) => {
+  subs.add(fn);
+  return () => {
+    subs.delete(fn);
+  };
+};
+const read = () => ui;
+
 export function MySectionsButtons({ storeId }: { storeId: string }) {
   const getPuck = useGetPuck();
-  const [mode, setMode] = useState<Mode>(null);
-  const [msg, setMsg] = useState("");
-  const [busy, setBusy] = useState(false);
-  // 저장 창
-  const [current, setCurrent] = useState<Block[]>([]);
-  const [picked, setPicked] = useState<Set<number>>(new Set());
-  const [name, setName] = useState("");
-  // 넣기 창
-  const [list, setList] = useState<MySection[] | null>(null);
+  const snap = useSyncExternalStore(subscribe, read, read);
+  const s0 = snap.storeId === storeId ? snap : fresh(storeId); // 다른 몰 편집기로 옮기면 새로 시작
+  const { mode, msg, busy, current, picked, name, list } = s0;
+  const set = (p: Partial<Ui>) => patch({ ...(ui.storeId === storeId ? {} : fresh(storeId)), ...p });
+  const setMode = (v: Mode) => set({ mode: v });
+  const setMsg = (v: string) => set({ msg: v });
+  const setBusy = (v: boolean) => set({ busy: v });
+  const setCurrent = (v: Block[]) => set({ current: v });
+  const setPicked = (v: Set<number> | ((p: Set<number>) => Set<number>)) => set({ picked: typeof v === "function" ? v(ui.storeId === storeId ? ui.picked : new Set()) : v });
+  const setName = (v: string) => set({ name: v });
+  const setList = (v: MySection[] | null | ((l: MySection[] | null) => MySection[] | null)) => set({ list: typeof v === "function" ? v(ui.storeId === storeId ? ui.list : null) : v });
 
   const openSave = () => {
     const raw = fromPuckRaw(getPuck().appState.data).blocks as Block[];
