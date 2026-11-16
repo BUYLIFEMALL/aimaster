@@ -1,6 +1,6 @@
 # 음악(SUNO)자동화 (music/) 개선사항 및 백로그 (IMPROVEMENTS.md)
 
-> **⏳ 미배포 대기 (2026-11-14, [역할: music] `claude-win-20261024-music`)**: 왼쪽 메뉴 두 개가 함께 선택되던 문제 — `/plannings/new`가 「빠른 음악 기획」과 「음악 생성 · 트랙 관리」(`/plannings`) 둘 다에 걸림. `components/layout/Sidebar.tsx`에서 주소에 맞는 메뉴 중 가장 긴 것 하나만 켜도록 고침. tsc 통과, 버전 그대로(v1.57) — 다음 배포 때 함께 나가며 그때 +0.01.
+> **✅ 배포됨 v1.58(2026-11-16 `music-b8m2pihnu`, ego 새 기획 화면 켜진 메뉴 1개 확인)** — 원래 표시: **⏳ 미배포 대기 (2026-11-14, [역할: music] `claude-win-20261024-music`)**: 왼쪽 메뉴 두 개가 함께 선택되던 문제 — `/plannings/new`가 「빠른 음악 기획」과 「음악 생성 · 트랙 관리」(`/plannings`) 둘 다에 걸림. `components/layout/Sidebar.tsx`에서 주소에 맞는 메뉴 중 가장 긴 것 하나만 켜도록 고침. tsc 통과, 버전 그대로(v1.57) — 다음 배포 때 함께 나가며 그때 +0.01.
 
 > **✅ (배포됨 v1.57, 2026-11-14)** 공통 보완 `b4403e8bd` — 로그아웃 `signOut({ scope: "local" })` · 서버 클라이언트 `User-Agent` 전달.
 
