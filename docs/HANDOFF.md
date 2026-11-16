@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-17 ✅ [역할: realty] Claude(RealEstate) Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 부동산 실시간 매물 알림 v1.46 (U-5 지역 겹침 안내 · QA17-003 확장 계정 기록 격리)
+- 주인님 직접 승인(「지금 배포 진행」·「진행해」) → 빌드 1회 `realty-listing-alert-6kxzrn0il`(`dpl_Go6dkxsaGG5pt5DU5QGvPqbkyFbq`) Ready, 운영 별칭 연결. DB `version`·`extension_version` v1.45→v1.46, `check-extension-release` OK. 소스 미배포 5커밋 + 버전 커밋 `3e9ed6c57`.
+- 확장 계정 격리: 다른 계정으로 다시 연결하면 계정 기록 16칸만 지움, 소유 표시 없는 옛 기록은 같은 PC `legacyQuarantine`에 원값 격리(삭제·자동 귀속 없음, 비정상 값이면 멈춤), 웹 전달은 로그인=연결=소유 계정일 때만. Mac 독립 PASS(코드 범위). **회원 영향: 업데이트 뒤 첫 수집에서 옛 통계·변동 기록이 격리되어 새로 쌓임, 복구 화면 없음.**
+- 운영 확인(ego 시험 계정): 확장 v1.46 새로고침·오류 0, 대시보드 메뉴 v1.46·「설치됨 · v1.46 (최신)」, 감시 화면 정상(겹침 안내는 새 형식 회차 뒤). 운영 ZIP은 Vercel `prebuild`가 다시 압축해 해시가 저장소 ZIP과 다름(내용 파일은 모두 같음). 미검수: 실제 회차 격리·겹침 안내(18:04쯤 회차), 실회원 설치.
+- 상세 `realty-listing-alert/AGENTS.md` v1.46, `.ai/results/RE-20261117-04-CC-REALTY-01.md` §7~§11. 비용: Vercel 빌드 1회(주인님 승인).
+
 ## 2026-11-17 ✅ [역할: ecommerce-image] Claud(ecommerce) Claude Code(윈도우) · 세션 `claude-win-sdp` — 쇼핑제휴 v1.89 (네이버 브랜드커넥트 수집·중복 등록 방지)
 - 주인님 「쇼핑제휴 배포해」(DEC006) → 운영 DB `threads-affiliate-poster/docs/handoff-tap189-prod/` precheck 7/7 → apply(한 트랜잭션) → verify 8/8 → 빌드 1회 `threads-affiliate-poster-qkncpet55` Ready → programs v1.89·확장 칸 → `check-extension-release` OK.
 - 운영 확인: /login 200, 옛 v1.88 ZIP 200, 정리 경로 무토큰 401, ego(시험 계정) 상품 화면 v1.89·네이버 수집·확장 안내·위젯. 미검수: 실제 확장 설치→수집→등록→글 생성, 쿠팡 실호출.
