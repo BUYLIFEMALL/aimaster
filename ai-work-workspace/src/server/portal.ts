@@ -9,7 +9,7 @@
 //  · 토큰 원문은 저장·기록하지 않음(SHA-256 해시만). 원문은 만들 때 응답 한 번에만 돌려준다.
 import "server-only";
 import { createHash, randomBytes } from "node:crypto";
-import { db, getRecord } from "@/litpage/server/db.ts";
+import { db, getRecord, tx } from "@/litpage/server/db.ts";
 import { blockRole } from "@/litpage/server/records.ts";
 import { ApiError, type Ctx } from "@/litpage/server/api/handlers.ts";
 import { policyProblem } from "@/litpage/server/policy.ts";
@@ -139,15 +139,21 @@ export const portalHandlers = {
     const chosen = cleanProps(collection, props);
     if (!chosen.length) throw new ApiError("Choose at least one property to show.", 400);
     const d = Math.min(MAX_DAYS, Math.max(1, Math.floor(Number(days) || DEFAULT_DAYS)));
-    const cur = readPortal(row.id);
-    let token: string | null = null;
-    if (!cur || rotate === true || cur.enabled !== 1) token = newToken();
-    const hash = token ? hashToken(token) : cur!.token_hash;
-    db.prepare(`INSERT INTO aww_portals (row_id, space_id, created_by, token_hash, props, expires_time, enabled, created_time, updated_time)
-                VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)
-                ON CONFLICT (row_id) DO UPDATE SET created_by = excluded.created_by, token_hash = excluded.token_hash, props = excluded.props,
-                  expires_time = excluded.expires_time, enabled = 1, updated_time = excluded.updated_time`)
-      .run(row.id, String(row.space_id), userId, hash, JSON.stringify(chosen), now + d * DAY, now, now);
+    // QA009(2026-11-17): 「지금 열려 있음」= 켜짐 그리고 만료 전. 열려 있지 않은 포털(새로·꺼짐·만료)을 켜면 반드시 새 난수 주소 —
+    // 옛 주소는 다시 살아나지 않는다. 열려 있는 포털의 일반 저장(속성·기간)은 주소 유지. 같은 행 동시 저장은 행 잠금으로 한 줄씩.
+    const token = tx(() => {
+      const fresh = newToken();
+      const created = db.prepare(`INSERT INTO aww_portals (row_id, space_id, created_by, token_hash, props, expires_time, enabled, created_time, updated_time)
+                VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?) ON CONFLICT (row_id) DO NOTHING`)
+        .run(row.id, String(row.space_id), userId, hashToken(fresh), JSON.stringify(chosen), now + d * DAY, now, now).changes === 1;
+      if (created) return fresh;
+      const cur = db.prepare("SELECT * FROM aww_portals WHERE row_id = ? FOR UPDATE").get(row.id) as PortalRow;
+      const open = cur.enabled === 1 && cur.expires_time > now;
+      const next = !open || rotate === true ? fresh : null;
+      db.prepare("UPDATE aww_portals SET created_by = ?, token_hash = ?, props = ?, expires_time = ?, enabled = 1, updated_time = ? WHERE row_id = ?")
+        .run(userId, next ? hashToken(next) : cur.token_hash, JSON.stringify(chosen), now + d * DAY, now, row.id);
+      return next;
+    });
     return { ...info(readPortal(row.id), collection, now), token };
   },
 

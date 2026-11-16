@@ -152,4 +152,29 @@ describe('켠 뒤(격리 시험 DB)', () => {
     expect(await view(live, '198.51.100.77', now)).toBeNull();
     expect(await view(live, '198.51.100.78', now)).not.toBeNull();
   });
+
+  it('QA009: 기간이 끝난 포털을 다시 켜면 새 주소(1회 표시), 옛 주소는 영구 불가 — 켜진 상태에서 속성만 저장하면 주소 유지', async () => {
+    const t1 = ((await rpc('portalSave', { rowId: row, props: ['title'], rotate: true })).body as any).token as string;
+    expect(await view(t1)).not.toBeNull();
+    // 켜진 상태 일반 저장: 주소 유지(토큰 미반환)
+    expect(((await rpc('portalSave', { rowId: row, props: ['title', 'cost'] })).body as any).token).toBeNull();
+    expect(await view(t1)).not.toBeNull();
+    // 만료시킴 → 다시 켜기(rotate 없이)
+    db.db.prepare('UPDATE aww_portals SET expires_time = ? WHERE row_id = ?').run(Date.now() - 1000, row);
+    expect(await view(t1)).toBeNull();
+    const t2 = ((await rpc('portalSave', { rowId: row, props: ['title'] })).body as any).token as string | null;
+    expect(t2).toBeTruthy();
+    expect(t2).not.toBe(t1);
+    expect(await view(t1)).toBeNull();
+    expect(await view(t2!)).not.toBeNull();
+  });
+
+  it('QA009: 같은 행을 두 번 연달아 다시 켜도 활성 주소는 하나(두 번째는 새 주소를 받지 않음)', async () => {
+    await rpc('portalOff', { rowId: row });
+    const [a, b] = await Promise.all([rpc('portalSave', { rowId: row, props: ['title'] }), rpc('portalSave', { rowId: row, props: ['title'] })]);
+    const tokens = [(a.body as any).token, (b.body as any).token].filter(Boolean) as string[];
+    expect(tokens).toHaveLength(1);
+    expect(await view(tokens[0])).not.toBeNull();
+    expect((db.db.prepare('SELECT COUNT(*) AS n FROM aww_portals WHERE row_id = ?').get(row) as any).n).toBe(1);
+  });
 });
