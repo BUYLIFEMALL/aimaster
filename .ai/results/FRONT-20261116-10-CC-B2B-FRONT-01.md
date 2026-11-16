@@ -26,3 +26,11 @@
 - 실제 게시된 어두운 몰 화면·상품 상세 고정 띠 실화면은 미검수(Lab 게시본 밝은 테마).
 - Gallery Tab 396·aria-pressed·취소선 가격 P3는 후속 목록 유지.
 - 비용 없음. ego 공간 닫음.
+
+## 추가(Master msg_bcd823ddd2f5) — 남은 P3 원인·최소 수정안(제품 코드 수정 없음, 추가 검수 없음)
+| 항목 | 지금 쓰는 토큰·위치 | 원인 | 최소 수정안(후보) |
+|---|---|---|---|
+| 머리글 첫 글자 「A」·「가입」 단추(어두운 테마 약 2.79:1) | `shop-frame.tsx:55` `bg-blue-600 text-white`, `(shop)/layout.tsx:146·187` 가입 `bg-blue-600 text-white`(같은 줄 128·170 숫자 배지도 같음) | 어두운 테마에서 `--color-blue-*`(글자·옅은 배경용)가 뒤집혀 `bg-blue-600`이 옅은 포인트색이 되는데 글자는 흰색 그대로 | `globals.css` 어두운 규칙에 기존 `bg-slate-900.text-white` 처리와 같은 방식으로 `.bg-blue-600.text-white`(·700)의 바탕을 뒤집히지 않는 단추 색 `var(--mall-primary-600)`으로 되돌리는 한 줄. 클래스 변경 없이 CSS 1~2줄 |
+| 139 주 단추 흰 글자/코랄 3.7:1 | `home-slots.tsx:52` `HeroLink primary` → 공통 단추 `--mall-primary-600` 바탕+흰 글자 | 색 프리셋 코랄(`#e5534b`) 자체가 흰 글자와 4.5:1 미만(테마 문제가 아니라 프리셋 색) | `templates.ts` 코랄 프리셋 primary를 한 단계 진하게(예: 흰 글자 4.5:1 이상 값) — 모든 코랄 몰에 영향이라 Master·디자인 판단. 또는 `theme.ts` `contrastWarning`이 단추 글자 대비도 보게 넓히기 |
+| 143 카테고리 탭 「생활용품」 등 14px 4.15:1 | `shop-frame.tsx:44` `navCls` `text-slate-600` | 어두운 테마에서 `slate-600`이 뒤집혀 중간 회색 → 어두운 면 위 4.15:1 | `navCls`의 `text-slate-600`을 `text-slate-700`로(밝은 테마에선 더 진해질 뿐, 어두운 테마에선 더 밝아짐) — 한 단어 수정 |
+- 세 건 모두 지금은 고치지 않음(배정 범위 밖). 공유 `bg-white/95`의 상세·앱 설치 안내 파급은 계속 미검수.
