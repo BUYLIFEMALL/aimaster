@@ -32,9 +32,39 @@
 | DES-20261116-02 | AG-UI-01 | 읽기 전용 7b5d3b053 대조, DES-01 본인결과 정정·DES-02 고유결과 | Master 검토 후 정적범위 done. 제품파일 수정 없음 |
 | FRONT-20261116-03 | CC-B2B-FRONT-01 | mall-builder/src/app/s/[store]/admin/design/my-sections.tsx의 넣기 피드백 국소 수정, 기존 tests/my-sections.test.mjs(의미 있는 회귀가 필요할 때만), 본인 결과·개선문서 항목 | 다른 부모/공용 파일이 필요하면 편집 전에 목록·이유를 Master에게 제출. 추가 템플릿 확대 없음 |
 | FRONT-20261116-04 | CC-B2B-FRONT-01 | mall-builder/src/app/s/[store]/admin/design/design-editor.tsx의 Puck headerActions 식별성·해당 인스턴스 상태 연결, my-sections.tsx의 전역 UI 저장소 제거/국소 상태·요청 수명 관리, 기존 my-sections.test.mjs 및 필요한 고유 회귀시험·본인 결과/개선문서 | 685fed7da 실제diff·422시험/타입0·Lab회귀 근거로 Master 검토 완료. FRONT-03 방안은 대체됨. 운영 배포는 별도, 새 파일 수정은 재배정 후 |
+| B2B-20261116-04 | CC-B2B-BACK-01 | 본인3210 PID34104/24328/35520·기존로그·HTTP응답·메모리/캐시상태 읽기, 고유 결과 .ai/results/B2B-20261116-04-CC-B2B-BACK-01.md | Master가로그인200/몰500·Jest worker 재현. 소스/env/캐시 변경·종료/재시작·설치/build/DB/운영배포 없음. 원인 근거와 최소복구범위 제출 후 Master 재배정 |
+
+| B2B-20261116-05 | CC-B2B-BACK-01 | 현재3210 본인 프로세스 트리 식별·확인된 트리만 종료, mall-builder 기존 Lab명령을 Orca 전용터미널에서1회 실행, 로그/HTTP 읽기·고유결과 | 소유/생성시각/포트 재검증 필수. 캐시/env/소스/DB/운영배포 변경 없음. 404/실패 재발은 재시도하지 않고 보고 |
+| QA-20261116-02 | CX-QA-01 | efc72da60 영상 diff·shopPayload/shopInbox·기존 시험 읽기/가능한 가벼운 검사, 고유결과 | 지금 실제 검토·판정 반환. ACK만으로 끝내지 않음. 코드/설치/배포/운영쓰기 없음 |
+| MUS-20261116-03 | CC-MUSIC-01 | Workspace d8290ffb6 및270f87b20 권한/한도/승인소모 독립 읽기검토·기존 국소검사, 고유결과 | 현재 운영v1.52에 대한 작성자 외 검토. 실제MCP/유료호출/운영DB쓰기/제품수정 없음 |
+| FRONT-20261116-05 | CC-B2B-FRONT-01 | templates-extra-3.ts·tests/templates-extra-3.test.mjs 신규, templates.ts 연결2줄·template-gallery.tsx 새도식·DESIGN_BUILDER_TRACKER 본인행·고유결과 | 131~138 예약(식품4/디지털4). 기존정적블록·스킨만. DESIGN.md는Master,결제/DB/설치/운영배포 없음. Lab확인은서버복구뒤 |
+| SUP-20261116-01/02 | CC-SUPPORT-01 | 이미 사용자 지정 Threads/INSTA KIT 및 IS_STANDALONE 분기 작업 결과·고유결과 정리 | 현재ready_review, 검토자가 지적한 추가 파일은Master 조정후. 출처불명 version/남의AGENTS 보존 |
+| SUP-20261116-03 | CC-SUPPORT-01 | 사용자 지정 ai-auto-blog/KIT/**·확장 포함 독립 배포키트에 필요한 파일목록을 먼저 제출, 본인 고유결과 | 기존지시로 진행중인 키트자료 보존. 추가 원본/공용 경로는목록대조 후 Master 확인, 새로운 무승인 설치/빌드 시작 없음 |
+| DES-20261116-03 | AG-UI-01 | Threads v1.02/INSTA v1.10 고정 ZIP·KIT문서 읽기, 고유결과 | 첫설정·콜백/삭제/사용자이해 점검. 제품/KIT수정·새시안·서버/브라우저조작 없음 |
+| ECOM-20261116-03 | CC-ECOM-01 | INSTA v1.10 고정 ZIP·ea06cda63 diff·KIT/schema/env/의존성 읽기·기존 읽기전용 검증, 고유결과 | 비밀값은 값 대신 존재/종류/건수만. 설치/build/운영DB/SNS쓰기/제품편집 없음 |
+| BLOG-20261116-02 | CC-BLOG-01 | ai-auto-blog 확장포함 KIT 검토기준 작성·Support가반환한 고정SHA/ZIP 독립읽기검토, 고유결과 | Support 진행중 파일을수정하지않음. 계정/확장설치·실제발행·DB쓰기·설치/build 없음 |
+
+| MOV-20261116-02 | CC-MOVIE-01 | video-to-gif/lib/shopInbox.ts·lib/shopInbox.test.ts 신규(기존 시험체계), 본인 고유결과/개선문서 항목 | QA P1 중복송신·cleanup중await·payload거절 수정. payload/호출부/버전/ZIP/배포 변경은 추가범위승인후. 회귀를 먼저 실패시키고 최소보완→Tester 재검토 |
+| WS-20261116-03 | CC-WORKSPACE-01 | v1.52운영의 본인시험계정/공개가이드 읽기·보호기능 차단 확인·고유결과/본인 역할문서 항목 | 배포는사용자직접지시완료. 실제MCP쓰기·새배포/DB/환경변수변경없음. 독립검토는Music 담당 |
+| RE-20261116-03 | CC-REALTY-01 | 본인4프로그램 미배포/기배포 SHA·릴리스/승인 이력 읽기·고유결과 | 이미v1.44 local signOut 적용확인,같은수정재실행안함. 코드/버전/ZIP/설치/build/실알림/DB변경없음 |
+
+| FRONT-05 시험 추가범위 | CC-B2B-FRONT-01 | tests/templates-extra-2.test.mjs의 기존19종보존 검사1곳 | 기존13종+2차6종 보존/업종최소조건 유지, 전역19고정만확장가능한하한으로. 신규3차는27고유ID/기존보존 고정. 기대값무근거완화금지 |
+| SUP-20261116-04 | CC-SUPPORT-01 | insta_auto_poster/KIT/schema.sql의 profiles 권한열 보호, 다른2 KIT/schema.sql도 동일문제확인시 같은보호, 본인 kit.json/README 판번호·신규ZIP재포장·고유결과 | 일반회원 is_admin/is_suspended/보호정책열 직접변경 막기. 회원 정상수정 필드만허용. 로컬격리DB/정적검증만·기존공유DB리셋없음·원본운영/실키/외부회원변경없음 |
+| SUP-03 로컬 리허설 자원 | CC-SUPPORT-01 | 확정 Blog KIT 새 격리작업폴더 npm ci/build/start1회 및 본인성공/실패로그, 로컬격리DB 스키마 검증 | 3210 Master 재확인통과후허용. 포트/경로/메모리 확인, 3210·다른세션DB/프로세스 무침범. Vercel/외부연결·게시없음 |
+| WS-20261116-04 | CC-WORKSPACE-01 | ai-work-workspace/src/app/guide/page.tsx 및 본인 개선문서의 MCP 승인안내만 | 기존코드정책변경없음. 비서대화/AI채팅/무인실행의 실제차이·읽기표시기준 정확히. code/API/schema/배포/DB쓰기없음 |
 
 작업자가 공용 `.ai/` 등록부·tasks·decisions·총괄표를 직접 바꾸지 않는다. `.ai/results/<작업ID>-<세션ID>.md` 고유 결과는 쓸 수 있으며, 추가 결과 파일도 파일명을 Master에게 알린다. 자기 프로그램 문서/ACTIVE_WORK 본인 항목은 기존 안전 편집 규칙대로 관리한다.
 
+## 18:25 재지휘·사용자 변경 (앞선 같은 작업 범위보다 우선)
+
+- 키트 3종의 Lab 프로젝트 생성·DB 초기화·설치·Vercel 배포는 **사용자가 직접 진행**한다. 세션의 자동 실행 배정을 철회한다. 기존 6회 예산을 다른 운영 배포에 전용하지 않는다. Support는 실행 여부·인수인계만 반환하며 SUP-04 코드 권한 보완은 계속한다.
+- QA-20261116-03 / CX-QA-01: `2ae34fbdc` 영상 수정 읽기 전용 독립 재검증, 자신의 고유 결과 파일만 작성. 원본 11개 시험·중복 ready/cleanup/실패/새 클릭 재현. 운영·설치·빌드·DB 변경 없음.
+- FRONT-20261116-06 / CC-B2B-FRONT-01: `mall-builder/src/app/s/[store]/home-slots.tsx`의 timesale dark 스킨 색상만 국소 보완, 필요시 고유 회귀 시험 파일 `mall-builder/tests/timesale-dark.test.mjs`, 본인 tracker/결과. 편집 직전 점유/status/diff 재확인. 공통 테마 CSS·스키마·API·다른 블록 수정 금지. 밝은/어두운 테마에서 dark/rose 스킨 제목·설명·카운트다운 가독성 및 375px 확인, 저장·게시·배포 없음. 새 템플릿 범위 확대 없음.
+- WS-20261116-05 / CC-WORKSPACE-01: `ai-work-workspace/src/litpage/server/agents/tools.ts`의 무인 MCP 검토 조건에 destructive 표시 우선 반영 및 기존 `tests/integration/agentMcp.test.ts` 해당 회귀, 본인 개선문서·고유결과. 먼저 실제 필드 전달 여부 확인; 다른 파일 필요시 편집 전 Master에 경로/근거 제출. readOnly+destructive 모순 도구는 무인 실행 금지·검토로. 대화 중 정책·callKey·스키마·배포 변경 없음. 시험 DB 공유 점유 확인 후 필요한 파일만 검사.
+- ECOM-20261116-04 / CC-ECOM-01: 기존 `7b5d3b053` 바나나 수정의 읽기 전용 실화면 375px·직접 입력 25MB 경계·빈 상태·키보드/레이블 확인, 자기 결과만. 운영 데이터 저장·유료 생성·빌드·배포·제품 수정 없음. 안전하게 열 수 있는 기존 로컬/미리보기 환경이 없으면 구체적인 제약 반환.
+
 ## 완료 처리
+
+18:30 추가 배정: MUS-20261116-04(Music, `4e64c8cbd` WS05 읽기전용 독립검토), ECOM-20261116-05(ecommerce, INSTA1.11 고정ZIP 권한 보강 읽기검토), BLOG-20261116-03(Blog, Blog1.07 고정ZIP env읽기/확장치환 읽기검토). 각 담당은 `.ai/results/<작업ID>-<팀ID>.md`만 작성하고 제품/공통파일을 고치지 않는다. FRONT06은 같은 timesale 블록 안에서 rose 스킨의 `mall-mode=dark` 한정 색상 보정 A안을 추가 허용했다. 공통CSS·다른블록·템플릿 수정은 금지한다.
 
 작업자는 `ready_review`로 제출한다. Master가 요구·실제SHA·파일범위·충돌·검증·남은 문제를 확인하고 승인/보완/다음지시를 기록한다. 작업의 완료조건이 충족된 경우만 `done`으로 닫는다. 구현 완료·독립검토 통과·배포 Ready·운영 검수는 별개 상태이며, 배포가 목표인 상위 작업을 코드 구현만으로 닫지 않는다.
