@@ -283,3 +283,7 @@ Lab0102실적용후자동confirmed3일과D4교환7일충돌발견:기존자동�
 
 WS17-16 CC-WORKSPACE-01: 개발3457와vitest가같은127.0.0.1:55432/aww임을확인,DB쓰기시험/주인님로그인보류. 시험은aww유지·개발새aww_dev에현재로컬자료보존복제 승인(로컬only). 기존aww_dev덮기/drop금지·타인세션종료0, .env.local AWW_DATABASE_URL DB명만변경·운영env/DB0. 자기PID44944 확인후중지/동일3457숨김재시작,실개발/시험연결분리와시험reset의dev영향0 증거필수. 새비밀/덤프/자격증명로그0·private비추적보존만.
 B2B17-08: 기적용0102동결,후속0103_exchange_confirmed_window.sql·run-0103-confirmed.mjs 및 UIexchanges.ts/panels/tests 범위. 미적용카드0103파일/runner는0104로rename·문서신기준연결(과거기록보존). 운영/새LabDDL/기존17주문변경0.
+
+### 2026-11-17 05:35 KST · B2B 교환비 화면 단계2
+
+B2B-20261117-09 책임 CC-B2B-BACK-01. acf00f9bb 정확경로 계획에 따라 새 `mall-builder/src/app/s/[store]/(shop)/orders/[id]/exchange-pay/[exchangeId]/page.tsx` 및 그 아래 `success/page.tsx`·`fail/page.tsx`, 기존 `src/lib/exchanges.ts`·`exchanges-server.ts`·`exchange-actions.ts`·`src/app/exchange-panels.tsx`·`tests/exchanges.test.mjs` 수정 허용. 주문 상세 shop/admin 2개는 필요한 키 없는 반환 안내만 국소 허용. 기존 pay-widget.tsx·payment.ts는 읽기 재사용만, Front 디자인 빌더 및 상품 화면 변경 금지. 0104 원문 37fdcabb4 소스검수 PASS 상태로 동결. 구현 전 점유·미커밋·0번 고지 확인, 실제 Toss·키·Lab0104·운영DB·설치·빌드·배포 없이 모의 검증만. 회원 본인·몰/주문/교환 소속 확인, prepare/confirm 별도 요청, status/needs_review로 표시하고 키 없는 반환 뒤 RLS 재조회, 시도 이력·비밀값 노출 금지. 구현 ready_review 반환 후 Mac Codex Tester 독립 검수.
