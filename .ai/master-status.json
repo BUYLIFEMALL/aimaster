@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T19:45:08.538Z",
+  "checkedAt": "2026-11-16T19:45:56.208Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2304,9 +2304,9 @@
       "title": "자동 구매확정과 교환7일 상태정합성 수정",
       "status": "ready_review",
       "delivery": "returned",
-      "evidence": "msg_0e2288710621 e6c9183cb 실제Lab JWT staff request/reject 각1·0원·기존자료불변, Mac증거대조배정",
-      "next": "staff실RPC배정범위완료보고·거절시험1행/이력2잔존, user7일/화면미검수. Mac증거대조대기, Lab추가쓰기/정리/빌드0",
-      "lastReviewedAt": "2026-11-16T19:45:08.538Z",
+      "evidence": "msg_f5e0ae653610 Mac 실제staff RPC 메인실행근거/fixture대조 모순없음·msg_0e2288710621/e6c9183cb",
+      "next": "0103적용/staff실RPC 및증거검토마감. 유저실세션7일/화면은별도미검수. 시험후baseline rejected1행/이력2,기존verify교환0 반복요구0. Backend0104기승인로컬보완진행",
+      "lastReviewedAt": "2026-11-16T19:45:56.208Z",
       "sha": "0edda8666 / package9e9120183 + verify c8b33554e"
     },
     {
