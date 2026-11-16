@@ -27,7 +27,7 @@ import { titleOf } from '../../advanced/context.ts';
 import { getLocale, tx } from '../../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
 import './calendar.css';
 
-const ROW_HEIGHT = 124;
+const ROW_HEIGHT = 240; // 주인님 요청(2026-11-17): 한 주 칸을 노션처럼 세로로 길게(예전 124)
 const LANE = 34;
 const TOP = 30;
 const MAX_LANES = 3;
@@ -221,7 +221,7 @@ function CalendarView(props: ViewProps) {
   const monthTitle = (() => {
     const iso = visibleMonth ? `${visibleMonth}-01` : isoOfDay(range === 'week' ? weeks[0] + 3 : anchor);
     const [y, m] = iso.split('-').map(Number);
-    return `${monthName(m)} ${y}`;
+    return getLocale() === 'ko-KR' ? `${y}년 ${m}월` : `${monthName(m)} ${y}`; // 한국어: 2026년 11월
   })();
 
   const dayColumns = (weekStart: number) => {
@@ -310,7 +310,7 @@ function CalendarView(props: ViewProps) {
         <div role="button" className="nc-cal-nav" aria-label={range === 'week' ? tx('Next Week') : tx('Next Month')} onClick={() => goto(1)}><Icon name="chevronRight" size={20} color="var(--lp-icon-secondary)" /></div>
       </div>
       <div className="nc-cal-days lit-calendar-header-days">
-        {headerDays.map((d) => <div key={d}>{weekdayName(weekdayOf(d) === 0 ? 7 : weekdayOf(d), 'short')}</div>)}
+        {headerDays.map((d) => <div key={d}>{getLocale() === 'ko-KR' ? '일월화수목금토'[weekdayOf(d)] : weekdayName(weekdayOf(d) === 0 ? 7 : weekdayOf(d), 'short')}</div>)}
       </div>
       <div className="nc-cal-grid" ref={gridRef}>
         {weeks.map((ws) => {
@@ -346,7 +346,7 @@ function CalendarView(props: ViewProps) {
                       <div role="button" className="nc-cal-add" aria-label={tx('Create an item')} data-tooltip={tx('Create an item')} onClick={() => addOn(d)}><Icon name="plus" size={14} /></div>
                     )}
                     <div className={`nc-cal-num lit-calendar-view-day ${inMonth ? '' : 'outside'} ${d === today ? 'today' : ''}`} data-testid={d === today ? 'today-day-number' : undefined}>
-                      {first && d !== today ? `${monthName(Number(iso.slice(5, 7)), true)} 1` : Number(iso.slice(8))}
+                      {first && d !== today ? (getLocale() === 'ko-KR' ? `${Number(iso.slice(5, 7))}월 1일` : `${monthName(Number(iso.slice(5, 7)), true)} 1`) : Number(iso.slice(8))}
                     </div>
                     {hidden > 0 && (
                       <div role="button" className="nc-cal-more" style={{ top: TOP + lanesShown * lane }} onClick={() => setExpanded((x) => ({ ...x, [ws]: true }))}>{hidden} more</div>
