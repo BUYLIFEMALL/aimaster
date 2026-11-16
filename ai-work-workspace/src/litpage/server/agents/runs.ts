@@ -116,6 +116,8 @@ export interface RunPayload {
   approvedCalls?: string[];
   /** extra hosts allowed for a re-run */
   allowedHosts?: string[];
+  /** 2026-11-17 E1 결함 수정: notify_me를 이미 보낸(선점한) 시각 — 「허용」 다시 실행도 payload를 물려받아 계보 전체 1회 */
+  notifyMeSent?: number;
   [k: string]: unknown;
 }
 
@@ -672,7 +674,7 @@ async function runModel(agent: AgentRecord, run: RunRow, opts: ModelOptions): Pr
   };
   const ctx: RunToolContext = {
     agent, runId: run.id, kind: run.kind, interactive: opts.interactive, actorId: actorId ?? null, canConfigure, chain: run.chain, allowedHosts, allowAllUrls: allowAll,
-    mcp: mcp.map, approvedCalls: new Set(run.payload.approvedCalls ?? []), consumeApproval: (keys: string[]) => consumeApprovedCall(run.id, keys), review: null, notificationsSent: 0,
+    mcp: mcp.map, approvedCalls: new Set(run.payload.approvedCalls ?? []), consumeApproval: (keys: string[]) => consumeApprovedCall(run.id, keys), claimNotifyMe: () => claimNotifyMe(run.id), review: null, notificationsSent: 0,
     callSubAgent: (id, task) => runSubAgent(agent, run, id, task, opts),
     onHostsChanged: () => {
       req.serverTools = buildWeb();
@@ -868,6 +870,30 @@ export function consumeApprovedCall(runId: string, key: string | string[]): bool
     if (db.prepare('UPDATE agent_runs SET payload = ? WHERE id = ? AND payload = ?').run(next, runId, row.payload).changes === 1) return true;
   }
   return false;
+}
+
+/**
+ * 2026-11-17 PLAN-20261117-01 E1 결함 수정(Mac QA): notify_me 발송 자격을 실행 기록에서 한 번만 선점(consumeApprovedCall과 같은 CAS).
+ * 이미 보냈거나·실행이 없거나·payload를 못 읽거나·5번 충돌하면 false(발송 안 함, fail closed). 다른 payload 칸은 그대로 둔다.
+ */
+export function claimNotifyMe(runId: string): boolean {
+  try {
+    for (let i = 0; i < 5; i++) {
+      const row = db.prepare('SELECT payload FROM agent_runs WHERE id = ?').get(runId) as { payload: string | null } | undefined;
+      if (!row) return false;
+      const p = row.payload == null ? {} : (json(row.payload, null as unknown as RunPayload) as RunPayload | null);
+      if (!p || typeof p !== 'object') return false;
+      if (p.notifyMeSent) return false;
+      const next = JSON.stringify({ ...p, notifyMeSent: Date.now() });
+      const ok = row.payload == null
+        ? db.prepare('UPDATE agent_runs SET payload = ? WHERE id = ? AND payload IS NULL').run(next, runId).changes === 1
+        : db.prepare('UPDATE agent_runs SET payload = ? WHERE id = ? AND payload = ?').run(next, runId, row.payload).changes === 1;
+      if (ok) return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
 }
 
 /**

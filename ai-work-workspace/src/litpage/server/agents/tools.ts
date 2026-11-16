@@ -166,8 +166,8 @@ export interface RunToolContext {
   /** a triggered run hit something that needs a person: the run ends as "Needs review" */
   review: PendingReview | null;
   notificationsSent: number;
-  /** 2026-11-17 E1: notify_me는 한 실행에 한 번만 */
-  notifyMeSent?: boolean;
+  /** 2026-11-17 E1: notify_me 발송 자격 선점 — 운영은 runs.ts가 실행 기록 CAS(claimNotifyMe)를 넣는다. 없으면 보내지 않음(메모리 대체 없음) */
+  claimNotifyMe?: () => boolean;
   /** run a sub-agent and return its final text */
   callSubAgent: (agentId: string, task: string) => Promise<string>;
   /** web fetch allowlist changed (rebuild the server tool) */
@@ -259,14 +259,17 @@ async function notifyMe(ctx: RunToolContext, env: AgentEnv, input: Record<string
   if (!message) return { content: 'The message is empty.', isError: true };
   const channels = [...new Set((Array.isArray(input.channels) ? input.channels : []).map(String))].filter((c): c is 'email' | 'kakao' => c === 'email' || c === 'kakao');
   if (!channels.length) return { content: 'Choose email and/or kakao.', isError: true };
-  if (ctx.notifyMeSent || !hit(`agent-notify-me:${ctx.agent.id}`, 10, 3600_000)) return { content: 'Already sent to the owner in this run (or too many recently).', isError: true };
+  if (!hit(`agent-notify-me:${ctx.agent.id}`, 10, 3600_000)) return { content: 'Too many messages to the owner recently. Try again later.', isError: true };
   const pageId = normalizeId(input.page_id);
   if (!pageId || !canRead(pageId, env.userId)) return { content: 'You can’t open that page, so it can’t be linked.', isError: true };
+  // 실행 기록에서 한 번만 선점(같은 실행 다른 worker·「허용」 다시 실행 포함 계보 전체 1회). 선점 함수가 없거나 실패하면 보내지 않음
+  let claimed = false;
+  try { claimed = typeof ctx.claimNotifyMe === 'function' && ctx.claimNotifyMe() === true; } catch { claimed = false; }
+  if (!claimed) return { content: 'Already sent to the owner in this run (or it could not be confirmed), so nothing was sent.', isError: true };
   const owner = ctx.agent.owner_id ?? ctx.agent.created_by_id;
   env.step({ id: stepId, tool: 'notify_me', status: 'running', label: 'Sending to the owner', detail: channels.join(', ') });
   const sending = sendExternalNotify({ userId: owner, channels, automationName: ctx.agent.data.name, text: message, pageId, spaceId: ctx.agent.space_id });
   if (!sending) return { content: 'Email/KakaoTalk sending is not available here.', isError: true };
-  ctx.notifyMeSent = true;
   const fails = (await sending) ?? [];
   env.step({ id: stepId, tool: 'notify_me', status: fails.length ? 'error' : 'done', label: 'Sent to the owner', detail: channels.join(', '), ...(fails.length ? { error: fails.join(' / ').slice(0, 300) } : {}) });
   return fails.length ? { content: `Some channels failed: ${fails.join(' / ')}`, isError: true } : { content: `Sent to the owner by ${channels.join(' and ')}.` };

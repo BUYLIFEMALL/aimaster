@@ -16,11 +16,13 @@ vi.mock('../../src/litpage/server/ai/context.ts', async (orig) => ({
 let tools: typeof import('../../src/litpage/server/agents/tools.ts');
 let templates: typeof import('../../src/litpage/server/agents/templates.ts');
 let engine: typeof import('../../src/litpage/server/automations/engine.ts');
+let runs: typeof import('../../src/litpage/server/agents/runs.ts');
 
 beforeAll(async () => {
   tools = await import('../../src/litpage/server/agents/tools.ts');
   templates = await import('../../src/litpage/server/agents/templates.ts');
   engine = await import('../../src/litpage/server/automations/engine.ts');
+  runs = await import('../../src/litpage/server/agents/runs.ts');
 });
 
 function makeCtx(owner?: string) {
@@ -28,6 +30,8 @@ function makeCtx(owner?: string) {
     agent: { id: `a-${Math.random()}`, bot_id: 'bot-1', created_by_id: 'creator-1', ...(owner ? { owner_id: owner } : {}), space_id: 's1', data: { name: '주간 요약' } },
     runId: 'r1', kind: 'trigger', interactive: false, actorId: null, canConfigure: false, chain: [], allowedHosts: new Set<string>(), allowAllUrls: false,
     mcp: new Map(), approvedCalls: new Set<string>(), review: null, notificationsSent: 0, callSubAgent: async () => '',
+    // 시험 전용 메모리 선점(운영 실행은 runs.ts가 실행 기록 CAS를 넣음)
+    claimNotifyMe: (() => { let used = false; return () => (used ? false : (used = true)); })(),
   } as never as import('../../src/litpage/server/agents/tools.ts').RunToolContext;
 }
 const env = { userId: 'creator-1', step: () => {}, approve: vi.fn(async () => 'accept') } as never as Parameters<typeof import('../../src/litpage/server/agents/tools.ts').runAgentTool>[1];
@@ -111,5 +115,76 @@ describe('E1 작업 시간 기록 템플릿', () => {
     expect(amt.error).toBeFalsy();
     expect((hrs as { number?: number }).number).toBe(2.5);
     expect((amt as { number?: number }).number).toBe(75000);
+  });
+});
+
+// ---------------------------------------------------------------- E1 결함 수정(Mac QA msg_cd9ac04abae3): 실행 기록 CAS로 계보 전체 1회
+describe('E1 notify_me — 실행 기록 선점(실제 시험 DB)', () => {
+  const agent = { id: 'a-e1', space_id: 's1' } as never;
+  const claimOf = (runId: string) => ((runs as Record<string, unknown>).claimNotifyMe ? () => (runs as unknown as { claimNotifyMe: (id: string) => boolean }).claimNotifyMe(runId) : undefined);
+  /** 저장된 실행 하나를 새 worker처럼 연다(runs.ts가 만드는 맥락과 같은 선점 함수) */
+  function ctxFor(runId: string) {
+    const ctx = makeCtx('owner-9') as unknown as Record<string, unknown>;
+    ctx.runId = runId;
+    ctx.claimNotifyMe = claimOf(runId);
+    return ctx as never;
+  }
+  const send = (ctx: never, message: string) => tools.runAgentTool(ctx, env, 'notify_me', { channels: ['email'], message, page_id: 'p-ok' }, 'st');
+
+  it('같은 실행을 두 worker가 다른 문구로 열어도 발송 1회', async () => {
+    const sent: unknown[] = [];
+    engine.setExternalNotifyHandler(async (n) => { sent.push(n); return []; });
+    const r1 = runs.insertRun({ agent, kind: 'trigger', label: '정시' }).id;
+    await send(ctxFor(r1), '첫 요약');
+    const second = await send(ctxFor(r1), '다른 요약');
+    expect(second?.isError).toBe(true);
+    expect(sent).toHaveLength(1);
+  });
+  it('보낸 뒤 「검토 필요 → 허용」 다시 실행(새 run)도 막힘, 승인 키 등 다른 payload 칸은 보존', async () => {
+    const sent: unknown[] = [];
+    engine.setExternalNotifyHandler(async (n) => { sent.push(n); return []; });
+    const r1 = runs.insertRun({ agent, kind: 'trigger', label: '정시', payload: { approvedCalls: ['k-old'], allowedHosts: ['a.com'], text: '원래' } }).id;
+    await send(ctxFor(r1), '요약');
+    const p1 = runs.getRun(r1)!.payload;
+    expect(p1.approvedCalls).toEqual(['k-old']);
+    expect(p1.allowedHosts).toEqual(['a.com']);
+    expect(p1.text).toBe('원래');
+    runs.setRunStatus(r1, 'needs_review' as never, null);
+    runs.setRunReview(r1, { kind: 'url', url: 'https://b.com', host: 'b.com', label: 'Open b.com' } as never);
+    const d = runs.decideRunReview(r1, true, 'owner-9')!;
+    const r2 = runs.insertRun({ agent, kind: 'trigger', label: '다시 실행', payload: d.payload!, parentRunId: r1 }).id;
+    const again = await send(ctxFor(r2), '다시 요약');
+    expect(again?.isError).toBe(true);
+    expect(sent).toHaveLength(1);
+  });
+  it('선점 뒤 발송이 실패해도 자동 재발송 없음(중복보다 미발송)', async () => {
+    let calls = 0;
+    engine.setExternalNotifyHandler(async () => { calls++; return ['메일: 계정 연결이 필요합니다']; });
+    const r1 = runs.insertRun({ agent, kind: 'trigger', label: '정시' }).id;
+    expect((await send(ctxFor(r1), '요약'))?.isError).toBe(true);
+    expect((await send(ctxFor(r1), '요약'))?.isError).toBe(true);
+    expect(calls).toBe(1);
+  });
+  it('관계없는 새 정시 실행은 정상으로 1회 보냄', async () => {
+    const sent: unknown[] = [];
+    engine.setExternalNotifyHandler(async (n) => { sent.push(n); return []; });
+    const a = runs.insertRun({ agent, kind: 'trigger', label: '월요일' }).id;
+    const b = runs.insertRun({ agent, kind: 'trigger', label: '다음 월요일' }).id;
+    await send(ctxFor(a), '이번 주');
+    await send(ctxFor(b), '다음 주');
+    expect(sent).toHaveLength(2);
+  });
+  it('동시에 두 번 선점해도 하나만 true, 없는 실행·선점 함수 없는 운영 맥락은 발송 0', async () => {
+    const claim = (runs as unknown as { claimNotifyMe?: (id: string) => boolean }).claimNotifyMe;
+    expect(typeof claim).toBe('function');
+    const r1 = runs.insertRun({ agent, kind: 'trigger', label: '정시' }).id;
+    expect([claim!(r1), claim!(r1)].filter(Boolean)).toHaveLength(1);
+    expect(claim!('없는-실행')).toBe(false);
+    const sent: unknown[] = [];
+    engine.setExternalNotifyHandler(async (n) => { sent.push(n); return []; });
+    const noClaim = makeCtx('owner-9') as unknown as Record<string, unknown>;
+    delete noClaim.claimNotifyMe;
+    expect((await send(noClaim as never, 'x'))?.isError).toBe(true);
+    expect(sent).toHaveLength(0);
   });
 });
