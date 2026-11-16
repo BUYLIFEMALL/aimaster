@@ -15,7 +15,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `mall-builder` | E3 실화면 확인(저장→넣기→다른 몰) | 3210 개발 서버 회복(백엔드 몫) | [상호 인수인계](../../mall-builder/docs/HANDOFF_DESIGN_BUILDER_BACKEND_SYNC.md) S72 |
+| `mall-builder` | E3 실화면 확인(저장→넣기→다른 몰) | 3210 개발 서버 회복(백엔드 몫) | [상호 인수인계](../../mall-builder/docs/HANDOFF_DESIGN_BUILDER_BACKEND_SYNC.md) S73·S74 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
