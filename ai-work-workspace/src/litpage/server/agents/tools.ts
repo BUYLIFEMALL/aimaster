@@ -144,6 +144,8 @@ export interface RunToolContext {
   mcp: Map<string, { connectionId: string; connectionName: string; tool: McpTool; mode: McpToolMode }>;
   /** calls already approved for this run (re-runs after "Allow") */
   approvedCalls: Set<string>;
+  /** AIMaster 2026-11-16: 저장된 승인을 실행 기록에서 한 번만 소진(성공 시 true). 없으면 메모리 승인만 씀(시험용). */
+  consumeApproval?: (key: string) => boolean;
   /** a triggered run hit something that needs a person: the run ends as "Needs review" */
   review: PendingReview | null;
   notificationsSent: number;
@@ -272,7 +274,14 @@ async function mcpTool(ctx: RunToolContext, env: AgentEnv, name: string, input: 
   // AIMaster 2026-11-16(플랜 PLAN_20261116_AGENT_MCP.md): 회원이 없는 실행(정시·이벤트)에서는 쓰기·삭제 도구를
   // 「항상 허용」으로 해 두었어도 검토 필요로 멈춤 — 혼자 실행되는 것은 읽기 도구뿐. 채팅 중에는 회원 설정을 따름.
   const needsApproval = m.mode === 'ask' || (!ctx.interactive && !m.tool.readOnly);
-  if (needsApproval && !ctx.approvedCalls.has(key)) {
+  // 「허용」 승인은 한 번만: 메모리에서 지우고, 실행 기록에서도 조건부로 소진해 성공한 쪽만 실행(다른 서버·다시 실행과 겨뤄도 1번).
+  // 소진에 실패하면(이미 쓰임) 승인이 없는 것으로 보고 다시 검토 필요로 멈춤. 호출이 실패해도 승인은 돌려놓지 않음(자동 재호출 없음).
+  let preApproved = false;
+  if (needsApproval && ctx.approvedCalls.has(key)) {
+    ctx.approvedCalls.delete(key);
+    preApproved = ctx.consumeApproval ? ctx.consumeApproval(key) : true;
+  }
+  if (needsApproval && !preApproved) {
     if (!ctx.interactive) {
       ctx.review = { kind: 'tool', connectionId: m.connectionId, tool: m.tool.name, input, label: `Run ${m.tool.name} (${m.connectionName})` };
       env.step({ id: stepId, tool: 'mcp', status: 'waiting', label: 'Awaiting your approval', detail: label, mcp: { server: m.connectionName, tool: m.tool.name, input: inputText } });
@@ -284,8 +293,6 @@ async function mcpTool(ctx: RunToolContext, env: AgentEnv, name: string, input: 
       return { content: 'The person declined running this tool. Don’t retry it.' };
     }
   }
-  // 「허용」 승인은 한 번만 쓴다 — 다시 실행된 실행 안에서 같은 호출이 두 번 돌지 않게
-  if (needsApproval) ctx.approvedCalls.delete(key);
   // 한도를 셀 회원: 채팅 중이면 대화하는 회원(다른 회원의 에이전트로 남의 한도를 쓰지 못하게), 혼자 실행이면 에이전트 주인 회원
   const meter = (ctx.interactive && ctx.actorId) || ctx.agent.created_by_id || ctx.agent.bot_id;
   const r = await callMcpTool(ctx.agent.bot_id, m.connectionId, m.tool.name, input, meter);

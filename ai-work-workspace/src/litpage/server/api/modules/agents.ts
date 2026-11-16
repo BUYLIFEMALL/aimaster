@@ -29,13 +29,12 @@ import {
   getVersion, isAgentAdmin, isBotId, isOwnerless, listVersions, orphanState, noteVisit, patchAgent, recordVersion, retireBlock, saveAgentRecord, setFavorite, userAgentState, workingConfig,
 } from '../../agents/model.ts';
 import {
-  activeRunIds, enqueueRun, getRun, heldRunCount, insights, listRuns, monthlyCredits, releaseHeldRuns, runsCsv, setRunFeedback, setRunReview, setRunStatus, stopRun,
+  activeRunIds, enqueueRun, getRun, heldRunCount, insights, listRuns, monthlyCredits, releaseHeldRuns, runsCsv, setRunFeedback, decideRunReview, stopRun,
   type RunRow,
 } from '../../agents/runs.ts';
 import { ORPHANED_MESSAGE, readInstructions, spaceAgentUsage } from '../../agents/runs.ts';
 import { installAgentTriggers, nextRunOf, retryBlockedMentions, syncAgentSchedules } from '../../agents/triggers.ts';
 import { AGENT_TEMPLATES, TEMPLATE_CATEGORIES, templateById, templateTriggers } from '../../agents/templates.ts';
-import { callKey } from '../../agents/tools.ts';
 
 installAgentTriggers();
 
@@ -615,15 +614,11 @@ export const handlers: Record<string, Handler> = {
     if (!run || run.status !== 'needs_review' || !run.review || run.review.decided) throw new ApiError('This request is no longer waiting for review.', 409);
     const { agent } = agentFor(userId, run.agentId, 'read_and_write');
     const allow = body?.decision === 'allow';
-    setRunReview(run.id, { ...run.review, decided: allow ? 'allow' : 'deny', decidedBy: userId });
-    if (!allow) {
-      setRunStatus(run.id, 'failed', 'Declined');
-      return { ok: true };
-    }
-    setRunStatus(run.id, 'success', null);
-    const payload = { ...run.payload };
-    if (run.review.kind === 'url' && run.review.host) payload.allowedHosts = [...new Set([...(payload.allowedHosts ?? []), run.review.host])];
-    if (run.review.kind === 'tool' && run.review.connectionId && run.review.tool) payload.approvedCalls = [...new Set([...(payload.approvedCalls ?? []), callKey(run.review.connectionId, run.review.tool, run.review.input ?? {})])];
+    // AIMaster 2026-11-16(WS-20261116-02): 결정은 한 번만(동시에 두 번 눌러도 다시 실행 하나), 넘길 승인은 아직 안 쓴 것 + 이번 것만
+    const decided = decideRunReview(run.id, allow, userId);
+    if (!decided) throw new ApiError('This request is no longer waiting for review.', 409);
+    if (!allow || !decided.payload) return { ok: true };
+    const payload = decided.payload;
     const trigger = agent.data.triggers.find((t) => t.id === run.triggerId) ?? null;
     const next = enqueueRun({ agent, kind: run.kind === 'chat' ? 'manual' : run.kind, label: run.triggerLabel, trigger, actorId: run.actorId, pageId: run.pageId, payload, chain: run.chain, parentRunId: run.id });
     return { ok: true, run: runJson(next, userId) };

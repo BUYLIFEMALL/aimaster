@@ -672,7 +672,7 @@ async function runModel(agent: AgentRecord, run: RunRow, opts: ModelOptions): Pr
   };
   const ctx: RunToolContext = {
     agent, runId: run.id, kind: run.kind, interactive: opts.interactive, actorId: actorId ?? null, canConfigure, chain: run.chain, allowedHosts, allowAllUrls: allowAll,
-    mcp: mcp.map, approvedCalls: new Set(run.payload.approvedCalls ?? []), review: null, notificationsSent: 0,
+    mcp: mcp.map, approvedCalls: new Set(run.payload.approvedCalls ?? []), consumeApproval: (key: string) => consumeApprovedCall(run.id, key), review: null, notificationsSent: 0,
     callSubAgent: (id, task) => runSubAgent(agent, run, id, task, opts),
     onHostsChanged: () => {
       req.serverTools = buildWeb();
@@ -847,6 +847,42 @@ export function setRunReview(runId: string, review: RunRow['review']) {
 
 export function setRunStatus(runId: string, status: RunStatus, error?: string | null) {
   updateRun(runId, { status, ...(error !== undefined ? { error } : {}), ended_time: Date.now() });
+}
+
+// AIMaster 2026-11-16(Codex(Master) 지휘 WS-20261116-02): 「허용」 한 번 = 바깥 호출 한 번.
+// 승인은 실행 기록의 payload.approvedCalls(기존 칸)에만 두고, 쓸 때는 「payload가 읽은 그대로일 때만」 지우는
+// 조건부 갱신으로 소진한다 — 같은 실행을 여러 서버가 동시에 집어 가거나 다시 실행돼도 한 번만 성공한다.
+/** 이 실행에 저장된 승인 하나를 소진. 소진에 성공했을 때만 true(이미 썼거나 없으면 false). */
+export function consumeApprovedCall(runId: string, key: string): boolean {
+  for (let i = 0; i < 5; i++) {
+    const row = db.prepare('SELECT payload FROM agent_runs WHERE id = ?').get(runId) as { payload: string | null } | undefined;
+    if (!row || row.payload == null) return false;
+    const p = json(row.payload, {}) as RunPayload;
+    const list = p.approvedCalls ?? [];
+    if (!list.includes(key)) return false;
+    const next = JSON.stringify({ ...p, approvedCalls: list.filter((k) => k !== key) });
+    if (db.prepare('UPDATE agent_runs SET payload = ? WHERE id = ? AND payload = ?').run(next, runId, row.payload).changes === 1) return true;
+  }
+  return false;
+}
+
+/**
+ * 「검토 필요」 실행의 허용/거절을 한 번만 기록(동시에 두 번 눌러도 다시 실행은 하나). 허용이면 다시 실행에 넘길 payload:
+ * 이 실행에서 아직 쓰지 않은 승인 + 이번 승인만(이미 쓴 승인은 실행 기록에서 지워져 있어 다시 넘어가지 않음).
+ */
+export function decideRunReview(runId: string, allow: boolean, userId: string): { run: RunRow; payload: RunPayload | null } | null {
+  const run = getRun(runId);
+  if (!run || run.status !== 'needs_review' || !run.review || run.review.decided) return null;
+  const review = { ...run.review, decided: allow ? 'allow' : 'deny', decidedBy: userId };
+  const claimed = db.prepare("UPDATE agent_runs SET review = ?, status = ?, error = ?, ended_time = ? WHERE id = ? AND status = 'needs_review'")
+    .run(JSON.stringify(review), allow ? 'success' : 'failed', allow ? null : 'Declined', Date.now(), runId).changes === 1;
+  if (!claimed) return null;
+  const fresh = getRun(runId)!;
+  if (!allow) return { run: fresh, payload: null };
+  const payload: RunPayload = { ...fresh.payload };
+  if (run.review.kind === 'url' && run.review.host) payload.allowedHosts = [...new Set([...(payload.allowedHosts ?? []), run.review.host])];
+  if (run.review.kind === 'tool' && run.review.connectionId && run.review.tool) payload.approvedCalls = [...new Set([...(payload.approvedCalls ?? []), callKey(run.review.connectionId, run.review.tool, run.review.input ?? {})])];
+  return { run: fresh, payload };
 }
 
 export interface Insights {
