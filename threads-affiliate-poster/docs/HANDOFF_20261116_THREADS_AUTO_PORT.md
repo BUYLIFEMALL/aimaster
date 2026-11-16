@@ -1,6 +1,6 @@
 # 인수인계 — threads-auto 기능 병합: 쿠팡 검색 강화·네이버 브랜드커넥트 자동 수집 (쇼핑제휴 담당께, 2026-11-16)
 
-- 받는 사람: 주인님이 지정하는 **쇼핑제휴(`threads-affiliate-poster`) 담당 세션** — 쓰레드 카테고리는 아직 전담 역할 없음(`docs/CATEGORY_GUIDE_MAP.md`). 받은 세션은 HANDOFF·ACTIVE_WORK에 역할을 적는다.
+- 받는 사람: **이커머스·이미지 담당 `ecommerce-image` — Claude(ecommerce), 세션 `claude-win-sdp`**(2026-11-16 주인님 지정). 쓰레드 카테고리 전담 역할은 따로 없고 이 작업만 맡는다. HANDOFF·ACTIVE_WORK에 `[역할: ecommerce-image]`로 적는다.
 - 보낸 사람: 분석 세션 `claude-win-20261116-boks-yt`(분석만, 코드·DB 변경 없음)
 - 배정 경위: 2026-11-16 Codex(Master)가 크레딧 한도로 쉬는 중이라 **주인님이 직접 전달**. Master 복귀 후 결과 보고 때 이 배정도 함께 알린다.
 - 상태: **분석 완료 · 구현 전**. 플랜과 결정 항목을 주인님께 먼저 여쭌 뒤 구현한다(외부 소스 분석·이식 규칙 넷째).

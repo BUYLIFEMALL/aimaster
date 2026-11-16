@@ -73,7 +73,7 @@ F-004: 네이버 검색/트렌드 캐시 회원 간 공유 — 제안·미수정
 - 글 30일 정리(`cleanup-media`)가 회원별 `usage_logs` `cleanup_expired`(posts=지운 글, images=첨부 파일) 기록 — 공용 `cleanup-usage-log` 사본. 공용 사본 `cleanupUsageLog.ts`는 직접 고치지 말 것(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`, `--sync`). 기록 실패해도 정리는 계속.
 - 작은 소스 수정이라 배포하지 않음 — **다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01**, 이 항목을 「배포됨(버전)」으로 바꾸고 `docs/PENDING_DEPLOYS.md` 줄도 정리.
 
-## 2026-11-16 쇼핑제휴 담당께 — threads-auto 기능 병합 (분석 세션 `claude-win-20261116-boks-yt`)
+## 2026-11-16 이커머스·이미지 담당(`ecommerce-image`)께 — threads-auto 기능 병합 (분석 세션 `claude-win-20261116-boks-yt`)
 
 - 주인님 지시로 외부 오픈소스 threads-auto(MIT) 분석 완료, 주인님이 짚은 두 화면을 쇼핑제휴에 넣도록 배정. 상태: **구현 전 — 플랜·결정 먼저**.
 - 1단계 쿠팡 상품 검색 강화: 여러 키워드, 골드박스·카테고리 베스트·쿠팡 PL 경로 합치기, 로켓/로켓프레시 걸러내기, 이미 등록·발행 상품 제외, 여러 개 선택 등록, (선택) 수익 리포트 — 공용 `affiliate-clients` 기준에.
