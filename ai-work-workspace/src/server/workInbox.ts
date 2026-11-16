@@ -18,7 +18,7 @@ import { sendToWorkInbox } from "@/lib/workInbox";
 import { exemptInFilter } from "./retentionExempt";
 import { mdSource } from "@/litpage/server/ai/context.ts";
 import { pageToMarkdown } from "@/litpage/server/ai/prompts.ts";
-import { createDashboard, DASHBOARD_SETTINGS_KEY } from "./workDashboard";
+import { createDashboard, DASHBOARD_SETTINGS_KEY, ensureDashboardFullWidth } from "./workDashboard";
 import { listAllDatabases, ownDatabase } from "./calendarData"; // 2026-11-15 원하는 표에 넣기
 import type { BlockRecord, CollectionRecord, SpaceRecord, SpaceViewRecord, UserRootRecord, UserSettingsRecord } from "#shared/records.ts";
 
@@ -255,7 +255,10 @@ export const workInboxHandlers: Record<string, Handler> = {
     const userId = uid(ctx);
     const space = memberSpace(userId);
     const saved = savedDbBlock(userId, DASHBOARD_SETTINGS_KEY, space);
-    if (saved && saved.type === "page") return { pageId: saved.id, url: pageUrl(space, saved.id), created: false };
+    if (saved && saved.type === "page") {
+      ensureDashboardFullWidth(ctx, userId, saved);
+      return { pageId: saved.id, url: pageUrl(space, saved.id), created: false };
+    }
     const calendar = getRecord<BlockRecord>("block", ensureCalendarDb(ctx, userId, space));
     if (!calendar?.collection_id) throw new ApiError("콘텐츠 캘린더를 찾지 못했습니다. 다시 시도해 주세요.", 500);
     const inbox = savedDbBlock(userId, INBOX_DB_SETTINGS_KEY, space);

@@ -33,6 +33,7 @@ describe('업무 현황판', () => {
     const page = db.getRecord<any>('block', pageId);
     expect(page.type).toBe('page');
     expect(page.properties.title[0][0]).toBe('📊 업무 현황판');
+    expect(page.format.page_full_width).toBe(true); // 2026-11-17 노션처럼 전체 너비
 
     const settings = db.getRecord<any>('user_settings', amy.id).settings;
     const calendar = db.getRecord<any>('block', settings.aww_content_calendar_db);
@@ -67,6 +68,21 @@ describe('업무 현황판', () => {
     const r = await runtime.runRpc('workInboxDashboard', {}, amy);
     expect((r.body as any).created).toBe(false);
     expect((r.body as any).pageId).toBe(pageId);
+  });
+
+  it('전체 너비 이전에 만든 현황판(값 없음)은 열 때 한 번 켜고, 회원이 직접 끈 현황판(false)은 그대로 둔다', async () => {
+    const { applyTransactions } = await import('../../src/litpage/server/records.ts');
+    const setFw = (v: boolean | undefined) => {
+      const page = db.getRecord<any>('block', pageId);
+      applyTransactions(amy.id, [{ id: crypto.randomUUID(), spaceId: page.space_id, operations: [{ pointer: { table: 'block', id: pageId, spaceId: page.space_id }, path: ['format'], command: 'update', args: { page_full_width: v } }] }] as any);
+    };
+    setFw(undefined);
+    expect(db.getRecord<any>('block', pageId).format.page_full_width).toBeUndefined();
+    await runtime.runRpc('workInboxDashboard', {}, amy);
+    expect(db.getRecord<any>('block', pageId).format.page_full_width).toBe(true);
+    setFw(false);
+    await runtime.runRpc('workInboxDashboard', {}, amy);
+    expect(db.getRecord<any>('block', pageId).format.page_full_width).toBe(false);
   });
 
   it('다른 회원은 자기 현황판을 따로 가진다', async () => {

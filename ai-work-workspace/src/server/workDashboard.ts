@@ -84,11 +84,20 @@ export function createDashboard(ctx: { clientId?: string }, userId: string, spac
       },
     },
   ];
-  const pageId = b.block({ type: "page", text: DASHBOARD_TITLE, icon: "📊", children }, space.id, "space");
+  // 2026-11-17 주인님 지시 「화면에 꽉 차게」: 노션처럼 「전체 너비」로 만든다(··· 메뉴에서 끌 수 있음)
+  const pageId = b.block({ type: "page", text: DASHBOARD_TITLE, icon: "📊", format: { page_full_width: true }, children }, space.id, "space");
   const ops = [...b.ops, ...linkedViewOps(calendar, calId, pageId, space.id, userId)];
   if (inbox) ops.push(...linkedViewOps(inbox, inboxId, pageId, space.id, userId));
   const sv = spaceViewOf(userId, space.id);
   if (sv) ops.push({ pointer: { table: "space_view", id: sv.id, spaceId: space.id }, path: ["private_pages"], command: "listBefore", args: { id: pageId } });
   applyTransactions(userId, [{ id: newId(), spaceId: space.id, debug: { userAction: "awwWorkDashboard" }, operations: ops }], ctx.clientId);
   return pageId;
+}
+
+/** 2026-11-17: 전체 너비가 생기기 전에 만든 현황판 — 회원이 한 번도 켜고 끄지 않았을 때(값 없음)만 한 번 켠다. 직접 끈 회원(false)은 그대로 */
+export function ensureDashboardFullWidth(ctx: { clientId?: string }, userId: string, page: BlockRecord): void {
+  if ((page.format as Record<string, unknown> | undefined)?.page_full_width !== undefined) return;
+  applyTransactions(userId, [{ id: newId(), spaceId: page.space_id, debug: { userAction: "awwWorkDashboardFullWidth" }, operations: [
+    { pointer: { table: "block", id: page.id, spaceId: page.space_id }, path: ["format"], command: "update", args: { page_full_width: true } },
+  ] }], ctx.clientId);
 }
