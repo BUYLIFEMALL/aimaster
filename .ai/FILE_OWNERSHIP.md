@@ -30,6 +30,7 @@
 | FRONT-20261116-02 | CC-B2B-FRONT-01 | mall-builder/src/lib/builder/templates-extra-2.ts·tests/templates-extra-2.test.mjs 신규, 기존 templates.ts 연결2줄·admin/design/templates/template-gallery.tsx 도식·DESIGN_BUILDER_TRACKER.md 본인행·고유결과 | E3 Lab검수 먼저. DESIGN.md는 Master만 결과 후 갱신. DB/배포 없음 |
 | MOV-01 릴리스 준비 | CC-MOVIE-01 | video-to-gif/extension/NOTICE 신규·lib/version.ts·extension/manifest.json·public/downloads/local-renderer의 해당 ZIP/version.json, 해당slug version/extension_version, PENDING/HANDOFF/본인역할 해당항목 | 사용자 직접 빌드1회 승인 확인, Master msg_44fad028c623로 필수범위 추가. QA 치명지적 확인 전 배포 대기 |
 | DES-20261116-02 | AG-UI-01 | 읽기 전용 7b5d3b053 대조, DES-01 본인결과 정정·DES-02 고유결과 | Master 검토 후 정적범위 done. 제품파일 수정 없음 |
+| FRONT-20261116-03 | CC-B2B-FRONT-01 | mall-builder/src/app/s/[store]/admin/design/my-sections.tsx의 넣기 피드백 국소 수정, 기존 tests/my-sections.test.mjs(의미 있는 회귀가 필요할 때만), 본인 결과·개선문서 항목 | 다른 부모/공용 파일이 필요하면 편집 전에 목록·이유를 Master에게 제출. 추가 템플릿 확대 없음 |
 
 작업자가 공용 `.ai/` 등록부·tasks·decisions·총괄표를 직접 바꾸지 않는다. `.ai/results/<작업ID>-<세션ID>.md` 고유 결과는 쓸 수 있으며, 추가 결과 파일도 파일명을 Master에게 알린다. 자기 프로그램 문서/ACTIVE_WORK 본인 항목은 기존 안전 편집 규칙대로 관리한다.
 

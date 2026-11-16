@@ -6,8 +6,8 @@
 
 | 도구 | 실제 경로·버전 | 확인된 기능 | 미확인 |
 |---|---|---|---|
-| Codex | C:/Users/Administrator/AppData/Local/Programs/OpenAI/Codex/bin/codex.exe · 0.164.0 | 현재 Master 세션, exec/resume/fork/review help | 별도 Tester 세션·그 인증/실행 |
-| Claude | C:/Users/Administrator/.local/bin/claude.exe · 2.1.325 | agents --json, 실제 기존 세션 보고 수신 | 각 도메인 세션 전부의 역할 매핑 |
+| Codex | C:/Users/Administrator/AppData/Local/Programs/OpenAI/Codex/bin/codex.exe · 0.164.0 | 현재 Master 세션, exec/resume/fork/review help, MacMini Tester 실제 ACK | 새 별도 세션 생성·자동복구 |
+| Claude | C:/Users/Administrator/.local/bin/claude.exe · 2.1.325 | agents --json, 기존 9개 역할별 식별·현황/결과 회수 | CLI 새 실행/장비별 인증·복구 전반 |
 | Antigravity | C:/Users/Administrator/AppData/Local/agy/bin/agy.EXE | print/json/stream-json·conversation·acp help, 실제 AG ACK | 새 생성 호출·모든 미디어 입력 기능 |
 | Orca | C:/Users/Administrator/AppData/Local/Programs/orca/resources/bin/orca.exe | status·terminal list/read·orchestration run/send/check | 새 worker 실행·장비 간 공유파일 왕복 |
 

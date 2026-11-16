@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-16 13:29:01 KST",
+  "checkedAt": "2026-11-16 13:34:42 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -1776,9 +1776,9 @@
         "line": 169
       },
       "owner": "CC-WORKSPACE-01",
-      "stage": "운영·후속안전보완중",
-      "completed": "한국어49c8011cd·AgentMCP270f87b20·197시험",
-      "next": "WS-02 영속승인소모/동시재개202시험→QA→기존1빌드승인으로배포",
+      "stage": "운영·후속구현완료 / 독립검토대기",
+      "completed": "49c8011cd+270f87b20+d8290ffb6, 영속승인소모/동시재개202시험·타입0",
+      "next": "Tester가d8290ffb6 검토→기존사용자1빌드승인으로v1.52,실MCP외부쓰기시험은별도",
       "reportedVersion": "v1.51 / v1.52 후보",
       "evidence": "ai-work-workspace/docs/PLAN_20261116_AGENT_MCP.md",
       "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
@@ -2037,8 +2037,8 @@
       },
       "owner": "CC-B2B-BACK-01 + CC-B2B-FRONT-01",
       "stage": "운영·다음묶음준비 / Lab검수",
-      "completed": "T2·샘플몰·M2-1~7·E3등v1.15,후속415시험",
-      "next": "0100+M2-8~11+5bfed663d 승인묶음,Front E3실물/템플릿정확범위",
+      "completed": "T2·샘플몰·M2-1~7·E3등v1.15,후속415시험; E3 Lab실물·신규템플릿6종/420시험완료",
+      "next": "Front03 넣기안내국소보완·0100+M2-8~11+5bfed663d+7ed5880ef 다음승인묶음",
       "reportedVersion": "v1.15 / v1.16 후보",
       "evidence": "mall-builder/docs/HANDOFF_DESIGN_BUILDER_BACKEND_SYNC.md",
       "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
@@ -2074,7 +2074,10 @@
       "next": "재배포 없음; 외부조건은 유지",
       "evidence": "msg_24165d93de71 / docs/roles/music.md",
       "sha": "df34b8ee6",
-      "reviewer": "CX-MASTER-01"
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된 범위·완료조건과 결과 근거를 Master가 대조하고 검증/미배포/실물 한계를 구분",
+      "lastReviewedAt": "2026-11-16T04:34:42.894Z"
     },
     {
       "task_id": "MUS-20261116-02",
@@ -2086,7 +2089,10 @@
       "next": "직접파일저장·멈춤/fallback·맥은 검수한계로 별도",
       "evidence": "msg_959f5568ebe9 / lyric-video-studio/docs/IMPROVEMENTS.md",
       "sha": "054c672aa",
-      "reviewer": "CX-MASTER-01"
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된 범위·완료조건과 결과 근거를 Master가 대조하고 검증/미배포/실물 한계를 구분",
+      "lastReviewedAt": "2026-11-16T04:34:42.895Z"
     },
     {
       "task_id": "ECOM-20261116-01",
@@ -2098,7 +2104,10 @@
       "next": "수신부v1.46 Ready, 영상측 송신 연결 후 실제왕복",
       "evidence": ".ai/results/ECOM-20261116-01-CC-ECOM-01.md",
       "sha": "13b21994e",
-      "reviewer": "CX-MASTER-01"
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된 범위·완료조건과 결과 근거를 Master가 대조하고 검증/미배포/실물 한계를 구분",
+      "lastReviewedAt": "2026-11-16T04:34:42.895Z"
     },
     {
       "task_id": "ECOM-20261116-02",
@@ -2110,7 +2119,10 @@
       "next": "코드/104시험/정적독립검토 완료; v1.49 배포·실화면375px는 별도대기",
       "evidence": ".ai/results/ECOM-20261116-02-CC-ECOM-01.md",
       "sha": "7b5d3b053",
-      "reviewer": "CX-MASTER-01"
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된 범위·완료조건과 결과 근거를 Master가 대조하고 검증/미배포/실물 한계를 구분",
+      "lastReviewedAt": "2026-11-16T04:34:42.895Z"
     },
     {
       "task_id": "DES-20261116-01",
@@ -2122,7 +2134,10 @@
       "next": "실기기·낭독 검수로 확대하지 않음",
       "evidence": ".ai/results/DES-20261116-01-AG-UI-01.md",
       "sha": null,
-      "reviewer": "CX-MASTER-01"
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된 범위·완료조건과 결과 근거를 Master가 대조하고 검증/미배포/실물 한계를 구분",
+      "lastReviewedAt": "2026-11-16T04:34:42.895Z"
     },
     {
       "task_id": "DES-20261116-02",
@@ -2134,7 +2149,10 @@
       "next": "필수 남은 정적결함0; 실화면 별도대기",
       "evidence": ".ai/results/DES-20261116-02-AG-UI-01.md",
       "sha": null,
-      "reviewer": "CX-MASTER-01"
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된 범위·완료조건과 결과 근거를 Master가 대조하고 검증/미배포/실물 한계를 구분",
+      "lastReviewedAt": "2026-11-16T04:34:42.895Z"
     },
     {
       "task_id": "MOV-20261116-01",
@@ -2146,7 +2164,10 @@
       "next": "QA 독립검토→기존 사용자1빌드 승인으로v1.33→각1실제왕복",
       "evidence": ".ai/results/MOV-20261116-01-CC-MOVIE-01.md",
       "sha": "efc72da60",
-      "reviewer": "CX-MASTER-01"
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된 범위·완료조건과 결과 근거를 Master가 대조하고 검증/미배포/실물 한계를 구분",
+      "lastReviewedAt": "2026-11-16T04:34:42.895Z"
     },
     {
       "task_id": "WS-20261116-01",
@@ -2158,7 +2179,10 @@
       "next": "승인재개중복 후속WS-02 미해소시 배포안함",
       "evidence": "msg_31beb6fd1c34",
       "sha": "270f87b20",
-      "reviewer": "CX-MASTER-01"
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된 범위·완료조건과 결과 근거를 Master가 대조하고 검증/미배포/실물 한계를 구분",
+      "lastReviewedAt": "2026-11-16T04:34:42.895Z"
     },
     {
       "task_id": "WS-20261116-02",
@@ -2170,7 +2194,10 @@
       "next": "202시험·타입0, Tester 독립검토 후 기존1빌드승인 배포판단",
       "evidence": "msg_1e13a7bb2f8c",
       "sha": "d8290ffb6",
-      "reviewer": "CX-MASTER-01"
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된 범위·완료조건과 결과 근거를 Master가 대조하고 검증/미배포/실물 한계를 구분",
+      "lastReviewedAt": "2026-11-16T04:34:42.895Z"
     },
     {
       "task_id": "B2B-20261116-01",
@@ -2182,7 +2209,10 @@
       "next": "운영0100+v1.16 배포는 별도승인; Front 5bfed663d만동반",
       "evidence": ".ai/results/B2B-20261116-01-CC-B2B-BACK-01.md",
       "sha": "8fee281b8",
-      "reviewer": "CX-MASTER-01"
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된 범위·완료조건과 결과 근거를 Master가 대조하고 검증/미배포/실물 한계를 구분",
+      "lastReviewedAt": "2026-11-16T04:34:42.895Z"
     },
     {
       "task_id": "B2B-20261116-02",
@@ -2194,7 +2224,10 @@
       "next": "2회재개 예외기록·보관캐시유지·추가재시작없음",
       "evidence": ".ai/results/B2B-20261116-02-CC-B2B-BACK-01.md",
       "sha": null,
-      "reviewer": "CX-MASTER-01"
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된 범위·완료조건과 결과 근거를 Master가 대조하고 검증/미배포/실물 한계를 구분",
+      "lastReviewedAt": "2026-11-16T04:34:42.895Z"
     },
     {
       "task_id": "FRONT-20261116-01",
@@ -2206,19 +2239,25 @@
       "next": "E3 실화면은FRONT-02에서 완료조건별 계속",
       "evidence": ".ai/results/FRONT-20261116-01-CC-B2B-FRONT-01.md",
       "sha": "df6df10ad",
-      "reviewer": "CX-MASTER-01"
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된 범위·완료조건과 결과 근거를 Master가 대조하고 검증/미배포/실물 한계를 구분",
+      "lastReviewedAt": "2026-11-16T04:34:42.895Z"
     },
     {
       "task_id": "FRONT-20261116-02",
       "parent_task_id": "OPS-20261116-001",
       "owner": "CC-B2B-FRONT-01",
-      "status": "ready",
-      "delivery": "delivered",
+      "status": "done",
+      "delivery": "integrated",
       "title": "E3 Lab검수→식품/키즈/뷰티 각6종 템플릿",
-      "next": "정확6경로만 허용; DESIGN.md는Master가 갱신",
-      "evidence": "msg_4289c55c9ddd",
-      "sha": null,
-      "reviewer": "CX-MASTER-01"
+      "next": "6종구현/420시험/E3·갤러리Lab확인·Master카탈로그등록 완료. v1.16배포는별도대기",
+      "evidence": ".ai/results/FRONT-20261116-02-CC-B2B-FRONT-01.md",
+      "sha": "7ed5880ef",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된 범위·완료조건과 결과 근거를 Master가 대조하고 검증/미배포/실물 한계를 구분",
+      "lastReviewedAt": "2026-11-16T04:34:42.895Z"
     },
     {
       "task_id": "RE-20261116-01",
@@ -2230,7 +2269,10 @@
       "next": "대안1 채택, 구현은RE-02로 분리",
       "evidence": ".ai/results/RE-20261116-01-CC-REALTY-01.md",
       "sha": null,
-      "reviewer": "CX-MASTER-01"
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된 범위·완료조건과 결과 근거를 Master가 대조하고 검증/미배포/실물 한계를 구분",
+      "lastReviewedAt": "2026-11-16T04:34:42.895Z"
     },
     {
       "task_id": "RE-20261116-02",
@@ -2242,7 +2284,10 @@
       "next": "Master근거검토→각다음배포; 실제수집/발송검수는미실행",
       "evidence": ".ai/results/RE-20261116-02-CC-REALTY-01.md",
       "sha": "26e774a8e / 7823a692b",
-      "reviewer": "CX-MASTER-01"
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된 범위·완료조건과 결과 근거를 Master가 대조하고 검증/미배포/실물 한계를 구분",
+      "lastReviewedAt": "2026-11-16T04:34:42.895Z"
     },
     {
       "task_id": "BLOG-20261116-01",
@@ -2254,7 +2299,10 @@
       "next": "코드검증범위 완료, 이웃재시험/배포/실제소통은별도대기",
       "evidence": ".ai/results/BLOG-20261116-01-CC-BLOG-01.md",
       "sha": "a27861137 / e35947191",
-      "reviewer": "CX-MASTER-01"
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된 범위·완료조건과 결과 근거를 Master가 대조하고 검증/미배포/실물 한계를 구분",
+      "lastReviewedAt": "2026-11-16T04:34:42.895Z"
     },
     {
       "task_id": "QA-20261116-01",
@@ -2266,7 +2314,25 @@
       "next": "정적/가벼운검사만, 실제운영왕복·MCP실호출은별도",
       "evidence": "msg_61fc7276a960",
       "sha": null,
-      "reviewer": "CX-MASTER-01"
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된 범위·완료조건과 결과 근거를 Master가 대조하고 검증/미배포/실물 한계를 구분",
+      "lastReviewedAt": "2026-11-16T04:34:42.895Z"
+    },
+    {
+      "task_id": "FRONT-20261116-03",
+      "parent_task_id": "OPS-20261116-002",
+      "owner": "CC-B2B-FRONT-01",
+      "status": "ready",
+      "delivery": "delivered",
+      "title": "내 섹션 넣기 성공·다른몰안내 표시 국소보완",
+      "next": "my-sections.tsx만·추가부모파일은편집전Master승인,Lab같은몰/다른몰중복없는삽입·닫기검증",
+      "evidence": "msg_2fdfa1c90ff8",
+      "sha": null,
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된 범위·완료조건과 결과 근거를 Master가 대조하고 검증/미배포/실물 한계를 구분",
+      "lastReviewedAt": "2026-11-16T04:34:42.895Z"
     }
   ]
 }
