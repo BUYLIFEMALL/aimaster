@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T04:48:31.785Z",
+  "checkedAt": "2026-11-16T04:50:51.931Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -145,7 +145,7 @@
       "status": "done",
       "delivery": "integrated",
       "title": "v1.15 정정·M2-8~11/0100 준비·415시험",
-      "next": "운영0100+v1.16 배포는 별도승인; Front 5bfed663d만동반",
+      "next": "준비/최종422시험·Front합의 검토완료. 실제배포는B2B-20261116-03/DEC-002로분리",
       "evidence": ".ai/results/B2B-20261116-01-CC-B2B-BACK-01.md",
       "sha": "8fee281b8",
       "reviewer": "CX-MASTER-01",
@@ -288,6 +288,21 @@
       "completion": "안내표시·편집기인스턴스격리·최신저장게시동작보존·예외처리·실행/미실행검증구분",
       "lastReviewedAt": "2026-11-16T04:48:31.785Z",
       "verification": "Master 실제3파일diff검토;담당422시험/타입0·Lab동작보고;실저장게시미실행·지연도착시각별도미기록"
+    },
+    {
+      "task_id": "B2B-20261116-03",
+      "parent_task_id": "OPS-20261116-002",
+      "owner": "CC-B2B-BACK-01",
+      "status": "waiting_human",
+      "delivery": "prepared",
+      "title": "쇼핑몰 v1.16 운영0100+빌드1회 묶음배포",
+      "next": "DEC-20261116-002 답변대기. 승인후Master가정확배정·팀빌드차례확인.실제결제/볼타발급없음",
+      "evidence": ".ai/decisions/DEC-20261116-002.md / ea474b4a-6154-4420-abf0-645de7e73c03",
+      "sha": null,
+      "reviewer": "CX-MASTER-01",
+      "completion": "승인된 범위의0100검증·단일Ready배포·도메인/버전·운영화면근거를회수후Master검토",
+      "blockedReason": "기존운영0100/빌드승인없음;사용자답변대기",
+      "lastReviewedAt": "2026-11-16T04:50:51.931Z"
     }
   ],
   "programOverrides": [
@@ -497,7 +512,7 @@
       "reportedVersion": "v1.15 / v1.16 후보",
       "stage": "운영v1.15·후속구현/Lab검수완료 / 미배포",
       "completed": "T2·샘플몰·M2-1~7·E3기배포,후속M2-8~11/0100준비·신규템플릿6종·헤더근본수정685fed7da(422시험/타입0·Lab회귀)",
-      "next": "Backend0100+M2-8~11와Front5bfed663d/7ed5880ef/685최종상태를함께v1.16.운영0100먼저·1빌드승인범위대조,배포/운영검수는별도",
+      "next": "운영0100+v1.16 빌드1회 사용자답변대기(DEC-20261116-002),승인후Master정확범위배정.실결제/발급미포함",
       "evidence": "mall-builder/docs/HANDOFF_DESIGN_BUILDER_BACKEND_SYNC.md",
       "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
     },

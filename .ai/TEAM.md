@@ -13,7 +13,7 @@
 | Claude(Music) | CC-MUSIC-01 | music | claude-win-20261024-music · GT1_Mega | available · 실제 보고 회수 | 음악 미배포 묶음 정리 |
 | Claude(ecommerce) | CC-ECOM-01 | ecommerce-image | claude-win-sdp · GT1_Mega | available · 실제 보고 회수 | ESM 입력만 검수 대기·이미지/상세 연계 |
 | Claude(B2BFront) | CC-B2B-FRONT-01 | mall-design-builder | claude-win-20261114-mall-design · aimaster-64 · GT1_Mega | available · FRONT-04 검토 완료 | 후속구현/Lab검수 완료·B2B 다음 배포 묶음 |
-| Claude(B2BBackend) | CC-B2B-BACK-01 | mall-builder | claude-win-20261025-workspace · GT1_Mega | available · 실제 정정 보고 회수 | v1.15 이후 M2-8~11·0100 |
+| Claude(B2BBackend) | CC-B2B-BACK-01 | mall-builder | claude-win-20261025-workspace · GT1_Mega | available · 실제 정정 보고 회수 | v1.16 준비완료·DEC-002 운영 승인 대기 |
 | Claude(RealEstate) | CC-REALTY-01 | realty | claude-win-20261024-realty · aimaster-73 · GT1_Mega | available · 실제 보고 회수 | 실거래 미배포·상가 재측정 조건 |
 | Claude(Workspace) | CC-WORKSPACE-01 | workspace | aimaster-46 · session dea6e4f6-37c0-4be8-ad50-8746e0f1c517 · GT1_Mega | busy · 실제 식별/구현결과 회수 | WS-02 영속승인소모 보완 |
 | Claude(Blog) | CC-BLOG-01 | blog | claude-win-blog · aimaster-92 · GT1_Mega | available · 실제 보고 회수 | BLOG-01 국소수정완료·맥재검수 준비 |
