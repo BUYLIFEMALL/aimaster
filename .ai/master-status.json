@@ -1950,11 +1950,19 @@
       "title": "Workspace 전면디자인3안·12뷰",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:11:42.222Z",
+      "lastReviewedAt": "2026-11-16T17:35:44.124Z",
       "status": "ready_review",
       "delivery": "returned",
       "evidence": "msg_8578a0384aa2 / .ai/results/DES-20261117-02-AG-UI-01.md / msg_94cbdd325be1",
-      "next": "독립뷰어13KB+ 보완보고·PNG12개2880×1800확인. 기존쇼케이스보존/실화면검수별도, 주인님3안선택전제품미반영"
+      "next": "독립뷰어13KB+ 보완보고·PNG12개2880×1800확인. 기존쇼케이스보존/실화면검수별도, 주인님3안선택전제품미반영",
+      "reviewFreeze": {
+        "owner": "AG-UI-01",
+        "state": "acknowledged",
+        "evidence": "msg_2e0e7ffce1d3",
+        "scope": "145/146/147 PNG·showcase HTML 원본 변경 보류",
+        "reason": "QA-20261117-005 검수 기준 보존",
+        "productChanges": 0
+      }
     },
     {
       "task_id": "B2B-20261117-03",
