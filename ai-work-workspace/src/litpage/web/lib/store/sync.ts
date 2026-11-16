@@ -36,7 +36,11 @@ function watchBrowserOnline() {
 
 export function connectRealtime(spaces: string[]) {
   spaceIds = spaces;
-  if (!REALTIME_SOCKET) return watchBrowserOnline();
+  if (!REALTIME_SOCKET) {
+    watchBrowserOnline();
+    startFocusPoll();
+    return;
+  }
   if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
     send({ type: 'subscribe', spaceIds });
     return;
@@ -83,6 +87,7 @@ export function connectRealtime(spaces: string[]) {
 }
 
 export function disconnectRealtime() {
+  stopFocusPoll();
   closedByUs = true;
   ws?.close();
   ws = null;
@@ -105,11 +110,19 @@ function schedulePoll(ms: number) {
   if (pollTimer) clearTimeout(pollTimer);
   pollTimer = setTimeout(() => void pollOnce(), ms);
 }
+// E2 7-1(2026-11-17): 요청이 나가 있는 동안 또 부르면 새 요청을 겹쳐 보내지 않고, 끝난 뒤 한 번만 다시 확인(유실·폭주 방지)
+let polling = false;
+let pollAgain = false;
 async function pollOnce() {
   pollTimer = null;
+  if (polling) {
+    pollAgain = true;
+    return;
+  }
   const page = currentPage;
   if (!page) return;
   if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return schedulePoll(5000);
+  polling = true;
   if (page !== pollPage) {
     pollPage = page;
     pollLsn = 0;
@@ -124,8 +137,41 @@ async function pollOnce() {
     }
   } catch {
     /* 다음 차례에 다시 */
+  } finally {
+    polling = false;
+  }
+  if (pollAgain) {
+    pollAgain = false;
+    return schedulePoll(0);
   }
   schedulePoll(page !== currentPage ? 0 : pollShared ? 5_000 : 60_000);
+}
+
+/** E2 7-1: 창으로 돌아오거나 탭이 다시 보이면 5초를 기다리지 않고 바로 한 번 확인(기존 확인 함수 그대로, 새 폴링 없음). */
+export function pollNow() {
+  if (REALTIME_SOCKET || !currentPage) return;
+  if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+  schedulePoll(0);
+}
+let focusCleanup: (() => void) | null = null;
+/** 포커스·탭 복귀 리스너를 한 번만 등록(connectRealtime이 부름). 다시 불러도 겹쳐 등록하지 않음 */
+export function startFocusPoll(win: Pick<Window, 'addEventListener' | 'removeEventListener'> | undefined = typeof window === 'undefined' ? undefined : window, doc: Pick<Document, 'addEventListener' | 'removeEventListener' | 'visibilityState'> | undefined = typeof document === 'undefined' ? undefined : document) {
+  if (focusCleanup || !win || !doc) return;
+  const onFocus = () => pollNow();
+  const onVisible = () => {
+    if (doc.visibilityState === 'visible') pollNow();
+  };
+  win.addEventListener('focus', onFocus);
+  doc.addEventListener('visibilitychange', onVisible);
+  focusCleanup = () => {
+    win.removeEventListener('focus', onFocus);
+    doc.removeEventListener('visibilitychange', onVisible);
+  };
+}
+/** 로그아웃·계정 전환(disconnectRealtime) 때 리스너 해제 */
+export function stopFocusPoll() {
+  focusCleanup?.();
+  focusCleanup = null;
 }
 
 /** Presence payload for the current page (focused block + text selection), relayed to other viewers. */

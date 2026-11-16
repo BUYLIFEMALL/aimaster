@@ -7,6 +7,7 @@ import { records } from '../../lib/store/records.ts';
 import { rangeIn } from '../comments/comments.tsx';
 import { isMe, usePageViewers, type PresenceData } from './presence.ts';
 import { presenceColor, userName, UserAvatar } from './Avatar.tsx';
+import { tx } from '../shell/i18n.ts';
 import './presence.css';
 
 interface Mark {
@@ -87,7 +88,7 @@ export function PresenceLayer({ pageId, rootRef }: { pageId: string; rootRef: Re
             </div>
           )}
           {m.block && (
-            <div className="nc-remote-avatar" style={{ top: m.block.top + 2, left: m.block.right + 8 }} title={`${m.name} is editing`}>
+            <div className="nc-remote-avatar" style={{ top: m.block.top + 2, left: m.block.right + 8 }} title={`${m.name} · ${tx('Editing here — not a lock; if you both type in the same block, the last save stays')}`}>
               <UserAvatar userId={m.userId} size={20} ring={m.color} />
             </div>
           )}
