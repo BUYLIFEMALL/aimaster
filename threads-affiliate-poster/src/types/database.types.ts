@@ -294,7 +294,13 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      // 20261117100000 — 네이버 수집 대기열 등록(항목마다 선점·상품 넣기·번호 기록을 한 트랜잭션으로, TAP-20261117-02)
+      tap_register_collected: {
+        Args: { p_items: { id: string; final_url: string }[] };
+        Returns: { inserted: number; skipped: number; failed: number };
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

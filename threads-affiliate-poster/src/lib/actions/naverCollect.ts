@@ -5,7 +5,7 @@
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { parseNaverBrandLinks, sanitizeCollected, isNaverBrandAffiliateUrl } from "@/lib/naver/brandConnect";
+import { parseNaverBrandLinks, sanitizeCollected, isNaverBrandAffiliateUrl, naverProductIdentity } from "@/lib/naver/brandConnect";
 import type { Database } from "@/types/database.types";
 
 export type NaverQueueRow = Pick<
@@ -34,15 +34,15 @@ export async function addNaverLinksAction(text: string): Promise<{ added?: numbe
   const { links, rejected } = parseNaverBrandLinks(text);
   if (!links.length) return { error: "네이버 브랜드커넥트에서 발급한 https://naver.me/… 링크를 줄마다 하나씩 넣어 주세요.", rejected };
   const supabase = await createClient();
-  const { data: existing } = await supabase.from("tap_collect_queue").select("affiliate_url").eq("user_id", user.id).in("affiliate_url", links);
-  const have = new Set((existing ?? []).map((r) => r.affiliate_url));
-  const fresh = links.filter((l) => !have.has(l));
-  if (fresh.length) {
-    const { error } = await supabase.from("tap_collect_queue").insert(fresh.map((affiliate_url) => ({ user_id: user.id, affiliate_url })));
-    if (error) return { error: error.message };
-  }
+  // 「조회 → 넣기」 대신 DB 고유 제약(회원+링크, 20261117100000)에 맡긴다 — 동시에 두 번 눌러도 한 줄만 들어가고 나머지는 건너뜀(TAP-20261117-02)
+  const { data: added, error } = await supabase
+    .from("tap_collect_queue")
+    .upsert(links.map((affiliate_url) => ({ user_id: user.id, affiliate_url })), { onConflict: "user_id,affiliate_url", ignoreDuplicates: true })
+    .select("id");
+  if (error) return { error: error.message };
+  const addedCount = (added ?? []).length;
   revalidatePath("/products");
-  return { added: fresh.length, duplicated: links.length - fresh.length, rejected };
+  return { added: addedCount, duplicated: links.length - addedCount, rejected };
 }
 
 /** 확장이 보낸 수집 결과(또는 확장 오류)를 저장한다. 서버에서 도착 주소·이미지 주소를 다시 검사한다. */
@@ -75,41 +75,41 @@ export async function saveNaverCollectedAction(id: string, raw: unknown, extensi
   return { status: "ready" };
 }
 
-/** 「준비됨」 항목을 상품으로 등록한다(최대 30개). 근거(후기·정보)는 대기열 표에 남고 글 생성 때 product_id로 찾아 쓴다. */
-export async function registerNaverCollectedAction(ids: string[]): Promise<{ inserted?: number; error?: string }> {
+/**
+ * 「준비됨」 항목을 상품으로 등록한다(최대 30개). 근거(후기·정보)는 대기열 표에 남고 글 생성 때 product_id로 찾아 쓴다.
+ * TAP-20261117-02: 서버가 도착 주소를 naverProductIdentity로 다시 검사한 항목만, 그 검사한 주소와 함께 DB 함수 tap_register_collected에 넘긴다.
+ * 함수가 항목마다 「ready → registered 선점 + 상품 넣기 + 상품 번호 기록」을 한 트랜잭션으로 처리 — 동시 두 요청·중간 실패에도 상품은 1건만 생기고,
+ * 실패한 항목은 통째로 되돌아가 ready로 남는다. 검사 뒤 대기열 값이 바뀌었으면 그 항목은 건너뛴다.
+ */
+export async function registerNaverCollectedAction(ids: string[]): Promise<{ inserted?: number; skipped?: number; failed?: number; error?: string }> {
   const user = await requireProgramAccess();
   if (!Array.isArray(ids) || !ids.length) return { error: "등록할 항목을 골라 주세요." };
   const supabase = await createClient();
   const { data: rows, error } = await supabase
     .from("tap_collect_queue")
-    .select("id, affiliate_url, final_url, product_name, image_urls, status")
+    .select("id, affiliate_url, final_url, product_name, status")
     .eq("user_id", user.id)
     .in("id", ids.slice(0, 30));
   if (error) return { error: error.message };
-  let inserted = 0;
+  const items: { id: string; final_url: string }[] = [];
+  let invalid = 0;
   for (const r of rows ?? []) {
-    if (r.status !== "ready" || !r.product_name || !r.final_url || !isNaverBrandAffiliateUrl(r.affiliate_url)) continue;
-    const images = Array.isArray(r.image_urls) ? (r.image_urls as string[]) : [];
-    const { data: product, error: insErr } = await supabase
-      .from("affiliate_products")
-      .insert({
-        user_id: user.id,
-        platform: "naver",
-        product_name: r.product_name,
-        product_url: r.final_url, // 실제 상품 페이지 — 쇼핑/여행 고지 판별에 쓴다
-        affiliate_url: r.affiliate_url, // 발급받은 naver.me 링크 그대로
-        image_url: images[0] ?? null,
-        input_mode: "manual",
-      })
-      .select("id")
-      .single();
-    if (insErr || !product) continue;
-    await supabase.from("tap_collect_queue").update({ status: "registered", product_id: product.id, updated_at: new Date().toISOString() }).eq("id", r.id).eq("user_id", user.id);
-    inserted++;
+    if (r.status !== "ready" || !r.product_name || !r.final_url) continue;
+    // 대기열은 회원 본인이 직접 고칠 수 있는 표라, 등록 직전에 링크·도착 주소를 서버 규칙으로 다시 확인한다(Workspace 함수 재사용)
+    if (!isNaverBrandAffiliateUrl(r.affiliate_url) || !naverProductIdentity(r.final_url)) {
+      invalid++;
+      continue;
+    }
+    items.push({ id: r.id, final_url: r.final_url });
   }
+  if (!items.length) return { inserted: 0, skipped: invalid };
+  const { data: result, error: rpcError } = await supabase.rpc("tap_register_collected", { p_items: items });
+  if (rpcError) return { error: rpcError.message };
+  const r = (result ?? {}) as { inserted?: number; skipped?: number; failed?: number };
+  const inserted = r.inserted ?? 0;
   if (inserted) await logProgramUsage({ userId: user.id, action: "register_naver_collected" });
   revalidatePath("/products");
-  return { inserted };
+  return { inserted, skipped: (r.skipped ?? 0) + invalid, failed: r.failed ?? 0 };
 }
 
 export async function deleteNaverQueueAction(id: string): Promise<{ error?: string }> {
