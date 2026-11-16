@@ -28,6 +28,9 @@ create table if not exists public.mall_builder_exchange_fee_payments (
   prepared_at timestamptz not null default now(),
   requested_at timestamptz,
   idempotency_key text not null default '',
+  -- 완료(done) 뒤 다시 확인에서 응답이 이 결제와 맞지 않거나·정상 DONE이 아니거나·연결/처리에 실패하면 켠다(원래 승인 증거는 그대로).
+  -- 켜져 있으면 재발송 막힘(지킴 트리거). 끄는 길은 같은 결제 키·주문 번호·금액의 정확한 DONE을 실제 조회로 다시 확인했을 때뿐. 사유 글자(error)에 의존하지 않음
+  needs_review boolean not null default false,
   method text not null default '',
   approved_at timestamptz,
   receipt_url text not null default '',
@@ -46,7 +49,7 @@ create policy mall_builder_exchange_fee_payments_read on public.mall_builder_exc
   );
 -- 쓰기는 함수로만. 읽기도 결제 키 칸은 빼고 허용(화면·API에 결제 키가 나가지 않게)
 revoke all on public.mall_builder_exchange_fee_payments from anon, authenticated;
-grant select (id, exchange_id, store_id, order_id, toss_order_id, amount, status, prepared_at, requested_at, method, approved_at, receipt_url, error, created_at, updated_at)
+grant select (id, exchange_id, store_id, order_id, toss_order_id, amount, status, prepared_at, requested_at, needs_review, method, approved_at, receipt_url, error, created_at, updated_at)
   on public.mall_builder_exchange_fee_payments to authenticated;
 
 -- ── 결제 시도 이력(추가만, 비공개) — Master msg_4ffc6cca7adb ──
@@ -99,7 +102,7 @@ create or replace function mall_builder_private.exchanges_fee_card_guard()
 returns trigger language plpgsql security definer set search_path = '' as $$
 declare v_active boolean; v_pending boolean; v_done_ok boolean;
 begin
-  select bool_or(p.status in ('prepared', 'requested', 'unknown', 'done', 'canceled')), bool_or(p.status in ('prepared', 'requested', 'unknown', 'canceled')),
+  select bool_or(p.status in ('prepared', 'requested', 'unknown', 'done', 'canceled')), bool_or(p.status in ('prepared', 'requested', 'unknown', 'canceled') or (p.status = 'done' and p.needs_review)),
          bool_or(p.status = 'done' and p.amount = old.fee)
     into v_active, v_pending, v_done_ok
     from public.mall_builder_exchange_fee_payments p where p.exchange_id = new.id;
@@ -268,7 +271,8 @@ begin
     select t.status, t.body into v_status, v_body from mall_builder_private.toss_call(v_secret, 'POST', '/v1/payments/confirm',
       jsonb_build_object('paymentKey', p.payment_key, 'orderId', p.toss_order_id, 'amount', p.amount), p.idempotency_key) t;
   exception when others then
-    update public.mall_builder_exchange_fee_payments set status = 'unknown', error = left(sqlerrm, 300), updated_at = now() where id = p.id;
+    -- 원문(SQLERRM·응답 값)은 남기지 않음 — 고정 문구 + SQLSTATE(5자리 오류 분류 코드)만
+    update public.mall_builder_exchange_fee_payments set status = 'unknown', error = '토스 연결 실패(SQLSTATE ' || sqlstate || ') — 관리자 확인 필요', updated_at = now() where id = p.id;
     return jsonb_build_object('ok', false, 'unknown', true, 'message', '카드사 응답이 늦어 결제 결과를 아직 모릅니다. 쇼핑몰이 확인한 뒤 안내합니다.');
   end;
 
@@ -302,7 +306,7 @@ begin
                       else '결제 결과를 아직 확인하지 못했습니다. 쇼핑몰이 확인한 뒤 안내합니다.' end);
   exception when others then
     update public.mall_builder_exchange_fee_payments set status = 'unknown',
-      error = left('토스 응답 처리 중 오류(관리자 확인 필요): ' || sqlerrm, 300), updated_at = now()
+      error = '토스 응답 처리 중 오류(SQLSTATE ' || sqlstate || ') — 관리자 확인 필요', updated_at = now()
     where id = p.id;
     return jsonb_build_object('ok', false, 'unknown', true, 'message', '결제 결과를 처리하는 중 문제가 생겼습니다. 쇼핑몰이 확인한 뒤 안내합니다(다시 결제하지 마세요).');
   end;
@@ -310,13 +314,16 @@ end;
 $$;
 
 -- ── 운영사(주문 권한): 교환비 카드 결제를 토스에서 다시 확인 ──
--- 대상: prepared·requested·unknown(결과 확인) + done(승인 뒤 취소 확인). failed·canceled는 끝난 상태라 조회해도 풀지 않음.
--- 먼저 응답이 같은 결제인지(결제 키 글자·준비 키 일치, 주문 번호 일치) 대조 — 다르면 어떤 상태로도 바꾸지 않고(done 아니면 unknown) 관리자 확인.
--- 같은 결제일 때만: CANCELED·PARTIAL_CANCELED → 취소 보류 / DONE+금액 → 완료(done이면 그대로) / ABORTED·EXPIRED → 실패(done이면 그대로+사유) / 그 밖 진행 중 → 그대로.
--- 404·연결 실패·200 아님 → 상태 그대로(해제 없음). 토스 원문 메시지는 남기지 않음.
+-- 대상: prepared·requested·unknown(결과 확인) + done(승인 뒤 취소·불일치 확인). failed·canceled는 끝난 상태라 조회해도 풀지 않음.
+-- 판정은 토스 응답 원래 글자 그대로(대문자 정확 비교) — 기호를 걸러 낸 값은 표시용으로만.
+-- 먼저 같은 결제인지(결제 키 글자·준비 키 일치, 주문 번호 일치) 대조. done 기록에서 불일치·정상 DONE 아님·금액 다름·연결/HTTP/처리 실패면
+-- needs_review를 켠다(원래 승인 증거 그대로, 재발송 막힘). 끄는 길은 같은 결제의 정확한 DONE + 금액 일치를 실제 조회로 확인했을 때뿐.
+-- 오류 기록·반환에 SQLERRM·응답 원문 값 0(고정 문구 + SQLSTATE·HTTP 상태만).
 create or replace function public.mall_builder_exchange_fee_card_recheck(p_exchange_id uuid)
 returns jsonb language plpgsql security definer set search_path = '' as $$
-declare x public.mall_builder_exchanges%rowtype; p public.mall_builder_exchange_fee_payments%rowtype; v_secret text; v_status integer; v_body jsonb; v_st text; v_same boolean;
+declare
+  x public.mall_builder_exchanges%rowtype; p public.mall_builder_exchange_fee_payments%rowtype; v_secret text; v_status integer; v_body jsonb;
+  v_raw text; v_disp text; v_same boolean; v_amt boolean;
 begin
   if auth.uid() is null then raise exception '로그인이 필요합니다.'; end if;
   perform set_config('lock_timeout', '1000', true);
@@ -329,47 +336,67 @@ begin
   begin
     select t.status, t.body into v_status, v_body from mall_builder_private.toss_call(v_secret, 'GET', '/v1/payments/' || p.payment_key, null, null) t;
   exception when others then
+    if p.status = 'done' then
+      update public.mall_builder_exchange_fee_payments set needs_review = true, error = '토스 조회 연결 실패(SQLSTATE ' || sqlstate || ') — 관리자 확인 필요', updated_at = now() where id = p.id;
+      return jsonb_build_object('needs_review', true, 'error', '카드사에 연결하지 못했습니다. 이 결제를 「확인 필요」로 표시했습니다.');
+    end if;
     raise exception '카드사에 연결하지 못했습니다. 잠시 뒤 다시 눌러 주세요.';
   end;
-  if v_status <> 200 then raise exception '확인하지 못했습니다(토스 HTTP %). 상태는 그대로 두었습니다.', v_status; end if;
-  v_st := regexp_replace(coalesce(v_body ->> 'status', ''), '[^A-Z0-9_]', '', 'g');
+  if v_status is distinct from 200 then
+    if p.status = 'done' then
+      update public.mall_builder_exchange_fee_payments set needs_review = true, error = '토스 조회 HTTP ' || coalesce(v_status::text, '-') || ' — 관리자 확인 필요', updated_at = now() where id = p.id;
+      return jsonb_build_object('needs_review', true, 'error', '토스에서 결제를 확인하지 못했습니다. 이 결제를 「확인 필요」로 표시했습니다.');
+    end if;
+    raise exception '확인하지 못했습니다(토스 HTTP %). 상태는 그대로 두었습니다.', v_status;
+  end if;
+  v_raw := v_body ->> 'status';
+  v_disp := left(regexp_replace(coalesce(v_raw, ''), '[^A-Z0-9_]', '', 'g'), 40);
   begin
     v_same := jsonb_typeof(v_body -> 'paymentKey') = 'string' and v_body ->> 'paymentKey' = p.payment_key and v_body ->> 'orderId' = p.toss_order_id;
+    v_amt := coalesce(v_body ->> 'totalAmount', '') ~ '^[0-9]{1,12}$' and (v_body ->> 'totalAmount')::bigint = p.amount;
     if not coalesce(v_same, false) then
       update public.mall_builder_exchange_fee_payments set
         status = case when p.status = 'done' then 'done' else 'unknown' end,
+        needs_review = (p.status = 'done') or p.needs_review,
         error = '토스 응답의 결제 키·주문 번호가 이 결제와 다릅니다 — 관리자 확인 필요', updated_at = now()
       where id = p.id;
-      return jsonb_build_object('toss_status', v_st, 'mismatch', true);
+      return jsonb_build_object('toss_status', v_disp, 'mismatch', true);
     end if;
-    if v_st in ('CANCELED', 'PARTIAL_CANCELED') then
-      perform mall_builder_private.exchange_fee_card_hold_canceled(p.id, v_st);
-      return jsonb_build_object('toss_status', v_st, 'held', true);
+    if v_raw in ('CANCELED', 'PARTIAL_CANCELED') then
+      perform mall_builder_private.exchange_fee_card_hold_canceled(p.id, v_raw);
+      return jsonb_build_object('toss_status', v_disp, 'held', true);
     end if;
     if p.status = 'done' then
-      if v_st <> 'DONE' then
-        update public.mall_builder_exchange_fee_payments set error = '토스 상태 ' || coalesce(nullif(v_st, ''), '-') || ' — 관리자 확인 필요', updated_at = now() where id = p.id;
+      if v_raw = 'DONE' and coalesce(v_amt, false) then
+        update public.mall_builder_exchange_fee_payments set needs_review = false, error = '', updated_at = now() where id = p.id;
+        return jsonb_build_object('toss_status', v_disp, 'released', p.needs_review);
       end if;
-      return jsonb_build_object('toss_status', v_st);
+      update public.mall_builder_exchange_fee_payments set needs_review = true,
+        error = case when v_raw = 'DONE' then '토스 결제 금액이 이 결제와 다릅니다 — 관리자 확인 필요'
+                     else '토스 상태 ' || coalesce(nullif(v_disp, ''), '-') || ' — 관리자 확인 필요' end,
+        updated_at = now()
+      where id = p.id;
+      return jsonb_build_object('toss_status', v_disp, 'needs_review', true);
     end if;
-    if v_st = 'DONE' and coalesce(v_body ->> 'totalAmount', '') ~ '^[0-9]{1,12}$' and (v_body ->> 'totalAmount')::bigint = p.amount then
+    if v_raw = 'DONE' and coalesce(v_amt, false) then
       update public.mall_builder_exchange_fee_payments set status = 'done', method = coalesce(v_body ->> 'method', ''),
         approved_at = case when coalesce(v_body ->> 'approvedAt', '') = '' then null else (v_body ->> 'approvedAt')::timestamptz end,
-        receipt_url = coalesce(v_body #>> '{receipt,url}', ''), error = '', updated_at = now()
+        receipt_url = coalesce(v_body #>> '{receipt,url}', ''), error = '', needs_review = false, updated_at = now()
       where id = p.id;
       perform mall_builder_private.exchange_fee_mark_card_paid(x.id, v_body ->> 'method', 'staff');
-    elsif v_st = 'DONE' then
+    elsif v_raw = 'DONE' then
       update public.mall_builder_exchange_fee_payments set status = 'unknown', error = '토스 결제 금액이 준비한 결제와 다릅니다 — 관리자 확인 필요', updated_at = now() where id = p.id;
-    elsif v_st in ('ABORTED', 'EXPIRED') then
-      update public.mall_builder_exchange_fee_payments set status = 'failed', error = '토스 상태 ' || v_st || '(결제되지 않음)', updated_at = now() where id = p.id;
+    elsif v_raw in ('ABORTED', 'EXPIRED') then
+      update public.mall_builder_exchange_fee_payments set status = 'failed', error = '토스 상태 ' || v_raw || '(결제되지 않음)', updated_at = now() where id = p.id;
     end if;
   exception when others then
     update public.mall_builder_exchange_fee_payments set status = case when p.status = 'done' then 'done' else 'unknown' end,
-      error = '토스 조회 응답 처리 중 오류 — 관리자 확인 필요', updated_at = now()
+      needs_review = (p.status = 'done') or p.needs_review,
+      error = '토스 조회 응답 처리 중 오류(SQLSTATE ' || sqlstate || ') — 관리자 확인 필요', updated_at = now()
     where id = p.id;
-    return jsonb_build_object('toss_status', v_st, 'error', '토스 응답을 처리하지 못했습니다. 결제는 「확인 필요」로 남겼습니다.');
+    return jsonb_build_object('toss_status', v_disp, 'error', '토스 응답을 처리하지 못했습니다. 결제는 「확인 필요」로 남겼습니다.');
   end;
-  return jsonb_build_object('toss_status', v_st);
+  return jsonb_build_object('toss_status', v_disp);
 end;
 $$;
 

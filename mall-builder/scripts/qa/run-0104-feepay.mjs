@@ -41,10 +41,16 @@ begin
   if p_method = 'GET' then
     select v into m from public.qa_toss_mode where k = 'get';
     if m = 'get_404' then return query select 404, '{"code":"NOT_FOUND_PAYMENT","message":"결제 정보를 찾을 수 없습니다"}'::jsonb; return; end if;
+    if m = 'get_exception' then raise exception 'qa 조회 연결 끊김 %', substr(p_path, 14); end if;
+    if m = 'get_500' then return query select 500, jsonb_build_object('code', 'FAILED_INTERNAL', 'message', 'qa ' || substr(p_path, 14)); return; end if;
     return query select 200, (case when m = 'get_missing_key' then '{}'::jsonb else jsonb_build_object('paymentKey', case when m in ('get_wrong_key', 'get_canceled_wrong_key', 'get_aborted_wrong_key') then 'qa_other_key_9999' else substr(p_path, 14) end) end) || jsonb_build_object('status', case when m in ('get_aborted', 'get_aborted_wrong_key') then 'ABORTED' when m in ('get_canceled', 'get_canceled_wrong_key', 'get_canceled_wrong_order') then 'CANCELED' when m = 'get_partial' then 'PARTIAL_CANCELED' else 'DONE' end,
       'orderId', (select 'exfee-' || x.id from public.mall_builder_exchanges x join public.mall_builder_exchange_fee_payments p on p.exchange_id = x.id where '/v1/payments/' || p.payment_key = p_path limit 1),
       'totalAmount', (select p.amount from public.mall_builder_exchange_fee_payments p where '/v1/payments/' || p.payment_key = p_path limit 1), 'method', '카드')
-      || case when m = 'get_canceled_wrong_order' then '{"orderId":"exfee-00000000-0000-0000-0000-000000000000"}'::jsonb else '{}'::jsonb end;
+      || case when m in ('get_canceled_wrong_order', 'get_wrong_order') then '{"orderId":"exfee-00000000-0000-0000-0000-000000000000"}'::jsonb else '{}'::jsonb end
+      || case m when 'get_wrong_amount' then jsonb_build_object('totalAmount', (select p.amount + 1 from public.mall_builder_exchange_fee_payments p where '/v1/payments/' || p.payment_key = p_path limit 1))
+               when 'get_ready' then '{"status":"READY"}'::jsonb when 'get_lower_done' then '{"status":"done"}'::jsonb
+               when 'get_fake_canceled' then '{"status":"canceled"}'::jsonb when 'get_canceled_suffix' then '{"status":"CANCELED "}'::jsonb
+               when 'get_bad_date_key' then jsonb_build_object('approvedAt', substr(p_path, 14)) else '{}'::jsonb end;
     return;
   end if;
   select v into m from public.qa_toss_mode where k = 'post';
@@ -52,6 +58,7 @@ begin
   if m = 'slow_done' then perform pg_sleep(2); end if;
   if m = 'slow_long' then perform pg_sleep(6); end if;
   if m = 'done_bad_total' then return query select 200, jsonb_build_object('paymentKey', p_body ->> 'paymentKey', 'status', 'DONE', 'orderId', p_body ->> 'orderId', 'method', '카드', 'totalAmount', 'bad', 'approvedAt', '2026-11-17T10:00:00+09:00'); return; end if;
+  if m = 'done_bad_date_key' then return query select 200, jsonb_build_object('paymentKey', p_body ->> 'paymentKey', 'status', 'DONE', 'orderId', p_body ->> 'orderId', 'method', '카드', 'totalAmount', (p_body ->> 'amount')::bigint, 'approvedAt', p_body ->> 'paymentKey'); return; end if;
   if m = 'done_bad_date' then return query select 200, jsonb_build_object('paymentKey', p_body ->> 'paymentKey', 'status', 'DONE', 'orderId', p_body ->> 'orderId', 'method', '카드', 'totalAmount', (p_body ->> 'amount')::bigint, 'approvedAt', 'bad'); return; end if;
   if m = 'fail4xx' then return query select 400, '{"code":"REJECT_CARD_COMPANY","message":"카드사 거절"}'::jsonb; return; end if;
   if m = 'err5xx' then return query select 500, '{"code":"FAILED_INTERNAL","message":"토스 내부 오류"}'::jsonb; return; end if;
@@ -85,7 +92,7 @@ if (NO_GUARD) run("drop trigger mall_builder_exchanges_fee_card_guard on public.
 const id = (n) => `00000000-0000-0000-0000-${String(n).padStart(12, "0")}`;
 const STORE = "00000000-0000-0000-0000-00000000005a", OWNER = "00000000-0000-0000-0000-0000000000a1";
 const U1 = id(0xf1), U2 = id(0xf2), S3 = id(0xf3), P = id(0xc1), V1 = id(0xd1), V2 = id(0xd2), POL = id(0xb1);
-const N = 50; // 주문 o1~o20, 각 티셔츠 V1 2개, 배송 완료 1일 전, 주인 U1
+const N = 60; // 주문 o1~o20, 각 티셔츠 V1 2개, 배송 완료 1일 전, 주인 U1
 const O = (n) => id(0xe00 + n), I = (n) => id(0x1000 + n);
 {
   const fx = [
@@ -431,6 +438,59 @@ check("C11 이력 표 회원·직원·비로그인 읽기·쓰기·수정·삭�
 // C12 지우는 범위: 교환이 지워지면 결제 기록·이력도 함께(기존 보관 정책 범위)
 run(`delete from mall_builder_exchanges where id = '${ex}';`);
 check("C12 교환 삭제 시 결제 기록·이력 함께 삭제(부모와 같은 범위)", zatt(ex) === "0" && payCol(ex, "status") === "(없음)", `이력 ${zatt(ex)} 결제 ${payCol(ex, "status")}`);
+
+// ── needs_review D1~D10(QA012 P1, Master msg_42474143b949): 완료 기록 다시 확인 이상 → 확인 필요·재발송 막힘, 정확한 DONE으로만 해제 ──
+mode("post", "done"); mode("get", "get_done");
+const dRe = (e) => tryAs(OWNER, `select public.mall_builder_exchange_fee_card_recheck('${e}');`);
+const dShip = (e) => tryAs(OWNER, `select public.mall_builder_exchange_step('${e}', 'reshipped', 'CJ', '1');`);
+const dNR = (e) => val("select count(*) from information_schema.columns where table_name = 'mall_builder_exchange_fee_payments' and column_name = 'needs_review';") === "0" ? "(칸 없음)" : payCol(e, "needs_review");
+const dReady = (n) => { const e = mkEx(n); confirm(U1, e, KEY(n)); const c = tryAs(OWNER, `select public.mall_builder_exchange_step('${e}', 'collected');`); if (!c.ok) throw new Error("입고 실패 " + c.err); return e; };
+const dCase = (tag, n, badMode, extra) => {
+  const e = dReady(n); mode("get", badMode); const r1 = dRe(e); mode("get", "get_done");
+  const flagged = `${payCol(e, "status")}/${dNR(e)}/${exCol(e, "fee_status")}/${payCol(e, "approved_at") !== "(없음)"}`;
+  const s1 = dShip(e);
+  const more = extra ? extra(e) : "";
+  const r2 = dRe(e); const s2 = dShip(e);
+  check(`${tag} → 완료·승인 증거 유지·needs_review=true·재발송 막힘 ${more ? "· " + more.label : ""}→ 정확한 DONE 재확인으로 해제·재발송 됨`,
+    flagged === "done/true/paid/true" && !s1.ok && /재발송할 수 없습니다/.test(s1.err) && (!more || more.ok) && r2.ok && dNR(e) === "false" && s2.ok && exCol(e, "step") === "reshipped",
+    `${r1.out.slice(0, 80)} ${r1.err} · ${flagged} · 재발송1 ${s1.ok} ${s1.err.slice(0, 40)} · ${more ? more.detail : ""} · 해제 ${dNR(e)} 재발송2 ${s2.ok} ${s2.err.slice(0, 40)}`);
+  return e;
+};
+// D1 다른 결제 키 + 우회 시도(무통장·거절·금액 변경·새 키 준비) 모두 막힘 + 404·소문자 done으로는 해제 안 됨
+dCase("D1 완료 + GET 다른 결제 키", 50, "get_wrong_key", (e) => {
+  const b = [tryAs(OWNER, `select public.mall_builder_exchange_fee_paid('${e}');`), tryAs(OWNER, `select public.mall_builder_exchange_step('${e}', 'rejected', '', '', '취소');`), tryAs(OWNER, `select public.mall_builder_exchange_fee('${e}', 0);`)];
+  const nk = prep(U1, e, KEY(500)); const e0d = ext();
+  mode("get", "get_404"); const f404 = dRe(e); mode("get", "get_lower_done"); const flow = dRe(e); mode("get", "get_done");
+  const stillFlag = dNR(e) === "true";
+  return { label: "우회 4종 막힘·404/소문자 done 해제 0", ok: b.every((x) => !x.ok) && nk.ok && /already/.test(nk.out) && ext() === e0d && stillFlag && payCol(e, "payment_key") === KEY(50),
+    detail: `${b.map((x) => x.ok).join(",")} 새키 ${nk.out.slice(0, 30)} 404 ${f404.ok} 소문자 ${flow.ok} 플래그 ${dNR(e)}` };
+});
+dCase("D2 완료 + GET 다른 주문 번호", 51, "get_wrong_order");
+dCase("D3 완료 + GET 금액 다름(정상 done 재조회도 금액 대조)", 52, "get_wrong_amount");
+dCase("D4 완료 + GET 정상 DONE 아님(READY)", 53, "get_ready");
+dCase("D5 완료 + GET 연결 실패(예외)", 54, "get_exception");
+dCase("D6 완료 + GET HTTP 500", 55, "get_500");
+// D7 가짜 취소 글자(소문자 canceled·끝 공백 CANCELED)는 취소 보류로 오판하지 않음(done 유지·needs_review)
+dCase("D7 완료 + GET 소문자 canceled(가짜 취소 글자)", 56, "get_fake_canceled", (e) => {
+  mode("get", "get_canceled_suffix"); const r = dRe(e); mode("get", "get_done");
+  return { label: "끝 공백 CANCELED도 보류 아님", ok: payCol(e, "status") === "done" && dNR(e) === "true" && val(`select count(*) from mall_builder_exchange_fee_payment_attempts where exchange_id = '${e}';`) === "0", detail: `${payCol(e, "status")} ${dNR(e)} ${r.out.slice(0, 40)}` };
+});
+// D8 취소 보류는 정상 DONE 조회로도 안 풀림·재발송 막힘
+{
+  const e = dReady(57); mode("get", "get_canceled"); dRe(e); mode("get", "get_done");
+  const r = dRe(e); const s = dShip(e);
+  check("D8 취소 보류(canceled)는 정상 DONE 조회로 안 풀림·재발송 막힘", payCol(e, "status") === "canceled" && r.ok && !s.ok, `${payCol(e, "status")} ${r.out} ${s.ok} ${s.err.slice(0, 40)}`);
+}
+// D9 원문 반사 0: 승인 응답 approvedAt 자리에 결제 키 → 처리 오류 → 기록·반환에 키 없음 / 조회 응답 approvedAt에 키 → 처리 오류 → 기록에 키 없음
+{
+  const e = mkEx(58); mode("post", "done_bad_date_key"); const r = confirm(U1, e, KEY(58)); mode("post", "done");
+  const err1 = payCol(e, "error"); mode("get", "get_bad_date_key"); const r2 = dRe(e); mode("get", "get_done"); const err2 = payCol(e, "error");
+  check("D9 approvedAt에 결제 키가 든 응답(POST·GET) → 처리 오류여도 기록·반환에 키 원문 0·SQLSTATE만",
+    r.ok && !r.out.includes(KEY(58)) && !err1.includes(KEY(58)) && /SQLSTATE/.test(err1) && r2.ok && !r2.out.includes(KEY(58)) && !err2.includes(KEY(58)) && payCol(e, "status") === "unknown",
+    `${r.out.slice(0, 60)} | ${err1} | ${r2.out.slice(0, 60)} | ${err2}`);
+}
+// D10 전체 결제 기록·이력 오류 칸에 결제 키 원문 없음
+check("D10 모든 결제 기록·시도 이력의 오류 칸에 결제 키 원문 0", val(`select (select count(*) from mall_builder_exchange_fee_payments where payment_key <> '' and error like '%' || payment_key || '%') + (select count(*) from mall_builder_exchange_fee_payment_attempts where error like '%' || payment_key || '%');`) === "0", "키 포함 행 있음");
 
 adm(`drop database if exists ${DB}`);
 console.log(`합계 통과 ${pass} / 실패 ${fail}${NO_GUARD ? " (지킴 트리거 뺀 빨강 확인)" : ""}${MIG0104_FROM ? " (0104 = " + MIG0104_FROM + " 판)" : ""}`);

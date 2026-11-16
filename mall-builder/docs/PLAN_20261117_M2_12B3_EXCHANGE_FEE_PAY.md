@@ -167,3 +167,10 @@ prepare 재진입·다른 키 교체 거절·failed 뒤 교체 허용 / prepare 
 - **다시 확인 경로**: 예전엔 done이면 바로 돌아가 취소를 볼 수 없었음 → 이제 done도 실제 조회(직원 주문 권한·주문 → 교환 → 결제 잠금 그대로). DONE이면 변화 0(이력 중복 0). failed·canceled는 끝난 상태라 조회 안 함. 다른 결제 키·주문 번호 응답이면 어떤 상태로도 안 풀림(done이면 그대로+사유, 그 밖은 unknown). ABORTED·EXPIRED는 같은 결제일 때만 failed.
 - **원문 비노출**: 승인 실패 기록은 토스 HTTP 상태·오류 코드·상태 이름만(영문 대문자·숫자·밑줄), 유저 문구는 우리 문구. 다시 확인 오류도 HTTP 상태만. 「결제 키」는 항목 이름으로만 쓰고 값은 남기지 않음.
 - 시험 50/50(두 번 같음): C1 done 다시 확인 = 실제 GET·변화 0·이력 0 / C2 done+CANCELED → 보류·waiting·이력 1(승인 증거)·다시 확인 조회 0 / C3 보류 잠금 7가지·외부 POST 0 / C4 PARTIAL / C5 unknown+CANCELED / C6 다른 키 CANCELED(done 유지) / C7 다른 주문 번호 CANCELED(unknown 유지) / C8 다른 키 ABORTED(failed 아님) / C9 실패→새 키 교체 직전 1줄·같은 키 재시도 이력 0 / C10 원문 메시지 없음 / C11 회원·직원·비로그인 읽기·쓰기·수정·삭제 거부 / C12 교환 삭제 시 함께 삭제. 직전 판(`--mig0104-from e0dfdbf19`)은 C1~C12만 실패(38/12). 모의 시험이라 실제 멱등·이중 과금 0 증명 아님.
+
+### 7-9. needs_review 구현(2026-11-17, Master msg_42474143b949 — QA012 P1, 6-6 검토 의견 (가) 채택, 0104 미적용 원문)
+- 결제 기록 `needs_review boolean not null default false`(회원 읽기 칸 포함, 값만 참/거짓). 지킴 트리거의 대기 판정에 `status = 'done' and needs_review` 추가 → 재발송 막힘. 무통장 확인(이미 paid라 「대기 없음」)·거절·금액 변경(done은 진행 중 결제로 이미 잠김)·새 키 준비(done이면 already)로도 우회 안 됨.
+- 다시 확인(done): 같은 결제 대조 실패·DONE 아님·금액 다름·연결 실패·HTTP 200 아님·응답 처리 오류 → `needs_review = true`(status·승인 시각·교환비 paid 그대로). 해제는 같은 결제 키·주문 번호 + 정확한 `DONE` + 금액 일치를 실제 조회로 확인했을 때만. 404·잘못된 응답으로는 해제 0. done 정상 재조회도 금액 대조 뒤에만 반환. 취소 보류(canceled)는 조회하지 않고 그대로(자동 해제 0).
+- 판정은 응답 원래 글자 그대로(`v_raw = 'DONE'`, `in ('CANCELED','PARTIAL_CANCELED')`), 기호를 걸러 낸 값(`v_disp`)은 표시·반환용만. 소문자 `canceled`·끝 공백 `CANCELED `는 취소로 보지 않음.
+- 원문 비노출: 모든 POST·GET 예외 처리에서 `SQLERRM`·응답 값을 기록·반환·이력에 넣지 않음 — 고정 문구 + `SQLSTATE`·HTTP 상태만(0104 안 `sqlerrm` 0건).
+- 시험 60/60(두 번 같음): D1~D7 실제 흐름(완료 → 직원 입고 → 재발송 RPC)에서 다른 키·다른 주문 번호·금액 다름·READY·연결 예외·HTTP 500·가짜 취소 글자 → 확인 필요·재발송 막힘 → 정확한 DONE 재확인으로 해제·재발송 됨, D1은 우회 4종 막힘·404/소문자 done으로 해제 0 / D8 취소 보류는 정상 DONE 조회로 안 풀림 / D9 approvedAt 자리에 결제 키가 든 POST·GET 응답 → 기록·반환에 키 원문 0·SQLSTATE만 / D10 모든 오류 칸 키 원문 0. 직전 판(`--mig0104-from 45c2c3a15`)은 D1~D7·D9 실패(52/8), D8·D10은 회귀 방지 항목(직전 판도 통과). 모의 시험이라 실제 멱등·이중 과금 0 증명 아님.
