@@ -20,8 +20,8 @@ function isNaverMe(value) {
 function productIdentity(href) {
   try {
     const u = new URL(href);
-    // 계정 정보·비표준 포트가 붙은 주소는 거부(서버 naverProductIdentity와 같은 규칙)
-    if (u.username || u.password || u.port) return false;
+    // https가 아니거나 계정 정보·비표준 포트가 붙은 주소는 거부(서버 naverProductIdentity와 같은 규칙)
+    if (u.protocol !== 'https:' || u.username || u.password || u.port) return false;
     if (u.hostname === 'pkgtour.naver.com') return /^\/products\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/?$/.test(u.pathname);
     return ALLOWED_HOSTS.has(u.hostname) && /\/products\/\d+/.test(u.pathname);
   } catch { return false; }

@@ -83,6 +83,12 @@ test("도착 주소: 계정 정보·비표준 포트는 서버·확장 모두 �
     "https://pkgtour.naver.com:8080/products/AB12/cd-34",
     "https://smartstore.naver.com.evil.com/s/products/1",
     "https://evil.com/products/1",
+    // https가 아닌 주소(쇼핑·여행 모두)
+    "http://smartstore.naver.com/s/products/1",
+    "http://brand.naver.com/b/products/987",
+    "http://pkgtour.naver.com/products/AB12/cd-34",
+    "ftp://smartstore.naver.com/s/products/1",
+    "ws://pkgtour.naver.com/products/AB12/cd-34",
   ];
   for (const u of rejected) {
     assert.equal(nb.naverProductIdentity(u), null, `서버 거부: ${u}`);
