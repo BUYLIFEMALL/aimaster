@@ -72,3 +72,11 @@ F-004: 네이버 검색/트렌드 캐시 회원 간 공유 — 제안·미수정
 ## 2026-10-23 ✅ 배포됨 v1.82 — 이전 「미배포 대기(정리 기록)」 — Claude Code(윈도우), 커밋 `af9b2719c` · `05902a01d`
 - 글 30일 정리(`cleanup-media`)가 회원별 `usage_logs` `cleanup_expired`(posts=지운 글, images=첨부 파일) 기록 — 공용 `cleanup-usage-log` 사본. 공용 사본 `cleanupUsageLog.ts`는 직접 고치지 말 것(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`, `--sync`). 기록 실패해도 정리는 계속.
 - 작은 소스 수정이라 배포하지 않음 — **다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01**, 이 항목을 「배포됨(버전)」으로 바꾸고 `docs/PENDING_DEPLOYS.md` 줄도 정리.
+
+## 2026-11-16 쇼핑제휴 담당께 — threads-auto 기능 병합 (분석 세션 `claude-win-20261116-boks-yt`)
+
+- 주인님 지시로 외부 오픈소스 threads-auto(MIT) 분석 완료, 주인님이 짚은 두 화면을 쇼핑제휴에 넣도록 배정. 상태: **구현 전 — 플랜·결정 먼저**.
+- 1단계 쿠팡 상품 검색 강화: 여러 키워드, 골드박스·카테고리 베스트·쿠팡 PL 경로 합치기, 로켓/로켓프레시 걸러내기, 이미 등록·발행 상품 제외, 여러 개 선택 등록, (선택) 수익 리포트 — 공용 `affiliate-clients` 기준에.
+- 2단계 네이버 브랜드커넥트: naver.me 링크 여러 개 → 새 크롬 확장이 실제 상품 페이지에서 상품명·이미지·후기 8건 수집 → 근거로 발행 본문까지.
+- 함께 고칠 것: `guide/page.tsx` 238행 「첫 댓글에 포함」 안내(기능 없음), `docs/MEMBER_INTEGRATIONS.md` 73행 토큰 갱신 표기(실제로는 갱신함).
+- 인수인계: [`HANDOFF_20261116_THREADS_AUTO_PORT.md`](HANDOFF_20261116_THREADS_AUTO_PORT.md) · 분석: [`threads-content-ops/docs/ANALYSIS_20261116_THREADS_AUTO.md`](../../threads-content-ops/docs/ANALYSIS_20261116_THREADS_AUTO.md)
