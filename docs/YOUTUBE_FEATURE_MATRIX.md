@@ -48,7 +48,12 @@
 | 한국 급상승 영상 | ○ `lib/youtube/trendingVideos.ts` | × | × | × | × | × | × |
 | 쇼츠 → 원본 롱폼 찾기 | ○ `lib/youtube/sourceFinder.ts` | × | × | × | × | × | × |
 | 채널 진단(인기 점수·업로드 주기 차트) | ○ `lib/consultant/youtube/analysis.ts`, `app/(dashboard)/channel-analysis/page.tsx` | × | × | × | × | × | × |
-| 키워드 시장(점유율·게시 시기) | ○ `app/api/youtube/keyword/route.ts`, `app/(dashboard)/keyword-analysis/page.tsx` | × | × | × | × | × | × |
+| 키워드 시장(채널 점유율·영상 연령 분포) | △ 채널별 조회수 점유율 도넛·연령 6구간만 `lib/consultant/youtube/analysis.ts` 178~195행. **「최적 게시 요일/시간대」는 대시보드 설명 문구만 있고 계산 코드 없음**(`app/(dashboard)/dashboard/page.tsx` 61행, 2026-11-16 확인) | × | × | × | × | × | × |
+| 떡상 판정 기준(2026-11-16 확인) | △ 구독자 대비 배수만 `lib/youtube/metrics.ts` 49~56행 — 채널 평소(최근 영상 중앙값) 대비 판정 없음 | △ 채널 **전체 평균**(총조회÷영상 수) 대비 `lib/youtube/metrics.ts` 84행 | × | × | × | × | × |
+| 쇼츠 길이 판정 | △ 기준 혼재: 60초 `metrics.ts` 19행, #shorts면 90초 23행, 180초 `viralShorts.ts` 108행·`trendingVideos.ts` 61행, 롱폼 탭 60초 139행, 진단 60/180초 `lib/consultant/youtube/metrics.ts` 21~22행 | △ 화면 필터 60/180초 | – | – | – | – | – |
+| 검색 결과 관련성 거르기(다른 언어·해시태그 도배·키워드 무관·종교) | × (`relevanceLanguage` 요청 값만) | × | × | × | × | × | × |
+| 키별 하루 YouTube 사용량 누적·초과 전 차단 | △ 요청 1회 사용 유닛·예상치 표시만 `components/analysis/common.tsx` 39~45행, `lib/youtube/youtubeData.ts` `QuotaMeter` | △ 「검색 1회 약 100유닛」 고정 문구 | × | × | × | × | × |
+| 시장 기회 지수·떡상 산점도·제목 키워드 TOP·제목 패턴·태그 TOP | × | × | × | × | × | × | × |
 | AI 리포트·대본 후킹 분석 | ○ `app/api/ai/analyze/route.ts`, `lib/ai/scriptAnalyzer.ts` | ○ `lib/ai/pipeline.ts` | × | × | × | × | × |
 | Gemini가 영상을 직접 보고 분석 | 미확인 | ○ `lib/ai/llm.ts`(영상 입력) | × | × | × | × | × |
 | 영상 자막 가져오기 | ○ `lib/youtube/transcript.ts`(서버가 유튜브 화면을 직접 읽음 — 공식 API 아님) | 미확인 | × | △ 받아쓰기 `app/api/ai/transcribe/route.ts`(회원이 올린 소리) | × | × | × |
@@ -198,6 +203,9 @@
 | 3차 | 일괄 제작 결과 자동 예약 업로드 | 원스톱 | 카드 「단점」 | 빌드 1 | 후보 |
 | 3차 | 썸네일 프로의 「올린 영상 역분석」 | 썸네일 | 병합 D 미이식 | 회원 키 | 보류(회원 요청 시) |
 | 보류 | 쇼츠 제작 스튜디오 합치기(F) | Shots+원스톱 | 보고서 §6 | 큼 | 2026-11-18 무렵 재판단 |
+| 외부 원본 병합 1단계 | boks-youtube-finder(MIT, 커밋 `3aacecf`) 이식 — 채널 평소 조회수(같은 형식 최근 15개 중앙값) 기준 떡상 판정, 관련성·종교 거르기, 형식별 나눠 검색·보충, 인기 차트 프리셋, 기회 지수·산점도·제목 키워드 TOP·트렌드 자동 결론(요일·시간대·길이·제목 패턴·태그·채널 집중도), 키별 하루 사용량 누적·차단, 근거 수치 기반 AI 기획안(회원 본인 Claude 키), 쇼츠 길이 180초 통일 | 트렌드 | [분석](../youtube-viral-studio/docs/ANALYSIS_20261116_BOKS_YOUTUBE_FINDER.md) §0·§1, [인수인계](../youtube-viral-studio/docs/HANDOFF_20261116_BOKS_FINDER_PORT.md) | 회원 쿼터 검색당 약 +50~80유닛(24시간 채널 캐시로 감소), DB 표 2개(결정 필요), 빌드 1~2 | **영상 담당(`video`) 배정 2026-11-16 — 플랜·주인님 결정 전** |
+| 외부 원본 병합 2단계 | 같은 원본의 판정·관련성 거르기만(분석 화면은 넣지 않음) | 대본 + 쇼츠 글감 사본 4곳(쓰레드 운영·블로그 3종) | 같은 분석 §0-2 | 각 프로그램 다음 배포 때 | 후보(1단계 뒤 공용 모듈 등록) |
+| 외부 원본 병합 3단계 | 트렌드 결과 넘기기 — 떡상 제목 패턴·키워드·태그 → 썸네일 SEO 참고 / 기획안 → 원스톱 「이 주제로 만들기」 | 썸네일·원스톱(연결만) | 같은 분석 §0-2 | 빌드 각 1 | 후보(시점 주인님 결정) |
 
 ### 미배포 대기 (유튜브)
 
@@ -211,4 +219,5 @@
 
 | 날짜 | 바뀐 것 | 작성 |
 |---|---|---|
+| 2026-11-16 | 외부 원본 boks-youtube-finder 비교 분석 반영 — §2-1에 떡상 판정 기준·쇼츠 길이 판정 혼재·관련성 거르기·하루 사용량·기회 지수류 칸 추가(코드 대조), 「키워드 시장」 칸의 「게시 시기」는 코드가 없어 △로 정정, §6에 병합 1~3단계(영상 담당 배정) 추가. 표 머리 버전(트렌드 v1.24 등)은 2026-10-24 기준 그대로 — 현재 트렌드 v1.29·대본 v2.01 | Claude Code(윈도우) `claude-win-20261116-boks-yt` [역할: 미지정] |
 | 2026-10-24 | 문서 처음 작성(초안) — 운영 7개 코드 버전 기준, 병합 C·D·E와 보류 F 엔진 공유 반영, 30일 정리·당해 연도·업로드 방식 칸 코드 대조 | Claude Code(윈도우) `claude-win-dotori` [역할: analysis-planning] |
