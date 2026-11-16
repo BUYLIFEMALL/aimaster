@@ -14,6 +14,8 @@
 
 ## 현재 조정 범위
 
+DES10 검토보완 / AG-UI-01: Master 실제fixture 대조 결과 MessageForm 실제import의 SMS안내/재잠금은 수락, 설정탭은 수작업JSX+inline style 모형이라 제품실측PASS 미수락. 실제 settings/page.tsx 의존성mock 렌더/검증가능원문 자동추출로24라벨·375/Tab만 보완, 이메일mock Resend안내 추가. 로컬 기존CSS만·외부Tailwind CDN금지. 서버page prop은 직접주입으로 통합검증아님 명시. 제품/DB/설치/build/deploy0, 자기fixture/결과만. 과장표현/검증범위 정정후반환.
+
 MOV-20261116-11 / CC-MOVIE-01: ECOM15 467eb724d 독립 경합검수. 동일job/product V1→V2 전송뒤 늦은V1 ack의 V2오인, settings불변 입력사진변경, 중단/실패/새job 응답 재현. 기존하네스·본인fixture/고유결과만, 제품/수신계약/DB/실저장/AI/build/deploy 변경없음. Ecom 코드동결·점유해제, 가능성과 실재현 구분. 바나나v1.49 보류·DEC004 한건 유지.
 
 FRONT-20261116-10 / CC-B2B-FRONT-01: MOV10 d3251a19f P2 공통 다크 머리글 대비(1.02:1)를 shop-frame.tsx와 직접 관련 테마CSS 해당규칙만 원인진단·최소수정. CSS 경로는 착수보고 명시·다른규칙 금지. 143/기존luxury/밝은139의375/PC 대비·넘침, 내부390과 외부375 구분. 관련검사/본인문서만, 점유재확인/예약. 저장/게시/DB/빌드/배포 없음, v1.16 분리소스 제외. 나머지P3는 후속목록, 수정반환 후 Movie 독립재검수.
