@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  alreadySaved, applyAck, createSaveTracker, isUncertain, pendingCount, photoFingerprint, recordSend, resetForJob, resultKeyOf,
+  alreadySaved, applyAck, blockReason, createSaveTracker, isUncertain, pendingCount, photoFingerprint, recordSend, resetForJob, resultKeyOf,
 } from "../src/lib/batch/saveTracker.ts";
 import { readProductResult, readProductSaved, PRODUCT_RECEIVER_ORIGIN, PRODUCT_SENDER_ORIGIN } from "../src/lib/productPhotoHandoff.ts";
 
@@ -99,4 +99,33 @@ test("계약 읽기: resultId(UUID만)·settingsVersion, 옛 메시지는 null, 
   const res = readProductResult(PRODUCT_RECEIVER_ORIGIN, { type: "aimaster-product-photos-result", jobId: J1, productId: P, file, settingsVersion: "c2-x", resultId: rid }, J1, new Set([P]));
   assert.equal(res.resultId, rid);
   assert.equal(readProductResult(PRODUCT_RECEIVER_ORIGIN, { type: "aimaster-product-photos-result", jobId: J1, productId: P, file, settingsVersion: "c2-x" }, J1, new Set([P])).resultId, null);
+});
+
+test("MOV17-02: 응답 대기 중이면 같은 판·다른 판 모두 자동 전송을 막고, 정확한 응답으로 풀리며, 다른 상품은 독립", () => {
+  const t = setup();
+  const k1 = resultKeyOf(t, P, "c2-v1");
+  assert.equal(blockReason(t, P), null);
+  const r1 = recordSend(t, P, k1, id);
+  assert.equal(blockReason(t, P), "pending"); // 같은 판 재합성·다른 판 모두 자동 전송 막힘
+  assert.equal(alreadySaved(t, P, k1), false); // 대기를 저장으로 멋대로 바꾸지 않음
+  assert.equal(blockReason(t, Q), null); // 다른 상품은 영향 없음
+  applyAck(t, { productId: P, ok: true, resultId: r1 });
+  assert.equal(blockReason(t, P), null);
+  assert.equal(alreadySaved(t, P, k1), true);
+  const r2 = recordSend(t, P, resultKeyOf(t, P, "c2-v2"), id);
+  applyAck(t, { productId: P, ok: false, resultId: r2 }); // 실패도 대기를 정확히 풀어 줌
+  assert.equal(blockReason(t, P), null);
+  assert.equal(alreadySaved(t, P, k1), true); // 마지막 저장은 여전히 v1
+});
+
+test("옛 응답 확인 필요는 대기보다 먼저 보이고, 최신 결과의 정확한 성공 응답으로만 풀린다", () => {
+  const t = setup();
+  const r1 = recordSend(t, P, resultKeyOf(t, P, "c2-v1"), id);
+  const r2 = recordSend(t, P, resultKeyOf(t, P, "c2-v2"), id);
+  applyAck(t, { productId: P, ok: true, resultId: null });
+  assert.equal(blockReason(t, P), "uncertain");
+  applyAck(t, { productId: P, ok: true, resultId: r1 }); // 최신(r2)이 아니므로 확인 필요 유지
+  assert.equal(blockReason(t, P), "uncertain");
+  applyAck(t, { productId: P, ok: true, resultId: r2 });
+  assert.equal(blockReason(t, P), null);
 });

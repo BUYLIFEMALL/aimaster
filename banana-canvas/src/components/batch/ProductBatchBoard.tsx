@@ -59,8 +59,8 @@ import {
 import {
   alreadySaved,
   applyAck,
+  blockReason,
   createSaveTracker,
-  isUncertain,
   photoFingerprint,
   recordSend,
   resetForJob,
@@ -70,6 +70,8 @@ import {
 
 /** ECOM-17: 옛 응답이라 저장 여부를 증명할 수 없는 상태(자동 재전송 안 함) */
 const RETURN_UNCERTAIN = "확인 필요";
+/** ECOM-17 보완: 앞서 보낸 결과의 응답을 기다리는 중이라 자동으로 보내지 않은 상태 */
+const RETURN_WAITING = "응답 대기";
 import { settingsVersion } from "@/lib/batch/composite";
 
 const STORAGE_SETTINGS_KEY = "bnc-product-batch-settings-v1";
@@ -90,6 +92,8 @@ interface RenderResultItem {
   returned?: string;
   /** ECOM-17: 부모로 보낸 이 결과의 1회용 번호 — 저장 응답과 정확히 맞출 때 쓴다 */
   resultId?: string;
+  /** ECOM-17: 이 줄 결과의 열쇠(설정 판번호 + 입력 내용 지문) — 대기가 풀릴 때 저장됨 여부를 다시 판정 */
+  resultKey?: string;
   /** 실제 저장 크기(예: 1000x1000) — 「메인 원본 크기」면 상품마다 다름 */
   size?: string;
 }
@@ -213,7 +217,16 @@ export function ProductBatchBoard() {
           // 정확히 그 결과(resultId)의 줄만 바꾼다 — 다른 판의 줄·다른 상품은 건드리지 않음
           const status = outcome.ok ? "saved" : saved.error || "저장 실패";
           ackRef.current.set(outcome.resultId, status);
-          setResults((xs) => xs.map((r) => (r.resultId === outcome.resultId ? { ...r, returned: status } : r)));
+          const t = trackerRef.current;
+          const unblocked = blockReason(t, saved.productId) === null;
+          setResults((xs) => xs.map((r) => {
+            if (r.resultId === outcome.resultId) return { ...r, returned: status };
+            // 대기 때문에 보내지 않았던 같은 상품의 줄: 대기가 다 풀리면 다시 판정(같은 결과가 저장됐으면 저장됨, 아니면 「반영하기」로 보낼 수 있게 비움)
+            if (unblocked && r.productId === saved.productId && (r.returned === RETURN_WAITING || r.returned === RETURN_UNCERTAIN) && r.resultKey) {
+              return { ...r, returned: alreadySaved(t, saved.productId, r.resultKey) ? "saved" : "" };
+            }
+            return r;
+          }));
         } else if (outcome.kind === "legacy") {
           // 결과 번호 없는 옛 응답 — 어느 결과의 것인지 증명할 수 없어 「확인 필요」(자동 재전송 안 함)
           setResults((xs) => xs.map((r) => (r.productId === saved.productId && r.returned !== "saved" ? { ...r, returned: RETURN_UNCERTAIN } : r)));
@@ -472,9 +485,12 @@ export function ProductBatchBoard() {
         // 부모 창(상세페이지 또는 쇼핑몰) 연결 시 개별 결과 즉시 전송 (P2 / M1)
         if (linkedJobId.current && job.productId && senderOriginRef.current && window.opener && !window.opener.closed) {
           const key = resultKeyOf(trackerRef.current, job.productId, runVer);
-          if (isUncertain(trackerRef.current, job.productId)) {
-            // ECOM-17: 옛 응답으로 저장 여부를 모르는 상품 — 자동으로 다시 보내지 않는다(「반영하기」에서 확인 뒤 수동)
-            resItem.returned = RETURN_UNCERTAIN;
+          resItem.resultKey = key;
+          const blocked = blockReason(trackerRef.current, job.productId);
+          if (blocked) {
+            // ECOM-17: 옛 응답으로 저장 여부를 모르거나(확인 필요), 앞서 보낸 결과의 응답을 기다리는 중(응답 대기) — 자동으로 보내지 않는다.
+            // 대기 결과를 실패·저장으로 바꾸지 않고, 정확한 응답이 오면 풀린다. 수동은 「반영하기」의 확인 창으로만.
+            resItem.returned = blocked === "uncertain" ? RETURN_UNCERTAIN : RETURN_WAITING;
           } else if (alreadySaved(trackerRef.current, job.productId, key)) {
             // 같은 설정·같은 입력으로 만든 결과가 이미 마지막으로 저장돼 있음 — 같은 그림을 다시 보내지 않는다
             resItem.returned = "saved";
@@ -645,12 +661,15 @@ export function ProductBatchBoard() {
       const resultVer = runVerRef.current; // 화면 결과를 만든 실행의 판번호
       const t = trackerRef.current;
       const candidates = successList.filter((r) => r.productId && r.blob && r.returned !== "saved" && r.blob.size <= PRODUCT_RESULT_MAX_BYTES);
-      const sure = candidates.filter((r) => !isUncertain(t, r.productId!) && !alreadySaved(t, r.productId!, resultKeyOf(t, r.productId!, resultVer)));
-      const unsure = candidates.filter((r) => isUncertain(t, r.productId!));
-      // ECOM-17: 저장 여부를 모르는 상품은 중복 가능성을 알리고 회원이 명시적으로 확인할 때만 다시 보낸다
+      const sure = candidates.filter((r) => blockReason(t, r.productId!) === null && !alreadySaved(t, r.productId!, resultKeyOf(t, r.productId!, resultVer)));
+      const unsure = candidates.filter((r) => blockReason(t, r.productId!) !== null);
+      const waitingCount = unsure.filter((r) => blockReason(t, r.productId!) === "pending").length;
+      // ECOM-17: 저장 여부를 모르거나 응답을 기다리는 상품은 중복 가능성을 알리고, 회원이 명시적으로 확인할 때만 그때마다 1회 보낸다
       const resendUnsure = unsure.length > 0 && window.confirm(
-        `${unsure.length}개 상품은 ${targetLabel}에 이미 저장됐는지 확인하지 못했습니다(예전 방식 응답).
-다시 보내면 같은 사진이 한 번 더 저장될 수 있습니다. 그래도 보낼까요?`
+        `${unsure.length}개 상품은 ${targetLabel}에 저장됐는지 아직 모릅니다` +
+          `(${waitingCount ? `응답 대기 ${waitingCount}개` : ""}${waitingCount && unsure.length > waitingCount ? " · " : ""}${unsure.length > waitingCount ? `예전 방식 응답 ${unsure.length - waitingCount}개` : ""}).
+` +
+          `다시 보내면 같은 사진이 한 번 더 저장될 수 있습니다. 그래도 보낼까요?`
       );
       const sentResult = new Map<string, string>(); // 줄 key → resultId
       for (const r of resendUnsure ? [...sure, ...unsure] : sure) {
@@ -2039,7 +2058,13 @@ export function ProductBatchBoard() {
                           확인 필요
                         </span>
                       )}
-                      {r.returned && r.returned !== "saved" && r.returned !== "sending" && r.returned !== RETURN_UNCERTAIN && (
+                      {r.returned === RETURN_WAITING && (
+                        // ECOM-17 보완: 앞서 보낸 결과의 응답을 기다리는 중 — 자동으로 다시 보내지 않음
+                        <span style={{ background: "#E0F2FE", color: "#075985", fontSize: 11, fontWeight: 800, padding: "2px 6px", borderRadius: 4 }} title="앞서 보낸 결과의 저장 응답을 기다리는 중이라 다시 보내지 않았습니다. 응답이 오면 풀리며, 지금 보내려면 「반영하기」에서 확인 후 보냅니다(중복 저장 가능).">
+                          응답 대기
+                        </span>
+                      )}
+                      {r.returned && r.returned !== "saved" && r.returned !== "sending" && r.returned !== RETURN_UNCERTAIN && r.returned !== RETURN_WAITING && (
                         <span style={{ background: "#FEE2E2", color: "#B91C1C", fontSize: 11, fontWeight: 800, padding: "2px 6px", borderRadius: 4 }} title={r.returned}>
                           반환 실패
                         </span>

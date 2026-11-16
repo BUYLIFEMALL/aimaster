@@ -66,7 +66,11 @@ await page.evaluate(() => { window.__pbC = null; (async () => {
   await sleep(1500);
   n = window.__sends.length; await run(); const v1 = sentSince(n)[0];
   await setting("1200");
-  n = window.__sends.length; await run(); const v2 = sentSince(n)[0];
+  // ECOM-17 보완 뒤: V1 대기 중이라 재합성은 V2를 자동으로 보내지 않음 → 「반영하기」 확인 창 승인으로만 V2 전송
+  n = window.__sends.length; await run(); out.v2AutoSent = sentSince(n).length;
+  w.confirm = () => true;
+  n = window.__sends.length; btn("상품에 반영하기")?.click(); await sleep(500); const v2 = sentSince(n)[0];
+  w.confirm = () => false;
   ack(J2, A, true, v1.id); await sleep(500);
   out.lateV1Ok = marks(); // V2 줄은 저장됨이 되면 안 됨
   ack(J2, A, false, v2.id, { error: "시험 실패" }); await sleep(500);
@@ -89,6 +93,33 @@ await page.evaluate(() => { window.__pbC = null; (async () => {
   w.confirm = () => true;
   n = window.__sends.length; btn("상품에 반영하기")?.click(); await sleep(600);
   out.reflectConfirmed = { sent: sentSince(n).map((x) => x.p).join(""), ...marks() };
+  // 5) MOV17-02: 응답 없는(대기) 상태 — 같은 판·다른 판 재합성 모두 자동 전송 0, 반영하기는 확인 창 거절 0 / 승인 1 / 다시 누르고 거절 0,
+  //    정확한 응답이 오면 풀리고 같은 결과는 다시 안 보냄
+  const J4 = "44444444-3333-4333-8333-333333333333";
+  w.confirm = () => false;
+  send({ type: "aimaster-product-photos", jobId: J4, products: [await product(A, "상품A", "220,60,60")] });
+  await sleep(1500);
+  await setting("1000");
+  n = window.__sends.length; await run(); const p1 = sentSince(n);
+  out.pendRun1 = { sent: p1.map((x) => x.p).join(""), ...marks() };
+  n = window.__sends.length; await run();
+  out.pendRerunSame = { sent: sentSince(n).map((x) => x.p).join(""), waiting: (txt().match(/응답 대기/g) || []).length };
+  await setting("1200");
+  n = window.__sends.length; await run();
+  out.pendRerunChanged = { sent: sentSince(n).map((x) => x.p).join(""), waiting: (txt().match(/응답 대기/g) || []).length };
+  n = window.__sends.length; btn("상품에 반영하기")?.click(); await sleep(500);
+  out.pendReflectDeclined = sentSince(n).map((x) => x.p).join("");
+  w.confirm = () => true;
+  n = window.__sends.length; btn("상품에 반영하기")?.click(); await sleep(500); const manual = sentSince(n);
+  out.pendReflectConfirmed = manual.map((x) => x.p).join("");
+  w.confirm = () => false;
+  n = window.__sends.length; btn("상품에 반영하기")?.click(); await sleep(500);
+  out.pendReflectAgainDeclined = sentSince(n).map((x) => x.p).join("");
+  ack(J4, A, true, p1[0].id); ack(J4, A, true, manual[0].id); await sleep(600);
+  out.pendAfterAcks = marks();
+  n = window.__sends.length; await run();
+  out.pendRerunAfterAck = { sent: sentSince(n).map((x) => x.p).join(""), ...marks() };
+
   // 4) 다른 주소·다른 작업의 응답은 무시
   const before = marks();
   w.dispatchEvent(new w.MessageEvent("message", { data: { type: "aimaster-product-photos-saved", jobId: J3, productId: A, ok: true }, origin: "https://evil.example", source: window }));

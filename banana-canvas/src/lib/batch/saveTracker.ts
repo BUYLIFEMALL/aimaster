@@ -81,6 +81,16 @@ export function isUncertain(t: SaveTracker, productId: string): boolean {
   return t.uncertain.has(productId);
 }
 
+/**
+ * ECOM-17 보완(MOV17-02): 자동으로 보내면 안 되는 이유. 응답 대기 중인 결과가 있으면(같은 판이든 다른 판이든) 부모의 현재 상태를
+ * 알 수 없으므로 자동 전송을 막는다 — 대기 결과를 실패·저장으로 멋대로 바꾸지 않고, 정확한 응답이 오면 자연히 풀린다.
+ */
+export function blockReason(t: SaveTracker, productId: string): "uncertain" | "pending" | null {
+  if (t.uncertain.has(productId)) return "uncertain";
+  if (pendingCount(t, productId) > 0) return "pending";
+  return null;
+}
+
 /** 같은 결과가 이미 저장돼 있고(마지막 저장이 같은 열쇠), 응답 대기·확인 필요가 없을 때만 다시 보내지 않는다. */
 export function alreadySaved(t: SaveTracker, productId: string, key: string): boolean {
   return !t.uncertain.has(productId) && pendingCount(t, productId) === 0 && t.lastSaved.get(productId)?.key === key;
