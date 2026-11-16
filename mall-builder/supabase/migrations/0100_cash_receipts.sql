@@ -170,7 +170,8 @@ begin
     return cr;
   end if;
   select x.bolta_api_key into v_key from public.mall_builder_store_scheduler_secrets x where x.store_id = o.store_id;
-  v_ref := 'mbcrc-' || o.id || '-' || coalesce(cr ->> 'attempt', '1') || '-' || (extract(epoch from clock_timestamp()) * 1000)::bigint;
+  -- 같은 발급(attempt)의 취소는 항상 같은 요청 번호: 응답이 끊겨 다시 요청해도 볼타가 같은 요청으로 보고, 409(이미 취소 요청)여도 이 번호로 결과를 조회할 수 있음
+  v_ref := 'mbcrc-' || o.id || '-' || coalesce(cr ->> 'attempt', '1');
   begin
     select t.status, t.body into v_status, v_resp from mall_builder_private.bolta_call(coalesce(v_key, ''), 'POST', '/v1/cashReceipts/' || (cr ->> 'issuance_key') || '/cancellation', null, v_ref) t;
   exception when others then
@@ -258,7 +259,8 @@ declare
 begin
   if auth.uid() is null then raise exception '로그인이 필요합니다.'; end if;
   select * into o from public.mall_builder_orders where id = p_order_id for update;
-  if o.id is null or not (o.user_id = auth.uid() or public.mall_builder_is_store_staff(o.store_id)) then raise exception '주문을 찾을 수 없습니다.'; end if;
+  -- 확인이 볼타 취소·재발급까지 이어질 수 있으므로 직원은 주문 권한이 있어야 함(주문한 유저 본인은 그대로 가능)
+  if o.id is null or not (o.user_id = auth.uid() or public.mall_builder_staff_can(o.store_id, 'orders')) then raise exception '주문을 찾을 수 없습니다.'; end if;
   cr := o.cash_receipt;
   if cr is null then raise exception '현금영수증 신청이 없는 주문입니다.'; end if;
   if cr ->> 'status' not in ('issuing', 'unknown', 'cancelling') then return cr; end if;

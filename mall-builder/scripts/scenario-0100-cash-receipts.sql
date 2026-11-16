@@ -161,3 +161,76 @@ update public.fake_cr_status set s = 'ISSUED';
 select 'P5b' t, (r ->> 'status') st, '기대 issued' expect from (select public.mall_builder_cash_receipt_recheck('00000000-0000-0000-0000-0000000000e5') r) x;
 create temp table p5n as select count(*) n from public.fake_cr_log;
 select 'P5c' t, public.mall_builder_cash_receipt_recheck('00000000-0000-0000-0000-0000000000e5') ->> 'status' st, (select count(*) from public.fake_cr_log) - (select n from p5n) new_calls, '기대 issued·0' expect;
+
+-- P6 취소 요청 응답 유실 → 운영사 「취소 다시 요청」 → 볼타 409(이미 취소 요청됨) → 기대: 같은 요청 번호로 조회돼 취소 완료까지 감
+-- 볼타 흉내 확장: 받은 취소 요청 번호 기록(fake_cr_cancels), 같은 발급 번호에 두 번째 취소는 409, 모르는 취소 번호 조회는 404
+create table public.fake_cr_cancels (ikey text, ref text);
+alter table public.fake_cr_mode add column cancel_noresp boolean not null default false;
+create or replace function mall_builder_private.bolta_call(p_key text, p_method text, p_path text, p_body jsonb, p_ref text)
+returns table (status integer, body jsonb) language plpgsql set search_path = '' as $$
+declare v_ref text; v_ikey text;
+begin
+  insert into public.fake_cr_log values (p_method, p_path, p_body, p_ref);
+  if p_path = '/v1/cashReceipts' then
+    if (select post_noresp from public.fake_cr_mode limit 1) then return query select 500, null::jsonb; return; end if;
+    return query select 202, jsonb_build_object('issuanceKey', 'ik-' || p_ref); return;
+  elsif p_path like '/v1/cashReceipts/status%' then
+    v_ref := split_part(p_path, 'clientReferenceId=', 2);
+    if v_ref like 'mbcrc-%' and not exists (select 1 from public.fake_cr_cancels c where c.ref = v_ref) then return query select 404, '{}'::jsonb; return; end if;
+    return query select 200, jsonb_build_object('status', (select s from public.fake_cr_status limit 1), 'cashReceiptApprovalNumber', 'AP123')
+      || case when (select status_key from public.fake_cr_mode limit 1) then jsonb_build_object('issuanceKey', 'ik-' || v_ref) else '{}'::jsonb end; return;
+  elsif p_path like '%/cancellation' then
+    v_ikey := split_part(split_part(p_path, '/v1/cashReceipts/', 2), '/cancellation', 1);
+    if exists (select 1 from public.fake_cr_cancels c where c.ikey = v_ikey) then
+      return query select 409, jsonb_build_object('code', 'CANCELLATION_ALREADY_REQUESTED'); return;
+    end if;
+    insert into public.fake_cr_cancels values (v_ikey, p_ref);
+    if (select cancel_noresp from public.fake_cr_mode limit 1) then return query select 500, null::jsonb; return; end if;
+    return query select 202, jsonb_build_object('issuanceKey', 'cancel-' || p_ref); return;
+  end if;
+  return query select 500, null::jsonb;
+end;
+$$;
+insert into mall_builder_orders (id, store_id, seq, order_no, user_id, customer_id, receiver, depositor, status, total, is_card, is_credit) values
+ ('00000000-0000-0000-0000-0000000000e6','00000000-0000-0000-0000-00000000005a',106,'P-6','00000000-0000-0000-0000-0000000000c9','00000000-0000-0000-0000-00000000c9c9','{"zip":"1"}','영수증유저','paid',11000,false,false),
+ ('00000000-0000-0000-0000-0000000000e7','00000000-0000-0000-0000-00000000005a',107,'P-8','00000000-0000-0000-0000-0000000000c9','00000000-0000-0000-0000-00000000c9c9','{"zip":"1"}','영수증유저','delivered',33000,false,false);
+insert into mall_builder_order_items (order_id, name_snapshot, option_snapshot, unit_price, qty, line_total) values
+ ('00000000-0000-0000-0000-0000000000e6','상품P6','',11000,1,11000), ('00000000-0000-0000-0000-0000000000e7','상품P8','',11000,3,33000);
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000000c9', false);
+select 'P6p' t, public.mall_builder_cash_receipt_request(o, 'PHONE', '01012345678') ->> 'status' st
+  from unnest(array['00000000-0000-0000-0000-0000000000e6','00000000-0000-0000-0000-0000000000e7']::uuid[]) o;
+update public.fake_cr_status set s = 'ISSUED';
+select 'P6q' t, public.mall_builder_cash_receipt_recheck(o) ->> 'status' st
+  from unnest(array['00000000-0000-0000-0000-0000000000e6','00000000-0000-0000-0000-0000000000e7']::uuid[]) o;
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000000a1', false);
+update public.fake_cr_mode set cancel_noresp = true;
+update mall_builder_orders set status = 'cancelled' where id = '00000000-0000-0000-0000-0000000000e6';
+select 'P6a' t, cash_receipt ->> 'status' st, '기대 cancel_failed' expect from mall_builder_orders where id = '00000000-0000-0000-0000-0000000000e6';
+update public.fake_cr_mode set cancel_noresp = false;
+select 'P6b' t, (r ->> 'status') st, '기대 cancelling' expect from (select public.mall_builder_cash_receipt_staff('00000000-0000-0000-0000-0000000000e6', 'cancel_retry') r) x;
+update public.fake_cr_status set s = 'CANCELED';
+select 'P6c' t, (r ->> 'status') st, '기대 cancelled' expect from (select public.mall_builder_cash_receipt_recheck('00000000-0000-0000-0000-0000000000e6') r) x;
+select 'P6d' t, count(distinct ref) cancel_refs, '기대 1' expect from public.fake_cr_log where path like '%/cancellation' and ref like '%0000000000e6%';
+
+-- P7 「상태 다시 확인」 권한: 주문 권한 없는 직원은 막힘, 주문 권한 있는 직원은 됨(확인이 볼타 취소·재발급까지 이어질 수 있으므로)
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000000f1','staff-noorders@x.test'), ('00000000-0000-0000-0000-0000000000f2','staff-orders@x.test');
+insert into public.profiles (id, email) values ('00000000-0000-0000-0000-0000000000f1','staff-noorders@x.test'), ('00000000-0000-0000-0000-0000000000f2','staff-orders@x.test');
+insert into mall_builder_store_staff (store_id, user_id, role, perms) values
+ ('00000000-0000-0000-0000-00000000005a','00000000-0000-0000-0000-0000000000f1','staff','{"products":true}'),
+ ('00000000-0000-0000-0000-00000000005a','00000000-0000-0000-0000-0000000000f2','staff','{"orders":true}');
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000000f1', false);
+do $$ begin perform public.mall_builder_cash_receipt_recheck('00000000-0000-0000-0000-0000000000e5'); raise notice 'P7a 통과됨(문제)'; exception when others then raise notice 'P7a 막힘: %', sqlerrm; end $$;
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000000f2', false);
+select 'P7b' t, public.mall_builder_cash_receipt_recheck('00000000-0000-0000-0000-0000000000e5') ->> 'status' st, '기대 issued' expect;
+
+-- P8 준비: 반품(30,000 환불)으로 취소 요청 중(남은 3,000 다시 발급 예정)인 주문을 만들어 둠
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000000a1', false);
+update mall_builder_orders set refund_status = 'done', refund_amount = 30000 where id = '00000000-0000-0000-0000-0000000000e7';
+update mall_builder_orders set status = 'returned' where id = '00000000-0000-0000-0000-0000000000e7';
+select 'P8p' t, cash_receipt ->> 'status' st, cash_receipt ->> 'reissue_amount' re from mall_builder_orders where id = '00000000-0000-0000-0000-0000000000e7';
+-- @@AFTER_ROLLBACK_STEP1 — 실행기는 이 줄에서 나눠 scripts/rollback-0100-step1-stop-auto.sql을 먼저 실행한 뒤 아래를 이어서 돌린다(한 번에 psql -f로 돌리면 1단계 없이 실행됨)
+-- P8 되돌리기 1단계 뒤: 취소 확정 확인은 되고(GET), 새 발급·재발급 요청(POST /v1/cashReceipts)은 0번
+create temp table p8n as select count(*) n from public.fake_cr_log where path = '/v1/cashReceipts';
+update public.fake_cr_status set s = 'CANCELED';
+select 'P8a' t, (r ->> 'status') st, left(r ->> 'error', 30) err, '기대 cancelled·발급 멈춤 안내' expect from (select public.mall_builder_cash_receipt_recheck('00000000-0000-0000-0000-0000000000e7') r) x;
+select 'P8b' t, (select count(*) from public.fake_cr_log where path = '/v1/cashReceipts') - (select n from p8n) new_posts, '기대 0' expect;
