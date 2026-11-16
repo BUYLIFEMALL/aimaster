@@ -15,6 +15,15 @@ type LayoutCard = {
 const RATIO: Record<string, string> = { "1:1": "1 / 1", "4:5": "4 / 5", "3:4": "3 / 4", "4:3": "4 / 3" };
 const RADIUS: Record<string, string> = { none: "0", sm: "3px", md: "5px", lg: "7px", xl: "9px" };
 
+/** 라디오 묶음 키보드(FRONT-20261117-01) — 좌우·상하 화살표는 돌아가며, Home/End는 처음·끝. 해당 키가 아니면 null */
+function radioKeyIndex(key: string, i: number, n: number): number | null {
+  if (key === "ArrowRight" || key === "ArrowDown") return (i + 1) % n;
+  if (key === "ArrowLeft" || key === "ArrowUp") return (i - 1 + n) % n;
+  if (key === "Home") return 0;
+  if (key === "End") return n - 1;
+  return null;
+}
+
 /** 레이아웃 모양 도식 — 띠·헤더·블록 줄을 고른 색으로 */
 function Thumb({ layout, color }: { layout: LayoutCard; color: ColorPreset }) {
   const card = (n: number, plain: boolean) => (
@@ -88,13 +97,13 @@ export default function TemplateGallery({ slug, layouts, colors, industries }: {
 
   return (
     <div className="mt-4">
-      <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="업종" data-industry-filter>
+      {/* 업종 거르기 — 누른 단추 하나가 켜지는 토글 단추(aria-pressed). 단추 목록은 그대로라 거른 뒤에도 초점이 누른 단추에 남는다 */}
+      <div className="flex flex-wrap gap-2" role="group" aria-label="업종으로 거르기" data-industry-filter>
         {[{ id: "", label: "전체" }, ...industries].map((i) => (
           <button
             key={i.id || "all"}
             type="button"
-            role="radio"
-            aria-checked={industry === i.id}
+            aria-pressed={industry === i.id}
             onClick={() => setIndustry(i.id)}
             className={`rounded-full border px-3 py-1 text-xs font-semibold ${industry === i.id ? "border-gray-900 bg-gray-900 text-white" : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"}`}
           >
@@ -116,13 +125,28 @@ export default function TemplateGallery({ slug, layouts, colors, industries }: {
                 {l.industries.map((i) => <span key={i} className="rounded bg-gray-100 px-1.5 py-0.5 text-gray-600">{label[i]}</span>)}
                 {l.moods.map((m) => <span key={m} className="rounded bg-violet-50 px-1.5 py-0.5 text-violet-700">#{m}</span>)}
               </p>
-              <div className="mt-3 flex flex-wrap gap-1.5" role="radiogroup" aria-label={`${l.name} 색`}>
+              {/* 색 고르기 — 카드마다 고른 색 하나만 Tab으로 들어가고(나머지 tabIndex -1) 화살표·Home/End로 바로 고른다(초점도 함께 이동) */}
+              <div
+                className="mt-3 flex flex-wrap gap-1.5"
+                role="radiogroup"
+                aria-label={`${l.name} 색`}
+                data-color-group
+                onKeyDown={(e) => {
+                  const at = colors.findIndex((c) => c.id === color.id);
+                  const next = radioKeyIndex(e.key, at < 0 ? 0 : at, colors.length);
+                  if (next === null) return;
+                  e.preventDefault();
+                  setPicked((p) => ({ ...p, [l.id]: colors[next].id }));
+                  (e.currentTarget.querySelectorAll<HTMLButtonElement>("[role=radio]")[next])?.focus();
+                }}
+              >
                 {colors.map((c) => (
                   <button
                     key={c.id}
                     type="button"
                     role="radio"
-                    aria-checked={c.id === colorId}
+                    aria-checked={c.id === color.id}
+                    tabIndex={c.id === color.id ? 0 : -1}
                     aria-label={c.name}
                     title={c.name}
                     onClick={() => setPicked((p) => ({ ...p, [l.id]: c.id }))}
