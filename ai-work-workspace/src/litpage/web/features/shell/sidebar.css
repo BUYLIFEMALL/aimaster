@@ -342,3 +342,39 @@
 .nc-newpage-dest .nc-moveto-row:hover { background: var(--lp-bg-interactive-transparent); }
 .nc-newpage-dest .nc-moveto-row .label { flex: 1; min-width: 0; }
 .nc-newpage-dest .nc-moveto-row.current { font-weight: 500; }
+
+/* 2026-11-17 WS-20261117-13 146 Professional Studio(S1): 다크 네이비 사이드바 — 사이드바 범위에서만 토큰을 다시 정해
+   아래 모든 요소(행·섹션·검색·배지·계정 줄)가 따라 바뀌게 한다. 메뉴 팝업은 사이드바 밖이라 영향 없음.
+   html.aww-studio(라이트) 클래스가 없으면 원래 색(되돌리기). 폭·접기·767px 이하 접는 메뉴는 그대로. */
+html.aww-studio.lit-light-theme .lit-sidebar-container {
+  --lp-bg-secondary: var(--aww-studio-nav-bg);
+  --lp-bg-primary: #1e293b;
+  --lp-bg-elevated: #1e293b;
+  --lp-bg-interactive: #1e293b;
+  --lp-bg-tertiary: #1e293b;
+  --lp-bg-interactive-transparent: rgb(255 255 255 / 0.08);
+  --lp-bg-secondary-transparent: rgb(255 255 255 / 0.04);
+  --lp-bg-tertiary-transparent: rgb(255 255 255 / 0.12);
+  --lp-gray-bg-secondary: #1e293b;
+  --lp-gray-bg-secondary-transparent: rgb(255 255 255 / 0.10);
+  --lp-gray-text-accent: #cbd5e1;
+  --lp-border-primary: var(--aww-studio-nav-border);
+  --lp-border-secondary: var(--aww-studio-nav-border);
+  --lp-border-strong: #334155;
+  --lp-border-primary-transparent: rgb(255 255 255 / 0.12);
+  --lp-border-secondary-transparent: rgb(255 255 255 / 0.08);
+  --lp-text-primary: #e2e8f0;
+  --lp-text-secondary: var(--aww-studio-nav-text);
+  --lp-text-tertiary: var(--aww-studio-nav-text);
+  --lp-text-accent: #e2e8f0;
+  --lp-icon-primary: #e2e8f0;
+  --lp-icon-secondary: var(--aww-studio-nav-text);
+  --lp-icon-tertiary: var(--aww-studio-nav-text);
+  --lp-icon-accent: var(--aww-studio-nav-text);
+  color: var(--lp-text-primary);
+}
+html.aww-studio.lit-light-theme .lit-sidebar-container .nc-sb-row.active,
+html.aww-studio.lit-light-theme .lit-sidebar-container .nc-sb-tab.selected {
+  background: rgb(99 102 241 / 0.22);
+  color: var(--aww-studio-nav-text-active);
+}

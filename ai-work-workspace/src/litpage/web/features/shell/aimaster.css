@@ -238,3 +238,14 @@
 
 /* U7: 받은 업무 새 항목 수 */
 .aww-sb-item-chip-new { color: #fff; background: linear-gradient(180deg, #818cf8, #4f46e5); }
+
+/* 2026-11-17 WS-20261117-13 146(S1): 남색 사이드바 위에서 고정 인디고(#4f46e5, 대비 약 2.9:1)가 안 보여 밝은 인디고로.
+   상단 바(.aww-topbar-*)는 흰 바탕이라 그대로. html.aww-studio(라이트) 없으면 원래 색. */
+html.aww-studio.lit-light-theme .lit-sidebar-container .aww-sb-back:hover,
+html.aww-studio.lit-light-theme .lit-sidebar-container .aww-sb-item:hover,
+html.aww-studio.lit-light-theme .lit-sidebar-container .aww-sb-item:hover .aww-sb-item-chip,
+html.aww-studio.lit-light-theme .lit-sidebar-container .aww-sb-badge-indigo { color: #a5b4fc; }
+html.aww-studio.lit-light-theme .lit-sidebar-container .aww-sb-badge-indigo,
+html.aww-studio.lit-light-theme .lit-sidebar-container .aww-sb-item:hover .aww-sb-item-chip { background: rgb(165 180 252 / 0.14); border-color: rgb(165 180 252 / 0.3); }
+html.aww-studio.lit-light-theme .lit-sidebar-container .aww-sb-user-dot { color: #34d399; }
+html.aww-studio.lit-light-theme .lit-sidebar-container .aww-sb-logout:hover { border-color: #a5b4fc; background: rgb(165 180 252 / 0.1); }
