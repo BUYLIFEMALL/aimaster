@@ -121,6 +121,24 @@ export function complexTargetsFirst(targets) {
   return [...list.filter((t) => t.target_type !== "region"), ...list.filter((t) => t.target_type === "region")];
 }
 
+/**
+ * 지역 감시를 단지로 펼친 결과 중 단지 감시와 겹치는 단지(2026-11-17 U-5).
+ * 겹치면 L-5대로 단지 감시의 조건을 쓰고, 이 기록은 감시 화면 안내 한 줄에만 쓴다(수집·조건은 바꾸지 않음).
+ * 반환: [{ complexNo, cortarNo, regionName }]
+ */
+export function regionOverlaps(targets, regionTarget, complexes) {
+  const complexNos = new Set((targets || []).filter((t) => t && t.target_type !== "region" && t.complex_no).map((t) => String(t.complex_no)));
+  const out = [];
+  const seen = new Set();
+  for (const c of complexes || []) {
+    const no = String(c?.complexNo ?? "");
+    if (!complexNos.has(no) || seen.has(no)) continue;
+    seen.add(no);
+    out.push({ complexNo: no, cortarNo: String(regionTarget?.cortar_no ?? ""), regionName: regionTarget?.region_name || "" });
+  }
+  return out;
+}
+
 export function isGenericName(name) {
   const s = String(name || "").trim();
   return !s || /네이버|부동산$|^n\s*pay/i.test(s);

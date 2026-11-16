@@ -2,7 +2,7 @@
 // 원칙(인수인계 §0): 네이버는 회원 PC·회원 본인 로그인으로만 읽고, 매물은 우리 서버로 보내지 않는다(확장 안에만 저장).
 // 텔레그램은 회원 본인 봇으로 이 PC에서 바로 보낸다. 서버에는 숫자 상태만 보고한다. 차단·확인 화면이면 그날 멈춘다.
 import { collectComplex, collectRegionComplexes, rand, sleep } from "./lib/collector.js";
-import { complexNoFromUrl, complexTargetsFirst, extractPhones, isGenericName, matchesTarget, normalizeArticle, pickTopComplexes, pruneStateToTarget } from "./lib/listing.js";
+import { complexNoFromUrl, complexTargetsFirst, extractPhones, isGenericName, matchesTarget, normalizeArticle, pickTopComplexes, pruneStateToTarget, regionOverlaps } from "./lib/listing.js";
 import { compareComplex, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, pickRunSlice, shouldRunScheduled } from "./lib/guard.js";
 import { COLUMNS, toCsv, toTable, toXlsx } from "./lib/sheet.js";
@@ -164,6 +164,9 @@ async function runCollection(trigger) {
     // 단지 대상을 먼저 넣어 겹칠 때 단지 대상의 조건·이름 고치기가 이기게 한다(2026-11-13 L-5).
     const work = [];
     const seenNo = new Set();
+    // U-5(2026-11-17): 지역 펼침이 단지 감시와 겹친 사실만 남긴다(감시 화면 안내용 — 조건·수집은 위 L-5 그대로).
+    // 지역마다 ok(펼침 성공)·failed(펼침 실패)·skipped(이번 회차 확인 못 함)를 함께 남겨 「겹침 0건」과 구분한다
+    const overlapCheck = { regions: [], overlaps: [] };
     for (const t of complexTargetsFirst(targets)) {
       if (t.target_type !== "region") {
         if (t.complex_no && !seenNo.has(t.complex_no)) { seenNo.add(t.complex_no); work.push(t); }
@@ -172,6 +175,7 @@ async function runCollection(trigger) {
       if (await overDailyLimit(rules)) { limitHit = true; break; }
       const rg = await collectRegionComplexes(t.cortar_no, t.region_max_complexes || 5, rules, pickTopComplexes, addLog);
       await addPages(1);
+      if (rg.status !== "ok") overlapCheck.regions.push({ cortarNo: String(t.cortar_no ?? ""), status: "failed" });
       if (rg.status === "blocked") {
         result = "blocked";
         errMsg = rg.error;
@@ -182,6 +186,8 @@ async function runCollection(trigger) {
         if (result === "ok") { result = rg.status; errMsg = rg.error; }
         continue;
       }
+      overlapCheck.regions.push({ cortarNo: String(t.cortar_no ?? ""), status: "ok" });
+      overlapCheck.overlaps.push(...regionOverlaps(targets, t, rg.complexes));
       await addLog(`지역 ${t.region_name}: 단지 ${rg.complexes.length}곳 — ${rg.complexes.map((c) => `${c.complexName}(${c.count})`).join(", ")}`.slice(0, 300));
       for (const c of rg.complexes) {
         if (seenNo.has(c.complexNo)) continue;
@@ -190,6 +196,11 @@ async function runCollection(trigger) {
       }
       const [a, b] = rules.betweenTargetsMs || [10000, 30000];
       await sleep(rand(a, b));
+    }
+    for (const t of targets) {
+      if (t.target_type !== "region") continue;
+      const c = String(t.cortar_no ?? "");
+      if (!overlapCheck.regions.some((r) => r.cortarNo === c)) overlapCheck.regions.push({ cortarNo: c, status: "skipped" });
     }
     if (result === "blocked" || limitHit) work.length = 0; // 확인 화면·하루 한도면 아무 단지도 읽지 않음
     // 한 회차 단지 수 상한 — 넘으면 지난번 다음부터 돌아가며 읽어 모든 단지가 차례로 읽히게
@@ -295,7 +306,7 @@ async function runCollection(trigger) {
     const cut = Date.now() - 30 * 24 * 3600 * 1000;
     for (const [no, ph] of Object.entries(phones)) if (!ph?.at || new Date(ph.at).getTime() < cut) delete phones[no];
     await set({ phones });
-    await set({ states, lastRunAt: startedAt, lastResult: { at: startedAt, trigger, result, error: errMsg, columns: COLUMNS, table, perTarget: perTarget.map((p) => ({ name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun })) } });
+    await set({ states, lastRunAt: startedAt, lastResult: { at: startedAt, trigger, result, error: errMsg, columns: COLUMNS, table, perTarget: perTarget.map((p) => ({ name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun })), overlapCheck } });
     // 통계·추이(2026-10-25): 회차마다 요약만 회원 PC에 쌓는다(90일) — 웹 「수집 결과」 대시보드가 확장에 물어 그린다
     if (table.length) {
       const { history = [], eventLog = [] } = await get(["history", "eventLog"]);

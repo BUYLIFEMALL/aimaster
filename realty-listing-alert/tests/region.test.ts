@@ -1,7 +1,7 @@
 // 지역(동) 감시 시험 — node --test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { complexTargetsFirst, pickTopComplexes } from "../extension/lib/listing.js";
+import { complexTargetsFirst, pickTopComplexes, regionOverlaps } from "../extension/lib/listing.js";
 import { readFileSync } from "node:fs";
 
 const regions = JSON.parse(readFileSync(new URL("../public/regions.json", import.meta.url), "utf8"));
@@ -54,4 +54,31 @@ test("작업 목록은 단지 감시를 먼저 둔다 — 지역과 겹치는 �
   assert.equal(w2936[0].complex_name, null); // 이름이 비어 있어 수집 뒤 이름 고치기가 나간다
   assert.equal(w2936[0].fromRegion, undefined);
   assert.deepEqual(complexTargetsFirst(undefined as never), []);
+});
+
+test("U-5 지역 펼침 ↔ 단지 감시 겹침: 단지 감시 단지만, 한 번씩, 지역 감시끼리는 무시", () => {
+  const targets = [
+    { target_type: "complex", complex_no: "2936" },
+    { target_type: "complex", complex_no: "1111" },
+    { target_type: "region", cortar_no: "4128510300", region_name: "백석동" },
+  ];
+  const region = targets[2];
+  const complexes = [{ complexNo: "2936", complexName: "백송두산" }, { complexNo: "5555" }, { complexNo: "2936" }];
+  assert.deepEqual(regionOverlaps(targets, region, complexes), [{ complexNo: "2936", cortarNo: "4128510300", regionName: "백석동" }]);
+});
+
+test("U-5 겹침 없음·빈 값·옛 자료는 빈 배열(겹침 0과 지역 미확인은 regions 상태로 따로 구분)", () => {
+  const region = { target_type: "region", cortar_no: "1", region_name: "가동" };
+  assert.deepEqual(regionOverlaps([region], region, [{ complexNo: "9" }]), []);
+  assert.deepEqual(regionOverlaps(undefined as never, region, undefined as never), []);
+  assert.deepEqual(regionOverlaps([{ target_type: "complex", complex_no: null }], region, [{ complexNo: "" }]), []);
+});
+
+test("U-5 겹쳐도 작업 순서는 L-5 그대로(단지 감시 먼저 → 조건은 단지 감시 것)", () => {
+  const targets = [
+    { target_type: "region", cortar_no: "1", region_name: "가동" },
+    { target_type: "complex", complex_no: "2936" },
+  ];
+  assert.equal(complexTargetsFirst(targets)[0].complex_no, "2936");
+  assert.equal(regionOverlaps(targets, targets[0], [{ complexNo: "2936" }]).length, 1);
 });

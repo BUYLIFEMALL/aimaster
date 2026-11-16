@@ -1,10 +1,12 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import { addTargetAction, deleteTargetAction, toggleTargetAction, updateTargetAction, type TargetActionState } from "@/lib/actions/targets";
 import { MAX_TARGETS, TRADE_TYPES, parseComplexNo } from "@/lib/targets";
 import { buildTradeListLink } from "@/lib/tradeLink";
 import RegionPicker from "./RegionPicker";
+import { askExtension } from "@/lib/extensionBridge";
+import { createClient } from "@/lib/supabase/client";
 
 export type TargetRow = {
   id: string;
@@ -53,7 +55,26 @@ function Message({ state }: { state: TargetActionState }) {
   return null;
 }
 
-function TargetItem({ target }: { target: TargetRow }) {
+// U-5(2026-11-17): 확장이 마지막 회차에 남긴 「지역 펼침 ↔ 단지 감시 겹침」(extension/lib/listing.js regionOverlaps).
+// 지금 목록에 그 단지 감시·그 지역 감시가 둘 다 있고 그 지역 펼침이 성공(ok)했을 때만 보여 준다. 옛 확장·결과 없음·다른 계정이면 빈 값
+type OverlapCheck = { regions?: { cortarNo?: string; status?: string }[]; overlaps?: { complexNo?: string; cortarNo?: string; regionName?: string }[] };
+function overlapNotesFor(check: OverlapCheck | null | undefined, targets: TargetRow[]): Record<string, string[]> {
+  const out: Record<string, string[]> = {};
+  if (!check || !Array.isArray(check.overlaps)) return out;
+  const okRegions = new Set((check.regions ?? []).filter((r) => r?.status === "ok").map((r) => String(r.cortarNo ?? "")));
+  const complexNos = new Set(targets.filter((t) => t.target_type !== "region" && t.complex_no).map((t) => String(t.complex_no)));
+  const regions = new Map(targets.filter((t) => t.target_type === "region" && t.cortar_no).map((t) => [String(t.cortar_no), t.region_name ?? ""]));
+  for (const o of check.overlaps) {
+    const no = String(o?.complexNo ?? "");
+    const cortar = String(o?.cortarNo ?? "");
+    if (!complexNos.has(no) || !regions.has(cortar) || !okRegions.has(cortar)) continue;
+    const name = regions.get(cortar) || o.regionName || "";
+    if (name) out[no] = [...new Set([...(out[no] ?? []), name])];
+  }
+  return out;
+}
+
+function TargetItem({ target, overlapRegions = [] }: { target: TargetRow; overlapRegions?: string[] }) {
   const [state, action, saving] = useActionState(updateTargetAction, {});
   const [pending, startTransition] = useTransition();
   const isRegion = target.target_type === "region";
@@ -68,6 +89,9 @@ function TargetItem({ target }: { target: TargetRow }) {
             <small className="ra-region-note">이 동에서 매물 많은 단지 {target.region_max_complexes}곳을 살펴봐요</small>
           ) : (
             <a href={`https://new.land.naver.com/complexes/${target.complex_no}`} target="_blank" rel="noreferrer">네이버 부동산에서 보기 ↗</a>
+          )}
+          {!isRegion && overlapRegions.length > 0 && (
+            <small className="ra-region-note">이 단지는 {overlapRegions.join("·")} 지역 감시에도 들어 있어요 — 조건은 단지 감시 것을 써요</small>
           )}
           {tradeHref && (
             <>
@@ -155,6 +179,19 @@ function AddressInput() {
 export default function TargetsClient({ initialTargets, prefill = null }: { initialTargets: TargetRow[]; prefill?: Prefill }) {
   const [state, action, adding] = useActionState(addTargetAction, {});
   const full = initialTargets.length >= MAX_TARGETS;
+  // U-5: 이 브라우저의 확장에 마지막 회차 겹침을 묻는다(확장 연결 계정 = 로그인 계정일 때만 답함, 서버 미경유)
+  const [overlaps, setOverlaps] = useState<Record<string, string[]>>({});
+  useEffect(() => {
+    let alive = true;
+    void (async () => {
+      const { data } = await createClient().auth.getSession();
+      const email = data.session?.user.email;
+      if (!email) return;
+      const r = await askExtension<{ ok?: boolean; lastResult?: { overlapCheck?: OverlapCheck | null } | null }>("lastResult", 2500, { email });
+      if (alive) setOverlaps(overlapNotesFor(r?.ok ? r.lastResult?.overlapCheck : null, initialTargets));
+    })();
+    return () => { alive = false; };
+  }, [initialTargets]);
   return (
     <>
       <section className="card">
@@ -203,7 +240,7 @@ export default function TargetsClient({ initialTargets, prefill = null }: { init
         {initialTargets.length === 0 ? (
           <p className="lede">아직 등록한 단지가 없어요. 위에서 첫 단지를 추가해 보세요.</p>
         ) : (
-          <ul className="ra-list">{initialTargets.map((t) => <TargetItem key={t.id} target={t} />)}</ul>
+          <ul className="ra-list">{initialTargets.map((t) => <TargetItem key={t.id} target={t} overlapRegions={t.complex_no ? overlaps[String(t.complex_no)] : undefined} />)}</ul>
         )}
       </section>
     </>
