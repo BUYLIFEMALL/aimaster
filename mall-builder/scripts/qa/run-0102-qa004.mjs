@@ -155,6 +155,31 @@ const reqLine = `select public.mall_builder_request_exchange('${id(0x2000)}', 1,
 x = await race(U1, reqLine, U1, reqLine);
 check("A15 같은 상품 동시 접수: 하나만 됨", x.aOk && !x.b.ok && /이미 교환이 진행 중/.test(x.b.err) && val(`select count(*) from mall_builder_exchanges where item_id = '${id(0x2000)}';`) === "1", `A ${x.aOk} / B ${x.b.ok} ${x.b.err}`);
 
+// A16(QA004 P2) 옵션 상품의 옵션을 「모두」 삭제 → 재발송 막힘·상품 본체 재고 그대로. 옵션 없는 정상 상품(머그컵)은 재발송 됨
+{
+  const P2 = id(0xc3), V2a = id(0xd5), V2b = id(0xd6), O16 = id(0xe16), I16 = id(0x1016), O17 = id(0xe17), I17 = id(0x1017);
+  run(`insert into mall_builder_products (id, store_id, name, base_price, stock_mode, stock) values ('${P2}','${STORE}','양말',3000,'product',50);
+insert into mall_builder_product_variants (id, product_id, store_id, key, "values", stock) values ('${V2a}','${P2}','${STORE}','흰색','["흰색"]',5),('${V2b}','${P2}','${STORE}','검정','["검정"]',5);
+insert into mall_builder_orders (id, store_id, seq, order_no, user_id, receiver, depositor, status, total, is_card, is_credit) values
+ ('${O16}','${STORE}',316,'Q-16','${U1}','{"name":"받는분","phone":"010-1111-0001","zip":"1"}','유저1','delivered',6000,false,false),
+ ('${O17}','${STORE}',317,'Q-17','${U1}','{"name":"받는분","phone":"010-1111-0001","zip":"1"}','유저1','delivered',8000,false,false);
+insert into mall_builder_order_items (id, order_id, product_id, variant_id, name_snapshot, option_snapshot, unit_price, qty, line_total) values
+ ('${I16}','${O16}','${P2}','${V2a}','양말','흰색',3000,2,6000),('${I17}','${O17}','${MUG}',null,'머그컵','',8000,1,8000);
+insert into mall_builder_order_events (order_id, from_status, to_status, actor_role, created_at) values ('${O16}','shipping','delivered','staff', now() - interval '1 day'),('${O17}','shipping','delivered','staff', now() - interval '1 day');`);
+  tryAs(U1, `select public.mall_builder_request_exchange('${I16}', 1, '${V2b}', 'defect');`);
+  tryAs(U1, `select public.mall_builder_request_exchange('${I17}', 1, null, 'defect');`);
+  const ex16 = `(select id from mall_builder_exchanges where item_id = '${I16}')`, ex17 = `(select id from mall_builder_exchanges where item_id = '${I17}')`;
+  tryAs(OWNER, `select public.mall_builder_exchange_step(${ex16}, 'collected');`);
+  run(`delete from mall_builder_product_variants where product_id = '${P2}';`);
+  const before = Number(val(`select stock from mall_builder_products where id = '${P2}';`));
+  const r16 = tryAs(OWNER, `select public.mall_builder_exchange_step(${ex16}, 'reshipped', 'CJ', '1616');`);
+  const after = Number(val(`select stock from mall_builder_products where id = '${P2}';`));
+  check("A16 옵션을 모두 삭제한 옵션 상품 → 재발송 막힘·본체 재고 그대로", !r16.ok && after === before, r16.ok ? `재발송 통과됨, 본체 재고 ${before}→${after}` : r16.err);
+  tryAs(OWNER, `select public.mall_builder_exchange_step(${ex17}, 'collected');`);
+  const r17 = tryAs(OWNER, `select public.mall_builder_exchange_step(${ex17}, 'reshipped', 'CJ', '1717');`);
+  check("A17 옵션 없는 정상 상품은 재발송 됨(일괄 차단 아님)", r17.ok, r17.err);
+}
+
 adm(`drop database if exists ${DB}`);
 console.log(`합계 통과 ${pass} / 실패 ${fail}`);
 process.exit(fail ? 1 : 0);
