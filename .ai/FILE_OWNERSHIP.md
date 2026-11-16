@@ -14,6 +14,8 @@
 
 ## 현재 조정 범위
 
+ECOM-20261116-16 / CC-ECOM-01: MOV11 지연ACK V2오인·실패뒤재전송0 확정으로 ECOM15 수정반환, 바나나v1.49 보류. 읽기전용으로 부모2개 saved발신/판독 정확경로·담당·점유·계약호환·입력지문·상관ID·배포순서 조사와 고유계획만 허용. 부모job재사용·40자제한·실패/옛응답 안전처리 포함. 제품/수신계약수정/실저장/DB/build/deploy금지, Master 범위조정후구현.
+
 DES10 검토보완 / AG-UI-01: Master 실제fixture 대조 결과 MessageForm 실제import의 SMS안내/재잠금은 수락, 설정탭은 수작업JSX+inline style 모형이라 제품실측PASS 미수락. 실제 settings/page.tsx 의존성mock 렌더/검증가능원문 자동추출로24라벨·375/Tab만 보완, 이메일mock Resend안내 추가. 로컬 기존CSS만·외부Tailwind CDN금지. 서버page prop은 직접주입으로 통합검증아님 명시. 제품/DB/설치/build/deploy0, 자기fixture/결과만. 과장표현/검증범위 정정후반환.
 
 MOV-20261116-11 / CC-MOVIE-01: ECOM15 467eb724d 독립 경합검수. 동일job/product V1→V2 전송뒤 늦은V1 ack의 V2오인, settings불변 입력사진변경, 중단/실패/새job 응답 재현. 기존하네스·본인fixture/고유결과만, 제품/수신계약/DB/실저장/AI/build/deploy 변경없음. Ecom 코드동결·점유해제, 가능성과 실재현 구분. 바나나v1.49 보류·DEC004 한건 유지.
