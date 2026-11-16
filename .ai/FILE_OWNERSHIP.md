@@ -267,3 +267,9 @@ DES-20261117-02 AG-UI-01: QA005 누락 보완을 위해 145/146/147 목업/PNG/R
 ### 2026-11-17 03:09 KST · 146 S0-S2 단독 구현 승인
 
 CC-WORKSPACE-01만 tokens.css·features/shell/Workspace.tsx·Sidebar/sidebar.css·AimasterSidebar/aimaster.css·새features/home/StudioDashboard.tsx/studio.css·관련ko사전/국소시험을 수정. S0 light aww-studio 토큰, S1 회원폭보존/260기본·767모바일, S2 기존RPC 실제값/빈상태 홈. 서버함수 client import·가짜KPI·새DB·빌드0. S2 반환후 S3-S5 범위조정. CalendarView/calendar.css 달별928/Alt복사ada391은 별도직접지시로 같은Workspace책임·덮어쓰기금지. MacTester QA011/012 신규검수는고유결과만.
+
+### 2026-11-17 03:23 KST · Alt 원자복제 및 Lab0102 실행 경계
+
+WS17-15 단독Workspace: CalendarView/calendar.css/dragSession.ts 및 관련시험, 추가 서버api/modules/dbstruct.ts·클라database/actions.ts의 선택 date-only root overrides 확장 허용. 동일collection/space/root·기존열편집권한/스키마date검증·모든검증apply전,복제+날짜applyTransactions1번·실사용데이터/새schema/빌드0.
+B2B17-06 단독Backend: 기존기승인Lab rjjtjakljjxsgjelqgek/aimaster-b2b만 precheck10→apply633450be/fixture e23ce90f→verify ce0823ca 실행지시. 합성EXQA 고정자료만·운영esgxy/0103/실결제발송/빌드0. 메인준비결과뒤Tester체크리스트로실흐름검수·rollback은Master회수후별도지시.
+B2B17-07 0103/qa runner 함수오류catch 보완은mock검수만. SQL전체중단구조는실서비스배포차단잔여,별도커밋prepare intent 상태안 먼저검토·실Toss0.
