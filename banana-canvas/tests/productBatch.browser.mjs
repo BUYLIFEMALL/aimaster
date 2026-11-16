@@ -41,7 +41,12 @@ const files = {
   "B26_main.png": png(64, 64, [120, 60, 200], MAX + 1),
   "C25_common_sub.png": png(64, 64, [30, 30, 30], MAX),
   "C26_common_sub.png": png(64, 64, [30, 30, 30], MAX + 1),
+  // ECOM-10: 같은 이름 회귀 — 직접 추가용 파랑 Z_badge, 공용 서브용 빨강 same/Z_badge, 교체용 초록 Y_badge
+  "Z_badge.png": png(200, 200, [0, 0, 255]),
+  "Y_badge.png": png(200, 200, [0, 200, 0]),
+  "same/Z_badge.png": png(200, 200, [255, 0, 0]),
 };
+await mkdir(path.join(fixtures, "same"), { recursive: true });
 for (const [n, b] of Object.entries(files)) await writeFile(path.join(fixtures, n), b);
 console.log("fixtures", fixtures, Object.fromEntries(Object.entries(files).map(([n, b]) => [n, b.length])));
 

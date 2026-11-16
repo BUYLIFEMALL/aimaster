@@ -251,7 +251,10 @@ export function ProductBatchBoard() {
     if (parsedRows.length > 0) {
       const fileNames = Array.from(filesMap.keys());
       const commonName = subMode === "common" && commonSubFile ? commonSubFile.name : undefined;
-      const { jobs: builtJobs, orphans: orphanList } = buildJobs(parsedRows, fileNames, commonName);
+      // ECOM-10: 「+ 공용 서브 선택」으로 고른 파일은 filesMap에 없으므로 작업을 만들 때 이름을 함께 넘긴다
+      // (안 넘기면 모든 상품이 「공용 서브 파일이 없습니다」로 막힘). 실제 파일은 subFileFor가 commonSubFile로 찾는다.
+      const jobFileNames = commonName ? [...fileNames, commonName] : fileNames;
+      const { jobs: builtJobs, orphans: orphanList } = buildJobs(parsedRows, jobFileNames, commonName);
       setJobs(builtJobs);
       setOrphans(orphanList);
     } else {
@@ -285,6 +288,11 @@ export function ProductBatchBoard() {
     return () => window.removeEventListener("paste", onPaste);
   }, [addFiles]);
 
+  // ECOM-10: 서브 사진 파일 찾기 — 공용 모드에서는 고른 공용 서브를 먼저 쓴다
+  // (직접 추가에 같은 이름의 다른 파일이 있어도 공용 서브가 합성되게). 개별 모드는 예전처럼 직접 추가 파일만.
+  const subFileFor = (ref: string): File | null =>
+    subMode === "common" && commonSubFile && ref === commonSubFile.name ? commonSubFile : filesMap.get(ref) ?? null;
+
   // 4. 미리보기 실시간 렌더링
   const validJobs = jobs.filter((j) => j.status === "ready");
   const targetJob = validJobs[previewIndex] || validJobs[0] || null;
@@ -311,7 +319,7 @@ export function ProductBatchBoard() {
         const mainBm = await readBitmap(mainFile);
         const subBms: ImageBitmap[] = [];
         for (const sr of subRefs) {
-          const sf = filesMap.get(sr) || (sr === commonSubFile?.name ? commonSubFile : null);
+          const sf = subFileFor(sr);
           if (sf) subBms.push(await readBitmap(sf));
         }
 
@@ -343,7 +351,7 @@ export function ProductBatchBoard() {
     return () => {
       alive = false;
     };
-  }, [targetJob, settings, filesMap, commonSubFile]);
+  }, [targetJob, settings, filesMap, commonSubFile, subMode]);
 
   // 5. 일괄 실행 (Run Queue)
   const startBatchExecution = async () => {
@@ -398,7 +406,7 @@ export function ProductBatchBoard() {
         const mainBm = await readBitmap(mainFile);
         const subBms: ImageBitmap[] = [];
         for (const sr of subRefs) {
-          const sf = filesMap.get(sr) || (sr === commonSubFile?.name ? commonSubFile : null);
+          const sf = subFileFor(sr);
           if (sf) subBms.push(await readBitmap(sf));
         }
 
@@ -506,7 +514,7 @@ export function ProductBatchBoard() {
       const mainBm = await readBitmap(mainFile);
       const subBms: ImageBitmap[] = [];
       for (const sr of targetJob.photos.filter((p) => p.role === "sub").map((p) => p.ref)) {
-        const sf = filesMap.get(sr) || (sr === commonSubFile?.name ? commonSubFile : null);
+        const sf = subFileFor(sr);
         if (sf) subBms.push(await readBitmap(sf));
       }
       const canvas = renderComposite(mainBm, subBms, settings, 1);
