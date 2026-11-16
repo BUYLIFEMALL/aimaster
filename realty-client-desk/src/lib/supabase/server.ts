@@ -29,6 +29,8 @@ export async function createClient() {
           }
         },
       },
+      // 서버가 대신 로그인할 때도 브라우저 기기 정보를 넘겨 동시 접속 규칙에 기록되게 합니다(로그인 정책 2-2).
+      global: { headers: { "User-Agent": headerStore.get("user-agent") ?? "" } },
     },
   );
 }

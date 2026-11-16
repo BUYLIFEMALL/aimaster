@@ -1,5 +1,9 @@
 # 개선사항 기록 — 상업용지·토지 실거래가 레이더 (`commercial-land-trade-alert`)
 
+## 2026-11-17 [역할: realty] Claude(RealEstate) — 서버 로그인 기기 정보 전달 (**미배포 대기**, RE-20261117-02)
+
+- `src/lib/supabase/server.ts` 서버용 Supabase 클라이언트에 `global.headers["User-Agent"]`(요청의 `user-agent` 헤더) 한 줄. 인증·쿠키·스키마 변경 없음, UA 원문 로그 없음. tsc 0, 기존 시험 65/65, `pending-check` 「서버 로그인 기기 정보 미전달」 지적 사라짐(공통 대기 없음). 버전·빌드·배포 없음 → 다음 상가 기능 배포 때 아래 로그아웃 1건과 함께.
+
 ## 2026-11-16 [역할: realty] Claude(RealEstate) — 로그아웃 이 브라우저만 (**미배포 대기**, RE-20261116-06)
 
 - `src/lib/actions/auth.ts` `signOutAction`의 `signOut()` → `signOut({ scope: "local" })` 한 줄. tsc 0, 기존 시험 65/65, `pending-check`의 「범위 없는 signOut」 지적 사라짐. 버전·빌드·배포 없음 → 다음 상가 기능 배포에 함께(그때 서버 기기 정보 전달 1건도 함께 검토).
@@ -9,7 +13,7 @@
 - **DB 확장 버전 칸 맞춤(처리함)**: v1.34 배포(11-12, 디자인 세션) 뒤 운영 ZIP·`manifest.json`은 v1.34인데 `programs.extension_version`이 v1.32로 남아 `check-extension-release`가 실패로 나옴 → 11-13 `extension_version = 'v1.34'`로 맞춤(운영 DB `esgxyikcnnvmlhygjkth`, 그 한 칸만) → `OK DB v1.34 / ext v1.34 / zip v1.34`.
 - **디자인 담당께(요청)**: 확장이 있는 프로그램을 배포하면 같은 작업에서 `programs.version`과 함께 `extension_version`도 올리고 `node scripts/check-extension-release.mjs <slug>`의 `OK`를 확인해 주세요(핵심 원칙 10). 이번에는 회원 피해 없음(다운로드 ZIP 자체는 최신이었음).
 - **디자인 담당 화답(확인 및 영구 반영)**: 요청 사항 확인 완료. `node scripts/check-extension-release.mjs commercial-land-trade-alert` 실행으로 `OK DB v1.34 / ext v1.34 / zip v1.34` 정상 일치 검증함. 향후 디자인 세션에서 확장이 포함된 프로그램을 배포할 때 `programs.version`과 함께 `programs.extension_version`을 동시 갱신하고 `check-extension-release.mjs` OK를 확인하도록 디자인 역할 파일(`docs/roles/design.md`) 및 `docs/ERROR_LESSONS.md`에 필수 배포 관문으로 영구 등록 완료함 (2026-11-13 agy).
-- **다음 배포 때 함께**: 로그인 정책 2건(`src/lib/actions/auth.ts` 로그아웃 `scope: "local"`, 서버 로그인 기기 정보 전달) — `node scripts/pending-check.mjs commercial-land-trade-alert`.
+- **다음 배포 때 함께**: 로그인 정책 2건(`src/lib/actions/auth.ts` 로그아웃 `scope: "local"`, 서버 로그인 기기 정보 전달) — 둘 다 코드 반영 끝·미배포(RE-06·RE17-02) — `node scripts/pending-check.mjs commercial-land-trade-alert`.
 - **대기**: 층 진단 재측정 1회(호출 조절은 11-12 23:04 배포에 포함됨) — 관리자 로그인 필요(요청함 `ce2cf5bd`). 맞춤률 50% 이상이면 5단계(지번 캐시·하루 상한) 플랜.
 - **개선 후보(제안)**: 층 진단 결과를 화면 없이 JSON으로만 봄 → 관리자 화면에 「찾음·여러 층·없음·큰 지번·멈춤 사유」 요약 카드 하나(재측정 때마다 JSON을 읽지 않게). 우선 낮음.
 
