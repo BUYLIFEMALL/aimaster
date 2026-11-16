@@ -53,3 +53,7 @@
 
 /* 2026-11-17 Alt(Option) 끌기 = 복제: 끄는 동안 복사 커서 */
 body.nc-cal-copying, body.nc-cal-copying * { cursor: copy !important; }
+
+/* 2026-11-17 WS-20261117-13 146(S3): 스튜디오 색일 때 오늘 표시를 인디고로(흰 글자 대비 6.29:1). 240px·24px·전체 너비·달 구분(928c359ff)은 그대로 —
+   달 구분 색 rgba(99,102,241)는 이미 146 포인트 #6366F1과 같음. html.aww-studio(라이트) 없으면 원래 빨강. */
+html.aww-studio.lit-light-theme .nc-cal-num.today { background: var(--aww-studio-accent-solid, #4f46e5); color: #fff; }

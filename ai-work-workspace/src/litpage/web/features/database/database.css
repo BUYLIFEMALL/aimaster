@@ -429,3 +429,7 @@
 
 /* database search hits (toolbar search) */
 .nc-search-hit { background: rgba(120, 53, 15, 0.4); border-radius: 4px; box-shadow: 0 0 0 1px rgba(120, 53, 15, 0.4); }
+
+/* 2026-11-17 WS-20261117-13 146(S3): 「새로 만들기」 펼친 상태의 고정 파랑을 스튜디오 인디고로. 선·머리글·글자는 S0 토큰을 그대로 따름. */
+html.aww-studio.lit-light-theme .lit-collection-view-item-add.open > .nc-db-new,
+html.aww-studio.lit-light-theme .lit-collection-view-item-add.open > .nc-db-new-more { background: var(--aww-studio-accent-solid, #4f46e5); }
