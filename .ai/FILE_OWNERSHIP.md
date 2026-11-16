@@ -69,6 +69,14 @@
 
 ### 19:07 대기 해소·다음 작업
 
+B2B07 추가 범위: `mall-builder/scripts/rollback-0100-step1-stop-auto.sql`도 수정 허용. QA05 P1-2(중지 뒤 recheck 취소완료 경로가 issue POST를 일으킬 수 있음)를 보완해 step1이 실제 신규발급/재발급을 중지하게 하고, 남는 조회/취소 기능과 제한을 명시한다. 운영 실행은 금지, 격리DB에서 중지 후 POST0을 검증한다. 그 밖 cancel_failed 불확실응답 새ref 재시도·직원 recheck권한 지적도 같은0100/시나리오 범위에서 먼저 판정해 미해결위험을 반환한다.
+
+WS-20261116-09 / CC-WORKSPACE-01: `tools.ts`·`agents/runs.ts`·`tests/integration/agentMcp.test.ts`의 같은 실행 내 canonical/legacy 동치 승인 집합 소진 보완. 제품판정: 옛 허용 미실행 후 순서변경 재검토·재허용은 동일 논리 호출의 재확인이며, 별도 실행횟수2를 허용한 것으로 취급하지 않는다. 정상화 동치 키를 메모리/DB에서 함께 제거하고 실제payload CAS 성공자만 1회 실행한다. 다른연결/도구/회원/실행/다른인자 승인 보존·단일키호환·새허용 이후정상재호출·동시실행/실패시재호출금지 회귀. 새스키마/실MCP/배포 없음. 공유시험DB 점유 확인 필수, QA06은 이 보완 전단계 검토로 보존하고 수정후 새 독립검증을 배정한다.
+
+B2B-20261116-07 / CC-B2B-BACK-01: QA05 P1을 Master가0100의142/242/271/330행 경로로 확인. `mall-builder/supabase/migrations/0100_cash_receipts.sql`의 취소·상태재조회/취소완료 뒤 재발급 판정 및 `scripts/scenario-0100-cash-receipts.sql` 회귀 시나리오만 수정 허용. unknown→주문취소/반품·부분환불→뒤늦은ISSUED의 취소/현재유효잔액 일치와 불확실시 중복외부호출금지·멱등성·권한을 함께 검증. 옛 상태/금액으로 취소 뒤 재발급하지 않는다. 기존 설치된 로컬 격리DB·볼타 모의응답만 사용, 운영DB/실발급/공유DB리셋/새설치/빌드 없음. 실제 미해결 위험이 있으면 재현·최소범위 반증부터 보고. 별도 새 스키마/API/UI는 편집 전 조정. 운영적용과v1.16배포는 P1 수정·독립재검증 및 도구확인창 해소 전 보류.
+
+QA-20261116-06 / CX-QA-01: `74e179bbe` WS08 callKey 정규화·legacy 호환 실제diff 읽기독립검토, 기존국소시험은 공유시험DB점유 조정된 경우만. 원시값/중첩/배열/연결·도구·회원 경계, 신·구 키 동시 보유 때 승인1회 의미와 재실행/동시소진을 중점 확인. 제품수정·실MCP·운영DB 없음. QA05 중요결함 확정 보고 후 착수한다.
+
 ECOM-20261116-08 / CC-ECOM-01: ECOM07 실제하네스에서 재현한 모바일 세로 쪼개짐/320px 넘침/이름없는2단계 입력 보완. 제품 범위는 `banana-canvas/src/components/batch/ProductBatchBoard.tsx` 한 파일, 기존 격리시험2파일·본인 IMPROVEMENTS·고유결과만. 공통CSS/서버/상품계약 변경 없음. 375/320px 완료상자·알약/단추/표제목 가독성·줄바꿈·초점/레이블 검증과 25MB경계 유지. 실패 재현→국소수정→같은 실제컴포넌트하네스 재검증. 새예산/build/배포/로그인/DB 없음.
 
 RE-20261116-06 / CC-REALTY-01: `commercial-land-trade-alert/src/lib/actions/auth.ts`·`realty-client-desk/src/lib/actions/auth.ts`의 signOutAction만 프로젝트 공통정책 `scope: local`로 수정, 본인2개프로그램 IMPROVEMENTS/고유결과. 다른인증/UA/위젯은 이번범위밖. 이미변경됐으면중복수정않고보고. 0번고지확인·해당타입/관련기존검사, 실제회원로그아웃/다른기기세션시험은수행하지않음. 새버전/build/배포/DB쓰기 없음.
