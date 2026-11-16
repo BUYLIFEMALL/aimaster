@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 02:10:05 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 사용자
+기준: 2026-11-17 02:11:45 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -12,13 +12,13 @@
 
 | 순서 | 담당 | 진행 단계 | 다음 작업·통과 기준 |
 | --- | --- | --- | --- |
-| 1 · 권한/중복 | Workspace + Music | 운영v1.55·E1/소규모묶음 미배포·독립검수중 | E1 notify_me CAS보완→Mac검수; AGY3안독립뷰어보완→주인님선택; 작은수정묶음배포 |
-| 2 · 상품 연계 | Movie + ecommerce + Tester | 운영 Ready·독립 코드QA PASS / 실제왕복 미검수 | 시험상품 범위 확정 후 GIF/WebP 각1 실수신 검수. 추가빌드 없음 |
-| 3 · 쇼핑몰 | B2BBackend + B2BFront | 운영Ready·Lab0101별도 | 0102 P1 배송기간/반품경합 수정·메인격리DB 검증→Mac검수, Lab0102/운영/UI 보류;0101/Front묶음미배포 |
-| 4 · 이미지 품질 | ecommerce + Antigravity | 375px/용량/빈상태 보완·정적 독립검토 끝 | 바나나 v1.49 묶음 승인 확인 → 실제 375px·빈 상태·낭독 확인. 코드 완료를 화면 PASS로 바꾸지 않음 |
-| 5 · 부동산 | RealEstate | v1.45/v1.61 사용자 직접 승인 배포 Ready 보고 | 배포증거 RE04 검토·카카오 끊기 실물 사용자 직접·08:00 뉴스 실행기록 대조. 상가/고객수첩 신규배포 없음 |
-| 6 · 블로그 | Blog + Tester | 소제목·전경거절 진단 수정·단위시험 끝 | 현재 확장 버전/맥 요청서 대조 → 포커스 진단만 재시험. 외부 수락·댓글은 별도 계정/범위 필요 |
-| 7 · 음악 | Music | 5개 기배포·운영 MP4/빈 화면 검증 끝 | 범위 내 완료. 직접저장/timeout/fallback/맥 미검증은 별도 한계. 재배포/AI생성 반복 없음 |
+| 1 · 계정 격리 | Realty + Mac Tester | 가상 A/B 계정 혼입 재현·수정 반환 | owner 없는 옛 기록은 삭제 대신 격리 보존·자동 귀속 금지, 추가 수정→Mac 검수 |
+| 2 · 교환 안전성 | B2BBackend + Mac Tester | QA004 P1 수정 559085a40 반환 | 실제배송 전이·주문→교환 잠금·반품상호배제; 작성자 격리DB 15/15→독립검수, Lab0102/운영/UI 보류 |
+| 3 · Workspace | Workspace + Mac Tester | 운영v1.55·E1/소규모묶음 미배포·독립검수중 | E1 notify_me CAS보완→Mac검수; AGY3안독립뷰어보완→주인님선택; 작은수정묶음배포 |
+| 4 · 디자인 선택 | Antigravity + Master | 145/146/147 총12뷰·독립뷰어 보완 반환 | 3안 비교 후 주인님 선택·제품 미반영, 디자인 자체를 실제 앱 동작 PASS로 보지 않음 |
+| 5 · 운영 릴리스 | 프로그램별 담당 | 가사1.16·상세1.47·바나나1.49·WS1.55·B2B1.16·제휴1.89 Ready 보고 | 기승인 배포 반복 없음·실기기/실MCP/실확장 수집 등 미검수 범위 별도 |
+| 6 · 소규모 묶음 | Music + B2BFront + Workspace | 취소안내·키보드·캘린더/번역/여백 결과 회수 | 범위별 검토 후 프로그램별 다음 배포에 묶음·작은 수정별 빌드 요청 없음 |
+| 7 · 공통 운영 | Master | 메인 실행·맥 독립검수 v1.6 | 직접 지시와 Master 배정 취합·단일 담당/경로·타인 미커밋 보존·중복 실행 방지 |
 | 키트 | Support + Blog + ecommerce + AGY | 사용자가 Lab 설치·배포 직접 진행 | 자동 실행 배정 철회. Support 권한열 보완·검토 및 사용자용 인수인계만. 6회 예산 타배포 전용 금지 |
 | 공통 | Master | 편집 범위·공식 완료 통제 | 매 편집 직전 점유/status/diff→예약→재조회. 범위 추가는 Master 승인, 작업자는 ready_review로 제출 |
 
@@ -39,7 +39,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 142개: done 120개 · cancelled 6개 · ready_review 10개 · running 4개 · ready 1개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 142개: done 120개 · cancelled 6개 · ready_review 12개 · running 2개 · ready 1개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -172,7 +172,7 @@
 | BLOG-20261117-01 | CC-BLOG-01 | done / integrated | 수집기 운영메타·블로그 미배포 누락 정정 | 문서정정완료·tistory타인ZIP삭제diff보존·T12미정별도 |
 | RE-20261117-03 | CC-REALTY-01 | done / integrated | 읽기전용 뉴스측정·안정페이징 도구 | 동률2500루프모의검증수락·실PostgREST1000+미검수·recall판정불가/운영recent상한차이명시 |
 | WS-20261117-07 | CC-WORKSPACE-01 | done / integrated | 뉴스측정기 독립읽기/안정페이징 후속검토 | 지적보완수락·DB/API0·실페이지경계누락실측아님 |
-| RE-20261117-04 | CC-REALTY-01 | running / acknowledged | 지역·단지 감시 겹침 안내 | 합성A→B lastResult/stats 혼입 재현. ownership.js/background/bridge/tests 국소수정·계정세대/비파괴실패·기기키보존, Mac검수. 실제수집/빌드0 |
+| RE-20261117-04 | CC-REALTY-01 | running / acknowledged | 지역·단지 감시 겹침 안내 | 수정반환·VM8/116시험. legacy자동현재계정귀속 위험으로 추가반환: 원자료삭제대신격리보존·실패비파괴차단·SW재시작증명→Mac |
 | MOV-20261117-05 | CC-MOVIE-01 | done / integrated | 갤러리키보드·가사취소 안내 독립검토 | 각실컴포넌트/실Lab PASS·운영미배포·fallback소규모후속코드대조 |
 | B2B-20261117-01 | CC-B2B-BACK-01 | done / integrated | 메시지 safeupdate 미리보기·알림라벨 보완(Lab) | Mac정적PASS/동일Lab작성자preview증거 재사용. 운영0101·실발송·제품배포 미완료 유지 |
 | WS-20261117-08 | CC-WORKSPACE-01 | ready_review / returned | 주인님 직접 소규모5건 캘린더·번역 묶음 | ⑤기존구현조사/4영역코드변경·MOV17-06독립검토·906여백과미배포묶음 |
@@ -181,10 +181,10 @@
 | QA-20261117-002 | CX-QA-01 | waiting_human / returned | 실제Intel Mac MP4파일내보내기 보조검수 | Intel x86_64·AppleSilicon불가. ego20 handoff에서MP4신뢰클릭/저장위치선택필요, 실제인코딩0·우회없음 |
 | QA-20261117-003 | CX-QA-01 | ready_review / returned | B2B Lab·RE계정격리·Workspace묶음 독립검수 | B2B Lab 작성자증거 재사용·RE계정혼입 재현 수정중·WS10 정적해소·E1 notify_me 영속CAS 수정후 재검수 |
 | QA-20261117-004 | CX-QA-01 | ready_review / returned | 교환0102 독립검토 | FAIL/P1 배송7일기준/반품경합 반환·메인 격리DB 빨강초록 후 재검수; SQL 실실행 미완료 |
-| B2B-20261117-02 | CC-B2B-BACK-01 | running / acknowledged | 교환0102 구현·독립지적 수정 | 0102+scripts/qa/run-0102-qa004.mjs만 수정, 주문→교환 잠금/배송전이/반품상호배제 검증. Lab·운영·UI·빌드 보류 |
+| B2B-20261117-02 | CC-B2B-BACK-01 | ready_review / returned | 교환0102 구현·독립지적 수정 | 작성자실제격리DB 기존10통과5실패→수정15/0·2연결경합보고·Mac재검수전달, Lab0102/운영/UI 보류 |
 | WS-20261117-10 | CC-WORKSPACE-01 | ready_review / returned | 보기 이름 저장값 보존 | 저장된 Table/한글 이름 그대로 표시·서버3경로 보류. 최종MacQA후 다음배포묶음 |
-| WS-20261117-09 | CC-WORKSPACE-01 | running / acknowledged | 확장 E1·notify_me 중복 차단 | 작성자225시험/tsc0, 독립검수 notify_me 계보중복 결함 확인. 기존payload CAS 영속선점 수정→Mac검수. 실발송·DB구조·빌드0 |
-| DES-20261117-02 | AG-UI-01 | ready_review / returned | Workspace 전면디자인3안·12뷰 | PNG12개/각2880x1800/README 확인. 독립뷰어가상위리다이렉트뿐이라 보완반환·이전쇼케이스보존확인. 제품미반영·주인님선택대기 |
+| WS-20261117-09 | CC-WORKSPACE-01 | ready_review / returned | 확장 E1·notify_me 중복 차단 | 영속CAS 수정반환·작성자230시험/type0·Mac전달, 상위검토정책/링크권한 추가증거 요청·실발송0 |
+| DES-20261117-02 | AG-UI-01 | ready_review / returned | Workspace 전면디자인3안·12뷰 | 독립뷰어13KB+ 보완보고·PNG12개2880×1800확인. 기존쇼케이스보존/실화면검수별도, 주인님3안선택전제품미반영 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 

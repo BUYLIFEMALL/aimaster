@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T17:09:05.345Z",
+  "checkedAt": "2026-11-16T17:11:42.222Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -1784,9 +1784,9 @@
       "delivery": "acknowledged",
       "title": "지역·단지 감시 겹침 안내",
       "evidence": "msg_77710e928a5e / msg_be0b733b23fb",
-      "next": "합성A→B lastResult/stats 혼입 재현. ownership.js/background/bridge/tests 국소수정·계정세대/비파괴실패·기기키보존, Mac검수. 실제수집/빌드0",
-      "lastReviewedAt": "2026-11-16T17:09:05.345Z",
-      "sha": "764c93595 + 8cef2f4e0 (격리수정전)"
+      "next": "수정반환·VM8/116시험. legacy자동현재계정귀속 위험으로 추가반환: 원자료삭제대신격리보존·실패비파괴차단·SW재시작증명→Mac",
+      "lastReviewedAt": "2026-11-16T17:11:42.222Z",
+      "sha": "b175feca7 + 406e475e0"
     },
     {
       "task_id": "MOV-20261117-05",
@@ -1903,11 +1903,12 @@
       "title": "교환0102 구현·독립지적 수정",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:09:05.345Z",
-      "status": "running",
-      "delivery": "acknowledged",
-      "evidence": "msg_1f85bca65036 / msg_2e9d46717577",
-      "next": "0102+scripts/qa/run-0102-qa004.mjs만 수정, 주문→교환 잠금/배송전이/반품상호배제 검증. Lab·운영·UI·빌드 보류"
+      "lastReviewedAt": "2026-11-16T17:11:42.222Z",
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": ".ai/results/B2B-20261117-04-CC-B2B-BACK-01.md",
+      "next": "작성자실제격리DB 기존10통과5실패→수정15/0·2연결경합보고·Mac재검수전달, Lab0102/운영/UI 보류",
+      "sha": "559085a407c687f82d10b621e88b0b7cd16339d8"
     },
     {
       "task_id": "WS-20261117-10",
@@ -1930,12 +1931,12 @@
       "title": "확장 E1·notify_me 중복 차단",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:09:05.345Z",
-      "status": "running",
-      "delivery": "acknowledged",
-      "sha": "6e9d07f1c + 0da321e33",
+      "lastReviewedAt": "2026-11-16T17:11:42.221Z",
+      "status": "ready_review",
+      "delivery": "returned",
+      "sha": "6e9d07f1c + 0da321e33 + 22177c868",
       "evidence": "a13499846 / msg_cd9ac04abae3 / msg_cfa0dc4481e5",
-      "next": "작성자225시험/tsc0, 독립검수 notify_me 계보중복 결함 확인. 기존payload CAS 영속선점 수정→Mac검수. 실발송·DB구조·빌드0"
+      "next": "영속CAS 수정반환·작성자230시험/type0·Mac전달, 상위검토정책/링크권한 추가증거 요청·실발송0"
     },
     {
       "task_id": "DES-20261117-02",
@@ -1944,11 +1945,11 @@
       "title": "Workspace 전면디자인3안·12뷰",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:09:05.345Z",
+      "lastReviewedAt": "2026-11-16T17:11:42.222Z",
       "status": "ready_review",
       "delivery": "returned",
       "evidence": "msg_8578a0384aa2 / .ai/results/DES-20261117-02-AG-UI-01.md / msg_94cbdd325be1",
-      "next": "PNG12개/각2880x1800/README 확인. 독립뷰어가상위리다이렉트뿐이라 보완반환·이전쇼케이스보존확인. 제품미반영·주인님선택대기"
+      "next": "독립뷰어13KB+ 보완보고·PNG12개2880×1800확인. 기존쇼케이스보존/실화면검수별도, 주인님3안선택전제품미반영"
     }
   ],
   "programOverrides": [
@@ -2266,6 +2267,7 @@
   "rules": {
     "version": "1.6",
     "policy": "주인님직접지시취합·단일책임/파일범위·메인실행/맥Tester독립검수·소규모묶음배포",
-    "distribution": "실제 전달기록 기준. QA003/004 결과반환·AGY DES17-02 결과반환, 새규칙전원읽음으로추정하지않음"
+    "distribution": "실제 전달기록 기준. QA003/004 결과반환·AGY DES17-02 결과반환, 새규칙전원읽음으로추정하지않음",
+    "commit": "b2fcb27e6"
   }
 }
