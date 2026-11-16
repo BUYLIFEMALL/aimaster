@@ -80,7 +80,7 @@ test("등록표에 이어 붙고 기존 템플릿은 그대로, 식품·키즈·
   for (const keep of ["clean-wellness", "luxury-boutique", "trendy-pop", "neo-modern", "clean-select", "market-daily", "brand-story", "kids-toy", "digital-tech", "wholesale-catalog", "editorial-magazine", "minimal-showroom", "street-night"]) {
     assert.ok(LAYOUTS.some((l) => l.id === keep), `기존 템플릿 사라짐: ${keep}`);
   }
-  assert.equal(LAYOUTS.length, 19);
+  assert.ok(LAYOUTS.length >= 19, `등록표 ${LAYOUTS.length}종 — 2차까지 19종, 3차 이후 늘어남(최종 개수·중복은 templates-extra-3 시험이 고정)`);
   for (const i of ["food", "kids", "beauty"]) assert.ok(layoutsFor(i).length >= 6, `${i}: ${layoutsFor(i).length}`);
   for (const i of INDUSTRIES) assert.ok(layoutsFor(i).length >= 6, `${i}: ${layoutsFor(i).length}`);
 });
