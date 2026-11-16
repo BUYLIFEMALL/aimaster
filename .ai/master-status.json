@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T17:37:22.516Z",
+  "checkedAt": "2026-11-16T17:40:39.149Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -1950,18 +1950,15 @@
       "title": "Workspace 전면디자인3안·12뷰",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:35:44.124Z",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "msg_8578a0384aa2 / .ai/results/DES-20261117-02-AG-UI-01.md / msg_94cbdd325be1",
-      "next": "독립뷰어13KB+ 보완보고·PNG12개2880×1800확인. 기존쇼케이스보존/실화면검수별도, 주인님3안선택전제품미반영",
+      "lastReviewedAt": "2026-11-16T17:40:39.149Z",
+      "status": "ready",
+      "delivery": "delivered",
+      "evidence": "QA17-005 / msg_6fd67439debd",
+      "next": "AGY디자인3안목업누락/종합매트릭스/147ko요일/긴제목8개월전체/키일관성보완배정·제품코드0·주인님선택전",
       "reviewFreeze": {
-        "owner": "AG-UI-01",
-        "state": "acknowledged",
-        "evidence": "msg_2e0e7ffce1d3",
-        "scope": "145/146/147 PNG·showcase HTML 원본 변경 보류",
-        "reason": "QA-20261117-005 검수 기준 보존",
-        "productChanges": 0
+        "state": "released_for_scoped_revision",
+        "evidence": "msg_6fd67439debd",
+        "scope": "Workspace145/146/147 디자인원본만·타시안보존"
       }
     },
     {
@@ -1983,14 +1980,14 @@
       "parent_task_id": "DES-20261117-02",
       "owner": "CX-QA-01",
       "title": "Workspace 디자인3안·독립뷰어 시각검수",
-      "status": "ready",
-      "delivery": "delivered",
+      "status": "ready_review",
+      "delivery": "returned",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "evidence": "msg_2bebbd030741 기존마운트실제HTML접근확인",
+      "evidence": "msg_39d507d68539 / QA17-005",
       "completion": "3안12뷰·독립뷰어/비교/확대/키/한글가독성·누락·안별추천근거를반환. 제품동작PASS와구분",
-      "next": "기존/Volumes/gt1_mega/Antigravity/Design 읽기전용,고유결과파일만작성·불가한시각검수는메인확인요청. 원본/서버/설치/빌드/DB0",
-      "lastReviewedAt": "2026-11-16T17:35:05.261Z"
+      "next": "실HTML확대/키/독립뷰어확인·디자인표현누락P2보완AGY반환. 실제제품PASS아님·선택전보완필수",
+      "lastReviewedAt": "2026-11-16T17:40:39.149Z"
     },
     {
       "task_id": "WS-20261117-11",
@@ -2036,6 +2033,20 @@
       "completion": "focus/visible즉시조회·중복합치기·숨김0·등록해제·기존표시보존 검수",
       "next": "QA006후국소검수·기존E1검사반복없음·실브라우저동작확인범위분리",
       "lastReviewedAt": "2026-11-16T17:37:22.516Z"
+    },
+    {
+      "task_id": "WS-20261117-12",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "parent_task_id": "PLAN-20261117-01",
+      "owner": "CC-WORKSPACE-01",
+      "title": "E2-7-3 손님 포털 구현·외부공개권한 경계",
+      "status": "ready",
+      "delivery": "delivered",
+      "evidence": "7b553da78 PLAN7-5 / msg_f0616e6ab766",
+      "completion": "기능OFF때DDL/DB접속/노출0·공유권한/행범위/속성투영/토큰폐기·권한철회·noStore·격리시험",
+      "next": "portal.ts/appportal/시험/OFF가드만허용·행메뉴파일예약선행. 예약은409동치GET/실패분류/조정실행기/생성30일보관보완전코드보류·실Google/운영DDL/빌드0",
+      "lastReviewedAt": "2026-11-16T17:40:39.149Z"
     }
   ],
   "programOverrides": [
