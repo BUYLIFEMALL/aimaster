@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 02:35:09 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 02:37:25 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -39,7 +39,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 144개: done 125개 · cancelled 6개 · ready_review 8개 · running 1개 · ready 3개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 147개: done 125개 · cancelled 6개 · ready_review 10개 · running 1개 · ready 4개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -185,8 +185,11 @@
 | WS-20261117-10 | CC-WORKSPACE-01 | ready_review / returned | 보기 이름 저장값 보존 | 저장된 Table/한글 이름 그대로 표시·서버3경로 보류. 최종MacQA후 다음배포묶음 |
 | WS-20261117-09 | CC-WORKSPACE-01 | done / integrated | 확장 E1·notify_me 중복 차단 | 독립경계완료·소규모미배포묶음유지. claim후enqueue실패소진/전체execute중복별도한계. E2축소진행 |
 | DES-20261117-02 | AG-UI-01 | ready_review / returned | Workspace 전면디자인3안·12뷰 | 독립뷰어13KB+ 보완보고·PNG12개2880×1800확인. 기존쇼케이스보존/실화면검수별도, 주인님3안선택전제품미반영 |
-| B2B-20261117-03 | CC-B2B-BACK-01 | ready / delivered | 교환 접수·단계 UI 구현 | 신규5파일+고객/관리자주문상세패널연결 Backend단독배정, 최신옵션flags/서버권한/안전backPath·정확오류. 불가능복구안내정정·빌드/실결제/발송/0102Lab운영0 |
+| B2B-20261117-03 | CC-B2B-BACK-01 | ready_review / returned | 교환 접수·단계 UI 구현 | 작성자466/type0·0102미적용Lab패널숨김확인. QA006독립검수배정·Lab대상/정확SQL/fixture/복구안준비,0102적용/빌드0 |
 | QA-20261117-005 | CX-QA-01 | ready / delivered | Workspace 디자인3안·독립뷰어 시각검수 | 기존/Volumes/gt1_mega/Antigravity/Design 읽기전용,고유결과파일만작성·불가한시각검수는메인확인요청. 원본/서버/설치/빌드/DB0 |
+| WS-20261117-11 | CC-WORKSPACE-01 | ready_review / returned | E2-7-1 포커스복귀 동기화·기존말풍선 현지화 | 작성자5빨강초록·250/type0,QA007 독립검수배정·미배포,예약/포털은계획보완문서만 |
+| QA-20261117-006 | CX-QA-01 | ready / delivered | 교환 UI 서버권한·단계·오류 독립검수 | 디자인검수구간정리후교환UI우선. Lab0102필요실행은Master경유·독립쓰기/빌드0 |
+| QA-20261117-007 | CX-QA-01 | ready / delivered | E2 복귀동기화·리스너수명 독립검수 | QA006후국소검수·기존E1검사반복없음·실브라우저동작확인범위분리 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 

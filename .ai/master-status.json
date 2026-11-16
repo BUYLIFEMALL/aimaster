@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T17:35:05.261Z",
+  "checkedAt": "2026-11-16T17:37:22.516Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -1971,11 +1971,12 @@
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "title": "교환 접수·단계 UI 구현",
-      "status": "ready",
-      "delivery": "delivered",
-      "evidence": "UI계획結果03 / msg_5e76183068a2 / Front msg_030a0dfe4078 / AGY msg_b19f24492917",
-      "next": "신규5파일+고객/관리자주문상세패널연결 Backend단독배정, 최신옵션flags/서버권한/안전backPath·정확오류. 불가능복구안내정정·빌드/실결제/발송/0102Lab운영0",
-      "lastReviewedAt": "2026-11-16T17:30:25.609Z"
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "msg_d8ab72102e9c / B2B17-03結果",
+      "next": "작성자466/type0·0102미적용Lab패널숨김확인. QA006독립검수배정·Lab대상/정확SQL/fixture/복구안준비,0102적용/빌드0",
+      "lastReviewedAt": "2026-11-16T17:37:22.516Z",
+      "sha": "ab3150c0fdee04a083de401c7de0742b21a001ad + a86c53dc1"
     },
     {
       "task_id": "QA-20261117-005",
@@ -1990,6 +1991,51 @@
       "completion": "3안12뷰·독립뷰어/비교/확대/키/한글가독성·누락·안별추천근거를반환. 제품동작PASS와구분",
       "next": "기존/Volumes/gt1_mega/Antigravity/Design 읽기전용,고유결과파일만작성·불가한시각검수는메인확인요청. 원본/서버/설치/빌드/DB0",
       "lastReviewedAt": "2026-11-16T17:35:05.261Z"
+    },
+    {
+      "task_id": "WS-20261117-11",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "parent_task_id": "PLAN-20261117-01",
+      "owner": "CC-WORKSPACE-01",
+      "title": "E2-7-1 포커스복귀 동기화·기존말풍선 현지화",
+      "status": "ready_review",
+      "delivery": "returned",
+      "sha": "3f32871e2d3804aab61df837a10105aaa9f06fd1",
+      "evidence": "17030fb420566d70fcd96cf9f182908768d6d87e / PLAN7-1결과",
+      "completion": "기존poll복귀즉시확인·중복합치기·리스너수명·숨김회귀·기존presence표시유지",
+      "next": "작성자5빨강초록·250/type0,QA007 독립검수배정·미배포,예약/포털은계획보완문서만",
+      "lastReviewedAt": "2026-11-16T17:37:22.516Z"
+    },
+    {
+      "task_id": "QA-20261117-006",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "parent_task_id": "B2B-20261117-03",
+      "owner": "CX-QA-01",
+      "title": "교환 UI 서버권한·단계·오류 독립검수",
+      "status": "ready",
+      "delivery": "delivered",
+      "sha": "ab3150c0f + a86c53dc1",
+      "evidence": "msg_95b17778b57d",
+      "completion": "서버권한/몰범위/backPath/재고·옵션·미적용오류의 정확성,정적·모의·실화면범위구분",
+      "next": "디자인검수구간정리후교환UI우선. Lab0102필요실행은Master경유·독립쓰기/빌드0",
+      "lastReviewedAt": "2026-11-16T17:37:22.516Z"
+    },
+    {
+      "task_id": "QA-20261117-007",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "parent_task_id": "WS-20261117-11",
+      "owner": "CX-QA-01",
+      "title": "E2 복귀동기화·리스너수명 독립검수",
+      "status": "ready",
+      "delivery": "delivered",
+      "sha": "3f32871e2",
+      "evidence": "msg_95b17778b57d",
+      "completion": "focus/visible즉시조회·중복합치기·숨김0·등록해제·기존표시보존 검수",
+      "next": "QA006후국소검수·기존E1검사반복없음·실브라우저동작확인범위분리",
+      "lastReviewedAt": "2026-11-16T17:37:22.516Z"
     }
   ],
   "programOverrides": [
