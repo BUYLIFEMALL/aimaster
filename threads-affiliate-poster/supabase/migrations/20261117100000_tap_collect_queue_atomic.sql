@@ -15,6 +15,17 @@ begin
   end if;
 end $$;
 
+-- [안내] 상품이 연결됐는데 상태가 registered가 아닌 기존 줄(옛 경로로 덮어쓰인 줄)은 바꾸지 않고 개수만 알린다.
+-- 등록 함수(product_id is null 조건)와 수집 저장(같은 조건)은 이 줄을 등록된 것으로 보고 다시 선점·덮어쓰지 않는다
+do $$
+declare v_mixed integer;
+begin
+  select count(*) into v_mixed from public.tap_collect_queue where status <> 'registered' and product_id is not null;
+  if v_mixed > 0 then
+    raise notice '[안내] 상품이 연결됐는데 상태가 등록됨이 아닌 대기열 줄 %개 — 바꾸지 않았습니다(등록·수집 저장이 건드리지 않음). 상태 정리는 별도 결정.', v_mixed;
+  end if;
+end $$;
+
 -- 같은 회원이 같은 링크를 두 번 넣지 못하게(링크 추가는 on conflict do nothing으로 건너뜀)
 create unique index if not exists tap_collect_queue_user_url_uniq on public.tap_collect_queue (user_id, affiliate_url);
 -- 한 상품은 대기열 한 줄에만 연결(글 생성 근거 조회가 한 줄을 기대함)
@@ -48,6 +59,7 @@ begin
        where t.id = (it ->> 'id')::uuid
          and t.user_id = v_uid
          and t.status = 'ready'
+         and t.product_id is null -- 이미 상품이 연결된 줄은 다시 선점하지 않음(WS-20261117-03 K2: 옛 경로로 ready로 되돌아간 줄 포함)
          and t.product_name is not null
          and t.final_url is not null
          and t.final_url = (it ->> 'final_url')

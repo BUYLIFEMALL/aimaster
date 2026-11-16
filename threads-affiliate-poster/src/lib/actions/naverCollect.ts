@@ -45,34 +45,49 @@ export async function addNaverLinksAction(text: string): Promise<{ added?: numbe
   return { added: addedCount, duplicated: links.length - addedCount, rejected };
 }
 
-/** 확장이 보낸 수집 결과(또는 확장 오류)를 저장한다. 서버에서 도착 주소·이미지 주소를 다시 검사한다. */
+/**
+ * 확장이 보낸 수집 결과(또는 확장 오류)를 저장한다. 서버에서 도착 주소·이미지 주소를 다시 검사한다.
+ * TAP-20261117-02 수정(WS-20261117-03 K2·K3): 읽은 뒤 그사이 등록이 끝나도 덮어쓰지 않도록, 저장하는 순간에
+ * 「등록됨이 아니고 상품이 연결되지 않은 줄」만 바꾼다. 실제로 바뀐 줄이 없으면 지금 상태를 다시 읽어 그대로 돌려준다(거짓 ready 금지).
+ */
 export async function saveNaverCollectedAction(id: string, raw: unknown, extensionError?: string): Promise<{ status?: string; error?: string }> {
   const user = await requireProgramAccess();
   const supabase = await createClient();
-  const { data: row } = await supabase.from("tap_collect_queue").select("id, status").eq("id", id).eq("user_id", user.id).maybeSingle();
+  const { data: row } = await supabase.from("tap_collect_queue").select("id, status, product_id").eq("id", id).eq("user_id", user.id).maybeSingle();
   if (!row) return { error: "대기열 항목을 찾지 못했습니다." };
-  if (row.status === "registered") return { status: "registered" };
+  // 상품이 이미 연결된 줄(옛 경로로 상태만 ready로 남은 줄 포함)은 등록된 것으로 본다 — 다시 수집·등록 대상으로 돌리지 않음
+  if (row.status === "registered" || row.product_id) return { status: "registered" };
   const now = new Date().toISOString();
+  // 쓰는 순간 조건: 등록됨 아님 + 상품 연결 없음. 바뀐 줄을 돌려받아 성공 여부를 판단한다
+  const guardedUpdate = async (values: Database["public"]["Tables"]["tap_collect_queue"]["Update"]) => {
+    const { data, error } = await supabase
+      .from("tap_collect_queue")
+      .update(values)
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .neq("status", "registered")
+      .is("product_id", null)
+      .select("status");
+    if (error) return { error: error.message };
+    if (data && data.length) return { status: String(data[0].status) };
+    // 그사이 등록됐거나 지워짐 — 지금 상태를 그대로 알려 준다
+    const { data: now2 } = await supabase.from("tap_collect_queue").select("status, product_id").eq("id", id).eq("user_id", user.id).maybeSingle();
+    if (!now2) return { error: "대기열 항목을 찾지 못했습니다." };
+    return { status: now2.product_id ? "registered" : String(now2.status) };
+  };
   if (extensionError) {
-    await supabase.from("tap_collect_queue").update({ status: "needs_review", error: String(extensionError).slice(0, 300), updated_at: now }).eq("id", id).eq("user_id", user.id);
-    return { status: "needs_review" };
+    return guardedUpdate({ status: "needs_review", error: String(extensionError).slice(0, 300), updated_at: now });
   }
   const c = sanitizeCollected(raw);
   if ("error" in c) {
-    await supabase.from("tap_collect_queue").update({ status: "needs_review", error: c.error, updated_at: now }).eq("id", id).eq("user_id", user.id);
-    return { status: "needs_review" };
+    return guardedUpdate({ status: "needs_review", error: c.error, updated_at: now });
   }
-  const { error } = await supabase
-    .from("tap_collect_queue")
-    .update({
-      status: "ready", error: null, connect_kind: c.kind, final_url: c.finalUrl, product_name: c.productName,
-      image_urls: c.imageUrls, reviews: c.reviews, facts: c.facts, updated_at: now,
-    })
-    .eq("id", id)
-    .eq("user_id", user.id);
-  if (error) return { error: error.message };
-  await logProgramUsage({ userId: user.id, action: "naver_collect_product" });
-  return { status: "ready" };
+  const saved = await guardedUpdate({
+    status: "ready", error: null, connect_kind: c.kind, final_url: c.finalUrl, product_name: c.productName,
+    image_urls: c.imageUrls, reviews: c.reviews, facts: c.facts, updated_at: now,
+  });
+  if (saved.status === "ready") await logProgramUsage({ userId: user.id, action: "naver_collect_product" });
+  return saved;
 }
 
 /**
