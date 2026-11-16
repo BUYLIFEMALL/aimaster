@@ -14,6 +14,7 @@ import { APP_VERSION } from "@/lib/version";
 // 767px 이하: 왼쪽 막대를 숨기고 위쪽 ☰ 펼침 메뉴(같은 항목·같은 순서), 본문은 화면 전체 폭
 // 메뉴 주소·이름·직원 권한 거르기(canSeeMenu)는 그대로. 기능을 새로 만들면 알맞은 묶음에 한 줄 추가한다.
 // 묶음 순서(2026-11-14 주인님 지정): 상품 → 주문 → 유저 → 공급사 정산 → 몰 꾸미기 → 운영. 대시보드는 묶음 위 첫 줄.
+// 2026-11-16 M2-12a: 「마케팅」(메시지 보내기·발송 내역·메시지 설정)을 유저 다음에 추가.
 const DASHBOARD = { href: "", label: "대시보드" } as const;
 const MENU_GROUPS = [
   {
@@ -46,6 +47,15 @@ const MENU_GROUPS = [
       { href: "/inquiries", label: "문의" },
       { href: "/reviews", label: "후기" },
       { href: "/restock", label: "재입고 알림" },
+    ],
+  },
+  {
+    title: "마케팅",
+    tone: "border-fuchsia-200 bg-fuchsia-50/70 text-fuchsia-700",
+    items: [
+      { href: "/messages", label: "메시지 보내기" },
+      { href: "/messages/log", label: "발송 내역" },
+      { href: "/messages/settings", label: "메시지 설정" },
     ],
   },
   {

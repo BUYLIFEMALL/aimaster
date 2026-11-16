@@ -77,6 +77,9 @@ export default async function AdminCustomersPage({
         <a href={customerListHref(`${base}/excel`, f, { page: 1 })} className="text-blue-700 underline" data-customer-excel>
           ⬇ 지금 조건으로 엑셀 내려받기
         </a>
+        <a href={customerListHref(`/s/${store.slug}/admin/messages`, f, { page: 1 })} className="text-blue-700 underline" data-customer-message>
+          ✉ 지금 조건으로 메시지 보내기
+        </a>
         <span className="text-xs text-gray-400">최대 5,000명 · 내려받을 때마다 열람 기록이 남습니다</span>
       </div>
 

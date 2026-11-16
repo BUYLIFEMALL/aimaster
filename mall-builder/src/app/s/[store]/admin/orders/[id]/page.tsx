@@ -265,7 +265,10 @@ export default async function AdminOrderDetailPage({
       </section>
 
       <section className="mt-6 text-sm">
-        <p className="mb-2 font-medium">문자 알림</p>
+        <p className="mb-2 flex items-center gap-3 font-medium">
+          문자 알림
+          <Link href={`/s/${store.slug}/admin/messages?order=${order.id}`} className="text-xs font-normal text-blue-700 underline" data-order-message>✉ 이 주문 유저에게 메시지 보내기</Link>
+        </p>
         <NotifyLog rows={notifyLog} empty="이 주문으로 보낸 알림이 없습니다." />
       </section>
     </AdminShell>

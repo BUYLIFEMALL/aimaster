@@ -15,6 +15,10 @@ export const NOTIFY_KIND_LABEL: Record<string, string> = {
   ...Object.fromEntries(NOTIFY_KINDS.map((k) => [k.key, k.label])),
   test: "시험 문자",
   customer_restock: "재입고 → 유저",
+  message: "쇼핑몰 소식", // 운영사가 직접 보낸 메시지(M2-12a) — 메일 아래쪽에 유저에게도 보이는 이름
+  customer_cancelled: "주문 취소 → 유저",
+  customer_returned: "반품 승인 → 유저",
+  customer_refunded: "환불 완료 → 유저",
 };
 
 /** 재입고 알림(D16) 문구 속 {{site}}를 사이트 주소로(DB 트리거는 사이트 주소를 모른다) */

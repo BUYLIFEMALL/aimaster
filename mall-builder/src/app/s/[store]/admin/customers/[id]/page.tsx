@@ -66,6 +66,7 @@ export default async function AdminCustomerPage({
         <h2 className="text-xl font-bold">{c.name}</h2>
         <span className="rounded bg-gray-900 px-2 py-0.5 text-sm text-white" data-approval>{APPROVAL_LABEL[c.approval_status]}</span>
         {c.grade && <span className="text-sm text-gray-500" data-grade>등급 {c.grade.name}</span>}
+        <Link href={`/s/${store.slug}/admin/messages?customer=${c.id}`} className="rounded border px-2 py-0.5 text-sm hover:bg-gray-50" data-customer-message>✉ 메시지 보내기</Link>
         {/* T1 등급 바꾸기 — 사업자 등급은 승인된 사업자에게만(DB가 다시 검사) */}
         <form action={setCustomerGradeAction.bind(null, store.slug, c.id)} className="flex items-center gap-1 text-sm" data-grade-form>
           <select name="grade_id" defaultValue={c.grade_id ?? ""} aria-label="등급" className="rounded border px-2 py-1">
