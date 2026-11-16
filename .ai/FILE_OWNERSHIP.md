@@ -14,6 +14,10 @@
 
 ## 현재 조정 범위
 
+MOV-20261117-02 / CC-MOVIE-01: ECOM17 60860337b 결과ID/내용지문계약독립검수. 신규saveTracker.ts는Master기능분리필요범위로검토포함. 원MOV11지연ACK·순서역전/오염/구ACK확인필요·미응답pending재실행중복전송·동일크기내용변경을실하네스최소재현. 제품/DB/실저장/설치/build/deploy0·고유결과/fixture만.
+
+TAP17-02 후속반환: WS17-03 7578d14c8 K2 실제DB재현(등록뒤save가ready로덮어재등록중복) 수락. Backend동일범위 save3UPDATE에쓰기시점registered보호·RPC product_id is null·경합조건불일치거짓성공방지보완. 신규미적용migration동일파일수정허용, 로컬고유DB로K2/G1/G2·정상/오류저장순서만관련검증. Workspace추가제품수정없음·결과도착후독립재검토. 운영SQL/build/deploy없음.
+
 MOV-20261117-01 / CC-MOVIE-01: AGY실Lab로그인307로140~142는fixture부분수락. Movie자기기존로그인으로가능할때만3210실제3경로375 최소측정, 새로그인/세션이전/우회금지·불가시BLOCKED. 저장/게시/제품/DB/build/deploy0. WS17-02 URL보완78e893c90+eaaebe027 배정범위done, ZIP차기재생성. WS-20261117-03 / CC-WORKSPACE-01: TAP17-02 46920e765 SQL/서버원자성독립읽기검토, 누락반례만 qa_tap_ws_ 고유DB검증가능·공유/운영쓰기/제품수정/설치/build/deploy금지·본인고유결과만.
 
 00:13 검토보완: DES11 실제컴포넌트이나편집기iframe은수작업fixture4799이므로실Lab PASS미수락. AGY는기존3210 실제3경로 외부375각1회만확인·접근불가시미검수, PC/필터반복·로그인우회/제품수정없음. WS17-02 78e893c90 계정/포트수정접수후 확장productIdentity HTTPS검사누락보완요청: 같은background.js와시험표에http/다른scheme거부만추가, 서버기존정책보존·ZIP/큐변경금지.
