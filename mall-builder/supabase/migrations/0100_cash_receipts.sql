@@ -40,6 +40,20 @@ begin
 end;
 $$;
 
+-- 지금 주문 상태 기준으로 「유효해야 할」 현금영수증 금액(취소 0, 반품 남은 금액, 그 밖은 결제 − 환불).
+-- 결과 모름·취소 중에 주문이 바뀌어도 옛 금액이 아니라 이 값으로 맞춘다(B2B-20261116-07)
+create or replace function mall_builder_private.cash_receipt_target(p_order_id uuid)
+returns bigint language plpgsql stable security definer set search_path = '' as $$
+declare
+  o public.mall_builder_orders%rowtype;
+begin
+  select * into o from public.mall_builder_orders where id = p_order_id;
+  if o.status = 'cancelled' then return 0; end if;
+  if o.status = 'returned' then return greatest(o.total - coalesce(o.refund_amount, 0), 0); end if;
+  return (mall_builder_private.cash_receipt_amount(p_order_id) ->> 'total')::bigint;
+end;
+$$;
+
 -- 볼타에 발급 요청(권한 검사 없음 — 아래 함수·트리거만 부름). 실패해도 예외를 내지 않고 상태에 적는다
 create or replace function mall_builder_private.cash_receipt_issue(p_order_id uuid, p_amount bigint default null)
 returns jsonb language plpgsql security definer set search_path = '' as $$
@@ -144,7 +158,15 @@ begin
     if cr ->> 'status' in ('requested', 'failed') then
       cr := cr || jsonb_build_object('status', 'cancelled', 'error', '');
       update public.mall_builder_orders set cash_receipt = cr where id = o.id;
+    elsif cr ->> 'status' in ('issued', 'cancel_failed') then
+      -- 발급은 됐는데 볼타 발급 번호를 모름 → 자동 취소 불가. 조용히 「발급 완료」로 두지 않고 보이게 남김(볼타 호출 없음)
+      cr := cr || jsonb_build_object('status', 'cancel_failed', 'reissue_amount', greatest(coalesce(p_reissue, 0), 0),
+        'error', '볼타 발급 번호를 몰라 자동 취소하지 못했습니다. 볼타 화면에서 직접 취소해 주세요.');
+      update public.mall_builder_orders set cash_receipt = cr where id = o.id;
+      insert into public.mall_builder_order_events (order_id, from_status, to_status, actor_id, actor_role, note)
+      values (o.id, o.status, o.status, auth.uid(), 'system', '현금영수증 취소 안 됨: ' || (cr ->> 'error'));
     end if;
+    -- unknown·발급 번호 없는 issuing은 그대로 둠 → 「상태 다시 확인」 때 지금 주문 상태로 맞춤
     return cr;
   end if;
   select x.bolta_api_key into v_key from public.mall_builder_store_scheduler_secrets x where x.store_id = o.store_id;
@@ -257,7 +279,8 @@ begin
   v_s := coalesce(v_resp ->> 'status', '');
   if cr ->> 'status' = 'cancelling' then
     if v_s = 'CANCELED' then
-      v_reissue := coalesce((cr ->> 'reissue_amount')::bigint, 0);
+      -- 저장해 둔 옛 금액이 아니라 지금 주문 상태로 다시 발급할 금액을 정함(취소 중에 주문이 또 바뀐 경우 되살리지 않음)
+      v_reissue := mall_builder_private.cash_receipt_target(o.id);
       cr := cr || jsonb_build_object('status', 'cancelled', 'error', '');
       update public.mall_builder_orders set cash_receipt = cr where id = o.id;
       insert into public.mall_builder_order_events (order_id, from_status, to_status, actor_id, actor_role, note)
@@ -269,10 +292,16 @@ begin
     end if;
   else
     if v_s = 'ISSUED' then
-      cr := cr || jsonb_build_object('status', 'issued', 'approval_no', coalesce(v_resp ->> 'cashReceiptApprovalNumber', ''), 'error', '', 'issued_at', now());
+      cr := cr || jsonb_build_object('status', 'issued', 'approval_no', coalesce(v_resp ->> 'cashReceiptApprovalNumber', ''), 'error', '', 'issued_at', now(),
+        'issuance_key', coalesce(nullif(cr ->> 'issuance_key', ''), v_resp ->> 'issuanceKey', ''));
       update public.mall_builder_orders set cash_receipt = cr where id = o.id;
       insert into public.mall_builder_order_events (order_id, from_status, to_status, actor_id, actor_role, note)
       values (o.id, o.status, o.status, auth.uid(), 'system', '현금영수증 발급 완료 · 승인번호 ' || coalesce(v_resp ->> 'cashReceiptApprovalNumber', ''));
+      -- 결과를 기다리는 사이 주문이 취소·반품·환불됐으면 지금 주문 기준으로 맞춤(전액 취소 → 필요하면 남은 금액 다시 발급)
+      v_reissue := mall_builder_private.cash_receipt_target(o.id);
+      if v_reissue <> coalesce((cr ->> 'amount')::bigint, 0) then
+        cr := mall_builder_private.cash_receipt_cancel(o.id, v_reissue);
+      end if;
     elsif v_s like '%FAILED' then
       cr := cr || jsonb_build_object('status', 'failed', 'error', left(coalesce(v_resp -> 'failure' ->> 'message', v_resp -> 'failure' ->> 'code', '발급이 실패했습니다.'), 200));
       update public.mall_builder_orders set cash_receipt = cr where id = o.id;
@@ -280,7 +309,7 @@ begin
       cr := cr || jsonb_build_object('status', 'cancelled', 'error', case when v_s = 'EXTERNALLY_CANCELED' then '볼타 밖(홈택스 등)에서 취소되었습니다.' else '' end);
       update public.mall_builder_orders set cash_receipt = cr where id = o.id;
     elsif cr ->> 'status' = 'unknown' then
-      cr := cr || jsonb_build_object('status', 'issuing', 'error', '');
+      cr := cr || jsonb_build_object('status', 'issuing', 'error', '', 'issuance_key', coalesce(nullif(cr ->> 'issuance_key', ''), v_resp ->> 'issuanceKey', ''));
       update public.mall_builder_orders set cash_receipt = cr where id = o.id;
     end if;
   end if;
@@ -307,7 +336,7 @@ begin
     return mall_builder_private.cash_receipt_issue(o.id);
   elsif p_action = 'cancel_retry' then
     if cr ->> 'status' <> 'cancel_failed' then raise exception '취소가 실패한 경우에만 다시 요청할 수 있습니다.'; end if;
-    return mall_builder_private.cash_receipt_cancel(o.id, coalesce((cr ->> 'reissue_amount')::bigint, 0));
+    return mall_builder_private.cash_receipt_cancel(o.id, mall_builder_private.cash_receipt_target(o.id));
   elsif p_action = 'reissue' then
     if cr ->> 'status' <> 'issued' then raise exception '발급 완료된 현금영수증만 고쳐 발급할 수 있습니다.'; end if;
     v_amt := (mall_builder_private.cash_receipt_amount(o.id) ->> 'total')::bigint;
@@ -353,6 +382,7 @@ create trigger mall_builder_orders_receipt_one_kind before update of tax_invoice
   for each row execute function mall_builder_private.orders_receipt_one_kind();
 
 revoke all on function mall_builder_private.cash_receipt_amount(uuid) from public;
+revoke all on function mall_builder_private.cash_receipt_target(uuid) from public;
 revoke all on function mall_builder_private.cash_receipt_issue(uuid, bigint) from public;
 revoke all on function mall_builder_private.cash_receipt_cancel(uuid, bigint) from public;
 revoke all on function public.mall_builder_cash_receipt_settings_save(uuid, boolean) from public, anon;
