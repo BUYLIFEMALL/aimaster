@@ -1,4 +1,4 @@
--- 0103 교환비 카드 결제(M2-12b b3 단계1) — PLAN_20261117_M2_12B3_EXCHANGE_FEE_PAY.md, Master msg_7cd50401383d
+-- 0104 교환비 카드 결제(M2-12b b3 단계1) — 2026-11-17 번호 정리로 0103→0104(Master msg_abc5861bd197, 미적용 원문 이름만 변경). 선행 0103_exchange_confirmed_window(교환 가능 상태 helper) — PLAN_20261117_M2_12B3_EXCHANGE_FEE_PAY.md, Master msg_7cd50401383d
 -- 주인님 결정 D5(교환비 = 개인결제창(토스) + 무통장, 결제 확인 전 재발송 없음). Master 확정: E1 카드 결제 뒤 거절 막기(자동 환불 미구현),
 -- E2 로그인한 본인 주문만, E3 카드 미설정 몰은 무통장만(화면), E4 유저 결제 화면은 새 폴더(단계2).
 -- 틀: 주문 카드 결제 승인 0029 mall_builder_card_confirm·card_recheck와 같음(토스 비밀 키는 DB 안에서만, 잠금 대기 1초,
@@ -110,7 +110,7 @@ begin
     return jsonb_build_object('ok', false, 'unknown', true, 'message', '앞서 한 교환비 결제를 확인하고 있습니다. 쇼핑몰이 확인한 뒤 안내합니다.');
   end if;
   if v_existing = 'canceled' then raise exception '취소된 교환비 결제입니다. 쇼핑몰에 문의해 주세요.'; end if;
-  if o.status <> 'delivered' then raise exception '주문이 배송 완료 상태가 아니라 교환비를 결제할 수 없습니다.'; end if;
+  if not mall_builder_private.exchange_order_status_ok(o.status) then raise exception '주문이 배송 완료(구매 확정 포함) 상태가 아니라 교환비를 결제할 수 없습니다.'; end if;
   if x.step not in ('requested', 'collecting', 'collected') then raise exception '교환비를 결제할 수 있는 단계가 아닙니다.'; end if;
   -- 무통장 입금이 먼저 확인됐으면 토스를 부르지 않는다(이중 수납 방지 — 승인 전이라 카드 돈은 나가지 않음)
   if x.fee <= 0 or x.fee_status <> 'waiting' then raise exception '결제를 기다리는 교환비가 없습니다(이미 입금이 확인됐거나 교환비가 없습니다).'; end if;

@@ -39,6 +39,11 @@ export type ExchangeItem = {
 export type ExchangeVariant = { id: string; product_id: string; key: string; is_active: boolean };
 
 export const EXCHANGE_WINDOW_DAYS = 7;
+/** 교환 가능 주문 상태 — DB 0103 exchange_order_status_ok와 같음(배송 완료 + 구매 확정). 7일 기준은 상태가 아니라 실제 배송 시각 */
+export const EXCHANGE_ORDER_STATUSES = ["delivered", "confirmed"] as const;
+export function isExchangeOrderStatus(status: string): boolean {
+  return (EXCHANGE_ORDER_STATUSES as readonly string[]).includes(status);
+}
 export const EXCHANGE_REASONS = [
   { value: "size", label: "사이즈·색상 등 옵션 변경", fee: true },
   { value: "change_mind", label: "단순 변심", fee: true },
@@ -101,7 +106,7 @@ export function itemRequestState(
   args: { who: "customer" | "staff"; orderStatus: string; daysLeft: number | null; item: ExchangeItem; exchanges: ExchangeRow[]; options: ExchangeVariant[] },
 ): { ok: true; maxQty: number; needsOption: boolean } | { ok: false; code: RequestBlockCode; reason: string } {
   const { who, orderStatus, daysLeft, item, exchanges, options } = args;
-  if (orderStatus !== "delivered") return { ok: false, code: "status", reason: "배송 완료된 주문만 교환을 신청할 수 있습니다." };
+  if (!isExchangeOrderStatus(orderStatus)) return { ok: false, code: "status", reason: "배송 완료(구매 확정 포함)된 주문만 교환을 신청할 수 있습니다." };
   if (who === "customer" && (daysLeft === null || daysLeft <= 0)) return { ok: false, code: "window", reason: `교환은 배송 완료 뒤 ${EXCHANGE_WINDOW_DAYS}일 안에 신청할 수 있습니다. 쇼핑몰에 문의해 주세요.` };
   if (hasOpenExchange(item.id, exchanges)) return { ok: false, code: "open", reason: "이미 교환이 진행 중입니다." };
   const maxQty = remainingQty(item, exchanges);
@@ -142,7 +147,7 @@ export type StaffExchangeActions = {
 
 /** 운영사 단추 — 주문이 delivered가 아니면 진행 단추 없음(거절만 회수 전까지). productHasOptions = 그 상품에 지금 옵션이 있는지 */
 export function staffExchangeActions(x: ExchangeRow, orderStatus: string, productHasOptions: boolean): StaffExchangeActions {
-  const live = orderStatus === "delivered";
+  const live = isExchangeOrderStatus(orderStatus);
   const beforeReship = x.step === "requested" || x.step === "collecting" || x.step === "collected";
   let reshipBlocked: string | null = null;
   if (x.step === "collected") {

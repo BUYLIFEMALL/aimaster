@@ -136,3 +136,16 @@ test("서버 동작 접근 경계(소스): DB 함수 전에 이 몰 소속 확�
     assert.doesNotMatch(f, /createAdminClient|service_role|SECRET/, `${name}: 서버 키 금지`);
   }
 });
+
+test("구매 확정(confirmed)도 교환 가능 상태 — 7일은 실제 배송 시각 기준(0103, D4 유지)", async () => {
+  const { isExchangeOrderStatus } = await import("../src/lib/exchanges.ts");
+  assert.equal(isExchangeOrderStatus("delivered"), true);
+  assert.equal(isExchangeOrderStatus("confirmed"), true);
+  for (const s of ["shipping", "returned", "return_requested", "cancelled", "paid"]) assert.equal(isExchangeOrderStatus(s), false, s);
+  const base = { who: "customer", daysLeft: 3, item: item(), exchanges: [], options: opts };
+  assert.equal(itemRequestState({ ...base, orderStatus: "confirmed" }).ok, true); // 확정됐어도 실제 배송 뒤 7일 안이면 신청
+  assert.equal(itemRequestState({ ...base, orderStatus: "confirmed", daysLeft: 0 }).ok, false); // 7일 지나면 유저 막힘
+  assert.equal(itemRequestState({ ...base, orderStatus: "confirmed", daysLeft: 0, who: "staff" }).ok, true); // 직원 대리는 기간 없음
+  assert.equal(staffExchangeActions(ex({ step: "collected" }), "confirmed", true).reship, true); // 확정 뒤에도 진행
+  assert.equal(staffExchangeActions(ex({ step: "collected" }), "returned", true).reship, false);
+});

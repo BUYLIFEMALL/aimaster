@@ -1,6 +1,6 @@
-// QA 실행기 — 0103 교환비 카드 결제(M2-12b b3 단계1). qa_ 전용 새 DB에서만 토스 호출(mall_builder_private.toss_call)을 모의 함수로 바꿔 끼운다.
+// QA 실행기 — 0104(옛 0103) 교환비 카드 결제(M2-12b b3 단계1). qa_ 전용 새 DB에서만 토스 호출(mall_builder_private.toss_call)을 모의 함수로 바꿔 끼운다.
 // 운영·Lab 함수는 건드리지 않음, 외부 호출 0, 실키 없음(모의 비밀 키 'test_sk_qa'). 항목마다 통과/실패, 실패 있으면 종료 코드 1.
-// 사용: node mall-builder/scripts/qa/run-0103-feepay.mjs [--db qa_0103] [--no-guard]
+// 사용: node mall-builder/scripts/qa/run-0104-feepay.mjs [--db qa_0104] [--no-guard]
 //   --no-guard: 교환 지킴 트리거를 뺀 채 돌려 F5·F6(이중 수납·결제 뒤 변경)이 실패하는지 보는 빨강 확인용
 import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
@@ -9,14 +9,14 @@ import { execFileSync, spawnSync, spawn } from "node:child_process";
 
 const arg = (n, d) => { const i = process.argv.indexOf(n); return i > 0 ? process.argv[i + 1] : d; };
 const SRC = resolve(arg("--src", join(dirname(fileURLToPath(import.meta.url)), "..", "..")));
-const DB = arg("--db", "qa_0103");
+const DB = arg("--db", "qa_0104");
 const NO_GUARD = process.argv.includes("--no-guard");
 if (!/^qa_[a-z0-9_]{1,40}$/.test(DB)) { console.error("--db는 qa_로 시작"); process.exit(2); }
 const C = "aww-pg-test";
 const read = (p) => readFileSync(join(SRC, p), "utf8").replace(/^﻿/, "").replace(/\r\n/g, "\n");
 const LAB_LINE = /^select lab_admin\.register_program\('mall-builder'\);\s*$/m;
-const files = readdirSync(join(SRC, "supabase", "migrations")).filter((f) => f.endsWith(".sql") && f < "0104").sort();
-if (!files.at(-1)?.startsWith("0103_")) { console.error("0103 마이그레이션이 없습니다:", SRC); process.exit(2); }
+const files = readdirSync(join(SRC, "supabase", "migrations")).filter((f) => f.endsWith(".sql") && f < "0105").sort();
+if (!files.at(-1)?.startsWith("0104_")) { console.error("0104 마이그레이션이 없습니다:", SRC); process.exit(2); }
 const bundle = files.map((f) => read(`supabase/migrations/${f}`).replace(LAB_LINE, "-- lab")).join("\n").replace("create extension if not exists http with schema extensions;", "-- http 흉내");
 const stub = read("scripts/check-prod-bundle-local.mjs").match(/const stub = `([\s\S]*?)`;/)[1];
 const supa = "alter default privileges in schema public grant execute on functions to anon, authenticated; alter default privileges in schema public grant all on tables to anon, authenticated;";

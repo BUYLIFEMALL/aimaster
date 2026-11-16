@@ -4,7 +4,7 @@ import TrackingLink from "@/app/tracking-link";
 import { formatWon } from "@/lib/products";
 import { COURIERS, DEFAULT_COURIER } from "@/lib/shipping";
 import {
-  EXCHANGE_REASONS, EXCHANGE_STEP_LABEL, FEE_STATUS_LABEL, exchangeDaysLeft, exchangeNotices, exchangeReasonLabel, exchangeStockNote,
+  EXCHANGE_REASONS, EXCHANGE_STEP_LABEL, FEE_STATUS_LABEL, exchangeDaysLeft, exchangeNotices, isExchangeOrderStatus, exchangeReasonLabel, exchangeStockNote,
   itemRequestState, staffExchangeActions, type ExchangeItem, type ExchangeRow, type ExchangeVariant,
 } from "@/lib/exchanges";
 import { getExchangeData } from "@/lib/exchanges-server";
@@ -81,7 +81,7 @@ export async function CustomerExchangePanel({ slug, orderId, orderStatus }: Prop
   if (data.state === "error") return <ErrorBox message={data.message} />;
   const { exchanges, items, variants, deliveredAt } = data;
   const daysLeft = exchangeDaysLeft(deliveredAt);
-  const forms = orderStatus === "delivered"
+  const forms = isExchangeOrderStatus(orderStatus)
     ? items.map((item) => ({ item, s: itemRequestState({ who: "customer", orderStatus, daysLeft, item, exchanges, options: variants.filter((v) => v.product_id === item.product_id) }) }))
     : [];
   const openable = forms.filter((f) => f.s.ok);
@@ -125,7 +125,7 @@ export async function StaffExchangePanel({ slug, orderId, orderStatus }: Props) 
   if (data.state === "missing") return null;
   if (data.state === "error") return <ErrorBox message={data.message} />;
   const { exchanges, items, variants } = data;
-  const proxy = orderStatus === "delivered"
+  const proxy = isExchangeOrderStatus(orderStatus)
     ? items.map((item) => ({ item, s: itemRequestState({ who: "staff", orderStatus, daysLeft: null, item, exchanges, options: variants.filter((v) => v.product_id === item.product_id) }) }))
     : [];
   const proxyNotices = exchangeNotices(proxy);
@@ -183,8 +183,8 @@ export async function StaffExchangePanel({ slug, orderId, orderStatus }: Props) 
                 </form>
               </details>
             )}
-            {orderStatus !== "delivered" && !["done", "rejected"].includes(x.step) && (
-              <p className="text-xs text-amber-800">주문이 배송 완료 상태가 아니라 교환을 진행할 수 없습니다.</p>
+            {!isExchangeOrderStatus(orderStatus) && !["done", "rejected"].includes(x.step) && (
+              <p className="text-xs text-amber-800">주문이 배송 완료(구매 확정 포함) 상태가 아니라 교환을 진행할 수 없습니다.</p>
             )}
           </div>
         );
