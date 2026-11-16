@@ -13,6 +13,7 @@ import { formatWon } from "@/lib/products";
 import OrderStatusButtons from "@/app/order-status-buttons";
 import { CustomerReturnPanel, StaffReturnPanel } from "@/app/return-panels";
 import { CustomerExchangePanel } from "@/app/exchange-panels"; // M2-12b 교환
+import { exfeeReturnText } from "@/lib/exchanges";
 import { getReturnInfo } from "@/lib/returns-server";
 import { CustomerCashReceiptPanel } from "@/app/cash-receipt-panels";
 import { getCashReceipt } from "@/lib/cash-receipt-server";
@@ -35,10 +36,11 @@ export default async function OrderDetailPage({
   searchParams,
 }: {
   params: Promise<{ store: string; id: string }>;
-  searchParams: Promise<{ done?: string; error?: string; ok?: string; paid?: string; msg?: string }>;
+  searchParams: Promise<{ done?: string; error?: string; ok?: string; paid?: string; msg?: string; pay?: string }>;
 }) {
   const { store: slug, id } = await params;
-  const { done, error, ok, paid, msg } = await searchParams;
+  const { done, error, ok, paid, msg, pay } = await searchParams;
+  const payNotice = exfeeReturnText(pay); // 교환비 카드 결제에서 돌아온 안내 — 정해진 코드만 우리 문구로(결제 키·원문 0)
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const user = await requireUser(`/s/${slug}/orders/${id}`);
   const store = await getStoreBySlug(slug);
@@ -95,6 +97,7 @@ export default async function OrderDetailPage({
       </p>
       {error && <p className="mt-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700" data-order-error>{error}</p>}
       {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{msg || "처리했습니다."}</p>}
+      {payNotice && <p className="mt-4 rounded bg-amber-50 px-3 py-2 text-sm text-amber-800" data-exfee-notice>{payNotice}</p>}
       {order.tracking_no && (
         <p className="mt-4 rounded border px-3 py-2 text-sm" data-tracking>
           배송: {order.courier} · 송장 번호 <b>{order.tracking_no}</b>

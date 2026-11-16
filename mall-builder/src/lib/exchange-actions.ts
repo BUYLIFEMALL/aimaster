@@ -101,6 +101,23 @@ export async function exchangeFeeAction(slug: string, exchangeId: string, form: 
   finish(slug, "admin", orderId, error, fee ? `교환비를 ${fee.toLocaleString("ko-KR")}원으로 정했습니다.` : "교환비를 없앴습니다.");
 }
 
+/**
+ * 운영사: 교환비 카드 결제를 토스에서 다시 확인(0104 card_recheck). 몰 소속 확인을 rpc보다 먼저.
+ * 결과·오류는 우리 고정 문구로만 — DB·토스 응답 원문을 주소에 넣지 않는다(결제 키·원문 비노출).
+ */
+export async function exchangeFeeCardRecheckAction(slug: string, exchangeId: string) {
+  const supabase = await createClient();
+  const orderId = await exchangeOrderInStore(supabase, slug, exchangeId);
+  if (!orderId) finish(slug, "admin", null, EX_NOT_FOUND, "");
+  const { data, error } = await supabase.rpc("mall_builder_exchange_fee_card_recheck", { p_exchange_id: exchangeId });
+  if (error) finish(slug, "admin", orderId, { message: "카드 결제를 다시 확인하지 못했습니다. 상태는 그대로 두었습니다. 잠시 뒤 다시 눌러 주세요." }, "");
+  const r = (data ?? {}) as { held?: unknown; mismatch?: unknown; needs_review?: unknown; released?: unknown; error?: unknown };
+  const msg = r.held === true ? "토스에서 취소된 결제로 확인되어 보류했습니다. 쇼핑몰 관리자(대표 운영사) 확인이 필요합니다."
+    : r.mismatch === true || r.needs_review === true || typeof r.error === "string" ? "결제 정보가 맞지 않거나 확인하지 못해 「확인 필요」로 남겼습니다(재발송 잠김)."
+    : "카드 결제를 다시 확인했습니다.";
+  finish(slug, "admin", orderId, null, msg);
+}
+
 /** 운영사: 교환비 무통장 입금 확인 */
 export async function exchangeFeePaidAction(slug: string, exchangeId: string) {
   const supabase = await createClient();

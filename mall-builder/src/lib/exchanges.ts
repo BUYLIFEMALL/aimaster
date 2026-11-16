@@ -145,24 +145,30 @@ export type StaffExchangeActions = {
   reshipBlocked: string | null;
 };
 
-/** 운영사 단추 — 주문이 delivered가 아니면 진행 단추 없음(거절만 회수 전까지). productHasOptions = 그 상품에 지금 옵션이 있는지 */
-export function staffExchangeActions(x: ExchangeRow, orderStatus: string, productHasOptions: boolean): StaffExchangeActions {
+/**
+ * 운영사 단추 — 주문이 delivered가 아니면 진행 단추 없음(거절만 회수 전까지). productHasOptions = 그 상품에 지금 옵션이 있는지.
+ * pay = 교환비 카드 결제 화면 상태(feePayState) — 카드 결제가 있으면 금액 변경·무통장 확인·거절 단추를 숨기고, 확인 필요·취소 보류면 재발송도 막는다.
+ * (실제 잠금은 DB 0104 지킴 트리거 — 화면은 보조)
+ */
+export function staffExchangeActions(x: ExchangeRow, orderStatus: string, productHasOptions: boolean, pay: FeePayState | null = null): StaffExchangeActions {
   const live = isExchangeOrderStatus(orderStatus);
   const beforeReship = x.step === "requested" || x.step === "collecting" || x.step === "collected";
+  const cardActive = pay !== null && pay.cardActive;
   let reshipBlocked: string | null = null;
   if (x.step === "collected") {
-    if (x.fee > 0 && x.fee_status !== "paid") reshipBlocked = "교환비 입금이 확인되면 새 상품을 보낼 수 있습니다.";
+    if (pay?.lockReship) reshipBlocked = "카드 결제를 확인하는 중이거나 토스에서 취소된 교환비가 있어 재발송할 수 없습니다. 쇼핑몰 관리자(대표 운영사)에게 문의해 주세요.";
+    else if (x.fee > 0 && x.fee_status !== "paid") reshipBlocked = "교환비 입금이 확인되면 새 상품을 보낼 수 있습니다.";
     else if (x.to_option_based && !x.to_variant_id) reshipBlocked = "바꿀 옵션이 삭제되어 재발송할 수 없습니다. 쇼핑몰 관리자에게 문의해 주세요.";
     else if (!x.to_option_based && productHasOptions) reshipBlocked = "상품에 옵션이 새로 생겨 재발송할 수 없습니다. 쇼핑몰 관리자에게 문의해 주세요.";
   }
   return {
     collecting: live && x.step === "requested",
     collected: live && (x.step === "requested" || x.step === "collecting"),
-    fee: live && beforeReship && x.fee_status !== "paid",
-    feePaid: live && x.fee_status === "waiting",
+    fee: live && beforeReship && x.fee_status !== "paid" && !cardActive,
+    feePaid: live && x.fee_status === "waiting" && !cardActive,
     reship: live && x.step === "collected" && reshipBlocked === null,
     done: live && x.step === "reshipped",
-    reject: x.step === "requested" || x.step === "collecting",
+    reject: (x.step === "requested" || x.step === "collecting") && !cardActive,
     reshipBlocked: live ? reshipBlocked : null,
   };
 }
@@ -199,3 +205,117 @@ export function parseExchangeFee(v: unknown): number | null {
   return n <= 10_000_000 ? n : null;
 }
 export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+// ── 교환비 카드 결제(M2-12b 단계2, DB 0104 계약 37fdcabb4) ──
+// 상태 판정 입력은 결제 기록의 status·needs_review 칸 값과 교환의 fee·fee_status·step뿐 — 사유 글자(error)는 직원 화면에 보여 주기만 한다.
+export type FeePaymentStatus = "prepared" | "requested" | "unknown" | "done" | "failed" | "canceled";
+export type FeePaymentRow = {
+  exchange_id: string;
+  status: FeePaymentStatus;
+  needs_review: boolean;
+  amount: number;
+  approved_at: string | null;
+  receipt_url: string;
+  error: string;
+  prepared_at: string | null;
+  requested_at: string | null;
+};
+/** 결제 기록 읽기 칸 — 결제 키·멱등키 칸은 읽기 권한이 없으므로 반드시 칸을 나열한다(전체 칸 읽기는 권한 오류) */
+export const FEE_PAYMENT_COLUMNS = "exchange_id, status, needs_review, amount, approved_at, receipt_url, error, prepared_at, requested_at";
+
+export type FeePayKind = "none" | "pay" | "checking" | "hold" | "done" | "failed" | "canceled";
+export type FeePayState = {
+  kind: FeePayKind;
+  /** 유저에게 「카드로 결제」 링크를 보여 줄지 */
+  canPay: boolean;
+  /** 앞 결제가 실패한 뒤 다시 결제 — 같은 토스 주문 번호를 다시 받아 주는지는 미확인(정상이라고 단정하지 않는 안내를 붙임) */
+  retryUnverified: boolean;
+  /** 직원 「카드 결제 다시 확인」 단추 */
+  canRecheck: boolean;
+  /** 재발송 잠금(확인 필요·취소 보류) */
+  lockReship: boolean;
+  /** 카드 결제 기록이 진행 중·완료·보류 — 금액 변경·무통장 확인·거절을 숨김 */
+  cardActive: boolean;
+  /** 원래 승인 기록(done)이 있는지 — 지금 잠금과 따로 표시 */
+  approvalRecorded: boolean;
+  customerText: string;
+  staffText: string;
+};
+
+const FEE_PAYABLE_STEPS: ExchangeStep[] = ["requested", "collecting", "collected"];
+
+export function feePayState(
+  x: Pick<ExchangeRow, "fee" | "fee_status" | "step">,
+  p: Pick<FeePaymentRow, "status" | "needs_review"> | null,
+  cardEnabled: boolean,
+): FeePayState {
+  const payable = x.fee > 0 && x.fee_status === "waiting" && FEE_PAYABLE_STEPS.includes(x.step) && cardEnabled;
+  const base = { canPay: false, retryUnverified: false, canRecheck: false, lockReship: false, cardActive: false, approvalRecorded: false };
+  if (!p) {
+    return payable
+      ? { ...base, kind: "pay", canPay: true, customerText: "교환비를 카드로 결제할 수 있습니다.", staffText: "카드 결제 기록 없음(유저 결제 대기)" }
+      : { ...base, kind: "none", customerText: "", staffText: "" };
+  }
+  switch (p.status) {
+    case "prepared":
+    case "requested":
+    case "unknown":
+      return { ...base, kind: "checking", canRecheck: true, lockReship: true, cardActive: true,
+        customerText: "카드 결제를 확인하는 중입니다. 다시 결제하지 마세요 — 쇼핑몰이 확인한 뒤 안내합니다.",
+        staffText: "카드 결제 확인 필요 — 「카드 결제 다시 확인」을 눌러 주세요(재발송 잠김)" };
+    case "done":
+      return p.needs_review
+        ? { ...base, kind: "hold", canRecheck: true, lockReship: true, cardActive: true, approvalRecorded: true,
+            customerText: "카드 결제를 확인하는 중입니다. 다시 결제하지 마세요 — 쇼핑몰이 확인한 뒤 안내합니다.",
+            staffText: "지금 확인 필요(재발송 잠김) — 「카드 결제 다시 확인」을 눌러 주세요" }
+        : { ...base, kind: "done", cardActive: true, approvalRecorded: true, customerText: "교환비 카드 결제 완료", staffText: "카드 결제 정상" };
+    case "canceled":
+      return { ...base, kind: "canceled", lockReship: true, cardActive: true,
+        customerText: "교환비 카드 결제가 취소되어 결제되지 않은 상태입니다. 쇼핑몰에 문의해 주세요.",
+        staffText: "토스에서 취소된 결제 — 유효한 결제가 아닙니다. 쇼핑몰 관리자(대표 운영사) 확인이 필요합니다(재발송·입금 확인 잠김)" };
+    case "failed":
+      return { ...base, kind: "failed", canPay: payable, retryUnverified: payable,
+        customerText: "카드 결제가 되지 않았습니다(돈은 나가지 않았습니다).", staffText: "카드 결제 실패(돈 안 나감)" };
+  }
+}
+
+/** 교환비 결제 화면 주소 — 몰 이름·주문 번호·교환 번호 형식이 맞을 때만(아니면 null) */
+export function exchangePayPath(slug: string, orderId: string, exchangeId: string): string | null {
+  if (typeof slug !== "string" || !STORE_SLUG_RE.test(slug) || slug.includes("--") || slug.endsWith("-")) return null;
+  if (!UUID_RE.test(orderId) || !UUID_RE.test(exchangeId)) return null;
+  return `/s/${slug}/orders/${orderId}/exchange-pay/${exchangeId}`;
+}
+/** 토스 주문 번호 — DB 0104가 고정한 값과 같아야 한다 */
+export function exchangeTossOrderId(exchangeId: string): string {
+  return `exfee-${exchangeId}`;
+}
+
+/** 결제창에서 돌아온 뒤 주문 상세 안내 — 주소에는 정해진 코드만(결제 키·원문 오류 0), 문구는 여기서 */
+export const EXFEE_RETURN_TEXT = {
+  returned: "카드 결제 결과를 받았습니다. 아래 교환 칸의 결제 상태를 확인해 주세요.",
+  checking: "카드 결제를 확인하는 중입니다. 다시 결제하지 마세요 — 쇼핑몰이 확인한 뒤 안내합니다.",
+  failed: "카드 결제가 되지 않았습니다(돈은 나가지 않았습니다).",
+  user_canceled: "결제를 취소했습니다.",
+  error: "결제 처리 중 문제가 생겼습니다. 다시 결제하지 말고 쇼핑몰에 문의해 주세요.",
+} as const;
+export type ExfeeReturnCode = keyof typeof EXFEE_RETURN_TEXT;
+export function exfeeReturnText(code: unknown): string | null {
+  return typeof code === "string" && Object.hasOwn(EXFEE_RETURN_TEXT, code) ? EXFEE_RETURN_TEXT[code as ExfeeReturnCode] : null;
+}
+
+/** 준비(prepare) 응답 → 다음 할 일. 승인(confirm)은 prepared일 때만 */
+export function exfeeAfterPrepare(r: unknown): "confirm" | ExfeeReturnCode {
+  const o = (r ?? {}) as { ok?: unknown; prepared?: unknown; unknown?: unknown; status?: unknown };
+  // 같은 키 재진입이면 requested·unknown도 prepared: true로 오므로 상태가 정확히 prepared일 때만 승인(불확실 재진입은 승인 0)
+  if (o.prepared === true && o.ok === true && o.status === "prepared") return "confirm";
+  if (o.prepared === true && (o.status === "requested" || o.status === "unknown")) return "checking";
+  if (o.unknown === true) return "checking";
+  return "returned"; // already 등 — 표시는 주문 상세가 결제 기록을 다시 읽어 정한다(응답만으로 완료 단정 0)
+}
+/** 승인(confirm) 응답 → 돌아갈 안내 코드(완료여도 중립 returned) */
+export function exfeeAfterConfirm(r: unknown): ExfeeReturnCode {
+  const o = (r ?? {}) as { ok?: unknown; unknown?: unknown };
+  if (o.unknown === true) return "checking";
+  if (o.ok === true) return "returned";
+  return "failed";
+}

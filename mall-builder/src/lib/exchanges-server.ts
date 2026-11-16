@@ -1,7 +1,7 @@
 // M2-12b 교환 정보 읽기(서버) — 로그인 세션으로 읽으므로 RLS가 본인 주문 유저·주문 권한 직원만 보여 준다.
 // 0102가 없는 DB(교환 표 없음)만 「기능 없음」으로 숨기고, 권한·서버 오류는 숨기지 않고 오류로 돌려준다.
 import { createClient } from "@/lib/supabase/server";
-import { deliveredAtFromEvents, type ExchangeItem, type ExchangeRow, type ExchangeVariant } from "@/lib/exchanges";
+import { FEE_PAYMENT_COLUMNS, deliveredAtFromEvents, type ExchangeItem, type ExchangeRow, type ExchangeVariant, type FeePaymentRow } from "@/lib/exchanges";
 
 const EXCHANGE_COLUMNS =
   "id, item_id, qty, from_variant_id, to_variant_id, from_option, to_option, from_option_based, to_option_based, reason, memo, requested_by, step, collect_courier, collect_tracking, reship_courier, reship_tracking, fee, fee_status, restocked, reship_deducted, reject_note, created_at";
@@ -9,7 +9,11 @@ const EXCHANGE_COLUMNS =
 export type ExchangeData =
   | { state: "missing" }
   | { state: "error"; message: string }
-  | { state: "ok"; exchanges: ExchangeRow[]; items: ExchangeItem[]; variants: ExchangeVariant[]; deliveredAt: string | null };
+  | {
+      state: "ok"; exchanges: ExchangeRow[]; items: ExchangeItem[]; variants: ExchangeVariant[]; deliveredAt: string | null;
+      /** 교환비 카드 결제(0104) — 표가 없는 DB면 payFeature false로 결제 기능만 숨김 */
+      payFeature: boolean; payments: FeePaymentRow[]; cardEnabled: boolean;
+    };
 
 /** 교환 표가 아직 없는 DB인지(PostgREST 표 없음 PGRST205 / Postgres 42P01) */
 export function isMissingTable(err: { code?: string | null; message?: string | null } | null): boolean {
@@ -35,11 +39,34 @@ export async function getExchangeData(orderId: string): Promise<ExchangeData> {
     if (v.error) return { state: "error", message: `상품 옵션을 읽지 못했습니다: ${v.error.message}` };
     variants = (v.data ?? []) as ExchangeVariant[];
   }
+  const pay = await getFeePayments(supabase, orderId);
+  if (pay.state === "error") return { state: "error", message: pay.message };
   return {
     state: "ok",
     exchanges: (ex.data ?? []) as unknown as ExchangeRow[],
     items,
     variants,
     deliveredAt: deliveredAtFromEvents((ev.data ?? []) as { from_status: string | null; to_status: string; created_at: string }[]),
+    payFeature: pay.state === "ok",
+    payments: pay.state === "ok" ? pay.payments : [],
+    cardEnabled: pay.state === "ok" ? pay.cardEnabled : false,
   };
+}
+
+type Supa = Awaited<ReturnType<typeof createClient>>;
+
+/**
+ * 교환비 카드 결제 기록(칸 나열 — 결제 키·멱등키 칸은 읽지 않음)과 몰 카드 설정. 시도 이력 표는 읽지 않는다.
+ * 결제 기록 표가 없는 DB(0104 전)만 missing으로 숨기고, 그 밖의 오류는 숨기지 않는다.
+ */
+export async function getFeePayments(supabase: Supa, orderId: string):
+  Promise<{ state: "missing" } | { state: "error"; message: string } | { state: "ok"; payments: FeePaymentRow[]; cardEnabled: boolean }> {
+  const p = await supabase.from("mall_builder_exchange_fee_payments").select(FEE_PAYMENT_COLUMNS).eq("order_id", orderId);
+  if (p.error) return isMissingTable(p.error) ? { state: "missing" } : { state: "error", message: "교환비 결제 정보를 읽지 못했습니다. 새로고침해 주세요." };
+  const o = await supabase.from("mall_builder_orders").select("store_id").eq("id", orderId).maybeSingle();
+  if (o.error || !o.data) return { state: "error", message: "주문 정보를 읽지 못했습니다. 새로고침해 주세요." };
+  const s = await supabase.from("mall_builder_store_payment_settings").select("card_enabled, toss_client_key").eq("store_id", o.data.store_id as string).maybeSingle();
+  if (s.error) return { state: "error", message: "카드 결제 설정을 읽지 못했습니다. 새로고침해 주세요." };
+  const cardEnabled = Boolean(s.data?.card_enabled) && Boolean(s.data?.toss_client_key);
+  return { state: "ok", payments: (p.data ?? []) as unknown as FeePaymentRow[], cardEnabled };
 }

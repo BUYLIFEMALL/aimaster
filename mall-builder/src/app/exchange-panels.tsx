@@ -5,10 +5,11 @@ import { formatWon } from "@/lib/products";
 import { COURIERS, DEFAULT_COURIER } from "@/lib/shipping";
 import {
   EXCHANGE_REASONS, EXCHANGE_STEP_LABEL, FEE_STATUS_LABEL, exchangeDaysLeft, exchangeNotices, isExchangeOrderStatus, exchangeReasonLabel, exchangeStockNote,
-  itemRequestState, staffExchangeActions, type ExchangeItem, type ExchangeRow, type ExchangeVariant,
+  itemRequestState, staffExchangeActions, feePayState, exchangePayPath, type ExchangeItem, type ExchangeRow, type ExchangeVariant, type FeePaymentRow,
 } from "@/lib/exchanges";
+import { formatDateTime } from "@/lib/orders";
 import { getExchangeData } from "@/lib/exchanges-server";
-import { exchangeFeeAction, exchangeFeePaidAction, exchangeStepAction, requestExchangeAction } from "@/lib/exchange-actions";
+import { exchangeFeeAction, exchangeFeeCardRecheckAction, exchangeFeePaidAction, exchangeStepAction, requestExchangeAction } from "@/lib/exchange-actions";
 
 type Props = { slug: string; orderId: string; orderStatus: string };
 
@@ -79,7 +80,8 @@ export async function CustomerExchangePanel({ slug, orderId, orderStatus }: Prop
   const data = await getExchangeData(orderId);
   if (data.state === "missing") return null; // 0102 전 DB
   if (data.state === "error") return <ErrorBox message={data.message} />;
-  const { exchanges, items, variants, deliveredAt } = data;
+  const { exchanges, items, variants, deliveredAt, payFeature, payments, cardEnabled } = data;
+  const payOf = (x: ExchangeRow) => feePayState(x, payments.find((p) => p.exchange_id === x.id) ?? null, payFeature && cardEnabled);
   const daysLeft = exchangeDaysLeft(deliveredAt);
   const forms = isExchangeOrderStatus(orderStatus)
     ? items.map((item) => ({ item, s: itemRequestState({ who: "customer", orderStatus, daysLeft, item, exchanges, options: variants.filter((v) => v.product_id === item.product_id) }) }))
@@ -103,6 +105,7 @@ export async function CustomerExchangePanel({ slug, orderId, orderStatus }: Prop
           {x.fee_status === "waiting" && x.step !== "rejected" && (
             <p className="mt-2 text-xs text-amber-800">교환비 입금이 확인되면 새 상품을 보내 드립니다. 입금 방법은 쇼핑몰 안내를 따라 주세요.</p>
           )}
+          {payFeature && <CustomerFeePay slug={slug} orderId={orderId} x={x} st={payOf(x)} />}
         </div>
       ))}
     </div>
@@ -124,7 +127,7 @@ export async function StaffExchangePanel({ slug, orderId, orderStatus }: Props) 
   const data = await getExchangeData(orderId);
   if (data.state === "missing") return null;
   if (data.state === "error") return <ErrorBox message={data.message} />;
-  const { exchanges, items, variants } = data;
+  const { exchanges, items, variants, payFeature, payments, cardEnabled } = data;
   const proxy = isExchangeOrderStatus(orderStatus)
     ? items.map((item) => ({ item, s: itemRequestState({ who: "staff", orderStatus, daysLeft: null, item, exchanges, options: variants.filter((v) => v.product_id === item.product_id) }) }))
     : [];
@@ -135,11 +138,14 @@ export async function StaffExchangePanel({ slug, orderId, orderStatus }: Props) 
       <h2 className="font-semibold">교환</h2>
       {exchanges.map((x) => {
         const item = items.find((i) => i.id === x.item_id);
-        const a = staffExchangeActions(x, orderStatus, variants.some((v) => v.product_id === item?.product_id));
+        const pay = payments.find((p) => p.exchange_id === x.id) ?? null;
+        const st = payFeature ? feePayState(x, pay, cardEnabled) : null;
+        const a = staffExchangeActions(x, orderStatus, variants.some((v) => v.product_id === item?.product_id), st);
         const step = (s: Parameters<typeof exchangeStepAction>[2]) => exchangeStepAction.bind(null, slug, x.id, s);
         return (
           <div key={x.id} className="space-y-2 rounded border bg-white p-3" data-exchange={x.id}>
             <Summary x={x} item={item} />
+            {st && pay && <StaffFeePay slug={slug} x={x} pay={pay} st={st} />}
             {a.collecting && (
               <form action={step("collecting")} className="flex flex-wrap items-end gap-2" data-exchange-collecting>
                 <CourierFields listId={`mb-ex-c-${x.id}`} />
@@ -196,5 +202,45 @@ export async function StaffExchangePanel({ slug, orderId, orderStatus }: Props) 
       {proxyNotices.map((n) => <p key={n.key} className="text-xs text-amber-800" data-exchange-notice={n.key}>{n.text}</p>)}
       <p className="text-xs text-gray-500">회수 완료 때 원래 옵션 재고를 되돌리고, 새 상품을 보낼 때 바꿀 옵션 재고를 뺍니다. 교환비가 있으면 입금 확인 뒤에만 보낼 수 있습니다.</p>
     </section>
+  );
+}
+
+/** 유저: 교환비 카드 결제 링크·상태(문구는 status·needs_review 칸 값으로만 정한 feePayState에서) */
+function CustomerFeePay({ slug, orderId, x, st }: { slug: string; orderId: string; x: ExchangeRow; st: ReturnType<typeof feePayState> }) {
+  if (st.kind === "none") return null;
+  const href = st.canPay ? exchangePayPath(slug, orderId, x.id) : null;
+  return (
+    <div className="mt-2 text-xs" data-exchange-card={st.kind}>
+      {st.kind !== "pay" && <p className={st.kind === "done" ? "text-emerald-800" : "text-amber-800"}>{st.customerText}</p>}
+      {href && (
+        <p className="mt-1">
+          <a href={href} className="inline-flex min-h-9 items-center rounded border border-blue-200 px-3 text-blue-800" data-exchange-card-pay>
+            {st.kind === "failed" ? "카드로 다시 결제" : "교환비 카드로 결제"} ({formatWon(x.fee)})
+          </a>
+          {st.retryUnverified && <span className="ml-2 text-gray-500">다시 결제가 카드사에서 거절되면 쇼핑몰에 문의해 주세요.</span>}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** 직원: 원래 승인 기록과 지금 상태를 나눠 표시 + 다시 확인 단추(결제 키·시도 이력은 읽지도 보이지도 않음) */
+function StaffFeePay({ slug, x, pay, st }: { slug: string; x: ExchangeRow; pay: FeePaymentRow; st: ReturnType<typeof feePayState> }) {
+  return (
+    <div className="space-y-1 rounded border border-amber-200 bg-amber-50/50 p-2 text-xs" data-exchange-card={st.kind}>
+      {st.approvalRecorded && (
+        <p data-exchange-card-approval>
+          카드 결제 승인 기록: {formatWon(pay.amount)}{pay.approved_at && <> · {formatDateTime(pay.approved_at)}</>}
+          {pay.receipt_url.startsWith("https://") && <> · <a href={pay.receipt_url} target="_blank" rel="noreferrer" className="underline">영수증</a></>}
+        </p>
+      )}
+      <p data-exchange-card-now>지금 상태: <b>{st.staffText}</b></p>
+      {pay.error && st.kind !== "done" && <p className="text-gray-600" data-exchange-card-reason>사유: {pay.error}</p>}
+      {st.canRecheck && (
+        <form action={exchangeFeeCardRecheckAction.bind(null, slug, x.id)}>
+          <button className="min-h-9 rounded border border-amber-300 bg-white px-3" data-exchange-card-recheck>카드 결제 다시 확인</button>
+        </form>
+      )}
+    </div>
   );
 }
