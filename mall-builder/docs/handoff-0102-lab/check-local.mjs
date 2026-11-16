@@ -146,9 +146,9 @@ ok("두 주문 확정 실측: EXQA-1 장부 1,400(리워드 2줄 1,000+400)·EXQ
 // 잠금: 다른 세션이 출금 신청·적립과 같은 리셀러 자문 잠금을 쥐고 있으면 되돌리기는 기다린다(시간 제한이면 전체 무변경)
 {
   const before = led();
-  const holder = spawn("docker", ["exec", "-i", C, "psql", "-X", "-U", "postgres", "-d", DB, "-q", "-c", `select pg_advisory_lock(hashtext('mall_builder_reseller:${RS}')); select pg_sleep(6);`]);
+  const holder = spawn("docker", ["exec", "-i", C, "psql", "-X", "-U", "postgres", "-d", DB, "-q", "-c", `select pg_advisory_lock(hashtext('mall_builder_reseller:${RS}')); select pg_sleep(10);`]);
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 2000);
-  const rLock = psql(`set lock_timeout = '1500ms';\n${H("rollback.sql")}`);
+  const rLock = psql(H("rollback.sql")); // 되돌리기 안 lock_timeout 5초 < 남은 대기 약 8초
   await new Promise((res) => holder.on("exit", res));
   ok("잠금: 리셀러 자문 잠금을 다른 세션이 쥐면 되돌리기는 기다리다 시간 제한으로 멈추고 아무것도 안 바뀜", rLock.status !== 0 && /lock timeout/.test(rLock.stderr) && led() === before
      && psql(`select count(*) from mall_builder_orders where id::text like 'e0102000%';`).stdout.trim() === "2", rLock.stderr.slice(-160) + ` ${before}→${led()}`);
@@ -162,6 +162,50 @@ ok("두 주문 확정 실측: EXQA-1 장부 1,400(리워드 2줄 1,000+400)·EXQ
   ok("반례 초록: 시험 장부 뒤에 기존 주문 장부가 생기면 새 되돌리기 [멈춤]·아무것도 안 바꿈", rNew.status !== 0 && /\[멈춤\] 시험 주문 리셀러 장부가/.test(rNew.stderr), rNew.stderr.slice(-200));
   const rOld = psql(`begin;\n${later}\n${prevRb}\nselect 'CHAIN=' || (select string_agg(amount || ':' || balance_after, ',' order by created_at) from mall_builder_reseller_ledger where reseller_id = '${RS}');\nrollback;`);
   ok("반례 빨강: 예전 되돌리기(084e5b667)는 시험 줄만 지워 남은 장부 잔액(balance_after)이 금액과 어긋남", rOld.status === 0 && /CHAIN=(\d+):(\d+)/.test(rOld.stdout) && (() => { const m = rOld.stdout.match(/CHAIN=(\d+):(\d+)/); return m[1] !== m[2]; })(), rOld.stdout.slice(-120) + rOld.stderr.slice(-120));
+}
+// 교환 표 잠금 두 세션(Master msg_49fa000c4672): 다른 세션이 교환을 쓰는 중이면 되돌리기는 교환 표 잠금에서 기다리고, 잠근 뒤 다시 검사한다
+{
+  const insNF = `insert into mall_builder_exchanges (store_id, order_id, item_id, qty, reason, requested_by)
+    select o.store_id, o.id, i.id, 1, 'size', 'staff' from mall_builder_orders o join mall_builder_order_items i on i.order_id = o.id where o.id = '${NF}' limit 1;`;
+  const hold = (sql) => spawn("docker", ["exec", "-i", C, "psql", "-X", "-U", "postgres", "-d", DB, "-q", "-v", "ON_ERROR_STOP=1", "-c", sql]);
+  const pause = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+  const snap = () => `${led()}|${psql(`select count(*) from mall_builder_orders where id::text like 'e0102000%';`).stdout.trim()}|${psql(`select (to_regclass('public.mall_builder_exchanges') is not null)::text;`).stdout.trim()}`;
+  // (가) 다른 세션이 시험 아닌 교환을 넣고 3초 뒤 커밋 → 되돌리기는 기다렸다가, 잠근 뒤 재검사에서 새 교환을 보고 [멈춤]·무변경
+  let before = snap(), t0 = Date.now();
+  let h = hold(`begin; ${insNF} select pg_sleep(3); commit;`);
+  pause(1000);
+  let rr = psql(H("rollback.sql")); const waitedA = Date.now() - t0;
+  await new Promise((res) => h.on("exit", res));
+  const nfEx = psql(`select count(*) from mall_builder_exchanges where order_id = '${NF}';`).stdout.trim();
+  ok("두 세션(가): 교환 쓰는 중이면 기다리고, 커밋된 시험 아닌 교환을 잠근 뒤 재검사로 잡아 [멈춤]·무변경", rr.status !== 0 && /\[멈춤\] 시험 주문이 아닌 교환/.test(rr.stderr) && waitedA >= 2500 && nfEx === "1" && snap() === before,
+     `대기 ${waitedA}ms · 새 교환 ${nfEx} · ${before}→${snap()} ${rr.stderr.slice(-120)}`);
+  psql(`delete from mall_builder_exchanges where order_id = '${NF}';`); // 로컬 격리 DB 정리
+  // (가) 빨강: 직전 되돌리기(436ccc1bb, 검사가 잠금 전)는 같은 상황에서 새로 커밋된 시험 아닌 교환까지 표째로 지움(트랜잭션 안에서 확인 뒤 되돌림)
+  {
+    const prev = execFileSync("git", ["-C", MB, "show", "436ccc1bb:mall-builder/docs/handoff-0102-lab/rollback.sql"], { encoding: "utf8" }).replace(/\r\n/g, "\n").replace(/^begin;$/m, "").replace(/^commit;$/m, "");
+    const hp = hold(`begin; ${insNF} select pg_sleep(3); commit;`);
+    pause(1000);
+    const rp = psql(`begin;\n${prev}\nselect 'GONE=' || (to_regclass('public.mall_builder_exchanges') is null)::text;\nrollback;`);
+    await new Promise((res) => hp.on("exit", res));
+    const kept = psql(`select count(*) from mall_builder_exchanges where order_id = '${NF}';`).stdout.trim();
+    ok("두 세션(가) 빨강: 직전 되돌리기(436ccc1bb)는 잠금 전 검사라 새로 커밋된 시험 아닌 교환이 있어도 표를 지움", rp.status === 0 && /GONE=true/.test(rp.stdout) && kept === "1", `${rp.stdout.slice(-30)} · 교환 ${kept} ${rp.stderr.slice(-120)}`);
+    psql(`delete from mall_builder_exchanges where order_id = '${NF}';`);
+  }
+  // (나) 다른 세션이 교환을 넣었다가 취소(rollback) → 되돌리기는 기다렸다가 정상 진행(트랜잭션으로 감싸 상태 보존)
+  before = snap(); t0 = Date.now();
+  h = hold(`begin; ${insNF} select pg_sleep(3); rollback;`);
+  pause(1000);
+  rr = psql(`begin;\n${H("rollback.sql").replace(/^begin;$/m, "").replace(/^commit;$/m, "")}\nselect 'DONE=' || (select count(*) from mall_builder_orders where id::text like 'e0102000%');\nrollback;`); const waitedB = Date.now() - t0;
+  await new Promise((res) => h.on("exit", res));
+  ok("두 세션(나): 다른 세션이 교환을 취소하면 기다렸다가 되돌리기 정상 진행", rr.status === 0 && /DONE=0/.test(rr.stdout) && waitedB >= 2500 && snap() === before, `대기 ${waitedB}ms · ${rr.stdout.slice(-40)} ${rr.stderr.slice(-120)}`);
+  // (다) 다른 세션이 교환 표를 오래(10초) 붙잡으면 → 되돌리기는 lock_timeout 5초로 멈추고 무변경(다른 세션을 끊지 않음)
+  before = snap();
+  h = hold(`begin; ${insNF} select pg_sleep(10); rollback;`);
+  pause(1000);
+  rr = psql(H("rollback.sql"));
+  await new Promise((res) => h.on("exit", res));
+  ok("두 세션(다): 오래 붙잡으면 lock timeout으로 멈추고 무변경·상대 세션은 스스로 끝남", rr.status !== 0 && /lock timeout/.test(rr.stderr) && snap() === before
+     && psql(`select count(*) from mall_builder_exchanges where order_id = '${NF}';`).stdout.trim() === "0", `${before}→${snap()} ${rr.stderr.slice(-120)}`);
 }
 // 기준선(시험 아닌 리셀러 기록) — 되돌리기 전후 완전히 같아야 함
 const keep = () => psql(`select (select string_agg(id || ':' || status || ':' || amount || ':' || coalesce(ledger_id::text, '-'), ',' order by id) from mall_builder_reseller_rewards where reseller_id = '${RS}' and order_id::text not like 'e0102000%')

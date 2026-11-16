@@ -1,12 +1,24 @@
 -- Lab 0102 되돌리기(한 트랜잭션) — 대상: Lab(ref rjjtjakljjxsgjelqgek)만. 검수로 생긴 자료만 지우고 0102가 만든 것만 없앤다. 기존 표·기존 주문은 건드리지 않음.
--- 순서: 시험 자료(교환 → 주문[상품 줄·이력·알림은 주문에 딸려 지워짐] → 옵션 → 상품 → 정책) → 주문 상태 지킴 트리거 → 함수(공개 4·내부 7) → 교환 표 → 적용 기록
+-- 순서: 잠금(시험 주문 → 교환 표) → 시험 자료(교환 → 주문[상품 줄·이력·알림은 주문에 딸려 지워짐] → 옵션 → 상품 → 정책) → 주문 상태 지킴 트리거 → 함수(공개 4·내부 7) → 교환 표 → 적용 기록
 begin;
+-- 오래 기다리지 않게: 잠금 대기 5초, 문장 60초. 넘으면 트랜잭션 전체가 무변경으로 끝남(다른 세션을 끊지 않음)
+set local lock_timeout = '5s';
+set local statement_timeout = '60s';
+-- 잠금 순서(Master msg_49fa000c4672): 시험 주문 행(id 순 FOR UPDATE) → 교환 표(ACCESS EXCLUSIVE, 이 표 하나만) → 잠근 뒤 시험 아닌 교환 재검사
+--   → 리셀러 자문 잠금·장부 검사(아래 $rs$) → 삭제·DROP. 교환 진행 함수(exchange_step·request_exchange)도 주문 → 교환 순서라 거꾸로 잠그지 않는다.
+-- 교환 표는 마지막에 DROP하므로 처음부터 그 등급(ACCESS EXCLUSIVE)으로 잡아 중간에 잠금을 올리다 교착되는 일을 막는다.
+-- 잠그기 전 검사는 믿지 않는다 — 잠근 뒤에 검사한 결과로만 진행.
 do $pre$ begin
   if not exists (select 1 from public.mall_builder_stores where slug = 'aimaster-b2b') then raise exception '[멈춤] Lab이 맞는지 확인하세요.'; end if;
-  -- 시험 자료가 아닌 교환이 있으면 멈춤(그 교환은 사람이 판단)
-  if to_regclass('public.mall_builder_exchanges') is not null and exists (
-    select 1 from public.mall_builder_exchanges where order_id not in ('e0102000-0000-4000-8000-000000000031','e0102000-0000-4000-8000-000000000032')
-  ) then raise exception '[멈춤] 시험 주문이 아닌 교환이 있습니다. 먼저 확인하세요.'; end if;
+  perform 1 from public.mall_builder_orders o
+   where o.id in ('e0102000-0000-4000-8000-000000000031','e0102000-0000-4000-8000-000000000032') order by o.id for update;
+  if to_regclass('public.mall_builder_exchanges') is not null then
+    execute 'lock table public.mall_builder_exchanges in access exclusive mode';
+    -- 시험 자료가 아닌 교환이 있으면 멈춤(그 교환은 사람이 판단) — 잠근 뒤라 이 사이에 새로 생길 수 없음
+    if exists (select 1 from public.mall_builder_exchanges where order_id not in ('e0102000-0000-4000-8000-000000000031','e0102000-0000-4000-8000-000000000032')) then
+      raise exception '[멈춤] 시험 주문이 아닌 교환이 있습니다. 먼저 확인하세요.';
+    end if;
+  end if;
 end $pre$;
 
 -- 시험 자료(고정 id만)

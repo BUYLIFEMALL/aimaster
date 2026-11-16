@@ -15,8 +15,8 @@
 | `apply.sql` | 한 트랜잭션: 사전 점검 → **0102 원문 그대로** → 적용 기록(version UTC 14자리, name `mall_builder_0102_exchanges`) | 씀 | `633450bea1c5d05df2fbb352c18819c7acf0f9923aa281031b847aae266a5b11` |
 | `fixture.sql` | 한 트랜잭션: 합성 시험 자료(아래) | 씀 | `e23ce90ffa8301881ce05dd3ac7a24d7cd60bf27dc14f006b1b08f7328bcd409` |
 | `verify.sql` | 적용·자료 확인 13줄 + 「전체」 — 값이 비면 「(없음)」= 불일치, 줄 수 13·일치 13일 때만 OK | 읽기만 | `ce0823cac6c73ce02b87e3c83b42bdaa138c6062fcc47a7d04a1359a84d5fcde` |
-| `rollback.sql` | 한 트랜잭션: 시험 자료 → 트리거 → 함수 11개 → 교환 표 → 기록 | 씀 | `375da3a80103784a469a851244cc66624b0deaa125d3b7573c7185b6eb769ad4` |
-| `check-local.mjs` | 위 순서를 로컬 qa_ DB에서 끝까지 돌려 판정(일반 회원 권한 실제 읽기 포함) | 로컬만 | `3953fbfffcb6568575d9e83cbd3ef79ab5e2921e5e1faf69a698b59af5840950` |
+| `rollback.sql` | 한 트랜잭션: 시험 자료 → 트리거 → 함수 11개 → 교환 표 → 기록 | 씀 | `b5c3613c5ae8e2ba9acf0705836545eb8a1d4ec437eec9d4ff4bf097246d7e11` |
+| `check-local.mjs` | 위 순서를 로컬 qa_ DB에서 끝까지 돌려 판정(일반 회원 권한 실제 읽기 포함) | 로컬만 | `658189f47d439bd2aa9a1073044648e75dd266be754b2de7dce8b9d9ff5288e2` |
 | `build.mjs` | apply.sql 생성(원문 그대로 삽입) | — | `54305cc4f5e576e7c319287c002140bc316a6852bf8ec29c15ce741f85e488c6` |
 - apply.sql 안 원문 = `supabase/migrations/0102_exchanges.sql` LF sha256 `14780f43e6c5daf5bf9ce14736e1c757596828c2c0a522fc9b39355adb8a33e1`(커밋 `a86c53dc1`). 원문 앞 사전 점검: 교환 표·0102 기록이 이미 있으면 [멈춤], 0101 기록·몰 aimaster-b2b가 없으면 [멈춤](Lab이 아닐 가능성).
 
@@ -62,3 +62,5 @@
 - 잠금 순서: 시험 주문 행 id 순 FOR UPDATE → 리셀러 자문 잠금 `pg_advisory_xact_lock(hashtext('mall_builder_reseller:'||리셀러 id))`(0052 reseller_add·0075 request_payout과 같은 키) → 검사 → 삭제. 공용 함수·RLS 변경 0, 트리거 끄기 0.
 - check-local **30/30**(두 번 실행 같음): 지금 Lab 상태(EXQA-2만 확정)에서 성공 / 두 주문 확정 실측 EXQA-1 1,400(2줄)·EXQA-2 500(1줄) / 빨강 b69693055(500 고정)는 두 주문 확정 뒤 [멈춤]으로 정리 불가 / 반례 장부 금액 1,399·리워드 품목 금액 401이면 [멈춤] / 다른 세션이 같은 자문 잠금을 쥐면 기다리다 시간 제한으로 멈추고 무변경 / 기존 반례·기준선 그대로. 로컬에서만: 0102 지킴이가 교환 진행 중 주문 확정을 막으므로(새 0103이 고칠 문제) 앞 시험 교환 줄을 지운 뒤 EXQA-1 확정, EXQA-2 장부 id를 Lab 실측값으로 맞춤.
 - 이 되돌리기의 Lab 실행·EXQA-1 확정 시험은 아직 승인 전(옛 cba40178·e240a665·d7466fe6 지문 승인은 재사용하지 않음).
+- **최종 잠금 위치 보완(Master msg_49fa000c4672)**: 직전판은 교환 삭제가 주문 잠금보다 먼저여서 교환 진행 함수(주문 → 교환)와 순서가 거꾸로였고, 시험 아닌 교환 검사가 잠금 전이었음. 지금 순서: `set local lock_timeout 5s·statement_timeout 60s` → 시험 주문 행 id 순 FOR UPDATE → 교환 표 하나만 ACCESS EXCLUSIVE(마지막에 DROP할 등급이라 중간 승급 교착 없음, 다른 표·DB 전체 잠금 없음) → **잠근 뒤** 시험 아닌 교환 재검사 → 시험 교환 삭제 → 리셀러 자문 잠금·manifest 검사 → 삭제·DROP. 충돌·시간 초과면 트랜잭션 전체 무변경, 다른 세션을 끊지 않음.
+- check-local **34/34**(두 번 같음) 추가 두 세션 근거: (가) 다른 세션이 시험 아닌 교환을 넣고 3초 뒤 커밋 → 되돌리기는 기다렸다가 잠근 뒤 재검사로 [멈춤]·무변경 / (가) 빨강: 직전판 436ccc1bb는 같은 상황에서 새 교환이 있는데도 표를 지움 / (나) 상대가 취소하면 기다렸다가 정상 진행 / (다) 상대가 10초 붙잡으면 lock timeout으로 멈추고 무변경·상대는 스스로 끝남.
