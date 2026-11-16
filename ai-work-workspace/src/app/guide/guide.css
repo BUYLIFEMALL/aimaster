@@ -711,3 +711,21 @@
 .aww-code-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 12px; background: #1e293b; color: #e2e8f0; font-size: 13px; font-weight: 700; }
 .aww-code-copy { border: 1px solid #475569; background: #334155; color: #f8fafc; border-radius: 8px; padding: 4px 10px; font: inherit; font-size: 12px; cursor: pointer; white-space: nowrap; }
 .aww-code-pre { margin: 0; padding: 12px; color: #e2e8f0; font-size: 12.5px; line-height: 1.6; white-space: pre-wrap; word-break: break-all; font-family: ui-monospace, Consolas, monospace; }
+
+/* 2026-11-17 WS-20261117-13 146(S4·S5): 워크스페이스 밖 단독 화면(매뉴얼·받은 업무·영수증·캘린더 연동·키 설정·공개 페이지)에
+   최상위 .aww-guide.aww-studio-page가 있고 밝은 테마일 때만 146 Slate 토큰. 로그인·다크·다른 화면은 영향 없음(전역 html/body·:root 재정의 없음). */
+html.lit-light-theme .aww-guide.aww-studio-page {
+  --lp-bg-secondary: #f8fafc;
+  --lp-bg-tertiary: #f1f5f9;
+  --lp-bg-interactive: #f1f5f9;
+  --lp-border-primary: #e2e8f0;
+  --lp-border-secondary: #f1f5f9;
+  --lp-border-strong: #cbd5e1;
+  --lp-text-primary: #0f172a;
+  --lp-text-secondary: #475569;
+  --lp-text-tertiary: #5f6f86;
+  --lp-icon-primary: #0f172a;
+  --lp-icon-secondary: #475569;
+  --lp-icon-tertiary: #5f6f86;
+}
+html.lit-light-theme .aww-guide.aww-studio-page :focus-visible { outline: 2px solid #6366f1; outline-offset: 2px; }

@@ -88,7 +88,7 @@ const MIC_TROUBLES = [
 export default async function GuidePage() {
   await requireProgramAccess();
   return (
-    <main className="aww-guide">
+    <main className="aww-guide aww-studio-page">
       <div className="aww-guide-inner">
         <a className="aww-guide-back" href="/">
           ← 워크스페이스로 돌아가기

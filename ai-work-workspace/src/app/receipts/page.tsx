@@ -13,7 +13,7 @@ export const fetchCache = "force-no-store";
 export default async function ReceiptsPage() {
   await requireProgramAccess();
   return (
-    <main className="aww-guide">
+    <main className="aww-guide aww-studio-page">
       <div className="aww-guide-inner">
         <a className="aww-guide-back rc-noprint" href="/">
           ← 워크스페이스로 돌아가기
