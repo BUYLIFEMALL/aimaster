@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 02:19:38 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 02:21:40 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -39,7 +39,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 142개: done 120개 · cancelled 6개 · ready_review 10개 · running 4개 · ready 1개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 142개: done 120개 · cancelled 6개 · ready_review 11개 · running 3개 · ready 1개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -172,7 +172,7 @@
 | BLOG-20261117-01 | CC-BLOG-01 | done / integrated | 수집기 운영메타·블로그 미배포 누락 정정 | 문서정정완료·tistory타인ZIP삭제diff보존·T12미정별도 |
 | RE-20261117-03 | CC-REALTY-01 | done / integrated | 읽기전용 뉴스측정·안정페이징 도구 | 동률2500루프모의검증수락·실PostgREST1000+미검수·recall판정불가/운영recent상한차이명시 |
 | WS-20261117-07 | CC-WORKSPACE-01 | done / integrated | 뉴스측정기 독립읽기/안정페이징 후속검토 | 지적보완수락·DB/API0·실페이지경계누락실측아님 |
-| RE-20261117-04 | CC-REALTY-01 | running / returned | 지역·단지 감시 겹침 안내 | Mac 정상배열 VM9 PASS·실SW수명미검수. 기존격리 non-null비배열을빈배열로버리는P2 추가반환:원값보존failclosed·형식별실background시험→Mac,배포0 |
+| RE-20261117-04 | CC-REALTY-01 | ready_review / returned | 지역·단지 감시 겹침 안내 | 비정상격리값 원문보존failclosed 보완·legacy VM12/기존15/단위120/type0 작성자보고. Mac재검수전달·코드없는릴리스영향/보존복구안정리요청,실수집/배포0 |
 | MOV-20261117-05 | CC-MOVIE-01 | done / integrated | 갤러리키보드·가사취소 안내 독립검토 | 각실컴포넌트/실Lab PASS·운영미배포·fallback소규모후속코드대조 |
 | B2B-20261117-01 | CC-B2B-BACK-01 | done / integrated | 메시지 safeupdate 미리보기·알림라벨 보완(Lab) | Mac정적PASS/동일Lab작성자preview증거 재사용. 운영0101·실발송·제품배포 미완료 유지 |
 | WS-20261117-08 | CC-WORKSPACE-01 | ready_review / returned | 주인님 직접 소규모5건 캘린더·번역 묶음 | ⑤기존구현조사/4영역코드변경·MOV17-06독립검토·906여백과미배포묶음 |
