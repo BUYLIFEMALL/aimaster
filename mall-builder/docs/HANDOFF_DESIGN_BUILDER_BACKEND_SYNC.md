@@ -1,6 +1,6 @@
 # 프론트(디자인 빌더) ↔ 백엔드 상호 인수인계 (계속 쓰는 문서)
 
-- 프론트: [역할: mall-design-builder] Claude Code(윈도우) `claude-win-20261114-mall-design` — 디자인 UI 빌더
+- 프론트: [역할: mall-design-builder] **Claude(B2BFront)** — Claude Code(윈도우) `claude-win-20261114-mall-design`(2026-11-16 이름 지정) — 디자인 UI 빌더
 - 백엔드: [역할: mall-builder] Claude Code(윈도우) `claude-win-20261025-workspace` — 주문·결제·가격·정산·분양·공급사·리셀러
 - 시작: 2026-11-14 (주인님 지시: 「백엔드단과 상호 작업 내용과 과정을 주고받을 수 있도록 인수인계 문서로 남겨놔」)
 - 처음 인수인계: [`HANDOFF_20261114_DESIGN_BUILDER_FRONT.md`](HANDOFF_20261114_DESIGN_BUILDER_FRONT.md) · 프론트 작업표: [`DESIGN_BUILDER_TRACKER.md`](DESIGN_BUILDER_TRACKER.md) · 백엔드 마스터: [`PLAN_20261114_B2B_MASTER.md`](PLAN_20261114_B2B_MASTER.md)
