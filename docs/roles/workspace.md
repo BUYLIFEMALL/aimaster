@@ -4,8 +4,7 @@
 - 맡은 폴더: `ai-work-workspace/`, `ai-task-planner/`(2026-10-26 주인님 결정으로 추가)
 - 카테고리: 업무자동화
 - 주력 업무: 새 프로그램 「AI 업무 워크스페이스 자동화」 단계별 개발(로드맵 U1~U14, `ai-work-workspace/docs/PLAN_20261024_EXPANSION_ROADMAP.md`). 디자인(U5)은 디자인 역할(agy)이 맡음
-- 마지막 갱신: 2026-11-16 [역할: workspace] Claude(Workspace) · Claude Code(윈도우, 엣지) — v1.54 배포(`ai-work-workspace-aolp0pevu`, 주인님 「배포 진행해」): WS-08·09 MCP 승인 키 보완. WS-09 독립 QA-08 결과·Master 판정 대기. 내일 확인: 볼타 인증서 30일 전 알림
-
+- 마지막 갱신: 2026-11-17 [역할: workspace] Claude(Workspace) · Claude Code(윈도우, 엣지) — v1.55 배포(`ai-work-workspace-3z2m9m4xy`, 주인님 「배포 진행해」): 캘린더 「2026년 11월」·요일 한국어·칸 240px, 업무 현황판 전체 너비. 미배포 대기: 데이터베이스 전체 페이지 좌우 여백 96→24px(`90612778f`, 빌드 승인 대기). 쇼핑제휴 WS17-01~04 검토·수정 끝
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
