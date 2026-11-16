@@ -70,3 +70,215 @@
 
 ## 비용
 없음(빌드 0·AI 0·운영/Lab DB 0·실외부 호출 0·새 설치/이미지 받기 0).
+
+## 8. 인수인계 부록 — 검사기 원문·실행 명령·기대 열 대응 (Master `msg_e27744e8d3b9` 지시, Backend B2B-09 보강 기준)
+
+- 판정: Master가 WS-11 done, 현재 0100·되돌리기 1/2 P1 해결 기술 판정 수락. 원시 시나리오 종료 0 문제와 공유 실행기 거짓 통과는 분리되어 Backend B2B-09로 배정됨.
+- 원래 위치: 저장소 밖 임시 폴더 `C:\Users\ADMINI~1\AppData\Local\Temp\claude\79d92c8f8cffe9a2\dea6e4f6-37c0-4be8-ad50-8746e0f1c517\scratchpad\ws11\` (`run.mjs`·`check.mjs`·`pre.sql`·`mid.sql`·`post.sql`·`count.sql`·`orders.sql`). 임시 폴더는 지워질 수 있으므로 **아래 원문이 기준**.
+- 실키 확인: 위 파일 전부에서 `key|secret|token|password|sk-|eyJ` 검색 → 코드 이름 `Object.keys` 1건뿐, 실키·비밀값 0. (시나리오 자체의 `bolta_api_key = 'test_key'`는 제품 시나리오의 가짜 값이며 제 파일에는 없음.)
+- qa_ DB는 이미 모두 지웠고 다시 만들지 않음(재실행 안 함).
+
+### 8-1. 실행 명령 (Git Bash, 실행기 폴더에서)
+```bash
+# 수정 후 시점 + 기본 권한 흉내 + 역할 검사(되돌리기 1단계 전·후)
+PRE_FILE=pre.sql MID_FILE=mid.sql POST_FILE=post.sql node run.mjs qa_ws11_after d0aec875e d0aec875e d0aec875e
+node check.mjs out-qa_ws11_after.txt          # 실패 0 → 종료 0
+# 빨강 확인: 마이그레이션·되돌리기는 옛 시점, 시나리오는 최신
+node run.mjs qa_ws11_red0 355193d75^ d0aec875e 355193d75^ && node check.mjs out-qa_ws11_red0.txt   # 실패 13 → 종료 1
+node run.mjs qa_ws11_red1 355193d75  d0aec875e 355193d75  && node check.mjs out-qa_ws11_red1.txt   # 실패 5  → 종료 1
+# 되돌리기 2단계용 빈 DB(0061까지만)
+PRE_FILE=pre.sql node run.mjs qa_ws11_rb2b d0aec875e d0aec875e d0aec875e bare
+# 끝나면 제 DB만 삭제
+for d in $(docker exec aww-pg-test psql -U postgres -tAc "select datname from pg_database where datname like 'qa\_ws11\_%'"); do docker exec aww-pg-test psql -U postgres -qc "drop database $d"; done
+```
+주의: 시나리오의 `@@AFTER_ROLLBACK_STEP1` 뒤 부분은 앞부분 세션의 `request.jwt.claim.sub`·임시 표에 기대므로 **한 psql 세션으로 이어 붙여** 실행해야 함(따로 띄우면 「로그인이 필요합니다」).
+
+### 8-2. 기대 열 대응표 (`|` 로 나눈 결과 열, 0번 = 라벨 다음 첫 칸. 마지막 「기대 …」 열은 비교에서 제외)
+| 라벨 | 열0 | 열1 | 열2 | 비고 |
+|---|---|---|---|---|
+| C0 | t | | | |
+| C3 | requested | 0 | | 볼타 호출 수 |
+| C5 | issuing | 33000 | 수신자 JSON에 `"010-1234-5678"`·`INCOME_DEDUCTION` | 열3 금액 JSON `supplyAmount 30000`·`vatAmount 3000` |
+| C6 | issued | AP123 | | |
+| C8a | cancelling | 3000 | | |
+| C8b | issuing | 3000 | 2 | |
+| C8c | 금액 JSON `supplyAmount 2727`·`vatAmount 273` | | | |
+| C9 | issuing | EXPENSE_PROOF | 1234567890 | |
+| C10 | failed | | | |
+| P1a | unknown | | | |
+| P1b | cancelling | | | |
+| P1c | cancelled | 1 | | |
+| P1d | 1 | 1 | | posts·cancels |
+| P2 | cancel_failed | | | |
+| P2b | 0 | 1 | | cancels·posts |
+| P3a | cancelling | 3000 | | |
+| P3b | issuing | 3000 | 2 | |
+| P4c | cancelling | 11000 | | |
+| P4d | cancelled | 1 | | |
+| P5a | issuing | t | | |
+| P5b | issued | | | |
+| P5c | issued | 0 | | 새 호출 수 |
+| P6a | cancel_failed | | | |
+| P6b | cancelling | | | |
+| P6c | cancelled | | | |
+| P6d | 1 | | | 취소 요청 번호 수 |
+| P7b | issued | | | |
+| P8p | cancelling | 3000 | | |
+| P8a | cancelled | | | 열1 안내에 「자동 발급을 멈춘」 |
+| P8b | 0 | | | 새 발급 POST 수 |
+| NOTICE | C1·C2a·C2b·C2c·C4·C7·P7a 모두 「막힘:」으로 시작 | | | 「통과됨(문제)」면 실패 |
+
+### 8-3. `check.mjs` 원문
+```js
+// WS-20261116-11 독립 판정기: run.mjs 출력에서 결과 줄을 기대값과 대조, 하나라도 다르면 종료 코드 1
+import { readFileSync } from "node:fs";
+const txt = readFileSync(process.argv[2], "utf8");
+const rows = {};
+for (const l of txt.split("\n")) { const m = l.match(/^([CP][0-9]+[a-z]?)\|(.*)$/); if (m && !rows[m[1]]) rows[m[1]] = m[2].split("|"); }
+const notice = (k) => (txt.match(new RegExp(`NOTICE:  ${k} (\\S+)`)) || [])[1];
+const E = {
+  C0: ["t"], C3: ["requested", "0"],
+  C5: (r) => r[0] === "issuing" && r[1] === "33000" && r[2].includes('"010-1234-5678"') && r[2].includes("INCOME_DEDUCTION") && r[3].includes('"supplyAmount": 30000') && r[3].includes('"vatAmount": 3000'),
+  C6: ["issued", "AP123"], C8a: ["cancelling", "3000"], C8b: ["issuing", "3000", "2"],
+  C8c: (r) => r[0].includes('"supplyAmount": 2727') && r[0].includes('"vatAmount": 273'),
+  C9: ["issuing", "EXPENSE_PROOF", "1234567890"], C10: (r) => r[0] === "failed",
+  P1a: ["unknown"], P1b: ["cancelling"], P1c: ["cancelled", "1"], P1d: ["1", "1"],
+  P2: ["cancel_failed"], P2b: ["0", "1"], P3a: ["cancelling", "3000"], P3b: ["issuing", "3000", "2"],
+  P4c: ["cancelling", "11000"], P4d: ["cancelled", "1"], P5a: ["issuing", "t"], P5b: ["issued"], P5c: ["issued", "0"],
+  P6a: ["cancel_failed"], P6b: ["cancelling"], P6c: ["cancelled"], P6d: ["1"], P7b: ["issued"],
+  P8p: ["cancelling", "3000"], P8a: ["cancelled"], P8b: ["0"],
+};
+const N = { C1: "막힘:", C2a: "막힘:", C2b: "막힘:", C2c: "막힘:", C4: "막힘:", C7: "막힘:", P7a: "막힘:" };
+const fails = [];
+for (const [k, exp] of Object.entries(E)) {
+  const r = rows[k];
+  const ok = r && (typeof exp === "function" ? exp(r) : exp.every((v, i) => r[i] === v));
+  if (!ok) fails.push(`${k} 실제=${r ? r.join("|").slice(0, 60) : "(줄 없음)"} 기대=${typeof exp === "function" ? "(조건)" : exp.join("|")}`);
+}
+for (const [k, exp] of Object.entries(N)) if (notice(k) !== exp) fails.push(`${k} 실제 NOTICE=${notice(k) ?? "(없음)"} 기대=막힘`);
+const total = Object.keys(E).length + Object.keys(N).length;
+console.log(`${process.argv[2]}: 판정 ${total}개 중 실패 ${fails.length}개`);
+for (const f of fails) console.log("  ✖ " + f);
+process.exitCode = fails.length ? 1 : 0;
+```
+
+### 8-4. `run.mjs` 원문
+```js
+// WS-20261116-11 독립 검증 실행기(저장소 밖). 사용: node run.mjs <db이름> <마이그레이션 커밋> <시나리오 커밋> <되돌리기 커밋> [mode]
+// mode: scenario(기본) | bare(0061까지만) — 공유 aww DB는 건드리지 않고 지정한 전용 DB만 만들고 지운다.
+import { execFileSync, spawnSync } from "node:child_process";
+import { writeFileSync, readFileSync } from "node:fs";
+import * as fs2 from "node:fs";
+
+const [db, migC, scnC, rbC, mode = "scenario"] = process.argv.slice(2);
+if (!/^qa_ws11_[a-z0-9_]+$/.test(db)) throw new Error("전용 DB 이름은 qa_ws11_ 로 시작해야 합니다");
+const C = "aww-pg-test";
+const repo = "D:/AIMaster";
+const git = (...a) => execFileSync("git", ["-C", repo, ...a], { encoding: "utf8", maxBuffer: 64 << 20 });
+const show = (c, p) => git("show", `${c}:${p}`).replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
+const psql = (sql, { allowFail = false, dbn = db } = {}) => {
+  const r = spawnSync("docker", ["exec", "-i", C, "psql", "-X", "-U", "postgres", "-d", dbn, "-v", "ON_ERROR_STOP=1", "-A", "-t", "-F", "|", "-f", "-"], { input: sql, encoding: "utf8", maxBuffer: 64 << 20 });
+  if (r.status !== 0 && !allowFail) throw new Error(`psql 실패(${r.status}):\n${r.stderr.slice(-3000)}`);
+  return { code: r.status, out: r.stdout, err: r.stderr };
+};
+const admin = (cmd) => execFileSync("docker", ["exec", C, "psql", "-X", "-U", "postgres", "-tAc", cmd], { encoding: "utf8" });
+
+// 흉내 틀: scripts/check-prod-bundle-local.mjs 의 stub 을 그 커밋에서 그대로 꺼내 씀
+const checker = show(migC, "mall-builder/scripts/check-prod-bundle-local.mjs");
+const stub = checker.slice(checker.indexOf("const stub = `") + 14, checker.indexOf("`;", checker.indexOf("const stub = `")));
+const files = git("ls-tree", "--name-only", `${migC}`, "mall-builder/supabase/migrations/").trim().split("\n").filter((f) => f.endsWith(".sql")).sort();
+const LAB = /^select lab_admin\.register_program\('mall-builder'\);\s*$/m;
+let bundle = "begin;\n" + files.map((f) => {
+  let s = show(migC, f).replace(LAB, "-- lab line skipped");
+  s = s.replace("create extension if not exists http with schema extensions;", "-- http stub");
+  return `-- ===== ${f}\n${s}\n`;
+}).join("") + "commit;\n";
+
+const fresh = admin(`select count(*) from pg_stat_activity where datname='${db}'`).trim();
+if (fresh !== "0") throw new Error(`${db} 사용 중`);
+admin(`drop database if exists ${db}`);
+admin(`create database ${db}`);
+const preSql = process.env.PRE_FILE ? fs2.readFileSync(process.env.PRE_FILE, "utf8") : "";
+psql(stub + "\n" + preSql);
+psql(bundle);
+const log = [`# migrations@${migC} (${files.length}: ${files[0].split("/").pop()}..${files.at(-1).split("/").pop()}) scenario@${scnC} rollback@${rbC}`];
+const s61 = psql(show(scnC, "mall-builder/scripts/scenario-0061-resale-apply.sql"));
+log.push("## 0061 ok");
+if (mode === "scenario") {
+  const scn = show(scnC, "mall-builder/scripts/scenario-0100-cash-receipts.sql");
+  const mark = scn.indexOf("-- @@AFTER_ROLLBACK_STEP1");
+  const [p1, p2] = mark >= 0 ? [scn.slice(0, mark), "\\set ON_ERROR_STOP 1\n" + scn.slice(mark)] : [scn, ""];
+  // 한 psql 세션에서 이어 실행(앞부분의 로그인 사용자 설정값·임시 표를 뒷부분이 씀)
+  const rb1 = p2 ? show(rbC, "mall-builder/scripts/rollback-0100-step1-stop-auto.sql") : "";
+  const mid = process.env.MID_FILE ? "\n" + readFileSync(process.env.MID_FILE, "utf8") : "";
+  const post = process.env.POST_FILE ? "\n" + readFileSync(process.env.POST_FILE, "utf8") : "";
+  const all = p1 + mid + (p2 ? "\nselect '@@STEP1_BEGIN';\n" + rb1 + "\nselect '@@STEP1_END';\n" + p2 : "") + post;
+  const a = psql(all, { allowFail: true });
+  log.push("## RUN exit=" + a.code, a.out, "## stderr", a.err);
+}
+writeFileSync(`out-${db}.txt`, log.join("\n"));
+console.log(log.join("\n"));
+```
+
+### 8-5. `pre.sql`
+```sql
+-- Supabase 기본 권한 흉내: postgres가 public에 만드는 표·함수·시퀀스는 anon·authenticated·service_role에 기본 부여
+alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
+alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+grant usage on schema public to anon, authenticated, service_role;
+```
+
+### 8-5. `mid.sql`
+```sql
+select '@@ROLES_BEFORE_STEP1';
+select 'R1', r, f, has_function_privilege(r, f, 'execute') from unnest(array['anon','authenticated']) r, unnest(array['public.mall_builder_cash_receipt_settings_save(uuid,boolean)','public.mall_builder_cash_receipt_request(uuid,text,text,text)','public.mall_builder_cash_receipt_recheck(uuid)','public.mall_builder_cash_receipt_staff(uuid,text)','mall_builder_private.cash_receipt_issue(uuid,bigint)','mall_builder_private.cash_receipt_cancel(uuid,bigint)','mall_builder_private.cash_receipt_target(uuid)','mall_builder_private.cash_receipt_amount(uuid)']) f order by 2,3;
+select 'R1t', r, has_table_privilege(r, 'public.mall_builder_orders', 'update') from unnest(array['anon','authenticated']) r;
+set role anon;
+do $$ begin perform public.mall_builder_cash_receipt_recheck('00000000-0000-0000-0000-0000000000e5'); raise notice 'R2 anon 통과됨(문제)'; exception when insufficient_privilege then raise notice 'R2 anon 권한으로 막힘: %', sqlerrm; when others then raise notice 'R2 anon 다른 이유로 막힘: %', sqlerrm; end $$;
+do $$ begin perform public.mall_builder_cash_receipt_request('00000000-0000-0000-0000-0000000000e5','PHONE','01012345678'); raise notice 'R2b anon 통과됨(문제)'; exception when insufficient_privilege then raise notice 'R2b anon 권한으로 막힘: %', sqlerrm; when others then raise notice 'R2b anon 다른 이유로 막힘: %', sqlerrm; end $$;
+reset role;
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000000c9', false);
+set role authenticated;
+create temp table r3n as select 0 n;
+select 'R3', public.mall_builder_cash_receipt_recheck('00000000-0000-0000-0000-0000000000e5') ->> 'status';
+do $$ begin perform mall_builder_private.cash_receipt_issue('00000000-0000-0000-0000-0000000000e5', 1); raise notice 'R4 내부 발급 함수 통과됨(문제)'; exception when others then raise notice 'R4 내부 발급 함수 막힘: %', sqlerrm; end $$;
+do $$ declare n int; begin update public.mall_builder_orders set cash_receipt = jsonb_set(cash_receipt,'{status}','"issued"') where id='00000000-0000-0000-0000-0000000000e1'; get diagnostics n = row_count; raise notice 'R5 유저 직접 수정 행 수 %', n; exception when others then raise notice 'R5 유저 직접 수정 막힘: %', sqlerrm; end $$;
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000000ca', false);
+do $$ begin perform public.mall_builder_cash_receipt_recheck('00000000-0000-0000-0000-0000000000e5'); raise notice 'R6 남의 주문 통과됨(문제)'; exception when others then raise notice 'R6 남의 주문 막힘: %', sqlerrm; end $$;
+reset role;
+select 'R5chk', cash_receipt ->> 'status' from public.mall_builder_orders where id='00000000-0000-0000-0000-0000000000e1';
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000000a1', false);
+```
+
+### 8-5. `post.sql`
+```sql
+select '@@ROLES_AFTER_STEP1';
+select 'S1', r, f, has_function_privilege(r, f, 'execute') from unnest(array['anon','authenticated']) r, unnest(array['public.mall_builder_cash_receipt_settings_save(uuid,boolean)','public.mall_builder_cash_receipt_request(uuid,text,text,text)','public.mall_builder_cash_receipt_recheck(uuid)','public.mall_builder_cash_receipt_staff(uuid,text)','mall_builder_private.cash_receipt_issue(uuid,bigint)','mall_builder_private.cash_receipt_cancel(uuid,bigint)','mall_builder_private.cash_receipt_target(uuid)','mall_builder_private.cash_receipt_amount(uuid)']) f order by 2,3;
+select 'S2 triggers', count(*) from pg_trigger where tgname in ('mall_builder_orders_cash_receipt_auto','mall_builder_orders_receipt_one_kind');
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000000c9', false);
+set role authenticated;
+do $$ begin perform public.mall_builder_cash_receipt_request('00000000-0000-0000-0000-0000000000e6','PHONE','01012345678'); raise notice 'S3 1단계 뒤 유저 신청 통과됨(문제)'; exception when others then raise notice 'S3 1단계 뒤 유저 신청 막힘: %', sqlerrm; end $$;
+select 'S4', public.mall_builder_cash_receipt_recheck('00000000-0000-0000-0000-0000000000e5') ->> 'status';
+reset role;
+select 'S5 posts total', count(*) from public.fake_cr_log where path = '/v1/cashReceipts';
+```
+
+### 8-5. `count.sql`
+```sql
+select 'CNT', (select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where (n.nspname='public' and p.proname like 'mall\_builder\_cash\_receipt%') or (n.nspname='mall_builder_private' and (p.proname like 'cash\_receipt%' or p.proname in ('orders_cash_receipt_auto','orders_receipt_one_kind')))) fns,
+ (select count(*) from information_schema.columns where table_name='mall_builder_orders' and column_name='cash_receipt') col,
+ (select count(*) from pg_trigger where tgname in ('mall_builder_orders_cash_receipt_auto','mall_builder_orders_receipt_one_kind')) trg,
+ (select count(*) from public.mall_builder_orders) orders;
+```
+
+### 8-5. `orders.sql`
+```sql
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000000c9','b@x.test');
+insert into mall_builder_orders (id, store_id, seq, order_no, user_id, receiver, depositor, status, total, is_card, is_credit) values
+ ('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-00000000005a',91,'K-1','00000000-0000-0000-0000-0000000000c9','{"zip":"1"}','x','paid',33000,false,false),
+ ('00000000-0000-0000-0000-0000000000d2','00000000-0000-0000-0000-00000000005a',92,'K-2','00000000-0000-0000-0000-0000000000c9','{"zip":"1"}','x','delivered',11000,true,false);
+```
+
+### 8-6. 세션 이름 구분 기록
+- 대상 커밋 `355193d75`·`49d3eab46`·`d0aec875e`·`588eaf71c`의 `AIMaster-Session: claude-win-20261025-workspace`는 2026-11-12 쇼핑몰 담당 인계 때 같은 세션 이름이 B2B(mall-builder) 역할에도 쓰인 데서 온 것. 구분 별칭: **이 결과의 작성자 = Workspace 역할 `CC-WORKSPACE-01`**, 대상 코드 작성자 = B2B 역할(`CC-B2B-BACK-01` 계열). 이 독립 검증은 Workspace 역할이 그 코드를 **처음 열람**해 수행한 것으로 이력 보존. `.ai/TEAM.md` 별칭 등록은 Master 전용이라 손대지 않음.
