@@ -1,22 +1,22 @@
 # AI 협업팀 등록부
 
-최종 갱신: 2026-11-16 KST. 총괄 `CX-MASTER-01`만 공식 배정·연결 상태를 갱신한다. 프로그램별 상세 현황은 기존 `docs/roles/`와 [총괄 플랜](../docs/MASTER_DEVELOPMENT_PLAN_20261116.md)을 사용한다.
+최종 갱신: 2026-11-17 KST. 총괄 `CX-MASTER-01`만 공식 배정·연결 상태를 갱신한다. 프로그램별 상세 현황은 기존 `docs/roles/`와 [총괄 플랜](../docs/MASTER_DEVELOPMENT_PLAN_20261116.md)을 사용한다.
 
 ## 사용자 확정 조직과 실제 연결
 
 | 사용자 호칭 | 팀 ID | 기존 역할 ID | 실제 세션·장비 | 연결 상태 | 현재 작업 |
 |---|---|---|---|---|---|
 | Codex(Master) | CX-MASTER-01 | codex-master | codex-win-20261116-auto-team · GT1_Mega | busy · 현재 세션 | OPS-20261116-002 결과 검토·파일 범위 조정·다음 지휘 |
-| Codex(Tester) | CX-QA-01 | mac-mini | codex-mac-20261116-tester-role · 대화01a1c5a4-68b7-7c51-b919-9bc56cd17af5 · MacMini | busy · 원격 ACK/공유문서 읽기 확인 | QA03 PASS·Mac 인덱스 재확인 정상, 다음검수 대기 |
-| Antigravity | AG-UI-01 | design | agy-win-hero-copy · GT1_Mega | available · 실제 ACK/보고 회수 | DES03 온보딩검토 전달대기열, 수락 미확인 |
-| Claude(Movie) | CC-MOVIE-01 | video | claude-win-video · aimaster-57 · GT1_Mega | busy · 실제 식별/결과 회수 | v1.33 Ready 보고 검토완료, 실제수신왕복 미검수 |
-| Claude(Music) | CC-MUSIC-01 | music | claude-win-20261024-music · GT1_Mega | available · 실제 보고 회수 | MUS04 WS05 독립15시험 검토 완료 |
-| Claude(ecommerce) | CC-ECOM-01 | ecommerce-image | claude-win-sdp · GT1_Mega | available · 실제 보고 회수 | ECOM05 INSTA권한 정적검토 완료 / 바나나 실화면 환경차단 |
-| Claude(B2BFront) | CC-B2B-FRONT-01 | mall-design-builder | claude-win-20261114-mall-design · aimaster-64 · GT1_Mega | available · FRONT-04 검토 완료 | FRONT06 timesale dark/rose 두테마 가독성 보완 중 |
-| Claude(B2BBackend) | CC-B2B-BACK-01 | mall-builder | claude-win-20261025-workspace · GT1_Mega | available · 복구 결과 수락 | 3210 전용터미널 복구 확인 / DEC002 운영승인 대기 |
-| Claude(RealEstate) | CC-REALTY-01 | realty | claude-win-20261024-realty · aimaster-73 · GT1_Mega | available · 실제 보고 회수 | v1.45/v1.61 Ready 근거검토완료, 카카오/뉴스실물 별도 |
-| Claude(Workspace) | CC-WORKSPACE-01 | workspace | aimaster-46 · session dea6e4f6-37c0-4be8-ad50-8746e0f1c517 · GT1_Mega | busy · 실제 식별/구현결과 회수 | v1.52 운영·WS05 독립15시험 통과·보강코드 미배포 |
-| Claude(Blog) | CC-BLOG-01 | blog | claude-win-blog · aimaster-92 · GT1_Mega | available · 실제 보고 회수 | BLOG03 v1.07 치환 독립검토 완료·설치 미검수 |
+| Codex(Tester) | CX-QA-01 | mac-mini | codex-mac-20261116-tester-role · 대화01a1c5a4-68b7-7c51-b919-9bc56cd17af5 · MacMini | busy · QA003/004 결과반환 | 독립검수 총괄·RE격리/0102 P1·E1중복 보완재검수, Mac빌드/배포금지 |
+| Antigravity | AG-UI-01 | design | agy-win-hero-copy · GT1_Mega | 결과반환·보완지시전달 | DES17-02 시안145/146/147·12뷰·독립뷰어보완, 제품미반영/주인님선택 |
+| Claude(Movie) | CC-MOVIE-01 | video | claude-win-video · aimaster-57 · GT1_Mega | 배정전달·착수/결과는작업판참조 | MOV17-05 UI2건검토완료, MOV17-06 Workspace묶음독립검토 |
+| Claude(Music) | CC-MUSIC-01 | music | claude-win-20261024-music · GT1_Mega | 코드완료·점유충돌정리대기 | MUS17-01 취소안내 독립PASS·미배포묶음, 공용점유표타인4줄삭제미접촉 |
+| Claude(ecommerce) | CC-ECOM-01 | ecommerce-image | claude-win-sdp · GT1_Mega | 배포완료보고수락 | 상세1.47·바나나1.49/실저장왕복·쇼핑제휴1.89 완료; 실네이버확장미검수 |
+| Claude(B2BFront) | CC-B2B-FRONT-01 | mall-design-builder | claude-win-20261114-mall-design · aimaster-64 · GT1_Mega | 결과반환·코드편집종료보고 | FRONT17-01 Tab76/선택fallback보완·미배포묶음, 추가배포없음 |
+| Claude(B2BBackend) | CC-B2B-BACK-01 | mall-builder | claude-win-20261025-workspace · GT1_Mega | QA P1 수정계획 수락 | 0102 배송7일/반품경합 수정·메인격리실행, Lab0102/운영/UI 보류 |
+| Claude(RealEstate) | CC-REALTY-01 | realty | claude-win-20261024-realty · aimaster-73 · GT1_Mega | VM재현·격리수정 배정 | RE17-04 계정전환결과격리·세대검사 우선, 실제수집0 |
+| Claude(Workspace) | CC-WORKSPACE-01 | workspace | aimaster-46 · session dea6e4f6-37c0-4be8-ad50-8746e0f1c517 · GT1_Mega | E1 보완·WS10 검수대기 | E1 notify_me 영속CAS 수정→Mac, E2-7-1 국소허용·디자인선택전구조유지 |
+| Claude(Blog) | CC-BLOG-01 | blog | claude-win-blog · aimaster-92 · GT1_Mega | 결과반환·점유없음보고 | BLOG17-01 운영메타/미배포표 정정완료, T12미정·키트전담미침범 |
 | Claude(Support) | CC-SUPPORT-01 | support · policy | claude-win-20261112-policy · term_e4de9dda · GT1_Mega | busy · 사용자 전담 / Master 배정제외 | 사용자와 키트설치 전담. 타업무/독립검토대응 배정금지(사용자직접지시) |
 
 `CC-ENG-01`은 Claude 공통 역할 지침의 예시 ID이며 모든 Claude 세션을 합치는 ID가 아니다. 위 세부 팀 ID가 실제 배정 단위다. 호칭 표기의 Claud/Claude 차이는 같은 사용자 지정 호칭의 표기 차이이며 별도 세션으로 세지 않는다.
