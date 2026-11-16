@@ -15,8 +15,8 @@
 | `apply.sql` | 한 트랜잭션: 사전 점검 → **0102 원문 그대로** → 적용 기록(version UTC 14자리, name `mall_builder_0102_exchanges`) | 씀 | `633450bea1c5d05df2fbb352c18819c7acf0f9923aa281031b847aae266a5b11` |
 | `fixture.sql` | 한 트랜잭션: 합성 시험 자료(아래) | 씀 | `e23ce90ffa8301881ce05dd3ac7a24d7cd60bf27dc14f006b1b08f7328bcd409` |
 | `verify.sql` | 적용·자료 확인 13줄 + 「전체」 — 값이 비면 「(없음)」= 불일치, 줄 수 13·일치 13일 때만 OK | 읽기만 | `ce0823cac6c73ce02b87e3c83b42bdaa138c6062fcc47a7d04a1359a84d5fcde` |
-| `rollback.sql` | 한 트랜잭션: 시험 자료 → 트리거 → 함수 11개 → 교환 표 → 기록 | 씀 | `cba401783a12ef14d5534f18cbf1552ac22cdb9840ae61109fc636f6cd834891` |
-| `check-local.mjs` | 위 순서를 로컬 qa_ DB에서 끝까지 돌려 판정(일반 회원 권한 실제 읽기 포함) | 로컬만 | `c0aca8ea44224fc6d4da329bd8d36a6b13cf8a06b7b484fb2aae2e484b8d7a03` |
+| `rollback.sql` | 한 트랜잭션: 시험 자료 → 트리거 → 함수 11개 → 교환 표 → 기록 | 씀 | `e240a6651fbf518ce913f1b644d29f7bfb2753f5ef15df43880ca13d9f938a6b` |
+| `check-local.mjs` | 위 순서를 로컬 qa_ DB에서 끝까지 돌려 판정(일반 회원 권한 실제 읽기 포함) | 로컬만 | `40659fca92ab22e86ad7f3d74a7cc56db3f2f6676b3ea5dbe95e03a7d6f15617` |
 | `build.mjs` | apply.sql 생성(원문 그대로 삽입) | — | `54305cc4f5e576e7c319287c002140bc316a6852bf8ec29c15ce741f85e488c6` |
 - apply.sql 안 원문 = `supabase/migrations/0102_exchanges.sql` LF sha256 `14780f43e6c5daf5bf9ce14736e1c757596828c2c0a522fc9b39355adb8a33e1`(커밋 `a86c53dc1`). 원문 앞 사전 점검: 교환 표·0102 기록이 이미 있으면 [멈춤], 0101 기록·몰 aimaster-b2b가 없으면 [멈춤](Lab이 아닐 가능성).
 
@@ -51,3 +51,8 @@
 4. 시험 상품 하나가 빠지면 verify 「전체 11/13 확인 필요」(실제 상태에서 빨강을 잡음)
 5. 두 번째 apply·fixture [멈춤] → 시험 회원 교환 신청(3000/waiting) → EXQA-2 유저 막힘(7일)
 6. rollback → 표·함수·트리거·기록·시험 자료 0, 기존 주문 그대로 → precheck 다시 10/10
+
+## 2026-11-17 실행 뒤 보완 — 리셀러 장부(되돌리기 결함 수정)
+- Lab 실행 뒤 발견: 시험 회원의 추천 리셀러(OWNER1)가 주문 insert 때 자동으로 붙어(`mall_builder_orders_ref`) EXQA-2 자동 구매 확정 때 리워드 1건·리셀러 정산 장부 1줄(+500)이 생김. 장부의 order_id는 ON DELETE SET NULL이라 예전 rollback(cba40178)은 장부를 남김.
+- rollback.sql: 주문 삭제 **전에** 시험 주문의 리셀러 장부 줄을 지우는 줄 추가(리워드는 주문 삭제로 CASCADE). 새 sha256 위 표.
+- check-local: Lab과 같은 추천 리셀러 조건 추가 → 재현(장부·리워드 생김)·빨강(예전 되돌리기는 장부 남김)·초록(고친 되돌리기 뒤 0/0) 포함 **21/21**.

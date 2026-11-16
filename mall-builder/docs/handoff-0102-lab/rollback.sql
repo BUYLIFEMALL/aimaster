@@ -15,6 +15,9 @@ do $fx$ begin
     delete from public.mall_builder_exchanges where order_id in ('e0102000-0000-4000-8000-000000000031','e0102000-0000-4000-8000-000000000032');
   end if;
 end $fx$;
+-- 리셀러 정산 장부는 주문 삭제 때 order_id만 비워지고 남으므로(ON DELETE SET NULL) 주문보다 먼저 시험 주문 줄만 지운다
+-- (시험 회원 추천 리셀러가 주문에 자동으로 붙어 구매 확정 때 리워드·장부가 생김 — 2026-11-17 발견). 리워드 표는 주문 삭제로 함께 지워짐(CASCADE)
+delete from public.mall_builder_reseller_ledger where order_id in ('e0102000-0000-4000-8000-000000000031','e0102000-0000-4000-8000-000000000032');
 delete from public.mall_builder_orders where id in ('e0102000-0000-4000-8000-000000000031','e0102000-0000-4000-8000-000000000032');
 delete from public.mall_builder_product_variants where id in ('e0102000-0000-4000-8000-000000000021','e0102000-0000-4000-8000-000000000022','e0102000-0000-4000-8000-000000000023');
 delete from public.mall_builder_products where id in ('e0102000-0000-4000-8000-000000000011','e0102000-0000-4000-8000-000000000012');

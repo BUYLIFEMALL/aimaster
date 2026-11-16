@@ -19,6 +19,7 @@ const stub = rd(join(MB, "scripts", "check-prod-bundle-local.mjs")).match(/const
 const supa = "alter default privileges in schema public grant execute on functions to anon, authenticated; alter default privileges in schema public grant all on tables to anon, authenticated;";
 const ADMIN = "00000000-0000-0000-0000-0000000000a1", TEST = "6fbce7f8-b54e-462e-8e4b-4391b2603f65";
 const CONS = "00000000-0000-0000-0000-0000000000c5", OTHER = "00000000-0000-0000-0000-0000000000b9", OTHER_P = "00000000-0000-0000-0000-0000000000b8";
+const RS = "f2b49b07-7682-431f-bada-a99c8bc27956", RS_USER = "00000000-0000-0000-0000-0000000000e5", RS_CUST = "00000000-0000-0000-0000-0000000000e6";
 const labLike = `create schema if not exists supabase_migrations;
 create table if not exists supabase_migrations.schema_migrations (version text primary key, statements text[], name text, created_by text, idempotency_key text, rollback text[]);
 insert into auth.users (id, email) values ('${ADMIN}','admin@x.test'),('${TEST}','test@x.test');
@@ -32,6 +33,11 @@ update mall_builder_store_customers set approval_status = 'approved', member_sta
 insert into auth.users (id, email) values ('${CONS}','cons@x.test');
 insert into public.profiles (id, email) values ('${CONS}','cons@x.test');
 insert into mall_builder_store_customers (store_id, user_id, name, phone) values ('0489b458-d71b-4268-9b5f-94fd7da50382','${CONS}','소비자','010-0000-0001');
+-- Lab과 같게: 시험 회원의 추천 리셀러(code OWNER1) — 주문 insert 때 orders_ref가 주문에 붙이고, 구매 확정 때 리워드·장부가 생김(2026-11-17 Lab 발견)
+insert into auth.users (id, email) values ('${RS_USER}','rs@x.test'); insert into public.profiles (id, email) values ('${RS_USER}','rs@x.test');
+insert into mall_builder_store_customers (id, store_id, user_id, name, phone) values ('${RS_CUST}','0489b458-d71b-4268-9b5f-94fd7da50382','${RS_USER}','리셀러','010-0000-0002');
+insert into mall_builder_resellers (id, store_id, customer_id, code, rate, active) values ('${RS}','0489b458-d71b-4268-9b5f-94fd7da50382','${RS_CUST}','OWNER1',5,true);
+update mall_builder_store_customers set reseller_id = '${RS}' where store_id = '0489b458-d71b-4268-9b5f-94fd7da50382' and user_id = '${TEST}';
 insert into mall_builder_stores (id, name, owner_id, slug) values ('${OTHER}','다른몰','${ADMIN}','other-mall');
 insert into mall_builder_products (id, store_id, name, base_price, status, visibility) values ('${OTHER_P}','${OTHER}','다른몰 상품',1000,'on_sale','business_only');
 insert into mall_builder_product_variants (product_id, store_id, key, "values", stock) values ('${OTHER_P}','${OTHER}','A','["A"]',1),('${OTHER_P}','${OTHER}','B','["B"]',1);
@@ -90,7 +96,18 @@ r = psql(`select set_config('request.jwt.claim.sub','${TEST}', false); select pu
 ok("시험 회원 교환 신청 됨(교환비 3,000원 대기)", r.status === 0 && psql("select fee || '/' || fee_status from mall_builder_exchanges;").stdout.trim() === "3000/waiting", r.stderr.slice(-200));
 r = psql(`select set_config('request.jwt.claim.sub','${TEST}', false); select public.mall_builder_request_exchange('e0102000-0000-4000-8000-000000000043', 1, 'e0102000-0000-4000-8000-000000000022', 'size');`);
 ok("10일 지난 EXQA-2는 유저 신청 막힘", r.status !== 0 && /7일/.test(r.stderr), r.stderr.slice(-200));
+// Lab 발견 재현: 시험 주문에 리셀러가 붙었는지, EXQA-2 구매 확정(자동 확정 흉내) 뒤 리워드·장부가 생기는지
+const rsInfo = psql(`select count(*) from mall_builder_orders where id::text like 'e0102000%' and reseller_id = '${RS}';`).stdout.trim();
+psql(`update mall_builder_orders set status = 'confirmed' where id = 'e0102000-0000-4000-8000-000000000032';`);
+const led = () => psql(`select (select count(*) from mall_builder_reseller_ledger where reseller_id = '${RS}') || '/' || (select count(*) from mall_builder_reseller_rewards where reseller_id = '${RS}');`).stdout.trim();
+const beforeRb = led();
+ok("Lab 재현: 시험 주문 2건에 추천 리셀러가 붙고 EXQA-2 구매 확정 뒤 장부·리워드 생김", rsInfo === "2" && beforeRb !== "0/0", `리셀러 붙은 주문 ${rsInfo} · 장부/리워드 ${beforeRb}`);
+// 빨강: 고치기 전 되돌리기(git HEAD~ 버전, 장부 줄 삭제 없음)는 장부를 order_id 빈 채 남김 — 트랜잭션 안에서 실행 뒤 되돌림(상태 보존)
+const oldRb = execFileSync("git", ["-C", MB, "show", "41715a3dc:mall-builder/docs/handoff-0102-lab/rollback.sql"], { encoding: "utf8" }).replace(/\r\n/g, "\n").replace(/^begin;$/m, "").replace(/^commit;$/m, "");
+r = psql(`begin;\n${oldRb}\nselect 'LEFT=' || (select count(*) from mall_builder_reseller_ledger where reseller_id = '${RS}' and order_id is null);\nrollback;`);
+ok("빨강: 고치기 전 되돌리기(41715a3dc)는 리셀러 장부를 주문 번호 빈 채 남김", /LEFT=[1-9]/.test(r.stdout), r.stdout.slice(-200) + r.stderr.slice(-200));
 r = psql(H("rollback.sql")); ok("rollback 성공", r.status === 0, r.stderr.slice(-300));
+ok("되돌린 뒤 리셀러 장부·리워드 0(시험 주문 것만 지움, 남은 것 없음)", led() === "0/0", led());
 const left = psql(`select (to_regclass('public.mall_builder_exchanges') is null)::text || '/' ||
   (select count(*) from pg_proc where proname in ('mall_builder_request_exchange','mall_builder_exchange_step','mall_builder_exchange_fee','mall_builder_exchange_fee_paid','delivered_at','variant_label','exchange_event','exchange_stock','lock_exchange','exchange_order_delivered','orders_exchange_guard')) || '/' ||
   (select count(*) from pg_trigger where tgname = 'mall_builder_orders_exchange_guard') || '/' ||
