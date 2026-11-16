@@ -25,6 +25,10 @@ create table if not exists public.mall_builder_exchanges (
   fee bigint not null default 0 check (fee between 0 and 10000000),
   fee_status text not null default 'none' check (fee_status in ('none', 'waiting', 'paid')),
   fee_paid_at timestamptz,
+  -- 접수 때 기록하는 옵션 분류(QA-20261117-004 P2): 원래 주문 줄 증거(옵션 번호·옵션 글자)와 바꿀 옵션 선택 — 지금 옵션이 남아 있는지에 기대지 않음
+  from_option_based boolean not null default false,
+  to_option_based boolean not null default false,
+  -- 실제로 재고가 바뀌었을 때만 true(재고 관리 안 하는 상품·옵션 삭제·옵션 분류 바뀜으로 건너뛰면 false, 이유는 주문 이력에). 두 번 처리 방지는 단계 검사가 맡음
   restocked boolean not null default false,
   reship_deducted boolean not null default false,
   reject_note text not null default '' check (char_length(reject_note) <= 300),
@@ -77,7 +81,7 @@ create or replace function public.mall_builder_request_exchange(p_item_id uuid, 
 returns uuid language plpgsql security definer set search_path = '' as $$
 declare
   i public.mall_builder_order_items%rowtype; o public.mall_builder_orders%rowtype;
-  v_role text; v_used integer; v_has_opt boolean; v_fee bigint := 0; v_id uuid; v_delivered timestamptz;
+  v_role text; v_used integer; v_from_opt boolean; v_cur_opt boolean; v_fee bigint := 0; v_id uuid; v_delivered timestamptz;
 begin
   if auth.uid() is null then raise exception '로그인이 필요합니다.'; end if;
   select * into i from public.mall_builder_order_items where id = p_item_id;
@@ -104,13 +108,16 @@ begin
     raise exception '이 상품은 이미 교환이 진행 중입니다.';
   end if;
 
-  v_has_opt := exists (select 1 from public.mall_builder_product_variants v where v.product_id = i.product_id);
-  if v_has_opt then
+  -- 원래 옵션 상품인지는 주문 줄 증거로(옵션이 지워져 번호가 비어도 옵션 글자가 남음). 지금 옵션 유무는 고를 옵션이 있는지만 본다
+  v_from_opt := i.variant_id is not null or coalesce(i.option_snapshot, '') <> '';
+  v_cur_opt := exists (select 1 from public.mall_builder_product_variants v where v.product_id = i.product_id);
+  if v_from_opt then
+    if not v_cur_opt then raise exception '이 상품의 옵션이 모두 없어져 바꿀 옵션을 고를 수 없습니다. 쇼핑몰에 문의해 주세요.'; end if;
     if p_to_variant_id is null or not exists (
       select 1 from public.mall_builder_product_variants v where v.id = p_to_variant_id and v.product_id = i.product_id and v.is_active
     ) then raise exception '바꿀 옵션을 골라 주세요(같은 상품의 판매 중인 옵션만).'; end if;
   elsif p_to_variant_id is not null then
-    raise exception '옵션이 없는 상품은 같은 상품으로만 교환합니다.';
+    raise exception '옵션이 없던 상품은 같은 상품으로만 교환합니다.';
   end if;
 
   if p_reason in ('size', 'change_mind', 'other') then
@@ -119,32 +126,34 @@ begin
   end if;
 
   insert into public.mall_builder_exchanges (store_id, order_id, item_id, qty, from_variant_id, to_variant_id, from_option, to_option,
-         reason, memo, requested_by, fee, fee_status, created_by)
-  values (o.store_id, o.id, i.id, p_qty, i.variant_id, case when v_has_opt then p_to_variant_id end,
+         reason, memo, requested_by, fee, fee_status, created_by, from_option_based, to_option_based)
+  values (o.store_id, o.id, i.id, p_qty, i.variant_id, case when v_from_opt then p_to_variant_id end,
           left(coalesce(nullif(i.option_snapshot, ''), mall_builder_private.variant_label(i.variant_id)), 200),
           left(mall_builder_private.variant_label(p_to_variant_id), 200),
-          p_reason, left(btrim(coalesce(p_memo, '')), 300), v_role, v_fee, case when v_fee > 0 then 'waiting' else 'none' end, auth.uid())
+          p_reason, left(btrim(coalesce(p_memo, '')), 300), v_role, v_fee, case when v_fee > 0 then 'waiting' else 'none' end, auth.uid(), v_from_opt, v_from_opt)
   returning id into v_id;
   perform mall_builder_private.exchange_event(o.id, v_role,
-    '교환 접수 · ' || i.name_snapshot || ' ' || p_qty || '개' || case when v_has_opt then ' → ' || mall_builder_private.variant_label(p_to_variant_id) else '' end
+    '교환 접수 · ' || i.name_snapshot || ' ' || p_qty || '개' || case when v_from_opt then ' → ' || mall_builder_private.variant_label(p_to_variant_id) else '' end
     || case when v_fee > 0 then ' · 교환비 ' || v_fee || '원' else '' end);
   return v_id;
 end;
 $$;
 
--- 재고 증감(상품 stock_mode = 'product'일 때만). p_delta > 0 되돌림, < 0 차감(부족하면 오류)
+-- 재고 증감(상품 stock_mode = 'product'일 때만). p_delta > 0 되돌림, < 0 차감(부족하면 오류). 실제로 바꿨으면 true
+-- p_variant_id가 null이면 본체 재고 — 호출하는 쪽이 「옵션 없던 상품이고 지금도 옵션 없음」일 때만 null로 부른다(본체로 대신 처리 금지)
 create or replace function mall_builder_private.exchange_stock(p_product_id uuid, p_variant_id uuid, p_delta integer, p_label text)
-returns void language plpgsql set search_path = '' as $$
+returns boolean language plpgsql set search_path = '' as $$
 declare v_mode text; v_left integer;
 begin
   select p.stock_mode into v_mode from public.mall_builder_products p where p.id = p_product_id for update;
-  if v_mode is distinct from 'product' then return; end if;
+  if v_mode is distinct from 'product' then return false; end if;
   if p_variant_id is not null then
     update public.mall_builder_product_variants v set stock = v.stock + p_delta where v.id = p_variant_id and v.stock + p_delta >= 0 returning v.stock into v_left;
   else
     update public.mall_builder_products p set stock = p.stock + p_delta where p.id = p_product_id and p.stock + p_delta >= 0 returning p.stock into v_left;
   end if;
   if v_left is null and p_delta < 0 then raise exception '「%」 재고가 부족해 재발송할 수 없습니다.', p_label; end if;
+  return v_left is not null;
 end;
 $$;
 revoke all on function mall_builder_private.exchange_stock(uuid, uuid, integer, text) from public;
@@ -201,7 +210,8 @@ create trigger mall_builder_orders_exchange_guard before update of status on pub
 -- collecting(회수 송장) → collected(입고·원래 옵션 재고 +) → reshipped(새 송장·새 옵션 재고 −, 교환비 결제 확인 뒤) → done / rejected(회수 완료 전까지)
 create or replace function public.mall_builder_exchange_step(p_exchange_id uuid, p_step text, p_courier text default '', p_tracking text default '', p_note text default '')
 returns text language plpgsql security definer set search_path = '' as $$
-declare x public.mall_builder_exchanges%rowtype; i public.mall_builder_order_items%rowtype; v_note text;
+declare x public.mall_builder_exchanges%rowtype; i public.mall_builder_order_items%rowtype; v_note text; v_applied boolean := false; v_skip text := '';
+        v_cur_opt boolean;
 begin
   if auth.uid() is null then raise exception '로그인이 필요합니다.'; end if;
   x := mall_builder_private.lock_exchange(p_exchange_id);
@@ -217,27 +227,33 @@ begin
     v_note := '교환 회수 중 · ' || btrim(p_courier) || ' ' || btrim(p_tracking);
   elsif p_step = 'collected' then
     if x.step not in ('requested', 'collecting') then raise exception '회수 전 단계의 교환만 입고 처리할 수 있습니다.'; end if;
-    if not x.restocked then
-      perform mall_builder_private.exchange_stock(i.product_id, x.from_variant_id, x.qty, i.name_snapshot);
+    -- 원래 옵션 재고로만 되돌림. 원래 옵션이 지워졌거나 옵션 분류가 바뀌었으면 재고를 바꾸지 않고(본체로 대신 처리 금지) 입고는 진행
+    v_cur_opt := exists (select 1 from public.mall_builder_product_variants v where v.product_id = i.product_id);
+    if x.from_option_based then
+      if x.from_variant_id is null then v_skip := '원래 옵션이 삭제되어 재고는 되돌리지 않음';
+      else v_applied := mall_builder_private.exchange_stock(i.product_id, x.from_variant_id, x.qty, i.name_snapshot); end if;
+    elsif v_cur_opt then v_skip := '옵션 없던 상품에 옵션이 생겨 재고는 되돌리지 않음';
+    else v_applied := mall_builder_private.exchange_stock(i.product_id, null, x.qty, i.name_snapshot);
     end if;
-    update public.mall_builder_exchanges set step = 'collected', restocked = true, updated_at = now() where id = x.id;
-    v_note := '교환 회수 완료(입고) · ' || i.name_snapshot || ' ' || x.qty || '개';
+    update public.mall_builder_exchanges set step = 'collected', restocked = v_applied, updated_at = now() where id = x.id;
+    v_note := '교환 회수 완료(입고) · ' || i.name_snapshot || ' ' || x.qty || '개' || case when v_skip <> '' then ' · ' || v_skip else '' end;
   elsif p_step = 'reshipped' then
     if x.step <> 'collected' then raise exception '회수 완료된 교환만 재발송할 수 있습니다.'; end if;
     if x.fee > 0 and x.fee_status <> 'paid' then raise exception '교환비(%원) 결제가 확인되지 않아 재발송할 수 없습니다.', x.fee; end if;
     if char_length(btrim(coalesce(p_courier, ''))) not between 1 and 30 or char_length(btrim(coalesce(p_tracking, ''))) not between 1 and 40 then
       raise exception '재발송 택배사와 송장 번호를 넣어 주세요.';
     end if;
-    -- 바꿀 옵션이 삭제되면 to_variant_id가 비워진다 → 원래 옵션 재고를 대신 빼지 않도록 막음(QA-20261117-004)
-    if x.to_variant_id is null and exists (select 1 from public.mall_builder_product_variants v where v.product_id = i.product_id) then
-      raise exception '바꿀 옵션이 삭제되어 재발송할 수 없습니다. 교환을 거절하거나 고객과 다시 정해 주세요.';
+    -- 바꿀 옵션 재고에서만 뺀다. 옵션 상품인데 바꿀 옵션이 지워졌으면 무엇을 보낼지 몰라 막음(QA-20261117-004).
+    -- 옵션 없던 상품에 옵션이 생겼으면 재고를 바꾸지 않고(본체로 대신 처리 금지) 발송은 진행
+    v_cur_opt := exists (select 1 from public.mall_builder_product_variants v where v.product_id = i.product_id);
+    if x.to_option_based then
+      if x.to_variant_id is null then raise exception '바꿀 옵션이 삭제되어 재발송할 수 없습니다. 교환을 거절하거나 고객과 다시 정해 주세요.'; end if;
+      v_applied := mall_builder_private.exchange_stock(i.product_id, x.to_variant_id, -x.qty, i.name_snapshot || coalesce(' ' || nullif(x.to_option, ''), ''));
+    elsif v_cur_opt then v_skip := '옵션 없던 상품에 옵션이 생겨 재고는 빼지 않음';
+    else v_applied := mall_builder_private.exchange_stock(i.product_id, null, -x.qty, i.name_snapshot);
     end if;
-    if not x.reship_deducted then
-      perform mall_builder_private.exchange_stock(i.product_id, coalesce(x.to_variant_id, x.from_variant_id), -x.qty,
-        i.name_snapshot || coalesce(' ' || nullif(x.to_option, ''), ''));
-    end if;
-    update public.mall_builder_exchanges set step = 'reshipped', reship_deducted = true, reship_courier = btrim(p_courier), reship_tracking = btrim(p_tracking), updated_at = now() where id = x.id;
-    v_note := '교환 재발송 · ' || btrim(p_courier) || ' ' || btrim(p_tracking);
+    update public.mall_builder_exchanges set step = 'reshipped', reship_deducted = v_applied, reship_courier = btrim(p_courier), reship_tracking = btrim(p_tracking), updated_at = now() where id = x.id;
+    v_note := '교환 재발송 · ' || btrim(p_courier) || ' ' || btrim(p_tracking) || case when v_skip <> '' then ' · ' || v_skip else '' end;
   elsif p_step = 'done' then
     if x.step <> 'reshipped' then raise exception '재발송한 교환만 완료할 수 있습니다.'; end if;
     update public.mall_builder_exchanges set step = 'done', updated_at = now() where id = x.id;

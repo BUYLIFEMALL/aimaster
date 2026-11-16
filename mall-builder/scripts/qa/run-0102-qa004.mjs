@@ -180,6 +180,81 @@ insert into mall_builder_order_events (order_id, from_status, to_status, actor_r
   check("A17 옵션 없는 정상 상품은 재발송 됨(일괄 차단 아님)", r17.ok, r17.err);
 }
 
+// A18~A23(QA004 P2 경계): 옵션 분류는 주문 줄 증거(옵션 번호·옵션 글자)로, 애매하면 재고를 바꾸지 않음(본체로 대신 처리 금지)
+{
+  let seq = 400; const mk = (opts) => {
+    // opts: { pid, stockMode, bodyStock, variants: [[vid, key, stock]], line: { vid|null, snap } }
+    const o = id(0xf00 + seq), it = id(0x3000 + seq); seq++;
+    run(`insert into mall_builder_orders (id, store_id, seq, order_no, user_id, receiver, depositor, status, total, is_card, is_credit) values ('${o}','${STORE}',${seq + 100},'Z-${seq}','${U1}','{"name":"받는분","phone":"010-1111-0001","zip":"1"}','유저1','delivered',5000,false,false);
+insert into mall_builder_order_items (id, order_id, product_id, variant_id, name_snapshot, option_snapshot, unit_price, qty, line_total) values ('${it}','${o}','${opts.pid}',${opts.line.vid ? `'${opts.line.vid}'` : "null"},'시험상품','${opts.line.snap}',5000,1,5000);
+insert into mall_builder_order_events (order_id, from_status, to_status, actor_role, created_at) values ('${o}','shipping','delivered','staff', now() - interval '1 day');`);
+    return it;
+  };
+  const prod = (pid, body, variants) => run(`insert into mall_builder_products (id, store_id, name, base_price, stock_mode, stock) values ('${pid}','${STORE}','시험상품',5000,'product',${body});`
+    + (variants.length ? `insert into mall_builder_product_variants (id, product_id, store_id, key, "values", stock) values ${variants.map(([v, k, n]) => `('${v}','${pid}','${STORE}','${k}','["${k}"]',${n})`).join(",")};` : ""));
+  const body = (pid) => Number(val(`select stock from mall_builder_products where id = '${pid}';`));
+  const vstock = (v) => Number(val(`select stock from mall_builder_product_variants where id = '${v}';`));
+  const exi = (it) => `(select id from mall_builder_exchanges where item_id = '${it}')`;
+  const col = (it, c) => val(`select ${c} from mall_builder_exchanges where item_id = '${it}';`);
+  const lastNote = (it) => val(`select note from mall_builder_order_events e join mall_builder_order_items i on i.order_id = e.order_id where i.id = '${it}' order by e.created_at desc, e.id desc limit 1;`);
+
+  // A18 접수 전 옵션 전부 삭제 → 주문 줄 옵션 번호는 비지만 옵션 글자가 남음 → 원래 옵션 상품 → 고를 옵션 없음 = 접수 막힘
+  const p18 = id(0xa18), v18 = id(0xb18);
+  prod(p18, 30, [[v18, "흰", 5]]); const i18 = mk({ pid: p18, line: { vid: v18, snap: "흰" } });
+  run(`delete from mall_builder_product_variants where product_id = '${p18}';`);
+  let r = tryAs(U1, `select public.mall_builder_request_exchange('${i18}', 1, null, 'defect');`);
+  check("A18 접수 전 옵션 전부 삭제 → 접수 막힘(본체로 대신 처리 안 함)", !r.ok && /옵션이 모두 없어져/.test(r.err) && body(p18) === 30, r.ok ? "접수 통과됨" : r.err);
+
+  // A19 회수 전 원래 옵션만 삭제 → 입고 진행·재고 안 바꿈(restocked=false, 이유 기록) → 재발송은 바꿀 옵션 −1
+  const p19 = id(0xa19), v19a = id(0xb19), v19b = id(0xc19);
+  prod(p19, 30, [[v19a, "흰", 5], [v19b, "검", 5]]); const i19 = mk({ pid: p19, line: { vid: v19a, snap: "흰" } });
+  tryAs(U1, `select public.mall_builder_request_exchange('${i19}', 1, '${v19b}', 'defect');`);
+  run(`delete from mall_builder_product_variants where id = '${v19a}';`);
+  const r19 = tryAs(OWNER, `select public.mall_builder_exchange_step(${exi(i19)}, 'collected');`);
+  const note19 = lastNote(i19), rest19 = col(i19, "restocked");
+  const r19b = tryAs(OWNER, `select public.mall_builder_exchange_step(${exi(i19)}, 'reshipped', 'CJ', '19');`);
+  check("A19 회수 전 원래 옵션 삭제 → 입고 됨·본체 그대로·restocked=f·이유 기록, 재발송은 바꿀 옵션 −1",
+    r19.ok && rest19 === "f" && /원래 옵션이 삭제/.test(note19) && body(p19) === 30 && r19b.ok && vstock(v19b) === 4 && col(i19, "reship_deducted") === "t",
+    `${r19.err} ${rest19} ${note19} 본체 ${body(p19)} / ${r19b.err}`);
+
+  // A20 회수 전 옵션 전부 삭제 → 입고 됨·본체 그대로 → 재발송 막힘
+  const p20 = id(0xa20), v20a = id(0xb20), v20b = id(0xc20);
+  prod(p20, 30, [[v20a, "흰", 5], [v20b, "검", 5]]); const i20 = mk({ pid: p20, line: { vid: v20a, snap: "흰" } });
+  tryAs(U1, `select public.mall_builder_request_exchange('${i20}', 1, '${v20b}', 'defect');`);
+  run(`delete from mall_builder_product_variants where product_id = '${p20}';`);
+  const r20 = tryAs(OWNER, `select public.mall_builder_exchange_step(${exi(i20)}, 'collected');`);
+  const r20b = tryAs(OWNER, `select public.mall_builder_exchange_step(${exi(i20)}, 'reshipped', 'CJ', '20');`);
+  check("A20 회수 전 옵션 전부 삭제 → 입고 됨·본체 그대로·restocked=f, 재발송 막힘",
+    r20.ok && col(i20, "restocked") === "f" && !r20b.ok && /바꿀 옵션이 삭제/.test(r20b.err) && body(p20) === 30, `${r20.err} / ${r20b.ok} ${r20b.err} 본체 ${body(p20)}`);
+
+  // A21 옵션 없던 상품에 접수 뒤 옵션 추가 → 입고·재발송 진행, 재고 둘 다 안 바꿈(이유 기록)
+  const p21 = id(0xa21), v21 = id(0xb21);
+  prod(p21, 30, []); const i21 = mk({ pid: p21, line: { vid: null, snap: "" } });
+  const r21a = tryAs(U1, `select public.mall_builder_request_exchange('${i21}', 1, null, 'defect');`);
+  run(`insert into mall_builder_product_variants (id, product_id, store_id, key, "values", stock) values ('${v21}','${p21}','${STORE}','새옵션','["새옵션"]',7);`);
+  const r21b = tryAs(OWNER, `select public.mall_builder_exchange_step(${exi(i21)}, 'collected');`);
+  const r21c = tryAs(OWNER, `select public.mall_builder_exchange_step(${exi(i21)}, 'reshipped', 'CJ', '21');`);
+  check("A21 옵션 없던 상품에 옵션 추가 → 입고·재발송 됨, 본체·새 옵션 재고 그대로, 두 플래그 f, 이유 기록",
+    r21a.ok && r21b.ok && r21c.ok && body(p21) === 30 && vstock(v21) === 7 && col(i21, "restocked") === "f" && col(i21, "reship_deducted") === "f" && /옵션이 생겨/.test(lastNote(i21)),
+    `${r21a.err}|${r21b.err}|${r21c.err} 본체 ${body(p21)} 새옵션 ${vstock(v21)}`);
+
+  // A22 옵션 없던 상품(지금은 옵션 있음)에 바꿀 옵션 지정 → 막힘
+  const p22 = id(0xa22), v22 = id(0xb22);
+  prod(p22, 30, []); const i22 = mk({ pid: p22, line: { vid: null, snap: "" } });
+  run(`insert into mall_builder_product_variants (id, product_id, store_id, key, "values", stock) values ('${v22}','${p22}','${STORE}','새옵션','["새옵션"]',7);`);
+  r = tryAs(U1, `select public.mall_builder_request_exchange('${i22}', 1, '${v22}', 'defect');`);
+  check("A22 옵션 없던 상품에 바꿀 옵션 지정 → 막힘", !r.ok && /같은 상품으로만/.test(r.err), r.ok ? "통과됨" : r.err);
+
+  // A23 옵션 없는 정상 상품(재고 관리) → 본체 +1(회수) −1(재발송), 두 플래그 t
+  const p23 = id(0xa23);
+  prod(p23, 30, []); const i23 = mk({ pid: p23, line: { vid: null, snap: "" } });
+  tryAs(U1, `select public.mall_builder_request_exchange('${i23}', 1, null, 'defect');`);
+  tryAs(OWNER, `select public.mall_builder_exchange_step(${exi(i23)}, 'collected');`);
+  const mid23 = body(p23);
+  const r23 = tryAs(OWNER, `select public.mall_builder_exchange_step(${exi(i23)}, 'reshipped', 'CJ', '23');`);
+  check("A23 옵션 없는 정상 상품 → 본체 30→31→30·두 플래그 t", r23.ok && mid23 === 31 && body(p23) === 30 && col(i23, "restocked") === "t" && col(i23, "reship_deducted") === "t", `${mid23}→${body(p23)} ${r23.err}`);
+}
+
 adm(`drop database if exists ${DB}`);
 console.log(`합계 통과 ${pass} / 실패 ${fail}`);
 process.exit(fail ? 1 : 0);
