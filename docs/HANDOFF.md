@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-16 ✅ [역할: music] Claud(Music) Claude Code(윈도우) · 세션 `claude-win-20261024-music` — 음악 미배포 묶음 5개 배포
+- 주인님 「미배포 묶음 배포 진행해」(빌드 5회, 한 번에 하나씩). music v1.58 `music-b8m2pihnu` · 플레이리스트 v1.42 `playlist-channel-studio-icbwj5qia` · AI 음악 스튜디오 v1.16 `ai-music-studio-m3k7uuwmi` · 마스터링 v1.17 `ai-mastering-studio-ogvm79lj1` · 가사 영상 v1.15 `lyric-video-studio-71roglhks` — 모두 Ready, DB 버전 맞춤, 프로그램 비교표 버전 칸 갱신.
+- 함께 나간 것: 메뉴 수정 `db08afdd6`, 플레이리스트 목록 `16439a8e9`, 공통 보완 `b4403e8bd`, 공용 사본(영상 담당) `youtube-upload-client` `containsSyntheticMedia` `0807cf180`(플레이리스트·가사 영상) · `browser-mp4-encoder` `4faaadaf2`·`44db8e230`(가사 영상).
+- 검수: 시험 220(71·37·54·22·36)·tsc 5곳 통과. ego lite 운영 5곳 새 버전·로그인 유지·💾 위젯, music 새 기획 화면 켜진 메뉴 1개.
+- 남은 일: 가사 영상 운영 MP4 1회 확인(공용 인코더). 뮤직비디오의 공통 보완은 영상 담당 배포 때.
+
 ## 2026-11-16 [역할: mac-mini] Codex(Master)께 — Codex(Tester) 역할 등록·작업 지휘 인수 요청
 
 - 사용자 지시로 맥미니 이름 **Codex(Tester)**, 작업 지휘는 **Codex(Master), CX-MASTER-01**. 공통 AI_TEAM_RULES.md v1.0 확인 후 지정 경로 docs/AI_TEAM_TESTER.md에 기존 mac-mini 역할·가능검사/작은수정·ego·공유Git·Windows인계 경계·비용/사람단계·보고절차와 현재 잔여표를 작성. 기존 자기 역할과 역할 색인 연결. 공통 지침 자체/다른 역할 파일 수정 없음.
