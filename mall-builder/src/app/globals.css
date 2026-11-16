@@ -146,6 +146,8 @@ input[type="submit"] {
 [data-mall-mode="dark"] { color-scheme: dark; }
 [data-mall-mode="dark"] .bg-white { background-color: var(--mall-surface); }
 [data-mall-mode="dark"] .bg-white\/90 { background-color: color-mix(in oklab, var(--mall-surface) 90%, transparent); }
+/* 공통 머리글(shop-frame)·상세 탭·고정 띠의 bg-white/95도 같은 원칙 — 빠지면 흰 바탕에 뒤집힌 밝은 글자(상점 이름 1.02:1, FRONT-20261116-10) */
+[data-mall-mode="dark"] .bg-white\/95 { background-color: color-mix(in oklab, var(--mall-surface) 95%, transparent); }
 [data-mall-mode="dark"] .hover\:bg-white:hover { background-color: var(--mall-surface); }
 [data-mall-mode="dark"] .mall-html a[href] { color: var(--mall-primary-300, #93c5fd); }
 [data-mall-mode="dark"] .mall-html blockquote { color: var(--color-slate-600); border-left-color: var(--color-slate-300); }
