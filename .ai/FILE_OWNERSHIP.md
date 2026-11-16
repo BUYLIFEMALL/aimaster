@@ -14,6 +14,8 @@
 
 ## 현재 조정 범위
 
+TAP-20261117-03 / CC-B2B-BACK-01: WS17-04 독립경합해소수락후v1.89릴리스준비. threads-affiliate-poster version.ts·extension/manifest.json·public/downloads v1.89/latest ZIP·본인IMPROVEMENTS/고유결과만점유. 기존build-extension-archive.mjs직접로컬압축·바이트대조(구v1.88버전ZIP보존). 현재운영1.88/후보1.89분리, SQL정확해시/선행중복검사·실패복구·programs확장metadata변경초안·독립검토/미검수명세. 운영DB/설치/build/deploy/실수집없음. Ecom은바나나담당·TAP해당경로편집금지. 준비검토후Master가빌드1회요청취합.
+
 ECOM17 보완반환: MOV17-02 0e7409bad에서미응답pending중동일결과총3회재전송실재현. Ecom은동일ProductBatchBoard/saveTracker/관련시험범위로pending도불확실취급·자동전송차단/명시confirm수동재전송·정확ACK상태해제보완. 원MOV11해결green보존, 실저장/DB/build/deploy없음.
 
 WS-20261117-04 / CC-WORKSPACE-01: TAP17-02 d89f5d2be K2반환수정독립검토. 원K2/G1/G2와save쓰기시점조건/미변경현재상태반환만최소증명, qa_tap_ws_고유격리DB·본인결과만. 실제PostgREST와SQL재현구분. 제품/운영DB/빌드/배포/전체34검사반복금지.
