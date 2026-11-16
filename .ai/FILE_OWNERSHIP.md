@@ -273,3 +273,8 @@ CC-WORKSPACE-01만 tokens.css·features/shell/Workspace.tsx·Sidebar/sidebar.css
 WS17-15 단독Workspace: CalendarView/calendar.css/dragSession.ts 및 관련시험, 추가 서버api/modules/dbstruct.ts·클라database/actions.ts의 선택 date-only root overrides 확장 허용. 동일collection/space/root·기존열편집권한/스키마date검증·모든검증apply전,복제+날짜applyTransactions1번·실사용데이터/새schema/빌드0.
 B2B17-06 단독Backend: 기존기승인Lab rjjtjakljjxsgjelqgek/aimaster-b2b만 precheck10→apply633450be/fixture e23ce90f→verify ce0823ca 실행지시. 합성EXQA 고정자료만·운영esgxy/0103/실결제발송/빌드0. 메인준비결과뒤Tester체크리스트로실흐름검수·rollback은Master회수후별도지시.
 B2B17-07 0103/qa runner 함수오류catch 보완은mock검수만. SQL전체중단구조는실서비스배포차단잔여,별도커밋prepare intent 상태안 먼저검토·실Toss0.
+
+### 2026-11-17 03:35 KST · 146 S3-S5 및 Lab 상태충돌 처리
+
+Workspace S3~5 제출 calendar/calendar.css·database.css/dbv.css/table.css·page/page.css·app/inbox/inbox.css/InboxBoard.tsx 클래스·guide/guide.css·settings/keys/keys.css/public-pages/page.tsx·receipts/receipts.css/calendar-sync/page.tsx 스타일만 허용. 필요 app/studio-theme.css 공통1개·대상루트클래스 국소,전역html/body/다크/다른페이지/서버데이터동작변경0. 캘린더서버override의엄격한실재날짜검증/관련시험국소보완 우선.
+Lab0102실적용후자동confirmed3일과D4교환7일충돌발견:기존자동확정정상유지·confirmed도실배송7일내접수방향Master확정. 0102기록/본문덮기0·별도후속migration/정확UI·0103조건안 먼저검토,추가Lab쓰기/EXQA강제되돌림/cron변경0.
