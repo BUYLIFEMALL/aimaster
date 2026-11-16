@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 03:31:04 KST",
+  "checkedAt": "2026-11-17 03:35:59 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4030,11 +4030,11 @@
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "title": "교환 접수·단계 UI 구현",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "returned",
       "evidence": "msg_f932bc2350bf / msg_50c4cd5924a5",
-      "next": "UI P2수정독립PASS·실Lab흐름전fixture RLS/verify엄격화패키지반환대기,운영/Lab0102/빌드0",
-      "lastReviewedAt": "2026-11-16T17:57:35.931Z",
+      "next": "Lab실환경자동confirmed 3일과7일교환상태충돌로고객UI/guard조건후속보완필요·기존UI P2정적PASS는보존·실흐름최종검수대기",
+      "lastReviewedAt": "2026-11-16T18:35:52.225Z",
       "sha": "4985bf6ab3574fe915b8af41c26688a47aceefdb"
     },
     {
@@ -4161,7 +4161,7 @@
       "parent_task_id": "DES-20261117-02",
       "owner": "CC-WORKSPACE-01",
       "title": "주인님 선택146 Professional Studio 전면리뉴얼",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "returned",
       "evidence": "S2 load4/route3·전체283/type0 작성자보고 / msg_2566cc17369d",
       "decision": {
@@ -4170,8 +4170,8 @@
         "scope": "메인기준 전체화면 일관스타일 적용·기존기능/회원데이터유지",
         "source": "주인님 직접 채팅 2026-11-17 KST"
       },
-      "next": "S0~2코드반환→QA013정적/모의검수. 로컬3457/login 인증필요·엣지시각미검수·현재서버/탭요건회수중,제한열override시험/다음S3파일계획독립진행",
-      "lastReviewedAt": "2026-11-16T18:31:02.337Z",
+      "next": "S0~2코드반환QA013진행·local3457/PID44944/Edge1553942690 로그인대기. S3~5제출정확CSS/클래스경로승인·동작/다크/240/24/보기명보존·독립스타일계속",
+      "lastReviewedAt": "2026-11-16T18:35:52.225Z",
       "sha": "eb42a03e + d2ef2cad + 21d05794108d8668d27405af039724582645b537",
       "validationPending": {
         "scope": "메인엣지 실제화면",
@@ -4259,12 +4259,12 @@
       "parent_task_id": "B2B-20261117-03",
       "owner": "CC-B2B-BACK-01",
       "title": "Lab0102 안전fixture·실행패키지 준비",
-      "status": "ready",
-      "delivery": "delivered",
+      "status": "running",
+      "delivery": "acknowledged",
       "sha": "186bf278f262d7dc0a8d56f3ced6f0d38a9b14f2",
-      "evidence": "msg_60b403badd68 승인해석보류였음 / msg_830cd0b44924 명확화",
-      "next": "Runquery일반앱확인도기승인Lab실행범위포함·새사람승인대기해제,원공간218/p1 미적용읽기재확인후1회·이미적용이면반복0. 실제사용자제어중이면강탈0",
-      "lastReviewedAt": "2026-11-16T18:31:02.337Z"
+      "evidence": "msg_76c8c1c6b09a / Lab기록20261116183034",
+      "next": "0102/fixture1회성공·verify12/13:EXQA2가3일자동confirmed,실D4 7일정책충돌발견. 기존주문17/알림44/교환0유지·추가쓰기중지·후속상태수정계획/격리검증요청",
+      "lastReviewedAt": "2026-11-16T18:35:52.225Z"
     },
     {
       "task_id": "B2B-20261117-07",
@@ -4288,12 +4288,12 @@
       "parent_task_id": "WS-20261117-13",
       "owner": "CC-WORKSPACE-01",
       "title": "주인님 직접 Alt/Option 달력카드 드래그 복사",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "returned",
       "sha": "ee049e811 + a575d3606b8d903924ce7dce57321a6ebbf52f67",
-      "evidence": "서버원자dateoverride9실DB작성자/전체283/type0·msg_2566cc17369d",
-      "next": "복제+날짜sameapplyTransactions1회·원본보존/검증오류새행0 반환→QA011 원자경계검수. 제한열403실fixture추가요청·실화면인증대기",
-      "lastReviewedAt": "2026-11-16T18:31:02.337Z"
+      "evidence": "QA011 msg_515daaeb9018 / ba23f5a권한11/11",
+      "next": "원자API날짜validator가bad끝/2026-99-99통과P2·strict양끝실재날짜/형식/기간검증수정승인,권한403실DB추가증거수락·새SHA후Mac",
+      "lastReviewedAt": "2026-11-16T18:35:52.225Z"
     },
     {
       "task_id": "QA-20261117-011",
@@ -4302,12 +4302,12 @@
       "parent_task_id": "WS-20261117-15",
       "owner": "CX-QA-01",
       "title": "달력 Alt복사·월구분 기능회귀 독립검수",
-      "status": "ready",
-      "delivery": "delivered",
+      "status": "ready_review",
+      "delivery": "returned",
       "sha": "a575d3606",
-      "evidence": "msg_60a334cc602d / QA17-011",
-      "next": "취소수정독립PASS 유지·새root dateoverride/권한/원자복제실패경계검수,기존취소반복0·실데이터쓰기0",
-      "lastReviewedAt": "2026-11-16T18:31:02.337Z"
+      "evidence": "msg_515daaeb9018 / QA17-011",
+      "next": "원자구조/쓰기권한양호·시작/끝불능날짜통과P2 반환. 취소PASS유지,엄격날짜수정전전체PASS아님",
+      "lastReviewedAt": "2026-11-16T18:35:52.225Z"
     },
     {
       "task_id": "QA-20261117-012",
