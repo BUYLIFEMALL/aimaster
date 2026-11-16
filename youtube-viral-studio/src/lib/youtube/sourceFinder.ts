@@ -130,7 +130,7 @@ export async function findShortsOriginalSource(
         channelId: v.snippet?.channelId || "",
         channelTitle: v.snippet?.channelTitle || "",
         viewCount: parseInt(v.statistics?.viewCount || "0", 10),
-        isShort: parseDuration(v.contentDetails?.duration) <= 60,
+        isShort: (() => { const s = parseDuration(v.contentDetails?.duration); return s > 0 && s <= 180; })(),
         vph: 0,
         vsRatio: 0,
         viralScore: 0,

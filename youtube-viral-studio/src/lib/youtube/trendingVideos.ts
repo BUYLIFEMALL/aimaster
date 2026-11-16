@@ -58,7 +58,7 @@ export async function getTrendingVideos(
       const durationSeconds = parseDuration(durationStr);
       const title = v.snippet?.title || "";
       const description = v.snippet?.description || "";
-      const isShort = durationSeconds <= 180 || isShortsVideo(durationStr, title, description);
+      const isShort = isShortsVideo(durationStr, title, description);
       if (!isShort) continue;
 
       const channelId = v.snippet?.channelId;
@@ -136,7 +136,7 @@ export async function getTrendingVideos(
     const durationSeconds = parseDuration(durationStr);
     const title = item.snippet?.title || "";
     const description = item.snippet?.description || "";
-    const isShort = durationSeconds <= 60 || isShortsVideo(durationStr, title, description);
+    const isShort = isShortsVideo(durationStr, title, description);
 
     // 필터링: 롱폼 탭이면 롱폼만
     if (type === "long" && isShort) continue;

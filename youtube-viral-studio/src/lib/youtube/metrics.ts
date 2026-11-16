@@ -12,17 +12,14 @@ export function parseDuration(durationStr?: string): number {
 }
 
 /**
- * 영상 길이가 60초 이하이면 쇼츠로 판정
+ * 쇼츠 판정 — 길이 1~180초(2024-10 이후 쇼츠 최대 3분). v1.30(2026-11-16 주인님 결정)부터 프로그램 전체 180초로 통일.
+ * 설명란 #shorts 같은 글자로는 판정하지 않는다(롱폼을 쇼츠 표본과 섞지 않도록 — boks-youtube-finder와 같은 기준).
  */
-export function isShortsVideo(durationStr?: string, title?: string, description?: string): boolean {
+export function isShortsVideo(durationStr?: string, _title?: string, _description?: string): boolean {
+  void _title;
+  void _description;
   const seconds = parseDuration(durationStr);
-  if (seconds > 0 && seconds <= 60) return true;
-  // 태그에 #shorts 가 포함된 경우 보조 판정
-  const text = `${title ?? ""} ${description ?? ""}`.toLowerCase();
-  if (text.includes("#shorts") || text.includes("#short")) {
-    return seconds <= 90; // 90초 이내 쇼츠 확장 지원
-  }
-  return false;
+  return seconds > 0 && seconds <= 180;
 }
 
 /**
@@ -63,11 +60,13 @@ export function calculateViralScore(params: {
   subscribers?: number;
   likes?: number;
   publishedAt: string;
+  /** v1.30: 채널 평소 조회수 대비 배수(있으면 구독자 대비 대신 이 값으로 배수 점수를 매긴다) */
+  ratio?: number;
 }): { score: number; badge: "SUPER_VIRAL" | "VIRAL" | "RISING" | "NORMAL" } {
   const { views, subscribers, likes, publishedAt } = params;
   const hours = getHoursSincePublished(publishedAt);
   const vph = calculateVPH(views, publishedAt);
-  const vsRatio = calculateVsRatio(views, subscribers);
+  const vsRatio = typeof params.ratio === "number" ? params.ratio : calculateVsRatio(views, subscribers);
 
   // 1. 배수 점수 (최대 35점): 50배 이상이면 만점
   const ratioScore = Math.min(35, (vsRatio / 50) * 35);

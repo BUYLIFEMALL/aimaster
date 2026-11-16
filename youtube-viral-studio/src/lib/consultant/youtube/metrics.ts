@@ -13,13 +13,11 @@ export function parseDuration(durationStr?: string): number {
 }
 
 /**
- * 쇼츠 판정(YouTube API는 쇼츠 여부를 따로 알려주지 않으므로 추정):
- * 60초 이하이거나, 3분(180초) 이하이면서 제목·설명·태그에 #shorts가 있으면 쇼츠로 본다.
+ * 쇼츠 판정 — 길이 1~180초(2024-10 이후 쇼츠 최대 3분). v1.30(2026-11-16 주인님 결정)부터 프로그램 전체 180초로 통일.
  */
-export function isShortsVideo(durationSeconds: number, text: string): boolean {
-  if (durationSeconds <= 0) return false;
-  if (durationSeconds <= 60) return true;
-  return durationSeconds <= 180 && /#shorts?\b/i.test(text);
+export function isShortsVideo(durationSeconds: number, _text?: string): boolean {
+  void _text;
+  return durationSeconds > 0 && durationSeconds <= 180;
 }
 
 /**

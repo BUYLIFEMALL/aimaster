@@ -132,9 +132,9 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
           )}
         </div>
 
-        {/* 구독자 대비 배수 오버레이 */}
+        {/* 배수 오버레이 — v1.30: 평소 조회수 대비(없으면 구독자 대비) */}
         {video.vsRatio > 0 && (
-          <div className="absolute bottom-2.5 right-2.5 rounded-md bg-slate-950/85 px-2 py-0.5 text-[11px] font-black text-amber-400 backdrop-blur-xs shadow-xs">
+          <div title={video.ratioBasis === "baseline" ? `채널 평소 조회수(최근 같은 형식 영상 중앙값${video.channelBaseline ? ` ${formatNumber(video.channelBaseline)}회` : ""}) 대비` : "구독자 대비"} className="absolute bottom-2.5 right-2.5 rounded-md bg-slate-950/85 px-2 py-0.5 text-[11px] font-black text-amber-400 backdrop-blur-xs shadow-xs">
             {video.vsRatio}배
           </div>
         )}
@@ -171,7 +171,7 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
           <div className="border-x border-slate-800">
             <div className="mb-0.5 flex items-center justify-center gap-0.5 text-[10px] font-semibold text-slate-400">
               <TrendingUp className="h-3 w-3 text-slate-500" />
-              <span>구독대비</span>
+              <span>{video.ratioBasis === "baseline" ? "평소대비" : "구독대비"}</span>
             </div>
             <div className="text-xs font-black text-[#FBBF24]">
               {video.vsRatio > 0 ? `${video.vsRatio}배` : "-"}

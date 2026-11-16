@@ -21,6 +21,10 @@ export interface YouTubeVideoItem {
   vsRatio: number; // View to Subscriber Ratio (구독자 대비 조회수 배수)
   viralScore: number; // 0 ~ 100점
   viralBadge: "SUPER_VIRAL" | "VIRAL" | "RISING" | "NORMAL"; // 초대박 / 대박 / 떡상 / 일반
+  /** v1.30: vsRatio의 근거 — baseline = 채널 평소 조회수(최근 같은 형식 영상 중앙값) 대비, subs = 구독자 대비(평소 조회수를 모를 때) */
+  ratioBasis?: "baseline" | "subs";
+  /** v1.30: 채널 평소 조회수(최근 같은 형식 영상 중앙값) */
+  channelBaseline?: number;
 }
 
 export interface YouTubeChannelItem {

@@ -10,6 +10,7 @@ import {
   Handshake,
   TrendingUp,
   Flame,
+  Telescope,
   Link2,
   Bookmark,
   BarChart3,
@@ -34,6 +35,7 @@ const flow: { href: string; label: string; icon: LucideIcon; step?: string }[] =
   { href: "/creator-finder", label: "협업 크리에이터 찾기", icon: Handshake },
   { href: "/trending-videos", label: "급상승 VPH 매트릭스", icon: TrendingUp, step: "2" },
   { href: "/viral-shorts", label: "쇼츠 떡상 트리거", icon: Flame, step: "3" },
+  { href: "/viral-finder", label: "떡상 시장 탐색", icon: Telescope },
   { href: "/source-finder", label: "영상 출처 추적기", icon: Link2, step: "4" },
   { href: "/favorites", label: "황금 공식 보관함", icon: Bookmark, step: "5" },
 ];

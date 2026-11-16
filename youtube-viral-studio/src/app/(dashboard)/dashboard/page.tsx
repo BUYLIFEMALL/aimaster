@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Sparkles, TrendingUp, Flame, Link2, Bookmark, KeyRound, BookOpen, BarChart3, Search, ArrowRight, ShieldCheck, Zap } from "lucide-react";
+import { Sparkles, TrendingUp, Flame, Link2, Bookmark, KeyRound, BookOpen, BarChart3, Search, ArrowRight, ShieldCheck, Zap, Telescope } from "lucide-react";
 import { requireProgramAccess } from "@/lib/access";
 import { getRegisteredApiKeys } from "@/lib/apiKeys";
 import { FavoriteCounts } from "@/components/dashboard/FavoriteCounts";
@@ -48,6 +48,13 @@ const FEATURES = [
 
 const DIAGNOSE = [
   {
+    href: "/viral-finder",
+    icon: Telescope,
+    title: "떡상 시장 탐색",
+    desc: "채널 평소 조회수(최근 같은 형식 중앙값) 대비 몇 배 터졌는지로 진짜 떡상을 찾고, 시장 진입 기회 지수·제목 키워드·올리기 좋은 요일/시간대를 숫자로 보여줍니다.",
+    metric: "평소 대비 배수 · 기회 지수 · 요일/시간대",
+  },
+  {
     href: "/channel-analysis",
     icon: BarChart3,
     title: "채널 심층 분석",
@@ -58,8 +65,8 @@ const DIAGNOSE = [
     href: "/keyword-analysis",
     icon: Search,
     title: "키워드 점유율 분석",
-    desc: "공략할 키워드의 최근 30일 영상 수·경쟁 강도·최적 게시 요일/시간대를 분석합니다.",
-    metric: "경쟁 강도 · 게시 타이밍",
+    desc: "공략할 키워드의 검색 영상 조회수·좋아요·댓글, 채널 점유율, 영상 연령을 분석합니다(요일/시간대는 「떡상 시장 탐색」).",
+    metric: "채널 점유율 · 인기 점수",
   },
 ];
 

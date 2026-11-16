@@ -76,3 +76,17 @@
 - 넣을 것(본체): 채널 평소 조회수 중앙값 기준 떡상 판정, 관련성·종교 필터, 형식별 버킷 검색, 인기 차트 프리셋, 기회 지수·산점도·제목 키워드 TOP·트렌드 결론(요일·시간대 — 대시보드 문구만 있고 코드 없던 것 해소), 키별 하루 사용량 누적·차단, 근거 수치 기반 AI 기획안.
 - 함께 해결: 쇼츠 길이 기준 60·90·180초 혼재 → 통일 여부 결정. 위 #8(검색 결과 임시 저장)·#9(정렬 토글)와 겹침.
 - 인수인계: [`HANDOFF_20261116_BOKS_FINDER_PORT.md`](HANDOFF_20261116_BOKS_FINDER_PORT.md) · 분석: [`ANALYSIS_20261116_BOKS_YOUTUBE_FINDER.md`](ANALYSIS_20261116_BOKS_YOUTUBE_FINDER.md)
+
+### 2026-11-16 처리 결과 (영상 담당 `video`, 세션 `claude-win-video`) — **미배포 대기(v1.30 예정)**
+- 주인님 결정(채팅 선택): 1단계만 · 평소 대비 중앙값을 기본 배수로 · 쇼츠 180초 통일 · 종교 기본 제외 · DB 표 2개 승인 · AI 기획안은 별도 버튼. 플랜: [`PLAN_20261116_BOKS_FINDER_PORT.md`](PLAN_20261116_BOKS_FINDER_PORT.md)
+- 새 메뉴 「떡상 시장 탐색」(`/viral-finder`): 키워드 검색(형식별 버킷·보충) / 인기 차트 프리셋 6종(검색 횟수 0), 평소 대비 판정, 관련성·언어·종교 거르기와 제외 사유, 기회 지수, 제목 키워드 TOP(누르면 목록 거름), 산점도(SVG), 자동 결론, 요일·시간대·길이·채널 규모·제목 패턴 차트, 태그 TOP 복사, 목록 필터·정렬, 회원 본인 Claude 키 AI 기획안(JSON 검증).
+- 원본 이식: `src/lib/youtube/boks/{core,trends,quota,plan,search}.ts`, 출처 주석 + `NOTICE.md`(MIT). HTTP는 공용 `youtubeData.ts` 경유.
+- 기존 화면: 「쇼츠 떡상 트리거」 배수를 평소 대비로(모르면 구독자 대비, 카드에 「평소대비/구독대비」 표시), 쇼츠 판정 180초 통일(`metrics.ts` 2곳·`trendingVideos.ts`·`viralShorts.ts`·`sourceFinder.ts`), 대시보드 키워드 분석 카드의 「요일/시간대」 문구 정정 + 새 카드.
+- 시험: `node --test tests/boks.test.mjs` 11/11, 기존 시험 합계 62/66(아래 보관함 4건은 원래부터 실패), `tsc` 통과, `npm run build` 통과. 화면: 합성 데이터 검수 장치(`node tests/finder-fixture-serve.mjs`)를 ego lite로 1440·375px 확인 — 가로 넘침 0, 외부 호출 0, 증거 `docs/evidence/v130/`.
+- **남은 것**
+  - DB SQL 적용 대기: `supabase/migrations/20261116120000_yvs_viral_finder_usage_cache.sql`(이 세션에는 운영 DB DDL 도구가 없음). 적용 전에도 화면은 동작하고 사용량 누적·미리 막기·채널 24시간 캐시만 빠짐.
+  - 실제 YouTube 키로 운영 화면 검수(시험 계정 로그인 필요, 검색 1회 약 300~600유닛 + 평소 조회수 50~80유닛), AI 기획안 실호출 1회(가장 저렴한 Claude 모델, 실행 전 승인).
+  - 매뉴얼(`/guide`)에 새 메뉴 설명 추가 — 다음 손볼 때.
+  - `youtubeData.ts` 머리 주석의 기준 프로그램 표기(옛 consultant) 정정 — 고치면 다른 담당 사본 5곳이 함께 바뀌므로 다음 공용 모듈 수정 때 묶어서.
+  - 2·3단계(쇼츠 공식 분석기·사본 4곳 검색 품질, 썸네일·원스톱 연결)는 별도 배정.
+- **발견(다른 세션 몫)**: `tests/favorites.test.mjs` 4건 실패 — 커밋 `0a91cba19`(정책 담당)가 보관함 API에 `isRetentionExempt`(profiles 조회)를 넣었는데 시험의 가짜 DB가 `profiles`를 모름. 시험 가짜 DB에 `profiles` 응답 추가 필요. 정책 담당께.

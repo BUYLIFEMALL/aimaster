@@ -2,8 +2,8 @@
  * 황금(공략) 채널 찾기 공용 계산 엔진 — 2026-10-17 통합(주인님 승인 ①안).
  *
  * ⚠️ 공용 기준 코드(docs/SHARED_MODULES.md, 모듈 id: youtube-golden-engine).
- *   - 기준(여기만 고친다): youtube-channel-consultant/src/lib/youtube/goldenEngine.ts  (「공략 채널 찾기」)
- *   - 사본(직접 고치지 않는다): youtube-viral-studio/src/lib/youtube/goldenEngine.ts (「황금 채널 발굴」)
+ *   - 기준(여기만 고친다): youtube-viral-studio/src/lib/youtube/goldenEngine.ts (「황금 채널 스캐너」) — 2026-10-20 병합 C로 기준 이동
+ *   - 사본: 없음(옛 youtube-channel-consultant는 주소 전달만, scripts/check-shared-modules.mjs 목록 기준)
  *   기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`로 사본에 반영하고, 사본을 쓰는 프로그램도 빌드·배포·버전 +0.01.
  *   기준으로 고른 이유: 조건이 더 많고(기간·길이·국가·검색 깊이), 할당량 계산·구독자 비공개 처리·테스트가 있어 자동화와 결과 품질이 더 낫다.
  * 두 프로그램은 서로를 호출하지 않는다. 각자 회원 본인 YouTube 키로 YouTube에 직접 요청하고,

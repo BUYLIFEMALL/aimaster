@@ -276,7 +276,7 @@ export default function ViralShortsPage() {
                 className="w-full p-2.5 bg-yt-raised border border-yt-border rounded-lg text-yt-text font-medium focus:bg-yt-surface focus:outline-hidden focus:ring-1 focus:ring-yt-red"
               >
                 <option value="viralScore">🚀 떡상 점수순 (기여도 최고)</option>
-                <option value="vsRatio">📈 구독대비 배수순 (소형 대박)</option>
+                <option value="vsRatio">📈 평소·구독 대비 배수순 (소형 대박)</option>
                 <option value="vph">🔥 시간당 속도(VPH)순</option>
                 <option value="viewCount">👀 총 조회수 높은순</option>
                 <option value="date">⏰ 최신 업로드순</option>
@@ -318,7 +318,7 @@ export default function ViralShortsPage() {
         {items.length > 0 && (
           <div className="text-xs text-yt-muted">
             정렬: <span className="font-semibold text-yt-text">
-              {sortBy === "viralScore" ? "떡상 점수순" : sortBy === "vsRatio" ? "구독대비 배수순" : sortBy === "vph" ? "시간당 속도(VPH)순" : "최신순"}
+              {sortBy === "viralScore" ? "떡상 점수순" : sortBy === "vsRatio" ? "평소·구독 대비 배수순" : sortBy === "vph" ? "시간당 속도(VPH)순" : "최신순"}
             </span>
           </div>
         )}

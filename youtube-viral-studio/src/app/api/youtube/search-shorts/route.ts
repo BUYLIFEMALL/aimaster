@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "검색어를 입력해주세요." }, { status: 400 });
     }
 
-    const result = await searchViralShorts(body, apiKey);
+    const result = await searchViralShorts(body, apiKey, user.id);
     return NextResponse.json(result);
   } catch (err: unknown) {
     console.error("search-shorts error:", err);

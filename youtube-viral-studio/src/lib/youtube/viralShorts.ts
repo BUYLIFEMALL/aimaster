@@ -13,11 +13,13 @@ import {
 } from "./metrics";
 import type { ShortsSearchParams, YouTubeVideoItem } from "./types";
 import type { YouTubeSearchItem } from "./types";
+import { FinderContext, baselineRatiosFor, recordUsage } from "./boks/search";
 
 
 export async function searchViralShorts(
   params: ShortsSearchParams,
-  apiKey: string
+  apiKey: string,
+  userId?: string
 ): Promise<{
   items: YouTubeVideoItem[];
   nextPageToken?: string;
@@ -105,7 +107,7 @@ export async function searchViralShorts(
     const description = videoDetail.snippet?.description || "";
 
     // 180초(최신 유튜브 3분 쇼츠 규격) 초과이면 제외
-    const isShort = durationSeconds <= 180 || isShortsVideo(durationStr, title, description);
+    const isShort = isShortsVideo(durationStr, title, description);
     if (!isShort) continue;
 
     const channelId = videoDetail.snippet?.channelId;
@@ -156,6 +158,33 @@ export async function searchViralShorts(
       viralScore,
       viralBadge,
     });
+  }
+
+  // 5-1. v1.30(2026-11-16 주인님 결정): 배수 기준을 「채널 평소 조회수(최근 같은 형식 영상 중앙값)」 대비로 교체.
+  //      평소 조회수를 모르는 채널만 구독자 대비로 둔다. 채널 업로드 통계는 회원별 24시간 캐시(boks-youtube-finder 이식, MIT).
+  for (const v of allParsedVideos) v.ratioBasis = "subs";
+  if (userId && allParsedVideos.length > 0) {
+    const ctx = new FinderContext(userId, apiKey);
+    try {
+      const { ratios } = await baselineRatiosFor(
+        ctx,
+        allParsedVideos.map((v) => ({ id: v.id, channelId: v.channelId, viewCount: v.viewCount, durationSeconds: v.durationSeconds ?? 0 }))
+      );
+      for (const v of allParsedVideos) {
+        const r = ratios.get(v.id);
+        if (!r) continue;
+        v.vsRatio = r.ratio;
+        v.ratioBasis = "baseline";
+        v.channelBaseline = r.median;
+        const s = calculateViralScore({ views: v.viewCount, subscribers: v.channelSubscriberCount, likes: v.likeCount, publishedAt: v.publishedAt, ratio: r.ratio });
+        v.viralScore = s.score;
+        v.viralBadge = s.badge;
+      }
+    } catch {
+      // 평소 조회수 계산이 실패해도 검색 결과는 구독자 대비로 그대로 보여 준다
+    } finally {
+      await recordUsage(ctx);
+    }
   }
 
   // 6. 엄격 필터링 적용 (구독자수 & 조회수)
