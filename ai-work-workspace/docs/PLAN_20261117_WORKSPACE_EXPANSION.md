@@ -133,3 +133,9 @@ E1 독립 검수(QA17-003)와 별개로 계획만. 디자인 3안 선택 전이�
 - 순서: 7-1(외부 자원 0) → 7-3(외부 호출 0) → 7-2(구글 연동). 각 단계 커밋·시험 후 Master 접수, 독립 검수는 QA 배정.
 - 배포: v1.4대로 E1·작은 수정과 묶음. 7-2·7-3은 운영 저장소에 새 표가 생기므로 그 묶음 배포 때 「운영 DB 구조 추가」를 승인 항목으로 명시.
 - 하지 않을 것: 디자인 구조 변경, 새 외부 서비스·공용 OAuth 앱, 유료 호출.
+
+### 7-1 정정과 결과 (2026-11-17, Master `msg_bc05dda4e776`) · 커밋 `3f32871e2d3804aab61df837a10105aaa9f06fd1`
+- **정정 — 기존 기능 조사가 틀렸음**: 7-1 처음 계획의 「커서 위치는 받지만 편집기에는 그리지 않음」은 잘못. `src/litpage/web/features/presence/PresenceLayer.tsx`(`features/page/PageView.tsx` 174줄에서 사용)가 이미 다른 사람의 커서·이름 깃발·선택 영역·**편집 중 블록 옆 얼굴**을 그림. 서버 `src/server/collabPoll.ts`는 15초(`PRESENCE_MS`) 지난 위치 정보를 지우고 돌려주지 않음. → 새 `BlockEditingBadge.tsx`·`Block.tsx` 연결·`presence.ts` 판정 함수·`ui.ts` 시각 기록은 **중복이라 철회**(다른 담당도 새로 만들지 말 것).
+- 실제 구현(축소 범위): `lib/store/sync.ts` — 창 포커스·탭이 다시 보일 때 기존 `pollOnce`를 바로 한 번(`pollNow`, 새 폴링 없음), 요청이 나가 있는 동안 또 불리면 겹쳐 보내지 않고 끝난 뒤 한 번만(`polling`·`pollAgain`), 리스너는 `connectRealtime`(호출처 `lib/store/session.ts` 60)에서 한 번만 등록·`disconnectRealtime`(`session.ts` 88, `features/shell/accounts.tsx` 64·84, `Workspace.tsx` 160)에서 해제, 숨은 탭은 확인 안 함. 기존 얼굴 말풍선 「○○ is editing」을 「○○ · 편집 중 — 잠금이 아니어서 같은 블록을 함께 입력하면 나중에 저장한 내용이 남습니다」로(번역 사전 1줄).
+- 시험 `tests/integration/presenceE2.test.ts` 5개: 수정 전 `sync.ts`로 **5 실패** → 수정 후 5 통과(포커스 즉시 확인 / 복귀 여러 번 → 요청 중 겹침 0·끝난 뒤 1회 / 숨은 탭 0·다시 보이면 1 / 연결 두 번에도 리스너 하나·해제 뒤 0 / 등록·해제 짝). 전체 31파일 250/250, tsc 0. 서버·DB·외부 자원 변경 0.
+- 남은 것: 같은 블록 동시 입력은 지금처럼 나중 저장이 이김(잠금·병합 없음 — A안 범위 밖).
