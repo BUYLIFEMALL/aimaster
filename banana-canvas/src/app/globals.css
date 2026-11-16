@@ -1444,3 +1444,11 @@ button[aria-pressed=true] {
 .ft-layouts button{border:1px solid var(--line-strong);background:#fff;border-radius:8px;padding:7px 4px;font-size:12px;font-weight:800;cursor:pointer;color:inherit}
 .ft-layouts button.on{background:var(--brand);border-color:var(--brand-deep);color:var(--brand-text)}
 @media(max-width:767px){.ft-tabs button{font-size:12px;padding:9px 4px}}
+
+/* 2026-11-16 메이커 M1 대표사진 일괄 합성(ProductBatchBoard) — 좁은 화면에서 열 줄이기(ECOM-20261116-02) */
+.pb-split{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:20px}
+.pb-g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.pb-g6{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+.pb-g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media(max-width:1023px){.pb-split{grid-template-columns:minmax(0,1fr)}.pb-g6{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:767px){.pb-g4{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.pb-g3{grid-template-columns:minmax(0,1fr)}.pb-g6{grid-template-columns:repeat(2,minmax(0,1fr))}}

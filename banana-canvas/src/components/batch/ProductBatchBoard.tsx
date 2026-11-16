@@ -50,6 +50,7 @@ import { ANCHORS, ANCHOR_LABELS, type Anchor } from "@/lib/batch/layout";
 import {
   PRODUCT_MSG_READY,
   PRODUCT_MSG_RESULT,
+  PRODUCT_PHOTO_MAX_BYTES,
   PRODUCT_RESULT_MAX_BYTES,
   productSenderOrigin,
   readProductJob,
@@ -206,8 +207,14 @@ export function ProductBatchBoard() {
 
   // 2. 파일 추가 핸들러
   const addFiles = useCallback((fileList: FileList | File[]) => {
-    const list = Array.from(fileList).filter((f) => f.type.startsWith("image/"));
-    if (!list.length) return;
+    const images = Array.from(fileList).filter((f) => f.type.startsWith("image/"));
+    // 2026-11-16: 사진 한 장 25MB까지(전달로 받는 사진·예전 합성 화면과 같은 기준) — 넘는 파일은 빼고 알림
+    const list = images.filter((f) => f.size <= PRODUCT_PHOTO_MAX_BYTES);
+    const skipped = images.length - list.length;
+    if (!list.length) {
+      if (skipped) setNotice(`⚠️ 25MB를 넘는 사진 ${skipped}개는 넣지 않았습니다. 크기를 줄여 다시 넣어 주세요.`);
+      return;
+    }
 
     setFilesMap((prev) => {
       const next = new Map(prev);
@@ -216,7 +223,10 @@ export function ProductBatchBoard() {
       }
       return next;
     });
-    setNotice(`📥 ${list.length}개의 사진 파일을 추가했습니다.`);
+    setNotice(
+      `📥 ${list.length}개의 사진 파일을 추가했습니다.` +
+        (skipped ? ` (25MB를 넘는 ${skipped}개는 넣지 않았습니다)` : ""),
+    );
   }, []);
 
   // 3. 작업표 텍스트 또는 파일 변경 시 짝짓기 재계산 (연결 모드에서는 건너뜀 - F09 방어)
@@ -762,6 +772,11 @@ export function ProductBatchBoard() {
               <span style={{ fontSize: 13, fontWeight: 800, color: "#78716C", marginLeft: 6 }}>
                 사진 파일 {filesMap.size}개 등록됨 · 작업 행 {jobs.length}건
               </span>
+              {/* 2026-11-16: 실제 제한 그대로 안내(입력 25MB·돌려보내기 10MB, 결과는 움직이지 않는 사진) */}
+              <span style={{ width: "100%", fontSize: 12, fontWeight: 700, color: "#78716C" }}>
+                JPG·PNG·WEBP 사진 한 장 25MB까지 · 결과는 움직이지 않는 {settings.format === "png" ? "PNG" : "JPG"} 한 장 ·
+                상세페이지·쇼핑몰로 돌려보내는 결과는 10MB까지(넘으면 「반환 실패」, ZIP으로 받기)
+              </span>
             </div>
 
             {/* 서브 모드 선택 라디오 */}
@@ -839,7 +854,10 @@ export function ProductBatchBoard() {
                     accept="image/*"
                     hidden
                     onChange={(e) => {
-                      if (e.target.files?.[0]) setCommonSubFile(e.target.files[0]);
+                      const f = e.target.files?.[0];
+                      if (f && f.size > PRODUCT_PHOTO_MAX_BYTES) setNotice("⚠️ 25MB를 넘는 사진은 공용 서브로 쓸 수 없습니다.");
+                      else if (f) setCommonSubFile(f);
+                      e.target.value = "";
                     }}
                   />
                 </label>
@@ -887,6 +905,8 @@ export function ProductBatchBoard() {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 8,
               background: "#FFFBEB",
               border: "1.5px solid #FDE68A",
               borderRadius: 10,
@@ -896,7 +916,7 @@ export function ProductBatchBoard() {
               fontWeight: 800,
             }}
           >
-            <div style={{ display: "flex", gap: 14 }}>
+            <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
               <span style={{ color: "#059669" }}>🟢 합성 가능: {validJobs.length}건</span>
               <span style={{ color: "#D97706" }}>
                 🟠 오류/누락: {jobs.length - validJobs.length}건
@@ -1076,7 +1096,7 @@ export function ProductBatchBoard() {
 
       {/* ================= STEP 2: 합성 규칙 & 미리보기 ================= */}
       {step === 2 && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 420px", gap: 20 }}>
+        <div className="pb-split">
           {/* 좌측: 1000x1000 라이브 캔버스 뷰파인더 */}
           <div
             className="card"
@@ -1111,6 +1131,16 @@ export function ProductBatchBoard() {
               }}
             >
               <div ref={previewCanvasRef} style={{ width: "100%", height: "100%" }} />
+              {!targetJob && (
+                <div
+                  role="status"
+                  style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, textAlign: "center", background: "#FAF8F5" }}
+                >
+                  <span style={{ fontSize: 28 }} aria-hidden="true">🖼️</span>
+                  <b style={{ fontSize: 14, marginTop: 6 }}>미리 볼 상품이 없습니다</b>
+                  <span style={{ fontSize: 12, color: "#78716C", marginTop: 4 }}>1단계에서 「합성 가능」 상품이 1건 이상 있어야 합니다.</span>
+                </div>
+              )}
             </div>
 
             {/* 서브 면적 표시(M1) — 참고 기준을 넘으면 안내만, 저장은 막지 않음 */}
@@ -1206,6 +1236,7 @@ export function ProductBatchBoard() {
                     <button
                       key={p.id}
                       type="button"
+                      aria-pressed={settings.sizeMode === "fixed" && settings.width === p.width}
                       onClick={() => updateSettings({ width: p.width, height: p.height, sizeMode: "fixed" })}
                       style={{
                         flex: 1,
@@ -1224,6 +1255,7 @@ export function ProductBatchBoard() {
                   <button
                     type="button"
                     title="상품마다 메인 사진 원래 크기로 저장(200~3000px로 제한)"
+                    aria-pressed={settings.sizeMode === "original"}
                     onClick={() => updateSettings({ sizeMode: "original" })}
                     style={{
                       flex: 1,
@@ -1251,6 +1283,7 @@ export function ProductBatchBoard() {
                     <button
                       key={a}
                       type="button"
+                      aria-pressed={settings.subAnchor === a}
                       onClick={() => updateSettings({ subAnchor: a })}
                       style={{
                         padding: "6px 4px",
@@ -1438,7 +1471,7 @@ export function ProductBatchBoard() {
               </div>
 
               {/* 외곽선 및 그림자 체크박스 */}
-              <div style={{ display: "flex", gap: 14, fontSize: 12, fontWeight: 700, marginBottom: 16 }}>
+              <div style={{ display: "flex", gap: 14, flexWrap: "wrap", fontSize: 12, fontWeight: 700, marginBottom: 16 }}>
                 <label style={{ display: "flex", alignItems: "center", gap: 5, cursor: "pointer" }}>
                   <input
                     type="checkbox"
@@ -1589,7 +1622,7 @@ export function ProductBatchBoard() {
             </div>
 
             {/* 4대 메트릭 요약 그리드 */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+            <div className="pb-g4">
               <div style={{ background: "#F9FAFB", padding: 14, borderRadius: 8, border: "1px solid #E5E7EB" }}>
                 <span style={{ fontSize: 12, color: "#6B7280", fontWeight: 700 }}>진행률</span>
                 <p style={{ fontSize: 20, fontWeight: 900, color: "#2563EB", marginTop: 4 }}>
@@ -1637,7 +1670,7 @@ export function ProductBatchBoard() {
             <b style={{ fontSize: 14, display: "block", marginBottom: 12 }}>
               ⚡ 실시간 생성 피드 (최근 완료된 항목)
             </b>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 12 }}>
+            <div className="pb-g6">
               {streamRecent.map((item) => (
                 <div
                   key={item.key}
@@ -1764,7 +1797,7 @@ export function ProductBatchBoard() {
               </p>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+            <div className="pb-g3">
               <div
                 style={{
                   background: "#F9FAFB",
