@@ -14,6 +14,8 @@
 
 ## 현재 조정 범위
 
+MOV-20261117-01 / CC-MOVIE-01: AGY실Lab로그인307로140~142는fixture부분수락. Movie자기기존로그인으로가능할때만3210실제3경로375 최소측정, 새로그인/세션이전/우회금지·불가시BLOCKED. 저장/게시/제품/DB/build/deploy0. WS17-02 URL보완78e893c90+eaaebe027 배정범위done, ZIP차기재생성. WS-20261117-03 / CC-WORKSPACE-01: TAP17-02 46920e765 SQL/서버원자성독립읽기검토, 누락반례만 qa_tap_ws_ 고유DB검증가능·공유/운영쓰기/제품수정/설치/build/deploy금지·본인고유결과만.
+
 00:13 검토보완: DES11 실제컴포넌트이나편집기iframe은수작업fixture4799이므로실Lab PASS미수락. AGY는기존3210 실제3경로 외부375각1회만확인·접근불가시미검수, PC/필터반복·로그인우회/제품수정없음. WS17-02 78e893c90 계정/포트수정접수후 확장productIdentity HTTPS검사누락보완요청: 같은background.js와시험표에http/다른scheme거부만추가, 서버기존정책보존·ZIP/큐변경금지.
 
 WS-20261117-02 / CC-WORKSPACE-01: threads-affiliate-poster brandConnect.ts naverProductIdentity·extension/background.js productIdentity의계정/비표준포트거부 일치 및 tests/naver-brand-connect.test.cjs 경계검사만. 고유결과/본인역할문서허용. URL정규화/기본443/정상쇼핑여행회귀확인. 큐/후기/고지/ZIP/버전/운영DB/build/deploy변경금지. 편집전점유/dirty확인예약.
