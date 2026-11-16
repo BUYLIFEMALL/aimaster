@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T19:12:30.958Z",
+  "checkedAt": "2026-11-16T19:17:29.705Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2201,9 +2201,9 @@
       "status": "ready_review",
       "delivery": "returned",
       "sha": "f3d66f561 (cleanup) / rollback b5c3613c5ae8e2ba9acf0705836545eb8a1d4ec437eec9d4ff4bf097246d7e11",
-      "evidence": "msg_ee34b6e07886 / 작성자PG34·동시insert436빨강→새중단",
-      "next": "첫쓰기전FXorder→exchange ACCESS EXCLUSIVE/비시험재검사·reseller락/manifest 보완반환→Mac새정적경계마감. 실Lab정리/추가확정/0103은별도패키지승인전0",
-      "lastReviewedAt": "2026-11-16T19:12:30.957Z"
+      "evidence": "msg_cbda79f2579f Mac 최종 정적 경계 PASS / msg_ee34b6e07886 작성자 PG34",
+      "next": "cleanup f3d66f561 잠금·해시 독립 정적 검토 마감. 실제 Lab 정리 미실행. Backend 새 0103 단독 실행 패키지 준비 계속, 검토 후 실제 적용 별도 지시",
+      "lastReviewedAt": "2026-11-16T19:17:29.705Z"
     },
     {
       "task_id": "B2B-20261117-07",
