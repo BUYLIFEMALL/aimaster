@@ -13,6 +13,18 @@ const extensionRoot = path.join(projectRoot, 'extension')
 const manifestPath = path.join(extensionRoot, 'manifest.json')
 const downloadsRoot = path.join(projectRoot, 'public', 'downloads')
 
+// prebuild는 Next.js보다 먼저 node로 따로 실행돼 .env.local을 읽지 못한다(내 PC 빌드·패키지 설치마법사 7단계).
+// 이미 있는 환경변수(Vercel 빌드 등)는 그대로 두고, 없는 값만 .env.local → .env 순서로 채운다(2026-11-16 키트 새 폴더 빌드에서 발견).
+for (const name of ['.env.local', '.env']) {
+  const file = path.join(projectRoot, name)
+  if (!fs.existsSync(file)) continue
+  for (const line of fs.readFileSync(file, 'utf8').replace(/^﻿/, '').split(/\r?\n/)) {
+    const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/)
+    if (!m || process.env[m[1]] !== undefined) continue
+    process.env[m[1]] = m[2].replace(/^(['"])(.*)\1$/, '$2')
+  }
+}
+
 if (!fs.existsSync(manifestPath)) {
   console.log('확장 압축 건너뜀: extension 폴더 없음')
   process.exit(0)

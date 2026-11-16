@@ -33,6 +33,11 @@ drop policy if exists profiles_select_own on public.profiles;
 create policy profiles_select_own on public.profiles for select to authenticated using (auth.uid() = id);
 drop policy if exists profiles_update_own on public.profiles;
 create policy profiles_update_own on public.profiles for update to authenticated using (auth.uid() = id) with check (auth.uid() = id);
+-- 권한 칸 보호(2026-11-16 독립 검토 보완): 회원이 자기 행의 is_admin·is_suspended·phone·grade_id 등을 직접 바꾸지 못하게
+-- 표 단위 쓰기 권한을 거두고, 화면 표시용 이름(name)만 칸 단위로 수정을 허용한다. 가입 때 프로필 생성은 security definer 트리거라 영향 없음.
+revoke insert, update, delete on public.profiles from anon, authenticated;
+grant select on public.profiles to authenticated;
+grant update (name) on public.profiles to authenticated;
 
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer set search_path = public as $$
