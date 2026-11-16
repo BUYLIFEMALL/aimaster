@@ -45,9 +45,11 @@ const LATER_RPCS = new Set([
  * U12 업무 비서(2026-11-10, 플랜 docs/PLAN_20261110_U12_AGENT.md — 주인님 권장안 승인): 맞춤 에이전트를 연다.
  * 다만 다른 회원과 나누는 것(공유·권한·주인 넘기기 → U13 협업)과 바깥 연결(MCP 등 → U14)은 계속 닫는다.
  */
+// 2026-11-16(주인님 「진행해」, 플랜 ai-work-workspace/docs/PLAN_20261116_AGENT_MCP.md): 에이전트 바깥 MCP 연결 명령 4개
+// (add/refresh/remove/updateAgentConnection)를 엶. 회원 없는 실행의 쓰기 도구 강제 검토는 agents/tools.ts mcpTool,
+// 한도는 에이전트 주인 회원 기준(callMcpTool meterUserId). 에이전트 공유와 MCP 프리셋은 계속 닫음.
 const AGENT_CLOSED_RPCS = new Set([
   'getAgentSharing', 'setAgentPermissions', 'transferAgentOwnership',
-  'addAgentConnection', 'refreshAgentConnection', 'removeAgentConnection', 'updateAgentConnection',
 ]);
 
 /** 2026-11-13(플랜 PLAN_20261113_U14_AND_DEFERRED.md §2-4): MCP 서버 1단계 — 개인 토큰 발급·해지, 연결한 외부 AI 도구 관리 */
@@ -60,7 +62,7 @@ function laterByPrefix(name: string): boolean {
   return (
     /^dev[A-Z]/.test(name) || // 개발자 API·웹훅 (4단계)
     (/^mcp[A-Z]/.test(name) && !MCP_OPEN_RPCS.has(name)) || // MCP: 2026-11-13 내 워크스페이스 MCP 서버(토큰·연결 도구 관리)만 엶, 바깥 MCP 서버 등록(프리셋)은 닫음
-    AGENT_CLOSED_RPCS.has(name) || // U12: 에이전트 공유·바깥 연결만 닫음
+    AGENT_CLOSED_RPCS.has(name) || // U12: 에이전트 공유만 닫음(바깥 MCP 연결은 2026-11-16 엶)
     /^admin[A-Z]/.test(name) // 워크스페이스 관리자 고급 기능(다른 회원 관련)
   );
 }

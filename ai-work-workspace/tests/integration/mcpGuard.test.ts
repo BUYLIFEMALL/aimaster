@@ -14,9 +14,9 @@ beforeAll(async () => {
 });
 
 describe('바깥 MCP — 열린 명령', () => {
-  it('AI 채팅 연결은 열고, 에이전트 연결·프리셋·응답 사본 메일은 닫음', () => {
+  it('AI 채팅 연결은 열고, 프리셋은 닫음(에이전트 연결은 2026-11-16 엶 — agentMcp.test.ts)', () => {
     for (const n of ['aiListConnections', 'aiAddConnection', 'aiRefreshConnection', 'aiUpdateConnection', 'aiRemoveConnection']) expect(stage.stageBlock(n)).toBeNull();
-    for (const n of ['addAgentConnection', 'removeAgentConnection', 'mcpListPresets', 'mcpCreatePreset']) expect(stage.stageBlock(n)).not.toBeNull();
+    for (const n of ['mcpListPresets', 'mcpCreatePreset']) expect(stage.stageBlock(n)).not.toBeNull();
   });
   it('원본 승인 규칙: 「모두 건너뛰기」면 쓰기 도구도 통과 — 그래서 service.ts가 MCP만 따로 항상 묻는다', () => {
     expect(svc.needsApproval('skip_all', 'share')).toBe(false);

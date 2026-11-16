@@ -29,9 +29,9 @@ beforeAll(async () => {
 const rpc = (token: string, body: unknown) => db.withRequestCache(() => mcp.handleMcpHttp(`Bearer ${token}`, body));
 
 describe('U14 MCP 서버 1단계', () => {
-  it('토큰·연결 도구 관리는 열리고, 프리셋·에이전트 바깥 연결은 닫혀 있다', () => {
+  it('토큰·연결 도구 관리는 열리고, 프리셋은 닫혀 있다(에이전트 바깥 연결은 2026-11-16 엶)', () => {
     for (const name of ['mcpListTokens', 'mcpCreateToken', 'mcpRevokeToken', 'mcpListClients', 'mcpDisableMyClient']) expect(stageBlock(name)).toBeNull();
-    for (const name of ['mcpCreatePreset', 'mcpListPresets', 'mcpDeletePreset', 'addAgentConnection', 'devCreateToken']) expect(stageBlock(name)).not.toBeNull();
+    for (const name of ['mcpCreatePreset', 'mcpListPresets', 'mcpDeletePreset', 'devCreateToken']) expect(stageBlock(name)).not.toBeNull();
   });
 
   let token = '';

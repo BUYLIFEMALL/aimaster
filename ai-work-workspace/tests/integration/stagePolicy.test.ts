@@ -9,7 +9,7 @@ describe('단계 정책(U6-B)', () => {
   it('음성 파일 받아쓰기(U6-B)가 열려 있다', () => {
     for (const name of ['meetingUploadAudio', 'meetingRetryTranscription', 'meetingAudioUploadStart', 'meetingAttachAudioFile']) expect(stageBlock(name)).toBeNull();
   });
-  it('AI 그림·에이전트 바깥 연결은 계속 닫혀 있다(AI 채팅의 바깥 MCP 연결은 2026-11-15 엶 — mcpGuard.test.ts)', () => {
-    for (const name of ['aiGenerateImage', 'addAgentConnection']) expect(stageBlock(name)).not.toBeNull();
+  it('AI 그림·에이전트 공유는 계속 닫혀 있다(바깥 MCP 연결: AI 채팅 2026-11-15, 에이전트 2026-11-16 엶 — agentMcp.test.ts)', () => {
+    for (const name of ['aiGenerateImage', 'getAgentSharing']) expect(stageBlock(name)).not.toBeNull();
   });
 });

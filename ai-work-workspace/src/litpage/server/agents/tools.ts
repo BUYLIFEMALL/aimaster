@@ -269,7 +269,10 @@ async function mcpTool(ctx: RunToolContext, env: AgentEnv, name: string, input: 
   const inputText = JSON.stringify(input ?? {}, null, 2).slice(0, 4000);
   env.step({ id: stepId, tool: 'mcp', status: 'running', label: 'Running tool', detail: label, mcp: { server: m.connectionName, tool: m.tool.name, input: inputText } });
   const key = callKey(m.connectionId, m.tool.name, input);
-  if (m.mode === 'ask' && !ctx.approvedCalls.has(key)) {
+  // AIMaster 2026-11-16(플랜 PLAN_20261116_AGENT_MCP.md): 회원이 없는 실행(정시·이벤트)에서는 쓰기·삭제 도구를
+  // 「항상 허용」으로 해 두었어도 검토 필요로 멈춤 — 혼자 실행되는 것은 읽기 도구뿐. 채팅 중에는 회원 설정을 따름.
+  const needsApproval = m.mode === 'ask' || (!ctx.interactive && !m.tool.readOnly);
+  if (needsApproval && !ctx.approvedCalls.has(key)) {
     if (!ctx.interactive) {
       ctx.review = { kind: 'tool', connectionId: m.connectionId, tool: m.tool.name, input, label: `Run ${m.tool.name} (${m.connectionName})` };
       env.step({ id: stepId, tool: 'mcp', status: 'waiting', label: 'Awaiting your approval', detail: label, mcp: { server: m.connectionName, tool: m.tool.name, input: inputText } });
@@ -281,7 +284,11 @@ async function mcpTool(ctx: RunToolContext, env: AgentEnv, name: string, input: 
       return { content: 'The person declined running this tool. Don’t retry it.' };
     }
   }
-  const r = await callMcpTool(ctx.agent.bot_id, m.connectionId, m.tool.name, input);
+  // 「허용」 승인은 한 번만 쓴다 — 다시 실행된 실행 안에서 같은 호출이 두 번 돌지 않게
+  if (needsApproval) ctx.approvedCalls.delete(key);
+  // 한도를 셀 회원: 채팅 중이면 대화하는 회원(다른 회원의 에이전트로 남의 한도를 쓰지 못하게), 혼자 실행이면 에이전트 주인 회원
+  const meter = (ctx.interactive && ctx.actorId) || ctx.agent.created_by_id || ctx.agent.bot_id;
+  const r = await callMcpTool(ctx.agent.bot_id, m.connectionId, m.tool.name, input, meter);
   const mcp = { server: m.connectionName, tool: m.tool.name, input: inputText, output: r.text.slice(0, 4000) };
   if (r.isError) env.step({ id: stepId, tool: 'mcp', status: 'error', label: 'Running tool', detail: label, error: r.text.slice(0, 300) || 'The MCP tool failed.', mcp });
   else env.step({ id: stepId, tool: 'mcp', status: 'done', label: `Ran MCP tool: ${m.tool.name}`, detail: m.connectionName, mcp });

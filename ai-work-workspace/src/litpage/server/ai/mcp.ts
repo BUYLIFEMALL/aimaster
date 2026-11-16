@@ -297,13 +297,15 @@ export function connectionTools(ownerId: string, spaceId: string): { id: string;
 }
 
 /** Call one MCP tool (initialize → initialized → tools/call). Returns the text content and the error flag. */
-export async function callMcpTool(ownerId: string, connectionId: string, tool: string, args: Record<string, unknown>): Promise<{ text: string; isError: boolean }> {
+// AIMaster 2026-11-16: meterUserId = 한도를 셀 회원. 에이전트는 연결 주인이 봇 id라서 에이전트 주인 회원을 넘겨
+// 채팅과 같은 회원당 하루 500번을 함께 쓴다(에이전트를 여러 개 만들어 한도를 늘릴 수 없음).
+export async function callMcpTool(ownerId: string, connectionId: string, tool: string, args: Record<string, unknown>, meterUserId: string = ownerId): Promise<{ text: string; isError: boolean }> {
   const r = row(ownerId, connectionId);
   if (!r) throw new AiError('not_found', 'That connection doesn’t exist.', 404);
   if (!r.enabled) throw new AiError('forbidden', 'That connection is turned off.', 403);
   assertAllowed(r.space_id, r.url);
   // AIMaster 2026-11-15: 회원당 1분 30번·하루 500번(aimasterMcpGuard.ts)
-  const limited = memberMcpGate(ownerId);
+  const limited = memberMcpGate(meterUserId);
   if (limited) throw new AiError('rate_limited', limited, 429);
   try {
     const init = await rpc(r.url, r.token, null, 1, 'initialize', { protocolVersion: PROTOCOL, capabilities: {}, clientInfo: { name: 'Workspace', version: '1.0.0' } });

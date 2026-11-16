@@ -43,8 +43,8 @@ describe('U12 에이전트 열기', () => {
   it('에이전트 만들기·실행·조회 명령이 열려 있다', () => {
     for (const name of ['getAgents', 'createAgent', 'saveAgent', 'runAgent', 'listAgentTemplates', 'setAgentCreditLimit', 'getAgentRuns']) expect(stageBlock(name)).toBeNull();
   });
-  it('공유·권한·주인 넘기기·바깥 연결·관리자 기능은 계속 닫혀 있다', () => {
-    for (const name of ['getAgentSharing', 'setAgentPermissions', 'transferAgentOwnership', 'addAgentConnection', 'updateAgentConnection', 'adminListAgents', 'mcpConnect']) {
+  it('공유·권한·주인 넘기기·관리자 기능은 계속 닫혀 있다(바깥 MCP 연결은 2026-11-16 엶 — agentMcp.test.ts)', () => {
+    for (const name of ['getAgentSharing', 'setAgentPermissions', 'transferAgentOwnership', 'adminListAgents', 'mcpConnect']) {
       expect(stageBlock(name)).not.toBeNull();
     }
   });
