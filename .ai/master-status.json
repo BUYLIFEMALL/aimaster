@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T21:17:01.406Z",
+  "checkedAt": "2026-11-16T21:22:27.271Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2212,12 +2212,12 @@
       "parent_task_id": "B2B-20261117-02",
       "owner": "CC-B2B-BACK-01",
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
-      "status": "running",
+      "status": "ready_review",
       "delivery": "delivered",
-      "evidence": "msg_6d7a93569589 Mac QA012 누적소스PASS·hash739b35일치·작성자62근거분리 / msg_e7bf9e5ec131 릴리스초안 문구4건P2 / msg_7908deab7eff 20e51e602 객체이름의존성표·문서4건정정 / msg_2c7fadd530f9 bbca7e002 핵심RPC20인자대조 + Master Vercel project/env 직접확인 / msg_059ac8eead6e 로컬공개모드덮어쓰기0·운영배포스크립트고정대상발견 / msg_abacc5b993d3 921e5418a 実행자료/pre Lab읽기16·로컬구조11 조건부리허설 / msg_c71e3c91fe82 QA015 verify필수열권한/attempt CRUD/구조연결 P2",
+      "evidence": "msg_6d7a93569589 Mac QA012 누적소스PASS·hash739b35일치·작성자62근거분리 / msg_e7bf9e5ec131 릴리스초안 문구4건P2 / msg_7908deab7eff 20e51e602 객체이름의존성표·문서4건정정 / msg_2c7fadd530f9 bbca7e002 핵심RPC20인자대조 + Master Vercel project/env 직접확인 / msg_059ac8eead6e 로컬공개모드덮어쓰기0·운영배포스크립트고정대상발견 / msg_abacc5b993d3 921e5418a 実행자료/pre Lab읽기16·로컬구조11 조건부리허설 / msg_c71e3c91fe82 QA015 verify필수열권한/attempt CRUD/구조연결 P2 / msg_aa75bb4dd931 5dca84102 verify20·작성자18권한구조반례/로컬23",
       "decision": "Master조정 E1납부후거절차단 E2로그인본인 E3카드미설정은행 E4Backend신규경로;실환불미구현명시",
-      "next": "Backend verify/국소runner/README 권한·핵심구조기대검사+잘못된권한반례 보완배정. 고정0104/apply불변,전체패키지마감보류·실적용/실키/빌드0",
-      "lastReviewedAt": "2026-11-16T21:17:01.406Z",
+      "next": "Mac QA015 verify20/권한구조/카탈로그기대값 국소재검토. 원문/apply고정·자료16~20실Lab미검증·적용활성화별도승인/실Toss/DB쓰기/빌드0",
+      "lastReviewedAt": "2026-11-16T21:22:27.271Z",
       "sha": "37fdcabb4 / 0104 739b35e9f20b45ba7c83309918da0cc099ca6a0b5715bf5514e755cb108662e6",
       "plannedMigration": "0104_exchange_fee_payments.sql (기존미적용0103 rename)",
       "migrationPath": "mall-builder/supabase/migrations/0104_exchange_fee_payments.sql",
