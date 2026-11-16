@@ -297,6 +297,8 @@ export function ProductBatchBoard() {
   const validJobs = jobs.filter((j) => j.status === "ready");
   const targetJob = validJobs[previewIndex] || validJobs[0] || null;
 
+  // ECOM-11: 미리보기 상자는 2단계에서만 그려지므로 step도 다시 그리는 조건에 넣는다
+  // (빠지면 1단계에서 상자 없이 한 번 끝나 2단계에 들어와도 설정을 바꾸기 전까지 빈칸).
   useEffect(() => {
     const box = previewCanvasRef.current;
     if (!box) return;
@@ -351,7 +353,7 @@ export function ProductBatchBoard() {
     return () => {
       alive = false;
     };
-  }, [targetJob, settings, filesMap, commonSubFile, subMode]);
+  }, [targetJob, settings, filesMap, commonSubFile, subMode, step]);
 
   // 5. 일괄 실행 (Run Queue)
   const startBatchExecution = async () => {
