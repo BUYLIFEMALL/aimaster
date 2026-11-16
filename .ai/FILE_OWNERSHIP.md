@@ -248,3 +248,7 @@ Claude(Blog)는 B1의 사람 직접 클릭 선행조건 대기. 확장 설치/�
 - E1: Workspace runs.ts/tools.ts/agentE1.test.ts 영속 notify_me CAS 보완 허용. 기존payload 다른필드 보존·실발송0. E2-7-1 sync/presence 국소계획 허용, 연결파일 먼저 예약; 포털/예약 운영DDL 자동적용 미승인.
 - DES17-02: AGY 145/146/147 폴더 독립뷰어보완만, 제품코드 미반영. MacTester가 독립검수, 메인실행필요시 Master 경유.
 - 직접지시 취합: 주인님은 실시간A·전면3안선택·추천8개전부·E1부터를 확정. 초기5개결정요청 재질문하지 않음. 연계 송신쪽은 Master가 별도 경로 확인 후 배정.
+
+### 2026-11-17 02:30 KST · B2B 교환 UI 단독 배정
+
+B2B-20261117-03 책임 CC-B2B-BACK-01. 신규 mall-builder/src/lib/exchanges-server.ts·exchange-actions.ts·exchanges.ts, src/app/exchange-panels.tsx, tests/exchanges.test.mjs. 기존 src/app/s/[store]/admin/orders/[id]/page.tsx 및 src/app/s/[store]/(shop)/orders/[id]/page.tsx는 import/조회/패널연결만 Backend 단독 수정. Front와 AGY에 경로 한정 조정 실제 통지. 편집 직전 점유/status 확인·타인 미커밋 발견시 조정. 기타 shop/resale/디자인빌더 범위는 변경 없음. 0102 오류의 불가능한 거절/재접수 안내만 현실적인 관리자 문의로 국소 정정 허용. 원인 해결 우회/새복구정책·운영/Lab0102·빌드·실발송·결제 없음. 구현 뒤 MacTester 독립검수.
