@@ -107,9 +107,11 @@ rollback;`);
 }
 // Lab 기준값(17/1·44)은 로컬 자료와 다르므로 로컬 값으로 바꿔 넣고 판정식을 검사한다(바꾸지 않으면 그 줄이 「확인 필요」가 되는지도 확인)
 const loc = psql(`select (select count(*) filter (where s.slug = 'aimaster-b2b') || '/' || count(*) filter (where s.slug = 'card-test-resale') from mall_builder_orders o join mall_builder_stores s on s.id = o.store_id where o.id::text not like 'e0102000%')
-  || '|' || (select count(*) from mall_builder_notifications);`).stdout.trim().split("|");
-const S = (sql) => sql.split("'17/1'").join(`'${loc[0]}'`).split("'44'").join(`'${loc[1]}'`);
-console.log(`  로컬 기준값: 시험 아닌 주문 ${loc[0]} · 알림 ${loc[1]}(Lab 17/1 · 44 대신)`);
+  || '|' || (select count(*) from mall_builder_notifications)
+  || '|' || (select coalesce(string_agg(w.id || ':' || w.order_id || ':' || w.reseller_id || ':' || w.status || ':' || w.amount || ':' || coalesce(w.ledger_id::text, '-'), ',' order by w.id), '없음') from mall_builder_reseller_rewards w where w.order_id::text not like 'e0102000%');`).stdout.trim().split("|");
+const LABRW = "1552ca37-54bc-4b5b-a960-ffd48db9feb0:3a33e90a-f8f9-45ee-b95f-d0e127caec26:f2b49b07-7682-431f-bada-a99c8bc27956:pending:2300:-";
+const S = (sql) => sql.split("'17/1'").join(`'${loc[0]}'`).split("'44'").join(`'${loc[1]}'`).split(LABRW).join(loc[2]);
+console.log(`  로컬 기준값: 시험 아닌 주문 ${loc[0]} · 알림 ${loc[1]} · 기존 리워드 ${loc[2]}(Lab 17/1 · 44 · 1552ca37… 대신)`);
 
 r = psql(H("precheck.sql"));
 ok("빨강: Lab 기준값 그대로면 로컬에서 9·10번 「확인 필요」(기준값을 실제로 대조함)", /\n?9\|[^\n]*\|확인 필요/.test(r.stdout) && /\n10\|[^\n]*\|확인 필요/.test(r.stdout), r.stdout);
@@ -151,7 +153,34 @@ ok("유저: 7일 지난 EXQA-2는 여전히 막힘", r.status !== 0 && /7일/.te
 r = psql(`update mall_builder_orders set status = 'returned' where id = 'e0102000-0000-4000-8000-000000000031';`);
 ok("교환 진행 중 주문을 교환 가능 상태 밖(반품)으로는 여전히 막음", r.status !== 0 && /교환이 진행 중인 주문/.test(r.stderr), r.stderr.slice(-160));
 r = psql(S(H("verify.sql")).replace("'0', (select count(*) from public.mall_builder_exchanges)", "'3', (select count(*) from public.mall_builder_exchanges)"));
-ok("EXQA-1 확정 뒤 verify 13번(리셀러 장부 EXQA-2 500 + EXQA-1 1,400 manifest)·10번 OK", /^13\|[^\n]*\|true\|OK$/m.test(r.stdout) && /^10\|[^\n]*\|2\|OK$/m.test(r.stdout) && /^15\|전체\|14\/14\|14\/14\|OK$/m.test(r.stdout), r.stdout);
+ok("EXQA-1 확정 뒤 verify 13번(리셀러 장부 EXQA-2 500 + EXQA-1 1,400 manifest)·10번 OK", /^13\|[^\n]*\|없음\|없음\|OK$/m.test(r.stdout) && /^10\|[^\n]*\|2\|OK$/m.test(r.stdout) && /^15\|전체\|14\/14\|14\/14\|OK$/m.test(r.stdout), r.stdout);
+
+// 13번 반례(Mac msg_cc2b2746aa5a P2): 같은 장부 줄 결합이 깨지면 새 판은 「확인 필요」, 이전 판(9e9120183)은 통과해 버림(빨강)
+{
+  const EXV = (f) => S(f).replace("'0', (select count(*) from public.mall_builder_exchanges)", "'3', (select count(*) from public.mall_builder_exchanges)");
+  const prevV = execFileSync("git", ["-C", MB, "show", "9e9120183:mall-builder/docs/handoff-0103-lab/verify.sql"], { encoding: "utf8" }).replace(/\r\n/g, "\n");
+  const v13 = (pre, f) => { const x = psql(`begin;\n${pre}\n${EXV(f)}\nrollback;`); return { line: (x.stdout.match(/^13\|[^\n]*$/m) || [""])[0], err: x.stderr.slice(-160) }; };
+  const L32 = "'7203b416-e791-487c-8708-36e9503493e8'";
+  const cases = [
+    ["기대 장부 id가 EXQA-1에 붙음", `update mall_builder_reseller_rewards set ledger_id = null where order_id::text like 'e0102000%';
+update mall_builder_reseller_ledger set id = gen_random_uuid() where id = ${L32};
+update mall_builder_reseller_ledger set id = ${L32} where order_id = 'e0102000-0000-4000-8000-000000000031';`],
+    ["EXQA-2 장부가 다른 리셀러", `insert into mall_builder_resellers (id, store_id, customer_id, code, rate, active) select gen_random_uuid(), '0489b458-d71b-4268-9b5f-94fd7da50382', c.id, 'OTHER9', 5, true from mall_builder_store_customers c where c.user_id = '${CONS}' and c.store_id = '0489b458-d71b-4268-9b5f-94fd7da50382';
+update mall_builder_reseller_ledger set reseller_id = (select id from mall_builder_resellers where code = 'OTHER9') where id = ${L32};`],
+    ["EXQA-2 장부가 다른 몰", `update mall_builder_reseller_ledger set store_id = '${OTHER}' where id = ${L32};`],
+    ["EXQA-2 장부가 출금에 연결", `insert into mall_builder_reseller_payouts (id, store_id, reseller_id, amount, bank_name, bank_account, bank_holder) values ('00000000-0000-0000-0000-0000000000ab', '0489b458-d71b-4268-9b5f-94fd7da50382', '${RS}', 500, 'qa', '000', 'qa');
+update mall_builder_reseller_ledger set payout_id = '00000000-0000-0000-0000-0000000000ab' where id = ${L32};`],
+    ["EXQA-1 리워드 기준 금액 다름", "update mall_builder_reseller_rewards set base_amount = 20001 where order_item_id = 'e0102000-0000-4000-8000-000000000041';"],
+    ["기존 대기 리워드 금액 바뀜", `update mall_builder_reseller_rewards set amount = 2301 where order_id = '${NF}';`],
+  ];
+  const g = v13("", H("verify.sql"));
+  ok("13번 초록: 지금 상태(두 주문 확정) 새 판 「없음」·OK", /\|없음\|없음\|OK$/.test(g.line), g.line + g.err);
+  for (const [name, pre] of cases) {
+    const n = v13(pre, H("verify.sql")), o = v13(pre, prevV);
+    ok(`13번 반례 「${name}」: 새 판 확인 필요 / 이전 판(9e9120183) 통과(빨강)`, /\|확인 필요$/.test(n.line) && !/\|없음\|없음\|OK$/.test(n.line) && /\|OK$/.test(o.line),
+       `새 ${n.line.slice(-90)} ${n.err} · 이전 ${o.line.slice(-40)} ${o.err}`);
+  }
+}
 
 // 정리 폐쇄 고리: 뒷정리를 먼저 부르면 [멈춤] → 0102 정리(b5c3613c) 성공 → 뒷정리 성공 → 0102 precheck 다시 10/10
 r = psql(H("teardown-after-0102-rollback.sql"));
