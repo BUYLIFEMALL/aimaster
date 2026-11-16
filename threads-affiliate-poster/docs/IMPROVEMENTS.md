@@ -96,3 +96,10 @@ F-004: 네이버 검색/트렌드 캐시 회원 간 공유 — 제안·미수정
 - 확장 신규 `extension/`(manifest·`background.js`·`web-bridge.js`·`NOTICE`·아이콘): 표시명 「Threads 쇼핑제휴 자동화」, 권한 `tabs`·`scripting`, 우리 주소·naver.me·네이버 상품 주소만. 수집 함수는 원본 content-script에서 옮김(네이티브 메시징 대신 웹 연결). ZIP은 `scripts/build-extension-archive.mjs`(새 패키지 없이 zlib) → `public/downloads/threads-affiliate-poster-extension-latest.zip`, `prebuild`로 빌드마다 버전 맞춤.
 - 검수: tsc 0, 시험 25(새 `npm run test:naver-brand` 5), 로컬 build 통과, ZIP 무결성·버전 일치, 0번 고지 0. **실제 확장 설치·naver.me 수집은 배포 뒤 주인님 브라우저에서**(브랜드커넥트 발급 링크 필요).
 - 배포 때 할 것: 버전 v1.89(코드·DB) + DB `extension_version`·`extension_download_url` + `node scripts/check-extension-release.mjs threads-affiliate-poster`. 한계: 설치 키트(독립 모드) 주소에선 확장이 동작 안 함(확장 허용 주소가 buylife.xyz 고정) — 키트용은 별도.
+
+## ⏸ v1.89 릴리스 후보(배포 전 — **지금 운영은 v1.88**) — TAP-20261117-03 준비 (2026-11-17, Claude(B2BBackend) `claude-win-20261025-workspace`, Master 배정)
+- **지금 운영**: v1.88(`26b568f4e`, 쿠팡 여러 경로 검색). 아래는 **아직 배포 안 됨**.
+- **v1.89에 실을 커밋(미배포)**: `2d373c8ad` 2단계 네이버 브랜드커넥트 수집·확장 신규 · `78e893c90` 상품 주소 검사(계정 정보·비표준 포트 거부) · `eaaebe027` 확장 productIdentity도 https 필수 · `46920e765` 대기열 중복 등록 방지(TAP-20261117-02) · `d89f5d2be` 수집 저장이 등록된 줄을 덮어쓰지 않음(같은 작업 수정 반환) · 릴리스 준비 커밋(버전·manifest·ZIP, 이 절과 같은 커밋).
+- **릴리스 준비(로컬만)**: `src/lib/version.ts` v1.89, `extension/manifest.json` 1.89.0/v1.89, `public/downloads/threads-affiliate-poster-extension-v1.89.zip`·`-latest.zip`(sha256 `b15ae2ef1552f9495cd6dbd2633c4452d3773d58381d56580d2f2334681a4169`) — 기존 `node scripts/build-extension-archive.mjs`로 만듦. 스크립트가 지우는 v1.88 ZIP은 저장소 밖 사본으로 되돌려 보존(sha256 `2f237b94…`, git 변경 없음). ZIP 8항목이 `extension/`과 바이트 같음, NOTICE 포함, background.js = `eaaebe027`.
+- **운영 DB에 먼저 넣을 것**: `supabase/migrations/20261117100000_tap_collect_queue_atomic.sql`(LF sha256 `22b95ccdd740d99a6a537d580503ae05895d61f402e5b580ac39f65bfdbd09cc`) — 기존 중복이 있으면 스스로 멈춤. 적용 전후 확인·실패 때 처리·DB 버전 칸 초안·배포 순서: `.ai/results/TAP-20261117-03-CC-B2B-BACK-01.md`. **마이그레이션 → 코드 배포 순서를 바꾸면 네이버 등록이 「함수 없음」 오류**.
+- 미검수: 운영 PostgREST 경로(upsert·rpc·조건부 update), 확장 실제 설치·naver.me 실수집. 독립 검수 근거는 Workspace WS-20261117-01·02·03·04.
