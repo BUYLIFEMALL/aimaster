@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T17:23:30.790Z",
+  "checkedAt": "2026-11-16T17:24:41.978Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -1904,11 +1904,11 @@
       "title": "교환0102 구현·독립지적 수정",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:22:30.186Z",
-      "status": "ready_review",
+      "lastReviewedAt": "2026-11-16T17:24:41.978Z",
+      "status": "running",
       "delivery": "returned",
       "evidence": "msg_4166c1943286 / B2B17-05結果",
-      "next": "원/대상옵션이력분리·작성자17/6→23/0·Mac재검수전달. 무옵션→옵션전환시stockskip발송허용 위험추가판정요청, Lab0102/운영/UI0",
+      "next": "원무옵션→옵션신설시재고skip발송은과판매로판명,0102재발송거절·A21반례수정승인→Mac. 운영/Lab/UI0",
       "sha": "d9f5906c5a6085d41483f5147cc2289f0a5ab2a6"
     },
     {
@@ -1932,12 +1932,12 @@
       "title": "확장 E1·notify_me 중복 차단",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:19:35.068Z",
-      "status": "running",
-      "delivery": "acknowledged",
-      "sha": "22177c868 + ce458cc2a",
-      "evidence": "E1結果§9/10 / 7829be240 / msg_0ee3d7393621",
-      "next": "승인share/봇ANDowner열람 ce458cc2a 반환·234작성자시험/type0. root행CAS및상위승인순수판정시험 수정승인, 중간flag/계보동시성→Mac재검수,실발송0"
+      "lastReviewedAt": "2026-11-16T17:24:41.978Z",
+      "status": "ready_review",
+      "delivery": "returned",
+      "sha": "ce458cc2a + f2792fb2543520aaedc7fbc6b3277f231a3ce953",
+      "evidence": "15b3f53e/E1§11·242작성자시험/type0",
+      "next": "루트CAS·승인판정함수 Mac재검수전달. markRetried stalepayload가선점지우는도달경로조사요청·전체E2E미검수/실발송0"
     },
     {
       "task_id": "DES-20261117-02",
