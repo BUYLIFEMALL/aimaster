@@ -6,7 +6,7 @@ import { DEFAULT_CONTENT_PROVIDER, DEFAULT_IMAGE_COUNT, resolveContentModel, res
 import { removeDuplicateTitleLines } from '@/blog/utils/duplicateTitle'
 import { sanitizeBodyYear, sanitizeYear } from '@/blog/utils/yearPolicy'
 import { sourceMaterialRule, type SourceMaterial } from '@/blog/utils/postSource'
-import { dropRepeatedHeading } from './headingDedupe'
+import { dropRepeatedHeading, plainHeading } from './headingDedupe'
 import { lengthPlan } from './lengthPlan'
 
 /** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
@@ -154,7 +154,7 @@ ${koreaNowRule()}
 1. 제목: 매력적이고 SEO에 적합하며 관련 키워드가 자연스럽게 조합된 제목으로 작성하세요. 제목은 JSON의 "제목" 값에만 넣습니다. "요약글", 모든 "소제목", 모든 "문단"에 같은 제목을 #/##/HTML/일반 텍스트 어떤 형태로도 다시 쓰지 마세요. 본문은 요약 문장 또는 제목과 다른 소제목으로 시작하세요.
 2. 소제목 및 문단 구성: { "제목", "요약글", "소제목 1", "소제목 2", "소제목 3", "소제목 4", "문단 1", "문단 2", "문단 3", "문단 4" } 4개의 독립적인 소제목과 문단으로 구성하세요. 4개 문단은 서로 다른 핵심 내용을 다루세요.
 3. 태그 사용 필수 룰:
-   - 각 문단의 소제목("소제목 1", "소제목 2", "소제목 3", "소제목 4")은 마크다운 ## (<h2>) 태그로 표현됩니다.
+   - 각 문단의 소제목("소제목 1", "소제목 2", "소제목 3", "소제목 4")은 마크다운 ## (<h2>) 태그로 표현됩니다. 프로그램이 ##를 직접 붙이므로 "소제목" 값에는 #·## 기호 없이 소제목 글자만 넣으세요.
    - 각 문단("문단 1"~"문단 4")은 마크다운 ### (<h3>) 작은 제목 1개로 시작하세요(글 전체 4개). ### 작은 제목은 바로 위 ## 소제목과 다른 문구로 쓰고, 소제목 문구를 그대로 되풀이하지 마세요.
    - 글 전체 내용 중 리스트 또는 핵심 질문/답변 목록 부분에 마크다운 - (<li>) 태그를 2번 이상 사용하세요.
 4. 분량 및 딥다이브 설명 (단락 개수를 반드시 지키세요):
@@ -213,7 +213,10 @@ ${koreaNowRule()}
   // 각 이미지는 자기 묶음 안에서만 핵심 문장을 골라 그리고(이미지끼리 내용이 겹치지 않음), 묶음 첫 문단의 소제목 바로 아래에 넣는다.
   const imageCount = resolveImageCount(options.imageCount ?? DEFAULT_IMAGE_COUNT)
   const sectionBodies = [body1Text, body2Text, body3Text, body4Text]
-  const headings = [parsed['소제목 1'] || subKey1, parsed['소제목 2'] || subKey2, parsed['소제목 3'] || subKey3, parsed['소제목 4'] || subKey4]
+  // AI가 소제목 값에 「## 」를 붙여도 renderSection이 한 번만 붙이도록 기호를 먼저 지운다(2026-11-16 B-4 P2)
+  const headings = [parsed['소제목 1'], parsed['소제목 2'], parsed['소제목 3'], parsed['소제목 4']].map(
+    (value, index) => plainHeading(value) || [subKey1, subKey2, subKey3, subKey4][index],
+  )
   const paragraphGroups = groupParagraphs(sectionBodies.length, imageCount - 1)
   // 제목용 구간: 요약 + 각 문단 앞부분(전체 내용을 대표하는 문장을 고르게)
   const overviewSegment = [excerpt, ...sectionBodies.map((text) => text.slice(0, 900))].filter(Boolean).join('\n\n')

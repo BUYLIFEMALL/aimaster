@@ -3,6 +3,16 @@
 const normalize = (value: string) =>
   String(value ?? '').replace(/<[^>]+>/g, '').replace(/[*_`#]/g, '').replace(/[\s\p{P}]+/gu, '').toLowerCase()
 
+// 2026-11-16 B-4 P2: AI가 소제목 값 앞에 「## 」를 붙여 주면 조립 때 「## ## 제목」이 되어 H2에 「##」가 글자로 남았다.
+// 앞뒤의 마크다운 제목 기호(# 뒤 띄어쓰기)만 지운다. 띄어쓰기 없는 #해시태그는 남긴다.
+export function plainHeading(value: unknown): string {
+  return String(value ?? '')
+    .trim()
+    .replace(/^#{1,6}\s+/, '')
+    .replace(/\s+#{1,6}$/, '')
+    .trim()
+}
+
 export function dropRepeatedHeading(body: string, heading: string): string {
   const target = normalize(heading)
   if (!target) return body

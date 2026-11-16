@@ -81,6 +81,17 @@ test('dropRepeatedHeading removes only small headings that repeat the section he
   assert.equal(dropRepeatedHeading('본문', ''), '본문');
 });
 
+// 2026-11-16 B-4 P2: AI가 소제목 값에 「## 」를 붙여 주면 조립 때 「## ## 제목」이 되어 H2에 「##」가 글자로 남았다(원고 25).
+test('plainHeading strips leading markdown heading marks from AI heading values', () => {
+  const { plainHeading } = loadTs('utils/news/headingDedupe.ts');
+  assert.equal(plainHeading('## 복잡한 도구보다 일관된 파일명 규칙'), '복잡한 도구보다 일관된 파일명 규칙');
+  assert.equal(plainHeading('  ### 백업 습관 ##'), '백업 습관');
+  assert.equal(plainHeading('#해시태그로 시작하는 제목'), '#해시태그로 시작하는 제목');
+  assert.equal(plainHeading('일반 소제목'), '일반 소제목');
+  assert.equal(plainHeading(''), '');
+  assert.equal(plainHeading(undefined), '');
+});
+
 // 2026-10-23 v1.92 후보: 분량을 단락 개수로 지시(글 20번 — GPT-4.1도 글자 수 지시만으론 목표의 60%).
 test('lengthPlan turns word count into paragraph units per section', () => {
   const { lengthPlan } = loadTs('utils/news/lengthPlan.ts');
