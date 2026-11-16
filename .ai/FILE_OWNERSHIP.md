@@ -14,6 +14,8 @@
 
 ## 현재 조정 범위
 
+ECOM-20261116-17 / CC-ECOM-01: 사용자직접 쇼핑제휴2단계 우선완료후 바나나 productPhotoHandoff.ts·ProductBatchBoard.tsx·관련시험, 상세 MainPhotoBatch.tsx·관련시험·공용모듈해당사본만 선택동기화. 편집전양쪽점유/dirty예약. UUID상관ID·실제입력내용지문/설정/선택조합으로결과식별, 늦은다른판ACK오염방지·실패해당기록만처리. ID없는옛ACK는pending1건이어도saved추정금지, 확인필요·불확실자동재전송금지·수동명시확인. 구상대/순서역전/동일크기사진변경회귀. 공통문서는초안만Master반환. DB/실저장/빌드/배포없음. 실제수신상세1개·쇼핑몰미구현; 상세추가빌드미승인, DEC004바나나1건유지.
+
 DES-20261116-11 / AG-UI-01: DES10 실제원본·로컬CSS 보완수락후 FRONT09 미검수140 uniform-order·141 skincare-routine·142 hair-body-salon만 기존3210 실제미리보기375외부/PC 검수. Movie MOV12 대상중복없음. 본인브라우저공간·고유결과만, iframe실폭구분·원측정/캡처. 저장/게시/DB/제품/CSS/설치/build/deploy/타인서버·창조작 금지. 접근불가시미검수, 수작업모형제품PASS금지. B2B11 요청UI 수정범위done, 0101/실발송/전체통합/배포완료아님.
 
 MOV-20261116-12 / CC-MOVIE-01: FRONT10 59e7e7843 다크bg-white/95 규칙 독립재검수. 143/luxury/밝은139 머리글이름·검색·메뉴 대비/넘침만375외부·PC·내부폭구분. 상세/PWA 공유규칙 영향은 접근가능한읽기경로/실컴포넌트fixture 최소확인, 불가시미검수. 제품/DB/저장/게시/설치/build/deploy없음, 고유결과만. Front 코드점유해제·추가CSS동결, 남은P3는 본인결과에원인/최소안만정리.
