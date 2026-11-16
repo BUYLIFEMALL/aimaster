@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 04:27:31 KST",
+  "checkedAt": "2026-11-17 04:31:35 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4363,12 +4363,12 @@
       "parent_task_id": "B2B-20261117-06",
       "owner": "CC-B2B-BACK-01",
       "title": "자동 구매확정과 교환7일 상태정합성 수정",
-      "status": "running",
+      "status": "ready_review",
       "delivery": "returned",
-      "evidence": "msg_cc2b2746aa5a Mac 원문/apply 정적PASS·verify13 장부결합 P2 / msg_100620bcebd4 공용시계조사 cdc6847b8",
-      "next": "Backend verify13 동일행 ID/order/reseller/store/earn/amount/payout +reward/baseline 보완·SQL 반례수정 배정. 반환 뒤 Mac 변경경계 검토, 실제Lab0103/정리/추가확정/빌드0. 공용0032시계는 별도 후속계획",
-      "lastReviewedAt": "2026-11-16T19:27:28.892Z",
-      "sha": "0edda866671c727c2605331bfb0b7415b06c234c"
+      "evidence": "msg_339ac0960d1d 작성자SQL31/31·6반례 이전거짓통과→새거부, Lab읽기13번 정상",
+      "next": "verify13 동일행/reward/baseline c8b33554e 반환·Mac 변경경계 재검토 전달. 최종판정뒤Lab0103 단독적용 연결, 실제적용/정리/확정/빌드0",
+      "lastReviewedAt": "2026-11-16T19:31:33.072Z",
+      "sha": "0edda8666 / package9e9120183 + verify c8b33554e"
     },
     {
       "task_id": "DES-20261117-03",
