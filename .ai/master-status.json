@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T20:42:51.521Z",
+  "checkedAt": "2026-11-16T20:46:02.774Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2331,12 +2331,12 @@
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "title": "교환비 결제 전용 화면·상태·직원 재확인 구현",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "returned",
-      "evidence": "msg_93d7d07edca5 9파일·작성자21/477/tsc0·고지check0",
+      "evidence": "msg_4fd9cb8a50a7 QA014 독립21/실callback모의·콜백소속/정상done재조회/failed명시/widget원문 P2",
       "completion": "본인/몰/주문/교환 권한, 별도prepare/confirm·중립반환/RLS재조회,hold/canceled 정확표시·재발송비활성·키비노출 모의시험과type검사. 실제Toss/UI운영검수와분리",
-      "next": "Mac UI소스/권한/키/별도RPC/상태잠금 독립검수배정. Backend릴리스선행조건 읽기manifest준비·표없음카드OFF근거확인,실Toss/Lab0104/빌드/배포0",
-      "lastReviewedAt": "2026-11-16T20:42:51.521Z",
+      "next": "Backend4건국소수정승인·pay-widget선택exchange모드 범위추가(기존default불변). 콜백권한RPC0/위젯실패모의→Mac재검토,실Toss/Lab/빌드0",
+      "lastReviewedAt": "2026-11-16T20:46:02.774Z",
       "sha": "1c9123d68"
     }
   ],
