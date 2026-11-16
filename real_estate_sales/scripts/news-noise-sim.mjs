@@ -12,6 +12,10 @@
 // 한계(꼭 읽기): 저장분은 그 날 규칙으로 이미 거른 뒤다. 그래서 「지금 규칙이 더 빼는 것」만 잴 수 있고,
 // 그 날 규칙이 빼서 저장되지 않은 기사(놓친 기사·더 남겨야 할 기사)는 잴 수 없다.
 // 이미 걸러진 저장분이라 배포 전 측정치(원 검색 결과 기준)와 숫자가 다를 수 있다 — 기대값을 맞추려고 규칙을 바꾸지 않는다.
+// 운영 실행기와 다른 점(runner.ts): 운영은 「지난 3일 제목」을 회원당 최대 2000건, 정렬 없이 읽고(지역 무관하게 읽은 뒤 지역별로 나눔),
+// 이 도구는 같은 회원·같은 지역의 회차 앞 72시간 저장분을 상한 없이 모두 쓴다. 회원당 하루 저장은 지역 5곳 × 많아야 수십 건이라
+// 3일 2000건에 닿지 않는 동안은 같은 결과다 — 2000건을 넘는 회원이 생기면 두 결과가 다를 수 있다.
+// 자체 점검: node --no-warnings scripts/news-noise-sim.mjs --selftest (운영 DB 호출 없음)
 // 지킬 것: DB는 select만. 회원 ID·키·토큰은 출력하지 않고 지역 집계와 일반 뉴스 제목만 보여 준다.
 import fs from "node:fs";
 import path from "node:path";
@@ -21,9 +25,17 @@ import { NEWS_DONGS } from "../src/lib/news/dongNames.ts";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
+const VALUE_FLAGS = ["--from", "--to", "--region", "--samples", "--env"];
+for (const a of args) {
+  if (a.startsWith("--") && ![...VALUE_FLAGS, "--db", "--selftest"].includes(a)) fail(`모르는 옵션입니다: ${a}`);
+}
 const opt = (name, def = null) => {
   const i = args.indexOf(name);
-  return i >= 0 && args[i + 1] && !args[i + 1].startsWith("--") ? args[i + 1] : def;
+  if (i < 0) return def;
+  const v = args[i + 1];
+  const EX = { "--from": "--from 2026-11-17", "--to": "--to 2026-11-17", "--region": "--region 서초", "--samples": "--samples 10", "--env": "--env ../.env.local" };
+  if (!v || v.startsWith("--")) fail(`${name} 뒤에 값을 주세요(예: ${EX[name]}).`);
+  return v;
 };
 const useDb = args.includes("--db");
 const today = kstDate(new Date());
@@ -44,6 +56,28 @@ if (from > to) fail("--from이 --to보다 늦습니다.");
 function fail(msg) {
   console.error(`오류: ${msg}`);
   process.exit(1);
+}
+/** 정렬이 고정된 조회를 size씩 끝까지 이어 읽는다(마지막 쪽이 size보다 적으면 끝) */
+async function fetchAllPages(fetchPage, size = 1000) {
+  const out = [];
+  for (let offset = 0; ; offset += size) {
+    const page = await fetchPage(offset, size);
+    out.push(...page);
+    if (page.length < size) return out;
+  }
+}
+/** --selftest: 운영 DB 없이 1000건 경계·같은 시각 대량 동률에서 빠짐·겹침이 없는지 모의 응답으로 확인 */
+async function selfTest() {
+  const at = "2026-11-17T00:00:00Z";
+  const rows = Array.from({ length: 2500 }, (_, i) => ({ id: `id-${String(i).padStart(5, "0")}`, created_at: at }));
+  // DB의 order=created_at.asc,id.asc 를 흉내: 매 호출마다 섞인 원본을 같은 열쇠로 정렬한 뒤 자른다
+  const sorted = () => [...rows].sort(() => Math.random() - 0.5).sort((a, b) => a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id));
+  const got = await fetchAllPages(async (offset, size) => sorted().slice(offset, offset + size), 1000);
+  const ids = new Set(got.map((r) => r.id));
+  const exact = await fetchAllPages(async (offset, size) => sorted().slice(offset, offset + size), 1250); // 쪽 크기로 딱 나눠지는 경우(마지막 빈 쪽)
+  const ok = got.length === 2500 && ids.size === 2500 && got.every((r, i) => r.id === `id-${String(i).padStart(5, "0")}`) && exact.length === 2500;
+  console.log(`자체 점검(운영 DB 호출 없음): 동률 2500건·1000건씩 → ${got.length}건·중복 없는 ${ids.size}건, 1250건씩 → ${exact.length}건 — ${ok ? "통과" : "실패"}`);
+  process.exit(ok ? 0 : 1);
 }
 function kstDate(d) {
   return new Date(d.getTime() + 9 * 3600 * 1000).toISOString().slice(0, 10);
@@ -77,18 +111,17 @@ async function loadDb() {
   // 지난 3일 제목(운영 실행기의 recentTitles)을 맞추려고 3일 앞부터 읽는다
   const gte = kstStartIso(from, -3);
   const lt = kstStartIso(to, 1);
-  const out = [];
-  for (let offset = 0; ; offset += 1000) {
-    const q = `${url}/rest/v1/real_estate_news_items?select=user_id,sgg_cd,sgg_nm,title,link,snippet,published_at,created_at&created_at=gte.${gte}&created_at=lt.${lt}&order=created_at.asc&limit=1000&offset=${offset}`;
+  // 같은 created_at이 많아도 페이지 사이에 빠지거나 겹치지 않게 id로 순서를 고정한다(id = 표의 기본 키 uuid)
+  const out = await fetchAllPages(async (offset, size) => {
+    const q = `${url}/rest/v1/real_estate_news_items?select=user_id,sgg_cd,sgg_nm,title,link,snippet,published_at,created_at&created_at=gte.${gte}&created_at=lt.${lt}&order=created_at.asc,id.asc&limit=${size}&offset=${offset}`;
     const r = await fetch(q, { headers: { apikey: key, Authorization: `Bearer ${key}` } });
     if (!r.ok) fail(`DB 읽기 실패 HTTP ${r.status}`);
-    const page = await r.json();
-    out.push(...page);
-    if (page.length < 1000) break;
-  }
+    return r.json();
+  });
   return out.map((x) => ({ u: x.user_id, sgg_cd: x.sgg_cd, sgg_nm: x.sgg_nm, title: x.title, snippet: x.snippet ?? "", link: x.link, pub: x.published_at, d: x.created_at }));
 }
 
+if (args.includes("--selftest")) await selfTest();
 const rows = useDb ? await loadDb() : FIXTURE.map((x, i) => ({ ...x, link: `https://example.com/${i}`, pub: null }));
 const inRange = (r) => kstDate(new Date(r.d)) >= from && kstDate(new Date(r.d)) <= to;
 
