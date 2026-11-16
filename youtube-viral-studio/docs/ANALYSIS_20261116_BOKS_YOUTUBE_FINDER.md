@@ -1,0 +1,62 @@
+# 외부 원본 분석 — boks-youtube-finder → AIMaster 병합 검토 (2026-11-16)
+
+- 원본: https://github.com/boksajang/boks-youtube-finder (커밋 `3aacecf`, 2026-11-14, v1.0.0)
+- 라이선스: **MIT**(package.json `license`, README 「MIT License © 2026 복사장」). 별도 LICENSE 파일은 없음 → 이식 시 NOTICE에 README 문구·저장소 주소·커밋을 함께 남긴다. boks-music(→ `free-music-studio`)과 같은 제작자.
+- 형태: Electron 데스크톱 앱(약 5,500줄, 테스트 없음). YouTube Data API v3 + 로컬 Claude/Codex CLI로 기획안 생성.
+- 비교 대상: `youtube-viral-studio`(v1.29, 이하 YVS), `shorts-viral-studio`(v2.01, 이하 SVS), 공용 사본(threads-content-ops·ai-auto-blog·tistory-auto-blog·naver-blog-agent), `trending-product-finder`.
+- 상태: **분석 완료 · 구현 전(주인님 결정 대기)**. 코드·DB 변경 없음.
+
+## 1. 원본 기능 전체 목록과 판정
+
+| # | 원본 기능 (원본 위치) | AIMaster 현재 | 채택 | 이유 |
+|---|---|---|---|---|
+| 1 | **채널 평소 조회수 = 같은 형식 최근 영상 중앙값** — 업로드 재생목록 30개 → 48시간 지난 것·자기 자신 제외 → 최근 15개 중앙값, 표본 5개 미만이면 null, 하한 1,000 (`services/youtube.js` `computeChannelBaseline`, `fetchChannelUploads`) | 없음. SVS·사본은 「채널 전체 평균(총조회÷영상 수)」, YVS는 구독자 대비만 | **원본** | 전체 평균은 오래된 히트 영상 하나에 끌려가 배수가 틀어짐. 최근·같은 형식 중앙값이 「이 채널 치고 터졌다」를 가장 정확히 보여 줌 |
+| 2 | 떡상 판정 = 조회 1만↑ & 평소 대비 3배↑, 평소 모르면 구독자 대비(하한 1,000)로 추정 표시, 자동 음악 채널(「- Topic」)은 추정 제외 (`buildVideos`) | YVS 떡상 점수(배수35·VPH30·최신15·좋아요20)·배지, SVS 등급 | **병행** | YVS 점수는 속도(VPH)를 잘 봄. 원본 배수를 「평소 대비」 열로 추가하고 점수 계산의 배수 항목을 평소 대비로 바꾸는 안 |
+| 3 | 형식별 검색 버킷(short/medium/long 따로 검색 후 번갈아 섞기) + 부족하면 관련도순 보충, 남은 검색 횟수 안에서만 (`searchYouTube`) | YVS는 `videoDuration=short` 한 번 | **원본** | 섞어 검색하면 쇼츠가 상위를 차지해 롱폼이 거의 안 남는 문제를 해결 |
+| 4 | 인기 차트(mostPopular) 빠른 시작 — 검색 할당량 0, 국가·주제별 프리셋 6종 (`fetchPopularChart`, renderer `PRESETS`) | YVS 급상승 탭(롱폼만 mostPopular) | **원본 보강** | 쿼터 100유닛짜리 검색 없이 1~2유닛으로 시작. 쇼츠·카테고리 프리셋까지 확장 |
+| 5 | **관련성 필터** — 해시태그 도배, 다른 언어(문자 체계·음성 언어·태그로 판별), 키워드 무관, 제외 사유와 개수 표시 (`relevanceIssue`, `languageMismatch`) | 없음 | **원본** | 해외 스팸 쇼츠가 결과를 오염시키는 문제는 AIMaster 모든 쇼츠 수집기 공통 |
+| 6 | 종교 영상 기본 제외(강한 단어 1개 / 약한 단어 2개, 검색어가 종교면 해제) (`isReligious`) | 없음 | **원본(선택 켜기)** | 기본값은 주인님 결정 |
+| 7 | 시장 진입 기회 지수 0~100 = 소형(구독 2만↓) 채널 비중×60 + 소형 떡상 비중×2(최대1)×40, 등급·조언 문장 (`computeMarketAnalytics`) | 없음(TPF에 상품용 유튜브 신호만) | **원본** | 키워드 분석 화면 맨 위 한 줄 판단으로 적합 |
+| 8 | 제목 키워드 TOP 8(조사·어미 제거, 검색어·합성어 제외, 떡상 5개 이상이면 떡상 제목 기준), 누르면 목록 필터 (`extractTitleKeywords`) | 없음 | **원본** | AI 없이 무료로 패턴 제공 |
+| 9 | 떡상 산점도(x 평소 조회수, y 조회수, 1·3·10배 점선, 점 누르면 영상) (renderer `drawScatter`) | 없음 | **원본(React로 다시 그림)** | 화면 코드는 Canvas 직접 그리기라 로직만 옮기고 YVS 차트 컴포넌트로 구현 |
+| 10 | 트렌드 분석 — 형식별·채널 규모 4단계·길이 구간·요일·시간대(KST)·최근성·제목 패턴 7종·태그 TOP 20·채널 집중도 TOP 5 + **자동 결론 문장** (`services/trends.js`) | 채널 집중도 도넛·영상 연령 분포만. 대시보드에 「요일/시간대」 문구는 있으나 코드 없음 | **원본** | 문구와 실제의 불일치를 해소. 순수 함수 237줄이라 그대로 이식 가능 |
+| 11 | 할당량 관리 — API 키별(해시) 하루 사용량, 태평양 자정 초기화, 검색 전 남은 횟수로 차단 (`services/usage.js`) | YVS `QuotaMeter`는 요청 단위 표시만, 누적·차단 없음 | **원본(DB로 옮김)** | 웹이라 파일 대신 회원별 표 필요(DB 변경 → 결정 항목) |
+| 12 | 캐시 — 같은 조건 결과 1시간, 채널 업로드 통계 24시간(최대 3천 채널), 국가·카테고리 30일 | YVS Next 캐시: 검색 2분, 채널 10분 | **혼합** | 채널 업로드 통계 24시간 캐시는 #1의 비용을 줄이는 핵심. 회원 격리 유지(키별) |
+| 13 | 오류 한국어화(할당량·키·API 꺼짐·분당 제한·차트 없음·IP 제한), 15초 시간 제한 | YVS `youtubeData.ts`에 이미 있음(+5xx 재시도·키 가리기·KST 초기화 안내) | **AIMaster** | AIMaster 쪽이 더 상위. `videoChartNotFound` 안내 한 줄만 보강 |
+| 14 | 직접 지정 기간(KST 날짜), 24h~1y 프리셋 (`calculatePublishedRange`) | 7·30·90·365일 | **원본 보강** | 24시간·3일·직접 지정 추가 |
+| 15 | 목록 필터·정렬(배수·조회·구독자 범위·제목 키워드 / 배수·구독자배수·조회·하루조회·최신), 태그 펼침·복사 | 일부 정렬, 태그 복사 없음 | **원본 보강** | 화면에서만 적용(쿼터 0) |
+| 16 | AI 기획안 — 앱이 계산한 통계+떡상 영상(형식별 8개)만 넣고, 「없는 수치 지어내지 말 것」, 고정 JSON 스키마(요약·훅 각도·제목 공식·썸네일 패턴·형식 전략·기획안 3~4개·블루오션) 검증 (`services/ai-cli.js` `buildPrompt`, `normalizeReport`) | YVS 키워드 경쟁 리포트(자유 서술), SVS 소재→대본 파이프라인 | **혼합** | 실행 방식(로컬 CLI)은 웹에 안 맞음 → 회원 본인 Claude 키(기본 AI 규칙)로. 프롬프트 구조(통계 주입·스키마·검증)는 YVS 키워드 리포트에 이식, 대본까지 가려면 SVS로 넘기는 연결 버튼 |
+| 17 | 로컬 Claude/Codex CLI 자동 찾기·모델 목록·stdin 전달·도구 끔 | 해당 없음 | **채택 안 함** | 웹 서비스·회원 본인 키 구조와 맞지 않음 |
+| 18 | Electron 창·포터블 zip·safeStorage 키 암호화·app-data 폴더 | 해당 없음(키는 `user_api_keys`) | **채택 안 함** | AIMaster 공용 키 저장이 상위 |
+
+## 2. 이식 방식 제안 (원본 코드 그대로 옮길 것)
+
+순수 함수라 TypeScript로 거의 그대로 옮길 수 있는 파일:
+- `services/youtube.js`의 `computeChannelBaseline`·`fetchChannelUploads`·`buildVideos`·`relevanceIssue`·`languageMismatch`·`isReligious`·`computeMarketAnalytics`·`extractTitleKeywords`·`calculatePublishedRange` → `youtube-viral-studio/src/lib/youtube/boks/` (호출은 기존 `youtubeData.ts`를 거치게 바꿔 쿼터 기록·오류 형식을 AIMaster 것으로 통일)
+- `services/trends.js` 전체 → `src/lib/youtube/boks/trends.ts`
+- `services/usage.js`의 날짜·초기화 계산 → 서버 쪽 사용량 기록 함수(저장은 DB)
+- 옮긴 파일 머리 주석에 출처·커밋, `youtube-viral-studio/NOTICE.md`에 MIT 문구.
+
+공용 기준 코드 등록 후보: 관련성 필터와 평소 조회수 계산은 SVS·사본 4곳(쇼츠 글감 수집)에도 그대로 필요 → 1차 적용 뒤 `youtube-relevance-filter`, `youtube-channel-baseline` 공용 모듈로 등록하고 사본 반영은 각 프로그램 다음 배포 때.
+
+## 3. 비용
+
+| 항목 | 내용 |
+|---|---|
+| 회원 YouTube 쿼터 | 평소 조회수 계산이 채널당 playlistItems 1 + videos 1/50 유닛 추가 → 50개 영상·채널 40개 기준 약 +50~80유닛(검색 1회 100유닛보다 작음). 24시간 캐시로 재검색은 거의 0 |
+| 회원 AI 비용 | 기획안 버튼을 누를 때만 회원 본인 Claude 키 1회 |
+| 운영 비용 | 사용량·채널 캐시 표 추가 시 DB 용량 소량. Vercel 빌드는 구현 후 배포 1회(사전 승인) |
+| 분석 비용 | 없음(무료 공개 저장소 내려받기·코드 읽기만) |
+
+## 4. 주인님 결정 항목
+
+1. 적용 범위: YVS 한 곳에 먼저(권장) / SVS·사본까지 한 번에
+2. 떡상 기준: 원본 「평소 대비 중앙값」을 기본 배수로 바꿈(권장) / 기존 구독자 대비를 기본으로 두고 열만 추가
+3. 쇼츠 길이 기준을 180초로 통일(권장, 2024-10 이후 쇼츠 최대 3분) / 지금처럼 화면별 유지
+4. 종교 영상 제외 기본값: 켜기(원본과 같음) / 끄기
+5. DB 추가: 회원별 YouTube 사용량 표 + 채널 업로드 통계 캐시 표(회원 격리·30일 정리) 승인 여부
+6. AI 기획안: YVS 키워드 리포트를 원본식 JSON 기획안으로 교체 / 별도 버튼으로 추가
+
+## 5. 다음 첫 단계
+
+결정을 받으면 `PLAN_20261116_BOKS_FINDER_PORT.md`를 쓰고, 1단계(원본 순수 함수 이식 + 시험 코드) → 2단계(키워드 분석 화면에 기회 지수·산점도·키워드 TOP·트렌드 결론) → 3단계(사용량 표·캐시) → 4단계(AI 기획안) 순서로 진행한다.
