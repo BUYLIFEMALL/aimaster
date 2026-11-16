@@ -12,6 +12,16 @@ import { deleteMySectionAction, listMySectionsAction, saveMySectionAction } from
 
 type Mode = null | "save" | "insert";
 
+// 서버 호출이 오류로 끊겨도(개발 서버 재시작·네트워크) 단추가 「저장 중...」에 멈추지 않게 결과 형태로 바꾼다
+const NET_FAIL = "서버와 연결이 끊겼습니다. 잠시 뒤 다시 시도해 주세요.";
+async function safe<T>(fn: () => Promise<T>): Promise<T | { ok: false; error: string }> {
+  try {
+    return await fn();
+  } catch {
+    return { ok: false, error: NET_FAIL };
+  }
+}
+
 export function MySectionsButtons({ storeId }: { storeId: string }) {
   const getPuck = useGetPuck();
   const [mode, setMode] = useState<Mode>(null);
@@ -36,7 +46,7 @@ export function MySectionsButtons({ storeId }: { storeId: string }) {
     setMsg("");
     setList(null);
     setMode("insert");
-    const r = await listMySectionsAction();
+    const r = await safe(() => listMySectionsAction());
     if (r.ok) setList(r.sections);
     else setMsg(r.error);
   };
@@ -44,7 +54,7 @@ export function MySectionsButtons({ storeId }: { storeId: string }) {
   const save = async () => {
     const blocks = current.filter((_, i) => picked.has(i));
     setBusy(true);
-    const r = await saveMySectionAction(storeId, name, blocks);
+    const r = await safe(() => saveMySectionAction(storeId, name, blocks));
     setBusy(false);
     if (!r.ok) return setMsg(r.error);
     setMsg(`「${name.trim()}」 섹션을 저장했습니다. 다른 몰 편집기에서도 「내 섹션 넣기」로 쓸 수 있습니다.`);
@@ -63,7 +73,7 @@ export function MySectionsButtons({ storeId }: { storeId: string }) {
 
   const remove = async (s: MySection) => {
     setBusy(true);
-    const r = await deleteMySectionAction(s.id);
+    const r = await safe(() => deleteMySectionAction(s.id));
     setBusy(false);
     if (!r.ok) return setMsg(r.error);
     setList((l) => (l ?? []).filter((x) => x.id !== s.id));
