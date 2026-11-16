@@ -69,6 +69,10 @@
 
 ### 18:51 재현 결함 우선 배정
 
+18:59 추가: MOV05 `4936c5e72` 제출 후 MUS-20261116-06을 CC-MUSIC-01에 배정한다. 수정 SHA의 인코더/호출부 읽기 및 독립 격리 브라우저 OPFS 시험(A 정상/B 취소/D 하드웨어멈춤→소프트웨어1회/대체실패)만 허용. 실제회원파일·운영업로드·맥실하드웨어까지 검증했다고 말하지 않는다. 기존 설치 도구를 이용한 임시 시험 하네스/국소 번들만 가능하며 새 의존성 설치·프로그램 전체 build·배포·공유DB/다른서버 변경은 불가. 임시 서버가 필요하면 포트/메모리 확인 후 본인 식별 가능한 프로세스로만 실행·정리. 안전한 수정소스 실행 경로가 없으면 BLOCKED로 반환. Music은 기존 5개 제품 소스와 아래 문서를 편집하지 않는다.
+
+Movie는 MOV05 관련 미배포 기록만 추가 가능: `shorts-onestop-studio/docs/IMPROVEMENTS.md`·`shots/docs/IMPROVEMENTS.md`·`lyric-video-studio/docs/IMPROVEMENTS.md`·`docs/SHARED_MODULES.md` 공용모듈 본인 변경 한 항목. 기존 다른 세션 기록 보존, 파일별 편집 전 점유/status 재확인, 다른 공통 본문/버전/배포 목록을 일괄 재작성하지 않는다. 배포 승인 추가 없음.
+
 MOV-20261116-05 책임은 CC-MOVIE-01 한 명이다. MUS05에서 파일 직접 저장 + 하드웨어 인코더 멈춤 때 소프트웨어 대체가 없는 문제가 재현됨. 허용: 공용 기준 `shorts-onestop-studio/src/lib/render/mp4Encoder.ts`, 동일 사본 `shots/src/lib/render/mp4Encoder.ts`·`lyric-video-studio/src/lib/render/mp4Encoder.ts`·`video-to-gif/lib/mp4Encoder.ts`, 실제 호출부 `lyric-video-studio/src/lib/render/export.ts`의 스트림 재생성 연결, 국소 회귀 `shorts-onestop-studio/tests/mp4FileFallback.test.ts` 신규, 각 자기 변경 관련 개선문서·고유결과. 다른 Music 파일은 수정하지 않는다. Music은 이 5개 소스를 편집하지 않고 검증 담당으로 남는다.
 
 설계 기준: 기존 호출 호환을 유지하는 선택적 새 스트림 생성 콜백을 사용해 실패 스트림 abort 후 같은 사용자가 고른 파일 핸들에서 새 스트림으로 한 번만 소프트웨어 인코딩한다. 파일 선택 창 재호출·메모리 전체버퍼 대체·무한 재시도 금지. 취소/비하드웨어 오류에는 재시도하지 않으며 재시도/close/abort 오류에서도 자원을 정리한다. 실패→수정 회귀, 정상/대체/취소/대체실패/콜백없음 검증·공용사본 동일성 확인. 실행 전 매 파일 점유 재확인. 새 설치/빌드/배포/운영DB/외부쓰기 없음. Music 독립 재현 검증은 수정 SHA 회수 후 별도 배정.
