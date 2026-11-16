@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T19:33:11.207Z",
+  "checkedAt": "2026-11-16T19:36:40.282Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2302,11 +2302,11 @@
       "parent_task_id": "B2B-20261117-06",
       "owner": "CC-B2B-BACK-01",
       "title": "자동 구매확정과 교환7일 상태정합성 수정",
-      "status": "running",
+      "status": "ready_review",
       "delivery": "returned",
-      "evidence": "msg_f193c3324b3c Mac verify13 최종정적PASS/P2해제·작성자SQL31분리",
-      "next": "Master 메인Backend Lab ref외부확인→pre10/지문→고정apply0103 1회→verify14/별도지문 검증 실행지시. 실제실행결과대기, 운영/0104/정리/추가확정/빌드0",
-      "lastReviewedAt": "2026-11-16T19:33:11.207Z",
+      "evidence": "msg_15303937317f Lab0103 apply1·version20261116193438·verify14/14·注文지문동일/기존17+1주문/알림44/장부불변",
+      "next": "Lab0103 함수적용완료, Mac 실행증거대조배정. Backend 현재Lab UI버전/기존시험로그인/실제역할동작 부수효과 최소계획 준비. UI/실교환미검수·새빌드/외부발송/확정/정리0",
+      "lastReviewedAt": "2026-11-16T19:36:40.282Z",
       "sha": "0edda8666 / package9e9120183 + verify c8b33554e"
     },
     {
