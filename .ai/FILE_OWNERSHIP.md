@@ -67,6 +67,12 @@
 
 ## 18:44 역할 재배정 — Support는 사용자 직접 작업 전담
 
+### 18:51 재현 결함 우선 배정
+
+MOV-20261116-05 책임은 CC-MOVIE-01 한 명이다. MUS05에서 파일 직접 저장 + 하드웨어 인코더 멈춤 때 소프트웨어 대체가 없는 문제가 재현됨. 허용: 공용 기준 `shorts-onestop-studio/src/lib/render/mp4Encoder.ts`, 동일 사본 `shots/src/lib/render/mp4Encoder.ts`·`lyric-video-studio/src/lib/render/mp4Encoder.ts`·`video-to-gif/lib/mp4Encoder.ts`, 실제 호출부 `lyric-video-studio/src/lib/render/export.ts`의 스트림 재생성 연결, 국소 회귀 `shorts-onestop-studio/tests/mp4FileFallback.test.ts` 신규, 각 자기 변경 관련 개선문서·고유결과. 다른 Music 파일은 수정하지 않는다. Music은 이 5개 소스를 편집하지 않고 검증 담당으로 남는다.
+
+설계 기준: 기존 호출 호환을 유지하는 선택적 새 스트림 생성 콜백을 사용해 실패 스트림 abort 후 같은 사용자가 고른 파일 핸들에서 새 스트림으로 한 번만 소프트웨어 인코딩한다. 파일 선택 창 재호출·메모리 전체버퍼 대체·무한 재시도 금지. 취소/비하드웨어 오류에는 재시도하지 않으며 재시도/close/abort 오류에서도 자원을 정리한다. 실패→수정 회귀, 정상/대체/취소/대체실패/콜백없음 검증·공용사본 동일성 확인. 실행 전 매 파일 점유 재확인. 새 설치/빌드/배포/운영DB/외부쓰기 없음. Music 독립 재현 검증은 수정 SHA 회수 후 별도 배정.
+
 Support에 신규 업무·검토 대응을 배정하지 않는다. 아래 배정은 각각 독립 범위이며 제품 코드를 수정하는 작업은 WS06/MOV04의 지정 안내 문구뿐이다. 모든 담당은 편집/검사 전 점유·status·diff·관련 SHA를 다시 확인하고 자기 고유 결과 `.ai/results/<작업ID>-<팀ID>.md`로 반환한다. 새 설치·유료 빌드·배포·실제 외부 쓰기는 이 배정에 포함되지 않는다.
 
 | 작업 | 책임 | 범위·완료 조건 |
