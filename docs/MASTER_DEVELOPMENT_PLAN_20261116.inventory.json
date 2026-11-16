@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 04:55:29 KST",
+  "checkedAt": "2026-11-17 04:56:58 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4275,10 +4275,10 @@
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
       "status": "ready_review",
       "delivery": "delivered",
-      "evidence": "msg_7380483e3191 작성자격리mock33/33·강제중단 prepared보존/별도외부효과기록",
+      "evidence": "msg_7380483e3191 작성자격리mock33/33·강제중단 prepared보존/별도외부효과기록 / msg_d9dfbc33ec13 UI계획8dce72a9d",
       "decision": "Master조정 E1납부후거절차단 E2로그인본인 E3카드미설정은행 E4Backend신규경로;실환불미구현명시",
-      "next": "Mac QA012 두단계prepare/confirm·hardabort·동시/30분/GET/금액권한 독립검수배정. BackendUI연결계획정합성조사만,장기unknown수동해제미구현/문의. 실제Toss/Lab0104/운영/빌드0",
-      "lastReviewedAt": "2026-11-16T19:55:27.169Z",
+      "next": "Mac QA012 구현독립검토대기·UI연결0. Backend provider최초URL키노출과처리후제거/불확실재진입GET우선·제어된동일멱등재시도계약 문구정확화. 실제Toss/Lab0104/빌드0",
+      "lastReviewedAt": "2026-11-16T19:56:55.682Z",
       "sha": "f1938ec12 / 0104 e8fdf8ba390d7c7b81309a645bd35227022d6aaf973cb8d5ecce32a5911b46ce",
       "plannedMigration": "0104_exchange_fee_payments.sql (기존미적용0103 rename)",
       "migrationPath": "mall-builder/supabase/migrations/0104_exchange_fee_payments.sql",
