@@ -14,6 +14,10 @@
 
 ## 현재 조정 범위
 
+ECOM17 보완반환: MOV17-02 0e7409bad에서미응답pending중동일결과총3회재전송실재현. Ecom은동일ProductBatchBoard/saveTracker/관련시험범위로pending도불확실취급·자동전송차단/명시confirm수동재전송·정확ACK상태해제보완. 원MOV11해결green보존, 실저장/DB/build/deploy없음.
+
+WS-20261117-04 / CC-WORKSPACE-01: TAP17-02 d89f5d2be K2반환수정독립검토. 원K2/G1/G2와save쓰기시점조건/미변경현재상태반환만최소증명, qa_tap_ws_고유격리DB·본인결과만. 실제PostgREST와SQL재현구분. 제품/운영DB/빌드/배포/전체34검사반복금지.
+
 MOV-20261117-02 / CC-MOVIE-01: ECOM17 60860337b 결과ID/내용지문계약독립검수. 신규saveTracker.ts는Master기능분리필요범위로검토포함. 원MOV11지연ACK·순서역전/오염/구ACK확인필요·미응답pending재실행중복전송·동일크기내용변경을실하네스최소재현. 제품/DB/실저장/설치/build/deploy0·고유결과/fixture만.
 
 TAP17-02 후속반환: WS17-03 7578d14c8 K2 실제DB재현(등록뒤save가ready로덮어재등록중복) 수락. Backend동일범위 save3UPDATE에쓰기시점registered보호·RPC product_id is null·경합조건불일치거짓성공방지보완. 신규미적용migration동일파일수정허용, 로컬고유DB로K2/G1/G2·정상/오류저장순서만관련검증. Workspace추가제품수정없음·결과도착후독립재검토. 운영SQL/build/deploy없음.
