@@ -11,6 +11,7 @@ import { DEFAULT_THEME, type ShopTheme } from "../theme.ts";
 import { DEFAULT_FOOTER, DEFAULT_HEADER, DEFAULT_POPUP, type FooterDesign, type HeaderDesign, type PopupDesign } from "./frame.ts";
 import { DEFAULT_DETAIL, DEFAULT_LIST, type DetailDesign, type ListDesign } from "./pages.ts";
 import { EXTRA_LAYOUTS } from "./templates-extra.ts"; // 프론트(Claude) 스타일 116·117·118
+import { EXTRA_LAYOUTS_2 } from "./templates-extra-2.ts"; // 프론트(Claude(B2BFront)) 2차 125~130(식품·키즈·뷰티 보강)
 
 export const INDUSTRIES = ["b2b", "general", "fashion", "beauty", "food", "living", "digital", "kids"] as const;
 export type Industry = (typeof INDUSTRIES)[number];
@@ -627,6 +628,7 @@ export const LAYOUTS: LayoutTemplate[] = [
   },
 ];
 LAYOUTS.push(...EXTRA_LAYOUTS);
+LAYOUTS.push(...EXTRA_LAYOUTS_2);
 
 export const findLayout = (layoutId: string) => LAYOUTS.find((l) => l.id === layoutId) ?? null;
 export const findColor = (colorId: string) => COLOR_PRESETS.find((c) => c.id === colorId) ?? null;
