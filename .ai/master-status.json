@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T17:22:30.186Z",
+  "checkedAt": "2026-11-16T17:23:30.790Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -1780,13 +1780,14 @@
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "owner": "CC-REALTY-01",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "title": "지역·단지 감시 겹침 안내",
-      "evidence": "msg_e72a2177c5ec / RE結果§9",
-      "next": "비정상격리값 원문보존failclosed 보완·legacy VM12/기존15/단위120/type0 작성자보고. Mac재검수전달·코드없는릴리스영향/보존복구안정리요청,실수집/배포0",
-      "lastReviewedAt": "2026-11-16T17:21:36.570Z",
-      "sha": "b175feca7 + 1a6d013a8 + 79e2972df"
+      "evidence": "msg_faa9aed585dc / QA17-003末尾 / 79e2972df",
+      "next": "신규경계Mac실background12+boolean2 PASS 수락·미배포. 정확릴리스묶음/기록격리화면영향·복구없는중단·업데이트횟수 준비,실수집/배포0",
+      "lastReviewedAt": "2026-11-16T17:23:30.790Z",
+      "sha": "b175feca7 + 1a6d013a8 + 79e2972df",
+      "completion": "배정된 구현·계정격리/비정상원값보존 독립검수 범위 완료. 실SW수명·실계정·운영반영은 완료조건에서 분리"
     },
     {
       "task_id": "MOV-20261117-05",
@@ -2177,9 +2178,9 @@
       "slug": "realty-listing-alert",
       "owner": "CC-REALTY-01",
       "reportedVersion": "v1.45",
-      "stage": "운영1.45·계정전환격리 결함 수정중",
+      "stage": "운영1.45·계정격리 보완 독립검수범위 완료/미배포",
       "completed": "사용자 직접 승인·8w5x0eynp Ready·103시험·DB버전 일치 보고",
-      "next": "가상계정 혼입 재현·ownership 계정세대/결과차단 수정→Mac검수; 실회원유출로단정안함·실수집0",
+      "next": "79e2972df Mac 경계PASS·릴리스영향/보존복구안 준비. 실SW/실계정/운영반영 미검수·임의배포없음",
       "evidence": ".ai/results/RE-20261116-04-CC-REALTY-01.md",
       "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
     },
