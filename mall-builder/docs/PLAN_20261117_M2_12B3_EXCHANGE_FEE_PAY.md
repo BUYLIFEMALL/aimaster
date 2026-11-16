@@ -185,3 +185,9 @@ prepare 재진입·다른 키 교체 거절·failed 뒤 교체 허용 / prepare 
 - 판정은 응답 원래 글자 그대로(`v_raw = 'DONE'`, `in ('CANCELED','PARTIAL_CANCELED')`), 기호를 걸러 낸 값(`v_disp`)은 표시·반환용만. 소문자 `canceled`·끝 공백 `CANCELED `는 취소로 보지 않음.
 - 원문 비노출: 모든 POST·GET 예외 처리에서 `SQLERRM`·응답 값을 기록·반환·이력에 넣지 않음 — 고정 문구 + `SQLSTATE`·HTTP 상태만(0104 안 `sqlerrm` 0건).
 - 시험 60/60(두 번 같음): D1~D7 실제 흐름(완료 → 직원 입고 → 재발송 RPC)에서 다른 키·다른 주문 번호·금액 다름·READY·연결 예외·HTTP 500·가짜 취소 글자 → 확인 필요·재발송 막힘 → 정확한 DONE 재확인으로 해제·재발송 됨, D1은 우회 4종 막힘·404/소문자 done으로 해제 0 / D8 취소 보류는 정상 DONE 조회로 안 풀림 / D9 approvedAt 자리에 결제 키가 든 POST·GET 응답 → 기록·반환에 키 원문 0·SQLSTATE만 / D10 모든 오류 칸 키 원문 0. 직전 판(`--mig0104-from 45c2c3a15`)은 D1~D7·D9 실패(52/8), D8·D10은 회귀 방지 항목(직전 판도 통과). 모의 시험이라 실제 멱등·이중 과금 0 증명 아님.
+
+### 7-10. 이미 완료 응답 계약 고정(2026-11-17, Master msg_bd5fa4bba5ed — Mac msg_a1bfb6ab39f7 P2, 6-7 「현 계약 부족」 해소)
+- `card_prepare`·`card_confirm`의 done 응답: `{ok: not needs_review, already: true, status: 'done', needs_review: <참/거짓>}` + 확인 필요면 `{unknown: true, message: '결제 기록을 쇼핑몰이 확인하고 있습니다. 다시 결제하지 마세요.'}`. 정상 완료만 `ok: true`.
+- 같은 키·새 키 모두 같은 응답(승인 함수는 완료 확인을 키 비교보다 먼저 — 새 키로 불러도 토스 호출 0). 두 함수는 needs_review를 바꾸지 않고 새 준비·POST·원 증거 변경 0 — 해제는 직원 다시 확인(GET)만.
+- 화면은 그래도 반환값만으로 완료를 단정하지 않는다: 중립 `?pay=returned` → 주문 상세가 결제 기록(`status`·`needs_review`)을 다시 읽어 표시(6-5·6-7 그대로), 오류 글자로 상태 판정 0.
+- 시험: E1·E2 정상 완료 + 같은 키·새 키 준비·승인 4번 → ok true·already·status done·needs_review false·외부 0·상태 그대로 / E3·E4 hold 완료 + 4번 → ok false·needs_review true·「다시 결제하지 마세요」·외부 0·새 준비 0·needs_review·키·승인 시각 그대로 / D1 새 키 준비 판정을 새 계약으로. 새 판 62/62, 직전 판(`--mig0104-from 5fb0245f0`) D1·E1E2·E3E4만 실패(59/3).

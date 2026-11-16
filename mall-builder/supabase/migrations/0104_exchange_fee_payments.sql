@@ -186,7 +186,9 @@ begin
   if not found or x.order_id <> o.id then raise exception '교환을 찾을 수 없습니다.'; end if;
   select * into p from public.mall_builder_exchange_fee_payments where exchange_id = x.id for update;
   if p.id is not null then
-    if p.status = 'done' then return jsonb_build_object('ok', true, 'already', true); end if;
+    -- 이미 완료: 같은 키·새 키 모두 지금 상태를 그대로 돌려줌(확인 필요면 ok false — 정상 완료로 단정 금지). 외부 호출·새 준비·needs_review 변경 0
+    if p.status = 'done' then return jsonb_build_object('ok', not p.needs_review, 'already', true, 'status', 'done', 'needs_review', p.needs_review)
+        || case when p.needs_review then jsonb_build_object('unknown', true, 'message', '결제 기록을 쇼핑몰이 확인하고 있습니다. 다시 결제하지 마세요.') else '{}'::jsonb end; end if;
     if p.status = 'canceled' then raise exception '취소된 교환비 결제입니다. 쇼핑몰에 문의해 주세요.'; end if;
     if p.status in ('prepared', 'requested', 'unknown') then
       -- 같은 결제 키: 그대로(처음 준비 시각·멱등키·시한을 바꾸지 않음). 다른 결제 키: 앞 결제가 실제로 됐을 수 있으니 덮어쓰지 않음
@@ -239,10 +241,12 @@ begin
   select * into x from public.mall_builder_exchanges where id = p_exchange_id for update;
   if not found or x.order_id <> o.id then raise exception '교환을 찾을 수 없습니다.'; end if;
   select * into p from public.mall_builder_exchange_fee_payments where exchange_id = x.id for update;
+  -- 이미 완료면 키와 상관없이 지금 상태 그대로(준비 함수와 같은 계약, 토스 호출 0)
+  if p.id is not null and p.status = 'done' then return jsonb_build_object('ok', not p.needs_review, 'already', true, 'status', 'done', 'needs_review', p.needs_review)
+        || case when p.needs_review then jsonb_build_object('unknown', true, 'message', '결제 기록을 쇼핑몰이 확인하고 있습니다. 다시 결제하지 마세요.') else '{}'::jsonb end; end if;
   if p.id is null or p.payment_key is distinct from coalesce(p_payment_key, '') then
     raise exception '결제 준비 기록이 없습니다. 결제창에서 다시 시도해 주세요.';
   end if;
-  if p.status = 'done' then return jsonb_build_object('ok', true, 'already', true); end if;
   -- 확인 중인 결제는 토스를 다시 부르지 않는다(자동 재결제 없음) — 직원 다시 확인으로만
   if p.status in ('requested', 'unknown') then
     return jsonb_build_object('ok', false, 'unknown', true, 'message', '앞서 한 교환비 결제를 확인하고 있습니다. 쇼핑몰이 확인한 뒤 안내합니다.');

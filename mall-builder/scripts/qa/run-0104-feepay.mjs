@@ -92,7 +92,7 @@ if (NO_GUARD) run("drop trigger mall_builder_exchanges_fee_card_guard on public.
 const id = (n) => `00000000-0000-0000-0000-${String(n).padStart(12, "0")}`;
 const STORE = "00000000-0000-0000-0000-00000000005a", OWNER = "00000000-0000-0000-0000-0000000000a1";
 const U1 = id(0xf1), U2 = id(0xf2), S3 = id(0xf3), P = id(0xc1), V1 = id(0xd1), V2 = id(0xd2), POL = id(0xb1);
-const N = 60; // 주문 o1~o20, 각 티셔츠 V1 2개, 배송 완료 1일 전, 주인 U1
+const N = 65; // 주문 o1~o20, 각 티셔츠 V1 2개, 배송 완료 1일 전, 주인 U1
 const O = (n) => id(0xe00 + n), I = (n) => id(0x1000 + n);
 {
   const fx = [
@@ -462,7 +462,7 @@ dCase("D1 완료 + GET 다른 결제 키", 50, "get_wrong_key", (e) => {
   const nk = prep(U1, e, KEY(500)); const e0d = ext();
   mode("get", "get_404"); const f404 = dRe(e); mode("get", "get_lower_done"); const flow = dRe(e); mode("get", "get_done");
   const stillFlag = dNR(e) === "true";
-  return { label: "우회 4종 막힘·404/소문자 done 해제 0", ok: b.every((x) => !x.ok) && nk.ok && /already/.test(nk.out) && ext() === e0d && stillFlag && payCol(e, "payment_key") === KEY(50),
+  return { label: "우회 4종 막힘·404/소문자 done 해제 0", ok: b.every((x) => !x.ok) && nk.ok && /"ok": false/.test(nk.out) && /"already": true/.test(nk.out) && /"needs_review": true/.test(nk.out) && ext() === e0d && stillFlag && payCol(e, "payment_key") === KEY(50),
     detail: `${b.map((x) => x.ok).join(",")} 새키 ${nk.out.slice(0, 30)} 404 ${f404.ok} 소문자 ${flow.ok} 플래그 ${dNR(e)}` };
 });
 dCase("D2 완료 + GET 다른 주문 번호", 51, "get_wrong_order");
@@ -491,6 +491,31 @@ dCase("D7 완료 + GET 소문자 canceled(가짜 취소 글자)", 56, "get_fake_
 }
 // D10 전체 결제 기록·이력 오류 칸에 결제 키 원문 없음
 check("D10 모든 결제 기록·시도 이력의 오류 칸에 결제 키 원문 0", val(`select (select count(*) from mall_builder_exchange_fee_payments where payment_key <> '' and error like '%' || payment_key || '%') + (select count(*) from mall_builder_exchange_fee_payment_attempts where error like '%' || payment_key || '%');`) === "0", "키 포함 행 있음");
+
+// ── 이미 완료 응답 계약 E1~E4(Master msg_bd5fa4bba5ed, Mac msg_a1bfb6ab39f7): 준비·승인의 done 응답에 status·needs_review·already 명시, 확인 필요면 ok false ──
+mode("post", "done"); mode("get", "get_done");
+const eSnap = (e) => `${payCol(e, "status")}/${payCol(e, "needs_review")}/${payCol(e, "payment_key")}/${payCol(e, "approved_at")}/${val(`select count(*) from mall_builder_exchange_fee_payment_attempts where exchange_id = '${e}';`)}`;
+const eCalls = (e, key, newKey) => {
+  const x0 = ext(), s0 = eSnap(e);
+  const r = [prep(U1, e, key), prep(U1, e, newKey), conf(U1, e, key), conf(U1, e, newKey)];
+  return { r, sameState: eSnap(e) === s0, noPost: ext() === x0, s0, s1: eSnap(e) };
+};
+// E1·E2 정상 완료: 같은 키·새 키로 준비·승인 → 모두 ok true·already·status done·needs_review false, 외부 0·상태 그대로
+{
+  const e = mkEx(60); confirm(U1, e, KEY(60));
+  const t = eCalls(e, KEY(60), KEY(600));
+  const okAll = t.r.every((x) => x.ok && /"ok": true/.test(x.out) && /"already": true/.test(x.out) && /"status": "done"/.test(x.out) && /"needs_review": false/.test(x.out));
+  check("E1·E2 정상 완료 + 같은 키·새 키 준비·승인 4번 → ok true·already·status done·needs_review false·외부 POST 0·결제 키·승인 시각·이력 그대로",
+    okAll && t.noPost && t.sameState, `${t.r.map((x) => x.out.slice(0, 70) + x.err).join(" | ")} · ${t.s0} → ${t.s1}`);
+}
+// E3·E4 확인 필요(hold) 완료: 같은 키·새 키로 준비·승인 → 모두 ok false·already·status done·needs_review true·「다시 결제하지 마세요」, 외부 0·새 준비 0·needs_review·원 증거 그대로
+{
+  const e = mkEx(61); confirm(U1, e, KEY(61)); mode("get", "get_wrong_key"); tryAs(OWNER, `select public.mall_builder_exchange_fee_card_recheck('${e}');`); mode("get", "get_done");
+  const t = eCalls(e, KEY(61), KEY(610));
+  const holdAll = t.r.every((x) => x.ok && /"ok": false/.test(x.out) && /"already": true/.test(x.out) && /"status": "done"/.test(x.out) && /"needs_review": true/.test(x.out) && /다시 결제하지 마세요/.test(x.out));
+  check("E3·E4 확인 필요(hold) 완료 + 같은 키·새 키 준비·승인 4번 → ok false·already·status done·needs_review true·외부 POST 0·새 준비 0·needs_review·결제 키·승인 시각 그대로",
+    holdAll && t.noPost && t.sameState && t.s0.startsWith("done/true/" + KEY(61) + "/"), `${t.r.map((x) => x.out.slice(0, 90) + x.err).join(" | ")} · ${t.s0} → ${t.s1}`);
+}
 
 adm(`drop database if exists ${DB}`);
 console.log(`합계 통과 ${pass} / 실패 ${fail}${NO_GUARD ? " (지킴 트리거 뺀 빨강 확인)" : ""}${MIG0104_FROM ? " (0104 = " + MIG0104_FROM + " 판)" : ""}`);
