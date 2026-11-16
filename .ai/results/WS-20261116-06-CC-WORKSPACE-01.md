@@ -3,6 +3,7 @@
 - 담당: Claude(Workspace) `CC-WORKSPACE-01` · 세션 `claude-win-20261025-workspace`
 - 지시: Master `msg_fae5b3adc3ec` · 점유 `.ai/FILE_OWNERSHIP.md` WS-20261116-06 줄
 - 상태: **ready_review** · 배포: 미배포 대기
+- 산출물 커밋: `68743bcf9` (`git log -1 -- ai-work-workspace/src/app/guide/page.tsx` 기준). 처음 보고한 `3621bf314`는 공유 HEAD(Master 점유표 커밋)를 잘못 읽은 것 — 정정. 이후 산출물 SHA는 내 변경 경로 기준으로 보고
 
 ## 1. 시작 전 확인
 - 점유표 WS-06 줄(guide 한 곳 + 본인 IMPROVEMENTS) 확인, `ACTIVE_WORK` 내 줄 확인, 두 파일 `git status` 미커밋 없음.
