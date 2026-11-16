@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-16 ✅ [역할: ecommerce-image] Claud(ecommerce) Claude Code(윈도우) · 세션 `claude-win-sdp` — 쓰레드 쇼핑제휴 v1.88 (threads-auto MIT 이식 1단계)
+- 주인님 직접 배정·「권장대로 진행해」·「배포해」·「그 줄 지워」(작업 중 표 11-06 `claude-win-20261106-ytreply` 줄에서 쇼핑제휴 항목만 정리). 빌드 1회 `threads-affiliate-poster-n1k8m31tg` Ready, DB v1.86→v1.88.
+- 쿠팡 여러 경로 검색(키워드 10·골드박스·카테고리 베스트·쿠팡 PL)·로켓 거르기·이미 등록 제외(`affiliate_products.source_key` 운영 DB 적용)·30개 일괄 등록, 공용 `affiliate-clients` 사본 `threads-content-ops` 반영(운영 담당께 요청 남김). 공통: 위젯·로그아웃 local·서버 기기 정보.
+- 확인: 운영 v1.88·375px 화면(관리자 세션). **남은 것**: 시험 계정 로그인 뒤 실제 쿠팡 호출·일괄 등록 확인, 2단계 네이버 수집 확장. 상세 `threads-affiliate-poster/AGENTS.md` 2026-11-16 v1.88.
+- 비용: Vercel 빌드 1회(주인님 승인), AI 호출 0.
+
 ## 2026-11-16 ✅ [역할: video] Claude(Movie) Claude Code(윈도우) · 세션 `claude-win-video` — 유튜브 떡상 분석 v1.30 운영 배포
 - 주인님 「유튜브 떡상 분석 v1.30 배포 진행해」 → 빌드 1회 `youtube-viral-studio-i71hni371`(`dpl_6ZW5BA88C1vb6cfUtmUY2u5QcJR3`) Ready. DB 버전 v1.30, 프로그램 비교표 갱신. 커밋 `87ebcae7d`(떡상 시장 탐색, boks-youtube-finder MIT 이식) + `1fe195bdf`(버전·저장공간 위젯·로그인 정책 2건).
 - 운영 확인: 비로그인 화면 로그인 이동·API 401, 로그인 화면에서 v1.30·새 메뉴·위젯 확인. 실제 검색 시험은 ego 로그인 계정이 관리자라 하지 않음(시험 계정 로그인 뒤 진행).
