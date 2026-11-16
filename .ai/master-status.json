@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T17:32:09.196Z",
+  "checkedAt": "2026-11-16T17:33:55.016Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -1877,11 +1877,12 @@
       "title": "B2B Lab·RE계정격리·Workspace묶음 독립검수",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:19:35.068Z",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": ".ai/results/QA-20261117-003-CX-QA-01.md / msg_cd9ac04abae3",
-      "next": "RE 정상legacy배열 VM PASS/비배열소실P2 반환. E1 승인·열람보완반환,루트CAS/판정행렬 추가수정대기. 실제발송·실계정0"
+      "lastReviewedAt": "2026-11-16T17:33:55.016Z",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_da0c875037a0 / msg_faa9aed585dc / QA17-003",
+      "next": "배정검수범위완료·새E2/교환UI반환후새검수,같은시험반복없음",
+      "completion": "B2BLab정적/작성자증거재사용,RE격리VM,WS10정적이름/E1승인및선점모의경계 검수완료. 실SW/운영E2E/모델/외부발송 미검수"
     },
     {
       "task_id": "QA-20261117-004",
@@ -1934,12 +1935,13 @@
       "title": "확장 E1·notify_me 중복 차단",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:32:09.196Z",
-      "status": "ready_review",
-      "delivery": "returned",
+      "lastReviewedAt": "2026-11-16T17:33:55.016Z",
+      "status": "done",
+      "delivery": "integrated",
       "sha": "ce458cc2a + f2792fb25 + 93eabfc2e9f46e00f74f518b0c960049961b9243",
-      "evidence": "E1§13 / 39d6300d1c0f81b3a8d0aa0123736c796ee9e9ab / Master소스범위확인",
-      "next": "claimRetry stale쓰기→자식2 반례 실DB수정전후1개보완·작성자전체245/type0. Mac최종잔여경계검수전달,실모델/발송미검수·E2축소독립진행"
+      "evidence": "msg_da0c875037a0 / QA17-003·E1§13 / 93eabfc2e",
+      "next": "독립경계완료·소규모미배포묶음유지. claim후enqueue실패소진/전체execute중복별도한계. E2축소진행",
+      "completion": "배정E1 구현·notify_me승인/owner/루트CAS/재시도CAS 독립정적·모의경계PASS. 실DB245는작성자증거·실모델/발송/운영미검수"
     },
     {
       "task_id": "DES-20261117-02",
@@ -2153,9 +2155,9 @@
       "slug": "ai-work-workspace",
       "owner": "CC-WORKSPACE-01",
       "reportedVersion": "v1.55",
-      "stage": "운영v1.55·E1/소규모묶음 미배포·독립검수중",
-      "completed": "운영216시험·E1작성자225시험/type0·WS10 이름정적해소",
-      "next": "E1 notify_me CAS보완→Mac검수; AGY3안독립뷰어보완→주인님선택; 작은수정묶음배포",
+      "stage": "운영v1.55·E1보안경계독립검수완료/미배포·E2진행",
+      "completed": "E1 작성자245/type0·승인/owner/루트/재시도 경계독립PASS(정적·모의,실모델미검수)",
+      "next": "E1+906/8150/ad65 소규모묶음유지·E2복귀조회국소진행·AGY3안주인님선택전제품미반영",
       "evidence": "Workspace직접배포보고 / DIR-20261117-003",
       "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
     },
