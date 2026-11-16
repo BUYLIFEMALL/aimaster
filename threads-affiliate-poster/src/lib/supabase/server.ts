@@ -28,6 +28,8 @@ export async function createClient() {
           }
         },
       },
+      // 로그인 정책(docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md 2-2): 서버가 대신 로그인할 때 브라우저 기기 정보를 넘긴다
+      global: { headers: { "User-Agent": headerStore.get("user-agent") ?? "" } },
     },
   );
 }
