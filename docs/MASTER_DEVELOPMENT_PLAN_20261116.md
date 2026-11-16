@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 05:03:37 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 05:04:11 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -201,7 +201,7 @@
 | WS-20261117-14 | CC-WORKSPACE-01 | ready_review / returned | 주인님 직접 캘린더 달별 상자/색 구분 | 월보기CalendarView/calendar.css·tsc0 미배포,146토큰/월경계/연말전환·week보존실화면검수에병합·중복구현0 |
 | ESM-20261117-02 | CC-ECOM-01 | done / integrated | ESM 카탈로그 썸네일 실등록 | 등록/독립공개이미지검수범위완료·backup비공개유지·이미지재생성/루트배포0 |
 | B2B-20261117-06 | CC-B2B-BACK-01 | ready_review / returned | Lab0102 안전fixture·실행패키지 준비 | cleanup f3d66f561 잠금·해시 독립 정적 검토 마감. 실제 Lab 정리 미실행. Backend 새 0103 단독 실행 패키지 준비 계속, 검토 후 실제 적용 별도 지시 |
-| B2B-20261117-07 | CC-B2B-BACK-01 | running / delivered | 주인님기승인 D5 교환비 카드결제 b3 mock구현 | 0104内append-only attempts監査保全・canceled現行hold/fee非paid/再発行禁止·done実GET取消検証の最小実装指示。全terminal応答識別検証,返却後Mac変更境界検査。実Toss/Lab/ビルド0 |
+| B2B-20261117-07 | CC-B2B-BACK-01 | running / delivered | 주인님기승인 D5 교환비 카드결제 b3 mock구현 | 0104 내 append-only 시도기록 보존·취소 상태 잠금/현재 결제비 미결제/새 결제 금지·직원 done GET 취소검증 최소 구현 지시. 모든 종결 응답 결제 식별 검사, 반환 후 Mac 변경범위 검토. 실제Toss/Lab/빌드0 |
 | WS-20261117-15 | CC-WORKSPACE-01 | done / integrated | 주인님 직접 Alt/Option 달력카드 드래그 복사 | 배정코드검수완료·미배포묶음/146실화면으로연결,개발시험DB분리완료전DB시험재실행0 |
 | QA-20261117-011 | CX-QA-01 | done / integrated | 달력 Alt복사·월구분 기능회귀 독립검수 | 취소/원자구조/엄격날짜/권한작성자증거지정검수완료·실DOM146시각미검수·같은검사재반복0 |
 | QA-20261117-012 | CX-QA-01 | ready_review / returned | 교환비 카드결제 0103 모의/권한 독립검수 | 80a00923 함수내parse/markpaid오류경계정적PASS·PG17/3→20/0작성자근거수용. SQL전체중단내구intent미해소/배포차단·새정확상태안대기 |
