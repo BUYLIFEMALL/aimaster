@@ -69,6 +69,20 @@
 
 ### 19:07 대기 해소·다음 작업
 
+ECOM-20261116-08 / CC-ECOM-01: ECOM07 실제하네스에서 재현한 모바일 세로 쪼개짐/320px 넘침/이름없는2단계 입력 보완. 제품 범위는 `banana-canvas/src/components/batch/ProductBatchBoard.tsx` 한 파일, 기존 격리시험2파일·본인 IMPROVEMENTS·고유결과만. 공통CSS/서버/상품계약 변경 없음. 375/320px 완료상자·알약/단추/표제목 가독성·줄바꿈·초점/레이블 검증과 25MB경계 유지. 실패 재현→국소수정→같은 실제컴포넌트하네스 재검증. 새예산/build/배포/로그인/DB 없음.
+
+RE-20261116-06 / CC-REALTY-01: `commercial-land-trade-alert/src/lib/actions/auth.ts`·`realty-client-desk/src/lib/actions/auth.ts`의 signOutAction만 프로젝트 공통정책 `scope: local`로 수정, 본인2개프로그램 IMPROVEMENTS/고유결과. 다른인증/UA/위젯은 이번범위밖. 이미변경됐으면중복수정않고보고. 0번고지확인·해당타입/관련기존검사, 실제회원로그아웃/다른기기세션시험은수행하지않음. 새버전/build/배포/DB쓰기 없음.
+
+QA-20261116-05 / CX-QA-01: B2B0100 migration 및 scenario/rollback1·2 읽기전용 독립검토. 권한·회원/몰격리·발급중복/불확실재호출방지·취소/부분환불·기존0099의존 대조. 사용자승인과 Supabase도구창 차단은 별개. SQL실행·DB접속·제품수정없음, 고유 결과만. 위험확인시 즉시Master보고, Backend실행을우회하지않음.
+
+WS-20261116-08 / CC-WORKSPACE-01: `ai-work-workspace/src/litpage/server/agents/tools.ts`의 callKey 객체 키 순서 정규화와 `tests/integration/agentMcp.test.ts` 해당 회귀만 허용. 중첩 객체 키 정렬·배열 순서/타입/값 보존, 다른연결/도구/회원/인자의 승인 불일치 유지, 기존 승인·검토 기록 호환·승인1회 소진/CAS·무인검토 보존. 추가 모듈/스키마는 편집 전 Master 조정. 공유시험DB 점유 확인 후 검사. 배포/운영DB/실외부호출 없음. 자기 ACTIVE_WORK행은 공통지침의 기존 허용 범위에서 최신화하며 매번 재승인을 기다리지 않는다.
+
+19:15 MOV-20261116-06 / CC-MOVIE-01: 현재 공용 비교표 미커밋 중 본인 v1.33 배포 자동갱신(영상 요약/상세2줄) 출처를 확인해 해당2줄만 안전커밋. 다른 diff 유입 시 중지. `docs/PENDING_DEPLOYS.md` 본인 공용인코더 항목은 lyric v1.15 포함이 확인된4커밋을 완료기록으로 정정하고 신규4936c5e72·다른앱 미배포는 유지. 제품/배포 변경 없음. 이 작업 전까지 공용 비교표의 website-scraper 정정은 대기한다.
+
+WS-20261116-07 / CC-WORKSPACE-01: 사용자 직접 승인 v1.53 기배포의 실제 배포ID/소스/검사/운영가이드/비용 근거를 고유 결과로 남기고 자신의 역할/미배포 표기만 일치 확인. 새 검사/배포/실외부호출 없음. 기존본인보고 재사용.
+
+19:12 추가: BLOG-20261116-05 / CC-BLOG-01에 `ghost-scraper/AGENTS.md` 개요 버전 v1.15 및 `docs/SCRAPING_CONSOLIDATION_TASKS.md` T11 이미 병합 완료 범위/근거 정정만 배정. 실제 DB/live 미확인과 T12 담당 결정은 유지. `docs/PROGRAM_CAPABILITY_MAP.md`는 현재 출처 미확인 미커밋이 있어 Blog 편집 금지, Master가 그 변경 출처를 조정한 뒤 공식 정정한다. 공용 PENDING_DEPLOYS도 별도 배정 전 수정 금지. 제품/DB/배포 변경 없음.
+
 - ECOM-20261116-07 / CC-ECOM-01: 바나나 실제375px 검수의 로그인/운영DB 의존을 끊는다. 기존 `banana-canvas/tests/browser.mjs`의 격리시험 방식을 참고해 실제 `ProductBatchBoard`를 렌더하는 고유 `tests/productBatch.browser-entry.tsx`·`tests/productBatch.browser.mjs`만 추가 가능. 실제 현재CSS는 기존 설치 도구로 국소 생성하고 앱 전체 build/배포는 하지 않는다. 모의 localhost API/Storage·합성파일만, 실제 네트워크는 허용 localhost 외 차단. 375px 가로넘침/빈상태/키보드·레이블/25MB±1 경계 확인. 사용자 브라우저 기존창에 간섭하지 않고 자신이 만든 페이지/프로세스만 정리. ProductBatchBoard/공통CSS 제품 수정은 재현 후 별도 배정. 기존 단위시험을 화면검수로 포장하지 않는다.
 - FRONT-20261116-08 / CC-B2B-FRONT-01: FRONT07 전체폭100vw 넘침을 공개화면과 같은 렌더 경로의 **저장 없는 격리 fixture**로 재현·원인·최소수정안을 제출. `home-blocks.tsx` 등 제품파일은 읽기만, 본인 고유 결과/저장소 밖 임시 하네스 허용. 실제PC 스크롤바/375px·블록 full/boxed 조합 실측, 현재 B2B 승인 배포 후보를 변경하지 않는다. 새예산/build/운영게시 없음. 재현되면 Master가 제품 수정 담당/파일을 확정한다.
 - BLOG-20261116-04 / CC-BLOG-01: 총괄표에 남은 website-scraper 운영/병합·API410 상태 충돌을 기존 카테고리 지침·`ghost-scraper/`·비교표·관련 인수인계에서 읽기전용 대조. 기존 담당을 확인하고 SHA/실행가능근거와 '확정/미확인'을 반환. 원본/정책/프로그램 비교표 수정·외부수집·운영API실행 없음. Support에 요청하지 않는다.
