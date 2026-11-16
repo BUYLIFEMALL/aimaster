@@ -14,6 +14,8 @@
 
 ## 현재 조정 범위
 
+00:13 검토보완: DES11 실제컴포넌트이나편집기iframe은수작업fixture4799이므로실Lab PASS미수락. AGY는기존3210 실제3경로 외부375각1회만확인·접근불가시미검수, PC/필터반복·로그인우회/제품수정없음. WS17-02 78e893c90 계정/포트수정접수후 확장productIdentity HTTPS검사누락보완요청: 같은background.js와시험표에http/다른scheme거부만추가, 서버기존정책보존·ZIP/큐변경금지.
+
 WS-20261117-02 / CC-WORKSPACE-01: threads-affiliate-poster brandConnect.ts naverProductIdentity·extension/background.js productIdentity의계정/비표준포트거부 일치 및 tests/naver-brand-connect.test.cjs 경계검사만. 고유결과/본인역할문서허용. URL정규화/기본443/정상쇼핑여행회귀확인. 큐/후기/고지/ZIP/버전/운영DB/build/deploy변경금지. 편집전점유/dirty확인예약.
 
 TAP-20261117-02 / CC-B2B-BACK-01: threads-affiliate-poster naverCollect.ts·신규migration·database.types.ts·별도동시성/원자성검사 전담. 큐동시추가/등록중복방지, 상품insert+큐상태를동일트랜잭션안전RPC로원자화, RLS/동일회원/실패롤백/정상결과검증. 기존중복임의삭제금지·사전감지멈춤. 로컬기존PG qa_tap_고유DB만·공유/운영쓰기/설치/build/deploy금지. Workspace3파일편집금지, 최종URL함수재사용. Ecom은바나나ECOM17담당·TAP해당파일/ZIP변경금지. v1.89배포보완후검토, 빌드승인아님.
