@@ -27,6 +27,8 @@ export type Route =
   | { name: 'marketplace'; domain: string; tab?: string }
   | { name: 'people'; domain: string; userId?: string }
   | { name: 'tasks'; domain: string }
+  // 2026-11-17 WS-20261117-13 146 S2: 관제 대시보드 /<domain>/studio
+  | { name: 'studio'; domain: string }
   
   | { name: 'developers'; domain: string; tab?: string; id?: string }
   | { name: 'uniqueId'; domain: string; uid: string }
@@ -44,7 +46,7 @@ export interface Location {
   hash: string;
 }
 
-const SPECIAL = new Set(['chat', 'meetings', 'library', 'marketplace', 'people', 'tasks', 'developers']);
+const SPECIAL = new Set(['chat', 'meetings', 'library', 'marketplace', 'people', 'tasks', 'developers', 'studio']);
 
 export function parseLocation(pathname: string, search: string, hash: string): Location {
   const parts = pathname.split('/').filter(Boolean).map(decodeURIComponent);
@@ -73,6 +75,7 @@ export function parseLocation(pathname: string, search: string, hash: string): L
     else if (parts[1] === 'marketplace') route = { name: 'marketplace', domain, tab: parts[2] };
     else if (parts[1] === 'people') route = { name: 'people', domain, userId: parts[2] };
     else if (parts[1] === 'tasks') route = { name: 'tasks', domain };
+    else if (parts[1] === 'studio') route = { name: 'studio', domain };
     else if (parts[1] === 'developers') route = { name: 'developers', domain, tab: parts[2], id: parts[3] };
     else route = { name: 'library', domain, tab: parts[2] };
   } else {

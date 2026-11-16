@@ -86,7 +86,7 @@ let toastSeq = 1;
 
 export const useUI = create<UIState>((set, get) => ({
   sidebarOpen: readLS('nc:sidebarOpen', true),
-  sidebarWidth: readLS('nc:sidebarWidth', 270),
+  sidebarWidth: readLS('nc:sidebarWidth', 260), // 2026-11-17 146: 새 기본 260(이미 저장된 폭은 그대로)
   sidebarPeek: false,
   theme: initialTheme,
   resolvedDark: applyTheme(initialTheme),
@@ -111,7 +111,7 @@ export const useUI = create<UIState>((set, get) => ({
     set({ sidebarOpen: open, sidebarPeek: false });
   },
   setSidebarWidth: (w) => {
-    const width = Math.max(270, Math.min(600, Math.round(w))); 
+    const width = Math.max(260, Math.min(600, Math.round(w))); 
     writeLS('nc:sidebarWidth', width);
     set({ sidebarWidth: width });
   },

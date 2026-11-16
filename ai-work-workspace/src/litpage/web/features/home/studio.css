@@ -1,0 +1,49 @@
+/* 2026-11-17 WS-20261117-13 146 Professional Studio(S2) 관제 대시보드. 색은 tokens.css의 스튜디오 변수(없으면 기본값). */
+.aww-studio-dash {
+  min-height: 100%;
+  padding: 32px;
+  background: var(--aww-studio-canvas, var(--lp-bg-secondary));
+  color: var(--lp-text-primary);
+  box-sizing: border-box;
+}
+.aww-studio-head h1 { margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.3px; }
+.aww-studio-head p { margin: 6px 0 0; font-size: 14px; color: var(--lp-text-tertiary); }
+
+.aww-studio-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 24px 0; }
+.aww-studio-kpi {
+  display: flex; flex-direction: column; gap: 4px; text-align: start;
+  padding: 18px 20px; border-radius: 8px; border: 1px solid var(--lp-border-primary);
+  background: var(--aww-studio-card, var(--lp-bg-primary)); color: inherit; font: inherit;
+}
+button.aww-studio-kpi { cursor: pointer; }
+button.aww-studio-kpi:hover { border-color: var(--aww-studio-accent, #6366f1); }
+.aww-studio-kpi-label { font-size: 13px; font-weight: 600; color: var(--lp-text-secondary); }
+.aww-studio-kpi-value { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; min-height: 34px; display: flex; align-items: center; }
+.aww-studio-kpi-sub { font-size: 12px; color: var(--lp-text-tertiary); }
+
+.aww-studio-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+.aww-studio-card { padding: 20px 22px; border-radius: 8px; border: 1px solid var(--lp-border-primary); background: var(--aww-studio-card, var(--lp-bg-primary)); min-width: 0; }
+.aww-studio-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.aww-studio-card-head h2 { margin: 0; font-size: 16px; font-weight: 700; }
+.aww-studio-link { border: 0; background: none; padding: 4px 6px; border-radius: 6px; color: var(--aww-studio-accent-hover, #4f46e5); font: inherit; font-size: 13px; cursor: pointer; }
+.aww-studio-link:hover { background: var(--lp-bg-interactive-transparent); }
+.aww-studio-list { list-style: none; margin: 0; padding: 0; }
+.aww-studio-list li + li { border-top: 1px solid var(--lp-border-secondary); }
+.aww-studio-list button {
+  display: flex; align-items: center; gap: 8px; width: 100%; padding: 10px 4px; border: 0; background: none;
+  color: inherit; font: inherit; font-size: 14px; text-align: start; cursor: pointer; border-radius: 6px;
+}
+.aww-studio-list button:hover { background: var(--lp-bg-interactive-transparent); }
+.aww-studio-item-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.aww-studio-chip { flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: rgb(99 102 241 / 0.1); color: var(--aww-studio-accent-hover, #4f46e5); }
+.aww-studio-empty { margin: 12px 0 4px; font-size: 14px; line-height: 1.6; color: var(--lp-text-tertiary); }
+.aww-studio-skel { display: inline-block; height: 22px; border-radius: 6px; background: linear-gradient(90deg, var(--lp-bg-tertiary) 25%, var(--lp-bg-secondary) 50%, var(--lp-bg-tertiary) 75%); background-size: 200% 100%; animation: aww-studio-shine 1.2s infinite linear; }
+@keyframes aww-studio-shine { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .aww-studio-skel { animation: none; } }
+
+@media (max-width: 767px) {
+  .aww-studio-dash { padding: 20px 16px; }
+  .aww-studio-head h1 { font-size: 22px; }
+  .aww-studio-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .aww-studio-grid { grid-template-columns: 1fr; }
+}

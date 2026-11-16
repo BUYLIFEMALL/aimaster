@@ -1,6 +1,7 @@
 // AIMaster 공통 좌측 메뉴 규격(docs/SIDEBAR_LAYOUT_STANDARD.md)
 // 스마트 프로 인디고 워크스페이스 스타일 적용
 import { useSession } from '../../lib/store/session.ts';
+import { navigate, spaceDomain } from '../../lib/router.ts';
 import { useCurrentUser } from '../../lib/hooks.ts';
 import { useEffect, useState } from 'react';
 import './aimaster.css';
@@ -47,11 +48,28 @@ function InboxCount() {
 
 export function AimasterSidebarBottom() {
   const user = useCurrentUser() as { email?: string } | undefined;
+  const studioSpace = useSession((st) => st.spaceId);
+  const studioHref = studioSpace ? `/${spaceDomain(studioSpace)}/studio` : '';
   const email = user?.email || (typeof document !== 'undefined' ? document.getElementById('lit-app')?.dataset.memberEmail : '') || '';
   return (
     <div className="aww-sb-bottom">
       {/* AIMaster 표준 메뉴: API 키 등록 & 매뉴얼 */}
       <div className="aww-sb-nav-card">
+        {/* 2026-11-17 WS-20261117-13 146 S2: 관제 대시보드(/<domain>/studio, 워크스페이스 안 화면) */}
+        <a
+          className="aww-sb-item"
+          href={studioHref}
+          onClick={(e) => {
+            if (!studioHref || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+            e.preventDefault();
+            navigate(studioHref);
+          }}
+        >
+          <div className="aww-sb-item-inner">
+            <span className="aww-sb-item-icon">📊</span>
+            <span className="aww-sb-item-label">관제 대시보드</span>
+          </div>
+        </a>
         {/* U7: 다른 프로그램 결과가 모이는 받은 업무함(/inbox) */}
         <a className="aww-sb-item" href="/inbox">
           <div className="aww-sb-item-inner">

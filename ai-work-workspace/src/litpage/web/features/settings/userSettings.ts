@@ -16,7 +16,7 @@ import { registerIcons } from '../../components/Icon.tsx';
 
 registerIcons({ textDirection: PilcrowRight });
 
-export type StartPage = 'last_visited' | 'top_page' | 'library' | 'lit_ai';
+export type StartPage = 'last_visited' | 'top_page' | 'library' | 'lit_ai' | 'studio'; // 2026-11-17 146 S2
 export type DateFormat = 'full' | 'short' | 'mdy' | 'dmy' | 'ymd' | 'relative';
 export type NumberFormat = 'default' | 'comma_dot' | 'dot_comma';
 export type Contrast = 'system' | 'standard' | 'high';

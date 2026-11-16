@@ -17,6 +17,7 @@ import { LibraryPage } from '../home/LibraryPage.tsx';
 import { MarketplacePage } from '../templates/MarketplacePage.tsx';
 import { PeoplePage } from '../home/PeoplePage.tsx';
 import { MyTasksPage } from '../home/MyTasksPage.tsx';
+import { StudioDashboard } from '../home/StudioDashboard.tsx';
 import { UniqueIdRedirect } from '../database/uniqueIdRoute.tsx';
 import { AgentPage } from '../agents/AgentPage.tsx';
 import { installPersonHoverDelegation } from '../presence/PersonHoverCard.tsx';
@@ -127,6 +128,8 @@ export function Workspace() {
         return <PeoplePage userId={route.userId} />;
       case 'tasks':
         return <MyTasksPage />;
+      case 'studio': // 2026-11-17 146 S2 관제 대시보드
+        return <StudioDashboard />;
       case 'developers':
         return <DeveloperTools tab={route.tab} id={route.id} />;
       case 'uniqueId':
@@ -193,7 +196,7 @@ function tDemo(hours?: number) {
     : t('lp.shell.public_demo_notice_no_reset', "Public demo: everyone shares this account. Don't enter personal information.");
 }
 
-export type StartPage = 'last_visited' | 'top_page' | 'library' | 'lit_ai';
+export type StartPage = 'last_visited' | 'top_page' | 'library' | 'lit_ai' | 'studio';
 
 function alivePage(id: string | null | undefined): boolean {
   const b = id ? records.get<BlockRecord>('block', id) : undefined;
@@ -226,6 +229,7 @@ export function openStartPage(spaceId: string) {
   const domain = spaceDomain(spaceId);
   if (mode === 'library') return navigate(`/${domain}/library`, { replace: true });
   if (mode === 'lit_ai') return navigate(`/${domain}/chat`, { replace: true });
+  if (mode === 'studio') return navigate(`/${domain}/studio`, { replace: true }); // 회원이 고른 경우만(기본값 last_visited 그대로)
   if (mode === 'last_visited') {
     let last: string | null = null;
     try {
