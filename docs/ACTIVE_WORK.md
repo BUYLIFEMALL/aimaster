@@ -42,6 +42,7 @@ WORK.md) — 동시 작업 | `esm-register/` (새 프로그램) | [역할: ecomm
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `realty-listing-alert/` (범위: 새 `lib/targetOverlap.ts`·`app/targets/TargetsClient.tsx`·새 `tests/targetOverlap.test.ts`·`package.json` test 줄·`docs/IMPROVEMENTS.md`) | [역할: realty] Claude Code(윈도우) · Claude(RealEstate) · 세션 `claude-win-20261024-realty` | 2026-11-17 | U-5 후속: 감시 화면 겹침 걸러내기를 lib로 옮겨 단위 시험(주인님 직접 지시, 동작 변경 없음·미배포 묶음) |
 | `lyric-video-studio/` (범위: `src/components/views/ExportView.tsx` 1파일 — MUS-20261117-01 사용자 취소 안내) | [역할: music] Claud(Music) Claude Code(윈도우, ego) · 세션 `claude-win-20261024-music` | 2026-11-17 | 사용자 취소를 오류 상자 대신 일반 안내로 — 미배포 대기로 모음 |
 | `threads/` (범위: 독립 모드 스위치·`KIT/` 신규 — `src/lib/version.ts`는 남의 미커밋이라 안 건드림) → 다음 `insta_auto_poster/KIT`·`ai-auto-blog` | [역할: support] Claude Code(윈도우) · Claude(Support) `CC-SUPPORT-01` · 세션 `claude-win-20261112-policy` | 2026-11-16 | 수강생 배포 키트 3종 — 지금: Threads 키트(`auto-threads-posting`) 신규 작성. 운영 동작 변화 없음·배포 없음 |
 | `ai-work-workspace/` | [역할: workspace] Claude(Workspace) Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` · **브라우저: 엣지(주인님 지정)** | 2026-11-16 | PLAN-20261117-01 E1 구현 중(주인님 「추천안대로 E1부터」): 주간 요약·회의록→에이전트·시간 기록·폼 조건부·블로그 채널 이름표·IMPROVEMENTS 표. 대상 `ai-work-workspace/src/litpage/server/agents/`(트리거·템플릿)·`src/litpage/server/templates/`·`src/litpage/web/features/database/views/form/`·`src/server/workInbox*.ts`·`docs/`·`tests/`. 미배포 묶음 `90612778f`·`8150da176` |
