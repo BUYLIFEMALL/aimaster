@@ -65,9 +65,9 @@
 더 앞의 이력은 각 프로그램 `AGENTS.md` 버전 기록에 있다(`free-music-studio/AGENTS.md` §4 등).
 
 ## 다음 첫 단계
-1. 미배포 대기 묶음(대기 표)은 각 프로그램 다음 배포 때 함께 — 코드는 모두 커밋됨(11-13)
+1. 음악 담당 미배포 0건(11-16 묶음 5개 배포·배포 뒤 확인 끝). 새 수정은 미배포 대기로 모았다가 다음 배포 때 함께
 2. **음악 표 칸 이름을 바꿀 때 주의(2026-11-11)**: `free_music_tracks`·`ams_generations`·`music_track_variants`는 메인 「내 자료함」 트리거(`member_assets_sync_fms/ams/suno`, 마이그레이션 0059)가 읽는다 — 칸 이름·저장 경로를 바꾸면 트리거도 함께 고친다(트리거 오류 = 원본 저장 실패)
-4. 새 작업이 오면: `node scripts/dev-requests.mjs list --role music` → 백로그 확인 → 플랜 → 구현. 화면을 크게 바꾼 뒤에는 배포 전에 `next dev`로 「Maximum update depth」 경고를 확인한다(2026-11-09 교훈)
+3. 새 작업이 오면: `node scripts/dev-requests.mjs list --role music` → 백로그 확인 → 플랜 → 구현. 화면을 크게 바꾼 뒤에는 배포 전에 `next dev`로 「Maximum update depth」 경고를 확인한다(2026-11-09 교훈)
 
 ## 주인님께 여쭐 것
 - 없음
