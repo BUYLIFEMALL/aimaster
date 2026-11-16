@@ -136,23 +136,37 @@ begin
     return jsonb_build_object('ok', false, 'unknown', true, 'message', '카드사 응답이 늦어 결제 결과를 아직 모릅니다. 쇼핑몰이 확인한 뒤 안내합니다.');
   end;
 
-  v_done := v_status = 200 and v_body ->> 'status' = 'DONE' and v_body ->> 'orderId' = v_toss and (v_body ->> 'totalAmount')::bigint = x.fee;
-  if v_done then
-    update public.mall_builder_exchange_fee_payments set status = 'done', method = coalesce(v_body ->> 'method', ''),
-      approved_at = (v_body ->> 'approvedAt')::timestamptz, receipt_url = coalesce(v_body #>> '{receipt,url}', ''), error = '', updated_at = now()
+  -- 토스 응답을 받은 뒤의 처리(해석·결제 기록·교환 반영)는 안쪽 블록에서 — 여기서 오류가 나도 위 결제 기록(결제 키 포함)은 남기고
+  -- unknown으로 바꿔 직원 다시 확인으로 복구한다(QA012: 토스 DONE 뒤 내부 오류로 기록·키가 통째로 되돌려지던 문제).
+  -- 한계: 이 블록은 「함수 안에서 난 오류」만 막는다. 응답 뒤 DB 연결 끊김·문장 시간 초과·서버 중단은 이 기록까지 되돌린다(외부 원자성 아님).
+  begin
+    -- 금액은 숫자 형식일 때만 변환(아니면 완료 판정 불가 = unknown, 기본값으로 채우지 않음). 승인 시각 변환 실패도 아래 예외 → unknown
+    v_done := v_status = 200 and v_body ->> 'status' = 'DONE' and v_body ->> 'orderId' = v_toss
+              and coalesce(v_body ->> 'totalAmount', '') ~ '^[0-9]{1,12}$' and (v_body ->> 'totalAmount')::bigint = x.fee;
+    if v_done then
+      update public.mall_builder_exchange_fee_payments set status = 'done', method = coalesce(v_body ->> 'method', ''),
+        approved_at = case when coalesce(v_body ->> 'approvedAt', '') = '' then null else (v_body ->> 'approvedAt')::timestamptz end,
+        receipt_url = coalesce(v_body #>> '{receipt,url}', ''), error = '', updated_at = now()
+      where id = v_pay;
+      perform mall_builder_private.exchange_fee_mark_card_paid(x.id, v_body ->> 'method', 'customer');
+      return jsonb_build_object('ok', true);
+    end if;
+    update public.mall_builder_exchange_fee_payments set
+      status = case when v_status between 400 and 499 then 'failed' else 'unknown' end,
+      error = left(btrim(coalesce(v_body ->> 'code', '') || ' ' || coalesce(v_body ->> 'message', '') ||
+                   case when v_status = 200 then ' (토스 상태 ' || coalesce(v_body ->> 'status', '?') || ')' else '' end), 300),
+      updated_at = now()
     where id = v_pay;
-    perform mall_builder_private.exchange_fee_mark_card_paid(x.id, v_body ->> 'method', 'customer');
-    return jsonb_build_object('ok', true);
-  end if;
-  update public.mall_builder_exchange_fee_payments set
-    status = case when v_status between 400 and 499 then 'failed' else 'unknown' end,
-    error = left(btrim(coalesce(v_body ->> 'code', '') || ' ' || coalesce(v_body ->> 'message', '') ||
-                 case when v_status = 200 then ' (토스 상태 ' || coalesce(v_body ->> 'status', '?') || ')' else '' end), 300),
-    updated_at = now()
-  where id = v_pay;
-  return jsonb_build_object('ok', false, 'unknown', not (v_status between 400 and 499),
-    'message', case when v_status between 400 and 499 then coalesce(v_body ->> 'message', '결제를 승인하지 못했습니다.')
-                    else '결제 결과를 아직 확인하지 못했습니다. 쇼핑몰이 확인한 뒤 안내합니다.' end);
+    return jsonb_build_object('ok', false, 'unknown', not (v_status between 400 and 499),
+      'message', case when v_status between 400 and 499 then coalesce(v_body ->> 'message', '결제를 승인하지 못했습니다.')
+                      else '결제 결과를 아직 확인하지 못했습니다. 쇼핑몰이 확인한 뒤 안내합니다.' end);
+  exception when others then
+    -- 안쪽 변경만 되돌려짐. 결제 기록은 남아 있으니 unknown + 사유로 바꾼다(실패로 돌려 재결제를 허용하지 않음)
+    update public.mall_builder_exchange_fee_payments set status = 'unknown',
+      error = left('토스 응답 처리 중 오류(관리자 확인 필요): ' || sqlerrm, 300), updated_at = now()
+    where id = v_pay;
+    return jsonb_build_object('ok', false, 'unknown', true, 'message', '결제 결과를 처리하는 중 문제가 생겼습니다. 쇼핑몰이 확인한 뒤 안내합니다(다시 결제하지 마세요).');
+  end;
 end;
 $$;
 
@@ -176,16 +190,26 @@ begin
   end;
   if v_status <> 200 then raise exception '확인하지 못했습니다: %', coalesce(v_body ->> 'message', v_status::text); end if;
   v_st := v_body ->> 'status';
-  if v_st = 'DONE' and v_body ->> 'orderId' = p.toss_order_id and (v_body ->> 'totalAmount')::bigint = p.amount then
-    update public.mall_builder_exchange_fee_payments set status = 'done', method = coalesce(v_body ->> 'method', ''),
-      approved_at = (v_body ->> 'approvedAt')::timestamptz, receipt_url = coalesce(v_body #>> '{receipt,url}', ''), error = '', updated_at = now()
+  -- 조회 응답 처리도 안쪽 블록에서(오류면 결제 기록을 unknown·사유로 남기고 직원에게 알림 — 실패로 돌려 재결제를 허용하지 않음)
+  begin
+    if v_st = 'DONE' and v_body ->> 'orderId' = p.toss_order_id
+       and coalesce(v_body ->> 'totalAmount', '') ~ '^[0-9]{1,12}$' and (v_body ->> 'totalAmount')::bigint = p.amount then
+      update public.mall_builder_exchange_fee_payments set status = 'done', method = coalesce(v_body ->> 'method', ''),
+        approved_at = case when coalesce(v_body ->> 'approvedAt', '') = '' then null else (v_body ->> 'approvedAt')::timestamptz end,
+        receipt_url = coalesce(v_body #>> '{receipt,url}', ''), error = '', updated_at = now()
+      where id = p.id;
+      perform mall_builder_private.exchange_fee_mark_card_paid(x.id, v_body ->> 'method', 'staff');
+    elsif v_st = 'DONE' then
+      update public.mall_builder_exchange_fee_payments set status = 'unknown', error = '토스 결제 정보(주문 번호·금액)가 교환비와 다릅니다 — 관리자 확인 필요', updated_at = now() where id = p.id;
+    elsif v_st in ('ABORTED', 'EXPIRED', 'CANCELED') then
+      update public.mall_builder_exchange_fee_payments set status = 'failed', error = '토스 상태 ' || v_st, updated_at = now() where id = p.id;
+    end if;
+  exception when others then
+    update public.mall_builder_exchange_fee_payments set status = 'unknown',
+      error = left('토스 조회 응답 처리 중 오류(관리자 확인 필요): ' || sqlerrm, 300), updated_at = now()
     where id = p.id;
-    perform mall_builder_private.exchange_fee_mark_card_paid(x.id, v_body ->> 'method', 'staff');
-  elsif v_st = 'DONE' then
-    update public.mall_builder_exchange_fee_payments set status = 'unknown', error = '토스 결제 정보(주문 번호·금액)가 교환비와 다릅니다 — 관리자 확인 필요', updated_at = now() where id = p.id;
-  elsif v_st in ('ABORTED', 'EXPIRED', 'CANCELED') then
-    update public.mall_builder_exchange_fee_payments set status = 'failed', error = '토스 상태 ' || v_st, updated_at = now() where id = p.id;
-  end if;
+    return jsonb_build_object('toss_status', v_st, 'error', '토스 응답을 처리하지 못했습니다. 결제는 「확인 필요」로 남겼습니다.');
+  end;
   return jsonb_build_object('toss_status', v_st);
 end;
 $$;
