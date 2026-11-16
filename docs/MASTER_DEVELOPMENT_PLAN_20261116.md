@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 03:03:49 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 03:10:19 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -39,7 +39,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 159개: done 131개 · cancelled 6개 · ready_review 15개 · running 3개 · ready 3개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 162개: done 133개 · cancelled 6개 · ready_review 17개 · running 1개 · ready 4개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -190,18 +190,21 @@
 | WS-20261117-11 | CC-WORKSPACE-01 | done / integrated | E2-7-1 포커스복귀 동기화·기존말풍선 현지화 | 미배포묶음유지·기존disconnect poll타이머/inflight/currentPage잔류는별도한계,포털계속 |
 | QA-20261117-006 | CX-QA-01 | ready_review / returned | 교환 UI 서버권한·단계·오류 독립검수 | 원UI P2두건독립PASS·모의RLS몰/RPC0·11시험수락. Labfixture/verify별도보완대기·실적용흐름미검수 |
 | QA-20261117-007 | CX-QA-01 | done / integrated | E2 복귀동기화·리스너수명 독립검수 | 지정경계PASS수락·기존타이머취소/실네트워크/전체계정전환검수아님·재반복없음 |
-| WS-20261117-12 | CC-WORKSPACE-01 | ready_review / returned | E2-7-3 손님 포털 구현·외부공개권한 경계 | 만료/꺼짐재활성새토큰·활성save유지·rowlock직렬화 보완,작성자10/260/type0·Mac재검수전달·OFF/운영표0.146계획진행 |
-| ESM-20261117-01 | CC-ECOM-01 | running / acknowledged | 주인님 직접 ESM 썸네일 등록·사용자 매뉴얼 | 썸네일등록부분완료,매뉴얼작성자15/type0미배포·QA008남은안내/단계수/연결설치/filled기록한계 보완중·새빌드0 |
+| WS-20261117-12 | CC-WORKSPACE-01 | done / integrated | E2-7-3 손님 포털 구현·외부공개권한 경계 | 서버/UI OFF·운영aww_portals표0 유지. 활성배포는DB구조추가별도승인·기회정리/5분캐시한계기록 |
+| ESM-20261117-01 | CC-ECOM-01 | ready_review / returned | 주인님 직접 ESM 썸네일 등록·사용자 매뉴얼 | QA008누락source반영·tsc0/작성자15시험미배포,맥후속정적검수대기·공개200썸네일실등록완료·운영화면아직v1.01 |
 | QA-20261117-008 | CX-QA-01 | ready_review / returned | ESM 운영안내·매뉴얼 누락 독립점검 | 운영v1.01안내누락반환·새매뉴얼27ae와대조후담당국소수정,실ESM입력/등록미검수 |
-| QA-20261117-009 | CX-QA-01 | ready / delivered | OFF 포털 공유권한·토큰·속성투영 독립검수 | 기존만료토큰부활수정경계 재검수·동일프로세스시험vs다중잠금근거분리,권한전체재반복0·실공개0 |
-| WS-20261117-13 | CC-WORKSPACE-01 | ready / delivered | 주인님 선택146 Professional Studio 전면리뉴얼 | AGY146명세인계·Workspace제품코드단독수정,정확파일/단계계획→Master충돌조정. 선택재질문/샘플KPI데이터복제/빌드0 |
+| QA-20261117-009 | CX-QA-01 | done / integrated | OFF 포털 공유권한·토큰·속성투영 독립검수 | 만료토큰부활지정수정독립PASS 수락·실DB다중프로세스미검수·공개전환0 |
+| WS-20261117-13 | CC-WORKSPACE-01 | ready / delivered | 주인님 선택146 Professional Studio 전면리뉴얼 | S0 light토큰/S1 260사이드바/S2 실제RPC홈 정확파일구현승인·단독Workspace. 관련검사→묶음끝전체1회·S2반환후S3~5조정·빌드0 |
 | REL-20261117-006 | CC-REALTY-01 | done / integrated | 주인님 직접승인 매물알림v1.46 운영배포 | QA010읽기확인배정·ZIP압축해시차이/내부파일동일근거보존,새수집/알림/추가빌드0 |
 | QA-20261117-010 | CX-QA-01 | done / integrated | 매물알림v1.46 운영·확장버전 읽기확인 | Mac확장설치/실SW/첫격리/수집알림미검수·PC5대표시는다른PC상태,재반복0 |
 | RE-20261117-05 | CC-REALTY-01 | done / returned | 주인님 직접 상가 층진단 n30 재측정1회 | 클라이언트15초타임아웃·응답지역변수라회수실패·HTTP/건수미확인·추가공공API호출0,향후결과보관실행기개선안만기록 |
 | WS-20261117-14 | CC-WORKSPACE-01 | ready_review / returned | 주인님 직접 캘린더 달별 상자/색 구분 | 월보기CalendarView/calendar.css·tsc0 미배포,146토큰/월경계/연말전환·week보존실화면검수에병합·중복구현0 |
 | ESM-20261117-02 | CC-ECOM-01 | done / integrated | ESM 카탈로그 썸네일 실등록 | 정확URL/이미지크기추가근거회수·재생성/루트배포0 |
-| B2B-20261117-06 | CC-B2B-BACK-01 | ready_review / returned | Lab0102 안전fixture·실행패키지 준비 | 합성on_sale/business_only·기존승인사업자권한유지·role SELECT3/타몰소비자anon0·verify13엄격/17시험 작성자보고→Mac읽기판정,실행0 |
-| B2B-20261117-07 | CC-B2B-BACK-01 | running / acknowledged | 주인님기승인 D5 교환비 카드결제 b3 mock구현 | 0103+qa runner만단계1·동시승인/불명자동재결제0/은행카드경합 모의시험→Mac,실Toss/운영/Lab/UI2단계/빌드0 |
+| B2B-20261117-06 | CC-B2B-BACK-01 | ready_review / returned | Lab0102 안전fixture·실행패키지 준비 | hidden/RLS·NULL집계정적해소PASS·실anon권한증거부족(현재authenticated uid빈값). actualROLEanon단일추가검사요청·적용0 |
+| B2B-20261117-07 | CC-B2B-BACK-01 | ready_review / returned | 주인님기승인 D5 교환비 카드결제 b3 mock구현 | QA012카드/은행경합·금액/주문/권한·unknown/guard독립검수배정,UI단계2계획만·실토스/운영/Lab/빌드0 |
+| WS-20261117-15 | CC-WORKSPACE-01 | ready_review / returned | 주인님 직접 Alt/Option 달력카드 드래그 복사 | 월/주 drop시Alt+날짜이동이면duplicateRows→복제본날짜이동·원본유지,QA011실패/중복/기간/일반이동 검수배정·미배포 |
+| QA-20261117-011 | CX-QA-01 | ready / delivered | 달력 Alt복사·월구분 기능회귀 독립검수 | 월주/Alt드롭원본보존·실패/부분복제/중복·resize/취소/날짜기간경계검수,실원본fixture브라우저필요시Master요청·실데이터추가0 |
+| QA-20261117-012 | CX-QA-01 | ready / delivered | 교환비 카드결제 0103 모의/권한 독립검수 | 높은우선순위0103정적/모의검토·실토스/키/DB직접쓰기0·메인격리실행필요명령만요청 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
@@ -227,7 +230,7 @@
 | AI 업무 워크스페이스 자동화 | CC-WORKSPACE-01 | v1.55 | 운영v1.55·E1보안경계독립검수완료/미배포·E2진행 | E1 작성자245/type0·승인/owner/루트/재시도 경계독립PASS(정적·모의,실모델미검수) | E1+906/8150/ad65 소규모묶음유지·E2복귀조회국소진행·AGY3안주인님선택전제품미반영 |
 | 셀러 라벨·QR·서류 자동화 | CC-ECOM-01 | v1.04 | 운영·인쇄자료/소규모미배포 | 마켓단계48b67dd5c 구현 | 다음배포묶음·실인쇄여백자료대기 |
 | AI 쇼핑몰 주문·매출 리포트 자동화 | CC-ECOM-01 | v1.06 | 운영·자료대기 | 코드/기존검증은개별기록 | 개인정보지운실제주문파일 필요 |
-| 부동산 실시간 매물 알림 | CC-REALTY-01 | v1.46 | 주인님직접승인 운영Ready·독립읽기검수대기 | 6kxzrn0il Ready·DB/ext1.46·120/type0·메인확장재로드보고·격리코드독립PASS | QA010운영읽기확인·실첫회차격리/실회원설치는미검수·보관복구영향유지 |
+| 부동산 실시간 매물 알림 | CC-REALTY-01 | v1.46 | 운영v1.46·화면/guide/ZIP 독립읽기PASS | 6kxzrn0il Ready·DB/ext1.46·120/type0·메인확장재로드보고·격리코드독립PASS | 실Mac설치/첫회차격리·수집알림은미검수,새빌드/수집없이원래회차후읽기만별도 |
 | 상가·건물·토지 매물 알림 | CC-REALTY-01 | v1.34 | 운영·재측정조건대기 | 층호출조절 배포완료 | local로그아웃3a1d7fbb4 코드완료·미배포, 다음기능배포에묶음. UA/위젯잔여는별도 |
 | AI 중개사무소 고객관리 자동화 | CC-REALTY-01 | v1.10 | 운영·기능실물완료기록 | 1~4단계·계산기/문자실물기록 | local로그아웃3a1d7fbb4 코드완료·미배포, 다음기능배포에묶음. UA/위젯잔여는별도 |
 | AI 쿠팡 운영 자동화 | CC-ECOM-01 | v1.19 | 운영·실쓰기조건대기 | 읽기/기존흐름완료 기록 | 상품권한해제·실주문뒤승인범위시험,중지상품삭제금지 |
@@ -350,7 +353,7 @@
 | 90 | 셀러 라벨·QR·서류 자동화 / seller-label-docs | 이커머스 | v1.04 / 공개(new, 2026-10-25 신규) | — | CC-ECOM-01 · 운영·인쇄자료/소규모미배포 | 다음배포묶음·실인쇄여백자료대기 |
 | 91 | AI 쇼핑몰 주문·매출 리포트 자동화 / shop-order-report | 이커머스 | v1.06 / 공개(new, 2026-10-25 신규) | — | CC-ECOM-01 · 운영·자료대기 | 개인정보지운실제주문파일 필요 |
 | 92 | AI 스마트스토어 상품 자동등록기 / smartstore-register | 이커머스 | v1.28 / 공개(new, 2026-10-26 신규 · 「바로 등록」 실제 등록 성공 2026-10-27) | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
-| 93 | 부동산 실시간 매물 알림 / realty-listing-alert | 부동산 | v1.46 / 공개(2026-10-26 정식 공개, VIP 자동 부여) | v1.46 | CC-REALTY-01 · 주인님직접승인 운영Ready·독립읽기검수대기 | QA010운영읽기확인·실첫회차격리/실회원설치는미검수·보관복구영향유지 |
+| 93 | 부동산 실시간 매물 알림 / realty-listing-alert | 부동산 | v1.46 / 공개(2026-10-26 정식 공개, VIP 자동 부여) | v1.46 | CC-REALTY-01 · 운영v1.46·화면/guide/ZIP 독립읽기PASS | 실Mac설치/첫회차격리·수집알림은미검수,새빌드/수집없이원래회차후읽기만별도 |
 | 94 | 상가·건물·토지 매물 알림 / commercial-land-trade-alert | 부동산 | v1.34 / 공개(2026-10-31, VIP 자동 부여) | v1.34 | CC-REALTY-01 · 운영·재측정조건대기 | local로그아웃3a1d7fbb4 코드완료·미배포, 다음기능배포에묶음. UA/위젯잔여는별도 |
 | 95 | AI 중개사무소 고객관리 자동화 / realty-client-desk | 부동산 | v1.10 / 운영(2026-11-03 공개, NEW) | v1.10 | CC-REALTY-01 · 운영·기능실물완료기록 | local로그아웃3a1d7fbb4 코드완료·미배포, 다음기능배포에묶음. UA/위젯잔여는별도 |
 | 96 | AI 쿠팡 운영 자동화 / coupang-ops | 이커머스 | v1.19 / 공개(2026-10-31 공개 전환) | v1.19 | CC-ECOM-01 · 운영·실쓰기조건대기 | 상품권한해제·실주문뒤승인범위시험,중지상품삭제금지 |

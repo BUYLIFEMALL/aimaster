@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 03:03:49 KST",
+  "checkedAt": "2026-11-17 03:10:19 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -1856,9 +1856,9 @@
         "line": 173
       },
       "owner": "CC-REALTY-01",
-      "stage": "주인님직접승인 운영Ready·독립읽기검수대기",
+      "stage": "운영v1.46·화면/guide/ZIP 독립읽기PASS",
       "completed": "6kxzrn0il Ready·DB/ext1.46·120/type0·메인확장재로드보고·격리코드독립PASS",
-      "next": "QA010운영읽기확인·실첫회차격리/실회원설치는미검수·보관복구영향유지",
+      "next": "실Mac설치/첫회차격리·수집알림은미검수,새빌드/수집없이원래회차후읽기만별도",
       "reportedVersion": "v1.46",
       "evidence": ".ai/results/RE-20261116-04-CC-REALTY-01.md",
       "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
@@ -4103,12 +4103,12 @@
       "parent_task_id": "PLAN-20261117-01",
       "owner": "CC-WORKSPACE-01",
       "title": "E2-7-3 손님 포털 구현·외부공개권한 경계",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "120f5ffa988e875963c05d61029b4683febac796 / portal結果§5",
-      "completion": "기능OFF때DDL/DB접속/노출0·공유권한/행범위/속성투영/토큰폐기·권한철회·noStore·격리시험",
-      "next": "만료/꺼짐재활성새토큰·활성save유지·rowlock직렬화 보완,작성자10/260/type0·Mac재검수전달·OFF/운영표0.146계획진행",
-      "lastReviewedAt": "2026-11-16T18:03:46.569Z",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_8b6fbe2d72c1 / QA17-009 / b2715fcd6",
+      "completion": "OFF구현·권한/속성투영/만료재활성토큰회전 배정정적·모의검수범위PASS. 작성자PG10/260·실다중잠금/공개브라우저미검수",
+      "next": "서버/UI OFF·운영aww_portals표0 유지. 활성배포는DB구조추가별도승인·기회정리/5분캐시한계기록",
+      "lastReviewedAt": "2026-11-16T18:10:12.306Z",
       "sha": "a09825904 + b2715fcd6a81ea622d80ccd5e5877143ae3b389b"
     },
     {
@@ -4118,13 +4118,13 @@
       "parent_task_id": "OPS-20261116-002",
       "owner": "CC-ECOM-01",
       "title": "주인님 직접 ESM 썸네일 등록·사용자 매뉴얼",
-      "status": "running",
-      "delivery": "acknowledged",
-      "evidence": "msg_76e8468e9b69 / QA008누락반환 / msg_91521c509a04",
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "msg_1f10eefcd164 / QA008보완후source",
       "completion": "기존기능기준매뉴얼보완·실사썸네일지정row등록/공개이미지확인·backup비공개유지,마켓실등록없음",
-      "next": "썸네일등록부분완료,매뉴얼작성자15/type0미배포·QA008남은안내/단계수/연결설치/filled기록한계 보완중·새빌드0",
-      "lastReviewedAt": "2026-11-16T18:02:49.452Z",
-      "sha": "27ae7af4c + 6a7792e37"
+      "next": "QA008누락source반영·tsc0/작성자15시험미배포,맥후속정적검수대기·공개200썸네일실등록완료·운영화면아직v1.01",
+      "lastReviewedAt": "2026-11-16T18:10:12.306Z",
+      "sha": "27ae7af4c + c909b67e6 + 6a7792e37"
     },
     {
       "task_id": "QA-20261117-008",
@@ -4146,12 +4146,12 @@
       "parent_task_id": "WS-20261117-12",
       "owner": "CX-QA-01",
       "title": "OFF 포털 공유권한·토큰·속성투영 독립검수",
-      "status": "ready",
-      "delivery": "delivered",
+      "status": "done",
+      "delivery": "integrated",
       "sha": "a09825904",
-      "evidence": "b2715fcd6 / portal結果§5",
-      "next": "기존만료토큰부활수정경계 재검수·동일프로세스시험vs다중잠금근거분리,권한전체재반복0·실공개0",
-      "lastReviewedAt": "2026-11-16T18:03:46.569Z"
+      "evidence": "msg_8b6fbe2d72c1 / QA17-009",
+      "next": "만료토큰부활지정수정독립PASS 수락·실DB다중프로세스미검수·공개전환0",
+      "lastReviewedAt": "2026-11-16T18:10:12.306Z"
     },
     {
       "task_id": "WS-20261117-13",
@@ -4162,15 +4162,16 @@
       "title": "주인님 선택146 Professional Studio 전면리뉴얼",
       "status": "ready",
       "delivery": "delivered",
-      "evidence": "주인님 2번안으로작업지시/146-01참조 / msg_7197b56a1015",
+      "evidence": "146계획 / msg_7eff31662982",
       "decision": {
         "chosen": "146 Professional Studio",
         "reference": "[5/12] 146 Professional Studio - 01. 메인 관제 대시보드",
         "scope": "메인기준 전체화면 일관스타일 적용·기존기능/회원데이터유지",
         "source": "주인님 직접 채팅 2026-11-17 KST"
       },
-      "next": "AGY146명세인계·Workspace제품코드단독수정,정확파일/단계계획→Master충돌조정. 선택재질문/샘플KPI데이터복제/빌드0",
-      "lastReviewedAt": "2026-11-16T17:57:35.931Z"
+      "next": "S0 light토큰/S1 260사이드바/S2 실제RPC홈 정확파일구현승인·단독Workspace. 관련검사→묶음끝전체1회·S2반환후S3~5조정·빌드0",
+      "lastReviewedAt": "2026-11-16T18:10:12.306Z",
+      "sha": "d0356c425a07703799ae6e98fdacdee8fb83b68e (계획)"
     },
     {
       "task_id": "REL-20261117-006",
@@ -4254,9 +4255,9 @@
       "status": "ready_review",
       "delivery": "returned",
       "sha": "0afeb4b98f849e0b03d06bbaad148bae7846ea11",
-      "evidence": "msg_0a277f2a5019 / handoff-0102-lab",
-      "next": "합성on_sale/business_only·기존승인사업자권한유지·role SELECT3/타몰소비자anon0·verify13엄격/17시험 작성자보고→Mac읽기판정,실행0",
-      "lastReviewedAt": "2026-11-16T18:02:49.452Z"
+      "evidence": "msg_54e445ea53b0 / Lab0afeb",
+      "next": "hidden/RLS·NULL집계정적해소PASS·실anon권한증거부족(현재authenticated uid빈값). actualROLEanon단일추가검사요청·적용0",
+      "lastReviewedAt": "2026-11-16T18:10:12.306Z"
     },
     {
       "task_id": "B2B-20261117-07",
@@ -4265,12 +4266,55 @@
       "parent_task_id": "B2B-20261117-02",
       "owner": "CC-B2B-BACK-01",
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
-      "status": "running",
-      "delivery": "acknowledged",
-      "evidence": "701cf27ce PLAN / msg_fe09539468da 직접계속 / msg_d2670e735fae 경로예약",
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "msg_adc7693a72fd / 0103+runner17/17/no-guard14/3",
       "decision": "Master조정 E1납부후거절차단 E2로그인본인 E3카드미설정은행 E4Backend신규경로;실환불미구현명시",
-      "next": "0103+qa runner만단계1·동시승인/불명자동재결제0/은행카드경합 모의시험→Mac,실Toss/운영/Lab/UI2단계/빌드0",
-      "lastReviewedAt": "2026-11-16T18:02:49.452Z"
+      "next": "QA012카드/은행경합·금액/주문/권한·unknown/guard독립검수배정,UI단계2계획만·실토스/운영/Lab/빌드0",
+      "lastReviewedAt": "2026-11-16T18:10:12.306Z",
+      "sha": "d91f16033f22fba8121b4d30422fb76d7c6a8985"
+    },
+    {
+      "task_id": "WS-20261117-15",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "parent_task_id": "WS-20261117-13",
+      "owner": "CC-WORKSPACE-01",
+      "title": "주인님 직접 Alt/Option 달력카드 드래그 복사",
+      "status": "ready_review",
+      "delivery": "returned",
+      "sha": "ada3911482f99b268ef894a86d9ae04e3351354f",
+      "evidence": "주인님직접캡처/ALT복사동작수정지시·작성자tsc0",
+      "next": "월/주 drop시Alt+날짜이동이면duplicateRows→복제본날짜이동·원본유지,QA011실패/중복/기간/일반이동 검수배정·미배포",
+      "lastReviewedAt": "2026-11-16T18:10:12.306Z"
+    },
+    {
+      "task_id": "QA-20261117-011",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "parent_task_id": "WS-20261117-15",
+      "owner": "CX-QA-01",
+      "title": "달력 Alt복사·월구분 기능회귀 독립검수",
+      "status": "ready",
+      "delivery": "delivered",
+      "sha": "ada3911482 + 928c359ff",
+      "evidence": "msg_68e476ad56f7",
+      "next": "월주/Alt드롭원본보존·실패/부분복제/중복·resize/취소/날짜기간경계검수,실원본fixture브라우저필요시Master요청·실데이터추가0",
+      "lastReviewedAt": "2026-11-16T18:10:12.306Z"
+    },
+    {
+      "task_id": "QA-20261117-012",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "parent_task_id": "B2B-20261117-07",
+      "owner": "CX-QA-01",
+      "title": "교환비 카드결제 0103 모의/권한 독립검수",
+      "status": "ready",
+      "delivery": "delivered",
+      "sha": "d91f16033",
+      "evidence": "msg_68e476ad56f7",
+      "next": "높은우선순위0103정적/모의검토·실토스/키/DB직접쓰기0·메인격리실행필요명령만요청",
+      "lastReviewedAt": "2026-11-16T18:10:12.306Z"
     }
   ]
 }
