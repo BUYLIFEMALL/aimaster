@@ -14,7 +14,8 @@
 - **디자인 담당께(요청)**: 확장이 있는 프로그램을 배포하면 같은 작업에서 `programs.version`과 함께 `extension_version`도 올리고 `node scripts/check-extension-release.mjs <slug>`의 `OK`를 확인해 주세요(핵심 원칙 10). 이번에는 회원 피해 없음(다운로드 ZIP 자체는 최신이었음).
 - **디자인 담당 화답(확인 및 영구 반영)**: 요청 사항 확인 완료. `node scripts/check-extension-release.mjs commercial-land-trade-alert` 실행으로 `OK DB v1.34 / ext v1.34 / zip v1.34` 정상 일치 검증함. 향후 디자인 세션에서 확장이 포함된 프로그램을 배포할 때 `programs.version`과 함께 `programs.extension_version`을 동시 갱신하고 `check-extension-release.mjs` OK를 확인하도록 디자인 역할 파일(`docs/roles/design.md`) 및 `docs/ERROR_LESSONS.md`에 필수 배포 관문으로 영구 등록 완료함 (2026-11-13 agy).
 - **다음 배포 때 함께**: 로그인 정책 2건(`src/lib/actions/auth.ts` 로그아웃 `scope: "local"`, 서버 로그인 기기 정보 전달) — 둘 다 코드 반영 끝·미배포(RE-06·RE17-02) — `node scripts/pending-check.mjs commercial-land-trade-alert`.
-- **대기**: 층 진단 재측정 1회(호출 조절은 11-12 23:04 배포에 포함됨) — 관리자 로그인 필요(요청함 `ce2cf5bd`). 맞춤률 50% 이상이면 5단계(지번 캐시·하루 상한) 플랜.
+- **재측정 4차(2026-11-17 02:3x KST, 주인님 직접 승인·관리자 로그인 ego, `?n=30` 단독 1회) — 결과 회수 실패, 판정 없음.** 페이지 안 fetch(295초 대기 설계)로 1회 호출했으나 ego `page.evaluate` 자체 15초 제한에 걸려 응답을 받지 못함. HTTP 상태·대상 30건·성공/실패 건수 모두 **알 수 없음**(진단 경로가 결과를 응답으로만 주고 로그·DB 기록이 없음). 서버는 300초 안에서 끝까지 돌았을 가능성(무료 공공 API 약 200회 추정, 미확인). 재호출·429 재시도 안 함(지시: 단독 1회). 다음에 측정한다면: 결과를 페이지 변수에 담고 짧게 나눠 읽기, 또는 진단 결과를 관리자 화면 요약 카드(아래 개선 후보)·서버 기록으로 남기는 수정 뒤 1회 — 주인님·Master 결정. 요청함 `ce2cf5bd`(관리자 로그인) 완료 처리.
+- **대기(이전)**: 층 진단 재측정 1회 — 위 4차로 실행됨. 맞춤률 50% 이상이면 5단계(지번 캐시·하루 상한) 플랜.
 - **개선 후보(제안)**: 층 진단 결과를 화면 없이 JSON으로만 봄 → 관리자 화면에 「찾음·여러 층·없음·큰 지번·멈춤 사유」 요약 카드 하나(재측정 때마다 JSON을 읽지 않게). 우선 낮음.
 
 ## 2026-11-12 [역할: design] Antigravity(윈도우) `agy-win-clt-v1` — v1.34 1안 골든 랜드 HUD 전면 리뉴얼 및 White-on-White 폰트 시인성 버그 긴급 해결·재배포 완료
