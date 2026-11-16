@@ -109,6 +109,11 @@ export function ProductBatchBoard() {
   const [streamRecent, setStreamRecent] = useState<RenderResultItem[]>([]);
   const abortCtrlRef = useRef<AbortController | null>(null);
   const linkedJobId = useRef<string | null>(null);
+  // ECOM-15: 같은 저장인지는 「연결 작업(linkedJobId) + 상품 번호 + 합성 설정 판번호」로 판단한다.
+  // 상품 번호만 쓰면 설정을 바꾼 새 결과까지 「저장됨」으로 잘못 보이고, 시작 때 결과를 비우면 저장됨이 사라져 같은 그림을 다시 보낸다.
+  const sentVerRef = useRef<Map<string, string>>(new Map()); // 상품 → 마지막으로 보낸 결과의 판번호
+  const savedVerRef = useRef<Map<string, string>>(new Map()); // 상품 → 저장 확인된 판번호
+  const runVerRef = useRef<string>(""); // 지금 화면 결과를 만든 실행의 판번호
   const senderOriginRef = useRef<string | null>(null);
   const senderLabelRef = useRef<string>("상세페이지");
 
@@ -169,6 +174,11 @@ export function ProductBatchBoard() {
             status: "ready" as const,
           };
         });
+        // 새 작업이면 이전 작업의 보냄·저장 기록을 섞지 않는다(같은 상품 번호라도 다른 작업)
+        if (linkedJobId.current !== got.jobId) {
+          sentVerRef.current = new Map();
+          savedVerRef.current = new Map();
+        }
         linkedJobId.current = got.jobId;
         setIsLinkedMode(true);
         setFilesMap(map);
@@ -179,6 +189,9 @@ export function ProductBatchBoard() {
       }
       const saved = linkedJobId.current ? readProductSaved(e.origin, e.data, linkedJobId.current, origin) : null;
       if (saved) {
+        // 저장 확인은 그 상품에 마지막으로 보낸 결과의 판번호로 기록(실행 중에 도착해도 잃지 않게)
+        const sentVer = sentVerRef.current.get(saved.productId);
+        if (saved.ok && sentVer) savedVerRef.current.set(saved.productId, sentVer);
         setResults((xs) =>
           xs.map((r) =>
             r.productId === saved.productId
@@ -367,6 +380,8 @@ export function ProductBatchBoard() {
     setProgressCount(0);
     setResults([]);
     setStreamRecent([]);
+    const runVer = settingsVersion(settings); // ECOM-15: 이번 실행 결과의 판번호
+    runVerRef.current = runVer;
     const startTs = Date.now();
     setStartTime(startTs);
 
@@ -437,17 +452,21 @@ export function ProductBatchBoard() {
 
         // 부모 창(상세페이지 또는 쇼핑몰) 연결 시 개별 결과 즉시 전송 (P2 / M1)
         if (linkedJobId.current && job.productId && senderOriginRef.current && window.opener && !window.opener.closed) {
-          if (blob.size <= PRODUCT_RESULT_MAX_BYTES) {
+          if (savedVerRef.current.get(job.productId) === runVer) {
+            // ECOM-15: 같은 작업·같은 설정으로 이미 저장된 상품 — 같은 그림을 다시 보내지 않는다(중복 저장 방지)
+            resItem.returned = "saved";
+          } else if (blob.size <= PRODUCT_RESULT_MAX_BYTES) {
             window.opener.postMessage(
               {
                 type: PRODUCT_MSG_RESULT,
                 jobId: linkedJobId.current,
                 productId: job.productId,
                 file: blob,
-                settingsVersion: settingsVersion(settings),
+                settingsVersion: runVer,
               },
               senderOriginRef.current
             );
+            sentVerRef.current.set(job.productId, runVer);
             resItem.returned = "sending";
           } else {
             resItem.returned = "10MB 초과로 반환 실패";
@@ -492,11 +511,14 @@ export function ProductBatchBoard() {
 
     setRunning(false);
     setCurrentRunningKey(null);
-    setResults((prev) =>
-      finalResults.map((fr) => {
-        const old = prev.find((p) => p.productId && p.productId === fr.productId);
-        return old && old.returned === "saved" ? { ...fr, returned: "saved" } : fr;
-      })
+    // ECOM-15: 시작 때 결과를 비우므로 이전 결과와 비교하지 않고, 판번호 기록으로 판단한다
+    // (실행 중 도착한 저장 확인도 여기서 반영 — 다른 상품·다른 설정의 결과는 「저장됨」이 되지 않음)
+    setResults(
+      finalResults.map((fr) =>
+        fr.returned === "sending" && fr.productId && savedVerRef.current.get(fr.productId) === runVer
+          ? { ...fr, returned: "saved" }
+          : fr
+      )
     );
     setStep(4);
   };
@@ -604,17 +626,20 @@ export function ProductBatchBoard() {
     if (window.opener && !window.opener.closed && targetOrigin && jobId) {
       const sentIds = new Set<string>();
       for (const r of successList) {
-        if (r.productId && r.blob && r.returned !== "saved" && r.blob.size <= PRODUCT_RESULT_MAX_BYTES) {
+        // ECOM-15: 화면 결과는 runVerRef 판번호로 만든 것 — 그 판번호로 이미 저장됐으면 다시 보내지 않는다
+        const resultVer = runVerRef.current;
+        if (r.productId && r.blob && r.returned !== "saved" && savedVerRef.current.get(r.productId) !== resultVer && r.blob.size <= PRODUCT_RESULT_MAX_BYTES) {
           window.opener.postMessage(
             {
               type: PRODUCT_MSG_RESULT,
               jobId,
               productId: r.productId,
               file: r.blob,
-              settingsVersion: settingsVersion(settings),
+              settingsVersion: resultVer,
             },
             targetOrigin
           );
+          sentVerRef.current.set(r.productId, resultVer);
           sentIds.add(r.productId);
         }
       }
