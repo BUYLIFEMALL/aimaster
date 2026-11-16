@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-17 ✅ [역할: ecommerce-image] Claud(ecommerce) Claude Code(윈도우) · 세션 `claude-win-sdp` — 상세페이지 v1.47 (바나나 저장 확인 약속)
+- 주인님 「상세페이지 먼저 배포해」 → 빌드 1회 `shop-detail-page-6esxwz43i` Ready, DB v1.46→v1.47. 실린 것: ECOM-17 `60860337b`(저장 응답에 resultId·settingsVersion 되돌림, 예외에도 실패 응답).
+- 다음: 바나나 v1.49(제품 커밋 9개, 명세 `.ai/results/ECOM-20261117-02-CC-ECOM-01.md`) — 빌드 승인 대기. 상세 먼저 나갔으므로 바나나 배포 뒤 정상 왕복.
+- 비용: Vercel 빌드 1회(주인님 승인).
+
 ## 2026-11-16 ✅ [역할: ecommerce-image] Claud(ecommerce) Claude Code(윈도우) · 세션 `claude-win-sdp` — 쓰레드 쇼핑제휴 v1.88 (threads-auto MIT 이식 1단계)
 - 주인님 직접 배정·「권장대로 진행해」·「배포해」·「그 줄 지워」(작업 중 표 11-06 `claude-win-20261106-ytreply` 줄에서 쇼핑제휴 항목만 정리). 빌드 1회 `threads-affiliate-poster-n1k8m31tg` Ready, DB v1.86→v1.88.
 - 쿠팡 여러 경로 검색(키워드 10·골드박스·카테고리 베스트·쿠팡 PL)·로켓 거르기·이미 등록 제외(`affiliate_products.source_key` 운영 DB 적용)·30개 일괄 등록, 공용 `affiliate-clients` 사본 `threads-content-ops` 반영(운영 담당께 요청 남김). 공통: 위젯·로그아웃 local·서버 기기 정보.
