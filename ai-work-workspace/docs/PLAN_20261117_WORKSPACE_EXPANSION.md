@@ -3,6 +3,7 @@
 - 작성: 2026-11-17 [역할: workspace] Claude(Workspace) `CC-WORKSPACE-01` · Master 취합 `msg_54d6ca32393c`
 - 근거 지시(주인님 채팅): 「큰 작업 4개 진행해」(초대·공유+동시 편집, 큰 첨부, 알림·리마인더·주간 요약, 디자인 리뉴얼), 「AIMaster 다른 AI 자동화 프로그램과 연계한 기능 확장을 자세하고 면밀하게 검토」, 「Notion에서 먼저 살펴보고」, 「다른 오피스용 자동화 프로그램에서 유용한 기능」, 「실현 가능한 개발 플랜」.
 - 상태: **플랜만** — 코드·DB·새 외부 연결·유료 호출·빌드 0. 아래 「결정 항목」을 받은 뒤 묶음별로 구현.
+- 현재 운영: v1.55(`ai-work-workspace-3z2m9m4xy`). **이 플랜과 별개인 미배포 묶음(다음 배포 때 함께)**: `90612778f` 데이터베이스 전체 페이지 여백(`src/litpage/web/features/database/database.css`·`CollectionPage.tsx`) · `8150da176` WS-20261117-08 작은 개선(`views/calendar/CalendarView.view.tsx`·`views/timeline/TimelineView.view.tsx`·`ai/AgentSteps.tsx`·`agents/AgentActivity.tsx`·`database/CollectionPage.tsx`·`database/chrome/ViewTabs.tsx`·`shell/i18n.literals.ko-KR.json`, 모두 `src/litpage/web/features/` 아래). 이 플랜 작성 중 바꾼 제품 파일 없음.
 - 조사 근거: 코드·버전표(`AGENTS.md`) 직접 대조 + 보조 조사 2건(저장소 grep 연계 조사, 공개 문서 기반 노션·오피스 기능 조사). 추정은 「(추정)」으로 표시.
 
 ## 0. 먼저 바로잡을 것 — 「큰 작업 4개」 중 이미 있는 것
