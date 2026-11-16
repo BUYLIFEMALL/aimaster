@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 05:32:52 KST",
+  "checkedAt": "2026-11-17 05:34:06 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4275,14 +4275,15 @@
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
       "status": "ready_review",
       "delivery": "delivered",
-      "evidence": "msg_9392ca64e14a 작성자62/62·done/hold 같은새key 반환계약3실패→통과",
+      "evidence": "msg_6d7a93569589 Mac QA012 누적소스PASS·hash739b35일치·작성자62근거분리",
       "decision": "Master조정 E1납부후거절차단 E2로그인본인 E3카드미설정은행 E4Backend신규경로;실환불미구현명시",
-      "next": "Mac 최종반환계약 국소마감검토배정. Backend phase2 정확경로/위젯재사용/파일충돌 읽기준비,실Toss/Lab0104/UI코드/빌드0",
-      "lastReviewedAt": "2026-11-16T20:32:49.970Z",
+      "next": "Backend phase2 정확경로/위젯/RLS반환대기→별도범위등록후UI구현연결. 0104소스고정·실적용/실Toss/빌드0",
+      "lastReviewedAt": "2026-11-16T20:34:03.554Z",
       "sha": "37fdcabb4 / 0104 739b35e9f20b45ba7c83309918da0cc099ca6a0b5715bf5514e755cb108662e6",
       "plannedMigration": "0104_exchange_fee_payments.sql (기존미적용0103 rename)",
       "migrationPath": "mall-builder/supabase/migrations/0104_exchange_fee_payments.sql",
-      "previousMigrationPath": "0103_exchange_fee_payments.sql (미적용상태rename)"
+      "previousMigrationPath": "0103_exchange_fee_payments.sql (미적용상태rename)",
+      "completion": "0104 결제처리 소스검수 범위 마감. prepare별도커밋/중단복구/응답키/감사/취소/hold반환 누적정적PASS. 실제Toss멱등·고정order재사용·DB적용·UI미검수"
     },
     {
       "task_id": "WS-20261117-15",
