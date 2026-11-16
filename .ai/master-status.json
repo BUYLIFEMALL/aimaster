@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T20:17:11.746Z",
+  "checkedAt": "2026-11-16T20:25:41.221Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2212,13 +2212,13 @@
       "parent_task_id": "B2B-20261117-02",
       "owner": "CC-B2B-BACK-01",
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
-      "status": "running",
+      "status": "ready_review",
       "delivery": "delivered",
-      "evidence": "msg_78f4eaa003d2 QA012 done불일치 재발송허용P1/rawSQLERRM P2 + msg_6b024849e54f Backend동일틈보고35b4e3ccc",
+      "evidence": "msg_89ad78cdaa01 작성자60/60·done hold 재발송RPC7종/예외키반사 빨강→초록",
       "decision": "Master조정 E1납부후거절차단 E2로그인본인 E3카드미설정은행 E4Backend신규경로;실환불미구현명시",
-      "next": "Master needs_review 별도표시채택: 원승인보존+DB재발송차단·정확GET일치만해제. rawSQLERRM노출제거/원상태정확판정·실로컬RPC반례수정배정. 실제Toss/Lab0104/UI/빌드0",
-      "lastReviewedAt": "2026-11-16T20:17:11.746Z",
-      "sha": "45c2c3a15 / 0104 6ea1aba40be8a2bc2a2f317898fb83e41cafb671c6bda5ed2c412d93965a86ac",
+      "next": "Mac QA012 needs_review/원증거보존/정확GET해제/raw예외/상태 국소재검토배정. Backend UI계획boolean계약읽기정합성조사,실Toss/Lab/UI/빌드0",
+      "lastReviewedAt": "2026-11-16T20:25:41.221Z",
+      "sha": "5fb0245f0 / 0104 e2c0fd964befdd14e2eb547d81f52b155900207aad22e4dc5c09ef756fd6dfbc",
       "plannedMigration": "0104_exchange_fee_payments.sql (기존미적용0103 rename)",
       "migrationPath": "mall-builder/supabase/migrations/0104_exchange_fee_payments.sql",
       "previousMigrationPath": "0103_exchange_fee_payments.sql (미적용상태rename)"
