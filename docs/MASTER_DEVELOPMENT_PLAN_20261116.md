@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 02:27:42 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 02:30:35 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -13,7 +13,7 @@
 | 순서 | 담당 | 진행 단계 | 다음 작업·통과 기준 |
 | --- | --- | --- | --- |
 | 1 · 계정 격리 | Realty + Mac Tester | 가상 A/B 계정 혼입 재현·수정 반환 | owner 없는 옛 기록은 삭제 대신 격리 보존·자동 귀속 금지, 추가 수정→Mac 검수 |
-| 2 · 교환 안전성 | B2BBackend + Mac Tester | QA004 P1 수정 559085a40 반환 | 실제배송 전이·주문→교환 잠금·반품상호배제; 작성자 격리DB 15/15→독립검수, Lab0102/운영/UI 보류 |
+| 2 · 교환 안전성 | B2BBackend + Mac Tester | QA004 P1 수정 559085a40 반환 | 지정코드 독립정적PASS·메인DB23/0 작성자근거, 교환UI Backend단독배정·Lab0102/운영 미적용 |
 | 3 · Workspace | Workspace + Mac Tester | 운영v1.55·E1/소규모묶음 미배포·독립검수중 | E1 notify_me CAS보완→Mac검수; AGY3안독립뷰어보완→주인님선택; 작은수정묶음배포 |
 | 4 · 디자인 선택 | Antigravity + Master | 145/146/147 총12뷰·독립뷰어 보완 반환 | 3안 비교 후 주인님 선택·제품 미반영, 디자인 자체를 실제 앱 동작 PASS로 보지 않음 |
 | 5 · 운영 릴리스 | 프로그램별 담당 | 가사1.16·상세1.47·바나나1.49·WS1.55·B2B1.16·제휴1.89 Ready 보고 | 기승인 배포 반복 없음·실기기/실MCP/실확장 수집 등 미검수 범위 별도 |
@@ -39,7 +39,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 142개: done 121개 · cancelled 6개 · ready_review 11개 · running 2개 · ready 1개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 143개: done 123개 · cancelled 6개 · ready_review 9개 · running 2개 · ready 2개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -180,11 +180,12 @@
 | MOV-20261117-06 | CC-MOVIE-01 | ready / delivered | Workspace소규모캘린더/번역/여백 독립검토 | 8150da176/90612778f 원본정적검토·제품/빌드0 |
 | QA-20261117-002 | CX-QA-01 | waiting_human / returned | 실제Intel Mac MP4파일내보내기 보조검수 | Intel x86_64·AppleSilicon불가. ego20 handoff에서MP4신뢰클릭/저장위치선택필요, 실제인코딩0·우회없음 |
 | QA-20261117-003 | CX-QA-01 | ready_review / returned | B2B Lab·RE계정격리·Workspace묶음 독립검수 | RE 정상legacy배열 VM PASS/비배열소실P2 반환. E1 승인·열람보완반환,루트CAS/판정행렬 추가수정대기. 실제발송·실계정0 |
-| QA-20261117-004 | CX-QA-01 | ready_review / returned | 교환0102 독립검토 | 559085a40 기존P1 정적PASS·실제SQL은작성자근거재사용/Mac미실행. 모든옵션삭제후재발송 P2 추가반환, 전체PASS아님 |
-| B2B-20261117-02 | CC-B2B-BACK-01 | ready_review / returned | 교환0102 구현·독립지적 수정 | 무옵션→옵션신설 재발송차단·메인22/1→23/0,Mac최종검수전달. 운영0102/Lab/UI/빌드0 |
+| QA-20261117-004 | CX-QA-01 | done / integrated | 교환0102 독립검토 | DB검수배정범위완료·맥DB/실UI/운영미검수;불가능복구문구후속정정. Lab0102/운영0 |
+| B2B-20261117-02 | CC-B2B-BACK-01 | done / integrated | 교환0102 구현·독립지적 수정 | 코어가드범위완료·불가능한거절/재접수안내P2문구는후속UI와국소정정. Lab0102/운영미적용 |
 | WS-20261117-10 | CC-WORKSPACE-01 | ready_review / returned | 보기 이름 저장값 보존 | 저장된 Table/한글 이름 그대로 표시·서버3경로 보류. 최종MacQA후 다음배포묶음 |
 | WS-20261117-09 | CC-WORKSPACE-01 | running / acknowledged | 확장 E1·notify_me 중복 차단 | 루트CAS/승인24조합 독립PASS. 다중worker stale markRetried가notifyflag지우는경계 claimRetry CAS수정승인·성공자만자식enqueue→Mac,실발송0 |
 | DES-20261117-02 | AG-UI-01 | ready_review / returned | Workspace 전면디자인3안·12뷰 | 독립뷰어13KB+ 보완보고·PNG12개2880×1800확인. 기존쇼케이스보존/실화면검수별도, 주인님3안선택전제품미반영 |
+| B2B-20261117-03 | CC-B2B-BACK-01 | ready / delivered | 교환 접수·단계 UI 구현 | 신규5파일+고객/관리자주문상세패널연결 Backend단독배정, 최신옵션flags/서버권한/안전backPath·정확오류. 불가능복구안내정정·빌드/실결제/발송/0102Lab운영0 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
@@ -219,7 +220,7 @@
 | AI 11번가 상품 자동등록기 | CC-ECOM-01 | v1.07 | 운영·실등록검증완료 | 실제전송/전시중지/중복방지확인 | 관리자잠금화면·시험상품은사용자직접삭제 |
 | AI 블로그 이웃 소통 자동화 | CC-BLOG-01 | v1.21 / v1.22 후보 | 운영·진단구현완료 / 실검수대기 | 387시험·타입0,e35947191 진단추가 | 맥일반창/작업공간창진단 재시험·신청있는계정·배포묶음 |
 | 네이버 카페 회원 모집 자동화 | CC-BLOG-01 | v1.04 | 운영·가입계정조건대기 | C모드숨김확인 | 가입카페계정으로운영진제외검수,외부초대재실행안함 |
-| AI 쇼핑몰 빌더 | CC-B2B-BACK-01 + CC-B2B-FRONT-01 | v1.16 | 운영Ready·Lab0101별도 | 0100적용·1aea분리58mmx0v2e Ready·DB1.16·공개200 | 0102 P1 배송기간/반품경합 수정·메인격리DB 검증→Mac검수, Lab0102/운영/UI 보류;0101/Front묶음미배포 |
+| AI 쇼핑몰 빌더 | CC-B2B-BACK-01 + CC-B2B-FRONT-01 | v1.16 | 운영Ready·Lab0101별도 | 0100적용·1aea분리58mmx0v2e Ready·DB1.16·공개200 | 0102지정코드 독립정적PASS/미적용·교환UI Backend배정,0101/Front묶음미배포. 실운영/실UI검수별도 |
 | G마켓·옥션 등록기 | CC-ECOM-01 | v1.01 | 웹운영·확장실검수대기 | Ready esm-register-7xufzg73q·DB적용·확장준비 | 맥 설치/로그인뒤 입력만1회, 저장/임시저장/등록금지; API답장별도 |
 
 ## 사람의 조치와 결정
@@ -342,7 +343,7 @@
 | 99 | AI 11번가 상품 자동등록기 / elevenst-register | 이커머스 | v1.07 / 개발 중(비공개, 서울 지역 직접 연결·연결 시험) | v1.07 | CC-ECOM-01 · 운영·실등록검증완료 | 관리자잠금화면·시험상품은사용자직접삭제 |
 | 100 | AI 블로그 이웃 소통 자동화 / blog-neighbor-care | 블로그 | v1.21 / 운영(C-3 진행 중) | v1.21 / v1.22 후보 | CC-BLOG-01 · 운영·진단구현완료 / 실검수대기 | 맥일반창/작업공간창진단 재시험·신청있는계정·배포묶음 |
 | 101 | 네이버 카페 회원 모집 자동화 / naver-cafe-recruit | 네이버 | v1.04 / 비공개(실물 초대 1건 성공, 표시 수정 미배포) | v1.04 | CC-BLOG-01 · 운영·가입계정조건대기 | 가입카페계정으로운영진제외검수,외부초대재실행안함 |
-| 102 | AI 쇼핑몰 빌더 / mall-builder | 이커머스 | v1.07 / 운영(샘플몰 `aimaster-b2b`, 손님 화면·분양 안내 공개 2026-11-13) | v1.16 | CC-B2B-BACK-01 + CC-B2B-FRONT-01 · 운영Ready·Lab0101별도 | 0102 P1 배송기간/반품경합 수정·메인격리DB 검증→Mac검수, Lab0102/운영/UI 보류;0101/Front묶음미배포 |
+| 102 | AI 쇼핑몰 빌더 / mall-builder | 이커머스 | v1.07 / 운영(샘플몰 `aimaster-b2b`, 손님 화면·분양 안내 공개 2026-11-13) | v1.16 | CC-B2B-BACK-01 + CC-B2B-FRONT-01 · 운영Ready·Lab0101별도 | 0102지정코드 독립정적PASS/미적용·교환UI Backend배정,0101/Front묶음미배포. 실운영/실UI검수별도 |
 | 103 | G마켓·옥션 등록기 / esm-register | 이커머스 (현재 비공개) | 신규 / 비교표 미등재 신규 | v1.01 | CC-ECOM-01 · 웹운영·확장실검수대기 | 맥 설치/로그인뒤 입력만1회, 저장/임시저장/등록금지; API답장별도 |
 
 ## 근거와 갱신

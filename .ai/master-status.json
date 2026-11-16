@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T17:27:39.759Z",
+  "checkedAt": "2026-11-16T17:30:25.609Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -1890,12 +1890,13 @@
       "title": "교환0102 독립검토",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:13:59.558Z",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": ".ai/results/QA-20261117-004-CX-QA-01.md",
+      "lastReviewedAt": "2026-11-16T17:30:25.609Z",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_4339d4c36fa6 / QA17-004",
       "sha": "e06035793",
-      "next": "559085a40 기존P1 정적PASS·실제SQL은작성자근거재사용/Mac미실행. 모든옵션삭제후재발송 P2 추가반환, 전체PASS아님"
+      "next": "DB검수배정범위완료·맥DB/실UI/운영미검수;불가능복구문구후속정정. Lab0102/운영0",
+      "completion": "기존FAIL/P1이력보존,1401c5c1a 지정코드경계독립정적PASS·메인DB증거별도재사용"
     },
     {
       "task_id": "B2B-20261117-02",
@@ -1904,12 +1905,13 @@
       "title": "교환0102 구현·독립지적 수정",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:27:39.759Z",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "msg_41696c47d764 / B2B17-05",
-      "next": "무옵션→옵션신설 재발송차단·메인22/1→23/0,Mac최종검수전달. 운영0102/Lab/UI/빌드0",
-      "sha": "1401c5c1a1b56408f9b16793835e8696129c6956"
+      "lastReviewedAt": "2026-11-16T17:30:25.609Z",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "Mac msg_4339d4c36fa6 / QA17-004末尾 / 1401c5c1a",
+      "next": "코어가드범위완료·불가능한거절/재접수안내P2문구는후속UI와국소정정. Lab0102/운영미적용",
+      "sha": "1401c5c1a1b56408f9b16793835e8696129c6956",
+      "completion": "배송시각/반품경합/옵션재고 지정구현과독립정적검수범위완료. 메인DB23/0작성자근거재사용·맥SQL0,실운영적용아님"
     },
     {
       "task_id": "WS-20261117-10",
@@ -1951,6 +1953,19 @@
       "delivery": "returned",
       "evidence": "msg_8578a0384aa2 / .ai/results/DES-20261117-02-AG-UI-01.md / msg_94cbdd325be1",
       "next": "독립뷰어13KB+ 보완보고·PNG12개2880×1800확인. 기존쇼케이스보존/실화면검수별도, 주인님3안선택전제품미반영"
+    },
+    {
+      "task_id": "B2B-20261117-03",
+      "parent_task_id": "B2B-20261117-02",
+      "owner": "CC-B2B-BACK-01",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "title": "교환 접수·단계 UI 구현",
+      "status": "ready",
+      "delivery": "delivered",
+      "evidence": "UI계획結果03 / msg_5e76183068a2 / Front msg_030a0dfe4078 / AGY msg_b19f24492917",
+      "next": "신규5파일+고객/관리자주문상세패널연결 Backend단독배정, 최신옵션flags/서버권한/안전backPath·정확오류. 불가능복구안내정정·빌드/실결제/발송/0102Lab운영0",
+      "lastReviewedAt": "2026-11-16T17:30:25.609Z"
     }
   ],
   "programOverrides": [
@@ -2160,7 +2175,7 @@
       "reportedVersion": "v1.16",
       "stage": "운영Ready·Lab0101별도",
       "completed": "0100적용·1aea분리58mmx0v2e Ready·DB1.16·공개200",
-      "next": "0102 P1 배송기간/반품경합 수정·메인격리DB 검증→Mac검수, Lab0102/운영/UI 보류;0101/Front묶음미배포",
+      "next": "0102지정코드 독립정적PASS/미적용·교환UI Backend배정,0101/Front묶음미배포. 실운영/실UI검수별도",
       "evidence": "B2B-20261117-v116-release 결과",
       "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
     },

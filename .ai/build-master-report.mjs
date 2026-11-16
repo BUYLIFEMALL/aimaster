@@ -47,7 +47,7 @@ const intro=[
 '## 지금 내린 지휘와 우선순위', '',
 table(['순서','담당','진행 단계','다음 작업·통과 기준'],[
 ['1 · 계정 격리','Realty + Mac Tester','가상 A/B 계정 혼입 재현·수정 반환','owner 없는 옛 기록은 삭제 대신 격리 보존·자동 귀속 금지, 추가 수정→Mac 검수'],
-['2 · 교환 안전성','B2BBackend + Mac Tester','QA004 P1 수정 559085a40 반환','실제배송 전이·주문→교환 잠금·반품상호배제; 작성자 격리DB 15/15→독립검수, Lab0102/운영/UI 보류'],
+['2 · 교환 안전성','B2BBackend + Mac Tester','QA004 P1 수정 559085a40 반환','지정코드 독립정적PASS·메인DB23/0 작성자근거, 교환UI Backend단독배정·Lab0102/운영 미적용'],
 ['3 · Workspace','Workspace + Mac Tester',overrides.get('ai-work-workspace')?.stage,overrides.get('ai-work-workspace')?.next],
 ['4 · 디자인 선택','Antigravity + Master','145/146/147 총12뷰·독립뷰어 보완 반환','3안 비교 후 주인님 선택·제품 미반영, 디자인 자체를 실제 앱 동작 PASS로 보지 않음'],
 ['5 · 운영 릴리스','프로그램별 담당','가사1.16·상세1.47·바나나1.49·WS1.55·B2B1.16·제휴1.89 Ready 보고','기승인 배포 반복 없음·실기기/실MCP/실확장 수집 등 미검수 범위 별도'],
