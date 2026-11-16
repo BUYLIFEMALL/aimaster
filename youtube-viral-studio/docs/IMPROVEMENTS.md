@@ -69,3 +69,10 @@
 - 범위 없는 `signOut()` 2곳(`src/app/api/auth/logout/route.ts:6`, `src/lib/actions/auth.ts:43`) — `signOut({ scope: "local" })`로. 상태: 대기.
 - 서버 로그인 기기 정보 미전달 — 서버용 Supabase 클라이언트에 `global.headers["User-Agent"]`. 상태: 대기.
 - 30일 정리 예외 회원: 위 1) 두 번째 항목 → SQL 작성, 적용 대기 + 조회 코드 이번에 고침(미배포).
+
+## 2026-11-16 영상 담당께 — boks-youtube-finder 기능 병합 (분석 세션 `claude-win-20261116-boks-yt`)
+
+- 주인님 지시로 외부 오픈소스(MIT) 분석 완료, 영상 담당에게 구현 배정. 상태: **구현 전 — 플랜·결정 먼저**.
+- 넣을 것(본체): 채널 평소 조회수 중앙값 기준 떡상 판정, 관련성·종교 필터, 형식별 버킷 검색, 인기 차트 프리셋, 기회 지수·산점도·제목 키워드 TOP·트렌드 결론(요일·시간대 — 대시보드 문구만 있고 코드 없던 것 해소), 키별 하루 사용량 누적·차단, 근거 수치 기반 AI 기획안.
+- 함께 해결: 쇼츠 길이 기준 60·90·180초 혼재 → 통일 여부 결정. 위 #8(검색 결과 임시 저장)·#9(정렬 토글)와 겹침.
+- 인수인계: [`HANDOFF_20261116_BOKS_FINDER_PORT.md`](HANDOFF_20261116_BOKS_FINDER_PORT.md) · 분석: [`ANALYSIS_20261116_BOKS_YOUTUBE_FINDER.md`](ANALYSIS_20261116_BOKS_YOUTUBE_FINDER.md)
