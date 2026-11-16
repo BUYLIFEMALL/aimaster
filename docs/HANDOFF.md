@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-16 ✅ [역할: ecommerce-image] Claud(ecommerce) Claude Code(윈도우) · 세션 `claude-win-sdp` — 상세페이지 v1.46 배포
+- 주인님 「상세페이지 배포 진행해」 빌드 1회. 커밋본만 `shop-detail-page-8hr5j0q71` Ready, DB `programs.version` v1.46, 프로그램 비교표 버전 2곳.
+- 함께 나간 것: 애니메이션 WebP 받기 `1ed1fde1b` · E2-4 검색 태그 받기 `597e912cc` · 바나나 전달 사본 `31dd0b632`.
+- 검수: 시험 14 통과·tsc 0·로컬 build. ego lite(시험 계정) `/products/gif-inbox`에서 v1.46·「GIF·WebP 받기」 문구 확인. 미확인: 실제 WebP 파일 전달(영상 쪽 보내는 형식 수정 뒤 — Master MOV-01).
+- 그 전: Master ECOM-20261116-01 결과(수신 계약) `.ai/results/ECOM-20261116-01-CC-ECOM-01.md`, ESM AGENTS 정정 `13b21994e`.
+https://shop-detail-page.buylife.xyz
+
 ## 2026-11-16 ✅ [역할: music] Claud(Music) Claude Code(윈도우) · 세션 `claude-win-20261024-music` — 음악 미배포 묶음 5개 배포
 - 주인님 「미배포 묶음 배포 진행해」(빌드 5회, 한 번에 하나씩). music v1.58 `music-b8m2pihnu` · 플레이리스트 v1.42 `playlist-channel-studio-icbwj5qia` · AI 음악 스튜디오 v1.16 `ai-music-studio-m3k7uuwmi` · 마스터링 v1.17 `ai-mastering-studio-ogvm79lj1` · 가사 영상 v1.15 `lyric-video-studio-71roglhks` — 모두 Ready, DB 버전 맞춤, 프로그램 비교표 버전 칸 갱신.
 - 함께 나간 것: 메뉴 수정 `db08afdd6`, 플레이리스트 목록 `16439a8e9`, 공통 보완 `b4403e8bd`, 공용 사본(영상 담당) `youtube-upload-client` `containsSyntheticMedia` `0807cf180`(플레이리스트·가사 영상) · `browser-mp4-encoder` `4faaadaf2`·`44db8e230`(가사 영상).

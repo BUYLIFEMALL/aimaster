@@ -2,7 +2,6 @@
 
 > 2026-10-22 신설(Claude Code 윈도우, 주인님 승인 — 추가개선 제안 「미배포 대기 항목을 한곳에」).
 | `banana-canvas` | 메이커 후속 M1 대표사진 합성 보강: 원형 틀·테두리 굵기/색·틀 배경(흰/투명/직접)·틀 안 확대/위치·서브 면적 %(참고 기준 20%, 규정 아님)·결과 PNG 클립보드 복사·메인 원본 크기 저장·결과표 size 칸·판번호 c2. tsc·시험 104·로컬 빌드 통과 | `f19f2bdcc` | 2026-11-15 · [역할: ecommerce-image] `claude-win-sdp` | `banana-canvas/docs/PLAN_20261115_MAKER_M1_FRAME.md` | 다음 바나나 배포 때 함께(주인님 「필요하면 하고 아니면 모았다가」) → v1.49, 배포 뒤 ego 검수(원형·투명 PNG·클립보드 붙여넣기·원본 크기·375px) |
-| `shop-detail-page` (+ 공용 사본 `video-to-gif/lib/gifHandoff.ts`) | 「GIF 받기」가 **애니메이션 WebP(10MB)도** 받음(영상 담당 요청): `readFileMessage`가 `image/webp` 허용·이름 끝 `.webp` 유지, 받는 창이 받은 형식대로 저장, 올릴 때 움직이는 WebP는 `-anim.webp` 표시, 섹션 ZIP은 움직이는 WebP 원본 그대로, 움직이는 섹션은 「✏️ 문구」「✂ 누끼」 숨김, 문구 「GIF·WebP」. 시험 14·tsc 2개·로컬 build·공용 사본 OK | `1ed1fde1b` | 2026-11-15 · [역할: ecommerce-image] `claude-win-sdp` | `shop-detail-page/docs/IMPROVEMENTS.md` 맨 위 | 다음 상세페이지 배포 때 함께(버전 +0.01). **배포 뒤 영상 담당께 알림** → 영상 담당이 「상품 사진 영상」 결과에 「🛍 상세페이지로」 붙임(그 전에 붙이면 받는 쪽이 거절). `video-to-gif` 사본은 다음 GIF 배포 때 같이 나가도 됨(보내는 쪽 동작 변화 없음) |
 > 근거 지침: 루트 `CLAUDE.md` 최상단 「작은 소스 수정은 모았다가 배포한다」(2026-10-22 23:17) · [`docs/VERCEL_COST_REDUCTION_PLAN.md`](VERCEL_COST_REDUCTION_PLAN.md) 맨 위.
 
 ## 쓰는 법 (모든 CLI 공통)
@@ -68,7 +67,6 @@
 | `shop-order-report` | 「🔗 상품 묶기」(마켓마다 다른 상품명 → 묶음 이름)·「💰 정산 파일로 실제 정산액 채우기」(브라우저에만, 서버·DB 없음) | `996c81b2b` | 2026-11-14 · [역할: ecommerce-image] `claude-win-sdp` | `shop-order-report/AGENTS.md` 2026-11-14 | 다음 주문 리포트 배포 때(버전 +0.01), 배포 뒤 ego 예시 파일로 확인 |
 | `seller-label-docs` | 크롬·엣지에서도 HEIC(아이폰 사진) 열기 — 못 열 때만 heic-to(LGPL, 별도 파일 3.2MB)로 이 PC에서 JPG 변환, 고지 `public/licenses/` | `29bac1649` | 2026-11-14 · [역할: ecommerce-image] `claude-win-sdp` | `seller-label-docs/AGENTS.md` 2026-11-14 | 위 라벨 대기분과 함께, 배포 뒤 아이폰 HEIC 1장으로 「사진 → PDF」 확인 |
 | `trending-product-finder` | `/factory-quotes` 안내 카드 문구 「PDF·엑셀」 → 「PDF·CSV」(엑셀 원본은 못 읽음) | v1.39 뒤 문서 커밋 | 2026-11-14 · [역할: ecommerce-image] `claude-win-sdp` | `trending-product-finder/AGENTS.md` 2026-11-14 v1.39 | 다음 상품소싱 배포 때 함께(버전 +0.01) |
-| `shop-detail-page` | E2-4 검색 태그 받기·저장(`shop_products.search_tags`, 운영 DB 적용 완료) | `597e912cc` | 2026-11-14 · [역할: ecommerce-image] `claude-win-sdp` | `shop-detail-page/AGENTS.md` 2026-11-14 | 다음 배포 때(버전 +0.01) |
 | `seller-label-docs` | 공용 흐름 띠 사본에 「🛒 마켓 등록」 단계 추가(`shop-flow` 사본만, 동작 변화는 띠 단계 하나) | `48b67dd5c` | 2026-10-27 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | `docs/SHARED_MODULES.md` shop-flow 줄 | 각 프로그램 다음 배포 때 함께(버전 +0.01) |
 | `detail-page-12p` · `auto-detail-page` (이동 안내만) | EC-W12 쓰이지 않던 옛 엔진·화면 파일 39개 삭제(화면·경로 동작 변화 없음, 백업·태그 있음). 일부러 배포할 필요 없음 — 다른 이유로 배포할 때 함께 나감 | `4e660826a` | 2026-10-26 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | 각 폴더 `AGENTS.md` 맨 위 | 함께 나가면 이 줄을 「내보낸 기록」으로(버전은 그때 +0.01) |
 | `booking-reminder` | 테스트 문자·이메일 테스트·텔레그램 연동 메시지에 남아 있던 「구글폼 CRM」 → 「예약(취소)방지 리마인드 자동화」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `booking-reminder/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
@@ -94,6 +92,7 @@
 
 - 2026-11-11 메인 사이트(세션 `claude-win-rea`): 저작권·AI 분석 금지 고지 — `public/ai.txt`, 응답 헤더 `X-Robots-Tag: noai, noimageai`, 하단 저작권 한 줄(약관 제14조 링크) — 저장공간 2단계(관리자 미리보기)와 같은 빌드로 내보냄.
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
+| `shop-detail-page` | v1.46 · 2026-11-16 ([역할: ecommerce-image] Claud(ecommerce) `claude-win-sdp`, 주인님 「상세페이지 배포 진행해」 빌드 1회, 커밋본만 `shop-detail-page-8hr5j0q71` Ready, DB v1.46) | 애니메이션 WebP 받기 `1ed1fde1b`(영상 담당 연결 대기 — Master MOV-01로 전달) · E2-4 검색 태그 받기 `597e912cc` · 바나나 전달 사본 `31dd0b632` |
 | `tistory-auto-blog` | v1.97 · 2026-11-15 ([역할: blog] `claude-win-photo`, 주인님 「미배포 대기 순서대로 배포 진행해」 빌드 4/4, `tistory-auto-blog-odn5g7qv5` Ready, DB·확장·ZIP v1.97 OK) | 결정 4번 모델 교체(gpt-4.1·4o·4o-mini → gpt-6.1-terra·gpt-6-luna, 저장된 옛 값 변환) · 열외 회원 배지 `ae8ea7473` · 공통 3가지(저장공간 위젯·로그아웃 범위·서버 기기 정보), 시험 175 통과 |
 | `ai-work-workspace` | v1.51 · 2026-11-15 ([역할: workspace], 주인님 「둘 다 권장대로 진행해」·「진행해」 빌드 1회, `ai-work-workspace-jxs37pc9i` Ready, DB v1.51) | 업무 비서 바깥 MCP 호출 `e7b01344a` — 운영 확인(엣지·시험 계정): 채팅 「+ › 연결 › 연결 추가」 창 열림, `aiListConnections` 200(연결 0개·사용자 지정 MCP 허용), 에이전트 연결 `addAgentConnection`은 계속 403 「준비 중」 |
 | `ai-work-workspace` | v1.50 · 2026-11-15 ([역할: workspace], 주인님 「둘 다 권장대로 진행해」 빌드 1회, `ai-work-workspace-39oi4w9fx` Ready, DB v1.50) | 공개 폼(공개 페이지 2단계) `fbab4e479` — 운영 확인: 시험 계정 새 데이터베이스에 폼 보기 → 공유 「누구나(공개)」 + 동의 문구 설정 칸 보임 → 로그인 없이 `/api/public/getPublicForm` 동의 문구·사본 메일 꺼짐, 동의 없이 제출 429, 사본 메일 명령 404, 동의하고 제출 → 주인 표에 행(한글 정상), `/form/<id>` 200 |
