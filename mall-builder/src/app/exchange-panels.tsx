@@ -5,7 +5,7 @@ import { formatWon } from "@/lib/products";
 import { COURIERS, DEFAULT_COURIER } from "@/lib/shipping";
 import {
   EXCHANGE_REASONS, EXCHANGE_STEP_LABEL, FEE_STATUS_LABEL, exchangeDaysLeft, exchangeNotices, isExchangeOrderStatus, exchangeReasonLabel, exchangeStockNote,
-  itemRequestState, staffExchangeActions, feePayState, exchangePayPath, type ExchangeItem, type ExchangeRow, type ExchangeVariant, type FeePaymentRow,
+  itemRequestState, staffExchangeActions, feePayState, exchangePayPath, EXFEE_RETRY_UNVERIFIED_TEXT, type ExchangeItem, type ExchangeRow, type ExchangeVariant, type FeePaymentRow,
 } from "@/lib/exchanges";
 import { formatDateTime } from "@/lib/orders";
 import { getExchangeData } from "@/lib/exchanges-server";
@@ -217,7 +217,7 @@ function CustomerFeePay({ slug, orderId, x, st }: { slug: string; orderId: strin
           <a href={href} className="inline-flex min-h-9 items-center rounded border border-blue-200 px-3 text-blue-800" data-exchange-card-pay>
             {st.kind === "failed" ? "카드로 다시 결제" : "교환비 카드로 결제"} ({formatWon(x.fee)})
           </a>
-          {st.retryUnverified && <span className="ml-2 text-gray-500">다시 결제가 카드사에서 거절되면 쇼핑몰에 문의해 주세요.</span>}
+          {st.retryUnverified && <span className="mt-1 block text-gray-500" data-exfee-retry-unverified>{EXFEE_RETRY_UNVERIFIED_TEXT}</span>}
         </p>
       )}
     </div>

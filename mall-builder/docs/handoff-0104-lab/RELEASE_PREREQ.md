@@ -2,11 +2,13 @@
 
 작성: CC-B2B-BACK-01 · 2026-11-17 · 지시: Master msg_91f292a7d5dd — **기술 조건 정리만. Lab 빌드·0104 적용은 이 문서로 승인되지 않는다(실행 0).**
 
+> **초안(현재 릴리스 승인 아님, Master msg_f7fe7aee5704)**: 앱 커밋은 QA014 보완 뒤 최신 후속 SHA로 교체한다(아래 1절 앱 줄). 146개 변경·DB 대표 객체 표본만으로 전수 준비 완료를 판정하지 않는다. `card_enabled`는 주문 카드 결제와 공유하므로 교환비 시험·중단을 위해 임의로 끄지 않으며, 교환비 전용 스위치는 이번 보완에서 추가하지 않는다(필요 여부는 Master가 전체 묶음에서 결정).
+
 ## 1. 묶음(정확한 커밋)
 | 구분 | 커밋 | 파일 | 지문 |
 |---|---|---|---|
 | DB | `37fdcabb4` | `mall-builder/supabase/migrations/0104_exchange_fee_payments.sql` | LF sha256 `739b35e9f20b45ba7c83309918da0cc099ca6a0b5715bf5514e755cb108662e6`(Mac 소스 검수 PASS로 고정) |
-| 앱 | `1c9123d68` | 새 `src/app/s/[store]/(shop)/orders/[id]/exchange-pay/[exchangeId]/page.tsx`·`success/page.tsx`·`fail/page.tsx` / 고침 `src/lib/exchanges.ts`·`src/lib/exchanges-server.ts`·`src/lib/exchange-actions.ts`·`src/app/exchange-panels.tsx`·`src/app/s/[store]/(shop)/orders/[id]/page.tsx`·`tests/exchanges.test.mjs` | — |
+| 앱(초안) | `1c9123d68` → **QA014 보완 커밋으로 교체 예정**(보완은 `pay/pay-widget.tsx` 선택적 교환 모드·`tests/exfee-widget.test.mjs` 추가) | 새 `src/app/s/[store]/(shop)/orders/[id]/exchange-pay/[exchangeId]/page.tsx`·`success/page.tsx`·`fail/page.tsx` / 고침 `src/lib/exchanges.ts`·`src/lib/exchanges-server.ts`·`src/lib/exchange-actions.ts`·`src/app/exchange-panels.tsx`·`src/app/s/[store]/(shop)/orders/[id]/page.tsx`·`tests/exchanges.test.mjs` | — |
 | 시험 근거 | 0104 실행기 `scripts/qa/run-0104-feepay.mjs`(62/62, 작성자 모의) · 화면 `node --test tests/` 477/477 · `tsc` 0 | | |
 
 ## 2. 선행 조건(Lab, 2026-11-17 읽기)
@@ -34,7 +36,7 @@
 ## 5. 되돌리기·기능 끄기
 - **결제 기록 보존**: 0104를 DB에서 지우는 되돌리기는 하지 않는다(결제·시도 이력이 함께 사라짐). 문제가 생기면 앞으로 고치는 다음 번호로.
 - **앱만 되돌리기**: 이전 Lab 배포로 되돌려도 DB 결제 기록·잠금(지킴 트리거)은 그대로 — 재발송·무통장 확인 잠금이 DB에서 계속 동작.
-- **기능 끄기(새 결제만 막기)**: 몰 `store_payment_settings.card_enabled = false` → `feePayState`의 `canPay` false(결제 링크·위젯 0). 단 **이 칸은 주문 카드 결제와 공유**라 주문 카드 결제도 함께 꺼진다. 이미 있는 결제 기록의 표시·직원 다시 확인은 계속 됨. 교환비만 따로 끄는 칸은 없음(필요하면 별도 결정).
+- **기능 끄기(새 결제만 막기, 참고 — 임의 실행 금지)**: 몰 `store_payment_settings.card_enabled = false` → `feePayState`의 `canPay` false(결제 링크·위젯 0). 단 **이 칸은 주문 카드 결제와 공유**라 주문 카드 결제도 함께 꺼진다. 이미 있는 결제 기록의 표시·직원 다시 확인은 계속 됨. 교환비만 따로 끄는 칸은 없음(필요하면 별도 결정).
 
 ## 6. 한계(분리)
 0104 소스 Mac PASS / 작성자 모의 62 / 화면 477·tsc 0 / 준비·승인 별개 요청은 소스상 확인(실제 별개 트랜잭션은 배포 뒤) / 실제 토스 멱등·이중 과금·실패 뒤 고정 주문 번호 재사용 미시험 / 실제 화면 미배포·미검수.

@@ -268,7 +268,8 @@ export function feePayState(
         ? { ...base, kind: "hold", canRecheck: true, lockReship: true, cardActive: true, approvalRecorded: true,
             customerText: "카드 결제를 확인하는 중입니다. 다시 결제하지 마세요 — 쇼핑몰이 확인한 뒤 안내합니다.",
             staffText: "지금 확인 필요(재발송 잠김) — 「카드 결제 다시 확인」을 눌러 주세요" }
-        : { ...base, kind: "done", cardActive: true, approvalRecorded: true, customerText: "교환비 카드 결제 완료", staffText: "카드 결제 정상" };
+        // 정상 완료도 직원은 토스에서 다시 조회할 수 있음(승인 뒤 취소를 찾는 진입점, QA014 ②) — 조회 결과 판정은 DB(0104)가 한다
+        : { ...base, kind: "done", canRecheck: true, cardActive: true, approvalRecorded: true, customerText: "교환비 카드 결제 완료", staffText: "카드 결제 정상" };
     case "canceled":
       return { ...base, kind: "canceled", lockReship: true, cardActive: true,
         customerText: "교환비 카드 결제가 취소되어 결제되지 않은 상태입니다. 쇼핑몰에 문의해 주세요.",
@@ -312,6 +313,74 @@ export function exfeeAfterPrepare(r: unknown): "confirm" | ExfeeReturnCode {
   if (o.unknown === true) return "checking";
   return "returned"; // already 등 — 표시는 주문 상세가 결제 기록을 다시 읽어 정한다(응답만으로 완료 단정 0)
 }
+/** 실패한 결제 뒤 다시 결제 안내 — 같은 토스 주문 번호를 다시 받아 주는지 확인되지 않았음을 밝힘(정상 재결제를 보장하지 않음, QA014 ③) */
+export const EXFEE_RETRY_UNVERIFIED_TEXT =
+  "앞서 한 카드 결제가 되지 않았습니다. 다시 결제가 카드사에서 받아들여지는지는 아직 확인되지 않았습니다 — 결제창에서 거절되면 다시 시도하지 말고 쇼핑몰에 문의해 주세요.";
+
+/** 교환비 모드 결제 위젯 문구 — 결제창 오류 원문·결제 키를 보여 주지 않고, 주문 자동 취소 안내도 없음(주문 결제 모드 문구는 위젯 안 기존 그대로) */
+export const EXFEE_WIDGET_TEXT = {
+  load: "결제창을 불러오지 못했습니다. 새로고침한 뒤 다시 시도해 주세요.",
+  cancel: "결제를 취소했습니다. 교환비를 결제하려면 아래 버튼을 다시 눌러 주세요.",
+  request: "결제창을 열지 못했습니다. 잠시 뒤 다시 시도해 주세요(돈은 나가지 않았습니다).",
+} as const;
+
+/** 결제창 오류 → 교환비 모드 문구. 취소 코드(USER_CANCEL·PAY_PROCESS_CANCELED)만 구분, 그 밖은 고정 문구(원문 0) */
+export function exfeeWidgetErrorText(kind: "load" | "request", err?: unknown): string {
+  if (kind === "load") return EXFEE_WIDGET_TEXT.load;
+  const code = (err as { code?: unknown } | null)?.code;
+  return code === "USER_CANCEL" || code === "PAY_PROCESS_CANCELED" ? EXFEE_WIDGET_TEXT.cancel : EXFEE_WIDGET_TEXT.request;
+}
+
+/**
+ * 성공·실패 주소 처리 흐름(서버 페이지가 실제 함수로 deps를 채워 부름) — 시험에서 가짜 deps로 실제 실행해 확인한다.
+ * 순서: 형식 → 로그인 회원 → 주소의 몰 → 그 몰의 주문 주인 = 회원 → 교환이 그 주문 것. 하나라도 아니면 null(404), rpc 0.
+ */
+export type ExfeeFlowDeps = {
+  userId: () => Promise<string>;
+  storeId: (slug: string) => Promise<string | null>;
+  orderOwner: (storeId: string, orderId: string) => Promise<string | null>;
+  exchangeOrder: (exchangeId: string) => Promise<string | null>;
+  parse: (orderId: string, q: { paymentKey?: string; orderId?: string; amount?: string }) => { ok: true; paymentKey: string; amount: number } | { ok: false; error: string };
+  rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }>;
+};
+
+export async function exfeeOwnedBase(d: ExfeeFlowDeps, slug: string, orderId: string, exchangeId: string): Promise<string | null> {
+  if (!UUID_RE.test(orderId) || !UUID_RE.test(exchangeId)) return null;
+  const base = exchangeReturnPath(slug, "shop", orderId);
+  if (base !== `/s/${slug}/orders/${orderId}`) return null;
+  const uid = await d.userId();
+  const storeId = await d.storeId(slug);
+  if (!storeId) return null;
+  const owner = await d.orderOwner(storeId, orderId);
+  if (!owner || owner !== uid) return null;
+  if ((await d.exchangeOrder(exchangeId)) !== orderId) return null;
+  return base;
+}
+
+/** 성공 주소 → 돌아갈 주소(결제 키·원문 0). 준비가 끝난 뒤, 상태가 정확히 prepared일 때만 별도 호출로 승인 */
+export async function exfeeSuccessTarget(
+  d: ExfeeFlowDeps, slug: string, orderId: string, exchangeId: string, q: { paymentKey?: string; orderId?: string; amount?: string },
+): Promise<string | null> {
+  const base = await exfeeOwnedBase(d, slug, orderId, exchangeId);
+  if (!base) return null;
+  const parsed = d.parse(exchangeTossOrderId(exchangeId), q);
+  if (!parsed.ok) return `${base}?pay=error`;
+  const prepared = await d.rpc("mall_builder_exchange_fee_card_prepare", { p_exchange_id: exchangeId, p_payment_key: parsed.paymentKey, p_amount: parsed.amount });
+  if (prepared.error) return `${base}?pay=error`;
+  const next = exfeeAfterPrepare(prepared.data);
+  if (next !== "confirm") return `${base}?pay=${next}`;
+  const confirmed = await d.rpc("mall_builder_exchange_fee_card_confirm", { p_exchange_id: exchangeId, p_payment_key: parsed.paymentKey });
+  if (confirmed.error) return `${base}?pay=checking`; // 승인 요청 중 오류 — 결과 모름, 다시 결제 유도 0
+  return `${base}?pay=${exfeeAfterConfirm(confirmed.data)}`;
+}
+
+/** 실패 주소 → 돌아갈 주소. 소유·소속 확인 전에는 쿼리로 안내를 만들지 않음, 토스 원문 0 */
+export async function exfeeFailTarget(d: ExfeeFlowDeps, slug: string, orderId: string, exchangeId: string, code: unknown): Promise<string | null> {
+  const base = await exfeeOwnedBase(d, slug, orderId, exchangeId);
+  if (!base) return null;
+  return `${base}?pay=${code === "PAY_PROCESS_CANCELED" ? "user_canceled" : "failed"}`;
+}
+
 /** 승인(confirm) 응답 → 돌아갈 안내 코드(완료여도 중립 returned) */
 export function exfeeAfterConfirm(r: unknown): ExfeeReturnCode {
   const o = (r ?? {}) as { ok?: unknown; unknown?: unknown };

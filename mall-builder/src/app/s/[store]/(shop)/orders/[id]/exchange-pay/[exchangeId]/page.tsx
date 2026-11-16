@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getMyCustomer, getOrder, getStoreBySlug, requireUser } from "@/lib/store";
 import { createClient } from "@/lib/supabase/server";
 import { formatWon } from "@/lib/products";
-import { UUID_RE, exchangeTossOrderId, exfeeReturnText, feePayState, isExchangeOrderStatus } from "@/lib/exchanges";
+import { EXFEE_RETRY_UNVERIFIED_TEXT, UUID_RE, exchangeTossOrderId, exfeeReturnText, feePayState, isExchangeOrderStatus } from "@/lib/exchanges";
 import { getFeePayments } from "@/lib/exchanges-server";
 import PayWidget from "../../pay/pay-widget";
 
@@ -53,8 +53,9 @@ export default async function ExchangePayPage({
       <h1 className="text-xl font-bold">교환비 카드 결제</h1>
       <p className="mt-1 text-sm text-gray-500">주문 {order.order_no} · 교환비 <b className="text-gray-900">{formatWon(x.fee)}</b></p>
       {notice && <p className="mt-4 rounded bg-amber-50 px-3 py-2 text-sm text-amber-800" data-exfee-notice>{notice}</p>}
-      {st.retryUnverified && <p className="mt-2 text-xs text-gray-500">앞서 한 카드 결제가 되지 않았습니다. 다시 결제가 카드사에서 거절되면 쇼핑몰에 문의해 주세요.</p>}
+      {st.retryUnverified && <p className="mt-4 rounded bg-amber-50 px-3 py-2 text-sm text-amber-800" data-exfee-retry-unverified>{EXFEE_RETRY_UNVERIFIED_TEXT}</p>}
       <PayWidget
+        mode="exchange"
         clientKey={payCfg.toss_client_key}
         customerKey={customer.id}
         amount={x.fee}

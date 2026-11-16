@@ -1,11 +1,12 @@
 import { notFound, redirect } from "next/navigation";
-import { getStoreBySlug, requireUser } from "@/lib/store";
-import { UUID_RE } from "@/lib/exchanges";
+import { exfeeFailTarget } from "@/lib/exchanges";
+import { exfeeFlowDeps } from "@/lib/exchanges-server";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-// 교환비 결제창 실패 주소 — 토스 원문 메시지·원래 쿼리는 쓰지 않고, 사용자가 닫은 경우만 구분해 정해진 코드로 주문 상세에 돌려보낸다(돈은 나가지 않음)
+// 교환비 결제창 실패 주소 — 실제 DB로 로그인 회원·몰·주문 주인·교환 소속을 확인한 뒤에만(아니면 404) 정해진 코드로 주문 상세에 돌려보낸다.
+// 토스 원문 메시지·원래 쿼리는 쓰지 않음(돈은 나가지 않음)
 export default async function ExchangePayFailPage({
   params,
   searchParams,
@@ -14,9 +15,8 @@ export default async function ExchangePayFailPage({
   searchParams: Promise<{ code?: string }>;
 }) {
   const { store: slug, id, exchangeId } = await params;
-  if (!UUID_RE.test(id) || !UUID_RE.test(exchangeId)) notFound();
-  await requireUser(`/s/${slug}/orders/${id}`);
-  const store = await getStoreBySlug(slug);
-  const { code } = await searchParams;
-  redirect(`/s/${store.slug}/orders/${id}?pay=${code === "PAY_PROCESS_CANCELED" ? "user_canceled" : "failed"}`);
+  const deps = await exfeeFlowDeps(`/s/${slug}/orders/${id}`);
+  const target = await exfeeFailTarget(deps, slug, id, exchangeId, (await searchParams).code);
+  if (!target) notFound();
+  redirect(target);
 }

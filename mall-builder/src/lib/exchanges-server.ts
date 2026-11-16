@@ -1,7 +1,9 @@
 // M2-12b 교환 정보 읽기(서버) — 로그인 세션으로 읽으므로 RLS가 본인 주문 유저·주문 권한 직원만 보여 준다.
 // 0102가 없는 DB(교환 표 없음)만 「기능 없음」으로 숨기고, 권한·서버 오류는 숨기지 않고 오류로 돌려준다.
 import { createClient } from "@/lib/supabase/server";
-import { FEE_PAYMENT_COLUMNS, deliveredAtFromEvents, type ExchangeItem, type ExchangeRow, type ExchangeVariant, type FeePaymentRow } from "@/lib/exchanges";
+import { FEE_PAYMENT_COLUMNS, deliveredAtFromEvents, type ExchangeItem, type ExchangeRow, type ExchangeVariant, type FeePaymentRow, type ExfeeFlowDeps } from "@/lib/exchanges";
+import { parseSuccessParams } from "@/lib/payment";
+import { requireUser } from "@/lib/store";
 
 const EXCHANGE_COLUMNS =
   "id, item_id, qty, from_variant_id, to_variant_id, from_option, to_option, from_option_based, to_option_based, reason, memo, requested_by, step, collect_courier, collect_tracking, reship_courier, reship_tracking, fee, fee_status, restocked, reship_deducted, reject_note, created_at";
@@ -54,6 +56,31 @@ export async function getExchangeData(orderId: string): Promise<ExchangeData> {
 }
 
 type Supa = Awaited<ReturnType<typeof createClient>>;
+
+/** 성공·실패 주소 흐름의 실제 의존성 — 로그인 세션으로만 읽고 부른다(서버 키 0). 회원 확인은 requireUser(로그인 안 했으면 로그인 화면) */
+export async function exfeeFlowDeps(loginNext: string): Promise<ExfeeFlowDeps> {
+  const supabase = await createClient();
+  return {
+    userId: async () => (await requireUser(loginNext)).id,
+    storeId: async (slug) => {
+      const { data } = await supabase.from("mall_builder_stores").select("id").eq("slug", slug).maybeSingle();
+      return (data?.id as string | undefined) ?? null;
+    },
+    orderOwner: async (storeId, orderId) => {
+      const { data } = await supabase.from("mall_builder_orders").select("user_id").eq("store_id", storeId).eq("id", orderId).maybeSingle();
+      return (data?.user_id as string | undefined) ?? null;
+    },
+    exchangeOrder: async (exchangeId) => {
+      const { data } = await supabase.from("mall_builder_exchanges").select("order_id").eq("id", exchangeId).maybeSingle();
+      return (data?.order_id as string | undefined) ?? null;
+    },
+    parse: parseSuccessParams,
+    rpc: async (fn, args) => {
+      const r = await supabase.rpc(fn, args);
+      return { data: r.data, error: r.error };
+    },
+  };
+}
 
 /**
  * 교환비 카드 결제 기록(칸 나열 — 결제 키·멱등키 칸은 읽지 않음)과 몰 카드 설정. 시도 이력 표는 읽지 않는다.

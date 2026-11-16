@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 import {
   deliveredAtFromEvents, exchangeDaysLeft, exchangeStockNote, itemHadOptions, itemRequestState, parseExchangeFee, parseExchangeQty,
   exchangeNotices, exchangeReturnPath, remainingQty, staffExchangeActions,
+  exfeeSuccessTarget, exfeeFailTarget, EXFEE_RETRY_UNVERIFIED_TEXT,
 } from "../src/lib/exchanges.ts";
 
 const D = (s) => new Date(s);
@@ -170,7 +171,7 @@ test("feePayState — 결제 기록 상태 8종 × 카드 설정 × 단계", asy
   }
   // 완료 정상 / 완료 + 확인 필요(hold)
   const d = feePayState({ ...w, fee_status: "paid" }, P("done"), true);
-  assert.deepEqual([d.kind, d.canPay, d.canRecheck, d.lockReship, d.approvalRecorded], ["done", false, false, false, true]);
+  assert.deepEqual([d.kind, d.canPay, d.canRecheck, d.lockReship, d.approvalRecorded], ["done", false, true, false, true]); // QA014 ②: 정상 완료도 직원 다시 확인(승인 뒤 취소 찾기)
   const h = feePayState({ ...w, fee_status: "paid" }, P("done", true), true);
   assert.deepEqual([h.kind, h.canPay, h.canRecheck, h.lockReship, h.approvalRecorded], ["hold", false, true, true, true]);
   assert.doesNotMatch(h.customerText, /완료/, "확인 필요면 유저에게 완료로 보이지 않음");
@@ -236,25 +237,98 @@ test("성공 주소 응답 → 다음 할 일: 정확히 prepared일 때만 승�
 });
 
 const page = (p) => readFileSync(new URL(`../src/app/s/[store]/(shop)/orders/[id]/exchange-pay/[exchangeId]/${p}`, import.meta.url), "utf8");
-test("성공 주소(소스): 준비 → 별도 await → prepared일 때만 승인, 결제 키는 rpc 인자로만, ?ok=1·console·원문 오류 0", () => {
-  const s = page("success/page.tsx");
-  const prep = s.indexOf('rpc("mall_builder_exchange_fee_card_prepare"');
-  const gate = s.indexOf('if (next !== "confirm")');
-  const conf = s.indexOf('rpc("mall_builder_exchange_fee_card_confirm"');
-  assert.ok(prep > 0 && gate > prep && conf > gate, "준비 → prepared 확인 → 승인 순서");
-  assert.match(s.slice(prep - 40, prep), /await supabase\./);
-  assert.match(s.slice(conf - 40, conf), /await supabase\./);
-  assert.doesNotMatch(s, /Promise\.all/);
-  assert.doesNotMatch(s, /\?ok=1|console\.|\.message\b/);
-  for (const r of s.match(/redirect\(`[^`]*`\)/g) ?? []) assert.doesNotMatch(r, /paymentKey|parsed\./, r);
-  assert.match(s, /parseSuccessParams\(exchangeTossOrderId\(exchangeId\)/);
-  assert.match(s, /requireUser\(/);
+// QA014 ①: 성공·실패 흐름을 가짜 의존성으로 실제 실행 — 다른 몰·다른 주문·다른 회원·다른 주문의 교환이면 rpc 0
+const FO = "11111111-1111-4111-8111-111111111111", FX = "22222222-2222-4222-8222-222222222222", FS = "33333333-3333-4333-8333-333333333333";
+const OTHER_ORDER = "44444444-4444-4444-8444-444444444444";
+function fakeDeps(o = {}) {
+  const calls = [];
+  const d = {
+    calls,
+    rpcArgs: [],
+    userId: async () => { calls.push("user"); return o.uid ?? "u1"; },
+    storeId: async (slug) => { calls.push(`store:${slug}`); return slug === "my-mall" ? FS : null; },
+    orderOwner: async (sid, oid) => { calls.push(`owner:${oid}`); return sid === FS && oid === FO ? (o.owner ?? "u1") : null; },
+    exchangeOrder: async (xid) => { calls.push(`ex:${xid}`); return xid === FX ? (o.exOrder ?? FO) : null; },
+    parse: (expectId, q) => { calls.push(`parse:${expectId}`); return q.orderId === expectId && q.paymentKey ? { ok: true, paymentKey: q.paymentKey, amount: Number(q.amount) } : { ok: false, error: "x" }; },
+    rpc: async (fn, args) => { calls.push(`rpc:${fn}`); d.rpcArgs.push(args); return (o.rpc ?? {})[fn] ?? { data: null, error: { message: "raw" } }; },
+  };
+  return d;
+}
+const goodQ = { paymentKey: "pk_test_secret", orderId: `exfee-${FX}`, amount: "3000" };
+const rpcs = (d) => d.calls.filter((c) => c.startsWith("rpc:"));
+const PREP = "mall_builder_exchange_fee_card_prepare", CONF = "mall_builder_exchange_fee_card_confirm";
+const preparedOk = { data: { ok: true, prepared: true, status: "prepared" }, error: null };
+const denied = [["다른 몰", {}, "other-mall"], ["다른 회원", { owner: "u2" }, "my-mall"], ["다른 주문의 교환", { exOrder: OTHER_ORDER }, "my-mall"]];
+
+test("성공 흐름(실행): 회원 → 몰 → 주문 주인 → 교환 소속 확인 전엔 rpc 0, 하나라도 아니면 null(404)", async () => {
+  for (const [name, o, slug] of denied) {
+    const d = fakeDeps(o);
+    assert.equal(await exfeeSuccessTarget(d, slug, FO, FX, goodQ), null, name);
+    assert.equal(rpcs(d).length, 0, `${name}: rpc 0`);
+    assert.ok(!d.calls.some((c) => c.startsWith("parse:")), `${name}: 쿼리 해석 0`);
+  }
+  const bad = fakeDeps();
+  assert.equal(await exfeeSuccessTarget(bad, "my-mall", "not-uuid", FX, goodQ), null);
+  assert.equal(bad.calls.length, 0, "형식이 틀리면 아무것도 안 부름");
+  const seq = fakeDeps({ rpc: { [PREP]: preparedOk, [CONF]: { data: { ok: true }, error: null } } });
+  await exfeeSuccessTarget(seq, "my-mall", FO, FX, goodQ);
+  assert.deepEqual(seq.calls.slice(0, 4), ["user", "store:my-mall", `owner:${FO}`, `ex:${FX}`], "회원 → 몰 → 주인 → 소속 순서");
 });
 
-test("실패 주소(소스): 토스 원문 메시지·쿼리 미사용, 정해진 코드만", () => {
-  const s = page("fail/page.tsx");
-  assert.doesNotMatch(s, /message|console\./);
-  assert.match(s, /\?pay=\$\{code === "PAY_PROCESS_CANCELED" \? "user_canceled" : "failed"\}/);
+test("성공 흐름(실행): 준비가 정확히 prepared일 때만 별도 승인, 결제 키는 돌아갈 주소에 0", async () => {
+  const ok = fakeDeps({ rpc: { [PREP]: preparedOk, [CONF]: { data: { ok: true }, error: null } } });
+  const t = await exfeeSuccessTarget(ok, "my-mall", FO, FX, goodQ);
+  assert.equal(t, `/s/my-mall/orders/${FO}?pay=returned`);
+  assert.deepEqual(rpcs(ok), [`rpc:${PREP}`, `rpc:${CONF}`]);
+  assert.deepEqual(ok.rpcArgs[0], { p_exchange_id: FX, p_payment_key: "pk_test_secret", p_amount: 3000 });
+  assert.doesNotMatch(t, /pk_test|paymentKey/);
+  for (const st of ["requested", "unknown"]) {
+    const d = fakeDeps({ rpc: { [PREP]: { data: { ok: true, prepared: true, status: st }, error: null } } });
+    assert.equal(await exfeeSuccessTarget(d, "my-mall", FO, FX, goodQ), `/s/my-mall/orders/${FO}?pay=checking`, st);
+    assert.deepEqual(rpcs(d), [`rpc:${PREP}`], `${st}: 승인 0`);
+  }
+  const pe = fakeDeps();
+  assert.equal(await exfeeSuccessTarget(pe, "my-mall", FO, FX, goodQ), `/s/my-mall/orders/${FO}?pay=error`);
+  assert.deepEqual(rpcs(pe), [`rpc:${PREP}`], "준비 오류면 승인 0");
+  const ce = fakeDeps({ rpc: { [PREP]: preparedOk } });
+  assert.equal(await exfeeSuccessTarget(ce, "my-mall", FO, FX, goodQ), `/s/my-mall/orders/${FO}?pay=checking`, "승인 요청 오류 = 결과 모름");
+  const pf = fakeDeps();
+  assert.equal(await exfeeSuccessTarget(pf, "my-mall", FO, FX, { ...goodQ, orderId: "other" }), `/s/my-mall/orders/${FO}?pay=error`);
+  assert.equal(rpcs(pf).length, 0, "결제 정보가 다른 주문 번호면 rpc 0");
+});
+
+test("실패 흐름(실행): 소유·소속 확인 전엔 안내 0, 토스 원문 0", async () => {
+  for (const [name, o, slug] of denied) {
+    const d = fakeDeps(o);
+    assert.equal(await exfeeFailTarget(d, slug, FO, FX, "PAY_PROCESS_CANCELED"), null, name);
+    assert.equal(rpcs(d).length, 0, name);
+  }
+  assert.equal(await exfeeFailTarget(fakeDeps(), "my-mall", FO, FX, "PAY_PROCESS_CANCELED"), `/s/my-mall/orders/${FO}?pay=user_canceled`);
+  assert.equal(await exfeeFailTarget(fakeDeps(), "my-mall", FO, FX, "REJECT_CARD_COMPANY<script>"), `/s/my-mall/orders/${FO}?pay=failed`);
+});
+
+test("성공·실패 주소(소스): 흐름 함수에만 맡기고 직접 쿼리·rpc·원문 0, 실제 의존성은 로그인 세션(서버 키 0)", () => {
+  const s = page("success/page.tsx"), f = page("fail/page.tsx");
+  assert.match(s, /exfeeSuccessTarget\(deps, slug, id, exchangeId, await searchParams\)/);
+  assert.match(f, /exfeeFailTarget\(deps, slug, id, exchangeId, \(await searchParams\)\.code\)/);
+  for (const x of [s, f]) {
+    assert.match(x, /if \(!target\) notFound\(\)/);
+    assert.doesNotMatch(x, /\.rpc\(|\.from\(|console\.|\.message\b|\?ok=1/);
+  }
+  const srv = readFileSync(new URL("../src/lib/exchanges-server.ts", import.meta.url), "utf8");
+  const fn = srv.slice(srv.indexOf("export async function exfeeFlowDeps"), srv.indexOf("export async function getFeePayments"));
+  assert.match(fn, /requireUser\(loginNext\)/);
+  assert.match(fn, /parse: parseSuccessParams/);
+  assert.doesNotMatch(srv, /createAdminClient|SERVICE_ROLE|SECRET_KEY/);
+});
+
+test("결제 화면(소스): 교환 모드 위젯, 실패 뒤 다시 결제는 위젯 앞에 미확인 안내(정상 재결제 보장 문구 0)", () => {
+  const s = page("page.tsx");
+  assert.match(s, /mode="exchange"/);
+  const note = s.indexOf("EXFEE_RETRY_UNVERIFIED_TEXT}"), widget = s.indexOf("<PayWidget");
+  assert.ok(note > 0 && widget > note, "미확인 안내가 위젯 앞");
+  assert.match(EXFEE_RETRY_UNVERIFIED_TEXT, /확인되지 않았습니다/);
+  assert.doesNotMatch(EXFEE_RETRY_UNVERIFIED_TEXT, /완료|정상|보장/);
 });
 
 test("결제 화면(소스): 주인·교환 소속 확인, 결제 가능할 때만 위젯, 토스 주문 번호 exfee-<교환 id>, 결제 키·이력 미사용", () => {
