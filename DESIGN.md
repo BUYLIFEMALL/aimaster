@@ -958,3 +958,13 @@
 - 2026-11-15 템플릿 6종(116~121) 공식 시안 패키지(`D:\\Antigravity\\Design\\116~121`) 및 9종 종합 비교 갤러리 인덱스(`D:\\Antigravity\\Design\\mall_templates_index.html`) 제작 완료.
 - 2026-11-15 B2B 쇼핑몰 로그인 UI 디자인 3대 시안(122번 네오 모던 코퍼레이트 블루, 123번 클린 웰니스 테크 그린, 124번 럭셔리 부티크 골드 다크) 4대 뷰(총 12개 뷰) 제작 및 종합 비교 쇼케이스(`D:\PDS\Design\b2b_mall_login_index.html`, `http://localhost:3805/b2b_mall_login_index.html`) 구축 완료.
 - 2026-11-15 메인 히어로 카피(「모든 자동화를 한 곳에서 / 모든 마케팅/업무/비지니스를 자동화 하세요」) 리뉴얼 3대 시안(`D:\PDS\Design\hero_copy_concepts\`) 및 종합 비교 쇼케이스(`http://localhost:3805/hero_copy_concepts/index.html`) 구축 완료.
+
+## 2026-11-17 Workspace 전면 리뉴얼 시안 번호 예약
+
+주인님 직접 지정으로 AGY DES-20261117-02가 제작한다. 현재 운영 v1.55와 별개인 시안이며 제품 코드는 선택 후 반영한다. 표준4화면×3안·비교표·1440px라이트박스/독립뷰어와영구보존규격을적용한다. 번호는예약이며산출물/채택완료를뜻하지않는다.
+
+| 번호 | 임시 시안명 | 영구보존 예정 경로 | 상태 |
+|---|---|---|---|
+| 145 | Workspace Notion Canvas | D:/Antigravity/Design/145_workspace_notion_canvas | AGY 착수 ACK msg_12006f672ea8·미채택 |
+| 146 | Workspace Professional Studio | D:/Antigravity/Design/146_workspace_professional_studio | 같은작업·미채택 |
+| 147 | Workspace Focus Command | D:/Antigravity/Design/147_workspace_focus_command | 같은작업·미채택 |

@@ -14,6 +14,22 @@
 
 ## 현재 조정 범위
 
+11-17 총괄교통정리(OPS): 아래공식작업판/TEAM 현재값으로갱신·옛QA/WS승인대기후속해소근거연결. Support는주인님전담예외유지, 타인 ACTIVE_WORK -5삭제차이는동시편집보존·강제복원/합동커밋금지(음악실점유종료공식인정).
+
+FRONT-20261117-01 / CC-B2B-FRONT-01: template-gallery.tsx/관련keyboard검증·본인tracker/결과만로빙Tab/화살표/HomeEnd·aria-pressed·resolved color.id정합성. 7c8ee3a81+e4ba29947 반환·MOV17-05검토, 저장/게시/DB/build/deploy0·차기묶음.
+
+MUS-20261117-01 / CC-MUSIC-01: ExportView.tsx 실제이번signal.abort+AbortError만취소안내·진짜오류보존, fe402b1df·독립MOV17-05 수락·미배포완료. 공용encoder/4사본·남의icon변경없음.
+
+RE-20261117-03 / CC-REALTY-01: news-noise-sim.mjs 신규/본인개선만읽기측정기, 6b043d702+948698471 및WS17-07후속검토수락. 안정id순서·옵션검증/모의2500, 운영recent상한차이한계보존·운영쓰기없음. RE-20261117-04: realty-listing-alert background.js/lib/listing.js(필요시)/web-bridge.js/TargetsClient.tsx·관련시험/본인개선만겹침안내, L5우선조건/현재회원회차검증·구응답호환·실수집/ZIP/버전/build/deploy0.
+
+BLOG-20261117-01 / CC-BLOG-01: 비교표Website메타/T-11/블로그미배포누락2행만3c7c41aa2수락. tistory타인ZIP삭제보존·운영쓰기/배포0·T12별도미정.
+
+B2B-20261117-01 / CC-B2B-BACK-01: 주인님직접Lab0100→0101지시취합, 0101마이그/관련시나리오·notify.ts/관련시험·본인개선만anon회수/safeupdate WHERE·라벨보완.5989f69af+51b2f3e91 반환, Lab영향함수1개트랜잭션수정/미리보기만·실발송0·운영0101/빌드0.
+
+WS-20261117-08 / CC-WORKSPACE-01: 주인님직접작은5개지시·8150da176 반환·906여백과같은미배포묶음. 현재프로그램내캘린더/타임라인/검토문구/기본보기ko·⑤기구현조사, 회원지정이름보존. MOV-20261117-06 / CC-MOVIE-01: 위2커밋독립읽기검토·원본렌더불가시미검수·제품/DB/설치/build/dev/deploy0. PLAN-20261117-01: 큰4개중기구현제외·원범위주간요약/협업/디자인만계획보완, 외부신규8개자동채택/구현금지·권한/충돌/비용검증필요, Master가작업순서/담당판단.
+
+QA-20261117-002 / CX-QA-01: Mac실측Intel x86_64·ARM불가명시, 본인기존브라우저임시합성6초파일검수만·ego20 신뢰클릭/위치선택사람대기. 실제인코딩0·우회/설치/SMB인덱스/운영쓰기없음.
+
 MOV17-04 정적조건부PASS수락: ko/en·ROW240계산/주560·현황판false보존/부분update·일반기본값불변, 심각반례없음. WS17-05 구현검토범위done·실렌더미검수, REL002 기승인1빌드별도계속. P3 MAX_LANES3/하단여백·more영문·타보기월영문은후속관찰, Workspace예정Edge검수에서실데이터추가없이확인/기록만. 새코드/추가빌드/배포되돌림없음.
 
 REL-20261117-002 / CC-WORKSPACE-01: 주인님직접「배포진행해」 v1.55 1빌드승인취합 DIR-20261117-003. v1.54 d15ad91a6+370e05836+12a5ff17d·필수버전/기록만(로그/dirty Master대조). 담당시험/타입·팀빌드점유→단일배포→Ready/DB/Edge확인, 초과재시도/중복실행없음. Movie MOV17-04 독립미완료상태계속·별도기록·반례즉시보고. 다른프로그램비용/승인확대없음.
@@ -223,3 +239,12 @@ Claude(Blog)는 B1의 사람 직접 클릭 선행조건 대기. 확장 설치/�
 18:30 추가 배정: MUS-20261116-04(Music, `4e64c8cbd` WS05 읽기전용 독립검토), ECOM-20261116-05(ecommerce, INSTA1.11 고정ZIP 권한 보강 읽기검토), BLOG-20261116-03(Blog, Blog1.07 고정ZIP env읽기/확장치환 읽기검토). 각 담당은 `.ai/results/<작업ID>-<팀ID>.md`만 작성하고 제품/공통파일을 고치지 않는다. FRONT06은 같은 timesale 블록 안에서 rose 스킨의 `mall-mode=dark` 한정 색상 보정 A안을 추가 허용했다. 공통CSS·다른블록·템플릿 수정은 금지한다.
 
 작업자는 `ready_review`로 제출한다. Master가 요구·실제SHA·파일범위·충돌·검증·남은 문제를 확인하고 승인/보완/다음지시를 기록한다. 작업의 완료조건이 충족된 경우만 `done`으로 닫는다. 구현 완료·독립검토 통과·배포 Ready·운영 검수는 별개 상태이며, 배포가 목표인 상위 작업을 코드 구현만으로 닫지 않는다.
+
+### 2026-11-17 02:06 KST 총괄 조정
+
+- B2B17-02: Backend 한 명이 미배포0102 원문과 scripts/qa/run-0102-qa004.mjs만 수정. QA004 P1 해소 전 Lab0102/운영/교환UI 구현 보류. 주문→교환 잠금·반품상호배제·실제배송기준 검증.
+- RE17-04: Realty의 extension/lib/ownership.js 신규·background.js·web-bridge.js·관련 시험만 허용. A/B 가상계정 재현 후 소유자/세대 격리, 실제수집·배포 없음.
+- WS17-10: ViewTabs ad65c8ac5 저장이름복원 반환. csv/spec/edit 서버이름 일괄한국어 변경 보류.
+- E1: Workspace runs.ts/tools.ts/agentE1.test.ts 영속 notify_me CAS 보완 허용. 기존payload 다른필드 보존·실발송0. E2-7-1 sync/presence 국소계획 허용, 연결파일 먼저 예약; 포털/예약 운영DDL 자동적용 미승인.
+- DES17-02: AGY 145/146/147 폴더 독립뷰어보완만, 제품코드 미반영. MacTester가 독립검수, 메인실행필요시 Master 경유.
+- 직접지시 취합: 주인님은 실시간A·전면3안선택·추천8개전부·E1부터를 확정. 초기5개결정요청 재질문하지 않음. 연계 송신쪽은 Master가 별도 경로 확인 후 배정.
