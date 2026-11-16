@@ -74,6 +74,10 @@ export function createStudioGate() {
     isCurrent(t: { token: number; key: string }) {
       return t.token === current && t.key === currentKey;
     },
+    /** 화면 해제·문맥 변경 때(effect 정리): 진행 중 요청을 모두 무효로 */
+    invalidate() {
+      current += 1;
+    },
   };
 }
 
@@ -86,11 +90,14 @@ export function StudioDashboard() {
   useEffect(() => {
     const t = gate.begin(key);
     if (!spaceId || !userId) return;
-    void loadStudioData(api as Api, spaceId).then((d) => {
-      if (!gate.isCurrent(t)) return; // 다른 워크스페이스·계정으로 바뀐 뒤 도착한 응답
+    loadStudioData(api as Api, spaceId).then((d) => {
+      // 화면이 사라졌거나 다른 워크스페이스·계정으로 바뀐 뒤 도착한 응답은 상태·레코드 모두 건드리지 않음
+      if (!gate.isCurrent(t)) return;
       for (const rm of d.recordMaps) records.mergeRecordMap(rm as never);
       setResult({ key: t.key, data: d });
-    });
+    }, () => undefined);
+    // QA013(언마운트·StrictMode 재실행·빠른 재마운트): 정리 때 이 요청을 무효로
+    return () => gate.invalidate();
   }, [key, spaceId, userId, gate]);
   // 지금 문맥의 결과만 그린다(전환 직후에는 로딩 표시, 이전 자료 숨김)
   const data = result && result.key === key ? result.data : null;
