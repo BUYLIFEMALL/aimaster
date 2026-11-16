@@ -14,6 +14,8 @@
 
 ## 현재 조정 범위
 
+MOV-20261117-03 / CC-MOVIE-01: ECOM17 pending보완87267c4cb 원무응답총3전송반례·동일/다른판자동0·명시confirm거절0승인1·정확ACK해제·다른상품독립성만최소재검수. 원MOV11 V2는새정책에맞춰명시수동송신후늦은ACK회귀. 제품/실저장/DB/설치/build/deploy0·고유결과/fixture만. Ecom추가코드동결·점유해제, 타이머자동재시도/대기임의확정없음확인.
+
 TAP-20261117-03 / CC-B2B-BACK-01: WS17-04 독립경합해소수락후v1.89릴리스준비. threads-affiliate-poster version.ts·extension/manifest.json·public/downloads v1.89/latest ZIP·본인IMPROVEMENTS/고유결과만점유. 기존build-extension-archive.mjs직접로컬압축·바이트대조(구v1.88버전ZIP보존). 현재운영1.88/후보1.89분리, SQL정확해시/선행중복검사·실패복구·programs확장metadata변경초안·독립검토/미검수명세. 운영DB/설치/build/deploy/실수집없음. Ecom은바나나담당·TAP해당경로편집금지. 준비검토후Master가빌드1회요청취합.
 
 ECOM17 보완반환: MOV17-02 0e7409bad에서미응답pending중동일결과총3회재전송실재현. Ecom은동일ProductBatchBoard/saveTracker/관련시험범위로pending도불확실취급·자동전송차단/명시confirm수동재전송·정확ACK상태해제보완. 원MOV11해결green보존, 실저장/DB/build/deploy없음.
