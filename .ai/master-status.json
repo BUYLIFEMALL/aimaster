@@ -1,0 +1,513 @@
+{
+  "version": 1,
+  "checkedAt": "2026-11-16T04:29:01.551Z",
+  "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
+  "tasks": [
+    {
+      "task_id": "MUS-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-MUSIC-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "음악 기배포5건·공통6곳 포함 여부 정정",
+      "next": "재배포 없음; 외부조건은 유지",
+      "evidence": "msg_24165d93de71 / docs/roles/music.md",
+      "sha": "df34b8ee6",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "MUS-20261116-02",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-MUSIC-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "가사 MP420초·플레이리스트 곡0개 운영 검증",
+      "next": "직접파일저장·멈춤/fallback·맥은 검수한계로 별도",
+      "evidence": "msg_959f5568ebe9 / lyric-video-studio/docs/IMPROVEMENTS.md",
+      "sha": "054c672aa",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "ECOM-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-ECOM-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "WebP 수신 계약·ESM 상태 정정",
+      "next": "수신부v1.46 Ready, 영상측 송신 연결 후 실제왕복",
+      "evidence": ".ai/results/ECOM-20261116-01-CC-ECOM-01.md",
+      "sha": "13b21994e",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "ECOM-20261116-02",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-ECOM-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "바나나 M1 모바일·25MB가드·빈상태 보완",
+      "next": "코드/104시험/정적독립검토 완료; v1.49 배포·실화면375px는 별도대기",
+      "evidence": ".ai/results/ECOM-20261116-02-CC-ECOM-01.md",
+      "sha": "7b5d3b053",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "DES-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "AG-UI-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "M1 정적 품질 명세·잘못된 단정 정정",
+      "next": "실기기·낭독 검수로 확대하지 않음",
+      "evidence": ".ai/results/DES-20261116-01-AG-UI-01.md",
+      "sha": null,
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "DES-20261116-02",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "AG-UI-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "7b5d3b053 정적 독립 재검토",
+      "next": "필수 남은 정적결함0; 실화면 별도대기",
+      "evidence": ".ai/results/DES-20261116-02-AG-UI-01.md",
+      "sha": null,
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "MOV-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-MOVIE-01",
+      "status": "ready_review",
+      "delivery": "returned",
+      "title": "GIF/WebP 송신·0/10MB·origin/source 보완",
+      "next": "QA 독립검토→기존 사용자1빌드 승인으로v1.33→각1실제왕복",
+      "evidence": ".ai/results/MOV-20261116-01-CC-MOVIE-01.md",
+      "sha": "efc72da60",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "WS-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-WORKSPACE-01",
+      "status": "ready_review",
+      "delivery": "returned",
+      "title": "Agent MCP 연결4개·회원한도·무인쓰기검토",
+      "next": "승인재개중복 후속WS-02 미해소시 배포안함",
+      "evidence": "msg_31beb6fd1c34",
+      "sha": "270f87b20",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "WS-20261116-02",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-WORKSPACE-01",
+      "status": "ready_review",
+      "delivery": "returned",
+      "title": "영속 승인1회 소모·동시재개1회 보완",
+      "next": "202시험·타입0, Tester 독립검토 후 기존1빌드승인 배포판단",
+      "evidence": "msg_1e13a7bb2f8c",
+      "sha": "d8290ffb6",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "B2B-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-B2B-BACK-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "v1.15 정정·M2-8~11/0100 준비·415시험",
+      "next": "운영0100+v1.16 배포는 별도승인; Front 5bfed663d만동반",
+      "evidence": ".ai/results/B2B-20261116-01-CC-B2B-BACK-01.md",
+      "sha": "8fee281b8",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "B2B-20261116-02",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-B2B-BACK-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "3210 Lab 재개·Front 검수환경",
+      "next": "2회재개 예외기록·보관캐시유지·추가재시작없음",
+      "evidence": ".ai/results/B2B-20261116-02-CC-B2B-BACK-01.md",
+      "sha": null,
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "FRONT-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-B2B-FRONT-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "v1.15/0095/S61 정정·S74 배포합의",
+      "next": "E3 실화면은FRONT-02에서 완료조건별 계속",
+      "evidence": ".ai/results/FRONT-20261116-01-CC-B2B-FRONT-01.md",
+      "sha": "df6df10ad",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "FRONT-20261116-02",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-B2B-FRONT-01",
+      "status": "ready",
+      "delivery": "delivered",
+      "title": "E3 Lab검수→식품/키즈/뷰티 각6종 템플릿",
+      "next": "정확6경로만 허용; DESIGN.md는Master가 갱신",
+      "evidence": "msg_4289c55c9ddd",
+      "sha": null,
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "RE-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-REALTY-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "L-6 기술안·뉴스미배포정정·17시험",
+      "next": "대안1 채택, 구현은RE-02로 분리",
+      "evidence": ".ai/results/RE-20261116-01-CC-REALTY-01.md",
+      "sha": null,
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "RE-20261116-02",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-REALTY-01",
+      "status": "ready_review",
+      "delivery": "returned",
+      "title": "카톡실패상태·끊긴토큰재발송방지·local로그아웃/UA",
+      "next": "Master근거검토→각다음배포; 실제수집/발송검수는미실행",
+      "evidence": ".ai/results/RE-20261116-02-CC-REALTY-01.md",
+      "sha": "26e774a8e / 7823a692b",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "BLOG-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-BLOG-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "티스토리 소제목##·이웃 전경거절 진단 보완",
+      "next": "코드검증범위 완료, 이웃재시험/배포/실제소통은별도대기",
+      "evidence": ".ai/results/BLOG-20261116-01-CC-BLOG-01.md",
+      "sha": "a27861137 / e35947191",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "QA-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CX-QA-01",
+      "status": "running",
+      "delivery": "acknowledged",
+      "title": "맥미니 독립검토: 영상우선·Workspace보완",
+      "next": "정적/가벼운검사만, 실제운영왕복·MCP실호출은별도",
+      "evidence": "msg_61fc7276a960",
+      "sha": null,
+      "reviewer": "CX-MASTER-01"
+    }
+  ],
+  "programOverrides": [
+    {
+      "slug": "free-music-studio",
+      "owner": "CC-MUSIC-01",
+      "reportedVersion": "v1.67 / engine0.8.5",
+      "stage": "운영·조건부 후속",
+      "completed": "11-14 운영 반영",
+      "next": "LeVo 공개/Mureka 충전 등 외부조건 있을 때만 후속",
+      "evidence": "docs/roles/music.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "music-automation",
+      "owner": "CC-MUSIC-01",
+      "reportedVersion": "v1.58",
+      "stage": "운영·범위내 완료",
+      "completed": "음악 메뉴1개 선택 수정·Ready·검증보고",
+      "next": "명시 잔여 없음; 새 배정 전 임의수정 없음",
+      "evidence": "msg_24165d93de71",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "playlist-channel-studio",
+      "owner": "CC-MUSIC-01",
+      "reportedVersion": "v1.42",
+      "stage": "운영·실화면 검증",
+      "completed": "곡0개 업로드기록/업무단추 확인, 30일정리11-14 확인",
+      "next": "업무전달 재실행 안 함; 직접파일저장/예외검수는별도",
+      "evidence": "msg_959f5568ebe9",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "lyric-video-studio",
+      "owner": "CC-MUSIC-01",
+      "reportedVersion": "v1.15",
+      "stage": "운영·MP4 실검증",
+      "completed": "합성20초·600프레임·전체디코드오류0",
+      "next": "파일직접저장/멈춤/fallback/맥은미검수",
+      "evidence": "msg_959f5568ebe9",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "ai-music-studio",
+      "owner": "CC-MUSIC-01",
+      "reportedVersion": "v1.16",
+      "stage": "운영·Ready 보고",
+      "completed": "공통 로그아웃/UA/위젯 배포",
+      "next": "명시 잔여 없음·운영전체무결함 의미아님",
+      "evidence": "msg_24165d93de71",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "ai-mastering-studio",
+      "owner": "CC-MUSIC-01",
+      "reportedVersion": "v1.17",
+      "stage": "운영·Ready 보고",
+      "completed": "공통보완 반영·시험22·타입0",
+      "next": "명시 잔여 없음·실물범위는개별기록",
+      "evidence": "msg_24165d93de71",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "music-video-studio",
+      "owner": "CC-MOVIE-01 + CC-MUSIC-01",
+      "reportedVersion": "v1.31",
+      "stage": "운영·공통반영확인",
+      "completed": "저장위젯/로그인 정책 기배포",
+      "next": "영상/음악 파일소유분리, 유료생성은기존보류",
+      "evidence": "docs/PENDING_DEPLOYS.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "video-to-gif",
+      "owner": "CC-MOVIE-01",
+      "reportedVersion": "v1.32 운영 / v1.33 준비",
+      "stage": "개발완료·독립검토대기",
+      "completed": "v1.32 MP4/WebP·고속GIF실물완료, WebP송신 efc72da60",
+      "next": "QA→NOTICE포함ZIP검증→승인된1빌드→GIF/WebP각1왕복",
+      "evidence": ".ai/results/MOV-20261116-01-CC-MOVIE-01.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "shorts-onestop-studio",
+      "owner": "CC-MOVIE-01",
+      "reportedVersion": "v1.59",
+      "stage": "운영·특정시험대기",
+      "completed": "낱말시각B안 코드·배포",
+      "next": "약1원시험·시험계정 조건 및 공용인코더 다음배포",
+      "evidence": "docs/roles/video.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "auto-shorts-posting",
+      "owner": "CC-MOVIE-01",
+      "reportedVersion": "v1.50 (역할기록)",
+      "stage": "운영·공통사본후속",
+      "completed": "실물·정리 완료 기록",
+      "next": "미배포 공용인코더/지역 항목만담당대조",
+      "evidence": "docs/roles/video.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "ai-video-studio",
+      "owner": "CC-MOVIE-01",
+      "reportedVersion": null,
+      "stage": "운영·조건부 유료시험",
+      "completed": "Vidu/상품장면 코드·배포 완료 기록",
+      "next": "사용자 나중에 지시 유지·유료호출 재실행안함",
+      "evidence": "docs/roles/video.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "shop-detail-page",
+      "owner": "CC-ECOM-01",
+      "reportedVersion": "v1.46",
+      "stage": "운영·수신부 Ready",
+      "completed": "WebP 받기1ed1fde1b 반영,수신시험4/4",
+      "next": "영상송신부 선검토·배포뒤 실제왕복",
+      "evidence": ".ai/results/ECOM-20261116-01-CC-ECOM-01.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "banana-canvas",
+      "owner": "CC-ECOM-01",
+      "reportedVersion": "v1.48 운영 / v1.49 후보",
+      "stage": "개발·정적독립검토완료 / 미배포",
+      "completed": "M1f19f2bdcc+375px/직접입력25MB/빈상태7b5d3b053·104시험",
+      "next": "기존빌드승인확인→v1.49 묶음→375px/빈상태/낭독실물",
+      "evidence": ".ai/results/ECOM-20261116-02-CC-ECOM-01.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "esm-register",
+      "owner": "CC-ECOM-01",
+      "reportedVersion": "v1.01",
+      "stage": "웹운영·확장실검수대기",
+      "completed": "Ready esm-register-7xufzg73q·DB적용·확장준비",
+      "next": "맥 설치/로그인뒤 입력만1회, 저장/임시저장/등록금지; API답장별도",
+      "evidence": "esm-register/docs/REQUEST_20261116_MACMINI_EXTENSION_TEST.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "elevenst-register",
+      "owner": "CC-ECOM-01",
+      "reportedVersion": "v1.07",
+      "stage": "운영·실등록검증완료",
+      "completed": "실제전송/전시중지/중복방지확인",
+      "next": "관리자잠금화면·시험상품은사용자직접삭제",
+      "evidence": "docs/roles/ecommerce-image.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "coupang-ops",
+      "owner": "CC-ECOM-01",
+      "reportedVersion": "v1.19",
+      "stage": "운영·실쓰기조건대기",
+      "completed": "읽기/기존흐름완료 기록",
+      "next": "상품권한해제·실주문뒤승인범위시험,중지상품삭제금지",
+      "evidence": "docs/roles/ecommerce-image.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "shop-order-report",
+      "owner": "CC-ECOM-01",
+      "reportedVersion": null,
+      "stage": "운영·자료대기",
+      "completed": "코드/기존검증은개별기록",
+      "next": "개인정보지운실제주문파일 필요",
+      "evidence": "docs/roles/ecommerce-image.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "seller-label-docs",
+      "owner": "CC-ECOM-01",
+      "reportedVersion": null,
+      "stage": "운영·인쇄자료/소규모미배포",
+      "completed": "마켓단계48b67dd5c 구현",
+      "next": "다음배포묶음·실인쇄여백자료대기",
+      "evidence": "docs/roles/ecommerce-image.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "ai-work-workspace",
+      "owner": "CC-WORKSPACE-01",
+      "reportedVersion": "v1.51 / v1.52 후보",
+      "stage": "운영·후속안전보완중",
+      "completed": "한국어49c8011cd·AgentMCP270f87b20·197시험",
+      "next": "WS-02 영속승인소모/동시재개202시험→QA→기존1빌드승인으로배포",
+      "evidence": "ai-work-workspace/docs/PLAN_20261116_AGENT_MCP.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "ai-task-planner",
+      "owner": "CC-WORKSPACE-01",
+      "reportedVersion": null,
+      "stage": "운영·현황재확인",
+      "completed": "Workspace범위 유지",
+      "next": "별도잔여확정전새구현배정안함",
+      "evidence": "docs/roles/workspace.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "mall-builder",
+      "owner": "CC-B2B-BACK-01 + CC-B2B-FRONT-01",
+      "reportedVersion": "v1.15 / v1.16 후보",
+      "stage": "운영·다음묶음준비 / Lab검수",
+      "completed": "T2·샘플몰·M2-1~7·E3등v1.15,후속415시험",
+      "next": "0100+M2-8~11+5bfed663d 승인묶음,Front E3실물/템플릿정확범위",
+      "evidence": "mall-builder/docs/HANDOFF_DESIGN_BUILDER_BACKEND_SYNC.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "real-estate-sales",
+      "owner": "CC-REALTY-01",
+      "reportedVersion": "v1.60 / v1.61 후보",
+      "stage": "운영·후속구현완료 / 미배포",
+      "completed": "뉴스잡음17시험·local로그아웃/서버UA7823a692b",
+      "next": "다음1빌드 승인·08:00회차대조",
+      "evidence": "real_estate_sales/docs/PLAN_20261113_NEWS_NOISE.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "realty-listing-alert",
+      "owner": "CC-REALTY-01",
+      "reportedVersion": "v1.44 / v1.45 후보",
+      "stage": "운영·L6/L7구현 검토대기",
+      "completed": "단지2936해결·회차확인,L6 26e774a8e·103시험",
+      "next": "로그아웃보완 필요범위확정→다음배포·실알림검수별도",
+      "evidence": ".ai/results/RE-20261116-02-CC-REALTY-01.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "commercial-land-trade-alert",
+      "owner": "CC-REALTY-01",
+      "reportedVersion": "v1.34",
+      "stage": "운영·재측정조건대기",
+      "completed": "층호출조절 배포완료",
+      "next": "관리자로그인후재측정1회·공통보완다음묶음",
+      "evidence": "docs/roles/realty.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "realty-client-desk",
+      "owner": "CC-REALTY-01",
+      "reportedVersion": "v1.10",
+      "stage": "운영·기능실물완료기록",
+      "completed": "1~4단계·계산기/문자실물기록",
+      "next": "공통3건 다음배포·새기능별도배정",
+      "evidence": "docs/roles/realty.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "blog-neighbor-care",
+      "owner": "CC-BLOG-01",
+      "reportedVersion": "v1.21 / v1.22 후보",
+      "stage": "운영·진단구현완료 / 실검수대기",
+      "completed": "387시험·타입0,e35947191 진단추가",
+      "next": "맥일반창/작업공간창진단 재시험·신청있는계정·배포묶음",
+      "evidence": "blog-neighbor-care/docs/REQUEST_20261116_MACMINI_B1_FOCUS_RETEST.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "tistory-auto-blog",
+      "owner": "CC-BLOG-01",
+      "reportedVersion": "v1.97 / v1.98 후보",
+      "stage": "운영·소제목수정완료 / 미배포",
+      "completed": "B4생성/보관완료,a27861137 소제목8시험",
+      "next": "다음배포후H2확인·실청구검증별도",
+      "evidence": ".ai/results/BLOG-20261116-01-CC-BLOG-01.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "wp-blogger-auto",
+      "owner": "CC-BLOG-01",
+      "reportedVersion": "v1.05",
+      "stage": "운영·B2검수완료",
+      "completed": "권한/공개소개 검수기록",
+      "next": "WP기간은정책담당유지·중복기간부여안함",
+      "evidence": "docs/roles/blog.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "naver-cafe-recruit",
+      "owner": "CC-BLOG-01",
+      "reportedVersion": "v1.04",
+      "stage": "운영·가입계정조건대기",
+      "completed": "C모드숨김확인",
+      "next": "가입카페계정으로운영진제외검수,외부초대재실행안함",
+      "evidence": "docs/roles/blog.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "slug": "website-scraper",
+      "owner": "기존담당 확인",
+      "reportedVersion": null,
+      "stage": "문서상태충돌",
+      "completed": "요약표운영 vs 상세카드병합/API410",
+      "next": "담당·현재배포근거대조전라이프사이클확정안함",
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    }
+  ]
+}

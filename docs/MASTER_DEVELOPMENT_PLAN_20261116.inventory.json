@@ -1,0 +1,2272 @@
+{
+  "checkedAt": "2026-11-16 13:29:01 KST",
+  "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
+  "count": 103,
+  "programs": [
+    {
+      "sourceId": 1,
+      "name": "구글폼 CRM 자동화",
+      "slug": "crm-google-form",
+      "folder": "crm-google-form",
+      "category": "CRM",
+      "catalogVersion": "v1.17",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 81
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:81",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 2,
+      "name": "카카오톡 뉴스레터 자동화",
+      "slug": "kakao-auto-posting",
+      "folder": "kakao_auto_poster",
+      "category": "CRM",
+      "catalogVersion": "v1.32",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 82
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:82",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 3,
+      "name": "AI 할 일·성과 관리",
+      "slug": "ai-task-planner",
+      "folder": "ai-task-planner",
+      "category": "업무자동화",
+      "catalogVersion": "v1.14",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 83
+      },
+      "owner": "CC-WORKSPACE-01",
+      "stage": "운영·현황재확인",
+      "completed": "Workspace범위 유지",
+      "next": "별도잔여확정전새구현배정안함",
+      "reportedVersion": null,
+      "evidence": "docs/roles/workspace.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 4,
+      "name": "AI 종합 성격 진단 자동화",
+      "slug": "personality-suite",
+      "folder": "personality-suite",
+      "category": "성격·운세",
+      "catalogVersion": "v1.30",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 84
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:84",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 5,
+      "name": "AI 문서번역 자동화",
+      "slug": "document-translator",
+      "folder": "document-translator",
+      "category": "업무자동화",
+      "catalogVersion": "v1.24",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 85
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:85",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 6,
+      "name": "AI 엑셀·텍스트 합치기 자동화",
+      "slug": "file-merge",
+      "folder": "file-merge",
+      "category": "업무자동화",
+      "catalogVersion": "v1.09",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 86
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:86",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 7,
+      "name": "성격코드(MBTI) 측정기",
+      "slug": "personality-code",
+      "folder": "mbti",
+      "category": "성격·운세",
+      "catalogVersion": "v1.23",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 87
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:87",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 8,
+      "name": "캐릭코드(MBTI) 측정기",
+      "slug": "mbti-character",
+      "folder": "mbti-character",
+      "category": "성격·운세",
+      "catalogVersion": "v1.26",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 88
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:88",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 9,
+      "name": "AIMaster 타로점",
+      "slug": "tarot-reading",
+      "folder": "tarot",
+      "category": "성격·운세",
+      "catalogVersion": "v1.29",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 89
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:89",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 10,
+      "name": "eBook Studio",
+      "slug": "ebook-studio",
+      "folder": "ebook-studio",
+      "category": "업무자동화",
+      "catalogVersion": "v1.17",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 90
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:90",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 11,
+      "name": "네이버 카페 포스팅 자동화",
+      "slug": "naver-cafe-poster",
+      "folder": "naver-cafe-poster",
+      "category": "네이버",
+      "catalogVersion": "v1.30",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 91
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:91",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 12,
+      "name": "네이버 블로그 자동화(App)",
+      "slug": "naver-blog-auto-poster",
+      "folder": "naver-blog-auto-poster_app",
+      "category": "네이버",
+      "catalogVersion": "v1.12",
+      "catalogState": "비활성",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 92
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:92",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 13,
+      "name": "네이버 블로그 자동화(Web)",
+      "slug": "naver-blog-auto-poster-web",
+      "folder": "naver-blog-auto-poster_web",
+      "category": "네이버",
+      "catalogVersion": "v1.13",
+      "catalogState": "비활성",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 93
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:93",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 14,
+      "name": "네이버 블로그 SEO 스튜디오",
+      "slug": "naver-blog-seo-studio",
+      "folder": "naver-blog-seo-studio",
+      "category": "블로그",
+      "catalogVersion": "v2.26",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 94
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:94",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 15,
+      "name": "마크다운 문서 자동화",
+      "slug": "markdown-studio",
+      "folder": "markdown-studio",
+      "category": "업무자동화",
+      "catalogVersion": "v1.22",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 95
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:95",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 16,
+      "name": "AI 글쓰기 에디터 자동화",
+      "slug": "ai-writing-editor",
+      "folder": "ai-writing-editor",
+      "category": "업무자동화",
+      "catalogVersion": "v1.13",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 96
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:96",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 17,
+      "name": "Website Scraper",
+      "slug": "website-scraper",
+      "folder": "ghost-scraper",
+      "category": "데이터수집|기획",
+      "catalogVersion": "v1.14",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 97
+      },
+      "owner": "기존담당 확인",
+      "stage": "문서상태충돌",
+      "completed": "요약표운영 vs 상세카드병합/API410",
+      "next": "담당·현재배포근거대조전라이프사이클확정안함",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 18,
+      "name": "시네마틱 스토리보드 자동화",
+      "slug": "cinematic-storyboard-studio",
+      "folder": "cinematic-storyboard-studio",
+      "category": "디자인",
+      "catalogVersion": "v1.20",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 98
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:98",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 19,
+      "name": "페르소나 문체 자동화",
+      "slug": "persona-style-studio",
+      "folder": "persona-style-studio",
+      "category": "데이터수집|기획",
+      "catalogVersion": "v1.10",
+      "catalogState": "병합됨 → ai-writing-editor(2026-10-21)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 99
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:99",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 20,
+      "name": "AI 랜딩페이지 기획 자동화",
+      "slug": "landing-architect",
+      "folder": "landing-architect",
+      "category": "디자인",
+      "catalogVersion": "v1.16",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 100
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:100",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 21,
+      "name": "UI Canvas 자동화",
+      "slug": "ui-canvas",
+      "folder": "ui-canvas",
+      "category": "디자인",
+      "catalogVersion": "v1.15",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 101
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:101",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 22,
+      "name": "웹 크롤링 자동화",
+      "slug": "web-crawler-saas",
+      "folder": "web-crawler",
+      "category": "데이터수집",
+      "catalogVersion": "v1.12",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 102
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:102",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 23,
+      "name": "AI Prompt 자동화",
+      "slug": "ai-prompt-studio",
+      "folder": "ai-prompt-studio",
+      "category": "AI 프롬프트",
+      "catalogVersion": "v1.11",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 103
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:103",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 24,
+      "name": "AI 프롬프트 템플릿 자동화",
+      "slug": "prompt-template-studio",
+      "folder": "prompt-template-studio",
+      "category": "데이터수집|기획",
+      "catalogVersion": "v1.07",
+      "catalogState": "병합됨 → `ai-prompt-studio`(2026-10-21)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 104
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:104",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 25,
+      "name": "AI 슬라이드 자동화",
+      "slug": "ai-slide-builder",
+      "folder": "ai-slide-builder",
+      "category": "업무자동화",
+      "catalogVersion": "v1.13",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 105
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:105",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 26,
+      "name": "AI 웹 UI 제작 자동화",
+      "slug": "ai-web-ui",
+      "folder": "react-ui-showcase",
+      "category": "데이터수집|기획",
+      "catalogVersion": "v1.07",
+      "catalogState": "병합됨 → `ui-canvas`(2026-10-21)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 106
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:106",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 27,
+      "name": "대량 메일발송 자동화(Step Mail)",
+      "slug": "stepmail",
+      "folder": "stepmail",
+      "category": "마케팅(홍보)",
+      "catalogVersion": "v1.30",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 107
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:107",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 28,
+      "name": "키워드·경쟁사 분석 자동화",
+      "slug": "competitor-analysis",
+      "folder": "competitor-analysis",
+      "category": "마케팅(홍보)",
+      "catalogVersion": "v1.14",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 108
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:108",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 29,
+      "name": "롱테일 키워드분석 자동화",
+      "slug": "longtail-keyword-expander",
+      "folder": "longtail-keyword-expander",
+      "category": "마케팅(홍보)",
+      "catalogVersion": "v1.11",
+      "catalogState": "병합됨 → `competitor-analysis`(2026-10-23)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 109
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:109",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 30,
+      "name": "예약(취소)방지 리마인드 자동화",
+      "slug": "booking-reminder",
+      "folder": "booking-reminder",
+      "category": "마케팅(홍보)",
+      "catalogVersion": "v1.29",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 110
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:110",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 31,
+      "name": "뮤직 플레이어 자동화",
+      "slug": "music-player",
+      "folder": "music-player",
+      "category": "음악",
+      "catalogVersion": "v1.09",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 111
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:111",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 32,
+      "name": "AI 리버스 프롬프트 자동화",
+      "slug": "reverse-prompt",
+      "folder": "reverse-prompt",
+      "category": "AI 프롬프트",
+      "catalogVersion": "v1.15",
+      "catalogState": "운영(2026-10-21 이미지 스타일 분석기와 서로 연결·30일 정리)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 112
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:112",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 33,
+      "name": "무한루프 영상자동화",
+      "slug": "infinite-loop-video",
+      "folder": "infinite-loop-video",
+      "category": "영상",
+      "catalogVersion": "v1.10",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 113
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:113",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 34,
+      "name": "부동산 실거래 투자분석 자동화",
+      "slug": "real-estate-sales",
+      "folder": "real_estate_sales",
+      "category": "부동산",
+      "catalogVersion": "v1.60",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 114
+      },
+      "owner": "CC-REALTY-01",
+      "stage": "운영·후속구현완료 / 미배포",
+      "completed": "뉴스잡음17시험·local로그아웃/서버UA7823a692b",
+      "next": "다음1빌드 승인·08:00회차대조",
+      "reportedVersion": "v1.60 / v1.61 후보",
+      "evidence": "real_estate_sales/docs/PLAN_20261113_NEWS_NOISE.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 35,
+      "name": "AI 블로그 키워드 자동화",
+      "slug": "blog-keyword",
+      "folder": "blog-keyword",
+      "category": "블로그",
+      "catalogVersion": "v1.13",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 115
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:115",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 36,
+      "name": "티스토리 포스팅 자동화",
+      "slug": "tistory-auto-blog",
+      "folder": "tistory-auto-blog",
+      "category": "블로그",
+      "catalogVersion": "v1.97",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 116
+      },
+      "owner": "CC-BLOG-01",
+      "stage": "운영·소제목수정완료 / 미배포",
+      "completed": "B4생성/보관완료,a27861137 소제목8시험",
+      "next": "다음배포후H2확인·실청구검증별도",
+      "reportedVersion": "v1.97 / v1.98 후보",
+      "evidence": ".ai/results/BLOG-20261116-01-CC-BLOG-01.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 37,
+      "name": "블로그 포스팅 자동화",
+      "slug": "ai-auto-blog",
+      "folder": "ai-auto-blog",
+      "category": "블로그",
+      "catalogVersion": "v1.87",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 117
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:117",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 38,
+      "name": "네이버 블로그 에이전트",
+      "slug": "naver-blog-agent",
+      "folder": "naver-blog-agent",
+      "category": "블로그",
+      "catalogVersion": "v2.28",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 118
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:118",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 39,
+      "name": "네이버 블로그 올인원 자동화",
+      "slug": "naver-blog-allinone",
+      "folder": "naver-blog-allinone",
+      "category": "블로그",
+      "catalogVersion": "v1.60",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 119
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:119",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 40,
+      "name": "AI 블로그 작업실 자동화",
+      "slug": "blog-workroom",
+      "folder": "blog-workroom",
+      "category": "블로그",
+      "catalogVersion": "v1.16",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 120
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:120",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 41,
+      "name": "AI 블로그 콘텐츠 제작 자동화",
+      "slug": "blog-content-maker",
+      "folder": "blog-content-maker",
+      "category": "블로그",
+      "catalogVersion": "v1.14",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 121
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:121",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 42,
+      "name": "Threads AI 기획 자동화",
+      "slug": "threads-easy-planner",
+      "folder": "threads-easy-planner",
+      "category": "쓰레드",
+      "catalogVersion": "v1.52",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 122
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:122",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 43,
+      "name": "Threads 포스팅 자동화",
+      "slug": "auto-threads-posting",
+      "folder": "threads",
+      "category": "쓰레드",
+      "catalogVersion": "v1.34",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 123
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:123",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 44,
+      "name": "Threads 댓글자동화",
+      "slug": "threads-comment-reply",
+      "folder": "threads-comment-reply",
+      "category": "쓰레드",
+      "catalogVersion": "v1.29",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 124
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:124",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 45,
+      "name": "Threads 쇼핑제휴 자동화",
+      "slug": "threads-affiliate-poster",
+      "folder": "threads-affiliate-poster",
+      "category": "쓰레드",
+      "catalogVersion": "v1.87",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 125
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:125",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 46,
+      "name": "Threads 콘텐츠 운영 자동화",
+      "slug": "threads-content-ops",
+      "folder": "threads-content-ops",
+      "category": "쓰레드",
+      "catalogVersion": "v2.25",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 126
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:126",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 47,
+      "name": "AI 유튜브 떡상 분석 자동화",
+      "slug": "youtube-viral-studio",
+      "folder": "youtube-viral-studio",
+      "category": "유튜브",
+      "catalogVersion": "v1.29",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 127
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:127",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 48,
+      "name": "YOUTUBE 플레이리스트 자동화",
+      "slug": "playlist-channel-studio",
+      "folder": "playlist-channel-studio",
+      "category": "유튜브",
+      "catalogVersion": "v1.42",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 128
+      },
+      "owner": "CC-MUSIC-01",
+      "stage": "운영·실화면 검증",
+      "completed": "곡0개 업로드기록/업무단추 확인, 30일정리11-14 확인",
+      "next": "업무전달 재실행 안 함; 직접파일저장/예외검수는별도",
+      "reportedVersion": "v1.42",
+      "evidence": "msg_959f5568ebe9",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 49,
+      "name": "AI 썸네일·SEO 자동화",
+      "slug": "thumbnail-master",
+      "folder": "thumbnail-master",
+      "category": "유튜브",
+      "catalogVersion": "v2.02",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 129
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:129",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 50,
+      "name": "YOUTUBE CHANNEL CONSULTANT",
+      "slug": "youtube-channel-consultant",
+      "folder": "youtube-channel-consultant",
+      "category": "유튜브",
+      "catalogVersion": "v1.11",
+      "catalogState": "**병합됨 → youtube-viral-studio(2026-10-20), 노출 중지**",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 130
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:130",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 51,
+      "name": "쇼츠 떡상 분석·대본 자동화",
+      "slug": "shorts-viral-studio",
+      "folder": "shorts-viral-studio",
+      "category": "유튜브",
+      "catalogVersion": "v2.0",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 131
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:131",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 52,
+      "name": "YOUTUBE Shots(이미지 스토리) 자동화",
+      "slug": "auto-shorts-posting",
+      "folder": "shots",
+      "category": "유튜브",
+      "catalogVersion": "v1.51",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 132
+      },
+      "owner": "CC-MOVIE-01",
+      "stage": "운영·공통사본후속",
+      "completed": "실물·정리 완료 기록",
+      "next": "미배포 공용인코더/지역 항목만담당대조",
+      "reportedVersion": "v1.50 (역할기록)",
+      "evidence": "docs/roles/video.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 53,
+      "name": "유튜브 댓글자동화",
+      "slug": "youtube-auto-reply",
+      "folder": "youtube-auto-reply",
+      "category": "유튜브",
+      "catalogVersion": "v1.33",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 133
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:133",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 54,
+      "name": "AI 유튜브 썸네일 프로",
+      "slug": "seo-thumbnail-pro",
+      "folder": "seo-thumbnail-pro",
+      "category": "유튜브",
+      "catalogVersion": "v1.12",
+      "catalogState": "**병합됨 → thumbnail-master(2026-10-20), 노출 중지**",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 134
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:134",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 55,
+      "name": "Suno 음악기획 자동화",
+      "slug": "suno-music-studio",
+      "folder": "suno-music-studio",
+      "category": "음악",
+      "catalogVersion": "v1.13",
+      "catalogState": "**병합됨 → music-automation(2026-10-21), 노출 중지**",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 135
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:135",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 56,
+      "name": "AI 마스터링 스튜디오",
+      "slug": "ai-mastering-studio",
+      "folder": "ai-mastering-studio",
+      "category": "음악",
+      "catalogVersion": "v1.17",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 136
+      },
+      "owner": "CC-MUSIC-01",
+      "stage": "운영·Ready 보고",
+      "completed": "공통보완 반영·시험22·타입0",
+      "next": "명시 잔여 없음·실물범위는개별기록",
+      "reportedVersion": "v1.17",
+      "evidence": "msg_24165d93de71",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 57,
+      "name": "뮤직비디오 자동화",
+      "slug": "music-video-studio",
+      "folder": "music-video-studio",
+      "category": "음악",
+      "catalogVersion": "v1.31",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 137
+      },
+      "owner": "CC-MOVIE-01 + CC-MUSIC-01",
+      "stage": "운영·공통반영확인",
+      "completed": "저장위젯/로그인 정책 기배포",
+      "next": "영상/음악 파일소유분리, 유료생성은기존보류",
+      "reportedVersion": "v1.31",
+      "evidence": "docs/PENDING_DEPLOYS.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 58,
+      "name": "음악(SUNO)자동화",
+      "slug": "music-automation",
+      "folder": "music",
+      "category": "음악",
+      "catalogVersion": "v1.58",
+      "catalogState": "운영(2026-10-21 Suno 음악기획 병합)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 138
+      },
+      "owner": "CC-MUSIC-01",
+      "stage": "운영·범위내 완료",
+      "completed": "음악 메뉴1개 선택 수정·Ready·검증보고",
+      "next": "명시 잔여 없음; 새 배정 전 임의수정 없음",
+      "reportedVersion": "v1.58",
+      "evidence": "msg_24165d93de71",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 59,
+      "name": "LP 턴테이블 자동화",
+      "slug": "vinyl-lp-studio",
+      "folder": "vinyl-lp-studio",
+      "category": "음악",
+      "catalogVersion": "v1.15",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 139
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:139",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 60,
+      "name": "Youtube Playlist 자동화",
+      "slug": "yt-playlist-studio",
+      "folder": "yt-playlist-studio",
+      "category": "음악",
+      "catalogVersion": "v1.15",
+      "catalogState": "**병합됨 → playlist-channel-studio(2026-10-20), 노출 중지**",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 140
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:140",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 61,
+      "name": "AI Audio분석 자동화",
+      "slug": "ai-audio-analyzer",
+      "folder": "ai-audio-analyzer",
+      "category": "음악",
+      "catalogVersion": "v1.15",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 141
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:141",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 62,
+      "name": "AI 이미지 스튜디오",
+      "slug": "ai-image-studio",
+      "folder": "ai-image-studio",
+      "category": "이미지",
+      "catalogVersion": "v1.34",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 142
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:142",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 63,
+      "name": "AI 인물사진 자동화",
+      "slug": "portrait-photo",
+      "folder": "portrait-photo",
+      "category": "이미지",
+      "catalogVersion": "v1.45",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 143
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:143",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 64,
+      "name": "AI 바나나 캔버스 자동화",
+      "slug": "banana-canvas",
+      "folder": "banana-canvas",
+      "category": "이미지",
+      "catalogVersion": "v1.48",
+      "catalogState": "운영(2026-10-21 포토 리메이크·올인원 그래픽 병합, FREE 해제)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 144
+      },
+      "owner": "CC-ECOM-01",
+      "stage": "개발·정적독립검토완료 / 미배포",
+      "completed": "M1f19f2bdcc+375px/직접입력25MB/빈상태7b5d3b053·104시험",
+      "next": "기존빌드승인확인→v1.49 묶음→375px/빈상태/낭독실물",
+      "reportedVersion": "v1.48 운영 / v1.49 후보",
+      "evidence": ".ai/results/ECOM-20261116-02-CC-ECOM-01.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 65,
+      "name": "이미지 스타일 분석기",
+      "slug": "style-dna-analyzer",
+      "folder": "style-dna-analyzer",
+      "category": "이미지",
+      "catalogVersion": "v1.39",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 145
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:145",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 66,
+      "name": "AI 4컷 만화 자동화",
+      "slug": "four-cut-comics",
+      "folder": "four-cut-comics",
+      "category": "이미지",
+      "catalogVersion": "v1.37",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 146
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:146",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 67,
+      "name": "이미지 변환 스튜디오",
+      "slug": "image-convert-studio",
+      "folder": "image-convert-studio",
+      "category": "이미지",
+      "catalogVersion": "v1.27",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 147
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:147",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 68,
+      "name": "AI 패션스타일 자동화",
+      "slug": "fashion-style",
+      "folder": "fashion-style",
+      "category": "이미지",
+      "catalogVersion": "v1.14",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 148
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:148",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 69,
+      "name": "감성 글귀 이미지",
+      "slug": "emotion-writer",
+      "folder": "emotion-writer",
+      "category": "이미지",
+      "catalogVersion": "v1.27",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 149
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:149",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 70,
+      "name": "AI 올인원 그래픽 자동화",
+      "slug": "allinone-graphic",
+      "folder": "allinone-graphic",
+      "category": "이미지",
+      "catalogVersion": "v1.11",
+      "catalogState": "병합됨 → `banana-canvas`(2026-10-21)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 150
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:150",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 71,
+      "name": "AI 포토 리메이크 자동화",
+      "slug": "photo-remake-studio",
+      "folder": "photo-remake-studio",
+      "category": "이미지",
+      "catalogVersion": "v1.13",
+      "catalogState": "병합됨 → `banana-canvas`(2026-10-21)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 151
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:151",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 72,
+      "name": "상품소싱 자동화",
+      "slug": "trending-product-finder",
+      "folder": "trending-product-finder",
+      "category": "이커머스",
+      "catalogVersion": "v1.39",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 152
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:152",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 73,
+      "name": "AI 영상렌더 스튜디오",
+      "slug": "video-to-gif",
+      "folder": "video-to-gif",
+      "category": "영상",
+      "catalogVersion": "v1.32",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 153
+      },
+      "owner": "CC-MOVIE-01",
+      "stage": "개발완료·독립검토대기",
+      "completed": "v1.32 MP4/WebP·고속GIF실물완료, WebP송신 efc72da60",
+      "next": "QA→NOTICE포함ZIP검증→승인된1빌드→GIF/WebP각1왕복",
+      "reportedVersion": "v1.32 운영 / v1.33 준비",
+      "evidence": ".ai/results/MOV-20261116-01-CC-MOVIE-01.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 74,
+      "name": "AI 상세페이지 자동화",
+      "slug": "shop-detail-page",
+      "folder": "shop-detail-page",
+      "category": "이커머스",
+      "catalogVersion": "v1.46",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 154
+      },
+      "owner": "CC-ECOM-01",
+      "stage": "운영·수신부 Ready",
+      "completed": "WebP 받기1ed1fde1b 반영,수신시험4/4",
+      "next": "영상송신부 선검토·배포뒤 실제왕복",
+      "reportedVersion": "v1.46",
+      "evidence": ".ai/results/ECOM-20261116-01-CC-ECOM-01.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 75,
+      "name": "상세페이지 자동생성기 v1",
+      "slug": "auto-detail-page",
+      "folder": "auto-detail-page",
+      "category": "이커머스",
+      "catalogVersion": "v1.21",
+      "catalogState": "병합됨 → `shop-detail-page`(2026-10-21) · **폐지(2026-10-29)**: 저장소 폴더 삭제(백업 `AIMaster_backup/retired-programs/detail-page-12p-20261029`, 태그 `retired/detail-page-12p-20261029`), 상세페이지의 12단 가져오기도 삭제(v1.40)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 155
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:155",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 76,
+      "name": "AI 12단 상세페이지 자동화",
+      "slug": "detail-page-12p",
+      "folder": "detail-page-12p",
+      "category": "이커머스",
+      "catalogVersion": "v1.12",
+      "catalogState": "병합됨 → `shop-detail-page`(2026-10-21)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 156
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:156",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 77,
+      "name": "INSTA 포스팅 자동화",
+      "slug": "auto-instagram-posting",
+      "folder": "insta_auto_poster",
+      "category": "인스타",
+      "catalogVersion": "v1.74",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 157
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:157",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 78,
+      "name": "AI 인플루언서 자동화",
+      "slug": "ai-influencer-studio",
+      "folder": "ai-influencer-studio",
+      "category": "인스타",
+      "catalogVersion": "v1.26",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 158
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:158",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 79,
+      "name": "INSTA 댓글·DM 자동화",
+      "slug": "instagram-comment-reply",
+      "folder": "instagram-comment-reply",
+      "category": "인스타",
+      "catalogVersion": "v1.37",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 159
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:159",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 80,
+      "name": "INSTA DM답변 자동화",
+      "slug": "instagram-dm-reply",
+      "folder": "instagram-dm-reply",
+      "category": "인스타",
+      "catalogVersion": "v1.17",
+      "catalogState": "**병합됨 → instagram-comment-reply(2026-10-20), 노출 중지**",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 160
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:160",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 81,
+      "name": "AI 웹툰 자동화",
+      "slug": "ai-webtoon-studio",
+      "folder": "ai-webtoon-studio",
+      "category": "인스타",
+      "catalogVersion": "v1.33",
+      "catalogState": "운영",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 161
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:161",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 82,
+      "name": "INSTA Cardnews 자동화",
+      "slug": "cardnews-studio",
+      "folder": "cardnews-studio",
+      "category": "인스타",
+      "catalogVersion": "v1.32",
+      "catalogState": "**병합됨 → auto-instagram-posting(2026-10-20), 노출 중지**",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 162
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:162",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 83,
+      "name": "AI 쇼츠 원스톱 제작 자동화",
+      "slug": "shorts-onestop-studio",
+      "folder": "shorts-onestop-studio",
+      "category": "유튜브",
+      "catalogVersion": "v1.59",
+      "catalogState": "공개(new)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 163
+      },
+      "owner": "CC-MOVIE-01",
+      "stage": "운영·특정시험대기",
+      "completed": "낱말시각B안 코드·배포",
+      "next": "약1원시험·시험계정 조건 및 공용인코더 다음배포",
+      "reportedVersion": "v1.59",
+      "evidence": "docs/roles/video.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 84,
+      "name": "AI 문서 챗봇 자동화",
+      "slug": "ai-doc-chatbot",
+      "folder": "ai-doc-chatbot",
+      "category": "업무자동화",
+      "catalogVersion": "v1.10",
+      "catalogState": "공개(new)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 164
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:164",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 85,
+      "name": "AI 가사영상 자동화",
+      "slug": "lyric-video-studio",
+      "folder": "lyric-video-studio",
+      "category": "음악",
+      "catalogVersion": "v1.15",
+      "catalogState": "공개(new)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 165
+      },
+      "owner": "CC-MUSIC-01",
+      "stage": "운영·MP4 실검증",
+      "completed": "합성20초·600프레임·전체디코드오류0",
+      "next": "파일직접저장/멈춤/fallback/맥은미검수",
+      "reportedVersion": "v1.15",
+      "evidence": "msg_959f5568ebe9",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 86,
+      "name": "AI 댓글·DM 통합 받은편지함",
+      "slug": "comment-inbox",
+      "folder": "comment-inbox",
+      "category": "마케팅(홍보)",
+      "catalogVersion": "v1.10",
+      "catalogState": "운영(2026-10-21 신규)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 166
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:166",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 87,
+      "name": "AI 음악 스튜디오",
+      "slug": "ai-music-studio",
+      "folder": "ai-music-studio",
+      "category": "음악",
+      "catalogVersion": "v1.16",
+      "catalogState": "공개(new, 2026-10-23 신규)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 167
+      },
+      "owner": "CC-MUSIC-01",
+      "stage": "운영·Ready 보고",
+      "completed": "공통 로그아웃/UA/위젯 배포",
+      "next": "명시 잔여 없음·운영전체무결함 의미아님",
+      "reportedVersion": "v1.16",
+      "evidence": "msg_24165d93de71",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 88,
+      "name": "AI 영상 스튜디오",
+      "slug": "ai-video-studio",
+      "folder": "ai-video-studio",
+      "category": "영상",
+      "catalogVersion": "v1.36",
+      "catalogState": "공개(new, 2026-10-23 신규)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 168
+      },
+      "owner": "CC-MOVIE-01",
+      "stage": "운영·조건부 유료시험",
+      "completed": "Vidu/상품장면 코드·배포 완료 기록",
+      "next": "사용자 나중에 지시 유지·유료호출 재실행안함",
+      "reportedVersion": null,
+      "evidence": "docs/roles/video.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 89,
+      "name": "AI 업무 워크스페이스 자동화",
+      "slug": "ai-work-workspace",
+      "folder": "ai-work-workspace",
+      "category": "업무자동화",
+      "catalogVersion": "v1.51",
+      "catalogState": "공개(2026-10-24 신규, 일반 등급 이상)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 169
+      },
+      "owner": "CC-WORKSPACE-01",
+      "stage": "운영·후속안전보완중",
+      "completed": "한국어49c8011cd·AgentMCP270f87b20·197시험",
+      "next": "WS-02 영속승인소모/동시재개202시험→QA→기존1빌드승인으로배포",
+      "reportedVersion": "v1.51 / v1.52 후보",
+      "evidence": "ai-work-workspace/docs/PLAN_20261116_AGENT_MCP.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 91,
+      "name": "셀러 라벨·QR·서류 자동화",
+      "slug": "seller-label-docs",
+      "folder": "seller-label-docs",
+      "category": "이커머스",
+      "catalogVersion": "v1.04",
+      "catalogState": "공개(new, 2026-10-25 신규)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 170
+      },
+      "owner": "CC-ECOM-01",
+      "stage": "운영·인쇄자료/소규모미배포",
+      "completed": "마켓단계48b67dd5c 구현",
+      "next": "다음배포묶음·실인쇄여백자료대기",
+      "reportedVersion": null,
+      "evidence": "docs/roles/ecommerce-image.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 92,
+      "name": "AI 쇼핑몰 주문·매출 리포트 자동화",
+      "slug": "shop-order-report",
+      "folder": "shop-order-report",
+      "category": "이커머스",
+      "catalogVersion": "v1.06",
+      "catalogState": "공개(new, 2026-10-25 신규)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 171
+      },
+      "owner": "CC-ECOM-01",
+      "stage": "운영·자료대기",
+      "completed": "코드/기존검증은개별기록",
+      "next": "개인정보지운실제주문파일 필요",
+      "reportedVersion": null,
+      "evidence": "docs/roles/ecommerce-image.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 93,
+      "name": "AI 스마트스토어 상품 자동등록기",
+      "slug": "smartstore-register",
+      "folder": "smartstore-register",
+      "category": "이커머스",
+      "catalogVersion": "v1.28",
+      "catalogState": "공개(new, 2026-10-26 신규 · 「바로 등록」 실제 등록 성공 2026-10-27)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 172
+      },
+      "owner": "기존 담당 확인 대기",
+      "stage": "비교표 기록·담당 재확인",
+      "completed": "개별 완료 근거 미회수",
+      "next": "기존 담당·최신 기록 대조 후 배정",
+      "reportedVersion": null,
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:172",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+    },
+    {
+      "sourceId": 90,
+      "name": "부동산 실시간 매물 알림",
+      "slug": "realty-listing-alert",
+      "folder": "realty-listing-alert",
+      "category": "부동산",
+      "catalogVersion": "v1.44",
+      "catalogState": "공개(2026-10-26 정식 공개, VIP 자동 부여)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 173
+      },
+      "owner": "CC-REALTY-01",
+      "stage": "운영·L6/L7구현 검토대기",
+      "completed": "단지2936해결·회차확인,L6 26e774a8e·103시험",
+      "next": "로그아웃보완 필요범위확정→다음배포·실알림검수별도",
+      "reportedVersion": "v1.44 / v1.45 후보",
+      "evidence": ".ai/results/RE-20261116-02-CC-REALTY-01.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 94,
+      "name": "상가·건물·토지 매물 알림",
+      "slug": "commercial-land-trade-alert",
+      "folder": "commercial-land-trade-alert",
+      "category": "부동산",
+      "catalogVersion": "v1.34",
+      "catalogState": "공개(2026-10-31, VIP 자동 부여)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 174
+      },
+      "owner": "CC-REALTY-01",
+      "stage": "운영·재측정조건대기",
+      "completed": "층호출조절 배포완료",
+      "next": "관리자로그인후재측정1회·공통보완다음묶음",
+      "reportedVersion": "v1.34",
+      "evidence": "docs/roles/realty.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 97,
+      "name": "AI 중개사무소 고객관리 자동화",
+      "slug": "realty-client-desk",
+      "folder": "realty-client-desk",
+      "category": "부동산",
+      "catalogVersion": "v1.10",
+      "catalogState": "운영(2026-11-03 공개, NEW)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 175
+      },
+      "owner": "CC-REALTY-01",
+      "stage": "운영·기능실물완료기록",
+      "completed": "1~4단계·계산기/문자실물기록",
+      "next": "공통3건 다음배포·새기능별도배정",
+      "reportedVersion": "v1.10",
+      "evidence": "docs/roles/realty.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 95,
+      "name": "AI 쿠팡 운영 자동화",
+      "slug": "coupang-ops",
+      "folder": "coupang-ops",
+      "category": "이커머스",
+      "catalogVersion": "v1.19",
+      "catalogState": "공개(2026-10-31 공개 전환)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 176
+      },
+      "owner": "CC-ECOM-01",
+      "stage": "운영·실쓰기조건대기",
+      "completed": "읽기/기존흐름완료 기록",
+      "next": "상품권한해제·실주문뒤승인범위시험,중지상품삭제금지",
+      "reportedVersion": "v1.19",
+      "evidence": "docs/roles/ecommerce-image.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 96,
+      "name": "AI 무료음악 자동화",
+      "slug": "free-music-studio",
+      "folder": "free-music-studio",
+      "category": "음악",
+      "catalogVersion": "v1.67",
+      "catalogState": "운영(Windows 엔진, Mac x64 설치·실행 검수/생성 미지원)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 177
+      },
+      "owner": "CC-MUSIC-01",
+      "stage": "운영·조건부 후속",
+      "completed": "11-14 운영 반영",
+      "next": "LeVo 공개/Mureka 충전 등 외부조건 있을 때만 후속",
+      "reportedVersion": "v1.67 / engine0.8.5",
+      "evidence": "docs/roles/music.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 97,
+      "name": "AI 워드프레스·구글블로그 자동화",
+      "slug": "wp-blogger-auto",
+      "folder": "wp-blogger-auto",
+      "category": "블로그",
+      "catalogVersion": "v1.05",
+      "catalogState": "운영(공개 2026-11-11, 관리자 실물 재검수 완료)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 178
+      },
+      "owner": "CC-BLOG-01",
+      "stage": "운영·B2검수완료",
+      "completed": "권한/공개소개 검수기록",
+      "next": "WP기간은정책담당유지·중복기간부여안함",
+      "reportedVersion": "v1.05",
+      "evidence": "docs/roles/blog.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 98,
+      "name": "AI 11번가 상품 자동등록기",
+      "slug": "elevenst-register",
+      "folder": "elevenst-register",
+      "category": "이커머스",
+      "catalogVersion": "v1.07",
+      "catalogState": "개발 중(비공개, 서울 지역 직접 연결·연결 시험)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 179
+      },
+      "owner": "CC-ECOM-01",
+      "stage": "운영·실등록검증완료",
+      "completed": "실제전송/전시중지/중복방지확인",
+      "next": "관리자잠금화면·시험상품은사용자직접삭제",
+      "reportedVersion": "v1.07",
+      "evidence": "docs/roles/ecommerce-image.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 99,
+      "name": "AI 블로그 이웃 소통 자동화",
+      "slug": "blog-neighbor-care",
+      "folder": "blog-neighbor-care",
+      "category": "블로그",
+      "catalogVersion": "v1.21",
+      "catalogState": "운영(C-3 진행 중)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 180
+      },
+      "owner": "CC-BLOG-01",
+      "stage": "운영·진단구현완료 / 실검수대기",
+      "completed": "387시험·타입0,e35947191 진단추가",
+      "next": "맥일반창/작업공간창진단 재시험·신청있는계정·배포묶음",
+      "reportedVersion": "v1.21 / v1.22 후보",
+      "evidence": "blog-neighbor-care/docs/REQUEST_20261116_MACMINI_B1_FOCUS_RETEST.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 100,
+      "name": "네이버 카페 회원 모집 자동화",
+      "slug": "naver-cafe-recruit",
+      "folder": "naver-cafe-recruit",
+      "category": "네이버",
+      "catalogVersion": "v1.04",
+      "catalogState": "비공개(실물 초대 1건 성공, 표시 수정 미배포)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 181
+      },
+      "owner": "CC-BLOG-01",
+      "stage": "운영·가입계정조건대기",
+      "completed": "C모드숨김확인",
+      "next": "가입카페계정으로운영진제외검수,외부초대재실행안함",
+      "reportedVersion": "v1.04",
+      "evidence": "docs/roles/blog.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": 101,
+      "name": "AI 쇼핑몰 빌더",
+      "slug": "mall-builder",
+      "folder": "mall-builder",
+      "category": "이커머스",
+      "catalogVersion": "v1.07",
+      "catalogState": "운영(샘플몰 `aimaster-b2b`, 손님 화면·분양 안내 공개 2026-11-13)",
+      "source": {
+        "path": "docs/PROGRAM_CAPABILITY_MAP.md",
+        "line": 182
+      },
+      "owner": "CC-B2B-BACK-01 + CC-B2B-FRONT-01",
+      "stage": "운영·다음묶음준비 / Lab검수",
+      "completed": "T2·샘플몰·M2-1~7·E3등v1.15,후속415시험",
+      "next": "0100+M2-8~11+5bfed663d 승인묶음,Front E3실물/템플릿정확범위",
+      "reportedVersion": "v1.15 / v1.16 후보",
+      "evidence": "mall-builder/docs/HANDOFF_DESIGN_BUILDER_BACKEND_SYNC.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    },
+    {
+      "sourceId": null,
+      "name": "G마켓·옥션 등록기",
+      "slug": "esm-register",
+      "folder": "esm-register",
+      "category": "이커머스 (현재 비공개)",
+      "catalogVersion": null,
+      "catalogState": "비교표 미등재 신규",
+      "source": {
+        "path": "esm-register/docs/REQUEST_20261116_MACMINI_EXTENSION_TEST.md"
+      },
+      "owner": "CC-ECOM-01",
+      "reportedVersion": "v1.01",
+      "stage": "웹운영·확장실검수대기",
+      "completed": "Ready esm-register-7xufzg73q·DB적용·확장준비",
+      "next": "맥 설치/로그인뒤 입력만1회, 저장/임시저장/등록금지; API답장별도",
+      "evidence": "esm-register/docs/REQUEST_20261116_MACMINI_EXTENSION_TEST.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "MUS-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-MUSIC-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "음악 기배포5건·공통6곳 포함 여부 정정",
+      "next": "재배포 없음; 외부조건은 유지",
+      "evidence": "msg_24165d93de71 / docs/roles/music.md",
+      "sha": "df34b8ee6",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "MUS-20261116-02",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-MUSIC-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "가사 MP420초·플레이리스트 곡0개 운영 검증",
+      "next": "직접파일저장·멈춤/fallback·맥은 검수한계로 별도",
+      "evidence": "msg_959f5568ebe9 / lyric-video-studio/docs/IMPROVEMENTS.md",
+      "sha": "054c672aa",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "ECOM-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-ECOM-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "WebP 수신 계약·ESM 상태 정정",
+      "next": "수신부v1.46 Ready, 영상측 송신 연결 후 실제왕복",
+      "evidence": ".ai/results/ECOM-20261116-01-CC-ECOM-01.md",
+      "sha": "13b21994e",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "ECOM-20261116-02",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-ECOM-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "바나나 M1 모바일·25MB가드·빈상태 보완",
+      "next": "코드/104시험/정적독립검토 완료; v1.49 배포·실화면375px는 별도대기",
+      "evidence": ".ai/results/ECOM-20261116-02-CC-ECOM-01.md",
+      "sha": "7b5d3b053",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "DES-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "AG-UI-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "M1 정적 품질 명세·잘못된 단정 정정",
+      "next": "실기기·낭독 검수로 확대하지 않음",
+      "evidence": ".ai/results/DES-20261116-01-AG-UI-01.md",
+      "sha": null,
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "DES-20261116-02",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "AG-UI-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "7b5d3b053 정적 독립 재검토",
+      "next": "필수 남은 정적결함0; 실화면 별도대기",
+      "evidence": ".ai/results/DES-20261116-02-AG-UI-01.md",
+      "sha": null,
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "MOV-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-MOVIE-01",
+      "status": "ready_review",
+      "delivery": "returned",
+      "title": "GIF/WebP 송신·0/10MB·origin/source 보완",
+      "next": "QA 독립검토→기존 사용자1빌드 승인으로v1.33→각1실제왕복",
+      "evidence": ".ai/results/MOV-20261116-01-CC-MOVIE-01.md",
+      "sha": "efc72da60",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "WS-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-WORKSPACE-01",
+      "status": "ready_review",
+      "delivery": "returned",
+      "title": "Agent MCP 연결4개·회원한도·무인쓰기검토",
+      "next": "승인재개중복 후속WS-02 미해소시 배포안함",
+      "evidence": "msg_31beb6fd1c34",
+      "sha": "270f87b20",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "WS-20261116-02",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-WORKSPACE-01",
+      "status": "ready_review",
+      "delivery": "returned",
+      "title": "영속 승인1회 소모·동시재개1회 보완",
+      "next": "202시험·타입0, Tester 독립검토 후 기존1빌드승인 배포판단",
+      "evidence": "msg_1e13a7bb2f8c",
+      "sha": "d8290ffb6",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "B2B-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-B2B-BACK-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "v1.15 정정·M2-8~11/0100 준비·415시험",
+      "next": "운영0100+v1.16 배포는 별도승인; Front 5bfed663d만동반",
+      "evidence": ".ai/results/B2B-20261116-01-CC-B2B-BACK-01.md",
+      "sha": "8fee281b8",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "B2B-20261116-02",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-B2B-BACK-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "3210 Lab 재개·Front 검수환경",
+      "next": "2회재개 예외기록·보관캐시유지·추가재시작없음",
+      "evidence": ".ai/results/B2B-20261116-02-CC-B2B-BACK-01.md",
+      "sha": null,
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "FRONT-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-B2B-FRONT-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "v1.15/0095/S61 정정·S74 배포합의",
+      "next": "E3 실화면은FRONT-02에서 완료조건별 계속",
+      "evidence": ".ai/results/FRONT-20261116-01-CC-B2B-FRONT-01.md",
+      "sha": "df6df10ad",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "FRONT-20261116-02",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-B2B-FRONT-01",
+      "status": "ready",
+      "delivery": "delivered",
+      "title": "E3 Lab검수→식품/키즈/뷰티 각6종 템플릿",
+      "next": "정확6경로만 허용; DESIGN.md는Master가 갱신",
+      "evidence": "msg_4289c55c9ddd",
+      "sha": null,
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "RE-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-REALTY-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "L-6 기술안·뉴스미배포정정·17시험",
+      "next": "대안1 채택, 구현은RE-02로 분리",
+      "evidence": ".ai/results/RE-20261116-01-CC-REALTY-01.md",
+      "sha": null,
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "RE-20261116-02",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-REALTY-01",
+      "status": "ready_review",
+      "delivery": "returned",
+      "title": "카톡실패상태·끊긴토큰재발송방지·local로그아웃/UA",
+      "next": "Master근거검토→각다음배포; 실제수집/발송검수는미실행",
+      "evidence": ".ai/results/RE-20261116-02-CC-REALTY-01.md",
+      "sha": "26e774a8e / 7823a692b",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "BLOG-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-BLOG-01",
+      "status": "done",
+      "delivery": "integrated",
+      "title": "티스토리 소제목##·이웃 전경거절 진단 보완",
+      "next": "코드검증범위 완료, 이웃재시험/배포/실제소통은별도대기",
+      "evidence": ".ai/results/BLOG-20261116-01-CC-BLOG-01.md",
+      "sha": "a27861137 / e35947191",
+      "reviewer": "CX-MASTER-01"
+    },
+    {
+      "task_id": "QA-20261116-01",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CX-QA-01",
+      "status": "running",
+      "delivery": "acknowledged",
+      "title": "맥미니 독립검토: 영상우선·Workspace보완",
+      "next": "정적/가벼운검사만, 실제운영왕복·MCP실호출은별도",
+      "evidence": "msg_61fc7276a960",
+      "sha": null,
+      "reviewer": "CX-MASTER-01"
+    }
+  ]
+}
