@@ -18,6 +18,7 @@ import {
   dateByProperty, dateProperties, dateValue, dayNum, isoOfDay, rowDayRange, setQuery2, shiftRowDate, todayNum, useViewKit, visibleProperties, weekdayOf, type DayRange,
 } from '../../advanced/viewKit.tsx';
 import { NO_DATE_DRAG_TYPE, setRowDay } from './NoDate.tsx';
+import { bindDragSession, COPY_CURSOR_CLASS } from './dragSession.ts';
 import { conditionalBg, useConditionalColors } from '../../data.ts';
 import { childIdsOf } from '#shared/database/index.ts';
 import { openMenu } from '../../../../components/Menu.tsx';
@@ -251,46 +252,59 @@ function CalendarView(props: ViewProps) {
     return null;
   };
 
+  const dragCleanup = useRef<(() => void) | null>(null);
+  useEffect(() => () => dragCleanup.current?.(), []);
   const startDrag = (e: React.PointerEvent, it: Placed, mode: DragState['mode']) => {
     if (!editable || e.button !== 0) return;
     e.stopPropagation();
     const day = dayAtPoint(e.clientX, e.clientY) ?? it.range.start;
     const st: DragState = { rowId: it.row.id, mode, originDay: day, range: it.range, deltaStart: 0, deltaEnd: 0, moved: false, x0: e.clientX, y0: e.clientY };
     setDrag(st);
-    const move = (ev: PointerEvent) => {
-      const d = dayAtPoint(ev.clientX, ev.clientY);
-      if (d === null) return;
-      const delta = d - st.originDay;
-      st.moved = st.moved || Math.abs(ev.clientX - st.x0) + Math.abs(ev.clientY - st.y0) > 4;
-      if (mode === 'move') { st.deltaStart = delta; st.deltaEnd = delta; }
-      else if (mode === 'left') { st.deltaStart = Math.min(delta, st.range.end - st.range.start); st.deltaEnd = 0; }
-      else { st.deltaEnd = Math.max(delta, st.range.start - st.range.end); st.deltaStart = 0; }
-      if (mode === 'move') document.body.classList.toggle('nc-cal-copying', ev.altKey && st.moved);
-      setDrag({ ...st });
-    };
-    const up = (ev: PointerEvent) => {
-      window.removeEventListener('pointermove', move);
-      window.removeEventListener('pointerup', up);
-      document.body.classList.remove('nc-cal-copying');
-      setDrag(null);
-      if (!st.moved) {
-        if (mode === 'move') kit.openRow(it.row.id);
-        return;
-      }
-      // 2026-11-17 주인님 지시: Notion처럼 Alt(맥 Option)를 누른 채 놓으면 옮기지 않고 복제본을 그 날짜에 만든다(원본 그대로)
-      if (mode === 'move' && ev.altKey && st.deltaStart) {
-        const start = st.range.start + st.deltaStart;
-        const end = st.range.end + st.deltaEnd;
-        void duplicateRows([it.row.id]).then(([copyId]) => {
-          const copy = copyId ? records.get<BlockRecord>('block', copyId) : undefined;
-          if (copy) shiftRowDate(copy, dateProp, st.range, start, end);
-        });
-        return;
-      }
-      if (st.deltaStart || st.deltaEnd) shiftRowDate(it.row, dateProp, st.range, st.range.start + st.deltaStart, st.range.end + st.deltaEnd);
-    };
-    window.addEventListener('pointermove', move);
-    window.addEventListener('pointerup', up);
+    // QA011(2026-11-17): 리스너 수명은 bindDragSession — 놓기는 한 번만, 취소(pointercancel·Esc·창 포커스 잃음·화면 해제)는 복제·이동 없이 정리
+    let alt = false;
+    const showCopy = () => document.body.classList.toggle(COPY_CURSOR_CLASS, mode === 'move' && alt && st.moved);
+    dragCleanup.current?.();
+    dragCleanup.current = bindDragSession(window, {
+      move: (ev) => {
+        const d = dayAtPoint(ev.clientX, ev.clientY);
+        alt = ev.altKey;
+        if (d === null) return;
+        const delta = d - st.originDay;
+        st.moved = st.moved || Math.abs(ev.clientX - st.x0) + Math.abs(ev.clientY - st.y0) > 4;
+        if (mode === 'move') { st.deltaStart = delta; st.deltaEnd = delta; }
+        else if (mode === 'left') { st.deltaStart = Math.min(delta, st.range.end - st.range.start); st.deltaEnd = 0; }
+        else { st.deltaEnd = Math.max(delta, st.range.start - st.range.end); st.deltaStart = 0; }
+        showCopy();
+        setDrag({ ...st });
+      },
+      alt: (down) => {
+        alt = down;
+        showCopy();
+      },
+      cancel: () => {
+        dragCleanup.current = null;
+        setDrag(null);
+      },
+      end: (ev) => {
+        dragCleanup.current = null;
+        setDrag(null);
+        if (!st.moved) {
+          if (mode === 'move') kit.openRow(it.row.id);
+          return;
+        }
+        // 2026-11-17 주인님 지시: Notion처럼 Alt(맥 Option)를 누른 채 놓으면 옮기지 않고 복제본을 그 날짜에 만든다(원본 그대로)
+        if (mode === 'move' && ev.altKey && st.deltaStart) {
+          const start = st.range.start + st.deltaStart;
+          const end = st.range.end + st.deltaEnd;
+          void duplicateRows([it.row.id]).then(([copyId]) => {
+            const copy = copyId ? records.get<BlockRecord>('block', copyId) : undefined;
+            if (copy) shiftRowDate(copy, dateProp, st.range, start, end);
+          });
+          return;
+        }
+        if (st.deltaStart || st.deltaEnd) shiftRowDate(it.row, dateProp, st.range, st.range.start + st.deltaStart, st.range.end + st.deltaEnd);
+      },
+    }, document.body);
   };
 
   const addOn = (day: number) => {
