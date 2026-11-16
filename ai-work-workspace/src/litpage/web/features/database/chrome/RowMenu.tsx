@@ -20,6 +20,7 @@ import { useUI } from '../../../lib/store/ui.ts';
 import { deleteRows, duplicateRows } from '../actions.ts';
 import { openPropertyEditor, PropertyIcon } from '../properties/PropertyCell.tsx';
 import { tx } from '../../shell/i18n.ts';
+import { openPortalShareDialog, PORTAL_UI } from './PortalShareDialog.tsx';
 
 const NOT_EDITABLE = new Set(['button', 'created_time', 'created_by', 'last_edited_time', 'last_edited_by', 'auto_increment_id', 'formula', 'rollup', 'location']);
 
@@ -78,6 +79,8 @@ export function openRowMenu(anchor: Anchor, opts: { rowIds: string[]; collection
   ];
   const manage: MenuItemDef[] = [
     ...(!multi ? [{ id: 'link', label: tx('Copy link'), icon: 'link', onSelect: () => { void navigator.clipboard?.writeText(location.origin + pageUrl(first.id)); useUI.getState().toast(tx('Link copied')); } }] : []),
+    // 2026-11-17 E2 7-3 손님 포털(화면 스위치 PORTAL_UI가 켜진 배포에서만 보임)
+    ...(!multi && PORTAL_UI ? [{ id: 'portal', label: tx('Share progress with a customer'), icon: 'link', onSelect: () => openPortalShareDialog(first.id, anchor) }] : []),
     { id: 'dup', label: tx('Duplicate'), icon: 'duplicate', shortcut: '⌘D', onSelect: () => { void duplicateRows(rowIds); opts.onDone?.(); } },
     // 2026-11-15 플래너 2번: 고른 행(최대 50개)을 할 일 플래너 「받은 할 일」로 — 마감일·우선순위 함께
     { id: 'planner', label: multi ? `📨 할 일 플래너로 보내기 (${rows.length}개)` : '📨 할 일 플래너로 보내기', icon: 'arrowTurnUpRight', keywords: ['할 일', '플래너', 'todo', 'planner'], onSelect: () => { void sendToPlanner({ pageIds: rows.map((r) => r.id), mode: 'rows' }); opts.onDone?.(); } },

@@ -21,6 +21,7 @@ import { boltaHandlers } from './bolta';
 import { boltaWebhookHandlers } from './boltaWebhook';
 import { calendarHandlers } from './calendarSync';
 import { collabHandlers } from './collabPoll';
+import { portalHandlers } from './portal';
 import { resolveInvitees, sharingChangeProblem } from './collab';
 import { addOutlineBlock } from '@/litpage/server/api/modules/sidebar.ts';
 import { db } from '@/litpage/server/db.ts';
@@ -147,6 +148,7 @@ const OVERRIDES: Record<string, Handler> = {
   // 구글 캘린더 연동(2026-11-11, src/server/calendarSync.ts)
   ...calendarHandlers,
   ...collabHandlers,
+  ...portalHandlers, // 2026-11-17 E2 7-3 손님 포털(src/server/portal.ts, 기능 스위치 기본 꺼짐)
 };
 
 /** 2026-11-13: /api/mcp(토큰으로 들어오는 외부 AI 도구)용 — 원본 서버 초기화만 */
