@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 04:40:41 KST",
+  "checkedAt": "2026-11-17 04:45:11 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4273,12 +4273,12 @@
       "parent_task_id": "B2B-20261117-02",
       "owner": "CC-B2B-BACK-01",
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
-      "status": "ready",
+      "status": "running",
       "delivery": "delivered",
       "evidence": "2fe06c45c 상태안 / msg_02fc9d3c39ac",
       "decision": "Master조정 E1납부후거절차단 E2로그인본인 E3카드미설정은행 E4Backend신규경로;실환불미구현명시",
-      "next": "prepare별도commit+confirm mock구현승인·금액/key/시한고정·고정멱등요청·30분초과POST0·장기404unknown임의해제미구현·별도세션hardabort키보존시험,실Toss/Lab0103/운영0",
-      "lastReviewedAt": "2026-11-16T18:50:11.080Z",
+      "next": "기승인0104 prepare별도commit/confirm 영속성보완 이어서 로컬구현·격리mock검증 지시, 기존구현진척확인후중복0. 실Toss/Lab0104/운영/빌드0",
+      "lastReviewedAt": "2026-11-16T19:45:08.538Z",
       "sha": "80a00923daa5c4c4bd045cba40e4f716c6f1e729",
       "plannedMigration": "0104_exchange_fee_payments.sql (기존미적용0103 rename)",
       "migrationPath": "mall-builder/supabase/migrations/0104_exchange_fee_payments.sql",
@@ -4363,11 +4363,11 @@
       "parent_task_id": "B2B-20261117-06",
       "owner": "CC-B2B-BACK-01",
       "title": "자동 구매확정과 교환7일 상태정합성 수정",
-      "status": "running",
+      "status": "ready_review",
       "delivery": "returned",
-      "evidence": "msg_5867e0cb2c8e / cb5021815 역할검증계획·기존운영자세션보고",
-      "next": "Master Lab실제operator RPC EXQA2 defect0 대리접수1→거절1만실행승인,APIref/기존자료/알림/장부검증필수. EXQA1/유저시험/현금/빌드/정리0. 배포시각뿐인UI미포함판단은실배포근거보완",
-      "lastReviewedAt": "2026-11-16T19:40:38.653Z",
+      "evidence": "msg_0e2288710621 e6c9183cb 실제Lab JWT staff request/reject 각1·0원·기존자료불변, Mac증거대조배정",
+      "next": "staff실RPC배정범위완료보고·거절시험1행/이력2잔존, user7일/화면미검수. Mac증거대조대기, Lab추가쓰기/정리/빌드0",
+      "lastReviewedAt": "2026-11-16T19:45:08.538Z",
       "sha": "0edda8666 / package9e9120183 + verify c8b33554e"
     },
     {
