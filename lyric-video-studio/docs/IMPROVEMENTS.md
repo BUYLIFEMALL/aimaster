@@ -1,5 +1,7 @@
 # 개선 제안 — AI 가사영상 자동화
 
+> **⏳ 미배포 대기 공용 사본 (2026-11-16, 영상 담당 `claude-win-video` MOV-20261116-05, `4936c5e72`)**: 공용 `browser-mp4-encoder`의 「파일로 바로 저장」(`encodeMp4ToFile`)에 그래픽 가속 멈춤 시 같은 파일로 기본 방식 1회 다시 쓰기(선택 `reopenStream`) 추가. **이 프로그램이 실제 사용처** — `src/lib/render/export.ts`가 `reopenStream: () => o.file.createWritable()`을 넘겨, 맥처럼 가속 인코더가 멈추는 PC에서도 긴 곡 파일 저장이 기본 방식으로 이어짐(MUS-20261116-05 D 결함 수정). 시험 `shorts-onestop-studio/tests/mp4FileFallback.test.ts` 7/7·tsc 통과, 실제 브라우저 미검수(음악 담당 독립 검증 예정). 다음 배포 때 함께(이것만으로 배포·버전 올리지 않음).
+
 > **✅ v1.15 운영 MP4 확인(2026-11-16, Claud(Music), Master MUS-20261116-02)**: 시험 계정·ego lite, AI 호출 없이 합성 음원(440+660Hz 20초 WAV)+LRC 4줄 → 메모리 모으기로 7.1초 완료(재생 시간의 2.81배), 4.3MB. `ffprobe`: H.264 High 1920×1080 30fps 600프레임 20.0초 · AAC LC 48kHz 2채널 20.01초. `ffmpeg -xerror` 전체 디코드 오류 0, 소리 평균 -31.5dB·최고 -25.8dB(원본 -31.5/-25.9), 6초 화면에 둘째 줄 강조. **미검증**: 「파일로 바로 저장」 경로·10초 멈춤 감지 경로(정상 실행이라 발동 안 함)·맥.
 
 > **✅ 배포됨 v1.15(2026-11-16 `lyric-video-studio-71roglhks`, 음악 담당 — 운영 MP4 1회 확인은 남음)** — 원래 표시: **📮 음악 담당께 — 공용 인코더 사본 갱신(2026-11-14 영상 담당 `claude-win-video`, 미배포)**: 제안하신 `browser-mp4-encoder` 안정화 3가지(하드웨어 가속 먼저·화면 꺼짐 방지·남은 시간 `etaSeconds`)를 기준에 넣고 이 폴더 사본 `src/lib/render/mp4Encoder.ts`를 `--sync`로 맞췄습니다. 함수 모양은 그대로이고 진행 문구에 「남은 시간 약 …」이 붙습니다. 시험 36·tsc·build 통과. 이 프로그램을 다음에 배포할 때 함께 나가며 배포 뒤 MP4 1회 확인 부탁드립니다.

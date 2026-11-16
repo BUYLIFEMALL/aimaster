@@ -1,5 +1,7 @@
 # 개선사항 기록 (shorts-onestop-studio)
 
+> **⏳ 미배포 대기 공용 사본 (2026-11-16, 영상 담당 `claude-win-video` MOV-20261116-05, `4936c5e72`)**: 공용 `browser-mp4-encoder`의 「파일로 바로 저장」(`encodeMp4ToFile`)에 그래픽 가속 멈춤 시 같은 파일로 기본 방식 1회 다시 쓰기(선택 `reopenStream`) 추가. 이 프로그램은 기준 파일이지만 `encodeMp4ToFile`을 부르지 않아 **동작 변화 없음**(기준 코드 반영만). 시험 `shorts-onestop-studio/tests/mp4FileFallback.test.ts` 7/7·tsc 통과, 실제 브라우저 미검수(음악 담당 독립 검증 예정). 다음 배포 때 함께(이것만으로 배포·버전 올리지 않음).
+
 > ✅ **v1.59 배포됨(2026-11-15, `a61100cdb`)** — 아래 Gemini 낱말 시각(B안)과 공용 사본 2개(`storage-quota-client`·`browser-mp4-encoder` 11-14 안정화)가 함께 나감, 운영 `icn1` 확인. 남은 것: 시험 계정 로그인 뒤 `wordsVia:"gemini"` 1회 시험(요청함 32673863). 다음 배포 대기: 공용 `browser-mp4-encoder` 멈춤 대비(`44db8e230`).
 
 > **⏳ 미배포 대기 (2026-11-15, 영상 담당 `claude-win-video`) — Gemini 낱말 시각(B안, whisper-1 2027-02-26 종료 대비)**: AI 음성(OpenAI·Gemini)의 낱말 시각을 Whisper로 못 받으면(OpenAI 키 없음·실패) 회원 본인 Gemini 키로 `gemini-3.8-flash`에 음성 + 대본을 주고 「낱말마다 시작 초」를 JSON 스키마로 받음(`src/lib/tts.ts` `geminiWordStarts`, 순수 함수 `src/lib/transcribeModels.ts` `geminiWordPrompt`·`GEMINI_WORD_SCHEMA`·`parseGeminiWords`, 연결 `src/app/api/ai/tts/route.ts`). 재시도 없음, 믿을 수 없는 답(거꾸로 가는 시각 4분의 1 초과·2개 미만)은 버리고 글자 수 비율로. 응답에 `wordsBy`(elevenlabs·whisper·gemini) 추가, 본문 `wordsVia:"gemini"`면 Whisper를 건너뜀(비교 시험용). 시험 92·tsc 통과. **다음 원스톱 배포 때 함께 내보낸 뒤 시험 계정으로 1회(약 1원) 시험**해 자막이 맞는지 확인 — 요청함 32673863.
