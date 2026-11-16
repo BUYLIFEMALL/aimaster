@@ -5,7 +5,7 @@
 // 블록 내용 칸은 기존 첫 화면 편집기의 SettingsForm(12종, 그림 올리기·상품 고르기)을 그대로 쓴다.
 // 저장 모양은 BlocksDoc(src/lib/blocks.ts) — 변환은 src/lib/builder/puck-adapter.ts, 검사는 validateDoc.
 
-import { useEffect, useMemo, useRef, useState, useTransition, type CSSProperties, type ReactElement, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, useTransition, type CSSProperties, type ReactElement, type ReactNode } from "react";
 import { Puck, type Config, type Data } from "@puckeditor/core";
 import "@puckeditor/core/no-external.css";
 import { BLOCK_DEFS, BLOCK_TYPES, MAX_PAD, TITLE_FONTS, validateDoc, type Block, type BlockType, type BlocksDoc } from "@/lib/blocks";
@@ -22,6 +22,28 @@ import { BlockView } from "../../home-blocks";
 import { renderSlot, SLOT_BLOCK_TYPES, type SlotData } from "../../home-slots";
 import { CardOptionsForm, ImagePicker, SettingsForm, fromLocalKst, toLocalKst, type Option } from "../home/block-editor";
 import { MySectionsButtons } from "./my-sections";
+
+// 머리 단추(내 섹션·초안 저장·게시) — Puck overrides.headerActions에 렌더마다 새 함수를 넘기면 Puck이 그 영역을 매번 새로 만들어
+// 안쪽 상태(내 섹션 창·안내 문구)가 사라졌다(FRONT-20261116-03). 그래서 컴포넌트·overrides는 이 파일 수준에 한 번만 만들고,
+// 바뀌는 값(storeId·pending·run)은 컨텍스트로 넘겨 옛 함수에 묶이지 않게 한다(FRONT-20261116-04)
+type HeaderActionsValue = { storeId: string; pending: boolean; run: (kind: "save" | "publish") => void };
+const HeaderActionsCtx = createContext<HeaderActionsValue | null>(null);
+function HeaderActionsSlot(): ReactElement {
+  const c = useContext(HeaderActionsCtx);
+  if (!c) return <></>;
+  return (
+    <div className="flex items-center gap-2">
+      <MySectionsButtons key={c.storeId} storeId={c.storeId} />
+      <button type="button" disabled={c.pending} onClick={() => c.run("save")} className="rounded border bg-white px-3 py-1.5 text-sm disabled:opacity-40" data-design-save>
+        초안 저장
+      </button>
+      <button type="button" disabled={c.pending} onClick={() => c.run("publish")} className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white disabled:opacity-40" data-design-publish>
+        유저 화면에 게시
+      </button>
+    </div>
+  );
+}
+const PUCK_OVERRIDES = { headerActions: HeaderActionsSlot };
 
 const DICTIONARY: Record<string, string> = {
   "header-publish": "게시",
@@ -484,6 +506,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
         )}
       </div>
       <div className="min-h-0 flex-1 overflow-hidden rounded border bg-white">
+        <HeaderActionsCtx.Provider value={{ storeId, pending, run }}>
         <Puck
           config={config}
           data={start}
@@ -498,20 +521,10 @@ export default function DesignEditor({ slug, storeId, categories, products, init
             setNowState(snapshot(d));
           }}
           // I18 — 곧 없어질 renderHeaderActions 대신 overrides.headerActions(기본 Publish 단추는 쓰지 않음 — 우리 저장·게시 단추만)
-          overrides={{
-            headerActions: () => (
-            <div className="flex items-center gap-2">
-              <MySectionsButtons storeId={storeId} />
-              <button type="button" disabled={pending} onClick={() => run("save")} className="rounded border bg-white px-3 py-1.5 text-sm disabled:opacity-40" data-design-save>
-                초안 저장
-              </button>
-              <button type="button" disabled={pending} onClick={() => run("publish")} className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white disabled:opacity-40" data-design-publish>
-                유저 화면에 게시
-              </button>
-            </div>
-            ),
-          }}
+          // 고정 객체(PUCK_OVERRIDES) — 렌더마다 새로 만들지 않는다(위 HeaderActionsSlot 주석)
+          overrides={PUCK_OVERRIDES}
         />
+        </HeaderActionsCtx.Provider>
       </div>
     </div>
   );

@@ -3,7 +3,7 @@
 // 디자인 빌더 E3 「내 섹션」 — 편집기 머리 단추 2개(저장·넣기)와 창(2026-11-15, 플랜 docs/PLAN_20261115_MY_SECTIONS.md)
 // 넣기는 편집기 안에서만 바뀌고(초안 저장·게시는 평소 단추), 다른 몰 섹션은 sections.ts prepareInsert가 상품 출처를 「신상품」으로 바꾼다
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGetPuck } from "@puckeditor/core";
 import { BLOCK_DEFS, SCHEMA_VERSION, type Block } from "@/lib/blocks";
 import { fromPuckRaw, toPuck } from "@/lib/builder/puck-adapter";
@@ -22,39 +22,37 @@ async function safe<T>(fn: () => Promise<T>): Promise<T | { ok: false; error: st
   }
 }
 
-// 창 상태는 컴포넌트 밖에 둔다 — 편집기(design-editor.tsx)가 overrides.headerActions에 매번 새 함수를 넘겨,
-// 블록을 넣어 편집 내용이 바뀌면 Puck이 이 단추 영역을 새로 만든다(안쪽 useState가 처음 값으로 돌아가 창·안내 문구가 사라졌음)
-type Ui = { storeId: string; mode: Mode; msg: string; busy: boolean; current: Block[]; picked: Set<number>; name: string; list: MySection[] | null };
-const fresh = (storeId: string): Ui => ({ storeId, mode: null, msg: "", busy: false, current: [], picked: new Set(), name: "", list: null });
-let ui: Ui = fresh("");
-const subs = new Set<() => void>();
-const patch = (p: Partial<Ui>) => {
-  ui = { ...ui, ...p };
-  subs.forEach((fn) => fn());
-};
-const subscribe = (fn: () => void) => {
-  subs.add(fn);
-  return () => {
-    subs.delete(fn);
-  };
-};
-const read = () => ui;
-
+// 상태는 이 컴포넌트 안에 둔다(편집기마다 따로). 머리 단추 영역은 design-editor.tsx의 고정 컴포넌트(HeaderActionsSlot)라
+// 블록을 넣어도 다시 만들어지지 않고, 몰이 바뀌면 key={storeId}로 새로 만들어진다(2026-11-16 FRONT-20261116-04)
 export function MySectionsButtons({ storeId }: { storeId: string }) {
   const getPuck = useGetPuck();
-  const snap = useSyncExternalStore(subscribe, read, read);
-  const s0 = snap.storeId === storeId ? snap : fresh(storeId); // 다른 몰 편집기로 옮기면 새로 시작
-  const { mode, msg, busy, current, picked, name, list } = s0;
-  const set = (p: Partial<Ui>) => patch({ ...(ui.storeId === storeId ? {} : fresh(storeId)), ...p });
-  const setMode = (v: Mode) => set({ mode: v });
-  const setMsg = (v: string) => set({ msg: v });
-  const setBusy = (v: boolean) => set({ busy: v });
-  const setCurrent = (v: Block[]) => set({ current: v });
-  const setPicked = (v: Set<number> | ((p: Set<number>) => Set<number>)) => set({ picked: typeof v === "function" ? v(ui.storeId === storeId ? ui.picked : new Set()) : v });
-  const setName = (v: string) => set({ name: v });
-  const setList = (v: MySection[] | null | ((l: MySection[] | null) => MySection[] | null)) => set({ list: typeof v === "function" ? v(ui.storeId === storeId ? ui.list : null) : v });
+  const [mode, setMode] = useState<Mode>(null);
+  const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+  // 저장 창
+  const [current, setCurrent] = useState<Block[]>([]);
+  const [picked, setPicked] = useState<Set<number>>(new Set());
+  const [name, setName] = useState("");
+  // 넣기 창
+  const [list, setList] = useState<MySection[] | null>(null);
+  // 늦게 온 응답 막기 — 화면을 떠났거나(alive) 창을 다시 열고 닫아 더 새 요청이 생겼으면(req) 그 결과를 버린다
+  const alive = useRef(true);
+  const req = useRef(0);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
+  const begin = () => ++req.current;
+  const latest = (id: number) => alive.current && id === req.current;
+  const close = () => {
+    begin();
+    setMode(null);
+  };
 
   const openSave = () => {
+    begin();
     const raw = fromPuckRaw(getPuck().appState.data).blocks as Block[];
     setCurrent(raw);
     setPicked(new Set());
@@ -63,22 +61,29 @@ export function MySectionsButtons({ storeId }: { storeId: string }) {
     setMode("save");
   };
   const openInsert = async () => {
+    const id = begin();
     setMsg("");
     setList(null);
     setMode("insert");
     const r = await safe(() => listMySectionsAction());
+    if (!latest(id)) return;
     if (r.ok) setList(r.sections);
     else setMsg(r.error);
   };
 
   const save = async () => {
+    const id = begin();
     const blocks = current.filter((_, i) => picked.has(i));
     setBusy(true);
-    const r = await safe(() => saveMySectionAction(storeId, name, blocks));
-    setBusy(false);
-    if (!r.ok) return setMsg(r.error);
-    setMsg(`「${name.trim()}」 섹션을 저장했습니다. 다른 몰 편집기에서도 「내 섹션 넣기」로 쓸 수 있습니다.`);
-    setPicked(new Set());
+    try {
+      const r = await safe(() => saveMySectionAction(storeId, name, blocks));
+      if (!latest(id)) return;
+      if (!r.ok) return setMsg(r.error);
+      setMsg(`「${name.trim()}」 섹션을 저장했습니다. 다른 몰 편집기에서도 「내 섹션 넣기」로 쓸 수 있습니다.`);
+      setPicked(new Set());
+    } finally {
+      if (alive.current) setBusy(false); // 늦은 응답·예외여도 「저장 중」은 꼭 푼다
+    }
   };
 
   const insert = (s: MySection) => {
@@ -92,11 +97,16 @@ export function MySectionsButtons({ storeId }: { storeId: string }) {
   };
 
   const remove = async (s: MySection) => {
+    const id = req.current; // 지우기는 목록을 새로 받지 않으므로 지금 창(요청 번호)이 그대로일 때만 목록에서 뺀다
     setBusy(true);
-    const r = await safe(() => deleteMySectionAction(s.id));
-    setBusy(false);
-    if (!r.ok) return setMsg(r.error);
-    setList((l) => (l ?? []).filter((x) => x.id !== s.id));
+    try {
+      const r = await safe(() => deleteMySectionAction(s.id));
+      if (!latest(id)) return;
+      if (!r.ok) return setMsg(r.error);
+      setList((l) => (l ?? []).filter((x) => x.id !== s.id));
+    } finally {
+      if (alive.current) setBusy(false);
+    }
   };
 
   const label = (b: Block) => BLOCK_DEFS[b.type]?.label ?? b.type;
@@ -111,11 +121,11 @@ export function MySectionsButtons({ storeId }: { storeId: string }) {
       <button type="button" onClick={openInsert} className="rounded border bg-white px-3 py-1.5 text-sm" data-my-section-insert>📥 내 섹션 넣기</button>
 
       {mode && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40 p-4" onClick={(e) => e.target === e.currentTarget && setMode(null)}>
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40 p-4" onClick={(e) => e.target === e.currentTarget && close()}>
           <div className="max-h-[80vh] w-full max-w-lg overflow-auto rounded-xl bg-white p-5 text-left shadow-xl" role="dialog" aria-label={mode === "save" ? "내 섹션 저장" : "내 섹션 넣기"}>
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-base font-bold">{mode === "save" ? "💾 내 섹션으로 저장" : "📥 내 섹션 넣기"}</h2>
-              <button type="button" onClick={() => setMode(null)} className="text-sm text-gray-500">닫기 ✕</button>
+              <button type="button" onClick={close} className="text-sm text-gray-500">닫기 ✕</button>
             </div>
 
             {mode === "save" ? (
