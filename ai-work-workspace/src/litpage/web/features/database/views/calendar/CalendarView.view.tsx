@@ -11,7 +11,7 @@ import { registerLayoutSettings, registerView, type LayoutSettingsProps, type Vi
 import { Icon } from '../../../../components/Icon.tsx';
 import { useUI } from '../../../../lib/store/ui.ts';
 import { PropertyCell } from '../../properties/PropertyCell.tsx';
-import { addProperty, viewCreationHooks, viewProperties } from '../../actions.ts';
+import { addProperty, duplicateRows, viewCreationHooks, viewProperties } from '../../actions.ts';
 import { newPropId, startOfWeekSetting } from '../../advanced/index.ts';
 import {
   SettingsRow, SettingsToggle, datePropertyItems, pickMenu, setFormat,
@@ -265,14 +265,26 @@ function CalendarView(props: ViewProps) {
       if (mode === 'move') { st.deltaStart = delta; st.deltaEnd = delta; }
       else if (mode === 'left') { st.deltaStart = Math.min(delta, st.range.end - st.range.start); st.deltaEnd = 0; }
       else { st.deltaEnd = Math.max(delta, st.range.start - st.range.end); st.deltaStart = 0; }
+      if (mode === 'move') document.body.classList.toggle('nc-cal-copying', ev.altKey && st.moved);
       setDrag({ ...st });
     };
-    const up = () => {
+    const up = (ev: PointerEvent) => {
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', up);
+      document.body.classList.remove('nc-cal-copying');
       setDrag(null);
       if (!st.moved) {
         if (mode === 'move') kit.openRow(it.row.id);
+        return;
+      }
+      // 2026-11-17 주인님 지시: Notion처럼 Alt(맥 Option)를 누른 채 놓으면 옮기지 않고 복제본을 그 날짜에 만든다(원본 그대로)
+      if (mode === 'move' && ev.altKey && st.deltaStart) {
+        const start = st.range.start + st.deltaStart;
+        const end = st.range.end + st.deltaEnd;
+        void duplicateRows([it.row.id]).then(([copyId]) => {
+          const copy = copyId ? records.get<BlockRecord>('block', copyId) : undefined;
+          if (copy) shiftRowDate(copy, dateProp, st.range, start, end);
+        });
         return;
       }
       if (st.deltaStart || st.deltaEnd) shiftRowDate(it.row, dateProp, st.range, st.range.start + st.deltaStart, st.range.end + st.deltaEnd);
