@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 02:21:40 KST",
+  "checkedAt": "2026-11-17 02:22:33 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -3964,12 +3964,12 @@
       "title": "교환0102 구현·독립지적 수정",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:16:58.608Z",
-      "status": "running",
-      "delivery": "acknowledged",
-      "evidence": "msg_1a1fc5f1e192 / msg_f3c2e6dad411",
-      "next": "A16 전옵션삭제 본체50→49 실제재현/무옵션A17정상. 원주문·대상옵션이력 스냅샷 수정승인(0102+runner만), 접수전후삭제/회수전삭제/무옵션→옵션추가 검증→Mac. 운영/Lab/UI0",
-      "sha": "559085a407c687f82d10b621e88b0b7cd16339d8"
+      "lastReviewedAt": "2026-11-16T17:22:30.186Z",
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "msg_4166c1943286 / B2B17-05結果",
+      "next": "원/대상옵션이력분리·작성자17/6→23/0·Mac재검수전달. 무옵션→옵션전환시stockskip발송허용 위험추가판정요청, Lab0102/운영/UI0",
+      "sha": "d9f5906c5a6085d41483f5147cc2289f0a5ab2a6"
     },
     {
       "task_id": "WS-20261117-10",

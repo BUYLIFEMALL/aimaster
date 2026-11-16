@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 02:21:40 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 02:22:33 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -39,7 +39,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 142개: done 120개 · cancelled 6개 · ready_review 11개 · running 3개 · ready 1개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 142개: done 120개 · cancelled 6개 · ready_review 12개 · running 2개 · ready 1개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -181,7 +181,7 @@
 | QA-20261117-002 | CX-QA-01 | waiting_human / returned | 실제Intel Mac MP4파일내보내기 보조검수 | Intel x86_64·AppleSilicon불가. ego20 handoff에서MP4신뢰클릭/저장위치선택필요, 실제인코딩0·우회없음 |
 | QA-20261117-003 | CX-QA-01 | ready_review / returned | B2B Lab·RE계정격리·Workspace묶음 독립검수 | RE 정상legacy배열 VM PASS/비배열소실P2 반환. E1 승인·열람보완반환,루트CAS/판정행렬 추가수정대기. 실제발송·실계정0 |
 | QA-20261117-004 | CX-QA-01 | ready_review / returned | 교환0102 독립검토 | 559085a40 기존P1 정적PASS·실제SQL은작성자근거재사용/Mac미실행. 모든옵션삭제후재발송 P2 추가반환, 전체PASS아님 |
-| B2B-20261117-02 | CC-B2B-BACK-01 | running / acknowledged | 교환0102 구현·독립지적 수정 | A16 전옵션삭제 본체50→49 실제재현/무옵션A17정상. 원주문·대상옵션이력 스냅샷 수정승인(0102+runner만), 접수전후삭제/회수전삭제/무옵션→옵션추가 검증→Mac. 운영/Lab/UI0 |
+| B2B-20261117-02 | CC-B2B-BACK-01 | ready_review / returned | 교환0102 구현·독립지적 수정 | 원/대상옵션이력분리·작성자17/6→23/0·Mac재검수전달. 무옵션→옵션전환시stockskip발송허용 위험추가판정요청, Lab0102/운영/UI0 |
 | WS-20261117-10 | CC-WORKSPACE-01 | ready_review / returned | 보기 이름 저장값 보존 | 저장된 Table/한글 이름 그대로 표시·서버3경로 보류. 최종MacQA후 다음배포묶음 |
 | WS-20261117-09 | CC-WORKSPACE-01 | running / acknowledged | 확장 E1·notify_me 중복 차단 | 승인share/봇ANDowner열람 ce458cc2a 반환·234작성자시험/type0. root행CAS및상위승인순수판정시험 수정승인, 중간flag/계보동시성→Mac재검수,실발송0 |
 | DES-20261117-02 | AG-UI-01 | ready_review / returned | Workspace 전면디자인3안·12뷰 | 독립뷰어13KB+ 보완보고·PNG12개2880×1800확인. 기존쇼케이스보존/실화면검수별도, 주인님3안선택전제품미반영 |
