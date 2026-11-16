@@ -50,9 +50,7 @@ end.writeUInt32LE(central.length, 12); end.writeUInt32LE(offset, 16)
 const zip = Buffer.concat([...locals, central, end])
 
 fs.mkdirSync(downloadsRoot, { recursive: true })
-for (const fileName of fs.readdirSync(downloadsRoot)) {
-  if (new RegExp(`^${PREFIX}-v\\d+\\.\\d+\\.zip$`).test(fileName)) fs.rmSync(path.join(downloadsRoot, fileName), { force: true })
-}
+// 옛 버전별 ZIP은 지우지 않는다(이미 받은 회원·옛 링크 보존, TAP-20261117-03). 지금 버전 ZIP과 latest만 새로 쓴다.
 const archivePath = path.join(downloadsRoot, `${PREFIX}-${versionName}.zip`)
 fs.writeFileSync(archivePath, zip)
 fs.copyFileSync(archivePath, path.join(downloadsRoot, `${PREFIX}-latest.zip`))
