@@ -5,7 +5,7 @@
 ## 미배포 대기 — U-5 감시 화면 지역 겹침 안내 (2026-11-17, RE-20261117-04, 확장 변경 포함 → 다음 배포 때 버전·manifest·ZIP·DB 함께)
 
 - 확장 `extension/lib/listing.js` `regionOverlaps`, `extension/background.js` 회차마다 `lastResult.overlapCheck`(지역별 ok·failed·skipped + 겹침 단지), `extension/web-bridge.js` lastResult 응답에 `overlapCheck` 추가(없으면 null — 옛 확장 하위 호환, 계정·주소 검사 그대로). 웹 `app/targets/TargetsClient.tsx`가 확장에 물어 지금 목록에 단지 감시·지역 감시가 둘 다 있고 그 지역 펼침이 ok일 때만 단지 줄 아래 「이 단지는 ○○ 지역 감시에도 들어 있어요 — 조건은 단지 감시 것을 써요」. 감시 조건·수집·알림·API 구조 변경 없음(L-5 단지 우선 그대로).
-- 검증: 시험 106/106(새 3개 `tests/region.test.ts`), tsc 0, eslint 0. 미검수: 실제 회차 표시(다음 배포·확장 갱신 뒤). 한계: 웹의 걸러내기 함수(`overlapNotesFor`)는 tsx 안이라 단위 시험 없이 타입 검사만 — 시험이 필요하면 `lib/`로 옮기는 별도 배정 필요.
+- 검증: 시험 106/106(새 3개 `tests/region.test.ts`), tsc 0, eslint 0. 미검수: 실제 회차 표시(다음 배포·확장 갱신 뒤). 웹 걸러내기 `overlapNotesFor`는 같은 날 `lib/targetOverlap.ts`로 옮겨 단위 시험 5개(`tests/targetOverlap.test.ts` — ok일 때만·옛 확장/null·실패/미확인·지운 감시·이름/중복) 추가, 전체 111/111. 동작 변경 없음.
 
 ## 지난 미배포 기록 — 없음 (2026-11-13 v1.44로 모두 나감)
 | 무엇 | 커밋 | 다음 배포 |
