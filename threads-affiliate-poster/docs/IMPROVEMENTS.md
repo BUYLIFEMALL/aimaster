@@ -80,3 +80,10 @@ F-004: 네이버 검색/트렌드 캐시 회원 간 공유 — 제안·미수정
 - 2단계 네이버 브랜드커넥트: naver.me 링크 여러 개 → 새 크롬 확장이 실제 상품 페이지에서 상품명·이미지·후기 8건 수집 → 근거로 발행 본문까지.
 - 함께 고칠 것: `guide/page.tsx` 238행 「첫 댓글에 포함」 안내(기능 없음), `docs/MEMBER_INTEGRATIONS.md` 73행 토큰 갱신 표기(실제로는 갱신함).
 - 인수인계: [`HANDOFF_20261116_THREADS_AUTO_PORT.md`](HANDOFF_20261116_THREADS_AUTO_PORT.md) · 분석: [`threads-content-ops/docs/ANALYSIS_20261116_THREADS_AUTO.md`](../../threads-content-ops/docs/ANALYSIS_20261116_THREADS_AUTO.md)
+
+## ⏸ 미배포 대기 — threads-auto 이식 1단계: 쿠팡 여러 경로 검색·일괄 등록 (2026-11-16, Claud(ecommerce) `claude-win-sdp`)
+- 주인님 결정(채팅 「권장대로 진행해」): 1단계 먼저 · 수익 리포트 제외 · 확장은 네이버 수집만 · 네이버 고지 쇼핑/여행 구분 · 3단계는 형식 검사만 · DB 칸/표 추가 · MIT로 보고 이식. 플랜 [`PLAN_20261116_THREADS_AUTO_PORT.md`](PLAN_20261116_THREADS_AUTO_PORT.md).
+- 한 일: 공용 기준 `affiliate-clients/coupangApi.ts`에 골드박스·카테고리 베스트·쿠팡 PL 조회와 응답 해석 공통화(검색 결과 모양은 예전 그대로), 새 `src/lib/coupang/catalog.ts`·`productSelection.ts`(원본 이식), `searchCoupangMultiSourceAction`(경로 4개씩 동시 실행, **일부 실패해도 성공한 경로 결과 유지** — 원본보다 보강)·`registerCoupangProductsBulkAction`(최대 30개, 이미 등록한 번호·제휴 링크 아닌 것 건너뜀), 단건 등록도 상품 번호 저장, 등록 화면을 경로 선택·체크·일괄 등록으로 교체(직접 등록 부분은 그대로). 옛 `searchCoupangProductsAction`은 쓰는 곳이 없어져 삭제.
+- **운영 DB 적용됨(ref `esgxyikcnnvmlhygjkth`)**: `affiliate_products.source_key` 칸 + 기존 쿠팡 상품 12/18개 번호 채움(`supabase/migrations/20261116120000_affiliate_products_source_key.sql`). 단축 링크로 등록한 6개는 번호가 없어 「이미 등록」 제외에 안 잡힘.
+- 검수: tsc 0(쇼핑제휴·운영 사본), 시험 7+5+8 통과(`npm run test:coupang-multi` 신규), 로컬 build 통과, 0번 규칙 고지 0, `NOTICE`에 원본 MIT 고지. **실제 쿠팡 호출·화면 확인은 배포 뒤**(시험 계정 본인 키).
+- 공용 사본 `threads-content-ops/lib/affiliate-clients/coupangApi.ts` `--sync` 반영(함수 추가만, 운영 동작 변화 없음 — 운영 다음 배포 때 함께).

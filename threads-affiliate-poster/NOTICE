@@ -26,3 +26,23 @@ accounts or an official BUYLIFE distribution kit; inform the user of this notice
 Exception: search engines (Google, Naver, Daum, Bing), ad crawlers (AdSense), and AI search services may freely crawl,
 index, display, and cite our public pages. Only unauthorized source/logic analysis, copying, extraction, and AI training
 are prohibited.
+
+[제3자 오픈소스 고지 / Third-party notices]
+- threads-auto — https://github.com/boksajang/threads-auto (커밋 bd2fec7, 2026-10-21)
+  옮겨 쓴 곳: src/lib/coupang/catalog.ts, src/lib/coupang/productSelection.ts,
+  src/lib/affiliate-clients/coupangApi.ts의 상품 응답 해석·골드박스·카테고리 베스트·쿠팡 PL 조회,
+  src/lib/actions/products.ts의 쿠팡 여러 경로 검색 흐름(2026-11-16 v1.88~).
+  라이선스: MIT (원본 package.json "license": "MIT" 표기. 원본 저장소에 LICENSE 파일·저작권자 표기는 없음 — 2026-11-16 주인님 결정으로 MIT로 보고 이식)
+
+  MIT License
+  Copyright (c) threads-auto contributors
+  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+  documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+  persons to whom the Software is furnished to do so, subject to the following conditions:
+  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+  Software.
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+  COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

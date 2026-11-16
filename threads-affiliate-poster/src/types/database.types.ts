@@ -123,6 +123,7 @@ export interface Database {
           description: string | null;
           key_selling_points: string[] | null;
           detail_page_id: string | null;
+          source_key: string | null;
           created_at: string;
         };
         Insert: {
@@ -138,6 +139,7 @@ export interface Database {
           description?: string | null;
           key_selling_points?: string[] | null;
           detail_page_id?: string | null;
+          source_key?: string | null;
           created_at?: string;
         };
         Update: {
@@ -153,6 +155,7 @@ export interface Database {
           description?: string | null;
           key_selling_points?: string[] | null;
           detail_page_id?: string | null;
+          source_key?: string | null;
           created_at?: string;
         };
         Relationships: [];

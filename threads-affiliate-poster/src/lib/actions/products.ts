@@ -4,7 +4,24 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
-import { searchCoupangProducts, type CoupangProduct } from "@/lib/affiliate-clients/coupangApi";
+import {
+  getCoupangBestCategory,
+  getCoupangGoldbox,
+  getCoupangPl,
+  searchCoupangProducts,
+} from "@/lib/affiliate-clients/coupangApi";
+import {
+  COUPANG_CATEGORY_OPTIONS,
+  hasCoupangProductSource,
+  normalizeCoupangProductSearchSettings,
+  splitCoupangKeywords,
+} from "@/lib/coupang/catalog";
+import {
+  coupangSourceKeyOf,
+  selectCoupangProductCandidates,
+  toCoupangCandidates,
+  type CoupangCandidate,
+} from "@/lib/coupang/productSelection";
 import {
   checkCoupangAffiliateLink,
   COUPANG_LINK_MESSAGES,
@@ -45,19 +62,29 @@ function parseEnrichmentFields(formData: FormData) {
   };
 }
 
-export interface SearchCoupangState {
-  results?: CoupangProduct[];
+export interface MultiSourceSearchState {
+  results?: CoupangCandidate[];
+  /** 이미 등록한 상품이라 뺀 개수. */
+  excludedCount?: number;
+  /** 일부 경로만 실패했을 때의 안내(성공한 경로 결과는 그대로 보여 준다). */
+  warnings?: string[];
   error?: string;
 }
 
 /**
- * 쿠팡 키워드 검색. DB에 저장하지 않고 결과만 반환한다 — 사용자가 그중 하나를
- * 골라서 registerCoupangProductAction으로 등록한다. 검색 API는 시간당 호출 제한이
- * 있다고 알려져 있으니(공식 수치 재확인 필요) 화면에서 반복 검색을 자제하도록 안내한다.
+ * 쿠팡 여러 경로 검색 — threads-auto(MIT, bd2fec7) src/main/ipc/register.ts `coupang-products:search` 흐름을 옮김.
+ * 키워드(쉼표·줄바꿈, 최대 10개, 키워드당 상위 10개)·골드박스·카테고리 베스트(전체=19개 카테고리)·쿠팡 PL을 4개씩 동시에 부르고,
+ * 결과를 합쳐 로켓 조건·이미 등록한 상품을 거른 뒤 최대 100개를 돌려준다. 원본은 경로 하나만 실패해도 전체가 실패했지만,
+ * 여기서는 성공한 경로 결과를 살리고 실패한 경로는 안내로 알린다. DB에는 저장하지 않는다(등록은 회원이 고른 것만).
  */
-export async function searchCoupangProductsAction(keyword: string): Promise<SearchCoupangState> {
+export async function searchCoupangMultiSourceAction(raw: Record<string, unknown>): Promise<MultiSourceSearchState> {
   const user = await requireProgramAccess();
-  if (!keyword.trim()) return { error: "검색어를 입력해주세요." };
+  const settings = normalizeCoupangProductSearchSettings(raw ?? {});
+  if (!hasCoupangProductSource(settings)) return { error: "검색 경로를 하나 이상 골라 주세요." };
+  const terms = splitCoupangKeywords(settings.keywords);
+  if (settings.keywordSearchIncluded && terms.length === 0 && !settings.goldBoxIncluded && !settings.categoryBestIncluded && !settings.coupangPlIncluded) {
+    return { error: "검색어를 입력해 주세요. 여러 개는 쉼표로 나눕니다." };
+  }
 
   const supabase = await createClient();
   const [accessKey, secretKey] = await Promise.all([
@@ -67,13 +94,109 @@ export async function searchCoupangProductsAction(keyword: string): Promise<Sear
   if (!accessKey || !secretKey) {
     return { error: "쿠팡파트너스 Access Key/Secret Key가 없습니다. 설정 페이지에서 먼저 등록해주세요." };
   }
+  const auth = { accessKey, secretKey };
 
-  try {
-    const results = await searchCoupangProducts(keyword.trim(), { accessKey, secretKey, limit: 10 });
-    return { results };
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : "쿠팡 상품 검색에 실패했습니다." };
+  const tasks: Array<{ label: string; run: () => Promise<CoupangCandidate[]> }> = [];
+  if (settings.keywordSearchIncluded) {
+    for (const keyword of terms) {
+      const query = settings.rocketFreshOnly ? `${keyword} 로켓프레시` : keyword;
+      tasks.push({ label: `키워드 「${keyword}」`, run: async () => toCoupangCandidates(await searchCoupangProducts(query, { ...auth, limit: 10 }), "SEARCH") });
+    }
   }
+  if (settings.goldBoxIncluded) tasks.push({ label: "골드박스", run: async () => toCoupangCandidates(await getCoupangGoldbox(auth), "GOLDBOX") });
+  if (settings.categoryBestIncluded) {
+    const ids = settings.categoryId === "ALL" ? COUPANG_CATEGORY_OPTIONS.map(([id]) => id) : [settings.categoryId];
+    for (const id of ids) {
+      const name = COUPANG_CATEGORY_OPTIONS.find(([cid]) => cid === id)?.[1] ?? id;
+      tasks.push({ label: `카테고리 베스트 「${name}」`, run: async () => toCoupangCandidates(await getCoupangBestCategory(id, auth), "CATEGORY_BEST") });
+    }
+  }
+  if (settings.coupangPlIncluded) {
+    const brandId = settings.coupangPlBrandId === "ALL" ? undefined : settings.coupangPlBrandId;
+    tasks.push({ label: "쿠팡 PL", run: async () => toCoupangCandidates(await getCoupangPl(brandId, auth), "COUPANG_PL") });
+  }
+
+  const batches: CoupangCandidate[][] = [];
+  const warnings: string[] = [];
+  for (let i = 0; i < tasks.length; i += 4) {
+    const slice = tasks.slice(i, i + 4);
+    const settled = await Promise.allSettled(slice.map((task) => task.run()));
+    settled.forEach((result, idx) => {
+      if (result.status === "fulfilled") batches.push(result.value);
+      else warnings.push(`${slice[idx].label}: ${result.reason instanceof Error ? result.reason.message : "실패"}`);
+    });
+  }
+  if (batches.length === 0) return { error: warnings[0] ?? "쿠팡 상품을 불러오지 못했습니다.", warnings };
+
+  // 회원 본인이 이미 등록한 쿠팡 상품 번호(RLS + user_id 조건).
+  const { data: rows } = await supabase
+    .from("affiliate_products")
+    .select("source_key, product_url")
+    .eq("user_id", user.id)
+    .eq("platform", "coupang");
+  const registered = new Set((rows ?? []).map(coupangSourceKeyOf).filter((v): v is string => Boolean(v)));
+
+  const all = batches.flat();
+  const withoutExclude = selectCoupangProductCandidates(all, { keywords: terms, rocketOnly: settings.rocketOnly, rocketFreshOnly: settings.rocketFreshOnly, limit: 100 });
+  const results = selectCoupangProductCandidates(all, {
+    keywords: terms, rocketOnly: settings.rocketOnly, rocketFreshOnly: settings.rocketFreshOnly, limit: 100, excludedSourceKeys: registered,
+  });
+  const excludedCount = withoutExclude.filter((c) => registered.has(c.sourceKey)).length;
+  await logProgramUsage({ userId: user.id, action: "search_coupang_multi_source" });
+  return { results, excludedCount, warnings: warnings.length ? warnings : undefined };
+}
+
+export interface BulkRegisterItem {
+  sourceKey: string;
+  productName: string;
+  productUrl: string;
+  imageUrl: string;
+  price: number;
+}
+
+/** 검색 결과에서 체크한 쿠팡 상품을 한 번에 등록한다(최대 30개). 이미 등록한 상품 번호는 건너뛴다. */
+export async function registerCoupangProductsBulkAction(items: BulkRegisterItem[]): Promise<{ inserted?: number; skipped?: number; error?: string }> {
+  const user = await requireProgramAccess();
+  if (!Array.isArray(items) || items.length === 0) return { error: "등록할 상품을 골라 주세요." };
+  if (items.length > 30) return { error: "한 번에 30개까지 등록할 수 있습니다." };
+
+  const supabase = await createClient();
+  const { data: rows } = await supabase
+    .from("affiliate_products")
+    .select("source_key, product_url")
+    .eq("user_id", user.id)
+    .eq("platform", "coupang");
+  const registered = new Set((rows ?? []).map(coupangSourceKeyOf).filter((v): v is string => Boolean(v)));
+
+  const toInsert = [];
+  let skipped = 0;
+  for (const item of items) {
+    const sourceKey = String(item?.sourceKey ?? "").trim();
+    const productName = String(item?.productName ?? "").trim().slice(0, 300);
+    const productUrl = String(item?.productUrl ?? "").trim();
+    if (!/^\d+$/.test(sourceKey) || !productName || !productUrl || registered.has(sourceKey)) { skipped++; continue; }
+    if (!checkCoupangAffiliateLink(productUrl).ok) { skipped++; continue; }
+    registered.add(sourceKey);
+    const price = Number(item.price);
+    const imageUrl = String(item?.imageUrl ?? "").trim();
+    toInsert.push({
+      user_id: user.id,
+      platform: "coupang" as const,
+      product_name: productName,
+      product_url: productUrl,
+      affiliate_url: productUrl,
+      price: Number.isFinite(price) && price > 0 ? price : null,
+      image_url: /^https:\/\//.test(imageUrl) ? imageUrl : null,
+      input_mode: "url" as const,
+      source_key: sourceKey,
+    });
+  }
+  if (toInsert.length === 0) return { inserted: 0, skipped };
+  const { error } = await supabase.from("affiliate_products").insert(toInsert);
+  if (error) return { error: error.message };
+  await logProgramUsage({ userId: user.id, action: "register_coupang_product_bulk" });
+  revalidatePath("/products");
+  return { inserted: toInsert.length, skipped };
 }
 
 export interface RegisterProductState {
@@ -118,6 +241,8 @@ export async function registerCoupangProductAction(
     product_url: productUrl,
     affiliate_url: productUrl,
     price: priceRaw ? Number(priceRaw) : null,
+    // 검색 결과면 상품 번호, 직접 붙여넣은 단축 링크면 null — 「이미 등록한 상품 빼기」에 쓴다.
+    source_key: coupangSourceKeyOf({ source_key: String(formData.get("sourceKey") ?? "").trim() || null, product_url: productUrl }),
     ...enrichment,
   });
   if (error) return { error: error.message };

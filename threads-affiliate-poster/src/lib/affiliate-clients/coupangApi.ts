@@ -22,6 +22,74 @@ export interface CoupangProduct {
   productUrl: string;
   isRocket: boolean;
   isFreeShipping: boolean;
+  /** 골드박스·카테고리 베스트·쿠팡 PL 응답에만 있을 수 있다(검색 응답엔 없음). */
+  isRocketFresh?: boolean;
+  categoryName?: string;
+}
+
+type RawCoupangProduct = {
+  productId: number; productName: string; productImage: string; productPrice: number;
+  productUrl: string; isRocket?: boolean; isFreeShipping?: boolean;
+  isRocketFresh?: boolean; isFresh?: boolean; isFreshProduct?: boolean; categoryName?: string;
+};
+
+// threads-auto(boksajang/threads-auto, MIT, 커밋 bd2fec7) src/main/providers/coupang.ts `products()`에서 옮김 —
+// 검색은 data.productData, 골드박스·베스트·PL은 data가 바로 배열이라 둘 다 받는다. 필수값이 빠진 상품은 버린다.
+function toCoupangProducts(data: unknown): CoupangProduct[] {
+  const body = data as { data?: unknown };
+  const list = Array.isArray(body?.data)
+    ? (body.data as RawCoupangProduct[])
+    : (((body?.data as { productData?: RawCoupangProduct[] } | undefined)?.productData) ?? []);
+  return list
+    .map((p) => ({
+      productId: Number(p.productId),
+      productName: String(p.productName ?? ""),
+      productImage: String(p.productImage ?? ""),
+      productPrice: Number(p.productPrice ?? 0),
+      productUrl: String(p.productUrl ?? ""),
+      // 예전 검색 코드처럼 참으로 볼 수 있는 값(1 등)도 인정한다.
+      isRocket: Boolean(p.isRocket),
+      isFreeShipping: Boolean(p.isFreeShipping),
+      // 값이 있을 때만 붙인다 — 검색 결과 모양을 예전과 같게 유지(기존 호출부·시험 호환).
+      ...(p.isRocketFresh || p.isFresh || p.isFreshProduct ? { isRocketFresh: true } : {}),
+      ...(p.categoryName ? { categoryName: String(p.categoryName) } : {}),
+    }))
+    .filter((p) => Number.isFinite(p.productId) && p.productId > 0 && p.productName && p.productUrl && p.productImage);
+}
+
+async function getCoupangProductList(action: string, path: string, query: string, auth: CoupangAuth): Promise<CoupangProduct[]> {
+  const response = await fetch(`${API_GATEWAY}${path}${query ? `?${query}` : ""}`, {
+    method: "GET",
+    headers: { Authorization: buildCoupangAuthorization("GET", path, query, auth), "Content-Type": "application/json" },
+    cache: "no-store",
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!response.ok) throw new Error(buildCoupangErrorMessage(action, response.status, await response.text()));
+  const raw = await response.text();
+  if (raw.length > 4_000_000) throw new Error(`쿠팡 ${action} 응답이 너무 큽니다.`);
+  let data: { rCode?: string; rMessage?: string } = {};
+  try { data = JSON.parse(raw); } catch { throw new Error(`쿠팡 ${action} 응답을 읽지 못했습니다.`); }
+  if (data.rCode && data.rCode !== "0") throw new Error(`쿠팡 ${action} 응답 오류: ${data.rMessage ?? data.rCode}`);
+  return toCoupangProducts(data);
+}
+
+const PRODUCTS_BASE = "/v2/providers/affiliate_open_api/apis/openapi/products";
+
+/** 오늘의 골드박스 특가(키워드 무시). */
+export function getCoupangGoldbox(auth: CoupangAuth): Promise<CoupangProduct[]> {
+  return getCoupangProductList("골드박스 조회", `${PRODUCTS_BASE}/goldbox`, "", auth);
+}
+
+/** 카테고리 베스트(카테고리 번호는 src/lib/coupang/catalog.ts 목록, 최대 100개). */
+export function getCoupangBestCategory(categoryId: string, auth: CoupangAuth): Promise<CoupangProduct[]> {
+  if (!/^\d+$/.test(categoryId)) return Promise.reject(new Error("쿠팡 카테고리 번호가 올바르지 않습니다."));
+  return getCoupangProductList("카테고리 베스트 조회", `${PRODUCTS_BASE}/bestcategories/${categoryId}`, "limit=100", auth);
+}
+
+/** 쿠팡 PL(자체 브랜드) 상품. 브랜드 번호가 없으면 전체 PL(최대 100개). */
+export function getCoupangPl(brandId: string | undefined, auth: CoupangAuth): Promise<CoupangProduct[]> {
+  if (brandId && !/^\d+$/.test(brandId)) return Promise.reject(new Error("쿠팡 PL 브랜드 번호가 올바르지 않습니다."));
+  return getCoupangProductList("쿠팡 PL 조회", `${PRODUCTS_BASE}/coupangPL${brandId ? `/${brandId}` : ""}`, "limit=100", auth);
 }
 
 /**
@@ -108,22 +176,7 @@ export async function searchCoupangProducts(keyword: string, auth: CoupangAuth &
     signal: AbortSignal.timeout(10_000),
   });
   if (!response.ok) throw new Error(buildCoupangErrorMessage("상품 검색", response.status, await response.text()));
-  const data = (await response.json()) as {
-    rCode?: string;
-    rMessage?: string;
-    data?: { productData?: Array<{
-      productId: number; productName: string; productImage: string; productPrice: number;
-      productUrl: string; isRocket?: boolean; isFreeShipping?: boolean;
-    }> };
-  };
+  const data = (await response.json()) as { rCode?: string; rMessage?: string };
   if (data.rCode && data.rCode !== "0") throw new Error(`쿠팡 상품 검색 응답 오류: ${data.rMessage ?? data.rCode}`);
-  return (data.data?.productData ?? []).map((p) => ({
-    productId: p.productId,
-    productName: p.productName,
-    productImage: p.productImage,
-    productPrice: p.productPrice,
-    productUrl: p.productUrl,
-    isRocket: Boolean(p.isRocket),
-    isFreeShipping: Boolean(p.isFreeShipping),
-  }));
+  return toCoupangProducts(data);
 }

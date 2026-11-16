@@ -3,7 +3,7 @@
 - 담당: Claud(ecommerce) `claude-win-sdp` [역할: ecommerce-image] — 주인님 직접 배정(Codex(Master) 쉬는 중, 복귀 후 보고)
 - 근거: 인수인계 [`HANDOFF_20261116_THREADS_AUTO_PORT.md`](HANDOFF_20261116_THREADS_AUTO_PORT.md), 분석 `threads-content-ops/docs/ANALYSIS_20261116_THREADS_AUTO.md` §0-5
 - 원본: `boksajang/threads-auto` 커밋 `bd2fec7`(2026-10-21) — 저장소 밖 임시 폴더에 받아 읽기만 함(실행 안 함)
-- 상태: **플랜 · 주인님 결정 대기**. 결정 전에는 코드를 고치지 않는다(외부 소스 이식 규칙 넷째).
+- 상태: **결정 완료(2026-11-16 주인님 채팅 「권장대로 진행해」 — §3 권장안 7건 모두 채택)**. 1단계 구현·로컬 검수 완료(미배포 대기, `docs/IMPROVEMENTS.md`), 2단계 대기.
 
 ## 0. 착수 전 확인 결과
 
