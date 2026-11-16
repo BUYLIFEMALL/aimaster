@@ -261,12 +261,19 @@ async function notifyMe(ctx: RunToolContext, env: AgentEnv, input: Record<string
   if (!channels.length) return { content: 'Choose email and/or kakao.', isError: true };
   if (!hit(`agent-notify-me:${ctx.agent.id}`, 10, 3600_000)) return { content: 'Too many messages to the owner recently. Try again later.', isError: true };
   const pageId = normalizeId(input.page_id);
-  if (!pageId || !canRead(pageId, env.userId)) return { content: 'You can’t open that page, so it can’t be linked.', isError: true };
-  // 실행 기록에서 한 번만 선점(같은 실행 다른 worker·「허용」 다시 실행 포함 계보 전체 1회). 선점 함수가 없거나 실패하면 보내지 않음
+  const owner = ctx.agent.owner_id ?? ctx.agent.created_by_id;
+  // 2026-11-17 E1 보안 보완: 링크 페이지는 비서(봇)와 받는 주인 둘 다 열 수 있어야 함(메일 주소에 페이지 제목이 들어감). 주인 없으면 보내지 않음
+  const linkable = () => !!owner && !!pageId && canRead(pageId, env.userId) && canRead(pageId, owner);
+  if (!linkable()) return { content: 'You or the owner can’t open that page, so nothing was sent.', isError: true };
+  // 바깥(메일·카카오톡)으로 나가므로 상위 승인 정책(대화형 review_for_me·always_ask)을 거침. 거절이면 보내지 않고 선점도 쓰지 않음
+  const decision = await env.approve({ tool: 'notify_me', stepId, risk: 'share', payload: { title: 'Send to the owner by email/KakaoTalk?', description: channels.join(', '), markdown: message, confirmLabel: 'Send', danger: false } });
+  if (decision !== 'accept') return { content: 'Not sent (declined).', isError: true };
+  // 승인을 기다리는 동안 권한이 바뀌었을 수 있어 발송 직전 다시 확인
+  if (!linkable()) return { content: 'You or the owner can’t open that page anymore, so nothing was sent.', isError: true };
+  // 실행 기록에서 한 번만 선점(같은 실행 다른 worker·순차 「허용」 다시 실행). 선점 함수가 없거나 실패하면 보내지 않음
   let claimed = false;
   try { claimed = typeof ctx.claimNotifyMe === 'function' && ctx.claimNotifyMe() === true; } catch { claimed = false; }
   if (!claimed) return { content: 'Already sent to the owner in this run (or it could not be confirmed), so nothing was sent.', isError: true };
-  const owner = ctx.agent.owner_id ?? ctx.agent.created_by_id;
   env.step({ id: stepId, tool: 'notify_me', status: 'running', label: 'Sending to the owner', detail: channels.join(', ') });
   const sending = sendExternalNotify({ userId: owner, channels, automationName: ctx.agent.data.name, text: message, pageId, spaceId: ctx.agent.space_id });
   if (!sending) return { content: 'Email/KakaoTalk sending is not available here.', isError: true };

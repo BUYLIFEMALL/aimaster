@@ -7,10 +7,11 @@ import { setupLocalDb } from '../setup-local-db.mjs';
 
 process.env.AWW_DATABASE_URL = await setupLocalDb({ reset: true });
 
-// 페이지 열람 권한: 시험용 페이지 'p-ok'만 열 수 있음
+// 페이지 열람 권한: 시험용 페이지 'p-ok'만 열 수 있음, denied에 넣은 사람은 못 엶(주인 열람 철회 시험)
+const perm = vi.hoisted(() => ({ denied: new Set<string>() }));
 vi.mock('../../src/litpage/server/ai/context.ts', async (orig) => ({
   ...(await orig<typeof import('../../src/litpage/server/ai/context.ts')>()),
-  canRead: (pageId: string) => pageId === 'p-ok',
+  canRead: (pageId: string, userId?: string) => pageId === 'p-ok' && !(userId && perm.denied.has(userId)),
 }));
 
 let tools: typeof import('../../src/litpage/server/agents/tools.ts');
@@ -185,6 +186,54 @@ describe('E1 notify_me — 실행 기록 선점(실제 시험 DB)', () => {
     const noClaim = makeCtx('owner-9') as unknown as Record<string, unknown>;
     delete noClaim.claimNotifyMe;
     expect((await send(noClaim as never, 'x'))?.isError).toBe(true);
+    expect(sent).toHaveLength(0);
+  });
+});
+
+// ---------------------------------------------------------------- E1 보안 보완(Master msg_9f35f4e64a6b): 승인 단계·받는 주인 열람
+describe('E1 notify_me — 승인 단계와 받는 주인 열람', () => {
+  const call = (ctx: unknown, e: unknown) => tools.runAgentTool(ctx as never, e as never, 'notify_me', { channels: ['kakao'], message: '요약', page_id: 'p-ok' }, 'st');
+  it('보내기 전에 share 위험도로 승인을 요청하고 채널·문구를 보여 줌', async () => {
+    engine.setExternalNotifyHandler(async () => []);
+    const approve = vi.fn(async () => 'accept');
+    await call(makeCtx('owner-9'), { ...(env as object), approve });
+    expect(approve).toHaveBeenCalledTimes(1);
+    const req = approve.mock.calls[0][0] as { tool: string; risk: string; payload: { markdown?: string } };
+    expect(req.tool).toBe('notify_me');
+    expect(req.risk).toBe('share');
+    expect(req.payload.markdown).toContain('요약');
+  });
+  it('거절하면 발송 0이고 선점을 쓰지 않음(다음 허용 때 1회 가능)', async () => {
+    const sent: unknown[] = [];
+    engine.setExternalNotifyHandler(async (n) => { sent.push(n); return []; });
+    const ctx = makeCtx('owner-9');
+    const r = await call(ctx, { ...(env as object), approve: vi.fn(async () => 'decline') });
+    expect(r?.isError).toBe(true);
+    expect(sent).toHaveLength(0);
+    await call(ctx, { ...(env as object), approve: vi.fn(async () => 'accept') });
+    expect(sent).toHaveLength(1);
+  });
+  it('받는 주인이 못 여는 페이지·주인 없음은 발송 0(승인도 묻지 않음)', async () => {
+    const sent: unknown[] = [];
+    engine.setExternalNotifyHandler(async (n) => { sent.push(n); return []; });
+    const approve = vi.fn(async () => 'accept');
+    perm.denied.add('owner-9');
+    try {
+      expect((await call(makeCtx('owner-9'), { ...(env as object), approve }))?.isError).toBe(true);
+    } finally { perm.denied.delete('owner-9'); }
+    const noOwner = makeCtx() as unknown as { agent: Record<string, unknown> };
+    delete noOwner.agent.created_by_id;
+    expect((await call(noOwner, { ...(env as object), approve }))?.isError).toBe(true);
+    expect(approve).not.toHaveBeenCalled();
+    expect(sent).toHaveLength(0);
+  });
+  it('승인을 기다리는 동안 주인 열람이 철회되면 발송 직전 다시 확인해 0', async () => {
+    const sent: unknown[] = [];
+    engine.setExternalNotifyHandler(async (n) => { sent.push(n); return []; });
+    const approve = vi.fn(async () => { perm.denied.add('owner-9'); return 'accept'; });
+    try {
+      expect((await call(makeCtx('owner-9'), { ...(env as object), approve }))?.isError).toBe(true);
+    } finally { perm.denied.delete('owner-9'); }
     expect(sent).toHaveLength(0);
   });
 });
