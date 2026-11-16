@@ -14,6 +14,10 @@
 
 ## 현재 조정 범위
 
+WS-20261117-02 / CC-WORKSPACE-01: threads-affiliate-poster brandConnect.ts naverProductIdentity·extension/background.js productIdentity의계정/비표준포트거부 일치 및 tests/naver-brand-connect.test.cjs 경계검사만. 고유결과/본인역할문서허용. URL정규화/기본443/정상쇼핑여행회귀확인. 큐/후기/고지/ZIP/버전/운영DB/build/deploy변경금지. 편집전점유/dirty확인예약.
+
+TAP-20261117-02 / CC-B2B-BACK-01: threads-affiliate-poster naverCollect.ts·신규migration·database.types.ts·별도동시성/원자성검사 전담. 큐동시추가/등록중복방지, 상품insert+큐상태를동일트랜잭션안전RPC로원자화, RLS/동일회원/실패롤백/정상결과검증. 기존중복임의삭제금지·사전감지멈춤. 로컬기존PG qa_tap_고유DB만·공유/운영쓰기/설치/build/deploy금지. Workspace3파일편집금지, 최종URL함수재사용. Ecom은바나나ECOM17담당·TAP해당파일/ZIP변경금지. v1.89배포보완후검토, 빌드승인아님.
+
 WS-20261117-01 / CC-WORKSPACE-01: 주인님직접 쇼핑제휴2단계 2d373c8ad의확장권한/메시지검증·네이버호스트·회원큐RLS/보관·고지·ZIP버전 독립읽기검토. 실제적용은담당보고와직접확인구분. 본인고유결과/필요순수격리로직검사만, 제품/확장설치/실수집/DB/AI/build/deploy없음. Ecom은ECOM17계약수정담당으로제품파일충돌없음. 직접지시이력 DIR-20261117-002 참조.
 
 RE-20261117-01 / CC-REALTY-01: 주인님직접 확장v1.45/카카오해제검수 이력 DIR-20261117-001 취합. 현재401/reconnect/팝업·비밀값없는4필드 부분근거를 고유결과/본인역할에지금기록. 기존RE05 읽기전용완료보존. 텔레그램수신/재연결은주인님직접, 다음회차/표시해제미검수유지. 새수집/발송/재연결/제품/DB/build/deploy없음. 실제후속결과도착시갱신·별도감시약속없음.
