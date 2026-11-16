@@ -673,3 +673,9 @@ F-004(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - 커밋 `ada58ebca`·`26b568f4e`, 배포 `threads-affiliate-poster-n1k8m31tg` Ready, DB v1.86→v1.88(앞선 v1.87 때 DB 미갱신이었음).
 - 확인: 운영 v1.88, 375px 새 검색 칸·💾 위젯·넘침 없음(ego, 관리자 세션 화면만). **실제 쿠팡 호출·일괄 등록은 시험 계정 로그인 뒤 확인 필요**(ego가 관리자 계정으로 로그인돼 있어 규칙상 미실행).
 - 다음: 2단계 네이버 브랜드커넥트 수집(크롬 확장 신규) — 플랜 §2.
+
+## 2026-11-17 v1.89 ✅ 배포 — 네이버 브랜드커넥트 수집(크롬 확장 신규)·중복 등록 방지 (Claud(ecommerce) `claude-win-sdp` [역할: ecommerce-image], 주인님 「쇼핑제휴 배포해」, DEC006 빌드 1회)
+- 실린 것: 2단계 `2d373c8ad`(네이버 링크 → 확장이 상품 화면 수집 → 대기열 → 등록, 쇼핑/여행 고지, 대기열 30일 정리) + Workspace·Backend 보완 `78e893c90`·`eaaebe027`(주소 확인 https·사용자 정보·포트 거절)·`46920e765`·`d89f5d2be`(중복 링크·상품 방지, 원자 등록 함수)·`1aa4dd259`(옛 버전 ZIP 보존) + 릴리스 준비 `0761447f1`(버전·manifest·ZIP v1.89).
+- 운영 DB 순서: `docs/handoff-tap189-prod/` precheck 7/7 OK → apply(한 트랜잭션, 원문 그대로·주석만 제외 실행) → verify 8/8 OK → **그다음** 빌드. 이 순서를 바꾸면 네이버 등록이 「함수 없음」.
+- 검수: 시험 27(affiliate 7·coupang 5·naver-brand 6·openai 8·naver-key), tsc 0, 로컬 build(ZIP 바이트 동일). 배포 `threads-affiliate-poster-qkncpet55` Ready, programs v1.89·확장 칸(`supabase/migrations/20261117200000_bump_version_v1_89.sql`), `check-extension-release` OK, /login 200, 옛 v1.88 ZIP 200, 정리 경로 무토큰 401. ego(시험 계정) /products v1.89·네이버 수집·확장 안내·💾 위젯.
+- 미검수: 실제 확장 설치 → 네이버 브랜드커넥트 링크 수집 → 등록 → 글 생성(회원 확장 설치·실제 링크 필요). 쿠팡 실제 호출도 시험 계정 키로 아직.
