@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 05:27:27 KST",
+  "checkedAt": "2026-11-17 05:32:52 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4273,13 +4273,13 @@
       "parent_task_id": "B2B-20261117-02",
       "owner": "CC-B2B-BACK-01",
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
-      "status": "running",
+      "status": "ready_review",
       "delivery": "delivered",
-      "evidence": "msg_a1bfb6ab39f7 Mac 재발송/raw예외/상태 정적PASS·done응답hold누락 P2 + msg_d4394e591252 계획71c58ecfc",
+      "evidence": "msg_9392ca64e14a 작성자62/62·done/hold 같은새key 반환계약3실패→통과",
       "decision": "Master조정 E1납부후거절차단 E2로그인본인 E3카드미설정은행 E4Backend신규경로;실환불미구현명시",
-      "next": "Backend prepare/confirm done응답 status/needs_review·hold정상완료단정금지 소변경승인. 같은/새key POST0·hold보존 국소시험→Mac마감,UI RLS재조회계약유지. 실Toss/Lab/UI/빌드0",
-      "lastReviewedAt": "2026-11-16T20:27:25.185Z",
-      "sha": "5fb0245f0 / 0104 e2c0fd964befdd14e2eb547d81f52b155900207aad22e4dc5c09ef756fd6dfbc",
+      "next": "Mac 최종반환계약 국소마감검토배정. Backend phase2 정확경로/위젯재사용/파일충돌 읽기준비,실Toss/Lab0104/UI코드/빌드0",
+      "lastReviewedAt": "2026-11-16T20:32:49.970Z",
+      "sha": "37fdcabb4 / 0104 739b35e9f20b45ba7c83309918da0cc099ca6a0b5715bf5514e755cb108662e6",
       "plannedMigration": "0104_exchange_fee_payments.sql (기존미적용0103 rename)",
       "migrationPath": "mall-builder/supabase/migrations/0104_exchange_fee_payments.sql",
       "previousMigrationPath": "0103_exchange_fee_payments.sql (미적용상태rename)"
