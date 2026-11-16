@@ -5,3 +5,8 @@
 - 근거: 문구는 `src/lib/esm/fields.ts`(상품명 50자/100단위·판매가 10원·사진 15장·옵션 단독형 50값·등록 방식 3종)와 `extension/background.js`(상세 860px 합본·로그인 멈춤), `src/lib/actions/register.ts`(바로 등록 확인·재등록 체크)와 대조.
 - 검사: `tsc` 0 · `npm test` 15/15. 화면 확인은 다음 배포 뒤.
 - 배포: 화면 문구만 바뀐 작은 수정이라 다음 esm-register 배포 때 버전 +0.01로 함께 나간다(새 빌드 없음).
+
+## 2026-11-17 ✅ 카탈로그 썸네일 등록 (ESM-20261117-01, 주인님 직접 지시·생성 1회 채팅 승인)
+- 기존 자산 없음 확인 → `scripts/generate-program-thumbnail.mjs`(§13 실사 템플릿, 관리자 본인 Gemini 키, 키 값 출력 없음)로 1회 생성. 확대본 6장 점검: 글자·상표 없음 → 재생성 안 함.
+- Storage `program-images/catalog/esm-register-thumbnail.jpg` · `programs.thumbnail_url`만 `…?v=1794851519633`으로 갱신(공개 응답 200 image/jpeg). 되돌리기: 원래 값 `null`.
+- 카테고리 `backup`(비공개)·등급·권한·버전은 바꾸지 않음. 비공개라 공개 카드에는 아직 안 보임(관리자만).
