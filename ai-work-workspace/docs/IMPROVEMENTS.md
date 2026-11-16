@@ -15,6 +15,7 @@
 - 남은 영어(발견): 서버 오류 문구 일부가 영어(예: 없는 에이전트 삭제 「We couldn’t find that agent」) — 원본 서버 메시지 번역은 다음 묶음.
 
 ## 미배포 대기
+- (미배포, 2026-11-17 [역할: workspace] PLAN-20261117-01 **E1** — 주인님 「추천안대로 E1부터 진행해」) `6e9d07f1c`: 에이전트 템플릿 「🗞️ 월요일 주간 요약」(월 08:00, 지난주 끝낸 일·이번 주 마감·콘텐츠 발행·남은 받은 업무) + 에이전트 도구 `notify_me`(받는 사람 = 에이전트 주인 본인만, 자동화 「내 메일·카카오톡」과 같은 발송·하루 100건, 한 실행 한 번, 페이지 링크 필수) · 「회의 준비·정리」 템플릿에 「만든 사람의 AI 회의록 요약 완료」 트리거 자동 추가(다른 사람 회의록으로 주인 AI 키 비용이 나가지 않게 `user_filter`) · 콘텐츠 캘린더 채널 「티스토리·워드프레스·구글 블로그」(예전 「기타」, 기존 표는 CSV 합치기가 선택지 자동 추가) / `0da321e33`: 데이터베이스 템플릿 「⏱️ 작업 시간 기록」(작업 시간 범위 → 걸린 시간·청구 금액 수식, 고객별 보드·달력), 템플릿 규격에 수식 속성·시각 범위 예시 행 지원 · 폼 조건부 질문은 확인 결과 이미 동작(편집 「조건 만들기」·렌더러·서버 `forms.ts` 227줄, 원본 시험 7개 통과) → 변경 없음. 시험 `agentE1.test.ts` 9개·`workInbox.test.ts`. 한계: 타이머 「시작/정지」 버튼은 템플릿 규격이 버튼 속성을 아직 지원하지 않아 E2 후보(지금은 날짜 칸에 시각 입력).
 - (미배포, 2026-11-17 [역할: workspace] WS-20261117-08 주인님 직접 지시 「진행해」 작은 개선 5개) **① 캘린더 한 칸 일정 수** — `CalendarView.view.tsx` 한 칸 표시 줄 수를 칸 높이 기준 계산(`max(3, floor((ROW_HEIGHT−TOP−26)/lane))`, 기본 카드 5개), 「N more」→ 한국어 「N개 더 보기」 · **② 타임라인 날짜 한국어** — `TimelineView.view.tsx` 머리 제목 「2026년 11월」·「2026년 11월 17일」·칸 「11월」·「화 11월 17일」·주 보기 요일 한 글자·요일 말풍선 「화요일」(영어 화면 그대로) · **③ 실행 기록** — 단계 목록은 이미 「MCP 도구 실행:」(11-13), 남은 에이전트 검토 상자(「Run 도구 (연결)」·「Open 사이트」)도 `AgentSteps.tsx` `stepText` 내보내 `AgentActivity.tsx`에서 거침(서버 저장값 그대로) · **④ 남은 영어** — `CollectionPage.tsx` 「Add icon/cover/description」→ 사전(`i18n.literals.ko-KR.json`에 「아이콘 추가」·「표지 추가」 추가), `ViewTabs.tsx` 저장 이름이 기본 보기 이름(Table·Board…)과 같을 때만 화면 언어로(회원이 지은 이름 그대로) · **⑤ 받은 업무** — 확인 결과 이미 처리돼 있음(표 행 「보낸 프로그램」은 `programLabel` 한국어, 넣을 표 고르기 11-15) → 코드 변경 없음. tsc 0, 전체 시험 216/216.
 - (미배포, 2026-11-17 [역할: workspace] 주인님 「좌우 여백 없이 꽉차게」) **데이터베이스 전체 페이지 좌우 여백 96 → 24px** — `src/litpage/web/features/database/database.css`(`.nc-db.full`·`.nc-db-page`의 `--nc-db-pad`)·`CollectionPage.tsx`(`pad`). 옆 미리보기 창 76px은 그대로. tsc 0. 화면 확인은 배포 뒤.
 - (v1.55 배포됨 2026-11-17 `ai-work-workspace-3z2m9m4xy` · 원래 미배포, 2026-11-17 [역할: workspace] 주인님 직접 지시 「노션처럼 기능 확장」「년월 표기도 이렇게」「캘린더 표시부분도 길게」) **데이터베이스 캘린더 보기 노션식 표기·높이** — `src/litpage/web/features/database/views/calendar/CalendarView.view.tsx`: 한국어 화면에서 월 제목 `November 2026` → `2026년 11월`, 요일 `Sun Mon…` → `일 월 화…`, 매달 첫날 `Nov 1` → `11월 1일`(영어 화면은 그대로), 한 주 칸 기본 높이 124px → 240px(일정이 많으면 지금처럼 더 늘어남). 보기 종류(캘린더·표·보드·타임라인·리스트·갤러리)는 이미 있어 추가 개발 없음. tsc 0, 화면 확인은 다음 배포 뒤. 같은 날 「화면에 꽉 차게」: `src/server/workDashboard.ts` 새 「📊 업무 현황판」을 노션식 「전체 너비」(`page_full_width: true`)로 만들고, 그 전에 만든 현황판은 값이 없을 때만 열 때 한 번 켬(회원이 ··· 메뉴에서 끈 `false`는 유지, `ensureDashboardFullWidth` — `workInbox.ts` 열기에서 호출). 시험 `tests/integration/workDashboard.test.ts` 6/6(새 시험 1 + 첫 시험에 전체 너비 확인).
@@ -208,12 +209,12 @@
 ## 1. 프로그램 로직·기능
 | 우선 | 항목 | 근거·상태 |
 |---|---|---|
-| 높음 | **2단계: 회원 본인 AI 키 연결** — `user_api_keys`(openai·anthropic)를 RPC 요청마다 읽어 `withMemberAiKeys()`로 실행, `AI_STAGE_OPEN`·`stagePolicy` AI 줄 열기 | 자리 마련됨(`ai/providers/config.ts`), 미구현 |
+| 완료(v1.05·v1.06, 2026-11-17 표 정정) | **2단계: 회원 본인 AI 키 연결** — `user_api_keys`(openai·anthropic)를 RPC 요청마다 읽어 `withMemberAiKeys()`로 실행, `AI_STAGE_OPEN`·`stagePolicy` AI 줄 열기 | 자리 마련됨(`ai/providers/config.ts`), 미구현 |
 | 완료(v1.03) | 이미 만든 「AI 회의록」 블록의 「받아쓰기 시작」 버튼 → 1단계 동안 「다음 단계에서 열립니다」 안내, 노트 칸 안내도 1단계용 문구 | `2f0de2776` |
 | 완료(v1.03) | 템플릿 예시 내용 한국어화(10개, 여행은 제주도·원 단위, 습관 기록 날짜 한국어) | `df7a628d3` — 원본 시험 기대값 1곳(`page-features.test.ts` 'Status'→'상태') 수정 |
-| 중간 | 3단계: 초대·공유(AIMaster 회원끼리), 실시간 동시 편집은 Supabase Realtime 방송으로 | 원본 WebSocket은 서버리스에서 동작 안 함 — 지금은 새로고침 때 반영 |
-| 중간 | 큰 첨부 파일 Supabase Storage 이전(지금 DB `files.content`, 4MB) | Vercel 요청 본문 한도 4.5MB |
-| 중간 | 리마인더·알림 메일·주간 요약 등 원본 예약 작업 — 하루 1회 정리만 동작, 분 단위 작업은 4단계 회원 cron-job.org | `src/app/api/cron/jobs` |
+| 완료(초대·공유 v1.28·v1.29 U13) / 동시 타이핑은 PLAN-20261117-01 1-1(주인님 A안 — 「공유 페이지 변경 빠른 반영」, 동시 타이핑 해결 아님) | 3단계: 초대·공유(AIMaster 회원끼리), 실시간 동시 편집은 Supabase Realtime 방송으로 | 원본 WebSocket은 서버리스에서 동작 안 함 — 지금은 새로고침 때 반영 |
+| 완료(v1.38, 4~50MB Storage) | 큰 첨부 파일 Supabase Storage 이전(지금 DB `files.content`, 4MB) | Vercel 요청 본문 한도 4.5MB |
+| 완료(cron v1.23·알림 v1.34·리마인더 v1.36) / 주간 요약은 2026-11-17 E1 「월요일 주간 요약」 에이전트 템플릿 | 리마인더·알림 메일·주간 요약 등 원본 예약 작업 — 하루 1회 정리만 동작, 분 단위 작업은 4단계 회원 cron-job.org | `src/app/api/cron/jobs` |
 | 완료(v1.03) | 날짜·시각 문구를 화면 언어로(`format.ts` 「○분 전 수정」·「오늘 ○시」 + 화면 16개 파일의 `en-US` 날짜 고정 22곳) | `db77b7a3b` — 숫자 표기(`toLocaleString` 차트·단어 수)와 번역 파일에 없는 원본 영어 문구는 남음 |
 | 낮음 | 동기 DB 다리 성능: 한 인스턴스 동시 요청 직렬 처리 — 사용자 늘면 측정 후 핵심 경로 비동기화 검토 | 질의 평균 6.7ms(로컬→서울) |
 
