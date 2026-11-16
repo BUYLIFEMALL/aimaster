@@ -665,3 +665,11 @@ F-004(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - 함께 나감(맥미니 11-03 작성): `0caadc5ee` 글 생성·떡상 분석 모델 선택지에서 12-11 종료되는 `o3` 삭제, 저장·전송된 옛 값은 `gpt-5.6-sol`로 읽음(`src/lib/ai/models.ts` `RETIRED_AI_MODEL`) · `fea3571a8` 30일 글·미디어 정리(`api/cron/cleanup-media`)가 예외 회원(`profiles.retention_exempt`)을 건너뛰고 목록을 못 읽으면 503(`src/lib/retentionExempt.ts`). 버전 커밋 `ed4f1d5b7`.
 - 검수: tsc·시험 15개(openai-params 8·affiliate-clients 7)·로컬 build 통과. 배포 `threads-affiliate-poster-6yhtciacn` Ready·운영 주소 연결, 정리 주소 가짜 토큰 401, `/login` 200, DB v1.86. ego lite(작업 공간 107) 새 글 화면: 메뉴 v1.86, 모델 선택지 8개에 `o3` 없음.
 - 남은 확인: 다음 정리 회차 뒤 관리자·시험 계정 글·미디어 유지. 비용: Vercel 빌드 1회(승인 4회 중 1회).
+
+## 2026-11-16 v1.88 ✅ 배포 — threads-auto(MIT) 이식 1단계: 쿠팡 여러 경로 검색·일괄 등록 (Claud(ecommerce) `claude-win-sdp` [역할: ecommerce-image], 주인님 직접 배정·「배포해」)
+- 플랜·결정 7건: `docs/PLAN_20261116_THREADS_AUTO_PORT.md`. 인수인계: `docs/HANDOFF_20261116_THREADS_AUTO_PORT.md`.
+- 상품 등록 › 쿠팡: 키워드(쉼표 최대 10개)·골드박스·카테고리 베스트(19)·쿠팡 PL(9) 합쳐 불러오기, 로켓/로켓프레시 거르기, **이미 등록한 상품 제외**(새 칸 `affiliate_products.source_key`, 운영 DB 적용·기존 12/18 채움), 최대 30개 일괄 등록. 일부 경로 실패해도 성공한 결과 유지(원본 보강). 코드: 공용 기준 `affiliate-clients/coupangApi.ts`(사본 `threads-content-ops` `--sync`), `src/lib/coupang/{catalog,productSelection}.ts`(원본 이식, 출처 주석·`NOTICE` MIT), `searchCoupangMultiSourceAction`·`registerCoupangProductsBulkAction`. 시험 `npm run test:coupang-multi`(5).
+- 함께 나감: 저장공간 위젯 한 줄, 로그아웃 이 브라우저만, 서버 로그인 기기 정보 전달.
+- 커밋 `ada58ebca`·`26b568f4e`, 배포 `threads-affiliate-poster-n1k8m31tg` Ready, DB v1.86→v1.88(앞선 v1.87 때 DB 미갱신이었음).
+- 확인: 운영 v1.88, 375px 새 검색 칸·💾 위젯·넘침 없음(ego, 관리자 세션 화면만). **실제 쿠팡 호출·일괄 등록은 시험 계정 로그인 뒤 확인 필요**(ego가 관리자 계정으로 로그인돼 있어 규칙상 미실행).
+- 다음: 2단계 네이버 브랜드커넥트 수집(크롬 확장 신규) — 플랜 §2.
