@@ -32,3 +32,11 @@
 | S4·S5 단독 화면 | `990ec9075c5de513cbaa68dae6db5781fed46713` | 6개 화면(매뉴얼·받은 업무·영수증·캘린더 연동·키 설정·공개 페이지)이 모두 `guide.css`를 씀 → `guide.css` 끝에 `html.lit-light-theme .aww-guide.aww-studio-page` 범위 Slate 토큰·포커스 링, 각 `page.tsx`는 최상위 `<main>` 클래스 한 단어만 추가. 새 공통 파일 `app/studio-theme.css`는 필요 없어 만들지 않음. 전역 html/body·`:root` 재정의 0(로그인·다크·다른 화면 영향 없음), 서버·권한·데이터·키 입력 0. `page.css`(워크스페이스 안 일반 페이지)·`inbox.css`·`InboxBoard.tsx`·`keys.css`·`receipts.css`는 토큰을 이미 따라 변경 0 |
 - 묶음 끝 전체 36파일 **301/301**(WS-15 날짜 검사 포함), `tsc` 0.
 - 실화면 검수는 여전히 주인님 로컬 로그인 대기(3절) — 그 전에는 S0~S5 시각 PASS 아님.
+
+## 6. 개발·시험 DB 분리 (Master `msg_f7ffff59de97`) — 로컬 컨테이너만, 운영 DB 0
+- 발견: 3457 개발 서버 `.env.local` `AWW_DATABASE_URL`과 시험 `tests/setup-local-db.mjs`가 같은 `127.0.0.1:55432/aww`(컨테이너 `aww-pg-test`). 시험은 `reset: true`로 `aww` 스키마 drop → 개발 자료가 시험마다 지워질 구조.
+- 처리: 제 개발 서버(PID 44944, `ai-work-workspace\node_modules\next\...start-server.js`) 종료 → `aww` 접속 0·vitest 0 확인 → `aww_dev` 없음 확인 → `CREATE DATABASE aww_dev TEMPLATE aww`(로컬 컨테이너 안 복제, 덤프 파일 0). 복제 시점 `aww`: `aww` 스키마 표 10·`public` 표 1, 자료(records) 0건 — 앞선 시험들이 이미 비운 상태라 보존할 로컬 입력 자료는 없었음(두 DB 개수 동일). `aww_app` 접속·스키마 권한 확인.
+- `.env.local`: `AWW_DATABASE_URL`의 DB 이름만 `aww` → `aww_dev`(다른 줄 해시 동일, `check-env-files` 정상). 되돌리기 = DB 이름을 `aww`로. 시험 설정·운영 환경 변수·컨테이너 설정 변경 0.
+- 증명: 개발 설정(Next `loadEnvConfig`)으로 접속 → `current_database()` = **aww_dev**. 시험 1회(`duplicateOverrides` 27/27) 전후 `aww_dev` DB oid 2204849·`aww` 스키마 oid 2195736·표 10 **불변**, 시험 DB `aww`는 스키마 oid가 새로 바뀜(초기화는 `aww`에만).
+- 개발 서버 재시작: 같은 3457, 새 PID 44692.
+- **로그인 요청(최종)**: 엣지 탭 `1553942690`의 `http://localhost:3457/` → 로그인. 계정 요건: 이 로컬 개발 DB는 워크스페이스 자료가 비어 있으므로 로그인 뒤 「워크스페이스 만들기」로 새로 시작(운영 워크스페이스 자료는 보이지 않음). 로그인은 운영과 같은 Supabase 인증(주인님 본인 계정), 비밀번호는 주인님이 직접.
