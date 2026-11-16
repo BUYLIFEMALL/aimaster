@@ -91,3 +91,25 @@ describe('E1 notify_me', () => {
     expect(out?.isError).toBe(true);
   });
 });
+
+describe('E1 작업 시간 기록 템플릿', () => {
+  it('예시 행(09:00~11:30, 시간당 3만 원) → 걸린 시간 2.5시간·청구 금액 75000', async () => {
+    const { OpsBuilder } = await import('../../src/litpage/server/content/spec.ts');
+    const { TEMPLATES } = await import('../../src/litpage/server/content/catalog.ts');
+    const { evaluateFormula } = await import('../../src/litpage/shared/formula/index.ts');
+    const t = TEMPLATES.find((x) => x.id === 'time-tracker')!;
+    expect(t).toBeTruthy();
+    const b = new OpsBuilder('sp-e1', 'u-e1');
+    b.block(t.build() as never, 'sp-e1', 'space');
+    const sets = b.ops.filter((o) => o.command === 'set');
+    const col = sets.find((o) => o.pointer.table === 'collection')!.args as { schema: Record<string, never> };
+    const row = sets.find((o) => o.pointer.table === 'block' && (o.args as { parent_table?: string }).parent_table === 'collection')!.args as never;
+    const ctx = { timeZone: 'Asia/Seoul' } as never;
+    const hrs = evaluateFormula('', row, col.schema, ctx, { propId: 'tHrs', prop: col.schema.tHrs });
+    const amt = evaluateFormula('', row, col.schema, ctx, { propId: 'tAmt', prop: col.schema.tAmt });
+    expect(hrs.error).toBeFalsy();
+    expect(amt.error).toBeFalsy();
+    expect((hrs as { number?: number }).number).toBe(2.5);
+    expect((amt as { number?: number }).number).toBe(75000);
+  });
+});

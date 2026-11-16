@@ -15,6 +15,8 @@ export interface DbPropSpec {
   /** select / multi_select / status option names (status: [optionName, group] pairs allowed via statusGroups) */
   options?: (string | { value: string; color?: string })[];
   number_format?: string;
+  /** 2026-11-17 PLAN-20261117-01 E1: formula 속성의 식(prop("이름")으로 다른 속성 참조) */
+  formula?: string;
 }
 
 export interface DbViewSpec {
@@ -258,6 +260,8 @@ function buildProperty(p: DbPropSpec): PropertySchema {
       out.groups = s.groups;
       out.defaultOption = s.defaultOption;
     }
+  } else if (p.type === 'formula') {
+    out.formula = { expression: p.formula ?? '' };
   } else if (p.type === 'select' || p.type === 'multi_select') {
     out.options = (p.options ?? []).map((o, i) => (typeof o === 'string' ? { id: newId(), value: o, color: COLORS[(i + 1) % COLORS.length] } : { id: newId(), value: o.value, color: o.color ?? COLORS[(i + 1) % COLORS.length] }));
   } else if (p.type === 'number') {
@@ -286,9 +290,10 @@ export function encodeRowValue(prop: PropertySchema, v: RowValue): RichText | un
       return encodeSelect(Array.isArray(v) ? v.map(String) : String(v).split(',').map((s) => s.trim()));
     case 'date': {
       if (typeof v === 'object' && !Array.isArray(v)) {
-        const d = v as { date: string; end?: string; time?: string };
+        const d = v as { date: string; end?: string; time?: string; endTime?: string };
         // 이식판(2026-11-11): 시간이 있으면 시간 있는 날짜로(CSV 「2026-11-12 10:00」·구글 일정 가져오기)
-        const val: DateValue = d.end ? { type: 'daterange', start_date: d.date, end_date: d.end } : d.time ? ({ type: 'datetime', start_date: d.date, start_time: d.time } as DateValue) : { type: 'date', start_date: d.date };
+        // 2026-11-17 E1: 시작·끝 시각이 다 있으면 시각 범위(작업 시간 기록 예시 행)
+        const val: DateValue = d.end && d.time && d.endTime ? ({ type: 'datetimerange', start_date: d.date, start_time: d.time, end_date: d.end, end_time: d.endTime } as DateValue) : d.end ? { type: 'daterange', start_date: d.date, end_date: d.end } : d.time ? ({ type: 'datetime', start_date: d.date, start_time: d.time } as DateValue) : { type: 'date', start_date: d.date };
         return encodeDate(val);
       }
       return encodeDate({ type: 'date', start_date: String(v) });

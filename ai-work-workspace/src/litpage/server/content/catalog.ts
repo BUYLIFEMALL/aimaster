@@ -112,6 +112,45 @@ export const TEMPLATES: TemplateDef[] = [
     }),
   },
   {
+    // 2026-11-17 PLAN-20261117-01 E1 「시간 기록」(ClickUp 타이머 참고): 작업마다 시작·끝 시각 → 걸린 시간·청구 금액 자동 계산
+    id: 'time-tracker',
+    name: '작업 시간 기록',
+    description: '작업마다 시작·끝 시각을 적으면 걸린 시간과 청구 금액이 자동으로 계산됩니다. 외주·시간제 정산, 영수증·세금계산서 작성에 그대로 씁니다.',
+    icon: '⏱️',
+    cover: '/covers/gradient-2.svg',
+    category: 'work',
+    tags: ['시간', '정산', '외주', '청구'],
+    creator: 'Workspace',
+    featured: true,
+    build: () => ({
+      type: 'collection_view_page',
+      icon: '⏱️',
+      cover: '/covers/gradient-2.svg',
+      db: {
+        name: '작업 시간 기록',
+        description: '「작업 시간」에 시작·끝 시각을 넣으세요(날짜 칸에서 「끝 날짜」와 「시간 포함」을 켬). 걸린 시간·청구 금액은 자동 계산.',
+        schema: {
+          title: { name: '작업', type: 'title' },
+          tTim: { name: '작업 시간', type: 'date' },
+          tCli: { name: '고객·프로젝트', type: 'select', options: ['(예시) A사 블로그 대행', '내부 업무'] },
+          tRat: { name: '시간당 단가', type: 'number', number_format: 'won' },
+          tHrs: { name: '걸린 시간(시간)', type: 'formula', formula: 'round(dateBetween(dateEnd(prop("작업 시간")), dateStart(prop("작업 시간")), "minutes") / 6) / 10' },
+          tAmt: { name: '청구 금액', type: 'formula', formula: 'prop("걸린 시간(시간)") * prop("시간당 단가")' },
+          tBil: { name: '청구함', type: 'checkbox' },
+          tMem: { name: '메모', type: 'text' },
+        },
+        rows: [
+          { values: { title: '(예시) 블로그 원고 3편 작성', tTim: { date: dayOffset(-1), time: '09:00', end: dayOffset(-1), endTime: '11:30' }, tCli: '(예시) A사 블로그 대행', tRat: 30000, tMem: '예시 행입니다. 지워도 됩니다.' }, icon: '⏱️' },
+        ],
+        views: [
+          { type: 'table', name: '전체', sort: [{ property: 'tTim', direction: 'descending' }] },
+          { type: 'board', name: '고객별', groupBy: 'tCli', visible: ['tTim', 'tHrs', 'tAmt'] },
+          { type: 'calendar', name: '달력', visible: ['tCli', 'tHrs'] },
+        ],
+      },
+    }),
+  },
+  {
     id: 'project-tracker',
     name: '프로젝트 관리',
     description: '아이디어부터 출시까지 프로젝트의 상태·우선순위·진행률을 한눈에 봅니다.',
