@@ -219,3 +219,62 @@ describe('에이전트 바깥 MCP — 승인 소진(실제 시험 DB)', () => {
     expect(calls).toHaveLength(2);
   });
 });
+
+// ---------------------------------------------------------------- WS-20261116-08: 승인 키는 객체 키 순서와 무관(배열·값·타입은 그대로)
+describe('에이전트 바깥 MCP — 승인 키 키 순서', () => {
+  const agent = { id: 'a1', space_id: 's1' } as never;
+  function ctxFor(runId: string) {
+    const ctx = makeCtx(false, { name: 'delete_row', readOnly: false }, 'allow');
+    const run = runs.getRun(runId)!;
+    Object.assign(ctx, { runId, approvedCalls: new Set(run.payload.approvedCalls ?? []), consumeApproval: (k: string) => runs.consumeApprovedCall(runId, k) });
+    return ctx;
+  }
+
+  it('중첩 객체 키 순서만 다르면 같은 키, 배열 순서·값·타입·연결·도구가 다르면 다른 키', () => {
+    const k = (c: string, t: string, i: unknown) => tools.callKey(c, t, i);
+    expect(k('c1', 'x', { b: 1, a: { y: [1, { q: 2, p: 1 }], x: null } })).toBe(k('c1', 'x', { a: { x: null, y: [1, { p: 1, q: 2 }] }, b: 1 }));
+    expect(k('c1', 'x', { a: [1, 2] })).not.toBe(k('c1', 'x', { a: [2, 1] }));
+    expect(k('c1', 'x', { a: 1 })).not.toBe(k('c1', 'x', { a: '1' }));
+    expect(k('c1', 'x', { a: 1 })).not.toBe(k('c1', 'x', { a: 2 }));
+    expect(k('c1', 'x', { a: 1 })).not.toBe(k('c2', 'x', { a: 1 }));
+    expect(k('c1', 'x', { a: 1 })).not.toBe(k('c1', 'y', { a: 1 }));
+    expect(k('c1', 'x', JSON.parse('{"__proto__":{"z":1}}'))).not.toBe(k('c1', 'x', {}));
+  });
+
+  it('허용한 뒤 다시 실행에서 모델이 키 순서를 바꿔 만들어도 한 번만 실행(다시 검토 없음)', async () => {
+    const r1 = runs.insertRun({ agent, kind: 'trigger', label: '정시' }).id;
+    runs.setRunStatus(r1, 'needs_review' as never, null);
+    runs.setRunReview(r1, { kind: 'tool', connectionId: 'c1', tool: 'delete_row', input: { b: 2, a: { y: 1, x: 0 } } as never, label: 'Run delete_row' });
+    const d = runs.decideRunReview(r1, true, 'member-1')!;
+    const r2 = runs.insertRun({ agent, kind: 'trigger', label: '다시 실행', payload: d.payload, parentRunId: r1 }).id;
+    const ctx = ctxFor(r2);
+    await tools.runAgentTool(ctx, env, 'mcp_x', { a: { x: 0, y: 1 }, b: 2 }, 's1');
+    expect(calls).toHaveLength(1);
+    expect(ctx.review).toBeNull();
+    expect(runs.getRun(r2)!.payload.approvedCalls).toEqual([]);
+    await tools.runAgentTool(ctx, env, 'mcp_x', { b: 2, a: { y: 1, x: 0 } }, 's2');
+    expect(calls).toHaveLength(1); // 승인은 1번만
+    expect(ctx.review).toMatchObject({ tool: 'delete_row' });
+  });
+
+  it('배포 전 형식으로 저장된 승인은 같은 입력 순서일 때만 한 번 인정, 다른 연결·인자에는 쓰이지 않음', async () => {
+    const legacy = tools.legacyCallKey('c1', 'delete_row', { b: 1, a: 2 });
+    const r1 = runs.insertRun({ agent, kind: 'trigger', label: '다시 실행', payload: { approvedCalls: [legacy] } as never }).id;
+    let ctx = ctxFor(r1);
+    await tools.runAgentTool(ctx, env, 'mcp_x', { b: 1, a: 3 }, 's1'); // 다른 값
+    expect(calls).toHaveLength(0);
+    ctx.review = null;
+    await tools.runAgentTool(ctx, env, 'mcp_x', { b: 1, a: 2 }, 's2'); // 같은 입력·같은 순서
+    expect(calls).toHaveLength(1);
+    expect(runs.getRun(r1)!.payload.approvedCalls).toEqual([]);
+    ctx.review = null;
+    await tools.runAgentTool(ctx, env, 'mcp_x', { b: 1, a: 2 }, 's3'); // 다시 쓰이지 않음
+    expect(calls).toHaveLength(1);
+    // 순서가 다른 옛 형식 승인은 맞추지 않음(막는 쪽)
+    const r2 = runs.insertRun({ agent, kind: 'trigger', label: '다시 실행', payload: { approvedCalls: [legacy] } as never }).id;
+    ctx = ctxFor(r2);
+    await tools.runAgentTool(ctx, env, 'mcp_x', { a: 2, b: 1 }, 's1');
+    expect(calls).toHaveLength(1);
+    expect(ctx.review).toMatchObject({ tool: 'delete_row' });
+  });
+});

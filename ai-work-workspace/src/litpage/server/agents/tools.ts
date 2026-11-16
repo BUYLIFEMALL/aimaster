@@ -155,7 +155,20 @@ export interface RunToolContext {
   onHostsChanged?: () => void;
 }
 
+// 2026-11-16(WS-20261116-08): 같은 인자를 모델이 다른 키 순서로 만들어도 같은 승인으로 보도록 객체 키를 깊이까지 정렬해 직렬화.
+// 배열 순서·값·타입은 그대로(배열 순서가 다르면 다른 호출). Object.fromEntries는 「__proto__」 키도 일반 속성으로 만든다.
+function canonicalJson(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(canonicalJson);
+  if (v && typeof v === 'object') return Object.fromEntries(Object.keys(v).sort().map((k) => [k, canonicalJson((v as Record<string, unknown>)[k])]));
+  return v;
+}
+
 export function callKey(connectionId: string, tool: string, input: unknown): string {
+  return `${connectionId}:${tool}:${JSON.stringify(canonicalJson(input ?? {}))}`;
+}
+
+/** 배포 전(정렬 없음) 형식 — 이미 실행 기록에 저장된 승인을 같은 입력 순서일 때만 한 번 인정하기 위한 호환용 */
+export function legacyCallKey(connectionId: string, tool: string, input: unknown): string {
   return `${connectionId}:${tool}:${JSON.stringify(input ?? {})}`;
 }
 
@@ -278,9 +291,12 @@ async function mcpTool(ctx: RunToolContext, env: AgentEnv, name: string, input: 
   // 「허용」 승인은 한 번만: 메모리에서 지우고, 실행 기록에서도 조건부로 소진해 성공한 쪽만 실행(다른 서버·다시 실행과 겨뤄도 1번).
   // 소진에 실패하면(이미 쓰임) 승인이 없는 것으로 보고 다시 검토 필요로 멈춤. 호출이 실패해도 승인은 돌려놓지 않음(자동 재호출 없음).
   let preApproved = false;
-  if (needsApproval && ctx.approvedCalls.has(key)) {
-    ctx.approvedCalls.delete(key);
-    preApproved = ctx.consumeApproval ? ctx.consumeApproval(key) : true;
+  // WS-20261116-08: 새 형식 키를 먼저, 없으면 배포 전 형식 키(같은 입력 순서일 때만 같음)를 찾아 그 하나만 소진
+  const legacy = legacyCallKey(m.connectionId, m.tool.name, input);
+  const hit = ctx.approvedCalls.has(key) ? key : legacy !== key && ctx.approvedCalls.has(legacy) ? legacy : null;
+  if (needsApproval && hit) {
+    ctx.approvedCalls.delete(hit);
+    preApproved = ctx.consumeApproval ? ctx.consumeApproval(hit) : true;
   }
   if (needsApproval && !preApproved) {
     if (!ctx.interactive) {
