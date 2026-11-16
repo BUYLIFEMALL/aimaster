@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 04:31:35 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 04:33:13 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -39,7 +39,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 166개: done 138개 · cancelled 6개 · ready_review 16개 · running 2개 · ready 3개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 166개: done 138개 · cancelled 6개 · ready_review 15개 · running 3개 · ready 3개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -207,7 +207,7 @@
 | QA-20261117-012 | CX-QA-01 | ready_review / returned | 교환비 카드결제 0103 모의/권한 독립검수 | 80a00923 함수내parse/markpaid오류경계정적PASS·PG17/3→20/0작성자근거수용. SQL전체중단내구intent미해소/배포차단·새정확상태안대기 |
 | QA-20261117-013 | CX-QA-01 | done / integrated | 146 studio S0~2 라우트·실데이터·테마 독립검수 | 새로그인뒤실화면검수별도범위·동일effect/소스시험재반복0 |
 | WS-20261117-16 | CC-WORKSPACE-01 | done / integrated | 로컬 개발·시험 DB 분리 및 기존자료 보존 | 래퍼 종료 보고 정정: Master TCP3457 LISTEN/PID44692 node 생존 직접확인, 재시작 불필요. 기존 로그인 안내 유효·로그인 후 로컬검수workspace 담당 생성·운영자료 이전0 |
-| B2B-20261117-08 | CC-B2B-BACK-01 | ready_review / returned | 자동 구매확정과 교환7일 상태정합성 수정 | verify13 동일행/reward/baseline c8b33554e 반환·Mac 변경경계 재검토 전달. 최종판정뒤Lab0103 단독적용 연결, 실제적용/정리/확정/빌드0 |
+| B2B-20261117-08 | CC-B2B-BACK-01 | running / returned | 자동 구매확정과 교환7일 상태정합성 수정 | Master 메인Backend Lab ref외부확인→pre10/지문→고정apply0103 1회→verify14/별도지문 검증 실행지시. 실제실행결과대기, 운영/0104/정리/추가확정/빌드0 |
 | DES-20261117-03 | AG-UI-01 | ready / queued | 146 실제스타일 소스·명세·접근성 대조 지원 | AGY정착프롬프트수신대기·로그인뒤실렌더비교는후속,새시안/유료/서버변경0 |
 
 ## 현재 담당 회신이 확보된 프로젝트
