@@ -28,12 +28,12 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 - 배송비·출고지·반품지는 ESM+ 「배송정보관리」에서만 만들 수 있음 → 확장은 고르기만.
 
 ## 4. 버전·이력
-- v1.01 (2026-11-15, **미배포** — 웹 뼈대): 기본값·상품 목록·칸 미리보기·보내기·기록·매뉴얼·화면 점검·30일 정리. tsc 0·시험 15·로컬 build. 확장(`extension/`)은 아직 스마트스토어 코드 그대로 → **2단계에서 ESM용으로 다시 쓴 뒤 웹과 함께 첫 배포**(빌드 1회 절약).
+- v1.01 (2026-11-15 구현, 2026-11-16 **운영 첫 배포** `esm-register-7xufzg73q` Ready · https://esm-register.buylife.xyz): 웹 — 기본값·상품 목록·칸 미리보기·보내기·기록·매뉴얼·화면 점검·30일 정리(커밋 `e09539a7a`). 확장 v1.01(1.1.0, 커밋 `0df59a455`) — ESM+ 「상품등록 2.0」용으로 다시 씀(구역 제목→칸 이름 찾기, React 값 넣기, 버튼 글자 고르기, 카테고리 검색, 사진 15장, 상세 1장 합본 860px, 단순 옵션, 고시, 임시저장·등록 결과 확인, 화면 점검, 로그인 멈춤). 운영 DB 적용(표 4개, 비공개 카테고리 `backup`), 관리자 기본값 저장. tsc 0·시험 15. **확장은 실제 ESM+ 화면에서 아직 미시험** — 맥미니 「입력만」 시험 요청 중(`docs/REQUEST_20261116_MACMINI_EXTENSION_TEST.md`, 커밋 `b9c33e2cd`).
 
 ## 5. 남은 일 (다음 첫 단계)
-1. **2단계 확장**: `extension/manifest.json`(이름 「AI G마켓·옥션 상품 자동등록기」, 허용 주소 `item.esmplus.com`·`www.esmplus.com`), `background.js`를 ESM 동작(`sites`·`type`·`category`·`choose`·`list_pick`·`images`·`detail_images`·`option_simple`·`notice_fill`·`submit`)으로 다시 쓰기. ego에서 주인님 ESM+ 로그인 → 「입력만」으로 보정(저장 안 함).
-2. DB 마이그레이션 적용(주인님 승인 받음) → Vercel 프로젝트·도메인 `esm-register.buylife.xyz`·환경변수(Supabase 4개·`CRON_SECRET`, `smartstore-register`와 같은 값) → 첫 배포(빌드 승인 범위 3~4회 중 1회).
-3. 임시저장 1건·실제 등록 1건(등록 직후 판매중지) 시험(주인님 승인 받음) → 등록 결과 화면에서 상품번호 읽기.
+1. ~~2단계 확장 다시 쓰기~~ 끝(`0df59a455`). ~~DB 적용·Vercel 프로젝트·도메인·환경변수·첫 배포~~ 끝(2026-11-16, `esm-register-7xufzg73q`).
+2. **지금**: 맥미니 「입력만」 실물 시험 결과 대기(요청서 `docs/REQUEST_20261116_MACMINI_EXTENSION_TEST.md`). 결과로 확장 칸 찾기 보정 — Master 지시(ECOM-20261116-01): 결과 전까지 저장·임시저장·등록 시험 하지 않음.
+3. 보정 뒤 임시저장 1건·실제 등록 1건(등록 직후 판매중지) 시험(주인님 승인 받음) → 등록 결과 화면에서 상품번호 읽기.
 4. 상세페이지 `lib/markets.ts`에 G마켓·옥션 버튼, 공개 때 카테고리 `ecommerce`로.
 
 ## 6. 디자인
