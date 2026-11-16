@@ -14,6 +14,8 @@
 
 ## 현재 조정 범위
 
+주인님직접지시취합: 「상세페이지 먼저 배포해」 msg_1fa08528ff13·0e418bab9·6esxwz43i Ready·DB1.47 보고/버전대조수락. DEC005/e42e46ea…done실제처리, 승인1빌드사용1. 상세선행조건해제, 바나나DEC004/쇼핑제휴DEC006 각1회미승인유지·배포/빌드중복없음·실저장미검수.
+
 최종준비검토: ECOM17-02 상세1.47→바나나1.49 명세74d0edc6c·TAP17-03 ZIP보존1aa4dd259/운영실행묶음4d3cd8fc2 원문/해시대조수락. 바나나DEC004기존1회유지, 상세DEC005 e42e46ea-b554-4f61-8a73-d647afaebda0·TAP DEC006 270ace60-c7d1-4c05-a4cd-95ddeeab2fca 각신규1회요청등록. 총3빌드미실행·비용미승인. 운영SQL미적용/실저장금지유지·주인님계속진행해는준비/검토계속으로기록. RE17-02 7f97c00e6 코드/검증보고대조후배정3건미배포완료, 다음기능배포때묶음.
 
 RE-20261117-02 / CC-REALTY-01: 주인님직접작업점검/지휘요청취합(msg_3fd0bc6d19bc). commercial-land-trade-alert/src/lib/supabase/server.ts·realty-client-desk/src/lib/supabase/server.ts UA전달, 고객관리src/app/layout.tsx위젯1줄·본인개선/역할/고유결과만. Master현재dirty/점유겹침없음확인, 편집직전재확인예약·기존지침/고지check필수. 인증/쿠키다른변경/로그아웃/수집/새버전/설치/build/dev/deploy/운영DB0. 관련타입/검사후미배포묶음. 뉴스개선은08시결과전착수없음.
