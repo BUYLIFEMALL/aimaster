@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T04:41:30.212Z",
+  "checkedAt": "2026-11-16T04:48:31.785Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -262,31 +262,32 @@
       "task_id": "FRONT-20261116-03",
       "parent_task_id": "OPS-20261116-002",
       "owner": "CC-B2B-FRONT-01",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "title": "내 섹션 넣기 성공·다른몰안내 표시 국소보완",
-      "next": "Lab안내통과·타입/3시험 확인, 전역ui 수명/인스턴스공유 위험으로완료보류; FRONT-04 근본원인보완",
+      "next": "임시전역상태방안은후속685로대체·FRONT-04 검토로종결.674단독출시안함",
       "evidence": ".ai/results/FRONT-20261116-03-CC-B2B-FRONT-01.md",
-      "sha": "674caa54e",
+      "sha": "674caa54e → 685fed7da",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "completion": "배정된 범위·완료조건과 결과 근거를 Master가 대조하고 검증/미배포/실물 한계를 구분",
-      "lastReviewedAt": "2026-11-16T04:41:30.212Z"
+      "lastReviewedAt": "2026-11-16T04:48:31.785Z"
     },
     {
       "task_id": "FRONT-20261116-04",
       "parent_task_id": "FRONT-20261116-03",
       "owner": "CC-B2B-FRONT-01",
-      "status": "ready",
-      "delivery": "delivered",
+      "status": "done",
+      "delivery": "integrated",
       "title": "Puck 헤더 재생성 원인 보완·편집기별 상태와 비동기 수명 보호",
-      "next": "design-editor.tsx+my-sections.tsx 정확범위에서 A→B→A/같은몰새진입/늦은응답/중복없는삽입 회귀,전역저장소제거",
-      "evidence": "msg_0aa7dde7ea8c",
-      "sha": null,
+      "next": "구현/Lab검수범위완료·운영배포별도.5bfed663d+7ed5880ef+674+685 최종상태를B2B0100묶음에연결",
+      "evidence": ".ai/results/FRONT-20261116-04-CC-B2B-FRONT-01.md",
+      "sha": "685fed7da",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "completion": "안내표시·편집기인스턴스격리·최신저장게시동작보존·예외처리·실행/미실행검증구분",
-      "lastReviewedAt": "2026-11-16T04:41:30.212Z"
+      "lastReviewedAt": "2026-11-16T04:48:31.785Z",
+      "verification": "Master 실제3파일diff검토;담당422시험/타입0·Lab동작보고;실저장게시미실행·지연도착시각별도미기록"
     }
   ],
   "programOverrides": [
@@ -494,9 +495,9 @@
       "slug": "mall-builder",
       "owner": "CC-B2B-BACK-01 + CC-B2B-FRONT-01",
       "reportedVersion": "v1.15 / v1.16 후보",
-      "stage": "운영·다음묶음준비 / Lab검수",
-      "completed": "T2·샘플몰·M2-1~7·E3등v1.15,후속415시험; E3 Lab실물·신규템플릿6종/420시험완료",
-      "next": "Front04 헤더식별성·국소상태보완 후재검토;0100+M2-8~11·신규템플릿 다음승인묶음.674단독완료처리안함",
+      "stage": "운영v1.15·후속구현/Lab검수완료 / 미배포",
+      "completed": "T2·샘플몰·M2-1~7·E3기배포,후속M2-8~11/0100준비·신규템플릿6종·헤더근본수정685fed7da(422시험/타입0·Lab회귀)",
+      "next": "Backend0100+M2-8~11와Front5bfed663d/7ed5880ef/685최종상태를함께v1.16.운영0100먼저·1빌드승인범위대조,배포/운영검수는별도",
       "evidence": "mall-builder/docs/HANDOFF_DESIGN_BUILDER_BACKEND_SYNC.md",
       "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
     },
