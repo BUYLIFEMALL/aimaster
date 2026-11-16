@@ -1,5 +1,7 @@
 # 플레이리스트 채널 제작 자동화 (`playlist-channel-studio`) — 개선사항 관리 대장 (IMPROVEMENTS.md)
 
+> **✅ v1.42 곡 0개 ③ 화면 확인(2026-11-16, Claud(Music), Master MUS-20261116-02)**: 시험 계정·ego lite `/video` 새로 열기(곡 0개) → 「③ MP4 내보내기」 맨 아래 「📤 유튜브에 올린 기록」·안내 문구·기록 1건(11-13 비공개 시험 영상)·「📨 업무 워크스페이스로」 표시, 올리기 카드는 숨김. 업무 보내기 단추는 누르지 않음.
+
 > **✅ [음악 담당께 · 2026-11-13 업무 워크스페이스 담당] 유튜브 올리기 기록 → 워크스페이스 보내기 붙임(v1.40 배포됨 2026-11-13, `playlist-channel-studio-f10pyrzt0`)**: 「📋 내가 올린 영상」 줄마다 「📨 업무 워크스페이스로」 버튼(`src/components/video/SendToWorkspaceButton.tsx`) → `POST /api/work-inbox { videoId }`(회원 본인 `playlist_youtube_uploads` 행을 다시 읽음) → 받은 업무 → 콘텐츠 캘린더. 값 매핑은 플랜 §5 그대로(`src/lib/youtubeInboxContent.ts`, 시험 `tests/youtube-inbox.test.mjs` 2개, package.json 시험 목록에 추가). 공용 사본 `src/lib/workInbox.ts`. 시험 35·tsc·로컬 빌드 통과. 버전은 올리지 않음 — 다음 배포 때 함께(이 폴더 규칙).
 
 > **📨 [음악 담당께 · 2026-11-12 업무 워크스페이스 담당(workspace, `claude-win-20261025-workspace`) 요청] 유튜브 발행 기록을 워크스페이스 「📅 콘텐츠 캘린더」로 보내는 칸 확인**
