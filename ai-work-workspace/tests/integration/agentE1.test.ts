@@ -237,3 +237,91 @@ describe('E1 notify_me — 승인 단계와 받는 주인 열람', () => {
     expect(sent).toHaveLength(0);
   });
 });
+
+// ---------------------------------------------------------------- E1 계보 루트 선점(Mac msg_494116d1535e, Master msg_0ee3d7393621)
+describe('E1 notify_me — 계보 루트 행 공유 선점(실제 시험 DB)', () => {
+  type Claim = (id: string) => boolean;
+  const claim: Claim = (id) => (runs as unknown as { claimNotifyMe: Claim }).claimNotifyMe(id);
+  const A = { id: 'a-root', space_id: 's1' } as never;
+  const B = { id: 'a-other', space_id: 's1' } as never;
+  const ins = (agent: never, parentRunId?: string, payload?: Record<string, unknown>) => runs.insertRun({ agent, kind: 'trigger', label: 't', ...(parentRunId ? { parentRunId } : {}), ...(payload ? { payload } : {}) }).id;
+
+  it('부모 선점 전에 자식이 생겨도(부모→자식 순서) 계보 1회', () => {
+    const p = ins(A); const c = ins(A, p);
+    expect([claim(p), claim(c)]).toEqual([true, false]);
+  });
+  it('부모 선점 전에 자식이 생겨도(자식→부모 순서) 계보 1회, 손자도 막힘', () => {
+    const p = ins(A); const c = ins(A, p); const g = ins(A, c);
+    expect([claim(c), claim(p), claim(g)]).toEqual([true, false, false]);
+  });
+  it('부모·자식 동시 선점은 하나만 true', async () => {
+    const p = ins(A); const c = ins(A, p);
+    const r = await Promise.all([Promise.resolve().then(() => claim(p)), Promise.resolve().then(() => claim(c))]);
+    expect(r.filter(Boolean)).toHaveLength(1);
+  });
+  it('다른 에이전트 하위 실행(call_agent)은 자기 루트 — 따로 1회', () => {
+    const p = ins(A); const sub = ins(B, p);
+    expect([claim(p), claim(sub)]).toEqual([true, true]);
+  });
+  it('다른 space 부모·부모 누락·순환·깊이 초과는 0', async () => {
+    const other = ins({ id: 'a-root', space_id: 's2' } as never); const c = ins(A, other);
+    expect(claim(c)).toBe(false);
+    const orphan = ins(A, '없는-부모');
+    expect(claim(orphan)).toBe(false);
+    const x = ins(A); const y = ins(A, x);
+    // 순환: 정상 경로로는 생기지 않으므로 시험 DB에서 직접 부모를 바꿔 만듦
+    const cx = ins(A); const cy = ins(A, cx);
+    const { db } = await import('../../src/litpage/server/db.ts');
+    db.prepare('UPDATE agent_runs SET parent_run_id = ? WHERE id = ?').run(cy, cx);
+    expect(claim(cy)).toBe(false);
+    let chainTop = ins(A); for (let i = 0; i < 40; i++) chainTop = ins(A, chainTop);
+    expect(claim(chainTop)).toBe(false);
+    expect([claim(x), claim(y)]).toEqual([true, false]);
+  });
+  it('중간·자기 행에 이미 보냄 표시가 있으면 0, 독립 정시 실행은 각 1회, 다른 payload 칸 보존', () => {
+    const p = ins(A); const mid = ins(A, p, { notifyMeSent: 1 }); const leaf = ins(A, mid);
+    expect(claim(leaf)).toBe(false);
+    const self = ins(A, undefined, { notifyMeSent: 1 });
+    expect(claim(self)).toBe(false);
+    const i1 = ins(A, undefined, { approvedCalls: ['k'], text: '원래' }); const i2 = ins(A);
+    expect([claim(i1), claim(i2)]).toEqual([true, true]);
+    const pl = runs.getRun(i1)!.payload;
+    expect(pl.approvedCalls).toEqual(['k']);
+    expect(pl.text).toBe('원래');
+    expect(typeof pl.notifyMeSent).toBe('number');
+  });
+});
+
+// ---------------------------------------------------------------- 승인 판정 순수 함수(실제 approve 클로저가 같은 함수를 부름)
+describe('E1 notify_me — 승인 판정 행렬(agentApprovalNeeded)', () => {
+  type Need = (r: { tool: string; risk: string }, mode: string, interactive: boolean) => boolean;
+  const need = () => (runs as unknown as { agentApprovalNeeded: Need }).agentApprovalNeeded;
+  it('runs.ts 승인 클로저가 이 함수로 판정함(소스 확인)', async () => {
+    const fs = await import('node:fs');
+    const src = fs.readFileSync(new URL('../../src/litpage/server/agents/runs.ts', import.meta.url), 'utf8');
+    const body = src.slice(src.indexOf('approve: async (r: ApprovalRequest)'), src.indexOf('approve: async (r: ApprovalRequest)') + 400);
+    expect(body).toContain('agentApprovalNeeded(r, approvalMode, !!opts.interactive)');
+  });
+  it('notify_me 실제 요청값으로: 대화형 review_for_me·always_ask는 묻고 skip_all·정시는 자동, 판정 거절이면 선점·발송 0', async () => {
+    const reqs: { tool: string; risk: string }[] = [];
+    engine.setExternalNotifyHandler(async () => []);
+    await tools.runAgentTool(makeCtx('owner-9'), { ...(env as object), approve: async (r: { tool: string; risk: string }) => { reqs.push(r); return 'accept'; } } as never, 'notify_me', { channels: ['email'], message: 'm', page_id: 'p-ok' }, 'st');
+    const r = reqs[0];
+    expect(r.risk).toBe('share');
+    const f = need();
+    expect(f(r, 'review_for_me', true)).toBe(true);
+    expect(f(r, 'always_ask', true)).toBe(true);
+    expect(f(r, 'skip_all', true)).toBe(false);
+    for (const m of ['review_for_me', 'always_ask', 'skip_all']) expect(f(r, m, false)).toBe(false);
+    // 묻는 경우 사람이 거절 → 발송 0·선점 0
+    const sent: unknown[] = [];
+    engine.setExternalNotifyHandler(async (n) => { sent.push(n); return []; });
+    let claimed = 0;
+    const ctx = makeCtx('owner-9') as unknown as Record<string, unknown>;
+    ctx.claimNotifyMe = () => { claimed++; return true; };
+    const declineWhenAsked = { ...(env as object), approve: async (q: { tool: string; risk: string }) => (f(q, 'review_for_me', true) ? 'decline' : 'accept') };
+    await tools.runAgentTool(ctx as never, declineWhenAsked as never, 'notify_me', { channels: ['email'], message: 'm', page_id: 'p-ok' }, 'st');
+    expect(sent).toHaveLength(0);
+    expect(claimed).toBe(0);
+  });
+});

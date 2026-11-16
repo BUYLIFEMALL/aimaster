@@ -427,6 +427,12 @@ function preflight(agent: AgentRecord | undefined, run: RunRow): { status: RunSt
 }
 
 /** Background run (queued): trigger / schedule / manual / sub-agent. */
+/** 2026-11-17 E1: 에이전트 도구 승인 판정(실제 approve 클로저가 이 함수를 부름 — 동작은 예전 식 그대로). 비대화형(정시 등)은 묻지 않음 */
+export function agentApprovalNeeded(r: Pick<ApprovalRequest, 'tool' | 'risk'>, approvalMode: ApprovalMode, interactive: boolean): boolean {
+  if (!interactive) return false;
+  return r.risk === 'plan' || approvalMode === 'always_ask' || (approvalMode === 'review_for_me' && (r.risk === 'destructive' || r.risk === 'share')) || r.tool === 'mcp' || r.tool === 'request_url_access';
+}
+
 export async function executeRun(runId: string, opts: ExecuteOptions = {}): Promise<RunOutcome> {
   const run = getRun(runId)!;
   const agent = getAgent(run.agentId);
@@ -663,9 +669,7 @@ async function runModel(agent: AgentRecord, run: RunRow, opts: ModelOptions): Pr
       ev.changes?.({ turnId, pages: touched });
     },
     approve: async (r: ApprovalRequest) => {
-      if (!opts.interactive) return 'accept';
-      const needs = r.risk === 'plan' || approvalMode === 'always_ask' || (approvalMode === 'review_for_me' && (r.risk === 'destructive' || r.risk === 'share')) || r.tool === 'mcp' || r.tool === 'request_url_access';
-      if (!needs || !actorId) return 'accept';
+      if (!agentApprovalNeeded(r, approvalMode, !!opts.interactive) || !actorId) return 'accept';
       const wait = waitForApproval(actorId, thread!.id, opts.signal);
       const cur = steps.get(r.stepId);
       emitStep({ id: r.stepId, tool: r.tool, status: 'waiting', label: 'Awaiting your approval', detail: cur?.detail, refs: cur?.refs, approval: { id: wait.id, ...r.payload } });
@@ -873,21 +877,58 @@ export function consumeApprovedCall(runId: string, key: string | string[]): bool
 }
 
 /**
- * 2026-11-17 PLAN-20261117-01 E1 결함 수정(Mac QA): notify_me 발송 자격을 실행 기록에서 한 번만 선점(consumeApprovedCall과 같은 CAS).
- * 이미 보냈거나·실행이 없거나·payload를 못 읽거나·5번 충돌하면 false(발송 안 함, fail closed). 다른 payload 칸은 그대로 둔다.
+ * 2026-11-17 PLAN-20261117-01 E1 결함 수정(Mac QA msg_cd9ac04abae3·msg_494116d1535e): notify_me 발송 자격을 **계보 루트 행**에서 한 번만 선점.
+ * 계보 = parent_run_id를 따라 올라가되 같은 space·같은 agent일 때만(다른 agent = call_agent 하위 실행이면 거기서 끊고 자기가 루트).
+ * parent_run_id·agent_id·space_id는 insertRun에서만 쓰고 이후 갱신하는 곳이 없음(updateRun 호출·UPDATE 문 확인) → 실행 뒤 불변.
+ * 부모 누락·다른 space·순환·깊이 32 초과·payload 읽기 실패·계보 어느 행에든 기존 notifyMeSent → false(발송 0, fail closed).
+ * 루트 payload에 consumeApprovedCall과 같은 CAS(읽은 값 조건 UPDATE, 다른 칸 보존, 5번 충돌 → false).
  */
+type LineageRow = { id: string; agent_id: string; space_id: string; parent_run_id: string | null; payload: string | null };
+const LINEAGE_MAX = 32;
+function readLineage(runId: string): LineageRow[] | null {
+  const get = db.prepare('SELECT id, agent_id, space_id, parent_run_id, payload FROM agent_runs WHERE id = ?');
+  const start = get.get(runId) as LineageRow | undefined;
+  if (!start) return null;
+  const rows = [start];
+  const seen = new Set([start.id]);
+  let cur = start;
+  while (cur.parent_run_id) {
+    if (rows.length > LINEAGE_MAX) return null;
+    const parent = get.get(cur.parent_run_id) as LineageRow | undefined;
+    if (!parent) return null;
+    if (parent.space_id !== start.space_id) return null;
+    if (parent.agent_id !== start.agent_id) break;
+    if (seen.has(parent.id)) return null;
+    seen.add(parent.id);
+    rows.push(parent);
+    cur = parent;
+  }
+  return rows;
+}
+function parsePayload(raw: string | null): RunPayload | null {
+  if (raw == null) return {};
+  try {
+    const v = JSON.parse(raw);
+    return v && typeof v === 'object' && !Array.isArray(v) ? (v as RunPayload) : null;
+  } catch {
+    return null;
+  }
+}
 export function claimNotifyMe(runId: string): boolean {
   try {
     for (let i = 0; i < 5; i++) {
-      const row = db.prepare('SELECT payload FROM agent_runs WHERE id = ?').get(runId) as { payload: string | null } | undefined;
-      if (!row) return false;
-      const p = row.payload == null ? {} : (json(row.payload, null as unknown as RunPayload) as RunPayload | null);
-      if (!p || typeof p !== 'object') return false;
-      if (p.notifyMeSent) return false;
+      const rows = readLineage(runId);
+      if (!rows) return false;
+      for (const r of rows) {
+        const p = parsePayload(r.payload);
+        if (!p || p.notifyMeSent) return false;
+      }
+      const root = rows[rows.length - 1];
+      const p = parsePayload(root.payload)!;
       const next = JSON.stringify({ ...p, notifyMeSent: Date.now() });
-      const ok = row.payload == null
-        ? db.prepare('UPDATE agent_runs SET payload = ? WHERE id = ? AND payload IS NULL').run(next, runId).changes === 1
-        : db.prepare('UPDATE agent_runs SET payload = ? WHERE id = ? AND payload = ?').run(next, runId, row.payload).changes === 1;
+      const ok = root.payload == null
+        ? db.prepare('UPDATE agent_runs SET payload = ? WHERE id = ? AND payload IS NULL').run(next, root.id).changes === 1
+        : db.prepare('UPDATE agent_runs SET payload = ? WHERE id = ? AND payload = ?').run(next, root.id, root.payload).changes === 1;
       if (ok) return true;
     }
     return false;
