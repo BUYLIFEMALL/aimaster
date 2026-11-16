@@ -1,3 +1,4 @@
+import { IS_STANDALONE } from "@/lib/deployment";
 // cron-job.org REST API(https://docs.cron-job.org/rest-api.html) — 회원 본인 cron-job.org 계정으로 예약 발행 실행(2026-10-19, v1.19).
 // 지침: 루트 docs/SCHEDULER_POLICY.md. 회원이 본인 API 키를 넣으면 1분마다 "회원 전용 실행 주소"를 부르는 작업을 그 계정에 만든다.
 // 머리글에는 회원 전용 토큰을 넣는다(사이트 비밀값 CRON_SECRET은 절대 넣지 않는다). 기준 구현: threads-content-ops/lib/cronJobOrg.ts(이 파일은 그 사본에 주소·작업 이름만 바꿈).
@@ -5,7 +6,8 @@
 
 const API_BASE = "https://api.cron-job.org";
 export const MEMBER_DISPATCH_PATH = "/api/posts/dispatch-member";
-export const CRON_JOB_TITLE = "AIMaster Threads 포스팅 예약 발행(1분)";
+// 설치 키트(배포판)는 수강생 cron-job.org에 「AIMaster」 이름이 남지 않게 한다(지침 DISTRIBUTION_KIT_GUIDE §3)
+export const CRON_JOB_TITLE = IS_STANDALONE ? "Threads 포스팅 예약 발행(1분)" : "AIMaster Threads 포스팅 예약 발행(1분)";
 
 export type CronJobSummary = {
   jobId: number;

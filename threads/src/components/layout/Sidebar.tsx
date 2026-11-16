@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOutAction } from "@/lib/actions/auth";
 import { APP_VERSION } from "@/lib/version";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 const OVERVIEW_ITEM = { href: "/dashboard", icon: "🏠", label: "대시보드" };
 
@@ -215,12 +216,15 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
               </span>
             </div>
             <p className="text-[11px] text-neutral-400 font-medium">Meta Threads Auto Posting</p>
+            {/* 독립 운영(배포 키트)에서는 AIMaster 카탈로그 링크를 숨긴다 */}
+            {!IS_STANDALONE && (
             <a
               href="https://www.buylife.xyz/programs"
               className="mt-2 inline-block text-[11px] text-neutral-400 hover:text-neutral-200 transition-colors"
             >
               ← 다른 프로그램 보기
             </a>
+            )}
           </div>
 
           {/* 메인 네비게이션 */}

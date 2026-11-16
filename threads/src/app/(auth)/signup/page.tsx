@@ -1,9 +1,11 @@
 import Link from "next/link";
-
-const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
+import { redirect } from "next/navigation";
+import { IS_STANDALONE, MAIN_SITE_URL } from "@/lib/deployment";
 
 // 회원가입은 AIMaster에서만 받는다 — 모든 AI 프로그램은 AIMaster 계정/구독 권한을 공유한다.
 export default function SignupPage() {
+  // 독립 운영 모드(수강생 배포 키트): 가입은 로그인 화면의 [회원가입] 탭에서 받는다.
+  if (IS_STANDALONE) redirect("/login");
   return (
     <div className="rounded-lg border border-neutral-200 bg-white p-6 text-center">
       <h2 className="mb-2 text-lg font-medium text-neutral-900">회원가입은 AIMaster에서 진행됩니다</h2>

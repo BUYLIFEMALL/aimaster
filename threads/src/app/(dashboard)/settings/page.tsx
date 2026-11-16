@@ -6,7 +6,8 @@ import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { PhotoKeyCheckButton } from "@/components/settings/PhotoKeyCheckButton";
 import { Button } from "@/components/ui/Button";
 import { connectThreadsAccountAction, connectThreadsAccountNewCallbackAction, disconnectThreadsAccountAction } from "@/lib/actions/accounts";
-import { THREADS_REDIRECT_NEW, THREADS_REDIRECT_OLD } from "@/lib/oauthRedirect";
+import { SITE_ORIGIN, THREADS_REDIRECT_NEW, THREADS_REDIRECT_OLD } from "@/lib/oauthRedirect";
+import { IS_STANDALONE } from "@/lib/deployment";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import { CopyAddress } from "@/components/settings/CopyAddress";
 import { ThreadsMetaAddressSummary } from "@/components/settings/ThreadsMetaAddressSummary";
@@ -76,10 +77,10 @@ export default async function SettingsPage({
         </div>
       )}
 
-      {/* 제거·삭제 콜백은 threads-affiliate-poster가 이 프로그램 데이터(threads_accounts)까지 처리한다 */}
+      {/* 제거·삭제 콜백: 운영은 threads-affiliate-poster가 이 프로그램 데이터(threads_accounts)까지 처리하고, 독립 운영(배포 키트)은 이 사이트 자체 경로를 쓴다 */}
       <ThreadsMetaAddressSummary
-        uninstallUrl="https://threads-affiliate-poster.buylife.xyz/api/threads/uninstall"
-        deleteUrl="https://threads-affiliate-poster.buylife.xyz/api/threads/delete"
+        uninstallUrl={IS_STANDALONE ? `${SITE_ORIGIN}/api/threads/uninstall` : "https://threads-affiliate-poster.buylife.xyz/api/threads/uninstall"}
+        deleteUrl={IS_STANDALONE ? `${SITE_ORIGIN}/api/threads/delete` : "https://threads-affiliate-poster.buylife.xyz/api/threads/delete"}
       />
 
       <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
@@ -217,8 +218,9 @@ export default async function SettingsPage({
         <div className="mb-3">
           <h2 className="text-sm font-bold text-neutral-900">⏰ 예약 발행</h2>
           <p className="text-xs text-neutral-500">
-            예약한 글을 정한 시각에 자동으로 올리는 방식을 고릅니다. 기본은 「AIMaster 기본(Vercel)」이라 따로 할 일이 없고,
-            본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요. 예약은 새 게시글 작성·수정 화면에서 하고, 즉시 게시는 방식과 상관없이 됩니다.
+            {IS_STANDALONE
+              ? "예약한 글을 정한 시각에 자동으로 올리는 방식을 고릅니다. 기본은 「내 cron-job.org」입니다(Vercel 무료 요금제는 하루 1번만 실행돼 예약에 쓸 수 없음). 아래에 cron-job.org 키를 넣고 고르세요."
+              : "예약한 글을 정한 시각에 자동으로 올리는 방식을 고릅니다. 기본은 「AIMaster 기본(Vercel)」이라 따로 할 일이 없고, 본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요."} 예약은 새 게시글 작성·수정 화면에서 하고, 즉시 게시는 방식과 상관없이 됩니다.
           </p>
         </div>
         <SchedulerModePicker initialMode={scheduler.mode} platformAvailable={scheduler.platformAvailable} hasKey={scheduler.hasKey} />
@@ -235,6 +237,8 @@ export default async function SettingsPage({
         />
       </section>
 
+      {/* 매뉴얼은 AIMaster 메인 사이트 글이라 독립 운영(배포 키트)에서는 숨긴다 — 배포판 안내는 KIT/README.md */}
+      {!IS_STANDALONE && (
       <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
         <div className="mb-4">
           <h2 className="text-sm font-bold text-neutral-900">📖 연동 매뉴얼</h2>
@@ -249,6 +253,7 @@ export default async function SettingsPage({
           ))}
         </div>
       </section>
+      )}
     </div>
   );
 }

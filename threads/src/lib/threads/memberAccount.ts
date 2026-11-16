@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getMemberAccount, saveMemberAccount } from "@/lib/memberIntegrations";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 // 회원 연동 정보 공용 저장 ②단계 시범(v1.21, 2026-10-20 — 루트 docs/MEMBER_INTEGRATIONS.md).
 // Threads 계정은 공용 표(member_platform_accounts)를 먼저 보고, 없으면 이 프로그램 표(threads_accounts)를 본다.
@@ -22,8 +23,9 @@ export type ThreadsAccountForUser = {
 
 export async function getThreadsAccountForUser(userId: string): Promise<ThreadsAccountForUser | null> {
   const admin = createAdminClient();
-  const shared = await getMemberAccount(admin, userId, "threads", { needScopes: THREADS_PUBLISH_SCOPES });
-  if (shared.status === "ok" && !shared.account.needsReconnect) {
+  // 독립 운영(배포 키트)에는 공용 연결 표(member_platform_accounts)가 없다 — 이 프로그램 표만 본다.
+  const shared = IS_STANDALONE ? null : await getMemberAccount(admin, userId, "threads", { needScopes: THREADS_PUBLISH_SCOPES });
+  if (shared && shared.status === "ok" && !shared.account.needsReconnect) {
     return {
       threads_user_id: shared.account.externalId,
       username: shared.account.username,
@@ -51,6 +53,7 @@ export async function saveSharedThreadsAccount(input: {
   tokenExpiresAt: string;
   appId: string;
 }) {
+  if (IS_STANDALONE) return;
   const { error } = await saveMemberAccount(createAdminClient(), {
     userId: input.userId,
     platform: "threads",
@@ -67,5 +70,6 @@ export async function saveSharedThreadsAccount(input: {
 
 /** 연결 해제 — 공용 표의 Threads 계정도 지운다(남겨 두면 해제해도 계속 연결된 상태로 보임) */
 export async function deleteSharedThreadsAccount(userId: string) {
+  if (IS_STANDALONE) return;
   await createAdminClient().from("member_platform_accounts").delete().eq("user_id", userId).eq("platform", "threads");
 }

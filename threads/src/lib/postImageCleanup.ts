@@ -5,6 +5,7 @@
 // 그 뒤 같은 「안 쓰이는 파일」 규칙으로 파일을 지운다. 초안·예약·게시 중·실패 글은 손대지 않는다.
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { loadRetentionExemptIds } from "@/lib/retentionExempt";
+import { IS_STANDALONE } from "@/lib/deployment";
 import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog";
 
 export const POST_IMAGE_BUCKET = "post-images";
@@ -60,7 +61,8 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export async function cleanupPostImages(admin: SupabaseClient, now = Date.now()): Promise<{ members: number; removed: number; kept: number; postsCleared: number }> {
   // 1단계: 게시 완료 30일 지난 글의 사진 칸에서 이 버킷 주소를 뺀다(실패한 글은 그대로 → 그 파일은 아래에서 안 지워짐)
   // 30일 삭제 예외 회원(관리자·시험 계정, 2026-11-03)은 사진 칸·파일 모두 손대지 않는다. 목록을 못 읽으면 오류로 멈춘다.
-  const exempt = await loadRetentionExemptIds(admin);
+  // 독립 운영(배포 키트)에는 AIMaster profiles 표가 없다 — 예외 회원 없이 정리한다.
+  const exempt = IS_STANDALONE ? new Set<string>() : await loadRetentionExemptIds(admin);
   const { data: oldPosts, error: oldError } = await admin.from("posts").select("id, user_id, status, created_at, image_url").eq("status", "published").not("image_url", "is", null);
   if (oldError) throw new Error(`posts 읽기 실패: ${oldError.message}`);
   let postsCleared = 0;
@@ -79,7 +81,8 @@ export async function cleanupPostImages(admin: SupabaseClient, now = Date.now())
   const used = referencedPaths((posts ?? []).map((p: { image_url: string | null }) => p.image_url));
   // 2026-11-14: 이 버킷은 쓰레드 쇼핑제휴(tap_posts)·네이버 카페(ncafe_posts)도 같은 <회원>/ 폴더에 쓴다.
   // 그 글들이 가리키는 파일도 「쓰이는 파일」로 보고 남긴다(그 파일은 각 프로그램의 30일 정리가 지운다). 못 읽으면 아무것도 지우지 않는다.
-  for (const table of SHARED_BUCKET_TABLES) {
+  // 독립 운영(배포 키트)에는 다른 프로그램 표가 없다 — 이 프로그램 글만 본다.
+  for (const table of IS_STANDALONE ? [] : SHARED_BUCKET_TABLES) {
     const { data: rows, error } = await admin.from(table).select("image_url, video_url");
     if (error) throw new Error(`${table} 읽기 실패: ${error.message}`);
     for (const path of referencedPaths((rows ?? []).flatMap((r: { image_url: string | null; video_url: string | null }) => [r.image_url, r.video_url]))) used.add(path);
@@ -106,6 +109,7 @@ export async function cleanupPostImages(admin: SupabaseClient, now = Date.now())
       }
     }
   }
-  await logCleanupUsage(admin, "auto-threads-posting", counts);
+  // 독립 운영(배포 키트)에는 AIMaster 사용 기록 표가 없다.
+  if (!IS_STANDALONE) await logCleanupUsage(admin, "auto-threads-posting", counts);
   return { members, removed, kept, postsCleared };
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { APP_VERSION } from "@/lib/version";
+import { THREADS_REDIRECT_NEW } from "@/lib/oauthRedirect";
 
 export default function GuidePage() {
   return (
@@ -144,7 +145,7 @@ export default function GuidePage() {
             <p className="text-neutral-400 leading-relaxed">
               Meta 콘솔의 유효한 OAuth 리디렉션 URI 목록에 아래 주소를 등록합니다:
               <code className="block mt-1 rounded bg-black/40 px-2 py-1 text-[10px] text-amber-300 font-mono break-all">
-                https://auto-threads-posting.buylife.xyz/api/threads/callback
+                {THREADS_REDIRECT_NEW}
               </code>
             </p>
           </div>

@@ -1,0 +1,37 @@
+{
+  "title": "Threads 포스팅 자동화",
+  "shortName": "threads-posting",
+  "description": "Threads 글감 수집·AI 글+이미지 생성·즉시/예약 게시(회원 본인 Meta 앱·cron-job.org)",
+  "callbackPath": "/api/threads/callback",
+  "callbackLabel": "Meta(Threads) 앱 리디렉션 콜백 주소",
+  "authRedirectPath": "/api/auth/confirm",
+  "checkTable": "atp_member_scheduler",
+  "nextStep": "KIT/README.md 의 Meta(Threads) 앱 만들기 단계부터 진행하세요.",
+  "exclude": [
+    "scripts",
+    "README.md",
+    "SETUP_GUIDE.md",
+    "vercel.json",
+    ".env.example"
+  ],
+  "overrides": {
+    ".env.example": "KIT/env.example",
+    "vercel.json": "KIT/vercel.json"
+  },
+  "schemaCheckIgnore": [
+    "profiles",
+    "programs",
+    "usage_logs",
+    "subscriptions",
+    "user_program_access",
+    "member_grades",
+    "member_platform_accounts",
+    "integration_catalog",
+    "tap_posts",
+    "ncafe_posts"
+  ],
+  "schema": {
+    "mode": "static"
+  },
+  "extraEnv": []
+}

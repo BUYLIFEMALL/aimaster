@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { pauseScheduledPublishing, resumeScheduledPublishing } from "@/lib/actions/scheduler";
 import type { MemberSchedulerState } from "@/lib/posts/memberScheduler";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 // 게시글 목록 위 「예약 발행 상태」 줄(v1.19, 2026-10-19 — 기준: threads-affiliate-poster SchedulePublishingControl). 예약은 글마다 하고, 여기서는 전체 일시정지·재개만 한다.
 // 실행 방식(Vercel 기본 / 내 cron-job.org)은 설정에서 고르고, cron-job.org 작업 켜기/끄기는 프로그램이 자동으로 한다. 지침: 루트 docs/SCHEDULER_POLICY.md
 const STATE_TEXT: Record<MemberSchedulerState["state"], { label: string; tone: string; help: string }> = {
-  platform: { label: "AIMaster 기본(Vercel) 실행 중", tone: "text-emerald-700", help: "예약 시각이 되면 사이트의 Vercel 예약 호출이 5분 안에 자동으로 발행합니다." },
+  platform: { label: IS_STANDALONE ? "Vercel 예약 호출 실행 중" : "AIMaster 기본(Vercel) 실행 중", tone: "text-emerald-700", help: "예약 시각이 되면 사이트의 Vercel 예약 호출이 5분 안에 자동으로 발행합니다." },
   running: { label: "내 cron-job.org 실행 중", tone: "text-emerald-700", help: "예약 시각이 되면 내 cron-job.org가 자동으로 발행합니다." },
   idle: { label: "내 cron-job.org 대기", tone: "text-neutral-700", help: "남은 예약이 없어 쉬는 중입니다. 글을 예약하면 자동으로 켜집니다." },
   paused: { label: "일시정지됨", tone: "text-amber-700", help: "예약한 글이 있어도 발행하지 않습니다. 재개하면 다시 발행합니다(24시간 넘게 지난 예약은 올리지 않음)." },

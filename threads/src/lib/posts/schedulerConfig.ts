@@ -10,8 +10,8 @@ export const SCHEDULER_TABLE = "atp_member_scheduler";
 export const SCHEDULER_TOKEN_PREFIX = "atp";
 /** 관리자가 Vercel 방식을 끌 때 쓰는 환경변수 이름(운영: off면 꺼짐 / 설치 키트: on일 때만 켜짐) */
 export const PLATFORM_SCHEDULER_ENV = "ATP_PLATFORM_SCHEDULER";
-/** 설치 키트(배포판) 모드 — 이 프로그램은 운영 전용 */
-export const SCHEDULER_IS_STANDALONE = false;
+/** 설치 키트(배포판) 모드 — 수강생 배포 키트(2026-11-16)에서는 기본 방식이 회원 본인 cron-job.org */
+export { IS_STANDALONE as SCHEDULER_IS_STANDALONE } from "@/lib/deployment";
 /** 회원 cron-job.org가 부르는 실행 주소 */
 export { MEMBER_DISPATCH_PATH } from "./cronJobOrg";
 

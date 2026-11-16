@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { cookieDomainForHost } from "@/lib/supabase/cookieDomain";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 const PUBLIC_PATHS = ["/login", "/signup"];
 
@@ -10,9 +11,12 @@ const NEW_ORIGIN = "https://auto-threads-posting.buylife.xyz";
 
 export async function proxy(request: NextRequest) {
   const reqHost = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "";
-  if (reqHost.endsWith(".vercel.app") && !request.nextUrl.pathname.startsWith("/api")) {
+  // 독립 운영 복사본(수강생 *.vercel.app)에서는 buylife.xyz로 보내지 않는다(수강생 배포 키트).
+  if (!IS_STANDALONE && reqHost.endsWith(".vercel.app") && !request.nextUrl.pathname.startsWith("/api")) {
     return NextResponse.redirect(`${NEW_ORIGIN}${request.nextUrl.pathname}${request.nextUrl.search}`, 308);
   }
+  // 데이터 삭제 안내(Meta 삭제 콜백 확인 주소, 독립 운영 모드)는 로그인 없이 연다.
+  if (request.nextUrl.pathname.startsWith("/data-deletion")) return NextResponse.next();
   const cookieDomain = cookieDomainForHost(reqHost);
   // 딥링크로 바로 들어왔다가 로그인이 필요해서 /login으로 튕겨나갈 때, 로그인 후 원래
   // 보려던 그 페이지로 바로 돌아올 수 있게 현재 경로를 헤더에 실어둔다. 이 proxy가 대부분의

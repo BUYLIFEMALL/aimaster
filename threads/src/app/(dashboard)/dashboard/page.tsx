@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/posts/StatusBadge";
 import { dispatchScheduledPostsAction } from "@/lib/actions/posts";
 import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
 import type { PostStatus } from "@/types/post";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -26,7 +27,8 @@ export default async function DashboardPage() {
     // short_desc)를 그대로 가져와 보여준다(naver-cafe-poster에서 먼저 만든 패턴, 2026-09-13).
     // 이 프로젝트의 database.types.ts는 아직 programs 테이블을 포함하지 않아(루트 공용 테이블이라
     // 타입 재생성이 안 돼 있음) 결과 타입을 직접 지정한다.
-    supabase.from("programs").select("description, short_desc").eq("slug", "auto-threads-posting").maybeSingle() as unknown as Promise<{
+    // 독립 운영(배포 키트)에는 AIMaster programs 표가 없다 — 소개 박스 없이 그린다.
+    (IS_STANDALONE ? Promise.resolve({ data: null }) : supabase.from("programs").select("description, short_desc").eq("slug", "auto-threads-posting").maybeSingle()) as unknown as Promise<{
       data: { description: string | null; short_desc: string | null } | null;
     }>,
   ]);
