@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 04:05:58 KST",
+  "checkedAt": "2026-11-17 04:12:33 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4259,12 +4259,12 @@
       "parent_task_id": "B2B-20261117-03",
       "owner": "CC-B2B-BACK-01",
       "title": "Lab0102 안전fixture·실행패키지 준비",
-      "status": "running",
-      "delivery": "acknowledged",
-      "sha": "436ccc1bb (cleanup패키지·실Lab미실행)",
-      "evidence": "msg_ed745466e467 / 375da3a8 / Masterrollbackhead직접대조",
-      "next": "1400/500주문manifest/보존guard30시험반환. exchange DELETE가order락보다앞인잠금역전·precheck후새비시험행경계 추가보완지시(전체teardown후보)→새hash·Mac·별도실행,실Lab정리0",
-      "lastReviewedAt": "2026-11-16T19:05:56.297Z"
+      "status": "ready_review",
+      "delivery": "returned",
+      "sha": "f3d66f561 (cleanup) / rollback b5c3613c5ae8e2ba9acf0705836545eb8a1d4ec437eec9d4ff4bf097246d7e11",
+      "evidence": "msg_ee34b6e07886 / 작성자PG34·동시insert436빨강→새중단",
+      "next": "첫쓰기전FXorder→exchange ACCESS EXCLUSIVE/비시험재검사·reseller락/manifest 보완반환→Mac새정적경계마감. 실Lab정리/추가확정/0103은별도패키지승인전0",
+      "lastReviewedAt": "2026-11-16T19:12:30.957Z"
     },
     {
       "task_id": "B2B-20261117-07",
