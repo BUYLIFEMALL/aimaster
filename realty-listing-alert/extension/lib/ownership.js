@@ -13,21 +13,44 @@ export const ACCOUNT_KEYS = [
 /** 기기 공용 칸 — 계정을 바꿔도 남긴다(시험에서 ACCOUNT_KEYS와 겹치지 않는지 확인) */
 export const DEVICE_KEYS = ["deviceId", "pagesDay", "limitDate", "limitNoticeDate", "stoppedDate", "tradeCache", "complexInfo", "rulesCache", "tick", "nextDueAt"];
 
+/** 소유 근거 없는 옛 기록(수정 전 형식)을 지우지 않고 따로 보관하는 칸(2026-11-17 Master 지시) — 계정 전환 때도 지우지 않고,
+ *  어디서도 읽지 않는다(병합·전송·알림·AI·웹 전달 없음). 복구는 소유 확인 뒤 별도 경로로. */
+export const LEGACY_KEY = "legacyQuarantine";
+
+/** 격리 항목 추가: [{ at, ownerUnknown: true, hintEmail(미검증 메타), keys: { 원키: 원값 } }…] */
+export function addQuarantine(prev, snapshot, meta = {}) {
+  const list = Array.isArray(prev) ? prev : [];
+  return [...list, { at: meta.at || null, ownerUnknown: true, hintEmail: meta.hintEmail ? normEmail(meta.hintEmail) : null, keys: { ...(snapshot || {}) } }];
+}
+
+/** 저장 뒤 다시 읽은 격리 칸이 쓰려던 값과 같은가(같아야 원키를 지운다) */
+export function sameQuarantine(saved, expected) {
+  try {
+    // 저장소가 객체 키 순서를 바꿔도 같은 값으로 본다(키를 정렬해 비교) — 순서 차이로 수집이 계속 멈추지 않게
+    const canon = (v) => JSON.stringify(v ?? null, (_k, x) => (x && typeof x === "object" && !Array.isArray(x) ? Object.fromEntries(Object.keys(x).sort().map((y) => [y, x[y]])) : x));
+    return canon(saved) === canon(expected);
+  } catch {
+    return false;
+  }
+}
+
 export function normEmail(e) {
   return String(e ?? "").trim().toLowerCase();
 }
 
 /**
  * 연결 교체 판정. newEmail = 새 연결 코드로 서버에 물은 계정(실패면 빈 값).
- * 기존 소유자는 dataOwner, 없으면(옛 형식) 예전 connectedEmail로 본다.
- * 반환: { action: "reject", reason: "running"|"whoami" } | { action: "keep"|"wipe", owner }
+ * 기존 소유자는 dataOwner. 없으면 옛 형식 → legacy(격리 보존).
+ * 반환: { action: "reject", reason: "running"|"whoami" } | { action: "keep"|"wipe"|"legacy", owner }
  */
-export function connectPlan({ newEmail, dataOwner, prevConnectedEmail, busy }) {
+export function connectPlan({ newEmail, dataOwner, busy }) {
   if (busy) return { action: "reject", reason: "running" };
   const next = normEmail(newEmail);
   if (!next) return { action: "reject", reason: "whoami" }; // 확인 실패는 아무것도 바꾸지 않는다(비파괴·차단)
-  const prev = normEmail(dataOwner) || normEmail(prevConnectedEmail);
-  return { action: prev && prev === next ? "keep" : "wipe", owner: next };
+  const prev = normEmail(dataOwner);
+  // 소유 표시가 없으면(옛 형식) 계정이 같아 보여도 근거가 없으니 격리 보존(legacy) 뒤 새로 시작
+  if (!prev) return { action: "legacy", owner: next };
+  return { action: prev === next ? "keep" : "wipe", owner: next };
 }
 
 /**

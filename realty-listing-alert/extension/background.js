@@ -13,7 +13,7 @@ import { compareToTrades, gapText } from "./lib/tradeCompare.js";
 import { findBargains } from "./lib/bargain.js";
 import { makeAiAnalysis, makeAiSummary } from "./lib/aiSummary.js";
 import { findStale } from "./lib/stale.js";
-import { ACCOUNT_KEYS, connectPlan, normEmail, sameOwnerGen } from "./lib/ownership.js";
+import { ACCOUNT_KEYS, LEGACY_KEY, addQuarantine, connectPlan, normEmail, sameOwnerGen, sameQuarantine } from "./lib/ownership.js";
 import { WEEKLY_AI_MAX, WEEKLY_URL, buildWeeklyPrompt, buildWeeklyReport, shouldSendWeekly } from "./lib/weekly.js";
 
 const WEB = "https://realty-listing-alert.buylife.xyz";
@@ -48,6 +48,8 @@ const get = (keys) => chrome.storage.local.get(keys);
 const set = (obj) => chrome.storage.local.set(obj);
 
 async function addLog(text) {
+  // QA17-003: 진행 중 회차의 소유 세대가 바뀌었으면(다른 계정으로 전환) 새 계정 기록에 옛 회차 줄을 남기지 않는다
+  if (runOwner && !sameOwnerGen(runOwner, await ownerState())) return;
   const { log = [] } = await get("log");
   await set({ log: [...log, `${new Date().toISOString()} ${text}`].slice(-100) });
 }
@@ -107,6 +109,7 @@ async function reportStatus(result, count, error) {
 let busy = false;
 // QA17-003(2026-11-17): 계정 연결 교체는 한 번에 하나씩(connectChain), 교체 중에는 수집을 시작하지 않는다(connecting)
 let connecting = false;
+let runOwner = null; // 진행 중 회차의 { owner, gen } — addLog 재확인용
 let connectChain = Promise.resolve();
 
 /** 새 연결 코드로 서버에 계정을 묻는다(저장 전 확인, 8초 제한). 실패면 null */
@@ -127,15 +130,35 @@ async function ownerState() {
   const { dataOwner, ownerGen = 0 } = await get(["dataOwner", "ownerGen"]);
   return { owner: dataOwner || "", gen: ownerGen };
 }
-/** 소유자가 아직 없으면(옛 형식) 지금 연결 계정으로 정한다 — 수집 시작 때만 */
+/**
+ * 소유 근거 없는 옛 기록을 격리 칸(LEGACY_KEY)에 원값 그대로 옮긴다(Master 지시: 삭제·자동 귀속 금지).
+ * 격리 칸 저장을 다시 읽어 같은지 확인한 뒤에만 원키를 지운다. 저장 실패·불일치면 원키를 그대로 두고 false(비파괴·차단).
+ */
+async function quarantineLegacy(hintEmail) {
+  const snap = await get(ACCOUNT_KEYS);
+  if (!Object.keys(snap || {}).length) return true;
+  const { [LEGACY_KEY]: prev } = await get(LEGACY_KEY);
+  const next = addQuarantine(prev, snap, { at: new Date().toISOString(), hintEmail });
+  try {
+    await set({ [LEGACY_KEY]: next });
+  } catch {
+    return false;
+  }
+  const saved = (await get(LEGACY_KEY).catch(() => ({})))?.[LEGACY_KEY];
+  if (!sameQuarantine(saved, next)) return false;
+  await chrome.storage.local.remove(ACCOUNT_KEYS);
+  return true;
+}
+/** 소유자가 아직 없으면(옛 형식) 옛 기록을 격리 보존한 뒤 지금 연결 계정으로 새로 시작 — 수집 시작 때 */
 async function ensureOwner() {
   const s = await ownerState();
   if (s.owner) return s;
   const { connectedEmail } = await get("connectedEmail");
   const email = normEmail(connectedEmail || (await api("/api/extension/whoami").catch(() => null))?.email);
   if (!email) return s;
-  await set({ dataOwner: email, ownerGen: s.gen });
-  return { owner: email, gen: s.gen };
+  if (!(await quarantineLegacy(connectedEmail))) return { ...s, quarantineFailed: true };
+  await set({ dataOwner: email, ownerGen: s.gen + 1 });
+  return { owner: email, gen: s.gen + 1 };
 }
 class OwnerChanged extends Error {}
 /** 저장 직전 소유자 재확인 — 수집 시작 뒤 계정이 바뀌었으면 이번 회차 기록을 저장하지 않는다 */
@@ -174,7 +197,9 @@ async function runCollection(trigger) {
   await set({ running: { startedAt, trigger, done: 0, total: 0 } });
   try {
     const ownerAtStart = await ensureOwner();
+    if (ownerAtStart.quarantineFailed) return { ok: false, error: "예전 기록을 따로 보관하지 못해 수집을 멈췄어요(저장 공간 확인). 기록은 그대로 있어요." };
     if (!ownerAtStart.owner) return { ok: false, error: "연결한 계정을 확인하지 못했어요. 웹에서 다시 연결해 주세요." };
+    runOwner = ownerAtStart;
     const settings = await loadSettings();
     const rules = await loadRules();
     // 시험 계정 예외면 오늘 한도 기록을 지워 예약 수집도 다시 돈다
@@ -386,6 +411,7 @@ async function runCollection(trigger) {
     return { ok: false, error: String(e.message || e) };
   } finally {
     busy = false;
+    runOwner = null;
     await set({ running: null });
   }
 }
@@ -584,13 +610,16 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
           if (busy) return reply({ ok: false, error: "수집 중에는 연결을 바꿀 수 없어요. 수집이 끝난 뒤 다시 연결해 주세요." });
           const email = await whoamiWith(msg.token);
           const { dataOwner, connectedEmail: prevEmail, ownerGen = 0 } = await get(["dataOwner", "connectedEmail", "ownerGen"]);
-          const plan = connectPlan({ newEmail: email, dataOwner, prevConnectedEmail: prevEmail, busy });
+          const plan = connectPlan({ newEmail: email, dataOwner, busy });
           if (plan.action === "reject") {
             return reply({ ok: false, error: plan.reason === "running" ? "수집 중에는 연결을 바꿀 수 없어요. 수집이 끝난 뒤 다시 연결해 주세요." : "연결한 계정을 확인하지 못했어요. 잠시 뒤 다시 연결해 주세요." });
           }
+          if (plan.action === "legacy" && !(await quarantineLegacy(prevEmail))) {
+            return reply({ ok: false, error: "예전 기록을 따로 보관하지 못해 연결을 바꾸지 않았어요(저장 공간 확인). 기록은 그대로 있어요." });
+          }
           if (plan.action === "wipe") await chrome.storage.local.remove(ACCOUNT_KEYS);
           // 어느 계정에 연결됐는지 기억(웹 「시작하기」가 로그인 계정과 대조) — 이메일만. 교체마다 세대 번호를 올려 진행 중이던 회차의 저장을 막는다
-          await set({ extToken: msg.token, connectedAt: new Date().toISOString(), connectedEmail: email, dataOwner: plan.owner, ownerGen: plan.action === "wipe" ? ownerGen + 1 : ownerGen });
+          await set({ extToken: msg.token, connectedAt: new Date().toISOString(), connectedEmail: email, dataOwner: plan.owner, ownerGen: plan.action === "keep" ? ownerGen : ownerGen + 1 });
           if (msg.closeTab && sender?.tab?.id) chrome.tabs.remove(sender.tab.id).catch(() => {});
           return reply({ ok: true, switched: plan.action === "wipe" });
         } finally {

@@ -10,15 +10,22 @@ const store = {};
 let onMsg;
 let settingsGate = null, settingsCalls = 0;
 const whoDelay = {};
+let failLegacySet = false, corruptLegacyRead = false, settingsBody = { targets: [] };
 globalThis.chrome = {
   storage: { local: {
-    get: async (k) => Object.fromEntries((Array.isArray(k) ? k : [k]).map((x) => [x, store[x]]).filter(([, v]) => v !== undefined)),
-    set: async (o) => { Object.assign(store, JSON.parse(JSON.stringify(o))); },
+    get: async (k) => {
+      const r = Object.fromEntries((Array.isArray(k) ? k : [k]).map((x) => [x, store[x]]).filter(([, v]) => v !== undefined));
+      if (corruptLegacyRead && r.legacyQuarantine) r.legacyQuarantine = [{ broken: true }];
+      return JSON.parse(JSON.stringify(r));
+    },
+    set: async (o) => { if (failLegacySet && "legacyQuarantine" in o) throw new Error("QUOTA_BYTES quota exceeded"); Object.assign(store, JSON.parse(JSON.stringify(o))); },
     remove: async (ks) => { for (const k of [].concat(ks)) delete store[k]; },
   } },
   runtime: { onMessage: { addListener: (f) => { onMsg = f; } }, onInstalled: { addListener() {} }, onStartup: { addListener() {} }, getManifest: () => ({ version: "1.45.0", version_name: "v1.45" }), getURL: (x) => x },
   alarms: { create() {}, get: async () => null, onAlarm: { addListener() {} } },
-  tabs: { create: async () => ({}), remove: async () => {} },
+  tabs: { create: async () => ({ id: 1 }), remove: async () => {} },
+  windows: { getLastFocused: async () => null },
+  debugger: { attach: async () => { throw new Error("가짜 환경: 디버거 없음"); }, detach: async () => {}, sendCommand: async () => ({}), onEvent: { addListener() {}, removeListener() {} } },
 };
 globalThis.fetch = async (url, init = {}) => {
   const tok = String(init.headers?.authorization || "").replace("Bearer ", "");
@@ -27,7 +34,7 @@ globalThis.fetch = async (url, init = {}) => {
     if (whoDelay[tok]) await new Promise((r) => setTimeout(r, whoDelay[tok]));
     return WHO[tok] ? json(200, { email: WHO[tok] }) : json(401, { error: "unauthorized" });
   }
-  if (String(url).endsWith("/api/extension/settings")) { settingsCalls++; if (settingsGate) await settingsGate; return json(200, { targets: [] }); }
+  if (String(url).endsWith("/api/extension/settings")) { settingsCalls++; if (settingsGate) await settingsGate; return json(200, settingsBody); }
   return json(200, {});
 };
 await import(pathToFileURL(EXT + "/background.js").href);
@@ -98,4 +105,48 @@ if (scenario === "switch") {
   const lr = await ask("lastResult", "b@example.com");
   out("수정 전에 이미 바뀐 기기 → 소유 표시 없는 결과는 B에 안 넘김", !JSON.stringify(lr).includes("A의 매물"), `lastResult=${JSON.stringify(lr)}`);
 }
+const canon = (v) => JSON.stringify(v, (k, x) => (x && typeof x === "object" && !Array.isArray(x) ? Object.fromEntries(Object.keys(x).sort().map((y) => [y, x[y]])) : x));
+const legacyStore = () => ({ extToken: A, connectedEmail: "a@example.com", ...aData() }); // dataOwner 없음 = 옛 형식
+const ACCT = ["lastResult", "states", "phones", "eventLog", "history", "consentAt"];
+const origSnap = () => { const d = aData(); return Object.fromEntries(ACCT.map((k) => [k, d[k]])); };
+const waitRunEnd = async () => { for (let i = 0; i < 400; i++) { await new Promise((r) => setTimeout(r, 10)); if (settingsCalls && !store.running) return; } };
+if (scenario === "legacy-connect") {
+  Object.assign(store, legacyStore(), { legacyQuarantine: [{ at: "old", ownerUnknown: true, keys: { states: { y: "더 옛 기록" } } }] });
+  const r = await send({ type: "connect", token: A });
+  const q = store.legacyQuarantine || [];
+  const sameVals = canon(q[1]?.keys) === canon(origSnap());
+  out("옛 형식 연결(같은 계정이어도) → 원값 그대로 격리·기존 격리 보존·원키 비움·새 소유자", r.ok && q.length === 2 && q[0].keys.states.y === "더 옛 기록" && q[1].ownerUnknown === true && q[1].hintEmail === "a@example.com" && sameVals && ACCT.every((k) => !(k in store)) && store.dataOwner === "a@example.com" && store.ownerGen === 1 && store.deviceId === "dev-1" && store.pagesDay?.count === 7, "격리 원값 일치=" + sameVals);
+  const lr = await ask("lastResult", "a@example.com"), st = await ask("stats", "a@example.com");
+  out("격리 자료는 웹으로 안 감(lastResult·stats)", !JSON.stringify([lr, st]).includes("A의 매물") && !JSON.stringify([lr, st]).includes("A 변동"), JSON.stringify(lr));
+} else if (scenario === "legacy-connect-quota") {
+  Object.assign(store, legacyStore()); const before = JSON.stringify(store); failLegacySet = true;
+  const r = await send({ type: "connect", token: B });
+  out("격리 저장 실패(용량) → 연결 거절·저장소 바이트 동일·새 소유자 없음", !r.ok && JSON.stringify(store) === before && !store.dataOwner, r.error);
+} else if (scenario === "legacy-connect-mismatch") {
+  Object.assign(store, legacyStore()); corruptLegacyRead = true;
+  const r = await send({ type: "connect", token: B });
+  out("격리 저장 뒤 다시 읽은 값 불일치 → 연결 거절·원키 보존·새 소유자 없음", !r.ok && ACCT.every((k) => JSON.stringify(store[k]) === JSON.stringify(origSnap()[k])) && !store.dataOwner && store.extToken === A, r.error);
+} else if (scenario === "legacy-run") {
+  Object.assign(store, legacyStore());
+  await send({ type: "collectNow" }); await waitRunEnd();
+  const q = store.legacyQuarantine || [];
+  out("옛 형식 수집 시작 → 격리 뒤 시작·원값 일치·새 소유자·원키 비움", q.length === 1 && canon(q[0].keys) === canon(origSnap()) && store.dataOwner === "a@example.com" && !store.states && !store.phones && !store.history, "격리 원값 일치=" + (canon(q[0]?.keys) === canon(origSnap())) + " 소유=" + store.dataOwner + " 격리수=" + q.length);
+} else if (scenario === "legacy-run-quota") {
+  Object.assign(store, legacyStore()); failLegacySet = true;
+  await send({ type: "collectNow" }); await new Promise((r) => setTimeout(r, 200));
+  out("옛 형식 수집·격리 실패 → 수집 안 함(설정 조회 0)·원키·소유자 그대로", settingsCalls === 0 && !store.dataOwner && ACCT.every((k) => JSON.stringify(store[k]) === JSON.stringify(origSnap()[k])), "running=" + JSON.stringify(store.running));
+} else if (scenario === "sw-restart") {
+  // A 소유로 수집 시작 → 설정 조회 대기 중 다른 서비스 워커가 B로 전환한 상황을 저장소에 직접 주입 → 풀어 줌
+  Object.assign(store, { extToken: A, connectedEmail: "a@example.com", dataOwner: "a@example.com", ownerGen: 0, ...aData() });
+  for (const k of ["lastResult", "states", "phones", "history", "eventLog"]) delete store[k];
+  settingsBody = { targets: [{ target_type: "complex", complex_no: "1", complex_name: "A의 단지", trade_types: ["A1"], enabled: true }], schedule: {} };
+  let release; settingsGate = new Promise((r) => { release = r; });
+  await send({ type: "collectNow" });
+  for (let i = 0; i < 100 && !settingsCalls; i++) await new Promise((r) => setTimeout(r, 5));
+  Object.assign(store, { extToken: B, connectedEmail: "b@example.com", dataOwner: "b@example.com", ownerGen: 1, log: ["B 시작"] });
+  release(); await waitRunEnd();
+  const leaked = ["lastResult", "states", "phones", "history", "eventLog"].filter((k) => k in store);
+  out("수집 중 계정 세대 변경(서비스 워커 재시작 가정) → 저장 0·B 기록(log)에 A 회차 줄 0", leaked.length === 0 && JSON.stringify(store.log) === JSON.stringify(["B 시작"]), "남은 칸=" + JSON.stringify(leaked) + " log=" + JSON.stringify(store.log));
+}
+
 setTimeout(() => process.exit(process.exitCode || 0), 50);
