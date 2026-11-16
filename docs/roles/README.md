@@ -31,7 +31,7 @@
 | 디자인 | [design.md](design.md) | Antigravity(`agy`) | 디자인 리뉴얼·매뉴얼 시각화 | 전체 |
 | 부동산 | [realty.md](realty.md) | Claude Code(윈도우) `claude-win-20261024-realty` | `realty-listing-alert`(새 프로그램 구현)·부동산 프로그램 | 부동산 |
 | AI 쇼핑몰 빌더 | [mall-builder.md](mall-builder.md) | Claude Code(윈도우) `claude-win-20261103-mall-builder` | AI 쇼핑몰 빌더 전담(`labs/mall-builder` 예정, 2026-11-03 주인님 지정). 쿠팡 등 마켓 연동은 담당 아님 | 이커머스 |
-| 맥미니 | [mac-mini.md](mac-mini.md) | Claude Code(맥미니) | 맥용 프로그램 개발·실물 테스트 | 맥용 |
+| 맥미니·Codex(Tester) | [mac-mini.md](mac-mini.md) · [Tester 지침](../AI_TEAM_TESTER.md) | Codex(Tester), 맥미니 — Codex(Master) 지휘 | macOS 실물·버그/동작·독립 검수·개선 제안·배정된 작은 수정 | 전체·맥용 |
 | (전담 없음) | [unassigned.md](unassigned.md) | 전담 역할이 없는 모든 세션 | 역할 없는 작업의 요약·요청·건의 공용 칸(여러 세션이 쓰므로 안전 커밋 도우미) | 전체 |
 
 > 전담 세션이 없는 카테고리(예: 쓰레드·인스타·CRM·부동산)의 프로그램을 작업하는 세션은 루트 HANDOFF에 기록한다. 주인님이 담당을 정하면 이 표에 줄을 추가한다.

@@ -1,5 +1,12 @@
 # 맥미니(테스트·디버깅·자잘한 작업 — macOS 동작 확인 중심)
 
+## Codex(Tester) 역할·지휘 체계 (2026-11-16 사용자 지정)
+
+- 담당: **Codex(Tester), 맥미니**. 작업 지휘/우선순위/통합은 **Codex(Master), CX-MASTER-01**, 최종 결정은 사용자. 기존 역할 ID mac-mini 유지. 상세 역할·가능 작업·금지 작업·검수/보고 절차는 [Tester 지침](../AI_TEAM_TESTER.md).
+- 실제 대화 ID `01a1c5a4-68b7-7c51-b919-9bc56cd17af5`, 논리 ID CX-TEST-MAC-01은 Master 등록 요청안. 공유 `/Volumes/gt1_mega/AIMaster`·macOS·ego lite. npm/install/build/dev/배포/운영DB직접쓰기/환경변수변경/예약등록은 Windows 담당에 인계. 검수만 요청된 일에서는 코드 수정하지 않음.
+- Master 최초 보고 TESTER-ROLE-20261116은 지침 §6에 준비. 실제 Master 세션/transport 식별·수신 미확인이므로 **prepared**. 팀 등록부/배정은 Master에게 요청하며, 다른 역할 파일과 Master 운영 지침은 임의로 만들거나 고치지 않음.
+
+
 ## 2026-11-16 [역할: mac-mini] 영상 v1.32 고속 실변환 통과·다음 대기
 
 - 사용자 새폴더 설치 → 웹/확장v1.32 고정ID/활성 확인, 자동 감지 「사용 중 · PC의 ffmpeg 8.1」. silent.mp4 5초/560px/40fps 고속 변환1회·다운로드1회. 실제 GIF 2,612,795B/560×315/200프레임/5.01초·전체디코드오류0/시험프레임정상. 앞선 상품영상·버전표시와 합쳐 요청검수완료, 멈추기/timeout/자동fallback 별도미검수. 증거 `_workspace/video-v132-20261116/native-check.json`·영상 IMPROVEMENTS. 비용/AI/빌드/배포/소스수정/직접DB쓰기0.
