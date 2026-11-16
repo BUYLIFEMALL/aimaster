@@ -157,6 +157,12 @@
 - 검수: 공용 코드 일치, tsc 0, 로컬 build, 사전 변환(미용실 창업→hair salon startup, 비용 정리→organize), 배포 `threads-lylvmfbc8` Ready, DB v1.32. 크롬(시험 회원): 새 글 → 무료 사진 → 「미용실 창업」 → 🔤 → hair salon startup, 메뉴 v1.32. 실제 사진 검색은 하지 않음(무료지만 필요 없음).
 - 비용: Vercel 빌드 1회(제안 범위).
 
+## 2026-11-16 🟡 미배포 대기 — 수강생 배포 키트 `Threads_Auto_Posting_Kit_v1.02` (Claude Code 윈도우 · Claude(Support) `claude-win-20261112-policy`)
+- 독립 모드 스위치 `src/lib/deployment.ts`(`NEXT_PUBLIC_STANDALONE_MODE=true`일 때만) + `KIT/` 9종 신규. 운영(AIMaster)은 변수가 없어 **동작 같음**: 새 경로 `/api/threads/uninstall`·`/delete`는 운영에서 404(운영은 쇼핑제휴가 처리), `/data-deletion`도 404, `/api/auth/confirm`은 `/login`으로.
+- 바뀐 곳: `access.ts`(로그인만·사용 기록 생략)·`actions/auth.ts`(`signUpAction`)·로그인/가입/공통 틀·`proxy.ts`(옛 주소 이동·`/data-deletion` 로그인 없이)·`oauthRedirect.ts`(자기 주소)·콜백(독립 모드는 옛 주소 넘김 안 함 — 무한 이동 방지)·설정(제거·삭제 콜백 주소·매뉴얼 숨김·예약 문구)·사이드바(카탈로그 링크 숨김)·대시보드(`programs` 조회 생략)·매뉴얼 콜백 주소·`memberAccount.ts`(공용 표 생략)·`dispatch.ts`(핸드폰 판정 생략)·`schedulerConfig.ts`(키트 기본 cron-job.org)·`cronJobOrg.ts`(작업 이름 AIMaster 제거)·`postImageCleanup.ts`(예외 회원·다른 프로그램 표·사용 기록 생략)·새 `lib/threads/signedRequest.ts`.
+- 검수: tsc 0, 포장(비밀값·DB 대조), Lab 임시 스키마 실행, 새 폴더 build·화면/경로 확인. **다음에 이 프로그램을 배포하는 CLI는 버전 +0.01하고 이 항목을 「배포됨(버전)」으로**. 참고: `src/lib/version.ts`의 v1.34 미커밋은 11-06 배포 세션 몫(이번에 건드리지 않음).
+- 키트 다시 포장: `python scripts/make_lecture_kit.py --version v1.03 --name Threads_Auto_Posting_Kit --programs threads --out D:\PDS\AIMater_KIT\`(번호 +0.01, 같은 번호 덮어쓰기 금지).
+
 ## 2026-11-06 v1.34 ✅ 배포 — 30일 보관 열외(공유 버킷 `post-images` 보호) (Claude Code 윈도우 · 세션 `claude-win-20261106-ytreply`, 연속 배포 4/4)
 - 함께 나감: `567567979`(맥미니 11-03) 30일 게시 이미지 정리(`src/lib/postImageCleanup.ts`, 실행 주소 `/api/cleanup-images`)가 예외 회원(`profiles.retention_exempt`, 관리자·시험 계정)의 파일을 건너뛰고 목록을 못 읽으면 멈춤(`src/lib/retentionExempt.ts`). 버전 커밋 `596e9c8a6`.
 - 검수: tsc·로컬 build 통과(자동 시험 없음). 배포 `threads-j36heo93t` Ready·운영 주소 `auto-threads-posting.buylife.xyz` 연결, 정리 주소 가짜 토큰 401, `/login` 200, DB(slug `auto-threads-posting`) v1.34. ego lite(작업 공간 107, 시험 계정) 대시보드 v1.34.

@@ -201,6 +201,7 @@
 | `ALLA_AI_Kit` | **v1.05 (최종본)** | 2026-10-23 | 다른 계정 설치용 최종본 — `schema.sql`을 Lab DB에서 임시 스키마로 실행·되돌리기 검증(오류 0), 마법사 `resultSteps`로 설치결과 다음 단계를 이 프로그램에 맞춤, 풀어서 독립 모드 build·start 확인. 65개 파일·비밀값·DB 대조 통과 | 실제 수강생 계정 마법사 리허설만 남음 |
 | `Blog_Content_Kit` | **v1.01** | 2026-10-30 | 블로그 포스팅 자동화(`ai-auto-blog` v1.84 코드 기준) **콘텐츠 만들기 전용** 첫 배포판 — 주인님 지시 「자동 포스팅 기능을 뺀 버전」「확장 프로그램은 제외」「수강생은 완성된 콘텐츠를 복사해서 붙여넣기 할 수 있는 단계까지만」. 독립 모드 스위치(`lib/deployment.ts`: 로그인만으로 사용·자체 가입·AIMaster 링크/매뉴얼 팝업 숨김·확장 화면/API 차단·Gemini 기본), `KIT/` 6종(빈 값 env), 포장 `exclude` 하위 경로 지원(`public/downloads` 확장 ZIP 제외). 137개 파일·비밀값·DB 대조 통과, 로컬 독립 모드 빌드 통과 | 리허설용 Supabase `BUYLIFE-DEV`/`kit-blog`(ref `phbxvmjielzmvkbvkqvy`, 무료) — 마법사 설치 리허설 대기 |
 | `Blog_Content_Kit` | **v1.03** | 2026-10-30 | 수강생 최종본. v1.02(빌드 오류 수정) 리허설 반영: 콘텐츠 전용 이름·문구·배포판 번호 표시(`kit.json` `showKitVersion`), 복사 때 이미지 설명 제외, 마법사 Vercel 팀 확인, 티스토리 안내. `f40272124` | v1.03 마법사 전체 재실행·맥 미실시 |
+| `Threads_Auto_Posting_Kit` | **v1.02** | 2026-11-16 | Threads 포스팅 자동화(`threads/` = `auto-threads-posting`, 프로그램 v1.34) **첫 독립 사이트 배포판** — 원본에 독립 모드 스위치 `src/lib/deployment.ts`(권한=로그인만·자체 가입/메일 확인 `/api/auth/confirm`·AIMaster 링크/매뉴얼/카탈로그 숨김·공용 연결 표/`profiles`/다른 프로그램 표 건너뜀·콜백 자기 주소·**옛 주소 넘김 무한 이동 방지**·cron-job.org 기본), **Meta 제거·삭제 콜백 자체 경로**(`/api/threads/uninstall`·`/delete`·`/data-deletion`, 운영은 404 — 운영은 쇼핑제휴가 처리), `KIT/` 9종(값 빈 env, 데이터 없는 `schema.sql` 7표·`post-images`). 123개 파일·비밀값·DB 대조 통과, Lab 임시 스키마 `begin…rollback` 실행 오류 0, 새 폴더 `npm ci`+`build`+`next start` 화면·경로 확인, 운영·Lab DB 식별자 0건. v1.01은 내부 시험본(빈 요청 500 → 400 수정 뒤 v1.02). 출력 `D:\PDS\AIMater_KIT\` | 실제 수강생 설치 리허설(Vercel 빌드 비용 승인 필요)·Meta 연결·게시 미시험. 원본 코드 변경은 운영 동작 같음 — **미배포 대기**(threads/AGENTS.md) |
 | `Claude_Code_Statusbar_Kit` | **v1.01** | 2026-10-30 | 수강생 PC용 Claude Code 사용량 상태바(웹 프로그램 아님 — 마법사·DB·Vercel 없음). 원본 `scripts/claude-statusbar-kit/`, 커밋 `afb101fa9` | 실제 Claude Code 화면·맥·API 키 계정 미확인 |
 
 | 프로그램 | 키트 방식 | 최신 포장 | 리허설 | 메모 |
@@ -208,6 +209,7 @@
 | `threads-content-ops` (Threads 콘텐츠 운영 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.08` | ✅ 2026-10-19(가입~자동 발행·예약 방식) — 리허설 자원(Lab Supabase `kit-threads`·Vercel `dev-threads-posting`)은 2026-10-20 삭제 | 리허설 수정분 원본 반영 후 2026-10-19 재포장 완료(189개 파일·비밀값 검사 통과·DB 파일에 예약 표/cron-job.org 키 포함 확인) |
 | `insta_auto_poster` (INSTA 포스팅 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.08` | ✅ 2026-10-20 윈도우 마법사 설치(v1.01)→업데이트(v1.06)·사이트 독립 모드 확인(Meta 연결·게시는 미시험, `REHEARSAL_LOG.md` 2차) | 2026-10-19 예약 방식 적용(v1.25): `KIT/schema.sql`·`upgrade-20261019-cronjob.sql`·`enable-vercel-cron.*`·README 6장 — v1.01에 반영됨 |
 | `threads-affiliate-poster` (쓰레드 쇼핑제휴) | **`KIT/` 표준(2026-10-19 clone-kit에서 통합)**, DB 파일 자동 생성(generate) | 시험 포장만(배포 전) | ⚪ 없음 | 설치 스크립트로 운영자 이름·이메일·Fixie까지 자동 등록. 리허설 후 PDS 반영 |
+| `threads` (Threads 포스팅 자동화 · `auto-threads-posting`) | `KIT/` 표준(static DB 파일) | `Threads_Auto_Posting_Kit_v1.02` | ⚪ 대기(로컬 독립 모드 빌드·서버 확인만) | `checkTable`=`atp_member_scheduler`, 콜백 `/api/threads/callback`, 제거·삭제 콜백 자체 처리, 예약 기본 cron-job.org(Pro는 `enable-vercel-cron` → `ATP_PLATFORM_SCHEDULER=on`). `profiles` 표 없음(관리자 지정 단계 없음) |
 | `threads-easy-planner` (Threads AI 기획 자동화 · 배포판 이름 ALLA AI) | `KIT/` 표준(static DB 파일) | `ALLA_AI_Kit_v1.05` | ⚪ 대기(로컬 독립 모드 빌드·서버 확인만) | 콜백·예약 없음, `authRedirectPath` `/auth/confirm`. 프롬프트 문서는 `scripts/build-kit-prompts.py`로 코드에서 다시 뽑음 |
 | `ai-auto-blog` (블로그 포스팅 자동화 · 배포판 이름 블로그 콘텐츠 자동화) | `KIT/` 표준(static DB 파일), **확장 제외** | `Blog_Content_Kit_v1.03` | ✅ 2026-10-30 v1.02로 마법사 8단계·가입·Gemini 키·글 생성·복사/붙여넣기(주인님 실사용). v1.03은 압축 사본 빌드까지 | 예약 없음·하루 1번 30일 정리 cron(무료). `checkTable`=`newsblur_accounts`(DB 파일 맨 끝). 기존 시험 실패는 v1.84 카테고리 회원별 전환 때부터의 옛 기대값(이번 변경 무관). 2026-10-31 수강생 세팅 중 42703 신고(§6-3, 원인 미확정) |
 
@@ -217,6 +219,7 @@
 ## 10. 변경 이력
 | 날짜 | 내용 |
 |---|---|
+| 2026-11-16 | `Threads_Auto_Posting_Kit` 제작(Claude(Support)). 함정 2건 추가 확인: ① 옛 주소(`*.vercel.app`) → 운영 주소로 넘기는 콜백 코드는 수강생 사이트도 `*.vercel.app`이라 **자기 주소로 끝없이 넘김** — `!IS_STANDALONE` 조건 필수 ② Meta Threads 설정은 제거·삭제 콜백 칸이 필수라 운영에서 다른 프로그램이 대신 받던 경로를 배포판 자체 경로로 만들어야 함. 주인님 지시: 키트에는 AIMaster 키·비밀번호·ID·DB 데이터가 하나도 없어야 함(포장 뒤 DB 식별자·계정 문자열 검색). |
 | 2026-10-31 | **§12 배포 키트 생성 절차 추가(주인님 지시)**: 블로그·상태바 키트 제작 과정을 기존 프로그램 → 수업용 키트 순서로 정리. §6-3 함정 6건, §8 현황, §11 #12~#14 추가. |
 | 2026-10-23 | 마법사 `kit.json` 선택 항목 `resultSteps` 추가(설치결과.txt 「다음 단계」 2)부터 프로그램별 문구 — 이전엔 플랫폼 앱·예약 게시 안내가 모든 키트에 고정). 기존 키트는 항목이 없어 문구 그대로. 설치 SQL 사전 검증법: Lab DB에서 `public.`→임시 스키마로 바꿔 `begin … rollback`(ALLA AI 키트에서 첫 적용). |
 | 2026-10-20 | **배포판 번호 규칙(주인님 지시)**: 메인 넘버링 정책과 같은 `vX.YY`, 다시 포장할 때마다 +0.01, 같은 번호 덮어쓰기 금지(포장 스크립트 `--version` 필수·중복 거부). 첫 번호 `SNS_Auto_Posting_Kit_v1.01`. |

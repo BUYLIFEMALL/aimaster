@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-16 [역할: support] Claude Code(윈도우) · Claude(Support) `claude-win-20261112-policy` — 수강생 배포 키트 ① Threads 완료(v1.02)
+
+- 주인님 지시: 수강생용 Threads·INSTA·블로그 자동화를 **각각 독립 사이트**로 배포 키트화, AIMaster 키·비밀번호·ID·DB 데이터는 모두 빼고 빈 상태로. 대상 Threads=`auto-threads-posting`(`threads/`).
+- 결과 `D:\PDS\AIMater_KIT\Threads_Auto_Posting_Kit_v1.02.zip`(123파일·278KB). 상세: `threads/AGENTS.md` 맨 아래 2026-11-16, `docs/DISTRIBUTION_KIT_GUIDE.md` §8·§10.
+- 원본 코드 변경은 운영 동작 같음 → 미배포 대기. 실제 수강생 설치 리허설(Vercel 빌드 비용)·Meta 연결·게시는 미시험.
+- 다음: ② INSTA 키트 v1.46→v1.74 갱신 ③ 블로그 확장 포함판.
+
 <!-- MASTER_INIT_HANDOFF_20261116 -->
 ## 2026-11-16 [역할: codex-master] Codex(Master) — 자동 협업 운영 구성·총괄 개발 플랜
 
