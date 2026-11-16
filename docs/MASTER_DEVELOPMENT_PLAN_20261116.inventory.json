@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 04:36:42 KST",
+  "checkedAt": "2026-11-17 04:37:28 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4365,9 +4365,9 @@
       "title": "자동 구매확정과 교환7일 상태정합성 수정",
       "status": "ready_review",
       "delivery": "returned",
-      "evidence": "msg_15303937317f Lab0103 apply1·version20261116193438·verify14/14·注文지문동일/기존17+1주문/알림44/장부불변",
-      "next": "Lab0103 함수적용완료, Mac 실행증거대조배정. Backend 현재Lab UI버전/기존시험로그인/실제역할동작 부수효과 최소계획 준비. UI/실교환미검수·새빌드/외부발송/확정/정리0",
-      "lastReviewedAt": "2026-11-16T19:36:40.282Z",
+      "evidence": "msg_15303937317f Lab0103 apply1/verify14/既存자료불변 + msg_2d43484ed17f Mac실행근거·재해시 대조 모순없음",
+      "next": "Lab0103 적용 및 실행근거 대조 마감. Backend 실제LabUI버전·로그인·역할검증 부수효과 계획 반환대기. 실제역할/화면 미검수·빌드/정리/추가확정0",
+      "lastReviewedAt": "2026-11-16T19:37:26.249Z",
       "sha": "0edda8666 / package9e9120183 + verify c8b33554e"
     },
     {
