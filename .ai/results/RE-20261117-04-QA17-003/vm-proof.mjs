@@ -149,4 +149,24 @@ if (scenario === "legacy-connect") {
   out("수집 중 계정 세대 변경(서비스 워커 재시작 가정) → 저장 0·B 기록(log)에 A 회차 줄 0", leaked.length === 0 && JSON.stringify(store.log) === JSON.stringify(["B 시작"]), "남은 칸=" + JSON.stringify(leaked) + " log=" + JSON.stringify(store.log));
 }
 
+if (scenario.startsWith("legacy-prev-")) {
+  // P2: 격리 칸에 이미 값이 있는 옛 형식 기기 — 시나리오 이름: legacy-prev-<종류>-<connect|run>
+  const [, , kind, path] = scenario.split("-");
+  const PREV = { obj: { mustPreserve: true }, str: "문자", num: 42, null: null, empty: [], absent: undefined };
+  Object.assign(store, legacyStore());
+  if (kind !== "absent") store.legacyQuarantine = JSON.parse(JSON.stringify(PREV[kind]));
+  const before = JSON.stringify(store);
+  let r = null;
+  if (path === "connect") r = await send({ type: "connect", token: A });
+  else { await send({ type: "collectNow" }); await new Promise((res) => setTimeout(res, 200)); }
+  const shouldWork = kind === "empty" || kind === "absent";
+  if (shouldWork) {
+    const q = store.legacyQuarantine || [];
+    out(`${kind} → 정상 격리(새 배열/덧붙임 1건)·원값 일치·새 소유자`, Array.isArray(q) && q.length === 1 && canon(q[0].keys) === canon(origSnap()) && store.dataOwner === "a@example.com" && ACCT.every((k) => !(k in store)) && (path !== "connect" || r?.ok), "격리수=" + q.length);
+  } else {
+    const after = JSON.stringify({ ...store, running: undefined, log: undefined });
+    const beforeCmp = JSON.stringify({ ...JSON.parse(before), running: undefined, log: undefined });
+    out(`${kind} → 격리 칸 원값·원키 그대로·새 소유자 없음·${path === "connect" ? "연결 거절" : "수집 시작 안 함"}`, after === beforeCmp && JSON.stringify(store.legacyQuarantine) === JSON.stringify(PREV[kind]) && !store.dataOwner && (path === "connect" ? r && !r.ok : settingsCalls === 0), path === "connect" ? r?.error : "설정조회=" + settingsCalls);
+  }
+}
 setTimeout(() => process.exit(process.exitCode || 0), 50);

@@ -139,6 +139,7 @@ async function quarantineLegacy(hintEmail) {
   if (!Object.keys(snap || {}).length) return true;
   const { [LEGACY_KEY]: prev } = await get(LEGACY_KEY);
   const next = addQuarantine(prev, snap, { at: new Date().toISOString(), hintEmail });
+  if (next === null) return false; // 격리 칸에 정체 모를 값 — 덮어쓰지 않고 멈춤(원키·원값 보존)
   try {
     await set({ [LEGACY_KEY]: next });
   } catch {

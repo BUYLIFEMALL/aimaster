@@ -17,9 +17,14 @@ export const DEVICE_KEYS = ["deviceId", "pagesDay", "limitDate", "limitNoticeDat
  *  어디서도 읽지 않는다(병합·전송·알림·AI·웹 전달 없음). 복구는 소유 확인 뒤 별도 경로로. */
 export const LEGACY_KEY = "legacyQuarantine";
 
-/** 격리 항목 추가: [{ at, ownerUnknown: true, hintEmail(미검증 메타), keys: { 원키: 원값 } }…] */
+/**
+ * 격리 항목 추가: [{ at, ownerUnknown: true, hintEmail(미검증 메타), keys: { 원키: 원값 } }…]
+ * prev가 undefined(저장소에 키 없음)면 새 배열, 배열이면 뒤에 덧붙인다.
+ * 그 밖의 값(null·객체·문자·숫자 등 — 이 코드는 배열만 쓰므로 정체를 알 수 없음)은 추정 변환하지 않고 null을 돌려준다 → 호출부는 아무것도 바꾸지 않고 멈춘다(원값 보존).
+ */
 export function addQuarantine(prev, snapshot, meta = {}) {
-  const list = Array.isArray(prev) ? prev : [];
+  if (prev !== undefined && !Array.isArray(prev)) return null;
+  const list = prev === undefined ? [] : prev;
   return [...list, { at: meta.at || null, ownerUnknown: true, hintEmail: meta.hintEmail ? normEmail(meta.hintEmail) : null, keys: { ...(snapshot || {}) } }];
 }
 

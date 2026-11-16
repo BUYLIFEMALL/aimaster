@@ -69,3 +69,11 @@ test("QA17-003 격리 저장 확인: 다시 읽은 값이 같아야만 원키 �
   assert.equal(sameQuarantine([{ keys: { b: 1, a: { y: 2, x: 1 } }, at: "t" }], [{ at: "t", keys: { a: { x: 1, y: 2 }, b: 1 } }]), true);
   assert.equal(sameQuarantine([{ keys: { a: 1 } }], [{ keys: { a: 2 } }]), false);
 });
+
+test("QA17-003 P2 격리 칸에 배열이 아닌 값이 있으면 덮어쓰지 않고 null(멈춤), 키 없음·배열만 진행", () => {
+  const snap = { states: { a: 1 } };
+  for (const bad of [{ mustPreserve: true }, "문자", 42, null, true]) assert.equal(addQuarantine(bad as never, snap, { at: "t" }), null, String(JSON.stringify(bad)));
+  assert.equal(addQuarantine(undefined, snap, { at: "t" })?.length, 1);
+  assert.equal(addQuarantine([], snap, { at: "t" })?.length, 1);
+  assert.equal(addQuarantine([{ old: 1 }] as never, snap, { at: "t" })?.length, 2);
+});
