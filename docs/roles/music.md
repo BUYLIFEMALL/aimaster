@@ -16,7 +16,6 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `free-music-studio` | B-6 LeVo 2 v2-medium | 공식 코드 `tencent-ailab/SongGeneration` 공개(아직 404) — **공개되면 바로 진행**(2026-11-10 주인님 「이건 나오면 진행」, 공개 확인 시 플랜부터) | 백로그 「보관」 B-6 |
-| 가사 영상 v1.15 | 운영에서 MP4 1회 만들어 공용 인코더 변경(멈춤 감지·하드웨어 가속) 확인 — 회원 비용 없음 | 다음 음악 담당 작업 때 | `lyric-video-studio/docs/IMPROVEMENTS.md` 맨 위 |
 | `ai-music-studio` | ⏸ Mureka 켜기(코드 준비됨·숨김) | 주인님이 필요해 충전하실 때(10-23 지시) | `ai-music-studio/docs/IMPROVEMENT_BACKLOG.md` |
 | `free-music-studio` | D-2 앨범 그림 모델 이름 따라 바꾸기 | `ai-image-studio` 모델이 바뀔 때만(상시 점검) | 백로그 D-2 |
 
