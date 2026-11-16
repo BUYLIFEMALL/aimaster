@@ -11,6 +11,9 @@ let db: typeof import('../../src/litpage/server/db.ts');
 let values: typeof import('../../src/litpage/shared/database/values.ts');
 const owner = { id: 'b1111111-1111-4111-8111-111111111111', email: 'dup-owner@example.com', name: '복제주인' };
 const other = { id: 'b2222222-2222-4222-8222-222222222222', email: 'dup-other@example.com', name: '다른 회원' };
+const writer = { id: 'b3333333-3333-4333-8333-333333333333', email: 'dup-writer@example.com', name: '쓰기 회원' };
+const reader = { id: 'b4444444-4444-4444-8444-444444444444', email: 'dup-reader@example.com', name: '읽기 회원' };
+let blkId = '';
 let space = '';
 let col = '';
 let r1 = '';
@@ -30,13 +33,16 @@ beforeAll(async () => {
   await rpc('createWorkspace', { name: '다른 팀' }, other);
   db.withRequestCache(() => {
     const page = seed.createPage({ spaceId: space, userId: owner.id, parentId: space, parentTable: 'space', title: '일정' }).id;
-    const blk = uuid(); col = uuid(); r1 = uuid(); r2 = uuid();
-    db.putRecord('block', { id: blk, version: 1, type: 'collection_view_page', collection_id: col, view_ids: [], parent_id: page, parent_table: 'block', alive: true, space_id: space, created_by_id: owner.id } as any);
+    const blk = uuid(); col = uuid(); r1 = uuid(); r2 = uuid(); blkId = blk;
+    db.putRecord('block', { id: blk, version: 1, type: 'collection_view_page', collection_id: col, view_ids: [], parent_id: page, parent_table: 'block', alive: true, space_id: space, created_by_id: owner.id,
+      permissions: [{ type: 'user_permission', user_id: writer.id, role: 'read_and_write' }, { type: 'user_permission', user_id: reader.id, role: 'reader' }] } as any);
     db.putRecord('collection', { id: col, version: 1, parent_id: blk, parent_table: 'block', alive: true, space_id: space,
-      schema: { title: { name: '이름', type: 'title' }, when: { name: '날짜', type: 'date' }, memo: { name: '메모', type: 'text' } } } as any);
+      schema: { title: { name: '이름', type: 'title' }, when: { name: '날짜', type: 'date' }, memo: { name: '메모', type: 'text' },
+        // 제한 열: 데이터베이스 편집자가 아니면 읽기만(속성 접근 규칙)
+        locked: { name: '확정일', type: 'date', property_permissions: { default_access: 'reader', overrides: [] } } } } as any);
     for (const [id, t, d] of [[r1, '강의', '2026-11-17'], [r2, '행사', '2026-11-18']]) {
       db.putRecord('block', { id, version: 1, type: 'page', parent_id: col, parent_table: 'collection', alive: true, space_id: space, created_by_id: owner.id,
-        properties: { title: [[t]], when: day(d), memo: [['메모']] } } as any);
+        properties: { title: [[t]], when: day(d), memo: [['메모']], locked: day(d) } } as any);
     }
   });
 });
@@ -84,5 +90,21 @@ describe('Alt 끌기 복제 — overrides', () => {
     const res = await rpc('duplicateDatabaseRows', { rowIds: [r1], overrides: { [r1]: { when: day('2026-11-25') } } }, other);
     expect(res.status).toBeGreaterThanOrEqual(400);
     expect(rowCount()).toBe(before);
+  });
+
+  it('쓰기 회원(read_and_write)이 읽기만 허용된 제한 날짜 칸을 바꾸려 하면 403·새 행 0·원본 불변', async () => {
+    const before = rowCount();
+    const res = await rpc('duplicateDatabaseRows', { rowIds: [r1], overrides: { [r1]: { locked: day('2026-11-26') } } }, writer);
+    expect(res.status).toBe(403);
+    expect(rowCount()).toBe(before);
+    expect(JSON.stringify(db.getRecord<any>('block', r1).properties.locked)).toContain('2026-11-17');
+  });
+
+  it('읽기 회원: 덮어쓰기 검사는 통과해도 저장 단계(applyTransactions)에서 거절 → 새 행 0', async () => {
+    const before = rowCount();
+    const res = await rpc('duplicateDatabaseRows', { rowIds: [r1], overrides: { [r1]: { when: day('2026-11-27') } } }, reader);
+    expect(res.status).toBeGreaterThanOrEqual(400);
+    expect(rowCount()).toBe(before);
+    expect(dateOf(r1)).toContain('2026-11-17');
   });
 });
