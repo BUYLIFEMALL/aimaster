@@ -252,3 +252,8 @@ Claude(Blog)는 B1의 사람 직접 클릭 선행조건 대기. 확장 설치/�
 ### 2026-11-17 02:30 KST · B2B 교환 UI 단독 배정
 
 B2B-20261117-03 책임 CC-B2B-BACK-01. 신규 mall-builder/src/lib/exchanges-server.ts·exchange-actions.ts·exchanges.ts, src/app/exchange-panels.tsx, tests/exchanges.test.mjs. 기존 src/app/s/[store]/admin/orders/[id]/page.tsx 및 src/app/s/[store]/(shop)/orders/[id]/page.tsx는 import/조회/패널연결만 Backend 단독 수정. Front와 AGY에 경로 한정 조정 실제 통지. 편집 직전 점유/status 확인·타인 미커밋 발견시 조정. 기타 shop/resale/디자인빌더 범위는 변경 없음. 0102 오류의 불가능한 거절/재접수 안내만 현실적인 관리자 문의로 국소 정정 허용. 원인 해결 우회/새복구정책·운영/Lab0102·빌드·실발송·결제 없음. 구현 뒤 MacTester 독립검수.
+
+### 2026-11-17 02:40 KST · 포털 단계와 디자인 보완
+
+WS-20261117-12 CC-WORKSPACE-01: ai-work-workspace/src/server/portal.ts·src/app/portal/[...path]/page.tsx·tests/integration/portal.test.ts 및 기능OFF가드 국소구현. 행메뉴 정확연결파일은 확인/예약보고 선행. 기능OFF는 import부터 DDL/운영DB접속/공개노출 없음, 격리시험만. 예약 booking/googleCalendar 구현은 오류분류·멱등/스케줄러·보관계획 보완 후 별도배정.
+DES-20261117-02 AG-UI-01: QA005 누락 보완을 위해 145/146/147 목업/PNG/README·Workspace네임스페이스 종합/비교HTML만 동결해제. 다른시안/제품소스/서버/빌드 변경없음. 새해시 반환 후 MacTester 재검수.
