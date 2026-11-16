@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 03:02:57 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 03:03:49 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -39,7 +39,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 159개: done 131개 · cancelled 6개 · ready_review 15개 · running 4개 · ready 2개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 159개: done 131개 · cancelled 6개 · ready_review 15개 · running 3개 · ready 3개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -190,10 +190,10 @@
 | WS-20261117-11 | CC-WORKSPACE-01 | done / integrated | E2-7-1 포커스복귀 동기화·기존말풍선 현지화 | 미배포묶음유지·기존disconnect poll타이머/inflight/currentPage잔류는별도한계,포털계속 |
 | QA-20261117-006 | CX-QA-01 | ready_review / returned | 교환 UI 서버권한·단계·오류 독립검수 | 원UI P2두건독립PASS·모의RLS몰/RPC0·11시험수락. Labfixture/verify별도보완대기·실적용흐름미검수 |
 | QA-20261117-007 | CX-QA-01 | done / integrated | E2 복귀동기화·리스너수명 독립검수 | 지정경계PASS수락·기존타이머취소/실네트워크/전체계정전환검수아님·재반복없음 |
-| WS-20261117-12 | CC-WORKSPACE-01 | running / acknowledged | E2-7-3 손님 포털 구현·외부공개권한 경계 | 만료포털재활성시옛token부활P2 수정승인·활성save기존유지/만료재활성회전→Mac,OFF유지 |
+| WS-20261117-12 | CC-WORKSPACE-01 | ready_review / returned | E2-7-3 손님 포털 구현·외부공개권한 경계 | 만료/꺼짐재활성새토큰·활성save유지·rowlock직렬화 보완,작성자10/260/type0·Mac재검수전달·OFF/운영표0.146계획진행 |
 | ESM-20261117-01 | CC-ECOM-01 | running / acknowledged | 주인님 직접 ESM 썸네일 등록·사용자 매뉴얼 | 썸네일등록부분완료,매뉴얼작성자15/type0미배포·QA008남은안내/단계수/연결설치/filled기록한계 보완중·새빌드0 |
 | QA-20261117-008 | CX-QA-01 | ready_review / returned | ESM 운영안내·매뉴얼 누락 독립점검 | 운영v1.01안내누락반환·새매뉴얼27ae와대조후담당국소수정,실ESM입력/등록미검수 |
-| QA-20261117-009 | CX-QA-01 | ready_review / returned | OFF 포털 공유권한·토큰·속성투영 독립검수 | OFF DB0/권한투영양호·만료토큰부활반례반환,실PG8/258작성자증거·실공개미검수 |
+| QA-20261117-009 | CX-QA-01 | ready / delivered | OFF 포털 공유권한·토큰·속성투영 독립검수 | 기존만료토큰부활수정경계 재검수·동일프로세스시험vs다중잠금근거분리,권한전체재반복0·실공개0 |
 | WS-20261117-13 | CC-WORKSPACE-01 | ready / delivered | 주인님 선택146 Professional Studio 전면리뉴얼 | AGY146명세인계·Workspace제품코드단독수정,정확파일/단계계획→Master충돌조정. 선택재질문/샘플KPI데이터복제/빌드0 |
 | REL-20261117-006 | CC-REALTY-01 | done / integrated | 주인님 직접승인 매물알림v1.46 운영배포 | QA010읽기확인배정·ZIP압축해시차이/내부파일동일근거보존,새수집/알림/추가빌드0 |
 | QA-20261117-010 | CX-QA-01 | done / integrated | 매물알림v1.46 운영·확장버전 읽기확인 | Mac확장설치/실SW/첫격리/수집알림미검수·PC5대표시는다른PC상태,재반복0 |

@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 03:02:57 KST",
+  "checkedAt": "2026-11-17 03:03:49 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4103,13 +4103,13 @@
       "parent_task_id": "PLAN-20261117-01",
       "owner": "CC-WORKSPACE-01",
       "title": "E2-7-3 손님 포털 구현·외부공개권한 경계",
-      "status": "running",
-      "delivery": "acknowledged",
-      "evidence": "QA009 msg_0e134b0f5331 / msg_c6285d3c3d56",
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "120f5ffa988e875963c05d61029b4683febac796 / portal結果§5",
       "completion": "기능OFF때DDL/DB접속/노출0·공유권한/행범위/속성투영/토큰폐기·권한철회·noStore·격리시험",
-      "next": "만료포털재활성시옛token부활P2 수정승인·활성save기존유지/만료재활성회전→Mac,OFF유지",
-      "lastReviewedAt": "2026-11-16T18:02:49.452Z",
-      "sha": "a09825904568962b292fd05b80781942bb2ee4b0"
+      "next": "만료/꺼짐재활성새토큰·활성save유지·rowlock직렬화 보완,작성자10/260/type0·Mac재검수전달·OFF/운영표0.146계획진행",
+      "lastReviewedAt": "2026-11-16T18:03:46.569Z",
+      "sha": "a09825904 + b2715fcd6a81ea622d80ccd5e5877143ae3b389b"
     },
     {
       "task_id": "ESM-20261117-01",
@@ -4146,12 +4146,12 @@
       "parent_task_id": "WS-20261117-12",
       "owner": "CX-QA-01",
       "title": "OFF 포털 공유권한·토큰·속성투영 독립검수",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "ready",
+      "delivery": "delivered",
       "sha": "a09825904",
-      "evidence": "msg_0e134b0f5331 / QA17-009",
-      "next": "OFF DB0/권한투영양호·만료토큰부활반례반환,실PG8/258작성자증거·실공개미검수",
-      "lastReviewedAt": "2026-11-16T18:02:49.452Z"
+      "evidence": "b2715fcd6 / portal結果§5",
+      "next": "기존만료토큰부활수정경계 재검수·동일프로세스시험vs다중잠금근거분리,권한전체재반복0·실공개0",
+      "lastReviewedAt": "2026-11-16T18:03:46.569Z"
     },
     {
       "task_id": "WS-20261117-13",
