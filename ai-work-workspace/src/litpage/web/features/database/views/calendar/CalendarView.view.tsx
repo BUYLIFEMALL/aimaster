@@ -336,7 +336,7 @@ function CalendarView(props: ViewProps) {
                 return (
                   <div
                     key={d}
-                    className={`nc-cal-day ${wd === 0 || wd === 6 ? 'weekend' : ''} ${dropDay === d ? 'nc-drop-target' : ''}`}
+                    className={`nc-cal-day ${wd === 0 || wd === 6 ? 'weekend' : ''} ${dropDay === d ? 'nc-drop-target' : ''}${isWeek ? '' : monthBox(iso)}`}
                     data-day={iso}
                     onDoubleClick={() => !readOnly && addOn(d)}
                     onDragOver={(e) => { if (editable && e.dataTransfer.types.includes(NO_DATE_DRAG_TYPE)) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (dropDay !== d) setDropDay(d); } }}
@@ -459,4 +459,11 @@ viewCreationHooks.calendar = (tx, viewId, collection) => {
   tx.update('collection_view', viewId, ['query2'], { calendar_by: pid, aggregations: [] });
 };
 
+
+/** 2026-11-17 주인님 지시 「달 별로 박스 색을 달리해서 구분」: 짝수 달은 옅은 바탕, 매달 1~7일 칸 위쪽과 1일 칸 왼쪽에 경계선(월 보기만) */
+function monthBox(iso: string): string {
+  const m = Number(iso.slice(5, 7));
+  const day = Number(iso.slice(8, 10));
+  return ` ${m % 2 === 0 ? 'nc-cal-month-alt' : ''}${day <= 7 ? ' nc-cal-month-top' : ''}${day === 1 ? ' nc-cal-month-start' : ''}`;
+}
 
