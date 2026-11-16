@@ -65,7 +65,21 @@ const cntOther = `select count(*) from public.mall_builder_product_variants wher
 ok("RLS: 시험 회원(승인 사업자)이 시험 상품 옵션 S/M/L 3줄 읽음", asRead(TEST, cntSyn) === "3", asRead(TEST, cntSyn));
 ok("RLS: 시험 회원은 다른 몰 사업자 전용 옵션 0줄", asRead(TEST, cntOther) === "0", asRead(TEST, cntOther));
 ok("RLS: 같은 몰 소비자 회원은 시험 상품 옵션 0줄(사업자 전용)", asRead(CONS, cntSyn) === "0", asRead(CONS, cntSyn));
-ok("RLS: 비로그인은 시험 상품 옵션 0줄", asRead("", cntSyn) === "0", asRead("", cntSyn));
+ok("RLS: 로그인 역할+회원 번호 빈 값은 시험 상품 옵션 0줄", asRead("", cntSyn) === "0", asRead("", cntSyn));
+// 진짜 비로그인 역할(anon) — JWT 없음(request.jwt.claim.sub 비움), 지금 역할이 anon인지 먼저 증명. 결과는 0줄 또는 권한 거부여야 함(QA msg_54e445ea53b0)
+{
+  const a = psql(`begin; set local role anon; select set_config('request.jwt.claim.sub', '', true); select set_config('request.jwt.claims', '', true);
+select 'ROLE=' || current_user || '|UID=' || coalesce(auth.uid()::text, 'null');
+select 'CNT=' || count(*) from public.mall_builder_product_variants where product_id = 'e0102000-0000-4000-8000-000000000011';
+commit;`);
+  const role = (a.stdout.match(/ROLE=([^|\n]+)\|UID=(\S+)/) || []);
+  const cnt = (a.stdout.match(/CNT=(\d+)/) || [])[1];
+  const denied = /permission denied/.test(a.stderr);
+  console.log(`  anon 세부: 역할 ${role[1]} · auth.uid() ${role[2]} · 줄 ${cnt ?? "-"} · 권한 거부 ${denied}`);
+  ok("RLS: 진짜 anon 역할(current_user=anon·auth.uid() null)은 시험 상품 옵션 0줄 또는 권한 거부",
+    (role[1] === "anon" && role[2] === "null" && cnt === "0") || (denied && /ROLE=anon/.test(a.stdout)),
+    `역할 ${role[1]} uid ${role[2]} 줄 ${cnt} 거부 ${denied} ${a.stderr.slice(-160)}`);
+}
 // verify가 NULL·빠진 줄을 실패로 잡는지(실제 상태): 시험 상품 하나를 지우면 10·13번 불일치 → 전체 확인 필요
 r = psql(`begin; delete from mall_builder_products where id = 'e0102000-0000-4000-8000-000000000012'; ${H("verify.sql")} rollback;`);
 ok("verify: 시험 상품이 빠지면 「전체」 확인 필요(빨강을 잡음)", /전체\|13\/13\|11\/13\|확인 필요/.test(r.stdout), r.stdout);

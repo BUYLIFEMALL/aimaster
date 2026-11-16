@@ -16,7 +16,7 @@
 | `fixture.sql` | 한 트랜잭션: 합성 시험 자료(아래) | 씀 | `e23ce90ffa8301881ce05dd3ac7a24d7cd60bf27dc14f006b1b08f7328bcd409` |
 | `verify.sql` | 적용·자료 확인 13줄 + 「전체」 — 값이 비면 「(없음)」= 불일치, 줄 수 13·일치 13일 때만 OK | 읽기만 | `ce0823cac6c73ce02b87e3c83b42bdaa138c6062fcc47a7d04a1359a84d5fcde` |
 | `rollback.sql` | 한 트랜잭션: 시험 자료 → 트리거 → 함수 11개 → 교환 표 → 기록 | 씀 | `cba401783a12ef14d5534f18cbf1552ac22cdb9840ae61109fc636f6cd834891` |
-| `check-local.mjs` | 위 순서를 로컬 qa_ DB에서 끝까지 돌려 판정(일반 회원 권한 실제 읽기 포함) | 로컬만 | `2e67f62455ecaeaa3f73fec2cfc9358b29e91e82562e2ed21042b17e3e5b7e82` |
+| `check-local.mjs` | 위 순서를 로컬 qa_ DB에서 끝까지 돌려 판정(일반 회원 권한 실제 읽기 포함) | 로컬만 | `c0aca8ea44224fc6d4da329bd8d36a6b13cf8a06b7b484fb2aae2e484b8d7a03` |
 | `build.mjs` | apply.sql 생성(원문 그대로 삽입) | — | `54305cc4f5e576e7c319287c002140bc316a6852bf8ec29c15ce741f85e488c6` |
 - apply.sql 안 원문 = `supabase/migrations/0102_exchanges.sql` LF sha256 `14780f43e6c5daf5bf9ce14736e1c757596828c2c0a522fc9b39355adb8a33e1`(커밋 `a86c53dc1`). 원문 앞 사전 점검: 교환 표·0102 기록이 이미 있으면 [멈춤], 0101 기록·몰 aimaster-b2b가 없으면 [멈춤](Lab이 아닐 가능성).
 
@@ -44,10 +44,10 @@
 - 시험 주문이 아닌 교환이 하나라도 있으면 [멈춤](사람 판단). 지우는 것은 고정 id 시험 자료와 0102가 만든 것(트리거 1·공개 함수 4·내부 함수 7·교환 표·기록)뿐. 기존 표 drop 없음.
 - 주문 삭제로 상품 줄·이력은 따라 지워짐(외래 키 cascade). 시험 자료로 생긴 알림이 없음을 verify가 확인.
 
-## 로컬 검사 결과(2026-11-17 갱신, `node mall-builder/docs/handoff-0102-lab/check-local.mjs`, 종료 0, 17항목 전체 통과)
+## 로컬 검사 결과(2026-11-17 갱신, `node mall-builder/docs/handoff-0102-lab/check-local.mjs`, 종료 0, 18항목 전체 통과)
 1. verify 판정식 빨강/초록: 12 일치 + 1 NULL → 예전 `bool_and` 식은 OK(잘못 통과), 새 식은 확인 필요
 2. precheck 10/10 → apply → fixture → verify 13/13
-3. **일반 회원 권한 실제 읽기**(`SET ROLE authenticated` + 회원 번호, 같은 RLS 정책): 시험 회원(승인 사업자) 시험 상품 옵션 3줄 / 다른 몰 사업자 전용 0줄 / 같은 몰 소비자 회원 0줄 / 비로그인 0줄
+3. **일반 회원 권한 실제 읽기**(`SET ROLE authenticated` + 회원 번호, 같은 RLS 정책): 시험 회원(승인 사업자) 시험 상품 옵션 3줄 / 다른 몰 사업자 전용 0줄 / 같은 몰 소비자 회원 0줄 / 로그인 역할+회원 번호 빈 값 0줄 / **진짜 비로그인 역할**(`SET ROLE anon`, `current_user` = anon·`auth.uid()` null 확인) 0줄 — 권한 거부가 아니라 RLS가 막음(QA msg_54e445ea53b0)
 4. 시험 상품 하나가 빠지면 verify 「전체 11/13 확인 필요」(실제 상태에서 빨강을 잡음)
 5. 두 번째 apply·fixture [멈춤] → 시험 회원 교환 신청(3000/waiting) → EXQA-2 유저 막힘(7일)
 6. rollback → 표·함수·트리거·기록·시험 자료 0, 기존 주문 그대로 → precheck 다시 10/10
