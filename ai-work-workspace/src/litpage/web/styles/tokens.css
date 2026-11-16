@@ -515,3 +515,36 @@
   --lp-red-border-primary-transparent: rgb(251 113 133 / 0.26);
   --lp-red-border-secondary-transparent: rgb(251 113 133 / 0.18);
 }
+
+/* 2026-11-17 WS-20261117-13 146 Professional Studio(S0) — 라이트 테마에만, html에 aww-studio 클래스가 있을 때만.
+   클래스를 빼면 위 원래 값으로 돌아간다(되돌리기). 다크 테마는 이번에 바꾸지 않음.
+   편집 화면 바탕(--lp-bg-primary)은 흰색 그대로, 보조 바탕·선·글자만 Slate 계열(인수인계서 2.1). */
+html.aww-studio.lit-light-theme {
+  --lp-bg-secondary: #f8fafc;
+  --lp-bg-tertiary: #f1f5f9;
+  --lp-bg-interactive: #f1f5f9;
+  --lp-border-primary: #e2e8f0;
+  --lp-border-secondary: #f1f5f9;
+  --lp-border-strong: #cbd5e1;
+  --lp-text-primary: #0f172a;
+  --lp-text-secondary: #475569;
+  --lp-text-tertiary: #5f6f86; /* 시안 #64748B는 회색 칸 위 4.34:1이라 4.67:1로 조금 진하게 */
+  --lp-icon-primary: #0f172a;
+  --lp-icon-secondary: #475569;
+  --lp-icon-tertiary: #5f6f86;
+  /* 스튜디오 전용(사이드바·대시보드) */
+  --aww-studio-canvas: #f8fafc;
+  --aww-studio-card: #ffffff;
+  --aww-studio-accent: #6366f1;
+  --aww-studio-accent-hover: #4f46e5;
+  --aww-studio-accent-solid: #4f46e5; /* 흰 글자를 올리는 버튼 바탕(#6366F1은 흰 글자 4.47:1이라 6.29:1인 이 색) */
+  --aww-studio-success: #10b981;
+  --aww-studio-warning: #f59e0b;
+  --aww-studio-danger: #ef4444;
+  --aww-studio-nav-bg: #0f172a;
+  --aww-studio-nav-border: #1e293b;
+  --aww-studio-nav-text: #94a3b8;
+  --aww-studio-nav-text-active: #ffffff;
+  --aww-studio-nav-hover: #1e293b;
+}
+html.aww-studio.lit-light-theme :focus-visible { outline: 2px solid #6366f1; outline-offset: 2px; }

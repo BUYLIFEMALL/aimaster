@@ -34,6 +34,9 @@ import { DeveloperTools } from '../developer/DeveloperTools.tsx';
 import { t } from './i18n.ts';
 import './shell.css';
 
+/** 146 스튜디오 색 켜기(되돌리려면 false) */
+export const STUDIO_THEME = true;
+
 export function Workspace() {
   const { route, peek } = useLocation();
   const spaceId = useSession((s) => s.spaceId);
@@ -45,6 +48,15 @@ export function Workspace() {
   const loaded = usePageLoader(pageId);
   useApplyUserSettings();
   useSessionHousekeeping();
+
+  // 2026-11-17 WS-20261117-13 146 Professional Studio(S0): 워크스페이스 화면이 열려 있는 동안 html에 aww-studio 클래스.
+  // 색은 styles/tokens.css 끝 블록(라이트 테마만). STUDIO_THEME를 false로 바꾸면 원래 색으로 돌아간다.
+  useEffect(() => {
+    if (!STUDIO_THEME) return;
+    const el = document.documentElement;
+    el.classList.add('aww-studio');
+    return () => el.classList.remove('aww-studio');
+  }, []);
 
   // "/" and "/<domain>" open the start page (Settings › Preferences › Start page: Last visited page / Top page in
   // sidebar / Library / AIMaster). There is no widget Home page: "Home" is only a sidebar tab.
