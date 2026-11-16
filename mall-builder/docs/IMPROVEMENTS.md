@@ -42,3 +42,11 @@
 - **[해결 B2B-20261117-01 — 미배포 대기]** 메시지 「미리보기」가 `DELETE requires a WHERE clause`로 실패. 원인: `supabase/migrations/0101_messaging.sql` 245줄 `delete from pg_temp.mb_msg_to;`(조건 없는 삭제) — Supabase의 safeupdate가 막음. 로컬 Docker 시험 DB에는 safeupdate가 없어 시나리오 M1~M11이 통과했음. 수정안: `delete from pg_temp.mb_msg_to where true;` 한 줄 + Lab에 함수 다시 만들기 + 로컬 시험 DB에 safeupdate 흉내(또는 시나리오에 미리보기 2번 연속 호출) 추가. **Master 승인 뒤 진행**(2026-11-17 Master 「추가 제품 수정 없음」).
 - [해결 B2B-20261117-01 — 미배포 대기, 「성공(succeeded)」 이름표는 실제 기록 확인 전이라 안 넣음] 발송 내역 「종류」 칸에 `customer_group_buy_failed`가 내부 이름 그대로 보임 → `src/lib/notify.ts` 라벨에 공동구매 실패 알림 이름 추가 필요.
 - 0101 권한 보완 `5989f69af`(공개 함수 3개 anon 실행 회수, 시나리오 M11) — Lab에도 적용, 운영은 다음 묶음.
+
+## 2026-11-17 후속 문제 — 상태 변화 없는 이력이 자동 배송 완료·자동 구매 확정 시계를 다시 시작함(공용 0032, 미수정)
+- **증상**: 0032 `mall_builder_auto_progress`는 `max(created_at) where to_status = 'shipping'/'delivered'`로 기준 시각을 잡고 이전 상태를 보지 않음. 그래서 상태를 바꾸지 않고 이력만 남기는 줄(`from = to`)이 생길 때마다 시계가 처음부터 다시 시작됨. 0102 교환 기한(D4 실제 배송 7일, `delivered_at`)과는 별개 문제 — 7일 판단은 실제 전이만 봄.
+- **같은 줄을 남기는 곳(0102 이전부터)**: 세금계산서 요청·발행(0015·0039), 카드 남은 금액 환불(0029), 현금영수증 신청·발급·취소(0100), 반품 회수·환불(0099, 대개 반품 상태라 영향 적음), 교환 접수·단계(0102 `exchange_event`). 배송 중에 세금계산서·현금영수증을 처리해도 자동 배송 완료가 밀림.
+- **실제 전이만 고르면(`from_status is distinct from to_status`) 영향**: 반품 거절·철회(`return_requested → delivered`, 0009 전이표)는 실제 전이라 지금처럼 시계를 다시 시작(유지). 수동 구매 확정(customer·staff `delivered → confirmed`)은 시계를 쓰지 않아 무관. 다른 주문·0063 분양몰 연동(본사 상태를 따라 실제 전이 기록)은 무관. 실제 전이 없이 같은 상태 줄만 있는 주문은 수정 뒤 자동 대상에서 빠짐 → Lab 읽기(2026-11-17): 배송 중 0·배송 완료 2건, 같은 상태 줄만 있는 주문 0·같은 상태 줄로 시계가 밀린 주문 0. 운영은 미조회(적용 전 같은 읽기 필요).
+- **공용 `delivered_at` 재사용**: 0102 `mall_builder_private.delivered_at`이 바로 「실제 전이로 delivered가 된 마지막 시각」이지만 0102 객체(운영 미적용)이고 delivered 전용 → 0032 수정이 0102에 의존하게 되므로 그대로 쓰지 않음. 대신 새 마이그레이션에 상태 일반 도우미 `mall_builder_private.status_entered_at(order uuid, status text)`(같은 정의, 상태 인자)를 두고 0032의 두 기준 시각을 이것으로, 0102가 있으면 `delivered_at`을 이것을 부르게 재정의(동작 동일) — 최소 수정안.
+- **회귀 조건(시험)**: 배송 중 세금계산서·현금영수증 이력 뒤 자동 배송 완료가 원래 시각대로 / 배송 완료 뒤 세금계산서·현금영수증·교환 이력 뒤 자동 구매 확정이 원래 시각대로 / 반품 거절(`return_requested → delivered`) 뒤에는 지금처럼 다시 시작 / 수동 확정·다른 주문·분양몰 연동 무변화 / 이력 없는 주문은 지금처럼 대상 아님 / 한 회차 200건·skip locked 그대로 / 교환 진행 중 주문은 0103 지킴 하에 확정 허용(0103 적용 뒤).
+- **상태**: 조사만(코드·DB 수정 0). 공용 0032 수정 여부·시점은 Master 결정. Lab 교환 화면 시험(빌드 1회 비용 승인)은 다음 배포 묶음 후보.
