@@ -19,6 +19,8 @@
 - **Lab DB 따라옴 확인**: 적용 기록 이름은 파일 번호와 1:1이 아니다(0029~0032·0036·0053~0058·0061~0063·0093·0095가 기록 이름엔 없음). 처음엔 대표 객체 표본만 봤고(그때 「빠진 것 0104뿐」은 표본 기준이었다), 그 뒤 7절에서 앱 코드가 부르는 이름 전체를 실제 객체로 대조했다 — **이름 수준(표·함수·실행 권한·버킷)은 전수 확인, 칸·함수 인자 모양은 미확인**. 전체 「준비 완료」 판정은 하지 않는다(7절 미확인·차단 조건 참고).
 
 ## 3. 순서
+- **Lab 빌드에 운영 배포 스크립트 사용 금지(고정)**: `scripts/deploy-prod.mjs`는 연결 파일 대신 운영 프로젝트 `prj_TBwDVEc6vBveDSuv8pquHLEuBHDD`(mall-builder)로 배포하고, `scripts/prod-env-setup.mjs`는 운영 프로젝트에 `NEXT_PUBLIC_MALL_PLATFORM=aimaster`를 등록한다. Lab은 `mall-builder/.vercel/project.json`에 연결된 `dev-mall-builder`로만 빌드한다. 지금 안전하다거나 배포가 끝났다고 단정하지 않는다.
+- **DB 실행 자료**: 0104 Lab 적용 실행 자료는 `docs/handoff-0104-lab/README.md`·`build.mjs`·`precheck.sql`·`apply.sql`·`verify.sql`·`check-local.mjs`(준비만, 적용 승인 아님). 0102 정리 파일은 0104 적용 뒤 그대로 쓰지 않는다(README 7절).
 1. DB: 0104 Lab 적용(별도 실행 자료·승인 필요 — 0103 실행 자료와 같은 형식: precheck → apply 원문 그대로 → verify).
 2. 앱: Lab 빌드·배포(별도 비용 승인).
 - 반대 순서일 때(소스로 확인한 범위만): 앱이 먼저 나가면 0104 표가 없어 결제 기능이 숨겨진다(4절, 실제 배포 화면 미검수). DB가 먼저면 지금 Lab 앱(11-11 배포, CLI라 소스 SHA 없음)에는 교환비 결제 화면 소스가 없는 것으로 보이나 그 배포의 실제 동작은 확인하지 않았다. 권장은 DB → 앱.
@@ -53,7 +55,7 @@
 | 저장소 버킷 | `mall-builder-public`·`mall-builder-private` 둘 다 있음 | 확인 |
 | 0104 객체 4개 | 없음 — 0104 적용 전에는 교환비 카드 결제만 숨겨짐(4절) | 기능 숨김(0104 적용 별도 승인) |
 | 메인 사이트 표 6개(`profiles`·`programs`·`subscriptions`·`usage_logs`·`user_api_keys`·`user_program_access`) | Lab DB에 없음. 소스상 모두 `PLATFORM_AIMASTER`(`NEXT_PUBLIC_MALL_PLATFORM=aimaster`)일 때만 읽음 — 운영 관문 `platform-gate.ts`, 몰 만들기 `platform-admin.ts`, AI 키 `ai-client.ts`·설정 화면 | **차단 조건: Lab 프로젝트에 이 스위치가 꺼져 있어야 함 — 이번에 Vercel 환경변수 목록 조회가 프로젝트 404로 실패해 미확인**(값을 바꾸지 않음, 빌드 전 이름만 확인 필요) |
-| 운영 모드 설정 읽기 시도(2026-11-17) | 팀은 `buylife` 하나(id가 `mall-builder/.vercel/project.json`의 orgId와 같음), 그 파일의 projectName은 `dev-mall-builder`. 하지만 이 세션의 Vercel 연결은 팀 프로젝트 중 3개(`aimaster`·`threads`·`auto-detail-page`)만 보여 `dev-mall-builder`를 id·이름 모두 404, 「mall」 검색 0건 — 도구 권한 범위 한계. 권한 확대·계정 교체·env pull/link 0. 현재 배포 관찰: `https://dev-mall-builder.vercel.app/` → 307 자기 주소 `/login?next=/`(운영 관문이면 메인 사이트 `/login?redirect=`로 감). 단 이 배포(11-11)는 관문 코드(`platform-gate.ts`, 11-12 c7d735ae9)보다 앞서 만들어져 관문이 없으므로 **다음 빌드의 설정값 근거가 아님** | **미확인 — 빌드 차단 조건 유지**. 해결 주체: 이 Lab 프로젝트를 볼 수 있는 Vercel 권한이 있는 세션(또는 주인님). 다음 1행: `vercel --scope buylife env ls --project dev-mall-builder`로 `NEXT_PUBLIC_MALL_PLATFORM`이 없거나 `aimaster`가 아님(Production·Preview)을 이름·값만 확인(다른 값 출력 0) |
+| 운영 모드 설정(2026-11-17) | 이 세션 Vercel 연결은 팀 프로젝트 3개만 보여 `dev-mall-builder` 404(도구 범위 한계). **Master가 직접 확인(msg_0646188a17a7)**: 프로젝트 `prj_V9bEfq2ZQDwl7qO3ZdMQVW0Sg0ZP`·팀 `team_orq6xPe9P3c1uMQdKlJsQ6k9`·이름 `dev-mall-builder`·운영 배포 `dpl_3NsADKBJn6pX5CpnBuK4EhR8YoeZ` 일치, 환경변수 3개·숨김 0, **`NEXT_PUBLIC_MALL_PLATFORM` 키 없음**. 이 세션 소스·파일 검사(msg_059ac8eead6e): 판정식은 정확히 `aimaster`일 때만 true(`src/lib/platform.ts` 4행·`src/lib/supabase/env.ts` 2행), `mall-builder/.env.local`에 이 키 없음·다른 `.env*` 없음, `next.config.ts`·빌드 명령(`next build`)에 주입 없음, 셸 환경에 없음 → 미설정이면 false | 다음 Lab CLI 빌드에서 false로 **예상**. `NEXT_PUBLIC_*`는 빌드 때 굳는 값이라 지금 미등록만으로 안전·배포 완료를 단정하지 않음 — **빌드 직전 같은 검사를 다시 하고**, 빌드 뒤 실제 화면(로그인이 Lab 자체 `/login`으로 가는지)으로 확인 |
 | 핵심 함수 인자 이름(교환·결제·0099~0103, 23개) | 앱 소스의 `rpc("…", { p_… })` 인자 이름을 Lab 함수 정의와 대조: 20개는 같은 이름 정의 1개씩, 앱 인자가 모두 정의에 있고 기본값 없는 인자는 앱이 모두 넘김 → 호출 가능. 없는 3개 = 0104(예상) | 확인(인자 이름 수준, 인자 타입·반환 모양·실호출은 미확인) |
 | 표 칸(column) 이름 | 0102·0103 교환 칸은 그때 verify로 확인, 그 밖 146개 변경이 쓰는 칸은 대조하지 않음 | 미확인 |
 | 함수 인자 이름·모양(위 23개 밖) | 나머지 174개는 이름·실행 권한만 대조, 인자 이름·타입은 대조하지 않음 | 미확인 |
