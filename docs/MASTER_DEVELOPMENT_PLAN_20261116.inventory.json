@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 05:56:19 KST",
+  "checkedAt": "2026-11-17 05:58:08 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4275,10 +4275,10 @@
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
       "status": "ready_review",
       "delivery": "delivered",
-      "evidence": "msg_6d7a93569589 Mac QA012 누적소스PASS·hash739b35일치·작성자62근거분리",
+      "evidence": "msg_6d7a93569589 Mac QA012 누적소스PASS·hash739b35일치·작성자62근거분리 / msg_e7bf9e5ec131 릴리스초안 문구4건P2",
       "decision": "Master조정 E1납부후거절차단 E2로그인본인 E3카드미설정은행 E4Backend신규경로;실환불미구현명시",
-      "next": "0104소스QA012·UI QA014 소스검수마감,Backend146변경DB의존성준비표·Mac릴리스초안경계검토배정. 실제Toss/실UI/0104적용/빌드미승인",
-      "lastReviewedAt": "2026-11-16T20:56:17.523Z",
+      "next": "Backend146 DB의존성표와초안정정병합:표본전수구분·공용카드flag완전중단아님·486자동시험/실화면구분·최신QA연결. 소스PASS유지,실Toss/DB쓰기/빌드미승인",
+      "lastReviewedAt": "2026-11-16T20:58:05.765Z",
       "sha": "37fdcabb4 / 0104 739b35e9f20b45ba7c83309918da0cc099ca6a0b5715bf5514e755cb108662e6",
       "plannedMigration": "0104_exchange_fee_payments.sql (기존미적용0103 rename)",
       "migrationPath": "mall-builder/supabase/migrations/0104_exchange_fee_payments.sql",
