@@ -631,6 +631,8 @@ export function ProductBatchBoard() {
         className="card"
         style={{
           display: "flex",
+          flexWrap: "wrap", // 2026-11-16 ECOM-08: 좁은 화면에서 알약이 한 글자씩 세로로 쪼개지지 않게 줄바꿈
+          gap: 10,
           alignItems: "center",
           justifyContent: "space-between",
           padding: "14px 20px",
@@ -688,9 +690,9 @@ export function ProductBatchBoard() {
             </div>
           ))}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span className="fe-badge">0원 로컬 브라우저 연산</span>
-          <span className="fe-badge leaf">EXIF 정보 자동 제거</span>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+          <span className="fe-badge" style={{ whiteSpace: "nowrap" }}>0원 로컬 브라우저 연산</span>
+          <span className="fe-badge leaf" style={{ whiteSpace: "nowrap" }}>EXIF 정보 자동 제거</span>
         </div>
       </div>
 
@@ -825,12 +827,13 @@ export function ProductBatchBoard() {
                 border: "1.5px solid #F59E0B",
                 borderRadius: 12,
                 display: "flex",
+                flexWrap: "wrap", // ECOM-08: 좁은 화면에서 선택 버튼이 세로로 쪼개지지 않게
                 alignItems: "center",
                 justifyContent: "space-between",
                 gap: 16,
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, flex: "1 1 240px", minWidth: 0 }}>
                 <span style={{ fontSize: 24 }}>🔖</span>
                 <div>
                   <b style={{ fontSize: 14, color: "#92400E" }}>전체 상품에 합성할 [공용 서브 이미지]</b>
@@ -839,7 +842,7 @@ export function ProductBatchBoard() {
                   </p>
                 </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
                 {commonSubFile ? (
                   <span style={{ fontSize: 13, fontWeight: 800, color: "#1C1917" }}>
                     선택됨: <b>{commonSubFile.name}</b>
@@ -847,7 +850,7 @@ export function ProductBatchBoard() {
                 ) : (
                   <span style={{ fontSize: 12, color: "#92400E" }}>공용 서브가 아직 선택되지 않았습니다</span>
                 )}
-                <label className="btn-3d" style={{ background: "#FFF", padding: "6px 14px", fontSize: 12, border: "1.5px solid #1C1917" }}>
+                <label className="btn-3d" style={{ background: "#FFF", padding: "6px 14px", fontSize: 12, border: "1.5px solid #1C1917", whiteSpace: "nowrap" }}>
                   {commonSubFile ? "공용 서브 교체" : "+ 공용 서브 선택"}
                   <input
                     type="file"
@@ -946,9 +949,10 @@ export function ProductBatchBoard() {
             }}
           >
             <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, textAlign: "left" }}>
+              {/* ECOM-08: 좁은 화면에서는 칸을 눌러 글자를 세로로 쪼개지 말고 이 상자 안에서 가로로 스크롤 */}
+              <table style={{ width: "100%", minWidth: 760, borderCollapse: "collapse", fontSize: 13, textAlign: "left" }}>
                 <thead>
-                  <tr style={{ background: "#FEF3C7", borderBottom: "2px solid #1C1917" }}>
+                  <tr style={{ background: "#FEF3C7", borderBottom: "2px solid #1C1917", whiteSpace: "nowrap" }}>
                     <th style={{ padding: "12px 14px", width: 90 }}>상태</th>
                     <th style={{ padding: "12px 14px", width: 140 }}>상품코드 (SKU)</th>
                     <th style={{ padding: "12px 14px", width: 220 }}>상품명</th>
@@ -1231,7 +1235,8 @@ export function ProductBatchBoard() {
                 <label style={{ display: "block", fontSize: 12, fontWeight: 800, marginBottom: 6 }}>
                   📐 출력 캔버스 규격
                 </label>
-                <div style={{ display: "flex", gap: 6 }}>
+                {/* ECOM-08: 320px 폭에서 「메인 원본 크기」가 넘치거나 세로로 쪼개지지 않게 줄바꿈 */}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {COMPOSITE_PRESETS.map((p) => (
                     <button
                       key={p.id}
@@ -1239,7 +1244,7 @@ export function ProductBatchBoard() {
                       aria-pressed={settings.sizeMode === "fixed" && settings.width === p.width}
                       onClick={() => updateSettings({ width: p.width, height: p.height, sizeMode: "fixed" })}
                       style={{
-                        flex: 1,
+                        flex: "1 1 auto", whiteSpace: "nowrap",
                         padding: "6px 8px",
                         fontSize: 12,
                         fontWeight: 800,
@@ -1258,7 +1263,7 @@ export function ProductBatchBoard() {
                     aria-pressed={settings.sizeMode === "original"}
                     onClick={() => updateSettings({ sizeMode: "original" })}
                     style={{
-                      flex: 1,
+                      flex: "1 1 auto", whiteSpace: "nowrap",
                       padding: "6px 8px",
                       fontSize: 12,
                       fontWeight: 800,
@@ -1311,6 +1316,7 @@ export function ProductBatchBoard() {
                   type="range"
                   min={15}
                   max={50}
+                  aria-label="서브 크기 비율(%)"
                   value={settings.subRatio}
                   onChange={(e) => updateSettings({ subRatio: Number(e.target.value) })}
                   style={{ width: "100%", accentColor: "#EAB308", cursor: "pointer" }}
@@ -1327,6 +1333,7 @@ export function ProductBatchBoard() {
                   type="range"
                   min={0}
                   max={60}
+                  aria-label="서브 테두리 마진(px)"
                   value={settings.subMargin}
                   onChange={(e) => updateSettings({ subMargin: Number(e.target.value) })}
                   style={{ width: "100%", accentColor: "#EAB308", cursor: "pointer" }}
@@ -1492,10 +1499,11 @@ export function ProductBatchBoard() {
 
               {/* 스마트 파일명 템플릿 */}
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 800, marginBottom: 4 }}>
+                <label htmlFor="pb-name-template" style={{ display: "block", fontSize: 12, fontWeight: 800, marginBottom: 4 }}>
                   🏷️ 파일 이름 템플릿
                 </label>
                 <input
+                  id="pb-name-template"
                   type="text"
                   value={settings.template}
                   onChange={(e) => updateSettings({ template: e.target.value })}
@@ -1716,13 +1724,15 @@ export function ProductBatchBoard() {
               borderRadius: 14,
               padding: 24,
               display: "flex",
+              flexWrap: "wrap", // ECOM-08: 좁은 화면에서 제목이 한 글자씩 세로로 쪼개지지 않게(버튼은 아래 줄로)
+              gap: 16,
               justifyContent: "space-between",
               alignItems: "center",
               marginBottom: 20,
               boxShadow: "0 4px 12px rgba(250, 204, 21, 0.2)",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 16, flex: "1 1 260px", minWidth: 0 }}>
               <span style={{ fontSize: 44 }}>🎉</span>
               <div>
                 <h2 style={{ fontSize: 20, fontWeight: 900, color: "#1C1917" }}>
@@ -1735,7 +1745,7 @@ export function ProductBatchBoard() {
                 </p>
               </div>
             </div>
-            <div style={{ display: "flex", gap: 10 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
               <button
                 type="button"
                 className="btn-3d btn-3d-pop"
