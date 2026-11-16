@@ -101,3 +101,9 @@ select 'M9' t, count(*) left_templates from mall_builder_notify_templates where 
 select 'M11' t, count(*) anon_exec from pg_proc p join pg_namespace n on n.oid = p.pronamespace
  where n.nspname = 'public' and p.proname in ('mall_builder_message_send','mall_builder_message_settings_save','mall_builder_notify_template_save')
    and has_function_privilege('anon', p.oid, 'execute');
+-- M12 조건 없는 delete 금지(Supabase safeupdate가 실행 중에 막음 — 로컬 DB엔 없어서 함수 본문으로 검사) → 기대 0
+select 'M12' t, count(*) no_where_delete from (
+  select (regexp_matches(p.prosrc, 'delete\s+from\s+[^;]+;', 'gi'))[1] s
+  from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+  where n.nspname in ('public', 'mall_builder_private') and p.proname like '%mall_builder%' or (n.nspname = 'mall_builder_private')
+) x where s !~* '\mwhere\M';

@@ -19,6 +19,7 @@ export const NOTIFY_KIND_LABEL: Record<string, string> = {
   customer_cancelled: "주문 취소 → 유저",
   customer_returned: "반품 승인 → 유저",
   customer_refunded: "환불 완료 → 유저",
+  customer_group_buy_failed: "공동구매 무산 → 유저", // 0041·0042 판정 문자(종류 이름이 그대로 보이던 것)
 };
 
 /** 재입고 알림(D16) 문구 속 {{site}}를 사이트 주소로(DB 트리거는 사이트 주소를 모른다) */

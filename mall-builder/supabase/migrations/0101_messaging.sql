@@ -242,7 +242,7 @@ begin
     else btrim(p_body) || case when p_is_ad then E'\n\n' || ns.optout_text else '' end end;
 
   create temp table if not exists pg_temp.mb_msg_to (customer_id uuid, to_addr text) on commit drop;
-  delete from pg_temp.mb_msg_to;
+  delete from pg_temp.mb_msg_to where true;  -- Supabase safeupdate는 조건 없는 delete를 막음
   if p_order_id is not null then
     select * into o from public.mall_builder_orders where id = p_order_id and store_id = p_store_id;
     if o.id is null then raise exception '주문을 찾을 수 없습니다.'; end if;

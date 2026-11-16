@@ -39,6 +39,6 @@
 
 ## 2026-11-17 Lab 0101(메시지) 화면 확인에서 나온 것 — CC-B2B-BACK-01
 - Lab(rjjtjakljjxsgjelqgek)에 0100→0101 적용(SQL 편집기). 관리자 계정으로 내 PC 개발 서버(3210)에서 메시지 보내기·발송 내역·메시지 설정 화면 표시 정상.
-- **[막힘·수정 필요, 미배포라 회원 피해 없음]** 메시지 「미리보기」가 `DELETE requires a WHERE clause`로 실패. 원인: `supabase/migrations/0101_messaging.sql` 245줄 `delete from pg_temp.mb_msg_to;`(조건 없는 삭제) — Supabase의 safeupdate가 막음. 로컬 Docker 시험 DB에는 safeupdate가 없어 시나리오 M1~M11이 통과했음. 수정안: `delete from pg_temp.mb_msg_to where true;` 한 줄 + Lab에 함수 다시 만들기 + 로컬 시험 DB에 safeupdate 흉내(또는 시나리오에 미리보기 2번 연속 호출) 추가. **Master 승인 뒤 진행**(2026-11-17 Master 「추가 제품 수정 없음」).
-- [작음] 발송 내역 「종류」 칸에 `customer_group_buy_failed`가 내부 이름 그대로 보임 → `src/lib/notify.ts` 라벨에 공동구매 실패 알림 이름 추가 필요.
+- **[해결 B2B-20261117-01 — 미배포 대기]** 메시지 「미리보기」가 `DELETE requires a WHERE clause`로 실패. 원인: `supabase/migrations/0101_messaging.sql` 245줄 `delete from pg_temp.mb_msg_to;`(조건 없는 삭제) — Supabase의 safeupdate가 막음. 로컬 Docker 시험 DB에는 safeupdate가 없어 시나리오 M1~M11이 통과했음. 수정안: `delete from pg_temp.mb_msg_to where true;` 한 줄 + Lab에 함수 다시 만들기 + 로컬 시험 DB에 safeupdate 흉내(또는 시나리오에 미리보기 2번 연속 호출) 추가. **Master 승인 뒤 진행**(2026-11-17 Master 「추가 제품 수정 없음」).
+- [해결 B2B-20261117-01 — 미배포 대기, 「성공(succeeded)」 이름표는 실제 기록 확인 전이라 안 넣음] 발송 내역 「종류」 칸에 `customer_group_buy_failed`가 내부 이름 그대로 보임 → `src/lib/notify.ts` 라벨에 공동구매 실패 알림 이름 추가 필요.
 - 0101 권한 보완 `5989f69af`(공개 함수 3개 anon 실행 회수, 시나리오 M11) — Lab에도 적용, 운영은 다음 묶음.

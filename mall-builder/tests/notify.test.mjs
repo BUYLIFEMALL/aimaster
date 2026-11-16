@@ -55,4 +55,5 @@ test("재입고 알림 문구의 {{site}}를 사이트 주소로 바꾼다(D16)"
   assert.equal(fillSite("주소 없음", "https://x"), "주소 없음");
   assert.equal(kindLabel("customer_restock"), "재입고 → 유저");
   assert.equal(kindLabel("email_customer_restock"), "재입고 → 유저");
+  assert.equal(kindLabel("customer_group_buy_failed"), "공동구매 무산 → 유저");
 });
