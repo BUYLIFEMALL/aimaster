@@ -92,9 +92,9 @@ test("등록표에 이어 붙고 기존 19종은 그대로, 식품·디지털 10
   for (const l of [...EXTRA_LAYOUTS, ...EXTRA_LAYOUTS_2, ...EXTRA_LAYOUTS_3]) assert.ok(LAYOUTS.includes(l), l.id);
   const keep = ["clean-wellness", "luxury-boutique", "trendy-pop", "neo-modern", "clean-select", "market-daily", "brand-story", "kids-toy", "digital-tech", "wholesale-catalog", "editorial-magazine", "minimal-showroom", "street-night", "fresh-market", "bakery-cafe", "premium-deli", "kids-pastel", "mom-baby-care", "color-cosmetic"];
   for (const k of keep) assert.ok(LAYOUTS.some((l) => l.id === k), `기존 템플릿 사라짐: ${k}`);
-  assert.equal(LAYOUTS.length, 27);
-  assert.equal(new Set(LAYOUTS.map((l) => l.id)).size, 27);
+  assert.ok(LAYOUTS.length >= 27, `등록표 ${LAYOUTS.length}종 — 3차까지 27종, 4차 이후 늘어남(최종 개수는 templates-extra-4 시험이 고정)`);
+  assert.equal(new Set(LAYOUTS.map((l) => l.id)).size, LAYOUTS.length);
   for (const i of ["food", "digital"]) assert.ok(layoutsFor(i).length >= 10, `${i}: ${layoutsFor(i).length}`);
   for (const i of INDUSTRIES) assert.ok(layoutsFor(i).length >= 6, `${i}: ${layoutsFor(i).length}`);
-  assert.equal(layoutsFor("").length, 27);
+  assert.equal(layoutsFor("").length, LAYOUTS.length);
 });

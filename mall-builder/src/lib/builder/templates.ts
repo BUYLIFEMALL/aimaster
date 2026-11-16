@@ -13,6 +13,7 @@ import { DEFAULT_DETAIL, DEFAULT_LIST, type DetailDesign, type ListDesign } from
 import { EXTRA_LAYOUTS } from "./templates-extra.ts"; // 프론트(Claude) 스타일 116·117·118
 import { EXTRA_LAYOUTS_2 } from "./templates-extra-2.ts"; // 프론트(Claude(B2BFront)) 2차 125~130(식품·키즈·뷰티 보강)
 import { EXTRA_LAYOUTS_3 } from "./templates-extra-3.ts"; // 프론트(Claude(B2BFront)) 3차 131~138(식품·디지털 각 10종)
+import { EXTRA_LAYOUTS_4 } from "./templates-extra-4.ts"; // 프론트(Claude(B2BFront)) 4차 139~144(패션·뷰티·도매·키즈 각 10종)
 
 export const INDUSTRIES = ["b2b", "general", "fashion", "beauty", "food", "living", "digital", "kids"] as const;
 export type Industry = (typeof INDUSTRIES)[number];
@@ -631,6 +632,7 @@ export const LAYOUTS: LayoutTemplate[] = [
 LAYOUTS.push(...EXTRA_LAYOUTS);
 LAYOUTS.push(...EXTRA_LAYOUTS_2);
 LAYOUTS.push(...EXTRA_LAYOUTS_3);
+LAYOUTS.push(...EXTRA_LAYOUTS_4);
 
 export const findLayout = (layoutId: string) => LAYOUTS.find((l) => l.id === layoutId) ?? null;
 export const findColor = (colorId: string) => COLOR_PRESETS.find((c) => c.id === colorId) ?? null;
