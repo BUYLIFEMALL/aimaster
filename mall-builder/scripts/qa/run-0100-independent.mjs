@@ -50,32 +50,35 @@ const row = (id) => rows.find((l) => l.startsWith(id + " |")) ?? "(없음)";
 // 칸 위치별 비교(Workspace 지적 WS-20261116-11 §5: 줄 전체 포함 검사는 줄 끝 「기대 …」 칸 때문에 틀린 값도 통과했다)
 // 결과 줄을 |로 나눠 첫 칸(번호)과 「기대」로 시작하는 칸을 빼고, 칸 수와 각 칸을 비교한다. 「~」로 시작하는 기대값만 그 칸에 포함되는지 본다(긴 JSON·문구)
 const cells = (id) => row(id).split("|").map((c) => c.trim()).slice(1).filter((c) => !c.startsWith("기대"));
+const DUMP = process.argv.includes("--dump"); // 실제 칸 값을 그대로 출력(기대값 만들 때만)
 const has = (id, ...exp) => {
   const got = cells(id);
-  const ok = got.length === exp.length && exp.every((e, i) => (e.startsWith("~") ? got[i].includes(e.slice(1)) : got[i] === e));
+  if (DUMP) console.log(`칸 ${id} ${JSON.stringify(got)}`);
+  const ok = got.length === exp.length && exp.every((e, i) => got[i] === e); // 칸마다 정확히 같아야 함(부분 포함 판정 없음 — Master msg_cfde611fce77)
   check(id, ok, `[${got.join(" | ")}] 기대 [${exp.join(" | ")}]`);
 };
-const blocked = (id, msg) => { const m = notices.match(new RegExp(`NOTICE:  ${id} (막힘[^\\n]*|통과됨[^\\n]*)`)); check(id + " 막힘", Boolean(m && m[1].startsWith("막힘") && m[1].includes(msg)), m ? m[1] : "(알림 없음)"); };
-blocked("C1", "신청을 받지 않습니다");
-blocked("C2a", "카드 매출전표");
-blocked("C2b", "휴대폰 번호");
-blocked("C2c", "주문을 찾을 수 없습니다");
-blocked("C4", "세금계산서를 함께 요청할 수 없습니다");
-blocked("C7", "주문을 찾을 수 없습니다");
-blocked("P7a", "주문을 찾을 수 없습니다"); // 주문 권한 없는 직원의 상태 다시 확인
+// 막힘 알림: 「막힘: <DB 오류 문구 전체>」와 정확히 같아야 함
+const blocked = (id, msg) => { const m = notices.match(new RegExp(`NOTICE:  ${id} ([^\\n]*)`)); const got = m ? m[1].trim() : "(알림 없음)"; check(id + " 막힘", got === `막힘: ${msg}`, got); };
+blocked("C1", "이 쇼핑몰은 현금영수증 신청을 받지 않습니다.");
+blocked("C2a", "카드 결제는 카드 매출전표가 영수증입니다.");
+blocked("C2b", "휴대폰 번호(010으로 시작하는 11자리)를 넣어 주세요.");
+blocked("C2c", "주문을 찾을 수 없습니다.");
+blocked("C4", "현금영수증을 신청한 주문은 세금계산서를 함께 요청할 수 없습니다.");
+blocked("C7", "주문을 찾을 수 없습니다.");
+blocked("P7a", "주문을 찾을 수 없습니다."); // 주문 권한 없는 직원의 상태 다시 확인
 has("C3", "requested", "0");
-has("C5", "issuing", "33000", "~INCOME_DEDUCTION", '~"vatAmount": 3000', "~아주 긴 이름의 시험 상품");
+has("C5", "issuing", "33000", '{"type": "PHONE", "value": "010-1234-5678", "purpose": "INCOME_DEDUCTION"}', '{"vatAmount": 3000, "supplyAmount": 30000, "taxFreeAmount": 0}', "아주 긴 이름의 시험 상품 하나입니다");
 has("C6", "issued", "AP123");
 has("C8a", "cancelling", "3000");
 has("C8b", "issuing", "3000", "2");
-has("C8c", '~"vatAmount": 273, "supplyAmount": 2727');
+has("C8c", '{"vatAmount": 273, "supplyAmount": 2727, "taxFreeAmount": 0}');
 has("C9", "issuing", "EXPENSE_PROOF", "1234567890");
-has("C10", "failed", "~사업자등록번호");
+has("C10", "failed", "쇼핑몰 정보에 상호·대표자·사업자등록번호·전화번호가 필요합니다.");
 has("P1a", "unknown");
-has("P1b", "cancelling", "~ik-mbcr-");
+has("P1b", "cancelling", "ik-mbcr-00000000-0000-0000-0000-0000000000e1-1");
 has("P1c", "cancelled", "1");
 has("P1d", "1", "1");
-has("P2", "cancel_failed", "~볼타 발급 번호를 몰라");
+has("P2", "cancel_failed", "볼타 발급 번호를 몰라 자동 취소하지 못했습니다. 볼타 화면에서 직접 취"); // 시나리오가 앞 40자만 출력
 has("P2b", "0", "1");
 has("P3a", "cancelling", "3000");
 has("P3b", "issuing", "3000", "2");
@@ -90,7 +93,8 @@ has("P6b", "cancelling");
 has("P6c", "cancelled");
 has("P6d", "1");
 has("P7b", "issued");
-has("P8a", "cancelled", "~자동 발급을 멈춘 상태");
+has("P8p", "cancelling", "3000");
+has("P8a", "cancelled", "현금영수증 자동 발급을 멈춘 상태라 볼타에 발급 요청을"); // 시나리오가 앞 30자만 출력
 has("P8b", "0");
 
 // ── B. 되돌리기 2단계 4경우 ──
@@ -100,16 +104,17 @@ const s0061 = read("scripts/scenario-0061-resale-apply.sql");
 // 가: 기록 있음(A 시나리오와 같은 상태) → 멈추고 변화 0
 fresh(); psql(DB, [s0061, before].join("\n"), { quiet: true });
 let pre = state(); let r = psql(DB, step2, { quiet: true });
-check("B가 기록 있으면 멈춤(종료 코드≠0·안내)", r.status !== 0 && r.stderr.includes("기록이 있어 완전 제거를 멈춥니다"), r.status + " " + (r.stderr.match(/ERROR:.*/) || [""])[0]);
+{ const err = (r.stderr.match(/ERROR:\s+(.*)/) || ["", ""])[1].trim();
+  check("B가 기록 있으면 멈춤(종료 코드 3·오류 문구 정확)", r.status === 3 && err === "현금영수증 기록이 있어 완전 제거를 멈춥니다(1단계만 사용).", `${r.status} ${err}`); }
 check("B가 변화 0", state() === pre, `${pre} → ${state()}`);
 // 나: 기록 없음, 2단계만(1단계 안 함) → 함수·칸 0
 fresh(); psql(DB, s0061, { quiet: true });
 r = psql(DB, step2, { quiet: true });
-check("B나 2단계만 → 함수 0·칸 0", r.status === 0 && state().startsWith("0/0/"), r.status + " " + state());
+check("B나 2단계만 → 함수 0·칸 0", r.status === 0 && state() === "0/0/0/0", r.status + " " + state());
 // 다: 1단계 → 2단계
 fresh(); psql(DB, s0061, { quiet: true }); psql(DB, read("scripts/rollback-0100-step1-stop-auto.sql"), { quiet: true });
 r = psql(DB, step2, { quiet: true });
-check("B다 1단계→2단계 → 함수 0·칸 0", r.status === 0 && state().startsWith("0/0/"), r.status + " " + state());
+check("B다 1단계→2단계 → 함수 0·칸 0", r.status === 0 && state() === "0/0/0/0", r.status + " " + state());
 // 라: 영수증 없는 주문 3건 → 주문·합계 보존
 fresh(); psql(DB, s0061, { quiet: true });
 psql(DB, `delete from mall_builder_order_items; delete from mall_builder_orders;
