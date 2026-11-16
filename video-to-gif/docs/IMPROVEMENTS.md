@@ -1,5 +1,7 @@
 # 36번 상세페이지 GIF 자동화 (`video-to-gif`) 개선 제안서 (IMPROVEMENTS.md)
 
+> **⏳ 미배포 대기 공용 사본 (2026-11-16, Claude(Movie) MOV-20261116-05, `4936c5e72`)**: 공용 `browser-mp4-encoder`(`lib/mp4Encoder.ts`)에 「파일로 바로 저장」 방식의 그래픽 가속 멈춤 대체(선택 `reopenStream`) 추가. 이 프로그램은 `encodeMp4ToFile`을 부르지 않아 동작 변화 없음 — 사본 일치만(다음 배포 때 함께). 실제 효과는 가사 영상(`lyric-video-studio`).
+>
 > **⏳ 미배포 대기 (2026-11-16, Claude(Movie) MOV-20261116-04)**: 사용 매뉴얼 `app/guide/page.tsx`의 「상세페이지로」 설명 2곳(자주 묻는 질문·4단계)이 「버튼 하나로 즉시 섹션 삽입」이라고 잘못 적혀 있어 실제 흐름으로 고침 — 받는 창에서 상품·섹션 골라 「이 섹션에 넣기」, 한 번 누르면 1번 전달·다시 보내려면 다시 누름, 10MB 초과 사전 차단, 팝업 허용·로그인 뒤 자동 진행. 문구만 바뀜(다음 배포 때 함께).
 >
 > **✅ v1.33 배포 완료 (2026-11-16 18:27, `video-to-38pox5t03`, 빌드 1회 · DB·확장 ZIP v1.33 검증 OK · QA-03 PASS 뒤) (2026-11-16, Claude(Movie) `claude-win-video`, Codex(Master) 지시 MOV-20261116-01)**: 상세페이지로 보내기를 결과 종류에 맞춤. 공용 `lib/shopPayload.ts`(형식·확장자 GIF/WebP 판단, 0바이트·10MB 초과 사전 차단)·`lib/shopInbox.ts`(창 열기·정확한 주소 「준비됨」 확인 후 1건 전송, 신설 — MOV-20261116-02 `2ae34fbdc`로 **한 번 호출당 자동 전송 최대 1회**(겹친·다시 온 「준비됨」 무시, 정리 뒤 대기 파일 폐기, getBlob 실패 안내, 시험 `lib/shopInbox.test.ts` 11개)) 신설. GIF 변환 `sendToShop`이 이를 쓰고(기존 GIF 동작 같음, 10MB 넘으면 창 열기 전 안내), 「🛍 상품 사진 영상」 WebP 결과에 **「상세페이지로」** 버튼 추가. 시험 `lib/shopPayload.test.ts` 7개(받는 쪽 `readFileMessage`로 WebP·GIF 왕복 검사·다른 주소 무시 포함)+기존 23개 통과, tsc 통과, gif-handoff 사본 일치. **배포 순서**: 상세페이지(`1ed1fde1b` WebP 받기) 먼저 배포 → 이 v1.33 배포 → ego에서 WebP·GIF 각 1회 왕복 시험. **남은 일**: 실제 두 창 왕복(상품 섹션 저장)은 사전 승인된 시험 상품 범위가 확인된 뒤 ego에서 GIF·WebP 각 1회.
