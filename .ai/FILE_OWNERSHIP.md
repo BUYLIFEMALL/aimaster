@@ -278,3 +278,8 @@ B2B17-07 0103/qa runner 함수오류catch 보완은mock검수만. SQL전체중�
 
 Workspace S3~5 제출 calendar/calendar.css·database.css/dbv.css/table.css·page/page.css·app/inbox/inbox.css/InboxBoard.tsx 클래스·guide/guide.css·settings/keys/keys.css/public-pages/page.tsx·receipts/receipts.css/calendar-sync/page.tsx 스타일만 허용. 필요 app/studio-theme.css 공통1개·대상루트클래스 국소,전역html/body/다크/다른페이지/서버데이터동작변경0. 캘린더서버override의엄격한실재날짜검증/관련시험국소보완 우선.
 Lab0102실적용후자동confirmed3일과D4교환7일충돌발견:기존자동확정정상유지·confirmed도실배송7일내접수방향Master확정. 0102기록/본문덮기0·별도후속migration/정확UI·0103조건안 먼저검토,추가Lab쓰기/EXQA강제되돌림/cron변경0.
+
+### 2026-11-17 03:46 KST · 로컬 개발/시험 DB 분리
+
+WS17-16 CC-WORKSPACE-01: 개발3457와vitest가같은127.0.0.1:55432/aww임을확인,DB쓰기시험/주인님로그인보류. 시험은aww유지·개발새aww_dev에현재로컬자료보존복제 승인(로컬only). 기존aww_dev덮기/drop금지·타인세션종료0, .env.local AWW_DATABASE_URL DB명만변경·운영env/DB0. 자기PID44944 확인후중지/동일3457숨김재시작,실개발/시험연결분리와시험reset의dev영향0 증거필수. 새비밀/덤프/자격증명로그0·private비추적보존만.
+B2B17-08: 기적용0102동결,후속0103_exchange_confirmed_window.sql·run-0103-confirmed.mjs 및 UIexchanges.ts/panels/tests 범위. 미적용카드0103파일/runner는0104로rename·문서신기준연결(과거기록보존). 운영/새LabDDL/기존17주문변경0.
