@@ -115,7 +115,7 @@ export default function TemplateGallery({ slug, layouts, colors, industries }: {
       <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-template-list>
         {shown.map((l) => {
           const colorId = picked[l.id] ?? l.defaultColor;
-          const color = colors.find((c) => c.id === colorId) ?? colors[0];
+          const color = colors.find((c) => c.id === colorId) ?? colors[0]; // 이 아래 선택 표시·Tab·테두리·주소는 모두 실제로 보이는 color.id 하나로(기본색이 목록에 없을 때 어긋남 방지)
           return (
             <li key={l.id} className="flex flex-col rounded-xl border border-gray-200 bg-white p-3 shadow-sm" data-template={l.id}>
               <Thumb layout={l} color={color} />
@@ -150,14 +150,14 @@ export default function TemplateGallery({ slug, layouts, colors, industries }: {
                     aria-label={c.name}
                     title={c.name}
                     onClick={() => setPicked((p) => ({ ...p, [l.id]: c.id }))}
-                    className={`h-6 w-6 rounded-full border-2 ${c.id === colorId ? "border-gray-900" : "border-white ring-1 ring-gray-200"}`}
+                    className={`h-6 w-6 rounded-full border-2 ${c.id === color.id ? "border-gray-900" : "border-white ring-1 ring-gray-200"}`}
                     style={{ background: c.primary }}
                   />
                 ))}
               </div>
               <p className="mt-1 text-[11px] text-gray-500">색: {color.name}</p>
               <Link
-                href={`/s/${slug}/admin/design?template=${encodeURIComponent(l.id)}&color=${encodeURIComponent(colorId)}`}
+                href={`/s/${slug}/admin/design?template=${encodeURIComponent(l.id)}&color=${encodeURIComponent(color.id)}`}
                 className="mt-3 rounded-lg bg-gray-900 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-gray-800"
                 data-template-preview-link
               >

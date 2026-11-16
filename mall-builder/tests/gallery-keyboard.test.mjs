@@ -27,9 +27,11 @@ test("색 고르기: 화살표 4방향은 돌아가며, Home/End는 처음·끝,
   assert.match(src, /onKeyDown=\{\(e\) => \{[\s\S]*?radioKeyIndex\(e\.key[\s\S]*?e\.preventDefault\(\);[\s\S]*?setPicked[\s\S]*?\.focus\(\)/);
 });
 
-test("클릭으로 고르기와 미리보기 주소는 그대로(고른 색이 주소에 들어감)", () => {
+test("클릭으로 고르기와 미리보기 주소는 그대로(고른 색이 주소에 들어감) — 테두리·주소도 보이는 색 color.id 하나로", () => {
+  assert.ok(src.includes('c.id === color.id ? "border-gray-900"'), "테두리도 보이는 색 기준");
+  assert.equal((src.match(/colorId/g) || []).length, 2, "colorId는 고른 값 읽기와 color 찾기 두 곳에만");
   assert.match(src, /onClick=\{\(\) => setPicked\(\(p\) => \(\{ \.\.\.p, \[l\.id\]: c\.id \}\)\)\}/);
-  assert.match(src, /href=\{`\/s\/\$\{slug\}\/admin\/design\?template=\$\{encodeURIComponent\(l\.id\)\}&color=\$\{encodeURIComponent\(colorId\)\}`\}/);
+  assert.match(src, /href=\{`\/s\/\$\{slug\}\/admin\/design\?template=\$\{encodeURIComponent\(l\.id\)\}&color=\$\{encodeURIComponent\(color\.id\)\}`\}/);
 });
 
 test("업종 거르기: 라디오가 아닌 토글 단추 — aria-pressed로 선택 표시, 단추 목록은 거르기와 상관없이 그대로", () => {
