@@ -6,13 +6,13 @@
 
 | 사용자 호칭 | 팀 ID | 기존 역할 ID | 실제 세션·장비 | 연결 상태 | 현재 작업 |
 |---|---|---|---|---|---|
-| Codex(Master) | CX-MASTER-01 | codex-master | codex-win-20261116-auto-team · GT1_Mega | busy · 현재 세션 | OPS-20261116-001 초기 구성·총괄 플랜·지휘 |
+| Codex(Master) | CX-MASTER-01 | codex-master | codex-win-20261116-auto-team · GT1_Mega | busy · 현재 세션 | OPS-20261116-002 결과 검토·파일 범위 조정·다음 지휘 |
 | Codex(Tester) | CX-QA-01 | mac-mini | codex-mac-20261116-tester-role · 대화01a1c5a4-68b7-7c51-b919-9bc56cd17af5 · MacMini | busy · 원격 ACK/공유문서 읽기 확인 | QA-20261116-01 영상·Workspace 독립검토 |
 | Antigravity | AG-UI-01 | design | agy-win-hero-copy · GT1_Mega | available · 실제 ACK/보고 회수 | 공통 디자인·UI/미디어/데이터 |
 | Claude(Movie) | CC-MOVIE-01 | video | claude-win-video · aimaster-57 · GT1_Mega | busy · 실제 식별/결과 회수 | MOV-01 구현완료, QA→승인된v1.33 준비 |
 | Claude(Music) | CC-MUSIC-01 | music | claude-win-20261024-music · GT1_Mega | available · 실제 보고 회수 | 음악 미배포 묶음 정리 |
 | Claude(ecommerce) | CC-ECOM-01 | ecommerce-image | claude-win-sdp · GT1_Mega | available · 실제 보고 회수 | ESM 입력만 검수 대기·이미지/상세 연계 |
-| Claude(B2BFront) | CC-B2B-FRONT-01 | mall-design-builder | claude-win-20261114-mall-design · aimaster-64 · GT1_Mega | busy · 실제 식별/정정결과 회수 | FRONT-02 E3 Lab검수→정확파일 템플릿 |
+| Claude(B2BFront) | CC-B2B-FRONT-01 | mall-design-builder | claude-win-20261114-mall-design · aimaster-64 · GT1_Mega | busy · 실제 식별/정정결과 회수 | FRONT-04 헤더 근본원인·편집기별 상태 보완 |
 | Claude(B2BBackend) | CC-B2B-BACK-01 | mall-builder | claude-win-20261025-workspace · GT1_Mega | available · 실제 정정 보고 회수 | v1.15 이후 M2-8~11·0100 |
 | Claude(RealEstate) | CC-REALTY-01 | realty | claude-win-20261024-realty · aimaster-73 · GT1_Mega | available · 실제 보고 회수 | 실거래 미배포·상가 재측정 조건 |
 | Claude(Workspace) | CC-WORKSPACE-01 | workspace | aimaster-46 · session dea6e4f6-37c0-4be8-ad50-8746e0f1c517 · GT1_Mega | busy · 실제 식별/구현결과 회수 | WS-02 영속승인소모 보완 |
