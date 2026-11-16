@@ -1,6 +1,6 @@
 # 쇼핑몰 디자인 UI 빌더(프론트)
 
-- 담당: Claude Code(윈도우) `claude-win-20261114-mall-design`
+- 담당: **Claude(B2BFront)** — Claude Code(윈도우) `claude-win-20261114-mall-design`, 쇼핑몰 프론트 작업 담당(2026-11-16 주인님 지정 이름)
 - 맡은 폴더: `mall-builder/`의 디자인 빌더 범위(`src/lib/builder/**`·`src/lib/theme.ts`·`src/lib/blocks.ts`·`src/app/s/[store]/admin/design/**`·`admin/home/**`·`home-blocks.tsx`, `(shop)/layout.tsx` 테마 주입부)
 - 카테고리: 이커머스
 - 주력 업무: **프로셀에서 구현한 쇼핑몰 프론트단 디자인 UI 빌더(위지위그) 개발 전담**(2026-11-14 주인님 지정). B2B+리셀러몰·분양몰·독립몰 세 몰 공통 코어, 백엔드 담당(`mall-builder` 역할)과 계속 조율
