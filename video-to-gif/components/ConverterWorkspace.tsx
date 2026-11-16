@@ -31,7 +31,8 @@ import ScreenRecorder from "@/components/ScreenRecorder";
 import { CANDIDATES, MAX_OUTPUT_BYTES, canSinglePass, nextCandidateIndex, progressRatio, runLadder } from "@/lib/gifLadder";
 import { LocalRendererPool, checkRendererUpdate, detectLocalRenderer, localSlots, type RendererStatus, type RendererUpdate } from "@/lib/localRenderer";
 import { ACCEPT, pickFiles, skippedNote } from "@/lib/videoFiles";
-import { GIF_INBOX_PATH, GIF_RECEIVER_ORIGIN, MSG_FILE, isReadyMessage } from "@/lib/gifHandoff";
+import { openShopInbox } from "@/lib/shopInbox";
+import { shopSizeError } from "@/lib/shopPayload";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
 type Job = {
@@ -259,39 +260,16 @@ export default function ConverterWorkspace() {
     if (!job.downloadUrl) return;
     const note = (text: string) => setSendNotes((cur) => ({ ...cur, [job.id]: text }));
     sendCleanupRef.current?.();
-    const win = window.open(`${GIF_RECEIVER_ORIGIN}${GIF_INBOX_PATH}`, "aimaster-gif-inbox");
-    if (!win) {
-      note("새 창이 막혔습니다. 주소창 오른쪽의 팝업 허용을 누른 뒤 다시 눌러 주세요.");
+    sendCleanupRef.current = null;
+    // v1.33: 10MB 넘는 결과는 창을 열기 전에 막는다(받는 쪽도 같은 기준으로 거절).
+    const tooBig = shopSizeError(job.outputSize ?? 0);
+    if (tooBig) {
+      note(tooBig);
       return;
     }
-    note("상세페이지 창을 여는 중입니다…");
-    // 「준비됨」 신호를 놓치지 않게 대기를 먼저 걸고, 파일은 신호를 받은 뒤 기다린다.
-    const filePromise = fetch(job.downloadUrl)
-      .then((r) => r.blob())
-      .then((b) => new Blob([b], { type: "image/gif" }));
-    const name = `${job.name.replace(/\.[^.]+$/, "")}.gif`;
-    let sent = false;
-    const onMessage = async (e: MessageEvent) => {
-      if (e.source !== win || !isReadyMessage(e.origin, e.data)) return;
-      const file = await filePromise;
-      win.postMessage({ type: MSG_FILE, name, file }, GIF_RECEIVER_ORIGIN);
-      sent = true;
-      note("보냈습니다. 상세페이지 창에서 상품과 섹션을 골라 「이 섹션에 넣기」를 눌러 주세요.");
-    };
-    const slow = window.setTimeout(() => {
-      if (!sent) note("상세페이지 창이 아직 준비되지 않았습니다. 로그인 화면이면 로그인해 주세요 — 열리면 자동으로 넘어갑니다.");
-    }, 10_000);
-    const watch = window.setInterval(() => {
-      if (win.closed) cleanup();
-    }, 1000);
-    function cleanup() {
-      window.removeEventListener("message", onMessage);
-      window.clearTimeout(slow);
-      window.clearInterval(watch);
-      if (sendCleanupRef.current === cleanup) sendCleanupRef.current = null;
-    }
-    window.addEventListener("message", onMessage);
-    sendCleanupRef.current = cleanup;
+    const url = job.downloadUrl;
+    // 이 화면 결과는 GIF — 형식·확장자는 결과 종류(GIF/WebP)에 맞춰 공용 shopPayload가 정한다.
+    sendCleanupRef.current = openShopInbox(() => fetch(url).then((r) => r.blob()), `${job.name.replace(/\.[^.]+$/, "")}.gif`, note);
   }
 
   function remove(id: string) {

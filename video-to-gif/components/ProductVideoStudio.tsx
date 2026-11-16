@@ -4,7 +4,9 @@
 import { useEffect, useRef, useState } from "react";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { toBlobURL } from "@ffmpeg/util";
-import { ChevronLeft, ChevronRight, Download, Film, Pause, Play, Square, Trash2, UploadCloud } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Film, Pause, Play, ShoppingBag, Square, Trash2, UploadCloud } from "lucide-react";
+import { openShopInbox } from "@/lib/shopInbox";
+import { shopSizeError } from "@/lib/shopPayload";
 import { assertWebCodecs, encodeMp4, mixVoiceAndBgm } from "@/lib/mp4Encoder";
 import { createZip, uniqueNames } from "@/lib/zip";
 import {
@@ -108,6 +110,16 @@ export default function ProductVideoStudio() {
   const [playing, setPlaying] = useState(false), [t, setT] = useState(0);
   const canvas = useRef<HTMLCanvasElement>(null); const abort = useRef<AbortController | null>(null);
   const ffRef = useRef<Promise<FFmpeg> | null>(null); const tRef = useRef(0);
+  // v1.33: WebP 결과를 상세페이지 「GIF 받기」로 바로 보내기(공용 shopInbox)
+  const [sendNotes, setSendNotes] = useState<Record<string, string>>({}); const sendCleanup = useRef<(() => void) | null>(null);
+  function sendToShop(r: Result) {
+    const note = (text: string) => setSendNotes((cur) => ({ ...cur, [r.url]: text }));
+    sendCleanup.current?.(); sendCleanup.current = null;
+    const tooBig = shopSizeError(r.bytes);
+    if (tooBig) { note(tooBig); return; }
+    sendCleanup.current = openShopInbox(async () => r.blob, r.name, note);
+  }
+  useEffect(() => () => sendCleanup.current?.(), []);
   const { w: W, h: H } = RATIOS[s.ratio]; const total = totalSeconds(photos.length, s.tempo);
 
   useEffect(() => { // 글꼴 CSS(공식 무료 글꼴, OFL)
@@ -335,7 +347,11 @@ export default function ProductVideoStudio() {
               {results.map((r) => (
                 <div key={r.url} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[#0d1117] px-3 py-2 text-xs text-gray-200">
                   <span>{r.name} · {mb(r.bytes)}{r.note ? ` · ${r.note}` : ""}</span>
-                  <a href={r.url} download={r.name} className="inline-flex items-center gap-1 font-bold text-amber-300"><Download className="h-3.5 w-3.5" />받기</a>
+                  <span className="flex items-center gap-3">
+                    {r.blob.type === "image/webp" && <button type="button" onClick={() => sendToShop(r)} title="AI 상세페이지 자동화의 상품 섹션에 이 WebP를 바로 넣습니다" className="inline-flex items-center gap-1 font-bold text-sky-300"><ShoppingBag className="h-3.5 w-3.5" />상세페이지로</button>}
+                    <a href={r.url} download={r.name} className="inline-flex items-center gap-1 font-bold text-amber-300"><Download className="h-3.5 w-3.5" />받기</a>
+                  </span>
+                  {sendNotes[r.url] && <div className="w-full text-[11px] text-sky-300">🛍 {sendNotes[r.url]}</div>}
                 </div>
               ))}
               <div className="text-[11px] text-gray-400">상세페이지 편집기(스마트스토어·쿠팡 등)에는 WebP 파일을 이미지처럼 올리면 움직입니다. GIF가 꼭 필요하면 MP4를 「영상 → GIF 변환」에 넣어 주세요.</div>
