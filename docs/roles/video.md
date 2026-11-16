@@ -12,6 +12,7 @@
 | — | 지금 맡은 작업 없음(메이커 후속 세 가지 끝, 다음 지시 대기) | — | — |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
+- 2026-11-16 유튜브 떡상 분석 v1.30 「떡상 시장 탐색」(커밋 `87ebcae7d`) — 배포 빌드 1회 승인·DB SQL 적용 대기(`youtube-viral-studio/supabase/migrations/20261116120000_yvs_viral_finder_usage_cache.sql`), 배포 뒤 실제 키 검수·AI 기획안 1회 시험. 2·3단계(쇼츠 공식 분석기·사본 4곳·썸네일·원스톱 연결)는 별도 배정.
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `ai-video-studio`·`shorts-onestop-studio` | Vidu Q3 Turbo·Pro 연동, 원스톱 「상품 장면도 AI 영상 허용」 — **코드·배포 완료**. 실생성 확인(Vidu 약 360원·상품 장면 변형 약 $0.25)만 남음 | 주인님 2026-11-15 「나중에 필요할 때 연동, 작업만 해놔」 | `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md` |
@@ -23,6 +24,7 @@
 | `shorts-onestop-studio` | v1.59 배포됨(11-15). 남은 것: Gemini 낱말 시각 1원 시험(시험 계정 로그인 대기), 영상 주소를 상품 쪽으로 반환(상품 번호는 uuid — `product-id`, 받는 쪽 화면은 상품 담당과 협의) | 주인님 로그인 · 상품 담당 | `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md` |
 
 ## 최근 완료 (최근 10개)
+- 2026-11-16 boks-youtube-finder(MIT) 1단계 이식 구현 `87ebcae7d` — 평소 대비 중앙값 판정·관련성/종교 거르기·기회 지수·트렌드 결론·사용량/채널 캐시 표·Claude 기획안, 쇼츠 180초 통일(미배포).
 - 2026-11-16 GIF 변환 v1.33: 상세페이지로 보내기 결과 종류(GIF/WebP)대로·10MB 사전 차단·한 호출당 자동 전송 1회(QA-02 P1 수정 `2ae34fbdc`, QA-03 PASS), 배포 `video-to-38pox5t03`·DB/확장 v1.33 검증 OK (MOV-20261116-01~03)
 - 2026-11-15 GIF 변환 v1.32: 맥미니 검수 P1(상품 영상 5% 정지·멈추기 무반응 — 공용 인코더 대기 반복 고침)·P2(고속 변환 감지 시간 제한)·P3(사이드바 버전 고정) 수정 배포, `44db8e230`
 - 2026-11-15 원스톱 v1.59: Gemini 낱말 시각(B안) 배포, `a61100cdb`

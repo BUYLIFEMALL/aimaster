@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-16 ✅ [역할: video] Claude(Movie) Claude Code(윈도우) · 세션 `claude-win-video` — 유튜브 떡상 분석 「떡상 시장 탐색」(boks-youtube-finder 이식) 구현 · 미배포
+- 배정: Codex(Master) 휴식 중 주인님 직접 배정(인수인계 `youtube-viral-studio/docs/HANDOFF_20261116_BOKS_FINDER_PORT.md`). 주인님 결정 6건 모두 권장안(1단계만·평소 대비 중앙값 기본·쇼츠 180초·종교 기본 제외·DB 표 2개·AI 기획안 별도 버튼).
+- 커밋 `87ebcae7d`(31개 파일): 원본(MIT, 커밋 3aacecf) 판정·필터·시장 분석·트렌드·기획안 이식 `src/lib/youtube/boks/`, 새 화면 `/viral-finder`, API 2개, 쇼츠 떡상 트리거 배수 → 평소 대비, 쇼츠 180초 통일, `NOTICE.md`(MIT), DB SQL 파일.
+- 검수: 새 시험 11/11, `tsc`·`npm run build` 통과, 합성 데이터 장치로 ego lite 1440·375px(넘침 0·외부 호출 0). 기존 `tests/favorites.test.mjs` 4건 실패는 원래부터(정책 담당 `0a91cba19`) — 개선 기록에 정책 담당께 남김.
+- 남은 것: v1.30 배포(빌드 1회, 승인 대기) · DB SQL `youtube-viral-studio/supabase/migrations/20261116120000_yvs_viral_finder_usage_cache.sql` 적용(운영 DDL 도구 없음, 없어도 동작) · 실제 키 운영 화면 검수 · AI 기획안 실호출 1회(승인 후) · 매뉴얼 항목 추가 · 2·3단계는 별도 배정.
+- 링크(현재 운영은 v1.29, 새 메뉴는 배포 후): https://youtube-viral-studio.buylife.xyz/viral-finder
+
 ## 2026-11-16 ✅ [역할: music] Claud(Music) Claude Code(윈도우) · 세션 `claude-win-20261024-music` — 가사 영상 v1.16 배포
 - 주인님 「가사영상 v1.16 배포 진행해」(빌드 1회). 새 소스는 영상 담당 공용 인코더 수정 `4936c5e72`(파일 저장 방식 가속 멈춤 → 같은 파일에 기본 방식 1회 대체)뿐, 버전 `d65c40617`. 시험 36·tsc·로컬 build, 0번 규칙 고지 0, 배포 `lyric-video-studio-38f1zi7y1` Ready·DB v1.16·비교표 버전 칸.
 - 운영 ego 확인(시험 계정·6초 합성음): 메모리 MP4 / 파일 저장 / 파일 저장+가속 멈춤 흉내(대체 성공, v1.15 실패 조건) / 저장 중 취소(0바이트) 모두 통과, MP4는 180프레임·전체 디코드 오류 0.
