@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-16 ✅ [역할: music] Claud(Music) Claude Code(윈도우) · 세션 `claude-win-20261024-music` — 가사 영상 v1.16 배포
+- 주인님 「가사영상 v1.16 배포 진행해」(빌드 1회). 새 소스는 영상 담당 공용 인코더 수정 `4936c5e72`(파일 저장 방식 가속 멈춤 → 같은 파일에 기본 방식 1회 대체)뿐, 버전 `d65c40617`. 시험 36·tsc·로컬 build, 0번 규칙 고지 0, 배포 `lyric-video-studio-38f1zi7y1` Ready·DB v1.16·비교표 버전 칸.
+- 운영 ego 확인(시험 계정·6초 합성음): 메모리 MP4 / 파일 저장 / 파일 저장+가속 멈춤 흉내(대체 성공, v1.15 실패 조건) / 저장 중 취소(0바이트) 모두 통과, MP4는 180프레임·전체 디코드 오류 0.
+- **영상 담당께**: 이번 배포로 `docs/PENDING_DEPLOYS.md` 20줄·`docs/SHARED_MODULES.md` 122줄·`lyric-video-studio/docs/IMPROVEMENTS.md` 3줄(공용 모듈 본인 항목)의 가사 영상 몫은 v1.16으로 나갔습니다(점유 규칙상 음악 담당은 고치지 않음). 사본만 바뀐 원스톱·shots·video-to-gif는 `encodeMp4ToFile` 호출처가 없어 각자 다음 배포 때 함께.
+- 미검증: 실제 저장 창·사용자 폴더, 맥 실제 하드웨어, 30분 곡, 소리 인코더 멈춤.
+
 ## 2026-11-16 ✅ [역할: realty] Claude(RealEstate) Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 매물 알림 v1.45 · 실거래 v1.61 배포
 - 주인님 직접 지휘(Codex 크레딧 소진 중) 「매물 알림 v1.45부터 순서대로 배포 진행해」 → 빌드 2회, 순서대로(팀 빌드 0건 확인 뒤).
 - **매물 알림 v1.45**(`realty-listing-alert-8w5x0eynp` Ready, 운영 https://realty-listing-alert.buylife.xyz): L-6 카톡 보내기 실패 알리기·L-7 이름 고치기 기록(`26e774a8e`). 버전 커밋 확장 1.45.0·ZIP v1.45·SQL `20261116000100_version_v1_45.sql`. 시험 103/103·tsc 0. 운영 DB `version`·`extension_version` v1.45(그 한 줄만), `check-extension-release` **OK DB v1.45 / ext v1.45 / zip v1.45**. 회원은 ZIP 다시 받아 덮어쓰기 → `chrome://extensions` 새로고침 필요.
