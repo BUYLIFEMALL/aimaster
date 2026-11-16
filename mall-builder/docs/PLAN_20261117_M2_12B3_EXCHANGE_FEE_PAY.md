@@ -39,3 +39,30 @@
 1. 0103 + 로컬 시나리오(모의 토스: 성공·실패·불확실·금액 다름·남의 교환·두 번 승인·결제 뒤 금액 변경·결제 뒤 거절) 빨강→초록
 2. 서버 동작·화면 + 순수 시험·전체 시험·tsc
 3. MacTester 검수 → Lab 실행 자료(0102 자료에 이어서)
+
+## 6. 단계2(화면) 계획 — Master msg_5bfc18be54e9 「계획만」, 구현은 QA012 판정·추가 경로 예약 뒤
+### 6-1. 정확한 경로
+| 구분 | 경로 | 하는 일 |
+|---|---|---|
+| 새 | `src/app/s/[store]/(shop)/orders/[id]/exchange-pay/[exchangeId]/page.tsx` | 서버: 로그인(requireUser) → 몰 → 주문 주인 = 나 → 교환이 이 주문 것 → 교환비 대기·단계 회수 완료 이하·주문 delivered → 결제 기록 상태 읽기(결제 키 칸 제외). 카드 미설정 몰이면 무통장 안내만(E3). 결제 기록이 requested·unknown이면 위젯 대신 「확인 중」 안내, done이면 「결제 완료」 |
+| 새 | `.../exchange-pay/[exchangeId]/success/page.tsx` | `parseSuccessParams('exfee-<교환 id>', 쿼리)` → rpc `mall_builder_exchange_fee_card_confirm` → **결제 키 없는 깨끗한 주소**(주문 상세 `?ok=1&msg=` / `?error=`)로 바로 이동. 결과 불확실(unknown)이면 「쇼핑몰이 확인 뒤 안내」 |
+| 새 | `.../exchange-pay/[exchangeId]/fail/page.tsx` | 토스 실패 코드·문구만 표시, 주문 상세로 돌아가기(카드 돈 안 나감 안내) |
+| 재사용(수정 없음) | `(shop)/orders/[id]/pay/pay-widget.tsx` | import만 — 금액·`exfee-<교환 id>`·`교환비 · <상품명>`·성공/실패 경로 전달. 위젯이 이미 결제 중 단추 비활성(중복 클릭 막음) |
+| 고침 | `src/app/exchange-panels.tsx` | 유저: 교환비 대기 + 카드 설정 몰 + 진행 중 카드 결제 없음이면 「카드로 결제」 링크, requested·unknown이면 「카드 결제 확인 중」, failed면 「다시 결제」. 직원: 카드 결제 상태·영수증 링크, unknown·requested면 「카드 결제 다시 확인」, 「결제 링크 보내기」(아래) |
+| 고침 | `src/lib/exchanges-server.ts` | 결제 기록(결제 키 칸 제외 열만 select)·몰 카드 설정(`store_payment_settings.card_enabled`·client key 있음 여부) 함께 읽기. 표 없음(0103 전 DB)은 결제 기능만 숨김 |
+| 고침 | `src/lib/exchange-actions.ts` | `exchangeFeeCardRecheckAction`(직원, 소속 확인 → rpc recheck), `exchangeFeePayLinkAction`(직원, 문자/메일 — 0101 `mall_builder_message_send(…, p_order_id, dry_run)`: 먼저 미리보기(dry_run=true)로 받는 사람·요금 표시 → 「보내기 확인」 체크해야 실제 발송, 이번 검수는 미리보기까지만·실발송 0) |
+| 고침 | `src/lib/exchanges.ts` | 순수: `feePayState(교환, 결제 기록, 카드 설정)` → 유저 단추/직원 단추/안내 문구, `exchangePayPath(slug, orderId, exchangeId)`(형식 검사 — 4985bf6ab 주소 규칙과 같음) |
+| 고침 | `tests/exchanges.test.mjs` | 순수 상태 판단 + 소스 경계(아래) |
+
+### 6-2. 오류·불확실·중복
+- 결과 불확실(unknown): 유저는 위젯을 다시 띄우지 않음(서버가 이미 「확인 중」 반환·자동 재결제 0), 직원만 「다시 확인」.
+- 실패(failed): 유저에게 「다시 결제」 노출(새 결제 키로만, 서버가 허용).
+- 중복 클릭: 위젯 단추 비활성(기존) + 성공 주소 새로고침해도 서버가 already 반환 + 직원 단추는 제출 중 비활성(useFormStatus).
+- 단계 경합: 결제 화면을 연 뒤 무통장 확인·거절이 되면 서버 승인이 거절(토스 안 부름) → 「이미 처리됨」 안내.
+
+### 6-3. 결제 키 비노출
+- 결제 키는 성공 주소 쿼리로만 들어와 서버 rpc 인자로 쓰고, 화면·이력·서버 로그(console 없음)·돌아가는 주소에 넣지 않음. 성공 페이지는 결과만 보고 바로 redirect.
+- 읽기는 칸 권한으로 결제 키 제외(0103) — 화면 코드도 그 열을 select하지 않음(소스 시험으로 확인: `payment_key` 문자열이 화면·서버 읽기 코드에 없음).
+
+### 6-4. 시험(구현 때)
+순수 상태 판단(대기/진행 중/불확실/실패/완료 × 카드 설정 유무 × 단계), 결제 주소 형식, 소스 경계(성공 페이지가 rpc 전 parseSuccessParams·결제 키 미출력·redirect, 서버 동작 소속 확인 먼저·서버 키 없음, 링크 보내기는 dry_run 먼저), 전체 tests·tsc. 실토스·실발송·빌드 0.
