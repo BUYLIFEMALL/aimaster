@@ -33,3 +33,11 @@
 
 ## 비용
 없음(빌드 0·AI 0·DB 0·외부 호출 0).
+
+## 6. 보완 — 확장 판정 https 검사 (Master `msg_6ce1480fc011`)
+- 지적: 서버 `naverProductIdentity`는 https만 허용하는데 확장 `productIdentity`는 프로토콜 검사가 없어 `http://smartstore.naver.com/s/products/1`이 `true` → 「서버·확장 일치」 주장이 불충분했음(인정).
+- 시험 먼저: 같은 표 거부 목록에 `http://`(스마트스토어·브랜드·여행), `ftp://`(쇼핑), `ws://`(여행) 5개 추가 → 고치기 전 **실패**(`확장 거부: http://smartstore.naver.com/s/products/1`, 5/6).
+- 수정: `extension/background.js` 같은 줄을 `if (u.protocol !== 'https:' || u.username || u.password || u.port) return false;`로(주석 포함 2줄 변경). 서버 파일은 이미 https 검사가 있어 변경 없음.
+- 결과: **6/6 통과**(거부 13·허용 5를 서버·확장 같은 표로 대조, https 정상·`:443` 허용 그대로), `node --check` 통과.
+- 산출물 커밋 **`eaaebe027`**(`git log -1 -- threads-affiliate-poster/extension/background.js`) — 2파일 +8/−2. 같은 폴더의 다른 세션 미커밋 변경(`src/lib/actions/naverCollect.ts`·`src/types/database.types.ts`, Backend 대기열 작업)은 포함하지 않고 그대로 둠.
+- ZIP 재생성 안 함(유지) — ZIP 안 `background.js`는 여전히 수정 전 판, v1.89 배포 때 담당 재생성. 비용 0.
