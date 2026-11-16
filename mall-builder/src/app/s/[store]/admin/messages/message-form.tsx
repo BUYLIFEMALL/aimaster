@@ -12,13 +12,14 @@ export default function MessageForm({
   target,
   storeName,
   optout,
-  allowAd,
+  adBlocked = "",
 }: {
   action: (prev: SendState, form: FormData) => Promise<SendState>;
   target: Target;
   storeName: string;
   optout: string;
-  allowAd: boolean;
+  /** 비어 있지 않으면 광고·홍보 선택을 막고 이 이유를 보여 줌(미동의 유저 한 명·주문 화면). 실제 거르기는 DB가 그대로 함 */
+  adBlocked?: string;
 }) {
   const [state, formAction, pending] = useActionState(action, {});
   const [channel, setChannel] = useState<"sms" | "email">("sms");
@@ -26,8 +27,9 @@ export default function MessageForm({
   const [body, setBody] = useState("");
   const [subject, setSubject] = useState("");
   const [previewKey, setPreviewKey] = useState(""); // 미리보기한 입력과 지금 입력이 같을 때만 보내기
-  const key = `${channel}|${isAd}|${subject}|${body}`;
-  const full = channel === "sms" ? composeSms(storeName, body, isAd, optout) : body;
+  const ad = !adBlocked && isAd; // 막힌 화면에서는 늘 일반 메시지
+  const key = `${channel}|${ad}|${subject}|${body}`;
+  const full = channel === "sms" ? composeSms(storeName, body, ad, optout) : body;
   const canSend = Boolean(state.preview) && previewKey === key && !pending;
 
   return (
@@ -44,13 +46,25 @@ export default function MessageForm({
         <label className="flex items-center gap-1">
           <input type="radio" name="channel" value="email" checked={channel === "email"} onChange={() => setChannel("email")} /> 메일
         </label>
-        {allowAd && (
-          <label className="flex items-center gap-1" data-ad-toggle>
-            <input type="checkbox" name="is_ad" value="1" checked={isAd} onChange={(e) => setIsAd(e.target.checked)} /> 광고·홍보 메시지
-          </label>
-        )}
+        <label className={`flex items-center gap-1 ${adBlocked ? "text-gray-400" : ""}`} data-ad-toggle>
+          <input
+            type="checkbox"
+            name="is_ad"
+            value="1"
+            checked={ad}
+            disabled={Boolean(adBlocked)}
+            aria-describedby={adBlocked ? "ad-blocked-reason" : undefined}
+            onChange={(e) => setIsAd(e.target.checked)}
+          />{" "}
+          광고·홍보 메시지
+        </label>
       </div>
-      {isAd && (
+      {adBlocked && (
+        <p id="ad-blocked-reason" className="rounded bg-gray-100 px-3 py-2 text-xs text-gray-700" data-ad-blocked>
+          {adBlocked}
+        </p>
+      )}
+      {ad && (
         <p className="rounded bg-amber-50 px-3 py-2 text-xs text-amber-900">
           광고는 <b>수신 동의한 유저에게만</b> 가고, 앞에 「(광고)」·끝에 수신 거부 안내가 붙습니다. 밤 9시~아침 8시에는 보낼 수 없습니다.
         </p>
@@ -89,6 +103,10 @@ export default function MessageForm({
           {state.preview.no_agree > 0 && ` · 수신 미동의 제외 ${state.preview.no_agree}명`}
           {state.preview.no_contact > 0 && ` · 연락처 없음 제외 ${state.preview.no_contact}명`}
           <span className="text-blue-700"> (오늘 보낸 {state.preview.today.toLocaleString("ko-KR")}명 / 하루 {state.preview.limit_day.toLocaleString("ko-KR")}명)</span>
+          <p className="mt-1 text-xs text-blue-800" data-message-cost>
+            요금: {channel === "sms" ? `문자 ${state.preview.will_send.toLocaleString("ko-KR")}통(${smsType(state.preview.preview_body) === "SMS" ? "단문" : "장문"})` : `메일 ${state.preview.will_send.toLocaleString("ko-KR")}통`}이
+            운영사 본인 {channel === "sms" ? "솔라피" : "Resend"} 계정에서 나갑니다. 실제 단가는 그 계정의 요금제·계약에 따르며, 이 화면은 단가를 알 수 없어 정확한 예상 요금을 계산하지 않습니다.
+          </p>
         </div>
       )}
       {state.sent && (

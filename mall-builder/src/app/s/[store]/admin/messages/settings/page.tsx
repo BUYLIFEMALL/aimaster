@@ -82,11 +82,22 @@ export default async function MessageSettingsPage({ params, searchParams }: { pa
                   <p className="font-medium">
                     {k.label} · {ch === "sms" ? "문자" : "메일"} {cur ? <span className="ml-1 rounded bg-blue-100 px-1.5 text-xs text-blue-800">고친 문구</span> : <span className="ml-1 text-xs text-gray-400">기본 문구</span>}
                   </p>
-                  {ch === "email" && <input name="subject" maxLength={100} defaultValue={cur?.subject ?? ""} placeholder="메일 제목(비우면 기본 제목)" className="mt-2 w-full rounded border bg-white px-2 py-1.5" />}
-                  <textarea name="body" maxLength={1000} rows={3} defaultValue={cur?.body ?? ""} placeholder="비우면 기본 문구" className="mt-2 w-full rounded border bg-white px-2 py-1.5" />
+                  {/* 칸마다 보이는 라벨 + 종류·통로까지 넣은 고유한 이름(B2B-20261116-11, 화면 읽기 프로그램용) */}
+                  {ch === "email" && (
+                    <label htmlFor={`t-${k.key}-${ch}-subject`} className="mt-2 block text-xs text-gray-600">
+                      메일 제목<span className="sr-only"> — {k.label} 메일</span>
+                    </label>
+                  )}
+                  {ch === "email" && <input id={`t-${k.key}-${ch}-subject`} name="subject" maxLength={100} defaultValue={cur?.subject ?? ""} placeholder="비우면 기본 제목" className="mt-1 w-full rounded border bg-white px-2 py-1.5" />}
+                  <label htmlFor={`t-${k.key}-${ch}-body`} className="mt-2 block text-xs text-gray-600">
+                    {ch === "sms" ? "문자 내용" : "메일 내용"}<span className="sr-only"> — {k.label}</span>
+                  </label>
+                  <textarea id={`t-${k.key}-${ch}-body`} name="body" maxLength={1000} rows={3} defaultValue={cur?.body ?? ""} placeholder="비우면 기본 문구" className="mt-1 w-full rounded border bg-white px-2 py-1.5" />
                   {cur && <p className="mt-1 whitespace-pre-wrap text-xs text-gray-600">미리보기: {fillPlaceholders(cur.body)}</p>}
                   {bad.length > 0 && <p className="mt-1 text-xs text-amber-700">모르는 치환 문자 {bad.join(" ")} — 그대로 보내집니다.</p>}
-                  <button className="mt-2 rounded border bg-white px-3 py-1 text-xs hover:bg-gray-100">저장</button>
+                  <button className="mt-2 rounded border bg-white px-3 py-1 text-xs hover:bg-gray-100">
+                    저장<span className="sr-only"> — {k.label} {ch === "sms" ? "문자" : "메일"} 문구</span>
+                  </button>
                 </form>
               );
             }),

@@ -24,6 +24,8 @@ export default async function MessagesPage({ params, searchParams }: { params: P
   let target: { kind: "customer"; customerId: string } | { kind: "order"; orderId: string } | { kind: "filter"; filter: string };
   let targetLabel: string;
   let backHref: string;
+  // 광고·홍보 선택을 막는 이유(B2B-20261116-11) — 화면 안내만, 실제 거르기는 그대로 DB(0101)가 한다
+  let adBlocked = "";
   const customerId = one("customer");
   const orderId = one("order");
   if (isUuid(customerId)) {
@@ -32,11 +34,13 @@ export default async function MessagesPage({ params, searchParams }: { params: P
     target = { kind: "customer", customerId };
     targetLabel = `유저 ${data.name} 한 명${data.marketing_agree ? "" : " (광고 수신 미동의)"}`;
     backHref = `/s/${store.slug}/admin/customers/${customerId}`;
+    if (!data.marketing_agree) adBlocked = "이 유저는 광고 수신에 동의하지 않아 광고·홍보 메시지를 보낼 수 없습니다. 주문·배송 같은 일반 안내만 보낼 수 있습니다.";
   } else if (isUuid(orderId)) {
     const { data } = await supabase.from("mall_builder_orders").select("id, order_no").eq("store_id", store.id).eq("id", orderId).maybeSingle();
     if (!data) return <AdminShell slug={store.slug} storeName={store.name} active="/messages"><p className="text-sm text-gray-500">주문을 찾을 수 없습니다.</p></AdminShell>;
     target = { kind: "order", orderId };
     targetLabel = `주문 ${data.order_no}의 받는 분(문자)·주문자(메일)`;
+    adBlocked = "주문 화면에서 보내는 메시지는 일반 안내만 됩니다. 광고·홍보는 유저 목록에서 보내 주세요.";
     backHref = `/s/${store.slug}/admin/orders/${orderId}`;
   } else {
     const f = { ...parseCustomerListQuery(sp), page: 1 };
@@ -85,7 +89,7 @@ export default async function MessagesPage({ params, searchParams }: { params: P
           <Link href={backHref} className="text-xs text-blue-700 underline">{target.kind === "filter" ? "유저 목록에서 조건 바꾸기" : "돌아가기"}</Link>
         </p>
         <div className="mt-3">
-          <MessageForm action={sendMessageAction.bind(null, store.slug)} target={target} storeName={store.name} optout={ns?.optout_text ?? ""} allowAd={target.kind !== "order"} />
+          <MessageForm action={sendMessageAction.bind(null, store.slug)} target={target} storeName={store.name} optout={ns?.optout_text ?? ""} adBlocked={adBlocked} />
         </div>
       </section>
 
