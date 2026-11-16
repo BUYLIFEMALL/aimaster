@@ -103,7 +103,7 @@ chrome.runtime.onMessage?.addListener((message,sender,respond)=>{
   const trusted=sender.id===chrome.runtime.id&&!sender.tab&&(!sender.url||sender.url===chrome.runtime.getURL('background.mjs'));
   if(!trusted)return false;
   if(message?.type==='neighbor_focus_probe'){
-    Promise.resolve(chrome.windows?.getCurrent()).then(w=>respond({windowId:w?.id,focused:Number.isInteger(message.windowId)&&w?.id===message.windowId&&document.hasFocus()&&document.visibilityState==='visible'}),()=>respond({focused:false}));return true;
+    Promise.resolve(chrome.windows?.getCurrent()).then(w=>respond({windowId:w?.id,focused:Number.isInteger(message.windowId)&&w?.id===message.windowId&&document.hasFocus()&&document.visibilityState==='visible',visible:document.visibilityState==='visible'}),()=>respond({focused:false}));return true;
   }
   if(message?.type==='neighbor_progress'&&currentDeviceId&&message.progress?.deviceId===currentDeviceId)renderNeighborProgress(message.progress);
   if(message?.type==='work_progress'&&currentDeviceId&&message.deviceId===currentDeviceId&&typeof message.message==='string'&&message.message.length<=300)$('workMessage').textContent=message.message;

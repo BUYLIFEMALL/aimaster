@@ -14,6 +14,7 @@ function checkTarget(kind,url,blogId){
  if(kind==='return_post'&&(!t||!t.post||t.owner===blogId))throw local('답방 글은 이웃의 글 화면(blog.naver.com/이웃ID/글번호)을 연 탭에서 읽어 주세요. 지금 탭은 '+(t&&t.owner===blogId?'내 블로그':'이웃 글 화면이 아닙니다')+'.');
  if(kind==='incoming'&&(!t||!t.post||t.owner!==blogId))throw local('원댓글은 내 블로그 글 화면(blog.naver.com/'+blogId+'/글번호)을 연 탭에서 읽어 주세요.');
 }
+const FOCUS_PROBE={ok:'활성','no-reply':'응답 없음','other-window':'다른 창',unfocused:'비활성',hidden:'화면에 안 보임',error:'오류','no-runtime':'메시지 불가'};
 export function createContextReader(browser,identity,post,popupFocused=async()=>false,readerFunction=readVisibleNeighborContext,local=Date.now){
  let pending=null,busy=false,epoch=0;
  // 2026-11-14: tag the failing call so the popup can show offer/preview/confirm with the HTTP status and BNC code.
@@ -26,7 +27,13 @@ export function createContextReader(browser,identity,post,popupFocused=async()=>
   const who=await identity(),tabs=await browser.tabs.query({active:true,currentWindow:true});
   if(p.epoch!==epoch||who.deviceId!==p.deviceId||who.blogId!==p.scope.actorId||tabs.length!==1||tabs[0].id!==p.tab.id||tabs[0].url!==p.tab.url||tabs[0].windowId!==p.tab.windowId)throw Object.assign(Error('연결 계정 또는 현재 탭이 바뀌었습니다.'),{stage:'tab'});
   // 2026-11-15: an agent-driven click (e.g. ego lite under automation) leaves both the window and the popup unfocused; this guard must keep rejecting it. The 'focus' stage tells that apart from a server-side refusal.
-  const w=await browser.windows.get(p.tab.windowId);if(w.state==='minimized'||(!w.focused&&!await popupFocused(p.tab.windowId)))throw Object.assign(Error('브라우저의 현재 탭을 화면에 유지해 주세요.'),{stage:'focus'});
+  const w=await browser.windows.get(p.tab.windowId),minimized=w.state==='minimized';
+  if(minimized||(!w.focused&&!await popupFocused(p.tab.windowId))){
+   // 2026-11-16 B-1: a human click on the Mac was also refused, so name which check failed. Only window/popup state, never page, account or body.
+   const probe=!minimized&&typeof popupFocused.detail==='function'?popupFocused.detail():'';
+   const detail=`창 ${minimized?'최소화':w.focused?'활성':'비활성'} · 팝업 ${FOCUS_PROBE[probe]||'확인 안 함'}`;
+   throw Object.assign(Error(`브라우저의 현재 탭을 화면에 유지해 주세요. (진단: ${detail})`),{stage:'focus',detail});
+  }
  };
  const inspect=async p=>{
   await current(p);

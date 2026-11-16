@@ -24,8 +24,11 @@ export function createReaderController(browser, fetcher = fetch) {
     return json;
   };
   let importToken;
+  // 2026-11-16 B-1: remember why the last popup probe failed so a focus refusal can name it (window/popup state only).
+  let lastProbe='';
+  const focusCheck=Object.assign(windowId=>popupFocused(windowId),{detail:()=>lastProbe});
   const contexts=createContextReader(browser,async()=>{const {token}=await browser.storage.local.get('token');if(!token)throw Error('회원 연결이 필요합니다.');return (await post('whoami',{},token)).data;},
-    async(operation,payload)=>{const {token}=await browser.storage.local.get('token');if(!token)throw Error('회원 연결이 필요합니다.');return (await post(operation,payload,token,'/api/neighbors/context/extension')).data;},windowId=>popupFocused(windowId));
+    async(operation,payload)=>{const {token}=await browser.storage.local.get('token');if(!token)throw Error('회원 연결이 필요합니다.');return (await post(operation,payload,token,'/api/neighbors/context/extension')).data;},focusCheck);
   const work=createWorkBridge(browser,async()=>{
     const {token}=await browser.storage.local.get('token');if(!token)throw Error('회원 연결이 필요합니다.');
     return (await post('whoami',{},token)).data;
@@ -33,7 +36,7 @@ export function createReaderController(browser, fetcher = fetch) {
   const schedule=createExtensionSchedule(browser,async()=>{const {token}=await browser.storage.local.get('token');if(!token)throw Error('회원 연결이 필요합니다.');return (await post('whoami',{},token)).data;},work,Date.now,windowId=>popupFocused(windowId));
   const acceptPost=async(operation,payload)=>{const {token}=await browser.storage.local.get('token');if(!token)throw Error('회원 연결이 필요합니다.');return (await post(operation,payload,token,'/api/neighbors/requests/extension')).data;};
   const acceptWho=async()=>{const {token}=await browser.storage.local.get('token');if(!token)throw Error('회원 연결이 필요합니다.');return (await post('whoami',{},token)).data;};
-  const acceptReader=createContextReader(browser,acceptWho,(op,p)=>acceptPost(({offer:'offer_read',status:'status_read'})[op]??op,op==='offer'?{request_id:p.request_id,url:p.url}:p),windowId=>popupFocused(windowId),operateIncomingRequests);
+  const acceptReader=createContextReader(browser,acceptWho,(op,p)=>acceptPost(({offer:'offer_read',status:'status_read'})[op]??op,op==='offer'?{request_id:p.request_id,url:p.url}:p),focusCheck,operateIncomingRequests);
   const acceptance=createAcceptBridge(browser,acceptWho,acceptPost,windowId=>popupFocused(windowId));
   const acceptSchedule=createAcceptSchedule(browser,acceptWho,acceptance,Date.now,windowId=>popupFocused(windowId));
   const traversal=createTargetTraversal(browser,acceptWho,work,async(op,p)=>{const {token}=await browser.storage.local.get('token');if(!token)throw Error('회원 연결이 필요합니다.');return (await post(op,p,token,'/api/execution/extension')).data;},Date.now,undefined,windowId=>popupFocused(windowId));
@@ -44,12 +47,13 @@ export function createReaderController(browser, fetcher = fetch) {
     try{await browser.runtime.sendMessage?.({type:'neighbor_progress',progress});}catch{/* The popup can be closed. */}
   };
   const popupFocused=async windowId=>{
-    if(!browser.runtime.sendMessage)return false;
+    if(!browser.runtime.sendMessage){lastProbe='no-runtime';return false;}
     let timer;
     try{
       const result=await Promise.race([browser.runtime.sendMessage({type:'neighbor_focus_probe',windowId}),new Promise(resolve=>{timer=setTimeout(()=>resolve(null),500);})]);
+      lastProbe=!result?'no-reply':result.windowId!==windowId?'other-window':result.focused===true?'ok':result.visible===false?'hidden':'unfocused';
       return result?.focused===true&&result.windowId===windowId;
-    }catch{return false;}finally{clearTimeout(timer);}
+    }catch{lastProbe='error';return false;}finally{clearTimeout(timer);}
   };
   const neighbors=createNeighborImporter(browser,async(operation,payload)=>{
     const r=await post(operation,payload,importToken,'/api/neighbors/import/extension');return {...r.data,...(r.nonce?{nonce:r.nonce}:{})};

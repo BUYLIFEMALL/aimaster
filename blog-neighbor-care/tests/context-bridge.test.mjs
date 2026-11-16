@@ -65,3 +65,19 @@ test('CB-F1 (2026-11-15 Mac ego v1.21) an unfocused window and unfocused popup s
  assert.equal((await make(async id=>id===2,human).preview('return_post')).kind,'return_post');
  assert.deepEqual(human,['offer','read','preview']);
 });
+
+test('CB-F2 (2026-11-16 B-1) a focus rejection names the window state and the popup probe reason, without page or account data',async()=>{
+ const {createContextReader}=await import('../extension/context-bridge.mjs');
+ const url='https://blog.naver.com/neighbor/224231976765';
+ const make=(popupFocused,state='normal')=>{
+  const browser={tabs:{query:async()=>[{id:1,windowId:2,url}]},windows:{get:async()=>({focused:false,state})},scripting:{executeScript:async()=>[{frameId:0,result:{accountId:'a',actorId:'own'}}]}};
+  const post=async op=>op==='offer'?{phase:'read',id:'r1',nonce:'n1',scope:{actorId:'own',accountId:'a'},profile:{}}:{};
+  return createContextReader(browser,async()=>({deviceId:'d',blogId:'own'}),post,popupFocused);
+ };
+ const probe=reason=>Object.assign(async()=>false,{detail:()=>reason});
+ await assert.rejects(make(probe('no-reply')).preview('return_post'),e=>e.stage==='focus'&&/화면에 유지/.test(e.message)&&/창 비활성/.test(e.message)&&/팝업 응답 없음/.test(e.detail));
+ await assert.rejects(make(probe('other-window')).preview('return_post'),e=>/팝업 다른 창/.test(e.message));
+ await assert.rejects(make(probe('unfocused')).preview('return_post'),e=>/팝업 비활성/.test(e.message));
+ await assert.rejects(make(probe('no-reply'),'minimized').preview('return_post'),e=>/창 최소화/.test(e.message)&&/팝업 확인 안 함/.test(e.message));
+ await assert.rejects(make(async()=>false).preview('return_post'),e=>/팝업 확인 안 함/.test(e.message)&&!/neighbor|224231976765|own/.test(e.message));
+});
