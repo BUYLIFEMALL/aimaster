@@ -95,19 +95,20 @@ export function renderSlot(b: Block, base: string, d: SlotData): ReactNode {
     const s = b.settings as TimesaleSettings;
     const dark = s.skin === "dark"; // 어두운 띠 — 남은 시간을 크게(상품 카드는 그대로 흰 카드)
     // 어두운 띠 색은 고정 값 — slate 변수는 몰 테마 「어둡게」에서 뒤집혀(theme.ts) bg-slate-900이 밝아지고 흰 제목이 안 보였다(2026-11-16 FRONT-20261116-06)
+    // 빨간 테두리는 몰 테마 「어둡게」일 때만(in-data-[mall-mode=dark]:) 바탕·글자를 어두운 바탕용으로 — 옅은 분홍 바탕이 회갈색이 되고 진한 빨강 제목이 묻혔다(같은 작업)
     return (
-      <div className={dark ? "mx-4 sm:mx-6 rounded-2xl bg-[#0f172a] p-5 sm:p-6 shadow-lg" : "mx-4 sm:mx-6 rounded-2xl border-2 border-rose-500 bg-rose-50/30 p-5 sm:p-6 shadow-sm"} data-timesale data-timesale-skin={dark ? "dark" : "rose"}>
+      <div className={dark ? "mx-4 sm:mx-6 rounded-2xl bg-[#0f172a] p-5 sm:p-6 shadow-lg" : "mx-4 sm:mx-6 rounded-2xl border-2 border-rose-500 bg-rose-50/30 in-data-[mall-mode=dark]:bg-rose-950/40 p-5 sm:p-6 shadow-sm"} data-timesale data-timesale-skin={dark ? "dark" : "rose"}>
         <div className={`mb-5 flex flex-wrap items-end justify-between gap-3 border-b pb-4 ${dark ? "border-white/15" : "border-rose-200"}`}>
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-md bg-rose-600 px-2 py-0.5 text-xs font-bold text-white mb-1.5">
               LIMITED TIME SALE
             </span>
-            <h2 className={`text-xl font-black tracking-tight ${dark ? "text-white" : "text-rose-700"}`}>⏰ <span data-edit-field="title">{s.title}</span></h2>
-            {s.subtitle && <p className={`mt-1 text-sm ${dark ? "text-[#cbd5e1]" : "text-slate-600"}`} data-edit-field="subtitle">{s.subtitle}</p>}
+            <h2 className={`text-xl font-black tracking-tight ${dark ? "text-white" : "text-rose-700 in-data-[mall-mode=dark]:text-rose-300"}`}>⏰ <span data-edit-field="title">{s.title}</span></h2>
+            {s.subtitle && <p className={`mt-1 text-sm ${dark ? "text-[#cbd5e1]" : "text-slate-600 in-data-[mall-mode=dark]:text-[#cbd5e1]"}`} data-edit-field="subtitle">{s.subtitle}</p>}
           </div>
-          <div className={dark ? "text-right" : "rounded-xl border border-rose-200 bg-white px-4 py-2 text-right shadow-xs"}>
-            <p className={`text-xs ${dark ? "text-[#94a3b8]" : "text-slate-500"}`}>마감까지 남은 시간</p>
-            <p className={dark ? "text-3xl font-black tabular-nums text-rose-400 sm:text-4xl" : "text-lg font-black text-rose-600"}>
+          <div className={dark ? "text-right" : "rounded-xl border border-rose-200 bg-white px-4 py-2 text-right shadow-xs in-data-[mall-mode=dark]:border-rose-900"}>
+            <p className={`text-xs ${dark ? "text-[#94a3b8]" : "text-slate-500 in-data-[mall-mode=dark]:text-[#94a3b8]"}`}>마감까지 남은 시간</p>
+            <p className={dark ? "text-3xl font-black tabular-nums text-rose-400 sm:text-4xl" : "text-lg font-black text-rose-600 in-data-[mall-mode=dark]:text-rose-400"}>
               <Countdown endsAt={s.ends_at} />
             </p>
           </div>

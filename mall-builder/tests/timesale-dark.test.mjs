@@ -23,10 +23,16 @@ test("어두운 띠 쪽 클래스는 뒤집히는 색 계열(slate·gray·blue)�
   assert.ok(darkClasses.some((c) => c.includes("text-white")), "흰 제목 없음");
 });
 
-test("빨간 테두리(rose) 스킨은 그대로 둔다(이번 수정 범위 밖)", () => {
-  assert.match(block, /border-2 border-rose-500 bg-rose-50\/30/);
-  assert.match(block, /"text-rose-700"/);
-  assert.match(block, /"text-slate-600"/);
+// 빨간 테두리(rose) 쪽 문자열 — `dark ? "…" : "…"` 의 거짓 쪽
+const roseClasses = [...block.matchAll(/dark \? "[^"]*" : "([^"]*)"/g)].map((m) => m[1]);
+const D = "in-data-[mall-mode=dark]:";
+
+test("빨간 테두리(rose): 밝은 테마 색은 그대로, 몰 테마 「어둡게」일 때만 바탕·제목·설명·남은 시간·카운트다운을 보정", () => {
+  const all = roseClasses.join(" ");
+  for (const c of ["border-2 border-rose-500 bg-rose-50/30", "text-rose-700", "text-slate-600", "text-slate-500", "text-rose-600"]) assert.ok(all.includes(c), `밝은 테마 색 사라짐: ${c}`);
+  for (const c of ["bg-rose-950/40", "text-rose-300", "text-[#cbd5e1]", "text-[#94a3b8]", "text-rose-400"]) assert.ok(all.includes(D + c), `어둡게 보정 없음: ${c}`);
+  // 보정은 반드시 어둡게 한정 변형으로만(밝은 테마 클래스를 바꾸지 않음)
+  for (const c of roseClasses) for (const tok of c.split(/\s+/)) if (/rose-(950|300|400)|#cbd5e1|#94a3b8/.test(tok)) assert.ok(tok.startsWith(D), `어둡게 한정이 아닌 보정: ${tok}`);
 });
 
 // WCAG 대비 — 어두운 띠 바탕 위 제목·설명·「남은 시간」 글자·카운트다운
@@ -42,4 +48,12 @@ test("어두운 띠 글자색은 바탕 #0f172a 위에서 대비 4.5 이상(제�
     assert.ok(ratio(fg, bg) >= 4.5, `${name} ${ratio(fg, bg).toFixed(2)}`);
   }
   for (const c of ["text-[#cbd5e1]", "text-[#94a3b8]"]) assert.ok(darkClasses.some((x) => x.includes(c)), c);
+});
+
+test("어둡게 + 빨간 테두리: 보정 글자색이 어두운 바탕 위에서 대비 4.5 이상", () => {
+  // 바탕 = rose-950(#4d0218) 40%를 어두운 몰 바탕(#0c0a09) 위에 겹친 색, 남은 시간 상자 = 어둡게 면(약 #1b1d22)
+  const box = "#26070f", surface = "#1b1d22";
+  for (const [name, fg, bg] of [["제목 rose-300", "#ffa1ad", box], ["설명", "#cbd5e1", box], ["남은 시간 글자", "#94a3b8", surface], ["카운트다운 rose-400", "#ff637e", surface]]) {
+    assert.ok(ratio(fg, bg) >= 4.5, `${name} ${ratio(fg, bg).toFixed(2)}`);
+  }
 });
