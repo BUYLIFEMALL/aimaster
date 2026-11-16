@@ -61,3 +61,14 @@
 2. 선점(`claimNotifyMe`) **전에** `env.approve({ tool: 'notify_me', risk: 'share', payload: { title: '주인에게 메일·카카오톡 보내기', markdown: 채널·문구 미리보기, confirmLabel: '보내기' } })` — 거절·취소면 발송 0, 선점도 소비하지 않음. 대화형 `review_for_me`·`always_ask`는 확인을 받고, `skip_all`(관리자 허용 시)·정시 실행은 기존 정책대로 자동.
 3. 순서: 입력 검사 → 페이지(봇·주인) → 승인 → 선점 → 발송.
 4. 시험(실발송 0, 모의 handler): 대화형 `review_for_me`에서 승인 요청이 나오고 거절 시 발송 0·선점 안 됨 / 허용 시 1회 / 정시 실행은 승인 없이 1회 / 주인이 못 여는 페이지는 발송 0. 수정 전 빨강 → 후 초록으로 제출.
+
+## 9. 보안 보완 구현 (Master `msg_9f35f4e64a6b` 승인) · 커밋 `ce458cc2a`
+- `agents/tools.ts` `notifyMe` 순서: 입력 검사 → 페이지(봇 **그리고** 받는 주인 `canRead`, 주인 없음 → 0) → `env.approve({ tool: 'notify_me', risk: 'share', 채널·문구 미리보기, 확인 「보내기」 })` → 거절이면 발송 0·**선점 소비 0** → 발송 직전 열람 재확인(승인 대기 중 철회 대비) → 영속 선점 → 발송. 상위 정책(`runs.ts` 665~672: 대화형 `review_for_me`·`always_ask`는 묻고, `skip_all`·정시 실행은 자동)은 **변경하지 않음**. 번역 2줄(`i18n.literals.ko-KR.json`: 승인 제목·「보내기」 — 승인 범위 밖 사전 파일 2줄, 화면 한국어용).
+- 빨강→초록: 새 시험 4개 수정 전 4 실패 → 후 통과(share 승인 요청·미리보기 / 거절 시 0·다음 허용 1 / 주인 못 엶·주인 없음 0·승인 묻지 않음 / 승인 대기 중 철회 → 0). 전체 29파일 **234/234**, tsc 0, 실발송 0.
+- **한계(정직)**: 위 시험은 `notifyMe`가 실제 `env.approve`를 정확한 위험도로 부르고 결과를 지키는지까지다. **`runs.ts` `runModel`의 승인 함수(665~672)를 실제 모델 반복으로 돌린 통합 시험은 아님** — 저장소에 에이전트 대화를 모의 모델로 끝까지 돌리는 장치가 없음. 그래서 「대화형 review_for_me·always_ask·정시 전체 정책 통과」라고 주장하지 않음. 최소 보완안: `runs.ts`에서 승인 판정식만 `export function agentApprovalNeeded(r, approvalMode, interactive)`로 꺼내 클로저가 그 함수를 부르게 하고(동작 같음), 그 함수를 notify_me의 실제 요청 값으로 시험 — 범위 밖이라 승인 후.
+
+## 10. 계보 동시성 추가 반례 조사 + 루트 실행 기준 선점 수정안 (Mac `msg_494116d1535e`) · 코드 전
+- 도달 경로: 「허용」 자식은 `decideRunReview`가 `status='needs_review'`일 때만 만들고, 그 상태는 `executeRun` 끝(`runs.ts` 742·758)에서 기록 → **실행기 하나면** 부모가 끝난 뒤 자식이 생겨 순차(통과). **반례가 실제로 도달하는 경로**: 같은 runId를 두 프로세스가 실행(`pump()` 메모리 대기열, `executeRun` 433 무조건 running) → A가 needs_review로 끝나고 허용 → 자식이 `notifyMeSent` 없는 payload 복사 → 아직 도는 B가 부모 행에 선점 → 부모 true·자식 true. 즉 「payload 복사만으로 계보 1회」는 **보장 아님**(정정).
+- 수정안(범위 `runs.ts` `claimNotifyMe`·`agentE1.test.ts`, 새 스키마 0): 선점 대상을 **루트 실행 행**으로. `parent_run_id`를 따라 올라가되 ① 부모가 **같은 agent_id·같은 space_id**일 때만 같은 계보(다른 에이전트 = `call_agent` 하위 실행 784줄 → 거기서 끊고 자기가 루트, 혼입 없음) ② 부모 id가 있는데 행이 없음 → false(fail closed) ③ 같은 agent인데 space가 다름 → false ④ 방문 집합으로 순환 → false, 깊이 32 넘으면 false. 루트 payload에 기존 CAS(읽은 값 조건 UPDATE, 다른 칸 보존, 5회 충돌 → false). 자기 행 payload에 `notifyMeSent`가 이미 있으면 false(기존 호환). 독립 정시 실행은 부모가 없어 각자 루트 → 각 1회.
+- 시험 계획(빨강→초록): 부모 선점 **전에** 자식 행 생성 → 부모·자식 순서 둘 다 1회만 / 손자까지 1회 / 다른 에이전트 하위 실행은 따로 1회 / 부모 행 누락 0 / 순환 0 / 다른 space 0 / 독립 정시 2개 각 1회 / 다른 payload 칸 보존.
+- 남는 위험(범위 밖): `executeRun` 이중 실행 자체는 그대로 — 다른 도구 중복은 해결하지 않음.
