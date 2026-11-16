@@ -259,13 +259,16 @@ export function blockFrame(style: BlockStyle | undefined): { className: string; 
   const css: CSSProperties = {};
   if (style.pad_top) css.paddingTop = style.pad_top;
   if (style.pad_bottom) css.paddingBottom = style.pad_bottom;
-  if (style.bg_color) css.backgroundColor = style.bg_color;
+  // 화면 가득: section 폭은 본문 상자 그대로 두고 배경만 좌우 바깥(100vmax)까지 칠한다.
+  // 예전 100vw 방식은 세로 스크롤바 폭까지 넓어져 가로 넘침·정렬 7px 어긋남이 생겼다(FRONT-20261116-08).
+  // border-image 바깥 칠은 그리기 전용이라 스크롤 폭에 안 들어가고 그림자·포커스 링도 자르지 않는다.
+  // fill이 가운데도 칠하므로 backgroundColor는 겹쳐 칠하지 않는다(반투명 색 이중 칠 방지).
+  if (style.bg_color) {
+    if (style.width === "full") css.borderImage = `conic-gradient(${style.bg_color} 0 0) fill 0 / / 0 100vmax`;
+    else css.backgroundColor = style.bg_color;
+  }
   if (style.title_color) (css as Record<string, string>)["--blk-title-color"] = style.title_color; // I8 제목 색(globals.css)
   if (style.title_font && TITLE_FONTS[style.title_font]) (css as Record<string, string>)["--blk-title-font"] = TITLE_FONTS[style.title_font].stack; // E10 제목 글꼴(globals.css)
-  if (style.width === "full") {
-    css.width = "100vw";
-    css.marginLeft = "calc(50% - 50vw)";
-  }
   return { className: cls, style: Object.keys(css).length ? css : undefined, full: style.width === "full" };
 }
 
