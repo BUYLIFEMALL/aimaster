@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T17:11:42.222Z",
+  "checkedAt": "2026-11-16T17:13:59.558Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -1876,11 +1876,11 @@
       "title": "B2B Lab·RE계정격리·Workspace묶음 독립검수",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:09:05.345Z",
+      "lastReviewedAt": "2026-11-16T17:13:59.558Z",
       "status": "ready_review",
       "delivery": "returned",
       "evidence": ".ai/results/QA-20261117-003-CX-QA-01.md / msg_cd9ac04abae3",
-      "next": "B2B Lab 작성자증거 재사용·RE계정혼입 재현 수정중·WS10 정적해소·E1 notify_me 영속CAS 수정후 재검수"
+      "next": "WS10 저장명보존 정적PASS·E1 동일run CAS 모의PASS, 계보copy-before-claim/승인우회/owner권한 보완 반환. RE legacy 격리수정 대기"
     },
     {
       "task_id": "QA-20261117-004",
@@ -1889,12 +1889,12 @@
       "title": "교환0102 독립검토",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:09:05.345Z",
+      "lastReviewedAt": "2026-11-16T17:13:59.558Z",
       "status": "ready_review",
       "delivery": "returned",
       "evidence": ".ai/results/QA-20261117-004-CX-QA-01.md",
       "sha": "e06035793",
-      "next": "FAIL/P1 배송7일기준/반품경합 반환·메인 격리DB 빨강초록 후 재검수; SQL 실실행 미완료"
+      "next": "559085a40 기존P1 정적PASS·실제SQL은작성자근거재사용/Mac미실행. 모든옵션삭제후재발송 P2 추가반환, 전체PASS아님"
     },
     {
       "task_id": "B2B-20261117-02",
@@ -1903,11 +1903,11 @@
       "title": "교환0102 구현·독립지적 수정",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:11:42.222Z",
-      "status": "ready_review",
+      "lastReviewedAt": "2026-11-16T17:13:59.558Z",
+      "status": "running",
       "delivery": "returned",
       "evidence": ".ai/results/B2B-20261117-04-CC-B2B-BACK-01.md",
-      "next": "작성자실제격리DB 기존10통과5실패→수정15/0·2연결경합보고·Mac재검수전달, Lab0102/운영/UI 보류",
+      "next": "QA004 기존P1 정적해소·작성자15/0 증거수락. 옵션전체삭제시 본체재고차감 P2 추가반례 메인재현/최소안 요청, Lab0102/운영/UI 보류",
       "sha": "559085a407c687f82d10b621e88b0b7cd16339d8"
     },
     {
@@ -1931,12 +1931,12 @@
       "title": "확장 E1·notify_me 중복 차단",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:11:42.221Z",
-      "status": "ready_review",
-      "delivery": "returned",
+      "lastReviewedAt": "2026-11-16T17:13:59.558Z",
+      "status": "running",
+      "delivery": "acknowledged",
       "sha": "6e9d07f1c + 0da321e33 + 22177c868",
-      "evidence": "a13499846 / msg_cd9ac04abae3 / msg_cfa0dc4481e5",
-      "next": "영속CAS 수정반환·작성자230시험/type0·Mac전달, 상위검토정책/링크권한 추가증거 요청·실발송0"
+      "evidence": "E1結果§8 219040294 / Mac msg_494116d1535e / Master msg_9f35f4e64a6b",
+      "next": "同一run CAS 모의PASS; 계보동시copy반례 보류. notify_me bot+owner열람/share승인 수정승인·root공유CAS 계획요청·실발송0"
     },
     {
       "task_id": "DES-20261117-02",

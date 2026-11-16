@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 02:11:45 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 02:14:02 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -39,7 +39,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 142개: done 120개 · cancelled 6개 · ready_review 12개 · running 2개 · ready 1개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 142개: done 120개 · cancelled 6개 · ready_review 10개 · running 4개 · ready 1개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -179,11 +179,11 @@
 | PLAN-20261117-01 | CC-WORKSPACE-01 | done / integrated | Workspace 큰기능4건 기존기능대조·확장계획 | E1 보완우선. E2-7-1 국소코드 허용·연결파일예약선행. 예약/포털은 동시성/부분실패/공개권한 설계보완 및 운영DDL별도승인 |
 | MOV-20261117-06 | CC-MOVIE-01 | ready / delivered | Workspace소규모캘린더/번역/여백 독립검토 | 8150da176/90612778f 원본정적검토·제품/빌드0 |
 | QA-20261117-002 | CX-QA-01 | waiting_human / returned | 실제Intel Mac MP4파일내보내기 보조검수 | Intel x86_64·AppleSilicon불가. ego20 handoff에서MP4신뢰클릭/저장위치선택필요, 실제인코딩0·우회없음 |
-| QA-20261117-003 | CX-QA-01 | ready_review / returned | B2B Lab·RE계정격리·Workspace묶음 독립검수 | B2B Lab 작성자증거 재사용·RE계정혼입 재현 수정중·WS10 정적해소·E1 notify_me 영속CAS 수정후 재검수 |
-| QA-20261117-004 | CX-QA-01 | ready_review / returned | 교환0102 독립검토 | FAIL/P1 배송7일기준/반품경합 반환·메인 격리DB 빨강초록 후 재검수; SQL 실실행 미완료 |
-| B2B-20261117-02 | CC-B2B-BACK-01 | ready_review / returned | 교환0102 구현·독립지적 수정 | 작성자실제격리DB 기존10통과5실패→수정15/0·2연결경합보고·Mac재검수전달, Lab0102/운영/UI 보류 |
+| QA-20261117-003 | CX-QA-01 | ready_review / returned | B2B Lab·RE계정격리·Workspace묶음 독립검수 | WS10 저장명보존 정적PASS·E1 동일run CAS 모의PASS, 계보copy-before-claim/승인우회/owner권한 보완 반환. RE legacy 격리수정 대기 |
+| QA-20261117-004 | CX-QA-01 | ready_review / returned | 교환0102 독립검토 | 559085a40 기존P1 정적PASS·실제SQL은작성자근거재사용/Mac미실행. 모든옵션삭제후재발송 P2 추가반환, 전체PASS아님 |
+| B2B-20261117-02 | CC-B2B-BACK-01 | running / returned | 교환0102 구현·독립지적 수정 | QA004 기존P1 정적해소·작성자15/0 증거수락. 옵션전체삭제시 본체재고차감 P2 추가반례 메인재현/최소안 요청, Lab0102/운영/UI 보류 |
 | WS-20261117-10 | CC-WORKSPACE-01 | ready_review / returned | 보기 이름 저장값 보존 | 저장된 Table/한글 이름 그대로 표시·서버3경로 보류. 최종MacQA후 다음배포묶음 |
-| WS-20261117-09 | CC-WORKSPACE-01 | ready_review / returned | 확장 E1·notify_me 중복 차단 | 영속CAS 수정반환·작성자230시험/type0·Mac전달, 상위검토정책/링크권한 추가증거 요청·실발송0 |
+| WS-20261117-09 | CC-WORKSPACE-01 | running / acknowledged | 확장 E1·notify_me 중복 차단 | 同一run CAS 모의PASS; 계보동시copy반례 보류. notify_me bot+owner열람/share승인 수정승인·root공유CAS 계획요청·실발송0 |
 | DES-20261117-02 | AG-UI-01 | ready_review / returned | Workspace 전면디자인3안·12뷰 | 독립뷰어13KB+ 보완보고·PNG12개2880×1800확인. 기존쇼케이스보존/실화면검수별도, 주인님3안선택전제품미반영 |
 
 ## 현재 담당 회신이 확보된 프로젝트
