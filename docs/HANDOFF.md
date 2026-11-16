@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-16 ✅ [역할: realty] Claude(RealEstate) Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 매물 알림 v1.45 · 실거래 v1.61 배포
+- 주인님 직접 지휘(Codex 크레딧 소진 중) 「매물 알림 v1.45부터 순서대로 배포 진행해」 → 빌드 2회, 순서대로(팀 빌드 0건 확인 뒤).
+- **매물 알림 v1.45**(`realty-listing-alert-8w5x0eynp` Ready, 운영 https://realty-listing-alert.buylife.xyz): L-6 카톡 보내기 실패 알리기·L-7 이름 고치기 기록(`26e774a8e`). 버전 커밋 확장 1.45.0·ZIP v1.45·SQL `20261116000100_version_v1_45.sql`. 시험 103/103·tsc 0. 운영 DB `version`·`extension_version` v1.45(그 한 줄만), `check-extension-release` **OK DB v1.45 / ext v1.45 / zip v1.45**. 회원은 ZIP 다시 받아 덮어쓰기 → `chrome://extensions` 새로고침 필요.
+- **실거래 v1.61**(`real-estate-sales-bl0k0qu46` Ready, 운영 https://real-estate-sales.buylife.xyz): 뉴스 잡음 줄이기(`2b2fecec4`) + 로그인 정책 2건(`7823a692b`). tsc 0·newsRadar 17/17·access 3/3. DB v1.61.
+- 정정: 매물 알림 「로그아웃 이 브라우저만」은 v1.44(`b509375fc`)에 이미 있었음(RE-02 메모 틀림, RE-03 결과에 기록).
+- 남은 일: 매물 알림 실물 검수(시험 계정 확장 새로고침 → 카카오 연결 끊기 → 「지금 수집」 1회 → 팝업 「💬 다시 연결」·텔레그램 첫 줄 → 다시 연결 뒤 해제) — 주인님 손 필요. 실거래 다음 08:00 뉴스 회차 대조(서초 잡음). 로그인 화면 뒤 버전 표시는 화면으로 아직 안 봄.
+- 비용: Vercel 빌드 2회(승인 범위 안), AI·외부 호출 0.
+
 ## 2026-11-16 [역할: support] Claude Code(윈도우) · Claude(Support) `claude-win-20261112-policy` — 수강생 배포 키트 ① Threads 완료(v1.02)
 
 - 주인님 지시: 수강생용 Threads·INSTA·블로그 자동화를 **각각 독립 사이트**로 배포 키트화, AIMaster 키·비밀번호·ID·DB 데이터는 모두 빼고 빈 상태로. 대상 Threads=`auto-threads-posting`(`threads/`).
