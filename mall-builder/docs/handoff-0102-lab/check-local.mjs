@@ -20,6 +20,7 @@ const supa = "alter default privileges in schema public grant execute on functio
 const ADMIN = "00000000-0000-0000-0000-0000000000a1", TEST = "6fbce7f8-b54e-462e-8e4b-4391b2603f65";
 const CONS = "00000000-0000-0000-0000-0000000000c5", OTHER = "00000000-0000-0000-0000-0000000000b9", OTHER_P = "00000000-0000-0000-0000-0000000000b8";
 const RS = "f2b49b07-7682-431f-bada-a99c8bc27956", RS_USER = "00000000-0000-0000-0000-0000000000e5", RS_CUST = "00000000-0000-0000-0000-0000000000e6";
+const NF = "00000000-0000-0000-0000-0000000000f9", NF_P = "00000000-0000-0000-0000-0000000000fa";
 const labLike = `create schema if not exists supabase_migrations;
 create table if not exists supabase_migrations.schema_migrations (version text primary key, statements text[], name text, created_by text, idempotency_key text, rollback text[]);
 insert into auth.users (id, email) values ('${ADMIN}','admin@x.test'),('${TEST}','test@x.test');
@@ -38,6 +39,13 @@ insert into auth.users (id, email) values ('${RS_USER}','rs@x.test'); insert int
 insert into mall_builder_store_customers (id, store_id, user_id, name, phone) values ('${RS_CUST}','0489b458-d71b-4268-9b5f-94fd7da50382','${RS_USER}','리셀러','010-0000-0002');
 insert into mall_builder_resellers (id, store_id, customer_id, code, rate, active) values ('${RS}','0489b458-d71b-4268-9b5f-94fd7da50382','${RS_CUST}','OWNER1',5,true);
 update mall_builder_store_customers set reseller_id = '${RS}' where store_id = '0489b458-d71b-4268-9b5f-94fd7da50382' and user_id = '${TEST}';
+-- Lab처럼 보존해야 할 기존(시험 아닌) 주문: 같은 리셀러가 붙은 결제 완료 주문 + 대기 리워드(Lab: 20261115-C3T1 pending 2,300원)
+insert into mall_builder_products (id, store_id, name, base_price, status) values ('${NF_P}','0489b458-d71b-4268-9b5f-94fd7da50382','기존 상품',46000,'on_sale');
+insert into mall_builder_orders (id, store_id, seq, order_no, user_id, customer_id, receiver, depositor, status, total, is_card, is_credit)
+ select '${NF}','0489b458-d71b-4268-9b5f-94fd7da50382',17,'NF-17','${TEST}', c.id,'{"name":"x"}','x','pending_payment',46000,false,false
+ from mall_builder_store_customers c where c.store_id = '0489b458-d71b-4268-9b5f-94fd7da50382' and c.user_id = '${TEST}';
+insert into mall_builder_order_items (order_id, product_id, name_snapshot, unit_price, qty, line_total) values ('${NF}','${NF_P}','기존 상품',46000,1,46000);
+update mall_builder_orders set status = 'paid' where id = '${NF}';
 insert into mall_builder_stores (id, name, owner_id, slug) values ('${OTHER}','다른몰','${ADMIN}','other-mall');
 insert into mall_builder_products (id, store_id, name, base_price, status, visibility) values ('${OTHER_P}','${OTHER}','다른몰 상품',1000,'on_sale','business_only');
 insert into mall_builder_product_variants (product_id, store_id, key, "values", stock) values ('${OTHER_P}','${OTHER}','A','["A"]',1),('${OTHER_P}','${OTHER}','B','["B"]',1);
@@ -106,8 +114,24 @@ ok("Lab 재현: 시험 주문 2건에 추천 리셀러가 붙고 EXQA-2 구매 �
 const oldRb = execFileSync("git", ["-C", MB, "show", "41715a3dc:mall-builder/docs/handoff-0102-lab/rollback.sql"], { encoding: "utf8" }).replace(/\r\n/g, "\n").replace(/^begin;$/m, "").replace(/^commit;$/m, "");
 r = psql(`begin;\n${oldRb}\nselect 'LEFT=' || (select count(*) from mall_builder_reseller_ledger where reseller_id = '${RS}' and order_id is null);\nrollback;`);
 ok("빨강: 고치기 전 되돌리기(41715a3dc)는 리셀러 장부를 주문 번호 빈 채 남김", /LEFT=[1-9]/.test(r.stdout), r.stdout.slice(-200) + r.stderr.slice(-200));
+// 반례: 기존 주문(NF)이 시험 장부 뒤에 확정돼 리셀러 장부가 이어지면(balance_after 연쇄) — 새 되돌리기는 [멈춤], 예전(084e5b667)은 지워서 잔액 흐름을 깸
+{
+  const newRb = H("rollback.sql").replace(/^begin;$/m, "").replace(/^commit;$/m, "");
+  const prevRb = execFileSync("git", ["-C", MB, "show", "084e5b667:mall-builder/docs/handoff-0102-lab/rollback.sql"], { encoding: "utf8" }).replace(/\r\n/g, "\n").replace(/^begin;$/m, "").replace(/^commit;$/m, "");
+  const later = `update mall_builder_orders set status = 'confirmed' where id = '${NF}';`;
+  const rNew = psql(`begin;\n${later}\n${newRb}\nrollback;`);
+  ok("반례 초록: 시험 장부 뒤에 기존 주문 장부가 생기면 새 되돌리기 [멈춤]·아무것도 안 바꿈", rNew.status !== 0 && /\[멈춤\] 시험 주문 리셀러 장부가/.test(rNew.stderr), rNew.stderr.slice(-200));
+  const rOld = psql(`begin;\n${later}\n${prevRb}\nselect 'CHAIN=' || (select string_agg(amount || ':' || balance_after, ',' order by created_at) from mall_builder_reseller_ledger where reseller_id = '${RS}');\nrollback;`);
+  ok("반례 빨강: 예전 되돌리기(084e5b667)는 시험 줄만 지워 남은 장부 잔액(balance_after)이 금액과 어긋남", rOld.status === 0 && /CHAIN=(\d+):(\d+)/.test(rOld.stdout) && (() => { const m = rOld.stdout.match(/CHAIN=(\d+):(\d+)/); return m[1] !== m[2]; })(), rOld.stdout.slice(-120) + rOld.stderr.slice(-120));
+}
+// 기준선(시험 아닌 리셀러 기록) — 되돌리기 전후 완전히 같아야 함
+const keep = () => psql(`select (select string_agg(id || ':' || status || ':' || amount || ':' || coalesce(ledger_id::text, '-'), ',' order by id) from mall_builder_reseller_rewards where reseller_id = '${RS}' and order_id::text not like 'e0102000%')
+  || '|' || (select count(*) from mall_builder_reseller_ledger where reseller_id = '${RS}' and order_id::text not like 'e0102000%')
+  || '|' || (select status from mall_builder_orders where id = '${NF}');`).stdout.trim();
+const keepBefore = keep();
 r = psql(H("rollback.sql")); ok("rollback 성공", r.status === 0, r.stderr.slice(-300));
-ok("되돌린 뒤 리셀러 장부·리워드 0(시험 주문 것만 지움, 남은 것 없음)", led() === "0/0", led());
+ok("되돌린 뒤 시험 리셀러 장부·리워드 0", led() === (() => { const k = psql(`select (select count(*) from mall_builder_reseller_ledger where reseller_id = '${RS}') || '/' || (select count(*) from mall_builder_reseller_rewards where reseller_id = '${RS}');`).stdout.trim(); return k; })() && psql(`select count(*) from mall_builder_reseller_ledger where order_id::text like 'e0102000%' or (reseller_id = '${RS}' and order_id is null);`).stdout.trim() === "0", led());
+ok("되돌린 뒤 기존(시험 아닌) 리셀러 리워드·장부·주문 상태 완전히 같음(대기 리워드 보존)", keep() === keepBefore && /pending/.test(keepBefore), `${keepBefore} → ${keep()}`);
 const left = psql(`select (to_regclass('public.mall_builder_exchanges') is null)::text || '/' ||
   (select count(*) from pg_proc where proname in ('mall_builder_request_exchange','mall_builder_exchange_step','mall_builder_exchange_fee','mall_builder_exchange_fee_paid','delivered_at','variant_label','exchange_event','exchange_stock','lock_exchange','exchange_order_delivered','orders_exchange_guard')) || '/' ||
   (select count(*) from pg_trigger where tgname = 'mall_builder_orders_exchange_guard') || '/' ||
