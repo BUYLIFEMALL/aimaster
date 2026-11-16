@@ -7,17 +7,17 @@
 | 사용자 호칭 | 팀 ID | 기존 역할 ID | 실제 세션·장비 | 연결 상태 | 현재 작업 |
 |---|---|---|---|---|---|
 | Codex(Master) | CX-MASTER-01 | codex-master | codex-win-20261116-auto-team · GT1_Mega | busy · 현재 세션 | OPS-20261116-002 결과 검토·파일 범위 조정·다음 지휘 |
-| Codex(Tester) | CX-QA-01 | mac-mini | codex-mac-20261116-tester-role · 대화01a1c5a4-68b7-7c51-b919-9bc56cd17af5 · MacMini | busy · 원격 ACK/공유문서 읽기 확인 | QA-20261116-01 영상·Workspace 독립검토 |
-| Antigravity | AG-UI-01 | design | agy-win-hero-copy · GT1_Mega | available · 실제 ACK/보고 회수 | 공통 디자인·UI/미디어/데이터 |
-| Claude(Movie) | CC-MOVIE-01 | video | claude-win-video · aimaster-57 · GT1_Mega | busy · 실제 식별/결과 회수 | MOV-01 구현완료, QA→승인된v1.33 준비 |
-| Claude(Music) | CC-MUSIC-01 | music | claude-win-20261024-music · GT1_Mega | available · 실제 보고 회수 | 음악 미배포 묶음 정리 |
-| Claude(ecommerce) | CC-ECOM-01 | ecommerce-image | claude-win-sdp · GT1_Mega | available · 실제 보고 회수 | ESM 입력만 검수 대기·이미지/상세 연계 |
-| Claude(B2BFront) | CC-B2B-FRONT-01 | mall-design-builder | claude-win-20261114-mall-design · aimaster-64 · GT1_Mega | available · FRONT-04 검토 완료 | 후속구현/Lab검수 완료·B2B 다음 배포 묶음 |
-| Claude(B2BBackend) | CC-B2B-BACK-01 | mall-builder | claude-win-20261025-workspace · GT1_Mega | available · 실제 정정 보고 회수 | v1.16 준비완료·DEC-002 운영 승인 대기 |
-| Claude(RealEstate) | CC-REALTY-01 | realty | claude-win-20261024-realty · aimaster-73 · GT1_Mega | available · 실제 보고 회수 | 실거래 미배포·상가 재측정 조건 |
-| Claude(Workspace) | CC-WORKSPACE-01 | workspace | aimaster-46 · session dea6e4f6-37c0-4be8-ad50-8746e0f1c517 · GT1_Mega | busy · 실제 식별/구현결과 회수 | WS-02 영속승인소모 보완 |
-| Claude(Blog) | CC-BLOG-01 | blog | claude-win-blog · aimaster-92 · GT1_Mega | available · 실제 보고 회수 | BLOG-01 국소수정완료·맥재검수 준비 |
-| Claude(Support) | CC-SUPPORT-01 | support · policy | claude-win-20261112-policy · term_e4de9dda · GT1_Mega | busy · 수강생 배포키트 3종 플랜 승인대기 | 다른 세션 몫이 아닌 자잘한 일 전반·**모든 폴더/작업 권한(11-16 사용자 지시, AI_TEAM_RULES §3.6)**·기존 policy(사이트 정책·WP기간) 유지 |
+| Codex(Tester) | CX-QA-01 | mac-mini | codex-mac-20261116-tester-role · 대화01a1c5a4-68b7-7c51-b919-9bc56cd17af5 · MacMini | busy · 원격 ACK/공유문서 읽기 확인 | QA03 PASS·Mac 인덱스 재확인 정상, 다음검수 대기 |
+| Antigravity | AG-UI-01 | design | agy-win-hero-copy · GT1_Mega | available · 실제 ACK/보고 회수 | DES03 온보딩검토 전달대기열, 수락 미확인 |
+| Claude(Movie) | CC-MOVIE-01 | video | claude-win-video · aimaster-57 · GT1_Mega | busy · 실제 식별/결과 회수 | v1.33 Ready 보고 검토완료, 실제수신왕복 미검수 |
+| Claude(Music) | CC-MUSIC-01 | music | claude-win-20261024-music · GT1_Mega | available · 실제 보고 회수 | MUS04 WS05 독립15시험 검토 완료 |
+| Claude(ecommerce) | CC-ECOM-01 | ecommerce-image | claude-win-sdp · GT1_Mega | available · 실제 보고 회수 | ECOM05 INSTA권한 정적검토 완료 / 바나나 실화면 환경차단 |
+| Claude(B2BFront) | CC-B2B-FRONT-01 | mall-design-builder | claude-win-20261114-mall-design · aimaster-64 · GT1_Mega | available · FRONT-04 검토 완료 | FRONT06 timesale dark/rose 두테마 가독성 보완 중 |
+| Claude(B2BBackend) | CC-B2B-BACK-01 | mall-builder | claude-win-20261025-workspace · GT1_Mega | available · 복구 결과 수락 | 3210 전용터미널 복구 확인 / DEC002 운영승인 대기 |
+| Claude(RealEstate) | CC-REALTY-01 | realty | claude-win-20261024-realty · aimaster-73 · GT1_Mega | available · 실제 보고 회수 | v1.45/v1.61 Ready 근거검토완료, 카카오/뉴스실물 별도 |
+| Claude(Workspace) | CC-WORKSPACE-01 | workspace | aimaster-46 · session dea6e4f6-37c0-4be8-ad50-8746e0f1c517 · GT1_Mega | busy · 실제 식별/구현결과 회수 | v1.52 운영·WS05 독립15시험 통과·보강코드 미배포 |
+| Claude(Blog) | CC-BLOG-01 | blog | claude-win-blog · aimaster-92 · GT1_Mega | available · 실제 보고 회수 | BLOG03 v1.07 치환 독립검토 완료·설치 미검수 |
+| Claude(Support) | CC-SUPPORT-01 | support · policy | claude-win-20261112-policy · term_e4de9dda · GT1_Mega | busy · 사용자 전담 / Master 배정제외 | 사용자와 키트설치 전담. 타업무/독립검토대응 배정금지(사용자직접지시) |
 
 `CC-ENG-01`은 Claude 공통 역할 지침의 예시 ID이며 모든 Claude 세션을 합치는 ID가 아니다. 위 세부 팀 ID가 실제 배정 단위다. 호칭 표기의 Claud/Claude 차이는 같은 사용자 지정 호칭의 표기 차이이며 별도 세션으로 세지 않는다.
 
