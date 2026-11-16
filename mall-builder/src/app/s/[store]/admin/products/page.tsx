@@ -39,7 +39,7 @@ export default async function ProductsPage({
   const [{ data: waitingRows }, { data: supRows }, { data: supNames }] = await Promise.all([
     supabase.from("mall_builder_restock_requests").select("product_id").eq("store_id", store.id).eq("status", "waiting").in("product_id", pageIds.length ? pageIds : ["00000000-0000-0000-0000-000000000000"]).limit(5000),
     supabase.from("mall_builder_products").select("id, supplier_id, approval").eq("store_id", store.id).not("supplier_id", "is", null).in("id", pageIds.length ? pageIds : ["00000000-0000-0000-0000-000000000000"]),
-    supabase.from("mall_builder_suppliers").select("id, name").eq("store_id", store.id),
+    supabase.from("mall_builder_suppliers").select("id, name").eq("store_id", store.id).order("name"),
   ]);
   const waiting = new Map<string, number>();
   for (const r of waitingRows ?? []) waiting.set(r.product_id as string, (waiting.get(r.product_id as string) ?? 0) + 1);
@@ -48,7 +48,7 @@ export default async function ProductsPage({
 
   const base = `/s/${store.slug}/admin/products`;
   const pages = productPageCount(found);
-  const narrowed = Boolean(f.q || f.category || f.noStock || f.pending);
+  const narrowed = Boolean(f.q || f.category || f.noStock || f.pending || f.supplier);
   const keep = productListHref("", f, {}).replace(/^\?/, ""); // 일괄 변경 뒤 같은 목록으로
 
   return (
@@ -92,6 +92,16 @@ export default async function ProductsPage({
             ))}
           </select>
         </label>
+        <label className="flex flex-col">
+          <span className="text-xs text-gray-500">등록한 곳</span>
+          <select name="supplier" defaultValue={f.supplier ?? ""} className="rounded border px-2 py-1.5" data-supplier-filter>
+            <option value="">전체</option>
+            <option value="own">🏠 운영사 직접 등록</option>
+            {(supNames ?? []).map((s) => (
+              <option key={s.id as string} value={s.id as string}>🏭 {s.name as string}</option>
+            ))}
+          </select>
+        </label>
         <label className="flex items-center gap-1 py-1.5">
           <input type="checkbox" name="no_stock" value="1" defaultChecked={f.noStock} /> 재고 0
         </label>
@@ -100,7 +110,7 @@ export default async function ProductsPage({
         </label>
         <button className="rounded bg-gray-900 px-3 py-1.5 text-white">찾기</button>
         {narrowed && (
-          <Link href={productListHref(base, { ...f, q: "", category: undefined, noStock: false, pending: false }, { page: 1 })} className="py-1.5 text-gray-500 underline">
+          <Link href={productListHref(base, { ...f, q: "", category: undefined, noStock: false, pending: false, supplier: undefined }, { page: 1 })} className="py-1.5 text-gray-500 underline">
             조건 지우기
           </Link>
         )}
@@ -161,9 +171,13 @@ export default async function ProductsPage({
                         <span className={`rounded px-1.5 py-0.5 text-xs ${STATUS_TONE[p.status]}`}>{PRODUCT_STATUS[p.status]}</span>
                         {p.product_code && <span className="shrink-0 font-mono text-xs text-gray-500">{p.product_code}</span>}
                         <span className="truncate font-medium">{p.name}</span>
-                        {sup && (
+                        {sup ? (
                           <span className={`shrink-0 rounded px-1.5 py-0.5 text-xs ${sup.approval === "approved" ? "bg-indigo-50 text-indigo-700" : "bg-amber-50 text-amber-800"}`} data-supplier-badge>
                             🏭 {sup.name}{sup.approval !== "approved" && ` · ${APPROVAL_LABEL[sup.approval]}`}
+                          </span>
+                        ) : (
+                          <span className="shrink-0 rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600" data-own-badge>
+                            🏠 운영사
                           </span>
                         )}
                         {(waiting.get(p.id) ?? 0) > 0 && (

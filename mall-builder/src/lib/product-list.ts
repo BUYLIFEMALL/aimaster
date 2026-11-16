@@ -1,4 +1,4 @@
-// M2-9(2026-11-15) 운영사 상품 목록 — 주소 조건(판매 상태·카테고리·재고 0·공급사 승인 대기·검색어·페이지)을 읽고 검사한다.
+// M2-9(2026-11-15) 운영사 상품 목록 — 주소 조건(판매 상태·카테고리·재고 0·공급사 승인 대기·공급사별(11-16)·검색어·페이지)을 읽고 검사한다.
 // 화면(admin/products)·조회 함수(store.ts getStoreProductPage)·선택 일괄 변경이 함께 쓴다. DB 변경 없음.
 import { cleanSearch } from "./order-list.ts";
 
@@ -12,6 +12,7 @@ export type ProductListQuery = {
   category?: string; // 카테고리 id(uuid)
   noStock: boolean; // 재고 관리 상품 중 재고 0 이하
   pending: boolean; // 공급사 상품 승인 대기
+  supplier?: string; // 공급사 id(uuid) 또는 "own"(운영사 직접 등록) — 2026-11-16
   q: string;
   page: number;
 };
@@ -27,11 +28,13 @@ export function isUuid(v: string): boolean {
 export function parseProductListQuery(raw: Raw): ProductListQuery {
   const status = one(raw.status);
   const category = one(raw.category);
+  const supplier = one(raw.supplier).toLowerCase();
   return {
     status: PRODUCT_STATUSES.includes(status as ProductStatusKey) ? (status as ProductStatusKey) : undefined,
     category: isUuid(category) ? category.toLowerCase() : undefined,
     noStock: one(raw.no_stock) === "1",
     pending: one(raw.pending) === "1",
+    supplier: supplier === "own" || isUuid(supplier) ? supplier : undefined,
     q: cleanSearch(one(raw.q)),
     page: Math.min(Math.max(Number.parseInt(one(raw.page), 10) || 1, 1), 1000),
   };
@@ -50,6 +53,7 @@ export function productListHref(base: string, cur: ProductListQuery, patch: Part
   if (n.category) sp.set("category", n.category);
   if (n.noStock) sp.set("no_stock", "1");
   if (n.pending) sp.set("pending", "1");
+  if (n.supplier) sp.set("supplier", n.supplier);
   if (n.q) sp.set("q", n.q);
   if (n.page > 1) sp.set("page", String(n.page));
   const s = sp.toString();
@@ -64,6 +68,7 @@ type Filterable<Q> = {
   eq(col: string, v: string): Q;
   neq(col: string, v: string): Q;
   lte(col: string, v: number): Q;
+  is(col: string, v: null): Q;
   in(col: string, v: string[]): Q;
   or(filter: string): Q;
 };
@@ -73,6 +78,8 @@ export function applyProductFilters<Q extends Filterable<Q>>(query: Q, f: Produc
   if (f.status) q = q.eq("status", f.status);
   if (f.noStock) q = q.eq("stock_mode", "product").lte("stock", 0);
   if (f.pending) q = q.eq("approval", "pending");
+  if (f.supplier === "own") q = q.is("supplier_id", null);
+  else if (f.supplier) q = q.eq("supplier_id", f.supplier);
   if (f.category) q = q.in("id", categoryIds?.length ? categoryIds : ["00000000-0000-0000-0000-000000000000"]);
   const search = productSearchFilter(f.q);
   if (search) q = q.or(search);
