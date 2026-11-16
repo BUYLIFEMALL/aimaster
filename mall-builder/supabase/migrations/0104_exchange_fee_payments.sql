@@ -5,6 +5,13 @@
 --     확인 중 결제 덮어쓰기 금지, 시간 모자라면 토스 안 부름, 4xx만 실패·그 밖은 확인 필요, 응답 주문 번호·금액 대조, 자동 재결제 없음).
 -- 잠금 순서: 주문 → 교환 → 교환비 결제(0102 lock_exchange와 같은 순서). 결제 키는 이력·화면에 남기지 않는다(칸 권한으로 읽기 막음).
 -- 선행: 0102(교환 표·exchange_event·exchange_order_delivered·lock_exchange), 0029(toss_call).
+-- 두 단계(2026-11-17, PLAN_20261117_M2_12B3_EXCHANGE_FEE_PAY 7절, Master msg_02fc9d3c39ac·msg_e4cc90983f45):
+--   1) card_prepare: 외부 호출 없이 결제 키·금액·토스 주문 번호·멱등키와 처음 준비 시각을 고정해 「prepared」로 커밋(별도 요청 = 별도 트랜잭션).
+--      같은 키로 다시 불러도 시각·키·시한을 바꾸지 않음. 다른 키는 앞 기록이 failed일 때만 교체.
+--   2) card_confirm: prepared이고 같은 결제 키이며 처음 준비 뒤 30분 안일 때만 토스 승인 POST(본문·멱등키 = 준비 때 고정값).
+--      requested·unknown이면 POST 0, 30분 지나면 POST 0(직원 다시 확인만). confirm이 강제 중단(연결 끊김·시간 초과)되면 prepared가 남고,
+--      다시 confirm하면 같은 멱등키·같은 본문으로 다시 보냄 — 토스 문서상 같은 요청은 첫 응답을 돌려줌(15일). 외부 원자성 보장은 아님.
+--   다시 확인(GET)은 prepared·requested·unknown 모두 대상, DONE·주문 번호·금액이 맞을 때만 완료, 404·연결 실패는 상태 그대로(해제 없음).
 
 create table if not exists public.mall_builder_exchange_fee_payments (
   id uuid primary key default gen_random_uuid(),
@@ -14,8 +21,13 @@ create table if not exists public.mall_builder_exchange_fee_payments (
   toss_order_id text not null unique check (toss_order_id ~ '^exfee-[0-9a-f-]{36}$'),
   payment_key text not null default '',
   amount bigint not null check (amount > 0),
-  -- requested 승인 요청 중 · done 결제 완료 · failed 실패(돈 안 나감) · unknown 결과 불확실(다시 확인 필요) · canceled 취소(다음 단위)
-  status text not null default 'requested' check (status in ('requested', 'done', 'failed', 'unknown', 'canceled')),
+  -- prepared 준비 완료(키·금액 고정, 승인 전 또는 승인 도중 강제 중단으로 되돌아옴) · requested 승인 요청 중 · done 결제 완료
+  -- · failed 실패(돈 안 나감) · unknown 결과 불확실(다시 확인 필요) · canceled 취소(다음 단위)
+  status text not null default 'prepared' check (status in ('prepared', 'requested', 'done', 'failed', 'unknown', 'canceled')),
+  -- 처음 준비한 시각(같은 키로 다시 준비해도 안 바뀜 — 30분 승인 시한의 기준), 승인 요청 시각, 토스 멱등키(준비 때 고정, 결제 키를 담으므로 읽기 권한 없음)
+  prepared_at timestamptz not null default now(),
+  requested_at timestamptz,
+  idempotency_key text not null default '',
   method text not null default '',
   approved_at timestamptz,
   receipt_url text not null default '',
@@ -34,19 +46,19 @@ create policy mall_builder_exchange_fee_payments_read on public.mall_builder_exc
   );
 -- 쓰기는 함수로만. 읽기도 결제 키 칸은 빼고 허용(화면·API에 결제 키가 나가지 않게)
 revoke all on public.mall_builder_exchange_fee_payments from anon, authenticated;
-grant select (id, exchange_id, store_id, order_id, toss_order_id, amount, status, method, approved_at, receipt_url, error, created_at, updated_at)
+grant select (id, exchange_id, store_id, order_id, toss_order_id, amount, status, prepared_at, requested_at, method, approved_at, receipt_url, error, created_at, updated_at)
   on public.mall_builder_exchange_fee_payments to authenticated;
 
 -- ── 교환 지킴: 카드 결제가 요청·확인 중·완료면 교환비 금액 변경·거절을 막고, 「입금 확인(paid)」 전이는 검증된 결제 기록으로만 판단 ──
 -- (0102 함수 재정의 없이 모든 경로. 세션 설정값 등 바꿀 수 있는 표시에 기대지 않음 — Master msg_cf68fc58d223)
---  · 요청 중(requested)·불확실(unknown) 카드 결제가 있으면 paid 전이 금지(무통장 수동 확인 경합 차단)
+--  · 준비(prepared)·요청 중(requested)·불확실(unknown) 카드 결제가 있으면 paid 전이 금지(무통장 수동 확인 경합 차단)
 --  · 완료(done) 카드 결제가 있으면 그 결제 금액 = 교환비일 때만 paid 허용(카드 승인·다시 확인 경로). 무통장 확인 함수는 이미 paid라 「대기 없음」으로 막힘
 --  · 카드 결제가 없거나 실패(failed)·취소(canceled)뿐이면 기존 무통장 흐름 그대로
 create or replace function mall_builder_private.exchanges_fee_card_guard()
 returns trigger language plpgsql security definer set search_path = '' as $$
 declare v_active boolean; v_pending boolean; v_done_ok boolean;
 begin
-  select bool_or(p.status in ('requested', 'unknown', 'done')), bool_or(p.status in ('requested', 'unknown')),
+  select bool_or(p.status in ('prepared', 'requested', 'unknown', 'done')), bool_or(p.status in ('prepared', 'requested', 'unknown')),
          bool_or(p.status = 'done' and p.amount = old.fee)
     into v_active, v_pending, v_done_ok
     from public.mall_builder_exchange_fee_payments p where p.exchange_id = new.id;
@@ -87,15 +99,15 @@ end;
 $$;
 revoke all on function mall_builder_private.exchange_fee_mark_card_paid(uuid, text, text) from public;
 
--- ── 유저(본인 주문): 교환비 카드 결제 승인 — 결제창 성공 주소에서 부른다 ──
-create or replace function public.mall_builder_exchange_fee_card_confirm(p_exchange_id uuid, p_payment_key text, p_amount bigint)
+-- ── 유저(본인 주문) 1단계: 교환비 카드 결제 준비 — 결제창 성공 주소에서 승인보다 먼저 부른다(별도 요청 = 별도 트랜잭션으로 커밋) ──
+-- 외부 호출 없음. 결제 키·금액·토스 주문 번호·멱등키·처음 준비 시각을 고정해 남긴다(강제 중단돼도 결제 키가 남아 직원 다시 확인 가능).
+create or replace function public.mall_builder_exchange_fee_card_prepare(p_exchange_id uuid, p_payment_key text, p_amount bigint)
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
   v_order uuid; o public.mall_builder_orders%rowtype; x public.mall_builder_exchanges%rowtype;
-  v_existing text; v_secret text; v_pay uuid; v_toss text; v_status integer; v_body jsonb; v_done boolean;
+  p public.mall_builder_exchange_fee_payments%rowtype; v_secret text;
 begin
   if auth.uid() is null then raise exception '로그인이 필요합니다.'; end if;
-  -- 잠금을 오래 기다리면 토스에 쓸 시간이 모자라므로 1초만(그 전에는 토스를 부르지 않았으니 다시 시도해도 안전)
   perform set_config('lock_timeout', '1000', true);
   select e.order_id into v_order from public.mall_builder_exchanges e where e.id = p_exchange_id;
   if v_order is null then raise exception '교환을 찾을 수 없습니다.'; end if;
@@ -103,51 +115,107 @@ begin
   if not found or o.user_id is distinct from auth.uid() then raise exception '교환을 찾을 수 없습니다.'; end if;
   select * into x from public.mall_builder_exchanges where id = p_exchange_id for update;
   if not found or x.order_id <> o.id then raise exception '교환을 찾을 수 없습니다.'; end if;
-  select p.status into v_existing from public.mall_builder_exchange_fee_payments p where p.exchange_id = x.id for update;
-  if v_existing = 'done' then return jsonb_build_object('ok', true, 'already', true); end if;
-  -- 확인 중인 결제는 새 결제 키로 덮어쓰지 않는다(먼저 들어온 결제가 실제로 됐을 수 있음) — 자동 재결제 없음
-  if v_existing in ('requested', 'unknown') then
-    return jsonb_build_object('ok', false, 'unknown', true, 'message', '앞서 한 교환비 결제를 확인하고 있습니다. 쇼핑몰이 확인한 뒤 안내합니다.');
+  select * into p from public.mall_builder_exchange_fee_payments where exchange_id = x.id for update;
+  if p.id is not null then
+    if p.status = 'done' then return jsonb_build_object('ok', true, 'already', true); end if;
+    if p.status = 'canceled' then raise exception '취소된 교환비 결제입니다. 쇼핑몰에 문의해 주세요.'; end if;
+    if p.status in ('prepared', 'requested', 'unknown') then
+      -- 같은 결제 키: 그대로(처음 준비 시각·멱등키·시한을 바꾸지 않음). 다른 결제 키: 앞 결제가 실제로 됐을 수 있으니 덮어쓰지 않음
+      if p.payment_key = coalesce(p_payment_key, '') then
+        return jsonb_build_object('ok', true, 'prepared', true, 'status', p.status);
+      end if;
+      return jsonb_build_object('ok', false, 'unknown', true, 'message', '앞서 한 교환비 결제를 확인하고 있습니다. 쇼핑몰이 확인한 뒤 안내합니다.');
+    end if;
+    -- failed: 같은 결제 키는 다시 쓰지 않음(새 결제창 결제만)
+    if p.payment_key = coalesce(p_payment_key, '') then raise exception '실패한 결제입니다. 결제창에서 다시 결제해 주세요.'; end if;
   end if;
-  if v_existing = 'canceled' then raise exception '취소된 교환비 결제입니다. 쇼핑몰에 문의해 주세요.'; end if;
   if not mall_builder_private.exchange_order_status_ok(o.status) then raise exception '주문이 배송 완료(구매 확정 포함) 상태가 아니라 교환비를 결제할 수 없습니다.'; end if;
   if x.step not in ('requested', 'collecting', 'collected') then raise exception '교환비를 결제할 수 있는 단계가 아닙니다.'; end if;
-  -- 무통장 입금이 먼저 확인됐으면 토스를 부르지 않는다(이중 수납 방지 — 승인 전이라 카드 돈은 나가지 않음)
+  -- 무통장 입금이 먼저 확인됐으면 준비하지 않는다(이중 수납 방지 — 승인 전이라 카드 돈은 나가지 않음)
   if x.fee <= 0 or x.fee_status <> 'waiting' then raise exception '결제를 기다리는 교환비가 없습니다(이미 입금이 확인됐거나 교환비가 없습니다).'; end if;
   if p_amount is distinct from x.fee then raise exception '결제 금액(%원)이 교환비(%원)와 달라 승인하지 않았습니다.', p_amount, x.fee; end if;
   if coalesce(p_payment_key, '') !~ '^[A-Za-z0-9_-]{10,200}$' then raise exception '결제 정보가 올바르지 않습니다.'; end if;
+  select s.toss_secret_key into v_secret from public.mall_builder_store_scheduler_secrets s where s.store_id = o.store_id;
+  if coalesce(v_secret, '') = '' then raise exception '이 몰의 카드 결제 설정이 없습니다.'; end if;
+
+  if p.id is not null then -- 실패한 앞 결제를 새 결제 키로 교체(새 시도라 시각·멱등키도 새로)
+    update public.mall_builder_exchange_fee_payments set payment_key = p_payment_key, amount = x.fee, status = 'prepared',
+      prepared_at = now(), requested_at = null, idempotency_key = 'exfee-confirm-' || p_payment_key,
+      method = '', approved_at = null, receipt_url = '', error = '', updated_at = now()
+    where id = p.id;
+  else
+    insert into public.mall_builder_exchange_fee_payments (exchange_id, store_id, order_id, toss_order_id, payment_key, amount, status, prepared_at, idempotency_key)
+    values (x.id, o.store_id, o.id, 'exfee-' || x.id::text, p_payment_key, x.fee, 'prepared', now(), 'exfee-confirm-' || p_payment_key);
+  end if;
+  return jsonb_build_object('ok', true, 'prepared', true, 'status', 'prepared');
+end;
+$$;
+
+-- ── 유저(본인 주문) 2단계: 준비된 교환비 카드 결제 승인 — prepare가 커밋된 뒤 별도 요청으로 부른다 ──
+create or replace function public.mall_builder_exchange_fee_card_confirm(p_exchange_id uuid, p_payment_key text)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+declare
+  v_order uuid; o public.mall_builder_orders%rowtype; x public.mall_builder_exchanges%rowtype;
+  p public.mall_builder_exchange_fee_payments%rowtype; v_secret text; v_status integer; v_body jsonb; v_done boolean;
+begin
+  if auth.uid() is null then raise exception '로그인이 필요합니다.'; end if;
+  -- 잠금을 오래 기다리면 토스에 쓸 시간이 모자라므로 1초만(그 전에는 토스를 부르지 않았으니 다시 시도해도 안전)
+  -- 같은 결제를 두 곳에서 동시에 승인하면 뒤 요청은 결제 기록 잠금에서 기다리다 멈춤(토스 호출 0)
+  perform set_config('lock_timeout', '1000', true);
+  select e.order_id into v_order from public.mall_builder_exchanges e where e.id = p_exchange_id;
+  if v_order is null then raise exception '교환을 찾을 수 없습니다.'; end if;
+  select * into o from public.mall_builder_orders where id = v_order for update;
+  if not found or o.user_id is distinct from auth.uid() then raise exception '교환을 찾을 수 없습니다.'; end if;
+  select * into x from public.mall_builder_exchanges where id = p_exchange_id for update;
+  if not found or x.order_id <> o.id then raise exception '교환을 찾을 수 없습니다.'; end if;
+  select * into p from public.mall_builder_exchange_fee_payments where exchange_id = x.id for update;
+  if p.id is null or p.payment_key is distinct from coalesce(p_payment_key, '') then
+    raise exception '결제 준비 기록이 없습니다. 결제창에서 다시 시도해 주세요.';
+  end if;
+  if p.status = 'done' then return jsonb_build_object('ok', true, 'already', true); end if;
+  -- 확인 중인 결제는 토스를 다시 부르지 않는다(자동 재결제 없음) — 직원 다시 확인으로만
+  if p.status in ('requested', 'unknown') then
+    return jsonb_build_object('ok', false, 'unknown', true, 'message', '앞서 한 교환비 결제를 확인하고 있습니다. 쇼핑몰이 확인한 뒤 안내합니다.');
+  end if;
+  if p.status = 'failed' then return jsonb_build_object('ok', false, 'message', '결제가 승인되지 않았습니다. 결제창에서 다시 결제해 주세요.'); end if;
+  if p.status = 'canceled' then raise exception '취소된 교환비 결제입니다. 쇼핑몰에 문의해 주세요.'; end if;
+  -- prepared: 처음 준비 뒤 30분 안에서만 자동 승인(토스 멱등 15일보다 훨씬 짧게). 지나면 토스 호출 0, 직원 다시 확인만
+  if clock_timestamp() - p.prepared_at > interval '30 minutes' then
+    return jsonb_build_object('ok', false, 'unknown', true, 'expired', true,
+      'message', '결제 준비 뒤 30분이 지나 자동으로 승인하지 않았습니다. 쇼핑몰이 결제 상태를 확인한 뒤 안내합니다(다시 결제하지 마세요).');
+  end if;
+  if not mall_builder_private.exchange_order_status_ok(o.status) then raise exception '주문이 배송 완료(구매 확정 포함) 상태가 아니라 교환비를 결제할 수 없습니다.'; end if;
+  if x.step not in ('requested', 'collecting', 'collected') then raise exception '교환비를 결제할 수 있는 단계가 아닙니다.'; end if;
+  if x.fee <= 0 or x.fee_status <> 'waiting' then raise exception '결제를 기다리는 교환비가 없습니다(이미 입금이 확인됐거나 교환비가 없습니다).'; end if;
+  if x.fee <> p.amount then raise exception '준비한 결제 금액(%원)이 교환비(%원)와 달라 승인하지 않았습니다.', p.amount, x.fee; end if;
   select s.toss_secret_key into v_secret from public.mall_builder_store_scheduler_secrets s where s.store_id = o.store_id;
   if coalesce(v_secret, '') = '' then raise exception '이 몰의 카드 결제 설정이 없습니다.'; end if;
   if (extract(epoch from (clock_timestamp() - statement_timestamp())) * 1000) > 4500 then
     raise exception '서버가 바빠 결제를 승인하지 못했습니다(결제는 되지 않았습니다). 새로고침해 주세요.';
   end if;
 
-  v_toss := 'exfee-' || x.id::text;
-  insert into public.mall_builder_exchange_fee_payments (exchange_id, store_id, order_id, toss_order_id, payment_key, amount, status)
-  values (x.id, o.store_id, o.id, v_toss, p_payment_key, x.fee, 'requested')
-  on conflict (exchange_id) do update set payment_key = excluded.payment_key, amount = excluded.amount, status = 'requested', error = '', updated_at = now()
-  returning id into v_pay;
+  -- 같은 트랜잭션 안의 표시(강제 중단되면 되돌려져 prepared로 남음 → 다시 confirm = 같은 멱등키·같은 본문)
+  update public.mall_builder_exchange_fee_payments set status = 'requested', requested_at = now(), error = '', updated_at = now() where id = p.id;
 
   begin
     select t.status, t.body into v_status, v_body from mall_builder_private.toss_call(v_secret, 'POST', '/v1/payments/confirm',
-      jsonb_build_object('paymentKey', p_payment_key, 'orderId', v_toss, 'amount', x.fee), 'exfee-confirm-' || p_payment_key) t;
+      jsonb_build_object('paymentKey', p.payment_key, 'orderId', p.toss_order_id, 'amount', p.amount), p.idempotency_key) t;
   exception when others then
-    update public.mall_builder_exchange_fee_payments set status = 'unknown', error = left(sqlerrm, 300), updated_at = now() where id = v_pay;
+    update public.mall_builder_exchange_fee_payments set status = 'unknown', error = left(sqlerrm, 300), updated_at = now() where id = p.id;
     return jsonb_build_object('ok', false, 'unknown', true, 'message', '카드사 응답이 늦어 결제 결과를 아직 모릅니다. 쇼핑몰이 확인한 뒤 안내합니다.');
   end;
 
-  -- 토스 응답을 받은 뒤의 처리(해석·결제 기록·교환 반영)는 안쪽 블록에서 — 여기서 오류가 나도 위 결제 기록(결제 키 포함)은 남기고
-  -- unknown으로 바꿔 직원 다시 확인으로 복구한다(QA012: 토스 DONE 뒤 내부 오류로 기록·키가 통째로 되돌려지던 문제).
-  -- 한계: 이 블록은 「함수 안에서 난 오류」만 막는다. 응답 뒤 DB 연결 끊김·문장 시간 초과·서버 중단은 이 기록까지 되돌린다(외부 원자성 아님).
+  -- 토스 응답을 받은 뒤의 처리(해석·결제 기록·교환 반영)는 안쪽 블록에서 — 여기서 오류가 나도 결제 기록(결제 키 포함)은 남기고
+  -- unknown으로 바꿔 직원 다시 확인으로 복구한다(QA012). 강제 중단(연결 끊김·문장 시간 초과·서버 중단)은 이 블록이 못 막지만
+  -- 준비 기록이 이미 커밋돼 있어 prepared로 남는다(결제 키 보존).
   begin
-    -- 금액은 숫자 형식일 때만 변환(아니면 완료 판정 불가 = unknown, 기본값으로 채우지 않음). 승인 시각 변환 실패도 아래 예외 → unknown
-    v_done := v_status = 200 and v_body ->> 'status' = 'DONE' and v_body ->> 'orderId' = v_toss
-              and coalesce(v_body ->> 'totalAmount', '') ~ '^[0-9]{1,12}$' and (v_body ->> 'totalAmount')::bigint = x.fee;
+    v_done := v_status = 200 and v_body ->> 'status' = 'DONE' and v_body ->> 'orderId' = p.toss_order_id
+              and coalesce(v_body ->> 'totalAmount', '') ~ '^[0-9]{1,12}$' and (v_body ->> 'totalAmount')::bigint = p.amount;
     if v_done then
       update public.mall_builder_exchange_fee_payments set status = 'done', method = coalesce(v_body ->> 'method', ''),
         approved_at = case when coalesce(v_body ->> 'approvedAt', '') = '' then null else (v_body ->> 'approvedAt')::timestamptz end,
         receipt_url = coalesce(v_body #>> '{receipt,url}', ''), error = '', updated_at = now()
-      where id = v_pay;
+      where id = p.id;
       perform mall_builder_private.exchange_fee_mark_card_paid(x.id, v_body ->> 'method', 'customer');
       return jsonb_build_object('ok', true);
     end if;
@@ -156,15 +224,14 @@ begin
       error = left(btrim(coalesce(v_body ->> 'code', '') || ' ' || coalesce(v_body ->> 'message', '') ||
                    case when v_status = 200 then ' (토스 상태 ' || coalesce(v_body ->> 'status', '?') || ')' else '' end), 300),
       updated_at = now()
-    where id = v_pay;
+    where id = p.id;
     return jsonb_build_object('ok', false, 'unknown', not (v_status between 400 and 499),
       'message', case when v_status between 400 and 499 then coalesce(v_body ->> 'message', '결제를 승인하지 못했습니다.')
                       else '결제 결과를 아직 확인하지 못했습니다. 쇼핑몰이 확인한 뒤 안내합니다.' end);
   exception when others then
-    -- 안쪽 변경만 되돌려짐. 결제 기록은 남아 있으니 unknown + 사유로 바꾼다(실패로 돌려 재결제를 허용하지 않음)
     update public.mall_builder_exchange_fee_payments set status = 'unknown',
       error = left('토스 응답 처리 중 오류(관리자 확인 필요): ' || sqlerrm, 300), updated_at = now()
-    where id = v_pay;
+    where id = p.id;
     return jsonb_build_object('ok', false, 'unknown', true, 'message', '결제 결과를 처리하는 중 문제가 생겼습니다. 쇼핑몰이 확인한 뒤 안내합니다(다시 결제하지 마세요).');
   end;
 end;
@@ -180,7 +247,8 @@ begin
   x := mall_builder_private.lock_exchange(p_exchange_id); -- 권한 확인 + 주문 → 교환 잠금
   select * into p from public.mall_builder_exchange_fee_payments where exchange_id = x.id for update;
   if not found or p.payment_key = '' then raise exception '결제창에서 돌아온 기록이 없어 확인할 수 없습니다(결제되지 않은 것으로 보입니다).'; end if;
-  if p.status in ('done', 'canceled') then return jsonb_build_object('toss_status', null, 'status', p.status); end if;
+  if p.status in ('done', 'canceled', 'failed') then return jsonb_build_object('toss_status', null, 'status', p.status); end if;
+  -- prepared·requested·unknown만 조회. 404·연결 실패·그 밖 상태는 그대로 둔다(재결제 허용으로 풀지 않음)
   select s.toss_secret_key into v_secret from public.mall_builder_store_scheduler_secrets s where s.store_id = x.store_id;
   if coalesce(v_secret, '') = '' then raise exception '카드 결제 키가 없습니다.'; end if;
   begin
@@ -214,7 +282,9 @@ begin
 end;
 $$;
 
-revoke all on function public.mall_builder_exchange_fee_card_confirm(uuid, text, bigint) from public, anon;
-grant execute on function public.mall_builder_exchange_fee_card_confirm(uuid, text, bigint) to authenticated;
+revoke all on function public.mall_builder_exchange_fee_card_prepare(uuid, text, bigint) from public, anon;
+grant execute on function public.mall_builder_exchange_fee_card_prepare(uuid, text, bigint) to authenticated;
+revoke all on function public.mall_builder_exchange_fee_card_confirm(uuid, text) from public, anon;
+grant execute on function public.mall_builder_exchange_fee_card_confirm(uuid, text) to authenticated;
 revoke all on function public.mall_builder_exchange_fee_card_recheck(uuid) from public, anon;
 grant execute on function public.mall_builder_exchange_fee_card_recheck(uuid) to authenticated;

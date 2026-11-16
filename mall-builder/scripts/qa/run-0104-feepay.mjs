@@ -21,7 +21,10 @@ const bundle = files.map((f) => read(`supabase/migrations/${f}`).replace(LAB_LIN
 const stub = read("scripts/check-prod-bundle-local.mjs").match(/const stub = `([\s\S]*?)`;/)[1];
 const supa = "alter default privileges in schema public grant execute on functions to anon, authenticated; alter default privileges in schema public grant all on tables to anon, authenticated;";
 // 토스 모의: qa_toss_mode(모드)·qa_toss_calls(호출 기록). 모드: done·fail4xx·err5xx·exception·wrong_amount·slow_done / GET: get_done·get_aborted
-const mock = `create table public.qa_toss_mode (k text primary key, v text);
+const mock = `create extension if not exists dblink;
+-- 외부 효과 기록: 모의 토스 POST가 별도 연결(dblink)로 남김 → 부른 트랜잭션이 되돌려져도 남음(실제 토스에 요청이 나간 것과 같음)
+create table public.qa_toss_ext (id serial, method text, path text, body jsonb, idem text, at timestamptz default clock_timestamp());
+create table public.qa_toss_mode (k text primary key, v text);
 insert into public.qa_toss_mode values ('post','done'),('get','get_done');
 create table public.qa_toss_calls (id serial, method text, path text, body jsonb, idem text, at timestamptz default clock_timestamp());
 grant all on public.qa_toss_mode, public.qa_toss_calls to authenticated; grant usage on sequence public.qa_toss_calls_id_seq to authenticated;
@@ -30,8 +33,12 @@ returns table (status integer, body jsonb) language plpgsql security definer set
 declare m text;
 begin
   insert into public.qa_toss_calls (method, path, body, idem) values (p_method, p_path, p_body, p_idem);
+  if p_method = 'POST' then
+    perform public.dblink_exec('dbname=${DB} user=postgres', format('insert into public.qa_toss_ext (method, path, body, idem) values (%L, %L, %L::jsonb, %L)', p_method, p_path, p_body::text, p_idem));
+  end if;
   if p_method = 'GET' then
     select v into m from public.qa_toss_mode where k = 'get';
+    if m = 'get_404' then return query select 404, '{"code":"NOT_FOUND_PAYMENT","message":"결제 정보를 찾을 수 없습니다"}'::jsonb; return; end if;
     return query select 200, jsonb_build_object('status', case when m = 'get_aborted' then 'ABORTED' else 'DONE' end,
       'orderId', (select 'exfee-' || x.id from public.mall_builder_exchanges x join public.mall_builder_exchange_fee_payments p on p.exchange_id = x.id where '/v1/payments/' || p.payment_key = p_path limit 1),
       'totalAmount', (select p.amount from public.mall_builder_exchange_fee_payments p where '/v1/payments/' || p.payment_key = p_path limit 1), 'method', '카드');
@@ -40,6 +47,7 @@ begin
   select v into m from public.qa_toss_mode where k = 'post';
   if m = 'exception' then raise exception 'qa 연결 끊김'; end if;
   if m = 'slow_done' then perform pg_sleep(2); end if;
+  if m = 'slow_long' then perform pg_sleep(6); end if;
   if m = 'done_bad_total' then return query select 200, jsonb_build_object('status', 'DONE', 'orderId', p_body ->> 'orderId', 'method', '카드', 'totalAmount', 'bad', 'approvedAt', '2026-11-17T10:00:00+09:00'); return; end if;
   if m = 'done_bad_date' then return query select 200, jsonb_build_object('status', 'DONE', 'orderId', p_body ->> 'orderId', 'method', '카드', 'totalAmount', (p_body ->> 'amount')::bigint, 'approvedAt', 'bad'); return; end if;
   if m = 'fail4xx' then return query select 400, '{"code":"REJECT_CARD_COMPANY","message":"카드사 거절"}'::jsonb; return; end if;
@@ -74,7 +82,7 @@ if (NO_GUARD) run("drop trigger mall_builder_exchanges_fee_card_guard on public.
 const id = (n) => `00000000-0000-0000-0000-${String(n).padStart(12, "0")}`;
 const STORE = "00000000-0000-0000-0000-00000000005a", OWNER = "00000000-0000-0000-0000-0000000000a1";
 const U1 = id(0xf1), U2 = id(0xf2), S3 = id(0xf3), P = id(0xc1), V1 = id(0xd1), V2 = id(0xd2), POL = id(0xb1);
-const N = 20; // 주문 o1~o20, 각 티셔츠 V1 2개, 배송 완료 1일 전, 주인 U1
+const N = 30; // 주문 o1~o20, 각 티셔츠 V1 2개, 배송 완료 1일 전, 주인 U1
 const O = (n) => id(0xe00 + n), I = (n) => id(0x1000 + n);
 {
   const fx = [
@@ -99,7 +107,10 @@ const calls = () => Number(val("select count(*) from public.qa_toss_calls;"));
 // 교환 만들기(유저 사이즈 사유 → 교환비 3,000 대기). 반환 = 교환 id
 const mkEx = (n) => { const r = tryAs(U1, `select public.mall_builder_request_exchange('${I(n)}', 1, '${V2}', 'size');`); if (!r.ok) throw new Error(r.err); return r.out; };
 const KEY = (n) => `qa_paykey_${String(n).padStart(4, "0")}`;
-const confirm = (uid, ex, key, amt = 3000) => tryAs(uid, `select public.mall_builder_exchange_fee_card_confirm('${ex}', '${key}', ${amt});`);
+const prep = (uid, ex, key, amt = 3000) => tryAs(uid, `select public.mall_builder_exchange_fee_card_prepare('${ex}', '${key}', ${amt});`);
+const conf = (uid, ex, key) => tryAs(uid, `select public.mall_builder_exchange_fee_card_confirm('${ex}', '${key}');`);
+const confirm = (uid, ex, key, amt = 3000) => { const p = prep(uid, ex, key, amt); if (!p.ok || !/"prepared": true/.test(p.out)) return p; return conf(uid, ex, key); };
+const ext = () => Number(val("select count(*) from public.qa_toss_ext;"));
 const exCol = (ex, c) => val(`select ${c} from mall_builder_exchanges where id = '${ex}';`);
 const payCol = (ex, c) => val(`select coalesce((select ${c}::text from mall_builder_exchange_fee_payments where exchange_id = '${ex}'), '(없음)');`);
 
@@ -165,7 +176,7 @@ const ex11 = mkEx(11); run(`alter table public.mall_builder_orders disable trigg
 const r12b = confirm(U1, ex11, KEY(11));
 check("F12 재발송된 교환·배송 완료 아닌 주문 → 결제 막힘", !r12a.ok && !r12b.ok && /배송 완료/.test(r12b.err), `${r12a.ok} ${r12a.err} | ${r12b.err}`);
 // F13 권한: anon 실행 0, 결제 키 칸 읽기 불가, 다른 칸은 주인만, 남은 0줄
-const anon = val(`select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname in ('mall_builder_exchange_fee_card_confirm','mall_builder_exchange_fee_card_recheck') and has_function_privilege('anon', p.oid, 'execute');`);
+const anon = val(`select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname in ('mall_builder_exchange_fee_card_prepare','mall_builder_exchange_fee_card_confirm','mall_builder_exchange_fee_card_recheck') and has_function_privilege('anon', p.oid, 'execute');`);
 const k1 = asRole(U1, "select payment_key from public.mall_builder_exchange_fee_payments limit 1;");
 const own = asRole(U1, "select count(*) from public.mall_builder_exchange_fee_payments;");
 const other = asRole(U2, "select count(*) from public.mall_builder_exchange_fee_payments;");
@@ -214,7 +225,7 @@ for (const [tag, n, setup, teardown] of [
 // F11 두 연결 동시 승인 → 토스 1번만(나중 연결은 잠금 대기 1초 넘겨 토스 부르기 전에 끝남)
 ex = mkEx(15); mode("post", "slow_done"); c0 = calls();
 const A = spawn("docker", psqlArgs, { stdio: ["pipe", "pipe", "pipe"] }); let aErr = ""; A.stderr.on("data", (d) => (aErr += d));
-A.stdin.end(as(U1) + `select public.mall_builder_exchange_fee_card_confirm('${ex}', '${KEY(15)}', 3000);\n`);
+A.stdin.end(as(U1) + `select public.mall_builder_exchange_fee_card_prepare('${ex}', '${KEY(15)}', 3000);\nselect public.mall_builder_exchange_fee_card_confirm('${ex}', '${KEY(15)}');\n`);
 await new Promise((res) => setTimeout(res, 600));
 const rB = confirm(U1, ex, KEY(150));
 await new Promise((res) => A.on("close", res));
@@ -222,6 +233,109 @@ mode("post", "done");
 check("F11 동시 승인 2건 → 토스 호출 1번·결제 done 1건(나중 건은 토스 전에 끝남)",
   calls() === c0 + 1 && payCol(ex, "status") === "done" && !/ERROR/.test(aErr) && (!rB.ok || /확인하고 있습니다|already/.test(rB.out)),
   `호출 ${calls() - c0} 상태 ${payCol(ex, "status")} A ${aErr.slice(-120)} B ${rB.ok} ${rB.out} ${rB.err}`);
+
+// ── 두 단계(준비 → 승인) 영속성 P1~P11 — 외부 효과는 qa_toss_ext(트랜잭션 밖), qa_toss_calls는 DB 되돌림에 같이 되돌려지는 기록 ──
+const pause = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+const extFor = (key) => val(`select count(*) || '/' || count(distinct body::text) || '/' || count(distinct idem) || '/' || coalesce(min(idem), '-') || '/' || coalesce(min(body ->> 'orderId'), '-') || '/' || coalesce(min(body ->> 'amount'), '-') from public.qa_toss_ext where body ->> 'paymentKey' = '${key}';`);
+mode("post", "done"); mode("get", "get_done");
+// P1 준비만: 외부 호출 0, 키·금액·주문 번호·멱등키·처음 시각 고정, 상태 prepared
+ex = mkEx(20); let e0 = ext();
+r = prep(U1, ex, KEY(20));
+const p1 = `${payCol(ex, "status")}/${payCol(ex, "amount")}/${payCol(ex, "toss_order_id") === "exfee-" + ex}/${payCol(ex, "idempotency_key") === "exfee-confirm-" + KEY(20)}/${payCol(ex, "prepared_at") !== "(없음)"}`;
+check("P1 준비만 → prepared·금액 3000·토스 주문 번호·멱등키 고정·처음 시각 있음·외부 호출 0", r.ok && p1 === "prepared/3000/true/true/true" && ext() === e0, `${p1} ${r.err} 외부 ${ext() - e0}`);
+// P2 같은 키로 다시 준비 → 시각·멱등키·수정 시각 그대로
+const t1 = payCol(ex, "prepared_at"), u1 = payCol(ex, "updated_at"); pause(1200);
+r = prep(U1, ex, KEY(20));
+check("P2 같은 키로 다시 준비 → 그대로 성공·처음 시각·멱등키·수정 시각 안 바뀜·외부 0", r.ok && /"prepared": true/.test(r.out) && payCol(ex, "prepared_at") === t1 && payCol(ex, "updated_at") === u1 && ext() === e0, `${r.out} ${t1}→${payCol(ex, "prepared_at")}`);
+// P3 다른 키로 준비 → 거절(앞 결제 확인 중)·기록 그대로
+r = prep(U1, ex, KEY(200));
+check("P3 준비 중 다른 키 → 「확인하고 있습니다」·결제 키 그대로", r.ok && /확인하고 있습니다/.test(r.out) && val(`select count(*) from mall_builder_exchange_fee_payments where exchange_id = '${ex}' and payment_key = '${KEY(20)}';`) === "1", r.out + r.err);
+// P4 준비 중 지킴: 무통장 확인·거절·금액 변경 모두 막힘
+const p4 = [tryAs(OWNER, `select public.mall_builder_exchange_fee_paid('${ex}');`), tryAs(OWNER, `select public.mall_builder_exchange_step('${ex}', 'rejected', '', '', '취소');`), tryAs(OWNER, `select public.mall_builder_exchange_fee('${ex}', 0);`)];
+check("P4 준비(prepared) 중 무통장 확인·거절·금액 변경 → 모두 막힘", p4.every((x) => !x.ok) && exCol(ex, "fee_status") === "waiting", p4.map((x) => x.err).join(" | "));
+// P5 승인 → 외부 1회·본문/멱등키 = 준비 때 값 → done·paid
+r = conf(U1, ex, KEY(20));
+check("P5 승인 → 외부 POST 1회(멱등키·주문 번호·금액 = 준비 고정값)·done·paid", r.ok && payCol(ex, "status") === "done" && exCol(ex, "fee_status") === "paid" && extFor(KEY(20)) === `1/1/1/exfee-confirm-${KEY(20)}/exfee-${ex}/3000`, `${r.out} ${extFor(KEY(20))}`);
+
+// P6 강제 중단: 준비 커밋 → 승인이 토스 요청을 보낸 뒤 연결이 끊김(서버가 세션 종료) → 결제 기록은 prepared로 남음(requested 되돌려짐),
+//    DB 안 호출 기록은 되돌려졌지만 외부 요청은 1회 나감 → 다시 승인 = 같은 멱등키·같은 본문으로 1회 더 → done
+ex = mkEx(21); prep(U1, ex, KEY(21)); mode("post", "slow_long");
+{
+  const A = spawn("docker", psqlArgs, { stdio: ["pipe", "pipe", "pipe"] }); let aErr = ""; A.stderr.on("data", (d) => (aErr += d));
+  A.stdin.end(as(U1) + `select public.mall_builder_exchange_fee_card_confirm('${ex}', '${KEY(21)}');\n`);
+  for (let i = 0; i < 40 && val(`select count(*) from public.qa_toss_ext where body ->> 'paymentKey' = '${KEY(21)}';`) === "0"; i++) pause(150);
+  const killed = val(`select count(pg_terminate_backend(pid)) from pg_stat_activity where pid <> pg_backend_pid() and query like '%card_confirm(''${ex}''%';`);
+  await new Promise((res) => A.on("close", res));
+  mode("post", "done");
+  const afterAbort = `${payCol(ex, "status")}/${payCol(ex, "requested_at")}/${val(`select count(*) from public.qa_toss_calls where body ->> 'paymentKey' = '${KEY(21)}';`)}/${extFor(KEY(21)).split("/")[0]}`;
+  check("P6a 승인 도중 강제 중단 → prepared 남음·requested 표시 되돌려짐·DB 안 호출 기록 0(되돌려짐)·외부 요청 1(나감)",
+    killed === "1" && /terminat|connection/i.test(aErr) && afterAbort === "prepared/(없음)/0/1", `종료 ${killed} · ${afterAbort} · A ${aErr.slice(-120)}`);
+  r = conf(U1, ex, KEY(21));
+  check("P6b 다시 승인 → 같은 멱등키·같은 본문으로 1회 더(외부 2회, 본문·멱등키 1종) → done·paid",
+    r.ok && payCol(ex, "status") === "done" && exCol(ex, "fee_status") === "paid" && extFor(KEY(21)) === `2/1/1/exfee-confirm-${KEY(21)}/exfee-${ex}/3000`, `${r.out} ${r.err} ${extFor(KEY(21))}`);
+}
+// P7 다른 작업자 중복 차단: A가 승인 중(토스 응답 대기, 잠금 보유) → B가 같은 키로 승인 → 잠금 대기 1초 넘어 멈춤·외부 요청 0 → A 끝난 뒤 B 다시 → already
+ex = mkEx(22); prep(U1, ex, KEY(22)); mode("post", "slow_done");
+{
+  const A = spawn("docker", psqlArgs, { stdio: ["pipe", "pipe", "pipe"] }); let aErr = ""; A.stderr.on("data", (d) => (aErr += d));
+  A.stdin.end(as(U1) + `select public.mall_builder_exchange_fee_card_confirm('${ex}', '${KEY(22)}');\n`);
+  for (let i = 0; i < 40 && val(`select count(*) from public.qa_toss_ext where body ->> 'paymentKey' = '${KEY(22)}';`) === "0"; i++) pause(100);
+  const rB = conf(U1, ex, KEY(22));
+  await new Promise((res) => A.on("close", res));
+  mode("post", "done");
+  const rB2 = conf(U1, ex, KEY(22));
+  check("P7 다른 작업자 동시 승인 → 뒤 요청은 잠금 대기 초과로 멈춤(외부 요청 0)·외부 1회·done·뒤에 다시 → already",
+    !rB.ok && /lock/i.test(rB.err) && !/ERROR/.test(aErr) && extFor(KEY(22)).startsWith("1/") && payCol(ex, "status") === "done" && rB2.ok && /already/.test(rB2.out),
+    `B ${rB.ok} ${rB.err} · 외부 ${extFor(KEY(22))} · B2 ${rB2.out}`);
+}
+// P8 30분 경계: 준비 31분 전 → 승인해도 외부 0·prepared 그대로(직원 확인 안내) → 다시 확인 GET DONE(주문 번호·금액 맞음) → done / 29분 전은 승인됨
+ex = mkEx(23); prep(U1, ex, KEY(23)); run(`update mall_builder_exchange_fee_payments set prepared_at = now() - interval '31 minutes' where exchange_id = '${ex}';`);
+e0 = ext(); r = conf(U1, ex, KEY(23));
+const p8a = `${payCol(ex, "status")}/${ext() - e0}`;
+const r8r = tryAs(OWNER, `select public.mall_builder_exchange_fee_card_recheck('${ex}');`);
+const ex24 = mkEx(24); prep(U1, ex24, KEY(24)); run(`update mall_builder_exchange_fee_payments set prepared_at = now() - interval '29 minutes' where exchange_id = '${ex24}';`);
+const r24 = conf(U1, ex24, KEY(24));
+check("P8 처음 준비 31분 뒤 승인 → 외부 0·prepared 유지·「30분」 안내, 직원 다시 확인 GET → done / 29분은 정상 승인",
+  r.ok && /"expired": true/.test(r.out) && p8a === "prepared/0" && r8r.ok && payCol(ex, "status") === "done" && r24.ok && payCol(ex24, "status") === "done",
+  `${r.out} ${p8a} 확인 ${r8r.err} ${payCol(ex, "status")} / 29분 ${r24.out} ${payCol(ex24, "status")}`);
+// P9 GET 404·조회 실패 → 상태 그대로(재결제 허용으로 풀지 않음): prepared·unknown 둘 다
+ex = mkEx(25); prep(U1, ex, KEY(25)); const ex26 = mkEx(26); mode("post", "err5xx"); confirm(U1, ex26, KEY(26)); mode("post", "done");
+mode("get", "get_404");
+const r9a = tryAs(OWNER, `select public.mall_builder_exchange_fee_card_recheck('${ex}');`), r9b = tryAs(OWNER, `select public.mall_builder_exchange_fee_card_recheck('${ex26}');`);
+mode("get", "get_done");
+check("P9 다시 확인 GET 404 → 오류 안내·상태 그대로(prepared·unknown 유지, 해제 없음)",
+  !r9a.ok && !r9b.ok && payCol(ex, "status") === "prepared" && payCol(ex26, "status") === "unknown" && exCol(ex, "fee_status") === "waiting", `${r9a.err} | ${r9b.err} | ${payCol(ex, "status")} ${payCol(ex26, "status")}`);
+// P10 requested가 남은 경우(승인 표시 커밋 흉내) → 승인해도 외부 0
+ex = mkEx(27); prep(U1, ex, KEY(27)); run(`update mall_builder_exchange_fee_payments set status = 'requested' where exchange_id = '${ex}';`);
+e0 = ext(); r = conf(U1, ex, KEY(27));
+check("P10 requested 상태 → 승인해도 외부 POST 0·「확인하고 있습니다」", r.ok && /확인하고 있습니다/.test(r.out) && ext() === e0 && payCol(ex, "status") === "requested", `${r.out} 외부 ${ext() - e0}`);
+// P11 실패 뒤: 같은 키 다시 준비 → 막힘 / 새 키 → 새 처음 시각·새 멱등키로 교체
+ex = mkEx(28); mode("post", "fail4xx"); confirm(U1, ex, KEY(28)); mode("post", "done");
+const t28 = payCol(ex, "prepared_at"); pause(1100);
+const r11a = prep(U1, ex, KEY(28)), r11b = prep(U1, ex, KEY(280));
+check("P11 실패 뒤 같은 키 준비 막힘·새 키는 새 처음 시각·새 멱등키로 교체(prepared)",
+  !r11a.ok && /실패한 결제/.test(r11a.err) && r11b.ok && payCol(ex, "status") === "prepared" && payCol(ex, "idempotency_key") === "exfee-confirm-" + KEY(280) && payCol(ex, "prepared_at") !== t28,
+  `${r11a.err} | ${r11b.out} ${payCol(ex, "idempotency_key")}`);
+
+// P6 빨강: 이전 한 단계 승인(커밋 0edda8666의 0104 card_confirm(uuid,text,bigint))을 이름만 바꿔 시험 DB에만 만들고 같은 강제 중단을 재현
+// → 외부 요청은 나갔는데 결제 기록(결제 키)이 통째로 사라짐(직원 다시 확인 불가). 새 두 단계는 P6a처럼 prepared·키가 남음
+{
+  const oldSrc = execFileSync("git", ["-C", SRC, "show", "0edda8666:mall-builder/supabase/migrations/0104_exchange_fee_payments.sql"], { encoding: "utf8" }).replace(/\r\n/g, "\n");
+  const a = oldSrc.indexOf("create or replace function public.mall_builder_exchange_fee_card_confirm(");
+  const b = oldSrc.indexOf("\n$$;", a) + 4;
+  const oldFn = oldSrc.slice(a, b).replace("public.mall_builder_exchange_fee_card_confirm(", "public.qa_old_card_confirm(");
+  const mk = run(oldFn); if (mk.status) { console.error("이전 함수 만들기 실패", mk.stderr.slice(-300)); process.exit(2); }
+  ex = mkEx(29); mode("post", "slow_long");
+  const A = spawn("docker", psqlArgs, { stdio: ["pipe", "pipe", "pipe"] }); let aErr = ""; A.stderr.on("data", (d) => (aErr += d));
+  A.stdin.end(as(U1) + `select public.qa_old_card_confirm('${ex}', '${KEY(29)}', 3000);\n`);
+  for (let i = 0; i < 40 && val(`select count(*) from public.qa_toss_ext where body ->> 'paymentKey' = '${KEY(29)}';`) === "0"; i++) pause(150);
+  const killed = val(`select count(pg_terminate_backend(pid)) from pg_stat_activity where pid <> pg_backend_pid() and query like '%qa_old_card_confirm(''${ex}''%';`);
+  await new Promise((res) => A.on("close", res));
+  mode("post", "done");
+  const rows = val(`select count(*) from mall_builder_exchange_fee_payments where exchange_id = '${ex}';`);
+  check("P6 빨강: 이전 한 단계 승인(0edda8666)은 같은 강제 중단에서 외부 요청 1회 나갔는데 결제 기록·결제 키 0(사라짐)",
+    killed === "1" && extFor(KEY(29)).startsWith("1/") && rows === "0", `종료 ${killed} · 외부 ${extFor(KEY(29))} · 결제 기록 ${rows}`);
+}
 
 adm(`drop database if exists ${DB}`);
 console.log(`합계 통과 ${pass} / 실패 ${fail}${NO_GUARD ? " (지킴 트리거 뺀 빨강 확인)" : ""}`);
