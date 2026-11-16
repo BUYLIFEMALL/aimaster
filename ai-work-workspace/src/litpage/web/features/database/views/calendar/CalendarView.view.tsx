@@ -15,7 +15,7 @@ import { addProperty, duplicateRows, viewCreationHooks, viewProperties } from '.
 import { newPropId, startOfWeekSetting } from '../../advanced/index.ts';
 import {
   SettingsRow, SettingsToggle, datePropertyItems, pickMenu, setFormat,
-  dateByProperty, dateProperties, dateValue, dayNum, isoOfDay, rowDayRange, setQuery2, shiftRowDate, todayNum, useViewKit, visibleProperties, weekdayOf, type DayRange,
+  dateByProperty, dateProperties, dateValue, dayNum, isoOfDay, rowDayRange, setQuery2, shiftRowDate, shiftedDateValues, todayNum, useViewKit, visibleProperties, weekdayOf, type DayRange,
 } from '../../advanced/viewKit.tsx';
 import { NO_DATE_DRAG_TYPE, setRowDay } from './NoDate.tsx';
 import { bindDragSession, COPY_CURSOR_CLASS } from './dragSession.ts';
@@ -296,10 +296,8 @@ function CalendarView(props: ViewProps) {
         if (mode === 'move' && ev.altKey && st.deltaStart) {
           const start = st.range.start + st.deltaStart;
           const end = st.range.end + st.deltaEnd;
-          void duplicateRows([it.row.id]).then(([copyId]) => {
-            const copy = copyId ? records.get<BlockRecord>('block', copyId) : undefined;
-            if (copy) shiftRowDate(copy, dateProp, st.range, start, end);
-          });
+          // WS-20261117-15: 복제와 새 날짜를 서버 한 트랜잭션으로(날짜 저장 실패로 날짜 없는 복제본이 남지 않음). 응답이 없어도 자동 재복제·원본 삭제 안 함
+          void duplicateRows([it.row.id], { overrides: { [it.row.id]: shiftedDateValues(it.row, dateProp, st.range, start, end) } });
           return;
         }
         if (st.deltaStart || st.deltaEnd) shiftRowDate(it.row, dateProp, st.range, st.range.start + st.deltaStart, st.range.end + st.deltaEnd);

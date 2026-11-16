@@ -127,29 +127,33 @@ export function dateValue(d: LitDate): RichText {
 }
 
 /** Move/resize a row's date by whole days, keeping times and the range shape (calendar/timeline drag). */
-export function shiftRowDate(row: BlockRecord, propId: string, range: DayRange, newStart: number, newEnd: number, endPropId?: string) {
+/** 날짜 이동 결과 값(속성 id → 저장 값). 시간·시간대·기간 형태를 보존. shiftRowDate와 Alt 복제(서버 overrides)가 같이 쓴다. */
+export function shiftedDateValues(row: BlockRecord, propId: string, range: DayRange, newStart: number, newEnd: number, endPropId?: string): Record<string, ReturnType<typeof dateValue>> {
   const v = range.value;
   const startIso = isoOfDay(newStart);
   const endIso = isoOfDay(newEnd);
+  if (endPropId) {
+    const s: LitDate = v.type === 'datetime' || v.type === 'datetimerange' ? { type: 'datetime', start_date: startIso, start_time: v.start_time, time_zone: v.time_zone } : { type: 'date', start_date: startIso };
+    const endV = row.properties?.[endPropId];
+    const timed = !!endV && JSON.stringify(endV).includes('start_time');
+    return { [propId]: dateValue(s), [endPropId]: dateValue(timed ? { ...(s as LitDate), type: 'datetime', start_date: endIso } : { type: 'date', start_date: endIso }) };
+  }
+  let next: LitDate;
+  if (newEnd > newStart || v.type === 'daterange' || v.type === 'datetimerange') {
+    next = v.type === 'datetime' || v.type === 'datetimerange'
+      ? { type: 'datetimerange', start_date: startIso, start_time: v.start_time, end_date: endIso, end_time: v.end_time ?? v.start_time, time_zone: v.time_zone }
+      : { type: 'daterange', start_date: startIso, end_date: endIso };
+    if (newEnd === newStart && v.type === 'daterange') next = { type: 'date', start_date: startIso };
+  } else {
+    next = v.type === 'datetime' ? { ...v, start_date: startIso } : { type: 'date', start_date: startIso };
+  }
+  return { [propId]: dateValue(next) };
+}
+
+export function shiftRowDate(row: BlockRecord, propId: string, range: DayRange, newStart: number, newEnd: number, endPropId?: string) {
+  const values = shiftedDateValues(row, propId, range, newStart, newEnd, endPropId);
   run('collectionView.moveDate', (tx) => {
-    if (endPropId) {
-      const s: LitDate = v.type === 'datetime' || v.type === 'datetimerange' ? { type: 'datetime', start_date: startIso, start_time: v.start_time, time_zone: v.time_zone } : { type: 'date', start_date: startIso };
-      setProperty(tx, row.id, propId, dateValue(s));
-      const endV = row.properties?.[endPropId];
-      const timed = !!endV && JSON.stringify(endV).includes('start_time');
-      setProperty(tx, row.id, endPropId, dateValue(timed ? { ...(s as LitDate), type: 'datetime', start_date: endIso } : { type: 'date', start_date: endIso }));
-      return;
-    }
-    let next: LitDate;
-    if (newEnd > newStart || v.type === 'daterange' || v.type === 'datetimerange') {
-      next = v.type === 'datetime' || v.type === 'datetimerange'
-        ? { type: 'datetimerange', start_date: startIso, start_time: v.start_time, end_date: endIso, end_time: v.end_time ?? v.start_time, time_zone: v.time_zone }
-        : { type: 'daterange', start_date: startIso, end_date: endIso };
-      if (newEnd === newStart && v.type === 'daterange') next = { type: 'date', start_date: startIso };
-    } else {
-      next = v.type === 'datetime' ? { ...v, start_date: startIso } : { type: 'date', start_date: startIso };
-    }
-    setProperty(tx, row.id, propId, dateValue(next));
+    for (const [pid, val] of Object.entries(values)) setProperty(tx, row.id, pid, val);
   });
 }
 

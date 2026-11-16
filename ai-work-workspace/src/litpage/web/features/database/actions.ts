@@ -587,10 +587,11 @@ export async function deleteRows(ids: string[]) {
 }
 
 
-export async function duplicateRows(ids: string[]): Promise<string[]> {
+/** overrides(선택, 2026-11-17 Alt 끌기 복제): { [원본 행 id]: { [날짜 속성 id]: 값 } } — 서버가 같은 트랜잭션에서 복제본 날짜로 넣는다 */
+export async function duplicateRows(ids: string[], opts?: { overrides?: Record<string, Record<string, unknown>> }): Promise<string[]> {
   if (!ids.length) return [];
   try {
-    const res = await api<{ rowIds: string[]; recordMap: any }>('duplicateDatabaseRows', { rowIds: ids });
+    const res = await api<{ rowIds: string[]; recordMap: any }>('duplicateDatabaseRows', { rowIds: ids, ...(opts?.overrides ? { overrides: opts.overrides } : {}) });
     records.mergeRecordMap(res.recordMap);
     return res.rowIds;
   } catch (e) {

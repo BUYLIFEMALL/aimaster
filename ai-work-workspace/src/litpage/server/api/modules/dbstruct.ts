@@ -16,6 +16,7 @@ import { childBlocks } from '../../tree.ts';
 import { ApiError, type Ctx } from '../handlers.ts';
 import { rowByUniqueId } from '../../rowdefaults.ts';
 import { writableCopyValues } from '../../propaccess.ts';
+import { decodeStored } from '#shared/database/values.ts';
 
 function requireUser(ctx: Ctx): string {
   if (!ctx.userId) throw new ApiError('Unauthorized', 401);
@@ -49,7 +50,7 @@ export const handlers = {
    * Duplicate database rows; with sub-items on, every sub-item below them is duplicated too and the copies are linked to
    * each other (copy of a parent → copies of its sub-items). Copies land right after their originals in manual orders.
    */
-  duplicateDatabaseRows(ctx: Ctx, { rowIds }: { rowIds: string[] }) {
+  duplicateDatabaseRows(ctx: Ctx, { rowIds, overrides }: { rowIds: string[]; overrides?: unknown }) {
     const uid = requireUser(ctx);
     const ids = (Array.isArray(rowIds) ? rowIds : []).filter((x) => typeof x === 'string').slice(0, 100);
     if (!ids.length) throw new ApiError('Nothing to duplicate', 400);
@@ -69,6 +70,9 @@ export const handlers = {
       for (let p = parent.get(r.id), i = 0; p && i < 50; p = parent.get(p), i++) if (requestedIds.has(p)) return false;
       return true;
     });
+    // 2026-11-17 WS-20261117-15(Alt 끌기 복제): 선택 입력 overrides { [원본 루트 행 id]: { [날짜 속성 id]: 값 } } — 복제본 날짜를 같은 트랜잭션에.
+    // 모든 검사를 적용 전에 끝내고 하나라도 틀리면 전체 거절(새 행 0): 루트 행만·날짜 속성만·올바른 날짜 값만·복제자가 그 값을 쓸 수 있을 때만.
+    const dateOverrides = checkDateOverrides(overrides, roots, col, uid);
     const toCopy = [...roots.map((r) => r.id), ...(cfg ? descendantIds(roots.map((r) => r.id), parent).filter((id) => blockRole(id, uid) !== 'none') : [])];
     const idMap = new Map(toCopy.map((id) => [id, newId()]));
     const ops: Op[] = [];
@@ -83,6 +87,8 @@ export const handlers = {
       const props: Record<string, unknown> = { ...(writableCopyValues(row, row.properties as Record<string, unknown> | undefined, uid) ?? {}) };
       const isRoot = roots.some((r) => r.id === oldId);
       if (isRoot) props.title = [[`${toPlainText(row.properties?.title) || 'Untitled'} (1)`]];
+      const dateOv = isRoot ? dateOverrides.get(oldId) : undefined;
+      if (dateOv) for (const [pid, val] of Object.entries(dateOv)) props[pid] = val;
       if (cfg) {
         const kids = childIdsOf(row, cfg).filter((k) => idMap.has(k)).map((k) => idMap.get(k)!);
         if (kids.length) props[cfg.property] = encodeRelation(kids, spaceId);
@@ -252,3 +258,31 @@ function automatedSprintCollections(): CollectionRecord[] {
 }
 
 scheduleJob('sprints.tick', 'sprints:tick', Date.now() + 60_000, null);
+
+/** WS-20261117-15: duplicateDatabaseRows overrides 검사(적용 전). 통과하면 원본 루트 id → { 속성 id → 값 }. */
+function checkDateOverrides(raw: unknown, roots: BlockRecord[], col: CollectionRecord, uid: string): Map<string, Record<string, unknown>> {
+  const out = new Map<string, Record<string, unknown>>();
+  if (raw === undefined || raw === null) return out;
+  if (typeof raw !== 'object' || Array.isArray(raw)) throw new ApiError('Invalid overrides', 400);
+  const rootById = new Map(roots.map((r) => [r.id, r]));
+  const entries = Object.keys(raw).map((k) => [k, (raw as Record<string, unknown>)[k]] as const);
+  if (entries.length > 100) throw new ApiError('Invalid overrides', 400);
+  for (const [rowId, vals] of entries) {
+    const row = rootById.get(rowId);
+    if (!row) throw new ApiError('Overrides can only change the rows being duplicated', 400);
+    if (!vals || typeof vals !== 'object' || Array.isArray(vals)) throw new ApiError('Invalid overrides', 400);
+    const picked: Record<string, unknown> = {};
+    for (const pid of Object.keys(vals)) {
+      const prop = col.schema?.[pid];
+      if (!prop || prop.type !== 'date') throw new ApiError('Only date properties can be changed while duplicating', 400);
+      const val = (vals as Record<string, unknown>)[pid];
+      const decoded = Array.isArray(val) ? decodeStored(val as never, prop) : null;
+      if (!decoded || decoded.kind !== 'date' || !decoded.date) throw new ApiError('Invalid date', 400);
+      const w = writableCopyValues(row, { [pid]: val }, uid);
+      if (!w || w[pid] === undefined) throw new ApiError("You can’t edit that property", 403);
+      picked[pid] = val;
+    }
+    if (Object.keys(picked).length) out.set(rowId, picked);
+  }
+  return out;
+}
