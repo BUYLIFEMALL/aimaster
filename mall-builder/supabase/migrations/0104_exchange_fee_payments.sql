@@ -209,7 +209,11 @@ begin
   -- unknown으로 바꿔 직원 다시 확인으로 복구한다(QA012). 강제 중단(연결 끊김·문장 시간 초과·서버 중단)은 이 블록이 못 막지만
   -- 준비 기록이 이미 커밋돼 있어 prepared로 남는다(결제 키 보존).
   begin
-    v_done := v_status = 200 and v_body ->> 'status' = 'DONE' and v_body ->> 'orderId' = p.toss_order_id
+    -- 완료 판정: 상태 DONE + 응답 결제 키가 글자이고 준비 때 고정한 키와 정확히 같음 + 주문 번호 + 금액(숫자 형식) 모두 맞을 때만
+    -- (응답 키가 없거나 다르면 완료·교환비 paid 0, unknown·waiting 유지·키 보존 — QA012 Mac msg_ded90d965405 P2)
+    v_done := v_status = 200 and v_body ->> 'status' = 'DONE'
+              and jsonb_typeof(v_body -> 'paymentKey') = 'string' and v_body ->> 'paymentKey' = p.payment_key
+              and v_body ->> 'orderId' = p.toss_order_id
               and coalesce(v_body ->> 'totalAmount', '') ~ '^[0-9]{1,12}$' and (v_body ->> 'totalAmount')::bigint = p.amount;
     if v_done then
       update public.mall_builder_exchange_fee_payments set status = 'done', method = coalesce(v_body ->> 'method', ''),
@@ -260,7 +264,8 @@ begin
   v_st := v_body ->> 'status';
   -- 조회 응답 처리도 안쪽 블록에서(오류면 결제 기록을 unknown·사유로 남기고 직원에게 알림 — 실패로 돌려 재결제를 허용하지 않음)
   begin
-    if v_st = 'DONE' and v_body ->> 'orderId' = p.toss_order_id
+    if v_st = 'DONE' and jsonb_typeof(v_body -> 'paymentKey') = 'string' and v_body ->> 'paymentKey' = p.payment_key
+       and v_body ->> 'orderId' = p.toss_order_id
        and coalesce(v_body ->> 'totalAmount', '') ~ '^[0-9]{1,12}$' and (v_body ->> 'totalAmount')::bigint = p.amount then
       update public.mall_builder_exchange_fee_payments set status = 'done', method = coalesce(v_body ->> 'method', ''),
         approved_at = case when coalesce(v_body ->> 'approvedAt', '') = '' then null else (v_body ->> 'approvedAt')::timestamptz end,
@@ -268,7 +273,7 @@ begin
       where id = p.id;
       perform mall_builder_private.exchange_fee_mark_card_paid(x.id, v_body ->> 'method', 'staff');
     elsif v_st = 'DONE' then
-      update public.mall_builder_exchange_fee_payments set status = 'unknown', error = '토스 결제 정보(주문 번호·금액)가 교환비와 다릅니다 — 관리자 확인 필요', updated_at = now() where id = p.id;
+      update public.mall_builder_exchange_fee_payments set status = 'unknown', error = '토스 결제 정보(결제 키·주문 번호·금액)가 준비한 결제와 다릅니다 — 관리자 확인 필요', updated_at = now() where id = p.id;
     elsif v_st in ('ABORTED', 'EXPIRED', 'CANCELED') then
       update public.mall_builder_exchange_fee_payments set status = 'failed', error = '토스 상태 ' || v_st, updated_at = now() where id = p.id;
     end if;

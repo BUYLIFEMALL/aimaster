@@ -129,3 +129,12 @@ prepare 재진입·다른 키 교체 거절·failed 뒤 교체 허용 / prepare 
   - P7 다른 작업자 동시 승인 → 뒤 요청은 잠금 대기 초과로 외부 0. P8 처음 준비 31분 뒤 승인 → 외부 0·prepared 유지, 다시 확인 GET → done / 29분은 승인. P9 GET 404 → prepared·unknown 그대로. P10 requested → 외부 0. P11 실패 뒤 같은 키 막힘·새 키는 새 시각·새 멱등키.
   - `--no-guard` 빨강: F6·F17·F18·P4(준비 중 무통장·거절·금액 변경)·P5 실패(27/5).
 - 한계(문서 유지): 같은 요청 재전송이 첫 응답을 돌려준다는 토스 문서에 기댐(외부 원자성 아님). 토스 주문 번호는 교환마다 `exfee-<교환 id>` 고정 — 실패 뒤 새 결제창에서 같은 주문 번호를 다시 쓸 수 있는지는 실키 시험 때 확인 필요. 404·모름이 오래 남을 때 해제는 이번 범위 미구현 — 화면에서 「쇼핑몰 관리자(대표 운영사)에게 문의」로 닫음(해제 권한 새로 주지 않음, 6-5).
+
+### 7-7. 응답 결제 키 검증(구현) · 시도 이력 보존안 · CANCELED 처리안(제안, 범위 확정 전 구현 0) — Master msg_23331b0fe85e
+- **구현(0104 미적용 원문)**: 승인 POST·다시 확인 GET 모두 DONE 판정에 `jsonb_typeof(응답.paymentKey) = 'string'` 그리고 `응답.paymentKey = 준비 때 고정 키`를 더함(주문 번호·금액 검증 유지). 없거나·글자가 아니거나·다르면 완료·교환비 paid 0, unknown·waiting 유지, 결제 키 보존, 자동 재POST·새 키 0. 모의 응답은 실제 계약대로 paymentKey 포함. 시험 K1~K5(POST 빠짐·다른 키·숫자 / GET 빠짐·다른 키) — 새 판 38/38, 이전 판(`--mig0104-from f1938ec12`)은 K1~K5만 실패(33/5). 모의 시험이라 실제 멱등·이중 과금 0을 증명한 것은 아님.
+- **시도 이력 보존 — 조사**: 기존 감사 기록 중 쓸 만한 것 없음. 주문 이력(`mall_builder_order_events`, 교환 이력도 여기)은 유저·직원에게 보이는 표라 결제 키·멱등키를 넣을 수 없음. 직원 접속 기록(`mall_builder_staff_access_logs`, 0043)은 법정 열람 기록 용도라 맞지 않음. 지금 0104는 실패한 결제를 새 키로 교체할 때 이전 키·오류·시각·멱등키를 덮어써 사라짐.
+- **보존안(제안)**: 0104 안에 추가만 되는 표 `mall_builder_exchange_fee_payment_attempts`(결제 기록 id·교환·몰·주문·이전 결제 키·멱등키·상태·오류·처음 준비 시각·요청 시각·보관 시각). RLS 켜고 정책·권한 0(로그인 회원·직원 직접 읽기·수정·삭제 0, 함수만 쓰기) — 외부 공개 grant 없음. `card_prepare`가 failed 기록을 새 키로 바꾸기 **직전에** 그 행을 그대로 한 줄 추가, 주문 이력에는 키 없는 메모(「교환비 카드 결제 실패 기록 보관」)만. 바뀌는 경로: `supabase/migrations/0104_exchange_fee_payments.sql`(표·prepare 교체 부분), `scripts/qa/run-0104-feepay.mjs`(교체 뒤 이전 시도 1줄·키·오류·시각 보존, 회원 역할 select·update·delete 거부). 직원 화면 노출은 이번 범위 아님.
+- **CANCELED(제안)**: 지금 0104 다시 확인은 ABORTED·EXPIRED·CANCELED를 모두 failed로 바꿔 새 키 결제를 허용함 → CANCELED는 「승인 뒤 취소」라 돈 흐름이 있었으므로 failed로 두지 않는다. 주문 카드 결제(0029 `card_recheck`)도 CANCELED는 실패로 바꾸지 않고 불일치만 표시함.
+  - ABORTED·EXPIRED → failed(돈 안 나감, 새 결제 허용) 유지.
+  - CANCELED·PARTIAL_CANCELED → 결제 기록이 prepared·requested·unknown이면 unknown 유지 + 사유 「승인 뒤 취소됨 — 관리자 확인」(같은 키 준비·새 키 교체 모두 막힘). done이면 done 유지 + 사유 표시(0029처럼 숫자 안 바꿈).
+  - 잠금: 0104 교환 지킴 트리거에 「확인 필요(unknown·requested·prepared) 카드 결제가 있으면 재발송(reshipped) 전이 금지」를 더하고, done 기록에 취소 사유가 붙으면 같은 잠금 → 재발송·paid 0 유지, 화면 「관리자(대표 운영사) 문의」. 자동 환불·수동 해제 추가 0. 공용 0032·toss_call·0102·0103 변경 0.

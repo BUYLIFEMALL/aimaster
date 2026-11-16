@@ -17,7 +17,9 @@ const read = (p) => readFileSync(join(SRC, p), "utf8").replace(/^﻿/, "").repla
 const LAB_LINE = /^select lab_admin\.register_program\('mall-builder'\);\s*$/m;
 const files = readdirSync(join(SRC, "supabase", "migrations")).filter((f) => f.endsWith(".sql") && f < "0105").sort();
 if (!files.at(-1)?.startsWith("0104_")) { console.error("0104 마이그레이션이 없습니다:", SRC); process.exit(2); }
-const bundle = files.map((f) => read(`supabase/migrations/${f}`).replace(LAB_LINE, "-- lab")).join("\n").replace("create extension if not exists http with schema extensions;", "-- http 흉내");
+const MIG0104_FROM = arg("--mig0104-from", null);
+const readMig = (f) => (MIG0104_FROM && f.startsWith("0104_")) ? execFileSync("git", ["-C", SRC, "show", `${MIG0104_FROM}:mall-builder/supabase/migrations/${f}`], { encoding: "utf8" }).replace(/\r\n/g, "\n") : read(`supabase/migrations/${f}`);
+const bundle = files.map((f) => readMig(f).replace(LAB_LINE, "-- lab")).join("\n").replace("create extension if not exists http with schema extensions;", "-- http 흉내");
 const stub = read("scripts/check-prod-bundle-local.mjs").match(/const stub = `([\s\S]*?)`;/)[1];
 const supa = "alter default privileges in schema public grant execute on functions to anon, authenticated; alter default privileges in schema public grant all on tables to anon, authenticated;";
 // 토스 모의: qa_toss_mode(모드)·qa_toss_calls(호출 기록). 모드: done·fail4xx·err5xx·exception·wrong_amount·slow_done / GET: get_done·get_aborted
@@ -39,7 +41,7 @@ begin
   if p_method = 'GET' then
     select v into m from public.qa_toss_mode where k = 'get';
     if m = 'get_404' then return query select 404, '{"code":"NOT_FOUND_PAYMENT","message":"결제 정보를 찾을 수 없습니다"}'::jsonb; return; end if;
-    return query select 200, jsonb_build_object('status', case when m = 'get_aborted' then 'ABORTED' else 'DONE' end,
+    return query select 200, (case when m = 'get_missing_key' then '{}'::jsonb else jsonb_build_object('paymentKey', case when m = 'get_wrong_key' then 'qa_other_key_9999' else substr(p_path, 14) end) end) || jsonb_build_object('status', case when m = 'get_aborted' then 'ABORTED' else 'DONE' end,
       'orderId', (select 'exfee-' || x.id from public.mall_builder_exchanges x join public.mall_builder_exchange_fee_payments p on p.exchange_id = x.id where '/v1/payments/' || p.payment_key = p_path limit 1),
       'totalAmount', (select p.amount from public.mall_builder_exchange_fee_payments p where '/v1/payments/' || p.payment_key = p_path limit 1), 'method', '카드');
     return;
@@ -48,11 +50,11 @@ begin
   if m = 'exception' then raise exception 'qa 연결 끊김'; end if;
   if m = 'slow_done' then perform pg_sleep(2); end if;
   if m = 'slow_long' then perform pg_sleep(6); end if;
-  if m = 'done_bad_total' then return query select 200, jsonb_build_object('status', 'DONE', 'orderId', p_body ->> 'orderId', 'method', '카드', 'totalAmount', 'bad', 'approvedAt', '2026-11-17T10:00:00+09:00'); return; end if;
-  if m = 'done_bad_date' then return query select 200, jsonb_build_object('status', 'DONE', 'orderId', p_body ->> 'orderId', 'method', '카드', 'totalAmount', (p_body ->> 'amount')::bigint, 'approvedAt', 'bad'); return; end if;
+  if m = 'done_bad_total' then return query select 200, jsonb_build_object('paymentKey', p_body ->> 'paymentKey', 'status', 'DONE', 'orderId', p_body ->> 'orderId', 'method', '카드', 'totalAmount', 'bad', 'approvedAt', '2026-11-17T10:00:00+09:00'); return; end if;
+  if m = 'done_bad_date' then return query select 200, jsonb_build_object('paymentKey', p_body ->> 'paymentKey', 'status', 'DONE', 'orderId', p_body ->> 'orderId', 'method', '카드', 'totalAmount', (p_body ->> 'amount')::bigint, 'approvedAt', 'bad'); return; end if;
   if m = 'fail4xx' then return query select 400, '{"code":"REJECT_CARD_COMPANY","message":"카드사 거절"}'::jsonb; return; end if;
   if m = 'err5xx' then return query select 500, '{"code":"FAILED_INTERNAL","message":"토스 내부 오류"}'::jsonb; return; end if;
-  return query select 200, jsonb_build_object('status', 'DONE', 'orderId', p_body ->> 'orderId', 'method', '카드',
+  return query select 200, (case when m = 'done_missing_key' then '{}'::jsonb when m = 'done_wrong_key' then jsonb_build_object('paymentKey', 'qa_other_key_9999') when m = 'done_numeric_key' then jsonb_build_object('paymentKey', 12345) else jsonb_build_object('paymentKey', p_body ->> 'paymentKey') end) || jsonb_build_object('status', 'DONE', 'orderId', p_body ->> 'orderId', 'method', '카드',
     'totalAmount', case when m = 'wrong_amount' then (p_body ->> 'amount')::bigint + 1 else (p_body ->> 'amount')::bigint end,
     'approvedAt', '2026-11-17T10:00:00+09:00', 'receipt', jsonb_build_object('url', 'https://receipt.qa'));
 end $m$;
@@ -82,7 +84,7 @@ if (NO_GUARD) run("drop trigger mall_builder_exchanges_fee_card_guard on public.
 const id = (n) => `00000000-0000-0000-0000-${String(n).padStart(12, "0")}`;
 const STORE = "00000000-0000-0000-0000-00000000005a", OWNER = "00000000-0000-0000-0000-0000000000a1";
 const U1 = id(0xf1), U2 = id(0xf2), S3 = id(0xf3), P = id(0xc1), V1 = id(0xd1), V2 = id(0xd2), POL = id(0xb1);
-const N = 30; // 주문 o1~o20, 각 티셔츠 V1 2개, 배송 완료 1일 전, 주인 U1
+const N = 40; // 주문 o1~o20, 각 티셔츠 V1 2개, 배송 완료 1일 전, 주인 U1
 const O = (n) => id(0xe00 + n), I = (n) => id(0x1000 + n);
 {
   const fx = [
@@ -337,6 +339,32 @@ check("P11 실패 뒤 같은 키 준비 막힘·새 키는 새 처음 시각·�
     killed === "1" && extFor(KEY(29)).startsWith("1/") && rows === "0", `종료 ${killed} · 외부 ${extFor(KEY(29))} · 결제 기록 ${rows}`);
 }
 
+// ── 응답 결제 키 검증 K1~K5(QA012 Mac msg_ded90d965405 P2): DONE이어도 응답 paymentKey가 없거나·글자가 아니거나·준비 키와 다르면 완료 0 ──
+mode("post", "done"); mode("get", "get_done");
+const keyCase = (tag, n, postMode) => {
+  const exK = mkEx(n); mode("post", postMode); const e1 = ext();
+  const first = confirm(U1, exK, KEY(n));
+  const st = `${payCol(exK, "status")}/${exCol(exK, "fee_status")}/${val(`select count(*) from mall_builder_exchange_fee_payments where exchange_id = '${exK}' and payment_key = '${KEY(n)}';`)}/${ext() - e1}`;
+  mode("post", "done"); const e2 = ext();
+  const again = confirm(U1, exK, KEY(n));
+  check(`${tag} → 완료·교환비 paid 0(unknown·waiting)·결제 키 보존·외부 1회, 다시 승인해도 외부 0`,
+    first.ok && /"unknown": true/.test(first.out) && st === "unknown/waiting/1/1" && again.ok && /확인하고 있습니다/.test(again.out) && ext() === e2,
+    `${first.out.slice(0, 90)} ${first.err} · ${st} · 재승인 외부 ${ext() - e2}`);
+};
+keyCase("K1 POST DONE 응답에 paymentKey 없음", 30, "done_missing_key");
+keyCase("K2 POST DONE 응답 paymentKey가 다른 키", 31, "done_wrong_key");
+keyCase("K3 POST DONE 응답 paymentKey가 글자 아님(숫자)", 32, "done_numeric_key");
+const getCase = (tag, n, getMode) => {
+  const exG = mkEx(n); mode("post", "err5xx"); confirm(U1, exG, KEY(n)); mode("post", "done");
+  mode("get", getMode); const rg = tryAs(OWNER, `select public.mall_builder_exchange_fee_card_recheck('${exG}');`); mode("get", "get_done");
+  const st = `${payCol(exG, "status")}/${exCol(exG, "fee_status")}`;
+  const ok2 = tryAs(OWNER, `select public.mall_builder_exchange_fee_card_recheck('${exG}');`);
+  check(`${tag} → 완료 0(unknown·waiting 유지), 그 뒤 키가 맞는 조회면 done`,
+    rg.ok && st === "unknown/waiting" && ok2.ok && payCol(exG, "status") === "done" && exCol(exG, "fee_status") === "paid", `${rg.err} · ${st} · 정상 ${payCol(exG, "status")}`);
+};
+getCase("K4 GET DONE 응답에 paymentKey 없음", 33, "get_missing_key");
+getCase("K5 GET DONE 응답 paymentKey가 다른 키", 34, "get_wrong_key");
+
 adm(`drop database if exists ${DB}`);
-console.log(`합계 통과 ${pass} / 실패 ${fail}${NO_GUARD ? " (지킴 트리거 뺀 빨강 확인)" : ""}`);
+console.log(`합계 통과 ${pass} / 실패 ${fail}${NO_GUARD ? " (지킴 트리거 뺀 빨강 확인)" : ""}${MIG0104_FROM ? " (0104 = " + MIG0104_FROM + " 판)" : ""}`);
 process.exit(fail ? 1 : 0);
