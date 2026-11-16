@@ -1,5 +1,9 @@
 # 개선사항 기록 — 상업용지·토지 실거래가 레이더 (`commercial-land-trade-alert`)
 
+## 2026-11-16 [역할: realty] Claude(RealEstate) — 로그아웃 이 브라우저만 (**미배포 대기**, RE-20261116-06)
+
+- `src/lib/actions/auth.ts` `signOutAction`의 `signOut()` → `signOut({ scope: "local" })` 한 줄. tsc 0, 기존 시험 65/65, `pending-check`의 「범위 없는 signOut」 지적 사라짐. 버전·빌드·배포 없음 → 다음 상가 기능 배포에 함께(그때 서버 기기 정보 전달 1건도 함께 검토).
+
 ## 2026-11-13 [역할: realty] Claude Code(윈도우) `claude-win-20261024-realty` — 전체 점검
 
 - **DB 확장 버전 칸 맞춤(처리함)**: v1.34 배포(11-12, 디자인 세션) 뒤 운영 ZIP·`manifest.json`은 v1.34인데 `programs.extension_version`이 v1.32로 남아 `check-extension-release`가 실패로 나옴 → 11-13 `extension_version = 'v1.34'`로 맞춤(운영 DB `esgxyikcnnvmlhygjkth`, 그 한 칸만) → `OK DB v1.34 / ext v1.34 / zip v1.34`.

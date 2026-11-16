@@ -4,7 +4,7 @@
 
 ## 지금 상태 (2026-11-13)
 - v1.10 운영(2026-11-08). 플랜 1~4단계 모두 끝·2026-11-03 회원 공개, 중개보수 계산기, 실제 문자 검수(일정 알림·광고 문자·수신거부) 끝.
-- 미배포 대기 없음. **다음 배포 때 함께 넣을 공통 3건**: 저장공간 위젯 한 줄(`docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md`) · 로그아웃 `signOut({ scope: "local" })`(`src/lib/actions/auth.ts`) · 서버 로그인 기기 정보 전달(`docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md`). 확인: `node scripts/pending-check.mjs realty-client-desk`.
+- **미배포 대기(2026-11-16, RE-20261116-06)**: 로그아웃 이 브라우저만 — `src/lib/actions/auth.ts` `signOut({ scope: "local" })` 한 줄(tsc 0, 기존 시험 24/24). 다음 배포 때 함께. **남은 공통 2건**(위젯·서버 기기 정보)과 원래 목록: 저장공간 위젯 한 줄(`docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md`) · 로그아웃 `signOut({ scope: "local" })`(`src/lib/actions/auth.ts`) · 서버 로그인 기기 정보 전달(`docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md`). 확인: `node scripts/pending-check.mjs realty-client-desk`.
 - 보관: 관리자 지정 1년(정리 코드 `src/lib/schedulerMember/dispatch.ts`가 `profiles.retention_exempt` 회원을 뺌 — 11-13 코드로 확인).
 
 ## 1. 프로그램 로직·기능
