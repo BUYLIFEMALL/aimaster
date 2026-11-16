@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T19:17:29.705Z",
+  "checkedAt": "2026-11-16T19:20:41.918Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2292,8 +2292,8 @@
       "delivery": "integrated",
       "evidence": "b3998651263da47ff96dafbf4078dc3f5263d451 / dev/schema OID/testreset증거",
       "completion": "aww_dev개발/aww시험분리·localonly원자료보존복제(0records)·환경다른줄hash동일·test27전후dev OID/schema10불변·PID44692 재시작",
-      "next": "개발3457사용가능·주인님본인로그인1회재안내,로컬검수workspace는담당생성·운영자료이전0",
-      "lastReviewedAt": "2026-11-16T18:50:11.080Z"
+      "next": "래퍼 종료 보고 정정: Master TCP3457 LISTEN/PID44692 node 생존 직접확인, 재시작 불필요. 기존 로그인 안내 유효·로그인 후 로컬검수workspace 담당 생성·운영자료 이전0",
+      "lastReviewedAt": "2026-11-16T19:20:41.918Z"
     },
     {
       "task_id": "B2B-20261117-08",
