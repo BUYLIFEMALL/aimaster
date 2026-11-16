@@ -62,6 +62,7 @@
 
 - 확인: 세 키트 포장 비밀값 검사·DB 대조 통과, 압축 안 운영·Lab DB 식별자·계정 문자열 0건, `.env`·`.vercel` 없음. Threads·INSTA·블로그 새 폴더 `npm ci`+`build`+`start` 화면·경로 확인(블로그는 v1.05로 빌드, v1.07은 고친 확장 ZIP 스크립트만 재확인). 내 PC 임시 DB(PGlite) 권한 시험 22/22.
 - 아직: 실제 Supabase·Vercel 설치, Meta·네이버 연결, 실제 게시·예약, 맥에서의 마법사. 원본 프로그램(운영) 쪽 변경은 동작 같음 — 각 프로그램 다음 배포 때 함께(미배포 대기).
+- **미해결(Master 지적, 2026-11-16)**: 블로그 키트의 **프로그램 이름 「블로그 포스팅 자동화」 ≠ 확장 표시 이름 「블로그 포스팅 네이버 입력기」**(브랜드를 넣으면 「… · 브랜드」). 최상위 규칙 「본 프로그램명·확장 프로그램명 일치」([확장 운영 규칙 §1-1](EXTENSION_RELEASE_RULES.md#extension-program-name-match)) 위반 — 운영판 확장도 같은 이름이라 키트만의 문제는 아님. 지금 ZIP(`Blog_Posting_Kit_v1.07`, SHA `fdb73b42…`)은 동결 상태로 그대로이며, 이름을 맞출지(예: 확장 이름 「블로그 포스팅 자동화」)는 주인님·Master 결정 뒤 원본(`ai-auto-blog/extension/manifest.json`·`KIT/extension.manifest.json`)에서 고치고 다음 번호로 다시 포장합니다.
 
 ## 7. 관련 문서
 - 결과 보고: `.ai/results/SUP-20261116-03-CC-SUPPORT-01.md`, `.ai/results/SUP-20261116-04-CC-SUPPORT-01.md`
