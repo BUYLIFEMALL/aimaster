@@ -14,9 +14,6 @@ import { addView, deleteView, duplicateView, renameView, reorderViews, updateVie
 import { confirmDialog } from '../../page/confirm.tsx';
 import { TRIM_VIEW_TYPES } from '../../shell/trimPolicy.ts';
 import { tx } from '../../shell/i18n.ts';
-// 2026-11-17: 저장된 이름이 기본 보기 이름(Table·Board…) 그대로면 화면 언어로 보여 준다(회원이 지은 이름은 그대로)
-const DEFAULT_VIEW_NAMES = new Set(VIEW_TYPES.map((v) => v.label));
-const shownName = (name: string | undefined) => (name && DEFAULT_VIEW_NAMES.has(name) ? tx(name) : name);
 
 export function viewIcon(type: string): string {
   return viewTypeMeta(type).icon;
@@ -232,7 +229,7 @@ export function ViewTabs({ block, views, activeId, collection, readOnly, onSelec
             aria-selected={measuring ? undefined : active}
             aria-haspopup="dialog"
             className={`lit-collection-view-tab ${active ? 'active' : ''}`}
-            data-tooltip={measuring ? undefined : shownName(v.name)}
+            data-tooltip={measuring ? undefined : v.name}
             data-tooltip-sub={measuring ? undefined : (v.format as any)?.description || `${tx(viewTypeMeta(v.type).label)} view of ${toPlainText(collection?.name as any) || tx('Untitled')}`}
             onClick={(e) => {
               if (measuring) return;
@@ -241,7 +238,7 @@ export function ViewTabs({ block, views, activeId, collection, readOnly, onSelec
             }}
           >
             {display !== 'text' && <Icon name={viewIcon(v.type)} size={20} className="nc-view-tab-icon" />}
-            {display !== 'icon' && <span className="nc-view-tab-name">{shownName(v.name) || tx(viewTypeMeta(v.type).label)}</span>}
+            {display !== 'icon' && <span className="nc-view-tab-name">{v.name || tx(viewTypeMeta(v.type).label)}</span>}
           </div>
         </div>
       </div>
@@ -262,7 +259,7 @@ export function ViewTabs({ block, views, activeId, collection, readOnly, onSelec
               width: 290,
               search: 'Find a layout...',
               sections: [
-                { items: views.map((v) => ({ id: v.id, label: shownName(v.name) ?? '', icon: viewIcon(v.type), checked: v.id === activeId, onSelect: () => onSelect(v.id) })) },
+                { items: views.map((v) => ({ id: v.id, label: v.name, icon: viewIcon(v.type), checked: v.id === activeId, onSelect: () => onSelect(v.id) })) },
                 ...(readOnly ? [] : [{ items: [
                   { id: 'new', label: tx('New view'), icon: 'plus', onSelect: () => { setTimeout(() => openAddViewMenu(e.currentTarget as HTMLElement, { block, collection, onCreated: (id) => onAdded(id) }), 0); } },
                   { id: 'source', label: tx('Create a dataset'), icon: 'squareOnSquarePlus', onSelect: () => { const a = e.currentTarget as HTMLElement; setTimeout(() => void import('../sources/ManageSources.tsx').then((m) => m.openAddDataSource(a, block)), 0); } },
