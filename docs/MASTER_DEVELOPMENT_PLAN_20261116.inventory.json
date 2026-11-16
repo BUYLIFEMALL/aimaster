@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 02:17:01 KST",
+  "checkedAt": "2026-11-17 02:19:38 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -3841,12 +3841,12 @@
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "owner": "CC-REALTY-01",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "returned",
       "title": "지역·단지 감시 겹침 안내",
-      "evidence": "msg_f0c0ca27cc85 / 결과§8",
-      "next": "legacy격리보존·VM14/단위119/type0 작성자반환→Mac독립재검수전달. 옛통계화면새누적/복구UI없음 배포전영향검토, 실제계정/수집/배포0",
-      "lastReviewedAt": "2026-11-16T17:16:58.608Z",
+      "evidence": "msg_c6e6a8192de4 / msg_33662366e459",
+      "next": "Mac 정상배열 VM9 PASS·실SW수명미검수. 기존격리 non-null비배열을빈배열로버리는P2 추가반환:원값보존failclosed·형식별실background시험→Mac,배포0",
+      "lastReviewedAt": "2026-11-16T17:19:35.068Z",
       "sha": "b175feca7 + 1a6d013a8"
     },
     {
@@ -3937,11 +3937,11 @@
       "title": "B2B Lab·RE계정격리·Workspace묶음 독립검수",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:13:59.558Z",
+      "lastReviewedAt": "2026-11-16T17:19:35.068Z",
       "status": "ready_review",
       "delivery": "returned",
       "evidence": ".ai/results/QA-20261117-003-CX-QA-01.md / msg_cd9ac04abae3",
-      "next": "WS10 저장명보존 정적PASS·E1 동일run CAS 모의PASS, 계보copy-before-claim/승인우회/owner권한 보완 반환. RE legacy 격리수정 대기"
+      "next": "RE 정상legacy배열 VM PASS/비배열소실P2 반환. E1 승인·열람보완반환,루트CAS/판정행렬 추가수정대기. 실제발송·실계정0"
     },
     {
       "task_id": "QA-20261117-004",
@@ -3992,12 +3992,12 @@
       "title": "확장 E1·notify_me 중복 차단",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:13:59.558Z",
+      "lastReviewedAt": "2026-11-16T17:19:35.068Z",
       "status": "running",
       "delivery": "acknowledged",
-      "sha": "6e9d07f1c + 0da321e33 + 22177c868",
-      "evidence": "E1結果§8 219040294 / Mac msg_494116d1535e / Master msg_9f35f4e64a6b",
-      "next": "同一run CAS 모의PASS; 계보동시copy반례 보류. notify_me bot+owner열람/share승인 수정승인·root공유CAS 계획요청·실발송0"
+      "sha": "22177c868 + ce458cc2a",
+      "evidence": "E1結果§9/10 / 7829be240 / msg_0ee3d7393621",
+      "next": "승인share/봇ANDowner열람 ce458cc2a 반환·234작성자시험/type0. root행CAS및상위승인순수판정시험 수정승인, 중간flag/계보동시성→Mac재검수,실발송0"
     },
     {
       "task_id": "DES-20261117-02",

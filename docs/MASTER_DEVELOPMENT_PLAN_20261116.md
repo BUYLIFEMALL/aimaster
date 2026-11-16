@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 02:17:01 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 02:19:38 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -39,7 +39,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 142개: done 120개 · cancelled 6개 · ready_review 11개 · running 3개 · ready 1개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 142개: done 120개 · cancelled 6개 · ready_review 10개 · running 4개 · ready 1개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -172,18 +172,18 @@
 | BLOG-20261117-01 | CC-BLOG-01 | done / integrated | 수집기 운영메타·블로그 미배포 누락 정정 | 문서정정완료·tistory타인ZIP삭제diff보존·T12미정별도 |
 | RE-20261117-03 | CC-REALTY-01 | done / integrated | 읽기전용 뉴스측정·안정페이징 도구 | 동률2500루프모의검증수락·실PostgREST1000+미검수·recall판정불가/운영recent상한차이명시 |
 | WS-20261117-07 | CC-WORKSPACE-01 | done / integrated | 뉴스측정기 독립읽기/안정페이징 후속검토 | 지적보완수락·DB/API0·실페이지경계누락실측아님 |
-| RE-20261117-04 | CC-REALTY-01 | ready_review / returned | 지역·단지 감시 겹침 안내 | legacy격리보존·VM14/단위119/type0 작성자반환→Mac독립재검수전달. 옛통계화면새누적/복구UI없음 배포전영향검토, 실제계정/수집/배포0 |
+| RE-20261117-04 | CC-REALTY-01 | running / returned | 지역·단지 감시 겹침 안내 | Mac 정상배열 VM9 PASS·실SW수명미검수. 기존격리 non-null비배열을빈배열로버리는P2 추가반환:원값보존failclosed·형식별실background시험→Mac,배포0 |
 | MOV-20261117-05 | CC-MOVIE-01 | done / integrated | 갤러리키보드·가사취소 안내 독립검토 | 각실컴포넌트/실Lab PASS·운영미배포·fallback소규모후속코드대조 |
 | B2B-20261117-01 | CC-B2B-BACK-01 | done / integrated | 메시지 safeupdate 미리보기·알림라벨 보완(Lab) | Mac정적PASS/동일Lab작성자preview증거 재사용. 운영0101·실발송·제품배포 미완료 유지 |
 | WS-20261117-08 | CC-WORKSPACE-01 | ready_review / returned | 주인님 직접 소규모5건 캘린더·번역 묶음 | ⑤기존구현조사/4영역코드변경·MOV17-06독립검토·906여백과미배포묶음 |
 | PLAN-20261117-01 | CC-WORKSPACE-01 | done / integrated | Workspace 큰기능4건 기존기능대조·확장계획 | E1 보완우선. E2-7-1 국소코드 허용·연결파일예약선행. 예약/포털은 동시성/부분실패/공개권한 설계보완 및 운영DDL별도승인 |
 | MOV-20261117-06 | CC-MOVIE-01 | ready / delivered | Workspace소규모캘린더/번역/여백 독립검토 | 8150da176/90612778f 원본정적검토·제품/빌드0 |
 | QA-20261117-002 | CX-QA-01 | waiting_human / returned | 실제Intel Mac MP4파일내보내기 보조검수 | Intel x86_64·AppleSilicon불가. ego20 handoff에서MP4신뢰클릭/저장위치선택필요, 실제인코딩0·우회없음 |
-| QA-20261117-003 | CX-QA-01 | ready_review / returned | B2B Lab·RE계정격리·Workspace묶음 독립검수 | WS10 저장명보존 정적PASS·E1 동일run CAS 모의PASS, 계보copy-before-claim/승인우회/owner권한 보완 반환. RE legacy 격리수정 대기 |
+| QA-20261117-003 | CX-QA-01 | ready_review / returned | B2B Lab·RE계정격리·Workspace묶음 독립검수 | RE 정상legacy배열 VM PASS/비배열소실P2 반환. E1 승인·열람보완반환,루트CAS/판정행렬 추가수정대기. 실제발송·실계정0 |
 | QA-20261117-004 | CX-QA-01 | ready_review / returned | 교환0102 독립검토 | 559085a40 기존P1 정적PASS·실제SQL은작성자근거재사용/Mac미실행. 모든옵션삭제후재발송 P2 추가반환, 전체PASS아님 |
 | B2B-20261117-02 | CC-B2B-BACK-01 | running / acknowledged | 교환0102 구현·독립지적 수정 | A16 전옵션삭제 본체50→49 실제재현/무옵션A17정상. 원주문·대상옵션이력 스냅샷 수정승인(0102+runner만), 접수전후삭제/회수전삭제/무옵션→옵션추가 검증→Mac. 운영/Lab/UI0 |
 | WS-20261117-10 | CC-WORKSPACE-01 | ready_review / returned | 보기 이름 저장값 보존 | 저장된 Table/한글 이름 그대로 표시·서버3경로 보류. 최종MacQA후 다음배포묶음 |
-| WS-20261117-09 | CC-WORKSPACE-01 | running / acknowledged | 확장 E1·notify_me 중복 차단 | 同一run CAS 모의PASS; 계보동시copy반례 보류. notify_me bot+owner열람/share승인 수정승인·root공유CAS 계획요청·실발송0 |
+| WS-20261117-09 | CC-WORKSPACE-01 | running / acknowledged | 확장 E1·notify_me 중복 차단 | 승인share/봇ANDowner열람 ce458cc2a 반환·234작성자시험/type0. root행CAS및상위승인순수판정시험 수정승인, 중간flag/계보동시성→Mac재검수,실발송0 |
 | DES-20261117-02 | AG-UI-01 | ready_review / returned | Workspace 전면디자인3안·12뷰 | 독립뷰어13KB+ 보완보고·PNG12개2880×1800확인. 기존쇼케이스보존/실화면검수별도, 주인님3안선택전제품미반영 |
 
 ## 현재 담당 회신이 확보된 프로젝트
