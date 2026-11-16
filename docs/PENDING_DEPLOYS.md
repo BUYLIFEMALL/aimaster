@@ -17,7 +17,7 @@
 ## 대기 중
 
 - **공용 `browser-mp4-encoder` 멈춤 대비 `44db8e230`(2026-11-15 [역할: video] `claude-win-video`)**: `shorts-onestop-studio`(기준)·`shots`·~~`lyric-video-studio`~~(v1.15로 배포됨 — `f78967bad` 포함 확인, MUS-07·MOV-06) — 인코더 대기열 대기 중 멈추기·오류 확인, 10초 진행 없으면 오류(메모리 방식은 하드웨어 가속 끄고 1회 다시), flush도 같은 제한. 맥 상품 영상 5% 정지 대응(`video-to-gif` v1.32로 먼저 배포). 시험·tsc 통과. 각 프로그램 다음 배포 때 함께(버전 +0.01).
-- **공용 `browser-mp4-encoder` 「파일로 바로 저장」 그래픽 가속 멈춤 대체 `4936c5e72`(2026-11-16 [역할: video] `claude-win-video`, MOV-20261116-05)**: 선택 `reopenStream`으로 같은 파일 새 스트림에 기본 방식 1회 다시 쓰기. **실제 사용처 `lyric-video-studio`**(`export.ts` 연결, Master DEC003 빌드 1건 등록) · 사본 동기화만(동작 변화 없음) `shorts-onestop-studio`(기준)·`shots`·`video-to-gif`. 회귀 7/7·tsc 4개·MUS-06 독립 PASS. 각 프로그램 다음 배포 때 함께.
+- **공용 `browser-mp4-encoder` 「파일로 바로 저장」 그래픽 가속 멈춤 대체 `4936c5e72`(2026-11-16 [역할: video] `claude-win-video`, MOV-20261116-05)**: 선택 `reopenStream`으로 같은 파일 새 스트림에 기본 방식 1회 다시 쓰기. ~~실제 사용처 `lyric-video-studio`~~ → 가사 영상 **v1.16으로 배포 완료**(2026-11-16 음악 담당, 배포 `lyric-video-studio-38f1zi7y1`, 커밋 `d65c40617` — `4936c5e72` 포함 확인, MOV-20261116-08 정정) · **아직 미배포**: 사본 동기화만(동작 변화 없음) `shorts-onestop-studio`(기준)·`shots`·`video-to-gif` — 각 프로그램 다음 배포 때 함께. 회귀 7/7·tsc 4개·MUS-06 독립 PASS.
 
 
 
@@ -92,7 +92,7 @@
 
 - 2026-11-11 메인 사이트(세션 `claude-win-rea`): 저작권·AI 분석 금지 고지 — `public/ai.txt`, 응답 헤더 `X-Robots-Tag: noai, noimageai`, 하단 저작권 한 줄(약관 제14조 링크) — 저장공간 2단계(관리자 미리보기)와 같은 빌드로 내보냄.
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
-| `lyric-video-studio` | v1.15 · 2026-11-16 (음악 담당 배포 `lyric-video-studio-71roglhks` — 이 줄은 [역할: video] `claude-win-video`가 MOV-20261116-06에서 정정) | 영상 담당 공용 사본 대기분이 함께 나감: `browser-mp4-encoder` 안정화 3가지 `4faaadaf2` · 멈춤 감지 `44db8e230` · `youtube-upload-client` `containsSyntheticMedia` `0807cf180` (+ 음악 공통 보완 `b4403e8bd`) — 모두 `git merge-base --is-ancestor <c> f78967bad` 확인(MUS-07). 새 `4936c5e72`는 미포함(대기 중) |
+| `lyric-video-studio` | v1.15 · 2026-11-16 (음악 담당 배포 `lyric-video-studio-71roglhks` — 이 줄은 [역할: video] `claude-win-video`가 MOV-20261116-06에서 정정) | 영상 담당 공용 사본 대기분이 함께 나감: `browser-mp4-encoder` 안정화 3가지 `4faaadaf2` · 멈춤 감지 `44db8e230` · `youtube-upload-client` `containsSyntheticMedia` `0807cf180` (+ 음악 공통 보완 `b4403e8bd`) — 모두 `git merge-base --is-ancestor <c> f78967bad` 확인(MUS-07). 새 `4936c5e72`는 미포함 → 다음 v1.16(`lyric-video-studio-38f1zi7y1`, `d65c40617`)으로 배포됨(MOV-20261116-08) |
 | `shop-detail-page` | v1.46 · 2026-11-16 ([역할: ecommerce-image] Claud(ecommerce) `claude-win-sdp`, 주인님 「상세페이지 배포 진행해」 빌드 1회, 커밋본만 `shop-detail-page-8hr5j0q71` Ready, DB v1.46) | 애니메이션 WebP 받기 `1ed1fde1b`(영상 담당 연결 대기 — Master MOV-01로 전달) · E2-4 검색 태그 받기 `597e912cc` · 바나나 전달 사본 `31dd0b632` |
 | `tistory-auto-blog` | v1.97 · 2026-11-15 ([역할: blog] `claude-win-photo`, 주인님 「미배포 대기 순서대로 배포 진행해」 빌드 4/4, `tistory-auto-blog-odn5g7qv5` Ready, DB·확장·ZIP v1.97 OK) | 결정 4번 모델 교체(gpt-4.1·4o·4o-mini → gpt-6.1-terra·gpt-6-luna, 저장된 옛 값 변환) · 열외 회원 배지 `ae8ea7473` · 공통 3가지(저장공간 위젯·로그아웃 범위·서버 기기 정보), 시험 175 통과 |
 | `ai-work-workspace` | v1.51 · 2026-11-15 ([역할: workspace], 주인님 「둘 다 권장대로 진행해」·「진행해」 빌드 1회, `ai-work-workspace-jxs37pc9i` Ready, DB v1.51) | 업무 비서 바깥 MCP 호출 `e7b01344a` — 운영 확인(엣지·시험 계정): 채팅 「+ › 연결 › 연결 추가」 창 열림, `aiListConnections` 200(연결 0개·사용자 지정 MCP 허용), 에이전트 연결 `addAgentConnection`은 계속 403 「준비 중」 |
