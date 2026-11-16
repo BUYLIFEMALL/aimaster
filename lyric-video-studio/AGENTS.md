@@ -91,3 +91,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## 2026-11-16 v1.15 — 미배포 묶음 배포 (Claud(Music) `claude-win-20261024-music`, 주인님 「미배포 묶음 배포 진행해」 승인 빌드 5회 중 1회)
 - 내보낸 것: 공통 보완 `b4403e8bd` + 공용 사본 `browser-mp4-encoder` 안정화(`4faaadaf2` 하드웨어 가속 우선·화면 꺼짐 방지, `44db8e230` 멈춤 10초 감지) + `youtube-upload-client` `containsSyntheticMedia`(`0807cf180`). 시험 36·tsc 통과, 배포 `lyric-video-studio-71roglhks` Ready·DB v1.15, ego lite 화면 v1.15·위젯 확인. **남은 확인**: 운영에서 MP4 1회 만들어 보기(인코더 변경, 회원 비용 없음).
+
+## 2026-11-16 v1.16 — 「파일로 바로 저장」 인코더 멈춤 대체 배포 (Claud(Music) `claude-win-20261024-music`, 주인님 「가사영상 v1.16 배포 진행해」 승인 빌드 1회)
+- 내보낸 것: 공용 `browser-mp4-encoder` 사본 수정 `4936c5e72`(영상 담당 MOV-20261116-05) — 파일 저장 방식에서 그래픽 가속 인코더가 멈추면 이전 쓰기를 버리고 같은 파일 핸들에 새 쓰기를 열어 기본 방식으로 1번 다시 쓴다(`export.ts` `reopenStream`). 취소·멈춤 아닌 오류는 다시 시도하지 않음. 버전 커밋 `d65c40617`.
+- 검증: 시험 36·tsc·로컬 build, 독립 검증 MUS-20261116-06(격리 시험 페이지 A/B/D/E/F/G·작성자 시험 7/7). 배포 `lyric-video-studio-38f1zi7y1` Ready·DB v1.16. **운영 ego(시험 계정·6초 합성음)**: 메모리 MP4 180프레임·디코드 0 / 파일 저장 open1→close1 180프레임·디코드 0 / 파일 저장+가속 멈춤 흉내 open1→abort1→open2→close2, hardware→software, 11.4초, 180프레임·디코드 0(v1.15에서 실패하던 조건) / 저장 중 취소 abort1·0바이트.
+- 미검증: 실제 저장 위치 창·사용자 폴더(OPFS로 대체), 맥 실제 하드웨어, 30분 곡, 소리 인코더 멈춤.
