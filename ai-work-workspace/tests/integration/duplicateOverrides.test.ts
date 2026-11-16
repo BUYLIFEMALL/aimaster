@@ -107,4 +107,38 @@ describe('Alt 끌기 복제 — overrides', () => {
     expect(rowCount()).toBe(before);
     expect(dateOf(r1)).toContain('2026-11-17');
   });
+
+  // QA011 P2(Mac msg515): 날짜 값을 원형 규격대로 엄격 검사 — 잘못되면 400·새 행 0·원본 불변
+  const dv = (v: Record<string, unknown>) => [['‣', [['d', v]]]];
+  it.each([
+    ['없는 월일 2026-99-99', { type: 'date', start_date: '2026-99-99' }],
+    ['2월 30일(넘김 금지)', { type: 'date', start_date: '2026-02-30' }],
+    ['평년 2월 29일', { type: 'date', start_date: '2026-02-29' }],
+    ['기간 끝 날짜 잘못', { type: 'daterange', start_date: '2026-11-19', end_date: 'bad' }],
+    ['기간인데 끝 없음', { type: 'daterange', start_date: '2026-11-19' }],
+    ['거꾸로 된 기간', { type: 'daterange', start_date: '2026-11-20', end_date: '2026-11-19' }],
+    ['같은 날 끝 시각이 앞섬', { type: 'datetimerange', start_date: '2026-11-20', start_time: '15:00', end_date: '2026-11-20', end_time: '09:00' }],
+    ['잘못된 시각 25:00', { type: 'datetime', start_date: '2026-11-20', start_time: '25:00' }],
+    ['시간형인데 시각 없음', { type: 'datetime', start_date: '2026-11-20' }],
+    ['없는 시간대', { type: 'datetime', start_date: '2026-11-20', start_time: '10:00', time_zone: 'Mars/Base' }],
+    ['모르는 종류', { type: 'week', start_date: '2026-11-20' }],
+    ['날짜만인데 끝 날짜가 붙음', { type: 'date', start_date: '2026-11-20', end_date: '2026-11-21' }],
+  ])('잘못된 날짜(%s) → 400·새 행 0·원본 불변', async (_n, v) => {
+    const before = rowCount();
+    const res = await rpc('duplicateDatabaseRows', { rowIds: [r1], overrides: { [r1]: { when: dv(v) } } });
+    expect(res.status).toBe(400);
+    expect(rowCount()).toBe(before);
+    expect(dateOf(r1)).toContain('2026-11-17');
+  });
+
+  it.each([
+    ['날짜만', { type: 'date', start_date: '2028-02-29' }],
+    ['시간 있음+시간대', { type: 'datetime', start_date: '2026-11-20', start_time: '09:30', time_zone: 'Asia/Seoul' }],
+    ['기간', { type: 'daterange', start_date: '2026-12-31', end_date: '2027-01-02' }],
+    ['시간 기간(같은 날 순서 맞음)', { type: 'datetimerange', start_date: '2026-11-20', start_time: '09:00', end_date: '2026-11-20', end_time: '09:00', time_zone: 'America/New_York' }],
+  ])('정상 형식(%s)은 그대로 복제', async (_n, v) => {
+    const res = await rpc('duplicateDatabaseRows', { rowIds: [r1], overrides: { [r1]: { when: dv(v) } } });
+    expect(res.status).toBe(200);
+    expect(dateOf((res.body as any).rowIds[0])).toContain(String(v.start_date));
+  });
 });

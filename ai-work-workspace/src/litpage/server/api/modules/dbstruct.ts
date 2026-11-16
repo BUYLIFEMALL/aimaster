@@ -17,6 +17,7 @@ import { ApiError, type Ctx } from '../handlers.ts';
 import { rowByUniqueId } from '../../rowdefaults.ts';
 import { writableCopyValues } from '../../propaccess.ts';
 import { decodeStored } from '#shared/database/values.ts';
+import { parseZone } from '#shared/formula/dates.ts';
 
 function requireUser(ctx: Ctx): string {
   if (!ctx.userId) throw new ApiError('Unauthorized', 401);
@@ -276,7 +277,9 @@ function checkDateOverrides(raw: unknown, roots: BlockRecord[], col: CollectionR
       const prop = col.schema?.[pid];
       if (!prop || prop.type !== 'date') throw new ApiError('Only date properties can be changed while duplicating', 400);
       const val = (vals as Record<string, unknown>)[pid];
-      const decoded = Array.isArray(val) ? decodeStored(val as never, prop) : null;
+      // QA011 P2: 원형 날짜 규격 엄격 검사(공용 decodeStored는 그대로) — 실재 월일·시각·시간대·기간 순서
+      if (!strictDateCell(val)) throw new ApiError('Invalid date', 400);
+      const decoded = decodeStored(val as never, prop);
       if (!decoded || decoded.kind !== 'date' || !decoded.date) throw new ApiError('Invalid date', 400);
       const w = writableCopyValues(row, { [pid]: val }, uid);
       if (!w || w[pid] === undefined) throw new ApiError("You can’t edit that property", 403);
@@ -285,4 +288,48 @@ function checkDateOverrides(raw: unknown, roots: BlockRecord[], col: CollectionR
     if (Object.keys(picked).length) out.set(rowId, picked);
   }
   return out;
+}
+
+const DATE_TYPES = new Set(['date', 'datetime', 'daterange', 'datetimerange']);
+const DATE_KEYS = new Set(['type', 'start_date', 'start_time', 'end_date', 'end_time', 'time_zone', 'date_format', 'time_format', 'reminder']);
+function realYmd(s: unknown): s is string {
+  if (typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const [y, m, d] = s.split('-').map(Number);
+  const t = new Date(Date.UTC(y, m - 1, d));
+  return t.getUTCFullYear() === y && t.getUTCMonth() === m - 1 && t.getUTCDate() === d; // 2/30·99월 같은 넘김 금지
+}
+const realHm = (s: unknown): s is string => typeof s === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(s);
+/** 공용 날짜 코드(parseZone)가 받는 시간대만(IANA·고정 시차) — 표시·계산과 같은 판정 */
+function realZone(z: unknown): boolean {
+  return typeof z === 'string' && !!z && z.length <= 64 && parseZone(z) !== null;
+}
+/** WS-15/QA011: 날짜 칸 저장 값 [['‣', [['d', DateValue]]]]을 원형 규격대로 검사(종류별 필수·금지 칸, 실재 날짜·시각·시간대, 기간 끝 ≥ 시작) */
+function strictDateCell(val: unknown): boolean {
+  if (!Array.isArray(val) || val.length !== 1) return false;
+  const seg = val[0];
+  if (!Array.isArray(seg) || seg.length !== 2 || seg[0] !== '‣' || !Array.isArray(seg[1]) || seg[1].length !== 1) return false;
+  const ann = seg[1][0];
+  if (!Array.isArray(ann) || ann.length !== 2 || ann[0] !== 'd') return false;
+  const v = ann[1] as Record<string, unknown>;
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
+  if (Object.keys(v).some((k) => !DATE_KEYS.has(k))) return false;
+  const type = String(v.type);
+  if (!DATE_TYPES.has(type) || !realYmd(v.start_date)) return false;
+  const timed = type === 'datetime' || type === 'datetimerange';
+  const range = type === 'daterange' || type === 'datetimerange';
+  if (timed ? !realHm(v.start_time) : v.start_time !== undefined) return false;
+  if (range) {
+    if (!realYmd(v.end_date)) return false;
+    if (timed ? !realHm(v.end_time) : v.end_time !== undefined) return false;
+    const start = `${v.start_date}T${timed ? v.start_time : '00:00'}`;
+    const end = `${v.end_date}T${timed ? v.end_time : '00:00'}`;
+    if (end < start) return false;
+  } else if (v.end_date !== undefined || v.end_time !== undefined) return false;
+  if (v.time_zone !== undefined && !realZone(v.time_zone)) return false;
+  for (const k of ['date_format', 'time_format'] as const) if (v[k] !== undefined && (typeof v[k] !== 'string' || (v[k] as string).length > 40)) return false;
+  if (v.reminder !== undefined) {
+    const r = v.reminder as Record<string, unknown>;
+    if (!r || typeof r !== 'object' || !['minute', 'hour', 'day', 'week'].includes(String(r.unit)) || !Number.isFinite(r.value)) return false;
+  }
+  return true;
 }
