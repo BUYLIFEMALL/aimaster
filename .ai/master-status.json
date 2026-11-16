@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T18:10:12.306Z",
+  "checkedAt": "2026-11-16T18:11:44.226Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2205,12 +2205,12 @@
       "parent_task_id": "B2B-20261117-02",
       "owner": "CC-B2B-BACK-01",
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "returned",
-      "evidence": "msg_adc7693a72fd / 0103+runner17/17/no-guard14/3",
+      "evidence": "QA012 msg_82bdd83232f8 / UI계획880125fe2",
       "decision": "Master조정 E1납부후거절차단 E2로그인본인 E3카드미설정은행 E4Backend신규경로;실환불미구현명시",
-      "next": "QA012카드/은행경합·금액/주문/권한·unknown/guard독립검수배정,UI단계2계획만·실토스/운영/Lab/빌드0",
-      "lastReviewedAt": "2026-11-16T18:10:12.306Z",
+      "next": "외부DONE후금액/날짜cast·markpaid예외의내부tx롤백 의심→메인qa_잘못응답주입재현요청·unknown/키보존/재승인0 기대. 수정안검토전UI단계2보류·실Toss/DB운영0",
+      "lastReviewedAt": "2026-11-16T18:11:44.226Z",
       "sha": "d91f16033f22fba8121b4d30422fb76d7c6a8985"
     },
     {
@@ -2248,12 +2248,12 @@
       "parent_task_id": "B2B-20261117-07",
       "owner": "CX-QA-01",
       "title": "교환비 카드결제 0103 모의/권한 독립검수",
-      "status": "ready",
-      "delivery": "delivered",
+      "status": "running",
+      "delivery": "acknowledged",
       "sha": "d91f16033",
-      "evidence": "msg_68e476ad56f7",
-      "next": "높은우선순위0103정적/모의검토·실토스/키/DB직접쓰기0·메인격리실행필요명령만요청",
-      "lastReviewedAt": "2026-11-16T18:10:12.306Z"
+      "evidence": "msg_82bdd83232f8",
+      "next": "정적예외반례메인격리실측요청전달,권한/guard검토계속. 실제PG/Toss0·모의응답파싱과SQL전체rollback구조한계분리",
+      "lastReviewedAt": "2026-11-16T18:11:44.226Z"
     }
   ],
   "programOverrides": [

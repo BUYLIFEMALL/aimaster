@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 03:10:19 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 03:11:47 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -39,7 +39,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 162개: done 133개 · cancelled 6개 · ready_review 17개 · running 1개 · ready 4개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 162개: done 133개 · cancelled 6개 · ready_review 16개 · running 3개 · ready 3개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -201,10 +201,10 @@
 | WS-20261117-14 | CC-WORKSPACE-01 | ready_review / returned | 주인님 직접 캘린더 달별 상자/색 구분 | 월보기CalendarView/calendar.css·tsc0 미배포,146토큰/월경계/연말전환·week보존실화면검수에병합·중복구현0 |
 | ESM-20261117-02 | CC-ECOM-01 | done / integrated | ESM 카탈로그 썸네일 실등록 | 정확URL/이미지크기추가근거회수·재생성/루트배포0 |
 | B2B-20261117-06 | CC-B2B-BACK-01 | ready_review / returned | Lab0102 안전fixture·실행패키지 준비 | hidden/RLS·NULL집계정적해소PASS·실anon권한증거부족(현재authenticated uid빈값). actualROLEanon단일추가검사요청·적용0 |
-| B2B-20261117-07 | CC-B2B-BACK-01 | ready_review / returned | 주인님기승인 D5 교환비 카드결제 b3 mock구현 | QA012카드/은행경합·금액/주문/권한·unknown/guard독립검수배정,UI단계2계획만·실토스/운영/Lab/빌드0 |
+| B2B-20261117-07 | CC-B2B-BACK-01 | running / returned | 주인님기승인 D5 교환비 카드결제 b3 mock구현 | 외부DONE후금액/날짜cast·markpaid예외의내부tx롤백 의심→메인qa_잘못응답주입재현요청·unknown/키보존/재승인0 기대. 수정안검토전UI단계2보류·실Toss/DB운영0 |
 | WS-20261117-15 | CC-WORKSPACE-01 | ready_review / returned | 주인님 직접 Alt/Option 달력카드 드래그 복사 | 월/주 drop시Alt+날짜이동이면duplicateRows→복제본날짜이동·원본유지,QA011실패/중복/기간/일반이동 검수배정·미배포 |
 | QA-20261117-011 | CX-QA-01 | ready / delivered | 달력 Alt복사·월구분 기능회귀 독립검수 | 월주/Alt드롭원본보존·실패/부분복제/중복·resize/취소/날짜기간경계검수,실원본fixture브라우저필요시Master요청·실데이터추가0 |
-| QA-20261117-012 | CX-QA-01 | ready / delivered | 교환비 카드결제 0103 모의/권한 독립검수 | 높은우선순위0103정적/모의검토·실토스/키/DB직접쓰기0·메인격리실행필요명령만요청 |
+| QA-20261117-012 | CX-QA-01 | running / acknowledged | 교환비 카드결제 0103 모의/권한 독립검수 | 정적예외반례메인격리실측요청전달,권한/guard검토계속. 실제PG/Toss0·모의응답파싱과SQL전체rollback구조한계분리 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
