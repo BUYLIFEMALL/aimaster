@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { registerNaverProductAction, type RegisterProductState } from "@/lib/actions/products";
+import { NaverCollectPanel } from "@/components/products/NaverCollectPanel";
 
 const initialState: RegisterProductState = {};
 
@@ -11,6 +12,9 @@ export function NaverProductForm() {
   const [state, formAction, isPending] = useActionState(registerNaverProductAction, initialState);
 
   return (
+    <div className="space-y-4">
+    {/* 2026-11-16: 링크 여러 개 → 확장 자동 수집(threads-auto 이식 2단계). 아래 직접 등록은 예전 그대로 */}
+    <NaverCollectPanel />
     <form action={formAction} className="space-y-3">
       <p className="text-xs text-neutral-500">
         네이버 브랜드커넥트는 공식 API가 없어, 브랜드커넥트 사이트에서 직접 발급받은 링크를
@@ -34,5 +38,6 @@ export function NaverProductForm() {
       {state.error && <p className="text-xs text-red-600">{state.error}</p>}
       {state.success && <p className="text-xs text-green-600">등록되었습니다.</p>}
     </form>
+    </div>
   );
 }

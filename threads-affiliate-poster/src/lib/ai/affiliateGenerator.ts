@@ -2,6 +2,7 @@ import "server-only";
 import { generatePostContent, type GeneratePostInput, type ThreadsTone } from "./generator";
 import type { AIModelProvider } from "./models";
 import type { AffiliatePlatform } from "@/types/product";
+import { NAVER_SHOPPING_DISCLOSURE, NAVER_TRAVEL_DISCLOSURE, type NaverConnectKind } from "@/lib/naver/brandConnect";
 
 // 플랫폼별 제휴 고지 문구. 표시광고법은 특정 플랫폼이 아니라 "커미션을 받는
 // 제휴 마케팅 콘텐츠 전반"에 적용되는 규정이라, API 연동 여부와 무관하게
@@ -17,7 +18,8 @@ import type { AffiliatePlatform } from "@/types/product";
 const DISCLOSURE_TEXT: Record<AffiliatePlatform, string | null> = {
   coupang: "(광고)쿠팡파트너스 활동으로 수수료를 받을 수 있음",
   aliexpress: "(광고) 제휴 활동으로 수수료를 받을 수 있습니다.",
-  naver: "(광고) 브랜드 제휴 활동으로 수수료를 받을 수 있습니다.",
+  // 2026-11-16 주인님 결정 4(사전 승인 항목): threads-auto(MIT) 원본의 네이버 쇼핑 커넥트 문구. 여행 상품은 getDisclosureText에서 여행 문구로.
+  naver: NAVER_SHOPPING_DISCLOSURE,
   toss: "(광고) 토스쇼핑 쉐어링크 활동으로 수수료를 받을 수 있습니다.",
 };
 
@@ -28,7 +30,9 @@ const PLATFORM_DEFAULT_CTA_TEXT: Record<AffiliatePlatform, string> = {
   toss: "상품링크:",
 };
 
-export function getDisclosureText(platform: AffiliatePlatform): string | null {
+export function getDisclosureText(platform: AffiliatePlatform, connectKind?: NaverConnectKind | null): string | null {
+  // 네이버 여행 커넥트(pkgtour) 상품은 여행 문구 — 고지는 어떤 경우에도 빠지지 않는다
+  if (platform === "naver" && connectKind === "TRAVEL") return NAVER_TRAVEL_DISCLOSURE;
   return DISCLOSURE_TEXT[platform];
 }
 
@@ -41,6 +45,8 @@ export interface AffiliateProductContext {
   description?: string | null;
   keySellingPoints?: string[] | null;
   detailPageExcerpt?: string | null;
+  /** 네이버 브랜드커넥트: 실제 상품 페이지가 여행(pkgtour)이면 TRAVEL */
+  connectKind?: NaverConnectKind | null;
 }
 
 function buildTopic(product: AffiliateProductContext): string {
@@ -102,7 +108,7 @@ export async function generateAffiliatePostContent(
   // 인식해서 보여준다 — 그래서 "쿠팡에서 확인"이라는 문구 바로 뒤에 이어붙이는 것으로
   // 최대한 가깝게 구현했다.
   const ctaBlock = `\n\n${ctaText} ${product.affiliateUrl}`;
-  const disclosureLine = DISCLOSURE_TEXT[product.platform] ?? "";
+  const disclosureLine = getDisclosureText(product.platform, product.connectKind) ?? "";
   const disclosureBlock = disclosureLine ? `${disclosureLine}\n\n` : "";
 
   // 2026-09-12: 본문을 다 만들고 나서 사후에 잘라내는 대신, 고지문구+CTA+링크 길이를

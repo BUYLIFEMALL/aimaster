@@ -10,7 +10,9 @@
     "test:naver-key": "node scripts/test-naver-own-key.cjs",
     "test:openai-params": "node --test tests/openaiRequestParams.test.mjs",
     "test:affiliate-clients": "node --test tests/affiliate-clients.test.cjs",
-    "test:coupang-multi": "node --test tests/coupang-multi-source.test.cjs"
+    "test:coupang-multi": "node --test tests/coupang-multi-source.test.cjs",
+    "test:naver-brand": "node --test tests/naver-brand-connect.test.cjs",
+    "prebuild": "node scripts/build-extension-archive.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",

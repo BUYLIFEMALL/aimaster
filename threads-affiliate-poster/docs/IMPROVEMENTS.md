@@ -87,3 +87,12 @@ F-004: 네이버 검색/트렌드 캐시 회원 간 공유 — 제안·미수정
 - **운영 DB 적용됨(ref `esgxyikcnnvmlhygjkth`)**: `affiliate_products.source_key` 칸 + 기존 쿠팡 상품 12/18개 번호 채움(`supabase/migrations/20261116120000_affiliate_products_source_key.sql`). 단축 링크로 등록한 6개는 번호가 없어 「이미 등록」 제외에 안 잡힘.
 - 검수: tsc 0(쇼핑제휴·운영 사본), 시험 7+5+8 통과(`npm run test:coupang-multi` 신규), 로컬 build 통과, 0번 규칙 고지 0, `NOTICE`에 원본 MIT 고지. **실제 쿠팡 호출·화면 확인은 배포 뒤**(시험 계정 본인 키).
 - 공용 사본 `threads-content-ops/lib/affiliate-clients/coupangApi.ts` `--sync` 반영(함수 추가만, 운영 동작 변화 없음 — 운영 다음 배포 때 함께).
+
+## ⏸ 미배포 대기 — threads-auto 이식 2단계: 네이버 브랜드커넥트 링크 → 확장 자동 수집 (2026-11-17, Claud(ecommerce) `claude-win-sdp`, 주인님 「쇼핑제휴 2단계 진행해」)
+- 화면(상품 등록 › 네이버): naver.me 링크 여러 줄 → 「목록에 넣기」 → 「확장으로 정보 가져오기」(내 브라우저에서 백그라운드 탭으로 열어 실제 상품 페이지의 상품명·이미지 최대 10·후기 최대 8·상품 정보 수집, 탭 닫음) → 상태 「대기·준비됨·확인 필요·등록됨」 → 「선택한 N개 상품으로 등록」. 예전 직접 등록 칸은 그대로. `src/components/products/NaverCollectPanel.tsx`.
+- 서버: `src/lib/actions/naverCollect.ts`(목록·넣기·저장·등록·삭제, 모두 `requireProgramAccess`+본인 행), 확장 결과는 `src/lib/naver/brandConnect.ts` `sanitizeCollected`로 다시 검사(도착 주소 brand/smartstore/shopping, 여행 pkgtour만 — 아니면 「확인 필요」, 이미지 pstatic.net만).
+- **운영 DB 적용됨(ref `esgxyikcnnvmlhygjkth`)**: 새 표 `tap_collect_queue`(본인 RLS) — `supabase/migrations/20261116240000_tap_collect_queue.sql`. 30일 정리: `api/cron/cleanup-media`에 대기열 삭제 추가(예외 회원 제외). 등록한 상품은 남고 근거만 사라짐.
+- 글 생성: 네이버 상품이면 대기열 근거(상품 정보·후기 원문 일부 + 「지어내기·내 경험처럼 쓰기·과장 금지」)를 넣음(`actions/ai.ts`). **고지 문구 변경(주인님 결정 4·사전 승인 항목)**: 네이버는 원본 「※ … 네이버 쇼핑 커넥트 활동의 일환으로, 판매 발생 시 수수료를 제공받습니다. ※」, 여행(pkgtour) 상품은 「여행 커넥트 … 예약 발생 시」 — 첫 줄 고정·항상 포함(`affiliateGenerator.ts` `getDisclosureText(platform, connectKind)`).
+- 확장 신규 `extension/`(manifest·`background.js`·`web-bridge.js`·`NOTICE`·아이콘): 표시명 「Threads 쇼핑제휴 자동화」, 권한 `tabs`·`scripting`, 우리 주소·naver.me·네이버 상품 주소만. 수집 함수는 원본 content-script에서 옮김(네이티브 메시징 대신 웹 연결). ZIP은 `scripts/build-extension-archive.mjs`(새 패키지 없이 zlib) → `public/downloads/threads-affiliate-poster-extension-latest.zip`, `prebuild`로 빌드마다 버전 맞춤.
+- 검수: tsc 0, 시험 25(새 `npm run test:naver-brand` 5), 로컬 build 통과, ZIP 무결성·버전 일치, 0번 고지 0. **실제 확장 설치·naver.me 수집은 배포 뒤 주인님 브라우저에서**(브랜드커넥트 발급 링크 필요).
+- 배포 때 할 것: 버전 v1.89(코드·DB) + DB `extension_version`·`extension_download_url` + `node scripts/check-extension-release.mjs threads-affiliate-poster`. 한계: 설치 키트(독립 모드) 주소에선 확장이 동작 안 함(확장 허용 주소가 buylife.xyz 고정) — 키트용은 별도.

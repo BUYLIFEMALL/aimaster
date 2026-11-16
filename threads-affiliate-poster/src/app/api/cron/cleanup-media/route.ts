@@ -95,6 +95,15 @@ async function handleCleanup(request: NextRequest) {
     return NextResponse.json({ error: deleteError.message }, { status: 500 });
   }
 
+  // 2026-11-16: 네이버 브랜드커넥트 수집 대기열(상품명·이미지 주소·후기·상품 정보)도 30일 뒤 지운다(예외 회원 제외).
+  // 등록된 상품(affiliate_products)은 남고, 근거만 사라져 그 뒤 글 생성은 상품명만으로 한다.
+  let queueQuery = supabase.from("tap_collect_queue").delete({ count: "exact" }).lt("created_at", cutoff.toISOString());
+  if (exemptFilter) queueQuery = queueQuery.not("user_id", "in", exemptFilter);
+  const { count: deletedQueueCount, error: queueError } = await queueQuery;
+  if (queueError) {
+    return NextResponse.json({ error: queueError.message }, { status: 500 });
+  }
+
   // 30일 정리 기록 — 회원별 지운 글 수(posts)·첨부 파일 수(images)
   const counts: CleanupCounts = new Map();
   for (const post of expiredPosts ?? []) {
@@ -111,6 +120,7 @@ async function handleCleanup(request: NextRequest) {
     expiredPostsCount: expiredPosts?.length ?? 0,
     deletedPostsCount: count ?? 0,
     deletedFilesCount: removedFilesCount,
+    deletedCollectQueueCount: deletedQueueCount ?? 0,
     loggedOwners,
   });
 }

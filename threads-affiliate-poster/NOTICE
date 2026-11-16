@@ -32,6 +32,8 @@ are prohibited.
   옮겨 쓴 곳: src/lib/coupang/catalog.ts, src/lib/coupang/productSelection.ts,
   src/lib/affiliate-clients/coupangApi.ts의 상품 응답 해석·골드박스·카테고리 베스트·쿠팡 PL 조회,
   src/lib/actions/products.ts의 쿠팡 여러 경로 검색 흐름(2026-11-16 v1.88~).
+  src/lib/naver/brandConnect.ts(naver.me 검사·쇼핑/여행 커넥트 고지·도착 주소·이미지 주소 검사),
+  extension/background.js의 네이버 상품 페이지 수집 함수(2026-11-16 2단계, 미배포 대기).
   라이선스: MIT (원본 package.json "license": "MIT" 표기. 원본 저장소에 LICENSE 파일·저작권자 표기는 없음 — 2026-11-16 주인님 결정으로 MIT로 보고 이식)
 
   MIT License

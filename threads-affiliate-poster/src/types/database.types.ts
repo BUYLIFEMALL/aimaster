@@ -187,6 +187,54 @@ export interface Database {
         };
         Relationships: [];
       };
+      // 2026-11-16 threads-auto 이식 2단계 — 네이버 브랜드커넥트 수집 대기열(30일 정리)
+      tap_collect_queue: {
+        Row: {
+          id: string;
+          user_id: string;
+          affiliate_url: string;
+          status: "pending" | "ready" | "needs_review" | "registered";
+          connect_kind: "SHOPPING" | "TRAVEL" | null;
+          final_url: string | null;
+          product_name: string | null;
+          image_urls: Json;
+          reviews: Json;
+          facts: Json;
+          error: string | null;
+          product_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          affiliate_url: string;
+          status?: "pending" | "ready" | "needs_review" | "registered";
+          connect_kind?: "SHOPPING" | "TRAVEL" | null;
+          final_url?: string | null;
+          product_name?: string | null;
+          image_urls?: Json;
+          reviews?: Json;
+          facts?: Json;
+          error?: string | null;
+          product_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          status?: "pending" | "ready" | "needs_review" | "registered";
+          connect_kind?: "SHOPPING" | "TRAVEL" | null;
+          final_url?: string | null;
+          product_name?: string | null;
+          image_urls?: Json;
+          reviews?: Json;
+          facts?: Json;
+          error?: string | null;
+          product_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       naver_trend_cache: {
         Row: {
           id: string;
