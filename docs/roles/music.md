@@ -1,11 +1,11 @@
 # 음악
 
-- 담당: Claude Code(윈도우) `claude-win-20261024-music`
-- 맡은 폴더: `ai-music-studio/` `music/` `lyric-video-studio/` `playlist-channel-studio/` `music-video-studio/` `ai-mastering-studio/` 등(쇼츠·shots의 음악 부분 포함)
+- 담당: **Claud(Music)** — Claude Code(윈도우) `claude-win-20261024-music`. **음악 관련 작업 총괄**(2026-11-16 주인님 지정: 「너의 이름은 Claud(Music) 음악관련 작업을 총괄해」) — 음악 프로그램 개발·배포 순서·다른 세션의 음악 작업 확인·인계를 이 역할이 맡는다
+- 맡은 폴더: `free-music-studio/`(엔진 포함) `ai-music-studio/` `music/` `lyric-video-studio/` `playlist-channel-studio/` `music-video-studio/` `ai-mastering-studio/` 등(쇼츠·shots의 음악 부분 포함)
 - 카테고리: 음악
 - 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-11-14 `claude-win-20261024-music` (무료 음악 v1.67 · 엔진 0.8.5 배포 · 음악 자동화 메뉴 수정 미배포)
+- 마지막 갱신: 2026-11-16 Claud(Music) `claude-win-20261024-music` (호칭·음악 총괄 지정, 담당 폴더에 `free-music-studio/` 추가)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -69,7 +69,7 @@
 ## 다음 첫 단계
 1. 미배포 대기 묶음(대기 표)은 각 프로그램 다음 배포 때 함께 — 코드는 모두 커밋됨(11-13)
 2. **음악 표 칸 이름을 바꿀 때 주의(2026-11-11)**: `free_music_tracks`·`ams_generations`·`music_track_variants`는 메인 「내 자료함」 트리거(`member_assets_sync_fms/ams/suno`, 마이그레이션 0059)가 읽는다 — 칸 이름·저장 경로를 바꾸면 트리거도 함께 고친다(트리거 오류 = 원본 저장 실패)
-3. **11-14 04:20 이후** 플레이리스트 첫 예약 정리 실행 확인(Vercel 로그 또는 `usage_logs`) · 플레이리스트 미배포 대기 1건(곡 없이도 기록 목록 보이기 `16439a8e9`, 다음 배포 때 v1.42)
+3. 플레이리스트 미배포 대기 1건(곡 없이도 기록 목록 보이기 `16439a8e9`, 다음 배포 때 v1.42) — 첫 예약 정리 실행은 11-14 확인 끝
 4. 새 작업이 오면: `node scripts/dev-requests.mjs list --role music` → 백로그 확인 → 플랜 → 구현. 화면을 크게 바꾼 뒤에는 배포 전에 `next dev`로 「Maximum update depth」 경고를 확인한다(2026-11-09 교훈)
 
 ## 주인님께 여쭐 것
