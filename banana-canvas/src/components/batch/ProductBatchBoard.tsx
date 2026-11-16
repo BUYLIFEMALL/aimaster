@@ -844,7 +844,8 @@ export function ProductBatchBoard() {
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
                 {commonSubFile ? (
-                  <span style={{ fontSize: 13, fontWeight: 800, color: "#1C1917" }}>
+                  // ECOM-09: 띄어쓰기 없는 긴 파일 이름이 문서 폭을 넓히지 않게 어디서든 줄바꿈
+                  <span style={{ fontSize: 13, fontWeight: 800, color: "#1C1917", minWidth: 0, maxWidth: "100%", overflowWrap: "anywhere" }}>
                     선택됨: <b>{commonSubFile.name}</b>
                   </span>
                 ) : (
@@ -1197,7 +1198,7 @@ export function ProductBatchBoard() {
                 >
                   ‹ 이전
                 </button>
-                <span style={{ fontSize: 12, fontWeight: 800 }}>
+                <span style={{ fontSize: 12, fontWeight: 800, whiteSpace: "nowrap" }}>
                   {previewIndex + 1} / {validJobs.length}
                 </span>
                 <button

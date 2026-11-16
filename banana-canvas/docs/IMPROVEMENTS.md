@@ -4,6 +4,8 @@
 - `ProductBatchBoard.tsx`만: 머리 알약·공용 서브 줄·크기 버튼 줄·4단계 완료 상자에 줄바꿈(`flexWrap`)·최소 폭, 작업표는 `minWidth 760` + 안쪽 가로 스크롤(머리글 한 글자씩 쪼개짐 해결), 슬라이더 2개 `aria-label`·파일 이름 템플릿 `label htmlFor`.
 - 근거: 격리 하네스 `tests/productBatch.browser.mjs`(로그인·DB 없음, CSP 외부 차단) + ego lite 375/320px — 수정 전 완료 제목 18줄·320px 2단계 넘침(339>320)·무명 입력 3 → 수정 후 넘침 0·쪼개짐 0·무명 0·제목 2~3줄, 키보드·25MB 경계 그대로. tsc 0·시험 104.
 - 다음 바나나 배포(v1.49 묶음: `f19f2bdcc`+`7b5d3b053`+이 수정) 때 함께. 운영 바깥 틀(`BatchWorkspace`)에서 한 번 더 확인.
+- (ECOM-20261116-09, 영상 담당 독립 검토 MOV-07 재현) 띄어쓰기 없는 긴 공용 서브 파일 이름이 문서 폭을 786px로 넓히던 것 → 「선택됨」 칸 `minWidth 0 · maxWidth 100% · overflowWrap anywhere`, 미리보기 순번 `nowrap`. 같은 묶음으로 배포.
+- ⚠ 담당 판단 필요(미수정): 옵션 A에서 「+ 공용 서브 선택」으로만 고른 파일은 사진 목록(`filesMap`)에 없어 `buildJobs`가 모든 상품을 「공용 서브 「…」 파일이 없습니다」 오류로 막음(ECOM-09 하네스 재현, `ProductBatchBoard.tsx` 253줄·`lib/batch/productJobs.ts` 159줄). 직접 추가에도 같은 파일을 넣으면 통과.
 
 ## 2026-11-16 [역할: ecommerce-image] ⏸ 미배포 대기 — M1 대표사진 화면 보완(Master ECOM-20261116-02, 디자인 검토 DES-20261116-01 대조)
 - 좁은 화면: 2단계 좌우(1fr 420px)·3단계 4칸·실시간 6칸·4단계 3칸을 `globals.css` `.pb-split/.pb-g4/.pb-g6/.pb-g3`로 옮겨 1023px 이하 1단·767px 이하 2/2/1단, 상태 요약 줄·외곽선 체크 줄 줄바꿈.
