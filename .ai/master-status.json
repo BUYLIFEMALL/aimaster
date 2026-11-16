@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T18:50:11.080Z",
+  "checkedAt": "2026-11-16T19:00:28.107Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2100,18 +2100,18 @@
       "parent_task_id": "DES-20261117-02",
       "owner": "CC-WORKSPACE-01",
       "title": "주인님 선택146 Professional Studio 전면리뉴얼",
-      "status": "running",
-      "delivery": "acknowledged",
-      "evidence": "QA013 msg_a7a09148cda1 / DB분리b3998651",
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "msg_542c66206f89 QA013독립effect3PASS/작성자jsdom5분리",
       "decision": {
         "chosen": "146 Professional Studio",
         "reference": "[5/12] 146 Professional Studio - 01. 메인 관제 대시보드",
         "scope": "메인기준 전체화면 일관스타일 적용·기존기능/회원데이터유지",
         "source": "주인님 직접 채팅 2026-11-17 KST"
       },
-      "next": "S0~5반환·문맥/상한보완확인,unmount늦은응답 records.merge/setResult잔류P2→effectcleanup무효화/실DOM시험수정승인. dev분리완료·로그인뒤시각검수",
-      "lastReviewedAt": "2026-11-16T18:50:11.080Z",
-      "sha": "S0~5+075fcb4 (unmount추가보완예정)",
+      "next": "문맥/상한/언마운트 지정소스·모의검수범위완료,146실화면은로그인대기·AGY소스명세대조배정queued. dev/test분리완료·새빌드0",
+      "lastReviewedAt": "2026-11-16T19:00:28.107Z",
+      "sha": "S0~5+075fcb4+1a13662a4bfa51ffba2ee9468fdc35ae13c7bcdd",
       "validationPending": {
         "scope": "메인엣지 실제화면",
         "reason": "개발DB분리완료·실화면로그인세션부재",
@@ -2201,9 +2201,9 @@
       "status": "running",
       "delivery": "acknowledged",
       "sha": "186bf278f262d7dc0a8d56f3ced6f0d38a9b14f2",
-      "evidence": "msg_76c8c1c6b09a / Lab기록20261116183034",
-      "next": "0102/fixture1회성공·verify12/13:EXQA2가3일자동confirmed,실D4 7일정책충돌발견. 기존주문17/알림44/교환0유지·추가쓰기중지·후속상태수정계획/격리검증요청",
-      "lastReviewedAt": "2026-11-16T18:35:52.225Z"
+      "evidence": "msg_44c7752222b8 / 084e5b667 / b69693055 strictcleanup",
+      "next": "EXQA2자동confirmed로OWNER1reward500/ledger1 발생. rollback원잔류문제보완24/24작성자보고·타주문대기reward2300보존필수. EXQA1 total28000금액별manifest/동일advisory락 추가지시·실Lab정리/추가확정0",
+      "lastReviewedAt": "2026-11-16T19:00:28.107Z"
     },
     {
       "task_id": "B2B-20261117-07",
@@ -2273,12 +2273,13 @@
       "parent_task_id": "WS-20261117-13",
       "owner": "CX-QA-01",
       "title": "146 studio S0~2 라우트·실데이터·테마 독립검수",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "sha": "075fcb4e + df53bbad + 990ec907",
-      "evidence": "msg_a7a09148cda1 / QA17-013",
-      "next": "context/range수정확인·언마운트cleanup없어늦은merge1/setResult1 추가P2반환. 실제React/브라우저미실증·새effect/jsdom반환후변경검수",
-      "lastReviewedAt": "2026-11-16T18:50:11.080Z"
+      "evidence": "msg_542c66206f89 / QA17-013",
+      "next": "새로그인뒤실화면검수별도범위·동일effect/소스시험재반복0",
+      "lastReviewedAt": "2026-11-16T19:00:28.107Z",
+      "completion": "S0~5스타일scope·route/실RPC함수·context/조회범위·unmount source/모의지정검수완료. 실제시각/실React전체전환미검수·작성자jsdom5/5근거분리"
     },
     {
       "task_id": "WS-20261117-16",
@@ -2303,10 +2304,24 @@
       "title": "자동 구매확정과 교환7일 상태정합성 수정",
       "status": "ready_review",
       "delivery": "returned",
-      "evidence": "msg_2c4c518855b8 / confirmed0103 PG red7/2→green9/0",
-      "next": "동일회차자동확정5건/4일유저허용·8일거절·10일직원·미납/반품guard작성자근거→Mac독립검수. 새Lab0103패키지준비·공용cron/실17주문변경0",
-      "lastReviewedAt": "2026-11-16T18:50:11.080Z",
+      "evidence": "msg_93009725d156 / confirmed0103독립순수12/12",
+      "next": "confirmed7일/helper/guard 지정정적·순수PASS/PG9작성자근거. 새Lab패키지cleanup금액/장부락마감전추가적용0",
+      "lastReviewedAt": "2026-11-16T19:00:28.107Z",
       "sha": "0edda866671c727c2605331bfb0b7415b06c234c"
+    },
+    {
+      "task_id": "DES-20261117-03",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "parent_task_id": "WS-20261117-13",
+      "owner": "AG-UI-01",
+      "title": "146 실제스타일 소스·명세·접근성 대조 지원",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "msg_49953e992d9e Queued/착수미확인",
+      "completion": "S0~5실CSS/컴포넌트와146명세대조·근거/수정제안 반환,독립실화면판정과분리·제품수정0",
+      "next": "AGY정착프롬프트수신대기·로그인뒤실렌더비교는후속,새시안/유료/서버변경0",
+      "lastReviewedAt": "2026-11-16T19:00:28.107Z"
     }
   ],
   "programOverrides": [
