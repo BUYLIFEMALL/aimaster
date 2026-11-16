@@ -3,7 +3,7 @@
 ## 1. 프로그램 개요
 - **프로그램명**: Website Scraper (웹 데이터 크롤러 & AI 추출기)
 - **Slug**: `website-scraper`
-- **버전**: `v1.12` (2026-10-16 스마트 매트릭스 디자인 리뉴얼 + 보안 보강)
+- **버전**: `v1.15` (2026-11-12 배포 — 12월 모델 교체 묶음·저장공간 위젯, 근거 `docs/HANDOFF.md` 2026-11-12 [역할: workspace]·`src/lib/version.ts`). 2026-10-21 v1.13부터 기능은 웹 크롤링 자동화 「🔎 한 페이지 분석」으로 병합됐고 이 앱은 이동 안내 + API 410만 남음(아래 v1.13 항목). v1.12 = 2026-10-16 스마트 매트릭스 디자인 리뉴얼 + 보안 보강
 - **적용 디자인 템플릿**: **스마트 매트릭스 스타일** — [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) · 플랜 [docs/PLAN_20261016_DESIGN_RENEWAL.md](docs/PLAN_20261016_DESIGN_RENEWAL.md) · 개선 원장 [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계 [docs/IMPROVEMENT_HANDOFF_20261016.md](docs/IMPROVEMENT_HANDOFF_20261016.md)
 - **DB 배지(2026-10-16 실측)**: `["new"]`. FREE가 아닙니다. 기존 사이드바 FREE 고정 표시는 후속 개선 #16이며 DB 권한 판정은 그대로 유지합니다.
 - **라이브 도메인**: `https://website-scraper.buylife.xyz` (기존 `https://ghost-scraper.buylife.xyz` 유지)
