@@ -6,7 +6,7 @@
 - 결과 `D:\PDS\AIMater_KIT\Threads_Auto_Posting_Kit_v1.02.zip`(123파일·278KB). 상세: `threads/AGENTS.md` 맨 아래 2026-11-16, `docs/DISTRIBUTION_KIT_GUIDE.md` §8·§10.
 - 원본 코드 변경은 운영 동작 같음 → 미배포 대기. 실제 수강생 설치 리허설(Vercel 빌드 비용)·Meta 연결·게시는 미시험.
 - ② INSTA 완료: `D:\PDS\AIMater_KIT\Insta_Auto_Posting_Kit_v1.10.zip`(214파일, 프로그램 v1.74, SNS 묶음에서 분리) — 상세 `insta_auto_poster/AGENTS.md` 맨 아래.
-- 다음: ③ 블로그 확장 포함판.
+- ③ 블로그 완료: `D:\PDS\AIMater_KIT\Blog_Posting_Kit_v1.05.zip`(163파일, 확장 포함, 커밋 `19dc34459`) — 새 폴더 빌드는 RESOURCE_QUEUE 대기. 결과 `.ai/results/SUP-20261116-03-CC-SUPPORT-01.md`(ready_review).
 
 <!-- MASTER_INIT_HANDOFF_20261116 -->
 ## 2026-11-16 [역할: codex-master] Codex(Master) — 자동 협업 운영 구성·총괄 개발 플랜

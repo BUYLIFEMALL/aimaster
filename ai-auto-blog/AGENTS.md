@@ -758,3 +758,9 @@ SEO 스튜디오 확장 v1.59(Codex, 커밋 `3a6c6ea`)의 코드를 **그대로*
 - **미검증**: 실제 네이버 안내 창의 버튼 모양(닫기 버튼 클래스·글자). 네이버 사이트는 Claude 브라우저 도구에서 안전 제한으로 열 수 없어 실제 창을 보지 못함 → 회원이 v1.77 ZIP으로 업데이트한 뒤 다시 보내면 ① 창이 자동으로 닫히고 입력이 이어지거나 ② 15초 안에 `[EDITOR_POPUP] … 「창 이름」`으로 멈춤(이 경우 창 이름으로 닫기 규칙 보강).
 - **회원 안내**: ZIP 다시 받기 → 기존 폴더에 덮어쓰기 → `chrome://extensions` 새로고침 → BLOG에서 다시 보내기.
 - 이번 재현 때 주인님 지시 범위에서 시험 회원 글 117번을 「대기」로 되돌려 확장이 다시 가져가게 함(입력 시작 전 준비 단계에서 멈춰 네이버에는 아무것도 입력되지 않음, 지금 상태 `failed`).
+
+## 2026-11-16 🟡 미배포 대기 — 수강생 배포 키트 `Blog_Posting_Kit_v1.05` 확장 포함판 (Claude Code 윈도우 · Claude(Support) `claude-win-20261112-policy`, 커밋 `19dc34459`)
+- 주인님 지시: 배포판에도 크롬 확장 자동 포스팅 포함, AIMaster 키·ID·데이터 0. `lib/deployment.ts` `EXTENSION_ENABLED = true`·`APP_TITLE` 통일(운영 값은 원래와 같음), `proxy.ts` 독립 모드 확장 경로 차단 제거, `app/posts/[id]/page.tsx` 업무 워크스페이스 버튼만 `!IS_STANDALONE`, `utils/extensionAuth.ts` 독립 모드는 토큰만 확인(`auth.admin.getUserById`로 이메일).
+- `scripts/build-extension-archive.mjs`: 독립 모드는 임시 사본의 주소 5곳·이름·이미지 허용 주소를 `NEXT_PUBLIC_SITE_URL`·`NEXT_PUBLIC_SUPABASE_URL`·`NEXT_PUBLIC_BRAND_NAME`으로 치환해 ZIP(값 없으면 건너뜀, 운영 주소·자리표시·다른 Supabase 주소가 남으면 실패). **운영 ZIP 결과는 이전과 같음(확인)** — 운영 manifest 버전 동기화·원본 폴더 그대로.
+- `KIT/`: `extension.manifest.json`(자리표시 판, 포장 때 원본 manifest 대신), `schema.sql` `personal_access_tokens`, `upgrade-20261116-extension.sql`, `kit.json`(확장 포함·예외 `work_inbox`·결과 안내), `README.md` 4·5·8장·업데이트 내역 v1.05.
+- **다음에 이 프로그램을 배포하는 CLI는 버전 +0.01하고 이 항목을 「배포됨(버전)」으로**(DB·확장 버전도 원칙 10대로). 남은 확인: 키트 새 폴더 npm ci/build(3210 복구 뒤), 수강생 설치 리허설·네이버 입력.
