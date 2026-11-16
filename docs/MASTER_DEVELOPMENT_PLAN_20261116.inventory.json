@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 04:37:28 KST",
+  "checkedAt": "2026-11-17 04:40:41 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4363,11 +4363,11 @@
       "parent_task_id": "B2B-20261117-06",
       "owner": "CC-B2B-BACK-01",
       "title": "자동 구매확정과 교환7일 상태정합성 수정",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "returned",
-      "evidence": "msg_15303937317f Lab0103 apply1/verify14/既存자료불변 + msg_2d43484ed17f Mac실행근거·재해시 대조 모순없음",
-      "next": "Lab0103 적용 및 실행근거 대조 마감. Backend 실제LabUI버전·로그인·역할검증 부수효과 계획 반환대기. 실제역할/화면 미검수·빌드/정리/추가확정0",
-      "lastReviewedAt": "2026-11-16T19:37:26.249Z",
+      "evidence": "msg_5867e0cb2c8e / cb5021815 역할검증계획·기존운영자세션보고",
+      "next": "Master Lab실제operator RPC EXQA2 defect0 대리접수1→거절1만실행승인,APIref/기존자료/알림/장부검증필수. EXQA1/유저시험/현금/빌드/정리0. 배포시각뿐인UI미포함판단은실배포근거보완",
+      "lastReviewedAt": "2026-11-16T19:40:38.653Z",
       "sha": "0edda8666 / package9e9120183 + verify c8b33554e"
     },
     {
