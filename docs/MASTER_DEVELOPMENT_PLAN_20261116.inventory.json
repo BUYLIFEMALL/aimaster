@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 03:25:17 KST",
+  "checkedAt": "2026-11-17 03:31:04 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4161,18 +4161,24 @@
       "parent_task_id": "DES-20261117-02",
       "owner": "CC-WORKSPACE-01",
       "title": "주인님 선택146 Professional Studio 전면리뉴얼",
-      "status": "running",
-      "delivery": "acknowledged",
-      "evidence": "S0/S1작성자대비보정/type0·S2경로보고 / msg_4e5b31709cee",
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "S2 load4/route3·전체283/type0 작성자보고 / msg_2566cc17369d",
       "decision": {
         "chosen": "146 Professional Studio",
         "reference": "[5/12] 146 Professional Studio - 01. 메인 관제 대시보드",
         "scope": "메인기준 전체화면 일관스타일 적용·기존기능/회원데이터유지",
         "source": "주인님 직접 채팅 2026-11-17 KST"
       },
-      "next": "S0light/S1네이비커밋완료·실화면미검수. S2 /<domain>/studio새route·설정선택·기본/최소260승인,회원저장폭/시작설정변경0. S0~2묶음화면검수→Mac",
-      "lastReviewedAt": "2026-11-16T18:13:55.498Z",
-      "sha": "eb42a03e17741fb37bc2b4e945abf8b2050cbfde + d2ef2cadcb89673731982d83e9c0162b95167927"
+      "next": "S0~2코드반환→QA013정적/모의검수. 로컬3457/login 인증필요·엣지시각미검수·현재서버/탭요건회수중,제한열override시험/다음S3파일계획독립진행",
+      "lastReviewedAt": "2026-11-16T18:31:02.337Z",
+      "sha": "eb42a03e + d2ef2cad + 21d05794108d8668d27405af039724582645b537",
+      "validationPending": {
+        "scope": "메인엣지 실제화면",
+        "reason": "local3457 로그인세션없음·자격증명미제공",
+        "action": "주인님 로컬로그인 1회 요청취합",
+        "url": "http://localhost:3457/login"
+      }
     },
     {
       "task_id": "REL-20261117-006",
@@ -4253,12 +4259,12 @@
       "parent_task_id": "B2B-20261117-03",
       "owner": "CC-B2B-BACK-01",
       "title": "Lab0102 안전fixture·실행패키지 준비",
-      "status": "waiting_human",
-      "delivery": "acknowledged",
+      "status": "ready",
+      "delivery": "delivered",
       "sha": "186bf278f262d7dc0a8d56f3ced6f0d38a9b14f2",
-      "evidence": "msg_df8aaf3526fd / precheck10·applyeditor633450be",
-      "next": "Lab SQL Potential issue detected 확인창에서담당브라우저handoff·실제apply미확인·중복실행0. 정확공간/버튼/사람필수근거요청·이미승인된범위재질문금지",
-      "lastReviewedAt": "2026-11-16T18:25:14.444Z"
+      "evidence": "msg_60b403badd68 승인해석보류였음 / msg_830cd0b44924 명확화",
+      "next": "Runquery일반앱확인도기승인Lab실행범위포함·새사람승인대기해제,원공간218/p1 미적용읽기재확인후1회·이미적용이면반복0. 실제사용자제어중이면강탈0",
+      "lastReviewedAt": "2026-11-16T18:31:02.337Z"
     },
     {
       "task_id": "B2B-20261117-07",
@@ -4267,12 +4273,12 @@
       "parent_task_id": "B2B-20261117-02",
       "owner": "CC-B2B-BACK-01",
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "msg_80731a601ec0 / 함수오류mock20/0·기존17/3",
+      "status": "ready",
+      "delivery": "delivered",
+      "evidence": "2fe06c45c 상태안 / msg_02fc9d3c39ac",
       "decision": "Master조정 E1납부후거절차단 E2로그인본인 E3카드미설정은행 E4Backend신규경로;실환불미구현명시",
-      "next": "내부parse/markpaid예외unknown·key보존→Mac국소검수. SQL전체중단구조는배포차단잔여·별도prepare committed intent 방향채택/정확상태안요청,실Toss/0103Lab운영0",
-      "lastReviewedAt": "2026-11-16T18:22:59.686Z",
+      "next": "prepare별도commit+confirm mock구현승인·금액/key/시한고정·고정멱등요청·30분초과POST0·장기404unknown임의해제미구현·별도세션hardabort키보존시험,실Toss/Lab0103/운영0",
+      "lastReviewedAt": "2026-11-16T18:31:02.337Z",
       "sha": "80a00923daa5c4c4bd045cba40e4f716c6f1e729"
     },
     {
@@ -4282,12 +4288,12 @@
       "parent_task_id": "WS-20261117-13",
       "owner": "CC-WORKSPACE-01",
       "title": "주인님 직접 Alt/Option 달력카드 드래그 복사",
-      "status": "running",
-      "delivery": "acknowledged",
-      "sha": "ee049e811 (취소)·원자API확장승인",
-      "evidence": "주인님직접캡처/ALT복사동작수정지시·작성자tsc0",
-      "next": "취소리스너/커서정리7시험반환·QA011독립PASS수락. date-onlyroot원자복제+날짜서버API확장승인·새SHA대기,부분복제잔여/응답유실재복제0",
-      "lastReviewedAt": "2026-11-16T18:25:14.444Z"
+      "status": "ready_review",
+      "delivery": "returned",
+      "sha": "ee049e811 + a575d3606b8d903924ce7dce57321a6ebbf52f67",
+      "evidence": "서버원자dateoverride9실DB작성자/전체283/type0·msg_2566cc17369d",
+      "next": "복제+날짜sameapplyTransactions1회·원본보존/검증오류새행0 반환→QA011 원자경계검수. 제한열403실fixture추가요청·실화면인증대기",
+      "lastReviewedAt": "2026-11-16T18:31:02.337Z"
     },
     {
       "task_id": "QA-20261117-011",
@@ -4296,12 +4302,12 @@
       "parent_task_id": "WS-20261117-15",
       "owner": "CX-QA-01",
       "title": "달력 Alt복사·월구분 기능회귀 독립검수",
-      "status": "ready_review",
-      "delivery": "returned",
-      "sha": "ee049e811",
+      "status": "ready",
+      "delivery": "delivered",
+      "sha": "a575d3606",
       "evidence": "msg_60a334cc602d / QA17-011",
-      "next": "취소P2-1독립PASS·부분복제P2-2원자API수정전잔여,새SHA후그경계만검수",
-      "lastReviewedAt": "2026-11-16T18:25:14.444Z"
+      "next": "취소수정독립PASS 유지·새root dateoverride/권한/원자복제실패경계검수,기존취소반복0·실데이터쓰기0",
+      "lastReviewedAt": "2026-11-16T18:31:02.337Z"
     },
     {
       "task_id": "QA-20261117-012",
@@ -4316,6 +4322,20 @@
       "evidence": "msg_60a334cc602d / QA17-012",
       "next": "80a00923 함수내parse/markpaid오류경계정적PASS·PG17/3→20/0작성자근거수용. SQL전체중단내구intent미해소/배포차단·새정확상태안대기",
       "lastReviewedAt": "2026-11-16T18:25:14.444Z"
+    },
+    {
+      "task_id": "QA-20261117-013",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "parent_task_id": "WS-20261117-13",
+      "owner": "CX-QA-01",
+      "title": "146 studio S0~2 라우트·실데이터·테마 독립검수",
+      "status": "ready",
+      "delivery": "delivered",
+      "sha": "21d057941 + eb42a03e + d2ef2cad",
+      "evidence": "msg_2566cc17369d",
+      "next": "기존startprefs/route·권한RPC/조회limit/오류빈상태/light범위·폭/모바일 검수. 실화면인증대기·정적/모의선행,시각PASS아님",
+      "lastReviewedAt": "2026-11-16T18:31:02.337Z"
     }
   ]
 }

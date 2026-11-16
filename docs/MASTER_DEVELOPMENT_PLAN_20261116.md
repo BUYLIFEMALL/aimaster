@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 03:25:17 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 03:31:04 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -39,7 +39,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 162개: done 134개 · cancelled 6개 · ready_review 16개 · running 3개 · ready 1개 · waiting_human 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 163개: done 134개 · cancelled 6개 · ready_review 16개 · running 1개 · ready 5개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -194,17 +194,18 @@
 | ESM-20261117-01 | CC-ECOM-01 | ready_review / returned | 주인님 직접 ESM 썸네일 등록·사용자 매뉴얼 | 썸네일실등록및독립이미지PASS·매뉴얼27ae+c909독립내용PASS/미배포묶음(v1.02후보),운영가이드아직v1.01·실ESM등록미검수 |
 | QA-20261117-008 | CX-QA-01 | done / integrated | ESM 운영안내·매뉴얼 누락 독립점검 | 다음esm묶음배포뒤운영가이드반영확인만·같은소스재검수없음 |
 | QA-20261117-009 | CX-QA-01 | done / integrated | OFF 포털 공유권한·토큰·속성투영 독립검수 | 만료토큰부활지정수정독립PASS 수락·실DB다중프로세스미검수·공개전환0 |
-| WS-20261117-13 | CC-WORKSPACE-01 | running / acknowledged | 주인님 선택146 Professional Studio 전면리뉴얼 | S0light/S1네이비커밋완료·실화면미검수. S2 /<domain>/studio새route·설정선택·기본/최소260승인,회원저장폭/시작설정변경0. S0~2묶음화면검수→Mac |
+| WS-20261117-13 | CC-WORKSPACE-01 | ready_review / returned | 주인님 선택146 Professional Studio 전면리뉴얼 | S0~2코드반환→QA013정적/모의검수. 로컬3457/login 인증필요·엣지시각미검수·현재서버/탭요건회수중,제한열override시험/다음S3파일계획독립진행 |
 | REL-20261117-006 | CC-REALTY-01 | done / integrated | 주인님 직접승인 매물알림v1.46 운영배포 | QA010읽기확인배정·ZIP압축해시차이/내부파일동일근거보존,새수집/알림/추가빌드0 |
 | QA-20261117-010 | CX-QA-01 | done / integrated | 매물알림v1.46 운영·확장버전 읽기확인 | Mac확장설치/실SW/첫격리/수집알림미검수·PC5대표시는다른PC상태,재반복0 |
 | RE-20261117-05 | CC-REALTY-01 | done / returned | 주인님 직접 상가 층진단 n30 재측정1회 | 클라이언트15초타임아웃·응답지역변수라회수실패·HTTP/건수미확인·추가공공API호출0,향후결과보관실행기개선안만기록 |
 | WS-20261117-14 | CC-WORKSPACE-01 | ready_review / returned | 주인님 직접 캘린더 달별 상자/색 구분 | 월보기CalendarView/calendar.css·tsc0 미배포,146토큰/월경계/연말전환·week보존실화면검수에병합·중복구현0 |
 | ESM-20261117-02 | CC-ECOM-01 | done / integrated | ESM 카탈로그 썸네일 실등록 | 등록/독립공개이미지검수범위완료·backup비공개유지·이미지재생성/루트배포0 |
-| B2B-20261117-06 | CC-B2B-BACK-01 | waiting_human / acknowledged | Lab0102 안전fixture·실행패키지 준비 | Lab SQL Potential issue detected 확인창에서담당브라우저handoff·실제apply미확인·중복실행0. 정확공간/버튼/사람필수근거요청·이미승인된범위재질문금지 |
-| B2B-20261117-07 | CC-B2B-BACK-01 | ready_review / returned | 주인님기승인 D5 교환비 카드결제 b3 mock구현 | 내부parse/markpaid예외unknown·key보존→Mac국소검수. SQL전체중단구조는배포차단잔여·별도prepare committed intent 방향채택/정확상태안요청,실Toss/0103Lab운영0 |
-| WS-20261117-15 | CC-WORKSPACE-01 | running / acknowledged | 주인님 직접 Alt/Option 달력카드 드래그 복사 | 취소리스너/커서정리7시험반환·QA011독립PASS수락. date-onlyroot원자복제+날짜서버API확장승인·새SHA대기,부분복제잔여/응답유실재복제0 |
-| QA-20261117-011 | CX-QA-01 | ready_review / returned | 달력 Alt복사·월구분 기능회귀 독립검수 | 취소P2-1독립PASS·부분복제P2-2원자API수정전잔여,새SHA후그경계만검수 |
+| B2B-20261117-06 | CC-B2B-BACK-01 | ready / delivered | Lab0102 안전fixture·실행패키지 준비 | Runquery일반앱확인도기승인Lab실행범위포함·새사람승인대기해제,원공간218/p1 미적용읽기재확인후1회·이미적용이면반복0. 실제사용자제어중이면강탈0 |
+| B2B-20261117-07 | CC-B2B-BACK-01 | ready / delivered | 주인님기승인 D5 교환비 카드결제 b3 mock구현 | prepare별도commit+confirm mock구현승인·금액/key/시한고정·고정멱등요청·30분초과POST0·장기404unknown임의해제미구현·별도세션hardabort키보존시험,실Toss/Lab0103/운영0 |
+| WS-20261117-15 | CC-WORKSPACE-01 | ready_review / returned | 주인님 직접 Alt/Option 달력카드 드래그 복사 | 복제+날짜sameapplyTransactions1회·원본보존/검증오류새행0 반환→QA011 원자경계검수. 제한열403실fixture추가요청·실화면인증대기 |
+| QA-20261117-011 | CX-QA-01 | ready / delivered | 달력 Alt복사·월구분 기능회귀 독립검수 | 취소수정독립PASS 유지·새root dateoverride/권한/원자복제실패경계검수,기존취소반복0·실데이터쓰기0 |
 | QA-20261117-012 | CX-QA-01 | ready_review / returned | 교환비 카드결제 0103 모의/권한 독립검수 | 80a00923 함수내parse/markpaid오류경계정적PASS·PG17/3→20/0작성자근거수용. SQL전체중단내구intent미해소/배포차단·새정확상태안대기 |
+| QA-20261117-013 | CX-QA-01 | ready / delivered | 146 studio S0~2 라우트·실데이터·테마 독립검수 | 기존startprefs/route·권한RPC/조회limit/오류빈상태/light범위·폭/모바일 검수. 실화면인증대기·정적/모의선행,시각PASS아님 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
