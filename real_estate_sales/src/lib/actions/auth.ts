@@ -42,6 +42,7 @@ export async function signInAction(
 
 export async function signOutAction() {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+  // 이 브라우저만 로그아웃(2026-11-16 로그인 정책 — 범위가 없으면 그 계정의 모든 기기·프로그램이 끊김)
+  await supabase.auth.signOut({ scope: "local" });
   redirect("/login");
 }

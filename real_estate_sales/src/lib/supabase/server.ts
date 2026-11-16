@@ -9,6 +9,8 @@ export async function createClient() {
   const cookieStore = await cookies();
   const headerStore = await headers();
   const cookieDomain = cookieDomainForHost(headerStore.get("x-forwarded-host") ?? headerStore.get("host"));
+  // 서버가 대신 로그인할 때 브라우저 기기 정보를 넘김(2026-11-16 로그인 정책 「PC 1곳 + 모바일 1곳」, docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md 2-2)
+  const userAgent = headerStore.get("user-agent") ?? "";
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -29,6 +31,7 @@ export async function createClient() {
           }
         },
       },
+      global: { headers: { "User-Agent": userAgent } },
     },
   );
 }

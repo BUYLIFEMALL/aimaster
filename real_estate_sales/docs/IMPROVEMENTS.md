@@ -2,6 +2,11 @@
 
 > ~~미배포 대기(2026-11-04)~~ → **✅ v1.48에 함께 배포됨(2026-11-04 18:50, 2026-11-10 커밋 시각으로 확인)**: 빌라 매매 주소 `RHTrade` → `RHTrade2`(`src/lib/publicdata/molit.ts`, 시험 35개·tsc 통과). 승인(10-31)된 새 서비스에 맞춤 — 지금은 빌라 매매만 24시간 13번 403. 다음 배포 때 함께 내보내고, 배포 뒤 `vercel logs --project real-estate-sales --level error`에서 「빌라 … 건수 조회 실패」가 사라졌는지 확인. 응답 칸 이름(`mhouseNm` 등)이 옛 판과 같은지도 그때 첫 수집 결과로 확인.
 
+## 2026-11-16 Claude(RealEstate) [역할: realty] — 로그인 정책 2건 반영 (**미배포 대기**, 뉴스 잡음 줄이기와 같은 묶음)
+
+- Codex(Master) RE-20261116-02 승인. `src/lib/actions/auth.ts` 로그아웃 `signOut({ scope: "local" })`(이 브라우저만), `src/lib/supabase/server.ts`에 `global.headers["User-Agent"]`(서버 로그인 기기 정보 전달). 근거 `docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md`.
+- 검증: `pending-check` 「[공통]」 두 줄 사라짐, tsc 통과, `test:access` 3·`newsRadar` 17 통과. 배포는 v1.61로 뉴스 잡음(`2b2fecec4`)과 함께(빌드 1회, 승인 뒤).
+
 ## 2026-11-13 Claude Code(윈도우) [역할: realty] — 지역 뉴스 잡음 줄이기 (**미배포 대기**)
 
 - 플랜 `docs/PLAN_20261113_NEWS_NOISE.md`, 주인님 「순서대로 진행해」(추천안: 규칙 모두·사진 설명 언급은 둠·미배포 대기).
