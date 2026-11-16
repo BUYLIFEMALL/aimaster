@@ -66,3 +66,40 @@
 
 ### 6-4. 시험(구현 때)
 순수 상태 판단(대기/진행 중/불확실/실패/완료 × 카드 설정 유무 × 단계), 결제 주소 형식, 소스 경계(성공 페이지가 rpc 전 parseSuccessParams·결제 키 미출력·redirect, 서버 동작 소속 확인 먼저·서버 키 없음, 링크 보내기는 dry_run 먼저), 전체 tests·tsc. 실토스·실발송·빌드 0.
+
+## 7. 두 단계(준비 기록 확정 → 승인) 설계 — Master msg_b96fa60fd0cf 채택 방향, 코드 전 보고(실서비스 해제 아님)
+### 7-1. 상태 전이(교환비 결제 기록 1개/교환)
+| 상태 | 들어오는 길 | 의미 | 나가는 길 |
+|---|---|---|---|
+| (없음) | — | 결제 시도 전 | prepare → **prepared** |
+| **prepared**(새) | prepare RPC가 **커밋** | 결제 키·금액·토스 주문 번호 고정 저장. 토스 승인은 아직이거나, 승인 호출 도중 강제 중단으로 되돌아온 상태(구분 불가 — 7-3) | confirm → requested → done/failed/unknown, 직원 다시 확인 |
+| requested | confirm 안(같은 트랜잭션) | 승인 호출 중. 커밋되면 「승인 결과 처리 중 멈춤」 흔적 | 직원 다시 확인 |
+| done | confirm·다시 확인 | 결제 완료 → 교환비 paid | (취소는 다음 단위) |
+| failed | 4xx·토스 ABORTED/EXPIRED/CANCELED | 돈 안 나감 확인됨 | 새 prepare(새 결제 키) 허용 |
+| unknown | 5xx·연결 끊김·응답 처리 오류·응답 불일치 | 결과 모름 | 직원 다시 확인만 |
+- 지킴 트리거의 「진행 중」에 **prepared 추가**(prepared·requested·unknown·done이면 금액 변경·거절 금지, prepared·requested·unknown이면 무통장 paid 금지).
+
+### 7-2. 함수와 화면 호출
+- `mall_builder_exchange_fee_card_prepare(교환 id, 결제 키, 금액)` — 그 주문 유저만, 주문 → 교환 → 결제 잠금, 주문 delivered·단계·교환비 waiting·금액 = 교환비·몰 키 있음 확인 뒤 기록을 prepared로 넣고 끝(외부 호출 없음). **같은 결제 키로 다시 부르면 그대로 성공(재진입)**, 다른 결제 키는 기존 기록이 failed일 때만 교체 — prepared·requested·unknown·done이면 거절(「앞 결제를 확인 중」).
+- `mall_builder_exchange_fee_card_confirm(교환 id, 결제 키)` — 금액 인자 없음(prepare에 고정된 값만 사용). 기록이 prepared이고 결제 키가 같을 때만 토스 승인(멱등 헤더 `exfee-confirm-<결제 키>`, 본문은 prepare에 고정된 주문 번호·금액 → 같은 요청). requested·unknown이면 토스 호출 0(「확인 중」), done이면 already, failed면 「다시 결제」 안내.
+- 성공 주소 화면: `parseSuccessParams` → rpc prepare(커밋됨) → rpc confirm → 결제 키 없는 주소로 redirect. 두 RPC는 **별개의 HTTP 요청 = 별개의 트랜잭션**이라 prepare 커밋이 confirm의 되돌림에 휩쓸리지 않는다.
+
+### 7-3. 강제 중단·재진입 구분(핵심 질문)
+| 경우 | DB에 남는 것 | 다음 confirm(같은 결제 키) | 근거·한계 |
+|---|---|---|---|
+| prepare 뒤, confirm 전 중단 | prepared | 토스 **최초** 승인 호출(정상) | — |
+| confirm이 토스 호출 **전** 중단 | prepared(requested 갱신이 되돌려짐) | 최초 승인 호출 | — |
+| confirm이 토스 호출 **도중·뒤** 중단(DONE일 수 있음) | prepared(되돌려짐) — 위와 **구분 불가** | 같은 멱등 키·같은 본문으로 다시 호출 → 문서상 「첫 요청과 같은 응답」(15일) → DONE이면 그대로 반영, 이중 청구 없음이 기대 | 근거: 토스 문서 「같은 요청은 첫 응답 반환」. **「이중 과금 없음」 명시 문구는 없음**, 판단 기준은 키·주소·메서드(본문 변경 동작은 문서에 없음 — 본문을 바꿀 길을 아예 막음). 15일 경계: confirm은 prepare 뒤 **30분 안에서만**(그 뒤 prepared는 직원 다시 확인만) — 15일보다 훨씬 짧게 |
+| confirm 응답 처리 중 함수 안 오류 | unknown(안쪽 예외 블록, 커밋) | 토스 호출 0 | 기존 QA012 수정 |
+- 정리: 「prepared로 되돌아간 뒤 다시 승인」은 **같은 결제 키·같은 본문·같은 멱등 키·30분 안**에서만 일어나도록 묶어, 문서가 말하는 「같은 요청 재전송」 범위에 둔다. 외부 원자성을 보장하는 것은 아니다(멱등 응답이 문서대로 동작한다는 전제).
+
+### 7-4. 복구(직원 다시 확인 = GET /v1/payments/{결제 키}, 위젯 키 사용 가능)
+- prepared·requested·unknown 모두 대상(결제 키가 커밋돼 있으므로 하드 중단 뒤에도 조회 가능).
+- DONE + 주문 번호·금액 일치 → done·paid. DONE 불일치 → unknown 유지(관리자).
+- ABORTED·EXPIRED·CANCELED → failed(새 결제 허용).
+- READY·IN_PROGRESS·WAITING → 그대로(아직 진행 중).
+- **404·응답 모름·연결 실패 → 상태 그대로**(재결제 허용으로 풀지 않음). 오래 남으면 화면에 「장기 확인 필요」 표시.
+- 결정 필요(Master·주인님): 404/모름이 오래 남을 때 **대표 운영사 수동 해제**(사유 입력·시각 조건·이력)를 둘지 — 이번 설계엔 넣지 않음.
+
+### 7-5. 시험 계획(구현 때, 모의)
+prepare 재진입·다른 키 교체 거절·failed 뒤 교체 허용 / prepare 뒤 confirm 전 중단(prepared 남음 → confirm 최초 호출 1회) / confirm 토스 호출 뒤 강제 되돌림 흉내(prepared 복귀 → 같은 키 재confirm은 같은 멱등 키·같은 본문으로 1회 더 호출, 모의가 첫 응답을 돌려줌 → done 1건) / 30분 지난 prepared는 confirm 거절·다시 확인만 / GET 404·모름은 상태 유지 / 지킴(prepared 중 무통장·거절·금액 변경 막힘) / 기존 F1~F21 회귀. 외부 원자성 없음·장기 unknown 안내는 문서·화면에 유지.
