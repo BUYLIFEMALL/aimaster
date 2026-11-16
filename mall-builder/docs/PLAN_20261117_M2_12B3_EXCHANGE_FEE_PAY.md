@@ -115,7 +115,7 @@
   - `card_prepare`(189행)·`card_confirm`(245행)은 done이면 `{ok: true, already: true}`만 돌려주고 **`needs_review`를 담지 않는다** → 함수 응답만으로는 「완료」와 「완료지만 확인 필요」를 구분할 수 없다(**현 계약 부족**).
   - 대신 결제 기록 읽기로는 구분된다: 회원 읽기 권한 칸에 `needs_review` 포함(52행 grant), 주문 주인·주문 권한 직원 읽기 정책(45행).
   - 그래서 화면 규칙: 성공 주소는 `already`를 받아도 「완료」라고 단정하지 않고, 결제 키 없는 주문 상세로 옮긴 뒤 **주문 상세가 결제 기록(`status`·`needs_review`)을 다시 읽어** 표시를 정한다(6-5 순서 그대로, `?ok=1` 대신 중립 `?pay=returned`).
-  - 선택 보강(미승인, 구현 0): `already` 응답에 `needs_review`를 함께 담는 0104 소변경 — 화면은 위 다시 읽기로 충분하므로 필수 아님.
+  - 선택 보강(미승인, 구현 0): `already` 응답에 `needs_review`를 함께 담는 0104 소변경 — 화면은 위 다시 읽기로 충분하므로 필수 아님. → **7-10에서 해결**(37fdcabb4, done 응답에 status·needs_review·already 명시, hold는 ok false — 0104 소스 검수 PASS로 마감)
 - 시험(구현 때, 6-4에 더함): `feePayState` — done+needs_review(유저 확인 중·직원 확인 필요·재발송 비활성), done 정상, canceled, error 글자만 다르고 칸 값이 같으면 결과 같음(글자 비의존), 성공 주소가 `already`에서 `?ok=1`을 쓰지 않음.
 
 ### 6-8. 단계2 구현 준비(읽기 정리, 2026-11-17 Master msg_d1f6a71521ce — 새 화면 코드 0, QA 판정 뒤 범위 등록)
