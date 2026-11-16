@@ -58,21 +58,42 @@ export async function loadStudioData(call: Api, spaceId: string, now = Date.now(
   return { inbox: a, tasks: b, runs: c, recordMaps };
 }
 
+/**
+ * QA013(2026-11-17): 요청마다 문맥 키(회원·워크스페이스)를 붙여, 지금 키와 같은 결과만 받는다.
+ * 워크스페이스·계정을 바꾸면 곧바로 새 키 → 이전 자료는 숨고, 늦게 온 이전 응답은 버린다.
+ */
+export function createStudioGate() {
+  let current = 0;
+  let currentKey = '';
+  return {
+    begin(key: string) {
+      current += 1;
+      currentKey = key;
+      return { token: current, key };
+    },
+    isCurrent(t: { token: number; key: string }) {
+      return t.token === current && t.key === currentKey;
+    },
+  };
+}
+
 export function StudioDashboard() {
   const spaceId = useSession((s) => s.spaceId);
-  const [data, setData] = useState<StudioData | null>(null);
+  const userId = useSession((s) => s.userId);
+  const key = `${userId ?? ''}|${spaceId ?? ''}`;
+  const [gate] = useState(createStudioGate);
+  const [result, setResult] = useState<{ key: string; data: StudioData } | null>(null);
   useEffect(() => {
-    if (!spaceId) return;
-    let alive = true;
+    const t = gate.begin(key);
+    if (!spaceId || !userId) return;
     void loadStudioData(api as Api, spaceId).then((d) => {
-      if (!alive) return;
+      if (!gate.isCurrent(t)) return; // 다른 워크스페이스·계정으로 바뀐 뒤 도착한 응답
       for (const rm of d.recordMaps) records.mergeRecordMap(rm as never);
-      setData(d);
+      setResult({ key: t.key, data: d });
     });
-    return () => {
-      alive = false;
-    };
-  }, [spaceId]);
+  }, [key, spaceId, userId, gate]);
+  // 지금 문맥의 결과만 그린다(전환 직후에는 로딩 표시, 이전 자료 숨김)
+  const data = result && result.key === key ? result.data : null;
   const domain = spaceId ? spaceDomain(spaceId) : '';
   const loading = !data;
   const failed = tx('Couldn’t load');
@@ -81,12 +102,12 @@ export function StudioDashboard() {
     <div className="aww-studio-dash" aria-busy={loading}>
       <header className="aww-studio-head">
         <h1>📊 {tx('Control dashboard')}</h1>
-        <p>{tx('Your inbox, tasks and assistant runs at a glance. Numbers come from your workspace only.')}</p>
+        <p>{tx('Your inbox, tasks and assistant runs at a glance. Inbox counts your whole account; tasks and assistants count this workspace.')}</p>
       </header>
 
       <section className="aww-studio-kpis" aria-label={tx('Summary')}>
-        <Kpi label={tx('Inbox waiting')} value={loading ? null : data!.inbox ? `${data!.inbox.unread}` : failed} sub={tx('Not yet taken into the workspace')} onClick={() => goInbox()} />
-        <Kpi label={tx('My tasks')} value={loading ? null : data!.tasks ? `${data!.tasks.count}` : failed} sub={tx('Tasks assigned to me')} onClick={() => domain && navigate(`/${domain}/tasks`)} />
+        <Kpi label={tx('Inbox waiting')} value={loading ? null : data!.inbox ? `${data!.inbox.unread}` : failed} sub={tx('Whole account · from the latest 100 items')} onClick={() => goInbox()} />
+        <Kpi label={tx('My tasks')} value={loading ? null : data!.tasks ? `${data!.tasks.count}` : failed} sub={tx('This workspace · up to 10 task databases, 200 rows')} onClick={() => domain && navigate(`/${domain}/tasks`)} />
         <Kpi
           label={tx('Assistant runs (7 days)')}
           value={loading ? null : data!.runs ? (data!.runs.agents ? `${data!.runs.success} / ${data!.runs.failed}` : '—') : failed}

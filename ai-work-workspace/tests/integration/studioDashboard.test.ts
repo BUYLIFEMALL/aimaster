@@ -9,7 +9,7 @@ vi.mock('../../src/litpage/web/lib/store/session.ts', () => ({ useSession: () =>
 vi.mock('../../src/litpage/web/lib/router.ts', () => ({ navigate: () => {}, openPage: () => {}, spaceDomain: () => 'd' }));
 vi.mock('../../src/litpage/web/features/shell/i18n.ts', () => ({ tx: (s: string) => s }));
 
-const { loadStudioData, RUNS_PER_AGENT, MAX_AGENTS } = await import('../../src/litpage/web/features/home/StudioDashboard.tsx');
+const { loadStudioData, createStudioGate, RUNS_PER_AGENT, MAX_AGENTS } = await import('../../src/litpage/web/features/home/StudioDashboard.tsx');
 const NOW = Date.UTC(2026, 10, 17, 3, 0, 0);
 const DAY = 86_400_000;
 
@@ -80,5 +80,29 @@ describe('관제 대시보드 숫자', () => {
     const b = fakeApi({ getAgentRuns: () => ({ runs: full }) });
     const d2 = await loadStudioData(b.call, 's1', NOW);
     expect(d2.runs).toMatchObject({ capped: true, success: 0 });
+  });
+});
+
+describe('QA013 문맥 전환(createStudioGate)', () => {
+  it('A 요청 뒤 B로 바꾸면 늦게 온 A 결과는 버리고 B만 받음', () => {
+    const g = createStudioGate();
+    const a = g.begin('u1|spaceA');
+    const b = g.begin('u1|spaceB');
+    expect(g.isCurrent(a)).toBe(false);
+    expect(g.isCurrent(b)).toBe(true);
+  });
+  it('같은 워크스페이스에서 계정이 바뀌어도 이전 계정 결과는 버림', () => {
+    const g = createStudioGate();
+    const x = g.begin('u1|s1');
+    const y = g.begin('u2|s1');
+    expect(g.isCurrent(x)).toBe(false);
+    expect(g.isCurrent(y)).toBe(true);
+  });
+  it('같은 문맥을 다시 시작(새로고침)하면 이전 요청은 버리고 마지막 것만', () => {
+    const g = createStudioGate();
+    const first = g.begin('u1|s1');
+    const again = g.begin('u1|s1');
+    expect(g.isCurrent(first)).toBe(false);
+    expect(g.isCurrent(again)).toBe(true);
   });
 });
