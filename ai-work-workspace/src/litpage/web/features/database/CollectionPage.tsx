@@ -94,7 +94,7 @@ export function CollectionPage({ block, inPeek }: { block: BlockRecord; inPeek?:
   );
   return (
     <div className={`lit-scroller vertical nc-page-scroller nc-db-page ${inPeek ? 'in-peek' : ''}`} data-page-id={b.id}>
-      <DatabaseView block={b} inline={false} readOnly={!access.canEditContent} structureReadOnly={readOnly} canAddRows={access.canCreate} header={header} pad={inPeek ? 76 : 96} documentTitle={!inPeek} />
+      <DatabaseView block={b} inline={false} readOnly={!access.canEditContent} structureReadOnly={readOnly} canAddRows={access.canCreate} header={header} pad={inPeek ? 76 : 24} documentTitle={!inPeek} />
     </div>
   );
 }

@@ -36,7 +36,7 @@
 .nc-db-header.tabs { min-height: 40px; }
 .nc-db.full .nc-db-header.tabs { padding-inline: var(--nc-db-pad, 96px); }
 .nc-db.full .nc-filter-bar { margin-inline: var(--nc-db-pad, 96px); }
-.nc-db.full { --nc-db-pad: 96px; }
+.nc-db.full { --nc-db-pad: 24px; } /* 2026-11-17 주인님 지시 「좌우 여백 없이 꽉차게」: 96 → 24(미리보기 창 76은 그대로) */
 .nc-db-page.in-peek .nc-db.full { --nc-db-pad: 76px; }
 
 /* ---------- toolbar ---------- */
@@ -318,7 +318,7 @@
 .nc-link-source-path { font-size: 12px; color: var(--lp-text-tertiary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ---------- full-page database ---------- */
-.nc-db-page { align-items: stretch; }
+.nc-db-page { align-items: stretch; --nc-db-pad: 24px; } /* 제목·표지도 같은 여백 */
 .nc-db-page-header { position: relative; width: 100%; padding-inline: var(--nc-db-pad, 96px); }
 .nc-db-page.in-peek .nc-db-page-header { --nc-db-pad: 76px; }
 .nc-db-page-cover { margin-inline: calc(-1 * var(--nc-db-pad, 96px)); margin-bottom: 16px; }
