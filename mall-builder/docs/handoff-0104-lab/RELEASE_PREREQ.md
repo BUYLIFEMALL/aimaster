@@ -8,8 +8,8 @@
 | 구분 | 커밋 | 파일 | 지문 |
 |---|---|---|---|
 | DB | `37fdcabb4` | `mall-builder/supabase/migrations/0104_exchange_fee_payments.sql` | LF sha256 `739b35e9f20b45ba7c83309918da0cc099ca6a0b5715bf5514e755cb108662e6`(Mac 소스 검수 PASS로 고정) |
-| 앱(초안) | `1c9123d68` → **QA014 보완 커밋으로 교체 예정**(보완은 `pay/pay-widget.tsx` 선택적 교환 모드·`tests/exfee-widget.test.mjs` 추가) | 새 `src/app/s/[store]/(shop)/orders/[id]/exchange-pay/[exchangeId]/page.tsx`·`success/page.tsx`·`fail/page.tsx` / 고침 `src/lib/exchanges.ts`·`src/lib/exchanges-server.ts`·`src/lib/exchange-actions.ts`·`src/app/exchange-panels.tsx`·`src/app/s/[store]/(shop)/orders/[id]/page.tsx`·`tests/exchanges.test.mjs` | — |
-| 시험 근거 | 0104 실행기 `scripts/qa/run-0104-feepay.mjs`(62/62, 작성자 모의) · 화면 `node --test tests/` 477/477 · `tsc` 0 | | |
+| 앱(초안, 최신 소스) | `c8d9e1d31`(QA014 보완, 그 전 `1c9123d68` 위에 얹음 — 둘 다 포함) | 새 `src/app/s/[store]/(shop)/orders/[id]/exchange-pay/[exchangeId]/page.tsx`·`success/page.tsx`·`fail/page.tsx` / 고침 `src/lib/exchanges.ts`·`src/lib/exchanges-server.ts`·`src/lib/exchange-actions.ts`·`src/app/exchange-panels.tsx`·`src/app/s/[store]/(shop)/orders/[id]/page.tsx`·`src/app/s/[store]/(shop)/orders/[id]/pay/pay-widget.tsx`(선택적 `mode="exchange"`, 생략 시 주문 결제 그대로) / 시험 `tests/exchanges.test.mjs`·새 `tests/exfee-widget.test.mjs` | Mac QA014 재검토 대기 |
+| 시험 근거 | 0104 실행기 `scripts/qa/run-0104-feepay.mjs`(62/62, 작성자 모의) · 교환 24 · 위젯 렌더 6(happy-dom·가짜 토스 SDK) · 전체 `node --test tests/` 486/486 · `tsc` 0 (c8d9e1d31 기준) | | |
 
 ## 2. 선행 조건(Lab, 2026-11-17 읽기)
 - **DB 선행 객체(0104가 쓰는 것) 있음**: 토스 호출 `mall_builder_private.toss_call(text,text,text,jsonb,text)`(0029), `http` 확장, 0102(교환 표·`exchange_event`·`lock_exchange`)·0103(`exchange_order_status_ok`) 적용 기록. 0104 표 없음(미적용). `dblink`는 모의 시험 전용이라 필요 없음.
@@ -39,4 +39,4 @@
 - **기능 끄기(새 결제만 막기, 참고 — 임의 실행 금지)**: 몰 `store_payment_settings.card_enabled = false` → `feePayState`의 `canPay` false(결제 링크·위젯 0). 단 **이 칸은 주문 카드 결제와 공유**라 주문 카드 결제도 함께 꺼진다. 이미 있는 결제 기록의 표시·직원 다시 확인은 계속 됨. 교환비만 따로 끄는 칸은 없음(필요하면 별도 결정).
 
 ## 6. 한계(분리)
-0104 소스 Mac PASS / 작성자 모의 62 / 화면 477·tsc 0 / 준비·승인 별개 요청은 소스상 확인(실제 별개 트랜잭션은 배포 뒤) / 실제 토스 멱등·이중 과금·실패 뒤 고정 주문 번호 재사용 미시험 / 실제 화면 미배포·미검수.
+0104 소스 Mac PASS / 작성자 모의 62 / 화면 486·tsc 0(c8d9e1d31) / 성공·실패 주소 권한(회원·몰·주문 주인·교환 소속 확인 전 rpc 0)은 가짜 의존성 실행 시험으로 확인, 실제 DB·RLS 위 동작은 배포 뒤 / 위젯 교환 모드는 가짜 SDK 렌더 시험으로 확인, 실제 토스 결제창은 미시험 / 준비·승인 별개 요청은 소스·실행 시험상 확인(실제 별개 트랜잭션은 배포 뒤) / 실제 토스 멱등·이중 과금·실패 뒤 고정 주문 번호 재사용 미시험 / 실제 화면 미배포·미검수 / Mac QA014 재검토 전.
