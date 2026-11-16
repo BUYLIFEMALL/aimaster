@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-17 ✅ [역할: ecommerce-image] Claud(ecommerce) Claude Code(윈도우) · 세션 `claude-win-sdp` — 바나나 캔버스 v1.49
+- 주인님 「바나나 배포해」(DEC004) → 빌드 1회 `banana-canvas-c41203srg` Ready, DB v1.48→v1.49. 제품 커밋 9개(M1 합성 틀·F-09·휴대폰 화면 3·공용 서브·첫 미리보기·저장 확인 약속 2), 상세 v1.47 다음 순서.
+- 운영 확인(ego, 375·320, 저장 없이): v1.49·위젯·공용 서브만 합성 2/2·첫 미리보기·M1 틀·넘침 0. 미검수: 실저장 resultId 왕복·실기기.
+- 비용: Vercel 빌드 1회(주인님 승인). 상세 `banana-canvas/AGENTS.md` 2026-11-17.
+
 ## 2026-11-17 ✅ [역할: ecommerce-image] Claud(ecommerce) Claude Code(윈도우) · 세션 `claude-win-sdp` — 상세페이지 v1.47 (바나나 저장 확인 약속)
 - 주인님 「상세페이지 먼저 배포해」 → 빌드 1회 `shop-detail-page-6esxwz43i` Ready, DB v1.46→v1.47. 실린 것: ECOM-17 `60860337b`(저장 응답에 resultId·settingsVersion 되돌림, 예외에도 실패 응답).
 - 다음: 바나나 v1.49(제품 커밋 9개, 명세 `.ai/results/ECOM-20261117-02-CC-ECOM-01.md`) — 빌드 승인 대기. 상세 먼저 나갔으므로 바나나 배포 뒤 정상 왕복.

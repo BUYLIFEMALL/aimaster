@@ -1,7 +1,6 @@
 # 미배포 대기 목록 (PENDING_DEPLOYS.md)
 
 > 2026-10-22 신설(Claude Code 윈도우, 주인님 승인 — 추가개선 제안 「미배포 대기 항목을 한곳에」).
-| `banana-canvas` | 메이커 후속 M1 대표사진 합성 보강: 원형 틀·테두리 굵기/색·틀 배경(흰/투명/직접)·틀 안 확대/위치·서브 면적 %(참고 기준 20%, 규정 아님)·결과 PNG 클립보드 복사·메인 원본 크기 저장·결과표 size 칸·판번호 c2. tsc·시험 104·로컬 빌드 통과 | `f19f2bdcc` | 2026-11-15 · [역할: ecommerce-image] `claude-win-sdp` | `banana-canvas/docs/PLAN_20261115_MAKER_M1_FRAME.md` | 다음 바나나 배포 때 함께(주인님 「필요하면 하고 아니면 모았다가」) → v1.49, 배포 뒤 ego 검수(원형·투명 PNG·클립보드 붙여넣기·원본 크기·375px) |
 > 근거 지침: 루트 `CLAUDE.md` 최상단 「작은 소스 수정은 모았다가 배포한다」(2026-10-22 23:17) · [`docs/VERCEL_COST_REDUCTION_PLAN.md`](VERCEL_COST_REDUCTION_PLAN.md) 맨 위.
 
 ## 쓰는 법 (모든 CLI 공통)
@@ -109,6 +108,7 @@
 | `video-to-gif` | v1.31 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 채팅 추가 승인 빌드 1회 「지금 배포」, `video-to-b5ch93cuq` Ready, DB `version`·`extension_version` v1.31, `check-extension-release` OK) | v1.30에서 찾은 버그 수정 `aab624bc3`: 상세페이지 크기 860×1076(H.264 짝수)·작은 글자 노토 산스. ego 운영: 상세페이지 6장 → MP4 860×1076 21.6초·WebP 432프레임 2.2MB, 390px 넘침 없음 |
 | `video-to-gif` | v1.30 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 메이커 후속 결정 「비용 승인」 빌드 1회, `video-to-l1kescyg8` Ready, DB v1.30) | 메이커 후속 M2 「🛍 상품 사진 영상」 `bf972755f` + 대기분(확장 배지 Aside `c579c2a23`·왼쪽 메뉴 버전 글자). ego 운영: 세로 상품 2개 일괄 27초 → MP4·WebP 4개(150·100프레임) 실제 파일 확인. 상세페이지 크기 실패 발견 → v1.31 |
 | `shorts-onestop-studio` | v1.58 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 채팅 승인 빌드 1/2, `shorts-onestop-studio-jy9kbljqd` Ready, DB v1.58) | 버그: 「내 자료함」 음악 검사식 역슬래시 `70528df0f` + 화면 수정 2건(빨간 목록 칸 `5ba0f2aa6`·하단 자막형 겹침 `b1cb6878b`). ego 시험 계정 자료함 음악 8곡 표시 확인 |
+| `banana-canvas` | v1.49 · 2026-11-17 ([역할: ecommerce-image] `claude-win-sdp`, 주인님 「바나나 배포해」 DEC004 빌드 1회, `banana-canvas-c41203srg` Ready·DB v1.49) | M1 합성 틀 `f19f2bdcc` · F-09 `80786070b` · 휴대폰 화면 `7b5d3b053`·`45e04a14d`·`38a38bde7` · 공용 서브 `2a1225613` · 첫 미리보기 `7ebddd296` · 저장 확인 약속 `60860337b`·`87267c4cb`(상세 v1.47 먼저 배포) |
 | `music-video-studio` | v1.31 · 2026-11-15 ([역할: video] `claude-win-video`, 같은 승인 빌드 2/2, `music-video-studio-orc0gu481` Ready, DB v1.31) | 버그: 자료함 음악 검사식 `70528df0f` + 저장공간 위젯 한 줄 + 로그인 정책 `b4403e8bd` + 서울 지역. 시험 34·build, `icn1::icn1`, 자료함 음악 8곡 표시 확인 |
 | `shorts-onestop-studio` | v1.57 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 메이커 후속 「비용 승인」 빌드 2/2, `shorts-onestop-studio-hr4wf7vab` Ready, DB v1.57) | 메이커 후속 M3-② 상품 숏폼 템플릿 4종·검증 다시 쓰기 1회·단어 강조 자막 3종·합성 효과음 박자 맞춤·AI 없이 템플릿 바꾸기·버전 되돌리기 `584ca0d4e` 외. ego 시험 계정 Haiku 5.5 4회(검사 0건), MP4 16.5초 프레임·효과음 위치·버전 기록 확인 |
 | `shorts-onestop-studio` | v1.56 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 메이커 후속 결정 「비용 승인」 빌드 1회, `shorts-onestop-studio-7axgp8ug3` Ready, DB v1.56) | 메이커 v0.3.3 후속 M3-① 광고 고지(쿠팡 파트너스·제휴·협찬·직접 입력) 띠·AI 제작 표기·설명란 첫 줄 고지·유튜브 합성 콘텐츠 표시·게시 전 확인 4가지·안전 영역 3개 플랫폼 `0807cf180`. ego 운영 화면 v1.56, 실제 MP4(58.2초) 처음·중간·끝 프레임에 띠·AI 표기 확인. 게시 전 확인 화면은 시험 계정 확인 남음 |
