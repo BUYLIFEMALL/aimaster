@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 03:23:06 KST",
+  "checkedAt": "2026-11-17 03:25:17 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4253,12 +4253,12 @@
       "parent_task_id": "B2B-20261117-03",
       "owner": "CC-B2B-BACK-01",
       "title": "Lab0102 안전fixture·실행패키지 준비",
-      "status": "ready",
-      "delivery": "delivered",
+      "status": "waiting_human",
+      "delivery": "acknowledged",
       "sha": "186bf278f262d7dc0a8d56f3ced6f0d38a9b14f2",
-      "evidence": "Macactualanon최종PASS·MasterLF6파일일치 / msg_677a6ee94688",
-      "next": "기존주인님Lab범위로메인precheck10→0102apply/합성fixture→verify13·일반회원옵션3준비실행지시,실행성공아직미확인. 운영/0103/실결제/발송0·rollback은검수회수후별도",
-      "lastReviewedAt": "2026-11-16T18:22:59.686Z"
+      "evidence": "msg_df8aaf3526fd / precheck10·applyeditor633450be",
+      "next": "Lab SQL Potential issue detected 확인창에서담당브라우저handoff·실제apply미확인·중복실행0. 정확공간/버튼/사람필수근거요청·이미승인된범위재질문금지",
+      "lastReviewedAt": "2026-11-16T18:25:14.444Z"
     },
     {
       "task_id": "B2B-20261117-07",
@@ -4284,10 +4284,10 @@
       "title": "주인님 직접 Alt/Option 달력카드 드래그 복사",
       "status": "running",
       "delivery": "acknowledged",
-      "sha": "ada3911482 + ee049e811cee91982043b00b48af08bc17434fe8",
+      "sha": "ee049e811 (취소)·원자API확장승인",
       "evidence": "주인님직접캡처/ALT복사동작수정지시·작성자tsc0",
-      "next": "dragSession취소/해제7시험반환→Mac검수. dbstruct/actions/calendar date-only root override를동일applyTransactions에합치는원자복제API확장승인·기존권한검증/새행0실패시험,실데이터/빌드0",
-      "lastReviewedAt": "2026-11-16T18:22:59.686Z"
+      "next": "취소리스너/커서정리7시험반환·QA011독립PASS수락. date-onlyroot원자복제+날짜서버API확장승인·새SHA대기,부분복제잔여/응답유실재복제0",
+      "lastReviewedAt": "2026-11-16T18:25:14.444Z"
     },
     {
       "task_id": "QA-20261117-011",
@@ -4296,12 +4296,12 @@
       "parent_task_id": "WS-20261117-15",
       "owner": "CX-QA-01",
       "title": "달력 Alt복사·월구분 기능회귀 독립검수",
-      "status": "ready",
-      "delivery": "delivered",
+      "status": "ready_review",
+      "delivery": "returned",
       "sha": "ee049e811",
-      "evidence": "msg_d86532a3ad1a",
-      "next": "pointercancel나중up복제잔류 수정경계재검수·원자날짜는새코드미반환/한계유지·실DBdrag미검수",
-      "lastReviewedAt": "2026-11-16T18:22:59.686Z"
+      "evidence": "msg_60a334cc602d / QA17-011",
+      "next": "취소P2-1독립PASS·부분복제P2-2원자API수정전잔여,새SHA후그경계만검수",
+      "lastReviewedAt": "2026-11-16T18:25:14.444Z"
     },
     {
       "task_id": "QA-20261117-012",
@@ -4310,12 +4310,12 @@
       "parent_task_id": "B2B-20261117-07",
       "owner": "CX-QA-01",
       "title": "교환비 카드결제 0103 모의/권한 독립검수",
-      "status": "ready",
-      "delivery": "delivered",
+      "status": "ready_review",
+      "delivery": "returned",
       "sha": "80a00923",
-      "evidence": "msg_d86532a3ad1a / QA17-012",
-      "next": "함수안3예외보완20/0변경경계독립재검수·hardabort내기록소실구조별도/실서비스배포차단·실Toss0",
-      "lastReviewedAt": "2026-11-16T18:22:59.686Z"
+      "evidence": "msg_60a334cc602d / QA17-012",
+      "next": "80a00923 함수내parse/markpaid오류경계정적PASS·PG17/3→20/0작성자근거수용. SQL전체중단내구intent미해소/배포차단·새정확상태안대기",
+      "lastReviewedAt": "2026-11-16T18:25:14.444Z"
     }
   ]
 }
