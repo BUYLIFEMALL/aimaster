@@ -99,16 +99,33 @@ export function hasOpenExchange(itemId: string, exchanges: Pick<ExchangeRow, "it
  */
 export function itemRequestState(
   args: { who: "customer" | "staff"; orderStatus: string; daysLeft: number | null; item: ExchangeItem; exchanges: ExchangeRow[]; options: ExchangeVariant[] },
-): { ok: true; maxQty: number; needsOption: boolean } | { ok: false; reason: string } {
+): { ok: true; maxQty: number; needsOption: boolean } | { ok: false; code: RequestBlockCode; reason: string } {
   const { who, orderStatus, daysLeft, item, exchanges, options } = args;
-  if (orderStatus !== "delivered") return { ok: false, reason: "배송 완료된 주문만 교환을 신청할 수 있습니다." };
-  if (who === "customer" && (daysLeft === null || daysLeft <= 0)) return { ok: false, reason: `교환은 배송 완료 뒤 ${EXCHANGE_WINDOW_DAYS}일 안에 신청할 수 있습니다. 쇼핑몰에 문의해 주세요.` };
-  if (hasOpenExchange(item.id, exchanges)) return { ok: false, reason: "이미 교환이 진행 중입니다." };
+  if (orderStatus !== "delivered") return { ok: false, code: "status", reason: "배송 완료된 주문만 교환을 신청할 수 있습니다." };
+  if (who === "customer" && (daysLeft === null || daysLeft <= 0)) return { ok: false, code: "window", reason: `교환은 배송 완료 뒤 ${EXCHANGE_WINDOW_DAYS}일 안에 신청할 수 있습니다. 쇼핑몰에 문의해 주세요.` };
+  if (hasOpenExchange(item.id, exchanges)) return { ok: false, code: "open", reason: "이미 교환이 진행 중입니다." };
   const maxQty = remainingQty(item, exchanges);
-  if (maxQty < 1) return { ok: false, reason: "교환할 수 있는 수량이 없습니다." };
+  if (maxQty < 1) return { ok: false, code: "qty", reason: "교환할 수 있는 수량이 없습니다." };
   const needsOption = itemHadOptions(item);
-  if (needsOption && options.filter((o) => o.is_active).length === 0) return { ok: false, reason: "바꿀 옵션이 없어 신청할 수 없습니다. 쇼핑몰에 문의해 주세요." };
+  if (needsOption && options.filter((o) => o.is_active).length === 0) {
+    return { ok: false, code: "no_option", reason: who === "staff" ? "판매 중인 옵션이 없어 교환을 접수할 수 없습니다. 상품 옵션을 먼저 확인해 주세요." : "바꿀 옵션이 없어 신청할 수 없습니다. 쇼핑몰에 문의해 주세요." };
+  }
   return { ok: true, maxQty, needsOption };
+}
+
+/** 신청 불가 이유 — status·open·qty는 안내할 일이 없고, window·no_option은 화면에 안내를 남긴다 */
+export type RequestBlockCode = "status" | "window" | "open" | "qty" | "no_option";
+export const NOTICE_BLOCK_CODES: RequestBlockCode[] = ["window", "no_option"];
+
+/** 신청 불가 중 화면에 남길 안내(기간 지남은 한 번, 옵션 없음은 상품별). 안내할 것이 없으면 빈 배열 = 빈 상태와 구분 */
+export function exchangeNotices(forms: { item: Pick<ExchangeItem, "id" | "name_snapshot">; s: ReturnType<typeof itemRequestState> }[]): { key: string; text: string }[] {
+  const seen = new Map<string, string>();
+  for (const { item, s } of forms) {
+    if (s.ok || !NOTICE_BLOCK_CODES.includes(s.code)) continue;
+    if (s.code === "window") seen.set("window", s.reason);
+    else seen.set(`opt-${item.id}`, `${item.name_snapshot}: ${s.reason}`);
+  }
+  return [...seen].map(([key, text]) => ({ key, text }));
 }
 
 export type StaffExchangeActions = {
@@ -153,11 +170,16 @@ export function exchangeStockNote(x: Pick<ExchangeRow, "step" | "restocked" | "r
   return parts.join(" · ");
 }
 
-/** 되돌아갈 주소 — 같은 몰 안의 경로만(외부 주소·상위 경로·두 겹 슬래시 거절) */
-export function safeBackPath(slug: string, path: string): string {
-  const root = `/s/${slug}`;
-  if (typeof path !== "string" || !path.startsWith(`${root}/`) || path.includes("//") || path.includes("..") || path.includes("\\") || /[\s?#]/.test(path)) return root;
-  return path;
+/**
+ * 동작 뒤 돌아갈 주소 — 입력된 주소를 받지 않고, 몰 이름 형식과 서버에서 확인한 주문 번호로 새로 만든다(QA-20261117-006).
+ * 몰 이름이 형식에 안 맞으면 "/", 주문 번호가 없거나 형식이 틀리면 그 몰 첫 화면.
+ */
+/** 몰 이름 규칙 = DB 검사(mall_builder_stores.slug)와 같음 */
+export const STORE_SLUG_RE = /^[a-z0-9][a-z0-9-]{2,29}$/;
+export function exchangeReturnPath(slug: string, view: "admin" | "shop", orderId: string | null | undefined): string {
+  if (typeof slug !== "string" || !STORE_SLUG_RE.test(slug) || slug.includes("--") || slug.endsWith("-")) return "/";
+  if (typeof orderId !== "string" || !UUID_RE.test(orderId)) return `/s/${slug}`;
+  return view === "admin" ? `/s/${slug}/admin/orders/${orderId}` : `/s/${slug}/orders/${orderId}`;
 }
 
 /** 서버 동작 입력 정리 */

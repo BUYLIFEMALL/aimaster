@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   deliveredAtFromEvents, exchangeDaysLeft, exchangeStockNote, itemHadOptions, itemRequestState, parseExchangeFee, parseExchangeQty,
-  remainingQty, safeBackPath, staffExchangeActions,
+  exchangeNotices, exchangeReturnPath, remainingQty, staffExchangeActions,
 } from "../src/lib/exchanges.ts";
 
 const D = (s) => new Date(s);
@@ -78,11 +78,37 @@ test("재고 표시 — 플래그는 실제 변경 여부", () => {
   assert.match(exchangeStockNote(ex({ step: "done", restocked: true, reship_deducted: true })), /되돌림 · 발송 재고 차감/);
 });
 
-test("되돌아갈 주소는 같은 몰 경로만", () => {
-  assert.equal(safeBackPath("mall", "/s/mall/orders/1"), "/s/mall/orders/1");
-  for (const bad of ["https://evil.test/s/mall/x", "//evil.test", "/s/other/orders/1", "/s/mall/../admin", "/s/mall//x", "/s/mallx/a", "/s/mall/a?x=1", "/s/mall"]) {
-    assert.equal(safeBackPath("mall", bad), "/s/mall", bad);
+test("돌아갈 주소는 입력을 받지 않고 몰 이름 형식 + 서버 확인 주문 번호로 새로 만든다(QA-20261117-006)", () => {
+  const OID = "e0102000-0000-4000-8000-000000000031";
+  assert.equal(exchangeReturnPath("aimaster-b2b", "admin", OID), `/s/aimaster-b2b/admin/orders/${OID}`);
+  assert.equal(exchangeReturnPath("aimaster-b2b", "shop", OID), `/s/aimaster-b2b/orders/${OID}`);
+  // 주문 번호 자리에 우회 글자 → 몰 첫 화면(정규화해도 같은 몰)
+  for (const bad of ["%2e%2e/other/admin", "../other", ".%2e", "%252e%252e", "..%5c..%5cevil", "%2F%2Fevil.test", "x?y=1", "x#y", "", null, undefined, OID.toUpperCase()]) {
+    const out = exchangeReturnPath("aimaster-b2b", "admin", bad);
+    assert.equal(out, "/s/aimaster-b2b", String(bad));
+    assert.equal(new URL(out, "https://h.test").pathname, "/s/aimaster-b2b", String(bad));
   }
+  // 몰 이름이 형식에 안 맞으면 고정 안전 주소 "/"
+  for (const bad of ["../other", "mall/../x", "%2e%2e", "Mall", "a", "ab", "mall--x", "mall-", "-mall", "mall\\x", "mall?x", "a".repeat(31)]) {
+    assert.equal(exchangeReturnPath(bad, "shop", OID), "/", bad);
+  }
+  // 만든 주소는 정규화해도 그대로(다른 몰·로그인 화면으로 빠지지 않음)
+  const made = exchangeReturnPath("mall-01", "shop", OID);
+  assert.equal(new URL(made, "https://h.test").pathname, made);
+});
+
+test("안내 고르기: 신청 불가여도 기간·옵션 없음은 안내, 진행 중·수량 없음은 빈 상태", () => {
+  const base = { who: "customer", orderStatus: "delivered", daysLeft: 3, exchanges: [], options: opts };
+  const noOpt = { item: item({ id: "a", name_snapshot: "양말" }), s: itemRequestState({ ...base, item: item({ id: "a" }), options: [] }) };
+  const window1 = { item: item({ id: "b" }), s: itemRequestState({ ...base, item: item({ id: "b" }), daysLeft: 0 }) };
+  const window2 = { item: item({ id: "c" }), s: itemRequestState({ ...base, item: item({ id: "c" }), daysLeft: 0 }) };
+  const open = { item: item({ id: "i1" }), s: itemRequestState({ ...base, item: item({ id: "i1" }), exchanges: [ex()] }) };
+  const n = exchangeNotices([noOpt, window1, window2, open]);
+  assert.deepEqual(n.map((x) => x.key), ["opt-a", "window"]); // 기간 안내는 한 번
+  assert.match(n[0].text, /^양말: .*문의/);
+  assert.deepEqual(exchangeNotices([open]), []); // 안내할 것 없음 = 빈 상태
+  const staff = itemRequestState({ ...base, who: "staff", item: item(), options: [] });
+  assert.equal(staff.ok, false); assert.equal(staff.code, "no_option"); assert.match(staff.reason, /접수할 수 없습니다/);
 });
 
 test("입력 정리 — 수량·교환비", () => {
@@ -94,17 +120,19 @@ test("입력 정리 — 수량·교환비", () => {
   assert.equal(parseExchangeFee("10000001"), null);
 });
 
-test("서버 동작 접근 경계(소스): 모든 동작이 DB 함수 전에 이 몰 소속을 확인하고, 되돌아갈 주소를 거른다", () => {
+test("서버 동작 접근 경계(소스): DB 함수 전에 이 몰 소속 확인, 돌아갈 주소 입력을 받지 않음, 서버 키 없음", () => {
   const src = readFileSync(new URL("../src/lib/exchange-actions.ts", import.meta.url), "utf8");
   assert.match(src, /^"use server";/);
+  assert.doesNotMatch(src, /backPath|safeBackPath/, "돌아갈 주소를 입력으로 받지 않음");
+  assert.match(src, /exchangeReturnPath\(slug, view === "admin" \? "admin" : "shop", orderId\)/);
   const fns = src.split(/\nexport async function /).slice(1);
   assert.equal(fns.length, 4);
   for (const f of fns) {
     const name = f.slice(0, f.indexOf("("));
-    const guard = f.search(/await (itemInStore|exchangeInStore)\(/);
+    const guard = f.search(/await (itemOrderInStore|exchangeOrderInStore)\(/);
     const rpc = f.indexOf(".rpc(");
     assert.ok(guard > 0 && rpc > guard, `${name}: 소속 확인이 DB 함수보다 먼저`);
+    assert.match(f.slice(guard, rpc), /if \(!orderId\) finish\(/, `${name}: 소속 확인 실패면 DB 함수 전에 끝냄`);
     assert.doesNotMatch(f, /createAdminClient|service_role|SECRET/, `${name}: 서버 키 금지`);
   }
-  assert.match(src, /const safe = safeBackPath\(slug, path\)/);
 });

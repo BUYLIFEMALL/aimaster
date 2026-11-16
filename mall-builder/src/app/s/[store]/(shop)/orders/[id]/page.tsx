@@ -105,7 +105,7 @@ export default async function OrderDetailPage({
         {/* M2-7: 반품 요청은 사유·환불 계좌를 받는 전용 칸으로(0099 전 DB면 예전 버튼) */}
         <OrderStatusButtons slug={store.slug} orderId={order.id} status={order.status} role="customer" backPath={`${base}/orders/${order.id}`} isCard={order.is_card} hide={ret.info ? ["return_requested"] : []} />
         <CustomerReturnPanel slug={store.slug} order={order} info={ret.info} account={ret.account} storeFee={storeReturnFee(store.settings)} backPath={`${base}/orders/${order.id}`} />
-        <CustomerExchangePanel slug={store.slug} orderId={order.id} orderStatus={order.status} backPath={`${base}/orders/${order.id}`} />
+        <CustomerExchangePanel slug={store.slug} orderId={order.id} orderStatus={order.status} />
         <CustomerCashReceiptPanel slug={store.slug} order={{ ...order, has_tax_invoice: Boolean(order.tax_invoice) }} receipt={cash.receipt} ready={cash.ready} enabled={cashReceiptEnabled(store.settings)} backPath={`${base}/orders/${order.id}`} />
       </div>
 

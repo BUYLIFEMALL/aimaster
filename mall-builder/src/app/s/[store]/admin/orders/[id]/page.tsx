@@ -83,7 +83,7 @@ export default async function AdminOrderDetailPage({
         {["confirmed", "cancelled", "returned"].includes(order.status) && <p className="text-sm text-gray-500">끝난 주문입니다.</p>}
       </section>
       <StaffReturnPanel slug={store.slug} order={order} info={ret.info} account={ret.account} storeFee={storeReturnFee(store.settings)} backPath={here} />
-      <StaffExchangePanel slug={store.slug} orderId={order.id} orderStatus={order.status} backPath={here} />
+      <StaffExchangePanel slug={store.slug} orderId={order.id} orderStatus={order.status} />
       <StaffCashReceiptPanel slug={store.slug} receipt={cash.receipt} orderId={order.id} currentAmount={order.total - (ret.info && ret.info.refund_status !== "none" ? ret.info.refund_amount : 0)} backPath={here} />
 
       <section className="mt-6 grid gap-4 text-sm sm:grid-cols-2">

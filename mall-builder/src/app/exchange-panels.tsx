@@ -4,20 +4,20 @@ import TrackingLink from "@/app/tracking-link";
 import { formatWon } from "@/lib/products";
 import { COURIERS, DEFAULT_COURIER } from "@/lib/shipping";
 import {
-  EXCHANGE_REASONS, EXCHANGE_STEP_LABEL, FEE_STATUS_LABEL, exchangeDaysLeft, exchangeReasonLabel, exchangeStockNote,
+  EXCHANGE_REASONS, EXCHANGE_STEP_LABEL, FEE_STATUS_LABEL, exchangeDaysLeft, exchangeNotices, exchangeReasonLabel, exchangeStockNote,
   itemRequestState, staffExchangeActions, type ExchangeItem, type ExchangeRow, type ExchangeVariant,
 } from "@/lib/exchanges";
 import { getExchangeData } from "@/lib/exchanges-server";
 import { exchangeFeeAction, exchangeFeePaidAction, exchangeStepAction, requestExchangeAction } from "@/lib/exchange-actions";
 
-type Props = { slug: string; orderId: string; orderStatus: string; backPath: string };
+type Props = { slug: string; orderId: string; orderStatus: string };
 
 function ErrorBox({ message }: { message: string }) {
   return <p className="mt-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700" data-exchange-error>{message}</p>;
 }
 
-function RequestForm({ slug, backPath, item, maxQty, needsOption, options, who }: {
-  slug: string; backPath: string; item: ExchangeItem; maxQty: number; needsOption: boolean; options: ExchangeVariant[]; who: "customer" | "staff";
+function RequestForm({ slug, item, maxQty, needsOption, options, who }: {
+  slug: string; item: ExchangeItem; maxQty: number; needsOption: boolean; options: ExchangeVariant[]; who: "customer" | "staff";
 }) {
   const active = options.filter((o) => o.is_active);
   return (
@@ -25,7 +25,7 @@ function RequestForm({ slug, backPath, item, maxQty, needsOption, options, who }
       <summary className="cursor-pointer font-medium text-blue-800">
         {who === "staff" ? "대리 교환 접수" : "교환 신청"} · {item.name_snapshot}{item.option_snapshot && <span className="text-gray-600"> ({item.option_snapshot})</span>}
       </summary>
-      <form action={requestExchangeAction.bind(null, slug, backPath)} className="mt-3 space-y-2">
+      <form action={requestExchangeAction.bind(null, slug, who === "staff" ? "admin" : "shop")} className="mt-3 space-y-2">
         <input type="hidden" name="item_id" value={item.id} />
         <div className="flex flex-wrap items-end gap-2">
           <label className="block text-xs text-gray-600">수량(최대 {maxQty}개)
@@ -75,7 +75,7 @@ function Summary({ x, item }: { x: ExchangeRow; item: ExchangeItem | undefined }
 }
 
 /** 유저 주문 상세 */
-export async function CustomerExchangePanel({ slug, orderId, orderStatus, backPath }: Props) {
+export async function CustomerExchangePanel({ slug, orderId, orderStatus }: Props) {
   const data = await getExchangeData(orderId);
   if (data.state === "missing") return null; // 0102 전 DB
   if (data.state === "error") return <ErrorBox message={data.message} />;
@@ -85,21 +85,17 @@ export async function CustomerExchangePanel({ slug, orderId, orderStatus, backPa
     ? items.map((item) => ({ item, s: itemRequestState({ who: "customer", orderStatus, daysLeft, item, exchanges, options: variants.filter((v) => v.product_id === item.product_id) }) }))
     : [];
   const openable = forms.filter((f) => f.s.ok);
-  if (!exchanges.length && !openable.length) {
-    return orderStatus === "delivered" && daysLeft !== null && daysLeft <= 0
-      ? <p className="text-xs text-gray-500" data-exchange-closed>교환 신청 기간(배송 완료 뒤 7일)이 지났습니다. 쇼핑몰에 문의해 주세요.</p>
-      : null;
-  }
+  const notices = exchangeNotices(forms);
+  // 대상이 아예 없을 때(배송 완료 전·전부 진행 중·수량 없음)만 빈 화면. 안내할 이유가 있으면 신청 불가여도 보여 준다
+  if (!exchanges.length && !openable.length && !notices.length) return null;
   return (
     <div className="space-y-3" data-customer-exchange>
       {openable.length > 0 && daysLeft !== null && <p className="text-xs text-gray-600">교환 신청은 {daysLeft}일 남았습니다(배송 완료 뒤 7일).</p>}
       {openable.map(({ item, s }) => s.ok && (
-        <RequestForm key={item.id} slug={slug} backPath={backPath} item={item} maxQty={s.maxQty} needsOption={s.needsOption}
+        <RequestForm key={item.id} slug={slug} item={item} maxQty={s.maxQty} needsOption={s.needsOption}
           options={variants.filter((v) => v.product_id === item.product_id)} who="customer" />
       ))}
-      {forms.filter((f) => !f.s.ok && f.s.reason.includes("문의")).map(({ item, s }) => !s.ok && (
-        <p key={item.id} className="text-xs text-gray-500">{item.name_snapshot}: {s.reason}</p>
-      ))}
+      {notices.map((n) => <p key={n.key} className="text-xs text-gray-600" data-exchange-notice={n.key}>{n.text}</p>)}
       {exchanges.map((x) => (
         <div key={x.id} className="rounded border p-3 text-sm" data-exchange={x.id}>
           <p className="mb-1 font-semibold">교환</p>
@@ -124,7 +120,7 @@ function CourierFields({ listId }: { listId: string }) {
 }
 
 /** 운영사 주문 상세 */
-export async function StaffExchangePanel({ slug, orderId, orderStatus, backPath }: Props) {
+export async function StaffExchangePanel({ slug, orderId, orderStatus }: Props) {
   const data = await getExchangeData(orderId);
   if (data.state === "missing") return null;
   if (data.state === "error") return <ErrorBox message={data.message} />;
@@ -132,14 +128,15 @@ export async function StaffExchangePanel({ slug, orderId, orderStatus, backPath 
   const proxy = orderStatus === "delivered"
     ? items.map((item) => ({ item, s: itemRequestState({ who: "staff", orderStatus, daysLeft: null, item, exchanges, options: variants.filter((v) => v.product_id === item.product_id) }) }))
     : [];
-  if (!exchanges.length && !proxy.some((p) => p.s.ok)) return null;
+  const proxyNotices = exchangeNotices(proxy);
+  if (!exchanges.length && !proxy.some((p) => p.s.ok) && !proxyNotices.length) return null;
   return (
     <section className="mt-6 space-y-3 rounded-lg border border-blue-200 bg-blue-50/40 p-4 text-sm" data-staff-exchange>
       <h2 className="font-semibold">교환</h2>
       {exchanges.map((x) => {
         const item = items.find((i) => i.id === x.item_id);
         const a = staffExchangeActions(x, orderStatus, variants.some((v) => v.product_id === item?.product_id));
-        const step = (s: Parameters<typeof exchangeStepAction>[3]) => exchangeStepAction.bind(null, slug, x.id, backPath, s);
+        const step = (s: Parameters<typeof exchangeStepAction>[2]) => exchangeStepAction.bind(null, slug, x.id, s);
         return (
           <div key={x.id} className="space-y-2 rounded border bg-white p-3" data-exchange={x.id}>
             <Summary x={x} item={item} />
@@ -155,13 +152,13 @@ export async function StaffExchangePanel({ slug, orderId, orderStatus, backPath 
               </form>
             )}
             {a.fee && (
-              <form action={exchangeFeeAction.bind(null, slug, x.id, backPath)} className="flex flex-wrap items-end gap-2" data-exchange-fee-form>
+              <form action={exchangeFeeAction.bind(null, slug, x.id)} className="flex flex-wrap items-end gap-2" data-exchange-fee-form>
                 <label className="block text-xs text-gray-600">교환비(원)<input name="fee" defaultValue={x.fee} inputMode="numeric" className="mt-0.5 w-28 rounded border px-2 py-1.5 text-sm" /></label>
                 <button className="min-h-10 rounded border px-3">교환비 정하기</button>
               </form>
             )}
             {a.feePaid && (
-              <form action={exchangeFeePaidAction.bind(null, slug, x.id, backPath)}>
+              <form action={exchangeFeePaidAction.bind(null, slug, x.id)}>
                 <button className="min-h-10 rounded bg-emerald-700 px-3 text-white" data-exchange-fee-paid>교환비 {formatWon(x.fee)} 입금 확인</button>
               </form>
             )}
@@ -193,9 +190,10 @@ export async function StaffExchangePanel({ slug, orderId, orderStatus, backPath 
         );
       })}
       {proxy.filter((p) => p.s.ok).map(({ item, s }) => s.ok && (
-        <RequestForm key={item.id} slug={slug} backPath={backPath} item={item} maxQty={s.maxQty} needsOption={s.needsOption}
+        <RequestForm key={item.id} slug={slug} item={item} maxQty={s.maxQty} needsOption={s.needsOption}
           options={variants.filter((v) => v.product_id === item.product_id)} who="staff" />
       ))}
+      {proxyNotices.map((n) => <p key={n.key} className="text-xs text-amber-800" data-exchange-notice={n.key}>{n.text}</p>)}
       <p className="text-xs text-gray-500">회수 완료 때 원래 옵션 재고를 되돌리고, 새 상품을 보낼 때 바꿀 옵션 재고를 뺍니다. 교환비가 있으면 입금 확인 뒤에만 보낼 수 있습니다.</p>
     </section>
   );
