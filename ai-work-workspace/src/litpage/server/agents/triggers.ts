@@ -478,7 +478,8 @@ export function retryBlockedMentions(agentId: string, pageId: string, now = Date
     const run = getRun(id);
     const mention = run?.payload.mention as { label?: string; facts?: string[]; discussionId?: string; blockId?: string; propertyId?: string } | undefined;
     if (!run || !run.payload.blocked || run.payload.retried || !mention?.facts?.length) continue;
-    markRetried(run.id, run.payload);
+    // 2026-11-17 E1 보완: 최신 원문으로 한 번만 표시(동시 재시도·낡은 덮어쓰기 방지) — 성공한 쪽만 자식 생성
+    if (!claimRetry(run.id)) continue;
     // now that it can open the page: still nothing from a value it can't see
     if (!mentionVisible(agent, mention)) continue;
     out.push(enqueueRun({ agent, kind: 'trigger', trigger: t, label: mention.label || triggerRowTitle(t), actorId: run.actorId, pageId, chain: run.chain, parentRunId: run.id, payload: { facts: mention.facts } }).id);
@@ -486,8 +487,34 @@ export function retryBlockedMentions(agentId: string, pageId: string, now = Date
   return out;
 }
 
-function markRetried(runId: string, payload: Record<string, unknown>) {
-  db.prepare('UPDATE agent_runs SET payload = ? WHERE id = ?').run(JSON.stringify({ ...payload, retried: true }), runId);
+/**
+ * 2026-11-17 PLAN-20261117-01 E1 보완(Master msg_54873d545291): 막힌 멘션 실행에 「재시도함」을 한 번만 기록.
+ * 예전 markRetried는 먼저 읽어 둔 payload로 조건 없이 덮어써, 그 사이 루트에 남은 notifyMeSent 등을 지우고 동시 호출이 자식을 둘 만들 수 있었다.
+ * 최신 원문을 다시 읽어 retried면 false, 아니면 「payload = 읽은 원문」(NULL은 IS NULL) 조건으로 {...최신, retried: true} 기록, 5번 충돌 → false.
+ * 없는 실행·JSON이 아니거나 객체가 아닌 payload·DB 예외 → false(fail closed). 자식 생성이 그 뒤 실패해도 다시 시도하지 않는 기존 정책은 그대로.
+ */
+export function claimRetry(runId: string): boolean {
+  try {
+    for (let i = 0; i < 5; i++) {
+      const row = db.prepare('SELECT payload FROM agent_runs WHERE id = ?').get(runId) as { payload: string | null } | undefined;
+      if (!row) return false;
+      let p: Record<string, unknown> = {};
+      if (row.payload != null) {
+        const v = JSON.parse(row.payload);
+        if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
+        p = v as Record<string, unknown>;
+      }
+      if (p.retried) return false;
+      const next = JSON.stringify({ ...p, retried: true });
+      const ok = row.payload == null
+        ? db.prepare('UPDATE agent_runs SET payload = ? WHERE id = ? AND payload IS NULL').run(next, runId).changes === 1
+        : db.prepare('UPDATE agent_runs SET payload = ? WHERE id = ? AND payload = ?').run(next, runId, row.payload).changes === 1;
+      if (ok) return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
 }
 
 export function fireMeetingNoteSummarized(pageId: string, actorId: string, note?: { title?: string; summaryMarkdown?: string }): string[] {
