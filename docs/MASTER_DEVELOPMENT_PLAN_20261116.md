@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 05:54:10 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 05:56:19 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -39,7 +39,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 167개: done 138개 · cancelled 6개 · ready_review 18개 · running 2개 · ready 2개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 167개: done 139개 · cancelled 6개 · ready_review 17개 · running 2개 · ready 2개 · waiting_human 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -201,7 +201,7 @@
 | WS-20261117-14 | CC-WORKSPACE-01 | ready_review / returned | 주인님 직접 캘린더 달별 상자/색 구분 | 월보기CalendarView/calendar.css·tsc0 미배포,146토큰/월경계/연말전환·week보존실화면검수에병합·중복구현0 |
 | ESM-20261117-02 | CC-ECOM-01 | done / integrated | ESM 카탈로그 썸네일 실등록 | 등록/독립공개이미지검수범위완료·backup비공개유지·이미지재생성/루트배포0 |
 | B2B-20261117-06 | CC-B2B-BACK-01 | ready_review / returned | Lab0102 안전fixture·실행패키지 준비 | cleanup f3d66f561 잠금·해시 독립 정적 검토 마감. 실제 Lab 정리 미실행. Backend 새 0103 단독 실행 패키지 준비 계속, 검토 후 실제 적용 별도 지시 |
-| B2B-20261117-07 | CC-B2B-BACK-01 | ready_review / delivered | 주인님기승인 D5 교환비 카드결제 b3 mock구현 | Backend phase2 정확경로/위젯/RLS반환대기→별도범위등록후UI구현연결. 0104소스고정·실적용/실Toss/빌드0 |
+| B2B-20261117-07 | CC-B2B-BACK-01 | ready_review / delivered | 주인님기승인 D5 교환비 카드결제 b3 mock구현 | 0104소스QA012·UI QA014 소스검수마감,Backend146변경DB의존성준비표·Mac릴리스초안경계검토배정. 실제Toss/실UI/0104적용/빌드미승인 |
 | WS-20261117-15 | CC-WORKSPACE-01 | done / integrated | 주인님 직접 Alt/Option 달력카드 드래그 복사 | 배정코드검수완료·미배포묶음/146실화면으로연결,개발시험DB분리완료전DB시험재실행0 |
 | QA-20261117-011 | CX-QA-01 | done / integrated | 달력 Alt복사·월구분 기능회귀 독립검수 | 취소/원자구조/엄격날짜/권한작성자증거지정검수완료·실DOM146시각미검수·같은검사재반복0 |
 | QA-20261117-012 | CX-QA-01 | ready_review / returned | 교환비 카드결제 0103 모의/권한 독립검수 | 80a00923 함수내parse/markpaid오류경계정적PASS·PG17/3→20/0작성자근거수용. SQL전체중단내구intent미해소/배포차단·새정확상태안대기 |
@@ -209,7 +209,7 @@
 | WS-20261117-16 | CC-WORKSPACE-01 | done / integrated | 로컬 개발·시험 DB 분리 및 기존자료 보존 | 래퍼 종료 보고 정정: Master TCP3457 LISTEN/PID44692 node 생존 직접확인, 재시작 불필요. 기존 로그인 안내 유효·로그인 후 로컬검수workspace 담당 생성·운영자료 이전0 |
 | B2B-20261117-08 | CC-B2B-BACK-01 | ready_review / returned | 자동 구매확정과 교환7일 상태정합성 수정 | 0103적용/staff실RPC 및증거검토마감. 유저실세션7일/화면은별도미검수. 시험후baseline rejected1행/이력2,기존verify교환0 반복요구0. Backend0104기승인로컬보완진행 |
 | DES-20261117-03 | AG-UI-01 | ready / queued | 146 실제스타일 소스·명세·접근성 대조 지원 | AGY정착프롬프트수신대기·로그인뒤실렌더비교는후속,새시안/유료/서버변경0 |
-| B2B-20261117-09 | CC-B2B-BACK-01 | ready_review / returned | 교환비 결제 전용 화면·상태·직원 재확인 구현 | Mac QA014 콜백소속/정상done재조회/미검증안내/선택widget 네항목 국소재검토배정. Backend릴리스초안최신화만,실Toss/Lab0104/설정/빌드0 |
+| B2B-20261117-09 | CC-B2B-BACK-01 | done / integrated | 교환비 결제 전용 화면·상태·직원 재확인 구현 | 소스동결·상위릴리스준비검토로연결,실Toss/Lab0104/빌드/배포0 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
