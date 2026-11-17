@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 10:30:13 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 10:32:43 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -15,7 +15,7 @@
 | 1 · ESM | Ecom + Mac Tester | v1.02 운영 배포·Mac 웹 회귀 완료 | 실ESM 등록/확장 연결은 별도 범위, 추가 빌드 없음 |
 | 2 · Workspace | Workspace + Master | 146 로컬 서버 복구·desktop/375iframe 확인,영수증·캘린더상태 소스PASS | en·Alt 실조작/대표캡처·독립 시각대조,운영은v1.55/후속미배포 |
 | 3 · B2B | Backend + Master + Mac Tester | 소스·UI·실행자료 PASS,Lab0104 도구승인창 대기 | 주인님Accept→검증20/지문→Master승인Lab1빌드,실결제테스트키만 |
-| 4 · B2BFront | B2BFront + Mac Tester | 다크 단추 대비 1건 국소수정 배정 | globals.css 정확선택자/12색·라이트회귀→독립검수→같은Lab묶음 |
+| 4 · B2BFront | B2BFront + Mac Tester | 다크단추 최소보정 소스/독립계산 PASS | acb858a77 같은Lab묶음·실Tab/누름상태후속·3색기존미달별도 |
 | 5 · 블로그 | Blog | 문서T12 배정/보관표정정완료,이웃1.22·티스토리1.98미배포 | 실확장/신뢰클릭·계정조건 별도,작은수정은다음묶음·타인변경보존 |
 | 6 · 영상 | Movie | 떡상v1.30·사용량/캐시2표운영적용보고 | 실검색 시험로그인·AI기획안1회비용승인 전 유료호출0 |
 | 7 · 음악 | Music | 운영6프로그램 보고확보·가사취소안내1건미배포 | Mac 실제MP4 저장/장비조건·외부충전/공개조건 구분,반복검사0 |
@@ -40,7 +40,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 181개: done 152개 · cancelled 6개 · ready_review 15개 · running 3개 · waiting_human 2개 · ready 3개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 181개: done 154개 · cancelled 6개 · ready_review 14개 · running 3개 · waiting_human 2개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -218,13 +218,13 @@
 | ESM-20261117-03 | CC-ECOM-01 | done / integrated | ESM 모바일 메뉴 닫기·가격 오류 입력 보존 수정 | 주인님별도직접승인v1.02배포완료·Mac실모바일X/가격/상품이동回帰PASS·기존등록동작미검수 |
 | WS-20261117-18 | CC-WORKSPACE-01 | done / integrated | 구글 캘린더 설정 연결 상태·연동 화면 버튼 | Workspace미배포묶음·실계정Google연결변경0·기존keys전체계정보호와구분 |
 | QA-20261117-018 | CX-QA-01 | done / integrated | 캘린더 연결 상태·설정 이동 독립검수 | Workspace미배포묶음·실계정Google연결변경0·기존keys전체계정보호와구분 |
-| FRONT-20261117-02 | CC-B2B-FRONT-01 | ready_review / returned | 어두운 테마 흰 글자 파랑 단추 대비 보정 | Mac QA020 독립소스검토배정·Lab1빌드포함전판정,별도빌드0 |
+| FRONT-20261117-02 | CC-B2B-FRONT-01 | done / integrated | 어두운 테마 흰 글자 파랑 단추 대비 보정 | acb858a77 승인Lab1빌드묶음포함·별도빌드/추가소스0·LabReady뒤실Tab상태구분검수 |
 | DOC-20261117-T12 | CC-BLOG-01 | done / integrated | 데이터수집 문서조정 담당·보관후속표 근거 정정 | 정정완료·다른미커밋/ZIP보존·실배포확인전완전배포표시0 |
 | QA-20261117-014 | CX-QA-01 | done / integrated | 교환비 UI 독립검수 | 기승인Lab릴리스후실동작별도 |
 | QA-20261117-015 | CX-QA-01 | done / integrated | Lab0104 실행자료 독립검수 | 주인님실적용승인유효·도구Accept後실검증 |
 | WS-20261117-19 | CC-WORKSPACE-01 | ready / queued | 146 신규문구 ko/en·대시보드/영수증 제목 보완 | Workspace단독국소수정·기존서버HMR·API/DB/전체tsc/빌드0 |
 | QA-20261117-019 | CX-QA-01 | ready_review / returned | 146 실제캡처 독립시각검수 | WS19보완뒤전체375/메뉴·패널없는달력/긴제목다수일정 보완캡처한묶음→변경경계재검토 |
-| QA-20261117-020 | CX-QA-01 | ready / queued | Front다크단추 대비 국소독립검수 | Mac가벼운독립소스/계산검토·실DB/빌드0 |
+| QA-20261117-020 | CX-QA-01 | done / integrated | Front다크단추 대비 국소독립검수 | acb858a77 승인Lab1빌드묶음포함·별도빌드/추가소스0·LabReady뒤실Tab상태구분검수 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 

@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 10:30:13 KST",
+  "checkedAt": "2026-11-17 10:32:43 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4532,12 +4532,12 @@
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "priority": "P2",
       "title": "어두운 테마 흰 글자 파랑 단추 대비 보정",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "msg_3188fa5b531d·작성자19/19·12색악화0/9색4.5·3색기존미달/hover정적한계",
-      "completion": "globals.css dark정확선택자1rule·기존12색/라이트/관리자회귀·독립소스검수후미시작Lab빌드범위에포함",
-      "next": "Mac QA020 독립소스검토배정·Lab1빌드포함전판정,별도빌드0",
-      "lastReviewedAt": "2026-11-17T01:19:30.538Z",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_5d677db52243 QA020 실제theme12색독립계산/범위PASS·9색4.5/3색기존미달",
+      "completion": "최소대비보정 소스검수완료·12색악화0. hover/focus/active배경덮임가능·관리자dark밖전제·실Tab/누름후속미검수",
+      "next": "acb858a77 승인Lab1빌드묶음포함·별도빌드/추가소스0·LabReady뒤실Tab상태구분검수",
+      "lastReviewedAt": "2026-11-17T01:32:40.653Z",
       "sha": "acb858a77"
     },
     {
@@ -4615,14 +4615,14 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "Front다크단추 대비 국소독립검수",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "done",
+      "delivery": "integrated",
       "scopeRef": "acb858a77 CSS/기존시험·자기QA결과만",
       "priority": "P2",
-      "evidence": "msg_3188fa5b531d·작성자19/19·12색악화0/9색4.5·3색기존미달/hover정적한계",
-      "completion": "선택자/light/admin회귀·12색전후·기존미달/hover한계구분·소스판정",
-      "next": "Mac가벼운독립소스/계산검토·실DB/빌드0",
-      "lastReviewedAt": "2026-11-17T01:30:10.586Z"
+      "evidence": "msg_5d677db52243 QA020 실제theme12색독립계산/범위PASS·9색4.5/3색기존미달",
+      "completion": "최소대비보정 소스검수완료·12색악화0. hover/focus/active배경덮임가능·관리자dark밖전제·실Tab/누름후속미검수",
+      "next": "acb858a77 승인Lab1빌드묶음포함·별도빌드/추가소스0·LabReady뒤실Tab상태구분검수",
+      "lastReviewedAt": "2026-11-17T01:32:40.653Z"
     }
   ]
 }
