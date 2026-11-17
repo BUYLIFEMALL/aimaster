@@ -299,3 +299,5 @@ ESM-20261117-03 CC-ECOM-01: esm-register/src/components/layout/Sidebar.tsx 모�
 WS-20261117-17 QA017 수정범위 추가: Workspace만 기존 src/app/receipts/ReceiptsBoard.tsx 클라이언트 계정 구독/비동기 세대·cleanup과 ReceiptsView 연결, Workspace receipts domain 동기화 및 관련 경량 React 시험 수정. standalone 보존·서버 회원인가/자료범위 변경0·로컬재가동/전체tsc/빌드0.
 
 ESM-20261117-03 QA016 추가: CC-ECOM-01에 src/app/(dashboard)/products/[id]/page.tsx RegisterForm 상품 ID key/명시적 폼 수명 연결과 관련 경량 실제 React 시험만 허용. 같은 상품 오류 입력 보존·상품 변경 시 입력/오류/동의 초기화, page 인가/조회/action 변경 없음. Sidebar/서버/빌드 범위 확대 없음.
+
+WS-20261117-17 standalone 계정혼합 방어 확장: Workspace만 src/app/api/rpc/[name]/route.ts에 기존 인증 ID와 선택 expectedAccount 헤더 비교(불일치409·인가후 업무/AI처리전), src/lib/standaloneRpc.ts 호환 옵션 및 영수증 전용 bound RPC·Board/View/BoltaPanel/AmendPanel 전달·관련 경량 handler/React 모의시험 수정 허용. 기존 서버인가/헤더없는호출 보존·409자료/입력/인쇄숨김, 실DB/발급/외부AI/서버재가동/빌드0.

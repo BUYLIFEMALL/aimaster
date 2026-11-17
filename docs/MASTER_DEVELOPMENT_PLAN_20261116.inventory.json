@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 09:29:36 KST",
+  "checkedAt": "2026-11-17 09:32:01 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4450,12 +4450,12 @@
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "title": "주인님 직접지시 영수증 화면 메인 사이드바 연결",
       "priority": "P2",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "returned",
-      "evidence": "Workspace792be25a9·作者軽量16/16·旧DOM5失敗→改善",
+      "evidence": "Workspace792be25a9·作者軽量16/16·旧DOM5失敗→改善 / Workspace읽기보고 standalone A화면+Bcookie면B자료/저장대상혼합",
       "completion": "domain receipts SPA route와기존client Board재사용/사이드바연결·기존standalone유지·관련경량검사,서버DB0·실화면/배포미검수구분",
-      "next": "Mac QA017 계정요청수명/receipts domain재검토·standalone他탭account고정잔존미해결조건확인. 담당auth구독읽기조사,실화면/DB/서버/전체tsc/빌드0",
-      "lastReviewedAt": "2026-11-17T00:29:33.803Z",
+      "next": "standalone계정혼합미해소→Master route선택expectedAccount vs인증ID 서버검사/receipt·bt boundRPC/409숨김 최소확장승인. 기존인가유지·실handler mock검증,실DB/발급/AI/서버/빌드0",
+      "lastReviewedAt": "2026-11-17T00:31:59.066Z",
       "sha": "9d6875e4b + 792be25a9"
     },
     {
