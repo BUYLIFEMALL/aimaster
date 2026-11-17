@@ -77,7 +77,9 @@ export async function generateText({ model: modelInput, key, system, user, tempe
       cache: "no-store",
       signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
     });
-  } catch {
+  } catch (e) {
+    // QA046 P3: 취소·시간초과는 그대로 던져 guard가 408로 구분하게 한다(502로 바꾸지 않음).
+    if (e instanceof Error && ["AbortError", "TimeoutError"].includes(e.name)) throw e;
     throw new AppError(`${label} 연결에 실패했습니다. 잠시 뒤 다시 시도해 주세요.`, 502);
   }
   if (!response.ok) throw statusError(response.status, label);
@@ -89,7 +91,8 @@ export async function generateText({ model: modelInput, key, system, user, tempe
     text = Array.isArray(data?.content) ? data.content.filter((p: { type?: string }) => p?.type === "text").map((p: { text?: string }) => p.text ?? "").join("") : "";
   else text = (data?.candidates?.[0]?.content?.parts ?? []).map((p: { text?: string }) => p?.text ?? "").join("");
 
-  if (provider === "anthropic" && data?.stop_reason === "refusal")
+  // QA046 P2: OpenAI가 거절 문구(message.refusal)를 주면 content가 함께 와도 쓰지 않는다(실제 발생 여부는 미검증, 방어 경계).
+  if ((provider === "anthropic" && data?.stop_reason === "refusal") || (provider === "openai" && data?.choices?.[0]?.message?.refusal))
     throw new AppError(`${label}가 이 요청을 거절했습니다. 주제를 바꾸거나 다른 모델을 골라 주세요.`, 400);
   const truncated =
     (provider === "openai" && data?.choices?.[0]?.finish_reason === "length") ||

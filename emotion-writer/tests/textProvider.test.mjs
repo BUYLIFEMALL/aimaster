@@ -130,3 +130,30 @@ test("요청 취소 신호가 호출까지 전달된다", async () => {
     return Response.json({ choices: [{ message: { content: JSON.stringify({ quotes: QUOTES }) } }] });
   });
 });
+
+test("QA046 P2: OpenAI 거절(message.refusal)은 정상 글귀가 함께 와도 거절로 처리", async () => {
+  await assert.rejects(
+    generateCopy("k", input("gpt-6-luna"), undefined, async () =>
+      Response.json({ choices: [{ message: { refusal: "I can't help with that.", content: JSON.stringify({ quotes: QUOTES }) }, finish_reason: "stop" }] }),
+    ),
+    /OpenAI \(GPT\)가 이 요청을 거절했습니다/,
+  );
+});
+
+test("QA046 P3: 취소·시간초과는 AppError(502)로 바꾸지 않고 AbortError/TimeoutError 그대로 전파(guard가 408)", async () => {
+  for (const name of ["AbortError", "TimeoutError"]) {
+    await assert.rejects(
+      generateCopy("k", input("claude-haiku-5-5"), undefined, async () => {
+        throw new DOMException("stopped", name);
+      }),
+      (e) => e.name === name && e.status === undefined,
+    );
+  }
+  // 그 밖의 연결 실패는 기존처럼 한국어 안내(502)
+  await assert.rejects(
+    generateCopy("k", input("gemini-3.8-flash"), undefined, async () => {
+      throw new TypeError("fetch failed");
+    }),
+    (e) => /연결에 실패했습니다/.test(e.message) && e.status === 502,
+  );
+});
