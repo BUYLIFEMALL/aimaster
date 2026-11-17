@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 16:57:58 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 17:00:16 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -40,7 +40,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 206개: done 182개 · cancelled 6개 · ready_review 11개 · running 3개 · waiting_human 2개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 206개: done 182개 · cancelled 6개 · ready_review 11개 · running 2개 · waiting_human 2개 · ready 3개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -240,7 +240,7 @@
 | QA-20261117-027 | CX-QA-01 | done / integrated | v1.57 예약활성 운영 읽기전용 스모크 | 지정운영읽기마감·public주소/실Google는작성자결과별도·DDL경합잔여유지 |
 | WS-20261117-23 | CC-WORKSPACE-01 | done / integrated | 예약표 초회 초기화 경합 보완 | d7895f6d4 소스검토완료·미배포다음묶음·운영v1.57미반영/미래중첩tx한계유지 |
 | QA-20261117-028 | CX-QA-01 | done / integrated | 예약표 초회DDL 직렬화 독립검토 | d7895f6d4 소스검토완료·미배포다음묶음·운영v1.57미반영/미래중첩tx한계유지 |
-| WS-20261117-24 | CC-WORKSPACE-01 | running / returned | E3-1 간단결재 요청관리 템플릿 | id메타데이터경로한정/실참조id보존·step연결보수비교수정·E3-3착수0 |
+| WS-20261117-24 | CC-WORKSPACE-01 | ready_review / returned | E3-1 간단결재 요청관리 템플릿 | QA033 ValueRef/노드메타데이터국소재검토·E3-3미착수 |
 | BLOG-20261117-09 | CC-BLOG-01 | done / integrated | T07 대시보드/작업목록 공용자동갱신 | 1a54bdd06소스완료·미배포·실HTTP/브라우저별도 |
 | FRONT-20261117-04 | CC-B2B-FRONT-01 | done / integrated | P3 어두운테마 hover피드백 일관성 | 지정소스완료·미배포다음묶음/실운영미검수 |
 | MOV-20261117-07 | CC-MOVIE-01 | done / integrated | 공용MP4 탭수명 fallback성공기억 P3 | 소스2b9a06c9c완료·미배포·실HW/MP4/AppleSilicon별도 |
@@ -249,7 +249,7 @@
 | QA-20261117-030 | CX-QA-01 | done / integrated | WS24 템플릿/그룹/한계 독립검토 | 지정소스완료·미배포다음묶음/실운영미검수 |
 | QA-20261117-031 | CX-QA-01 | done / integrated | dark hover 1규칙 국소독립검토 | 지정소스완료·미배포다음묶음/실운영미검수 |
 | QA-20261117-032 | CX-QA-01 | done / integrated | 공용MP4 탭수명fallback P3 독립검토 | 독립검토종결·실HW미검수 |
-| QA-20261117-033 | CX-QA-01 | ready_review / returned | E3-2 템플릿 앱알림/권한/부분실패 독립검토 | ValueRef id P2수정후국소재검토·전체마감보류 |
+| QA-20261117-033 | CX-QA-01 | ready / queued | E3-2 템플릿 앱알림/권한/부분실패 독립검토 | user/page/step/variable/순수노드id 경계국소판정 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
