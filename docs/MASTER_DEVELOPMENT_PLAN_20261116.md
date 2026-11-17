@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 16:13:19 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 16:18:18 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -40,7 +40,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 195개: done 173개 · cancelled 6개 · ready_review 10개 · running 2개 · waiting_human 2개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 196개: done 173개 · cancelled 6개 · ready_review 11개 · running 2개 · waiting_human 2개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -238,7 +238,8 @@
 | QA-20261117-026 | CX-QA-01 | done / integrated | 예약2B OFF배선 실제입구/보안경계 독립검토 | 지정OFF배선소스마감·실HTTP/Google/운영별도 |
 | WS-20261117-22 | CC-WORKSPACE-01 | done / integrated | 예약 기능 운영 활성화·실연동 검증 | 검증한활성화범위완료·실409/숨은속성/실기기/cron미검수·WS23DDL경합후속·시험1행점유정리준비 |
 | QA-20261117-027 | CX-QA-01 | done / integrated | v1.57 예약활성 운영 읽기전용 스모크 | 지정운영읽기마감·public주소/실Google는작성자결과별도·DDL경합잔여유지 |
-| WS-20261117-23 | CC-WORKSPACE-01 | ready / queued | 예약표 초회 초기화 경합 보완 | advisory_xact_lock직렬화최소수정/commit뒤ready·독립검토후다음묶음 |
+| WS-20261117-23 | CC-WORKSPACE-01 | ready_review / returned | 예약표 초회 초기화 경합 보완 | QA028독립검토·미배포다음묶음 |
+| QA-20261117-028 | CX-QA-01 | ready / queued | 예약표 초회DDL 직렬화 독립검토 | 독립결과반환·미배포구분 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 

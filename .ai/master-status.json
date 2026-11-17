@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T07:13:17.408Z",
+  "checkedAt": "2026-11-17T07:18:16.026Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2797,7 +2797,13 @@
         "실기기/cron자동확인미검수",
         "초회DDL경합구조미해결",
         "Google삭제된QA confirmed1행점유잔존·가역정리안대기"
-      ]
+      ],
+      "cleanup": {
+        "status": "dispatched",
+        "evidence": "msg_8126862f6b64",
+        "scope": "실시험합성1행 id/gcalid/user/QAmarker/confirmed조건·가역released·물리삭제0",
+        "guard": "transaction expected1 else rollback·다른행/Google쓰기0"
+      }
     },
     {
       "task_id": "QA-20261117-027",
@@ -2818,13 +2824,27 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "예약표 초회 초기화 경합 보완",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "ready_review",
+      "delivery": "returned",
       "priority": "P2",
-      "evidence": "운영초회bookingGet/List 동시CREATE pg_type중복1건·표생성후정상 / Master실검증보고후구현배정",
+      "evidence": "운영초회bookingGet/List 동시CREATE pg_type중복1건·표생성후정상 / Master실검증보고후구현배정 / db56d1697·作者2연결red→green·59tests/tsc0·Masterdiff/cleanupSQL직접대조",
       "scopeRef": "booking.ts ensureTables/booking.test.ts·격리초회2연결·운영DDL/build0",
       "completion": "격리동시초기화재현/안전한직렬화·원문오류노출검토",
-      "next": "advisory_xact_lock직렬화최소수정/commit뒤ready·독립검토후다음묶음"
+      "next": "QA028독립검토·미배포다음묶음",
+      "sha": "d7895f6d4"
+    },
+    {
+      "task_id": "QA-20261117-028",
+      "parent_task_id": "WS-20261117-23",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "예약표 초회DDL 직렬화 독립검토",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "msg_8db20e183699",
+      "scopeRef": "d7895f6d4 booking2파일·소스/가능모의·DBreset/build0",
+      "completion": "tx/lock세션/commit-ready/실패복구/OFF판정",
+      "next": "독립결과반환·미배포구분"
     }
   ],
   "programOverrides": [
