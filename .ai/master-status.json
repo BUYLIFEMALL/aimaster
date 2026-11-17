@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T17:23:19.408Z",
+  "checkedAt": "2026-11-17T17:28:02.557Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3346,13 +3346,13 @@
       "reviewer": "CX-MASTER-01",
       "owner": "CC-ECOM-01",
       "title": "주인님 직접 글귀AI 3사/상세모델 선택",
-      "status": "ready_review",
-      "delivery": "review_dispatched",
+      "status": "done",
+      "delivery": "accepted_pending_batch_deploy",
       "scopeRef": "emotion-writer textModels/textLlm/services/validation/config·copy route·Workspace/KeySettings·안내/시험",
-      "evidence": "msg_e7bcf4cd373d / msg_aa0094c5de64·작성자46/tsc0·QA046진행",
+      "evidence": "msg_e7bcf4cd373d / msg_aa0094c5de64·작성자46/tsc0·QA046진행 / msg_921acf4a4444·QA046수정재검수절",
       "completion": "기존회원기본유지·본인제공자키·서버모델검증·재시도0·mock경계·타사키폴백0",
-      "next": "QA046 refusal/abort수정 재검수·실모델지원/실3호출/배포는별도승인·공용사본검사등록완료",
-      "lastReviewedAt": "2026-11-17T17:20:27.598Z",
+      "next": "지정소스/fakefetch/TSX 검수수락·모델실지원/실키/운영/시각은미검수·다음묶음",
+      "lastReviewedAt": "2026-11-17T17:28:02.557Z",
       "sha": "3a4ad1cad + 59cb81d8e"
     },
     {
@@ -3375,14 +3375,14 @@
       "reviewer": "CX-MASTER-01",
       "owner": "CC-B2B-BACK-01",
       "title": "운영전용 precheck/apply/verify 준비",
-      "status": "needs_revision",
-      "delivery": "revision_dispatched",
+      "status": "ready_review",
+      "delivery": "review_dispatched",
       "scopeRef": "mall-builder/docs/handoff-0101-0104-prod/ 15파일·실행없는초안",
-      "evidence": "msg_e8ef88589861·로컬격리19/19 작성자·운영/Lab0 / msg_4646a84d31dc·msg_ad5d0f3d2e45",
+      "evidence": "msg_e8ef88589861·로컬격리19/19 작성자·운영/Lab0 / msg_4646a84d31dc·msg_ad5d0f3d2e45 / msg_e3acfd829e5e·재검수msg_25d58c194f71",
       "completion": "0100기준·0102+0103원자순서·운영precheck동적기대/전체중단조건/해시·격리또는정적검증범위명시",
-      "next": "QA047 S-F01先행함수/서명누락·S-F02 검증실패전출력쓰기를보완→Mac재검수·실행0",
-      "lastReviewedAt": "2026-11-17T17:20:27.598Z",
-      "sha": "d9751c70b"
+      "next": "S-F01/S-F02수정·작성자격리22/22, Mac국소재검수대기·9개rename전체원자보장과구분·운영실행0",
+      "lastReviewedAt": "2026-11-17T17:28:02.557Z",
+      "sha": "9668a2a6c"
     },
     {
       "task_id": "FRONT-20261118-02",
@@ -3419,13 +3419,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "감성글귀3사AI/키/오류/취소 독립검수",
-      "status": "running",
-      "delivery": "acknowledged",
+      "status": "done",
+      "delivery": "integrated",
       "sha": "3a4ad1cad + 59cb81d8e",
-      "evidence": "msg_042d1cd0e122/msg_94615447df37/msg_333de99bc8f8 / 최종msg_0dac3fdab99f 원본2반례·59cb수정재검수대기",
+      "evidence": "msg_042d1cd0e122/msg_94615447df37/msg_333de99bc8f8 / 최종msg_0dac3fdab99f 원본2반례·59cb수정재검수대기 / msg_921acf4a4444·QA046수정재검수절",
       "completion": "실모듈/fakefetch/route·본인제공자키·refusal/abort·UI/keys 지정범위반환",
-      "next": "P2/P3수정후재검수·운영1.29미반영·실モデル지원/요금未검증",
-      "lastReviewedAt": "2026-11-17T17:20:27.598Z"
+      "next": "지정소스/fakefetch/TSX 검수수락·모델실지원/실키/운영/시각은미검수·다음묶음",
+      "lastReviewedAt": "2026-11-17T17:28:02.557Z"
     },
     {
       "task_id": "QA-20261118-047",
@@ -3433,13 +3433,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "운영0101~0104 실행준비파일 정적검수",
-      "status": "needs_revision",
-      "delivery": "returned",
-      "sha": "d9751c70b",
-      "evidence": ".ai/results/QA-20261118-047-CX-QA-01.md / msg_4646a84d31dc",
+      "status": "ready_review",
+      "delivery": "review_dispatched",
+      "sha": "9668a2a6c",
+      "evidence": ".ai/results/QA-20261118-047-CX-QA-01.md / msg_4646a84d31dc / msg_e3acfd829e5e·재검수msg_25d58c194f71",
       "completion": "원문/해시/적용차단/자료불변/단계원자성/verify·권한/기록검토,실운영PASS와분리",
-      "next": "고정d9751c70b 준비누락2건반환·수정SHA재검수전PASS0",
-      "lastReviewedAt": "2026-11-17T17:20:27.598Z"
+      "next": "S-F01/S-F02수정·작성자격리22/22, Mac국소재검수대기·9개rename전체원자보장과구분·운영실행0",
+      "lastReviewedAt": "2026-11-17T17:28:02.557Z"
     },
     {
       "task_id": "DES-20261118-04",
@@ -3785,9 +3785,9 @@
       "slug": "emotion-writer",
       "owner": "AG-UI-01",
       "reportedVersion": "v1.29",
-      "stage": "운영1.29·접근성/Pexels제거 미배포·3사AI구현중",
+      "stage": "운영v1.29·3사AI/Pexels/접근성소스지정PASS·버튼QA048대기/미배포",
       "completed": "메뉴/공식키발급링크 QA042 소스·실TSX모의PASS, storage widget 정적1곳·QA044 UI/초안/가이드제거지정PASS",
-      "next": "121317458+de49e96e9+62189915b 보존·ECOM18-01 mock구현/독립검수→v1.30묶음은별도승인",
+      "next": "3a4ad1cad+59cb81d8e/기존보완한묶음·버튼690df10c6 QA048·실지원/비용/배포별도",
       "evidence": "45c208bc6 / dpl_D9ExEsYD9sH9zAxZy38dkU2UUMUz / QA042",
       "evidenceLevel": "Vercel READY/metadata 독립확인·DBv1.29 담당보고·실화면 미검수"
     },
@@ -3939,7 +3939,7 @@
     "tester": "msg_6701f7855675 QA029→030",
     "support": "주인님전담·재배정제외"
   },
-  "qaQueue": "QA046 59cb81d8e refusal/abort재검수→QA047 운영준비누락수정재검수→QA048 배경링크버튼 국소. QA037/QA002/ESM은기존사람조건, 새창0",
+  "qaQueue": "QA047 9668a2a6c 두건재검수→QA048 버튼화, QA046지정소스완료. QA002음악요청은기존공간20제어반환/본인로그인부터·실MP40",
   "monitoring": {
     "policyVersion": "2.0",
     "activeTurnIntervalMinutes": 5,
@@ -3951,27 +3951,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T17:23:19.408Z",
+      "at": "2026-11-17T17:28:02.557Z",
       "timezone": "Asia/Seoul",
-      "trigger": "전체플랜지시·02:00예약·신규직접지시/검수/완료이벤트",
-      "scope": "103/19분류/265문서표식·8담당정합성보고·QA043/044·점유모순·新직접지시·단일후속배정",
+      "trigger": "QA046수정PASS·Backend QA047보완완료 이벤트",
+      "scope": "지정QA046재검수절·B2B수정커밋범위·담당후속수락/재검수전달·음악인계정정",
       "evidence": [
-        "msg_18fc7a1648e4 현재Master수신/예약결과0",
-        "8담당정정커밋·103문서메타·categoryReviews/개선21건",
-        "QA043/044고정SHA수락·Front77c50f27c→QA045",
-        "Workspace점유정정5f9e66d7f·Ecom/Backend/Front경로분리",
-        "QA045수락·QA046반례59cb수정/재검수발송·QA047 d9751c70b 전달",
-        "YVS1단계실AI보고00a2c9efa·Gmail준비f4a6854e9·ACTIVE_WORK정정5f9e66d7f/5d7f049b6",
-        "전체플랜001a87398·공용비교표/모듈84e7f10b1 안전커밋",
-        "QA047 준비누락2건반환·QuoteCanvas直接指示690df10c6취합"
+        "msg_921acf4a4444·실모듈/guard7fake호출PASS",
+        "9668a2a6c 13파일·작성자22/22·실운영0",
+        "msg_25d58c194f71 Mac재검수·msg_9dc5262c852c Ecom소스수락"
       ],
-      "judgment": "기배포대기정정·코드완료와실검수/승인분리. 소스후속/운영준비배정실전달·불필요재배포0.",
+      "judgment": "3사AI지정소스완료/미배포·SQL준비보완재검수중. 같은소스전체시험반복/실모델/DB/build/deploy0.",
       "unverified": [
-        "68프로그램은현담당실회신근거미확보(폐지/완료아님)",
-        "detail-page-12p개별문서미발견",
-        "전체운영/실키/QA037로그인/実375미검수"
+        "모델실지원/요금/실키/운영/실375",
+        "SQL함수deps/출력원자성 실제운영검증미실행"
       ],
-      "nextAction": "QA046/047 수정재검수·배경버튼국소검수연결·GCP준비신호회수, 신규배포/유료호출0"
+      "nextAction": "QA047수정재검수/QA048반환후판정·다음02:30기존Master예약"
     },
     "notifications": [
       {
@@ -4303,9 +4297,9 @@
       "kind": "운영반영승인",
       "target": "0101~0104/Front묶음",
       "owner": "CC-B2B-BACK-01",
-      "status": "실행파일d9751c70b QA047 준비누락 보완중",
+      "status": "9668a2a6c 보완반환·Mac재검수대기",
       "evidence": "d43255f8f·c6931bfbe",
-      "next": "선행함수/서명·검증전쓰기2건수정→독립재검수",
+      "next": "함수deps/산출전검증 두경계재검수·단계별rename한계분리",
       "acceptance": "운영0100기준보존·옛0102 rollback사용0"
     },
     {
@@ -4403,9 +4397,9 @@
       "kind": "直接지시/구현중",
       "target": "감성글귀3사AI 선택",
       "owner": "CC-ECOM-01",
-      "status": "3a4ad1cad+59cb81d8e ready_review",
+      "status": "59cb81d8e QA046지정PASS·미배포",
       "evidence": "PLAN1ece3747d·msg_b8292d9e0030·공용openai사본바이트일치/검사등록",
-      "next": "QA046 refusal/abort再검수·실모델지원/비용/배포승인별도",
+      "next": "최신모델실지원/실키/시각은미검수·정확묶음/실비용승인뒤진행",
       "acceptance": "OpenAI/Claude/Gemini 선택·본인키/서버허용목록·재시도0·기존기본유지"
     },
     {
@@ -4440,8 +4434,8 @@
     },
     {
       "owner": "CC-B2B-BACK-01",
-      "state": "SQL실행준비 QA047두건 보완지시",
-      "next": "수정SHA재검수·운영실행0",
+      "state": "운영준비9668a2a6c 두건보완·재검수대기",
+      "next": "Mac QA047지정재검수·실행승인/선행조건해소전0",
       "evidence": "d43255f8f / msg_223ca85a800e·dabbc23ce/msg_82a3e93e9fa9",
       "reviewedAt": "2026-11-17T16:58:50.290Z",
       "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
@@ -4456,8 +4450,8 @@
     },
     {
       "owner": "CC-ECOM-01",
-      "state": "3사AI3a4ad1cad+refusal/abort59cb81d8e 소스반환",
-      "next": "QA046재검수/추가반례수정·실비용/배포별도",
+      "state": "3사AI59cb81d8e QA046소스수락·미배포",
+      "next": "본인점유해제/현재문서정리·실비용/배포별도",
       "evidence": "26e1353c5 / msg_c6e462ca244b·msg_b8292d9e0030/ACTIVE_WORK",
       "reviewedAt": "2026-11-17T16:58:50.290Z",
       "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
