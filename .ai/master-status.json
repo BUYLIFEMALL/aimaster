@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T19:31:06.275Z",
+  "checkedAt": "2026-11-17T20:00:44.735Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -4103,23 +4103,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T19:31:06.275Z",
+      "at": "2026-11-17T20:00:44.735Z",
       "timezone": "Asia/Seoul",
-      "trigger": "04:30 Windows예약 기존Master수신",
-      "scope": "담당보고/관리자요청·19카테고리 미종료작업·docs/프로그램docs/미등록인계 증분·제품미커밋·기존로컬12세션 상태",
+      "trigger": "05:00 Windows예약 기존Master수신",
+      "scope": "관리자요청/담당보고·19카테고리 미종료작업·전체프로그램docs/미등록인계 증분·제품미커밋·기존로컬12세션",
       "evidence": [
-        "msg_19370ad3d9ef·Windows04:30 LastTaskResult0/다음05:00",
-        "dev-requests codex-master 대기0·새보고/인계0(자체생성진행표3개제외)",
-        "HEAD ced24e376 이후 신규커밋0·emotion/Workspace/mall src미커밋0",
-        "로컬12연결·Ecom/Workspace 선택질문 유지·AGY PORT19 수락/결과0"
+        "msg_5c613ec044c5·Windows05:00 LastTaskResult0/다음05:30",
+        "dev-requests codex-master 대기0·신규보고/인계0(자체진행표3개제외)",
+        "HEAD 8d2a2cc10 이후 신규커밋0·emotion/Workspace/mall src미커밋0",
+        "담당terminal lastOutput 변화0·PORT19 수락/산출물0·Ecom/Workspace 기존선택질문유지"
       ],
-      "judgment": "새승인/사람완료/제품변경없음. 기존작업·차단조건유지. queued를착수로판정하지않고중복배정/재발송/시험0.",
+      "judgment": "증분변경없음. 기존책임자/승인범위/차단조건유지·queued를착수로단정0·중복시험/재발송/새창0.",
       "unverified": [
-        "AGY PORT19 실제수신/착수",
-        "Ecom 재빌드승인·Gmail 공개/빌드결정",
-        "Lab 시험카드제출·Mac 반환·운영alias 이번회차 재조회없음(04:00 근거 유지)"
+        "PORT19 실수신/착수·Ecom 재빌드승인·Gmail 공개/빌드결정",
+        "Lab 시험카드제출·Mac 반환·이번회차 운영alias 재조회없음"
       ],
-      "nextAction": "기존담당 수락/사람완료/결정 이벤트후 후속판정·05:00 동일터미널예약"
+      "nextAction": "기존담당 수락/사람완료/결정 이벤트후 후속판정·05:30 동일터미널예약"
     },
     "notifications": [
       {
@@ -4187,7 +4186,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-17T20:00:00.000Z",
+      "nextScheduledAt": "2026-11-17T20:30:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -4205,8 +4204,8 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-17T19:30:00.000Z",
-        "messageId": "msg_19370ad3d9ef",
+        "scheduledAt": "2026-11-17T20:00:00.000Z",
+        "messageId": "msg_5c613ec044c5",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false
