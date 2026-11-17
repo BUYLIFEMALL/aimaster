@@ -110,7 +110,7 @@
 ## 2026-10-23 ✅ 배포됨(v1.44) — 휴대폰 폭에서 좌측 메뉴가 숨지 않고 본문 위에 쌓임 (Claude Code 윈도우, `scripts/check-mobile-account.mjs`)
 - `components/layout/Sidebar.tsx`의 `<aside className="flex w-full flex-col … md:w-72 …">`가 767px 이하에서 숨지 않고 화면 위쪽에 통째로 쌓인다(계정·로그아웃은 보임). 모바일 레이아웃 지침(루트 CLAUDE.md 원칙 19, `docs/SIDEBAR_LAYOUT_STANDARD.md` 「모바일 레이아웃」: 767px 이하는 좌측 메뉴를 숨기고 위쪽 ☰ 펼침 메뉴로)과 다르다.
 - 고칠 때: 기준 `markdown-studio`·`four-cut-comics`처럼 휴대폰 머리줄(☰) + 펼침 메뉴(계정 포함)로. 작은 화면 수정이라 미배포 대기로 모았다가 다음 배포 때 함께. 확인: 크롬 390px 폭.
-- **처리(2026-10-23, Claude Code 윈도우, 미배포 대기)**: `Sidebar.tsx`에 휴대폰 머리줄(SUNO·이름·버전·☰ 버튼, `md:hidden`)을 넣고, 메뉴 본문은 767px 이하에서 접었다가 ☰로 펼침(계정·로그아웃 포함 같은 메뉴, 페이지 이동 시 자동 접힘). 데스크톱(`md:` 이상)은 그대로. tsc·eslint 통과, `check-mobile-account.mjs` 후보 0곳. **배포 뒤 크롬 390px 폭에서 ☰ 펼침·계정 표시 확인 필요.**
+- **처리(2026-10-23, Claude Code 윈도우, ~~미배포 대기~~ ✅ v1.44에 실림 — `music/AGENTS.md` 「2026-10-23 ✅ 배포됨(v1.44)」, 11-18 정정)**: `Sidebar.tsx`에 휴대폰 머리줄(SUNO·이름·버전·☰ 버튼, `md:hidden`)을 넣고, 메뉴 본문은 767px 이하에서 접었다가 ☰로 펼침(계정·로그아웃 포함 같은 메뉴, 페이지 이동 시 자동 접힘). 데스크톱(`md:` 이상)은 그대로. tsc·eslint 통과, `check-mobile-account.mjs` 후보 0곳. **배포 뒤 크롬 390px 폭에서 ☰ 펼침·계정 표시 확인 필요.**
 
 ## 2026-10-23 ✅ 정상(오판 정정) — 휴대폰 폭에서 기획 목록 선택 막대(sticky)가 화면 아래에 붙지 않음 (Claude Code 윈도우, v1.45 검수 중)
 - 재현: 크롬 390px(iframe)에서 `/plannings` 기획 하나 체크 → 「기획 1개 · 곡 1개 …」 막대(`components/plannings/PlanningListWithPicker.tsx` `sticky bottom-4`)가 목록 맨 끝(아래끝 1492px)에 있고 창(697px) 아래에 붙지 않는다. 데스크톱(1278px)에서는 창 아래 16px에 정상 고정.
