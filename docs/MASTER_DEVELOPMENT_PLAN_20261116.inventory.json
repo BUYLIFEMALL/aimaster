@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 09:43:44 KST",
+  "checkedAt": "2026-11-17 09:45:11 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4280,7 +4280,7 @@
       "parent_task_id": "B2B-20261117-02",
       "owner": "CC-B2B-BACK-01",
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
-      "status": "running",
+      "status": "waiting_human",
       "delivery": "delivered",
       "evidence": "msg_6d7a93569589 Mac QA012 누적소스PASS·hash739b35일치·작성자62근거분리 / msg_e7bf9e5ec131 릴리스초안 문구4건P2 / msg_7908deab7eff 20e51e602 객체이름의존성표·문서4건정정 / msg_2c7fadd530f9 bbca7e002 핵심RPC20인자대조 + Master Vercel project/env 직접확인 / msg_059ac8eead6e 로컬공개모드덮어쓰기0·운영배포스크립트고정대상발견 / msg_abacc5b993d3 921e5418a 実행자료/pre Lab읽기16·로컬구조11 조건부리허설 / msg_c71e3c91fe82 QA015 verify필수열권한/attempt CRUD/구조연결 P2 / msg_aa75bb4dd931 5dca84102 verify20·작성자18권한구조반례/로컬23 / msg_ce494f23b14b QA015 정책NULL집계누락 P2 / msg_fd616e3d87f2 3fb43971e 정책NULL반례검출/정상구조15·로컬24 / msg_e0ba89802fad QA015 누적준비패키지 정적PASS·정책순수3assert / msg_093889c364cc 직접승인·Master CLI project/queue 검사",
       "decision": {
@@ -4288,13 +4288,20 @@
         "source": "msg_093889c364cc 주인님직접채팅 2026-11-17 필요한기능진행/DB적용+Lab빌드1회",
         "scope": "Lab0104적용+Lab원격빌드1회,실제결제시험은토스테스트키만·운영배포아님"
       },
-      "next": "Backendpre→Labapply1→verify20/지문결과대기. MasterCLI59.1.4/buylifemall/정확Lab/project확인·팀빌드대기0·고지check0·제품미커밋0,검증후Master한명만원격1빌드·운영스크립트금지",
+      "next": "Supabase DEV 실제도구 승인창 직접응답필요·개발결정재승인아님. 사전16PASS·적용결과미확인/빌드未시작·다른경로중복0",
       "lastReviewedAt": "2026-11-16T21:27:48.711Z",
       "sha": "37fdcabb4 / 0104 739b35e9f20b45ba7c83309918da0cc099ca6a0b5715bf5514e755cb108662e6",
       "plannedMigration": "0104_exchange_fee_payments.sql (기존미적용0103 rename)",
       "migrationPath": "mall-builder/supabase/migrations/0104_exchange_fee_payments.sql",
       "previousMigrationPath": "0103_exchange_fee_payments.sql (미적용상태rename)",
-      "completion": "QA012 결제소스·QA014 UI소스·QA015 Lab적용준비자료 지정검수 마감. 실Lab원문적용/자료보존16~20·실HTTP커밋·실토스멱등/실화면/배포 미검수"
+      "completion": "QA012 결제소스·QA014 UI소스·QA015 Lab적용준비자료 지정검수 마감. 실Lab원문적용/자료보존16~20·실HTTP커밋·실토스멱등/실화면/배포 미검수",
+      "blocker": {
+        "reason": "Backend Supabase DEV MCP 도구 실행 입력창에서 사용자 Accept 대기. 기존 주인님 DB+빌드1회 승인은 유효",
+        "owner": "주인님 도구승인창 직접응답 / 이후Backend",
+        "required": "Claude B2BBackend Supabase DEV project rjjtjakljjxsgjelqgek SQL 실행창 Accept",
+        "lastAttempt": "Master09:44 terminal screen 읽기:pre16PASS·SQL tools/call inputrequired·적용완료결과없음",
+        "next": "도구승인뒤Backendapply결과/verify20→MasterLab1빌드,다른경로중복실행금지"
+      }
     },
     {
       "task_id": "WS-20261117-15",
@@ -4449,13 +4456,13 @@
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "title": "주인님 직접지시 영수증 화면 메인 사이드바 연결",
       "priority": "P2",
-      "status": "running",
+      "status": "ready_review",
       "delivery": "returned",
-      "evidence": "Workspace7485791ec 실제handler/React mock33·Masterinbox2파일diff대조수용 / msg_014541b68abb Mac실handler5/React초안409PASS·bound빈계정헤더없는fetchP2",
+      "evidence": "Workspace7485791ec 실제handler/React mock33·Masterinbox2파일diff대조수용 / msg_014541b68abb Mac실handler5/React초안409PASS·bound빈계정헤더없는fetchP2 / Workspacec35c0bb18 bound6+DOM15/옛빈ID4행동실패",
       "completion": "domain receipts SPA route와기존client Board재사용/사이드바연결·기존standalone유지·관련경량검사,서버DB0·실화면/배포미검수구분",
-      "next": "receipt boundhelper 빈/null/undefined/공백ID fetch전차단국소수정·기존공용headerless호환유지→Mac마감. idle계정전환다음RPC전표시잔존한계·실발급/DB/서버/빌드0",
+      "next": "Mac 빈계정fetch전차단 국소마감검토·공용RPC호환보존,실화면/발급/DB/서버/빌드0",
       "lastReviewedAt": "2026-11-17T00:43:42.192Z",
-      "sha": "9d6875e4b + 792be25a9 + 7485791ec"
+      "sha": "9d6875e4b + 792be25a9 + 7485791ec + c35c0bb18"
     },
     {
       "task_id": "QA-20261117-017",
