@@ -3855,7 +3855,7 @@
   "lp.autofill.web.source_none": "저장 안 함",
   "lp.autofill.web.overwrite": "이미 주소가 있어도 바꾸기",
   "lp.autofill.web.no_auto": "웹에서 찾기는 직접 실행할 때만 동작합니다",
-  "lp.autofill.web.result": "웹 검색으로 {done}개 채움 · 출처 {sources}개 · URL 칸 저장 {saved}개{skipped}{failed}",
+  "lp.autofill.web.result": "웹 검색으로 {done}개 채움 · 출처 {sources}개 · 출처 URL 칸 저장 요청 {saved}건{skipped}{failed}",
   "lp.autofill.web.skipped": " · 기존 주소 유지 {n}개",
   "lp.autofill.web.failed": " · 채우지 않음 {n}개({reason})",
   "lp.templates.template_status": "템플릿 상태…",

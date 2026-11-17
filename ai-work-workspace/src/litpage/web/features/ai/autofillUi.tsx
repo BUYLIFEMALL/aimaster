@@ -85,8 +85,8 @@ export async function runAutofillNow(collectionId: string, propId: string, view?
   const done = ids.length - r.errors.length;
   if (r.errors.length && !done) useUI.getState().toast(r.errors[0].message || 'AI Autofill failed');
   else if (web) {
-    // E3-4: 성공·출처·건너뜀·실패를 구분해서 한 번에
-    useUI.getState().toast(t('lp.autofill.web.result', 'Autofilled {done} pages from web search · sources {sources} · saved to URL property {saved}{skipped}{failed}', {
+    // E3-4: 성공·출처·건너뜀·실패를 구분해서 한 번에. {saved}는 「저장 요청」 건수(최종 저장은 동기화가 끝나야 확정 — QA035)
+    useUI.getState().toast(t('lp.autofill.web.result', 'Autofilled {done} pages from web search · sources {sources} · source URL save requested {saved}{skipped}{failed}', {
       done, sources: r.web.sources, saved: r.web.saved,
       skipped: r.web.skippedExisting ? t('lp.autofill.web.skipped', ' · kept existing URL {n}', { n: r.web.skippedExisting }) : '',
       failed: r.errors.length ? t('lp.autofill.web.failed', ' · not filled {n} ({reason})', { n: r.errors.length, reason: r.errors[0].message }) : '',

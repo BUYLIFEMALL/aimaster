@@ -609,6 +609,7 @@ export interface AutofillParams {
 export interface AutofillSource { n: number; title: string; url: string }
 
 export const AUTOFILL_WEB_NO_SEARCH = '웹에서 찾으려면 외부 검색 도구(네이버·카카오·Tavily·Perplexity·SerpAPI) 키를 「API키등록·플랫폼연동」에서 등록해 주세요. AI 모델 내장 검색은 아직 칸 채우기에 쓰지 않습니다. 칸은 그대로 둡니다.';
+export const AUTOFILL_WEB_BUILTIN_CHOSEN = '이 기능은 외부 검색 도구가 필요합니다. 지금은 「AI 모델 내장 검색」을 고르셨습니다. 설정의 검색 도구에서 네이버·카카오·Tavily·Perplexity·SerpAPI 중 하나를 골라 주세요. 칸은 그대로 둡니다.';
 export const AUTOFILL_WEB_AUTO_REFUSED = '「웹에서 찾기」를 켠 칸은 직접 실행할 때만 채웁니다. 자동 다시 채우기에서는 검색하지 않고 칸도 그대로 둡니다.';
 
 const titlePlain = (v: unknown) => (Array.isArray(v) ? v.map((d) => (Array.isArray(d) && typeof d[0] === 'string' ? d[0] : '')).join('') : '').replace(/‣/g, '').trim();
@@ -625,6 +626,9 @@ function noRetry(c: ClaudeLike): ClaudeLike {
 async function autofillWebSources(spaceId: string, query: string): Promise<AutofillWebSource[]> {
   if (!workspaceAiPolicy(spaceId).webSearch) throw new AiError('forbidden', '이 워크스페이스에서 AI 웹 검색이 꺼져 있습니다. 칸은 그대로 둡니다.', 403);
   const ms = memberSearch();
+  // QA035(Master msg_243258b2595f): 「AI 모델 내장 검색」을 고른 회원은 외부 키가 있어도 외부 검색으로 바꾸지 않는다(외부 검색 비용 묵시 실행 0).
+  // 공통 planSearch의 전환 동작(채팅용)은 그대로 두고 이 기능에서만 먼저 거절한다.
+  if (ms?.choice === 'builtin') throw new AiError('bad_request', AUTOFILL_WEB_BUILTIN_CHOSEN, 400);
   // 모델 회사(null) → 내장 검색은 고르지 않고 외부 검색만(회원이 고른 것 → 없으면 등록된 다른 외부 검색)
   const plan = planSearch(isSearchChoice(ms?.choice) ? ms!.choice as SearchChoice : 'auto', null, ms?.keys ?? {});
   if (!plan || plan === 'builtin') throw new AiError('bad_request', AUTOFILL_WEB_NO_SEARCH, 400);

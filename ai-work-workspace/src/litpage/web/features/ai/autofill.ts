@@ -20,7 +20,7 @@ export interface AutofillResult {
   value: unknown[];
   /** 2026-11-17 E3-4 「웹에서 찾기」: 값의 근거가 된 출처(서버가 검색 결과 번호에서만 만든 것) */
   sources?: { n: number; title: string; url: string }[];
-  /** 출처 주소를 고른 URL 칸에 함께 저장했는지 / 건너뛴 이유 */
+  /** 출처 주소를 고른 URL 칸에 넣는 저장 요청을 이번 거래에 담았는지(서버 확정 아님 — 동기화가 끝나야 확정) / 건너뛴 이유 */
   sourceSaved?: boolean;
   sourceSkipped?: 'exists';
 }

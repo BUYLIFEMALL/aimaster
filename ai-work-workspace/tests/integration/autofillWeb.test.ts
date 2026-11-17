@@ -149,13 +149,36 @@ describe('E3-4 서버 runAutofill — 웹에서 찾기', () => {
     expect(r.value).toEqual([['https://moel.example.kr/wage']]);
   });
 
-  it('외부 검색 키 없음(내장 검색만) → 등록 안내 오류, 검색 0·모델 0', async () => {
+  it('외부 검색 키 없음(자동·선택 없음) → 등록 안내 오류, 검색 0·모델 0', async () => {
     fakeSearch(DOCS);
     const calls: Call[] = [];
-    await expect(run({ web: true }, fakeModel('x\nSOURCES: 1', calls), { choice: 'builtin', keys: {} })).rejects.toThrow(service.AUTOFILL_WEB_NO_SEARCH);
-    await expect(run({ web: true }, fakeModel('x', calls))).rejects.toThrow(/외부 검색 도구/);
+    await expect(run({ web: true }, fakeModel('x\nSOURCES: 1', calls), { choice: 'auto', keys: {} })).rejects.toThrow(service.AUTOFILL_WEB_NO_SEARCH);
+    await expect(run({ web: true }, fakeModel('x', calls))).rejects.toThrow(service.AUTOFILL_WEB_NO_SEARCH);
     expect(searchCalls).toHaveLength(0);
     expect(calls).toHaveLength(0);
+  });
+
+  // QA035 경계(Master msg_243258b2595f): 「AI 모델 내장 검색」을 고른 회원은 외부 키가 있어도 외부 검색으로 바꾸지 않고 거절
+  it.each([
+    ['외부 키 있음', KAKAO],
+    ['외부 키 없음', {}],
+  ])('내장 검색 선택 + %s → 고정 안내로 거절, 검색 0·모델 0·칸 그대로', async (_n, keys) => {
+    fakeSearch(DOCS);
+    const calls: Call[] = [];
+    await expect(run({ web: true }, fakeModel('v\nSOURCES: 1', calls), { choice: 'builtin', keys })).rejects.toThrow(service.AUTOFILL_WEB_BUILTIN_CHOSEN);
+    expect(searchCalls).toHaveLength(0);
+    expect(calls).toHaveLength(0);
+    expect(prop(row, 'res')).toContain('원래 값');
+  });
+
+  it('명시 외부 선택·자동 선택은 지금과 같이 외부 검색(회귀)', async () => {
+    fakeSearch(DOCS);
+    for (const choice of ['kakao', 'auto']) {
+      const r = await run({ web: true }, fakeModel('v\nSOURCES: 1', []), { choice, keys: KAKAO });
+      expect(r.sources).toHaveLength(1);
+    }
+    expect(searchCalls).toHaveLength(2); // 선택마다 외부 검색 1번
+    expect(searchCalls.every((u) => u.includes('dapi.kakao.com'))).toBe(true);
   });
 
   it('다른 회원 키를 쓰지 않음: 지금 요청 회원 묶음에 키가 없으면 실패(앞 요청의 키가 남지 않음)', async () => {
@@ -276,5 +299,17 @@ describe('E3-4 값+출처 URL 한 거래 — 권한 거절이면 둘 다 그대�
     expect(r.status).toBe(200);
     expect(prop(row, 'res')).toContain('새 값');
     expect(prop(row, 'src')).toContain('moel.example.kr');
+  });
+});
+
+describe('E3-4 문구(QA035): 출처 URL은 「저장 요청」 — 확정 저장으로 말하지 않음', () => {
+  it('한국어·영어 결과 문구', () => {
+    const find = (rel: string) => ['.', '..'].map((d) => resolve(process.cwd(), d, rel)).find((f) => existsSync(f))!;
+    const ko = JSON.parse(readFileSync(find('src/litpage/web/features/shell/i18n.ko-KR.json'), 'utf8'))['lp.autofill.web.result'] as string;
+    expect(ko).toContain('출처 URL 칸 저장 요청 {saved}건');
+    expect(ko).not.toMatch(/URL 칸 저장 \{saved\}개/);
+    const ui = readFileSync(find('src/litpage/web/features/ai/autofillUi.tsx'), 'utf8');
+    expect(ui).toContain('source URL save requested {saved}');
+    expect(ui).not.toContain('saved to URL property');
   });
 });
