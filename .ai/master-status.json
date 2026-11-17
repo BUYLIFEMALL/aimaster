@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T04:03:23.454Z",
+  "checkedAt": "2026-11-17T04:06:48.925Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2624,11 +2624,11 @@
       "task_id": "WS-20261117-21",
       "owner": "CC-WORKSPACE-01",
       "title": "E2 예약7-2 현재코드대조 및 첫 구현범위 확정",
-      "evidence": "msg_c34e47266f97 / msg_b19431213421 / 590debc62·author26booking/全396tests/tsc0·OFF / eaf931a53 2단계연결조사·msg_37002521ac85 P1상태덮음/buffer·P2철회설정경합 / Workspace2A중지·BookingSettingsCard.tsx미커밋보존,booking표before_min/after_min snapshot정의변경 Master수락 / e487a755f·作者수정전5실패→후6PASS/全402tests/tsc0·Masterdiff2파일확인 / msg_aef58a127584 기존P1/잠금P2해소·429/401대기후POST재시도잔여P2 / 5b1eb8b6c retryPOST검사루프내이동·作者2반례/34booking/tsc0·Masterdiff확인 / QA024 지정서버1단계PASS·2A UI재개지시 / 20b1504d0 UI2A6파일·作者22DOM/tsc0 / 565ba4761 배선시험계획·msg_ad30304f069f 2B OFF배선별도범위배정 / msg_524eed0da09e QA025P2:lateA mutation B무한loading·StrictModealive·잘못된손님통지",
-      "next": "UI4파일세P2수정우선·2B배선안전중지/변경보존·3스위치OFF",
+      "evidence": "msg_c34e47266f97 / msg_b19431213421 / 590debc62·author26booking/全396tests/tsc0·OFF / eaf931a53 2단계연결조사·msg_37002521ac85 P1상태덮음/buffer·P2철회설정경합 / Workspace2A중지·BookingSettingsCard.tsx미커밋보존,booking표before_min/after_min snapshot정의변경 Master수락 / e487a755f·作者수정전5실패→후6PASS/全402tests/tsc0·Masterdiff2파일확인 / msg_aef58a127584 기존P1/잠금P2해소·429/401대기후POST재시도잔여P2 / 5b1eb8b6c retryPOST검사루프내이동·作者2반례/34booking/tsc0·Masterdiff확인 / QA024 지정서버1단계PASS·2A UI재개지시 / 20b1504d0 UI2A6파일·作者22DOM/tsc0 / 565ba4761 배선시험계획·msg_ad30304f069f 2B OFF배선별도범위배정 / msg_524eed0da09e QA025P2:lateA mutation B무한loading·StrictModealive·잘못된손님통지 / 764ffbfe4 UI세P2수정·作者31DOM/tsc0",
+      "next": "QA025국소재검토·2B허용4파일별도선택커밋반환/3스위치OFF",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
-      "status": "running",
+      "status": "ready_review",
       "delivery": "returned",
       "scopeRef": "분석/기존문서만·타인파일수정0",
       "completion": "정확허용범위 구현·회귀증거·외부/운영/빌드0",
@@ -2639,7 +2639,7 @@
         "forbidden": "운영/aww_dev DDL·자동ALTER·UI재개"
       },
       "serverStep1": "done_scoped_source_review_5b1eb8b6c",
-      "uiSha": "20b1504d0",
+      "uiSha": "764ffbfe4",
       "wiringStep": {
         "scope": "runtime.ts/publicPages.ts/book page.tsx/bookingWiring.test.ts",
         "switches": "ALL OFF",
@@ -2736,12 +2736,12 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "예약2A UI 계정/중복제출/unknown 독립검토",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "msg_732dfcadf229·Master손님연락약속문구추가확인전달 / msg_524eed0da09e",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "msg_732dfcadf229·Master손님연락약속문구추가확인전달 / msg_524eed0da09e / msg_ae1e8f71530c",
       "scopeRef": "20b1504d0 UI6파일·모의DOM·제품/외부/build0",
       "completion": "OFF/계정/late/중복/unknown/개인정보/시간대·실전송보장문구확인",
-      "next": "세P2 수정후국소재검토·일반중복/500unknown/OFF통과보존"
+      "next": "계정mutation/StrictMode/손님문구3경계재검토"
     }
   ],
   "programOverrides": [
