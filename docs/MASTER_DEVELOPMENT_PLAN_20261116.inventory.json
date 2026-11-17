@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 18:37:57 KST",
+  "checkedAt": "2026-11-17 18:43:11 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -5094,12 +5094,12 @@
       "reviewer": "CX-MASTER-01",
       "title": "E4 Gmail함 기존기능/권한 대조와 최소범위 조사",
       "status": "running",
-      "delivery": "running",
+      "delivery": "returned",
       "scopeRef": "신규supabase/migrations/0075_gmail_inbox_claims.sql·gmailInbox.ts/gmailInbox.test.ts·신규gmailAddDb.test.ts·본인PLAN/results. qa_gmail_a2만, UI/runtime/공용함수/타표구조/aww/aww_dev/운영0",
-      "evidence": "QA036 msg_46ecb675a48c: edef06d62 F07/F08 국소소스PASS, Master A1/F03소스준비수락(운영미적용); CC-WORKSPACE-01 A2-1 착수보고: 0075비어있음확인·0074동결·qa_gmail_a2전용",
+      "evidence": "A2-1 4da9457c7/문서393f65eb9; 작성자실격리DB/역할2연결113시험/tsc0. QA038독립배정",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "A2-1 서버/SQL 원자전달 구현·2연결격리시험 결과반환→독립검수",
-      "sha": "edef06d62",
+      "next": "QA038서버/0075동결검수와독립해OFF Gmail패널/DOM시험준비배정(정확경로예약대기). 운영/실Google0",
+      "sha": "4da9457c7",
       "lastReviewedAt": "2026-11-17T09:00:52.380Z"
     },
     {
@@ -5148,6 +5148,20 @@
       "scopeRef": "Mac 기존시험세션·Lab실화면읽기, 결제/RPC상태변경/발송/키/운영/build0",
       "completion": "Lab 로그인/고객교환비UI/권한차단/375·darkhover 확인, 실결제미검수분리",
       "next": "주인님 공간29 Lab 시험naver로그인→Return to agent, 고객읽기검수후운영사gmail로그인1회. 실제결제/콜백/RPC상태변경0"
+    },
+    {
+      "task_id": "QA-20261117-038",
+      "parent_task_id": "WS-20261117-25",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "Gmail A2 원자 받은업무 전달 서버·SQL 독립검수",
+      "status": "ready",
+      "delivery": "queued",
+      "sha": "4da9457c7",
+      "evidence": "msg_760a09edd364",
+      "scopeRef": "Mac SQL/실모듈모의·보안/경합검토. 공유DBreset/실외부/운영/build0",
+      "completion": "원자성/멱등/실패rollback/권한·계정경계 판정, 작성자실PG와독립소스증거분리",
+      "next": "Mac 검수결과반환"
     }
   ]
 }

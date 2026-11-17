@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 18:37:57 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 18:43:11 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -40,7 +40,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 212개: done 188개 · cancelled 6개 · ready_review 10개 · running 3개 · waiting_human 3개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 213개: done 188개 · cancelled 6개 · ready_review 10개 · running 3개 · waiting_human 3개 · ready 3개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -252,10 +252,11 @@
 | QA-20261117-033 | CX-QA-01 | done / integrated | E3-2 템플릿 앱알림/권한/부분실패 독립검토 | E3-2지정소스완료·미배포/전용결재권한별도 |
 | QA-20261117-034 | CX-QA-01 | done / integrated | E3-3 결재ACL/신뢰경계/거래우회 독립검토 | E3-3지정소스완료·운영gallery/시각/실알림미검수 |
 | QA-20261117-035 | CX-QA-01 | done / integrated | 셀AI웹출처 키·과금재시도·저장권한 독립검토 | 지정소스마감·실공급자/과금/사실성/운영UI·실DB미검수 |
-| WS-20261117-25 | CC-WORKSPACE-01 | running / running | E4 Gmail함 기존기능/권한 대조와 최소범위 조사 | A2-1 서버/SQL 원자전달 구현·2연결격리시험 결과반환→독립검수 |
+| WS-20261117-25 | CC-WORKSPACE-01 | running / returned | E4 Gmail함 기존기능/권한 대조와 최소범위 조사 | QA038서버/0075동결검수와독립해OFF Gmail패널/DOM시험준비배정(정확경로예약대기). 운영/실Google0 |
 | WS-20261117-26 | CX-MASTER-01 | waiting_human / prepared | E3+WS23 v1.58 묶음 배포/운영 실검수 | 구체소스묶음보존·승인후실행순서확정 |
 | QA-20261117-036 | CX-QA-01 | done / integrated | Gmail A1 OFF 서버 OAuth 독립 검수 | 0074소스준비수락·운영미적용/OFF, A2후속은별도검수 |
 | QA-20261117-037 | CX-QA-01 | waiting_human / acknowledged | B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수 | 주인님 공간29 Lab 시험naver로그인→Return to agent, 고객읽기검수후운영사gmail로그인1회. 실제결제/콜백/RPC상태변경0 |
+| QA-20261117-038 | CX-QA-01 | ready / queued | Gmail A2 원자 받은업무 전달 서버·SQL 독립검수 | Mac 검수결과반환 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
