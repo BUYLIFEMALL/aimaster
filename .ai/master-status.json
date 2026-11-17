@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T01:58:49.259Z",
+  "checkedAt": "2026-11-17T02:02:29.540Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2111,8 +2111,8 @@
         "scope": "메인기준 전체화면 일관스타일 적용·기존기능/회원데이터유지",
         "source": "주인님 직접 채팅 2026-11-17 KST"
       },
-      "next": "지정시각3조건PASS·기존제목줄바꿈옵션2줄실증후원복확인. Alt는준비된로컬카드사람gesture1회필요·운영배포미승인",
-      "lastReviewedAt": "2026-11-17T01:54:12.256Z",
+      "next": "기존wrap기능확인/원복·수용차이기록,Mac시각최종21대조대기. 실Alt사람gesture1회준비·운영배포미승인",
+      "lastReviewedAt": "2026-11-17T02:02:29.540Z",
       "sha": "S0~5+075fcb4+1a13662a4bfa51ffba2ee9468fdc35ae13c7bcdd",
       "validationPending": {
         "scope": "실Alt 복사·시각최종대조",
@@ -2120,7 +2120,13 @@
         "action": "주인님Alt실조작1회 후결과읽기확인·Mac PNG최종대조",
         "url": "http://localhost:3457/workspace6433/78f3c5cd9b704e5ba38027c6d00af8dd"
       },
-      "blocker": null
+      "blocker": null,
+      "designAcceptedDifferences": {
+        "calendarTitle": "기존 보기별 Wrap entry titles 옵션 존중: 기본OFF·ON최대2줄,전체제목은카드열기",
+        "reason": "기존회원설정/240주높이·lane/더보기연동보존,무제한높이변경은이번범위밖",
+        "evidence": "CalendarView204~209/465~468·calendar.css40~41·f9cc3c1c5 실증/원복",
+        "scope": "146전체픽셀/무제한줄바꿈명세완전일치로표시하지않음"
+      }
     },
     {
       "task_id": "REL-20261117-006",
@@ -2541,13 +2547,13 @@
       "reviewer": "CX-MASTER-01",
       "priority": "P2",
       "title": "146 실제캡처 독립시각검수",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "ready",
+      "delivery": "queued",
       "scopeRef": "3PNG/manifest/146명세 읽기·자기QA결과만",
       "completion": "실제이미지관찰·desktop/375iframe 배치가독성 범위판정·축소/실기기미검수구분",
-      "evidence": "msg_8d2b1e6dd3c7 실PNG3장직접관찰·보이는범위PASS/모바일하단·달력오른쪽/밀집미검수 / 4122e2221 캡처10~13·실scroll수치 / msg_e72d5a8f9ae6 최종10~13관찰PASS / fb6c4f2bc §12/실PNG14~20·375발행max1055·더보기6·메뉴닫힘 / msg_e7c328f7421a 최종3조건실PNG PASS·긴제목명세차이",
-      "next": "Master기존Wrapentrytitles옵션발견(2줄/lane+20)→로컬viewON실증1회후원복·그캡처만대조. 3조건PASS/무제한줄바꿈·Alt실조작·실인쇄·실기기미검수",
-      "lastReviewedAt": "2026-11-17T01:58:49.259Z"
+      "evidence": "msg_8d2b1e6dd3c7 실PNG3장직접관찰·보이는범위PASS/모바일하단·달력오른쪽/밀집미검수 / 4122e2221 캡처10~13·실scroll수치 / msg_e72d5a8f9ae6 최종10~13관찰PASS / fb6c4f2bc §12/실PNG14~20·375발행max1055·더보기6·메뉴닫힘 / msg_e7c328f7421a 최종3조건실PNG PASS·긴제목명세차이 / f9cc3c1c5 wrapON2줄/lane+20/주240·OFF복원/캡처21",
+      "next": "Mac실PNG21마지막대조·Master기존보기선택2줄+열기전체수용/무제한명세차이기록. 실Alt/인쇄/실기기未검수",
+      "lastReviewedAt": "2026-11-17T02:02:29.540Z"
     },
     {
       "task_id": "QA-20261117-020",
