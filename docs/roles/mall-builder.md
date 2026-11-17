@@ -11,7 +11,7 @@
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
 | `mall-builder` | **교환비 카드 결제(M2-12b b3)** — 소스 PASS(0104 `37fdcabb4`·화면 `c8d9e1d31`), 2026-11-17 Lab 0104 DB 적용(18:11 KST, 기록 20261117091118, verify 20/20, 함수 7 본문 지문 일치) + Lab 빌드 1/1(Master, dpl_CFgB5fC5NLdrye4K7esG1tWRktXQ READY, 별칭 dev-mall-builder.vercel.app, 제품 소스 7609748ad). 남은 일: Mac QA037 실제 화면·권한 읽기 검수(결제 0), 그 뒤 토스 시험 키 흐름(별도 지시). 실제 결제·키·운영 배포 0. 근거 [0104 Lab 실행 자료](../../mall-builder/docs/handoff-0104-lab/README.md)·[릴리스 문서](../../mall-builder/docs/handoff-0104-lab/RELEASE_PREREQ.md) | 2026-11-17 | Lab 반영 완료·UI 검수 대기 |
-| `mall-builder` | 운영 **v1.15**(2026-11-15 `85c7781d1`, Ready `mall-builder-doly7vydh`, 운영 DB 0094~0099, 운영 DB `programs.version` v1.15 — 2026-11-16 대조). 미배포 대기: M2-8 `3394d3362` · M2-9 `aaef7a4df` · M2-10 DB 0100(Lab만) `3faafd359` + 화면 `f21c345d7` · M2-11 `cea9b5c18` → 다음 함께 배포 v1.16(운영 DB 0100 먼저, [상호 인수인계 S72](../../mall-builder/docs/HANDOFF_DESIGN_BUILDER_BACKEND_SYNC.md)). 남은 시험: M5-2 퀵계좌이체(새 시험 주문 지시 대기)·볼타 실제 발급(테스트 키 대기). 지휘: Codex(Master) B2B-20261116-01 | 2026-11-12 | 진행 중 — 상세 [AGENTS §4·§5·§8](../../mall-builder/AGENTS.md) |
+| `mall-builder` | 운영 **v1.16**(2026-11-17 01:23 KST `5c229f968` — 분리 소스 `1aea8ec0f`, 운영 DB 0100은 주인님 SQL 편집기 01:19:28 적용·verify 9/9, 배포 `mall-builder-58mmx0v2e` Ready, `programs.version` v1.16 — 결과 기록 `85f5e0c4f`; 이 근거는 저장소 커밋 기준이며 2026-11-18 운영 추가 조회는 하지 않음). v1.16에 들어간 것: 0100 현금영수증 3차 수정·되돌리기2·M2-8/M2-9/M2-11·공급사 필터·Front 수정. **들어가지 않은 것(다음 묶음)**: 0101 메시지·전체 폭 수정, 0102 교환·0103·0104 교환비 카드 결제(Lab만 — 0104 Lab 적용·Lab 빌드 `7609748ad`, Mac QA037 화면 검수 대기). 0102 이후 Lab 정리용 옛 `handoff-0102-lab/rollback.sql`은 0104 적용 뒤 사용 금지(README 7절). 지휘: Codex(Master) | 2026-11-12 | 진행 중 — 상세 [AGENTS §4·§5·§8](../../mall-builder/AGENTS.md) |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
@@ -98,7 +98,7 @@
 1. `mall-builder/AGENTS.md` §4·§5·§8을 읽는다(최신 상태·남은 일 표·향후 방향).
 2. 맥미니 검수 문서 [§5·§6](../../mall-builder/docs/HANDOFF_20261113_RESALE_LIVE_CHECK_MACMINI.md)을 확인 — 실패·문제가 있으면 먼저 고친다(DB 변경은 로컬 전체 실행 검사 → Lab → 운영).
 3. 검수가 끝났으면 샘플몰 자료: 관리자 「카테고리」 6개·「배송비」 몰 기본 정책 → 「상품 엑셀」로 `docs/sample/aimaster-b2b-sample-catalog.xlsx` 올리기 → 시험 자료(주문·시험공급사·[시험] 상품·test-resale-01) 정리(주인님 결정: 지우고 새로 채움).
-4. 미배포 대기 없음(v1.07에 모두 나감). 다음 배포는 v1.08(`node mall-builder/scripts/deploy-prod.mjs`, 빌드 승인). DB를 바꾸는 작업은 **운영 DB 먼저 → 코드 배포** 순서(0064·0065 때 확인).
+4. 운영은 v1.16(2026-11-17). 다음 운영 배포는 0101~0104를 포함하는 묶음으로 Master가 정함(`node mall-builder/scripts/deploy-prod.mjs`는 운영 전용, 빌드 승인 필요 — Lab 빌드에는 쓰지 않음). DB를 바꾸는 작업은 **운영 DB 먼저 → 코드 배포** 순서.
 5. 손님 화면 파일(`(shop)`·`resale`)은 agy 디자인이 끝날 때까지 고치지 않는다. 운영 DB 적용은 MCP 확인 창이 자동 취소되면 ego lite Supabase SQL 편집기(붙여 넣은 뒤 글자 수·처음/끝 줄 확인).
 6. 내 PC 서버: `cd mall-builder; npx next dev -p 3210`(Lab DB). 단일 몰 모드 확인은 `MALL_SINGLE_SLUG=<몰>`을 붙여 실행.
 
