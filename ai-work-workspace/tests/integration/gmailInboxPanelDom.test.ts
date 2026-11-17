@@ -346,3 +346,83 @@ describe('서버 off 응답 → 패널 숨김·후속 호출 0', () => {
     expect(calls.length).toBe(n);
   });
 });
+
+
+// ---------------------------------------------------------------- 끊기 결과 모름(QA040 잔여, Master msg_15d3ec6f414b)
+describe('연결 끊기 결과 모름 — 성공·실패 단정 0, 회원이 누를 때만 다시 확인', () => {
+  async function askAndDisconnect() {
+    await connectedWithList();
+    await click(btn('연결 끊기'));
+    await click([...el.querySelectorAll('button')].find((b) => b.textContent === '끊기'));
+  }
+  it.each([
+    ['응답 유실(코드 없음)', {}],
+    ['서버 unknown', { code: 'unknown', message: 'RAW_DISC' }],
+    ['원문만 있는 예외', new Error('RAW_DISC token')],
+  ])('%s → 결과 모름 안내·목록 숨김·자동 재호출 0·원문 0', async (_n, err) => {
+    await askAndDisconnect();
+    const n = calls.length;
+    await settle(idx(last('disconnect')), err, true);
+    expect(text()).toContain('연결 해제 결과를 확인하지 못했습니다');
+    expect(text()).not.toContain('연결을 끊지 못했습니다');
+    expect(text()).not.toContain('RAW_DISC');
+    expect(text()).not.toContain('견적 요청드립니다');
+    expect(calls.length).toBe(n); // 자동 상태 확인·재삭제 0
+    expect(el.querySelector('[data-testid="gmail-recheck"]')).not.toBeNull();
+  });
+  it('「연결 상태 다시 확인」 → 연결 없음이면 연결 안 됨 화면', async () => {
+    await askAndDisconnect();
+    await settle(idx(last('disconnect')), {}, true);
+    await click(el.querySelector('[data-testid="gmail-recheck"]')!);
+    expect(last('status')).toBeDefined();
+    await settle(idx(last('status')), { connected: false, email: null, sub: null });
+    expect(text()).toContain('Gmail이 연결돼 있지 않습니다');
+  });
+  it('「연결 상태 다시 확인」 → 같은 계정이 남아 있으면 그대로 두고 다시 끊기 안내', async () => {
+    await askAndDisconnect();
+    await settle(idx(last('disconnect')), {}, true);
+    await click(el.querySelector('[data-testid="gmail-recheck"]')!);
+    await settle(idx(last('status')), { connected: true, email: 'me@example.com', sub: 'sub-A' });
+    expect(text()).toContain('Gmail 연결이 아직 남아 있습니다');
+    expect(el.querySelector('[data-testid="gmail-recheck"]')).toBeNull();
+    expect(btn('연결 끊기')).toBeDefined();
+  });
+  it('「연결 상태 다시 확인」 → 다른 계정이면 바뀜 처리(옛 자료 숨김·후속 0)', async () => {
+    await askAndDisconnect();
+    await settle(idx(last('disconnect')), {}, true);
+    await click(el.querySelector('[data-testid="gmail-recheck"]')!);
+    await settle(idx(last('status')), { connected: true, email: 'x@example.com', sub: 'sub-B' });
+    expect(text()).toContain('바뀌었습니다');
+    expect(btn('연결 끊기')).toBeUndefined();
+  });
+  it('다시 확인 중 계정이 바뀌면 늦은 응답 버림', async () => {
+    await askAndDisconnect();
+    await settle(idx(last('disconnect')), {}, true);
+    await click(el.querySelector('[data-testid="gmail-recheck"]')!);
+    const st = last('status');
+    render({ ...ON, accountKey: 'uB' });
+    await settle(idx(st), { connected: false, email: null, sub: null });
+    expect(text()).not.toContain('Gmail이 연결돼 있지 않습니다. 메일 제목');
+  });
+  it.each([
+    ['auth', 'auth', '로그인이 끊겼습니다'],
+    ['권한 거절(forbidden)', 'forbidden', 'Gmail API가 꺼져 있거나 권한이 없습니다'],
+    ['server', 'server', 'Gmail 요청을 처리하지 못했습니다'],
+  ])('확정 거절 %s → 기존 고정 문구, 결과 모름 버튼 0', async (_n, code, want) => {
+    await askAndDisconnect();
+    await settle(idx(last('disconnect')), { code, message: 'RAW_DISC' }, true);
+    expect(text()).toContain(want);
+    expect(text()).not.toContain('RAW_DISC');
+    expect(el.querySelector('[data-testid="gmail-recheck"]')).toBeNull();
+  });
+  it('정상 해제 → 연결 안 됨 화면(회귀), 끊는 중 두 번 눌러도 호출 1번', async () => {
+    await connectedWithList();
+    await click(btn('연결 끊기'));
+    const b = [...el.querySelectorAll('button')].find((x) => x.textContent === '끊기')!;
+    await click(b);
+    await click(b);
+    expect(calls.filter((c) => c.name === 'disconnect')).toHaveLength(1);
+    await settle(idx(last('disconnect')), undefined);
+    expect(text()).toContain('Gmail이 연결돼 있지 않습니다');
+  });
+});

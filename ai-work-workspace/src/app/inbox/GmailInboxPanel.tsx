@@ -21,6 +21,7 @@ export interface GmailPanelApi {
 }
 
 export const GMAIL_CONNECT_URL = "/api/oauth/google-gmail/start";
+const DISCONNECT_UNSURE = "연결 해제 결과를 확인하지 못했습니다. 「연결 상태 다시 확인」을 눌러 지금 연결 상태를 확인해 주세요. 「연결 끊기」를 다시 눌러도 안전합니다(같은 연결만 지웁니다).";
 const DEFAULT_TITLE = "메일 확인";
 
 type View =
@@ -64,6 +65,10 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
   const [result, setResult] = useState<AddResult | null>(null);
   const [listing, setListing] = useState(false);
   const [askDisconnect, setAskDisconnect] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
+  /** 끊기 결과 모름(응답 유실·코드 없음·unknown) — 성공·실패를 단정하지 않고 회원이 직접 「연결 상태 다시 확인」을 누를 때만 다시 읽음(자동 재확인·재삭제 0) */
+  const [disconnectUnsure, setDisconnectUnsure] = useState(false);
+  const [rechecking, setRechecking] = useState(false);
   const [unsure, setUnsure] = useState<Set<string>>(() => new Set()); // 결과를 모르는 메일 — 이 화면에서는 다시 보내지 않음
   const [resultFor, setResultFor] = useState<string | null>(null); // QA039(1): 결과가 어느 메일 것인지(다른 메일 편집 칸 아래에 보이지 않게)
 
@@ -76,6 +81,9 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
     setAdding(false);
     setListing(false);
     setAskDisconnect(false);
+    setDisconnecting(false);
+    setDisconnectUnsure(false);
+    setRechecking(false);
     setUnsure(new Set());
   }, []);
   /** 서버가 꺼짐(off)이라고 답함 → 패널을 통째로 숨기고 그 뒤 호출 0 */
@@ -180,7 +188,9 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
   };
 
   const disconnect = async () => {
+    if (!sub || disconnecting) return;
     const my = gen.current;
+    setDisconnecting(true);
     try {
       await api!.disconnect();
       if (gen.current !== my) return;
@@ -193,7 +203,46 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
       if (c === "off") return off();
       if (c === "account_changed" || c === "context_changed" || c === "conflict") return changed();
       setAskDisconnect(false);
-      setListNote(msgOf(e, "연결을 끊지 못했습니다."));
+      if (!c || c === "unknown") {
+        // 서버가 이미 지웠을 수 있음 → 「못 끊음」·「끊었음」 단정 0, 목록·넣기 결과는 숨김
+        setItems(null);
+        setPicked(null);
+        setResult(null);
+        setDisconnectUnsure(true);
+        setListNote(DISCONNECT_UNSURE);
+      } else {
+        setListNote(msgOf(e, "연결을 끊지 못했습니다."));
+      }
+    } finally {
+      if (gen.current === my) setDisconnecting(false);
+    }
+  };
+
+  /** 회원이 누를 때만: 지금 연결 상태를 다시 읽음(같은 계정이면 그대로, 없으면 「연결 안 됨」, 다른 계정이면 바뀜 처리) */
+  const recheck = async () => {
+    if (rechecking) return;
+    const my = gen.current;
+    setRechecking(true);
+    try {
+      const s2 = await api!.status();
+      if (gen.current !== my) return;
+      if (!s2.connected || !s2.sub) {
+        gen.current++;
+        hideAll();
+        setView({ kind: "not_connected" });
+        return;
+      }
+      if (s2.sub !== sub) return changed();
+      setDisconnectUnsure(false);
+      setListNote("Gmail 연결이 아직 남아 있습니다. 끊으려면 「연결 끊기」를 다시 눌러 주세요.");
+    } catch (e) {
+      if (gen.current !== my) return;
+      const c = codeOf(e);
+      if (c === "off") return off();
+      if (c === "account_changed" || c === "context_changed" || c === "conflict") return changed();
+      setListNote(msgOf(e, "연결 상태를 확인하지 못했습니다. 잠시 뒤 다시 눌러 주세요."));
+    } finally {
+      if (gen.current === my) setRechecking(false);
     }
   };
 
@@ -223,12 +272,17 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
             ) : (
               <span data-testid="gmail-disconnect-confirm">
                 이 워크스페이스의 Gmail 연결만 끊습니다(구글 권한 자체는 그대로 — 완전히 철회하려면 구글 계정의 「타사 연결」에서 직접 해 주세요. 같은 구글 앱을 쓰는 캘린더 연결도 함께 끊길 수 있습니다).{" "}
-                <button type="button" className="aww-3d-btn small" onClick={() => void disconnect()}>끊기</button>{" "}
+                <button type="button" className="aww-3d-btn small" disabled={disconnecting} onClick={() => void disconnect()}>{disconnecting ? "끊는 중…" : "끊기"}</button>{" "}
                 <button type="button" className="aww-3d-btn small" onClick={() => setAskDisconnect(false)}>취소</button>
               </span>
             )}
           </div>
           {listNote && <div className="aww-inbox-notice">{listNote}</div>}
+          {disconnectUnsure && (
+            <button type="button" className="aww-3d-btn small" disabled={rechecking} onClick={() => void recheck()} data-testid="gmail-recheck">
+              {rechecking ? "확인 중…" : "연결 상태 다시 확인"}
+            </button>
+          )}
           {items && items.length > 0 && (
             <ul className="aww-inbox-list" data-testid="gmail-list">
               {items.map((m) => (
