@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 09:35:44 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 09:37:45 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -39,7 +39,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 172개: done 141개 · cancelled 6개 · ready_review 16개 · running 5개 · ready 2개 · waiting_human 1개 · blocked 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 172개: done 141개 · cancelled 6개 · ready_review 17개 · running 4개 · ready 2개 · waiting_human 1개 · blocked 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -214,7 +214,7 @@
 | QA-20261117-016 | CX-QA-01 | done / integrated | 주인님 직접지시 ESM 등록기 맥미니 실동작 테스트 | Ecom ESM17-03 두결함국소수정배정·기존guide/home미배포후보중복0,MacQA017후순위계속 |
 | WS-20261117-17 | CC-WORKSPACE-01 | running / returned | 주인님 직접지시 영수증 화면 메인 사이드바 연결 | 기대계정서버guard와공용Board topdraft/tab/session초안 계정수명 P1 함께수정·실React A초안B재표시회귀,실발급/DB/서버/빌드0 |
 | QA-20261117-017 | CX-QA-01 | ready_review / returned | 영수증 SPA 사이드바 연결 독립소스검수 | 수정반환후계정전환/late/unmount/도메인새경계재검토,전체PASS보류 |
-| ESM-20261117-03 | CC-ECOM-01 | running / returned | ESM 모바일 메뉴 닫기·가격 오류 입력 보존 수정 | 상품key+오류시동의false 국소수정승인·동일오류2회/rerender동의복원0 실제React검증,반환뒤Mac묶음검토·빌드/DB/실ESM0 |
+| ESM-20261117-03 | CC-ECOM-01 | ready_review / returned | ESM 모바일 메뉴 닫기·가격 오류 입력 보존 수정 | Mac QA016 상품key+동의수명 국소마감검토배정,미배포v1.02 후보동결·실CSS/운영미검수,빌드/DB/실ESM0 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 

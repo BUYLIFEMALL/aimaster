@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T00:35:41.350Z",
+  "checkedAt": "2026-11-17T00:37:41.577Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2419,13 +2419,13 @@
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "title": "ESM 모바일 메뉴 닫기·가격 오류 입력 보존 수정",
       "priority": "P1",
-      "status": "running",
+      "status": "ready_review",
       "delivery": "returned",
-      "evidence": "msg_2be729baeef6 Mac실TSX가격유지/Menu상태PASS·상품props A→B 잔존P2 / msg_91fba6187864 실제소스key A→B개선·오류뒤checkboxDOM/state불일치추가",
+      "evidence": "msg_2be729baeef6 Mac실TSX가격유지/Menu상태PASS·상품props A→B 잔존P2 / msg_91fba6187864 실제소스key A→B개선·오류뒤checkboxDOM/state불일치추가 / msg_6526e57dc1f0 실제TSXmock 동일오류2·동의false/required/pending/B전환·type0",
       "completion": "모바일X실클릭차단원인수정·서버숫자오류뒤입력보존·다른필드/중복생성회귀·관련경량검증,실배포미검수구분",
-      "next": "상품key+오류시동의false 국소수정승인·동일오류2회/rerender동의복원0 실제React검증,반환뒤Mac묶음검토·빌드/DB/실ESM0",
-      "lastReviewedAt": "2026-11-17T00:28:03.090Z",
-      "sha": "a6e36da2a + d970a2a40"
+      "next": "Mac QA016 상품key+동의수명 국소마감검토배정,미배포v1.02 후보동결·실CSS/운영미검수,빌드/DB/실ESM0",
+      "lastReviewedAt": "2026-11-17T00:37:41.577Z",
+      "sha": "a6e36da2a + d970a2a40 + 3208d290e"
     }
   ],
   "programOverrides": [
