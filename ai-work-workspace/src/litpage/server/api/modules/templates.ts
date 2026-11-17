@@ -228,26 +228,49 @@ export function setTemplateAutomationSaverForTests(fn: SaveAutomation | null) {
 }
 
 /**
- * 같은 내용인지 비교할 때 쓰는 모양. QA033(Mac msg_a9c2574739fa): 실행에 영향을 주는 값은 모두 남긴다 — 조건 묶음 방식(mode)·
- * 조건·동작 종류·대상·문구·외부 발송(external)·그 밖의 필드 전부와 켜짐 상태. 의미 없는 `id`(조건·동작 번호)만 빼고,
- * 배열 순서와 값 종류는 그대로, 객체 키만 정렬(같은 값이 다른 순서로 저장돼도 같게).
+ * 같은 내용인지 비교할 때 쓰는 모양. QA033(Mac msg_a9c2574739fa·msg_8822a8367bf2): 실행에 영향을 주는 값은 모두 남긴다 —
+ * 조건 묶음 방식(mode)·조건·동작 종류·대상·문구·외부 발송(external)·그 밖의 필드 전부와 켜짐 상태.
+ * 빼는 것은 「조건(trigger.events[i].id)·동작(actions[i].id)의 번호」뿐이고, 그것도 어떤 값이 그 번호를 가리키지 않을 때만
+ * (`step`·`variable` 참조가 하나라도 있으면 번호도 그대로 비교 — 연결 관계를 새로 맞춰 보지 않고 보수적으로 「다름」).
+ * 사용자·페이지·속성·대상 같은 실제 참조 id와 알 수 없는 필드는 깊은 곳 어디서든 지우지 않는다. 배열 순서·값 종류 그대로, 객체 키만 정렬.
  */
 function normalizeForCompare(v: unknown): unknown {
   if (Array.isArray(v)) return v.map(normalizeForCompare);
   if (v && typeof v === 'object') {
     const out: Record<string, unknown> = {};
     for (const k of Object.keys(v as Record<string, unknown>).sort()) {
-      if (k === 'id') continue;
       const x = (v as Record<string, unknown>)[k];
-      if (x === undefined) continue;
-      out[k] = normalizeForCompare(x);
+      if (x !== undefined) out[k] = normalizeForCompare(x);
     }
     return out;
   }
   return v;
 }
+/** 값 어딘가에 다른 단계 번호를 가리키는 참조(`step` 키, `type: 'step' | 'variable'`)가 있는가 */
+function hasStepRefs(v: unknown): boolean {
+  if (Array.isArray(v)) return v.some(hasStepRefs);
+  if (v && typeof v === 'object') {
+    const o = v as Record<string, unknown>;
+    if ('step' in o || o.type === 'step' || o.type === 'variable') return true;
+    return Object.values(o).some(hasStepRefs);
+  }
+  return false;
+}
+/** 맨 위 노드(조건·동작)의 번호만 뺀 사본 — 참조가 있으면 그대로 */
+function withoutNodeIds(nodes: unknown, keepIds: boolean): unknown {
+  if (!Array.isArray(nodes) || keepIds) return nodes;
+  return nodes.map((n) => {
+    if (!n || typeof n !== 'object' || Array.isArray(n)) return n;
+    const { id: _id, ...rest } = n as Record<string, unknown>;
+    return rest;
+  });
+}
 function automationShape(trigger: unknown, actions: unknown, status: unknown): string {
-  return JSON.stringify({ trigger: normalizeForCompare(trigger), actions: normalizeForCompare(Array.isArray(actions) ? actions : []), status: status ?? 'active' });
+  const acts = Array.isArray(actions) ? actions : [];
+  const keepIds = hasStepRefs(acts) || hasStepRefs(trigger);
+  const t = trigger && typeof trigger === 'object' && !Array.isArray(trigger) ? (trigger as Record<string, unknown>) : null;
+  const trig = t && Array.isArray(t.events) ? { ...t, events: withoutNodeIds(t.events, keepIds) } : trigger;
+  return JSON.stringify({ trigger: normalizeForCompare(trig), actions: normalizeForCompare(withoutNodeIds(acts, keepIds)), status: status ?? 'active' });
 }
 
 function addTemplateAutomations(ctx: Ctx, templateId: unknown, changes: { table: string; record: unknown }[], rm: RecordMapBuilder): string[] {
@@ -278,6 +301,8 @@ function addTemplateAutomations(ctx: Ctx, templateId: unknown, changes: { table:
   }
   return warnings;
 }
+/** 시험 전용: 같은 내용 비교 모양 */
+export const automationShapeForTests = (trigger: unknown, actions: unknown, status?: unknown) => automationShape(trigger, actions, status);
 const withWarnings = <T extends object>(body: T, warnings: string[]) => (warnings.length ? { ...body, automationWarnings: warnings } : body);
 
 export const handlers: Record<string, Handler> = {

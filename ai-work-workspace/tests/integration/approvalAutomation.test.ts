@@ -218,3 +218,46 @@ describe('QA033: 같은 이름 자동화 — 실행 효과가 다르면 같은 �
     expect(body.automationWarnings).toBeUndefined();
   });
 });
+
+// ---------------------------------------------------------------- QA033 잔여 P2(Mac msg_8822a8367bf2): 실제 대상을 가리키는 id는 지우지 않는다
+describe('QA033 잔여: 같은 내용 비교 — 의미 있는 id 보존', () => {
+  const shape = (t: unknown, a: unknown, st: unknown = 'active') => tpl.automationShapeForTests(t, a, st);
+  const trig = (evId = 'ev1') => ({ type: 'event', mode: 'any', events: [{ id: evId, type: 'property_edited', property: 'aSta', condition: { op: 'is', values: ['승인 요청'] } }] });
+  const notify = (id: string, message: unknown[], extra: Record<string, unknown> = {}) => ({ id, type: 'notify', target: { type: 'property', property: 'aApr' }, message, ...extra });
+
+  it.each([
+    ['알림 문구 속 사용자', [{ type: 'user', id: 'user-A' }], [{ type: 'user', id: 'user-B' }]],
+    ['알림 문구 속 페이지', [{ type: 'page', id: 'page-1' }], [{ type: 'page', id: 'page-2' }]],
+  ])('%s id가 다르면 다른 것으로', (_n, m1, m2) => {
+    expect(shape(trig(), [notify('a1', m1)])).not.toBe(shape(trig(), [notify('a1', m2)]));
+  });
+
+  it('알림 대상 사용자 id가 다르면 다른 것으로', () => {
+    const a = { id: 'a1', type: 'notify', target: { type: 'users', user_ids: ['user-A'] }, message: [] };
+    const b = { id: 'a1', type: 'notify', target: { type: 'users', user_ids: ['user-B'] }, message: [] };
+    expect(shape(trig(), [a])).not.toBe(shape(trig(), [b]));
+  });
+
+  it('참조 없는 조건·동작의 번호(id)만 다르면 같은 것으로(회귀)', () => {
+    expect(shape(trig('ev1'), [notify('a1', [{ type: 'text', text: 'x' }])])).toBe(shape(trig('ev9'), [notify('a9', [{ type: 'text', text: 'x' }])]));
+  });
+
+  it('동작끼리 번호로 연결(step·variable)되면 번호가 다를 때 같다고 단정하지 않음(보수적으로 다름)', () => {
+    const one = [notify('s1', [{ type: 'text', text: 'x' }]), notify('s2', [{ type: 'step', step: 's1' }])];
+    const two = [notify('t1', [{ type: 'text', text: 'x' }]), notify('t2', [{ type: 'step', step: 't1' }])];
+    expect(shape(trig(), one)).not.toBe(shape(trig(), two));
+    const v1 = [{ id: 'd1', type: 'define_variables', variables: [{ id: 'v', name: 'n', formula: '1' }] }, notify('n1', [{ type: 'variable', step: 'd1', variable: 'v' }])];
+    const v2 = [{ id: 'd2', type: 'define_variables', variables: [{ id: 'v', name: 'n', formula: '1' }] }, notify('n1', [{ type: 'variable', step: 'd2', variable: 'v' }])];
+    expect(shape(trig(), v1)).not.toBe(shape(trig(), v2));
+  });
+
+  it('회귀: external·mode·값 종류·배열 순서·켜짐 상태 차이는 계속 다름', () => {
+    const base = [notify('a1', [{ type: 'text', text: 'x' }])];
+    expect(shape(trig(), base)).not.toBe(shape(trig(), [notify('a1', [{ type: 'text', text: 'x' }], { external: ['email'] })]));
+    expect(shape(trig(), base)).not.toBe(shape({ ...trig(), mode: 'all' }, base));
+    expect(shape(trig(), [notify('a1', [{ type: 'text', text: '1' }])])).not.toBe(shape(trig(), [notify('a1', [{ type: 'text', text: 1 }])]));
+    const two = [notify('a1', [{ type: 'text', text: 'x' }]), notify('a2', [{ type: 'text', text: 'y' }])];
+    expect(shape(trig(), two)).not.toBe(shape(trig(), [two[1], two[0]]));
+    expect(shape(trig(), base, 'active')).not.toBe(shape(trig(), base, 'paused'));
+  });
+});
