@@ -297,3 +297,5 @@ WS-20261117-17 CC-WORKSPACE-01: 주인님 receipts 메인 메뉴 지시. ai-work
 ESM-20261117-03 CC-ECOM-01: esm-register/src/components/layout/Sidebar.tsx 모바일 닫기/backdrop/포커스, src/components/RegisterForm.tsx 가격검증 오류 입력 보존 및 관련 경량 시험·자기 결과 문서만. server action 계약/저장 로직 변경은 먼저 범위 조정. home/guide는 기존 미배포 후보와 대조해 중복 수정 없이 해당 문구 누락만 보완 가능. 외부 ESM 입력/등록·확장연결·설치·API·운영DB·빌드·배포 없음.
 
 WS-20261117-17 QA017 수정범위 추가: Workspace만 기존 src/app/receipts/ReceiptsBoard.tsx 클라이언트 계정 구독/비동기 세대·cleanup과 ReceiptsView 연결, Workspace receipts domain 동기화 및 관련 경량 React 시험 수정. standalone 보존·서버 회원인가/자료범위 변경0·로컬재가동/전체tsc/빌드0.
+
+ESM-20261117-03 QA016 추가: CC-ECOM-01에 src/app/(dashboard)/products/[id]/page.tsx RegisterForm 상품 ID key/명시적 폼 수명 연결과 관련 경량 실제 React 시험만 허용. 같은 상품 오류 입력 보존·상품 변경 시 입력/오류/동의 초기화, page 인가/조회/action 변경 없음. Sidebar/서버/빌드 범위 확대 없음.
