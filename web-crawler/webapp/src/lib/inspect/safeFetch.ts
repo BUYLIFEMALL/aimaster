@@ -45,7 +45,41 @@ export async function assertPublicUrl(raw: string): Promise<URL> {
   return (await resolvePublicUrl(raw)).url;
 }
 
-async function resolvePublicUrl(raw: string) {
+function abortReason(signal: AbortSignal): unknown {
+  return signal.reason ?? new DOMException("This operation was aborted", "AbortError");
+}
+
+/**
+ * promise를 기다리되 signal이 끝나면 즉시 거절한다(QA023 P2, 2026-11-17).
+ * 원래 작업(예: DNS 조회) 자체는 Node API가 취소를 지원하지 않아 뒤에서 계속 돌 수 있다 — 그 결과는 버린다.
+ * 늦게 끝난 거절이 처리되지 않은 오류로 남지 않게 막고, 붙인 리스너는 어느 경우든 뗀다.
+ */
+function raceAbort<T>(promise: Promise<T>, signal?: AbortSignal): Promise<T> {
+  if (!signal) return promise;
+  if (signal.aborted) {
+    promise.catch(() => {});
+    return Promise.reject(abortReason(signal));
+  }
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => {
+      signal.removeEventListener("abort", onAbort);
+      reject(abortReason(signal));
+    };
+    signal.addEventListener("abort", onAbort, { once: true });
+    promise.then(
+      (value) => {
+        signal.removeEventListener("abort", onAbort);
+        resolve(value);
+      },
+      (err) => {
+        signal.removeEventListener("abort", onAbort);
+        reject(err);
+      }
+    );
+  });
+}
+
+async function resolvePublicUrl(raw: string, signal?: AbortSignal) {
   let url: URL;
   try {
     url = new URL(raw);
@@ -64,7 +98,7 @@ async function resolvePublicUrl(raw: string) {
   }
   const addresses = isIP(host)
     ? [{ address: host, family: isIP(host) }]
-    : await lookup(host, { all: true }).catch(() => []);
+    : await raceAbort(lookup(host, { all: true }).catch(() => []), signal);
   if (addresses.length === 0) {
     throw new BlockedUrlError("주소를 찾을 수 없습니다. 도메인을 확인해주세요.");
   }
@@ -91,8 +125,14 @@ export async function safeFetch(
   let current = raw;
   const signal = init.signal ?? AbortSignal.timeout(20_000);
   for (let i = 0; i <= MAX_REDIRECTS; i++) {
-    const { url, addresses } = await resolvePublicUrl(current);
-    if (opts.beforeRequest) await opts.beforeRequest(url, signal);
+    // 같은 signal 하나로 전체 제한을 잰다(단계마다 다시 시작하지 않음). 단계 사이마다 끝났는지 확인한다.
+    signal.throwIfAborted();
+    const { url, addresses } = await resolvePublicUrl(current, signal);
+    signal.throwIfAborted();
+    if (opts.beforeRequest) {
+      await opts.beforeRequest(url, signal);
+      signal.throwIfAborted();
+    }
     const pinned = addresses.find((value) => value.family === 4) ?? addresses[0];
     // fetch가 DNS를 다시 조회하면 검사 뒤 사설 IP로 바꾸는 rebinding이 가능하다.
     // 원래 hostname/TLS 검증은 유지하고 연결의 lookup만 검사한 주소에 고정한다.

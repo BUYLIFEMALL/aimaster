@@ -21,8 +21,15 @@ function load(file, extra) {
 }
 
 // ── 가짜 DNS·연결 ─────────────────────────────────────────
+// dnsDelay[host] = ms 만큼 늦게 답한다(QA023 P2 반례: DNS 대기 중 전체 제한 신호 무시).
+let dnsDelay = {};
+let dnsCalls = 0;
 const dns = {
-  lookup: async (host) => (host.startsWith('private') ? [{ address: '10.0.0.5', family: 4 }] : [{ address: '93.184.216.34', family: 4 }]),
+  lookup: async (host) => {
+    dnsCalls++;
+    if (dnsDelay[host]) await new Promise((r) => setTimeout(r, dnsDelay[host]));
+    return host.startsWith('private') ? [{ address: '10.0.0.5', family: 4 }] : [{ address: '93.184.216.34', family: 4 }];
+  },
 };
 class FakeAgent { constructor(o) { this.o = o; } close() { return Promise.resolve(); } }
 const safeFetchMod = load('safeFetch.ts', { 'server-only': {}, 'node:dns/promises': dns, undici: { Agent: FakeAgent } });
@@ -213,4 +220,63 @@ test('opts 없는 기존 호출(proxy·image)은 robots를 요청하지 않음',
   assert.equal(response.status, 200);
   assert.equal(finalUrl.href, 'https://a.test/img');
   assert.deepEqual(log.map((l) => l.href), ['https://a.test/go', 'https://a.test/img']);
+});
+
+// ── QA023 P2: DNS 대기 중 abort ─────────────────────────────
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+test('느린 DNS(160ms) + 전체 신호 15ms → 바로 끝남, 늦은 DNS 완료 뒤 robots·본문 요청 0', async () => {
+  dnsDelay = { 'slow.test': 160 };
+  const t0 = Date.now();
+  const res = await run('https://slow.test/page', { 'https://slow.test/robots.txt': txt('User-agent: *\nAllow: /'), 'https://slow.test/page': PAGE }, { signal: AbortSignal.timeout(15) });
+  const took = Date.now() - t0;
+  assert.equal(res.ok, false);
+  assert.ok(took < 100, `신호를 따라 일찍 끝나야 한다(걸린 시간 ${took}ms)`);
+  await sleep(220); // 늦은 DNS 완료를 기다린 뒤에도
+  assert.equal(log.length, 0, '늦게 끝난 DNS 뒤 robots·본문 요청이 없어야 한다');
+  dnsDelay = {};
+});
+
+test('robots.txt 쪽 느린 DNS도 robots 5초·전체 신호를 따름 → 본문 요청 0', async () => {
+  // 첫 주소 DNS는 빠르고, robots 요청이 쓰는 같은 호스트 두 번째 조회만 느리게
+  let n = 0;
+  const orig = dns.lookup;
+  dns.lookup = async (host, o) => { n++; if (n === 2) await sleep(160); return orig(host, o); };
+  const t0 = Date.now();
+  const res = await run('https://b2.test/page', { 'https://b2.test/robots.txt': txt('User-agent: *\nAllow: /'), 'https://b2.test/page': PAGE }, { signal: AbortSignal.timeout(15) });
+  const took = Date.now() - t0;
+  dns.lookup = orig;
+  assert.ok(res.error instanceof RobotsUnavailableError);
+  assert.ok(took < 100, `걸린 시간 ${took}ms`);
+  await sleep(220);
+  assert.equal(log.length, 0);
+});
+
+test('이미 끝난 신호 → DNS 조회도 요청도 0', async () => {
+  const ac = new AbortController();
+  ac.abort();
+  dnsCalls = 0;
+  const res = await run('https://a.test/page', { 'https://a.test/robots.txt': txt(''), 'https://a.test/page': PAGE }, { signal: ac.signal });
+  assert.equal(res.ok, false);
+  assert.equal(dnsCalls, 0);
+  assert.equal(log.length, 0);
+});
+
+test('성공하면 신호에 붙인 abort 리스너가 모두 정리됨(누수 0)', async () => {
+  const ac = new AbortController();
+  const s = ac.signal;
+  let added = 0, removed = 0;
+  const add = s.addEventListener.bind(s), rem = s.removeEventListener.bind(s);
+  s.addEventListener = (t, f, o) => { if (t === 'abort') added++; return add(t, f, o); };
+  s.removeEventListener = (t, f, o) => { if (t === 'abort') removed++; return rem(t, f, o); };
+  const res = await run('https://a.test/go', { 'https://a.test/robots.txt': txt('User-agent: *\nAllow: /'), 'https://a.test/go': redirect('/end'), 'https://a.test/end': PAGE }, { signal: s });
+  assert.equal(res.ok, true);
+  assert.ok(added > 0, 'DNS 대기에 리스너를 붙여야 한다');
+  assert.equal(removed, added, `붙인 ${added}개 = 뗀 ${removed}개`);
+});
+
+test('assertPublicUrl 공개 계약 그대로(신호 없이 호출, URL 반환)', async () => {
+  const u = await safeFetchMod.assertPublicUrl('https://a.test/x');
+  assert.equal(u.href, 'https://a.test/x');
+  await assert.rejects(safeFetchMod.assertPublicUrl('http://private.test/'), BlockedUrlError);
 });
