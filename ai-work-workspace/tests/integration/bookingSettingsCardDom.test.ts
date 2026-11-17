@@ -3,7 +3,7 @@
 // OFF면 미노출·요청 0 / 예약 명령만 기대 계정, 빈 계정이면 요청 0 / 409면 이전 정보 숨김 / 늦은 응답·화면 해제 뒤 응답 버림 /
 // 저장 두 번 클릭 → 한 번 / 확인 필요 줄의 「있음·없음」 / 자동 확인 시각을 약속하지 않는 안내.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, createElement } from 'react';
+import { StrictMode, act, createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 
 (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
@@ -132,5 +132,59 @@ describe('예약 받기 카드', () => {
     const r = h.pending.find((p) => p.name === 'bookingResolve')!;
     expect(r.body).toEqual({ id: 'n1', choice: 'present' });
     expect(r.opts?.expectedAccount).toBe('uA');
+  });
+});
+
+// ---------------------------------------------------------------- QA025 반례(Mac msg_524eed0da09e)
+describe('QA025: 계정이 바뀐 뒤 늦게 끝난 동작·StrictMode 다시 붙기', () => {
+  const needs = () => [item({ id: 'n1', status: 'needs_check', finalUnknown: true })];
+  it.each([
+    ['설정 저장', 'bookingSave'],
+    ['끄기', 'bookingOff'],
+    ['캘린더에 있음', 'bookingResolve'],
+  ])('A에서 「%s」 대기 중 B로 바뀌고 B 조회가 끝난 뒤 A 성공이 와도: 옛 계정 추가 요청 0·B 화면 그대로', async (label, rpcName) => {
+    mount('uA');
+    await loaded(0, page(), needs());
+    act(() => btn(label)!.click());
+    const a = h.pending.findIndex((p) => p.name === rpcName);
+    render('uB');
+    const bFrom = h.pending.length - 2;
+    expect(h.pending.slice(bFrom).map((p) => p.opts?.expectedAccount)).toEqual(['uB', 'uB']);
+    await loaded(bFrom, page(), [item({ name: 'B손님' })]);
+    expect(el.textContent).toContain('B손님');
+    const before = h.pending.length;
+    await settle(a, rpcName === 'bookingSave' ? { ...page(), token: 'z'.repeat(43) } : { ok: true });
+    expect(h.pending.length).toBe(before); // 옛 계정으로 다시 불러오기 0
+    expect(el.textContent).toContain('B손님');
+    expect(el.textContent).not.toContain('불러오는 중');
+    expect(el.querySelector('input[aria-label="예약 주소"]')).toBeNull(); // A의 새 주소를 B 화면에 띄우지 않음
+    expect(btn('설정 저장')!.disabled).toBe(false); // A 동작의 「처리 중」이 B에 남지 않음
+  });
+
+  it('A 동작이 B로 바뀐 뒤 실패해도 B 화면에 오류를 띄우지 않음', async () => {
+    mount('uA');
+    await loaded(0);
+    act(() => btn('설정 저장')!.click());
+    const a = h.pending.findIndex((p) => p.name === 'bookingSave');
+    render('uB');
+    await loaded(h.pending.length - 2);
+    await settle(a, new Error('A 실패'), true);
+    expect(el.textContent).not.toContain('A 실패');
+  });
+
+  it('StrictMode(붙었다 떨어졌다 다시 붙음)에서도 첫 화면이 그려지고, 앞 세대의 늦은 응답은 버림', async () => {
+    el = document.createElement('div');
+    document.body.appendChild(el);
+    root = createRoot(el);
+    act(() => root!.render(createElement(StrictMode, null, createElement(BookingSettingsCard, { accountKey: 'uA' }))));
+    const n = h.pending.length;
+    expect(n).toBeGreaterThanOrEqual(2);
+    await loaded(n - 2, page(), [item({ name: '새세대' })]);
+    expect(el.textContent).toContain('새세대');
+    if (n >= 4) {
+      await loaded(0, page(), [item({ name: '옛세대' })]);
+      expect(el.textContent).not.toContain('옛세대');
+    }
+    expect(el.textContent).not.toContain('불러오는 중');
   });
 });

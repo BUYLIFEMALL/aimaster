@@ -3,7 +3,7 @@
 // OFF면 미노출·요청 0 / 회원 시간대 기준 + 손님 시간대가 다르면 병기 / 제출 중 두 번 클릭 → 한 번 /
 // 결과 모름(연결 끊김·5xx)이면 다시 제출하게 하지 않음 / 확실한 거절은 다른 시간 고르게 / 손님 입력은 기록에 안 남김.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, createElement } from 'react';
+import { StrictMode, act, createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 
 (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
@@ -140,5 +140,69 @@ describe('손님 예약 화면', () => {
     const logged = JSON.stringify(spies.flatMap((s) => s.mock.calls));
     expect(logged).not.toMatch(/김손님|010-1234-5678|비밀 메모/);
     spies.forEach((s) => s.mockRestore());
+  });
+});
+
+// ---------------------------------------------------------------- QA025 반례(Mac msg_524eed0da09e)
+describe('QA025: StrictMode·토큰 바뀜·안내 문구', () => {
+  function mountStrict(props: Record<string, unknown> = {}) {
+    el = document.createElement('div');
+    document.body.appendChild(el);
+    root = createRoot(el);
+    act(() => root!.render(createElement(StrictMode, null, createElement(BookingForm, { token: TOKEN, view: view(), guestTz: 'Asia/Seoul', ...props } as never))));
+  }
+  async function pickFillSend() {
+    act(() => btn('10:00')!.click());
+    type('이름', '김손님');
+    type('연락처', '010-1234-5678');
+    await act(async () => {
+      btn('예약하기')!.click();
+      await new Promise((r) => setTimeout(r, 0));
+    });
+  }
+
+  it.each([
+    ['서버 오류 500', () => Promise.resolve(json({ name: 'Error' }, 500)), '다시 신청하지 마시고'],
+    ['확정', () => Promise.resolve(json({ ok: true, status: 'confirmed', bookingId: 'b1' })), '예약이 완료'],
+  ])('StrictMode에서도 응답(%s)이 반영되고 「보내는 중」에 멈추지 않음', async (_n, impl, text) => {
+    fetchMock.mockImplementation(impl as never);
+    mountStrict();
+    await pickFillSend();
+    expect(el.textContent).toContain(text);
+    expect(el.textContent).not.toContain('보내는 중');
+  });
+
+  it('제출 중 주소(token)가 바뀌면 옛 응답은 버리고 새 주소로 다시 예약할 수 있음', async () => {
+    let release!: (r: Response) => void;
+    fetchMock.mockImplementationOnce(() => new Promise<Response>((r) => (release = r)));
+    mount();
+    await pickFillSend();
+    expect(el.textContent).toContain('보내는 중');
+    const NEW = 'n'.repeat(43);
+    act(() => root!.render(createElement(BookingForm, { token: NEW, view: view(), guestTz: 'Asia/Seoul' } as never)));
+    await act(async () => {
+      release(json({ ok: true, status: 'confirmed', bookingId: 'old' }));
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    expect(el.textContent).not.toContain('예약이 완료');
+    fetchMock.mockResolvedValueOnce(json({ ok: true, status: 'received', bookingId: 'new' }));
+    await pickFillSend();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body).token).toBe(NEW);
+  });
+
+  it('안내 문구는 자동 연락을 약속하지 않고 예약 담당자 확인이 필요하다고만 함', async () => {
+    fetchMock.mockResolvedValueOnce(json({ ok: true, status: 'received', bookingId: 'b1' }));
+    await fillAndSubmit();
+    expect(el.textContent).toContain('예약 담당자');
+    expect(el.textContent).toContain('다시 신청하지');
+    expect(el.textContent).not.toMatch(/연락드립니다|연락을 기다려/);
+    act(() => root!.unmount());
+    root = null;
+    document.body.innerHTML = '';
+    fetchMock.mockRejectedValueOnce(new Error('net'));
+    await fillAndSubmit();
+    expect(el.textContent).toContain('예약 담당자');
+    expect(el.textContent).not.toMatch(/연락드립니다|연락을 기다려/);
   });
 });

@@ -44,52 +44,60 @@ function BookingCardInner({ accountKey }: { accountKey: string | null | undefine
   const [busy, setBusy] = useState("");
   const [link, setLink] = useState<{ account: string; url: string } | null>(null);
   const [form, setForm] = useState<{ account: string; s: Settings } | null>(null);
+  // QA025(2026-11-17): 세대 번호 — 화면이 붙을 때마다(StrictMode 다시 붙기 포함)·계정이 바뀔 때마다 새 번호. 앞 세대에서 시작한
+  // 요청(조회·저장·끄기·고르기)은 끝나도 화면을 바꾸지 않고 다음 요청(다시 불러오기)도 하지 않는다. 화면을 떠나면 번호를 올려 모두 버린다.
+  const gen = useRef(0);
   const seq = useRef(0);
-  const alive = useRef(true);
   const busyRef = useRef(false);
-  useEffect(() => () => {
-    alive.current = false;
-    seq.current++;
-  }, []);
 
   const call = useCallback(<T,>(name: string, body: Record<string, unknown> = {}) => rpc<T>(name, body, { expectedAccount: account }), [account]);
 
-  const load = useCallback(async () => {
-    if (!account) return;
+  const load = useCallback(async (g: number) => {
+    if (!account || g !== gen.current) return;
     const my = ++seq.current;
     try {
       const [page, list] = await Promise.all([call<PageInfo>("bookingGet"), call<Item[]>("bookingList")]);
-      if (!alive.current || my !== seq.current) return;
+      if (g !== gen.current || my !== seq.current) return;
       setView({ account, page, list });
       setForm({ account, s: page.settings });
       setErr(null);
     } catch (e) {
-      if (!alive.current || my !== seq.current) return;
+      if (g !== gen.current || my !== seq.current) return;
       if (e instanceof AccountChangedError) setChanged(account);
       else setErr({ account, text: (e as Error).message });
     }
   }, [account, call]);
 
   useEffect(() => {
-    seq.current++; // 계정이 바뀌면 이전 요청 응답은 버림
-    void load();
+    const g = ++gen.current;
+    busyRef.current = false; // 앞 세대 동작의 「처리 중」을 새 세대에 남기지 않음
+    setBusy("");
+    void load(g);
+    return () => {
+      if (gen.current === g) gen.current++;
+    };
   }, [load]);
 
-  /** 한 번에 하나만(빠른 두 번 클릭 막기) */
-  const run = async (key: string, fn: () => Promise<void>) => {
+  /** 한 번에 하나만(빠른 두 번 클릭 막기). 성공하면 같은 세대일 때만 after·다시 불러오기 */
+  const run = async <T,>(key: string, action: () => Promise<T>, after?: (r: T) => void) => {
     if (busyRef.current || !account) return;
+    const g = gen.current;
     busyRef.current = true;
     setBusy(key);
-    const my = seq.current;
     try {
-      await fn();
+      const r = await action();
+      if (g !== gen.current) return;
+      after?.(r);
+      void load(g);
     } catch (e) {
-      if (!alive.current || my !== seq.current) return;
+      if (g !== gen.current) return;
       if (e instanceof AccountChangedError) setChanged(account);
       else setErr({ account, text: (e as Error).message });
     } finally {
-      busyRef.current = false;
-      if (alive.current) setBusy("");
+      if (g === gen.current) {
+        busyRef.current = false;
+        setBusy("");
+      }
     }
   };
 
@@ -110,9 +118,7 @@ function BookingCardInner({ accountKey }: { accountKey: string | null | undefine
   const shown = link && link.account === account ? link.url : "";
   const set = (patch: Partial<Settings>) => f && setForm({ account, s: { ...f, ...patch } });
   const afterSave = (p: PageInfo) => {
-    if (!alive.current) return;
     if (p.token) setLink({ account, url: `${window.location.origin}/book/${p.token}` });
-    void load();
   };
 
   return (
@@ -157,11 +163,11 @@ function BookingCardInner({ accountKey }: { accountKey: string | null | undefine
           </div>
           <label className="rc-hint">손님에게 보일 안내(500자)<textarea aria-label="손님 안내" maxLength={500} value={f.notice} onChange={(x) => set({ notice: x.target.value })} /></label>
           <div className="rc-row-btns">
-            <button type="button" className="rc-btn" disabled={!!busy} onClick={() => void run("save", async () => afterSave(await call<PageInfo>("bookingSave", { settings: f })))}>{busy === "save" ? "저장 중…" : v.page.enabled ? "💾 설정 저장" : "▶ 예약 받기 켜기"}</button>
+            <button type="button" className="rc-btn" disabled={!!busy} onClick={() => void run("save", () => call<PageInfo>("bookingSave", { settings: f }), afterSave)}>{busy === "save" ? "저장 중…" : v.page.enabled ? "💾 설정 저장" : "▶ 예약 받기 켜기"}</button>
             {v.page.enabled && (
               <>
-                <button type="button" className="rc-btn ghost" disabled={!!busy} onClick={() => confirm("새 주소를 만들면 지금 주소는 바로 닫힙니다. 계속할까요?") && void run("rotate", async () => afterSave(await call<PageInfo>("bookingSave", { settings: f, rotate: true })))}>🔄 새 주소 만들기</button>
-                <button type="button" className="rc-btn ghost" disabled={!!busy} onClick={() => void run("off", async () => { await call("bookingOff"); if (alive.current) setLink(null); void load(); })}>⏸ 끄기</button>
+                <button type="button" className="rc-btn ghost" disabled={!!busy} onClick={() => confirm("새 주소를 만들면 지금 주소는 바로 닫힙니다. 계속할까요?") && void run("rotate", () => call<PageInfo>("bookingSave", { settings: f, rotate: true }), afterSave)}>🔄 새 주소 만들기</button>
+                <button type="button" className="rc-btn ghost" disabled={!!busy} onClick={() => void run("off", () => call("bookingOff"), () => setLink(null))}>⏸ 끄기</button>
               </>
             )}
           </div>
@@ -183,8 +189,8 @@ function BookingCardInner({ accountKey }: { accountKey: string | null | undefine
                       <td>
                         {x.status === "needs_check" && (
                           <span className="rc-row-btns">
-                            <button type="button" className="rc-btn ghost" disabled={!!busy} onClick={() => void run(`p-${x.id}`, async () => { await call("bookingResolve", { id: x.id, choice: "present" }); void load(); })}>캘린더에 있음</button>
-                            <button type="button" className="rc-btn ghost" disabled={!!busy} onClick={() => confirm("구글 캘린더에 이 일정이 없는 것을 확인했나요? 칸을 풀면 다른 손님이 예약할 수 있습니다.") && void run(`a-${x.id}`, async () => { await call("bookingResolve", { id: x.id, choice: "absent" }); void load(); })}>없음(칸 풀기)</button>
+                            <button type="button" className="rc-btn ghost" disabled={!!busy} onClick={() => void run(`p-${x.id}`, () => call("bookingResolve", { id: x.id, choice: "present" }))}>캘린더에 있음</button>
+                            <button type="button" className="rc-btn ghost" disabled={!!busy} onClick={() => confirm("구글 캘린더에 이 일정이 없는 것을 확인했나요? 칸을 풀면 다른 손님이 예약할 수 있습니다.") && void run(`a-${x.id}`, () => call("bookingResolve", { id: x.id, choice: "absent" }))}>없음(칸 풀기)</button>
                           </span>
                         )}
                       </td>
