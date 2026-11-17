@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 11:39:02 KST",
+  "checkedAt": "2026-11-17 11:41:25 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4673,12 +4673,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "Workspace v1.56 운영 읽기전용 독립 스모크",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "done",
+      "delivery": "integrated",
       "scopeRef": "운영버전/대시보드/영수증스크롤/keys/375폭 읽기전용·제품수정0",
       "completion": "실제브라우저관찰범위와로그인차단/미검수 구분",
-      "evidence": "msg_151b329eaa5d",
-      "next": "Mac 실제확인 결과반환·맥빌드배포0"
+      "evidence": "msg_151b329eaa5d / msg_11017d0f2531 Mac운영실브라우저정상경로PASS·375직접viewport/영수증scroll max365·keys연결상태·studio2x2",
+      "next": "지정운영스모크종료·장애/DB정확성/발행끝/Alt/실인쇄/실기기미검수유지",
+      "lastReviewedAt": "2026-11-17T02:41:22.505Z"
     }
   ]
 }
