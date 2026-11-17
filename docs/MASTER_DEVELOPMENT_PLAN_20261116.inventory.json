@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 18:26:01 KST",
+  "checkedAt": "2026-11-17 18:26:59 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -5094,9 +5094,9 @@
       "reviewer": "CX-MASTER-01",
       "title": "E4 Gmail함 기존기능/권한 대조와 최소범위 조사",
       "status": "running",
-      "delivery": "queued",
-      "scopeRef": "gmailInbox.ts/시험·신규Gmail migration1·격리DB시험1·본인문서, 공용헬퍼변경0",
-      "evidence": "F03/A2 PLAN 6e1de5e94 검토; F03부분고유제약+catalog 소스와격리DB검증 배정(수락미확인), A2계획보완",
+      "delivery": "running",
+      "scopeRef": "gmailInbox.ts/gmailInbox.test.ts·새gmailF03Db.test.ts·supabase/migrations/0074_gmail_catalog_one_account.sql·본인PLAN. qa_gmail_f03만, aww/aww_dev/운영0",
+      "evidence": "F03 소스/격리검증 착수보고 수신: CLI없음·설치0/루트0074예약 충돌없음·qa_gmail_f03 전용",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
       "next": "F03 Gmail전용코드/신규migration1/DB시험 구현. 운영적용·GmailON·A2코드0",
       "sha": "245227c98",
