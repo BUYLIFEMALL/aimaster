@@ -196,9 +196,10 @@
 - 검수: tsc 0, 단위테스트 35/35 PASS, Mac QA042 소스 검수 PASS. 다음 묶음 배포 때 함께 내보낼 것.
 
 ## 2026-11-18 ⏸ 미배포 — Pexels API 발급 미지원에 따른 설정 카드 및 선택지 완전 삭제 (Antigravity 윈도우)
-- **주인님 직접 지시**: Pexels에서 일반 API 키 발급이 미지원되므로 emotion-writer에서 Pexels API 키 설정 카드 및 2단계 선택지 완전 삭제 처리 후 Master에 보고.
+- **주인님 직접 지시**: Pexels에서 일반 API 키 발급이 미지원되므로 emotion-writer에서 Pexels API 키 설정 카드, 2단계 선택지 및 사용자 매뉴얼 안내 완전 삭제 처리 후 Master에 보고.
 - **수정 내역**:
   - `src/lib/studio/config.ts`: `SOURCES` 배열에서 `pexels` 항목 완전 삭제 (2단계 이미지 생성 방식에서 제거).
   - `src/components/KeySettings.tsx`: `PROVIDER_INFO`에서 `pexels` 항목 삭제 및 `if (!info) return null;` 널 가드 추가 (API 키 등록 페이지에서 카드 완전 제거).
   - `src/components/Workspace.tsx`: `restoreDraft`에서 기존 로컬스토리지에 저장된 draft의 `source === "pexels"`인 경우 `pixabay`로 자동 정규화하는 마이그레이션 폴백 가드 추가.
+  - `src/app/(studio)/guide/page.tsx`: 사용자 매뉴얼 5곳(FAQ 2건, 히어로 배너 소개, STEP 2 배경 소스, 배경 이미지 활용법 2건)에서 Pexels 관련 문구 완전 삭제 및 Pixabay 단독 표기로 정돈.
 - 검수: tsc 0, 단위테스트 35/35 PASS. 다음 묶음 배포 때 함께 내보낼 것.
