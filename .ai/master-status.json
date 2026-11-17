@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T01:27:05.505Z",
+  "checkedAt": "2026-11-17T01:30:10.586Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2471,12 +2471,13 @@
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "priority": "P2",
       "title": "어두운 테마 흰 글자 파랑 단추 대비 보정",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "msg_d0ea6aadae24 주인님직접작업요청·cf735c3bf 근거/배정msg_6e855d675ba4",
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "msg_3188fa5b531d·작성자19/19·12색악화0/9색4.5·3색기존미달/hover정적한계",
       "completion": "globals.css dark정확선택자1rule·기존12색/라이트/관리자회귀·독립소스검수후미시작Lab빌드범위에포함",
-      "next": "Front국소수정→Mac독립검토→MasterLab단일snapshot에포함·별도빌드0",
-      "lastReviewedAt": "2026-11-17T01:19:30.538Z"
+      "next": "Mac QA020 독립소스검토배정·Lab1빌드포함전판정,별도빌드0",
+      "lastReviewedAt": "2026-11-17T01:19:30.538Z",
+      "sha": "acb858a77"
     },
     {
       "task_id": "DOC-20261117-T12",
@@ -2539,13 +2540,28 @@
       "reviewer": "CX-MASTER-01",
       "priority": "P2",
       "title": "146 실제캡처 독립시각검수",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "ready_review",
+      "delivery": "returned",
       "scopeRef": "3PNG/manifest/146명세 읽기·자기QA결과만",
       "completion": "실제이미지관찰·desktop/375iframe 배치가독성 범위판정·축소/실기기미검수구분",
-      "evidence": "fe8f67a38 3PNG/manifest",
-      "next": "Mac실이미지대조·영문/제목수정후변경경계후속확인",
-      "lastReviewedAt": "2026-11-17T01:27:05.505Z"
+      "evidence": "msg_8d2b1e6dd3c7 실PNG3장직접관찰·보이는범위PASS/모바일하단·달력오른쪽/밀집미검수",
+      "next": "WS19보완뒤전체375/메뉴·패널없는달력/긴제목다수일정 보완캡처한묶음→변경경계재검토",
+      "lastReviewedAt": "2026-11-17T01:30:10.586Z"
+    },
+    {
+      "task_id": "QA-20261117-020",
+      "parent_task_id": "FRONT-20261117-02",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "Front다크단추 대비 국소독립검수",
+      "status": "ready",
+      "delivery": "queued",
+      "scopeRef": "acb858a77 CSS/기존시험·자기QA결과만",
+      "priority": "P2",
+      "evidence": "msg_3188fa5b531d·작성자19/19·12색악화0/9색4.5·3색기존미달/hover정적한계",
+      "completion": "선택자/light/admin회귀·12색전후·기존미달/hover한계구분·소스판정",
+      "next": "Mac가벼운독립소스/계산검토·실DB/빌드0",
+      "lastReviewedAt": "2026-11-17T01:30:10.586Z"
     }
   ],
   "programOverrides": [

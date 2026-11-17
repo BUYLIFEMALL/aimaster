@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 10:27:08 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 10:30:13 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -40,7 +40,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 180개: done 152개 · cancelled 6개 · ready_review 13개 · running 3개 · waiting_human 2개 · ready 4개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 181개: done 152개 · cancelled 6개 · ready_review 15개 · running 3개 · waiting_human 2개 · ready 3개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -218,12 +218,13 @@
 | ESM-20261117-03 | CC-ECOM-01 | done / integrated | ESM 모바일 메뉴 닫기·가격 오류 입력 보존 수정 | 주인님별도직접승인v1.02배포완료·Mac실모바일X/가격/상품이동回帰PASS·기존등록동작미검수 |
 | WS-20261117-18 | CC-WORKSPACE-01 | done / integrated | 구글 캘린더 설정 연결 상태·연동 화면 버튼 | Workspace미배포묶음·실계정Google연결변경0·기존keys전체계정보호와구분 |
 | QA-20261117-018 | CX-QA-01 | done / integrated | 캘린더 연결 상태·설정 이동 독립검수 | Workspace미배포묶음·실계정Google연결변경0·기존keys전체계정보호와구분 |
-| FRONT-20261117-02 | CC-B2B-FRONT-01 | ready / queued | 어두운 테마 흰 글자 파랑 단추 대비 보정 | Front국소수정→Mac독립검토→MasterLab단일snapshot에포함·별도빌드0 |
+| FRONT-20261117-02 | CC-B2B-FRONT-01 | ready_review / returned | 어두운 테마 흰 글자 파랑 단추 대비 보정 | Mac QA020 독립소스검토배정·Lab1빌드포함전판정,별도빌드0 |
 | DOC-20261117-T12 | CC-BLOG-01 | done / integrated | 데이터수집 문서조정 담당·보관후속표 근거 정정 | 정정완료·다른미커밋/ZIP보존·실배포확인전완전배포표시0 |
 | QA-20261117-014 | CX-QA-01 | done / integrated | 교환비 UI 독립검수 | 기승인Lab릴리스후실동작별도 |
 | QA-20261117-015 | CX-QA-01 | done / integrated | Lab0104 실행자료 독립검수 | 주인님실적용승인유효·도구Accept後실검증 |
 | WS-20261117-19 | CC-WORKSPACE-01 | ready / queued | 146 신규문구 ko/en·대시보드/영수증 제목 보완 | Workspace단독국소수정·기존서버HMR·API/DB/전체tsc/빌드0 |
-| QA-20261117-019 | CX-QA-01 | ready / queued | 146 실제캡처 독립시각검수 | Mac실이미지대조·영문/제목수정후변경경계후속확인 |
+| QA-20261117-019 | CX-QA-01 | ready_review / returned | 146 실제캡처 독립시각검수 | WS19보완뒤전체375/메뉴·패널없는달력/긴제목다수일정 보완캡처한묶음→변경경계재검토 |
+| QA-20261117-020 | CX-QA-01 | ready / queued | Front다크단추 대비 국소독립검수 | Mac가벼운독립소스/계산검토·실DB/빌드0 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
