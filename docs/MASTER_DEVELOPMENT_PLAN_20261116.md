@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 09:20:23 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 09:23:19 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -39,7 +39,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 172개: done 141개 · cancelled 6개 · ready_review 16개 · running 2개 · ready 3개 · waiting_human 2개 · blocked 1개 · backlog 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 172개: done 141개 · cancelled 6개 · ready_review 16개 · running 3개 · ready 3개 · waiting_human 2개 · blocked 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -212,8 +212,8 @@
 | B2B-20261117-09 | CC-B2B-BACK-01 | done / integrated | 교환비 결제 전용 화면·상태·직원 재확인 구현 | 소스동결·상위릴리스준비검토로연결,실Toss/Lab0104/빌드/배포0 |
 | RE-20261117-06 | CC-REALTY-01 | done / integrated | N-1 지역 관련성 필터 오프라인 표본 평가 | 결과동결·운영규칙유지·공유HEAD잘못보고d54→실파일eb3정정. 별도기획전추가튜닝/대량읽기0 |
 | QA-20261117-016 | CX-QA-01 | done / integrated | 주인님 직접지시 ESM 등록기 맥미니 실동작 테스트 | Ecom ESM17-03 두결함국소수정배정·기존guide/home미배포후보중복0,MacQA017후순위계속 |
-| WS-20261117-17 | CC-WORKSPACE-01 | ready_review / returned | 주인님 직접지시 영수증 화면 메인 사이드바 연결 | Mac QA017후순위소스검토예약·ESM QA016먼저유지. 실화면/전체tsc/배포未검수·메모리서버재가동보류 |
-| QA-20261117-017 | CX-QA-01 | backlog / queued | 영수증 SPA 사이드바 연결 독립소스검수 | ESM QA016완료또는실차단보고후착수·DB/서버/빌드0 |
+| WS-20261117-17 | CC-WORKSPACE-01 | running / returned | 주인님 직접지시 영수증 화면 메인 사이드바 연결 | Workspace sharedclientBoard 포함계정수명/응답세대보호·receipts domain동기화 국소수정배정,React경량반례검증·서버/DB/전체tsc/빌드0 |
+| QA-20261117-017 | CX-QA-01 | ready_review / returned | 영수증 SPA 사이드바 연결 독립소스검수 | 수정반환후계정전환/late/unmount/도메인새경계재검토,전체PASS보류 |
 | ESM-20261117-03 | CC-ECOM-01 | ready / queued | ESM 모바일 메뉴 닫기·가격 오류 입력 보존 수정 | Sidebar/RegisterForm 및관련시험국소수정·기존guide/home미배포묶음보존,설치/DB쓰기/실등록/빌드0 |
 
 ## 현재 담당 회신이 확보된 프로젝트
