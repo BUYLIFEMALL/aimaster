@@ -37,7 +37,15 @@ const CERTS = "https://www.googleapis.com/oauth2/v3/certs";
 const API = "https://gmail.googleapis.com/gmail/v1/users/me/messages";
 export const GMAIL_LIST_MAX = 20;
 
-export type GmailErrorCode = "off" | "auth" | "bad_request" | "forbidden" | "conflict" | "not_found" | "server";
+/** unknown = 받은 업무에 넣었는지 결과를 모름(이미 저장됐을 수 있음 — 자동 재전송 0, 받은 업무 목록에서 확인) */
+export type GmailErrorCode = "off" | "auth" | "bad_request" | "forbidden" | "conflict" | "not_found" | "server" | "unknown";
+/** 받은 업무 넣기 결과의 고정 문구(원문 오류·내부 이름 노출 0) */
+export const GMAIL_ADD_MESSAGES = {
+  conflict: "받은 업무가 그사이 바뀌어 넣지 않았습니다. 받은 업무 목록을 확인한 뒤 다시 시도해 주세요.",
+  server: "받은 업무에 넣지 못했습니다. 잠시 뒤 다시 시도해 주세요.",
+  unknown: "받은 업무에 넣었는지 확인하지 못했습니다. 이미 넣어졌을 수 있으니 받은 업무 목록에서 확인해 주세요(자동으로 다시 보내지 않습니다).",
+} as const;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export class GmailError extends Error {
   constructor(public code: GmailErrorCode, message: string) {
     super(message);
@@ -120,15 +128,22 @@ const supabaseStore: GmailStore = {
   },
   markNeedsReconnect: (userId, accountId) => markMemberAccountNeedsReconnect(admin(), userId, accountId),
   async addToInbox(i) {
-    const { data, error } = await admin().rpc("gmail_inbox_add", { p_user: i.userId, p_account_hash: i.accountHash, p_message_id: i.messageId, p_title: i.title, p_source_url: i.sourceUrl });
-    if (error) {
-      // 40001 = 클레임이 그사이 바뀜(받은 업무가 지워지는 중 등) → 회원이 다시 누르면 됨. 그 밖은 일반 문구(원문 0)
-      if ((error as { code?: string }).code === "40001") throw new GmailError("conflict", "받은 업무가 그사이 바뀌었습니다. 다시 눌러 주세요.");
-      throw new GmailError("server", "받은 업무에 넣지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    let res: { data: unknown; error: { code?: string } | null };
+    try {
+      res = (await admin().rpc("gmail_inbox_add", { p_user: i.userId, p_account_hash: i.accountHash, p_message_id: i.messageId, p_title: i.title, p_source_url: i.sourceUrl })) as typeof res;
+    } catch {
+      // 연결이 끊기거나 예외 — DB에서 이미 커밋됐을 수 있음: 결과 모름(원문·로그 0, 자동 재전송 0)
+      throw new GmailError("unknown", GMAIL_ADD_MESSAGES.unknown);
     }
-    const row = (Array.isArray(data) ? data[0] : data) as { status?: unknown; inbox_id?: unknown } | null;
-    if (!row || (row.status !== "added" && row.status !== "existing") || typeof row.inbox_id !== "string") {
-      throw new GmailError("server", "받은 업무에 넣은 결과를 확인하지 못했습니다. 받은 업무 목록을 새로 열어 확인해 주세요.");
+    if (res.error) {
+      // DB가 오류를 돌려줌 = 함수 거래가 되돌려짐(넣지 않음). 40001 = 클레임이 그사이 바뀜
+      throw new GmailError(res.error.code === "40001" ? "conflict" : "server", res.error.code === "40001" ? GMAIL_ADD_MESSAGES.conflict : GMAIL_ADD_MESSAGES.server);
+    }
+    // A2-F03: 결과는 정확히 1행·허용된 status·UUID 형식 inbox_id여야 성공. 아니면 성공으로 보이지 않고 결과 모름(응답 방어 — DB 결함 단정 아님)
+    const rows = res.data;
+    const row = Array.isArray(rows) && rows.length === 1 ? (rows[0] as { status?: unknown; inbox_id?: unknown }) : null;
+    if (!row || (row.status !== "added" && row.status !== "existing") || typeof row.inbox_id !== "string" || !UUID.test(row.inbox_id)) {
+      throw new GmailError("unknown", GMAIL_ADD_MESSAGES.unknown);
     }
     return { status: row.status, inboxId: row.inbox_id };
   },
@@ -437,7 +452,15 @@ export async function addGmailToInbox(userId: string, input: { messageId: string
   }
   if (m.id !== messageId) throw new GmailError("not_found", "그 메일을 연결된 Gmail에서 찾지 못했습니다. 목록을 새로 열어 주세요.");
   await sameAccountOrThrow(userId, account); // 확인하는 사이 연결이 바뀌었으면 넣지 않음
-  return store.addToInbox({ userId, accountHash: gmailAccountHash(account.externalId), messageId, title, sourceUrl: GMAIL_MESSAGE_LINK(messageId) });
+  // QA038 A2-F01: 이 호출을 기다리는 사이 연결이 끊기거나 바뀌어도 결과는 그대로 돌려줌 — 작업을 시작한 계정 기준으로 이미 저장됐을 수 있으므로
+  //   되돌리기·삭제·재전송 0(화면은 세대 가드로 옛 응답을 그리지 않음). A2-F02: 저장소 오류는 코드별 고정 문구로만(원문·추가 필드 0).
+  try {
+    return await store.addToInbox({ userId, accountHash: gmailAccountHash(account.externalId), messageId, title, sourceUrl: GMAIL_MESSAGE_LINK(messageId) });
+  } catch (e) {
+    const code = e instanceof GmailError ? e.code : "unknown";
+    if (code === "conflict" || code === "server") throw new GmailError(code, GMAIL_ADD_MESSAGES[code]);
+    throw new GmailError("unknown", GMAIL_ADD_MESSAGES.unknown);
+  }
 }
 
 /** 지금 연결이 처음 읽은 연결과 같은 계정인지(끊김 404·바뀜 409) */

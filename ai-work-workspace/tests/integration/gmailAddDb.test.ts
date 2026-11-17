@@ -8,9 +8,9 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import postgres from 'postgres';
 
-const rpcMock = vi.hoisted(() => ({ reply: { data: null as unknown, error: null as null | { code?: string; message: string } }, calls: [] as { name: string; args: any }[] }));
+const rpcMock = vi.hoisted(() => ({ reply: { data: null as unknown, error: null as null | { code?: string; message: string } }, calls: [] as { name: string; args: any }[], throwIt: null as unknown }));
 vi.mock('@/lib/supabase/admin', () => ({
-  createAdminClient: () => ({ rpc: async (name: string, args: any) => { rpcMock.calls.push({ name, args }); return rpcMock.reply; } }),
+  createAdminClient: () => ({ rpc: async (name: string, args: any) => { rpcMock.calls.push({ name, args }); if (rpcMock.throwIt) throw rpcMock.throwIt; return rpcMock.reply; } }),
 }));
 
 const ADMIN = 'postgres://postgres:awwlocal@127.0.0.1:55432/aww';
@@ -190,20 +190,47 @@ describe('서버의 rpc 결과 해석(모의 — 실제 PostgREST 미검증)', (
   it('함수 이름·인자 이름, 배열 결과 → added/existing', async () => {
     const store = (await import('../../src/server/gmailInbox.ts')).gmailDefaultStoreForTests();
     rpcMock.calls.length = 0;
-    rpcMock.reply = { data: [{ status: 'existing', inbox_id: 'x-1' }], error: null };
-    expect(await store.addToInbox(input)).toEqual({ status: 'existing', inboxId: 'x-1' });
+    const ID = '11111111-2222-4333-8444-555555555555';
+    rpcMock.throwIt = null;
+    rpcMock.reply = { data: [{ status: 'existing', inbox_id: ID }], error: null };
+    expect(await store.addToInbox(input)).toEqual({ status: 'existing', inboxId: ID });
+    rpcMock.reply = { data: [{ status: 'added', inbox_id: ID.toUpperCase() }], error: null };
+    expect((await store.addToInbox(input)).status).toBe('added');
     expect(rpcMock.calls[0]).toEqual({ name: 'gmail_inbox_add', args: { p_user: U1, p_account_hash: H1, p_message_id: 'm1', p_title: 't', p_source_url: link('m1') } });
   });
   it.each([
     ['40001(그사이 바뀜)', { data: null, error: { code: '40001', message: 'gmail_inbox_add: claim changed, retry' } }, 'conflict'],
     ['그 밖 오류(원문 노출 0)', { data: null, error: { code: '22023', message: 'gmail_inbox_add: invalid source url' } }, 'server'],
-    ['결과 모양 이상', { data: [{ status: 'weird', inbox_id: 1 }], error: null }, 'server'],
-    ['결과 없음', { data: [], error: null }, 'server'],
+    ['결과 모양 이상', { data: [{ status: 'weird', inbox_id: 1 }], error: null }, 'unknown'],
+    ['결과 없음', { data: [], error: null }, 'unknown'],
+    ['A2-F03 inbox_id 빈 문자', { data: [{ status: 'added', inbox_id: '' }], error: null }, 'unknown'],
+    ['A2-F03 inbox_id 공백', { data: [{ status: 'added', inbox_id: '   ' }], error: null }, 'unknown'],
+    ['A2-F03 inbox_id null', { data: [{ status: 'added', inbox_id: null }], error: null }, 'unknown'],
+    ['A2-F03 inbox_id UUID 아님', { data: [{ status: 'existing', inbox_id: 'x-1' }], error: null }, 'unknown'],
+    ['A2-F03 결과 2행', { data: [{ status: 'added', inbox_id: '11111111-2222-4333-8444-555555555555' }, { status: 'added', inbox_id: '11111111-2222-4333-8444-555555555556' }], error: null }, 'unknown'],
+    ['A2-F03 배열 아닌 한 행', { data: { status: 'added', inbox_id: '11111111-2222-4333-8444-555555555555' }, error: null }, 'unknown'],
   ])('%s → %s', async (_n, reply, code) => {
     const store = (await import('../../src/server/gmailInbox.ts')).gmailDefaultStoreForTests();
+    rpcMock.throwIt = null;
     rpcMock.reply = reply as any;
     const e: any = await store.addToInbox(input).catch((x) => x);
     expect(e.code).toBe(code);
     expect(e.message).not.toContain('gmail_inbox_add');
+  });
+});
+
+
+describe('QA038 A2-F02 — 기본 저장소 rpc 예외', () => {
+  it.each([
+    ['throw Error(원문)', new Error('fetch failed: ECONNRESET at 10.0.0.1')],
+    ['throw 객체', { message: 'raw', code: 'PGRST' }],
+  ])('%s → unknown·고정 문구·원문 0', async (_n, err) => {
+    const store = (await import('../../src/server/gmailInbox.ts')).gmailDefaultStoreForTests();
+    const gmx = await import('../../src/server/gmailInbox.ts');
+    rpcMock.throwIt = err;
+    const e: any = await store.addToInbox({ userId: U1, accountHash: H1, messageId: 'm1', title: 't', sourceUrl: link('m1') }).catch((x) => x);
+    rpcMock.throwIt = null;
+    expect(e.code).toBe('unknown');
+    expect(e.message).toBe(gmx.GMAIL_ADD_MESSAGES.unknown);
   });
 });

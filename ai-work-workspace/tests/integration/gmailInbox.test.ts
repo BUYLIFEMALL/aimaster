@@ -690,3 +690,38 @@ describe('A2-1 addGmailToInbox(서버)', () => {
     expect(adds).toHaveLength(0);
   });
 });
+
+
+// ---------------------------------------------------------------- QA038 A2-F01·F02(Mac msg_f0e34dc7b7ca·msg_d91d3d50ebd8)
+describe('QA038 A2 — 넣기 대기 중 변경·저장소 오류 정규화', () => {
+  async function connected() {
+    reset(true);
+    await gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT));
+    hits = []; storeCalls.length = 0; adds.length = 0;
+  }
+  const withAdd = (fn: (i: any) => Promise<any>) => { const base = fakeStore(); gm.setGmailStoreForTests({ ...base, async addToInbox(i: any) { storeCalls.push('add'); adds.push(i); return fn(i); } } as any); };
+  it('F01: 넣기를 기다리는 사이 연결이 끊겨도 added 그대로(되돌리기·삭제·재전송 0)', async () => {
+    await connected();
+    withAdd(async () => { rows = []; return { status: 'added', inboxId: '11111111-1111-4111-8111-111111111111' }; });
+    const r = await gm.addGmailToInbox(USER, { messageId: 'm1', title: 't', expectSub: 'sub-A' });
+    expect(r.status).toBe('added');
+    expect(storeCalls.filter((c) => c === 'add')).toHaveLength(1);
+    expect(storeCalls).not.toContain('delete');
+  });
+  it.each([
+    ['원문 Error throw', () => { throw new Error('duplicate key value violates unique constraint "gmail_inbox_claims_pkey" DETAIL: secret'); }, 'unknown'],
+    ['Promise reject(원문 객체)', () => Promise.reject({ message: 'connection terminated', code: 'XX000' }), 'unknown'],
+    ['GmailError server에 원문 문구', () => { throw Object.assign(new gm.GmailError('server', 'raw sql: insert into public.work_inbox …'), { extra: 'x' }); }, 'server'],
+    ['GmailError conflict에 다른 문구', () => { throw new gm.GmailError('conflict', 'claim changed raw'); }, 'conflict'],
+    ['그 밖 GmailError(auth)', () => { throw new gm.GmailError('auth', 'raw'); }, 'unknown'],
+  ])('F02: %s → 코드별 고정 문구만, 추가 필드·원문 0, 재전송 0', async (_n, fn, code) => {
+    await connected();
+    withAdd(async () => (fn as () => any)());
+    const e: any = await gm.addGmailToInbox(USER, { messageId: 'm1', title: 't', expectSub: 'sub-A' }).catch((x) => x);
+    expect(e).toBeInstanceOf(gm.GmailError);
+    expect(e.code).toBe(code);
+    expect(e.message).toBe((gm.GMAIL_ADD_MESSAGES as any)[code]);
+    expect(e.extra).toBeUndefined();
+    expect(storeCalls.filter((c) => c === 'add')).toHaveLength(1);
+  });
+});
