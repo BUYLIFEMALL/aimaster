@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 13:17:11 KST",
+  "checkedAt": "2026-11-17 15:53:34 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4824,18 +4824,23 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "예약 기능 운영 활성화·실연동 검증",
-      "status": "waiting_human",
-      "delivery": "prepared",
-      "evidence": "f78a2e4e3 최종활성화조건",
+      "status": "running",
+      "delivery": "queued",
+      "evidence": "f78a2e4e3 최종활성화조건 / msg_0e57ecf5a5fa·Master미커밋0/lock0/teamqueue0·free~7GB",
       "scopeRef": "운영표2/스위치3/빌드1·실시험계정Google/HTTP/시각 별도범위확정",
       "completion": "명시승인범위내DDL/배포·실연동/운영확인·미검수구분",
-      "blocker": {
-        "reason": "운영저장소구조추가/유료배포빌드/실구글외부쓰기 미승인",
-        "owner": "주인님",
-        "required": "표2추가·배포1회·시험계정실구글동작범위 승인",
-        "next": "승인전3OFF/운영DDL/Google/build0"
-      },
-      "next": "검증된소스보존·승인후실행범위/순서고정"
+      "blocker": null,
+      "next": "Workspace v1.57 활성화릴리스·실시험계정1일정검증·배포증거후Mac읽기QA",
+      "approval": {
+        "source": "주인님 Master채팅: 계속작업진행/승인할께/진행해",
+        "at": "2026-11-17T06:53:32.187Z",
+        "scope": "예약표2추가·스위치3활성·필수localbuild1+Vercel운영1·시험계정Google QA일정최대1개 고정id검증및본인생성id정리·HTTP/시각검수",
+        "excluded": "포털활성화/새cron등록/실손님·타회원쓰기/추가과금빌드/다른프로젝트",
+        "executor": "CC-WORKSPACE-01",
+        "dispatch": "msg_0e57ecf5a5fa",
+        "remoteBuildBudget": 1,
+        "remoteBuildUsed": 0
+      }
     }
   ]
 }

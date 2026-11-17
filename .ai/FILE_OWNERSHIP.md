@@ -322,3 +322,5 @@ BLOG-20261117-08 CC-BLOG-01: web-crawler/webapp/src/lib/inspect/safeFetch.ts·sr
 WS21 2A Workspace별도UI범위: 새src/app/book/[...path]/BookingForm.tsx·src/app/calendar-sync/BookingSettingsCard.tsx·calendar-sync/page.tsx/CalendarBoard.tsx최소연결·tests/integration/bookingSettingsCardDom.test.ts/bookingFormDom.test.ts. QA024 P1두건/P2로안전중지/기존변경보존·booking.ts/booking.test.ts서버수정우선(운영DDL0). runtime/publicPages배선은미승인유지.
 
 WS21 2B CC-WORKSPACE-01: ai-work-workspace/src/server/runtime.ts 예약handlers등록·src/server/publicPages.ts예약2명령·새src/app/book/[...path]/page.tsx·tests/integration/bookingWiring.test.ts만OFF배선. 3스위치OFF/DB생성0·QA025동안기존UI와서버booking5b1eb8b6c동결,필요추가변경먼저보고. 플랫폼path로그무노출보장금지·실외부/운영DDL/build/deploy0.
+
+WS-20261117-22 활성화 주인님직접승인: CC-WORKSPACE-01단독 예약서버BOOKING_ENABLED·회원BOOKING_UI·손님BOOKING_FORM_UI3개활성,version.ts/정확versionSQL/기존문서·관련회귀만. 운영예약표2개정확정의·programs해당행·localbuild1/Vercel1·시험계정본인Google고정1일정검증/그생성id만정리허용. 포털OFF·새cron/타회원/실손님0,Mac쓰기/배포0. 실패자동추가빌드0·미완실검수분리.
