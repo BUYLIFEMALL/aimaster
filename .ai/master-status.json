@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T07:03:12.537Z",
+  "checkedAt": "2026-11-17T07:03:57.187Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2797,12 +2797,12 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "v1.57 예약활성 운영 읽기전용 스모크",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "msg_da022ee0d88b",
+      "status": "running",
+      "delivery": "running",
+      "evidence": "msg_da022ee0d88b / msg_5a3b73a5f46a 착수확인·기존studio/receipts/v1.57/375폭읽기",
       "scopeRef": "운영버전/예약카드/375/기존화면·예약쓰기/DDL/Google/build0",
       "completion": "실화면관찰·본인계정/개인토큰마스킹·작성자실Google근거구분",
-      "next": "기존화면부터읽기·표생성완료후예약UI읽기"
+      "next": "표2생성완료신호전booking RPC0·그뒤예약UI읽기검수"
     }
   ],
   "programOverrides": [
