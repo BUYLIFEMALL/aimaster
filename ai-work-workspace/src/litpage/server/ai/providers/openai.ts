@@ -281,6 +281,8 @@ function urlOf(call: PendingFetch): string {
 
 /** A ClaudeLike client for an OpenAI Responses endpoint. */
 export function openaiClient(cfg: OpenAIConfig, deps: OpenAIDeps = {}): ClaudeLike {
-  const stream = (params: Json, opts?: { signal?: AbortSignal }) => new OpenAIMessageStream(cfg, params, opts?.signal, deps);
+  // 2026-11-17 E3-4: 요청 옵션 maxRetries: 0이면 그 스트림만 재시도 없음(기본 deps는 바꾸지 않음, 다른 요청은 기존 재시도 그대로)
+  const stream = (params: Json, opts?: { signal?: AbortSignal; maxRetries?: number }) =>
+    new OpenAIMessageStream(cfg, params, opts?.signal, opts?.maxRetries === 0 ? { ...deps, retryDelays: [] } : deps);
   return { beta: { messages: { stream: stream as unknown as ClaudeLike['beta']['messages']['stream'] } } };
 }
