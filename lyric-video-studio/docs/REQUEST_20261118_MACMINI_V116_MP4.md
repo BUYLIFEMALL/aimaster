@@ -33,7 +33,8 @@ v1.16에서 「파일로 바로 저장」 중 그래픽 가속 인코더가 멈�
 ## 결과 전달
 - A 파일·`mac-file.mp4`·`diag-A.txt`·`diag-B.txt`를 저장소 **밖** 공유 폴더 `/Volumes/gt1_mega/PDS/mus-mac/`(= 윈도우 `D:\PDS\mus-mac\`)에 둔다. 맥에 ffprobe가 있으면 `ffprobe -v error -show_entries stream=codec_name,width,height,nb_frames,duration -of compact <파일>` 결과도 함께
 - 윈도우 음악 담당이 그 폴더의 지정 파일만 `ffprobe`·전체 디코드(`ffmpeg -xerror`)로 판정
-- 맥 장비 정보(칩: Intel/Apple Silicon, macOS·브라우저 버전)를 꼭 적는다 — 지금 맥 시험 장비가 Intel이면 Apple Silicon은 계속 미검수로 남는다
+- 맥 장비 정보(칩: Intel/Apple Silicon, macOS·브라우저 버전)를 꼭 적는다
+- **Apple Silicon 확인은 장비가 준비되면 하는 일로 정리됨(2026-11-18 주인님 「이건 준비가되면 하는것으로 완료해」)** — 지금은 Intel 맥으로 할 수 있는 만큼만 하고, Apple Silicon을 「미검수」로 따로 보고하지 않는다. 장비가 준비되면 이 요청서를 그대로 다시 실행
 
 ## 하지 않는 것
 - 유료 음악·AI 생성, 유튜브 올리기, 코드 수정, `npm`·빌드·배포(맥미니 규칙)
