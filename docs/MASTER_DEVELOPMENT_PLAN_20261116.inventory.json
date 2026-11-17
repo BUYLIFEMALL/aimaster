@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 09:23:19 KST",
+  "checkedAt": "2026-11-17 09:24:34 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4481,12 +4481,13 @@
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "title": "ESM 모바일 메뉴 닫기·가격 오류 입력 보존 수정",
       "priority": "P1",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "QA016실화면2결함·msg_7ef4b618cb04",
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "msg_3d3810bf6b21 작성자type0/15·복제모의page한계·기존homeguide후보보존",
       "completion": "모바일X실클릭차단원인수정·서버숫자오류뒤입력보존·다른필드/중복생성회귀·관련경량검증,실배포미검수구분",
-      "next": "Sidebar/RegisterForm 및관련시험국소수정·기존guide/home미배포묶음보존,설치/DB쓰기/실등록/빌드0",
-      "lastReviewedAt": "2026-11-17T00:20:21.319Z"
+      "next": "Mac QA016후속 실소스/컴포넌트독립검수배정·운영v1.01未반영/v1.02묶음,실ESM/DB쓰기/계정연결/빌드0",
+      "lastReviewedAt": "2026-11-17T00:24:31.812Z",
+      "sha": "a6e36da2a + 59d35e2c2기록"
     }
   ]
 }
