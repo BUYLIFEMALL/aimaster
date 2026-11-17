@@ -129,3 +129,10 @@
 - 실행 안 함(지시): 전체 vitest(시험 DB `aww`/개발 DB `aww_dev`·다른 시험 점유 재확인 뒤 Master와 순번 조정), `npm run build`.
 - 로컬 build 근거: 루트 `CLAUDE.md` 661행 「단일 작업 세트 1. 로컬 빌드 검수: 해당 서브프로젝트에서 `npm run build`」(배포 때 절차), 94·206행 「배포 전 로컬 확인 … 필요하면 `npm run build`」. 프로그램 전용 CI(`.github`) 없음 → 배포 승인 시 배포 직전 1회만 실행 권장, 지금은 원격 배포 빌드와 중복 수행 안 함.
 - 버전값·운영 `programs.version`·SQL 변경 0, 포털 스위치 OFF 유지, Alt 확인 화면·시험 카드 보존.
+
+## 16. 전체 vitest 1회 (Master msg_9e5c716ac8af, 제품 코드 변경 0)
+- 실행 직전 확인: 시험 DB = `aww`(`tests/setup-local-db.mjs` 고정 주소), 개발 DB = `aww_dev`(`.env.local` 이름만 확인) → 서로 다름. `aww` 접속 0, `aww_dev` 접속 1(Master 개발 서버). 다른 vitest 프로세스 0, 가용 메모리 약 5,857MB, 프로그램 폴더 다른 세션 미커밋 0.
+- `npx vitest run --config tests/vitest.config.mjs` 1회 → **45 파일 / 370 시험 모두 통과**, exit 0, 78초. 재시도 0.
+- 실행 뒤: `aww_dev` DB oid 2204849 그대로(개발 자료 보존), 3457 LISTEN 유지(Master 서버), Alt 확인 화면·시험 카드 보존.
+- `docs/IMPROVEMENTS.md` 「미배포 대기」 맨 위에 32커밋 요약 + §14·§15 링크 + 「pending-check 대기 없음 = 루트 `docs/PENDING_DEPLOYS.md`에 이 프로그램 줄이 없다는 뜻」 한 줄 추가(공용 표·다른 담당 줄 변경 0).
+- 남은 배포 전 절차: 배포 승인 시 직전 로컬 `npm run build` 1회, 버전 v1.56 세 곳, 배포 뒤 운영 화면 확인.
