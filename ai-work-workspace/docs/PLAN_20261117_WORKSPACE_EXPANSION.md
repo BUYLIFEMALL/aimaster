@@ -340,3 +340,11 @@ E1 독립 검수(QA17-003)와 별개로 계획만. 디자인 3안 선택 전이�
 - **결재자 지정 = (나) 표 전체 권한자만**(결재자 칸 default `reader`, 예외 없음 → editor만 씀). 요청자 셀프 지정·셀프 승인 허용안(가)은 **채택 안 함**.
 - 구분해서 밝힐 것: 전체 권한자는 기존처럼 규칙을 넘음(기존 ACL 공용 함수 `propertyRoleFor`·`dbaccess.ts` 재사용, 새 권한 엔진 0) — 「결재자 전용」은 일반 편집자 기준.
 - 보완 필요(구현 때): ① 템플릿 spec의 `property_permissions`를 그대로 복사하지 말고 **알려진 모양만 통과**(default_access 값 목록·override 종류·`property_info.property_id`가 같은 표 속성 번호·person/created_by 타입·role 값 목록 검사, 그 밖은 버림 — 규칙이 넓어지거나 빠지지 않게) ② 속성 번호 매핑 근거: 템플릿 표는 `copyTreeOps`가 schema를 그대로 복사(키 유지)하므로 `aApr`·`aSta`·`aSub` 참조가 복사 뒤에도 같은 표를 가리킴 — 시험으로 복사본 규칙의 `property_id`가 새 표 schema에 있는지 확인.
+
+### 7-13. E3-3 결재자 전용 승인 구현 결과 (2026-11-17, Master `msg_de5df14ea733`) — 코드 `c5b26d81c`, 미배포
+- 범위: `content/spec.ts`(템플릿 전용 기호 키 `TEMPLATE_PROPERTY_ACCESS` + 검사 `templatePropertyAccess` + 실패 `TemplatePropertyAccessError`), `content/catalog.ts`(결재 템플릿 칸 규칙·「결재 올림」·자동화 ① 조건), 시험 `approvalPermission.test.ts` 신규·기존 결재 시험 기대값만. `propertyAccess.ts`·`dbaccess.ts`·새 API·DB 0.
+- 칸 규칙: 상태·결재 의견·결재일 = default `reader` + 「결재자(aApr) 선택된 사람」 `content_only_editor` / 결재 올림(aSub, 체크칸)·요청자 = 「페이지 만든 사람」 `content_only_editor` / 결재자 = default `reader`, 예외 없음(표 전체 권한자만). 자동화 ① = aSub `is checked`.
+- 신뢰 경계: 규칙은 기호 키로만 받아 JSON(가져오기·AI 도구 `write.ts`의 `schema as any`)으로는 만들 수 없음 — 문자열 키 `property_permissions`는 지금처럼 무시. 받은 규칙은 알려진 모양만 새 객체로 복사, 하나라도 틀리면 예외 → 템플릿 추가 전체 실패·기록 0(조용히 버려 무제한 편집으로 넘어가지 않음).
+- 속성 번호 근거: 템플릿 복사(`templates.ts copyTreeOps`)는 collection을 `...rest`로 옮겨 schema 키가 그대로 → 복사본 규칙의 `aApr`·`created_by` 참조가 새 표 schema에 있음을 시험으로 확인.
+- 실서버 증거(격리 시험 DB): 일반 편집(read_and_write) 요청자·결재자·제3자 + 전체 권한 주인. 화면 저장 `applyChanges`·공개 API `PATCH /v1/pages/:id`·AI/버튼과 같은 client 거래 모두에서 제3자·요청자 상태 변경 거절, 결재자 허용; 결재자 지정은 세 회원 모두 거절·주인만; 같은 거래 「결재자=나+승인」 전체 거절; 요청자 자기 결재자 지정 새 행 거절·행 0; 규칙 스키마 삭제 거절; 반례: 규칙을 뺀 표에서는 같은 제3자가 상태를 바꿀 수 있었음. 상태 기본값은 새 행에 저장되지 않아 요청자 새 행이 막히지 않음.
+- 남은 한계: 표 전체 권한자는 모든 칸을 바꿈(기존 동작, 템플릿 설명에 평문), 결재자로 지정되면 기존 「사람 속성 지정」 알림이 함께 감(결재 요청 알림과 별개), 앱 알림만, 결재 이력은 페이지 버전 기록.
