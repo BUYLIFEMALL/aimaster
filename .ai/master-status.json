@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T07:36:38.202Z",
+  "checkedAt": "2026-11-17T07:43:08.826Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2851,12 +2851,13 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "E3-1 간단결재 요청관리 템플릿",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "returned",
-      "evidence": "e297153b8·922e4d28e·msg_0186d3820539",
-      "next": "QA030독립검수·E3-2자동화생성읽기조사/미배포",
+      "evidence": "e297153b8·922e4d28e·msg_0186d3820539 / f789e3281·aa7bcff52·msg_a2a28826de2b E3-2정확7경로배정/수락",
+      "next": "기존saveAutomation재사용/표당2규칙/부분실패toast E3-2구현·AI/새DB/외부0",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분"
+      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분",
+      "stage1": "e297153b8/QA030 done scoped source"
     },
     {
       "task_id": "BLOG-20261117-09",
@@ -2866,10 +2867,11 @@
       "title": "T07 대시보드/작업목록 공용자동갱신",
       "status": "ready_review",
       "delivery": "returned",
-      "evidence": "40662e6ae/a3b9a7a16·msg_74121752d303",
-      "next": "QA029독립검수·실화면/배포미검수",
+      "evidence": "40662e6ae/a3b9a7a16·msg_74121752d303 / QA029권한거절/timeout P2·1a54bdd06반례2修正/18tests/tsc0",
+      "next": "QA029국소재검토·이전회차late응답검사",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분"
+      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분",
+      "sha": "1a54bdd06"
     },
     {
       "task_id": "FRONT-20261117-04",
@@ -2877,10 +2879,10 @@
       "owner": "CC-B2B-FRONT-01",
       "reviewer": "CX-MASTER-01",
       "title": "P3 어두운테마 hover피드백 일관성",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "fa1f568c6·msg_9b6678fabf2b / e8ecfa1c9·作者24/31tests/실CDP12색/touch흉내",
-      "next": "QA031 국소독립검토뒤Lab출처재동결·미배포",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "fa1f568c6·msg_9b6678fabf2b / e8ecfa1c9·作者24/31tests/실CDP12색/touch흉내 / 7609748ad QA031PASS",
+      "next": "지정소스완료·미배포다음묶음/실운영미검수",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "completion": "배정된소스/검증범위반환·실운영/배포미검수구분",
       "sha": "7609748ad"
@@ -2891,12 +2893,13 @@
       "owner": "CC-MOVIE-01",
       "reviewer": "CX-MASTER-01",
       "title": "공용MP4 탭수명 fallback성공기억 P3",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "분석반환·msg_2be051aafd0d",
-      "next": "원본+정식사본동기화/모의시험·Music중복편집0",
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "분석반환·msg_2be051aafd0d / 69309a645·作者9/9·4프로그램tsc0/정식사본sync",
+      "next": "QA032 stall성공기억예외/동기화독립검토·미배포",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분"
+      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분",
+      "sha": "2b9a06c9c"
     },
     {
       "task_id": "DES-20261117-04",
@@ -2919,7 +2922,7 @@
       "title": "BLOG09 공용폴러 독립검토",
       "status": "ready",
       "delivery": "queued",
-      "evidence": "msg_6701f7855675",
+      "evidence": "msg_6701f7855675 / msg_51ec2a847835 修正국소재검토",
       "next": "5초/숨김/중복/권한/세대/훅생명주기판정",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "completion": "배정된소스/검증범위반환·실운영/배포미검수구분"
@@ -2930,10 +2933,10 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "WS24 템플릿/그룹/한계 독립검토",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "msg_6701f7855675",
-      "next": "OpsBuilder/속성/상태그룹/기존회귀·전체결재기능아님",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_6701f7855675 / msg_1c2b6861aa3d OpsBuilder指定PASS",
+      "next": "지정소스완료·미배포다음묶음/실운영미검수",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "completion": "배정된소스/검증범위반환·실운영/배포미검수구분"
     },
@@ -2943,12 +2946,25 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "dark hover 1규칙 국소독립검토",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "7609748ad/e8ecfa1c9·Mac전달",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "7609748ad/e8ecfa1c9·Mac전달 / msg_f5ffe89e4754 12색/dark범위PASS",
       "scopeRef": "globals/dark-header2파일·12색독립계산·제품/build0",
       "completion": "dark명시hover범위/대비/light/admin/touch보존",
-      "next": "QA029→030뒤순차반환·실Lab未검수"
+      "next": "지정소스완료·미배포다음묶음/실운영미검수"
+    },
+    {
+      "task_id": "QA-20261117-032",
+      "parent_task_id": "MOV-20261117-07",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "공용MP4 탭수명fallback P3 독립검토",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "msg_c36564afe6e9",
+      "scopeRef": "기준/사본/기존시험·모의/소스·실인코딩/build0",
+      "completion": "stall대체성공만기록/예외비기록/새모듈초기화/사본동일",
+      "next": "QA031후검토·QA029국소수정재검토순서조정"
     }
   ],
   "programOverrides": [
@@ -3280,7 +3296,7 @@
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
       "stage": "v1.57운영·실예약시험/합성점유정리완료·초회DDL보완소스독립PASS",
-      "next": "WS24 E3-1구현회수 QA030·E3-2연계읽기조사·WS23다음묶음"
+      "next": "WS24 E3-1소스PASS·E3-2앱내알림규칙생성/실패toast구현중·미배포"
     },
     {
       "order": "3 · B2B",
@@ -3291,20 +3307,20 @@
     {
       "order": "4 · B2BFront",
       "owner": "B2BFront + Mac Tester",
-      "stage": "FRONT03 3색대비/hover수정 독립소스PASS·미배포",
-      "next": "FRONT04 P3darkhover국소구현·기존5b02c3399미배포유지"
+      "stage": "FRONT04 dark hover7609748ad 독립소스PASS·미배포",
+      "next": "Backend Lab최종출처7609748ad재동결·DB0104실행대기"
     },
     {
       "order": "5 · 블로그",
       "owner": "Blog",
       "stage": "T05 robots+DNS수정독립소스PASS·미배포",
-      "next": "BLOG09 공용폴러40662e6ae 회수 QA029독립검토"
+      "next": "BLOG09권한거절즉시중지/timeout수정1a54bdd06 QA029재검토"
     },
     {
       "order": "6 · 영상",
       "owner": "Movie",
       "stage": "떡상v1.30·사용량/캐시2표운영적용보고",
-      "next": "MOV07 공용encoder P3원본+사본소스구현·실검색시험로그인별도"
+      "next": "MOV07공용encoder2b9a06c9c 회수·QA032독립검토·실검색로그인별도"
     },
     {
       "order": "7 · 음악",
