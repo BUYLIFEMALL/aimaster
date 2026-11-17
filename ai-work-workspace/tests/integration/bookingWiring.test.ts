@@ -9,6 +9,11 @@ process.env.AWW_DATABASE_URL = await setupLocalDb({ reset: true });
 const h = vi.hoisted(() => ({ createClient: vi.fn(async () => ({})) }));
 vi.mock('next/headers', () => ({ headers: async () => new Headers({ 'x-forwarded-for': '203.0.113.9' }) }));
 vi.mock('@/lib/supabase/server', () => ({ createClient: h.createClient }));
+// QA026: 공개 페이지가 형식에 맞는 토큰일 때만 bookingSlots를 부르는지 세기(실제 함수 그대로 통과)
+vi.mock('@/server/booking', async (orig) => {
+  const m = await orig<typeof import('../../src/server/booking')>();
+  return { ...m, bookingSlots: vi.fn(m.bookingSlots) };
+});
 
 let runtime: typeof import('../../src/server/runtime');
 let route: typeof import('../../src/app/api/public/[name]/route');
@@ -167,5 +172,42 @@ describe('시험에서만 켰을 때 — 배선이 실제로 이어지는지(격
     expect((await post('getBookingSlots', { token })).status).toBe(404);
     expect((await runtime.runRpc('bookingList', {}, member)).status).toBe(404);
     await expect(page.default({ params: Promise.resolve({ path: [token] }) })).rejects.toMatchObject({ digest: expect.stringContaining('404') });
+  });
+});
+
+// ---------------------------------------------------------------- QA026(Mac msg_a17d9b6840fb): 공개 페이지 경로 토큰 — 다시 풀기(decode) 없이 발급 형식만
+describe('QA026: 공개 페이지 경로 토큰 검사', () => {
+  const VALID = 'aZ09_-'.repeat(7) + 'Q'; // 43자 base64url(발급 형식)
+  const slotsSpy = () => bk.bookingSlots as unknown as { mock: { calls: unknown[][] }; mockClear: () => void };
+  const nf = (path: string[]) => expect(page.default({ params: Promise.resolve({ path }) })).rejects.toMatchObject({ digest: expect.stringContaining('404') });
+
+  it.each([
+    ['빈 경로', []],
+    ['여러 칸', ['a'.repeat(43), 'b']],
+    ['% 하나', ['%']],
+    ['잘못된 퍼센트', ['%E0%A4%A']],
+    ['%25 경계', ['%25']],
+    ['토큰 뒤 %', ['t'.repeat(43) + '%']],
+    ['유니코드', ['한글토큰'.repeat(9)]],
+    ['너무 짧음', ['abc']],
+    ['너무 김', ['t'.repeat(44)]],
+    ['아주 김', ['t'.repeat(5000)]],
+    ['허용 밖 문자', ['t'.repeat(42) + '.']],
+  ])('%s → 예외 없이 404, bookingSlots 호출 0', async (_n, path) => {
+    slotsSpy().mockClear();
+    await nf(path as string[]);
+    expect(slotsSpy().mock.calls).toHaveLength(0);
+  });
+
+  it('발급 형식 토큰은 그대로(다시 풀지 않고) bookingSlots에 한 번 넘기고, OFF라 404', async () => {
+    slotsSpy().mockClear();
+    const g0 = gcalCalls.length;
+    const rows = () => (dbm.db.prepare('SELECT COUNT(*)::int AS n FROM aww_bookings').get() as { n: number }).n;
+    const r0 = rows(); // 앞의 「시험에서만 켰을 때」가 표를 만들었으므로 「늘지 않음」으로 확인
+    await nf([VALID]);
+    expect(slotsSpy().mock.calls).toHaveLength(1);
+    expect(slotsSpy().mock.calls[0][0]).toBe(VALID);
+    expect(gcalCalls.length).toBe(g0);
+    expect(rows()).toBe(r0);
   });
 });
