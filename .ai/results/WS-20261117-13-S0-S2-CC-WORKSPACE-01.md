@@ -119,3 +119,13 @@
   6. 배포 뒤 운영 화면 확인(로그인·관제 대시보드·영수증 스크롤·키 화면 캘린더 상태·달력)
 - **실검수 미완(기록 유지)**: Alt 끌기 복사(주인님 수동 1동작 대기, 로컬 화면 보존), 실제 인쇄, 실기기 375, 실제 볼타 발급, 영수증 본문·설정 「AI 비서」·「내 계정」 영어(범위 밖), 관제 대시보드 긴 내용 스크롤(미재현).
 - 로컬 개발 DB `aww_dev` 쓰기 기록: 시험 워크스페이스 `workspace6433`, 시험 달력·카드 6장(2장 날짜 이동), 보기 옵션 줄바꿈 ON→OFF 복원, 언어 설정 en→ko 복원. 운영 DB·직접 SQL·schema 0.
+
+## 15. 배포 전 경량 사전 검사 결과 (Master msg_d12b0eda7c96, 제품 코드 변경 0)
+- 정정: §14의 32개는 고유 커밋 수, 경로별 커밋 수는 여러 경로를 고친 커밋이 겹쳐 세어진 값(합계 41 ≠ 32).
+- 실행 전 상태: `.git/index.lock`·`safe-commit-index.lock` 없음, 다른 tsc/vitest 실행 0, 가용 메모리 약 5,913MB, commit 60/66GB.
+- `node scripts/apply-source-notice.mjs --check ai-work-workspace` → 「고칠 곳 0개」.
+- `node scripts/pending-check.mjs ai-work-workspace` → 「대기 없음」(막는 항목 0). 단 이 점검은 `docs/IMPROVEMENTS.md`의 「미배포 대기」 기록을 읽는 방식이라 실제 미배포 커밋 32개를 세지 않음 — 배포 담당이 §14 목록을 기준으로 볼 것(문서 기록 보완은 지시 시).
+- 전체 타입 검사 1회: `NODE_OPTIONS=--max-old-space-size=3072 npx tsc --noEmit` → exit 0, `error TS` 0건, 39초.
+- 실행 안 함(지시): 전체 vitest(시험 DB `aww`/개발 DB `aww_dev`·다른 시험 점유 재확인 뒤 Master와 순번 조정), `npm run build`.
+- 로컬 build 근거: 루트 `CLAUDE.md` 661행 「단일 작업 세트 1. 로컬 빌드 검수: 해당 서브프로젝트에서 `npm run build`」(배포 때 절차), 94·206행 「배포 전 로컬 확인 … 필요하면 `npm run build`」. 프로그램 전용 CI(`.github`) 없음 → 배포 승인 시 배포 직전 1회만 실행 권장, 지금은 원격 배포 빌드와 중복 수행 안 함.
+- 버전값·운영 `programs.version`·SQL 변경 0, 포털 스위치 OFF 유지, Alt 확인 화면·시험 카드 보존.
