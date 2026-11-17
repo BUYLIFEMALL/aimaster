@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T18:03:54.179Z",
+  "checkedAt": "2026-11-17T18:33:02.010Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3583,11 +3583,12 @@
         "status": "requested",
         "feeStatus": "waiting",
         "paymentRows": 0,
-        "customer": "시험naver"
+        "customer": "시험naver",
+        "snapshotNote": "담당제공02:38시점·03:31자동구매확정예정뒤실상태未재조회,다음사람완료신호후현상태판정"
       },
       "evidence": "msg_bdbf073001ca·조건검사/회원auth RPC1+운영사fee RPC1/한거래·직접표쓰기0",
       "completion": "본인시험키/몰/주문/교환/금액일치→주인님토스시험제출1회→고정id/기록/상태읽기검수",
-      "next": "주인님메인ego243 Lab본인로그인/시험카드입력·제출→Backend읽기1회. Mac29는QA037읽기만·중복prepare/confirm0",
+      "next": "사람시험제출/로그인신호없음·고정교환1건유지,현재주문상태는03:31자동확정가능해반복RPC없이다음읽기때판정",
       "blockedReason": "현재로그인없는페이지404·주인님본인로그인/시험제출필수. 실제카드/운영/새build0",
       "lastReviewedAt": "2026-11-17T17:43:53.437Z"
     },
@@ -3605,6 +3606,19 @@
       "next": "정확범위/완료조건계획회신→Master범위승인후mock수정·실API/키/DB/build0",
       "lastReviewedAt": "2026-11-17T17:43:53.437Z",
       "blockedReason": "현재Ecom화면이재배포선택질문대기라계획지시수신보류·Master가선택대행하지않음"
+    },
+    {
+      "task_id": "PORT-20261118-01",
+      "parent_task_id": "OPS-20261118-01",
+      "owner": "AG-UI-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "미확인5카테고리19프로그램 담당/잔여근거 매핑",
+      "status": "ready",
+      "delivery": "queued_not_settled",
+      "scopeRef": "inventory의 CRM/마케팅/인스타/성격운세/AI프롬프트 19개·기존문서읽기+본인JSON1개",
+      "evidence": "msg_bd9dfa2f47ed·Master대상19검산",
+      "completion": "각slug문서의명시담당/당시버전/잔여/라이프사이클/근거절/확신/불일치·19건누락0,과거작성자=현활성담당추정0",
+      "next": "기존AGY수락/결과대기·제품/공유표/키/DB/브라우저/build0·현재68미확인수감소추정0"
     }
   ],
   "programOverrides": [
@@ -4017,8 +4031,8 @@
     {
       "order": "9 · 디자인",
       "owner": "AGY",
-      "stage": "이미지3엔진d21 소스동결·감성1.29로복구",
-      "next": "DES18-05 문서ID/공식지원·무료서비스정책검토→QA049,제품재편집0"
+      "stage": "이미지코드동결·PORT19문서매핑배정",
+      "next": "19프로그램담당/잔여근거수락대기·제품수정/새시안/외부호출0"
     },
     {
       "order": "전담 · 키트",
@@ -4088,25 +4102,24 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T18:03:54.179Z",
+      "at": "2026-11-17T18:33:02.010Z",
       "timezone": "Asia/Seoul",
-      "trigger": "03:00 Windows예약 기존Master수신",
-      "scope": "미회수보고/관리자요청·전체/카테고리잔여작업판·docs/결과/인수인계증분·로컬12연결/선택질문2개실화면읽기·제품미커밋·공식alias/명시소스候補검증",
+      "trigger": "03:30 기존Master Windows예약메시지",
+      "scope": "보고/요청·19카테고리미종료작업·로컬12연결/대기화면미변화·프로그램/문서증분·관리자요청·공식운영alias·후속PORT19배정",
       "evidence": [
-        "msg_4a9dcc0b8250·Windows LastTaskResult0",
-        "dev-requests codex-master 대기0·새미등록인계0(본인생성플랜2개제외)",
-        "제품3경로미커밋0·HEAD2c1980c6a변경0",
-        "Vercel alias active dpl_D9/v1.29 유지",
-        "Ecom/Workspace read-only screen 재배포/공개방식질문대기 확인",
-        "59cb 후보6소스커밋포함/d21제외·690df단독은59cb누락"
+        "msg_d2e206905e0b·Windows03:30 LastTaskResult0/다음04:00",
+        "새未등록인계0(자체생성플랜2개제외)·제품3경로미커밋0/HEAD f7a5f366c",
+        "dev-requests codex-master 대기0·로컬12연결은착수증거아님",
+        "Vercel active alias dpl_D9ExEsYD9sH9zAxZy38dkU2UUMUz/v1.29유지",
+        "PORT19 대상19검산·msg_bd9dfa2f47ed 전송/아직not_settled"
       ],
-      "judgment": "새보고/승인/소스변화없음. 정상alias유지·명시재배포후보준비,실3회기승인/추가빌드예산분리. 질문대기를유휴완료나착수로단정0·제품동결/새build/DB/AI0.",
+      "judgment": "새승인/실행완료신호없음·운영안정복구유지. 기존제품/실호출/빌드차단유지하되실제기록된미확인포트폴리오문서대조19건을AGY에단일배정.중복시험/가동추정0.",
       "unverified": [
-        "Ecom 계획메시지실수락(질문열림으로보류)",
-        "Gmail ClientID일치/시험사용자실목록·공개/빌드범위",
-        "Lab시험카드제출/기록읽기·Mac제어반환"
+        "PORT19수락/실착수·Ecom/Gmail선택질문답변",
+        "Gmail ClientID/시험사용자실목록",
+        "Lab사람시험카드제출/03:31뒤현주문상태·Mac반환"
       ],
-      "nextAction": "선택질문답변/신규보고후단일책임후속·03:30기존Master예약"
+      "nextAction": "AGY문서매핑결과판정·기존선택/사람단계신호회수·04:00현재터미널점검"
     },
     "notifications": [
       {
@@ -4174,7 +4187,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-17T18:30:00.000Z",
+      "nextScheduledAt": "2026-11-17T19:00:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -4192,8 +4205,8 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-17T18:00:00.000Z",
-        "messageId": "msg_4a9dcc0b8250",
+        "scheduledAt": "2026-11-17T18:30:00.000Z",
+        "messageId": "msg_d2e206905e0b",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false
@@ -4640,9 +4653,9 @@
     },
     {
       "owner": "AG-UI-01",
-      "state": "新이미지d21 source동결·DES05보고정정요청",
-      "next": "공식지원/정책근거·QA049·제품변경0",
-      "evidence": "f4063ae82 / msg_cc05e5f53915",
+      "state": "emotion제품동결유지·PORT19문서매핑배정 전송/수락미확인",
+      "next": "문서JSON19건반환→Master근거판정·다른프로그램코드변경0",
+      "evidence": "f4063ae82 / msg_cc05e5f53915·msg_bd9dfa2f47ed",
       "reviewedAt": "2026-11-17T16:58:50.290Z",
       "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
     },
@@ -6281,7 +6294,22 @@
     "followup": "QA046 반례수정재검수·QA047 운영준비정적검수·Gmail활성추진준비와GCP사람단계·음악실MP4요청기존QA002연결",
     "preservedForeignChanges": [
       "docs/HANDOFF.md 기존AGY미커밋·다른제품/문서미커밋은커밋/초기화0"
-    ]
+    ],
+    "ownerReconciliation": {
+      "phase": "first_batch_19",
+      "task": "PORT-20261118-01",
+      "categories": [
+        "CRM",
+        "마케팅(홍보)",
+        "인스타",
+        "성격·운세",
+        "AI 프롬프트"
+      ],
+      "targetCount": 19,
+      "owner": "AG-UI-01",
+      "delivery": "queued_not_settled",
+      "messageId": "msg_bd9dfa2f47ed"
+    }
   },
   "deferredWork": [
     {

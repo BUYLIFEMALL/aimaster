@@ -8,7 +8,7 @@
 |---|---|---|---|---|---|
 | Codex(Master) | CX-MASTER-01 | codex-master | codex-win-20261116-auto-team · GT1_Mega | busy · 공식상태/파일범위 통합 | 146 구현·ESM 매뉴얼·결제예외/실행패키지 지휘 |
 | Codex(Tester) | CX-QA-01 | mac-mini | codex-mac-20261116-tester-role · 대화01a1c5a4-68b7-7c51-b919-9bc56cd17af5 · MacMini | QA049画像provider/응답/URL 반례확인중 | 최종고정SHA보고·QA037읽기단일연결·추가테스트결제0 |
-| Antigravity | AG-UI-01 | design | agy-win-design · GT1_Mega (이전 등록 agy-win-hero-copy) | 新이미지d21 source동결·DES05보고정정요청 | 공식지원/정책근거·QA049·제품변경0 |
+| Antigravity | AG-UI-01 | design | agy-win-design · GT1_Mega (이전 등록 agy-win-hero-copy) | emotion제품동결유지·PORT19문서매핑배정 전송/수락미확인 | 문서JSON19건반환→Master근거판정·다른프로그램코드변경0 |
 | Claude(Movie) | CC-MOVIE-01 | video | claude-win-video · aimaster-57 · GT1_Mega | YVS실검색/AI기획안1회 담당운영완료·점유0 | 재호출0·새배정대기 |
 | Claude(Music) | CC-MUSIC-01 | music | claude-win-20261024-music · GT1_Mega | 현재기록정정완료·점유0·기존icon변경보존 | lyric2건다음묶음·Mac실MP4사람선택 |
 | Claude(ecommerce) | CC-ECOM-01 | ecommerce-image | claude-win-sdp · GT1_Mega | 재배포선택질문대기·후속메시지전달보류·운영1.29 | 追加빌드1예산결정전0·안전후보59cb고정·실3회기승인잔여 |
