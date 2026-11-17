@@ -335,3 +335,38 @@ git diff --cached --name-only        # commit 직전 무엇이 올라가는지 �
 ## 2026-10-19 플랫폼 분석 — 추가 검토·개발 제안 (미구현)
 
 F-017(P2)를 운영 설정/코드/조건부 위험과 구분해 기록했습니다. **수정·DB적용·배포는 미실행**입니다. [프로그램별 발견·다음 첫 단계](docs/IMPROVEMENT_HANDOFF_20261019_ANALYSIS.md) · [전체 분석/병합 제안](../docs/analysis-20261019/REPORT.md). 주인님 지정 작업과 최신 구현을 대조한 뒤 플랜부터 제시합니다.
+
+## 오픈소스 고지 (사용한 외부 패키지)
+
+> 이 절은 **저장소 소스 기록**입니다. 서버 번들에 고지가 자동으로 포함되는지, 라이선스 의무를 모두 충족했는지는 이 기록으로 단정하지 않습니다(배포 결과물은 미확인). BUYLIFE 고지는 `NOTICE`, 크롤러 원본 라이선스는 `LICENSE`에 그대로 있습니다.
+
+### robots-parser 3.0.1
+
+- 원저작자: Sam Clarke
+- 출처: npm 패키지 `robots-parser` · 저장소 https://github.com/samclarke/robots-parser
+- 쓰는 곳: `webapp/src/lib/inspect/robots.ts` — 「한 페이지 분석」 robots.txt 판정(T-05, 2026-11-17 `fc48ebcba`, 서버 전용)
+- 라이선스: MIT — 설치본 `webapp/node_modules/robots-parser/LICENSE.md` 원문 그대로:
+
+```
+The MIT License (MIT)
+
+Copyright (c) 2014 Sam Clarke
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+```
