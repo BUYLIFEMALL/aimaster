@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { rpc } from "@/lib/standaloneRpc"; // 2026-11-13: 로그인 끊김(401) 안내 띠 포함
 import { PROGRAM_LABEL } from "@/lib/programLabels";
+import { GmailInboxPanel } from "./GmailInboxPanel"; // 2026-11-17 E4 Gmail(서버 스위치가 켜졌을 때만)
+import { boundGmailApi } from "./gmailApi";
 
 interface Item {
   id: string;
@@ -42,7 +44,9 @@ function when(iso: string): string {
 }
 
 // 2026-11-17 WS-20261117-17 QA017: accountKey = 서버가 확인한 회원 id. 세금계산서 초안에 작성 계정을 넣어 다른 계정 영수증 화면이 쓰지 않게 한다.
-export function InboxBoard({ accountKey }: { accountKey?: string } = {}) {
+export function InboxBoard({ accountKey, gmailOn = false }: { accountKey?: string; gmailOn?: boolean } = {}) {
+  // E4 Gmail: 켜짐 여부는 서버 스위치 하나(page.tsx가 gmailEnabled()로 내려 줌). 호출 묶음은 계정이 바뀔 때만 새로 만듦(안정 참조 — 상태 확인 반복 0)
+  const gmailApi = useMemo(() => (gmailOn && accountKey ? boundGmailApi(accountKey) : null), [gmailOn, accountKey]);
   const [items, setItems] = useState<Item[] | null>(null);
   const [error, setError] = useState("");
   const [selId, setSelId] = useState<string | null>(null);
@@ -147,6 +151,7 @@ ${sel.body_md ?? ""}` }, { expectedAccount: accountKey });
           {busy === "dashboard" ? "여는 중…" : "📊 업무 현황판 열기"}
         </button>
       </div>
+      <GmailInboxPanel enabled={gmailOn} accountKey={accountKey} api={gmailApi} />
       {error && <div className="aww-inbox-notice error">{error}</div>}
       {notice && (
         <div className="aww-inbox-notice">

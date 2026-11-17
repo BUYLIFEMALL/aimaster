@@ -16,6 +16,7 @@ import { newId } from '#shared/ids.ts';
 import { stageBlock, stageBodyBlock } from './stagePolicy';
 import { installAutofillHook } from '@/litpage/server/ai/autofillAuto.ts';
 import { workInboxHandlers } from './workInbox';
+import { gmailHandlers } from './gmailHandlers'; // 2026-11-17 E4 Gmail(기능 스위치 기본 꺼짐)
 import { receiptHandlers } from './receipts';
 import { boltaHandlers } from './bolta';
 import { boltaWebhookHandlers } from './boltaWebhook';
@@ -151,6 +152,7 @@ const OVERRIDES: Record<string, Handler> = {
   ...collabHandlers,
   ...portalHandlers, // 2026-11-17 E2 7-3 손님 포털(src/server/portal.ts, 기능 스위치 기본 꺼짐)
   ...bookingHandlers, // 2026-11-17 E2 7-2 예약 링크 회원 설정·목록(src/server/booking.ts)
+  ...gmailHandlers, // 2026-11-17 E4 Gmail 상태·목록·받은 업무 넣기·끊기(src/server/gmailHandlers.ts, 꺼짐 기본)
 };
 
 /** 2026-11-13: /api/mcp(토큰으로 들어오는 외부 AI 도구)용 — 원본 서버 초기화만 */

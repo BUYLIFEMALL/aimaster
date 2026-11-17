@@ -3,6 +3,7 @@
 import { requireProgramAccess } from "@/lib/access";
 import { APP_NAME, APP_VERSION } from "@/lib/version";
 import { InboxBoard } from "./InboxBoard";
+import { gmailEnabled } from "@/server/gmailInbox"; // E4 Gmail 기능 스위치(서버 단일 원천, 기본 꺼짐)
 import "@/litpage/web/styles/base.css";
 import "../guide/guide.css";
 import "./inbox.css";
@@ -37,7 +38,7 @@ export default async function InboxPage() {
             </div>
           </div>
         </header>
-        <InboxBoard accountKey={user.id} />
+        <InboxBoard accountKey={user.id} gmailOn={gmailEnabled()} />
       </div>
     </main>
   );
