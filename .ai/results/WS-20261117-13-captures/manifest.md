@@ -28,3 +28,15 @@
 | 11-desktop-receipts-issue-after-ws20-bottom.png | 수정 후 휠로 끝까지(scrollTop 181=최대), 마지막 버튼·보관 안내 보임 | 1560px | 아님 | screenshot-1794879662063-22.jpg |
 | 12-375-iframe-receipts-after-ws20-bottom.png | 수정 후 375×812 iframe 휠로 끝까지(scrollTop 418=최대), 하단 보관 안내 보임 | iframe 375px | **예** | screenshot-1794879682981-26.png |
 | 13-desktop-en-sidebar-after-ws20.png | 영어 — 사이드바 아래 메뉴·칩·Other programs·Log out 영어(영수증 본문은 기존 한국어 전용) | 1560px | 아님 | screenshot-1794879809230-27.jpg |
+
+## 남은 시각 3조건 보완 (Master msg_1e930b6d22a9)
+| 파일 | 화면 | 실제 폭 | iframe | 원본 |
+|---|---|---|---|---|
+| 14-375-iframe-receipts-issue-bottom.png | 375 발행 탭 휠로 끝까지(scrollTop 1055=최대), 「볼타로 바로 발급」(누르지 않음)·보관 안내 보임 | iframe 375 | 예 | screenshot-1794880241587-29.png |
+| 15-375-iframe-menu-open-issue.png | 375 ☰ 펼침(사이드바 left 0·폭 260) | iframe 375 | 예 | screenshot-1794880257980-30.png |
+| 16-375-iframe-menu-closed-issue.png | 바깥 눌러 닫힘(사이드바 left -240) | iframe 375 | 예 | screenshot-1794880257981-31.png |
+| 17-desktop-calendar-6cards-more.png | 20일 시험 카드 6장 → 「1개 더 보기」 | 1560 | 아님 | screenshot-1794880289188-32.jpg |
+| 18-desktop-calendar-more-expanded.png | 더 보기 누른 뒤 6장 모두 펼침(그 주 240→242px) | 1560 | 아님 | screenshot-1794880295852-33.jpg |
+| 19-desktop-long-title-card-open.png | 긴 제목 카드 열기 — 전체 제목·날짜 11/20 읽힘 | 1560 | 아님 | screenshot-1794880329961-34.jpg |
+| 20-desktop-calendar-monthend-no-panel.png | 설정 패널 없이 월말 29·30·12월 1~5 상자까지 | 1560 | 아님 | screenshot-1794880342945-36.jpg |
+- 17~20은 iframe 메뉴 조작으로 같은 사이트 사이드바 상태가 접혀서 사이드바 없이 찍힘(확인 뒤 다시 펼쳐 원복).
