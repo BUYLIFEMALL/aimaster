@@ -114,3 +114,31 @@
 | 공개 함수 비로그인 실행 부여 | 13번 막음 | 막음 |
 합계 19건: 새 verify 19건 모두 막음, 이전 verify(ee9c725ca) 16건 거짓 통과. 마지막 반례(조건 없는 INSERT 정책)는 직전 판 verify(5dca84102)도 거짓 통과했음을 같은 리허설로 확인. 실행: `node mall-builder/docs/handoff-0104-lab/check-local.mjs` → 「합계 통과 24 / 실패 0」.
 
+## 14. 적용 뒤 함수 본문 원문 대조(Lab 읽기 전용, verify와 별도)
+- 목적: Lab에 만들어진 함수 7개의 본문(`pg_proc.prosrc`)이 고정 원문(739b35e9…)의 본문과 글자 그대로 같은지 확인한다. `prosrc`는 `$$ … $$` 사이를 그대로 저장하므로 Postgres 판(격리 17.11, Lab 17.6)과 상관없이 같은 원문이면 같은 값이다. **정규화 없음**(줄바꿈·공백 그대로 md5).
+- 기대 지문 출처: 2026-11-17 격리 DB(Docker `aww-pg-test`, 새 DB `qa_prosrc0104` — 0001~0104 고정 원문 적용 뒤 읽고 바로 삭제, 다른 시험 DB 불간섭)에서 읽음.
+
+| 함수 | 본문 md5 | 길이 |
+|---|---|---|
+| `mall_builder_private.exchange_fee_attempt_archive(p_payment_id uuid, p_reason text)` | `773f07ad0246992ccc6fdae127c97a69` | 584 |
+| `mall_builder_private.exchange_fee_card_hold_canceled(p_payment_id uuid, p_toss_status text)` | `97299e827a85130cbc5e77207d1b40ae` | 1113 |
+| `mall_builder_private.exchange_fee_mark_card_paid(p_exchange_id uuid, p_method text, p_role text)` | `d25bb69d6cffacabac1e33798283f4a2` | 474 |
+| `mall_builder_private.exchanges_fee_card_guard()` | `50e0c1c3f04784c38675e99c003ae70a` | 1444 |
+| `public.mall_builder_exchange_fee_card_confirm(p_exchange_id uuid, p_payment_key text)` | `ec9176dbfc102ca0754643241e9d190d` | 6687 |
+| `public.mall_builder_exchange_fee_card_prepare(p_exchange_id uuid, p_payment_key text, p_amount bigint)` | `47b931231822b200959b2366f7d19fd6` | 3865 |
+| `public.mall_builder_exchange_fee_card_recheck(p_exchange_id uuid)` | `01b43b665c05d4f1f2f71086d41c5494` | 5206 |
+| 묶음(스키마·이름 순 7개 md5를 쉼표로 이어 다시 md5) | `8ab1697ad59fec47e9704e620e6cbb56` | - |
+
+- Lab에서 실행할 읽기 명령(적용 회신 뒤 verify.sql 다음에):
+```sql
+select n.nspname || '.' || p.proname || '(' || pg_get_function_identity_arguments(p.oid) || ')' 함수, md5(p.prosrc) 본문_md5, length(p.prosrc) 길이,
+       md5(replace(p.prosrc, chr(13), '')) 진단용_CR제거_md5
+  from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+ where (n.nspname = 'public' and p.proname in ('mall_builder_exchange_fee_card_prepare','mall_builder_exchange_fee_card_confirm','mall_builder_exchange_fee_card_recheck'))
+    or (n.nspname = 'mall_builder_private' and p.proname in ('exchange_fee_attempt_archive','exchanges_fee_card_guard','exchange_fee_mark_card_paid','exchange_fee_card_hold_canceled'))
+ order by 1;
+```
+- 판정: 7줄이 정확히 있고 `본문_md5`가 위 표와 모두 같으면 「본문 원문 일치」. **다르면 느슨하게 맞추지 않고 그 차이(함수·md5·길이)를 그대로 보고한다.** `진단용_CR제거_md5`만 같으면 붙여 넣기 과정에서 줄바꿈이 CRLF로 바뀐 것으로 보이며, 이것도 「불일치」로 보고하고 판단은 Master가 한다.
+- 범위: 본문 일치는 「같은 원문이 들어갔다」는 증거일 뿐이다. 실제 결제 동작·권한·자료 보존 PASS는 verify 20과 실제 시험으로만 판단한다.
+- 기준값 유효 시각: precheck·verify의 자료 기대값(주문 17/1·c56e3560…, 교환 ec616aef…, 알림 44, EXQA delivered/confirmed, 장부·리워드)은 2026-11-17 16:27(KST) 읽기에서도 그대로였다. **EXQA-1은 11-18 03:31(KST) 이후 자동 구매 확정 예정**이라 그 뒤 실행하면 15·16번(verify 19·20번)이 달라질 수 있다 — 그때는 10절 규칙.
+
