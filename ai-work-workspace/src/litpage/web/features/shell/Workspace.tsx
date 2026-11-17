@@ -19,6 +19,7 @@ import { PeoplePage } from '../home/PeoplePage.tsx';
 import { MyTasksPage } from '../home/MyTasksPage.tsx';
 import { StudioDashboard } from '../home/StudioDashboard.tsx';
 import { ReceiptsView } from '../receipts/ReceiptsView.tsx'; // 2026-11-17 WS-20261117-17 영수증·세금계산서(왼쪽 메뉴 보이게)
+import { spaceForDomainRoute } from './routeSpace.ts'; // 2026-11-17 WS-20261117-17 QA017 P2
 import { UniqueIdRedirect } from '../database/uniqueIdRoute.tsx';
 import { AgentPage } from '../agents/AgentPage.tsx';
 import { installPersonHoverDelegation } from '../presence/PersonHoverCard.tsx';
@@ -79,6 +80,12 @@ export function Workspace() {
       }
     }
     openStartPage(spaceId);
+  }, [route, spaceId]);
+
+  // 2026-11-17 WS-20261117-17 QA017 P2: /<domain>/receipts 직접 방문·뒤로가기 → 주소의 내 워크스페이스로 맞춤(사이드바 함께)
+  useEffect(() => {
+    const target = spaceForDomainRoute(route, spaceId, records.all<SpaceRecord>('space'));
+    if (target) useSession.getState().setSpace(target);
   }, [route, spaceId]);
 
   // switching workspaces through a URL of another workspace's page

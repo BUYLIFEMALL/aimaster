@@ -4,11 +4,14 @@
 // 기존 /receipts 주소는 그대로 둔다(즐겨찾기·외부 링크 보존).
 import { ReceiptsBoard } from '@/app/receipts/ReceiptsBoard';
 import { APP_NAME, APP_VERSION } from '@/lib/version';
+import { useSession } from '../../lib/store/session.ts';
 import '@/app/guide/guide.css';
 import '@/app/receipts/receipts.css';
 import './receiptsView.css';
 
 export function ReceiptsView() {
+  // QA017 P1: 지금 로그인한 회원 id. 없으면(로그아웃) 영수증 자료를 그리지 않고, 바뀌면 화면을 새로 만든다.
+  const userId = useSession((s) => s.userId);
   return (
     <div className="aww-guide aww-receipts-view">
       <div className="aww-guide-inner">
@@ -31,7 +34,7 @@ export function ReceiptsView() {
             </div>
           </div>
         </header>
-        <ReceiptsBoard />
+        {userId ? <ReceiptsBoard key={userId} accountKey={userId} /> : null}
       </div>
     </div>
   );

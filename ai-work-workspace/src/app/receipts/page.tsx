@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 export default async function ReceiptsPage() {
-  await requireProgramAccess();
+  const user = await requireProgramAccess();
   return (
     <main className="aww-guide aww-studio-page">
       <div className="aww-guide-inner">
@@ -37,7 +37,7 @@ export default async function ReceiptsPage() {
             </div>
           </div>
         </header>
-        <ReceiptsBoard />
+        <ReceiptsBoard accountKey={user.id} />
       </div>
     </main>
   );

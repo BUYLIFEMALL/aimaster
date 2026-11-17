@@ -68,7 +68,9 @@ function calc(qty: number, unitPrice: number, mode: TaxMode) {
   return { supply: amount, tax: Math.floor(amount * 0.1) };
 }
 
-export function ReceiptsBoard() {
+// 2026-11-17 WS-20261117-17 QA017 P1: accountKey = 지금 로그인한 회원 id(워크스페이스 안 화면은 세션, 별도 /receipts 페이지는 서버 확인 값).
+// 계정이 바뀌면 이전 계정 자료·알림·인쇄·탭 안 상태를 바로 비우고, 늦게 온 이전 요청(성공·실패)·화면 해제 뒤 응답은 반영하지 않는다.
+export function ReceiptsBoard({ accountKey }: { accountKey?: string | null } = {}) {
   const [tab, setTab] = useState<"evidence" | "issue" | "info">("evidence");
   // 2026-11-15 받은 업무 「🧾 세금계산서 초안」에서 넘어오면 발행 탭을 그 값으로 연다(화면이 열린 뒤 한 번)
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -79,19 +81,33 @@ export function ReceiptsBoard() {
     setTab("issue");
     setNotice({ text: `받은 업무${d.from ? ` 「${d.from}」` : ""}에서 읽은 값으로 세금계산서를 채웠습니다. 거래처·품목·금액을 확인한 뒤 저장하세요.` });
   }, []);
-  const [state, setState] = useState<State | null>(null);
+  const [loaded, setLoaded] = useState<{ key: string | null | undefined; s: State } | null>(null);
+  const state = loaded && loaded.key === accountKey ? loaded.s : null; // 지금 계정 것만 그림
+  const seq = useRef(0); // 마지막 요청 번호 — 이보다 앞선 응답은 버림
   const [month, setMonth] = useState(today().slice(0, 7));
   const [notice, setNotice] = useState<{ text: string; error?: boolean } | null>(null);
   const [printDoc, setPrintDoc] = useState<Doc | null>(null);
 
   const load = useCallback(async (m = month) => {
+    const my = ++seq.current;
     try {
-      setState(await rpc<State>("rcptState", { month: m }));
+      const s = await rpc<State>("rcptState", { month: m });
+      if (my === seq.current) setLoaded({ key: accountKey, s });
     } catch (e) {
-      setNotice({ text: (e as Error).message, error: true });
+      if (my === seq.current) setNotice({ text: (e as Error).message, error: true });
     }
-  }, [month]);
+  }, [month, accountKey]);
   useEffect(() => { void load(); }, [load]);
+  // 계정이 바뀌면 이전 계정 알림·인쇄 대기를 비움(자료는 위 state 판정으로 바로 숨겨짐)
+  const prevKey = useRef(accountKey);
+  useEffect(() => {
+    if (prevKey.current === accountKey) return;
+    prevKey.current = accountKey;
+    setNotice(null);
+    setPrintDoc(null);
+  }, [accountKey]);
+  // 화면 해제(StrictMode 정리 포함) 때 진행 중 요청 무효
+  useEffect(() => () => { seq.current++; }, []);
 
   useEffect(() => {
     if (!printDoc) return;
@@ -103,7 +119,7 @@ export function ReceiptsBoard() {
 
   if (!state) return <div className="aww-inbox-empty">불러오는 중…</div>;
   return (
-    <div className="rc">
+    <div className="rc" key={accountKey ?? ""}>
       {notice && (
         <div className={`aww-inbox-notice rc-noprint ${notice.error ? "error" : ""}`} role="status">
           <span>{notice.text}</span>
