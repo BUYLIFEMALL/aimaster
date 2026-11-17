@@ -2203,5 +2203,18 @@
   "Not Found": "찾을 수 없음",
   "Search for a question type…": "질문 유형 검색…",
   "Permanently delete {name}?": "「{name}」을(를) 영구 삭제할까요?",
-  "Receipts & tax invoices": "영수증·세금계산서"
+  "Receipts & tax invoices": "영수증·세금계산서",
+  "Go to the main site": "메인 사이트로 이동",
+  "Other programs": "다른 프로그램 보기",
+  "Collected": "모음",
+  "Work inbox": "받은 업무",
+  "Evidence": "증빙",
+  "Calendar sync": "캘린더 연동",
+  "Google": "구글",
+  "API keys & platform links": "API키등록·플랫폼연동",
+  "Links": "연동",
+  "Setup & user guide": "연동 & 사용 매뉴얼",
+  "Guide": "가이드",
+  "Signed in": "회원 로그인 중",
+  "Log out": "로그아웃"
 }

@@ -16,9 +16,9 @@ export const AIMASTER_APP_VERSION = APP_VERSION;
 export function AimasterSidebarTop() {
   return (
     <div className="aww-sb-top">
-      <a className="aww-sb-back" href={PROGRAMS_URL} title="메인 사이트로 이동">
+      <a className="aww-sb-back" href={PROGRAMS_URL} title={tx('Go to the main site')}>
         <span className="aww-sb-back-arrow" aria-hidden>←</span>
-        <span>다른 프로그램 보기</span>
+        <span>{tx('Other programs')}</span>
       </a>
       <div className="aww-sb-brand-row">
         <div className="aww-sb-icon-box" aria-hidden>
@@ -44,7 +44,7 @@ function InboxCount() {
       .catch(() => {});
     return () => { alive = false; };
   }, []);
-  return n ? <span className="aww-sb-item-chip aww-sb-item-chip-new">{n}</span> : <span className="aww-sb-item-chip">모음</span>;
+  return n ? <span className="aww-sb-item-chip aww-sb-item-chip-new">{n}</span> : <span className="aww-sb-item-chip">{tx('Collected')}</span>;
 }
 
 export function AimasterSidebarBottom() {
@@ -77,7 +77,7 @@ export function AimasterSidebarBottom() {
         <a className="aww-sb-item" href="/inbox">
           <div className="aww-sb-item-inner">
             <span className="aww-sb-item-icon">📨</span>
-            <span className="aww-sb-item-label">받은 업무</span>
+            <span className="aww-sb-item-label">{tx('Work inbox')}</span>
           </div>
           <InboxCount />
         </a>
@@ -93,31 +93,31 @@ export function AimasterSidebarBottom() {
         >
           <div className="aww-sb-item-inner">
             <span className="aww-sb-item-icon">🧾</span>
-            <span className="aww-sb-item-label">영수증·세금계산서</span>
+            <span className="aww-sb-item-label">{tx('Receipts & tax invoices')}</span>
           </div>
-          <span className="aww-sb-item-chip">증빙</span>
+          <span className="aww-sb-item-chip">{tx('Evidence')}</span>
         </a>
         {/* 2026-11-11: 캘린더 연동(/calendar-sync) — 간편 구독(ICS)·구글 계정 연결 */}
         <a className="aww-sb-item" href="/calendar-sync">
           <div className="aww-sb-item-inner">
             <span className="aww-sb-item-icon">📅</span>
-            <span className="aww-sb-item-label">캘린더 연동</span>
+            <span className="aww-sb-item-label">{tx('Calendar sync')}</span>
           </div>
-          <span className="aww-sb-item-chip">구글</span>
+          <span className="aww-sb-item-chip">{tx('Google')}</span>
         </a>
         <a className="aww-sb-item" href="/settings/keys">
           <div className="aww-sb-item-inner">
             <span className="aww-sb-item-icon">🔑</span>
-            <span className="aww-sb-item-label">API키등록·플랫폼연동</span>
+            <span className="aww-sb-item-label">{tx('API keys & platform links')}</span>
           </div>
-          <span className="aww-sb-item-chip">연동</span>
+          <span className="aww-sb-item-chip">{tx('Links')}</span>
         </a>
         <a className="aww-sb-item" href="/guide">
           <div className="aww-sb-item-inner">
             <span className="aww-sb-item-icon">📖</span>
-            <span className="aww-sb-item-label">연동 & 사용 매뉴얼</span>
+            <span className="aww-sb-item-label">{tx('Setup & user guide')}</span>
           </div>
-          <span className="aww-sb-item-chip">가이드</span>
+          <span className="aww-sb-item-chip">{tx('Guide')}</span>
         </a>
       </div>
 
@@ -125,16 +125,16 @@ export function AimasterSidebarBottom() {
         <div className="aww-sb-user-info">
           <span className="aww-sb-user-dot" aria-hidden>●</span>
           <span className="aww-sb-email" title={email}>
-            {email || '회원 로그인 중'}
+            {email || tx('Signed in')}
           </span>
         </div>
         <button
           type="button"
           className="aww-sb-logout"
-          title="로그아웃"
+          title={tx('Log out')}
           onClick={() => void useSession.getState().logout()}
         >
-          로그아웃
+          {tx('Log out')}
         </button>
       </div>
     </div>

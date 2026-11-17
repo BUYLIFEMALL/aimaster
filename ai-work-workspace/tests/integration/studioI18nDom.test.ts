@@ -63,4 +63,19 @@ describe('146 이번 추가 문구 ko/en', () => {
     const labels = [...el.querySelectorAll('.aww-sb-item-label')].map((x) => x.textContent);
     expect(labels[0]).toBe(text);
   });
+
+  // WS-20261117-20: 사이드바 아래 카드의 나머지 일반 라벨·칩·로그아웃도 ko/en(공식 앱 이름·회원 이메일은 번역 안 함)
+  it.each([
+    ['en-US', ['Control dashboard', 'Work inbox', 'Receipts & tax invoices', 'Calendar sync', 'API keys & platform links', 'Setup & user guide'], ['Collected', 'Evidence', 'Google', 'Links', 'Guide'], 'Log out'],
+    ['ko-KR', ['관제 대시보드', '받은 업무', '영수증·세금계산서', '캘린더 연동', 'API키등록·플랫폼연동', '연동 & 사용 매뉴얼'], ['모음', '증빙', '구글', '연동', '가이드'], '로그아웃'],
+  ] as const)('%s 사이드바 아래 카드 라벨·칩·로그아웃', async (locale, labels, chips, logout) => {
+    const { AimasterSidebarBottom } = await load(locale);
+    render(createElement(AimasterSidebarBottom));
+    expect([...el.querySelectorAll('.aww-sb-item-label')].map((x) => x.textContent)).toEqual(labels);
+    const chipTexts = [...el.querySelectorAll('.aww-sb-item-chip')].map((x) => x.textContent);
+    for (const c of chips) expect(chipTexts).toContain(c);
+    const out = [...el.querySelectorAll('button')].find((b) => b.getAttribute('title') === logout);
+    expect(out?.textContent?.trim()).toBe(logout);
+    expect(el.textContent).toContain('x@example.com'); // 회원 이메일은 그대로
+  });
 });
