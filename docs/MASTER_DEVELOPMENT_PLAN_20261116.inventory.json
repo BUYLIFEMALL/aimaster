@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 16:05:56 KST",
+  "checkedAt": "2026-11-17 16:07:31 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4826,11 +4826,11 @@
       "title": "예약 기능 운영 활성화·실연동 검증",
       "status": "running",
       "delivery": "running",
-      "evidence": "f78a2e4e3 최종활성화조건 / msg_0e57ecf5a5fa·Master미커밋0/lock0/teamqueue0·free~7GB / 作者tsc0/460tests/localbuild0·3faafa33a·Workspace自動承認拒否remote0→Master直接確認project/account/queue0/notice0/clean·CLI upload hgzm0d922 Building / Master CLI76150 exit0·Vercel API READY/aliasErrornull/meta3fa一致",
+      "evidence": "f78a2e4e3 최종활성화조건 / msg_0e57ecf5a5fa·Master미커밋0/lock0/teamqueue0·free~7GB / 作者tsc0/460tests/localbuild0·3faafa33a·Workspace自動承認拒否remote0→Master直接確認project/account/queue0/notice0/clean·CLI upload hgzm0d922 Building / Master CLI76150 exit0·Vercel API READY/aliasErrornull/meta3fa一致 / Workspace운영programs v1.57 07:03UTC/예약표2최초생성·naver시험켜기·public160칸/metadata報告",
       "scopeRef": "운영표2/스위치3/빌드1·실시험계정Google/HTTP/시각 별도범위확정",
       "completion": "명시승인범위내DDL/배포·실연동/운영확인·미검수구분",
       "blocker": null,
-      "next": "Workspace 운영programs v1.57/표2정의·시험계정실Google/HTTP·MacQA027읽기검수",
+      "next": "Windows실Google고정1건검증/정리·MacQA027예약카드읽기재개",
       "approval": {
         "source": "주인님 Master채팅: 계속작업진행/승인할께/진행해",
         "at": "2026-11-17T06:53:32.187Z",
@@ -4850,7 +4850,8 @@
         "sourceSha": "3faafa33a2e99c31419922626d4609ee3ddaaeda",
         "executor": "CX-MASTER-01",
         "verified": "CLI exit0+Vercel API exactproject/production/alias/meta確認"
-      }
+      },
+      "knownIssue": "초회서로다른인스턴스CREATE TABLE경합 pg_type duplicate1건·현재표존재후정상관찰,구조미해결"
     },
     {
       "task_id": "QA-20261117-027",
@@ -4860,10 +4861,24 @@
       "title": "v1.57 예약활성 운영 읽기전용 스모크",
       "status": "running",
       "delivery": "running",
-      "evidence": "msg_da022ee0d88b / msg_5a3b73a5f46a 착수확인·기존studio/receipts/v1.57/375폭읽기 / msg_272855655997 운영v1.57/studio/receipts375끝scroll max365 정상·예약접근0",
+      "evidence": "msg_da022ee0d88b / msg_5a3b73a5f46a 착수확인·기존studio/receipts/v1.57/375폭읽기 / msg_272855655997 운영v1.57/studio/receipts375끝scroll max365 정상·예약접근0 / msg_3d2788ee769b 표준비완료·예약카드읽기재개",
       "scopeRef": "운영버전/예약카드/375/기존화면·예약쓰기/DDL/Google/build0",
       "completion": "실화면관찰·본인계정/개인토큰마스킹·작성자실Google근거구분",
-      "next": "기존화면관찰정상·예약표준비신호후예약UI읽기,실Google작성자별도"
+      "next": "예약카드/375안내읽기·비밀주소없으면재발급0/작성자증거분리"
+    },
+    {
+      "task_id": "WS-20261117-23",
+      "parent_task_id": "WS-20261117-22",
+      "owner": "CC-WORKSPACE-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "예약표 초회 초기화 경합 보완",
+      "status": "backlog",
+      "delivery": "prepared",
+      "priority": "P2",
+      "evidence": "운영초회bookingGet/List 동시CREATE pg_type중복1건·표생성후정상",
+      "scopeRef": "booking ensureTables후속분석·운영표삭제/재현/추가build0",
+      "completion": "격리동시초기화재현/안전한직렬화·원문오류노출검토",
+      "next": "현재실검증후원인/정확경로/보완안반환·다음묶음"
     }
   ]
 }
