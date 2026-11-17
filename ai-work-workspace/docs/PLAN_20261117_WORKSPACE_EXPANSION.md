@@ -316,3 +316,21 @@ E1 독립 검수(QA17-003)와 별개로 계획만. 디자인 3안 선택 전이�
 - 권한 경로: `getTemplate`(멤버·상위 페이지 편집) → `saveAutomation`(`assertCanEdit` 새 표, `assertTargets`) 그대로.
 
 **E3-2 확정 파일(QA030 통과 뒤)**: 서버 `content/catalog.ts`·`api/modules/templates.ts`, 화면 `web/features/templates/api.ts`·`web/features/templates/dbTemplates.tsx`·ko 번역 사전, 시험 새 `tests/integration/approvalAutomation.test.ts`(서버) + 경고 toast DOM 시험 1개.
+
+### 7-12. E3-3 「결재자만 승인」 읽기 조사 (2026-11-17, Master `msg_789119a0ee0d`) — 코드 전, E3-2(`4ca85f4b2`) QA033 동안 동결
+**이미 있는 서버 정책(새로 만들지 않음)**
+- **속성별 접근 규칙** `schema[p].property_permissions = { default_access, overrides[] }`(`shared/database/propertyAccess.ts`): 예외 종류에 **「이 표의 사람 속성에 선택된 사람」**(`type: 'collection_property_permission'`, `property_info: { property_id, type: 'person' | 'created_by' }`)이 이미 있음 → 「상태」 칸을 `결재자`(aApr)로 선택된 사람만 쓰게 할 수 있음.
+- 서버 검사: `server/dbaccess.ts` `propertyValueProblem`(authz.ts TxGuard에 연결) — 값을 바꾸면 그 사람의 속성 권한을 계산해 아니면 거절. 적용 경로: 화면 저장(`api/handlers.ts` 360 `client: true`)·공개 API(`publicapi/routes.ts` 101 `client: true`)·AI 비서 편집(`ai/changes.ts` `client: true`)·버튼(속성 편집 단계는 화면이 계획해 `client: true`로 보냄, 서버 단계는 알림·웹훅뿐 `automations.ts` 421) → **UI 숨기기와 무관하게 서버에서 막힘**.
+- **넘어서는 경우(규칙상 정상, 그대로 밝힘)**: ① 그 데이터베이스 **전체 권한(editor)** 가진 사람은 속성 규칙을 넘음(`dbaccess.ts` `roleAtLeast(dbRole,'editor') → null`) — 템플릿을 쓴 회원은 자기 표의 전체 권한자 ② 같은 요청에서 새로 만든 표 ③ 자동화 엔진의 쓰기(`client`·`userInitiated` 아님)는 기존 행 값 검사를 안 받지만 자동화를 만들려면 전체 권한이 필요(`engine.ts` `automationEditProblem` editor) — ①과 같은 사람이라 새 구멍 아님.
+- 읽기 쪽은 `propaccess.ts`가 권한 없는 값을 가림(화면은 읽기 전용으로 보임).
+
+**규칙은 「값」이 아니라 「칸」 단위** → 한 칸(상태)에서 「요청자는 승인 요청만, 결재자는 승인·반려만」은 불가. 그래서 최소 구조 변경이 필요:
+- 안 A(권장): 「상태」(작성 중·승인 요청·승인·반려)를 **결재자만**(default `reader` + 예외 결재자 `read_and_write`), 대신 요청자가 올리는 칸 **「결재 올림」(체크박스, 페이지 만든 사람만)** 추가 → 자동화 ① 「결재 올림」 체크 → 결재자 알림(E3-2 ①의 조건만 바꿈), ② 상태 승인·반려 → 요청자 알림(그대로).
+- 안 B: 「결재자」 지정 자체를 올림으로 보고(결재자 칸 변경 → 알림), 상태는 결재자만.
+- **결정 필요(주인님/Master)**: 「결재자」 칸을 누가 정하나 — (가) 페이지 만든 사람(요청자) → 자기 자신을 결재자로 넣으면 스스로 승인 가능(규칙으로 못 막음) (나) 전체 권한자만 → 결재자 배정은 관리자가, 1~5명 팀엔 번거로움. 권장: (가) + 템플릿 설명에 「자기 자신을 결재자로 넣지 마세요(막히지는 않음)」 + 결재 기록에 남는 사람 표시로 확인.
+
+**최소 구현 범위(새 권한 엔진·새 API 0, 템플릿 정의만)**
+- `content/spec.ts`: `DbPropSpec`에 `property_permissions?` 통과(지금 `buildProperty`는 name·type·options 등만 복사 — 1~2줄).
+- `content/catalog.ts`: 결재 템플릿 「상태」·「결재 올림」·「결재자」 규칙 + 자동화 ① 조건 변경 + 설명 문구(전체 권한자는 넘을 수 있음·자기 결재 가능 여부).
+- 시험 새 `tests/integration/approvalPermission.test.ts`(격리 DB): 같은 표에 **일반 편집(read_and_write) 회원 3명**(요청자·결재자·제3자) 공유 → `saveTransactions`(client) 경로로: 제3자·요청자가 상태 변경 = 거절, 결재자 = 허용, 요청자 「결재 올림」 = 허용·결재자 알림 1, 전체 권한자 = 허용(넘음 명시), 공개 API 경로도 같은 거절, 버튼 속성 편집(client) 거절, 기존 E3-1·E3-2 시험 회귀.
+- 남는 한계: 전체 권한자 넘음, (가)면 자기 결재 가능, 앱 알림만.
