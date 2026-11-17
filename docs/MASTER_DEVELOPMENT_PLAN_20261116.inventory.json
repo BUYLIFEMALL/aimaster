@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 09:40:23 KST",
+  "checkedAt": "2026-11-17 09:43:44 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4449,12 +4449,12 @@
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "title": "주인님 직접지시 영수증 화면 메인 사이드바 연결",
       "priority": "P2",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "returned",
-      "evidence": "Workspace7485791ec 실제handler/React mock33·Masterinbox2파일diff대조수용",
+      "evidence": "Workspace7485791ec 실제handler/React mock33·Masterinbox2파일diff대조수용 / msg_014541b68abb Mac실handler5/React초안409PASS·bound빈계정헤더없는fetchP2",
       "completion": "domain receipts SPA route와기존client Board재사용/사이드바연결·기존standalone유지·관련경량검사,서버DB0·실화면/배포미검수구분",
-      "next": "Mac ESM마감뒤QA017 서버expectedID/receipt全rcptbt/409숨김/초안계정수명 재검토예약. 원래인가보존·inbox전체보호로확대주장0·실발급/DB/서버/빌드0",
-      "lastReviewedAt": "2026-11-17T00:39:32.962Z",
+      "next": "receipt boundhelper 빈/null/undefined/공백ID fetch전차단국소수정·기존공용headerless호환유지→Mac마감. idle계정전환다음RPC전표시잔존한계·실발급/DB/서버/빌드0",
+      "lastReviewedAt": "2026-11-17T00:43:42.192Z",
       "sha": "9d6875e4b + 792be25a9 + 7485791ec"
     },
     {
