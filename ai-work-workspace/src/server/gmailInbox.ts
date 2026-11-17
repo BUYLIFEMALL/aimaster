@@ -57,6 +57,7 @@ let fetchImpl: Fetch = (...a) => fetch(...a);
 export function setGmailFetch(f: Fetch | undefined) {
   fetchImpl = f ?? ((...a) => fetch(...a));
   certCache = null;
+  lastForcedCertFetch = -Infinity;
 }
 
 export interface GmailAccount {
@@ -76,8 +77,8 @@ export interface GmailStore {
   save(input: { userId: string; externalId: string; username: string | null; accessToken: string; refreshToken: string | null; tokenExpiresAt: string; grantedScopes: string[]; appRef: string }): Promise<{ error: string | null }>;
   updateToken(userId: string, accountId: string, t: { accessToken: string; tokenExpiresAt: string; refreshToken: string | null }): Promise<void>;
   markNeedsReconnect(userId: string, accountId: string): Promise<void>;
-  /** 이 워크스페이스의 연결 줄만 삭제(구글 호출 0) */
-  deleteAccount(userId: string, externalId?: string): Promise<void>;
+  /** 이 워크스페이스의 연결 줄만 삭제(구글 호출 0). onlyIfAccessToken을 주면 그 토큰을 가진 줄만(다른 콜백이 새로 저장한 같은 계정 줄은 남김) */
+  deleteAccount(userId: string, externalId?: string, onlyIfAccessToken?: string): Promise<void>;
 }
 
 const admin = () => createAdminClient() as unknown as SupabaseClient;
@@ -106,9 +107,10 @@ const supabaseStore: GmailStore = {
     if (error) throw new GmailError("server", "연결 정보를 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
   },
   markNeedsReconnect: (userId, accountId) => markMemberAccountNeedsReconnect(admin(), userId, accountId),
-  async deleteAccount(userId, externalId) {
+  async deleteAccount(userId, externalId, onlyIfAccessToken) {
     let q = admin().from("member_platform_accounts").delete().eq("user_id", userId).eq("platform", "google_gmail");
     if (externalId) q = q.eq("external_id", externalId);
+    if (onlyIfAccessToken) q = q.eq("access_token", onlyIfAccessToken);
     const { error } = await q;
     if (error) throw new GmailError("server", "연결을 끊지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
   },
@@ -123,8 +125,11 @@ export function setGmailStoreForTests(s: GmailStore | null) {
 // 2026-11-17: 저장소에 검증 경로가 없어(캘린더 idTokenClaims는 내용만 읽음) 새 패키지 없이 node:crypto로 검증한다.
 type Jwk = { kid: string; kty: string; n: string; e: string; alg?: string; use?: string };
 let certCache: { keys: Jwk[]; until: number } | null = null;
-async function googleKeys(now: number): Promise<Jwk[]> {
-  if (certCache && certCache.until > now) return certCache.keys;
+/** QA036 F06: 모르는 키 번호가 오면 공개 키 목록을 1번 강제로 다시 받되, 이 간격 안에서는 다시 받지 않음(엉뚱한 키 번호로 요청 폭증 방지) */
+export const GMAIL_JWKS_REFETCH_COOLDOWN_MS = 60_000;
+let lastForcedCertFetch = -Infinity;
+async function googleKeys(now: number, force = false): Promise<Jwk[]> {
+  if (!force && certCache && certCache.until > now) return certCache.keys;
   let res: Response;
   try {
     res = await fetchImpl(CERTS, { signal: AbortSignal.timeout(10_000) });
@@ -157,8 +162,18 @@ export async function verifyGoogleIdToken(idToken: string | undefined, clientId:
   }
   if (!header || !payload) return null; // QA036(4): JSON null·배열·원시값이면 검증 실패(예외 0)
   if (header.alg !== "RS256" || typeof header.kid !== "string") return null;
-  const jwk = (await googleKeys(now)).find((k) => k.kid === header.kid && k.kty === "RSA");
-  if (!jwk) return null;
+  let jwk = (await googleKeys(now)).find((k) => k.kid === header.kid && k.kty === "RSA");
+  if (!jwk) {
+    // 키 교체 대비: 쿨다운이 지났을 때만 1번 다시 받음(실패해도 예외 없이 검증 실패, 쿨다운은 시도 시각부터)
+    if (now - lastForcedCertFetch < GMAIL_JWKS_REFETCH_COOLDOWN_MS) return null;
+    lastForcedCertFetch = now;
+    try {
+      jwk = (await googleKeys(now, true)).find((k) => k.kid === header.kid && k.kty === "RSA");
+    } catch {
+      return null;
+    }
+    if (!jwk) return null;
+  }
   let ok = false;
   try {
     const key = createPublicKey({ key: { kty: "RSA", n: jwk.n, e: jwk.e }, format: "jwk" });
@@ -227,8 +242,23 @@ async function tokenRequest(params: Record<string, string>): Promise<Required<Pi
  * 원자적 보장은 아님 — 재확인·지우기가 실패하거나 중단되면 줄이 2개 남을 수 있고, 그때는 읽기가 409로 닫혀(다른 계정 메일 노출 0)
  * 회원이 연결을 끊고 다시 연결해야 함. 공용 표 고유 조건 변경 없이 할 수 있는 최선(QA036(3)).
  */
+/** QA036 F03: 같은 회원의 연결 완료를 이 서버 안에서 하나씩(다른 서버 인스턴스끼리는 직렬화되지 않음 — 한계로 문서에 밝힘) */
+const connectLocks = new Map<string, Promise<unknown>>();
+function serialize<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  const prev = connectLocks.get(key) ?? Promise.resolve();
+  const run = prev.then(fn, fn);
+  const tail = run.catch(() => {});
+  connectLocks.set(key, tail);
+  void tail.then(() => { if (connectLocks.get(key) === tail) connectLocks.delete(key); });
+  return run;
+}
+
 export async function completeGmailConnect(userId: string, code: string, appTag: string): Promise<{ email: string | null }> {
   ensureOn();
+  return serialize(userId, () => completeGmailConnectNow(userId, code, appTag));
+}
+
+async function completeGmailConnectNow(userId: string, code: string, appTag: string): Promise<{ email: string | null }> {
   const app = await store.getApp(userId);
   if (!app) throw new GmailError("bad_request", "구글 앱 Client ID·Secret을 먼저 등록해 주세요.");
   if (appTagOf(app.clientId) !== appTag) throw new GmailError("bad_request", "구글 앱 키가 연결 도중 바뀌었습니다. 「Gmail 연결」을 다시 눌러 주세요.");
@@ -256,7 +286,7 @@ export async function completeGmailConnect(userId: string, code: string, appTag:
       after = null;
     }
     if (!after || after.some((a) => a.externalId !== who.sub)) {
-      await store.deleteAccount(userId, who.sub).catch(() => {});
+      await store.deleteAccount(userId, who.sub, t.access_token).catch(() => {}); // 내가 넣은 토큰을 가진 줄만(같은 계정의 더 새 연결은 남김)
       throw after ? new GmailError("conflict", GMAIL_OTHER_ACCOUNT_MESSAGE) : new GmailError("server", "연결을 확인하지 못해 저장하지 않았습니다. 잠시 뒤 다시 연결해 주세요.");
     }
   }
@@ -336,22 +366,27 @@ export async function listGmailInbox(userId: string, expectSub?: string): Promis
   if (expectSub !== undefined && expectSub !== account.externalId) throw new GmailError("conflict", GMAIL_ACCOUNT_CHANGED_MESSAGE);
   let token = await validToken(userId, account);
   await sameAccountOrThrow(userId, account); // QA036(2): 갱신하는 사이 연결이 바뀌었으면 Gmail 호출 전에 멈춤
+  // QA036 F04: 목록·상세 어디서든 401이면 이 목록 요청 전체에서 최대 1번만 새로 받아 그 요청만 다시. 그 뒤 401은 멈춤(재연결 안내).
+  let refreshed = false;
+  const get = async (url: string) => {
+    try {
+      return await gmailGet(token, url);
+    } catch (e) {
+      if (!(e instanceof GmailError && e.code === "auth") || refreshed) throw e;
+      refreshed = true;
+      token = await validToken(userId, account, true);
+      await sameAccountOrThrow(userId, account);
+      return gmailGet(token, url);
+    }
+  };
   const listUrl = `${API}?${new URLSearchParams({ labelIds: "INBOX", maxResults: String(GMAIL_LIST_MAX), fields: "messages/id" })}`;
-  let list: Record<string, unknown>;
-  try {
-    list = await gmailGet(token, listUrl);
-  } catch (e) {
-    if (!(e instanceof GmailError && e.code === "auth")) throw e;
-    token = await validToken(userId, account, true); // 401이면 한 번만 새로 받아 다시
-    await sameAccountOrThrow(userId, account);
-    list = await gmailGet(token, listUrl);
-  }
+  const list = await get(listUrl);
   const ids = (Array.isArray(list.messages) ? list.messages : []).map((m) => (m as { id?: unknown })?.id).filter((id): id is string => typeof id === "string" && MSG_ID.test(id)).slice(0, GMAIL_LIST_MAX);
   const items: GmailListItem[] = [];
   for (const id of ids) {
     const q = new URLSearchParams({ format: "metadata", fields: "id,payload/headers" });
     for (const h of ["Subject", "From", "Date"]) q.append("metadataHeaders", h);
-    const m = await gmailGet(token, `${API}/${encodeURIComponent(id)}?${q}`);
+    const m = await get(`${API}/${encodeURIComponent(id)}?${q}`);
     const headers = Array.isArray((m.payload as { headers?: unknown } | undefined)?.headers) ? (m.payload as { headers: { name?: unknown; value?: unknown }[] }).headers : [];
     const pick = (name: string) => headers.find((h) => typeof h?.name === "string" && h.name.toLowerCase() === name.toLowerCase())?.value;
     const d = Date.parse(String(pick("Date") ?? ""));

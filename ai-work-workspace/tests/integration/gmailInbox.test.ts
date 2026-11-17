@@ -60,7 +60,7 @@ const fakeStore = () => ({
   },
   async updateToken(_u: string, id: string, t: any) { storeCalls.push('update'); const r = rows.find((x) => x.id === id); if (r) Object.assign(r, { accessToken: t.accessToken, tokenExpiresAt: t.tokenExpiresAt }); },
   async markNeedsReconnect() { storeCalls.push('reconnect'); },
-  async deleteAccount(userId: string, externalId?: string) { storeCalls.push('delete'); await tick(); rows = rows.filter((r) => !(r.userId === userId && (!externalId || r.externalId === externalId))); },
+  async deleteAccount(userId: string, externalId?: string, onlyIfAccessToken?: string) { storeCalls.push('delete'); await tick(); rows = rows.filter((r) => !(r.userId === userId && (!externalId || r.externalId === externalId) && (!onlyIfAccessToken || r.accessToken === onlyIfAccessToken))); },
 });
 
 // ---------------------------------------------------------------- 가짜 구글
@@ -465,5 +465,125 @@ describe('QA036 반례', () => {
     hits = [];
     await expect(gm.listGmailInbox(USER)).rejects.toMatchObject({ code: 'conflict' });
     expect(hits).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------- QA036 정식 F03·F04·F06(Mac msg_a28485a4da2f)
+describe('QA036 F04 — 401 토큰 새로 받기는 목록 전체에서 최대 1번', () => {
+  async function connected() {
+    reset(true);
+    await gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT));
+    hits = []; storeCalls.length = 0;
+  }
+  const tokenHits = () => hits.filter((h) => h.url === 'https://oauth2.googleapis.com/token').length;
+  it('상세 조회 401 → 1번 새로 받아 그 상세만 다시, 나머지는 새 토큰으로', async () => {
+    await connected();
+    let firstDetail = true;
+    const realFetch = fakeFetch;
+    gm.setGmailFetch((async (u: string, init?: RequestInit) => {
+      if (/messages\/m1\?/.test(String(u)) && firstDetail) { firstDetail = false; hits.push({ url: String(u), method: 'GET' }); return json({}, 401); }
+      return (realFetch as any)(u, init);
+    }) as unknown as typeof fetch);
+    tokenReply = () => json({ access_token: 'ya29.new', expires_in: 3600 });
+    const r = await gm.listGmailInbox(USER);
+    expect(r.items.map((i) => i.id)).toEqual(['m1', 'm2']);
+    expect(tokenHits()).toBe(1);
+    expect(hits.filter((h) => /messages\/m2\?/.test(h.url))[0].auth).toBe('Bearer ya29.new');
+  });
+  it('새로 받은 뒤에도 또 401(같은 상세든 다른 상세든) → 더 받지 않고 멈춤(토큰 요청 1번)', async () => {
+    await connected();
+    const realFetch = fakeFetch;
+    gm.setGmailFetch((async (u: string, init?: RequestInit) => {
+      if (/messages\/m[12]\?/.test(String(u))) { hits.push({ url: String(u), method: 'GET' }); return json({}, 401); }
+      return (realFetch as any)(u, init);
+    }) as unknown as typeof fetch);
+    tokenReply = () => json({ access_token: 'ya29.new', expires_in: 3600 });
+    await expect(gm.listGmailInbox(USER)).rejects.toMatchObject({ code: 'auth' });
+    expect(tokenHits()).toBe(1);
+    expect(hits.filter((h) => /messages\/m[12]\?/.test(h.url))).toHaveLength(2); // m1 두 번(처음·새 토큰), 그 뒤 진행 안 함
+  });
+  it('목록 401로 이미 1번 받았으면 상세 401에서는 더 받지 않음', async () => {
+    await connected();
+    let listFirst = true;
+    listReply = () => { if (listFirst) { listFirst = false; return json({}, 401); } return json({ messages: [{ id: 'm1' }] }); };
+    const realFetch = fakeFetch;
+    gm.setGmailFetch((async (u: string, init?: RequestInit) => {
+      if (/messages\/m1\?/.test(String(u))) { hits.push({ url: String(u), method: 'GET' }); return json({}, 401); }
+      return (realFetch as any)(u, init);
+    }) as unknown as typeof fetch);
+    tokenReply = () => json({ access_token: 'ya29.new', expires_in: 3600 });
+    await expect(gm.listGmailInbox(USER)).rejects.toMatchObject({ code: 'auth' });
+    expect(tokenHits()).toBe(1);
+  });
+});
+
+describe('QA036 F06 — 모르는 키 번호: 쿨다운 안에서 공개 키 목록 1번만 다시 받기', () => {
+  it('캐시 k1 → 서버가 k2로 바뀜 → k2 토큰은 1번 다시 받아 통과 / 곧바로 엉뚱한 키 번호는 다시 받지 않고 null / 쿨다운 뒤에는 1번 더', async () => {
+    reset(true);
+    const kp2 = generateKeyPairSync('rsa', { modulusLength: 2048 });
+    let serve: 'k1' | 'k2' = 'k1';
+    let certHits = 0;
+    gm.setGmailFetch((async (u: string) => {
+      if (String(u).startsWith('https://www.googleapis.com/oauth2/v3/certs')) {
+        certHits++;
+        const k = serve === 'k1' ? { ...jwk, kid: KID } : { ...(kp2.publicKey.export({ format: 'jwk' }) as object), kid: 'k2' };
+        return json({ keys: [{ ...k, alg: 'RS256', use: 'sig' }] }, 200, { 'cache-control': 'max-age=3600' });
+      }
+      return json({}, 404);
+    }) as unknown as typeof fetch);
+    const t0 = Date.now();
+    expect(await gm.verifyGoogleIdToken(idToken({}), CLIENT, t0)).not.toBeNull();
+    expect(certHits).toBe(1);
+    serve = 'k2';
+    const k2tok = idToken({}, { kid: 'k2', key: kp2.privateKey });
+    expect(await gm.verifyGoogleIdToken(k2tok, CLIENT, t0 + 1000)).toMatchObject({ sub: 'sub-A' });
+    expect(certHits).toBe(2);
+    expect(await gm.verifyGoogleIdToken(idToken({}, { kid: 'random-1' }), CLIENT, t0 + 2000)).toBeNull();
+    expect(await gm.verifyGoogleIdToken(idToken({}, { kid: 'random-2' }), CLIENT, t0 + 3000)).toBeNull();
+    expect(certHits).toBe(2); // 쿨다운 안: 다시 받지 않음
+    expect(await gm.verifyGoogleIdToken(idToken({}, { kid: 'random-3' }), CLIENT, t0 + 1000 + gm.GMAIL_JWKS_REFETCH_COOLDOWN_MS + 1)).toBeNull();
+    expect(certHits).toBe(3); // 쿨다운 뒤 1번
+  });
+  it('강제 다시 받기가 실패해도 예외 없이 null, 쿨다운은 그대로 적용', async () => {
+    reset(true);
+    let certHits = 0;
+    let fail = false;
+    gm.setGmailFetch((async (u: string) => {
+      if (String(u).startsWith('https://www.googleapis.com/oauth2/v3/certs')) {
+        certHits++;
+        if (fail) throw new Error('network');
+        return json({ keys: [{ ...jwk, kid: KID, alg: 'RS256' }] }, 200, { 'cache-control': 'max-age=3600' });
+      }
+      return json({}, 404);
+    }) as unknown as typeof fetch);
+    const t0 = Date.now();
+    await gm.verifyGoogleIdToken(idToken({}), CLIENT, t0);
+    fail = true;
+    await expect(gm.verifyGoogleIdToken(idToken({}, { kid: 'x1' }), CLIENT, t0 + 10)).resolves.toBeNull();
+    await expect(gm.verifyGoogleIdToken(idToken({}, { kid: 'x2' }), CLIENT, t0 + 20)).resolves.toBeNull();
+    expect(certHits).toBe(2);
+  });
+});
+
+describe('QA036 F03 — 같은 계정 새 연결을 이전 콜백의 정리가 지우지 않음(조건부 삭제)', () => {
+  it('B가 재확인 실패로 자기 줄을 지우려는 사이 같은 계정 C가 새 토큰으로 갱신 → C 연결은 남음', async () => {
+    reset(true);
+    let n = 0;
+    const base = fakeStore();
+    gm.setGmailStoreForTests({
+      ...base,
+      async listAccounts(u: string) {
+        n++;
+        if (n === 2) {
+          // B의 재확인 시점: 같은 계정(sub-A)으로 다른 콜백 C가 새 토큰을 저장해 둠, 그리고 B의 재확인 읽기는 실패
+          const r = rows.find((x) => x.externalId === 'sub-A');
+          if (r) r.accessToken = 'ya29.from-C';
+          throw new Error('db down');
+        }
+        return base.listAccounts(u);
+      },
+    } as any);
+    await expect(gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT))).rejects.toMatchObject({ code: 'server' });
+    expect(rows.map((r) => [r.externalId, r.accessToken])).toEqual([['sub-A', 'ya29.from-C']]);
   });
 });
