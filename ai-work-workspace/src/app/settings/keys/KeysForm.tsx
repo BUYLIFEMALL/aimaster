@@ -1,6 +1,6 @@
 "use client";
 // U3: 키 입력·저장·삭제 + 📖 연동 매뉴얼 상자(팝업). 서버: /api/keys
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { rpc } from "@/lib/standaloneRpc";
 
 type Provider = "anthropic" | "openai" | "gemini" | "cronjob_org_api_key" | "google_client_id" | "google_client_secret" | "bolta_api_key" | "bolta_webhook_secret" | "naver_client_id" | "naver_client_secret" | "kakao_rest_api_key" | "tavily" | "perplexity" | "serpapi";
@@ -110,6 +110,7 @@ export function KeysForm() {
         ))}
         {g.providers.includes("anthropic") && <AiModelPrefs reloadTag={JSON.stringify(keys)} />}
         {g.providers.includes("naver_client_id") && <SearchToolPrefs reloadTag={JSON.stringify(keys)} />}
+        {g.providers.includes("google_client_id") && <CalendarConnStatus reloadTag={JSON.stringify(keys)} />}{/* 2026-11-17 주인님 지시: 연결 상태 + 캘린더 연동 화면 열기 */}
       </div>
       </section>
         );
@@ -296,6 +297,53 @@ function SearchToolPrefs({ reloadTag }: { reloadTag: string }) {
       </div>
       <p className="aww-key-desc">각 서비스의 키는 위 칸에 넣으면 됩니다. 다른 AIMaster 프로그램에서 이미 넣었다면 「등록됨」으로 보이고 그대로 씁니다.</p>
       {msg && <p className="aww-key-msg">{msg}</p>}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- 📅 구글 캘린더 연결 상태
+// 2026-11-17 WS-20261117-18 주인님 지시: 「📅 구글 캘린더 연결」 칸에 지금 연결 상태 + 「캘린더 연동 화면 열기」 버튼.
+// 상태는 캘린더 연동 화면과 같은 기존 읽기 요청 calState(src/server/calendarSync.ts)만 쓴다. 키를 바꾸면(reloadTag) 다시 읽는다.
+interface CalSummary {
+  google: { hasApp: boolean; connected: boolean; needsReconnect: boolean; email: string | null };
+  feed: { dbs: unknown[] } | null;
+}
+
+export function CalendarConnStatus({ reloadTag }: { reloadTag: string }) {
+  const [st, setSt] = useState<CalSummary | null>(null);
+  const [failed, setFailed] = useState(false);
+  const [retry, setRetry] = useState(0);
+  const seq = useRef(0); // 마지막 요청만 반영(늦게 온 이전 응답·화면 해제 뒤 응답 무시)
+  useEffect(() => {
+    const my = ++seq.current;
+    setFailed(false);
+    rpc<CalSummary>("calState")
+      .then((r) => { if (my === seq.current) setSt(r); })
+      .catch(() => { if (my === seq.current) setFailed(true); });
+  }, [reloadTag, retry]);
+  useEffect(() => () => { seq.current++; }, []);
+
+  const g = st?.google;
+  const text = failed
+    ? "⚠️ 연결 상태를 확인하지 못했습니다(연결이 끊겼다는 뜻은 아닙니다). 「다시 확인」을 누르거나 캘린더 연동 화면에서 확인해 주세요."
+    : !st || !g
+      ? "연결 상태 확인 중…"
+      : !g.hasApp
+        ? "⚪ 구글 앱 키를 먼저 넣어 주세요(위 두 칸)."
+        : g.needsReconnect
+          ? "⚠️ 구글 연결이 끊겼습니다. 캘린더 연동 화면에서 다시 연결해 주세요."
+          : g.connected
+            ? `✅ 구글 계정 연결됨${g.email ? ` · ${g.email}` : ""}`
+            : "⚪ 아직 연결 안 됨 — 캘린더 연동 화면에서 「구글 연결」을 눌러 주세요.";
+  return (
+    <div className="aww-key-card aww-cal-status" role="status">
+      <div className="aww-key-head">
+        <b>지금 연결 상태</b>
+        <a className="aww-btn small" href="/calendar-sync">📅 캘린더 연동 화면 열기</a>
+      </div>
+      <p className="aww-key-desc">{text}</p>
+      {failed && <button type="button" className="aww-btn small" onClick={() => setRetry((n) => n + 1)}>🔄 다시 확인</button>}
+      {st?.feed && <p className="aww-key-desc">🔗 간편 구독 켜짐(표 {st.feed.dbs.length}개)</p>}
     </div>
   );
 }
