@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 09:53:49 KST",
+  "checkedAt": "2026-11-17 09:56:34 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4503,12 +4503,12 @@
       "title": "구글 캘린더 설정 연결 상태·연동 화면 버튼",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "priority": "P2",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "returned",
-      "evidence": "Workspace보고 KeysForm+DOM8/기존calStateread·첫째안수정0",
+      "evidence": "Workspace보고 KeysForm+DOM8/기존calStateread·첫째안수정0 / msg_ed20ad8d6777 QA018 실React 기대계정없음/재조회구상태잔존P2",
       "completion": "KeysForm 기존cal읽기상태 연결됨/재연결/미연결+로딩/실패구분·연동화면버튼,기존예정일정연결유지·경량검증·실화면未검수구분",
-      "next": "Mac QA018 상태/최신요청/오류/버튼·standalone계정표시혼합 독립검수배정·실Google/DB/서버/빌드0",
-      "lastReviewedAt": "2026-11-17T00:53:47.004Z",
+      "next": "Workspacepage기존userID→Calendar expectedAccount/409숨김·account+tag결과분리 재조회loading 국소수정배정. 서버/OAuth/DB/외부/서버재가동/빌드0",
+      "lastReviewedAt": "2026-11-17T00:56:31.500Z",
       "sha": "5d0aa1def"
     },
     {
@@ -4518,12 +4518,12 @@
       "reviewer": "CX-MASTER-01",
       "title": "캘린더 연결 상태·설정 이동 독립검수",
       "priority": "P2",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "ready_review",
+      "delivery": "returned",
       "scopeRef": "5d0aa1def 읽기·관련경량컴포넌트/자기결과만",
       "completion": "기존cal상태계약/로딩·오류·연결표시/최신요청수명/버튼경로/계정문맥검토·실외부미검수구분",
-      "evidence": "5d0aa1def·작성자DOM8",
-      "next": "Mac 독립검토·서버/DB/실OAuth/키/빌드0",
+      "evidence": "Workspace보고 KeysForm+DOM8/기존calStateread·첫째안수정0 / msg_ed20ad8d6777 QA018 실React 기대계정없음/재조회구상태잔존P2",
+      "next": "수정본후두경계재검토·현재전체PASS보류",
       "lastReviewedAt": "2026-11-17T00:53:47.004Z"
     }
   ]
