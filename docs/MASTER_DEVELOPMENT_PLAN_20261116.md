@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 11:32:43 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 11:39:02 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -13,7 +13,7 @@
 | 순서 | 담당 | 진행 단계 | 다음 작업·통과 기준 |
 | --- | --- | --- | --- |
 | 1 · ESM | Ecom + Mac Tester | v1.02 운영 배포·Mac 웹 회귀 완료 | 실ESM 등록/확장 연결은 별도 범위, 추가 빌드 없음 |
-| 2 · Workspace | Workspace + Master | Next16.4.6 패치후타입/370시험/buildPASS·v1.56 배포출발지시 | Workspace 승인운영1회 배포결과 Ready/별칭/artifact/DB해당행/Edge운영확인 반환대기 |
+| 2 · Workspace | Workspace + Master | v1.56 운영Ready Master확인·370시험/타입/buildPASS | Mac QA021 운영읽기전용 확인·Alt/인쇄/실기기/실발급未검수·개발서버중지유지 |
 | 3 · B2B | Backend + Master + Mac Tester | 주인님 응답을 Backend가 준비신호로 접수·DB요청결과 대기 | 주인님Accept→검증20/지문→Master승인Lab1빌드,실결제테스트키만 |
 | 4 · B2BFront | B2BFront + Mac Tester | 다크단추 최소보정 소스/독립계산 PASS | acb858a77 같은Lab묶음·실Tab/누름상태후속·3색기존미달별도 |
 | 5 · 블로그 | Blog | 문서T12 배정/보관표정정완료,이웃1.22·티스토리1.98미배포 | 실확장/신뢰클릭·계정조건 별도,작은수정은다음묶음·타인변경보존 |
@@ -40,7 +40,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 182개: done 157개 · cancelled 6개 · ready_review 13개 · running 3개 · waiting_human 2개 · ready 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 183개: done 158개 · cancelled 6개 · ready_review 13개 · running 2개 · waiting_human 2개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -195,7 +195,7 @@
 | ESM-20261117-01 | CC-ECOM-01 | done / integrated | 주인님 직접 ESM 썸네일 등록·사용자 매뉴얼 | 운영v1.02유지·동일배포재실행0·실ESM등록은추후범위지정 |
 | QA-20261117-008 | CX-QA-01 | done / integrated | ESM 운영안내·매뉴얼 누락 독립점검 | 다음esm묶음배포뒤운영가이드반영확인만·같은소스재검수없음 |
 | QA-20261117-009 | CX-QA-01 | done / integrated | OFF 포털 공유권한·토큰·속성투영 독립검수 | 만료토큰부활지정수정독립PASS 수락·실DB다중프로세스미검수·공개전환0 |
-| WS-20261117-13 | CC-WORKSPACE-01 | running / returned | 주인님 선택146 Professional Studio 전면리뉴얼 | Workspace 승인운영1회 배포결과 Ready/별칭/artifact/DB해당행/Edge운영확인 반환대기 |
+| WS-20261117-13 | CC-WORKSPACE-01 | done / integrated | 주인님 선택146 Professional Studio 전면리뉴얼 | 배포완료·후속QA021 Mac읽기전용독립검수. Alt/실인쇄/실기기/실발급未검수 유지 |
 | REL-20261117-006 | CC-REALTY-01 | done / integrated | 주인님 직접승인 매물알림v1.46 운영배포 | QA010읽기확인배정·ZIP압축해시차이/내부파일동일근거보존,새수집/알림/추가빌드0 |
 | QA-20261117-010 | CX-QA-01 | done / integrated | 매물알림v1.46 운영·확장버전 읽기확인 | Mac확장설치/실SW/첫격리/수집알림미검수·PC5대표시는다른PC상태,재반복0 |
 | RE-20261117-05 | CC-REALTY-01 | done / returned | 주인님 직접 상가 층진단 n30 재측정1회 | 클라이언트15초타임아웃·응답지역변수라회수실패·HTTP/건수미확인·추가공공API호출0,향후결과보관실행기개선안만기록 |
@@ -226,6 +226,7 @@
 | QA-20261117-019 | CX-QA-01 | done / integrated | 146 실제캡처 독립시각검수 | 지정 시각 검수 종결. 실Alt·실인쇄·실기기 미검수,146 전체 완전일치 판정 아님 |
 | QA-20261117-020 | CX-QA-01 | done / integrated | Front다크단추 대비 국소독립검수 | acb858a77 승인Lab1빌드묶음포함·별도빌드/추가소스0·LabReady뒤실Tab상태구분검수 |
 | WS-20261117-20 | CC-WORKSPACE-01 | done / integrated | 워크스페이스 영수증 하단 스크롤 접근 복구 | 소스동결·WS13/QA019 마지막viewport/상태누락증거보완·운영배포0 |
+| QA-20261117-021 | CX-QA-01 | ready / queued | Workspace v1.56 운영 읽기전용 독립 스모크 | Mac 실제확인 결과반환·맥빌드배포0 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 

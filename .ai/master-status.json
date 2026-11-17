@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T02:32:40.202Z",
+  "checkedAt": "2026-11-17T02:38:59.341Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2102,16 +2102,16 @@
       "parent_task_id": "DES-20261117-02",
       "owner": "CC-WORKSPACE-01",
       "title": "주인님 선택146 Professional Studio 전면리뉴얼",
-      "status": "running",
-      "delivery": "returned",
-      "evidence": "msg_542c66206f89 QA013독립effect3PASS/작성자jsdom5분리 / Workspace직접보고 로그인POST307·localGET500/Jestworker2exceptions·PID44692생존 / Workspace1회복구Ready후exit 보고·Master 물리2191MB/commit60.12of66.03GB/3457 LISTEN없음 / d01b34b0f 원인조사·최근System2004없음·자기background0 / Master지속session56053·PID32968·GET307정상후담당실로그인/로컬workspace6433·8ce818bf7 desktop/375iframe / fe8f67a38 3PNG/en혼용·Alttool수정키未전송·printCSS / fb6c4f2bc 남은375발행/달력더보기/열린메뉴실측캡처 / msg_688f586b5934 독립 시각 최종PASS / 51159db38 전체tsc exit0·고지0 / fd6691073 전체45파일370시험 exit0·개발DB oid/3457 유지 / Workspace localbuild exit1 69초: compile/TS/static완료후 Next16.4.3 SecurityFatalError,3457유지,Master nudge.js경로확인 / c38b84403 Next16.4.6+v1.56·作者tsc0/370tests/build0·Master diff/project/clean/locks/teamqueue0確認",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_542c66206f89 QA013독립effect3PASS/작성자jsdom5분리 / Workspace직접보고 로그인POST307·localGET500/Jestworker2exceptions·PID44692생존 / Workspace1회복구Ready후exit 보고·Master 물리2191MB/commit60.12of66.03GB/3457 LISTEN없음 / d01b34b0f 원인조사·최근System2004없음·자기background0 / Master지속session56053·PID32968·GET307정상후담당실로그인/로컬workspace6433·8ce818bf7 desktop/375iframe / fe8f67a38 3PNG/en혼용·Alttool수정키未전송·printCSS / fb6c4f2bc 남은375발행/달력더보기/열린메뉴실측캡처 / msg_688f586b5934 독립 시각 최종PASS / 51159db38 전체tsc exit0·고지0 / fd6691073 전체45파일370시험 exit0·개발DB oid/3457 유지 / Workspace localbuild exit1 69초: compile/TS/static완료후 Next16.4.3 SecurityFatalError,3457유지,Master nudge.js경로확인 / c38b84403 Next16.4.6+v1.56·作者tsc0/370tests/build0·Master diff/project/clean/locks/teamqueue0確認 / 49f28f938 v1.56배포/운영DB1행/Edge作者확인·Master VercelREADY/production/alias/project직접확인,meta d2fe189f4는c38후손·프로그램diff0",
       "decision": {
         "chosen": "146 Professional Studio",
         "reference": "[5/12] 146 Professional Studio - 01. 메인 관제 대시보드",
         "scope": "메인기준 전체화면 일관스타일 적용·기존기능/회원데이터유지",
         "source": "주인님 직접 채팅 2026-11-17 KST"
       },
-      "next": "Workspace 승인운영1회 배포결과 Ready/별칭/artifact/DB해당행/Edge운영확인 반환대기",
+      "next": "배포완료·후속QA021 Mac읽기전용독립검수. Alt/실인쇄/실기기/실발급未검수 유지",
       "lastReviewedAt": "2026-11-17T02:20:33.905Z",
       "sha": "S0~5+075fcb4+1a13662a4bfa51ffba2ee9468fdc35ae13c7bcdd",
       "validationPending": {
@@ -2133,10 +2133,11 @@
         "executor": "CC-WORKSPACE-01",
         "portal": "OFF",
         "message": "msg_4a21cdb453ec",
-        "status": "remote_release_dispatched_after_patch_validation",
+        "status": "deployed_ready_master_verified",
         "localBuildAttempts": 1,
-        "vercelBuildsUsed": 0,
-        "sourceSha": "c38b84403"
+        "vercelBuildsUsed": 1,
+        "sourceSha": "c38b84403",
+        "deploymentId": "dpl_GUNMN7RG3XoQVdZmbihJC3qCTJSC"
       },
       "securityDecision": {
         "by": "CX-MASTER-01",
@@ -2604,6 +2605,19 @@
       "next": "소스동결·WS13/QA019 마지막viewport/상태누락증거보완·운영배포0",
       "lastReviewedAt": "2026-11-17T01:50:07.371Z",
       "sha": "6c5c225c2 + 0b43be22c"
+    },
+    {
+      "task_id": "QA-20261117-021",
+      "parent_task_id": "WS-20261117-13",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "Workspace v1.56 운영 읽기전용 독립 스모크",
+      "status": "ready",
+      "delivery": "queued",
+      "scopeRef": "운영버전/대시보드/영수증스크롤/keys/375폭 읽기전용·제품수정0",
+      "completion": "실제브라우저관찰범위와로그인차단/미검수 구분",
+      "evidence": "msg_151b329eaa5d",
+      "next": "Mac 실제확인 결과반환·맥빌드배포0"
     }
   ],
   "programOverrides": [
@@ -2934,8 +2948,8 @@
     {
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
-      "stage": "Next16.4.6 패치후타입/370시험/buildPASS·v1.56 배포출발지시",
-      "next": "Workspace 승인운영1회 배포결과 Ready/별칭/artifact/DB해당행/Edge운영확인 반환대기"
+      "stage": "v1.56 운영Ready Master확인·370시험/타입/buildPASS",
+      "next": "Mac QA021 운영읽기전용 확인·Alt/인쇄/실기기/실발급未검수·개발서버중지유지"
     },
     {
       "order": "3 · B2B",
