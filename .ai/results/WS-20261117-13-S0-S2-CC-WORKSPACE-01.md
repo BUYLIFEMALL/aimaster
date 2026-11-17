@@ -145,3 +145,12 @@
 - 최소 수정: 영향 범위 밖 첫 버전 16.4.5, 최신 정식 `latest` = 16.4.6(16.4 줄 패치). `next@16.4.5` peerDependencies react `^19.0.0` → React 19.3.1 그대로 동반 변경 불필요.
 - 회귀 범위(패치 시): `package.json`·`package-lock.json`의 next 한 패키지, 이 프로그램만(다른 프로그램은 각자 lock). 확인 = 전체 tsc·전체 vitest(370)·로컬 build 1회·3457 개발 서버 재시작 필요 여부(Master 서버) 조정.
 - 판단 선택지: (가) 16.4.6 패치 후 tsc·vitest·build 재확인 → v1.56 배포 (나) 사용 방식이 없으므로 같은 16.4.3로 배포하고 패치는 별도 작업(단 로컬 build는 경고 정지가 계속될 수 있어 재실행 판단 필요) (다) 계속 보류.
+
+## 18. v1.56 운영 배포 완료 (주인님 「진행하고 MASTER에 보고 해」, Master msg_4a21cdb453ec)
+- 배포 직전: `.vercel/project.json` projectId `prj_jLvFVOAvQ0fI0pQGazWPqdbl4fGw`·orgId `team_orq6xPe9P3c1uMQdKlJsQ6k9` 일치, 팀 BUILDING/QUEUED/INITIALIZING 0, 프로그램 미커밋 0, 최종 소스 `c38b84403`(+ 묶음 `90612778f`~`0b43be22c`).
+- `vercel deploy --prod --yes --scope buylife --cwd D:/AIMaster/ai-work-workspace` 1회 → `dpl_GUNMN7RG3XoQVdZmbihJC3qCTJSC`(`ai-work-workspace-qnc5ykmtx-buylife.vercel.app`) target production · **Ready** · 별칭 `ai-work-workspace.buylife.xyz` 연결. 재배포 0.
+- 운영 DB: `update programs set version='v1.56' … where slug='ai-work-workspace'` 1행 → 조회 결과 version v1.56, updated_at 2026-11-17 02:35:26 UTC. 그 밖의 운영 DB 쓰기·DDL 0, 포털 스위치 OFF(표 생성 0).
+- 운영 화면(엣지, 시험 계정 로그인): 사이드바 머리 v1.56·남색 사이드바·아래 6개 메뉴, `/workspace/studio` 상단 「📊 관제 대시보드」·카드 4개(받은 업무 1·내 할 일 0·비서 2/0·검토 0), `/workspace/receipts` 왼쪽 메뉴와 함께·머리글 v1.56·`overflow-y: auto`. 회원 자료 조작 0(처음 열린 휴지통 페이지 손대지 않음).
+- 기록: `AGENTS.md` 버전 표 v1.56 줄, `docs/IMPROVEMENTS.md` 해당 미배포 표시 → v1.56 배포됨.
+- 미검수 유지: Alt 끌기 복사(로컬 확인 탭은 브라우저에서 탭 그룹이 닫혀 사라짐 — 다시 열면 같은 로컬 주소), 실인쇄, 실기기, 실발급. 로컬 개발 서버 3457은 Next 패치 때 종료한 상태 그대로(재시작 필요 여부 별도).
+- 비용: Vercel 빌드 1회(주인님 승인 범위), 로컬 build 2회·tsc·시험 무료, 외부 AI 0.
