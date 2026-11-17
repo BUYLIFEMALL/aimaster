@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 12:24:32 KST",
+  "checkedAt": "2026-11-17 12:26:25 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4711,13 +4711,13 @@
       "task_id": "BLOG-20261117-08",
       "owner": "CC-BLOG-01",
       "title": "T05 inspect robots 판정 구현준비",
-      "evidence": "msg_906f4d937c19 / c82d69b3f/64f1257c9 / msg_0101dd1848c2",
-      "next": "중간리디렉트正文요청전robots검사누락보완·5xx중지/404허용/표준MIT파서근거조사·코드0",
+      "evidence": "msg_906f4d937c19 / c82d69b3f/64f1257c9 / msg_0101dd1848c2 / cb337929d/c46589a15·Master npm metadata robots-parser3.0.1 MIT / msg_6bd4fda305a6",
+      "next": "T05 매리디렉트본문전robots판정 구현·실parser모의시험/tsc·외부크롤링/배포0",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
-      "status": "running",
-      "delivery": "returned",
-      "scopeRef": "고유분석파일/본인문서·운영소스0",
+      "status": "ready",
+      "delivery": "queued",
+      "scopeRef": "FILE_OWNERSHIP BLOG08 safeFetch/route/robots/test/package-lock/출처",
       "completion": "재현근거/정확범위/미검수반환"
     },
     {
