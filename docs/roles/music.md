@@ -5,7 +5,7 @@
 - 카테고리: 음악
 - 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-11-18 Claud(Music) `claude-win-20261024-music` (PLAN-REVIEW-20261118 문서 정합성 정리 — 옛 미배포 표현 정정)
+- 마지막 갱신: 2026-11-18 Claud(Music) `claude-win-20261024-music` (맥미니 MP4 요청 · Apple Silicon 확인은 장비 준비 뒤로)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -23,6 +23,7 @@
 ## 나중에 할 일 (장비가 바뀐 뒤 — 지금은 손대지 않음)
 | 프로그램 | 작업 | 언제 | 근거 |
 |---|---|---|---|
+| `lyric-video-studio` | Apple Silicon 맥 실물 MP4 확인(「파일로 바로 저장」 가속 멈춤 대체의 실제 하드웨어 확인 — 원래 5% 멈춤 사례 장비) | Apple Silicon 장비가 준비되면(2026-11-18 주인님 「이건 준비가되면 하는것으로 완료해」) — 그때 `REQUEST_20261118_MACMINI_V116_MP4.md` 그대로 실행 | `lyric-video-studio/docs/REQUEST_20261118_MACMINI_V116_MP4.md` |
 | `free-music-studio` | A-6 Apple Silicon 맥 엔진 설치 파일(DMG는 엔진 0.7.7 이상으로) | 장비가 Apple Silicon 맥으로 바뀐 뒤(2026-11-10 주인님 「나중에 장비 바뀌면 할꺼니까 나중에 하는 걸로」) | 백로그 「보관」 A-6 · `free-music-studio/docs/MAC_MINI_DMG_PROMPT_20261108.md` |
 
 ## 최근 완료 (최근 10개)
@@ -66,7 +67,7 @@
 더 앞의 이력은 각 프로그램 `AGENTS.md` 버전 기록에 있다(`free-music-studio/AGENTS.md` §4 등).
 
 ## 다음 첫 단계
-1. 미배포는 가사 영상 2건(`fe402b1df` 취소 안내·`2b9a06c9c` 공용 인코더 사본) — 다음 음악 기능 배포 때 함께 내보내고 운영에서 취소 1회 확인. 맥 실물 MP4는 사람 클릭·저장 위치 선택 대기(MacQA002), Apple Silicon 장비 없음
+1. 미배포는 가사 영상 2건(`fe402b1df` 취소 안내·`2b9a06c9c` 공용 인코더 사본) — 다음 음악 기능 배포 때 함께 내보내고 운영에서 취소 1회 확인. 맥(Intel) 실물 MP4는 맥미니 요청서로 사람 클릭·저장 위치 선택 대기(MacQA002). Apple Silicon 확인은 장비 준비 뒤로 미룸(「나중에 할 일」, 주인님 11-18 결정)
 2. **음악 표 칸 이름을 바꿀 때 주의(2026-11-11)**: `free_music_tracks`·`ams_generations`·`music_track_variants`는 메인 「내 자료함」 트리거(`member_assets_sync_fms/ams/suno`, 마이그레이션 0059)가 읽는다 — 칸 이름·저장 경로를 바꾸면 트리거도 함께 고친다(트리거 오류 = 원본 저장 실패)
 3. 새 작업이 오면: `node scripts/dev-requests.mjs list --role music` → 백로그 확인 → 플랜 → 구현. 화면을 크게 바꾼 뒤에는 배포 전에 `next dev`로 「Maximum update depth」 경고를 확인한다(2026-11-09 교훈)
 
