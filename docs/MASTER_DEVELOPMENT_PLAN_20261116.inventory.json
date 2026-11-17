@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 18:21:21 KST",
+  "checkedAt": "2026-11-17 18:22:40 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -5098,7 +5098,7 @@
       "scopeRef": "gmailInbox.ts·Gmail start/callback·gmailInbox.test.ts·본인 문서. runtime/UI/SQL 및 운영·실외부 제외",
       "evidence": "8973dc2d8+3027a923d·문서3edeaeee9, 모의60/tsc0; Mac재검수 msg_d70e7ad790eb",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "F02refresh중앱변경추가245227c98·모의64/tsc0→Mac지정반례재검수 msg_c1dac6bf02d8. F03켜기차단유지",
+      "next": "A1 OFF국소수정독립PASS/F03활성화차단·Gmail전용정확저장과A2불확실전달·보관경계 통합계획읽기배정",
       "sha": "245227c98",
       "lastReviewedAt": "2026-11-17T09:00:52.380Z"
     },
@@ -5130,10 +5130,10 @@
       "status": "ready_review",
       "delivery": "returned",
       "sha": "6e6267120",
-      "evidence": ".ai/results/QA-20261117-036-CX-QA-01.md / msg_a28485a4da2f: FAIL F01~F06, 모의 실제모듈/RSA",
+      "evidence": "QA036문서 / msg_c73a1174be1b: 245227c98 F02실제모듈모의경계PASS. F01/F04/F05/F06지정반례PASS; F03다중인스턴스2행잔존",
       "scopeRef": "Mac 실제모듈·가짜통신/메모리·읽기 검토, 공유DB reset/build/deploy/실Google0",
       "completion": "OFF/OAuth/JWT·동시callback·연결계정 경계 판정 및 재현근거",
-      "next": "3027a923d 재검수배정 msg_d70e7ad790eb, F03해소PASS금지·OFF소스판정/활성차단분리"
+      "next": "OFF단계국소검수수락·F03활성화FAIL차단유지, 완전원자보장PASS아님"
     },
     {
       "task_id": "QA-20261117-037",
