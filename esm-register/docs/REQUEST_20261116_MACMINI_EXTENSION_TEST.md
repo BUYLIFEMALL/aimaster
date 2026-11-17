@@ -1,4 +1,46 @@
-# 맥미니 요청 — G마켓·옥션 등록기 v1.01 확장 「입력만」 실물 시험 (2026-11-16, [역할: ecommerce-image] → [역할: mac-mini])
+# 맥미니 요청 — ESM 등록기 v1.02 「입력만」 + 쇼핑제휴 v1.89 네이버 수집 실물 시험 (2026-11-17 정정, [역할: ecommerce-image] → [역할: mac-mini])
+
+> **2026-11-17 정정(이 절이 아래 2026-11-16 원 요청보다 우선)**: 주인님 직접 지시 「master에게 테스트 요청해」「이것도 맥미니 몫이야」. Master msg_a042112fc563. 아래 옛 절(v1.01·관리자 계정·옛 상품)은 기록으로만 보존합니다.
+
+## 최신 기준 (2026-11-17)
+| 항목 | ESM 등록기 | 쇼핑제휴 |
+|---|---|---|
+| 운영 버전 | **v1.02** (`esm-register-rl1ce5afz` Ready) | **v1.89** (`threads-affiliate-poster-qkncpet55` Ready) |
+| 확장 ZIP (내려받기) | https://esm-register.buylife.xyz/downloads/esm-register-extension-latest.zip — 안의 manifest `version_name` v1.02 (2026-11-17 `check-extension-release` OK) | https://threads-affiliate-poster.buylife.xyz/downloads/threads-affiliate-poster-extension-latest.zip — v1.89 (2026-11-17 OK) |
+| 확장 목록 이름 | AI G마켓·옥션 상품 자동등록기 · v1.02 | Threads 쇼핑제휴 자동화 · v1.89 |
+| 시험 계정 | `buylifemall@naver.com` (이미 로그인된 세션 사용) | 같음 |
+| 시험 대상 | 상품 「시험용 스테인리스 텀블러 500ml」 `82deeddc-58c8-4b14-9d59-66728bb876af`, 등록 방식 **입력만** | 네이버 브랜드커넥트 **실제 상품 링크 1개** |
+| 하지 않을 것 | ESM+ 저장·임시저장·등록하기 버튼 0, 같은 실패 자동 반복 0 | 대기열 「등록」·글 생성(유료 AI) 0 — Master가 따로 승인할 때만 |
+
+## 사람 조작 한 묶음 (주인님, 처음에 한 번)
+1. 맥미니 ego lite에서 위 두 ZIP을 받아 **지우지 않을 폴더**에 풀고, `chrome://extensions` → 개발자 모드 → 「압축해제된 확장 프로그램을 로드합니다」로 **manifest.json이 바로 들어 있는 폴더**를 각각 고르기(폴더 선택 창은 사람 몫).
+2. https://www.esmplus.com 로그인(주인님 직접, 비밀번호 입력은 에이전트가 하지 않음).
+3. 네이버 로그인(주인님 직접) + 브랜드커넥트에서 시험할 상품 링크 1개 복사해 맥미니 세션에 전달.
+
+## 맥미니가 할 일 (사람 조작 뒤)
+**ESM 등록기 v1.02**
+1. https://esm-register.buylife.xyz/extension → 「🔗 확장 연결하기」 → 연결됨·v1.02 확인.
+2. (선택, 비용 없음) 대시보드 「ESM+ 화면 점검」 1회 → 못 찾은 「구역|칸」 원문 기록.
+3. https://esm-register.buylife.xyz/products/82deeddc-58c8-4b14-9d59-66728bb876af → 카테고리 검색어 「보온병」(또는 「텀블러」) · **입력만** → 「🛒 확장으로 G마켓·옥션 보내기」 1회.
+   - 시험 계정은 ESM+ 기본값(배송·출고지·반품지) 미등록 — 보내기는 막히지 않고 배송 칸은 ESM+ 기본 설정을 씀. 칸 채우기 확인이 목적이라 기본값은 새로 저장하지 않습니다.
+   - 확장이 `item.esmplus.com/goods/new`를 열고 위에서부터 채움 → 멈추면 그 자리에서 끝(정상). /history의 상태(「입력 완료(회원 확인)」 또는 멈춘 칸·오류 원문)와 ESM+ 화면 캡처.
+   - 채운 값 확인: 상품명·판매가(15,900, 10원 단위)·카테고리 경로·대표 사진·상세 이미지 860px 합본 1장·고시·원산지.
+4. ESM+ 탭은 저장하지 않고 닫기(「나가기」 확인 창은 사람 몫). 만들어진 작업이 대기로 남으면 /history에서 취소.
+
+**쇼핑제휴 v1.89**
+1. https://threads-affiliate-poster.buylife.xyz 에서 확장 연결 상태·v1.89 확인.
+2. 「네이버 수집」 칸에 받은 실제 링크 1개 → 확장이 상품 화면을 열어 수집 → **대기열에 표시**되는지(상품명·가격·이미지·고지 문구) 확인. 「등록」은 누르지 않음.
+
+## 결과 남길 곳
+- 이 문서 맨 아래 「맥미니 결과」 표(항목·결과·근거·캡처 경로), 캡처는 `esm-register/docs/evidence/`(쇼핑제휴는 `threads-affiliate-poster/docs/evidence/`).
+- 결과는 Master 경유로 [역할: ecommerce-image]에 전달 → 칸 찾기 보정은 윈도우가 합니다.
+- 비용: 없음(빌드·배포·AI 0). ESM+·네이버에 실제 상품·글을 만들지 않음.
+
+---
+
+## (보존) 2026-11-16 원 요청 — v1.01·관리자 계정·옛 시험 상품 기준, 위 정정으로 대체됨
+
+### 맥미니 요청 — G마켓·옥션 등록기 v1.01 확장 「입력만」 실물 시험 (2026-11-16, [역할: ecommerce-image] → [역할: mac-mini])
 
 > 주인님 지시(2026-11-16): 「맥미니에 테스트 요청해」. 플랜 `docs/PLAN_20261115_ESM_EXTENSION.md`, 화면 분석 `docs/ESM_FORM_ANALYSIS_20261115.md`, 프로그램 인수인계 `esm-register/AGENTS.md`를 먼저 읽어 주세요.
 
