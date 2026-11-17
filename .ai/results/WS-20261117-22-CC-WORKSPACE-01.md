@@ -47,3 +47,11 @@ returning id, status;
 -- 되돌리기(필요할 때만, 예상 1행): 위와 같은 조건에서 status = 'released' → 'confirmed'
 ```
 - 다른 회원·다른 줄·권한 변경 0. 비밀값 없음(예약 id·일정 id는 비밀이 아님, 토큰·연락처 미포함).
+
+## QA 예약 1행 정리 실행 (Master msg_8126862f6b64 지시, 2026-11-17)
+- 실행 전 읽기(복구 근거): 대상 1행 `status=confirmed`, `updated_time=1794899239673`, 전체 1행·다른 행 0.
+- 실행: 운영 DB에서 원자적 블록(DO) 하나 — 5조건(id `9ab4f3e3-1d0c-4fc3-bb37-ee453d00ea95`·gcal_id `bk9ab4f3e31d0c4fc3bb37ee453d00ea95`·`status=confirmed`·`guest_name='QA 예약 시험'`·시험 계정 `buylifemall@naver.com` user_id)으로 `FOR UPDATE` 잠금 1행 확인 → 같은 조건 UPDATE `status='released'`·`updated_time=now` 1행 확인(어느 쪽이든 1이 아니면 예외로 전체 롤백). 예외 없이 끝남.
+- 실행 후 읽기: `status=released`, `updated_time=1794899909737`(이전보다 큼), gcal_id·이름 그대로, 전체 1행, 칸 점유(pending/confirmed/needs_check) 0행. 물리 DELETE·개인정보 변경·구글 새 호출·다른 예약·설정 변경 0.
+- 되돌리기(필요할 때만): 같은 5조건에서 `status='released'` → `'confirmed'`, `updated_time`은 위 기록값 참고.
+- 같은 시각 칸 다시 열림: DB 점유 0 + 구글 일정 삭제(cancelled)로 계산상 열림. 공개 페이지 직접 재조회는 **하지 않음** — 예약 주소 토큰을 도구 입력에 다시 넣어야 해서(토큰 기록 0 원칙). 화면 확인이 필요하면 회원 「새 주소 만들기」 없이 Mac 읽기 검수에서 기존 세션 탭으로.
+- 범위: 주인님 승인 실검증에서 만든 합성 1행의 사용 후 되돌리기일 뿐, 일반 회원 데이터 정리로 확대 아님.
