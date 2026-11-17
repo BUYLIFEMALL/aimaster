@@ -38,7 +38,7 @@
 | T-02 | 생성 데이터 30일 자동 삭제 | ✅ 완료(코드 v1.08 `9204a3069`, 첫 배포 v1.09) | `IMPROVEMENTS.md` #5 | — | 정리 경로 실행 기록(삭제 건수) 확인 — **확인 필요** |
 | T-03 | 도메인 구조 캐시 회원별 전환 또는 끄기 | **결정 대기** | `IMPROVEMENTS.md` #8, 비교표 R4 | 표 구조 변경 + 크롤링 서버(Render) 재배포 | 주인님께 「회원별로 나누기 / 끄기」 중 선택 여쭘 |
 | T-04 | 웹앱 Next.js 16.2.11 → 16.4.2 보안 업데이트 | 대기 | `docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md` 묶음 E(미커밋 `web-crawler/AGENTS.md` 때문에 제외됨 — 그 변경은 빈 줄 1개 삭제뿐) | Vercel 빌드 1회(사전 승인) | 미커밋 변경 주인 확인 → `npm install next@16.4.2` → tsc·build → 배포 |
-| T-05 | 한 페이지 분석에 robots.txt 확인 | 구현 준비 완료(2026-11-17 BLOG-20261117-08, 구현 담당 배정 대기) | 완성 기준 §2 조건 4, 비교표 R1, 아래 §2-1 | 웹앱 배포(모아서 배포 가능) · 파서 패키지 1개 설치 여부 결정 | §2-1 결정 항목 3개 → Master 구현·검수 분리 배정 |
+| T-05 | 한 페이지 분석에 robots.txt 확인 | 구현 준비 2차(2026-11-17 BLOG-20261117-08, 리디렉트 빈틈 보완, 구현 담당 배정 대기) | 완성 기준 §2 조건 4, 비교표 R1, 아래 §2-1 | 웹앱 배포(모아서 배포 가능) · `robots-parser` 1개 설치(라이선스 확인 뒤) | 그 밖의 4xx 처리 확인 → Master 구현·검수 분리 배정 |
 | T-06 | `Crawl-delay` 반영 + 다음 페이지 robots 확인 | 대기 | 비교표 R2·R3 | 크롤링 서버 재배포 | `pipeline.py` `RateLimiter` 지연값 계산 플랜 |
 | T-07 | 대시보드 자동 새로고침·완료 엑셀 미리보기 | 대기 | `IMPROVEMENTS.md` #6·#7, 비교표 R6·R7 | 웹앱 배포 | 작업 목록의 5초 새로고침을 대시보드에 재사용 |
 | T-08 | 옛 `ghost-scraper/` 코드 정리 | 대기 | `ghost-scraper/AGENTS.md` v1.13 「정리는 백업 폴더 + git 태그 뒤」 · 2026-10-24 `D:\Antigravity\AIMaster_backup\retired-programs\`에 없음 · 관련 git 태그 없음 | 주소 유지 필요(옛 주소 안내), 삭제는 사전 승인 | 백업 폴더 복사 + 태그 → 안내 화면·410만 남기고 정리 플랜 |
@@ -56,24 +56,40 @@
 - 기존 robots 판정은 **Python에만** 있다: `web-crawler/scripts/utils.py:358` `check_robots`(protego 파서, `*` 에이전트) — 대량 수집 `service/pipeline.py:128`이 막히면 실패 처리. 웹앱(TS)용 공용 함수·npm robots 파서는 저장소에 없음(`webapp/node_modules` 확인). 캐시 없음.
 - Python 실패 정책: robots를 못 가져옴(4xx·5xx·연결 오류 포함) → `allowed=true` + `error` 문구 / 404·빈 파일 → 제한 없음 / 파싱 실패 → 허용 + `error`.
 
-**최소 수정 경로(제안)**
-1. 새 파일 `src/lib/inspect/robots.ts` 하나: `checkRobots(pageUrl, userAgents)` → `{ allowed, robotsUrl, error }`. robots.txt는 **반드시 `safeFetch`로**(사설망 차단 유지) 짧은 제한 5초·본문 500KB까지만 읽는다. 판정 규칙은 Python `check_robots`와 같게(못 가져오면 허용 + 경고 문구).
-2. `route.ts`에 2줄 수준: 주소 정리 직후·본문 요청 전에 `checkRobots(targetUrl)` → 막히면 **403 + 「이 사이트의 robots.txt가 이 주소의 자동 분석을 허용하지 않습니다」**(대량 수집 문구와 맞춤), 본문은 요청하지 않음. 리디렉트로 `finalUrl`의 호스트·경로가 바뀌었으면 그 주소로 한 번 더 판정(막히면 결과 버리고 403).
-3. 경고가 있으면 결과 JSON에 `robots: { checked, warning }`만 덧붙임(기존 칸 변경 없음 → 화면·옛 응답 호환). 화면은 경고 한 줄 표시만(선택).
-4. 에이전트 이름: 판정은 `*`와 요청 UA 토큰 `WebCrawlerInspect` 둘 다(더 구체적인 그룹 우선 — 표준 동작).
+**최소 수정 경로 — 2차(2026-11-17 Master msg_0101dd1848c2 결정 반영, 1차 안은 아래 「1차 안의 빈틈」 참고)**
+
+*1차 안의 빈틈:* route에서 첫 주소만 판정하고 `safeFetch` 뒤 `finalUrl`을 다시 보는 방식은, 리디렉트 다음 주소의 **본문을 이미 요청한 뒤** 판정하게 된다 → 「막힌 주소 본문 요청 0회」를 지킬 수 없다. 그래서 판정을 `safeFetch`의 **매 요청 직전**으로 옮긴다.
+
+*바꿀 파일 3개(새 파일 1 + 기존 2) + 시험 파일 1(새):*
+1. `webapp/src/lib/inspect/safeFetch.ts`(기존) — `safeFetch(raw, init, opts?)`에 선택 인자 `opts.beforeRequest?: (url: URL, signal: AbortSignal) => Promise<void>` 추가. 호출 위치는 반복문 안 82행 `resolvePublicUrl(current)` **다음**, 93행 `fetch(url, options)` **앞**(첫 주소 포함 모든 요청, 최대 1+5회). 훅이 던지면 그 주소의 본문 요청 없이 끝난다. 기존 것은 그대로: `resolvePublicUrl` 사설망 검사, DNS 고정 `Agent`, `MAX_REDIRECTS = 5`, `redirect: "manual"`, 80행의 한 번 만든 `signal`(20초 전체 제한)을 훅에도 넘긴다. `opts`를 안 넘기는 기존 호출(`proxy`·`image`)은 동작 그대로.
+2. `webapp/src/lib/inspect/robots.ts`(새) — `createRobotsGuard(userAgents)` → `beforeRequest` 함수. 요청마다 그 주소의 출처(`scheme://host:port`) robots.txt를 판정하고, **한 번의 분석 안에서만** 출처별 결과를 `Map`에 기억(같은 출처 리디렉트에서 robots를 다시 받지 않음, 저장되는 캐시 아님 — T-03과 무관). robots.txt 자체는 `safeFetch(robotsUrl, { signal: AbortSignal.any([바깥 signal, AbortSignal.timeout(5_000)]) })`로 **훅 없이** 부른다 → 재귀 판정 없음, robots.txt의 리디렉트도 사설망 검사·5회 제한을 그대로 받음. 본문은 500KB까지만 읽는다.
+3. `webapp/src/app/api/inspect/route.ts`(기존) — `safeFetch(targetUrl, {...}, { beforeRequest: createRobotsGuard(["WebCrawlerInspect", "*"]) })`로 바꾸고, `RobotsBlockedError`·`RobotsUnavailableError`를 기존 `BlockedUrlError`처럼 잡아 응답 코드로 바꾼다. 응답 성공 JSON에 `robots: { checked: true }`만 더함(기존 칸 불변).
+4. `webapp/tests/inspect-robots.test.cjs`(새) — 아래 모의 시험.
+
+*판정 규칙(Master 결정):*
+| robots.txt 응답 | 처리 | 회원 응답 |
+|---|---|---|
+| 200 + 규칙 | 규칙대로. 막히면 `RobotsBlockedError` | 403 「이 사이트의 robots.txt가 이 주소의 자동 분석을 허용하지 않습니다」 |
+| 404(규칙 없음)·빈 파일 | 계속 진행 | 지금과 같음 |
+| 401·403 | 거절(`RobotsBlockedError`) | 403 같은 문구 |
+| 5xx·시간 초과·연결 오류 | 본문 요청 안 함(`RobotsUnavailableError`), **자동 재시도 없음** | 503 「사이트의 robots.txt를 지금 확인할 수 없습니다. 잠시 뒤 다시 시도해 주세요」 |
+| 그 밖의 4xx(410·429 등) | **Master 확인 필요** — 제안: 410 등은 404와 같게 진행, 429는 5xx와 같게(본문 요청 안 함) | — |
+
+*사설망 차단:* robots.txt 주소도 `safeFetch`를 지나므로 사설 주소면 `BlockedUrlError`(지금처럼 400).
+
+*파서:* 성숙한 MIT 라이브러리 `robots-parser` 우선. **이번엔 외부 요청 0이라 라이선스·의존성을 확인하지 못함**(저장소 어디에도 사본 없음, `webapp/node_modules`에도 없음). 설치 단계에서 `npm view robots-parser license dependencies` 1회로 「MIT·추가 의존성 0」을 먼저 확인하고, 다르면 설치하지 않고 다시 보고. 설치는 이번에 하지 않음.
 
 **완료 조건**
-- robots가 막은 주소 → 403·본문 요청 0회(모의 fetch 호출 수로 확인). 허용·404·빈 파일 → 지금과 같은 결과.
-- robots 요청도 사설망 차단(`BlockedUrlError`)을 그대로 따른다.
-- 리디렉트 뒤 막힌 경로 → 403. 타임아웃·5xx → 허용 + 경고(정책 결정 1에 따라 바뀜).
+- 막힌 주소는 **첫 주소든 리디렉트 다음 주소든** 본문 요청 0회(가짜 `fetch` 호출 기록에 그 주소가 없음).
+- 404·빈 파일은 지금과 같은 결과. 401·403은 403. 5xx·시간 초과는 503이고 본문 요청 0회, 재시도 0회.
+- 기존 SSRF 차단·DNS 고정·리디렉트 5회·20초 전체 제한 유지. `proxy`·`image` 동작 불변.
+- robots.txt 요청에는 훅이 다시 걸리지 않음(재귀 0).
 - `tsc`·기존 시험 통과, 버전 +0.01은 실제 배포 때 1회(모아서 배포).
 
-**모의 시험(외부 요청 0)** — 기존 방식(`webapp/tests/*.test.cjs`, `typescript.transpileModule`로 TS를 그대로 실행, `node --test`)에 `tests/inspect-robots.test.cjs` 추가, `fetch`를 가짜로 바꿔: 전체 차단(`Disallow: /`) · 경로 차단 · `Allow`가 더 구체적 · 우리 UA 전용 그룹 · 404 · 빈 파일 · 5xx · 타임아웃 · 500KB 초과 · 리디렉트 뒤 막힘 · 사설 주소 robots 요청 차단 — 11가지.
+**모의 시험(외부 요청 0, `tests/inspect-robots.test.cjs`)** — 기존 방식(`typescript.transpileModule` + `node --test`), `fetch`·DNS 조회를 가짜로 바꿔 요청 주소를 기록: 전체 차단(`Disallow: /`) · 경로 차단 · `Allow`가 더 구체적 · 우리 UA 전용 그룹 · 404 · 빈 파일 · 401 · 403 · 5xx(본문 0·재시도 0) · 시간 초과 · 500KB 초과 · **같은 출처 리디렉트 뒤 막힌 경로(그 주소 본문 0)** · **다른 출처로 리디렉트한 막힌 주소(그 출처 robots만 요청, 본문 0)** · 같은 출처 robots 1번만 요청 · robots.txt 자체가 사설 주소로 리디렉트(400) · robots 요청에 훅 재귀 없음 · `opts` 없는 기존 호출 동작 불변 — 17가지.
 
-**Master 결정 항목**
-1. 실패 정책: 5xx·타임아웃 때 허용+경고(Python과 같음, 제안) / 막음(구글 방식은 5xx를 전부 막음으로 봄).
-2. 파서: npm `robots-parser`(MIT) 1개 설치(검증된 규칙, 설치는 구현 단계) / 설치 없이 작은 파서 직접 작성(`Allow`·`Disallow`·`*`·`$`만). 제안은 패키지.
-3. 범위: `/api/inspect`만(제안 — 회원이 누르는 분석 1회) / `proxy`(같은 페이지 미리보기)까지. `image`는 페이지가 아닌 이미지 파일이라 대상 아님 제안.
+**Master 결정(2026-11-17 msg_0101dd1848c2)**: 범위 `/api/inspect`만 · 404는 진행, 401·403은 거절, 5xx·시간 초과는 본문 요청 안 하고 다시 시도 안내(자동 재시도 없음) · 파서는 MIT `robots-parser` 우선(설치 전 라이선스·의존성 확인, 설치는 아직 안 함).
+**남은 확인 1개**: 그 밖의 4xx(410·429 등) 처리 — 위 표의 제안.
 
 - 0번 규칙 고지: `node scripts/apply-source-notice.mjs --check web-crawler` → 고칠 곳 0개(읽기만).
 - 범위 밖: T-03 캐시 정책, T-04 Next 업그레이드, T-06 `Crawl-delay`, T-08 삭제. 이 폴더의 남의 미커밋 `web-crawler/AGENTS.md`는 그대로 둠.
