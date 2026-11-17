@@ -8,22 +8,24 @@
 
 | 경로 | 마지막 커밋 | git blob(앞 12자) | 비고 |
 |---|---|---|---|
-| `src/server/gmailInbox.ts` | `c250894f1` | `e35d3db602b9` | QA038 통신 오류 분류 |
-| `src/server/gmailHandlers.ts` | `d8e7e188c` | `9292e52c0efd` | 새 파일, 명령 4개 |
+| `src/server/gmailInbox.ts` | `3c820f2b6` | `58ac654392bc` | QA038 통신 오류 분류 → QA041 조건부 끊기(이전 `c250894f1`/`e35d3db602b9`) |
+| `src/server/gmailHandlers.ts` | `3c820f2b6` | `7e4099a63521` | 명령 4개 → QA040 예외 고정 봉투(`6bd503b5e`) → QA041 끊기 `expectSub` 필수(이전 `d8e7e188c`/`9292e52c0efd`) |
 | `src/server/runtime.ts` | `d8e7e188c` | `dc8b05e95b39` | 등록 2줄 |
-| `src/app/inbox/gmailApi.ts` | `d8e7e188c` | `61787471394a` | 새 파일, 화면 호출 묶음 |
-| `src/app/inbox/GmailInboxPanel.tsx` | `1c46f1bd4` | `e4be06afdec7` | off 숨김(그 앞 QA039 `a77ed2b57`) |
+| `src/app/inbox/gmailApi.ts` | `8069f60df` | `e65b9dee22df` | 화면 호출 묶음 → QA041 끊기에 `expectSub`(이전 `d8e7e188c`/`61787471394a`) |
+| `src/app/inbox/GmailInboxPanel.tsx` | `8069f60df` | `5c4bb782d93d` | QA039 `a77ed2b57` → off 숨김 `1c46f1bd4` → 끊기 결과 모름 `16823b758` → QA041 확인한 계정 전달·문구 정정 |
 | `src/app/inbox/InboxBoard.tsx` | `d8e7e188c` | `9e9b5a75535e` | `gmailOn`·`useMemo` |
 | `src/app/inbox/page.tsx` | `d8e7e188c` | `d367e2b74454` | `gmailEnabled()` 전달 |
 | `src/app/api/oauth/google-gmail/start/route.ts` | `6e6267120` | — | 꺼짐이면 `gmail_error=off`로 돌려보냄(13행) |
 | `src/app/api/oauth/google-gmail/callback/route.ts` | `6e6267120` | — | 꺼짐이면 `gmail_error=off`(26행) |
-| `tests/integration/gmailInbox.test.ts` | `b61068a89` | `a16566ef0b90` | |
-| `tests/integration/gmailAddDb.test.ts` | `c250894f1` | `a4010158d932` | |
-| `tests/integration/gmailHandlers.test.ts` | `d8e7e188c` | `053bfbc361ed` | |
-| `tests/integration/gmailApiAdapter.test.ts` | `d8e7e188c` | `7cfee60c9009` | |
-| `tests/integration/gmailInboxPanelDom.test.ts` | `1c46f1bd4` | `55e4cc00276e` | |
+| `tests/integration/gmailInbox.test.ts` | `3c820f2b6` | `b76cbfc80bbd` | |
+| `tests/integration/gmailAddDb.test.ts` | `3c820f2b6` | `4030932cb3d0` | |
+| `tests/integration/gmailHandlers.test.ts` | `3c820f2b6` | `5da737eae955` | |
+| `tests/integration/gmailApiAdapter.test.ts` | `8069f60df` | `51221c784350` | |
+| `tests/integration/gmailInboxPanelDom.test.ts` | `8069f60df` | `d69e9e8faa6c` | |
 | 루트 `supabase/migrations/0074_gmail_catalog_one_account.sql` | `edef06d62` | sha256 `0fe7e7432b19d88d95b4ea4ac19350a0d44db30d365ddca4bf4cde4430dab230` | 운영 미적용 |
 | 루트 `supabase/migrations/0075_gmail_inbox_claims.sql` | `4da9457c7` | sha256 `ed7c41c4f6862e8b5f8eef3090c58ef5774742dddfa237796bddbe7c4564e73b` | 운영 미적용 |
+
+**함께 배포 조건(QA041)**: 서버 `3c820f2b6`과 화면 `8069f60df`는 반드시 같은 배포에 들어가야 합니다(서버는 끊기에 `expectSub`를 요구하고, 화면은 이 커밋부터 보냄). 위 표는 2026-11-17 QA041 커밋 뒤 다시 잰 값이며, 모든 경로 미커밋 변경 0입니다.
 
 적용 직전에 `sha256sum supabase/migrations/0074_*.sql supabase/migrations/0075_*.sql`이 위 값과 같은지 먼저 확인합니다. 다르면 적용하지 않습니다.
 
@@ -89,6 +91,11 @@ v1.58을 승인해도 Gmail 켜기는 승인되지 않습니다. 반대로 Gmail
 - 비용 **(Master `msg_15d3ec6f414b` 정정)**: 운영자 키·운영자 비용·AI 호출은 0입니다. Gmail API·구글 토큰 요청은 회원 본인 구글 앱(회원 프로젝트)에서 나가며, 지금 구글이 Gmail API에 따로 요금을 매기지 않고 사용량 한도로 관리한다는 **전제**에서 회원 비용도 0으로 봅니다. 이것은 **요금이 나가지 않는다는 보증이 아니고**, 실계정·회원 프로젝트 설정(결제 계정 연결 여부 등)으로 아직 확인하지 않았습니다.
 - (원래 문장 보존) 「비용: Gmail API와 구글 토큰 요청은 회원 본인 구글 앱의 무료 할당량을 씁니다. … 생기는 호출은 위 표의 클릭 단위 상한뿐입니다.」 → 위 정정으로 대체.
 
+## 6-1. 연결 끊기의 보장 범위 (QA041)
+
+- 끊기는 화면이 확인한 **구글 계정(sub) 단위** 조건입니다. 지금 연결이 다른 계정이면 지우지 않고, 읽은 뒤 바뀌었으면(다른 계정 또는 같은 계정 토큰 재저장) 0행이라 지우지 않습니다.
+- **연결 생성 세대를 보장하는 것은 아닙니다.** 회원이 다시 누를 때 같은 구글 계정으로 새로 연결돼 있으면 그 새 연결이 지워집니다(「이 Gmail 계정 연결 끊기」의 뜻). 조건으로 쓰는 토큰은 서버 안에서만 비교하며 응답·기록에 남기지 않습니다.
+
 ## 7. 되돌리기 주의
 
 - **스위치가 코드 상수입니다**(`let GMAIL_ENABLED = false`, 환경변수 아님). 켠 뒤 끄려면 **다시 빌드·배포**해야 합니다(빌드 1회 = 비용).
@@ -113,3 +120,15 @@ v1.58을 승인해도 Gmail 켜기는 승인되지 않습니다. 반대로 Gmail
 | 5 | 위 확인에서 수정이 생기면 그 추가 빌드 | 빌드 1회씩 |
 
 2~4는 하나의 「Gmail 켜기」 승인으로 묶는 것을 권장합니다(§3 주의 때문에 0074만 먼저 적용하지 않음).
+
+
+## 10. 최종 상태 정리 (QA041 검수 대기, 2026-11-17)
+
+| 구분 | 상태 |
+|---|---|
+| 소스 | 위 §1 표가 최종. 미커밋 변경 0. Master 지시로 동결(반례가 오면 우선 수정) |
+| SQL | 0074·0075 지문 위 §1 그대로, **운영 미적용** |
+| 기능 | `GMAIL_ENABLED = false`, 미배포 |
+| 시험 범위 | 격리 실행만: 가짜 저장소·가짜 구글 fetch, 격리 DB(`qa_*`, 시험 뒤 삭제), 실제 `/api/rpc` 처리기+runtime, 실제 `@supabase/postgrest-js`+가짜 fetch, jsdom 화면. Gmail 7파일 282·tsc 0 |
+| 검수 | QA038·QA039·QA040 수락. QA041(Mac) 진행 중 |
+| 미검수(새 승인 필요) | 실계정 OAuth·Gmail 응답, 운영 PostgREST 실제 오류 문구·삭제 건수 머리글, 메시지 id↔화면 주소, 실제 브라우저 화면, 운영 0074·0075 적용, 스위치 켜기·빌드 — §5·§9 그대로 |
