@@ -4,14 +4,13 @@
 - 맡은 폴더: `ai-work-workspace/`, `ai-task-planner/`(2026-10-26 주인님 결정으로 추가)
 - 카테고리: 업무자동화
 - 주력 업무: 새 프로그램 「AI 업무 워크스페이스 자동화」 단계별 개발(로드맵 U1~U14, `ai-work-workspace/docs/PLAN_20261024_EXPANSION_ROADMAP.md`). 디자인(U5)은 디자인 역할(agy)이 맡음
-- 마지막 갱신: 2026-11-17 [역할: workspace] E4 Gmail 꺼진 상태 소스 준비 완료(QA041까지 PASS, 서버 `3c820f2b6`+화면 `8069f60df` 함께 배포 필수, 운영 SQL·활성 0) / 이전: 2026-11-17 [역할: workspace] WS23 첫 생성 경합 소스 수정 d7895f6d4 QA028 통과·미배포 다음 묶음 / 이전: 2026-11-17 [역할: workspace] v1.57 예약 링크 운영 활성화(Master 배포 dpl_HrBf8mQHD7hqTw62Mgs2WuowS7Px, 실검증 1건·구글 일정 정리 1개·QA 1행 released로 칸 점유 해제 완료, 첫 생성 경합 P2 열림) / 이전: 2026-11-17 [역할: workspace] 예약 링크 묶음 소스 완료·OFF·미배포(통합 tsc 0·vitest 49/457) / 이전: 2026-11-17 [역할: workspace] Claude(Workspace) · Claude Code(윈도우, 엣지) — **운영 v1.56 배포**(`ai-work-workspace-qnc5ykmtx`, `dpl_GUNMN7RG3XoQVdZmbihJC3qCTJSC`, 주인님 「진행하고 MASTER에 보고 해」): 146 묶음 + 영수증 워크스페이스 안·계정 보호 + 키 화면 캘린더 상태 + Next 16.4.6 보안 패치. 후속 QA021은 Mac. 로컬 3457은 중지 유지.
+- 마지막 갱신: 2026-11-18 [역할: workspace] PLAN-REVIEW-20261118 문서 정합성(v1.57 활성 완료 줄 이동·E3 검수 근거 반영, 운영 v1.57 · 다음 묶음 v1.58 = E3+WS23+Gmail 꺼진 코드 미배포 · Gmail 활성 별도 승인) / 이전: 2026-11-17 [역할: workspace] E4 Gmail 꺼진 상태 소스 준비 완료(QA041까지 PASS, 서버 `3c820f2b6`+화면 `8069f60df` 함께 배포 필수, 운영 SQL·활성 0) / 이전: 2026-11-17 [역할: workspace] WS23 첫 생성 경합 소스 수정 d7895f6d4 QA028 통과·미배포 다음 묶음 / 이전: 2026-11-17 [역할: workspace] v1.57 예약 링크 운영 활성화(Master 배포 dpl_HrBf8mQHD7hqTw62Mgs2WuowS7Px, 실검증 1건·구글 일정 정리 1개·QA 1행 released로 칸 점유 해제 완료, 첫 생성 경합 P2 열림) / 이전: 2026-11-17 [역할: workspace] 예약 링크 묶음 소스 완료·OFF·미배포(통합 tsc 0·vitest 49/457) / 이전: 2026-11-17 [역할: workspace] Claude(Workspace) · Claude Code(윈도우, 엣지) — **운영 v1.56 배포**(`ai-work-workspace-qnc5ykmtx`, `dpl_GUNMN7RG3XoQVdZmbihJC3qCTJSC`, 주인님 「진행하고 MASTER에 보고 해」): 146 묶음 + 영수증 워크스페이스 안·계정 보호 + 키 화면 캘린더 상태 + Next 16.4.6 보안 패치. 후속 QA021은 Mac. 로컬 3457은 중지 유지.
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 - **(소스 준비 완료·활성 승인 대기 2026-11-17)** E4 Gmail(WS-20261117-25) **꺼진 상태 소스 준비 완료**(Master 수락 `msg_c64a15cf9531`): 지정 검수 QA036·QA038·QA039·QA040·QA041 PASS(실제 PostgREST 작성자·실제 모듈 모의·브라우저는 미검수, 범위 구분). 최종 서버 `3c820f2b6`·화면 `8069f60df`(**두 커밋 함께 배포 필수**), 그 밖 경로·지문은 `ai-work-workspace/docs/RELEASE_CHECKLIST_20261117_E4_GMAIL.md` §1. 운영 0074·0075 미적용·`GMAIL_ENABLED=false`·미배포, 꺼진 채 배포면 Gmail SQL 불필요(0074만 적용하면 메인 연동 목록에 Gmail 노출 — 켜기와 한 묶음). 끊기는 구글 계정 단위 조건이며 연결 생성 세대 보장 아님. 실계정 OAuth·실 Google·운영 PostgREST·실브라우저 미검수, 활성 승인 없음. 다음 승인 시 확인표 §9 순서(0074→0075 적용 → 실계정 확인 → 스위치 켜기·빌드)로 단일 담당 실행. v1.58 일반 묶음(E3·WS23) 배포와 Gmail 활성은 별개(Master 취합).
-- **(완료 2026-11-17 v1.57 활성화 — Mac 배포 후 읽기 검수 대기)** 예약 링크(E2 7-2) 활성화 대기였음: 소스 구현·Mac 독립 검토 완료, 기능 OFF·미배포. 켜려면 주인님 승인(운영 워크스페이스 저장소 표 2개)·스위치 3개 한 배포(빌드 1회)·실제 구글/HTTP/화면 확인 — 상세 `.ai/results/WS-20261117-21-CC-WORKSPACE-01.md` 최종 통합 검사.
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 
@@ -20,6 +19,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-17 | `ai-work-workspace` v1.57 | 예약 링크(E2 7-2) 운영 활성화: 스위치 3개 ON `3faafa33a`, 운영 실검증 1건·구글 일정 정리 1개·QA 1행 칸 점유 해제(근거 `.ai/results/WS-20261117-22-CC-WORKSPACE-01.md`). Mac 배포 후 읽기 검수 결과는 이 역할에 미수신. (PLAN-REVIEW-20261118 정리: 예전 「대기 중」 줄의 「기능 OFF·미배포」는 v1.57 이전 상태라 내림) | Master 배포 `dpl_HrBf8mQHD7hqTw62Mgs2WuowS7Px` |
 | 2026-11-17 | `ai-work-workspace` v1.56 | 146 Professional Studio 묶음(32커밋) + Next 16.4.3→16.4.6(GHSA-mfr8-8qww-v76h). tsc 0·시험 370·로컬 build, 운영 화면 확인(v1.56·관제 대시보드·영수증) | 빌드 1회 `dpl_GUNMN7RG3XoQVdZmbihJC3qCTJSC` |
 | 2026-11-17 | `ai-work-workspace` | WS-20261117-17 영수증·세금계산서를 워크스페이스 안(`/<domain>/receipts`, 왼쪽 메인 메뉴 표시, 주인님 지시) + QA017 계정 전환 보호(서버 기대 계정 409·초안 계정 묶음·빈 id 요청 전 실패) — `9d6875e4b`·`792be25a9`·`7485791ec`·`c35c0bb18`, Mac 소스 검수 마감. 실화면·모바일·인쇄 미검수 | 미배포 묶음 |
 | 2026-11-16 | `ai-work-workspace` v1.54 | MCP 승인 키 키 순서 무관 + 같은 논리 호출 동치 승인 함께 소진(1번만). 시험 215·tsc, 엣지로 매뉴얼 v1.54 확인 | 빌드 1회 |
