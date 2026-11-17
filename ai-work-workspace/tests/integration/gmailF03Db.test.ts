@@ -89,13 +89,51 @@ describe('0074 적용 전 — 실제 0039 제약 그대로', () => {
 });
 
 describe('0074 멈춤 조건 — 지우지 않고 전체 되돌림', () => {
-  it('카탈로그 google_gmail이 있는데 내용이 다르면 멈춤(인덱스도 안 생김)', async () => {
-    await a`insert into public.integration_catalog (key, kind, label) values ('google_gmail', 'oauth_account', '다른 이름')`;
+  const insertCatalog = (over: Record<string, unknown> = {}) => {
+    const v = { label: 'Gmail(받은 편지함 목록)', description: '본인 Google 앱으로 연결한 Gmail의 받은 편지함 최근 메일 제목·보낸 사람·날짜 보기(본문 읽기 없음).',
+      key_names: ['google_client_id', 'google_client_secret'], scope_sets: { metadata: ['https://www.googleapis.com/auth/gmail.metadata'] },
+      connect_program_url: 'https://ai-work-workspace.buylife.xyz/inbox', sort_order: 63, is_active: true, kind: 'oauth_account', ...over };
+    return a`insert into public.integration_catalog (key, kind, label, description, key_names, scope_sets, connect_program_url, sort_order, is_active)
+      values ('google_gmail', ${v.kind as string}, ${v.label as string}, ${v.description as string}, ${v.key_names as string[]}, ${a.json(v.scope_sets as any)}, ${v.connect_program_url as string}, ${v.sort_order as number}, ${v.is_active as boolean})`;
+  };
+  it.each([
+    ['권한 묶음(scope_sets)이 다름', { scope_sets: { metadata: ['https://www.googleapis.com/auth/gmail.readonly'] } }],
+    ['종류(kind)가 다름', { kind: 'api_key' }],
+    ['연결 주소가 다름', { connect_program_url: 'https://evil.example/inbox' }],
+    ['꺼져 있음(is_active=false)', { is_active: false }],
+  ])('카탈로그 기능 칸 %s → 멈춤, 인덱스 안 생김, 카탈로그 그대로', async (_n, over) => {
+    await insertCatalog(over);
     const err = await apply0074();
-    expect(err).toContain('different content');
+    expect(err).toContain('different functional fields or inactive');
     expect(await indexDef()).toBeNull();
-    expect((await catalogRow())?.label).toBe('다른 이름'); // 바꾸지 않음
+    expect((await a`select count(*)::int as n from public.integration_catalog where key = 'google_gmail'`)[0].n).toBe(1);
     await a`delete from public.integration_catalog where key = 'google_gmail'`; // 이 시험이 넣은 줄만 정리
+  });
+  it('표시·관리 칸(label·description·sort_order)만 다르면 통과하고 덮어쓰지 않음', async () => {
+    await insertCatalog({ label: '관리자가 바꾼 이름', description: '관리자 설명', sort_order: 7 });
+    expect(await apply0074()).toBeNull();
+    const row = (await a`select label, description, sort_order from public.integration_catalog where key = 'google_gmail'`)[0];
+    expect(row).toEqual({ label: '관리자가 바꾼 이름', description: '관리자 설명', sort_order: 7 });
+    expect(await indexDef()).toBe(EXPECTED_DEF);
+    // 다음 시험을 위해 이 시험이 만든 것만 되돌림(문서의 수동 되돌리기 SQL)
+    await a.unsafe(`drop index if exists public.member_platform_accounts_gmail_one;
+      delete from public.integration_catalog c where c.key = 'google_gmail' and not exists (select 1 from public.member_platform_accounts x where x.platform = 'google_gmail');`).simple();
+  });
+  it('실패한 CREATE UNIQUE INDEX CONCURRENTLY가 남긴 같은 정의의 무효 인덱스 → 멈춤(자동 삭제·재생성 0)', async () => {
+    await insertCatalog();
+    await upsertSql(a, U1, 'google_gmail', 'sub-A', 't-a');
+    await upsertSql(a, U1, 'google_gmail', 'sub-B', 't-b');
+    const ce: any = await a.unsafe(`create unique index concurrently member_platform_accounts_gmail_one on public.member_platform_accounts (user_id) where platform = 'google_gmail'`).catch((x) => x);
+    expect(ce.code).toBe('23505'); // 중복 때문에 실패 → 무효 인덱스가 남음
+    const st = (await a`select i.indisvalid, pg_get_indexdef(c.oid) as def from pg_class c join pg_index i on i.indexrelid = c.oid where c.relname = 'member_platform_accounts_gmail_one'`)[0];
+    expect(st).toEqual({ indisvalid: false, def: EXPECTED_DEF }); // 정의는 같지만 무효
+    await a`delete from public.member_platform_accounts where user_id = ${U1} and platform = 'google_gmail'`; // 중복은 정리(이 시험 데이터)
+    const err = await apply0074();
+    expect(err).toContain('not a valid/ready/live unique index');
+    const after = (await a`select i.indisvalid from pg_class c join pg_index i on i.indexrelid = c.oid where c.relname = 'member_platform_accounts_gmail_one'`)[0];
+    expect(after).toEqual({ indisvalid: false }); // 0074가 지우거나 다시 만들지 않음
+    await a.unsafe('drop index public.member_platform_accounts_gmail_one'); // 시험 정리
+    await a`delete from public.integration_catalog where key = 'google_gmail'`;
   });
   it('같은 이름 인덱스가 다른 정의면 멈춤(카탈로그 삽입도 되돌림)', async () => {
     await a.unsafe(`create unique index member_platform_accounts_gmail_one on public.member_platform_accounts (user_id) where platform = 'youtube'`);
