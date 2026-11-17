@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T06:53:32.188Z",
+  "checkedAt": "2026-11-17T07:00:57.837Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2764,21 +2764,29 @@
       "reviewer": "CX-MASTER-01",
       "title": "예약 기능 운영 활성화·실연동 검증",
       "status": "running",
-      "delivery": "queued",
-      "evidence": "f78a2e4e3 최종활성화조건 / msg_0e57ecf5a5fa·Master미커밋0/lock0/teamqueue0·free~7GB",
+      "delivery": "running",
+      "evidence": "f78a2e4e3 최종활성화조건 / msg_0e57ecf5a5fa·Master미커밋0/lock0/teamqueue0·free~7GB / 作者tsc0/460tests/localbuild0·3faafa33a·Workspace自動承認拒否remote0→Master直接確認project/account/queue0/notice0/clean·CLI upload hgzm0d922 Building",
       "scopeRef": "운영표2/스위치3/빌드1·실시험계정Google/HTTP/시각 별도범위확정",
       "completion": "명시승인범위내DDL/배포·실연동/운영확인·미검수구분",
       "blocker": null,
-      "next": "Workspace v1.57 활성화릴리스·실시험계정1일정검증·배포증거후Mac읽기QA",
+      "next": "Master既存deploy exec76150完了確認後、Workspace programs1行/予約表2·實Google/畫面検證",
       "approval": {
         "source": "주인님 Master채팅: 계속작업진행/승인할께/진행해",
         "at": "2026-11-17T06:53:32.187Z",
         "scope": "예약표2추가·스위치3활성·필수localbuild1+Vercel운영1·시험계정Google QA일정최대1개 고정id검증및본인생성id정리·HTTP/시각검수",
         "excluded": "포털활성화/새cron등록/실손님·타회원쓰기/추가과금빌드/다른프로젝트",
-        "executor": "CC-WORKSPACE-01",
+        "executor": "CX-MASTER-01 deployment / CC-WORKSPACE-01 followup",
         "dispatch": "msg_0e57ecf5a5fa",
         "remoteBuildBudget": 1,
-        "remoteBuildUsed": 0
+        "remoteBuildUsed": 1
+      },
+      "sourceSha": "3faafa33a",
+      "deployment": {
+        "url": "ai-work-workspace-hgzm0d922-buylife.vercel.app",
+        "inspectId": "HrBf8mQHD7hqTw62Mgs2WuowS7Px",
+        "status": "BUILDING",
+        "executor": "CX-MASTER-01",
+        "execSession": 76150
       }
     }
   ],
@@ -3110,8 +3118,8 @@
     {
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
-      "stage": "v1.56운영·예약소스457시험PASS·주인님활성화승인접수",
-      "next": "Workspace v1.57 활성화릴리스·실시험계정1일정검증·배포증거후Mac읽기QA"
+      "stage": "v1.57 activation remote build1回進行中·Master直接実行",
+      "next": "Master既存deploy exec76150完了確認後、Workspace programs1行/予約表2·實Google/畫面検證"
     },
     {
       "order": "3 · B2B",
