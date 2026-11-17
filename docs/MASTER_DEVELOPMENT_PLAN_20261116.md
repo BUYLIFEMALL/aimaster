@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 18:54:37 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 18:58:55 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -252,12 +252,12 @@
 | QA-20261117-033 | CX-QA-01 | done / integrated | E3-2 템플릿 앱알림/권한/부분실패 독립검토 | E3-2지정소스완료·미배포/전용결재권한별도 |
 | QA-20261117-034 | CX-QA-01 | done / integrated | E3-3 결재ACL/신뢰경계/거래우회 독립검토 | E3-3지정소스완료·운영gallery/시각/실알림미검수 |
 | QA-20261117-035 | CX-QA-01 | done / integrated | 셀AI웹출처 키·과금재시도·저장권한 독립검토 | 지정소스마감·실공급자/과금/사실성/운영UI·실DB미검수 |
-| WS-20261117-25 | CC-WORKSPACE-01 | running / running | E4 Gmail함 기존기능/권한 대조와 최소범위 조사 | QA038 실제SDK통신오류unknown + QA039패널P2 우선수정, OFF배선보존후재개 |
+| WS-20261117-25 | CC-WORKSPACE-01 | running / queued | E4 Gmail함 기존기능/권한 대조와 최소범위 조사 | 보존OFF배선재개·입력/expectedAccount/봉투/unknown/OFF0 시험. 추가반례우선·운영미적용 |
 | WS-20261117-26 | CX-MASTER-01 | waiting_human / prepared | E3+WS23 v1.58 묶음 배포/운영 실검수 | 구체소스묶음보존·승인후실행순서확정 |
 | QA-20261117-036 | CX-QA-01 | done / integrated | Gmail A1 OFF 서버 OAuth 독립 검수 | 0074소스준비수락·운영미적용/OFF, A2후속은별도검수 |
 | QA-20261117-037 | CX-QA-01 | waiting_human / acknowledged | B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수 | 주인님 공간29 Lab 시험naver로그인→Return to agent, 고객읽기검수후운영사gmail로그인1회. 실제결제/콜백/RPC상태변경0 |
-| QA-20261117-038 | CX-QA-01 | running / queued | Gmail A2 원자 받은업무 전달 서버·SQL 독립검수 | status0/통신오류객체 unknown분류 서버국소수정·실제SDK가짜fetch반례 재검수 |
-| QA-20261117-039 | CX-QA-01 | running / running | Gmail OFF 패널 실제 TSX 모의 독립검수 | 최종보고반환→패널국소수정새SHA재검수 |
+| QA-20261117-038 | CX-QA-01 | running / queued | Gmail A2 원자 받은업무 전달 서버·SQL 독립검수 | 수정SHA고정 지정반례 국소독립재검수·실서비스/DB/build0 |
+| QA-20261117-039 | CX-QA-01 | running / queued | Gmail OFF 패널 실제 TSX 모의 독립검수 | 수정SHA고정 지정반례 국소독립재검수·실서비스/DB/build0 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
