@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 09:52:31 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 09:53:49 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -39,7 +39,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 173개: done 144개 · cancelled 6개 · ready_review 15개 · running 2개 · ready 3개 · waiting_human 2개 · blocked 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 174개: done 144개 · cancelled 6개 · ready_review 16개 · running 2개 · ready 3개 · waiting_human 2개 · blocked 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -215,7 +215,8 @@
 | WS-20261117-17 | CC-WORKSPACE-01 | done / integrated | 주인님 직접지시 영수증 화면 메인 사이드바 연결 | 미배포묶음고정·WS13 메모리/로컬실화면보류와연결,서버재가동/전체시험/빌드0 |
 | QA-20261117-017 | CX-QA-01 | done / integrated | 영수증 SPA 사이드바 연결 독립소스검수 | 미배포묶음고정·WS13 메모리/로컬실화면보류와연결,서버재가동/전체시험/빌드0 |
 | ESM-20261117-03 | CC-ECOM-01 | done / integrated | ESM 모바일 메뉴 닫기·가격 오류 입력 보존 수정 | v1.02후보27ae+c909+a6e+d970+3208동결·운영v1.01미반영/배포후실동작확인별도,빌드미승인 |
-| WS-20261117-18 | CC-WORKSPACE-01 | ready / queued | 구글 캘린더 설정 연결 상태·연동 화면 버튼 | KeysForm/필요page만국소구현·서버API/DB/OAuth변경0·미배포묶음/서버재가동/빌드0 |
+| WS-20261117-18 | CC-WORKSPACE-01 | ready_review / returned | 구글 캘린더 설정 연결 상태·연동 화면 버튼 | Mac QA018 상태/최신요청/오류/버튼·standalone계정표시혼합 독립검수배정·실Google/DB/서버/빌드0 |
+| QA-20261117-018 | CX-QA-01 | ready / queued | 캘린더 연결 상태·설정 이동 독립검수 | Mac 독립검토·서버/DB/실OAuth/키/빌드0 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
