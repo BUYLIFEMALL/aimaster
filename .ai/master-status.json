@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T07:35:51.515Z",
+  "checkedAt": "2026-11-17T07:36:38.202Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2877,12 +2877,13 @@
       "owner": "CC-B2B-FRONT-01",
       "reviewer": "CX-MASTER-01",
       "title": "P3 어두운테마 hover피드백 일관성",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "fa1f568c6·msg_9b6678fabf2b",
-      "next": "globals/dark-header2파일최소구현·배포0",
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "fa1f568c6·msg_9b6678fabf2b / e8ecfa1c9·作者24/31tests/실CDP12색/touch흉내",
+      "next": "QA031 국소독립검토뒤Lab출처재동결·미배포",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분"
+      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분",
+      "sha": "7609748ad"
     },
     {
       "task_id": "MOV-20261117-07",
@@ -2935,6 +2936,19 @@
       "next": "OpsBuilder/속성/상태그룹/기존회귀·전체결재기능아님",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "completion": "배정된소스/검증범위반환·실운영/배포미검수구분"
+    },
+    {
+      "task_id": "QA-20261117-031",
+      "parent_task_id": "FRONT-20261117-04",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "dark hover 1규칙 국소독립검토",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "7609748ad/e8ecfa1c9·Mac전달",
+      "scopeRef": "globals/dark-header2파일·12색독립계산·제품/build0",
+      "completion": "dark명시hover범위/대비/light/admin/touch보존",
+      "next": "QA029→030뒤순차반환·실Lab未검수"
     }
   ],
   "programOverrides": [

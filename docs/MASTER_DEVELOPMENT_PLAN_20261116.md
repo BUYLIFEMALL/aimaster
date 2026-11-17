@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 16:35:53 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 16:36:40 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -40,7 +40,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 203개: done 175개 · cancelled 6개 · ready_review 12개 · running 2개 · waiting_human 2개 · ready 6개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 204개: done 175개 · cancelled 6개 · ready_review 13개 · running 2개 · waiting_human 2개 · ready 6개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -242,11 +242,12 @@
 | QA-20261117-028 | CX-QA-01 | done / integrated | 예약표 초회DDL 직렬화 독립검토 | d7895f6d4 소스검토완료·미배포다음묶음·운영v1.57미반영/미래중첩tx한계유지 |
 | WS-20261117-24 | CC-WORKSPACE-01 | ready_review / returned | E3-1 간단결재 요청관리 템플릿 | QA030독립검수·E3-2자동화생성읽기조사/미배포 |
 | BLOG-20261117-09 | CC-BLOG-01 | ready_review / returned | T07 대시보드/작업목록 공용자동갱신 | QA029독립검수·실화면/배포미검수 |
-| FRONT-20261117-04 | CC-B2B-FRONT-01 | ready / queued | P3 어두운테마 hover피드백 일관성 | globals/dark-header2파일최소구현·배포0 |
+| FRONT-20261117-04 | CC-B2B-FRONT-01 | ready_review / returned | P3 어두운테마 hover피드백 일관성 | QA031 국소독립검토뒤Lab출처재동결·미배포 |
 | MOV-20261117-07 | CC-MOVIE-01 | ready / queued | 공용MP4 탭수명 fallback성공기억 P3 | 원본+정식사본동기화/모의시험·Music중복편집0 |
 | DES-20261117-04 | AG-UI-01 | ready / queued | 예약카드요일 체크박스 국소UI명세 | 실수신수락미확인·제품수정0·146반복검수종료 |
 | QA-20261117-029 | CX-QA-01 | ready / queued | BLOG09 공용폴러 독립검토 | 5초/숨김/중복/권한/세대/훅생명주기판정 |
 | QA-20261117-030 | CX-QA-01 | ready / queued | WS24 템플릿/그룹/한계 독립검토 | OpsBuilder/속성/상태그룹/기존회귀·전체결재기능아님 |
+| QA-20261117-031 | CX-QA-01 | ready / queued | dark hover 1규칙 국소독립검토 | QA029→030뒤순차반환·실Lab未검수 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
