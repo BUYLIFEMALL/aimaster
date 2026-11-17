@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T09:22:38.075Z",
+  "checkedAt": "2026-11-17T09:25:59.022Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -3032,12 +3032,12 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "E4 Gmail함 기존기능/권한 대조와 최소범위 조사",
-      "status": "ready_review",
-      "delivery": "returned",
-      "scopeRef": "gmailInbox.ts·Gmail start/callback·gmailInbox.test.ts·본인 문서. runtime/UI/SQL 및 운영·실외부 제외",
-      "evidence": "8973dc2d8+3027a923d·문서3edeaeee9, 모의60/tsc0; Mac재검수 msg_d70e7ad790eb",
+      "status": "running",
+      "delivery": "queued",
+      "scopeRef": "gmailInbox.ts/시험·신규Gmail migration1·격리DB시험1·본인문서, 공용헬퍼변경0",
+      "evidence": "F03/A2 PLAN 6e1de5e94 검토; F03부분고유제약+catalog 소스와격리DB검증 배정(수락미확인), A2계획보완",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "A1 OFF국소수정독립PASS/F03활성화차단·Gmail전용정확저장과A2불확실전달·보관경계 통합계획읽기배정",
+      "next": "F03 Gmail전용코드/신규migration1/DB시험 구현. 운영적용·GmailON·A2코드0",
       "sha": "245227c98",
       "lastReviewedAt": "2026-11-17T09:00:52.380Z"
     },
@@ -3418,7 +3418,7 @@
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
       "stage": "v1.57운영·E3소스독립/통합560시험PASS·v1.58미배포",
-      "next": "Gmail A1 OFF국소검수PASS·F03활성화차단, 정확저장/A2계획계속·WS26승인대기"
+      "next": "Gmail F03 부분고유제약 소스/격리DB 검증 배정, A2멱등RPC계획보완·실운영OFF"
     },
     {
       "order": "3 · B2B",
