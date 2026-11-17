@@ -307,3 +307,5 @@ WS-20261117-17 7485791ec 추가 연결 수용: Master diff 확인 후 inbox/page
 WS-20261117-18 CC-WORKSPACE-01: 주인님 둘째안만 선택. ai-work-workspace/src/app/settings/keys/KeysForm.tsx(+필요시 같은 page.tsx)에 기존 cal 읽기 RPC 연결 상태·캘린더 연동 화면 버튼 및 경량시험만. 기존 예정 일정 메뉴 숨김 금지, 서버/API/DB/OAuth/외부캘린더변경·로컬재가동·빌드 없음.
 
 FRONT-20261117-02: CC-B2B-FRONT-01만 mall-builder/src/app/globals.css 다크 bg-blue-600/700+text-white 정확선택자 배경1rule 및관련기존테마시험/자기문서 보정. 라이트/관리자/프리셋/다른후보 불변·독립검수후미시작Lab1빌드에포함,별도빌드/DB0.
+
+WS-20261117-19 Workspace: Topbar.tsx studio/receipts RouteTitle, StudioDashboard.tsx/AimasterSidebar.tsx 이번추가 ko/en 표시·기존i18n사전/관련경량시험만. 회원문자번역/저장값변경/일괄영어화금지·settings좌메뉴정확범위추가시보고. 기존Master로컬서버HMR검수만·API/DB/재시작/전체tsc/빌드0. QA019는Mac 실제캡처읽기 독립시각검수,제품수정0.

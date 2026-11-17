@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T01:19:30.538Z",
+  "checkedAt": "2026-11-17T01:27:05.505Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2104,20 +2104,20 @@
       "title": "주인님 선택146 Professional Studio 전면리뉴얼",
       "status": "running",
       "delivery": "returned",
-      "evidence": "msg_542c66206f89 QA013독립effect3PASS/작성자jsdom5분리 / Workspace직접보고 로그인POST307·localGET500/Jestworker2exceptions·PID44692생존 / Workspace1회복구Ready후exit 보고·Master 물리2191MB/commit60.12of66.03GB/3457 LISTEN없음 / d01b34b0f 원인조사·최근System2004없음·자기background0 / Master지속session56053·PID32968·GET307정상후담당실로그인/로컬workspace6433·8ce818bf7 desktop/375iframe",
+      "evidence": "msg_542c66206f89 QA013독립effect3PASS/작성자jsdom5분리 / Workspace직접보고 로그인POST307·localGET500/Jestworker2exceptions·PID44692생존 / Workspace1회복구Ready후exit 보고·Master 물리2191MB/commit60.12of66.03GB/3457 LISTEN없음 / d01b34b0f 원인조사·최근System2004없음·자기background0 / Master지속session56053·PID32968·GET307정상후담당실로그인/로컬workspace6433·8ce818bf7 desktop/375iframe / fe8f67a38 3PNG/en혼용·Alttool수정키未전송·printCSS",
       "decision": {
         "chosen": "146 Professional Studio",
         "reference": "[5/12] 146 Professional Studio - 01. 메인 관제 대시보드",
         "scope": "메인기준 전체화면 일관스타일 적용·기존기능/회원데이터유지",
         "source": "주인님 직접 채팅 2026-11-17 KST"
       },
-      "next": "로컬서버복구·desktop/375iframe검수진행. Workspace en/Alt시험카드/대표캡처3개공유 후 독립시각대조,인쇄실조작/실발급未검수·운영배포未승인",
-      "lastReviewedAt": "2026-11-17T01:19:30.538Z",
+      "next": "WS19 신규ko/en·빈제목국소보완 + MacQA019실캡처독립시각검수 진행. Alt 도구정식modifier지원읽기확인·미지원이면최소사람검수남김,실발급/운영/빌드0",
+      "lastReviewedAt": "2026-11-17T01:27:05.505Z",
       "sha": "S0~5+075fcb4+1a13662a4bfa51ffba2ee9468fdc35ae13c7bcdd",
       "validationPending": {
-        "scope": "146 후속 시각·동작",
-        "reason": "서버/로그인차단해소·desktop/375iframe기준확인",
-        "action": "en·Alt 실조작/캡처독립대조",
+        "scope": "영문/제목 수정·실Alt·독립시각",
+        "reason": "영문혼용/빈제목관찰·브라우저Alt未전송/nativeWindows보안차단",
+        "action": "WS19보완+QA019캡처검토·Alt정식지원확인후불가시사람gesture",
         "url": "http://localhost:3457/workspace6433/studio"
       },
       "blocker": null
@@ -2516,6 +2516,36 @@
       "completion": "고정원문/apply/pre/verify준비정적마감·실적용/자료보존20미검증",
       "next": "주인님실적용승인유효·도구Accept後실검증",
       "lastReviewedAt": "2026-11-17T01:19:30.538Z"
+    },
+    {
+      "task_id": "WS-20261117-19",
+      "parent_task_id": "WS-20261117-13",
+      "owner": "CC-WORKSPACE-01",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "priority": "P2",
+      "title": "146 신규문구 ko/en·대시보드/영수증 제목 보완",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "주인님Workspace후속진행명시·fe8f67a38 실화면혼용/RouteTitle null관찰",
+      "completion": "이번추가문구만기존tx사전연결/ko유지/en표시·studio/receipts제목·회원입력번역0·경량/로컬실화면검증",
+      "next": "Workspace단독국소수정·기존서버HMR·API/DB/전체tsc/빌드0",
+      "lastReviewedAt": "2026-11-17T01:27:05.505Z"
+    },
+    {
+      "task_id": "QA-20261117-019",
+      "parent_task_id": "WS-20261117-13",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "priority": "P2",
+      "title": "146 실제캡처 독립시각검수",
+      "status": "ready",
+      "delivery": "queued",
+      "scopeRef": "3PNG/manifest/146명세 읽기·자기QA결과만",
+      "completion": "실제이미지관찰·desktop/375iframe 배치가독성 범위판정·축소/실기기미검수구분",
+      "evidence": "fe8f67a38 3PNG/manifest",
+      "next": "Mac실이미지대조·영문/제목수정후변경경계후속확인",
+      "lastReviewedAt": "2026-11-17T01:27:05.505Z"
     }
   ],
   "programOverrides": [
