@@ -136,3 +136,12 @@
 - 실행 뒤: `aww_dev` DB oid 2204849 그대로(개발 자료 보존), 3457 LISTEN 유지(Master 서버), Alt 확인 화면·시험 카드 보존.
 - `docs/IMPROVEMENTS.md` 「미배포 대기」 맨 위에 32커밋 요약 + §14·§15 링크 + 「pending-check 대기 없음 = 루트 `docs/PENDING_DEPLOYS.md`에 이 프로그램 줄이 없다는 뜻」 한 줄 추가(공용 표·다른 담당 줄 변경 0).
 - 남은 배포 전 절차: 배포 승인 시 직전 로컬 `npm run build` 1회, 버전 v1.56 세 곳, 배포 뒤 운영 화면 확인.
+
+## 17. v1.56 배포 보류 — Next.js 보안 경고 조사 (Master msg_ba7fe3054845, 읽기만)
+- 경과: 주인님 직접 지시로 배포 시작 → 로컬 `npm run build` 1회 exit 1(69초). 컴파일 13.1s·TypeScript 49s·정적 페이지 2/2 성공 뒤 Next 16.4.3 `SecurityFatalError`(업그레이드 권고 표시용 정지, 설치본 `next/dist/lib/upgrade/nudge.js` — Master 확인). 코드 오류 아님. 재실행·경고 억제·원격 배포·설치 0, 로그 속 에이전트 지시 실행 0. Vercel 0/1, 버전·DB 0.
+- 고정 버전(package-lock): `next` 16.4.3(package.json `^16.4.2`), `react`·`react-dom` 19.3.1. Next 관련 패키지는 `next` 하나.
+- npm 공식 advisory bulk(`POST https://registry.npmjs.org/-/npm/v1/security/advisories/bulk`, `{"next":["16.4.3"]}`) → **1건**: ID 1247486 / `GHSA-mfr8-8qww-v76h`(https://github.com/advisories/GHSA-mfr8-8qww-v76h), 심각도 moderate, 영향 `>=16.3.0 <=16.4.4`, 「`'use cache'` 함수를 `unstable_cache()`로 부를 때 root params 정보 노출」.
+- 이 프로젝트 관련성: `src` 안 `'use cache'` 0, `unstable_cache` 0, `next.config.ts`에 cacheComponents·useCache 설정 0 → 권고가 말하는 사용 방식이 없음(실제 노출 가능성 낮음으로 판단, 단 공격 가능성 단정은 하지 않음).
+- 최소 수정: 영향 범위 밖 첫 버전 16.4.5, 최신 정식 `latest` = 16.4.6(16.4 줄 패치). `next@16.4.5` peerDependencies react `^19.0.0` → React 19.3.1 그대로 동반 변경 불필요.
+- 회귀 범위(패치 시): `package.json`·`package-lock.json`의 next 한 패키지, 이 프로그램만(다른 프로그램은 각자 lock). 확인 = 전체 tsc·전체 vitest(370)·로컬 build 1회·3457 개발 서버 재시작 필요 여부(Master 서버) 조정.
+- 판단 선택지: (가) 16.4.6 패치 후 tsc·vitest·build 재확인 → v1.56 배포 (나) 사용 방식이 없으므로 같은 16.4.3로 배포하고 패치는 별도 작업(단 로컬 build는 경고 정지가 계속될 수 있어 재실행 판단 필요) (다) 계속 보류.
