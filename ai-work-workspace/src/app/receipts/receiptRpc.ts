@@ -8,6 +8,11 @@ export type ReceiptRpc = <T = unknown>(name: string, body?: Record<string, unkno
 
 export function boundReceiptRpc(expectedAccount: string | null | undefined, onAccountChanged: () => void): ReceiptRpc {
   return async <T,>(name: string, body: Record<string, unknown> = {}) => {
+    // QA017 P2: 영수증 화면은 계정 id 없이(빈 값·null·undefined·공백) 요청하지 않는다 — 보내기 전에 계정 바뀜으로 실패(fail-closed)
+    if (typeof expectedAccount !== "string" || !expectedAccount.trim()) {
+      onAccountChanged();
+      throw new AccountChangedError();
+    }
     try {
       return await rpc<T>(name, body, { expectedAccount });
     } catch (e) {
