@@ -165,3 +165,5 @@
 ## 2026-10-27 회원 네이버 검색 키 조회 사본
 
 `naver-member-api-keys`: 기준 `blog-keyword/src/lib/apiKeys.ts` → `blog-neighbor-care/src/lib/search/memberNaverKeys.ts` 정확한 사본. 검색은 `getUserApiKeys(userId,[naver_client_id,naver_client_secret])`만 사용. 저장/삭제 함수가 사본에 있으나 이웃소통 검색HTTP에는 노출하지 않음. 운영자/환경 키 폴백 없음. 검사 `node scripts/check-shared-modules.mjs --module naver-member-api-keys`.
+
+2026-11-18 [역할: codex-master] ECOM-20261118-01: openai-request-params 기준과 바이트가 같은 emotion-writer/src/lib/studio/openaiRequestParams.ts를 사본 검사 목록에 추가했다. 기준/기존 사본 수정·일괄 동기화·실 AI 호출은 0. 3사 글귀 선택 소스 3a4ad1cad는 QA046 독립 검수 대기·미배포이며 실제 모델 지원/요금 확인은 별도다.
