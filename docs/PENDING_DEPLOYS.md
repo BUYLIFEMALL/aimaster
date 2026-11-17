@@ -52,7 +52,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `emotion-writer` (운영 v1.29) | 글귀 생성 AI를 Gemini·OpenAI·Claude 9개 모델 중 선택(기본 Gemini 3.8 Flash 유지), OpenAI·Claude 키 카드·키 확인, FAQ (ECOM-20261118-01, 주인님 직접 지시·Master 승인) | `3a4ad1cad` · `59cb81d8e`(QA046 반례) | 2026-11-18 · [역할: ecommerce-image] `claude-win-sdp` | `emotion-writer/docs/IMPROVEMENTS.md` 맨 위 | 실호출 3회·빌드 1회 승인 대기, v1.30에 AGY Pexels 삭제·a11y와 함께 |
+| `emotion-writer` (운영 v1.29) | 글귀 생성 AI를 Gemini·OpenAI·Claude 9개 모델 중 선택(기본 Gemini 3.8 Flash 유지), OpenAI·Claude 키 카드·키 확인, FAQ (ECOM-20261118-01, 주인님 직접 지시·Master 승인) | `3a4ad1cad` · `59cb81d8e`(QA046 반례) | 2026-11-18 · [역할: ecommerce-image] `claude-win-sdp` | `emotion-writer/docs/IMPROVEMENTS.md` 맨 위 | 2026-11-18 v1.30 빌드 1회 사용(`emotion-writer-f2amfluvk`) 중 미승인 `d21eb96d7` 섞여 즉시 v1.29로 무빌드 롤백 — **빌드 예산 소진·재빌드 미승인**, 실호출 0회. 다음 배포는 명시 SHA 사본으로(ERROR_LESSONS 2026-11-18) |
 | `threads-affiliate-poster` (운영 v1.89) | 네이버 수집 칸 「왜 네이버만 확장이 필요한가요?」 접이식 안내(화면 문구만, 동작 변화 없음) | `cbee09346` | 2026-11-17 · [역할: ecommerce-image] `claude-win-sdp` | `threads-affiliate-poster/docs/IMPROVEMENTS.md` 2026-11-17 | 함께 나가면 버전 +0.01 |
 | `blog-neighbor-care` (운영 v1.21) | 답방 집중·탭 거절을 단계 표시로 구분하고 고른 이유 유지, 창·팝업 검사 이유를 거절 문구에 표시(B-1 진단) | `3bb238398` · `e35947191` | 2026-11-15~16 · [역할: blog] CC-BLOG-01 | `blog-neighbor-care/docs/IMPROVEMENTS.md` 맨 위 | 다음 이웃 소통 배포 때 함께(v1.22, 공통지침 v1.4 묶음 배포 — 별도 빌드 요청 없음) |
 | `tistory-auto-blog` (운영 v1.97) | AI 소제목 값 앞의 `##`를 지워 H2에 `##`가 글자로 보이던 문제 수정(B-4 P2) | `a27861137` | 2026-11-16 · [역할: blog] CC-BLOG-01 | `tistory-auto-blog/docs/IMPROVEMENTS.md` | 다음 티스토리 배포 때 함께(v1.98, 공통지침 v1.4 묶음 배포 — 별도 빌드 요청 없음) |
