@@ -5,19 +5,20 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import postgres from 'postgres';
+import { inspect } from 'node:util';
 
 const ADMIN = 'postgres://postgres:awwlocal@127.0.0.1:55432/aww';
 const DB = 'qa_gmail_wire';
 process.env.AWW_DATABASE_URL = `postgres://aww_app:awwapp@127.0.0.1:55432/${DB}`;
 
-const h = vi.hoisted(() => ({ sessionUser: 'e5555555-5555-4555-8555-555555555555', adminCalls: 0 }));
-vi.mock('next/server', async (orig) => ({ ...(await orig<typeof import('next/server')>()), after: () => {} }));
+const h = vi.hoisted(() => ({ sessionUser: 'e5555555-5555-4555-8555-555555555555', adminCalls: 0, pre: { aiKeys: 0, warm: 0, after: 0 } }));
+vi.mock('next/server', async (orig) => ({ ...(await orig<typeof import('next/server')>()), after: () => { h.pre.after++; } }));
 vi.mock('@/lib/access', () => ({ checkProgramAccessApi: async () => (h.sessionUser ? { allowed: true, user: { id: h.sessionUser, email: 'wire@example.com' } } : { allowed: false, status: 401, error: '로그인이 필요합니다.' }) }));
 vi.mock('@/server/member', () => ({ memberFromUser: (u: { id: string; email: string }) => ({ id: u.id, email: u.email, name: '배선시험' }) }));
 vi.mock('@/server/memberJobs', () => ({ trackMemberJobs: async (fn: () => Promise<unknown>) => ({ result: await fn(), scheduled: false }) }));
 vi.mock('@/server/memberScheduling', () => ({ afterRpc: async () => {} }));
-vi.mock('@/server/memberAiKeys', () => ({ loadMemberAiKeys: async () => ({}) }));
-vi.mock('@/litpage/server/ai/models.ts', async (orig) => ({ ...(await orig<typeof import('../../src/litpage/server/ai/models.ts')>()), warmModelLists: async () => {} }));
+vi.mock('@/server/memberAiKeys', () => ({ loadMemberAiKeys: async () => { h.pre.aiKeys++; return {}; } }));
+vi.mock('@/litpage/server/ai/models.ts', async (orig) => ({ ...(await orig<typeof import('../../src/litpage/server/ai/models.ts')>()), warmModelLists: async () => { h.pre.warm++; } }));
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: () => { h.adminCalls++; throw new Error('실제 Supabase 접근 금지(시험)'); } }));
 vi.mock('@/lib/supabase/server', () => ({ createClient: async () => ({ auth: { signOut: async () => ({}) } }) }));
 
@@ -28,15 +29,15 @@ const storeCalls: { fn: string; userId?: string }[] = [];
 let fetchCalls = 0;
 const SUB = 'sub-W';
 const UUID1 = '11111111-2222-4333-8444-555555555555';
-type Mode = { addResult?: () => Promise<any>; getAppThrows?: boolean; rows?: any[] };
+type Mode = { addResult?: () => Promise<any>; getAppThrows?: unknown; rows?: any[]; listThrows?: unknown; deleteThrows?: unknown };
 const mode: Mode = {};
 const fakeStore = () => ({
-  async getApp(u: string) { storeCalls.push({ fn: 'getApp', userId: u }); if (mode.getAppThrows) throw new Error('RAW_STORE secret'); return { clientId: 'c', clientSecret: 's' }; },
-  async listAccounts(u: string) { storeCalls.push({ fn: 'list', userId: u }); return mode.rows ?? [{ id: 'r1', externalId: SUB, username: 'w@example.com', accessToken: 'ya29.x', refreshToken: 'r', tokenExpiresAt: new Date(Date.now() + 3600e3).toISOString(), grantedScopes: [], appRef: 'c' }]; },
+  async getApp(u: string) { storeCalls.push({ fn: 'getApp', userId: u }); if (mode.getAppThrows) throw mode.getAppThrows; return { clientId: 'c', clientSecret: 's' }; },
+  async listAccounts(u: string) { storeCalls.push({ fn: 'list', userId: u }); if (mode.listThrows) throw mode.listThrows; return mode.rows ?? [{ id: 'r1', externalId: SUB, username: 'w@example.com', accessToken: 'ya29.x', refreshToken: 'r', tokenExpiresAt: new Date(Date.now() + 3600e3).toISOString(), grantedScopes: [], appRef: 'c' }]; },
   async save() { storeCalls.push({ fn: 'save' }); return { error: null }; },
   async updateToken() { storeCalls.push({ fn: 'update' }); },
   async markNeedsReconnect() { storeCalls.push({ fn: 'reconnect' }); },
-  async deleteAccount(u: string) { storeCalls.push({ fn: 'delete', userId: u }); },
+  async deleteAccount(u: string) { storeCalls.push({ fn: 'delete', userId: u }); if (mode.deleteThrows) throw mode.deleteThrows; },
   async addToInbox(i: any) { storeCalls.push({ fn: 'add', userId: i.userId }); return mode.addResult ? mode.addResult() : { status: 'added', inboxId: UUID1 }; },
 });
 const fakeFetch = (async (u: string) => {
@@ -56,7 +57,7 @@ const reset = (on: boolean) => {
   gm.setGmailEnabledForTests(on);
   gm.setGmailStoreForTests(fakeStore() as any);
   gm.setGmailFetch(fakeFetch);
-  storeCalls.length = 0; fetchCalls = 0; h.adminCalls = 0;
+  storeCalls.length = 0; fetchCalls = 0; h.adminCalls = 0; h.pre = { aiKeys: 0, warm: 0, after: 0 };
   for (const k of Object.keys(mode)) delete (mode as any)[k];
   h.sessionUser = 'e5555555-5555-4555-8555-555555555555';
 };
@@ -83,7 +84,7 @@ afterAll(async () => {
   await admin.end();
 });
 
-describe('꺼짐(기본) — 4명령 모두 off 봉투, Gmail 저장소·구글·Supabase 0', () => {
+describe('꺼짐(기본) — 4명령 모두 off 봉투, Gmail 저장소·구글·OAuth 호출 0(공통 전처리는 그대로 실행됨)', () => {
   it.each([['gmailStatus', {}], ['gmailList', { expectSub: SUB }], ['gmailAdd', { messageId: 'm1', title: 't', expectSub: SUB }], ['gmailDisconnect', {}]])('%s', async (name, body) => {
     reset(false);
     const res = await call(name, body, h.sessionUser);
@@ -92,6 +93,10 @@ describe('꺼짐(기본) — 4명령 모두 off 봉투, Gmail 저장소·구글�
     expect(storeCalls).toEqual([]);
     expect(fetchCalls).toBe(0);
     expect(h.adminCalls).toBe(0);
+    // QA040 범위 정정: 공통 /api/rpc 전처리(AI 키 읽기·모델 목록 준비·끝난 뒤 작업)는 Gmail 꺼짐 확인과 별도로 실행된다 — 보장은 Gmail 전용 저장소·구글·OAuth 호출 0까지
+    expect(h.pre.aiKeys).toBe(1);
+    expect(h.pre.warm).toBe(1);
+    expect(h.pre.after).toBe(1);
   });
 });
 
@@ -135,15 +140,6 @@ describe('켜짐 — 실제 경로·runtime 통과', () => {
     expect(r).toEqual({ ok: false, code, message: (gm.GMAIL_ADD_MESSAGES as any)[code] });
     expect(JSON.stringify(r)).not.toContain('RAW');
   });
-  it('Gmail 오류가 아닌 예외 → 기존 500 고정 문구(원문 0)', async () => {
-    reset(true);
-    mode.getAppThrows = true;
-    const res = await call('gmailList', { expectSub: SUB }, h.sessionUser);
-    expect(res.status).toBe(500);
-    const body = await res.json();
-    expect(JSON.stringify(body)).not.toContain('RAW_STORE');
-    expect(body.ok).toBeUndefined();
-  });
   it('gmailDisconnect: 로컬 연결 줄만 삭제, 구글 호출 0', async () => {
     reset(true);
     expect(await (await call('gmailDisconnect', {}, h.sessionUser)).json()).toEqual({ ok: true });
@@ -167,5 +163,58 @@ describe('기대 계정·로그인(명령 전 거절)', () => {
     const res = await call('gmailStatus', {}, null);
     expect(res.status).toBe(401);
     expect(storeCalls).toEqual([]);
+  });
+});
+
+
+// ---------------------------------------------------------------- QA040 P2: Gmail이 아닌 예외의 원문이 응답·서버 기록 어디에도 남지 않음
+describe('QA040 예상 밖 예외 — 응답·console 모든 인자에 원문 0', () => {
+  const RAW = 'RAW_TOKEN_AND_MAIL_FIXTURE';
+  const raws = (): unknown[] => {
+    const e1 = new Error(`${RAW} ya29.secret mail@example.com`);
+    const e2 = new Error('wrapper', { cause: new Error(RAW) });
+    const e3: any = new Error('plain'); e3.detail = RAW; e3.stack = `Error: ${RAW}\n    at fixture`;
+    return [e1, e2, e3, RAW, { message: RAW }];
+  };
+  const cases: [string, string, Record<string, unknown>, (e: unknown) => void, string][] = [
+    ['gmailStatus', '연결 줄 읽기', {}, (e) => { mode.listThrows = e; }, 'server'],
+    ['gmailList', '연결 줄 읽기', { expectSub: SUB }, (e) => { mode.listThrows = e; }, 'server'],
+    ['gmailList', '구글 앱 읽기', { expectSub: SUB }, (e) => { mode.getAppThrows = e; }, 'server'],
+    ['gmailAdd', '받은 업무 저장', { messageId: 'm1', title: 't', expectSub: SUB }, (e) => { mode.addResult = async () => { throw e; }; }, 'unknown'],
+    ['gmailAdd', '구글 앱 읽기', { messageId: 'm1', title: 't', expectSub: SUB }, (e) => { mode.getAppThrows = e; }, 'unknown'],
+    ['gmailDisconnect', '연결 줄 삭제', {}, (e) => { mode.deleteThrows = e; }, 'unknown'],
+  ];
+  for (const [name, where, body, arm, code] of cases) {
+    it(`${name}(${where} 예외): 원문 예외 5종 → 200 고정 봉투(${code}), console 원문 0`, async () => {
+      for (const raw of raws()) {
+        reset(true);
+        arm(raw);
+        const logged: unknown[][] = [];
+        const spies = (['error', 'warn', 'log', 'info', 'debug'] as const).map((k) => vi.spyOn(console, k).mockImplementation((...a: unknown[]) => { logged.push(a); }));
+        let res: Response;
+        try {
+          res = await call(name, body, h.sessionUser);
+        } finally {
+          spies.forEach((sp) => sp.mockRestore());
+        }
+        const out = await res!.json();
+        const dump = logged.map((args) => args.map((a) => (typeof a === 'string' ? a : inspect(a, { depth: 10, showHidden: true }))).join(' ')).join('\n');
+        expect(dump).not.toContain(RAW);
+        expect(dump).not.toContain('ya29');
+        expect(res!.status).toBe(200);
+        expect(out.ok).toBe(false);
+        expect(out.code).toBe(code);
+        expect(Object.keys(out).sort()).toEqual(['code', 'message', 'ok']);
+        expect(JSON.stringify(out)).not.toContain(RAW);
+      }
+    });
+  }
+  it('정상 GmailError 봉투·401·409 계약은 그대로', async () => {
+    reset(true);
+    mode.addResult = async () => { throw new gm.GmailError('conflict', 'x'); };
+    expect((await (await call('gmailAdd', { messageId: 'm1', title: 't', expectSub: SUB }, h.sessionUser)).json()).code).toBe('conflict');
+    expect((await call('gmailStatus', {}, 'other')).status).toBe(409);
+    h.sessionUser = '';
+    expect((await call('gmailStatus', {}, null)).status).toBe(401);
   });
 });

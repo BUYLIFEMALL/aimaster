@@ -2,8 +2,8 @@
 // - 회원은 ctx.userId만(본문의 userId 등은 무시). 입력은 형식 검사 뒤 gmailInbox.ts 서버 함수로.
 // - Gmail 오류는 공용 runRpc가 code를 전달하지 못하므로(5xx면 일반 문구로 바뀌어 unknown·server 구분 불가) 200 + 봉투로 돌려준다:
 //   성공 { ok: true, ... } / 실패 { ok: false, code, message } — code는 허용 목록만, message는 **이 파일의 고정 한국어 문구만**(원래 오류 문구·추가 필드 복사 0).
-// - GmailError가 아닌 예외는 그대로 던져 기존 500 처리(로그·고정 일반 문구, 원문 0).
-// - 꺼짐이면 각 명령이 DB·구글 호출 전에 { ok: false, code: "off" }.
+// - GmailError가 아닌 예외(QA040)는 던지지 않고 고정 봉투로 바꾼다: 넣기·끊기 unknown(이미 처리됐을 수 있음), 읽기 server. 기록은 명령 이름만 담은 고정 한 줄(원문·cause·stack 0).
+// - 꺼짐이면 각 명령이 Gmail 저장소·구글·OAuth 호출 전에 { ok: false, code: "off" }. 공통 /api/rpc 전처리(권한 확인·AI 키 읽기·모델 목록 준비·회원 확인)는 이 확인보다 먼저 그대로 실행된다(보장 범위 아님).
 import "server-only";
 import { ApiError, type Ctx } from "@/litpage/server/api/handlers.ts";
 import { addGmailToInbox, disconnectGmail, GMAIL_ADD_MESSAGES, GmailError, gmailStatus, listGmailInbox, type GmailErrorCode } from "./gmailInbox";
@@ -26,12 +26,20 @@ const COMMON: Record<GmailErrorCode, string> = {
 const messageFor = (cmd: Cmd, code: GmailErrorCode): string =>
   cmd === "add" && (code === "conflict" || code === "server" || code === "unknown") ? GMAIL_ADD_MESSAGES[code] : COMMON[code];
 
+/** QA040: 예상 밖 예외(GmailError 아님)의 고정 결과 — 넣기·끊기는 이미 처리됐을 수 있어 「결과 모름」, 읽기는 「처리 못 함」 */
+const UNEXPECTED: Record<Cmd, GmailErrorCode> = { status: "server", list: "server", add: "unknown", disconnect: "unknown" };
+const DISCONNECT_UNKNOWN = "연결을 끊었는지 확인하지 못했습니다. 화면을 새로고침해 연결 상태를 확인해 주세요.";
+
 async function envelope<T extends object>(cmd: Cmd, fn: () => Promise<T>): Promise<({ ok: true } & T) | { ok: false; code: GmailErrorCode; message: string }> {
   try {
     return { ok: true, ...(await fn()) };
   } catch (e) {
     if (e instanceof GmailError && CODES.includes(e.code)) return { ok: false, code: e.code, message: messageFor(cmd, e.code) };
-    throw e; // 비Gmail 예외 → 기존 500(원문 0)
+    // QA040 P2: 예상 밖 예외를 다시 던지면 공용 runRpc가 console.error(원문 e)로 기록 → 원문(토큰·메일 등)이 서버 로그에 남음.
+    // 그래서 여기서 고정 봉투로 바꾸고, 기록도 명령 이름만 담은 고정 한 줄(e·cause·stack·추가 칸 0).
+    console.error(`[gmail] ${cmd} unexpected error`);
+    const code = UNEXPECTED[cmd];
+    return { ok: false, code, message: cmd === "disconnect" ? DISCONNECT_UNKNOWN : messageFor(cmd, code) };
   }
 }
 const bad = (cmd: Cmd) => ({ ok: false as const, code: "bad_request" as const, message: messageFor(cmd, "bad_request") });
