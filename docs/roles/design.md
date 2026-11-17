@@ -19,6 +19,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-18 | `ai-work-workspace` | DES-20261117-04 BookingSettingsCard 예약 요일 146 Professional Studio UI 명세서 납품 (.ai/results/DES-20261117-04-AG-UI-01.md, 제품수정 0·Workspace 구현 인계) | 📋 명세서 납품 완료 (제품구현 대기) |
 | 2026-11-16 | `buylife-main` | 주인님 지시 반영: 서브타이틀에서 「모든」 및 「하세요」 단어 삭제 반영 (「마케팅/업무/비지니스를 자동화」로 정돈), `tsc --noEmit` 통과 및 Vercel 프로덕션 실서버 배포 완료 (`https://www.buylife.xyz`) | ✔ 프로덕션 배포 완료 (`aimaster-rmip5e7m3`, https://www.buylife.xyz) |
 | 2026-11-15 | `buylife-main` | 주인님 지시 반영: 상단 미니 뱃지 「⚡ AI Master All-in-One」 완전 삭제, 메인 타이틀 「모든 자동화를 한 곳에서」 최상단 직결 및 여백 최적화, `tsc --noEmit` 통과 및 Vercel 프로덕션 실서버 배포 | ✔ 프로덕션 배포 완료 |
 | 2026-11-15 | `buylife-main` | 메인 히어로 카피(「모든 자동화를 한 곳에서 / 모든 마케팅/업무/비지니스를 자동화 하세요」) 리뉴얼 3대 시안 (1안 시그니처 프리미엄 골드, 2안 하이퍼 네온 시안, 3안 미드나잇 다크 볼드 옐로우) 제작, 1440px 고화질 캡처 생성 및 종합 비교 쇼케이스(`http://localhost:3805/hero_copy_concepts/index.html`) 구축 완료 | 🔍 쇼케이스 호스팅 완료 (`http://localhost:3805`) |
