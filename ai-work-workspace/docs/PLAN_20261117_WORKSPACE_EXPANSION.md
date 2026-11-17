@@ -250,3 +250,20 @@ E1 독립 검수(QA17-003)와 별개로 계획만. 디자인 3안 선택 전이�
 - 실패 정책(A): 확인 작업 처리기 실패는 작업기 기본 재시도(1·4·9·16분, 최대 5회) — 처리기는 GET만 하므로 재시도해도 POST 0.
 
 **2단계 파일 범위(배정 시 점유)**: 수정 `src/server/runtime.ts`(1줄)·`src/server/publicPages.ts`(분기 1곳)·`src/app/calendar-sync/page.tsx`·`CalendarBoard.tsx`(카드 연결), 새 `src/app/book/[...path]/page.tsx`·제출 컴포넌트·설정 카드 컴포넌트, 시험(공개 입구 403/415/404·IP 한도·기대 계정 409·설정 카드 DOM). 1단계 5파일은 QA024 반례가 오면 그 수정이 먼저. 스위치는 계속 꺼짐 — 켜기는 별도 승인.
+
+### 7-9. 배선 단계(스위치 3개 OFF 그대로) 보존 시험 계획 (2026-11-17, Master `msg_13adaa555ac5`) — 코드 전, 정리만
+대상 배선(7-8): `runtime.ts` `...bookingHandlers` · `publicPages.ts` `getBookingSlots`·`submitBooking` 분기 · 새 `src/app/book/[...path]/page.tsx`. 스위치 `BOOKING_ENABLED`·`BOOKING_UI.enabled`·`BOOKING_FORM_UI.enabled`는 모두 false로 둔 채 배선만 한다.
+**새 시험 파일 1개(제안)**: `tests/integration/bookingWiring.test.ts`(격리 시험 DB, 구글 `setGcalFetch` 모의, 받은 업무·토큰 모의). 기존 `publicPages.test.ts`·`publicForms.test.ts`·`rpcAccountGuard.test.ts`·`portal.test.ts`는 손대지 않고 회귀로 함께 실행.
+
+| 보존할 것 | 확인 방법(시험 이름 요지) |
+|---|---|
+| 불러와도 DB 0 | `@/server/runtime`·`api/public` 경로를 불러온 뒤 `to_regclass('aww_booking_pages'·'aww_bookings')` null, `scheduled_jobs`에 `booking:` 0, 구글 fetch 0 |
+| OFF면 모든 입구 404 | `runRpc('bookingGet'…'bookingResolve')` 404, `handlePublicRpc('getBookingSlots'·'submitBooking')` 404(본문 `NOT_FOUND`), 공개 페이지 `notFound()` — 그 뒤에도 표 0·fetch 0 |
+| 공개 입구 형식 검사 | `POST /api/public/submitBooking` 경로 함수를 직접 불러: JSON 아님 415, `sec-fetch-site: cross-site` 403, 10KB 초과 413 — 모두 처리기 호출 전(표 0). 응답 머리글 `X-Robots-Tag: noindex`·`Cache-Control: private, no-store`(404 포함) |
+| 요청 한도 | 공개 입구 IP당 분당 120(`aww-public-ip`) 다음에 예약 자체 한도(보기 30/분·제출 5/시간)가 겹쳐 적용 — 121번째 429, 같은 IP 제출 6번째 오류 |
+| 토큰 노출 | 제출 토큰은 JSON 본문으로만(쿼리 문자열 0), 공개 페이지는 경로 토큰을 받아 서버에서만 판정·응답·로그에 원문 0(`console.*` 감시로 토큰·손님 입력 0), DB에는 해시만 |
+| 캐시·색인·참조 | 공개 페이지 `dynamic="force-dynamic"`·`fetchCache="force-no-store"`·`revalidate=0`, metadata `robots { index:false, follow:false, nocache:true }`·`referrer: "no-referrer"` (포털 페이지와 같은 값인지 비교) |
+| 회원 입구 | `/api/rpc/booking*`는 기존 인가·기대 계정 409 그대로(`rpcAccountGuard` 방식 1개씩: 다른 계정 헤더 → 409, 처리기 호출 0) |
+| 허용 출처 | 공개 입구는 쿠키를 읽지 않음(로그인 세션과 무관) — 제출 처리기가 `createClient()`·쿠키를 부르지 않는지 모의로 확인 |
+
+켜기는 이 배선 시험이 모두 통과하고 Mac 독립 검수 뒤, 주인님 표 2개 추가 승인과 함께 별도 배포(세 스위치를 한 번에). 지금은 문서만.
