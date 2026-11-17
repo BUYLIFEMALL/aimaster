@@ -1,6 +1,6 @@
 {
-  "checkedAt": "2026-11-18 01:31:25 KST",
-  "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
+  "checkedAt": "2026-11-18 02:20:30 KST",
+  "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
     "activeTurnIntervalMinutes": 5,
@@ -12,22 +12,25 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T16:31:22.671Z",
+      "at": "2026-11-17T17:20:27.598Z",
       "timezone": "Asia/Seoul",
-      "trigger": "v2.0 적용 후01:30 예약 현재Master수신",
-      "scope": "담당보고/요청·전체/카테고리작업표·로컬12세션 연결/출력·HANDOFF/결과 증분·제품점유·예약실행",
+      "trigger": "전체플랜지시·02:00예약·신규직접지시/검수/완료이벤트",
+      "scope": "103/19분류/265문서표식·8담당정합성보고·QA043/044·점유모순·新직접지시·단일후속배정",
       "evidence": [
-        "msg_691d0042d301 최신본문 현재터미널수신·Windows결과0",
-        "미등록인수인계 신규변경0·제품3경로미커밋0",
-        "AGY수락 msg_ab3adf596d54·DES02점유0/미배포",
-        "카테고리작업판/잔여작업 대조·로컬터미널12 연결(연결≠착수)"
+        "msg_18fc7a1648e4 현재Master수신/예약결과0",
+        "8담당정정커밋·103문서메타·categoryReviews/개선21건",
+        "QA043/044고정SHA수락·Front77c50f27c→QA045",
+        "Workspace점유정정5f9e66d7f·Ecom/Backend/Front경로분리",
+        "QA045수락·QA046반례59cb수정/재검수발송·QA047 d9751c70b 전달",
+        "YVS1단계실AI보고00a2c9efa·Gmail준비f4a6854e9·ACTIVE_WORK정정5f9e66d7f/5d7f049b6"
       ],
+      "judgment": "기배포대기정정·코드완료와실검수/승인분리. 소스후속/운영준비배정실전달·불필요재배포0.",
       "unverified": [
-        "각담당 전체 실행내부/원격Mac 브라우저제어반환 최신신호없음",
-        "주인님 직접지시 미보고분은 추가발견없음·부재단정안함"
+        "68프로그램은현담당실회신근거미확보(폐지/완료아님)",
+        "detail-page-12p개별문서미발견",
+        "전체운영/실키/QA037로그인/実375미검수"
       ],
-      "judgment": "지침v2.0 설정·전송·수신 검증. DES02완료/다음묶음 유지. B2B/ESM/Music사람단계·Workspace신규승인 차단유지, 변화없는중복시험/배정0.",
-      "nextAction": "새보고/제어반환시즉시후속, 다음02:00현재터미널점검"
+      "nextAction": "후속ID별QA046/047결과판정·GCP준비완료신호·기존사람단계회수, 원래전체플랜정비완료와제품미완료구분"
     },
     "notifications": [
       {
@@ -95,7 +98,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-17T17:00:00.000Z",
+      "nextScheduledAt": "2026-11-17T17:30:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -113,8 +116,9 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-17T16:30:00.000Z",
-        "messageId": "msg_691d0042d301",
+        "scheduledAt": "2026-11-17T17:00:00.000Z",
+        "attemptedAt": "2026-11-17T17:00:03.1835667Z",
+        "messageId": "msg_18fc7a1648e4",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false
@@ -212,15 +216,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 81
+        "line": 84
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:81",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:84",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "crm-google-form",
+        "folder": "crm-google-form",
+        "sourceFiles": [
+          "crm-google-form/AGENTS.md",
+          "crm-google-form/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 20604,
+        "pendingMarkers": 39,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 2,
@@ -232,15 +249,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 82
+        "line": 85
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:82",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:85",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "kakao-auto-posting",
+        "folder": "kakao_auto_poster",
+        "sourceFiles": [
+          "kakao_auto_poster/AGENTS.md",
+          "kakao_auto_poster/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 41001,
+        "pendingMarkers": 28,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 3,
@@ -252,15 +282,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 83
+        "line": 86
       },
       "owner": "CC-WORKSPACE-01",
-      "stage": "운영·현황재확인",
-      "completed": "Workspace범위 유지",
-      "next": "별도잔여확정전새구현배정안함",
-      "reportedVersion": null,
-      "evidence": "docs/roles/workspace.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "stage": "운영배포기록·받은할일 분류/일괄추가 구현",
+      "completed": "457855225 받은할일3개 실제분류추가·배지소진 담당기록",
+      "next": "새개발배정없음·Workspace와중복구현0",
+      "reportedVersion": "v1.14",
+      "evidence": "docs/roles/workspace.md 최근완료2026-11-15",
+      "evidenceLevel": "기존작성자 운영기록·이번실동작검증0",
+      "documentReview": {
+        "slug": "ai-task-planner",
+        "folder": "ai-task-planner",
+        "sourceFiles": [
+          "ai-task-planner/AGENTS.md",
+          "ai-task-planner/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 16240,
+        "pendingMarkers": 12,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 4,
@@ -272,15 +315,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 84
+        "line": 87
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:84",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:87",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "personality-suite",
+        "folder": "personality-suite",
+        "sourceFiles": [
+          "personality-suite/AGENTS.md",
+          "personality-suite/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 17972,
+        "pendingMarkers": 19,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 5,
@@ -292,15 +348,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 85
+        "line": 88
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:85",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:88",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "document-translator",
+        "folder": "document-translator",
+        "sourceFiles": [
+          "document-translator/AGENTS.md",
+          "document-translator/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 10830,
+        "pendingMarkers": 14,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 6,
@@ -312,15 +381,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 86
+        "line": 89
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:86",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:89",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "file-merge",
+        "folder": "file-merge",
+        "sourceFiles": [
+          "file-merge/AGENTS.md",
+          "file-merge/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 8522,
+        "pendingMarkers": 11,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 7,
@@ -332,15 +414,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 87
+        "line": 90
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:87",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:90",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "personality-code",
+        "folder": "mbti",
+        "sourceFiles": [
+          "mbti/AGENTS.md",
+          "mbti/docs/IMPROVEMENTS.md",
+          "mbti/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 10792,
+        "pendingMarkers": 17,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 8,
@@ -352,15 +448,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 88
+        "line": 91
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:88",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:91",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "mbti-character",
+        "folder": "mbti-character",
+        "sourceFiles": [
+          "mbti-character/AGENTS.md",
+          "mbti-character/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 19078,
+        "pendingMarkers": 17,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 9,
@@ -372,15 +481,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 89
+        "line": 92
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:89",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:92",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "tarot-reading",
+        "folder": "tarot",
+        "sourceFiles": [
+          "tarot/AGENTS.md",
+          "tarot/docs/IMPROVEMENTS.md",
+          "tarot/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 16913,
+        "pendingMarkers": 20,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 10,
@@ -392,15 +515,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 90
+        "line": 93
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:90",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:93",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "ebook-studio",
+        "folder": "ebook-studio",
+        "sourceFiles": [
+          "ebook-studio/AGENTS.md",
+          "ebook-studio/docs/IMPROVEMENTS.md",
+          "ebook-studio/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 18262,
+        "pendingMarkers": 16,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 11,
@@ -412,15 +549,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 91
+        "line": 94
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:91",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:94",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "naver-cafe-poster",
+        "folder": "naver-cafe-poster",
+        "sourceFiles": [
+          "naver-cafe-poster/AGENTS.md",
+          "naver-cafe-poster/docs/IMPROVEMENTS.md",
+          "naver-cafe-poster/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 19992,
+        "pendingMarkers": 18,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 12,
@@ -432,15 +583,28 @@
       "catalogState": "비활성",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 92
+        "line": 95
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:92",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:95",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "naver-blog-auto-poster",
+        "folder": "naver-blog-auto-poster_app",
+        "sourceFiles": [
+          "naver-blog-auto-poster_app/AGENTS.md",
+          "naver-blog-auto-poster_app/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 18702,
+        "pendingMarkers": 1,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 13,
@@ -452,15 +616,28 @@
       "catalogState": "비활성",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 93
+        "line": 96
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:93",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:96",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "naver-blog-auto-poster-web",
+        "folder": "naver-blog-auto-poster_web",
+        "sourceFiles": [
+          "naver-blog-auto-poster_web/AGENTS.md",
+          "naver-blog-auto-poster_web/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 25505,
+        "pendingMarkers": 2,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 14,
@@ -472,15 +649,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 94
+        "line": 97
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:94",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:97",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "naver-blog-seo-studio",
+        "folder": "naver-blog-seo-studio",
+        "sourceFiles": [
+          "naver-blog-seo-studio/AGENTS.md",
+          "naver-blog-seo-studio/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 90930,
+        "pendingMarkers": 68,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 15,
@@ -492,15 +682,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 95
+        "line": 98
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:95",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:98",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "markdown-studio",
+        "folder": "markdown-studio",
+        "sourceFiles": [
+          "markdown-studio/AGENTS.md",
+          "markdown-studio/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 26271,
+        "pendingMarkers": 13,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 16,
@@ -512,15 +715,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 96
+        "line": 99
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:96",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:99",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "ai-writing-editor",
+        "folder": "ai-writing-editor",
+        "sourceFiles": [
+          "ai-writing-editor/AGENTS.md",
+          "ai-writing-editor/docs/IMPROVEMENTS.md",
+          "ai-writing-editor/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 19118,
+        "pendingMarkers": 32,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 17,
@@ -532,15 +749,28 @@
       "catalogState": "병합됨 → `web-crawler-saas` 「🔎 한 페이지 분석」(2026-10-21), 숨김·백업",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 97
+        "line": 100
       },
-      "owner": "기존담당 확인",
+      "owner": "CC-BLOG-01 (문서·요청 조정)",
       "stage": "병합·비활성·백업비공개",
       "completed": "WS10 DB v1.15/is_activefalse/backup비공개·옛API410 코드",
-      "next": "실라이브/T12담당정의미확인,운영재조회반복없음",
+      "next": "T12 문서/요청조정Blog 배정완료·라이브화면확인은담당미정, 재활성화/운영변경0",
       "reportedVersion": "v1.15",
-      "evidence": "c5bb52b99 / 3c7c41aa2",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidence": "WS10 c5bb52b99·c3a7d77b7·2f15cafc9",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "website-scraper",
+        "folder": "ghost-scraper",
+        "sourceFiles": [
+          "ghost-scraper/AGENTS.md",
+          "ghost-scraper/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 12031,
+        "pendingMarkers": 1,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 18,
@@ -552,15 +782,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 98
+        "line": 101
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:98",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:101",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "cinematic-storyboard-studio",
+        "folder": "cinematic-storyboard-studio",
+        "sourceFiles": [
+          "cinematic-storyboard-studio/AGENTS.md",
+          "cinematic-storyboard-studio/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 21425,
+        "pendingMarkers": 21,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 19,
@@ -572,15 +815,28 @@
       "catalogState": "병합됨 → ai-writing-editor(2026-10-21)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 99
+        "line": 102
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:99",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:102",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "persona-style-studio",
+        "folder": "persona-style-studio",
+        "sourceFiles": [
+          "persona-style-studio/AGENTS.md",
+          "persona-style-studio/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 9674,
+        "pendingMarkers": 2,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 20,
@@ -592,15 +848,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 100
+        "line": 103
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:100",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:103",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "landing-architect",
+        "folder": "landing-architect",
+        "sourceFiles": [
+          "landing-architect/AGENTS.md",
+          "landing-architect/docs/IMPROVEMENTS.md",
+          "landing-architect/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 16278,
+        "pendingMarkers": 16,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 21,
@@ -612,15 +882,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 101
+        "line": 104
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:101",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:104",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "ui-canvas",
+        "folder": "ui-canvas",
+        "sourceFiles": [
+          "ui-canvas/AGENTS.md",
+          "ui-canvas/docs/IMPROVEMENTS.md",
+          "ui-canvas/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 20172,
+        "pendingMarkers": 25,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 22,
@@ -632,15 +916,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 102
+        "line": 105
       },
-      "owner": "기존 담당 확인 대기",
-      "stage": "비교표 기록·담당 재확인",
-      "completed": "개별 완료 근거 미회수",
-      "next": "기존 담당·최신 기록 대조 후 배정",
+      "owner": "CC-BLOG-01 (문서·요청 조정)",
+      "stage": "T05 robots/DNS·T07 폴러 소스독립PASS/미배포",
+      "completed": "T05 fc48ebcba+8172d8084/DNS보완·T07 40662e6ae+1a54bdd06, QA023/029 지정PASS",
+      "next": "다음web-crawler묶음·화면/실HTTP는후속, T12조정담당Blog·제품권한확대0",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:102",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "2f15cafc9·c3a7d77b7·BLOG17-08/09·QA023/029",
+      "evidenceLevel": "담당문서/지정소스검수·실운영미검수",
+      "documentReview": {
+        "slug": "web-crawler-saas",
+        "folder": "web-crawler",
+        "sourceFiles": [
+          "web-crawler/AGENTS.md",
+          "web-crawler/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 12801,
+        "pendingMarkers": 2,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 23,
@@ -652,15 +949,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 103
+        "line": 106
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:103",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:106",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "ai-prompt-studio",
+        "folder": "ai-prompt-studio",
+        "sourceFiles": [
+          "ai-prompt-studio/AGENTS.md",
+          "ai-prompt-studio/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 14904,
+        "pendingMarkers": 35,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 24,
@@ -672,15 +982,28 @@
       "catalogState": "병합됨 → `ai-prompt-studio`(2026-10-21)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 104
+        "line": 107
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:104",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:107",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "prompt-template-studio",
+        "folder": "prompt-template-studio",
+        "sourceFiles": [
+          "prompt-template-studio/AGENTS.md",
+          "prompt-template-studio/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 7871,
+        "pendingMarkers": 0,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 25,
@@ -692,15 +1015,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 105
+        "line": 108
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:105",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:108",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "ai-slide-builder",
+        "folder": "ai-slide-builder",
+        "sourceFiles": [
+          "ai-slide-builder/AGENTS.md",
+          "ai-slide-builder/docs/IMPROVEMENTS.md",
+          "ai-slide-builder/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 15672,
+        "pendingMarkers": 14,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 26,
@@ -712,15 +1049,29 @@
       "catalogState": "병합됨 → `ui-canvas`(2026-10-21)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 106
+        "line": 109
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:106",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:109",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "ai-web-ui",
+        "folder": "react-ui-showcase",
+        "sourceFiles": [
+          "react-ui-showcase/AGENTS.md",
+          "react-ui-showcase/docs/IMPROVEMENTS.md",
+          "react-ui-showcase/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 7731,
+        "pendingMarkers": 6,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 27,
@@ -732,15 +1083,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 107
+        "line": 110
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:107",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:110",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "stepmail",
+        "folder": "stepmail",
+        "sourceFiles": [
+          "stepmail/AGENTS.md",
+          "stepmail/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 28132,
+        "pendingMarkers": 28,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 28,
@@ -752,15 +1116,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 108
+        "line": 111
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:108",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:111",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "competitor-analysis",
+        "folder": "competitor-analysis",
+        "sourceFiles": [
+          "competitor-analysis/AGENTS.md",
+          "competitor-analysis/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 28035,
+        "pendingMarkers": 49,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 29,
@@ -772,15 +1149,28 @@
       "catalogState": "병합됨 → `competitor-analysis`(2026-10-23)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 109
+        "line": 112
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:109",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:112",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "longtail-keyword-expander",
+        "folder": "longtail-keyword-expander",
+        "sourceFiles": [
+          "longtail-keyword-expander/AGENTS.md",
+          "longtail-keyword-expander/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 10624,
+        "pendingMarkers": 6,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 30,
@@ -792,15 +1182,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 110
+        "line": 113
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:110",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:113",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "booking-reminder",
+        "folder": "booking-reminder",
+        "sourceFiles": [
+          "booking-reminder/AGENTS.md",
+          "booking-reminder/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 21350,
+        "pendingMarkers": 34,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 31,
@@ -812,15 +1215,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 111
+        "line": 114
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:111",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:114",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "music-player",
+        "folder": "music-player",
+        "sourceFiles": [
+          "music-player/AGENTS.md",
+          "music-player/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 13740,
+        "pendingMarkers": 2,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 32,
@@ -832,15 +1248,29 @@
       "catalogState": "운영(2026-10-21 이미지 스타일 분석기와 서로 연결·30일 정리)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 112
+        "line": 115
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:112",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:115",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "reverse-prompt",
+        "folder": "reverse-prompt",
+        "sourceFiles": [
+          "reverse-prompt/AGENTS.md",
+          "reverse-prompt/docs/IMPROVEMENTS.md",
+          "reverse-prompt/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 13518,
+        "pendingMarkers": 21,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 33,
@@ -852,15 +1282,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 113
+        "line": 116
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:113",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:116",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "infinite-loop-video",
+        "folder": "infinite-loop-video",
+        "sourceFiles": [
+          "infinite-loop-video/AGENTS.md",
+          "infinite-loop-video/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 11708,
+        "pendingMarkers": 5,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 34,
@@ -872,15 +1315,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 114
+        "line": 117
       },
       "owner": "CC-REALTY-01",
-      "stage": "운영 Ready 보고 / 다음 뉴스 회차 대조",
-      "completed": "사용자 직접 승인·bl0k0qu46 Ready·17+3시험·타입0 보고",
-      "next": "실행기 기록 확인 뒤08:00뉴스 지역별 대조, 자동감시 약속 없음",
+      "stage": "운영v1.61·뉴스기존회차대조완료",
+      "completed": "08시옛대기 해소·11-17기존측정완료, 후보C는개발분석결과만",
+      "next": "뉴스후보C 독립기간표본 확보후Master별도배정·새수집/기존개발표본반복0",
       "reportedVersion": "v1.61",
-      "evidence": ".ai/results/RE-20261116-04-CC-REALTY-01.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidence": "18b206cbe·RE17-06/07·docs/roles/realty.md",
+      "evidenceLevel": "기존회차/담당문서대조·후보독립검증미완",
+      "documentReview": {
+        "slug": "real-estate-sales",
+        "folder": "real_estate_sales",
+        "sourceFiles": [
+          "real_estate_sales/AGENTS.md",
+          "real_estate_sales/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 57908,
+        "pendingMarkers": 72,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 35,
@@ -892,15 +1348,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 115
+        "line": 118
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:115",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:118",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "blog-keyword",
+        "folder": "blog-keyword",
+        "sourceFiles": [
+          "blog-keyword/AGENTS.md",
+          "blog-keyword/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 11838,
+        "pendingMarkers": 9,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 36,
@@ -912,7 +1381,7 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 116
+        "line": 119
       },
       "owner": "CC-BLOG-01",
       "stage": "운영·소제목수정완료 / 미배포",
@@ -920,7 +1389,21 @@
       "next": "다음배포후H2확인·실청구검증별도",
       "reportedVersion": "v1.97 / v1.98 후보",
       "evidence": ".ai/results/BLOG-20261116-01-CC-BLOG-01.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "tistory-auto-blog",
+        "folder": "tistory-auto-blog",
+        "sourceFiles": [
+          "tistory-auto-blog/AGENTS.md",
+          "tistory-auto-blog/docs/IMPROVEMENTS.md",
+          "tistory-auto-blog/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 74037,
+        "pendingMarkers": 52,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 37,
@@ -932,15 +1415,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 117
+        "line": 120
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:117",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:120",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "ai-auto-blog",
+        "folder": "ai-auto-blog",
+        "sourceFiles": [
+          "ai-auto-blog/AGENTS.md",
+          "ai-auto-blog/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 85276,
+        "pendingMarkers": 30,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 38,
@@ -952,15 +1448,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 118
+        "line": 121
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:118",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:121",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "naver-blog-agent",
+        "folder": "naver-blog-agent",
+        "sourceFiles": [
+          "naver-blog-agent/AGENTS.md",
+          "naver-blog-agent/docs/IMPROVEMENTS.md",
+          "naver-blog-agent/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 67945,
+        "pendingMarkers": 88,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 39,
@@ -972,15 +1482,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 119
+        "line": 122
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:119",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:122",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "naver-blog-allinone",
+        "folder": "naver-blog-allinone",
+        "sourceFiles": [
+          "naver-blog-allinone/AGENTS.md",
+          "naver-blog-allinone/docs/IMPROVEMENTS.md",
+          "naver-blog-allinone/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 16177,
+        "pendingMarkers": 22,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 40,
@@ -992,15 +1516,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 120
+        "line": 123
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:120",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:123",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "blog-workroom",
+        "folder": "blog-workroom",
+        "sourceFiles": [
+          "blog-workroom/AGENTS.md",
+          "blog-workroom/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 13942,
+        "pendingMarkers": 3,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 41,
@@ -1012,15 +1549,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 121
+        "line": 124
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:121",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:124",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "blog-content-maker",
+        "folder": "blog-content-maker",
+        "sourceFiles": [
+          "blog-content-maker/AGENTS.md",
+          "blog-content-maker/docs/IMPROVEMENTS.md",
+          "blog-content-maker/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 9515,
+        "pendingMarkers": 1,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 42,
@@ -1032,15 +1583,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 122
+        "line": 125
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:122",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:125",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "threads-easy-planner",
+        "folder": "threads-easy-planner",
+        "sourceFiles": [
+          "threads-easy-planner/AGENTS.md",
+          "threads-easy-planner/docs/IMPROVEMENTS.md",
+          "threads-easy-planner/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 37208,
+        "pendingMarkers": 36,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 43,
@@ -1052,15 +1617,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 123
+        "line": 126
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:123",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:126",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "auto-threads-posting",
+        "folder": "threads",
+        "sourceFiles": [
+          "threads/AGENTS.md",
+          "threads/docs/IMPROVEMENTS.md",
+          "threads/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 23645,
+        "pendingMarkers": 11,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 44,
@@ -1072,15 +1651,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 124
+        "line": 127
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:124",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:127",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "threads-comment-reply",
+        "folder": "threads-comment-reply",
+        "sourceFiles": [
+          "threads-comment-reply/AGENTS.md",
+          "threads-comment-reply/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 25881,
+        "pendingMarkers": 29,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 45,
@@ -1088,19 +1680,33 @@
       "slug": "threads-affiliate-poster",
       "folder": "threads-affiliate-poster",
       "category": "쓰레드",
-      "catalogVersion": "v1.88",
+      "catalogVersion": "v1.89",
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 125
+        "line": 128
       },
-      "owner": "기존 담당 확인 대기",
-      "stage": "비교표 기록·담당 재확인",
-      "completed": "개별 완료 근거 미회수",
-      "next": "기존 담당·최신 기록 대조 후 배정",
-      "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:125",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "owner": "CC-ECOM-01",
+      "stage": "네이버수집/원자등록 수정 운영·실확장검수대기",
+      "completed": "URL/protocol/경합수정·WS17-01~04 및지정QA근거, qkncpet55배포 담당기록",
+      "next": "Mac공간19 설치1.89·네이버로그인·본인링크로수집/대기열만, 실제등록/글AI 별도범위",
+      "reportedVersion": "v1.89",
+      "evidence": "ECOM17-01·26e1353c5·msg_c6e462ca244b·WS17-04 9acc8b5c8",
+      "evidenceLevel": "작성자운영배포기록+지정소스/격리검수, 실제확장미검수",
+      "documentReview": {
+        "slug": "threads-affiliate-poster",
+        "folder": "threads-affiliate-poster",
+        "sourceFiles": [
+          "threads-affiliate-poster/AGENTS.md",
+          "threads-affiliate-poster/docs/IMPROVEMENTS.md",
+          "threads-affiliate-poster/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 70515,
+        "pendingMarkers": 36,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 46,
@@ -1112,15 +1718,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 126
+        "line": 129
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:126",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:129",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "threads-content-ops",
+        "folder": "threads-content-ops",
+        "sourceFiles": [
+          "threads-content-ops/AGENTS.md",
+          "threads-content-ops/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 98880,
+        "pendingMarkers": 47,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 47,
@@ -1132,15 +1751,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 127
+        "line": 130
       },
       "owner": "CC-MOVIE-01",
-      "stage": "운영v1.30·사용량/캐시 운영표 적용보고",
-      "completed": "주인님직접SQL실행·2표/RLS/함수/cleanupcron 읽기확인보고",
-      "next": "시험계정로그인뒤실검색·AI기획안1회는비용승인필요",
+      "stage": "운영v1.30·1단계실검색/AI기획안 담당운영검수완료",
+      "completed": "주인님직접실검색+Claude Haiku기획안1회·cache67/68재사용·본문표시확인, 캡처미확보·약$0.03추정",
+      "next": "1단계실검색/AI옛대기마감·반복유료호출0·추가기능은별도배정",
       "reportedVersion": "v1.30",
-      "evidence": "msg_e628ffaffa86·요청1c7b6dda완료",
-      "evidenceLevel": "담당직접실행/운영읽기보고·실검색/AI미검수"
+      "evidence": "a3f39764b+00a2c9efa·msg_c7054cb52f4a/msg_991cc04652fd",
+      "evidenceLevel": "담당운영실검수/읽기보고·Master독립재실행/실청구확정아님",
+      "documentReview": {
+        "slug": "youtube-viral-studio",
+        "folder": "youtube-viral-studio",
+        "sourceFiles": [
+          "youtube-viral-studio/AGENTS.md",
+          "youtube-viral-studio/docs/IMPROVEMENTS.md",
+          "youtube-viral-studio/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 36249,
+        "pendingMarkers": 37,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 48,
@@ -1152,7 +1785,7 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 128
+        "line": 131
       },
       "owner": "CC-MUSIC-01",
       "stage": "운영·실화면 검증",
@@ -1160,7 +1793,20 @@
       "next": "업무전달 재실행 안 함; 직접파일저장/예외검수는별도",
       "reportedVersion": "v1.42",
       "evidence": "msg_959f5568ebe9",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "playlist-channel-studio",
+        "folder": "playlist-channel-studio",
+        "sourceFiles": [
+          "playlist-channel-studio/AGENTS.md",
+          "playlist-channel-studio/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 40982,
+        "pendingMarkers": 18,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 49,
@@ -1172,15 +1818,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 129
+        "line": 132
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:129",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:132",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "thumbnail-master",
+        "folder": "thumbnail-master",
+        "sourceFiles": [
+          "thumbnail-master/AGENTS.md",
+          "thumbnail-master/docs/IMPROVEMENTS.md",
+          "thumbnail-master/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 20857,
+        "pendingMarkers": 25,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 50,
@@ -1192,15 +1852,28 @@
       "catalogState": "**병합됨 → youtube-viral-studio(2026-10-20), 노출 중지**",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 130
+        "line": 133
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:130",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:133",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "youtube-channel-consultant",
+        "folder": "youtube-channel-consultant",
+        "sourceFiles": [
+          "youtube-channel-consultant/AGENTS.md",
+          "youtube-channel-consultant/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 13737,
+        "pendingMarkers": 5,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 51,
@@ -1212,15 +1885,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 131
+        "line": 134
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:131",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:134",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "shorts-viral-studio",
+        "folder": "shorts-viral-studio",
+        "sourceFiles": [
+          "shorts-viral-studio/AGENTS.md",
+          "shorts-viral-studio/docs/IMPROVEMENTS.md",
+          "shorts-viral-studio/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 16555,
+        "pendingMarkers": 20,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 52,
@@ -1232,15 +1919,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 132
+        "line": 135
       },
       "owner": "CC-MOVIE-01",
-      "stage": "운영·공통사본후속",
-      "completed": "실물·정리 완료 기록",
-      "next": "미배포 공용인코더/지역 항목만담당대조",
-      "reportedVersion": "v1.50 (역할기록)",
-      "evidence": "docs/roles/video.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "stage": "운영v1.51 기록·공용인코더 미배포",
+      "completed": "11-14배포기록/현version 대조 dacd987cc",
+      "next": "2b9a06c9c 다음기능묶음·실유료영상별도지시",
+      "reportedVersion": "v1.51",
+      "evidence": "docs/roles/video.md·dacd987cc",
+      "evidenceLevel": "담당커밋/기존배포기록대조·이번운영재시험0",
+      "documentReview": {
+        "slug": "auto-shorts-posting",
+        "folder": "shots",
+        "sourceFiles": [
+          "shots/AGENTS.md",
+          "shots/docs/IMPROVEMENTS.md",
+          "shots/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 35792,
+        "pendingMarkers": 13,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 53,
@@ -1252,15 +1953,28 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 133
+        "line": 136
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:133",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:136",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "youtube-auto-reply",
+        "folder": "youtube-auto-reply",
+        "sourceFiles": [
+          "youtube-auto-reply/AGENTS.md",
+          "youtube-auto-reply/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 30687,
+        "pendingMarkers": 38,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 54,
@@ -1272,15 +1986,29 @@
       "catalogState": "**병합됨 → thumbnail-master(2026-10-20), 노출 중지**",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 134
+        "line": 137
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:134",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:137",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "seo-thumbnail-pro",
+        "folder": "seo-thumbnail-pro",
+        "sourceFiles": [
+          "seo-thumbnail-pro/AGENTS.md",
+          "seo-thumbnail-pro/docs/IMPROVEMENTS.md",
+          "seo-thumbnail-pro/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 10102,
+        "pendingMarkers": 3,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 55,
@@ -1292,15 +2020,28 @@
       "catalogState": "**병합됨 → music-automation(2026-10-21), 노출 중지**",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 135
+        "line": 138
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:135",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:138",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "suno-music-studio",
+        "folder": "suno-music-studio",
+        "sourceFiles": [
+          "suno-music-studio/AGENTS.md",
+          "suno-music-studio/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 10063,
+        "pendingMarkers": 5,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 56,
@@ -1312,7 +2053,7 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 136
+        "line": 139
       },
       "owner": "CC-MUSIC-01",
       "stage": "운영·Ready 보고",
@@ -1320,7 +2061,21 @@
       "next": "명시 잔여 없음·실물범위는개별기록",
       "reportedVersion": "v1.17",
       "evidence": "msg_24165d93de71",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "ai-mastering-studio",
+        "folder": "ai-mastering-studio",
+        "sourceFiles": [
+          "ai-mastering-studio/AGENTS.md",
+          "ai-mastering-studio/docs/IMPROVEMENTS.md",
+          "ai-mastering-studio/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 13998,
+        "pendingMarkers": 16,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 57,
@@ -1332,7 +2087,7 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 137
+        "line": 140
       },
       "owner": "CC-MOVIE-01 + CC-MUSIC-01",
       "stage": "운영·공통반영확인",
@@ -1340,7 +2095,21 @@
       "next": "영상/음악 파일소유분리, 유료생성은기존보류",
       "reportedVersion": "v1.31",
       "evidence": "docs/PENDING_DEPLOYS.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "music-video-studio",
+        "folder": "music-video-studio",
+        "sourceFiles": [
+          "music-video-studio/AGENTS.md",
+          "music-video-studio/docs/IMPROVEMENTS.md",
+          "music-video-studio/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 34561,
+        "pendingMarkers": 32,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 58,
@@ -1352,15 +2121,28 @@
       "catalogState": "운영(2026-10-21 Suno 음악기획 병합)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 138
+        "line": 141
       },
       "owner": "CC-MUSIC-01",
-      "stage": "운영·범위내 완료",
-      "completed": "음악 메뉴1개 선택 수정·Ready·검증보고",
-      "next": "명시 잔여 없음; 새 배정 전 임의수정 없음",
+      "stage": "운영v1.58·기존메뉴수정 반영완료",
+      "completed": "db08afdd6가배포기준f78967bad 조상·music-b8m2pihnu/메뉴1개확인기록",
+      "next": "옛미배포메뉴수정 재구현/재배포0·새배정전점유확인",
       "reportedVersion": "v1.58",
-      "evidence": "msg_24165d93de71",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidence": "a8333ca84·a5a96ab42·music/AGENTS.md v1.58",
+      "evidenceLevel": "담당git/기존실화면기록대조",
+      "documentReview": {
+        "slug": "music-automation",
+        "folder": "music",
+        "sourceFiles": [
+          "music/AGENTS.md",
+          "music/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 65077,
+        "pendingMarkers": 28,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 59,
@@ -1372,15 +2154,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 139
+        "line": 142
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:139",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:142",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "vinyl-lp-studio",
+        "folder": "vinyl-lp-studio",
+        "sourceFiles": [
+          "vinyl-lp-studio/AGENTS.md",
+          "vinyl-lp-studio/docs/IMPROVEMENTS.md",
+          "vinyl-lp-studio/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 18999,
+        "pendingMarkers": 8,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 60,
@@ -1392,15 +2188,29 @@
       "catalogState": "**병합됨 → playlist-channel-studio(2026-10-20), 노출 중지**",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 140
+        "line": 143
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:140",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:143",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "yt-playlist-studio",
+        "folder": "yt-playlist-studio",
+        "sourceFiles": [
+          "yt-playlist-studio/AGENTS.md",
+          "yt-playlist-studio/docs/IMPROVEMENTS.md",
+          "yt-playlist-studio/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 18970,
+        "pendingMarkers": 12,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 61,
@@ -1412,15 +2222,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 141
+        "line": 144
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:141",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:144",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "ai-audio-analyzer",
+        "folder": "ai-audio-analyzer",
+        "sourceFiles": [
+          "ai-audio-analyzer/AGENTS.md",
+          "ai-audio-analyzer/docs/IMPROVEMENTS.md",
+          "ai-audio-analyzer/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 11232,
+        "pendingMarkers": 0,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 62,
@@ -1432,15 +2256,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 142
+        "line": 145
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:142",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:145",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "ai-image-studio",
+        "folder": "ai-image-studio",
+        "sourceFiles": [
+          "ai-image-studio/AGENTS.md",
+          "ai-image-studio/docs/IMPROVEMENTS.md",
+          "ai-image-studio/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 28669,
+        "pendingMarkers": 28,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 63,
@@ -1452,15 +2290,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 143
+        "line": 146
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:143",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:146",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "portrait-photo",
+        "folder": "portrait-photo",
+        "sourceFiles": [
+          "portrait-photo/AGENTS.md",
+          "portrait-photo/docs/IMPROVEMENTS.md",
+          "portrait-photo/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 42846,
+        "pendingMarkers": 32,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 64,
@@ -1472,7 +2324,7 @@
       "catalogState": "운영(2026-10-21 포토 리메이크·올인원 그래픽 병합, FREE 해제)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 144
+        "line": 147
       },
       "owner": "CC-ECOM-01",
       "stage": "운영Ready·시험상품 실저장왕복 확인",
@@ -1480,7 +2332,21 @@
       "next": "시험상품1개 운영실저장왕복/동일설정재전송방지/대표사진원복 확인보고수락, 실기기/낭독등별도",
       "reportedVersion": "v1.49",
       "evidence": "msg_7045df842d13 / 8af570963 / 이전배포기록",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "banana-canvas",
+        "folder": "banana-canvas",
+        "sourceFiles": [
+          "banana-canvas/AGENTS.md",
+          "banana-canvas/docs/IMPROVEMENTS.md",
+          "banana-canvas/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 53232,
+        "pendingMarkers": 62,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 65,
@@ -1492,15 +2358,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 145
+        "line": 148
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:145",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:148",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "style-dna-analyzer",
+        "folder": "style-dna-analyzer",
+        "sourceFiles": [
+          "style-dna-analyzer/AGENTS.md",
+          "style-dna-analyzer/docs/IMPROVEMENTS.md",
+          "style-dna-analyzer/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 20977,
+        "pendingMarkers": 20,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 66,
@@ -1512,15 +2392,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 146
+        "line": 149
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:146",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:149",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "four-cut-comics",
+        "folder": "four-cut-comics",
+        "sourceFiles": [
+          "four-cut-comics/AGENTS.md",
+          "four-cut-comics/docs/IMPROVEMENTS.md",
+          "four-cut-comics/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 37978,
+        "pendingMarkers": 37,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 67,
@@ -1532,15 +2426,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 147
+        "line": 150
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:147",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:150",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "image-convert-studio",
+        "folder": "image-convert-studio",
+        "sourceFiles": [
+          "image-convert-studio/AGENTS.md",
+          "image-convert-studio/docs/IMPROVEMENTS.md",
+          "image-convert-studio/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 20723,
+        "pendingMarkers": 23,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 68,
@@ -1552,15 +2460,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 148
+        "line": 151
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:148",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:151",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "fashion-style",
+        "folder": "fashion-style",
+        "sourceFiles": [
+          "fashion-style/AGENTS.md",
+          "fashion-style/docs/IMPROVEMENTS.md",
+          "fashion-style/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 7541,
+        "pendingMarkers": 3,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 69,
@@ -1568,19 +2490,33 @@
       "slug": "emotion-writer",
       "folder": "emotion-writer",
       "category": "이미지",
-      "catalogVersion": "v1.27",
+      "catalogVersion": "v1.29",
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 149
+        "line": 152
       },
       "owner": "AG-UI-01",
-      "stage": "운영v1.29 READY·접근성2건 소스독립PASS/미배포",
-      "completed": "메뉴/공식키발급링크 QA042 소스·실TSX모의PASS, storage widget 정적1곳",
-      "next": "121317458 다음묶음·실375/위젯/브라우저키입력 미검수",
+      "stage": "운영1.29·접근성/Pexels제거 미배포·3사AI구현중",
+      "completed": "메뉴/공식키발급링크 QA042 소스·실TSX모의PASS, storage widget 정적1곳·QA044 UI/초안/가이드제거지정PASS",
+      "next": "121317458+de49e96e9+62189915b 보존·ECOM18-01 mock구현/독립검수→v1.30묶음은별도승인",
       "reportedVersion": "v1.29",
       "evidence": "45c208bc6 / dpl_D9ExEsYD9sH9zAxZy38dkU2UUMUz / QA042",
-      "evidenceLevel": "Vercel READY/metadata 독립확인·DBv1.29 담당보고·실화면 미검수"
+      "evidenceLevel": "Vercel READY/metadata 독립확인·DBv1.29 담당보고·실화면 미검수",
+      "documentReview": {
+        "slug": "emotion-writer",
+        "folder": "emotion-writer",
+        "sourceFiles": [
+          "emotion-writer/AGENTS.md",
+          "emotion-writer/docs/IMPROVEMENTS.md",
+          "emotion-writer/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 21268,
+        "pendingMarkers": 21,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 70,
@@ -1592,15 +2528,28 @@
       "catalogState": "병합됨 → `banana-canvas`(2026-10-21)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 150
+        "line": 153
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:150",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:153",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "allinone-graphic",
+        "folder": "allinone-graphic",
+        "sourceFiles": [
+          "allinone-graphic/AGENTS.md",
+          "allinone-graphic/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 9719,
+        "pendingMarkers": 6,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 71,
@@ -1612,15 +2561,29 @@
       "catalogState": "병합됨 → `banana-canvas`(2026-10-21)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 151
+        "line": 154
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:151",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:154",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "photo-remake-studio",
+        "folder": "photo-remake-studio",
+        "sourceFiles": [
+          "photo-remake-studio/AGENTS.md",
+          "photo-remake-studio/docs/IMPROVEMENTS.md",
+          "photo-remake-studio/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 8187,
+        "pendingMarkers": 3,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 72,
@@ -1632,15 +2595,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 152
+        "line": 155
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:152",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:155",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "trending-product-finder",
+        "folder": "trending-product-finder",
+        "sourceFiles": [
+          "trending-product-finder/AGENTS.md",
+          "trending-product-finder/docs/IMPROVEMENTS.md",
+          "trending-product-finder/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 71588,
+        "pendingMarkers": 61,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 73,
@@ -1652,7 +2629,7 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 153
+        "line": 156
       },
       "owner": "CC-MOVIE-01",
       "stage": "운영 Ready·독립 코드QA PASS / 실제왕복 미검수",
@@ -1660,7 +2637,21 @@
       "next": "시험상품 범위 확정 후 GIF/WebP 각1 실수신 검수. 추가빌드 없음",
       "reportedVersion": "v1.33",
       "evidence": ".ai/results/MOV-20261116-03-CC-MOVIE-01.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "video-to-gif",
+        "folder": "video-to-gif",
+        "sourceFiles": [
+          "video-to-gif/AGENTS.md",
+          "video-to-gif/docs/IMPROVEMENTS.md",
+          "video-to-gif/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 66490,
+        "pendingMarkers": 74,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 74,
@@ -1672,7 +2663,7 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 154
+        "line": 157
       },
       "owner": "CC-ECOM-01",
       "stage": "운영Ready·시험상품 실저장왕복 확인",
@@ -1680,7 +2671,21 @@
       "next": "시험상품1개 운영실저장왕복/동일설정재전송방지/대표사진원복 확인보고수락, 실기기/낭독등별도",
       "reportedVersion": "v1.47",
       "evidence": "msg_7045df842d13 / 8af570963 / 이전배포기록",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "shop-detail-page",
+        "folder": "shop-detail-page",
+        "sourceFiles": [
+          "shop-detail-page/AGENTS.md",
+          "shop-detail-page/docs/IMPROVEMENTS.md",
+          "shop-detail-page/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 69059,
+        "pendingMarkers": 63,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 75,
@@ -1692,15 +2697,28 @@
       "catalogState": "병합됨 → `shop-detail-page`(2026-10-21) · **폐지(2026-10-29)**: 저장소 폴더 삭제(백업 `AIMaster_backup/retired-programs/detail-page-12p-20261029`, 태그 `retired/detail-page-12p-20261029`), 상세페이지의 12단 가져오기도 삭제(v1.40)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 155
+        "line": 158
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:155",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:158",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "auto-detail-page",
+        "folder": "auto-detail-page",
+        "sourceFiles": [
+          "auto-detail-page/AGENTS.md",
+          "auto-detail-page/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 11458,
+        "pendingMarkers": 5,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 76,
@@ -1712,15 +2730,25 @@
       "catalogState": "병합됨 → `shop-detail-page`(2026-10-21)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 156
+        "line": 159
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:156",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:159",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "detail-page-12p",
+        "folder": "detail-page-12p",
+        "sourceFiles": [],
+        "charactersRead": 0,
+        "pendingMarkers": 0,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": "AGENTS/IMPROVEMENTS/BACKLOG 미발견"
+      }
     },
     {
       "sourceId": 77,
@@ -1732,15 +2760,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 157
+        "line": 160
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:157",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:160",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "auto-instagram-posting",
+        "folder": "insta_auto_poster",
+        "sourceFiles": [
+          "insta_auto_poster/AGENTS.md",
+          "insta_auto_poster/docs/IMPROVEMENTS.md",
+          "insta_auto_poster/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 77681,
+        "pendingMarkers": 73,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 78,
@@ -1752,15 +2794,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 158
+        "line": 161
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:158",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:161",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "ai-influencer-studio",
+        "folder": "ai-influencer-studio",
+        "sourceFiles": [
+          "ai-influencer-studio/AGENTS.md",
+          "ai-influencer-studio/docs/IMPROVEMENTS.md",
+          "ai-influencer-studio/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 39004,
+        "pendingMarkers": 36,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 79,
@@ -1772,15 +2828,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 159
+        "line": 162
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:159",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:162",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "instagram-comment-reply",
+        "folder": "instagram-comment-reply",
+        "sourceFiles": [
+          "instagram-comment-reply/AGENTS.md",
+          "instagram-comment-reply/docs/IMPROVEMENTS.md",
+          "instagram-comment-reply/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 37604,
+        "pendingMarkers": 45,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 80,
@@ -1792,15 +2862,28 @@
       "catalogState": "**병합됨 → instagram-comment-reply(2026-10-20), 노출 중지**",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 160
+        "line": 163
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:160",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:163",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "instagram-dm-reply",
+        "folder": "instagram-dm-reply",
+        "sourceFiles": [
+          "instagram-dm-reply/AGENTS.md",
+          "instagram-dm-reply/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 14980,
+        "pendingMarkers": 5,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 81,
@@ -1812,15 +2895,29 @@
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 161
+        "line": 164
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:161",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:164",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "ai-webtoon-studio",
+        "folder": "ai-webtoon-studio",
+        "sourceFiles": [
+          "ai-webtoon-studio/AGENTS.md",
+          "ai-webtoon-studio/docs/IMPROVEMENTS.md",
+          "ai-webtoon-studio/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 37397,
+        "pendingMarkers": 36,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 82,
@@ -1832,15 +2929,29 @@
       "catalogState": "**병합됨 → auto-instagram-posting(2026-10-20), 노출 중지**",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 162
+        "line": 165
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:162",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:165",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "cardnews-studio",
+        "folder": "cardnews-studio",
+        "sourceFiles": [
+          "cardnews-studio/AGENTS.md",
+          "cardnews-studio/docs/IMPROVEMENTS.md",
+          "cardnews-studio/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 28979,
+        "pendingMarkers": 27,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 83,
@@ -1852,7 +2963,7 @@
       "catalogState": "공개(new)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 163
+        "line": 166
       },
       "owner": "CC-MOVIE-01",
       "stage": "운영·특정시험대기",
@@ -1860,7 +2971,21 @@
       "next": "약1원시험·시험계정 조건 및 공용인코더 다음배포",
       "reportedVersion": "v1.59",
       "evidence": "docs/roles/video.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "shorts-onestop-studio",
+        "folder": "shorts-onestop-studio",
+        "sourceFiles": [
+          "shorts-onestop-studio/AGENTS.md",
+          "shorts-onestop-studio/docs/IMPROVEMENTS.md",
+          "shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 72621,
+        "pendingMarkers": 57,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 84,
@@ -1872,15 +2997,29 @@
       "catalogState": "공개(new)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 164
+        "line": 167
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:164",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:167",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "ai-doc-chatbot",
+        "folder": "ai-doc-chatbot",
+        "sourceFiles": [
+          "ai-doc-chatbot/AGENTS.md",
+          "ai-doc-chatbot/docs/IMPROVEMENTS.md",
+          "ai-doc-chatbot/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 26730,
+        "pendingMarkers": 69,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 85,
@@ -1892,15 +3031,29 @@
       "catalogState": "공개(new)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 165
+        "line": 168
       },
       "owner": "CC-MUSIC-01",
-      "stage": "주인님 직접승인 운영Ready",
-      "completed": "d65c40617·38f1zi7y1 Ready·DB1.16·운영4흐름 담당검수",
-      "next": "실저장창/맥실하드웨어/30분곡 등 기존한계 유지·재배포없음",
+      "stage": "운영v1.16·국소수정2건 소스완료/미배포",
+      "completed": "취소안내fe402b1df MOV17-05 PASS·인코더2b9a06c9c QA032소스PASS",
+      "next": "두건 다음음악기능배포묶음·Mac MP4신뢰클릭/저장선택은QA002 별도",
       "reportedVersion": "v1.16",
-      "evidence": ".ai/results/MUS-20261116-06-CC-MUSIC-01.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidence": "a8333ca84·MOV17-07B·QA032·docs/roles/music.md",
+      "evidenceLevel": "기존독립소스검수·담당문서대조, 실하드웨어/파일저장대기",
+      "documentReview": {
+        "slug": "lyric-video-studio",
+        "folder": "lyric-video-studio",
+        "sourceFiles": [
+          "lyric-video-studio/AGENTS.md",
+          "lyric-video-studio/docs/IMPROVEMENTS.md",
+          "lyric-video-studio/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 21819,
+        "pendingMarkers": 15,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 86,
@@ -1912,15 +3065,29 @@
       "catalogState": "운영(2026-10-21 신규)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 166
+        "line": 169
       },
       "owner": "기존 담당 확인 대기",
       "stage": "비교표 기록·담당 재확인",
       "completed": "개별 완료 근거 미회수",
       "next": "기존 담당·최신 기록 대조 후 배정",
       "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:166",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:169",
+      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음",
+      "documentReview": {
+        "slug": "comment-inbox",
+        "folder": "comment-inbox",
+        "sourceFiles": [
+          "comment-inbox/AGENTS.md",
+          "comment-inbox/docs/IMPROVEMENTS.md",
+          "comment-inbox/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 19748,
+        "pendingMarkers": 38,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 87,
@@ -1932,7 +3099,7 @@
       "catalogState": "공개(new, 2026-10-23 신규)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 167
+        "line": 170
       },
       "owner": "CC-MUSIC-01",
       "stage": "운영·Ready 보고",
@@ -1940,7 +3107,21 @@
       "next": "명시 잔여 없음·운영전체무결함 의미아님",
       "reportedVersion": "v1.16",
       "evidence": "msg_24165d93de71",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "ai-music-studio",
+        "folder": "ai-music-studio",
+        "sourceFiles": [
+          "ai-music-studio/AGENTS.md",
+          "ai-music-studio/docs/IMPROVEMENTS.md",
+          "ai-music-studio/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 19945,
+        "pendingMarkers": 49,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 88,
@@ -1952,15 +3133,29 @@
       "catalogState": "공개(new, 2026-10-23 신규)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 168
+        "line": 171
       },
       "owner": "CC-MOVIE-01",
-      "stage": "운영·조건부 유료시험",
-      "completed": "Vidu/상품장면 코드·배포 완료 기록",
-      "next": "사용자 나중에 지시 유지·유료호출 재실행안함",
-      "reportedVersion": null,
-      "evidence": "docs/roles/video.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "stage": "운영버전 담당기록·유료생성 조건대기",
+      "completed": "version/기존배포기록대조",
+      "next": "주인님 후속지시 전 실유료생성0",
+      "reportedVersion": "v1.36",
+      "evidence": "docs/roles/video.md·dacd987cc",
+      "evidenceLevel": "담당문서/코드대조·실유료생성미검수",
+      "documentReview": {
+        "slug": "ai-video-studio",
+        "folder": "ai-video-studio",
+        "sourceFiles": [
+          "ai-video-studio/AGENTS.md",
+          "ai-video-studio/docs/IMPROVEMENTS.md",
+          "ai-video-studio/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 42845,
+        "pendingMarkers": 51,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 89,
@@ -1968,19 +3163,33 @@
       "slug": "ai-work-workspace",
       "folder": "ai-work-workspace",
       "category": "업무자동화",
-      "catalogVersion": "v1.51",
+      "catalogVersion": "v1.57",
       "catalogState": "공개(2026-10-24 신규, 일반 등급 이상)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 169
+        "line": 172
       },
       "owner": "CC-WORKSPACE-01",
-      "stage": "운영 v1.55 유지·후속33소스/계정수정검수·146 로컬화면확인중",
-      "completed": "146 S0~5·영수증/캘린더상태 소스PASS·desktop/375iframe 담당실화면확인",
-      "next": "en/Alt·대표캡처독립시각대조·전체타입미검수분리·미배포묶음",
-      "reportedVersion": "v1.55",
-      "evidence": "6bd9df604·8ce818bf7·QA013/017/018·Master지속session56053",
-      "evidenceLevel": "독립소스/모의검수+담당로컬desktop/iframe실화면·운영未배포"
+      "stage": "예약링크 운영활성·146/E1/E2반영, E3/Gmail OFF/WS23 미배포",
+      "completed": "v1.56 146운영·v1.57 예약실검증 및 QA정리, E3독립소스PASS·Gmail QA041까지지정PASS",
+      "next": "v1.58 E3+WS23+GmailOFF 묶음 승인대기, Gmail활성SQL/실OAuth 별도. WS18-01 요일칩a41a1e31e QA043진행·미배포",
+      "reportedVersion": "v1.57",
+      "evidence": "WS22 ce23306cc/c41a5b613·WS24 6f166ec8f·WS25 a3cc19d77·정합성f6e6b1da3",
+      "evidenceLevel": "기존운영증거·지정독립검수·담당문서대조, 이번운영재시험0",
+      "documentReview": {
+        "slug": "ai-work-workspace",
+        "folder": "ai-work-workspace",
+        "sourceFiles": [
+          "ai-work-workspace/AGENTS.md",
+          "ai-work-workspace/docs/IMPROVEMENTS.md",
+          "ai-work-workspace/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 76016,
+        "pendingMarkers": 84,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 91,
@@ -1992,7 +3201,7 @@
       "catalogState": "공개(new, 2026-10-25 신규)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 170
+        "line": 173
       },
       "owner": "CC-ECOM-01",
       "stage": "운영·인쇄자료/소규모미배포",
@@ -2000,7 +3209,21 @@
       "next": "다음배포묶음·실인쇄여백자료대기",
       "reportedVersion": null,
       "evidence": "docs/roles/ecommerce-image.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "seller-label-docs",
+        "folder": "seller-label-docs",
+        "sourceFiles": [
+          "seller-label-docs/AGENTS.md",
+          "seller-label-docs/docs/IMPROVEMENTS.md",
+          "seller-label-docs/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 6607,
+        "pendingMarkers": 15,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 92,
@@ -2012,7 +3235,7 @@
       "catalogState": "공개(new, 2026-10-25 신규)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 171
+        "line": 174
       },
       "owner": "CC-ECOM-01",
       "stage": "운영·자료대기",
@@ -2020,7 +3243,21 @@
       "next": "개인정보지운실제주문파일 필요",
       "reportedVersion": null,
       "evidence": "docs/roles/ecommerce-image.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "shop-order-report",
+        "folder": "shop-order-report",
+        "sourceFiles": [
+          "shop-order-report/AGENTS.md",
+          "shop-order-report/docs/IMPROVEMENTS.md",
+          "shop-order-report/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 5555,
+        "pendingMarkers": 12,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 93,
@@ -2032,15 +3269,29 @@
       "catalogState": "공개(new, 2026-10-26 신규 · 「바로 등록」 실제 등록 성공 2026-10-27)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 172
+        "line": 175
       },
-      "owner": "기존 담당 확인 대기",
-      "stage": "비교표 기록·담당 재확인",
-      "completed": "개별 완료 근거 미회수",
-      "next": "기존 담당·최신 기록 대조 후 배정",
-      "reportedVersion": null,
-      "evidence": "docs/PROGRAM_CAPABILITY_MAP.md:172",
-      "evidenceLevel": "목록 기록만 확인·이번 실동작 검증 없음"
+      "owner": "CC-ECOM-01",
+      "stage": "운영배포기록·발행표시 수정반영",
+      "completed": "6a17c6123 markPosted v1.28 mxv57n8mv 포함",
+      "next": "같은변경 재배포0·실제마켓쓰기 별도지시",
+      "reportedVersion": "v1.28",
+      "evidence": "26e1353c5·docs/PENDING_DEPLOYS.md 내보낸기록",
+      "evidenceLevel": "담당기존배포기록대조·이번실쓰기0",
+      "documentReview": {
+        "slug": "smartstore-register",
+        "folder": "smartstore-register",
+        "sourceFiles": [
+          "smartstore-register/AGENTS.md",
+          "smartstore-register/docs/IMPROVEMENTS.md",
+          "smartstore-register/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 35406,
+        "pendingMarkers": 90,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 90,
@@ -2052,15 +3303,29 @@
       "catalogState": "공개(2026-10-26 정식 공개, VIP 자동 부여)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 173
+        "line": 176
       },
       "owner": "CC-REALTY-01",
       "stage": "운영v1.46·화면/guide/ZIP 독립읽기PASS",
       "completed": "6kxzrn0il Ready·DB/ext1.46·120/type0·메인확장재로드보고·격리코드독립PASS",
-      "next": "실Mac설치/첫회차격리·수집알림은미검수,새빌드/수집없이원래회차후읽기만별도",
+      "next": "기존서버기록10:37 110건/18:16 811건ok 담당읽기·Mac실확장저장소/첫회차격리 미검수, 새수집0",
       "reportedVersion": "v1.46",
-      "evidence": ".ai/results/RE-20261116-04-CC-REALTY-01.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidence": "18b206cbe·RE-20261116-04·QA17-003",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "realty-listing-alert",
+        "folder": "realty-listing-alert",
+        "sourceFiles": [
+          "realty-listing-alert/AGENTS.md",
+          "realty-listing-alert/docs/IMPROVEMENTS.md",
+          "realty-listing-alert/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 31420,
+        "pendingMarkers": 23,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 94,
@@ -2072,15 +3337,29 @@
       "catalogState": "공개(2026-10-31, VIP 자동 부여)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 174
+        "line": 177
       },
       "owner": "CC-REALTY-01",
       "stage": "운영·재측정조건대기",
       "completed": "층호출조절 배포완료",
-      "next": "local로그아웃3a1d7fbb4 코드완료·미배포, 다음기능배포에묶음. UA/위젯잔여는별도",
+      "next": "로그아웃3a1d7fbb4·기기정보7f97c00e6 다음기능묶음, 층진단복구실패는마감·재측정자동반복0",
       "reportedVersion": "v1.34",
-      "evidence": "docs/roles/realty.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidence": "18b206cbe·docs/roles/realty.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "commercial-land-trade-alert",
+        "folder": "commercial-land-trade-alert",
+        "sourceFiles": [
+          "commercial-land-trade-alert/AGENTS.md",
+          "commercial-land-trade-alert/docs/IMPROVEMENTS.md",
+          "commercial-land-trade-alert/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 29303,
+        "pendingMarkers": 40,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 97,
@@ -2092,15 +3371,28 @@
       "catalogState": "운영(2026-11-03 공개, NEW)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 175
+        "line": 178
       },
       "owner": "CC-REALTY-01",
       "stage": "운영·기능실물완료기록",
       "completed": "1~4단계·계산기/문자실물기록",
-      "next": "local로그아웃3a1d7fbb4 코드완료·미배포, 다음기능배포에묶음. UA/위젯잔여는별도",
+      "next": "로그아웃3a1d7fbb4·기기정보/위젯7f97c00e6 미배포3변경 다음기능묶음",
       "reportedVersion": "v1.10",
-      "evidence": "docs/roles/realty.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidence": "18b206cbe·docs/roles/realty.md",
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "realty-client-desk",
+        "folder": "realty-client-desk",
+        "sourceFiles": [
+          "realty-client-desk/AGENTS.md",
+          "realty-client-desk/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 7469,
+        "pendingMarkers": 6,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 95,
@@ -2112,7 +3404,7 @@
       "catalogState": "공개(2026-10-31 공개 전환)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 176
+        "line": 179
       },
       "owner": "CC-ECOM-01",
       "stage": "운영·실쓰기조건대기",
@@ -2120,7 +3412,21 @@
       "next": "상품권한해제·실주문뒤승인범위시험,중지상품삭제금지",
       "reportedVersion": "v1.19",
       "evidence": "docs/roles/ecommerce-image.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "coupang-ops",
+        "folder": "coupang-ops",
+        "sourceFiles": [
+          "coupang-ops/AGENTS.md",
+          "coupang-ops/docs/IMPROVEMENTS.md",
+          "coupang-ops/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 48450,
+        "pendingMarkers": 48,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 96,
@@ -2132,7 +3438,7 @@
       "catalogState": "운영(Windows 엔진, Mac x64 설치·실행 검수/생성 미지원)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 177
+        "line": 180
       },
       "owner": "CC-MUSIC-01",
       "stage": "운영·조건부 후속",
@@ -2140,7 +3446,21 @@
       "next": "LeVo 공개/Mureka 충전 등 외부조건 있을 때만 후속",
       "reportedVersion": "v1.67 / engine0.8.5",
       "evidence": "docs/roles/music.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "free-music-studio",
+        "folder": "free-music-studio",
+        "sourceFiles": [
+          "free-music-studio/AGENTS.md",
+          "free-music-studio/docs/IMPROVEMENTS.md",
+          "free-music-studio/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 103412,
+        "pendingMarkers": 191,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 97,
@@ -2152,7 +3472,7 @@
       "catalogState": "운영(공개 2026-11-11, 관리자 실물 재검수 완료)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 178
+        "line": 181
       },
       "owner": "CC-BLOG-01",
       "stage": "운영·B2검수완료",
@@ -2160,7 +3480,20 @@
       "next": "WP기간은정책담당유지·중복기간부여안함",
       "reportedVersion": "v1.05",
       "evidence": "docs/roles/blog.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "wp-blogger-auto",
+        "folder": "wp-blogger-auto",
+        "sourceFiles": [
+          "wp-blogger-auto/AGENTS.md",
+          "wp-blogger-auto/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 18256,
+        "pendingMarkers": 32,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 98,
@@ -2169,10 +3502,10 @@
       "folder": "elevenst-register",
       "category": "이커머스",
       "catalogVersion": "v1.07",
-      "catalogState": "개발 중(비공개, 서울 지역 직접 연결·연결 시험)",
+      "catalogState": "비공개·v1.07운영/실등록시험완료기록",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 179
+        "line": 182
       },
       "owner": "CC-ECOM-01",
       "stage": "운영·실등록검증완료",
@@ -2180,7 +3513,21 @@
       "next": "관리자잠금화면·시험상품은사용자직접삭제",
       "reportedVersion": "v1.07",
       "evidence": "docs/roles/ecommerce-image.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "elevenst-register",
+        "folder": "elevenst-register",
+        "sourceFiles": [
+          "elevenst-register/AGENTS.md",
+          "elevenst-register/docs/IMPROVEMENTS.md",
+          "elevenst-register/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 10195,
+        "pendingMarkers": 15,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 99,
@@ -2192,7 +3539,7 @@
       "catalogState": "운영(C-3 진행 중)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 180
+        "line": 183
       },
       "owner": "CC-BLOG-01",
       "stage": "운영·진단구현완료 / 실검수대기",
@@ -2200,7 +3547,21 @@
       "next": "맥일반창/작업공간창진단 재시험·신청있는계정·배포묶음",
       "reportedVersion": "v1.21 / v1.22 후보",
       "evidence": "blog-neighbor-care/docs/REQUEST_20261116_MACMINI_B1_FOCUS_RETEST.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "blog-neighbor-care",
+        "folder": "blog-neighbor-care",
+        "sourceFiles": [
+          "blog-neighbor-care/AGENTS.md",
+          "blog-neighbor-care/docs/IMPROVEMENTS.md",
+          "blog-neighbor-care/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 152768,
+        "pendingMarkers": 480,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 100,
@@ -2212,7 +3573,7 @@
       "catalogState": "비공개(실물 초대 1건 성공, 표시 수정 미배포)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 181
+        "line": 184
       },
       "owner": "CC-BLOG-01",
       "stage": "운영·가입계정조건대기",
@@ -2220,7 +3581,20 @@
       "next": "가입카페계정으로운영진제외검수,외부초대재실행안함",
       "reportedVersion": "v1.04",
       "evidence": "docs/roles/blog.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)",
+      "documentReview": {
+        "slug": "naver-cafe-recruit",
+        "folder": "naver-cafe-recruit",
+        "sourceFiles": [
+          "naver-cafe-recruit/AGENTS.md",
+          "naver-cafe-recruit/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 17936,
+        "pendingMarkers": 22,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": 101,
@@ -2228,19 +3602,33 @@
       "slug": "mall-builder",
       "folder": "mall-builder",
       "category": "이커머스",
-      "catalogVersion": "v1.07",
+      "catalogVersion": "v1.16",
       "catalogState": "운영(샘플몰 `aimaster-b2b`, 손님 화면·분양 안내 공개 2026-11-13)",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
-        "line": 182
+        "line": 185
       },
       "owner": "CC-B2B-BACK-01 + CC-B2B-FRONT-01",
-      "stage": "운영v1.16·Lab0103적용/0104도구입력대기",
-      "completed": "교환/결제소스·UI·적용자료검수완료,Lab0103/staff실RPC근거대조",
-      "next": "SupabaseDEV Accept→0104검증20→MasterLab1빌드(Front대비수정포함),실결제는테스트키만",
+      "stage": "운영0100/v1.16·Lab0104/7609748ad 반영완료",
+      "completed": "운영0100 verify9·58mmx0v2e Ready, Lab0104 pre16/post20/7함수지문·Lab빌드1/1완료",
+      "next": "QA037 기존공간29 고객/관리자로그인·반환뒤읽기검수. 운영0101~0104미반영, 실제토스/새fixture 별도지시·옛0102정리SQL사용금지",
       "reportedVersion": "v1.16",
-      "evidence": "37fdcabb4/c8d9e1d31·QA012/014/015·msg_093889c364cc",
-      "evidenceLevel": "소스검수완료·Lab적용실행0마지막확인·빌드未시작"
+      "evidence": "B2B-v116결과85f5e0c4f·d43255f8f·9256b3782·dpl_CFgB5fC5NLdrye4K7esG1tWRktXQ",
+      "evidenceLevel": "기존운영배포/Lab직접검증 근거·정합성확인, 실제고객QA037대기",
+      "documentReview": {
+        "slug": "mall-builder",
+        "folder": "mall-builder",
+        "sourceFiles": [
+          "mall-builder/AGENTS.md",
+          "mall-builder/docs/IMPROVEMENTS.md",
+          "mall-builder/docs/IMPROVEMENT_BACKLOG.md"
+        ],
+        "charactersRead": 18127,
+        "pendingMarkers": 14,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     },
     {
       "sourceId": null,
@@ -2259,7 +3647,20 @@
       "completed": "매뉴얼·썸네일·모바일닫기·오류입력보존·상품수명 반영,Mac375 실제핵심동작확인",
       "next": "실확장업데이트/계정연결/ESM실입력등록은별도범위",
       "evidence": "msg_ec0baa8b9af7/64296f72dc80·677a17038·CLnHgWYex8R8sfppJn9zX15L4uWf",
-      "evidenceLevel": "담당배포보고+Mac실제운영웹지정검수"
+      "evidenceLevel": "담당배포보고+Mac실제운영웹지정검수",
+      "documentReview": {
+        "slug": "esm-register",
+        "folder": "esm-register",
+        "sourceFiles": [
+          "esm-register/AGENTS.md",
+          "esm-register/docs/IMPROVEMENTS.md"
+        ],
+        "charactersRead": 7484,
+        "pendingMarkers": 9,
+        "reviewedAt": "2026-11-17T16:58:50.290Z",
+        "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+        "gap": ""
+      }
     }
   ],
   "tasks": [
@@ -3397,12 +4798,16 @@
       "parent_task_id": "OPS-20261116-002",
       "owner": "CC-MOVIE-01",
       "title": "사용자직접 YVS1단계 기능·v1.30 운영배포",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "sha": "1fe195bdf",
-      "evidence": "youtube-viral-studio/docs/IMPROVEMENTS.md",
-      "next": "i71hni371 Ready·DB1.30·401/307·공통3항목 확인보고 수락. DDL2표/실검색/AI미검수·DES07 UI검토대기",
-      "lastReviewedAt": "2026-11-16T14:14:15.423Z"
+      "evidence": "youtube-viral-studio/docs/IMPROVEMENTS.md / dacd987cc",
+      "next": "배포/DB2표 적용완료수락. 실제검색/AI/계정은개선목록과사람결정함으로분리",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "previousState": {
+        "status": "ready_review",
+        "next": "i71hni371 Ready·DB1.30·401/307·공통3항목 확인보고 수락. DDL2표/실검색/AI미검수·DES07 UI검토대기"
+      }
     },
     {
       "task_id": "ECOM-20261116-09",
@@ -3672,14 +5077,18 @@
       "task_id": "ECOM-20261117-01",
       "parent_task_id": "OPS-20261116-002",
       "owner": "CC-ECOM-01",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "title": "주인님 직접 쇼핑제휴2단계 구현",
       "sha": "2d373c8ad",
-      "evidence": "msg_4692443133a8 / .ai/decisions/DIR-20261117-002.md",
-      "next": "URL/원자성독립검토수락·v1.89운영반영완료, 실제확장설치/네이버수집등록/글생성미검수",
+      "evidence": "msg_4692443133a8 / .ai/decisions/DIR-20261117-002.md / 26e1353c5",
+      "next": "소스/운영v1.89 수락. 실확장수집은별도검수개선항목으로유지",
       "reviewer": "CX-MASTER-01",
-      "lastReviewedAt": "2026-11-16T16:41:48.543594+00:00"
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "previousState": {
+        "status": "ready_review",
+        "next": "URL/원자성독립검토수락·v1.89운영반영완료, 실제확장설치/네이버수집등록/글생성미검수"
+      }
     },
     {
       "task_id": "WS-20261117-01",
@@ -3971,13 +5380,17 @@
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "owner": "CC-B2B-FRONT-01",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "title": "갤러리 로빙키보드·필터선택 및fallback 정합성",
       "sha": "7c8ee3a81 + e4ba29947",
-      "evidence": "msg_0ba0e278dc54 / msg_e77117c6b9ae",
-      "next": "MOV17-05실Lab핵심PASS·fallback후속코드검토수락/미배포묶음·실낭독별도",
-      "lastReviewedAt": "2026-11-16T16:41:48.543594+00:00"
+      "evidence": "msg_0ba0e278dc54 / msg_e77117c6b9ae / c6931bfbe",
+      "next": "코드완료·7609748ad Lab반영, 실고객/낭독은QA037 별도",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "previousState": {
+        "status": "ready_review",
+        "next": "MOV17-05실Lab핵심PASS·fallback후속코드검토수락/미배포묶음·실낭독별도"
+      }
     },
     {
       "task_id": "MUS-20261117-01",
@@ -4128,8 +5541,8 @@
       "status": "waiting_human",
       "delivery": "returned",
       "title": "실제Intel Mac MP4파일내보내기 보조검수",
-      "evidence": "msg_44a7b56f0c81 / msg_0da73bcc8c24",
-      "next": "Intel x86_64·AppleSilicon불가. ego20 handoff에서MP4신뢰클릭/저장위치선택필요, 실제인코딩0·우회없음",
+      "evidence": "msg_44a7b56f0c81 / msg_0da73bcc8c24 / 요청 b9c115b01 REQUEST_20261118_MACMINI_V116_MP4.md·msg_b5ed90b53bf7",
+      "next": "주인님직접MP4요청 회수·Mac기존공간20 제어반환/로그인/신뢰클릭/저장선택후2MP4+2진단, Music지정파일분석·AppleSilicon미검수",
       "lastReviewedAt": "2026-11-16T16:41:48.543594+00:00"
     },
     {
@@ -4212,17 +5625,21 @@
       "title": "Workspace 전면디자인3안·12뷰",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T18:02:49.452Z",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "msg_cc22816cd5b5 / .ai/handoffs/DES-20261117-02-146-WORKSPACE.md / msg_8f8b0a7a4dd5",
-      "next": "146최종명세/8개월전체보조캡처·Workspace전달msg_0df2d31453ba,제품단독구현계획대기·145147보존/추가보완중단",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_cc22816cd5b5 / .ai/handoffs/DES-20261117-02-146-WORKSPACE.md / msg_8f8b0a7a4dd5 / WS13 v1.56 배포·QA019",
+      "next": "146선택·인계·WS13 운영구현완료. 기존145/147자산보존, 3안반복검수종료",
       "reviewFreeze": {
         "state": "released_for_scoped_revision",
         "evidence": "msg_6fd67439debd",
         "scope": "Workspace145/146/147 디자인원본만·타시안보존"
       },
-      "selectedDesign": "146 Professional Studio"
+      "selectedDesign": "146 Professional Studio",
+      "previousState": {
+        "status": "ready_review",
+        "next": "146최종명세/8개월전체보조캡처·Workspace전달msg_0df2d31453ba,제품단독구현계획대기·145147보존/추가보완중단"
+      }
     },
     {
       "task_id": "B2B-20261117-03",
@@ -4231,26 +5648,34 @@
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "title": "교환 접수·단계 UI 구현",
-      "status": "running",
-      "delivery": "returned",
-      "evidence": "msg_f932bc2350bf / msg_50c4cd5924a5",
-      "next": "Lab실환경자동confirmed 3일과7일교환상태충돌로고객UI/guard조건후속보완필요·기존UI P2정적PASS는보존·실흐름최종검수대기",
-      "lastReviewedAt": "2026-11-16T18:35:52.225Z",
-      "sha": "4985bf6ab3574fe915b8af41c26688a47aceefdb"
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_f932bc2350bf / msg_50c4cd5924a5 / B2B17-08/07·c6931bfbe",
+      "next": "교환UI소스/후속정합성완료·0103/0104 Lab반영. 실화면QA037대기",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "sha": "4985bf6ab3574fe915b8af41c26688a47aceefdb",
+      "previousState": {
+        "status": "running",
+        "next": "Lab실환경자동confirmed 3일과7일교환상태충돌로고객UI/guard조건후속보완필요·기존UI P2정적PASS는보존·실흐름최종검수대기"
+      }
     },
     {
       "task_id": "QA-20261117-005",
       "parent_task_id": "DES-20261117-02",
       "owner": "CX-QA-01",
       "title": "Workspace 디자인3안·독립뷰어 시각검수",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "evidence": "msg_39d507d68539 / QA17-005",
+      "evidence": "msg_39d507d68539 / QA17-005 / DES02→WS13→v1.56",
       "completion": "3안12뷰·독립뷰어/비교/확대/키/한글가독성·누락·안별추천근거를반환. 제품동작PASS와구분",
-      "next": "주인님146선택으로기존선택대기종료·과거P2결과보존,146최종기준참조검수/구현인계지원만.145/147추가검사반복없음",
-      "lastReviewedAt": "2026-11-16T17:57:35.931Z"
+      "next": "디자인선택/기준검토 범위마감·제품실동작검수와구분",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "previousState": {
+        "status": "ready_review",
+        "next": "주인님146선택으로기존선택대기종료·과거P2결과보존,146최종기준참조검수/구현인계지원만.145/147추가검사반복없음"
+      }
     },
     {
       "task_id": "WS-20261117-11",
@@ -4274,13 +5699,17 @@
       "parent_task_id": "B2B-20261117-03",
       "owner": "CX-QA-01",
       "title": "교환 UI 서버권한·단계·오류 독립검수",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "sha": "4985bf6ab3574fe915b8af41c26688a47aceefdb",
-      "evidence": "msg_50c4cd5924a5 / QA17-006",
+      "evidence": "msg_50c4cd5924a5 / QA17-006 / QA006·B2B17-07 Lab배포",
       "completion": "서버권한/몰범위/backPath/재고·옵션·미적용오류의 정확성,정적·모의·실화면범위구분",
-      "next": "원UI P2두건독립PASS·모의RLS몰/RPC0·11시험수락. Labfixture/verify별도보완대기·실적용흐름미검수",
-      "lastReviewedAt": "2026-11-16T17:57:35.931Z"
+      "next": "원UI 11모의/소스검토수락·실제Lab고객검수는QA037",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "previousState": {
+        "status": "ready_review",
+        "next": "원UI P2두건독립PASS·모의RLS몰/RPC0·11시험수락. Labfixture/verify별도보완대기·실적용흐름미검수"
+      }
     },
     {
       "task_id": "QA-20261117-007",
@@ -4487,12 +5916,16 @@
       "parent_task_id": "B2B-20261117-03",
       "owner": "CC-B2B-BACK-01",
       "title": "Lab0102 안전fixture·실행패키지 준비",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "sha": "f3d66f561 (cleanup) / rollback b5c3613c5ae8e2ba9acf0705836545eb8a1d4ec437eec9d4ff4bf097246d7e11",
-      "evidence": "msg_cbda79f2579f Mac 최종 정적 경계 PASS / msg_ee34b6e07886 작성자 PG34",
-      "next": "Lab0102합성자료/정리안준비·0103적용기완료,정리미실행. 0104적용뒤기존b5정리금지·별도후속승인자료필요",
-      "lastReviewedAt": "2026-11-17T01:19:30.538Z"
+      "evidence": "msg_cbda79f2579f Mac 최종 정적 경계 PASS / msg_ee34b6e07886 작성자 PG34 / d43255f8f",
+      "next": "0102실행패키지준비 수락. 옛cleanup/rollback은0104뒤재사용금지·새정리실행미승인",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "previousState": {
+        "status": "ready_review",
+        "next": "Lab0102합성자료/정리안준비·0103적용기완료,정리미실행. 0104적용뒤기존b5정리금지·별도후속승인자료필요"
+      }
     },
     {
       "task_id": "B2B-20261117-07",
@@ -4604,12 +6037,16 @@
       "parent_task_id": "B2B-20261117-06",
       "owner": "CC-B2B-BACK-01",
       "title": "자동 구매확정과 교환7일 상태정합성 수정",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "msg_f5e0ae653610 Mac 실제staff RPC 메인실행근거/fixture대조 모순없음·msg_0e2288710621/e6c9183cb",
-      "next": "0103적용/staff실RPC 및증거검토마감. 유저실세션7일/화면은별도미검수. 시험후baseline rejected1행/이력2,기존verify교환0 반복요구0. Backend0104기승인로컬보완진행",
-      "lastReviewedAt": "2026-11-16T19:45:56.208Z",
-      "sha": "0edda8666 / package9e9120183 + verify c8b33554e"
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_f5e0ae653610 Mac 실제staff RPC 메인실행근거/fixture대조 모순없음·msg_0e2288710621/e6c9183cb / B2B17-07 Lab0104·d43255f8f",
+      "next": "0103적용/staff실RPC 검토마감·실유저7일/화면은QA037로분리",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "sha": "0edda8666 / package9e9120183 + verify c8b33554e",
+      "previousState": {
+        "status": "ready_review",
+        "next": "0103적용/staff실RPC 및증거검토마감. 유저실세션7일/화면은별도미검수. 시험후baseline rejected1행/이력2,기존verify교환0 반복요구0. Backend0104기승인로컬보완진행"
+      }
     },
     {
       "task_id": "DES-20261117-03",
@@ -4618,12 +6055,15 @@
       "parent_task_id": "WS-20261117-13",
       "owner": "AG-UI-01",
       "title": "146 실제스타일 소스·명세·접근성 대조 지원",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "cancelled",
+      "delivery": "superseded",
       "evidence": "msg_49953e992d9e Queued/착수미확인",
       "completion": "S0~5실CSS/컴포넌트와146명세대조·근거/수정제안 반환,독립실화면판정과분리·제품수정0",
-      "next": "AGY정착프롬프트수신대기·로그인뒤실렌더비교는후속,새시안/유료/서버변경0",
-      "lastReviewedAt": "2026-11-16T19:00:28.107Z"
+      "next": "WS13/QA019/운영v1.56에동일146검수범위통합·착수미확인옛배정중복종료",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "supersededBy": [
+        "WS-20261117-13"
+      ]
     },
     {
       "task_id": "B2B-20261117-09",
@@ -4941,14 +6381,19 @@
       "task_id": "RE-20261117-07",
       "owner": "CC-REALTY-01",
       "title": "보수적 제외 후보 오프라인 실험",
-      "evidence": "msg_d1cf66c9fa8a / msg_4743f96941e1 경로예약수락·전수라벨237건만 / 7ef7f547c / msg_1622a0c96844",
-      "next": "개발237라벨:잘못제외0/127·무관잔존31/76·독립자료없어운영미반영",
+      "evidence": "msg_d1cf66c9fa8a / msg_4743f96941e1 경로예약수락·전수라벨237건만 / 7ef7f547c / msg_1622a0c96844 / 18b206cbe",
+      "next": "분석산출물 수락·운영필터미반영. 독립검증 대기는개선목록에서관리",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "scopeRef": "고유분석파일/본인문서·운영소스0",
-      "completion": "재현근거/정확범위/미검수반환"
+      "completion": "재현근거/정확범위/미검수반환",
+      "previousState": {
+        "status": "ready_review",
+        "next": "개발237라벨:잘못제외0/127·무관잔존31/76·독립자료없어운영미반영"
+      },
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z"
     },
     {
       "task_id": "QA-20261117-022",
@@ -5188,12 +6633,14 @@
       "owner": "AG-UI-01",
       "reviewer": "CX-MASTER-01",
       "title": "예약카드요일 체크박스 국소UI명세",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "msg_abd485b893fe·터미널화면읽기/전달보류",
-      "next": "실수신수락미확인·제품수정0·146반복검수종료",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": ".ai/results/DES-20261117-04-AG-UI-01.md / msg_cc05e5f53915",
+      "next": "명세수락·저대비주말색미채택 조건으로WS-20261118-01 구현인계, 제품동작완료아님",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분"
+      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분",
+      "sha": "f4063ae82",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z"
     },
     {
       "task_id": "QA-20261117-029",
@@ -5309,7 +6756,7 @@
       "title": "E3+WS23 v1.58 묶음 배포/운영 실검수",
       "status": "waiting_human",
       "delivery": "prepared",
-      "scopeRef": "v1.58버전/programs정확1행·localbuild1/remote1·시험계정합성UI/앱알림·선택적검색1/모델1",
+      "scopeRef": "v1.58버전/programs정확1행·localbuild1/remote1·시험계정합성UI/앱알림·선택적검색1/모델1 + WS18-01 a41a1e31e(최종묶음검증별도)",
       "evidence": "6f166ec8f全560시험/독립PASS·운영v1.57유지",
       "completion": "승인범위배포Ready/운영화면/실테스트·한계분리",
       "blocker": {
@@ -5318,7 +6765,7 @@
         "required": "묶음배포1회/운영합성검수·실검색1/모델1비용범위선택",
         "next": "승인전미배포/실호출0"
       },
-      "next": "구체소스묶음보존·승인후실행순서확정"
+      "next": "v1.58 묶음에요일칩추가·GmailOFF서버/UI동시. 새최종전체검사와빌드승인뒤실행,실AI비용별도"
     },
     {
       "task_id": "QA-20261117-036",
@@ -5411,12 +6858,19 @@
       "reviewer": "CX-MASTER-01",
       "title": "Gmail 운영 SQL 적용·실계정 검증·활성화",
       "status": "waiting_human",
-      "delivery": "prepared",
+      "delivery": "activation_preparation_approved",
       "scopeRef": "0074→0075 운영적용/정의검증·회원본인OAuth동의/metadata·실PostgREST/주소·스위치/배포 승인별도",
-      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad",
+      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d",
       "completion": "승인된범위의운영마이그레이션·실계정/권한/계정경계·활성배포·운영동작 확인",
-      "next": "주인님 Gmail운영적용/실계정/활성/빌드 승인범위 결정 전 실행0",
-      "blockedReason": "공용운영DB변경·새OAuth동의·실외부·추가빌드 승인 필요, 기존v1.57예산소진"
+      "next": "f4a6854e9 체크리스트§11 준비완료·Master실행총괄/Workspace준비/Mac검수/주인님GCP 분리",
+      "blockedReason": "본인GCP설정/동의·시험공개방식·정상/복구실행범위 확정필요",
+      "approval": {
+        "at": "2026-11-17T17:20:27.598Z",
+        "source": "주인님 직접지시 Workspace회신",
+        "quote": "Gmail 켜기 진행할테니 필요한 것 정리해서 보고해",
+        "scope": "활성추진·필요조건/실행계획 준비보고",
+        "execution": "GCP설정완료/공개방식/정상·복구빌드범위 확정전SQL/스위치/실행0"
+      }
     },
     {
       "task_id": "DES-20261118-01",
@@ -5465,6 +6919,188 @@
       "next": "다음 emotion-writer 묶음배포에 포함·운영반영 전까지 미배포 유지",
       "sha": "121317458",
       "masterAcceptanceMessage": "msg_cea05cf6672c"
+    },
+    {
+      "task_id": "WS-20261118-01",
+      "parent_task_id": "DES-20261117-04",
+      "owner": "CC-WORKSPACE-01",
+      "reviewer": "CX-QA-01",
+      "title": "예약요일 칩·busy·키보드 국소UI 보완",
+      "status": "done",
+      "delivery": "accepted_pending_batch_deploy",
+      "sha": "a41a1e31e",
+      "scopeRef": "BookingSettingsCard.tsx·receipts.css rc-day한정·bookingSettingsCardDom.test.ts",
+      "evidence": "a41a1e31e·QA043 msg_97ed2e3647bf",
+      "completion": "지정소스/실TSX가짜RPC/대비PASS수락, 실제브라우저범위미검수",
+      "next": "v1.58묶음포함·375/390·다크/:has포커스실화면은배포후",
+      "lastReviewedAt": "2026-11-17T17:10:02.624Z"
+    },
+    {
+      "task_id": "QA-20261118-043",
+      "parent_task_id": "WS-20261118-01",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "예약요일 칩 지정소스/DOM·실브라우저 단계별검수",
+      "status": "done",
+      "delivery": "integrated",
+      "sha": "a41a1e31e",
+      "evidence": ".ai/results/QA-20261118-043-CX-QA-01.md / msg_97ed2e3647bf",
+      "scopeRef": "정확3파일·기존mock/JSdom·서버/실Google/새창0",
+      "completion": "소스/DOM/계정/busy/대비 지정PASS수락·실375/390/키보드/다크미검수",
+      "next": "실브라우저375/390은v1.58배포후허용된기존시험세션에서·추가dev/build0",
+      "lastReviewedAt": "2026-11-17T17:10:02.624Z"
+    },
+    {
+      "task_id": "FRONT-20261118-01",
+      "owner": "CC-B2B-FRONT-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "143 탭 대비 과거지적 대조",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "55368bd4c / msg_770dd99baae9",
+      "completion": "143 현재24렌더조합 작성자계산기준충족·제품수정0. 예전4.15원인미확정",
+      "next": "신규hover7색미달은제안/독립확인대기로기록·무근거143수정0",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "task_id": "OPS-20261118-01",
+      "owner": "CX-MASTER-01",
+      "title": "전체개발플랜·카테고리·누락개선/인수인계 정합성 대조",
+      "status": "done",
+      "delivery": "integrated",
+      "completion": "103프로그램/19분류/265문서표식·담당8회신·미종료작업대조·카테고리/개선/담당표생성·후속실제배정",
+      "evidence": "portfolioAudit/categoryReviews/improvementBacklog/sessionReviews/planCorrections·담당정합성8건",
+      "next": "미확인68프로그램 현담당근거후속연결·제품전체검증과구분, 신규후속ID별진행",
+      "lastReviewedAt": "2026-11-17T17:10:02.624Z"
+    },
+    {
+      "task_id": "DES-20261118-03",
+      "parent_task_id": "OPS-20261118-01",
+      "reviewer": "CX-MASTER-01",
+      "owner": "AG-UI-01",
+      "title": "주인님 직접 Pexels 사용자선택/가이드 제거",
+      "status": "done",
+      "delivery": "accepted_pending_batch_deploy",
+      "sha": "de49e96e9 + 62189915b",
+      "evidence": "msg_413fe8a0c86a/msg_8af22b26906b·QA044",
+      "completion": "UI제거·구초안pixabay정규화·가이드0·서버/기존키호환보존, 지정QA통과",
+      "next": "DES02와다음emotion-writer묶음·ECOM18-01 소스공유조정·운영1.29미반영",
+      "lastReviewedAt": "2026-11-17T17:10:02.624Z"
+    },
+    {
+      "task_id": "QA-20261118-044",
+      "parent_task_id": "DES-20261118-03",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "Pexels UI/초안/가이드 제거 고정SHA검수",
+      "status": "done",
+      "delivery": "integrated",
+      "sha": "de49e96e9 + 62189915b",
+      "evidence": ".ai/results/QA-20261118-044-CX-QA-01.md / msg_7dffb5b85317",
+      "completion": "실모듈/KeySettings TSX·draft추출·서버호환 지정PASS",
+      "next": "3사AI구현은별도·운영/실키미검수",
+      "lastReviewedAt": "2026-11-17T17:10:02.624Z"
+    },
+    {
+      "task_id": "ECOM-20261118-01",
+      "parent_task_id": "OPS-20261118-01",
+      "reviewer": "CX-MASTER-01",
+      "owner": "CC-ECOM-01",
+      "title": "주인님 직접 글귀AI 3사/상세모델 선택",
+      "status": "ready_review",
+      "delivery": "review_dispatched",
+      "scopeRef": "emotion-writer textModels/textLlm/services/validation/config·copy route·Workspace/KeySettings·안내/시험",
+      "evidence": "msg_e7bcf4cd373d / msg_aa0094c5de64·작성자46/tsc0·QA046진행",
+      "completion": "기존회원기본유지·본인제공자키·서버모델검증·재시도0·mock경계·타사키폴백0",
+      "next": "QA046 refusal/abort수정 재검수·실모델지원/실3호출/배포는별도승인·공용사본검사등록완료",
+      "lastReviewedAt": "2026-11-17T17:20:27.598Z",
+      "sha": "3a4ad1cad + 59cb81d8e"
+    },
+    {
+      "task_id": "B2B-20261118-01",
+      "parent_task_id": "OPS-20261118-01",
+      "reviewer": "CX-MASTER-01",
+      "owner": "CC-B2B-BACK-01",
+      "title": "운영0101~0104 사전 실행표",
+      "status": "done",
+      "delivery": "integrated",
+      "sha": "dabbc23ce",
+      "evidence": "mall-builder/docs/handoff-0101-0104-prod/README.md / msg_6b6fd1c6b68c",
+      "completion": "순서/기준/잠금/중단/원복제약·Lab차이·승인/선행조건 문서범위수락,실SQL실행0",
+      "next": "B2B18-02 정확실행파일준비·운영적용은미승인",
+      "lastReviewedAt": "2026-11-17T17:10:02.624Z"
+    },
+    {
+      "task_id": "B2B-20261118-02",
+      "parent_task_id": "OPS-20261118-01",
+      "reviewer": "CX-MASTER-01",
+      "owner": "CC-B2B-BACK-01",
+      "title": "운영전용 precheck/apply/verify 준비",
+      "status": "ready_review",
+      "delivery": "review_dispatched",
+      "scopeRef": "mall-builder/docs/handoff-0101-0104-prod/ 15파일·실행없는초안",
+      "evidence": "msg_e8ef88589861·로컬격리19/19 작성자·운영/Lab0",
+      "completion": "0100기준·0102+0103원자순서·운영precheck동적기대/전체중단조건/해시·격리또는정적검증범위명시",
+      "next": "QA047 정적독립검수·운영/Lab조회/적용/실토스0",
+      "lastReviewedAt": "2026-11-17T17:20:27.598Z",
+      "sha": "d9751c70b"
+    },
+    {
+      "task_id": "FRONT-20261118-02",
+      "parent_task_id": "OPS-20261118-01",
+      "reviewer": "CX-QA-01",
+      "owner": "CC-B2B-FRONT-01",
+      "title": "navCls hover 미달7색 국소보완",
+      "status": "done",
+      "delivery": "accepted_pending_batch_deploy",
+      "sha": "77c50f27c",
+      "evidence": "msg_6fa364ec7963·FRONT-20261118-02결과 / msg_7fbcf9fcf31a",
+      "scopeRef": "mall-builder theme.ts/globals.css·theme/dark-header기존시험4파일",
+      "completion": "hover7색4.5이상·평상시24/비대상17/관리자/단추불변·소스와Lab구분",
+      "next": "QA045 지정함수/CSS소스수락·미배포. compiled CSS/실시각은작성자증거와Mac미검수구분",
+      "lastReviewedAt": "2026-11-17T17:20:27.598Z"
+    },
+    {
+      "task_id": "QA-20261118-045",
+      "parent_task_id": "FRONT-20261118-02",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "nav hover7색/소비자범위 독립검수",
+      "status": "done",
+      "delivery": "integrated",
+      "sha": "77c50f27c",
+      "evidence": ".ai/results/QA-20261118-045-CX-QA-01.md / msg_7fbcf9fcf31a",
+      "completion": "실theme/계산·scope·미수정색/평상시/단추회귀·실시각미검수분리",
+      "next": "다음몰기능묶음·실compile/브라우저Mac미검수·새설치0",
+      "lastReviewedAt": "2026-11-17T17:20:27.598Z"
+    },
+    {
+      "task_id": "QA-20261118-046",
+      "parent_task_id": "ECOM-20261118-01",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "감성글귀3사AI/키/오류/취소 독립검수",
+      "status": "running",
+      "delivery": "acknowledged",
+      "sha": "3a4ad1cad + 59cb81d8e",
+      "evidence": "msg_042d1cd0e122/msg_94615447df37/msg_333de99bc8f8",
+      "completion": "실모듈/fakefetch/route·본인제공자키·refusal/abort·UI/keys 지정범위반환",
+      "next": "P2/P3수정후재검수·운영1.29미반영·실モデル지원/요금未검증",
+      "lastReviewedAt": "2026-11-17T17:20:27.598Z"
+    },
+    {
+      "task_id": "QA-20261118-047",
+      "parent_task_id": "B2B-20261118-02",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "운영0101~0104 실행준비파일 정적검수",
+      "status": "ready",
+      "delivery": "queued",
+      "sha": "d9751c70b",
+      "evidence": "msg_8e42009ce423",
+      "completion": "원문/해시/적용차단/자료불변/단계원자성/verify·권한/기록검토,실운영PASS와분리",
+      "next": "Mac고정SHA 정적검수·실DB/새PG/빌드실행0",
+      "lastReviewedAt": "2026-11-17T17:20:27.598Z"
     }
   ]
 }

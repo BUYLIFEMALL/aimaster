@@ -30,6 +30,10 @@ for(const p of programs) if(!overrides.has(p.slug)) Object.assign(p,{owner:'기�
 const esm=overrides.get('esm-register');
 if(esm&&!programs.some(p=>p.slug===esm.slug)) programs.push({sourceId:null,name:'G마켓·옥션 등록기',slug:esm.slug,folder:esm.slug,
   category:'이커머스 (현재 비공개)',catalogVersion:null,catalogState:'비교표 미등재 신규',source:{path:esm.evidence},...esm});
+// Audit metadata describes document coverage, never runtime health or completion.
+for (const p of programs) {
+  p.documentReview = state.programDocumentReviews?.find(x => x.slug === p.slug) ?? null;
+}
 if(new Set(programs.map(p=>p.slug)).size!==programs.length) throw Error('Duplicate portfolio slug');
 const missing = [...overrides.keys()].filter(k=>!programs.some(p=>p.slug===k));
 if(missing.length) console.warn('Overrides not in summary (review slug): '+missing.join(', '));
@@ -60,6 +64,24 @@ table(['순서','담당','진행 단계','다음 작업·통과 기준'],state.c
 ['7 · 공통 운영','Master','메인 실행·맥 독립검수 v1.6','직접 지시와 Master 배정 취합·단일 담당/경로·타인 미커밋 보존·중복 실행 방지'],
 ['키트','Support · 주인님 전담','주인님이 Lab 설치·배포 직접 진행','Master 타업무 배정 제외. 기존 6회 예산을 다른 배포에 전용하지 않음'],
 ['공통','Master','편집 범위·공식 완료 통제','매 편집 직전 점유/status/diff→예약→재조회. 범위 추가는 Master 승인, 작업자는 ready_review로 제출']]),'',
+'## 카테고리별 현재 단계와 남은 작업', '',
+'카테고리 이름은 비교표의 분류이며 운영 DB 분류를 새로 조회하거나 변경한 결과가 아니다. 담당 확인 전 프로그램을 임의로 맡기거나 개발 완료로 처리하지 않는다.', '',
+table(['카테고리','프로그램 수 / 담당 근거 확보','현재 단계·확인 수준','남은 작업·재개 조건','조정 책임'],(state.categoryReviews??[]).map(c=>[
+  c.category,
+  `${programs.filter(p=>p.category===c.category).length} / ${programs.filter(p=>p.category===c.category&&overrides.has(p.slug)).length}`,
+  c.stage,c.next,c.coordinator
+])), '',
+'## 수집된 개선사항·후속 작업', '',
+'완료된 구현, 미배포 수정, 실검수 대기, 제안을 구분한다. 각 항목의 담당·선행조건·완료 조건을 확인한 뒤 실행하며 이 표 자체는 새 비용·배포·운영 변경 승인이 아니다.', '',
+table(['ID / 분류','대상·담당','현재 상태·근거','다음 단계·선행조건','완료 조건'],(state.improvementBacklog??[]).map(i=>[
+  `${i.id} / ${i.kind}`,`${i.target} · ${i.owner}`,`${i.status} · ${i.evidence}`,i.next,i.acceptance
+])), '',
+'## 담당별 현재 상태·인수인계', '',
+'전송·수락·완료와 작성자 문서 대조·독립 검수·운영 확인을 구분한다. 연결만 된 세션을 작업 중으로 간주하지 않는다.', '',
+table(['담당','현재 작업·점유','완료/대기·다음 행동','확인 근거'],(state.sessionReviews??[]).map(s=>[s.owner,s.state,s.next,s.evidence])), '',
+'## 이번 대조에서 정정한 상태와 남은 불일치', '',
+table(['항목','정정·판정','근거'],(state.planCorrections??[]).map(c=>[c.target,c.decision,c.evidence])), '',
+'문서 범위 확인: '+md(state.portfolioAudit?.scope??'미기록')+' 전체 프로그램 운영 검증이나 전체 기능 코드 검토를 뜻하지 않는다.', '',
 '## 운영 순서', '',
 '1. 담당 보고를 실제 SHA·현재 파일·기배포 근거와 대조한다. 잘못 보고된 전역 HEAD와 실제 작업 커밋을 구분한다.',
 '2. 기본 기술 판단은 Master가 승인하고, 담당 한 명·정확 경로·완료조건으로 배정한다. 다른 역할 파일을 임의로 수정하지 않는다.',

@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T16:31:22.671Z",
-  "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
+  "checkedAt": "2026-11-17T17:20:27.598Z",
+  "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
       "task_id": "MUS-20261116-01",
@@ -1137,12 +1137,16 @@
       "parent_task_id": "OPS-20261116-002",
       "owner": "CC-MOVIE-01",
       "title": "사용자직접 YVS1단계 기능·v1.30 운영배포",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "sha": "1fe195bdf",
-      "evidence": "youtube-viral-studio/docs/IMPROVEMENTS.md",
-      "next": "i71hni371 Ready·DB1.30·401/307·공통3항목 확인보고 수락. DDL2표/실검색/AI미검수·DES07 UI검토대기",
-      "lastReviewedAt": "2026-11-16T14:14:15.423Z"
+      "evidence": "youtube-viral-studio/docs/IMPROVEMENTS.md / dacd987cc",
+      "next": "배포/DB2표 적용완료수락. 실제검색/AI/계정은개선목록과사람결정함으로분리",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "previousState": {
+        "status": "ready_review",
+        "next": "i71hni371 Ready·DB1.30·401/307·공통3항목 확인보고 수락. DDL2표/실검색/AI미검수·DES07 UI검토대기"
+      }
     },
     {
       "task_id": "ECOM-20261116-09",
@@ -1412,14 +1416,18 @@
       "task_id": "ECOM-20261117-01",
       "parent_task_id": "OPS-20261116-002",
       "owner": "CC-ECOM-01",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "title": "주인님 직접 쇼핑제휴2단계 구현",
       "sha": "2d373c8ad",
-      "evidence": "msg_4692443133a8 / .ai/decisions/DIR-20261117-002.md",
-      "next": "URL/원자성독립검토수락·v1.89운영반영완료, 실제확장설치/네이버수집등록/글생성미검수",
+      "evidence": "msg_4692443133a8 / .ai/decisions/DIR-20261117-002.md / 26e1353c5",
+      "next": "소스/운영v1.89 수락. 실확장수집은별도검수개선항목으로유지",
       "reviewer": "CX-MASTER-01",
-      "lastReviewedAt": "2026-11-16T16:41:48.543594+00:00"
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "previousState": {
+        "status": "ready_review",
+        "next": "URL/원자성독립검토수락·v1.89운영반영완료, 실제확장설치/네이버수집등록/글생성미검수"
+      }
     },
     {
       "task_id": "WS-20261117-01",
@@ -1711,13 +1719,17 @@
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "owner": "CC-B2B-FRONT-01",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "title": "갤러리 로빙키보드·필터선택 및fallback 정합성",
       "sha": "7c8ee3a81 + e4ba29947",
-      "evidence": "msg_0ba0e278dc54 / msg_e77117c6b9ae",
-      "next": "MOV17-05실Lab핵심PASS·fallback후속코드검토수락/미배포묶음·실낭독별도",
-      "lastReviewedAt": "2026-11-16T16:41:48.543594+00:00"
+      "evidence": "msg_0ba0e278dc54 / msg_e77117c6b9ae / c6931bfbe",
+      "next": "코드완료·7609748ad Lab반영, 실고객/낭독은QA037 별도",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "previousState": {
+        "status": "ready_review",
+        "next": "MOV17-05실Lab핵심PASS·fallback후속코드검토수락/미배포묶음·실낭독별도"
+      }
     },
     {
       "task_id": "MUS-20261117-01",
@@ -1868,8 +1880,8 @@
       "status": "waiting_human",
       "delivery": "returned",
       "title": "실제Intel Mac MP4파일내보내기 보조검수",
-      "evidence": "msg_44a7b56f0c81 / msg_0da73bcc8c24",
-      "next": "Intel x86_64·AppleSilicon불가. ego20 handoff에서MP4신뢰클릭/저장위치선택필요, 실제인코딩0·우회없음",
+      "evidence": "msg_44a7b56f0c81 / msg_0da73bcc8c24 / 요청 b9c115b01 REQUEST_20261118_MACMINI_V116_MP4.md·msg_b5ed90b53bf7",
+      "next": "주인님직접MP4요청 회수·Mac기존공간20 제어반환/로그인/신뢰클릭/저장선택후2MP4+2진단, Music지정파일분석·AppleSilicon미검수",
       "lastReviewedAt": "2026-11-16T16:41:48.543594+00:00"
     },
     {
@@ -1952,17 +1964,21 @@
       "title": "Workspace 전면디자인3안·12뷰",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T18:02:49.452Z",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "msg_cc22816cd5b5 / .ai/handoffs/DES-20261117-02-146-WORKSPACE.md / msg_8f8b0a7a4dd5",
-      "next": "146최종명세/8개월전체보조캡처·Workspace전달msg_0df2d31453ba,제품단독구현계획대기·145147보존/추가보완중단",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_cc22816cd5b5 / .ai/handoffs/DES-20261117-02-146-WORKSPACE.md / msg_8f8b0a7a4dd5 / WS13 v1.56 배포·QA019",
+      "next": "146선택·인계·WS13 운영구현완료. 기존145/147자산보존, 3안반복검수종료",
       "reviewFreeze": {
         "state": "released_for_scoped_revision",
         "evidence": "msg_6fd67439debd",
         "scope": "Workspace145/146/147 디자인원본만·타시안보존"
       },
-      "selectedDesign": "146 Professional Studio"
+      "selectedDesign": "146 Professional Studio",
+      "previousState": {
+        "status": "ready_review",
+        "next": "146최종명세/8개월전체보조캡처·Workspace전달msg_0df2d31453ba,제품단독구현계획대기·145147보존/추가보완중단"
+      }
     },
     {
       "task_id": "B2B-20261117-03",
@@ -1971,26 +1987,34 @@
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "title": "교환 접수·단계 UI 구현",
-      "status": "running",
-      "delivery": "returned",
-      "evidence": "msg_f932bc2350bf / msg_50c4cd5924a5",
-      "next": "Lab실환경자동confirmed 3일과7일교환상태충돌로고객UI/guard조건후속보완필요·기존UI P2정적PASS는보존·실흐름최종검수대기",
-      "lastReviewedAt": "2026-11-16T18:35:52.225Z",
-      "sha": "4985bf6ab3574fe915b8af41c26688a47aceefdb"
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_f932bc2350bf / msg_50c4cd5924a5 / B2B17-08/07·c6931bfbe",
+      "next": "교환UI소스/후속정합성완료·0103/0104 Lab반영. 실화면QA037대기",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "sha": "4985bf6ab3574fe915b8af41c26688a47aceefdb",
+      "previousState": {
+        "status": "running",
+        "next": "Lab실환경자동confirmed 3일과7일교환상태충돌로고객UI/guard조건후속보완필요·기존UI P2정적PASS는보존·실흐름최종검수대기"
+      }
     },
     {
       "task_id": "QA-20261117-005",
       "parent_task_id": "DES-20261117-02",
       "owner": "CX-QA-01",
       "title": "Workspace 디자인3안·독립뷰어 시각검수",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "evidence": "msg_39d507d68539 / QA17-005",
+      "evidence": "msg_39d507d68539 / QA17-005 / DES02→WS13→v1.56",
       "completion": "3안12뷰·독립뷰어/비교/확대/키/한글가독성·누락·안별추천근거를반환. 제품동작PASS와구분",
-      "next": "주인님146선택으로기존선택대기종료·과거P2결과보존,146최종기준참조검수/구현인계지원만.145/147추가검사반복없음",
-      "lastReviewedAt": "2026-11-16T17:57:35.931Z"
+      "next": "디자인선택/기준검토 범위마감·제품실동작검수와구분",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "previousState": {
+        "status": "ready_review",
+        "next": "주인님146선택으로기존선택대기종료·과거P2결과보존,146최종기준참조검수/구현인계지원만.145/147추가검사반복없음"
+      }
     },
     {
       "task_id": "WS-20261117-11",
@@ -2014,13 +2038,17 @@
       "parent_task_id": "B2B-20261117-03",
       "owner": "CX-QA-01",
       "title": "교환 UI 서버권한·단계·오류 독립검수",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "sha": "4985bf6ab3574fe915b8af41c26688a47aceefdb",
-      "evidence": "msg_50c4cd5924a5 / QA17-006",
+      "evidence": "msg_50c4cd5924a5 / QA17-006 / QA006·B2B17-07 Lab배포",
       "completion": "서버권한/몰범위/backPath/재고·옵션·미적용오류의 정확성,정적·모의·실화면범위구분",
-      "next": "원UI P2두건독립PASS·모의RLS몰/RPC0·11시험수락. Labfixture/verify별도보완대기·실적용흐름미검수",
-      "lastReviewedAt": "2026-11-16T17:57:35.931Z"
+      "next": "원UI 11모의/소스검토수락·실제Lab고객검수는QA037",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "previousState": {
+        "status": "ready_review",
+        "next": "원UI P2두건독립PASS·모의RLS몰/RPC0·11시험수락. Labfixture/verify별도보완대기·실적용흐름미검수"
+      }
     },
     {
       "task_id": "QA-20261117-007",
@@ -2227,12 +2255,16 @@
       "parent_task_id": "B2B-20261117-03",
       "owner": "CC-B2B-BACK-01",
       "title": "Lab0102 안전fixture·실행패키지 준비",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "sha": "f3d66f561 (cleanup) / rollback b5c3613c5ae8e2ba9acf0705836545eb8a1d4ec437eec9d4ff4bf097246d7e11",
-      "evidence": "msg_cbda79f2579f Mac 최종 정적 경계 PASS / msg_ee34b6e07886 작성자 PG34",
-      "next": "Lab0102합성자료/정리안준비·0103적용기완료,정리미실행. 0104적용뒤기존b5정리금지·별도후속승인자료필요",
-      "lastReviewedAt": "2026-11-17T01:19:30.538Z"
+      "evidence": "msg_cbda79f2579f Mac 최종 정적 경계 PASS / msg_ee34b6e07886 작성자 PG34 / d43255f8f",
+      "next": "0102실행패키지준비 수락. 옛cleanup/rollback은0104뒤재사용금지·새정리실행미승인",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "previousState": {
+        "status": "ready_review",
+        "next": "Lab0102합성자료/정리안준비·0103적용기완료,정리미실행. 0104적용뒤기존b5정리금지·별도후속승인자료필요"
+      }
     },
     {
       "task_id": "B2B-20261117-07",
@@ -2344,12 +2376,16 @@
       "parent_task_id": "B2B-20261117-06",
       "owner": "CC-B2B-BACK-01",
       "title": "자동 구매확정과 교환7일 상태정합성 수정",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "msg_f5e0ae653610 Mac 실제staff RPC 메인실행근거/fixture대조 모순없음·msg_0e2288710621/e6c9183cb",
-      "next": "0103적용/staff실RPC 및증거검토마감. 유저실세션7일/화면은별도미검수. 시험후baseline rejected1행/이력2,기존verify교환0 반복요구0. Backend0104기승인로컬보완진행",
-      "lastReviewedAt": "2026-11-16T19:45:56.208Z",
-      "sha": "0edda8666 / package9e9120183 + verify c8b33554e"
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_f5e0ae653610 Mac 실제staff RPC 메인실행근거/fixture대조 모순없음·msg_0e2288710621/e6c9183cb / B2B17-07 Lab0104·d43255f8f",
+      "next": "0103적용/staff실RPC 검토마감·실유저7일/화면은QA037로분리",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "sha": "0edda8666 / package9e9120183 + verify c8b33554e",
+      "previousState": {
+        "status": "ready_review",
+        "next": "0103적용/staff실RPC 및증거검토마감. 유저실세션7일/화면은별도미검수. 시험후baseline rejected1행/이력2,기존verify교환0 반복요구0. Backend0104기승인로컬보완진행"
+      }
     },
     {
       "task_id": "DES-20261117-03",
@@ -2358,12 +2394,15 @@
       "parent_task_id": "WS-20261117-13",
       "owner": "AG-UI-01",
       "title": "146 실제스타일 소스·명세·접근성 대조 지원",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "cancelled",
+      "delivery": "superseded",
       "evidence": "msg_49953e992d9e Queued/착수미확인",
       "completion": "S0~5실CSS/컴포넌트와146명세대조·근거/수정제안 반환,독립실화면판정과분리·제품수정0",
-      "next": "AGY정착프롬프트수신대기·로그인뒤실렌더비교는후속,새시안/유료/서버변경0",
-      "lastReviewedAt": "2026-11-16T19:00:28.107Z"
+      "next": "WS13/QA019/운영v1.56에동일146검수범위통합·착수미확인옛배정중복종료",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z",
+      "supersededBy": [
+        "WS-20261117-13"
+      ]
     },
     {
       "task_id": "B2B-20261117-09",
@@ -2681,14 +2720,19 @@
       "task_id": "RE-20261117-07",
       "owner": "CC-REALTY-01",
       "title": "보수적 제외 후보 오프라인 실험",
-      "evidence": "msg_d1cf66c9fa8a / msg_4743f96941e1 경로예약수락·전수라벨237건만 / 7ef7f547c / msg_1622a0c96844",
-      "next": "개발237라벨:잘못제외0/127·무관잔존31/76·독립자료없어운영미반영",
+      "evidence": "msg_d1cf66c9fa8a / msg_4743f96941e1 경로예약수락·전수라벨237건만 / 7ef7f547c / msg_1622a0c96844 / 18b206cbe",
+      "next": "분석산출물 수락·운영필터미반영. 독립검증 대기는개선목록에서관리",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "scopeRef": "고유분석파일/본인문서·운영소스0",
-      "completion": "재현근거/정확범위/미검수반환"
+      "completion": "재현근거/정확범위/미검수반환",
+      "previousState": {
+        "status": "ready_review",
+        "next": "개발237라벨:잘못제외0/127·무관잔존31/76·독립자료없어운영미반영"
+      },
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z"
     },
     {
       "task_id": "QA-20261117-022",
@@ -2928,12 +2972,14 @@
       "owner": "AG-UI-01",
       "reviewer": "CX-MASTER-01",
       "title": "예약카드요일 체크박스 국소UI명세",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "msg_abd485b893fe·터미널화면읽기/전달보류",
-      "next": "실수신수락미확인·제품수정0·146반복검수종료",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": ".ai/results/DES-20261117-04-AG-UI-01.md / msg_cc05e5f53915",
+      "next": "명세수락·저대비주말색미채택 조건으로WS-20261118-01 구현인계, 제품동작완료아님",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분"
+      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분",
+      "sha": "f4063ae82",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z"
     },
     {
       "task_id": "QA-20261117-029",
@@ -3049,7 +3095,7 @@
       "title": "E3+WS23 v1.58 묶음 배포/운영 실검수",
       "status": "waiting_human",
       "delivery": "prepared",
-      "scopeRef": "v1.58버전/programs정확1행·localbuild1/remote1·시험계정합성UI/앱알림·선택적검색1/모델1",
+      "scopeRef": "v1.58버전/programs정확1행·localbuild1/remote1·시험계정합성UI/앱알림·선택적검색1/모델1 + WS18-01 a41a1e31e(최종묶음검증별도)",
       "evidence": "6f166ec8f全560시험/독립PASS·운영v1.57유지",
       "completion": "승인범위배포Ready/운영화면/실테스트·한계분리",
       "blocker": {
@@ -3058,7 +3104,7 @@
         "required": "묶음배포1회/운영합성검수·실검색1/모델1비용범위선택",
         "next": "승인전미배포/실호출0"
       },
-      "next": "구체소스묶음보존·승인후실행순서확정"
+      "next": "v1.58 묶음에요일칩추가·GmailOFF서버/UI동시. 새최종전체검사와빌드승인뒤실행,실AI비용별도"
     },
     {
       "task_id": "QA-20261117-036",
@@ -3151,12 +3197,19 @@
       "reviewer": "CX-MASTER-01",
       "title": "Gmail 운영 SQL 적용·실계정 검증·활성화",
       "status": "waiting_human",
-      "delivery": "prepared",
+      "delivery": "activation_preparation_approved",
       "scopeRef": "0074→0075 운영적용/정의검증·회원본인OAuth동의/metadata·실PostgREST/주소·스위치/배포 승인별도",
-      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad",
+      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d",
       "completion": "승인된범위의운영마이그레이션·실계정/권한/계정경계·활성배포·운영동작 확인",
-      "next": "주인님 Gmail운영적용/실계정/활성/빌드 승인범위 결정 전 실행0",
-      "blockedReason": "공용운영DB변경·새OAuth동의·실외부·추가빌드 승인 필요, 기존v1.57예산소진"
+      "next": "f4a6854e9 체크리스트§11 준비완료·Master실행총괄/Workspace준비/Mac검수/주인님GCP 분리",
+      "blockedReason": "본인GCP설정/동의·시험공개방식·정상/복구실행범위 확정필요",
+      "approval": {
+        "at": "2026-11-17T17:20:27.598Z",
+        "source": "주인님 직접지시 Workspace회신",
+        "quote": "Gmail 켜기 진행할테니 필요한 것 정리해서 보고해",
+        "scope": "활성추진·필요조건/실행계획 준비보고",
+        "execution": "GCP설정완료/공개방식/정상·복구빌드범위 확정전SQL/스위치/실행0"
+      }
     },
     {
       "task_id": "DES-20261118-01",
@@ -3205,6 +3258,188 @@
       "next": "다음 emotion-writer 묶음배포에 포함·운영반영 전까지 미배포 유지",
       "sha": "121317458",
       "masterAcceptanceMessage": "msg_cea05cf6672c"
+    },
+    {
+      "task_id": "WS-20261118-01",
+      "parent_task_id": "DES-20261117-04",
+      "owner": "CC-WORKSPACE-01",
+      "reviewer": "CX-QA-01",
+      "title": "예약요일 칩·busy·키보드 국소UI 보완",
+      "status": "done",
+      "delivery": "accepted_pending_batch_deploy",
+      "sha": "a41a1e31e",
+      "scopeRef": "BookingSettingsCard.tsx·receipts.css rc-day한정·bookingSettingsCardDom.test.ts",
+      "evidence": "a41a1e31e·QA043 msg_97ed2e3647bf",
+      "completion": "지정소스/실TSX가짜RPC/대비PASS수락, 실제브라우저범위미검수",
+      "next": "v1.58묶음포함·375/390·다크/:has포커스실화면은배포후",
+      "lastReviewedAt": "2026-11-17T17:10:02.624Z"
+    },
+    {
+      "task_id": "QA-20261118-043",
+      "parent_task_id": "WS-20261118-01",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "예약요일 칩 지정소스/DOM·실브라우저 단계별검수",
+      "status": "done",
+      "delivery": "integrated",
+      "sha": "a41a1e31e",
+      "evidence": ".ai/results/QA-20261118-043-CX-QA-01.md / msg_97ed2e3647bf",
+      "scopeRef": "정확3파일·기존mock/JSdom·서버/실Google/새창0",
+      "completion": "소스/DOM/계정/busy/대비 지정PASS수락·실375/390/키보드/다크미검수",
+      "next": "실브라우저375/390은v1.58배포후허용된기존시험세션에서·추가dev/build0",
+      "lastReviewedAt": "2026-11-17T17:10:02.624Z"
+    },
+    {
+      "task_id": "FRONT-20261118-01",
+      "owner": "CC-B2B-FRONT-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "143 탭 대비 과거지적 대조",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "55368bd4c / msg_770dd99baae9",
+      "completion": "143 현재24렌더조합 작성자계산기준충족·제품수정0. 예전4.15원인미확정",
+      "next": "신규hover7색미달은제안/독립확인대기로기록·무근거143수정0",
+      "lastReviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "task_id": "OPS-20261118-01",
+      "owner": "CX-MASTER-01",
+      "title": "전체개발플랜·카테고리·누락개선/인수인계 정합성 대조",
+      "status": "done",
+      "delivery": "integrated",
+      "completion": "103프로그램/19분류/265문서표식·담당8회신·미종료작업대조·카테고리/개선/담당표생성·후속실제배정",
+      "evidence": "portfolioAudit/categoryReviews/improvementBacklog/sessionReviews/planCorrections·담당정합성8건",
+      "next": "미확인68프로그램 현담당근거후속연결·제품전체검증과구분, 신규후속ID별진행",
+      "lastReviewedAt": "2026-11-17T17:10:02.624Z"
+    },
+    {
+      "task_id": "DES-20261118-03",
+      "parent_task_id": "OPS-20261118-01",
+      "reviewer": "CX-MASTER-01",
+      "owner": "AG-UI-01",
+      "title": "주인님 직접 Pexels 사용자선택/가이드 제거",
+      "status": "done",
+      "delivery": "accepted_pending_batch_deploy",
+      "sha": "de49e96e9 + 62189915b",
+      "evidence": "msg_413fe8a0c86a/msg_8af22b26906b·QA044",
+      "completion": "UI제거·구초안pixabay정규화·가이드0·서버/기존키호환보존, 지정QA통과",
+      "next": "DES02와다음emotion-writer묶음·ECOM18-01 소스공유조정·운영1.29미반영",
+      "lastReviewedAt": "2026-11-17T17:10:02.624Z"
+    },
+    {
+      "task_id": "QA-20261118-044",
+      "parent_task_id": "DES-20261118-03",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "Pexels UI/초안/가이드 제거 고정SHA검수",
+      "status": "done",
+      "delivery": "integrated",
+      "sha": "de49e96e9 + 62189915b",
+      "evidence": ".ai/results/QA-20261118-044-CX-QA-01.md / msg_7dffb5b85317",
+      "completion": "실모듈/KeySettings TSX·draft추출·서버호환 지정PASS",
+      "next": "3사AI구현은별도·운영/실키미검수",
+      "lastReviewedAt": "2026-11-17T17:10:02.624Z"
+    },
+    {
+      "task_id": "ECOM-20261118-01",
+      "parent_task_id": "OPS-20261118-01",
+      "reviewer": "CX-MASTER-01",
+      "owner": "CC-ECOM-01",
+      "title": "주인님 직접 글귀AI 3사/상세모델 선택",
+      "status": "ready_review",
+      "delivery": "review_dispatched",
+      "scopeRef": "emotion-writer textModels/textLlm/services/validation/config·copy route·Workspace/KeySettings·안내/시험",
+      "evidence": "msg_e7bcf4cd373d / msg_aa0094c5de64·작성자46/tsc0·QA046진행",
+      "completion": "기존회원기본유지·본인제공자키·서버모델검증·재시도0·mock경계·타사키폴백0",
+      "next": "QA046 refusal/abort수정 재검수·실모델지원/실3호출/배포는별도승인·공용사본검사등록완료",
+      "lastReviewedAt": "2026-11-17T17:20:27.598Z",
+      "sha": "3a4ad1cad + 59cb81d8e"
+    },
+    {
+      "task_id": "B2B-20261118-01",
+      "parent_task_id": "OPS-20261118-01",
+      "reviewer": "CX-MASTER-01",
+      "owner": "CC-B2B-BACK-01",
+      "title": "운영0101~0104 사전 실행표",
+      "status": "done",
+      "delivery": "integrated",
+      "sha": "dabbc23ce",
+      "evidence": "mall-builder/docs/handoff-0101-0104-prod/README.md / msg_6b6fd1c6b68c",
+      "completion": "순서/기준/잠금/중단/원복제약·Lab차이·승인/선행조건 문서범위수락,실SQL실행0",
+      "next": "B2B18-02 정확실행파일준비·운영적용은미승인",
+      "lastReviewedAt": "2026-11-17T17:10:02.624Z"
+    },
+    {
+      "task_id": "B2B-20261118-02",
+      "parent_task_id": "OPS-20261118-01",
+      "reviewer": "CX-MASTER-01",
+      "owner": "CC-B2B-BACK-01",
+      "title": "운영전용 precheck/apply/verify 준비",
+      "status": "ready_review",
+      "delivery": "review_dispatched",
+      "scopeRef": "mall-builder/docs/handoff-0101-0104-prod/ 15파일·실행없는초안",
+      "evidence": "msg_e8ef88589861·로컬격리19/19 작성자·운영/Lab0",
+      "completion": "0100기준·0102+0103원자순서·운영precheck동적기대/전체중단조건/해시·격리또는정적검증범위명시",
+      "next": "QA047 정적독립검수·운영/Lab조회/적용/실토스0",
+      "lastReviewedAt": "2026-11-17T17:20:27.598Z",
+      "sha": "d9751c70b"
+    },
+    {
+      "task_id": "FRONT-20261118-02",
+      "parent_task_id": "OPS-20261118-01",
+      "reviewer": "CX-QA-01",
+      "owner": "CC-B2B-FRONT-01",
+      "title": "navCls hover 미달7색 국소보완",
+      "status": "done",
+      "delivery": "accepted_pending_batch_deploy",
+      "sha": "77c50f27c",
+      "evidence": "msg_6fa364ec7963·FRONT-20261118-02결과 / msg_7fbcf9fcf31a",
+      "scopeRef": "mall-builder theme.ts/globals.css·theme/dark-header기존시험4파일",
+      "completion": "hover7색4.5이상·평상시24/비대상17/관리자/단추불변·소스와Lab구분",
+      "next": "QA045 지정함수/CSS소스수락·미배포. compiled CSS/실시각은작성자증거와Mac미검수구분",
+      "lastReviewedAt": "2026-11-17T17:20:27.598Z"
+    },
+    {
+      "task_id": "QA-20261118-045",
+      "parent_task_id": "FRONT-20261118-02",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "nav hover7색/소비자범위 독립검수",
+      "status": "done",
+      "delivery": "integrated",
+      "sha": "77c50f27c",
+      "evidence": ".ai/results/QA-20261118-045-CX-QA-01.md / msg_7fbcf9fcf31a",
+      "completion": "실theme/계산·scope·미수정색/평상시/단추회귀·실시각미검수분리",
+      "next": "다음몰기능묶음·실compile/브라우저Mac미검수·새설치0",
+      "lastReviewedAt": "2026-11-17T17:20:27.598Z"
+    },
+    {
+      "task_id": "QA-20261118-046",
+      "parent_task_id": "ECOM-20261118-01",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "감성글귀3사AI/키/오류/취소 독립검수",
+      "status": "running",
+      "delivery": "acknowledged",
+      "sha": "3a4ad1cad + 59cb81d8e",
+      "evidence": "msg_042d1cd0e122/msg_94615447df37/msg_333de99bc8f8",
+      "completion": "실모듈/fakefetch/route·본인제공자키·refusal/abort·UI/keys 지정범위반환",
+      "next": "P2/P3수정후재검수·운영1.29미반영·실モデル지원/요금未검증",
+      "lastReviewedAt": "2026-11-17T17:20:27.598Z"
+    },
+    {
+      "task_id": "QA-20261118-047",
+      "parent_task_id": "B2B-20261118-02",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "운영0101~0104 실행준비파일 정적검수",
+      "status": "ready",
+      "delivery": "queued",
+      "sha": "d9751c70b",
+      "evidence": "msg_8e42009ce423",
+      "completion": "원문/해시/적용차단/자료불변/단계원자성/verify·권한/기록검토,실운영PASS와분리",
+      "next": "Mac고정SHA 정적검수·실DB/새PG/빌드실행0",
+      "lastReviewedAt": "2026-11-17T17:20:27.598Z"
     }
   ],
   "programOverrides": [
@@ -3222,11 +3457,11 @@
       "slug": "music-automation",
       "owner": "CC-MUSIC-01",
       "reportedVersion": "v1.58",
-      "stage": "운영·범위내 완료",
-      "completed": "음악 메뉴1개 선택 수정·Ready·검증보고",
-      "next": "명시 잔여 없음; 새 배정 전 임의수정 없음",
-      "evidence": "msg_24165d93de71",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "stage": "운영v1.58·기존메뉴수정 반영완료",
+      "completed": "db08afdd6가배포기준f78967bad 조상·music-b8m2pihnu/메뉴1개확인기록",
+      "next": "옛미배포메뉴수정 재구현/재배포0·새배정전점유확인",
+      "evidence": "a8333ca84·a5a96ab42·music/AGENTS.md v1.58",
+      "evidenceLevel": "담당git/기존실화면기록대조"
     },
     {
       "slug": "playlist-channel-studio",
@@ -3242,11 +3477,11 @@
       "slug": "lyric-video-studio",
       "owner": "CC-MUSIC-01",
       "reportedVersion": "v1.16",
-      "stage": "주인님 직접승인 운영Ready",
-      "completed": "d65c40617·38f1zi7y1 Ready·DB1.16·운영4흐름 담당검수",
-      "next": "실저장창/맥실하드웨어/30분곡 등 기존한계 유지·재배포없음",
-      "evidence": ".ai/results/MUS-20261116-06-CC-MUSIC-01.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "stage": "운영v1.16·국소수정2건 소스완료/미배포",
+      "completed": "취소안내fe402b1df MOV17-05 PASS·인코더2b9a06c9c QA032소스PASS",
+      "next": "두건 다음음악기능배포묶음·Mac MP4신뢰클릭/저장선택은QA002 별도",
+      "evidence": "a8333ca84·MOV17-07B·QA032·docs/roles/music.md",
+      "evidenceLevel": "기존독립소스검수·담당문서대조, 실하드웨어/파일저장대기"
     },
     {
       "slug": "ai-music-studio",
@@ -3301,22 +3536,22 @@
     {
       "slug": "auto-shorts-posting",
       "owner": "CC-MOVIE-01",
-      "reportedVersion": "v1.50 (역할기록)",
-      "stage": "운영·공통사본후속",
-      "completed": "실물·정리 완료 기록",
-      "next": "미배포 공용인코더/지역 항목만담당대조",
-      "evidence": "docs/roles/video.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "reportedVersion": "v1.51",
+      "stage": "운영v1.51 기록·공용인코더 미배포",
+      "completed": "11-14배포기록/현version 대조 dacd987cc",
+      "next": "2b9a06c9c 다음기능묶음·실유료영상별도지시",
+      "evidence": "docs/roles/video.md·dacd987cc",
+      "evidenceLevel": "담당커밋/기존배포기록대조·이번운영재시험0"
     },
     {
       "slug": "ai-video-studio",
       "owner": "CC-MOVIE-01",
-      "reportedVersion": null,
-      "stage": "운영·조건부 유료시험",
-      "completed": "Vidu/상품장면 코드·배포 완료 기록",
-      "next": "사용자 나중에 지시 유지·유료호출 재실행안함",
-      "evidence": "docs/roles/video.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "reportedVersion": "v1.36",
+      "stage": "운영버전 담당기록·유료생성 조건대기",
+      "completed": "version/기존배포기록대조",
+      "next": "주인님 후속지시 전 실유료생성0",
+      "evidence": "docs/roles/video.md·dacd987cc",
+      "evidenceLevel": "담당문서/코드대조·실유료생성미검수"
     },
     {
       "slug": "shop-detail-page",
@@ -3391,42 +3626,42 @@
     {
       "slug": "ai-work-workspace",
       "owner": "CC-WORKSPACE-01",
-      "reportedVersion": "v1.55",
-      "stage": "운영 v1.55 유지·후속33소스/계정수정검수·146 로컬화면확인중",
-      "completed": "146 S0~5·영수증/캘린더상태 소스PASS·desktop/375iframe 담당실화면확인",
-      "next": "en/Alt·대표캡처독립시각대조·전체타입미검수분리·미배포묶음",
-      "evidence": "6bd9df604·8ce818bf7·QA013/017/018·Master지속session56053",
-      "evidenceLevel": "독립소스/모의검수+담당로컬desktop/iframe실화면·운영未배포"
+      "reportedVersion": "v1.57",
+      "stage": "예약링크 운영활성·146/E1/E2반영, E3/Gmail OFF/WS23 미배포",
+      "completed": "v1.56 146운영·v1.57 예약실검증 및 QA정리, E3독립소스PASS·Gmail QA041까지지정PASS",
+      "next": "v1.58 E3+WS23+GmailOFF 묶음 승인대기, Gmail활성SQL/실OAuth 별도. WS18-01 요일칩a41a1e31e QA043진행·미배포",
+      "evidence": "WS22 ce23306cc/c41a5b613·WS24 6f166ec8f·WS25 a3cc19d77·정합성f6e6b1da3",
+      "evidenceLevel": "기존운영증거·지정독립검수·담당문서대조, 이번운영재시험0"
     },
     {
       "slug": "ai-task-planner",
       "owner": "CC-WORKSPACE-01",
-      "reportedVersion": null,
-      "stage": "운영·현황재확인",
-      "completed": "Workspace범위 유지",
-      "next": "별도잔여확정전새구현배정안함",
-      "evidence": "docs/roles/workspace.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "reportedVersion": "v1.14",
+      "stage": "운영배포기록·받은할일 분류/일괄추가 구현",
+      "completed": "457855225 받은할일3개 실제분류추가·배지소진 담당기록",
+      "next": "새개발배정없음·Workspace와중복구현0",
+      "evidence": "docs/roles/workspace.md 최근완료2026-11-15",
+      "evidenceLevel": "기존작성자 운영기록·이번실동작검증0"
     },
     {
       "slug": "mall-builder",
       "owner": "CC-B2B-BACK-01 + CC-B2B-FRONT-01",
       "reportedVersion": "v1.16",
-      "stage": "운영v1.16·Lab0103적용/0104도구입력대기",
-      "completed": "교환/결제소스·UI·적용자료검수완료,Lab0103/staff실RPC근거대조",
-      "next": "SupabaseDEV Accept→0104검증20→MasterLab1빌드(Front대비수정포함),실결제는테스트키만",
-      "evidence": "37fdcabb4/c8d9e1d31·QA012/014/015·msg_093889c364cc",
-      "evidenceLevel": "소스검수완료·Lab적용실행0마지막확인·빌드未시작"
+      "stage": "운영0100/v1.16·Lab0104/7609748ad 반영완료",
+      "completed": "운영0100 verify9·58mmx0v2e Ready, Lab0104 pre16/post20/7함수지문·Lab빌드1/1완료",
+      "next": "QA037 기존공간29 고객/관리자로그인·반환뒤읽기검수. 운영0101~0104미반영, 실제토스/새fixture 별도지시·옛0102정리SQL사용금지",
+      "evidence": "B2B-v116결과85f5e0c4f·d43255f8f·9256b3782·dpl_CFgB5fC5NLdrye4K7esG1tWRktXQ",
+      "evidenceLevel": "기존운영배포/Lab직접검증 근거·정합성확인, 실제고객QA037대기"
     },
     {
       "slug": "real-estate-sales",
       "owner": "CC-REALTY-01",
       "reportedVersion": "v1.61",
-      "stage": "운영 Ready 보고 / 다음 뉴스 회차 대조",
-      "completed": "사용자 직접 승인·bl0k0qu46 Ready·17+3시험·타입0 보고",
-      "next": "실행기 기록 확인 뒤08:00뉴스 지역별 대조, 자동감시 약속 없음",
-      "evidence": ".ai/results/RE-20261116-04-CC-REALTY-01.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "stage": "운영v1.61·뉴스기존회차대조완료",
+      "completed": "08시옛대기 해소·11-17기존측정완료, 후보C는개발분석결과만",
+      "next": "뉴스후보C 독립기간표본 확보후Master별도배정·새수집/기존개발표본반복0",
+      "evidence": "18b206cbe·RE17-06/07·docs/roles/realty.md",
+      "evidenceLevel": "기존회차/담당문서대조·후보독립검증미완"
     },
     {
       "slug": "realty-listing-alert",
@@ -3434,8 +3669,8 @@
       "reportedVersion": "v1.46",
       "stage": "운영v1.46·화면/guide/ZIP 독립읽기PASS",
       "completed": "6kxzrn0il Ready·DB/ext1.46·120/type0·메인확장재로드보고·격리코드독립PASS",
-      "next": "실Mac설치/첫회차격리·수집알림은미검수,새빌드/수집없이원래회차후읽기만별도",
-      "evidence": ".ai/results/RE-20261116-04-CC-REALTY-01.md",
+      "next": "기존서버기록10:37 110건/18:16 811건ok 담당읽기·Mac실확장저장소/첫회차격리 미검수, 새수집0",
+      "evidence": "18b206cbe·RE-20261116-04·QA17-003",
       "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
     },
     {
@@ -3444,8 +3679,8 @@
       "reportedVersion": "v1.34",
       "stage": "운영·재측정조건대기",
       "completed": "층호출조절 배포완료",
-      "next": "local로그아웃3a1d7fbb4 코드완료·미배포, 다음기능배포에묶음. UA/위젯잔여는별도",
-      "evidence": "docs/roles/realty.md",
+      "next": "로그아웃3a1d7fbb4·기기정보7f97c00e6 다음기능묶음, 층진단복구실패는마감·재측정자동반복0",
+      "evidence": "18b206cbe·docs/roles/realty.md",
       "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
     },
     {
@@ -3454,8 +3689,8 @@
       "reportedVersion": "v1.10",
       "stage": "운영·기능실물완료기록",
       "completed": "1~4단계·계산기/문자실물기록",
-      "next": "local로그아웃3a1d7fbb4 코드완료·미배포, 다음기능배포에묶음. UA/위젯잔여는별도",
-      "evidence": "docs/roles/realty.md",
+      "next": "로그아웃3a1d7fbb4·기기정보/위젯7f97c00e6 미배포3변경 다음기능묶음",
+      "evidence": "18b206cbe·docs/roles/realty.md",
       "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
     },
     {
@@ -3500,39 +3735,69 @@
     },
     {
       "slug": "website-scraper",
-      "owner": "기존담당 확인",
+      "owner": "CC-BLOG-01 (문서·요청 조정)",
       "reportedVersion": "v1.15",
       "stage": "병합·비활성·백업비공개",
       "completed": "WS10 DB v1.15/is_activefalse/backup비공개·옛API410 코드",
-      "next": "실라이브/T12담당정의미확인,운영재조회반복없음",
-      "evidence": "c5bb52b99 / 3c7c41aa2",
+      "next": "T12 문서/요청조정Blog 배정완료·라이브화면확인은담당미정, 재활성화/운영변경0",
+      "evidence": "WS10 c5bb52b99·c3a7d77b7·2f15cafc9",
       "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
     },
     {
       "slug": "youtube-viral-studio",
       "owner": "CC-MOVIE-01",
       "reportedVersion": "v1.30",
-      "stage": "운영v1.30·사용량/캐시 운영표 적용보고",
-      "completed": "주인님직접SQL실행·2표/RLS/함수/cleanupcron 읽기확인보고",
-      "next": "시험계정로그인뒤실검색·AI기획안1회는비용승인필요",
-      "evidence": "msg_e628ffaffa86·요청1c7b6dda완료",
-      "evidenceLevel": "담당직접실행/운영읽기보고·실검색/AI미검수"
+      "stage": "운영v1.30·1단계실검색/AI기획안 담당운영검수완료",
+      "completed": "주인님직접실검색+Claude Haiku기획안1회·cache67/68재사용·본문표시확인, 캡처미확보·약$0.03추정",
+      "next": "1단계실검색/AI옛대기마감·반복유료호출0·추가기능은별도배정",
+      "evidence": "a3f39764b+00a2c9efa·msg_c7054cb52f4a/msg_991cc04652fd",
+      "evidenceLevel": "담당운영실검수/읽기보고·Master독립재실행/실청구확정아님"
     },
     {
       "slug": "emotion-writer",
       "owner": "AG-UI-01",
       "reportedVersion": "v1.29",
-      "stage": "운영v1.29 READY·접근성2건 소스독립PASS/미배포",
-      "completed": "메뉴/공식키발급링크 QA042 소스·실TSX모의PASS, storage widget 정적1곳",
-      "next": "121317458 다음묶음·실375/위젯/브라우저키입력 미검수",
+      "stage": "운영1.29·접근성/Pexels제거 미배포·3사AI구현중",
+      "completed": "메뉴/공식키발급링크 QA042 소스·실TSX모의PASS, storage widget 정적1곳·QA044 UI/초안/가이드제거지정PASS",
+      "next": "121317458+de49e96e9+62189915b 보존·ECOM18-01 mock구현/독립검수→v1.30묶음은별도승인",
       "evidence": "45c208bc6 / dpl_D9ExEsYD9sH9zAxZy38dkU2UUMUz / QA042",
       "evidenceLevel": "Vercel READY/metadata 독립확인·DBv1.29 담당보고·실화면 미검수"
+    },
+    {
+      "slug": "threads-affiliate-poster",
+      "owner": "CC-ECOM-01",
+      "reportedVersion": "v1.89",
+      "stage": "네이버수집/원자등록 수정 운영·실확장검수대기",
+      "completed": "URL/protocol/경합수정·WS17-01~04 및지정QA근거, qkncpet55배포 담당기록",
+      "next": "Mac공간19 설치1.89·네이버로그인·본인링크로수집/대기열만, 실제등록/글AI 별도범위",
+      "evidence": "ECOM17-01·26e1353c5·msg_c6e462ca244b·WS17-04 9acc8b5c8",
+      "evidenceLevel": "작성자운영배포기록+지정소스/격리검수, 실제확장미검수"
+    },
+    {
+      "slug": "smartstore-register",
+      "owner": "CC-ECOM-01",
+      "reportedVersion": "v1.28",
+      "stage": "운영배포기록·발행표시 수정반영",
+      "completed": "6a17c6123 markPosted v1.28 mxv57n8mv 포함",
+      "next": "같은변경 재배포0·실제마켓쓰기 별도지시",
+      "evidence": "26e1353c5·docs/PENDING_DEPLOYS.md 내보낸기록",
+      "evidenceLevel": "담당기존배포기록대조·이번실쓰기0"
+    },
+    {
+      "slug": "web-crawler-saas",
+      "owner": "CC-BLOG-01 (문서·요청 조정)",
+      "reportedVersion": null,
+      "stage": "T05 robots/DNS·T07 폴러 소스독립PASS/미배포",
+      "completed": "T05 fc48ebcba+8172d8084/DNS보완·T07 40662e6ae+1a54bdd06, QA023/029 지정PASS",
+      "next": "다음web-crawler묶음·화면/실HTTP는후속, T12조정담당Blog·제품권한확대0",
+      "evidence": "2f15cafc9·c3a7d77b7·BLOG17-08/09·QA023/029",
+      "evidenceLevel": "담당문서/지정소스검수·실운영미검수"
     }
   ],
   "rules": {
-    "version": "1.6",
-    "policy": "주인님직접지시취합·단일책임/파일범위·메인실행/맥Tester독립검수·소규모묶음배포",
-    "distribution": "실제 전달기록 기준. QA003/004 결과반환·AGY DES17-02 결과반환, 새규칙전원읽음으로추정하지않음",
+    "version": "2.0",
+    "policy": "전체/카테고리/담당·인수인계 대조→근거판정→단일책임 후속전달·소규모묶음배포",
+    "distribution": "10담당v2.0공지 전송·보고회수된담당만수락표기",
     "commit": "b2fcb27e6"
   },
   "commandBoard": [
@@ -3545,20 +3810,20 @@
     {
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
-      "stage": "v1.57운영·E3/Gmail OFF소스준비/지정독립검수 완료·미배포",
-      "next": "WS26 E3포함일반묶음배포와WS27 Gmail운영활성 승인분리, 소스동결"
+      "stage": "v1.57운영·E3/GmailOFF/WS23/요일칩 소스수락·미배포",
+      "next": "v1.58미배포·Gmail활성추진준비승인/본인GCP설정대기, 공개/실행범위확정뒤Master단일실행"
     },
     {
       "order": "3 · B2B",
       "owner": "Backend + Master + Mac Tester",
       "stage": "Lab0104 적용·검증PASS, Lab 신규배포 Ready·빌드1/1완료",
-      "next": "Mac 현재공간29 주인님제어·반환신호없음 msg_5e5b219f6d11, Lab로그인/반환뒤기존고객/직원읽기검수"
+      "next": "운영준비d9751c70b→QA047정적검수·QA037/실토스/운영승인해소전실행0"
     },
     {
       "order": "4 · B2BFront",
       "owner": "B2BFront + Mac Tester",
       "stage": "FRONT03/04 소스독립PASS·7609748ad B2B Lab신규배포에포함",
-      "next": "운영몰미배포와구분·QA037로그인/제어반환대기, Front본인기록정정요청"
+      "next": "77c50f27c QA045소스수락/미배포·QA037고객실화면별도"
     },
     {
       "order": "5 · 블로그",
@@ -3569,8 +3834,8 @@
     {
       "order": "6 · 영상",
       "owner": "Movie",
-      "stage": "떡상v1.30·사용량/캐시2표운영적용보고",
-      "next": "MOV07공용encoder2b9a06c9c 소스독립PASS/미배포·YVS실검색로그인별도"
+      "stage": "YVS1단계 실검색/AI1회 담당운영검수완료",
+      "next": "동일검색/AI재호출0·공용encoder다음묶음·추가기능별도"
     },
     {
       "order": "7 · 음악",
@@ -3587,8 +3852,8 @@
     {
       "order": "9 · 디자인",
       "owner": "AGY",
-      "stage": "emotion-writer v1.29운영·DES02 국소독립PASS/미배포",
-      "next": "121317458 다음묶음 포함·실브라우저/375/위젯은미검수·추가배포0"
+      "stage": "감성접근성/Pexels·요일명세완료·각제품미배포",
+      "next": "감성3사AI는Ecom단일구현·AGY같은파일중복0·146자산보존"
     },
     {
       "order": "전담 · 키트",
@@ -3609,11 +3874,6 @@
       "recommendation": "운영/회원실키 폴백 없이 테스트키로만,현재실결제0"
     },
     {
-      "condition": "영상 실호출 단계",
-      "action": "시험회원 로그인·AI 기획안 1회 비용 승인",
-      "recommendation": "운영표2개는이미적용,실검색/AI검수만분리"
-    },
-    {
       "condition": "음악 실기기/저장 단계",
       "action": "Mac MP4 만들기 신뢰클릭·저장위치 선택/AppleSilicon장비 필요시",
       "recommendation": "기존소스검수를실하드웨어PASS로대체하지않음"
@@ -3630,8 +3890,13 @@
     },
     {
       "condition": "Gmail 운영 활성화",
-      "action": "0074/0075 공용운영SQL·회원본인OAuth 동의/실검증·활성배포 승인범위 결정",
-      "recommendation": "일반묶음은GmailOFF로먼저, Gmail활성은후속별도.0074만적용시메인카탈로그노출되므로분리적용금지"
+      "action": "활성추진지시수신·본인GCP Gmail API/metadata/시험사용자/redirect 설정완료신호",
+      "recommendation": "f4a6854e9§11, Master공개/실행범위확정→운영단일실행. 동일GCP앱scope혼합시거절유지·복구추가빌드별도"
+    },
+    {
+      "condition": "감성글귀3사AI 실호출/배포",
+      "action": "소스/독립검수뒤회원본인3사가성비각1회(최대3)와v1.30묶음1빌드 승인여부",
+      "recommendation": "현재는mock구현만승인·실키/모델/배포0, Pexels제거와접근성한묶음"
     }
   ],
   "redispatch": {
@@ -3646,7 +3911,7 @@
     "tester": "msg_6701f7855675 QA029→030",
     "support": "주인님전담·재배정제외"
   },
-  "qaQueue": "QA023 DNS수정→QA022 hover수정→QA024 예약·순차검수",
+  "qaQueue": "QA043 예약요일칩 소스/DOM·대비→실화면은v1.58뒤; QA037 B2B·ESM/제휴·음악은주인님제어반환대기. 과거QA022~029재검사0",
   "monitoring": {
     "policyVersion": "2.0",
     "activeTurnIntervalMinutes": 5,
@@ -3658,22 +3923,25 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T16:31:22.671Z",
+      "at": "2026-11-17T17:20:27.598Z",
       "timezone": "Asia/Seoul",
-      "trigger": "v2.0 적용 후01:30 예약 현재Master수신",
-      "scope": "담당보고/요청·전체/카테고리작업표·로컬12세션 연결/출력·HANDOFF/결과 증분·제품점유·예약실행",
+      "trigger": "전체플랜지시·02:00예약·신규직접지시/검수/완료이벤트",
+      "scope": "103/19분류/265문서표식·8담당정합성보고·QA043/044·점유모순·新직접지시·단일후속배정",
       "evidence": [
-        "msg_691d0042d301 최신본문 현재터미널수신·Windows결과0",
-        "미등록인수인계 신규변경0·제품3경로미커밋0",
-        "AGY수락 msg_ab3adf596d54·DES02점유0/미배포",
-        "카테고리작업판/잔여작업 대조·로컬터미널12 연결(연결≠착수)"
+        "msg_18fc7a1648e4 현재Master수신/예약결과0",
+        "8담당정정커밋·103문서메타·categoryReviews/개선21건",
+        "QA043/044고정SHA수락·Front77c50f27c→QA045",
+        "Workspace점유정정5f9e66d7f·Ecom/Backend/Front경로분리",
+        "QA045수락·QA046반례59cb수정/재검수발송·QA047 d9751c70b 전달",
+        "YVS1단계실AI보고00a2c9efa·Gmail준비f4a6854e9·ACTIVE_WORK정정5f9e66d7f/5d7f049b6"
       ],
+      "judgment": "기배포대기정정·코드완료와실검수/승인분리. 소스후속/운영준비배정실전달·불필요재배포0.",
       "unverified": [
-        "각담당 전체 실행내부/원격Mac 브라우저제어반환 최신신호없음",
-        "주인님 직접지시 미보고분은 추가발견없음·부재단정안함"
+        "68프로그램은현담당실회신근거미확보(폐지/완료아님)",
+        "detail-page-12p개별문서미발견",
+        "전체운영/실키/QA037로그인/実375미검수"
       ],
-      "judgment": "지침v2.0 설정·전송·수신 검증. DES02완료/다음묶음 유지. B2B/ESM/Music사람단계·Workspace신규승인 차단유지, 변화없는중복시험/배정0.",
-      "nextAction": "새보고/제어반환시즉시후속, 다음02:00현재터미널점검"
+      "nextAction": "후속ID별QA046/047결과판정·GCP준비완료신호·기존사람단계회수, 원래전체플랜정비완료와제품미완료구분"
     },
     "notifications": [
       {
@@ -3741,7 +4009,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-17T17:00:00.000Z",
+      "nextScheduledAt": "2026-11-17T17:30:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -3759,8 +4027,9 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-17T16:30:00.000Z",
-        "messageId": "msg_691d0042d301",
+        "scheduledAt": "2026-11-17T17:00:00.000Z",
+        "attemptedAt": "2026-11-17T17:00:03.1835667Z",
+        "messageId": "msg_18fc7a1648e4",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false
@@ -3845,5 +4114,1989 @@
       "msg_b7c35e7ce83c"
     ],
     "policyNotificationStatus": "10담당 전송완료·수락은별도확인"
+  },
+  "planCorrections": [
+    {
+      "target": "Workspace",
+      "decision": "v1.55/146구현중 표기→운영v1.57·E3/WS23/GmailOFF 미배포로정정",
+      "evidence": "f6e6b1da3·WS22/24/25"
+    },
+    {
+      "target": "B2B",
+      "decision": "0104입력/빌드대기→Lab적용/빌드1/1완료·운영v1.16/0100와분리, QA037로그인대기",
+      "evidence": "d43255f8f·c6931bfbe·85f5e0c4f"
+    },
+    {
+      "target": "소규모기배포",
+      "decision": "바나나M1/상세WebP/11번가markPosted/스마트스토어markPosted·music메뉴는배포됨. 옛미배포 재실행종료",
+      "evidence": "26e1353c5·a8333ca84·a5a96ab42"
+    },
+    {
+      "target": "영상",
+      "decision": "shots1.50→1.51·AI영상1.36·YVS초기이식87ebcae7d는v1.30반영됨",
+      "evidence": "dacd987cc"
+    },
+    {
+      "target": "쇼핑제휴",
+      "decision": "전체목록누락이아니라#45의v1.88/담당미확정이오류→v1.89 CC-ECOM-01",
+      "evidence": "26e1353c5·ECOM17-01"
+    },
+    {
+      "target": "데이터수집 T12",
+      "decision": "미배정→Blog문서/요청조정배정완료. 라이브조회/제품권한은별개",
+      "evidence": "c3a7d77b7·2f15cafc9"
+    },
+    {
+      "target": "부동산",
+      "decision": "08시대조/카카오사람단계옛대기종료·층진단복구실패마감, 후보C독립평가미완으로분리",
+      "evidence": "18b206cbe·RE17-06/07"
+    },
+    {
+      "target": "143 탭",
+      "decision": "4.15지적은현재재현안됨·추측수정0. 신규7색hover미달은작성자발견·독립확인전",
+      "evidence": "55368bd4c"
+    },
+    {
+      "target": "프로그램문서 공백",
+      "decision": "detail-page-12p AGENTS/IMPROVEMENTS 미발견. 프로그램폐지/완료로추정하지않음",
+      "evidence": "이번103폴더/문서존재대조"
+    },
+    {
+      "target": "실행중직접지시 회수",
+      "decision": "YVS로그인/검색대기해소·Pexels제거수락·감성3사AI/Fronthover/Backend운영준비 후속단일배정",
+      "evidence": "a3f39764b·de49e96e9/62189915b·후속dispatch5건"
+    },
+    {
+      "target": "파일점유 불일치",
+      "decision": "Workspace옛E3-2진행행 본인삭제확인·Backend옛v1.06행 본인현재docs범위정정요청. Support/타세션옛행은보존/미확인",
+      "evidence": "5f9e66d7f·msg_8e68bba959ef"
+    },
+    {
+      "target": "최신직접지시 추가회수",
+      "decision": "YVS실AI1회까지완료·Gmail활성추진은준비/GCP설정단계로진전·음악MP4요청QA002연결",
+      "evidence": "00a2c9efa·f4a6854e9·b9c115b01"
+    }
+  ],
+  "improvementBacklog": [
+    {
+      "id": "IMP-WS-01",
+      "kind": "미배포수정",
+      "target": "예약초회DDL경합",
+      "owner": "CC-WORKSPACE-01",
+      "status": "소스독립PASS",
+      "evidence": "d7895f6d4·QA028",
+      "next": "v1.58묶음승인뒤포함",
+      "acceptance": "기존최상위거래조건유지·운영릴리스확인"
+    },
+    {
+      "id": "IMP-WS-02",
+      "kind": "미배포기능",
+      "target": "E3 결재/출처/재시도",
+      "owner": "CC-WORKSPACE-01",
+      "status": "통합560·지정QA완료",
+      "evidence": "e668caf32·6f166ec8f·QA030/033/034/035",
+      "next": "v1.58 승인→배포/합성UI·실AI비용은분리",
+      "acceptance": "결재자규칙/앱알림·수동외부검색/출처저장요청·owner예외고지"
+    },
+    {
+      "id": "IMP-WS-03",
+      "kind": "운영활성승인",
+      "target": "Gmail OFF 소스",
+      "owner": "CC-WORKSPACE-01",
+      "status": "지정QA041까지완료·OFF",
+      "evidence": "3c820f2b6+8069f60df·체크리스트a44c792ad·f4a6854e9",
+      "next": "활성추진준비지시수신→GCP설정확인/공개/실행범위확정·SQL/켜기는현재0",
+      "acceptance": "동일묶음서버/UI·metadata만·기대계정·동의/실응답확인"
+    },
+    {
+      "id": "IMP-WS-04",
+      "kind": "구현/검수",
+      "target": "예약요일 칩",
+      "owner": "CC-WORKSPACE-01",
+      "status": "QA043 소스/DOM/대비PASS·미배포",
+      "evidence": "DES04 f4063ae82·QA043·msg_97ed2e3647bf",
+      "next": "v1.58묶음뒤375/390/다크/포커스실시각",
+      "acceptance": "7칩44x36·busy차단·키보드포커스·타칸불변"
+    },
+    {
+      "id": "IMP-WS-05",
+      "kind": "꺼진기능",
+      "target": "손님포털",
+      "owner": "CC-WORKSPACE-01",
+      "status": "소스/QA009 완료·OFF",
+      "evidence": "a09825904·b2715fcd6",
+      "next": "활성요청시표추가승인/권한재검토,현재켜지않음",
+      "acceptance": "권한철회/만료/토큰교체·금지속성미노출"
+    },
+    {
+      "id": "IMP-DES-01",
+      "kind": "미배포수정",
+      "target": "emotion-writer 접근성",
+      "owner": "AG-UI-01",
+      "status": "국소QA042 PASS",
+      "evidence": "121317458",
+      "next": "다음감성글귀기능묶음·단독빌드0",
+      "acceptance": "Tab/토글이름·hover대비·실375/위젯은후속"
+    },
+    {
+      "id": "IMP-ECOM-01",
+      "kind": "실검수",
+      "target": "ESM 입력만",
+      "owner": "CC-ECOM-01 / CX-QA-01",
+      "status": "운영1.02·웹QA016완료",
+      "evidence": "4d31d626e·QA016",
+      "next": "주인님공간19 로그인/확장1.02/제어반환",
+      "acceptance": "시험상품82deeddc 입력1회·임시저장/등록0"
+    },
+    {
+      "id": "IMP-ECOM-02",
+      "kind": "실검수",
+      "target": "Threads 네이버수집",
+      "owner": "CC-ECOM-01 / CX-QA-01",
+      "status": "운영1.89·격리소스검수완료",
+      "evidence": "ECOM17-01·WS17-04",
+      "next": "공간19본인로그인·확장1.89·실브랜드커넥트링크",
+      "acceptance": "수집/대기열만·등록/AI생성0"
+    },
+    {
+      "id": "IMP-B2B-01",
+      "kind": "실검수",
+      "target": "Lab 교환비 고객/직원화면",
+      "owner": "CX-QA-01",
+      "status": "QA037 waiting_human",
+      "evidence": "Lab0104/7609748ad·공간29",
+      "next": "주인님naver로그인/반환→고객검수→gmail관리자",
+      "acceptance": "권한/교환상태/375읽기·실결제/상태변경0"
+    },
+    {
+      "id": "IMP-B2B-02",
+      "kind": "운영반영승인",
+      "target": "0101~0104/Front묶음",
+      "owner": "CC-B2B-BACK-01",
+      "status": "Lab만반영·운영미반영",
+      "evidence": "d43255f8f·c6931bfbe",
+      "next": "B2B18-02 운영전용정확SQL준비→독립정적검수, QA037/실토스/운영승인해소전실행0",
+      "acceptance": "운영0100기준보존·옛0102 rollback사용0"
+    },
+    {
+      "id": "IMP-FRONT-01",
+      "kind": "신규발견/미확인",
+      "target": "navCls hover7색",
+      "owner": "CC-B2B-FRONT-01",
+      "status": "77c50f27c QA045소스PASS·미배포",
+      "evidence": "77c50f27c·QA045 msg_b36218feed71",
+      "next": "운영/Lab반영은다음묶음·실시각범위별도",
+      "acceptance": "미달색4.5이상·비대상theme회귀·143추측수정0"
+    },
+    {
+      "id": "IMP-FRONT-02",
+      "kind": "제안/미착수",
+      "target": "갤러리누름크기·원래가격·S70",
+      "owner": "CC-B2B-FRONT-01",
+      "status": "제안단계",
+      "evidence": "c6931bfbe",
+      "next": "우선순위/실근거·S70결제흐름범위확정후배정",
+      "acceptance": "각변경완료조건 별도정의·기존승인으로임의확대0"
+    },
+    {
+      "id": "IMP-BLOG-01",
+      "kind": "미배포수정",
+      "target": "이웃1.22·티스토리1.98",
+      "owner": "CC-BLOG-01",
+      "status": "소스완료·실조건대기",
+      "evidence": "3bb238398/e35947191/a27861137",
+      "next": "다음묶음승인·이웃B1사람/계정·Tistory기존미리보기",
+      "acceptance": "소제목기호수정·진단근거·실발행0"
+    },
+    {
+      "id": "IMP-BLOG-02",
+      "kind": "미배포수정",
+      "target": "web-crawler T05/T07",
+      "owner": "CC-BLOG-01",
+      "status": "QA023/029소스PASS",
+      "evidence": "8172d8084/fc48ebcba/40662e6ae/1a54bdd06",
+      "next": "다음기능묶음→화면확인",
+      "acceptance": "robots/DNSabort·권한거절폴링정지·중복요청0"
+    },
+    {
+      "id": "IMP-MEDIA-01",
+      "kind": "미배포공용수정",
+      "target": "MP4인코더4사본",
+      "owner": "CC-MOVIE-01 (공용) / CC-MUSIC-01 (소비자)",
+      "status": "QA032소스PASS",
+      "evidence": "2b9a06c9c",
+      "next": "각프로그램다음기능묶음·하나의공용소유자만수정",
+      "acceptance": "대체성공뒤기본방식·실하드웨어별도·4사본동일"
+    },
+    {
+      "id": "IMP-MUSIC-01",
+      "kind": "미배포수정",
+      "target": "가사영상취소안내",
+      "owner": "CC-MUSIC-01",
+      "status": "MOV17-05소스PASS",
+      "evidence": "fe402b1df",
+      "next": "공용인코더와다음가사기능묶음",
+      "acceptance": "취소를오류로단정0·실저장선택은QA002"
+    },
+    {
+      "id": "IMP-REALTY-01",
+      "kind": "미배포공통",
+      "target": "상가2/고객관리3변경",
+      "owner": "CC-REALTY-01",
+      "status": "소스완료",
+      "evidence": "3a1d7fbb4/7f97c00e6",
+      "next": "각다음기능배포·공통만단독빌드0",
+      "acceptance": "local로그아웃/기기정보/위젯실로드범위구분"
+    },
+    {
+      "id": "IMP-REALTY-02",
+      "kind": "분석완료/검증대기",
+      "target": "뉴스후보 C",
+      "owner": "CC-REALTY-01",
+      "status": "개발237·독립표본없음",
+      "evidence": "7ef7f547c·RE17-07",
+      "next": "미사용기간 정상저장자료확보후고정후보별도배정",
+      "acceptance": "라벨먼저고정·개발자료재평가를독립PASS로표기0"
+    },
+    {
+      "id": "IMP-PORTFOLIO-01",
+      "kind": "담당/문서공백",
+      "target": "detail-page-12p 및현세션없는카테고리",
+      "owner": "CX-MASTER-01",
+      "status": "현문서근거/담당확인대기",
+      "evidence": "103폴더대조·CATEGORY_GUIDE_MAP",
+      "next": "역할/개별문서기준대조→소관확정후구현배정",
+      "acceptance": "담당불명=폐지/완료로추정0·부재목록명시"
+    },
+    {
+      "id": "IMP-IMAGE-02",
+      "kind": "直接지시/구현중",
+      "target": "감성글귀3사AI 선택",
+      "owner": "CC-ECOM-01",
+      "status": "3a4ad1cad+59cb81d8e ready_review",
+      "evidence": "PLAN1ece3747d·msg_b8292d9e0030·공용openai사본바이트일치/검사등록",
+      "next": "QA046 refusal/abort再검수·실모델지원/비용/배포승인별도",
+      "acceptance": "OpenAI/Claude/Gemini 선택·본인키/서버허용목록·재시도0·기존기본유지"
+    },
+    {
+      "id": "IMP-IMAGE-03",
+      "kind": "미배포수정",
+      "target": "Pexels 선택/가이드제거",
+      "owner": "AG-UI-01",
+      "status": "QA044지정PASS",
+      "evidence": "de49e96e9+62189915b",
+      "next": "감성글귀다음묶음·3사AI수정때보존",
+      "acceptance": "UI선택제거·구초안pixabay·기존키/서버호환보존"
+    }
+  ],
+  "sessionReviews": [
+    {
+      "owner": "CC-WORKSPACE-01",
+      "state": "WS27활성준비f4a6854e9 완료·점유0",
+      "next": "주인님GCP설정/공개방식/실행범위확정→Master실행",
+      "evidence": "f6e6b1da3 / a41a1e31e·5f9e66d7f",
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+    },
+    {
+      "owner": "CC-B2B-BACK-01",
+      "state": "운영실행준비d9751c70b 작성자격리19/19·미실행",
+      "next": "QA047정적검수·실행승인별도",
+      "evidence": "d43255f8f / msg_223ca85a800e·dabbc23ce/msg_82a3e93e9fa9",
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+    },
+    {
+      "owner": "CC-B2B-FRONT-01",
+      "state": "hover77c50f27c QA045소스수락·미배포",
+      "next": "다음묶음/QA037대기",
+      "evidence": "c6931bfbe / 55368bd4c",
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+    },
+    {
+      "owner": "CC-ECOM-01",
+      "state": "3사AI3a4ad1cad+refusal/abort59cb81d8e 소스반환",
+      "next": "QA046재검수/추가반례수정·실비용/배포별도",
+      "evidence": "26e1353c5 / msg_c6e462ca244b·msg_b8292d9e0030/ACTIVE_WORK",
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+    },
+    {
+      "owner": "CC-BLOG-01",
+      "state": "현재요약정정완료·점유0",
+      "next": "다음묶음/사람계정조건·T12문서조정, 새생성0",
+      "evidence": "2f15cafc9 / msg_de0bdb33dbeb",
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+    },
+    {
+      "owner": "CC-MOVIE-01",
+      "state": "YVS실검색/AI기획안1회 담당운영완료·점유0",
+      "next": "재호출0·새배정대기",
+      "evidence": "a3f39764b/00a2c9efa·별도실청구미확정",
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+    },
+    {
+      "owner": "CC-MUSIC-01",
+      "state": "현재기록정정완료·점유0·기존icon변경보존",
+      "next": "lyric2건다음묶음·Mac실MP4사람선택",
+      "evidence": "a8333ca84/a5a96ab42 / msg_c4bd9b21150b",
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+    },
+    {
+      "owner": "CC-REALTY-01",
+      "state": "문서정정완료·점유0",
+      "next": "독립자료미확보차단·정상회차이외새수집0",
+      "evidence": "18b206cbe / msg_7c94f8433b21",
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+    },
+    {
+      "owner": "AG-UI-01",
+      "state": "DES02소스완료·DES04명세반환·제품점유0",
+      "next": "명세를Workspace인계·수정실화면과별도",
+      "evidence": "f4063ae82 / msg_cc05e5f53915",
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+    },
+    {
+      "owner": "CX-QA-01",
+      "state": "QA043~045완료·QA046진행/047발송",
+      "next": "AI반례재검수→SQL정적검수·QA002 MP4기존사람단계유지",
+      "evidence": "msg_637d0a9f128b/msg_edc3ed674d46/msg_9a4e8d3e50c8",
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+    },
+    {
+      "owner": "CC-SUPPORT-01",
+      "state": "주인님직접키트작업전담·이번상태미조회",
+      "next": "Master다른작업배정제외·완료신호만취합",
+      "evidence": "주인님전담지시·SUP05",
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+    }
+  ],
+  "categoryReviews": [
+    {
+      "category": "업무자동화",
+      "stage": "Workspace1.57·플래너1.14 기록, E3/GmailOFF미배포",
+      "next": "v1.58묶음미배포·Gmail활성추진준비승인/GCP필수설정→공개/실행범위확정",
+      "coordinator": "Workspace / Master",
+      "reviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "category": "이커머스",
+      "stage": "B2B운영1.16/Lab0104·ESM1.02·마켓기배포정정",
+      "next": "QA037/ESM사람단계→실범위검수·운영승인별도",
+      "coordinator": "B2BBackend/Front·Ecom / Master",
+      "reviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "category": "이커머스 (현재 비공개)",
+      "stage": "ESM1.02운영·지정웹QA016PASS",
+      "next": "공간19확장/계정/시험상품입력만·API승인회신전트랙2미구현",
+      "coordinator": "Ecom·MacTester",
+      "reviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "category": "이미지",
+      "stage": "감성1.29운영·Pexels제거/접근성소스PASS미배포·3사AI구현중,바나나1.49",
+      "next": "ECOM18-01 mock구현·고정SHA QA044와후속분리·v1.30실비용/배포별도",
+      "coordinator": "Ecom·AGY / Master",
+      "reviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "category": "쓰레드",
+      "stage": "쇼핑제휴1.89반영·나머지목록기록",
+      "next": "실확장수집/대기열검수·다른Threads현담당/잔여확정",
+      "coordinator": "Ecom(제휴) / Master",
+      "reviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "category": "음악",
+      "stage": "6프로그램운영버전보고·가사2건미배포·공용권한분리",
+      "next": "실MP4사람선택·가사다음기능묶음·나머지현담당근거확인",
+      "coordinator": "Music·Movie / Master",
+      "reviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "category": "영상",
+      "stage": "GIF1.33/AI영상1.36 기록·공용인코더소스PASS미배포",
+      "next": "실기기/왕복범위선행·유료생성승인별도",
+      "coordinator": "Movie / Master",
+      "reviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "category": "유튜브",
+      "stage": "YVS1단계실검색/AI 담당운영완료·Shots1.51/원스톱1.59/플레이리스트1.42",
+      "next": "기완료검색/AI재실행0·공용인코더미배포/나머지개별문서현담당확인",
+      "coordinator": "Movie·Music / Master",
+      "reviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "category": "블로그",
+      "stage": "이웃1.21/티스토리1.97·후속1.22/1.98미배포",
+      "next": "B1사람클릭/C3계정·기능묶음·백업5개제외",
+      "coordinator": "Blog / Master",
+      "reviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "category": "네이버",
+      "stage": "카페1.04운영기록·SEO/블로그앱은개별기록",
+      "next": "본인가입카페/계정조건·기완료초대재실행0",
+      "coordinator": "Blog(기존범위) / Master",
+      "reviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "category": "데이터수집",
+      "stage": "T05/T07지정소스PASS·미배포·T12조정Blog배정",
+      "next": "다음web-crawler묶음/화면·제품권한확대0",
+      "coordinator": "Blog(문서·요청조정) / Master",
+      "reviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "category": "데이터수집|기획",
+      "stage": "원문옛분류·website-scraper백업비공개확인",
+      "next": "T12조정근거연결·비활성라이브/별칭은미확인·재활성화0",
+      "coordinator": "Blog(문서·요청조정) / Master",
+      "reviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "category": "부동산",
+      "stage": "4운영버전근거·실거래/매물정상회차기록·C독립미검증",
+      "next": "상가/고객공통다음묶음·미사용기간표본뒤별도평가",
+      "coordinator": "Realty / Master",
+      "reviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "category": "디자인",
+      "stage": "146인계/운영구현마감·DES04요일명세완료",
+      "next": "AGY명세→Workspace/QA043·기존개별디자인툴현담당확인",
+      "coordinator": "AGY(배정된디자인범위) / Master",
+      "reviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "category": "AI 프롬프트",
+      "stage": "Prompt/리버스의기존문서·docbot역할이력확인, 현세션미확정",
+      "next": "기배포기록/기존잔여/현담당분리·새제공자키확인전호출0",
+      "coordinator": "Master (기존docbot-prompt 역할재연결)",
+      "reviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "category": "CRM",
+      "stage": "비교표/개별문서 수집·현재담당실회신없음",
+      "next": "최신운영근거/요청/잔여확정→담당연결후배정",
+      "coordinator": "Master (담당확인)",
+      "reviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "category": "마케팅(홍보)",
+      "stage": "5프로그램목록·개별문서표식확인, 현담당회신없음",
+      "next": "booking-reminder와Workspace예약구분·발송/통합재실행0·소관확정",
+      "coordinator": "Master (담당확인)",
+      "reviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "category": "인스타",
+      "stage": "6프로그램목록/개별문서·AGY과거배포이력은존재, 현총괄미확정",
+      "next": "현재운영/미배포와디자인이력분리·소관/필요작업확정",
+      "coordinator": "Master (담당확인)",
+      "reviewedAt": "2026-11-17T16:58:50.290Z"
+    },
+    {
+      "category": "성격·운세",
+      "stage": "4프로그램목록/개별문서·현재담당회신없음",
+      "next": "새개발착수전현담당/미완료요건확정·일괄수정0",
+      "coordinator": "Master (담당확인)",
+      "reviewedAt": "2026-11-17T16:58:50.290Z"
+    }
+  ],
+  "programDocumentReviews": [
+    {
+      "slug": "crm-google-form",
+      "folder": "crm-google-form",
+      "sourceFiles": [
+        "crm-google-form/AGENTS.md",
+        "crm-google-form/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 20604,
+      "pendingMarkers": 39,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "kakao-auto-posting",
+      "folder": "kakao_auto_poster",
+      "sourceFiles": [
+        "kakao_auto_poster/AGENTS.md",
+        "kakao_auto_poster/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 41001,
+      "pendingMarkers": 28,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "ai-task-planner",
+      "folder": "ai-task-planner",
+      "sourceFiles": [
+        "ai-task-planner/AGENTS.md",
+        "ai-task-planner/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 16240,
+      "pendingMarkers": 12,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "personality-suite",
+      "folder": "personality-suite",
+      "sourceFiles": [
+        "personality-suite/AGENTS.md",
+        "personality-suite/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 17972,
+      "pendingMarkers": 19,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "document-translator",
+      "folder": "document-translator",
+      "sourceFiles": [
+        "document-translator/AGENTS.md",
+        "document-translator/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 10830,
+      "pendingMarkers": 14,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "file-merge",
+      "folder": "file-merge",
+      "sourceFiles": [
+        "file-merge/AGENTS.md",
+        "file-merge/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 8522,
+      "pendingMarkers": 11,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "personality-code",
+      "folder": "mbti",
+      "sourceFiles": [
+        "mbti/AGENTS.md",
+        "mbti/docs/IMPROVEMENTS.md",
+        "mbti/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 10792,
+      "pendingMarkers": 17,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "mbti-character",
+      "folder": "mbti-character",
+      "sourceFiles": [
+        "mbti-character/AGENTS.md",
+        "mbti-character/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 19078,
+      "pendingMarkers": 17,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "tarot-reading",
+      "folder": "tarot",
+      "sourceFiles": [
+        "tarot/AGENTS.md",
+        "tarot/docs/IMPROVEMENTS.md",
+        "tarot/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 16913,
+      "pendingMarkers": 20,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "ebook-studio",
+      "folder": "ebook-studio",
+      "sourceFiles": [
+        "ebook-studio/AGENTS.md",
+        "ebook-studio/docs/IMPROVEMENTS.md",
+        "ebook-studio/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 18262,
+      "pendingMarkers": 16,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "naver-cafe-poster",
+      "folder": "naver-cafe-poster",
+      "sourceFiles": [
+        "naver-cafe-poster/AGENTS.md",
+        "naver-cafe-poster/docs/IMPROVEMENTS.md",
+        "naver-cafe-poster/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 19992,
+      "pendingMarkers": 18,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "naver-blog-auto-poster",
+      "folder": "naver-blog-auto-poster_app",
+      "sourceFiles": [
+        "naver-blog-auto-poster_app/AGENTS.md",
+        "naver-blog-auto-poster_app/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 18702,
+      "pendingMarkers": 1,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "naver-blog-auto-poster-web",
+      "folder": "naver-blog-auto-poster_web",
+      "sourceFiles": [
+        "naver-blog-auto-poster_web/AGENTS.md",
+        "naver-blog-auto-poster_web/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 25505,
+      "pendingMarkers": 2,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "naver-blog-seo-studio",
+      "folder": "naver-blog-seo-studio",
+      "sourceFiles": [
+        "naver-blog-seo-studio/AGENTS.md",
+        "naver-blog-seo-studio/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 90930,
+      "pendingMarkers": 68,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "markdown-studio",
+      "folder": "markdown-studio",
+      "sourceFiles": [
+        "markdown-studio/AGENTS.md",
+        "markdown-studio/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 26271,
+      "pendingMarkers": 13,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "ai-writing-editor",
+      "folder": "ai-writing-editor",
+      "sourceFiles": [
+        "ai-writing-editor/AGENTS.md",
+        "ai-writing-editor/docs/IMPROVEMENTS.md",
+        "ai-writing-editor/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 19118,
+      "pendingMarkers": 32,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "website-scraper",
+      "folder": "ghost-scraper",
+      "sourceFiles": [
+        "ghost-scraper/AGENTS.md",
+        "ghost-scraper/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 12031,
+      "pendingMarkers": 1,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "cinematic-storyboard-studio",
+      "folder": "cinematic-storyboard-studio",
+      "sourceFiles": [
+        "cinematic-storyboard-studio/AGENTS.md",
+        "cinematic-storyboard-studio/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 21425,
+      "pendingMarkers": 21,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "persona-style-studio",
+      "folder": "persona-style-studio",
+      "sourceFiles": [
+        "persona-style-studio/AGENTS.md",
+        "persona-style-studio/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 9674,
+      "pendingMarkers": 2,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "landing-architect",
+      "folder": "landing-architect",
+      "sourceFiles": [
+        "landing-architect/AGENTS.md",
+        "landing-architect/docs/IMPROVEMENTS.md",
+        "landing-architect/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 16278,
+      "pendingMarkers": 16,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "ui-canvas",
+      "folder": "ui-canvas",
+      "sourceFiles": [
+        "ui-canvas/AGENTS.md",
+        "ui-canvas/docs/IMPROVEMENTS.md",
+        "ui-canvas/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 20172,
+      "pendingMarkers": 25,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "web-crawler-saas",
+      "folder": "web-crawler",
+      "sourceFiles": [
+        "web-crawler/AGENTS.md",
+        "web-crawler/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 12801,
+      "pendingMarkers": 2,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "ai-prompt-studio",
+      "folder": "ai-prompt-studio",
+      "sourceFiles": [
+        "ai-prompt-studio/AGENTS.md",
+        "ai-prompt-studio/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 14904,
+      "pendingMarkers": 35,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "prompt-template-studio",
+      "folder": "prompt-template-studio",
+      "sourceFiles": [
+        "prompt-template-studio/AGENTS.md",
+        "prompt-template-studio/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 7871,
+      "pendingMarkers": 0,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "ai-slide-builder",
+      "folder": "ai-slide-builder",
+      "sourceFiles": [
+        "ai-slide-builder/AGENTS.md",
+        "ai-slide-builder/docs/IMPROVEMENTS.md",
+        "ai-slide-builder/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 15672,
+      "pendingMarkers": 14,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "ai-web-ui",
+      "folder": "react-ui-showcase",
+      "sourceFiles": [
+        "react-ui-showcase/AGENTS.md",
+        "react-ui-showcase/docs/IMPROVEMENTS.md",
+        "react-ui-showcase/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 7731,
+      "pendingMarkers": 6,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "stepmail",
+      "folder": "stepmail",
+      "sourceFiles": [
+        "stepmail/AGENTS.md",
+        "stepmail/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 28132,
+      "pendingMarkers": 28,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "competitor-analysis",
+      "folder": "competitor-analysis",
+      "sourceFiles": [
+        "competitor-analysis/AGENTS.md",
+        "competitor-analysis/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 28035,
+      "pendingMarkers": 49,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "longtail-keyword-expander",
+      "folder": "longtail-keyword-expander",
+      "sourceFiles": [
+        "longtail-keyword-expander/AGENTS.md",
+        "longtail-keyword-expander/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 10624,
+      "pendingMarkers": 6,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "booking-reminder",
+      "folder": "booking-reminder",
+      "sourceFiles": [
+        "booking-reminder/AGENTS.md",
+        "booking-reminder/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 21350,
+      "pendingMarkers": 34,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "music-player",
+      "folder": "music-player",
+      "sourceFiles": [
+        "music-player/AGENTS.md",
+        "music-player/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 13740,
+      "pendingMarkers": 2,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "reverse-prompt",
+      "folder": "reverse-prompt",
+      "sourceFiles": [
+        "reverse-prompt/AGENTS.md",
+        "reverse-prompt/docs/IMPROVEMENTS.md",
+        "reverse-prompt/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 13518,
+      "pendingMarkers": 21,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "infinite-loop-video",
+      "folder": "infinite-loop-video",
+      "sourceFiles": [
+        "infinite-loop-video/AGENTS.md",
+        "infinite-loop-video/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 11708,
+      "pendingMarkers": 5,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "real-estate-sales",
+      "folder": "real_estate_sales",
+      "sourceFiles": [
+        "real_estate_sales/AGENTS.md",
+        "real_estate_sales/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 57908,
+      "pendingMarkers": 72,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "blog-keyword",
+      "folder": "blog-keyword",
+      "sourceFiles": [
+        "blog-keyword/AGENTS.md",
+        "blog-keyword/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 11838,
+      "pendingMarkers": 9,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "tistory-auto-blog",
+      "folder": "tistory-auto-blog",
+      "sourceFiles": [
+        "tistory-auto-blog/AGENTS.md",
+        "tistory-auto-blog/docs/IMPROVEMENTS.md",
+        "tistory-auto-blog/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 74037,
+      "pendingMarkers": 52,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "ai-auto-blog",
+      "folder": "ai-auto-blog",
+      "sourceFiles": [
+        "ai-auto-blog/AGENTS.md",
+        "ai-auto-blog/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 85276,
+      "pendingMarkers": 30,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "naver-blog-agent",
+      "folder": "naver-blog-agent",
+      "sourceFiles": [
+        "naver-blog-agent/AGENTS.md",
+        "naver-blog-agent/docs/IMPROVEMENTS.md",
+        "naver-blog-agent/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 67945,
+      "pendingMarkers": 88,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "naver-blog-allinone",
+      "folder": "naver-blog-allinone",
+      "sourceFiles": [
+        "naver-blog-allinone/AGENTS.md",
+        "naver-blog-allinone/docs/IMPROVEMENTS.md",
+        "naver-blog-allinone/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 16177,
+      "pendingMarkers": 22,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "blog-workroom",
+      "folder": "blog-workroom",
+      "sourceFiles": [
+        "blog-workroom/AGENTS.md",
+        "blog-workroom/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 13942,
+      "pendingMarkers": 3,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "blog-content-maker",
+      "folder": "blog-content-maker",
+      "sourceFiles": [
+        "blog-content-maker/AGENTS.md",
+        "blog-content-maker/docs/IMPROVEMENTS.md",
+        "blog-content-maker/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 9515,
+      "pendingMarkers": 1,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "threads-easy-planner",
+      "folder": "threads-easy-planner",
+      "sourceFiles": [
+        "threads-easy-planner/AGENTS.md",
+        "threads-easy-planner/docs/IMPROVEMENTS.md",
+        "threads-easy-planner/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 37208,
+      "pendingMarkers": 36,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "auto-threads-posting",
+      "folder": "threads",
+      "sourceFiles": [
+        "threads/AGENTS.md",
+        "threads/docs/IMPROVEMENTS.md",
+        "threads/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 23645,
+      "pendingMarkers": 11,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "threads-comment-reply",
+      "folder": "threads-comment-reply",
+      "sourceFiles": [
+        "threads-comment-reply/AGENTS.md",
+        "threads-comment-reply/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 25881,
+      "pendingMarkers": 29,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "threads-affiliate-poster",
+      "folder": "threads-affiliate-poster",
+      "sourceFiles": [
+        "threads-affiliate-poster/AGENTS.md",
+        "threads-affiliate-poster/docs/IMPROVEMENTS.md",
+        "threads-affiliate-poster/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 70515,
+      "pendingMarkers": 36,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "threads-content-ops",
+      "folder": "threads-content-ops",
+      "sourceFiles": [
+        "threads-content-ops/AGENTS.md",
+        "threads-content-ops/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 98880,
+      "pendingMarkers": 47,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "youtube-viral-studio",
+      "folder": "youtube-viral-studio",
+      "sourceFiles": [
+        "youtube-viral-studio/AGENTS.md",
+        "youtube-viral-studio/docs/IMPROVEMENTS.md",
+        "youtube-viral-studio/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 36249,
+      "pendingMarkers": 37,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "playlist-channel-studio",
+      "folder": "playlist-channel-studio",
+      "sourceFiles": [
+        "playlist-channel-studio/AGENTS.md",
+        "playlist-channel-studio/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 40982,
+      "pendingMarkers": 18,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "thumbnail-master",
+      "folder": "thumbnail-master",
+      "sourceFiles": [
+        "thumbnail-master/AGENTS.md",
+        "thumbnail-master/docs/IMPROVEMENTS.md",
+        "thumbnail-master/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 20857,
+      "pendingMarkers": 25,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "youtube-channel-consultant",
+      "folder": "youtube-channel-consultant",
+      "sourceFiles": [
+        "youtube-channel-consultant/AGENTS.md",
+        "youtube-channel-consultant/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 13737,
+      "pendingMarkers": 5,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "shorts-viral-studio",
+      "folder": "shorts-viral-studio",
+      "sourceFiles": [
+        "shorts-viral-studio/AGENTS.md",
+        "shorts-viral-studio/docs/IMPROVEMENTS.md",
+        "shorts-viral-studio/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 16555,
+      "pendingMarkers": 20,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "auto-shorts-posting",
+      "folder": "shots",
+      "sourceFiles": [
+        "shots/AGENTS.md",
+        "shots/docs/IMPROVEMENTS.md",
+        "shots/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 35792,
+      "pendingMarkers": 13,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "youtube-auto-reply",
+      "folder": "youtube-auto-reply",
+      "sourceFiles": [
+        "youtube-auto-reply/AGENTS.md",
+        "youtube-auto-reply/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 30687,
+      "pendingMarkers": 38,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "seo-thumbnail-pro",
+      "folder": "seo-thumbnail-pro",
+      "sourceFiles": [
+        "seo-thumbnail-pro/AGENTS.md",
+        "seo-thumbnail-pro/docs/IMPROVEMENTS.md",
+        "seo-thumbnail-pro/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 10102,
+      "pendingMarkers": 3,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "suno-music-studio",
+      "folder": "suno-music-studio",
+      "sourceFiles": [
+        "suno-music-studio/AGENTS.md",
+        "suno-music-studio/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 10063,
+      "pendingMarkers": 5,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "ai-mastering-studio",
+      "folder": "ai-mastering-studio",
+      "sourceFiles": [
+        "ai-mastering-studio/AGENTS.md",
+        "ai-mastering-studio/docs/IMPROVEMENTS.md",
+        "ai-mastering-studio/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 13998,
+      "pendingMarkers": 16,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "music-video-studio",
+      "folder": "music-video-studio",
+      "sourceFiles": [
+        "music-video-studio/AGENTS.md",
+        "music-video-studio/docs/IMPROVEMENTS.md",
+        "music-video-studio/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 34561,
+      "pendingMarkers": 32,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "music-automation",
+      "folder": "music",
+      "sourceFiles": [
+        "music/AGENTS.md",
+        "music/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 65077,
+      "pendingMarkers": 28,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "vinyl-lp-studio",
+      "folder": "vinyl-lp-studio",
+      "sourceFiles": [
+        "vinyl-lp-studio/AGENTS.md",
+        "vinyl-lp-studio/docs/IMPROVEMENTS.md",
+        "vinyl-lp-studio/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 18999,
+      "pendingMarkers": 8,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "yt-playlist-studio",
+      "folder": "yt-playlist-studio",
+      "sourceFiles": [
+        "yt-playlist-studio/AGENTS.md",
+        "yt-playlist-studio/docs/IMPROVEMENTS.md",
+        "yt-playlist-studio/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 18970,
+      "pendingMarkers": 12,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "ai-audio-analyzer",
+      "folder": "ai-audio-analyzer",
+      "sourceFiles": [
+        "ai-audio-analyzer/AGENTS.md",
+        "ai-audio-analyzer/docs/IMPROVEMENTS.md",
+        "ai-audio-analyzer/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 11232,
+      "pendingMarkers": 0,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "ai-image-studio",
+      "folder": "ai-image-studio",
+      "sourceFiles": [
+        "ai-image-studio/AGENTS.md",
+        "ai-image-studio/docs/IMPROVEMENTS.md",
+        "ai-image-studio/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 28669,
+      "pendingMarkers": 28,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "portrait-photo",
+      "folder": "portrait-photo",
+      "sourceFiles": [
+        "portrait-photo/AGENTS.md",
+        "portrait-photo/docs/IMPROVEMENTS.md",
+        "portrait-photo/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 42846,
+      "pendingMarkers": 32,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "banana-canvas",
+      "folder": "banana-canvas",
+      "sourceFiles": [
+        "banana-canvas/AGENTS.md",
+        "banana-canvas/docs/IMPROVEMENTS.md",
+        "banana-canvas/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 53232,
+      "pendingMarkers": 62,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "style-dna-analyzer",
+      "folder": "style-dna-analyzer",
+      "sourceFiles": [
+        "style-dna-analyzer/AGENTS.md",
+        "style-dna-analyzer/docs/IMPROVEMENTS.md",
+        "style-dna-analyzer/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 20977,
+      "pendingMarkers": 20,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "four-cut-comics",
+      "folder": "four-cut-comics",
+      "sourceFiles": [
+        "four-cut-comics/AGENTS.md",
+        "four-cut-comics/docs/IMPROVEMENTS.md",
+        "four-cut-comics/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 37978,
+      "pendingMarkers": 37,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "image-convert-studio",
+      "folder": "image-convert-studio",
+      "sourceFiles": [
+        "image-convert-studio/AGENTS.md",
+        "image-convert-studio/docs/IMPROVEMENTS.md",
+        "image-convert-studio/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 20723,
+      "pendingMarkers": 23,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "fashion-style",
+      "folder": "fashion-style",
+      "sourceFiles": [
+        "fashion-style/AGENTS.md",
+        "fashion-style/docs/IMPROVEMENTS.md",
+        "fashion-style/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 7541,
+      "pendingMarkers": 3,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "emotion-writer",
+      "folder": "emotion-writer",
+      "sourceFiles": [
+        "emotion-writer/AGENTS.md",
+        "emotion-writer/docs/IMPROVEMENTS.md",
+        "emotion-writer/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 21268,
+      "pendingMarkers": 21,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "allinone-graphic",
+      "folder": "allinone-graphic",
+      "sourceFiles": [
+        "allinone-graphic/AGENTS.md",
+        "allinone-graphic/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 9719,
+      "pendingMarkers": 6,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "photo-remake-studio",
+      "folder": "photo-remake-studio",
+      "sourceFiles": [
+        "photo-remake-studio/AGENTS.md",
+        "photo-remake-studio/docs/IMPROVEMENTS.md",
+        "photo-remake-studio/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 8187,
+      "pendingMarkers": 3,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "trending-product-finder",
+      "folder": "trending-product-finder",
+      "sourceFiles": [
+        "trending-product-finder/AGENTS.md",
+        "trending-product-finder/docs/IMPROVEMENTS.md",
+        "trending-product-finder/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 71588,
+      "pendingMarkers": 61,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "video-to-gif",
+      "folder": "video-to-gif",
+      "sourceFiles": [
+        "video-to-gif/AGENTS.md",
+        "video-to-gif/docs/IMPROVEMENTS.md",
+        "video-to-gif/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 66490,
+      "pendingMarkers": 74,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "shop-detail-page",
+      "folder": "shop-detail-page",
+      "sourceFiles": [
+        "shop-detail-page/AGENTS.md",
+        "shop-detail-page/docs/IMPROVEMENTS.md",
+        "shop-detail-page/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 69059,
+      "pendingMarkers": 63,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "auto-detail-page",
+      "folder": "auto-detail-page",
+      "sourceFiles": [
+        "auto-detail-page/AGENTS.md",
+        "auto-detail-page/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 11458,
+      "pendingMarkers": 5,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "detail-page-12p",
+      "folder": "detail-page-12p",
+      "sourceFiles": [],
+      "charactersRead": 0,
+      "pendingMarkers": 0,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": "AGENTS/IMPROVEMENTS/BACKLOG 미발견"
+    },
+    {
+      "slug": "auto-instagram-posting",
+      "folder": "insta_auto_poster",
+      "sourceFiles": [
+        "insta_auto_poster/AGENTS.md",
+        "insta_auto_poster/docs/IMPROVEMENTS.md",
+        "insta_auto_poster/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 77681,
+      "pendingMarkers": 73,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "ai-influencer-studio",
+      "folder": "ai-influencer-studio",
+      "sourceFiles": [
+        "ai-influencer-studio/AGENTS.md",
+        "ai-influencer-studio/docs/IMPROVEMENTS.md",
+        "ai-influencer-studio/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 39004,
+      "pendingMarkers": 36,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "instagram-comment-reply",
+      "folder": "instagram-comment-reply",
+      "sourceFiles": [
+        "instagram-comment-reply/AGENTS.md",
+        "instagram-comment-reply/docs/IMPROVEMENTS.md",
+        "instagram-comment-reply/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 37604,
+      "pendingMarkers": 45,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "instagram-dm-reply",
+      "folder": "instagram-dm-reply",
+      "sourceFiles": [
+        "instagram-dm-reply/AGENTS.md",
+        "instagram-dm-reply/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 14980,
+      "pendingMarkers": 5,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "ai-webtoon-studio",
+      "folder": "ai-webtoon-studio",
+      "sourceFiles": [
+        "ai-webtoon-studio/AGENTS.md",
+        "ai-webtoon-studio/docs/IMPROVEMENTS.md",
+        "ai-webtoon-studio/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 37397,
+      "pendingMarkers": 36,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "cardnews-studio",
+      "folder": "cardnews-studio",
+      "sourceFiles": [
+        "cardnews-studio/AGENTS.md",
+        "cardnews-studio/docs/IMPROVEMENTS.md",
+        "cardnews-studio/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 28979,
+      "pendingMarkers": 27,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "shorts-onestop-studio",
+      "folder": "shorts-onestop-studio",
+      "sourceFiles": [
+        "shorts-onestop-studio/AGENTS.md",
+        "shorts-onestop-studio/docs/IMPROVEMENTS.md",
+        "shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 72621,
+      "pendingMarkers": 57,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "ai-doc-chatbot",
+      "folder": "ai-doc-chatbot",
+      "sourceFiles": [
+        "ai-doc-chatbot/AGENTS.md",
+        "ai-doc-chatbot/docs/IMPROVEMENTS.md",
+        "ai-doc-chatbot/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 26730,
+      "pendingMarkers": 69,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "lyric-video-studio",
+      "folder": "lyric-video-studio",
+      "sourceFiles": [
+        "lyric-video-studio/AGENTS.md",
+        "lyric-video-studio/docs/IMPROVEMENTS.md",
+        "lyric-video-studio/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 21819,
+      "pendingMarkers": 15,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "comment-inbox",
+      "folder": "comment-inbox",
+      "sourceFiles": [
+        "comment-inbox/AGENTS.md",
+        "comment-inbox/docs/IMPROVEMENTS.md",
+        "comment-inbox/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 19748,
+      "pendingMarkers": 38,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "ai-music-studio",
+      "folder": "ai-music-studio",
+      "sourceFiles": [
+        "ai-music-studio/AGENTS.md",
+        "ai-music-studio/docs/IMPROVEMENTS.md",
+        "ai-music-studio/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 19945,
+      "pendingMarkers": 49,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "ai-video-studio",
+      "folder": "ai-video-studio",
+      "sourceFiles": [
+        "ai-video-studio/AGENTS.md",
+        "ai-video-studio/docs/IMPROVEMENTS.md",
+        "ai-video-studio/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 42845,
+      "pendingMarkers": 51,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "ai-work-workspace",
+      "folder": "ai-work-workspace",
+      "sourceFiles": [
+        "ai-work-workspace/AGENTS.md",
+        "ai-work-workspace/docs/IMPROVEMENTS.md",
+        "ai-work-workspace/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 76016,
+      "pendingMarkers": 84,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "seller-label-docs",
+      "folder": "seller-label-docs",
+      "sourceFiles": [
+        "seller-label-docs/AGENTS.md",
+        "seller-label-docs/docs/IMPROVEMENTS.md",
+        "seller-label-docs/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 6607,
+      "pendingMarkers": 15,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "shop-order-report",
+      "folder": "shop-order-report",
+      "sourceFiles": [
+        "shop-order-report/AGENTS.md",
+        "shop-order-report/docs/IMPROVEMENTS.md",
+        "shop-order-report/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 5555,
+      "pendingMarkers": 12,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "smartstore-register",
+      "folder": "smartstore-register",
+      "sourceFiles": [
+        "smartstore-register/AGENTS.md",
+        "smartstore-register/docs/IMPROVEMENTS.md",
+        "smartstore-register/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 35406,
+      "pendingMarkers": 90,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "realty-listing-alert",
+      "folder": "realty-listing-alert",
+      "sourceFiles": [
+        "realty-listing-alert/AGENTS.md",
+        "realty-listing-alert/docs/IMPROVEMENTS.md",
+        "realty-listing-alert/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 31420,
+      "pendingMarkers": 23,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "commercial-land-trade-alert",
+      "folder": "commercial-land-trade-alert",
+      "sourceFiles": [
+        "commercial-land-trade-alert/AGENTS.md",
+        "commercial-land-trade-alert/docs/IMPROVEMENTS.md",
+        "commercial-land-trade-alert/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 29303,
+      "pendingMarkers": 40,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "realty-client-desk",
+      "folder": "realty-client-desk",
+      "sourceFiles": [
+        "realty-client-desk/AGENTS.md",
+        "realty-client-desk/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 7469,
+      "pendingMarkers": 6,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "coupang-ops",
+      "folder": "coupang-ops",
+      "sourceFiles": [
+        "coupang-ops/AGENTS.md",
+        "coupang-ops/docs/IMPROVEMENTS.md",
+        "coupang-ops/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 48450,
+      "pendingMarkers": 48,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "free-music-studio",
+      "folder": "free-music-studio",
+      "sourceFiles": [
+        "free-music-studio/AGENTS.md",
+        "free-music-studio/docs/IMPROVEMENTS.md",
+        "free-music-studio/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 103412,
+      "pendingMarkers": 191,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "wp-blogger-auto",
+      "folder": "wp-blogger-auto",
+      "sourceFiles": [
+        "wp-blogger-auto/AGENTS.md",
+        "wp-blogger-auto/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 18256,
+      "pendingMarkers": 32,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "elevenst-register",
+      "folder": "elevenst-register",
+      "sourceFiles": [
+        "elevenst-register/AGENTS.md",
+        "elevenst-register/docs/IMPROVEMENTS.md",
+        "elevenst-register/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 10195,
+      "pendingMarkers": 15,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "blog-neighbor-care",
+      "folder": "blog-neighbor-care",
+      "sourceFiles": [
+        "blog-neighbor-care/AGENTS.md",
+        "blog-neighbor-care/docs/IMPROVEMENTS.md",
+        "blog-neighbor-care/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 152768,
+      "pendingMarkers": 480,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "naver-cafe-recruit",
+      "folder": "naver-cafe-recruit",
+      "sourceFiles": [
+        "naver-cafe-recruit/AGENTS.md",
+        "naver-cafe-recruit/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 17936,
+      "pendingMarkers": 22,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "mall-builder",
+      "folder": "mall-builder",
+      "sourceFiles": [
+        "mall-builder/AGENTS.md",
+        "mall-builder/docs/IMPROVEMENTS.md",
+        "mall-builder/docs/IMPROVEMENT_BACKLOG.md"
+      ],
+      "charactersRead": 18127,
+      "pendingMarkers": 14,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    },
+    {
+      "slug": "esm-register",
+      "folder": "esm-register",
+      "sourceFiles": [
+        "esm-register/AGENTS.md",
+        "esm-register/docs/IMPROVEMENTS.md"
+      ],
+      "charactersRead": 7484,
+      "pendingMarkers": 9,
+      "reviewedAt": "2026-11-17T16:58:50.290Z",
+      "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
+      "gap": ""
+    }
+  ],
+  "portfolioAudit": {
+    "at": "2026-11-17T16:58:50.290Z",
+    "scope": "103개목록/19분류·265개문서파일수집/표식대조, 미종료작업판정·담당8개자체정합성회신·AGY/Tester/주인님직접지시취합. 개별전체기능코드/운영재검증0.",
+    "programCount": 103,
+    "documentFilesRead": 265,
+    "missingProgramDocuments": [
+      "detail-page-12p"
+    ],
+    "currentOwnerUnconfirmed": [
+      "crm-google-form",
+      "kakao-auto-posting",
+      "personality-suite",
+      "document-translator",
+      "file-merge",
+      "personality-code",
+      "mbti-character",
+      "tarot-reading",
+      "ebook-studio",
+      "naver-cafe-poster",
+      "naver-blog-auto-poster",
+      "naver-blog-auto-poster-web",
+      "naver-blog-seo-studio",
+      "markdown-studio",
+      "ai-writing-editor",
+      "cinematic-storyboard-studio",
+      "persona-style-studio",
+      "landing-architect",
+      "ui-canvas",
+      "ai-prompt-studio",
+      "prompt-template-studio",
+      "ai-slide-builder",
+      "ai-web-ui",
+      "stepmail",
+      "competitor-analysis",
+      "longtail-keyword-expander",
+      "booking-reminder",
+      "music-player",
+      "reverse-prompt",
+      "infinite-loop-video",
+      "blog-keyword",
+      "ai-auto-blog",
+      "naver-blog-agent",
+      "naver-blog-allinone",
+      "blog-workroom",
+      "blog-content-maker",
+      "threads-easy-planner",
+      "auto-threads-posting",
+      "threads-comment-reply",
+      "threads-content-ops",
+      "thumbnail-master",
+      "youtube-channel-consultant",
+      "shorts-viral-studio",
+      "youtube-auto-reply",
+      "seo-thumbnail-pro",
+      "suno-music-studio",
+      "vinyl-lp-studio",
+      "yt-playlist-studio",
+      "ai-audio-analyzer",
+      "ai-image-studio",
+      "portrait-photo",
+      "style-dna-analyzer",
+      "four-cut-comics",
+      "image-convert-studio",
+      "fashion-style",
+      "allinone-graphic",
+      "photo-remake-studio",
+      "trending-product-finder",
+      "auto-detail-page",
+      "detail-page-12p",
+      "auto-instagram-posting",
+      "ai-influencer-studio",
+      "instagram-comment-reply",
+      "instagram-dm-reply",
+      "ai-webtoon-studio",
+      "cardnews-studio",
+      "ai-doc-chatbot",
+      "comment-inbox"
+    ],
+    "unknownCount": 68,
+    "categorySource": "PROGRAM_CAPABILITY_MAP 원문분류·실DB최신분류아님",
+    "next": "완료된과거대기를현작업으로재배정0·명시개선목록/후속책임기준진행",
+    "followup": "QA046 반례수정재검수·QA047 운영준비정적검수·Gmail활성추진준비와GCP사람단계·음악실MP4요청기존QA002연결",
+    "preservedForeignChanges": [
+      "docs/HANDOFF.md 기존AGY미커밋·다른제품/문서미커밋은커밋/초기화0"
+    ]
   }
 }
