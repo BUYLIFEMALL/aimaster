@@ -26,3 +26,24 @@
 
 ## 비용
 Vercel 빌드 1회(Master 실행, 승인 범위). 로컬 build 1회·tsc·시험 무료. 실제 구글 API: POST 1·목록 GET 수 회·삭제 1(회원 본인 앱 무료 범위). AI 호출 0.
+
+## WS-20261117-23 — 첫 표 생성 경합 최소 수정 (코드 `d7895f6d4`, 미배포 다음 묶음, Master msg_a687aebd1025)
+- 수정: `src/server/booking.ts` `ensureTables()` — 표 2개·색인(`BOOKING_DDL`)을 한 DB 거래(`tx`, 기존 BEGIN/COMMIT 헬퍼 그대로 — 새 경로 0) 안에서 `pg_advisory_xact_lock(hashtext('aww:booking:ddl'))`(이 저장소의 다른 advisory 잠금 0, 거래 끝에 자동 해제) 뒤 생성. `tablesReady`는 커밋 성공 뒤에만 true, 예외면 false 유지. OFF 경로 DB 0 그대로. 시험 전용으로 `BOOKING_DDL`·`resetBookingTablesForTests` 내보냄. portal·receipts 일괄 확대 0.
+- 시험(`booking.test.ts`, 격리 시험 DB 2연결): ① 다른 인스턴스(같은 코드: 잠금+생성, 커밋 전 1.2초 대기) 중 이쪽 첫 요청 → **수정 전 운영과 같은 `pg_type_typname_nsp_index` 중복 실패 재현 → 수정 후 기다렸다가 성공**(대기 >400ms), PK·UNIQUE·CHECK 2·색인 모두 확인 ② 잠금 없는 끼어들기 생성 → 1회 실패, 표를 지워도 다음 요청이 다시 만들어 성공(준비 표시 고착 없음, 수정 전후 모두 통과하는 회귀 방지). booking 37 + wiring 22 = 59, tsc 0. 운영 DDL·운영 표 삭제/재생성 재현 0.
+
+## QA 예약 1행 정리 SQL 초안 (실행 0 — Master 대조 후 단독 정리 지시 대기)
+- 대상: 시험 계정의 WS22 QA 예약(구글 일정은 이미 삭제됨, 앱 DB에서 11/25 15:00 칸 점유 중). 읽기 확인 결과 아래 조건에 맞는 줄 **정확히 1**(2026-11-17 확인).
+- 물리 삭제 없이 상태만 `released`(칸 풀림, 회원 「없음」 선택과 같은 상태)로 — 되돌리기는 같은 조건에 `status = 'released'`로 바꿔 `confirmed`로.
+```sql
+-- 정리(예상 1행)
+update aww.aww_bookings
+   set status = 'released', updated_time = (extract(epoch from now()) * 1000)::bigint
+ where id = '9ab4f3e3-1d0c-4fc3-bb37-ee453d00ea95'
+   and gcal_id = 'bk9ab4f3e31d0c4fc3bb37ee453d00ea95'
+   and status = 'confirmed'
+   and guest_name = 'QA 예약 시험'
+   and user_id = (select id::text from auth.users where email = 'buylifemall@naver.com')
+returning id, status;
+-- 되돌리기(필요할 때만, 예상 1행): 위와 같은 조건에서 status = 'released' → 'confirmed'
+```
+- 다른 회원·다른 줄·권한 변경 0. 비밀값 없음(예약 id·일정 id는 비밀이 아님, 토큰·연락처 미포함).
