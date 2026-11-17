@@ -10,6 +10,7 @@ import { loadMemberAiKeys } from "@/server/memberAiKeys";
 import { withMemberAiKeys } from "@/litpage/server/ai/providers/config.ts";
 import { warmModelLists } from "@/litpage/server/ai/models.ts";
 import { koErrorBody } from "@/server/errorKo";
+import { ACCOUNT_CHANGED_MESSAGE, ACCOUNT_CHANGED_NAME, EXPECTED_ACCOUNT_HEADER } from "@/lib/accountGuard";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -36,6 +37,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const access = await checkProgramAccessApi();
   if (!access.allowed) {
     return NextResponse.json({ name: access.status === 401 ? "UnauthorizedError" : "PermissionError", message: access.error }, { status: access.status });
+  }
+  // 2026-11-17 WS-20261117-17 QA017: 단독 화면이 기대한 계정(헤더)과 지금 로그인 회원이 다르면 명령·AI 키·외부 동작 전에 409.
+  // 헤더가 없는 기존 호출은 그대로. 헤더는 인증 근거가 아니라 비교용(인가는 위 checkProgramAccessApi 그대로).
+  const expected = request.headers.get(EXPECTED_ACCOUNT_HEADER);
+  if (expected !== null && expected !== access.user.id) {
+    return NextResponse.json({ name: ACCOUNT_CHANGED_NAME, message: ACCOUNT_CHANGED_MESSAGE }, { status: 409, headers: { "Cache-Control": "private, no-store" } });
   }
   const text = await request.text();
   if (text.length > MAX_JSON_BYTES) return NextResponse.json({ name: "ValidationError", message: "Request is too large" }, { status: 413 });

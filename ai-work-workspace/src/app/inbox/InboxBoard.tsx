@@ -41,7 +41,8 @@ function when(iso: string): string {
   return `${d.getMonth() + 1}월 ${d.getDate()}일 ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
-export function InboxBoard() {
+// 2026-11-17 WS-20261117-17 QA017: accountKey = 서버가 확인한 회원 id. 세금계산서 초안에 작성 계정을 넣어 다른 계정 영수증 화면이 쓰지 않게 한다.
+export function InboxBoard({ accountKey }: { accountKey?: string } = {}) {
   const [items, setItems] = useState<Item[] | null>(null);
   const [error, setError] = useState("");
   const [selId, setSelId] = useState<string | null>(null);
@@ -109,9 +110,9 @@ export function InboxBoard() {
     try {
       const r = await rpc<{ issue: unknown }>("rcptReadText", { text: `${sel.title}
 
-${sel.body_md ?? ""}` });
+${sel.body_md ?? ""}` }, { expectedAccount: accountKey });
       try {
-        sessionStorage.setItem("aww:rcptDraft", JSON.stringify({ ...(r.issue as object), from: sel.title }));
+        sessionStorage.setItem("aww:rcptDraft", JSON.stringify({ ...(r.issue as object), from: sel.title, account: accountKey }));
       } catch {
         /* 저장 못 하면 아래 안내만 */
       }

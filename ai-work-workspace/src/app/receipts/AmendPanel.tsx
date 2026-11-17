@@ -2,7 +2,7 @@
 // ✏️ 볼타 수정발행 입력 카드(2026-11-15, 플랜 docs/PLAN_20261115_BOLTA_AMEND.md). 명령: btAmend(src/server/bolta.ts).
 // 국세청에 나간 세금계산서는 지울 수 없어 「발급 취소」도 여기의 「계약의 해제」·「착오에 의한 이중발급」이다.
 import { useMemo, useState } from "react";
-import { rpc } from "@/lib/standaloneRpc";
+import { useReceiptRpc } from "./receiptRpc"; // 2026-11-17 WS-20261117-17: 보드가 내려 준 화면 기대 계정 rpc
 
 type Reason = "termination" | "doubleIssuance" | "changeSupplyCost" | "return" | "misspell";
 interface Biz { bizNo: string; name: string; ceo: string; address: string; bizType: string; bizItem: string; email: string; phone: string }
@@ -33,6 +33,7 @@ const calcLine = (qty: number, unitPrice: number, mode: AmendDoc["taxMode"]) => 
 };
 
 export function AmendPanel({ doc, notify, onDone, onClose }: { doc: AmendDoc; notify: (n: { text: string; error?: boolean }) => void; onDone: () => void; onClose: () => void }) {
+  const rpc = useReceiptRpc(); // 2026-11-17 WS-20261117-17: 화면 기대 계정이 실린 요청
   const live = doc.bolta?.mode === "live";
   const taxFree = doc.taxMode === "none";
   const [reason, setReason] = useState<Reason>("termination");

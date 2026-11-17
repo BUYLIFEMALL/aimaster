@@ -1,7 +1,8 @@
 "use client";
 // 🧾 영수증·세금계산서 화면(2026-11-11). 명령: /api/rpc/rcpt*(src/server/receipts.ts). 플랜 docs/PLAN_20261027_RECEIPT_TAX_INVOICE.md §6
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { rpc } from "@/lib/standaloneRpc"; // 2026-11-13: 로그인 끊김(401) 안내 띠 포함
+import { ACCOUNT_CHANGED_MESSAGE } from "@/lib/accountGuard";
+import { boundReceiptRpc, ReceiptRpcContext, useReceiptRpc } from "./receiptRpc"; // 2026-11-17 WS-20261117-17: 모든 rcpt/bt 요청에 화면 기대 계정(로그인 끊김 401 띠는 그대로)
 import { BoltaPanel } from "./BoltaPanel"; // 2026-11-13: 볼타로 바로 발급(회원 본인 키)
 import { AmendPanel } from "./AmendPanel"; // 2026-11-15: 볼타 수정발행
 
@@ -73,17 +74,16 @@ function calc(qty: number, unitPrice: number, mode: TaxMode) {
 export function ReceiptsBoard({ accountKey }: { accountKey?: string | null } = {}) {
   const [tab, setTab] = useState<"evidence" | "issue" | "info">("evidence");
   // 2026-11-15 받은 업무 「🧾 세금계산서 초안」에서 넘어오면 발행 탭을 그 값으로 연다(화면이 열린 뒤 한 번)
-  const [draft, setDraft] = useState<Draft | null>(null);
-  useEffect(() => {
-    const d = takeDraft();
-    if (!d) return;
-    setDraft(d);
-    setTab("issue");
-    setNotice({ text: `받은 업무${d.from ? ` 「${d.from}」` : ""}에서 읽은 값으로 세금계산서를 채웠습니다. 거래처·품목·금액을 확인한 뒤 저장하세요.` });
-  }, []);
+  // 2026-11-17 QA017: 초안은 그 초안을 만든 계정 화면에만(계정 표시가 다르면 그리지 않음)
+  const [draftOf, setDraftOf] = useState<{ key: string | null | undefined; d: Draft } | null>(null);
+  const draft = draftOf && draftOf.key === accountKey ? draftOf.d : null;
   const [loaded, setLoaded] = useState<{ key: string | null | undefined; s: State } | null>(null);
   const state = loaded && loaded.key === accountKey ? loaded.s : null; // 지금 계정 것만 그림
   const seq = useRef(0); // 마지막 요청 번호 — 이보다 앞선 응답은 버림
+  // 서버가 「계정 바뀜」(409)을 알리면 그 계정 화면을 닫고 새로고침만 안내(B 자료로 자동 전환·옛 입력 보내기 0)
+  const [changedFor, setChangedFor] = useState<string | null | undefined | false>(false);
+  const accountChanged = changedFor !== false && changedFor === accountKey;
+  const rpc = useMemo(() => boundReceiptRpc(accountKey, () => { seq.current++; setChangedFor(accountKey); }), [accountKey]);
   const [month, setMonth] = useState(today().slice(0, 7));
   const [notice, setNotice] = useState<{ text: string; error?: boolean } | null>(null);
   const [printDoc, setPrintDoc] = useState<Doc | null>(null);
@@ -96,15 +96,26 @@ export function ReceiptsBoard({ accountKey }: { accountKey?: string | null } = {
     } catch (e) {
       if (my === seq.current) setNotice({ text: (e as Error).message, error: true });
     }
-  }, [month, accountKey]);
+  }, [month, accountKey, rpc]);
   useEffect(() => { void load(); }, [load]);
-  // 계정이 바뀌면 이전 계정 알림·인쇄 대기를 비움(자료는 위 state 판정으로 바로 숨겨짐)
-  const prevKey = useRef(accountKey);
+  // 처음 열 때·계정이 바뀔 때 한 번: 이전 계정 알림·인쇄 대기·초안·탭을 비우고(자료는 위 판정으로 이미 숨김),
+  // 지금 계정이 만든 초안만 꺼내 발행 탭을 연다. StrictMode 두 번 실행에서도 한 번만(초안을 두 번 꺼내 잃지 않게).
+  const prevKey = useRef<string | null | undefined | typeof FIRST_OPEN>(FIRST_OPEN);
   useEffect(() => {
     if (prevKey.current === accountKey) return;
+    const first = prevKey.current === FIRST_OPEN;
     prevKey.current = accountKey;
-    setNotice(null);
-    setPrintDoc(null);
+    if (!first) {
+      setNotice(null);
+      setPrintDoc(null);
+      setDraftOf(null);
+      setTab("evidence");
+    }
+    const d = takeDraft(accountKey);
+    if (!d) return;
+    setDraftOf({ key: accountKey, d });
+    setTab("issue");
+    setNotice({ text: `받은 업무${d.from ? ` 「${d.from}」` : ""}에서 읽은 값으로 세금계산서를 채웠습니다. 거래처·품목·금액을 확인한 뒤 저장하세요.` });
   }, [accountKey]);
   // 화면 해제(StrictMode 정리 포함) 때 진행 중 요청 무효
   useEffect(() => () => { seq.current++; }, []);
@@ -117,8 +128,17 @@ export function ReceiptsBoard({ accountKey }: { accountKey?: string | null } = {
     return () => { clearTimeout(t); window.removeEventListener("afterprint", after); };
   }, [printDoc]);
 
+  if (accountChanged) {
+    return (
+      <div className="aww-inbox-notice error" role="alert">
+        <span>{ACCOUNT_CHANGED_MESSAGE}</span>
+        <button type="button" className="rc-btn" onClick={() => location.reload()}>🔄 새로고침</button>
+      </div>
+    );
+  }
   if (!state) return <div className="aww-inbox-empty">불러오는 중…</div>;
   return (
+    <ReceiptRpcContext.Provider value={rpc}>
     <div className="rc" key={accountKey ?? ""}>
       {notice && (
         <div className={`aww-inbox-notice rc-noprint ${notice.error ? "error" : ""}`} role="status">
@@ -138,11 +158,13 @@ export function ReceiptsBoard({ accountKey }: { accountKey?: string | null } = {
       </div>
       {printDoc && <PrintView doc={printDoc} me={state.profile ?? EMPTY_BIZ} />}
     </div>
+    </ReceiptRpcContext.Provider>
   );
 }
 
 // ---------------------------------------------------------------- 📷 증빙 정리
 function EvidenceTab({ state, month, setMonth, reload, notify }: { state: State; month: string; setMonth: (m: string) => void; reload: () => void; notify: (n: { text: string; error?: boolean }) => void }) {
+  const rpc = useReceiptRpc(); // 2026-11-17 WS-20261117-17: 화면 기대 계정이 실린 요청
   const [pending, setPending] = useState<Pending[]>([]);
   const [manual, setManual] = useState(false);
 
@@ -294,19 +316,26 @@ function EvidenceForm({ initial, hint, onSave, onCancel }: { initial: Evidence; 
 
 // ---------------------------------------------------------------- ✍️ 발행
 // 2026-11-15 받은 업무 「🧾 세금계산서 초안」이 넘긴 값(sessionStorage aww:rcptDraft, 한 번 쓰고 지움)
-interface Draft { partner?: Biz; date?: string; lines?: Line[]; memo?: string; from?: string }
-function takeDraft(): Draft | null {
+// 2026-11-17 QA017: account = 초안을 만든 회원 id(받은 업무 화면이 넣음). 지금 계정과 같을 때만 꺼내 쓰고 지운다.
+// 계정 표시가 없거나(이전 형식) 다른 계정 초안이면 쓰지 않고 그대로 둔다(자료 무단 삭제 0, 같은 계정 화면이 나중에 쓸 수 있음).
+interface Draft { partner?: Biz; date?: string; lines?: Line[]; memo?: string; from?: string; account?: string }
+const FIRST_OPEN = Symbol("first-open");
+function takeDraft(accountKey: string | null | undefined): Draft | null {
+  if (!accountKey) return null;
   try {
     const raw = sessionStorage.getItem("aww:rcptDraft");
     if (!raw) return null;
+    const d = JSON.parse(raw) as Draft;
+    if (!d || d.account !== accountKey) return null;
     sessionStorage.removeItem("aww:rcptDraft");
-    return JSON.parse(raw) as Draft;
+    return d;
   } catch {
     return null;
   }
 }
 
 function IssueTab({ state, reload, notify, print, goInfo, draft }: { state: State; reload: () => void; notify: (n: { text: string; error?: boolean }) => void; print: (d: Doc) => void; goInfo: () => void; draft?: Draft | null }) {
+  const rpc = useReceiptRpc(); // 2026-11-17 WS-20261117-17: 화면 기대 계정이 실린 요청
   const [kind, setKind] = useState<DocKind>(draft ? "tax_invoice" : "statement");
   const [date, setDate] = useState(draft?.date && /^\d{4}-\d{2}-\d{2}$/.test(draft.date) ? draft.date : today());
   const [partner, setPartner] = useState<Biz>(draft?.partner?.name ? { ...EMPTY_BIZ, ...draft.partner } : EMPTY_BIZ);
@@ -582,6 +611,7 @@ function BizFields({ value, onChange }: { value: Biz; onChange: (b: Biz) => void
 
 // ---------------------------------------------------------------- 🏢 내 사업자·거래처·품목
 function InfoTab({ state, reload, notify }: { state: State; reload: () => void; notify: (n: { text: string; error?: boolean }) => void }) {
+  const rpc = useReceiptRpc(); // 2026-11-17 WS-20261117-17: 화면 기대 계정이 실린 요청
   const [me, setMe] = useState<Biz>(state.profile ?? EMPTY_BIZ);
   const [partner, setPartner] = useState<Biz>(EMPTY_BIZ);
   const [item, setItem] = useState<Item>({ name: "", spec: "", unitPrice: 0 });

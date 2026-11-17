@@ -3,6 +3,18 @@
 // 로그인이 끊기면(401: 다른 탭에서 계정을 바꾸며 로그아웃 등) 화면 위에 「새 탭에서 다시 로그인」 띠를 띄운다.
 // 새 탭에서 로그인하면 이 탭의 입력 내용은 그대로 남아, 돌아와서 같은 버튼을 다시 누르면 된다.
 
+import { ACCOUNT_CHANGED_MESSAGE, ACCOUNT_CHANGED_NAME, EXPECTED_ACCOUNT_HEADER } from "./accountGuard";
+
+/** 2026-11-17 WS-20261117-17: 화면이 기대한 계정과 지금 로그인 계정이 다름(서버 409). 화면은 옛 자료를 숨기고 새로고침을 안내한다. */
+export class AccountChangedError extends Error {
+  constructor() {
+    super(ACCOUNT_CHANGED_MESSAGE);
+    this.name = ACCOUNT_CHANGED_NAME;
+  }
+}
+/** 선택 옵션 — expectedAccount를 주면 서버가 지금 로그인 회원과 비교한다(없으면 기존과 같음). */
+export interface RpcOptions { expectedAccount?: string | null }
+
 export const RELOGIN_MESSAGE = "로그인이 끊겼습니다. 위 안내 띠의 「새 탭에서 다시 로그인」으로 로그인한 뒤 같은 버튼을 다시 눌러 주세요. 지금 화면에 입력한 내용은 그대로 남아 있습니다.";
 
 const BANNER_ID = "aww-relogin-banner";
@@ -30,9 +42,12 @@ export function showReloginBanner() {
   document.body.appendChild(bar);
 }
 
-export async function rpc<T>(name: string, body: Record<string, unknown> = {}): Promise<T> {
-  const res = await fetch(`/api/rpc/${name}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+export async function rpc<T>(name: string, body: Record<string, unknown> = {}, opts: RpcOptions = {}): Promise<T> {
+  const headers: Record<string, string> = { "content-type": "application/json" };
+  if (opts.expectedAccount) headers[EXPECTED_ACCOUNT_HEADER] = opts.expectedAccount;
+  const res = await fetch(`/api/rpc/${name}`, { method: "POST", headers, body: JSON.stringify(body) });
   const json = await res.json().catch(() => ({}));
+  if (res.status === 409 && (json as { name?: string }).name === ACCOUNT_CHANGED_NAME) throw new AccountChangedError();
   if (res.status === 401) {
     showReloginBanner();
     throw new Error(RELOGIN_MESSAGE);

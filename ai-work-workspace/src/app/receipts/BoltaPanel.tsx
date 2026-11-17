@@ -2,12 +2,13 @@
 // 세금계산서 바로 발급 — 볼타(2026-11-13, 플랜 docs/PLAN_20261113_U14_AND_DEFERRED.md §2-5).
 // 처음 설정 4단계: 1 볼타 API 키 등록 → 2 발급자(내 사업자) 등록 → 3 공동인증서 등록 → 4 테스트 발급 확인 뒤 live_ 키로 바꾸고 실제 발급 동의.
 import { useCallback, useEffect, useState } from "react";
-import { rpc } from "@/lib/standaloneRpc";
+import { useReceiptRpc } from "./receiptRpc"; // 2026-11-17 WS-20261117-17: 보드가 내려 준 화면 기대 계정 rpc
 import { boltaNextStep, certDaysLeft, type BoltaNextStep } from "@/server/boltaCert";
 
 interface BtStatus { keys: boolean; keyOk: boolean; mode: "test" | "live" | null; bizNo: boolean; issuer: boolean | null; cert: boolean | null; certExpires: string | null; liveAgreed: boolean; problem: string | null; webhookUrl?: boolean }
 
 export function BoltaPanel({ notify }: { notify: (n: { text: string; error?: boolean }) => void }) {
+  const rpc = useReceiptRpc(); // 2026-11-17 WS-20261117-17: 화면 기대 계정이 실린 요청
   const [open, setOpen] = useState(false);
   const [st, setSt] = useState<BtStatus | null>(null);
   const [busy, setBusy] = useState(false);
@@ -18,7 +19,7 @@ export function BoltaPanel({ notify }: { notify: (n: { text: string; error?: boo
     } catch (e) {
       notify({ text: (e as Error).message, error: true });
     }
-  }, [notify]);
+  }, [notify, rpc]);
   useEffect(() => {
     if (open && !st) void load();
   }, [open, st, load]);
