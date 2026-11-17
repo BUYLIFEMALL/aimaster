@@ -27,3 +27,8 @@
 - 초안: **범위 추가 보고** — `src/app/inbox/page.tsx`·`InboxBoard.tsx`가 서버 확인 `user.id`를 받아 초안에 `account`를 넣고 `rcptReadText`에도 기대 계정 전달(작성 계정 확인을 위해 필요). 영수증 쪽 `takeDraft(accountKey)`는 같은 계정 초안만 꺼내 쓰고 지움, 계정 표시 없는 이전 형식·다른 계정 초안은 쓰지 않고 그대로 둠. 초안·탭·알림은 계정 변경 때 초기화(첫 열기와 구분, StrictMode 두 번 실행 안전).
 - 시험(DB·실네트워크 0, 관련 6파일 33/33): `rpcAccountGuard` 6(실제 POST 처리기, rcptState·rcptSaveEvidence·btIssue·btAmend 불일치 409와 runRpc/AI/모델/after 0, 같은 계정 정상, 헤더 없는 회귀), `standaloneRpcAccount` 3, `receiptsViewDom` 15(기대 계정 전달, 409 숨김, 볼타 요청 기대 계정, 세 파일 직접 rpc 금지, A 초안→B 입력칸 A 값 0·B 요청만, 다른 계정·이전 형식 초안 미사용·보존, StrictMode 초안), `receiptsRouteSpace` 3, `receiptsRoute` 3, `studioRoute` 3. 수정 전: 새 시험 3파일 모두 모듈 없음으로 실패(행동 단위 수정 전 실패는 초안 시험에 대해 따로 돌리지 않음).
 - 한계: 실제 발급·운영 DB·3457·전체 tsc·빌드 0. 409 뒤 「새로고침」은 페이지 전체 다시 열기.
+
+## QA017 P2 — 영수증 rpc 계정 id 없음 fail-closed(Master msg_6035bd7fdf69, Mac msg_014541b68abb) — ready_review
+- 커밋 `c35c0bb18`(2파일). `src/app/receipts/receiptRpc.ts` boundReceiptRpc: 기대 계정이 문자열이 아니거나 공백뿐이면 fetch 전에 onAccountChanged 호출 + AccountChangedError(보드 숨김·쓰기/발급 0). 공용 `standaloneRpc` 옵션 없는 호출 변경 0.
+- 시험 `receiptRpcBound` 6: 빈 값·null·undefined·공백 → fetch 0·알림 1·오류(수정 전 4개 **행동 실패** 확인), 정상 id → 정확한 헤더 1회, 409 회귀. 함께 `receiptsViewDom` 15 → 21/21.
+- 기록 유지: 다른 탭에서 계정을 바꾼 뒤 조용히 있는 화면은 다음 rpc 때까지 기존 화면이 남는 설계 한계, 받은 업무의 다른 동작은 이번 보호 범위 밖.
