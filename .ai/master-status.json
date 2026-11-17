@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T00:39:32.962Z",
+  "checkedAt": "2026-11-17T00:40:20.674Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2402,13 +2402,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "영수증 SPA 사이드바 연결 독립소스검수",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "ready",
+      "delivery": "queued",
       "priority": "P2",
       "evidence": "msg_7ba69f851b09 QA017 route4PASS/계정late응답P1·domain동기화P2",
       "scopeRef": "WS17-17변경읽기·자기QA결과만",
       "completion": "route/기존client Board/계정인가/문맥전환/스타일범위/standalone회귀·실시각미검수구분",
-      "next": "수정반환후계정전환/late/unmount/도메인새경계재검토,전체PASS보류",
+      "next": "ESM소스마감후7485791ec 영수증서버계정/초안검토이어가기·DB/외부/빌드0",
       "lastReviewedAt": "2026-11-17T00:16:35.868Z"
     },
     {
@@ -2419,12 +2419,12 @@
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "title": "ESM 모바일 메뉴 닫기·가격 오류 입력 보존 수정",
       "priority": "P1",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "msg_2be729baeef6 Mac실TSX가격유지/Menu상태PASS·상품props A→B 잔존P2 / msg_91fba6187864 실제소스key A→B개선·오류뒤checkboxDOM/state불일치추가 / msg_6526e57dc1f0 실제TSXmock 동일오류2·동의false/required/pending/B전환·type0",
-      "completion": "모바일X실클릭차단원인수정·서버숫자오류뒤입력보존·다른필드/중복생성회귀·관련경량검증,실배포미검수구분",
-      "next": "Mac QA016 상품key+동의수명 국소마감검토배정,미배포v1.02 후보동결·실CSS/운영미검수,빌드/DB/실ESM0",
-      "lastReviewedAt": "2026-11-17T00:37:41.577Z",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_2be729baeef6 Mac실TSX가격유지/Menu상태PASS·상품props A→B 잔존P2 / msg_91fba6187864 실제소스key A→B개선·오류뒤checkboxDOM/state불일치추가 / msg_6526e57dc1f0 실제TSXmock 동일오류2·동의false/required/pending/B전환·type0 / msg_414209833d58 Mac실TSX deferred계정/동의수명 독립PASS",
+      "completion": "소스수정/독립검수배정범위완료. 모바일stacking소스/폼오류입력유지·상품key/늦은응답·반복동의검증. 실CSS hit-test/실Next이동/실등록/배포미검수",
+      "next": "v1.02후보27ae+c909+a6e+d970+3208동결·운영v1.01미반영/배포후실동작확인별도,빌드미승인",
+      "lastReviewedAt": "2026-11-17T00:40:20.674Z",
       "sha": "a6e36da2a + d970a2a40 + 3208d290e"
     }
   ],
