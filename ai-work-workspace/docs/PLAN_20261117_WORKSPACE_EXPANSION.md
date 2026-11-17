@@ -348,3 +348,18 @@ E1 독립 검수(QA17-003)와 별개로 계획만. 디자인 3안 선택 전이�
 - 속성 번호 근거: 템플릿 복사(`templates.ts copyTreeOps`)는 collection을 `...rest`로 옮겨 schema 키가 그대로 → 복사본 규칙의 `aApr`·`created_by` 참조가 새 표 schema에 있음을 시험으로 확인.
 - 실서버 증거(격리 시험 DB): 일반 편집(read_and_write) 요청자·결재자·제3자 + 전체 권한 주인. 화면 저장 `applyChanges`·공개 API `PATCH /v1/pages/:id`·AI/버튼과 같은 client 거래 모두에서 제3자·요청자 상태 변경 거절, 결재자 허용; 결재자 지정은 세 회원 모두 거절·주인만; 같은 거래 「결재자=나+승인」 전체 거절; 요청자 자기 결재자 지정 새 행 거절·행 0; 규칙 스키마 삭제 거절; 반례: 규칙을 뺀 표에서는 같은 제3자가 상태를 바꿀 수 있었음. 상태 기본값은 새 행에 저장되지 않아 요청자 새 행이 막히지 않음.
 - 남은 한계: 표 전체 권한자는 모든 칸을 바꿈(기존 동작, 템플릿 설명에 평문), 결재자로 지정되면 기존 「사람 속성 지정」 알림이 함께 감(결재 요청 알림과 별개), 앱 알림만, 결재 이력은 페이지 버전 기록.
+
+### 7-14. E3-4 셀 AI 출처 읽기 조사 (2026-11-17, Master `msg_c9df8533e961`) — 코드 0, E3-3 QA034 동안
+**지금 있는 것(재사용)**
+- 칸 AI 채우기: 화면 `web/features/ai/autofill.ts` → RPC `aiAutofill`(`api/modules/ai.ts` 329, `modelCall`: 로그인·AI 설정·회원 한도) → `ai/service.ts` `runAutofill`(행 열람 권한 `rowForAutofill`·워크스페이스 AI 정책) → `prompts.ts` `buildAutofillRequest`/`autofillValue`. 값은 서버가 돌려주고 **화면이 회원 본인 거래로 저장**(`setProperty`, client 거래 → 칸 권한 규칙 그대로). 시험용 모델 주입 `runAutofill(p, client)` 있음. **웹 검색·출처 없음.**
+- 검색: `ai/providers/webSearch.ts` — 회원이 고른 검색(`aww_search_tool`: 자동·모델 내장·네이버·카카오·Tavily·Perplexity·SerpAPI), **회원 본인 공용 키(user_api_keys)만**(`memberSearch()` 요청 단위 저장소, 운영자 키 없음), `planSearch`(고른 키 없으면 내장→다른 등록 키), `runWebSearch`(20초, 결과 최대 8개, http(s) 주소만, 키 값 오류에 안 넣음, 한국어 오류), 시험용 `setWebSearchFetch`. 채팅은 `service.ts` 404~411에서 외부 검색이면 `web_search` 함수 도구, 내장이면 모델 서버 도구(출처는 모델 응답 인용에서).
+- 정책: 워크스페이스 `aiPolicy.webSearch`(`ai_web_search`, 기본 켬) — 채팅은 이 값을 지킴.
+- 자동 다시 채우기 `ai/autofillAuto.ts`: 행 편집 몇 초 뒤 서버가 대신 실행(`client: true`) — 여기서 검색까지 하면 편집마다 유료 검색이 반복됨.
+
+**최소 구현 단위(제안, 유료 호출 없이 시험 가능)**
+1. `aiAutofill`에 선택 입력 `web: true`(수동 실행만). 서버: `aiPolicy.webSearch` 꺼짐이면 거절, `searchPlanFor`가 **외부 검색일 때만** 1회 검색(검색어 = 회원 지시 + 행 제목, 300자) → 결과를 번호 붙인 자료로 `buildAutofillRequest`에 넣고 「자료에 있는 것만, 근거 번호」 지시 → 응답에 `sources: [{n,title,url}]`(쓴 번호만, 최대 8). 모델 내장 검색(서버 도구·인용 파싱이 모델마다 다름)은 이번 단위 제외 → 외부 검색 키가 없으면 「검색 도구 키 등록」 안내로 거절(조용히 검색 없이 채우지 않음).
+2. 출처 저장: 새 저장 경로 0 — 응답의 출처를 화면에 보여 주고, 회원이 고른 **같은 행의 URL 칸**이 있으면 첫 출처 주소를 같은 `setProperty` 거래로(칸 권한 규칙 그대로). 행 댓글 저장은 다음 단위(새 쓰기 경로라 별도 검토).
+3. 자동 다시 채우기(`autofillAuto`)·에이전트에는 넣지 않음(`web`은 수동 요청에서만 받음).
+- 시험(유료 0): `setWebSearchFetch` 가짜 응답 + `runAutofill(…, client)` 가짜 모델 → 회원 키 없음 거절·정책 꺼짐 거절·다른 회원 키 안 씀·http 외 주소 버림·출처 번호 범위 밖 버림·검색 실패 시 한국어 오류·자동 채우기 경로에 web 무시. 실제 검색·모델 1회 확인은 비용 승인 뒤 시험 계정 키 최저가로.
+- 정확 경로(예정): `server/api/modules/ai.ts`(aiAutofill 입력), `server/ai/service.ts`(runAutofill), `server/ai/prompts.ts`(자료 포함 요청·출처 번호 정리), `web/features/ai/autofill.ts`·`autofillUi.tsx`(「웹에서 찾기」 체크·출처 표시·URL 칸 고르기), 번역 사전 1~3줄, 새 시험 `tests/integration/autofillWeb.test.ts`. `webSearch.ts`·검색 공급자·회원 키 구조 변경 0.
+- 결정 필요: 내장 검색만 쓰는 회원(외부 검색 키 없음)도 이번에 지원할지(지원하면 모델별 인용 파싱 필요 → 범위·시험 비용 커짐). 권장: 이번은 외부 검색만.
