@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 04:03:22 KST",
+  "checkedAt": "2026-11-18 04:31:06 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,23 +12,23 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T19:03:19.921Z",
+      "at": "2026-11-17T19:31:06.275Z",
       "timezone": "Asia/Seoul",
-      "trigger": "04:00 Windows예약 기존Master수신",
-      "scope": "보고/관리자요청·19카테고리/미종료작업판·docs/프로그램인계증분·제품미커밋·로컬12연결/AGY실화면·공식운영alias·전달기능help",
+      "trigger": "04:30 Windows예약 기존Master수신",
+      "scope": "담당보고/관리자요청·19카테고리 미종료작업·docs/프로그램docs/미등록인계 증분·제품미커밋·기존로컬12세션 상태",
       "evidence": [
-        "msg_a63de67ba021·Windows04:00 LastTaskResult0/다음04:30",
-        "dev-requests codex-master 대기0·새보고/인계0(자체생성플랜제외)",
-        "HEAD d3a0cbaf7 이후제품변경0·emotion/Workspace/mall src미커밋0",
-        "Vercel alias dpl_D9ExEsYD9sH9zAxZy38dkU2UUMUz/v1.29유지",
-        "PORT19수락보고0·AGYscreen 빈prompt/기존background표시,원인미확정·orca send help에전달강제우회없음"
+        "msg_19370ad3d9ef·Windows04:30 LastTaskResult0/다음05:00",
+        "dev-requests codex-master 대기0·새보고/인계0(자체생성진행표3개제외)",
+        "HEAD ced24e376 이후 신규커밋0·emotion/Workspace/mall src미커밋0",
+        "로컬12연결·Ecom/Workspace 선택질문 유지·AGY PORT19 수락/결과0"
       ],
-      "judgment": "운영1.29복구유지·새승인/사람완료신호없음. Ecom/Gmail선택질문·AGY수신미정착을작업착수/완료로단정0. 기존준비배정유지·중복발송/시험/새창0.",
+      "judgment": "새승인/사람완료/제품변경없음. 기존작업·차단조건유지. queued를착수로판정하지않고중복배정/재발송/시험0.",
       "unverified": [
-        "PORT19실수신/착수·Ecom/Gmail선택질문답변",
-        "GCP앱일치/시험사용자실목록·Lab시험카드제출·Mac반환"
+        "AGY PORT19 실제수신/착수",
+        "Ecom 재빌드승인·Gmail 공개/빌드결정",
+        "Lab 시험카드제출·Mac 반환·운영alias 이번회차 재조회없음(04:00 근거 유지)"
       ],
-      "nextAction": "기존질문/수신복구/완료이벤트후후속판정·04:30현재터미널예약, 신규배포/DB/AI0"
+      "nextAction": "기존담당 수락/사람완료/결정 이벤트후 후속판정·05:00 동일터미널예약"
     },
     "notifications": [
       {
@@ -96,7 +96,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-17T19:30:00.000Z",
+      "nextScheduledAt": "2026-11-17T20:00:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -114,8 +114,8 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-17T19:00:00.000Z",
-        "messageId": "msg_a63de67ba021",
+        "scheduledAt": "2026-11-17T19:30:00.000Z",
+        "messageId": "msg_19370ad3d9ef",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false
