@@ -34,3 +34,8 @@
 | 139 주 단추 흰 글자/코랄 3.7:1 | `home-slots.tsx:52` `HeroLink primary` → 공통 단추 `--mall-primary-600` 바탕+흰 글자 | 색 프리셋 코랄(`#e5534b`) 자체가 흰 글자와 4.5:1 미만(테마 문제가 아니라 프리셋 색) | `templates.ts` 코랄 프리셋 primary를 한 단계 진하게(예: 흰 글자 4.5:1 이상 값) — 모든 코랄 몰에 영향이라 Master·디자인 판단. 또는 `theme.ts` `contrastWarning`이 단추 글자 대비도 보게 넓히기 |
 | 143 카테고리 탭 「생활용품」 등 14px 4.15:1 | `shop-frame.tsx:44` `navCls` `text-slate-600` | 어두운 테마에서 `slate-600`이 뒤집혀 중간 회색 → 어두운 면 위 4.15:1 | `navCls`의 `text-slate-600`을 `text-slate-700`로(밝은 테마에선 더 진해질 뿐, 어두운 테마에선 더 밝아짐) — 한 단어 수정 |
 - 세 건 모두 지금은 고치지 않음(배정 범위 밖). 공유 `bg-white/95`의 상세·앱 설치 안내 파급은 계속 미검수.
+
+## 후속 후보 보충 (2026-11-17, Master 지시 msg_24b2b1a9755e — 제품 소스 동결, 새 코드·빌드 0)
+- 두 테마 색·계산: 밝게 = `bg-blue-600`(기본 파랑 #2563eb) + 흰 글자 약 5.17:1(통과). 어둡게 = `theme.ts:148`이 `--color-blue-*` 단계를 거꾸로 짝지어 600 자리에 400 단계 색(#60a5fa 계열)이 들어가 흰 글자 약 2.5~2.8:1(실측 2.79, 기준 4.5 미달). 단추 색 `--mall-primary-600`은 뒤집지 않으므로 그대로 쓰면 밝게와 같은 약 5.17:1.
+- 정확 선택자·최소안: `[data-mall-mode="dark"] :is(.bg-blue-600, .bg-blue-700).text-white { background-color: var(--mall-primary-600); }` 1줄(필요하면 `.hover\:bg-blue-700:hover`도 `--mall-primary-700`로 1줄). 클래스·컴포넌트 변경 없음.
+- 영향: 어두운 테마 상점 화면 안의 `bg-blue-600|700 + text-white` 조합 전부(shop-frame 머리글 「A」, (shop)/layout 가입 단추·숫자 배지, quick-bar, order-form, quick-form, r/[code], home-slots). 밝은 테마·관리자 화면은 `data-mall-mode="dark"` 바깥이라 변화 없음. 디자인 편집기 미리보기가 어두운 테마면 같은 규칙이 적용됨. 검증은 Lab Ready 뒤 Mac QA 실화면과 함께, 별도 배정 시에만.
