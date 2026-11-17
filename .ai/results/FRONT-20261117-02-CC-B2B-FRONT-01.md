@@ -1,4 +1,4 @@
-# FRONT-20261117-02 결과 — 어두운 테마 파란 단추 대비 1규칙 (CC-B2B-FRONT-01, ready_review)
+# FRONT-20261117-02 결과 — 어두운 테마 파란 단추 대비 1규칙 (CC-B2B-FRONT-01, 코드 완료·11-17 Lab 반영(`7609748ad`, `dpl_CFgB5fC5NLdrye4K7esG1tWRktXQ`)·운영 몰 미배포, 이전 표기: ready_review)
 
 - 배정: msg_6e855d675ba4 (주인님 작업요청 취합 → Master 승인). 범위: 후보 1만. 후보 2~6·프리셋·코랄 색 변경 0.
 - 커밋: `acb858a77` (2 files, +33). 점유 등록 `8feb7d614`, 해제는 이 결과 커밋과 함께.
