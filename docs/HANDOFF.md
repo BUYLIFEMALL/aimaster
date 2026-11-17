@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-18 ✅ [역할: design] Antigravity CLI(AGY) · 세션 `agy-win-design` — 감성 글귀 이미지 (emotion-writer) 좌측메뉴 지침 순서 정렬 및 API키 발급/생성 3D 버튼 탑재 v1.29
+- 주인님 직접 지시 1: `docs/SIDEBAR_LAYOUT_STANDARD.md` 필수 순서에 따라 좌측 사이드바 유틸리티 영역을 `🔑 API키등록·플랫폼연동` → `📖 연동 & 사용 매뉴얼` 순서로 정렬 (상단 워크플로우 위에는 매뉴얼 완전 제거).
+- 주인님 직접 지시 2: API 키 설정 화면(`KeySettings.tsx`)에서 불필요한 `[ 👁 보기 ]` 버튼을 제거하고, 그 자리에 공식 콘솔 바로가기 3D 버튼 **`[ 🔑 {platformName} API 키 발급/생성하기 ↗ ]`**(`.btn-create-key`) 탑재.
+- 검수: tsc 0, 단위 테스트 35/35 전체 PASS, Next.js `npm run build` 성공.
+- 변경 파일: `emotion-writer/src/components/Sidebar.tsx`, `emotion-writer/src/components/KeySettings.tsx`, `emotion-writer/src/app/globals.css`, `emotion-writer/src/lib/version.ts` (v1.29), `emotion-writer/AGENTS.md`.
+
 ## 2026-11-18 ✅ [역할: design] Antigravity CLI(AGY) · 세션 `agy-win-design` — 감성 글귀 이미지 (emotion-writer) 사이드바 매뉴얼 버튼 하단 이동 및 v1.28 반영
 - 주인님 직접 지시(스크린샷): 좌측 사이드바 상단 `CREATION WORKFLOW (1~6단계)` 위에 위치하던 `📖 연동 & 사용 매뉴얼` 버튼을 하단 `🔑 API키등록·플랫폼연동` 바로 위 유틸리티 섹션으로 이동 배치.
 - 최상위 공통 지침: `src/app/layout.tsx`에 공통 저장공간 위젯(`<Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />`) 반영.
