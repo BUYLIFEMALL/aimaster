@@ -291,3 +291,5 @@ B2B-20261117-09 책임 CC-B2B-BACK-01. acf00f9bb 정확경로 계획에 따라 �
 B2B-20261117-09 QA014 범위 추가: 기존 src/app/s/[store]/(shop)/orders/[id]/pay/pay-widget.tsx 선택적 exchange 모드만 CC-B2B-BACK-01 수정 허용. 기본 주문 모드 동작 보존, 교환 모드의 SDK 오류·취소 안내만 고정 문구로 분리. 콜백 권한 검사·정상 done 직원 GET 재조회·failed 재사용 미검증 안내 국소 보완, 공용 payment.ts/0104/다른 Front 범위 변경 금지. 실제 외부/빌드/배포0.
 
 B2B-20261117-07 릴리스 준비 범위 추가: CC-B2B-BACK-01만 mall-builder/docs/handoff-0104-lab/ 내 precheck/apply/verify/README/build 자료 작성. 고정 0104 원문 739b35e9… 그대로 포함, 실제 Lab 쓰기·RPC 호출·결제·빌드·환경변경 없음. Lab에서 운영 고정 scripts/deploy-prod.mjs·prod-env-setup.mjs 사용 금지. 실행 전 별도 Master 검토·지시 필요.
+
+WS-20261117-17 CC-WORKSPACE-01: 주인님 receipts 메인 메뉴 지시. ai-work-workspace 클라이언트 router.ts·shell/Workspace.tsx·AimasterSidebar.tsx의 SPA receipts 경로/분기/링크 연결 및 필요한 기존 ReceiptsBoard client 렌더·관련 경량 테스트만. 기존 /receipts 유지, 정확 경로·미커밋 확인 후 수정. 새 서버/API/DB/권한 변경·로컬 재가동·빌드 없음. 다른 영역 필요 시 범위 조정 보고.

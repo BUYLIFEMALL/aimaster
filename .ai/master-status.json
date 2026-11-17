@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T00:11:18.411Z",
+  "checkedAt": "2026-11-17T00:13:21.682Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2379,6 +2379,21 @@
       "completion": "실배포버전/로그인/메뉴/매뉴얼/주요준비흐름·화면 크기별 실동작 근거·버그/차단/외부등록미검수 구분",
       "next": "Mac 실제브라우저 검수 우선배정·외부ESM상품등록/설치/계정변경/유료API/운영DB쓰기/빌드0",
       "lastReviewedAt": "2026-11-17T00:11:18.411Z"
+    },
+    {
+      "task_id": "WS-20261117-17",
+      "parent_task_id": "WS-20261117-13",
+      "owner": "CC-WORKSPACE-01",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "title": "주인님 직접지시 영수증 화면 메인 사이드바 연결",
+      "priority": "P2",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "주인님 직접지시 보고: 이 페이지도 좌측에 메인 메뉴 보이게 처리해줘 / 운영 receipts 캡처",
+      "completion": "domain receipts SPA route와기존client Board재사용/사이드바연결·기존standalone유지·관련경량검사,서버DB0·실화면/배포미검수구분",
+      "next": "정확경로점유확인후단독구현·서버재가동/설치/전체시험/빌드0·미배포묶음",
+      "lastReviewedAt": "2026-11-17T00:13:21.681Z"
     }
   ],
   "programOverrides": [
