@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 16:19:43 KST",
+  "checkedAt": "2026-11-17 16:20:27 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4884,13 +4884,13 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "예약표 초회 초기화 경합 보완",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "priority": "P2",
-      "evidence": "운영초회bookingGet/List 동시CREATE pg_type중복1건·표생성후정상 / Master실검증보고후구현배정 / db56d1697·作者2연결red→green·59tests/tsc0·Masterdiff/cleanupSQL직접대조",
+      "evidence": "운영초회bookingGet/List 동시CREATE pg_type중복1건·표생성후정상 / Master실검증보고후구현배정 / db56d1697·作者2연결red→green·59tests/tsc0·Masterdiff/cleanupSQL직접대조 / msg_2de10c0f2b67 QA028실ensure+tx mock/commit실패복구/진입최상위PASS",
       "scopeRef": "booking.ts ensureTables/booking.test.ts·격리초회2연결·운영DDL/build0",
       "completion": "격리동시초기화재현/안전한직렬화·원문오류노출검토",
-      "next": "QA028독립검토·미배포다음묶음",
+      "next": "d7895f6d4 소스검토완료·미배포다음묶음·운영v1.57미반영/미래중첩tx한계유지",
       "sha": "d7895f6d4"
     },
     {
@@ -4899,12 +4899,12 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "예약표 초회DDL 직렬화 독립검토",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "msg_8db20e183699",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_8db20e183699 / msg_2de10c0f2b67 QA028실ensure+tx mock/commit실패복구/진입최상위PASS",
       "scopeRef": "d7895f6d4 booking2파일·소스/가능모의·DBreset/build0",
       "completion": "tx/lock세션/commit-ready/실패복구/OFF판정",
-      "next": "독립결과반환·미배포구분"
+      "next": "d7895f6d4 소스검토완료·미배포다음묶음·운영v1.57미반영/미래중첩tx한계유지"
     }
   ]
 }
