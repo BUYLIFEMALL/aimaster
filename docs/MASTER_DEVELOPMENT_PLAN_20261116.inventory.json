@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 19:01:01 KST",
+  "checkedAt": "2026-11-17 19:06:58 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -5093,13 +5093,13 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "E4 Gmail함 기존기능/권한 대조와 최소범위 조사",
-      "status": "running",
-      "delivery": "queued",
+      "status": "ready_review",
+      "delivery": "returned",
       "scopeRef": "OFF배선 gmailHandlers/runtime/gmailApi/InboxBoard/page/GmailInboxPanel·新gmailHandlers/gmailApiAdapter試験·qa_gmail_wire전용. QA039패널/DOM국소수정우선. SQL/gmailInbox/공용RPC불변",
-      "evidence": "QA039패널a77ed2b57 DOM32·QA038서버c250894f1 실제SDK가짜fetch포함120/tsc0 작성자반환, Mac고정재검수배정; QA038 c250894f1/QA039 a77ed2b57 msg_defda98931e9 독립지정PASS 수락",
+      "evidence": "OFF배선d8e7e188c/패널off1c46f1bd4/PLANcd0ee61e0·전체61파일792/tsc0·qa_gmail_wire삭제 작성자보고",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "OFF배선구현/실handler·adapter·DOM시험완료보고→배선통합검수. SQL운영미적용/Gmailfalse",
-      "sha": "1008730e1",
+      "next": "QA040입구/adapter/Inbox독립통합검수·릴리스선행조건문서정리, 운영미적용/false/실Google0",
+      "sha": "d8e7e188c",
       "lastReviewedAt": "2026-11-17T09:00:52.380Z"
     },
     {
@@ -5176,6 +5176,20 @@
       "completion": "고정수정SHA의 지정반례·관련회귀 독립검토 완료. 실제Google/운영DB/브라우저및후속배선은범위외",
       "next": "소스수락·고정, OFF배선통합은후속독립검수",
       "evidence": "msg_ca1bef2b400d 실제TSX/jsdom: OFF/unknown잠금/계정늦은응답/StrictMode PASS, P2 선택변경결과오인·원문오류·addconflict잔존 재현; msg_defda98931e9: 지정국소 독립PASS(실PostgrestClient+fakefetch11/실TSXjsdom), 서비스/브라우저/DB0"
+    },
+    {
+      "task_id": "QA-20261117-040",
+      "parent_task_id": "WS-20261117-25",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "Gmail OFF 배선·실RPC入구/어댑터/화면 통합 독립검수",
+      "status": "ready",
+      "delivery": "queued",
+      "sha": "d8e7e188c",
+      "evidence": "패널off1c46f1bd4·Mac검수배정",
+      "scopeRef": "실모듈/가짜HTTP·계정/오류/OFF·로그 검토, 공유DBreset/실외부/운영/build0",
+      "completion": "4명령권한/expectedAccount/봉투unknown/OFF무호출/기존Inbox회귀 판정·証拠分離",
+      "next": "Mac고정SHA독립결과 반환"
     }
   ]
 }

@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 19:01:01 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 19:06:58 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -13,7 +13,7 @@
 | 순서 | 담당 | 진행 단계 | 다음 작업·통과 기준 |
 | --- | --- | --- | --- |
 | 1 · ESM | Ecom + Mac Tester | v1.02 운영 배포·Mac 웹 회귀 완료 | Mac ESM공간19 주인님제어중·로그인후 Return to agent 필요, 입력0. Ecom 구버전요청서정정 msg_a042112fc563 |
-| 2 · Workspace | Workspace + Master | v1.57운영·E3소스독립/통합560시험PASS·v1.58미배포 | Gmail 서버/패널 지정수정 독립PASS·OFF배선 계속, 실운영/Google미실행 |
+| 2 · Workspace | Workspace + Master | v1.57운영·E3소스독립/통합560시험PASS·v1.58미배포 | Gmail OFF배선소스792시험/tsc완료보고·QA040통합독립검수·활성/운영미적용 |
 | 3 · B2B | Backend + Master + Mac Tester | Lab0104 적용·검증PASS, Lab 신규배포 Ready·빌드1/1완료 | QA037 로그인폼·공개HTTP확인, Mac공간29 시험naver로그인/반환필요→고객/직원읽기검수 |
 | 4 · B2BFront | B2BFront + Mac Tester | FRONT04 dark hover7609748ad 독립소스PASS·미배포 | Backend Lab최종출처7609748ad재동결·DB0104실행대기 |
 | 5 · 블로그 | Blog | T05 robots/DNS·T07공용폴러 소스독립PASS·미배포 | 다음web-crawler묶음에통합·외부/빌드0 |
@@ -40,7 +40,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 214개: done 190개 · cancelled 6개 · ready_review 10개 · running 3개 · waiting_human 3개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 215개: done 190개 · cancelled 6개 · ready_review 11개 · running 2개 · waiting_human 3개 · ready 3개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -252,12 +252,13 @@
 | QA-20261117-033 | CX-QA-01 | done / integrated | E3-2 템플릿 앱알림/권한/부분실패 독립검토 | E3-2지정소스완료·미배포/전용결재권한별도 |
 | QA-20261117-034 | CX-QA-01 | done / integrated | E3-3 결재ACL/신뢰경계/거래우회 독립검토 | E3-3지정소스완료·운영gallery/시각/실알림미검수 |
 | QA-20261117-035 | CX-QA-01 | done / integrated | 셀AI웹출처 키·과금재시도·저장권한 독립검토 | 지정소스마감·실공급자/과금/사실성/운영UI·실DB미검수 |
-| WS-20261117-25 | CC-WORKSPACE-01 | running / queued | E4 Gmail함 기존기능/권한 대조와 최소범위 조사 | OFF배선구현/실handler·adapter·DOM시험완료보고→배선통합검수. SQL운영미적용/Gmailfalse |
+| WS-20261117-25 | CC-WORKSPACE-01 | ready_review / returned | E4 Gmail함 기존기능/권한 대조와 최소범위 조사 | QA040입구/adapter/Inbox독립통합검수·릴리스선행조건문서정리, 운영미적용/false/실Google0 |
 | WS-20261117-26 | CX-MASTER-01 | waiting_human / prepared | E3+WS23 v1.58 묶음 배포/운영 실검수 | 구체소스묶음보존·승인후실행순서확정 |
 | QA-20261117-036 | CX-QA-01 | done / integrated | Gmail A1 OFF 서버 OAuth 독립 검수 | 0074소스준비수락·운영미적용/OFF, A2후속은별도검수 |
 | QA-20261117-037 | CX-QA-01 | waiting_human / acknowledged | B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수 | 주인님 공간29 Lab 시험naver로그인→Return to agent, 고객읽기검수후운영사gmail로그인1회. 실제결제/콜백/RPC상태변경0 |
 | QA-20261117-038 | CX-QA-01 | done / integrated | Gmail A2 원자 받은업무 전달 서버·SQL 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
 | QA-20261117-039 | CX-QA-01 | done / integrated | Gmail OFF 패널 실제 TSX 모의 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
+| QA-20261117-040 | CX-QA-01 | ready / queued | Gmail OFF 배선·실RPC入구/어댑터/화면 통합 독립검수 | Mac고정SHA독립결과 반환 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
