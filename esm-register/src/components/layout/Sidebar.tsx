@@ -102,6 +102,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
         <button
           type="button"
           aria-label={open ? "메뉴 닫기" : "메뉴 열기"}
+          aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
           className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#E5E8EB] bg-white text-[#111827]"
         >
@@ -109,8 +110,9 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
         </button>
       </div>
       {open && (
-        <div className="fixed inset-0 z-50 flex md:hidden">
-          <div className="fixed inset-0 bg-slate-900/40" onClick={() => setOpen(false)} />
+        // 겹침막·패널은 위쪽 머리줄(h-14) 아래에서 시작한다 — 머리줄의 닫기(X)가 막에 가리지 않게(QA-20261117-016).
+        <div className="fixed inset-x-0 bottom-0 top-14 z-50 flex md:hidden">
+          <div className="absolute inset-0 bg-slate-900/40" aria-hidden onClick={() => setOpen(false)} />
           <div className="relative z-10 flex h-full w-72 max-w-[85vw] flex-col bg-white shadow-2xl">
             <Brand onNavigate={() => setOpen(false)} />
             <NavBody userEmail={userEmail} onNavigate={() => setOpen(false)} />
