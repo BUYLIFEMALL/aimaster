@@ -1,10 +1,10 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 02:43:55 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 02:44:51 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 02:43:53 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 02:44:49 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
 점검 범위: 고정보고/문서ID·SQL준비마감·Lab교환조건/승인·Mac읽기/주인님시험제출단일화·현재작업표 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
@@ -145,7 +145,7 @@ Master 마지막 실제 점검: 2026-11-18 02:43:53 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 241개: done 223개 · cancelled 7개 · ready_review 2개 · running 2개 · waiting_human 5개 · needs_revision 1개 · ready 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 241개: done 223개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 5개 · needs_revision 3개 · ready 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -386,8 +386,8 @@ Master 마지막 실제 점검: 2026-11-18 02:43:53 KST · 실행 중 점검 주
 | QA-20261118-048 | CX-QA-01 | done / integrated | 배경제작 링크버튼 지정소스 검수 | 링크/인계/기존저장로직소스수락·실320/375/외부수신未검수·롤백v1.29에는미반영 |
 | ECOM-20261118-02 | CC-ECOM-01 | needs_revision / rolled_back | 감성v1.30 승인배포/3사실호출·범위사고복구 | 제품수정동결·이미지d21 QA049/정책/공식지원 분리검토·재빌드예산추가승인전0 |
 | INC-20261118-01 | CX-MASTER-01 | done / contained_followup_required | HEAD추종배포 未검수포함·v1.29 복구 | 새이미지QA049·명시SHA릴리스manifest·추가빌드승인 별도, 재발방지미완까지사고전체종결로확대0 |
-| DES-20261118-05 | AG-UI-01 | ready_review / frozen_pending_review | 주인님 직접 이미지 NanoBanana/OpenAI/무료모델 3엔진 | 공식확인일10-17/11-03/10-19는현재지원검증아님·무료A/B/C비교반환,QA049중·제품동결 |
-| QA-20261118-049 | CX-QA-01 | running / acknowledged | 새이미지3엔진 소스/가짜통신·키/응답경계 검수 | 最終route/auth/UI/반례정확보고→Ecom계획,실무료API/생성0 |
+| DES-20261118-05 | AG-UI-01 | needs_revision / frozen_pending_review | 주인님 직접 이미지 NanoBanana/OpenAI/무료모델 3엔진 | QA049 최종P2 4건·무료정책/공식지원분리, Ecom수정계획수신전제품freeze |
+| QA-20261118-049 | CX-QA-01 | needs_revision / returned | 새이미지3엔진 소스/가짜통신·키/응답경계 검수 | Ecom정확보완계획/범위승인후mock수정→독립재검수·실endpoint/이미지/새build0 |
 | B2B-20261118-03 | CC-B2B-BACK-01 | waiting_human / fixture_prepared | 주인님 직접 Lab 교환비waiting1건·토스시험흐름 | 주인님메인ego243 Lab본인로그인/시험카드입력·제출→Backend읽기1회. Mac29는QA037읽기만·중복prepare/confirm0 |
 | ECOM-20261118-03 | CC-ECOM-01 | ready / queued_held_at_person_prompt | 이미지3엔진 QA049 안전경계 보완계획 | 정확범위/완료조건계획회신→Master범위승인후mock수정·실API/키/DB/build0 |
 

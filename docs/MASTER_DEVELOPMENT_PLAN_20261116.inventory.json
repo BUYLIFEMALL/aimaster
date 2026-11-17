@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 02:43:55 KST",
+  "checkedAt": "2026-11-18 02:44:51 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,7 +12,7 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T17:43:53.437Z",
+      "at": "2026-11-17T17:44:49.015Z",
       "timezone": "Asia/Seoul",
       "trigger": "QA049반례·주인님Lab시험승인/fixture·AGY문서정정/Backend마감 이벤트",
       "scope": "고정보고/문서ID·SQL준비마감·Lab교환조건/승인·Mac읽기/주인님시험제출단일화·현재작업표",
@@ -20,7 +20,8 @@
         "QA049 msg_9ea5ee32f762·Ecom계획msg_21ed3b1edaab 전달보류",
         "B2B18-03 主人승인msg_aeae60e7d728·fixture1건msg_bdbf073001ca",
         "QA047문구마감7a0800203·DES05정정88616a6cf",
-        "Mac msg_d4ef7792280b·Backend msg_38518ce2a9da 중복제출금지연결"
+        "Mac msg_d4ef7792280b·Backend msg_38518ce2a9da 중복제출금지연결",
+        "QA049最終msg_ae43db14fe10 P2四反例·QA037提供fixture읽기연결msg_18146715bbbd"
       ],
       "judgment": "운영감성1.29복구유지·画像미검수/가짜반례→계획배정/동결. SQL준비범위마감·Lab人시험필수. 새build/실AI/운영DB실행0.",
       "unverified": [
@@ -7178,13 +7179,13 @@
       "owner": "AG-UI-01",
       "reviewer": "CX-QA-01",
       "title": "주인님 직접 이미지 NanoBanana/OpenAI/무료모델 3엔진",
-      "status": "ready_review",
+      "status": "needs_revision",
       "delivery": "frozen_pending_review",
       "sha": "d21eb96d7",
       "evidence": "d21eb96d7·정정보고88616a6cf·.ai/results/DES-20261118-05-AG-UI-01.md·msg_a03fce38d53c",
       "scopeRef": "image provider/config/validation/services/image route/Workspace/KeySettings/guide/시험",
       "completion": "공식지원/회원키·무료서비스방식/데이터전송·MIME/크기/timeout/허용모델·회귀·비용/권한범위 검토",
-      "next": "공식확인일10-17/11-03/10-19는현재지원검증아님·무료A/B/C비교반환,QA049중·제품동결",
+      "next": "QA049 최종P2 4건·무료정책/공식지원분리, Ecom수정계획수신전제품freeze",
       "lastReviewedAt": "2026-11-17T17:43:53.437Z"
     },
     {
@@ -7193,13 +7194,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "새이미지3엔진 소스/가짜통신·키/응답경계 검수",
-      "status": "running",
-      "delivery": "acknowledged",
+      "status": "needs_revision",
+      "delivery": "returned",
       "sha": "d21eb96d7",
-      "evidence": "msg_9ea5ee32f762 실제validate/services fake반례·실접속0",
+      "evidence": ".ai/results/QA-20261118-049-CX-QA-01.md / msg_ae43db14fe10",
       "scopeRef": "고정SHA 읽기/기존패키지모의만·실이미지/키/네트워크/DB/build/새창0",
-      "completion": "정확반례·구현/공식실지원/정책/실검수 범위분리",
-      "next": "最終route/auth/UI/반례정확보고→Ecom계획,실무료API/생성0",
+      "completion": "고정d21 신규이미지에P2 I-F01모델/I-F02응답/I-F03URL/I-F04timeout 반례, 기존3test/글귀/권한PASS와분리",
+      "next": "Ecom정확보완계획/범위승인후mock수정→독립재검수·실endpoint/이미지/새build0",
       "lastReviewedAt": "2026-11-17T17:43:53.437Z"
     },
     {
