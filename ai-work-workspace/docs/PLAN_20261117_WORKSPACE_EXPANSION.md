@@ -380,3 +380,26 @@ E1 독립 검수(QA17-003)와 별개로 계획만. 디자인 3안 선택 전이�
 - **최소 수정안(승인 시)**: `providers/openai.ts`·`providers/gemini.ts`의 `stream` 진입부 각 1줄 — `opts?.maxRetries === 0`이면 그 스트림만 `{ ...deps, retryDelays: [] }`(기본 동작·다른 기능 불변). `providers/anthropic.ts` 변경 0. 시험: 기존 `tests/integration/gemini.test.ts`처럼 가짜 fetch로 ① OpenAI 503 → `maxRetries:0`이면 fetch 1번·기본이면 3번 ② Gemini 503 → 1번/2번 ③ Anthropic 실제 SDK(`new Anthropic({ apiKey: 가짜, fetch: 가짜, maxRetries: 2 })`) 529 → `stream(…, { maxRetries: 0 })`이면 1번. 위치: 새 `tests/integration/providerNoRetry.test.ts`(또는 `autofillWeb.test.ts`에 추가). 실호출 0.
 - 그 전까지 E3-4 표시는 「Anthropic SDK에 재시도 0 요청 옵션 전달(미검증), OpenAI·Gemini 어댑터는 응답 전 실패 시 기존 재시도 유지」.
 - **보완 구현 `b8860ba8c`(Master `msg_ed1c82784a1b`)**: `providers/openai.ts`·`gemini.ts`의 `stream`이 `opts.maxRetries === 0`일 때만 그 스트림을 `{ ...deps, retryDelays: [] }`로(기본 deps 불변). 가짜 fetch 시험 `providerNoRetry.test.ts`: 옵션 0 → OpenAI·Gemini HTTP 1번(수정 전 3·2번 실패 확인) / 기본 3·2번 유지 / 같은 클라이언트 다른 요청 재시도 유지 / 본문 같음 / 중단 신호 전달. Anthropic 실제 SDK(가짜 키·가짜 fetch, 클라이언트 maxRetries 2): 요청 옵션 0 → 1번, 없음 → 3번, 성공 1번. → 세 공급자 모두 **이 요청의 SDK·어댑터 재시도 0으로 HTTP 시도 1번**(가짜 통신 기준). 서버 쪽 과금·검색 요금은 단정하지 않음, 실제 공급자 확인은 비용 승인 뒤.
+
+### 7-16. E4 Gmail 받은 편지함 → 받은 업무 읽기 조사 (2026-11-17, Master `msg_ae17a230bf04`, WS-20261117-25) — 코드 0
+**지금 있는 것**
+- Gmail API 코드: **저장소 전체 0개**(`gmail.readonly`·`gmail/v1` 검색 결과 없음). 워크스페이스 설정 「연결」의 Gmail 칸(`web/features/settings/data/connections.ts` 19, `litpage: false`)은 원본에서 온 자리 표시(미구현).
+- 재사용할 기준: **구글 캘린더 연결** `src/server/googleCalendar.ts` + `src/app/api/oauth/google-calendar/{start,callback}` — 회원 본인 구글 OAuth 앱(`user_api_keys` `google_client_id`/`secret`, 유튜브·구글 블로그와 같은 키), 공용 표 `member_platform_accounts`(`getMemberAccount`·`saveMemberAccount`·`updateMemberAccountToken`·`markMemberAccountNeedsReconnect`), state 쿠키, 받은 권한 확인(`completeGoogleConnect`가 scope 없으면 거절), 만료 1분 전 갱신·401이면 1번 강제 갱신, 앱이 바뀌면 재연결 요청. 해제 `disconnectGcal`은 **DB 줄만 삭제**(구글 토큰 취소 호출 없음).
+- 받은 업무: 공용 표 `public.work_inbox`(회원별 `user_id`·`target_slug` 조건, 서버 키로만 insert) — 넣기 `src/lib/workInbox.ts sendToWorkInbox`(검사: 제목 1~200자·본문 20만 자·https 원본 주소), 화면 `src/app/inbox/InboxBoard.tsx`, 처리 `src/server/workInbox.ts`(페이지로 만들기·표에 넣기·삭제). **중복 막는 장치 없음**(DB 고유 조건 없음) — 할 일 플래너 보내기만 `source_url`·제목으로 미리 조회해 건너뜀(`workInbox.ts` 304~308, `workInboxPlannerItems.ts skipPendingPlanner`). 보관 1년(`WORK_INBOX_RETENTION_DAYS = 365`, 관리자 지정 예외, `runWorkInboxRetention` 하루 1번), 관리자·시험 계정 열외 `retentionExempt`.
+
+**최소 단위 1개(제안)**: 회원이 연결한 Gmail에서 **최근 받은 메일 목록(최대 20개, 제목·보낸 사람·날짜·짧은 미리보기)을 보고, 회원이 고른 메일만 「받은 업무」에 추가**.
+- 연결: 새 플랫폼 `google_gmail`(캘린더와 **별도 연결** — 해제·권한이 섞이지 않게), scope `openid email https://www.googleapis.com/auth/gmail.readonly`, 같은 회원 구글 앱. 콜백에서 받은 scope에 `gmail.readonly` 없으면 거절. 다른 계정 차단: 저장 행은 `user_id` = 로그인 회원, state에 회원 id 확인(캘린더와 같음).
+- 목록: `users/me/messages?labelIds=INBOX&maxResults=20` → 각 `messages/{id}?format=metadata&metadataHeaders=Subject,From,Date`(본문 안 받음). 화면에서 표시만, **저장 0**.
+- 추가: 고른 메일 1건마다 서버가 `format=full` 1번 → 본문 글자(text/plain 우선, HTML은 태그 제거, 20만 자 자름, 첨부 제외) → `sendToWorkInbox({ sourceSlug: 'ai-work-workspace', kind: 'note', title: 제목, bodyMd, sourceUrl: 'https://mail.google.com/mail/u/0/#all/<id>' })`. **중복**: 같은 회원·같은 `source_url` 미처리 줄이 있으면 건너뜀(플래너 방식 재사용).
+- 제외: 자동 수집·예약, 메일 발송·답장 초안, 읽음 표시 변경·라벨·보관·삭제(쓰기 권한 없음), AI 요약, 첨부, 새 공유.
+- 해제: `member_platform_accounts` 줄 삭제 + **구글 토큰 취소(`https://oauth2.googleapis.com/revoke`) 1번**(캘린더에 없던 부분 — Gmail은 민감 권한이라 권장). 이미 받은 업무에 넣은 메일은 받은 업무 보관 규칙(1년)을 따름.
+
+**정확 경로(예정)**: 새 `src/server/gmailInbox.ts`(연결·토큰·목록·본문·해제, `googleCalendar.ts` 패턴 복사·`setGmailFetch` 시험 주입), 새 `src/app/api/oauth/google-gmail/{start,callback}/route.ts`, RPC 2개(`gmailList`·`gmailAddToInbox`, `src/server/runtime.ts` 등록 위치 확인 필요), 받은 업무 화면 `src/app/inbox/InboxBoard.tsx`에 「Gmail에서 가져오기」 패널, 새 시험 `tests/integration/gmailInbox.test.ts`(가짜 fetch). 공용 카탈로그 `integration_catalog`에 `google_gmail` 항목 1줄(공용 DB 쓰기 — 승인 필요).
+
+**영향·결정 필요**
+- **Gmail 읽기 권한(`gmail.readonly`)은 구글이 「제한된 권한」으로 분류** — 회원 본인 앱이 「테스트」 상태면 회원이 자기 계정을 시험 사용자로 넣어 쓸 수 있으나, 이 경우 **갱신 토큰이 7일 뒤 만료돼 주 1번 재연결**이 필요할 수 있음(공개 상태로 쓰려면 구글 심사). 사용 안내에 반드시 밝혀야 함 — 실제 동작은 실계정 확인 전 미확인.
+- 새 OAuth 권한이므로 **회원 새 동의 1번**(캘린더 연결과 별도). 운영자 공용 앱·운영자 키 사용 0.
+- 받은 업무 보관 1년에 메일 본문이 들어감 — 메일 본문을 1년 보관해도 되는지(제3자 개인정보 포함 가능) 주인님 결정 필요(30일로 따로 둘지).
+- 비용: 운영자 0(Gmail API 무료 한도, 회원 본인 프로젝트), 회원 0원(구글 무료), 빌드는 배포 때 1번.
+
+**숫자(목표)**: 처음 설정 4단계(구글 클라우드에서 Gmail API 켜기 → 기존 구글 앱 키 재사용(없으면 등록) → 「Gmail 연결」 → 시험 사용자 추가 안내) · 매일 조작 2번(목록 열기 → 메일 고르고 추가) · 동의 1번(Gmail 읽기). 「테스트」 앱이면 주 1번 재연결 가능성.
