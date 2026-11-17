@@ -1,10 +1,30 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-18 ✅ [역할: design] Antigravity CLI(AGY) · 세션 `agy-win-design` — 감성 글귀 이미지 (emotion-writer) 바나나 캔버스·이미지 스튜디오 링크 버튼 UI 변환 (미배포 대기)
+- **주인님 직접 지시(스크린샷)**: "버튼으로 만들어 텍스트 안밀리게 작업해"
+- **조치 내역**:
+  - `emotion-writer/src/components/QuoteCanvas.tsx`: 미리보기 캔버스 하단에서 단순 인라인 텍스트 링크(`·` 구분)로 길게 나열되어 우측 끝에서 "만들기"가 다음 줄로 밀려나던 문제를 해결.
+  - 상단에 "✨ 이 글귀 분위기의 맞춤 AI 배경 제작" 안내 헤더를 두고, 하단에 `[ 🍌 바나나 캔버스 ↗ ]` 및 `[ 🎨 이미지 스튜디오 ↗ ]` 2개의 독립적인 3D 버튼 그리드로 개편.
+  - `whitespace-nowrap`, 2열 그리드(`grid-cols-2`), 패딩 및 호버 음영을 적용하여 모바일 375px/320px 및 데스크톱 전 구간에서 텍스트가 절대 줄바꿈되거나 밀리지 않도록 개선.
+- **검수**: tsc 0, 단위 테스트 44/44 전수 PASS.
+- **커밋**: `690df10c6` (`fix(emotion-writer): convert external banana/image-studio links to non-wrapping button UI [role: design]`). 다음 묶음 배포 때 함께 배포 대기.
 
+## 2026-11-18 ✅ [역할: design] Antigravity CLI(AGY) · 세션 `agy-win-design` — 감성 글귀 이미지 (emotion-writer) 사용자 매뉴얼 Pexels 문구 완전 삭제 (미배포 대기)
+- **주인님 직접 지시**: "사용자 매뉴얼에서 삭제 처리해"
+- **조치 내역**:
+  - `emotion-writer/src/app/(studio)/guide/page.tsx`: 사용자 매뉴얼(가이드 페이지) 내 Pexels 관련 문구 5곳(FAQ 라이선스 안내, FAQ 나노바나나 vs 무료사진 차이, 히어로 배너 파이프라인 소개, STEP 02 배경 소스 지정 설명, 무료 실사 사진 팁 2건)에서 Pexels 표기를 완전히 삭제하고 Pixabay 단독 표기로 정돈.
+- **검수**: tsc 0, 단위 테스트 35/35 전수 PASS.
+- **커밋**: `62189915b` (`fix(emotion-writer): remove pexels from user manual guide [role: design]`). 다음 묶음 배포 때 함께 배포 대기.
 
-
-
-
+## 2026-11-18 ✅ [역할: design] Antigravity CLI(AGY) · 세션 `agy-win-design` — 감성 글귀 이미지 (emotion-writer) Pexels API 발급 미지원에 따른 설정 카드 및 선택지 완전 삭제 (미배포 대기)
+- **주인님 직접 지시(스크린샷 첨부)**: "api발급 안하니 삭제 처리하고 master에 보고 해"
+- **조치 내역**:
+  1. `emotion-writer/src/lib/studio/config.ts`: `SOURCES` 배열에서 `pexels` 항목 삭제 (2단계 이미지 생성 방식 선택지에서 완전 제거, 나노바나나·Pixabay 2종만 유지).
+  2. `emotion-writer/src/components/KeySettings.tsx`: `PROVIDER_INFO`에서 `pexels` 설정 정보 삭제 및 `if (!info) return null;` 널 가드 추가 (API 키 등록 페이지에서 Pexels 카드 노출 차단).
+  3. `emotion-writer/src/components/Workspace.tsx`: `restoreDraft`에서 기존 로컬스토리지에 저장된 draft의 `source === "pexels"`인 경우 `pixabay`로 자동 정규화하는 마이그레이션 폴백 가드 추가.
+- **검수**: tsc 0, 단위 테스트 35/35 전수 PASS.
+- **커밋**: `de49e96e9` (`fix(emotion-writer): remove pexels api key and source option per master instruction [role: design]`). 다음 묶음 배포 때 함께 배포 대기.
+- **Master 보고**: `DES-20261118-03` / 주인님 직접 지시 처리 건으로 마스터에게 결과 전달.
 
 ## 2026-11-18 ✅ [역할: design] Antigravity CLI(AGY) · 세션 `agy-win-design` — 감성 글귀 이미지 (emotion-writer) DES-20261118-02 QA042 국소 접근성 2건 보완 (미배포 대기)
 - Master 배정 `DES-20261118-02`: Mac QA042 검수 수락 후 P3 2건 국소 보완.
