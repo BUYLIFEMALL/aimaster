@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 19:07:19 KST",
+  "checkedAt": "2026-11-17 19:09:25 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -5093,12 +5093,12 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "E4 Gmail함 기존기능/권한 대조와 최소범위 조사",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "returned",
-      "scopeRef": "OFF배선 gmailHandlers/runtime/gmailApi/InboxBoard/page/GmailInboxPanel·新gmailHandlers/gmailApiAdapter試験·qa_gmail_wire전용. QA039패널/DOM국소수정우선. SQL/gmailInbox/공용RPC불변",
+      "scopeRef": "gmailHandlers.ts/기존handlers시험·본인문서만 수정. 공용runRpc/logger/init·SQL·기타소스동결",
       "evidence": "OFF배선d8e7e188c/패널off1c46f1bd4/PLANcd0ee61e0·전체61파일792/tsc0·qa_gmail_wire삭제 작성자보고",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "QA040입구/adapter/Inbox독립통합검수·릴리스선행조건문서정리, 운영미적용/false/실Google0",
+      "next": "QA040 Gmail예외원문로그P2 국소수정·OFF보장 Gmail범위로정정. 운영미적용/false",
       "sha": "d8e7e188c",
       "lastReviewedAt": "2026-11-17T09:00:52.380Z"
     },
@@ -5183,13 +5183,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "Gmail OFF 배선·실제 RPC 입구·어댑터·화면 통합 독립검수",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "running",
+      "delivery": "running",
       "sha": "d8e7e188c",
-      "evidence": "패널off1c46f1bd4·Mac검수배정",
+      "evidence": "msg_175449454d04: 실제Gmail모듈+runRpc추출/공통초기화모의, unexpected오류fixture console.error 원문P2. OFF유효명령Gmail store0/무효bad_request, 공통RPC DB접근은별도",
       "scopeRef": "실모듈/가짜HTTP·계정/오류/OFF·로그 검토, 공유DBreset/실외부/운영/build0",
       "completion": "4명령 권한/기대계정/봉투와 결과모름/OFF 무호출/기존 받은업무 회귀 판정, 작성자와 독립검수 증거 구분",
-      "next": "Mac고정SHA독립결과 반환"
+      "next": "Gmail경계예외정규화 국소수정·로그전인수검증, 전체RPC OFF무DB주장정정·어댑터검수계속"
     }
   ]
 }
