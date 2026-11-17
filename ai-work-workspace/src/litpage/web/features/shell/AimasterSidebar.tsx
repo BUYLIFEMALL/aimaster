@@ -3,6 +3,7 @@
 import { useSession } from '../../lib/store/session.ts';
 import { navigate, spaceDomain } from '../../lib/router.ts';
 import { useCurrentUser } from '../../lib/hooks.ts';
+import { tx } from './i18n.ts'; // 2026-11-17 WS-20261117-19: 이번 추가 메뉴 문구 ko/en
 import { useEffect, useState } from 'react';
 import './aimaster.css';
 import { APP_VERSION } from '../../../../lib/version.ts';
@@ -69,7 +70,7 @@ export function AimasterSidebarBottom() {
         >
           <div className="aww-sb-item-inner">
             <span className="aww-sb-item-icon">📊</span>
-            <span className="aww-sb-item-label">관제 대시보드</span>
+            <span className="aww-sb-item-label">{tx('Control dashboard')}</span>
           </div>
         </a>
         {/* U7: 다른 프로그램 결과가 모이는 받은 업무함(/inbox) */}

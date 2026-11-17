@@ -76,8 +76,19 @@ function OpenSidebarButton() {
 }
 
 /** Non-page routes: Library / Chat / Meetings have an empty topbar; Marketplace shows "Marketplace / <tab>" + actions. */
-function RouteTitle({ name }: { name: string }) {
+// 2026-11-17 WS-20261117-19: 관제 대시보드·영수증 화면도 상단에 화면 이름(빈 제목 띠 해소, 시험에서 쓰려고 export)
+export function RouteTitle({ name }: { name: string }) {
   const { route } = useLocation();
+  if (name === 'studio' || name === 'receipts') {
+    return (
+      <div className="nc-breadcrumb notranslate">
+        <div className="nc-crumb">
+          <span aria-hidden>{name === 'studio' ? '📊' : '🧾'}</span>
+          <span className="nc-ellipsis" style={{ marginInlineStart: 6 }}>{name === 'studio' ? tx('Control dashboard') : tx('Receipts & tax invoices')}</span>
+        </div>
+      </div>
+    );
+  }
   if (name === 'people') return <PeopleCrumbs userId={route.name === 'people' ? route.userId : undefined} />;
   if (name === 'agent') return <AgentCrumbs />;
   if (name === 'tasks') {
