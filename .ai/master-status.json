@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T07:00:57.837Z",
+  "checkedAt": "2026-11-17T07:03:12.537Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2765,11 +2765,11 @@
       "title": "예약 기능 운영 활성화·실연동 검증",
       "status": "running",
       "delivery": "running",
-      "evidence": "f78a2e4e3 최종활성화조건 / msg_0e57ecf5a5fa·Master미커밋0/lock0/teamqueue0·free~7GB / 作者tsc0/460tests/localbuild0·3faafa33a·Workspace自動承認拒否remote0→Master直接確認project/account/queue0/notice0/clean·CLI upload hgzm0d922 Building",
+      "evidence": "f78a2e4e3 최종활성화조건 / msg_0e57ecf5a5fa·Master미커밋0/lock0/teamqueue0·free~7GB / 作者tsc0/460tests/localbuild0·3faafa33a·Workspace自動承認拒否remote0→Master直接確認project/account/queue0/notice0/clean·CLI upload hgzm0d922 Building / Master CLI76150 exit0·Vercel API READY/aliasErrornull/meta3fa一致",
       "scopeRef": "운영표2/스위치3/빌드1·실시험계정Google/HTTP/시각 별도범위확정",
       "completion": "명시승인범위내DDL/배포·실연동/운영확인·미검수구분",
       "blocker": null,
-      "next": "Master既存deploy exec76150完了確認後、Workspace programs1行/予約表2·實Google/畫面検證",
+      "next": "Workspace 운영programs v1.57/표2정의·시험계정실Google/HTTP·MacQA027읽기검수",
       "approval": {
         "source": "주인님 Master채팅: 계속작업진행/승인할께/진행해",
         "at": "2026-11-17T06:53:32.187Z",
@@ -2782,12 +2782,27 @@
       },
       "sourceSha": "3faafa33a",
       "deployment": {
+        "id": "dpl_HrBf8mQHD7hqTw62Mgs2WuowS7Px",
         "url": "ai-work-workspace-hgzm0d922-buylife.vercel.app",
-        "inspectId": "HrBf8mQHD7hqTw62Mgs2WuowS7Px",
-        "status": "BUILDING",
+        "alias": "ai-work-workspace.buylife.xyz",
+        "state": "READY",
+        "sourceSha": "3faafa33a2e99c31419922626d4609ee3ddaaeda",
         "executor": "CX-MASTER-01",
-        "execSession": 76150
+        "verified": "CLI exit0+Vercel API exactproject/production/alias/meta確認"
       }
+    },
+    {
+      "task_id": "QA-20261117-027",
+      "parent_task_id": "WS-20261117-22",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "v1.57 예약활성 운영 읽기전용 스모크",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "msg_da022ee0d88b",
+      "scopeRef": "운영버전/예약카드/375/기존화면·예약쓰기/DDL/Google/build0",
+      "completion": "실화면관찰·본인계정/개인토큰마스킹·작성자실Google근거구분",
+      "next": "기존화면부터읽기·표생성완료후예약UI읽기"
     }
   ],
   "programOverrides": [
@@ -3118,8 +3133,8 @@
     {
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
-      "stage": "v1.57 activation remote build1回進行中·Master直接実行",
-      "next": "Master既存deploy exec76150完了確認後、Workspace programs1行/予約表2·實Google/畫面検證"
+      "stage": "v1.57 운영READY Master직접확인·배포1회사용",
+      "next": "Workspace 운영programs v1.57/표2정의·시험계정실Google/HTTP·MacQA027읽기검수"
     },
     {
       "order": "3 · B2B",
