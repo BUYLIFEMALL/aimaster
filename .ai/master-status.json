@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T09:50:31.938Z",
+  "checkedAt": "2026-11-17T09:52:34.155Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -3032,12 +3032,12 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "E4 Gmail함 기존기능/권한 대조와 최소범위 조사",
-      "status": "ready_review",
-      "delivery": "returned",
-      "scopeRef": "패널새 src/app/inbox/GmailInboxPanel.tsx·gmailInboxPanelDom.test.ts·본인PLAN. 추가 QA038오류정규화 gmailInbox.ts/기존시험 국소허용, SQL/InboxBoard/runtime동결",
-      "evidence": "A2서버b61068a89·OFF패널1008730e1·계약f1b14b627, 작성자4파일153/tsc0; QA038수정/QA039독립배정",
+      "status": "running",
+      "delivery": "queued",
+      "scopeRef": "gmailHandlers.ts/runtime등록/gmailApi.ts/InboxBoard/page/GmailInboxPanel OFF/관련시험. SQL·gmailInbox서버·공용RPC불변",
+      "evidence": "A2서버b61068a89·OFF패널1008730e1·계약f1b14b627, 작성자4파일153/tsc0; QA038수정/QA039독립배정; OFF배선PLAN§9 3b135bf4d 검토·구현배정(수락미확인)",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "서버/패널동결→QA038/039검수, 후속OFF배선정확경로읽기조사. SQL운영미적용/OFF",
+      "next": "Gmail전용handler봉투/boundApi/Inbox최소OFF배선·실handler모의시험. QA038/039반례우선·운영/실Google0",
       "sha": "1008730e1",
       "lastReviewedAt": "2026-11-17T09:00:52.380Z"
     },
@@ -3445,7 +3445,7 @@
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
       "stage": "v1.57운영·E3소스독립/통합560시험PASS·v1.58미배포",
-      "next": "Gmail A1/F03소스준비완료·A2 원자전달 서버/SQL 격리구현 배정, 실운영OFF·WS26승인대기"
+      "next": "Gmail QA038/039검수중·전용OFF배선 구현배정, SQL운영미적용/실Google0"
     },
     {
       "order": "3 · B2B",
