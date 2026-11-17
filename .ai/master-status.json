@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T10:24:37.888Z",
+  "checkedAt": "2026-11-17T10:26:40.468Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -3032,12 +3032,12 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "E4 Gmail함 기존기능/권한 대조와 최소범위 조사",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "scopeRef": "Gmail전용서버/handler/adapter/패널·기존관련시험/문서. SQL/공용함수불변",
-      "evidence": "QA041서버3c820f2b6/화면8069f60df·dc9b4d714,282/tsc0·Mac지정검수배정; 최종릴리스확인표a44c792ad 경로별SHA/blob·서버3c820f2b6+화면8069f60df동시배포·같은sub재연결한계·미검수/승인분리",
-      "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "소스미커밋0·동결확인, QA041독립결과수신후소스준비최종판정. 운영0074/75미적용/Gmailfalse/미배포",
+      "evidence": "A1/F03/A2/패널/OFF배선·QA036/038/039/040/041 지정독립검수수락; 최종체크리스트a44c792ad·서버3c820f2b6+UI8069f60df",
+      "completion": "Gmail 기능OFF 상태의 구현·소스준비와 범위별검증 완료. 운영SQL/실OAuth/Google/브라우저/실PostgREST/배포·활성은미완료별도",
+      "next": "소스동결·릴리스표QA041지정PASS갱신, 운영활성화WS27 별도승인/실검증",
       "sha": "8069f60df",
       "lastReviewedAt": "2026-11-17T09:00:52.380Z"
     },
@@ -3136,13 +3136,27 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "Gmail 연결 해제 재시도·계정교체 조건부삭제 독립검수",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "서버3c820f2b6+화면8069f60df·문서dc9b4d714; 작성자실SDK가짜fetch/7파일282/tsc0·qaDB0 보고",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": ".ai/results/QA-20261117-041-CX-QA-01.md / msg_843c910e25f6: 서버3c820f2b6+UI8069f60df 실제모듈/실SDKfakefetch/실TSXadapter 지정국소PASS",
       "scopeRef": "수정SHA반환후실모듈모의/패널·기본삭제필터검수, 실외부/운영/DB/build0",
-      "completion": "A응답유실→B연결보존/삭제직전교체보존/동일sub토큰경합0행/멱등·정상/원문0 판정",
-      "next": "Mac 두SHA고정 조건부삭제·응답불확실·패널계약 지정재검수, 같은sub재연결한계분리",
+      "completion": "서버예상계정·조건부DELETE/건수·불확실/화면계약 독립검수완료. 같은sub새연결세대보장아님·운영/Google/브라우저/실DB는범위외",
+      "next": "소스수락·두SHA같이배포, 활성화단계별도",
       "sha": "8069f60df"
+    },
+    {
+      "task_id": "WS-20261117-27",
+      "parent_task_id": "PLAN-20261117-01",
+      "owner": "CC-WORKSPACE-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "Gmail 운영 SQL 적용·실계정 검증·활성화",
+      "status": "waiting_human",
+      "delivery": "prepared",
+      "scopeRef": "0074→0075 운영적용/정의검증·회원본인OAuth동의/metadata·실PostgREST/주소·스위치/배포 승인별도",
+      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad",
+      "completion": "승인된범위의운영마이그레이션·실계정/권한/계정경계·활성배포·운영동작 확인",
+      "next": "주인님 Gmail운영적용/실계정/활성/빌드 승인범위 결정 전 실행0",
+      "blockedReason": "공용운영DB변경·새OAuth동의·실외부·추가빌드 승인 필요, 기존v1.57예산소진"
     }
   ],
   "programOverrides": [
@@ -3473,8 +3487,8 @@
     {
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
-      "stage": "v1.57운영·E3소스독립/통합560시험PASS·v1.58미배포",
-      "next": "Gmail 조건부해제 수정완료보고·QA041검수·릴리스표정리, 실운영/Google0"
+      "stage": "v1.57운영·E3/Gmail OFF소스준비/지정독립검수 완료·미배포",
+      "next": "WS26 E3포함일반묶음배포와WS27 Gmail운영활성 승인분리, 소스동결"
     },
     {
       "order": "3 · B2B",
@@ -3555,6 +3569,11 @@
       "condition": "E3 묶음 운영 배포·실비용 검증",
       "action": "v1.58묶음배포1회/합성운영확인·실검색1+회원모델1비용승인여부",
       "recommendation": "소스560시험/독립PASS완료·미승인동안build/실검색/AI0"
+    },
+    {
+      "condition": "Gmail 운영 활성화",
+      "action": "0074/0075 공용운영SQL·회원본인OAuth 동의/실검증·활성배포 승인범위 결정",
+      "recommendation": "일반묶음은GmailOFF로먼저, Gmail활성은후속별도.0074만적용시메인카탈로그노출되므로분리적용금지"
     }
   ],
   "redispatch": {
