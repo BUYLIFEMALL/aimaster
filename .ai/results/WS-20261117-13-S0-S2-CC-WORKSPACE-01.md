@@ -65,3 +65,12 @@
 - 인쇄: 인쇄 창은 열지 않음. 영수증 화면에서 print 미디어 규칙 로드 확인 — 원본 `.lit-sidebar-container, .lit-topbar …` 숨김, `.rc-noprint, .aww-guide-back, .aww-guide-meta` 숨김, `.rc-print-area` 표시, `body:has(.aww-receipts-view) .lit-sidebar` 숨김. 실인쇄 결과는 미검수.
 - 대시보드 빈 제목 띠 근거: `src/litpage/web/features/shell/Topbar.tsx` 79~93행 `RouteTitle`이 people·agent·tasks·marketplace만 그리고 `studio`·`receipts`는 `null` → 상단 띠가 비어 보임. 최소 수정 파일 = `Topbar.tsx` 하나(두 경로에 tasks와 같은 아이콘+제목 줄 추가), 목적 = 상단에 현재 화면 이름 표시. 지시대로 수정 0.
 - 서버(Master 소유) 재시작·종료 0, 엣지 창 크기 원복, 운영·외부·발급·AI 0.
+
+## 10. WS-20261117-19 영문·빈 제목 보완 + QA019 보완 캡처
+- 정정: §9의 「영어에서 관제 대시보드가 한국어」는 **언어 전환 직후 다시 열리기 전 화면을 읽은 오판**. 다시 열린 뒤에는 대시보드 본문이 이미 영어였음. 실제 한국어로 남던 이번 추가분은 사이드바 「관제 대시보드」(`AimasterSidebar.tsx` 고정 문구)와 빈 상단 제목 띠.
+- 수정 `6c5c225c2`(4파일): `Topbar.tsx` RouteTitle에 studio·receipts 제목 줄(내보내기 추가), `AimasterSidebar.tsx` 「관제 대시보드」→`tx('Control dashboard')`, `i18n.literals.ko-KR.json`에 `"Receipts & tax invoices": "영수증·세금계산서"`. 회원 입력·보기 이름 번역 0, 서버·DB 0.
+- 시험 `studioI18nDom` 7/7(실제 RouteTitle·AimasterSidebarBottom, en/ko). 직전 커밋 상태로 돌려 실행 시 6/7 실패 — 상단 제목 5개는 내보내기 부재 영향이 섞임, 동작 실패가 분명한 것은 en 사이드바 메뉴. 수정본 복원 확인.
+- HMR 실화면: en에서 상단 「📊 Control dashboard」·「🧾 Receipts & tax invoices」, 사이드바 「Control dashboard」 / ko 복원 뒤 「📊 관제 대시보드」, 나머지 기존 한글 그대로.
+- 범위 밖 보고(수정 0): en에서 남는 한국어 — 사이드바 아래 다른 5개 메뉴·「다른 프로그램 보기」·「로그아웃」(11-11 이전 추가), 설정 「AI 비서」 메뉴(`features/ai/AiLayer.tsx`, U3 10-24), 「내 계정」 화면(`features/settings/sections/account.tsx`, U2 10-24).
+- **새 결함(수정 0, 근거·범위 보고)**: 워크스페이스 안 영수증 화면이 내용이 화면보다 길면 스크롤 불가. 375 iframe에서 `.aww-guide.aww-receipts-view` 높이 768/내용 1101, overflow visible, 상위 `.lit-cursor-listener`·`.lit-body` overflow hidden → 아래 약 333px 접근 불가. 데스크톱도 내용이 길어지면 같음. 원인: WS17-17 `src/litpage/web/features/receipts/receiptsView.css`가 `.aww-guide`의 자체 스크롤을 `overflow: visible; height: auto`로 덮음. 최소 수정안: 같은 파일 `.aww-guide.aww-receipts-view { height: 100%; overflow-y: auto; }`(인쇄 때는 visible 유지) + 관련 DOM 시험. 관제 대시보드(`.aww-studio-dash`, min-height 100%)도 내용이 길면 같은 구조 위험 — 지금 데이터는 짧아 미재현.
+- QA019 보완: 외부 구글 연결은 계정에 있으나 자동 전송 경로 없음(`calPushToGoogle` 버튼 수동만, ICS 꺼짐, 로컬 워크스페이스 자동화 0) 확인 뒤 시험 달력에 카드 5장 추가(합계 6: 긴 제목 1·20일 4·25일 1). 긴 제목 말줄임 정상, 20일 4장 240px 칸 안에 들어가 「더 보기」 미발생(6장 제한으로 미검수). 월말·12월 상자 정상. Alt 실검수는 도구 한계로 그대로 미검수(자료 채움으로 대체 0).
