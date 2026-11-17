@@ -63,7 +63,9 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
         </div>
 
         <div className="space-y-3">
+          {/* key=상품 ID: 다른 상품으로 바뀌면 폼 입력·오류·확인 상자를 새로 시작한다(같은 상품이면 오류 뒤 입력 유지, QA016). */}
           <RegisterForm
+            key={product.id}
             collectedPhoto={usesCollectedPhoto(product)}
             productId={product.id}
             initialPrice={product.price}

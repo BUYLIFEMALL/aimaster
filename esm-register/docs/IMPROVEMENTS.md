@@ -23,3 +23,5 @@
 - 가격 오류 뒤 값 되돌아감: 원인은 React 19 `<form action>`이 처리 뒤 `form.reset()`을 부르는 동작(react-dom 19.2.4 `requestFormReset`) — 비제어 칸(`defaultValue`)이 원래 값으로 돌아감. 서버 액션·반환형은 그대로 두고 등록 폼의 모든 칸·확인 상자를 제어 입력으로 바꿈, 가격 오류일 때 두 칸 `aria-invalid`와 칸 아래 안내. `src/components/RegisterForm.tsx`.
 - 검사: `tsc` 0 · `npm test` 15/15 · ego 모의 페이지(React 19.2.4, 같은 마크업): 수정 전 X 중심=겹침막 재현 → 수정 후 X 중심=버튼, X·배경·링크 클릭 모두 닫힘 / 옛 폼 abc→19900·15900 재현 → 새 폼 abc·abc·브랜드 유지, 오류 2회 동안 생성 0, 고친 뒤 1회 생성, 처리 중 버튼 잠금. 실제 운영 화면 확인은 배포 뒤 Mac 재검수.
 - QA016의 「0건 100%·버튼 이름·3단계」는 이미 `27ae7af4c`·`c909b67e6`(미배포)에 있음 — 중복 수정하지 않음.
+- 추가(ESM-20261117-03 소변경, Master 승인): `products/[id]/page.tsx`의 `RegisterForm`에 `key={product.id}` — 다른 상품으로 바뀌면 입력·오류·확인 상자를 새로 시작, 같은 상품은 오류 뒤 입력 유지. 실제 `RegisterForm.tsx`를 esbuild로 묶어 jsdom(다른 폴더에 이미 설치된 것)에서 서버 액션만 모의로 시험: key 없음 → B 전환 뒤 숨은 ID만 B·검색어/가격 abc/오류/동의 A 그대로(반례 재현), key 있음 → B 초기값·오류 없음·동의 해제, 같은 A 다시 그리기 → abc·오류 유지.
+- 남은 지적(미수정, Master 판단 대기): 제어 확인 상자(`collectedAck` 등)는 오류 직후 React의 `form.reset()`으로 화면은 해제·상태는 체크로 어긋났다가 다음 렌더에서 체크로 돌아옴(jsdom 시험 관찰). 텍스트 칸은 영향 없음.
