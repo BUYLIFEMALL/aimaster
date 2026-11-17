@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 16:18:18 KST",
+  "checkedAt": "2026-11-17 16:19:43 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4826,11 +4826,11 @@
       "title": "예약 기능 운영 활성화·실연동 검증",
       "status": "done",
       "delivery": "integrated",
-      "evidence": "f78a2e4e3 최종활성화조건 / msg_0e57ecf5a5fa·Master미커밋0/lock0/teamqueue0·free~7GB / 作者tsc0/460tests/localbuild0·3faafa33a·Workspace自動承認拒否remote0→Master直接確認project/account/queue0/notice0/clean·CLI upload hgzm0d922 Building / Master CLI76150 exit0·Vercel API READY/aliasErrornull/meta3fa一致 / Workspace운영programs v1.57 07:03UTC/예약표2최초생성·naver시험켜기·public160칸/metadata報告 / QA027독립운영읽기PASS·실Google성공증거아님 / ce23306cc 실제시험계정POST1·고정id GET/목록/슬롯제외·그id삭제cancelled·QA027운영읽기PASS",
+      "evidence": "f78a2e4e3 최종활성화조건 / msg_0e57ecf5a5fa·Master미커밋0/lock0/teamqueue0·free~7GB / 作者tsc0/460tests/localbuild0·3faafa33a·Workspace自動承認拒否remote0→Master直接確認project/account/queue0/notice0/clean·CLI upload hgzm0d922 Building / Master CLI76150 exit0·Vercel API READY/aliasErrornull/meta3fa一致 / Workspace운영programs v1.57 07:03UTC/예약표2최초생성·naver시험켜기·public160칸/metadata報告 / QA027독립운영읽기PASS·실Google성공증거아님 / ce23306cc 실제시험계정POST1·고정id GET/목록/슬롯제외·그id삭제cancelled·QA027운영읽기PASS / c41a5b613 시험1행가역정리완료·점유0",
       "scopeRef": "운영표2/스위치3/빌드1·실시험계정Google/HTTP/시각 별도범위확정",
       "completion": "명시승인범위내DDL/배포·실연동/운영확인·미검수구분",
       "blocker": null,
-      "next": "검증한활성화범위완료·실409/숨은속성/실기기/cron미검수·WS23DDL경합후속·시험1행점유정리준비",
+      "next": "활성화/실시험/합성1행정리완료·WS23초회DDL코드QA028대기/미배포",
       "approval": {
         "source": "주인님 Master채팅: 계속작업진행/승인할께/진행해",
         "at": "2026-11-17T06:53:32.187Z",
@@ -4856,14 +4856,13 @@
         "실409 미검수",
         "커넥터extendedProperties미반환",
         "실기기/cron자동확인미검수",
-        "초회DDL경합구조미해결",
-        "Google삭제된QA confirmed1행점유잔존·가역정리안대기"
+        "초회DDL경합구조미해결"
       ],
       "cleanup": {
-        "status": "dispatched",
-        "evidence": "msg_8126862f6b64",
-        "scope": "실시험합성1행 id/gcalid/user/QAmarker/confirmed조건·가역released·물리삭제0",
-        "guard": "transaction expected1 else rollback·다른행/Google쓰기0"
+        "status": "complete",
+        "evidence": "c41a5b613·5조건FORUPDATE/UPDATE각1행·전체1행/점유0·Googlecancelled",
+        "scope": "합성QA1행confirmed→released·물리DELETE/개인정보/Google/다른행0",
+        "limitations": "공개페이지재조회미실행·슬롯재개방은DB/Google상태계산근거"
       }
     },
     {
