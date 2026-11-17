@@ -40,3 +40,4 @@
 | 19-desktop-long-title-card-open.png | 긴 제목 카드 열기 — 전체 제목·날짜 11/20 읽힘 | 1560 | 아님 | screenshot-1794880329961-34.jpg |
 | 20-desktop-calendar-monthend-no-panel.png | 설정 패널 없이 월말 29·30·12월 1~5 상자까지 | 1560 | 아님 | screenshot-1794880342945-36.jpg |
 - 17~20은 iframe 메뉴 조작으로 같은 사이트 사이드바 상태가 접혀서 사이드바 없이 찍힘(확인 뒤 다시 펼쳐 원복).
+| 21-desktop-calendar-wrap-titles-on.png | 시험 달력 보기 「항목 제목 줄바꿈」 켠 상태 — 긴 제목 2줄 클램프, 20일 3장+「3개 더 보기」, 주 240px(확인 뒤 원래 OFF로 복원) | 1560 | 아님 | screenshot-1794880791627-37.jpg |
