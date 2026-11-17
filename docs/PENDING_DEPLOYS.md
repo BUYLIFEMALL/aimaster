@@ -52,7 +52,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `esm-register` | 사용 매뉴얼 보완(지금 상태·채우는 칸/직접 칸·멈췄을 때·설치 폴더·연결 버튼 이름) + 홈 4단계·0건 「기록 없음」 + 확장 연결 설치 안내 (주인님 직접 지시 ESM-20261117-01, Mac QA008 정적 PASS) + 모바일 메뉴 X 가림·가격 오류 뒤 값 되돌아감 수정(ESM-20261117-03, QA016) | `27ae7af4c` · `c909b67e6` · `a6e36da2a` | 2026-11-17 · Claude Code `claude-win-sdp` [역할: ecommerce-image] | `esm-register/docs/IMPROVEMENTS.md` | 버전 +0.01(코드+DB), 배포 뒤 화면 확인·Mac 후속 검수 |
+| `esm-register` | 사용 매뉴얼 보완(지금 상태·채우는 칸/직접 칸·멈췄을 때·설치 폴더·연결 버튼 이름) + 홈 4단계·0건 「기록 없음」 + 확장 연결 설치 안내 (주인님 직접 지시 ESM-20261117-01, Mac QA008 정적 PASS) + 모바일 메뉴 X 가림·가격 오류 뒤 값 되돌아감 수정(ESM-20261117-03, QA016) | `27ae7af4c` · `c909b67e6` · `a6e36da2a` · `d970a2a40` | 2026-11-17 · Claude Code `claude-win-sdp` [역할: ecommerce-image] | `esm-register/docs/IMPROVEMENTS.md` | 버전 +0.01(코드+DB), 배포 뒤 화면 확인·Mac 후속 검수 |
 | `threads-affiliate-poster` (운영 v1.89) | 네이버 수집 칸 「왜 네이버만 확장이 필요한가요?」 접이식 안내(화면 문구만, 동작 변화 없음) | `cbee09346` | 2026-11-17 · [역할: ecommerce-image] `claude-win-sdp` | `threads-affiliate-poster/docs/IMPROVEMENTS.md` 2026-11-17 | 함께 나가면 버전 +0.01 |
 | `blog-neighbor-care` (운영 v1.21) | 답방 집중·탭 거절을 단계 표시로 구분하고 고른 이유 유지, 창·팝업 검사 이유를 거절 문구에 표시(B-1 진단) | `3bb238398` · `e35947191` | 2026-11-15~16 · [역할: blog] CC-BLOG-01 | `blog-neighbor-care/docs/IMPROVEMENTS.md` 맨 위 | 다음 이웃 소통 배포 때 함께(v1.22, 공통지침 v1.4 묶음 배포 — 별도 빌드 요청 없음) |
 | `tistory-auto-blog` (운영 v1.97) | AI 소제목 값 앞의 `##`를 지워 H2에 `##`가 글자로 보이던 문제 수정(B-4 P2) | `a27861137` | 2026-11-16 · [역할: blog] CC-BLOG-01 | `tistory-auto-blog/docs/IMPROVEMENTS.md` | 다음 티스토리 배포 때 함께(v1.98, 공통지침 v1.4 묶음 배포 — 별도 빌드 요청 없음) |
