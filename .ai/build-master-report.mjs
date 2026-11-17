@@ -39,7 +39,7 @@ const table=(heads,rows)=>[row(heads),row(heads.map(()=>'---')),...rows.map(row)
 const snap=new Date().toLocaleString('sv-SE',{timeZone:'Asia/Seoul'})+' KST';
 const inspectionAt=state.monitoring?.lastInspection?.at;
 const inspectionLabel=inspectionAt ? new Date(inspectionAt).toLocaleString('sv-SE',{timeZone:'Asia/Seoul'})+' KST' : '미기록';
-const outsideInspection=state.monitoring?.outsideTurnAutomation?.enabled ? '30분 Orca 예약 활성화 · 실제 실행/전달 상태는 monitoring 기록 참조' : '미설정';
+const outsideInspection=state.monitoring?.outsideTurnAutomation?.enabled ? (state.monitoring.outsideTurnAutomation.kind === 'windows_scheduled_message' ? '30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검' : '30분 Orca 예약 활성화 · 실제 실행/전달 상태는 monitoring 기록 참조') : '미설정';
 const counts={};for(const t of state.tasks)counts[t.status]=(counts[t.status]??0)+1;
 const intro=[
 '# AIMaster 총괄 개발 플랜·작업 지휘표', '',

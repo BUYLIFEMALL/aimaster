@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T15:03:16.766Z",
+  "checkedAt": "2026-11-17T15:23:15.099Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -3590,27 +3590,28 @@
   },
   "qaQueue": "QA023 DNS수정→QA022 hover수정→QA024 예약·순차검수",
   "monitoring": {
-    "policyVersion": "1.8",
+    "policyVersion": "1.9",
     "activeTurnIntervalMinutes": 5,
     "immediateEvents": [
       "message",
       "completion",
       "idle"
     ],
-    "outsideTurnAutomaticChecks": "configured",
+    "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T15:03:16.766Z",
+      "at": "2026-11-17T15:23:15.099Z",
       "timezone": "Asia/Seoul",
-      "trigger": "00:00 정시 자동점검 결과수신·판정",
-      "scope": "예약실행이력scheduled/completed·결과파일·새 보고/인수인계변경·기존대기 대조",
+      "trigger": "주인님 동일터미널지시·30분메시지예약시험수신",
+      "scope": "이전Orca자동화비활성·완료된추가시험터미널1개닫기·Windows예약정의/실행결과·현재Master메시지수신 확인",
       "evidence": [
-        "msg_96b4243b4ef3",
-        ".ai/results/CHECK-20261117T150156500494Z-CX-CHECK-01.json",
-        "자동화회차2 dd9ee668-cf1c-4c5f-affe-098050385970 trigger scheduled/status completed"
+        "a8e75832-fa68-405d-b823-b72d26ec84a2 enabled=false",
+        "term_b6e992d2-81b3-497c-be5c-ecf8c226c4d7 close확인",
+        "AIMaster-Master-30Min-Wake LastTaskResult0·PT30M",
+        "msg_34920e0d96b0 현재Master수신"
       ],
-      "judgment": "정시실행→결과파일→Master수신 경로확인. 신규보고/인수인계변경0·Front정정기통합. Mac사람제어반환대기유지(로그인/운영동작확인아님), 중복배정/재실행0.",
-      "nextAction": "다음30분회차 증분점검·새이벤트즉시판정, 기존승인/사람단계 대기유지"
+      "judgment": "현재Master터미널메시지예약시험성공. 별도Codex/점검agent 생성예약은중지·시험창닫음. 운영제품/DB/build/deploy 변경0.",
+      "nextAction": "00:30 첫정시메시지회차를현재Master에서처리·실수신/점검시각갱신,새창생성0"
     },
     "notifications": [
       {
@@ -3665,9 +3666,41 @@
       }
     ],
     "outsideTurnAutomation": {
+      "kind": "windows_scheduled_message",
+      "id": "AIMaster-Master-30Min-Wake",
+      "enabled": true,
+      "schedule": "PT30M",
+      "timezone": "Asia/Seoul",
+      "schedulerOwner": "Windows Task Scheduler",
+      "script": "scripts/master-half-hour-wake.ps1",
+      "config": ".ai/master-wake-config.json",
+      "receipt": ".ai/master-wake-status.json",
+      "masterRun": "run_6e348395e1fe",
+      "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
+      "sameTerminalOnly": true,
+      "createsAgentOrTerminal": false,
+      "nextScheduledAt": "2026-11-17T15:30:00.000Z",
+      "configuredAt": "2026-11-17T15:23:15.099Z",
+      "scheduledOccurrenceVerified": false,
+      "test": {
+        "status": "completed",
+        "taskExitCode": 0,
+        "messageId": "msg_34920e0d96b0",
+        "attemptedAt": "2026-11-17T15:20:28.2877381Z",
+        "resultDelivery": "received_in_current_master",
+        "newAgentCreated": false
+      },
+      "initialFailure": "최초sender문맥부재로미전송,현재Master본인--from명시후해결·중복전송0",
+      "limitations": [
+        "메인PC/Orca/로그인세션/현재Master존재필요",
+        "메시지등록·수신·실제점검은구분",
+        "Master부재/실패시새창생성0·재전송자동반복0"
+      ]
+    },
+    "supersededOrcaAutomation": {
       "id": "a8e75832-fa68-405d-b823-b72d26ec84a2",
       "name": "AIMaster Master 30분 자동 점검",
-      "enabled": true,
+      "enabled": false,
       "schedule": "*/30 * * * *",
       "timezone": "Asia/Seoul",
       "provider": "codex",
@@ -3714,7 +3747,11 @@
         "resultPath": ".ai/results/CHECK-20261117T150156500494Z-CX-CHECK-01.json",
         "messageId": "msg_96b4243b4ef3",
         "masterReceivedAt": "2026-11-17T15:03:16.766Z"
-      }
+      },
+      "disabledAt": "2026-11-17T15:23:15.099Z",
+      "terminalClosed": true,
+      "closedTerminal": "term_b6e992d2-81b3-497c-be5c-ecf8c226c4d7",
+      "reason": "주인님 현재Master터미널에서만점검하도록정정"
     }
   }
 }

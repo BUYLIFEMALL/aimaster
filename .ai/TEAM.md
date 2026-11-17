@@ -23,7 +23,13 @@
 
 기존 Blog·policy·mac-mini·docbot-prompt·analysis-planning 등 역할은 유지한다. 최신 조직도에 없다는 이유로 폐지하거나 업무를 빼앗지 않는다. 추가 사용자 배정은 이 표에 한 행씩 반영한다.
 
-## 30분 예약 점검 작업자
+## 정기 점검 실행 위치
+
+2026-11-18 주인님 지시: 정기 점검도 현재 `CX-MASTER-01`의 터미널과 기존 대화에서 수행한다. Windows 예약은 기존 Master에게 메시지만 보낸다. 새 Codex 창·에이전트는 생성하지 않는다. 실제 설정·전송 기록은 [.ai/TRANSPORT.md](TRANSPORT.md)를 따른다.
+
+## 중지된 이전 예약 점검 작업자 이력
+
+별도 창 방식은 2026-11-18 중지했다. 아래는 이전 검증 이력이며 현재 가용 작업자로 배정하지 않는다. 자동화는 비활성화했고 해당 시험 터미널은 닫았다.
 
 - `CX-CHECK-01`: Orca 자동화 `a8e75832-fa68-405d-b823-b72d26ec84a2`, 메인 PC의 기존 `D:/AIMaster` workspace, provider Codex. Master에게 점검 결과만 반환하는 작업자이며 별도 총괄자가 아니다.
 - 최초 수동 시험 실행 `9480775b-d46b-481e-847a-9bd93882700c`: 실제 터미널 `term_b6e992d2-81b3-497c-be5c-ecf8c226c4d7`, 2026-11-17 23:56 KST 점검 완료, 결과 파일과 `msg_361b6bda5258`의 기존 Master 수신 확인. 최초 정시 회차 `dd9ee668-cf1c-4c5f-affe-098050385970`도 11-18 00:00 예약→00:01:56 점검·`msg_96b4243b4ef3` Master 수신, `trigger=scheduled`·`completed` 확인.

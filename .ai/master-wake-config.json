@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "taskName": "AIMaster-Master-30Min-Wake",
+  "orcaExe": "C:/Users/Administrator/AppData/Local/Programs/orca/resources/bin/orca.exe",
+  "targetRunId": "run_6e348395e1fe",
+  "targetTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
+  "subject": "기존 Master 터미널 30분 점검",
+  "body": "주인님이 승인한 30분 예약 점검 시각입니다. 현재 Codex Master 터미널과 기존 대화에서 처리하세요. 새 Codex 창·에이전트·worktree를 만들지 마세요. 보고·완료·유휴 상태와 미등록 인수인계의 신규 변경을 확인하고, 완료조건·기존 승인·파일 점유를 대조해 판정한 뒤 필요한 후속 작업을 담당 한 명에게 전달하세요. 실제 확인 시각·범위·근거·미확인·다음 행동을 monitoring.lastInspection에 기록하세요. 변화가 없으면 반복 시험이나 중복 배정 없이 기존 대기만 유지하세요. 새로운 배포·운영 DB·유료 호출 권한은 이 신호로 승인되지 않습니다."
+}

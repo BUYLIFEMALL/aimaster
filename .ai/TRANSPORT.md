@@ -52,13 +52,32 @@ ask/report는 운영 DB 쓰기다. 이번 로컬 초기 구성에서는 아직 �
 
 ## 상시 운영의 한계
 
-현재 Run과 기존 세션 메시지 전달은 활성화되었다. 2026-11-17 추가 지시로 아래 30분 예약 점검을 등록·활성화했다. 모든 장비의 자동 복구·항상 실행되는 Master를 설정한 것은 아니다. 세션이 종료되거나 이용 한도에 걸리면 실제 실행/전달 실패를 기록하고 확인 가능한 위치에서 재개한다.
+현재 Run과 기존 세션 메시지 전달은 활성화되었다. 2026-11-18 정정 지시로 아래 Windows 메시지 예약을 사용한다. 별도 Codex 세션을 만들던 Orca 자동화는 중지했다. 모든 장비 자동 복구·항상 실행되는 Master를 설정한 것은 아니다. 세션이 종료되거나 이용 한도에 걸리면 실제 실행/전달 실패를 기록하고 기존 Master에서 재개한다.
 
 실행 중 5분 점검·이벤트 즉시 처리와 아래 예약 점검은 별개다. 마지막 Master 실제 점검은 `.ai/master-status.json`의 `monitoring.lastInspection`에 기록한다. `check`를 반복 실행하는 타이머·감시 스크립트는 만들지 않는다.
 
-## 턴 밖 30분 예약 점검
+## 현재 방식: 이 Master 터미널에서 실행하는 30분 메시지 예약
 
-- 자동화: `a8e75832-fa68-405d-b823-b72d26ec84a2` / AIMaster Master 30분 자동 점검.
+- Windows 작업 이름: `AIMaster-Master-30Min-Wake`, 30분 반복, 다음 회차 2026-11-18 00:30 KST. 현재 로그인 사용자 권한·숨김 PowerShell로 실행하며 별도 Codex/터미널을 생성하지 않는다.
+- 실행 파일: `scripts/master-half-hour-wake.ps1`, 설정 `.ai/master-wake-config.json`, 최근 전송 결과 `.ai/master-wake-status.json`.
+- 대상: 기존 Master 터미널 `term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a`, Run `run_6e348395e1fe`.
+- 동작: `orca orchestration send --from <현재 Master 본인 터미널> --to run:<기존 Run>` 한 번만 실행한다. 예약 프로세스에는 활성 터미널 문맥이 없으므로 본인 핸들을 명시한다. 다른 담당의 핸들을 빌리지 않는다. 메시지 `check`·점검·판정·후속 배정은 이 Master가 수행한다.
+- 2026-11-18 00:20:28 시험: Windows 작업 결과 0, 전송 `msg_34920e0d96b0`, 이 Master의 실제 수신 확인. 첫 두 시험은 sender 문맥이 없어 전송되지 않았고, 본인 `--from` 명시 후 성공했다. 정시 회차의 실제 처리 여부는 이후 이력으로 확인한다.
+- 중복 실행은 작업 스케줄러 `IgnoreNew`와 한 번 실행하는 스크립트의 mutex로 막는다. 전송 결과가 불확실하면 자동 재시도하지 않는다. 기존 Master가 없어도 새 창·세션을 생성하거나 다른 Master로 바꾸지 않는다.
+- PC/Orca/로그인 세션이 필요하다. 전송 등록은 수신·점검 완료와 다르며, 마지막 실제 점검은 Master가 별도로 기록한다. 기존 점검 전용 자동화 `a8e75832-fa68-405d-b823-b72d26ec84a2`는 비활성화했고 시험 터미널 `term_b6e992d2-81b3-497c-be5c-ecf8c226c4d7`은 닫았다.
+
+```powershell
+Get-ScheduledTask -TaskName AIMaster-Master-30Min-Wake
+Get-ScheduledTaskInfo -TaskName AIMaster-Master-30Min-Wake
+Get-Content .ai/master-wake-status.json -Raw -Encoding UTF8
+Disable-ScheduledTask -TaskName AIMaster-Master-30Min-Wake
+```
+
+## 중지된 이전 방식: 별도 세션 예약 점검 이력
+
+아래는 v1.8 당시 시험 이력이며 현재 운영 방식이 아니다. 주인님 정정 지시로 비활성화했다. 다시 켜지 않는다.
+
+- 자동화(현재 비활성): `a8e75832-fa68-405d-b823-b72d26ec84a2` / AIMaster Master 30분 자동 점검.
 - 실행기: 로컬 Orca `local_host_service`, 기존 `D:/AIMaster` workspace, provider `codex`, 점검 작업자 `CX-CHECK-01`.
 - 일정: `*/30 * * * *`, `Asia/Seoul` — 매시 00분·30분. 최초 수동 시험은 2026-11-17 23:56 KST 완료·Master 수신 확인. 최초 정시 회차 `dd9ee668-cf1c-4c5f-affe-098050385970`도 11-18 00:00 예약→00:00:56 시작→00:01:56 점검 결과를 남겨 `msg_96b4243b4ef3`로 Master에게 전달했다. 이력의 `trigger=scheduled`·`status=completed`를 확인했다. 예약 시각과 실제 시작·완료 시각을 구분한다.
 - `reuseSession=true`는 이 자동화의 이전 실행 세션 재사용이다. 기존 Master 세션을 직접 재사용한다고 해석하지 않는다. 첫 점검은 별도 세션에서 실행한다.
@@ -72,7 +91,7 @@ orca automations runs --id a8e75832-fa68-405d-b823-b72d26ec84a2 --json
 orca automations edit a8e75832-fa68-405d-b823-b72d26ec84a2 --disabled --json
 ```
 
-### 등록된 점검 프롬프트
+### 중지된 이전 점검 프롬프트(이력)
 
 ```text
 너는 AIMaster의 30분 예약 점검 전용 작업자 CX-CHECK-01이다. 유일한 총괄은 기존 Codex Master CX-MASTER-01이며, 별도 Master를 선언하지 않는다.
