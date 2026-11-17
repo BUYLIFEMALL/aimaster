@@ -131,11 +131,49 @@ function oklchToHex(L: number, C: number, H: number): string {
   if (lin.some((v) => v < -1e-4 || v > 1 + 1e-4)) return "";
   return "#" + lin.map((v) => { const c = Math.min(1, Math.max(0, v)); const g = c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055; return Math.round(g * 255).toString(16).padStart(2, "0"); }).join("");
 }
+/** #rrggbb의 WCAG 상대 휘도 */
+function hexLuminance(hex: string): number {
+  const n = parseInt(hex.slice(1), 16);
+  return 0.2126 * toLinear(((n >> 16) & 255) / 255) + 0.7152 * toLinear(((n >> 8) & 255) / 255) + 0.0722 * toLinear((n & 255) / 255);
+}
 /** 흰 글자(#fff) 대비 — WCAG 상대 휘도 */
 export function whiteContrast(hex: string): number {
-  const n = parseInt(hex.slice(1), 16);
-  const y = 0.2126 * toLinear(((n >> 16) & 255) / 255) + 0.7152 * toLinear(((n >> 8) & 255) / 255) + 0.0722 * toLinear((n & 255) / 255);
-  return 1.05 / (y + 0.05);
+  return 1.05 / (hexLuminance(hex) + 0.05);
+}
+/** CSS 「oklch(L% C H)」 문자열의 상대 휘도(브라우저처럼 색역 밖은 0~1로 자름) */
+function oklchLuminance(css: string): number {
+  const m = css.match(/oklch\(([\d.]+)% ([\d.]+) ([\d.]+)\)/);
+  if (!m) return 0;
+  const [L, C, H] = [Number(m[1]) / 100, Number(m[2]), Number(m[3])];
+  const a = C * Math.cos((H * Math.PI) / 180), b = C * Math.sin((H * Math.PI) / 180);
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3, mm = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3, s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
+  const lin = [4.0767416621 * l - 3.3077115913 * mm + 0.2309699292 * s, -1.2684380046 * l + 2.6097574011 * mm - 0.3413193965 * s, -0.0041960863 * l - 0.7034186147 * mm + 1.707614701 * s].map((v) => Math.min(1, Math.max(0, v)));
+  return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2];
+}
+const ratio = (y1: number, y2: number) => (Math.max(y1, y2) + 0.05) / (Math.min(y1, y2) + 0.05);
+/**
+ * 상점 머리글 카테고리 탭 마우스 올림 글자 전용 색(FRONT-20261118-02).
+ * 올림 상태 = `hover:text-blue-600` on `hover:bg-slate-100` — 밝게: 포인트색 on slate-100, 어둡게: 뒤집힌 단계(팔레트 400) on 뒤집힌 slate-100(= slate-900 값).
+ * 대비 4.5 미만인 색만 같은 색상각으로 밝기를 옮겨(밝게는 어둡게·어둡게는 밝게, 색역 밖이면 채도 줄임) 처음 4.55를 넘는 #rrggbb, 아니면 null.
+ */
+export function navHoverColor(hex: string, mode: Mode): string | null {
+  const h = typeof hex === "string" ? hex.trim().toLowerCase() : "";
+  if (!HEX.test(h)) return null;
+  const dark = mode === "dark";
+  const p = buildPalette(h);
+  const text = dark ? p[400] : p[600];
+  const yBg = oklchLuminance(dark ? SLATE[STEPS.length - 2] : SLATE[1]);
+  if (ratio(oklchLuminance(text), yBg) >= 4.5) return null;
+  const [, C, H] = hexToOklch(h);
+  const L0 = Number(text.match(/oklch\(([\d.]+)%/)![1]) / 100;
+  const step = dark ? 0.001 : -0.001;
+  for (let l = L0 + step; l > 0.05 && l < 0.99; l += step) {
+    let c = Number(text.match(/oklch\([\d.]+% ([\d.]+)/)![1]) || C;
+    let out = oklchToHex(l, c, H);
+    while (!out && c > 0) { c = Math.max(0, c - 0.002); out = oklchToHex(l, c, H); }
+    if (out && ratio(hexLuminance(out), yBg) >= 4.55) return out; // 4.55: 브라우저가 바탕을 8비트로 반올림해도 4.5 아래로 안 떨어지게(네이비 어둡게 4.50 경계 실측)
+  }
+  return dark ? "#ffffff" : "#000000";
 }
 /** 흰 글자 대비가 4.5 미만인 포인트색만 단추 전용 색(#rrggbb), 괜찮거나 잘못된 색이면 null */
 export function buttonColor(hex: string): string | null {
@@ -208,6 +246,9 @@ export function themeStyle(theme: ShopTheme): Record<string, string> {
     v["--mall-primary-btn"] = btn;
     v["--mall-primary-btn-hover"] = buttonHoverColor(theme.primary) ?? btn;
   }
+  // 카테고리 탭 올림 글자 전용 색 — 대비 미달 색만(나머지는 변수 없음 = 화면 그대로)
+  const navHover = navHoverColor(theme.primary, theme.mode);
+  if (navHover) v["--mall-nav-hover"] = navHover;
   if (theme.bg !== DEFAULT_THEME.bg) v["--mall-bg"] = theme.bg;
   if (theme.radius !== DEFAULT_THEME.radius) v["--mall-radius"] = RADIUS_REM[theme.radius];
   if (theme.button !== DEFAULT_THEME.button) v["--mall-btn-depth"] = "0px";

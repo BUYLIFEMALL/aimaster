@@ -132,3 +132,24 @@ test("어둡게 12색 모두 올림 색이 평상시보다 진하고 흰 글자 
     assert.ok(white(v["--color-blue-700"]) < 4.5, `${name}: 옅게 뒤집힌 원래 올림 색은 미달이라 덮어야 함`);
   }
 });
+
+// FRONT-20261118-02 — 카테고리 탭·「전체」 올림 글자: utilities 층·hover 기기 전용·상점 style 표식 안에서만, 올림 바탕이 slate-100인 요소만
+test("탭 올림 글자 규칙은 상점 표식(--mall-nav-hover) 안 hover:bg-slate-100 요소만 — 관리자·통과 색은 표식 없음", async () => {
+  const rule = `:where([style*="--mall-nav-hover"]) .hover${BS}:text-blue-600:hover:where(.hover${BS}:bg-slate-100) { color: var(--mall-nav-hover); }`;
+  const layer = css.slice(css.indexOf("@layer utilities {"));
+  const media = layer.indexOf("@media (hover: hover) {");
+  assert.ok(media >= 0 && layer.indexOf(rule) > media && !layer.slice(media, layer.indexOf(rule)).includes("\n  }\n"), "utilities 층 hover 기기 블록 안");
+  assert.equal(css.split(rule).length, 2, "한 번만");
+  const React = (await import("react")).default;
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { Window } = await import("happy-dom");
+  const { themeStyle, DEFAULT_THEME } = await import("../src/lib/theme.ts");
+  const navCls = readFileSync(new URL("../src/app/s/[store]/(shop)/shop-frame.tsx", import.meta.url), "utf8").match(/const navCls = "([^"]+)"/)[1];
+  const shop = (primary, mode) => renderToStaticMarkup(React.createElement("div", { style: themeStyle({ ...DEFAULT_THEME, primary, mode }) }, React.createElement("a", { className: navCls }, "생활용품")));
+  const win = new Window();
+  const hit = (html) => { win.document.body.innerHTML = html; return win.document.querySelectorAll('[style*="--mall-nav-hover"] [class~="hover:text-blue-600"][class~="hover:bg-slate-100"]').length; };
+  for (const [c, m] of [["#e5534b", "light"], ["#059669", "light"], ["#ea580c", "light"], ["#db2777", "light"], ["#dc2626", "light"], ["#1e3a8a", "dark"], ["#334155", "dark"]]) assert.equal(hit(shop(c, m)), 1, `${c} ${m}`);
+  for (const [c, m] of [["#7c3aed", "dark"], ["#2563eb", "light"], ["#1e3a8a", "light"], ["#e5534b", "dark"], ["#b45309", "light"]]) assert.equal(hit(shop(c, m)), 0, `${c} ${m}`);
+  assert.equal(hit(renderToStaticMarkup(React.createElement("main", null, React.createElement("a", { className: navCls }, "메뉴")))), 0, "관리자 모양");
+  await win.happyDOM.close();
+});

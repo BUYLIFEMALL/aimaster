@@ -167,6 +167,8 @@ input[type="submit"] {
   @media (hover: hover) {
     :where([style*="--mall-primary-btn"]) .hover\:bg-blue-700:hover:where(.bg-blue-600.text-white),
     :where([style*="--mall-primary-btn"]) .group:hover .group-hover\:bg-blue-700:where(.bg-blue-600.text-white) { background-color: var(--mall-primary-btn-hover); }
+    /* 머리글 카테고리 탭·「전체」(hover:bg-slate-100 + hover:text-blue-600) 올림 글자 — 대비 미달 색만 theme.ts navHoverColor가 변수를 줌(FRONT-20261118-02) */
+    :where([style*="--mall-nav-hover"]) .hover\:text-blue-600:hover:where(.hover\:bg-slate-100) { color: var(--mall-nav-hover); }
   }
 }
 /* I27 바닥글은 원래 어두운 띠 — 어둡게 모드에서 뒤집힌 slate를 바닥글 안에서만 원래 값으로 되돌린다 */

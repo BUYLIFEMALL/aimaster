@@ -136,3 +136,31 @@ test("단추 전용 색: 흰 글자 4.5 미달 3색만 같은 색상각으로 �
   for (const bad of ["", "red", "#12345", null, undefined]) assert.equal(buttonColor(bad), null);
   assert.deepEqual(themeStyle(DEFAULT_THEME), {}, "기본 테마는 여전히 변수 0");
 });
+
+// FRONT-20261118-02 — 머리글 카테고리 탭 올림 글자(hover:text-blue-600 on hover:bg-slate-100) 대비 미달 색만 전용 색
+test("탭 올림 글자 전용 색: 밝게 5색·어둡게 2색만, 같은 색상각으로 4.55 이상, 나머지·기본·잘못된 값은 변수 없음", async () => {
+  const { navHoverColor } = await import("../src/lib/theme.ts");
+  const { COLOR_PRESETS } = await import("../src/lib/builder/templates.ts");
+  const expect = { light: ["coral", "emerald", "orange", "pink", "red"], dark: ["charcoal", "navy"] };
+  // 상대 휘도·대비(시험 안에서 따로 계산 — 구현을 그대로 믿지 않음)
+  const lin = (v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  const Yhex = (h) => { const n = parseInt(h.slice(1), 16); return 0.2126 * lin(((n >> 16) & 255) / 255) + 0.7152 * lin(((n >> 8) & 255) / 255) + 0.0722 * lin((n & 255) / 255); };
+  const bg = { light: Yhex("#f1f5f9"), dark: Yhex("#0f172b") }; // 브라우저 실측 바탕(slate-100 / 뒤집힌 slate-100)
+  const cr = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  for (const mode of ["light", "dark"]) {
+    const got = COLOR_PRESETS.filter((c) => navHoverColor(c.primary, mode)).map((c) => c.id).sort();
+    assert.deepEqual(got, expect[mode], mode);
+    for (const c of COLOR_PRESETS) {
+      const n = navHoverColor(c.primary, mode);
+      const vars = themeStyle({ ...DEFAULT_THEME, primary: c.primary, mode });
+      if (!n) { assert.equal("--mall-nav-hover" in vars, false, `${c.id} ${mode}`); continue; }
+      assert.match(n, /^#[0-9a-f]{6}$/);
+      assert.ok(cr(Yhex(n), bg[mode]) >= 4.5, `${c.id} ${mode} ${n} ${cr(Yhex(n), bg[mode]).toFixed(2)}`);
+      assert.ok(Math.abs(hexToOklch(n)[2] - hexToOklch(c.primary)[2]) < 6, `${c.id} 색상각 유지`);
+      assert.equal(vars["--mall-nav-hover"], n);
+      assert.equal(vars["--mall-primary-600"], buildPalette(c.primary)[600], "포인트색·팔레트 그대로");
+    }
+  }
+  for (const bad of ["", "red", "#12345", null, undefined]) assert.equal(navHoverColor(bad, "light"), null);
+  assert.deepEqual(themeStyle(DEFAULT_THEME), {}, "기본 테마는 여전히 변수 0");
+});
