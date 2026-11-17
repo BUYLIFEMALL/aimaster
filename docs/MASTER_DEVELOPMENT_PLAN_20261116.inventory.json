@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 20:14:25 KST",
+  "checkedAt": "2026-11-17 20:17:06 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "monitoring": {
     "policyVersion": "1.7",
@@ -12,10 +12,10 @@
     "outsideTurnAutomaticChecks": "not_configured",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T11:14:22.912Z",
+      "at": "2026-11-17T11:17:03.549Z",
       "timezone": "Asia/Seoul",
-      "trigger": "주인님 점검 방식 추가 지시",
-      "scope": "공통지침/전달방식/공식작업표·Git 미커밋 상태·인수인계/결과 파일 경로와수정시각 대조",
+      "trigger": "주인님 지침 변경 및 Orca 메시지 이벤트",
+      "scope": "공통지침/공식작업표/Git·인수인계파일목록 대조, 10세션 공지전송 및 새 Orca 보고1건 확인",
       "handoffDiscovery": {
         "candidateCount": 577,
         "notLinkedByPathOrTaskIdCount": 401,
@@ -23,9 +23,65 @@
         "baselineAt": "2026-11-17T10:26:40.468Z",
         "note": "경로/작업ID 문자열 대조의 발견 후보이며 실제 미처리 작업 수가 아님. 과거 후보 전체 본문은 미검토."
       },
-      "judgment": "지침1.7 반영. 최근 점검 이후 새 미등록 후보는 발견되지 않음. 과거 후보는 담당/작업근거를 대조한 뒤 연결하며 기존 작업 재배정0.",
-      "nextAction": "실행 중 5분 경과 또는 새 이벤트 시 실제 점검·판정·후속배정·시각 갱신. 턴 밖 자동 점검 없음."
-    }
+      "judgment": "실행 중 점검규칙 등록·턴 밖 자동점검 미설정. 공지10건 전송등록, Realty수신확인1. Realty 자연회차 기록만 반영·수집/외부작업 재실행0. 과거 미연결파일 후보 전체 본문은 미검토.",
+      "nextAction": "실행 중 5분 경과 또는 새 이벤트 시 실제 점검·판정·후속배정·시각 갱신. 턴 밖 자동 점검 없음.",
+      "evidence": [
+        "지침1.7 5ca5eda25",
+        "msg_1322746841c3: Realty 공지수신·v1.46 18:16 KST ok811 담당읽기보고"
+      ]
+    },
+    "notifications": [
+      {
+        "owner": "CC-WORKSPACE-01",
+        "messageId": "msg_78cf8a06558d",
+        "status": "queued"
+      },
+      {
+        "owner": "CC-B2B-BACK-01",
+        "messageId": "msg_474448abcbdd",
+        "status": "queued"
+      },
+      {
+        "owner": "CC-B2B-FRONT-01",
+        "messageId": "msg_8a85d59cf448",
+        "status": "queued"
+      },
+      {
+        "owner": "CC-ECOM-01",
+        "messageId": "msg_752f6e7e0117",
+        "status": "queued"
+      },
+      {
+        "owner": "CC-BLOG-01",
+        "messageId": "msg_0407ae8feae8",
+        "status": "queued"
+      },
+      {
+        "owner": "CC-MOVIE-01",
+        "messageId": "msg_dc20212ac76c",
+        "status": "queued"
+      },
+      {
+        "owner": "CC-MUSIC-01",
+        "messageId": "msg_1369819dbaef",
+        "status": "queued"
+      },
+      {
+        "owner": "CC-REALTY-01",
+        "messageId": "msg_fa8f34fc82fc",
+        "status": "acknowledged"
+      },
+      {
+        "owner": "AG-UI-01",
+        "messageId": "msg_d37001c89c88",
+        "status": "queued"
+      },
+      {
+        "owner": "CX-QA-01",
+        "messageId": "msg_f502ee2dd999",
+        "status": "queued"
+      }
+    ]
   },
   "count": 103,
   "programs": [
