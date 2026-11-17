@@ -156,6 +156,10 @@ input[type="submit"] {
 [data-mall-mode="dark"] :is(.bg-slate-700, .bg-slate-800, .bg-slate-900, .bg-slate-950, .bg-gray-700, .bg-gray-800, .bg-gray-900, .bg-gray-950).text-white { color: var(--color-slate-50); }
 /* 파란 단추(bg-blue-600/700 + 흰 글자)는 어둡게에서 --color-blue-*가 옅은 단계로 뒤집혀 흰 글자가 안 보임(기본 파랑 2.63:1) — 뒤집지 않는 단추 색으로(밝게와 같은 대비, FRONT-20261117-02) */
 [data-mall-mode="dark"] :is(.bg-blue-600, .bg-blue-700).text-white { background-color: var(--mall-primary-btn, var(--mall-primary-600)); }
+/* 위 규칙이 hover:/group-hover: 바탕도 막아 어둡게에서 올림 변화가 없던 것(P3 일관성, FRONT-20261117-04) — Tailwind 원래 올림 색은 옅게 뒤집혀(흰 대비 1.6~2.5) 그대로 못 씀. 뒤집지 않는 진한 단추 색으로 */
+@media (hover: hover) {
+  [data-mall-mode="dark"] :is(.hover\:bg-blue-700:hover, .group:hover .group-hover\:bg-blue-700, .hover\:bg-blue-800:hover):is(.bg-blue-600, .bg-blue-700).text-white { background-color: var(--mall-primary-btn-hover, var(--mall-primary-700)); }
+}
 /* 흰 글자 대비 미달 포인트색(에메랄드·코랄·오렌지 등)의 평면 파란 단추 — 상점 바깥 상자 style에 단추 전용 색이 있을 때만(관리자·나머지 색은 변수 없음 = 그대로, FRONT-20261117-03)
    Tailwind와 같은 utilities 층 + 특이성 0,1,0이라 hover:/group-hover: 바탕이 그대로 이긴다(QA022 P2). 그 마우스 올림 색도 단추 전용 진한 색으로. bg-blue-700은 원래 색으로 4.5 이상이라 대상 아님 */
 @layer utilities {

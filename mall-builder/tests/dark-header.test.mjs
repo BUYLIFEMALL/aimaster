@@ -31,7 +31,7 @@ test("어두운 테마의 파란 단추 바탕은 단추 색(--mall-primary-600)
   const rule = '[data-mall-mode="dark"] :is(.bg-blue-600, .bg-blue-700).text-white { background-color: var(--mall-primary-btn, var(--mall-primary-600)); }';
   assert.ok(css.includes(rule), "규칙 없음 또는 선택자가 바뀜");
   // 어둡게 범위 밖에서 같은 클래스를 덮는 규칙은 없다(밝은 테마·관리자 화면 그대로)
-  assert.equal(css.split("\n").filter((l) => /\.bg-blue-(600|700)/.test(l) && !l.startsWith('[data-mall-mode="dark"]') && !l.trim().startsWith(':where([style*="--mall-primary-btn"])')).length, 0);
+  assert.equal(css.split("\n").filter((l) => /\.bg-blue-(600|700)/.test(l) && !l.trim().startsWith('[data-mall-mode="dark"]') && !l.trim().startsWith(':where([style*="--mall-primary-btn"])')).length, 0);
 });
 
 test("색 12가지 모두 어두운 테마 파란 단추의 흰 글자 대비가 나빠지지 않는다(후 = 밝은 테마 단추와 같은 값)", async () => {
@@ -87,7 +87,7 @@ test("단추 전용 색(밝게)은 utilities 층·특이성 0,1,0 — hover/grou
   const layer = css.slice(start, end);
   // 층 밖에는 단추 전용 색으로 평면 단추를 덮는 규칙이 없다(어둡게 규칙만 예외 — 어둡게는 올림 색도 옅게 뒤집혀 덮는 편이 안전)
   const outside = css.slice(0, start) + css.slice(end);
-  assert.equal(outside.split("\n").filter((l) => l.includes("--mall-primary-btn") && /\.bg-blue-(600|700)/.test(l) && !l.startsWith('[data-mall-mode="dark"]')).length, 0, "층 밖 덮어쓰기");
+  assert.equal(outside.split("\n").filter((l) => l.includes("--mall-primary-btn") && /\.bg-blue-(600|700)/.test(l) && !l.trim().startsWith('[data-mall-mode="dark"]')).length, 0, "층 밖 덮어쓰기");
   const base = ':where([style*="--mall-primary-btn"]) .bg-blue-600:where(.text-white) { background-color: var(--mall-primary-btn); }';
   assert.ok(layer.includes(base), "기본 규칙(특이성 = .bg-blue-600 하나)");
   assert.ok(!/\.bg-blue-700[:{.\s]/.test(layer.split("\n").find((l) => l.includes(base)) ?? ""), "bg-blue-700은 원래 색으로 4.5 이상 — 대상 아님");
@@ -97,4 +97,38 @@ test("단추 전용 색(밝게)은 utilities 층·특이성 0,1,0 — hover/grou
   assert.ok(media.includes("{ background-color: var(--mall-primary-btn-hover); }"));
   // 입체 단추는 층 밖 원래 규칙 그대로(올림 --mall-primary-700·눌림 이동)
   assert.ok(outside.includes(".btn-3d-blue:hover:not(:disabled) {\n  background-color: var(--mall-primary-700, #1d4ed8);") || outside.includes(".btn-3d-blue:hover:not(:disabled) {\r\n  background-color: var(--mall-primary-700, #1d4ed8);"));
+});
+
+// FRONT-20261117-04 — 어둡게 평면 단추 올림 피드백(P3 일관성). 어둡게 기본 규칙이 hover:/group-hover: 바탕도 막았고,
+// Tailwind 원래 올림 색(--color-blue-700/800)은 옅게 뒤집혀 흰 글자 대비가 1.6~2.5라 그대로 쓸 수 없다
+test("어둡게 평면 단추 올림: hover 가능한 기기만, 어둡게 표식 안 실제 올림 클래스만, 뒤집지 않는 진한 단추 색", () => {
+  const base = '[data-mall-mode="dark"] :is(.bg-blue-600, .bg-blue-700).text-white { background-color: var(--mall-primary-btn, var(--mall-primary-600)); }';
+  const rule = `[data-mall-mode="dark"] :is(.hover${BS}:bg-blue-700:hover, .group:hover .group-hover${BS}:bg-blue-700, .hover${BS}:bg-blue-800:hover):is(.bg-blue-600, .bg-blue-700).text-white { background-color: var(--mall-primary-btn-hover, var(--mall-primary-700)); }`;
+  const at = css.indexOf(base), media = css.indexOf("@media (hover: hover) {", at), r = css.indexOf(rule);
+  assert.ok(at >= 0, "어둡게 기본 규칙은 그대로(제거 금지)");
+  assert.ok(r > media && media > at, "올림 규칙은 기본 규칙 뒤 hover 기기 전용 @media 안");
+  assert.ok(!css.slice(media, r).includes("}"), "같은 @media 블록 안");
+  assert.equal(css.split(rule).length, 2, "한 번만");
+});
+
+test("어둡게 12색 모두 올림 색이 평상시보다 진하고 흰 글자 4.5 이상", async () => {
+  const { themeStyle, DEFAULT_THEME } = await import("../src/lib/theme.ts");
+  const { COLOR_PRESETS } = await import("../src/lib/builder/templates.ts");
+  assert.equal(COLOR_PRESETS.length, 12);
+  const Y = (s) => {
+    if (s.startsWith("#")) { const n = parseInt(s.slice(1), 16); const f = (v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f((n >> 16) & 255) + 0.7152 * f((n >> 8) & 255) + 0.0722 * f(n & 255); }
+    const [l, c, h] = s.match(/oklch\(([\d.]+)% ([\d.]+) ([\d.]+)\)/).slice(1).map(Number);
+    const L = l / 100, a = c * Math.cos((h * Math.PI) / 180), b = c * Math.sin((h * Math.PI) / 180);
+    const x = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3, y = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3, z = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
+    const rgb = [4.0767416621 * x - 3.3077115913 * y + 0.2309699292 * z, -1.2684380046 * x + 2.6097574011 * y - 0.3413193965 * z, -0.0041960863 * x - 0.7034186147 * y + 1.707614701 * z].map((v) => Math.min(1, Math.max(0, v)));
+    return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+  };
+  const white = (s) => 1.05 / (Y(s) + 0.05);
+  for (const { name, primary } of COLOR_PRESETS) {
+    const v = themeStyle({ ...DEFAULT_THEME, primary, mode: "dark" });
+    const base = v["--mall-primary-btn"] ?? v["--mall-primary-600"];
+    const hover = v["--mall-primary-btn-hover"] ?? v["--mall-primary-700"];
+    assert.ok(white(hover) > white(base) && white(hover) >= 4.5, `${name}: ${white(base).toFixed(2)} → ${white(hover).toFixed(2)}`);
+    assert.ok(white(v["--color-blue-700"]) < 4.5, `${name}: 옅게 뒤집힌 원래 올림 색은 미달이라 덮어야 함`);
+  }
 });
