@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 19:09:25 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 19:11:18 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -40,7 +40,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 215개: done 190개 · cancelled 6개 · ready_review 10개 · running 4개 · waiting_human 3개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 215개: done 190개 · cancelled 6개 · ready_review 11개 · running 3개 · waiting_human 3개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -258,7 +258,7 @@
 | QA-20261117-037 | CX-QA-01 | waiting_human / acknowledged | B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수 | 주인님 공간29 Lab 시험naver로그인→Return to agent, 고객읽기검수후운영사gmail로그인1회. 실제결제/콜백/RPC상태변경0 |
 | QA-20261117-038 | CX-QA-01 | done / integrated | Gmail A2 원자 받은업무 전달 서버·SQL 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
 | QA-20261117-039 | CX-QA-01 | done / integrated | Gmail OFF 패널 실제 TSX 모의 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
-| QA-20261117-040 | CX-QA-01 | running / running | Gmail OFF 배선·실제 RPC 입구·어댑터·화면 통합 독립검수 | Gmail경계예외정규화 국소수정·로그전인수검증, 전체RPC OFF무DB주장정정·어댑터검수계속 |
+| QA-20261117-040 | CX-QA-01 | ready_review / returned | Gmail OFF 배선·실제 RPC 입구·어댑터·화면 통합 독립검수 | 기존msg_dbd452ef28c6 W-F01수정결과반환→국소재검수, 중복배정0. 공통RPC초기화와Gmail OFF범위분리 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 

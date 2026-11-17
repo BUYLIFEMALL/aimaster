@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 19:09:25 KST",
+  "checkedAt": "2026-11-17 19:11:18 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -5183,13 +5183,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "Gmail OFF 배선·실제 RPC 입구·어댑터·화면 통합 독립검수",
-      "status": "running",
-      "delivery": "running",
+      "status": "ready_review",
+      "delivery": "returned",
       "sha": "d8e7e188c",
-      "evidence": "msg_175449454d04: 실제Gmail모듈+runRpc추출/공통초기화모의, unexpected오류fixture console.error 원문P2. OFF유효명령Gmail store0/무효bad_request, 공통RPC DB접근은별도",
+      "evidence": ".ai/results/QA-20261117-040-CX-QA-01.md / msg_7e14f29a6a5b: W-F01 P2 예외원문로그로마감보류. OFF Gmail store0/실POST모의401409/실adapter4expectedAccount·오류8/실InboxDOM회귀 독립PASS, DB/브라우저/Google0",
       "scopeRef": "실모듈/가짜HTTP·계정/오류/OFF·로그 검토, 공유DBreset/실외부/운영/build0",
       "completion": "4명령 권한/기대계정/봉투와 결과모름/OFF 무호출/기존 받은업무 회귀 판정, 작성자와 독립검수 증거 구분",
-      "next": "Gmail경계예외정규화 국소수정·로그전인수검증, 전체RPC OFF무DB주장정정·어댑터검수계속"
+      "next": "기존msg_dbd452ef28c6 W-F01수정결과반환→국소재검수, 중복배정0. 공통RPC초기화와Gmail OFF범위분리"
     }
   ]
 }
