@@ -58,11 +58,11 @@ ask/report는 운영 DB 쓰기다. 이번 로컬 초기 구성에서는 아직 �
 
 ## 현재 방식: 이 Master 터미널에서 실행하는 30분 메시지 예약
 
-- Windows 작업 이름: `AIMaster-Master-30Min-Wake`, 30분 반복, 다음 회차 2026-11-18 00:30 KST. 현재 로그인 사용자 권한·숨김 PowerShell로 실행하며 별도 Codex/터미널을 생성하지 않는다.
+- Windows 작업 이름: `AIMaster-Master-30Min-Wake`, 매시 00분·30분(KST) 반복. 현재 로그인 사용자 권한·숨김 PowerShell로 실행하며 별도 Codex/터미널을 생성하지 않는다.
 - 실행 파일: `scripts/master-half-hour-wake.ps1`, 설정 `.ai/master-wake-config.json`, 최근 전송 결과 `.ai/master-wake-status.json`.
 - 대상: 기존 Master 터미널 `term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a`, Run `run_6e348395e1fe`.
 - 동작: `orca orchestration send --from <현재 Master 본인 터미널> --to run:<기존 Run>` 한 번만 실행한다. 예약 프로세스에는 활성 터미널 문맥이 없으므로 본인 핸들을 명시한다. 다른 담당의 핸들을 빌리지 않는다. 메시지 `check`·점검·판정·후속 배정은 이 Master가 수행한다.
-- 2026-11-18 00:20:28 시험: Windows 작업 결과 0, 전송 `msg_34920e0d96b0`, 이 Master의 실제 수신 확인. 첫 두 시험은 sender 문맥이 없어 전송되지 않았고, 본인 `--from` 명시 후 성공했다. 정시 회차의 실제 처리 여부는 이후 이력으로 확인한다.
+- 2026-11-18 00:20:28 시험: Windows 작업 결과 0, 전송 `msg_34920e0d96b0`, 이 Master의 실제 수신 확인. 첫 두 시험은 sender 문맥이 없어 전송되지 않았고 본인 `--from` 명시 후 성공했다. 첫 정시 회차도 00:30:01 전송 `msg_c65a03ff15ec`·작업 결과 0·기존 Master 수신/점검을 확인했다. 예약 전송과 실제 점검 시각은 구분한다.
 - 중복 실행은 작업 스케줄러 `IgnoreNew`와 한 번 실행하는 스크립트의 mutex로 막는다. 전송 결과가 불확실하면 자동 재시도하지 않는다. 기존 Master가 없어도 새 창·세션을 생성하거나 다른 Master로 바꾸지 않는다.
 - PC/Orca/로그인 세션이 필요하다. 전송 등록은 수신·점검 완료와 다르며, 마지막 실제 점검은 Master가 별도로 기록한다. 기존 점검 전용 자동화 `a8e75832-fa68-405d-b823-b72d26ec84a2`는 비활성화했고 시험 터미널 `term_b6e992d2-81b3-497c-be5c-ecf8c226c4d7`은 닫았다.
 
