@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 17:40:24 KST",
+  "checkedAt": "2026-11-17 17:45:37 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4912,12 +4912,12 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "E3-1 간단결재 요청관리 템플릿",
-      "status": "running",
-      "delivery": "returned",
-      "evidence": "e297153b8·922e4d28e·msg_0186d3820539 / f789e3281·aa7bcff52·msg_a2a28826de2b E3-2정확7경로배정/수락 / 4ca85f4b2 E3-2自動規則/警告toast7파일·作者관련58/tsc0·Masterdiff/clean確認 / 6ea81eb5c E3-3권한조사·msg_a9c2574739fa QA033external/mode shape누락P2 / 310846f19外部/mode比較修正·作者22/tsc0·Masterdiff確認 / msg_8822a8367bf2 external/mode해소·재귀id제거ValueRef user/page거짓동치잔여P2 / 788c95778 실제참조id보존/step보수비교·作者28/tsc0·Masterdiff확인 / QA033PASS·E3-3catalog/spec/권한행렬시험배정 / WorkspaceE3-3 exact spec/catalog/approvalPermission·회귀/본인문서 점유없음확인후착수 / c5b26d81c/fb3bd4bae E3-3 Symbol信頼+既存ACL5파일·作者권한56/관련39/tsc0·Masterdiff確認 / 71321ffe2 셀AI출처조사·msg_228557cee536 E3-4외부수동mock구현배정/정확7경로미커밋0후착수 / QA034권한독립PASS·새차단0 / 81e816a26/5f3bed718 E3-4 mock29/회귀33/tsc0·Master7파일diff및provider retry루프確認 / 459fed8d7 공급자retry調査·msg_ed1c82784a1b 정확adapter2+fakeSDK시험확장승인/미커밋0후착수 / b8860ba8c/e8d058e16 request0retry3파일·作者3공급자fakeHTTP1/기본보존·60/tsc0·Masterdiff確認 / msg_959f046a1777 QA035retry/출처순수PASS·builtin→외부선택fallback경계·sourceSaved낙관카운트 / e668caf32 builtin선택전거절/저장요청문구·作者33/tsc0·Master5파일diff확인 / QA035최종PASS·E3-1~4독립소스검토조건충족",
-      "next": "E3+WS23 현재조합전체tsc/vitest각1회·운영v1.57과미배포묶음분리",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "e297153b8·922e4d28e·msg_0186d3820539 / f789e3281·aa7bcff52·msg_a2a28826de2b E3-2정확7경로배정/수락 / 4ca85f4b2 E3-2自動規則/警告toast7파일·作者관련58/tsc0·Masterdiff/clean確認 / 6ea81eb5c E3-3권한조사·msg_a9c2574739fa QA033external/mode shape누락P2 / 310846f19外部/mode比較修正·作者22/tsc0·Masterdiff確認 / msg_8822a8367bf2 external/mode해소·재귀id제거ValueRef user/page거짓동치잔여P2 / 788c95778 실제참조id보존/step보수비교·作者28/tsc0·Masterdiff확인 / QA033PASS·E3-3catalog/spec/권한행렬시험배정 / WorkspaceE3-3 exact spec/catalog/approvalPermission·회귀/본인문서 점유없음확인후착수 / c5b26d81c/fb3bd4bae E3-3 Symbol信頼+既存ACL5파일·作者권한56/관련39/tsc0·Masterdiff確認 / 71321ffe2 셀AI출처조사·msg_228557cee536 E3-4외부수동mock구현배정/정확7경로미커밋0후착수 / QA034권한독립PASS·새차단0 / 81e816a26/5f3bed718 E3-4 mock29/회귀33/tsc0·Master7파일diff및provider retry루프確認 / 459fed8d7 공급자retry調査·msg_ed1c82784a1b 정확adapter2+fakeSDK시험확장승인/미커밋0후착수 / b8860ba8c/e8d058e16 request0retry3파일·作者3공급자fakeHTTP1/기본보존·60/tsc0·Masterdiff確認 / msg_959f046a1777 QA035retry/출처순수PASS·builtin→외부선택fallback경계·sourceSaved낙관카운트 / e668caf32 builtin선택전거절/저장요청문구·作者33/tsc0·Master5파일diff확인 / QA035최종PASS·E3-1~4독립소스검토조건충족 / 6f166ec8f最終tsc0/55파일560시험·실키env없음/개발DB분리",
+      "next": "E3소스구현/독립/통합완료·WS23함께v1.58미배포·실검수/비용별도",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분",
+      "completion": "E3-1템플릿/2앱알림/3기존ACL/4수동외부출처+noRetry 소스·QA030/033/034/035·통합완료",
       "stage1": "e297153b8/QA030 done scoped source",
       "sha": "81e816a26",
       "permissionDecision": {
@@ -5086,6 +5086,38 @@
       "scopeRef": "81e816a26 AI7파일/provider읽기·mock/소스·AI/검색/DBreset/build0",
       "completion": "회원키/정책/1회/인용고정맵/동일거래/자동모드제외 판정",
       "next": "지정소스마감·실공급자/과금/사실성/운영UI·실DB미검수"
+    },
+    {
+      "task_id": "WS-20261117-25",
+      "parent_task_id": "PLAN-20261117-01",
+      "owner": "CC-WORKSPACE-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "E4 Gmail함 기존기능/권한 대조와 최소범위 조사",
+      "status": "ready",
+      "delivery": "queued",
+      "scopeRef": "기존PLAN/읽기만·제품/외부/키조회/설치/build0",
+      "evidence": "주인님추천8개전부채택·Master후속배정",
+      "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
+      "next": "메일목록읽기/명시선택받은업무 최소1단위계획반환"
+    },
+    {
+      "task_id": "WS-20261117-26",
+      "parent_task_id": "WS-20261117-24",
+      "owner": "CX-MASTER-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "E3+WS23 v1.58 묶음 배포/운영 실검수",
+      "status": "waiting_human",
+      "delivery": "prepared",
+      "scopeRef": "v1.58버전/programs정확1행·localbuild1/remote1·시험계정합성UI/앱알림·선택적검색1/모델1",
+      "evidence": "6f166ec8f全560시험/독립PASS·운영v1.57유지",
+      "completion": "승인범위배포Ready/운영화면/실테스트·한계분리",
+      "blocker": {
+        "reason": "추가배포빌드와실검색/모델비용아직미승인",
+        "owner": "주인님",
+        "required": "묶음배포1회/운영합성검수·실검색1/모델1비용범위선택",
+        "next": "승인전미배포/실호출0"
+      },
+      "next": "구체소스묶음보존·승인후실행순서확정"
     }
   ]
 }
