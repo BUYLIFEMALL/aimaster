@@ -227,15 +227,27 @@ export function setTemplateAutomationSaverForTests(fn: SaveAutomation | null) {
   saveTemplateAutomation = fn ?? defaultSave;
 }
 
-/** 같은 내용인지 비교할 때 쓰는 모양(만들 때 붙는 id·버전 등은 빼고 조건·대상·문구만) */
-function automationShape(trigger: unknown, actions: unknown): string {
-  const t = trigger as { type?: string; events?: { type?: string; property?: string; condition?: unknown }[] };
-  const acts = (Array.isArray(actions) ? actions : []) as { type?: string; target?: unknown; message?: unknown }[];
-  return JSON.stringify({
-    type: t?.type,
-    events: (t?.events ?? []).map((e) => ({ type: e.type, property: e.property, condition: e.condition })),
-    actions: acts.map((a) => ({ type: a.type, target: a.target, message: a.message })),
-  });
+/**
+ * 같은 내용인지 비교할 때 쓰는 모양. QA033(Mac msg_a9c2574739fa): 실행에 영향을 주는 값은 모두 남긴다 — 조건 묶음 방식(mode)·
+ * 조건·동작 종류·대상·문구·외부 발송(external)·그 밖의 필드 전부와 켜짐 상태. 의미 없는 `id`(조건·동작 번호)만 빼고,
+ * 배열 순서와 값 종류는 그대로, 객체 키만 정렬(같은 값이 다른 순서로 저장돼도 같게).
+ */
+function normalizeForCompare(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(normalizeForCompare);
+  if (v && typeof v === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const k of Object.keys(v as Record<string, unknown>).sort()) {
+      if (k === 'id') continue;
+      const x = (v as Record<string, unknown>)[k];
+      if (x === undefined) continue;
+      out[k] = normalizeForCompare(x);
+    }
+    return out;
+  }
+  return v;
+}
+function automationShape(trigger: unknown, actions: unknown, status: unknown): string {
+  return JSON.stringify({ trigger: normalizeForCompare(trigger), actions: normalizeForCompare(Array.isArray(actions) ? actions : []), status: status ?? 'active' });
 }
 
 function addTemplateAutomations(ctx: Ctx, templateId: unknown, changes: { table: string; record: unknown }[], rm: RecordMapBuilder): string[] {
@@ -251,7 +263,7 @@ function addTemplateAutomations(ctx: Ctx, templateId: unknown, changes: { table:
     const same = childrenOf<AutomationRecord>('automation', col.id).find((x) => x.alive !== false && (x.properties?.name ?? '') === a.name);
     if (same) {
       // 같은 이름이 이미 있으면 덮어쓰지 않는다 — 같은 내용이면 이미 만든 것으로, 다르면 경고
-      if (automationShape(same.trigger, same.actions) !== automationShape(a.trigger, a.actions)) {
+      if (automationShape(same.trigger, same.actions, same.status) !== automationShape(a.trigger, a.actions, 'active')) {
         warnings.push(`같은 이름의 다른 자동화 「${a.name}」가 이미 있어 새로 만들지 않았습니다. ⚡ 자동화에서 확인해 주세요.`);
       }
       continue;

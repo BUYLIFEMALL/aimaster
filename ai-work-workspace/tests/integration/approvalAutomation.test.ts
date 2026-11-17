@@ -183,3 +183,38 @@ describe('E3-2 결재 템플릿 → 앱 알림 자동화 2개', () => {
     expect(automationsOf(body.collectionId)).toHaveLength(2);
   });
 });
+
+// ---------------------------------------------------------------- QA033 P2(Mac msg_a9c2574739fa): 같은 이름 비교는 실행에 영향 주는 값을 모두 본다
+describe('QA033: 같은 이름 자동화 — 실행 효과가 다르면 같은 것으로 보지 않음', () => {
+  async function withExtra(extra: (first: any) => any) {
+    const def = catalog.TEMPLATES.find((t) => t.id === 'simple-approval')!;
+    const orig = def.automations!;
+    def.automations = [...orig, extra(orig[0])];
+    try {
+      const r = await rpc('getTemplate', { templateId: 'simple-approval', spaceId: space });
+      const body = r.body as any;
+      return { body, autos: automationsOf(collectionOfPage(body.pageId)!), first: orig[0] };
+    } finally {
+      def.automations = orig;
+    }
+  }
+  it.each([
+    ['외부 발송(external)만 다름', (f: any) => ({ ...f, actions: [{ ...f.actions[0], external: ['email'] }] })],
+    ['조건 묶음 방식(trigger.mode)만 다름', (f: any) => ({ ...f, trigger: { ...f.trigger, mode: 'all' } })],
+    ['조건 값만 다름', (f: any) => ({ ...f, trigger: { ...f.trigger, events: [{ ...f.trigger.events[0], condition: { op: 'is', values: ['반려'] } }] } })],
+    ['알림 대상 속성만 다름', (f: any) => ({ ...f, actions: [{ ...f.actions[0], target: { type: 'property', property: 'aReq' } }] })],
+  ])('%s → 저장 0·기존 규칙 그대로·경고 1', async (_n, extra) => {
+    const { body, autos, first } = await withExtra(extra);
+    expect(autos).toHaveLength(2);
+    const kept = autos.find((a) => a.properties.name === first.name)!;
+    expect(kept.actions[0].external ?? []).toEqual([]);
+    expect(kept.trigger.mode).toBe('any');
+    expect(body.automationWarnings).toHaveLength(1);
+    expect(body.automationWarnings[0]).toContain('같은 이름의 다른 자동화');
+  });
+  it('id만 다르고 실행 효과가 같으면 이미 만든 것으로(경고 0·저장 0)', async () => {
+    const { body, autos } = await withExtra((f) => ({ ...f, trigger: { ...f.trigger, events: [{ ...f.trigger.events[0], id: 'other-ev' }] }, actions: [{ ...f.actions[0], id: 'other-ac' }] }));
+    expect(autos).toHaveLength(2);
+    expect(body.automationWarnings).toBeUndefined();
+  });
+});
