@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 12:26:25 KST",
+  "checkedAt": "2026-11-17 12:31:14 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4698,11 +4698,11 @@
       "task_id": "FRONT-20261117-03",
       "owner": "CC-B2B-FRONT-01",
       "title": "미달3색 대비 최소후보 분석",
-      "evidence": "msg_c37e721cf22f / msg_dc75ac7b448e / f7120d185/7e701ae53·author21+31tests",
-      "next": "QA022 독립대비/선택자/평면hover회귀검토대기·배포0",
+      "evidence": "msg_c37e721cf22f / msg_dc75ac7b448e / f7120d185/7e701ae53·author21+31tests / msg_b3a61f19bcd1 대비PASS/hover P2·msg_efe2deaa2f62수정배정",
+      "next": "QA022 P2 hover피드백회귀수정·동일범위반환",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "returned",
       "scopeRef": "분석/기존문서만·타인파일수정0",
       "completion": "정확허용범위 구현·회귀증거·외부/운영/빌드0"
@@ -4711,12 +4711,12 @@
       "task_id": "BLOG-20261117-08",
       "owner": "CC-BLOG-01",
       "title": "T05 inspect robots 판정 구현준비",
-      "evidence": "msg_906f4d937c19 / c82d69b3f/64f1257c9 / msg_0101dd1848c2 / cb337929d/c46589a15·Master npm metadata robots-parser3.0.1 MIT / msg_6bd4fda305a6",
-      "next": "T05 매리디렉트본문전robots판정 구현·실parser모의시험/tsc·외부크롤링/배포0",
+      "evidence": "msg_906f4d937c19 / c82d69b3f/64f1257c9 / msg_0101dd1848c2 / cb337929d/c46589a15·Master npm metadata robots-parser3.0.1 MIT / msg_6bd4fda305a6 / fc48ebcba/5a2d1fe33·author25+3tests/tsc0",
+      "next": "MacQA023 독립검토·미배포유지",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "ready_review",
+      "delivery": "returned",
       "scopeRef": "FILE_OWNERSHIP BLOG08 safeFetch/route/robots/test/package-lock/출처",
       "completion": "재현근거/정확범위/미검수반환"
     },
@@ -4739,12 +4739,25 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "FRONT03 대비보정·선택자·상태표시 독립검토",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "msg_9811315f21f6",
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "msg_9811315f21f6 / msg_b3a61f19bcd1",
       "scopeRef": "theme.ts/globals.css/관련시험 읽기·독립계산·제품수정0",
       "completion": "3색대비/9색불변/관리자제외/hover회귀 별도판정",
-      "next": "Mac QA반환·실Lab미배포PASS금지"
+      "next": "P2수정후재검토·전체무회귀미통과"
+    },
+    {
+      "task_id": "QA-20261117-023",
+      "parent_task_id": "BLOG-20261117-08",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "inspect robots 가드 독립검토",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "msg_c122b56d8aac",
+      "scopeRef": "fc48ebcba source/모의시험·제품/외부/DB/build0",
+      "completion": "SSRF/리디렉트/abort/byte제한/UA/route경계검증",
+      "next": "고유결과반환·실배포PASS0"
     }
   ]
 }
