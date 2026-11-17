@@ -137,7 +137,7 @@ export function KeySettings({
             type="button"
             onClick={() => setShow((v) => !v)}
             disabled={busy}
-            tabIndex={-1}
+            aria-label={show ? `${info.name} API 키 숨기기` : `${info.name} API 키 보기`}
             style={{
               position: "absolute",
               right: "8px",
@@ -148,6 +148,7 @@ export function KeySettings({
               padding: "4px",
               cursor: "pointer",
               color: "#a8a29e",
+              borderRadius: "4px",
             }}
             title={show ? "키 숨기기" : "키 보기"}
           >

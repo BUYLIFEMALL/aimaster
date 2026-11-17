@@ -834,10 +834,10 @@ button:active:not(:disabled) { transform: translateY(0); }
   border-radius: 10px;
   font-size: 12px;
   font-weight: 750;
-  background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+  background: linear-gradient(135deg, #be123c 0%, #9f1239 100%);
   color: #ffffff !important;
-  border: 1px solid #9f1239;
-  box-shadow: 0 2.5px 0 #881337, 0 4px 10px rgba(225, 29, 72, 0.22);
+  border: 1px solid #881337;
+  box-shadow: 0 2.5px 0 #700d2b, 0 4px 10px rgba(190, 18, 60, 0.22);
   text-decoration: none !important;
   transition: all 0.15s ease;
   cursor: pointer;
@@ -845,12 +845,12 @@ button:active:not(:disabled) { transform: translateY(0); }
 }
 .btn-create-key:hover {
   transform: translateY(-1px);
-  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
-  box-shadow: 0 3.5px 0 #881337, 0 6px 14px rgba(225, 29, 72, 0.32);
+  background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+  box-shadow: 0 3.5px 0 #700d2b, 0 6px 14px rgba(225, 29, 72, 0.32);
 }
 .btn-create-key:active {
   transform: translateY(1.5px);
-  box-shadow: 0 0.5px 0 #881337;
+  box-shadow: 0 0.5px 0 #700d2b;
 }
 
 .btn-platform-signup {
