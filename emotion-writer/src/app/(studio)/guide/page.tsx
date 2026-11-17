@@ -46,6 +46,10 @@ const FAQS: FaqItem[] = [
     q: "Google Gemini API 키는 어디에 쓰이고 비용은 어떻게 되나요?",
     a: "감성 글귀 텍스트 생성과 AI 나노바나나 이미지 생성 시에만 회원님 본인의 Google Gemini API 키가 사용됩니다. Google AI Studio에서 제공하는 무료 할당량(Free Tier) 범위 내에서 충분히 이용하실 수 있어 추가 과금 부담 없이 감성 카드를 제작할 수 있습니다.",
   },
+  {
+    q: "글귀 생성 AI를 OpenAI나 Claude로 바꿀 수 있나요?",
+    a: "네. 5단계 「글귀 생성 AI 모델」에서 Google Gemini·OpenAI(GPT)·Claude(Anthropic) 가운데 하나와 상세 모델(가성비·균형·최고 품질)을 고르실 수 있습니다. 고른 회사의 본인 API 키를 「API키등록·플랫폼연동」에 등록해 두면 그 키로만 호출되고, 비용도 그 회사 계정에 청구됩니다. 기본값은 지금처럼 Gemini 3.8 Flash이며, 배경 이미지(나노바나나)는 계속 Gemini 키를 씁니다.",
+  },
 ];
 
 export default function GuidePage() {

@@ -36,6 +36,18 @@ export function POST(request: Request) {
         );
         if (!res.ok)
           throw new AppError("Gemini 키와 모델 사용 권한을 확인해 주세요.");
+      } else if (provider === "openai" || provider === "anthropic") {
+        // 2026-11-18 ECOM-20261118-01: 모델 목록 조회(요금 없음)로 키만 확인한다.
+        const res = await fetch(
+          provider === "openai" ? "https://api.openai.com/v1/models" : "https://api.anthropic.com/v1/models",
+          {
+            headers: provider === "openai" ? { Authorization: `Bearer ${key}` } : { "x-api-key": key, "anthropic-version": "2023-06-01" },
+            cache: "no-store",
+            signal: AbortSignal.any([request.signal, AbortSignal.timeout(15000)]),
+          },
+        );
+        if (!res.ok)
+          throw new AppError(`${provider === "openai" ? "OpenAI" : "Claude(Anthropic)"} 키와 사용 권한을 확인해 주세요.`);
       } else await searchPhotos(provider, key, "nature", "1:1", request.signal);
       return { connected: true };
     }

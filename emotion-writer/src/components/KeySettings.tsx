@@ -42,7 +42,29 @@ const PROVIDER_INFO: Partial<
     createBtnLabel: "Pixabay API 키 발급/생성하기",
     description: "Pixabay의 감성 사진 검색에 무료로 사용됩니다.",
   },
+  // 2026-11-18 ECOM-20261118-01: 글귀 생성 AI를 OpenAI·Claude로 고를 때 쓰는 본인 키(공용 user_api_keys).
+  openai: {
+    name: "OpenAI",
+    platformName: "OpenAI Platform",
+    createUrl: "https://platform.openai.com/api-keys",
+    signupUrl: "https://platform.openai.com/signup",
+    createBtnLabel: "OpenAI API 키 발급/생성하기",
+    description:
+      "글귀 생성 AI를 GPT 모델로 고를 때 사용되며, 생성 비용은 본인 OpenAI 계정에 청구됩니다.",
+  },
+  anthropic: {
+    name: "Claude (Anthropic)",
+    platformName: "Claude Console",
+    createUrl: "https://console.anthropic.com/settings/keys",
+    signupUrl: "https://console.anthropic.com/",
+    createBtnLabel: "Claude API 키 발급/생성하기",
+    description:
+      "글귀 생성 AI를 Claude 모델로 고를 때 사용되며, 생성 비용은 본인 Anthropic 계정에 청구됩니다.",
+  },
 };
+
+// 설정 화면에 보일 키 순서: 사진·이미지 소스 다음에 글귀 생성 AI 키(Gemini는 소스에 이미 있음).
+const SETTINGS_PROVIDERS: Provider[] = [...SOURCES.map((s) => s.id), "openai", "anthropic"];
 
 export function KeySettings({
   provider,
@@ -236,11 +258,11 @@ export function AllKeySettings({
   const [keys, setKeys] = useState(initial);
   return (
     <div className="settings-list">
-      {SOURCES.map((source) => (
-        <section className="card" key={source.id}>
+      {SETTINGS_PROVIDERS.map((provider) => (
+        <section className="card" key={provider}>
           <KeySettings
-            provider={source.id}
-            registered={keys[source.id]}
+            provider={provider}
+            registered={keys[provider]}
             onSaved={setKeys}
           />
         </section>

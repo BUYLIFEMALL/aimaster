@@ -18,6 +18,7 @@ import {
   type Ratio,
 } from "@/lib/studio/config";
 import { QuoteCanvas } from "./QuoteCanvas";
+import { TEXT_PROVIDER_LABEL, textModelGroups, textModelProvider } from "@/lib/studio/textModels";
 import { useBandColor } from "./useBandColor";
 import { adviseOverlay } from "@/lib/studio/readability";
 import { toEnglishKeywords } from "@/lib/studio/photoKeywords";
@@ -263,8 +264,10 @@ export function Workspace({
   }
 
   function makeCopy() {
-    if (!keys.gemini) {
-      setModal("gemini");
+    // 2026-11-18 ECOM-20261118-01: 고른 글귀 모델의 플랫폼 키가 없으면 그 키 설정 창을 연다.
+    const textProvider = textModelProvider(draft.textModel);
+    if (!keys[textProvider]) {
+      setModal(textProvider);
       return;
     }
     run<{ quotes: string[] }>(
@@ -468,8 +471,8 @@ export function Workspace({
               ))}
             </div>
             <p className="muted">
-              💡 무료 사진 방식의 AI 글귀 생성에도 Gemini 키가 필요합니다. 직접
-              입력한 문구는 AI 글귀 호출 없이 사용할 수 있습니다.
+              💡 AI 글귀 생성에는 5단계에서 고른 AI(Gemini·OpenAI·Claude)의 본인
+              키가 필요합니다. 직접 입력한 문구는 AI 글귀 호출 없이 사용할 수 있습니다.
             </p>
           </Step>
 
@@ -550,10 +553,17 @@ export function Workspace({
                     disabled={disabled}
                     onChange={(e) => change({ textModel: e.target.value })}
                   >
-                    {TEXT_MODELS.map((m) => (
-                      <option key={m.id} value={m.id}>
-                        {m.label}
-                      </option>
+                    {textModelGroups().map((g) => (
+                      <optgroup
+                        key={g.provider}
+                        label={`${g.label} — ${keys[g.provider] ? "본인 키 등록됨" : "본인 키 필요"}`}
+                      >
+                        {g.models.map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {m.label}
+                          </option>
+                        ))}
+                      </optgroup>
                     ))}
                   </select>
                 </label>
@@ -565,8 +575,11 @@ export function Workspace({
                   ✨ 글귀 5개 생성
                 </button>
                 <p className="muted">
-                  이 버튼을 누를 때 본인 Gemini API를 호출합니다. 설정을 바꿔도
-                  기존 문구와 배경은 유지됩니다.
+                  이 버튼을 누를 때 본인{" "}
+                  {TEXT_PROVIDER_LABEL[textModelProvider(draft.textModel)]} API를
+                  호출합니다
+                  {keys[textModelProvider(draft.textModel)] ? "" : "(키를 먼저 등록해 주세요)"}.
+                  설정을 바꿔도 기존 문구와 배경은 유지됩니다.
                 </p>
                 {draft.quotes.length > 0 && (
                   <div className="quotes">

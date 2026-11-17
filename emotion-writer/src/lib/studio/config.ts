@@ -1,7 +1,8 @@
 // [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
 import { NANO_BANANA_MODEL_CONFIGS } from "./nanoBananaModels";
 // 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
-export const PROVIDERS = ["gemini", "pixabay", "pexels"] as const;
+// 2026-11-18 ECOM-20261118-01: 글귀 생성 AI 키(openai·anthropic)도 공용 user_api_keys에서 같은 방식으로 읽는다.
+export const PROVIDERS = ["gemini", "pixabay", "pexels", "openai", "anthropic"] as const;
 export type Provider = (typeof PROVIDERS)[number];
 
 export const THEMES = [
@@ -35,15 +36,8 @@ export type Ratio = (typeof RATIOS)[number];
 
 export const STYLES = ["시", "에세이", "짧은 문장"] as const;
 
-export const TEXT_MODELS = [
-  { id: "gemini-3.8-flash", label: "Gemini 3.8 Flash" },
-];
-
-// 2026-11-03 종료되는 옛 글 모델(Gemini 2.5, 12-01) → 대체 모델. 저장된 원고·옛 화면이 보낸 값도 새 모델로 호출한다.
-const RETIRED_TEXT_MODEL: Record<string, string> = { "gemini-2.5-flash": "gemini-3.8-flash" };
-export function currentTextModel(id: unknown): unknown {
-  return typeof id === "string" ? RETIRED_TEXT_MODEL[id] ?? id : id;
-}
+// 글귀 생성 모델은 2026-11-18부터 OpenAI·Claude·Gemini 9개(./textModels). 옛 모델 이름 바꾸기도 그쪽에 있다.
+export { TEXT_MODELS, currentTextModel } from "./textModels";
 
 // 2026-10-17: 이미지 모델 이름은 공용 기준 코드 gemini-image-models(./nanoBananaModels — 기준은 ai-image-studio)의 1K·2K 등급에서 가져온다(주인님 지시로 통합).
 export const IMAGE_MODELS = [
