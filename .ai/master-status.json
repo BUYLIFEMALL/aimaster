@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T03:33:22.082Z",
+  "checkedAt": "2026-11-17T03:35:10.993Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2624,14 +2624,15 @@
       "task_id": "WS-20261117-21",
       "owner": "CC-WORKSPACE-01",
       "title": "E2 예약7-2 현재코드대조 및 첫 구현범위 확정",
-      "evidence": "msg_c34e47266f97 / msg_b19431213421",
-      "next": "서버1단계 booking/googleCalendar/memberJobs/cron·OFF/모의 구현반환",
+      "evidence": "msg_c34e47266f97 / msg_b19431213421 / 590debc62·author26booking/全396tests/tsc0·OFF",
+      "next": "MacQA024 서버1단계독립검수·2단계연결정확경로읽기조사",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "ready_review",
+      "delivery": "returned",
       "scopeRef": "분석/기존문서만·타인파일수정0",
-      "completion": "정확허용범위 구현·회귀증거·외부/운영/빌드0"
+      "completion": "정확허용범위 구현·회귀증거·외부/운영/빌드0",
+      "sha": "5ed9bc2ec"
     },
     {
       "task_id": "FRONT-20261117-03",
@@ -2697,6 +2698,19 @@
       "scopeRef": "fc48ebcba source/모의시험·제품/외부/DB/build0",
       "completion": "SSRF/리디렉트/abort/byte제한/UA/route경계검증",
       "next": "DNSdeadline P2수정후재검토·전체조건PASS아님"
+    },
+    {
+      "task_id": "QA-20261117-024",
+      "parent_task_id": "WS-20261117-21",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "예약 서버1단계 OFF/상태/권한/동시성 독립검토",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "msg_d66c993d840e",
+      "scopeRef": "5ed9bc2ec 5파일·소스/가능한모의·공유DB초기화/맥build0",
+      "completion": "OFF와상태전환/권한/개인정보/잠금검증·미연결2단계별도",
+      "next": "고유결과/반례/수정조건 반환"
     }
   ],
   "programOverrides": [
@@ -3027,8 +3041,8 @@
     {
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
-      "stage": "v1.56 운영배포·Mac독립운영정상경로/375직접viewport PASS",
-      "next": "WS21 예약서버1단계 구현배정·스위치OFF/Google모의/운영DDL0"
+      "stage": "v1.56운영완료·예약1단계OFF 구현회수/作者396시험PASS",
+      "next": "MacQA024독립검토·Workspace2단계연결경로조사·운영활성/배포0"
     },
     {
       "order": "3 · B2B",

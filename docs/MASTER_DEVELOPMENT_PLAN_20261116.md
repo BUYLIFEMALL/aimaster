@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 12:33:25 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 12:35:13 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -13,7 +13,7 @@
 | 순서 | 담당 | 진행 단계 | 다음 작업·통과 기준 |
 | --- | --- | --- | --- |
 | 1 · ESM | Ecom + Mac Tester | v1.02 운영 배포·Mac 웹 회귀 완료 | 실ESM 등록/확장 연결은 별도 범위, 추가 빌드 없음 |
-| 2 · Workspace | Workspace + Master | v1.56 운영배포·Mac독립운영정상경로/375직접viewport PASS | WS21 예약서버1단계 구현배정·스위치OFF/Google모의/운영DDL0 |
+| 2 · Workspace | Workspace + Master | v1.56운영완료·예약1단계OFF 구현회수/作者396시험PASS | MacQA024독립검토·Workspace2단계연결경로조사·운영활성/배포0 |
 | 3 · B2B | Backend + Master + Mac Tester | 0104 도구승인창3회만료·적용0·Lab빌드0/1 | 주인님 Lab SQL편집기 precheck16→apply1회 직접실행후회신·Backend읽기verify20/함수/지문 |
 | 4 · B2BFront | B2BFront + Mac Tester | 다크단추 최소보정 소스/독립계산 PASS | FRONT03 f7120d185 회수·MacQA022 특히밝게3색hover소실검토 |
 | 5 · 블로그 | Blog | 문서T12 배정/보관표정정완료,이웃1.22·티스토리1.98미배포 | BLOG08 T05 robots최소경로분석배정·확장사람클릭은별도 |
@@ -40,7 +40,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 189개: done 163개 · cancelled 6개 · ready_review 12개 · running 4개 · waiting_human 2개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 190개: done 163개 · cancelled 6개 · ready_review 13개 · running 4개 · waiting_human 2개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -227,12 +227,13 @@
 | QA-20261117-020 | CX-QA-01 | done / integrated | Front다크단추 대비 국소독립검수 | acb858a77 승인Lab1빌드묶음포함·별도빌드/추가소스0·LabReady뒤실Tab상태구분검수 |
 | WS-20261117-20 | CC-WORKSPACE-01 | done / integrated | 워크스페이스 영수증 하단 스크롤 접근 복구 | 소스동결·WS13/QA019 마지막viewport/상태누락증거보완·운영배포0 |
 | QA-20261117-021 | CX-QA-01 | done / integrated | Workspace v1.56 운영 읽기전용 독립 스모크 | 지정운영스모크종료·장애/DB정확성/발행끝/Alt/실인쇄/실기기미검수유지 |
-| WS-20261117-21 | CC-WORKSPACE-01 | ready / queued | E2 예약7-2 현재코드대조 및 첫 구현범위 확정 | 서버1단계 booking/googleCalendar/memberJobs/cron·OFF/모의 구현반환 |
+| WS-20261117-21 | CC-WORKSPACE-01 | ready_review / returned | E2 예약7-2 현재코드대조 및 첫 구현범위 확정 | MacQA024 서버1단계독립검수·2단계연결정확경로읽기조사 |
 | FRONT-20261117-03 | CC-B2B-FRONT-01 | running / returned | 미달3색 대비 최소후보 분석 | QA022 P2 hover피드백회귀수정·동일범위반환 |
 | BLOG-20261117-08 | CC-BLOG-01 | running / returned | T05 inspect robots 판정 구현준비 | safeFetch DNS await abort/deadline+late요청0수정후QA023재검토 |
 | RE-20261117-07 | CC-REALTY-01 | ready_review / returned | 보수적 제외 후보 오프라인 실험 | 개발237라벨:잘못제외0/127·무관잔존31/76·독립자료없어운영미반영 |
 | QA-20261117-022 | CX-QA-01 | ready_review / returned | FRONT03 대비보정·선택자·상태표시 독립검토 | P2수정후재검토·전체무회귀미통과 |
 | QA-20261117-023 | CX-QA-01 | ready_review / returned | inspect robots 가드 독립검토 | DNSdeadline P2수정후재검토·전체조건PASS아님 |
+| QA-20261117-024 | CX-QA-01 | ready / queued | 예약 서버1단계 OFF/상태/권한/동시성 독립검토 | 고유결과/반례/수정조건 반환 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
