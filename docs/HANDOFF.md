@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-18 ✅ [역할: design] Antigravity CLI(AGY) · 세션 `agy-win-design` — 감성 글귀 이미지 (emotion-writer) 사이드바 매뉴얼 버튼 하단 이동 및 v1.28 반영
+- 주인님 직접 지시(스크린샷): 좌측 사이드바 상단 `CREATION WORKFLOW (1~6단계)` 위에 위치하던 `📖 연동 & 사용 매뉴얼` 버튼을 하단 `🔑 API키등록·플랫폼연동` 바로 위 유틸리티 섹션으로 이동 배치.
+- 최상위 공통 지침: `src/app/layout.tsx`에 공통 저장공간 위젯(`<Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />`) 반영.
+- 검수: tsc 0, 단위 테스트 35/35 전체 PASS, Next.js `npm run build` 성공.
+- 변경 파일: `emotion-writer/src/components/Sidebar.tsx`, `emotion-writer/src/app/layout.tsx`, `emotion-writer/src/lib/version.ts` (v1.28), `emotion-writer/AGENTS.md`.
+
 ## 2026-11-17 ✅ [역할: realty] Claude(RealEstate) Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 부동산 실시간 매물 알림 v1.46 (U-5 지역 겹침 안내 · QA17-003 확장 계정 기록 격리)
 - 주인님 직접 승인(「지금 배포 진행」·「진행해」) → 빌드 1회 `realty-listing-alert-6kxzrn0il`(`dpl_Go6dkxsaGG5pt5DU5QGvPqbkyFbq`) Ready, 운영 별칭 연결. DB `version`·`extension_version` v1.45→v1.46, `check-extension-release` OK. 소스 미배포 5커밋 + 버전 커밋 `3e9ed6c57`.
 - 확장 계정 격리: 다른 계정으로 다시 연결하면 계정 기록 16칸만 지움, 소유 표시 없는 옛 기록은 같은 PC `legacyQuarantine`에 원값 격리(삭제·자동 귀속 없음, 비정상 값이면 멈춤), 웹 전달은 로그인=연결=소유 계정일 때만. Mac 독립 PASS(코드 범위). **회원 영향: 업데이트 뒤 첫 수집에서 옛 통계·변동 기록이 격리되어 새로 쌓임, 복구 화면 없음.**
