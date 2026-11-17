@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T04:12:32.469Z",
+  "checkedAt": "2026-11-17T04:13:44.418Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2624,11 +2624,11 @@
       "task_id": "WS-20261117-21",
       "owner": "CC-WORKSPACE-01",
       "title": "E2 예약7-2 현재코드대조 및 첫 구현범위 확정",
-      "evidence": "msg_c34e47266f97 / msg_b19431213421 / 590debc62·author26booking/全396tests/tsc0·OFF / eaf931a53 2단계연결조사·msg_37002521ac85 P1상태덮음/buffer·P2철회설정경합 / Workspace2A중지·BookingSettingsCard.tsx미커밋보존,booking표before_min/after_min snapshot정의변경 Master수락 / e487a755f·作者수정전5실패→후6PASS/全402tests/tsc0·Masterdiff2파일확인 / msg_aef58a127584 기존P1/잠금P2해소·429/401대기후POST재시도잔여P2 / 5b1eb8b6c retryPOST검사루프내이동·作者2반례/34booking/tsc0·Masterdiff확인 / QA024 지정서버1단계PASS·2A UI재개지시 / 20b1504d0 UI2A6파일·作者22DOM/tsc0 / 565ba4761 배선시험계획·msg_ad30304f069f 2B OFF배선별도범위배정 / msg_524eed0da09e QA025P2:lateA mutation B무한loading·StrictModealive·잘못된손님통지 / 764ffbfe4 UI세P2수정·作者31DOM/tsc0 / c6b9bdecf 배선10/10作者·Master실diff4파일확인·QA025PASS / msg_a17d9b6840fb page잘못된percent URIError P2·실HTTP500미확인 / 474859490/8aefe3a1b token형식검증·作者22/22/tsc0",
-      "next": "QA026 token입력국소재검토·후최종조합검사·3스위치OFF",
+      "evidence": "msg_c34e47266f97 / msg_b19431213421 / 590debc62·author26booking/全396tests/tsc0·OFF / eaf931a53 2단계연결조사·msg_37002521ac85 P1상태덮음/buffer·P2철회설정경합 / Workspace2A중지·BookingSettingsCard.tsx미커밋보존,booking표before_min/after_min snapshot정의변경 Master수락 / e487a755f·作者수정전5실패→후6PASS/全402tests/tsc0·Masterdiff2파일확인 / msg_aef58a127584 기존P1/잠금P2해소·429/401대기후POST재시도잔여P2 / 5b1eb8b6c retryPOST검사루프내이동·作者2반례/34booking/tsc0·Masterdiff확인 / QA024 지정서버1단계PASS·2A UI재개지시 / 20b1504d0 UI2A6파일·作者22DOM/tsc0 / 565ba4761 배선시험계획·msg_ad30304f069f 2B OFF배선별도범위배정 / msg_524eed0da09e QA025P2:lateA mutation B무한loading·StrictModealive·잘못된손님통지 / 764ffbfe4 UI세P2수정·作者31DOM/tsc0 / c6b9bdecf 배선10/10作者·Master실diff4파일확인·QA025PASS / msg_a17d9b6840fb page잘못된percent URIError P2·실HTTP500미확인 / 474859490/8aefe3a1b token형식검증·作者22/22/tsc0 / QA024/025/026 지정서버/UI/OFF배선독립PASS",
+      "next": "최종조합전체tsc/vitest각1회·소스묶음/활성화조건취합·3OFF/미배포",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "returned",
       "scopeRef": "분석/기존문서만·타인파일수정0",
       "completion": "정확허용범위 구현·회귀증거·외부/운영/빌드0",
@@ -2750,12 +2750,12 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "예약2B OFF배선 실제입구/보안경계 독립검토",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "9c964f848/c6b9bdecf·Mac배정 / msg_a17d9b6840fb / 474859490재검토전달",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "9c964f848/c6b9bdecf·Mac배정 / msg_a17d9b6840fb / 474859490재검토전달 / msg_b26e9ee333fd invalid11実page404/slots0·정상전달PASS",
       "scopeRef": "4배선파일/OFF·독립모의·제품/실외부/DBreset/build0",
       "completion": "OFF부작용0/입력/권한/캐시/기존진입회귀판정",
-      "next": "malformed path/token notFound·정상토큰전달만국소확인"
+      "next": "지정OFF배선소스마감·실HTTP/Google/운영별도"
     }
   ],
   "programOverrides": [
@@ -3086,8 +3086,8 @@
     {
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
-      "stage": "v1.56운영완료·예약1단계QA024소스PASS",
-      "next": "2A 예약UI재개·OFF/모의·운영활성/배포0"
+      "stage": "v1.56운영·예약서버/UI/OFF배선독립소스PASS",
+      "next": "최종조합전체tsc/vitest각1회·소스묶음/활성화조건취합·3OFF/미배포"
     },
     {
       "order": "3 · B2B",
