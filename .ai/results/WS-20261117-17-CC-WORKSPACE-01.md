@@ -19,3 +19,11 @@
 - P2 워크스페이스 주소: 새 `src/litpage/web/features/shell/routeSpace.ts` `spaceForDomainRoute()`(receipts 경로만, 내 워크스페이스 domain일 때만 그 공간 id) → `Workspace.tsx` 효과에서 `setSpace`(사이드바 함께). home·page·studio는 기존 효과 그대로.
 - 시험(수정 전 실패 → 후 통과, DB 없음): `receiptsViewDom` 7(A→B 늦은 A, 로그아웃 즉시 숨김, 해제 뒤 응답, StrictMode, 공용 보드 accountKey A→B 즉시 숨김, 늦은 A 실패 알림 0) — 수정 전 5개 실패, `receiptsRouteSpace` 3 — 수정 전 모듈 없음 실패. 함께 `receiptsRoute` 3·`studioRoute` 3 → 4파일 16/16 통과. 참고: P2 시험은 상대 경로 import가 vitest에서 풀리지 않아(원인 미확인) `@/` 별칭으로 불러옴.
 - 한계: 별도 `/receipts`에서 다른 탭으로 계정을 바꾼 경우는 페이지를 새로 열 때까지 기존 화면이 남음(서버가 그린 회원 id 기준). tsc 전체·빌드·전체 시험·3457 재시작 0.
+
+## QA017 잔여 — 서버 기대 계정 검사 + 초안 계정 묶음(Master msg_72c6254fc339·msg_2a511e8f8193) — ready_review
+- 커밋 `7485791ec`(12파일 +316/−31). 미배포 묶음, 실화면 미확인.
+- 서버: `src/app/api/rpc/[name]/route.ts` — `checkProgramAccessApi()` 직후 `x-aww-expected-account`(새 `src/lib/accountGuard.ts`)가 있고 `access.user.id`와 다르면 409 `AccountChanged` 고정 문구·`private, no-store`, 본문 읽기·`loadMemberAiKeys`·`warmModelLists`·`runRpc`·`after/afterRpc` 전에 반환. 헤더 없는 기존 호출 그대로. 헤더는 인증 근거 아님(인가 그대로).
+- 클라이언트: `src/lib/standaloneRpc.ts` `rpc(name, body, { expectedAccount })` 선택 옵션, 409 → `AccountChangedError`. 새 `src/app/receipts/receiptRpc.ts` 컨텍스트로 `ReceiptsBoard`·`BoltaPanel`·`AmendPanel`의 모든 rcpt*/bt* 요청에 보드 `accountKey` 전달(전역 변수 0). 409면 보드가 옛 자료·쓰기·인쇄를 숨기고 새로고침 안내만(B 자료 자동 전환·옛 입력 전송 0).
+- 초안: **범위 추가 보고** — `src/app/inbox/page.tsx`·`InboxBoard.tsx`가 서버 확인 `user.id`를 받아 초안에 `account`를 넣고 `rcptReadText`에도 기대 계정 전달(작성 계정 확인을 위해 필요). 영수증 쪽 `takeDraft(accountKey)`는 같은 계정 초안만 꺼내 쓰고 지움, 계정 표시 없는 이전 형식·다른 계정 초안은 쓰지 않고 그대로 둠. 초안·탭·알림은 계정 변경 때 초기화(첫 열기와 구분, StrictMode 두 번 실행 안전).
+- 시험(DB·실네트워크 0, 관련 6파일 33/33): `rpcAccountGuard` 6(실제 POST 처리기, rcptState·rcptSaveEvidence·btIssue·btAmend 불일치 409와 runRpc/AI/모델/after 0, 같은 계정 정상, 헤더 없는 회귀), `standaloneRpcAccount` 3, `receiptsViewDom` 15(기대 계정 전달, 409 숨김, 볼타 요청 기대 계정, 세 파일 직접 rpc 금지, A 초안→B 입력칸 A 값 0·B 요청만, 다른 계정·이전 형식 초안 미사용·보존, StrictMode 초안), `receiptsRouteSpace` 3, `receiptsRoute` 3, `studioRoute` 3. 수정 전: 새 시험 3파일 모두 모듈 없음으로 실패(행동 단위 수정 전 실패는 초안 시험에 대해 따로 돌리지 않음).
+- 한계: 실제 발급·운영 DB·3457·전체 tsc·빌드 0. 409 뒤 「새로고침」은 페이지 전체 다시 열기.
