@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-18 ✅ [역할: design] Antigravity CLI(AGY) · 세션 `agy-win-design` — 감성 글귀 이미지 (emotion-writer) DES-20261118-02 QA042 국소 접근성 2건 보완 (미배포 대기)
+- Master 배정 `DES-20261118-02`: Mac QA042 검수 수락 후 P3 2건 국소 보완.
+  1. `KeySettings.tsx`: 키보기 버튼의 `tabIndex={-1}` 제거하여 Tab/Enter/Space 키보드 탐색 지원 및 동작별 `aria-label` 부여.
+  2. `globals.css`: `.btn-create-key` 호버 그라데이션 시작색을 `#e11d48`(4.697:1) 및 기본 `#be123c`(6.285:1)으로 조정하여 흰색 글자 대비 WCAG AA 4.5:1 이상 전 구간 충족.
+- 검수: tsc 0, 단위 테스트 35/35 전수 PASS, 명도 대비 측정 스크립트 전 구간 4.697:1~8.016:1 확인.
+- 규칙 준수: 실제 키/AI/검색/DB쓰기 0회, 패키지 설치 0건, build/deploy 0회(다음 묶음 배포 대기), 146 자산 보존.
+- 변경 파일: `emotion-writer/src/components/KeySettings.tsx`, `emotion-writer/src/app/globals.css`.
+
 ## 2026-11-18 ✅ [역할: design] Antigravity CLI(AGY) · 세션 `agy-win-design` — 감성 글귀 이미지 (emotion-writer) 좌측메뉴 지침 순서 정렬 및 API키 발급/생성 3D 버튼 탑재 v1.29
 - 주인님 직접 지시 1: `docs/SIDEBAR_LAYOUT_STANDARD.md` 필수 순서에 따라 좌측 사이드바 유틸리티 영역을 `🔑 API키등록·플랫폼연동` → `📖 연동 & 사용 매뉴얼` 순서로 정렬 (상단 워크플로우 위에는 매뉴얼 완전 제거).
 - 주인님 직접 지시 2: API 키 설정 화면(`KeySettings.tsx`)에서 불필요한 `[ 👁 보기 ]` 버튼을 제거하고, 그 자리에 공식 콘솔 바로가기 3D 버튼 **`[ 🔑 {platformName} API 키 발급/생성하기 ↗ ]`**(`.btn-create-key`) 탑재.
