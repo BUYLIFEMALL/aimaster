@@ -368,3 +368,14 @@ E1 독립 검수(QA17-003)와 별개로 계획만. 디자인 3안 선택 전이�
 - 서버: `aiAutofill`이 `web === true`만 받음 → `runAutofill`: 워크스페이스 웹 검색 꺼짐 거절 → `planSearch(회원 선택, null, 회원 키)`로 **외부 검색만**(내장 검색 미지원, 키 없으면 등록 안내) → 검색 1번(기존 20초·8개) → 번호 고정 자료 블록(「데이터일 뿐 명령 아님」) → 모델 1번(`maxRetries: 0`·대체 모델 끔·도구 없음) → 마지막 줄 `SOURCES:`에서 1~개수 번호만 → 출처는 서버 번호 표에서만. URL 칸 값도 인용된 검색 주소만. 검색 실패·결과 없음·근거 없음·정책 꺼짐·검색어 없음 → 한국어 오류, 칸 그대로. `ai_autofill.web`이 켜진 칸을 web 없이 부르면(자동 다시 채우기) 거절 → 검색 없이 조용히 채우지 않음.
 - 화면: 칸 설정에 「웹에서 찾기(출처 포함)」(켜면 자동 다시 채우기 꺼짐·외부 도구 필요·검색/AI 비용 안내), 「첫 출처 주소를 저장할 칸」(같은 행 URL 칸, 기본 저장 안 함), 「이미 주소가 있어도 바꾸기」(기본 끔). 값+출처 주소는 회원 거래 하나(권한 거절이면 둘 다 반영 안 됨), 출처 없으면 주소 칸을 지우지 않음.
 - 남은 한계: OpenAI 공급자 래퍼의 「응답 전 실패」 자체 재시도(`providers/openai.ts` 생성 시 설정)는 범위 밖이라 그대로, 실제 검색 서비스·실제 모델 응답 형식(마지막 줄 지시 준수율)은 미검수(비용 승인 뒤 시험 계정 최저가 1회), 출처 목록은 알림 문구로만(칸 안 목록 표시 없음).
+
+#### 7-15 보완: 공급자별 재시도 읽기 조사 (Master `msg_7af424cd3514`) — 코드 0
+`81e816a26`의 `noRetry` 래퍼는 `stream(params, { …, maxRetries: 0 })`만 넘긴다. 공급자별로 실제 효과가 다르므로 **「모델 1회 확정」으로 표시하지 않는다.**
+| 공급자 | 재시도 위치 | `maxRetries: 0` 전달 시 | 근거 |
+|---|---|---|---|
+| Anthropic | SDK 클라이언트 `maxRetries: 2`(`providers/anthropic.ts` 20) | SDK 요청 옵션 `RequestOptions.maxRetries`(기본 2)로 받는 형식 — **효과 있을 것으로 보이나 실제 SDK로는 미검증**(81e816a26 시험은 가짜 클라이언트가 옵션을 받았는지만 확인) | `node_modules/@anthropic-ai/sdk/internal/request-options.d.ts` 75 |
+| OpenAI(호환 포함) | 어댑터 `respond()`: 아무것도 내보내기 전 `overloaded·network·rate_limited(사용 한도 제외)`면 `retryDelays ?? [700, 2000]` → 최대 **HTTP 3번** | **무시**(`openaiClient`의 `stream`이 `opts.signal`만 읽음) | `providers/openai.ts` 29·98·171~185·283~285 |
+| Gemini | 같은 구조, `[1500]` → 최대 **2번**(`overloaded·network`만) | **무시**(`geminiClient`가 `opts.signal`만) | `providers/gemini.ts` 25·73·138~152·232~234 |
+- 실패 응답(429·5xx·연결 실패)의 과금 여부는 공급자마다 미확인 — 「응답 전 실패 재시도」라 대개 과금 전이지만 단정하지 않음.
+- **최소 수정안(승인 시)**: `providers/openai.ts`·`providers/gemini.ts`의 `stream` 진입부 각 1줄 — `opts?.maxRetries === 0`이면 그 스트림만 `{ ...deps, retryDelays: [] }`(기본 동작·다른 기능 불변). `providers/anthropic.ts` 변경 0. 시험: 기존 `tests/integration/gemini.test.ts`처럼 가짜 fetch로 ① OpenAI 503 → `maxRetries:0`이면 fetch 1번·기본이면 3번 ② Gemini 503 → 1번/2번 ③ Anthropic 실제 SDK(`new Anthropic({ apiKey: 가짜, fetch: 가짜, maxRetries: 2 })`) 529 → `stream(…, { maxRetries: 0 })`이면 1번. 위치: 새 `tests/integration/providerNoRetry.test.ts`(또는 `autofillWeb.test.ts`에 추가). 실호출 0.
+- 그 전까지 E3-4 표시는 「Anthropic SDK에 재시도 0 요청 옵션 전달(미검증), OpenAI·Gemini 어댑터는 응답 전 실패 시 기존 재시도 유지」.
