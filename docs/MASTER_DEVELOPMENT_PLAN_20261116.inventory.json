@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 19:06:58 KST",
+  "checkedAt": "2026-11-17 19:07:19 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -5182,13 +5182,13 @@
       "parent_task_id": "WS-20261117-25",
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
-      "title": "Gmail OFF 배선·실RPC入구/어댑터/화면 통합 독립검수",
+      "title": "Gmail OFF 배선·실제 RPC 입구·어댑터·화면 통합 독립검수",
       "status": "ready",
       "delivery": "queued",
       "sha": "d8e7e188c",
       "evidence": "패널off1c46f1bd4·Mac검수배정",
       "scopeRef": "실모듈/가짜HTTP·계정/오류/OFF·로그 검토, 공유DBreset/실외부/운영/build0",
-      "completion": "4명령권한/expectedAccount/봉투unknown/OFF무호출/기존Inbox회귀 판정·証拠分離",
+      "completion": "4명령 권한/기대계정/봉투와 결과모름/OFF 무호출/기존 받은업무 회귀 판정, 작성자와 독립검수 증거 구분",
       "next": "Mac고정SHA독립결과 반환"
     }
   ]
