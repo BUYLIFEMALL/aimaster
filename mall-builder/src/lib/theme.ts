@@ -150,6 +150,18 @@ export function buttonColor(hex: string): string | null {
   }
   return "#000000";
 }
+/** 단추 전용 색의 마우스 올림 색 — Tailwind 600→700 밝기 간격(0.058)만큼 더 진하게(대비는 더 커짐). 단추 전용 색이 없으면 null */
+export function buttonHoverColor(hex: string): string | null {
+  const btn = buttonColor(hex);
+  if (!btn) return null;
+  const [L, C, H] = hexToOklch(btn);
+  const l = L - (LADDER_L[ANCHOR] - LADDER_L[ANCHOR + 1]);
+  for (let c = C; c >= 0; c = c > 0 ? Math.max(0, c - 0.002) : -1) {
+    const out = oklchToHex(l, c, H);
+    if (out) return out;
+  }
+  return btn;
+}
 
 // ── I23 어두운 테마 ──
 // Tailwind v4 기본 회색 값(node_modules/tailwindcss/theme.css) — 어둡게면 50↔950처럼 뒤집어 넣는다
@@ -192,7 +204,10 @@ export function themeStyle(theme: ShopTheme): Record<string, string> {
   }
   // 단추 전용 색 — 흰 글자 대비 미달 색만(나머지는 변수 없음 = 화면 그대로). globals.css가 이 변수가 있는 상자 안에서만 씀
   const btn = buttonColor(theme.primary);
-  if (btn) v["--mall-primary-btn"] = btn;
+  if (btn) {
+    v["--mall-primary-btn"] = btn;
+    v["--mall-primary-btn-hover"] = buttonHoverColor(theme.primary) ?? btn;
+  }
   if (theme.bg !== DEFAULT_THEME.bg) v["--mall-bg"] = theme.bg;
   if (theme.radius !== DEFAULT_THEME.radius) v["--mall-radius"] = RADIUS_REM[theme.radius];
   if (theme.button !== DEFAULT_THEME.button) v["--mall-btn-depth"] = "0px";

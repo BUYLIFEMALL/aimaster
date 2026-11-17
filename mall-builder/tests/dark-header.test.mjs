@@ -31,7 +31,7 @@ test("어두운 테마의 파란 단추 바탕은 단추 색(--mall-primary-600)
   const rule = '[data-mall-mode="dark"] :is(.bg-blue-600, .bg-blue-700).text-white { background-color: var(--mall-primary-btn, var(--mall-primary-600)); }';
   assert.ok(css.includes(rule), "규칙 없음 또는 선택자가 바뀜");
   // 어둡게 범위 밖에서 같은 클래스를 덮는 규칙은 없다(밝은 테마·관리자 화면 그대로)
-  assert.equal(css.split("\n").filter((l) => /\.bg-blue-(600|700)/.test(l) && !l.startsWith('[data-mall-mode="dark"]') && !l.startsWith('[style*="--mall-primary-btn"]')).length, 0);
+  assert.equal(css.split("\n").filter((l) => /\.bg-blue-(600|700)/.test(l) && !l.startsWith('[data-mall-mode="dark"]') && !l.trim().startsWith(':where([style*="--mall-primary-btn"])')).length, 0);
 });
 
 test("색 12가지 모두 어두운 테마 파란 단추의 흰 글자 대비가 나빠지지 않는다(후 = 밝은 테마 단추와 같은 값)", async () => {
@@ -63,7 +63,6 @@ test("단추 전용 색 규칙은 상점 바깥 상자 style 표식 안에서만
   const { renderToStaticMarkup } = await import("react-dom/server");
   const { Window } = await import("happy-dom");
   const { themeStyle, DEFAULT_THEME } = await import("../src/lib/theme.ts");
-  assert.ok(css.includes('[style*="--mall-primary-btn"] :is(.bg-blue-600, .bg-blue-700).text-white { background-color: var(--mall-primary-btn); }'));
   assert.ok(css.includes("background-color: var(--mall-primary-btn, var(--mall-primary-600, #2563eb));"), "입체 단추는 변수가 없으면 원래 값");
   // 상점 바깥 상자와 같은 모양(layout.tsx 73~75줄: style={themeVars} 아래 단추)
   const shop = (primary, mode) => renderToStaticMarkup(React.createElement("div", { style: themeStyle({ ...DEFAULT_THEME, primary, mode }) }, React.createElement("button", { className: "bg-blue-600 text-white" }, "가입")));
@@ -76,4 +75,26 @@ test("단추 전용 색 규칙은 상점 바깥 상자 style 표식 안에서만
   }
   assert.equal(hit(admin), 0, "관리자 화면(테마 변수 없음)");
   await win.happyDOM.close();
+});
+
+// FRONT-20261117-03 QA022 P2 — 밝게 3색 평면 단추의 마우스 올림 피드백. 층 밖(0,3,0) 규칙이 hover:/group-hover: 바탕을 이겨
+// 올려도 색이 그대로였다. 단추 전용 색 규칙은 Tailwind와 같은 utilities 층·특이성 0,1,0이어야 하고, 올림 색은 단추 전용 진한 색
+test("단추 전용 색(밝게)은 utilities 층·특이성 0,1,0 — hover/group-hover가 이기고, 올림 색은 --mall-primary-btn-hover", () => {
+  const start = css.indexOf("@layer utilities {");
+  assert.ok(start >= 0, "utilities 층 블록 없음");
+  let depth = 0, end = start;
+  for (let i = css.indexOf("{", start); i < css.length; i++) { if (css[i] === "{") depth++; else if (css[i] === "}" && --depth === 0) { end = i; break; } }
+  const layer = css.slice(start, end);
+  // 층 밖에는 단추 전용 색으로 평면 단추를 덮는 규칙이 없다(어둡게 규칙만 예외 — 어둡게는 올림 색도 옅게 뒤집혀 덮는 편이 안전)
+  const outside = css.slice(0, start) + css.slice(end);
+  assert.equal(outside.split("\n").filter((l) => l.includes("--mall-primary-btn") && /\.bg-blue-(600|700)/.test(l) && !l.startsWith('[data-mall-mode="dark"]')).length, 0, "층 밖 덮어쓰기");
+  const base = ':where([style*="--mall-primary-btn"]) .bg-blue-600:where(.text-white) { background-color: var(--mall-primary-btn); }';
+  assert.ok(layer.includes(base), "기본 규칙(특이성 = .bg-blue-600 하나)");
+  assert.ok(!/\.bg-blue-700[:{.\s]/.test(layer.split("\n").find((l) => l.includes(base)) ?? ""), "bg-blue-700은 원래 색으로 4.5 이상 — 대상 아님");
+  const media = layer.slice(layer.indexOf("@media (hover: hover) {"));
+  assert.ok(media.startsWith("@media (hover: hover) {"), "올림 규칙은 hover 가능한 기기만(Tailwind와 같게)");
+  for (const sel of [`.hover${BS}:bg-blue-700:hover:where(.bg-blue-600.text-white)`, `.group:hover .group-hover${BS}:bg-blue-700:where(.bg-blue-600.text-white)`]) assert.ok(media.includes(`:where([style*="--mall-primary-btn"]) ${sel}`), sel);
+  assert.ok(media.includes("{ background-color: var(--mall-primary-btn-hover); }"));
+  // 입체 단추는 층 밖 원래 규칙 그대로(올림 --mall-primary-700·눌림 이동)
+  assert.ok(outside.includes(".btn-3d-blue:hover:not(:disabled) {\n  background-color: var(--mall-primary-700, #1d4ed8);") || outside.includes(".btn-3d-blue:hover:not(:disabled) {\r\n  background-color: var(--mall-primary-700, #1d4ed8);"));
 });

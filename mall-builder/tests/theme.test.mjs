@@ -102,7 +102,7 @@ test("색 대비 경고: 바탕 밝기와 밝기 칸이 어긋나면 알림", as
 
 // FRONT-20261117-03 — 흰 글자 단추 대비 미달 포인트색만 단추 전용 색(--mall-primary-btn)
 test("단추 전용 색: 흰 글자 4.5 미달 3색만 같은 색상각으로 보정, 나머지 9색·기본·잘못된 색은 변수 없음", async () => {
-  const { buttonColor, whiteContrast } = await import("../src/lib/theme.ts");
+  const { buttonColor, buttonHoverColor, whiteContrast } = await import("../src/lib/theme.ts");
   const { COLOR_PRESETS } = await import("../src/lib/builder/templates.ts");
   const all = { "#2563eb": 0, "#1e3a8a": 0, "#059669": 1, "#166534": 0, "#dc2626": 0, "#e5534b": 1, "#ea580c": 1, "#b45309": 0, "#7c3aed": 0, "#db2777": 0, "#334155": 0, "#7c4a2d": 0 };
   assert.deepEqual(COLOR_PRESETS.map((p) => p.primary).sort(), Object.keys(all).sort(), "색 목록이 바뀌면 이 표도 맞출 것");
@@ -112,6 +112,8 @@ test("단추 전용 색: 흰 글자 4.5 미달 3색만 같은 색상각으로 �
     const dark = themeStyle({ ...DEFAULT_THEME, primary: hex, mode: "dark" });
     if (!fix) {
       assert.equal(btn, null, hex);
+      assert.equal(buttonHoverColor(hex), null, hex);
+      assert.equal("--mall-primary-btn-hover" in vars || "--mall-primary-btn-hover" in dark, false, hex);
       assert.equal("--mall-primary-btn" in vars || "--mall-primary-btn" in dark, false, hex);
       continue;
     }
@@ -122,6 +124,12 @@ test("단추 전용 색: 흰 글자 4.5 미달 3색만 같은 색상각으로 �
     assert.ok(Math.abs(H1 - H0) < 4, `${hex} 색상각 유지`);
     assert.equal(vars["--mall-primary-btn"], btn);
     assert.equal(dark["--mall-primary-btn"], btn);
+    // 마우스 올림 색: 같은 색상각, 단추 전용 색보다 진하게(600→700 간격), 흰 글자 대비는 더 큼
+    const hov = buttonHoverColor(hex);
+    const [L2, , H2] = hexToOklch(hov);
+    assert.ok(L1 - L2 > 0.04 && L1 - L2 < 0.07 && Math.abs(H2 - H0) < 5 && whiteContrast(hov) > whiteContrast(btn), `${hex} 올림 ${hov}`);
+    assert.equal(vars["--mall-primary-btn-hover"], hov);
+    assert.equal(dark["--mall-primary-btn-hover"], hov);
     // 원래 포인트색(팔레트·단추 600)은 그대로
     assert.equal(vars["--mall-primary-600"], buildPalette(hex)[600]);
   }
