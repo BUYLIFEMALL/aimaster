@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 10:32:43 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 10:39:54 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -40,7 +40,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 181개: done 154개 · cancelled 6개 · ready_review 14개 · running 3개 · waiting_human 2개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 182개: done 154개 · cancelled 6개 · ready_review 14개 · running 4개 · waiting_human 2개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -222,9 +222,10 @@
 | DOC-20261117-T12 | CC-BLOG-01 | done / integrated | 데이터수집 문서조정 담당·보관후속표 근거 정정 | 정정완료·다른미커밋/ZIP보존·실배포확인전완전배포표시0 |
 | QA-20261117-014 | CX-QA-01 | done / integrated | 교환비 UI 독립검수 | 기승인Lab릴리스후실동작별도 |
 | QA-20261117-015 | CX-QA-01 | done / integrated | Lab0104 실행자료 독립검수 | 주인님실적용승인유효·도구Accept後실검증 |
-| WS-20261117-19 | CC-WORKSPACE-01 | ready / queued | 146 신규문구 ko/en·대시보드/영수증 제목 보완 | Workspace단독국소수정·기존서버HMR·API/DB/전체tsc/빌드0 |
-| QA-20261117-019 | CX-QA-01 | ready_review / returned | 146 실제캡처 독립시각검수 | WS19보완뒤전체375/메뉴·패널없는달력/긴제목다수일정 보완캡처한묶음→변경경계재검토 |
+| WS-20261117-19 | CC-WORKSPACE-01 | running / queued | 146 신규문구 ko/en·대시보드/영수증 제목 보완 | 같은Sidebar나머지generic라벨만tx추가승인·AiLayer/account전체영어화범위밖. receipts스크롤우선후HMRko/en검수,실발급/DB/빌드0 |
+| QA-20261117-019 | CX-QA-01 | ready_review / returned | 146 실제캡처 독립시각검수 | receipts실scroll P1수정+sidebar영문후속캡처반환대기·전체시각마감보류,재검토는변경경계만 |
 | QA-20261117-020 | CX-QA-01 | done / integrated | Front다크단추 대비 국소독립검수 | acb858a77 승인Lab1빌드묶음포함·별도빌드/추가소스0·LabReady뒤실Tab상태구분검수 |
+| WS-20261117-20 | CC-WORKSPACE-01 | ready / queued | 워크스페이스 영수증 하단 스크롤 접근 복구 | Workspace같은파일국소수정→실브라우저metrics/캡처→MacQA019후속검수,서버/DB/발급/빌드0 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 

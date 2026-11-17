@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 10:32:43 KST",
+  "checkedAt": "2026-11-17 10:39:54 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4587,12 +4587,13 @@
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "priority": "P2",
       "title": "146 신규문구 ko/en·대시보드/영수증 제목 보완",
-      "status": "ready",
+      "status": "running",
       "delivery": "queued",
-      "evidence": "주인님Workspace후속진행명시·fe8f67a38 실화면혼용/RouteTitle null관찰",
+      "evidence": "Workspace6c5제목/메뉴tx·4f1b85cf4캡처·본문영문혼용보고오판정정",
       "completion": "이번추가문구만기존tx사전연결/ko유지/en표시·studio/receipts제목·회원입력번역0·경량/로컬실화면검증",
-      "next": "Workspace단독국소수정·기존서버HMR·API/DB/전체tsc/빌드0",
-      "lastReviewedAt": "2026-11-17T01:27:05.505Z"
+      "next": "같은Sidebar나머지generic라벨만tx추가승인·AiLayer/account전체영어화범위밖. receipts스크롤우선후HMRko/en검수,실발급/DB/빌드0",
+      "lastReviewedAt": "2026-11-17T01:39:51.816Z",
+      "sha": "6c5c225c2"
     },
     {
       "task_id": "QA-20261117-019",
@@ -4606,7 +4607,7 @@
       "scopeRef": "3PNG/manifest/146명세 읽기·자기QA결과만",
       "completion": "실제이미지관찰·desktop/375iframe 배치가독성 범위판정·축소/실기기미검수구분",
       "evidence": "msg_8d2b1e6dd3c7 실PNG3장직접관찰·보이는범위PASS/모바일하단·달력오른쪽/밀집미검수",
-      "next": "WS19보완뒤전체375/메뉴·패널없는달력/긴제목다수일정 보완캡처한묶음→변경경계재검토",
+      "next": "receipts실scroll P1수정+sidebar영문후속캡처반환대기·전체시각마감보류,재검토는변경경계만",
       "lastReviewedAt": "2026-11-17T01:30:10.586Z"
     },
     {
@@ -4623,6 +4624,21 @@
       "completion": "최소대비보정 소스검수완료·12색악화0. hover/focus/active배경덮임가능·관리자dark밖전제·실Tab/누름후속미검수",
       "next": "acb858a77 승인Lab1빌드묶음포함·별도빌드/추가소스0·LabReady뒤실Tab상태구분검수",
       "lastReviewedAt": "2026-11-17T01:32:40.653Z"
+    },
+    {
+      "task_id": "WS-20261117-20",
+      "parent_task_id": "WS-20261117-13",
+      "owner": "CC-WORKSPACE-01",
+      "reviewer": "CX-MASTER-01",
+      "priority": "P1",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "title": "워크스페이스 영수증 하단 스크롤 접근 복구",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "375iframe 높이768/내용1101 overflowvisible+ancestorhidden→하단333접근불가 실제재현",
+      "completion": "receiptsView.css높이/세로스크롤복구·printoverride보존·실desktop/375scrollTop끝control접근·가로넘침0/standalone불변",
+      "next": "Workspace같은파일국소수정→실브라우저metrics/캡처→MacQA019후속검수,서버/DB/발급/빌드0",
+      "lastReviewedAt": "2026-11-17T01:39:51.816Z"
     }
   ]
 }

@@ -309,3 +309,5 @@ WS-20261117-18 CC-WORKSPACE-01: 주인님 둘째안만 선택. ai-work-workspace
 FRONT-20261117-02: CC-B2B-FRONT-01만 mall-builder/src/app/globals.css 다크 bg-blue-600/700+text-white 정확선택자 배경1rule 및관련기존테마시험/자기문서 보정. 라이트/관리자/프리셋/다른후보 불변·독립검수후미시작Lab1빌드에포함,별도빌드/DB0.
 
 WS-20261117-19 Workspace: Topbar.tsx studio/receipts RouteTitle, StudioDashboard.tsx/AimasterSidebar.tsx 이번추가 ko/en 표시·기존i18n사전/관련경량시험만. 회원문자번역/저장값변경/일괄영어화금지·settings좌메뉴정확범위추가시보고. 기존Master로컬서버HMR검수만·API/DB/재시작/전체tsc/빌드0. QA019는Mac 실제캡처읽기 독립시각검수,제품수정0.
+
+WS-20261117-20 Workspace만 features/receipts/receiptsView.css 높이/overflow로영수증하단스크롤복구·print범위보존,실로컬desktop/375끝control접근검증. 상위파일필요시보고·서버/DB/빌드0. WS19 동일AimasterSidebar generic메뉴/칩/접근성title/로그아웃라벨tx추가허용,기존앱명/회원문자/동작/계정모듈변경0.
