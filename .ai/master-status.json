@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T03:17:30.405Z",
+  "checkedAt": "2026-11-17T03:21:05.861Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2624,27 +2624,53 @@
       "task_id": "WS-20261117-21",
       "owner": "CC-WORKSPACE-01",
       "title": "E2 예약7-2 현재코드대조 및 첫 구현범위 확정",
-      "evidence": "msg_c34e47266f97",
-      "next": "기존PLAN7-6 차이·정확경로/완료조건 반환·제품수정0",
+      "evidence": "msg_c34e47266f97 / msg_b19431213421",
+      "next": "서버1단계 booking/googleCalendar/memberJobs/cron·OFF/모의 구현반환",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
       "status": "ready",
       "delivery": "queued",
       "scopeRef": "분석/기존문서만·타인파일수정0",
-      "completion": "현재근거/정확범위/검증조건 반환"
+      "completion": "정확허용범위 구현·회귀증거·외부/운영/빌드0"
     },
     {
       "task_id": "FRONT-20261117-03",
       "owner": "CC-B2B-FRONT-01",
       "title": "미달3색 대비 최소후보 분석",
-      "evidence": "msg_c37e721cf22f",
-      "next": "emerald/coral/orange 4.5목표와상태영향 비교·코드0",
+      "evidence": "msg_c37e721cf22f / msg_dc75ac7b448e",
+      "next": "버튼전용3색보정 구현/시험반환·저장브랜드색불변",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
       "status": "ready",
       "delivery": "queued",
       "scopeRef": "분석/기존문서만·타인파일수정0",
-      "completion": "현재근거/정확범위/검증조건 반환"
+      "completion": "정확허용범위 구현·회귀증거·외부/운영/빌드0"
+    },
+    {
+      "task_id": "BLOG-20261117-08",
+      "owner": "CC-BLOG-01",
+      "title": "T05 inspect robots 판정 구현준비",
+      "evidence": "msg_906f4d937c19",
+      "next": "기존공용검사/리디렉션/최소수정경로 분석·제품0",
+      "parent_task_id": "OPS-20261116-001",
+      "reviewer": "CX-MASTER-01",
+      "status": "ready",
+      "delivery": "queued",
+      "scopeRef": "고유분석파일/본인문서·운영소스0",
+      "completion": "재현근거/정확범위/미검수반환"
+    },
+    {
+      "task_id": "RE-20261117-07",
+      "owner": "CC-REALTY-01",
+      "title": "보수적 제외 후보 오프라인 실험",
+      "evidence": "msg_d1cf66c9fa8a / msg_4743f96941e1 경로예약수락·전수라벨237건만",
+      "next": "분석전용순수함수/237개발라벨계산·독립검증미완명시",
+      "parent_task_id": "OPS-20261116-001",
+      "reviewer": "CX-MASTER-01",
+      "status": "running",
+      "delivery": "running",
+      "scopeRef": "고유분석파일/본인문서·운영소스0",
+      "completion": "재현근거/정확범위/미검수반환"
     }
   ],
   "programOverrides": [
@@ -2976,7 +3002,7 @@
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
       "stage": "v1.56 운영배포·Mac독립운영정상경로/375직접viewport PASS",
-      "next": "E2 예약7-2 정확구현범위/기존기능대조 반환대기·v1.56완료"
+      "next": "WS21 예약서버1단계 구현배정·스위치OFF/Google모의/운영DDL0"
     },
     {
       "order": "3 · B2B",
@@ -2988,13 +3014,13 @@
       "order": "4 · B2BFront",
       "owner": "B2BFront + Mac Tester",
       "stage": "다크단추 최소보정 소스/독립계산 PASS",
-      "next": "미달3색최소보정분석·기존패치Lab묶음대기"
+      "next": "FRONT03 3색버튼전용보정 구현배정·운영배포0"
     },
     {
       "order": "5 · 블로그",
       "owner": "Blog",
       "stage": "문서T12 배정/보관표정정완료,이웃1.22·티스토리1.98미배포",
-      "next": "실확장/신뢰클릭·계정조건 별도,작은수정은다음묶음·타인변경보존"
+      "next": "BLOG08 T05 robots최소경로분석배정·확장사람클릭은별도"
     },
     {
       "order": "6 · 영상",
@@ -3012,7 +3038,7 @@
       "order": "8 · 부동산",
       "owner": "Realty",
       "stage": "알림v1.46 운영·뉴스B프라임검증미통과/미반영",
-      "next": "기존18:04회차결과있을때읽기확인·상가/CRM작은수정다음묶음"
+      "next": "RE07 고유분석파일 후보실험·전수라벨237건개발셋한정·운영미반영"
     },
     {
       "order": "9 · 디자인",

@@ -311,3 +311,8 @@ FRONT-20261117-02: CC-B2B-FRONT-01만 mall-builder/src/app/globals.css 다크 bg
 WS-20261117-19 Workspace: Topbar.tsx studio/receipts RouteTitle, StudioDashboard.tsx/AimasterSidebar.tsx 이번추가 ko/en 표시·기존i18n사전/관련경량시험만. 회원문자번역/저장값변경/일괄영어화금지·settings좌메뉴정확범위추가시보고. 기존Master로컬서버HMR검수만·API/DB/재시작/전체tsc/빌드0. QA019는Mac 실제캡처읽기 독립시각검수,제품수정0.
 
 WS-20261117-20 Workspace만 features/receipts/receiptsView.css 높이/overflow로영수증하단스크롤복구·print범위보존,실로컬desktop/375끝control접근검증. 상위파일필요시보고·서버/DB/빌드0. WS19 동일AimasterSidebar generic메뉴/칩/접근성title/로그아웃라벨tx추가허용,기존앱명/회원문자/동작/계정모듈변경0.
+
+
+2026-11-17 Master 재배정: WS-20261117-21 CC-WORKSPACE-01만 ai-work-workspace/src/server/booking.ts(새),googleCalendar.ts,memberJobs.ts,src/app/api/cron/jobs/route.ts,tests/integration/booking.test.ts 및 본인문서. BOOKING_ENABLED=false·모의Google·격리시험만,운영DDL/실외부/화면/빌드0. 추가받은업무연결경로는보고후조정.
+FRONT-20261117-03 CC-B2B-FRONT-01만 mall-builder 실제theme.ts/globals.css/관련기존테마시험. 버튼전용3색대비보정·9색/브랜드저장값/관리자화면불변,배포0.
+RE-20261117-07 CC-REALTY-01만 .ai/results/RE-20261117-07-CC-REALTY-01.md 및 같은ID 폴더 c-candidate.mjs,c-candidate.test.mjs,c-measure.mjs 새분석파일. 원본라벨읽기만·기사원문미커밋·제품0. BLOG-20261117-08은기존T05문서/읽기분석만 제품코드예약없음.
