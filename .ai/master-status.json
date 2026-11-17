@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T17:44:49.015Z",
+  "checkedAt": "2026-11-17T18:03:54.179Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3201,8 +3201,8 @@
       "scopeRef": "0074→0075 운영적용/정의검증·회원본인OAuth동의/metadata·실PostgREST/주소·스위치/배포 승인별도",
       "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고",
       "completion": "승인된범위의운영마이그레이션·실계정/권한/계정경계·활성배포·운영동작 확인",
-      "next": "반복GCP설정요청0·일치boolean확인·감성복구확인뒤공용실행순번/공개범위판정, SQL/스위치0",
-      "blockedReason": "GCP설정완료주인님보고수신,시험ClientID일치/대상사용자목록·공개방식/빌드실행범위未확정",
+      "next": "주인님공개방식·정상/복구빌드범위결정→Master실행순번, SQL/스위치0",
+      "blockedReason": "GCP설정완료주인님보고·시험ClientID/사용자실목록미확인, Workspace공개방식/빌드선택질문열림",
       "approval": {
         "at": "2026-11-17T17:20:27.598Z",
         "source": "주인님 직접지시 Workspace회신",
@@ -3488,7 +3488,8 @@
           "actualModelCalls": 0,
           "dbVersionWrites": 0
         },
-        "source": "주인님 직접지시 Ecom보고"
+        "source": "주인님 직접지시 Ecom보고",
+        "remainingModelCalls": 3
       },
       "deployment": {
         "attempt": "dpl_HUX84NzDEA2A3cV8CxjUxgZaYJYL",
@@ -3498,9 +3499,25 @@
         "repositoryVersion": "v1.30"
       },
       "completion": "명시검수SHA/경로manifest·모든포함분검수·정확재실행승인범위후Ready/실호출검수",
-      "next": "제품수정동결·이미지d21 QA049/정책/공식지원 분리검토·재빌드예산추가승인전0",
-      "blockedReason": "승인된소스묶음외 이미지3엔진d21포함으로롤백,1빌드예산소진·새실행범위재확정필요",
-      "lastReviewedAt": "2026-11-17T17:37:37.000Z"
+      "next": "명시59cb재배포는追加Vercel1회승인필요·같은3사실호출기승인잔여3/3 유지·운영1.29",
+      "blockedReason": "기존빌드1회소진·新增원격빌드1미승인, Ecom재배포선택질문이열려후속메시지전달보류",
+      "lastReviewedAt": "2026-11-17T17:37:37.000Z",
+      "safeCandidate": {
+        "sha": "59cb81d8e",
+        "sourceTree": "4d114e25605d67e787328ddcfd4f277fb03f20bb",
+        "sourceCommits": [
+          "59cb81d8e",
+          "690df10c6",
+          "3a4ad1cad",
+          "62189915b",
+          "de49e96e9",
+          "121317458"
+        ],
+        "excluded": "d21eb96d7",
+        "versionOverlay": "emotion-writer/src/lib/version.ts v1.30만",
+        "verification": "각SHA ancestor=true·원본1.29..59cb 소스commit6개일치·d21 ancestor=false, Master git 직접대조",
+        "warning": "690df10c6 단독후보는59cb미포함으로불가"
+      }
     },
     {
       "task_id": "INC-20261118-01",
@@ -3581,12 +3598,13 @@
       "reviewer": "CX-MASTER-01",
       "title": "이미지3엔진 QA049 안전경계 보완계획",
       "status": "ready",
-      "delivery": "queued_held_at_person_prompt",
+      "delivery": "queued_held_at_redeployment_question",
       "evidence": "QA049중간msg_9ea5ee32f762·msg_21ed3b1edaab",
       "scopeRef": "계획/기존공용모듈재사용/정확경로먼저,제품수정freeze계속",
       "completion": "provider별공식모델allowlist·MIME/base64/크기·abort/timeout·URL取得방어·무료서비스정책/키/전송계획",
       "next": "정확범위/완료조건계획회신→Master범위승인후mock수정·실API/키/DB/build0",
-      "lastReviewedAt": "2026-11-17T17:43:53.437Z"
+      "lastReviewedAt": "2026-11-17T17:43:53.437Z",
+      "blockedReason": "현재Ecom화면이재배포선택질문대기라계획지시수신보류·Master가선택대행하지않음"
     }
   ],
   "programOverrides": [
@@ -3958,7 +3976,7 @@
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
       "stage": "v1.57운영·E3/GmailOFF/WS23/요일칩 소스수락·미배포",
-      "next": "v1.58미배포·Gmail활성추진준비승인/본인GCP설정대기, 공개/실행범위확정뒤Master단일실행"
+      "next": "GCP완료신호수신·ClientID/시험사용자/공개방식·빌드질문대기, MasterSQL/배포0"
     },
     {
       "order": "3 · B2B",
@@ -4042,8 +4060,8 @@
     },
     {
       "condition": "감성글귀 v1.30 再실행",
-      "action": "이미지추가분/정확소스검수완료뒤 재빌드1회 추가승인 및실호출범위재확정",
-      "recommendation": "기존1회소진·실3회0·운영1.29복구완료. 지금새빌드/AI0,검수준비먼저"
+      "action": "검수된59cb81d8e로재배포할원격빌드1회 추가승인",
+      "recommendation": "新이미지d21제외·버전1.30만오버레이,실3회는기승인잔여0/3사용으로재승인불필요·무조건실행아님"
     }
   ],
   "redispatch": {
@@ -4070,24 +4088,25 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T17:44:49.015Z",
+      "at": "2026-11-17T18:03:54.179Z",
       "timezone": "Asia/Seoul",
-      "trigger": "QA049반례·주인님Lab시험승인/fixture·AGY문서정정/Backend마감 이벤트",
-      "scope": "고정보고/문서ID·SQL준비마감·Lab교환조건/승인·Mac읽기/주인님시험제출단일화·현재작업표",
+      "trigger": "03:00 Windows예약 기존Master수신",
+      "scope": "미회수보고/관리자요청·전체/카테고리잔여작업판·docs/결과/인수인계증분·로컬12연결/선택질문2개실화면읽기·제품미커밋·공식alias/명시소스候補검증",
       "evidence": [
-        "QA049 msg_9ea5ee32f762·Ecom계획msg_21ed3b1edaab 전달보류",
-        "B2B18-03 主人승인msg_aeae60e7d728·fixture1건msg_bdbf073001ca",
-        "QA047문구마감7a0800203·DES05정정88616a6cf",
-        "Mac msg_d4ef7792280b·Backend msg_38518ce2a9da 중복제출금지연결",
-        "QA049最終msg_ae43db14fe10 P2四反例·QA037提供fixture읽기연결msg_18146715bbbd"
+        "msg_4a9dcc0b8250·Windows LastTaskResult0",
+        "dev-requests codex-master 대기0·새미등록인계0(본인생성플랜2개제외)",
+        "제품3경로미커밋0·HEAD2c1980c6a변경0",
+        "Vercel alias active dpl_D9/v1.29 유지",
+        "Ecom/Workspace read-only screen 재배포/공개방식질문대기 확인",
+        "59cb 후보6소스커밋포함/d21제외·690df단독은59cb누락"
       ],
-      "judgment": "운영감성1.29복구유지·画像미검수/가짜반례→계획배정/동결. SQL준비범위마감·Lab人시험필수. 새build/실AI/운영DB실행0.",
+      "judgment": "새보고/승인/소스변화없음. 정상alias유지·명시재배포후보준비,실3회기승인/추가빌드예산분리. 질문대기를유휴완료나착수로단정0·제품동결/새build/DB/AI0.",
       "unverified": [
-        "QA049 최종/공식지원·무료서비스정책",
-        "Lab시험결제미실행/주인님로그인·Mac반환未",
-        "GCPClientID동일/시험사용자목록"
+        "Ecom 계획메시지실수락(질문열림으로보류)",
+        "Gmail ClientID일치/시험사용자실목록·공개/빌드범위",
+        "Lab시험카드제출/기록읽기·Mac제어반환"
       ],
-      "nextAction": "사람완료/수정계획/QA049최종 회수후후속판정·03:00현재Master예약"
+      "nextAction": "선택질문답변/신규보고후단일책임후속·03:30기존Master예약"
     },
     "notifications": [
       {
@@ -4155,7 +4174,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-17T18:00:00.000Z",
+      "nextScheduledAt": "2026-11-17T18:30:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -4173,8 +4192,9 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-17T17:30:00.000Z",
-        "messageId": "msg_2964618e42f4",
+        "scheduledAt": "2026-11-17T18:00:00.000Z",
+        "messageId": "msg_4a9dcc0b8250",
+        "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false
       }
@@ -4556,8 +4576,8 @@
   "sessionReviews": [
     {
       "owner": "CC-WORKSPACE-01",
-      "state": "GCP설정완료주인님신호회수·ClientID동일미확인",
-      "next": "공개방식/실행범위/일치boolean확인·SQL/스위치0",
+      "state": "Gmail공개방식/빌드선택질문대기·GCP완료신호반영",
+      "next": "주인님결정→ClientID일치/실행순번확정·SQL/스위치0",
       "evidence": "f6e6b1da3 / a41a1e31e·5f9e66d7f",
       "reviewedAt": "2026-11-17T16:58:50.290Z",
       "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
@@ -4580,8 +4600,8 @@
     },
     {
       "owner": "CC-ECOM-01",
-      "state": "emotion1.30範圍事故→無build1.29rollback완료·실AI0",
-      "next": "이미지안전수정계획발송·사람prompt전달보류/수락미확인·제품freeze/새빌드0",
+      "state": "재배포선택질문대기·후속메시지전달보류·운영1.29",
+      "next": "追加빌드1예산결정전0·안전후보59cb고정·실3회기승인잔여",
       "evidence": "26e1353c5 / msg_c6e462ca244b·msg_b8292d9e0030/ACTIVE_WORK",
       "reviewedAt": "2026-11-17T16:58:50.290Z",
       "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
@@ -6287,7 +6307,23 @@
       "activeAlias": "dpl_D9ExEsYD9sH9zAxZy38dkU2UUMUz",
       "outOfScopeCommit": "d21eb96d7",
       "rollbackConfirmedBy": "Master Vercel get_alias + msg_3e45eb66363e",
-      "next": "追加build未승인·明示SHA검토후"
+      "next": "명시59cb재배포는追加Vercel1회승인필요·같은3사실호출기승인잔여3/3 유지·운영1.29",
+      "safeCandidate": {
+        "sha": "59cb81d8e",
+        "sourceTree": "4d114e25605d67e787328ddcfd4f277fb03f20bb",
+        "sourceCommits": [
+          "59cb81d8e",
+          "690df10c6",
+          "3a4ad1cad",
+          "62189915b",
+          "de49e96e9",
+          "121317458"
+        ],
+        "excluded": "d21eb96d7",
+        "versionOverlay": "emotion-writer/src/lib/version.ts v1.30만",
+        "verification": "각SHA ancestor=true·원본1.29..59cb 소스commit6개일치·d21 ancestor=false, Master git 직접대조",
+        "warning": "690df10c6 단독후보는59cb미포함으로불가"
+      }
     }
   }
 }
