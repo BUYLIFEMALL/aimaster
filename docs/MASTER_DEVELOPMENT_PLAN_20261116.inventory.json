@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 23:58:21 KST",
+  "checkedAt": "2026-11-18 00:03:19 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "monitoring": {
     "policyVersion": "1.8",
@@ -12,22 +12,17 @@
     "outsideTurnAutomaticChecks": "configured",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T14:58:18.560Z",
+      "at": "2026-11-17T15:03:16.766Z",
       "timezone": "Asia/Seoul",
-      "trigger": "예약점검 수동시험 결과수신",
-      "scope": "점검결과JSON/실행이력completed/Master메시지수신·Front개별작업표 대조",
+      "trigger": "00:00 정시 자동점검 결과수신·판정",
+      "scope": "예약실행이력scheduled/completed·결과파일·새 보고/인수인계변경·기존대기 대조",
       "evidence": [
-        "msg_361b6bda5258",
-        ".ai/results/CHECK-20261117T145607660114Z-CX-CHECK-01.json",
-        "automation run9480775b-d46b-481e-847a-9bd93882700c completed",
-        "Front정정46b5896cb·msg_31b4d564b853"
+        "msg_96b4243b4ef3",
+        ".ai/results/CHECK-20261117T150156500494Z-CX-CHECK-01.json",
+        "자동화회차2 dd9ee668-cf1c-4c5f-affe-098050385970 trigger scheduled/status completed"
       ],
-      "judgment": "점검작업자실행→고유결과파일→기존Master전달 성공. 정시cron회차는아직별도미확인. Front03/04개별next의낡은미배포표기정정, 신규제품작업재실행0.",
-      "nextAction": "30분cron활성유지·다음회차증분점검, QA037/ESM사람제어반환대기 유지",
-      "unreviewedHistoricalCandidates": {
-        "count": 58,
-        "evidence": "점검작업자 결과파일의 목록 참조, Master 전체본문 재검토 아님"
-      }
+      "judgment": "정시실행→결과파일→Master수신 경로확인. 신규보고/인수인계변경0·Front정정기통합. Mac사람제어반환대기유지(로그인/운영동작확인아님), 중복배정/재실행0.",
+      "nextAction": "다음30분회차 증분점검·새이벤트즉시판정, 기존승인/사람단계 대기유지"
     },
     "notifications": [
       {
@@ -92,7 +87,7 @@
       "workspace": "D:/AIMaster",
       "reuseSession": true,
       "masterRun": "run_6e348395e1fe",
-      "nextScheduledAt": "2026-11-17T15:00:00.000Z",
+      "nextScheduledAt": "2026-11-17T15:30:00.000Z",
       "configuredAt": "2026-11-17T14:53:35.427Z",
       "test": {
         "runId": "9480775b-d46b-481e-847a-9bd93882700c",
@@ -119,8 +114,19 @@
         "원본Master수신함check소비0·제품/공유작업표수정0",
         "등록/기동과실제점검/전달성공은구분"
       ],
-      "scheduledOccurrenceVerified": false,
-      "promptMode": "incremental_since_last_inspection"
+      "scheduledOccurrenceVerified": true,
+      "promptMode": "incremental_since_last_inspection",
+      "lastScheduledRun": {
+        "runId": "dd9ee668-cf1c-4c5f-affe-098050385970",
+        "trigger": "scheduled",
+        "status": "completed",
+        "scheduledAt": "2026-11-17T15:00:00.000Z",
+        "startedAt": "2026-11-17T15:00:56.584Z",
+        "inspectionAt": "2026-11-17T15:01:56.500494Z",
+        "resultPath": ".ai/results/CHECK-20261117T150156500494Z-CX-CHECK-01.json",
+        "messageId": "msg_96b4243b4ef3",
+        "masterReceivedAt": "2026-11-17T15:03:16.766Z"
+      }
     }
   },
   "count": 103,

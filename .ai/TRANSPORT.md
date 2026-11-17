@@ -60,7 +60,7 @@ ask/report는 운영 DB 쓰기다. 이번 로컬 초기 구성에서는 아직 �
 
 - 자동화: `a8e75832-fa68-405d-b823-b72d26ec84a2` / AIMaster Master 30분 자동 점검.
 - 실행기: 로컬 Orca `local_host_service`, 기존 `D:/AIMaster` workspace, provider `codex`, 점검 작업자 `CX-CHECK-01`.
-- 일정: `*/30 * * * *`, `Asia/Seoul` — 매시 00분·30분. 활성화 확인 완료. 최초 수동 시험은 2026-11-17 23:56 KST `completed`, 고유 결과 파일 생성과 기존 Master의 `msg_361b6bda5258` 수신까지 확인했다. 정시 cron 회차 실행과는 구분한다.
+- 일정: `*/30 * * * *`, `Asia/Seoul` — 매시 00분·30분. 최초 수동 시험은 2026-11-17 23:56 KST 완료·Master 수신 확인. 최초 정시 회차 `dd9ee668-cf1c-4c5f-affe-098050385970`도 11-18 00:00 예약→00:00:56 시작→00:01:56 점검 결과를 남겨 `msg_96b4243b4ef3`로 Master에게 전달했다. 이력의 `trigger=scheduled`·`status=completed`를 확인했다. 예약 시각과 실제 시작·완료 시각을 구분한다.
 - `reuseSession=true`는 이 자동화의 이전 실행 세션 재사용이다. 기존 Master 세션을 직접 재사용한다고 해석하지 않는다. 첫 점검은 별도 세션에서 실행한다.
 - 전달: 점검 작업자가 고유 `.ai/results/CHECK-<UTC시각>-CX-CHECK-01.json`을 남기고 `run:run_6e348395e1fe`의 기존 Master에게 결과를 보낸다. Master의 수신함을 소비하지 않으며 공유 작업표·제품 파일은 수정하지 않는다.
 - 필요 조건: 메인 PC와 Orca 실행·계정 사용 가능. 누락 회차는 5분 유예 내 한 번만 실행하는 설정이며 무제한 밀린 작업 재생은 아니다. 자동화 세션의 Codex 이용량은 해당 계정 한도를 따른다. 별도 유료 AI/API 호출은 허용하지 않는다.

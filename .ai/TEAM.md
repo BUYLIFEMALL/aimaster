@@ -26,7 +26,7 @@
 ## 30분 예약 점검 작업자
 
 - `CX-CHECK-01`: Orca 자동화 `a8e75832-fa68-405d-b823-b72d26ec84a2`, 메인 PC의 기존 `D:/AIMaster` workspace, provider Codex. Master에게 점검 결과만 반환하는 작업자이며 별도 총괄자가 아니다.
-- 최초 수동 시험 실행 `9480775b-d46b-481e-847a-9bd93882700c`: 실제 터미널 `term_b6e992d2-81b3-497c-be5c-ecf8c226c4d7`, 2026-11-17 23:56 KST 점검 완료, 결과 파일과 `msg_361b6bda5258`의 기존 Master 수신 확인. 자동화 이력 `completed` 확인. 정시 cron 회차의 실제 실행은 별도로 확인한다.
+- 최초 수동 시험 실행 `9480775b-d46b-481e-847a-9bd93882700c`: 실제 터미널 `term_b6e992d2-81b3-497c-be5c-ecf8c226c4d7`, 2026-11-17 23:56 KST 점검 완료, 결과 파일과 `msg_361b6bda5258`의 기존 Master 수신 확인. 최초 정시 회차 `dd9ee668-cf1c-4c5f-affe-098050385970`도 11-18 00:00 예약→00:01:56 점검·`msg_96b4243b4ef3` Master 수신, `trigger=scheduled`·`completed` 확인.
 - 후속 실행은 이 자동화의 이전 세션을 재사용하며 세션이 없으면 새 점검 세션으로 시작할 수 있다. 실제 실행별 세션·결과·전달 상태는 자동화 이력과 `monitoring.outsideTurnAutomation`으로 확인한다. 제품·공유 작업표 수정과 직접 구현 배정 권한은 없다.
 
 ## 확인된 주소
