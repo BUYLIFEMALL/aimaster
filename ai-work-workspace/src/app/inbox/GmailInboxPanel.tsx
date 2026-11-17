@@ -25,6 +25,7 @@ const DEFAULT_TITLE = "메일 확인";
 
 type View =
   | { kind: "loading" }
+  | { kind: "off" } // 서버 스위치가 꺼져 있음(배포 시차 등) → 패널 숨김·후속 호출 0
   | { kind: "not_connected" }
   | { kind: "connected"; email: string | null; sub: string }
   | { kind: "changed" }
@@ -77,6 +78,12 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
     setAskDisconnect(false);
     setUnsure(new Set());
   }, []);
+  /** 서버가 꺼짐(off)이라고 답함 → 패널을 통째로 숨기고 그 뒤 호출 0 */
+  const off = useCallback(() => {
+    gen.current++;
+    hideAll();
+    setView({ kind: "off" });
+  }, [hideAll]);
   /** 계정·연결이 바뀜 → 옛 자료를 바로 숨기고 그 뒤 호출 0 */
   const changed = useCallback(() => {
     gen.current++;
@@ -97,14 +104,15 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
       },
       (e) => {
         if (gen.current !== my) return;
+        if (codeOf(e) === "off") return off();
         if (codeOf(e) === "account_changed" || codeOf(e) === "context_changed" || codeOf(e) === "conflict") return changed();
         setView({ kind: "error", message: msgOf(e, "Gmail 연결 상태를 확인하지 못했습니다.") });
       },
     );
     return () => { gen.current++; };
-  }, [active, accountKey, api, hideAll, changed]);
+  }, [active, accountKey, api, hideAll, changed, off]);
 
-  if (!active) return null;
+  if (!active || view.kind === "off") return null;
 
   const sub = view.kind === "connected" ? view.sub : null;
 
@@ -123,6 +131,7 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
     } catch (e) {
       if (gen.current !== my) return;
       const c = codeOf(e);
+      if (c === "off") return off();
       if (c === "conflict" || c === "account_changed" || c === "context_changed") return changed();
       if (c === "not_found") { gen.current++; hideAll(); setView({ kind: "not_connected" }); return; }
       setItems(null);
@@ -156,6 +165,7 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
       if (gen.current !== my) return;
       const c = codeOf(e);
       // QA039(3): conflict는 구글 연결 변경과 받은 업무 상태 변경(40001) 둘 다 쓰므로 보수적으로 모두 숨기고 후속 호출 0
+      if (c === "off") return off(); // 꺼짐 거절은 서버가 DB·구글 전에 돌려준 것이라 넣지 않았음이 확실
       if (c === "account_changed" || c === "context_changed" || c === "conflict") return changed();
       if (!c || c === "unknown") {
         // 결과 모름: 이미 저장됐을 수 있음 → 자동 재전송 0, 이 메일의 넣기 버튼 잠금, 다시 누르기 유도 0
@@ -180,6 +190,7 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
     } catch (e) {
       if (gen.current !== my) return;
       const c = codeOf(e);
+      if (c === "off") return off();
       if (c === "account_changed" || c === "context_changed" || c === "conflict") return changed();
       setAskDisconnect(false);
       setListNote(msgOf(e, "연결을 끊지 못했습니다."));

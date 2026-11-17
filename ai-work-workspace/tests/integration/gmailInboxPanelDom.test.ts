@@ -325,3 +325,24 @@ describe('QA039 패널 반례', () => {
     expect(calls.filter((c) => c.name === 'add')).toHaveLength(1);
   });
 });
+
+
+// ---------------------------------------------------------------- 배선 대비: 서버가 off라고 답하면 패널 숨김(배포 시차 등)
+describe('서버 off 응답 → 패널 숨김·후속 호출 0', () => {
+  it('상태 확인이 off → 아무것도 그리지 않음', async () => {
+    mount(ON);
+    await settle(0, { code: 'off', message: 'x' }, true);
+    expect(el.innerHTML).toBe('');
+    expect(calls.map((c) => c.name)).toEqual(['status']);
+  });
+  it.each([['목록', 'list'], ['넣기', 'add'], ['끊기', 'disconnect']])('%s가 off → 패널 숨김, 이후 호출 0', async (_n, where) => {
+    await connectedWithList();
+    if (where === 'list') await click(btn('다시 불러오기'));
+    if (where === 'add') { await click(btn('견적 요청드립니다')); await click(btn('받은 업무에 넣기')); }
+    if (where === 'disconnect') { await click(btn('연결 끊기')); await click([...el.querySelectorAll('button')].find((b) => b.textContent === '끊기')); }
+    const n = calls.length;
+    await settle(idx(last(where)), { code: 'off' }, true);
+    expect(el.innerHTML).toBe('');
+    expect(calls.length).toBe(n);
+  });
+});
