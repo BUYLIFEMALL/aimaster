@@ -54,3 +54,22 @@
 - 시험: 잘못된 경우 11개(빈·여러 칸·`%`·잘못된 퍼센트·`%25`·끝 `%`·유니코드·짧음·44자·5000자·허용 밖 문자) → 예외 없이 404·`bookingSlots` 호출 0, 발급 형식 토큰 → 그대로 한 번 넘기고 OFF 404·구글 0·예약 줄 증가 0. 수정 전 10개 실패(URIError 또는 형식 밖 토큰으로 판정 함수 호출), 수정 후 bookingWiring 22/22, tsc 0. 기존 실제 처리기·입구 검사 확인은 그대로 통과.
 - 한계(별도 기록, 이번 수정과 섞지 않음): 공개 입구 `/api/public/[name]`의 10KB 상한은 본문을 끝까지 읽은 뒤의 **문자 길이** 검사다(바이트·스트림 중단이 아님). 이번 2파일 범위 밖이며 새 취약점으로 확정한 것은 아님.
 - 미실행: 전체 vitest·브라우저·운영·구글·build.
+
+## 최종 통합 검사 (Master msg_fd2ac03e9a94) — 예약 링크 묶음: 소스 구현·독립 검토 완료 / 기능 OFF / 미배포
+**구분**: 운영은 v1.56(`dpl_GUNMN7RG3XoQVdZmbihJC3qCTJSC`) 그대로. 아래 예약 소스는 **배포되지 않았고 스위치 3개 모두 꺼져 있다**.
+
+**최종 소스 경로별 SHA**: 서버 `src/server/booking.ts` `5b1eb8b6c` · `googleCalendar.ts`·`memberJobs.ts`·`api/cron/jobs/route.ts` `5ed9bc2ec` · `runtime.ts`·`publicPages.ts` `9c964f848` · `book/[...path]/page.tsx` `474859490` · `book/[...path]/BookingForm.tsx`·`calendar-sync/BookingSettingsCard.tsx` `764ffbfe4` · `calendar-sync/page.tsx`·`CalendarBoard.tsx` `20b1504d0` · 시험 `booking.test.ts` `5b1eb8b6c`·`bookingWiring.test.ts` `474859490`·`bookingSettingsCardDom`·`bookingFormDom` `764ffbfe4`. 독립 검토: QA024(서버)·QA025(UI)·QA026(OFF 배선) 지정 소스 PASS(Mac).
+**통합 1회**: 시작 전 미커밋 0·점유 본인 1줄·`.env.local` `aww_dev`(개발)/시험 `aww` 분리·시험 DB 접속 0·다른 vitest 0·가용 메모리 6722MB → 전체 tsc exit 0(오류 0, 증분 5초) → 전체 vitest **49파일/457 통과**(68초), `aww_dev` oid 2204849 유지. 반례·국소 시험 별도 반복 0.
+
+**회원 사용 숫자(켰을 때)**: 처음 설정 3단계(① 구글 캘린더 연결 — 이미 연결돼 있으면 건너뜀 ② 예약 받기 설정: 요일·시간·한 칸·준비 시간·하루 최대·기간(최대 21일) ③ 「예약 받기 켜기」 → 주소 복사) · 매일 조작 0번(「확인 필요」가 생긴 날만 1번: 캘린더에 있음/없음) · 새 동의 0번(기존 `calendar.events` 권한 그대로, 새 구글 권한·재동의 없음).
+
+**실제로 켜려면 필요한 것(전부 별도 승인)**
+1. 주인님 승인: 운영 워크스페이스 저장소에 표 2개(`aww_booking_pages`, `aww_bookings` — 첫 사용 때 `CREATE TABLE IF NOT EXISTS`) 추가 = 운영 구조 변경.
+2. 스위치 3개를 한 배포에서 함께: 서버 `BOOKING_ENABLED`(booking.ts) · 회원 카드 `BOOKING_UI.enabled` · 손님 화면 `BOOKING_FORM_UI.enabled`. Vercel 빌드 1회(비용 승인).
+3. 실제 구글 검증(시험 계정 본인 구글 앱): 일정 만들기·409·확인 GET을 실제로 한 번 — 지금까지는 공식 문서 기준 모의뿐.
+4. 실제 HTTP·브라우저 확인: `/book/<토큰>` 화면·제출, 회원 카드 화면(엣지·휴대폰 폭) — 미검수.
+5. 자동 확인 조건: 회원 cron-job.org 실행기가 **실제로 켜져 있을 때만** 1분 주기로 확인(남은 일이 없으면 꺼질 수 있음). 손님 제출은 cron-job.org를 켜지도 등록하지도 않음(A안). 꺼져 있으면 회원이 예약 목록을 열 때 확인 — 확인 시각 보장 없음.
+6. 손님 통지 없음: 손님에게 자동 연락하는 기능은 없다(화면 문구도 약속하지 않음). 「확인 필요」·「결과 모름」은 예약 담당자(회원)가 수동으로 확인해야 한다.
+7. 남은 위험(기록): 회원이 구글에 직접 넣은 일정과의 겹침은 제출 직전 재확인으로 줄였을 뿐 원자적이지 않음 · `/book/<토큰>` 경로 토큰은 호스팅 접속 기록 원문 0을 보장하지 않음 · 공개 입구 10KB는 완독 후 문자 길이 검사(범위 밖 기록).
+
+**하지 않은 것**: 운영 DDL·실제 구글·외부 cron 등록·설치·개발 서버·build·deploy 0. 실제 HTTP·실제 구글·화면 시각 확인은 PASS로 적지 않음.
