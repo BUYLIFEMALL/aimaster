@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T08:55:33.372Z",
+  "checkedAt": "2026-11-17T09:00:04.759Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -3034,12 +3034,12 @@
       "title": "E4 Gmail함 기존기능/권한 대조와 최소범위 조사",
       "status": "running",
       "delivery": "queued",
-      "scopeRef": "기존PLAN/읽기만·제품/외부/키조회/설치/build0",
-      "evidence": "PLAN §7-16 f0237cdcd; Master 공식 Gmail/OAuth 문서 대조; 보완 지시 msg_24a8dfeef8b1 (수락 미확인)",
+      "scopeRef": "gmailInbox.ts·Gmail start/callback·gmailInbox.test.ts·본인 문서. runtime/UI/SQL 및 운영·실외부 제외",
+      "evidence": "PLAN 7-16 보완 3a7f4a254 검토; A1 OFF 서버/OAuth 구현 배정(수락 미확인)",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "metadata 최소 권한·메일 보관·Google 프로젝트 전체 revoke 영향·동시 중복 처리 계획 보완. 코드/실 OAuth/운영DB/빌드0",
-      "sha": "f0237cdcd",
-      "lastReviewedAt": "2026-11-17T08:55:33.373Z"
+      "next": "A1 OFF 서버/OAuth 구현·격리 모의 검증. A2 inbox 성공후 claim기록 실패/응답유실·30일중복경계 보완 전 구현 보류",
+      "sha": "3a7f4a254",
+      "lastReviewedAt": "2026-11-17T09:00:04.759Z"
     },
     {
       "task_id": "WS-20261117-26",
@@ -3390,7 +3390,7 @@
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
       "stage": "v1.57운영·E3소스독립/통합560시험PASS·v1.58미배포",
-      "next": "WS25 Gmail 조사 수신→최소 권한/보관/revoke 영향 보완 발송·WS26 배포/실비용 승인 대기"
+      "next": "WS25 A1 Gmail OFF 서버/OAuth 구현 배정·A2 받은업무 불확실/중복경계 조사·WS26 승인 대기"
     },
     {
       "order": "3 · B2B",
