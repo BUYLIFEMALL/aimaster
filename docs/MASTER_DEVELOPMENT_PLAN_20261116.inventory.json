@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 18:10:42 KST",
+  "checkedAt": "2026-11-17 18:13:14 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -5093,12 +5093,12 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "E4 Gmail함 기존기능/권한 대조와 최소범위 조사",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "returned",
       "scopeRef": "gmailInbox.ts·Gmail start/callback·gmailInbox.test.ts·본인 문서. runtime/UI/SQL 및 운영·실외부 제외",
       "evidence": "A1 코드6e6267120·문서62c03be63·모의38시험/tsc 보고; Mac QA036 msg_e48cd51ac1ba 배정(수락미확인)",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "QA036 반례 JWT azp/형식·유효토큰 앱변경 국소수정 우선·저장후 경합 원자성안 보완; A2코드0",
+      "next": "QA036 FAIL F01~F06 국소수정(msg_e55f62fa7869), F03연결일관성안보완·A2코드0",
       "sha": "6e6267120",
       "lastReviewedAt": "2026-11-17T09:00:52.380Z"
     },
@@ -5127,13 +5127,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "Gmail A1 OFF 서버 OAuth 독립 검수",
-      "status": "running",
-      "delivery": "running",
+      "status": "ready_review",
+      "delivery": "returned",
       "sha": "6e6267120",
-      "evidence": "msg_cf1609be1214: 실제모듈/RSA/가짜fetch로 azp·유효토큰앱변경·저장후검사실패·JWTnull 반례",
+      "evidence": ".ai/results/QA-20261117-036-CX-QA-01.md / msg_a28485a4da2f: FAIL F01~F06, 모의 실제모듈/RSA",
       "scopeRef": "Mac 실제모듈·가짜통신/메모리·읽기 검토, 공유DB reset/build/deploy/실Google0",
       "completion": "OFF/OAuth/JWT·동시callback·연결계정 경계 판정 및 재현근거",
-      "next": "독립검수보고 반환·Workspace 국소수정 후 고정SHA재검수"
+      "next": "수정SHA반환후재검수. F01다중aud/azp F02유효토큰앱변경 F03동시저장후검사실패 F04상세401 F05nullJWT F06kid회전"
     }
   ]
 }
