@@ -74,7 +74,8 @@ export interface GmailStore {
   getApp(userId: string): Promise<{ clientId: string; clientSecret: string } | null>;
   /** 이 회원의 google_gmail 연결 줄 전부(다른 계정 확인용) */
   listAccounts(userId: string): Promise<GmailAccount[]>;
-  save(input: { userId: string; externalId: string; username: string | null; accessToken: string; refreshToken: string | null; tokenExpiresAt: string; grantedScopes: string[]; appRef: string }): Promise<{ error: string | null }>;
+  /** otherAccount: 「회원당 Gmail 1개」 부분 고유 인덱스 위반(다른 계정이 이미 연결) */
+  save(input: { userId: string; externalId: string; username: string | null; accessToken: string; refreshToken: string | null; tokenExpiresAt: string; grantedScopes: string[]; appRef: string }): Promise<{ error: string | null; otherAccount?: boolean }>;
   updateToken(userId: string, accountId: string, t: { accessToken: string; tokenExpiresAt: string; refreshToken: string | null }): Promise<void>;
   markNeedsReconnect(userId: string, accountId: string): Promise<void>;
   /** 이 워크스페이스의 연결 줄만 삭제(구글 호출 0). onlyIfAccessToken을 주면 그 토큰을 가진 줄만(다른 콜백이 새로 저장한 같은 계정 줄은 남김) */
@@ -82,6 +83,12 @@ export interface GmailStore {
 }
 
 const admin = () => createAdminClient() as unknown as SupabaseClient;
+/** F03: 「회원당 Gmail 1개」 부분 고유 인덱스 이름(마이그레이션 0074) */
+export const GMAIL_ONE_ACCOUNT_INDEX = "member_platform_accounts_gmail_one";
+/** 공용 저장 함수가 돌려준 오류 문구가 정확히 이 인덱스의 고유 조건 위반인지(Postgres 23505 문구, 인덱스 이름 완전 일치만) */
+export function isGmailOneAccountViolation(message: string | null | undefined): boolean {
+  return typeof message === "string" && message === `duplicate key value violates unique constraint "${GMAIL_ONE_ACCOUNT_INDEX}"`;
+}
 /** 기본: 공용 표 member_platform_accounts — 서버 키 전용 접근(기존 캘린더 연결과 같은 규칙), 공용 함수 그대로 */
 const supabaseStore: GmailStore = {
   getApp: (userId) => getGoogleApp(userId),
@@ -98,10 +105,13 @@ const supabaseStore: GmailStore = {
       tokenExpiresAt: (r.token_expires_at as string | null) ?? null, grantedScopes: (r.granted_scopes as string[] | null) ?? [], appRef: (r.app_ref as string | null) ?? null,
     }));
   },
-  save: (i) => saveMemberAccount(admin(), {
-    userId: i.userId, platform: GMAIL_PLATFORM, externalId: i.externalId, username: i.username, accessToken: i.accessToken, refreshToken: i.refreshToken,
-    tokenExpiresAt: i.tokenExpiresAt, grantedScopes: i.grantedScopes, authMethod: "oauth", appRef: i.appRef, extra: {}, connectedVia: "ai-work-workspace",
-  }),
+  async save(i) {
+    const r = await saveMemberAccount(admin(), {
+      userId: i.userId, platform: GMAIL_PLATFORM, externalId: i.externalId, username: i.username, accessToken: i.accessToken, refreshToken: i.refreshToken,
+      tokenExpiresAt: i.tokenExpiresAt, grantedScopes: i.grantedScopes, authMethod: "oauth", appRef: i.appRef, extra: {}, connectedVia: "ai-work-workspace",
+    });
+    return { error: r.error, otherAccount: isGmailOneAccountViolation(r.error) };
+  },
   async updateToken(userId, accountId, t) {
     const { error } = await updateMemberAccountToken(admin(), userId, accountId, t);
     if (error) throw new GmailError("server", "연결 정보를 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
@@ -116,6 +126,10 @@ const supabaseStore: GmailStore = {
   },
 };
 let store: GmailStore = supabaseStore;
+/** 시험 전용: 기본 저장소(공용 함수 경로) 자체를 확인할 때 */
+export function gmailDefaultStoreForTests(): GmailStore {
+  return supabaseStore;
+}
 /** 시험 전용: 저장소를 가짜로(실제 DB 0) */
 export function setGmailStoreForTests(s: GmailStore | null) {
   store = s ?? supabaseStore;
@@ -237,28 +251,13 @@ async function tokenRequest(params: Record<string, string>): Promise<Required<Pi
 }
 
 /**
- * 콜백: 앱 일치 확인 → 코드 교환 → 권한 확인(metadata 필수, 그 밖 거절) → id_token 검증(sub) → 다른 계정 확인 → 저장 → 저장 뒤 다시 확인.
- * 동시 콜백 두 개가 서로 다른 계정을 새로 넣는 경우: 새로 넣은 쪽이 저장 뒤 다른 계정 줄을 보면 자기 줄을 지우고 409.
- * 원자적 보장은 아님 — 재확인·지우기가 실패하거나 중단되면 줄이 2개 남을 수 있고, 그때는 읽기가 409로 닫혀(다른 계정 메일 노출 0)
- * 회원이 연결을 끊고 다시 연결해야 함. 공용 표 고유 조건 변경 없이 할 수 있는 최선(QA036(3)).
+ * 콜백: 앱 일치 확인 → 코드 교환 → 권한 확인(metadata 필수, 그 밖 거절) → id_token 검증(sub) → 다른 계정 미리 확인(친절한 409) → 저장.
+ * F03(PLAN_20261117_E4_GMAIL_F03_A2 §1 안 A): 「회원당 Gmail 연결 1개」는 공용 표의 부분 고유 인덱스
+ * `member_platform_accounts_gmail_one`(마이그레이션 0074)이 보장 — 다른 계정 저장은 DB가 23505로 거절하고 기존 줄·토큰은 그대로.
+ * **이 인덱스가 운영에 적용·검증되기 전에는 GMAIL_ENABLED를 켜지 않는다**(카탈로그 외래 키도 0074가 있어야 저장 가능).
  */
-/** QA036 F03: 같은 회원의 연결 완료를 이 서버 안에서 하나씩(다른 서버 인스턴스끼리는 직렬화되지 않음 — 한계로 문서에 밝힘) */
-const connectLocks = new Map<string, Promise<unknown>>();
-function serialize<T>(key: string, fn: () => Promise<T>): Promise<T> {
-  const prev = connectLocks.get(key) ?? Promise.resolve();
-  const run = prev.then(fn, fn);
-  const tail = run.catch(() => {});
-  connectLocks.set(key, tail);
-  void tail.then(() => { if (connectLocks.get(key) === tail) connectLocks.delete(key); });
-  return run;
-}
-
 export async function completeGmailConnect(userId: string, code: string, appTag: string): Promise<{ email: string | null }> {
   ensureOn();
-  return serialize(userId, () => completeGmailConnectNow(userId, code, appTag));
-}
-
-async function completeGmailConnectNow(userId: string, code: string, appTag: string): Promise<{ email: string | null }> {
   const app = await store.getApp(userId);
   if (!app) throw new GmailError("bad_request", "구글 앱 Client ID·Secret을 먼저 등록해 주세요.");
   if (appTagOf(app.clientId) !== appTag) throw new GmailError("bad_request", "구글 앱 키가 연결 도중 바뀌었습니다. 「Gmail 연결」을 다시 눌러 주세요.");
@@ -270,26 +269,13 @@ async function completeGmailConnectNow(userId: string, code: string, appTag: str
   if (!who) throw new GmailError("auth", "구글 계정 확인에 실패했습니다. 「Gmail 연결」을 다시 눌러 주세요."); // QA036(4): 인증 실패를 서버 오류로 내보내지 않음
   const before = await store.listAccounts(userId);
   if (before.some((a) => a.externalId !== who.sub)) throw new GmailError("conflict", GMAIL_OTHER_ACCOUNT_MESSAGE);
-  const isNew = !before.some((a) => a.externalId === who.sub);
-  const { error } = await store.save({
+  const saved = await store.save({
     userId, externalId: who.sub, username: who.email, accessToken: t.access_token, refreshToken: t.refresh_token ?? null,
     tokenExpiresAt: new Date(Date.now() + t.expires_in * 1000).toISOString(), grantedScopes: scopes, appRef: app.clientId,
   });
-  if (error) throw new GmailError("server", "연결 정보를 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
-  if (isNew) {
-    // 저장 뒤 다시 확인. 다른 계정 줄이 보이거나 확인 자체가 실패하면 **자기가 새로 넣은 줄만** 지우고 실패(다른 계정 줄은 지우지 않음).
-    // QA036(3): 지우기마저 실패하면 줄이 남을 수 있음 — 그때도 읽기(currentAccount)가 줄 2개를 409로 닫아 다른 계정 메일은 보이지 않음.
-    let after: GmailAccount[] | null = null;
-    try {
-      after = await store.listAccounts(userId);
-    } catch {
-      after = null;
-    }
-    if (!after || after.some((a) => a.externalId !== who.sub)) {
-      await store.deleteAccount(userId, who.sub, t.access_token).catch(() => {}); // 내가 넣은 토큰을 가진 줄만(같은 계정의 더 새 연결은 남김)
-      throw after ? new GmailError("conflict", GMAIL_OTHER_ACCOUNT_MESSAGE) : new GmailError("server", "연결을 확인하지 못해 저장하지 않았습니다. 잠시 뒤 다시 연결해 주세요.");
-    }
-  }
+  // 동시 콜백·미리 확인 뒤 끼어든 다른 계정: DB 부분 고유 인덱스가 거절(인덱스 이름이 정확히 일치할 때만 409, 그 밖 실패는 일반 문구·원문 0)
+  if (saved.otherAccount) throw new GmailError("conflict", GMAIL_OTHER_ACCOUNT_MESSAGE);
+  if (saved.error) throw new GmailError("server", "연결 정보를 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
   return { email: who.email };
 }
 

@@ -53,6 +53,11 @@ const fakeStore = () => ({
   async listAccounts(userId: string) { storeCalls.push('list'); await tick(); return rows.filter((r) => r.userId === userId).map(({ userId: _u, ...r }) => ({ ...r })); },
   async save(i: any) {
     storeCalls.push('save'); await tick();
+    // F03: 공용 표의 부분 고유 인덱스(회원당 google_gmail 1줄) 흉내 — 실제 DB 동작은 gmailF03Db.test.ts가 확인
+    if (rows.some((r) => r.userId === i.userId && r.externalId !== i.externalId)) {
+      const error = 'duplicate key value violates unique constraint "member_platform_accounts_gmail_one"';
+      return { error, otherAccount: gm.isGmailOneAccountViolation(error) };
+    }
     const cur = rows.find((r) => r.userId === i.userId && r.externalId === i.externalId);
     if (cur) Object.assign(cur, { accessToken: i.accessToken, refreshToken: i.refreshToken ?? cur.refreshToken, tokenExpiresAt: i.tokenExpiresAt, grantedScopes: i.grantedScopes, appRef: i.appRef, username: i.username });
     else rows.push({ id: `row-${rows.length + 1}-${i.externalId}`, userId: i.userId, externalId: i.externalId, username: i.username, accessToken: i.accessToken, refreshToken: i.refreshToken, tokenExpiresAt: i.tokenExpiresAt, grantedScopes: i.grantedScopes, appRef: i.appRef });
@@ -442,29 +447,38 @@ describe('QA036 반례', () => {
     expect(hits.filter((h) => h.url.includes('gmail.googleapis.com'))).toHaveLength(0);
   });
 
-  it('(3) 저장 뒤 재확인이 실패 → 자기 새 줄만 지우고(다른 계정 줄은 그대로) 실패 응답', async () => {
+  it('(3→F03 안 A) 저장이 「회원당 1개」 인덱스에 걸림 → 409·기존 줄·토큰 그대로·삭제 호출 0', async () => {
     reset(true);
-    let n = 0;
+    rows.push({ id: 'z', userId: USER, externalId: 'sub-Z', username: null, accessToken: 'ya29.keep', refreshToken: 'r', tokenExpiresAt: new Date(Date.now() + 3600e3).toISOString(), grantedScopes: [GMAIL_SCOPE], appRef: CLIENT });
+    // 미리 확인을 지나친 경우(동시 콜백)를 흉내: 미리 확인 읽기는 빈 결과
     const base = fakeStore();
-    gm.setGmailStoreForTests({ ...base, async listAccounts(u: string) { n++; if (n === 2) throw new Error('db down'); return base.listAccounts(u); } } as any);
-    await expect(gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT))).rejects.toMatchObject({ code: 'server' });
-    expect(rows).toHaveLength(0);
+    let first = true;
+    gm.setGmailStoreForTests({ ...base, async listAccounts(u: string) { if (first) { first = false; return []; } return base.listAccounts(u); } } as any);
+    await expect(gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT))).rejects.toMatchObject({ code: 'conflict', message: gm.GMAIL_OTHER_ACCOUNT_MESSAGE });
+    expect(rows.map((r) => [r.externalId, r.accessToken])).toEqual([['sub-Z', 'ya29.keep']]);
+    expect(storeCalls).not.toContain('delete');
   });
 
-  it('(3) 저장 뒤 재확인 실패 + 자기 줄 지우기도 실패 → 줄이 남아도 읽기는 줄 1개면 정상, 2개면 409로 닫힘(다른 계정 삭제 0)', async () => {
+  it('(3→F03) 그 밖의 저장 실패(다른 고유 조건·외래 키 등) → 일반 문구, 원문 노출 0, 409 아님', async () => {
     reset(true);
-    rows.push({ id: 'keep', userId: USER, externalId: 'sub-Z', username: null, accessToken: 'ya29.z', refreshToken: 'r', tokenExpiresAt: new Date(Date.now() + 3600e3).toISOString(), grantedScopes: [GMAIL_SCOPE], appRef: CLIENT });
-    rows.length = 0; // 처음엔 빈 상태로 시작
-    let n = 0;
     const base = fakeStore();
-    gm.setGmailStoreForTests({ ...base, async listAccounts(u: string) { n++; if (n === 2) throw new Error('db down'); return base.listAccounts(u); }, async deleteAccount() { throw new Error('db down'); } } as any);
-    await expect(gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT))).rejects.toMatchObject({ code: 'server' });
-    expect(rows.map((r) => r.externalId)).toEqual(['sub-A']); // 지우지 못한 자기 줄만 남음
-    gm.setGmailStoreForTests(base as any);
-    rows.push({ id: 'z', userId: USER, externalId: 'sub-Z', username: null, accessToken: 'ya29.z', refreshToken: 'r', tokenExpiresAt: new Date(Date.now() + 3600e3).toISOString(), grantedScopes: [GMAIL_SCOPE], appRef: CLIENT });
-    hits = [];
-    await expect(gm.listGmailInbox(USER)).rejects.toMatchObject({ code: 'conflict' });
-    expect(hits).toEqual([]);
+    for (const error of [
+      'insert or update on table "member_platform_accounts" violates foreign key constraint "member_platform_accounts_platform_fkey"',
+      'duplicate key value violates unique constraint "member_platform_accounts_unique"',
+      'duplicate key value violates unique constraint "member_platform_accounts_gmail_one_x"',
+    ]) {
+      gm.setGmailStoreForTests({ ...base, async save() { return { error, otherAccount: gm.isGmailOneAccountViolation(error) }; } } as any);
+      const e: any = await gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT)).catch((x) => x);
+      expect(e.code).toBe('server');
+      expect(e.message).not.toContain('constraint');
+    }
+  });
+
+  it('(F03) 인덱스 이름 판정은 완전 일치만', () => {
+    expect(gm.isGmailOneAccountViolation('duplicate key value violates unique constraint "member_platform_accounts_gmail_one"')).toBe(true);
+    for (const m of [null, undefined, '', 'duplicate key value violates unique constraint "member_platform_accounts_gmail_one_x"', 'x duplicate key value violates unique constraint "member_platform_accounts_gmail_one"', 'member_platform_accounts_gmail_one']) {
+      expect(gm.isGmailOneAccountViolation(m as any)).toBe(false);
+    }
   });
 });
 
@@ -565,28 +579,7 @@ describe('QA036 F06 — 모르는 키 번호: 쿨다운 안에서 공개 키 목
   });
 });
 
-describe('QA036 F03 — 같은 계정 새 연결을 이전 콜백의 정리가 지우지 않음(조건부 삭제)', () => {
-  it('B가 재확인 실패로 자기 줄을 지우려는 사이 같은 계정 C가 새 토큰으로 갱신 → C 연결은 남음', async () => {
-    reset(true);
-    let n = 0;
-    const base = fakeStore();
-    gm.setGmailStoreForTests({
-      ...base,
-      async listAccounts(u: string) {
-        n++;
-        if (n === 2) {
-          // B의 재확인 시점: 같은 계정(sub-A)으로 다른 콜백 C가 새 토큰을 저장해 둠, 그리고 B의 재확인 읽기는 실패
-          const r = rows.find((x) => x.externalId === 'sub-A');
-          if (r) r.accessToken = 'ya29.from-C';
-          throw new Error('db down');
-        }
-        return base.listAccounts(u);
-      },
-    } as any);
-    await expect(gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT))).rejects.toMatchObject({ code: 'server' });
-    expect(rows.map((r) => [r.externalId, r.accessToken])).toEqual([['sub-A', 'ya29.from-C']]);
-  });
-});
+// (F03 이전 방식의 「저장 뒤 재확인·조건부 삭제」 시험은 부분 고유 인덱스 방식으로 바뀌며 제거 — 실제 DB 동작은 gmailF03Db.test.ts)
 
 // ---------------------------------------------------------------- QA036 F02 잔여(Mac msg_85a81e367fe4)
 describe('QA036 F02 잔여 — 토큰 갱신 응답을 기다리는 사이 앱·연결이 바뀜', () => {
