@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 export default async function CalendarSyncPage() {
-  await requireProgramAccess();
+  const user = await requireProgramAccess(); // 예약 카드의 기대 계정(서버가 확인한 회원 id)
   return (
     <main className="aww-guide aww-studio-page">
       <div className="aww-guide-inner">
@@ -37,7 +37,7 @@ export default async function CalendarSyncPage() {
             </div>
           </div>
         </header>
-        <CalendarBoard />
+        <CalendarBoard accountKey={user.id} />
       </div>
     </main>
   );

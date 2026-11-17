@@ -3,6 +3,7 @@
 // 명령: /api/rpc/cal*(src/server/calendarSync.ts). 플랜 docs/PLAN_20261111_GOOGLE_CALENDAR.md
 import { useCallback, useEffect, useState } from "react";
 import { rpc } from "@/lib/standaloneRpc"; // 2026-11-13: 로그인 끊김(401) 안내 띠 포함
+import { BookingSettingsCard } from "./BookingSettingsCard"; // E2 예약 받기(화면 스위치 OFF면 아무것도 안 그림)
 
 interface DateDb { id: string; title: string; dateProps: { id: string; name: string }[] }
 interface CalState {
@@ -25,7 +26,7 @@ const GOOGLE_ERRORS: Record<string, string> = {
   google: "구글 연결 중 문제가 생겼습니다. 다시 시도해 주세요.",
 };
 
-export function CalendarBoard() {
+export function CalendarBoard({ accountKey }: { accountKey?: string | null } = {}) {
   const [st, setSt] = useState<CalState | null>(null);
   const [notice, setNotice] = useState<{ text: string; error?: boolean } | null>(null);
   const load = useCallback(async () => {
@@ -61,6 +62,7 @@ export function CalendarBoard() {
         <IcsCard st={st} reload={load} notify={setNotice} />
         <GoogleCard st={st} reload={load} notify={setNotice} />
       </div>
+      <BookingSettingsCard accountKey={accountKey} />
     </div>
   );
 }
