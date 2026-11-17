@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 17:45:37 KST",
+  "checkedAt": "2026-11-17 17:55:35 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -5093,12 +5093,14 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "E4 Gmail함 기존기능/권한 대조와 최소범위 조사",
-      "status": "ready",
+      "status": "running",
       "delivery": "queued",
       "scopeRef": "기존PLAN/읽기만·제품/외부/키조회/설치/build0",
-      "evidence": "주인님추천8개전부채택·Master후속배정",
+      "evidence": "PLAN §7-16 f0237cdcd; Master 공식 Gmail/OAuth 문서 대조; 보완 지시 msg_24a8dfeef8b1 (수락 미확인)",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "메일목록읽기/명시선택받은업무 최소1단위계획반환"
+      "next": "metadata 최소 권한·메일 보관·Google 프로젝트 전체 revoke 영향·동시 중복 처리 계획 보완. 코드/실 OAuth/운영DB/빌드0",
+      "sha": "f0237cdcd",
+      "lastReviewedAt": "2026-11-17T08:55:33.373Z"
     },
     {
       "task_id": "WS-20261117-26",
