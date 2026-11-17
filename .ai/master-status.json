@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T07:43:08.826Z",
+  "checkedAt": "2026-11-17T07:44:27.086Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2865,10 +2865,10 @@
       "owner": "CC-BLOG-01",
       "reviewer": "CX-MASTER-01",
       "title": "T07 대시보드/작업목록 공용자동갱신",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "40662e6ae/a3b9a7a16·msg_74121752d303 / QA029권한거절/timeout P2·1a54bdd06반례2修正/18tests/tsc0",
-      "next": "QA029국소재검토·이전회차late응답검사",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "40662e6ae/a3b9a7a16·msg_74121752d303 / QA029권한거절/timeout P2·1a54bdd06반례2修正/18tests/tsc0 / QA029 msg_bd7f349e2065 deny/timeout/late/cleanup실모의PASS",
+      "next": "1a54bdd06소스완료·미배포·실HTTP/브라우저별도",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "completion": "배정된소스/검증범위반환·실운영/배포미검수구분",
       "sha": "1a54bdd06"
@@ -2893,10 +2893,10 @@
       "owner": "CC-MOVIE-01",
       "reviewer": "CX-MASTER-01",
       "title": "공용MP4 탭수명 fallback성공기억 P3",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "분석반환·msg_2be051aafd0d / 69309a645·作者9/9·4프로그램tsc0/정식사본sync",
-      "next": "QA032 stall성공기억예외/동기화독립검토·미배포",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "분석반환·msg_2be051aafd0d / 69309a645·作者9/9·4프로그램tsc0/정식사본sync / QA032 msg_09141d4ec69c wrapper9경계/4사본SHA일치",
+      "next": "소스2b9a06c9c완료·미배포·실HW/MP4/AppleSilicon별도",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "completion": "배정된소스/검증범위반환·실운영/배포미검수구분",
       "sha": "2b9a06c9c"
@@ -2920,10 +2920,10 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "BLOG09 공용폴러 독립검토",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "msg_6701f7855675 / msg_51ec2a847835 修正국소재검토",
-      "next": "5초/숨김/중복/권한/세대/훅생명주기판정",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_6701f7855675 / msg_51ec2a847835 修正국소재검토 / msg_bd7f349e2065 지정P2소스PASS",
+      "next": "국소독립검토종결·실계정전환미검수",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "completion": "배정된소스/검증범위반환·실운영/배포미검수구분"
     },
@@ -2959,12 +2959,12 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "공용MP4 탭수명fallback P3 독립검토",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "msg_c36564afe6e9",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_c36564afe6e9 / msg_09141d4ec69c 지정소스PASS",
       "scopeRef": "기준/사본/기존시험·모의/소스·실인코딩/build0",
       "completion": "stall대체성공만기록/예외비기록/새모듈초기화/사본동일",
-      "next": "QA031후검토·QA029국소수정재검토순서조정"
+      "next": "독립검토종결·실HW미검수"
     }
   ],
   "programOverrides": [
@@ -3313,20 +3313,20 @@
     {
       "order": "5 · 블로그",
       "owner": "Blog",
-      "stage": "T05 robots+DNS수정독립소스PASS·미배포",
-      "next": "BLOG09권한거절즉시중지/timeout수정1a54bdd06 QA029재검토"
+      "stage": "T05 robots/DNS·T07공용폴러 소스독립PASS·미배포",
+      "next": "다음web-crawler묶음에통합·외부/빌드0"
     },
     {
       "order": "6 · 영상",
       "owner": "Movie",
       "stage": "떡상v1.30·사용량/캐시2표운영적용보고",
-      "next": "MOV07공용encoder2b9a06c9c 회수·QA032독립검토·실검색로그인별도"
+      "next": "MOV07공용encoder2b9a06c9c 소스독립PASS/미배포·YVS실검색로그인별도"
     },
     {
       "order": "7 · 음악",
       "owner": "Music",
       "stage": "운영6프로그램 보고확보·가사취소안내1건미배포",
-      "next": "MOV07소비자근거지원만·공용사본직접편집0·실MP4사람대기"
+      "next": "공용encoder사본소스PASS/미배포·가사문구와다음묶음·실MP4사람대기"
     },
     {
       "order": "8 · 부동산",

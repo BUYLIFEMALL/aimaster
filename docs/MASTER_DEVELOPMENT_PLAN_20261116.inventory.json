@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 16:43:11 KST",
+  "checkedAt": "2026-11-17 16:44:29 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4926,10 +4926,10 @@
       "owner": "CC-BLOG-01",
       "reviewer": "CX-MASTER-01",
       "title": "T07 대시보드/작업목록 공용자동갱신",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "40662e6ae/a3b9a7a16·msg_74121752d303 / QA029권한거절/timeout P2·1a54bdd06반례2修正/18tests/tsc0",
-      "next": "QA029국소재검토·이전회차late응답검사",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "40662e6ae/a3b9a7a16·msg_74121752d303 / QA029권한거절/timeout P2·1a54bdd06반례2修正/18tests/tsc0 / QA029 msg_bd7f349e2065 deny/timeout/late/cleanup실모의PASS",
+      "next": "1a54bdd06소스완료·미배포·실HTTP/브라우저별도",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "completion": "배정된소스/검증범위반환·실운영/배포미검수구분",
       "sha": "1a54bdd06"
@@ -4954,10 +4954,10 @@
       "owner": "CC-MOVIE-01",
       "reviewer": "CX-MASTER-01",
       "title": "공용MP4 탭수명 fallback성공기억 P3",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "분석반환·msg_2be051aafd0d / 69309a645·作者9/9·4프로그램tsc0/정식사본sync",
-      "next": "QA032 stall성공기억예외/동기화독립검토·미배포",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "분석반환·msg_2be051aafd0d / 69309a645·作者9/9·4프로그램tsc0/정식사본sync / QA032 msg_09141d4ec69c wrapper9경계/4사본SHA일치",
+      "next": "소스2b9a06c9c완료·미배포·실HW/MP4/AppleSilicon별도",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "completion": "배정된소스/검증범위반환·실운영/배포미검수구분",
       "sha": "2b9a06c9c"
@@ -4981,10 +4981,10 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "BLOG09 공용폴러 독립검토",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "msg_6701f7855675 / msg_51ec2a847835 修正국소재검토",
-      "next": "5초/숨김/중복/권한/세대/훅생명주기판정",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_6701f7855675 / msg_51ec2a847835 修正국소재검토 / msg_bd7f349e2065 지정P2소스PASS",
+      "next": "국소독립검토종결·실계정전환미검수",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "completion": "배정된소스/검증범위반환·실운영/배포미검수구분"
     },
@@ -5020,12 +5020,12 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "공용MP4 탭수명fallback P3 독립검토",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "msg_c36564afe6e9",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_c36564afe6e9 / msg_09141d4ec69c 지정소스PASS",
       "scopeRef": "기준/사본/기존시험·모의/소스·실인코딩/build0",
       "completion": "stall대체성공만기록/예외비기록/새모듈초기화/사본동일",
-      "next": "QA031후검토·QA029국소수정재검토순서조정"
+      "next": "독립검토종결·실HW미검수"
     }
   ]
 }
