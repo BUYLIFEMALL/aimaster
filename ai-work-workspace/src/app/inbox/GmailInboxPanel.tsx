@@ -1,0 +1,240 @@
+"use client";
+// E4 Gmail 패널(WS-20261117-25, Master msg_d655d7341f78) — **소스 준비만**: 받은 업무 화면(InboxBoard)·서버 명령(runtime)에는 아직 연결하지 않았다.
+// 서버 명령은 밖에서 넣는 api 묶음으로만 부른다(없거나 enabled=false면 아무것도 그리지 않고 호출 0). 계약: docs/PLAN_20261117_E4_GMAIL_F03_A2.md §8.
+// - 보이는 것: 연결 계정 이메일, 받은 편지함 최근 메일(최대 20개) 제목·보낸 사람·날짜 — 화면 상태로만(저장 0), 본문·미리보기 0.
+// - 고른 1건: 업무 제목 기본 「메일 확인」, 「원 제목 넣기」를 눌러야 원 제목이 들어감. 넣는 중에는 다시 누를 수 없음.
+// - 결과: added(넣음) / existing(이미 넣은 메일). 결과를 모르면(연결 끊김 등) 자동으로 다시 보내지 않고 받은 업무 목록 확인을 안내.
+// - 계정(로그인 회원)·연결 계정(sub)이 바뀌거나, 화면이 사라지면 옛 메일·제목·결과를 바로 숨기고 늦게 온 응답은 버림(세대 번호).
+// - 연결·끊기는 회원이 직접 누를 때만. 끊기는 이 워크스페이스 연결만(구글 권한 전체 철회는 하지 않음 — 구글 계정 설정 안내).
+import { useCallback, useEffect, useRef, useState } from "react";
+
+export interface GmailPanelItem { id: string; subject: string; from: string; date: string | null }
+/** unknown = 넣었는지 결과 모름(이미 저장됐을 수 있음), account_changed·context_changed = 로그인 계정·연결 계정이 바뀜 */
+export type GmailPanelErrorCode = "off" | "auth" | "bad_request" | "forbidden" | "conflict" | "not_found" | "server" | "unknown" | "account_changed" | "context_changed";
+/** 서버 명령이 실패를 알릴 때 쓰는 모양(code가 없으면 「결과 모름」으로 다룸) */
+export interface GmailPanelError { code?: GmailPanelErrorCode; message?: string }
+export interface GmailPanelApi {
+  status(): Promise<{ connected: boolean; email: string | null; sub: string | null }>;
+  list(expectSub: string): Promise<{ sub: string; email: string | null; items: GmailPanelItem[] }>;
+  add(input: { messageId: string; title: string; expectSub: string }): Promise<{ status: "added" | "existing"; inboxId: string }>;
+  disconnect(): Promise<void>;
+}
+
+export const GMAIL_CONNECT_URL = "/api/oauth/google-gmail/start";
+const DEFAULT_TITLE = "메일 확인";
+
+type View =
+  | { kind: "loading" }
+  | { kind: "not_connected" }
+  | { kind: "connected"; email: string | null; sub: string }
+  | { kind: "changed" }
+  | { kind: "error"; message: string };
+type AddResult = { kind: "added" | "existing" | "unknown" | "failed"; message: string };
+
+const codeOf = (e: unknown): GmailPanelErrorCode | undefined => (e && typeof e === "object" ? (e as GmailPanelError).code : undefined);
+const msgOf = (e: unknown, fallback: string): string => {
+  const m = e && typeof e === "object" ? (e as GmailPanelError).message : undefined;
+  return typeof m === "string" && m ? m : fallback;
+};
+function when(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "" : `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
+export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?: boolean; accountKey?: string | null; api?: GmailPanelApi | null }) {
+  const active = enabled && !!api && typeof accountKey === "string" && !!accountKey.trim();
+  const gen = useRef(0); // 계정·연결이 바뀌거나 화면이 사라질 때마다 올림 → 그 전 응답은 버림
+  const [view, setView] = useState<View>({ kind: "loading" });
+  const [items, setItems] = useState<GmailPanelItem[] | null>(null);
+  const [listNote, setListNote] = useState<string | null>(null);
+  const [picked, setPicked] = useState<GmailPanelItem | null>(null);
+  const [title, setTitle] = useState(DEFAULT_TITLE);
+  const [adding, setAdding] = useState(false);
+  const [result, setResult] = useState<AddResult | null>(null);
+  const [listing, setListing] = useState(false);
+  const [askDisconnect, setAskDisconnect] = useState(false);
+  const [unsure, setUnsure] = useState<Set<string>>(() => new Set()); // 결과를 모르는 메일 — 이 화면에서는 다시 보내지 않음
+
+  const hideAll = useCallback(() => {
+    setItems(null);
+    setListNote(null);
+    setPicked(null);
+    setTitle(DEFAULT_TITLE);
+    setResult(null);
+    setAdding(false);
+    setListing(false);
+    setAskDisconnect(false);
+    setUnsure(new Set());
+  }, []);
+  /** 계정·연결이 바뀜 → 옛 자료를 바로 숨기고 그 뒤 호출 0 */
+  const changed = useCallback(() => {
+    gen.current++;
+    hideAll();
+    setView({ kind: "changed" });
+  }, [hideAll]);
+
+  // 처음·계정이 바뀔 때 상태 읽기(주기적 확인 0)
+  useEffect(() => {
+    const my = ++gen.current;
+    hideAll();
+    if (!active) return () => { gen.current++; };
+    setView({ kind: "loading" });
+    api!.status().then(
+      (s) => {
+        if (gen.current !== my) return;
+        setView(s.connected && s.sub ? { kind: "connected", email: s.email, sub: s.sub } : { kind: "not_connected" });
+      },
+      (e) => {
+        if (gen.current !== my) return;
+        if (codeOf(e) === "account_changed" || codeOf(e) === "context_changed" || codeOf(e) === "conflict") return changed();
+        setView({ kind: "error", message: msgOf(e, "Gmail 연결 상태를 확인하지 못했습니다.") });
+      },
+    );
+    return () => { gen.current++; };
+  }, [active, accountKey, api, hideAll, changed]);
+
+  if (!active) return null;
+
+  const sub = view.kind === "connected" ? view.sub : null;
+
+  const loadList = async () => {
+    if (!sub || listing) return;
+    const my = gen.current;
+    setListing(true);
+    setListNote(null);
+    setResult(null);
+    try {
+      const r = await api!.list(sub);
+      if (gen.current !== my) return;
+      if (r.sub !== sub) return changed(); // 다른 계정 목록은 그리지 않음
+      setItems(r.items);
+      if (!r.items.length) setListNote("받은 편지함에 메일이 없습니다.");
+    } catch (e) {
+      if (gen.current !== my) return;
+      const c = codeOf(e);
+      if (c === "conflict" || c === "account_changed" || c === "context_changed") return changed();
+      if (c === "not_found") { gen.current++; hideAll(); setView({ kind: "not_connected" }); return; }
+      setItems(null);
+      setListNote(msgOf(e, "메일 목록을 불러오지 못했습니다."));
+    } finally {
+      if (gen.current === my) setListing(false);
+    }
+  };
+
+  const pick = (m: GmailPanelItem) => {
+    setPicked(m);
+    setTitle(DEFAULT_TITLE);
+    setResult(null);
+  };
+
+  const add = async () => {
+    if (!sub || !picked || adding || unsure.has(picked.id)) return;
+    const t = title.trim();
+    if (t.length < 1 || t.length > 200) { setResult({ kind: "failed", message: "업무 제목은 1~200자로 적어 주세요." }); return; }
+    const my = gen.current;
+    setAdding(true);
+    setResult(null);
+    try {
+      const r = await api!.add({ messageId: picked.id, title: t, expectSub: sub });
+      if (gen.current !== my) return;
+      setResult(r.status === "added" ? { kind: "added", message: "받은 업무에 넣었습니다." } : { kind: "existing", message: "이미 받은 업무에 넣은 메일입니다." });
+    } catch (e) {
+      if (gen.current !== my) return;
+      const c = codeOf(e);
+      if (c === "account_changed" || c === "context_changed") return changed(); // 계약: 로그인 계정·연결 계정 바뀜(서버 409 계정 바뀜을 어댑터가 바꿔 줌)
+      if (!c || c === "unknown") {
+        // 결과 모름: 이미 저장됐을 수 있음 → 자동 재전송 0, 이 메일의 넣기 버튼 잠금, 다시 누르기 유도 0
+        const id = picked.id;
+        setUnsure((s) => new Set(s).add(id));
+        setResult({ kind: "unknown", message: "받은 업무에 넣었는지 확인하지 못했습니다. 이미 넣어졌을 수 있으니 받은 업무 목록에서 확인해 주세요." });
+      } else {
+        setResult({ kind: "failed", message: msgOf(e, "받은 업무에 넣지 못했습니다.") });
+      }
+    } finally {
+      if (gen.current === my) setAdding(false);
+    }
+  };
+
+  const disconnect = async () => {
+    const my = gen.current;
+    try {
+      await api!.disconnect();
+      if (gen.current !== my) return;
+      gen.current++;
+      hideAll();
+      setView({ kind: "not_connected" });
+    } catch (e) {
+      if (gen.current !== my) return;
+      if (codeOf(e) === "account_changed") return changed();
+      setAskDisconnect(false);
+      setListNote(msgOf(e, "연결을 끊지 못했습니다."));
+    }
+  };
+
+  return (
+    <section className="aww-inbox-gmail" aria-label="Gmail에서 가져오기" data-testid="gmail-panel">
+      <h3>📧 Gmail에서 가져오기</h3>
+      {view.kind === "loading" && <div className="aww-inbox-empty">확인 중…</div>}
+      {view.kind === "error" && <div className="aww-inbox-notice error">{view.message}</div>}
+      {view.kind === "changed" && (
+        <div className="aww-inbox-notice error" role="alert">로그인 계정이나 연결된 Gmail 계정이 바뀌었습니다. 화면을 새로고침해 주세요.</div>
+      )}
+      {view.kind === "not_connected" && (
+        <div className="aww-inbox-notice">
+          Gmail이 연결돼 있지 않습니다. 메일 제목·보낸 사람·날짜만 읽는 권한으로 연결합니다(본문은 읽지 않음).{" "}
+          <a className="aww-3d-btn blue small" href={GMAIL_CONNECT_URL}>Gmail 연결</a>
+        </div>
+      )}
+      {view.kind === "connected" && (
+        <>
+          <div className="aww-inbox-notice">
+            연결된 Gmail: <b data-testid="gmail-email">{view.email ?? "(이메일 확인 안 됨)"}</b>{" "}
+            <button type="button" className="aww-3d-btn blue small" disabled={listing} onClick={() => void loadList()}>
+              {listing ? "불러오는 중…" : items ? "다시 불러오기" : "최근 메일 보기(최대 20개)"}
+            </button>{" "}
+            {!askDisconnect ? (
+              <button type="button" className="aww-3d-btn small" onClick={() => setAskDisconnect(true)}>연결 끊기</button>
+            ) : (
+              <span data-testid="gmail-disconnect-confirm">
+                이 워크스페이스의 Gmail 연결만 끊습니다(구글 권한 자체는 그대로 — 완전히 철회하려면 구글 계정의 「타사 연결」에서 직접 해 주세요. 같은 구글 앱을 쓰는 캘린더 연결도 함께 끊길 수 있습니다).{" "}
+                <button type="button" className="aww-3d-btn small" onClick={() => void disconnect()}>끊기</button>{" "}
+                <button type="button" className="aww-3d-btn small" onClick={() => setAskDisconnect(false)}>취소</button>
+              </span>
+            )}
+          </div>
+          {listNote && <div className="aww-inbox-notice">{listNote}</div>}
+          {items && items.length > 0 && (
+            <ul className="aww-inbox-list" data-testid="gmail-list">
+              {items.map((m) => (
+                <li key={m.id}>
+                  <button type="button" aria-pressed={picked?.id === m.id} onClick={() => pick(m)}>
+                    <span className="aww-inbox-title">{m.subject}</span>
+                    <span className="aww-inbox-meta">{m.from} · {when(m.date)}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {picked && (
+            <div className="aww-inbox-notice" data-testid="gmail-picked">
+              <label>
+                업무 제목{" "}
+                <input value={title} maxLength={200} onChange={(e) => setTitle(e.target.value)} aria-label="업무 제목" />
+              </label>{" "}
+              <button type="button" className="aww-3d-btn small" onClick={() => setTitle(picked.subject.slice(0, 200))}>원 제목 넣기</button>{" "}
+              <button type="button" className="aww-3d-btn blue small" disabled={adding || unsure.has(picked.id)} onClick={() => void add()}>
+                {adding ? "넣는 중…" : unsure.has(picked.id) ? "받은 업무 목록에서 확인해 주세요" : "받은 업무에 넣기"}
+              </button>
+              <div className="aww-inbox-meta">
+                받은 업무에는 제목과 Gmail 원문 링크만 남습니다. 원문 링크는 브라우저의 첫 번째 구글 계정으로 열려 다른 계정 메일이 보일 수 있으니,
+                {view.email ? ` ${view.email}` : " 연결한 계정"}으로 로그인한 Gmail에서 열어 주세요.
+              </div>
+            </div>
+          )}
+          {result && <div className={`aww-inbox-notice${result.kind === "failed" || result.kind === "unknown" ? " error" : ""}`} data-testid="gmail-result">{result.message}</div>}
+        </>
+      )}
+    </section>
+  );
+}
