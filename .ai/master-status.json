@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T07:09:14.336Z",
+  "checkedAt": "2026-11-17T07:13:17.408Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2763,13 +2763,13 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "예약 기능 운영 활성화·실연동 검증",
-      "status": "running",
-      "delivery": "running",
-      "evidence": "f78a2e4e3 최종활성화조건 / msg_0e57ecf5a5fa·Master미커밋0/lock0/teamqueue0·free~7GB / 作者tsc0/460tests/localbuild0·3faafa33a·Workspace自動承認拒否remote0→Master直接確認project/account/queue0/notice0/clean·CLI upload hgzm0d922 Building / Master CLI76150 exit0·Vercel API READY/aliasErrornull/meta3fa一致 / Workspace운영programs v1.57 07:03UTC/예약표2최초생성·naver시험켜기·public160칸/metadata報告 / QA027독립운영읽기PASS·실Google성공증거아님",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "f78a2e4e3 최종활성화조건 / msg_0e57ecf5a5fa·Master미커밋0/lock0/teamqueue0·free~7GB / 作者tsc0/460tests/localbuild0·3faafa33a·Workspace自動承認拒否remote0→Master直接確認project/account/queue0/notice0/clean·CLI upload hgzm0d922 Building / Master CLI76150 exit0·Vercel API READY/aliasErrornull/meta3fa一致 / Workspace운영programs v1.57 07:03UTC/예약표2최초생성·naver시험켜기·public160칸/metadata報告 / QA027독립운영읽기PASS·실Google성공증거아님 / ce23306cc 실제시험계정POST1·고정id GET/목록/슬롯제외·그id삭제cancelled·QA027운영읽기PASS",
       "scopeRef": "운영표2/스위치3/빌드1·실시험계정Google/HTTP/시각 별도범위확정",
       "completion": "명시승인범위내DDL/배포·실연동/운영확인·미검수구분",
       "blocker": null,
-      "next": "Workspace실Google고정1건/GET/정리·public실HTTP증거회수후활성화범위마감",
+      "next": "검증한활성화범위완료·실409/숨은속성/실기기/cron미검수·WS23DDL경합후속·시험1행점유정리준비",
       "approval": {
         "source": "주인님 Master채팅: 계속작업진행/승인할께/진행해",
         "at": "2026-11-17T06:53:32.187Z",
@@ -2790,7 +2790,14 @@
         "executor": "CX-MASTER-01",
         "verified": "CLI exit0+Vercel API exactproject/production/alias/meta確認"
       },
-      "knownIssue": "초회서로다른인스턴스CREATE TABLE경합 pg_type duplicate1건·현재표존재후정상관찰,구조미해결"
+      "knownIssue": "초회서로다른인스턴스CREATE TABLE경합 pg_type duplicate1건·현재표존재후정상관찰,구조미해결",
+      "limitations": [
+        "실409 미검수",
+        "커넥터extendedProperties미반환",
+        "실기기/cron자동확인미검수",
+        "초회DDL경합구조미해결",
+        "Google삭제된QA confirmed1행점유잔존·가역정리안대기"
+      ]
     },
     {
       "task_id": "QA-20261117-027",
@@ -2811,13 +2818,13 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "예약표 초회 초기화 경합 보완",
-      "status": "backlog",
-      "delivery": "prepared",
+      "status": "ready",
+      "delivery": "queued",
       "priority": "P2",
-      "evidence": "운영초회bookingGet/List 동시CREATE pg_type중복1건·표생성후정상",
-      "scopeRef": "booking ensureTables후속분석·운영표삭제/재현/추가build0",
+      "evidence": "운영초회bookingGet/List 동시CREATE pg_type중복1건·표생성후정상 / Master실검증보고후구현배정",
+      "scopeRef": "booking.ts ensureTables/booking.test.ts·격리초회2연결·운영DDL/build0",
       "completion": "격리동시초기화재현/안전한직렬화·원문오류노출검토",
-      "next": "현재실검증후원인/정확경로/보완안반환·다음묶음"
+      "next": "advisory_xact_lock직렬화최소수정/commit뒤ready·독립검토후다음묶음"
     }
   ],
   "programOverrides": [
@@ -3148,8 +3155,8 @@
     {
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
-      "stage": "v1.57 운영READY Master직접확인·배포1회사용",
-      "next": "Workspace 운영programs v1.57/표2정의·시험계정실Google/HTTP·MacQA027읽기검수"
+      "stage": "v1.57운영활성·실Google예약1건/정리·회원UI독립PASS",
+      "next": "WS23 초회DDL경합코드보완·시험예약1행가역정리안대조·추가배포0"
     },
     {
       "order": "3 · B2B",
