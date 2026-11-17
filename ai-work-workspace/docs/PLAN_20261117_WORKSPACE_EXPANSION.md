@@ -444,3 +444,18 @@ E1 독립 검수(QA17-003)와 별개로 계획만. 디자인 3안 선택 전이�
 - 정확 경로(예정): 새 `src/server/gmailInbox.ts`(+`setGmailFetch`), 새 `src/app/api/oauth/google-gmail/start/route.ts`·`callback/route.ts`, `src/server/runtime.ts` 141 근처 핸들러 1줄, `src/app/inbox/InboxBoard.tsx` 「Gmail에서 가져오기」 패널, 새 마이그레이션 `supabase/migrations/<시각>_gmail_inbox_claims.sql`(aww 스키마), 새 `tests/integration/gmailInbox.test.ts`. 공용 `integration_catalog` 1줄·운영 마이그레이션 적용은 별도 승인.
 - 완료 조건: 위 시험 전부·tsc 0. 실제 구글 연결은 시험 계정 본인 앱으로 1회(별도 승인), 스위치 켜기는 주인님 승인 뒤.
 - 숫자(A안): 처음 설정 4단계(구글 클라우드에서 Gmail API 켜기 → 기존 구글 앱 키 재사용·없으면 등록 → 테스트 사용자에 본인 추가 → 「Gmail 연결」) · 매일 2번(목록 열기 → 고르고 제목 확인 후 추가) · 동의 1번(Gmail 메타데이터 읽기). 테스트 상태면 7일마다 재연결 1번.
+
+#### 7-16 정정·1단계 결과 (Master `msg_02e977ff972d`) — 코드 `6e6267120`, 기능 꺼짐·미배포
+- **정정**: 토큰 폐기 범위는 Master가 구글 원문(web-server tokenrevoke Key Point)에서 「프로젝트의 모든 권한·클라이언트에 영향」을 직접 확인 — 위 3번의 「원문 미확인」 표시는 해소.
+- 1단계(서버·OAuth, 꺼짐): 새 `src/server/gmailInbox.ts`(`GMAIL_ENABLED=false`, 꺼지면 모든 진입이 DB·외부 전에 거절, 불러올 때 부수효과 0), 새 `src/app/api/oauth/google-gmail/start|callback/route.ts`(꺼지면 회원 확인 전에 돌려보냄), 새 `tests/integration/gmailInbox.test.ts`(38). `runtime.ts`·`InboxBoard`·마이그레이션·공용 표/함수 변경 0.
+- 권한: `openid email gmail.metadata`만 요청(`include_granted_scopes` 없음), 받은 권한에 metadata 없으면 거절, 그 밖 권한(readonly·캘린더·전체 메일 등)이 섞이면 저장 거절. 회원 본인 구글 앱(`getGoogleApp` 재사용), 공용 `member_platform_accounts`(공용 함수 재사용, 플랫폼 `google_gmail`).
+- **id_token**: 저장소에 검증 경로가 없음(캘린더 `idTokenClaims`는 내용만 읽음) → `verifyGoogleIdToken`이 구글 공개 키(JWKS)로 RS256 서명·`iss`·`aud`(=회원 앱 Client ID)·`exp`/`iat`·`sub` 검증, 이메일은 `email_verified`일 때만. 새 패키지 0(node:crypto).
+- 회원·앱·계정: 쿠키 `state.회원.앱표식` → 콜백에서 state·회원·앱 일치 확인(앱이 바뀌면 코드 교환 전에 거절). 다른 `sub`가 이미 연결돼 있으면 409. **동시 콜백 두 개가 서로 다른 계정을 새로 넣는 경우**: 새로 넣은 쪽이 저장 뒤 다시 읽어 다른 계정 줄이 보이면 자기 줄을 지우고 409 → 남는 연결은 많아야 1개(둘 다 지워질 수 있음 — 다시 연결). 시험에서 이 재확인을 빼면 2개 남아 실패함을 확인 후 원복.
+- 목록(표시만): `messages.list` INBOX·20개·`fields=messages/id`(q 없음) → `messages.get` `format=metadata`·Subject/From/Date·`fields=id,payload/headers`(snippet·본문 제외). 결과는 번호·제목·보낸 사람·날짜만, 저장 0. 화면이 본 계정과 다르면 호출 전 409, 늦은 응답 사이 계정 변경 409·연결 끊김 404로 결과 버림. 연결 줄 2개면 409. 401 → 한 번만 새로 받아 재시도, 앱 변경·`invalid_grant` → 재연결 표시. 연결 끊기 = 로컬 줄 삭제만(revoke 0). 로그에 토큰·제목·보낸 사람·계정 번호 0(console 감시 시험).
+- 미검수: 기본 저장소(Supabase 공용 함수 경로)는 시험에서 가짜로 대체(실제 DB 접근은 막아 둠), 실제 구글 동의·JWKS·Gmail 응답 형식·`fields` 실제 동작은 실계정 확인 전(별도 승인).
+
+#### 2단계(받은 업무 추가) 반례 — 코드 전 정리(이번 코드 0)
+- **원자성**: `sendToWorkInbox`는 별도 Supabase insert라 클레임 기록과 같은 거래가 아님. 성공 뒤 `inbox_id` 기록 실패·응답 유실에서 클레임을 지우면 재시도가 중복을 만듦 → 클레임 상태를 **처리 중(pending) / 성공(done) / 불확실(unknown)** 으로 나누고, 불확실은 **자동 재전송·클레임 삭제 0**. 복구: 불확실 줄은 `work_inbox`에서 같은 회원·`source_url`(메시지 링크)을 조회해 있으면 done으로 맞추고, 없으면 회원이 「다시 넣기」를 직접 누를 때만 재시도(재조정). 같은 DB 원자 저장 대안: 받은 업무 넣기를 클레임과 같은 DB 거래에서 하는 안은 `work_inbox`가 공용(public) 표·공용 함수라 이번 최소안(공용 API 변경 0)에서는 제외 — 별도 결정.
+- **중복 보장 기간**: 클레임을 30일 뒤 지우면 받은 업무(1년)에 남은 같은 메일을 다시 넣을 수 있음 → 「같은 메일 중복 방지는 30일」을 화면·문서에 명시하거나, 클레임에는 메시지 번호 해시만 두고 받은 업무 보관 기간과 맞추는 안 — 주인님/Master 결정. 기존 1년 정책은 바꾸지 않음.
+- **잠금 대안**: advisory lock도 같은 임계 구역(조회→넣기→기록) 전체를 쥐면 다른 연결 호출이라도 직렬화는 가능 — 다만 원자 커밋 보장은 아님(넣기 성공 뒤 기록 실패는 그대로 남음). 이번 최소안은 클레임 상태 방식.
+- **링크**: `mail.google.com/mail/u/0/#all/<id>`는 브라우저의 첫 번째 구글 계정으로 열려 다른 계정에 열릴 수 있음. 저장에 이메일 자동 추가 0 → 화면에 「연결 계정(○○@)으로 로그인한 Gmail에서 여세요」 안내 + 잘못된 메일이 보일 수 있음 표시. 계정별 링크(`authuser=` 이메일)는 개인정보 저장이라 기본 제외. Gmail API 메시지 번호와 Gmail 화면 주소의 번호가 같은지는 **실확인 전 보장하지 않음**.
