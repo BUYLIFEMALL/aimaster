@@ -49,6 +49,7 @@ let app: { clientId: string; clientSecret: string } | null = { clientId: CLIENT,
 const storeCalls: string[] = [];
 const adds: any[] = [];
 let tick = async () => {};
+let onDelete: () => void = () => {};
 const fakeStore = () => ({
   async getApp() { storeCalls.push('getApp'); await tick(); return app; },
   async listAccounts(userId: string) { storeCalls.push('list'); await tick(); return rows.filter((r) => r.userId === userId).map(({ userId: _u, ...r }) => ({ ...r })); },
@@ -67,7 +68,7 @@ const fakeStore = () => ({
   async updateToken(_u: string, id: string, t: any) { storeCalls.push('update'); const r = rows.find((x) => x.id === id); if (r) Object.assign(r, { accessToken: t.accessToken, tokenExpiresAt: t.tokenExpiresAt }); },
   async markNeedsReconnect() { storeCalls.push('reconnect'); },
   async addToInbox(i: any) { storeCalls.push('add'); adds.push(i); return { status: 'added' as const, inboxId: 'inbox-1' }; },
-  async deleteAccount(userId: string, externalId?: string, onlyIfAccessToken?: string) { storeCalls.push('delete'); await tick(); rows = rows.filter((r) => !(r.userId === userId && (!externalId || r.externalId === externalId) && (!onlyIfAccessToken || r.accessToken === onlyIfAccessToken))); },
+  async deleteAccount(userId: string, externalId?: string, onlyIfAccessToken?: string) { storeCalls.push('delete'); await tick(); onDelete(); const before = rows.length; rows = rows.filter((r) => !(r.userId === userId && (!externalId || r.externalId === externalId) && (!onlyIfAccessToken || r.accessToken === onlyIfAccessToken))); return before - rows.length; },
 });
 
 // ---------------------------------------------------------------- 가짜 구글
@@ -110,6 +111,7 @@ function reset(on: boolean) {
   tokenReply = goodToken();
   tick = async () => {};
   onGet = () => {};
+  onDelete = () => {};
   listReply = () => json({ messages: [{ id: 'm1', threadId: 't1' }, { id: 'm2', threadId: 't2' }, { id: 'bad id!', threadId: 't3' }] });
 }
 afterEach(() => {
@@ -127,7 +129,7 @@ describe('기능 꺼짐(기본) — DB·구글 호출 0', () => {
   });
   it('모든 진입 함수가 DB·구글 전에 거절', async () => {
     reset(false);
-    for (const p of [gm.startGmailConnect(USER), gm.completeGmailConnect(USER, 'code', 'tag'), gm.gmailStatus(USER), gm.listGmailInbox(USER), gm.disconnectGmail(USER)]) {
+    for (const p of [gm.startGmailConnect(USER), gm.completeGmailConnect(USER, 'code', 'tag'), gm.gmailStatus(USER), gm.listGmailInbox(USER), gm.disconnectGmail(USER, 'sub-A')]) {
       await expect(p).rejects.toMatchObject({ code: 'off' });
     }
     expect(storeCalls).toEqual([]);
@@ -335,7 +337,7 @@ describe('받은 편지함 목록(표시만, 저장 0)', () => {
 
   it('연결 끊기: 이 연결 줄만 삭제, 구글 호출 0(폐기 revoke 없음)', async () => {
     await connected();
-    await gm.disconnectGmail(USER);
+    await gm.disconnectGmail(USER, 'sub-A');
     expect(rows).toHaveLength(0);
     expect(hits).toEqual([]);
   });
@@ -723,5 +725,69 @@ describe('QA038 A2 — 넣기 대기 중 변경·저장소 오류 정규화', ()
     expect(e.message).toBe((gm.GMAIL_ADD_MESSAGES as any)[code]);
     expect(e.extra).toBeUndefined();
     expect(storeCalls.filter((c) => c === 'add')).toHaveLength(1);
+  });
+});
+
+
+// ---------------------------------------------------------------- QA041 끊기: 화면이 확인한 계정의 지금 그 연결만 조건부 삭제(Master msg_e37a8c5b3ace)
+describe('QA041 끊기 — 확인한 계정·그 연결만 지움', () => {
+  async function connectedAs(sub: string, token = `tok-${sub}`) {
+    rows.push({ id: `row-${sub}`, userId: USER, externalId: sub, username: `${sub}@example.com`, accessToken: token, refreshToken: 'r', tokenExpiresAt: new Date(Date.now() + 3600e3).toISOString(), grantedScopes: [], appRef: CLIENT });
+  }
+  const before = () => reset(true);
+  it('A 결과 모름 → 다른 탭이 B로 다시 연결 → 옛 화면이 A로 다시 끊기: B 그대로, 삭제 0', async () => {
+    before();
+    await connectedAs('sub-B');
+    await expect(gm.disconnectGmail(USER, 'sub-A')).rejects.toMatchObject({ code: 'conflict' });
+    expect(rows.map((r) => r.externalId)).toEqual(['sub-B']);
+    expect(storeCalls).not.toContain('delete');
+  });
+  it('읽은 뒤 삭제 전에 B로 바뀜 → 조건부 삭제 0행 → conflict(성공 단정 0), B 그대로', async () => {
+    before();
+    await connectedAs('sub-A');
+    onDelete = () => { rows = []; rows.push({ id: 'row-B', userId: USER, externalId: 'sub-B', username: 'b', accessToken: 'tok-B', refreshToken: 'r', tokenExpiresAt: null as any, grantedScopes: [], appRef: CLIENT }); };
+    await expect(gm.disconnectGmail(USER, 'sub-A')).rejects.toMatchObject({ code: 'conflict' });
+    expect(rows.map((r) => r.externalId)).toEqual(['sub-B']);
+  });
+  it('같은 계정 토큰이 그사이 새로 저장됨 → 0행 → conflict, 새 연결 그대로', async () => {
+    before();
+    await connectedAs('sub-A', 'tok-old');
+    onDelete = () => { rows[0].accessToken = 'tok-new'; };
+    await expect(gm.disconnectGmail(USER, 'sub-A')).rejects.toMatchObject({ code: 'conflict' });
+    expect(rows.map((r) => r.accessToken)).toEqual(['tok-new']);
+  });
+  it('이미 해제됨 → 성공(멱등), 삭제 호출 0', async () => {
+    before();
+    await expect(gm.disconnectGmail(USER, 'sub-A')).resolves.toBeUndefined();
+    expect(storeCalls).toEqual(['list']);
+  });
+  it('정상 → 그 줄 1개 삭제, 구글 0·그 뒤 자동 호출 0', async () => {
+    before();
+    await connectedAs('sub-A');
+    await gm.disconnectGmail(USER, 'sub-A');
+    expect(rows).toEqual([]);
+    expect(storeCalls).toEqual(['list', 'delete']);
+    expect(hits).toEqual([]);
+  });
+  it.each([[''], [undefined], [5]])('기대 계정 없음(%j) → bad_request, 저장소 0', async (sub) => {
+    before();
+    await connectedAs('sub-A');
+    await expect(gm.disconnectGmail(USER, sub as any)).rejects.toMatchObject({ code: 'bad_request' });
+    expect(storeCalls).toEqual([]);
+    expect(rows).toHaveLength(1);
+  });
+  it('삭제 결과 건수를 모름(저장소가 숫자 안 줌) → unknown(성공 단정 0)', async () => {
+    before();
+    await connectedAs('sub-A');
+    const s = fakeStore() as any;
+    s.deleteAccount = async () => undefined;
+    gm.setGmailStoreForTests(s);
+    await expect(gm.disconnectGmail(USER, 'sub-A')).rejects.toMatchObject({ code: 'unknown' });
+  });
+  it('연결 줄에 토큰이 비어 있음 → 조건 없이 지우지 않고 conflict', async () => {
+    before();
+    await connectedAs('sub-A', '');
+    await expect(gm.disconnectGmail(USER, 'sub-A')).rejects.toMatchObject({ code: 'conflict' });
+    expect(rows).toHaveLength(1);
   });
 });

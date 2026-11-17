@@ -37,7 +37,7 @@ const fakeStore = () => ({
   async save() { storeCalls.push({ fn: 'save' }); return { error: null }; },
   async updateToken() { storeCalls.push({ fn: 'update' }); },
   async markNeedsReconnect() { storeCalls.push({ fn: 'reconnect' }); },
-  async deleteAccount(u: string) { storeCalls.push({ fn: 'delete', userId: u }); if (mode.deleteThrows) throw mode.deleteThrows; },
+  async deleteAccount(u: string, ext?: string, tok?: string) { storeCalls.push({ fn: 'delete', userId: u }); if (mode.deleteThrows) throw mode.deleteThrows; return ext === SUB && tok === 'ya29.x' ? 1 : 0; },
   async addToInbox(i: any) { storeCalls.push({ fn: 'add', userId: i.userId }); return mode.addResult ? mode.addResult() : { status: 'added', inboxId: UUID1 }; },
 });
 const fakeFetch = (async (u: string) => {
@@ -85,7 +85,7 @@ afterAll(async () => {
 });
 
 describe('꺼짐(기본) — 4명령 모두 off 봉투, Gmail 저장소·구글·OAuth 호출 0(공통 전처리는 그대로 실행됨)', () => {
-  it.each([['gmailStatus', {}], ['gmailList', { expectSub: SUB }], ['gmailAdd', { messageId: 'm1', title: 't', expectSub: SUB }], ['gmailDisconnect', {}]])('%s', async (name, body) => {
+  it.each([['gmailStatus', {}], ['gmailList', { expectSub: SUB }], ['gmailAdd', { messageId: 'm1', title: 't', expectSub: SUB }], ['gmailDisconnect', { expectSub: SUB }]])('%s', async (name, body) => {
     reset(false);
     const res = await call(name, body, h.sessionUser);
     expect(res.status).toBe(200);
@@ -140,10 +140,10 @@ describe('켜짐 — 실제 경로·runtime 통과', () => {
     expect(r).toEqual({ ok: false, code, message: (gm.GMAIL_ADD_MESSAGES as any)[code] });
     expect(JSON.stringify(r)).not.toContain('RAW');
   });
-  it('gmailDisconnect: 로컬 연결 줄만 삭제, 구글 호출 0', async () => {
+  it('gmailDisconnect: 확인한 계정의 로컬 연결 줄만 삭제(본문 userId 무시), 구글 호출 0', async () => {
     reset(true);
-    expect(await (await call('gmailDisconnect', {}, h.sessionUser)).json()).toEqual({ ok: true });
-    expect(storeCalls.map((c) => c.fn)).toEqual(['delete']);
+    expect(await (await call('gmailDisconnect', { expectSub: SUB, userId: 'attacker' }, h.sessionUser)).json()).toEqual({ ok: true });
+    expect(storeCalls.map((c) => c.fn)).toEqual(['list', 'delete']); // QA041: 지금 연결을 읽고 같은 계정·같은 토큰 줄만 지움
     expect(fetchCalls).toBe(0);
   });
 });
@@ -182,7 +182,7 @@ describe('QA040 예상 밖 예외 — 응답·console 모든 인자에 원문 0'
     ['gmailList', '구글 앱 읽기', { expectSub: SUB }, (e) => { mode.getAppThrows = e; }, 'server'],
     ['gmailAdd', '받은 업무 저장', { messageId: 'm1', title: 't', expectSub: SUB }, (e) => { mode.addResult = async () => { throw e; }; }, 'unknown'],
     ['gmailAdd', '구글 앱 읽기', { messageId: 'm1', title: 't', expectSub: SUB }, (e) => { mode.getAppThrows = e; }, 'unknown'],
-    ['gmailDisconnect', '연결 줄 삭제', {}, (e) => { mode.deleteThrows = e; }, 'unknown'],
+    ['gmailDisconnect', '연결 줄 삭제', { expectSub: SUB }, (e) => { mode.deleteThrows = e; }, 'unknown'],
   ];
   for (const [name, where, body, arm, code] of cases) {
     it(`${name}(${where} 예외): 원문 예외 5종 → 200 고정 봉투(${code}), console 원문 0`, async () => {
@@ -216,5 +216,21 @@ describe('QA040 예상 밖 예외 — 응답·console 모든 인자에 원문 0'
     expect((await call('gmailStatus', {}, 'other')).status).toBe(409);
     h.sessionUser = '';
     expect((await call('gmailStatus', {}, null)).status).toBe(401);
+  });
+});
+
+
+// ---------------------------------------------------------------- QA041 끊기 계약
+describe('QA041 gmailDisconnect — expectSub 필수·다른 계정 삭제 0', () => {
+  it.each([[{}], [{ expectSub: '' }], [{ expectSub: 7 }]])('입력 %j → bad_request, 저장소 0', async (body) => {
+    reset(true);
+    expect((await (await call('gmailDisconnect', body, h.sessionUser)).json()).code).toBe('bad_request');
+    expect(storeCalls).toEqual([]);
+  });
+  it('지금 연결이 다른 계정 → conflict(고정 문구), 삭제 0', async () => {
+    reset(true);
+    const r = await (await call('gmailDisconnect', { expectSub: 'sub-OTHER' }, h.sessionUser)).json();
+    expect(r.code).toBe('conflict');
+    expect(storeCalls.some((c) => c.fn === 'delete')).toBe(false);
   });
 });

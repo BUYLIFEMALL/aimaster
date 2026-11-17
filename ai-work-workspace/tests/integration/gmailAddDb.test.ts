@@ -8,9 +8,9 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import postgres from 'postgres';
 
-const rpcMock = vi.hoisted(() => ({ reply: { data: null as unknown, error: null as null | { code?: string; message: string } }, calls: [] as { name: string; args: any }[], throwIt: null as unknown, real: null as null | ((name: string, args: any) => unknown) }));
+const rpcMock = vi.hoisted(() => ({ reply: { data: null as unknown, error: null as null | { code?: string; message: string } }, calls: [] as { name: string; args: any }[], throwIt: null as unknown, real: null as null | ((name: string, args: any) => unknown), realFrom: null as null | ((t: string) => any) }));
 vi.mock('@/lib/supabase/admin', () => ({
-  createAdminClient: () => ({ rpc: async (name: string, args: any) => { rpcMock.calls.push({ name, args }); if (rpcMock.real) return rpcMock.real(name, args); if (rpcMock.throwIt) throw rpcMock.throwIt; return rpcMock.reply; } }),
+  createAdminClient: () => ({ from: (t: string) => { if (!rpcMock.realFrom) throw new Error('from 금지(시험)'); return rpcMock.realFrom(t); }, rpc: async (name: string, args: any) => { rpcMock.calls.push({ name, args }); if (rpcMock.real) return rpcMock.real(name, args); if (rpcMock.throwIt) throw rpcMock.throwIt; return rpcMock.reply; } }),
 }));
 
 const ADMIN = 'postgres://postgres:awwlocal@127.0.0.1:55432/aww';
@@ -277,5 +277,46 @@ describe('QA038 기본 저장소 + 실제 @supabase/postgrest-js(가짜 fetch)',
   it('정상 added·existing(실제 클라이언트 응답 해석)', async () => {
     expect((await run(() => json([{ status: 'added', inbox_id: ID }], 200)) as any).ok).toEqual({ status: 'added', inboxId: ID });
     expect((await run(() => json([{ status: 'existing', inbox_id: ID }], 200)) as any).ok).toEqual({ status: 'existing', inboxId: ID });
+  });
+});
+
+
+// ---------------------------------------------------------------- QA041 기본 저장소 deleteAccount + 실제 @supabase/postgrest-js(가짜 fetch) — 지운 줄 수 해석
+describe('QA041 deleteAccount 실제 클라이언트 해석', () => {
+  async function del(reply: (url: string, init: any) => Response | Promise<Response>) {
+    const { PostgrestClient } = await import('@supabase/postgrest-js');
+    const seen: { url: string; method: string; prefer: string }[] = [];
+    const pg = new PostgrestClient('http://postgrest.fake.test/rest/v1', { fetch: (async (url: string, init: any) => { const hd = new Headers(init?.headers); seen.push({ url: String(url), method: init?.method, prefer: hd.get('prefer') ?? '' }); return reply(String(url), init); }) as unknown as typeof fetch });
+    rpcMock.realFrom = (t) => pg.from(t);
+    try {
+      const store = (await import('../../src/server/gmailInbox.ts')).gmailDefaultStoreForTests();
+      const r = await store.deleteAccount(U1, 'sub-A', 'tok-A').then((n) => ({ n }), (e: any) => ({ code: e.code }));
+      return { r, seen };
+    } finally {
+      rpcMock.realFrom = null;
+    }
+  }
+  const counted = (n: number) => () => new Response(null, { status: 204, headers: { 'content-range': `*/${n}` } });
+  it('조건 3개(회원·계정·토큰)와 개수 요청이 실린 DELETE 1번', async () => {
+    const { r, seen } = await del(counted(1));
+    expect(r).toEqual({ n: 1 });
+    expect(seen).toHaveLength(1);
+    expect(seen[0].method).toBe('DELETE');
+    expect(seen[0].prefer).toContain('count=exact');
+    for (const part of ['user_id=eq.', 'platform=eq.google_gmail', 'external_id=eq.sub-A', 'access_token=eq.tok-A']) expect(decodeURIComponent(seen[0].url)).toContain(part);
+  });
+  it('조건 불일치 0행 → 0(부르는 쪽이 conflict)', async () => {
+    expect((await del(counted(0))).r).toEqual({ n: 0 });
+  });
+  it.each([
+    ['네트워크 실패', () => { throw new TypeError('fetch failed'); }],
+    ['502 HTML', () => new Response('<html>bad</html>', { status: 502 })],
+    ['500 Postgres', () => new Response(JSON.stringify({ code: 'XX000', message: 'RAW' }), { status: 500, headers: { 'content-type': 'application/json' } })],
+  ])('%s → unknown(지워졌을 수 있음)', async (_n, r) => {
+    expect((await del(r as any)).r).toEqual({ code: 'unknown' });
+  });
+  it('개수 머리글 없음 → 숫자 아님(부르는 쪽이 unknown)', async () => {
+    const { r } = await del(() => new Response(null, { status: 204 }));
+    expect(typeof (r as any).n === 'number').toBe(false);
   });
 });

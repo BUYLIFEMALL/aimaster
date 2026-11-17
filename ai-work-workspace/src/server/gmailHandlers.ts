@@ -68,10 +68,12 @@ export const gmailHandlers: Record<string, Handler> = {
     if (!messageId || !title || !expectSub) return bad("add");
     return envelope("add", () => addGmailToInbox(userId, { messageId, title, expectSub }));
   },
-  async gmailDisconnect(ctx) {
+  async gmailDisconnect(ctx, input) {
     const userId = member(ctx);
+    const expectSub = str(input?.expectSub, 255); // QA041: 화면이 확인한 계정만 끊음
+    if (!expectSub) return bad("disconnect");
     return envelope("disconnect", async () => {
-      await disconnectGmail(userId);
+      await disconnectGmail(userId, expectSub);
       return {};
     });
   },

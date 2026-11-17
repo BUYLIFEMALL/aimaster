@@ -56,6 +56,7 @@ export class GmailError extends Error {
 export const GMAIL_OFF_MESSAGE = "Gmail 가져오기는 아직 꺼져 있습니다.";
 export const GMAIL_OTHER_ACCOUNT_MESSAGE = "다른 구글 계정의 Gmail이 이미 연결돼 있습니다. 먼저 연결을 끊은 뒤 다시 연결해 주세요.";
 export const GMAIL_ACCOUNT_CHANGED_MESSAGE = "연결된 Gmail 계정이 바뀌었습니다. 목록을 새로 열어 주세요.";
+export const GMAIL_DISCONNECT_UNKNOWN_MESSAGE = "연결 해제 결과를 확인하지 못했습니다. 연결 상태를 다시 확인해 주세요.";
 function ensureOn() {
   if (!GMAIL_ENABLED) throw new GmailError("off", GMAIL_OFF_MESSAGE);
 }
@@ -88,8 +89,9 @@ export interface GmailStore {
   save(input: { userId: string; externalId: string; username: string | null; accessToken: string; refreshToken: string | null; tokenExpiresAt: string; grantedScopes: string[]; appRef: string }): Promise<{ error: string | null; otherAccount?: boolean }>;
   updateToken(userId: string, accountId: string, t: { accessToken: string; tokenExpiresAt: string; refreshToken: string | null }): Promise<void>;
   markNeedsReconnect(userId: string, accountId: string): Promise<void>;
-  /** 이 워크스페이스의 연결 줄만 삭제(구글 호출 0). onlyIfAccessToken을 주면 그 토큰을 가진 줄만(다른 콜백이 새로 저장한 같은 계정 줄은 남김) */
-  deleteAccount(userId: string, externalId?: string, onlyIfAccessToken?: string): Promise<void>;
+  /** 이 워크스페이스의 연결 줄만 삭제(구글 호출 0). onlyIfAccessToken을 주면 그 토큰을 가진 줄만(다른 콜백이 새로 저장한 같은 계정 줄은 남김).
+   *  QA041: 지운 줄 수를 돌려줌(모르면 숫자 아님 → 부르는 쪽이 결과 모름으로 처리) */
+  deleteAccount(userId: string, externalId?: string, onlyIfAccessToken?: string): Promise<number | void>;
   /** A2-1: DB 함수 public.gmail_inbox_add(마이그레이션 0075) — 클레임 선점→받은 업무→연결을 한 거래로, 멱등 */
   addToInbox(input: { userId: string; accountHash: string; messageId: string; title: string; sourceUrl: string }): Promise<{ status: "added" | "existing"; inboxId: string }>;
 }
@@ -156,11 +158,13 @@ const supabaseStore: GmailStore = {
     return { status: row.status, inboxId: row.inbox_id };
   },
   async deleteAccount(userId, externalId, onlyIfAccessToken) {
-    let q = admin().from("member_platform_accounts").delete().eq("user_id", userId).eq("platform", "google_gmail");
+    let q = admin().from("member_platform_accounts").delete({ count: "exact" }).eq("user_id", userId).eq("platform", "google_gmail");
     if (externalId) q = q.eq("external_id", externalId);
     if (onlyIfAccessToken) q = q.eq("access_token", onlyIfAccessToken);
-    const { error } = await q;
-    if (error) throw new GmailError("server", "연결을 끊지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    const { error, count } = await q;
+    // QA041: 실제 클라이언트는 통신 실패도 { error }로 돌려줌(QA038) → 지워졌을 수 있어 「못 끊음」으로 단정하지 않음
+    if (error) throw new GmailError("unknown", GMAIL_DISCONNECT_UNKNOWN_MESSAGE);
+    return typeof count === "number" ? count : undefined;
   },
 };
 let store: GmailStore = supabaseStore;
@@ -483,8 +487,22 @@ async function sameAccountOrThrow(userId: string, account: GmailAccount): Promis
   if (!app || app.clientId !== account.appRef) throw new GmailError("auth", "구글 앱 키가 바뀌었습니다. 「Gmail 연결」을 다시 눌러 주세요.");
 }
 
-/** 이 워크스페이스의 Gmail 연결만 끊음(구글 토큰 폐기 호출 0 — 같은 구글 앱의 캘린더 등 다른 연결을 끊지 않기 위해) */
-export async function disconnectGmail(userId: string): Promise<void> {
+/**
+ * 이 워크스페이스의 Gmail 연결만 끊음(구글 토큰 폐기 호출 0 — 같은 구글 앱의 캘린더 등 다른 연결을 끊지 않기 위해).
+ * QA041: 화면이 확인한 계정(expectSub)의 **지금 그 연결 줄**만 조건부로 지운다.
+ * - 지금 연결 없음 → 이미 끊김(성공, 삭제 호출 0) / 지금 연결이 다른 계정 → conflict(삭제 0)
+ * - 같은 계정이면 external_id + 지금 읽은 access_token이 같은 줄만 지움 → 읽은 뒤 다른 계정으로 바뀌었거나 같은 계정 토큰이 새로 저장됐으면 0행 → conflict(성공 단정 0)
+ * - 지운 줄 수를 모르면 unknown. 자동 재삭제 0.
+ * 한계: 회원이 다시 누를 때 같은 계정으로 새로 연결돼 있으면 그 새 연결(같은 구글 계정)이 지워진다 — 「이 Gmail 계정 연결 끊기」의 뜻 그대로.
+ */
+export async function disconnectGmail(userId: string, expectSub: string): Promise<void> {
   ensureOn();
-  await store.deleteAccount(userId);
+  if (typeof expectSub !== "string" || expectSub.length < 1 || expectSub.length > 255) throw new GmailError("bad_request", "요청 내용이 올바르지 않습니다.");
+  const account = await currentAccount(userId);
+  if (!account) return;
+  if (account.externalId !== expectSub) throw new GmailError("conflict", GMAIL_ACCOUNT_CHANGED_MESSAGE);
+  if (!account.accessToken) throw new GmailError("conflict", GMAIL_ACCOUNT_CHANGED_MESSAGE); // 조건 없이 지우지 않음
+  const n = await store.deleteAccount(userId, account.externalId, account.accessToken);
+  if (typeof n !== "number") throw new GmailError("unknown", GMAIL_DISCONNECT_UNKNOWN_MESSAGE);
+  if (n === 0) throw new GmailError("conflict", GMAIL_ACCOUNT_CHANGED_MESSAGE);
 }
