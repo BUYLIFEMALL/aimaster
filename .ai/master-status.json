@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T08:18:02.205Z",
+  "checkedAt": "2026-11-17T08:27:15.614Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2851,14 +2851,14 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "E3-1 간단결재 요청관리 템플릿",
-      "status": "running",
-      "delivery": "running",
-      "evidence": "e297153b8·922e4d28e·msg_0186d3820539 / f789e3281·aa7bcff52·msg_a2a28826de2b E3-2정확7경로배정/수락 / 4ca85f4b2 E3-2自動規則/警告toast7파일·作者관련58/tsc0·Masterdiff/clean確認 / 6ea81eb5c E3-3권한조사·msg_a9c2574739fa QA033external/mode shape누락P2 / 310846f19外部/mode比較修正·作者22/tsc0·Masterdiff確認 / msg_8822a8367bf2 external/mode해소·재귀id제거ValueRef user/page거짓동치잔여P2 / 788c95778 실제참조id보존/step보수비교·作者28/tsc0·Masterdiff확인 / QA033PASS·E3-3catalog/spec/권한행렬시험배정 / WorkspaceE3-3 exact spec/catalog/approvalPermission·회귀/본인문서 점유없음확인후착수 / c5b26d81c/fb3bd4bae E3-3 Symbol信頼+既存ACL5파일·作者권한56/관련39/tsc0·Masterdiff確認 / 71321ffe2 셀AI출처조사·msg_228557cee536 E3-4외부수동mock구현배정/정확7경로미커밋0후착수 / QA034권한독립PASS·새차단0",
-      "next": "E3-4 수동외부검색출처mock구현계속·실유료/운영/build0",
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "e297153b8·922e4d28e·msg_0186d3820539 / f789e3281·aa7bcff52·msg_a2a28826de2b E3-2정확7경로배정/수락 / 4ca85f4b2 E3-2自動規則/警告toast7파일·作者관련58/tsc0·Masterdiff/clean確認 / 6ea81eb5c E3-3권한조사·msg_a9c2574739fa QA033external/mode shape누락P2 / 310846f19外部/mode比較修正·作者22/tsc0·Masterdiff確認 / msg_8822a8367bf2 external/mode해소·재귀id제거ValueRef user/page거짓동치잔여P2 / 788c95778 실제참조id보존/step보수비교·作者28/tsc0·Masterdiff확인 / QA033PASS·E3-3catalog/spec/권한행렬시험배정 / WorkspaceE3-3 exact spec/catalog/approvalPermission·회귀/본인문서 점유없음확인후착수 / c5b26d81c/fb3bd4bae E3-3 Symbol信頼+既存ACL5파일·作者권한56/관련39/tsc0·Masterdiff確認 / 71321ffe2 셀AI출처조사·msg_228557cee536 E3-4외부수동mock구현배정/정확7경로미커밋0후착수 / QA034권한독립PASS·새차단0 / 81e816a26/5f3bed718 E3-4 mock29/회귀33/tsc0·Master7파일diff및provider retry루프確認",
+      "next": "QA035 키/정책/출처/거래/자동경로및OpenAI내부retry검토·실호출/배포보류",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "completion": "배정된소스/검증범위반환·실운영/배포미검수구분",
       "stage1": "e297153b8/QA030 done scoped source",
-      "sha": "c5b26d81c",
+      "sha": "81e816a26",
       "permissionDecision": {
         "source": "Master 기존승인기능내설계판단",
         "request": "요청자올림checkbox",
@@ -3008,6 +3008,19 @@
       "scopeRef": "c5b26d81c5파일·소스/가능모의·DBreset/발송/AI/build0",
       "completion": "JSON/Symbol신뢰·invalid원자거절·역할/동일거래/clone참조/서버인가판정",
       "next": "E3-3지정소스완료·운영gallery/시각/실알림미검수"
+    },
+    {
+      "task_id": "QA-20261117-035",
+      "parent_task_id": "WS-20261117-24",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "셀AI웹출처 키·과금재시도·저장권한 독립검토",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "msg_02fcebe02a03",
+      "scopeRef": "81e816a26 AI7파일/provider읽기·mock/소스·AI/검색/DBreset/build0",
+      "completion": "회원키/정책/1회/인용고정맵/동일거래/자동모드제외 판정",
+      "next": "모델1회보장잔여와반례/최소수정scope반환·실유료금지"
     }
   ],
   "programOverrides": [
@@ -3339,7 +3352,7 @@
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
       "stage": "v1.57운영·E3-1/2/3템플릿/앱알림/결재ACL소스독립PASS·미배포",
-      "next": "E3-4 수동외부검색출처mock구현계속·실유료/운영/build0"
+      "next": "E3-4 81e816a26회수·QA035 과금재시도포함독립검토·미배포/실호출0"
     },
     {
       "order": "3 · B2B",
