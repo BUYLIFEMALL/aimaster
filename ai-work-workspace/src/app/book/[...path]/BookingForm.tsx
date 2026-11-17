@@ -7,8 +7,8 @@
 //  · 손님 입력은 기록(console)에 남기지 않는다. 시각은 회원 시간대 기준 + 손님 브라우저 시간대가 다르면 함께 보여 준다.
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
-/** 화면 스위치 — 서버 BOOKING_ENABLED(src/server/booking.ts)와 함께 켠다 */
-export const BOOKING_FORM_UI = { enabled: false };
+/** 화면 스위치 — 서버 BOOKING_ENABLED(src/server/booking.ts)와 함께. 2026-11-17 WS-20261117-22 주인님 승인으로 v1.57부터 켬 */
+export const BOOKING_FORM_UI = { enabled: true };
 
 export interface SlotsViewProps { tz: string; notice: string; slotMin: number; slots: { start: number; end: number }[]; unavailable: boolean }
 

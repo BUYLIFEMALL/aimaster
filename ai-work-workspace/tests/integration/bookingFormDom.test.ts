@@ -8,6 +8,7 @@ import { createRoot, type Root } from 'react-dom/client';
 
 (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
 const { BookingForm, BOOKING_FORM_UI } = await import('@/app/book/[...path]/BookingForm');
+const releaseDefault = BOOKING_FORM_UI.enabled; // WS22: 출시 기본값(시험이 바꾸기 전)
 
 const at = (h: number, m = 0) => Date.UTC(2026, 11, 1, h - 9, m); // 한국 시간 2026-12-01
 const view = (over: Record<string, unknown> = {}) => ({ tz: 'Asia/Seoul', notice: '상담 30분', slotMin: 30, slots: [{ start: at(10), end: at(10, 30) }, { start: at(10, 30), end: at(11) }], unavailable: false, ...over });
@@ -57,7 +58,11 @@ afterEach(() => {
 });
 
 describe('손님 예약 화면', () => {
-  it('화면 스위치 OFF(기본)면 아무것도 그리지 않고 요청 0', () => {
+  it('출시 기본값은 켜짐(v1.57)', () => {
+    expect(releaseDefault).toBe(true);
+  });
+
+  it('화면 스위치 OFF(시험에서 끔)면 아무것도 그리지 않고 요청 0', () => {
     BOOKING_FORM_UI.enabled = false;
     mount();
     expect(el.innerHTML).toBe('');

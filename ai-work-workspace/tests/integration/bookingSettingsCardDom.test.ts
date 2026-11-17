@@ -13,6 +13,7 @@ vi.mock('../../src/lib/standaloneRpc.ts', async (orig) => ({
   rpc: (name: string, body?: unknown, opts?: { expectedAccount?: string | null }) => new Promise((resolve, reject) => h.pending.push({ name, body, opts, resolve, reject })),
 }));
 const { BookingSettingsCard, BOOKING_UI } = await import('@/app/calendar-sync/BookingSettingsCard');
+const releaseDefault = BOOKING_UI.enabled; // WS22: 출시 기본값(시험이 바꾸기 전)
 const { AccountChangedError } = await import('@/lib/standaloneRpc');
 
 const settings = { tz: 'Asia/Seoul', days: [1, 2, 3, 4, 5], startMin: 600, endMin: 1080, slotMin: 30, beforeMin: 0, afterMin: 0, maxPerDay: 10, horizonDays: 14, notice: '' };
@@ -53,7 +54,11 @@ afterEach(() => {
 });
 
 describe('예약 받기 카드', () => {
-  it('화면 스위치 OFF(기본)면 아무것도 그리지 않고 요청 0', () => {
+  it('출시 기본값은 켜짐(v1.57)', () => {
+    expect(releaseDefault).toBe(true);
+  });
+
+  it('화면 스위치 OFF(시험에서 끔)면 아무것도 그리지 않고 요청 0', () => {
     BOOKING_UI.enabled = false;
     mount();
     expect(el.innerHTML).toBe('');

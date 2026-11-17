@@ -19,8 +19,9 @@ import { sendToWorkInbox, type WorkInboxItem } from "@/lib/workInbox";
 import { tokenOwnerAllowed } from "./tokenOwnerAccess";
 import { GcalError, getEventById, insertEventWithId, listBusy, validToken, type BusyItem, type GcalRaw } from "./googleCalendar";
 
-let BOOKING_ENABLED = false;
-/** 시험 전용(격리 시험 DB). 운영에서 켜는 것은 배포 승인 뒤 위 상수를 바꾸는 배포로만. */
+// 2026-11-17 WS-20261117-22 주인님 승인(Master msg_0e57ecf5a5fa): 운영 활성화 — v1.57부터 true. 끄려면 false로 바꾸는 배포(표·데이터는 그대로).
+let BOOKING_ENABLED = true;
+/** 시험 전용(격리 시험 DB): OFF/ON 회귀를 시험 안에서 명시적으로 바꾼다. */
 export function setBookingEnabledForTests(on: boolean) {
   BOOKING_ENABLED = on;
 }

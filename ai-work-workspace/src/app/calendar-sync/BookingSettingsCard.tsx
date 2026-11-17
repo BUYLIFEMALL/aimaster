@@ -7,8 +7,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AccountChangedError, rpc } from "@/lib/standaloneRpc";
 
-/** 화면 스위치 — 서버 BOOKING_ENABLED(src/server/booking.ts)와 함께 켠다 */
-export const BOOKING_UI = { enabled: false };
+/** 화면 스위치 — 서버 BOOKING_ENABLED(src/server/booking.ts)와 함께. 2026-11-17 WS-20261117-22 주인님 승인으로 v1.57부터 켬 */
+export const BOOKING_UI = { enabled: true };
 
 interface Settings { tz: string; days: number[]; startMin: number; endMin: number; slotMin: number; beforeMin: number; afterMin: number; maxPerDay: number; horizonDays: number; notice: string }
 interface PageInfo { exists: boolean; enabled: boolean; settings: Settings; maxHorizonDays: number; token?: string | null }

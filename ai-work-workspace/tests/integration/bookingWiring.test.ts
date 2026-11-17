@@ -61,7 +61,10 @@ afterAll(() => {
   bk.setBookingEnabledForTests(false);
 });
 
-describe('스위치 OFF(기본) 배선', () => {
+describe('스위치 OFF(시험에서 명시적으로 끔) 배선', () => {
+  beforeAll(() => {
+    bk.setBookingEnabledForTests(false);
+  });
   it('회원 처리기·공개 입구·공개 페이지를 불러와도 예약 표 0·예약 작업 0·구글 0', () => {
     expect(tableExists('aww_booking_pages')).toBe(false);
     expect(tableExists('aww_bookings')).toBe(false);
@@ -177,6 +180,9 @@ describe('시험에서만 켰을 때 — 배선이 실제로 이어지는지(격
 
 // ---------------------------------------------------------------- QA026(Mac msg_a17d9b6840fb): 공개 페이지 경로 토큰 — 다시 풀기(decode) 없이 발급 형식만
 describe('QA026: 공개 페이지 경로 토큰 검사', () => {
+  beforeAll(() => {
+    bk.setBookingEnabledForTests(false);
+  });
   const VALID = 'aZ09_-'.repeat(7) + 'Q'; // 43자 base64url(발급 형식)
   const slotsSpy = () => bk.bookingSlots as unknown as { mock: { calls: unknown[][] }; mockClear: () => void };
   const nf = (path: string[]) => expect(page.default({ params: Promise.resolve({ path }) })).rejects.toMatchObject({ digest: expect.stringContaining('404') });

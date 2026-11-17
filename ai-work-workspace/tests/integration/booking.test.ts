@@ -12,6 +12,7 @@ process.env.AWW_DATABASE_URL = await setupLocalDb({ reset: true });
 const MIN = 60_000;
 const DAY = 86_400_000;
 let bk: typeof import('../../src/server/booking');
+let releaseDefault = '';
 let gcal: typeof import('../../src/server/googleCalendar');
 let dbm: typeof import('../../src/litpage/server/db.ts');
 let sched: typeof import('../../src/litpage/server/scheduler.ts');
@@ -99,6 +100,12 @@ beforeAll(async () => {
   gcal = await import('../../src/server/googleCalendar');
   bk = await import('../../src/server/booking');
   jobs = await import('../../src/server/memberJobs');
+  // WS22: 출시 기본값은 켜짐 — 로그인 없는 회원 처리기가 404(꺼짐)가 아니라 401(켜짐). ctx 확인이 표 접근보다 먼저라 DB 0
+  try {
+    bk.bookingHandlers.bookingGet(ctx(null));
+  } catch (e) {
+    releaseDefault = (e as Error).message;
+  }
   gcal.setGcalFetch(fakeFetch as typeof fetch);
   bk.setBookingDepsForTests({
     ownerCheck: async () => ownerOk,
@@ -125,7 +132,17 @@ afterAll(() => {
   bk.setBookingEnabledForTests(false);
 });
 
-describe('1. 스위치 꺼짐(기본) — 표·예약 표 접속·구글 0', () => {
+describe('0. 출시 기본값(WS22)', () => {
+  it('서버 스위치 기본값은 켜짐(v1.57) — 확인만, 표 0', () => {
+    expect(releaseDefault).toMatch(/Unauthorized/);
+    expect(tableExists('aww_bookings')).toBe(false);
+  });
+});
+
+describe('1. 스위치 꺼짐(시험에서 명시적으로 끔) — 표·예약 표 접속·구글 0', () => {
+  beforeAll(() => {
+    bk.setBookingEnabledForTests(false);
+  });
   it('모듈을 불러와도 표가 없고, 모든 진입점이 아무것도 하지 않음', async () => {
     expect(tableExists('aww_booking_pages')).toBe(false);
     expect(tableExists('aww_bookings')).toBe(false);
