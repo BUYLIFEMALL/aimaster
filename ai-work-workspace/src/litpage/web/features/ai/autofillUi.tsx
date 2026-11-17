@@ -16,13 +16,19 @@ import { collectionRows, makeQueryContext } from '../database/data.ts';
 import { NO_KEY_MESSAGE, useAiStatus } from './aiApi.ts';
 import { runAutofillAll, type AutofillKind } from './autofill.ts';
 import { LANGUAGES } from './skills.ts';
-import { tx } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 
 export interface AutofillConfig {
   kind: AutofillKind;
   prompt?: string;
   language?: string;
   auto_update?: boolean;
+  /** 2026-11-17 E3-4 「웹에서 찾기」(직접 실행만 — 켜면 자동 다시 채우기는 꺼짐) */
+  web?: boolean;
+  /** 출처 주소를 넣을 같은 행의 URL 칸(직접 고른 것만, 기본 없음) */
+  source_prop?: string;
+  /** 그 칸에 이미 주소가 있어도 바꿀지(기본 아니오) */
+  source_overwrite?: boolean;
 }
 
 /** Property types Basic autofill can fill (others: "Unavailable for this property type"). */
@@ -71,10 +77,21 @@ export async function runAutofillNow(collectionId: string, propId: string, view?
     return;
   }
   useUI.getState().toast(`Autofilling ${ids.length} ${ids.length === 1 ? 'page' : 'pages'}…`);
-  const r = await runAutofillAll(ids, propId, cfg.kind, { prompt: cfg.prompt, language: cfg.language, concurrency: 3 });
+  const web = cfg.web === true;
+  const r = await runAutofillAll(ids, propId, cfg.kind, {
+    prompt: cfg.prompt, language: cfg.language, concurrency: 3,
+    ...(web ? { web: true, sourceProp: cfg.source_prop, overwriteSource: cfg.source_overwrite === true } : {}),
+  });
   const done = ids.length - r.errors.length;
   if (r.errors.length && !done) useUI.getState().toast(r.errors[0].message || 'AI Autofill failed');
-  else useUI.getState().toast(`Autofilled ${done} ${done === 1 ? 'page' : 'pages'}`);
+  else if (web) {
+    // E3-4: 성공·출처·건너뜀·실패를 구분해서 한 번에
+    useUI.getState().toast(t('lp.autofill.web.result', 'Autofilled {done} pages from web search · sources {sources} · saved to URL property {saved}{skipped}{failed}', {
+      done, sources: r.web.sources, saved: r.web.saved,
+      skipped: r.web.skippedExisting ? t('lp.autofill.web.skipped', ' · kept existing URL {n}', { n: r.web.skippedExisting }) : '',
+      failed: r.errors.length ? t('lp.autofill.web.failed', ' · not filled {n} ({reason})', { n: r.errors.length, reason: r.errors[0].message }) : '',
+    }));
+  } else useUI.getState().toast(`Autofilled ${done} ${done === 1 ? 'page' : 'pages'}`);
 }
 
 function ConfigBody({ collectionId, propId, view, close }: { collectionId: string; propId: string; view?: CollectionViewRecord | null; close: () => void }) {
@@ -85,7 +102,11 @@ function ConfigBody({ collectionId, propId, view, close }: { collectionId: strin
   const [prompt, setPrompt] = useState(cur?.prompt ?? '');
   const [language, setLanguage] = useState(cur?.language ?? 'English');
   const [auto, setAuto] = useState(cur?.auto_update ?? true);
+  const [web, setWeb] = useState(cur?.web === true);
+  const [sourceProp, setSourceProp] = useState(cur?.source_prop ?? '');
+  const [overwrite, setOverwrite] = useState(cur?.source_overwrite === true);
   if (!c || !prop) return null;
+  const urlProps = Object.entries(c.schema).filter(([pid, p]) => pid !== propId && p.type === 'url');
   const textLike = prop.type === 'text';
   const kinds = textLike ? KINDS : KINDS.filter((k) => k.id === 'custom' || k.id === 'keywords');
   const save = (andRun: boolean) => {
@@ -93,7 +114,11 @@ function ConfigBody({ collectionId, propId, view, close }: { collectionId: strin
       useUI.getState().toast(tx('Add instructions for the custom autofill.'));
       return;
     }
-    const cfg: AutofillConfig = { kind, auto_update: auto, ...(prompt.trim() ? { prompt: prompt.trim() } : {}), ...(kind === 'translation' ? { language } : {}) };
+    const cfg: AutofillConfig = {
+      kind, auto_update: web ? false : auto, ...(prompt.trim() ? { prompt: prompt.trim() } : {}), ...(kind === 'translation' ? { language } : {}),
+      // E3-4: 웹에서 찾기는 직접 실행만(자동 다시 채우기 끔), 출처 칸·덮어쓰기는 회원이 고른 경우만
+      ...(web ? { web: true, ...(sourceProp && urlProps.some(([pid]) => pid === sourceProp) ? { source_prop: sourceProp, ...(overwrite ? { source_overwrite: true } : {}) } : {}) } : {}),
+    };
     updateProperty(collectionId, propId, { ai_autofill: cfg } as Partial<PropertySchema>, 'aiAutofill.configure');
     close();
     if (andRun) setTimeout(() => void runAutofillNow(collectionId, propId, view), 50);
@@ -132,9 +157,33 @@ function ConfigBody({ collectionId, propId, view, close }: { collectionId: strin
           aria-label={tx('Instructions')}
         />
       </label>
-      <div className="nc-ai-autofill-toggle" role="switch" aria-checked={auto} tabIndex={0} onClick={() => setAuto(!auto)} data-tooltip={tx('The agent fills this property whenever the page changes')}>
+      <div className="nc-ai-autofill-toggle" role="switch" aria-checked={web} tabIndex={0} onClick={() => setWeb(!web)} data-testid="ai-autofill-web">
+        <span>{t('lp.autofill.web.toggle', 'Search the web (sources)')}</span>
+        <span className={`nc-ai-switch ${web ? 'on' : ''}`} aria-hidden><span /></span>
+      </div>
+      {web && (
+        <div className="nc-ai-autofill-caption" data-testid="ai-autofill-web-note">
+          {t('lp.autofill.web.note', 'Runs only when you start it. Needs your own external search tool key (Naver, Kakao, Tavily, Perplexity or SerpAPI); each page may use a paid search and an AI call. The AI model built-in search is not used here. If nothing is found, the property is left as it is.')}
+        </div>
+      )}
+      {web && (
+        <label className="nc-ai-field">
+          <span>{t('lp.autofill.web.source_prop', 'Save the first source URL to')}</span>
+          <select value={sourceProp} onChange={(e) => setSourceProp(e.target.value)} aria-label={t('lp.autofill.web.source_prop', 'Save the first source URL to')} data-testid="ai-autofill-source-prop">
+            <option value="">{t('lp.autofill.web.source_none', 'Do not save')}</option>
+            {urlProps.map(([pid, p]) => <option key={pid} value={pid}>{p.name}</option>)}
+          </select>
+        </label>
+      )}
+      {web && sourceProp && (
+        <label className="nc-ai-field" style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <input type="checkbox" checked={overwrite} onChange={(e) => setOverwrite(e.target.checked)} data-testid="ai-autofill-source-overwrite" />
+          <span>{t('lp.autofill.web.overwrite', 'Replace a URL that is already there')}</span>
+        </label>
+      )}
+      <div className={`nc-ai-autofill-toggle ${web ? 'disabled' : ''}`} role="switch" aria-checked={web ? false : auto} aria-disabled={web} tabIndex={0} onClick={() => { if (!web) setAuto(!auto); }} data-tooltip={web ? t('lp.autofill.web.no_auto', 'Web search runs only when you start it') : tx('The agent fills this property whenever the page changes')}>
         <span>{tx('When the page changes')}</span>
-        <span className={`nc-ai-switch ${auto ? 'on' : ''}`} aria-hidden><span /></span>
+        <span className={`nc-ai-switch ${!web && auto ? 'on' : ''}`} aria-hidden><span /></span>
       </div>
       <div className="nc-ai-autofill-actions">
         {cur && (

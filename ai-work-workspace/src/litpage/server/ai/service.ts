@@ -11,14 +11,18 @@ import type { BlockRecord, TeamRecord, UserRecord } from '#shared/records.ts';
 import { getRecord } from '../db.ts';
 import { blockRole } from '../records.ts';
 import {
-  AiError, describeUsage, logAiError, mapError, requireConfigured, runStream, type ClaudeLike, type RunResult,
+  AiError, describeUsage, getClient, logAiError, mapError, requireConfigured, runStream, type ClaudeLike, type RunResult,
 } from './client.ts';
 import { aiPersona, blockTitle, canRead, isMember, mdSource, pageIdOf, readPage, rowForAutofill, searchPages } from './context.ts';
 import {
   autofillValue, buildAutofillRequest, buildBlockRequest, buildChatRequest, buildQaRequest, buildWriterRequest, chatTitleFrom,
   LANGUAGES, MAX_CONTEXT_CHARS, MAX_PAGE_CHARS, modeTools, resolveSkill, rowToMarkdown, TONES, buildTitleRequest,
   type AiBlockOutput, type AutofillKind, type ChatMode, type ModelRequest, type PageContext, type StoredContext, type StoredMessage,
+  splitAutofillSources, type AutofillWebSource,
 } from './prompts.ts';
+import { requestModel } from './models.ts';
+import { isSearchChoice, planSearch, runWebSearch, type SearchChoice } from './providers/webSearch.ts';
+import { memberSearch } from './providers/config.ts';
 import {
   addMessage, contentHash, createThread, deleteMessage, getThread, listMessages, markRead, sentPageHashes, setAutoTitle, setThreadModel, sourceKey,
   threadSources, type Message, type MessageData, type SourceRef, type StoredStep, type Thread,
@@ -597,25 +601,81 @@ export interface AutofillParams {
   kind: AutofillKind;
   prompt?: string;
   language?: string;
+  /** 2026-11-17 WS-20261117-24 E3-4: 「웹에서 찾기」 — 회원이 직접 실행한 요청(aiAutofill)에서만 true. 자동 다시 채우기는 넘기지 않음 */
+  web?: boolean;
 }
 
-export async function runAutofill(p: AutofillParams, client?: ClaudeLike): Promise<{ text: string; value: unknown[] }> {
+/** E3-4: 칸 값의 근거가 된 출처(서버가 검색 결과에 붙인 번호에서만 만든다) */
+export interface AutofillSource { n: number; title: string; url: string }
+
+export const AUTOFILL_WEB_NO_SEARCH = '웹에서 찾으려면 외부 검색 도구(네이버·카카오·Tavily·Perplexity·SerpAPI) 키를 「API키등록·플랫폼연동」에서 등록해 주세요. AI 모델 내장 검색은 아직 칸 채우기에 쓰지 않습니다. 칸은 그대로 둡니다.';
+export const AUTOFILL_WEB_AUTO_REFUSED = '「웹에서 찾기」를 켠 칸은 직접 실행할 때만 채웁니다. 자동 다시 채우기에서는 검색하지 않고 칸도 그대로 둡니다.';
+
+const titlePlain = (v: unknown) => (Array.isArray(v) ? v.map((d) => (Array.isArray(d) && typeof d[0] === 'string' ? d[0] : '')).join('') : '').replace(/‣/g, '').trim();
+
+/** E3-4: 모델 호출 1번 — Anthropic SDK의 자동 재시도(maxRetries)를 이 요청에서만 끈다(다른 기능은 그대로) */
+function noRetry(c: ClaudeLike): ClaudeLike {
+  return { beta: { messages: { stream: ((params: unknown, o?: Record<string, unknown>) => (c.beta.messages.stream as any)(params, { ...(o ?? {}), maxRetries: 0 })) as ClaudeLike['beta']['messages']['stream'] } } };
+}
+
+/**
+ * E3-4: 회원이 고른 외부 검색으로 1번 찾아 번호 붙인 자료를 만든다(회원 본인 키만, 20초·최대 8개는 webSearch.ts 기존 상한).
+ * 워크스페이스 웹 검색 꺼짐·외부 검색 키 없음·검색어 없음·검색 실패·결과 없음이면 한국어 오류(칸은 쓰지 않음).
+ */
+async function autofillWebSources(spaceId: string, query: string): Promise<AutofillWebSource[]> {
+  if (!workspaceAiPolicy(spaceId).webSearch) throw new AiError('forbidden', '이 워크스페이스에서 AI 웹 검색이 꺼져 있습니다. 칸은 그대로 둡니다.', 403);
+  const ms = memberSearch();
+  // 모델 회사(null) → 내장 검색은 고르지 않고 외부 검색만(회원이 고른 것 → 없으면 등록된 다른 외부 검색)
+  const plan = planSearch(isSearchChoice(ms?.choice) ? ms!.choice as SearchChoice : 'auto', null, ms?.keys ?? {});
+  if (!plan || plan === 'builtin') throw new AiError('bad_request', AUTOFILL_WEB_NO_SEARCH, 400);
+  const q = query.trim().slice(0, 300);
+  if (!q) throw new AiError('bad_request', '검색할 내용이 없습니다. 행 제목이나 지시를 넣어 주세요. 칸은 그대로 둡니다.', 400);
+  let hits;
+  try {
+    hits = (await runWebSearch(plan, q)).hits;
+  } catch (e) {
+    throw new AiError('network', `${e instanceof Error ? e.message : '검색이 실패했습니다.'} 칸은 그대로 둡니다.`, 502);
+  }
+  if (!hits.length) throw new AiError('not_found', '웹 검색 결과가 없어 칸을 채우지 않았습니다.', 404);
+  return hits.slice(0, 8).map((h, i) => ({ n: i + 1, title: h.title, url: h.url, snippet: h.snippet }));
+}
+
+export async function runAutofill(p: AutofillParams, client?: ClaudeLike): Promise<{ text: string; value: unknown[]; sources?: AutofillSource[] }> {
   requireConfigured();
   const r = rowForAutofill(p.rowId, p.userId);
   if (!r) throw new AiError('not_found', 'That database row doesn’t exist or you can’t access it.', 404);
   if (!workspaceAiPolicy(r.row.space_id).enabled) throw new AiError('forbidden', '이 워크스페이스에서 AI 비서가 꺼져 있습니다.', 403);
   const prop = r.col.schema[p.propId];
   if (!prop) throw new AiError('bad_request', 'Unknown property.', 400);
+  const web = p.web === true;
+  // E3-4: 「웹에서 찾기」 칸을 자동 다시 채우기(web 없음)가 검색 없이 조용히 채우지 않게
+  const cfg = (prop as { ai_autofill?: { web?: unknown } }).ai_autofill;
+  if (!web && cfg && typeof cfg === 'object' && cfg.web === true) throw new AiError('bad_request', AUTOFILL_WEB_AUTO_REFUSED, 400);
   const kind: AutofillKind = ['summary', 'keywords', 'translation', 'custom'].includes(p.kind) ? p.kind : 'custom';
   if (kind === 'custom' && !p.prompt?.trim()) throw new AiError('bad_request', 'Add instructions for the custom autofill.', 400);
   const options = ['select', 'multi_select', 'status'].includes(prop.type) ? (prop.options ?? []).map((o) => o.value) : undefined;
   const row = rowToMarkdown(r.row as any, r.col.schema, mdSource(p.userId), { skipProp: p.propId, maxChars: 60_000 });
+  const sources = web ? await autofillWebSources(r.row.space_id, [titlePlain((r.row as BlockRecord).properties?.title), p.prompt ?? ''].filter(Boolean).join(' ')) : undefined;
   const req = buildAutofillRequest({
-    kind, propertyName: prop.name, propertyType: prop.type, prompt: p.prompt?.slice(0, 4_000), language: p.language?.slice(0, 40), options, row,
+    kind, propertyName: prop.name, propertyType: prop.type, prompt: p.prompt?.slice(0, 4_000), language: p.language?.slice(0, 40), options, row, sources,
   });
-  const res = await runStream(req, {}, { client });
+  if (!web) {
+    const res = await runStream(req, {}, { client });
+    if (res.refused) throw new AiError('refusal', 'AI 비서가 도와드릴 수 없는 요청입니다.', 400);
+    return autofillValue(res.text, prop.type, options);
+  }
+  // 웹: 모델 1번(대체 모델·자동 재시도 끔), 도구 없음
+  req.fallback = false;
+  const res = await runStream(req, {}, { client: noRetry(client ?? getClient(requestModel(req))), maxToolRounds: 1 });
   if (res.refused) throw new AiError('refusal', 'AI 비서가 도와드릴 수 없는 요청입니다.', 400);
-  return autofillValue(res.text, prop.type, options);
+  const { body, used } = splitAutofillSources(res.text, sources!.length);
+  // 출처는 서버가 붙인 번호 표에서만(모델이 쓴 주소·범위 밖 번호는 버림)
+  const cited: AutofillSource[] = used.map((n) => sources![n - 1]).map((x) => ({ n: x.n, title: x.title, url: x.url }));
+  if (!cited.length) throw new AiError('not_found', '검색 결과에서 근거를 찾지 못해 칸을 채우지 않았습니다.', 404);
+  if (prop.type === 'url') return { text: cited[0].url, value: [[cited[0].url]], sources: cited }; // URL 칸 값도 검색 결과 주소만
+  const out = autofillValue(body, prop.type, options);
+  if (!out.value.length) throw new AiError('not_found', '채울 값이 없어 칸을 그대로 둡니다.', 404);
+  return { ...out, sources: cited };
 }
 
 // ---------------------------------------------------------------------------------------------

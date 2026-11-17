@@ -333,6 +333,7 @@ export const handlers = {
       return await runAutofill({
         userId, rowId: String(body?.rowId ?? ''), propId: String(body?.propId ?? ''), kind,
         prompt: typeof body?.prompt === 'string' ? body.prompt : undefined, language: typeof body?.language === 'string' ? body.language : undefined,
+        web: body?.web === true, // 2026-11-17 E3-4: 회원이 직접 누른 「웹에서 찾기」만(기본 false)
       });
     } catch (e) {
       fail(e);
