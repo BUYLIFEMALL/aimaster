@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T03:21:05.861Z",
+  "checkedAt": "2026-11-17T03:22:18.420Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2650,12 +2650,12 @@
       "task_id": "BLOG-20261117-08",
       "owner": "CC-BLOG-01",
       "title": "T05 inspect robots 판정 구현준비",
-      "evidence": "msg_906f4d937c19",
-      "next": "기존공용검사/리디렉션/최소수정경로 분석·제품0",
+      "evidence": "msg_906f4d937c19 / c82d69b3f/64f1257c9 / msg_0101dd1848c2",
+      "next": "중간리디렉트正文요청전robots검사누락보완·5xx중지/404허용/표준MIT파서근거조사·코드0",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "running",
+      "delivery": "returned",
       "scopeRef": "고유분석파일/본인문서·운영소스0",
       "completion": "재현근거/정확범위/미검수반환"
     },
@@ -2663,12 +2663,12 @@
       "task_id": "RE-20261117-07",
       "owner": "CC-REALTY-01",
       "title": "보수적 제외 후보 오프라인 실험",
-      "evidence": "msg_d1cf66c9fa8a / msg_4743f96941e1 경로예약수락·전수라벨237건만",
-      "next": "분석전용순수함수/237개발라벨계산·독립검증미완명시",
+      "evidence": "msg_d1cf66c9fa8a / msg_4743f96941e1 경로예약수락·전수라벨237건만 / 7ef7f547c / msg_1622a0c96844",
+      "next": "개발237라벨:잘못제외0/127·무관잔존31/76·독립자료없어운영미반영",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
-      "status": "running",
-      "delivery": "running",
+      "status": "ready_review",
+      "delivery": "returned",
       "scopeRef": "고유분석파일/본인문서·운영소스0",
       "completion": "재현근거/정확범위/미검수반환"
     }
