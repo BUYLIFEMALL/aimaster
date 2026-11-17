@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 02:37:39 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 02:43:55 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 02:37:37 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 02:43:53 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 배포승인3calls/1build회수→범위외d21포함→Ecom無buildrollback→공식alias독립확인·QA047/048·GCP/AppleSilicon직접지시 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 고정보고/문서ID·SQL준비마감·Lab교환조건/승인·Mac읽기/주인님시험제출단일화·현재작업표 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -18,7 +18,7 @@ Master 마지막 실제 점검: 2026-11-18 02:37:37 KST · 실행 중 점검 주
 | --- | --- | --- | --- |
 | 1 · ESM | Ecom + Mac Tester | ESM1.02실검수대기·감성승인배포범위사고복구 | emotion1.29별칭복구·1build소진/실AI0·정확후속manifest/검수 |
 | 2 · Workspace | Workspace + Master | v1.57운영·E3/GmailOFF/WS23/요일칩 소스수락·미배포 | v1.58미배포·Gmail활성추진준비승인/본인GCP설정대기, 공개/실행범위확정뒤Master단일실행 |
-| 3 · B2B | Backend + Master + Mac Tester | Lab0104 적용·검증PASS, Lab 신규배포 Ready·빌드1/1완료 | QA047 source수락·문구정정전달보류/실행0·QA037기존사람로그인 |
+| 3 · B2B | Backend + Master + Mac Tester | Lab0104/앱반영·운영준비지정검수완료·시험waiting1건 | 주인님main243시험키결제1회(실카드0)→Backend읽기,Mac29 QA037은읽기만 |
 | 4 · B2BFront | B2BFront + Mac Tester | FRONT03/04 소스독립PASS·7609748ad B2B Lab신규배포에포함 | 77c50f27c QA045소스수락/미배포·QA037고객실화면별도 |
 | 5 · 블로그 | Blog | T05 robots/DNS·T07공용폴러 소스독립PASS·미배포 | 다음web-crawler묶음에통합·외부/빌드0 |
 | 6 · 영상 | Movie | YVS1단계 실검색/AI1회 담당운영검수완료 | 동일검색/AI재호출0·공용encoder다음묶음·추가기능별도 |
@@ -67,8 +67,8 @@ Master 마지막 실제 점검: 2026-11-18 02:37:37 KST · 실행 중 점검 주
 | IMP-DES-01 / 미배포수정 | emotion-writer 접근성 · AG-UI-01 | 국소QA042 PASS · 121317458 | 다음감성글귀기능묶음·단독빌드0 | Tab/토글이름·hover대비·실375/위젯은후속 |
 | IMP-ECOM-01 / 실검수 | ESM 입력만 · CC-ECOM-01 / CX-QA-01 | 운영1.02·웹QA016완료 · 4d31d626e·QA016 | 주인님공간19 로그인/확장1.02/제어반환 | 시험상품82deeddc 입력1회·임시저장/등록0 |
 | IMP-ECOM-02 / 실검수 | Threads 네이버수집 · CC-ECOM-01 / CX-QA-01 | 운영1.89·격리소스검수완료 · ECOM17-01·WS17-04 | 공간19본인로그인·확장1.89·실브랜드커넥트링크 | 수집/대기열만·등록/AI생성0 |
-| IMP-B2B-01 / 실검수 | Lab 교환비 고객/직원화면 · CX-QA-01 | QA037 waiting_human · Lab0104/7609748ad·공간29 | 주인님naver로그인/반환→고객검수→gmail관리자 | 권한/교환상태/375읽기·실결제/상태변경0 |
-| IMP-B2B-02 / 운영반영승인 | 0101~0104/Front묶음 · CC-B2B-BACK-01 | 9668a2a6c QA047지정PASS·원자성문구후속 · d43255f8f·c6931bfbe | 함수deps/산출전검증 두경계재검수·단계별rename한계분리 | 운영0100기준보존·옛0102 rollback사용0 |
+| IMP-B2B-01 / 실검수 | Lab 교환비 고객/직원화면 · CX-QA-01 | QA037 읽기대기·Lab waiting교환1건준비완료 · Lab0104/7609748ad·공간29·420bfb91… | 주인님메인243시험제출1회→Backend읽기/Mac권한검수,중복결제0 | 권한/교환상태/375읽기·실결제/상태변경0 |
+| IMP-B2B-02 / 운영반영승인 | 0101~0104/Front묶음 · CC-B2B-BACK-01 | 준비파일/문구9668a2a6c+7a0800203 마감 · d43255f8f·c6931bfbe | 운영실행승인/선행조건 확정전적용0 | 운영0100기준보존·옛0102 rollback사용0 |
 | IMP-FRONT-01 / 신규발견/미확인 | navCls hover7색 · CC-B2B-FRONT-01 | 77c50f27c QA045소스PASS·미배포 · 77c50f27c·QA045 msg_b36218feed71 | 운영/Lab반영은다음묶음·실시각범위별도 | 미달색4.5이상·비대상theme회귀·143추측수정0 |
 | IMP-FRONT-02 / 제안/미착수 | 갤러리누름크기·원래가격·S70 · CC-B2B-FRONT-01 | 제안단계 · c6931bfbe | 우선순위/실근거·S70결제흐름범위확정후배정 | 각변경완료조건 별도정의·기존승인으로임의확대0 |
 | IMP-BLOG-01 / 미배포수정 | 이웃1.22·티스토리1.98 · CC-BLOG-01 | 소스완료·실조건대기 · 3bb238398/e35947191/a27861137 | 다음묶음승인·이웃B1사람/계정·Tistory기존미리보기 | 소제목기호수정·진단근거·실발행0 |
@@ -81,7 +81,7 @@ Master 마지막 실제 점검: 2026-11-18 02:37:37 KST · 실행 중 점검 주
 | IMP-IMAGE-02 / 直接지시/구현중 | 감성글귀3사AI 선택 · CC-ECOM-01 | QA046소스PASS·승인배포범위사고후1.29rollback · PLAN1ece3747d·msg_b8292d9e0030·공용openai사본바이트일치/검사등록 | 이미지추가분분리/검수된명시SHA·새빌드승인전0 | OpenAI/Claude/Gemini 선택·본인키/서버허용목록·재시도0·기존기본유지 |
 | IMP-IMAGE-03 / 미배포수정 | Pexels 선택/가이드제거 · AG-UI-01 | QA044지정PASS · de49e96e9+62189915b | 감성글귀다음묶음·3사AI수정때보존 | UI선택제거·구초안pixabay·기존키/서버호환보존 |
 | IMP-IMAGE-04 / 직접지시/미배포수정 | 배경외부링크 버튼화 · AG-UI-01 | QA048 지정소스PASS·미배포 · msg_10b55a37b895 | 지정검수후감성묶음·실320/375시각은별도 | 두링크/본문인계·키보드/넘침·저장버튼불변 |
-| IMP-IMAGE-05 / 직접추가요구/동결검토 | NanoBanana/OpenAI/무료FLUX 이미지엔진 · AG-UI-01 / CX-MASTER-01 | d21eb96d7 未검수포함배포→rollback·QA049 · msg_97466d3e6af4·INC18-01·fc7536040 | 공식모델/무료서비스방식·자원/키·응답제한 고정SHA검수후기술/정책판정 | 회원권한/본인키·무료방식근거·timeout/응답MIME/크기/URL·실지원/비용·명시릴리스manifest |
+| IMP-IMAGE-05 / 직접추가요구/동결검토 | NanoBanana/OpenAI/무료FLUX 이미지엔진 · AG-UI-01 / CX-MASTER-01 | QA049 가짜통신반례확인·실접속/생성0 · msg_97466d3e6af4·INC18-01·fc7536040 | Ecom보완계획수신·제품freeze·공식지원/무료서비스정책과구현경계별도 | 회원권한/본인키·무료방식근거·timeout/응답MIME/크기/URL·실지원/비용·명시릴리스manifest |
 
 ## 담당별 현재 상태·인수인계
 
@@ -90,15 +90,15 @@ Master 마지막 실제 점검: 2026-11-18 02:37:37 KST · 실행 중 점검 주
 | 담당 | 현재 작업·점유 | 완료/대기·다음 행동 | 확인 근거 |
 | --- | --- | --- | --- |
 | CC-WORKSPACE-01 | GCP설정완료주인님신호회수·ClientID동일미확인 | 공개방식/실행범위/일치boolean확인·SQL/스위치0 | f6e6b1da3 / a41a1e31e·5f9e66d7f |
-| CC-B2B-BACK-01 | 운영준비9668a2a6c 두건보완·재검수대기 | Mac QA047지정재검수·실행승인/선행조건해소전0 | d43255f8f / msg_223ca85a800e·dabbc23ce/msg_82a3e93e9fa9 |
+| CC-B2B-BACK-01 | 운영준비QA047문구마감·Lab시험교환1건준비 | 주인님메인243시험결제→기록/상태읽기·추가RPC/fixture0 | 9668a2a6c/7a0800203·msg_bdbf073001ca |
 | CC-B2B-FRONT-01 | hover77c50f27c QA045소스수락·미배포 | 다음묶음/QA037대기 | c6931bfbe / 55368bd4c |
-| CC-ECOM-01 | emotion1.30範圍事故→無build1.29rollback완료·실AI0 | 소스동결/명시SHAmanifest·추가빌드승인전0 | 26e1353c5 / msg_c6e462ca244b·msg_b8292d9e0030/ACTIVE_WORK |
+| CC-ECOM-01 | emotion1.30範圍事故→無build1.29rollback완료·실AI0 | 이미지안전수정계획발송·사람prompt전달보류/수락미확인·제품freeze/새빌드0 | 26e1353c5 / msg_c6e462ca244b·msg_b8292d9e0030/ACTIVE_WORK |
 | CC-BLOG-01 | 현재요약정정완료·점유0 | 다음묶음/사람계정조건·T12문서조정, 새생성0 | 2f15cafc9 / msg_de0bdb33dbeb |
 | CC-MOVIE-01 | YVS실검색/AI기획안1회 담당운영완료·점유0 | 재호출0·새배정대기 | a3f39764b/00a2c9efa·별도실청구미확정 |
 | CC-MUSIC-01 | 현재기록정정완료·점유0·기존icon변경보존 | lyric2건다음묶음·Mac실MP4사람선택 | a8333ca84/a5a96ab42 / msg_c4bd9b21150b |
 | CC-REALTY-01 | 문서정정완료·점유0 | 독립자료미확보차단·정상회차이외새수집0 | 18b206cbe / msg_7c94f8433b21 |
 | AG-UI-01 | 新이미지d21 source동결·DES05보고정정요청 | 공식지원/정책근거·QA049·제품변경0 | f4063ae82 / msg_cc05e5f53915 |
-| CX-QA-01 | QA047/048지정검수완료·QA049발송 | 이미지3엔진고정SHA검수·Intel실MP4기존사람조건 | msg_637d0a9f128b/msg_edc3ed674d46/msg_9a4e8d3e50c8 |
+| CX-QA-01 | QA049画像provider/응답/URL 반례확인중 | 최종고정SHA보고·QA037읽기단일연결·추가테스트결제0 | msg_637d0a9f128b/msg_edc3ed674d46/msg_9a4e8d3e50c8 |
 | CC-SUPPORT-01 | 주인님직접키트작업전담·이번상태미조회 | Master다른작업배정제외·완료신호만취합 | 주인님전담지시·SUP05 |
 
 ## 이번 대조에서 정정한 상태와 남은 불일치
@@ -127,6 +127,14 @@ Master 마지막 실제 점검: 2026-11-18 02:37:37 KST · 실행 중 점검 주
 3. 작업자는 변경·검증·한계와 함께 ready_review로 반환한다. Master가 범위별 done/보완/다음 작업을 결정한다.
 4. 유료 빌드·외부 쓰기·운영 DB·사람 인증은 이미 받은 승인 이력을 먼저 대조한다. 기존 승인에 없는 필수 결정만 사용자에게 취합한다.
 
+## 현재 릴리스 통제
+
+새 배포가 READY여도 공식 도메인이 그 배포를 가리키는지는 별도로 확인한다. 롤백은 이미 사용한 빌드 예산을 복원하지 않는다.
+
+| 프로그램·담당 | 상태 | 빌드 사용 / 승인 | 실모델 호출 사용 / 승인 | 현재 공식 별칭 대상 | 다음 조건 |
+| --- | --- | --- | --- | --- | --- |
+| emotion-writer · CC-ECOM-01 | rolled_back_frozen | 1 / 1 | 0 / 3 | dpl_D9ExEsYD9sH9zAxZy38dkU2UUMUz | 追加build未승인·明示SHA검토후 |
+
 ## 완료를 정정한 항목
 
 - B2B v1.09·v1.14 대기 표는 v1.15 배포 증거로 정정. 기존 프론트 5건/0095/S61은 재구현하지 않는다. 새 프론트 미배포는 5bfed663d로 분리했다.
@@ -137,7 +145,7 @@ Master 마지막 실제 점검: 2026-11-18 02:37:37 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 239개: done 222개 · cancelled 7개 · ready_review 3개 · running 1개 · waiting_human 4개 · needs_revision 1개 · ready 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 241개: done 223개 · cancelled 7개 · ready_review 2개 · running 2개 · waiting_human 5개 · needs_revision 1개 · ready 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -352,7 +360,7 @@ Master 마지막 실제 점검: 2026-11-18 02:37:37 KST · 실행 중 점검 주
 | WS-20261117-25 | CC-WORKSPACE-01 | done / integrated | E4 Gmail함 기존기능/권한 대조와 최소범위 조사 | 소스동결·릴리스표QA041지정PASS갱신, 운영활성화WS27 별도승인/실검증 |
 | WS-20261117-26 | CX-MASTER-01 | waiting_human / prepared | E3+WS23 v1.58 묶음 배포/운영 실검수 | v1.58 묶음에요일칩추가·GmailOFF서버/UI동시. 새최종전체검사와빌드승인뒤실행,실AI비용별도 |
 | QA-20261117-036 | CX-QA-01 | done / integrated | Gmail A1 OFF 서버 OAuth 독립 검수 | 0074소스준비수락·운영미적용/OFF, A2후속은별도검수 |
-| QA-20261117-037 | CX-QA-01 | waiting_human / acknowledged | B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수 | 공간29 주인님본인Lab로그인/제어반환후기존읽기검수, 실제결제/상태변경0 |
+| QA-20261117-037 | CX-QA-01 | waiting_human / acknowledged | B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수 | Mac29기존주인님반환후권한/fee3000표시읽기·토스시험제출은메인243주인님한곳,Backend결과읽기대기 |
 | QA-20261117-038 | CX-QA-01 | done / integrated | Gmail A2 원자 받은업무 전달 서버·SQL 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
 | QA-20261117-039 | CX-QA-01 | done / integrated | Gmail OFF 패널 실제 TSX 모의 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
 | QA-20261117-040 | CX-QA-01 | done / integrated | Gmail OFF 배선·실제 RPC 입구·어댑터·화면 통합 독립검수 | 배선소스수락·동결, 패널disconnect unknown후속별도 |
@@ -369,17 +377,19 @@ Master 마지막 실제 점검: 2026-11-18 02:37:37 KST · 실행 중 점검 주
 | QA-20261118-044 | CX-QA-01 | done / integrated | Pexels UI/초안/가이드 제거 고정SHA검수 | 3사AI구현은별도·운영/실키미검수 |
 | ECOM-20261118-01 | CC-ECOM-01 | done / accepted_pending_batch_deploy | 주인님 직접 글귀AI 3사/상세모델 선택 | 지정소스/fakefetch/TSX 검수수락·모델실지원/실키/운영/시각은미검수·다음묶음 |
 | B2B-20261118-01 | CC-B2B-BACK-01 | done / integrated | 운영0101~0104 사전 실행표 | B2B18-02 정확실행파일준비·운영적용은미승인 |
-| B2B-20261118-02 | CC-B2B-BACK-01 | ready_review / documentation_followup_held | 운영전용 precheck/apply/verify 준비 | QA047지정소스수락·원자성문구정정전달보류(사람prompt), 실행미승인·문구정리후준비범위마감 |
+| B2B-20261118-02 | CC-B2B-BACK-01 | done / prepared_not_authorized_to_execute | 운영전용 precheck/apply/verify 준비 | 운영승인/실행범위/QA037·Lab0101 등선행조건 해소전실행0 |
 | FRONT-20261118-02 | CC-B2B-FRONT-01 | done / accepted_pending_batch_deploy | navCls hover 미달7색 국소보완 | QA045 지정함수/CSS소스수락·미배포. compiled CSS/실시각은작성자증거와Mac미검수구분 |
 | QA-20261118-045 | CX-QA-01 | done / integrated | nav hover7색/소비자범위 독립검수 | 다음몰기능묶음·실compile/브라우저Mac미검수·새설치0 |
 | QA-20261118-046 | CX-QA-01 | done / integrated | 감성글귀3사AI/키/오류/취소 독립검수 | 지정소스/fakefetch/TSX 검수수락·모델실지원/실키/운영/시각은미검수·다음묶음 |
-| QA-20261118-047 | CX-QA-01 | done / integrated_with_documentation_followup | 운영0101~0104 실행준비파일 정적검수 | Backend문구정정 msg_f7180a0df404 queued/사람prompt전달보류·전체산출물무조건불변표현한정 |
+| QA-20261118-047 | CX-QA-01 | done / integrated | 운영0101~0104 실행준비파일 정적검수 | README원자성한정7a0800203담당정정수락·지정소스검토마감,실SQL/운영권한보장아님 |
 | DES-20261118-04 | AG-UI-01 | done / accepted_pending_batch_deploy | 주인님 직접 배경링크 버튼화/줄바꿈 개선 | 링크/인계/기존저장로직소스수락·실320/375/외부수신未검수·롤백v1.29에는미반영 |
 | QA-20261118-048 | CX-QA-01 | done / integrated | 배경제작 링크버튼 지정소스 검수 | 링크/인계/기존저장로직소스수락·실320/375/외부수신未검수·롤백v1.29에는미반영 |
 | ECOM-20261118-02 | CC-ECOM-01 | needs_revision / rolled_back | 감성v1.30 승인배포/3사실호출·범위사고복구 | 제품수정동결·이미지d21 QA049/정책/공식지원 분리검토·재빌드예산추가승인전0 |
 | INC-20261118-01 | CX-MASTER-01 | done / contained_followup_required | HEAD추종배포 未검수포함·v1.29 복구 | 새이미지QA049·명시SHA릴리스manifest·추가빌드승인 별도, 재발방지미완까지사고전체종결로확대0 |
-| DES-20261118-05 | AG-UI-01 | ready_review / frozen_pending_review | 주인님 직접 이미지 NanoBanana/OpenAI/무료모델 3엔진 | QA049 고정소스검수·AGY문서ID정정/공식근거·제품수정동결·운영v1.29미반영 |
-| QA-20261118-049 | CX-QA-01 | ready / queued | 새이미지3엔진 소스/가짜통신·키/응답경계 검수 | 결과후수정/정책판정·실무료API생성0 |
+| DES-20261118-05 | AG-UI-01 | ready_review / frozen_pending_review | 주인님 직접 이미지 NanoBanana/OpenAI/무료모델 3엔진 | 공식확인일10-17/11-03/10-19는현재지원검증아님·무료A/B/C비교반환,QA049중·제품동결 |
+| QA-20261118-049 | CX-QA-01 | running / acknowledged | 새이미지3엔진 소스/가짜통신·키/응답경계 검수 | 最終route/auth/UI/반례정확보고→Ecom계획,실무료API/생성0 |
+| B2B-20261118-03 | CC-B2B-BACK-01 | waiting_human / fixture_prepared | 주인님 직접 Lab 교환비waiting1건·토스시험흐름 | 주인님메인ego243 Lab본인로그인/시험카드입력·제출→Backend읽기1회. Mac29는QA037읽기만·중복prepare/confirm0 |
+| ECOM-20261118-03 | CC-ECOM-01 | ready / queued_held_at_person_prompt | 이미지3엔진 QA049 안전경계 보완계획 | 정확범위/완료조건계획회신→Master범위승인후mock수정·실API/키/DB/build0 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
@@ -427,13 +437,21 @@ Master 마지막 실제 점검: 2026-11-18 02:37:37 KST · 실행 중 점검 주
 
 | 조건 | 필요한 사람의 일 | 추천 처리 |
 | --- | --- | --- |
-| B2B Lab 배포 후 역할별 화면 검수 | Mac ego공간29 Lab에 시험naver계정 직접로그인 후 Return to agent. 고객검수뒤 관리자gmail1회 | DB0104/승인Lab빌드완료·추가SQL조작불필요. 실제결제/상태변경0 |
+| B2B Lab 배포 후 역할별 화면 검수 | 기존메인ego243 Lab 시험naver로그인→교환비3000원 토스시험카드입력/제출1회(주인님만), Mac29별도반환시QA037읽기 | waiting교환420bfb91… 준비완료·고정exfee id·시험키boolean확인,중복제출/실카드/운영0. 결제뒤Backend읽기 |
 | 실제 결제 검수 단계 | Lab 테스트 전용 토스 키 사용 확인 | 운영/회원실키 폴백 없이 테스트키로만,현재실결제0 |
 | 음악 실기기/저장 단계 | Intel Mac 기존공간20 본인로그인필요시직접로그인+Return, 시험중신뢰클릭/저장위치선택 | AppleSilicon은장비준비뒤후일재개로행정마감·즉시장비요청0 |
 | 블로그·마켓 외부계정 | 해당회차가필요할때본인로그인·확장연결/신뢰클릭 | 지금권한확대/실포스팅/실ESM등록은실행하지않음 |
 | E3 묶음 운영 배포·실비용 검증 | v1.58묶음배포1회/합성운영확인·실검색1+회원모델1비용승인여부 | 소스560시험/독립PASS완료·미승인동안build/실검색/AI0 |
 | Gmail 운영 활성화 | GCP설정완료 주인님신호회수·시험회원Client ID일치/테스트사용자목록·공개/실행범위확정 | DreamAI설정주인님확인(시험ClientID와동일/목록실재는미확인),운영SQL/스위치0·d612f13a/실행순번Master판정 |
 | 감성글귀 v1.30 再실행 | 이미지추가분/정확소스검수완료뒤 재빌드1회 추가승인 및실호출범위재확정 | 기존1회소진·실3회0·운영1.29복구완료. 지금새빌드/AI0,검수준비먼저 |
+
+## 주인님 결정으로 후일 재개하는 항목
+
+현재 작업에서는 행정 마감하며 실제 검증 PASS로 바꾸지 않는다. 기록된 재개 조건이 생기기 전에는 반복 확인·장비 요청을 하지 않는다.
+
+| 항목·담당 | 결정 | 재개 조건·근거 |
+| --- | --- | --- |
+| MUSIC-APPLE-SILICON · CC-MUSIC-01 / CX-QA-01 | 장비준비뒤실행으로행정마감·실제PASS아님·현재반복확인/장비요청0 | Apple Silicon장비준비→동일요청서재개 · 주인님 직접지시 msg_a67b1118172d·99e478211/224105f53 |
 
 ## 전체 포트폴리오 목록
 

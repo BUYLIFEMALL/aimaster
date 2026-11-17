@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 02:37:39 KST",
+  "checkedAt": "2026-11-18 02:43:55 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,23 +12,23 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T17:37:37.000Z",
+      "at": "2026-11-17T17:43:53.437Z",
       "timezone": "Asia/Seoul",
-      "trigger": "02:30예약·범위사고/직접승인/검수완료 이벤트",
-      "scope": "배포승인3calls/1build회수→범위외d21포함→Ecom無buildrollback→공식alias독립확인·QA047/048·GCP/AppleSilicon직접지시",
+      "trigger": "QA049반례·주인님Lab시험승인/fixture·AGY문서정정/Backend마감 이벤트",
+      "scope": "고정보고/문서ID·SQL준비마감·Lab교환조건/승인·Mac읽기/주인님시험제출단일화·현재작업표",
       "evidence": [
-        "msg_2964618e42f4 예약수신",
-        "msg_e5ab9f819b61 범위사고·msg_4253f0520c68 rollback결정",
-        "msg_3e45eb66363e·Masterget_alias project/team·active dpl_D9",
-        "QA047수락/문구후속·QA048소스수락·QA049 msg_f40c6d3ff13c"
+        "QA049 msg_9ea5ee32f762·Ecom계획msg_21ed3b1edaab 전달보류",
+        "B2B18-03 主人승인msg_aeae60e7d728·fixture1건msg_bdbf073001ca",
+        "QA047문구마감7a0800203·DES05정정88616a6cf",
+        "Mac msg_d4ef7792280b·Backend msg_38518ce2a9da 중복제출금지연결"
       ],
-      "judgment": "운영1.29복구·DB1.29/실AI0·1build소진. 이미지新요구별도동결검토·AppleSilicon행정후일재개/실PASS아님.",
+      "judgment": "운영감성1.29복구유지·画像미검수/가짜반례→계획배정/동결. SQL준비범위마감·Lab人시험필수. 새build/실AI/운영DB실행0.",
       "unverified": [
-        "新이미지3엔진공식지원/무료서비스정책·실모델/키/시각",
-        "GCP시험ClientID동일/대상시험사용자실목록",
-        "Backend사람prompt로문구정정전달보류"
+        "QA049 최종/공식지원·무료서비스정책",
+        "Lab시험결제미실행/주인님로그인·Mac반환未",
+        "GCPClientID동일/시험사용자목록"
       ],
-      "nextAction": "QA049/공식근거·이미지작업ID정정·SQL문구·Gmail실행범위판정,03:00같은Master예약"
+      "nextAction": "사람완료/수정계획/QA049최종 회수후후속판정·03:00현재Master예약"
     },
     "notifications": [
       {
@@ -6786,10 +6786,10 @@
       "status": "waiting_human",
       "delivery": "acknowledged",
       "sha": "7609748ad",
-      "evidence": "msg_d9ff650f722a: Mac ego공간29 Lab로그인폼/375확인·기존세션없음. Backend 89a489a12/9256b3782·msg_7918bcbb8f5c 합성경로/역할확정; msg_5e5b219f6d11 23:47 Mac공간29 제어반환미완료 재확인·로그인내용미확인",
+      "evidence": "msg_d9ff650f722a: Mac ego공간29 Lab로그인폼/375확인·기존세션없음. Backend 89a489a12/9256b3782·msg_7918bcbb8f5c 합성경로/역할확정; msg_5e5b219f6d11 23:47 Mac공간29 제어반환미완료 재확인·로그인내용미확인 / B2B18-03 waiting교환420bfb91…·msg_d4ef7792280b",
       "scopeRef": "Mac 기존시험세션·Lab실화면읽기, 결제/RPC상태변경/발송/키/운영/build0",
       "completion": "Lab 로그인/고객교환비UI/권한차단/375·darkhover 확인, 실결제미검수분리",
-      "next": "공간29 주인님본인Lab로그인/제어반환후기존읽기검수, 실제결제/상태변경0"
+      "next": "Mac29기존주인님반환후권한/fee3000표시읽기·토스시험제출은메인243주인님한곳,Backend결과읽기대기"
     },
     {
       "task_id": "QA-20261117-038",
@@ -7032,14 +7032,14 @@
       "reviewer": "CX-MASTER-01",
       "owner": "CC-B2B-BACK-01",
       "title": "운영전용 precheck/apply/verify 준비",
-      "status": "ready_review",
-      "delivery": "documentation_followup_held",
+      "status": "done",
+      "delivery": "prepared_not_authorized_to_execute",
       "scopeRef": "mall-builder/docs/handoff-0101-0104-prod/ 15파일·실행없는초안",
-      "evidence": "msg_e8ef88589861·로컬격리19/19 작성자·운영/Lab0 / msg_4646a84d31dc·msg_ad5d0f3d2e45 / msg_e3acfd829e5e·재검수msg_25d58c194f71",
-      "completion": "0100기준·0102+0103원자순서·운영precheck동적기대/전체중단조건/해시·격리또는정적검증범위명시",
-      "next": "QA047지정소스수락·원자성문구정정전달보류(사람prompt), 실행미승인·문구정리후준비범위마감",
-      "lastReviewedAt": "2026-11-17T17:37:37.000Z",
-      "sha": "9668a2a6c"
+      "evidence": ".ai/results/QA-20261118-047-CX-QA-01.md·msg_3e6d8cb0cab3",
+      "completion": "지정deps/검증실패산출불변·원자성한계/권한범위/문장별timeout문구마감. 실제운영적용승인아님",
+      "next": "운영승인/실행범위/QA037·Lab0101 등선행조건 해소전실행0",
+      "lastReviewedAt": "2026-11-17T17:43:53.437Z",
+      "sha": "9668a2a6c + 7a0800203"
     },
     {
       "task_id": "FRONT-20261118-02",
@@ -7091,12 +7091,12 @@
       "reviewer": "CX-MASTER-01",
       "title": "운영0101~0104 실행준비파일 정적검수",
       "status": "done",
-      "delivery": "integrated_with_documentation_followup",
+      "delivery": "integrated",
       "sha": "9668a2a6c",
       "evidence": ".ai/results/QA-20261118-047-CX-QA-01.md / msg_2e2e88cf1883",
       "completion": "S-F01 deps/권한·S-F02 검증실패쓰기0 지정PASS. 순차9rename전체원자아님·실DB/운영검수아님",
-      "next": "Backend문구정정 msg_f7180a0df404 queued/사람prompt전달보류·전체산출물무조건불변표현한정",
-      "lastReviewedAt": "2026-11-17T17:37:37.000Z"
+      "next": "README원자성한정7a0800203담당정정수락·지정소스검토마감,실SQL/운영권한보장아님",
+      "lastReviewedAt": "2026-11-17T17:43:53.437Z"
     },
     {
       "task_id": "DES-20261118-04",
@@ -7181,11 +7181,11 @@
       "status": "ready_review",
       "delivery": "frozen_pending_review",
       "sha": "d21eb96d7",
-      "evidence": "msg_97466d3e6af4/msg_87d86247f729·보고fc7536040(구DES03표기→DES05정정요청)",
+      "evidence": "d21eb96d7·정정보고88616a6cf·.ai/results/DES-20261118-05-AG-UI-01.md·msg_a03fce38d53c",
       "scopeRef": "image provider/config/validation/services/image route/Workspace/KeySettings/guide/시험",
       "completion": "공식지원/회원키·무료서비스방식/데이터전송·MIME/크기/timeout/허용모델·회귀·비용/권한범위 검토",
-      "next": "QA049 고정소스검수·AGY문서ID정정/공식근거·제품수정동결·운영v1.29미반영",
-      "lastReviewedAt": "2026-11-17T17:37:37.000Z"
+      "next": "공식확인일10-17/11-03/10-19는현재지원검증아님·무료A/B/C비교반환,QA049중·제품동결",
+      "lastReviewedAt": "2026-11-17T17:43:53.437Z"
     },
     {
       "task_id": "QA-20261118-049",
@@ -7193,14 +7193,57 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "새이미지3엔진 소스/가짜통신·키/응답경계 검수",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "running",
+      "delivery": "acknowledged",
       "sha": "d21eb96d7",
-      "evidence": "msg_f40c6d3ff13c",
+      "evidence": "msg_9ea5ee32f762 실제validate/services fake반례·실접속0",
       "scopeRef": "고정SHA 읽기/기존패키지모의만·실이미지/키/네트워크/DB/build/새창0",
       "completion": "정확반례·구현/공식실지원/정책/실검수 범위분리",
-      "next": "결과후수정/정책판정·실무료API생성0",
-      "lastReviewedAt": "2026-11-17T17:37:37.000Z"
+      "next": "最終route/auth/UI/반례정확보고→Ecom계획,실무료API/생성0",
+      "lastReviewedAt": "2026-11-17T17:43:53.437Z"
+    },
+    {
+      "task_id": "B2B-20261118-03",
+      "parent_task_id": "QA-20261117-037",
+      "owner": "CC-B2B-BACK-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "주인님 직접 Lab 교환비waiting1건·토스시험흐름",
+      "status": "waiting_human",
+      "delivery": "fixture_prepared",
+      "approval": {
+        "source": "주인님直接선택보고msg_aeae60e7d728",
+        "scope": "Lab 기존주문기반교환1건/수수료지정·시험키결제흐름(카드입력/제출주인님)"
+      },
+      "environment": "Lab rjjtjakljjxsgjelqgek / dev-mall-builder.vercel.app",
+      "fixture": {
+        "orderId": "e0102000-0000-4000-8000-000000000031",
+        "exchangeId": "420bfb91-0f3d-435f-b0fd-155738c95810",
+        "tossOrderId": "exfee-420bfb91-0f3d-435f-b0fd-155738c95810",
+        "fee": 3000,
+        "status": "requested",
+        "feeStatus": "waiting",
+        "paymentRows": 0,
+        "customer": "시험naver"
+      },
+      "evidence": "msg_bdbf073001ca·조건검사/회원auth RPC1+운영사fee RPC1/한거래·직접표쓰기0",
+      "completion": "본인시험키/몰/주문/교환/금액일치→주인님토스시험제출1회→고정id/기록/상태읽기검수",
+      "next": "주인님메인ego243 Lab본인로그인/시험카드입력·제출→Backend읽기1회. Mac29는QA037읽기만·중복prepare/confirm0",
+      "blockedReason": "현재로그인없는페이지404·주인님본인로그인/시험제출필수. 실제카드/운영/새build0",
+      "lastReviewedAt": "2026-11-17T17:43:53.437Z"
+    },
+    {
+      "task_id": "ECOM-20261118-03",
+      "parent_task_id": "DES-20261118-05",
+      "owner": "CC-ECOM-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "이미지3엔진 QA049 안전경계 보완계획",
+      "status": "ready",
+      "delivery": "queued_held_at_person_prompt",
+      "evidence": "QA049중간msg_9ea5ee32f762·msg_21ed3b1edaab",
+      "scopeRef": "계획/기존공용모듈재사용/정확경로먼저,제품수정freeze계속",
+      "completion": "provider별공식모델allowlist·MIME/base64/크기·abort/timeout·URL取得방어·무료서비스정책/키/전송계획",
+      "next": "정확범위/완료조건계획회신→Master범위승인후mock수정·실API/키/DB/build0",
+      "lastReviewedAt": "2026-11-17T17:43:53.437Z"
     }
   ]
 }
