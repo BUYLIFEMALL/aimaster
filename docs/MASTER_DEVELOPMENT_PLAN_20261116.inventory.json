@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 17:29:12 KST",
+  "checkedAt": "2026-11-17 17:32:03 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4912,10 +4912,10 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "E3-1 간단결재 요청관리 템플릿",
-      "status": "running",
-      "delivery": "running",
-      "evidence": "e297153b8·922e4d28e·msg_0186d3820539 / f789e3281·aa7bcff52·msg_a2a28826de2b E3-2정확7경로배정/수락 / 4ca85f4b2 E3-2自動規則/警告toast7파일·作者관련58/tsc0·Masterdiff/clean確認 / 6ea81eb5c E3-3권한조사·msg_a9c2574739fa QA033external/mode shape누락P2 / 310846f19外部/mode比較修正·作者22/tsc0·Masterdiff確認 / msg_8822a8367bf2 external/mode해소·재귀id제거ValueRef user/page거짓동치잔여P2 / 788c95778 실제참조id보존/step보수비교·作者28/tsc0·Masterdiff확인 / QA033PASS·E3-3catalog/spec/권한행렬시험배정 / WorkspaceE3-3 exact spec/catalog/approvalPermission·회귀/본인문서 점유없음확인후착수 / c5b26d81c/fb3bd4bae E3-3 Symbol信頼+既存ACL5파일·作者권한56/관련39/tsc0·Masterdiff確認 / 71321ffe2 셀AI출처조사·msg_228557cee536 E3-4외부수동mock구현배정/정확7경로미커밋0후착수 / QA034권한독립PASS·새차단0 / 81e816a26/5f3bed718 E3-4 mock29/회귀33/tsc0·Master7파일diff및provider retry루프確認 / 459fed8d7 공급자retry調査·msg_ed1c82784a1b 정확adapter2+fakeSDK시험확장승인/미커밋0후착수",
-      "next": "OpenAI/Gemini요청0retry전달국소수정·실AnthropicSDK fake통신검증·QA035병행",
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "e297153b8·922e4d28e·msg_0186d3820539 / f789e3281·aa7bcff52·msg_a2a28826de2b E3-2정확7경로배정/수락 / 4ca85f4b2 E3-2自動規則/警告toast7파일·作者관련58/tsc0·Masterdiff/clean確認 / 6ea81eb5c E3-3권한조사·msg_a9c2574739fa QA033external/mode shape누락P2 / 310846f19外部/mode比較修正·作者22/tsc0·Masterdiff確認 / msg_8822a8367bf2 external/mode해소·재귀id제거ValueRef user/page거짓동치잔여P2 / 788c95778 실제참조id보존/step보수비교·作者28/tsc0·Masterdiff확인 / QA033PASS·E3-3catalog/spec/권한행렬시험배정 / WorkspaceE3-3 exact spec/catalog/approvalPermission·회귀/본인문서 점유없음확인후착수 / c5b26d81c/fb3bd4bae E3-3 Symbol信頼+既存ACL5파일·作者권한56/관련39/tsc0·Masterdiff確認 / 71321ffe2 셀AI출처조사·msg_228557cee536 E3-4외부수동mock구현배정/정확7경로미커밋0후착수 / QA034권한독립PASS·새차단0 / 81e816a26/5f3bed718 E3-4 mock29/회귀33/tsc0·Master7파일diff및provider retry루프確認 / 459fed8d7 공급자retry調査·msg_ed1c82784a1b 정확adapter2+fakeSDK시험확장승인/미커밋0후착수 / b8860ba8c/e8d058e16 request0retry3파일·作者3공급자fakeHTTP1/기본보존·60/tsc0·Masterdiff確認",
+      "next": "QA035 E3-4+retry국소검토·실키/검색/AI/운영/build0",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "completion": "배정된소스/검증범위반환·실운영/배포미검수구분",
       "stage1": "e297153b8/QA030 done scoped source",
@@ -4936,7 +4936,8 @@
         "cost": "실유료0·mock/기존주입만",
         "retryScope": "request maxRetries===0만adapter빈delay·기본3/2보존·Anthropic생성자불변/실SDK fakefetch검증"
       },
-      "stage3": "c5b26d81c/QA034 done scoped source"
+      "stage3": "c5b26d81c/QA034 done scoped source",
+      "retrySha": "b8860ba8c"
     },
     {
       "task_id": "BLOG-20261117-09",
@@ -5079,10 +5080,10 @@
       "title": "셀AI웹출처 키·과금재시도·저장권한 독립검토",
       "status": "ready",
       "delivery": "queued",
-      "evidence": "msg_02fcebe02a03",
+      "evidence": "msg_02fcebe02a03 / b8860ba8c fake공급자횟수국소검토추가",
       "scopeRef": "81e816a26 AI7파일/provider읽기·mock/소스·AI/검색/DBreset/build0",
       "completion": "회원키/정책/1회/인용고정맵/동일거래/자동모드제외 판정",
-      "next": "모델1회보장잔여와반례/최소수정scope반환·실유료금지"
+      "next": "키/정책/출처/권한+요청별HTTP1/기본retry보존독립판정"
     }
   ]
 }
