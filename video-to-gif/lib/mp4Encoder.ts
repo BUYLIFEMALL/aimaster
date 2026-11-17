@@ -59,7 +59,7 @@ export interface EncodeOptions {
 export async function encodeMp4(o: EncodeOptions): Promise<Blob> {
   try {
     const target = new ArrayBufferTarget();
-    await encodeInto(o, target, "in-memory", false);
+    await encodeInto(o, target, "in-memory", hwStalled);
     return new Blob([target.buffer], { type: "video/mp4" });
   } catch (e) {
     // 2026-11-15 하드웨어 가속 인코더가 출력 없이 멈추면(맥 사례) 기본 방식으로 한 번만 다시 만든다
@@ -67,9 +67,16 @@ export async function encodeMp4(o: EncodeOptions): Promise<Blob> {
     o.onProgress({ pct: o.pctFrom ?? 5, status: "영상 인코더가 응답하지 않아 기본 방식으로 다시 만드는 중…" });
     const target = new ArrayBufferTarget();
     await encodeInto(o, target, "in-memory", true);
+    hwStalled = true; // 대체 성공 뒤에만 기록
     return new Blob([target.buffer], { type: "video/mp4" });
   }
 }
+
+/** 2026-11-17 MOV-20261117-07: 이 탭(페이지)에서 그래픽 가속 인코더가 멈췄고 기본 방식 대체가 성공했는지.
+ *  true면 같은 탭의 다음 내보내기부터 기본 방식(prefer-software)으로 바로 시작해 매번 10초 멈춤 대기를 건너뛴다.
+ *  모듈 변수라 새로고침·탭 닫기·새 배포에서 초기화된다(드라이버가 고쳐지면 자연히 가속으로 복귀) — localStorage·서버에 저장하지 않는다.
+ *  일반 오류·회원 취소·대체 실패에서는 바꾸지 않는다. */
+let hwStalled = false;
 
 /** 인코더가 정해진 시간 동안 진행하지 않음(출력 없이 멈춤). hardware: 하드웨어 가속 설정이었는지 */
 export class EncoderStallError extends Error {
@@ -84,7 +91,7 @@ const STALL_MS = 10_000;
  *  기본 방식으로 한 번만 다시 쓴다(메모리 방식 encodeMp4와 같은 대체). 없으면 예전처럼 멈춤 오류를 그대로 던진다. */
 export async function encodeMp4ToFile(o: EncodeOptions & { stream: FileSystemWritableFileStream; reopenStream?: () => Promise<FileSystemWritableFileStream> }): Promise<void> {
   try {
-    await encodeInto(o, new FileSystemWritableFileStreamTarget(o.stream), false, false);
+    await encodeInto(o, new FileSystemWritableFileStreamTarget(o.stream), false, hwStalled);
     await o.stream.close();
     return;
   } catch (e) {
@@ -96,6 +103,7 @@ export async function encodeMp4ToFile(o: EncodeOptions & { stream: FileSystemWri
   try {
     await encodeInto(o, new FileSystemWritableFileStreamTarget(retry), false, true);
     await retry.close();
+    hwStalled = true; // 대체 성공(새 스트림 닫기까지) 뒤에만 기록
   } catch (e) {
     await retry.abort().catch(() => undefined);
     throw e;
@@ -155,7 +163,7 @@ async function encodeInto(o: EncodeOptions, target: ArrayBufferTarget | FileSyst
       else if (performance.now() - since > STALL_MS) throw stalled();
     }
   };
-  // flush도 끝없이 기다리지 않게: 멈추기·STALL_MS(영상 길이에 비례해 넉넉히) 중 먼저 오는 쪽으로 끝낸다
+  // flush도 끝없이 기다리지 않게: 멈추기·고정 30초(STALL_MS×3, 영상 길이와 무관 — 앞의 drain이 대기열을 이미 비움) 중 먼저 오는 쪽으로 끝낸다
   const flushOrStall = (p: Promise<void>) => new Promise<void>((res, rej) => {
     const timer = setTimeout(() => rej(stalled()), STALL_MS * 3);
     const onAbort = () => rej(new DOMException("취소", "AbortError"));

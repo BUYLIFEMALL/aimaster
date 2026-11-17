@@ -39,7 +39,12 @@ g.EncodedVideoChunk = FakeChunk; // mp4-muxer가 instanceof로 확인
 g.window = globalThis;
 g.document = { visibilityState: "hidden", createElement: () => ({ width: 0, height: 0, getContext: () => ({}) }) };
 
-const { encodeMp4ToFile, EncoderStallError } = await import("../src/lib/render/mp4Encoder.ts");
+// 2026-11-17 MOV-20261117-07: 공용 인코더에 탭 단위 상태(hwStalled)가 생겨 시험마다 모듈을 새로 불러와 격리한다(시험 순서 의존 금지)
+type Mod = typeof import("../src/lib/render/mp4Encoder.ts");
+let loads = 0;
+const fresh = async (): Promise<Mod> => import(`../src/lib/render/mp4Encoder.ts?t=${++loads}`);
+let encodeMp4ToFile: Mod["encodeMp4ToFile"], encodeMp4: Mod["encodeMp4"], EncoderStallError: Mod["EncoderStallError"];
+test.beforeEach(async () => { ({ encodeMp4ToFile, encodeMp4, EncoderStallError } = await fresh()); });
 
 /** 모의 쓰기 스트림: 쓴 바이트·닫힘·버림을 기록(mp4-muxer가 instanceof로 확인하므로 같은 이름의 클래스로 만든다) */
 class FakeWritable {}
@@ -59,6 +64,8 @@ const base = (signal = new AbortController().signal) => ({
   width: 64, height: 36, fps: 10, total: 1, audio: null, signal, // 10프레임 → 대기열 7부터 drain(6) 멈춤 감지
   drawFrame: () => {}, onProgress: () => {},
 });
+/** 같은 모듈에서 한 번 더 내보내기(멈춤 없음) — 첫 설정이 가속인지 보려고 */
+const nextFirstConfig = async () => { reset({ stallHardware: false }); await encodeMp4ToFile({ ...base(), stream: fakeStream("next") as never }); return env.configs[0]; };
 const reset = (o: Partial<typeof env> = {}) => Object.assign(env, { stallHardware: true, stallAll: false, errorOnEncode: false, configs: [] }, o);
 
 test("그래픽 가속이 멈추면 새 스트림을 1번 열어 기본 방식으로 끝까지 쓴다(이전 스트림은 버림)", async () => {
@@ -72,6 +79,12 @@ test("그래픽 가속이 멈추면 새 스트림을 1번 열어 기본 방식�
   assert.equal(second.aborted, false);
   assert.ok(second.written > 0, "새 스트림에 MP4가 써져야 함");
   assert.deepEqual(env.configs, ["prefer-hardware", "prefer-software"]);
+  // MOV-20261117-07: 같은 탭의 다음 내보내기는 기본 방식부터(가속 시도·10초 대기 없음, 새 스트림도 안 엶)
+  reset(); const third = fakeStream("third");
+  await encodeMp4ToFile({ ...base(), stream: third as never, reopenStream: async () => { reopened += 1; return fakeStream("x") as never; } });
+  assert.deepEqual(env.configs, ["prefer-software"]);
+  assert.equal(reopened, 1);
+  assert.equal(third.closed, true);
 });
 
 test("기존 호출(새 스트림 함수 없음)은 예전처럼 멈춤 오류를 던지고 스트림을 버린다", async () => {
@@ -90,6 +103,7 @@ test("기본 방식도 멈추면 더 다시 하지 않고 새 스트림도 버�
   assert.equal(first.aborted, true);
   assert.equal(second.aborted, true);
   assert.equal(second.closed, false);
+  assert.equal(await nextFirstConfig(), "prefer-hardware", "대체 실패는 기록하지 않음");
 });
 
 test("새 스트림 열기가 실패하면 그 오류를 알리고 이전 스트림은 버린 상태로 끝난다", async () => {
@@ -97,6 +111,7 @@ test("새 스트림 열기가 실패하면 그 오류를 알리고 이전 스트
   const first = fakeStream("first");
   await assert.rejects(encodeMp4ToFile({ ...base(), stream: first as never, reopenStream: async () => { throw new Error("파일 권한 없음"); } }), /파일 권한 없음/);
   assert.equal(first.aborted, true);
+  assert.equal(await nextFirstConfig(), "prefer-hardware", "대체 못 함은 기록하지 않음");
 });
 
 test("회원 취소는 다시 만들지 않는다", async () => {
@@ -106,6 +121,7 @@ test("회원 취소는 다시 만들지 않는다", async () => {
   await assert.rejects(encodeMp4ToFile({ ...base(ac.signal), stream: first as never, reopenStream: async () => { reopened += 1; return fakeStream("x") as never; } }), (e) => (e as Error).name === "AbortError");
   assert.equal(reopened, 0);
   assert.equal(first.aborted, true);
+  assert.equal(await nextFirstConfig(), "prefer-hardware", "회원 취소는 기록하지 않음");
 });
 
 test("그래픽 가속 멈춤이 아닌 인코더 오류는 다시 만들지 않는다", async () => {
@@ -114,6 +130,7 @@ test("그래픽 가속 멈춤이 아닌 인코더 오류는 다시 만들지 않
   await assert.rejects(encodeMp4ToFile({ ...base(), stream: first as never, reopenStream: async () => { reopened += 1; return fakeStream("x") as never; } }), /인코더 오류/);
   assert.equal(reopened, 0);
   assert.equal(first.aborted, true);
+  assert.equal(await nextFirstConfig(), "prefer-hardware", "일반 인코더 오류는 기록하지 않음");
 });
 
 test("멈춤 없으면 처음 스트림에 그대로 쓰고 새 스트림을 열지 않는다", async () => {
@@ -123,4 +140,23 @@ test("멈춤 없으면 처음 스트림에 그대로 쓰고 새 스트림을 열
   assert.equal(reopened, 0);
   assert.equal(first.closed, true);
   assert.ok(first.written > 0);
+});
+
+test("멈춤 없는 기기는 여러 번 내보내도 계속 가속부터 시작한다(MOV-20261117-07)", async () => {
+  reset({ stallHardware: false });
+  await encodeMp4ToFile({ ...base(), stream: fakeStream("a") as never });
+  await encodeMp4(base());
+  assert.deepEqual(env.configs, ["prefer-hardware", "prefer-hardware"]);
+});
+
+test("메모리 방식(encodeMp4)도 대체 성공 뒤 같은 탭 다음 내보내기는 기본 방식부터, 새로 불러오면 다시 가속부터(MOV-20261117-07)", async () => {
+  reset();
+  const blob = await encodeMp4(base());
+  assert.ok(blob.size > 0);
+  assert.deepEqual(env.configs, ["prefer-hardware", "prefer-software"]);
+  reset(); await encodeMp4(base());
+  assert.deepEqual(env.configs, ["prefer-software"], "같은 모듈(탭)은 기본 방식부터");
+  const other = await fresh(); // 새로고침 흉내: 모듈 상태 초기화
+  reset({ stallHardware: false }); await other.encodeMp4(base());
+  assert.deepEqual(env.configs, ["prefer-hardware"], "새로 불러오면 가속부터");
 });
