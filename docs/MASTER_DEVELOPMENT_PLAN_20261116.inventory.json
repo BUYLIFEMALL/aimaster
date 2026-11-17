@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 17:16:25 KST",
+  "checkedAt": "2026-11-17 17:18:04 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4914,8 +4914,8 @@
       "title": "E3-1 간단결재 요청관리 템플릿",
       "status": "running",
       "delivery": "running",
-      "evidence": "e297153b8·922e4d28e·msg_0186d3820539 / f789e3281·aa7bcff52·msg_a2a28826de2b E3-2정확7경로배정/수락 / 4ca85f4b2 E3-2自動規則/警告toast7파일·作者관련58/tsc0·Masterdiff/clean確認 / 6ea81eb5c E3-3권한조사·msg_a9c2574739fa QA033external/mode shape누락P2 / 310846f19外部/mode比較修正·作者22/tsc0·Masterdiff確認 / msg_8822a8367bf2 external/mode해소·재귀id제거ValueRef user/page거짓동치잔여P2 / 788c95778 실제참조id보존/step보수비교·作者28/tsc0·Masterdiff확인 / QA033PASS·E3-3catalog/spec/권한행렬시험배정 / WorkspaceE3-3 exact spec/catalog/approvalPermission·회귀/본인문서 점유없음확인후착수 / c5b26d81c/fb3bd4bae E3-3 Symbol信頼+既存ACL5파일·作者권한56/관련39/tsc0·Masterdiff確認 / 71321ffe2 셀AI출처조사·msg_228557cee536 E3-4외부수동mock구현배정/정확7경로미커밋0후착수",
-      "next": "QA034결재ACL검수병행·E3-4수동외부검색/고정출처맵/선택URL권한모의구현·실호출0",
+      "evidence": "e297153b8·922e4d28e·msg_0186d3820539 / f789e3281·aa7bcff52·msg_a2a28826de2b E3-2정확7경로배정/수락 / 4ca85f4b2 E3-2自動規則/警告toast7파일·作者관련58/tsc0·Masterdiff/clean確認 / 6ea81eb5c E3-3권한조사·msg_a9c2574739fa QA033external/mode shape누락P2 / 310846f19外部/mode比較修正·作者22/tsc0·Masterdiff確認 / msg_8822a8367bf2 external/mode해소·재귀id제거ValueRef user/page거짓동치잔여P2 / 788c95778 실제참조id보존/step보수비교·作者28/tsc0·Masterdiff확인 / QA033PASS·E3-3catalog/spec/권한행렬시험배정 / WorkspaceE3-3 exact spec/catalog/approvalPermission·회귀/본인문서 점유없음확인후착수 / c5b26d81c/fb3bd4bae E3-3 Symbol信頼+既存ACL5파일·作者권한56/관련39/tsc0·Masterdiff確認 / 71321ffe2 셀AI출처조사·msg_228557cee536 E3-4외부수동mock구현배정/정확7경로미커밋0후착수 / QA034권한독립PASS·새차단0",
+      "next": "E3-4 수동외부검색출처mock구현계속·실유료/운영/build0",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "completion": "배정된소스/검증범위반환·실운영/배포미검수구분",
       "stage1": "e297153b8/QA030 done scoped source",
@@ -4934,7 +4934,8 @@
         "citations": "실검색번호맵만·허구URL/인용제외",
         "write": "명시선택same-row URL·동일거래권한/실패시원본유지",
         "cost": "실유료0·mock/기존주입만"
-      }
+      },
+      "stage3": "c5b26d81c/QA034 done scoped source"
     },
     {
       "task_id": "BLOG-20261117-09",
@@ -5062,12 +5063,12 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "E3-3 결재ACL/신뢰경계/거래우회 독립검토",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "msg_a9b366be4953",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_a9b366be4953 / msg_022238786e7f 実OpsBuilder/ACL4역할6칸/Guard우회/Symbolinvalid7종PASS",
       "scopeRef": "c5b26d81c5파일·소스/가능모의·DBreset/발송/AI/build0",
       "completion": "JSON/Symbol신뢰·invalid원자거절·역할/동일거래/clone참조/서버인가판정",
-      "next": "고유판정/반례/최소수정조건반환·실운영別"
+      "next": "E3-3지정소스완료·운영gallery/시각/실알림미검수"
     }
   ]
 }
