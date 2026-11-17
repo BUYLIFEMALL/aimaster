@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import "@fontsource/gowun-dodum/400.css";
 import "@fontsource/nanum-myeongjo/400.css";
@@ -15,7 +16,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <body>
+        <Script
+          src="https://www.buylife.xyz/storage-widget.js"
+          strategy="afterInteractive"
+        />
+        {children}
+      </body>
     </html>
   );
 }

@@ -144,20 +144,6 @@ export function Sidebar({ email }: SidebarProps) {
             <LayoutDashboard className="h-3.5 w-3.5 text-rose-500 shrink-0" />
             <span className="truncate">제작 스튜디오 홈</span>
           </Link>
-
-          {/* 신설: 비주얼 연동 & 사용 매뉴얼 (DESIGN.md 9번 불변 원칙) */}
-          <Link
-            href="/guide"
-            onClick={() => setOpen(false)}
-            className={`flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-bold transition-all ${
-              pathname === "/guide"
-                ? "bg-rose-50 text-rose-700 border border-rose-200/80 shadow-2xs"
-                : "text-stone-700 hover:bg-[#f5efe4] hover:text-stone-900"
-            }`}
-          >
-            <BookOpen className="h-3.5 w-3.5 text-rose-500 shrink-0" />
-            <span className="truncate">📖 연동 & 사용 매뉴얼</span>
-          </Link>
         </div>
 
         {/* 6단계 워크플로우 스텝퍼 */}
@@ -197,7 +183,21 @@ export function Sidebar({ email }: SidebarProps) {
       </div>
 
       {/* 유틸리티 및 사용자 정보 */}
-      <div className="shrink-0 space-y-2 border-t border-[#e7e0d3] pt-3 mt-3">
+      <div className="shrink-0 space-y-1.5 border-t border-[#e7e0d3] pt-3 mt-3">
+        {/* 비주얼 연동 & 사용 매뉴얼 (하단 유틸리티 영역으로 배치 최적화) */}
+        <Link
+          href="/guide"
+          onClick={() => setOpen(false)}
+          className={`w-full flex items-center gap-2 rounded-xl px-2.5 py-1.5 text-xs font-bold transition ${
+            pathname === "/guide"
+              ? "bg-rose-50 text-rose-700 border border-rose-200"
+              : "text-stone-700 hover:bg-[#f5efe4] hover:text-stone-900"
+          }`}
+        >
+          <BookOpen className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+          <span className="truncate">📖 연동 & 사용 매뉴얼</span>
+        </Link>
+
         <Link
           href="/settings"
           onClick={() => setOpen(false)}
