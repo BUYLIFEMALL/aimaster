@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 10:50:10 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 10:54:15 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -40,7 +40,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 182개: done 156개 · cancelled 6개 · ready_review 14개 · running 3개 · waiting_human 2개 · ready 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 182개: done 156개 · cancelled 6개 · ready_review 13개 · running 3개 · waiting_human 2개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -195,7 +195,7 @@
 | ESM-20261117-01 | CC-ECOM-01 | done / integrated | 주인님 직접 ESM 썸네일 등록·사용자 매뉴얼 | 운영v1.02유지·동일배포재실행0·실ESM등록은추후범위지정 |
 | QA-20261117-008 | CX-QA-01 | done / integrated | ESM 운영안내·매뉴얼 누락 독립점검 | 다음esm묶음배포뒤운영가이드반영확인만·같은소스재검수없음 |
 | QA-20261117-009 | CX-QA-01 | done / integrated | OFF 포털 공유권한·토큰·속성투영 독립검수 | 만료토큰부활지정수정독립PASS 수락·실DB다중프로세스미검수·공개전환0 |
-| WS-20261117-13 | CC-WORKSPACE-01 | running / returned | 주인님 선택146 Professional Studio 전면리뉴얼 | WS19 신규ko/en·빈제목국소보완 + MacQA019실캡처독립시각검수 진행. Alt 도구정식modifier지원읽기확인·미지원이면최소사람검수남김,실발급/운영/빌드0 |
+| WS-20261117-13 | CC-WORKSPACE-01 | running / returned | 주인님 선택146 Professional Studio 전면리뉴얼 | Mac 시각최종대조대기·Alt는주인님실조작1회:로컬11/20 QA시험카드 Alt끌기→22,원본6유지/22복제기대. 운영배포미승인 |
 | REL-20261117-006 | CC-REALTY-01 | done / integrated | 주인님 직접승인 매물알림v1.46 운영배포 | QA010읽기확인배정·ZIP압축해시차이/내부파일동일근거보존,새수집/알림/추가빌드0 |
 | QA-20261117-010 | CX-QA-01 | done / integrated | 매물알림v1.46 운영·확장버전 읽기확인 | Mac확장설치/실SW/첫격리/수집알림미검수·PC5대표시는다른PC상태,재반복0 |
 | RE-20261117-05 | CC-REALTY-01 | done / returned | 주인님 직접 상가 층진단 n30 재측정1회 | 클라이언트15초타임아웃·응답지역변수라회수실패·HTTP/건수미확인·추가공공API호출0,향후결과보관실행기개선안만기록 |
@@ -223,7 +223,7 @@
 | QA-20261117-014 | CX-QA-01 | done / integrated | 교환비 UI 독립검수 | 기승인Lab릴리스후실동작별도 |
 | QA-20261117-015 | CX-QA-01 | done / integrated | Lab0104 실행자료 독립검수 | 주인님실적용승인유효·도구Accept後실검증 |
 | WS-20261117-19 | CC-WORKSPACE-01 | done / integrated | 146 신규문구 ko/en·대시보드/영수증 제목 보완 | 소스동결·WS13/QA019 마지막viewport/상태누락증거보완·운영배포0 |
-| QA-20261117-019 | CX-QA-01 | ready_review / returned | 146 실제캡처 독립시각검수 | 기존04~09미확인범위+375발행끝/달력더보기/열린메뉴마지막보완캡처대조후확인범위마감·실Alt인쇄별도 |
+| QA-20261117-019 | CX-QA-01 | ready / queued | 146 실제캡처 독립시각검수 | Mac 최종3조건actualPNG마감대조,Alt/실인쇄/실기기는별도미검수 |
 | QA-20261117-020 | CX-QA-01 | done / integrated | Front다크단추 대비 국소독립검수 | acb858a77 승인Lab1빌드묶음포함·별도빌드/추가소스0·LabReady뒤실Tab상태구분검수 |
 | WS-20261117-20 | CC-WORKSPACE-01 | done / integrated | 워크스페이스 영수증 하단 스크롤 접근 복구 | 소스동결·WS13/QA019 마지막viewport/상태누락증거보완·운영배포0 |
 
