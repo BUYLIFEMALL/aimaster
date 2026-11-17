@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 12:36:25 KST",
+  "checkedAt": "2026-11-17 12:40:06 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4685,11 +4685,11 @@
       "task_id": "WS-20261117-21",
       "owner": "CC-WORKSPACE-01",
       "title": "E2 예약7-2 현재코드대조 및 첫 구현범위 확정",
-      "evidence": "msg_c34e47266f97 / msg_b19431213421 / 590debc62·author26booking/全396tests/tsc0·OFF",
-      "next": "MacQA024 서버1단계독립검수·2단계연결정확경로읽기조사",
+      "evidence": "msg_c34e47266f97 / msg_b19431213421 / 590debc62·author26booking/全396tests/tsc0·OFF / eaf931a53 2단계연결조사·msg_37002521ac85 P1상태덮음/buffer·P2철회설정경합",
+      "next": "msg_61656302054f QA024서버수정우선·UI2A안전중지/기존변경보존·OFF유지",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "returned",
       "scopeRef": "분석/기존문서만·타인파일수정0",
       "completion": "정확허용범위 구현·회귀증거·외부/운영/빌드0",
@@ -4699,29 +4699,31 @@
       "task_id": "FRONT-20261117-03",
       "owner": "CC-B2B-FRONT-01",
       "title": "미달3색 대비 최소후보 분석",
-      "evidence": "msg_c37e721cf22f / msg_dc75ac7b448e / f7120d185/7e701ae53·author21+31tests / msg_b3a61f19bcd1 대비PASS/hover P2·msg_efe2deaa2f62수정배정 / msg_d85d9ed3d89f/f72c53f6a",
-      "next": "QA022 hover P2수정재검토·미배포",
+      "evidence": "msg_c37e721cf22f / msg_dc75ac7b448e / f7120d185/7e701ae53·author21+31tests / msg_b3a61f19bcd1 대비PASS/hover P2·msg_efe2deaa2f62수정배정 / msg_d85d9ed3d89f/f72c53f6a / msg_61b196d087b2",
+      "next": "소스5b02c3399완료·Lab미배포/실Tab未검수",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "scopeRef": "분석/기존문서만·타인파일수정0",
       "completion": "정확허용범위 구현·회귀증거·외부/운영/빌드0",
-      "sha": "5b02c3399"
+      "sha": "5b02c3399",
+      "lastReviewedAt": "2026-11-17T03:40:04.213Z"
     },
     {
       "task_id": "BLOG-20261117-08",
       "owner": "CC-BLOG-01",
       "title": "T05 inspect robots 판정 구현준비",
-      "evidence": "msg_906f4d937c19 / c82d69b3f/64f1257c9 / msg_0101dd1848c2 / cb337929d/c46589a15·Master npm metadata robots-parser3.0.1 MIT / msg_6bd4fda305a6 / fc48ebcba/5a2d1fe33·author25+3tests/tsc0 / msg_e0f16981f4f9 Mac25/25·DNSabort P2 / msg_57acf747c627/README d97ba498a",
-      "next": "QA023 DNS P2수정재검토·미배포",
+      "evidence": "msg_906f4d937c19 / c82d69b3f/64f1257c9 / msg_0101dd1848c2 / cb337929d/c46589a15·Master npm metadata robots-parser3.0.1 MIT / msg_6bd4fda305a6 / fc48ebcba/5a2d1fe33·author25+3tests/tsc0 / msg_e0f16981f4f9 Mac25/25·DNSabort P2 / msg_57acf747c627/README d97ba498a / msg_682f15e245e6/d9c7dc6ff",
+      "next": "소스완료/미배포·실전송/route전체/운영未검수",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "scopeRef": "FILE_OWNERSHIP BLOG08 safeFetch/route/robots/test/package-lock/출처",
       "completion": "재현근거/정확범위/미검수반환",
-      "sha": "8172d8084"
+      "sha": "8172d8084",
+      "lastReviewedAt": "2026-11-17T03:40:04.213Z"
     },
     {
       "task_id": "RE-20261117-07",
@@ -4742,12 +4744,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "FRONT03 대비보정·선택자·상태표시 독립검토",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "msg_9811315f21f6 / msg_b3a61f19bcd1 / 5b02c3399 재검토발송",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_9811315f21f6 / msg_b3a61f19bcd1 / 5b02c3399 재검토발송 / msg_61b196d087b2",
       "scopeRef": "theme.ts/globals.css/관련시험 읽기·독립계산·제품수정0",
       "completion": "3색대비/9색불변/관리자제외/hover회귀 별도판정",
-      "next": "P2수정후재검토·전체무회귀미통과"
+      "next": "hover P2 독립PASS·지정소스조건종결",
+      "lastReviewedAt": "2026-11-17T03:40:04.213Z"
     },
     {
       "task_id": "QA-20261117-023",
@@ -4755,12 +4758,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "inspect robots 가드 독립검토",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "msg_c122b56d8aac / msg_e0f16981f4f9 / msg_1ccd4a9b3a9f",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_c122b56d8aac / msg_e0f16981f4f9 / msg_1ccd4a9b3a9f / msg_682f15e245e6",
       "scopeRef": "fc48ebcba source/모의시험·제품/외부/DB/build0",
       "completion": "SSRF/리디렉트/abort/byte제한/UA/route경계검증",
-      "next": "DNSdeadline P2수정후재검토·전체조건PASS아님"
+      "next": "DNS P2 독립PASS·소스지정범위종결",
+      "lastReviewedAt": "2026-11-17T03:40:04.213Z"
     },
     {
       "task_id": "QA-20261117-024",
@@ -4768,12 +4772,12 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "예약 서버1단계 OFF/상태/권한/동시성 독립검토",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "msg_d66c993d840e",
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "msg_d66c993d840e / msg_37002521ac85",
       "scopeRef": "5ed9bc2ec 5파일·소스/가능한모의·공유DB초기화/맥build0",
       "completion": "OFF와상태전환/권한/개인정보/잠금검증·미연결2단계별도",
-      "next": "고유결과/반례/수정조건 반환"
+      "next": "P1두건/P2수정후국소재검토·전체PASS보류"
     }
   ]
 }

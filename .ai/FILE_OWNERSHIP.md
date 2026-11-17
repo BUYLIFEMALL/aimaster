@@ -318,3 +318,5 @@ FRONT-20261117-03 CC-B2B-FRONT-01만 mall-builder 실제theme.ts/globals.css/관
 RE-20261117-07 CC-REALTY-01만 .ai/results/RE-20261117-07-CC-REALTY-01.md 및 같은ID 폴더 c-candidate.mjs,c-candidate.test.mjs,c-measure.mjs 새분석파일. 원본라벨읽기만·기사원문미커밋·제품0. BLOG-20261117-08은기존T05문서/읽기분석만 제품코드예약없음.
 
 BLOG-20261117-08 CC-BLOG-01: web-crawler/webapp/src/lib/inspect/safeFetch.ts·src/app/api/inspect/route.ts·새src/lib/inspect/robots.ts·tests/inspect-robots.test.cjs·package.json/package-lock.json·기존출처NOTICE/본인문서만. robots-parser정확3.0.1 MIT 설치1회,본문요청전매리디렉트검사/SSRF/DNS고정유지·실크롤링/빌드/배포0. 남의web-crawler/AGENTS.md보존.
+
+WS21 2A Workspace별도UI범위: 새src/app/book/[...path]/BookingForm.tsx·src/app/calendar-sync/BookingSettingsCard.tsx·calendar-sync/page.tsx/CalendarBoard.tsx최소연결·tests/integration/bookingSettingsCardDom.test.ts/bookingFormDom.test.ts. QA024 P1두건/P2로안전중지/기존변경보존·booking.ts/booking.test.ts서버수정우선(운영DDL0). runtime/publicPages배선은미승인유지.
