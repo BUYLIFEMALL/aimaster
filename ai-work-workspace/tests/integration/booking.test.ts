@@ -62,6 +62,8 @@ let forceFail = false;
 const tokenCalls: (undefined | { force?: boolean })[] = [];
 const inbox: any[] = [];
 let sleeps = 0;
+let onSleep: (() => void) | null = null; // QA024 재시도 중 상태 바뀜
+let onForce: (() => void) | null = null;
 
 const tableExists = (t: string) => !!(dbm.db.prepare('SELECT to_regclass(?) AS t').get(t) as { t: string | null }).t;
 let ipN = 0;
@@ -102,6 +104,7 @@ beforeAll(async () => {
     ownerCheck: async () => ownerOk,
     token: async (_u, o) => {
       tokenCalls.push(o);
+      if (o?.force) onForce?.();
       if (o?.force && forceFail) throw new gcal.GcalError('auth', 'x');
       if (tokenFail === 'auth') throw new gcal.GcalError('auth', 'x');
       if (tokenFail === 'other') throw new Error('supabase down');
@@ -112,6 +115,7 @@ beforeAll(async () => {
     },
     sleep: async () => {
       sleeps++;
+      onSleep?.();
     },
   });
 });
@@ -640,5 +644,38 @@ describe('3. 켠 뒤(격리 시험 DB)', () => {
     expect(changed.r).toMatchObject({ ok: false });
     expect(changed).toMatchObject({ googleCalls: 0, inserted: 0 });
     bk.bookingHandlers.bookingSave(ctx(owner), { settings: {} });
+  });
+
+  // ---------------------------------------------------------------- QA024 재검토 P2(Mac msg_aef58a127584): 재시도 중 상태가 바뀌면 추가 POST 0
+  const latestId = (start: number) => (dbm.db.prepare('SELECT id FROM aww_bookings WHERE start_ms = ? ORDER BY created_time DESC LIMIT 1').get(start) as any).id;
+
+  it('QA024 P2: 429 대기 중 상태가 바뀌면(만료) 두 번째 POST 없음·바뀐 상태 유지·알림 0', async () => {
+    const start = nextSlot();
+    postQueue = [429, 200];
+    const p0 = posts().length;
+    const n0 = inbox.length;
+    onSleep = () => dbm.db.prepare("UPDATE aww_bookings SET status = 'expired' WHERE id = ?").run(latestId(start));
+    const r = await submit(start);
+    onSleep = null;
+    postQueue = [];
+    expect(posts().length - p0).toBe(1);
+    expect(row(latestId(start)).status).toBe('expired');
+    expect(r).toMatchObject({ ok: false });
+    expect(inbox.slice(n0)).toHaveLength(0);
+  });
+
+  it('QA024 P2: 401 뒤 토큰을 새로 받는 사이 확인 필요로 넘어가면 두 번째 POST 없음·「접수됨」', async () => {
+    const start = nextSlot();
+    postQueue = [401, 200];
+    const p0 = posts().length;
+    const n0 = inbox.length;
+    onForce = () => dbm.db.prepare("UPDATE aww_bookings SET status = 'needs_check' WHERE id = ?").run(latestId(start));
+    const r = await submit(start);
+    onForce = null;
+    postQueue = [];
+    expect(posts().length - p0).toBe(1);
+    expect(row(latestId(start)).status).toBe('needs_check');
+    expect(r).toMatchObject({ ok: true, status: 'received' });
+    expect(inbox.slice(n0)).toHaveLength(0);
   });
 });

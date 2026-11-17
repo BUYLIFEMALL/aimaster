@@ -483,7 +483,6 @@ async function placeOnCalendar(b: BookingRow, s: BookingSettings): Promise<Booki
   } catch {
     return (await fail(b, "recheck", s.tz, false)) ? "failed" : settled(); // 아직 아무것도 보내지 않았으니 칸을 풀어도 안전
   }
-  if (currentStatus(b.id) !== "pending") return settled(); // 그사이 정리됨(끊긴 것으로 넘어감·만료) — 보내지 않음
   const body = {
     id: b.gcal_id,
     status: "confirmed",
@@ -496,6 +495,10 @@ async function placeOnCalendar(b: BookingRow, s: BookingSettings): Promise<Booki
   let authRetried = false;
   let rateTries = 0;
   for (;;) {
+    // QA024 재검토 P2: 실제로 보내기 직전마다(첫 시도·429 대기 뒤·401 토큰 갱신 뒤) 「처리 중」인지 다시 본다.
+    // 그사이 정리됐으면(끊긴 것으로 넘어감·만료 등) 더 보내지 않고 지금 상태를 돌려준다(알림·작업 0).
+    // 이미 나가 있는 요청을 취소한다는 보장은 아니고, 앞으로 추가로 보내는 것만 막는다.
+    if (currentStatus(b.id) !== "pending") return settled();
     const r = await insertEventWithId(tok, body);
     const k = classifyInsert(r);
     if (k === "confirmed") return (await confirmFrom(b, "pending", s.tz)) ? "confirmed" : settled();
