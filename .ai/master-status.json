@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T18:33:02.010Z",
+  "checkedAt": "2026-11-17T19:03:19.921Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3618,7 +3618,8 @@
       "scopeRef": "inventory의 CRM/마케팅/인스타/성격운세/AI프롬프트 19개·기존문서읽기+본인JSON1개",
       "evidence": "msg_bd9dfa2f47ed·Master대상19검산",
       "completion": "각slug문서의명시담당/당시버전/잔여/라이프사이클/근거절/확신/불일치·19건누락0,과거작성자=현활성담당추정0",
-      "next": "기존AGY수락/결과대기·제품/공유표/키/DB/브라우저/build0·현재68미확인수감소추정0"
+      "next": "기존창에서대기메시지수신/수락되면19문서대조. 메시지재발송/새창/다른세션중복배정0",
+      "blockedReason": "실행수락미확인: Orca전달not_settled. AGY화면은빈prompt/기존background4개표시·그원인으로확정하지않음"
     }
   ],
   "programOverrides": [
@@ -4102,24 +4103,23 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T18:33:02.010Z",
+      "at": "2026-11-17T19:03:19.921Z",
       "timezone": "Asia/Seoul",
-      "trigger": "03:30 기존Master Windows예약메시지",
-      "scope": "보고/요청·19카테고리미종료작업·로컬12연결/대기화면미변화·프로그램/문서증분·관리자요청·공식운영alias·후속PORT19배정",
+      "trigger": "04:00 Windows예약 기존Master수신",
+      "scope": "보고/관리자요청·19카테고리/미종료작업판·docs/프로그램인계증분·제품미커밋·로컬12연결/AGY실화면·공식운영alias·전달기능help",
       "evidence": [
-        "msg_d2e206905e0b·Windows03:30 LastTaskResult0/다음04:00",
-        "새未등록인계0(자체생성플랜2개제외)·제품3경로미커밋0/HEAD f7a5f366c",
-        "dev-requests codex-master 대기0·로컬12연결은착수증거아님",
-        "Vercel active alias dpl_D9ExEsYD9sH9zAxZy38dkU2UUMUz/v1.29유지",
-        "PORT19 대상19검산·msg_bd9dfa2f47ed 전송/아직not_settled"
+        "msg_a63de67ba021·Windows04:00 LastTaskResult0/다음04:30",
+        "dev-requests codex-master 대기0·새보고/인계0(자체생성플랜제외)",
+        "HEAD d3a0cbaf7 이후제품변경0·emotion/Workspace/mall src미커밋0",
+        "Vercel alias dpl_D9ExEsYD9sH9zAxZy38dkU2UUMUz/v1.29유지",
+        "PORT19수락보고0·AGYscreen 빈prompt/기존background표시,원인미확정·orca send help에전달강제우회없음"
       ],
-      "judgment": "새승인/실행완료신호없음·운영안정복구유지. 기존제품/실호출/빌드차단유지하되실제기록된미확인포트폴리오문서대조19건을AGY에단일배정.중복시험/가동추정0.",
+      "judgment": "운영1.29복구유지·새승인/사람완료신호없음. Ecom/Gmail선택질문·AGY수신미정착을작업착수/완료로단정0. 기존준비배정유지·중복발송/시험/새창0.",
       "unverified": [
-        "PORT19수락/실착수·Ecom/Gmail선택질문답변",
-        "Gmail ClientID/시험사용자실목록",
-        "Lab사람시험카드제출/03:31뒤현주문상태·Mac반환"
+        "PORT19실수신/착수·Ecom/Gmail선택질문답변",
+        "GCP앱일치/시험사용자실목록·Lab시험카드제출·Mac반환"
       ],
-      "nextAction": "AGY문서매핑결과판정·기존선택/사람단계신호회수·04:00현재터미널점검"
+      "nextAction": "기존질문/수신복구/완료이벤트후후속판정·04:30현재터미널예약, 신규배포/DB/AI0"
     },
     "notifications": [
       {
@@ -4187,7 +4187,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-17T19:00:00.000Z",
+      "nextScheduledAt": "2026-11-17T19:30:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -4205,8 +4205,8 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-17T18:30:00.000Z",
-        "messageId": "msg_d2e206905e0b",
+        "scheduledAt": "2026-11-17T19:00:00.000Z",
+        "messageId": "msg_a63de67ba021",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false
@@ -4290,7 +4290,18 @@
       "msg_981edb2afc58",
       "msg_b7c35e7ce83c"
     ],
-    "policyNotificationStatus": "10담당 전송완료·수락은별도확인"
+    "policyNotificationStatus": "10담당 전송완료·수락은별도확인",
+    "deliveryIssues": {
+      "checkedAt": "2026-11-17T19:03:19.921Z",
+      "agy": {
+        "messageId": "msg_bd9dfa2f47ed",
+        "state": "queued_not_settled",
+        "observation": "기존terminal screen 빈입력줄/과거작업결과·background4개표시,원인미확정·명시수락0",
+        "action": "입력대행/프로세스종료/새창0"
+      },
+      "ecom": "기존재배포선택질문 답변대기(이전실화면·현재미변화)",
+      "workspace": "기존Gmail공개/빌드선택질문 답변대기(이전실화면·현재미변화)"
+    }
   },
   "planCorrections": [
     {
