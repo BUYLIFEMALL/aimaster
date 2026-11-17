@@ -57,3 +57,11 @@
 - 375px: 엣지 창이 500px 아래로 줄지 않아(바깥 516px에서도 화면 폭 1560 보고) **같은 페이지 안 375px iframe으로 확인**(실기기 아님). 영수증·관제 대시보드·키 화면 모두 문서 폭 371=화면 폭(가로 넘침 0), 사이드바 ☰ 접힘, 카드 2열.
 - 관찰(수정 안 함): (1) 관제 대시보드 맨 위 페이지 제목 줄이 빈 흰 띠로 보임 (2) `/settings/keys`도 별도 페이지라 왼쪽 메인 메뉴 없음(영수증 수정 전과 같은 형태) (3) 달력 격자 왼쪽은 32px — 원본 `CalendarView.view.tsx` 144행 `bleed + 8` 설계(DB 여백 24 + 8), 이번 변경 원인 아님.
 - 미검수: 영어(en) 화면, 인쇄(브라우저 인쇄 창이 확장 조작을 막을 수 있어 실행 안 함), Alt 끌기 복사 실조작, 실발급. 캡처 근거: claude-chrome-screenshots 폴더 screenshot-1794877759367-0 ~ -7.
+
+## 9. 남은 제한 검수(Master msg_082867f161de)
+- 캡처 공유: `.ai/results/WS-20261117-13-captures/`에 대표 3장(PNG, 계정 이메일 가림) + `manifest.md`(해상도·실제 폭·iframe 여부).
+- 영어(en): 설정 › 환경설정 › 언어로 English (US) 전환(로컬 aww_dev 회원 설정, 원래 「한국어」 기록) → 원본 화면(사이드바 Home·Chat·Library·Upcoming events·Link your calendar, Preferences 화면)은 영어, **이번에 추가한 부분은 한국어 그대로**(관제 대시보드 제목·카드 4, 사이드바 아래 6개 메뉴, 설정 왼쪽 메뉴 일부 「환경설정·알림·일반」 등) → 영어 화면에서 언어 섞임(관찰, 수정 0). 확인 뒤 「한국어」로 복원(`nc:locale`=ko-KR, 사이드바 홈·채팅 확인). 브라우저 `nc:locale`만 바꾸면 회원 설정이 다시 덮음(`userSettings.ts` 262~273행).
+- Alt 복사 실조작: 로컬 시험 카드 「QA 시험 카드」(11/18) 생성 후 브라우저 조작 도구로 Alt+끌기 → **이동됨(복사 아님)**. 이벤트 기록 결과 도구가 pointerdown/move/up 모두 altKey=false, keydown 0 → 도구가 Alt를 보내지 못함(앱 결함 근거 아님). 페이지에서 altKey 실은 PointerEvent를 직접 만들어도 앱이 끌기를 시작하지 않음(합성 입력, 원인 미확인) → 실제 Alt 복사는 **미검수**, 주인님 수동 확인 필요. 시험 카드는 현재 11/25(로컬만).
+- 인쇄: 인쇄 창은 열지 않음. 영수증 화면에서 print 미디어 규칙 로드 확인 — 원본 `.lit-sidebar-container, .lit-topbar …` 숨김, `.rc-noprint, .aww-guide-back, .aww-guide-meta` 숨김, `.rc-print-area` 표시, `body:has(.aww-receipts-view) .lit-sidebar` 숨김. 실인쇄 결과는 미검수.
+- 대시보드 빈 제목 띠 근거: `src/litpage/web/features/shell/Topbar.tsx` 79~93행 `RouteTitle`이 people·agent·tasks·marketplace만 그리고 `studio`·`receipts`는 `null` → 상단 띠가 비어 보임. 최소 수정 파일 = `Topbar.tsx` 하나(두 경로에 tasks와 같은 아이콘+제목 줄 추가), 목적 = 상단에 현재 화면 이름 표시. 지시대로 수정 0.
+- 서버(Master 소유) 재시작·종료 0, 엣지 창 크기 원복, 운영·외부·발급·AI 0.
