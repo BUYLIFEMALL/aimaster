@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T03:41:02.268Z",
+  "checkedAt": "2026-11-17T03:50:06.465Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2624,15 +2624,15 @@
       "task_id": "WS-20261117-21",
       "owner": "CC-WORKSPACE-01",
       "title": "E2 예약7-2 현재코드대조 및 첫 구현범위 확정",
-      "evidence": "msg_c34e47266f97 / msg_b19431213421 / 590debc62·author26booking/全396tests/tsc0·OFF / eaf931a53 2단계연결조사·msg_37002521ac85 P1상태덮음/buffer·P2철회설정경합 / Workspace2A중지·BookingSettingsCard.tsx미커밋보존,booking표before_min/after_min snapshot정의변경 Master수락",
-      "next": "QA024 CAS/대칭buffer snapshot/잠금내철회설정 재검사수정·격리시험DB만·운영DDL0",
+      "evidence": "msg_c34e47266f97 / msg_b19431213421 / 590debc62·author26booking/全396tests/tsc0·OFF / eaf931a53 2단계연결조사·msg_37002521ac85 P1상태덮음/buffer·P2철회설정경합 / Workspace2A중지·BookingSettingsCard.tsx미커밋보존,booking표before_min/after_min snapshot정의변경 Master수락 / e487a755f·作者수정전5실패→후6PASS/全402tests/tsc0·Masterdiff2파일확인",
+      "next": "QA024 1ecb43d51 국소재검토·UI미커밋보존/보류·OFF/운영DDL0",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
-      "status": "running",
+      "status": "ready_review",
       "delivery": "returned",
       "scopeRef": "분석/기존문서만·타인파일수정0",
       "completion": "정확허용범위 구현·회귀증거·외부/운영/빌드0",
-      "sha": "5ed9bc2ec",
+      "sha": "1ecb43d51",
       "schemaScope": {
         "allowed": "booking.ts aww_bookings정의 before_min/after_min 정수NOTNULL DEFAULT0·범위검사",
         "environment": "격리시험DB만,BOOKING_ENABLED=false",
@@ -2716,12 +2716,12 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "예약 서버1단계 OFF/상태/권한/동시성 독립검토",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "msg_d66c993d840e / msg_37002521ac85",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "msg_d66c993d840e / msg_37002521ac85 / msg_16c3142cc3ed",
       "scopeRef": "5ed9bc2ec 5파일·소스/가능한모의·공유DB초기화/맥build0",
       "completion": "OFF와상태전환/권한/개인정보/잠금검증·미연결2단계별도",
-      "next": "P1두건/P2수정후국소재검토·전체PASS보류"
+      "next": "기존P1상태/준비시간 및P2철회경합 수정국소재검토"
     }
   ],
   "programOverrides": [
