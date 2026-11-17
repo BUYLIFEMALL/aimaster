@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T17:28:02.557Z",
+  "checkedAt": "2026-11-17T17:37:37.000Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -1881,7 +1881,7 @@
       "delivery": "returned",
       "title": "실제Intel Mac MP4파일내보내기 보조검수",
       "evidence": "msg_44a7b56f0c81 / msg_0da73bcc8c24 / 요청 b9c115b01 REQUEST_20261118_MACMINI_V116_MP4.md·msg_b5ed90b53bf7",
-      "next": "주인님직접MP4요청 회수·Mac기존공간20 제어반환/로그인/신뢰클릭/저장선택후2MP4+2진단, Music지정파일분석·AppleSilicon미검수",
+      "next": "Intel 실제MP4는기존공간20 로그인필요시본인로그인+Return→실시험·파일2/진단2. AppleSilicon은주인님결정으로후일재개행정마감·실PASS아님",
       "lastReviewedAt": "2026-11-16T16:41:48.543594+00:00"
     },
     {
@@ -3199,10 +3199,10 @@
       "status": "waiting_human",
       "delivery": "activation_preparation_approved",
       "scopeRef": "0074→0075 운영적용/정의검증·회원본인OAuth동의/metadata·실PostgREST/주소·스위치/배포 승인별도",
-      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d",
+      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고",
       "completion": "승인된범위의운영마이그레이션·실계정/권한/계정경계·활성배포·운영동작 확인",
-      "next": "f4a6854e9 체크리스트§11 준비완료·Master실행총괄/Workspace준비/Mac검수/주인님GCP 분리",
-      "blockedReason": "본인GCP설정/동의·시험공개방식·정상/복구실행범위 확정필요",
+      "next": "반복GCP설정요청0·일치boolean확인·감성복구확인뒤공용실행순번/공개범위판정, SQL/스위치0",
+      "blockedReason": "GCP설정완료주인님보고수신,시험ClientID일치/대상사용자목록·공개방식/빌드실행범위未확정",
       "approval": {
         "at": "2026-11-17T17:20:27.598Z",
         "source": "주인님 직접지시 Workspace회신",
@@ -3376,12 +3376,12 @@
       "owner": "CC-B2B-BACK-01",
       "title": "운영전용 precheck/apply/verify 준비",
       "status": "ready_review",
-      "delivery": "review_dispatched",
+      "delivery": "documentation_followup_held",
       "scopeRef": "mall-builder/docs/handoff-0101-0104-prod/ 15파일·실행없는초안",
       "evidence": "msg_e8ef88589861·로컬격리19/19 작성자·운영/Lab0 / msg_4646a84d31dc·msg_ad5d0f3d2e45 / msg_e3acfd829e5e·재검수msg_25d58c194f71",
       "completion": "0100기준·0102+0103원자순서·운영precheck동적기대/전체중단조건/해시·격리또는정적검증범위명시",
-      "next": "S-F01/S-F02수정·작성자격리22/22, Mac국소재검수대기·9개rename전체원자보장과구분·운영실행0",
-      "lastReviewedAt": "2026-11-17T17:28:02.557Z",
+      "next": "QA047지정소스수락·원자성문구정정전달보류(사람prompt), 실행미승인·문구정리후준비범위마감",
+      "lastReviewedAt": "2026-11-17T17:37:37.000Z",
       "sha": "9668a2a6c"
     },
     {
@@ -3433,13 +3433,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "운영0101~0104 실행준비파일 정적검수",
-      "status": "ready_review",
-      "delivery": "review_dispatched",
+      "status": "done",
+      "delivery": "integrated_with_documentation_followup",
       "sha": "9668a2a6c",
-      "evidence": ".ai/results/QA-20261118-047-CX-QA-01.md / msg_4646a84d31dc / msg_e3acfd829e5e·재검수msg_25d58c194f71",
-      "completion": "원문/해시/적용차단/자료불변/단계원자성/verify·권한/기록검토,실운영PASS와분리",
-      "next": "S-F01/S-F02수정·작성자격리22/22, Mac국소재검수대기·9개rename전체원자보장과구분·운영실행0",
-      "lastReviewedAt": "2026-11-17T17:28:02.557Z"
+      "evidence": ".ai/results/QA-20261118-047-CX-QA-01.md / msg_2e2e88cf1883",
+      "completion": "S-F01 deps/권한·S-F02 검증실패쓰기0 지정PASS. 순차9rename전체원자아님·실DB/운영검수아님",
+      "next": "Backend문구정정 msg_f7180a0df404 queued/사람prompt전달보류·전체산출물무조건불변표현한정",
+      "lastReviewedAt": "2026-11-17T17:37:37.000Z"
     },
     {
       "task_id": "DES-20261118-04",
@@ -3447,13 +3447,14 @@
       "reviewer": "CX-QA-01",
       "parent_task_id": "OPS-20261118-01",
       "title": "주인님 직접 배경링크 버튼화/줄바꿈 개선",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "accepted_pending_batch_deploy",
       "sha": "690df10c6",
       "scopeRef": "emotion-writer/src/components/QuoteCanvas.tsx 한파일",
-      "evidence": "msg_10b55a37b895·90d78f74c 인계",
+      "evidence": "msg_10b55a37b895·90d78f74c 인계 / msg_fb47965c3976·QA048指定국소PASS",
       "completion": "버튼href/인계값·좁은폭/키보드·기존저장/인스타불변·실시각구분",
-      "next": "QA048 msg_820d2b5965d3 전달완료·미배포묶음·실320/375는별도"
+      "next": "링크/인계/기존저장로직소스수락·실320/375/외부수신未검수·롤백v1.29에는미반영",
+      "lastReviewedAt": "2026-11-17T17:37:37.000Z"
     },
     {
       "task_id": "QA-20261118-048",
@@ -3461,13 +3462,88 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "배경제작 링크버튼 지정소스 검수",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "done",
+      "delivery": "integrated",
       "sha": "690df10c6",
-      "evidence": "msg_820d2b5965d3",
+      "evidence": "msg_820d2b5965d3 / msg_fb47965c3976·QA048指定국소PASS",
       "scopeRef": "QuoteCanvas 한파일·기존TSX/모의·실업로드/새창0",
       "completion": "링크/인계/키보드/저장동작불변·실320/375미검수분리",
-      "next": "QA046수정/QA047뒤국소검수·실키/AI/build0"
+      "next": "링크/인계/기존저장로직소스수락·실320/375/외부수신未검수·롤백v1.29에는미반영",
+      "lastReviewedAt": "2026-11-17T17:37:37.000Z"
+    },
+    {
+      "task_id": "ECOM-20261118-02",
+      "parent_task_id": "ECOM-20261118-01",
+      "owner": "CC-ECOM-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "감성v1.30 승인배포/3사실호출·범위사고복구",
+      "status": "needs_revision",
+      "delivery": "rolled_back",
+      "sha": "c585b034c (d21eb96d7 미검수포함)",
+      "evidence": "직접승인msg_d5fbe8f307d8·범위사고msg_e5ab9f819b61·롤백msg_3e45eb66363e·Master Vercel get_alias 확인",
+      "approval": {
+        "scope": "Vercel1회·시험회원본인각3사가성비1회 총3",
+        "budgetUsed": {
+          "vercelBuilds": 1,
+          "actualModelCalls": 0,
+          "dbVersionWrites": 0
+        },
+        "source": "주인님 직접지시 Ecom보고"
+      },
+      "deployment": {
+        "attempt": "dpl_HUX84NzDEA2A3cV8CxjUxgZaYJYL",
+        "result": "READY 이후무빌드rollback",
+        "activeAliasTarget": "dpl_D9ExEsYD9sH9zAxZy38dkU2UUMUz",
+        "activeVersion": "v1.29",
+        "repositoryVersion": "v1.30"
+      },
+      "completion": "명시검수SHA/경로manifest·모든포함분검수·정확재실행승인범위후Ready/실호출검수",
+      "next": "제품수정동결·이미지d21 QA049/정책/공식지원 분리검토·재빌드예산추가승인전0",
+      "blockedReason": "승인된소스묶음외 이미지3엔진d21포함으로롤백,1빌드예산소진·새실행범위재확정필요",
+      "lastReviewedAt": "2026-11-17T17:37:37.000Z"
+    },
+    {
+      "task_id": "INC-20261118-01",
+      "parent_task_id": "ECOM-20261118-02",
+      "owner": "CX-MASTER-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "HEAD추종배포 未검수포함·v1.29 복구",
+      "status": "done",
+      "delivery": "contained_followup_required",
+      "evidence": "msg_4253f0520c68/3e45eb66363e·alias80ae…→dpl_D9ExEsYD9sH9zAxZy38dkU2UUMUz·ERROR_LESSONS2df8f7930",
+      "completion": "무빌드롤백/공식alias독립확인·DB1.29/실호출0 보고·소스동결/후속검수분리",
+      "next": "새이미지QA049·명시SHA릴리스manifest·추가빌드승인 별도, 재발방지미완까지사고전체종결로확대0",
+      "lastReviewedAt": "2026-11-17T17:37:37.000Z"
+    },
+    {
+      "task_id": "DES-20261118-05",
+      "parent_task_id": "OPS-20261118-01",
+      "owner": "AG-UI-01",
+      "reviewer": "CX-QA-01",
+      "title": "주인님 직접 이미지 NanoBanana/OpenAI/무료모델 3엔진",
+      "status": "ready_review",
+      "delivery": "frozen_pending_review",
+      "sha": "d21eb96d7",
+      "evidence": "msg_97466d3e6af4/msg_87d86247f729·보고fc7536040(구DES03표기→DES05정정요청)",
+      "scopeRef": "image provider/config/validation/services/image route/Workspace/KeySettings/guide/시험",
+      "completion": "공식지원/회원키·무료서비스방식/데이터전송·MIME/크기/timeout/허용모델·회귀·비용/권한범위 검토",
+      "next": "QA049 고정소스검수·AGY문서ID정정/공식근거·제품수정동결·운영v1.29미반영",
+      "lastReviewedAt": "2026-11-17T17:37:37.000Z"
+    },
+    {
+      "task_id": "QA-20261118-049",
+      "parent_task_id": "DES-20261118-05",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "새이미지3엔진 소스/가짜통신·키/응답경계 검수",
+      "status": "ready",
+      "delivery": "queued",
+      "sha": "d21eb96d7",
+      "evidence": "msg_f40c6d3ff13c",
+      "scopeRef": "고정SHA 읽기/기존패키지모의만·실이미지/키/네트워크/DB/build/새창0",
+      "completion": "정확반례·구현/공식실지원/정책/실검수 범위분리",
+      "next": "결과후수정/정책판정·실무료API생성0",
+      "lastReviewedAt": "2026-11-17T17:37:37.000Z"
     }
   ],
   "programOverrides": [
@@ -3785,11 +3861,11 @@
       "slug": "emotion-writer",
       "owner": "AG-UI-01",
       "reportedVersion": "v1.29",
-      "stage": "운영v1.29·3사AI/Pexels/접근성소스지정PASS·버튼QA048대기/미배포",
-      "completed": "메뉴/공식키발급링크 QA042 소스·실TSX모의PASS, storage widget 정적1곳·QA044 UI/초안/가이드제거지정PASS",
-      "next": "3a4ad1cad+59cb81d8e/기존보완한묶음·버튼690df10c6 QA048·실지원/비용/배포별도",
-      "evidence": "45c208bc6 / dpl_D9ExEsYD9sH9zAxZy38dkU2UUMUz / QA042",
-      "evidenceLevel": "Vercel READY/metadata 독립확인·DBv1.29 담당보고·실화면 미검수"
+      "stage": "v1.30범위사고→v1.29무빌드복구·이미지3엔진동결/검수중",
+      "completed": "기존QA042/044/046/048 지정소스PASS(소스미반영),공식alias dpl_D9 독립복구확인",
+      "next": "d21 이미지QA049·키/무료서비스정책/실지원·명시SHAmanifest 확인후새실행범위·재빌드승인,실모델0",
+      "evidence": "msg_3e45eb66363e·Master Vercel get_alias dpl_D9ExEsYD9sH9zAxZy38dkU2UUMUz·INC18-01",
+      "evidenceLevel": "별칭대상독립확인·DB1.29/HTTP200담당보고·소스검수와미배포/롤백구분"
     },
     {
       "slug": "threads-affiliate-poster",
@@ -3832,8 +3908,8 @@
     {
       "order": "1 · ESM",
       "owner": "Ecom + Mac Tester",
-      "stage": "v1.02 운영 배포·Mac 웹 회귀 완료",
-      "next": "Mac 공간19 주인님제어반환대기 실제확인, ESM로그인/확장/실링크→Return to agent 필요"
+      "stage": "ESM1.02실검수대기·감성승인배포범위사고복구",
+      "next": "emotion1.29별칭복구·1build소진/실AI0·정확후속manifest/검수"
     },
     {
       "order": "2 · Workspace",
@@ -3845,7 +3921,7 @@
       "order": "3 · B2B",
       "owner": "Backend + Master + Mac Tester",
       "stage": "Lab0104 적용·검증PASS, Lab 신규배포 Ready·빌드1/1완료",
-      "next": "운영준비d9751c70b→QA047정적검수·QA037/실토스/운영승인해소전실행0"
+      "next": "QA047 source수락·문구정정전달보류/실행0·QA037기존사람로그인"
     },
     {
       "order": "4 · B2BFront",
@@ -3880,8 +3956,8 @@
     {
       "order": "9 · 디자인",
       "owner": "AGY",
-      "stage": "감성접근성/Pexels·요일명세완료·각제품미배포",
-      "next": "감성3사AI는Ecom단일구현·AGY같은파일중복0·146자산보존"
+      "stage": "이미지3엔진d21 소스동결·감성1.29로복구",
+      "next": "DES18-05 문서ID/공식지원·무료서비스정책검토→QA049,제품재편집0"
     },
     {
       "order": "전담 · 키트",
@@ -3903,8 +3979,8 @@
     },
     {
       "condition": "음악 실기기/저장 단계",
-      "action": "Mac MP4 만들기 신뢰클릭·저장위치 선택/AppleSilicon장비 필요시",
-      "recommendation": "기존소스검수를실하드웨어PASS로대체하지않음"
+      "action": "Intel Mac 기존공간20 본인로그인필요시직접로그인+Return, 시험중신뢰클릭/저장위치선택",
+      "recommendation": "AppleSilicon은장비준비뒤후일재개로행정마감·즉시장비요청0"
     },
     {
       "condition": "블로그·마켓 외부계정",
@@ -3918,13 +3994,13 @@
     },
     {
       "condition": "Gmail 운영 활성화",
-      "action": "활성추진지시수신·본인GCP Gmail API/metadata/시험사용자/redirect 설정완료신호",
-      "recommendation": "f4a6854e9§11, Master공개/실행범위확정→운영단일실행. 동일GCP앱scope혼합시거절유지·복구추가빌드별도"
+      "action": "GCP설정완료 주인님신호회수·시험회원Client ID일치/테스트사용자목록·공개/실행범위확정",
+      "recommendation": "DreamAI설정주인님확인(시험ClientID와동일/목록실재는미확인),운영SQL/스위치0·d612f13a/실행순번Master판정"
     },
     {
-      "condition": "감성글귀3사AI 실호출/배포",
-      "action": "소스/독립검수뒤회원본인3사가성비각1회(최대3)와v1.30묶음1빌드 승인여부",
-      "recommendation": "현재는mock구현만승인·실키/모델/배포0, Pexels제거와접근성한묶음"
+      "condition": "감성글귀 v1.30 再실행",
+      "action": "이미지추가분/정확소스검수완료뒤 재빌드1회 추가승인 및실호출범위재확정",
+      "recommendation": "기존1회소진·실3회0·운영1.29복구완료. 지금새빌드/AI0,검수준비먼저"
     }
   ],
   "redispatch": {
@@ -3951,21 +4027,23 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T17:28:02.557Z",
+      "at": "2026-11-17T17:37:37.000Z",
       "timezone": "Asia/Seoul",
-      "trigger": "QA046수정PASS·Backend QA047보완완료 이벤트",
-      "scope": "지정QA046재검수절·B2B수정커밋범위·담당후속수락/재검수전달·음악인계정정",
+      "trigger": "02:30예약·범위사고/직접승인/검수완료 이벤트",
+      "scope": "배포승인3calls/1build회수→범위외d21포함→Ecom無buildrollback→공식alias독립확인·QA047/048·GCP/AppleSilicon직접지시",
       "evidence": [
-        "msg_921acf4a4444·실모듈/guard7fake호출PASS",
-        "9668a2a6c 13파일·작성자22/22·실운영0",
-        "msg_25d58c194f71 Mac재검수·msg_9dc5262c852c Ecom소스수락"
+        "msg_2964618e42f4 예약수신",
+        "msg_e5ab9f819b61 범위사고·msg_4253f0520c68 rollback결정",
+        "msg_3e45eb66363e·Masterget_alias project/team·active dpl_D9",
+        "QA047수락/문구후속·QA048소스수락·QA049 msg_f40c6d3ff13c"
       ],
-      "judgment": "3사AI지정소스완료/미배포·SQL준비보완재검수중. 같은소스전체시험반복/실모델/DB/build/deploy0.",
+      "judgment": "운영1.29복구·DB1.29/실AI0·1build소진. 이미지新요구별도동결검토·AppleSilicon행정후일재개/실PASS아님.",
       "unverified": [
-        "모델실지원/요금/실키/운영/실375",
-        "SQL함수deps/출력원자성 실제운영검증미실행"
+        "新이미지3엔진공식지원/무료서비스정책·실모델/키/시각",
+        "GCP시험ClientID동일/대상시험사용자실목록",
+        "Backend사람prompt로문구정정전달보류"
       ],
-      "nextAction": "QA047수정재검수/QA048반환후판정·다음02:30기존Master예약"
+      "nextAction": "QA049/공식근거·이미지작업ID정정·SQL문구·Gmail실행범위판정,03:00같은Master예약"
     },
     "notifications": [
       {
@@ -4033,7 +4111,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-17T17:30:00.000Z",
+      "nextScheduledAt": "2026-11-17T18:00:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -4051,10 +4129,8 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-17T17:00:00.000Z",
-        "attemptedAt": "2026-11-17T17:00:03.1835667Z",
-        "messageId": "msg_18fc7a1648e4",
-        "taskExitCode": 0,
+        "scheduledAt": "2026-11-17T17:30:00.000Z",
+        "messageId": "msg_2964618e42f4",
         "masterReceived": true,
         "newAgentCreated": false
       }
@@ -4229,7 +4305,7 @@
       "owner": "CC-WORKSPACE-01",
       "status": "지정QA041까지완료·OFF",
       "evidence": "3c820f2b6+8069f60df·체크리스트a44c792ad·f4a6854e9",
-      "next": "활성추진준비지시수신→GCP설정확인/공개/실행범위확정·SQL/켜기는현재0",
+      "next": "주인님GCP완료신호수신·Client ID/대상사용자확인·공개/실행범위확정,현재SQL0",
       "acceptance": "동일묶음서버/UI·metadata만·기대계정·동의/실응답확인"
     },
     {
@@ -4297,7 +4373,7 @@
       "kind": "운영반영승인",
       "target": "0101~0104/Front묶음",
       "owner": "CC-B2B-BACK-01",
-      "status": "9668a2a6c 보완반환·Mac재검수대기",
+      "status": "9668a2a6c QA047지정PASS·원자성문구후속",
       "evidence": "d43255f8f·c6931bfbe",
       "next": "함수deps/산출전검증 두경계재검수·단계별rename한계분리",
       "acceptance": "운영0100기준보존·옛0102 rollback사용0"
@@ -4397,9 +4473,9 @@
       "kind": "直接지시/구현중",
       "target": "감성글귀3사AI 선택",
       "owner": "CC-ECOM-01",
-      "status": "59cb81d8e QA046지정PASS·미배포",
+      "status": "QA046소스PASS·승인배포범위사고후1.29rollback",
       "evidence": "PLAN1ece3747d·msg_b8292d9e0030·공용openai사본바이트일치/검사등록",
-      "next": "최신모델실지원/실키/시각은미검수·정확묶음/실비용승인뒤진행",
+      "next": "이미지추가분분리/검수된명시SHA·새빌드승인전0",
       "acceptance": "OpenAI/Claude/Gemini 선택·본인키/서버허용목록·재시도0·기존기본유지"
     },
     {
@@ -4417,17 +4493,27 @@
       "kind": "직접지시/미배포수정",
       "target": "배경외부링크 버튼화",
       "owner": "AG-UI-01",
-      "status": "690df10c6 작성자반환·독립검수대기",
+      "status": "QA048 지정소스PASS·미배포",
       "evidence": "msg_10b55a37b895",
       "next": "지정검수후감성묶음·실320/375시각은별도",
       "acceptance": "두링크/본문인계·키보드/넘침·저장버튼불변"
+    },
+    {
+      "id": "IMP-IMAGE-05",
+      "kind": "직접추가요구/동결검토",
+      "target": "NanoBanana/OpenAI/무료FLUX 이미지엔진",
+      "owner": "AG-UI-01 / CX-MASTER-01",
+      "status": "d21eb96d7 未검수포함배포→rollback·QA049",
+      "evidence": "msg_97466d3e6af4·INC18-01·fc7536040",
+      "next": "공식모델/무료서비스방식·자원/키·응답제한 고정SHA검수후기술/정책판정",
+      "acceptance": "회원권한/본인키·무료방식근거·timeout/응답MIME/크기/URL·실지원/비용·명시릴리스manifest"
     }
   ],
   "sessionReviews": [
     {
       "owner": "CC-WORKSPACE-01",
-      "state": "WS27활성준비f4a6854e9 완료·점유0",
-      "next": "주인님GCP설정/공개방식/실행범위확정→Master실행",
+      "state": "GCP설정완료주인님신호회수·ClientID동일미확인",
+      "next": "공개방식/실행범위/일치boolean확인·SQL/스위치0",
       "evidence": "f6e6b1da3 / a41a1e31e·5f9e66d7f",
       "reviewedAt": "2026-11-17T16:58:50.290Z",
       "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
@@ -4450,8 +4536,8 @@
     },
     {
       "owner": "CC-ECOM-01",
-      "state": "3사AI59cb81d8e QA046소스수락·미배포",
-      "next": "본인점유해제/현재문서정리·실비용/배포별도",
+      "state": "emotion1.30範圍事故→無build1.29rollback완료·실AI0",
+      "next": "소스동결/명시SHAmanifest·추가빌드승인전0",
       "evidence": "26e1353c5 / msg_c6e462ca244b·msg_b8292d9e0030/ACTIVE_WORK",
       "reviewedAt": "2026-11-17T16:58:50.290Z",
       "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
@@ -4490,16 +4576,16 @@
     },
     {
       "owner": "AG-UI-01",
-      "state": "DES02소스완료·DES04명세반환·제품점유0",
-      "next": "명세를Workspace인계·수정실화면과별도",
+      "state": "新이미지d21 source동결·DES05보고정정요청",
+      "next": "공식지원/정책근거·QA049·제품변경0",
       "evidence": "f4063ae82 / msg_cc05e5f53915",
       "reviewedAt": "2026-11-17T16:58:50.290Z",
       "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
     },
     {
       "owner": "CX-QA-01",
-      "state": "QA043~045완료·QA046진행/047발송",
-      "next": "AI반례재검수→SQL정적검수·QA002 MP4기존사람단계유지",
+      "state": "QA047/048지정검수완료·QA049발송",
+      "next": "이미지3엔진고정SHA검수·Intel실MP4기존사람조건",
       "evidence": "msg_637d0a9f128b/msg_edc3ed674d46/msg_9a4e8d3e50c8",
       "reviewedAt": "2026-11-17T16:58:50.290Z",
       "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
@@ -4537,8 +4623,8 @@
     },
     {
       "category": "이미지",
-      "stage": "감성1.29운영·Pexels제거/접근성소스PASS미배포·3사AI구현중,바나나1.49",
-      "next": "ECOM18-01 mock구현·고정SHA QA044와후속분리·v1.30실비용/배포별도",
+      "stage": "감성1.30범위사고→운영1.29복구·新이미지엔진동결",
+      "next": "QA049/정책/공식지원·정확manifest/신규예산확정전再배포0",
       "coordinator": "Ecom·AGY / Master",
       "reviewedAt": "2026-11-17T16:58:50.290Z"
     },
@@ -6132,5 +6218,32 @@
     "preservedForeignChanges": [
       "docs/HANDOFF.md 기존AGY미커밋·다른제품/문서미커밋은커밋/초기화0"
     ]
+  },
+  "deferredWork": [
+    {
+      "id": "MUSIC-APPLE-SILICON",
+      "owner": "CC-MUSIC-01 / CX-QA-01",
+      "status": "closed_until_equipment_ready",
+      "source": "주인님 직접지시 msg_a67b1118172d·99e478211/224105f53",
+      "decision": "장비준비뒤실행으로행정마감·실제PASS아님·현재반복확인/장비요청0",
+      "resumeWhen": "Apple Silicon장비준비→동일요청서재개"
+    }
+  ],
+  "releaseReservations": {
+    "current": {
+      "program": "emotion-writer",
+      "owner": "CC-ECOM-01",
+      "status": "rolled_back_frozen",
+      "approvalMessage": "msg_d5fbe8f307d8",
+      "remoteBudget": 1,
+      "remoteUsed": 1,
+      "modelBudget": 3,
+      "modelUsed": 0,
+      "dbVersionWrites": 0,
+      "activeAlias": "dpl_D9ExEsYD9sH9zAxZy38dkU2UUMUz",
+      "outOfScopeCommit": "d21eb96d7",
+      "rollbackConfirmedBy": "Master Vercel get_alias + msg_3e45eb66363e",
+      "next": "追加build未승인·明示SHA검토후"
+    }
   }
 }

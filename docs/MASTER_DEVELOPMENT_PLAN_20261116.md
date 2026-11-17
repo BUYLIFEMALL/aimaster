@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 02:28:05 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 02:37:39 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 02:28:02 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 02:37:37 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 지정QA046재검수절·B2B수정커밋범위·담당후속수락/재검수전달·음악인계정정 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 배포승인3calls/1build회수→범위외d21포함→Ecom無buildrollback→공식alias독립확인·QA047/048·GCP/AppleSilicon직접지시 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -16,15 +16,15 @@ Master 마지막 실제 점검: 2026-11-18 02:28:02 KST · 실행 중 점검 주
 
 | 순서 | 담당 | 진행 단계 | 다음 작업·통과 기준 |
 | --- | --- | --- | --- |
-| 1 · ESM | Ecom + Mac Tester | v1.02 운영 배포·Mac 웹 회귀 완료 | Mac 공간19 주인님제어반환대기 실제확인, ESM로그인/확장/실링크→Return to agent 필요 |
+| 1 · ESM | Ecom + Mac Tester | ESM1.02실검수대기·감성승인배포범위사고복구 | emotion1.29별칭복구·1build소진/실AI0·정확후속manifest/검수 |
 | 2 · Workspace | Workspace + Master | v1.57운영·E3/GmailOFF/WS23/요일칩 소스수락·미배포 | v1.58미배포·Gmail활성추진준비승인/본인GCP설정대기, 공개/실행범위확정뒤Master단일실행 |
-| 3 · B2B | Backend + Master + Mac Tester | Lab0104 적용·검증PASS, Lab 신규배포 Ready·빌드1/1완료 | 운영준비d9751c70b→QA047정적검수·QA037/실토스/운영승인해소전실행0 |
+| 3 · B2B | Backend + Master + Mac Tester | Lab0104 적용·검증PASS, Lab 신규배포 Ready·빌드1/1완료 | QA047 source수락·문구정정전달보류/실행0·QA037기존사람로그인 |
 | 4 · B2BFront | B2BFront + Mac Tester | FRONT03/04 소스독립PASS·7609748ad B2B Lab신규배포에포함 | 77c50f27c QA045소스수락/미배포·QA037고객실화면별도 |
 | 5 · 블로그 | Blog | T05 robots/DNS·T07공용폴러 소스독립PASS·미배포 | 다음web-crawler묶음에통합·외부/빌드0 |
 | 6 · 영상 | Movie | YVS1단계 실검색/AI1회 담당운영검수완료 | 동일검색/AI재호출0·공용encoder다음묶음·추가기능별도 |
 | 7 · 음악 | Music | 운영6프로그램 보고확보·가사취소안내1건미배포 | 공용encoder사본소스PASS/미배포·가사문구와다음묶음·실MP4사람대기 |
 | 8 · 부동산 | Realty | 알림v1.46 운영보고·자연회차18:16 ok811/10:37 ok110 담당읽기, 기기/확장상태는미확인 | RE07독립자료없음·개발표본반복0·자연회차근거만 |
-| 9 · 디자인 | AGY | 감성접근성/Pexels·요일명세완료·각제품미배포 | 감성3사AI는Ecom단일구현·AGY같은파일중복0·146자산보존 |
+| 9 · 디자인 | AGY | 이미지3엔진d21 소스동결·감성1.29로복구 | DES18-05 문서ID/공식지원·무료서비스정책검토→QA049,제품재편집0 |
 | 전담 · 키트 | Support + 주인님 | 주인님 직접 작업 전담 | Master 타업무 배정 제외·다른 빌드예산 전용0 |
 
 ## 카테고리별 현재 단계와 남은 작업
@@ -36,7 +36,7 @@ Master 마지막 실제 점검: 2026-11-18 02:28:02 KST · 실행 중 점검 주
 | 업무자동화 | 9 / 2 | Workspace1.57·플래너1.14 기록, E3/GmailOFF미배포 | v1.58묶음미배포·Gmail활성추진준비승인/GCP필수설정→공개/실행범위확정 | Workspace / Master |
 | 이커머스 | 10 / 7 | B2B운영1.16/Lab0104·ESM1.02·마켓기배포정정 | QA037/ESM사람단계→실범위검수·운영승인별도 | B2BBackend/Front·Ecom / Master |
 | 이커머스 (현재 비공개) | 1 / 1 | ESM1.02운영·지정웹QA016PASS | 공간19확장/계정/시험상품입력만·API승인회신전트랙2미구현 | Ecom·MacTester |
-| 이미지 | 10 / 2 | 감성1.29운영·Pexels제거/접근성소스PASS미배포·3사AI구현중,바나나1.49 | ECOM18-01 mock구현·고정SHA QA044와후속분리·v1.30실비용/배포별도 | Ecom·AGY / Master |
+| 이미지 | 10 / 2 | 감성1.30범위사고→운영1.29복구·新이미지엔진동결 | QA049/정책/공식지원·정확manifest/신규예산확정전再배포0 | Ecom·AGY / Master |
 | 쓰레드 | 5 / 1 | 쇼핑제휴1.89반영·나머지목록기록 | 실확장수집/대기열검수·다른Threads현담당/잔여확정 | Ecom(제휴) / Master |
 | 음악 | 11 / 6 | 6프로그램운영버전보고·가사2건미배포·공용권한분리 | 실MP4사람선택·가사다음기능묶음·나머지현담당근거확인 | Music·Movie / Master |
 | 영상 | 3 / 2 | GIF1.33/AI영상1.36 기록·공용인코더소스PASS미배포 | 실기기/왕복범위선행·유료생성승인별도 | Movie / Master |
@@ -61,14 +61,14 @@ Master 마지막 실제 점검: 2026-11-18 02:28:02 KST · 실행 중 점검 주
 | --- | --- | --- | --- | --- |
 | IMP-WS-01 / 미배포수정 | 예약초회DDL경합 · CC-WORKSPACE-01 | 소스독립PASS · d7895f6d4·QA028 | v1.58묶음승인뒤포함 | 기존최상위거래조건유지·운영릴리스확인 |
 | IMP-WS-02 / 미배포기능 | E3 결재/출처/재시도 · CC-WORKSPACE-01 | 통합560·지정QA완료 · e668caf32·6f166ec8f·QA030/033/034/035 | v1.58 승인→배포/합성UI·실AI비용은분리 | 결재자규칙/앱알림·수동외부검색/출처저장요청·owner예외고지 |
-| IMP-WS-03 / 운영활성승인 | Gmail OFF 소스 · CC-WORKSPACE-01 | 지정QA041까지완료·OFF · 3c820f2b6+8069f60df·체크리스트a44c792ad·f4a6854e9 | 활성추진준비지시수신→GCP설정확인/공개/실행범위확정·SQL/켜기는현재0 | 동일묶음서버/UI·metadata만·기대계정·동의/실응답확인 |
+| IMP-WS-03 / 운영활성승인 | Gmail OFF 소스 · CC-WORKSPACE-01 | 지정QA041까지완료·OFF · 3c820f2b6+8069f60df·체크리스트a44c792ad·f4a6854e9 | 주인님GCP완료신호수신·Client ID/대상사용자확인·공개/실행범위확정,현재SQL0 | 동일묶음서버/UI·metadata만·기대계정·동의/실응답확인 |
 | IMP-WS-04 / 구현/검수 | 예약요일 칩 · CC-WORKSPACE-01 | QA043 소스/DOM/대비PASS·미배포 · DES04 f4063ae82·QA043·msg_97ed2e3647bf | v1.58묶음뒤375/390/다크/포커스실시각 | 7칩44x36·busy차단·키보드포커스·타칸불변 |
 | IMP-WS-05 / 꺼진기능 | 손님포털 · CC-WORKSPACE-01 | 소스/QA009 완료·OFF · a09825904·b2715fcd6 | 활성요청시표추가승인/권한재검토,현재켜지않음 | 권한철회/만료/토큰교체·금지속성미노출 |
 | IMP-DES-01 / 미배포수정 | emotion-writer 접근성 · AG-UI-01 | 국소QA042 PASS · 121317458 | 다음감성글귀기능묶음·단독빌드0 | Tab/토글이름·hover대비·실375/위젯은후속 |
 | IMP-ECOM-01 / 실검수 | ESM 입력만 · CC-ECOM-01 / CX-QA-01 | 운영1.02·웹QA016완료 · 4d31d626e·QA016 | 주인님공간19 로그인/확장1.02/제어반환 | 시험상품82deeddc 입력1회·임시저장/등록0 |
 | IMP-ECOM-02 / 실검수 | Threads 네이버수집 · CC-ECOM-01 / CX-QA-01 | 운영1.89·격리소스검수완료 · ECOM17-01·WS17-04 | 공간19본인로그인·확장1.89·실브랜드커넥트링크 | 수집/대기열만·등록/AI생성0 |
 | IMP-B2B-01 / 실검수 | Lab 교환비 고객/직원화면 · CX-QA-01 | QA037 waiting_human · Lab0104/7609748ad·공간29 | 주인님naver로그인/반환→고객검수→gmail관리자 | 권한/교환상태/375읽기·실결제/상태변경0 |
-| IMP-B2B-02 / 운영반영승인 | 0101~0104/Front묶음 · CC-B2B-BACK-01 | 9668a2a6c 보완반환·Mac재검수대기 · d43255f8f·c6931bfbe | 함수deps/산출전검증 두경계재검수·단계별rename한계분리 | 운영0100기준보존·옛0102 rollback사용0 |
+| IMP-B2B-02 / 운영반영승인 | 0101~0104/Front묶음 · CC-B2B-BACK-01 | 9668a2a6c QA047지정PASS·원자성문구후속 · d43255f8f·c6931bfbe | 함수deps/산출전검증 두경계재검수·단계별rename한계분리 | 운영0100기준보존·옛0102 rollback사용0 |
 | IMP-FRONT-01 / 신규발견/미확인 | navCls hover7색 · CC-B2B-FRONT-01 | 77c50f27c QA045소스PASS·미배포 · 77c50f27c·QA045 msg_b36218feed71 | 운영/Lab반영은다음묶음·실시각범위별도 | 미달색4.5이상·비대상theme회귀·143추측수정0 |
 | IMP-FRONT-02 / 제안/미착수 | 갤러리누름크기·원래가격·S70 · CC-B2B-FRONT-01 | 제안단계 · c6931bfbe | 우선순위/실근거·S70결제흐름범위확정후배정 | 각변경완료조건 별도정의·기존승인으로임의확대0 |
 | IMP-BLOG-01 / 미배포수정 | 이웃1.22·티스토리1.98 · CC-BLOG-01 | 소스완료·실조건대기 · 3bb238398/e35947191/a27861137 | 다음묶음승인·이웃B1사람/계정·Tistory기존미리보기 | 소제목기호수정·진단근거·실발행0 |
@@ -78,9 +78,10 @@ Master 마지막 실제 점검: 2026-11-18 02:28:02 KST · 실행 중 점검 주
 | IMP-REALTY-01 / 미배포공통 | 상가2/고객관리3변경 · CC-REALTY-01 | 소스완료 · 3a1d7fbb4/7f97c00e6 | 각다음기능배포·공통만단독빌드0 | local로그아웃/기기정보/위젯실로드범위구분 |
 | IMP-REALTY-02 / 분석완료/검증대기 | 뉴스후보 C · CC-REALTY-01 | 개발237·독립표본없음 · 7ef7f547c·RE17-07 | 미사용기간 정상저장자료확보후고정후보별도배정 | 라벨먼저고정·개발자료재평가를독립PASS로표기0 |
 | IMP-PORTFOLIO-01 / 담당/문서공백 | detail-page-12p 및현세션없는카테고리 · CX-MASTER-01 | 현문서근거/담당확인대기 · 103폴더대조·CATEGORY_GUIDE_MAP | 역할/개별문서기준대조→소관확정후구현배정 | 담당불명=폐지/완료로추정0·부재목록명시 |
-| IMP-IMAGE-02 / 直接지시/구현중 | 감성글귀3사AI 선택 · CC-ECOM-01 | 59cb81d8e QA046지정PASS·미배포 · PLAN1ece3747d·msg_b8292d9e0030·공용openai사본바이트일치/검사등록 | 최신모델실지원/실키/시각은미검수·정확묶음/실비용승인뒤진행 | OpenAI/Claude/Gemini 선택·본인키/서버허용목록·재시도0·기존기본유지 |
+| IMP-IMAGE-02 / 直接지시/구현중 | 감성글귀3사AI 선택 · CC-ECOM-01 | QA046소스PASS·승인배포범위사고후1.29rollback · PLAN1ece3747d·msg_b8292d9e0030·공용openai사본바이트일치/검사등록 | 이미지추가분분리/검수된명시SHA·새빌드승인전0 | OpenAI/Claude/Gemini 선택·본인키/서버허용목록·재시도0·기존기본유지 |
 | IMP-IMAGE-03 / 미배포수정 | Pexels 선택/가이드제거 · AG-UI-01 | QA044지정PASS · de49e96e9+62189915b | 감성글귀다음묶음·3사AI수정때보존 | UI선택제거·구초안pixabay·기존키/서버호환보존 |
-| IMP-IMAGE-04 / 직접지시/미배포수정 | 배경외부링크 버튼화 · AG-UI-01 | 690df10c6 작성자반환·독립검수대기 · msg_10b55a37b895 | 지정검수후감성묶음·실320/375시각은별도 | 두링크/본문인계·키보드/넘침·저장버튼불변 |
+| IMP-IMAGE-04 / 직접지시/미배포수정 | 배경외부링크 버튼화 · AG-UI-01 | QA048 지정소스PASS·미배포 · msg_10b55a37b895 | 지정검수후감성묶음·실320/375시각은별도 | 두링크/본문인계·키보드/넘침·저장버튼불변 |
+| IMP-IMAGE-05 / 직접추가요구/동결검토 | NanoBanana/OpenAI/무료FLUX 이미지엔진 · AG-UI-01 / CX-MASTER-01 | d21eb96d7 未검수포함배포→rollback·QA049 · msg_97466d3e6af4·INC18-01·fc7536040 | 공식모델/무료서비스방식·자원/키·응답제한 고정SHA검수후기술/정책판정 | 회원권한/본인키·무료방식근거·timeout/응답MIME/크기/URL·실지원/비용·명시릴리스manifest |
 
 ## 담당별 현재 상태·인수인계
 
@@ -88,16 +89,16 @@ Master 마지막 실제 점검: 2026-11-18 02:28:02 KST · 실행 중 점검 주
 
 | 담당 | 현재 작업·점유 | 완료/대기·다음 행동 | 확인 근거 |
 | --- | --- | --- | --- |
-| CC-WORKSPACE-01 | WS27활성준비f4a6854e9 완료·점유0 | 주인님GCP설정/공개방식/실행범위확정→Master실행 | f6e6b1da3 / a41a1e31e·5f9e66d7f |
+| CC-WORKSPACE-01 | GCP설정완료주인님신호회수·ClientID동일미확인 | 공개방식/실행범위/일치boolean확인·SQL/스위치0 | f6e6b1da3 / a41a1e31e·5f9e66d7f |
 | CC-B2B-BACK-01 | 운영준비9668a2a6c 두건보완·재검수대기 | Mac QA047지정재검수·실행승인/선행조건해소전0 | d43255f8f / msg_223ca85a800e·dabbc23ce/msg_82a3e93e9fa9 |
 | CC-B2B-FRONT-01 | hover77c50f27c QA045소스수락·미배포 | 다음묶음/QA037대기 | c6931bfbe / 55368bd4c |
-| CC-ECOM-01 | 3사AI59cb81d8e QA046소스수락·미배포 | 본인점유해제/현재문서정리·실비용/배포별도 | 26e1353c5 / msg_c6e462ca244b·msg_b8292d9e0030/ACTIVE_WORK |
+| CC-ECOM-01 | emotion1.30範圍事故→無build1.29rollback완료·실AI0 | 소스동결/명시SHAmanifest·추가빌드승인전0 | 26e1353c5 / msg_c6e462ca244b·msg_b8292d9e0030/ACTIVE_WORK |
 | CC-BLOG-01 | 현재요약정정완료·점유0 | 다음묶음/사람계정조건·T12문서조정, 새생성0 | 2f15cafc9 / msg_de0bdb33dbeb |
 | CC-MOVIE-01 | YVS실검색/AI기획안1회 담당운영완료·점유0 | 재호출0·새배정대기 | a3f39764b/00a2c9efa·별도실청구미확정 |
 | CC-MUSIC-01 | 현재기록정정완료·점유0·기존icon변경보존 | lyric2건다음묶음·Mac실MP4사람선택 | a8333ca84/a5a96ab42 / msg_c4bd9b21150b |
 | CC-REALTY-01 | 문서정정완료·점유0 | 독립자료미확보차단·정상회차이외새수집0 | 18b206cbe / msg_7c94f8433b21 |
-| AG-UI-01 | DES02소스완료·DES04명세반환·제품점유0 | 명세를Workspace인계·수정실화면과별도 | f4063ae82 / msg_cc05e5f53915 |
-| CX-QA-01 | QA043~045완료·QA046진행/047발송 | AI반례재검수→SQL정적검수·QA002 MP4기존사람단계유지 | msg_637d0a9f128b/msg_edc3ed674d46/msg_9a4e8d3e50c8 |
+| AG-UI-01 | 新이미지d21 source동결·DES05보고정정요청 | 공식지원/정책근거·QA049·제품변경0 | f4063ae82 / msg_cc05e5f53915 |
+| CX-QA-01 | QA047/048지정검수완료·QA049발송 | 이미지3엔진고정SHA검수·Intel실MP4기존사람조건 | msg_637d0a9f128b/msg_edc3ed674d46/msg_9a4e8d3e50c8 |
 | CC-SUPPORT-01 | 주인님직접키트작업전담·이번상태미조회 | Master다른작업배정제외·완료신호만취합 | 주인님전담지시·SUP05 |
 
 ## 이번 대조에서 정정한 상태와 남은 불일치
@@ -136,7 +137,7 @@ Master 마지막 실제 점검: 2026-11-18 02:28:02 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 235개: done 218개 · cancelled 7개 · ready_review 4개 · running 1개 · waiting_human 4개 · ready 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 239개: done 222개 · cancelled 7개 · ready_review 3개 · running 1개 · waiting_human 4개 · needs_revision 1개 · ready 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -275,7 +276,7 @@ Master 마지막 실제 점검: 2026-11-18 02:28:02 KST · 실행 중 점검 주
 | WS-20261117-08 | CC-WORKSPACE-01 | done / integrated | 주인님 직접 소규모5건 캘린더·번역 묶음 | v1.56 묶음반영완료·추가중복개발0 |
 | PLAN-20261117-01 | CC-WORKSPACE-01 | done / integrated | Workspace 큰기능4건 기존기능대조·확장계획 | E1 claimRetry보완우선. E2 PresenceLayer기존위치표시발견→새Badge/Block중복계획철회, sync복귀조회·기존말풍선현지화만. 예약/포털설계보완·운영DDL별도 |
 | MOV-20261117-06 | CC-MOVIE-01 | done / integrated | Workspace소규모캘린더/번역/여백 독립검토 | 중복검토0·최신146화면은Workspace/독립시각검수별도 |
-| QA-20261117-002 | CX-QA-01 | waiting_human / returned | 실제Intel Mac MP4파일내보내기 보조검수 | 주인님직접MP4요청 회수·Mac기존공간20 제어반환/로그인/신뢰클릭/저장선택후2MP4+2진단, Music지정파일분석·AppleSilicon미검수 |
+| QA-20261117-002 | CX-QA-01 | waiting_human / returned | 실제Intel Mac MP4파일내보내기 보조검수 | Intel 실제MP4는기존공간20 로그인필요시본인로그인+Return→실시험·파일2/진단2. AppleSilicon은주인님결정으로후일재개행정마감·실PASS아님 |
 | QA-20261117-003 | CX-QA-01 | done / integrated | B2B Lab·RE계정격리·Workspace묶음 독립검수 | 배정검수범위완료·새E2/교환UI반환후새검수,같은시험반복없음 |
 | QA-20261117-004 | CX-QA-01 | done / integrated | 교환0102 독립검토 | DB검수배정범위완료·맥DB/실UI/운영미검수;불가능복구문구후속정정. Lab0102/운영0 |
 | B2B-20261117-02 | CC-B2B-BACK-01 | done / integrated | 교환0102 구현·독립지적 수정 | 코어가드범위완료·불가능한거절/재접수안내P2문구는후속UI와국소정정. Lab0102/운영미적용 |
@@ -356,7 +357,7 @@ Master 마지막 실제 점검: 2026-11-18 02:28:02 KST · 실행 중 점검 주
 | QA-20261117-039 | CX-QA-01 | done / integrated | Gmail OFF 패널 실제 TSX 모의 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
 | QA-20261117-040 | CX-QA-01 | done / integrated | Gmail OFF 배선·실제 RPC 입구·어댑터·화면 통합 독립검수 | 배선소스수락·동결, 패널disconnect unknown후속별도 |
 | QA-20261117-041 | CX-QA-01 | done / integrated | Gmail 연결 해제 재시도·계정교체 조건부삭제 독립검수 | 소스수락·두SHA같이배포, 활성화단계별도 |
-| WS-20261117-27 | CC-WORKSPACE-01 | waiting_human / activation_preparation_approved | Gmail 운영 SQL 적용·실계정 검증·활성화 | f4a6854e9 체크리스트§11 준비완료·Master실행총괄/Workspace준비/Mac검수/주인님GCP 분리 |
+| WS-20261117-27 | CC-WORKSPACE-01 | waiting_human / activation_preparation_approved | Gmail 운영 SQL 적용·실계정 검증·활성화 | 반복GCP설정요청0·일치boolean확인·감성복구확인뒤공용실행순번/공개범위판정, SQL/스위치0 |
 | DES-20261118-01 | AG-UI-01 | done / integrated | 감성 글귀 이미지 직접지시 v1.28/v1.29 배포 회수 | P3 두건 DES02 다음묶음·375px/실위젯 미검수 유지 |
 | QA-20261118-042 | CX-QA-01 | done / integrated | emotion-writer 메뉴·키설정 독립검수 | DES02 반환시 두건 재검수·실375/위젯/회원키는 미검수 |
 | DES-20261118-02 | AG-UI-01 | done / accepted_pending_batch_deploy | 키보기 키보드 접근·키발급 링크 hover 대비 보완 | 다음 emotion-writer 묶음배포에 포함·운영반영 전까지 미배포 유지 |
@@ -368,13 +369,17 @@ Master 마지막 실제 점검: 2026-11-18 02:28:02 KST · 실행 중 점검 주
 | QA-20261118-044 | CX-QA-01 | done / integrated | Pexels UI/초안/가이드 제거 고정SHA검수 | 3사AI구현은별도·운영/실키미검수 |
 | ECOM-20261118-01 | CC-ECOM-01 | done / accepted_pending_batch_deploy | 주인님 직접 글귀AI 3사/상세모델 선택 | 지정소스/fakefetch/TSX 검수수락·모델실지원/실키/운영/시각은미검수·다음묶음 |
 | B2B-20261118-01 | CC-B2B-BACK-01 | done / integrated | 운영0101~0104 사전 실행표 | B2B18-02 정확실행파일준비·운영적용은미승인 |
-| B2B-20261118-02 | CC-B2B-BACK-01 | ready_review / review_dispatched | 운영전용 precheck/apply/verify 준비 | S-F01/S-F02수정·작성자격리22/22, Mac국소재검수대기·9개rename전체원자보장과구분·운영실행0 |
+| B2B-20261118-02 | CC-B2B-BACK-01 | ready_review / documentation_followup_held | 운영전용 precheck/apply/verify 준비 | QA047지정소스수락·원자성문구정정전달보류(사람prompt), 실행미승인·문구정리후준비범위마감 |
 | FRONT-20261118-02 | CC-B2B-FRONT-01 | done / accepted_pending_batch_deploy | navCls hover 미달7색 국소보완 | QA045 지정함수/CSS소스수락·미배포. compiled CSS/실시각은작성자증거와Mac미검수구분 |
 | QA-20261118-045 | CX-QA-01 | done / integrated | nav hover7색/소비자범위 독립검수 | 다음몰기능묶음·실compile/브라우저Mac미검수·새설치0 |
 | QA-20261118-046 | CX-QA-01 | done / integrated | 감성글귀3사AI/키/오류/취소 독립검수 | 지정소스/fakefetch/TSX 검수수락·모델실지원/실키/운영/시각은미검수·다음묶음 |
-| QA-20261118-047 | CX-QA-01 | ready_review / review_dispatched | 운영0101~0104 실행준비파일 정적검수 | S-F01/S-F02수정·작성자격리22/22, Mac국소재검수대기·9개rename전체원자보장과구분·운영실행0 |
-| DES-20261118-04 | AG-UI-01 | ready_review / returned | 주인님 직접 배경링크 버튼화/줄바꿈 개선 | QA048 msg_820d2b5965d3 전달완료·미배포묶음·실320/375는별도 |
-| QA-20261118-048 | CX-QA-01 | ready / queued | 배경제작 링크버튼 지정소스 검수 | QA046수정/QA047뒤국소검수·실키/AI/build0 |
+| QA-20261118-047 | CX-QA-01 | done / integrated_with_documentation_followup | 운영0101~0104 실행준비파일 정적검수 | Backend문구정정 msg_f7180a0df404 queued/사람prompt전달보류·전체산출물무조건불변표현한정 |
+| DES-20261118-04 | AG-UI-01 | done / accepted_pending_batch_deploy | 주인님 직접 배경링크 버튼화/줄바꿈 개선 | 링크/인계/기존저장로직소스수락·실320/375/외부수신未검수·롤백v1.29에는미반영 |
+| QA-20261118-048 | CX-QA-01 | done / integrated | 배경제작 링크버튼 지정소스 검수 | 링크/인계/기존저장로직소스수락·실320/375/외부수신未검수·롤백v1.29에는미반영 |
+| ECOM-20261118-02 | CC-ECOM-01 | needs_revision / rolled_back | 감성v1.30 승인배포/3사실호출·범위사고복구 | 제품수정동결·이미지d21 QA049/정책/공식지원 분리검토·재빌드예산추가승인전0 |
+| INC-20261118-01 | CX-MASTER-01 | done / contained_followup_required | HEAD추종배포 未검수포함·v1.29 복구 | 새이미지QA049·명시SHA릴리스manifest·추가빌드승인 별도, 재발방지미완까지사고전체종결로확대0 |
+| DES-20261118-05 | AG-UI-01 | ready_review / frozen_pending_review | 주인님 직접 이미지 NanoBanana/OpenAI/무료모델 3엔진 | QA049 고정소스검수·AGY문서ID정정/공식근거·제품수정동결·운영v1.29미반영 |
+| QA-20261118-049 | CX-QA-01 | ready / queued | 새이미지3엔진 소스/가짜통신·키/응답경계 검수 | 결과후수정/정책판정·실무료API생성0 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
@@ -393,7 +398,7 @@ Master 마지막 실제 점검: 2026-11-18 02:28:02 KST · 실행 중 점검 주
 | 뮤직비디오 자동화 | CC-MOVIE-01 + CC-MUSIC-01 | v1.31 | 운영·공통반영확인 | 저장위젯/로그인 정책 기배포 | 영상/음악 파일소유분리, 유료생성은기존보류 |
 | 음악(SUNO)자동화 | CC-MUSIC-01 | v1.58 | 운영v1.58·기존메뉴수정 반영완료 | db08afdd6가배포기준f78967bad 조상·music-b8m2pihnu/메뉴1개확인기록 | 옛미배포메뉴수정 재구현/재배포0·새배정전점유확인 |
 | AI 바나나 캔버스 자동화 | CC-ECOM-01 | v1.49 | 운영Ready·시험상품 실저장왕복 확인 | e5611755d·c41203srg Ready·DB1.49·375/320합성2/2담당보고 | 시험상품1개 운영실저장왕복/동일설정재전송방지/대표사진원복 확인보고수락, 실기기/낭독등별도 |
-| 감성 글귀 이미지 | AG-UI-01 | v1.29 | 운영v1.29·3사AI/Pexels/접근성소스지정PASS·버튼QA048대기/미배포 | 메뉴/공식키발급링크 QA042 소스·실TSX모의PASS, storage widget 정적1곳·QA044 UI/초안/가이드제거지정PASS | 3a4ad1cad+59cb81d8e/기존보완한묶음·버튼690df10c6 QA048·실지원/비용/배포별도 |
+| 감성 글귀 이미지 | AG-UI-01 | v1.29 | v1.30범위사고→v1.29무빌드복구·이미지3엔진동결/검수중 | 기존QA042/044/046/048 지정소스PASS(소스미반영),공식alias dpl_D9 독립복구확인 | d21 이미지QA049·키/무료서비스정책/실지원·명시SHAmanifest 확인후새실행범위·재빌드승인,실모델0 |
 | AI 영상렌더 스튜디오 | CC-MOVIE-01 | v1.33 | 운영 Ready·독립 코드QA PASS / 실제왕복 미검수 | 2ae34fbdc·11+4독립조건PASS·38pox5t03 Ready·DB/ext/ZIP1.33일치 보고 | 시험상품 범위 확정 후 GIF/WebP 각1 실수신 검수. 추가빌드 없음 |
 | AI 상세페이지 자동화 | CC-ECOM-01 | v1.47 | 운영Ready·시험상품 실저장왕복 확인 | 0e418bab9·6esxwz43i Ready·DB1.47·products/위젯 담당확인 | 시험상품1개 운영실저장왕복/동일설정재전송방지/대표사진원복 확인보고수락, 실기기/낭독등별도 |
 | AI 쇼츠 원스톱 제작 자동화 | CC-MOVIE-01 | v1.59 | 운영·특정시험대기 | 낱말시각B안 코드·배포 | 약1원시험·시험계정 조건 및 공용인코더 다음배포 |
@@ -424,11 +429,11 @@ Master 마지막 실제 점검: 2026-11-18 02:28:02 KST · 실행 중 점검 주
 | --- | --- | --- |
 | B2B Lab 배포 후 역할별 화면 검수 | Mac ego공간29 Lab에 시험naver계정 직접로그인 후 Return to agent. 고객검수뒤 관리자gmail1회 | DB0104/승인Lab빌드완료·추가SQL조작불필요. 실제결제/상태변경0 |
 | 실제 결제 검수 단계 | Lab 테스트 전용 토스 키 사용 확인 | 운영/회원실키 폴백 없이 테스트키로만,현재실결제0 |
-| 음악 실기기/저장 단계 | Mac MP4 만들기 신뢰클릭·저장위치 선택/AppleSilicon장비 필요시 | 기존소스검수를실하드웨어PASS로대체하지않음 |
+| 음악 실기기/저장 단계 | Intel Mac 기존공간20 본인로그인필요시직접로그인+Return, 시험중신뢰클릭/저장위치선택 | AppleSilicon은장비준비뒤후일재개로행정마감·즉시장비요청0 |
 | 블로그·마켓 외부계정 | 해당회차가필요할때본인로그인·확장연결/신뢰클릭 | 지금권한확대/실포스팅/실ESM등록은실행하지않음 |
 | E3 묶음 운영 배포·실비용 검증 | v1.58묶음배포1회/합성운영확인·실검색1+회원모델1비용승인여부 | 소스560시험/독립PASS완료·미승인동안build/실검색/AI0 |
-| Gmail 운영 활성화 | 활성추진지시수신·본인GCP Gmail API/metadata/시험사용자/redirect 설정완료신호 | f4a6854e9§11, Master공개/실행범위확정→운영단일실행. 동일GCP앱scope혼합시거절유지·복구추가빌드별도 |
-| 감성글귀3사AI 실호출/배포 | 소스/독립검수뒤회원본인3사가성비각1회(최대3)와v1.30묶음1빌드 승인여부 | 현재는mock구현만승인·실키/모델/배포0, Pexels제거와접근성한묶음 |
+| Gmail 운영 활성화 | GCP설정완료 주인님신호회수·시험회원Client ID일치/테스트사용자목록·공개/실행범위확정 | DreamAI설정주인님확인(시험ClientID와동일/목록실재는미확인),운영SQL/스위치0·d612f13a/실행순번Master판정 |
+| 감성글귀 v1.30 再실행 | 이미지추가분/정확소스검수완료뒤 재빌드1회 추가승인 및실호출범위재확정 | 기존1회소진·실3회0·운영1.29복구완료. 지금새빌드/AI0,검수준비먼저 |
 
 ## 전체 포트폴리오 목록
 
@@ -504,7 +509,7 @@ Master 마지막 실제 점검: 2026-11-18 02:28:02 KST · 실행 중 점검 주
 | 66 | AI 4컷 만화 자동화 / four-cut-comics | 이미지 | v1.37 / 운영 | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 67 | 이미지 변환 스튜디오 / image-convert-studio | 이미지 | v1.27 / 운영 | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 68 | AI 패션스타일 자동화 / fashion-style | 이미지 | v1.14 / 운영 | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
-| 69 | 감성 글귀 이미지 / emotion-writer | 이미지 | v1.29 / 운영 | v1.29 | AG-UI-01 · 운영v1.29·3사AI/Pexels/접근성소스지정PASS·버튼QA048대기/미배포 | 3a4ad1cad+59cb81d8e/기존보완한묶음·버튼690df10c6 QA048·실지원/비용/배포별도 |
+| 69 | 감성 글귀 이미지 / emotion-writer | 이미지 | v1.29 / 운영 | v1.29 | AG-UI-01 · v1.30범위사고→v1.29무빌드복구·이미지3엔진동결/검수중 | d21 이미지QA049·키/무료서비스정책/실지원·명시SHAmanifest 확인후새실행범위·재빌드승인,실모델0 |
 | 70 | AI 올인원 그래픽 자동화 / allinone-graphic | 이미지 | v1.11 / 병합됨 → `banana-canvas`(2026-10-21) | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 71 | AI 포토 리메이크 자동화 / photo-remake-studio | 이미지 | v1.13 / 병합됨 → `banana-canvas`(2026-10-21) | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 72 | 상품소싱 자동화 / trending-product-finder | 이커머스 | v1.39 / 운영 | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
