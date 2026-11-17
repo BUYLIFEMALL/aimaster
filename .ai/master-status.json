@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T02:06:58.664Z",
+  "checkedAt": "2026-11-17T02:13:35.192Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2104,20 +2104,20 @@
       "title": "주인님 선택146 Professional Studio 전면리뉴얼",
       "status": "running",
       "delivery": "returned",
-      "evidence": "msg_542c66206f89 QA013독립effect3PASS/작성자jsdom5분리 / Workspace직접보고 로그인POST307·localGET500/Jestworker2exceptions·PID44692생존 / Workspace1회복구Ready후exit 보고·Master 물리2191MB/commit60.12of66.03GB/3457 LISTEN없음 / d01b34b0f 원인조사·최근System2004없음·자기background0 / Master지속session56053·PID32968·GET307정상후담당실로그인/로컬workspace6433·8ce818bf7 desktop/375iframe / fe8f67a38 3PNG/en혼용·Alttool수정키未전송·printCSS / fb6c4f2bc 남은375발행/달력더보기/열린메뉴실측캡처",
+      "evidence": "msg_542c66206f89 QA013독립effect3PASS/작성자jsdom5분리 / Workspace직접보고 로그인POST307·localGET500/Jestworker2exceptions·PID44692생존 / Workspace1회복구Ready후exit 보고·Master 물리2191MB/commit60.12of66.03GB/3457 LISTEN없음 / d01b34b0f 원인조사·최근System2004없음·자기background0 / Master지속session56053·PID32968·GET307정상후담당실로그인/로컬workspace6433·8ce818bf7 desktop/375iframe / fe8f67a38 3PNG/en혼용·Alttool수정키未전송·printCSS / fb6c4f2bc 남은375발행/달력더보기/열린메뉴실측캡처 / msg_688f586b5934 독립 시각 최종PASS",
       "decision": {
         "chosen": "146 Professional Studio",
         "reference": "[5/12] 146 Professional Studio - 01. 메인 관제 대시보드",
         "scope": "메인기준 전체화면 일관스타일 적용·기존기능/회원데이터유지",
         "source": "주인님 직접 채팅 2026-11-17 KST"
       },
-      "next": "기존wrap기능확인/원복·수용차이기록,Mac시각최종21대조대기. 실Alt사람gesture1회준비·운영배포미승인",
-      "lastReviewedAt": "2026-11-17T02:02:29.540Z",
+      "next": "시각 지정범위 완료·미배포 묶음 경로별SHA/필수검사 목록 정리. 실Alt 수동1회 확인 대기·운영배포 미승인",
+      "lastReviewedAt": "2026-11-17T02:13:35.192Z",
       "sha": "S0~5+075fcb4+1a13662a4bfa51ffba2ee9468fdc35ae13c7bcdd",
       "validationPending": {
-        "scope": "실Alt 복사·시각최종대조",
+        "scope": "실Alt 복사 수동 동작 확인",
         "reason": "자동도구modifier전송불가/nativeWindows보안차단·실인쇄/실기기미검수분리",
-        "action": "주인님Alt실조작1회 후결과읽기확인·Mac PNG최종대조",
+        "action": "주인님 Alt 실조작1회 뒤 결과 확인,최종 시각대조는 완료",
         "url": "http://localhost:3457/workspace6433/78f3c5cd9b704e5ba38027c6d00af8dd"
       },
       "blocker": null,
@@ -2547,13 +2547,13 @@
       "reviewer": "CX-MASTER-01",
       "priority": "P2",
       "title": "146 실제캡처 독립시각검수",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "done",
+      "delivery": "integrated",
       "scopeRef": "3PNG/manifest/146명세 읽기·자기QA결과만",
       "completion": "실제이미지관찰·desktop/375iframe 배치가독성 범위판정·축소/실기기미검수구분",
-      "evidence": "msg_8d2b1e6dd3c7 실PNG3장직접관찰·보이는범위PASS/모바일하단·달력오른쪽/밀집미검수 / 4122e2221 캡처10~13·실scroll수치 / msg_e72d5a8f9ae6 최종10~13관찰PASS / fb6c4f2bc §12/실PNG14~20·375발행max1055·더보기6·메뉴닫힘 / msg_e7c328f7421a 최종3조건실PNG PASS·긴제목명세차이 / f9cc3c1c5 wrapON2줄/lane+20/주240·OFF복원/캡처21",
-      "next": "Mac실PNG21마지막대조·Master기존보기선택2줄+열기전체수용/무제한명세차이기록. 실Alt/인쇄/실기기未검수",
-      "lastReviewedAt": "2026-11-17T02:02:29.540Z"
+      "evidence": "msg_8d2b1e6dd3c7 실PNG3장직접관찰·보이는범위PASS/모바일하단·달력오른쪽/밀집미검수 / 4122e2221 캡처10~13·실scroll수치 / msg_e72d5a8f9ae6 최종10~13관찰PASS / fb6c4f2bc §12/실PNG14~20·375발행max1055·더보기6·메뉴닫힘 / msg_e7c328f7421a 최종3조건실PNG PASS·긴제목명세차이 / f9cc3c1c5 wrapON2줄/lane+20/주240·OFF복원/캡처21 / msg_688f586b5934 Mac 캡처21 직접관찰·지정시각조건 최종PASS",
+      "next": "지정 시각 검수 종결. 실Alt·실인쇄·실기기 미검수,146 전체 완전일치 판정 아님",
+      "lastReviewedAt": "2026-11-17T02:13:35.192Z"
     },
     {
       "task_id": "QA-20261117-020",
@@ -2915,8 +2915,8 @@
     {
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
-      "stage": "146 로컬 서버 복구·desktop/375iframe 확인,영수증·캘린더상태 소스PASS",
-      "next": "en·Alt 실조작/대표캡처·독립 시각대조,운영은v1.55/후속미배포"
+      "stage": "영어·스크롤·달력·375iframe 지정 시각검수 독립PASS,운영v1.55",
+      "next": "Alt 실조작1회 확인·미배포 묶음 릴리스검사 목록 준비,추가 UI수정 종료"
     },
     {
       "order": "3 · B2B",
