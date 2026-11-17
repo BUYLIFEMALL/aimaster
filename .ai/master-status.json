@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T16:13:20.394Z",
+  "checkedAt": "2026-11-17T16:31:22.671Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -3658,17 +3658,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T16:13:20.394Z",
+      "at": "2026-11-17T16:31:22.671Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Mac QA042 DES02 재검수완료 이벤트",
-      "scope": "QA042 재검수절·대상SHA·제품/작업표 미커밋 확인·AGY 수락전달",
+      "trigger": "v2.0 적용 후01:30 예약 현재Master수신",
+      "scope": "담당보고/요청·전체/카테고리작업표·로컬12세션 연결/출력·HANDOFF/결과 증분·제품점유·예약실행",
       "evidence": [
-        "msg_637d0a9f128b",
-        "QA042 재검수121317458 국소PASS",
-        "msg_cea05cf6672c AGY 수락/다음묶음 통보"
+        "msg_691d0042d301 최신본문 현재터미널수신·Windows결과0",
+        "미등록인수인계 신규변경0·제품3경로미커밋0",
+        "AGY수락 msg_ab3adf596d54·DES02점유0/미배포",
+        "카테고리작업판/잔여작업 대조·로컬터미널12 연결(연결≠착수)"
       ],
-      "judgment": "DES02 소스완료 수락·운영미반영 유지, 실제키보드/375/위젯미검수. 추가시험/build/deploy0.",
-      "nextAction": "다음승인된묶음에수정포함·새이벤트/01:30예약시현재Master점검"
+      "unverified": [
+        "각담당 전체 실행내부/원격Mac 브라우저제어반환 최신신호없음",
+        "주인님 직접지시 미보고분은 추가발견없음·부재단정안함"
+      ],
+      "judgment": "지침v2.0 설정·전송·수신 검증. DES02완료/다음묶음 유지. B2B/ESM/Music사람단계·Workspace신규승인 차단유지, 변화없는중복시험/배정0.",
+      "nextAction": "새보고/제어반환시즉시후속, 다음02:00현재터미널점검"
     },
     "notifications": [
       {
@@ -3736,7 +3741,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-17T16:30:00.000Z",
+      "nextScheduledAt": "2026-11-17T17:00:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -3754,9 +3759,8 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-17T16:00:00.000Z",
-        "attemptedAt": "2026-11-17T16:00:02.5106154Z",
-        "messageId": "msg_2da2b6967553",
+        "scheduledAt": "2026-11-17T16:30:00.000Z",
+        "messageId": "msg_691d0042d301",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false
