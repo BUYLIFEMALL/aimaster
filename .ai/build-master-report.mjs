@@ -37,11 +37,15 @@ const md=v=>String(v??'—').replaceAll('|','\\|').replaceAll('\n',' ');
 const row=a=>'| '+a.map(md).join(' | ')+' |';
 const table=(heads,rows)=>[row(heads),row(heads.map(()=>'---')),...rows.map(row)].join('\n');
 const snap=new Date().toLocaleString('sv-SE',{timeZone:'Asia/Seoul'})+' KST';
+const inspectionAt=state.monitoring?.lastInspection?.at;
+const inspectionLabel=inspectionAt ? new Date(inspectionAt).toLocaleString('sv-SE',{timeZone:'Asia/Seoul'})+' KST' : '미기록';
 const counts={};for(const t of state.tasks)counts[t.status]=(counts[t.status]??0)+1;
 const intro=[
 '# AIMaster 총괄 개발 플랜·작업 지휘표', '',
 `기준: ${snap} · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님`, '',
 '이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.', '',
+`Master 마지막 실제 점검: ${inspectionLabel} · 실행 중 점검 주기: ${state.monitoring?.activeTurnIntervalMinutes ?? 5}분 · 턴 밖 자동 점검: 미설정`, '',
+`점검 범위: ${md(state.monitoring?.lastInspection?.scope ?? '미기록')} · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.`, '',
 `범위: 비교표 ${programs.filter(p=>p.sourceId!==null).length}개 + 신규 ESM 1개 = ${programs.length}개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.`, '',
 '[팀·실제 연결](../.ai/TEAM.md) · [수정 전 점유표](../.ai/FILE_OWNERSHIP.md) · [사람의 결정함](../.ai/decisions/DEC-20261116-001.md) · [전체 목록 CSV](MASTER_DEVELOPMENT_PLAN_20261116.csv) · [전체 목록 JSON](MASTER_DEVELOPMENT_PLAN_20261116.inventory.json)', '',
 '## 지금 내린 지휘와 우선순위', '',
@@ -94,5 +98,5 @@ const csv=[['순번','프로그램','slug','폴더','카테고리','비교표 �
 .map(r=>r.map(csvCell).join(',')).join('\r\n')+'\r\n';
 fs.writeFileSync(path.join(root,'docs/MASTER_DEVELOPMENT_PLAN_20261116.md'),intro);
 fs.writeFileSync(path.join(root,'docs/MASTER_DEVELOPMENT_PLAN_20261116.csv'),'\ufeff'+csv);
-fs.writeFileSync(path.join(root,'docs/MASTER_DEVELOPMENT_PLAN_20261116.inventory.json'),JSON.stringify({checkedAt:snap,method:state.method,count:programs.length,programs,tasks:state.tasks},null,2)+'\n');
+fs.writeFileSync(path.join(root,'docs/MASTER_DEVELOPMENT_PLAN_20261116.inventory.json'),JSON.stringify({checkedAt:snap,method:state.method,monitoring:state.monitoring,count:programs.length,programs,tasks:state.tasks},null,2)+'\n');
 console.log(`Master report exported: ${programs.length} programs / ${state.tasks.length} task records; runtime verification is not inferred.`);

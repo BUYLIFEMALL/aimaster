@@ -1,6 +1,32 @@
 {
-  "checkedAt": "2026-11-17 19:26:42 KST",
+  "checkedAt": "2026-11-17 20:14:25 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
+  "monitoring": {
+    "policyVersion": "1.7",
+    "activeTurnIntervalMinutes": 5,
+    "immediateEvents": [
+      "message",
+      "completion",
+      "idle"
+    ],
+    "outsideTurnAutomaticChecks": "not_configured",
+    "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
+    "lastInspection": {
+      "at": "2026-11-17T11:14:22.912Z",
+      "timezone": "Asia/Seoul",
+      "trigger": "주인님 점검 방식 추가 지시",
+      "scope": "공통지침/전달방식/공식작업표·Git 미커밋 상태·인수인계/결과 파일 경로와수정시각 대조",
+      "handoffDiscovery": {
+        "candidateCount": 577,
+        "notLinkedByPathOrTaskIdCount": 401,
+        "newerThanPreviousCheckCount": 0,
+        "baselineAt": "2026-11-17T10:26:40.468Z",
+        "note": "경로/작업ID 문자열 대조의 발견 후보이며 실제 미처리 작업 수가 아님. 과거 후보 전체 본문은 미검토."
+      },
+      "judgment": "지침1.7 반영. 최근 점검 이후 새 미등록 후보는 발견되지 않음. 과거 후보는 담당/작업근거를 대조한 뒤 연결하며 기존 작업 재배정0.",
+      "nextAction": "실행 중 5분 경과 또는 새 이벤트 시 실제 점검·판정·후속배정·시각 갱신. 턴 밖 자동 점검 없음."
+    }
+  },
   "count": 103,
   "programs": [
     {
