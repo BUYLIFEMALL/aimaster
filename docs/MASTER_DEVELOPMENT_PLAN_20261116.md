@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 11:23:53 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 11:25:46 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -13,7 +13,7 @@
 | 순서 | 담당 | 진행 단계 | 다음 작업·통과 기준 |
 | --- | --- | --- | --- |
 | 1 · ESM | Ecom + Mac Tester | v1.02 운영 배포·Mac 웹 회귀 완료 | 실ESM 등록/확장 연결은 별도 범위, 추가 빌드 없음 |
-| 2 · Workspace | Workspace + Master | 전체370시험/타입PASS·로컬build 보안고지 exit1·배포0 | 공식 advisory/최소보안패치 조사,재실행·배포 보류 |
+| 2 · Workspace | Workspace + Master | Next16.4.6 최소보안패치 배정·운영v1.55/배포0 | Workspace exact16.4.6 패치·회귀검사/최종build,실행결과 후 원격배포순번 |
 | 3 · B2B | Backend + Master + Mac Tester | 주인님 응답을 Backend가 준비신호로 접수·DB요청결과 대기 | 주인님Accept→검증20/지문→Master승인Lab1빌드,실결제테스트키만 |
 | 4 · B2BFront | B2BFront + Mac Tester | 다크단추 최소보정 소스/독립계산 PASS | acb858a77 같은Lab묶음·실Tab/누름상태후속·3색기존미달별도 |
 | 5 · 블로그 | Blog | 문서T12 배정/보관표정정완료,이웃1.22·티스토리1.98미배포 | 실확장/신뢰클릭·계정조건 별도,작은수정은다음묶음·타인변경보존 |
@@ -195,7 +195,7 @@
 | ESM-20261117-01 | CC-ECOM-01 | done / integrated | 주인님 직접 ESM 썸네일 등록·사용자 매뉴얼 | 운영v1.02유지·동일배포재실행0·실ESM등록은추후범위지정 |
 | QA-20261117-008 | CX-QA-01 | done / integrated | ESM 운영안내·매뉴얼 누락 독립점검 | 다음esm묶음배포뒤운영가이드반영확인만·같은소스재검수없음 |
 | QA-20261117-009 | CX-QA-01 | done / integrated | OFF 포털 공유권한·토큰·속성투영 독립검수 | 만료토큰부활지정수정독립PASS 수락·실DB다중프로세스미검수·공개전환0 |
-| WS-20261117-13 | CC-WORKSPACE-01 | running / returned | 주인님 선택146 Professional Studio 전면리뉴얼 | 正式advisory·최소패치 읽기조사 후 Master판단,build재시도/배포/버전DB변경0 |
+| WS-20261117-13 | CC-WORKSPACE-01 | running / returned | 주인님 선택146 Professional Studio 전면리뉴얼 | Workspace exact16.4.6 패치·회귀검사/최종build,실행결과 후 원격배포순번 |
 | REL-20261117-006 | CC-REALTY-01 | done / integrated | 주인님 직접승인 매물알림v1.46 운영배포 | QA010읽기확인배정·ZIP압축해시차이/내부파일동일근거보존,새수집/알림/추가빌드0 |
 | QA-20261117-010 | CX-QA-01 | done / integrated | 매물알림v1.46 운영·확장버전 읽기확인 | Mac확장설치/실SW/첫격리/수집알림미검수·PC5대표시는다른PC상태,재반복0 |
 | RE-20261117-05 | CC-REALTY-01 | done / returned | 주인님 직접 상가 층진단 n30 재측정1회 | 클라이언트15초타임아웃·응답지역변수라회수실패·HTTP/건수미확인·추가공공API호출0,향후결과보관실행기개선안만기록 |
