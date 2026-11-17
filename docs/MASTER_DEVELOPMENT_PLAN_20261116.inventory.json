@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 18:52:36 KST",
+  "checkedAt": "2026-11-17 18:54:05 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -5094,11 +5094,11 @@
       "reviewer": "CX-MASTER-01",
       "title": "E4 Gmail함 기존기능/권한 대조와 최소범위 조사",
       "status": "running",
-      "delivery": "queued",
-      "scopeRef": "gmailHandlers.ts/runtime등록/gmailApi.ts/InboxBoard/page/GmailInboxPanel OFF/관련시험. SQL·gmailInbox서버·공용RPC불변",
+      "delivery": "running",
+      "scopeRef": "OFF배선 gmailHandlers/runtime/gmailApi/InboxBoard/page/GmailInboxPanel·新gmailHandlers/gmailApiAdapter試験·qa_gmail_wire전용. QA039패널/DOM국소수정우선. SQL/gmailInbox/공용RPC불변",
       "evidence": "A2서버b61068a89·OFF패널1008730e1·계약f1b14b627, 작성자4파일153/tsc0; QA038수정/QA039독립배정; OFF배선PLAN§9 3b135bf4d 검토·구현배정(수락미확인)",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "Gmail전용handler봉투/boundApi/Inbox최소OFF배선·실handler모의시험. QA038/039반례우선·운영/실Google0",
+      "next": "QA039 P2 A/B선택결과오인·오류원문·conflict잔존 우선수정후OFF배선재개",
       "sha": "1008730e1",
       "lastReviewedAt": "2026-11-17T09:00:52.380Z"
     },
@@ -5169,12 +5169,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "Gmail OFF 패널 실제 TSX 모의 독립검수",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "running",
+      "delivery": "running",
       "sha": "1008730e1",
       "scopeRef": "GmailInboxPanel TSX/API모의·계정/생명주기/결과모름/오류 검수, 실외부/DB/build0",
       "completion": "OFF0/중복추가0/세대가드와오류표시 검증·실화면미검수분리",
-      "next": "Mac QA038과연결경계 검수반환"
+      "next": "최종보고반환→패널국소수정새SHA재검수",
+      "evidence": "msg_ca1bef2b400d 실제TSX/jsdom: OFF/unknown잠금/계정늦은응답/StrictMode PASS, P2 선택변경결과오인·원문오류·addconflict잔존 재현"
     }
   ]
 }
