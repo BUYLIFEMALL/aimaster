@@ -4,6 +4,12 @@ import * as cheerio from "cheerio";
 import { CrawlResult, HeadingItem, LinkItem, ImageItem, TableItem, FeedListItem } from "@/lib/inspect/types";
 import { checkProgramAccessApi } from "@/lib/access";
 import { safeFetch, BlockedUrlError } from "@/lib/inspect/safeFetch";
+import {
+  createRobotsGuard,
+  INSPECT_USER_AGENT,
+  RobotsBlockedError,
+  RobotsUnavailableError,
+} from "@/lib/inspect/robots";
 
 export const maxDuration = 60; // Vercel 서버리스 타임아웃 여유 확보
 export const dynamic = "force-dynamic";
@@ -35,15 +41,19 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. 대상 사이트 fetch (User-Agent 포함)
-    const { response, finalUrl } = await safeFetch(targetUrl, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 WebCrawlerInspect/1.0",
-        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-        "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+    //    T-05: 첫 주소·리디렉트 다음 주소마다 본문 요청 전에 robots.txt를 판정한다(막히면 본문 요청 0).
+    const { response, finalUrl } = await safeFetch(
+      targetUrl,
+      {
+        headers: {
+          "User-Agent": INSPECT_USER_AGENT,
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+          "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+        },
+        next: { revalidate: 0 },
       },
-      next: { revalidate: 0 },
-    });
+      { beforeRequest: createRobotsGuard() }
+    );
 
     parsedUrl = finalUrl;
     if (!response.ok) {
@@ -258,10 +268,16 @@ export async function POST(req: NextRequest) {
       cleanedHtml,
     };
 
-    return NextResponse.json(crawlResult);
+    return NextResponse.json({ ...crawlResult, robots: { checked: true } });
   } catch (err: any) {
     if (err instanceof BlockedUrlError) {
       return NextResponse.json({ error: err.message }, { status: 400 });
+    }
+    if (err instanceof RobotsBlockedError) {
+      return NextResponse.json({ error: err.message }, { status: 403 });
+    }
+    if (err instanceof RobotsUnavailableError) {
+      return NextResponse.json({ error: err.message, retryable: true }, { status: 503 });
     }
     console.error("Crawl error:", err);
     return NextResponse.json(

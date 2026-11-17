@@ -74,12 +74,25 @@ async function resolvePublicUrl(raw: string) {
   return { url, addresses };
 }
 
+export type SafeFetchOptions = {
+  /**
+   * 주소 검사(DNS 확인)를 통과한 뒤, 그 주소로 실제 요청을 보내기 직전에 매번(첫 주소·리디렉트 다음 주소 모두) 부른다.
+   * 던지면 그 주소에는 요청하지 않고 그대로 끝난다(예: robots.txt 판정). 2026-11-17 T-05.
+   */
+  beforeRequest?: (url: URL, signal: AbortSignal) => Promise<void>;
+};
+
 /** 공개 주소만 허용하는 fetch. 리디렉트를 직접 따라가며 매번 주소를 검사한다. */
-export async function safeFetch(raw: string, init: RequestInit = {}): Promise<{ response: Response; finalUrl: URL }> {
+export async function safeFetch(
+  raw: string,
+  init: RequestInit = {},
+  opts: SafeFetchOptions = {}
+): Promise<{ response: Response; finalUrl: URL }> {
   let current = raw;
   const signal = init.signal ?? AbortSignal.timeout(20_000);
   for (let i = 0; i <= MAX_REDIRECTS; i++) {
     const { url, addresses } = await resolvePublicUrl(current);
+    if (opts.beforeRequest) await opts.beforeRequest(url, signal);
     const pinned = addresses.find((value) => value.family === 4) ?? addresses[0];
     // fetch가 DNS를 다시 조회하면 검사 뒤 사설 IP로 바꾸는 rebinding이 가능하다.
     // 원래 hostname/TLS 검증은 유지하고 연결의 lookup만 검사한 주소에 고정한다.

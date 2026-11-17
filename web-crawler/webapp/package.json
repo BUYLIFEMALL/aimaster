@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:work-inbox": "node --test tests/work-inbox-content.test.cjs"
+    "test:work-inbox": "node --test tests/work-inbox-content.test.cjs",
+    "test:inspect-robots": "node --test tests/inspect-robots.test.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",
@@ -18,6 +19,7 @@
     "next": "16.2.11",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "robots-parser": "3.0.1",
     "server-only": "^0.0.1",
     "undici": "^7.30.0",
     "zod": "^4.4.3"
