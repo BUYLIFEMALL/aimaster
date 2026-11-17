@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 02:23:22 KST",
+  "checkedAt": "2026-11-18 02:24:22 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -7116,7 +7116,21 @@
       "scopeRef": "emotion-writer/src/components/QuoteCanvas.tsx 한파일",
       "evidence": "msg_10b55a37b895·90d78f74c 인계",
       "completion": "버튼href/인계값·좁은폭/키보드·기존저장/인스타불변·실시각구분",
-      "next": "후속검수 연결대기·작성자44/tsc만·실320/375검수미확인·다음묶음"
+      "next": "QA048 msg_820d2b5965d3 전달완료·미배포묶음·실320/375는별도"
+    },
+    {
+      "task_id": "QA-20261118-048",
+      "parent_task_id": "DES-20261118-04",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "배경제작 링크버튼 지정소스 검수",
+      "status": "ready",
+      "delivery": "queued",
+      "sha": "690df10c6",
+      "evidence": "msg_820d2b5965d3",
+      "scopeRef": "QuoteCanvas 한파일·기존TSX/모의·실업로드/새창0",
+      "completion": "링크/인계/키보드/저장동작불변·실320/375미검수분리",
+      "next": "QA046수정/QA047뒤국소검수·실키/AI/build0"
     }
   ]
 }

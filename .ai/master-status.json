@@ -3453,7 +3453,21 @@
       "scopeRef": "emotion-writer/src/components/QuoteCanvas.tsx 한파일",
       "evidence": "msg_10b55a37b895·90d78f74c 인계",
       "completion": "버튼href/인계값·좁은폭/키보드·기존저장/인스타불변·실시각구분",
-      "next": "후속검수 연결대기·작성자44/tsc만·실320/375검수미확인·다음묶음"
+      "next": "QA048 msg_820d2b5965d3 전달완료·미배포묶음·실320/375는별도"
+    },
+    {
+      "task_id": "QA-20261118-048",
+      "parent_task_id": "DES-20261118-04",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "배경제작 링크버튼 지정소스 검수",
+      "status": "ready",
+      "delivery": "queued",
+      "sha": "690df10c6",
+      "evidence": "msg_820d2b5965d3",
+      "scopeRef": "QuoteCanvas 한파일·기존TSX/모의·실업로드/새창0",
+      "completion": "링크/인계/키보드/저장동작불변·실320/375미검수분리",
+      "next": "QA046수정/QA047뒤국소검수·실키/AI/build0"
     }
   ],
   "programOverrides": [
@@ -3925,7 +3939,7 @@
     "tester": "msg_6701f7855675 QA029→030",
     "support": "주인님전담·재배정제외"
   },
-  "qaQueue": "QA043 예약요일칩 소스/DOM·대비→실화면은v1.58뒤; QA037 B2B·ESM/제휴·음악은주인님제어반환대기. 과거QA022~029재검사0",
+  "qaQueue": "QA046 59cb81d8e refusal/abort재검수→QA047 운영준비누락수정재검수→QA048 배경링크버튼 국소. QA037/QA002/ESM은기존사람조건, 새창0",
   "monitoring": {
     "policyVersion": "2.0",
     "activeTurnIntervalMinutes": 5,

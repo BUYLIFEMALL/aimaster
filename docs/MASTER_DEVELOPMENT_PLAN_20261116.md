@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 02:23:22 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 02:24:22 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -136,7 +136,7 @@ Master 마지막 실제 점검: 2026-11-18 02:23:19 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 234개: done 216개 · cancelled 7개 · ready_review 3개 · running 2개 · waiting_human 4개 · needs_revision 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 235개: done 216개 · cancelled 7개 · ready_review 3개 · running 2개 · waiting_human 4개 · needs_revision 2개 · ready 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -373,7 +373,8 @@ Master 마지막 실제 점검: 2026-11-18 02:23:19 KST · 실행 중 점검 주
 | QA-20261118-045 | CX-QA-01 | done / integrated | nav hover7색/소비자범위 독립검수 | 다음몰기능묶음·실compile/브라우저Mac미검수·새설치0 |
 | QA-20261118-046 | CX-QA-01 | running / acknowledged | 감성글귀3사AI/키/오류/취소 독립검수 | P2/P3수정후재검수·운영1.29미반영·실モデル지원/요금未검증 |
 | QA-20261118-047 | CX-QA-01 | needs_revision / returned | 운영0101~0104 실행준비파일 정적검수 | 고정d9751c70b 준비누락2건반환·수정SHA재검수전PASS0 |
-| DES-20261118-04 | AG-UI-01 | ready_review / returned | 주인님 직접 배경링크 버튼화/줄바꿈 개선 | 후속검수 연결대기·작성자44/tsc만·실320/375검수미확인·다음묶음 |
+| DES-20261118-04 | AG-UI-01 | ready_review / returned | 주인님 직접 배경링크 버튼화/줄바꿈 개선 | QA048 msg_820d2b5965d3 전달완료·미배포묶음·실320/375는별도 |
+| QA-20261118-048 | CX-QA-01 | ready / queued | 배경제작 링크버튼 지정소스 검수 | QA046수정/QA047뒤국소검수·실키/AI/build0 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
