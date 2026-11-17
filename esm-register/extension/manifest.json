@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "AI G마켓·옥션 상품 자동등록기",
-  "version": "1.1.0",
-  "version_name": "v1.01",
+  "version": "1.2.0",
+  "version_name": "v1.02",
   "minimum_chrome_version": "120",
   "description": "AI 상세페이지 자동화로 만든 상품을 ESM+ 「상품등록」 화면에 칸마다 채워 G마켓·옥션에 한 번에 올립니다.",
   "permissions": [
