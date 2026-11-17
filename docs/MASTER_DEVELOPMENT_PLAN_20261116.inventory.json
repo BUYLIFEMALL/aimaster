@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 11:20:37 KST",
+  "checkedAt": "2026-11-17 11:21:36 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4172,7 +4172,7 @@
         "scope": "메인기준 전체화면 일관스타일 적용·기존기능/회원데이터유지",
         "source": "주인님 직접 채팅 2026-11-17 KST"
       },
-      "next": "검증된 미배포32커밋 묶음 유지. 실Alt 수동확인 대기·배포시 로컬build1회/버전/운영확인",
+      "next": "개발server3457와 build출력경로 충돌확인 후 v1.56 배포1회·Ready/별칭/해당DB행/운영화면 근거반환",
       "lastReviewedAt": "2026-11-17T02:20:33.905Z",
       "sha": "S0~5+075fcb4+1a13662a4bfa51ffba2ee9468fdc35ae13c7bcdd",
       "validationPending": {
@@ -4187,6 +4187,14 @@
         "reason": "기존회원설정/240주높이·lane/더보기연동보존,무제한높이변경은이번범위밖",
         "evidence": "CalendarView204~209/465~468·calendar.css40~41·f9cc3c1c5 실증/원복",
         "scope": "146전체픽셀/무제한줄바꿈명세완전일치로표시하지않음"
+      },
+      "releaseAuthorization": {
+        "source": "주인님 직접지시 Workspace보고 2026-11-17",
+        "scope": "v1.56 미배포32커밋·로컬build1회·Vercel운영1회·programs해당행version",
+        "executor": "CC-WORKSPACE-01",
+        "portal": "OFF",
+        "message": "msg_2472fda208cd",
+        "status": "dispatched_not_completed"
       }
     },
     {
