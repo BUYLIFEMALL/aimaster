@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T00:45:08.737Z",
+  "checkedAt": "2026-11-17T00:46:32.388Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2395,12 +2395,12 @@
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "title": "주인님 직접지시 영수증 화면 메인 사이드바 연결",
       "priority": "P2",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "Workspace7485791ec 실제handler/React mock33·Masterinbox2파일diff대조수용 / msg_014541b68abb Mac실handler5/React초안409PASS·bound빈계정헤더없는fetchP2 / Workspacec35c0bb18 bound6+DOM15/옛빈ID4행동실패",
-      "completion": "domain receipts SPA route와기존client Board재사용/사이드바연결·기존standalone유지·관련경량검사,서버DB0·실화면/배포미검수구분",
-      "next": "Mac 빈계정fetch전차단 국소마감검토·공용RPC호환보존,실화면/발급/DB/서버/빌드0",
-      "lastReviewedAt": "2026-11-17T00:43:42.192Z",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_7f1a8e2a829c Mac 빈ID8PASS·누적QA017소스마감/이전handler·React초안검수",
+      "completion": "receipts SPA 연결·계정요청수명/도메인·기대ID서버guard·초안account·빈ID차단 소스구현/독립검수범위완료. 실모바일/print/시각/실발급/배포/전체tsc미검수·idle次RPC전표시잔존/Inbox他action한계",
+      "next": "미배포묶음고정·WS13 메모리/로컬실화면보류와연결,서버재가동/전체시험/빌드0",
+      "lastReviewedAt": "2026-11-17T00:46:32.387Z",
       "sha": "9d6875e4b + 792be25a9 + 7485791ec + c35c0bb18"
     },
     {
@@ -2409,14 +2409,14 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "영수증 SPA 사이드바 연결 독립소스검수",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "done",
+      "delivery": "integrated",
       "priority": "P2",
-      "evidence": "msg_7ba69f851b09 QA017 route4PASS/계정late응답P1·domain동기화P2",
+      "evidence": "msg_7f1a8e2a829c Mac 빈ID8PASS·누적QA017소스마감/이전handler·React초안검수",
       "scopeRef": "WS17-17변경읽기·자기QA결과만",
-      "completion": "route/기존client Board/계정인가/문맥전환/스타일범위/standalone회귀·실시각미검수구분",
-      "next": "ESM소스마감후7485791ec 영수증서버계정/초안검토이어가기·DB/외부/빌드0",
-      "lastReviewedAt": "2026-11-17T00:16:35.868Z"
+      "completion": "receipts SPA 연결·계정요청수명/도메인·기대ID서버guard·초안account·빈ID차단 소스구현/독립검수범위완료. 실모바일/print/시각/실발급/배포/전체tsc미검수·idle次RPC전표시잔존/Inbox他action한계",
+      "next": "미배포묶음고정·WS13 메모리/로컬실화면보류와연결,서버재가동/전체시험/빌드0",
+      "lastReviewedAt": "2026-11-17T00:46:32.388Z"
     },
     {
       "task_id": "ESM-20261117-03",
