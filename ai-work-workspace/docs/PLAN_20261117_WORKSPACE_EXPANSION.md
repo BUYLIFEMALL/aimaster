@@ -403,3 +403,44 @@ E1 독립 검수(QA17-003)와 별개로 계획만. 디자인 3안 선택 전이�
 - 비용: 운영자 0(Gmail API 무료 한도, 회원 본인 프로젝트), 회원 0원(구글 무료), 빌드는 배포 때 1번.
 
 **숫자(목표)**: 처음 설정 4단계(구글 클라우드에서 Gmail API 켜기 → 기존 구글 앱 키 재사용(없으면 등록) → 「Gmail 연결」 → 시험 사용자 추가 안내) · 매일 조작 2번(목록 열기 → 메일 고르고 추가) · 동의 1번(Gmail 읽기). 「테스트」 앱이면 주 1번 재연결 가능성.
+
+#### 7-16 보완 (Master `msg_24a8dfeef8b1`) — 문서·읽기 조사만, 실제 동의·연결·DB·구글 호출 0
+공식 근거(웹 문서 읽기 에이전트가 확인, 짧은 인용): [Gmail 권한](https://developers.google.com/workspace/gmail/api/auth/scopes) · [messages.list](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/list) · [토큰 만료](https://developers.google.com/identity/protocols/oauth2#expiration) · [토큰 폐기](https://developers.google.com/identity/protocols/oauth2/web-server#tokenrevoke). 폐기 범위 문장은 원문 그대로가 아니라 페이지 요약에서 확인(두 번 같은 결과) — 구현 전 원문 재확인 필요.
+
+**1. 최소 첫 단위 비교 — 단계 분리(본문 기능 폐기 아님)**
+
+| | A안(권장 1단계) `gmail.metadata` | B안(후속 단계) `gmail.readonly` + 본문 |
+|---|---|---|
+| 구글 분류 | **제한 권한**(「labels and headers, but not the email body」) | **제한 권한** |
+| 목록 | `messages.list?labelIds=INBOX&maxResults=20` — 응답은 「only an id and a threadId」 → `messages.get?format=metadata&metadataHeaders=Subject&metadataHeaders=From&metadataHeaders=Date` 20번. **`q` 사용 불가**(「cannot be used … gmail.metadata scope」) | 같음 + 검색어 가능 |
+| 저장 | 목록은 표시만(저장 0). `snippet`이 metadata 응답에 오는지 문서에 없음 → **받아도 표시·저장 안 함** | 본문·미리보기 |
+| 받은 업무로 | 회원이 고른 메일 → **회원이 고칠 수 있는 업무 제목**(기본값 「메일 확인」, 「원 제목 넣기」를 회원이 누를 때만 원 제목) + **원문 링크만**. 보낸 사람·본문·첨부 저장 0 | 본문 글자(첨부 제외) |
+| 남는 위험 | 링크 안 메시지 번호, 회원이 넣은 제목 | 본문 속 제3자 개인정보 |
+
+→ 1단계는 A안. B안은 아래 2번의 보관 경로가 정해진 뒤 별도 승인.
+
+**2. 보관 — 기존 1년 보관에 메일 내용을 조용히 넣지 않음**
+- `work_inbox`는 보관 1년(관리자 지정 예외, `runWorkInboxRetention`) — **공용 보관 정책은 바꾸지 않는다.**
+- A안에서 `work_inbox`에 들어가는 것: 회원이 쓴(또는 직접 넣기로 고른) 제목 + 원문 링크. 링크의 `authuser=<이메일>`도 개인정보이므로 **`https://mail.google.com/mail/u/0/#all/<id>`만**(여러 구글 계정 로그인 시 다른 계정으로 열릴 수 있다는 안내 문구). 보낸 사람·원 제목을 기본으로 자동 저장하지 않음.
+- B안(본문)을 하려면: `work_inbox`가 아니라 **워크스페이스 전용 표(30일 자동 삭제, 관리자·시험 계정 열외 규칙 그대로)**에 본문을 두고 받은 업무에는 링크만 — 새 표·정리 작업은 B안 승인 때 별도.
+
+**3. 연결 끊기 — 우리 쪽 삭제와 구글 권한 철회를 분리**
+- 근거: 폐기는 「removes all OAuth 2.0 scopes previously granted to a project」·같은 프로젝트의 모든 클라이언트 토큰을 무효화할 수 있음(요약 확인). 캘린더 연결은 같은 회원 구글 앱을 쓰고 `include_granted_scopes: "true"`(`googleCalendar.ts` 48) → **Gmail 토큰을 폐기하면 캘린더 연결도 끊길 수 있음**. `google_gmail` 줄을 따로 둬도 폐기 범위는 나뉘지 않음.
+- 안: (가) 「이 워크스페이스에서 Gmail 연결 끊기」 = `member_platform_accounts`의 `google_gmail` 줄만 삭제(구글 호출 0, 캘린더 영향 0). (나) 「구글 권한까지 완전히 철회」 = 자동 호출 안 함 — 구글 계정 「타사 연결」 페이지 링크를 주고 「같은 구글 앱을 쓰는 캘린더·유튜브·블로그 연결도 함께 끊깁니다」 경고. (다) 격리를 원하는 회원은 Gmail 전용 구글 클라우드 프로젝트(별도 Client ID)를 쓰는 고급 안내(처음 설정 +2단계). **자동 폐기 1안은 보류**, 캘린더 코드 변경 0. Gmail 연결 요청은 `include_granted_scopes`를 켜지 않음(묶음 권한을 새로 만들지 않음 — 폐기 범위는 그래도 프로젝트 단위).
+
+**4. 7일 만료 조건(정확히)**: 구글 클라우드 프로젝트 **사용자 유형 「외부(External)」 + 게시 상태 「테스트(Testing)」** 이고, 요청 권한이 `openid`·`email`·`profile` 외의 것을 포함하면(Gmail 권한은 해당) 갱신 토큰이 **7일 뒤 만료**. 「내부(Internal, Google Workspace 조직)」나 「프로덕션 게시」(제한 권한은 구글 검증 필요)면 이 7일 규칙은 아님. 그 밖의 만료: 회원이 접근 철회, 6개월 미사용, **Gmail 권한 토큰은 비밀번호 변경 시 무효**, 한 구글 계정·한 클라이언트당 갱신 토큰 100개 초과 시 가장 오래된 것 무효 등. → 연결 화면에 「테스트 상태면 7일마다 다시 연결」 안내, 만료 시 `markMemberAccountNeedsReconnect` 재사용.
+
+**5. 중복·경쟁·계정 변경·해제 뒤 늦은 응답**
+- `source_url` 사전 조회만으로는 동시 요청 두 개가 둘 다 「없음」을 보고 둘 다 넣을 수 있음(`work_inbox`에 고유 조건 없음).
+- 안(공용 API 변경 0): 워크스페이스 전용 작은 표 `aww.gmail_inbox_claims(user_id, google_sub, message_id, inbox_id, created_at)` + **고유 조건 (user_id, google_sub, message_id)**. 순서: 요청에 화면이 목록에서 받은 `google_sub`(연결 계정 번호)와 `message_id`를 함께 보냄 → 서버가 현재 연결을 다시 읽어 `sub`가 다르면 **409 「연결된 Gmail 계정이 바뀌었습니다. 목록을 새로 여세요」**, 연결이 없으면 404(해제 뒤 늦은 응답) → 클레임 행을 먼저 `INSERT … ON CONFLICT DO NOTHING`, 못 넣으면 「이미 추가한 메일」로 건너뜀 → 구글 `messages.get` 확인 → `sendToWorkInbox` → `inbox_id` 기록 → 중간 실패면 클레임 삭제(다시 시도 가능). 클레임 표도 30일 자동 삭제(메시지 번호만 담음). 새 aww 표는 마이그레이션 1개(시험 DB는 로컬, 운영 적용은 승인 뒤).
+- 대안(새 표 없이 `pg_advisory_xact_lock`): 받은 업무 넣기는 다른 연결(supabase-js)이라 잠금이 넣기까지 덮지 못해 **권장 안 함**.
+
+**6. 보안·시험·경로·완료 조건**
+- scope: 콜백에서 받은 scope에 `gmail.metadata`가 **있어야** 하고, 이번 단위에서 `gmail.readonly`·`gmail.modify`·`https://mail.google.com/`이 **같이 오면 저장 거절**(필요 이상 권한 보관 0). `include_granted_scopes` 끔 + 거절 시 안내.
+- state: 캘린더처럼 `state.<회원 id>` 쿠키(10분, httpOnly·secure·경로 한정)에 **앱 Client ID 해시**를 더해 콜백에서 회원·앱 일치 확인(그사이 앱이 바뀌면 거절). 선택 계정: 동의 화면에서 고른 구글 계정은 id_token `sub`로 확인 → **이미 다른 `sub`의 Gmail 연결이 있으면 409 저장 거절**(먼저 끊기). 공용 `getMemberAccount`가 최근 줄을 골라 계정이 조용히 바뀌는 것을 막음(공용 표 고유 조건이 user_id·platform·external_id라 계정마다 줄이 따로 생김).
+- 토큰: 공용 `member_platform_accounts`에 캘린더와 같은 방식으로 저장(현재 이 표는 앱 단 암호화 없음, 서버 키 전용 접근). Gmail 토큰만 따로 암호화하려면 공용 컴포넌트 변경이라 별도 결정. **토큰·메일 제목·보낸 사람·메시지 번호를 로그·오류 문구에 넣지 않음**, 응답에는 화면 표시용 제목·보낸 사람·날짜만(토큰 0).
+- 기능 스위치 `GMAIL_ENABLED`(기본 false, 예약 기능과 같은 방식): 꺼져 있으면 RPC·OAuth 경로가 DB·네트워크 0으로 거절.
+- 시험(가짜 fetch·격리 DB): 꺼짐 → DB·fetch 0 / state 불일치·회원 불일치·앱 변경 → 거절 / scope 없음·초과 → 거절·저장 0 / 다른 `sub` 연결 있음 → 409 / 목록은 metadata 요청만·`q` 안 씀·snippet 미저장 / 추가: 동시 2요청 → 받은 업무 1건 / 계정 바뀜 409·해제 뒤 404 / 중간 실패 → 클레임 없음 / 보낸 사람·본문 저장 0·링크에 `authuser` 없음 / 로그에 토큰·제목 없음(console 감시) / 「연결 끊기」는 구글 호출 0·캘린더 줄 그대로.
+- 정확 경로(예정): 새 `src/server/gmailInbox.ts`(+`setGmailFetch`), 새 `src/app/api/oauth/google-gmail/start/route.ts`·`callback/route.ts`, `src/server/runtime.ts` 141 근처 핸들러 1줄, `src/app/inbox/InboxBoard.tsx` 「Gmail에서 가져오기」 패널, 새 마이그레이션 `supabase/migrations/<시각>_gmail_inbox_claims.sql`(aww 스키마), 새 `tests/integration/gmailInbox.test.ts`. 공용 `integration_catalog` 1줄·운영 마이그레이션 적용은 별도 승인.
+- 완료 조건: 위 시험 전부·tsc 0. 실제 구글 연결은 시험 계정 본인 앱으로 1회(별도 승인), 스위치 켜기는 주인님 승인 뒤.
+- 숫자(A안): 처음 설정 4단계(구글 클라우드에서 Gmail API 켜기 → 기존 구글 앱 키 재사용·없으면 등록 → 테스트 사용자에 본인 추가 → 「Gmail 연결」) · 매일 2번(목록 열기 → 고르고 제목 확인 후 추가) · 동의 1번(Gmail 메타데이터 읽기). 테스트 상태면 7일마다 재연결 1번.
