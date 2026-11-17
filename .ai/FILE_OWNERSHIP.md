@@ -305,3 +305,5 @@ WS-20261117-17 standalone 계정혼합 방어 확장: Workspace만 src/app/api/r
 WS-20261117-17 7485791ec 추가 연결 수용: Master diff 확인 후 inbox/page.tsx의 기존인가 user.id→InboxBoard accountKey 전달과 InboxBoard의 rcptReadText 기대계정/초안 account 저장만 최소연결로 기록. 받은 업무 전체 동작/권한 변경은 범위 밖이며 후속 경로 추가는 사전 보고.
 
 WS-20261117-18 CC-WORKSPACE-01: 주인님 둘째안만 선택. ai-work-workspace/src/app/settings/keys/KeysForm.tsx(+필요시 같은 page.tsx)에 기존 cal 읽기 RPC 연결 상태·캘린더 연동 화면 버튼 및 경량시험만. 기존 예정 일정 메뉴 숨김 금지, 서버/API/DB/OAuth/외부캘린더변경·로컬재가동·빌드 없음.
+
+FRONT-20261117-02: CC-B2B-FRONT-01만 mall-builder/src/app/globals.css 다크 bg-blue-600/700+text-white 정확선택자 배경1rule 및관련기존테마시험/자기문서 보정. 라이트/관리자/프리셋/다른후보 불변·독립검수후미시작Lab1빌드에포함,별도빌드/DB0.

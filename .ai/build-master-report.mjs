@@ -45,7 +45,7 @@ const intro=[
 `범위: 비교표 ${programs.filter(p=>p.sourceId!==null).length}개 + 신규 ESM 1개 = ${programs.length}개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.`, '',
 '[팀·실제 연결](../.ai/TEAM.md) · [수정 전 점유표](../.ai/FILE_OWNERSHIP.md) · [사람의 결정함](../.ai/decisions/DEC-20261116-001.md) · [전체 목록 CSV](MASTER_DEVELOPMENT_PLAN_20261116.csv) · [전체 목록 JSON](MASTER_DEVELOPMENT_PLAN_20261116.inventory.json)', '',
 '## 지금 내린 지휘와 우선순위', '',
-table(['순서','담당','진행 단계','다음 작업·통과 기준'],[
+table(['순서','담당','진행 단계','다음 작업·통과 기준'],state.commandBoard?.map(x=>[x.order,x.owner,x.stage,x.next]) ?? [
 ['1 · 146 리뉴얼','Workspace + AGY + Mac Tester',overrides.get('ai-work-workspace')?.stage,overrides.get('ai-work-workspace')?.next],
 ['2 · 교환·결제 정합성','B2BBackend + Mac Tester','자동 구매확정/교환7일 후속0103·결제0104 분리','confirmed 정책 보완 독립검수·결제는 별도 준비기록 commit/unknown 복구 mock 단계, 운영·실결제 승인 아님'],
 ['3 · 달력 복사','Workspace + Mac Tester','취소·원자복제·엄격날짜 지정검수 PASS','코드 검수 완료·실DOM/배포 미검수, 146 실제 화면에서 달별 구분·240px와 함께 확인'],
@@ -73,7 +73,7 @@ table(['작업 ID','담당','상태 / 전달','완료·진행 범위','Master의
 table(['프로젝트','담당','운영/후속 버전 (보고)','단계','완료 근거 요약','다음 작업'],programs.filter(p=>overrides.has(p.slug)).map(p=>[p.name,p.owner,p.reportedVersion??p.catalogVersion,p.stage,p.completed,p.next])), '',
 '## 사람의 조치와 결정', '',
 '기존 요청을 다시 만들지 않고 결정함에서 취합한다. Workspace v1.52·영상 v1.33·음악5회·상세페이지 v1.46은 담당에게 확인된 사용자 직접 승인 범위를 보존한다. QA 미통과나 안전성 미해결은 Master가 먼저 해결하며 새 승인을 요청할 이유로 바꾸지 않는다.', '',
-table(['조건','필요한 사람의 일','추천 처리'],[
+table(['조건','필요한 사람의 일','추천 처리'],state.humanActions?.map(x=>[x.condition,x.action,x.recommendation]) ?? [
 ['카카오/카페/이웃/ESM 계정','관리자 로그인, 가입카페/받은신청 있는 본인계정, ESM 로그인·확장설치','기존 요청 유지·해당 검수 시 한 번만 안내'],
 ['볼타 Lab','본인 테스트 키 등록','운영키/다른회원키 폴백 없음·실발급은 지정 시험만'],
 ['B2B 다음 운영 묶음','0100 운영 적용+v1.16 1빌드 승인 범위 확인','415시험·권한/중복검증·Front 합의 뒤 묶음으로'],

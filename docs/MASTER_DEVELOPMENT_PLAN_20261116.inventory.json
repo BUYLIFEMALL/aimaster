@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 09:56:34 KST",
+  "checkedAt": "2026-11-17 10:19:33 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -936,12 +936,12 @@
         "line": 127
       },
       "owner": "CC-MOVIE-01",
-      "stage": "사용자승인 운영Ready·실검색/DDL미완료",
-      "completed": "87ebcae7d+1fe195bdf·i71hni371 Ready·DB1.30·11시험/type/build·401/307 보고",
-      "next": "DES07 합성UI검수·시험계정실검색/AI별도. 2표DDL기존요청대기,2/3단계별도",
+      "stage": "운영v1.30·사용량/캐시 운영표 적용보고",
+      "completed": "주인님직접SQL실행·2표/RLS/함수/cleanupcron 읽기확인보고",
+      "next": "시험계정로그인뒤실검색·AI기획안1회는비용승인필요",
       "reportedVersion": "v1.30",
-      "evidence": "youtube-viral-studio/docs/IMPROVEMENTS.md",
-      "evidenceLevel": "담당배포보고/근거회수·Master실검색아님"
+      "evidence": "msg_e628ffaffa86·요청1c7b6dda완료",
+      "evidenceLevel": "담당직접실행/운영읽기보고·실검색/AI미검수"
     },
     {
       "sourceId": 48,
@@ -1776,12 +1776,12 @@
         "line": 169
       },
       "owner": "CC-WORKSPACE-01",
-      "stage": "운영v1.55·146 S0~5코드반환/라이프사이클P2 보완·dev/test분리완료",
-      "completed": "E1 작성자245/type0·승인/owner/루트/재시도 경계독립PASS(정적·모의,실모델미검수)",
-      "next": "효과cleanup 늦은응답차단·로컬로그인후실화면검수,Alt복사코드지정검수완료·모든후보미배포",
+      "stage": "운영 v1.55 유지·후속33소스/계정수정검수·146 로컬화면확인중",
+      "completed": "146 S0~5·영수증/캘린더상태 소스PASS·desktop/375iframe 담당실화면확인",
+      "next": "en/Alt·대표캡처독립시각대조·전체타입미검수분리·미배포묶음",
       "reportedVersion": "v1.55",
-      "evidence": "Workspace직접배포보고 / DIR-20261117-003",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidence": "6bd9df604·8ce818bf7·QA013/017/018·Master지속session56053",
+      "evidenceLevel": "독립소스/모의검수+담당로컬desktop/iframe실화면·운영未배포"
     },
     {
       "sourceId": 91,
@@ -2036,12 +2036,12 @@
         "line": 182
       },
       "owner": "CC-B2B-BACK-01 + CC-B2B-FRONT-01",
-      "stage": "운영Ready·Lab0101별도",
-      "completed": "0100적용·1aea분리58mmx0v2e Ready·DB1.16·공개200",
-      "next": "0102지정코드 독립정적PASS/미적용·교환UI Backend배정,0101/Front묶음미배포. 실운영/실UI검수별도",
+      "stage": "운영v1.16·Lab0103적용/0104도구입력대기",
+      "completed": "교환/결제소스·UI·적용자료검수완료,Lab0103/staff실RPC근거대조",
+      "next": "SupabaseDEV Accept→0104검증20→MasterLab1빌드(Front대비수정포함),실결제는테스트키만",
       "reportedVersion": "v1.16",
-      "evidence": "B2B-20261117-v116-release 결과",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "evidence": "37fdcabb4/c8d9e1d31·QA012/014/015·msg_093889c364cc",
+      "evidenceLevel": "소스검수완료·Lab적용실행0마지막확인·빌드未시작"
     },
     {
       "sourceId": null,
@@ -2052,15 +2052,15 @@
       "catalogVersion": null,
       "catalogState": "비교표 미등재 신규",
       "source": {
-        "path": "esm-register/docs/REQUEST_20261116_MACMINI_EXTENSION_TEST.md"
+        "path": "msg_ec0baa8b9af7/64296f72dc80·677a17038·CLnHgWYex8R8sfppJn9zX15L4uWf"
       },
       "owner": "CC-ECOM-01",
-      "reportedVersion": "v1.01",
-      "stage": "웹운영·확장실검수대기",
-      "completed": "Ready esm-register-7xufzg73q·DB적용·확장준비",
-      "next": "맥 설치/로그인뒤 입력만1회, 저장/임시저장/등록금지; API답장별도",
-      "evidence": "esm-register/docs/REQUEST_20261116_MACMINI_EXTENSION_TEST.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "reportedVersion": "v1.02",
+      "stage": "운영 배포·Mac 지정 웹 회귀 PASS",
+      "completed": "매뉴얼·썸네일·모바일닫기·오류입력보존·상품수명 반영,Mac375 실제핵심동작확인",
+      "next": "실확장업데이트/계정연결/ESM실입력등록은별도범위",
+      "evidence": "msg_ec0baa8b9af7/64296f72dc80·677a17038·CLnHgWYex8R8sfppJn9zX15L4uWf",
+      "evidenceLevel": "담당배포보고+Mac실제운영웹지정검수"
     }
   ],
   "tasks": [
@@ -3911,12 +3911,14 @@
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "owner": "CC-MOVIE-01",
-      "status": "ready",
-      "delivery": "delivered",
+      "status": "done",
+      "delivery": "integrated",
       "title": "Workspace소규모캘린더/번역/여백 독립검토",
-      "evidence": "msg_4172a6ea3fc6",
-      "next": "8150da176/90612778f 원본정적검토·제품/빌드0",
-      "lastReviewedAt": "2026-11-16T16:41:48.543594+00:00"
+      "evidence": "msg_a4ba7fee2e75/5993cd528cc6·Master결과읽기",
+      "next": "중복검토0·최신146화면은Workspace/독립시각검수별도",
+      "lastReviewedAt": "2026-11-17T01:19:30.538Z",
+      "sha": "ba44c0158",
+      "completion": "8150/906 원본정적조건부검토제출완료·보기이름P3후속ad65보존수정연결,최신원본실시각PASS아님"
     },
     {
       "task_id": "QA-20261117-002",
@@ -4118,12 +4120,12 @@
       "parent_task_id": "OPS-20261116-002",
       "owner": "CC-ECOM-01",
       "title": "주인님 직접 ESM 썸네일 등록·사용자 매뉴얼",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "QA008 msg_aa660ef0cc98 sourcePASS / pending0dbd919dd/AGENTSf9b8839e9",
-      "completion": "기존기능기준매뉴얼보완·실사썸네일지정row등록/공개이미지확인·backup비공개유지,마켓실등록없음",
-      "next": "썸네일실등록및독립이미지PASS·매뉴얼27ae+c909독립내용PASS/미배포묶음(v1.02후보),운영가이드아직v1.01·실ESM등록미검수",
-      "lastReviewedAt": "2026-11-16T18:22:59.686Z",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_0d582095065f/ ec0baa8b9af7 주인님직접v1.02 1빌드·677a17038/CLnHgWYex8R8sfppJn9zX15L4uWf Ready + msg_64296f72dc80 Mac운영회귀PASS",
+      "completion": "썸네일실등록·안내보완·모바일/입력수정v1.02운영배포·Mac지정웹회귀완료. 실제ESM등록과확장연결未검수",
+      "next": "운영v1.02유지·동일배포재실행0·실ESM등록은추후범위지정",
+      "lastReviewedAt": "2026-11-17T01:19:30.538Z",
       "sha": "27ae7af4c + c909b67e6 + 6a7792e37"
     },
     {
@@ -4161,31 +4163,25 @@
       "parent_task_id": "DES-20261117-02",
       "owner": "CC-WORKSPACE-01",
       "title": "주인님 선택146 Professional Studio 전면리뉴얼",
-      "status": "blocked",
+      "status": "running",
       "delivery": "returned",
-      "evidence": "msg_542c66206f89 QA013독립effect3PASS/작성자jsdom5분리 / Workspace직접보고 로그인POST307·localGET500/Jestworker2exceptions·PID44692생존 / Workspace1회복구Ready후exit 보고·Master 물리2191MB/commit60.12of66.03GB/3457 LISTEN없음 / d01b34b0f 원인조사·최근System2004없음·자기background0",
+      "evidence": "msg_542c66206f89 QA013독립effect3PASS/작성자jsdom5분리 / Workspace직접보고 로그인POST307·localGET500/Jestworker2exceptions·PID44692생존 / Workspace1회복구Ready후exit 보고·Master 물리2191MB/commit60.12of66.03GB/3457 LISTEN없음 / d01b34b0f 원인조사·최근System2004없음·자기background0 / Master지속session56053·PID32968·GET307정상후담당실로그인/로컬workspace6433·8ce818bf7 desktop/375iframe",
       "decision": {
         "chosen": "146 Professional Studio",
         "reference": "[5/12] 146 Professional Studio - 01. 메인 관제 대시보드",
         "scope": "메인기준 전체화면 일관스타일 적용·기존기능/회원데이터유지",
         "source": "주인님 직접 채팅 2026-11-17 KST"
       },
-      "next": "Master 메모리확보전Bash포함재시도중지. 담당자자기소유자원/로그읽기원인조사,타세션종료/설정변경/설치0. 여유확보뒤구체재개지시·지속세션실행구분검증,146실화면미착수",
-      "lastReviewedAt": "2026-11-17T00:08:46.946Z",
+      "next": "로컬서버복구·desktop/375iframe검수진행. Workspace en/Alt시험카드/대표캡처3개공유 후 독립시각대조,인쇄실조작/실발급未검수·운영배포未승인",
+      "lastReviewedAt": "2026-11-17T01:19:30.538Z",
       "sha": "S0~5+075fcb4+1a13662a4bfa51ffba2ee9468fdc35ae13c7bcdd",
       "validationPending": {
-        "scope": "메인엣지 실제화면",
-        "reason": "개발DB분리완료·실화면로그인세션부재",
-        "action": "주인님 localhost3457 본인로그인 1회·담당이로컬workspace준비",
-        "url": "http://localhost:3457/"
+        "scope": "146 후속 시각·동작",
+        "reason": "서버/로그인차단해소·desktop/375iframe기준확인",
+        "action": "en·Alt 실조작/캡처독립대조",
+        "url": "http://localhost:3457/workspace6433/studio"
       },
-      "blocker": {
-        "reason": "로컬3457 개발서버 종료·메모리 압박, 종료원인(메모리/실행수명)미확정",
-        "owner": "CX-MASTER-01 / CC-WORKSPACE-01",
-        "required": "메인PC 자원 여유 확보 및 지속 실행 방식 확인",
-        "lastAttempt": "기존PID 확인종료→동일명령Ready뒤프로세스exit, PS문법오류는미실행",
-        "next": "재시작 반복금지·자기자원/로그 읽기조사 후 재개 조정"
-      }
+      "blocker": null
     },
     {
       "task_id": "REL-20261117-006",
@@ -4270,8 +4266,8 @@
       "delivery": "returned",
       "sha": "f3d66f561 (cleanup) / rollback b5c3613c5ae8e2ba9acf0705836545eb8a1d4ec437eec9d4ff4bf097246d7e11",
       "evidence": "msg_cbda79f2579f Mac 최종 정적 경계 PASS / msg_ee34b6e07886 작성자 PG34",
-      "next": "cleanup f3d66f561 잠금·해시 독립 정적 검토 마감. 실제 Lab 정리 미실행. Backend 새 0103 단독 실행 패키지 준비 계속, 검토 후 실제 적용 별도 지시",
-      "lastReviewedAt": "2026-11-16T19:17:29.705Z"
+      "next": "Lab0102합성자료/정리안준비·0103적용기완료,정리미실행. 0104적용뒤기존b5정리금지·별도후속승인자료필요",
+      "lastReviewedAt": "2026-11-17T01:19:30.538Z"
     },
     {
       "task_id": "B2B-20261117-07",
@@ -4339,12 +4335,13 @@
       "parent_task_id": "B2B-20261117-07",
       "owner": "CX-QA-01",
       "title": "교환비 카드결제 0103 모의/권한 독립검수",
-      "status": "ready_review",
-      "delivery": "returned",
-      "sha": "80a00923",
-      "evidence": "msg_60a334cc602d / QA17-012",
-      "next": "80a00923 함수내parse/markpaid오류경계정적PASS·PG17/3→20/0작성자근거수용. SQL전체중단내구intent미해소/배포차단·새정확상태안대기",
-      "lastReviewedAt": "2026-11-16T18:25:14.444Z"
+      "status": "done",
+      "delivery": "integrated",
+      "sha": "37fdcabb4",
+      "evidence": "msg_6d7a93569589 누적QA012소스PASS·별도커밋/응답키/감사/취소hold/표시계약",
+      "next": "Lab적용도구승인→검증→승인1빌드·테스트키실동작별도",
+      "lastReviewedAt": "2026-11-17T01:19:30.538Z",
+      "completion": "결제소스지정독립검수완료,실Toss멱등/외부원자성/실UI/DB적용미검수"
     },
     {
       "task_id": "QA-20261117-013",
@@ -4443,10 +4440,10 @@
       "priority": "P1",
       "status": "done",
       "delivery": "integrated",
-      "evidence": "msg_7ef4b618cb04 실제Mac ego25·운영v1.01·기존시험로그인/1440·375",
-      "completion": "배정 실제웹동작 검수 완료·모바일닫기/가격오류값리셋 결함확인·문구후보미배포실재현. 실확장연결/상품등록/로그인전/저장권한전체는미검수; 초기이미지DOM 도구출력에 시간제한서명URL포함·문서값미복사로정정,토큰0주장은결과문서범위만",
-      "next": "Ecom ESM17-03 두결함국소수정배정·기존guide/home미배포후보중복0,MacQA017후순위계속",
-      "lastReviewedAt": "2026-11-17T00:20:21.319Z"
+      "evidence": "msg_64296f72dc80 Mac운영v1.02 375실클릭/가격오류1/상품전환/매뉴얼/history0 PASS",
+      "completion": "요청한운영웹준비흐름/수정후핵심회귀완료. 설치확장v1.01/웹·ZIPv1.02,확장업데이트/계정연결/외ESM실입력등록은미검수",
+      "next": "웹운영검수마감·실ESM/확장연결은별도정확범위승인전0",
+      "lastReviewedAt": "2026-11-17T01:19:30.538Z"
     },
     {
       "task_id": "WS-20261117-17",
@@ -4489,10 +4486,10 @@
       "priority": "P1",
       "status": "done",
       "delivery": "integrated",
-      "evidence": "msg_2be729baeef6 Mac실TSX가격유지/Menu상태PASS·상품props A→B 잔존P2 / msg_91fba6187864 실제소스key A→B개선·오류뒤checkboxDOM/state불일치추가 / msg_6526e57dc1f0 실제TSXmock 동일오류2·동의false/required/pending/B전환·type0 / msg_414209833d58 Mac실TSX deferred계정/동의수명 독립PASS",
+      "evidence": "msg_2be729baeef6 Mac실TSX가격유지/Menu상태PASS·상품props A→B 잔존P2 / msg_91fba6187864 실제소스key A→B개선·오류뒤checkboxDOM/state불일치추가 / msg_6526e57dc1f0 실제TSXmock 동일오류2·동의false/required/pending/B전환·type0 / msg_414209833d58 Mac실TSX deferred계정/동의수명 독립PASS / msg_64296f72dc80 운영수정후回帰PASS",
       "completion": "소스수정/독립검수배정범위완료. 모바일stacking소스/폼오류입력유지·상품key/늦은응답·반복동의검증. 실CSS hit-test/실Next이동/실등록/배포미검수",
-      "next": "v1.02후보27ae+c909+a6e+d970+3208동결·운영v1.01미반영/배포후실동작확인별도,빌드미승인",
-      "lastReviewedAt": "2026-11-17T00:40:20.674Z",
+      "next": "주인님별도직접승인v1.02배포완료·Mac실모바일X/가격/상품이동回帰PASS·기존등록동작미검수",
+      "lastReviewedAt": "2026-11-17T01:19:30.538Z",
       "sha": "a6e36da2a + d970a2a40 + 3208d290e"
     },
     {
@@ -4503,13 +4500,13 @@
       "title": "구글 캘린더 설정 연결 상태·연동 화면 버튼",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "priority": "P2",
-      "status": "running",
-      "delivery": "returned",
-      "evidence": "Workspace보고 KeysForm+DOM8/기존calStateread·첫째안수정0 / msg_ed20ad8d6777 QA018 실React 기대계정없음/재조회구상태잔존P2",
-      "completion": "KeysForm 기존cal읽기상태 연결됨/재연결/미연결+로딩/실패구분·연동화면버튼,기존예정일정연결유지·경량검증·실화면未검수구분",
-      "next": "Workspacepage기존userID→Calendar expectedAccount/409숨김·account+tag결과분리 재조회loading 국소수정배정. 서버/OAuth/DB/외부/서버재가동/빌드0",
-      "lastReviewedAt": "2026-11-17T00:56:31.500Z",
-      "sha": "5d0aa1def"
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_239589d1b21f Mac실React/fetch 계정/tag/409/empty/retry 독립PASS",
+      "completion": "캘린더 연결상태·화면이동둘째안 소스구현/독립검수완료,담당로컬화면확인. 실제Google연결/OAuth/전체keys보호미검수·메뉴숨김0",
+      "next": "Workspace미배포묶음·실계정Google연결변경0·기존keys전체계정보호와구분",
+      "lastReviewedAt": "2026-11-17T01:19:30.538Z",
+      "sha": "5d0aa1def + 6bd9df604"
     },
     {
       "task_id": "QA-20261117-018",
@@ -4518,13 +4515,68 @@
       "reviewer": "CX-MASTER-01",
       "title": "캘린더 연결 상태·설정 이동 독립검수",
       "priority": "P2",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "scopeRef": "5d0aa1def 읽기·관련경량컴포넌트/자기결과만",
-      "completion": "기존cal상태계약/로딩·오류·연결표시/최신요청수명/버튼경로/계정문맥검토·실외부미검수구분",
-      "evidence": "Workspace보고 KeysForm+DOM8/기존calStateread·첫째안수정0 / msg_ed20ad8d6777 QA018 실React 기대계정없음/재조회구상태잔존P2",
-      "next": "수정본후두경계재검토·현재전체PASS보류",
-      "lastReviewedAt": "2026-11-17T00:53:47.004Z"
+      "completion": "캘린더 연결상태·화면이동둘째안 소스구현/독립검수완료,담당로컬화면확인. 실제Google연결/OAuth/전체keys보호미검수·메뉴숨김0",
+      "evidence": "msg_239589d1b21f Mac실React/fetch 계정/tag/409/empty/retry 독립PASS",
+      "next": "Workspace미배포묶음·실계정Google연결변경0·기존keys전체계정보호와구분",
+      "lastReviewedAt": "2026-11-17T01:19:30.538Z",
+      "sha": "5d0aa1def + 6bd9df604"
+    },
+    {
+      "task_id": "FRONT-20261117-02",
+      "parent_task_id": "FRONT-20261117-01",
+      "owner": "CC-B2B-FRONT-01",
+      "reviewer": "CX-MASTER-01",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "priority": "P2",
+      "title": "어두운 테마 흰 글자 파랑 단추 대비 보정",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "msg_d0ea6aadae24 주인님직접작업요청·cf735c3bf 근거/배정msg_6e855d675ba4",
+      "completion": "globals.css dark정확선택자1rule·기존12색/라이트/관리자회귀·독립소스검수후미시작Lab빌드범위에포함",
+      "next": "Front국소수정→Mac독립검토→MasterLab단일snapshot에포함·별도빌드0",
+      "lastReviewedAt": "2026-11-17T01:19:30.538Z"
+    },
+    {
+      "task_id": "DOC-20261117-T12",
+      "owner": "CC-BLOG-01",
+      "reviewer": "CX-MASTER-01",
+      "priority": "P3",
+      "title": "데이터수집 문서조정 담당·보관후속표 근거 정정",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_756f5424a7a3 c3a7d77b7 4문서·역할조정한정",
+      "completion": "T12 blog문서조정담당배정·PENDING64 코드포함/배포미확인·미배포정상결정구분,제품권한/재활성화0",
+      "next": "정정완료·다른미커밋/ZIP보존·실배포확인전완전배포표시0",
+      "lastReviewedAt": "2026-11-17T01:19:30.538Z"
+    },
+    {
+      "task_id": "QA-20261117-014",
+      "parent_task_id": "B2B-20261117-09",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "교환비 UI 독립검수",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_249ee0fbe3d6 독립30/DI4 PASS",
+      "completion": "소스구현/모의검수범위마감·실화면/실Toss미검수",
+      "next": "기승인Lab릴리스후실동작별도",
+      "lastReviewedAt": "2026-11-17T01:19:30.538Z"
+    },
+    {
+      "task_id": "QA-20261117-015",
+      "parent_task_id": "B2B-20261117-07",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "Lab0104 실행자료 독립검수",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_e0ba89802fad 정책NULL/누적준비정적PASS",
+      "completion": "고정원문/apply/pre/verify준비정적마감·실적용/자료보존20미검증",
+      "next": "주인님실적용승인유효·도구Accept後실검증",
+      "lastReviewedAt": "2026-11-17T01:19:30.538Z"
     }
   ]
 }
