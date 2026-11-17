@@ -38,7 +38,7 @@
 ## 5. 잠금·파괴·권한 위험(운영)
 | 파일 | 잠금이 걸리는 곳 | 영향 | 대책 |
 |---|---|---|---|
-| 0101 | 알림 표 `mall_builder_notifications`에 칸 추가(외래 키) = 짧은 ACCESS EXCLUSIVE, 인덱스 2개 일반 생성 = 생성 동안 SHARE(알림 쓰기 대기) / 알림 설정 표 칸 5개 추가(기본값 있는 칸, PG17은 즉시) | 생성 중 주문 알림 기록이 잠깐 대기 | `lock_timeout 5s`·`statement_timeout 120s`(12절 apply 파일 값 — 지문 비교가 쇼핑몰 표 전체를 읽기 때문), 주문 적은 시간대. 시간 초과면 전체 취소 → **같은 파일을 바로 다시 실행하지 않고** precheck로 기록·구조를 읽어 확인한 뒤 Master에 보고 |
+| 0101 | 알림 표 `mall_builder_notifications`에 칸 추가(외래 키) = 짧은 ACCESS EXCLUSIVE, 인덱스 2개 일반 생성 = 생성 동안 SHARE(알림 쓰기 대기) / 알림 설정 표 칸 5개 추가(기본값 있는 칸, PG17은 즉시) | 생성 중 주문 알림 기록이 잠깐 대기 | `lock_timeout 5s`·`statement_timeout 120s`(12절 apply 파일 값, 문장마다 120초·트랜잭션 전체 상한 아님 — 지문 비교가 쇼핑몰 표 전체를 읽기 때문), 주문 적은 시간대. 시간 초과면 전체 취소 → **같은 파일을 바로 다시 실행하지 않고** precheck로 기록·구조를 읽어 확인한 뒤 Master에 보고 |
 | 0102 | **주문 표 `mall_builder_orders`에 트리거 생성** = SHARE ROW EXCLUSIVE(주문 쓰기 잠깐 막힘) / 교환 표는 새 표 | 주문 생성·상태 변경이 잠깐 대기 | 같은 잠금 시한, 주문 적은 시간대 |
 | 0103 | 함수 다시 정의만 | 거의 없음 | — |
 | 0104 | 교환 표(그때 0건)에 트리거 | 없음 | — |
@@ -87,7 +87,7 @@
 | `steps.mjs` | 단계 정의(원문·커밋·지문 앞 16자·적용 기록 이름·선행 기록·확장) | `1c1e2bc4819f6c0a0074eb3026c45f21852c1ec6fa87660a3f3ed11ace1fffc6` |
 | `snapshot.sql` | 구조 스냅샷 조회(칸·제약·인덱스·정책·표/칸 권한·함수 본문 md5·실행 권한·트리거, 소유자 이름 제외) | `c5aa779674feccc5e62270319b6cd90ba74cf656fc0d6e9d00203b4d2bb6e138` |
 | `manifest.json` | 구조 기대 목록 — 고정 원문을 격리 DB(PG 17.11, 0001~0100 위)에 단계별로 적용해 「새로 생긴 항목」만 뽑음: 0101 92 · 0102+0103 109 · 0104 117, **바뀐·사라진 기존 항목 0**. 단계별 **의존 함수(정확한 서명 + anon·authenticated 실행 권한·PUBLIC 직접 부여)**: 0101 3(`mall_builder_digits`·`mall_builder_is_store_staff`·`mall_builder_staff_can`) · 0102+0103 1(`mall_builder_staff_can(uuid, text)`) · 0104 5(`exchange_event`·`exchange_order_status_ok`·`lock_exchange`·`toss_call(p_secret text, p_method text, p_path text, p_body jsonb, p_idem text)`·`mall_builder_staff_can`). 키 순서로 정렬해 다시 뽑아도 같은 파일 | `280b21102ac4cdbb52639e8a40d55f2d7b5bd43ab497169f234984cbd8bc8e8a` |
-| `build.mjs` | 원문 지문·의존 함수 목록·「추가만」 조건을 **모든 단계에서 먼저 검증한 뒤에만** 9개를 임시 파일 → 바꿔 넣기로 한꺼번에 씀(하나라도 실패하면 기존 산출물 그대로, QA047 S-F02). DB 접속 0 | `39fa72d6cdb92d86288e11e6d9a404a0c4043d045a528223693b0488465fe7cc` |
+| `build.mjs` | 원문 지문·의존 함수 목록·「추가만」 조건을 모든 단계에서 먼저 검증하고, **입력 검증이 실패하면 기존 산출물 9개는 그대로**(아무것도 쓰지 않음). 검증 뒤에는 9개를 같은 폴더 임시 파일(`.이름.tmp`)로 쓰고 하나씩 rename — **9개 전체를 한 번에 바꾸는 원자성은 아님**: 두 번째 이후 rename에서 I/O 실패가 나면 앞 파일만 바뀐 상태·임시 파일이 남을 수 있다. 그런 실패 뒤에는 precheck·manifest·생성 9개 지문을 이 표와 대조하기 전까지 사용·재실행 금지(QA047 S-F02). DB 접속 0 | `39fa72d6cdb92d86288e11e6d9a404a0c4043d045a528223693b0488465fe7cc` |
 | `check-local.mjs` | 격리 DB 작성자 검증(`--manifest` = 기대 목록 생성 / 기본 = 리허설·반례) | `633747b116064fd66a3d7082238429eb1ce2f3c6debadca415420ded741cee76` |
 | `precheck-1-0101.sql` | 1단계 읽기 점검 6판정(6번 = 의존 함수) + 기록 3 | `e1cff970b787a623615e83baaee9d4db0cabf921e15b4b00867d7f5fab080c13` |
 | `apply-1-0101.sql` | 1단계 한 트랜잭션 적용 | `d108ea02b809561d1e97796dcd81db0a528a44be60036e118c3a87320e5bb57b` |
@@ -103,8 +103,8 @@
 0101 `51b2f3e91` sha256 `546bd8dd192ae33b…` / 0102 `a86c53dc1` `14780f43e6c5daf5…` / 0103 `0edda8666` `05fd87eeed148ecd…` / 0104 `37fdcabb4` `739b35e9f20b45ba…`. apply 파일 안 「원문」 부분은 파일 그대로(한 글자도 안 바꿈).
 
 ### 적용 파일이 하는 일(각 단계 같은 틀)
-1. `begin isolation level repeatable read` · `lock_timeout 5s` · `statement_timeout 120s` · search_path 고정.
-2. 시작 조건(하나라도 어긋나면 `[멈춤]`, 전체 취소): 선행 적용 기록 각 정확히 1줄 · 이번·이후 단계 기록 0 · **이번 단계가 만들 구조가 하나도 없음**(manifest 키와 대조 — 부분 적용·Lab 혼동 차단; Lab은 0101~0104가 있어 여기서 멈춤) · 필요한 확장(3단계 `http`) · **의존 함수 각각의 정확한 서명(스키마·이름·인자)과 실행 권한이 manifest와 같음**(QA047 S-F01 — 예: 0104의 `toss_call(text,text,text,jsonb,text)`, 정책·함수가 쓰는 `mall_builder_staff_can(uuid,text)` 회원 실행 권한).
+1. `begin isolation level repeatable read` · `lock_timeout 5s` · `statement_timeout 120s`(**문장마다 120초 — 트랜잭션 전체 상한이 아님**) · search_path 고정.
+2. 시작 조건(하나라도 어긋나면 `[멈춤]`, 전체 취소): 선행 적용 기록 각 정확히 1줄 · 이번·이후 단계 기록 0 · **이번 단계가 만들 구조가 하나도 없음**(manifest 키와 대조 — 부분 적용·Lab 혼동 차단; Lab은 0101~0104가 있어 여기서 멈춤) · 필요한 확장(3단계 `http`) · **의존 함수**(QA047 S-F01): 원문을 정규식으로 훑어 찾은, 그 단계 전부터 있던 `public`·`mall_builder_private` 함수마다 정확한 스키마·이름·인자(identity)와 anon·authenticated 실행 효력·PUBLIC 직접 부여 값이 manifest와 같아야 함(예: 0104 `toss_call(text,text,text,jsonb,text)`, `mall_builder_staff_can(uuid,text)`). **보장하지 않는 것**: 스키마 USAGE 권한·함수 소유자·service_role 권한·의존 함수 본문·그 밖 전체 권한, 정규식이 못 잡는 동적 호출.
 3. **기존 자료 지문(운영 값을 미리 적지 않음)**: 적용 전에 있던 `public.mall_builder_*` 표마다 그때의 칸 목록으로 행 수·md5를 임시 표(커밋 때 사라짐)에 남긴다.
 4. 원문 적용.
 5. 같은 칸 목록으로 지문을 다시 계산 — 하나라도 다르면 `[멈춤] 기존 자료가 바뀌었습니다`로 전체 취소. repeatable read라 다른 세션의 동시 쓰기는 이 비교에 섞이지 않는다.
