@@ -209,3 +209,22 @@ E1 독립 검수(QA17-003)와 별개로 계획만. 디자인 3안 선택 전이�
 **7. 회원 설정·조작**: 처음 3단계(캘린더 연결·시간 설정·주소 만들기) + cron-job.org 연결 권장(없어도 동작하되 확인이 늦음). 매일 조작 0번, `확인 필요`가 생긴 날만 1번(확정/칸 풀기).
 
 **8. 시험(구현 때, 구글 모의)**: 오류 표의 각 줄 / 409 같은 일정=확정·다른 일정·취소=확인 필요 / 모름→GET 404 여러 번이어도 해제·재전송 안 됨 / 최종 미확인 상태·회원 선택 / 두 worker가 같은 확인 작업 → 1번만 / 재시작 뒤 기한 지난 확인 실행 / 페이지 넘김·종일·반복·준비 시간 양쪽 / 21일 제한 / 30일 정리·예외 회원.
+
+### 7-7. 예약 링크(7-2) 구현 준비 — 현재 코드 대조 차이 (2026-11-17, Master `msg_c34e47266f97`) — 코드 전, 7-6을 그대로 쓰고 아래만 바뀜
+**대조 결과(중복 제외)**
+- **7-3 손님 포털은 이미 코드에 있음**(`src/server/portal.ts`, `src/app/portal/[...path]`, 스위치 `PORTAL_ENABLED=false`·`setPortalEnabledForTests`, 만든 회원 이용 기간 `tokenOwnerAllowed`, IP당 분당 30 `hit()`, `tx()`+`FOR UPDATE`). → 7-5 C의 「새 표 3개」는 이제 **예약 2개(`aww_booking_pages`·`aww_bookings`)만** 새로 생김. 예약은 포털 방식을 그대로 복사(새 패턴 0): `BOOKING_ENABLED=false`·`setBookingEnabledForTests`, 스위치가 꺼져 있으면 모든 진입점이 DB 접속·표 생성 전에 404.
+- **`booking-reminder`(별도 프로그램)와 중복 아님**: 그쪽은 이미 잡힌 예약에 문자·메일 리마인드 발송, 손님이 고르는 공개 예약 페이지는 없음. 연결은 이번 범위 밖(아이디어로만).
+- **이미 있어 재사용**: 예약 작업기 `litpage/server/scheduler.ts`(`scheduleJob`·`cancelJob`·`runDueJobs` claim), 회원 작업 `/api/cron/member`, 운영 정리 `/api/cron/jobs`(49줄 `runReceiptRetention` 옆에 한 줄), 보관 예외 `retentionExempt.ts`, 공개 폼 한도 방식 `publicForms.ts`(`hit`), 회원 앱 `validToken`·`getGoogleApp`·`upsertGoogleEvent`.
+- **고쳐야 하는 기존 함수(새로 만들지 않음)**: `memberJobs.ts`의 `MEMBER_JOB_KINDS`에 `'booking.reconcile': 'booking:'` + `jobOwner`에 이 종류의 `payload.ownerId` 분기(없으면 회원 cron이 이 작업을 못 집음). `listGoogleEvents`(178)는 우리 일정을 빼므로 손대지 않고 옆에 `listBusy`·`getEventById`·`insertEventWithId` 추가.
+- **확인 필요(첫 단계에서 확정)**: 「받은 업무」에 행을 넣는 전용 함수가 `workInbox.ts`에 따로 export돼 있지 않음 → 첫 단계에서 기존 받은 업무가 행을 만드는 경로를 찾아 그대로 부름(새 함수 만들지 않음). 회원 앱 알림은 E1 경로(`notifications`·`sendExternalNotify`) 재사용.
+
+**구현 첫 단계(서버만, 스위치 꺼짐) — 정확 경로**
+- 새: `src/server/booking.ts`(설정·빈 칸 계산·제출·확인 작업·30일 정리), `tests/integration/booking.test.ts`.
+- 수정: `src/server/googleCalendar.ts`(함수 3개 추가), `src/server/memberJobs.ts`(종류·소유자 1곳씩), `src/app/api/cron/jobs/route.ts`(정리 한 줄).
+- 둘째 단계(화면): 새 `src/app/book/[...path]/page.tsx`(포털 화면 패턴), `src/app/calendar-sync/` 안 설정 한 칸. 서버·화면을 나누면 파일 점유가 겹치지 않음.
+
+**경계·정책(7-6 그대로, 요약)**: DB 2표는 서버만 접근·토큰 해시 / 예약 생성은 회원 설정 행 `FOR UPDATE` 잠금 안에서 범위 겹침(준비 시간 양쪽, 맞닿음 허용)·하루 최대 검사 / 구글은 고정 id `bk`+UUID 32자, 409=GET 4조건 일치만 확정, 「모름」은 `확인 필요`·칸 유지·GET만 1·5·30분·재전송 0·회원 직접 선택 / 시간대는 회원 시간대 `Intl`, 서머타임 없는·두 번 있는 시각 제외, 손님 시간대 병기 / 보관은 받은 날 30일(예외 회원 제외), 그래서 예약은 21일 앞까지 / 계정 전환: 공개 화면은 토큰 주인 기준이라 세션 무관, 회원 설정 화면은 기존 기대 계정 헤더(409) 방식 그대로.
+
+**켜기 승인 조건**: 주인님·Master가 「운영 워크스페이스 저장소 표 2개 추가」를 묶음 배포 승인 항목으로 승인 → Mac 독립 검수 통과 → 스위치를 켜는 배포 1회. 켜기 전 운영 DDL·외부 구글 호출 0.
+
+**모의 시험 완료 조건(구현 때)**: 7-6 §8 전부 + 스위치 꺼짐이면 표 생성·DB 접속 0(포털 시험과 같은 방식) + `MEMBER_JOB_KINDS`/`jobOwner`로 회원 cron이 자기 확인 작업만 집음(다른 회원 0) + 전체 tsc·전체 시험 통과. 구글은 `setGcalFetch` 모의만, 실호출 0.
