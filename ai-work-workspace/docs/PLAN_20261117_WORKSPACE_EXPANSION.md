@@ -287,3 +287,17 @@ E1 독립 검수(QA17-003)와 별개로 계획만. 디자인 3안 선택 전이�
 - E3-2 템플릿에 자동화 함께 만들기(`TemplateDef`에 자동화 정의 + 템플릿 사용 때 자동화 생성, 상태→승인 요청 시 결재자 알림·승인/반려 시 요청자 알림) — 자동화 생성 경로 조사부터.
 - E3-3 결재자만 승인(버튼 자동화 또는 속성 편집 권한) — 권한 설계 필요.
 - E3-4 셀 AI 출처: `aiAutofill`에 「웹에서 찾기」 선택 + 채팅의 검색 도구 재사용 + 출처를 URL 속성(또는 행 댓글)에 저장 — 실제 확인에 유료 AI·검색 호출이 필요해 비용 승인과 함께.
+
+### 7-11. E3-2 「템플릿을 쓸 때 알림 자동화도 함께」 읽기 조사 (2026-11-17, Master `msg_f42da8e3b8a0`) — 코드 전, E3-1(`e297153b8`) QA030 동안 동결
+**지금 구조(근거)**
+- 템플릿 사용: 숨은 갤러리 공간(`seed.ts` `ensureTemplateGallery`, `TEMPLATE_GALLERY_VERSION = 7`)에 한 번 만들어 두고, `api/modules/templates.ts`의 `getTemplate`(새 페이지)·`applyTemplateToDatabase`(빈 표에 적용)가 `copyTreeOps`(115줄)로 블록·표·보기만 복사 → **자동화는 복사되지 않음**(이 파일에 automation 0). 표 정의는 `...rest`로 그대로 복사돼 속성 번호(`aSta`·`aApr`·`aReq`)가 유지됨.
+- 갤러리는 새 템플릿 id가 없으면 다시 만든다(`TEMPLATES.every(cur.pages[t.id])` 실패 → 옛 루트 은퇴·재생성) — E3-1 배포 때 버전 숫자를 올리지 않아도 결재 템플릿이 들어감(기존 동작).
+- 자동화 만들기: `api/modules/automations.ts` `handlers.saveAutomation(ctx, { collectionId, automation })` — 편집 권한 확인(`assertCanEdit`)·조건/동작 정리(`cleanTrigger`·`cleanActions`·`assertTargets`)·검사(`validateAutomation`)·저장(`saveAutomationRecord`)·감사 기록까지 이미 한 곳. 알림 동작 `notify`(대상 `{type:'property', property}` = 사람 속성), `external` 비우면 앱 안 알림만(메일·카톡 발송 0).
+
+**최소 구현 단위(새 권한 0·외부 발송 0·새 DB 0)**
+- `content/catalog.ts`: `TemplateDef`에 선택 칸 `automations?: AutomationDraft[]`(이름·`trigger`·`actions`, 속성은 템플릿 속성 번호로) — 결재 템플릿에 2개: ① 상태가 「승인 요청」이 되면 → 결재자(`aApr`)에게 알림 ② 상태가 「승인」 또는 「반려」가 되면 → 요청자(`aReq`)에게 알림. `external` 없음.
+- `api/modules/templates.ts`: `getTemplate`·`applyTemplateToDatabase`에서 복사가 커밋된 **뒤**, 그 템플릿에 `automations`가 있으면 새 표(collection) id로 **기존 `saveAutomation` 처리기를 같은 ctx로 호출**(권한·검사·감사 재사용, 새 경로 0). 자동화 만들기가 실패해도 템플릿 복사는 그대로 두고 응답에 `automationWarnings`(사유 문구)만 — 다시 만들기는 회원이 ⚡ 자동화에서.
+- 화면 변경 0(응답의 recordMap에 자동화 기록을 더하면 기존 자동화 화면이 그대로 보여 줌). 결재 템플릿 설명 문구는 「알림 자동화 2개가 함께 만들어집니다(끌 수 있음)」로 바꿈.
+- 정확 파일: 수정 `src/litpage/server/content/catalog.ts`·`src/litpage/server/api/modules/templates.ts`, 새 시험 `tests/integration/approvalAutomation.test.ts`. `automations.ts`·엔진·스키마 무수정.
+- 완료 조건(시험, 격리 DB): 결재 템플릿 `getTemplate` → 새 표에 자동화 2개(활성, 만든 사람=사용 회원, 대상 속성 번호 일치) / 다른 템플릿은 자동화 0 / 행 상태를 「승인 요청」으로 바꾸면 결재자에게 앱 알림 1·「승인」이면 요청자에게 1(외부 발송 0) / 편집 권한 없는 회원은 기존처럼 템플릿 사용 자체가 거절 / 자동화 저장 실패를 흉내 내면 템플릿은 남고 경고만 / `applyTemplateToDatabase` 경로도 같은 결과 · tsc.
+- 남는 한계(그대로 명시): 결재자 전용 승인 아님(E3-3), 알림은 앱 안만.
