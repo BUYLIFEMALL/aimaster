@@ -139,13 +139,30 @@ function BookingCardInner({ accountKey }: { accountKey: string | null | undefine
               <span className="rc-hint">이 주소는 지금 한 번만 보입니다. 잃어버리면 「새 주소 만들기」를 누르세요.</span>
             </div>
           )}
-          <fieldset className="cs-steps" aria-label="예약 받을 요일">
+          {/* WS-20261118-01: 요일 칩(DES-20261117-04 참고). 체크칸 의미·fieldset·라벨 그대로, 저장 중에는 잠금. 색은 receipts.css .rc-day*(대비 4.5 이상) */}
+          <fieldset className="rc-days" aria-label="예약 받을 요일" disabled={!!busy}>
             <legend>예약 받을 요일</legend>
-            {DAYS.map((d, i) => (
-              <label key={d} style={{ marginRight: 8 }}>
-                <input type="checkbox" checked={f.days.includes(i)} onChange={(x) => set({ days: x.target.checked ? [...f.days, i].sort() : f.days.filter((n) => n !== i) })} /> {d}
-              </label>
-            ))}
+            <div className="rc-days-row">
+              {DAYS.map((d, i) => {
+                const on = f.days.includes(i);
+                return (
+                  <label key={d} className={on ? "rc-day on" : "rc-day"}>
+                    <input
+                      type="checkbox"
+                      className="rc-day-input"
+                      checked={on}
+                      disabled={!!busy}
+                      onChange={(x) => {
+                        if (busy) return;
+                        set({ days: x.target.checked ? [...f.days, i].sort() : f.days.filter((n) => n !== i) });
+                      }}
+                    />
+                    {on && <span aria-hidden="true">✓</span>}
+                    {d}
+                  </label>
+                );
+              })}
+            </div>
           </fieldset>
           <div className="rc-row-btns">
             <label>시작 <input type="time" aria-label="시작 시각" value={hhmm(f.startMin)} onChange={(x) => set({ startMin: toMin(x.target.value) })} /></label>

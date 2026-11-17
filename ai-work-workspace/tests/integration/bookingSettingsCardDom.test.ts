@@ -193,3 +193,61 @@ describe('QA025: 계정이 바뀐 뒤 늦게 끝난 동작·StrictMode 다시 �
     expect(el.textContent).not.toContain('불러오는 중');
   });
 });
+
+// ---------------------------------------------------------------- WS-20261118-01 예약 요일 칩(DES-20261117-04 참고, 대비·의미 보완)
+describe('WS-20261118-01 예약 받을 요일 칩', () => {
+  const boxes = () => [...el.querySelectorAll<HTMLInputElement>('fieldset.rc-days input[type="checkbox"]')];
+  async function ready() {
+    mount();
+    await loaded(0);
+  }
+  it('fieldset·legend·체크칸 7개·라벨 글자 유지, 칩 클래스로 선택 상태 표시', async () => {
+    await ready();
+    const fs = el.querySelector('fieldset.rc-days')!;
+    expect(fs).not.toBeNull();
+    expect(fs.querySelector('legend')?.textContent).toBe('예약 받을 요일');
+    expect(boxes()).toHaveLength(7);
+    expect(boxes().map((b) => b.closest('label')!.textContent?.replace('✓', '').trim())).toEqual(['일', '월', '화', '수', '목', '금', '토']);
+    expect(boxes().map((b) => b.checked)).toEqual([false, true, true, true, true, true, false]);
+    expect(boxes().map((b) => b.closest('label')!.classList.contains('on'))).toEqual([false, true, true, true, true, true, false]);
+    // 기존 .cs-steps input(최소 너비 200px) 규칙이 걸리지 않게 cs-steps 클래스를 쓰지 않음
+    expect(fs.classList.contains('cs-steps')).toBe(false);
+    expect(boxes().every((b) => b.classList.contains('rc-day-input'))).toBe(true);
+  });
+  it('토글 값은 기존과 같음(정렬·제거), 저장 본문에 그대로', async () => {
+    await ready();
+    await act(async () => { boxes()[0].click(); });
+    await act(async () => { boxes()[3].click(); });
+    expect(boxes().map((b) => b.checked)).toEqual([true, true, true, false, true, true, false]);
+    await act(async () => { btn('설정 저장')!.click(); });
+    const save = h.pending.find((p) => p.name === 'bookingSave')!;
+    expect(save.body.settings.days).toEqual([0, 1, 2, 4, 5]);
+  });
+  it('저장 중(busy)에는 요일 체크칸이 잠기고 눌러도 값 변경 0', async () => {
+    await ready();
+    await act(async () => { btn('설정 저장')!.click(); });
+    expect(boxes().every((b) => b.disabled)).toBe(true);
+    expect((el.querySelector('fieldset.rc-days') as HTMLFieldSetElement).disabled).toBe(true);
+    await act(async () => { boxes()[0].click(); });
+    expect(boxes()[0].checked).toBe(false);
+    const save = h.pending.find((p) => p.name === 'bookingSave')!;
+    await settle(h.pending.indexOf(save), page());
+    expect(boxes().every((b) => !b.disabled)).toBe(true);
+  });
+  it('StrictMode·계정 전환 뒤에도 요일 칩은 한 벌, 새 계정 값으로 그림', async () => {
+    el = document.createElement('div');
+    document.body.appendChild(el);
+    root = createRoot(el);
+    act(() => root!.render(createElement(StrictMode, null, createElement(BookingSettingsCard, { accountKey: 'uA' }))));
+    const gets = () => h.pending.filter((p) => p.name === 'bookingGet');
+    const lists = () => h.pending.filter((p) => p.name === 'bookingList');
+    await settle(h.pending.indexOf(gets()[gets().length - 1]), page());
+    await settle(h.pending.indexOf(lists()[lists().length - 1]), []);
+    expect(el.querySelectorAll('fieldset.rc-days')).toHaveLength(1);
+    act(() => root!.render(createElement(StrictMode, null, createElement(BookingSettingsCard, { accountKey: 'uB' }))));
+    expect(el.querySelector('fieldset.rc-days')).toBeNull(); // B 응답 전에는 A 값 숨김
+    await settle(h.pending.indexOf(gets()[gets().length - 1]), { ...page(), settings: { ...settings, days: [6] } });
+    await settle(h.pending.indexOf(lists()[lists().length - 1]), []);
+    expect(boxes().map((b) => b.checked)).toEqual([false, false, false, false, false, false, true]);
+  });
+});
