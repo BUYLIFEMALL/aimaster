@@ -217,10 +217,8 @@ export function cleanSettings(raw: unknown): BookingSettings {
 }
 
 // ---------------------------------------------------------------- 저장
-let tablesReady = false;
-function ensureTables() {
-  if (tablesReady) return;
-  db.exec(`CREATE TABLE IF NOT EXISTS aww_booking_pages (
+/** 예약 표 2개 + 색인 정의(첫 사용 때 만든다). 시험이 같은 정의로 「다른 인스턴스」를 흉내 내도록 내보낸다 */
+export const BOOKING_DDL = `CREATE TABLE IF NOT EXISTS aww_booking_pages (
     user_id TEXT PRIMARY KEY, token_hash TEXT NOT NULL UNIQUE, enabled INTEGER NOT NULL, settings TEXT NOT NULL,
     created_time BIGINT NOT NULL, updated_time BIGINT NOT NULL);
   CREATE TABLE IF NOT EXISTS aww_bookings (
@@ -229,7 +227,24 @@ function ensureTables() {
     fail_reason TEXT, notified TEXT, created_time BIGINT NOT NULL, updated_time BIGINT NOT NULL,
     before_min INTEGER NOT NULL DEFAULT 0 CHECK (before_min >= 0 AND before_min <= 120),
     after_min INTEGER NOT NULL DEFAULT 0 CHECK (after_min >= 0 AND after_min <= 120));
-  CREATE INDEX IF NOT EXISTS idx_aww_bookings_user ON aww_bookings(user_id, start_ms)`);
+  CREATE INDEX IF NOT EXISTS idx_aww_bookings_user ON aww_bookings(user_id, start_ms)`;
+let tablesReady = false;
+/** 시험 전용: 표 준비 표시 되돌리기(격리 시험 DB에서 첫 생성을 다시 재현할 때) */
+export function resetBookingTablesForTests() {
+  tablesReady = false;
+}
+/**
+ * WS-20261117-23(P2, 운영 v1.57에서 1회 관찰): 서로 다른 서버 인스턴스가 동시에 처음 만들면 `CREATE TABLE IF NOT EXISTS`끼리
+ * `pg_type_typname_nsp_index` 중복으로 한쪽이 실패한다 → 표 2개·색인을 한 DB 거래 안에서, 예약 표 전용 잠금
+ * (`pg_advisory_xact_lock(hashtext('aww:booking:ddl'))`, 이 저장소의 다른 잠금 0 — 거래가 끝나면 자동 해제)을 잡은 뒤 만든다.
+ * 다른 인스턴스는 잠금이 풀린 뒤(=앞 거래 커밋 뒤) 「이미 있음」으로 지나간다. 준비 표시는 커밋 성공 뒤에만 켜고, 실패하면 그대로 꺼져 있어 다음 요청이 다시 시도한다.
+ */
+function ensureTables() {
+  if (tablesReady) return;
+  tx(() => {
+    db.prepare("SELECT pg_advisory_xact_lock(hashtext('aww:booking:ddl'))").get();
+    db.exec(BOOKING_DDL);
+  });
   tablesReady = true;
 }
 

@@ -163,6 +163,65 @@ describe('1. 스위치 꺼짐(시험에서 명시적으로 끔) — 표·예약 
   });
 });
 
+// ---------------------------------------------------------------- WS-20261117-23: 첫 표 생성 경합(운영 v1.57에서 1회 관찰, P2)
+describe('WS23: 두 인스턴스가 동시에 처음 표를 만들 때', () => {
+  const LOCK = "pg_advisory_xact_lock(hashtext('aww:booking:ddl'))";
+  const other = () => postgres(process.env.AWW_DATABASE_URL!, { max: 1, onnotice: () => {} });
+  const dropAll = async (sql: ReturnType<typeof other>) => sql.unsafe('DROP TABLE IF EXISTS aww_bookings, aww_booking_pages');
+  const constraints = () =>
+    (dbm.db.prepare(`SELECT string_agg(pg_get_constraintdef(oid), ' | ' ORDER BY pg_get_constraintdef(oid)) AS c FROM pg_constraint WHERE conrelid IN ('aww_bookings'::regclass, 'aww_booking_pages'::regclass)`).get() as { c: string }).c;
+  beforeAll(() => {
+    bk.setBookingEnabledForTests(true);
+  });
+  afterAll(() => {
+    bk.setBookingEnabledForTests(false);
+  });
+
+  it('다른 인스턴스(같은 코드: 잠금+생성)가 아직 커밋 전이어도, 이쪽 첫 요청은 기다렸다가 성공하고 제약이 모두 있음', async () => {
+    const sql = other();
+    try {
+      await dropAll(sql);
+      bk.resetBookingTablesForTests();
+      const q = sql.unsafe(`DO $$ BEGIN PERFORM ${LOCK}; ${bk.BOOKING_DDL}; PERFORM pg_sleep(1.2); END $$`).execute();
+      await new Promise((r) => setTimeout(r, 400));
+      const t0 = Date.now();
+      let err: unknown = null;
+      try {
+        bk.bookingHandlers.bookingGet(ctx(owner));
+      } catch (e) {
+        err = e;
+      }
+      const waited = Date.now() - t0;
+      await q;
+      expect(err).toBeNull(); // 수정 전: duplicate key value violates unique constraint "pg_type_typname_nsp_index"
+      expect(waited).toBeGreaterThan(400);
+      const c = constraints();
+      for (const want of ['PRIMARY KEY (id)', 'PRIMARY KEY (user_id)', 'UNIQUE (token_hash)', 'before_min >= 0', 'after_min <= 120']) expect(c).toContain(want);
+      expect(tableExists('idx_aww_bookings_user')).toBe(true);
+    } finally {
+      await sql.end();
+    }
+  });
+
+  it('잠금 없이 끼어든 생성 때문에 한 번 실패해도 준비 표시가 남지 않아, 다음 요청이 다시 만들어 성공', async () => {
+    const sql = other();
+    try {
+      await dropAll(sql);
+      bk.resetBookingTablesForTests();
+      const rogue = sql.unsafe(`DO $$ BEGIN ${bk.BOOKING_DDL}; PERFORM pg_sleep(1.0); END $$`).execute();
+      await new Promise((r) => setTimeout(r, 400));
+      expect(() => bk.bookingHandlers.bookingGet(ctx(owner))).toThrow(/pg_type_typname_nsp_index|already exists/);
+      await rogue;
+      await dropAll(sql); // 실패 뒤 표가 없어져도
+      expect(() => bk.bookingHandlers.bookingGet(ctx(owner))).not.toThrow(); // 다시 만든다(준비 표시가 true로 남았다면 여기서 표 없음 오류)
+      expect(tableExists('aww_bookings')).toBe(true);
+      expect(tableExists('aww_booking_pages')).toBe(true);
+    } finally {
+      await sql.end();
+    }
+  });
+});
+
 describe('2. 순수 계산', () => {
   const base = () => ({ ...bk.DEFAULT_SETTINGS, days: [0, 1, 2, 3, 4, 5, 6], startMin: 600, endMin: 780 });
   // 2026-12-01(화) 한국 시간 기준
