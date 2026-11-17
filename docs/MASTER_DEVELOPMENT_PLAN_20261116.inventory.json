@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 19:14:00 KST",
+  "checkedAt": "2026-11-17 19:15:20 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -5098,7 +5098,7 @@
       "scopeRef": "gmailHandlers.ts/기존handlers시험·본인문서만 수정. 공용runRpc/logger/init·SQL·기타소스동결",
       "evidence": "릴리스확인표539e0a42b·W-F01수정6bd503b5e·문서9e12c2ece,0074만적용시메인카탈로그노출주의",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "로그Mac재검수와패널disconnect unknown문구최소보완/DOM시험, 운영적용·실Google·GmailON·build0",
+      "next": "QA040완료수락·disconnect unknown패널국소보완/문서최종정리반환, 운영false/SQL미적용",
       "sha": "6bd503b5e",
       "lastReviewedAt": "2026-11-17T09:00:52.380Z"
     },
@@ -5183,13 +5183,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "Gmail OFF 배선·실제 RPC 입구·어댑터·화면 통합 독립검수",
-      "status": "running",
-      "delivery": "queued",
+      "status": "done",
+      "delivery": "integrated",
       "sha": "6bd503b5e",
-      "evidence": "6bd503b5e W-F01 로컬예외봉투·로그고정문구, 실제POST/runRpc fixture응답/console전인수0·100/tsc0 보고; Mac국소재검수배정",
+      "evidence": ".ai/results/QA-20261117-040-CX-QA-01.md / msg_f6eab18818f9: W-F01실handler/runRpc추출 주변mock12경우로그/응답원문0 독립PASS. 이전OFF/계정/adapter/DOM검토와연결",
       "scopeRef": "실모듈/가짜HTTP·계정/오류/OFF·로그 검토, 공유DBreset/실외부/운영/build0",
-      "completion": "4명령 권한/기대계정/봉투와 결과모름/OFF 무호출/기존 받은업무 회귀 판정, 작성자와 독립검수 증거 구분",
-      "next": "로그수정 지정반례 재검수결과반환, 공통초기화/GmailOFF범위구분"
+      "completion": "OFF배선 지정소스/모의 통합검수 완료. 실제전체POST runtime/DB/Google/브라우저/운영SQL·활성은범위외",
+      "next": "배선소스수락·동결, 패널disconnect unknown후속별도"
     }
   ]
 }
