@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T09:13:12.644Z",
+  "checkedAt": "2026-11-17T09:19:30.632Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2241,21 +2241,21 @@
       "parent_task_id": "B2B-20261117-02",
       "owner": "CC-B2B-BACK-01",
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
-      "status": "running",
-      "delivery": "running",
-      "evidence": "msg_7701f70b5162: 주인님 직접 sql는 니가 하면되잖아 취합; Backend Lab SQL편집기 단일 실행 재개·msg_0bea75b19983 조정",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "Backend msg_7cff430769c2 Lab0104 20261117091118 pre16/post20/함수7지문8ab1697 PASS. Master Vercel dpl_CFgB5fC5NLdrye4K7esG1tWRktXQ Ready/exit0/별칭dev-mall-builder.vercel.app, Lab빌드1/1소진; HTTP login200/몰200/admin307→Lab login",
       "decision": {
         "resolved": true,
         "source": "msg_093889c364cc 주인님직접채팅 2026-11-17 필요한기능진행/DB적용+Lab빌드1회",
         "scope": "Lab0104적용+Lab원격빌드1회,실제결제시험은토스테스트키만·운영배포아님"
       },
-      "next": "Backend Lab precheck16→apply1회→verify20/함수7 실제결과 대기, 성공 뒤 Master Lab빌드0/1",
-      "lastReviewedAt": "2026-11-17T02:06:58.664Z",
-      "sha": "37fdcabb4 / 0104 739b35e9f20b45ba7c83309918da0cc099ca6a0b5715bf5514e755cb108662e6",
+      "next": "QA037 Lab 실화면/인가 읽기 검수 별도, Backend 기록 갱신. 추가빌드0",
+      "lastReviewedAt": "2026-11-17T09:19:30.633Z",
+      "sha": "7609748ad",
       "plannedMigration": "0104_exchange_fee_payments.sql (기존미적용0103 rename)",
       "migrationPath": "mall-builder/supabase/migrations/0104_exchange_fee_payments.sql",
       "previousMigrationPath": "0103_exchange_fee_payments.sql (미적용상태rename)",
-      "completion": "QA012 결제소스·QA014 UI소스·QA015 Lab적용준비자료 지정검수 마감. 실Lab원문적용/자료보존16~20·실HTTP커밋·실토스멱등/실화면/배포 미검수",
+      "completion": "Lab0104 적용과 승인된 Lab 원격빌드1회 완료. 운영배포/실결제/로그인실화면검수는 포함하지 않음",
       "blocker": {
         "reason": "Backend Supabase DEV MCP 도구 실행 입력창에서 사용자 Accept 대기. 기존 주인님 DB+빌드1회 승인은 유효",
         "owner": "주인님 도구승인창 직접응답 / 이후Backend",
@@ -3032,13 +3032,13 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "E4 Gmail함 기존기능/권한 대조와 최소범위 조사",
-      "status": "running",
+      "status": "ready_review",
       "delivery": "returned",
       "scopeRef": "gmailInbox.ts·Gmail start/callback·gmailInbox.test.ts·본인 문서. runtime/UI/SQL 및 운영·실외부 제외",
-      "evidence": "A1 코드6e6267120·문서62c03be63·모의38시험/tsc 보고; Mac QA036 msg_e48cd51ac1ba 배정(수락미확인)",
+      "evidence": "8973dc2d8+3027a923d·문서3edeaeee9, 모의60/tsc0; Mac재검수 msg_d70e7ad790eb",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "QA036 FAIL F01~F06 국소수정(msg_e55f62fa7869), F03연결일관성안보완·A2코드0",
-      "sha": "6e6267120",
+      "next": "QA036 F02 갱신중 앱변경잔여수정 msg_05ca6f9ba7ff·F03다중인스턴스일관성차단유지·OFF/A2코드0",
+      "sha": "3027a923d",
       "lastReviewedAt": "2026-11-17T09:00:52.380Z"
     },
     {
@@ -3072,7 +3072,21 @@
       "evidence": ".ai/results/QA-20261117-036-CX-QA-01.md / msg_a28485a4da2f: FAIL F01~F06, 모의 실제모듈/RSA",
       "scopeRef": "Mac 실제모듈·가짜통신/메모리·읽기 검토, 공유DB reset/build/deploy/실Google0",
       "completion": "OFF/OAuth/JWT·동시callback·연결계정 경계 판정 및 재현근거",
-      "next": "수정SHA반환후재검수. F01다중aud/azp F02유효토큰앱변경 F03동시저장후검사실패 F04상세401 F05nullJWT F06kid회전"
+      "next": "3027a923d 재검수배정 msg_d70e7ad790eb, F03해소PASS금지·OFF소스판정/활성차단분리"
+    },
+    {
+      "task_id": "QA-20261117-037",
+      "parent_task_id": "B2B-20261117-07",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수",
+      "status": "ready",
+      "delivery": "queued",
+      "sha": "7609748ad",
+      "evidence": "msg_0e37fb9e2931 / dpl_CFgB5fC5NLdrye4K7esG1tWRktXQ READY",
+      "scopeRef": "Mac 기존시험세션·Lab실화면읽기, 결제/RPC상태변경/발송/키/운영/build0",
+      "completion": "Lab 로그인/고객교환비UI/권한차단/375·darkhover 확인, 실결제미검수분리",
+      "next": "Mac 수락 후 기존세션확인·필요시 사람로그인 취합"
     }
   ],
   "programOverrides": [
@@ -3409,8 +3423,8 @@
     {
       "order": "3 · B2B",
       "owner": "Backend + Master + Mac Tester",
-      "stage": "주인님 SQL직접실행 지시 취합·Backend Lab편집기 적용 재개(완료미확인)",
-      "next": "precheck16→apply원본1회→verify20/지문→Master Lab빌드0/1"
+      "stage": "Lab0104 적용·검증PASS, Lab 신규배포 Ready·빌드1/1완료",
+      "next": "Mac QA037 실제화면/인가검수 배정·운영배포/실결제0"
     },
     {
       "order": "4 · B2BFront",
@@ -3456,11 +3470,6 @@
     }
   ],
   "humanActions": [
-    {
-      "condition": "B2B Lab 실제 DB 실행",
-      "action": "Lab SQL편집기에서 precheck16/16 확인후고정apply1회실행·완료회신",
-      "recommendation": "MCP3번만료실행0·반복요청중지,기존승인유효·담당읽기verify20후Lab1빌드"
-    },
     {
       "condition": "실제 결제 검수 단계",
       "action": "Lab 테스트 전용 토스 키 사용 확인",

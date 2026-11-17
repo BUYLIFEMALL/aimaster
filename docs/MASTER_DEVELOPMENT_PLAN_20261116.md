@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 18:13:14 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 18:19:33 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -14,7 +14,7 @@
 | --- | --- | --- | --- |
 | 1 · ESM | Ecom + Mac Tester | v1.02 운영 배포·Mac 웹 회귀 완료 | Mac ESM공간19 주인님제어중·로그인후 Return to agent 필요, 입력0. Ecom 구버전요청서정정 msg_a042112fc563 |
 | 2 · Workspace | Workspace + Master | v1.57운영·E3소스독립/통합560시험PASS·v1.58미배포 | WS25 A1 ready_review→Mac QA036 배정·A2 불확실전달 보완·WS26 승인대기 |
-| 3 · B2B | Backend + Master + Mac Tester | 주인님 SQL직접실행 지시 취합·Backend Lab편집기 적용 재개(완료미확인) | precheck16→apply원본1회→verify20/지문→Master Lab빌드0/1 |
+| 3 · B2B | Backend + Master + Mac Tester | Lab0104 적용·검증PASS, Lab 신규배포 Ready·빌드1/1완료 | Mac QA037 실제화면/인가검수 배정·운영배포/실결제0 |
 | 4 · B2BFront | B2BFront + Mac Tester | FRONT04 dark hover7609748ad 독립소스PASS·미배포 | Backend Lab최종출처7609748ad재동결·DB0104실행대기 |
 | 5 · 블로그 | Blog | T05 robots/DNS·T07공용폴러 소스독립PASS·미배포 | 다음web-crawler묶음에통합·외부/빌드0 |
 | 6 · 영상 | Movie | 떡상v1.30·사용량/캐시2표운영적용보고 | MOV07공용encoder2b9a06c9c 소스독립PASS/미배포·YVS실검색로그인별도 |
@@ -40,7 +40,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 211개: done 186개 · cancelled 6개 · ready_review 11개 · running 4개 · waiting_human 2개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 212개: done 187개 · cancelled 6개 · ready_review 12개 · running 2개 · waiting_human 2개 · ready 3개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -202,7 +202,7 @@
 | WS-20261117-14 | CC-WORKSPACE-01 | done / integrated | 주인님 직접 캘린더 달별 상자/색 구분 | v1.56 묶음반영완료·추가중복개발0 |
 | ESM-20261117-02 | CC-ECOM-01 | done / integrated | ESM 카탈로그 썸네일 실등록 | 등록/독립공개이미지검수범위완료·backup비공개유지·이미지재생성/루트배포0 |
 | B2B-20261117-06 | CC-B2B-BACK-01 | ready_review / returned | Lab0102 안전fixture·실행패키지 준비 | Lab0102합성자료/정리안준비·0103적용기완료,정리미실행. 0104적용뒤기존b5정리금지·별도후속승인자료필요 |
-| B2B-20261117-07 | CC-B2B-BACK-01 | running / running | 주인님기승인 D5 교환비 카드결제 b3 mock구현 | Backend Lab precheck16→apply1회→verify20/함수7 실제결과 대기, 성공 뒤 Master Lab빌드0/1 |
+| B2B-20261117-07 | CC-B2B-BACK-01 | done / integrated | 주인님기승인 D5 교환비 카드결제 b3 mock구현 | QA037 Lab 실화면/인가 읽기 검수 별도, Backend 기록 갱신. 추가빌드0 |
 | WS-20261117-15 | CC-WORKSPACE-01 | done / integrated | 주인님 직접 Alt/Option 달력카드 드래그 복사 | 배정코드검수완료·미배포묶음/146실화면으로연결,개발시험DB분리완료전DB시험재실행0 |
 | QA-20261117-011 | CX-QA-01 | done / integrated | 달력 Alt복사·월구분 기능회귀 독립검수 | 취소/원자구조/엄격날짜/권한작성자증거지정검수완료·실DOM146시각미검수·같은검사재반복0 |
 | QA-20261117-012 | CX-QA-01 | done / integrated | 교환비 카드결제 0103 모의/권한 독립검수 | Lab적용도구승인→검증→승인1빌드·테스트키실동작별도 |
@@ -252,9 +252,10 @@
 | QA-20261117-033 | CX-QA-01 | done / integrated | E3-2 템플릿 앱알림/권한/부분실패 독립검토 | E3-2지정소스완료·미배포/전용결재권한별도 |
 | QA-20261117-034 | CX-QA-01 | done / integrated | E3-3 결재ACL/신뢰경계/거래우회 독립검토 | E3-3지정소스완료·운영gallery/시각/실알림미검수 |
 | QA-20261117-035 | CX-QA-01 | done / integrated | 셀AI웹출처 키·과금재시도·저장권한 독립검토 | 지정소스마감·실공급자/과금/사실성/운영UI·실DB미검수 |
-| WS-20261117-25 | CC-WORKSPACE-01 | running / returned | E4 Gmail함 기존기능/권한 대조와 최소범위 조사 | QA036 FAIL F01~F06 국소수정(msg_e55f62fa7869), F03연결일관성안보완·A2코드0 |
+| WS-20261117-25 | CC-WORKSPACE-01 | ready_review / returned | E4 Gmail함 기존기능/권한 대조와 최소범위 조사 | QA036 F02 갱신중 앱변경잔여수정 msg_05ca6f9ba7ff·F03다중인스턴스일관성차단유지·OFF/A2코드0 |
 | WS-20261117-26 | CX-MASTER-01 | waiting_human / prepared | E3+WS23 v1.58 묶음 배포/운영 실검수 | 구체소스묶음보존·승인후실행순서확정 |
-| QA-20261117-036 | CX-QA-01 | ready_review / returned | Gmail A1 OFF 서버 OAuth 독립 검수 | 수정SHA반환후재검수. F01다중aud/azp F02유효토큰앱변경 F03동시저장후검사실패 F04상세401 F05nullJWT F06kid회전 |
+| QA-20261117-036 | CX-QA-01 | ready_review / returned | Gmail A1 OFF 서버 OAuth 독립 검수 | 3027a923d 재검수배정 msg_d70e7ad790eb, F03해소PASS금지·OFF소스판정/활성차단분리 |
+| QA-20261117-037 | CX-QA-01 | ready / queued | B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수 | Mac 수락 후 기존세션확인·필요시 사람로그인 취합 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
@@ -298,7 +299,6 @@
 
 | 조건 | 필요한 사람의 일 | 추천 처리 |
 | --- | --- | --- |
-| B2B Lab 실제 DB 실행 | Lab SQL편집기에서 precheck16/16 확인후고정apply1회실행·완료회신 | MCP3번만료실행0·반복요청중지,기존승인유효·담당읽기verify20후Lab1빌드 |
 | 실제 결제 검수 단계 | Lab 테스트 전용 토스 키 사용 확인 | 운영/회원실키 폴백 없이 테스트키로만,현재실결제0 |
 | 영상 실호출 단계 | 시험회원 로그인·AI 기획안 1회 비용 승인 | 운영표2개는이미적용,실검색/AI검수만분리 |
 | 음악 실기기/저장 단계 | Mac MP4 만들기 신뢰클릭·저장위치 선택/AppleSilicon장비 필요시 | 기존소스검수를실하드웨어PASS로대체하지않음 |
