@@ -48,7 +48,7 @@
 
 | 경로 | 꺼짐일 때 동작 | 근거 |
 |---|---|---|
-| 서버 명령 4개 | DB·구글을 부르기 전에 `{ ok:false, code:'off' }` | `gmailInbox.ts` `ensureOn()`(각 함수 첫 줄), 시험 `gmailHandlers.test.ts` 「꺼짐」 4개: 저장소·fetch·Supabase 관리 접근 0 |
+| 서버 명령 4개 | Gmail 전용 저장소·구글·OAuth를 부르기 전에 `{ ok:false, code:'off' }`. **공통 /api/rpc 전처리(권한 확인·AI 키 읽기·모델 목록 준비·회원 확인·끝난 뒤 작업)는 그대로 실행됨 — 「전체 요청 DB·외부 0」이 아님(QA040 정정)** | `gmailInbox.ts` `ensureOn()`(각 함수 첫 줄), 시험 `gmailHandlers.test.ts` 「꺼짐」 4개: Gmail 저장소·fetch·Supabase 관리 접근 0, 같은 시험에서 공통 전처리 실행 1회씩 확인 |
 | OAuth 시작·콜백 | 바로 받은 업무 화면으로 돌려보냄(`gmail_error=off`) | 위 표의 두 route 파일 |
 | 받은 업무 화면 | 패널 0·Gmail 호출 0(서버 `gmailEnabled()`가 false) | `page.tsx`, 시험 `gmailApiAdapter.test.ts` 「gmailOn 없음(기본)」 |
 | 기존 받은 업무 기능 | 그대로(`workInboxDatabases`·`workInboxList` 호출 유지) | 같은 시험, 전체 61파일 792 통과 |
@@ -97,6 +97,7 @@ v1.58을 승인해도 Gmail 켜기는 승인되지 않습니다. 반대로 Gmail
 
 - **응답**: Gmail 오류는 정해 둔 code와 고정 한국어 문구만 돌려줍니다. Gmail이 아닌 예외는 공용 `runRpc`가 500과 일반 문구로 돌려줍니다(시험으로 확인).
 - **서버 기록**: 같은 500 예외를 `runRpc`가 `console.error('[api] <명령> failed', e)`로 남깁니다(`src/server/runtime.ts` 218행). 그래서 **서버 로그에는 원문이 남을 수 있고, 「원문 0」은 응답 기준이지 로그 기준이 아닙니다.** 실제 fixture 검토는 Master가 Mac에 요청했습니다. 이번 작업에서 제품 코드는 고치지 않았습니다.
+- **QA040 처리(이 문서 다음 커밋)**: Mac이 실제 fixture로 같은 문제를 확인해(`store.getApp` 예외 원문이 `console.error` 두 번째 인자에 남음) `gmailHandlers.ts`만 고쳤습니다. 이제 Gmail 명령의 예상 밖 예외는 던지지 않고 고정 봉투(넣기·끊기 `unknown`, 읽기 `server`)로 바꾸며, 기록은 `[gmail] <명령> unexpected error` 고정 한 줄(원문·cause·stack 0)입니다. 공용 `runRpc`·logger는 바꾸지 않았습니다. 그래서 Gmail 명령에서는 응답과 기록 모두 원문 0이고, 다른 명령은 기존과 같습니다.
 
 ## 9. 사람(주인님) 승인이 필요한 것 — 최종 정리
 
