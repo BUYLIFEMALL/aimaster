@@ -8,9 +8,9 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import postgres from 'postgres';
 
-const rpcMock = vi.hoisted(() => ({ reply: { data: null as unknown, error: null as null | { code?: string; message: string } }, calls: [] as { name: string; args: any }[], throwIt: null as unknown }));
+const rpcMock = vi.hoisted(() => ({ reply: { data: null as unknown, error: null as null | { code?: string; message: string } }, calls: [] as { name: string; args: any }[], throwIt: null as unknown, real: null as null | ((name: string, args: any) => unknown) }));
 vi.mock('@/lib/supabase/admin', () => ({
-  createAdminClient: () => ({ rpc: async (name: string, args: any) => { rpcMock.calls.push({ name, args }); if (rpcMock.throwIt) throw rpcMock.throwIt; return rpcMock.reply; } }),
+  createAdminClient: () => ({ rpc: async (name: string, args: any) => { rpcMock.calls.push({ name, args }); if (rpcMock.real) return rpcMock.real(name, args); if (rpcMock.throwIt) throw rpcMock.throwIt; return rpcMock.reply; } }),
 }));
 
 const ADMIN = 'postgres://postgres:awwlocal@127.0.0.1:55432/aww';
@@ -199,8 +199,9 @@ describe('서버의 rpc 결과 해석(모의 — 실제 PostgREST 미검증)', (
     expect(rpcMock.calls[0]).toEqual({ name: 'gmail_inbox_add', args: { p_user: U1, p_account_hash: H1, p_message_id: 'm1', p_title: 't', p_source_url: link('m1') } });
   });
   it.each([
-    ['40001(그사이 바뀜)', { data: null, error: { code: '40001', message: 'gmail_inbox_add: claim changed, retry' } }, 'conflict'],
-    ['그 밖 오류(원문 노출 0)', { data: null, error: { code: '22023', message: 'gmail_inbox_add: invalid source url' } }, 'server'],
+    ['40001(그사이 바뀜)', { data: null, error: { code: '40001', message: 'gmail_inbox_add: claim changed, retry' }, status: 409 }, 'conflict'],
+    ['그 밖 오류(원문 노출 0)', { data: null, error: { code: '22023', message: 'gmail_inbox_add: invalid source url' }, status: 400 }, 'server'],
+    ['상태 번호 없는 오류(응답 확인 불가)', { data: null, error: { code: '22023', message: 'x' } }, 'unknown'],
     ['결과 모양 이상', { data: [{ status: 'weird', inbox_id: 1 }], error: null }, 'unknown'],
     ['결과 없음', { data: [], error: null }, 'unknown'],
     ['A2-F03 inbox_id 빈 문자', { data: [{ status: 'added', inbox_id: '' }], error: null }, 'unknown'],
@@ -232,5 +233,49 @@ describe('QA038 A2-F02 — 기본 저장소 rpc 예외', () => {
     rpcMock.throwIt = null;
     expect(e.code).toBe('unknown');
     expect(e.message).toBe(gmx.GMAIL_ADD_MESSAGES.unknown);
+  });
+});
+
+
+// ---------------------------------------------------------------- QA038 실제 PostgREST 클라이언트(Mac msg_e009ce0a1577) — 실키·실네트워크 0
+describe('QA038 기본 저장소 + 실제 @supabase/postgrest-js(가짜 fetch)', () => {
+  const ID = '11111111-2222-4333-8444-555555555555';
+  const input = { userId: U1, accountHash: H1, messageId: 'm1', title: 't', sourceUrl: link('m1') };
+  const json = (b: unknown, status: number) => new Response(JSON.stringify(b), { status, headers: { 'content-type': 'application/json' } });
+  async function run(reply: () => Response | Promise<Response>) {
+    const { PostgrestClient } = await import('@supabase/postgrest-js');
+    const pg = new PostgrestClient('http://postgrest.fake.test/rest/v1', { fetch: (async () => reply()) as unknown as typeof fetch });
+    rpcMock.real = (name, args) => pg.rpc(name, args);
+    try {
+      const store = (await import('../../src/server/gmailInbox.ts')).gmailDefaultStoreForTests();
+      return await store.addToInbox(input).then((r) => ({ ok: r }), (e: any) => ({ code: e.code, message: e.message }));
+    } finally {
+      rpcMock.real = null;
+    }
+  }
+  it.each([
+    ['네트워크 실패(TypeError) → 클라이언트가 {code:"", status:0} 반환', () => { throw new TypeError('fetch failed'); }],
+    ['502 HTML(프록시)', () => new Response('<html>bad gateway</html>', { status: 502, headers: { 'content-type': 'text/html' } })],
+    ['500 Postgres 내부 오류 XX000', () => json({ code: 'XX000', message: 'internal' }, 500)],
+    ['401 PostgREST 인증 오류 PGRST301', () => json({ code: 'PGRST301', message: 'JWT' }, 401)],
+    ['503 빈 본문', () => new Response('', { status: 503 })],
+    ['200인데 빈 배열', () => json([], 200)],
+  ])('%s → unknown(결과 모름·고정 문구)', async (_n, reply) => {
+    const gmx = await import('../../src/server/gmailInbox.ts');
+    const r: any = await run(reply as () => Response);
+    expect(r.code).toBe('unknown');
+    expect(r.message).toBe(gmx.GMAIL_ADD_MESSAGES.unknown);
+  });
+  it.each([
+    ['40001(그사이 바뀜, 거래 되돌림)', () => json({ code: '40001', message: 'claim changed, retry' }, 409), 'conflict'],
+    ['22023(입력 거절, 거래 되돌림)', () => json({ code: '22023', message: 'invalid source url' }, 400), 'server'],
+    ['42501(권한 거절)', () => json({ code: '42501', message: 'permission denied' }, 403), 'server'],
+  ])('%s → %s(확실한 실패만)', async (_n, reply, code) => {
+    const r: any = await run(reply as () => Response);
+    expect(r.code).toBe(code);
+  });
+  it('정상 added·existing(실제 클라이언트 응답 해석)', async () => {
+    expect((await run(() => json([{ status: 'added', inbox_id: ID }], 200)) as any).ok).toEqual({ status: 'added', inboxId: ID });
+    expect((await run(() => json([{ status: 'existing', inbox_id: ID }], 200)) as any).ok).toEqual({ status: 'existing', inboxId: ID });
   });
 });

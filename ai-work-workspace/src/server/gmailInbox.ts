@@ -46,6 +46,8 @@ export const GMAIL_ADD_MESSAGES = {
   unknown: "받은 업무에 넣었는지 확인하지 못했습니다. 이미 넣어졌을 수 있으니 받은 업무 목록에서 확인해 주세요(자동으로 다시 보내지 않습니다).",
 } as const;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/** 함수 거래가 되돌려졌다고 확실히 아는 Postgres 오류(이 함수가 내거나 문장 단위 거절): 22023 입력 거절, 23503 참조 없음, 42501 권한 */
+const DEFINITE_ROLLBACK_CODES = new Set(["22023", "23503", "42501"]);
 export class GmailError extends Error {
   constructor(public code: GmailErrorCode, message: string) {
     super(message);
@@ -128,7 +130,7 @@ const supabaseStore: GmailStore = {
   },
   markNeedsReconnect: (userId, accountId) => markMemberAccountNeedsReconnect(admin(), userId, accountId),
   async addToInbox(i) {
-    let res: { data: unknown; error: { code?: string } | null };
+    let res: { data: unknown; error: { code?: string } | null; status?: number };
     try {
       res = (await admin().rpc("gmail_inbox_add", { p_user: i.userId, p_account_hash: i.accountHash, p_message_id: i.messageId, p_title: i.title, p_source_url: i.sourceUrl })) as typeof res;
     } catch {
@@ -136,8 +138,14 @@ const supabaseStore: GmailStore = {
       throw new GmailError("unknown", GMAIL_ADD_MESSAGES.unknown);
     }
     if (res.error) {
-      // DB가 오류를 돌려줌 = 함수 거래가 되돌려짐(넣지 않음). 40001 = 클레임이 그사이 바뀜
-      throw new GmailError(res.error.code === "40001" ? "conflict" : "server", res.error.code === "40001" ? GMAIL_ADD_MESSAGES.conflict : GMAIL_ADD_MESSAGES.server);
+      // QA038(실제 postgrest-js): 통신 실패는 예외가 아니라 { code: "", status: 0 }으로 돌아옴 → 그런 것까지 「넣지 못함」으로 단정하지 않음.
+      // 함수 거래가 확실히 되돌려졌다고 아는 Postgres 오류만 확정 실패(40001 그사이 바뀜 → conflict, 22023 입력 거절·23503 참조 없음·42501 권한 → server).
+      // 빈 코드·status 0·5xx 프록시·PostgREST 자체 코드(PGRST…)·그 밖 코드는 이미 커밋됐을 수 있으므로 unknown(자동 재전송 0).
+      const code = typeof res.error.code === "string" ? res.error.code : "";
+      const responded = typeof res.status === "number" && res.status > 0;
+      if (responded && code === "40001") throw new GmailError("conflict", GMAIL_ADD_MESSAGES.conflict);
+      if (responded && DEFINITE_ROLLBACK_CODES.has(code)) throw new GmailError("server", GMAIL_ADD_MESSAGES.server);
+      throw new GmailError("unknown", GMAIL_ADD_MESSAGES.unknown);
     }
     // A2-F03: 결과는 정확히 1행·허용된 status·UUID 형식 inbox_id여야 성공. 아니면 성공으로 보이지 않고 결과 모름(응답 방어 — DB 결함 단정 아님)
     const rows = res.data;
