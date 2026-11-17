@@ -18,6 +18,7 @@ import { hit } from "@/litpage/server/ratelimit.ts";
 import { runPublicRpc, type RpcResult } from "./runtime";
 import { tokenOwnerAllowed } from "./tokenOwnerAccess";
 import { FORM_RPCS, handlePublicForm, publicFormInfo, setFormOwnerCheck } from "./publicForms";
+import { bookingSlots, bookingSubmit } from "./booking";
 
 export const PUBLIC_RPCS = new Set(["getSite", "getPublishedPage", "loadPage", "loadPageCached"]);
 const NOT_FOUND: RpcResult = { status: 404, body: { name: "NotFound", message: "페이지를 찾을 수 없습니다." } };
@@ -109,6 +110,13 @@ export async function handlePublicRpc(name: string, body: unknown, ip: string): 
   if (name === "awwReportPublicPage") return reportPublicPage(input, ip);
   // 2026-11-15 공개 폼(2단계): 폼 보기·응답 제출·신고 — 동의·한도·내리기·주인 이용 기간은 publicForms.ts
   if (FORM_RPCS.has(name)) return handlePublicForm(name, input, ip, runPublicRpc);
+  // 2026-11-17 E2 7-2 예약 링크(기능 스위치 기본 꺼짐 → 둘 다 404, 예약 표·구글 0). 토큰은 JSON 본문으로만 받는다(쿼리·경로 0).
+  // 손님 입력·토큰은 기록하지 않는다. 판정·한도(보기 30/분·제출 5/시간)는 booking.ts — 위 공개 입구 120/분과 겹쳐 적용.
+  if (name === "getBookingSlots" || name === "submitBooking") {
+    const token = typeof input.token === "string" ? input.token : "";
+    const r = name === "getBookingSlots" ? await bookingSlots(token, ip) : await bookingSubmit(token, ip, input);
+    return r ? { status: 200, body: r } : NOT_FOUND;
+  }
   if (!PUBLIC_RPCS.has(name)) return NOT_FOUND;
   const pageId = pageIdOfRequest(name, input);
   if (!pageId || !(await publicPageOpen(pageId))) return NOT_FOUND;

@@ -22,6 +22,7 @@ import { boltaWebhookHandlers } from './boltaWebhook';
 import { calendarHandlers } from './calendarSync';
 import { collabHandlers } from './collabPoll';
 import { portalHandlers } from './portal';
+import { bookingHandlers } from './booking'; // 2026-11-17 E2 7-2 예약 링크(기능 스위치 기본 꺼짐 — 꺼져 있으면 모든 처리기 404·DB 0)
 import { resolveInvitees, sharingChangeProblem } from './collab';
 import { addOutlineBlock } from '@/litpage/server/api/modules/sidebar.ts';
 import { db } from '@/litpage/server/db.ts';
@@ -149,6 +150,7 @@ const OVERRIDES: Record<string, Handler> = {
   ...calendarHandlers,
   ...collabHandlers,
   ...portalHandlers, // 2026-11-17 E2 7-3 손님 포털(src/server/portal.ts, 기능 스위치 기본 꺼짐)
+  ...bookingHandlers, // 2026-11-17 E2 7-2 예약 링크 회원 설정·목록(src/server/booking.ts)
 };
 
 /** 2026-11-13: /api/mcp(토큰으로 들어오는 외부 AI 도구)용 — 원본 서버 초기화만 */
