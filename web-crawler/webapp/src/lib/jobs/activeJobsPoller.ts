@@ -7,6 +7,8 @@
 // 새 poller를 만든다 — stop() 뒤에 도착한 이전 세대의 응답은 버린다(refresh 0).
 
 export const POLL_INTERVAL_MS = 5_000;
+/** 한 회차(그 회차의 모든 요청)를 기다리는 최대 시간. 넘으면 그 회차 요청을 취소하고 다음 정상 회차로(QA029 P2). */
+export const ROUND_TIMEOUT_MS = 10_000;
 export const ACTIVE_JOB_STATUSES = ["pending", "running"] as const;
 
 export type JobStatusResult =
@@ -51,15 +53,38 @@ export function createActiveJobsPoller(opts: ActiveJobsPollerOptions) {
   async function round() {
     if (stopped || inFlight || !opts.isVisible()) return;
     inFlight = true;
-    let results: JobStatusResult[];
+    // 회차마다 따로 취소 신호를 둔다: 세대가 끝나면(stop·거절) 같이 끝나고, 회차 상한에 걸려도 끝난다.
+    const roundController = new AbortController();
+    const onGenerationAbort = () => roundController.abort();
+    controller.signal.addEventListener("abort", onGenerationAbort, { once: true });
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    const roundEnded = new Promise<"ended">((resolve) => {
+      roundController.signal.addEventListener("abort", () => resolve("ended"), { once: true });
+    });
+    timeoutId = setTimeout(() => roundController.abort(), ROUND_TIMEOUT_MS);
+
+    let outcome: JobStatusResult[] | "ended";
     try {
-      results = await Promise.all(
-        ids.map((id) => opts.fetchStatus(id, controller.signal).catch((): JobStatusResult => ({ kind: "error" })))
+      const each = ids.map((id) =>
+        opts
+          .fetchStatus(id, roundController.signal)
+          .catch((): JobStatusResult => ({ kind: "error" }))
+          .then((result) => {
+            // 거절(401·403·404)은 다른 요청을 기다리지 않고 도착 즉시 멈춘다 → 남은 요청도 취소된다.
+            if (result.kind === "stop" && !roundController.signal.aborted) finish("unauthorized");
+            return result;
+          })
       );
+      outcome = await Promise.race([Promise.all(each), roundEnded]);
     } finally {
+      if (timeoutId !== null) clearTimeout(timeoutId);
+      roundController.abort(); // 아직 남은 요청이 있으면 취소(이미 끝났으면 영향 없음)
+      controller.signal.removeEventListener("abort", onGenerationAbort);
       inFlight = false;
     }
     if (stopped) return; // 이 세대가 끝난 뒤 도착한 응답은 버린다
+    if (outcome === "ended") return; // 회차 상한 — 권한 거절과 달리 멈추지 않고 다음 정상 회차(즉시 재시도 없음)
+    const results = outcome;
     if (results.some((r) => r.kind === "stop")) {
       finish("unauthorized");
       return;

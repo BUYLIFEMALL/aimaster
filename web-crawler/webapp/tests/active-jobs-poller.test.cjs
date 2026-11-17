@@ -185,3 +185,57 @@ test('stop 두 번·start 두 번에도 타이머는 하나', async () => {
   await tick(20_000);
   assert.equal(h.calls.length, 1);
 });
+
+// ── QA029 P2: 섞인 응답(권한 거절 + 끝나지 않는 요청)·회차 상한 ─────────────
+const never = () => new Promise(() => {}); // abort도 무시하고 영원히 안 끝나는 요청
+
+test('거절이 먼저 오면 느린 요청이 남아 있어도 즉시 멈춤·같은 회차 signal 중단', async () => {
+  const h = harness({ ids: ['denied', 'slow'], answer: (id) => (id === 'denied' ? { kind: 'stop' } : never()) });
+  h.poller.start();
+  await tick(5_000);
+  assert.deepEqual(h.stops, ['unauthorized'], '느린 요청을 기다리지 않고 바로 멈춰야 한다');
+  assert.ok(h.signals.every((s) => s.aborted), '다른 느린 요청도 취소 신호를 받아야 한다');
+  await tick(30_000);
+  assert.equal(h.calls.length, 2);
+});
+
+test('거절로 멈춘 뒤 느린 요청이 늦게 완료를 알려도 refresh 0', async () => {
+  const d = deferred();
+  const h = harness({ ids: ['denied', 'slow'], answer: (id) => (id === 'denied' ? { kind: 'stop' } : d.promise) });
+  h.poller.start();
+  await tick(5_000);
+  d.resolve({ kind: 'ok', status: 'completed' });
+  await flush();
+  await tick(10_000);
+  assert.equal(h.transitions, 0);
+  assert.deepEqual(h.stops, ['unauthorized']);
+});
+
+test('끝나지 않는 요청은 회차 상한(10초)에서 풀리고, 멈추지 않고 다음 정상 회차로', async () => {
+  assert.equal(m.exports.ROUND_TIMEOUT_MS, 10_000);
+  let n = 0;
+  const h = harness({ ids: ['a'], answer: () => (++n === 1 ? never() : { kind: 'ok', status: 'running' }) });
+  h.poller.start();
+  await tick(5_000); // 1회차 시작(영원히 대기)
+  await tick(5_000); // 10초: 아직 상한 전 → 건너뜀
+  assert.equal(h.calls.length, 1);
+  await tick(5_000); // 15초: 상한 도달 → 풀림
+  assert.equal(h.signals[0].aborted, true, '상한에 걸린 요청은 취소');
+  assert.equal(h.stops.length, 0, '시간 초과는 권한 거절과 달리 멈추지 않음');
+  await tick(5_000);
+  assert.equal(h.calls.length, 2, '다음 정상 회차에서 다시 요청');
+  assert.equal(h.transitions, 0);
+  h.poller.stop();
+});
+
+test('요청이 걸려 있는 동안 언마운트하면 회차가 바로 끝나고 이후 아무 일도 없음', async () => {
+  const h = harness({ ids: ['a'], answer: () => never() });
+  h.poller.start();
+  await tick(5_000);
+  h.poller.stop();
+  assert.equal(h.signals[0].aborted, true);
+  await tick(60_000);
+  assert.equal(h.calls.length, 1);
+  assert.equal(h.transitions, 0);
+  assert.deepEqual(h.stops, ['stopped']);
+});
