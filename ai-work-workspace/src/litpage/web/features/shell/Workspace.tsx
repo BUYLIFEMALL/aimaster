@@ -18,6 +18,7 @@ import { MarketplacePage } from '../templates/MarketplacePage.tsx';
 import { PeoplePage } from '../home/PeoplePage.tsx';
 import { MyTasksPage } from '../home/MyTasksPage.tsx';
 import { StudioDashboard } from '../home/StudioDashboard.tsx';
+import { ReceiptsView } from '../receipts/ReceiptsView.tsx'; // 2026-11-17 WS-20261117-17 영수증·세금계산서(왼쪽 메뉴 보이게)
 import { UniqueIdRedirect } from '../database/uniqueIdRoute.tsx';
 import { AgentPage } from '../agents/AgentPage.tsx';
 import { installPersonHoverDelegation } from '../presence/PersonHoverCard.tsx';
@@ -130,6 +131,8 @@ export function Workspace() {
         return <MyTasksPage />;
       case 'studio': // 2026-11-17 146 S2 관제 대시보드
         return <StudioDashboard />;
+      case 'receipts': // 2026-11-17 WS-20261117-17 영수증·세금계산서
+        return <ReceiptsView />;
       case 'developers':
         return <DeveloperTools tab={route.tab} id={route.id} />;
       case 'uniqueId':

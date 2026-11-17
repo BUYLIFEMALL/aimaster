@@ -1,0 +1,15 @@
+/* 2026-11-17 WS-20261117-17 워크스페이스 안 영수증 화면: 별도 페이지용 .aww-guide(화면 전체 높이·자체 스크롤)를 본문 영역에 맞춤 */
+.aww-guide.aww-receipts-view {
+  height: auto;
+  min-height: 100%;
+  overflow: visible;
+  padding: 32px 24px 80px;
+  box-sizing: border-box;
+}
+@media (max-width: 767px) {
+  .aww-guide.aww-receipts-view { padding: 20px 16px 64px; }
+}
+/* 인쇄(간이영수증·명세서 출력) 때는 왼쪽 메뉴를 빼고 문서만 — 이 화면이 열려 있을 때만 적용 */
+@media print {
+  body:has(.aww-receipts-view) .lit-sidebar { display: none !important; }
+}

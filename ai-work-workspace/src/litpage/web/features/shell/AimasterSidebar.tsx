@@ -50,6 +50,8 @@ export function AimasterSidebarBottom() {
   const user = useCurrentUser() as { email?: string } | undefined;
   const studioSpace = useSession((st) => st.spaceId);
   const studioHref = studioSpace ? `/${spaceDomain(studioSpace)}/studio` : '';
+  // 2026-11-17 WS-20261117-17: 영수증도 워크스페이스 안 화면으로(왼쪽 메뉴 유지). 워크스페이스를 아직 모르면 기존 /receipts
+  const receiptsHref = studioSpace ? `/${spaceDomain(studioSpace)}/receipts` : '/receipts';
   const email = user?.email || (typeof document !== 'undefined' ? document.getElementById('lit-app')?.dataset.memberEmail : '') || '';
   return (
     <div className="aww-sb-bottom">
@@ -79,7 +81,15 @@ export function AimasterSidebarBottom() {
           <InboxCount />
         </a>
         {/* 2026-11-11: 영수증·세금계산서(/receipts) — 받은 증빙 사진 자동 정리·발행 */}
-        <a className="aww-sb-item" href="/receipts">
+        <a
+          className="aww-sb-item"
+          href={receiptsHref}
+          onClick={(e) => {
+            if (!studioSpace || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+            e.preventDefault();
+            navigate(receiptsHref);
+          }}
+        >
           <div className="aww-sb-item-inner">
             <span className="aww-sb-item-icon">🧾</span>
             <span className="aww-sb-item-label">영수증·세금계산서</span>
