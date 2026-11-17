@@ -38,7 +38,7 @@
 ## 5. 잠금·파괴·권한 위험(운영)
 | 파일 | 잠금이 걸리는 곳 | 영향 | 대책 |
 |---|---|---|---|
-| 0101 | 알림 표 `mall_builder_notifications`에 칸 추가(외래 키) = 짧은 ACCESS EXCLUSIVE, 인덱스 2개 일반 생성 = 생성 동안 SHARE(알림 쓰기 대기) / 알림 설정 표 칸 5개 추가(기본값 있는 칸, PG17은 즉시) | 생성 중 주문 알림 기록이 잠깐 대기 | `lock_timeout 5s`·`statement_timeout 60s`, 주문 적은 시간대. 시간 초과면 전체 취소 → 다시 시도 |
+| 0101 | 알림 표 `mall_builder_notifications`에 칸 추가(외래 키) = 짧은 ACCESS EXCLUSIVE, 인덱스 2개 일반 생성 = 생성 동안 SHARE(알림 쓰기 대기) / 알림 설정 표 칸 5개 추가(기본값 있는 칸, PG17은 즉시) | 생성 중 주문 알림 기록이 잠깐 대기 | `lock_timeout 5s`·`statement_timeout 120s`(12절 apply 파일 값 — 지문 비교가 쇼핑몰 표 전체를 읽기 때문), 주문 적은 시간대. 시간 초과면 전체 취소 → **같은 파일을 바로 다시 실행하지 않고** precheck로 기록·구조를 읽어 확인한 뒤 Master에 보고 |
 | 0102 | **주문 표 `mall_builder_orders`에 트리거 생성** = SHARE ROW EXCLUSIVE(주문 쓰기 잠깐 막힘) / 교환 표는 새 표 | 주문 생성·상태 변경이 잠깐 대기 | 같은 잠금 시한, 주문 적은 시간대 |
 | 0103 | 함수 다시 정의만 | 거의 없음 | — |
 | 0104 | 교환 표(그때 0건)에 트리거 | 없음 | — |
@@ -86,39 +86,41 @@
 |---|---|---|
 | `steps.mjs` | 단계 정의(원문·커밋·지문 앞 16자·적용 기록 이름·선행 기록·확장) | `1c1e2bc4819f6c0a0074eb3026c45f21852c1ec6fa87660a3f3ed11ace1fffc6` |
 | `snapshot.sql` | 구조 스냅샷 조회(칸·제약·인덱스·정책·표/칸 권한·함수 본문 md5·실행 권한·트리거, 소유자 이름 제외) | `c5aa779674feccc5e62270319b6cd90ba74cf656fc0d6e9d00203b4d2bb6e138` |
-| `manifest.json` | 구조 기대 목록 — 고정 원문을 격리 DB(PG 17.11, 0001~0100 위)에 단계별로 적용해 「새로 생긴 항목」만 뽑음: 0101 92 · 0102+0103 109 · 0104 117, **바뀐·사라진 기존 항목 0** | `ec1374338faa24b5b333a2fb13b67a01df78464ded155e0ad700ac1f2bea70cd` |
-| `build.mjs` | 원문 지문 확인 뒤 아래 9개 생성(DB 접속 0). 기존 정의를 바꾸는 단계면 생성 거부 | `e932b99707b0a834a1ae32afe74a44d1e274dd794935eda1b002087af2340daa` |
-| `check-local.mjs` | 격리 DB 작성자 검증(`--manifest` = 기대 목록 생성 / 기본 = 리허설·반례) | `1620cea9e42eea67890e397760e1b2bfac63134c79ec7e57329979c579910404` |
-| `precheck-1-0101.sql` | 1단계 읽기 점검 5판정 + 기록 3 | `3fa8eba026804d37e6ce8e09f063cca675769bfc5a31946af8f60e6d81c2d346` |
-| `apply-1-0101.sql` | 1단계 한 트랜잭션 적용 | `d52ba304bc59d9239b41755aa2453653ee24fe646f830b8fe123a577cdb53fe7` |
-| `verify-1-0101.sql` | 1단계 읽기 확인 4판정 | `90e00b27608a2cb664a17b7ca21aa92f741fd4aa39c87920de9efc2db8e7fa58` |
-| `precheck-2-0102-0103.sql` | 2단계 점검 | `783dc7689daba05049d71622068e17c1d1a6a180b8a92b1dd4ee6afab10b607b` |
-| `apply-2-0102-0103.sql` | 2단계 적용(0102+0103 한 트랜잭션) | `704100561e56a584a4e061fa493cd707888e3ccba05b69f73c6d9258eee7400c` |
-| `verify-2-0102-0103.sql` | 2단계 확인 | `7dcc17ef7e730144cbf0c427fb86df4aec07808b7842fe172d3ea59a4accac06` |
-| `precheck-3-0104.sql` | 3단계 점검(http 확장 포함) | `aba9e207f2e2c81298c08ae8340de18080e7abc027f962c4f0411a7867b5ccbb` |
-| `apply-3-0104.sql` | 3단계 적용 | `242ff5e90828948fbaa40379041896a17e37088f4d7ba072b02729725a995ba0` |
-| `verify-3-0104.sql` | 3단계 확인 | `1b4dbdd6b939918d5bce3cdfbb9df21761f0b0c2139e1fdbf382b06f6a52102b` |
+| `manifest.json` | 구조 기대 목록 — 고정 원문을 격리 DB(PG 17.11, 0001~0100 위)에 단계별로 적용해 「새로 생긴 항목」만 뽑음: 0101 92 · 0102+0103 109 · 0104 117, **바뀐·사라진 기존 항목 0**. 단계별 **의존 함수(정확한 서명 + anon·authenticated 실행 권한·PUBLIC 직접 부여)**: 0101 3(`mall_builder_digits`·`mall_builder_is_store_staff`·`mall_builder_staff_can`) · 0102+0103 1(`mall_builder_staff_can(uuid, text)`) · 0104 5(`exchange_event`·`exchange_order_status_ok`·`lock_exchange`·`toss_call(p_secret text, p_method text, p_path text, p_body jsonb, p_idem text)`·`mall_builder_staff_can`). 키 순서로 정렬해 다시 뽑아도 같은 파일 | `280b21102ac4cdbb52639e8a40d55f2d7b5bd43ab497169f234984cbd8bc8e8a` |
+| `build.mjs` | 원문 지문·의존 함수 목록·「추가만」 조건을 **모든 단계에서 먼저 검증한 뒤에만** 9개를 임시 파일 → 바꿔 넣기로 한꺼번에 씀(하나라도 실패하면 기존 산출물 그대로, QA047 S-F02). DB 접속 0 | `39fa72d6cdb92d86288e11e6d9a404a0c4043d045a528223693b0488465fe7cc` |
+| `check-local.mjs` | 격리 DB 작성자 검증(`--manifest` = 기대 목록 생성 / 기본 = 리허설·반례) | `633747b116064fd66a3d7082238429eb1ce2f3c6debadca415420ded741cee76` |
+| `precheck-1-0101.sql` | 1단계 읽기 점검 6판정(6번 = 의존 함수) + 기록 3 | `e1cff970b787a623615e83baaee9d4db0cabf921e15b4b00867d7f5fab080c13` |
+| `apply-1-0101.sql` | 1단계 한 트랜잭션 적용 | `d108ea02b809561d1e97796dcd81db0a528a44be60036e118c3a87320e5bb57b` |
+| `verify-1-0101.sql` | 1단계 읽기 확인 4판정 | `230d9e6fa51b04efaf208e465bf90556acd7d5e629eb8570adb180d094f283a9` |
+| `precheck-2-0102-0103.sql` | 2단계 점검 | `3d52dcc9f5a98865e983c0e79fddc694ab245f157255fa00e20e1eef7b63131b` |
+| `apply-2-0102-0103.sql` | 2단계 적용(0102+0103 한 트랜잭션) | `3d951890ab35d71a2c0cd1e33aa8fe4849310013d8abd8a07fc20dc7ab6eae7f` |
+| `verify-2-0102-0103.sql` | 2단계 확인 | `c754d9c81b0cc86768f6f1b3abac68a28a541837d6cea042347fb25bd41f943a` |
+| `precheck-3-0104.sql` | 3단계 점검(http 확장 포함) | `2dbcdb98f41af3f92fa5c54cb50840f72957be85d23c5f01e5d617d62407b311` |
+| `apply-3-0104.sql` | 3단계 적용 | `290be7f4324aea1dd4adec7f0bdf10af3f7d6d136a0cda9c6af878c042bc89b7` |
+| `verify-3-0104.sql` | 3단계 확인 | `fc9b771bdabc2dda993a1f0abae91b2f0f77365e4a3b958e85b908249405af37` |
 
 ### 원문(steps.mjs = build.mjs 지문 확인)
 0101 `51b2f3e91` sha256 `546bd8dd192ae33b…` / 0102 `a86c53dc1` `14780f43e6c5daf5…` / 0103 `0edda8666` `05fd87eeed148ecd…` / 0104 `37fdcabb4` `739b35e9f20b45ba…`. apply 파일 안 「원문」 부분은 파일 그대로(한 글자도 안 바꿈).
 
 ### 적용 파일이 하는 일(각 단계 같은 틀)
 1. `begin isolation level repeatable read` · `lock_timeout 5s` · `statement_timeout 120s` · search_path 고정.
-2. 시작 조건(하나라도 어긋나면 `[멈춤]`, 전체 취소): 선행 적용 기록 각 정확히 1줄 · 이번·이후 단계 기록 0 · **이번 단계가 만들 구조가 하나도 없음**(manifest 키와 대조 — 부분 적용·Lab 혼동 차단; Lab은 0101~0104가 있어 여기서 멈춤) · 필요한 확장(3단계 `http`).
+2. 시작 조건(하나라도 어긋나면 `[멈춤]`, 전체 취소): 선행 적용 기록 각 정확히 1줄 · 이번·이후 단계 기록 0 · **이번 단계가 만들 구조가 하나도 없음**(manifest 키와 대조 — 부분 적용·Lab 혼동 차단; Lab은 0101~0104가 있어 여기서 멈춤) · 필요한 확장(3단계 `http`) · **의존 함수 각각의 정확한 서명(스키마·이름·인자)과 실행 권한이 manifest와 같음**(QA047 S-F01 — 예: 0104의 `toss_call(text,text,text,jsonb,text)`, 정책·함수가 쓰는 `mall_builder_staff_can(uuid,text)` 회원 실행 권한).
 3. **기존 자료 지문(운영 값을 미리 적지 않음)**: 적용 전에 있던 `public.mall_builder_*` 표마다 그때의 칸 목록으로 행 수·md5를 임시 표(커밋 때 사라짐)에 남긴다.
 4. 원문 적용.
 5. 같은 칸 목록으로 지문을 다시 계산 — 하나라도 다르면 `[멈춤] 기존 자료가 바뀌었습니다`로 전체 취소. repeatable read라 다른 세션의 동시 쓰기는 이 비교에 섞이지 않는다.
 6. 적용 기록(UTC 초 version, 같은 초가 있으면 1초씩 뒤로).
 
 ### precheck·verify 판정
-- precheck: 선행 기록 · 이번/이후 기록 0 · 만들 구조 이미 있는 것 0 · 확장 · UTC → 「전체 5/5 OK」만 진행. 기록 줄(lab_admin 스키마 유무·쇼핑몰 표/행 수 통계·PG 판)은 실행 기록용.
+- precheck: 선행 기록 · 이번/이후 기록 0 · 만들 구조 이미 있는 것 0 · 확장 · UTC · 의존 함수 서명·실행 권한 → 「전체 6/6 OK」만 진행. 기록 줄(lab_admin 스키마 유무·쇼핑몰 표/행 수 통계·PG 판)은 실행 기록용.
 - verify: 기록(이번·선행 1, 이후 0) · **구조 n개 = manifest와 글자 그대로**(정규화 없음, 어긋난 키 최대 15개 표시) · 새 표 0행 → 「전체 4/4 OK」.
+- **verify 범위 한계**: manifest에 있는 키만 대조한다(기대한 것이 정확히 생겼는지). 원문 밖에서 **추가로 생긴 객체**(예: 누가 같은 때 만든 다른 표·함수·정책)는 잡지 않는 full-diff가 아님 — 대신 apply가 시작 조건·한 트랜잭션·원문 그대로로 범위를 묶는다.
 
 ### 작성자 검증(격리 DB, 운영·Lab·공유 DB 접속 0)
 - Docker `aww-pg-test` 안 새 DB `qa_prod0101_0104`만 만들고 지움(`aww`·`aww_dev`·`mb_*` 손대지 않음). 0001~0100 + 기록 표 + 시험 몰 1개 위에서:
 - 정상: 3단계 모두 precheck OK → apply 성공·기록 → verify OK → 같은 apply 재실행 `[멈춤]`·기록 그대로 (12개 통과).
 - 반례 7개 통과: 적용 중 기존 자료 변경 주입 → `[멈춤] 기존 자료가 바뀌었습니다`·기록 0·자료 그대로 / 0101이 만들 칸이 미리 있음 → precheck 확인 필요·apply `[멈춤]`·기록 0 / 0101 기록이 이미 있는 DB(Lab 모양) → precheck 확인 필요·apply `[멈춤]` / 적용 뒤 새 표 비로그인 쓰기 부여·주문 지킴 트리거 끔·결제 키 칸 회원 읽기 부여 → 각 verify 「전체」 확인 필요.
-- 합계 **19/19**. 실행: `node mall-builder/docs/handoff-0101-0104-prod/check-local.mjs`.
+- QA047 반례 3개 추가(고치기 전 빨강 → 고친 뒤 초록): 격리 DB에서 `toss_call` 이름 바꿈·`mall_builder_staff_can` 회원 실행 권한 회수 → 새 precheck 3 확인 필요·apply 3 `[의존 함수]` 멈춤, 같은 상황에서 이전 판(`d9751c70b`) precheck OK·apply 성공(거짓 통과) / 임시 폴더 복사본에서 0104 원문 변조 → 새 build.mjs 종료 1·산출물 9개 그대로·임시 파일 0, 이전 판은 앞 단계 파일 덮어씀.
+- 합계 **22/22**. 실행: `node mall-builder/docs/handoff-0101-0104-prod/check-local.mjs`.
 - 구분: 로컬에 `http` 확장이 없어 3단계는 **사본에서 http 확장 개수 식만 1로 바꿔** 돌렸다(저장소 파일은 그대로). 원본 완전성은 build.mjs 지문으로만 본다. 0062·0094 등 기존 함수 본문이 운영과 같은지는 이 묶음이 바꾸지 않으므로 대조하지 않았다(manifest 바뀜 0).
 
 ### 한계·미확인(진행 금지 조건 유지)

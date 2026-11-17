@@ -1,20 +1,29 @@
 {
- "generated": "2026-11-17T17:09:28.549Z",
+ "generated": "2026-11-17T17:23:43.262Z",
  "pg": "17.11",
  "steps": [
   {
    "id": 1,
    "name": "0101",
+   "deps": [
+    [
+     "public.mall_builder_digits(p text)",
+     "anon=true authenticated=true public_direct=1"
+    ],
+    [
+     "public.mall_builder_is_store_staff(p_store_id uuid)",
+     "anon=true authenticated=true public_direct=0"
+    ],
+    [
+     "public.mall_builder_staff_can(p_store_id uuid, p_perm text)",
+     "anon=true authenticated=true public_direct=1"
+    ]
+   ],
    "added": [
     [
      "col",
-     "mall_builder_campaigns.id",
-     "uuid NN D=gen_random_uuid()"
-    ],
-    [
-     "col",
-     "mall_builder_campaigns.store_id",
-     "uuid NN"
+     "mall_builder_campaigns.body",
+     "text NN"
     ],
     [
      "col",
@@ -23,28 +32,28 @@
     ],
     [
      "col",
+     "mall_builder_campaigns.created_at",
+     "timestamp with time zone NN D=now()"
+    ],
+    [
+     "col",
+     "mall_builder_campaigns.created_by",
+     "uuid"
+    ],
+    [
+     "col",
+     "mall_builder_campaigns.id",
+     "uuid NN D=gen_random_uuid()"
+    ],
+    [
+     "col",
      "mall_builder_campaigns.is_ad",
      "boolean NN D=false"
     ],
     [
      "col",
-     "mall_builder_campaigns.subject",
-     "text NN D=''::text"
-    ],
-    [
-     "col",
-     "mall_builder_campaigns.body",
-     "text NN"
-    ],
-    [
-     "col",
      "mall_builder_campaigns.order_id",
      "uuid"
-    ],
-    [
-     "col",
-     "mall_builder_campaigns.target_count",
-     "integer NN D=0"
     ],
     [
      "col",
@@ -58,13 +67,18 @@
     ],
     [
      "col",
-     "mall_builder_campaigns.created_by",
-     "uuid"
+     "mall_builder_campaigns.store_id",
+     "uuid NN"
     ],
     [
      "col",
-     "mall_builder_campaigns.created_at",
-     "timestamp with time zone NN D=now()"
+     "mall_builder_campaigns.subject",
+     "text NN D=''::text"
+    ],
+    [
+     "col",
+     "mall_builder_campaigns.target_count",
+     "integer NN D=0"
     ],
     [
      "col",
@@ -73,12 +87,7 @@
     ],
     [
      "col",
-     "mall_builder_notify_templates.store_id",
-     "uuid NN"
-    ],
-    [
-     "col",
-     "mall_builder_notify_templates.kind",
+     "mall_builder_notify_templates.body",
      "text NN"
     ],
     [
@@ -88,13 +97,18 @@
     ],
     [
      "col",
-     "mall_builder_notify_templates.subject",
-     "text NN D=''::text"
+     "mall_builder_notify_templates.kind",
+     "text NN"
     ],
     [
      "col",
-     "mall_builder_notify_templates.body",
-     "text NN"
+     "mall_builder_notify_templates.store_id",
+     "uuid NN"
+    ],
+    [
+     "col",
+     "mall_builder_notify_templates.subject",
+     "text NN D=''::text"
     ],
     [
      "col",
@@ -103,18 +117,18 @@
     ],
     [
      "col",
-     "mall_builder_store_notify_settings.bulk_once",
-     "integer NN D=1000"
-    ],
-    [
-     "col",
      "mall_builder_store_notify_settings.bulk_day",
      "integer NN D=3000"
     ],
     [
      "col",
-     "mall_builder_store_notify_settings.optout_text",
-     "text NN D=''::text"
+     "mall_builder_store_notify_settings.bulk_once",
+     "integer NN D=1000"
+    ],
+    [
+     "col",
+     "mall_builder_store_notify_settings.extra_email_kinds",
+     "text[] NN D='{}'::text[]"
     ],
     [
      "col",
@@ -123,23 +137,128 @@
     ],
     [
      "col",
+     "mall_builder_store_notify_settings.optout_text",
+     "text NN D=''::text"
+    ],
+    [
+     "colpriv",
+     "mall_builder_campaigns.body",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_campaigns.channel",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_campaigns.created_at",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_campaigns.created_by",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_campaigns.id",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_campaigns.is_ad",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_campaigns.order_id",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_campaigns.queued_count",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_campaigns.skipped",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_campaigns.store_id",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_campaigns.subject",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_campaigns.target_count",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_notifications.campaign_id",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_notify_templates.body",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_notify_templates.channel",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_notify_templates.kind",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_notify_templates.store_id",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_notify_templates.subject",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_notify_templates.updated_at",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_store_notify_settings.bulk_day",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
+     "mall_builder_store_notify_settings.bulk_once",
+     "anon=siu authenticated=siu"
+    ],
+    [
+     "colpriv",
      "mall_builder_store_notify_settings.extra_email_kinds",
-     "text[] NN D='{}'::text[]"
+     "anon=siu authenticated=siu"
     ],
     [
-     "rls",
-     "mall_builder_campaigns",
-     "true"
+     "colpriv",
+     "mall_builder_store_notify_settings.extra_kinds",
+     "anon=siu authenticated=siu"
     ],
     [
-     "rls",
-     "mall_builder_notify_templates",
-     "true"
-    ],
-    [
-     "con",
-     "mall_builder_campaigns.mall_builder_campaigns_created_by_fkey",
-     "f:FOREIGN KEY (created_by) REFERENCES auth.users(id) ON DELETE SET NULL"
+     "colpriv",
+     "mall_builder_store_notify_settings.optout_text",
+     "anon=siu authenticated=siu"
     ],
     [
      "con",
@@ -153,8 +272,13 @@
     ],
     [
      "con",
-     "mall_builder_campaigns.mall_builder_campaigns_subject_check",
-     "c:CHECK ((char_length(subject) <= 120))"
+     "mall_builder_campaigns.mall_builder_campaigns_created_by_fkey",
+     "f:FOREIGN KEY (created_by) REFERENCES auth.users(id) ON DELETE SET NULL"
+    ],
+    [
+     "con",
+     "mall_builder_campaigns.mall_builder_campaigns_order_id_fkey",
+     "f:FOREIGN KEY (order_id) REFERENCES mall_builder_orders(id) ON DELETE SET NULL"
     ],
     [
      "con",
@@ -168,8 +292,8 @@
     ],
     [
      "con",
-     "mall_builder_campaigns.mall_builder_campaigns_order_id_fkey",
-     "f:FOREIGN KEY (order_id) REFERENCES mall_builder_orders(id) ON DELETE SET NULL"
+     "mall_builder_campaigns.mall_builder_campaigns_subject_check",
+     "c:CHECK ((char_length(subject) <= 120))"
     ],
     [
      "con",
@@ -178,8 +302,8 @@
     ],
     [
      "con",
-     "mall_builder_notify_templates.mall_builder_notify_templates_kind_check",
-     "c:CHECK ((kind = ANY (ARRAY['staff_new_order'::text, 'customer_received'::text, 'customer_paid'::text, 'customer_shipped'::text, 'customer_expired'::text, 'customer_cancelled'::text, 'customer_returned'::text, 'customer_refunded'::text])))"
+     "mall_builder_notify_templates.mall_builder_notify_templates_body_check",
+     "c:CHECK (((char_length(body) >= 1) AND (char_length(body) <= 1000)))"
     ],
     [
      "con",
@@ -188,13 +312,8 @@
     ],
     [
      "con",
-     "mall_builder_notify_templates.mall_builder_notify_templates_subject_check",
-     "c:CHECK ((char_length(subject) <= 120))"
-    ],
-    [
-     "con",
-     "mall_builder_notify_templates.mall_builder_notify_templates_body_check",
-     "c:CHECK (((char_length(body) >= 1) AND (char_length(body) <= 1000)))"
+     "mall_builder_notify_templates.mall_builder_notify_templates_kind_check",
+     "c:CHECK ((kind = ANY (ARRAY['staff_new_order'::text, 'customer_received'::text, 'customer_paid'::text, 'customer_shipped'::text, 'customer_expired'::text, 'customer_cancelled'::text, 'customer_returned'::text, 'customer_refunded'::text])))"
     ],
     [
      "con",
@@ -208,8 +327,83 @@
     ],
     [
      "con",
+     "mall_builder_notify_templates.mall_builder_notify_templates_subject_check",
+     "c:CHECK ((char_length(subject) <= 120))"
+    ],
+    [
+     "con",
      "mall_builder_store_notify_settings.mall_builder_store_notify_settings_msg",
      "c:CHECK ((((bulk_once >= 1) AND (bulk_once <= 1000)) AND ((bulk_day >= 1) AND (bulk_day <= 3000)) AND (char_length(optout_text) <= 60) AND (extra_kinds <@ ARRAY['customer_cancelled'::text, 'customer_returned'::text, 'customer_refunded'::text]) AND (extra_email_kinds <@ ARRAY['customer_cancelled'::text, 'customer_returned'::text, 'customer_refunded'::text])))"
+    ],
+    [
+     "fn",
+     "mall_builder_private.fill_order_text(p_text text, p_order_id uuid)",
+     "true:search_path=\"\":d3d5ec582c21a20eae4f142bd027f286"
+    ],
+    [
+     "fn",
+     "mall_builder_private.kst_hour()",
+     "false:search_path=\"\":3a2011e068c44e498927f928a4d0ed26"
+    ],
+    [
+     "fn",
+     "mall_builder_private.notifications_apply_template()",
+     "true:search_path=\"\":fec891b01564ce4757704d509d809d94"
+    ],
+    [
+     "fn",
+     "mall_builder_private.order_events_enqueue_more()",
+     "true:search_path=\"\":279aa1be321e41ab1c7328b1f3870959"
+    ],
+    [
+     "fn",
+     "public.mall_builder_message_send(p_store_id uuid, p_channel text, p_is_ad boolean, p_subject text, p_body text, p_customer_ids uuid[], p_order_id uuid, p_dry_run boolean)",
+     "true:search_path=\"\":5674ba99eba69754daca4d1fd8f76794"
+    ],
+    [
+     "fn",
+     "public.mall_builder_message_settings_save(p_store_id uuid, p_bulk_once integer, p_bulk_day integer, p_optout text, p_extra_kinds text[], p_extra_email_kinds text[])",
+     "true:search_path=\"\":c802d0bb9e9c4c6bf6d00ece16447c43"
+    ],
+    [
+     "fn",
+     "public.mall_builder_notify_template_save(p_store_id uuid, p_kind text, p_channel text, p_subject text, p_body text)",
+     "true:search_path=\"\":c72f032525c6076e9734724e47f6bd29"
+    ],
+    [
+     "fnexec",
+     "mall_builder_private.fill_order_text(p_text text, p_order_id uuid)",
+     "anon=false authenticated=false public_direct=0"
+    ],
+    [
+     "fnexec",
+     "mall_builder_private.kst_hour()",
+     "anon=true authenticated=true public_direct=default"
+    ],
+    [
+     "fnexec",
+     "mall_builder_private.notifications_apply_template()",
+     "anon=true authenticated=true public_direct=default"
+    ],
+    [
+     "fnexec",
+     "mall_builder_private.order_events_enqueue_more()",
+     "anon=true authenticated=true public_direct=default"
+    ],
+    [
+     "fnexec",
+     "public.mall_builder_message_send(p_store_id uuid, p_channel text, p_is_ad boolean, p_subject text, p_body text, p_customer_ids uuid[], p_order_id uuid, p_dry_run boolean)",
+     "anon=false authenticated=true public_direct=0"
+    ],
+    [
+     "fnexec",
+     "public.mall_builder_message_settings_save(p_store_id uuid, p_bulk_once integer, p_bulk_day integer, p_optout text, p_extra_kinds text[], p_extra_email_kinds text[])",
+     "anon=false authenticated=true public_direct=0"
+    ],
+    [
+     "fnexec",
+     "public.mall_builder_notify_template_save(p_store_id uuid, p_kind text, p_channel text, p_subject text, p_body text)",
+     "anon=false authenticated=true public_direct=0"
     ],
     [
      "idx",
@@ -237,16 +431,6 @@
      "6687c354ccadb6bbf60ca59afb659b2a"
     ],
     [
-     "polcount",
-     "mall_builder_campaigns",
-     "1"
-    ],
-    [
-     "polcount",
-     "mall_builder_notify_templates",
-     "1"
-    ],
-    [
      "pol",
      "mall_builder_campaigns.mall_builder_campaigns_read",
      "r:permissive:-:b7bd4b75b1c19b882a1cf90c6e8daa44:-"
@@ -257,6 +441,26 @@
      "r:permissive:-:11894cb5fcd8382ca72a6f2bb26c324a:-"
     ],
     [
+     "polcount",
+     "mall_builder_campaigns",
+     "1"
+    ],
+    [
+     "polcount",
+     "mall_builder_notify_templates",
+     "1"
+    ],
+    [
+     "rls",
+     "mall_builder_campaigns",
+     "true"
+    ],
+    [
+     "rls",
+     "mall_builder_notify_templates",
+     "true"
+    ],
+    [
      "tblpriv",
      "mall_builder_campaigns",
      "anon=siudtr authenticated=siudtr | direct=anon:DELETE,anon:INSERT,anon:MAINTAIN,anon:REFERENCES,anon:SELECT,anon:TRIGGER,anon:TRUNCATE,anon:UPDATE,authenticated:DELETE,authenticated:INSERT,authenticated:MAINTAIN,authenticated:REFERENCES,authenticated:SELECT,authenticated:TRIGGER,authenticated:TRUNCATE,authenticated:UPDATE"
@@ -265,196 +469,6 @@
      "tblpriv",
      "mall_builder_notify_templates",
      "anon=siudtr authenticated=siudtr | direct=anon:DELETE,anon:INSERT,anon:MAINTAIN,anon:REFERENCES,anon:SELECT,anon:TRIGGER,anon:TRUNCATE,anon:UPDATE,authenticated:DELETE,authenticated:INSERT,authenticated:MAINTAIN,authenticated:REFERENCES,authenticated:SELECT,authenticated:TRIGGER,authenticated:TRUNCATE,authenticated:UPDATE"
-    ],
-    [
-     "colpriv",
-     "mall_builder_campaigns.id",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_campaigns.store_id",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_campaigns.channel",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_campaigns.is_ad",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_campaigns.subject",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_campaigns.body",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_campaigns.order_id",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_campaigns.target_count",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_campaigns.queued_count",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_campaigns.skipped",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_campaigns.created_by",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_campaigns.created_at",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_notifications.campaign_id",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_notify_templates.store_id",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_notify_templates.kind",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_notify_templates.channel",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_notify_templates.subject",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_notify_templates.body",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_notify_templates.updated_at",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_store_notify_settings.bulk_once",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_store_notify_settings.bulk_day",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_store_notify_settings.optout_text",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_store_notify_settings.extra_kinds",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "colpriv",
-     "mall_builder_store_notify_settings.extra_email_kinds",
-     "anon=siu authenticated=siu"
-    ],
-    [
-     "fn",
-     "mall_builder_private.fill_order_text(p_text text, p_order_id uuid)",
-     "true:search_path=\"\":d3d5ec582c21a20eae4f142bd027f286"
-    ],
-    [
-     "fn",
-     "mall_builder_private.notifications_apply_template()",
-     "true:search_path=\"\":fec891b01564ce4757704d509d809d94"
-    ],
-    [
-     "fn",
-     "mall_builder_private.order_events_enqueue_more()",
-     "true:search_path=\"\":279aa1be321e41ab1c7328b1f3870959"
-    ],
-    [
-     "fn",
-     "mall_builder_private.kst_hour()",
-     "false:search_path=\"\":3a2011e068c44e498927f928a4d0ed26"
-    ],
-    [
-     "fn",
-     "public.mall_builder_message_send(p_store_id uuid, p_channel text, p_is_ad boolean, p_subject text, p_body text, p_customer_ids uuid[], p_order_id uuid, p_dry_run boolean)",
-     "true:search_path=\"\":5674ba99eba69754daca4d1fd8f76794"
-    ],
-    [
-     "fn",
-     "public.mall_builder_notify_template_save(p_store_id uuid, p_kind text, p_channel text, p_subject text, p_body text)",
-     "true:search_path=\"\":c72f032525c6076e9734724e47f6bd29"
-    ],
-    [
-     "fn",
-     "public.mall_builder_message_settings_save(p_store_id uuid, p_bulk_once integer, p_bulk_day integer, p_optout text, p_extra_kinds text[], p_extra_email_kinds text[])",
-     "true:search_path=\"\":c802d0bb9e9c4c6bf6d00ece16447c43"
-    ],
-    [
-     "fnexec",
-     "mall_builder_private.fill_order_text(p_text text, p_order_id uuid)",
-     "anon=false authenticated=false public_direct=0"
-    ],
-    [
-     "fnexec",
-     "mall_builder_private.notifications_apply_template()",
-     "anon=true authenticated=true public_direct=default"
-    ],
-    [
-     "fnexec",
-     "mall_builder_private.order_events_enqueue_more()",
-     "anon=true authenticated=true public_direct=default"
-    ],
-    [
-     "fnexec",
-     "mall_builder_private.kst_hour()",
-     "anon=true authenticated=true public_direct=default"
-    ],
-    [
-     "fnexec",
-     "public.mall_builder_message_send(p_store_id uuid, p_channel text, p_is_ad boolean, p_subject text, p_body text, p_customer_ids uuid[], p_order_id uuid, p_dry_run boolean)",
-     "anon=false authenticated=true public_direct=0"
-    ],
-    [
-     "fnexec",
-     "public.mall_builder_notify_template_save(p_store_id uuid, p_kind text, p_channel text, p_subject text, p_body text)",
-     "anon=false authenticated=true public_direct=0"
-    ],
-    [
-     "fnexec",
-     "public.mall_builder_message_settings_save(p_store_id uuid, p_bulk_once integer, p_bulk_day integer, p_optout text, p_extra_kinds text[], p_extra_email_kinds text[])",
-     "anon=false authenticated=true public_direct=0"
     ],
     [
      "trg",
@@ -473,72 +487,13 @@
   {
    "id": 2,
    "name": "0102-0103",
+   "deps": [
+    [
+     "public.mall_builder_staff_can(p_store_id uuid, p_perm text)",
+     "anon=true authenticated=true public_direct=1"
+    ]
+   ],
    "added": [
-    [
-     "col",
-     "mall_builder_exchanges.id",
-     "uuid NN D=gen_random_uuid()"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.store_id",
-     "uuid NN"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.order_id",
-     "uuid NN"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.item_id",
-     "uuid NN"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.qty",
-     "integer NN"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.from_variant_id",
-     "uuid"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.to_variant_id",
-     "uuid"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.from_option",
-     "text NN D=''::text"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.to_option",
-     "text NN D=''::text"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.reason",
-     "text NN"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.memo",
-     "text NN D=''::text"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.requested_by",
-     "text NN"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.step",
-     "text NN D='requested'::text"
-    ],
     [
      "col",
      "mall_builder_exchanges.collect_courier",
@@ -551,53 +506,8 @@
     ],
     [
      "col",
-     "mall_builder_exchanges.reship_courier",
-     "text NN D=''::text"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.reship_tracking",
-     "text NN D=''::text"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.fee",
-     "bigint NN D=0"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.fee_status",
-     "text NN D='none'::text"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.fee_paid_at",
-     "timestamp with time zone"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.from_option_based",
-     "boolean NN D=false"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.to_option_based",
-     "boolean NN D=false"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.restocked",
-     "boolean NN D=false"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.reship_deducted",
-     "boolean NN D=false"
-    ],
-    [
-     "col",
-     "mall_builder_exchanges.reject_note",
-     "text NN D=''::text"
+     "mall_builder_exchanges.created_at",
+     "timestamp with time zone NN D=now()"
     ],
     [
      "col",
@@ -606,8 +516,118 @@
     ],
     [
      "col",
-     "mall_builder_exchanges.created_at",
-     "timestamp with time zone NN D=now()"
+     "mall_builder_exchanges.fee",
+     "bigint NN D=0"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.fee_paid_at",
+     "timestamp with time zone"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.fee_status",
+     "text NN D='none'::text"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.from_option",
+     "text NN D=''::text"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.from_option_based",
+     "boolean NN D=false"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.from_variant_id",
+     "uuid"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.id",
+     "uuid NN D=gen_random_uuid()"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.item_id",
+     "uuid NN"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.memo",
+     "text NN D=''::text"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.order_id",
+     "uuid NN"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.qty",
+     "integer NN"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.reason",
+     "text NN"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.reject_note",
+     "text NN D=''::text"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.requested_by",
+     "text NN"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.reship_courier",
+     "text NN D=''::text"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.reship_deducted",
+     "boolean NN D=false"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.reship_tracking",
+     "text NN D=''::text"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.restocked",
+     "boolean NN D=false"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.step",
+     "text NN D='requested'::text"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.store_id",
+     "uuid NN"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.to_option",
+     "text NN D=''::text"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.to_option_based",
+     "boolean NN D=false"
+    ],
+    [
+     "col",
+     "mall_builder_exchanges.to_variant_id",
+     "uuid"
     ],
     [
      "col",
@@ -615,44 +635,144 @@
      "timestamp with time zone NN D=now()"
     ],
     [
-     "rls",
-     "mall_builder_exchanges",
-     "true"
+     "colpriv",
+     "mall_builder_exchanges.collect_courier",
+     "anon=s authenticated=s"
     ],
     [
-     "con",
-     "mall_builder_exchanges.mall_builder_exchanges_qty_check",
-     "c:CHECK (((qty >= 1) AND (qty <= 999)))"
+     "colpriv",
+     "mall_builder_exchanges.collect_tracking",
+     "anon=s authenticated=s"
     ],
     [
-     "con",
-     "mall_builder_exchanges.mall_builder_exchanges_from_option_check",
-     "c:CHECK ((char_length(from_option) <= 200))"
+     "colpriv",
+     "mall_builder_exchanges.created_at",
+     "anon=s authenticated=s"
     ],
     [
-     "con",
-     "mall_builder_exchanges.mall_builder_exchanges_to_option_check",
-     "c:CHECK ((char_length(to_option) <= 200))"
+     "colpriv",
+     "mall_builder_exchanges.created_by",
+     "anon=s authenticated=s"
     ],
     [
-     "con",
-     "mall_builder_exchanges.mall_builder_exchanges_reason_check",
-     "c:CHECK ((reason = ANY (ARRAY['size'::text, 'change_mind'::text, 'defect'::text, 'wrong_item'::text, 'other'::text])))"
+     "colpriv",
+     "mall_builder_exchanges.fee",
+     "anon=s authenticated=s"
     ],
     [
-     "con",
-     "mall_builder_exchanges.mall_builder_exchanges_memo_check",
-     "c:CHECK ((char_length(memo) <= 300))"
+     "colpriv",
+     "mall_builder_exchanges.fee_paid_at",
+     "anon=s authenticated=s"
     ],
     [
-     "con",
-     "mall_builder_exchanges.mall_builder_exchanges_requested_by_check",
-     "c:CHECK ((requested_by = ANY (ARRAY['customer'::text, 'staff'::text])))"
+     "colpriv",
+     "mall_builder_exchanges.fee_status",
+     "anon=s authenticated=s"
     ],
     [
-     "con",
-     "mall_builder_exchanges.mall_builder_exchanges_step_check",
-     "c:CHECK ((step = ANY (ARRAY['requested'::text, 'collecting'::text, 'collected'::text, 'reshipped'::text, 'done'::text, 'rejected'::text])))"
+     "colpriv",
+     "mall_builder_exchanges.from_option",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.from_option_based",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.from_variant_id",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.id",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.item_id",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.memo",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.order_id",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.qty",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.reason",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.reject_note",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.requested_by",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.reship_courier",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.reship_deducted",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.reship_tracking",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.restocked",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.step",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.store_id",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.to_option",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.to_option_based",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.to_variant_id",
+     "anon=s authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchanges.updated_at",
+     "anon=s authenticated=s"
     ],
     [
      "con",
@@ -666,16 +786,6 @@
     ],
     [
      "con",
-     "mall_builder_exchanges.mall_builder_exchanges_reship_courier_check",
-     "c:CHECK ((char_length(reship_courier) <= 30))"
-    ],
-    [
-     "con",
-     "mall_builder_exchanges.mall_builder_exchanges_reship_tracking_check",
-     "c:CHECK ((char_length(reship_tracking) <= 40))"
-    ],
-    [
-     "con",
      "mall_builder_exchanges.mall_builder_exchanges_fee_check",
      "c:CHECK (((fee >= 0) AND (fee <= 10000000)))"
     ],
@@ -686,28 +796,8 @@
     ],
     [
      "con",
-     "mall_builder_exchanges.mall_builder_exchanges_reject_note_check",
-     "c:CHECK ((char_length(reject_note) <= 300))"
-    ],
-    [
-     "con",
-     "mall_builder_exchanges.mall_builder_exchanges_pkey",
-     "p:PRIMARY KEY (id)"
-    ],
-    [
-     "con",
-     "mall_builder_exchanges.mall_builder_exchanges_store_id_fkey",
-     "f:FOREIGN KEY (store_id) REFERENCES mall_builder_stores(id) ON DELETE CASCADE"
-    ],
-    [
-     "con",
-     "mall_builder_exchanges.mall_builder_exchanges_order_id_fkey",
-     "f:FOREIGN KEY (order_id) REFERENCES mall_builder_orders(id) ON DELETE CASCADE"
-    ],
-    [
-     "con",
-     "mall_builder_exchanges.mall_builder_exchanges_item_id_fkey",
-     "f:FOREIGN KEY (item_id) REFERENCES mall_builder_order_items(id) ON DELETE CASCADE"
+     "mall_builder_exchanges.mall_builder_exchanges_from_option_check",
+     "c:CHECK ((char_length(from_option) <= 200))"
     ],
     [
      "con",
@@ -716,8 +806,203 @@
     ],
     [
      "con",
+     "mall_builder_exchanges.mall_builder_exchanges_item_id_fkey",
+     "f:FOREIGN KEY (item_id) REFERENCES mall_builder_order_items(id) ON DELETE CASCADE"
+    ],
+    [
+     "con",
+     "mall_builder_exchanges.mall_builder_exchanges_memo_check",
+     "c:CHECK ((char_length(memo) <= 300))"
+    ],
+    [
+     "con",
+     "mall_builder_exchanges.mall_builder_exchanges_order_id_fkey",
+     "f:FOREIGN KEY (order_id) REFERENCES mall_builder_orders(id) ON DELETE CASCADE"
+    ],
+    [
+     "con",
+     "mall_builder_exchanges.mall_builder_exchanges_pkey",
+     "p:PRIMARY KEY (id)"
+    ],
+    [
+     "con",
+     "mall_builder_exchanges.mall_builder_exchanges_qty_check",
+     "c:CHECK (((qty >= 1) AND (qty <= 999)))"
+    ],
+    [
+     "con",
+     "mall_builder_exchanges.mall_builder_exchanges_reason_check",
+     "c:CHECK ((reason = ANY (ARRAY['size'::text, 'change_mind'::text, 'defect'::text, 'wrong_item'::text, 'other'::text])))"
+    ],
+    [
+     "con",
+     "mall_builder_exchanges.mall_builder_exchanges_reject_note_check",
+     "c:CHECK ((char_length(reject_note) <= 300))"
+    ],
+    [
+     "con",
+     "mall_builder_exchanges.mall_builder_exchanges_requested_by_check",
+     "c:CHECK ((requested_by = ANY (ARRAY['customer'::text, 'staff'::text])))"
+    ],
+    [
+     "con",
+     "mall_builder_exchanges.mall_builder_exchanges_reship_courier_check",
+     "c:CHECK ((char_length(reship_courier) <= 30))"
+    ],
+    [
+     "con",
+     "mall_builder_exchanges.mall_builder_exchanges_reship_tracking_check",
+     "c:CHECK ((char_length(reship_tracking) <= 40))"
+    ],
+    [
+     "con",
+     "mall_builder_exchanges.mall_builder_exchanges_step_check",
+     "c:CHECK ((step = ANY (ARRAY['requested'::text, 'collecting'::text, 'collected'::text, 'reshipped'::text, 'done'::text, 'rejected'::text])))"
+    ],
+    [
+     "con",
+     "mall_builder_exchanges.mall_builder_exchanges_store_id_fkey",
+     "f:FOREIGN KEY (store_id) REFERENCES mall_builder_stores(id) ON DELETE CASCADE"
+    ],
+    [
+     "con",
+     "mall_builder_exchanges.mall_builder_exchanges_to_option_check",
+     "c:CHECK ((char_length(to_option) <= 200))"
+    ],
+    [
+     "con",
      "mall_builder_exchanges.mall_builder_exchanges_to_variant_id_fkey",
      "f:FOREIGN KEY (to_variant_id) REFERENCES mall_builder_product_variants(id) ON DELETE SET NULL"
+    ],
+    [
+     "fn",
+     "mall_builder_private.delivered_at(p_order_id uuid)",
+     "false:search_path=\"\":9857620fb340e45b81833bd7a0f20148"
+    ],
+    [
+     "fn",
+     "mall_builder_private.exchange_event(p_order_id uuid, p_role text, p_note text)",
+     "false:search_path=\"\":e493c1f5841352310411ed67a4f9b0ba"
+    ],
+    [
+     "fn",
+     "mall_builder_private.exchange_order_delivered(p_order_id uuid)",
+     "false:search_path=\"\":1e1e3aaa5e50f60bd6a833096b0af72e"
+    ],
+    [
+     "fn",
+     "mall_builder_private.exchange_order_status_ok(p_status text)",
+     "false:search_path=\"\":aa1ee4ce118410d3d6464779b7085c00"
+    ],
+    [
+     "fn",
+     "mall_builder_private.exchange_stock(p_product_id uuid, p_variant_id uuid, p_delta integer, p_label text)",
+     "false:search_path=\"\":99081df11e95c8b7bee69dc227b95612"
+    ],
+    [
+     "fn",
+     "mall_builder_private.lock_exchange(p_exchange_id uuid)",
+     "false:search_path=\"\":b0f4d7b9d3a204b8ff20eb513e4aaf95"
+    ],
+    [
+     "fn",
+     "mall_builder_private.orders_exchange_guard()",
+     "true:search_path=\"\":c14dab37465b67c4f160f81b2fd03387"
+    ],
+    [
+     "fn",
+     "mall_builder_private.variant_label(p_variant_id uuid)",
+     "false:search_path=\"\":89d65980cb138dd3148583f1c0b280b8"
+    ],
+    [
+     "fn",
+     "public.mall_builder_exchange_fee(p_exchange_id uuid, p_fee bigint)",
+     "true:search_path=\"\":2e6eae0b59dd555ddb988d53d74d5c76"
+    ],
+    [
+     "fn",
+     "public.mall_builder_exchange_fee_paid(p_exchange_id uuid)",
+     "true:search_path=\"\":c2f070559f44154bdae584683d07409c"
+    ],
+    [
+     "fn",
+     "public.mall_builder_exchange_step(p_exchange_id uuid, p_step text, p_courier text, p_tracking text, p_note text)",
+     "true:search_path=\"\":57dfd3edab0f2bc039762122cb6cfa07"
+    ],
+    [
+     "fn",
+     "public.mall_builder_request_exchange(p_item_id uuid, p_qty integer, p_to_variant_id uuid, p_reason text, p_memo text)",
+     "true:search_path=\"\":2a97aa32f8822317e3416a5eb0d70c62"
+    ],
+    [
+     "fnexec",
+     "mall_builder_private.delivered_at(p_order_id uuid)",
+     "anon=false authenticated=false public_direct=0"
+    ],
+    [
+     "fnexec",
+     "mall_builder_private.exchange_event(p_order_id uuid, p_role text, p_note text)",
+     "anon=false authenticated=false public_direct=0"
+    ],
+    [
+     "fnexec",
+     "mall_builder_private.exchange_order_delivered(p_order_id uuid)",
+     "anon=false authenticated=false public_direct=0"
+    ],
+    [
+     "fnexec",
+     "mall_builder_private.exchange_order_status_ok(p_status text)",
+     "anon=false authenticated=false public_direct=0"
+    ],
+    [
+     "fnexec",
+     "mall_builder_private.exchange_stock(p_product_id uuid, p_variant_id uuid, p_delta integer, p_label text)",
+     "anon=false authenticated=false public_direct=0"
+    ],
+    [
+     "fnexec",
+     "mall_builder_private.lock_exchange(p_exchange_id uuid)",
+     "anon=false authenticated=false public_direct=0"
+    ],
+    [
+     "fnexec",
+     "mall_builder_private.orders_exchange_guard()",
+     "anon=false authenticated=false public_direct=0"
+    ],
+    [
+     "fnexec",
+     "mall_builder_private.variant_label(p_variant_id uuid)",
+     "anon=false authenticated=false public_direct=0"
+    ],
+    [
+     "fnexec",
+     "public.mall_builder_exchange_fee(p_exchange_id uuid, p_fee bigint)",
+     "anon=false authenticated=true public_direct=0"
+    ],
+    [
+     "fnexec",
+     "public.mall_builder_exchange_fee_paid(p_exchange_id uuid)",
+     "anon=false authenticated=true public_direct=0"
+    ],
+    [
+     "fnexec",
+     "public.mall_builder_exchange_step(p_exchange_id uuid, p_step text, p_courier text, p_tracking text, p_note text)",
+     "anon=false authenticated=true public_direct=0"
+    ],
+    [
+     "fnexec",
+     "public.mall_builder_request_exchange(p_item_id uuid, p_qty integer, p_to_variant_id uuid, p_reason text, p_memo text)",
+     "anon=false authenticated=true public_direct=0"
+    ],
+    [
+     "idx",
+     "mall_builder_exchanges.mall_builder_exchanges_open_item",
+     "305b28d589e9924616a5ceafd4285e11"
+    ],
+    [
+     "idx",
+     "mall_builder_exchanges.mall_builder_exchanges_order",
+     "15755ec9aad59b621f211a8cee85f0da"
     ],
     [
      "idx",
@@ -730,14 +1015,9 @@
      "20fe9536a269d4d4fabd902a9f8cab48"
     ],
     [
-     "idx",
-     "mall_builder_exchanges.mall_builder_exchanges_order",
-     "15755ec9aad59b621f211a8cee85f0da"
-    ],
-    [
-     "idx",
-     "mall_builder_exchanges.mall_builder_exchanges_open_item",
-     "305b28d589e9924616a5ceafd4285e11"
+     "pol",
+     "mall_builder_exchanges.mall_builder_exchanges_read",
+     "r:permissive:authenticated:943e922ce2518a5aa72cab09bb19e659:-"
     ],
     [
      "polcount",
@@ -745,274 +1025,14 @@
      "1"
     ],
     [
-     "pol",
-     "mall_builder_exchanges.mall_builder_exchanges_read",
-     "r:permissive:authenticated:943e922ce2518a5aa72cab09bb19e659:-"
+     "rls",
+     "mall_builder_exchanges",
+     "true"
     ],
     [
      "tblpriv",
      "mall_builder_exchanges",
      "anon=str authenticated=str | direct=anon:MAINTAIN,anon:REFERENCES,anon:SELECT,anon:TRIGGER,anon:TRUNCATE,authenticated:MAINTAIN,authenticated:REFERENCES,authenticated:SELECT,authenticated:TRIGGER,authenticated:TRUNCATE"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.id",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.store_id",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.order_id",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.item_id",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.qty",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.from_variant_id",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.to_variant_id",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.from_option",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.to_option",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.reason",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.memo",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.requested_by",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.step",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.collect_courier",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.collect_tracking",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.reship_courier",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.reship_tracking",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.fee",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.fee_status",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.fee_paid_at",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.from_option_based",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.to_option_based",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.restocked",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.reship_deducted",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.reject_note",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.created_by",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.created_at",
-     "anon=s authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchanges.updated_at",
-     "anon=s authenticated=s"
-    ],
-    [
-     "fn",
-     "public.mall_builder_exchange_step(p_exchange_id uuid, p_step text, p_courier text, p_tracking text, p_note text)",
-     "true:search_path=\"\":57dfd3edab0f2bc039762122cb6cfa07"
-    ],
-    [
-     "fn",
-     "mall_builder_private.delivered_at(p_order_id uuid)",
-     "false:search_path=\"\":9857620fb340e45b81833bd7a0f20148"
-    ],
-    [
-     "fn",
-     "mall_builder_private.variant_label(p_variant_id uuid)",
-     "false:search_path=\"\":89d65980cb138dd3148583f1c0b280b8"
-    ],
-    [
-     "fn",
-     "mall_builder_private.exchange_event(p_order_id uuid, p_role text, p_note text)",
-     "false:search_path=\"\":e493c1f5841352310411ed67a4f9b0ba"
-    ],
-    [
-     "fn",
-     "public.mall_builder_request_exchange(p_item_id uuid, p_qty integer, p_to_variant_id uuid, p_reason text, p_memo text)",
-     "true:search_path=\"\":2a97aa32f8822317e3416a5eb0d70c62"
-    ],
-    [
-     "fn",
-     "mall_builder_private.lock_exchange(p_exchange_id uuid)",
-     "false:search_path=\"\":b0f4d7b9d3a204b8ff20eb513e4aaf95"
-    ],
-    [
-     "fn",
-     "mall_builder_private.exchange_stock(p_product_id uuid, p_variant_id uuid, p_delta integer, p_label text)",
-     "false:search_path=\"\":99081df11e95c8b7bee69dc227b95612"
-    ],
-    [
-     "fn",
-     "public.mall_builder_exchange_fee_paid(p_exchange_id uuid)",
-     "true:search_path=\"\":c2f070559f44154bdae584683d07409c"
-    ],
-    [
-     "fn",
-     "mall_builder_private.exchange_order_delivered(p_order_id uuid)",
-     "false:search_path=\"\":1e1e3aaa5e50f60bd6a833096b0af72e"
-    ],
-    [
-     "fn",
-     "public.mall_builder_exchange_fee(p_exchange_id uuid, p_fee bigint)",
-     "true:search_path=\"\":2e6eae0b59dd555ddb988d53d74d5c76"
-    ],
-    [
-     "fn",
-     "mall_builder_private.exchange_order_status_ok(p_status text)",
-     "false:search_path=\"\":aa1ee4ce118410d3d6464779b7085c00"
-    ],
-    [
-     "fn",
-     "mall_builder_private.orders_exchange_guard()",
-     "true:search_path=\"\":c14dab37465b67c4f160f81b2fd03387"
-    ],
-    [
-     "fnexec",
-     "public.mall_builder_exchange_step(p_exchange_id uuid, p_step text, p_courier text, p_tracking text, p_note text)",
-     "anon=false authenticated=true public_direct=0"
-    ],
-    [
-     "fnexec",
-     "mall_builder_private.delivered_at(p_order_id uuid)",
-     "anon=false authenticated=false public_direct=0"
-    ],
-    [
-     "fnexec",
-     "mall_builder_private.variant_label(p_variant_id uuid)",
-     "anon=false authenticated=false public_direct=0"
-    ],
-    [
-     "fnexec",
-     "mall_builder_private.exchange_event(p_order_id uuid, p_role text, p_note text)",
-     "anon=false authenticated=false public_direct=0"
-    ],
-    [
-     "fnexec",
-     "public.mall_builder_request_exchange(p_item_id uuid, p_qty integer, p_to_variant_id uuid, p_reason text, p_memo text)",
-     "anon=false authenticated=true public_direct=0"
-    ],
-    [
-     "fnexec",
-     "mall_builder_private.lock_exchange(p_exchange_id uuid)",
-     "anon=false authenticated=false public_direct=0"
-    ],
-    [
-     "fnexec",
-     "mall_builder_private.exchange_stock(p_product_id uuid, p_variant_id uuid, p_delta integer, p_label text)",
-     "anon=false authenticated=false public_direct=0"
-    ],
-    [
-     "fnexec",
-     "public.mall_builder_exchange_fee_paid(p_exchange_id uuid)",
-     "anon=false authenticated=true public_direct=0"
-    ],
-    [
-     "fnexec",
-     "mall_builder_private.exchange_order_delivered(p_order_id uuid)",
-     "anon=false authenticated=false public_direct=0"
-    ],
-    [
-     "fnexec",
-     "public.mall_builder_exchange_fee(p_exchange_id uuid, p_fee bigint)",
-     "anon=false authenticated=true public_direct=0"
-    ],
-    [
-     "fnexec",
-     "mall_builder_private.exchange_order_status_ok(p_status text)",
-     "anon=false authenticated=false public_direct=0"
-    ],
-    [
-     "fnexec",
-     "mall_builder_private.orders_exchange_guard()",
-     "anon=false authenticated=false public_direct=0"
     ],
     [
      "trg",
@@ -1026,36 +1046,123 @@
   {
    "id": 3,
    "name": "0104",
+   "deps": [
+    [
+     "mall_builder_private.exchange_event(p_order_id uuid, p_role text, p_note text)",
+     "anon=false authenticated=false public_direct=0"
+    ],
+    [
+     "mall_builder_private.exchange_order_status_ok(p_status text)",
+     "anon=false authenticated=false public_direct=0"
+    ],
+    [
+     "mall_builder_private.lock_exchange(p_exchange_id uuid)",
+     "anon=false authenticated=false public_direct=0"
+    ],
+    [
+     "mall_builder_private.toss_call(p_secret text, p_method text, p_path text, p_body jsonb, p_idem text)",
+     "anon=true authenticated=true public_direct=default"
+    ],
+    [
+     "public.mall_builder_staff_can(p_store_id uuid, p_perm text)",
+     "anon=true authenticated=true public_direct=1"
+    ]
+   ],
    "added": [
     [
      "col",
-     "mall_builder_exchange_fee_payments.id",
+     "mall_builder_exchange_fee_payment_attempts.amount",
+     "bigint NN"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payment_attempts.approved_at",
+     "timestamp with time zone"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payment_attempts.archived_at",
+     "timestamp with time zone NN D=now()"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payment_attempts.archived_by",
+     "uuid"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payment_attempts.error",
+     "text NN D=''::text"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payment_attempts.exchange_id",
+     "uuid NN"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payment_attempts.id",
      "uuid NN D=gen_random_uuid()"
     ],
     [
      "col",
-     "mall_builder_exchange_fee_payments.exchange_id",
-     "uuid NN"
-    ],
-    [
-     "col",
-     "mall_builder_exchange_fee_payments.store_id",
-     "uuid NN"
-    ],
-    [
-     "col",
-     "mall_builder_exchange_fee_payments.order_id",
-     "uuid NN"
-    ],
-    [
-     "col",
-     "mall_builder_exchange_fee_payments.toss_order_id",
+     "mall_builder_exchange_fee_payment_attempts.idempotency_key",
      "text NN"
     ],
     [
      "col",
-     "mall_builder_exchange_fee_payments.payment_key",
+     "mall_builder_exchange_fee_payment_attempts.method",
      "text NN D=''::text"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payment_attempts.order_id",
+     "uuid NN"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payment_attempts.payment_id",
+     "uuid NN"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payment_attempts.payment_key",
+     "text NN"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payment_attempts.prepared_at",
+     "timestamp with time zone"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payment_attempts.reason",
+     "text NN"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payment_attempts.receipt_url",
+     "text NN D=''::text"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payment_attempts.requested_at",
+     "timestamp with time zone"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payment_attempts.status",
+     "text NN"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payment_attempts.store_id",
+     "uuid NN"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payment_attempts.toss_order_id",
+     "text NN"
     ],
     [
      "col",
@@ -1064,22 +1171,37 @@
     ],
     [
      "col",
-     "mall_builder_exchange_fee_payments.status",
-     "text NN D='prepared'::text"
-    ],
-    [
-     "col",
-     "mall_builder_exchange_fee_payments.prepared_at",
-     "timestamp with time zone NN D=now()"
-    ],
-    [
-     "col",
-     "mall_builder_exchange_fee_payments.requested_at",
+     "mall_builder_exchange_fee_payments.approved_at",
      "timestamp with time zone"
     ],
     [
      "col",
+     "mall_builder_exchange_fee_payments.created_at",
+     "timestamp with time zone NN D=now()"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payments.error",
+     "text NN D=''::text"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payments.exchange_id",
+     "uuid NN"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payments.id",
+     "uuid NN D=gen_random_uuid()"
+    ],
+    [
+     "col",
      "mall_builder_exchange_fee_payments.idempotency_key",
+     "text NN D=''::text"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payments.method",
      "text NN D=''::text"
     ],
     [
@@ -1089,13 +1211,18 @@
     ],
     [
      "col",
-     "mall_builder_exchange_fee_payments.method",
+     "mall_builder_exchange_fee_payments.order_id",
+     "uuid NN"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payments.payment_key",
      "text NN D=''::text"
     ],
     [
      "col",
-     "mall_builder_exchange_fee_payments.approved_at",
-     "timestamp with time zone"
+     "mall_builder_exchange_fee_payments.prepared_at",
+     "timestamp with time zone NN D=now()"
     ],
     [
      "col",
@@ -1104,13 +1231,23 @@
     ],
     [
      "col",
-     "mall_builder_exchange_fee_payments.error",
-     "text NN D=''::text"
+     "mall_builder_exchange_fee_payments.requested_at",
+     "timestamp with time zone"
     ],
     [
      "col",
-     "mall_builder_exchange_fee_payments.created_at",
-     "timestamp with time zone NN D=now()"
+     "mall_builder_exchange_fee_payments.status",
+     "text NN D='prepared'::text"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payments.store_id",
+     "uuid NN"
+    ],
+    [
+     "col",
+     "mall_builder_exchange_fee_payments.toss_order_id",
+     "text NN"
     ],
     [
      "col",
@@ -1118,268 +1255,98 @@
      "timestamp with time zone NN D=now()"
     ],
     [
-     "col",
-     "mall_builder_exchange_fee_payment_attempts.id",
-     "uuid NN D=gen_random_uuid()"
-    ],
-    [
-     "col",
-     "mall_builder_exchange_fee_payment_attempts.payment_id",
-     "uuid NN"
-    ],
-    [
-     "col",
-     "mall_builder_exchange_fee_payment_attempts.exchange_id",
-     "uuid NN"
-    ],
-    [
-     "col",
-     "mall_builder_exchange_fee_payment_attempts.store_id",
-     "uuid NN"
-    ],
-    [
-     "col",
-     "mall_builder_exchange_fee_payment_attempts.order_id",
-     "uuid NN"
-    ],
-    [
-     "col",
-     "mall_builder_exchange_fee_payment_attempts.toss_order_id",
-     "text NN"
-    ],
-    [
-     "col",
-     "mall_builder_exchange_fee_payment_attempts.payment_key",
-     "text NN"
-    ],
-    [
-     "col",
-     "mall_builder_exchange_fee_payment_attempts.idempotency_key",
-     "text NN"
-    ],
-    [
-     "col",
+     "colpriv",
      "mall_builder_exchange_fee_payment_attempts.amount",
-     "bigint NN"
+     "anon= authenticated="
     ],
     [
-     "col",
-     "mall_builder_exchange_fee_payment_attempts.status",
-     "text NN"
-    ],
-    [
-     "col",
-     "mall_builder_exchange_fee_payment_attempts.error",
-     "text NN D=''::text"
-    ],
-    [
-     "col",
-     "mall_builder_exchange_fee_payment_attempts.method",
-     "text NN D=''::text"
-    ],
-    [
-     "col",
+     "colpriv",
      "mall_builder_exchange_fee_payment_attempts.approved_at",
-     "timestamp with time zone"
+     "anon= authenticated="
     ],
     [
-     "col",
-     "mall_builder_exchange_fee_payment_attempts.receipt_url",
-     "text NN D=''::text"
-    ],
-    [
-     "col",
-     "mall_builder_exchange_fee_payment_attempts.prepared_at",
-     "timestamp with time zone"
-    ],
-    [
-     "col",
-     "mall_builder_exchange_fee_payment_attempts.requested_at",
-     "timestamp with time zone"
-    ],
-    [
-     "col",
-     "mall_builder_exchange_fee_payment_attempts.reason",
-     "text NN"
-    ],
-    [
-     "col",
-     "mall_builder_exchange_fee_payment_attempts.archived_by",
-     "uuid"
-    ],
-    [
-     "col",
+     "colpriv",
      "mall_builder_exchange_fee_payment_attempts.archived_at",
-     "timestamp with time zone NN D=now()"
-    ],
-    [
-     "rls",
-     "mall_builder_exchange_fee_payments",
-     "true"
-    ],
-    [
-     "rls",
-     "mall_builder_exchange_fee_payment_attempts",
-     "true"
-    ],
-    [
-     "con",
-     "mall_builder_exchange_fee_payment_attempts.mall_builder_exchange_fee_payment_attempts_store_id_fkey",
-     "f:FOREIGN KEY (store_id) REFERENCES mall_builder_stores(id) ON DELETE CASCADE"
-    ],
-    [
-     "con",
-     "mall_builder_exchange_fee_payment_attempts.mall_builder_exchange_fee_payment_attempts_order_id_fkey",
-     "f:FOREIGN KEY (order_id) REFERENCES mall_builder_orders(id) ON DELETE CASCADE"
-    ],
-    [
-     "con",
-     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_toss_order_id_check",
-     "c:CHECK ((toss_order_id ~ '^exfee-[0-9a-f-]{36}$'::text))"
-    ],
-    [
-     "con",
-     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_amount_check",
-     "c:CHECK ((amount > 0))"
-    ],
-    [
-     "con",
-     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_status_check",
-     "c:CHECK ((status = ANY (ARRAY['prepared'::text, 'requested'::text, 'done'::text, 'failed'::text, 'unknown'::text, 'canceled'::text])))"
-    ],
-    [
-     "con",
-     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_pkey",
-     "p:PRIMARY KEY (id)"
-    ],
-    [
-     "con",
-     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_exchange_id_key",
-     "u:UNIQUE (exchange_id)"
-    ],
-    [
-     "con",
-     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_toss_order_id_key",
-     "u:UNIQUE (toss_order_id)"
-    ],
-    [
-     "con",
-     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_exchange_id_fkey",
-     "f:FOREIGN KEY (exchange_id) REFERENCES mall_builder_exchanges(id) ON DELETE CASCADE"
-    ],
-    [
-     "con",
-     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_store_id_fkey",
-     "f:FOREIGN KEY (store_id) REFERENCES mall_builder_stores(id) ON DELETE CASCADE"
-    ],
-    [
-     "con",
-     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_order_id_fkey",
-     "f:FOREIGN KEY (order_id) REFERENCES mall_builder_orders(id) ON DELETE CASCADE"
-    ],
-    [
-     "con",
-     "mall_builder_exchange_fee_payment_attempts.mall_builder_exchange_fee_payment_attempts_reason_check",
-     "c:CHECK ((reason = ANY (ARRAY['replaced_failed'::text, 'toss_canceled'::text, 'toss_partial_canceled'::text])))"
-    ],
-    [
-     "con",
-     "mall_builder_exchange_fee_payment_attempts.mall_builder_exchange_fee_payment_attempts_pkey",
-     "p:PRIMARY KEY (id)"
-    ],
-    [
-     "con",
-     "mall_builder_exchange_fee_payment_attempts.mall_builder_exchange_fee_payment_attempts_payment_id_fkey",
-     "f:FOREIGN KEY (payment_id) REFERENCES mall_builder_exchange_fee_payments(id) ON DELETE CASCADE"
-    ],
-    [
-     "con",
-     "mall_builder_exchange_fee_payment_attempts.mall_builder_exchange_fee_payment_attempts_exchange_id_fkey",
-     "f:FOREIGN KEY (exchange_id) REFERENCES mall_builder_exchanges(id) ON DELETE CASCADE"
-    ],
-    [
-     "idx",
-     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_pkey",
-     "0ec099bbbb7e54831d039041c64cb78b"
-    ],
-    [
-     "idx",
-     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_exchange_id_key",
-     "13050be69cbf839b48055727beb1ecf4"
-    ],
-    [
-     "idx",
-     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_toss_order_id_key",
-     "e9943d476ab70f1002ae159a0eb0c02f"
-    ],
-    [
-     "idx",
-     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_order",
-     "2cc070a25bb91471a5291ef4dbbff63f"
-    ],
-    [
-     "idx",
-     "mall_builder_exchange_fee_payment_attempts.mall_builder_exchange_fee_payment_attempts_pkey",
-     "533572722b6cb9304da6d0de1eed7ba8"
-    ],
-    [
-     "idx",
-     "mall_builder_exchange_fee_payment_attempts.mall_builder_exchange_fee_payment_attempts_payment",
-     "a35958b1d1a4f34ace1f619d77d622aa"
-    ],
-    [
-     "polcount",
-     "mall_builder_exchange_fee_payments",
-     "1"
-    ],
-    [
-     "polcount",
-     "mall_builder_exchange_fee_payment_attempts",
-     "0"
-    ],
-    [
-     "pol",
-     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_read",
-     "r:permissive:authenticated:be5456c1963d9d605fc4e16d3f384b8e:-"
-    ],
-    [
-     "tblpriv",
-     "mall_builder_exchange_fee_payments",
-     "anon= authenticated= | direct=-"
-    ],
-    [
-     "tblpriv",
-     "mall_builder_exchange_fee_payment_attempts",
-     "anon= authenticated= | direct=-"
+     "anon= authenticated="
     ],
     [
      "colpriv",
-     "mall_builder_exchange_fee_payments.id",
-     "anon= authenticated=s"
+     "mall_builder_exchange_fee_payment_attempts.archived_by",
+     "anon= authenticated="
     ],
     [
      "colpriv",
-     "mall_builder_exchange_fee_payments.exchange_id",
-     "anon= authenticated=s"
+     "mall_builder_exchange_fee_payment_attempts.error",
+     "anon= authenticated="
     ],
     [
      "colpriv",
-     "mall_builder_exchange_fee_payments.store_id",
-     "anon= authenticated=s"
+     "mall_builder_exchange_fee_payment_attempts.exchange_id",
+     "anon= authenticated="
     ],
     [
      "colpriv",
-     "mall_builder_exchange_fee_payments.order_id",
-     "anon= authenticated=s"
+     "mall_builder_exchange_fee_payment_attempts.id",
+     "anon= authenticated="
     ],
     [
      "colpriv",
-     "mall_builder_exchange_fee_payments.toss_order_id",
-     "anon= authenticated=s"
+     "mall_builder_exchange_fee_payment_attempts.idempotency_key",
+     "anon= authenticated="
     ],
     [
      "colpriv",
-     "mall_builder_exchange_fee_payments.payment_key",
+     "mall_builder_exchange_fee_payment_attempts.method",
+     "anon= authenticated="
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchange_fee_payment_attempts.order_id",
+     "anon= authenticated="
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchange_fee_payment_attempts.payment_id",
+     "anon= authenticated="
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchange_fee_payment_attempts.payment_key",
+     "anon= authenticated="
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchange_fee_payment_attempts.prepared_at",
+     "anon= authenticated="
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchange_fee_payment_attempts.reason",
+     "anon= authenticated="
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchange_fee_payment_attempts.receipt_url",
+     "anon= authenticated="
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchange_fee_payment_attempts.requested_at",
+     "anon= authenticated="
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchange_fee_payment_attempts.status",
+     "anon= authenticated="
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchange_fee_payment_attempts.store_id",
+     "anon= authenticated="
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchange_fee_payment_attempts.toss_order_id",
      "anon= authenticated="
     ],
     [
@@ -1389,47 +1356,7 @@
     ],
     [
      "colpriv",
-     "mall_builder_exchange_fee_payments.status",
-     "anon= authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchange_fee_payments.prepared_at",
-     "anon= authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchange_fee_payments.requested_at",
-     "anon= authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchange_fee_payments.idempotency_key",
-     "anon= authenticated="
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchange_fee_payments.needs_review",
-     "anon= authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchange_fee_payments.method",
-     "anon= authenticated=s"
-    ],
-    [
-     "colpriv",
      "mall_builder_exchange_fee_payments.approved_at",
-     "anon= authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchange_fee_payments.receipt_url",
-     "anon= authenticated=s"
-    ],
-    [
-     "colpriv",
-     "mall_builder_exchange_fee_payments.error",
      "anon= authenticated=s"
     ],
     [
@@ -1439,103 +1366,153 @@
     ],
     [
      "colpriv",
-     "mall_builder_exchange_fee_payments.updated_at",
+     "mall_builder_exchange_fee_payments.error",
      "anon= authenticated=s"
     ],
     [
      "colpriv",
-     "mall_builder_exchange_fee_payment_attempts.id",
+     "mall_builder_exchange_fee_payments.exchange_id",
+     "anon= authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchange_fee_payments.id",
+     "anon= authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchange_fee_payments.idempotency_key",
      "anon= authenticated="
     ],
     [
      "colpriv",
-     "mall_builder_exchange_fee_payment_attempts.payment_id",
+     "mall_builder_exchange_fee_payments.method",
+     "anon= authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchange_fee_payments.needs_review",
+     "anon= authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchange_fee_payments.order_id",
+     "anon= authenticated=s"
+    ],
+    [
+     "colpriv",
+     "mall_builder_exchange_fee_payments.payment_key",
      "anon= authenticated="
     ],
     [
      "colpriv",
-     "mall_builder_exchange_fee_payment_attempts.exchange_id",
-     "anon= authenticated="
+     "mall_builder_exchange_fee_payments.prepared_at",
+     "anon= authenticated=s"
     ],
     [
      "colpriv",
-     "mall_builder_exchange_fee_payment_attempts.store_id",
-     "anon= authenticated="
+     "mall_builder_exchange_fee_payments.receipt_url",
+     "anon= authenticated=s"
     ],
     [
      "colpriv",
-     "mall_builder_exchange_fee_payment_attempts.order_id",
-     "anon= authenticated="
+     "mall_builder_exchange_fee_payments.requested_at",
+     "anon= authenticated=s"
     ],
     [
      "colpriv",
-     "mall_builder_exchange_fee_payment_attempts.toss_order_id",
-     "anon= authenticated="
+     "mall_builder_exchange_fee_payments.status",
+     "anon= authenticated=s"
     ],
     [
      "colpriv",
-     "mall_builder_exchange_fee_payment_attempts.payment_key",
-     "anon= authenticated="
+     "mall_builder_exchange_fee_payments.store_id",
+     "anon= authenticated=s"
     ],
     [
      "colpriv",
-     "mall_builder_exchange_fee_payment_attempts.idempotency_key",
-     "anon= authenticated="
+     "mall_builder_exchange_fee_payments.toss_order_id",
+     "anon= authenticated=s"
     ],
     [
      "colpriv",
-     "mall_builder_exchange_fee_payment_attempts.amount",
-     "anon= authenticated="
+     "mall_builder_exchange_fee_payments.updated_at",
+     "anon= authenticated=s"
     ],
     [
-     "colpriv",
-     "mall_builder_exchange_fee_payment_attempts.status",
-     "anon= authenticated="
+     "con",
+     "mall_builder_exchange_fee_payment_attempts.mall_builder_exchange_fee_payment_attempts_exchange_id_fkey",
+     "f:FOREIGN KEY (exchange_id) REFERENCES mall_builder_exchanges(id) ON DELETE CASCADE"
     ],
     [
-     "colpriv",
-     "mall_builder_exchange_fee_payment_attempts.error",
-     "anon= authenticated="
+     "con",
+     "mall_builder_exchange_fee_payment_attempts.mall_builder_exchange_fee_payment_attempts_order_id_fkey",
+     "f:FOREIGN KEY (order_id) REFERENCES mall_builder_orders(id) ON DELETE CASCADE"
     ],
     [
-     "colpriv",
-     "mall_builder_exchange_fee_payment_attempts.method",
-     "anon= authenticated="
+     "con",
+     "mall_builder_exchange_fee_payment_attempts.mall_builder_exchange_fee_payment_attempts_payment_id_fkey",
+     "f:FOREIGN KEY (payment_id) REFERENCES mall_builder_exchange_fee_payments(id) ON DELETE CASCADE"
     ],
     [
-     "colpriv",
-     "mall_builder_exchange_fee_payment_attempts.approved_at",
-     "anon= authenticated="
+     "con",
+     "mall_builder_exchange_fee_payment_attempts.mall_builder_exchange_fee_payment_attempts_pkey",
+     "p:PRIMARY KEY (id)"
     ],
     [
-     "colpriv",
-     "mall_builder_exchange_fee_payment_attempts.receipt_url",
-     "anon= authenticated="
+     "con",
+     "mall_builder_exchange_fee_payment_attempts.mall_builder_exchange_fee_payment_attempts_reason_check",
+     "c:CHECK ((reason = ANY (ARRAY['replaced_failed'::text, 'toss_canceled'::text, 'toss_partial_canceled'::text])))"
     ],
     [
-     "colpriv",
-     "mall_builder_exchange_fee_payment_attempts.prepared_at",
-     "anon= authenticated="
+     "con",
+     "mall_builder_exchange_fee_payment_attempts.mall_builder_exchange_fee_payment_attempts_store_id_fkey",
+     "f:FOREIGN KEY (store_id) REFERENCES mall_builder_stores(id) ON DELETE CASCADE"
     ],
     [
-     "colpriv",
-     "mall_builder_exchange_fee_payment_attempts.requested_at",
-     "anon= authenticated="
+     "con",
+     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_amount_check",
+     "c:CHECK ((amount > 0))"
     ],
     [
-     "colpriv",
-     "mall_builder_exchange_fee_payment_attempts.reason",
-     "anon= authenticated="
+     "con",
+     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_exchange_id_fkey",
+     "f:FOREIGN KEY (exchange_id) REFERENCES mall_builder_exchanges(id) ON DELETE CASCADE"
     ],
     [
-     "colpriv",
-     "mall_builder_exchange_fee_payment_attempts.archived_by",
-     "anon= authenticated="
+     "con",
+     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_exchange_id_key",
+     "u:UNIQUE (exchange_id)"
     ],
     [
-     "colpriv",
-     "mall_builder_exchange_fee_payment_attempts.archived_at",
-     "anon= authenticated="
+     "con",
+     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_order_id_fkey",
+     "f:FOREIGN KEY (order_id) REFERENCES mall_builder_orders(id) ON DELETE CASCADE"
+    ],
+    [
+     "con",
+     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_pkey",
+     "p:PRIMARY KEY (id)"
+    ],
+    [
+     "con",
+     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_status_check",
+     "c:CHECK ((status = ANY (ARRAY['prepared'::text, 'requested'::text, 'done'::text, 'failed'::text, 'unknown'::text, 'canceled'::text])))"
+    ],
+    [
+     "con",
+     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_store_id_fkey",
+     "f:FOREIGN KEY (store_id) REFERENCES mall_builder_stores(id) ON DELETE CASCADE"
+    ],
+    [
+     "con",
+     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_toss_order_id_check",
+     "c:CHECK ((toss_order_id ~ '^exfee-[0-9a-f-]{36}$'::text))"
+    ],
+    [
+     "con",
+     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_toss_order_id_key",
+     "u:UNIQUE (toss_order_id)"
     ],
     [
      "fn",
@@ -1544,8 +1521,8 @@
     ],
     [
      "fn",
-     "mall_builder_private.exchanges_fee_card_guard()",
-     "true:search_path=\"\":50e0c1c3f04784c38675e99c003ae70a"
+     "mall_builder_private.exchange_fee_card_hold_canceled(p_payment_id uuid, p_toss_status text)",
+     "false:search_path=\"\":97299e827a85130cbc5e77207d1b40ae"
     ],
     [
      "fn",
@@ -1554,18 +1531,18 @@
     ],
     [
      "fn",
-     "mall_builder_private.exchange_fee_card_hold_canceled(p_payment_id uuid, p_toss_status text)",
-     "false:search_path=\"\":97299e827a85130cbc5e77207d1b40ae"
-    ],
-    [
-     "fn",
-     "public.mall_builder_exchange_fee_card_prepare(p_exchange_id uuid, p_payment_key text, p_amount bigint)",
-     "true:search_path=\"\":47b931231822b200959b2366f7d19fd6"
+     "mall_builder_private.exchanges_fee_card_guard()",
+     "true:search_path=\"\":50e0c1c3f04784c38675e99c003ae70a"
     ],
     [
      "fn",
      "public.mall_builder_exchange_fee_card_confirm(p_exchange_id uuid, p_payment_key text)",
      "true:search_path=\"\":ec9176dbfc102ca0754643241e9d190d"
+    ],
+    [
+     "fn",
+     "public.mall_builder_exchange_fee_card_prepare(p_exchange_id uuid, p_payment_key text, p_amount bigint)",
+     "true:search_path=\"\":47b931231822b200959b2366f7d19fd6"
     ],
     [
      "fn",
@@ -1579,7 +1556,7 @@
     ],
     [
      "fnexec",
-     "mall_builder_private.exchanges_fee_card_guard()",
+     "mall_builder_private.exchange_fee_card_hold_canceled(p_payment_id uuid, p_toss_status text)",
      "anon=false authenticated=false public_direct=0"
     ],
     [
@@ -1589,13 +1566,8 @@
     ],
     [
      "fnexec",
-     "mall_builder_private.exchange_fee_card_hold_canceled(p_payment_id uuid, p_toss_status text)",
+     "mall_builder_private.exchanges_fee_card_guard()",
      "anon=false authenticated=false public_direct=0"
-    ],
-    [
-     "fnexec",
-     "public.mall_builder_exchange_fee_card_prepare(p_exchange_id uuid, p_payment_key text, p_amount bigint)",
-     "anon=false authenticated=true public_direct=0"
     ],
     [
      "fnexec",
@@ -1604,8 +1576,78 @@
     ],
     [
      "fnexec",
+     "public.mall_builder_exchange_fee_card_prepare(p_exchange_id uuid, p_payment_key text, p_amount bigint)",
+     "anon=false authenticated=true public_direct=0"
+    ],
+    [
+     "fnexec",
      "public.mall_builder_exchange_fee_card_recheck(p_exchange_id uuid)",
      "anon=false authenticated=true public_direct=0"
+    ],
+    [
+     "idx",
+     "mall_builder_exchange_fee_payment_attempts.mall_builder_exchange_fee_payment_attempts_payment",
+     "a35958b1d1a4f34ace1f619d77d622aa"
+    ],
+    [
+     "idx",
+     "mall_builder_exchange_fee_payment_attempts.mall_builder_exchange_fee_payment_attempts_pkey",
+     "533572722b6cb9304da6d0de1eed7ba8"
+    ],
+    [
+     "idx",
+     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_exchange_id_key",
+     "13050be69cbf839b48055727beb1ecf4"
+    ],
+    [
+     "idx",
+     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_order",
+     "2cc070a25bb91471a5291ef4dbbff63f"
+    ],
+    [
+     "idx",
+     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_pkey",
+     "0ec099bbbb7e54831d039041c64cb78b"
+    ],
+    [
+     "idx",
+     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_toss_order_id_key",
+     "e9943d476ab70f1002ae159a0eb0c02f"
+    ],
+    [
+     "pol",
+     "mall_builder_exchange_fee_payments.mall_builder_exchange_fee_payments_read",
+     "r:permissive:authenticated:be5456c1963d9d605fc4e16d3f384b8e:-"
+    ],
+    [
+     "polcount",
+     "mall_builder_exchange_fee_payment_attempts",
+     "0"
+    ],
+    [
+     "polcount",
+     "mall_builder_exchange_fee_payments",
+     "1"
+    ],
+    [
+     "rls",
+     "mall_builder_exchange_fee_payment_attempts",
+     "true"
+    ],
+    [
+     "rls",
+     "mall_builder_exchange_fee_payments",
+     "true"
+    ],
+    [
+     "tblpriv",
+     "mall_builder_exchange_fee_payment_attempts",
+     "anon= authenticated= | direct=-"
+    ],
+    [
+     "tblpriv",
+     "mall_builder_exchange_fee_payments",
+     "anon= authenticated= | direct=-"
     ],
     [
      "trg",

@@ -56,99 +56,148 @@ do $pre$ begin
     from fn
   union all select 'trg', t.tname || '.' || g.tgname, g.tgenabled::text || '|' || md5(pg_get_triggerdef(g.oid))
     from tbl t join pg_trigger g on g.tgrelid = t.oid and not g.tgisinternal
-) s) s join (values ('col', 'mall_builder_campaigns.id'),
-  ('col', 'mall_builder_campaigns.store_id'),
+) s) s join (values ('col', 'mall_builder_campaigns.body'),
   ('col', 'mall_builder_campaigns.channel'),
+  ('col', 'mall_builder_campaigns.created_at'),
+  ('col', 'mall_builder_campaigns.created_by'),
+  ('col', 'mall_builder_campaigns.id'),
   ('col', 'mall_builder_campaigns.is_ad'),
-  ('col', 'mall_builder_campaigns.subject'),
-  ('col', 'mall_builder_campaigns.body'),
   ('col', 'mall_builder_campaigns.order_id'),
-  ('col', 'mall_builder_campaigns.target_count'),
   ('col', 'mall_builder_campaigns.queued_count'),
   ('col', 'mall_builder_campaigns.skipped'),
-  ('col', 'mall_builder_campaigns.created_by'),
-  ('col', 'mall_builder_campaigns.created_at'),
+  ('col', 'mall_builder_campaigns.store_id'),
+  ('col', 'mall_builder_campaigns.subject'),
+  ('col', 'mall_builder_campaigns.target_count'),
   ('col', 'mall_builder_notifications.campaign_id'),
-  ('col', 'mall_builder_notify_templates.store_id'),
-  ('col', 'mall_builder_notify_templates.kind'),
-  ('col', 'mall_builder_notify_templates.channel'),
-  ('col', 'mall_builder_notify_templates.subject'),
   ('col', 'mall_builder_notify_templates.body'),
+  ('col', 'mall_builder_notify_templates.channel'),
+  ('col', 'mall_builder_notify_templates.kind'),
+  ('col', 'mall_builder_notify_templates.store_id'),
+  ('col', 'mall_builder_notify_templates.subject'),
   ('col', 'mall_builder_notify_templates.updated_at'),
-  ('col', 'mall_builder_store_notify_settings.bulk_once'),
   ('col', 'mall_builder_store_notify_settings.bulk_day'),
-  ('col', 'mall_builder_store_notify_settings.optout_text'),
-  ('col', 'mall_builder_store_notify_settings.extra_kinds'),
+  ('col', 'mall_builder_store_notify_settings.bulk_once'),
   ('col', 'mall_builder_store_notify_settings.extra_email_kinds'),
-  ('rls', 'mall_builder_campaigns'),
-  ('rls', 'mall_builder_notify_templates'),
-  ('con', 'mall_builder_campaigns.mall_builder_campaigns_created_by_fkey'),
+  ('col', 'mall_builder_store_notify_settings.extra_kinds'),
+  ('col', 'mall_builder_store_notify_settings.optout_text'),
+  ('colpriv', 'mall_builder_campaigns.body'),
+  ('colpriv', 'mall_builder_campaigns.channel'),
+  ('colpriv', 'mall_builder_campaigns.created_at'),
+  ('colpriv', 'mall_builder_campaigns.created_by'),
+  ('colpriv', 'mall_builder_campaigns.id'),
+  ('colpriv', 'mall_builder_campaigns.is_ad'),
+  ('colpriv', 'mall_builder_campaigns.order_id'),
+  ('colpriv', 'mall_builder_campaigns.queued_count'),
+  ('colpriv', 'mall_builder_campaigns.skipped'),
+  ('colpriv', 'mall_builder_campaigns.store_id'),
+  ('colpriv', 'mall_builder_campaigns.subject'),
+  ('colpriv', 'mall_builder_campaigns.target_count'),
+  ('colpriv', 'mall_builder_notifications.campaign_id'),
+  ('colpriv', 'mall_builder_notify_templates.body'),
+  ('colpriv', 'mall_builder_notify_templates.channel'),
+  ('colpriv', 'mall_builder_notify_templates.kind'),
+  ('colpriv', 'mall_builder_notify_templates.store_id'),
+  ('colpriv', 'mall_builder_notify_templates.subject'),
+  ('colpriv', 'mall_builder_notify_templates.updated_at'),
+  ('colpriv', 'mall_builder_store_notify_settings.bulk_day'),
+  ('colpriv', 'mall_builder_store_notify_settings.bulk_once'),
+  ('colpriv', 'mall_builder_store_notify_settings.extra_email_kinds'),
+  ('colpriv', 'mall_builder_store_notify_settings.extra_kinds'),
+  ('colpriv', 'mall_builder_store_notify_settings.optout_text'),
   ('con', 'mall_builder_campaigns.mall_builder_campaigns_body_check'),
   ('con', 'mall_builder_campaigns.mall_builder_campaigns_channel_check'),
-  ('con', 'mall_builder_campaigns.mall_builder_campaigns_subject_check'),
+  ('con', 'mall_builder_campaigns.mall_builder_campaigns_created_by_fkey'),
+  ('con', 'mall_builder_campaigns.mall_builder_campaigns_order_id_fkey'),
   ('con', 'mall_builder_campaigns.mall_builder_campaigns_pkey'),
   ('con', 'mall_builder_campaigns.mall_builder_campaigns_store_id_fkey'),
-  ('con', 'mall_builder_campaigns.mall_builder_campaigns_order_id_fkey'),
+  ('con', 'mall_builder_campaigns.mall_builder_campaigns_subject_check'),
   ('con', 'mall_builder_notifications.mall_builder_notifications_campaign_id_fkey'),
-  ('con', 'mall_builder_notify_templates.mall_builder_notify_templates_kind_check'),
-  ('con', 'mall_builder_notify_templates.mall_builder_notify_templates_channel_check'),
-  ('con', 'mall_builder_notify_templates.mall_builder_notify_templates_subject_check'),
   ('con', 'mall_builder_notify_templates.mall_builder_notify_templates_body_check'),
+  ('con', 'mall_builder_notify_templates.mall_builder_notify_templates_channel_check'),
+  ('con', 'mall_builder_notify_templates.mall_builder_notify_templates_kind_check'),
   ('con', 'mall_builder_notify_templates.mall_builder_notify_templates_pkey'),
   ('con', 'mall_builder_notify_templates.mall_builder_notify_templates_store_id_fkey'),
+  ('con', 'mall_builder_notify_templates.mall_builder_notify_templates_subject_check'),
   ('con', 'mall_builder_store_notify_settings.mall_builder_store_notify_settings_msg'),
+  ('fn', 'mall_builder_private.fill_order_text(p_text text, p_order_id uuid)'),
+  ('fn', 'mall_builder_private.kst_hour()'),
+  ('fn', 'mall_builder_private.notifications_apply_template()'),
+  ('fn', 'mall_builder_private.order_events_enqueue_more()'),
+  ('fn', 'public.mall_builder_message_send(p_store_id uuid, p_channel text, p_is_ad boolean, p_subject text, p_body text, p_customer_ids uuid[], p_order_id uuid, p_dry_run boolean)'),
+  ('fn', 'public.mall_builder_message_settings_save(p_store_id uuid, p_bulk_once integer, p_bulk_day integer, p_optout text, p_extra_kinds text[], p_extra_email_kinds text[])'),
+  ('fn', 'public.mall_builder_notify_template_save(p_store_id uuid, p_kind text, p_channel text, p_subject text, p_body text)'),
+  ('fnexec', 'mall_builder_private.fill_order_text(p_text text, p_order_id uuid)'),
+  ('fnexec', 'mall_builder_private.kst_hour()'),
+  ('fnexec', 'mall_builder_private.notifications_apply_template()'),
+  ('fnexec', 'mall_builder_private.order_events_enqueue_more()'),
+  ('fnexec', 'public.mall_builder_message_send(p_store_id uuid, p_channel text, p_is_ad boolean, p_subject text, p_body text, p_customer_ids uuid[], p_order_id uuid, p_dry_run boolean)'),
+  ('fnexec', 'public.mall_builder_message_settings_save(p_store_id uuid, p_bulk_once integer, p_bulk_day integer, p_optout text, p_extra_kinds text[], p_extra_email_kinds text[])'),
+  ('fnexec', 'public.mall_builder_notify_template_save(p_store_id uuid, p_kind text, p_channel text, p_subject text, p_body text)'),
   ('idx', 'mall_builder_campaigns.mall_builder_campaigns_pkey'),
   ('idx', 'mall_builder_campaigns.mall_builder_campaigns_store'),
   ('idx', 'mall_builder_notifications.mall_builder_notifications_campaign'),
   ('idx', 'mall_builder_notifications.mall_builder_notifications_store_time'),
   ('idx', 'mall_builder_notify_templates.mall_builder_notify_templates_pkey'),
-  ('polcount', 'mall_builder_campaigns'),
-  ('polcount', 'mall_builder_notify_templates'),
   ('pol', 'mall_builder_campaigns.mall_builder_campaigns_read'),
   ('pol', 'mall_builder_notify_templates.mall_builder_notify_templates_read'),
+  ('polcount', 'mall_builder_campaigns'),
+  ('polcount', 'mall_builder_notify_templates'),
+  ('rls', 'mall_builder_campaigns'),
+  ('rls', 'mall_builder_notify_templates'),
   ('tblpriv', 'mall_builder_campaigns'),
   ('tblpriv', 'mall_builder_notify_templates'),
-  ('colpriv', 'mall_builder_campaigns.id'),
-  ('colpriv', 'mall_builder_campaigns.store_id'),
-  ('colpriv', 'mall_builder_campaigns.channel'),
-  ('colpriv', 'mall_builder_campaigns.is_ad'),
-  ('colpriv', 'mall_builder_campaigns.subject'),
-  ('colpriv', 'mall_builder_campaigns.body'),
-  ('colpriv', 'mall_builder_campaigns.order_id'),
-  ('colpriv', 'mall_builder_campaigns.target_count'),
-  ('colpriv', 'mall_builder_campaigns.queued_count'),
-  ('colpriv', 'mall_builder_campaigns.skipped'),
-  ('colpriv', 'mall_builder_campaigns.created_by'),
-  ('colpriv', 'mall_builder_campaigns.created_at'),
-  ('colpriv', 'mall_builder_notifications.campaign_id'),
-  ('colpriv', 'mall_builder_notify_templates.store_id'),
-  ('colpriv', 'mall_builder_notify_templates.kind'),
-  ('colpriv', 'mall_builder_notify_templates.channel'),
-  ('colpriv', 'mall_builder_notify_templates.subject'),
-  ('colpriv', 'mall_builder_notify_templates.body'),
-  ('colpriv', 'mall_builder_notify_templates.updated_at'),
-  ('colpriv', 'mall_builder_store_notify_settings.bulk_once'),
-  ('colpriv', 'mall_builder_store_notify_settings.bulk_day'),
-  ('colpriv', 'mall_builder_store_notify_settings.optout_text'),
-  ('colpriv', 'mall_builder_store_notify_settings.extra_kinds'),
-  ('colpriv', 'mall_builder_store_notify_settings.extra_email_kinds'),
-  ('fn', 'mall_builder_private.fill_order_text(p_text text, p_order_id uuid)'),
-  ('fn', 'mall_builder_private.notifications_apply_template()'),
-  ('fn', 'mall_builder_private.order_events_enqueue_more()'),
-  ('fn', 'mall_builder_private.kst_hour()'),
-  ('fn', 'public.mall_builder_message_send(p_store_id uuid, p_channel text, p_is_ad boolean, p_subject text, p_body text, p_customer_ids uuid[], p_order_id uuid, p_dry_run boolean)'),
-  ('fn', 'public.mall_builder_notify_template_save(p_store_id uuid, p_kind text, p_channel text, p_subject text, p_body text)'),
-  ('fn', 'public.mall_builder_message_settings_save(p_store_id uuid, p_bulk_once integer, p_bulk_day integer, p_optout text, p_extra_kinds text[], p_extra_email_kinds text[])'),
-  ('fnexec', 'mall_builder_private.fill_order_text(p_text text, p_order_id uuid)'),
-  ('fnexec', 'mall_builder_private.notifications_apply_template()'),
-  ('fnexec', 'mall_builder_private.order_events_enqueue_more()'),
-  ('fnexec', 'mall_builder_private.kst_hour()'),
-  ('fnexec', 'public.mall_builder_message_send(p_store_id uuid, p_channel text, p_is_ad boolean, p_subject text, p_body text, p_customer_ids uuid[], p_order_id uuid, p_dry_run boolean)'),
-  ('fnexec', 'public.mall_builder_notify_template_save(p_store_id uuid, p_kind text, p_channel text, p_subject text, p_body text)'),
-  ('fnexec', 'public.mall_builder_message_settings_save(p_store_id uuid, p_bulk_once integer, p_bulk_day integer, p_optout text, p_extra_kinds text[], p_extra_email_kinds text[])'),
   ('trg', 'mall_builder_notifications.mall_builder_notifications_template'),
   ('trg', 'mall_builder_order_events.mall_builder_order_events_enqueue_more')) e(k, key) using (k, key)) <> 0 then raise exception '[멈춤] 이번 단계가 만들 구조가 이미 일부 있습니다(부분 적용·옛 정의). 사람이 확인하세요.'; end if;
 
+  if (select count(*) from (select k, key, val from (
+  with tbl as (
+    select c.oid, c.relname tname, c.relrowsecurity rls, c.relacl
+    from pg_class c join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public' and c.relkind = 'r' and c.relname like 'mall\_builder\_%'
+  ),
+  rl(r) as (values ('anon'), ('authenticated')),
+  fn as (
+    select p.oid, n.nspname || '.' || p.proname || '(' || pg_get_function_identity_arguments(p.oid) || ')' fkey, p.prosecdef, p.proconfig, p.prosrc, p.proacl
+    from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+    where (n.nspname = 'public' and p.proname like 'mall\_builder\_%') or n.nspname = 'mall_builder_private'
+  )
+  select 'col' k, t.tname || '.' || a.attname key,
+         format_type(a.atttypid, a.atttypmod) || case when a.attnotnull then ' NN' else '' end || coalesce(' D=' || pg_get_expr(d.adbin, d.adrelid), '') val
+    from tbl t join pg_attribute a on a.attrelid = t.oid and a.attnum > 0 and not a.attisdropped
+    left join pg_attrdef d on d.adrelid = a.attrelid and d.adnum = a.attnum
+  union all select 'rls', tname, rls::text from tbl
+  union all select 'con', t.tname || '.' || c.conname, c.contype::text || ':' || pg_get_constraintdef(c.oid) from tbl t join pg_constraint c on c.conrelid = t.oid
+  union all select 'idx', t.tname || '.' || i.relname, md5(pg_get_indexdef(x.indexrelid))
+    from tbl t join pg_index x on x.indrelid = t.oid join pg_class i on i.oid = x.indexrelid
+  union all select 'polcount', t.tname, (select count(*) from pg_policy p where p.polrelid = t.oid)::text from tbl t
+  union all select 'pol', t.tname || '.' || p.polname,
+         p.polcmd::text || ':' || case when p.polpermissive then 'permissive' else 'restrictive' end || ':'
+         || coalesce((select string_agg(x::text, ',' order by x::text) from unnest(p.polroles::regrole[]) x), '-') || ':'
+         || coalesce(md5(pg_get_expr(p.polqual, p.polrelid)), '-') || ':' || coalesce(md5(pg_get_expr(p.polwithcheck, p.polrelid)), '-')
+    from tbl t join pg_policy p on p.polrelid = t.oid
+  -- 표 권한: 역할별 실제 효력 + PUBLIC·anon·authenticated 직접 부여 종류
+  union all select 'tblpriv', t.tname,
+         (select string_agg(rl.r || '=' || concat_ws('', case when has_table_privilege(rl.r, t.oid, 'select') then 's' end, case when has_table_privilege(rl.r, t.oid, 'insert') then 'i' end,
+            case when has_table_privilege(rl.r, t.oid, 'update') then 'u' end, case when has_table_privilege(rl.r, t.oid, 'delete') then 'd' end,
+            case when has_table_privilege(rl.r, t.oid, 'truncate') then 't' end, case when has_table_privilege(rl.r, t.oid, 'references') then 'r' end), ' ' order by rl.r) from rl)
+         || ' | direct=' || coalesce((select string_agg(distinct case when e.grantee = 0 then 'PUBLIC' else e.grantee::regrole::text end || ':' || e.privilege_type, ',')
+              from aclexplode(t.relacl) e where e.grantee = 0 or e.grantee in (select oid from pg_roles where rolname in ('anon', 'authenticated'))), '-')
+    from tbl t
+  -- 칸 권한: 역할별 실제 효력(읽기·추가·수정)
+  union all select 'colpriv', t.tname || '.' || a.attname,
+         (select string_agg(rl.r || '=' || concat_ws('', case when has_column_privilege(rl.r, t.oid, a.attnum, 'select') then 's' end,
+            case when has_column_privilege(rl.r, t.oid, a.attnum, 'insert') then 'i' end, case when has_column_privilege(rl.r, t.oid, a.attnum, 'update') then 'u' end), ' ' order by rl.r) from rl)
+    from tbl t join pg_attribute a on a.attrelid = t.oid and a.attnum > 0 and not a.attisdropped
+  union all select 'fn', fkey, prosecdef::text || ':' || coalesce(array_to_string(proconfig, ','), '-') || ':' || md5(prosrc) from fn
+  union all select 'fnexec', fkey,
+         'anon=' || has_function_privilege('anon', oid, 'execute') || ' authenticated=' || has_function_privilege('authenticated', oid, 'execute')
+         || ' public_direct=' || case when proacl is null then 'default' else (select count(*) from aclexplode(proacl) e where e.grantee = 0)::text end
+    from fn
+  union all select 'trg', t.tname || '.' || g.tgname, g.tgenabled::text || '|' || md5(pg_get_triggerdef(g.oid))
+    from tbl t join pg_trigger g on g.tgrelid = t.oid and not g.tgisinternal
+) s) s join (values ('public.mall_builder_digits(p text)', 'anon=true authenticated=true public_direct=1'),
+  ('public.mall_builder_is_store_staff(p_store_id uuid)', 'anon=true authenticated=true public_direct=0'),
+  ('public.mall_builder_staff_can(p_store_id uuid, p_perm text)', 'anon=true authenticated=true public_direct=1')) d(key, val) on s.k = 'fnexec' and s.key = d.key and s.val = d.val) <> 3 then raise exception '[멈춤] 의존 함수(3개)의 서명·실행 권한이 저장소 기준과 다릅니다. 사람이 확인하세요.'; end if;
 end $pre$;
 create temp table _mb_fp (t text primary key, cols text, n bigint, h text) on commit drop;
 do $fp$ declare r record; c text; v_n bigint; v_h text; begin

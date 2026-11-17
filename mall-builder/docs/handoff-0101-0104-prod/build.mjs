@@ -2,7 +2,7 @@
 // 입력: steps.mjs(원문·지문·기록 이름), manifest.json(check-local.mjs --manifest가 격리 DB에서 뽑은 구조 기대 목록), snapshot.sql(구조 스냅샷 조회)
 // 출력: 단계마다 precheck-*.sql(읽기)·apply-*.sql(한 트랜잭션 쓰기)·verify-*.sql(읽기). 원문 지문이 다르면 아무것도 쓰지 않고 멈춘다.
 // 기대값: 구조는 manifest(고정 원문에서 나온 값)만, 자료는 운영 값을 미리 넣지 않는다 — 적용 파일이 같은 트랜잭션 안에서 적용 전후 지문을 비교한다.
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, renameSync, rmSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -18,7 +18,7 @@ const man = JSON.parse(read(join(HERE, "manifest.json")));
 const SP = `set search_path to "$user", public, extensions;`;
 const head = (title) => `-- ${title}\n-- 대상: 운영 Supabase 「AIMaster」 ref esgxyikcnnvmlhygjkth 의 SQL 편집기만(화면 위 프로젝트 이름·주소 ref를 먼저 눈으로 확인). Lab(rjjtjakljjxsgjelqgek)은 이미 0101~0104가 있어 아래 조건에서 멈춘다.\n-- 초안: Master 배정 + 주인님 승인 전에는 실행하지 않는다(B2B-20261118-02). 생성: build.mjs`;
 const recCount = (n) => `(select count(*) from supabase_migrations.schema_migrations where name = ${q(n)})`;
-const out = [];
+const out = []; // [파일 이름, 내용] — 모든 단계 검증이 끝난 뒤에만 한꺼번에 쓴다(QA047 S-F02)
 
 for (const step of STEPS) {
   const n = `${step.id}-${step.name}`;
@@ -37,11 +37,16 @@ for (const step of STEPS) {
   const expected = `(values ${added.map(([k, key, val]) => `(${q(k)}, ${q(key)}, ${q(val)})`).join(",\n  ")}) e(k, key, val)`;
   const newTables = added.filter(([k]) => k === "rls").map(([, key]) => key);
   const presentCount = `(select count(*) from (${SNAP}) s join ${addedKeys} using (k, key))`;
+  // 의존 함수(QA047 S-F01): 원문이 부르는 기존 함수의 정확한 서명(스키마·이름·인자)과 anon·authenticated 실행 권한·PUBLIC 직접 부여가 격리 DB 기준과 같아야 함
+  const deps = ms.deps ?? [];
+  if (!deps.length) throw new Error(`${n}: manifest에 의존 함수 목록이 없음 — check-local.mjs --manifest 다시 실행`);
+  const depVals = `(values ${deps.map(([key, val]) => `(${q(key)}, ${q(val)})`).join(",\n  ")}) d(key, val)`;
+  const depOk = `(select count(*) from (${SNAP}) s join ${depVals} on s.k = 'fnexec' and s.key = d.key and s.val = d.val)`;
   const extCheck = (x) => `(select count(*) from pg_extension where extname = ${q(x)})`;
 
   // ── precheck(읽기) ──
   const pre = `${head(`운영 ${step.name} 실행 전 확인(읽기 전용) — 「전체」가 OK일 때만 apply-${n}.sql`)}
--- 판정 줄 1~5, 기록 줄 6~8(판정 없음 — 실행 기록에 남김). 값이 비면(NULL) 「(없음)」으로 바꿔 불일치로 센다.
+-- 판정 줄 1~6, 기록 줄 7~9(판정 없음 — 실행 기록에 남김). 값이 비면(NULL) 「(없음)」으로 바꿔 불일치로 센다.
 ${SP}
 with chk as (
   select 1 o, ${q(`선행 적용 기록 각 1줄(${step.needRecords.join(", ")})`)} 항목, ${q(step.needRecords.map(() => "1").join("/"))} 기대,
@@ -52,14 +57,15 @@ with chk as (
   union all select 4, ${q(`필요한 확장(${step.needExtensions.join(", ") || "없음"})`)}, ${q(step.needExtensions.map(() => "1").join("/") || "-")},
     ${step.needExtensions.length ? `concat_ws('/', ${step.needExtensions.map((x) => `${extCheck(x)}::text`).join(", ")}) -- [http 확인]` : "'-'"}
   union all select 5, 'DB 시간대 UTC(적용 기록 version은 UTC)', 'UTC', current_setting('TimeZone')
+  union all select 6, ${q(`의존 함수 ${deps.length}개 정확한 서명·실행 권한 그대로(${deps.map(([k]) => k).join(' · ')})`)}, ${q(String(deps.length))}, ${depOk}::text
 ), j as (select o, 항목, 기대, coalesce(실제, '(없음)') 실제 from chk)
 select o 순서, 항목, 기대, 실제, case when 기대 = 실제 then 'OK' else '확인 필요' end 판정 from j
-union all select 6, '기록: lab_admin 스키마 있음(Lab이면 보통 true — 판정 아님, 3번이 실제 차단)', '-', (to_regnamespace('lab_admin') is not null)::text, '기록'
-union all select 7, '기록: 쇼핑몰 표 수·전체 행 수(적용 전 기준, 적용 파일이 같은 트랜잭션에서 다시 비교)', '-',
+union all select 7, '기록: lab_admin 스키마 있음(Lab이면 보통 true — 판정 아님, 3번이 실제 차단)', '-', (to_regnamespace('lab_admin') is not null)::text, '기록'
+union all select 8, '기록: 쇼핑몰 표 수·전체 행 수(적용 전 기준, 적용 파일이 같은 트랜잭션에서 다시 비교)', '-',
   (select count(*) || ' 표 / ' || coalesce(sum(n_live_tup), 0) || ' 행(통계 추정)' from pg_stat_user_tables where schemaname = 'public' and relname like 'mall\\_builder\\_%'), '기록'
-union all select 8, '기록: Postgres 판', '-', current_setting('server_version'), '기록'
-union all select 9, '전체', '5/5', (select count(*) filter (where 기대 = 실제) from j)::text || '/' || (select count(*) from j)::text,
-  case when (select count(*) from j) = 5 and (select count(*) filter (where 기대 = 실제) from j) = 5 then 'OK' else '확인 필요' end
+union all select 9, '기록: Postgres 판', '-', current_setting('server_version'), '기록'
+union all select 10, '전체', '6/6', (select count(*) filter (where 기대 = 실제) from j)::text || '/' || (select count(*) from j)::text,
+  case when (select count(*) from j) = 6 and (select count(*) filter (where 기대 = 실제) from j) = 6 then 'OK' else '확인 필요' end
 order by 1;
 `;
 
@@ -77,6 +83,7 @@ ${step.needRecords.map((x) => `  if ${recCount(x)} <> 1 then raise exception '[�
   if (${[...step.records, ...step.laterRecords].map(recCount).join(" + ")}) <> 0 then raise exception '[멈춤] 이번 또는 이후 단계 적용 기록이 이미 있습니다(Lab이거나 이미 적용됨).'; end if;
   if ${presentCount} <> 0 then raise exception '[멈춤] 이번 단계가 만들 구조가 이미 일부 있습니다(부분 적용·옛 정의). 사람이 확인하세요.'; end if;
 ${step.needExtensions.map((x) => `  if ${extCheck(x)} <> 1 then raise exception '[멈춤] ${x} 확장이 없습니다.'; end if; -- [http 확인]`).join("\n")}
+  if ${depOk} <> ${deps.length} then raise exception '[멈춤] 의존 함수(${deps.length}개)의 서명·실행 권한이 저장소 기준과 다릅니다. 사람이 확인하세요.'; end if;
 end $pre$;
 create temp table _mb_fp (t text primary key, cols text, n bigint, h text) on commit drop;
 do $fp$ declare r record; c text; v_n bigint; v_h text; begin
@@ -127,9 +134,14 @@ union all select 5, '전체', '4/4', (select count(*) filter (where 기대 = 실
 order by 1;
 `;
   for (const [name, body] of [[`precheck-${n}.sql`, pre], [`apply-${n}.sql`, app], [`verify-${n}.sql`, ver]]) {
-    writeFileSync(join(HERE, name), body);
-    out.push(`${name} ${sha(body)}`);
+    out.push([name, body]);
   }
   console.log(`${n}: 원문 ${srcs.map((f) => `${f.file} ${f.h.slice(0, 16)}`).join(", ")} · 구조 ${added.length}개 · 새 표 ${newTables.length}`);
 }
-console.log(out.join("\n"));
+// 모든 원문·정의 검증이 끝났을 때만 쓴다: 임시 파일에 다 쓴 뒤 하나씩 바꿔 넣는다(쓰기 실패 시 임시 파일만 지우고 기존 산출물 그대로)
+const tmp = [];
+try {
+  for (const [name, body] of out) { const t = join(HERE, `.${name}.tmp`); writeFileSync(t, body); tmp.push([t, join(HERE, name)]); }
+} catch (e) { for (const [t] of tmp) rmSync(t, { force: true }); throw e; }
+for (const [t, dst] of tmp) renameSync(t, dst);
+console.log(out.map(([name, body]) => `${name} ${sha(body)}`).join("\n"));

@@ -51,14 +51,26 @@ if (process.argv.includes("--manifest")) {
   let before = snapshot();
   const out = { generated: new Date().toISOString(), pg: run("show server_version;").stdout.trim(), steps: [] };
   for (const step of STEPS) {
-    const r = run(`set search_path to "$user", public, extensions;\n${srcOf(step)}`);
+    // 의존 함수(QA047 S-F01): 원문이 부르는 public·mall_builder_private 함수 중 이번 단계 전부터 있던 것 → 정확한 서명·실행 권한(적용 전 값)
+    const src = srcOf(step);
+    const called = new Set([...src.matchAll(/\b(public|mall_builder_private)\.([a-z0-9_]+)\s*\(/g)].map((m) => `${m[1]}.${m[2]}`));
+    const deps = [];
+    for (const [k, v] of before) {
+      const [kind, key] = k.split("\t");
+      if (kind === "fnexec" && called.has(key.replace(/\(.*$/, ""))) deps.push([key, v]);
+    }
+    deps.sort((a, b) => a[0].localeCompare(b[0]));
+    const r = run(`set search_path to "$user", public, extensions;\n${src}`);
     if (r.status) { console.error(`[${step.name}] 원문 적용 실패`, errs(r)); process.exit(2); }
     const after = snapshot();
     const added = [], changed = [], removed = [];
     for (const [k, v] of after) { if (!before.has(k)) added.push([...k.split("\t"), v]); else if (before.get(k) !== v) changed.push([...k.split("\t"), before.get(k), v]); }
     for (const [k] of before) if (!after.has(k)) removed.push(k.split("\t"));
-    out.steps.push({ id: step.id, name: step.name, added, changed, removed });
-    console.log(`${step.name}: 추가 ${added.length} · 바뀜 ${changed.length} · 사라짐 ${removed.length}`);
+    // 순서 고정(스냅샷 행 순서는 실행마다 다를 수 있음 → 생성 파일 지문이 흔들리지 않게)
+    const byKey = (a, b) => (a[0] + "\t" + a[1] < b[0] + "\t" + b[1] ? -1 : a[0] + "\t" + a[1] > b[0] + "\t" + b[1] ? 1 : 0);
+    added.sort(byKey); changed.sort(byKey); removed.sort(byKey);
+    out.steps.push({ id: step.id, name: step.name, deps, added, changed, removed });
+    console.log(`${step.name}: 의존 함수 ${deps.length} · 추가 ${added.length} · 바뀜 ${changed.length} · 사라짐 ${removed.length}`);
     before = after;
   }
   writeFileSync(join(HERE, "manifest.json"), JSON.stringify(out, null, 1) + "\n");
@@ -128,6 +140,48 @@ for (const [name, sql, file] of [
   const r = run(`begin;\n${sql}\n${f(file)}\nrollback;`);
   check(`반례: ${name} → ${file} 「전체」 확인 필요`, r.status === 0 && total(r.stdout) === "확인 필요", `${total(r.stdout)} ${errs(r)}`);
 }
+// 반례 5(QA047 S-F01): 의존 함수 서명·실행 권한이 다르면 precheck 3·apply 3이 막음(이전 d9751c70b 판은 거짓 통과했는지 비교)
+const oldFile = (name) => { try { return execFileSync("git", ["-C", SRC, "show", `d9751c70b:mall-builder/docs/handoff-0101-0104-prod/${name}`], { encoding: "utf8" }).replace(/\r\n/g, "\n"); } catch { return null; } };
+for (const [name, sql] of [
+  ["toss_call 이름 바뀜(정확한 서명 없음)", "alter function mall_builder_private.toss_call(text, text, text, jsonb, text) rename to toss_call_x;"],
+  ["mall_builder_staff_can 회원 실행 권한 회수", "revoke execute on function public.mall_builder_staff_can(uuid, text) from authenticated, public;"],
+]) {
+  fresh();
+  for (const step of STEPS.slice(0, 2)) run(f(`apply-${step.id}-${step.name}.sql`));
+  run(sql);
+  const p = run(noHttp(f("precheck-3-0104.sql"))), a = run(`begin;\n${noHttp(f("apply-3-0104.sql")).replace(/^begin isolation level repeatable read;$/m, "").replace(/^commit;$/m, "")}\nrollback;`);
+  const oldP = oldFile("precheck-3-0104.sql"), oldA = oldFile("apply-3-0104.sql");
+  const oldPre = oldP ? total(run(noHttp(oldP)).stdout) : "비교 생략";
+  const oldApp = oldA ? (run(`begin;\n${noHttp(oldA).replace(/^begin isolation level repeatable read;$/m, "").replace(/^commit;$/m, "")}\nrollback;`).status === 0 ? "성공(거짓 통과)" : "막힘") : "비교 생략";
+  check(`반례: ${name} → 새 precheck 3 확인 필요·apply 3 [멈춤] (이전 판: precheck ${oldPre}, apply ${oldApp})`,
+    total(p.stdout) === "확인 필요" && a.status !== 0 && /의존 함수/.test(a.stderr), `pre ${total(p.stdout)} / ${errs(a)}`);
+}
 adm(`drop database if exists ${DB}`);
+// 반례 6(QA047 S-F02): 0104 원문이 바뀐 복사본에서 build.mjs → 아무 파일도 안 바뀜(이전 판은 앞 단계 파일을 덮어썼는지 비교)
+{
+  const { mkdtempSync, cpSync, rmSync: rmS, writeFileSync: wf } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { createHash } = await import("node:crypto");
+  const OUTS = STEPS.flatMap((s) => ["precheck", "apply", "verify"].map((k) => `${k}-${s.id}-${s.name}.sql`));
+  const hashOf = (dir) => OUTS.map((n) => createHash("sha256").update(readFileSync(join(dir, n))).digest("hex").slice(0, 12)).join(",");
+  const trial = (buildSrc) => {
+    const root = mkdtempSync(join(tmpdir(), "mb-build-"));
+    const docs = join(root, "mall-builder", "docs", "handoff-0101-0104-prod"), mig = join(root, "mall-builder", "supabase", "migrations");
+    cpSync(HERE, docs, { recursive: true }); cpSync(join(SRC, "supabase", "migrations"), mig, { recursive: true });
+    if (buildSrc) wf(join(docs, "build.mjs"), buildSrc);
+    wf(join(mig, "0104_exchange_fee_payments.sql"), read("supabase/migrations/0104_exchange_fee_payments.sql") + "\n-- 바뀐 원문\n");
+    const before = hashOf(docs);
+    const r = spawnSync(process.execPath, [join(docs, "build.mjs")], { encoding: "utf8" });
+    const after = hashOf(docs);
+    const tmpLeft = readdirSync(docs).filter((n) => n.endsWith(".tmp")).length;
+    rmS(root, { recursive: true, force: true });
+    return { exit: r.status, same: before === after, tmpLeft };
+  };
+  const cur = trial(null);
+  const oldB = oldFile("build.mjs");
+  const old = oldB ? trial(oldB) : null;
+  check(`반례: 0104 원문 변조 → 새 build.mjs 종료 1·산출물 9개 그대로·임시 파일 0 (이전 판: ${old ? (old.same ? "그대로" : "앞 단계 파일 덮어씀") : "비교 생략"})`,
+    cur.exit === 1 && cur.same && cur.tmpLeft === 0, JSON.stringify(cur));
+}
 console.log(`합계 통과 ${pass} / 실패 ${fail} (격리 DB 삭제, http 확장 로컬 ${httpLocal ? "있음" : "없음 → 사본에서 http 확장 개수 식만 1로 바꿈"})`);
 process.exit(fail ? 1 : 0);
