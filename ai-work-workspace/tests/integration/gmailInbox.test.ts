@@ -1,0 +1,390 @@
+// WS-20261117-25 E4 1단계 — Gmail 연결·받은 편지함 목록(꺼짐으로 시작). 실제 구글·실제 DB·실제 키 0.
+// 구글 호출은 가짜 fetch, 저장은 메모리 가짜 저장소(setGmailStoreForTests), 실제 DB 함수(createAdminClient)는 불리면 바로 실패.
+// id_token은 시험 안에서 만든 RSA 키로 서명하고 가짜 공개 키 목록(JWKS)으로 검증한다.
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { generateKeyPairSync, sign as rsaSign, type KeyObject } from 'node:crypto';
+import { NextRequest } from 'next/server';
+
+const adminCalls = vi.hoisted(() => ({ n: 0 }));
+vi.mock('@/lib/supabase/admin', () => ({
+  createAdminClient: () => {
+    adminCalls.n++;
+    throw new Error('실제 DB 접근 금지(시험)');
+  },
+}));
+const access = vi.hoisted(() => ({ fn: null as null | ((...a: unknown[]) => unknown), calls: 0 }));
+vi.mock('@/lib/access', () => ({
+  checkProgramAccessApi: async () => {
+    access.calls++;
+    return access.fn ? access.fn() : { allowed: false, status: 401 };
+  },
+}));
+
+let gm: typeof import('../../src/server/gmailInbox.ts');
+let startRoute: typeof import('../../src/app/api/oauth/google-gmail/start/route.ts');
+let cbRoute: typeof import('../../src/app/api/oauth/google-gmail/callback/route.ts');
+
+const USER = 'a1111111-1111-4111-8111-111111111111';
+const OTHER_USER = 'a2222222-2222-4222-8222-222222222222';
+const CLIENT = 'member-own-client.apps.googleusercontent.com';
+const SECRET = 'member-own-secret-fake';
+const GMAIL_SCOPE = 'https://www.googleapis.com/auth/gmail.metadata';
+
+// ---------------------------------------------------------------- RSA 키·id_token
+let priv: KeyObject;
+let jwk: Record<string, unknown>;
+const KID = 'test-kid-1';
+function idToken(claims: Record<string, unknown>, opts: { kid?: string; alg?: string; key?: KeyObject } = {}) {
+  const now = Math.floor(Date.now() / 1000);
+  const h = Buffer.from(JSON.stringify({ alg: opts.alg ?? 'RS256', kid: opts.kid ?? KID, typ: 'JWT' })).toString('base64url');
+  const p = Buffer.from(JSON.stringify({ iss: 'https://accounts.google.com', aud: CLIENT, sub: 'sub-A', email: 'a@example.com', email_verified: true, iat: now, exp: now + 3600, ...claims })).toString('base64url');
+  const s = rsaSign('RSA-SHA256', Buffer.from(`${h}.${p}`), opts.key ?? priv).toString('base64url');
+  return `${h}.${p}.${s}`;
+}
+
+// ---------------------------------------------------------------- 가짜 저장소
+type Row = import('../../src/server/gmailInbox.ts').GmailAccount & { userId: string };
+let rows: Row[] = [];
+let app: { clientId: string; clientSecret: string } | null = { clientId: CLIENT, clientSecret: SECRET };
+const storeCalls: string[] = [];
+let tick = async () => {};
+const fakeStore = () => ({
+  async getApp() { storeCalls.push('getApp'); await tick(); return app; },
+  async listAccounts(userId: string) { storeCalls.push('list'); await tick(); return rows.filter((r) => r.userId === userId).map(({ userId: _u, ...r }) => ({ ...r })); },
+  async save(i: any) {
+    storeCalls.push('save'); await tick();
+    const cur = rows.find((r) => r.userId === i.userId && r.externalId === i.externalId);
+    if (cur) Object.assign(cur, { accessToken: i.accessToken, refreshToken: i.refreshToken ?? cur.refreshToken, tokenExpiresAt: i.tokenExpiresAt, grantedScopes: i.grantedScopes, appRef: i.appRef, username: i.username });
+    else rows.push({ id: `row-${rows.length + 1}-${i.externalId}`, userId: i.userId, externalId: i.externalId, username: i.username, accessToken: i.accessToken, refreshToken: i.refreshToken, tokenExpiresAt: i.tokenExpiresAt, grantedScopes: i.grantedScopes, appRef: i.appRef });
+    return { error: null };
+  },
+  async updateToken(_u: string, id: string, t: any) { storeCalls.push('update'); const r = rows.find((x) => x.id === id); if (r) Object.assign(r, { accessToken: t.accessToken, tokenExpiresAt: t.tokenExpiresAt }); },
+  async markNeedsReconnect() { storeCalls.push('reconnect'); },
+  async deleteAccount(userId: string, externalId?: string) { storeCalls.push('delete'); await tick(); rows = rows.filter((r) => !(r.userId === userId && (!externalId || r.externalId === externalId))); },
+});
+
+// ---------------------------------------------------------------- 가짜 구글
+type Hit = { url: string; method: string; body?: string; auth?: string };
+let hits: Hit[] = [];
+let tokenReply: () => Response;
+let onGet: (id: string) => void = () => {};
+let listReply: () => Response = () => json({ messages: [{ id: 'm1', threadId: 't1' }, { id: 'm2', threadId: 't2' }, { id: 'bad id!', threadId: 't3' }] });
+const json = (b: unknown, status = 200, headers: Record<string, string> = {}) => new Response(JSON.stringify(b), { status, headers: { 'content-type': 'application/json', ...headers } });
+const fakeFetch = (async (input: string, init: RequestInit = {}) => {
+  const url = String(input);
+  hits.push({ url, method: init.method ?? 'GET', body: typeof init.body === 'string' ? init.body : undefined, auth: (init.headers as Record<string, string> | undefined)?.authorization });
+  if (url.startsWith('https://www.googleapis.com/oauth2/v3/certs')) return json({ keys: [{ ...jwk, kid: KID, alg: 'RS256', use: 'sig' }] }, 200, { 'cache-control': 'public, max-age=3600' });
+  if (url === 'https://oauth2.googleapis.com/token') return tokenReply();
+  const m = /gmail\/v1\/users\/me\/messages(?:\/([^?]+))?\?/.exec(url);
+  if (m && !m[1]) return listReply();
+  if (m && m[1]) {
+    onGet(decodeURIComponent(m[1]));
+    return json({ id: m[1], snippet: '비밀 미리보기 글', payload: { headers: [{ name: 'Subject', value: `제목 ${m[1]}\n줄바꿈` }, { name: 'From', value: '보낸이 <x@example.com>' }, { name: 'Date', value: 'Mon, 17 Nov 2026 09:00:00 +0900' }, { name: 'To', value: 'me@example.com' }], parts: [{ body: { data: 'BODY' } }] } });
+  }
+  return json({ error: 'unexpected' }, 404);
+}) as unknown as typeof fetch;
+const goodToken = (claims: Record<string, unknown> = {}, scope = `openid ${GMAIL_SCOPE} https://www.googleapis.com/auth/userinfo.email`) =>
+  () => json({ access_token: 'ya29.fake-access', refresh_token: '1//fake-refresh', expires_in: 3600, scope, id_token: idToken(claims) });
+
+beforeAll(async () => {
+  const kp = generateKeyPairSync('rsa', { modulusLength: 2048 });
+  priv = kp.privateKey;
+  jwk = kp.publicKey.export({ format: 'jwk' }) as Record<string, unknown>;
+  gm = await import('../../src/server/gmailInbox.ts');
+  startRoute = await import('../../src/app/api/oauth/google-gmail/start/route.ts');
+  cbRoute = await import('../../src/app/api/oauth/google-gmail/callback/route.ts');
+});
+function reset(on: boolean) {
+  gm.setGmailEnabledForTests(on);
+  gm.setGmailFetch(fakeFetch);
+  gm.setGmailStoreForTests(fakeStore() as any);
+  rows = []; hits = []; storeCalls.length = 0; adminCalls.n = 0; access.calls = 0; access.fn = null;
+  app = { clientId: CLIENT, clientSecret: SECRET };
+  tokenReply = goodToken();
+  tick = async () => {};
+  onGet = () => {};
+  listReply = () => json({ messages: [{ id: 'm1', threadId: 't1' }, { id: 'm2', threadId: 't2' }, { id: 'bad id!', threadId: 't3' }] });
+}
+afterEach(() => {
+  gm.setGmailEnabledForTests(false);
+  gm.setGmailStoreForTests(null);
+  gm.setGmailFetch(undefined);
+});
+const tagCookie = () => `${'s'.repeat(48)}.${USER}.${gm.appTagOf(CLIENT)}`;
+
+// ---------------------------------------------------------------- 꺼짐
+describe('기능 꺼짐(기본) — DB·구글 호출 0', () => {
+  it('불러온 뒤 기본값은 꺼짐', () => {
+    expect(gm.gmailEnabled()).toBe(false);
+    expect(adminCalls.n).toBe(0);
+  });
+  it('모든 진입 함수가 DB·구글 전에 거절', async () => {
+    reset(false);
+    for (const p of [gm.startGmailConnect(USER), gm.completeGmailConnect(USER, 'code', 'tag'), gm.gmailStatus(USER), gm.listGmailInbox(USER), gm.disconnectGmail(USER)]) {
+      await expect(p).rejects.toMatchObject({ code: 'off' });
+    }
+    expect(storeCalls).toEqual([]);
+    expect(hits).toEqual([]);
+    expect(adminCalls.n).toBe(0);
+  });
+  it('OAuth 시작·콜백 경로: 회원 확인(DB)보다 먼저 off로 돌려보냄', async () => {
+    reset(false);
+    const s = await startRoute.GET(new Request('https://ai-work-workspace.buylife.xyz/api/oauth/google-gmail/start'));
+    expect(s.headers.get('location')).toContain('gmail_error=off');
+    const c = await cbRoute.GET(new NextRequest('https://ai-work-workspace.buylife.xyz/api/oauth/google-gmail/callback?code=x&state=y'));
+    expect(c.headers.get('location')).toContain('gmail_error=off');
+    expect(access.calls).toBe(0);
+    expect(storeCalls).toEqual([]);
+    expect(hits).toEqual([]);
+    expect(adminCalls.n).toBe(0);
+  });
+});
+
+// ---------------------------------------------------------------- id_token 검증
+describe('id_token 검증(서명·발급자·대상·만료)', () => {
+  it.each([
+    ['정상', () => idToken({}), { sub: 'sub-A', email: 'a@example.com' }],
+    ['이메일 미확인 → 이메일 없음', () => idToken({ email_verified: false }), { sub: 'sub-A', email: null }],
+    ['다른 앱(aud)', () => idToken({ aud: 'other-client' }), null],
+    ['다른 발급자', () => idToken({ iss: 'https://evil.example' }), null],
+    ['만료', () => idToken({ exp: Math.floor(Date.now() / 1000) - 10 }), null],
+    ['모르는 키 번호', () => idToken({}, { kid: 'nope' }), null],
+    ['다른 키로 서명', () => idToken({}, { key: generateKeyPairSync('rsa', { modulusLength: 2048 }).privateKey }), null],
+    ['alg none', () => { const t = idToken({}).split('.'); return `${Buffer.from(JSON.stringify({ alg: 'none', kid: KID })).toString('base64url')}.${t[1]}.`; }, null],
+    ['서명 없이 내용만 바꿈', () => { const t = idToken({}).split('.'); return `${t[0]}.${Buffer.from(JSON.stringify({ iss: 'https://accounts.google.com', aud: CLIENT, sub: 'sub-EVIL', iat: 1, exp: 9e9 })).toString('base64url')}.${t[2]}`; }, null],
+    ['sub 없음', () => idToken({ sub: '' }), null],
+  ])('%s', async (_n, make, want) => {
+    reset(true);
+    expect(await gm.verifyGoogleIdToken((make as () => string)(), CLIENT)).toEqual(want);
+  });
+});
+
+// ---------------------------------------------------------------- 연결
+describe('연결(시작·콜백)', () => {
+  it('시작: 동의 주소에 openid·email·gmail.metadata만, include_granted_scopes 없음, 쿠키=state.회원.앱표식', async () => {
+    reset(true);
+    const r = await gm.startGmailConnect(USER);
+    const u = new URL(r.url);
+    expect(u.searchParams.get('scope')).toBe(`openid email ${GMAIL_SCOPE}`);
+    expect(u.searchParams.get('include_granted_scopes')).toBeNull();
+    expect(u.searchParams.get('redirect_uri')).toBe('https://ai-work-workspace.buylife.xyz/api/oauth/google-gmail/callback');
+    expect(u.searchParams.get('client_id')).toBe(CLIENT);
+    const [state, user, tag] = r.cookie.split('.');
+    expect(state).toBe(u.searchParams.get('state'));
+    expect(user).toBe(USER);
+    expect(tag).toBe(gm.appTagOf(CLIENT));
+    expect(hits).toEqual([]);
+  });
+
+  it('성공: 검증한 sub로 저장(권한 그대로·앱 표시), 토큰은 응답에 없음', async () => {
+    reset(true);
+    const r = await gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT));
+    expect(r).toEqual({ email: 'a@example.com' });
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ externalId: 'sub-A', appRef: CLIENT, refreshToken: '1//fake-refresh' });
+    expect(JSON.stringify(r)).not.toContain('ya29');
+  });
+
+  it('앱이 연결 도중 바뀜(앱 표식 불일치) → 코드 교환 전에 거절', async () => {
+    reset(true);
+    await expect(gm.completeGmailConnect(USER, 'code', gm.appTagOf('another-client'))).rejects.toMatchObject({ code: 'bad_request' });
+    expect(hits).toEqual([]);
+    expect(rows).toHaveLength(0);
+  });
+
+  it.each([
+    ['metadata 권한 없음', `openid https://www.googleapis.com/auth/userinfo.email`],
+    ['readonly가 함께 옴(과다)', `openid ${GMAIL_SCOPE} https://www.googleapis.com/auth/gmail.readonly`],
+    ['캘린더 묶음 권한이 함께 옴(과다)', `openid ${GMAIL_SCOPE} https://www.googleapis.com/auth/calendar.events`],
+    ['전체 메일 권한(과다)', `openid ${GMAIL_SCOPE} https://mail.google.com/`],
+  ])('권한 %s → 거절·저장 0', async (_n, scope) => {
+    reset(true);
+    tokenReply = goodToken({}, scope);
+    await expect(gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT))).rejects.toMatchObject({ code: 'forbidden' });
+    expect(rows).toHaveLength(0);
+  });
+
+  it('id_token 검증 실패(다른 앱 대상) → 저장 0', async () => {
+    reset(true);
+    tokenReply = () => json({ access_token: 'ya29.x', expires_in: 3600, scope: `openid ${GMAIL_SCOPE}`, id_token: idToken({ aud: 'other' }) });
+    await expect(gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT))).rejects.toMatchObject({ code: 'server' });
+    expect(rows).toHaveLength(0);
+  });
+
+  it('다른 구글 계정이 이미 연결됨 → 409·저장 0 / 같은 계정 다시 연결은 갱신', async () => {
+    reset(true);
+    await gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT));
+    tokenReply = goodToken({ sub: 'sub-B', email: 'b@example.com' });
+    await expect(gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT))).rejects.toMatchObject({ code: 'conflict', message: gm.GMAIL_OTHER_ACCOUNT_MESSAGE });
+    expect(rows.map((r) => r.externalId)).toEqual(['sub-A']);
+    tokenReply = goodToken();
+    await gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT));
+    expect(rows).toHaveLength(1);
+  });
+
+  it('동시 콜백 두 개가 서로 다른 계정을 새로 넣으려 함 → 남는 연결은 많아야 1개, 진 쪽은 409', async () => {
+    reset(true);
+    // 모든 저장소 호출 사이에 양보 → 「둘 다 없음을 보고 둘 다 넣음」 순서를 일부러 만든다
+    tick = () => new Promise((r) => setTimeout(r, 0));
+    let n = 0;
+    tokenReply = () => goodToken(n++ === 0 ? { sub: 'sub-A' } : { sub: 'sub-B', email: 'b@example.com' })();
+    const res = await Promise.allSettled([gm.completeGmailConnect(USER, 'c1', gm.appTagOf(CLIENT)), gm.completeGmailConnect(USER, 'c2', gm.appTagOf(CLIENT))]);
+    const userRows = rows.filter((r) => r.userId === USER);
+    expect(userRows.length).toBeLessThanOrEqual(1);
+    expect(res.filter((x) => x.status === 'rejected').length).toBeGreaterThanOrEqual(1);
+    for (const x of res) if (x.status === 'rejected') expect((x.reason as any).code).toBe('conflict');
+    if (userRows.length === 1) expect(res.filter((x) => x.status === 'fulfilled')).toHaveLength(1);
+  });
+
+  it('회원 격리: 다른 회원의 연결은 이 회원의 계정 확인에 영향 없음', async () => {
+    reset(true);
+    rows.push({ id: 'x', userId: OTHER_USER, externalId: 'sub-Z', username: 'z@example.com', accessToken: 'ya29.other', refreshToken: 'r', tokenExpiresAt: new Date(Date.now() + 3600e3).toISOString(), grantedScopes: [GMAIL_SCOPE], appRef: CLIENT });
+    await gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT));
+    expect((await gm.gmailStatus(USER)).sub).toBe('sub-A');
+    expect((await gm.gmailStatus(OTHER_USER)).sub).toBe('sub-Z');
+  });
+});
+
+// ---------------------------------------------------------------- 목록
+describe('받은 편지함 목록(표시만, 저장 0)', () => {
+  async function connected() {
+    reset(true);
+    await gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT));
+    hits = []; storeCalls.length = 0;
+  }
+  it('list는 INBOX·20개·번호만(q 없음), get은 metadata·Subject/From/Date·fields로 snippet 제외 — 결과는 제목·보낸 사람·날짜만', async () => {
+    await connected();
+    const r = await gm.listGmailInbox(USER);
+    const list = hits.find((h) => /messages\?/.test(h.url))!;
+    const lu = new URL(list.url);
+    expect(lu.searchParams.get('labelIds')).toBe('INBOX');
+    expect(lu.searchParams.get('maxResults')).toBe('20');
+    expect(lu.searchParams.get('fields')).toBe('messages/id');
+    expect(lu.searchParams.has('q')).toBe(false);
+    const gets = hits.filter((h) => /messages\/[^?]+\?/.test(h.url));
+    expect(gets).toHaveLength(2); // 형식이 이상한 번호는 부르지 않음
+    for (const g of gets) {
+      const u = new URL(g.url);
+      expect(u.searchParams.get('format')).toBe('metadata');
+      expect(u.searchParams.getAll('metadataHeaders')).toEqual(['Subject', 'From', 'Date']);
+      expect(u.searchParams.get('fields')).toBe('id,payload/headers');
+      expect(g.auth).toBe('Bearer ya29.fake-access');
+    }
+    expect(r.sub).toBe('sub-A');
+    expect(r.items).toEqual([
+      { id: 'm1', subject: '제목 m1 줄바꿈', from: '보낸이 <x@example.com>', date: '2026-11-17T00:00:00.000Z' },
+      { id: 'm2', subject: '제목 m2 줄바꿈', from: '보낸이 <x@example.com>', date: '2026-11-17T00:00:00.000Z' },
+    ]);
+    const all = JSON.stringify(r);
+    expect(all).not.toContain('비밀 미리보기');
+    expect(all).not.toContain('BODY');
+    expect(all).not.toContain('me@example.com');
+    expect(storeCalls.filter((c) => c === 'save' || c === 'update')).toEqual([]); // 목록은 저장 0
+  });
+
+  it('화면이 본 계정(expectSub)과 지금 계정이 다르면 구글 호출 전에 409', async () => {
+    await connected();
+    await expect(gm.listGmailInbox(USER, 'sub-OLD')).rejects.toMatchObject({ code: 'conflict' });
+    expect(hits).toEqual([]);
+  });
+
+  it.each([
+    ['다른 계정으로 바뀜', () => { rows[0].externalId = 'sub-B'; }, 'conflict'],
+    ['연결 끊김', () => { rows = []; }, 'not_found'],
+  ])('늦은 응답 사이 %s → 결과 버리고 거절', async (_n, change, code) => {
+    await connected();
+    onGet = (id) => { if (id === 'm2') (change as () => void)(); };
+    await expect(gm.listGmailInbox(USER)).rejects.toMatchObject({ code });
+  });
+
+  it('연결 줄이 2개(정할 수 없음) → 409로 닫힘', async () => {
+    await connected();
+    rows.push({ ...rows[0], id: 'dup', externalId: 'sub-B' });
+    await expect(gm.listGmailInbox(USER)).rejects.toMatchObject({ code: 'conflict' });
+    expect(hits).toEqual([]);
+  });
+
+  it('401 → 한 번만 새 토큰 받아 다시 / 새로 받기도 invalid_grant면 재연결 표시', async () => {
+    await connected();
+    let first = true;
+    listReply = () => { if (first) { first = false; return json({}, 401); } return json({ messages: [] }); };
+    tokenReply = () => json({ access_token: 'ya29.new', expires_in: 3600 });
+    expect((await gm.listGmailInbox(USER)).items).toEqual([]);
+    expect(hits.filter((h) => h.url === 'https://oauth2.googleapis.com/token')).toHaveLength(1);
+    listReply = () => json({}, 401);
+    tokenReply = () => json({ error: 'invalid_grant' }, 400);
+    await expect(gm.listGmailInbox(USER)).rejects.toMatchObject({ code: 'auth' });
+    expect(storeCalls).toContain('reconnect');
+  });
+
+  it('구글 앱 키가 바뀐 뒤 토큰 만료 → 재연결 표시·토큰 요청 0', async () => {
+    await connected();
+    rows[0].tokenExpiresAt = new Date(Date.now() - 1000).toISOString();
+    app = { clientId: 'new-client', clientSecret: 's' };
+    await expect(gm.listGmailInbox(USER)).rejects.toMatchObject({ code: 'auth' });
+    expect(storeCalls).toContain('reconnect');
+    expect(hits.filter((h) => h.url.includes('/token'))).toHaveLength(0);
+  });
+
+  it('연결 끊기: 이 연결 줄만 삭제, 구글 호출 0(폐기 revoke 없음)', async () => {
+    await connected();
+    await gm.disconnectGmail(USER);
+    expect(rows).toHaveLength(0);
+    expect(hits).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------- 콜백 경로
+describe('콜백 경로(켜짐)', () => {
+  const call = (cookie: string | null, q = 'code=c&state=' + 's'.repeat(48)) => {
+    const r = new NextRequest(`https://ai-work-workspace.buylife.xyz/api/oauth/google-gmail/callback?${q}`);
+    if (cookie) r.cookies.set('aww_gmail_oauth', cookie);
+    return cbRoute.GET(r);
+  };
+  it.each([
+    ['쿠키 없음', null],
+    ['state 다름', `${'t'.repeat(48)}.${USER}.x`],
+    ['앱 표식 없음', `${'s'.repeat(48)}.${USER}`],
+  ])('%s → state 오류, 회원 확인 전에 끝', async (_n, cookie) => {
+    reset(true);
+    const res = await call(cookie);
+    expect(res.headers.get('location')).toContain('gmail_error=state');
+    expect(access.calls).toBe(0);
+    expect(rows).toHaveLength(0);
+  });
+  it('쿠키 회원 ≠ 로그인 회원 → state 오류·저장 0', async () => {
+    reset(true);
+    access.fn = () => ({ allowed: true, user: { id: OTHER_USER } });
+    const res = await call(tagCookie());
+    expect(res.headers.get('location')).toContain('gmail_error=state');
+    expect(rows).toHaveLength(0);
+  });
+  it('정상 → connected, 쿠키 지움, 다른 계정이면 other_account', async () => {
+    reset(true);
+    access.fn = () => ({ allowed: true, user: { id: USER } });
+    const ok = await call(tagCookie());
+    expect(ok.headers.get('location')).toContain('gmail=connected');
+    expect(ok.headers.get('set-cookie') ?? '').toMatch(/aww_gmail_oauth=;.*Max-Age=0/i);
+    tokenReply = goodToken({ sub: 'sub-B' });
+    const dup = await call(tagCookie());
+    expect(dup.headers.get('location')).toContain('gmail_error=other_account');
+  });
+});
+
+describe('로그에 토큰·메일 정보 0', () => {
+  it('연결·목록·오류 흐름 동안 console 출력에 토큰·제목·보낸 사람·계정 번호 없음', async () => {
+    const out: string[] = [];
+    const spies = (['log', 'info', 'warn', 'error', 'debug'] as const).map((k) => vi.spyOn(console, k).mockImplementation((...a: unknown[]) => { out.push(a.map(String).join(' ')); }));
+    try {
+      reset(true);
+      await gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT));
+      await gm.listGmailInbox(USER);
+      listReply = () => json({}, 500);
+      await gm.listGmailInbox(USER).catch(() => {});
+    } finally {
+      for (const s of spies) s.mockRestore();
+    }
+    const text = out.join('\n');
+    for (const secret of ['ya29', '1//fake-refresh', '제목 m1', 'x@example.com', 'sub-A', SECRET]) expect(text).not.toContain(secret);
+  });
+});
