@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 18:58:55 KST",
+  "checkedAt": "2026-11-17 19:01:01 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -5096,9 +5096,9 @@
       "status": "running",
       "delivery": "queued",
       "scopeRef": "OFF배선 gmailHandlers/runtime/gmailApi/InboxBoard/page/GmailInboxPanel·新gmailHandlers/gmailApiAdapter試験·qa_gmail_wire전용. QA039패널/DOM국소수정우선. SQL/gmailInbox/공용RPC불변",
-      "evidence": "QA039패널a77ed2b57 DOM32·QA038서버c250894f1 실제SDK가짜fetch포함120/tsc0 작성자반환, Mac고정재검수배정",
+      "evidence": "QA039패널a77ed2b57 DOM32·QA038서버c250894f1 실제SDK가짜fetch포함120/tsc0 작성자반환, Mac고정재검수배정; QA038 c250894f1/QA039 a77ed2b57 msg_defda98931e9 독립지정PASS 수락",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "보존OFF배선재개·입력/expectedAccount/봉투/unknown/OFF0 시험. 추가반례우선·운영미적용",
+      "next": "OFF배선구현/실handler·adapter·DOM시험완료보고→배선통합검수. SQL운영미적용/Gmailfalse",
       "sha": "1008730e1",
       "lastReviewedAt": "2026-11-17T09:00:52.380Z"
     },
@@ -5155,13 +5155,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "Gmail A2 원자 받은업무 전달 서버·SQL 독립검수",
-      "status": "running",
-      "delivery": "queued",
+      "status": "done",
+      "delivery": "integrated",
       "sha": "c250894f1",
-      "evidence": ".ai/results/QA-20261117-038-CX-QA-01.md / msg_d91d3d50ebd8: SQL소스/실모듈모의 검토, F01RPC중해제 P2/F02reject원문 P2/F03빈inbox_id P3. 동시PG/role/rollback작성자21/113과구분; msg_e009ce0a1577 실제PostgrestClient2.117.3+fakefetch TypeError가error빈코드/status0객체로반환→server오분류P2, 실서비스통신0",
+      "evidence": ".ai/results/QA-20261117-038-CX-QA-01.md / msg_d91d3d50ebd8: SQL소스/실모듈모의 검토, F01RPC중해제 P2/F02reject원문 P2/F03빈inbox_id P3. 동시PG/role/rollback작성자21/113과구분; msg_e009ce0a1577 실제PostgrestClient2.117.3+fakefetch TypeError가error빈코드/status0객체로반환→server오분류P2, 실서비스통신0; msg_defda98931e9: 지정국소 독립PASS(실PostgrestClient+fakefetch11/실TSXjsdom), 서비스/브라우저/DB0",
       "scopeRef": "Mac SQL/실모듈모의·보안/경합검토. 공유DBreset/실외부/운영/build0",
-      "completion": "원자성/멱등/실패rollback/권한·계정경계 판정, 작성자실PG와독립소스증거분리",
-      "next": "수정SHA고정 지정반례 국소독립재검수·실서비스/DB/build0"
+      "completion": "고정수정SHA의 지정반례·관련회귀 독립검토 완료. 실제Google/운영DB/브라우저및후속배선은범위외",
+      "next": "소스수락·고정, OFF배선통합은후속독립검수"
     },
     {
       "task_id": "QA-20261117-039",
@@ -5169,13 +5169,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "Gmail OFF 패널 실제 TSX 모의 독립검수",
-      "status": "running",
-      "delivery": "queued",
+      "status": "done",
+      "delivery": "integrated",
       "sha": "a77ed2b57",
       "scopeRef": "GmailInboxPanel TSX/API모의·계정/생명주기/결과모름/오류 검수, 실외부/DB/build0",
-      "completion": "OFF0/중복추가0/세대가드와오류표시 검증·실화면미검수분리",
-      "next": "수정SHA고정 지정반례 국소독립재검수·실서비스/DB/build0",
-      "evidence": "msg_ca1bef2b400d 실제TSX/jsdom: OFF/unknown잠금/계정늦은응답/StrictMode PASS, P2 선택변경결과오인·원문오류·addconflict잔존 재현"
+      "completion": "고정수정SHA의 지정반례·관련회귀 독립검토 완료. 실제Google/운영DB/브라우저및후속배선은범위외",
+      "next": "소스수락·고정, OFF배선통합은후속독립검수",
+      "evidence": "msg_ca1bef2b400d 실제TSX/jsdom: OFF/unknown잠금/계정늦은응답/StrictMode PASS, P2 선택변경결과오인·원문오류·addconflict잔존 재현; msg_defda98931e9: 지정국소 독립PASS(실PostgrestClient+fakefetch11/실TSXjsdom), 서비스/브라우저/DB0"
     }
   ]
 }
