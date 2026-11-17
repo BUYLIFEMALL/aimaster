@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 11:41:25 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 12:17:35 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -13,14 +13,14 @@
 | 순서 | 담당 | 진행 단계 | 다음 작업·통과 기준 |
 | --- | --- | --- | --- |
 | 1 · ESM | Ecom + Mac Tester | v1.02 운영 배포·Mac 웹 회귀 완료 | 실ESM 등록/확장 연결은 별도 범위, 추가 빌드 없음 |
-| 2 · Workspace | Workspace + Master | v1.56 운영배포·Mac독립운영정상경로/375직접viewport PASS | 현재묶음완료·추가검사/빌드0,Alt/실인쇄/실기기/실발급未검수유지 |
+| 2 · Workspace | Workspace + Master | v1.56 운영배포·Mac독립운영정상경로/375직접viewport PASS | E2 예약7-2 정확구현범위/기존기능대조 반환대기·v1.56완료 |
 | 3 · B2B | Backend + Master + Mac Tester | 주인님 응답을 Backend가 준비신호로 접수·DB요청결과 대기 | 주인님Accept→검증20/지문→Master승인Lab1빌드,실결제테스트키만 |
-| 4 · B2BFront | B2BFront + Mac Tester | 다크단추 최소보정 소스/독립계산 PASS | acb858a77 같은Lab묶음·실Tab/누름상태후속·3색기존미달별도 |
+| 4 · B2BFront | B2BFront + Mac Tester | 다크단추 최소보정 소스/독립계산 PASS | 미달3색최소보정분석·기존패치Lab묶음대기 |
 | 5 · 블로그 | Blog | 문서T12 배정/보관표정정완료,이웃1.22·티스토리1.98미배포 | 실확장/신뢰클릭·계정조건 별도,작은수정은다음묶음·타인변경보존 |
 | 6 · 영상 | Movie | 떡상v1.30·사용량/캐시2표운영적용보고 | 실검색 시험로그인·AI기획안1회비용승인 전 유료호출0 |
 | 7 · 음악 | Music | 운영6프로그램 보고확보·가사취소안내1건미배포 | Mac 실제MP4 저장/장비조건·외부충전/공개조건 구분,반복검사0 |
 | 8 · 부동산 | Realty | 알림v1.46 운영·뉴스B프라임검증미통과/미반영 | 기존18:04회차결과있을때읽기확인·상가/CRM작은수정다음묶음 |
-| 9 · 디자인 | AGY | 146 기준자산보존·대조요청 전달대기/착수미확인 | 대표실캡처와명세비교,제품코드수정·새시안0 |
+| 9 · 디자인 | AGY | 146 기준자산보존·대조요청 전달대기/착수미확인 | 기완료146중복검수종료요청·최신직접지시/후속독립작업확인대기 |
 | 전담 · 키트 | Support + 주인님 | 주인님 직접 작업 전담 | Master 타업무 배정 제외·다른 빌드예산 전용0 |
 
 ## 운영 순서
@@ -40,7 +40,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 183개: done 159개 · cancelled 6개 · ready_review 13개 · running 2개 · waiting_human 2개 · ready 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 185개: done 163개 · cancelled 6개 · ready_review 9개 · running 2개 · waiting_human 2개 · ready 3개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -164,7 +164,7 @@
 | MOV-20261117-04 | CC-MOVIE-01 | done / integrated | Workspace 캘린더/전체너비 독립읽기검토 | 정적조건부PASS·실렌더미검수·P3후속관찰Workspace전달 |
 | REL-20261117-002 | CC-WORKSPACE-01 | done / integrated | 주인님 직접승인 Workspace v1.55 배포 | 운영v1.55·주인님캡처로ko/칸확인, 현황판전체너비미확인·90612778f소규모묶음대기 |
 | REL-20261117-003 | CC-ECOM-01 | done / integrated | 주인님 직접승인 바나나v1.49 배포 | 운영실저장왕복시험상품1개 후속검수수락·대표사진원복, 실기기/낭독등별도미검수 |
-| WS-20261117-06 | CC-WORKSPACE-01 | ready_review / returned | 주인님직접 DB전체페이지 여백96→24px 미배포묶음 | 소규모묶음다음배포·별도비용요청/빌드없음·미배포 |
+| WS-20261117-06 | CC-WORKSPACE-01 | done / integrated | 주인님직접 DB전체페이지 여백96→24px 미배포묶음 | v1.56 묶음반영완료·추가중복개발0 |
 | REL-20261117-004 | CC-B2B-BACK-01 | done / integrated | 주인님직접 B2B0100실행위임 취합 | B2B0100주인님확인직접승인·분리소스1.16배포완료, 추가빌드0·실볼타/관리자미검수 |
 | QA-20261117-001 | CC-ECOM-01 | done / integrated | 주인님 직접시험상품1개 운영 저장응답왕복 검수 | resultId왕복/동일설정재전송방지확인·대표사진원복, 실기기/낭독별도·추가실행없음 |
 | REL-20261117-005 | CC-ECOM-01 | done / integrated | 주인님 직접승인 쇼핑제휴v1.89 운영배포 | qkncpet55 Ready·ext/zip/DB1.89·실설치/네이버수집등록/쿠팡미검수 |
@@ -176,14 +176,14 @@
 | RE-20261117-04 | CC-REALTY-01 | done / integrated | 지역·단지 감시 겹침 안내 | 신규경계Mac실background12+boolean2 PASS 수락·미배포. 정확릴리스묶음/기록격리화면영향·복구없는중단·업데이트횟수 준비,실수집/배포0 |
 | MOV-20261117-05 | CC-MOVIE-01 | done / integrated | 갤러리키보드·가사취소 안내 독립검토 | 각실컴포넌트/실Lab PASS·운영미배포·fallback소규모후속코드대조 |
 | B2B-20261117-01 | CC-B2B-BACK-01 | done / integrated | 메시지 safeupdate 미리보기·알림라벨 보완(Lab) | Mac정적PASS/동일Lab작성자preview증거 재사용. 운영0101·실발송·제품배포 미완료 유지 |
-| WS-20261117-08 | CC-WORKSPACE-01 | ready_review / returned | 주인님 직접 소규모5건 캘린더·번역 묶음 | ⑤기존구현조사/4영역코드변경·MOV17-06독립검토·906여백과미배포묶음 |
+| WS-20261117-08 | CC-WORKSPACE-01 | done / integrated | 주인님 직접 소규모5건 캘린더·번역 묶음 | v1.56 묶음반영완료·추가중복개발0 |
 | PLAN-20261117-01 | CC-WORKSPACE-01 | done / integrated | Workspace 큰기능4건 기존기능대조·확장계획 | E1 claimRetry보완우선. E2 PresenceLayer기존위치표시발견→새Badge/Block중복계획철회, sync복귀조회·기존말풍선현지화만. 예약/포털설계보완·운영DDL별도 |
 | MOV-20261117-06 | CC-MOVIE-01 | done / integrated | Workspace소규모캘린더/번역/여백 독립검토 | 중복검토0·최신146화면은Workspace/독립시각검수별도 |
 | QA-20261117-002 | CX-QA-01 | waiting_human / returned | 실제Intel Mac MP4파일내보내기 보조검수 | Intel x86_64·AppleSilicon불가. ego20 handoff에서MP4신뢰클릭/저장위치선택필요, 실제인코딩0·우회없음 |
 | QA-20261117-003 | CX-QA-01 | done / integrated | B2B Lab·RE계정격리·Workspace묶음 독립검수 | 배정검수범위완료·새E2/교환UI반환후새검수,같은시험반복없음 |
 | QA-20261117-004 | CX-QA-01 | done / integrated | 교환0102 독립검토 | DB검수배정범위완료·맥DB/실UI/운영미검수;불가능복구문구후속정정. Lab0102/운영0 |
 | B2B-20261117-02 | CC-B2B-BACK-01 | done / integrated | 교환0102 구현·독립지적 수정 | 코어가드범위완료·불가능한거절/재접수안내P2문구는후속UI와국소정정. Lab0102/운영미적용 |
-| WS-20261117-10 | CC-WORKSPACE-01 | ready_review / returned | 보기 이름 저장값 보존 | 저장된 Table/한글 이름 그대로 표시·서버3경로 보류. 최종MacQA후 다음배포묶음 |
+| WS-20261117-10 | CC-WORKSPACE-01 | done / integrated | 보기 이름 저장값 보존 | v1.56 묶음반영완료·추가중복개발0 |
 | WS-20261117-09 | CC-WORKSPACE-01 | done / integrated | 확장 E1·notify_me 중복 차단 | 독립경계완료·소규모미배포묶음유지. claim후enqueue실패소진/전체execute중복별도한계. E2축소진행 |
 | DES-20261117-02 | AG-UI-01 | ready_review / returned | Workspace 전면디자인3안·12뷰 | 146최종명세/8개월전체보조캡처·Workspace전달msg_0df2d31453ba,제품단독구현계획대기·145147보존/추가보완중단 |
 | B2B-20261117-03 | CC-B2B-BACK-01 | running / returned | 교환 접수·단계 UI 구현 | Lab실환경자동confirmed 3일과7일교환상태충돌로고객UI/guard조건후속보완필요·기존UI P2정적PASS는보존·실흐름최종검수대기 |
@@ -199,7 +199,7 @@
 | REL-20261117-006 | CC-REALTY-01 | done / integrated | 주인님 직접승인 매물알림v1.46 운영배포 | QA010읽기확인배정·ZIP압축해시차이/내부파일동일근거보존,새수집/알림/추가빌드0 |
 | QA-20261117-010 | CX-QA-01 | done / integrated | 매물알림v1.46 운영·확장버전 읽기확인 | Mac확장설치/실SW/첫격리/수집알림미검수·PC5대표시는다른PC상태,재반복0 |
 | RE-20261117-05 | CC-REALTY-01 | done / returned | 주인님 직접 상가 층진단 n30 재측정1회 | 클라이언트15초타임아웃·응답지역변수라회수실패·HTTP/건수미확인·추가공공API호출0,향후결과보관실행기개선안만기록 |
-| WS-20261117-14 | CC-WORKSPACE-01 | ready_review / returned | 주인님 직접 캘린더 달별 상자/색 구분 | 월보기CalendarView/calendar.css·tsc0 미배포,146토큰/월경계/연말전환·week보존실화면검수에병합·중복구현0 |
+| WS-20261117-14 | CC-WORKSPACE-01 | done / integrated | 주인님 직접 캘린더 달별 상자/색 구분 | v1.56 묶음반영완료·추가중복개발0 |
 | ESM-20261117-02 | CC-ECOM-01 | done / integrated | ESM 카탈로그 썸네일 실등록 | 등록/독립공개이미지검수범위완료·backup비공개유지·이미지재생성/루트배포0 |
 | B2B-20261117-06 | CC-B2B-BACK-01 | ready_review / returned | Lab0102 안전fixture·실행패키지 준비 | Lab0102합성자료/정리안준비·0103적용기완료,정리미실행. 0104적용뒤기존b5정리금지·별도후속승인자료필요 |
 | B2B-20261117-07 | CC-B2B-BACK-01 | waiting_human / delivered | 주인님기승인 D5 교환비 카드결제 b3 mock구현 | 도구승인준비신호대기·현재적용0/빌드0of1. 준비되면고정원문1회요청→verify20/지문→Master단독Lab빌드,자동반복금지 |
@@ -227,6 +227,8 @@
 | QA-20261117-020 | CX-QA-01 | done / integrated | Front다크단추 대비 국소독립검수 | acb858a77 승인Lab1빌드묶음포함·별도빌드/추가소스0·LabReady뒤실Tab상태구분검수 |
 | WS-20261117-20 | CC-WORKSPACE-01 | done / integrated | 워크스페이스 영수증 하단 스크롤 접근 복구 | 소스동결·WS13/QA019 마지막viewport/상태누락증거보완·운영배포0 |
 | QA-20261117-021 | CX-QA-01 | done / integrated | Workspace v1.56 운영 읽기전용 독립 스모크 | 지정운영스모크종료·장애/DB정확성/발행끝/Alt/실인쇄/실기기미검수유지 |
+| WS-20261117-21 | CC-WORKSPACE-01 | ready / queued | E2 예약7-2 현재코드대조 및 첫 구현범위 확정 | 기존PLAN7-6 차이·정확경로/완료조건 반환·제품수정0 |
+| FRONT-20261117-03 | CC-B2B-FRONT-01 | ready / queued | 미달3색 대비 최소후보 분석 | emerald/coral/orange 4.5목표와상태영향 비교·코드0 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 

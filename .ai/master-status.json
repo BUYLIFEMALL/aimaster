@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T02:41:22.506Z",
+  "checkedAt": "2026-11-17T03:17:30.405Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -1657,14 +1657,14 @@
       "task_id": "WS-20261117-06",
       "parent_task_id": "WS-20261117-05",
       "owner": "CC-WORKSPACE-01",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "title": "주인님직접 DB전체페이지 여백96→24px 미배포묶음",
       "sha": "90612778f",
-      "evidence": "주인님전달Workspace새직접지시보고",
-      "next": "소규모묶음다음배포·별도비용요청/빌드없음·미배포",
+      "evidence": "주인님전달Workspace새직접지시보고 / v1.56 c38b84403/dpl_GUNMN7RG3XoQVdZmbihJC3qCTJSC 반영·QA019/021 범위별확인",
+      "next": "v1.56 묶음반영완료·추가중복개발0",
       "reviewer": "CX-MASTER-01",
-      "lastReviewedAt": "2026-11-16T16:09:33.508974+00:00"
+      "lastReviewedAt": "2026-11-17T03:17:30.405Z"
     },
     {
       "task_id": "REL-20261117-004",
@@ -1822,13 +1822,13 @@
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "owner": "CC-WORKSPACE-01",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "title": "주인님 직접 소규모5건 캘린더·번역 묶음",
       "sha": "8150da176",
-      "evidence": "주인님전달 직접지시보고·216시험/type0",
-      "next": "⑤기존구현조사/4영역코드변경·MOV17-06독립검토·906여백과미배포묶음",
-      "lastReviewedAt": "2026-11-16T16:41:48.543594+00:00"
+      "evidence": "주인님전달 직접지시보고·216시험/type0 / v1.56 c38b84403/dpl_GUNMN7RG3XoQVdZmbihJC3qCTJSC 반영·QA019/021 범위별확인",
+      "next": "v1.56 묶음반영완료·추가중복개발0",
+      "lastReviewedAt": "2026-11-17T03:17:30.405Z"
     },
     {
       "task_id": "PLAN-20261117-01",
@@ -1923,12 +1923,12 @@
       "title": "보기 이름 저장값 보존",
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
-      "lastReviewedAt": "2026-11-16T17:09:05.345Z",
-      "status": "ready_review",
-      "delivery": "returned",
+      "lastReviewedAt": "2026-11-17T03:17:30.405Z",
+      "status": "done",
+      "delivery": "integrated",
       "sha": "ad65c8ac5",
-      "evidence": "주인님전달 완료보고 / Mac정적해소",
-      "next": "저장된 Table/한글 이름 그대로 표시·서버3경로 보류. 최종MacQA후 다음배포묶음"
+      "evidence": "주인님전달 완료보고 / Mac정적해소 / v1.56 c38b84403/dpl_GUNMN7RG3XoQVdZmbihJC3qCTJSC 반영·QA019/021 범위별확인",
+      "next": "v1.56 묶음반영완료·추가중복개발0"
     },
     {
       "task_id": "WS-20261117-09",
@@ -2198,12 +2198,12 @@
       "parent_task_id": "WS-20261117-13",
       "owner": "CC-WORKSPACE-01",
       "title": "주인님 직접 캘린더 달별 상자/색 구분",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "done",
+      "delivery": "integrated",
       "sha": "928c359ff69122610e9e5680f0ac14189657e74c",
-      "evidence": "주인님직접원문 달별로박스색/11월12월1월박스 / msg_b775d5d531cc",
-      "next": "월보기CalendarView/calendar.css·tsc0 미배포,146토큰/월경계/연말전환·week보존실화면검수에병합·중복구현0",
-      "lastReviewedAt": "2026-11-16T18:02:49.452Z"
+      "evidence": "주인님직접원문 달별로박스색/11월12월1월박스 / msg_b775d5d531cc / v1.56 c38b84403/dpl_GUNMN7RG3XoQVdZmbihJC3qCTJSC 반영·QA019/021 범위별확인",
+      "next": "v1.56 묶음반영완료·추가중복개발0",
+      "lastReviewedAt": "2026-11-17T03:17:30.405Z"
     },
     {
       "task_id": "ESM-20261117-02",
@@ -2619,6 +2619,32 @@
       "evidence": "msg_151b329eaa5d / msg_11017d0f2531 Mac운영실브라우저정상경로PASS·375직접viewport/영수증scroll max365·keys연결상태·studio2x2",
       "next": "지정운영스모크종료·장애/DB정확성/발행끝/Alt/실인쇄/실기기미검수유지",
       "lastReviewedAt": "2026-11-17T02:41:22.505Z"
+    },
+    {
+      "task_id": "WS-20261117-21",
+      "owner": "CC-WORKSPACE-01",
+      "title": "E2 예약7-2 현재코드대조 및 첫 구현범위 확정",
+      "evidence": "msg_c34e47266f97",
+      "next": "기존PLAN7-6 차이·정확경로/완료조건 반환·제품수정0",
+      "parent_task_id": "OPS-20261116-001",
+      "reviewer": "CX-MASTER-01",
+      "status": "ready",
+      "delivery": "queued",
+      "scopeRef": "분석/기존문서만·타인파일수정0",
+      "completion": "현재근거/정확범위/검증조건 반환"
+    },
+    {
+      "task_id": "FRONT-20261117-03",
+      "owner": "CC-B2B-FRONT-01",
+      "title": "미달3색 대비 최소후보 분석",
+      "evidence": "msg_c37e721cf22f",
+      "next": "emerald/coral/orange 4.5목표와상태영향 비교·코드0",
+      "parent_task_id": "OPS-20261116-001",
+      "reviewer": "CX-MASTER-01",
+      "status": "ready",
+      "delivery": "queued",
+      "scopeRef": "분석/기존문서만·타인파일수정0",
+      "completion": "현재근거/정확범위/검증조건 반환"
     }
   ],
   "programOverrides": [
@@ -2950,7 +2976,7 @@
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
       "stage": "v1.56 운영배포·Mac독립운영정상경로/375직접viewport PASS",
-      "next": "현재묶음완료·추가검사/빌드0,Alt/실인쇄/실기기/실발급未검수유지"
+      "next": "E2 예약7-2 정확구현범위/기존기능대조 반환대기·v1.56완료"
     },
     {
       "order": "3 · B2B",
@@ -2962,7 +2988,7 @@
       "order": "4 · B2BFront",
       "owner": "B2BFront + Mac Tester",
       "stage": "다크단추 최소보정 소스/독립계산 PASS",
-      "next": "acb858a77 같은Lab묶음·실Tab/누름상태후속·3색기존미달별도"
+      "next": "미달3색최소보정분석·기존패치Lab묶음대기"
     },
     {
       "order": "5 · 블로그",
@@ -2992,7 +3018,7 @@
       "order": "9 · 디자인",
       "owner": "AGY",
       "stage": "146 기준자산보존·대조요청 전달대기/착수미확인",
-      "next": "대표실캡처와명세비교,제품코드수정·새시안0"
+      "next": "기완료146중복검수종료요청·최신직접지시/후속독립작업확인대기"
     },
     {
       "order": "전담 · 키트",
@@ -3027,5 +3053,18 @@
       "action": "해당회차가필요할때본인로그인·확장연결/신뢰클릭",
       "recommendation": "지금권한확대/실포스팅/실ESM등록은실행하지않음"
     }
-  ]
+  ],
+  "redispatch": {
+    "at": "2026-11-17T03:17:30.405Z",
+    "backend": "msg_a99c52a12a97 queued_terminal_busy",
+    "workspace": "msg_c34e47266f97",
+    "front": "msg_c37e721cf22f",
+    "agy": "msg_995e1ba1b964 queued_terminal_busy",
+    "ecom": "msg_7cb09c69dc4f",
+    "blog": "msg_90fcfb9ec7a4",
+    "movie": "msg_d769826e8b08",
+    "music": "msg_1b17dd51f294",
+    "realty": "msg_c2d635036071",
+    "note": "발송접수는수락/착수확인과구분·Support주인님전담제외"
+  }
 }
