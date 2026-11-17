@@ -40,7 +40,7 @@
 | T-04 | 웹앱 Next.js 16.2.11 → 16.4.2 보안 업데이트 | 대기 | `docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md` 묶음 E(미커밋 `web-crawler/AGENTS.md` 때문에 제외됨 — 그 변경은 빈 줄 1개 삭제뿐) | Vercel 빌드 1회(사전 승인) | 미커밋 변경 주인 확인 → `npm install next@16.4.2` → tsc·build → 배포 |
 | T-05 | 한 페이지 분석에 robots.txt 확인 | ✅ 소스 완료·독립 검수 통과·**미배포 대기**(2026-11-17 `fc48ebcba` + DNS 제한 수정 `8172d8084`, 맥미니 QA023 PASS, Master 마감) | 완성 기준 §2 조건 4, 비교표 R1, 아래 §2-1 | 웹앱 배포(모아서 배포, 버전 +0.01은 배포 때) | 다음 web-crawler 묶음 배포 때 함께 내보내고 고지·버전·실제 화면 확인. 미검수: 실제 전송·route 전체·운영 화면 |
 | T-06 | `Crawl-delay` 반영 + 다음 페이지 robots 확인 | 대기 | 비교표 R2·R3 | 크롤링 서버 재배포 | `pipeline.py` `RateLimiter` 지연값 계산 플랜 |
-| T-07 | 대시보드 자동 새로고침·완료 엑셀 미리보기 | 대기 | `IMPROVEMENTS.md` #6·#7, 비교표 R6·R7 | 웹앱 배포 | 작업 목록의 5초 새로고침을 대시보드에 재사용 |
+| T-07 | 대시보드 자동 새로고침·완료 엑셀 미리보기 | 자동 새로고침만 구현 준비 완료(2026-11-17 BLOG-20261117-09, 구현 배정 대기) · 엑셀 미리보기는 대기 | `IMPROVEMENTS.md` #6·#7, 비교표 R6·R7, 아래 §2-2 | 웹앱 배포(모아서) | §2-2 결정 1개 → 구현 |
 | T-08 | 옛 `ghost-scraper/` 코드 정리 | 대기 | `ghost-scraper/AGENTS.md` v1.13 「정리는 백업 폴더 + git 태그 뒤」 · 2026-10-24 `D:\Antigravity\AIMaster_backup\retired-programs\`에 없음 · 관련 git 태그 없음 | 주소 유지 필요(옛 주소 안내), 삭제는 사전 승인 | 백업 폴더 복사 + 태그 → 안내 화면·410만 남기고 정리 플랜 |
 | T-09 | 옛 Website Scraper `/login` 404 점검 | 대기(다른 묶음 담당) | 보안 분담표 묶음 C | 고치면 빌드 1회 | 묶음 C 담당 세션 결과 확인 |
 | T-10 | 수집 결과 → 블로그·SEO 도구로 넘기기 | 대기(아이디어) | `IMPROVEMENTS.md` #4·#7, 비교표 R8 | 완성 기준 §4-2(본문 복제 금지)와 함께 설계 | [공통 아이디어 표](PROGRAM_IDEA_BACKLOG.md)에 등록 여부 확인 |
@@ -95,6 +95,42 @@
 
 - 0번 규칙 고지: `node scripts/apply-source-notice.mjs --check web-crawler` → 고칠 곳 0개(읽기만).
 - 범위 밖: T-03 캐시 정책, T-04 Next 업그레이드, T-06 `Crawl-delay`, T-08 삭제. 이 폴더의 남의 미커밋 `web-crawler/AGENTS.md`는 그대로 둠.
+
+### 2-2. T-07 대시보드 자동 새로고침 구현 준비 (2026-11-17, CC-BLOG-01 [역할: blog], Master `BLOG-20261117-09` 읽기 분석 — 코드·설치·빌드 0)
+
+**대조 결과: 대시보드에는 자동 새로고침이 없다(기존 기능 아님).** `web-crawler/webapp/src/app/(dashboard)/dashboard/page.tsx`는 서버 화면(`requireUser` → `web_crawler_jobs` 회원 본인 행 조회)으로 상태 카드 5개·「지금 수집 중인 작업」·최근 8개를 한 번만 그린다. 클라이언트 갱신 코드 없음.
+
+**재사용할 기존 갱신(작업 목록)** — `src/components/jobs/JobsList.tsx` 12~51행, 컴포넌트 안에 직접 들어 있음(따로 뺀 훅 아님):
+- 진행 중(`pending`·`running`) 작업이 있을 때만 `setInterval` 5초(`POLL_INTERVAL_MS = 5_000`). 없으면 타이머 없음.
+- 매번 진행 중 작업마다 기존 API `GET /api/jobs/[id]/status`(`src/app/api/jobs/[id]/status/route.ts`)를 `cache: "no-store"`로 호출. 이 API는 `checkProgramAccessApi()`(로그인+프로그램 권한) 뒤 RLS 일반 클라이언트로 `user_id = 본인` 행만 읽고, 없으면 404.
+- 하나라도 진행 중이 아니게 바뀌면 `router.refresh()` 한 번(`refreshedRef`로 중복 방지). 언마운트·`jobs` 변경 때 `clearInterval`.
+
+**기존 갱신의 빈틈(대시보드에 그대로 옮기면 같이 옮겨짐)**
+1. 숨은 탭에서도 5초마다 계속 요청(`document.visibilityState` 확인 없음).
+2. 앞 요청이 5초 넘게 걸리면 다음 회차가 겹쳐 같은 요청이 동시에 나감(진행 중 표시 없음).
+3. 로그아웃·계정 전환으로 401·403·404가 와도 `null`로만 처리해 **멈추지 않고 계속 요청**.
+
+**최소 구현 경로(제안) — 새 API·DB·두 번째 폴링 0**
+1. 새 `src/lib/jobs/activeJobsPoller.ts`(React 없는 순수 TS): `createActiveJobsPoller({ ids, fetchStatus, onTransition, intervalMs = 5_000, isVisible, onStop })` → `start()/stop()`. JobsList 지금 규칙 그대로 + 빈틈 3개 보완: 숨은 탭이면 그 회차 건너뜀(보이면 다음 회차부터 재개) · 요청 중이면 그 회차 건너뜀 · 401·403·404면 멈춤(`onStop`) · 전환되면 `onTransition` 한 번 후 멈춤.
+2. 새 `src/components/jobs/useActiveJobsRefresh.ts`(훅): 위 poller + `fetch('/api/jobs/${id}/status')` + `router.refresh()` 연결, 언마운트 때 `stop()`.
+3. `JobsList.tsx`: 안의 `useEffect` 갱신 코드를 훅 한 줄로 바꿈(동작 같음 + 빈틈 보완).
+4. 새 `src/components/jobs/ActiveJobsRefresher.tsx`(`"use client"`, 화면 출력 없음): `ids`만 받아 훅 호출.
+5. `dashboard/page.tsx`: `pending`·`running` 작업 id만 넘겨 `<ActiveJobsRefresher ids={...} />` 한 줄(진행 중이 없으면 아무것도 안 그림 → 타이머 0).
+- 한 화면에 폴링은 하나다(대시보드는 JobsList를 쓰지 않음). 대시보드와 작업 목록은 다른 주소라 동시에 돌지 않는다.
+
+**완료 조건**
+- 대시보드에 진행 중 작업이 있으면 5초마다 기존 상태 API만 호출, 하나라도 끝나면 `router.refresh()` 한 번 → 상태 카드·최근 목록 갱신. 진행 중이 없으면 요청 0.
+- 숨은 탭: 요청 0(다시 보이면 이어서). 앞 요청이 안 끝났으면 다음 회차 0. 401·403·404(로그아웃·계정 전환·다른 회원 작업): 멈춤. 언마운트: 타이머·리스너 정리.
+- 작업 목록(`/jobs`) 동작은 지금과 같고 빈틈 3개만 보완.
+- `tsc`·기존 시험 통과. 버전 +0.01은 배포 때(모아서 배포).
+
+**모의 시험** — 새 `webapp/tests/active-jobs-poller.test.cjs`(기존 방식 `transpileModule` + `node --test`, `node:test`의 가짜 타이머, 가짜 `fetchStatus`): 진행 중 0 → 타이머 0 · 5초마다 호출 · 전환 시 `onTransition` 1번 후 멈춤 · 숨은 탭 회차 요청 0·보이면 재개 · 요청 중 겹침 0 · 401/403/404 멈춤 · 네트워크 오류는 다음 회차 재시도(지금과 같음) · `stop()` 뒤 호출 0. 시험 명령 `test:jobs-poller`를 `package.json`에 추가.
+
+**바뀔 파일(구현 때)**: 새 `src/lib/jobs/activeJobsPoller.ts` · 새 `src/components/jobs/useActiveJobsRefresh.ts` · 새 `src/components/jobs/ActiveJobsRefresher.tsx` · `src/components/jobs/JobsList.tsx` · `src/app/(dashboard)/dashboard/page.tsx` · 새 `tests/active-jobs-poller.test.cjs` · `package.json`(시험 명령 1줄, 설치 0).
+
+**Master 결정 1개**: 빈틈 보완을 작업 목록(`JobsList`)에도 같이 적용(제안 — 같은 코드 하나로 맞춤) / 작업 목록은 그대로 두고 대시보드만 새 코드(코드 두 벌).
+
+- 범위 밖: 완료 엑셀 미리보기(T-07 뒷부분), T-03·T-04·T-08. 남의 미커밋 `web-crawler/AGENTS.md` 보존.
 
 ## 3. 진행 규칙
 
