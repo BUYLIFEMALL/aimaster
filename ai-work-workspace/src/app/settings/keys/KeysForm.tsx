@@ -1,7 +1,7 @@
 "use client";
 // U3: 키 입력·저장·삭제 + 📖 연동 매뉴얼 상자(팝업). 서버: /api/keys
 import { useEffect, useRef, useState } from "react";
-import { rpc } from "@/lib/standaloneRpc";
+import { AccountChangedError, rpc } from "@/lib/standaloneRpc";
 
 type Provider = "anthropic" | "openai" | "gemini" | "cronjob_org_api_key" | "google_client_id" | "google_client_secret" | "bolta_api_key" | "bolta_webhook_secret" | "naver_client_id" | "naver_client_secret" | "kakao_rest_api_key" | "tavily" | "perplexity" | "serpapi";
 const ITEMS: { provider: Provider; name: string; placeholder: string; desc: string; guideId?: string; guideUrl?: string }[] = [
@@ -35,7 +35,8 @@ const GUIDE_URL = (id: string) => `https://www.buylife.xyz/guides/${id}`;
 const openGuide = (it: { guideId?: string; guideUrl?: string }) => window.open(it.guideUrl ?? GUIDE_URL(it.guideId ?? ""), "platform-guide-popup", "width=720,height=860,scrollbars=yes,resizable=yes");
 const EMPTY: Record<Provider, string> = { anthropic: "", openai: "", gemini: "", cronjob_org_api_key: "", google_client_id: "", google_client_secret: "", bolta_api_key: "", bolta_webhook_secret: "", naver_client_id: "", naver_client_secret: "", kakao_rest_api_key: "", tavily: "", perplexity: "", serpapi: "" };
 
-export function KeysForm() {
+// 2026-11-17 WS-20261117-18 QA018: accountKey = 서버(page.tsx requireProgramAccess)가 확인한 회원 id — 캘린더 상태 읽기의 기대 계정
+export function KeysForm({ accountKey }: { accountKey?: string } = {}) {
   const [keys, setKeys] = useState<Record<Provider, string | null> | null>(null);
   const [inputs, setInputs] = useState<Record<Provider, string>>(EMPTY);
   const [msg, setMsg] = useState<Record<Provider, string>>(EMPTY);
@@ -110,7 +111,7 @@ export function KeysForm() {
         ))}
         {g.providers.includes("anthropic") && <AiModelPrefs reloadTag={JSON.stringify(keys)} />}
         {g.providers.includes("naver_client_id") && <SearchToolPrefs reloadTag={JSON.stringify(keys)} />}
-        {g.providers.includes("google_client_id") && <CalendarConnStatus reloadTag={JSON.stringify(keys)} />}{/* 2026-11-17 주인님 지시: 연결 상태 + 캘린더 연동 화면 열기 */}
+        {g.providers.includes("google_client_id") && <CalendarConnStatus reloadTag={JSON.stringify(keys)} accountKey={accountKey} />}{/* 2026-11-17 주인님 지시: 연결 상태 + 캘린더 연동 화면 열기 */}
       </div>
       </section>
         );
@@ -309,32 +310,42 @@ interface CalSummary {
   feed: { dbs: unknown[] } | null;
 }
 
-export function CalendarConnStatus({ reloadTag }: { reloadTag: string }) {
-  const [st, setSt] = useState<CalSummary | null>(null);
-  const [failed, setFailed] = useState(false);
+export function CalendarConnStatus({ reloadTag, accountKey }: { reloadTag: string; accountKey?: string | null }) {
+  // QA018: 결과를 (계정, reloadTag, 다시 확인 횟수)와 함께 보관하고, 지금 값과 세 칸이 정확히 같을 때만 그린다
+  // → 키·계정이 바뀐 직후 새 응답 전에는 이전 상태·계정 주소·구독을 보이지 않고 「확인 중」.
+  type Got = { account: string; tag: string; retry: number } & ({ kind: "ok"; st: CalSummary } | { kind: "error" } | { kind: "changed" });
+  const [got, setGot] = useState<Got | null>(null);
   const [retry, setRetry] = useState(0);
-  const seq = useRef(0); // 마지막 요청만 반영(늦게 온 이전 응답·화면 해제 뒤 응답 무시)
+  const seq = useRef(0); // 마지막 요청만 반영(늦게 온 이전 응답·화면 해제 뒤 응답 폐기)
+  const account = typeof accountKey === "string" && accountKey.trim() ? accountKey : null; // 빈 값·공백은 계정 없음
   useEffect(() => {
     const my = ++seq.current;
-    setFailed(false);
-    rpc<CalSummary>("calState")
-      .then((r) => { if (my === seq.current) setSt(r); })
-      .catch(() => { if (my === seq.current) setFailed(true); });
-  }, [reloadTag, retry]);
+    if (!account) return; // 계정 id 없이 요청하지 않음(fail-closed)
+    const ctx = { account, tag: reloadTag, retry };
+    rpc<CalSummary>("calState", {}, { expectedAccount: account })
+      .then((st) => { if (my === seq.current) setGot({ ...ctx, kind: "ok", st }); })
+      .catch((e) => { if (my === seq.current) setGot({ ...ctx, kind: e instanceof AccountChangedError ? "changed" : "error" }); });
+  }, [account, reloadTag, retry]);
   useEffect(() => () => { seq.current++; }, []);
 
+  const cur = got && account && got.account === account && got.tag === reloadTag && got.retry === retry ? got : null;
+  const st = cur?.kind === "ok" ? cur.st : null;
   const g = st?.google;
-  const text = failed
-    ? "⚠️ 연결 상태를 확인하지 못했습니다(연결이 끊겼다는 뜻은 아닙니다). 「다시 확인」을 누르거나 캘린더 연동 화면에서 확인해 주세요."
-    : !st || !g
-      ? "연결 상태 확인 중…"
-      : !g.hasApp
-        ? "⚪ 구글 앱 키를 먼저 넣어 주세요(위 두 칸)."
-        : g.needsReconnect
-          ? "⚠️ 구글 연결이 끊겼습니다. 캘린더 연동 화면에서 다시 연결해 주세요."
-          : g.connected
-            ? `✅ 구글 계정 연결됨${g.email ? ` · ${g.email}` : ""}`
-            : "⚪ 아직 연결 안 됨 — 캘린더 연동 화면에서 「구글 연결」을 눌러 주세요.";
+  const text = !account
+    ? "⚠️ 로그인 계정을 확인하지 못했습니다. 이 화면을 새로고침해 주세요."
+    : cur?.kind === "changed"
+      ? "⚠️ 다른 계정으로 로그인이 바뀌었습니다. 이 화면을 새로고침하면 지금 계정의 연결 상태가 보입니다."
+      : cur?.kind === "error"
+        ? "⚠️ 연결 상태를 확인하지 못했습니다(연결이 끊겼다는 뜻은 아닙니다). 「다시 확인」을 누르거나 캘린더 연동 화면에서 확인해 주세요."
+        : !g
+          ? "연결 상태 확인 중…"
+          : !g.hasApp
+            ? "⚪ 구글 앱 키를 먼저 넣어 주세요(위 두 칸)."
+            : g.needsReconnect
+              ? "⚠️ 구글 연결이 끊겼습니다. 캘린더 연동 화면에서 다시 연결해 주세요."
+              : g.connected
+                ? `✅ 구글 계정 연결됨${g.email ? ` · ${g.email}` : ""}`
+                : "⚪ 아직 연결 안 됨 — 캘린더 연동 화면에서 「구글 연결」을 눌러 주세요.";
   return (
     <div className="aww-key-card aww-cal-status" role="status">
       <div className="aww-key-head">
@@ -342,7 +353,8 @@ export function CalendarConnStatus({ reloadTag }: { reloadTag: string }) {
         <a className="aww-btn small" href="/calendar-sync">📅 캘린더 연동 화면 열기</a>
       </div>
       <p className="aww-key-desc">{text}</p>
-      {failed && <button type="button" className="aww-btn small" onClick={() => setRetry((n) => n + 1)}>🔄 다시 확인</button>}
+      {cur?.kind === "error" && <button type="button" className="aww-btn small" onClick={() => setRetry((n) => n + 1)}>🔄 다시 확인</button>}
+      {(!account || cur?.kind === "changed") && <button type="button" className="aww-btn small" onClick={() => location.reload()}>🔄 새로고침</button>}
       {st?.feed && <p className="aww-key-desc">🔗 간편 구독 켜짐(표 {st.feed.dbs.length}개)</p>}
     </div>
   );
