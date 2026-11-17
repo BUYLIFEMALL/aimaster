@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T09:44:33.269Z",
+  "checkedAt": "2026-11-17T09:45:44.953Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -3037,7 +3037,7 @@
       "scopeRef": "패널새 src/app/inbox/GmailInboxPanel.tsx·gmailInboxPanelDom.test.ts·본인PLAN. 추가 QA038오류정규화 gmailInbox.ts/기존시험 국소허용, SQL/InboxBoard/runtime동결",
       "evidence": "A2-1 4da9457c7/문서393f65eb9; 작성자실격리DB/역할2연결113시험/tsc0. QA038독립배정",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "OFF패널준비와 QA038 RPC예외/저장중문맥변경 안내보완, 별도SHA반환",
+      "next": "QA038 최종F01~F03 보완(응답UUID/단일행검증 추가)·OFF패널준비 계속, SQL동결",
       "sha": "4da9457c7",
       "lastReviewedAt": "2026-11-17T09:00:52.380Z"
     },
@@ -3094,13 +3094,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "Gmail A2 원자 받은업무 전달 서버·SQL 독립검수",
-      "status": "running",
-      "delivery": "running",
+      "status": "ready_review",
+      "delivery": "returned",
       "sha": "4da9457c7",
-      "evidence": "msg_f0e34dc7b7ca 실제모듈모의 OFF/hashURL회원/계정변경RPC0/refresh1 PASS, RPCthrow원문전파·RPC중연결삭제후반환 경계검토중",
+      "evidence": ".ai/results/QA-20261117-038-CX-QA-01.md / msg_d91d3d50ebd8: SQL소스/실모듈모의 검토, F01RPC중해제 P2/F02reject원문 P2/F03빈inbox_id P3. 동시PG/role/rollback작성자21/113과구분",
       "scopeRef": "Mac SQL/실모듈모의·보안/경합검토. 공유DBreset/실외부/운영/build0",
       "completion": "원자성/멱등/실패rollback/권한·계정경계 판정, 작성자실PG와독립소스증거분리",
-      "next": "최종SQL/응답검토반환, Workspace국소오류정규화·결과후문맥계약보완"
+      "next": "Workspace F01/F02/F03 국소보완반환후재검수. 실제운영확정취약점주장0·OFF유지"
     }
   ],
   "programOverrides": [
