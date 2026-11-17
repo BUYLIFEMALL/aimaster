@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T09:19:30.632Z",
+  "checkedAt": "2026-11-17T09:21:18.802Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -3037,8 +3037,8 @@
       "scopeRef": "gmailInbox.ts·Gmail start/callback·gmailInbox.test.ts·본인 문서. runtime/UI/SQL 및 운영·실외부 제외",
       "evidence": "8973dc2d8+3027a923d·문서3edeaeee9, 모의60/tsc0; Mac재검수 msg_d70e7ad790eb",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "QA036 F02 갱신중 앱변경잔여수정 msg_05ca6f9ba7ff·F03다중인스턴스일관성차단유지·OFF/A2코드0",
-      "sha": "3027a923d",
+      "next": "F02refresh중앱변경추가245227c98·모의64/tsc0→Mac지정반례재검수 msg_c1dac6bf02d8. F03켜기차단유지",
+      "sha": "245227c98",
       "lastReviewedAt": "2026-11-17T09:00:52.380Z"
     },
     {
@@ -3080,13 +3080,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "waiting_human",
+      "delivery": "acknowledged",
       "sha": "7609748ad",
-      "evidence": "msg_0e37fb9e2931 / dpl_CFgB5fC5NLdrye4K7esG1tWRktXQ READY",
+      "evidence": "msg_d9ff650f722a: Mac ego공간29 Lab로그인폼/375확인·기존세션없음. Backend 89a489a12/9256b3782·msg_7918bcbb8f5c 합성경로/역할확정",
       "scopeRef": "Mac 기존시험세션·Lab실화면읽기, 결제/RPC상태변경/발송/키/운영/build0",
       "completion": "Lab 로그인/고객교환비UI/권한차단/375·darkhover 확인, 실결제미검수분리",
-      "next": "Mac 수락 후 기존세션확인·필요시 사람로그인 취합"
+      "next": "주인님 공간29 Lab 시험naver로그인→Return to agent, 고객읽기검수후운영사gmail로그인1회. 실제결제/콜백/RPC상태변경0"
     }
   ],
   "programOverrides": [
@@ -3424,7 +3424,7 @@
       "order": "3 · B2B",
       "owner": "Backend + Master + Mac Tester",
       "stage": "Lab0104 적용·검증PASS, Lab 신규배포 Ready·빌드1/1완료",
-      "next": "Mac QA037 실제화면/인가검수 배정·운영배포/실결제0"
+      "next": "QA037 로그인폼·공개HTTP확인, Mac공간29 시험naver로그인/반환필요→고객/직원읽기검수"
     },
     {
       "order": "4 · B2BFront",
@@ -3470,6 +3470,11 @@
     }
   ],
   "humanActions": [
+    {
+      "condition": "B2B Lab 배포 후 역할별 화면 검수",
+      "action": "Mac ego공간29 Lab에 시험naver계정 직접로그인 후 Return to agent. 고객검수뒤 관리자gmail1회",
+      "recommendation": "DB0104/승인Lab빌드완료·추가SQL조작불필요. 실제결제/상태변경0"
+    },
     {
       "condition": "실제 결제 검수 단계",
       "action": "Lab 테스트 전용 토스 키 사용 확인",
