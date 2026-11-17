@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T10:17:35.193Z",
+  "checkedAt": "2026-11-17T10:23:19.157Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -3032,13 +3032,13 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "E4 Gmail함 기존기능/권한 대조와 최소범위 조사",
-      "status": "running",
+      "status": "ready_review",
       "delivery": "returned",
       "scopeRef": "Gmail전용서버/handler/adapter/패널·기존관련시험/문서. SQL/공용함수불변",
-      "evidence": "패널16823b758/문서e217c2801 보고검토. Master: disconnect 예상sub없음·회원Gmail전체삭제로 재시도안내불일치 신규발견",
+      "evidence": "QA041서버3c820f2b6/화면8069f60df·dc9b4d714,282/tsc0·Mac지정검수배정",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "Gmail disconnect expectedSub/조건부삭제/0행/불확실안내 국소수정→QA041별도검수, 운영미적용/OFF",
-      "sha": "6bd503b5e",
+      "next": "QA041독립반환→소스최종판정·두커밋묶음릴리스표정리. 운영false/SQL미적용",
+      "sha": "8069f60df",
       "lastReviewedAt": "2026-11-17T09:00:52.380Z"
     },
     {
@@ -3136,12 +3136,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "Gmail 연결 해제 재시도·계정교체 조건부삭제 독립검수",
-      "status": "backlog",
-      "delivery": "prepared",
-      "evidence": "Master source확인: disconnect무인자/전체Gmail삭제·16823b758안내불일치, 작성자수정배정",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "서버3c820f2b6+화면8069f60df·문서dc9b4d714; 작성자실SDK가짜fetch/7파일282/tsc0·qaDB0 보고",
       "scopeRef": "수정SHA반환후실모듈모의/패널·기본삭제필터검수, 실외부/운영/DB/build0",
       "completion": "A응답유실→B연결보존/삭제직전교체보존/동일sub토큰경합0행/멱등·정상/원문0 판정",
-      "next": "작성자고정SHA반환뒤배정"
+      "next": "Mac 두SHA고정 조건부삭제·응답불확실·패널계약 지정재검수, 같은sub재연결한계분리",
+      "sha": "8069f60df"
     }
   ],
   "programOverrides": [
@@ -3473,7 +3474,7 @@
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
       "stage": "v1.57운영·E3소스독립/통합560시험PASS·v1.58미배포",
-      "next": "Gmail disconnect 예측계정·조건부삭제 신규경계수정→QA041, 운영OFF·릴리스별도"
+      "next": "Gmail 조건부해제 수정완료보고·QA041검수·릴리스표정리, 실운영/Google0"
     },
     {
       "order": "3 · B2B",
