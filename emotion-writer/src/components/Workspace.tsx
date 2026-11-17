@@ -67,13 +67,13 @@ function restoreDraft(raw: string | null): Draft | null {
     const d = JSON.parse(raw || "null");
     if (d && typeof d === "object") {
       d.textModel = currentTextModel(d.textModel);
-      if (d.source === "pexels") d.source = "pixabay";
+      if (d.source === "pexels") d.source = "free";
     }
     if (
       !d ||
       typeof d.topic !== "string" ||
       d.topic.length > 120 ||
-      !["", "gemini", "pixabay", "pexels"].includes(d.source) ||
+      !["", "gemini", "openai", "free", "pixabay", "pexels"].includes(d.source) ||
       !RATIOS.includes(d.ratio) ||
       ![5, 6, 7, 8].includes(d.lines) ||
       !STYLES.includes(d.style) ||
@@ -287,17 +287,23 @@ export function Workspace({
   }
 
   function makeBackground() {
-    if (!keys.gemini) {
+    const src = draft.source;
+    if (src === "gemini" && !keys.gemini) {
       setModal("gemini");
+      return;
+    }
+    if (src === "openai" && !keys.openai) {
+      setModal("openai");
       return;
     }
     run<{ image: string }>(
       "/api/image",
       {
+        provider: src || "gemini",
         topic: draft.topic,
         quote: draft.quote,
         ratio: draft.ratio,
-        model: draft.imageModel,
+        model: src === "gemini" ? draft.imageModel : undefined,
       },
       "배경 이미지를 만들고 있습니다…",
       (d) => {
@@ -355,7 +361,7 @@ export function Workspace({
     : !draft.quote.trim()
       ? "5단계에서 글귀를 만들거나 직접 입력해 주세요."
       : !image
-        ? draft.source === "gemini"
+        ? ["gemini", "openai", "free"].includes(draft.source)
           ? "배경 생성 버튼을 눌러 주세요."
           : "사진을 검색하고 원하는 배경을 선택해 주세요."
         : "문구와 디자인을 확인한 뒤 이미지로 저장하세요.";
@@ -453,20 +459,26 @@ export function Workspace({
                   >
                     <span>{s.emoji}</span>
                     <strong>{s.name}</strong>
-                    <small className={keys[s.id] ? "connected" : "muted"}>
-                      {keys[s.id] ? "✓ 본인 키 등록됨" : "본인 API 키 필요"}
-                    </small>
+                    {s.id === "free" ? (
+                      <small className="font-bold text-emerald-600">✓ 키 불필요 (무료)</small>
+                    ) : (
+                      <small className={keys[s.id] ? "connected" : "muted"}>
+                        {keys[s.id] ? "✓ 본인 키 등록됨" : "본인 API 키 필요"}
+                      </small>
+                    )}
                   </button>
-                  <button
-                    className="key-gear flex items-center gap-1"
-                    aria-label={`${s.id} API 키 설정`}
-                    disabled={disabled}
-                    onClick={() => setModal(s.id)}
-                    title="API 키 설정"
-                  >
-                    <Settings size={12} />
-                    <span>설정</span>
-                  </button>
+                  {s.id !== "free" && (
+                    <button
+                      className="key-gear flex items-center gap-1"
+                      aria-label={`${s.id} API 키 설정`}
+                      disabled={disabled}
+                      onClick={() => setModal(s.id)}
+                      title="API 키 설정"
+                    >
+                      <Settings size={12} />
+                      <span>설정</span>
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
@@ -619,22 +631,24 @@ export function Workspace({
                   <ImageIcon size={18} className="text-rose-600" />
                   <span>배경 이미지 준비</span>
                 </h2>
-                {draft.source === "gemini" ? (
+                {["gemini", "openai", "free"].includes(draft.source) ? (
                   <>
-                    <label>
-                      이미지 생성 모델
-                      <select
-                        value={draft.imageModel}
-                        disabled={disabled}
-                        onChange={(e) => change({ imageModel: e.target.value })}
-                      >
-                        {IMAGE_MODELS.map((m) => (
-                          <option key={m.id} value={m.id}>
-                            {m.label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                    {draft.source === "gemini" && (
+                      <label>
+                        이미지 생성 모델
+                        <select
+                          value={draft.imageModel}
+                          disabled={disabled}
+                          onChange={(e) => change({ imageModel: e.target.value })}
+                        >
+                          {IMAGE_MODELS.map((m) => (
+                            <option key={m.id} value={m.id}>
+                              {m.label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    )}
                     <button
                       className="primary full flex items-center justify-center gap-2"
                       disabled={disabled || !draft.quote.trim()}
@@ -644,8 +658,12 @@ export function Workspace({
                       <span>{image ? "배경 다시 생성" : "배경 생성"}</span>
                     </button>
                     <p className="muted">
-                      문구는 그대로 두고 배경 1장만 생성합니다. 생성 비용은 본인
-                      Google 계정에 적용됩니다.
+                      {draft.source === "gemini" &&
+                        "문구는 그대로 두고 배경 1장만 생성합니다. 생성 비용은 본인 Google 계정에 적용됩니다."}
+                      {draft.source === "openai" &&
+                        "OpenAI 고해상도 예술 배경을 1장 생성합니다. 생성 비용은 본인 OpenAI 계정 크레딧에 적용됩니다."}
+                      {draft.source === "free" &&
+                        "FLUX 무료 AI 엔진으로 감성 배경 1장을 생성합니다. 별도의 API 키 없이 100% 무료로 이용하실 수 있습니다."}
                     </p>
                   </>
                 ) : (

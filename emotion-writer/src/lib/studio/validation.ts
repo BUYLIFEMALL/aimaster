@@ -44,13 +44,29 @@ export function validateImage(input: Record<string, unknown>) {
   const topic = text(input.topic, "주제", 120);
   if (!RATIOS.includes(input.ratio as Ratio))
     throw new AppError("이미지 비율을 선택해 주세요.");
-  if (!IMAGE_MODELS.some((m) => m.id === input.model))
-    throw new AppError("지원하지 않는 이미지 모델입니다.");
+
+  const provider = (input.provider as string) || "gemini";
+  if (!["gemini", "openai", "free"].includes(provider))
+    throw new AppError("지원하지 않는 이미지 제공자입니다.");
+
+  let model = String(input.model || "");
+  if (provider === "gemini") {
+    if (!model || !IMAGE_MODELS.some((m) => m.id === model)) {
+      if (!input.model) model = IMAGE_MODELS[0].id;
+      else throw new AppError("지원하지 않는 이미지 모델입니다.");
+    }
+  } else if (provider === "openai") {
+    model = model || "gpt-image-2.5-flare";
+  } else {
+    model = model || "pollinations-flux";
+  }
+
   return {
     quote,
     topic,
     ratio: input.ratio as Ratio,
-    model: String(input.model),
+    model,
+    provider: provider as "gemini" | "openai" | "free",
   };
 }
 export function parseQuotes(raw: string): string[] {

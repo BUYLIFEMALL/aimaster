@@ -211,3 +211,20 @@
   - 상단에 "✨ 이 글귀 분위기의 맞춤 AI 배경 제작" 안내 헤더를 두고, 하단에 `[ 🍌 바나나 캔버스 ↗ ]` 및 `[ 🎨 이미지 스튜디오 ↗ ]` 2개의 독립적인 3D 버튼 그리드로 개편.
   - `whitespace-nowrap`, 2열 그리드(`grid-cols-2`), 패딩 및 호버 음영을 적용하여 모바일 375px/320px 및 데스크톱 전 구간에서 텍스트가 절대 줄바꿈되거나 밀리지 않도록 개선.
 - 검수: tsc 0, 단위테스트 44/44 PASS. 다음 묶음 배포 때 함께 내보낼 것.
+
+## 2026-11-18 ⏸ 미배포 — 2단계 이미지 생성 방식 OpenAI·나노바나나·무료모델(FLUX) 3대 엔진 개편 (Antigravity 윈도우)
+- **주인님 직접 지시**: "Pexels 삭세하고 OpenAI / Nanobanana / 무료모델 정도로 바꿔 무료모델은 구현가능한 무료이미지 모델로 바꾸도록 하자"
+- **개편 내역**:
+  1. `config.ts`: 2단계 `SOURCES`를 `나노바나나 AI 생성`(`gemini`), `OpenAI 이미지 생성`(`openai`), `무료 모델 (FLUX)`(`free`) 3대 카드로 전면 개편.
+  2. `validation.ts`: `validateImage`에서 `provider`("gemini" | "openai" | "free") 허용 및 모델 기본값(`IMAGE_MODELS[0]`, `gpt-image-2.5-flare`, `pollinations-flux`) 자동 지정.
+  3. `services.ts`:
+     - `generateOpenAiImage`: 회원 본인의 OpenAI API 키로 `gpt-image-2.5-flare` 호출하여 배경 생성.
+     - `generateFreeImage`: `image.pollinations.ai` FLUX 엔진을 호출하여 키 없이 100% 무료로 고화질 배경 이미지를 즉시 생성하고 서버에서 base64 dataUrl로 반환(CORS 오염 방지).
+  4. `Workspace.tsx`:
+     - `makeBackground`에서 `provider: draft.source` 전달 및 프로바이더별 키 검사.
+     - 2단계 카드에서 `free`는 `✓ 키 불필요 (무료)` 뱃지 표시 및 설정 버튼 생략.
+     - 배경 이미지 준비 섹션에서 `gemini`, `openai`, `free`별 맞춤 안내 및 실행 지원.
+  5. `KeySettings.tsx`: `SETTINGS_PROVIDERS`를 `gemini`, `openai`, `anthropic` 3대 키로 정렬, OpenAI 안내 문구 개선.
+  6. `guide/page.tsx`: 사용자 매뉴얼의 배경 소스 소개 및 FAQ를 3대 AI 엔진(나노바나나·OpenAI·FLUX)으로 개편.
+  7. `tests/imageProvider.test.mjs`: 신규 검증 테스트 3종 추가 (단위 테스트 49/49 전수 PASS, Next.js build 통과).
+- 검수: tsc 0, 단위테스트 49/49 PASS, npm run build 성공. 다음 묶음 배포 때 함께 내보낼 것.

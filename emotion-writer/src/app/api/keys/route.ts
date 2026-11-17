@@ -16,6 +16,8 @@ export function POST(request: Request) {
     if (!isProvider(body.provider))
       throw new AppError("지원하는 API를 선택해 주세요.");
     const provider = body.provider;
+    if (provider === "free")
+      throw new AppError("무료 모델은 별도의 API 키가 필요하지 않습니다.");
     if (body.action === "test") {
       const key =
         typeof body.key === "string" && body.key.trim()

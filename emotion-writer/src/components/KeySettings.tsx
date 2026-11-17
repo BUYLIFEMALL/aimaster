@@ -50,7 +50,7 @@ const PROVIDER_INFO: Partial<
     signupUrl: "https://platform.openai.com/signup",
     createBtnLabel: "OpenAI API 키 발급/생성하기",
     description:
-      "글귀 생성 AI를 GPT 모델로 고를 때 사용되며, 생성 비용은 본인 OpenAI 계정에 청구됩니다.",
+      "글귀 및 AI 배경 이미지 생성에 사용되며, 생성 비용은 본인 OpenAI 계정 크레딧에 청구됩니다.",
   },
   anthropic: {
     name: "Claude (Anthropic)",
@@ -63,8 +63,8 @@ const PROVIDER_INFO: Partial<
   },
 };
 
-// 설정 화면에 보일 키 순서: 사진·이미지 소스 다음에 글귀 생성 AI 키(Gemini는 소스에 이미 있음).
-const SETTINGS_PROVIDERS: Provider[] = [...SOURCES.map((s) => s.id), "openai", "anthropic"];
+// 설정 화면에 보일 키 목록: Gemini, OpenAI, Claude(Anthropic) 3대 AI 키 (무료 모델은 키 등록 불필요).
+const SETTINGS_PROVIDERS: Provider[] = ["gemini", "openai", "anthropic"];
 
 export function KeySettings({
   provider,
