@@ -8,7 +8,7 @@
 |---|---|---|---|---|---|
 | Codex(Master) | CX-MASTER-01 | codex-master | codex-win-20261116-auto-team · GT1_Mega | busy · 공식상태/파일범위 통합 | 146 구현·ESM 매뉴얼·결제예외/실행패키지 지휘 |
 | Codex(Tester) | CX-QA-01 | mac-mini | codex-mac-20261116-tester-role · 대화01a1c5a4-68b7-7c51-b919-9bc56cd17af5 · MacMini | busy · QA012 반환/QA011 진행 | Alt복사→ESM수정본·Lab최종읽기; 메인실행 요청은Master경유 |
-| Antigravity | AG-UI-01 | design | agy-win-hero-copy · GT1_Mega | 146 인계완료·제품시각검수 준비 | Workspace 제품코드 편집0,146 S0~2 결과반환후디자인검토 |
+| Antigravity | AG-UI-01 | design | agy-win-design · GT1_Mega (이전 등록 agy-win-hero-copy) | emotion-writer v1.29 READY·QA042 국소수락 | DES02 키보드/hover 대비 보완 배정·수락대기, 146 자산 보존 |
 | Claude(Movie) | CC-MOVIE-01 | video | claude-win-video · aimaster-57 · GT1_Mega | 배정전달·착수/결과는작업판참조 | MOV17-05 UI2건검토완료, MOV17-06 Workspace묶음독립검토 |
 | Claude(Music) | CC-MUSIC-01 | music | claude-win-20261024-music · GT1_Mega | 코드완료·점유충돌정리대기 | MUS17-01 취소안내 독립PASS·미배포묶음, 공용점유표타인4줄삭제미접촉 |
 | Claude(ecommerce) | CC-ECOM-01 | ecommerce-image | claude-win-sdp · GT1_Mega | 썸네일등록완료·매뉴얼수정반환 | ESM c909/27ae 미배포·QA008후속검수,실ESM등록0 |

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T15:31:50.601Z",
+  "checkedAt": "2026-11-17T16:07:48.742Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -3157,6 +3157,46 @@
       "completion": "승인된범위의운영마이그레이션·실계정/권한/계정경계·활성배포·운영동작 확인",
       "next": "주인님 Gmail운영적용/실계정/활성/빌드 승인범위 결정 전 실행0",
       "blockedReason": "공용운영DB변경·새OAuth동의·실외부·추가빌드 승인 필요, 기존v1.57예산소진"
+    },
+    {
+      "task_id": "DES-20261118-01",
+      "owner": "AG-UI-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "감성 글귀 이미지 직접지시 v1.28/v1.29 배포 회수",
+      "status": "done",
+      "delivery": "integrated",
+      "sha": "45c208bc6",
+      "evidence": ".ai/results/DES-20261118-01-AG-UI-01.md / msg_06537eaec9e9 / Vercel get_deployment READY meta0ed5083dc",
+      "scopeRef": "메뉴 순서·키발급 링크·저장공간 위젯, 직접지시 HANDOFF 회수",
+      "completion": "배포 READY 독립확인·DBv1.29 담당보고·QA042 지정소스/모의 흐름 통과. 전체 실화면 완료와 구분",
+      "next": "P3 두건 DES02 다음묶음·375px/실위젯 미검수 유지",
+      "cost": "작성자 로컬build4·원격build2·유료API0 보고, 별도 배포승인 원문 보완요청"
+    },
+    {
+      "task_id": "QA-20261118-042",
+      "parent_task_id": "DES-20261118-01",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "emotion-writer 메뉴·키설정 독립검수",
+      "status": "done",
+      "delivery": "integrated",
+      "sha": "45c208bc6",
+      "evidence": ".ai/results/QA-20261118-042-CX-QA-01.md / msg_9230a7c772f8",
+      "completion": "실TSX/jsdom 메뉴·링크·가짜test/save 지정범위PASS; P3 E-F01 Tab접근·E-F02 hover대비 개선권고",
+      "next": "DES02 반환시 두건 재검수·실375/위젯/회원키는 미검수"
+    },
+    {
+      "task_id": "DES-20261118-02",
+      "parent_task_id": "DES-20261118-01",
+      "owner": "AG-UI-01",
+      "reviewer": "CX-QA-01",
+      "title": "키보기 키보드 접근·키발급 링크 hover 대비 보완",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "QA042 E-F01/E-F02 / msg_fd811d3ea977",
+      "scopeRef": "emotion-writer KeySettings.tsx·globals.css 및 관련 경량검증/본인문서만, 점유확인후수정",
+      "completion": "Tab/Enter/Space 토글·동적이름·hover 흰 작은글자4.5:1 이상·Mac재검수",
+      "next": "AGY 수락/수정SHA 반환 대기·추가build/deploy0·다음묶음"
     }
   ],
   "programOverrides": [
@@ -3469,6 +3509,16 @@
       "next": "시험계정로그인뒤실검색·AI기획안1회는비용승인필요",
       "evidence": "msg_e628ffaffa86·요청1c7b6dda완료",
       "evidenceLevel": "담당직접실행/운영읽기보고·실검색/AI미검수"
+    },
+    {
+      "slug": "emotion-writer",
+      "owner": "AG-UI-01",
+      "reportedVersion": "v1.29",
+      "stage": "운영READY·국소검수완료/P3보완배정",
+      "completed": "메뉴/공식키발급링크 QA042 소스·실TSX모의PASS, storage widget 정적1곳",
+      "next": "DES02 다음묶음·실375px/위젯/회원키합성미검수",
+      "evidence": "45c208bc6 / dpl_D9ExEsYD9sH9zAxZy38dkU2UUMUz / QA042",
+      "evidenceLevel": "Vercel READY/metadata 독립확인·DBv1.29 담당보고·실화면 미검수"
     }
   ],
   "rules": {
@@ -3529,8 +3579,8 @@
     {
       "order": "9 · 디자인",
       "owner": "AGY",
-      "stage": "146 기준자산보존·대조요청 전달대기/착수미확인",
-      "next": "DES04예약요일명세발송·AGY수락미확인/전달보류"
+      "stage": "emotion-writer v1.29 운영READY·QA042 지정소스수락",
+      "next": "DES02 키보드접근/hover대비 배정·수락대기·다음묶음, DES04 옛명세수락미확인은별도"
     },
     {
       "order": "전담 · 키트",
@@ -3600,19 +3650,19 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T15:31:50.601Z",
+      "at": "2026-11-17T16:07:48.742Z",
       "timezone": "Asia/Seoul",
-      "trigger": "00:30 현재 Master 정기 점검 메시지 수신",
-      "scope": "Windows예약실행/전송/기존Master수신·미등록인수인계증분·Git제품변경·관리자요청함·로컬세션연결/이커머스화면 확인",
+      "trigger": "01:00 기존Master 예약메시지 및 AGY/Mac완료 이벤트",
+      "scope": "예약수신·미등록HANDOFF/Git증분·관리자요청·AGY배포회수·Vercel배포메타·QA042결과판정",
       "evidence": [
-        "msg_c65a03ff15ec·Windows LastTaskResult0",
-        "새인수인계/결과파일변경0·Workspace/B2B제품미커밋0",
-        "dev-requests codex-master 대기0",
-        "로컬터미널12·Master연결확인·이전추가점검터미널없음",
-        "Ecom 기존화면v1.7과거공지→현v1.9정정공지전송"
+        "msg_2da2b6967553·Windows결과0",
+        "HANDOFF 신규v1.28/v1.29 발견→DES01회수",
+        "Vercel READY production meta0ed5083dc·제품45c208bc6",
+        "msg_06537eaec9e9 작성자보고·msg_9230a7c772f8 독립국소검수",
+        "DES02 실제발송 msg_fd811d3ea977·수락미확인"
       ],
-      "judgment": "현재터미널30분정시전송·수신·점검경로검증. 새작업보고/승인없음·기존WS26/27승인과QA037/ESM사람단계대기유지. 유휴/연결을작업완료로단정하지않음.",
-      "nextAction": "다음01:00예약/새이벤트에현재Master가처리, 미승인배포·DB·실Google/AI 및중복배정0"
+      "judgment": "DES01 배포회수/QA042 지정소스수락. P3 두건 국소수정반환·별도배포0. DB버전은담당보고, 실제375/위젯/회원키는미검수. 기존B2B/ESM/Music사람대기·Workspace활성/빌드승인미확보유지.",
+      "nextAction": "AGY DES02 결과후Mac국소재검수·다음01:30예약현재터미널점검"
     },
     "notifications": [
       {
@@ -3680,7 +3730,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-17T16:00:00.000Z",
+      "nextScheduledAt": "2026-11-17T16:30:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -3698,9 +3748,9 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-17T15:30:00.000Z",
-        "attemptedAt": "2026-11-17T15:30:01.6789772Z",
-        "messageId": "msg_c65a03ff15ec",
+        "scheduledAt": "2026-11-17T16:00:00.000Z",
+        "attemptedAt": "2026-11-17T16:00:02.5106154Z",
+        "messageId": "msg_2da2b6967553",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false
