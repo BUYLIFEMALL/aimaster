@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 10:54:15 KST",
+  "checkedAt": "2026-11-17 10:58:52 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4172,7 +4172,7 @@
         "scope": "메인기준 전체화면 일관스타일 적용·기존기능/회원데이터유지",
         "source": "주인님 직접 채팅 2026-11-17 KST"
       },
-      "next": "Mac 시각최종대조대기·Alt는주인님실조작1회:로컬11/20 QA시험카드 Alt끌기→22,원본6유지/22복제기대. 운영배포미승인",
+      "next": "지정시각3조건PASS·기존제목줄바꿈옵션2줄실증후원복확인. Alt는준비된로컬카드사람gesture1회필요·운영배포미승인",
       "lastReviewedAt": "2026-11-17T01:54:12.256Z",
       "sha": "S0~5+075fcb4+1a13662a4bfa51ffba2ee9468fdc35ae13c7bcdd",
       "validationPending": {
@@ -4602,13 +4602,13 @@
       "reviewer": "CX-MASTER-01",
       "priority": "P2",
       "title": "146 실제캡처 독립시각검수",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "ready_review",
+      "delivery": "returned",
       "scopeRef": "3PNG/manifest/146명세 읽기·자기QA결과만",
       "completion": "실제이미지관찰·desktop/375iframe 배치가독성 범위판정·축소/실기기미검수구분",
-      "evidence": "msg_8d2b1e6dd3c7 실PNG3장직접관찰·보이는범위PASS/모바일하단·달력오른쪽/밀집미검수 / 4122e2221 캡처10~13·실scroll수치 / msg_e72d5a8f9ae6 최종10~13관찰PASS / fb6c4f2bc §12/실PNG14~20·375발행max1055·더보기6·메뉴닫힘",
-      "next": "Mac 최종3조건actualPNG마감대조,Alt/실인쇄/실기기는별도미검수",
-      "lastReviewedAt": "2026-11-17T01:54:12.256Z"
+      "evidence": "msg_8d2b1e6dd3c7 실PNG3장직접관찰·보이는범위PASS/모바일하단·달력오른쪽/밀집미검수 / 4122e2221 캡처10~13·실scroll수치 / msg_e72d5a8f9ae6 최종10~13관찰PASS / fb6c4f2bc §12/실PNG14~20·375발행max1055·더보기6·메뉴닫힘 / msg_e7c328f7421a 최종3조건실PNG PASS·긴제목명세차이",
+      "next": "Master기존Wrapentrytitles옵션발견(2줄/lane+20)→로컬viewON실증1회후원복·그캡처만대조. 3조건PASS/무제한줄바꿈·Alt실조작·실인쇄·실기기미검수",
+      "lastReviewedAt": "2026-11-17T01:58:49.259Z"
     },
     {
       "task_id": "QA-20261117-020",
