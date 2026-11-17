@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 23:54:40 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 23:58:21 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-17 23:48:12 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 Orca 예약 활성화 · 실제 실행/전달 상태는 monitoring 기록 참조
+Master 마지막 실제 점검: 2026-11-17 23:58:18 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 Orca 예약 활성화 · 실제 실행/전달 상태는 monitoring 기록 참조
 
-점검 범위: 새 Orca보고·로컬터미널목록·Git최신커밋/제품미커밋·마지막점검이후인수인계/결과파일·Mac 제어반환 상태 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 점검결과JSON/실행이력completed/Master메시지수신·Front개별작업표 대조 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -232,7 +232,7 @@ Master 마지막 실제 점검: 2026-11-17 23:48:12 KST · 실행 중 점검 주
 | WS-20261117-20 | CC-WORKSPACE-01 | done / integrated | 워크스페이스 영수증 하단 스크롤 접근 복구 | 소스동결·WS13/QA019 마지막viewport/상태누락증거보완·운영배포0 |
 | QA-20261117-021 | CX-QA-01 | done / integrated | Workspace v1.56 운영 읽기전용 독립 스모크 | 지정운영스모크종료·장애/DB정확성/발행끝/Alt/실인쇄/실기기미검수유지 |
 | WS-20261117-21 | CC-WORKSPACE-01 | done / integrated | E2 예약7-2 현재코드대조 및 첫 구현범위 확정 | 소스구현/독립검토완료·OFF/미배포·활성화별도승인대기 |
-| FRONT-20261117-03 | CC-B2B-FRONT-01 | done / integrated | 미달3색 대비 최소후보 분석 | 소스5b02c3399완료·Lab미배포/실Tab未검수 |
+| FRONT-20261117-03 | CC-B2B-FRONT-01 | done / integrated | 미달3색 대비 최소후보 분석 | 7609748ad 포함 Lab배포 dpl_CFgB5fC5NLdrye4K7esG1tWRktXQ 반영. 운영몰미배포·실고객/Tab검수QA037로그인대기, 재빌드0 |
 | BLOG-20261117-08 | CC-BLOG-01 | done / integrated | T05 inspect robots 판정 구현준비 | 소스완료/미배포·실전송/route전체/운영未검수 |
 | RE-20261117-07 | CC-REALTY-01 | ready_review / returned | 보수적 제외 후보 오프라인 실험 | 개발237라벨:잘못제외0/127·무관잔존31/76·독립자료없어운영미반영 |
 | QA-20261117-022 | CX-QA-01 | done / integrated | FRONT03 대비보정·선택자·상태표시 독립검토 | hover P2 독립PASS·지정소스조건종결 |
@@ -246,7 +246,7 @@ Master 마지막 실제 점검: 2026-11-17 23:48:12 KST · 실행 중 점검 주
 | QA-20261117-028 | CX-QA-01 | done / integrated | 예약표 초회DDL 직렬화 독립검토 | d7895f6d4 소스검토완료·미배포다음묶음·운영v1.57미반영/미래중첩tx한계유지 |
 | WS-20261117-24 | CC-WORKSPACE-01 | done / integrated | E3-1 간단결재 요청관리 템플릿 | E3소스구현/독립/통합완료·WS23함께v1.58미배포·실검수/비용별도 |
 | BLOG-20261117-09 | CC-BLOG-01 | done / integrated | T07 대시보드/작업목록 공용자동갱신 | 1a54bdd06소스완료·미배포·실HTTP/브라우저별도 |
-| FRONT-20261117-04 | CC-B2B-FRONT-01 | done / integrated | P3 어두운테마 hover피드백 일관성 | 지정소스완료·미배포다음묶음/실운영미검수 |
+| FRONT-20261117-04 | CC-B2B-FRONT-01 | done / integrated | P3 어두운테마 hover피드백 일관성 | 7609748ad 포함 Lab배포 dpl_CFgB5fC5NLdrye4K7esG1tWRktXQ 반영. 운영몰미배포·실고객/Tab검수QA037로그인대기, 재빌드0 |
 | MOV-20261117-07 | CC-MOVIE-01 | done / integrated | 공용MP4 탭수명 fallback성공기억 P3 | 소스2b9a06c9c완료·미배포·실HW/MP4/AppleSilicon별도 |
 | DES-20261117-04 | AG-UI-01 | ready / queued | 예약카드요일 체크박스 국소UI명세 | 실수신수락미확인·제품수정0·146반복검수종료 |
 | QA-20261117-029 | CX-QA-01 | done / integrated | BLOG09 공용폴러 독립검토 | 국소독립검토종결·실계정전환미검수 |

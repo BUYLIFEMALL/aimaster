@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 23:54:40 KST",
+  "checkedAt": "2026-11-17 23:58:21 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "monitoring": {
     "policyVersion": "1.8",
@@ -12,21 +12,22 @@
     "outsideTurnAutomaticChecks": "configured",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T14:48:12.978Z",
+      "at": "2026-11-17T14:58:18.560Z",
       "timezone": "Asia/Seoul",
-      "trigger": "주인님 작업현황/5분점검 공백 질의 및 Orca수신",
-      "scope": "새 Orca보고·로컬터미널목록·Git최신커밋/제품미커밋·마지막점검이후인수인계/결과파일·Mac 제어반환 상태",
+      "trigger": "예약점검 수동시험 결과수신",
+      "scope": "점검결과JSON/실행이력completed/Master메시지수신·Front개별작업표 대조",
       "evidence": [
-        "Orca 첫 수신대기0건",
-        "로컬 terminal list 총12(원격제외·진행중 판정아님)",
-        "Git HEAD 3f6283d9c 이후변경없음·Workspace/B2B 제품미커밋0",
-        "마지막20:17 이후 신규수정인수인계/결과파일 발견0",
-        "msg_5e5b219f6d11: Mac ego29/19/20 agentDelegatedToUser·반환신호없음"
+        "msg_361b6bda5258",
+        ".ai/results/CHECK-20261117T145607660114Z-CX-CHECK-01.json",
+        "automation run9480775b-d46b-481e-847a-9bd93882700c completed",
+        "Front정정46b5896cb·msg_31b4d564b853"
       ],
-      "previousInspectionAt": "2026-11-17T11:17:03.549Z",
-      "gapReason": "이전최종답변 이후 턴종료·턴밖 자동점검 미설정으로 20:17~23:45 정기점검 미실행",
-      "judgment": "Workspace E3/Gmail소스준비완료·새배포승인대기, B2BLab배포완료/실화면사람제어반환대기. Front 미배포/0104대기 낡은행을Lab반영으로정정. 공백기간점검실행주장0.",
-      "nextAction": "Mac 기존검수 제어반환 확인후즉시재개지시, Front 본인기록정정전달(msg_2944995e4134). 현재턴실행중5분경과/이벤트점검·턴밖자동0."
+      "judgment": "점검작업자실행→고유결과파일→기존Master전달 성공. 정시cron회차는아직별도미확인. Front03/04개별next의낡은미배포표기정정, 신규제품작업재실행0.",
+      "nextAction": "30분cron활성유지·다음회차증분점검, QA037/ESM사람제어반환대기 유지",
+      "unreviewedHistoricalCandidates": {
+        "count": 58,
+        "evidence": "점검작업자 결과파일의 목록 참조, Master 전체본문 재검토 아님"
+      }
     },
     "notifications": [
       {
@@ -95,18 +96,31 @@
       "configuredAt": "2026-11-17T14:53:35.427Z",
       "test": {
         "runId": "9480775b-d46b-481e-847a-9bd93882700c",
-        "status": "dispatched_running",
+        "status": "completed",
         "terminalSessionId": "423df4b8-1366-4225-88b0-c1820d5c2e16",
-        "resultDelivery": "not_yet_verified",
+        "resultDelivery": "received_by_master",
         "terminalHandle": "term_b6e992d2-81b3-497c-be5c-ecf8c226c4d7",
-        "executionEvidence": "23:53 KST 실제 Codex 화면에서 공통지침/TRANSPORT/공식작업표/Git/세션조회 실행 확인"
+        "executionEvidence": "23:53 KST 실제 Codex 화면에서 공통지침/TRANSPORT/공식작업표/Git/세션조회 실행 확인",
+        "completedInspectionAt": "2026-11-17T14:56:07.660114Z",
+        "messageId": "msg_361b6bda5258",
+        "resultPath": ".ai/results/CHECK-20261117T145607660114Z-CX-CHECK-01.json",
+        "masterAcceptedAt": "2026-11-17T14:58:18.560Z",
+        "usage": {
+          "inputTokens": 1130110,
+          "cacheReadTokens": 1017728,
+          "outputTokens": 6653,
+          "estimatedCostUsd": 0.3930668,
+          "estimateType": "api_equivalent_not_actual_billing"
+        }
       },
       "limitations": [
         "PC와Orca실행·계정사용가능필요",
         "전용점검작업자가기존Master에전달·별도Master아님",
         "원본Master수신함check소비0·제품/공유작업표수정0",
         "등록/기동과실제점검/전달성공은구분"
-      ]
+      ],
+      "scheduledOccurrenceVerified": false,
+      "promptMode": "incremental_since_last_inspection"
     }
   },
   "count": 103,
@@ -4820,8 +4834,8 @@
       "task_id": "FRONT-20261117-03",
       "owner": "CC-B2B-FRONT-01",
       "title": "미달3색 대비 최소후보 분석",
-      "evidence": "msg_c37e721cf22f / msg_dc75ac7b448e / f7120d185/7e701ae53·author21+31tests / msg_b3a61f19bcd1 대비PASS/hover P2·msg_efe2deaa2f62수정배정 / msg_d85d9ed3d89f/f72c53f6a / msg_61b196d087b2",
-      "next": "소스5b02c3399완료·Lab미배포/실Tab未검수",
+      "evidence": "msg_c37e721cf22f / msg_dc75ac7b448e / f7120d185/7e701ae53·author21+31tests / msg_b3a61f19bcd1 대비PASS/hover P2·msg_efe2deaa2f62수정배정 / msg_d85d9ed3d89f/f72c53f6a / msg_61b196d087b2 / 46b5896cb·msg_31b4d564b853 Lab반영기록정정",
+      "next": "7609748ad 포함 Lab배포 dpl_CFgB5fC5NLdrye4K7esG1tWRktXQ 반영. 운영몰미배포·실고객/Tab검수QA037로그인대기, 재빌드0",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
       "status": "done",
@@ -5071,8 +5085,8 @@
       "title": "P3 어두운테마 hover피드백 일관성",
       "status": "done",
       "delivery": "integrated",
-      "evidence": "fa1f568c6·msg_9b6678fabf2b / e8ecfa1c9·作者24/31tests/실CDP12색/touch흉내 / 7609748ad QA031PASS",
-      "next": "지정소스완료·미배포다음묶음/실운영미검수",
+      "evidence": "fa1f568c6·msg_9b6678fabf2b / e8ecfa1c9·作者24/31tests/실CDP12색/touch흉내 / 7609748ad QA031PASS / 46b5896cb·msg_31b4d564b853 Lab반영기록정정",
+      "next": "7609748ad 포함 Lab배포 dpl_CFgB5fC5NLdrye4K7esG1tWRktXQ 반영. 운영몰미배포·실고객/Tab검수QA037로그인대기, 재빌드0",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "completion": "배정된소스/검증범위반환·실운영/배포미검수구분",
       "sha": "7609748ad"
