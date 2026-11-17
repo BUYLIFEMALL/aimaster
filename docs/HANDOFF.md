@@ -1,5 +1,7 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+
+
 ## 2026-11-18 ✅ [역할: design] Antigravity CLI(AGY) · 세션 `agy-win-design` — 감성 글귀 이미지 (emotion-writer) DES-20261118-02 QA042 국소 접근성 2건 보완 (미배포 대기)
 - Master 배정 `DES-20261118-02`: Mac QA042 검수 수락 후 P3 2건 국소 보완.
   1. `KeySettings.tsx`: 키보기 버튼의 `tabIndex={-1}` 제거하여 Tab/Enter/Space 키보드 탐색 지원 및 동작별 `aria-label` 부여.
