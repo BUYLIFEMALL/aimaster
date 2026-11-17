@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 09:32:01 KST",
+  "checkedAt": "2026-11-17 09:35:44 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4280,16 +4280,15 @@
       "parent_task_id": "B2B-20261117-02",
       "owner": "CC-B2B-BACK-01",
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
-      "status": "waiting_human",
+      "status": "running",
       "delivery": "delivered",
-      "evidence": "msg_6d7a93569589 Mac QA012 누적소스PASS·hash739b35일치·작성자62근거분리 / msg_e7bf9e5ec131 릴리스초안 문구4건P2 / msg_7908deab7eff 20e51e602 객체이름의존성표·문서4건정정 / msg_2c7fadd530f9 bbca7e002 핵심RPC20인자대조 + Master Vercel project/env 직접확인 / msg_059ac8eead6e 로컬공개모드덮어쓰기0·운영배포스크립트고정대상발견 / msg_abacc5b993d3 921e5418a 実행자료/pre Lab읽기16·로컬구조11 조건부리허설 / msg_c71e3c91fe82 QA015 verify필수열권한/attempt CRUD/구조연결 P2 / msg_aa75bb4dd931 5dca84102 verify20·작성자18권한구조반례/로컬23 / msg_ce494f23b14b QA015 정책NULL집계누락 P2 / msg_fd616e3d87f2 3fb43971e 정책NULL반례검출/정상구조15·로컬24 / msg_e0ba89802fad QA015 누적준비패키지 정적PASS·정책순수3assert",
+      "evidence": "msg_6d7a93569589 Mac QA012 누적소스PASS·hash739b35일치·작성자62근거분리 / msg_e7bf9e5ec131 릴리스초안 문구4건P2 / msg_7908deab7eff 20e51e602 객체이름의존성표·문서4건정정 / msg_2c7fadd530f9 bbca7e002 핵심RPC20인자대조 + Master Vercel project/env 직접확인 / msg_059ac8eead6e 로컬공개모드덮어쓰기0·운영배포스크립트고정대상발견 / msg_abacc5b993d3 921e5418a 実행자료/pre Lab읽기16·로컬구조11 조건부리허설 / msg_c71e3c91fe82 QA015 verify필수열권한/attempt CRUD/구조연결 P2 / msg_aa75bb4dd931 5dca84102 verify20·작성자18권한구조반례/로컬23 / msg_ce494f23b14b QA015 정책NULL집계누락 P2 / msg_fd616e3d87f2 3fb43971e 정책NULL반례검출/정상구조15·로컬24 / msg_e0ba89802fad QA015 누적준비패키지 정적PASS·정책순수3assert / msg_093889c364cc 직접승인·Master CLI project/queue 검사",
       "decision": {
-        "needed": "기존 토스 키로 결제 승인이 가능해지는 Lab0104 적용 허용 여부",
-        "reason": "적용 즉시 authenticated 결제RPC 공개, 완전중단 스위치 없음. 개발·모의검수 승인은 실결제 활성화 승인과 구분",
-        "recommended": "기존 실키로 활성화하지 않고 테스트 전용 결제 환경 범위를 먼저 확정",
-        "prepared": "고정원문739b35e9 / applyd06b9bba / verify393c5d7d / 소스37fdcabb4·UIc8d9e1d31"
+        "resolved": true,
+        "source": "msg_093889c364cc 주인님직접채팅 2026-11-17 필요한기능진행/DB적용+Lab빌드1회",
+        "scope": "Lab0104적용+Lab원격빌드1회,실제결제시험은토스테스트키만·운영배포아님"
       },
-      "next": "실키연결Lab의0104적용은결제RPC활성화이므로주인님결정대기. 권장:실키활성화보류,테스트전용연결범위확정후진행. 자료동결·불필요반복0·실DB/외부/빌드0",
+      "next": "Backendpre→Labapply1→verify20/지문결과대기. MasterCLI59.1.4/buylifemall/정확Lab/project확인·팀빌드대기0·고지check0·제품미커밋0,검증후Master한명만원격1빌드·운영스크립트금지",
       "lastReviewedAt": "2026-11-16T21:27:48.711Z",
       "sha": "37fdcabb4 / 0104 739b35e9f20b45ba7c83309918da0cc099ca6a0b5715bf5514e755cb108662e6",
       "plannedMigration": "0104_exchange_fee_payments.sql (기존미적용0103 rename)",
@@ -4452,9 +4451,9 @@
       "priority": "P2",
       "status": "running",
       "delivery": "returned",
-      "evidence": "Workspace792be25a9·作者軽量16/16·旧DOM5失敗→改善 / Workspace읽기보고 standalone A화면+Bcookie면B자료/저장대상혼합",
+      "evidence": "Workspace792be25a9·作者軽量16/16·旧DOM5失敗→改善 / Workspace읽기보고 standalone A화면+Bcookie면B자료/저장대상혼합 / msg_eaf07a78757d 실React topdraft잔존P1",
       "completion": "domain receipts SPA route와기존client Board재사용/사이드바연결·기존standalone유지·관련경량검사,서버DB0·실화면/배포미검수구분",
-      "next": "standalone계정혼합미해소→Master route선택expectedAccount vs인증ID 서버검사/receipt·bt boundRPC/409숨김 최소확장승인. 기존인가유지·실handler mock검증,실DB/발급/AI/서버/빌드0",
+      "next": "기대계정서버guard와공용Board topdraft/tab/session초안 계정수명 P1 함께수정·실React A초안B재표시회귀,실발급/DB/서버/빌드0",
       "lastReviewedAt": "2026-11-17T00:31:59.066Z",
       "sha": "9d6875e4b + 792be25a9"
     },
@@ -4483,11 +4482,11 @@
       "priority": "P1",
       "status": "running",
       "delivery": "returned",
-      "evidence": "msg_2be729baeef6 Mac실TSX가격유지/Menu상태PASS·상품props A→B 잔존P2",
+      "evidence": "msg_2be729baeef6 Mac실TSX가격유지/Menu상태PASS·상품props A→B 잔존P2 / msg_91fba6187864 실제소스key A→B개선·오류뒤checkboxDOM/state불일치추가",
       "completion": "모바일X실클릭차단원인수정·서버숫자오류뒤입력보존·다른필드/중복생성회귀·관련경량검증,실배포미검수구분",
-      "next": "Ecom상품page RegisterForm 상품ID key/reset국소보완·같은ID오류유지/다른ID동의초기화 실제React검증배정. 실route발생미확인·실ESM/DB쓰기/빌드0",
+      "next": "상품key+오류시동의false 국소수정승인·동일오류2회/rerender동의복원0 실제React검증,반환뒤Mac묶음검토·빌드/DB/실ESM0",
       "lastReviewedAt": "2026-11-17T00:28:03.090Z",
-      "sha": "a6e36da2a + 59d35e2c2기록"
+      "sha": "a6e36da2a + d970a2a40"
     }
   ]
 }
