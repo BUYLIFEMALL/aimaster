@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 16:07:31 KST",
+  "checkedAt": "2026-11-17 16:09:16 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4826,11 +4826,11 @@
       "title": "예약 기능 운영 활성화·실연동 검증",
       "status": "running",
       "delivery": "running",
-      "evidence": "f78a2e4e3 최종활성화조건 / msg_0e57ecf5a5fa·Master미커밋0/lock0/teamqueue0·free~7GB / 作者tsc0/460tests/localbuild0·3faafa33a·Workspace自動承認拒否remote0→Master直接確認project/account/queue0/notice0/clean·CLI upload hgzm0d922 Building / Master CLI76150 exit0·Vercel API READY/aliasErrornull/meta3fa一致 / Workspace운영programs v1.57 07:03UTC/예약표2최초생성·naver시험켜기·public160칸/metadata報告",
+      "evidence": "f78a2e4e3 최종활성화조건 / msg_0e57ecf5a5fa·Master미커밋0/lock0/teamqueue0·free~7GB / 作者tsc0/460tests/localbuild0·3faafa33a·Workspace自動承認拒否remote0→Master直接確認project/account/queue0/notice0/clean·CLI upload hgzm0d922 Building / Master CLI76150 exit0·Vercel API READY/aliasErrornull/meta3fa一致 / Workspace운영programs v1.57 07:03UTC/예약표2최초생성·naver시험켜기·public160칸/metadata報告 / QA027독립운영읽기PASS·실Google성공증거아님",
       "scopeRef": "운영표2/스위치3/빌드1·실시험계정Google/HTTP/시각 별도범위확정",
       "completion": "명시승인범위내DDL/배포·실연동/운영확인·미검수구분",
       "blocker": null,
-      "next": "Windows실Google고정1건검증/정리·MacQA027예약카드읽기재개",
+      "next": "Workspace실Google고정1건/GET/정리·public실HTTP증거회수후활성화범위마감",
       "approval": {
         "source": "주인님 Master채팅: 계속작업진행/승인할께/진행해",
         "at": "2026-11-17T06:53:32.187Z",
@@ -4859,12 +4859,12 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "v1.57 예약활성 운영 읽기전용 스모크",
-      "status": "running",
-      "delivery": "running",
-      "evidence": "msg_da022ee0d88b / msg_5a3b73a5f46a 착수확인·기존studio/receipts/v1.57/375폭읽기 / msg_272855655997 운영v1.57/studio/receipts375끝scroll max365 정상·예약접근0 / msg_3d2788ee769b 표준비완료·예약카드읽기재개",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_da022ee0d88b / msg_5a3b73a5f46a 착수확인·기존studio/receipts/v1.57/375폭읽기 / msg_272855655997 운영v1.57/studio/receipts375끝scroll max365 정상·예약접근0 / msg_3d2788ee769b 표준비완료·예약카드읽기재개 / msg_346cc4813aa0 v1.57예약카드/AsiaSeoul/30·21일/실행기OFF안내·375문서폭375/표내부scroll PASS",
       "scopeRef": "운영버전/예약카드/375/기존화면·예약쓰기/DDL/Google/build0",
       "completion": "실화면관찰·본인계정/개인토큰마스킹·작성자실Google근거구분",
-      "next": "예약카드/375안내읽기·비밀주소없으면재발급0/작성자증거분리"
+      "next": "지정운영읽기마감·public주소/실Google는작성자결과별도·DDL경합잔여유지"
     },
     {
       "task_id": "WS-20261117-23",

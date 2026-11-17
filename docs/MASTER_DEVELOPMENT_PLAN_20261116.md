@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 16:07:31 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 16:09:16 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -40,7 +40,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 195개: done 171개 · cancelled 6개 · ready_review 10개 · running 4개 · waiting_human 2개 · ready 1개 · backlog 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 195개: done 172개 · cancelled 6개 · ready_review 10개 · running 3개 · waiting_human 2개 · ready 1개 · backlog 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -236,8 +236,8 @@
 | QA-20261117-024 | CX-QA-01 | done / integrated | 예약 서버1단계 OFF/상태/권한/동시성 독립검토 | 지정1단계소스검토종결·전체완성/실Google/운영未검수 |
 | QA-20261117-025 | CX-QA-01 | done / integrated | 예약2A UI 계정/중복제출/unknown 독립검토 | 2A지정소스종결·배선/실서비스별도 |
 | QA-20261117-026 | CX-QA-01 | done / integrated | 예약2B OFF배선 실제입구/보안경계 독립검토 | 지정OFF배선소스마감·실HTTP/Google/운영별도 |
-| WS-20261117-22 | CC-WORKSPACE-01 | running / running | 예약 기능 운영 활성화·실연동 검증 | Windows실Google고정1건검증/정리·MacQA027예약카드읽기재개 |
-| QA-20261117-027 | CX-QA-01 | running / running | v1.57 예약활성 운영 읽기전용 스모크 | 예약카드/375안내읽기·비밀주소없으면재발급0/작성자증거분리 |
+| WS-20261117-22 | CC-WORKSPACE-01 | running / running | 예약 기능 운영 활성화·실연동 검증 | Workspace실Google고정1건/GET/정리·public실HTTP증거회수후활성화범위마감 |
+| QA-20261117-027 | CX-QA-01 | done / integrated | v1.57 예약활성 운영 읽기전용 스모크 | 지정운영읽기마감·public주소/실Google는작성자결과별도·DDL경합잔여유지 |
 | WS-20261117-23 | CC-WORKSPACE-01 | backlog / prepared | 예약표 초회 초기화 경합 보완 | 현재실검증후원인/정확경로/보완안반환·다음묶음 |
 
 ## 현재 담당 회신이 확보된 프로젝트
