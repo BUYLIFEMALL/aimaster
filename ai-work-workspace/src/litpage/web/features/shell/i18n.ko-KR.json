@@ -3848,6 +3848,7 @@
   "lp.templates.tell_us_what_you_think": "의견을 들려주세요",
   "lp.templates.template_added_to_your_workspace": "템플릿을 워크스페이스에 추가했습니다",
   "lp.templates.template_applied": "템플릿을 적용했습니다",
+  "lp.templates.added_with_automation_warnings": "템플릿은 추가했지만: {detail}",
   "lp.templates.template_status": "템플릿 상태…",
   "lp.templates.templates": "템플릿",
   "lp.templates.templates_bought_from_the_gallery_will": "갤러리에서 구매한 템플릿이 여기에 표시됩니다",

@@ -7,14 +7,17 @@ import { useUI } from '../../lib/store/ui.ts';
 import { openMenu } from '../../components/Menu.tsx';
 import type { Anchor } from '../../components/overlay.tsx';
 import { t } from '../shell/i18n.ts';
-import { categoryLabel, invalidateTemplates, loadTemplates, type TemplateInfo } from './api.ts';
+import { categoryLabel, invalidateTemplates, loadTemplates, templateWarningText, type TemplateInfo } from './api.ts';
 
 const hasDatabase = (x: TemplateInfo) => !!x.outline?.db || !!x.outline?.blocks?.some((b) => b.db);
 
 export async function applyTemplateToDatabase(templateId: string, blockId: string) {
-  const res = await api<{ recordMap: any }>('applyTemplateToDatabase', { templateId, blockId });
+  const res = await api<{ recordMap: any; automationWarnings?: string[] }>('applyTemplateToDatabase', { templateId, blockId });
   records.mergeRecordMap(res.recordMap);
   invalidateTemplates();
+  // E3-2: 원래 성공 알림이 없던 경로 — 자동화 경고가 있을 때만 한 번
+  const warn = templateWarningText(res.automationWarnings);
+  if (warn) useUI.getState().toast(warn);
 }
 
 /** Menu of database templates; `onPicked` runs once the database was set up. */

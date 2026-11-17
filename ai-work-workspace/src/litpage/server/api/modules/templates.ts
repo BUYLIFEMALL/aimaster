@@ -17,7 +17,9 @@ import { ApiError, type Ctx } from '../handlers.ts';
 import { RecordMapBuilder, applyTransactions, blockRole } from '../../records.ts';
 import { ensureTemplateGallery, TEMPLATE_USER_ID } from '../../seed.ts';
 import { childBlocks } from '../../tree.ts';
-import { TEMPLATES, templateMeta } from '../../content/catalog.ts';
+import { TEMPLATES, templateMeta, type TemplateAutomationDef } from '../../content/catalog.ts';
+import type { AutomationRecord } from '#shared/automation/types.ts';
+import { handlers as automationHandlers } from './automations.ts';
 
 type Handler = (ctx: Ctx, body: any) => any;
 
@@ -214,6 +216,58 @@ function templateRoot(templateId: string): string {
   return id;
 }
 
+// ---------------------------------------------------------------- 2026-11-17 WS-20261117-24 E3-2: 템플릿과 함께 만드는 자동화
+// 복사가 커밋된 뒤, 템플릿에 정의된 자동화를 새 표에 기존 saveAutomation(같은 ctx — 편집 권한·대상 검사·검사·감사 그대로)으로 만든다.
+// 새 권한·새 API·새 DB 0. 실패해도 템플릿·표·이미 만든 자동화는 그대로 두고, 못 만든 이름만 한국어 경고로(오류 원문·스택 노출 0).
+type SaveAutomation = (ctx: Ctx, body: { collectionId: string; automation: Record<string, unknown> }) => { automationId: string };
+const defaultSave: SaveAutomation = (ctx, body) => (automationHandlers.saveAutomation as unknown as SaveAutomation)(ctx, body);
+let saveTemplateAutomation: SaveAutomation = defaultSave;
+/** 시험 전용: 자동화 저장을 바꿔 끼워 일부 실패를 흉내 낸다 */
+export function setTemplateAutomationSaverForTests(fn: SaveAutomation | null) {
+  saveTemplateAutomation = fn ?? defaultSave;
+}
+
+/** 같은 내용인지 비교할 때 쓰는 모양(만들 때 붙는 id·버전 등은 빼고 조건·대상·문구만) */
+function automationShape(trigger: unknown, actions: unknown): string {
+  const t = trigger as { type?: string; events?: { type?: string; property?: string; condition?: unknown }[] };
+  const acts = (Array.isArray(actions) ? actions : []) as { type?: string; target?: unknown; message?: unknown }[];
+  return JSON.stringify({
+    type: t?.type,
+    events: (t?.events ?? []).map((e) => ({ type: e.type, property: e.property, condition: e.condition })),
+    actions: acts.map((a) => ({ type: a.type, target: a.target, message: a.message })),
+  });
+}
+
+function addTemplateAutomations(ctx: Ctx, templateId: unknown, changes: { table: string; record: unknown }[], rm: RecordMapBuilder): string[] {
+  const def = TEMPLATES.find((t) => t.id === String(templateId ?? ''));
+  const wanted: TemplateAutomationDef[] = def?.automations ?? [];
+  if (!wanted.length) return [];
+  // 이번 복사로 살아 있는 표가 정확히 하나일 때만(빈 표에 적용할 때 사라지는 옛 표는 alive false라 빠짐)
+  const cols = changes.filter((c) => c.table === 'collection' && (c.record as CollectionRecord)?.alive !== false).map((c) => c.record as CollectionRecord);
+  if (cols.length !== 1) return wanted.map((a) => `알림 자동화 「${a.name}」를 만들지 못했습니다. ⚡ 자동화에서 직접 추가해 주세요.`);
+  const col = cols[0];
+  const warnings: string[] = [];
+  for (const a of wanted) {
+    const same = childrenOf<AutomationRecord>('automation', col.id).find((x) => x.alive !== false && (x.properties?.name ?? '') === a.name);
+    if (same) {
+      // 같은 이름이 이미 있으면 덮어쓰지 않는다 — 같은 내용이면 이미 만든 것으로, 다르면 경고
+      if (automationShape(same.trigger, same.actions) !== automationShape(a.trigger, a.actions)) {
+        warnings.push(`같은 이름의 다른 자동화 「${a.name}」가 이미 있어 새로 만들지 않았습니다. ⚡ 자동화에서 확인해 주세요.`);
+      }
+      continue;
+    }
+    try {
+      const r = saveTemplateAutomation(ctx, { collectionId: col.id, automation: { name: a.name, trigger: a.trigger, actions: a.actions, status: 'active' } });
+      const rec = getRecord<AutomationRecord>('automation', String(r?.automationId ?? ''));
+      if (rec) rm.add('automation', rec);
+    } catch {
+      warnings.push(`알림 자동화 「${a.name}」를 만들지 못했습니다. ⚡ 자동화에서 직접 추가해 주세요.`);
+    }
+  }
+  return warnings;
+}
+const withWarnings = <T extends object>(body: T, warnings: string[]) => (warnings.length ? { ...body, automationWarnings: warnings } : body);
+
 export const handlers: Record<string, Handler> = {
   listTemplates(ctx) {
     const uid = requireUser(ctx);
@@ -307,7 +361,8 @@ export const handlers: Record<string, Handler> = {
     db.prepare('INSERT INTO template_adds (id, template_id, user_id, space_id, page_id, time) VALUES (?, ?, ?, ?, ?, ?)').run(newId(), String(templateId), uid, block.space_id, block.id, Date.now());
     const rm = new RecordMapBuilder(uid);
     for (const ch of changes) rm.add(ch.table, ch.record);
-    return { blockId: block.id, collectionId: newCol, recordMap: rm.map };
+    const warnings = addTemplateAutomations(ctx, templateId, changes, rm);
+    return withWarnings({ blockId: block.id, collectionId: newCol, recordMap: rm.map }, warnings);
   },
 
   getTemplatePreview(ctx, { templateId }) {
@@ -333,7 +388,8 @@ export const handlers: Record<string, Handler> = {
       db.prepare('INSERT INTO template_adds (id, template_id, user_id, space_id, page_id, time) VALUES (?, ?, ?, ?, ?, ?)').run(newId(), String(templateId), uid, space.id, p.id, Date.now());
       const rm = new RecordMapBuilder(uid);
       for (const ch of changes) rm.add(ch.table, ch.record);
-      return { pageId: p.id, recordMap: rm.map };
+      const warnings = addTemplateAutomations(ctx, templateId, changes, rm);
+      return withWarnings({ pageId: p.id, recordMap: rm.map }, warnings);
     }
     let target: { id: string; table: 'space' | 'block' } = { id: space.id, table: 'space' };
     if (parent?.kind === 'page' && parent.pageId) {
@@ -353,6 +409,7 @@ export const handlers: Record<string, Handler> = {
     db.prepare('INSERT INTO template_adds (id, template_id, user_id, space_id, page_id, time) VALUES (?, ?, ?, ?, ?, ?)').run(newId(), String(templateId), uid, space.id, newRoot, Date.now());
     const rm = new RecordMapBuilder(uid);
     for (const ch of changes) rm.add(ch.table, ch.record);
-    return { pageId: newRoot, recordMap: rm.map };
+    const warnings = addTemplateAutomations(ctx, templateId, changes, rm);
+    return withWarnings({ pageId: newRoot, recordMap: rm.map }, warnings);
   },
 };

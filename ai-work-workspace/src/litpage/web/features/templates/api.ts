@@ -121,26 +121,36 @@ export function loadTemplatePreview(templateId: string): Promise<string> {
   return p;
 }
 
+/**
+ * 2026-11-17 WS-20261117-24 E3-2: 템플릿과 함께 만드는 알림 자동화를 서버가 일부 못 만들었을 때의 경고(한국어 문장 목록).
+ * 있으면 성공 알림 대신 「템플릿은 추가했지만 …」을 한 번만 띄운다(성공과 경고 구분). 없으면 null.
+ */
+export function templateWarningText(warnings: unknown): string | null {
+  const list = Array.isArray(warnings) ? warnings.filter((x): x is string => typeof x === 'string' && !!x.trim()) : [];
+  if (!list.length) return null;
+  return t('lp.templates.added_with_automation_warnings', 'Template added, but: {detail}', { detail: list.join(' ') });
+}
+
 /** "Add to <workspace>": copy the template into the user's Private section (or into `parentPageId`) and open it. */
 export async function addTemplate(templateId: string, opts?: { parentPageId?: string; open?: boolean }): Promise<string> {
   const spaceId = useSession.getState().spaceId;
-  const res = await api<{ pageId: string; recordMap: any }>('getTemplate', {
+  const res = await api<{ pageId: string; recordMap: any; automationWarnings?: string[] }>('getTemplate', {
     templateId, spaceId, ...(opts?.parentPageId ? { parent: { kind: 'page', pageId: opts.parentPageId } } : {}),
   });
   records.mergeRecordMap(res.recordMap);
   invalidateTemplates();
   if (opts?.open !== false) openPage(res.pageId);
-  useUI.getState().toast(t('lp.templates.template_added_to_your_workspace', 'Template added to your workspace'));
+  useUI.getState().toast(templateWarningText(res.automationWarnings) ?? t('lp.templates.template_added_to_your_workspace', 'Template added to your workspace'));
   return res.pageId;
 }
 
 /** Templates modal opened from an empty page: that page becomes a copy of the template (title kept if typed). */
 export async function applyTemplate(templateId: string, pageId: string): Promise<void> {
   const spaceId = useSession.getState().spaceId;
-  const res = await api<{ pageId: string; recordMap: any }>('getTemplate', { templateId, spaceId, applyTo: pageId });
+  const res = await api<{ pageId: string; recordMap: any; automationWarnings?: string[] }>('getTemplate', { templateId, spaceId, applyTo: pageId });
   records.mergeRecordMap(res.recordMap);
   invalidateTemplates();
-  useUI.getState().toast(t('lp.templates.template_applied', 'Template applied'));
+  useUI.getState().toast(templateWarningText(res.automationWarnings) ?? t('lp.templates.template_applied', 'Template applied'));
 }
 
 export function loadTemplateReviews(templateId: string) {

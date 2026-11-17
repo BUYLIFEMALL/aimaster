@@ -2,6 +2,7 @@
 // Content is written for Workspace; categories cover work, life, and school.
 // 이식판: 예시 내용은 한국어(2026-10-24). 내용을 바꾸면 seed.ts의 TEMPLATE_GALLERY_VERSION을 올려야 운영 DB에 다시 심긴다.
 import type { RichText } from '#shared/richtext.ts';
+import type { AutomationAction, AutomationTrigger } from '#shared/automation/types.ts';
 import type { DbSpec, Spec } from './spec.ts';
 import { dayOffset } from './spec.ts';
 
@@ -18,6 +19,17 @@ export interface TemplateDef {
   creator: string;
   featured?: boolean;
   build: () => Spec;
+  /**
+   * 2026-11-17 WS-20261117-24 E3-2: 템플릿을 쓸 때 새 표에 함께 만들 자동화(선택). 속성은 템플릿의 속성 번호로 적는다(복사해도 그대로).
+   * 만드는 일은 api/modules/templates.ts가 기존 saveAutomation(같은 ctx: 권한·검사·감사)으로 한다. 갤러리에는 심지 않는다.
+   */
+  automations?: TemplateAutomationDef[];
+}
+
+export interface TemplateAutomationDef {
+  name: string;
+  trigger: AutomationTrigger;
+  actions: AutomationAction[];
 }
 
 const T = (s: string): Spec => ({ type: 'text', text: s });
@@ -155,7 +167,7 @@ export const TEMPLATES: TemplateDef[] = [
     // 이 단위에는 결재자 전용 승인 권한과 알림 자동 생성이 없다 — 설명에 그대로 밝힌다.
     id: 'simple-approval',
     name: '간단 전자결재',
-    description: '직원이 결재 건을 올리면(상태 「승인 요청」) 결재자가 「승인」 또는 「반려」로 바꾸고 결재 의견·결재일을 남깁니다. 알림은 자동으로 켜지지 않으니, 이 표의 ⚡ 자동화에서 「상태가 승인 요청이 되면 결재자에게 알림」을 직접 켜 주세요. 편집 권한이 있는 사람은 누구나 상태를 바꿀 수 있어 결재자 전용 승인은 아닙니다(직원 1~5명 간단 결재용). 지난 기록은 페이지 버전 기록으로 볼 수 있습니다.',
+    description: '직원이 결재 건을 올리면(상태 「승인 요청」) 결재자가 「승인」 또는 「반려」로 바꾸고 결재 의견·결재일을 남깁니다. 쓰는 순간 앱 알림 자동화 2개가 함께 만들어집니다(승인 요청 → 결재자에게, 승인·반려 → 요청자에게 · 메일·카카오톡은 보내지 않음 · ⚡ 자동화에서 끌 수 있음). 편집 권한이 있는 사람은 누구나 상태를 바꿀 수 있어 결재자 전용 승인은 아닙니다(직원 1~5명 간단 결재용). 지난 기록은 페이지 버전 기록으로 볼 수 있습니다.',
     icon: '🗂️',
     cover: '/covers/gradient-3.svg',
     category: 'work',
@@ -168,7 +180,7 @@ export const TEMPLATES: TemplateDef[] = [
       cover: '/covers/gradient-3.svg',
       db: {
         name: '간단 전자결재',
-        description: '올림: 상태를 「승인 요청」으로, 결재자 지정 → 결재자: 「승인」 또는 「반려」와 결재 의견·결재일. 알림은 ⚡ 자동화에서 직접 켜기. 편집 권한이 있으면 누구나 상태를 바꿀 수 있습니다.',
+        description: '올림: 결재자를 지정하고 상태를 「승인 요청」으로 → 결재자에게 앱 알림. 결재자: 「승인」 또는 「반려」와 결재 의견·결재일 → 요청자에게 앱 알림. 편집 권한이 있으면 누구나 상태를 바꿀 수 있습니다.',
         schema: {
           title: { name: '결재 건', type: 'title' },
           aSta: { name: '상태', type: 'status', options: ['작성 중', '승인 요청', '승인', '반려'] },
@@ -179,7 +191,7 @@ export const TEMPLATES: TemplateDef[] = [
           aDat: { name: '결재일', type: 'date' },
         },
         rows: [
-          { values: { title: '(예시) 사무용품 구매', aSta: '승인 요청', aAmt: 45000, aMem: '예시 행입니다. 지워도 됩니다.' }, icon: '🗂️' },
+          { values: { title: '(예시) 사무용품 구매', aSta: '작성 중', aAmt: 45000, aMem: '예시 행입니다. 지워도 됩니다.' }, icon: '🗂️' }, // 요청자·결재자 비움 → 알림 대상 0
         ],
         views: [
           { type: 'board', name: '상태별', groupBy: 'aSta', visible: ['aReq', 'aApr', 'aAmt'] },
@@ -187,6 +199,18 @@ export const TEMPLATES: TemplateDef[] = [
         ],
       },
     }),
+    automations: [
+      {
+        name: '결재 요청 알림(결재자)',
+        trigger: { type: 'event', mode: 'any', events: [{ id: 'ev-req', type: 'property_edited', property: 'aSta', condition: { op: 'is', values: ['승인 요청'] } }] },
+        actions: [{ id: 'ac-req', type: 'notify', target: { type: 'property', property: 'aApr' }, message: [{ type: 'text', text: '결재 요청이 들어왔습니다. 확인 후 「승인」 또는 「반려」로 바꿔 주세요.' }] }],
+      },
+      {
+        name: '결재 결과 알림(요청자)',
+        trigger: { type: 'event', mode: 'any', events: [{ id: 'ev-res', type: 'property_edited', property: 'aSta', condition: { op: 'is', values: ['승인', '반려'] } }] },
+        actions: [{ id: 'ac-res', type: 'notify', target: { type: 'property', property: 'aReq' }, message: [{ type: 'text', text: '결재 결과가 나왔습니다(승인 또는 반려). 결재 의견을 확인해 주세요.' }] }],
+      },
+    ],
   },
   {
     id: 'project-tracker',
