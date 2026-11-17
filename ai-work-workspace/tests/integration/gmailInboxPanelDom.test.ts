@@ -14,7 +14,7 @@ const api: GmailPanelApi = {
   status: () => new Promise((resolve, reject) => calls.push({ name: 'status', resolve, reject })) as any,
   list: (expectSub) => new Promise((resolve, reject) => calls.push({ name: 'list', arg: expectSub, resolve, reject })) as any,
   add: (input) => new Promise((resolve, reject) => calls.push({ name: 'add', arg: input, resolve, reject })) as any,
-  disconnect: () => new Promise((resolve, reject) => calls.push({ name: 'disconnect', resolve, reject })) as any,
+  disconnect: (expectSub) => new Promise((resolve, reject) => calls.push({ name: 'disconnect', arg: expectSub, resolve, reject })) as any,
 };
 const ITEMS: GmailPanelItem[] = [
   { id: 'm1', subject: '견적 요청드립니다', from: '김대표 <ceo@example.com>', date: '2026-11-17T00:00:00.000Z' },
@@ -424,5 +424,18 @@ describe('연결 끊기 결과 모름 — 성공·실패 단정 0, 회원이 누
     expect(calls.filter((c) => c.name === 'disconnect')).toHaveLength(1);
     await settle(idx(last('disconnect')), undefined);
     expect(text()).toContain('Gmail이 연결돼 있지 않습니다');
+  });
+});
+
+
+describe('QA041 패널 끊기 — 확인한 계정으로만', () => {
+  it('끊기는 지금 화면이 확인한 sub를 실어 보냄, 문구는 무조건 안전 보증 0', async () => {
+    await connectedWithList();
+    await click(btn('연결 끊기'));
+    await click([...el.querySelectorAll('button')].find((b) => b.textContent === '끊기'));
+    expect(last('disconnect').arg).toBe('sub-A');
+    await settle(idx(last('disconnect')), {}, true);
+    expect(text()).toContain('지금 확인한 Gmail 계정');
+    expect(text()).not.toContain('같은 연결만 지웁니다');
   });
 });

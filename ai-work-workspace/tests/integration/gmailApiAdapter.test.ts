@@ -35,7 +35,7 @@ describe('4명령 모두 기대 계정 머리글·명령 이름', () => {
     ['status', () => api.status(), 'gmailStatus', { ok: true, connected: false, email: null, sub: null }],
     ['list', () => api.list('sub-A'), 'gmailList', { ok: true, sub: 'sub-A', email: null, items: [] }],
     ['add', () => api.add(ADD), 'gmailAdd', { ok: true, status: 'added', inboxId: UUID1 }],
-    ['disconnect', () => api.disconnect(), 'gmailDisconnect', { ok: true }],
+    ['disconnect', () => api.disconnect('sub-A'), 'gmailDisconnect', { ok: true }],
   ])('%s', async (_n, fn, name, ok) => {
     reply = () => json(ok);
     await (fn as () => Promise<unknown>)();
@@ -169,5 +169,30 @@ describe('InboxBoard 연결', () => {
     await mount({ accountKey: 'uA', gmailOn: true });
     expect(el.querySelector('[data-testid="gmail-panel"]')).toBeNull();
     expect(names().filter((n) => n.startsWith('gmail'))).toEqual(['gmailStatus']);
+  });
+});
+
+
+describe('QA041 끊기 호출', () => {
+  it('본문은 expectSub 하나', async () => {
+    reply = () => json({ ok: true });
+    await api.disconnect('sub-A');
+    expect(sent[0].body).toEqual({ expectSub: 'sub-A' });
+  });
+  it.each([
+    ['네트워크 실패', () => { throw new TypeError('fetch failed'); }],
+    ['500', () => json({ message: 'RAW' }, 500)],
+    ['200 JSON 아님', () => new Response('x', { status: 200 })],
+    ['모르는 code', () => json({ ok: false, code: 'weird' })],
+  ])('%s → 결과 모름(code 없음), 재전송 0', async (_n, r) => {
+    reply = r as () => Response;
+    const out: any = await api.disconnect('sub-A').then(() => ({}), (e) => ({ e }));
+    expect(out.e).toEqual({});
+    expect(sent).toHaveLength(1);
+  });
+  it('빈 기대 계정 → 요청 0', async () => {
+    const out: any = await api.disconnect('').then(() => ({}), (e) => ({ e }));
+    expect(out.e.code).toBe('bad_request');
+    expect(sent).toHaveLength(0);
   });
 });

@@ -63,8 +63,10 @@ export function boundGmailApi(accountKey: string | null | undefined): GmailPanel
       if ((r.status !== "added" && r.status !== "existing") || typeof r.inboxId !== "string" || !UUID.test(r.inboxId)) throw err(undefined); // 성공 단정 0
       return { status: r.status, inboxId: r.inboxId };
     },
-    async disconnect() {
-      await call("gmailDisconnect", {}, false);
+    async disconnect(expectSub) {
+      // QA041: 화면이 확인한 계정만. 끊기는 쓰기라 이상 응답은 결과 모름(넣기와 같음)
+      if (typeof expectSub !== "string" || !expectSub) throw err("bad_request");
+      await call("gmailDisconnect", { expectSub }, true);
     },
   };
 }

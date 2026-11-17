@@ -17,11 +17,11 @@ export interface GmailPanelApi {
   status(): Promise<{ connected: boolean; email: string | null; sub: string | null }>;
   list(expectSub: string): Promise<{ sub: string; email: string | null; items: GmailPanelItem[] }>;
   add(input: { messageId: string; title: string; expectSub: string }): Promise<{ status: "added" | "existing"; inboxId: string }>;
-  disconnect(): Promise<void>;
+  disconnect(expectSub: string): Promise<void>;
 }
 
 export const GMAIL_CONNECT_URL = "/api/oauth/google-gmail/start";
-const DISCONNECT_UNSURE = "연결 해제 결과를 확인하지 못했습니다. 「연결 상태 다시 확인」을 눌러 지금 연결 상태를 확인해 주세요. 「연결 끊기」를 다시 눌러도 안전합니다(같은 연결만 지웁니다).";
+const DISCONNECT_UNSURE = "연결 해제 결과를 확인하지 못했습니다. 「연결 상태 다시 확인」을 눌러 지금 연결 상태를 확인해 주세요. 「연결 끊기」를 다시 누르면 지금 확인한 Gmail 계정의 연결만 끊습니다(그사이 다른 계정으로 바뀌었으면 지우지 않습니다).";
 const DEFAULT_TITLE = "메일 확인";
 
 type View =
@@ -192,7 +192,7 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
     const my = gen.current;
     setDisconnecting(true);
     try {
-      await api!.disconnect();
+      await api!.disconnect(sub);
       if (gen.current !== my) return;
       gen.current++;
       hideAll();
