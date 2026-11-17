@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 17:02:31 KST",
+  "checkedAt": "2026-11-17 17:04:28 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4913,9 +4913,9 @@
       "reviewer": "CX-MASTER-01",
       "title": "E3-1 간단결재 요청관리 템플릿",
       "status": "running",
-      "delivery": "returned",
-      "evidence": "e297153b8·922e4d28e·msg_0186d3820539 / f789e3281·aa7bcff52·msg_a2a28826de2b E3-2정확7경로배정/수락 / 4ca85f4b2 E3-2自動規則/警告toast7파일·作者관련58/tsc0·Masterdiff/clean確認 / 6ea81eb5c E3-3권한조사·msg_a9c2574739fa QA033external/mode shape누락P2 / 310846f19外部/mode比較修正·作者22/tsc0·Masterdiff確認 / msg_8822a8367bf2 external/mode해소·재귀id제거ValueRef user/page거짓동치잔여P2 / 788c95778 실제참조id보존/step보수비교·作者28/tsc0·Masterdiff확인 / QA033PASS·E3-3catalog/spec/권한행렬시험배정",
-      "next": "E3-3既存ACL·selectedapprover상태/owner지정/creator올림·suppliedinvalidfailclosed",
+      "delivery": "running",
+      "evidence": "e297153b8·922e4d28e·msg_0186d3820539 / f789e3281·aa7bcff52·msg_a2a28826de2b E3-2정확7경로배정/수락 / 4ca85f4b2 E3-2自動規則/警告toast7파일·作者관련58/tsc0·Masterdiff/clean確認 / 6ea81eb5c E3-3권한조사·msg_a9c2574739fa QA033external/mode shape누락P2 / 310846f19外部/mode比較修正·作者22/tsc0·Masterdiff確認 / msg_8822a8367bf2 external/mode해소·재귀id제거ValueRef user/page거짓동치잔여P2 / 788c95778 실제참조id보존/step보수비교·作者28/tsc0·Masterdiff확인 / QA033PASS·E3-3catalog/spec/권한행렬시험배정 / WorkspaceE3-3 exact spec/catalog/approvalPermission·회귀/본인문서 점유없음확인후착수",
+      "next": "E3-3 격리DB 서버권한행렬/동일거래우회/invalid원자거절 검증후소스반환",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "completion": "배정된소스/검증범위반환·실운영/배포미검수구분",
       "stage1": "e297153b8/QA030 done scoped source",
