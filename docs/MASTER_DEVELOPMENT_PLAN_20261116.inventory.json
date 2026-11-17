@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 18:36:55 KST",
+  "checkedAt": "2026-11-17 18:37:57 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -5094,11 +5094,11 @@
       "reviewer": "CX-MASTER-01",
       "title": "E4 Gmail함 기존기능/권한 대조와 최소범위 조사",
       "status": "running",
-      "delivery": "queued",
-      "scopeRef": "A1/F03완료소스동결. A2 gmailInbox.ts/시험·신규migration1·본인문서, UI/runtime/공용헬퍼0",
-      "evidence": "QA036 msg_46ecb675a48c: edef06d62 F07/F08 국소소스PASS, Master A1/F03소스준비수락(운영미적용)",
+      "delivery": "running",
+      "scopeRef": "신규supabase/migrations/0075_gmail_inbox_claims.sql·gmailInbox.ts/gmailInbox.test.ts·신규gmailAddDb.test.ts·본인PLAN/results. qa_gmail_a2만, UI/runtime/공용함수/타표구조/aww/aww_dev/운영0",
+      "evidence": "QA036 msg_46ecb675a48c: edef06d62 F07/F08 국소소스PASS, Master A1/F03소스준비수락(운영미적용); CC-WORKSPACE-01 A2-1 착수보고: 0075비어있음확인·0074동결·qa_gmail_a2전용",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "A2 원자RPC/서버·신규migration1·격리시험 구현배정, 정확경로예약대기. 운영OFF/미적용",
+      "next": "A2-1 서버/SQL 원자전달 구현·2연결격리시험 결과반환→독립검수",
       "sha": "edef06d62",
       "lastReviewedAt": "2026-11-17T09:00:52.380Z"
     },
