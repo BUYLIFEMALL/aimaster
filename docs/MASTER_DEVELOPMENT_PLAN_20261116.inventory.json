@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 12:54:16 KST",
+  "checkedAt": "2026-11-17 12:55:23 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4685,12 +4685,12 @@
       "task_id": "WS-20261117-21",
       "owner": "CC-WORKSPACE-01",
       "title": "E2 예약7-2 현재코드대조 및 첫 구현범위 확정",
-      "evidence": "msg_c34e47266f97 / msg_b19431213421 / 590debc62·author26booking/全396tests/tsc0·OFF / eaf931a53 2단계연결조사·msg_37002521ac85 P1상태덮음/buffer·P2철회설정경합 / Workspace2A중지·BookingSettingsCard.tsx미커밋보존,booking표before_min/after_min snapshot정의변경 Master수락 / e487a755f·作者수정전5실패→후6PASS/全402tests/tsc0·Masterdiff2파일확인 / msg_aef58a127584 기존P1/잠금P2해소·429/401대기후POST재시도잔여P2 / 5b1eb8b6c retryPOST검사루프내이동·作者2반례/34booking/tsc0·Masterdiff확인",
-      "next": "QA024 retry P2국소재검토·UI보류/OFF",
+      "evidence": "msg_c34e47266f97 / msg_b19431213421 / 590debc62·author26booking/全396tests/tsc0·OFF / eaf931a53 2단계연결조사·msg_37002521ac85 P1상태덮음/buffer·P2철회설정경합 / Workspace2A중지·BookingSettingsCard.tsx미커밋보존,booking표before_min/after_min snapshot정의변경 Master수락 / e487a755f·作者수정전5실패→후6PASS/全402tests/tsc0·Masterdiff2파일확인 / msg_aef58a127584 기존P1/잠금P2해소·429/401대기후POST재시도잔여P2 / 5b1eb8b6c retryPOST검사루프내이동·作者2반례/34booking/tsc0·Masterdiff확인 / QA024 지정서버1단계PASS·2A UI재개지시",
+      "next": "보존BookingSettingsCard/BookingForm·calendar-sync최소연결·jsdom2파일 재개·runtime/public배선0",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
-      "status": "ready_review",
-      "delivery": "returned",
+      "status": "running",
+      "delivery": "queued",
       "scopeRef": "분석/기존문서만·타인파일수정0",
       "completion": "정확허용범위 구현·회귀증거·외부/운영/빌드0",
       "sha": "5b1eb8b6c",
@@ -4698,7 +4698,8 @@
         "allowed": "booking.ts aww_bookings정의 before_min/after_min 정수NOTNULL DEFAULT0·범위검사",
         "environment": "격리시험DB만,BOOKING_ENABLED=false",
         "forbidden": "운영/aww_dev DDL·자동ALTER·UI재개"
-      }
+      },
+      "serverStep1": "done_scoped_source_review_5b1eb8b6c"
     },
     {
       "task_id": "FRONT-20261117-03",
@@ -4777,12 +4778,12 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "예약 서버1단계 OFF/상태/권한/동시성 독립검토",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "msg_d66c993d840e / msg_37002521ac85 / msg_16c3142cc3ed / msg_aef58a127584 / msg_7634148d2c62",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "msg_d66c993d840e / msg_37002521ac85 / msg_16c3142cc3ed / msg_aef58a127584 / msg_7634148d2c62 / msg_e35cc2ddfdf4 429expired/401needs_check각POST1·알림job0·지정1단계소스PASS",
       "scopeRef": "5ed9bc2ec 5파일·소스/가능한모의·공유DB초기화/맥build0",
       "completion": "OFF와상태전환/권한/개인정보/잠금검증·미연결2단계별도",
-      "next": "429/401대기후추가POST0 두경계재검토"
+      "next": "지정1단계소스검토종결·전체완성/실Google/운영未검수"
     }
   ]
 }
