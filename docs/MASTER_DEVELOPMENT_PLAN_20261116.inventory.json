@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 01:07:51 KST",
+  "checkedAt": "2026-11-18 01:11:31 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "monitoring": {
     "policyVersion": "1.9",
@@ -12,19 +12,17 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T16:07:48.742Z",
+      "at": "2026-11-17T16:11:29.515Z",
       "timezone": "Asia/Seoul",
-      "trigger": "01:00 기존Master 예약메시지 및 AGY/Mac완료 이벤트",
-      "scope": "예약수신·미등록HANDOFF/Git증분·관리자요청·AGY배포회수·Vercel배포메타·QA042결과판정",
+      "trigger": "AGY DES02 완료메시지 즉시확인",
+      "scope": "DES02 결과서·정확소스diff·경로미커밋·Mac후속검수전달",
       "evidence": [
-        "msg_2da2b6967553·Windows결과0",
-        "HANDOFF 신규v1.28/v1.29 발견→DES01회수",
-        "Vercel READY production meta0ed5083dc·제품45c208bc6",
-        "msg_06537eaec9e9 작성자보고·msg_9230a7c772f8 독립국소검수",
-        "DES02 실제발송 msg_fd811d3ea977·수락미확인"
+        "msg_468237b6e2af",
+        "121317458 2파일 diff·emotion-writer 미커밋0",
+        "msg_c7cabb226fc3 Mac QA042 재검수 실제발송"
       ],
-      "judgment": "DES01 배포회수/QA042 지정소스수락. P3 두건 국소수정반환·별도배포0. DB버전은담당보고, 실제375/위젯/회원키는미검수. 기존B2B/ESM/Music사람대기·Workspace활성/빌드승인미확보유지.",
-      "nextAction": "AGY DES02 결과후Mac국소재검수·다음01:30예약현재터미널점검"
+      "judgment": "국소수정반영확인·ready_review. 작성자테스트와독립재검수구분, 운영v1.29와미배포수정구분.",
+      "nextAction": "Mac QA042 결과후판정·소규모변경은다음묶음, 추가build/deploy0"
     },
     "notifications": [
       {
@@ -1552,7 +1550,7 @@
       "owner": "AG-UI-01",
       "stage": "운영READY·국소검수완료/P3보완배정",
       "completed": "메뉴/공식키발급링크 QA042 소스·실TSX모의PASS, storage widget 정적1곳",
-      "next": "DES02 다음묶음·실375px/위젯/회원키합성미검수",
+      "next": "DES02 121317458 미배포·Mac국소재검수대기·다음묶음",
       "reportedVersion": "v1.29",
       "evidence": "45c208bc6 / dpl_D9ExEsYD9sH9zAxZy38dkU2UUMUz / QA042",
       "evidenceLevel": "Vercel READY/metadata 독립확인·DBv1.29 담당보고·실화면 미검수"
@@ -5418,7 +5416,13 @@
       "sha": "45c208bc6",
       "evidence": ".ai/results/QA-20261118-042-CX-QA-01.md / msg_9230a7c772f8",
       "completion": "실TSX/jsdom 메뉴·링크·가짜test/save 지정범위PASS; P3 E-F01 Tab접근·E-F02 hover대비 개선권고",
-      "next": "DES02 반환시 두건 재검수·실375/위젯/회원키는 미검수"
+      "next": "DES02 반환시 두건 재검수·실375/위젯/회원키는 미검수",
+      "followup": {
+        "sha": "121317458",
+        "status": "review_dispatched",
+        "messageId": "msg_c7cabb226fc3",
+        "scope": "E-F01/E-F02 두건만·실브라우저키보드/375시각 미검수 유지"
+      }
     },
     {
       "task_id": "DES-20261118-02",
@@ -5426,12 +5430,13 @@
       "owner": "AG-UI-01",
       "reviewer": "CX-QA-01",
       "title": "키보기 키보드 접근·키발급 링크 hover 대비 보완",
-      "status": "ready",
-      "delivery": "queued",
-      "evidence": "QA042 E-F01/E-F02 / msg_fd811d3ea977",
+      "status": "ready_review",
+      "delivery": "review_dispatched",
+      "evidence": ".ai/results/DES-20261118-02-AG-UI-01.md / msg_468237b6e2af / diff121317458",
       "scopeRef": "emotion-writer KeySettings.tsx·globals.css 및 관련 경량검증/본인문서만, 점유확인후수정",
-      "completion": "Tab/Enter/Space 토글·동적이름·hover 흰 작은글자4.5:1 이상·Mac재검수",
-      "next": "AGY 수락/수정SHA 반환 대기·추가build/deploy0·다음묶음"
+      "completion": "diff 확인: tabIndex제거·동적aria-label·hover색변경. 작성자tsc0/35시험, 독립재검수대기",
+      "next": "Mac QA042 두건 재검수발송 msg_c7cabb226fc3·미배포 다음묶음·build/deploy0",
+      "sha": "121317458"
     }
   ]
 }
