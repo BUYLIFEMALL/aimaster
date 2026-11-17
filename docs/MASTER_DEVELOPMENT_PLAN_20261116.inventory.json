@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 13:00:28 KST",
+  "checkedAt": "2026-11-17 13:01:50 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4685,11 +4685,11 @@
       "task_id": "WS-20261117-21",
       "owner": "CC-WORKSPACE-01",
       "title": "E2 예약7-2 현재코드대조 및 첫 구현범위 확정",
-      "evidence": "msg_c34e47266f97 / msg_b19431213421 / 590debc62·author26booking/全396tests/tsc0·OFF / eaf931a53 2단계연결조사·msg_37002521ac85 P1상태덮음/buffer·P2철회설정경합 / Workspace2A중지·BookingSettingsCard.tsx미커밋보존,booking표before_min/after_min snapshot정의변경 Master수락 / e487a755f·作者수정전5실패→후6PASS/全402tests/tsc0·Masterdiff2파일확인 / msg_aef58a127584 기존P1/잠금P2해소·429/401대기후POST재시도잔여P2 / 5b1eb8b6c retryPOST검사루프내이동·作者2반례/34booking/tsc0·Masterdiff확인 / QA024 지정서버1단계PASS·2A UI재개지시 / 20b1504d0 UI2A6파일·作者22DOM/tsc0",
-      "next": "QA025 UI독립검토·서버/RPC/public배선0·3스위치OFF",
+      "evidence": "msg_c34e47266f97 / msg_b19431213421 / 590debc62·author26booking/全396tests/tsc0·OFF / eaf931a53 2단계연결조사·msg_37002521ac85 P1상태덮음/buffer·P2철회설정경합 / Workspace2A중지·BookingSettingsCard.tsx미커밋보존,booking표before_min/after_min snapshot정의변경 Master수락 / e487a755f·作者수정전5실패→후6PASS/全402tests/tsc0·Masterdiff2파일확인 / msg_aef58a127584 기존P1/잠금P2해소·429/401대기후POST재시도잔여P2 / 5b1eb8b6c retryPOST검사루프내이동·作者2반례/34booking/tsc0·Masterdiff확인 / QA024 지정서버1단계PASS·2A UI재개지시 / 20b1504d0 UI2A6파일·作者22DOM/tsc0 / 565ba4761 배선시험계획·msg_ad30304f069f 2B OFF배선별도범위배정",
+      "next": "QA025 UI독립검토병행·runtime/publicRPC/publicpage OFF배선+실handler시험·서버/UI동결",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "returned",
       "scopeRef": "분석/기존문서만·타인파일수정0",
       "completion": "정확허용범위 구현·회귀증거·외부/운영/빌드0",
@@ -4700,7 +4700,12 @@
         "forbidden": "운영/aww_dev DDL·자동ALTER·UI재개"
       },
       "serverStep1": "done_scoped_source_review_5b1eb8b6c",
-      "uiSha": "20b1504d0"
+      "uiSha": "20b1504d0",
+      "wiringStep": {
+        "scope": "runtime.ts/publicPages.ts/book page.tsx/bookingWiring.test.ts",
+        "switches": "ALL OFF",
+        "limitations": "path토큰 플랫폼접속로그원문0미보장·앱로그/Referer억제·운영DDL/Google/build0"
+      }
     },
     {
       "task_id": "FRONT-20261117-03",

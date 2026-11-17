@@ -320,3 +320,5 @@ RE-20261117-07 CC-REALTY-01만 .ai/results/RE-20261117-07-CC-REALTY-01.md 및 �
 BLOG-20261117-08 CC-BLOG-01: web-crawler/webapp/src/lib/inspect/safeFetch.ts·src/app/api/inspect/route.ts·새src/lib/inspect/robots.ts·tests/inspect-robots.test.cjs·package.json/package-lock.json·기존출처NOTICE/본인문서만. robots-parser정확3.0.1 MIT 설치1회,본문요청전매리디렉트검사/SSRF/DNS고정유지·실크롤링/빌드/배포0. 남의web-crawler/AGENTS.md보존.
 
 WS21 2A Workspace별도UI범위: 새src/app/book/[...path]/BookingForm.tsx·src/app/calendar-sync/BookingSettingsCard.tsx·calendar-sync/page.tsx/CalendarBoard.tsx최소연결·tests/integration/bookingSettingsCardDom.test.ts/bookingFormDom.test.ts. QA024 P1두건/P2로안전중지/기존변경보존·booking.ts/booking.test.ts서버수정우선(운영DDL0). runtime/publicPages배선은미승인유지.
+
+WS21 2B CC-WORKSPACE-01: ai-work-workspace/src/server/runtime.ts 예약handlers등록·src/server/publicPages.ts예약2명령·새src/app/book/[...path]/page.tsx·tests/integration/bookingWiring.test.ts만OFF배선. 3스위치OFF/DB생성0·QA025동안기존UI와서버booking5b1eb8b6c동결,필요추가변경먼저보고. 플랫폼path로그무노출보장금지·실외부/운영DDL/build/deploy0.
