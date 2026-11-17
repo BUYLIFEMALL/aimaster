@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 16:53:36 KST",
+  "checkedAt": "2026-11-17 16:56:08 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4912,14 +4912,14 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "E3-1 간단결재 요청관리 템플릿",
-      "status": "running",
+      "status": "ready_review",
       "delivery": "returned",
-      "evidence": "e297153b8·922e4d28e·msg_0186d3820539 / f789e3281·aa7bcff52·msg_a2a28826de2b E3-2정확7경로배정/수락 / 4ca85f4b2 E3-2自動規則/警告toast7파일·作者관련58/tsc0·Masterdiff/clean確認 / 6ea81eb5c E3-3권한조사·msg_a9c2574739fa QA033external/mode shape누락P2",
-      "next": "E3-2동명규칙실행의미필드비교국소수정우선·E3-3코드착수0",
+      "evidence": "e297153b8·922e4d28e·msg_0186d3820539 / f789e3281·aa7bcff52·msg_a2a28826de2b E3-2정확7경로배정/수락 / 4ca85f4b2 E3-2自動規則/警告toast7파일·作者관련58/tsc0·Masterdiff/clean確認 / 6ea81eb5c E3-3권한조사·msg_a9c2574739fa QA033external/mode shape누락P2 / 310846f19外部/mode比較修正·作者22/tsc0·Masterdiff確認",
+      "next": "QA033意味id含むshape国所再検査·E3-3scope未実装",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "completion": "배정된소스/검증범위반환·실운영/배포미검수구분",
       "stage1": "e297153b8/QA030 done scoped source",
-      "sha": "4ca85f4b2",
+      "sha": "310846f19",
       "permissionDecision": {
         "source": "Master 기존승인기능내설계판단",
         "request": "요청자올림checkbox",
@@ -5041,12 +5041,12 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "E3-2 템플릿 앱알림/권한/부분실패 독립검토",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "msg_6fe2d4656af1 / msg_a9c2574739fa 정상/부분실패PASS·동명shape P2",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "msg_6fe2d4656af1 / msg_a9c2574739fa 정상/부분실패PASS·동명shape P2 / msg_ebd588b5f316",
       "scopeRef": "4ca85f4b2 source/가능모의·제품/실알림/DBreset/build0",
       "completion": "3적용경로/동명보존/권한/대상/예시/경고toast/회귀판정",
-      "next": "의미필드비교수정후국소재검토"
+      "next": "同名external/mode/意味id除外国所再検査"
     }
   ]
 }
