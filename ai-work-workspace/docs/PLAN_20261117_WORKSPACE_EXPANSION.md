@@ -334,3 +334,9 @@ E1 독립 검수(QA17-003)와 별개로 계획만. 디자인 3안 선택 전이�
 - `content/catalog.ts`: 결재 템플릿 「상태」·「결재 올림」·「결재자」 규칙 + 자동화 ① 조건 변경 + 설명 문구(전체 권한자는 넘을 수 있음·자기 결재 가능 여부).
 - 시험 새 `tests/integration/approvalPermission.test.ts`(격리 DB): 같은 표에 **일반 편집(read_and_write) 회원 3명**(요청자·결재자·제3자) 공유 → `saveTransactions`(client) 경로로: 제3자·요청자가 상태 변경 = 거절, 결재자 = 허용, 요청자 「결재 올림」 = 허용·결재자 알림 1, 전체 권한자 = 허용(넘음 명시), 공개 API 경로도 같은 거절, 버튼 속성 편집(client) 거절, 기존 E3-1·E3-2 시험 회귀.
 - 남는 한계: 전체 권한자 넘음, (가)면 자기 결재 가능, 앱 알림만.
+
+#### 7-12 Master 기본 결정 (msg_7cb36f10c967) — 구현은 QA033 마감 뒤 정확 범위 확정 시 배정
+- 구조 = **안 A**: 「상태」는 **선택된 결재자만**(default `reader` + 예외 결재자 `read_and_write`), 요청자는 **「결재 올림」 체크칸만**(페이지 만든 사람 예외), 자동화 ①은 올림 체크로.
+- **결재자 지정 = (나) 표 전체 권한자만**(결재자 칸 default `reader`, 예외 없음 → editor만 씀). 요청자 셀프 지정·셀프 승인 허용안(가)은 **채택 안 함**.
+- 구분해서 밝힐 것: 전체 권한자는 기존처럼 규칙을 넘음(기존 ACL 공용 함수 `propertyRoleFor`·`dbaccess.ts` 재사용, 새 권한 엔진 0) — 「결재자 전용」은 일반 편집자 기준.
+- 보완 필요(구현 때): ① 템플릿 spec의 `property_permissions`를 그대로 복사하지 말고 **알려진 모양만 통과**(default_access 값 목록·override 종류·`property_info.property_id`가 같은 표 속성 번호·person/created_by 타입·role 값 목록 검사, 그 밖은 버림 — 규칙이 넓어지거나 빠지지 않게) ② 속성 번호 매핑 근거: 템플릿 표는 `copyTreeOps`가 schema를 그대로 복사(키 유지)하므로 `aApr`·`aSta`·`aSub` 참조가 복사 뒤에도 같은 표를 가리킴 — 시험으로 복사본 규칙의 `property_id`가 새 표 schema에 있는지 확인.
