@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T09:00:52.381Z",
+  "checkedAt": "2026-11-17T09:09:16.215Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2243,7 +2243,7 @@
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
       "status": "waiting_human",
       "delivery": "delivered",
-      "evidence": "msg_6d7a93569589 Mac QA012 누적소스PASS·hash739b35일치·작성자62근거분리 / msg_e7bf9e5ec131 릴리스초안 문구4건P2 / msg_7908deab7eff 20e51e602 객체이름의존성표·문서4건정정 / msg_2c7fadd530f9 bbca7e002 핵심RPC20인자대조 + Master Vercel project/env 직접확인 / msg_059ac8eead6e 로컬공개모드덮어쓰기0·운영배포스크립트고정대상발견 / msg_abacc5b993d3 921e5418a 実행자료/pre Lab읽기16·로컬구조11 조건부리허설 / msg_c71e3c91fe82 QA015 verify필수열권한/attempt CRUD/구조연결 P2 / msg_aa75bb4dd931 5dca84102 verify20·작성자18권한구조반례/로컬23 / msg_ce494f23b14b QA015 정책NULL집계누락 P2 / msg_fd616e3d87f2 3fb43971e 정책NULL반례검출/정상구조15·로컬24 / msg_e0ba89802fad QA015 누적준비패키지 정적PASS·정책순수3assert / msg_093889c364cc 직접승인·Master CLI project/queue 검사 / msg_fd9de59c3474 MCP승인10분만료·적용0·기록/표/함수/trigger없음읽기확인 / msg_81937c0449b2 두번째승인창만료·실행0/메타데이터미적용재확인 / msg_0e0bbeb14f64 3회승인창만료·Accept0/실행0·대상객체0 / msg_1d3293ca0597 Lab0104없음읽기·d019222ca 출처5b02c3399재동결/기대7함수지문準備",
+      "evidence": "msg_6d7a93569589 Mac QA012 누적소스PASS·hash739b35일치·작성자62근거분리 / msg_e7bf9e5ec131 릴리스초안 문구4건P2 / msg_7908deab7eff 20e51e602 객체이름의존성표·문서4건정정 / msg_2c7fadd530f9 bbca7e002 핵심RPC20인자대조 + Master Vercel project/env 직접확인 / msg_059ac8eead6e 로컬공개모드덮어쓰기0·운영배포스크립트고정대상발견 / msg_abacc5b993d3 921e5418a 実행자료/pre Lab읽기16·로컬구조11 조건부리허설 / msg_c71e3c91fe82 QA015 verify필수열권한/attempt CRUD/구조연결 P2 / msg_aa75bb4dd931 5dca84102 verify20·작성자18권한구조반례/로컬23 / msg_ce494f23b14b QA015 정책NULL집계누락 P2 / msg_fd616e3d87f2 3fb43971e 정책NULL반례검출/정상구조15·로컬24 / msg_e0ba89802fad QA015 누적준비패키지 정적PASS·정책순수3assert / msg_093889c364cc 직접승인·Master CLI project/queue 검사 / msg_fd9de59c3474 MCP승인10분만료·적용0·기록/표/함수/trigger없음읽기확인 / msg_81937c0449b2 두번째승인창만료·실행0/메타데이터미적용재확인 / msg_0e0bbeb14f64 3회승인창만료·Accept0/실행0·대상객체0 / msg_1d3293ca0597 Lab0104없음읽기·d019222ca 출처5b02c3399재동결/기대7함수지문準備; 주인님 재개질의→Backend msg_4a6d06fc6472 재확인 요청(터미널 미전송입력으로 전달보류)",
       "decision": {
         "resolved": true,
         "source": "msg_093889c364cc 주인님직접채팅 2026-11-17 필요한기능진행/DB적용+Lab빌드1회",
@@ -3032,13 +3032,13 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "E4 Gmail함 기존기능/권한 대조와 최소범위 조사",
-      "status": "running",
-      "delivery": "running",
+      "status": "ready_review",
+      "delivery": "returned",
       "scopeRef": "gmailInbox.ts·Gmail start/callback·gmailInbox.test.ts·본인 문서. runtime/UI/SQL 및 운영·실외부 제외",
-      "evidence": "PLAN 7-16 3a7f4a254; msg_02e977ff972d 배정; CC-WORKSPACE-01 A1 착수 보고 수신: 새 Gmail 서버/OAuth/시험·고지 확인, runtime/UI/SQL/공용 변경0",
+      "evidence": "A1 코드6e6267120·문서62c03be63·모의38시험/tsc 보고; Mac QA036 msg_e48cd51ac1ba 배정(수락미확인)",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "A1 OFF 서버/OAuth 구현·격리 모의 검증. A2 inbox 성공후 claim기록 실패/응답유실·30일중복경계 보완 전 구현 보류",
-      "sha": "3a7f4a254",
+      "next": "QA036 OFF/OAuth/JWT/동시callback/연결변경 독립검수; A2 inbox 불확실전달/보관 조사 계속",
+      "sha": "6e6267120",
       "lastReviewedAt": "2026-11-17T09:00:52.380Z"
     },
     {
@@ -3059,6 +3059,20 @@
         "next": "승인전미배포/실호출0"
       },
       "next": "구체소스묶음보존·승인후실행순서확정"
+    },
+    {
+      "task_id": "QA-20261117-036",
+      "parent_task_id": "WS-20261117-25",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "Gmail A1 OFF 서버 OAuth 독립 검수",
+      "status": "ready",
+      "delivery": "queued",
+      "sha": "6e6267120",
+      "evidence": "msg_e48cd51ac1ba",
+      "scopeRef": "Mac 실제모듈·가짜통신/메모리·읽기 검토, 공유DB reset/build/deploy/실Google0",
+      "completion": "OFF/OAuth/JWT·동시callback·연결계정 경계 판정 및 재현근거",
+      "next": "Mac 수락/검수 결과 반환"
     }
   ],
   "programOverrides": [
@@ -3384,13 +3398,13 @@
       "order": "1 · ESM",
       "owner": "Ecom + Mac Tester",
       "stage": "v1.02 운영 배포·Mac 웹 회귀 완료",
-      "next": "실ESM 등록/확장 연결은 별도 범위, 추가 빌드 없음"
+      "next": "주인님 직접 ESM입력만·쇼핑제휴대기열 실검수 Mac 배정 msg_e48cd51ac1ba·로그인/설치 사람조작 취합"
     },
     {
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
       "stage": "v1.57운영·E3소스독립/통합560시험PASS·v1.58미배포",
-      "next": "WS25 A1 Gmail OFF 서버/OAuth 구현 배정·A2 받은업무 불확실/중복경계 조사·WS26 승인 대기"
+      "next": "WS25 A1 ready_review→Mac QA036 배정·A2 불확실전달 보완·WS26 승인대기"
     },
     {
       "order": "3 · B2B",
