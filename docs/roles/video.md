@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령) · 실제로 함께 맡아 온 폴더: `shorts-onestop-studio/`(v1.53) · `shots/`(v1.50) · `music-video-studio/`(v1.30, 음악 담당과 겹침) · `video-to-gif/`(v1.28)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-16 `claude-win-video` (GIF 변환 v1.33 배포 — 상세페이지로 GIF/WebP 보내기, QA-03 PASS)
+- 마지막 갱신: 2026-11-17 `claude-win-video` (공용 MP4 인코더 탭 단위 가속 멈춤 기억 — 소스 완료·QA032 PASS·미배포, 떡상 분석 DB 2표 운영 적용)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -12,18 +12,21 @@
 | — | 지금 맡은 작업 없음(메이커 후속 세 가지 끝, 다음 지시 대기) | — | — |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
-- 2026-11-16 유튜브 떡상 분석 v1.30 — 배포 끝. 남은 것: DB SQL 적용(`youtube-viral-studio/supabase/migrations/20261116120000_yvs_viral_finder_usage_cache.sql`, 요청함), 시험 계정 로그인 뒤 실제 검색·AI 기획안 1회 시험. 2·3단계는 별도 배정.
+- 2026-11-16 유튜브 떡상 분석 v1.30 — 배포 끝, DB 2표 SQL 운영 적용·읽기 확인 끝(11-17, 요청함 1c7b6dda 승인완료). 남은 것: 시험 계정 로그인 뒤 실제 검색(로그인 요청은 Master 취합)·AI 기획안 1회(비용 승인). 2·3단계는 별도 배정.
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `ai-video-studio`·`shorts-onestop-studio` | Vidu Q3 Turbo·Pro 연동, 원스톱 「상품 장면도 AI 영상 허용」 — **코드·배포 완료**. 실생성 확인(Vidu 약 360원·상품 장면 변형 약 $0.25)만 남음 | 주인님 2026-11-15 「나중에 필요할 때 연동, 작업만 해놔」 | `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md` |
 | `ai-image-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `video-to-gif` | v1.33 배포(11-16) — 상세페이지 실제 왕복(GIF·WebP 각 1회)은 시험 상품 범위 확인 대기 · v1.32 맥 재확인: 상품 영상 완료·멈추기, 고속 변환 감지, 고속 실변환 1회. V4 윈도우 실제 녹화는 사람 클릭 필요(주인님) | 맥미니 결과 · 주인님 V4 | `video-to-gif/docs/IMPROVEMENTS.md` 맨 위 |
 | `shorts-onestop-studio`·`shots`·`lyric-video-studio` | 공용 `browser-mp4-encoder` 멈춤 대비 사본(`44db8e230`) | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
+| `shorts-onestop-studio`·`shots`·`lyric-video-studio`·`video-to-gif` | 공용 `browser-mp4-encoder` 탭 단위 가속 멈춤 기억(`2b9a06c9c`, MOV-20261117-07) — **소스 완료·맥 QA032 소스 PASS, 미배포**. 실제 하드웨어·Apple Silicon MP4 미검수 | 다음 실제 기능 배포 묶음 | `.ai/results/MOV-20261117-07B-CC-MOVIE-01.md`, `docs/SHARED_MODULES.md` |
 | `shots` | v1.51 배포됨(11-14) — 「모든 장면 영상으로」 실제 유료 실행은 회원 첫 사용 때 오류가 나면 시험 | — | `shots/docs/IMPROVEMENTS.md` |
 | 영상 프로그램 6개 | 서버 지역 서울(`icn1`) 설정 완료 — 각 프로그램 다음 배포 때 반영, 배포 뒤 `x-vercel-id` 확인 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `shorts-onestop-studio` | v1.59 배포됨(11-15). 남은 것: Gemini 낱말 시각 1원 시험(시험 계정 로그인 대기), 영상 주소를 상품 쪽으로 반환(상품 번호는 uuid — `product-id`, 받는 쪽 화면은 상품 담당과 협의) | 주인님 로그인 · 상품 담당 | `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md` |
 
 ## 최근 완료 (최근 10개)
+- 2026-11-17 공용 MP4 인코더 탭 단위 가속 멈춤 기억 `2b9a06c9c` — 대체 성공 뒤에만 기억, 같은 탭 다음 내보내기 기본 방식부터, 모의 시험 9/9, 맥 QA032 소스 PASS. 미배포(다음 실제 기능 배포 묶음).
+- 2026-11-17 유튜브 떡상 분석 DB 2표·정책·함수·매일 정리 예약 운영 적용(주인님 실행·읽기 확인).
 - 2026-11-16 유튜브 떡상 분석 v1.30 운영 배포 `youtube-viral-studio-i71hni371`(`dpl_6ZW5BA88C1vb6cfUtmUY2u5QcJR3`) — 떡상 시장 탐색 + 저장공간 위젯·로그인 정책, DB 버전 맞춤.
 - 2026-11-16 boks-youtube-finder(MIT) 1단계 이식 구현 `87ebcae7d` — 평소 대비 중앙값 판정·관련성/종교 거르기·기회 지수·트렌드 결론·사용량/채널 캐시 표·Claude 기획안, 쇼츠 180초 통일(미배포).
 - 2026-11-16 GIF 변환 v1.33: 상세페이지로 보내기 결과 종류(GIF/WebP)대로·10MB 사전 차단·한 호출당 자동 전송 1회(QA-02 P1 수정 `2ae34fbdc`, QA-03 PASS), 배포 `video-to-38pox5t03`·DB/확장 v1.33 검증 OK (MOV-20261116-01~03)
