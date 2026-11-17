@@ -47,6 +47,7 @@ type Row = import('../../src/server/gmailInbox.ts').GmailAccount & { userId: str
 let rows: Row[] = [];
 let app: { clientId: string; clientSecret: string } | null = { clientId: CLIENT, clientSecret: SECRET };
 const storeCalls: string[] = [];
+const adds: any[] = [];
 let tick = async () => {};
 const fakeStore = () => ({
   async getApp() { storeCalls.push('getApp'); await tick(); return app; },
@@ -65,6 +66,7 @@ const fakeStore = () => ({
   },
   async updateToken(_u: string, id: string, t: any) { storeCalls.push('update'); const r = rows.find((x) => x.id === id); if (r) Object.assign(r, { accessToken: t.accessToken, tokenExpiresAt: t.tokenExpiresAt }); },
   async markNeedsReconnect() { storeCalls.push('reconnect'); },
+  async addToInbox(i: any) { storeCalls.push('add'); adds.push(i); return { status: 'added' as const, inboxId: 'inbox-1' }; },
   async deleteAccount(userId: string, externalId?: string, onlyIfAccessToken?: string) { storeCalls.push('delete'); await tick(); rows = rows.filter((r) => !(r.userId === userId && (!externalId || r.externalId === externalId) && (!onlyIfAccessToken || r.accessToken === onlyIfAccessToken))); },
 });
 
@@ -103,7 +105,7 @@ function reset(on: boolean) {
   gm.setGmailEnabledForTests(on);
   gm.setGmailFetch(fakeFetch);
   gm.setGmailStoreForTests(fakeStore() as any);
-  rows = []; hits = []; storeCalls.length = 0; adminCalls.n = 0; access.calls = 0; access.fn = null;
+  rows = []; hits = []; storeCalls.length = 0; adds.length = 0; adminCalls.n = 0; access.calls = 0; access.fn = null;
   app = { clientId: CLIENT, clientSecret: SECRET };
   tokenReply = goodToken();
   tick = async () => {};
@@ -617,5 +619,74 @@ describe('QA036 F02 잔여 — 토큰 갱신 응답을 기다리는 사이 앱·
     tokenReply = () => json({ access_token: 'ya29.new', expires_in: 3600 });
     expect((await gm.listGmailInbox(USER)).items).toHaveLength(2);
     expect(storeCalls.filter((c) => c === 'update')).toHaveLength(1);
+  });
+});
+
+
+// ---------------------------------------------------------------- A2-1 고른 메일 → 받은 업무(서버 단계, DB는 가짜 — 실제 DB 함수는 gmailAddDb.test.ts)
+describe('A2-1 addGmailToInbox(서버)', () => {
+  async function connected() {
+    reset(true);
+    await gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT));
+    hits = []; storeCalls.length = 0; adds.length = 0;
+  }
+  it('꺼짐 → DB·구글 0', async () => {
+    reset(false);
+    await expect(gm.addGmailToInbox(USER, { messageId: 'm1', title: 't', expectSub: 'sub-A' })).rejects.toMatchObject({ code: 'off' });
+    expect(storeCalls).toEqual([]);
+    expect(hits).toEqual([]);
+  });
+  it.each([
+    ['메시지 번호 형식 위반', { messageId: '../x', title: 't', expectSub: 'sub-A' }, 'bad_request'],
+    ['제목 비어 있음', { messageId: 'm1', title: '   ', expectSub: 'sub-A' }, 'bad_request'],
+    ['제목 201자', { messageId: 'm1', title: 'x'.repeat(201), expectSub: 'sub-A' }, 'bad_request'],
+    ['계정 확인값 없음', { messageId: 'm1', title: 't', expectSub: '' }, 'bad_request'],
+    ['화면이 본 계정과 지금 계정이 다름', { messageId: 'm1', title: 't', expectSub: 'sub-OLD' }, 'conflict'],
+  ])('%s → 거절, 구글·넣기 0', async (_n, input, code) => {
+    await connected();
+    await expect(gm.addGmailToInbox(USER, input as any)).rejects.toMatchObject({ code });
+    expect(hits.filter((h) => h.url.includes('gmail.googleapis.com'))).toHaveLength(0);
+    expect(adds).toHaveLength(0);
+  });
+  it('성공: metadata·fields=id로 소유 확인(머리글 0), 서버가 해시·링크 계산, 제목 앞뒤 공백 제거, 화면이 보낸 URL 없음', async () => {
+    await connected();
+    const r = await gm.addGmailToInbox(USER, { messageId: 'm1', title: '  견적 회신하기  ', expectSub: 'sub-A', sourceUrl: 'https://evil.example' } as any);
+    expect(r).toEqual({ status: 'added', inboxId: 'inbox-1' });
+    const g = hits.filter((h) => h.url.includes('gmail.googleapis.com'));
+    expect(g).toHaveLength(1);
+    const u = new URL(g[0].url);
+    expect(u.pathname.endsWith('/messages/m1')).toBe(true);
+    expect(u.searchParams.get('format')).toBe('metadata');
+    expect(u.searchParams.get('fields')).toBe('id');
+    expect(u.searchParams.getAll('metadataHeaders')).toEqual([]);
+    expect(adds).toEqual([{ userId: USER, accountHash: gm.gmailAccountHash('sub-A'), messageId: 'm1', title: '견적 회신하기', sourceUrl: 'https://mail.google.com/mail/u/0/#all/m1' }]);
+    expect(adds[0].accountHash).not.toContain('sub-A');
+    expect(JSON.stringify(adds)).not.toContain('a@example.com');
+  });
+  it('구글이 그 메일 없음(404) → not_found·넣기 0', async () => {
+    await connected();
+    const realFetch = fakeFetch;
+    gm.setGmailFetch((async (u: string, init?: RequestInit) => {
+      if (/messages\/m1\?/.test(String(u))) { hits.push({ url: String(u), method: 'GET' }); return json({ error: { code: 404 } }, 404); }
+      return (realFetch as any)(u, init);
+    }) as unknown as typeof fetch);
+    await expect(gm.addGmailToInbox(USER, { messageId: 'm1', title: 't', expectSub: 'sub-A' })).rejects.toMatchObject({ code: 'not_found' });
+    expect(adds).toHaveLength(0);
+  });
+  it('구글 응답의 id가 다르면 not_found·넣기 0', async () => {
+    await connected();
+    const realFetch = fakeFetch;
+    gm.setGmailFetch((async (u: string, init?: RequestInit) => {
+      if (/messages\/m1\?/.test(String(u))) return json({ id: 'other' });
+      return (realFetch as any)(u, init);
+    }) as unknown as typeof fetch);
+    await expect(gm.addGmailToInbox(USER, { messageId: 'm1', title: 't', expectSub: 'sub-A' })).rejects.toMatchObject({ code: 'not_found' });
+    expect(adds).toHaveLength(0);
+  });
+  it('소유 확인 응답을 기다리는 사이 연결이 다른 계정으로 바뀜 → conflict·넣기 0', async () => {
+    await connected();
+    onGet = () => { rows[0].externalId = 'sub-B'; };
+    await expect(gm.addGmailToInbox(USER, { messageId: 'm1', title: 't', expectSub: 'sub-A' })).rejects.toMatchObject({ code: 'conflict' });
+    expect(adds).toHaveLength(0);
   });
 });

@@ -80,6 +80,8 @@ export interface GmailStore {
   markNeedsReconnect(userId: string, accountId: string): Promise<void>;
   /** 이 워크스페이스의 연결 줄만 삭제(구글 호출 0). onlyIfAccessToken을 주면 그 토큰을 가진 줄만(다른 콜백이 새로 저장한 같은 계정 줄은 남김) */
   deleteAccount(userId: string, externalId?: string, onlyIfAccessToken?: string): Promise<void>;
+  /** A2-1: DB 함수 public.gmail_inbox_add(마이그레이션 0075) — 클레임 선점→받은 업무→연결을 한 거래로, 멱등 */
+  addToInbox(input: { userId: string; accountHash: string; messageId: string; title: string; sourceUrl: string }): Promise<{ status: "added" | "existing"; inboxId: string }>;
 }
 
 const admin = () => createAdminClient() as unknown as SupabaseClient;
@@ -117,6 +119,19 @@ const supabaseStore: GmailStore = {
     if (error) throw new GmailError("server", "연결 정보를 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
   },
   markNeedsReconnect: (userId, accountId) => markMemberAccountNeedsReconnect(admin(), userId, accountId),
+  async addToInbox(i) {
+    const { data, error } = await admin().rpc("gmail_inbox_add", { p_user: i.userId, p_account_hash: i.accountHash, p_message_id: i.messageId, p_title: i.title, p_source_url: i.sourceUrl });
+    if (error) {
+      // 40001 = 클레임이 그사이 바뀜(받은 업무가 지워지는 중 등) → 회원이 다시 누르면 됨. 그 밖은 일반 문구(원문 0)
+      if ((error as { code?: string }).code === "40001") throw new GmailError("conflict", "받은 업무가 그사이 바뀌었습니다. 다시 눌러 주세요.");
+      throw new GmailError("server", "받은 업무에 넣지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    }
+    const row = (Array.isArray(data) ? data[0] : data) as { status?: unknown; inbox_id?: unknown } | null;
+    if (!row || (row.status !== "added" && row.status !== "existing") || typeof row.inbox_id !== "string") {
+      throw new GmailError("server", "받은 업무에 넣은 결과를 확인하지 못했습니다. 받은 업무 목록을 새로 열어 확인해 주세요.");
+    }
+    return { status: row.status, inboxId: row.inbox_id };
+  },
   async deleteAccount(userId, externalId, onlyIfAccessToken) {
     let q = admin().from("member_platform_accounts").delete().eq("user_id", userId).eq("platform", "google_gmail");
     if (externalId) q = q.eq("external_id", externalId);
@@ -337,6 +352,7 @@ async function gmailGet(token: string, url: string): Promise<Record<string, unkn
   const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (res.status === 401) throw new GmailError("auth", "Gmail 연결이 만료됐습니다. 「Gmail 연결」을 다시 눌러 주세요.");
   if (res.status === 403) throw new GmailError("forbidden", "Gmail API가 꺼져 있거나 권한이 없습니다. 구글 클라우드에서 「Gmail API」를 사용 설정해 주세요.");
+  if (res.status === 404) throw new GmailError("not_found", "그 메일을 연결된 Gmail에서 찾지 못했습니다. 목록을 새로 열어 주세요.");
   if (res.status === 429) throw new GmailError("server", "Gmail 사용 한도를 넘었습니다. 잠시 뒤 다시 시도해 주세요.");
   if (!res.ok) throw new GmailError("server", `Gmail이 응답하지 않았습니다(${res.status}). 잠시 뒤 다시 시도해 주세요.`);
   return body;
@@ -383,6 +399,45 @@ export async function listGmailInbox(userId: string, expectSub?: string): Promis
   // 늦은 응답: 그사이 연결이 끊기거나 계정이 바뀌었으면 결과를 버림
   await sameAccountOrThrow(userId, account);
   return { sub: account.externalId, email: account.username, items };
+}
+
+// ---------------------------------------------------------------- A2-1 고른 메일 → 받은 업무(제목·원문 링크만)
+export const GMAIL_MESSAGE_LINK = (id: string) => `https://mail.google.com/mail/u/0/#all/${id}`;
+/** 연결 계정 번호(sub)의 SHA-256(원문 sub는 DB에 넣지 않음 — 같은 sub면 같은 값이라 익명은 아님) */
+export const gmailAccountHash = (sub: string) => createHash("sha256").update(sub).digest("hex");
+
+/**
+ * 회원이 목록에서 고른 메일 1건을 받은 업무로. 화면은 messageId·(회원이 고친) 제목·목록을 받을 때의 계정(expectSub)만 보낸다.
+ * 서버가 지금 연결·계정을 다시 읽고, 그 메일이 연결 계정 메일인지 구글에 확인(metadata, id만)한 뒤, 계정 해시·원문 링크를 직접 만들어 DB 함수에 넘긴다.
+ * 결과: added(새로 넣음) / existing(이미 넣은 메일 — 같은 번호). 응답이 화면에 못 가면 화면은 결과를 모름 → 자동 재전송 0, 회원이 다시 누르면 existing.
+ * Gmail API 메시지 번호와 Gmail 화면 주소 번호가 같은지는 실계정 확인 전 보장하지 않음.
+ */
+export async function addGmailToInbox(userId: string, input: { messageId: string; title: string; expectSub: string }): Promise<{ status: "added" | "existing"; inboxId: string }> {
+  ensureOn();
+  const messageId = typeof input.messageId === "string" ? input.messageId : "";
+  if (!MSG_ID.test(messageId)) throw new GmailError("bad_request", "메일 번호가 올바르지 않습니다.");
+  const title = typeof input.title === "string" ? input.title.trim() : "";
+  if (title.length < 1 || title.length > 200) throw new GmailError("bad_request", "업무 제목은 1~200자로 적어 주세요.");
+  if (typeof input.expectSub !== "string" || !input.expectSub) throw new GmailError("bad_request", "목록을 새로 열어 주세요.");
+  const account = await currentAccount(userId);
+  if (!account) throw new GmailError("not_found", "Gmail이 연결돼 있지 않습니다. 「Gmail 연결」을 눌러 주세요.");
+  if (account.externalId !== input.expectSub) throw new GmailError("conflict", GMAIL_ACCOUNT_CHANGED_MESSAGE);
+  let token = await validToken(userId, account);
+  await sameAccountOrThrow(userId, account);
+  // 그 메일이 연결 계정 메일인지(본문·머리글 없이 id만). 401이면 1번만 새로 받아 다시
+  const url = `${API}/${encodeURIComponent(messageId)}?${new URLSearchParams({ format: "metadata", fields: "id" })}`;
+  let m: Record<string, unknown>;
+  try {
+    m = await gmailGet(token, url);
+  } catch (e) {
+    if (!(e instanceof GmailError && e.code === "auth")) throw e;
+    token = await validToken(userId, account, true);
+    await sameAccountOrThrow(userId, account);
+    m = await gmailGet(token, url);
+  }
+  if (m.id !== messageId) throw new GmailError("not_found", "그 메일을 연결된 Gmail에서 찾지 못했습니다. 목록을 새로 열어 주세요.");
+  await sameAccountOrThrow(userId, account); // 확인하는 사이 연결이 바뀌었으면 넣지 않음
+  return store.addToInbox({ userId, accountHash: gmailAccountHash(account.externalId), messageId, title, sourceUrl: GMAIL_MESSAGE_LINK(messageId) });
 }
 
 /** 지금 연결이 처음 읽은 연결과 같은 계정인지(끊김 404·바뀜 409) */
