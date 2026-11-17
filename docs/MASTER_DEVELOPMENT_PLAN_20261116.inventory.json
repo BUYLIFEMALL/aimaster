@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 00:23:17 KST",
+  "checkedAt": "2026-11-18 00:28:43 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "monitoring": {
     "policyVersion": "1.9",
@@ -12,18 +12,18 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T15:23:15.099Z",
+      "at": "2026-11-17T15:28:40.312Z",
       "timezone": "Asia/Seoul",
-      "trigger": "주인님 동일터미널지시·30분메시지예약시험수신",
-      "scope": "이전Orca자동화비활성·완료된추가시험터미널1개닫기·Windows예약정의/실행결과·현재Master메시지수신 확인",
+      "trigger": "주인님 최종 점검 운영기준 재확인",
+      "scope": "AI_TEAM_RULES v1.9 5개점검의무·Windows PT30M 기존Master메시지예약·별도Orca자동화중지 대조",
       "evidence": [
+        "공통지침 v1.9 최상단 현재터미널/5분/이벤트/미등록인계/판정후배정/시각기록 명시",
+        "AIMaster-Master-30Min-Wake Ready/PT30M/LastTaskResult0",
         "a8e75832-fa68-405d-b823-b72d26ec84a2 enabled=false",
-        "term_b6e992d2-81b3-497c-be5c-ecf8c226c4d7 close확인",
-        "AIMaster-Master-30Min-Wake LastTaskResult0·PT30M",
-        "msg_34920e0d96b0 현재Master수신"
+        "기존시험 msg_34920e0d96b0 현재Master수신·추가Codex창닫힘확인"
       ],
-      "judgment": "현재Master터미널메시지예약시험성공. 별도Codex/점검agent 생성예약은중지·시험창닫음. 운영제품/DB/build/deploy 변경0.",
-      "nextAction": "00:30 첫정시메시지회차를현재Master에서처리·실수신/점검시각갱신,새창생성0"
+      "judgment": "주인님 최종기준 전부 기존지침/실제설정과일치. 별도Codex/점검agent 생성0. 새규칙중복작성이나재시험전송불필요.",
+      "nextAction": "30분메시지를현재Master에서처리, 실행중5분/이벤트점검·근거판정후후속배정/시각기록 유지"
     },
     "notifications": [
       {
