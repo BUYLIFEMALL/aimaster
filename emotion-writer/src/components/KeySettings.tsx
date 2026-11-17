@@ -12,6 +12,44 @@ import {
   Save,
 } from "lucide-react";
 
+const PROVIDER_INFO: Record<
+  Provider,
+  {
+    name: string;
+    platformName: string;
+    createUrl: string;
+    signupUrl: string;
+    createBtnLabel: string;
+    description: string;
+  }
+> = {
+  gemini: {
+    name: "Google Gemini",
+    platformName: "Google AI Studio",
+    createUrl: "https://aistudio.google.com/apikey",
+    signupUrl: "https://aistudio.google.com/",
+    createBtnLabel: "Google AI Studio API 키 발급/생성하기",
+    description:
+      "글귀와 AI 배경 생성에 사용되며, 생성 비용은 본인 Google 계정 크레딧에 청구됩니다.",
+  },
+  pixabay: {
+    name: "Pixabay",
+    platformName: "Pixabay",
+    createUrl: "https://pixabay.com/api/docs/",
+    signupUrl: "https://pixabay.com/accounts/register/",
+    createBtnLabel: "Pixabay API 키 발급/생성하기",
+    description: "Pixabay의 감성 사진 검색에 무료로 사용됩니다.",
+  },
+  pexels: {
+    name: "Pexels",
+    platformName: "Pexels",
+    createUrl: "https://www.pexels.com/api/new/",
+    signupUrl: "https://www.pexels.com/onboarding/",
+    createBtnLabel: "Pexels API 키 발급/생성하기",
+    description: "Pexels의 고화질 감성 사진 검색에 무료로 사용됩니다.",
+  },
+};
+
 export function KeySettings({
   provider,
   registered,
@@ -27,19 +65,7 @@ export function KeySettings({
   const [notice, setNotice] = useState("");
   const [tested, setTested] = useState(false);
 
-  const name =
-    provider === "gemini"
-      ? "Google Gemini"
-      : provider === "pixabay"
-        ? "Pixabay"
-        : "Pexels";
-
-  const guide =
-    provider === "gemini"
-      ? "https://aistudio.google.com/apikey"
-      : provider === "pixabay"
-        ? "https://pixabay.com/api/docs/"
-        : "https://www.pexels.com/api/new/";
+  const info = PROVIDER_INFO[provider];
 
   async function submit(action: "test" | "save") {
     if (busy) return;
@@ -76,7 +102,7 @@ export function KeySettings({
     <div className="key-settings">
       <div className="flex items-center gap-2 mb-2">
         <KeyRound className="h-5 w-5 text-amber-500" />
-        <h3 className="text-base font-bold text-slate-900 m-0">{name} API 키</h3>
+        <h3 className="text-base font-bold text-slate-900 m-0">{info.name} API 키</h3>
       </div>
       <p className={tested ? "connected" : "muted"}>
         {tested
@@ -100,25 +126,50 @@ export function KeySettings({
             disabled={busy}
             maxLength={500}
             autoComplete="off"
+            style={{ paddingRight: "36px" }}
             placeholder={
               registered
                 ? "키를 변경하려면 새 키를 입력하세요"
                 : "본인 API 키를 입력하세요"
             }
           />
+          <button
+            type="button"
+            onClick={() => setShow((v) => !v)}
+            disabled={busy}
+            tabIndex={-1}
+            style={{
+              position: "absolute",
+              right: "8px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              background: "transparent",
+              border: "none",
+              padding: "4px",
+              cursor: "pointer",
+              color: "#a8a29e",
+            }}
+            title={show ? "키 숨기기" : "키 보기"}
+          >
+            {show ? <EyeOff size={15} /> : <Eye size={15} />}
+          </button>
         </div>
       </label>
 
-      <div className="button-row justify-start mt-3">
-        <button
-          type="button"
-          className="flex items-center gap-1.5"
-          onClick={() => setShow((v) => !v)}
-          disabled={busy}
+      {/* 버튼 행: 주인님 지시로 [보기] 버튼 대신 [API 키 발급/생성하기] 3D 버튼 전면 배치 */}
+      <div className="button-row justify-start items-center gap-2 mt-3 flex-wrap">
+        <a
+          href={info.createUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-create-key"
+          title={`${info.platformName} 공식 콘솔에서 새 API 키 발급/생성하기`}
         >
-          {show ? <EyeOff size={14} /> : <Eye size={14} />}
-          <span>{show ? "숨기기" : "보기"}</span>
-        </button>
+          <KeyRound size={13} />
+          <span>{info.createBtnLabel}</span>
+          <ExternalLink size={12} style={{ opacity: 0.85 }} />
+        </a>
+
         <button
           type="button"
           className="flex items-center gap-1.5"
@@ -128,6 +179,7 @@ export function KeySettings({
           <RefreshCw size={14} className={busy ? "animate-spin" : ""} />
           <span>연결 테스트</span>
         </button>
+
         <button
           type="button"
           className="primary flex items-center gap-1.5"
@@ -150,22 +202,30 @@ export function KeySettings({
           <ShieldCheck className="h-4 w-4 text-emerald-600" />
           <span>안전한 개인 API 키 발급 가이드</span>
         </strong>
-        <p className="mt-2 text-xs">
+        <div className="mt-2 flex flex-wrap items-center gap-2">
           <a
-            href={guide}
+            href={info.createUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-rose-600 hover:text-rose-700 font-semibold"
+            className="inline-flex items-center gap-1 text-xs text-rose-600 hover:text-rose-700 font-bold"
           >
-            <span>{name}에서 본인 키 무료 발급받기</span>
+            <span>{info.platformName}에서 무료 키 발급받기</span>
             <ExternalLink size={12} />
           </a>
-        </p>
-        <p className="muted text-xs">
+          <span className="text-stone-300 text-xs">·</span>
+          <a
+            href={info.signupUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-stone-500 hover:text-stone-800 font-medium"
+          >
+            <span>공식 사이트/회원가입</span>
+            <ExternalLink size={11} />
+          </a>
+        </div>
+        <p className="muted text-xs mt-1.5 leading-relaxed">
           회원 본인의 계정으로 직접 발급받은 키를 등록하여 안전하게 사용합니다.{" "}
-          {provider === "gemini"
-            ? "글귀와 AI 배경 생성에 사용되며, 생성 비용은 본인 Google 계정 크레딧에 청구됩니다."
-            : "해당 제공처의 감성 사진 검색에 사용됩니다. (AI 글귀 생성에는 Gemini 키가 별도 필요합니다.)"}
+          {info.description}
         </p>
       </div>
     </div>
