@@ -207,7 +207,7 @@ describe('연결(시작·콜백)', () => {
   it('id_token 검증 실패(다른 앱 대상) → 저장 0', async () => {
     reset(true);
     tokenReply = () => json({ access_token: 'ya29.x', expires_in: 3600, scope: `openid ${GMAIL_SCOPE}`, id_token: idToken({ aud: 'other' }) });
-    await expect(gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT))).rejects.toMatchObject({ code: 'server' });
+    await expect(gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT))).rejects.toMatchObject({ code: 'auth' }); // QA036(4): 인증 실패는 auth
     expect(rows).toHaveLength(0);
   });
 
@@ -386,5 +386,84 @@ describe('로그에 토큰·메일 정보 0', () => {
     }
     const text = out.join('\n');
     for (const secret of ['ya29', '1//fake-refresh', '제목 m1', 'x@example.com', 'sub-A', SECRET]) expect(text).not.toContain(secret);
+  });
+});
+
+// ---------------------------------------------------------------- QA036 반례(Mac msg_cf1609be1214)
+describe('QA036 반례', () => {
+  const raw = (h: unknown, p: unknown) => `${Buffer.from(JSON.stringify(h)).toString('base64url')}.${Buffer.from(JSON.stringify(p)).toString('base64url')}.sig`;
+  it.each([
+    ['aud 배열에 다른 앱, azp가 다른 앱', { aud: [CLIENT, 'other-client'], azp: 'other-client' }, null],
+    ['aud 배열 여러 개인데 azp 없음', { aud: [CLIENT, 'other-client'] }, null],
+    ['단일 aud인데 azp가 다른 앱', { azp: 'other-client' }, null],
+    ['aud 배열 여러 개·azp가 이 앱(허용)', { aud: [CLIENT, 'other-client'], azp: CLIENT }, { sub: 'sub-A', email: 'a@example.com' }],
+    ['단일 aud·azp 이 앱(회귀)', { azp: CLIENT }, { sub: 'sub-A', email: 'a@example.com' }],
+  ])('(1) %s', async (_n, claims, want) => {
+    reset(true);
+    expect(await gm.verifyGoogleIdToken(idToken(claims), CLIENT)).toEqual(want);
+  });
+
+  it.each([
+    ['header JSON null', raw(null, {})],
+    ['header 배열', raw([1], {})],
+    ['header 숫자', raw(5, {})],
+    ['payload null', raw({ alg: 'RS256', kid: KID }, null)],
+    ['payload 문자열', raw({ alg: 'RS256', kid: KID }, 'x')],
+    ['base64 아님', '###.###.###'],
+  ])('(4) 잘못된 형식 %s → null(예외 0)', async (_n, tok) => {
+    reset(true);
+    await expect(gm.verifyGoogleIdToken(tok, CLIENT)).resolves.toBeNull();
+  });
+
+  it('(4) 콜백에서 형식이 깨진 id_token → 인증 실패(server 오류 문구로 새지 않고 저장 0)', async () => {
+    reset(true);
+    tokenReply = () => json({ access_token: 'ya29.x', expires_in: 3600, scope: `openid ${GMAIL_SCOPE}`, id_token: raw(null, null) });
+    await expect(gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT))).rejects.toMatchObject({ code: 'auth' });
+    expect(rows).toHaveLength(0);
+  });
+
+  it('(2) 토큰이 아직 유효해도 회원 앱이 바뀌었으면 Gmail 호출 0·재연결 표시', async () => {
+    reset(true);
+    await gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT));
+    hits = []; storeCalls.length = 0;
+    app = { clientId: 'new-client', clientSecret: 's' };
+    await expect(gm.listGmailInbox(USER)).rejects.toMatchObject({ code: 'auth' });
+    expect(hits).toEqual([]);
+    expect(storeCalls).toContain('reconnect');
+  });
+
+  it('(2) 토큰 갱신 중 연결이 다른 계정으로 바뀜 → Gmail 호출 0·409', async () => {
+    reset(true);
+    await gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT));
+    rows[0].tokenExpiresAt = new Date(Date.now() - 1000).toISOString();
+    hits = [];
+    tokenReply = () => { rows[0].externalId = 'sub-B'; return json({ access_token: 'ya29.new', expires_in: 3600 }); };
+    await expect(gm.listGmailInbox(USER)).rejects.toMatchObject({ code: 'conflict' });
+    expect(hits.filter((h) => h.url.includes('gmail.googleapis.com'))).toHaveLength(0);
+  });
+
+  it('(3) 저장 뒤 재확인이 실패 → 자기 새 줄만 지우고(다른 계정 줄은 그대로) 실패 응답', async () => {
+    reset(true);
+    let n = 0;
+    const base = fakeStore();
+    gm.setGmailStoreForTests({ ...base, async listAccounts(u: string) { n++; if (n === 2) throw new Error('db down'); return base.listAccounts(u); } } as any);
+    await expect(gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT))).rejects.toMatchObject({ code: 'server' });
+    expect(rows).toHaveLength(0);
+  });
+
+  it('(3) 저장 뒤 재확인 실패 + 자기 줄 지우기도 실패 → 줄이 남아도 읽기는 줄 1개면 정상, 2개면 409로 닫힘(다른 계정 삭제 0)', async () => {
+    reset(true);
+    rows.push({ id: 'keep', userId: USER, externalId: 'sub-Z', username: null, accessToken: 'ya29.z', refreshToken: 'r', tokenExpiresAt: new Date(Date.now() + 3600e3).toISOString(), grantedScopes: [GMAIL_SCOPE], appRef: CLIENT });
+    rows.length = 0; // 처음엔 빈 상태로 시작
+    let n = 0;
+    const base = fakeStore();
+    gm.setGmailStoreForTests({ ...base, async listAccounts(u: string) { n++; if (n === 2) throw new Error('db down'); return base.listAccounts(u); }, async deleteAccount() { throw new Error('db down'); } } as any);
+    await expect(gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT))).rejects.toMatchObject({ code: 'server' });
+    expect(rows.map((r) => r.externalId)).toEqual(['sub-A']); // 지우지 못한 자기 줄만 남음
+    gm.setGmailStoreForTests(base as any);
+    rows.push({ id: 'z', userId: USER, externalId: 'sub-Z', username: null, accessToken: 'ya29.z', refreshToken: 'r', tokenExpiresAt: new Date(Date.now() + 3600e3).toISOString(), grantedScopes: [GMAIL_SCOPE], appRef: CLIENT });
+    hits = [];
+    await expect(gm.listGmailInbox(USER)).rejects.toMatchObject({ code: 'conflict' });
+    expect(hits).toEqual([]);
   });
 });

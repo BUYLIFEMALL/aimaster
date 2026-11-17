@@ -137,20 +137,25 @@ async function googleKeys(now: number): Promise<Jwk[]> {
   certCache = { keys: body.keys, until: now + Math.min(Number(m?.[1] ?? 3600), 86_400) * 1000 };
   return body.keys;
 }
-const b64json = (s: string) => JSON.parse(Buffer.from(s, "base64url").toString("utf8")) as Record<string, unknown>;
+/** base64url JSON → 평범한 객체만(null·배열·숫자·문자열이면 null) */
+const b64obj = (s: string): Record<string, unknown> | null => {
+  const v: unknown = JSON.parse(Buffer.from(s, "base64url").toString("utf8"));
+  return v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : null;
+};
 
 /** 검증에 실패하면 null(이유는 밖으로 내지 않음). 통과하면 sub·email */
 export async function verifyGoogleIdToken(idToken: string | undefined, clientId: string, now = Date.now()): Promise<{ sub: string; email: string | null } | null> {
   if (!idToken) return null;
   const parts = idToken.split(".");
   if (parts.length !== 3) return null;
-  let header: Record<string, unknown>, payload: Record<string, unknown>;
+  let header: Record<string, unknown> | null, payload: Record<string, unknown> | null;
   try {
-    header = b64json(parts[0]);
-    payload = b64json(parts[1]);
+    header = b64obj(parts[0]);
+    payload = b64obj(parts[1]);
   } catch {
     return null;
   }
+  if (!header || !payload) return null; // QA036(4): JSON null·배열·원시값이면 검증 실패(예외 0)
   if (header.alg !== "RS256" || typeof header.kid !== "string") return null;
   const jwk = (await googleKeys(now)).find((k) => k.kid === header.kid && k.kty === "RSA");
   if (!jwk) return null;
@@ -164,8 +169,12 @@ export async function verifyGoogleIdToken(idToken: string | undefined, clientId:
   if (!ok) return null;
   const iss = payload.iss;
   if (iss !== "accounts.google.com" && iss !== "https://accounts.google.com") return null;
+  // QA036(1) OIDC: aud에 이 앱이 있어야 하고, aud가 여러 개면 azp(인가받은 쪽)가 반드시 이 앱, azp가 있으면 항상 이 앱
   const aud = payload.aud;
-  if (!(aud === clientId || (Array.isArray(aud) && aud.includes(clientId)))) return null;
+  const auds: unknown[] = Array.isArray(aud) ? aud : [aud];
+  if (!auds.length || auds.some((a) => typeof a !== "string") || !auds.includes(clientId)) return null;
+  if (auds.length > 1 && payload.azp !== clientId) return null;
+  if (payload.azp !== undefined && payload.azp !== clientId) return null;
   const sec = Math.floor(now / 1000);
   if (typeof payload.exp !== "number" || payload.exp <= sec) return null;
   if (typeof payload.iat !== "number" || payload.iat > sec + 300) return null;
@@ -214,8 +223,9 @@ async function tokenRequest(params: Record<string, string>): Promise<Required<Pi
 
 /**
  * 콜백: 앱 일치 확인 → 코드 교환 → 권한 확인(metadata 필수, 그 밖 거절) → id_token 검증(sub) → 다른 계정 확인 → 저장 → 저장 뒤 다시 확인.
- * 동시 콜백 두 개가 서로 다른 계정을 새로 넣는 경우: 새로 넣은 쪽이 저장 뒤 다른 계정 줄을 보면 자기 줄을 지우고 409
- * → 끝에 남는 연결은 많아야 1개(둘 다 지워질 수는 있음 — 다시 연결하면 됨, 실패 쪽으로 닫힘).
+ * 동시 콜백 두 개가 서로 다른 계정을 새로 넣는 경우: 새로 넣은 쪽이 저장 뒤 다른 계정 줄을 보면 자기 줄을 지우고 409.
+ * 원자적 보장은 아님 — 재확인·지우기가 실패하거나 중단되면 줄이 2개 남을 수 있고, 그때는 읽기가 409로 닫혀(다른 계정 메일 노출 0)
+ * 회원이 연결을 끊고 다시 연결해야 함. 공용 표 고유 조건 변경 없이 할 수 있는 최선(QA036(3)).
  */
 export async function completeGmailConnect(userId: string, code: string, appTag: string): Promise<{ email: string | null }> {
   ensureOn();
@@ -227,7 +237,7 @@ export async function completeGmailConnect(userId: string, code: string, appTag:
   if (!scopes.includes(GMAIL_SCOPE)) throw new GmailError("forbidden", "Gmail 메일 목록(제목·보낸 사람) 권한을 허용하지 않았습니다. 다시 연결하면서 권한을 체크해 주세요.");
   if (scopes.some((s) => !ALLOWED_SCOPES.has(s))) throw new GmailError("forbidden", "필요한 것보다 넓은 구글 권한이 함께 와서 저장하지 않았습니다. 구글 계정의 타사 연결에서 이 앱 권한을 확인한 뒤 다시 연결해 주세요.");
   const who = await verifyGoogleIdToken(t.id_token, app.clientId);
-  if (!who) throw new GmailError("server", "구글 계정 정보를 확인하지 못했습니다. 다시 시도해 주세요.");
+  if (!who) throw new GmailError("auth", "구글 계정 확인에 실패했습니다. 「Gmail 연결」을 다시 눌러 주세요."); // QA036(4): 인증 실패를 서버 오류로 내보내지 않음
   const before = await store.listAccounts(userId);
   if (before.some((a) => a.externalId !== who.sub)) throw new GmailError("conflict", GMAIL_OTHER_ACCOUNT_MESSAGE);
   const isNew = !before.some((a) => a.externalId === who.sub);
@@ -237,10 +247,17 @@ export async function completeGmailConnect(userId: string, code: string, appTag:
   });
   if (error) throw new GmailError("server", "연결 정보를 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
   if (isNew) {
-    const after = await store.listAccounts(userId);
-    if (after.some((a) => a.externalId !== who.sub)) {
-      await store.deleteAccount(userId, who.sub);
-      throw new GmailError("conflict", GMAIL_OTHER_ACCOUNT_MESSAGE);
+    // 저장 뒤 다시 확인. 다른 계정 줄이 보이거나 확인 자체가 실패하면 **자기가 새로 넣은 줄만** 지우고 실패(다른 계정 줄은 지우지 않음).
+    // QA036(3): 지우기마저 실패하면 줄이 남을 수 있음 — 그때도 읽기(currentAccount)가 줄 2개를 409로 닫아 다른 계정 메일은 보이지 않음.
+    let after: GmailAccount[] | null = null;
+    try {
+      after = await store.listAccounts(userId);
+    } catch {
+      after = null;
+    }
+    if (!after || after.some((a) => a.externalId !== who.sub)) {
+      await store.deleteAccount(userId, who.sub).catch(() => {});
+      throw after ? new GmailError("conflict", GMAIL_OTHER_ACCOUNT_MESSAGE) : new GmailError("server", "연결을 확인하지 못해 저장하지 않았습니다. 잠시 뒤 다시 연결해 주세요.");
     }
   }
   return { email: who.email };
@@ -248,7 +265,13 @@ export async function completeGmailConnect(userId: string, code: string, appTag:
 
 /** 지금 연결(없으면 null). 줄이 2개 이상이면 어느 계정인지 정할 수 없어 실패 쪽으로 닫음 */
 async function currentAccount(userId: string): Promise<GmailAccount | null> {
-  const rows = await store.listAccounts(userId);
+  let rows: GmailAccount[];
+  try {
+    rows = await store.listAccounts(userId);
+  } catch (e) {
+    if (e instanceof GmailError) throw e;
+    throw new GmailError("server", "연결 정보를 읽지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+  }
   if (rows.length > 1) throw new GmailError("conflict", GMAIL_OTHER_ACCOUNT_MESSAGE);
   return rows[0] ?? null;
 }
@@ -260,10 +283,15 @@ export async function gmailStatus(userId: string): Promise<{ connected: boolean;
 }
 
 async function validToken(userId: string, account: GmailAccount, force = false): Promise<string> {
+  // QA036(2): 토큰이 아직 유효해도 지금 회원 앱이 연결 때 앱과 다르면 쓰지 않음(Gmail 호출 0·재연결)
+  const app = await store.getApp(userId);
+  if (!app || app.clientId !== account.appRef) {
+    await store.markNeedsReconnect(userId, account.id);
+    throw new GmailError("auth", "구글 앱 키가 바뀌었습니다. 「Gmail 연결」을 다시 눌러 주세요.");
+  }
   const exp = account.tokenExpiresAt ? Date.parse(account.tokenExpiresAt) : 0;
   if (!force && exp - 60_000 > Date.now()) return account.accessToken;
-  const app = await store.getApp(userId);
-  if (!app || app.clientId !== account.appRef || !account.refreshToken) {
+  if (!account.refreshToken) {
     await store.markNeedsReconnect(userId, account.id);
     throw new GmailError("auth", "구글 앱 키가 바뀌었거나 연결이 오래됐습니다. 「Gmail 연결」을 다시 눌러 주세요.");
   }
@@ -307,6 +335,7 @@ export async function listGmailInbox(userId: string, expectSub?: string): Promis
   if (!account) throw new GmailError("not_found", "Gmail이 연결돼 있지 않습니다. 「Gmail 연결」을 눌러 주세요.");
   if (expectSub !== undefined && expectSub !== account.externalId) throw new GmailError("conflict", GMAIL_ACCOUNT_CHANGED_MESSAGE);
   let token = await validToken(userId, account);
+  await sameAccountOrThrow(userId, account); // QA036(2): 갱신하는 사이 연결이 바뀌었으면 Gmail 호출 전에 멈춤
   const listUrl = `${API}?${new URLSearchParams({ labelIds: "INBOX", maxResults: String(GMAIL_LIST_MAX), fields: "messages/id" })}`;
   let list: Record<string, unknown>;
   try {
@@ -314,6 +343,7 @@ export async function listGmailInbox(userId: string, expectSub?: string): Promis
   } catch (e) {
     if (!(e instanceof GmailError && e.code === "auth")) throw e;
     token = await validToken(userId, account, true); // 401이면 한 번만 새로 받아 다시
+    await sameAccountOrThrow(userId, account);
     list = await gmailGet(token, listUrl);
   }
   const ids = (Array.isArray(list.messages) ? list.messages : []).map((m) => (m as { id?: unknown })?.id).filter((id): id is string => typeof id === "string" && MSG_ID.test(id)).slice(0, GMAIL_LIST_MAX);
@@ -328,10 +358,15 @@ export async function listGmailInbox(userId: string, expectSub?: string): Promis
     items.push({ id, subject: clip(pick("Subject"), 300) || "(제목 없음)", from: clip(pick("From"), 200), date: Number.isFinite(d) ? new Date(d).toISOString() : null });
   }
   // 늦은 응답: 그사이 연결이 끊기거나 계정이 바뀌었으면 결과를 버림
+  await sameAccountOrThrow(userId, account);
+  return { sub: account.externalId, email: account.username, items };
+}
+
+/** 지금 연결이 처음 읽은 연결과 같은 계정인지(끊김 404·바뀜 409) */
+async function sameAccountOrThrow(userId: string, account: GmailAccount): Promise<void> {
   const now = await currentAccount(userId);
   if (!now) throw new GmailError("not_found", "Gmail 연결이 끊겼습니다. 다시 연결해 주세요.");
   if (now.externalId !== account.externalId) throw new GmailError("conflict", GMAIL_ACCOUNT_CHANGED_MESSAGE);
-  return { sub: account.externalId, email: account.username, items };
 }
 
 /** 이 워크스페이스의 Gmail 연결만 끊음(구글 토큰 폐기 호출 0 — 같은 구글 앱의 캘린더 등 다른 연결을 끊지 않기 위해) */
