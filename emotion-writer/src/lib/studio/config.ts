@@ -28,7 +28,6 @@ export const THEMES = [
 export const SOURCES: { id: Provider; emoji: string; name: string }[] = [
   { id: "gemini", emoji: "🎨", name: "나노바나나 이미지 생성" },
   { id: "pixabay", emoji: "📷", name: "Pixabay 무료이미지 가져오기" },
-  { id: "pexels", emoji: "🖼️", name: "Pexels 무료이미지 가져오기" },
 ];
 
 export const RATIOS = ["9:16", "1:1", "3:4"] as const;

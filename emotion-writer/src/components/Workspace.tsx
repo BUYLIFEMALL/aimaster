@@ -64,7 +64,10 @@ const DEFAULT: Draft = {
 function restoreDraft(raw: string | null): Draft | null {
   try {
     const d = JSON.parse(raw || "null");
-    if (d && typeof d === "object") d.textModel = currentTextModel(d.textModel);
+    if (d && typeof d === "object") {
+      d.textModel = currentTextModel(d.textModel);
+      if (d.source === "pexels") d.source = "pixabay";
+    }
     if (
       !d ||
       typeof d.topic !== "string" ||

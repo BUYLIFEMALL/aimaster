@@ -194,3 +194,11 @@
 - `KeySettings.tsx`: 키보기 버튼의 `tabIndex={-1}` 제거하여 Tab/Enter/Space 키보드 탐색 완비 및 상태별 `aria-label` 부여.
 - `globals.css`: `.btn-create-key` 호버 시작색 `#e11d48`(대비 4.697:1) 및 기본 `#be123c`(6.285:1)으로 조정하여 흰색 글자 대비 4.5:1 이상 전 구간 충족.
 - 검수: tsc 0, 단위테스트 35/35 PASS, Mac QA042 소스 검수 PASS. 다음 묶음 배포 때 함께 내보낼 것.
+
+## 2026-11-18 ⏸ 미배포 — Pexels API 발급 미지원에 따른 설정 카드 및 선택지 완전 삭제 (Antigravity 윈도우)
+- **주인님 직접 지시**: Pexels에서 일반 API 키 발급이 미지원되므로 emotion-writer에서 Pexels API 키 설정 카드 및 2단계 선택지 완전 삭제 처리 후 Master에 보고.
+- **수정 내역**:
+  - `src/lib/studio/config.ts`: `SOURCES` 배열에서 `pexels` 항목 완전 삭제 (2단계 이미지 생성 방식에서 제거).
+  - `src/components/KeySettings.tsx`: `PROVIDER_INFO`에서 `pexels` 항목 삭제 및 `if (!info) return null;` 널 가드 추가 (API 키 등록 페이지에서 카드 완전 제거).
+  - `src/components/Workspace.tsx`: `restoreDraft`에서 기존 로컬스토리지에 저장된 draft의 `source === "pexels"`인 경우 `pixabay`로 자동 정규화하는 마이그레이션 폴백 가드 추가.
+- 검수: tsc 0, 단위테스트 35/35 PASS. 다음 묶음 배포 때 함께 내보낼 것.

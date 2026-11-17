@@ -12,16 +12,18 @@ import {
   Save,
 } from "lucide-react";
 
-const PROVIDER_INFO: Record<
-  Provider,
-  {
-    name: string;
-    platformName: string;
-    createUrl: string;
-    signupUrl: string;
-    createBtnLabel: string;
-    description: string;
-  }
+const PROVIDER_INFO: Partial<
+  Record<
+    Provider,
+    {
+      name: string;
+      platformName: string;
+      createUrl: string;
+      signupUrl: string;
+      createBtnLabel: string;
+      description: string;
+    }
+  >
 > = {
   gemini: {
     name: "Google Gemini",
@@ -39,14 +41,6 @@ const PROVIDER_INFO: Record<
     signupUrl: "https://pixabay.com/accounts/register/",
     createBtnLabel: "Pixabay API 키 발급/생성하기",
     description: "Pixabay의 감성 사진 검색에 무료로 사용됩니다.",
-  },
-  pexels: {
-    name: "Pexels",
-    platformName: "Pexels",
-    createUrl: "https://www.pexels.com/api/new/",
-    signupUrl: "https://www.pexels.com/onboarding/",
-    createBtnLabel: "Pexels API 키 발급/생성하기",
-    description: "Pexels의 고화질 감성 사진 검색에 무료로 사용됩니다.",
   },
 };
 
@@ -66,6 +60,7 @@ export function KeySettings({
   const [tested, setTested] = useState(false);
 
   const info = PROVIDER_INFO[provider];
+  if (!info) return null;
 
   async function submit(action: "test" | "save") {
     if (busy) return;
