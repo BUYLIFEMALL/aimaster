@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 19:23:21 KST",
+  "checkedAt": "2026-11-17 19:24:40 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -5096,9 +5096,9 @@
       "status": "ready_review",
       "delivery": "returned",
       "scopeRef": "Gmail전용서버/handler/adapter/패널·기존관련시험/문서. SQL/공용함수불변",
-      "evidence": "QA041서버3c820f2b6/화면8069f60df·dc9b4d714,282/tsc0·Mac지정검수배정",
+      "evidence": "QA041서버3c820f2b6/화면8069f60df·dc9b4d714,282/tsc0·Mac지정검수배정; 최종릴리스확인표a44c792ad 경로별SHA/blob·서버3c820f2b6+화면8069f60df동시배포·같은sub재연결한계·미검수/승인분리",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
-      "next": "QA041독립반환→소스최종판정·두커밋묶음릴리스표정리. 운영false/SQL미적용",
+      "next": "소스미커밋0·동결확인, QA041독립결과수신후소스준비최종판정. 운영0074/75미적용/Gmailfalse/미배포",
       "sha": "8069f60df",
       "lastReviewedAt": "2026-11-17T09:00:52.380Z"
     },
