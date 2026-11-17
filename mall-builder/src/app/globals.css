@@ -19,7 +19,7 @@ input[type="submit"] {
 }
 
 .btn-3d-blue {
-  background-color: var(--mall-primary-600, #2563eb);
+  background-color: var(--mall-primary-btn, var(--mall-primary-600, #2563eb)); /* 단추 전용 색은 흰 글자 대비 미달 포인트색일 때만 있음(theme.ts buttonColor) */
   color: #ffffff;
   border-radius: var(--mall-radius, 0.75rem);
   font-weight: 600;
@@ -155,7 +155,9 @@ input[type="submit"] {
 /* 진한 회색 칩·단추(bg-slate-900 + text-white 등)는 어둡게에서 바탕이 밝게 뒤집히므로 글자를 진하게(2026-11-15 118 시험에서 발견 — 선택된 탭 글자 안 보임) */
 [data-mall-mode="dark"] :is(.bg-slate-700, .bg-slate-800, .bg-slate-900, .bg-slate-950, .bg-gray-700, .bg-gray-800, .bg-gray-900, .bg-gray-950).text-white { color: var(--color-slate-50); }
 /* 파란 단추(bg-blue-600/700 + 흰 글자)는 어둡게에서 --color-blue-*가 옅은 단계로 뒤집혀 흰 글자가 안 보임(기본 파랑 2.63:1) — 뒤집지 않는 단추 색으로(밝게와 같은 대비, FRONT-20261117-02) */
-[data-mall-mode="dark"] :is(.bg-blue-600, .bg-blue-700).text-white { background-color: var(--mall-primary-600); }
+[data-mall-mode="dark"] :is(.bg-blue-600, .bg-blue-700).text-white { background-color: var(--mall-primary-btn, var(--mall-primary-600)); }
+/* 흰 글자 대비 미달 포인트색(에메랄드·코랄·오렌지 등)의 평면 파란 단추 — 상점 바깥 상자 style에 단추 전용 색이 있을 때만(관리자·나머지 색은 변수 없음 = 그대로, FRONT-20261117-03) */
+[style*="--mall-primary-btn"] :is(.bg-blue-600, .bg-blue-700).text-white { background-color: var(--mall-primary-btn); }
 /* I27 바닥글은 원래 어두운 띠 — 어둡게 모드에서 뒤집힌 slate를 바닥글 안에서만 원래 값으로 되돌린다 */
 [data-mall-mode="dark"] [data-footer-fixed] {
   --color-slate-50: oklch(98.4% 0.003 247.858);

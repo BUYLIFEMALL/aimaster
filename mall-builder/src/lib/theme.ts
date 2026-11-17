@@ -117,6 +117,40 @@ export function buildPalette(hex: string): Record<(typeof STEPS)[number], string
   return out;
 }
 
+// ── 단추 전용 색(FRONT-20261117-03) ──
+// 흰 글자 단추 바탕이 포인트색 그대로라 밝은 포인트색(에메랄드·코랄·오렌지 등)은 대비 4.5:1 미달.
+// 미달인 색만 같은 색상각으로 밝기를 조금씩 낮춰(색역 밖이면 채도도 줄임) 처음 4.5를 넘는 색을 단추 전용으로 쓴다.
+/** OKLCH → #rrggbb(8비트 반올림) */
+function oklchToHex(L: number, C: number, H: number): string {
+  const a = C * Math.cos((H * Math.PI) / 180);
+  const b = C * Math.sin((H * Math.PI) / 180);
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+  const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+  const s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
+  const lin = [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s, -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s];
+  if (lin.some((v) => v < -1e-4 || v > 1 + 1e-4)) return "";
+  return "#" + lin.map((v) => { const c = Math.min(1, Math.max(0, v)); const g = c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055; return Math.round(g * 255).toString(16).padStart(2, "0"); }).join("");
+}
+/** 흰 글자(#fff) 대비 — WCAG 상대 휘도 */
+export function whiteContrast(hex: string): number {
+  const n = parseInt(hex.slice(1), 16);
+  const y = 0.2126 * toLinear(((n >> 16) & 255) / 255) + 0.7152 * toLinear(((n >> 8) & 255) / 255) + 0.0722 * toLinear((n & 255) / 255);
+  return 1.05 / (y + 0.05);
+}
+/** 흰 글자 대비가 4.5 미만인 포인트색만 단추 전용 색(#rrggbb), 괜찮거나 잘못된 색이면 null */
+export function buttonColor(hex: string): string | null {
+  const h = typeof hex === "string" ? hex.trim().toLowerCase() : "";
+  if (!HEX.test(h) || whiteContrast(h) >= 4.5) return null;
+  const [L, C, H] = hexToOklch(h);
+  for (let l = L - 0.001; l > 0.05; l -= 0.001) {
+    let c = C;
+    let out = oklchToHex(l, c, H);
+    while (!out && c > 0) { c = Math.max(0, c - 0.002); out = oklchToHex(l, c, H); }
+    if (out && whiteContrast(out) >= 4.5) return out;
+  }
+  return "#000000";
+}
+
 // ── I23 어두운 테마 ──
 // Tailwind v4 기본 회색 값(node_modules/tailwindcss/theme.css) — 어둡게면 50↔950처럼 뒤집어 넣는다
 const SLATE = ["oklch(98.4% 0.003 247.858)", "oklch(96.8% 0.007 247.896)", "oklch(92.9% 0.013 255.508)", "oklch(86.9% 0.022 252.894)", "oklch(70.4% 0.04 256.788)", "oklch(55.4% 0.046 257.417)", "oklch(44.6% 0.043 257.281)", "oklch(37.2% 0.044 257.287)", "oklch(27.9% 0.041 260.031)", "oklch(20.8% 0.042 265.755)", "oklch(12.9% 0.042 264.695)"];
@@ -156,6 +190,9 @@ export function themeStyle(theme: ShopTheme): Record<string, string> {
     });
     v["--mall-surface"] = DARK_SURFACE;
   }
+  // 단추 전용 색 — 흰 글자 대비 미달 색만(나머지는 변수 없음 = 화면 그대로). globals.css가 이 변수가 있는 상자 안에서만 씀
+  const btn = buttonColor(theme.primary);
+  if (btn) v["--mall-primary-btn"] = btn;
   if (theme.bg !== DEFAULT_THEME.bg) v["--mall-bg"] = theme.bg;
   if (theme.radius !== DEFAULT_THEME.radius) v["--mall-radius"] = RADIUS_REM[theme.radius];
   if (theme.button !== DEFAULT_THEME.button) v["--mall-btn-depth"] = "0px";

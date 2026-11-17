@@ -28,10 +28,10 @@ test("공통 머리글(shop-frame)이 쓰는 흰 바탕 클래스는 전부 어�
 // FRONT-20261117-02 — 파란 단추(bg-blue-600/700 + 흰 글자)는 어둡게에서 --color-blue-600이 400 단계로 뒤집혀
 // 흰 글자 대비가 기본 파랑 2.63:1로 떨어지던 문제. 뒤집지 않는 단추 색(--mall-primary-600 = 고른 포인트색)으로 되돌린다
 test("어두운 테마의 파란 단추 바탕은 단추 색(--mall-primary-600) — 어둡게 범위 안에서만, 흰 글자와 짝일 때만", () => {
-  const rule = '[data-mall-mode="dark"] :is(.bg-blue-600, .bg-blue-700).text-white { background-color: var(--mall-primary-600); }';
+  const rule = '[data-mall-mode="dark"] :is(.bg-blue-600, .bg-blue-700).text-white { background-color: var(--mall-primary-btn, var(--mall-primary-600)); }';
   assert.ok(css.includes(rule), "규칙 없음 또는 선택자가 바뀜");
   // 어둡게 범위 밖에서 같은 클래스를 덮는 규칙은 없다(밝은 테마·관리자 화면 그대로)
-  assert.equal(css.split("\n").filter((l) => /\.bg-blue-(600|700)/.test(l) && !l.startsWith('[data-mall-mode="dark"]')).length, 0);
+  assert.equal(css.split("\n").filter((l) => /\.bg-blue-(600|700)/.test(l) && !l.startsWith('[data-mall-mode="dark"]') && !l.startsWith('[style*="--mall-primary-btn"]')).length, 0);
 });
 
 test("색 12가지 모두 어두운 테마 파란 단추의 흰 글자 대비가 나빠지지 않는다(후 = 밝은 테마 단추와 같은 값)", async () => {
@@ -54,4 +54,26 @@ test("색 12가지 모두 어두운 테마 파란 단추의 흰 글자 대비가
     assert.ok(after > before, `${primary}: ${before.toFixed(2)} → ${after.toFixed(2)}`);
     assert.ok(Math.abs(after - white(buildPalette(primary)[600])) < 0.05, `${primary}: 밝은 테마 단추와 다름`);
   }
+});
+
+// FRONT-20261117-03 — 단추 전용 색은 상점 바깥 상자(layout.tsx·디자인 편집기 미리보기)의 style에만 들어가고,
+// 규칙은 그 표식 안에서만 걸린다(관리자 화면·나머지 9색은 표식 없음 = 그대로). 실제 React 출력 + DOM 선택자로 확인
+test("단추 전용 색 규칙은 상점 바깥 상자 style 표식 안에서만 걸린다(관리자·9색 영향 0)", async () => {
+  const React = (await import("react")).default;
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { Window } = await import("happy-dom");
+  const { themeStyle, DEFAULT_THEME } = await import("../src/lib/theme.ts");
+  assert.ok(css.includes('[style*="--mall-primary-btn"] :is(.bg-blue-600, .bg-blue-700).text-white { background-color: var(--mall-primary-btn); }'));
+  assert.ok(css.includes("background-color: var(--mall-primary-btn, var(--mall-primary-600, #2563eb));"), "입체 단추는 변수가 없으면 원래 값");
+  // 상점 바깥 상자와 같은 모양(layout.tsx 73~75줄: style={themeVars} 아래 단추)
+  const shop = (primary, mode) => renderToStaticMarkup(React.createElement("div", { style: themeStyle({ ...DEFAULT_THEME, primary, mode }) }, React.createElement("button", { className: "bg-blue-600 text-white" }, "가입")));
+  const admin = renderToStaticMarkup(React.createElement("main", null, React.createElement("button", { className: "bg-blue-600 text-white hover:bg-blue-700" }, "저장")));
+  const win = new Window();
+  const hit = (html) => { win.document.body.innerHTML = html; return win.document.querySelectorAll('[style*="--mall-primary-btn"] .bg-blue-600.text-white').length; };
+  for (const mode of ["light", "dark"]) {
+    for (const c of ["#059669", "#e5534b", "#ea580c"]) assert.equal(hit(shop(c, mode)), 1, `${c} ${mode}`);
+    for (const c of ["#2563eb", "#1e3a8a", "#dc2626", "#db2777"]) assert.equal(hit(shop(c, mode)), 0, `${c} ${mode}`);
+  }
+  assert.equal(hit(admin), 0, "관리자 화면(테마 변수 없음)");
+  await win.happyDOM.close();
 });

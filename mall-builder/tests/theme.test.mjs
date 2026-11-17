@@ -99,3 +99,32 @@ test("색 대비 경고: 바탕 밝기와 밝기 칸이 어긋나면 알림", as
   assert.match(contrastWarning(readTheme({ bg: "#111111" })), /어둡게/);
   assert.match(contrastWarning(readTheme({ mode: "dark", bg: "#ffffff" })), /밝게/);
 });
+
+// FRONT-20261117-03 — 흰 글자 단추 대비 미달 포인트색만 단추 전용 색(--mall-primary-btn)
+test("단추 전용 색: 흰 글자 4.5 미달 3색만 같은 색상각으로 보정, 나머지 9색·기본·잘못된 색은 변수 없음", async () => {
+  const { buttonColor, whiteContrast } = await import("../src/lib/theme.ts");
+  const { COLOR_PRESETS } = await import("../src/lib/builder/templates.ts");
+  const all = { "#2563eb": 0, "#1e3a8a": 0, "#059669": 1, "#166534": 0, "#dc2626": 0, "#e5534b": 1, "#ea580c": 1, "#b45309": 0, "#7c3aed": 0, "#db2777": 0, "#334155": 0, "#7c4a2d": 0 };
+  assert.deepEqual(COLOR_PRESETS.map((p) => p.primary).sort(), Object.keys(all).sort(), "색 목록이 바뀌면 이 표도 맞출 것");
+  for (const [hex, fix] of Object.entries(all)) {
+    const btn = buttonColor(hex);
+    const vars = themeStyle({ ...DEFAULT_THEME, primary: hex });
+    const dark = themeStyle({ ...DEFAULT_THEME, primary: hex, mode: "dark" });
+    if (!fix) {
+      assert.equal(btn, null, hex);
+      assert.equal("--mall-primary-btn" in vars || "--mall-primary-btn" in dark, false, hex);
+      continue;
+    }
+    assert.match(btn, /^#[0-9a-f]{6}$/);
+    assert.ok(whiteContrast(hex) < 4.5 && whiteContrast(btn) >= 4.5, `${hex} ${whiteContrast(hex).toFixed(2)} → ${btn} ${whiteContrast(btn).toFixed(2)}`);
+    const [L0, , H0] = hexToOklch(hex), [L1, , H1] = hexToOklch(btn);
+    assert.ok(L1 < L0 && L0 - L1 < 0.08, `${hex} 밝기만 조금 낮춤`);
+    assert.ok(Math.abs(H1 - H0) < 4, `${hex} 색상각 유지`);
+    assert.equal(vars["--mall-primary-btn"], btn);
+    assert.equal(dark["--mall-primary-btn"], btn);
+    // 원래 포인트색(팔레트·단추 600)은 그대로
+    assert.equal(vars["--mall-primary-600"], buildPalette(hex)[600]);
+  }
+  for (const bad of ["", "red", "#12345", null, undefined]) assert.equal(buttonColor(bad), null);
+  assert.deepEqual(themeStyle(DEFAULT_THEME), {}, "기본 테마는 여전히 변수 0");
+});
