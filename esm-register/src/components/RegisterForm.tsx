@@ -15,7 +15,15 @@ export function RegisterForm({ productId, defaultKeyword, initialPrice = null, i
   initialBrand?: string;
   collectedPhoto?: boolean;
 }) {
-  const [state, action, pending] = useActionState(createJobAction, {});
+  // React는 action이 끝나면 form.reset()으로 확인 상자 화면을 해제하지만 제어 상태는 그대로 둔다(화면·상태 어긋남).
+  // 그래서 제출 결과가 올 때마다(같은 오류가 반복돼도 매번) 동의 상자 상태를 해제해 화면과 맞춘다 — 다시 보낼 때 다시 확인.
+  const [state, action, pending] = useActionState(async (prev: Awaited<ReturnType<typeof createJobAction>>, fd: FormData) => {
+    const result = await createJobAction(prev, fd);
+    setConfirmRegister(false);
+    setRepeatOk(false);
+    setCollectedAck(false);
+    return result;
+  }, {});
   const [mode, setMode] = useState<RegisterMode>("fill_only");
   // React 19는 <form action>이 끝나면 비제어 칸을 기본값으로 되돌린다(성공·오류 모두).
   // 오류 뒤에도 회원이 넣은 값을 그대로 보고 고칠 수 있게 모든 칸을 제어 입력으로 둔다.
