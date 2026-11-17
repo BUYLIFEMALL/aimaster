@@ -228,3 +228,25 @@ E1 독립 검수(QA17-003)와 별개로 계획만. 디자인 3안 선택 전이�
 **켜기 승인 조건**: 주인님·Master가 「운영 워크스페이스 저장소 표 2개 추가」를 묶음 배포 승인 항목으로 승인 → Mac 독립 검수 통과 → 스위치를 켜는 배포 1회. 켜기 전 운영 DDL·외부 구글 호출 0.
 
 **모의 시험 완료 조건(구현 때)**: 7-6 §8 전부 + 스위치 꺼짐이면 표 생성·DB 접속 0(포털 시험과 같은 방식) + `MEMBER_JOB_KINDS`/`jobOwner`로 회원 cron이 자기 확인 작업만 집음(다른 회원 0) + 전체 tsc·전체 시험 통과. 구글은 `setGcalFetch` 모의만, 실호출 0.
+
+### 7-8. 예약 링크 2단계 연결 경로 — 읽기 조사 결과 (2026-11-17, Master `msg_06c13fb6a12f`) — 코드 전, 1단계 5파일(`5ed9bc2ec`)은 QA024 동안 동결
+**1단계는 서버만이고 아무 입구에도 연결돼 있지 않음 — 완성 아님.** 아래는 2단계에서 고칠 정확한 경로와 그대로 쓸 기존 함수.
+
+| 연결 | 고칠 경로 | 그대로 쓰는 기존 것 | 근거 |
+|---|---|---|---|
+| 회원 처리기 5개(`bookingGet/Save/Off/List/Resolve`) | `src/server/runtime.ts` 처리기 묶음에 `...bookingHandlers` 한 줄(포털 `portalHandlers`와 같은 자리) | `/api/rpc/[name]` — JSON만·`sec-fetch-site` 다른 사이트 403·`checkProgramAccessApi` 인가·기대 계정 헤더 409(`EXPECTED_ACCOUNT_HEADER`)·`trackMemberJobs` | `route.ts` 24~44·60 |
+| 확인 작업 처리기를 회원 cron에서 | **수정 불필요** — `/api/cron/member`가 이미 `@/server/runtime`을 불러오므로 위 한 줄로 `registerJobHandler("booking.reconcile")`도 등록됨 | `runDueJobs(…, memberJobFilter(userId))`, `tokenOwnerAllowed` | `cron/member/route.ts` 8·33 |
+| 회원 cron이 너무 일찍 꺼지지 않게 | **수정 불필요** — `countRemainingWork` → `countMemberJobs`가 `MEMBER_JOB_KINDS`(1단계에 `booking.reconcile` 추가)를 셈 | `stopMemberSchedulerIfIdle` | `schedulerConfig.ts` 24 |
+| 손님 제출·빈 칸 보기 | `src/server/publicPages.ts` `handlePublicRpc`에 예약 명령 2개(`getBookingSlots`·`submitBooking`) 분기 한 곳 — 공개 폼 `FORM_RPCS` 분기와 같은 방식 | `/api/public/[name]` — JSON만·10KB 제한·`sec-fetch-site` 403·IP(`x-forwarded-for` 첫 값)·`X-Robots-Tag: noindex`·IP당 분당 120 / `bookingSlots`·`bookingSubmit`의 자체 IP 한도(30/분·5/시간) | `api/public/[name]/route.ts`, `publicPages.ts` 106~118 |
+| 손님 화면 | 새 `src/app/book/[...path]/page.tsx`(포털 화면 그대로: `force-dynamic`·`robots noindex/nocache`·`referrer no-referrer`·꺼짐/조건 불일치 404) + 제출용 작은 클라이언트 컴포넌트(같은 폴더, `/api/public/submitBooking` 호출) | `portal/[...path]/page.tsx` 패턴 | |
+| 회원 설정·예약 목록 | `src/app/calendar-sync/page.tsx`(서버가 확인한 `user.id` 전달) + `CalendarBoard.tsx` 안 「📅 예약 받기」 카드 한 개(새 파일로 분리하고 연결 한 줄 권장) | 기대 계정 헤더 방식(영수증 `boundReceiptRpc`·키 화면 `CalendarConnStatus`와 같게 `rpc(name, body, { expectedAccount })`), 「확인 필요」 줄에 「캘린더에 있음/없음」 버튼 | 지금 `CalendarBoard`는 기대 계정 없이 `rpc()`를 씀 — 예약 카드부터는 기대 계정 적용 |
+
+**공개 출처·CSRF·스팸**: 공개 입구는 쿠키·로그인을 쓰지 않아 CSRF로 회원 권한을 빌릴 수 없음. 다른 사이트 브라우저 요청은 `sec-fetch-site`로 막고, 서버 직접 호출은 토큰(32바이트 난수, 해시 저장)+IP 한도(공개 입구 120/분, 예약 화면 30/분·제출 5/시간)+회원 하루 최대 수로 막음. 신고 기능은 이번 범위에 넣지 않음(필요하면 `reportPublicPage` 방식 재사용 제안).
+
+**회원 cron-job.org — 승인 범위와 새 외부 행동을 구분(권장안 A)**
+- 지금 cron-job.org를 켜는 공용 함수 `ensureMemberSchedulerRunning`(공용 사본 `src/lib/schedulerMember/memberScheduler.ts`, 직접 수정 금지)은 작업이 없으면 **새 회원 토큰을 만들고 회원 cron-job.org 계정에 새 작업을 등록**한다. 지금 이 함수는 회원 본인 요청 뒤(`/api/rpc` `afterRpc`)와 키 저장(`/api/keys`)에서만 불린다.
+- **A(권장, 새 외부 행동 0)**: 손님 제출에서는 cron-job.org를 부르지 않는다. 확인 작업은 ① 회원 cron-job.org가 이미 켜져 있으면 1분 주기로 처리, ② 아니면 회원이 예약 목록을 열 때(`bookingList`가 자기 작업만 `runDueJobs`) 처리 — 7-6 3의 「확인 시각 보장 안 됨」 그대로. 회원이 예약 받기를 켤 때 설정 카드에 「cron-job.org 연결 권장」을 보이고, 연결은 기존 키 화면 흐름(회원 본인 요청)으로만.
+- B(별도 승인 필요): 손님 제출 뒤 `ensureMemberSchedulerRunning`을 불러 켬 — 모르는 사람의 요청이 회원 외부 계정에 작업을 만들고(cron-job.org 하루 호출 한도 100 사용) 새 회원 토큰까지 만들 수 있어 **새 외부 행동**. 채택하려면 주인님 승인 + 「이미 있는 작업만 켜기」 전용 경로가 필요(공용 사본 수정이라 기준 코드 절차).
+- 실패 정책(A): 확인 작업 처리기 실패는 작업기 기본 재시도(1·4·9·16분, 최대 5회) — 처리기는 GET만 하므로 재시도해도 POST 0.
+
+**2단계 파일 범위(배정 시 점유)**: 수정 `src/server/runtime.ts`(1줄)·`src/server/publicPages.ts`(분기 1곳)·`src/app/calendar-sync/page.tsx`·`CalendarBoard.tsx`(카드 연결), 새 `src/app/book/[...path]/page.tsx`·제출 컴포넌트·설정 카드 컴포넌트, 시험(공개 입구 403/415/404·IP 한도·기대 계정 409·설정 카드 DOM). 1단계 5파일은 QA024 반례가 오면 그 수정이 먼저. 스위치는 계속 꺼짐 — 켜기는 별도 승인.
