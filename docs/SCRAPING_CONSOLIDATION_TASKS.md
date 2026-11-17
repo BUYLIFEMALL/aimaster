@@ -40,7 +40,7 @@
 | T-04 | 웹앱 Next.js 16.2.11 → 16.4.2 보안 업데이트 | 대기 | `docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md` 묶음 E(미커밋 `web-crawler/AGENTS.md` 때문에 제외됨 — 그 변경은 빈 줄 1개 삭제뿐) | Vercel 빌드 1회(사전 승인) | 미커밋 변경 주인 확인 → `npm install next@16.4.2` → tsc·build → 배포 |
 | T-05 | 한 페이지 분석에 robots.txt 확인 | ✅ 소스 완료·독립 검수 통과·**미배포 대기**(2026-11-17 `fc48ebcba` + DNS 제한 수정 `8172d8084`, 맥미니 QA023 PASS, Master 마감) | 완성 기준 §2 조건 4, 비교표 R1, 아래 §2-1 | 웹앱 배포(모아서 배포, 버전 +0.01은 배포 때) | 다음 web-crawler 묶음 배포 때 함께 내보내고 고지·버전·실제 화면 확인. 미검수: 실제 전송·route 전체·운영 화면 |
 | T-06 | `Crawl-delay` 반영 + 다음 페이지 robots 확인 | 대기 | 비교표 R2·R3 | 크롤링 서버 재배포 | `pipeline.py` `RateLimiter` 지연값 계산 플랜 |
-| T-07 | 대시보드 자동 새로고침·완료 엑셀 미리보기 | 자동 새로고침만 구현 준비 완료(2026-11-17 BLOG-20261117-09, 구현 배정 대기) · 엑셀 미리보기는 대기 | `IMPROVEMENTS.md` #6·#7, 비교표 R6·R7, 아래 §2-2 | 웹앱 배포(모아서) | §2-2 결정 1개 → 구현 |
+| T-07 | 대시보드 자동 새로고침·완료 엑셀 미리보기 | 자동 새로고침 소스 완료·**미배포 대기**(2026-11-17 `40662e6ae`, 맥미니 독립 검수 대기) · 엑셀 미리보기는 대기 | `IMPROVEMENTS.md` #6·#7, 비교표 R6·R7, 아래 §2-2 | 웹앱 배포(모아서) | 독립 검수 → 다음 web-crawler 묶음 배포 때 화면 확인 |
 | T-08 | 옛 `ghost-scraper/` 코드 정리 | 대기 | `ghost-scraper/AGENTS.md` v1.13 「정리는 백업 폴더 + git 태그 뒤」 · 2026-10-24 `D:\Antigravity\AIMaster_backup\retired-programs\`에 없음 · 관련 git 태그 없음 | 주소 유지 필요(옛 주소 안내), 삭제는 사전 승인 | 백업 폴더 복사 + 태그 → 안내 화면·410만 남기고 정리 플랜 |
 | T-09 | 옛 Website Scraper `/login` 404 점검 | 대기(다른 묶음 담당) | 보안 분담표 묶음 C | 고치면 빌드 1회 | 묶음 C 담당 세션 결과 확인 |
 | T-10 | 수집 결과 → 블로그·SEO 도구로 넘기기 | 대기(아이디어) | `IMPROVEMENTS.md` #4·#7, 비교표 R8 | 완성 기준 §4-2(본문 복제 금지)와 함께 설계 | [공통 아이디어 표](PROGRAM_IDEA_BACKLOG.md)에 등록 여부 확인 |
@@ -128,7 +128,9 @@
 
 **바뀔 파일(구현 때)**: 새 `src/lib/jobs/activeJobsPoller.ts` · 새 `src/components/jobs/useActiveJobsRefresh.ts` · 새 `src/components/jobs/ActiveJobsRefresher.tsx` · `src/components/jobs/JobsList.tsx` · `src/app/(dashboard)/dashboard/page.tsx` · 새 `tests/active-jobs-poller.test.cjs` · `package.json`(시험 명령 1줄, 설치 0).
 
-**Master 결정 1개**: 빈틈 보완을 작업 목록(`JobsList`)에도 같이 적용(제안 — 같은 코드 하나로 맞춤) / 작업 목록은 그대로 두고 대시보드만 새 코드(코드 두 벌).
+**Master 결정(msg_74121752d303)**: 작업 목록도 같은 공용 코드 사용.
+
+**구현 결과(2026-11-17 `40662e6ae`, 7파일 +326 −40)** — 위 경로 그대로. 실패 정책: 401·403·404는 영구 멈춤 / 네트워크 오류·5xx·응답 형식 이상은 일시 실패로 보고 즉시 재시도 없이 다음 5초 회차(진행 중이고 보이는 동안 계속 — 지금 작업 목록과 같음) / 끝난 작업 발견 시 `router.refresh()` 1회 후 멈춤. 세대: ID 세트가 바뀌거나 화면이 사라지면 이전 poller를 `stop()`(요청 `AbortController` 중단) → 늦게 온 응답은 버림. 숨은 탭은 리스너 없이 회차마다 `document.visibilityState`만 확인(정리할 리스너 0). 검증: 구현 전 시험 실패(파일 없음) → 구현 뒤 `test:jobs-poller` 14개 통과(가짜 타이머·지연 응답: 겹침·숨김·늦은 완료·세대 교체·401/403/404·일시 실패·이중 start/stop) · `test:inspect-robots` 30 · `test:work-inbox` 3 · `tsc` 오류 0. `eslint`는 설정 파일이 없어 실행 안 됨. 미검수: 실제 브라우저 화면·실제 세션 전환·운영 배포. 점유 예약: `docs/ACTIVE_WORK.md`에 남의 미커밋 변경이 있어 쓰지 않음.
 
 - 범위 밖: 완료 엑셀 미리보기(T-07 뒷부분), T-03·T-04·T-08. 남의 미커밋 `web-crawler/AGENTS.md` 보존.
 
