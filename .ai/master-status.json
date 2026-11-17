@@ -3590,14 +3590,14 @@
   },
   "qaQueue": "QA023 DNS수정→QA022 hover수정→QA024 예약·순차검수",
   "monitoring": {
-    "policyVersion": "1.7",
+    "policyVersion": "1.8",
     "activeTurnIntervalMinutes": 5,
     "immediateEvents": [
       "message",
       "completion",
       "idle"
     ],
-    "outsideTurnAutomaticChecks": "not_configured",
+    "outsideTurnAutomaticChecks": "configured",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
       "at": "2026-11-17T14:48:12.978Z",
@@ -3667,6 +3667,34 @@
         "messageId": "msg_f502ee2dd999",
         "status": "queued"
       }
-    ]
+    ],
+    "outsideTurnAutomation": {
+      "id": "a8e75832-fa68-405d-b823-b72d26ec84a2",
+      "name": "AIMaster Master 30분 자동 점검",
+      "enabled": true,
+      "schedule": "*/30 * * * *",
+      "timezone": "Asia/Seoul",
+      "provider": "codex",
+      "schedulerOwner": "local_host_service",
+      "workspace": "D:/AIMaster",
+      "reuseSession": true,
+      "masterRun": "run_6e348395e1fe",
+      "nextScheduledAt": "2026-11-17T15:00:00.000Z",
+      "configuredAt": "2026-11-17T14:53:35.427Z",
+      "test": {
+        "runId": "9480775b-d46b-481e-847a-9bd93882700c",
+        "status": "dispatched_running",
+        "terminalSessionId": "423df4b8-1366-4225-88b0-c1820d5c2e16",
+        "resultDelivery": "not_yet_verified",
+        "terminalHandle": "term_b6e992d2-81b3-497c-be5c-ecf8c226c4d7",
+        "executionEvidence": "23:53 KST 실제 Codex 화면에서 공통지침/TRANSPORT/공식작업표/Git/세션조회 실행 확인"
+      },
+      "limitations": [
+        "PC와Orca실행·계정사용가능필요",
+        "전용점검작업자가기존Master에전달·별도Master아님",
+        "원본Master수신함check소비0·제품/공유작업표수정0",
+        "등록/기동과실제점검/전달성공은구분"
+      ]
+    }
   }
 }

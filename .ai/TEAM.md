@@ -23,6 +23,12 @@
 
 기존 Blog·policy·mac-mini·docbot-prompt·analysis-planning 등 역할은 유지한다. 최신 조직도에 없다는 이유로 폐지하거나 업무를 빼앗지 않는다. 추가 사용자 배정은 이 표에 한 행씩 반영한다.
 
+## 30분 예약 점검 작업자
+
+- `CX-CHECK-01`: Orca 자동화 `a8e75832-fa68-405d-b823-b72d26ec84a2`, 메인 PC의 기존 `D:/AIMaster` workspace, provider Codex. Master에게 점검 결과만 반환하는 작업자이며 별도 총괄자가 아니다.
+- 최초 시험 실행 `9480775b-d46b-481e-847a-9bd93882700c`: 실제 터미널 `term_b6e992d2-81b3-497c-be5c-ecf8c226c4d7`, 2026-11-17 23:53 KST 실행 화면에서 지침·작업표·Git·세션 조회 확인. 결과 전달은 아직 미확인이다.
+- 후속 실행은 이 자동화의 이전 세션을 재사용하며 세션이 없으면 새 점검 세션으로 시작할 수 있다. 실제 실행별 세션·결과·전달 상태는 자동화 이력과 `monitoring.outsideTurnAutomation`으로 확인한다. 제품·공유 작업표 수정과 직접 구현 배정 권한은 없다.
+
 ## 확인된 주소
 
 Orca run: `run_6e348395e1fe` · runtime `4c4b684f-d0e9-4878-97d5-ce1880c55b7d` · worktree `8596cd65-b178-4dc4-8e56-794c75a956a7::D:/AIMaster`.
