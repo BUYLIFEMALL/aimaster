@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 12:22:21 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 12:24:32 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -15,7 +15,7 @@
 | 1 · ESM | Ecom + Mac Tester | v1.02 운영 배포·Mac 웹 회귀 완료 | 실ESM 등록/확장 연결은 별도 범위, 추가 빌드 없음 |
 | 2 · Workspace | Workspace + Master | v1.56 운영배포·Mac독립운영정상경로/375직접viewport PASS | WS21 예약서버1단계 구현배정·스위치OFF/Google모의/운영DDL0 |
 | 3 · B2B | Backend + Master + Mac Tester | 주인님 응답을 Backend가 준비신호로 접수·DB요청결과 대기 | 주인님Accept→검증20/지문→Master승인Lab1빌드,실결제테스트키만 |
-| 4 · B2BFront | B2BFront + Mac Tester | 다크단추 최소보정 소스/독립계산 PASS | FRONT03 3색버튼전용보정 구현배정·운영배포0 |
+| 4 · B2BFront | B2BFront + Mac Tester | 다크단추 최소보정 소스/독립계산 PASS | FRONT03 f7120d185 회수·MacQA022 특히밝게3색hover소실검토 |
 | 5 · 블로그 | Blog | 문서T12 배정/보관표정정완료,이웃1.22·티스토리1.98미배포 | BLOG08 T05 robots최소경로분석배정·확장사람클릭은별도 |
 | 6 · 영상 | Movie | 떡상v1.30·사용량/캐시2표운영적용보고 | 실검색 시험로그인·AI기획안1회비용승인 전 유료호출0 |
 | 7 · 음악 | Music | 운영6프로그램 보고확보·가사취소안내1건미배포 | Mac 실제MP4 저장/장비조건·외부충전/공개조건 구분,반복검사0 |
@@ -40,7 +40,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 187개: done 163개 · cancelled 6개 · ready_review 10개 · running 3개 · waiting_human 2개 · ready 3개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 188개: done 163개 · cancelled 6개 · ready_review 11개 · running 3개 · waiting_human 2개 · ready 3개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -228,9 +228,10 @@
 | WS-20261117-20 | CC-WORKSPACE-01 | done / integrated | 워크스페이스 영수증 하단 스크롤 접근 복구 | 소스동결·WS13/QA019 마지막viewport/상태누락증거보완·운영배포0 |
 | QA-20261117-021 | CX-QA-01 | done / integrated | Workspace v1.56 운영 읽기전용 독립 스모크 | 지정운영스모크종료·장애/DB정확성/발행끝/Alt/실인쇄/실기기미검수유지 |
 | WS-20261117-21 | CC-WORKSPACE-01 | ready / queued | E2 예약7-2 현재코드대조 및 첫 구현범위 확정 | 서버1단계 booking/googleCalendar/memberJobs/cron·OFF/모의 구현반환 |
-| FRONT-20261117-03 | CC-B2B-FRONT-01 | ready / queued | 미달3색 대비 최소후보 분석 | 버튼전용3색보정 구현/시험반환·저장브랜드색불변 |
+| FRONT-20261117-03 | CC-B2B-FRONT-01 | ready_review / returned | 미달3색 대비 최소후보 분석 | QA022 독립대비/선택자/평면hover회귀검토대기·배포0 |
 | BLOG-20261117-08 | CC-BLOG-01 | running / returned | T05 inspect robots 판정 구현준비 | 중간리디렉트正文요청전robots검사누락보완·5xx중지/404허용/표준MIT파서근거조사·코드0 |
 | RE-20261117-07 | CC-REALTY-01 | ready_review / returned | 보수적 제외 후보 오프라인 실험 | 개발237라벨:잘못제외0/127·무관잔존31/76·독립자료없어운영미반영 |
+| QA-20261117-022 | CX-QA-01 | ready / queued | FRONT03 대비보정·선택자·상태표시 독립검토 | Mac QA반환·실Lab미배포PASS금지 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 

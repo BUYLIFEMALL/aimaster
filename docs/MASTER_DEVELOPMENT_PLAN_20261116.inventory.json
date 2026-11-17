@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 12:22:21 KST",
+  "checkedAt": "2026-11-17 12:24:32 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4698,12 +4698,12 @@
       "task_id": "FRONT-20261117-03",
       "owner": "CC-B2B-FRONT-01",
       "title": "미달3색 대비 최소후보 분석",
-      "evidence": "msg_c37e721cf22f / msg_dc75ac7b448e",
-      "next": "버튼전용3색보정 구현/시험반환·저장브랜드색불변",
+      "evidence": "msg_c37e721cf22f / msg_dc75ac7b448e / f7120d185/7e701ae53·author21+31tests",
+      "next": "QA022 독립대비/선택자/평면hover회귀검토대기·배포0",
       "parent_task_id": "OPS-20261116-001",
       "reviewer": "CX-MASTER-01",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "ready_review",
+      "delivery": "returned",
       "scopeRef": "분석/기존문서만·타인파일수정0",
       "completion": "정확허용범위 구현·회귀증거·외부/운영/빌드0"
     },
@@ -4732,6 +4732,19 @@
       "delivery": "returned",
       "scopeRef": "고유분석파일/본인문서·운영소스0",
       "completion": "재현근거/정확범위/미검수반환"
+    },
+    {
+      "task_id": "QA-20261117-022",
+      "parent_task_id": "FRONT-20261117-03",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "FRONT03 대비보정·선택자·상태표시 독립검토",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "msg_9811315f21f6",
+      "scopeRef": "theme.ts/globals.css/관련시험 읽기·독립계산·제품수정0",
+      "completion": "3색대비/9색불변/관리자제외/hover회귀 별도판정",
+      "next": "Mac QA반환·실Lab미배포PASS금지"
     }
   ]
 }
