@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 13:06:51 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 13:08:32 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -40,7 +40,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 191개: done 168개 · cancelled 6개 · ready_review 11개 · running 2개 · waiting_human 2개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 192개: done 169개 · cancelled 6개 · ready_review 11개 · running 2개 · waiting_human 2개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -227,14 +227,15 @@
 | QA-20261117-020 | CX-QA-01 | done / integrated | Front다크단추 대비 국소독립검수 | acb858a77 승인Lab1빌드묶음포함·별도빌드/추가소스0·LabReady뒤실Tab상태구분검수 |
 | WS-20261117-20 | CC-WORKSPACE-01 | done / integrated | 워크스페이스 영수증 하단 스크롤 접근 복구 | 소스동결·WS13/QA019 마지막viewport/상태누락증거보완·운영배포0 |
 | QA-20261117-021 | CX-QA-01 | done / integrated | Workspace v1.56 운영 읽기전용 독립 스모크 | 지정운영스모크종료·장애/DB정확성/발행끝/Alt/실인쇄/실기기미검수유지 |
-| WS-20261117-21 | CC-WORKSPACE-01 | ready_review / returned | E2 예약7-2 현재코드대조 및 첫 구현범위 확정 | QA025국소재검토·2B허용4파일별도선택커밋반환/3스위치OFF |
+| WS-20261117-21 | CC-WORKSPACE-01 | ready_review / returned | E2 예약7-2 현재코드대조 및 첫 구현범위 확정 | QA026 OFF배선독립검토·최종조합검사전동결·3스위치OFF |
 | FRONT-20261117-03 | CC-B2B-FRONT-01 | done / integrated | 미달3색 대비 최소후보 분석 | 소스5b02c3399완료·Lab미배포/실Tab未검수 |
 | BLOG-20261117-08 | CC-BLOG-01 | done / integrated | T05 inspect robots 판정 구현준비 | 소스완료/미배포·실전송/route전체/운영未검수 |
 | RE-20261117-07 | CC-REALTY-01 | ready_review / returned | 보수적 제외 후보 오프라인 실험 | 개발237라벨:잘못제외0/127·무관잔존31/76·독립자료없어운영미반영 |
 | QA-20261117-022 | CX-QA-01 | done / integrated | FRONT03 대비보정·선택자·상태표시 독립검토 | hover P2 독립PASS·지정소스조건종결 |
 | QA-20261117-023 | CX-QA-01 | done / integrated | inspect robots 가드 독립검토 | DNS P2 독립PASS·소스지정범위종결 |
 | QA-20261117-024 | CX-QA-01 | done / integrated | 예약 서버1단계 OFF/상태/권한/동시성 독립검토 | 지정1단계소스검토종결·전체완성/실Google/운영未검수 |
-| QA-20261117-025 | CX-QA-01 | ready / queued | 예약2A UI 계정/중복제출/unknown 독립검토 | 계정mutation/StrictMode/손님문구3경계재검토 |
+| QA-20261117-025 | CX-QA-01 | done / integrated | 예약2A UI 계정/중복제출/unknown 독립검토 | 2A지정소스종결·배선/실서비스별도 |
+| QA-20261117-026 | CX-QA-01 | ready / queued | 예약2B OFF배선 실제입구/보안경계 독립검토 | 결과/반례/실행범위반환 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
