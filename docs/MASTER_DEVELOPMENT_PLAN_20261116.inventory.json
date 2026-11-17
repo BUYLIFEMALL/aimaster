@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 09:28:06 KST",
+  "checkedAt": "2026-11-17 09:29:36 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4450,13 +4450,13 @@
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "title": "주인님 직접지시 영수증 화면 메인 사이드바 연결",
       "priority": "P2",
-      "status": "running",
+      "status": "ready_review",
       "delivery": "returned",
-      "evidence": "msg_7ba69f851b09 QA017 route4PASS/계정late응답P1·domain동기화P2",
+      "evidence": "Workspace792be25a9·作者軽量16/16·旧DOM5失敗→改善",
       "completion": "domain receipts SPA route와기존client Board재사용/사이드바연결·기존standalone유지·관련경량검사,서버DB0·실화면/배포미검수구분",
-      "next": "Workspace sharedclientBoard 포함계정수명/응답세대보호·receipts domain동기화 국소수정배정,React경량반례검증·서버/DB/전체tsc/빌드0",
-      "lastReviewedAt": "2026-11-17T00:23:16.528Z",
-      "sha": "9d6875e4b"
+      "next": "Mac QA017 계정요청수명/receipts domain재검토·standalone他탭account고정잔존미해결조건확인. 담당auth구독읽기조사,실화면/DB/서버/전체tsc/빌드0",
+      "lastReviewedAt": "2026-11-17T00:29:33.803Z",
+      "sha": "9d6875e4b + 792be25a9"
     },
     {
       "task_id": "QA-20261117-017",
