@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-work-workspace/`, `ai-task-planner/`(2026-10-26 주인님 결정으로 추가)
 - 카테고리: 업무자동화
 - 주력 업무: 새 프로그램 「AI 업무 워크스페이스 자동화」 단계별 개발(로드맵 U1~U14, `ai-work-workspace/docs/PLAN_20261024_EXPANSION_ROADMAP.md`). 디자인(U5)은 디자인 역할(agy)이 맡음
-- 마지막 갱신: 2026-11-17 [역할: workspace] v1.57 예약 링크 운영 활성화(Master 배포 dpl_HrBf8mQHD7hqTw62Mgs2WuowS7Px, 실검증 1건·정리 1개, 첫 생성 경합 P2 열림) / 이전: 2026-11-17 [역할: workspace] 예약 링크 묶음 소스 완료·OFF·미배포(통합 tsc 0·vitest 49/457) / 이전: 2026-11-17 [역할: workspace] Claude(Workspace) · Claude Code(윈도우, 엣지) — **운영 v1.56 배포**(`ai-work-workspace-qnc5ykmtx`, `dpl_GUNMN7RG3XoQVdZmbihJC3qCTJSC`, 주인님 「진행하고 MASTER에 보고 해」): 146 묶음 + 영수증 워크스페이스 안·계정 보호 + 키 화면 캘린더 상태 + Next 16.4.6 보안 패치. 후속 QA021은 Mac. 로컬 3457은 중지 유지.
+- 마지막 갱신: 2026-11-17 [역할: workspace] v1.57 예약 링크 운영 활성화(Master 배포 dpl_HrBf8mQHD7hqTw62Mgs2WuowS7Px, 실검증 1건·구글 일정 정리 1개·QA 1행 released로 칸 점유 해제 완료, 첫 생성 경합 P2 열림) / 이전: 2026-11-17 [역할: workspace] 예약 링크 묶음 소스 완료·OFF·미배포(통합 tsc 0·vitest 49/457) / 이전: 2026-11-17 [역할: workspace] Claude(Workspace) · Claude Code(윈도우, 엣지) — **운영 v1.56 배포**(`ai-work-workspace-qnc5ykmtx`, `dpl_GUNMN7RG3XoQVdZmbihJC3qCTJSC`, 주인님 「진행하고 MASTER에 보고 해」): 146 묶음 + 영수증 워크스페이스 안·계정 보호 + 키 화면 캘린더 상태 + Next 16.4.6 보안 패치. 후속 QA021은 Mac. 로컬 3457은 중지 유지.
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
