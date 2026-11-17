@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 12:40:06 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 12:41:05 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -227,7 +227,7 @@
 | QA-20261117-020 | CX-QA-01 | done / integrated | Front다크단추 대비 국소독립검수 | acb858a77 승인Lab1빌드묶음포함·별도빌드/추가소스0·LabReady뒤실Tab상태구분검수 |
 | WS-20261117-20 | CC-WORKSPACE-01 | done / integrated | 워크스페이스 영수증 하단 스크롤 접근 복구 | 소스동결·WS13/QA019 마지막viewport/상태누락증거보완·운영배포0 |
 | QA-20261117-021 | CX-QA-01 | done / integrated | Workspace v1.56 운영 읽기전용 독립 스모크 | 지정운영스모크종료·장애/DB정확성/발행끝/Alt/실인쇄/실기기미검수유지 |
-| WS-20261117-21 | CC-WORKSPACE-01 | running / returned | E2 예약7-2 현재코드대조 및 첫 구현범위 확정 | msg_61656302054f QA024서버수정우선·UI2A안전중지/기존변경보존·OFF유지 |
+| WS-20261117-21 | CC-WORKSPACE-01 | running / returned | E2 예약7-2 현재코드대조 및 첫 구현범위 확정 | QA024 CAS/대칭buffer snapshot/잠금내철회설정 재검사수정·격리시험DB만·운영DDL0 |
 | FRONT-20261117-03 | CC-B2B-FRONT-01 | done / integrated | 미달3색 대비 최소후보 분석 | 소스5b02c3399완료·Lab미배포/실Tab未검수 |
 | BLOG-20261117-08 | CC-BLOG-01 | done / integrated | T05 inspect robots 판정 구현준비 | 소스완료/미배포·실전송/route전체/운영未검수 |
 | RE-20261117-07 | CC-REALTY-01 | ready_review / returned | 보수적 제외 후보 오프라인 실험 | 개발237라벨:잘못제외0/127·무관잔존31/76·독립자료없어운영미반영 |
