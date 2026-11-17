@@ -74,7 +74,8 @@ describe('연결 상태', () => {
   it('상태 확인 실패 → 오류 문구', async () => {
     mount(ON);
     await settle(0, { code: 'server', message: '연결 정보를 읽지 못했습니다.' }, true);
-    expect(text()).toContain('연결 정보를 읽지 못했습니다.');
+    expect(text()).toContain('Gmail 요청을 처리하지 못했습니다'); // QA039(2): 고정 문구만
+    expect(text()).not.toContain('연결 정보를 읽지 못했습니다.');
   });
 });
 
@@ -102,7 +103,7 @@ describe('목록', () => {
     ['409 conflict', { code: 'conflict', message: 'x' }, '바뀌었습니다'],
     ['account_changed', { code: 'account_changed' }, '바뀌었습니다'],
     ['404 연결 없음', { code: 'not_found', message: 'x' }, 'Gmail이 연결돼 있지 않습니다'],
-    ['그 밖 오류', { code: 'server', message: 'Gmail 사용 한도를 넘었습니다.' }, 'Gmail 사용 한도를 넘었습니다.'],
+    ['그 밖 오류(문구는 고정 — 넘어온 message 무시)', { code: 'server', message: 'Gmail 사용 한도를 넘었습니다.' }, 'Gmail 요청을 처리하지 못했습니다'],
   ])('목록 실패 %s', async (_n, err, want) => {
     await connectedWithList();
     await click(btn('다시 불러오기'));
@@ -256,5 +257,71 @@ describe('연결 끊기', () => {
     await settle(idx(last('disconnect')), undefined);
     expect(text()).not.toContain('견적 요청드립니다');
     expect(el.querySelector('a')?.getAttribute('href')).toBe(GMAIL_CONNECT_URL);
+  });
+});
+
+
+// ---------------------------------------------------------------- QA039 반례(Mac msg_ca1bef2b400d)
+describe('QA039 패널 반례', () => {
+  it('(1) A를 넣는 중에는 다른 메일 고르기·제목 바꾸기·원 제목 넣기·목록 다시 불러오기 막힘, A 결과는 A 아래에만', async () => {
+    await connectedWithList();
+    await click(btn('견적 요청드립니다'));
+    await click(btn('받은 업무에 넣기'));
+    const other = btn('회의 일정')!;
+    expect(other.disabled).toBe(true);
+    await click(other);
+    expect((el.querySelector('[data-testid="gmail-picked"] input') as HTMLInputElement).disabled).toBe(true);
+    expect(btn('원 제목 넣기')!.disabled).toBe(true);
+    expect(btn('다시 불러오기')!.disabled).toBe(true);
+    expect(calls.filter((c) => c.name === 'list')).toHaveLength(1);
+    await settle(idx(last('add')), { status: 'added', inboxId: 'i1' });
+    expect(el.querySelector('[aria-pressed="true"]')?.textContent).toContain('견적 요청드립니다');
+    expect(el.querySelector('[data-testid="gmail-result"]')?.textContent).toBe('받은 업무에 넣었습니다.');
+    // 넣은 뒤 B를 고르면 A 결과는 B 아래에 보이지 않음
+    await click(btn('회의 일정'));
+    expect(el.querySelector('[data-testid="gmail-result"]')).toBeNull();
+    expect(calls.filter((c) => c.name === 'add')).toHaveLength(1);
+  });
+  it.each([
+    ['상태 확인 auth', 'status'],
+    ['목록 auth', 'list'],
+    ['넣기 auth', 'add'],
+  ])('(2) %s의 원문 message·추가 필드는 화면에 0, 고정 문구만', async (_n, where) => {
+    const RAW = 'RAW_AUTH secret sql detail';
+    if (where === 'status') {
+      mount(ON);
+      await settle(0, { code: 'auth', message: RAW, extra: RAW }, true);
+    } else {
+      await connectedWithList();
+      if (where === 'list') {
+        await click(btn('다시 불러오기'));
+        await settle(idx(last('list')), { code: 'auth', message: RAW }, true);
+      } else {
+        await click(btn('견적 요청드립니다'));
+        await click(btn('받은 업무에 넣기'));
+        await settle(idx(last('add')), { code: 'auth', message: RAW }, true);
+      }
+    }
+    expect(text()).not.toContain('RAW_AUTH');
+    expect(text()).toContain('로그인이 끊겼습니다');
+  });
+  it('(2) 모르는 code·문구도 원문 0(일반 고정 문구)', async () => {
+    await connectedWithList();
+    await click(btn('다시 불러오기'));
+    await settle(idx(last('list')), { code: 'weird', message: 'RAW_X' }, true);
+    expect(text()).not.toContain('RAW_X');
+    expect(text()).toContain('메일 목록을 불러오지 못했습니다');
+  });
+  it('(3) 넣기 conflict → 옛 메일·제목·결과 모두 숨김·후속 호출 0, 문구는 「연결 또는 받은 업무 상태」(구글 계정 변경 단정 0)', async () => {
+    await connectedWithList();
+    await click(btn('견적 요청드립니다'));
+    await click(btn('받은 업무에 넣기'));
+    await settle(idx(last('add')), { code: 'conflict', message: 'claim changed' }, true);
+    expect(text()).not.toContain('견적 요청드립니다');
+    expect(el.querySelector('[data-testid="gmail-picked"]')).toBeNull();
+    expect(text()).toContain('Gmail 연결 또는 받은 업무 상태가 바뀌었습니다');
+    expect(text()).not.toContain('Gmail 계정이 바뀌었습니다');
+    expect(btn('다시 불러오기')).toBeUndefined();
+    expect(calls.filter((c) => c.name === 'add')).toHaveLength(1);
   });
 });

@@ -32,9 +32,18 @@ type View =
 type AddResult = { kind: "added" | "existing" | "unknown" | "failed"; message: string };
 
 const codeOf = (e: unknown): GmailPanelErrorCode | undefined => (e && typeof e === "object" ? (e as GmailPanelError).code : undefined);
+/** QA039(2): 화면 문구는 code별 고정 문구만 — 주입 api·어댑터가 넘긴 message·추가 필드는 쓰지 않음 */
+const FIXED: Partial<Record<GmailPanelErrorCode, string>> = {
+  off: "Gmail 가져오기는 아직 꺼져 있습니다.",
+  auth: "Gmail 연결이 만료됐거나 로그인이 끊겼습니다. 다시 로그인하거나 「Gmail 연결」을 다시 눌러 주세요.",
+  bad_request: "요청 내용이 올바르지 않습니다. 목록을 새로 열어 주세요.",
+  forbidden: "Gmail API가 꺼져 있거나 권한이 없습니다. 구글 클라우드에서 「Gmail API」를 사용 설정해 주세요.",
+  not_found: "그 메일을 연결된 Gmail에서 찾지 못했습니다. 목록을 새로 열어 주세요.",
+  server: "Gmail 요청을 처리하지 못했습니다. 잠시 뒤 다시 시도해 주세요.",
+};
 const msgOf = (e: unknown, fallback: string): string => {
-  const m = e && typeof e === "object" ? (e as GmailPanelError).message : undefined;
-  return typeof m === "string" && m ? m : fallback;
+  const c = codeOf(e);
+  return (c && FIXED[c]) || fallback;
 };
 function when(iso: string | null): string {
   if (!iso) return "";
@@ -55,6 +64,7 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
   const [listing, setListing] = useState(false);
   const [askDisconnect, setAskDisconnect] = useState(false);
   const [unsure, setUnsure] = useState<Set<string>>(() => new Set()); // 결과를 모르는 메일 — 이 화면에서는 다시 보내지 않음
+  const [resultFor, setResultFor] = useState<string | null>(null); // QA039(1): 결과가 어느 메일 것인지(다른 메일 편집 칸 아래에 보이지 않게)
 
   const hideAll = useCallback(() => {
     setItems(null);
@@ -123,6 +133,7 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
   };
 
   const pick = (m: GmailPanelItem) => {
+    if (adding) return; // QA039(1): 넣는 중에는 고르기 막음(이벤트 가드)
     setPicked(m);
     setTitle(DEFAULT_TITLE);
     setResult(null);
@@ -131,21 +142,23 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
   const add = async () => {
     if (!sub || !picked || adding || unsure.has(picked.id)) return;
     const t = title.trim();
-    if (t.length < 1 || t.length > 200) { setResult({ kind: "failed", message: "업무 제목은 1~200자로 적어 주세요." }); return; }
+    if (t.length < 1 || t.length > 200) { setResultFor(picked.id); setResult({ kind: "failed", message: "업무 제목은 1~200자로 적어 주세요." }); return; }
     const my = gen.current;
+    const id = picked.id;
     setAdding(true);
     setResult(null);
+    setResultFor(id);
     try {
-      const r = await api!.add({ messageId: picked.id, title: t, expectSub: sub });
+      const r = await api!.add({ messageId: id, title: t, expectSub: sub });
       if (gen.current !== my) return;
       setResult(r.status === "added" ? { kind: "added", message: "받은 업무에 넣었습니다." } : { kind: "existing", message: "이미 받은 업무에 넣은 메일입니다." });
     } catch (e) {
       if (gen.current !== my) return;
       const c = codeOf(e);
-      if (c === "account_changed" || c === "context_changed") return changed(); // 계약: 로그인 계정·연결 계정 바뀜(서버 409 계정 바뀜을 어댑터가 바꿔 줌)
+      // QA039(3): conflict는 구글 연결 변경과 받은 업무 상태 변경(40001) 둘 다 쓰므로 보수적으로 모두 숨기고 후속 호출 0
+      if (c === "account_changed" || c === "context_changed" || c === "conflict") return changed();
       if (!c || c === "unknown") {
         // 결과 모름: 이미 저장됐을 수 있음 → 자동 재전송 0, 이 메일의 넣기 버튼 잠금, 다시 누르기 유도 0
-        const id = picked.id;
         setUnsure((s) => new Set(s).add(id));
         setResult({ kind: "unknown", message: "받은 업무에 넣었는지 확인하지 못했습니다. 이미 넣어졌을 수 있으니 받은 업무 목록에서 확인해 주세요." });
       } else {
@@ -166,7 +179,8 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
       setView({ kind: "not_connected" });
     } catch (e) {
       if (gen.current !== my) return;
-      if (codeOf(e) === "account_changed") return changed();
+      const c = codeOf(e);
+      if (c === "account_changed" || c === "context_changed" || c === "conflict") return changed();
       setAskDisconnect(false);
       setListNote(msgOf(e, "연결을 끊지 못했습니다."));
     }
@@ -178,7 +192,7 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
       {view.kind === "loading" && <div className="aww-inbox-empty">확인 중…</div>}
       {view.kind === "error" && <div className="aww-inbox-notice error">{view.message}</div>}
       {view.kind === "changed" && (
-        <div className="aww-inbox-notice error" role="alert">로그인 계정이나 연결된 Gmail 계정이 바뀌었습니다. 화면을 새로고침해 주세요.</div>
+        <div className="aww-inbox-notice error" role="alert">로그인 계정·Gmail 연결 또는 받은 업무 상태가 바뀌었습니다. 화면을 새로고침해 다시 확인해 주세요.</div>
       )}
       {view.kind === "not_connected" && (
         <div className="aww-inbox-notice">
@@ -190,7 +204,7 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
         <>
           <div className="aww-inbox-notice">
             연결된 Gmail: <b data-testid="gmail-email">{view.email ?? "(이메일 확인 안 됨)"}</b>{" "}
-            <button type="button" className="aww-3d-btn blue small" disabled={listing} onClick={() => void loadList()}>
+            <button type="button" className="aww-3d-btn blue small" disabled={listing || adding} onClick={() => void loadList()}>
               {listing ? "불러오는 중…" : items ? "다시 불러오기" : "최근 메일 보기(최대 20개)"}
             </button>{" "}
             {!askDisconnect ? (
@@ -208,7 +222,7 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
             <ul className="aww-inbox-list" data-testid="gmail-list">
               {items.map((m) => (
                 <li key={m.id}>
-                  <button type="button" aria-pressed={picked?.id === m.id} onClick={() => pick(m)}>
+                  <button type="button" aria-pressed={picked?.id === m.id} disabled={adding} onClick={() => pick(m)}>
                     <span className="aww-inbox-title">{m.subject}</span>
                     <span className="aww-inbox-meta">{m.from} · {when(m.date)}</span>
                   </button>
@@ -220,9 +234,9 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
             <div className="aww-inbox-notice" data-testid="gmail-picked">
               <label>
                 업무 제목{" "}
-                <input value={title} maxLength={200} onChange={(e) => setTitle(e.target.value)} aria-label="업무 제목" />
+                <input value={title} maxLength={200} disabled={adding} onChange={(e) => { if (!adding) setTitle(e.target.value); }} aria-label="업무 제목" />
               </label>{" "}
-              <button type="button" className="aww-3d-btn small" onClick={() => setTitle(picked.subject.slice(0, 200))}>원 제목 넣기</button>{" "}
+              <button type="button" className="aww-3d-btn small" disabled={adding} onClick={() => { if (!adding) setTitle(picked.subject.slice(0, 200)); }}>원 제목 넣기</button>{" "}
               <button type="button" className="aww-3d-btn blue small" disabled={adding || unsure.has(picked.id)} onClick={() => void add()}>
                 {adding ? "넣는 중…" : unsure.has(picked.id) ? "받은 업무 목록에서 확인해 주세요" : "받은 업무에 넣기"}
               </button>
@@ -232,7 +246,7 @@ export function GmailInboxPanel({ enabled = false, accountKey, api }: { enabled?
               </div>
             </div>
           )}
-          {result && <div className={`aww-inbox-notice${result.kind === "failed" || result.kind === "unknown" ? " error" : ""}`} data-testid="gmail-result">{result.message}</div>}
+          {result && picked && resultFor === picked.id && <div className={`aww-inbox-notice${result.kind === "failed" || result.kind === "unknown" ? " error" : ""}`} data-testid="gmail-result">{result.message}</div>}
         </>
       )}
     </section>
