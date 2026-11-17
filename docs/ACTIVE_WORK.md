@@ -42,7 +42,7 @@ WORK.md) — 동시 작업 | `esm-register/` (새 프로그램) | [역할: ecomm
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `ai-work-workspace/` | [역할: workspace] Claude(Workspace) Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` · **브라우저: 엣지(주인님 지정)** | 2026-11-17 | WS-20261117-22 예약 링크 활성화 v1.57(주인님 승인, Master msg_0e57ecf5a5fa): 스위치 3개 켜기 `src/server/booking.ts`·`src/app/calendar-sync/BookingSettingsCard.tsx`·`src/app/book/[...path]/BookingForm.tsx`, 시험 OFF 명시 `tests/integration/booking*.test.ts`, 버전 `src/lib/version.ts`·SQL, 로컬 build 1·Vercel 1·운영 표 2(첫 사용) |
+| `ai-work-workspace/` | [역할: workspace] Claude(Workspace) Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` · **브라우저: 엣지(주인님 지정)** | 2026-11-17 | WS-20261117-23 예약 표 첫 생성 경합 최소 수정(Master msg_a687aebd1025, 미배포 다음 묶음): `ai-work-workspace/src/server/booking.ts` ensureTables 직렬화·`tests/integration/booking.test.ts` 2연결 재현. QA 1행 정리 SQL은 초안만 |
 | `lyric-video-studio/` (범위: `src/components/views/ExportView.tsx` 1파일 — MUS-20261117-01 사용자 취소 안내) | [역할: music] Claud(Music) Claude Code(윈도우, ego) · 세션 `claude-win-20261024-music` | 2026-11-17 | 사용자 취소를 오류 상자 대신 일반 안내로 — 미배포 대기로 모음 |
 | `threads/` (범위: 독립 모드 스위치·`KIT/` 신규 — `src/lib/version.ts`는 남의 미커밋이라 안 건드림) → 다음 `insta_auto_poster/KIT`·`ai-auto-blog` | [역할: support] Claude Code(윈도우) · Claude(Support) `CC-SUPPORT-01` · 세션 `claude-win-20261112-policy` | 2026-11-16 | 수강생 배포 키트 3종 — 지금: Threads 키트(`auto-threads-posting`) 신규 작성. 운영 동작 변화 없음·배포 없음 |
 | `elevenst-register/` | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-11 | v1.07 운영(2026-11-14 `claude-win-photo` 배포에 상세사진 `markPosted`·안내 문구 함께 나감). 시험 상품 9752929791은 주인님이 나중에 직접 삭제(11-15 지시, 에이전트는 손대지 않음). 다음: G마켓·옥션 플랜(주인님 지시 대기) |
