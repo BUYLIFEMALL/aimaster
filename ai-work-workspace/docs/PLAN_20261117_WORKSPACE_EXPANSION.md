@@ -301,3 +301,18 @@ E1 독립 검수(QA17-003)와 별개로 계획만. 디자인 3안 선택 전이�
 - 정확 파일: 수정 `src/litpage/server/content/catalog.ts`·`src/litpage/server/api/modules/templates.ts`, 새 시험 `tests/integration/approvalAutomation.test.ts`. `automations.ts`·엔진·스키마 무수정.
 - 완료 조건(시험, 격리 DB): 결재 템플릿 `getTemplate` → 새 표에 자동화 2개(활성, 만든 사람=사용 회원, 대상 속성 번호 일치) / 다른 템플릿은 자동화 0 / 행 상태를 「승인 요청」으로 바꾸면 결재자에게 앱 알림 1·「승인」이면 요청자에게 1(외부 발송 0) / 편집 권한 없는 회원은 기존처럼 템플릿 사용 자체가 거절 / 자동화 저장 실패를 흉내 내면 템플릿은 남고 경고만 / `applyTemplateToDatabase` 경로도 같은 결과 · tsc.
 - 남는 한계(그대로 명시): 결재자 전용 승인 아님(E3-3), 알림은 앱 안만.
+
+#### 7-11 보완 (Master `msg_ed9b8236045a`) — 읽기 확인 2점 + 예시값 안전
+**① 경고가 화면에 보이는가 — 지금은 안 보임(추가 범위 필요)**
+- 호출부 3곳 모두 응답의 다른 값은 무시: `web/features/templates/api.ts` `addTemplate`(127, 성공 toast 「Template added…」)·`applyTemplate`(140, 성공 toast 「Template applied」), `web/features/templates/dbTemplates.tsx` `applyTemplateToDatabase`(15, toast 없음). 온보딩 `OnboardingPage.tsx` 118은 결과를 버림(시작 템플릿 고르기 — 결재 템플릿은 고르기 목록이 아니면 해당 없음, 구현 때 목록 확인).
+- 최소 추가(새 UI 흐름 0): 세 함수의 응답 타입에 `automationWarnings?: string[]`를 더하고, 값이 있으면 기존 `useUI.getState().toast()`로 **한 번** 「알림 자동화 n개를 만들지 못했습니다 — ⚡ 자동화에서 직접 추가해 주세요」(번역 사전 1줄). 정확 경로: `src/litpage/web/features/templates/api.ts`·`src/litpage/web/features/templates/dbTemplates.tsx`(+ ko 번역 사전 1줄). 화면 시험은 기존 DOM 시험 방식으로 경고 toast 1회만.
+**② 중복 생성 경계**
+- `getTemplate`은 호출마다 **새 페이지·새 표**를 만드는 기존 동작(응답을 잃고 다시 눌러도 표가 하나 더 생기는 것은 지금도 같음) → 자동화는 항상 그 새 표에만 붙어 **표 하나당 최대 2개**. `applyTemplateToDatabase`는 이미 행이 있는 표면 거절(285줄 「empty database」)이라 같은 표에 두 번 적용 불가 — 예시 행이 들어가므로 두 번째 호출은 거절.
+- 그래도 만들기 직전에 그 표의 살아 있는 자동화 중 **같은 이름**이 있으면 건너뜀(재사용) — 템플릿 적용 1회당 그 표에 결재 알림 2개를 넘지 않는 근거. 일부만 실패하면 만든 것은 두고 못 만든 이름만 경고 → 복구 완료 조건 = 회원이 ⚡ 자동화에서 같은 이름으로 추가하거나, 그대로 두어도 템플릿·표는 정상.
+**③ 예시값이 다른 사람에게 알림을 보내지 않는 근거**
+- 예시 행의 요청자·결재자는 비어 있음(E3-1 `e297153b8`) → 알림 대상 계산 `shared/automation/runtime.ts` 526 `notifyTargets`가 사람 속성 값만 모으므로 0명. 예시 행은 자동화보다 **먼저** 복사되어 생성 시점 실행도 없음(복사 커밋 뒤 자동화 생성).
+- 엔진 `automations/engine.ts` 246 `sendNotifications`: 그 페이지를 열 수 있는 사람에게만 앱 알림(`blockRole !== 'none'`), 외부 발송은 `external`이 있을 때만·자동화를 만든 회원 본인에게만 → 템플릿 자동화는 `external` 비움 = 메일·카톡 0.
+- 안전 보강 제안(E3-2에 포함): 예시 행 상태를 「승인 요청」 → 「작성 중」으로(회원이 예시 행에 결재자를 넣고 상태를 다시 「승인 요청」으로 바꿀 때만 알림 — 사람이 직접 한 행동). E3-1 QA030 결과 뒤 반영.
+- 권한 경로: `getTemplate`(멤버·상위 페이지 편집) → `saveAutomation`(`assertCanEdit` 새 표, `assertTargets`) 그대로.
+
+**E3-2 확정 파일(QA030 통과 뒤)**: 서버 `content/catalog.ts`·`api/modules/templates.ts`, 화면 `web/features/templates/api.ts`·`web/features/templates/dbTemplates.tsx`·ko 번역 사전, 시험 새 `tests/integration/approvalAutomation.test.ts`(서버) + 경고 toast DOM 시험 1개.
