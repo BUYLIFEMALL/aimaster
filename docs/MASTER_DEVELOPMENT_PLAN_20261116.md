@@ -1,10 +1,10 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 02:20:30 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 02:23:22 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 02:20:27 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 02:23:19 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
 점검 범위: 103/19분류/265문서표식·8담당정합성보고·QA043/044·점유모순·新직접지시·단일후속배정 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
@@ -68,7 +68,7 @@ Master 마지막 실제 점검: 2026-11-18 02:20:27 KST · 실행 중 점검 주
 | IMP-ECOM-01 / 실검수 | ESM 입력만 · CC-ECOM-01 / CX-QA-01 | 운영1.02·웹QA016완료 · 4d31d626e·QA016 | 주인님공간19 로그인/확장1.02/제어반환 | 시험상품82deeddc 입력1회·임시저장/등록0 |
 | IMP-ECOM-02 / 실검수 | Threads 네이버수집 · CC-ECOM-01 / CX-QA-01 | 운영1.89·격리소스검수완료 · ECOM17-01·WS17-04 | 공간19본인로그인·확장1.89·실브랜드커넥트링크 | 수집/대기열만·등록/AI생성0 |
 | IMP-B2B-01 / 실검수 | Lab 교환비 고객/직원화면 · CX-QA-01 | QA037 waiting_human · Lab0104/7609748ad·공간29 | 주인님naver로그인/반환→고객검수→gmail관리자 | 권한/교환상태/375읽기·실결제/상태변경0 |
-| IMP-B2B-02 / 운영반영승인 | 0101~0104/Front묶음 · CC-B2B-BACK-01 | Lab만반영·운영미반영 · d43255f8f·c6931bfbe | B2B18-02 운영전용정확SQL준비→독립정적검수, QA037/실토스/운영승인해소전실행0 | 운영0100기준보존·옛0102 rollback사용0 |
+| IMP-B2B-02 / 운영반영승인 | 0101~0104/Front묶음 · CC-B2B-BACK-01 | 실행파일d9751c70b QA047 준비누락 보완중 · d43255f8f·c6931bfbe | 선행함수/서명·검증전쓰기2건수정→독립재검수 | 운영0100기준보존·옛0102 rollback사용0 |
 | IMP-FRONT-01 / 신규발견/미확인 | navCls hover7색 · CC-B2B-FRONT-01 | 77c50f27c QA045소스PASS·미배포 · 77c50f27c·QA045 msg_b36218feed71 | 운영/Lab반영은다음묶음·실시각범위별도 | 미달색4.5이상·비대상theme회귀·143추측수정0 |
 | IMP-FRONT-02 / 제안/미착수 | 갤러리누름크기·원래가격·S70 · CC-B2B-FRONT-01 | 제안단계 · c6931bfbe | 우선순위/실근거·S70결제흐름범위확정후배정 | 각변경완료조건 별도정의·기존승인으로임의확대0 |
 | IMP-BLOG-01 / 미배포수정 | 이웃1.22·티스토리1.98 · CC-BLOG-01 | 소스완료·실조건대기 · 3bb238398/e35947191/a27861137 | 다음묶음승인·이웃B1사람/계정·Tistory기존미리보기 | 소제목기호수정·진단근거·실발행0 |
@@ -80,6 +80,7 @@ Master 마지막 실제 점검: 2026-11-18 02:20:27 KST · 실행 중 점검 주
 | IMP-PORTFOLIO-01 / 담당/문서공백 | detail-page-12p 및현세션없는카테고리 · CX-MASTER-01 | 현문서근거/담당확인대기 · 103폴더대조·CATEGORY_GUIDE_MAP | 역할/개별문서기준대조→소관확정후구현배정 | 담당불명=폐지/완료로추정0·부재목록명시 |
 | IMP-IMAGE-02 / 直接지시/구현중 | 감성글귀3사AI 선택 · CC-ECOM-01 | 3a4ad1cad+59cb81d8e ready_review · PLAN1ece3747d·msg_b8292d9e0030·공용openai사본바이트일치/검사등록 | QA046 refusal/abort再검수·실모델지원/비용/배포승인별도 | OpenAI/Claude/Gemini 선택·본인키/서버허용목록·재시도0·기존기본유지 |
 | IMP-IMAGE-03 / 미배포수정 | Pexels 선택/가이드제거 · AG-UI-01 | QA044지정PASS · de49e96e9+62189915b | 감성글귀다음묶음·3사AI수정때보존 | UI선택제거·구초안pixabay·기존키/서버호환보존 |
+| IMP-IMAGE-04 / 직접지시/미배포수정 | 배경외부링크 버튼화 · AG-UI-01 | 690df10c6 작성자반환·독립검수대기 · msg_10b55a37b895 | 지정검수후감성묶음·실320/375시각은별도 | 두링크/본문인계·키보드/넘침·저장버튼불변 |
 
 ## 담당별 현재 상태·인수인계
 
@@ -88,7 +89,7 @@ Master 마지막 실제 점검: 2026-11-18 02:20:27 KST · 실행 중 점검 주
 | 담당 | 현재 작업·점유 | 완료/대기·다음 행동 | 확인 근거 |
 | --- | --- | --- | --- |
 | CC-WORKSPACE-01 | WS27활성준비f4a6854e9 완료·점유0 | 주인님GCP설정/공개방식/실행범위확정→Master실행 | f6e6b1da3 / a41a1e31e·5f9e66d7f |
-| CC-B2B-BACK-01 | 운영실행준비d9751c70b 작성자격리19/19·미실행 | QA047정적검수·실행승인별도 | d43255f8f / msg_223ca85a800e·dabbc23ce/msg_82a3e93e9fa9 |
+| CC-B2B-BACK-01 | SQL실행준비 QA047두건 보완지시 | 수정SHA재검수·운영실행0 | d43255f8f / msg_223ca85a800e·dabbc23ce/msg_82a3e93e9fa9 |
 | CC-B2B-FRONT-01 | hover77c50f27c QA045소스수락·미배포 | 다음묶음/QA037대기 | c6931bfbe / 55368bd4c |
 | CC-ECOM-01 | 3사AI3a4ad1cad+refusal/abort59cb81d8e 소스반환 | QA046재검수/추가반례수정·실비용/배포별도 | 26e1353c5 / msg_c6e462ca244b·msg_b8292d9e0030/ACTIVE_WORK |
 | CC-BLOG-01 | 현재요약정정완료·점유0 | 다음묶음/사람계정조건·T12문서조정, 새생성0 | 2f15cafc9 / msg_de0bdb33dbeb |
@@ -135,7 +136,7 @@ Master 마지막 실제 점검: 2026-11-18 02:20:27 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 233개: done 216개 · cancelled 7개 · ready_review 3개 · running 2개 · waiting_human 4개 · ready 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 234개: done 216개 · cancelled 7개 · ready_review 3개 · running 2개 · waiting_human 4개 · needs_revision 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -367,11 +368,12 @@ Master 마지막 실제 점검: 2026-11-18 02:20:27 KST · 실행 중 점검 주
 | QA-20261118-044 | CX-QA-01 | done / integrated | Pexels UI/초안/가이드 제거 고정SHA검수 | 3사AI구현은별도·운영/실키미검수 |
 | ECOM-20261118-01 | CC-ECOM-01 | ready_review / review_dispatched | 주인님 직접 글귀AI 3사/상세모델 선택 | QA046 refusal/abort수정 재검수·실모델지원/실3호출/배포는별도승인·공용사본검사등록완료 |
 | B2B-20261118-01 | CC-B2B-BACK-01 | done / integrated | 운영0101~0104 사전 실행표 | B2B18-02 정확실행파일준비·운영적용은미승인 |
-| B2B-20261118-02 | CC-B2B-BACK-01 | ready_review / review_dispatched | 운영전용 precheck/apply/verify 준비 | QA047 정적독립검수·운영/Lab조회/적용/실토스0 |
+| B2B-20261118-02 | CC-B2B-BACK-01 | needs_revision / revision_dispatched | 운영전용 precheck/apply/verify 준비 | QA047 S-F01先행함수/서명누락·S-F02 검증실패전출력쓰기를보완→Mac재검수·실행0 |
 | FRONT-20261118-02 | CC-B2B-FRONT-01 | done / accepted_pending_batch_deploy | navCls hover 미달7색 국소보완 | QA045 지정함수/CSS소스수락·미배포. compiled CSS/실시각은작성자증거와Mac미검수구분 |
 | QA-20261118-045 | CX-QA-01 | done / integrated | nav hover7색/소비자범위 독립검수 | 다음몰기능묶음·실compile/브라우저Mac미검수·새설치0 |
 | QA-20261118-046 | CX-QA-01 | running / acknowledged | 감성글귀3사AI/키/오류/취소 독립검수 | P2/P3수정후재검수·운영1.29미반영·실モデル지원/요금未검증 |
-| QA-20261118-047 | CX-QA-01 | ready / queued | 운영0101~0104 실행준비파일 정적검수 | Mac고정SHA 정적검수·실DB/새PG/빌드실행0 |
+| QA-20261118-047 | CX-QA-01 | needs_revision / returned | 운영0101~0104 실행준비파일 정적검수 | 고정d9751c70b 준비누락2건반환·수정SHA재검수전PASS0 |
+| DES-20261118-04 | AG-UI-01 | ready_review / returned | 주인님 직접 배경링크 버튼화/줄바꿈 개선 | 후속검수 연결대기·작성자44/tsc만·실320/375검수미확인·다음묶음 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 

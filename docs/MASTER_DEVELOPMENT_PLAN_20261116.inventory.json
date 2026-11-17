@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 02:20:30 KST",
+  "checkedAt": "2026-11-18 02:23:22 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,7 +12,7 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T17:20:27.598Z",
+      "at": "2026-11-17T17:23:19.408Z",
       "timezone": "Asia/Seoul",
       "trigger": "전체플랜지시·02:00예약·신규직접지시/검수/완료이벤트",
       "scope": "103/19분류/265문서표식·8담당정합성보고·QA043/044·점유모순·新직접지시·단일후속배정",
@@ -22,7 +22,9 @@
         "QA043/044고정SHA수락·Front77c50f27c→QA045",
         "Workspace점유정정5f9e66d7f·Ecom/Backend/Front경로분리",
         "QA045수락·QA046반례59cb수정/재검수발송·QA047 d9751c70b 전달",
-        "YVS1단계실AI보고00a2c9efa·Gmail준비f4a6854e9·ACTIVE_WORK정정5f9e66d7f/5d7f049b6"
+        "YVS1단계실AI보고00a2c9efa·Gmail준비f4a6854e9·ACTIVE_WORK정정5f9e66d7f/5d7f049b6",
+        "전체플랜001a87398·공용비교표/모듈84e7f10b1 안전커밋",
+        "QA047 준비누락2건반환·QuoteCanvas直接指示690df10c6취합"
       ],
       "judgment": "기배포대기정정·코드완료와실검수/승인분리. 소스후속/운영준비배정실전달·불필요재배포0.",
       "unverified": [
@@ -30,7 +32,7 @@
         "detail-page-12p개별문서미발견",
         "전체운영/실키/QA037로그인/実375미검수"
       ],
-      "nextAction": "후속ID별QA046/047결과판정·GCP준비완료신호·기존사람단계회수, 원래전체플랜정비완료와제품미완료구분"
+      "nextAction": "QA046/047 수정재검수·배경버튼국소검수연결·GCP준비신호회수, 신규배포/유료호출0"
     },
     "notifications": [
       {
@@ -7036,12 +7038,12 @@
       "reviewer": "CX-MASTER-01",
       "owner": "CC-B2B-BACK-01",
       "title": "운영전용 precheck/apply/verify 준비",
-      "status": "ready_review",
-      "delivery": "review_dispatched",
+      "status": "needs_revision",
+      "delivery": "revision_dispatched",
       "scopeRef": "mall-builder/docs/handoff-0101-0104-prod/ 15파일·실행없는초안",
-      "evidence": "msg_e8ef88589861·로컬격리19/19 작성자·운영/Lab0",
+      "evidence": "msg_e8ef88589861·로컬격리19/19 작성자·운영/Lab0 / msg_4646a84d31dc·msg_ad5d0f3d2e45",
       "completion": "0100기준·0102+0103원자순서·운영precheck동적기대/전체중단조건/해시·격리또는정적검증범위명시",
-      "next": "QA047 정적독립검수·운영/Lab조회/적용/실토스0",
+      "next": "QA047 S-F01先행함수/서명누락·S-F02 검증실패전출력쓰기를보완→Mac재검수·실행0",
       "lastReviewedAt": "2026-11-17T17:20:27.598Z",
       "sha": "d9751c70b"
     },
@@ -7083,7 +7085,7 @@
       "status": "running",
       "delivery": "acknowledged",
       "sha": "3a4ad1cad + 59cb81d8e",
-      "evidence": "msg_042d1cd0e122/msg_94615447df37/msg_333de99bc8f8",
+      "evidence": "msg_042d1cd0e122/msg_94615447df37/msg_333de99bc8f8 / 최종msg_0dac3fdab99f 원본2반례·59cb수정재검수대기",
       "completion": "실모듈/fakefetch/route·본인제공자키·refusal/abort·UI/keys 지정범위반환",
       "next": "P2/P3수정후재검수·운영1.29미반영·실モデル지원/요금未검증",
       "lastReviewedAt": "2026-11-17T17:20:27.598Z"
@@ -7094,13 +7096,27 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "운영0101~0104 실행준비파일 정적검수",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "needs_revision",
+      "delivery": "returned",
       "sha": "d9751c70b",
-      "evidence": "msg_8e42009ce423",
+      "evidence": ".ai/results/QA-20261118-047-CX-QA-01.md / msg_4646a84d31dc",
       "completion": "원문/해시/적용차단/자료불변/단계원자성/verify·권한/기록검토,실운영PASS와분리",
-      "next": "Mac고정SHA 정적검수·실DB/새PG/빌드실행0",
+      "next": "고정d9751c70b 준비누락2건반환·수정SHA재검수전PASS0",
       "lastReviewedAt": "2026-11-17T17:20:27.598Z"
+    },
+    {
+      "task_id": "DES-20261118-04",
+      "owner": "AG-UI-01",
+      "reviewer": "CX-QA-01",
+      "parent_task_id": "OPS-20261118-01",
+      "title": "주인님 직접 배경링크 버튼화/줄바꿈 개선",
+      "status": "ready_review",
+      "delivery": "returned",
+      "sha": "690df10c6",
+      "scopeRef": "emotion-writer/src/components/QuoteCanvas.tsx 한파일",
+      "evidence": "msg_10b55a37b895·90d78f74c 인계",
+      "completion": "버튼href/인계값·좁은폭/키보드·기존저장/인스타불변·실시각구분",
+      "next": "후속검수 연결대기·작성자44/tsc만·실320/375검수미확인·다음묶음"
     }
   ]
 }
