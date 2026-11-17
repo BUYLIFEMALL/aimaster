@@ -285,6 +285,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 | `naver-blog-agent` | 개선 후보: 간편 회원용 간편 원고 목록(실패·지난 원고 다시 보내기) · 간편 결과 화면이 확장 상태 변경 뒤 최신 원고 다시 불러오기(지금은 재전송 때 충돌) · 확장 연결 기기 표시(지금 「Chrome」뿐이라 PC·브라우저 구분 불가) · 본문 첫 줄 제목 반복 | 우선순위 결정 | `naver-blog-agent/docs/IMPROVEMENTS.md` |
 
 ## 최근 완료 (최근 10개)
+- 2026-11-17 CC-BLOG-01: **T-05 「한 페이지 분석」 robots.txt 판정 소스 완료·미배포**(BLOG-20261117-08) — `web-crawler` `fc48ebcba`(요청마다 본문 전 판정, `robots-parser@3.0.1` MIT) + `8172d8084`(DNS 대기 중 제한 시간 준수), 맥미니 QA023 독립 검수 PASS·Master 마감. README 오픈소스 고지 `d97ba498a`. 남은 것: 다음 web-crawler 묶음 배포 때 버전 +0.01·실제 화면 확인(실제 전송·route 전체·운영 화면 미검수).
 - 2026-11-17 CC-BLOG-01: Master 배정(msg_228df86d95ed)으로 **데이터수집 카테고리 문서·요청 조정 담당** 추가(T-12) — 범위는 `docs/SCRAPING_CONSOLIDATION_TASKS.md`·카테고리 지도 114행·비교표 정합성, 제품 코드·`website-scraper`(비공개·`is_active=false`) 재활성화는 범위 밖. 같은 작업에서 `PENDING_DEPLOYS` 64행 문구 정정(blog-keyword는 코드상 v1.13 포함·산출물 미대조, 작업실·콘텐츠 제작은 주인님 배포 안 함 결정).
 - 2026-11-15 맥미니 인계 처리: 이웃 v1.21 「화면에 유지」 거절은 정상 동작(에이전트 클릭·창 비활성) — 진단 단계 `focus`/`tab` 표시와 조회 종류 기억·버튼 표시 추가(미배포 대기, 시험 386/386), 재시험은 주인님 직접 클릭으로. 티스토리 원고4 이미지 깨짐은 11-03 03:00 열외 배포 전 정리로 1회 삭제(이미지 28개)로 확인, 원고11로 검수 대체. 비용 0.
 - 2026-11-15 블로그 미배포 4개 순서 배포(빌드 4회): `blog-neighbor-care` v1.21 · `wp-blogger-auto` v1.05 · `naver-cafe-recruit` v1.04 · `tistory-auto-blog` v1.97(gpt-4.1/4o/4o-mini 교체). 공통 3가지 함께. 화면 검수는 맥미니 B-1~B-4.
