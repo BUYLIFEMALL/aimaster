@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-16T21:27:48.711Z",
+  "checkedAt": "2026-11-17T00:04:14.881Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2100,17 +2100,17 @@
       "parent_task_id": "DES-20261117-02",
       "owner": "CC-WORKSPACE-01",
       "title": "주인님 선택146 Professional Studio 전면리뉴얼",
-      "status": "ready_review",
+      "status": "running",
       "delivery": "returned",
-      "evidence": "msg_542c66206f89 QA013독립effect3PASS/작성자jsdom5분리",
+      "evidence": "msg_542c66206f89 QA013독립effect3PASS/작성자jsdom5분리 / Workspace직접보고 로그인POST307·localGET500/Jestworker2exceptions·PID44692생존",
       "decision": {
         "chosen": "146 Professional Studio",
         "reference": "[5/12] 146 Professional Studio - 01. 메인 관제 대시보드",
         "scope": "메인기준 전체화면 일관스타일 적용·기존기능/회원데이터유지",
         "source": "주인님 직접 채팅 2026-11-17 KST"
       },
-      "next": "문맥/상한/언마운트 지정소스·모의검수범위완료,146실화면은로그인대기·AGY소스명세대조배정queued. dev/test분리완료·새빌드0",
-      "lastReviewedAt": "2026-11-16T19:00:28.107Z",
+      "next": "Master 담당자에게정확PID/cwd/listen확인후3457동일명령1회재시작승인. aww_dev/쿠키/자료보존·실로그인확인→146실화면검수재개,실패반복/설치/빌드/운영DB0",
+      "lastReviewedAt": "2026-11-17T00:04:14.881Z",
       "sha": "S0~5+075fcb4+1a13662a4bfa51ffba2ee9468fdc35ae13c7bcdd",
       "validationPending": {
         "scope": "메인엣지 실제화면",
