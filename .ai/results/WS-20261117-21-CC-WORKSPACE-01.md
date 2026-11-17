@@ -47,3 +47,10 @@
 - 근거(10/10, 커밋 직전 재실행 통과): OFF에서 import 뒤 예약 표 2개 `to_regclass` null·`scheduled_jobs` `booking:` 0·구글 0 / 회원 처리기 5개 실제 404 / 공개 두 명령 404 + `X-Robots-Tag: noindex`·`Cache-Control: private, no-store` / 형식 차단: text/plain 415·`sec-fetch-site: cross-site` 403·11KB 413(모두 같은 머리글, 그 뒤 표 0) / 같은 IP 121번째 429 / 페이지 OFF·빈 경로 notFound(digest 404), metadata robots·referrer·dynamic·fetchCache·revalidate가 포털 페이지와 같음, 포털 OFF 404 회귀 / 시험에서만 ON: runRpc bookingSave → 토큰, 공개 API로 빈 칸 200·예약 200 confirmed, **쿼리에만 토큰이면 404**, console에 토큰·손님 입력 0, `createClient` 호출 0, DB에 토큰 원문 0, 페이지가 BookingForm에 토큰·빈 칸 전달 / 다시 OFF → 같은 토큰 API·회원·페이지 모두 404.
 - 한계(명시): `/book/<토큰>`은 경로에 토큰이 있어 **플랫폼(호스팅) 접속 기록까지 원문 0은 보장하지 않음** — 앱이 남기는 기록·오류·분석에는 토큰·손님 입력을 넣지 않고, Referer 차단(no-referrer), API는 JSON 본문만.
 - 미실행: 전체 vitest 재실행(이번 변경 범위상 생략 — 직전 전체 실행은 서버 수정 시점 46/402), 실제 브라우저·운영·구글·build. UI 독립 결과(QA025)는 배선 PASS 근거로 쓰지 않음.
+
+## QA026 수정 — 코드 SHA `474859490` (book/[...path]/page.tsx·bookingWiring.test.ts만, Master msg_410b417d688c)
+- 원인: Next가 이미 풀어 준(decoded) 경로 값을 페이지가 `decodeURIComponent`로 한 번 더 풀어, `%`·잘못된 퍼센트(`%E0%A4%A`)에서 OFF 검사 전에 URIError. 실제 HTTP 500을 직접 받은 것은 아니고 모의 params 재현.
+- 수정: 다시 풀기 제거. 경로가 정확히 한 칸이고 발급 형식(`randomBytes(32)` base64url, `/^[A-Za-z0-9_-]{43}$/`)일 때만 그 값 그대로 `bookingSlots` 호출, 그 밖은 판정 함수를 부르지 않고 `notFound()`. metadata·no-store·noindex·no-referrer·스위치 3개 OFF 그대로.
+- 시험: 잘못된 경우 11개(빈·여러 칸·`%`·잘못된 퍼센트·`%25`·끝 `%`·유니코드·짧음·44자·5000자·허용 밖 문자) → 예외 없이 404·`bookingSlots` 호출 0, 발급 형식 토큰 → 그대로 한 번 넘기고 OFF 404·구글 0·예약 줄 증가 0. 수정 전 10개 실패(URIError 또는 형식 밖 토큰으로 판정 함수 호출), 수정 후 bookingWiring 22/22, tsc 0. 기존 실제 처리기·입구 검사 확인은 그대로 통과.
+- 한계(별도 기록, 이번 수정과 섞지 않음): 공개 입구 `/api/public/[name]`의 10KB 상한은 본문을 끝까지 읽은 뒤의 **문자 길이** 검사다(바이트·스트림 중단이 아님). 이번 2파일 범위 밖이며 새 취약점으로 확정한 것은 아님.
+- 미실행: 전체 vitest·브라우저·운영·구글·build.
