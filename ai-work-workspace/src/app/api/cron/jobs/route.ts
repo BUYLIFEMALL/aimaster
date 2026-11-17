@@ -14,6 +14,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { operatorJobFilter } from "@/server/memberJobs";
 import { runAutomationRetention } from "@/server/automationRetention";
 import { runReceiptRetention } from "@/server/receipts";
+import { runBookingRetention } from "@/server/booking";
 import { runBoltaCertReminders } from "@/server/bolta";
 import { runMediaRetention } from "@/server/mediaRetention";
 import { cleanupPendingUploads, removeStorageObjects } from "@/server/fileStorage";
@@ -41,6 +42,7 @@ export async function GET(request: NextRequest) {
   let inbox: unknown = { skipped: "exempt list unavailable" };
   let automation: unknown = { skipped: "exempt list unavailable" };
   let receipts: unknown = { skipped: "exempt list unavailable" };
+  let booking: unknown = { skipped: "exempt list unavailable" };
   let media: unknown = { skipped: "exempt list unavailable" };
   if (exempt) {
     const keep = exempt;
@@ -50,6 +52,13 @@ export async function GET(request: NextRequest) {
     } catch (e) {
       console.error(`[cron] receipt retention failed: ${String((e as Error)?.message ?? e).slice(0, 200)}`);
       receipts = { error: "failed" };
+    }
+    // E2 예약 링크(2026-11-17): 예약 기록·손님 정보 받은 날 30일 삭제 — 기능 스위치가 꺼져 있으면 DB 접속 없이 { skipped: "off" }
+    try {
+      booking = withRequestCache(() => runBookingRetention(Date.now(), keep));
+    } catch (e) {
+      console.error(`[cron] booking retention failed: ${String((e as Error)?.message ?? e).slice(0, 200)}`);
+      booking = { error: "failed" };
     }
     // 2026-11-11 보관 예외: 음악·영상 파일은 30일, 그 밖은 1년(각 정리의 보관 일수)
     try {
@@ -90,5 +99,5 @@ export async function GET(request: NextRequest) {
   } catch (e) {
     console.error(`[cron] bolta cert reminders failed: ${String((e as Error)?.message ?? e).slice(0, 200)}`);
   }
-  return NextResponse.json({ ran, ai, inbox, automation, receipts, media, boltaCert });
+  return NextResponse.json({ ran, ai, inbox, automation, receipts, booking, media, boltaCert });
 }

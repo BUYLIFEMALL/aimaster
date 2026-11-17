@@ -21,6 +21,8 @@ export const MEMBER_JOB_KINDS: Record<string, string> = {
   'automation.recurrence': 'automation:',
   reminder: 'reminder:',
   'agent-recurrence': AGENT_JOB_PREFIX,
+  // E2 예약 링크(2026-11-17, PLAN §7-6 3): 「확인 필요」 예약의 구글 일정 확인(GET만) — 그 회원 cron-job.org가 돌림
+  'booking.reconcile': 'booking:',
 };
 
 export function isMemberJob(job: Pick<Job, 'kind'>): boolean {
@@ -30,7 +32,7 @@ export function isMemberJob(job: Pick<Job, 'kind'>): boolean {
 /** 작업의 주인(회원 id). 찾지 못하면 null — 그 작업은 어느 회원 실행에서도 돌지 않는다. */
 export function jobOwner(job: Pick<Job, 'kind' | 'payload'>): string | null {
   const p = (job.payload ?? {}) as Record<string, unknown>;
-  if (job.kind === 'reminder') return typeof p.ownerId === 'string' ? p.ownerId : null;
+  if (job.kind === 'reminder' || job.kind === 'booking.reconcile') return typeof p.ownerId === 'string' ? p.ownerId : null;
   if (job.kind === 'automation.recurrence') {
     const a = getRecord<AutomationRecord>('automation', String(p.id ?? ''));
     return a && a.alive !== false ? (a.created_by_id ?? null) : null;

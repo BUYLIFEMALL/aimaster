@@ -99,11 +99,12 @@ export async function loadGcalAccount(userId: string): Promise<MemberAccount | n
 }
 
 /** 쓸 수 있는 토큰 — 만료 1분 전이면 회원 본인 앱으로 갱신, 앱이 바뀌었으면 다시 연결 요청 */
-export async function validToken(userId: string): Promise<string> {
+export async function validToken(userId: string, opts: { force?: boolean } = {}): Promise<string> {
   const account = await loadGcalAccount(userId);
   if (!account) throw new GcalError("auth", "구글 캘린더가 연결돼 있지 않습니다. 「구글 연결」을 눌러 주세요.");
   const exp = account.tokenExpiresAt ? Date.parse(account.tokenExpiresAt) : 0;
-  if (exp - 60_000 > Date.now()) return account.accessToken;
+  // E2 예약(2026-11-17): 구글이 401을 돌려주면 만료 시각과 상관없이 한 번 새로 받기(force)
+  if (!opts.force && exp - 60_000 > Date.now()) return account.accessToken;
   const app = await getGoogleApp(userId);
   if (!app || app.clientId !== account.appRef || !account.refreshToken) {
     await markMemberAccountNeedsReconnect(admin(), userId, account.id);
@@ -187,4 +188,62 @@ export async function listGoogleEvents(token: string, days = 30): Promise<Google
       const kst = dt ? new Date(Date.parse(dt) + 9 * 3600_000).toISOString() : "";
       return { id: String(x.id), title: String(x.summary ?? "제목 없음"), date: kst ? kst.slice(0, 10) : String(x.start?.date ?? ""), time: kst ? kst.slice(11, 16) : "", location: String(x.location ?? ""), link: String(x.htmlLink ?? "") };
     });
+}
+
+// ---------------------------------------------------------------- E2 예약 링크(2026-11-17, PLAN §7-6·7-7) 전용 저수준 호출
+// 기존 api()는 409·429를 모두 「server」로 묶어 버리므로, 예약은 응답 코드·이유를 그대로 받아 스스로 판단한다(공식 /guides/errors 기준).
+// status 0 = 연결 끊김·10초 초과(구글이 받았는지 모름).
+
+export interface GcalRaw { status: number; body: Record<string, any>; reason: string }
+
+export class GcalHttpError extends Error {
+  constructor(public status: number, public reason: string) {
+    super(`google calendar ${status}${reason ? ` ${reason}` : ""}`);
+  }
+}
+
+async function rawCall(token: string, url: string, init: RequestInit = {}, timeoutMs = 10_000): Promise<GcalRaw> {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), timeoutMs);
+  try {
+    const res = await fetchImpl(url, { ...init, signal: ctl.signal, headers: { authorization: `Bearer ${token}`, "content-type": "application/json", ...(init.headers ?? {}) } });
+    const body = (await res.json().catch(() => ({}))) as Record<string, any>;
+    const err = body?.error;
+    const reason = String(err?.errors?.[0]?.reason ?? err?.status ?? "");
+    return { status: res.status, body, reason };
+  } catch {
+    return { status: 0, body: {}, reason: "network" };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** 바쁜 구간 원본(기본 캘린더) — 반복 일정은 펼치고 끝 페이지까지, 취소·「한가함」 표시는 뺌. 우리 일정도 빼지 않음 */
+export interface BusyItem { start?: string; end?: string; startDate?: string; endDate?: string }
+export async function listBusy(token: string, timeMinIso: string, timeMaxIso: string, maxPages = 10): Promise<BusyItem[]> {
+  const out: BusyItem[] = [];
+  let pageToken = "";
+  for (let i = 0; i < maxPages; i++) {
+    const q = new URLSearchParams({ timeMin: timeMinIso, timeMax: timeMaxIso, singleEvents: "true", maxResults: "250", showDeleted: "false" });
+    if (pageToken) q.set("pageToken", pageToken);
+    const r = await rawCall(token, `${API}?${q}`);
+    if (r.status !== 200) throw new GcalHttpError(r.status, r.reason);
+    for (const x of (r.body.items ?? []) as any[]) {
+      if (x?.status === "cancelled" || x?.transparency === "transparent") continue;
+      out.push({ start: x.start?.dateTime, end: x.end?.dateTime, startDate: x.start?.date, endDate: x.end?.date });
+    }
+    pageToken = String(r.body.nextPageToken ?? "");
+    if (!pageToken) return out;
+  }
+  throw new GcalHttpError(0, "too_many_pages"); // 끝까지 못 읽으면 빈 칸이라고 단정하지 않음
+}
+
+/** 정해 둔 id로 일정 하나 읽기(만들어졌는지 확인용) */
+export function getEventById(token: string, eventId: string): Promise<GcalRaw> {
+  return rawCall(token, `${API}/${encodeURIComponent(eventId)}`);
+}
+
+/** 정해 둔 id(body.id)로 새 일정 만들기 — 재시도해도 같은 id라 중복 일정이 생기지 않게 */
+export function insertEventWithId(token: string, body: Record<string, unknown>): Promise<GcalRaw> {
+  return rawCall(token, API, { method: "POST", body: JSON.stringify(body) });
 }
