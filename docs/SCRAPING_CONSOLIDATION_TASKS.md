@@ -38,7 +38,7 @@
 | T-02 | 생성 데이터 30일 자동 삭제 | ✅ 완료(코드 v1.08 `9204a3069`, 첫 배포 v1.09) | `IMPROVEMENTS.md` #5 | — | 정리 경로 실행 기록(삭제 건수) 확인 — **확인 필요** |
 | T-03 | 도메인 구조 캐시 회원별 전환 또는 끄기 | **결정 대기** | `IMPROVEMENTS.md` #8, 비교표 R4 | 표 구조 변경 + 크롤링 서버(Render) 재배포 | 주인님께 「회원별로 나누기 / 끄기」 중 선택 여쭘 |
 | T-04 | 웹앱 Next.js 16.2.11 → 16.4.2 보안 업데이트 | 대기 | `docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md` 묶음 E(미커밋 `web-crawler/AGENTS.md` 때문에 제외됨 — 그 변경은 빈 줄 1개 삭제뿐) | Vercel 빌드 1회(사전 승인) | 미커밋 변경 주인 확인 → `npm install next@16.4.2` → tsc·build → 배포 |
-| T-05 | 한 페이지 분석에 robots.txt 확인 | 구현 준비 2차(2026-11-17 BLOG-20261117-08, 리디렉트 빈틈 보완, 구현 담당 배정 대기) | 완성 기준 §2 조건 4, 비교표 R1, 아래 §2-1 | 웹앱 배포(모아서 배포 가능) · `robots-parser` 1개 설치(라이선스 확인 뒤) | 그 밖의 4xx 처리 확인 → Master 구현·검수 분리 배정 |
+| T-05 | 한 페이지 분석에 robots.txt 확인 | 구현 완료·**미배포 대기**(2026-11-17 `fc48ebcba`, Master 검수 대기) | 완성 기준 §2 조건 4, 비교표 R1, 아래 §2-1 | 웹앱 배포(모아서 배포, 버전 +0.01은 배포 때) | Master 독립 검수 → 다음 web-crawler 배포 때 함께 내보내고 실제 화면 확인 |
 | T-06 | `Crawl-delay` 반영 + 다음 페이지 robots 확인 | 대기 | 비교표 R2·R3 | 크롤링 서버 재배포 | `pipeline.py` `RateLimiter` 지연값 계산 플랜 |
 | T-07 | 대시보드 자동 새로고침·완료 엑셀 미리보기 | 대기 | `IMPROVEMENTS.md` #6·#7, 비교표 R6·R7 | 웹앱 배포 | 작업 목록의 5초 새로고침을 대시보드에 재사용 |
 | T-08 | 옛 `ghost-scraper/` 코드 정리 | 대기 | `ghost-scraper/AGENTS.md` v1.13 「정리는 백업 폴더 + git 태그 뒤」 · 2026-10-24 `D:\Antigravity\AIMaster_backup\retired-programs\`에 없음 · 관련 git 태그 없음 | 주소 유지 필요(옛 주소 안내), 삭제는 사전 승인 | 백업 폴더 복사 + 태그 → 안내 화면·410만 남기고 정리 플랜 |
@@ -87,6 +87,8 @@
 - `tsc`·기존 시험 통과, 버전 +0.01은 실제 배포 때 1회(모아서 배포).
 
 **모의 시험(외부 요청 0, `tests/inspect-robots.test.cjs`)** — 기존 방식(`typescript.transpileModule` + `node --test`), `fetch`·DNS 조회를 가짜로 바꿔 요청 주소를 기록: 전체 차단(`Disallow: /`) · 경로 차단 · `Allow`가 더 구체적 · 우리 UA 전용 그룹 · 404 · 빈 파일 · 401 · 403 · 5xx(본문 0·재시도 0) · 시간 초과 · 500KB 초과 · **같은 출처 리디렉트 뒤 막힌 경로(그 주소 본문 0)** · **다른 출처로 리디렉트한 막힌 주소(그 출처 robots만 요청, 본문 0)** · 같은 출처 robots 1번만 요청 · robots.txt 자체가 사설 주소로 리디렉트(400) · robots 요청에 훅 재귀 없음 · `opts` 없는 기존 호출 동작 불변 — 17가지.
+
+**구현 결과(2026-11-17 `fc48ebcba`, Master msg_6bd4fda305a6 배정, CC-BLOG-01)** — 파일 6개: `safeFetch.ts`(선택 인자 `beforeRequest`, 82행 주소 검사 뒤·연결 준비와 본문 요청 앞) · 새 `robots.ts` · `route.ts`(403·503 응답, UA 상수 공용화) · 새 `tests/inspect-robots.test.cjs` · `package.json`(`robots-parser` 정확 `3.0.1` + 시험 명령 `test:inspect-robots`) · 잠금 파일(+10줄). 최종 규칙: 404·410·빈 파일은 진행 / 401·403은 403 / 429·5xx·그 밖의 4xx·연결 오류·시간 초과·512000바이트 초과(흐름 읽기 중단)·판정 불가는 503(본문 0·재시도 0) / robots 쪽 사설망·리디렉트 초과는 차단(400). 판정 토큰 `WebCrawlerInspect` = 실제 요청 UA, 전용 그룹 우선·없으면 `*`(두 그룹 동시 적용 없음). 검증: 모의 시험 25개 통과(실제 parser, 가짜 HTTP·DNS, 외부 요청 0), 기존 `test:work-inbox` 3개 통과, `tsc --noEmit` 오류 0. 파서 출처: `robots-parser` 3.0.1 MIT(Sam Clarke) — `robots.ts` 머리 주석. 외부 크롤링·빌드·배포·DB 0. 실제 화면 확인은 배포 뒤.
 
 **Master 결정(2026-11-17 msg_0101dd1848c2)**: 범위 `/api/inspect`만 · 404는 진행, 401·403은 거절, 5xx·시간 초과는 본문 요청 안 하고 다시 시도 안내(자동 재시도 없음) · 파서는 MIT `robots-parser` 우선(설치 전 라이선스·의존성 확인, 설치는 아직 안 함).
 **남은 확인 1개**: 그 밖의 4xx(410·429 등) 처리 — 위 표의 제안.
