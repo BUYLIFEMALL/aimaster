@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 20:17:06 KST",
+  "checkedAt": "2026-11-17 23:48:15 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "monitoring": {
     "policyVersion": "1.7",
@@ -12,23 +12,21 @@
     "outsideTurnAutomaticChecks": "not_configured",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T11:17:03.549Z",
+      "at": "2026-11-17T14:48:12.978Z",
       "timezone": "Asia/Seoul",
-      "trigger": "주인님 지침 변경 및 Orca 메시지 이벤트",
-      "scope": "공통지침/공식작업표/Git·인수인계파일목록 대조, 10세션 공지전송 및 새 Orca 보고1건 확인",
-      "handoffDiscovery": {
-        "candidateCount": 577,
-        "notLinkedByPathOrTaskIdCount": 401,
-        "newerThanPreviousCheckCount": 0,
-        "baselineAt": "2026-11-17T10:26:40.468Z",
-        "note": "경로/작업ID 문자열 대조의 발견 후보이며 실제 미처리 작업 수가 아님. 과거 후보 전체 본문은 미검토."
-      },
-      "judgment": "실행 중 점검규칙 등록·턴 밖 자동점검 미설정. 공지10건 전송등록, Realty수신확인1. Realty 자연회차 기록만 반영·수집/외부작업 재실행0. 과거 미연결파일 후보 전체 본문은 미검토.",
-      "nextAction": "실행 중 5분 경과 또는 새 이벤트 시 실제 점검·판정·후속배정·시각 갱신. 턴 밖 자동 점검 없음.",
+      "trigger": "주인님 작업현황/5분점검 공백 질의 및 Orca수신",
+      "scope": "새 Orca보고·로컬터미널목록·Git최신커밋/제품미커밋·마지막점검이후인수인계/결과파일·Mac 제어반환 상태",
       "evidence": [
-        "지침1.7 5ca5eda25",
-        "msg_1322746841c3: Realty 공지수신·v1.46 18:16 KST ok811 담당읽기보고"
-      ]
+        "Orca 첫 수신대기0건",
+        "로컬 terminal list 총12(원격제외·진행중 판정아님)",
+        "Git HEAD 3f6283d9c 이후변경없음·Workspace/B2B 제품미커밋0",
+        "마지막20:17 이후 신규수정인수인계/결과파일 발견0",
+        "msg_5e5b219f6d11: Mac ego29/19/20 agentDelegatedToUser·반환신호없음"
+      ],
+      "previousInspectionAt": "2026-11-17T11:17:03.549Z",
+      "gapReason": "이전최종답변 이후 턴종료·턴밖 자동점검 미설정으로 20:17~23:45 정기점검 미실행",
+      "judgment": "Workspace E3/Gmail소스준비완료·새배포승인대기, B2BLab배포완료/실화면사람제어반환대기. Front 미배포/0104대기 낡은행을Lab반영으로정정. 공백기간점검실행주장0.",
+      "nextAction": "Mac 기존검수 제어반환 확인후즉시재개지시, Front 본인기록정정전달(msg_2944995e4134). 현재턴실행중5분경과/이벤트점검·턴밖자동0."
     },
     "notifications": [
       {
@@ -5226,10 +5224,10 @@
       "status": "waiting_human",
       "delivery": "acknowledged",
       "sha": "7609748ad",
-      "evidence": "msg_d9ff650f722a: Mac ego공간29 Lab로그인폼/375확인·기존세션없음. Backend 89a489a12/9256b3782·msg_7918bcbb8f5c 합성경로/역할확정",
+      "evidence": "msg_d9ff650f722a: Mac ego공간29 Lab로그인폼/375확인·기존세션없음. Backend 89a489a12/9256b3782·msg_7918bcbb8f5c 합성경로/역할확정; msg_5e5b219f6d11 23:47 Mac공간29 제어반환미완료 재확인·로그인내용미확인",
       "scopeRef": "Mac 기존시험세션·Lab실화면읽기, 결제/RPC상태변경/발송/키/운영/build0",
       "completion": "Lab 로그인/고객교환비UI/권한차단/375·darkhover 확인, 실결제미검수분리",
-      "next": "주인님 공간29 Lab 시험naver로그인→Return to agent, 고객읽기검수후운영사gmail로그인1회. 실제결제/콜백/RPC상태변경0"
+      "next": "공간29 주인님본인Lab로그인/제어반환후기존읽기검수, 실제결제/상태변경0"
     },
     {
       "task_id": "QA-20261117-038",

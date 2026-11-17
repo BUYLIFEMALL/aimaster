@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 20:17:06 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 23:48:15 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-17 20:17:03 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 미설정
+Master 마지막 실제 점검: 2026-11-17 23:48:12 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 미설정
 
-점검 범위: 공통지침/공식작업표/Git·인수인계파일목록 대조, 10세션 공지전송 및 새 Orca 보고1건 확인 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 새 Orca보고·로컬터미널목록·Git최신커밋/제품미커밋·마지막점검이후인수인계/결과파일·Mac 제어반환 상태 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -16,10 +16,10 @@ Master 마지막 실제 점검: 2026-11-17 20:17:03 KST · 실행 중 점검 주
 
 | 순서 | 담당 | 진행 단계 | 다음 작업·통과 기준 |
 | --- | --- | --- | --- |
-| 1 · ESM | Ecom + Mac Tester | v1.02 운영 배포·Mac 웹 회귀 완료 | Mac ESM공간19 주인님제어중·로그인후 Return to agent 필요, 입력0. Ecom 구버전요청서정정 msg_a042112fc563 |
+| 1 · ESM | Ecom + Mac Tester | v1.02 운영 배포·Mac 웹 회귀 완료 | Mac 공간19 주인님제어반환대기 실제확인, ESM로그인/확장/실링크→Return to agent 필요 |
 | 2 · Workspace | Workspace + Master | v1.57운영·E3/Gmail OFF소스준비/지정독립검수 완료·미배포 | WS26 E3포함일반묶음배포와WS27 Gmail운영활성 승인분리, 소스동결 |
-| 3 · B2B | Backend + Master + Mac Tester | Lab0104 적용·검증PASS, Lab 신규배포 Ready·빌드1/1완료 | QA037 로그인폼·공개HTTP확인, Mac공간29 시험naver로그인/반환필요→고객/직원읽기검수 |
-| 4 · B2BFront | B2BFront + Mac Tester | FRONT04 dark hover7609748ad 독립소스PASS·미배포 | Backend Lab최종출처7609748ad재동결·DB0104실행대기 |
+| 3 · B2B | Backend + Master + Mac Tester | Lab0104 적용·검증PASS, Lab 신규배포 Ready·빌드1/1완료 | Mac 현재공간29 주인님제어·반환신호없음 msg_5e5b219f6d11, Lab로그인/반환뒤기존고객/직원읽기검수 |
+| 4 · B2BFront | B2BFront + Mac Tester | FRONT03/04 소스독립PASS·7609748ad B2B Lab신규배포에포함 | 운영몰미배포와구분·QA037로그인/제어반환대기, Front본인기록정정요청 |
 | 5 · 블로그 | Blog | T05 robots/DNS·T07공용폴러 소스독립PASS·미배포 | 다음web-crawler묶음에통합·외부/빌드0 |
 | 6 · 영상 | Movie | 떡상v1.30·사용량/캐시2표운영적용보고 | MOV07공용encoder2b9a06c9c 소스독립PASS/미배포·YVS실검색로그인별도 |
 | 7 · 음악 | Music | 운영6프로그램 보고확보·가사취소안내1건미배포 | 공용encoder사본소스PASS/미배포·가사문구와다음묶음·실MP4사람대기 |
@@ -259,7 +259,7 @@ Master 마지막 실제 점검: 2026-11-17 20:17:03 KST · 실행 중 점검 주
 | WS-20261117-25 | CC-WORKSPACE-01 | done / integrated | E4 Gmail함 기존기능/권한 대조와 최소범위 조사 | 소스동결·릴리스표QA041지정PASS갱신, 운영활성화WS27 별도승인/실검증 |
 | WS-20261117-26 | CX-MASTER-01 | waiting_human / prepared | E3+WS23 v1.58 묶음 배포/운영 실검수 | 구체소스묶음보존·승인후실행순서확정 |
 | QA-20261117-036 | CX-QA-01 | done / integrated | Gmail A1 OFF 서버 OAuth 독립 검수 | 0074소스준비수락·운영미적용/OFF, A2후속은별도검수 |
-| QA-20261117-037 | CX-QA-01 | waiting_human / acknowledged | B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수 | 주인님 공간29 Lab 시험naver로그인→Return to agent, 고객읽기검수후운영사gmail로그인1회. 실제결제/콜백/RPC상태변경0 |
+| QA-20261117-037 | CX-QA-01 | waiting_human / acknowledged | B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수 | 공간29 주인님본인Lab로그인/제어반환후기존읽기검수, 실제결제/상태변경0 |
 | QA-20261117-038 | CX-QA-01 | done / integrated | Gmail A2 원자 받은업무 전달 서버·SQL 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
 | QA-20261117-039 | CX-QA-01 | done / integrated | Gmail OFF 패널 실제 TSX 모의 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
 | QA-20261117-040 | CX-QA-01 | done / integrated | Gmail OFF 배선·실제 RPC 입구·어댑터·화면 통합 독립검수 | 배선소스수락·동결, 패널disconnect unknown후속별도 |
