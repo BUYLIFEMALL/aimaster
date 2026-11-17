@@ -98,3 +98,24 @@
 - after = OFF로 복원(설정 창 토글 회색 확인, `wrap` 클래스 없음, 다시 「1개 더 보기」).
 - 정리: 줄바꿈은 회원이 보기마다 고르는 기존 설정이며 기본은 OFF(한 줄 말줄임). ON이어도 최대 2줄까지라 모든 글자를 보여 주지 않음 — 전체 제목은 카드를 열어 보는 기존 동작으로 확인. 새 여러 줄 개발·기본값 변경 0.
 - 새 카드 0, 서버·DB 외 자료·외부·발급·빌드 0. Alt 수동 확인 준비 화면(11/20 「QA 시험 카드」 등 6장, 대상 11/22) 그대로 보존.
+
+## 14. 미배포 묶음 경로별 SHA · 필수 미실행 검사 (Master msg_99a06d293f3b, 제품 코드 변경 0)
+- 기준: 운영 마지막 배포 v1.55(`ai-work-workspace-3z2m9m4xy`) 이후. 미배포 코드 커밋 **32개**(`90612778f` ~ `0b43be22c`, 모두 [역할: workspace] 이 세션), `ai-work-workspace/src` 59파일 +1666/−155, `public/` 변경 0.
+- 경로별 커밋 수 · 마지막 SHA
+  | 경로 | 커밋 | 마지막 SHA | 주요 내용 |
+  |---|---|---|---|
+  | `src/litpage/web` | 21 | `0b43be22c` | 146 S0~S5, 관제 대시보드(QA013), 달력 월 구분·Alt 복사·끌기 수명(QA011), 영수증 워크스페이스 안(WS17-17), 상단 제목·사이드바 ko/en(WS19·20), DB 전체 여백 24px, E2 7-1 포커스 폴링, 포털 UI 스위치(꺼짐) |
+  | `src/litpage/server` | 8 | `6d211a0d5` | E1 notify_me 계보 CAS·승인·재시도 CAS, 템플릿 2종, duplicateDatabaseRows overrides·엄격 날짜 검사 |
+  | `src/app` | 8 | `6bd9df604` | /api/rpc 기대 계정 409, 영수증·받은 업무 계정 묶음, 키 화면 캘린더 상태, 별도 화면 6개 studio 토큰, /portal 경로 |
+  | `src/server` | 3 | `b2715fcd6` | 포털(스위치 꺼짐), 포털 재발급 |
+  | `src/lib` | 1 | `7485791ec` | accountGuard·standaloneRpc 선택 옵션 |
+- DB: 운영용 마이그레이션 파일 추가 0. 포털 표 `aww_portals`는 `src/server/portal.ts`가 스위치 확인(116·177행) 뒤에만 `CREATE TABLE IF NOT EXISTS`(123·180행) → 스위치 꺼진 채 배포하면 운영 DB 생성 0. 포털 켜기는 별도 승인.
+- **배포 전 필수인데 아직 안 한 검사**
+  1. 전체 타입 검사 `npx tsc --noEmit`(오늘 묶음 전체 미실행, 관련 경량 시험만 실행)
+  2. 전체 시험 `npx vitest run --config tests/vitest.config.mjs`(관련 파일만 실행)
+  3. 로컬 `npm run build`
+  4. `node scripts/pending-check.mjs ai-work-workspace`(0번 고지·저장공간 위젯 등 배포 전 점검)
+  5. 버전 올리기 v1.55→v1.56(`lib/version.ts` + `programs.version` + 버전 SQL 파일) — 배포 때 한 번
+  6. 배포 뒤 운영 화면 확인(로그인·관제 대시보드·영수증 스크롤·키 화면 캘린더 상태·달력)
+- **실검수 미완(기록 유지)**: Alt 끌기 복사(주인님 수동 1동작 대기, 로컬 화면 보존), 실제 인쇄, 실기기 375, 실제 볼타 발급, 영수증 본문·설정 「AI 비서」·「내 계정」 영어(범위 밖), 관제 대시보드 긴 내용 스크롤(미재현).
+- 로컬 개발 DB `aww_dev` 쓰기 기록: 시험 워크스페이스 `workspace6433`, 시험 달력·카드 6장(2장 날짜 이동), 보기 옵션 줄바꿈 ON→OFF 복원, 언어 설정 en→ko 복원. 운영 DB·직접 SQL·schema 0.
