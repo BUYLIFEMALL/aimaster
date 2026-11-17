@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-17 09:37:45 KST",
+  "checkedAt": "2026-11-17 09:39:35 KST",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "count": 103,
   "programs": [
@@ -4449,13 +4449,13 @@
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "title": "주인님 직접지시 영수증 화면 메인 사이드바 연결",
       "priority": "P2",
-      "status": "running",
+      "status": "ready_review",
       "delivery": "returned",
-      "evidence": "Workspace792be25a9·作者軽量16/16·旧DOM5失敗→改善 / Workspace읽기보고 standalone A화면+Bcookie면B자료/저장대상혼합 / msg_eaf07a78757d 실React topdraft잔존P1",
+      "evidence": "Workspace7485791ec 실제handler/React mock33·Masterinbox2파일diff대조수용",
       "completion": "domain receipts SPA route와기존client Board재사용/사이드바연결·기존standalone유지·관련경량검사,서버DB0·실화면/배포미검수구분",
-      "next": "기대계정서버guard와공용Board topdraft/tab/session초안 계정수명 P1 함께수정·실React A초안B재표시회귀,실발급/DB/서버/빌드0",
-      "lastReviewedAt": "2026-11-17T00:31:59.066Z",
-      "sha": "9d6875e4b + 792be25a9"
+      "next": "Mac ESM마감뒤QA017 서버expectedID/receipt全rcptbt/409숨김/초안계정수명 재검토예약. 원래인가보존·inbox전체보호로확대주장0·실발급/DB/서버/빌드0",
+      "lastReviewedAt": "2026-11-17T00:39:32.962Z",
+      "sha": "9d6875e4b + 792be25a9 + 7485791ec"
     },
     {
       "task_id": "QA-20261117-017",
