@@ -30,3 +30,12 @@
 3. 공개 제출로 확인 작업이 생기면 그 회원 cron-job.org를 켜는 연결(`trackMemberJobs`는 회원 요청 안에서만 추적).
 4. 공개 화면 `src/app/book/[...path]/page.tsx`(noindex·X-Robots-Tag), `calendar-sync` 설정 한 칸.
 5. 켜기: 주인님·Master 「운영 워크스페이스 저장소 표 2개 추가」 승인 → Mac 독립 검수 → 스위치 배포 1회.
+
+## QA024 수정 (Master msg_61656302054f·msg_984b1c850262) — 코드 SHA `1ecb43d51` (booking.ts·booking.test.ts만)
+- **P1-1 상태 덮어쓰기**: 모든 상태 변경을 기대 상태 CAS로(`transition`, 「확인 필요」에서 바꿀 때는 `final_unknown = 0`도 조건). 바뀐 줄이 정확히 1일 때만 알림·다음 확인 예약. 제출 경로는 「처리 중」에서만 바꾸고, POST 직전에 상태를 다시 읽어 이미 정리됐으면 보내지 않으며, CAS를 놓치면 그사이 정해진 실제 상태를 손님 응답에 씀(확인 필요 → 「접수됨」).
+- **P1-2 준비 시간**: `aww_bookings`에 `before_min`·`after_min INTEGER NOT NULL DEFAULT 0 CHECK (0~120)` 스냅샷. 점유 = [start−before, end+after]를 새 후보·기존 예약 모두에 → 순서 무관 대칭·맞닿음 허용·설정 변경 후에도 받은 예약의 약속 보존. 구글 일정은 준비 시간 없이 그대로(후보 자신의 준비 시간만 한 번). 운영·aww_dev DDL 0, 자동 ALTER 0. DEFAULT 0은 옛 표 복구 의미 아님(그런 표 없음).
+- **P2 잠금 안 재확인**: 설정 행 `FOR UPDATE` 뒤 지금의 `enabled`·`token_hash`·설정을 다시 읽고 그 설정으로 시작 시각·기간·하루 최대·점유를 판정·저장. 회원 이용 기간은 비동기라 잠금 안에서 못 하므로 칸을 잡은 뒤 구글 보내기 직전에 한 번 더(끝났으면 보내지 않고 칸 해제, 응답 404).
+- **수정 전 실패 → 수정 후 통과(반례 6개)**: 수정 전 5개 실패 — 회원 「없음」 뒤 늦은 일치 GET이 `confirmed`로 덮음 / 만료 뒤 `confirmed` / POST 대기 중 `needs_check`로 넘어간 뒤 늦은 성공이 `confirmed` / 뒤 준비 30분인데 10:30 예약 허용 / 잠금 대기 중 주소 교체 뒤 옛 주소로 예약·구글 호출. (두 확인 동시 일치 → 확정 알림 1회는 기존 알림 선점으로 이미 통과.) 수정 후 6개 모두 통과, 잠금 대기 증거 `waited > 400ms`·구글 호출 0·삽입 0.
+- 전체: tsc exit 0, vitest 46파일/402 통과, aww_dev oid 2204849 유지. 실제 구글·운영 DB·build 0.
+- 재검토 독립 재현 조건(Mac): ① `reconcileBooking` GET을 붙잡은 채 `bookingResolve absent` 또는 `expired` → 최종 상태 유지·알림 0 ② 같은 예약 확인 두 개 동시 → 확정 알림 1 ③ POST 응답 지연 중 상태 변경 → 덮어쓰기 0 ④ before/after 양 순서·맞닿음·설정 변경 후 보존(`before_min`/`after_min` 값 확인) ⑤ 다른 연결이 설정 행 잠금 중 토큰 교체·끄기·설정 변경 → 그 뒤 제출 null 또는 오류·구글 0·삽입 0.
+- 2A UI: `src/app/calendar-sync/BookingSettingsCard.tsx`만 미커밋 보존(나머지 UI 미착수).
