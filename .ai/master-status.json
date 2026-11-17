@@ -3648,7 +3648,7 @@
   },
   "qaQueue": "QA023 DNS수정→QA022 hover수정→QA024 예약·순차검수",
   "monitoring": {
-    "policyVersion": "1.9",
+    "policyVersion": "2.0",
     "activeTurnIntervalMinutes": 5,
     "immediateEvents": [
       "message",
@@ -3817,6 +3817,29 @@
       "terminalClosed": true,
       "closedTerminal": "term_b6e992d2-81b3-497c-be5c-ecf8c226c4d7",
       "reason": "주인님 현재Master터미널에서만점검하도록정정"
-    }
+    },
+    "inspectionChecklist": [
+      "보고/요청",
+      "전체·카테고리 잔여/우선순위/선행조건/미배포",
+      "담당상태/점유/검수/사람단계",
+      "미등록 인수인계",
+      "직접지시 충돌/중복",
+      "근거판정/후속배정/차단해소",
+      "실제시각/범위/근거/미확인 기록"
+    ],
+    "policyUpdatedAt": "2026-11-17T16:30:26.507Z",
+    "policyNotificationIds": [
+      "msg_d0d2efe479e1",
+      "msg_7aa2afd363f4",
+      "msg_7dddb363c4b7",
+      "msg_47b97d3161c1",
+      "msg_f396f3ff2e54",
+      "msg_19c9eb3aac0c",
+      "msg_ffc3f7d6df03",
+      "msg_79bb3196d7f4",
+      "msg_981edb2afc58",
+      "msg_b7c35e7ce83c"
+    ],
+    "policyNotificationStatus": "10담당 전송완료·수락은별도확인"
   }
 }

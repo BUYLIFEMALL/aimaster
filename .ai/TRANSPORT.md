@@ -58,6 +58,8 @@ ask/report는 운영 DB 쓰기다. 이번 로컬 초기 구성에서는 아직 �
 
 ## 현재 방식: 이 Master 터미널에서 실행하는 30분 메시지 예약
 
+점검 내용과 완료 기준은 [공통지침 v2.0](../AI_TEAM_RULES.md) 정기 점검 및 작업 지휘 지침 1~5절이 정본이다. 예약 실행기는 매번 .ai/master-wake-config.json 본문을 읽어 최신 확인 항목을 전달한다. 설정 갱신을 프로젝트 전체 실제 점검으로 기록하지 않는다.
+
 - Windows 작업 이름: `AIMaster-Master-30Min-Wake`, 매시 00분·30분(KST) 반복. 현재 로그인 사용자 권한·숨김 PowerShell로 실행하며 별도 Codex/터미널을 생성하지 않는다.
 - 실행 파일: `scripts/master-half-hour-wake.ps1`, 설정 `.ai/master-wake-config.json`, 최근 전송 결과 `.ai/master-wake-status.json`.
 - 대상: 기존 Master 터미널 `term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a`, Run `run_6e348395e1fe`.
