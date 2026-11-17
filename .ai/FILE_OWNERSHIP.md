@@ -333,3 +333,5 @@ FRONT04 Front만 mall-builder/src/app/globals.css·tests/dark-header.test.mjs da
 WS24 E3-2 CC-WORKSPACE-01: ai-work-workspace/src/litpage/server/content/catalog.ts·server/api/modules/templates.ts·web/features/templates/api.ts/dbTemplates.tsx·web/features/shell/i18n.ko-KR.json·tests/integration/approvalAutomation.test.ts/templateWarningDom.test.ts. 기존saveAutomation인가/앱알림만·표당2/동명사용자규칙보존/실패경고toast1회·예시작성중/person빈값. AI/새DB/실회원발송/설치/build/deploy0·E3-1상태그룹검토완료범위보존.
 
 WS24 E3-3 CC-WORKSPACE-01: ai-work-workspace/src/litpage/server/content/spec.ts·catalog.ts·tests/integration/approvalPermission.test.ts 및기존approvalTemplate/approvalAutomation새기능관련회귀만. 기존propertyAccess/dbaccess읽기·권한엔진/API/DB변경0. selectedapprover상태·owner결재자지정·creator올림checkbox,invalidsuppliedACL은반영전체실패/미지정기존템플릿보존·실회원알림/AI/build/deploy0.
+
+WS24 E3-4 CC-WORKSPACE-01: ai-work-workspace/src/litpage/server/api/modules/ai.ts·server/ai/service.ts·server/ai/prompts.ts·web/features/ai/autofill.ts/autofillUi.tsx·web/features/shell/i18n.ko-KR.json·tests/integration/autofillWeb.test.ts. 수동외부web:true 기본false·회원키/정책/출처번호맵·명시URL같은행거래만,webSearch/키구조/autofillAuto/에이전트불변·실AI/검색/운영/build0. QA034권한반례우선·권한소스검수중동결유지.
