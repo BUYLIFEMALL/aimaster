@@ -28,6 +28,7 @@ let postQueue: PostStep[] = [];
 let busyItems: any[] = [];
 let listFail = 0;
 const events = new Map<string, any>();
+let getGate: Promise<void> | null = null;
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 async function fakeFetch(url: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const u = String(url);
@@ -46,6 +47,7 @@ async function fakeFetch(url: RequestInfo | URL, init?: RequestInit): Promise<Re
     return json({ error: { errors: [{ reason: typeof step === 'object' ? step.reason ?? '' : '' }] } }, st);
   }
   if (u.includes('/events?')) return listFail ? json({}, listFail) : json({ items: busyItems });
+  if (getGate) await getGate; // QA024: 확인 GET을 붙잡아 두는 시험용
   const id = decodeURIComponent(u.split('/events/')[1] ?? '');
   const e = events.get(id);
   return e ? json(e) : json({ error: { errors: [{ reason: 'notFound' }] } }, 404);
@@ -169,10 +171,18 @@ describe('2. 순수 계산', () => {
 
   it('하루 최대 수에 닿으면 그날 칸 없음, 우리 예약도 바쁜 구간', () => {
     const s = { ...base(), maxPerDay: 2 };
-    const hold: [number, number][] = [[at(10), at(10, 30)]];
-    const day = (h: [number, number][]) => bk.computeSlots(s, [], h, now).filter((x) => x.start >= at(0) && x.start < at(24)).map((x) => x.start);
+    const H = (a: number, b: number, beforeMin = 0, afterMin = 0) => ({ start: a, end: b, beforeMin, afterMin });
+    const hold = [H(at(10), at(10, 30))];
+    const day = (h: ReturnType<typeof H>[], ss = s) => bk.computeSlots(ss, [], h, now).filter((x) => x.start >= at(0) && x.start < at(24)).map((x) => x.start);
     expect(day(hold)).not.toContain(at(10));
-    expect(day([...hold, [at(12), at(12, 30)]])).toHaveLength(0);
+    expect(day([...hold, H(at(12), at(12, 30))])).toHaveLength(0);
+    // QA024 P1-2 순수: 기존 예약의 뒤 준비 30분 → 10:30 후보 막힘, 11:00은 맞닿음이라 열림(설정 준비 시간 0이어도 스냅샷 기준)
+    const wide = { ...s, maxPerDay: 10 };
+    expect(day([H(at(10), at(10, 30), 0, 30)], wide)).not.toContain(at(10, 30));
+    expect(day([H(at(10), at(10, 30), 0, 30)], wide)).toContain(at(11));
+    // 역순: 설정 앞 준비 30분이면 기존 11:00 예약 앞의 10:30 후보는 막힘(새 후보 쪽 준비 시간)
+    expect(day([H(at(11), at(11, 30))], { ...wide, afterMin: 30 })).not.toContain(at(10, 30));
+    expect(bk.occupied(H(at(10), at(10, 30), 15, 30))).toEqual([at(9, 45), at(11)]);
   });
 
   it('예약 기간은 21일까지(설정에서 더 길게 넣어도 21), 지난 시각 제외', () => {
@@ -492,5 +502,143 @@ describe('3. 켠 뒤(격리 시험 DB)', () => {
     expect(row(a)).toBeUndefined();
     expect(row(b)).toBeTruthy();
     expect(posts().length).toBe(recent);
+  });
+
+  // ---------------------------------------------------------------- QA024 반례(Mac msg_37002521ac85)
+  const gate = () => {
+    let open!: () => void;
+    getGate = new Promise<void>((r) => (open = r));
+    return () => {
+      getGate = null;
+      open();
+    };
+  };
+  const waitGets = async (n: number) => {
+    for (let i = 0; i < 400 && gets().length < n; i++) await new Promise((r) => setTimeout(r, 5));
+  };
+  const matchEvent = (id: string, start: number) => events.set(bk.gcalIdOf(id), { id: bk.gcalIdOf(id), status: 'confirmed', start: { dateTime: new Date(start).toISOString() }, end: { dateTime: new Date(start + 30 * MIN).toISOString() }, extendedProperties: { private: { awwBookingId: id } } });
+
+  it('QA024 P1-1: 확인 GET을 기다리는 사이 회원이 「없음」을 고르면, 늦은 일치 응답이 덮어쓰지 않음(알림 0)', async () => {
+    const f = await flow([503]);
+    matchEvent(f.id, f.start);
+    const g0 = gets().length;
+    const n0 = inbox.length;
+    const release = gate();
+    const p = bk.reconcileBooking({ bookingId: f.id, step: 1 });
+    await waitGets(g0 + 1);
+    bk.bookingHandlers.bookingResolve(ctx(owner), { id: f.id, choice: 'absent' });
+    release();
+    await p;
+    expect(row(f.id).status).toBe('released');
+    expect(inbox.slice(n0)).toHaveLength(0);
+  });
+
+  it('QA024 P1-1: GET을 기다리는 사이 만료되면 만료 유지', async () => {
+    const f = await flow([503]);
+    matchEvent(f.id, f.start);
+    const g0 = gets().length;
+    const release = gate();
+    const p = bk.reconcileBooking({ bookingId: f.id, step: 1 });
+    await waitGets(g0 + 1);
+    dbm.db.prepare("UPDATE aww_bookings SET status = 'expired' WHERE id = ?").run(f.id);
+    release();
+    await p;
+    expect(row(f.id).status).toBe('expired');
+  });
+
+  it('QA024 P1-1: 두 확인이 동시에 일치를 받아도 확정 알림은 한 번', async () => {
+    const f = await flow([503]);
+    matchEvent(f.id, f.start);
+    const g0 = gets().length;
+    const n0 = inbox.length;
+    const release = gate();
+    const a = bk.reconcileBooking({ bookingId: f.id, step: 1 });
+    const b = bk.reconcileBooking({ bookingId: f.id, step: 1 });
+    await waitGets(g0 + 2);
+    release();
+    await Promise.all([a, b]);
+    expect(row(f.id).status).toBe('confirmed');
+    expect(inbox.slice(n0).filter((x) => /확정/.test(x.title))).toHaveLength(1);
+  });
+
+  it('QA024 P1-1: POST 응답을 기다리는 사이 상태가 바뀌면(처리 중에 끊긴 것으로 넘어감) 늦은 성공이 덮어쓰지 않음', async () => {
+    const start = nextSlot();
+    let open!: () => void;
+    const hold = new Promise<void>((r) => (open = r));
+    const before = posts().length;
+    postQueue = [200];
+    const realFetch = fakeFetch;
+    let postStarted = false;
+    gcal.setGcalFetch((async (u: any, i: any) => {
+      if ((i?.method ?? 'GET') === 'POST') {
+        postStarted = true;
+        await hold;
+      }
+      return realFetch(u, i);
+    }) as typeof fetch);
+    const n0 = inbox.length;
+    const p = submit(start);
+    for (let k = 0; k < 400 && !postStarted; k++) await new Promise((r) => setTimeout(r, 5));
+    expect(posts().length).toBe(before); // 아직 구글 응답 전
+    const id = (dbm.db.prepare('SELECT id FROM aww_bookings WHERE start_ms = ? ORDER BY created_time DESC LIMIT 1').get(start) as any).id;
+    dbm.db.prepare("UPDATE aww_bookings SET status = 'needs_check' WHERE id = ?").run(id); // 목록 정리가 끊긴 것으로 넘긴 상황
+    open();
+    const r = await p;
+    gcal.setGcalFetch(fakeFetch as typeof fetch);
+    expect(row(id).status).toBe('needs_check');
+    expect(r).toMatchObject({ ok: true, status: 'received' });
+    expect(inbox.slice(n0).filter((x) => /확정/.test(x.title))).toHaveLength(0);
+  });
+
+  it('QA024 P1-2: 준비 시간은 기존 예약에도 — 순서 무관 대칭, 맞닿음 허용, 설정을 바꿔도 받은 예약의 준비 시간 유지', async () => {
+    bk.bookingHandlers.bookingSave(ctx(owner), { settings: { beforeMin: 0, afterMin: 30, horizonDays: 21 } });
+    const d = (h: number, m = 0) => kst(12, h, m);
+    expect(await submit(d(10))).toMatchObject({ ok: true });
+    expect(await submit(d(10, 30))).toMatchObject({ ok: false }); // 기존 10:00 예약의 뒤 준비 30분과 겹침
+    expect(await submit(d(14, 30))).toMatchObject({ ok: true });
+    expect(await submit(d(14))).toMatchObject({ ok: false }); // 역순도 같게
+    expect(await submit(d(11))).toMatchObject({ ok: true }); // 10:00~11:00 점유와 맞닿음은 허용
+    expect(await submit(d(16))).toMatchObject({ ok: true });
+    bk.bookingHandlers.bookingSave(ctx(owner), { settings: { beforeMin: 0, afterMin: 0, horizonDays: 21 } });
+    expect(await submit(d(16, 30))).toMatchObject({ ok: false }); // 16:00 예약 당시 약속한 뒤 준비 30분 보존
+    const snap = dbm.db.prepare('SELECT before_min, after_min FROM aww_bookings WHERE start_ms = ? AND status = ?').get(d(16), 'confirmed') as any;
+    expect([Number(snap.before_min), Number(snap.after_min)]).toEqual([0, 30]);
+    bk.bookingHandlers.bookingSave(ctx(owner), { settings: {} });
+  });
+
+  const lockThen = async (change: string, start: number) => {
+    const sql = postgres(process.env.AWW_DATABASE_URL!, { max: 1, onnotice: () => {} });
+    try {
+      const q = sql.unsafe(`DO $$ BEGIN
+        PERFORM 1 FROM aww_booking_pages WHERE user_id = '${owner}' FOR UPDATE;
+        PERFORM pg_sleep(1.2);
+        ${change}
+      END $$`).execute();
+      await new Promise((r) => setTimeout(r, 600));
+      const c0 = calls.length;
+      const t0 = Date.now();
+      const r = await submit(start);
+      const waited = Date.now() - t0;
+      await q;
+      const n = (dbm.db.prepare('SELECT COUNT(*)::int AS n FROM aww_bookings WHERE user_id = ? AND start_ms = ?').get(owner, start) as { n: number }).n;
+      return { r, googleCalls: calls.length - c0, inserted: n, waited };
+    } finally {
+      await sql.end();
+    }
+  };
+
+  it('QA024 P2: 잠금을 기다리는 사이 주소를 바꾸거나 끄거나 설정을 바꾸면, 옛 요청은 넣지도 구글에 보내지도 않음', async () => {
+    const rotated = await lockThen(`UPDATE aww_booking_pages SET token_hash = 'rotated-elsewhere' WHERE user_id = '${owner}';`, kst(13, 10));
+    expect(rotated).toMatchObject({ r: null, googleCalls: 0, inserted: 0 });
+    expect(rotated.waited).toBeGreaterThan(400);
+    token = bk.bookingHandlers.bookingSave(ctx(owner), { settings: {}, rotate: true }).token!;
+    const off = await lockThen(`UPDATE aww_booking_pages SET enabled = 0 WHERE user_id = '${owner}';`, kst(13, 11));
+    expect(off).toMatchObject({ r: null, googleCalls: 0, inserted: 0 });
+    token = bk.bookingHandlers.bookingSave(ctx(owner), { settings: {} }).token!;
+    const s60 = JSON.stringify({ ...bk.DEFAULT_SETTINGS, slotMin: 60 }).replace(/'/g, "''");
+    const changed = await lockThen(`UPDATE aww_booking_pages SET settings = '${s60}' WHERE user_id = '${owner}';`, kst(13, 12, 30));
+    expect(changed.r).toMatchObject({ ok: false });
+    expect(changed).toMatchObject({ googleCalls: 0, inserted: 0 });
+    bk.bookingHandlers.bookingSave(ctx(owner), { settings: {} });
   });
 });

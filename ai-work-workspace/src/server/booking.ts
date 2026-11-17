@@ -154,13 +154,19 @@ function dayStarts(s: BookingSettings, y: number, m: number, d: number): number[
 
 export interface Slot { start: number; end: number }
 
-/** 손님에게 보일 빈 칸: 설정 요일·시간대, 지금 이후·horizon 안, 하루 최대, 앞뒤 준비 시간을 더한 후보가 바쁜 구간(구글+우리 예약)과 안 겹침 */
-export function computeSlots(s: BookingSettings, busy: Range[], holding: Range[], now: number): Slot[] {
+/** 우리 예약 하나 — 받을 때 약속한 앞뒤 준비 시간 스냅샷 포함(QA024 P1-2) */
+export interface Held { start: number; end: number; beforeMin: number; afterMin: number }
+/** 점유 구간 = [시작 − 앞 준비, 끝 + 뒤 준비]. 새 후보와 기존 예약 모두 자기 준비 시간으로 → 넣는 순서와 상관없이 대칭 */
+export const occupied = (h: Held): Range => [h.start - h.beforeMin * MIN, h.end + h.afterMin * MIN];
+
+/** 손님에게 보일 빈 칸: 설정 요일·시간대, 지금 이후·horizon 안, 하루 최대.
+ *  준비 시간 적용은 한 번씩만: 후보는 자기 준비 시간을 더한 점유 구간, 구글 일정은 그대로(준비 시간 없음), 우리 예약은 그 예약의 스냅샷 준비 시간. */
+export function computeSlots(s: BookingSettings, busy: Range[], holding: Held[], now: number): Slot[] {
   const horizonDays = Math.min(MAX_HORIZON_DAYS, s.horizonDays);
   const until = now + horizonDays * DAY;
   const perDay = new Map<string, number>();
-  for (const h of holding) perDay.set(dateKey(h[0], s.tz), (perDay.get(dateKey(h[0], s.tz)) ?? 0) + 1);
-  const all = [...busy, ...holding];
+  for (const h of holding) perDay.set(dateKey(h.start, s.tz), (perDay.get(dateKey(h.start, s.tz)) ?? 0) + 1);
+  const all = [...busy, ...holding.map(occupied)];
   const today = tzParts(now, s.tz);
   const out: Slot[] = [];
   for (let i = 0; i <= horizonDays; i++) {
@@ -170,7 +176,7 @@ export function computeSlots(s: BookingSettings, busy: Range[], holding: Range[]
     for (const start of dayStarts(s, y, m, d)) {
       if (start <= now || start > until) continue;
       const end = start + s.slotMin * MIN;
-      const want: Range = [start - s.beforeMin * MIN, end + s.afterMin * MIN];
+      const want = occupied({ start, end, beforeMin: s.beforeMin, afterMin: s.afterMin });
       if (all.some((b) => overlaps(want, b))) continue;
       out.push({ start, end });
     }
@@ -219,13 +225,18 @@ function ensureTables() {
   CREATE TABLE IF NOT EXISTS aww_bookings (
     id TEXT PRIMARY KEY, user_id TEXT NOT NULL, start_ms BIGINT NOT NULL, end_ms BIGINT NOT NULL, status TEXT NOT NULL,
     gcal_id TEXT NOT NULL, guest_name TEXT, guest_contact TEXT, guest_memo TEXT, final_unknown INTEGER NOT NULL DEFAULT 0,
-    fail_reason TEXT, notified TEXT, created_time BIGINT NOT NULL, updated_time BIGINT NOT NULL);
+    fail_reason TEXT, notified TEXT, created_time BIGINT NOT NULL, updated_time BIGINT NOT NULL,
+    before_min INTEGER NOT NULL DEFAULT 0 CHECK (before_min >= 0 AND before_min <= 120),
+    after_min INTEGER NOT NULL DEFAULT 0 CHECK (after_min >= 0 AND after_min <= 120));
   CREATE INDEX IF NOT EXISTS idx_aww_bookings_user ON aww_bookings(user_id, start_ms)`);
   tablesReady = true;
 }
 
 interface PageRow { user_id: string; token_hash: string; enabled: number; settings: string; created_time: number; updated_time: number }
-interface BookingRow { id: string; user_id: string; start_ms: number; end_ms: number; status: BookingStatus; gcal_id: string; guest_name: string | null; guest_contact: string | null; guest_memo: string | null; final_unknown: number; fail_reason: string | null; notified: string | null; created_time: number; updated_time: number }
+// QA024(2026-11-17): before_min·after_min = 예약을 받을 때의 준비 시간 스냅샷(cleanSettings와 같은 0~120분). 스위치 OFF라 운영·aww_dev에는
+// 이 표 자체가 없고 자동 ALTER도 하지 않는다. DEFAULT 0은 새 칸을 채우기 위한 값일 뿐, 이 칸이 없던 옛 표가 있었다면 그 예약의 실제 당시
+// 준비 시간으로 복구됐다는 뜻이 아니다(그런 표는 지금 어디에도 없음).
+interface BookingRow { id: string; user_id: string; start_ms: number; end_ms: number; status: BookingStatus; gcal_id: string; guest_name: string | null; guest_contact: string | null; guest_memo: string | null; final_unknown: number; fail_reason: string | null; notified: string | null; created_time: number; updated_time: number; before_min: number; after_min: number }
 
 const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
 const newToken = () => randomBytes(32).toString("base64url");
@@ -233,19 +244,28 @@ const newToken = () => randomBytes(32).toString("base64url");
 export const gcalIdOf = (bookingId: string) => `bk${bookingId.replace(/-/g, "").toLowerCase()}`;
 
 function toBooking(r: any): BookingRow {
-  return { ...r, start_ms: Number(r.start_ms), end_ms: Number(r.end_ms), final_unknown: Number(r.final_unknown), created_time: Number(r.created_time), updated_time: Number(r.updated_time) };
+  return { ...r, start_ms: Number(r.start_ms), end_ms: Number(r.end_ms), final_unknown: Number(r.final_unknown), created_time: Number(r.created_time), updated_time: Number(r.updated_time), before_min: Number(r.before_min ?? 0), after_min: Number(r.after_min ?? 0) };
 }
+const heldOf = (b: Pick<BookingRow, "start_ms" | "end_ms" | "before_min" | "after_min">): Held => ({ start: b.start_ms, end: b.end_ms, beforeMin: b.before_min, afterMin: b.after_min });
 function loadBooking(id: string): BookingRow | null {
   const r = db.prepare("SELECT * FROM aww_bookings WHERE id = ?").get(id);
   return r ? toBooking(r) : null;
 }
-function holdingRanges(userId: string, from: number, to: number): Range[] {
-  const rows = db.prepare(`SELECT start_ms, end_ms FROM aww_bookings WHERE user_id = ? AND status IN ('pending','confirmed','needs_check') AND end_ms > ? AND start_ms < ?`).all(userId, from, to) as any[];
-  return rows.map((r) => [Number(r.start_ms), Number(r.end_ms)] as Range);
+/** 칸을 잡고 있는 우리 예약(처리 중·확정·확인 필요). 준비 시간이 최대 120분이라 앞뒤 하루를 넉넉히 읽는다 */
+function holdings(userId: string, from: number, to: number): Held[] {
+  const rows = db.prepare(`SELECT start_ms, end_ms, before_min, after_min FROM aww_bookings WHERE user_id = ? AND status IN ('pending','confirmed','needs_check') AND end_ms > ? AND start_ms < ?`).all(userId, from - DAY, to + DAY) as any[];
+  return rows.map((r) => ({ start: Number(r.start_ms), end: Number(r.end_ms), beforeMin: Number(r.before_min ?? 0), afterMin: Number(r.after_min ?? 0) }));
 }
-function setStatus(id: string, status: BookingStatus, extra: { fail_reason?: string | null; final_unknown?: number } = {}) {
-  db.prepare("UPDATE aww_bookings SET status = ?, fail_reason = COALESCE(?, fail_reason), final_unknown = COALESCE(?, final_unknown), updated_time = ? WHERE id = ?")
-    .run(status, extra.fail_reason ?? null, extra.final_unknown ?? null, Date.now(), id);
+/**
+ * 상태 바꾸기는 언제나 기대 상태일 때만(compare-and-set). 바뀐 줄이 1이면 true — 알림·다음 확인 예약은 true일 때만 한다.
+ * 구글 응답을 기다리는 동안 회원이 고른 결정(칸 풀림·확정)·만료·다른 worker의 결과를 늦은 응답이 덮어쓰지 않게(QA024 P1-1).
+ * openOnly: 「확인 필요」 중 최종 미확인(회원 결정 대기)이 아닌 것만.
+ */
+function transition(id: string, from: BookingStatus[], to: BookingStatus, extra: { fail_reason?: string | null; final_unknown?: number } = {}, openOnly = false): boolean {
+  const marks = from.map(() => "?").join(", ");
+  return db.prepare(`UPDATE aww_bookings SET status = ?, fail_reason = COALESCE(?, fail_reason), final_unknown = COALESCE(?, final_unknown), updated_time = ?
+                     WHERE id = ? AND status IN (${marks})${openOnly ? " AND final_unknown = 0" : ""}`)
+    .run(to, extra.fail_reason ?? null, extra.final_unknown ?? null, Date.now(), id, ...from).changes === 1;
 }
 function pageByToken(token: string): { page: PageRow; settings: BookingSettings } | null {
   const p = db.prepare("SELECT * FROM aww_booking_pages WHERE token_hash = ?").get(hashToken(token)) as PageRow | undefined;
@@ -307,17 +327,33 @@ function scheduleCheck(b: BookingRow, step: number) {
   const at = Math.max(Date.now() + 1000, b.created_time + CHECK_AT_MIN[step - 1] * MIN);
   scheduleJob("booking.reconcile", `booking:${b.id}`, at, { ownerId: b.user_id, bookingId: b.id, step });
 }
-function toNeedsCheck(b: BookingRow) {
-  setStatus(b.id, "needs_check");
+/** 처리 중 → 확인 필요(바뀌었을 때만 첫 확인 예약) */
+function toNeedsCheck(b: BookingRow): boolean {
+  if (!transition(b.id, ["pending"], "needs_check")) return false;
   scheduleCheck(b, 1);
+  return true;
 }
-async function finalUnknown(b: BookingRow, tz: string) {
-  setStatus(b.id, "needs_check", { final_unknown: 1 });
+/** 확정(바뀌었을 때만 알림). from = 이 경로가 기대하는 상태 */
+async function confirmFrom(b: BookingRow, from: BookingStatus, tz: string): Promise<boolean> {
+  if (!transition(b.id, [from], "confirmed", {}, from === "needs_check")) return false;
+  await notify(b, "confirmed", tz);
+  return true;
+}
+/** 최종 미확인 → 회원이 고름(바뀌었을 때만 알림) */
+async function finalUnknown(b: BookingRow, from: BookingStatus, tz: string): Promise<boolean> {
+  if (!transition(b.id, [from], "needs_check", { final_unknown: 1 }, from === "needs_check")) return false;
   await notify(b, "check", tz);
+  return true;
 }
-async function fail(b: BookingRow, reason: string, tz: string, tell = true) {
-  setStatus(b.id, "failed", { fail_reason: reason });
+/** 처리 중 → 실패·칸 해제(바뀌었을 때만 알림) */
+async function fail(b: BookingRow, reason: string, tz: string, tell = true): Promise<boolean> {
+  if (!transition(b.id, ["pending"], "failed", { fail_reason: reason })) return false;
   if (tell) await notify({ ...b, fail_reason: reason }, "failed", tz);
+  return true;
+}
+/** 상태 바꾸기에 실패했으면(그사이 다른 쪽이 바꿈) 지금 실제 상태를 돌려준다 */
+function currentStatus(id: string): BookingStatus | null {
+  return loadBooking(id)?.status ?? null;
 }
 
 // ---------------------------------------------------------------- 손님: 빈 칸 보기·예약하기
@@ -358,7 +394,7 @@ export async function bookingSlots(token: string, ip: string, now = Date.now()):
     }
     busyCache.set(page.user_id, { at: now, until, busy });
   }
-  return { ...base, slots: computeSlots(settings, busy, holdingRanges(page.user_id, now - DAY, until), now), unavailable: false };
+  return { ...base, slots: computeSlots(settings, busy, holdings(page.user_id, now - DAY, until), now), unavailable: false };
 }
 
 export type SubmitResult = { ok: true; status: "confirmed" | "received"; bookingId: string } | { ok: false; error: string };
@@ -371,7 +407,7 @@ export async function bookingSubmit(token: string, ip: string, input: { start?: 
   ensureTables();
   const pg = pageByToken(token);
   if (!pg) return null;
-  const { page, settings } = pg;
+  const { page } = pg; // 설정은 잠금 안에서 다시 읽는다
   if (!(await deps.ownerCheck(page.user_id).catch(() => false))) return null;
 
   const name = typeof input.name === "string" ? input.name.trim() : "";
@@ -381,56 +417,73 @@ export async function bookingSubmit(token: string, ip: string, input: { start?: 
   if (!contact || contact.length > 100) return { ok: false, error: "연락처를 1~100자로 적어 주세요." };
   if (memo.length > 500) return { ok: false, error: "메모는 500자까지 적을 수 있습니다." };
   const start = Number(input.start);
-  const horizon = now + Math.min(MAX_HORIZON_DAYS, settings.horizonDays) * DAY;
-  if (!Number.isFinite(start) || start <= now || start > horizon || !offeredStart(settings, start)) return { ok: false, error: "선택한 시간은 예약할 수 없습니다. 다른 시간을 골라 주세요." };
-  const end = start + settings.slotMin * MIN;
-  const want: Range = [start - settings.beforeMin * MIN, end + settings.afterMin * MIN];
+  if (!Number.isFinite(start)) return { ok: false, error: "선택한 시간은 예약할 수 없습니다. 다른 시간을 골라 주세요." };
+  const tokenHash = hashToken(token);
 
-  // 칸 잡기 — 회원 설정 행 잠금으로 같은 회원 예약을 한 줄로 세운다(다른 worker는 잠금이 풀린 뒤 같은 검사를 다시 함)
+  // 칸 잡기 — 회원 설정 행 잠금으로 같은 회원 예약을 한 줄로 세운다(다른 worker는 잠금이 풀린 뒤 같은 검사를 다시 함).
+  // QA024 P2: 잠금을 잡은 뒤 지금의 켜짐·주소(토큰 해시)·설정을 다시 읽어 판정한다 — 잠금을 기다리는 사이 회원이 끄거나 주소를 바꾸거나
+  // 설정을 고쳤으면 옛 요청은 넣지도 구글에 보내지도 않는다. 판정·저장은 모두 이 잠금 안의 설정으로.
   const id = randomUUID();
   const outcome = tx(() => {
-    db.prepare("SELECT user_id FROM aww_booking_pages WHERE user_id = ? FOR UPDATE").get(page.user_id);
-    const hold = holdingRanges(page.user_id, start - 2 * DAY, end + 2 * DAY);
-    if (hold.some((h) => overlaps(want, h))) return "taken" as const;
-    const key = dateKey(start, settings.tz);
-    if (hold.filter((h) => dateKey(h[0], settings.tz) === key).length >= settings.maxPerDay) return "full" as const;
+    const cur = db.prepare("SELECT * FROM aww_booking_pages WHERE user_id = ? FOR UPDATE").get(page.user_id) as PageRow | undefined;
+    if (!cur || Number(cur.enabled) !== 1 || cur.token_hash !== tokenHash) return { kind: "closed" as const };
+    let s: BookingSettings;
+    try {
+      s = cleanSettings(JSON.parse(cur.settings));
+    } catch {
+      return { kind: "closed" as const };
+    }
+    const horizon = now + Math.min(MAX_HORIZON_DAYS, s.horizonDays) * DAY;
+    if (start <= now || start > horizon || !offeredStart(s, start)) return { kind: "invalid" as const };
+    const mine: Held = { start, end: start + s.slotMin * MIN, beforeMin: s.beforeMin, afterMin: s.afterMin };
+    const hold = holdings(page.user_id, mine.start, mine.end);
+    if (hold.some((h) => overlaps(occupied(mine), occupied(h)))) return { kind: "taken" as const };
+    const key = dateKey(start, s.tz);
+    if (hold.filter((h) => dateKey(h.start, s.tz) === key).length >= s.maxPerDay) return { kind: "full" as const };
     const t = Date.now();
-    db.prepare(`INSERT INTO aww_bookings (id, user_id, start_ms, end_ms, status, gcal_id, guest_name, guest_contact, guest_memo, final_unknown, created_time, updated_time)
-                VALUES (?, ?, ?, ?, 'pending', ?, ?, ?, ?, 0, ?, ?)`).run(id, page.user_id, start, end, gcalIdOf(id), name, contact, memo, t, t);
-    return "ok" as const;
+    db.prepare(`INSERT INTO aww_bookings (id, user_id, start_ms, end_ms, status, gcal_id, guest_name, guest_contact, guest_memo, final_unknown, created_time, updated_time, before_min, after_min)
+                VALUES (?, ?, ?, ?, 'pending', ?, ?, ?, ?, 0, ?, ?, ?, ?)`).run(id, page.user_id, mine.start, mine.end, gcalIdOf(id), name, contact, memo, t, t, s.beforeMin, s.afterMin);
+    return { kind: "ok" as const, s };
   });
-  if (outcome === "taken") return { ok: false, error: "방금 다른 예약이 들어온 시간입니다. 다른 시간을 골라 주세요." };
-  if (outcome === "full") return { ok: false, error: "그날은 예약이 모두 찼습니다. 다른 날을 골라 주세요." };
+  if (outcome.kind === "closed") return null;
+  if (outcome.kind === "invalid") return { ok: false, error: "선택한 시간은 예약할 수 없습니다. 다른 시간을 골라 주세요." };
+  if (outcome.kind === "taken") return { ok: false, error: "방금 다른 예약이 들어온 시간입니다. 다른 시간을 골라 주세요." };
+  if (outcome.kind === "full") return { ok: false, error: "그날은 예약이 모두 찼습니다. 다른 날을 골라 주세요." };
   busyCache.delete(page.user_id);
   const b = loadBooking(id)!;
-  const status = await placeOnCalendar(b, settings);
+  // 이용 기간 판정은 비동기(Supabase)라 DB 잠금 안에서 할 수 없다 → 잠금 전 판정에 더해, 칸을 잡은 뒤 구글에 보내기 직전 한 번 더.
+  // 그사이 끝났으면 아무것도 보내지 않고 칸을 푼다.
+  if (!(await deps.ownerCheck(page.user_id).catch(() => false))) {
+    await fail(b, "owner", outcome.s.tz, false);
+    return null;
+  }
+  const status = await placeOnCalendar(b, outcome.s);
   if (status === "confirmed") return { ok: true, status: "confirmed", bookingId: id };
-  if (status === "needs_check") return { ok: true, status: "received", bookingId: id };
+  if (status === "needs_check" || status === "pending") return { ok: true, status: "received", bookingId: id };
   if (status === "taken") return { ok: false, error: "방금 회원 일정이 들어온 시간입니다. 다른 시간을 골라 주세요." };
   return { ok: false, error: "지금은 예약을 받을 수 없습니다. 잠시 후 다시 시도해 주세요." };
 }
 
-/** 잠금 밖: 구글 재확인 → 같은 id로 POST. 결과 상태를 돌려줌 */
+/** 잠금 밖: 구글 재확인 → 같은 id로 POST. 상태는 모두 「처리 중」에서만 바꾸고(CAS), 못 바꿨으면 그사이 정해진 실제 상태를 돌려준다 */
 async function placeOnCalendar(b: BookingRow, s: BookingSettings): Promise<BookingStatus | "taken"> {
+  const settled = (): BookingStatus => currentStatus(b.id) ?? "failed";
   let tok: string;
   try {
     tok = await deps.token(b.user_id);
   } catch (e) {
-    await fail(b, e instanceof GcalError && e.code === "auth" ? "auth" : "token", s.tz, e instanceof GcalError && e.code === "auth");
-    return "failed";
+    const auth = e instanceof GcalError && e.code === "auth";
+    return (await fail(b, auth ? "auth" : "token", s.tz, auth)) ? "failed" : settled();
   }
-  // 회원이 방금 구글에 직접 넣은 일정과 겹치는지 한 번 더(원자적이지 않음 — 남는 위험은 계획 7-6 4에 명시)
+  // 회원이 방금 구글에 직접 넣은 일정과 겹치는지 한 번 더(원자적이지 않음 — 남는 위험은 계획 7-6 4에 명시).
+  // 구글 일정에는 준비 시간이 없으므로 이 예약 자신의 스냅샷 준비 시간만 한 번 적용.
   try {
     const busy = busyRanges(await listBusy(tok, new Date(b.start_ms - DAY).toISOString(), new Date(b.end_ms + DAY).toISOString()), s.tz);
-    const want: Range = [b.start_ms - s.beforeMin * MIN, b.end_ms + s.afterMin * MIN];
-    if (busy.some((x) => overlaps(want, x))) {
-      await fail(b, "taken", s.tz, false);
-      return "taken";
-    }
+    const want = occupied(heldOf(b));
+    if (busy.some((x) => overlaps(want, x))) return (await fail(b, "taken", s.tz, false)) ? "taken" : settled();
   } catch {
-    await fail(b, "recheck", s.tz, false); // 아직 아무것도 보내지 않았으니 칸을 풀어도 안전
-    return "failed";
+    return (await fail(b, "recheck", s.tz, false)) ? "failed" : settled(); // 아직 아무것도 보내지 않았으니 칸을 풀어도 안전
   }
+  if (currentStatus(b.id) !== "pending") return settled(); // 그사이 정리됨(끊긴 것으로 넘어감·만료) — 보내지 않음
   const body = {
     id: b.gcal_id,
     status: "confirmed",
@@ -445,11 +498,7 @@ async function placeOnCalendar(b: BookingRow, s: BookingSettings): Promise<Booki
   for (;;) {
     const r = await insertEventWithId(tok, body);
     const k = classifyInsert(r);
-    if (k === "confirmed") {
-      setStatus(b.id, "confirmed");
-      await notify(b, "confirmed", s.tz);
-      return "confirmed";
-    }
+    if (k === "confirmed") return (await confirmFrom(b, "pending", s.tz)) ? "confirmed" : settled();
     if (k === "auth" && !authRetried) {
       authRetried = true;
       try {
@@ -459,38 +508,21 @@ async function placeOnCalendar(b: BookingRow, s: BookingSettings): Promise<Booki
         /* 아래 실패 처리 */
       }
     }
-    if (k === "auth") {
-      await fail(b, "auth", s.tz);
-      return "failed";
-    }
+    if (k === "auth") return (await fail(b, "auth", s.tz)) ? "failed" : settled();
     if (k === "retry_rate" && rateTries < RATE_RETRIES) {
       await deps.sleep(1000 * 2 ** rateTries++);
       continue;
     }
-    if (k === "retry_rate") {
-      await fail(b, `rate ${r.status}`, s.tz);
-      return "failed";
-    }
+    if (k === "retry_rate") return (await fail(b, `rate ${r.status}`, s.tz)) ? "failed" : settled();
     if (k === "verify") {
       const v = await verifyById(tok, b).catch(() => "unknown" as const);
-      if (v === "match") {
-        setStatus(b.id, "confirmed");
-        await notify(b, "confirmed", s.tz);
-        return "confirmed";
-      }
-      if (v === "mismatch") {
-        await finalUnknown(b, s.tz); // 같은 id의 다른 일정·취소 일정 — 확정하지 않음, 새 id로 다시 만들지 않음
-        return "needs_check";
-      }
-      toNeedsCheck(b);
-      return "needs_check";
+      if (v === "match") return (await confirmFrom(b, "pending", s.tz)) ? "confirmed" : settled();
+      // 같은 id의 다른 일정·취소 일정 — 확정하지 않음, 새 id로 다시 만들지 않음
+      if (v === "mismatch") return (await finalUnknown(b, "pending", s.tz)) ? "needs_check" : settled();
+      return toNeedsCheck(b) ? "needs_check" : settled();
     }
-    if (k === "unknown") {
-      toNeedsCheck(b);
-      return "needs_check";
-    }
-    await fail(b, `${r.status}${r.reason ? ` ${r.reason}` : ""}`, s.tz);
-    return "failed";
+    if (k === "unknown") return toNeedsCheck(b) ? "needs_check" : settled();
+    return (await fail(b, `${r.status}${r.reason ? ` ${r.reason}` : ""}`, s.tz)) ? "failed" : settled();
   }
 }
 
@@ -509,7 +541,7 @@ export async function reconcileBooking(payload: unknown): Promise<void> {
   const step = Math.min(CHECK_AT_MIN.length, Math.max(1, Number(p.step) || 1));
   const s = await settingsOf(b.user_id);
   if (b.start_ms <= Date.now()) {
-    setStatus(b.id, "expired"); // 예약 시각이 지나면 칸 유지 의미 없음
+    transition(b.id, ["needs_check"], "expired", {}, true); // 예약 시각이 지나면 칸 유지 의미 없음
     return;
   }
   let v: Verify = "unknown";
@@ -518,16 +550,17 @@ export async function reconcileBooking(payload: unknown): Promise<void> {
   } catch {
     v = "unknown";
   }
+  // 여기부터는 GET을 기다리는 사이 회원이 고른 결정·만료·다른 worker 결과를 덮지 않게 모두 「확인 필요(최종 미확인 아님)」에서만 바꾼다
   if (v === "match") {
-    setStatus(b.id, "confirmed");
-    await notify(b, "confirmed", s.tz);
+    await confirmFrom(b, "needs_check", s.tz);
     return;
   }
   if (v === "mismatch" || step >= CHECK_AT_MIN.length) {
-    await finalUnknown(b, s.tz);
+    await finalUnknown(b, "needs_check", s.tz);
     return;
   }
-  scheduleCheck(b, step + 1); // absent(404)·unknown — 칸 유지, 다음 확인
+  // absent(404)·unknown — 칸 유지, 아직 열린 「확인 필요」일 때만 다음 확인 예약
+  if (transition(b.id, ["needs_check"], "needs_check", {}, true)) scheduleCheck(b, step + 1);
 }
 registerJobHandler("booking.reconcile", (payload) => reconcileBooking(payload));
 
