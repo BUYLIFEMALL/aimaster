@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T20:30:46.886Z",
+  "checkedAt": "2026-11-17T21:00:41.045Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -4103,14 +4103,14 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-17T20:30:46.886Z",
+      "at": "2026-11-17T21:00:41.045Z",
       "timezone": "Asia/Seoul",
-      "trigger": "05:30 Windows예약 기존Master수신",
+      "trigger": "06:00 Windows예약 기존Master수신",
       "scope": "관리자요청/담당보고·19카테고리 미종료작업·프로그램docs/미등록인계 증분·제품미커밋·기존12세션",
       "evidence": [
-        "msg_2c91dac0dd00·예약05:30 종료0/다음06:00",
+        "msg_5b6134e916d7·예약06:00 종료0/다음06:30",
         "dev-requests 대기0·신규보고/인계0(자체진행표3개제외)",
-        "HEAD d8a7a48da 이후 신규커밋0·제품3개 src미커밋0",
+        "HEAD e65e04f6c 이후 신규커밋0·제품3개 src미커밋0",
         "담당 lastOutput 변화0·PORT19수락/산출물0·기존사람단계 완료신호0"
       ],
       "judgment": "새변경없음·기존책임자/차단조건유지. 연결을진행으로간주0·중복배정/재발송/시험/배포0.",
@@ -4118,7 +4118,7 @@
         "PORT19 수신/착수·Ecom/Gmail 선택질문답변",
         "Lab 시험제출·Mac 반환·이번회차 운영 재조회없음"
       ],
-      "nextAction": "수락/사람완료/결정 이벤트후 후속판정·06:00 기존Master 예약메시지"
+      "nextAction": "수락/사람완료/결정 이벤트후 후속판정·06:30 기존Master 예약메시지"
     },
     "notifications": [
       {
@@ -4186,7 +4186,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-17T21:00:00.000Z",
+      "nextScheduledAt": "2026-11-17T21:30:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -4204,8 +4204,8 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-17T20:30:00.000Z",
-        "messageId": "msg_2c91dac0dd00",
+        "scheduledAt": "2026-11-17T21:00:00.000Z",
+        "messageId": "msg_5b6134e916d7",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false
