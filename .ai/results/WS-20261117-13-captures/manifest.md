@@ -20,3 +20,11 @@
 | 09-375-iframe-menu-open.png | 375 iframe ☰ 메뉴 펼침(사이드바·아래 6개 메뉴) | iframe 375px | **예** | screenshot-1794879370623-19.png |
 
 - 375 하단 캡처 없음: 영수증 화면이 375×812에서 **스크롤 불가**(아래 결함)라 하단을 화면에 띄울 방법이 없어 찍지 못함. 개발 도구 배지(N 1 Insight)는 iframe 안 닫기 버튼을 눌러도 닫히지 않아 그대로 찍힘(개발 서버 전용, 제품 화면 아님).
+
+## WS-20261117-20 (스크롤 복구·사이드바 영문)
+| 파일 | 화면 | 실제 화면 폭 | iframe 여부 | 원본 캡처 |
+|---|---|---|---|---|
+| 10-desktop-receipts-issue-before-ws20-cut.png | 수정 전 발행 탭 — 휠 10칸 뒤에도 scrollTop 0, 마지막 「볼타로 바로 발급」 아래 잘림 | 1560px | 아님 | screenshot-1794879624447-21.jpg |
+| 11-desktop-receipts-issue-after-ws20-bottom.png | 수정 후 휠로 끝까지(scrollTop 181=최대), 마지막 버튼·보관 안내 보임 | 1560px | 아님 | screenshot-1794879662063-22.jpg |
+| 12-375-iframe-receipts-after-ws20-bottom.png | 수정 후 375×812 iframe 휠로 끝까지(scrollTop 418=최대), 하단 보관 안내 보임 | iframe 375px | **예** | screenshot-1794879682981-26.png |
+| 13-desktop-en-sidebar-after-ws20.png | 영어 — 사이드바 아래 메뉴·칩·Other programs·Log out 영어(영수증 본문은 기존 한국어 전용) | 1560px | 아님 | screenshot-1794879809230-27.jpg |

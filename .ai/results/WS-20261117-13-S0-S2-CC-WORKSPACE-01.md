@@ -74,3 +74,12 @@
 - 범위 밖 보고(수정 0): en에서 남는 한국어 — 사이드바 아래 다른 5개 메뉴·「다른 프로그램 보기」·「로그아웃」(11-11 이전 추가), 설정 「AI 비서」 메뉴(`features/ai/AiLayer.tsx`, U3 10-24), 「내 계정」 화면(`features/settings/sections/account.tsx`, U2 10-24).
 - **새 결함(수정 0, 근거·범위 보고)**: 워크스페이스 안 영수증 화면이 내용이 화면보다 길면 스크롤 불가. 375 iframe에서 `.aww-guide.aww-receipts-view` 높이 768/내용 1101, overflow visible, 상위 `.lit-cursor-listener`·`.lit-body` overflow hidden → 아래 약 333px 접근 불가. 데스크톱도 내용이 길어지면 같음. 원인: WS17-17 `src/litpage/web/features/receipts/receiptsView.css`가 `.aww-guide`의 자체 스크롤을 `overflow: visible; height: auto`로 덮음. 최소 수정안: 같은 파일 `.aww-guide.aww-receipts-view { height: 100%; overflow-y: auto; }`(인쇄 때는 visible 유지) + 관련 DOM 시험. 관제 대시보드(`.aww-studio-dash`, min-height 100%)도 내용이 길면 같은 구조 위험 — 지금 데이터는 짧아 미재현.
 - QA019 보완: 외부 구글 연결은 계정에 있으나 자동 전송 경로 없음(`calPushToGoogle` 버튼 수동만, ICS 꺼짐, 로컬 워크스페이스 자동화 0) 확인 뒤 시험 달력에 카드 5장 추가(합계 6: 긴 제목 1·20일 4·25일 1). 긴 제목 말줄임 정상, 20일 4장 240px 칸 안에 들어가 「더 보기」 미발생(6장 제한으로 미검수). 월말·12월 상자 정상. Alt 실검수는 도구 한계로 그대로 미검수(자료 채움으로 대체 0).
+
+## 11. WS-20261117-20 영수증 스크롤 복구 + 사이드바 일반 라벨 영문 (Master msg_9b4f5d72ddf9)
+- 코드 `0b43be22c`: `receiptsView.css`(높이 100%·min-height 0·overflow-y auto, 인쇄는 height auto·overflow visible 유지, 기존 패딩·767px 패딩 그대로, 상위 파일 수정 0), `AimasterSidebar.tsx`(다른 프로그램 보기·링크 설명·메뉴 5개·칩 5개·회원 로그인 중·로그아웃 문구·설명 → tx), `i18n.literals.ko-KR.json` 13줄(기존 키 충돌 0 확인). 앱 이름·회원 이메일·링크·로그아웃 동작 변경 0.
+- 실측(데스크톱 1560, 발행 탭): 수정 전 client 1175/scroll 1276·휠 10칸 뒤 scrollTop 0·마지막 컨트롤 bottom 1227 > 화면 1219 → 수정 후 client 1175/scroll 1356·휠로 scrollTop 181=최대·마지막 컨트롤 bottom 1046·보관 안내 보임·휠 위로 0 복귀·가로 scrollWidth=clientWidth(1285).
+- 실측(375×812 iframe, 증빙 탭): 수정 후 client 768/scroll 1186·휠로 scrollTop 418=최대·하단 보관 안내 보임·문서 폭 375=화면 폭.
+- 관제 대시보드: 375 iframe에서 내용 768=영역 768(잘림 미재현) → 코드 수정 0, 스크롤 상자 없는 구조 위험만 유지.
+- 시험: `studioI18nDom` 9(사이드바 en/ko 라벨·칩·로그아웃, 이메일 보존 추가) 포함 관련 4파일 30/30. 스크롤은 jsdom이 아닌 실화면 수치로만 판정.
+- HMR 실화면: 한국어 기존 문구 그대로 → 영어로 바꿔 사이드바 전부 영어(영수증 본문·머리글은 기존 한국어 전용, 범위 밖) → 한국어 복원 확인.
+- 미검수 유지: 실인쇄(인쇄 규칙 소스만), Alt 복사 실조작, 실기기 375.
