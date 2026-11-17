@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T09:00:04.759Z",
+  "checkedAt": "2026-11-17T09:00:52.381Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -3033,13 +3033,13 @@
       "reviewer": "CX-MASTER-01",
       "title": "E4 Gmail함 기존기능/권한 대조와 최소범위 조사",
       "status": "running",
-      "delivery": "queued",
+      "delivery": "running",
       "scopeRef": "gmailInbox.ts·Gmail start/callback·gmailInbox.test.ts·본인 문서. runtime/UI/SQL 및 운영·실외부 제외",
-      "evidence": "PLAN 7-16 보완 3a7f4a254 검토; A1 OFF 서버/OAuth 구현 배정(수락 미확인)",
+      "evidence": "PLAN 7-16 3a7f4a254; msg_02e977ff972d 배정; CC-WORKSPACE-01 A1 착수 보고 수신: 새 Gmail 서버/OAuth/시험·고지 확인, runtime/UI/SQL/공용 변경0",
       "completion": "기존scope/재사용/최소파일/보관·해지/권한/동의 영향정리",
       "next": "A1 OFF 서버/OAuth 구현·격리 모의 검증. A2 inbox 성공후 claim기록 실패/응답유실·30일중복경계 보완 전 구현 보류",
       "sha": "3a7f4a254",
-      "lastReviewedAt": "2026-11-17T09:00:04.759Z"
+      "lastReviewedAt": "2026-11-17T09:00:52.380Z"
     },
     {
       "task_id": "WS-20261117-26",
