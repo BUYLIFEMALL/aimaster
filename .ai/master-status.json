@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T01:45:50.160Z",
+  "checkedAt": "2026-11-17T01:50:07.371Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2526,12 +2526,12 @@
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "priority": "P2",
       "title": "146 신규문구 ko/en·대시보드/영수증 제목 보완",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "Workspace0b43be22c/4122e2221·작성자실scroll desktopmax181/375max418끝control접근·ko-en복원·경량30",
-      "completion": "이번추가문구만기존tx사전연결/ko유지/en표시·studio/receipts제목·회원입력번역0·경량/로컬실화면검증",
-      "next": "Mac QA019 수정소스+캡처10~13 신규경계재검토,소스동결·실인쇄/Alt/실기기未검수·운영배포0",
-      "lastReviewedAt": "2026-11-17T01:45:50.160Z",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "Workspace0b43be22c/4122e2221·작성자실scroll desktopmax181/375max418끝control접근·ko-en복원·경량30 / msg_e72d5a8f9ae6 Mac 소스마감/실PNG10~13지정시각PASS",
+      "completion": "지정소스수정·독립검토완료·보이는desktop/375증빙하단/영문generic캡처PASS. 375발행끝/달력더보기/열린메뉴/실Alt·인쇄·실기기는범위미검수",
+      "next": "소스동결·WS13/QA019 마지막viewport/상태누락증거보완·운영배포0",
+      "lastReviewedAt": "2026-11-17T01:50:07.371Z",
       "sha": "6c5c225c2 + 0b43be22c"
     },
     {
@@ -2541,13 +2541,13 @@
       "reviewer": "CX-MASTER-01",
       "priority": "P2",
       "title": "146 실제캡처 독립시각검수",
-      "status": "ready",
-      "delivery": "queued",
+      "status": "ready_review",
+      "delivery": "returned",
       "scopeRef": "3PNG/manifest/146명세 읽기·자기QA결과만",
       "completion": "실제이미지관찰·desktop/375iframe 배치가독성 범위판정·축소/실기기미검수구분",
-      "evidence": "msg_8d2b1e6dd3c7 실PNG3장직접관찰·보이는범위PASS/모바일하단·달력오른쪽/밀집미검수 / 4122e2221 캡처10~13·실scroll수치",
-      "next": "Mac 스크롤/Sidebarkoen source+실PNG 하단·메뉴·언어최종검토,iframe/실인쇄Alt한계유지",
-      "lastReviewedAt": "2026-11-17T01:45:50.160Z"
+      "evidence": "msg_8d2b1e6dd3c7 실PNG3장직접관찰·보이는범위PASS/모바일하단·달력오른쪽/밀집미검수 / 4122e2221 캡처10~13·실scroll수치 / msg_e72d5a8f9ae6 최종10~13관찰PASS",
+      "next": "기존04~09미확인범위+375발행끝/달력더보기/열린메뉴마지막보완캡처대조후확인범위마감·실Alt인쇄별도",
+      "lastReviewedAt": "2026-11-17T01:50:07.371Z"
     },
     {
       "task_id": "QA-20261117-020",
@@ -2572,12 +2572,12 @@
       "priority": "P1",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "title": "워크스페이스 영수증 하단 스크롤 접근 복구",
-      "status": "ready_review",
-      "delivery": "returned",
-      "evidence": "Workspace0b43be22c/4122e2221·작성자실scroll desktopmax181/375max418끝control접근·ko-en복원·경량30",
-      "completion": "receiptsView.css높이/세로스크롤복구·printoverride보존·실desktop/375scrollTop끝control접근·가로넘침0/standalone불변",
-      "next": "Mac QA019 수정소스+캡처10~13 신규경계재검토,소스동결·실인쇄/Alt/실기기未검수·운영배포0",
-      "lastReviewedAt": "2026-11-17T01:45:50.160Z",
+      "status": "done",
+      "delivery": "integrated",
+      "evidence": "Workspace0b43be22c/4122e2221·작성자실scroll desktopmax181/375max418끝control접근·ko-en복원·경량30 / msg_e72d5a8f9ae6 Mac 소스마감/실PNG10~13지정시각PASS",
+      "completion": "지정소스수정·독립검토완료·보이는desktop/375증빙하단/영문generic캡처PASS. 375발행끝/달력더보기/열린메뉴/실Alt·인쇄·실기기는범위미검수",
+      "next": "소스동결·WS13/QA019 마지막viewport/상태누락증거보완·운영배포0",
+      "lastReviewedAt": "2026-11-17T01:50:07.371Z",
       "sha": "6c5c225c2 + 0b43be22c"
     }
   ],
