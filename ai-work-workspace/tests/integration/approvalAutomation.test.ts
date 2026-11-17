@@ -65,7 +65,8 @@ describe('E3-2 결재 템플릿 → 앱 알림 자동화 2개', () => {
     for (const a of autos) {
       expect(a.status).toBe('active');
       expect(a.created_by_id).toBe(owner.id);
-      expect(a.trigger.events[0]).toMatchObject({ type: 'property_edited', property: 'aSta' });
+      // E3-3: 요청 알림은 「결재 올림」 체크, 결과 알림은 상태
+      expect(a.trigger.events[0]).toMatchObject({ type: 'property_edited', property: a.properties.name!.includes('결재자') ? 'aSub' : 'aSta' });
       expect(a.actions[0].type).toBe('notify');
       expect(a.actions[0].external ?? []).toEqual([]);
     }
@@ -81,12 +82,12 @@ describe('E3-2 결재 템플릿 → 앱 알림 자동화 2개', () => {
     expect(notes(owner.id)).toHaveLength(0);
   });
 
-  it('상태를 「승인 요청」으로 → 결재자에게 앱 알림 1, 「승인」 → 요청자에게 1, 외부 발송 0', async () => {
+  it('「결재 올림」 체크 → 결재자에게 앱 알림 1, 「승인」 → 요청자에게 1, 외부 발송 0', async () => {
     const row = rowsOf(colId)[0];
     setProps(row.id, { aApr: person(owner.id), aReq: person(owner.id) });
     await engine.flushAutomations();
     expect(notes(owner.id)).toHaveLength(0); // 사람만 넣고 상태는 그대로 → 알림 없음
-    setProps(row.id, { aSta: [['승인 요청']] });
+    setProps(row.id, { aSub: [['Yes']] });
     await engine.flushAutomations();
     const n1 = notes(owner.id);
     expect(n1).toHaveLength(1);
@@ -103,7 +104,7 @@ describe('E3-2 결재 템플릿 → 앱 알림 자동화 2개', () => {
     const col = collectionOfPage((r.body as any).pageId)!;
     const row = rowsOf(col)[0];
     setProps(row.id, { aApr: person(stranger) });
-    setProps(row.id, { aSta: [['승인 요청']] });
+    setProps(row.id, { aSub: [['Yes']] });
     await engine.flushAutomations();
     expect(notes(stranger)).toHaveLength(0);
   });

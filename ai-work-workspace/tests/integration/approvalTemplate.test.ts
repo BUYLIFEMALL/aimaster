@@ -33,17 +33,19 @@ describe('E3-1 간단 전자결재 템플릿', () => {
     expect(list).toHaveLength(1);
     const d = list[0].description;
     expect(d).toMatch(/자동화/);
-    expect(d).toMatch(/편집 권한/);
+    // E3-3: 결재자 전용 칸과 전체 권한자 예외를 평문으로
+    expect(d).toMatch(/결재자로 선택된 사람만/);
+    expect(d).toMatch(/전체 권한자는 모든 칸을 바꿀 수 있습니다/);
     expect(d).not.toMatch(/결재자만 승인할 수 있/);
   });
 
-  it('속성 7개·종류, 상태 선택지 4개와 그룹(작성 중=시작 전, 승인 요청=진행, 승인·반려=완료)', () => {
+  it('속성 8개(E3-3 결재 올림 추가)·종류, 상태 선택지 4개와 그룹(작성 중=시작 전, 승인 요청=진행, 승인·반려=완료)', () => {
     const { col } = expand('simple-approval');
     const props = Object.values(col!.schema);
-    expect(props).toHaveLength(7);
+    expect(props).toHaveLength(8);
     const byName = Object.fromEntries(props.map((p) => [p.name, p]));
     expect(Object.fromEntries(props.map((p) => [p.name, p.type]))).toEqual({
-      '결재 건': 'title', 상태: 'status', 요청자: 'person', 결재자: 'person', 금액: 'number', '결재 의견': 'text', 결재일: 'date',
+      '결재 건': 'title', 상태: 'status', '결재 올림': 'checkbox', 요청자: 'person', 결재자: 'person', 금액: 'number', '결재 의견': 'text', 결재일: 'date',
     });
     expect(byName['금액'].number_format).toBe('won');
     expect(byName['상태'].options!.map((o) => o.value)).toEqual(['작성 중', '승인 요청', '승인', '반려']);

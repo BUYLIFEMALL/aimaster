@@ -5,11 +5,20 @@ import type { Operation } from '#shared/ops.ts';
 import type { BlockType, ParentTable, PropertySchema, PropertyType, SelectOption, ViewType } from '#shared/records.ts';
 import type { DateValue, RichText } from '#shared/richtext.ts';
 import { defaultStatusSchema } from '#shared/database/schema.ts';
+import { canRestrictProperty, DEFAULT_ACCESS_OPTIONS, DYNAMIC_OVERRIDE_ROLE_OPTIONS, MAX_RESTRICTED_PROPERTIES, type PropertyPermissions, type PropertyRole } from '#shared/database/propertyAccess.ts';
 import { encodeCheckbox, encodeDate, encodeNumber, encodeSelect, encodeText } from '#shared/database/values.ts';
 
 export type RowValue = string | number | boolean | string[] | { date: string; end?: string } | null | undefined;
 
+/**
+ * 2026-11-17 WS-20261117-24 E3-3: 코드에 적은 템플릿만 붙일 수 있는 속성 접근 규칙 표지.
+ * 기호(Symbol) 키라 JSON(가져오기·AI 도구가 넘기는 스키마)으로는 만들 수 없다 — 그쪽 경로는 지금처럼 규칙 없이 만든다.
+ */
+export const TEMPLATE_PROPERTY_ACCESS: unique symbol = Symbol('templatePropertyAccess');
+
 export interface DbPropSpec {
+  /** E3-3: 템플릿 속성 접근 규칙(검증을 통과한 알려진 모양만 복사, 틀리면 표 생성 전체 실패) */
+  [TEMPLATE_PROPERTY_ACCESS]?: PropertyPermissions;
   name: string;
   type: PropertyType;
   /** select / multi_select / status option names (status: [optionName, group] pairs allowed via statusGroups) */
@@ -159,6 +168,7 @@ export class OpsBuilder {
     const collectionId = newId();
     const schema: Record<string, PropertySchema> = {};
     for (const [pid, p] of Object.entries(db.schema)) schema[pid] = buildProperty(p);
+    for (const [pid, rule] of templatePropertyAccess(db.schema, schema)) schema[pid].property_permissions = rule;
     const rowIds: string[] = [];
     for (const row of db.rows) {
       const rowId = newId();
@@ -238,6 +248,54 @@ export function shortPropId(): string {
   let s = '';
   for (let i = 0; i < 4; i++) s += chars[Math.floor(Math.random() * chars.length)];
   return s;
+}
+
+/** E3-3: 템플릿 속성 접근 규칙 검사 실패 — 조용히 버리지 않고 표 만들기를 멈춘다(fail closed) */
+export class TemplatePropertyAccessError extends Error {}
+
+const DEFAULT_ACCESS_IDS = new Set<string>(DEFAULT_ACCESS_OPTIONS.map((o) => o.id));
+const DYNAMIC_ROLE_IDS = new Set<string>(DYNAMIC_OVERRIDE_ROLE_OPTIONS.map((o) => o.id));
+const isPlain = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v) && Object.getPrototypeOf(v) === Object.prototype;
+const onlyKeys = (v: Record<string, unknown>, keys: string[]) => Object.keys(v).every((k) => keys.includes(k));
+
+/**
+ * E3-3: 템플릿 속성 접근 규칙을 알려진 모양만 새 객체로 옮긴다. 하나라도 틀리면 TemplatePropertyAccessError.
+ * - default_access: 화면 목록 값만 / overrides: 「이 표의 사람 속성에 선택된 사람」·「페이지 만든 사람」 예외만
+ *   (특정 회원·그룹 예외는 템플릿이 남의 회원 번호를 담게 되므로 받지 않음)
+ * - property_info.property_id: 같은 표 schema에 있고 종류가 맞아야 함(person ↔ 사람 속성, created_by ↔ 'created_by' 또는 만든 사람 속성)
+ * - 역할: 사람 속성 예외 목록 값만 / 규칙을 걸 수 없는 속성(제목 등)·데이터베이스당 최대 개수 초과는 거절
+ */
+export function templatePropertyAccess(spec: Record<string, DbPropSpec>, built: Record<string, PropertySchema>): [string, PropertyPermissions][] {
+  const out: [string, PropertyPermissions][] = [];
+  const fail = (pid: string, why: string): never => {
+    throw new TemplatePropertyAccessError(`템플릿 속성 접근 규칙이 올바르지 않습니다(${pid}: ${why}).`);
+  };
+  for (const [pid, p] of Object.entries(spec)) {
+    if (!Object.prototype.hasOwnProperty.call(p, TEMPLATE_PROPERTY_ACCESS)) continue;
+    const raw: unknown = p[TEMPLATE_PROPERTY_ACCESS];
+    if (!isPlain(raw) || !onlyKeys(raw, ['default_access', 'overrides'])) fail(pid, '모양');
+    const r = raw as Record<string, unknown>;
+    if (typeof r.default_access !== 'string' || !DEFAULT_ACCESS_IDS.has(r.default_access)) fail(pid, 'default_access');
+    if (!canRestrictProperty(built[pid], pid)) fail(pid, '규칙을 걸 수 없는 속성');
+    const list = r.overrides === undefined ? [] : r.overrides;
+    if (!Array.isArray(list) || list.length > 10) fail(pid, 'overrides');
+    const overrides = (list as unknown[]).map((o) => {
+      if (!isPlain(o) || !onlyKeys(o, ['type', 'property_info', 'role'])) return fail(pid, '예외 모양');
+      if (o.type !== 'collection_property_permission') return fail(pid, '예외 종류');
+      if (typeof o.role !== 'string' || !DYNAMIC_ROLE_IDS.has(o.role)) return fail(pid, '예외 역할');
+      const info = o.property_info;
+      if (!isPlain(info) || !onlyKeys(info, ['property_id', 'type']) || typeof info.property_id !== 'string') return fail(pid, '예외 대상');
+      const target = built[info.property_id];
+      const ok = info.type === 'person' ? target?.type === 'person'
+        : info.type === 'created_by' ? info.property_id === 'created_by' || target?.type === 'created_by'
+          : false;
+      if (!ok) return fail(pid, `예외 대상 ${info.property_id}`);
+      return { type: 'collection_property_permission' as const, property_info: { property_id: info.property_id, type: info.type as 'person' | 'created_by' }, role: o.role as PropertyRole };
+    });
+    out.push([pid, { default_access: r.default_access as PropertyPermissions['default_access'], overrides }]);
+  }
+  if (out.length > MAX_RESTRICTED_PROPERTIES) throw new TemplatePropertyAccessError('템플릿 속성 접근 규칙이 너무 많습니다.');
+  return out;
 }
 
 function buildProperty(p: DbPropSpec): PropertySchema {
