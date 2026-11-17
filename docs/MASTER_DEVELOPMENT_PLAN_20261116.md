@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 09:05:38 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 09:08:49 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -39,7 +39,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 168개: done 139개 · cancelled 6개 · ready_review 15개 · running 3개 · ready 3개 · waiting_human 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 168개: done 139개 · cancelled 6개 · ready_review 15개 · running 2개 · ready 3개 · waiting_human 2개 · blocked 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -194,7 +194,7 @@
 | ESM-20261117-01 | CC-ECOM-01 | ready_review / returned | 주인님 직접 ESM 썸네일 등록·사용자 매뉴얼 | 썸네일실등록및독립이미지PASS·매뉴얼27ae+c909독립내용PASS/미배포묶음(v1.02후보),운영가이드아직v1.01·실ESM등록미검수 |
 | QA-20261117-008 | CX-QA-01 | done / integrated | ESM 운영안내·매뉴얼 누락 독립점검 | 다음esm묶음배포뒤운영가이드반영확인만·같은소스재검수없음 |
 | QA-20261117-009 | CX-QA-01 | done / integrated | OFF 포털 공유권한·토큰·속성투영 독립검수 | 만료토큰부활지정수정독립PASS 수락·실DB다중프로세스미검수·공개전환0 |
-| WS-20261117-13 | CC-WORKSPACE-01 | running / returned | 주인님 선택146 Professional Studio 전면리뉴얼 | Master 담당자에게정확PID/cwd/listen확인후3457동일명령1회재시작승인. aww_dev/쿠키/자료보존·실로그인확인→146실화면검수재개,실패반복/설치/빌드/운영DB0 |
+| WS-20261117-13 | CC-WORKSPACE-01 | blocked / returned | 주인님 선택146 Professional Studio 전면리뉴얼 | Master 메모리확보전Bash포함재시도중지. 담당자자기소유자원/로그읽기원인조사,타세션종료/설정변경/설치0. 여유확보뒤구체재개지시·지속세션실행구분검증,146실화면미착수 |
 | REL-20261117-006 | CC-REALTY-01 | done / integrated | 주인님 직접승인 매물알림v1.46 운영배포 | QA010읽기확인배정·ZIP압축해시차이/내부파일동일근거보존,새수집/알림/추가빌드0 |
 | QA-20261117-010 | CX-QA-01 | done / integrated | 매물알림v1.46 운영·확장버전 읽기확인 | Mac확장설치/실SW/첫격리/수집알림미검수·PC5대표시는다른PC상태,재반복0 |
 | RE-20261117-05 | CC-REALTY-01 | done / returned | 주인님 직접 상가 층진단 n30 재측정1회 | 클라이언트15초타임아웃·응답지역변수라회수실패·HTTP/건수미확인·추가공공API호출0,향후결과보관실행기개선안만기록 |
