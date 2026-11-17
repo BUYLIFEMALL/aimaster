@@ -327,6 +327,8 @@ async function validToken(userId: string, account: GmailAccount, force = false):
   }
   try {
     const t = await tokenRequest({ client_id: app.clientId, client_secret: app.clientSecret, refresh_token: account.refreshToken, grant_type: "refresh_token" });
+    // QA036 F02 잔여: 갱신 응답을 기다리는 사이 앱·연결 줄이 바뀌었으면 새 토큰을 덮어쓰지 않고 멈춤(저장 0·Gmail 0)
+    await sameAccountOrThrow(userId, account);
     await store.updateToken(userId, account.id, { accessToken: t.access_token, tokenExpiresAt: new Date(Date.now() + t.expires_in * 1000).toISOString(), refreshToken: t.refresh_token ?? null });
     return t.access_token;
   } catch (e) {
@@ -402,6 +404,11 @@ async function sameAccountOrThrow(userId: string, account: GmailAccount): Promis
   const now = await currentAccount(userId);
   if (!now) throw new GmailError("not_found", "Gmail 연결이 끊겼습니다. 다시 연결해 주세요.");
   if (now.externalId !== account.externalId) throw new GmailError("conflict", GMAIL_ACCOUNT_CHANGED_MESSAGE);
+  // QA036 F02 잔여: 같은 계정이라도 연결 줄이 바뀌었거나(다시 연결) 연결 때 앱·지금 회원 앱이 다르면 그 토큰을 쓰지 않음.
+  // 이 확인과 다음 외부 요청 사이의 아주 짧은 틈까지 막지는 못함(한계 — 다음 확인 지점에서 결과를 버림).
+  if (now.id !== account.id || now.appRef !== account.appRef) throw new GmailError("auth", "Gmail 연결이 그사이 바뀌었습니다. 목록을 새로 열어 주세요.");
+  const app = await store.getApp(userId);
+  if (!app || app.clientId !== account.appRef) throw new GmailError("auth", "구글 앱 키가 바뀌었습니다. 「Gmail 연결」을 다시 눌러 주세요.");
 }
 
 /** 이 워크스페이스의 Gmail 연결만 끊음(구글 토큰 폐기 호출 0 — 같은 구글 앱의 캘린더 등 다른 연결을 끊지 않기 위해) */

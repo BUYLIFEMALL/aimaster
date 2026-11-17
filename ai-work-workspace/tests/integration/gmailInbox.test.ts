@@ -587,3 +587,42 @@ describe('QA036 F03 — 같은 계정 새 연결을 이전 콜백의 정리가 �
     expect(rows.map((r) => [r.externalId, r.accessToken])).toEqual([['sub-A', 'ya29.from-C']]);
   });
 });
+
+// ---------------------------------------------------------------- QA036 F02 잔여(Mac msg_85a81e367fe4)
+describe('QA036 F02 잔여 — 토큰 갱신 응답을 기다리는 사이 앱·연결이 바뀜', () => {
+  async function expiredConnected() {
+    reset(true);
+    await gm.completeGmailConnect(USER, 'code', gm.appTagOf(CLIENT));
+    rows[0].tokenExpiresAt = new Date(Date.now() - 1000).toISOString();
+    hits = []; storeCalls.length = 0;
+  }
+  const gmailHits = () => hits.filter((h) => h.url.includes('gmail.googleapis.com')).length;
+  it('갱신 응답 대기 중 회원 앱이 새 앱으로 바뀜(계정 sub 그대로) → 새 토큰 저장 0·Gmail 0·재연결', async () => {
+    await expiredConnected();
+    tokenReply = () => { app = { clientId: 'new-client', clientSecret: 's' }; return json({ access_token: 'ya29.new', expires_in: 3600 }); };
+    await expect(gm.listGmailInbox(USER)).rejects.toMatchObject({ code: 'auth' });
+    expect(storeCalls.filter((c) => c === 'update')).toHaveLength(0);
+    expect(rows[0].accessToken).toBe('ya29.fake-access');
+    expect(gmailHits()).toBe(0);
+  });
+  it('갱신 응답 대기 중 같은 계정이 다시 연결됨(줄의 앱 표시 변경) → 새 토큰 저장 0·Gmail 0', async () => {
+    await expiredConnected();
+    tokenReply = () => { rows[0].appRef = 'new-client'; app = { clientId: 'new-client', clientSecret: 's' }; return json({ access_token: 'ya29.new', expires_in: 3600 }); };
+    await expect(gm.listGmailInbox(USER)).rejects.toMatchObject({ code: 'auth' });
+    expect(storeCalls.filter((c) => c === 'update')).toHaveLength(0);
+    expect(gmailHits()).toBe(0);
+  });
+  it('갱신 응답 대기 중 연결이 끊김 → 저장 0·Gmail 0', async () => {
+    await expiredConnected();
+    tokenReply = () => { rows = []; return json({ access_token: 'ya29.new', expires_in: 3600 }); };
+    await expect(gm.listGmailInbox(USER)).rejects.toMatchObject({ code: 'not_found' });
+    expect(storeCalls.filter((c) => c === 'update')).toHaveLength(0);
+    expect(gmailHits()).toBe(0);
+  });
+  it('회귀: 아무것도 안 바뀌면 갱신 저장 1·목록 정상', async () => {
+    await expiredConnected();
+    tokenReply = () => json({ access_token: 'ya29.new', expires_in: 3600 });
+    expect((await gm.listGmailInbox(USER)).items).toHaveLength(2);
+    expect(storeCalls.filter((c) => c === 'update')).toHaveLength(1);
+  });
+});
