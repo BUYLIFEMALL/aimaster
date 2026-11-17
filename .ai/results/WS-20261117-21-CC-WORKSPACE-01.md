@@ -39,3 +39,11 @@
 - 전체: tsc exit 0, vitest 46파일/402 통과, aww_dev oid 2204849 유지. 실제 구글·운영 DB·build 0.
 - 재검토 독립 재현 조건(Mac): ① `reconcileBooking` GET을 붙잡은 채 `bookingResolve absent` 또는 `expired` → 최종 상태 유지·알림 0 ② 같은 예약 확인 두 개 동시 → 확정 알림 1 ③ POST 응답 지연 중 상태 변경 → 덮어쓰기 0 ④ before/after 양 순서·맞닿음·설정 변경 후 보존(`before_min`/`after_min` 값 확인) ⑤ 다른 연결이 설정 행 잠금 중 토큰 교체·끄기·설정 변경 → 그 뒤 제출 null 또는 오류·구글 0·삽입 0.
 - 2A UI: `src/app/calendar-sync/BookingSettingsCard.tsx`만 미커밋 보존(나머지 UI 미착수).
+
+## 2B 배선(스위치 3개 OFF) — 코드 SHA `9c964f848` (Master msg_ad30304f069f·msg_708ceca6002f)
+- 범위: 수정 `src/server/runtime.ts`(+`bookingHandlers` 등록 2줄)·`src/server/publicPages.ts`(`getBookingSlots`·`submitBooking` 분기 8줄), 새 `src/app/book/[...path]/page.tsx`·`tests/integration/bookingWiring.test.ts`. UI(`764ffbfe4`)·서버(`5b1eb8b6c`) 무수정.
+- 정확한 입구: 회원 = `/api/rpc/booking{Get,Save,Off,List,Resolve}`(기존 JSON·sec-fetch-site·인가·기대 계정 409 그대로) / 손님 API = `/api/public/getBookingSlots`·`/api/public/submitBooking`(토큰은 JSON 본문 `token`만, 쿼리·경로 무시) / 손님 페이지 = `/book/<토큰>`(서버에서 `bookingSlots` 판정).
+- 시험 방식: **문자열 검사나 모듈 존재 확인이 아니라 실제 처리기 호출**이다 — `runtime.runRpc(...)`로 실제 등록된 처리기, `NextRequest`로 만든 요청을 실제 `/api/public/[name]` `POST` 함수에, 실제 페이지 컴포넌트 `default({ params })`를 격리 시험 DB에서 부른다. 모의는 `next/headers`(요청 머리글)·`@/lib/supabase/server`(쿠키 세션 미사용 확인용 감시)·구글 fetch(호출 수 세기)·예약 deps(토큰·이용 기간·받은 업무)뿐.
+- 근거(10/10, 커밋 직전 재실행 통과): OFF에서 import 뒤 예약 표 2개 `to_regclass` null·`scheduled_jobs` `booking:` 0·구글 0 / 회원 처리기 5개 실제 404 / 공개 두 명령 404 + `X-Robots-Tag: noindex`·`Cache-Control: private, no-store` / 형식 차단: text/plain 415·`sec-fetch-site: cross-site` 403·11KB 413(모두 같은 머리글, 그 뒤 표 0) / 같은 IP 121번째 429 / 페이지 OFF·빈 경로 notFound(digest 404), metadata robots·referrer·dynamic·fetchCache·revalidate가 포털 페이지와 같음, 포털 OFF 404 회귀 / 시험에서만 ON: runRpc bookingSave → 토큰, 공개 API로 빈 칸 200·예약 200 confirmed, **쿼리에만 토큰이면 404**, console에 토큰·손님 입력 0, `createClient` 호출 0, DB에 토큰 원문 0, 페이지가 BookingForm에 토큰·빈 칸 전달 / 다시 OFF → 같은 토큰 API·회원·페이지 모두 404.
+- 한계(명시): `/book/<토큰>`은 경로에 토큰이 있어 **플랫폼(호스팅) 접속 기록까지 원문 0은 보장하지 않음** — 앱이 남기는 기록·오류·분석에는 토큰·손님 입력을 넣지 않고, Referer 차단(no-referrer), API는 JSON 본문만.
+- 미실행: 전체 vitest 재실행(이번 변경 범위상 생략 — 직전 전체 실행은 서버 수정 시점 46/402), 실제 브라우저·운영·구글·build. UI 독립 결과(QA025)는 배선 PASS 근거로 쓰지 않음.
