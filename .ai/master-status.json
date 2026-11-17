@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T02:02:29.540Z",
+  "checkedAt": "2026-11-17T02:06:58.664Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2223,14 +2223,14 @@
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
       "status": "waiting_human",
       "delivery": "delivered",
-      "evidence": "msg_6d7a93569589 Mac QA012 누적소스PASS·hash739b35일치·작성자62근거분리 / msg_e7bf9e5ec131 릴리스초안 문구4건P2 / msg_7908deab7eff 20e51e602 객체이름의존성표·문서4건정정 / msg_2c7fadd530f9 bbca7e002 핵심RPC20인자대조 + Master Vercel project/env 직접확인 / msg_059ac8eead6e 로컬공개모드덮어쓰기0·운영배포스크립트고정대상발견 / msg_abacc5b993d3 921e5418a 実행자료/pre Lab읽기16·로컬구조11 조건부리허설 / msg_c71e3c91fe82 QA015 verify필수열권한/attempt CRUD/구조연결 P2 / msg_aa75bb4dd931 5dca84102 verify20·작성자18권한구조반례/로컬23 / msg_ce494f23b14b QA015 정책NULL집계누락 P2 / msg_fd616e3d87f2 3fb43971e 정책NULL반례검출/정상구조15·로컬24 / msg_e0ba89802fad QA015 누적준비패키지 정적PASS·정책순수3assert / msg_093889c364cc 직접승인·Master CLI project/queue 검사 / msg_fd9de59c3474 MCP승인10분만료·적용0·기록/표/함수/trigger없음읽기확인",
+      "evidence": "msg_6d7a93569589 Mac QA012 누적소스PASS·hash739b35일치·작성자62근거분리 / msg_e7bf9e5ec131 릴리스초안 문구4건P2 / msg_7908deab7eff 20e51e602 객체이름의존성표·문서4건정정 / msg_2c7fadd530f9 bbca7e002 핵심RPC20인자대조 + Master Vercel project/env 직접확인 / msg_059ac8eead6e 로컬공개모드덮어쓰기0·운영배포스크립트고정대상발견 / msg_abacc5b993d3 921e5418a 実행자료/pre Lab읽기16·로컬구조11 조건부리허설 / msg_c71e3c91fe82 QA015 verify필수열권한/attempt CRUD/구조연결 P2 / msg_aa75bb4dd931 5dca84102 verify20·작성자18권한구조반례/로컬23 / msg_ce494f23b14b QA015 정책NULL집계누락 P2 / msg_fd616e3d87f2 3fb43971e 정책NULL반례검출/정상구조15·로컬24 / msg_e0ba89802fad QA015 누적준비패키지 정적PASS·정책순수3assert / msg_093889c364cc 직접승인·Master CLI project/queue 검사 / msg_fd9de59c3474 MCP승인10분만료·적용0·기록/표/함수/trigger없음읽기확인 / msg_81937c0449b2 두번째승인창만료·실행0/메타데이터미적용재확인",
       "decision": {
         "resolved": true,
         "source": "msg_093889c364cc 주인님직접채팅 2026-11-17 필요한기능진행/DB적용+Lab빌드1회",
         "scope": "Lab0104적용+Lab원격빌드1회,실제결제시험은토스테스트키만·운영배포아님"
       },
-      "next": "기승인Lab0104 원본MCP요청 재제시 예정·사람도구입력후1회실행→verify20/지문→Master빌드1회. 이전요청실행0확인·자동반복/중복적용금지",
-      "lastReviewedAt": "2026-11-17T00:52:29.383Z",
+      "next": "도구승인준비신호대기·현재적용0/빌드0of1. 준비되면고정원문1회요청→verify20/지문→Master단독Lab빌드,자동반복금지",
+      "lastReviewedAt": "2026-11-17T02:06:58.664Z",
       "sha": "37fdcabb4 / 0104 739b35e9f20b45ba7c83309918da0cc099ca6a0b5715bf5514e755cb108662e6",
       "plannedMigration": "0104_exchange_fee_payments.sql (기존미적용0103 rename)",
       "migrationPath": "mall-builder/supabase/migrations/0104_exchange_fee_payments.sql",
@@ -2239,9 +2239,9 @@
       "blocker": {
         "reason": "Backend Supabase DEV MCP 도구 실행 입력창에서 사용자 Accept 대기. 기존 주인님 DB+빌드1회 승인은 유효",
         "owner": "주인님 도구승인창 직접응답 / 이후Backend",
-        "required": "Claude B2BBackend Supabase DEV project rjjtjakljjxsgjelqgek SQL 실행창 Accept",
-        "lastAttempt": "승인창10분만료·apply실행0·메타데이터읽기미적용확인,pre16정상/원문hash일치",
-        "next": "도구승인뒤Backendapply결과/verify20→MasterLab1빌드,다른경로중복실행금지"
+        "required": "주인님 Backend 도구승인창을 즉시 확인할 수 있다는 준비 응답, 이후 Master 1회 요청 연결",
+        "lastAttempt": "두번째MCP도구승인창10분만료·실행0·0104기록/표/함수/trigger없음재확인",
+        "next": "준비신호전반복요청0/우회0·기존개발승인유효·DB검증뒤MasterLab빌드1회"
       }
     },
     {
@@ -2970,8 +2970,8 @@
   "humanActions": [
     {
       "condition": "지금 · B2B Lab 도구 입력",
-      "action": "Claude(B2BBackend) Supabase DEV SQL 실행창 Accept",
-      "recommendation": "기존DB+Lab1빌드승인은유효,도구입력뒤검증→Master단독빌드;다른경로중복0"
+      "action": "Backend 도구승인창을 바로 확인할 수 있는 시점 알림 후 Accept",
+      "recommendation": "기존개발승인유효·두요청모두만료/실행0·준비후한번만재요청,DB검증뒤Lab1빌드"
     },
     {
       "condition": "실제 결제 검수 단계",
