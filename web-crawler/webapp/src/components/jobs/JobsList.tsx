@@ -1,54 +1,18 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { StatusBadge } from "@/components/jobs/StatusBadge";
+import { useActiveJobsRefresh } from "@/components/jobs/useActiveJobsRefresh";
 import { SendToWorkspaceButton } from "@/components/jobs/SendToWorkspaceButton";
 import { resumeJobAction, cancelJobAction } from "@/lib/actions/jobs";
 import type { Database, JobStatus } from "@/types/database.types";
 
 type Job = Database["public"]["Tables"]["web_crawler_jobs"]["Row"];
 
-const POLL_INTERVAL_MS = 5_000;
 const ACTIVE_STATUSES: JobStatus[] = ["pending", "running"];
 
 export function JobsList({ jobs }: { jobs: Job[] }) {
-  const router = useRouter();
-  const refreshedRef = useRef(false);
-
-  useEffect(() => {
-    const activeJobs = jobs.filter((job) => ACTIVE_STATUSES.includes(job.status));
-    if (activeJobs.length === 0) return;
-
-    refreshedRef.current = false;
-
-    const interval = setInterval(async () => {
-      if (refreshedRef.current) return;
-
-      const results = await Promise.all(
-        activeJobs.map(async (job) => {
-          try {
-            const res = await fetch(`/api/jobs/${job.id}/status`, { cache: "no-store" });
-            if (!res.ok) return null;
-            return (await res.json()) as { status: JobStatus };
-          } catch {
-            return null;
-          }
-        }),
-      );
-
-      const transitioned = results.some(
-        (result) => result && !ACTIVE_STATUSES.includes(result.status),
-      );
-
-      if (transitioned && !refreshedRef.current) {
-        refreshedRef.current = true;
-        router.refresh();
-      }
-    }, POLL_INTERVAL_MS);
-
-    return () => clearInterval(interval);
-  }, [jobs, router]);
+  // 진행 중 작업 상태 확인은 공용 코드(대시보드와 같음) — 2026-11-17 T-07.
+  useActiveJobsRefresh(jobs.filter((job) => ACTIVE_STATUSES.includes(job.status)).map((job) => job.id));
 
   if (jobs.length === 0) {
     return (

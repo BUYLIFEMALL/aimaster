@@ -5,6 +5,7 @@ import { StatusBadge } from "@/components/jobs/StatusBadge";
 import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
 import { PageHero } from "@/components/ui/PageHero";
 import { KpiCard } from "@/components/ui/KpiCard";
+import { ActiveJobsRefresher } from "@/components/jobs/ActiveJobsRefresher";
 import type { JobStatus } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
@@ -46,10 +47,13 @@ export default async function DashboardPage() {
   for (const job of jobs ?? []) counts[job.status] += 1;
   const recent = (jobs ?? []).slice(0, 8);
   const running = (jobs ?? []).filter((job) => job.status === "running");
+  // T-07(2026-11-17): 진행 중(pending·running) 작업이 있을 때만 작업 목록과 같은 공용 5초 확인을 켠다.
+  const activeJobIds = (jobs ?? []).filter((job) => job.status === "pending" || job.status === "running").map((job) => job.id);
   const intro = splitIntoSentenceParagraphs(program?.description || program?.short_desc || "");
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
+      {activeJobIds.length > 0 && <ActiveJobsRefresher ids={activeJobIds} />}
       <PageHero
         badge="🏠 대시보드"
         title="사이트 주소만 넣으면, 원하는 정보를 표로 모아 드려요"

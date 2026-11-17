@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:work-inbox": "node --test tests/work-inbox-content.test.cjs",
-    "test:inspect-robots": "node --test tests/inspect-robots.test.cjs"
+    "test:inspect-robots": "node --test tests/inspect-robots.test.cjs",
+    "test:jobs-poller": "node --test tests/active-jobs-poller.test.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",
