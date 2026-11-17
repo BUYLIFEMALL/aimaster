@@ -303,3 +303,5 @@ ESM-20261117-03 QA016 추가: CC-ECOM-01에 src/app/(dashboard)/products/[id]/pa
 WS-20261117-17 standalone 계정혼합 방어 확장: Workspace만 src/app/api/rpc/[name]/route.ts에 기존 인증 ID와 선택 expectedAccount 헤더 비교(불일치409·인가후 업무/AI처리전), src/lib/standaloneRpc.ts 호환 옵션 및 영수증 전용 bound RPC·Board/View/BoltaPanel/AmendPanel 전달·관련 경량 handler/React 모의시험 수정 허용. 기존 서버인가/헤더없는호출 보존·409자료/입력/인쇄숨김, 실DB/발급/외부AI/서버재가동/빌드0.
 
 WS-20261117-17 7485791ec 추가 연결 수용: Master diff 확인 후 inbox/page.tsx의 기존인가 user.id→InboxBoard accountKey 전달과 InboxBoard의 rcptReadText 기대계정/초안 account 저장만 최소연결로 기록. 받은 업무 전체 동작/권한 변경은 범위 밖이며 후속 경로 추가는 사전 보고.
+
+WS-20261117-18 CC-WORKSPACE-01: 주인님 둘째안만 선택. ai-work-workspace/src/app/settings/keys/KeysForm.tsx(+필요시 같은 page.tsx)에 기존 cal 읽기 RPC 연결 상태·캘린더 연동 화면 버튼 및 경량시험만. 기존 예정 일정 메뉴 숨김 금지, 서버/API/DB/OAuth/외부캘린더변경·로컬재가동·빌드 없음.
