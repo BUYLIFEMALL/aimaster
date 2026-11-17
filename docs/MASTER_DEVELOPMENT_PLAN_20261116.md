@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-17 16:20:27 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-17 16:35:53 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -13,14 +13,14 @@
 | 순서 | 담당 | 진행 단계 | 다음 작업·통과 기준 |
 | --- | --- | --- | --- |
 | 1 · ESM | Ecom + Mac Tester | v1.02 운영 배포·Mac 웹 회귀 완료 | 실ESM 등록/확장 연결은 별도 범위, 추가 빌드 없음 |
-| 2 · Workspace | Workspace + Master | v1.57운영·실예약시험/합성점유정리완료·초회DDL보완소스독립PASS | WS23 d7895f6d4 미배포다음묶음·추가build0·실409/숨은속성/실기기/cron未검수 |
+| 2 · Workspace | Workspace + Master | v1.57운영·실예약시험/합성점유정리완료·초회DDL보완소스독립PASS | WS24 E3-1구현회수 QA030·E3-2연계읽기조사·WS23다음묶음 |
 | 3 · B2B | Backend + Master + Mac Tester | 0104 도구승인창3회만료·적용0·Lab빌드0/1 | 주인님 Lab SQL편집기 precheck16→apply1회 직접실행후회신·Backend읽기verify20/함수/지문 |
-| 4 · B2BFront | B2BFront + Mac Tester | FRONT03 3색대비/hover수정 독립소스PASS·미배포 | FRONT03 f7120d185 회수·MacQA022 특히밝게3색hover소실검토 |
-| 5 · 블로그 | Blog | T05 robots+DNS수정독립소스PASS·미배포 | BLOG08 T05 robots최소경로분석배정·확장사람클릭은별도 |
-| 6 · 영상 | Movie | 떡상v1.30·사용량/캐시2표운영적용보고 | 실검색 시험로그인·AI기획안1회비용승인 전 유료호출0 |
-| 7 · 음악 | Music | 운영6프로그램 보고확보·가사취소안내1건미배포 | Mac 실제MP4 저장/장비조건·외부충전/공개조건 구분,반복검사0 |
-| 8 · 부동산 | Realty | 알림v1.46 운영·뉴스B프라임검증미통과/미반영 | RE07 고유분석파일 후보실험·전수라벨237건개발셋한정·운영미반영 |
-| 9 · 디자인 | AGY | 146 기준자산보존·대조요청 전달대기/착수미확인 | 기완료146중복검수종료요청·최신직접지시/후속독립작업확인대기 |
+| 4 · B2BFront | B2BFront + Mac Tester | FRONT03 3색대비/hover수정 독립소스PASS·미배포 | FRONT04 P3darkhover국소구현·기존5b02c3399미배포유지 |
+| 5 · 블로그 | Blog | T05 robots+DNS수정독립소스PASS·미배포 | BLOG09 공용폴러40662e6ae 회수 QA029독립검토 |
+| 6 · 영상 | Movie | 떡상v1.30·사용량/캐시2표운영적용보고 | MOV07 공용encoder P3원본+사본소스구현·실검색시험로그인별도 |
+| 7 · 음악 | Music | 운영6프로그램 보고확보·가사취소안내1건미배포 | MOV07소비자근거지원만·공용사본직접편집0·실MP4사람대기 |
+| 8 · 부동산 | Realty | 알림v1.46 운영·뉴스B프라임검증미통과/미반영 | RE07독립자료없음·개발표본반복0·자연회차근거만 |
+| 9 · 디자인 | AGY | 146 기준자산보존·대조요청 전달대기/착수미확인 | DES04예약요일명세발송·AGY수락미확인/전달보류 |
 | 전담 · 키트 | Support + 주인님 | 주인님 직접 작업 전담 | Master 타업무 배정 제외·다른 빌드예산 전용0 |
 
 ## 운영 순서
@@ -40,7 +40,7 @@
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 196개: done 175개 · cancelled 6개 · ready_review 10개 · running 2개 · waiting_human 2개 · ready 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 203개: done 175개 · cancelled 6개 · ready_review 12개 · running 2개 · waiting_human 2개 · ready 6개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -240,6 +240,13 @@
 | QA-20261117-027 | CX-QA-01 | done / integrated | v1.57 예약활성 운영 읽기전용 스모크 | 지정운영읽기마감·public주소/실Google는작성자결과별도·DDL경합잔여유지 |
 | WS-20261117-23 | CC-WORKSPACE-01 | done / integrated | 예약표 초회 초기화 경합 보완 | d7895f6d4 소스검토완료·미배포다음묶음·운영v1.57미반영/미래중첩tx한계유지 |
 | QA-20261117-028 | CX-QA-01 | done / integrated | 예약표 초회DDL 직렬화 독립검토 | d7895f6d4 소스검토완료·미배포다음묶음·운영v1.57미반영/미래중첩tx한계유지 |
+| WS-20261117-24 | CC-WORKSPACE-01 | ready_review / returned | E3-1 간단결재 요청관리 템플릿 | QA030독립검수·E3-2자동화생성읽기조사/미배포 |
+| BLOG-20261117-09 | CC-BLOG-01 | ready_review / returned | T07 대시보드/작업목록 공용자동갱신 | QA029독립검수·실화면/배포미검수 |
+| FRONT-20261117-04 | CC-B2B-FRONT-01 | ready / queued | P3 어두운테마 hover피드백 일관성 | globals/dark-header2파일최소구현·배포0 |
+| MOV-20261117-07 | CC-MOVIE-01 | ready / queued | 공용MP4 탭수명 fallback성공기억 P3 | 원본+정식사본동기화/모의시험·Music중복편집0 |
+| DES-20261117-04 | AG-UI-01 | ready / queued | 예약카드요일 체크박스 국소UI명세 | 실수신수락미확인·제품수정0·146반복검수종료 |
+| QA-20261117-029 | CX-QA-01 | ready / queued | BLOG09 공용폴러 독립검토 | 5초/숨김/중복/권한/세대/훅생명주기판정 |
+| QA-20261117-030 | CX-QA-01 | ready / queued | WS24 템플릿/그룹/한계 독립검토 | OpsBuilder/속성/상태그룹/기존회귀·전체결재기능아님 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-17T07:20:25.045Z",
+  "checkedAt": "2026-11-17T07:35:51.515Z",
   "method": "전체비교표102개+신규ESM, 담당세션실제회신·Git·문서대조. 제품전체운영재검증 아님.",
   "tasks": [
     {
@@ -2243,7 +2243,7 @@
       "title": "주인님기승인 D5 교환비 카드결제 b3 mock구현",
       "status": "waiting_human",
       "delivery": "delivered",
-      "evidence": "msg_6d7a93569589 Mac QA012 누적소스PASS·hash739b35일치·작성자62근거분리 / msg_e7bf9e5ec131 릴리스초안 문구4건P2 / msg_7908deab7eff 20e51e602 객체이름의존성표·문서4건정정 / msg_2c7fadd530f9 bbca7e002 핵심RPC20인자대조 + Master Vercel project/env 직접확인 / msg_059ac8eead6e 로컬공개모드덮어쓰기0·운영배포스크립트고정대상발견 / msg_abacc5b993d3 921e5418a 実행자료/pre Lab읽기16·로컬구조11 조건부리허설 / msg_c71e3c91fe82 QA015 verify필수열권한/attempt CRUD/구조연결 P2 / msg_aa75bb4dd931 5dca84102 verify20·작성자18권한구조반례/로컬23 / msg_ce494f23b14b QA015 정책NULL집계누락 P2 / msg_fd616e3d87f2 3fb43971e 정책NULL반례검출/정상구조15·로컬24 / msg_e0ba89802fad QA015 누적준비패키지 정적PASS·정책순수3assert / msg_093889c364cc 직접승인·Master CLI project/queue 검사 / msg_fd9de59c3474 MCP승인10분만료·적용0·기록/표/함수/trigger없음읽기확인 / msg_81937c0449b2 두번째승인창만료·실행0/메타데이터미적용재확인 / msg_0e0bbeb14f64 3회승인창만료·Accept0/실행0·대상객체0",
+      "evidence": "msg_6d7a93569589 Mac QA012 누적소스PASS·hash739b35일치·작성자62근거분리 / msg_e7bf9e5ec131 릴리스초안 문구4건P2 / msg_7908deab7eff 20e51e602 객체이름의존성표·문서4건정정 / msg_2c7fadd530f9 bbca7e002 핵심RPC20인자대조 + Master Vercel project/env 직접확인 / msg_059ac8eead6e 로컬공개모드덮어쓰기0·운영배포스크립트고정대상발견 / msg_abacc5b993d3 921e5418a 実행자료/pre Lab읽기16·로컬구조11 조건부리허설 / msg_c71e3c91fe82 QA015 verify필수열권한/attempt CRUD/구조연결 P2 / msg_aa75bb4dd931 5dca84102 verify20·작성자18권한구조반례/로컬23 / msg_ce494f23b14b QA015 정책NULL집계누락 P2 / msg_fd616e3d87f2 3fb43971e 정책NULL반례검출/정상구조15·로컬24 / msg_e0ba89802fad QA015 누적준비패키지 정적PASS·정책순수3assert / msg_093889c364cc 직접승인·Master CLI project/queue 검사 / msg_fd9de59c3474 MCP승인10분만료·적용0·기록/표/함수/trigger없음읽기확인 / msg_81937c0449b2 두번째승인창만료·실행0/메타데이터미적용재확인 / msg_0e0bbeb14f64 3회승인창만료·Accept0/실행0·대상객체0 / msg_1d3293ca0597 Lab0104없음읽기·d019222ca 출처5b02c3399재동결/기대7함수지문準備",
       "decision": {
         "resolved": true,
         "source": "msg_093889c364cc 주인님직접채팅 2026-11-17 필요한기능진행/DB적용+Lab빌드1회",
@@ -2844,6 +2844,97 @@
       "scopeRef": "d7895f6d4 booking2파일·소스/가능모의·DBreset/build0",
       "completion": "tx/lock세션/commit-ready/실패복구/OFF판정",
       "next": "d7895f6d4 소스검토완료·미배포다음묶음·운영v1.57미반영/미래중첩tx한계유지"
+    },
+    {
+      "task_id": "WS-20261117-24",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-WORKSPACE-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "E3-1 간단결재 요청관리 템플릿",
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "e297153b8·922e4d28e·msg_0186d3820539",
+      "next": "QA030독립검수·E3-2자동화생성읽기조사/미배포",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분"
+    },
+    {
+      "task_id": "BLOG-20261117-09",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-BLOG-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "T07 대시보드/작업목록 공용자동갱신",
+      "status": "ready_review",
+      "delivery": "returned",
+      "evidence": "40662e6ae/a3b9a7a16·msg_74121752d303",
+      "next": "QA029독립검수·실화면/배포미검수",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분"
+    },
+    {
+      "task_id": "FRONT-20261117-04",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-B2B-FRONT-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "P3 어두운테마 hover피드백 일관성",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "fa1f568c6·msg_9b6678fabf2b",
+      "next": "globals/dark-header2파일최소구현·배포0",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분"
+    },
+    {
+      "task_id": "MOV-20261117-07",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CC-MOVIE-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "공용MP4 탭수명 fallback성공기억 P3",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "분석반환·msg_2be051aafd0d",
+      "next": "원본+정식사본동기화/모의시험·Music중복편집0",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분"
+    },
+    {
+      "task_id": "DES-20261117-04",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "AG-UI-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "예약카드요일 체크박스 국소UI명세",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "msg_abd485b893fe·터미널화면읽기/전달보류",
+      "next": "실수신수락미확인·제품수정0·146반복검수종료",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분"
+    },
+    {
+      "task_id": "QA-20261117-029",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "BLOG09 공용폴러 독립검토",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "msg_6701f7855675",
+      "next": "5초/숨김/중복/권한/세대/훅생명주기판정",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분"
+    },
+    {
+      "task_id": "QA-20261117-030",
+      "parent_task_id": "OPS-20261116-001",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "WS24 템플릿/그룹/한계 독립검토",
+      "status": "ready",
+      "delivery": "queued",
+      "evidence": "msg_6701f7855675",
+      "next": "OpsBuilder/속성/상태그룹/기존회귀·전체결재기능아님",
+      "scopeRef": ".ai/FILE_OWNERSHIP.md",
+      "completion": "배정된소스/검증범위반환·실운영/배포미검수구분"
     }
   ],
   "programOverrides": [
@@ -3175,7 +3266,7 @@
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
       "stage": "v1.57운영·실예약시험/합성점유정리완료·초회DDL보완소스독립PASS",
-      "next": "WS23 d7895f6d4 미배포다음묶음·추가build0·실409/숨은속성/실기기/cron未검수"
+      "next": "WS24 E3-1구현회수 QA030·E3-2연계읽기조사·WS23다음묶음"
     },
     {
       "order": "3 · B2B",
@@ -3187,37 +3278,37 @@
       "order": "4 · B2BFront",
       "owner": "B2BFront + Mac Tester",
       "stage": "FRONT03 3색대비/hover수정 독립소스PASS·미배포",
-      "next": "FRONT03 f7120d185 회수·MacQA022 특히밝게3색hover소실검토"
+      "next": "FRONT04 P3darkhover국소구현·기존5b02c3399미배포유지"
     },
     {
       "order": "5 · 블로그",
       "owner": "Blog",
       "stage": "T05 robots+DNS수정독립소스PASS·미배포",
-      "next": "BLOG08 T05 robots최소경로분석배정·확장사람클릭은별도"
+      "next": "BLOG09 공용폴러40662e6ae 회수 QA029독립검토"
     },
     {
       "order": "6 · 영상",
       "owner": "Movie",
       "stage": "떡상v1.30·사용량/캐시2표운영적용보고",
-      "next": "실검색 시험로그인·AI기획안1회비용승인 전 유료호출0"
+      "next": "MOV07 공용encoder P3원본+사본소스구현·실검색시험로그인별도"
     },
     {
       "order": "7 · 음악",
       "owner": "Music",
       "stage": "운영6프로그램 보고확보·가사취소안내1건미배포",
-      "next": "Mac 실제MP4 저장/장비조건·외부충전/공개조건 구분,반복검사0"
+      "next": "MOV07소비자근거지원만·공용사본직접편집0·실MP4사람대기"
     },
     {
       "order": "8 · 부동산",
       "owner": "Realty",
       "stage": "알림v1.46 운영·뉴스B프라임검증미통과/미반영",
-      "next": "RE07 고유분석파일 후보실험·전수라벨237건개발셋한정·운영미반영"
+      "next": "RE07독립자료없음·개발표본반복0·자연회차근거만"
     },
     {
       "order": "9 · 디자인",
       "owner": "AGY",
       "stage": "146 기준자산보존·대조요청 전달대기/착수미확인",
-      "next": "기완료146중복검수종료요청·최신직접지시/후속독립작업확인대기"
+      "next": "DES04예약요일명세발송·AGY수락미확인/전달보류"
     },
     {
       "order": "전담 · 키트",
@@ -3254,17 +3345,16 @@
     }
   ],
   "redispatch": {
-    "at": "2026-11-17T03:17:30.405Z",
-    "backend": "msg_a99c52a12a97 queued_terminal_busy",
-    "workspace": "msg_c34e47266f97",
-    "front": "msg_c37e721cf22f",
-    "agy": "msg_995e1ba1b964 queued_terminal_busy",
-    "ecom": "msg_7cb09c69dc4f",
-    "blog": "msg_90fcfb9ec7a4",
-    "movie": "msg_d769826e8b08",
-    "music": "msg_1b17dd51f294",
-    "realty": "msg_c2d635036071",
-    "note": "발송접수는수락/착수확인과구분·Support주인님전담제외"
+    "at": "2026-11-17T07:35:51.515Z",
+    "workspace": "msg_0186d3820539",
+    "blog": "msg_74121752d303",
+    "front": "msg_9b6678fabf2b",
+    "backend": "msg_d15a57aed21d",
+    "movie": "msg_2be051aafd0d",
+    "music": "msg_ada1fa1f69aa",
+    "agy": "msg_abd485b893fe 전달보류/착수미확인",
+    "tester": "msg_6701f7855675 QA029→030",
+    "support": "주인님전담·재배정제외"
   },
   "qaQueue": "QA023 DNS수정→QA022 hover수정→QA024 예약·순차검수"
 }

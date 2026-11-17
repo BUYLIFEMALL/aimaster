@@ -326,3 +326,6 @@ WS21 2B CC-WORKSPACE-01: ai-work-workspace/src/server/runtime.ts 예약handlers�
 WS-20261117-22 활성화 주인님직접승인: CC-WORKSPACE-01단독 예약서버BOOKING_ENABLED·회원BOOKING_UI·손님BOOKING_FORM_UI3개활성,version.ts/정확versionSQL/기존문서·관련회귀만. 운영예약표2개정확정의·programs해당행·localbuild1/Vercel1·시험계정본인Google고정1일정검증/그생성id만정리허용. 포털OFF·새cron/타회원/실손님0,Mac쓰기/배포0. 실패자동추가빌드0·미완실검수분리.
 
 WS-20261117-23 CC-WORKSPACE-01: ai-work-workspace/src/server/booking.ts ensureTables와tests/integration/booking.test.ts만 advisory_xact_lock tx초회초기화직렬화/격리2연결검증. tablesReady commit성공후·OFF부작용0·타portal/receipts확대0·운영DDL/표삭제/추가build/deploy0. 시험예약잔여1행은cleanup SQL초안만,아직쓰기0.
+
+2026-11-17 후속 재배정: WS24 Workspace만 ai-work-workspace/src/litpage/server/content/catalog.ts·spec.ts·tests/integration/approvalTemplate.test.ts 결재요청템플릿/정확상태문구그룹(새DB/AI0). BLOG09 Blog만 web-crawler/webapp/src/lib/jobs/activeJobsPoller.ts·components/jobs/useActiveJobsRefresh.ts/ActiveJobsRefresher.tsx/JobsList.tsx·app/(dashboard)/dashboard/page.tsx·tests/active-jobs-poller.test.cjs·package.json시험명령·본인문서(설치/API/DB0).
+FRONT04 Front만 mall-builder/src/app/globals.css·tests/dark-header.test.mjs dark명시hover국소규칙/대비검사,theme변경0. MOV07 Movie만 shorts-onestop-studio/src/lib/render/mp4Encoder.ts원본과정식shared helper의shots/lyric/video-to-gif사본·기존mp4FileFallback관련시험·본인문서,Music공용편집0. DES04 AGY소스읽기명세만·제품편집0. 모든후속운영DDL/실외부/build/deploy0·QA029/030Mac독립읽기검수.
