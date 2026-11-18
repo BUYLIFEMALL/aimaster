@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 10:23:19 KST",
+  "checkedAt": "2026-11-18 10:26:05 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T01:23:19.216Z",
+      "at": "2026-11-18T01:26:05.172Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Ecom잔여수정/QA049 b34최종보고",
-      "scope": "3cb7c147e2파일diff·b34국소검수보존·새SHA재검수배정·Gmail준비ACK",
+      "trigger": "Mac QA049 3cb 잔여PASS권고 msg_86f8ab1545a0",
+      "scope": "독립2경계판정수락·기존Gemini한계후속단일배정",
       "evidence": [
-        "Ecom msg_266b5bdd0155·Master gitdiff",
-        "Mac b34최종msg_4deafed2310a·WS27대기ACK msg_48279938289c",
-        "새SHA독립검수 msg_13f58470284c"
+        "Mac 정확상한/6MiB/CL/stream cancel/guard408·실외부0",
+        "ECOM18-04 msg_6fdcdffd921d"
       ],
-      "judgment": "새수정자체통과를독립PASS로확대0·기존반례/한계보존. 운영배포추가0.",
+      "judgment": "ECOM18-03/QA049 지정소스범위완료수락·운영/실지원검증으로확대0. 기존Gemini반환경계서비스수정만후속배정.",
       "unverified": [
-        "3cb 독립판정·Gmail OAuth/실검증·Mac실화면"
+        "ECOM18-04 수락/경로/수정SHA·독립검수",
+        "Gmail OAuth실검증·Mac실화면"
       ],
-      "nextAction": "Mac신규반례/판정회수→필요시정확범위수정반환"
+      "nextAction": "후속경로/SHA회수→독립검수, 실API/배포0"
     },
     "notifications": [
       {
@@ -7266,13 +7266,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "새이미지3엔진 소스/가짜통신·키/응답경계 검수",
-      "status": "ready",
-      "delivery": "residual_fix_retest_dispatched",
+      "status": "done",
+      "delivery": "specified_source_scope_pass",
       "sha": "3cb7c147e",
-      "evidence": ".ai/results/QA-20261118-049-CX-QA-01.md / msg_ae43db14fe10·msg_a301cb82d277·b34최종msg_4deafed2310a·새SHAmsg_13f58470284c",
+      "evidence": ".ai/results/QA-20261118-049-CX-QA-01.md / msg_ae43db14fe10·msg_a301cb82d277·b34최종msg_4deafed2310a·새SHAmsg_13f58470284c·msg_86f8ab1545a0",
       "scopeRef": "고정SHA 읽기/기존패키지모의만·실이미지/키/네트워크/DB/build/새창0",
       "completion": "고정d21 신규이미지에P2 I-F01모델/I-F02응답/I-F03URL/I-F04timeout 반례, 기존3test/글귀/권한PASS와분리",
-      "next": "3cb 새총JSON상한/redirect경계 독립재검수·Gmail사람단계와중복호출0",
+      "next": "새Gemini반환보완SHA별도검수·현재실API/운영PASS아님",
       "lastReviewedAt": "2026-11-17T17:43:53.437Z",
       "findings": [
         "P2 OpenAI res.json 전체수신상한없음·ignored6MiB JSON수락",
@@ -7283,7 +7283,11 @@
         "sha": "b34cba02b",
         "result": "잔여P2 R-F01/R-F02·나머지국소PASS",
         "limits": "Gemini기존hello허용·공식지원/실API미검증·전엔진통합검사완료아님"
-      }
+      },
+      "limits": [
+        "Gemini기존hello허용별도후속",
+        "전체이미지디코드/공식모델실호출/실3xx/운영미검수"
+      ]
     },
     {
       "task_id": "B2B-20261118-03",
@@ -7321,12 +7325,12 @@
       "owner": "CC-ECOM-01",
       "reviewer": "CX-MASTER-01",
       "title": "이미지3엔진 QA049 안전경계 보완 구현",
-      "status": "ready_review",
-      "delivery": "residual_fix_retest_dispatched",
-      "evidence": "QA049중간msg_9ea5ee32f762·msg_21ed3b1edaab·msg_85526463335b 후속계획보고예고·런타임복구후 msg_3307ed544d53 전달·계획msg_9ef8951a4a40·조건부구현dispatch msg_29d6fb7d2025·readymsg_ffaf78f3fade·Macmsg_a301cb82d277·범위정정msg_77cb7fb78832·Mac중간msg_9e34bbcda285·수정msg_13cc1666f23c·수정msg_266b5bdd0155·Master2파일diff·Mac재검수msg_13f58470284c",
+      "status": "done",
+      "delivery": "source_qa_pass_unreleased",
+      "evidence": "QA049중간msg_9ea5ee32f762·msg_21ed3b1edaab·msg_85526463335b 후속계획보고예고·런타임복구후 msg_3307ed544d53 전달·계획msg_9ef8951a4a40·조건부구현dispatch msg_29d6fb7d2025·readymsg_ffaf78f3fade·Macmsg_a301cb82d277·범위정정msg_77cb7fb78832·Mac중간msg_9e34bbcda285·수정msg_13cc1666f23c·수정msg_266b5bdd0155·Master2파일diff·Mac재검수msg_13f58470284c·Mac잔여PASS msg_86f8ab1545a0",
       "scopeRef": "emotion-writer/src/lib/studio/{config,validation,services}.ts·src/app/api/image/route.ts·src/components/Workspace.tsx·src/app/(studio)/guide/page.tsx·tests/imageProvider.test.mjs·본인기존문서",
       "completion": "모델허용목록/strict응답·3MiB/URL follow제거/본문포함110s·parentAbort408; free/공식모델미확인 비활성·가짜통신 red-green/tsc·Mac재검수",
-      "next": "Mac 3cb 동일잔여2반례 재검수→판정·실호출/배포0",
+      "next": "미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리",
       "lastReviewedAt": "2026-11-18T01:23:19.216Z",
       "blockedReason": null,
       "constraints": [
@@ -7339,7 +7343,7 @@
       "validation": {
         "author": "imageProvider15/15·전체61/61·tsc0",
         "master": "services/test 두파일diff: readCapped총JSON상한·redirect:error 확인",
-        "independent": "Mac재검수대기"
+        "independent": "Mac 3cb R-F01/R-F02 국소PASS·6291511bytes거절/정확상한·CL/stream cancel/guard408"
       },
       "limits": [
         "엄격반환검사 새OpenAI/free만·Gemini 기존느슨한검사그대로(작성자인정)",
@@ -7360,6 +7364,21 @@
       "completion": "각slug문서의명시담당/당시버전/잔여/라이프사이클/근거절/확신/불일치·19건누락0,과거작성자=현활성담당추정0",
       "next": "기존창에서대기메시지수신/수락되면19문서대조. 메시지재발송/새창/다른세션중복배정0",
       "blockedReason": "실행수락미확인: Orca전달not_settled. AGY화면은빈prompt/기존background4개표시·그원인으로확정하지않음"
+    },
+    {
+      "task_id": "ECOM-20261118-04",
+      "parent_task_id": "ECOM-20261118-03",
+      "owner": "CC-ECOM-01",
+      "reviewer": "CX-QA-01",
+      "title": "Gemini 이미지 반환값 엄격검사 국소보완",
+      "status": "ready",
+      "delivery": "dispatch_sent",
+      "evidence": "msg_6fdcdffd921d·QA049기존hello경계",
+      "scopeRef": "services.ts 반환경계·실제정상fixture시험경로확인후·imageProvider.test.mjs·본인기존문서",
+      "completion": "공유strictBase64/imageDataUrl재사용·불량/MIME불일치/패딩/3MiB경계 red-green·정상3형식·guard/tsc·공용클라이언트/재시도/timeout불변",
+      "next": "정확시험경로/점유확인→국소구현/시험→SHA→Mac독립",
+      "constraints": "실통신/키/DB/build/deploy0·운영v1.30미변경·기존결함별도후속",
+      "lastReviewedAt": "2026-11-18T01:26:05.172Z"
     }
   ]
 }
