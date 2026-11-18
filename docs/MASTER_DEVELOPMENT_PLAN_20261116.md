@@ -1,10 +1,10 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 15:34:06 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 15:34:37 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 15:34:06 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 15:34:37 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
 점검 범위: 13로컬세션연결/이전보고기준상태·미완작업/사람목록·요청0·미등록문서증분0·최근감성제품커밋/실alias·SNS수정85 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
@@ -421,7 +421,7 @@ Master 마지막 실제 점검: 2026-11-18 15:34:06 KST · 실행 중 점검 주
 | QA-20261118-ESM-01 | CX-QA-01 | waiting_human / zip_source_versions_verified_installed_extension_and_login_pending | ESM v1.02 입력만·쇼핑제휴 v1.89 네이버 수집 실확장 준비/검수 | 기존 Mac 사람요청 한곳: ESM+/네이버로그인·확장실제설치버전·brandlink1 뒤 입력만/수집검수 |
 | ECOM-20261118-08 | CC-ECOM-01 | done / specified_source_review_pass_accepted_unreleased | Cloudflare 배경 생성 프롬프트 문자 혼입 보완 | 기존 배포후보 묶음에9ccfc8dfa 포함·실 무문자품질 추가생성은 별도승인·현재무료OFF소스유지 |
 | AIF-20261118-W01e | CC-SNS-01 | reviewing / revised_SQL85_static_review_dispatched | A1 자산 SQL 초안·순수 경로 검증 첫 구현 | Mac85 고정SHA 정적재검수→격리실행필요 여부판정·현재실SQL0 |
-| DES-20261118-08 | AG-UI-01 | reviewing / production_alias_SHA_verified_execution_ledger_pending | 감성 v1.34~37 주인님 직접지시 배포·모델확대 취합 | AGY기존보고 실제실행수/승인/제품트리/DBversion미확인 회수→소스검수범위확정 |
+| DES-20261118-08 | AG-UI-01 | reviewing / production_alias_SHA_verified_execution_ledger_pending | 감성 v1.34~37 주인님 직접지시 배포·모델확대 취합 | 정확배포제품트리/최신12모델·UI 검수범위정리·추가실행0·기존보고이력갱신 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
