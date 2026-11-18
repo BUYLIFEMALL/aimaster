@@ -37,19 +37,22 @@ import { effectiveFullWidth, isWorkDashboardPage } from './pageWidth.ts';
 type FormatKey = 'page_small_text' | 'page_full_width' | 'block_locked' | 'page_floating_table_of_contents' | 'page_discussions';
 
 /** Current boolean of a page setting (TOC and page discussions default to on). */
-export function pageSetting(page: BlockRecord | undefined, key: FormatKey): boolean {
+/** WS-20261118-06: 메뉴가 열린 자리. peek(옆·가운데 미리보기)는 본문이 현황판 기본 전체 너비를 쓰지 않으므로 스위치도 그 기본값을 쓰지 않는다 */
+export type PageMenuContext = { peek?: boolean };
+
+export function pageSetting(page: BlockRecord | undefined, key: FormatKey, ctx?: PageMenuContext): boolean {
   const f = (page?.format ?? {}) as any;
   if (key === 'page_floating_table_of_contents') return f.page_floating_table_of_contents !== false;
   if (key === 'page_discussions') return (f.page_section_visibility?.comments ?? 'section_show') !== 'section_hide';
   // 2026-11-18 WS-20261118-06: 업무 현황판은 값이 없으면 기본 전체 너비 — 본문(PageView)과 같은 판정이라 스위치가 화면과 맞고, 첫 토글이 명시 false를 저장
-  if (key === 'page_full_width') return effectiveFullWidth(f, isWorkDashboardPage(getUserPrefs(), page?.id));
+  if (key === 'page_full_width') return effectiveFullWidth(f, !ctx?.peek && isWorkDashboardPage(getUserPrefs(), page?.id));
   return !!f[key];
 }
 
-export function togglePageSetting(pageId: string, key: FormatKey) {
+export function togglePageSetting(pageId: string, key: FormatKey, ctx?: PageMenuContext) {
   const page = getBlock(pageId);
   if (!page) return;
-  const on = pageSetting(page, key);
+  const on = pageSetting(page, key, ctx);
   if (key === 'page_discussions') {
     const cur = ((page.format as any)?.page_section_visibility ?? {}) as Record<string, string>;
     run('toggle.page_discussions', (tx) => setFormat(tx, pageId, { page_section_visibility: { ...cur, comments: on ? 'section_hide' : 'section_show' } } as any));
@@ -66,9 +69,9 @@ export function togglePageSetting(pageId: string, key: FormatKey) {
   run(`toggle.${key}`, (tx) => setFormat(tx, pageId, { [key]: !on } as any));
 }
 
-function Switch({ pageId, k }: { pageId: string; k: FormatKey }) {
+function Switch({ pageId, k, ctx }: { pageId: string; k: FormatKey; ctx?: PageMenuContext }) {
   const page = useBlock(pageId);
-  const on = pageSetting(page, k);
+  const on = pageSetting(page, k, ctx);
   return <span role="switch" aria-checked={on} className={`nc-toggle ${on ? 'on' : ''}`} />;
 }
 
@@ -148,7 +151,7 @@ export function translatePage(pageId: string, language: string) {
   useUI.getState().toast(`Translating to ${language}…`);
 }
 
-export function openPageMenu(pageId: string, anchor: HTMLElement) {
+export function openPageMenu(pageId: string, anchor: HTMLElement, ctx?: PageMenuContext) {
   const page = getBlock(pageId);
   if (!page) return;
   if (!notifyCache.has(pageId)) {
@@ -184,7 +187,7 @@ export function openPageMenu(pageId: string, anchor: HTMLElement) {
         item(t('lp.page.small_text', 'Small text'), 'textSmall', { right: <Switch pageId={pageId} k="page_small_text" />, onSelect: keep(() => togglePageSetting(pageId, 'page_small_text')), disabled: !canEdit }),
         // a wiki's home has no Full width / Contents list
         ...(wiki ? [] : [
-          item(t('lp.page.full_width', 'Full width'), 'arrowExpandHorizontal', { shortcut: undefined, right: <Switch pageId={pageId} k="page_full_width" />, onSelect: keep(() => togglePageSetting(pageId, 'page_full_width')), disabled: !canEdit }),
+          item(t('lp.page.full_width', 'Full width'), 'arrowExpandHorizontal', { shortcut: undefined, right: <Switch pageId={pageId} k="page_full_width" ctx={ctx} />, onSelect: keep(() => togglePageSetting(pageId, 'page_full_width', ctx)), disabled: !canEdit }),
           item(t('lp.page.contents_list', 'Contents list'), 'tableOfContents', { right: <Switch pageId={pageId} k="page_floating_table_of_contents" />, onSelect: keep(() => togglePageSetting(pageId, 'page_floating_table_of_contents')), disabled: !canEdit }),
         ]),
         item(t('lp.page.page_discussions', 'Page discussions'), 'commentFilled', { right: <Switch pageId={pageId} k="page_discussions" />, onSelect: keep(() => togglePageSetting(pageId, 'page_discussions')), disabled: !canEdit }),

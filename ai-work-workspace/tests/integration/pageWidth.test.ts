@@ -81,6 +81,16 @@ describe('··· 메뉴(실제 pageSetting·togglePageSetting)', async () => {
     expect(pageSetting(block('dash') as never, 'page_small_text')).toBe(false);
     expect(pageSetting(block('dash', { page_small_text: true }) as never, 'page_small_text')).toBe(true);
   });
+  it('옆 미리보기(peek) 메뉴: 본문이 현황판 기본값을 쓰지 않으므로 값 없음=꺼짐·첫 토글 true, 명시 값은 그대로', () => {
+    expect(pageSetting(block('dash') as never, 'page_full_width', { peek: true })).toBe(false);
+    togglePageSetting('dash', 'page_full_width', { peek: true });
+    expect(pageSetting(block('dash', { page_full_width: true }) as never, 'page_full_width', { peek: true })).toBe(true);
+    expect(pageSetting(block('dash', { page_full_width: false }) as never, 'page_full_width', { peek: true })).toBe(false);
+    togglePageSetting('dash', 'page_full_width', { peek: true });
+    expect(h.writes.map((w) => w.patch.page_full_width)).toEqual([true, true]);
+    // 본문(PageView)이 peek에서 쓰는 판정과 같은 값: 현황판 아님으로 계산
+    expect(effectiveFullWidth({}, false)).toBe(false);
+  });
   it('현황판 설정이 없으면(다른 회원 등) 값 없는 페이지는 꺼짐', () => {
     h.prefs = {};
     expect(pageSetting(block('dash') as never, 'page_full_width')).toBe(false);

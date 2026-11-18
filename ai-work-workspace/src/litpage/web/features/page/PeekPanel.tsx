@@ -76,7 +76,7 @@ export function PeekPanel({ pageId, mode }: { pageId: string; mode: 'side_peek' 
       <PreviewAddTo pageId={pageId} />
       <div className="spacer" />
       <ShareButton pageId={pageId} />
-      <div ref={moreRef} role="button" className="nc-btn icon-only" aria-label={tx('Actions')} data-tooltip={tx('Style, export, and more…')} onClick={() => moreRef.current && openPageMenu(pageId, moreRef.current)}>
+      <div ref={moreRef} role="button" className="nc-btn icon-only" aria-label={tx('Actions')} data-tooltip={tx('Style, export, and more…')} onClick={() => moreRef.current && openPageMenu(pageId, moreRef.current, { peek: true })}>
         <Icon name="ellipsis" size={20} />
       </div>
     </div>
@@ -174,7 +174,7 @@ function SidePeekHeader({ pageId, mode, onSwitch, nav }: { pageId: string; mode:
         <div role="button" aria-label={tx('Favorite')} className="nc-topbar-icon-btn lit-topbar-favorite-button" data-tooltip={fav ? tx('Remove from favorites') : tx('Add to favorites')} onClick={() => toggleFavorite(pageId)}>
           <Icon name="star" size={18} style={{ color: fav ? '#78350f' : 'var(--lp-icon-primary)', fill: fav ? '#78350f' : 'none' }} />
         </div>
-        <div ref={moreRef} role="button" aria-label={tx('Actions')} className="nc-topbar-icon-btn lit-topbar-more-button" data-tooltip={tx('Style, export, and more…')} onClick={() => moreRef.current && openPageMenu(pageId, moreRef.current)}>
+        <div ref={moreRef} role="button" aria-label={tx('Actions')} className="nc-topbar-icon-btn lit-topbar-more-button" data-tooltip={tx('Style, export, and more…')} onClick={() => moreRef.current && openPageMenu(pageId, moreRef.current, { peek: true })}>
           <Icon name="ellipsis" size={22} style={{ color: 'var(--lp-icon-primary)' }} />
         </div>
       </div>
