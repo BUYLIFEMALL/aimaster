@@ -4129,20 +4129,35 @@
       "title": "실제 없는 seed 잠금 표시 4곳 정정",
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
-      "status": "ready_review",
-      "delivery": "source_four_labels_ready_independent_review_dispatched",
+      "status": "done",
+      "delivery": "four_ui_claim_corrections_source_ssr_review_accepted_unreleased",
       "scopeRef": "ControlPanel.tsx·ImageDisplay.tsx 표시문구4곳·기존문서만",
       "completion": "seed LOCK/동일얼굴보증 제거·실제기준사진참고 안내·API/생성요청불변·tsc/기존검사",
       "constraints": "자산/삭제/예약/공용/DB/프롬프트/실AI/비용/build/push0·타미커밋보존",
-      "next": "Mac실제표시4곳소스검수·내점유표정정·실화면/운영미확인",
-      "evidence": "msg_27e5ab5f4e13·Master4파일diff확인·Macmsg_8612c143b98c",
-      "lastReviewedAt": "2026-11-18T05:02:05.366Z",
+      "next": "미배포묶음보존·실브라우저/모델품질미검수·다음W01b 기존보관예외",
+      "evidence": "msg_27e5ab5f4e13·Master4파일diff확인·Macmsg_8612c143b98c · MacPASSmsg_eb064386849e·점유정리e95ad3ee4/역할af36bb467",
+      "lastReviewedAt": "2026-11-18T05:03:34.884Z",
       "sha": "5b9018d50",
       "validation": {
         "author": "tsc0·기존18/18·금지표시잔여0·NOTICE0",
         "master": "ControlPanel/ImageDisplay 문구4곳·동작/API/props불변diff확인",
-        "independent": "순차배정·결과대기"
+        "independent": "정확4파일문구4곳/동작불변diff·실제ReactSSR4상태 국소PASS·실화면/유료/실모델미검수"
       }
+    },
+    {
+      "task_id": "AIF-20261118-W01b",
+      "parent_task_id": "AIF-20261118-W00",
+      "title": "기존 히스토리 자동정리의 보관예외 보호",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-QA-01",
+      "status": "dispatched",
+      "delivery": "existing_history_retention_exception_source_assigned",
+      "scopeRef": "새retentionExempt helper·기존history GET/POST·시험/기존문서, 새자산/스키마불변",
+      "completion": "paid/manual예외자동삭제0·목록30응답제한만·예외조회실패failclosed·일반/회원경계·수동DELETE회귀",
+      "constraints": "실삭제/운영DB/유료/새의존성/build/push0·본체PLAN/권한미반영과독립인기존표만",
+      "evidence": "W00G3/P1근거·Master실history GET/POST 코드확인·기존공용helper경로확인",
+      "next": "정확범위착수/SHA·실handler모의/tsc→Mac검수",
+      "lastReviewedAt": "2026-11-18T05:03:34.884Z"
     }
   ],
   "programOverrides": [
@@ -4646,24 +4661,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:02:05.366Z",
+      "at": "2026-11-18T05:03:34.884Z",
       "timezone": "Asia/Seoul",
-      "trigger": "14:00 KST 정기메시지 수신·SNS완료/CRM반례",
-      "scope": "19카테고리/261작업변경·미등록문서/인수인계·점유/요청함·예약receipt·SNS표시범위·CRM실응답계약",
+      "trigger": "SNS 제품국소PASS·상태정리",
+      "scope": "W01a수락·기존history위험/새자산계약과독립범위·후속 source배정",
       "evidence": [
-        "msg_cb23b3fb7507 현재Master수신/receipt일치·새창0",
-        "dev-requests0·변경scan W00/rolesSNS/pdca(다른변경보존)",
-        "SNS5b9018d50 4파일diff·Mac순차배정",
-        "CRMmsg_48b92d818766·단일HTTP통과/분류반례반환",
-        "ACTIVE_WORK CRM/SNS옛행문구정정요청·ECOM중앙범위예약"
+        "msg_eb064386849e ReactSSR4상태",
+        "msg_9adc0fe02991/e95ad3ee4/af36bb467",
+        "Master실history GET/POST 자동30일/개수삭제 및helper존재확인"
       ],
-      "judgment": "정기점검완료. SNS소스완료검수대기·중앙키등록진행. CRM단일HTTP지정확인되나모순응답분류P2수정필요. 기존사람단계/배포미승인유지·새작업중복0.",
+      "judgment": "표시수정소스수락·기존history보관예외를작은독립단위로배정. 새자산/PLAN권한병합전자산구현금지유지·실삭제/운영0.",
       "unverified": [
-        "CRM응답계약보완/고정최종",
-        "SNS표시검수·계약PLAN병합",
-        "중앙/감성카드SHA·기존사람단계/운영상태이번새검증0"
+        "W01b착수/검수",
+        "전체보관정책집행·게시공용위험·운영실화면"
       ],
-      "nextAction": "각새SHA/검수회수·14:30기존대화메시지만·운영/새비용0"
+      "nextAction": "각제품SHA/독립결과회수·본체계약선행보존"
     },
     "notifications": [
       {
