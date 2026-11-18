@@ -4563,17 +4563,17 @@
       "owner": "CC-BLOG-01",
       "reviewer": "CX-MASTER-01",
       "title": "T08 구형 ghost-scraper 백업후정리 승인범위 구체화",
-      "status": "reviewing",
-      "delivery": "cleanup_static_pass_tsc_compile_pass_existing_Next_security_build_stop",
-      "evidence": "주인님직접msg_6c2b57cab944·website기존Mac결과msg_efecea98d20b · msg_4ee74b44d30f 준비착수·세배포완료 · msg_e82ddbc669e0/a03a74190 정확안·실행배정msg_b4bd370c57de · msg_22e3ec0d95dd/e038·tag/77archive Master직접대조·Macmsg_d974b8c4bde8 정적PASS · msg_2c96641e6325 tsc0/compile통과·기존Next16.4.2 SecurityFatalError exit1/반복0·nextenv해시불변·백업문구정정",
+      "status": "done",
+      "delivery": "approved_19_file_cleanup_backup_tag_static_and_limited_local_validation_accepted",
+      "evidence": "주인님직접msg_6c2b57cab944·website기존Mac결과msg_efecea98d20b · msg_4ee74b44d30f 준비착수·세배포완료 · msg_e82ddbc669e0/a03a74190 정확안·실행배정msg_b4bd370c57de · msg_22e3ec0d95dd/e038·tag/77archive Master직접대조·Macmsg_d974b8c4bde8 정적PASS · msg_2c96641e6325 tsc0/compile통과·기존Next16.4.2 SecurityFatalError exit1/반복0·nextenv해시불변·백업문구정정 · msg_b7d21f97912b fd140aeff/caaf15fb5 백업EOL/검증한계/안전복원정정·선택다확정재통보",
       "constraints": "세배포뒤정확삭제범위/백업/태그선행·안내/410보존·비밀/env/node_modules백업제외·새빌드/공유push0 · 백업기존덮기0/태그push0/추적비밀파일있으면중단·next-env남의변경보존·전체폴더이동/재귀삭제0·tsc/buildCRM뒤",
-      "next": "최종문서SHA/점유해제후완료판정·Next보안후속기록/추가build0",
-      "lastReviewedAt": "2026-11-18T08:20:37.447Z",
+      "next": "미배포유지·기존Next보안후속/실runtime미검수·T03회원캐시플랜진행",
+      "lastReviewedAt": "2026-11-18T08:21:22.527Z",
       "sha": "e038f405e",
       "scopeRef": "ghost-scraper tree436c0f813·문서§2-3 19파일·package test1·보존안내/410/고지/SQL/docs",
       "validation": {
         "author": "19삭제/package1·추적77→58·백업태그선행·미배포/운영0·runtime의magiclink실행안함 · tsc1회0/로컬build1회compile통과후security정지exit1·기존dependency동일/삭제결함아님·runtime0",
-        "master": "tagpeeled2706fc0b5·실backup77 raw8/LF정규화69일치/그밖0·CRMheavy종료후tsc/build1허용 · 선택다제한마감/같은명령우회0·기존Next패치후속·문서최종확인예정",
+        "master": "tagpeeled2706fc0b5·실backup77 raw8/LF정규화69일치/그밖0·CRMheavy종료후tsc/build1허용 · 선택다제한마감/같은명령우회0·기존Next패치후속·문서최종확인예정 · 최종문서근거수신·PowerShell텍스트리다이렉트대신binarysafe명시파일복원권고·현재복원0·정리수락",
         "independent": "삭제정확19·남은58 참조0·안내410/logout/cookie/고지SQL보존·defaulttest제거타당·복원checkout예시문구정정필요·실runtime0"
       }
     },
@@ -5237,21 +5237,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T08:20:37.447Z",
+      "at": "2026-11-18T08:21:22.527Z",
       "timezone": "Asia/Seoul",
-      "trigger": "T08 local검증완료/기존보안차단",
-      "scope": "타입0/compile통과 vsNext security exit1·백업EOL/원복문구·다음T03scope",
+      "trigger": "T08 최종기록마무리",
+      "scope": "정확백업/줄바꿈·안전복원/기존Next차단한계·중복판단질문해소",
       "evidence": [
-        "msg_2c96641e6325",
-        "Macmsg_d974b8c4bde8/b26a5448dd57"
+        "msg_b7d21f97912b/fd140aeff/caaf15fb5",
+        "기존선택다msg_c0d8c59bbaec"
       ],
-      "judgment": "cleanup제품참조/타입검증수락·전체build성공주장0/우회재실행0·기존보안후속분리·회원캐시읽기설계다음배정",
+      "judgment": "T08기승인정리완료수락/미배포·전체build성공주장0·선택다재질문해소·T03후속계속",
       "unverified": [
-        "T08문서최종SHA/점유해제",
+        "옛Next보안업데이트/실runtime",
         "SNSIO모의결과",
-        "CRM사람문자실검수"
+        "CRM주인님폼SMS1/중복0"
       ],
-      "nextAction": "T08기록확정→T03계약회수·기존승인예산추가0"
+      "nextAction": "T03플랜/IO결과/사람완료신호회수·운영추가실행0"
     },
     "notifications": [
       {

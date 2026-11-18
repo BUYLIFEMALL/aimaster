@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 17:20:37 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 17:21:22 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 17:20:37 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 17:21:22 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 타입0/compile통과 vsNext security exit1·백업EOL/원복문구·다음T03scope · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 정확백업/줄바꿈·안전복원/기존Next차단한계·중복판단질문해소 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 17:20:37 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 285개: done 263개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 7개 · superseded 1개 · reviewing 2개 · dispatched 2개 · queued 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 285개: done 264개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 7개 · superseded 1개 · reviewing 1개 · dispatched 2개 · queued 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -427,7 +427,7 @@ Master 마지막 실제 점검: 2026-11-18 17:20:37 KST · 실행 중 점검 주
 | AIF-20261118-W01h | CC-SNS-01 | done / default_off_route_mock_integration_specified_independent_PASS_accepted | 원본 저장 OFF 기본 라우트 연결·모의 통합 | W01i OFF 기본 원본 자산 조회 모의단위 |
 | AIF-20261118-W01i | CC-SNS-01 | done / exact_signed_object_read_route_specified_mock_review_pass_accepted | 원본 자산 조회 OFF 기본 경로·모의시험 | A1 OFF소스완료표/운영보관정리 선행조건 취합 |
 | BLOG-20261118-02 | CC-BLOG-01 | done / three_releases_complete_existing_data_screen_review_limited_accepted | 승인된 블로그3프로그램 순차묶음 배포 | T08승인정리정확백업/삭제범위검토·실Excel/폴러/T05분석·새생성효과미검수별도 |
-| BLOG-20261118-03 | CC-BLOG-01 | reviewing / cleanup_static_pass_tsc_compile_pass_existing_Next_security_build_stop | T08 구형 ghost-scraper 백업후정리 승인범위 구체화 | 최종문서SHA/점유해제후완료판정·Next보안후속기록/추가build0 |
+| BLOG-20261118-03 | CC-BLOG-01 | done / approved_19_file_cleanup_backup_tag_static_and_limited_local_validation_accepted | T08 구형 ghost-scraper 백업후정리 승인범위 구체화 | 미배포유지·기존Next보안후속/실runtime미검수·T03회원캐시플랜진행 |
 | BLOG-20261118-04 | CC-BLOG-01 | dispatched / owner_member_scoped_cache_decision_bounded_existing_plan_design_assigned | T03 도메인 구조 캐시 회원별 격리 결정 반영 | 웹/Render/DBdataflow·회원신뢰/키/옛캐시격리/동시성/RLS/rollback/운영승인범위한안 |
 | AIF-20261118-W01j | CC-SNS-01 | done / OFF_source_completion_and_activation_blockers_reconciled | A1 OFF소스완료표·운영선행 보관/정리 조건 취합 | W01k 30일보관정리 첫계약·운영ON차단유지 |
 | AIF-20261118-W01k | CC-SNS-01 | done / retention_R2_static_contract_accepted_with_implementation_conditions | 원본 자산 일반30일 정리 연결 첫계약 | W01l OFF 보관정리 SQL초안/실행기 모의첫구현 |
