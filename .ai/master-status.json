@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T18:32:15.461Z",
+  "checkedAt": "2026-11-18T18:32:59.458Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5748,13 +5748,17 @@
       "parent_task_id": "WS-20261119-01",
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace v1.61 기존 중단 빌드 로그 진단",
-      "status": "queued",
-      "delivery": "cancelled_build_read_only_diagnosis_dispatched",
+      "status": "waiting_human",
+      "delivery": "stalled_stage_confirmed_retry_approval_pending",
       "sha": "30bcfdee1",
       "evidence": "cbfe4b86e·msg_4c3fbd7968b1",
       "constraints": "기존 근거 읽기만. 재빌드·배포·push·운영 설정/DB 변경 0.",
-      "next": "기존 v1.60 성공 로그와 중단 지점을 대조하고 재시도 조건 반환.",
-      "lastReviewedAt": "2026-11-18T18:32:15.461Z"
+      "next": "원인 미확인. 승인 후 팀 빌드·대기 0 확인, 재시도 1회, Collecting 단계 2분 초과 시 취소. 운영 v1.60 유지.",
+      "lastReviewedAt": "2026-11-18T18:32:59.458Z",
+      "validation": {
+        "author": "컴파일·타입 통과 후 Collecting 약 11분 무출력. 성공판 같은 단계 35.4초. 시작 시 동시 빌드 0, 이후 11번가 약 8분 대기 보고.",
+        "master": "v1.60~v1.61 제품 변경 3파일 및 html.ts의 기존 정적 import 경로 확인."
+      }
     }
   ],
   "programOverrides": [
