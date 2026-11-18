@@ -5050,15 +5050,18 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "워크스페이스 v1.60 캘린더·현황판 운영 배포",
-      "status": "running",
-      "delivery": "v160_release_authorized_and_workspace_single_executor",
-      "sha": "172e3f41f",
+      "status": "reviewing",
+      "delivery": "v160_production_ready_alias_verified_screen_pending",
+      "sha": "36af44608",
       "scopeRef": "40896d037·236415698·172e3f41f 및 v1.60 표시",
       "constraints": "프로덕션 1회. Gmail/운영 SQL/설정/DB 버전/push 0.",
       "completion": "로컬 build·앱 범위/팀 대기 확인→프로덕션 alias READY→기존 화면 확인",
-      "evidence": "주인님 직접 배포 보고·기존 alias dpl_3TyMVfb6WGcXbxVgtYZ38699Upfr·팀 대기/실행0·msg_183b3e4d30a5",
-      "next": "고정 버전 및 실 배포 ID/화면 근거 회수.",
-      "lastReviewedAt": "2026-11-18T14:10:41.967Z"
+      "evidence": "주인님 직접 배포 보고·기존 alias dpl_3TyMVfb6WGcXbxVgtYZ38699Upfr·팀 대기/실행0·msg_183b3e4d30a5 / 36af44608 / dpl_DC9Bifer8U1oZ67QFRJNkaAQ1Pj6",
+      "next": "운영 공식 별칭 READY. 담당 기존 로그인 화면 검수·로컬 빌드 결과 회수.",
+      "lastReviewedAt": "2026-11-18T14:11:34.243Z",
+      "validation": {
+        "master": "Vercel 공식 별칭 ID/READY/prod 및 Git 메타 36af44608 일치. 172e3f41f 이후 src 변경은 표시 version.ts만."
+      }
     }
   ],
   "programOverrides": [
@@ -5577,20 +5580,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T14:10:41.967Z",
+      "at": "2026-11-18T14:11:34.243Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Workspace v1.60 운영 지시 및 G5 초안 회신",
-      "scope": "워크스페이스 승인 범위·기존 별칭·팀 대기/실행과 G5 열린 탭 계약 확인.",
+      "trigger": "Workspace v1.60 운영 READY 및 별칭 확인",
+      "scope": "36af44608 고정 릴리스와 Vercel 운영 별칭 대조.",
       "evidence": [
-        "msg_183b3e4d30a5·172e3f41f",
-        "msg_0c9d5b14cbab·1364afbda·msg_658ce1003e6f"
+        "36af44608·172e3f41f",
+        "dpl_DC9Bifer8U1oZ67QFRJNkaAQ1Pj6 운영 READY"
       ],
-      "judgment": "Workspace 단일 정상 운영 배포 순번 전달. G5 구 탭 호환 정정 요청.",
+      "judgment": "승인 운영 배포 1회와 공식 도메인 반영을 확인. 실제 화면 결과 대기.",
       "unverified": [
-        "v1.60 빌드·프로덕션/화면",
-        "G5 구 탭 회귀 및 운영"
+        "Workspace 로컬 빌드/최종 화면 검수 보고",
+        "G5 구 탭 회귀·Gmail 실검증"
       ],
-      "nextAction": "v1.60 운영 배포 상태와 G5 보완 결과 회수."
+      "nextAction": "기존 로그인 화면 근거와 담당 배포 결과 회수."
     },
     "notifications": [
       {
@@ -8193,10 +8196,12 @@
     "workspaceV160": {
       "sourceSha": "172e3f41f",
       "normalBudget": 1,
-      "normalUsed": 0,
+      "normalUsed": 1,
       "previousAlias": "dpl_3TyMVfb6WGcXbxVgtYZ38699Upfr",
       "owner": "CC-WORKSPACE-01",
-      "status": "approved"
+      "status": "production_ready_screen_pending",
+      "releaseSha": "36af44608",
+      "deploymentId": "dpl_DC9Bifer8U1oZ67QFRJNkaAQ1Pj6"
     }
   }
 }
