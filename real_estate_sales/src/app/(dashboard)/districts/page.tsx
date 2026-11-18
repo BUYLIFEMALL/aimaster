@@ -9,6 +9,7 @@ import { PageHero } from "@/components/ui/PageHero";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { tradeVolumeTrends } from "@/lib/realestate/collect";
 import { recentMonths, ymLabel } from "@/lib/realestate/insights";
+import { suggestFromOtherPrograms } from "@/lib/realestate/crossWatch";
 
 export default async function DistrictsPage() {
   const user = await requireUser();
@@ -23,6 +24,18 @@ export default async function DistrictsPage() {
     .eq("is_active", true);
 
   const watchMap = new Map((watches ?? []).map((w) => [w.sgg_cd, w]));
+  // 연계(2026-11-19): 상가·매물 알림에 등록한 지역을 제안만(자동 등록 없음). 회원 세션 + 본인 행 RLS로 읽기만, 실패해도 화면은 그대로
+  const loose = supabase as unknown as { from: (t: string) => { select: (c: string) => { eq: (k: string, v: unknown) => PromiseLike<{ data: Record<string, string | null>[] | null }> } } };
+  const [commercialRes, listingRes] = await Promise.all([
+    loose.from("commercial_land_watch").select("sgg_cd").eq("is_active", true).then((r) => r, () => ({ data: null })),
+    loose.from("realty_alert_targets").select("cortar_no").eq("target_type", "region").then((r) => r, () => ({ data: null })),
+  ]);
+  const crossSuggestions = suggestFromOtherPrograms({
+    own: watchMap.keys(),
+    commercial: (commercialRes.data ?? []).map((r) => r.sgg_cd),
+    listingCortars: (listingRes.data ?? []).map((r) => r.cortar_no),
+    known: ALL_DISTRICTS,
+  });
   // A2(2026-11-02): 관심 지역 달별 매매 신고 건수. 공공 집계라 회원 정보가 없고 서버 키로 읽는다
   const volumes = await tradeVolumeTrends(createAdminClient(), [...watchMap.keys()]).catch(() => ({}) as Awaited<ReturnType<typeof tradeVolumeTrends>>);
   const months = recentMonths(new Date(), 6).slice(1).reverse(); // 지난달까지 5개월. 지난달은 아직 신고 중(계약 후 30일)이라 비교에서 뺀다
@@ -37,6 +50,20 @@ export default async function DistrictsPage() {
         tip={`지금 ${watchMap.size}개 지역 선택됨 · 「지금 조회하기」나 예약 조회로 실거래를 가져옵니다.`}
       />
       <div className="mb-6" />
+      {crossSuggestions.length > 0 && (
+        <section className="mx-card mb-6 p-4">
+          <h2 className="text-sm font-bold text-mx-text">🔗 다른 부동산 프로그램에 등록한 지역</h2>
+          <p className="mt-1 text-xs text-mx-muted">상가·매물 알림에서 감시 중인데 여기엔 아직 없는 지역이에요. 누르면 이 지역 실거래도 받아요(자동으로 추가하지 않아요).</p>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
+            {crossSuggestions.map((s) => (
+              <div key={s.sgg_cd}>
+                <DistrictToggle sggCd={s.sgg_cd} sggNm={s.sgg_nm} isActive={false} />
+                <p className="mt-1 text-center text-[11px] text-mx-muted">{s.sources.join(" · ")}에 등록</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
       {watchMap.size > 0 && (
         <section className="mx-card mb-6 p-4">
           <h2 className="text-sm font-bold text-mx-text">📊 관심 지역 매매 신고 건수</h2>
