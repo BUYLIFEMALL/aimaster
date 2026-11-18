@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T15:38:46.459Z",
+  "checkedAt": "2026-11-18T15:45:13.697Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9152,14 +9152,36 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "W01 참고 이미지 서버 업로드 구현",
-      "status": "running",
-      "delivery": "local_reference_upload_implementation_dispatched",
+      "status": "reviewing",
+      "delivery": "implementation_returned_independent_qa_dispatched",
       "scopeRef": "§22 안 가 · assets/store.ts, assets/upload.ts, POST /api/aif/assets, assetUpload.test.mjs · W00 §12-1 경로 반영",
       "constraints": "한 장, JSON 2 MiB, 디코딩 1 MiB. OFF 유지. 운영/실 Storage/AI/SQL/빌드/배포/기존 생성·UI 변경 없음.",
       "completion": "§22-5 모의 시험과 저장/생성 회귀·tsc, ref_* SQL 기존 근거 및 확정된 소스 SHA 반환. 독립 검수 CX-QA-01.",
-      "evidence": "msg_75a9a898c52d",
-      "next": "담당 수락 및 구현 근거 대기",
-      "lastReviewedAt": "2026-11-18T15:38:46.459Z"
+      "evidence": "msg_75a9a898c52d·msg_a32f13177142·msg_4e02c95d597d",
+      "next": "Mac CX-QA-01 독립 검수 수락·근거 대기. SQL 근거 공백은 A2S 별도. OFF·미배포.",
+      "lastReviewedAt": "2026-11-18T15:45:13.697Z",
+      "sha": "3776d54f7",
+      "validation": {
+        "author": "신규 모의 22/22, 전체 233/233, tsc PASS 보고",
+        "master": "고정 네 경로 blob·스코프·SQL 기존 초과 제약 확인",
+        "independent": "msg_4e02c95d597d 전달; 수락 대기",
+        "unverified": "실 Storage·플랫폼 본문 처리. ref_* 실제 격리 SQL은 A2S."
+      }
+    },
+    {
+      "task_id": "AIF-20261119-W01-A2S",
+      "parent_task_id": "AIF-20261119-W01-A2I",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "W01 참고 이미지 SQL 격리 계약 확인",
+      "status": "running",
+      "delivery": "reference_sql_contract_test_dispatched",
+      "scopeRef": "ai-influencer-studio/tests/sql/a1_reference_assets.test.mjs 신규 1개",
+      "completion": "ref 3종 예약→대역 객체→확정, 1 MiB 경계, HEIC MIME/확장자, 실패 상태 일관성 및 격리 정리 근거.",
+      "constraints": "기존 SQL·기존 시험·제품 소스 변경 0. 새 로컬 격리 DB만. 운영·실 Storage·AI·빌드·배포 제외.",
+      "evidence": "msg_589f2b895796",
+      "next": "CC-SNS-01 수락과 시험 결과 대기. CX-QA-01 앱 검수와 중복 없음.",
+      "lastReviewedAt": "2026-11-18T15:45:13.697Z"
     }
   ]
 }
