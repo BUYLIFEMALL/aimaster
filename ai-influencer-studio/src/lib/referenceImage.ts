@@ -83,6 +83,12 @@ function sniff(b: Uint8Array): SniffKind | null {
   return null;
 }
 
+/** 바이트 앞부분으로 형식만 판정해 돌려준다(상한·MIME 대조 없음). 생성 원본 저장(src/lib/assets/store.ts)이 자기 상한·허용 형식으로 재사용한다.
+ *  참고 이미지 검사(parseImageDataUrl)의 1MiB 상한과 동작은 바뀌지 않는다. 서명 확인일 뿐 전체 디코드 보증이 아니다. — W01-A1(2026-11-18) */
+export function sniffImageKind(bytes: Uint8Array): SniffKind | null {
+  return sniff(bytes.length > FTYP_MAX_BYTES + 16 ? bytes.subarray(0, FTYP_MAX_BYTES + 16) : bytes);
+}
+
 function mimeMatches(mime: AllowedMime, kind: SniffKind): boolean {
   if (mime === "image/png") return kind === "png";
   if (mime === "image/jpeg") return kind === "jpeg";
