@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T03:06:29.404Z",
+  "checkedAt": "2026-11-18T03:12:03.618Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3821,21 +3821,42 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
       "title": "CRM 중복방지 DDL 초안·격리 DB 검증 2A",
-      "status": "running",
-      "delivery": "exact_scope_acknowledged_started",
-      "evidence": "영향조사2019381a6·msg_cf2984a5738e·dispatch msg_47039ad6b61b·착수msg_3558ad0d16d2",
+      "status": "ready_review",
+      "delivery": "isolated_sql_test_pass_independent_review_dispatched",
+      "evidence": "영향조사2019381a6·msg_cf2984a5738e·dispatch msg_47039ad6b61b·착수msg_3558ad0d16d2·결과msg_531796347dc0·MasterSQL원문/3파일확인·Macmsg_90839b4af302",
       "scopeRef": "crm-google-form/supabase/migrations/20261118120000_crm_submission_dedupe.sql·tests/dedupe-db.test.mjs 신규·기존결과본인절",
       "completion": "정의사전/사후·기존NULL/backfill0·user_id/source/key 격리·RLS/동시2연결/rollback·동명불일치멈춤·본인qa_DB정리",
       "constraints": "운영미적용·route/UI/dispatch/snippet변경0·기존aww/aww_dev/mb_*0·실발송/build/설치0",
-      "next": "정확키/경로/격리DB보고→원문SQL/실역할/동시시험→SHA→Mac독립",
-      "lastReviewedAt": "2026-11-18T03:06:29.404Z",
+      "next": "Mac정적/가능격리검수→반례판정,화면CRM18-03분리",
+      "lastReviewedAt": "2026-11-18T03:12:03.618Z",
       "decisions": {
         "unique": "(user_id,form_source_id,dedupe_key) WHERE dedupe_key IS NOT NULL",
         "policy": "RLS/권한변경0",
         "constraint": "실status검사제약정확1개/기존3값일치확인뒤실이름유지",
         "isolatedDb": "aww-pg-test/qa_crm_dedupe_20261118·본인DB만정리",
         "baseline": "CRM0001원문·Supabase역할/auth.uid/updated_at흉내·실Supabase검증아님"
+      },
+      "sha": "f066ca944",
+      "validation": {
+        "author": "PG17.11본인qa_DB·11/11·독립2연결/회원역할/변이·정리보고",
+        "master": "SQL86줄직접읽기·한거래/정의검사/복합키/상태확인",
+        "independent": "Mac검수대기·운영미적용"
       }
+    },
+    {
+      "task_id": "CRM-20261118-03",
+      "parent_task_id": "CRM-20261118-02",
+      "owner": "CC-B2B-BACK-01",
+      "reviewer": "CX-QA-01",
+      "title": "CRM 접수 새상태 화면·집계 준비",
+      "status": "ready",
+      "delivery": "implementation_authorized_dispatch_sent",
+      "evidence": "영향조사2019381a6·msg_dcca549f3407",
+      "scopeRef": "dashboard/page.tsx·submissions/page.tsx·SubmissionMatrix.tsx·필요순수submissionStatus.ts/시험·기존결과본인절",
+      "completion": "기존3+새3상태 라벨/필터/집계·처리중/부분/모름누락0·기존필드만조회·가짜rows실제분류/tsc",
+      "constraints": "운영미배포·DB/발송/API0·dedupe_key/channel_results조회0·route/dispatch/followup/promotions/snippet/DDL0",
+      "next": "정확경로점유보고→소스/가짜검증→SHA→Mac독립",
+      "lastReviewedAt": "2026-11-18T03:12:03.618Z"
     }
   ],
   "programOverrides": [
@@ -4319,20 +4340,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T03:06:29.404Z",
+      "at": "2026-11-18T03:12:03.618Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM18-02 정확범위/키/격리DB 착수보고 msg_3558ad0d16d2",
-      "scope": "배정범위수락/시작·DB대상/권한불변조건",
+      "trigger": "CRM18-02 SQL초안/11시험 결과",
+      "scope": "f066ca944 SQL본문/허용3파일·격리시험근거·Mac검수/화면분리배정",
       "evidence": [
-        "3신규/기존결과경로예약·user_id복합unique·RLS불변",
-        "본인qa_crm_dedupe_20261118·기존DB/운영0"
+        "작성자msg_531796347dc0 PG격리11통과·운영0",
+        "MasterSQL86줄읽기·Mac msg_90839b4af302",
+        "화면준비별도msg_dcca549f3407"
       ],
-      "judgment": "지정범위내착수확인·격리검증완료/운영반영판정아님",
+      "judgment": "초안자체검증접수·독립대기,운영적용아님. 화면은구DB칼럼호환범위에서만준비·발송연결보류.",
       "unverified": [
-        "실SQL/역할/동시성/제약멈춤시험결과",
-        "GmailOAuth·MacB저장"
+        "SQL독립판정·화면새상태실사용검증",
+        "발송불확실/후속발송정책·GmailOAuth·MacB"
       ],
-      "nextAction": "SHA/격리시험결과회수→독립검수"
+      "nextAction": "두범위각각SHA/독립근거회수→연결단계판정"
     },
     "notifications": [
       {
