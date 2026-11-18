@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 17:23:58 KST",
+  "checkedAt": "2026-11-18 17:41:26 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,24 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T08:23:58.003Z",
+      "at": "2026-11-18T08:41:26.722Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS 정리IO 보완완료",
-      "scope": "073전주입deadline·늦은claim/mark/remove/measure·force확인제한/원문오류",
+      "trigger": "17:30 KST 예약 메시지 수신 및 후속 보고 대조",
+      "scope": "전체 미종결 작업·19개 분류 작업표·사람/승인 조건과 최신 Git·결과/인수인계 변경 확인. T03·SNS 고정 SHA와 담당별 범위 대조.",
       "evidence": [
-        "msg_b94045ca12e8",
-        "Masterbounded호출지점읽기·Macmsg_718df391daff"
+        "msg_264303c04f89",
+        "6b45a39b3·msg_1e0d4418c6a5",
+        "35853fad1·msg_f41a1598c878",
+        "msg_7c179d3cca83·msg_ac69e77c6859",
+        "0dfeaad54 / msg_7932d8b18fa0"
       ],
-      "judgment": "작성자모의167/tsc수신·고정실모듈독립검수진행·실원격취소/런타임보장으로확대0·운영0",
+      "judgment": "T03 설계 방향 수락, 1단계 로컬 소스 배정. SNS 모의 국소 검수 수락 및 복구 설계 배정. 기존 사람 단계·배포 승인 범위 유지.",
       "unverified": [
-        "MacIO국소결과",
-        "실Supabase/Storage/ON",
-        "CRM사람SMS·T03회원캐시플랜"
+        "T03 Render 구 인스턴스 배출·운영 DB/배포",
+        "SNS 실제 DB/Storage·W01p 구현",
+        "CRM 사람 SMS 및 기존 사람 의존 단계"
       ],
-      "nextAction": "국소판정회수·고정반례한번반환/수락·추가유료0"
+      "nextAction": "Blog 로컬 SHA/시험 및 SNS W01p 구현 근거 회수·Mac 국소 확인."
     },
     "notifications": [
       {
@@ -8520,13 +8523,14 @@
       "owner": "CC-BLOG-01",
       "reviewer": "CX-MASTER-01",
       "title": "T03 도메인 구조 캐시 회원별 격리 결정 반영",
-      "status": "dispatched",
-      "delivery": "owner_member_scoped_cache_decision_bounded_existing_plan_design_assigned",
-      "evidence": "주인님직접msg_6c2b57cab944 회원별로나누기 · MasterT03한안읽기플랜배정(T08마감뒤)",
+      "status": "done",
+      "delivery": "member_cache_design_accepted_local_phase_one_separately_assigned",
+      "evidence": "085d4c194→42a6b81b7→6b45a39b3 · 기존 UNIQUE 충돌 해소·2단계 우회·보관 선행 · msg_1e0d4418c6a5",
       "constraints": "현재는플랜반영·DB구조/Render운영재배포별도범위승인·실DDL/Render0",
-      "next": "웹/Render/DBdataflow·회원신뢰/키/옛캐시격리/동시성/RLS/rollback/운영승인범위한안",
-      "lastReviewedAt": "2026-11-18T08:20:37.447Z",
-      "scopeRef": "기존SCRAPING_CONSOLIDATION_TASKS T03/최소관련원문읽기·새문서/제품코드0"
+      "next": "BLOG-20261118-06 로컬 1단계. 운영 전 기존 공용 인스턴스·진행 요청 배출 증거 필요.",
+      "lastReviewedAt": "2026-11-18T08:39:52.812Z",
+      "scopeRef": "기존SCRAPING_CONSOLIDATION_TASKS T03/최소관련원문읽기·새문서/제품코드0",
+      "sha": "6b45a39b3"
     },
     {
       "task_id": "AIF-20261118-W01j",
@@ -8637,20 +8641,20 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "정리 실행기 개별 I/O 유한 대기·불명 보존",
-      "status": "reviewing",
-      "delivery": "bounded_cleanup_IO_source_received_real_module_review",
+      "status": "done",
+      "delivery": "bounded_cleanup_and_remove_count_local_validation_accepted_undeployed",
       "scopeRef": "retention.ts·assetRetention시험·필요cleanup시간상수·기존문서",
       "constraints": "SQL/fixture/read/공용클라이언트변경0·실DB/Storage/삭제/키/AI/env/cron/build/push0·타임아웃≠원격취소·새기능0",
       "completion": "전체주입IO남은시간/개별상한·mark불명remove0/remove불명재삭제0·늦은반환후작업0/Unhandled0·모의반례/tsc",
-      "evidence": "79c 시간예산한계·Master새범위배정 · msg_b94045ca12e8/073557cb1·Masterbounded호출지점읽기·Macmsg_718df391daff",
-      "next": "Mac 개별deadline/늦은응답/force확인1·호출상한 국소검수",
-      "lastReviewedAt": "2026-11-18T08:23:58.003Z",
-      "sha": "073557cb1",
+      "evidence": "073557cb1 Mac 18/18+독립 2조건 · 35853fad1 IO-F01 · msg_219c2a125337·msg_f41a1598c878",
+      "next": "W01o 복구 설계. 미전송 이후 객체 잔존은 다음 회차 확인으로 delete_unknown 가능.",
+      "lastReviewedAt": "2026-11-18T08:39:52.812Z",
+      "sha": "35853fad1",
       "validation": {
-        "author": "retention44/전체167·tsc0·실시계30ms/늦은90ms/미완료/거절·변형14+핵심6·SQL/route/read/fixture불변",
-        "master": "개별15s/회차남은280s bounded전주입·halt후새호출0/remove후verify1전용force 주요코드읽기·실취소/정확300s보장아님·저자5파일수정과타세션삭제분리",
-        "independent": "실제모듈국소검수배정·결과대기",
-        "limits": "실DB/Storage/키/삭제/ON/cron0·AbortSignal미연결/실런타임시간미계측"
+        "author": "retention 45/45·전체 168/168·tsc 통과",
+        "master": "고정 SHA diff 확인, 실제 시작 콜백에서만 removeCalls 증가",
+        "independent": "Mac 고정 실모듈 모의 2/2. 마감 remove0/removeCalls0/removeNotSent1/deleteUnknown0, 송신 후 확인 경계 유지.",
+        "limits": "실 DB·Storage·ON·cron·빌드·배포 0. 원격 취소나 복구 완료 증거 없음."
       }
     },
     {
@@ -8664,6 +8668,52 @@
       "constraints": "현재반복build/설치/lock/원격배포0·실운영공격가능성단정0",
       "next": "다음정당한범위/묶음승인때최소patch·현재T03플랜우선",
       "lastReviewedAt": "2026-11-18T08:20:37.447Z"
+    },
+    {
+      "task_id": "BLOG-20261118-06",
+      "parent_task_id": "BLOG-20261118-04",
+      "owner": "CC-BLOG-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "T03 1단계 캐시 우회·작업 소유자 확인",
+      "status": "dispatched",
+      "delivery": "local_phase_one_sent_ack_pending",
+      "scopeRef": "web-crawler/service/main.py·pipeline.py·해당 로컬시험·T03 문서 해당 절",
+      "constraints": "새표·SQL·운영 읽기·Render/Vercel·비용·외부수집 0",
+      "completion": "정상 202/결과 보존·시작/재개 소유자 실패 시 실행/캐시/행 변경 0·캐시 호출 0·가상 검증",
+      "evidence": "msg_7c179d3cca83·계획 6b45a39b3",
+      "next": "고지/점유 확인 후 구현, 고정 SHA 및 로컬 모의시험 회수",
+      "lastReviewedAt": "2026-11-18T08:39:52.812Z"
+    },
+    {
+      "task_id": "AIF-20261118-W01o",
+      "parent_task_id": "AIF-20261118-W01n",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "정리·업로드 불명 상태 복구 설계",
+      "status": "done",
+      "delivery": "recovery_design_accepted_local_p1_separately_assigned",
+      "scopeRef": "기존 W00 복구 설계 한 절",
+      "constraints": "제품/SQL 변경·실 DB/Storage/ON/cron/키/AI·빌드·배포 0",
+      "completion": "상태별 근거·소유자/객체/토큰·불명 보존·최소 회복 단위/반례",
+      "evidence": "W00 §20·msg_df9ef83bfd55: 송신여부 DB 증명 한계·상태/대조조건·P1~P4",
+      "next": "W01p 국소 진입 시간 점검. P2·운영 복구 별도.",
+      "lastReviewedAt": "2026-11-18T08:41:26.722Z",
+      "sha": "0dfeaad54"
+    },
+    {
+      "task_id": "AIF-20261118-W01p",
+      "parent_task_id": "AIF-20261118-W01o",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "삭제 진입 전 남은 시간 점검",
+      "status": "dispatched",
+      "delivery": "bounded_pre_delete_admission_sent_ack_pending",
+      "scopeRef": "retention.ts·assetRetention 시험·W00 해당 문구",
+      "constraints": "SQL/P2/실DB/Storage/AI/비용/build/deploy/push 0",
+      "completion": "mark/remove/verify 예산·소유 토큰 내 제한 취소·불명 보존·모의 경계·tsc",
+      "evidence": "msg_7932d8b18fa0·0dfeaad54",
+      "next": "고정 SHA/모의시험 회수 뒤 Mac 국소검수",
+      "lastReviewedAt": "2026-11-18T08:41:26.722Z"
     }
   ]
 }
