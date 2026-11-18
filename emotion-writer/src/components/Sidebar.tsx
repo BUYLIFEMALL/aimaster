@@ -198,19 +198,6 @@ export function Sidebar({ email }: SidebarProps) {
           <span className="truncate">🔑 API키등록·플랫폼연동</span>
         </Link>
 
-        {/* 8. 📖 연동 & 사용 매뉴얼 */}
-        <Link
-          href="/guide"
-          onClick={() => setOpen(false)}
-          className={`w-full flex items-center gap-2 rounded-xl px-2.5 py-1.5 text-xs font-bold transition ${
-            pathname === "/guide"
-              ? "bg-rose-50 text-rose-700 border border-rose-200"
-              : "text-stone-700 hover:bg-[#f5efe4] hover:text-stone-900"
-          }`}
-        >
-          <BookOpen className="h-3.5 w-3.5 text-rose-500 shrink-0" />
-          <span className="truncate">📖 연동 & 사용 매뉴얼</span>
-        </Link>
 
         <div className="flex items-center justify-between border-t border-[#f0e9dc] pt-2 px-1 text-stone-500">
           <div

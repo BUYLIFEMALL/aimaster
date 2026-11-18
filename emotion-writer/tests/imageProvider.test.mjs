@@ -13,11 +13,10 @@ test("validateImage supports gemini, openai, and free providers with defaults", 
   assert.equal(v1.provider, "openai");
   assert.equal(v1.model, "gpt-image-2.5-flare");
 
-  // ECOM-20261118-03: 무료 엔진은 정책 결정 전 꺼짐 — 기본값 대신 「준비 중」 거절(옛 기대값: provider free·model pollinations-flux).
-  assert.throws(
-    () => validateImage({ quote: "오늘도 행복한 하루", topic: "일상 위로", ratio: "9:16", provider: "free" }),
-    /준비 중/,
-  );
+  // 사용자 지시로 무료 이미지 모델(FLUX) 활성화됨: provider free·model pollinations-flux 정상 검증.
+  const vFree = validateImage({ quote: "오늘도 행복한 하루", topic: "일상 위로", ratio: "9:16", provider: "free" });
+  assert.equal(vFree.provider, "free");
+  assert.equal(vFree.model, "pollinations-flux");
 
   assert.throws(
     () =>
@@ -92,8 +91,10 @@ test("I-F01: OpenAI 모델은 공식 확인 목록만 — 임의·타사·객체
   assert.throws(() => validateImage({ ...base, provider: { p: 1 } }), /지원하지 않는 이미지 제공자/);
 });
 
-test("무료 엔진(FLUX, 키 없음)은 정책 결정 전 서버에서 거절", () => {
-  assert.throws(() => validateImage({ ...base, provider: "free" }), /준비 중/);
+test("무료 엔진(FLUX, 키 없음) 활성화 시 기본 모델로 정상 통과", () => {
+  const res = validateImage({ ...base, provider: "free" });
+  assert.equal(res.provider, "free");
+  assert.equal(res.model, "pollinations-flux");
 });
 
 test("I-F02: OpenAI 응답 — 잘못된·빈·패딩 오류·과대·이미지 아닌 base64는 502", async () => {
