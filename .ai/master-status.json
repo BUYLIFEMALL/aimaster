@@ -3225,11 +3225,11 @@
       "reviewer": "CX-MASTER-01",
       "title": "Gmail 운영 SQL 적용·실계정 검증·활성화",
       "status": "waiting_human",
-      "delivery": "user_connection_signal_saved_account_not_confirmed",
+      "delivery": "production_screen_disconnected_callback_unconfirmed",
       "scopeRef": "0074→0075 운영적용/정의검증·회원본인OAuth동의/metadata·실PostgREST/주소·스위치/배포 승인별도",
-      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f·Workspace SQL完了報告(主会話)·주인님전달Workspace배포완료9ea979de9·Master Vercel get_alias동일dpl·Macmsg_f0e46da48809/Workspace msg_bce4e6bf3fad·실검증1차 주인님전달·판정지시msg_89ba88b28a3d·Workspace콜백상수대조true/두회원client등록boolean보고·범위정정msg_2020570870f9 · 주인님시험naver로그인확인(CC-WORKSPACE-01 직접보고) · 주인님보고 DreamAI웹client Gmail callback누락확인(회원client일치미대조) / CC-WORKSPACE-01 직접 보고: 주소 10→11·콜백 1개·시험/관리자 Client ID 일치·msg_ac60ef28f478 / Workspace 연결 신호·저장 행 0 보고· msg_e70d3630952c / Workspace 콜백 로그 도구 403·결과 분류 미확인·실검증 미시작",
+      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f·Workspace SQL完了報告(主会話)·주인님전달Workspace배포완료9ea979de9·Master Vercel get_alias동일dpl·Macmsg_f0e46da48809/Workspace msg_bce4e6bf3fad·실검증1차 주인님전달·판정지시msg_89ba88b28a3d·Workspace콜백상수대조true/두회원client등록boolean보고·범위정정msg_2020570870f9 · 주인님시험naver로그인확인(CC-WORKSPACE-01 직접보고) · 주인님보고 DreamAI웹client Gmail callback누락확인(회원client일치미대조) / CC-WORKSPACE-01 직접 보고: 주소 10→11·콜백 1개·시험/관리자 Client ID 일치·msg_ac60ef28f478 / Workspace 연결 신호·저장 행 0 보고· msg_e70d3630952c / Workspace 콜백 로그 도구 403·결과 분류 미확인·실검증 미시작 / Workspace v1.59 화면·배포 보고 / b0911ac94",
       "completion": "승인된범위의운영마이그레이션·실계정/권한/계정경계·활성배포·운영동작 확인",
-      "next": "기존 받은 업무 화면 확인 대기. 로그 도구 403으로 콜백 결과 미확인, 실검증 미시작.",
+      "next": "v1.59 받은 업무 화면에서 Gmail 미연결 확인. 기존 콜백 결과 분류 미확인, 실검증 보류.",
       "blockedReason": "연결 완료 신호를 받았으나 시험·관리자 계정의 google_gmail 저장 행은 0으로 담당 보고. 동의 및 콜백 성공 경계 미확인.",
       "approval": {
         "source": "주인님 Workspace 채팅 선택 답변 2026-11-18",
@@ -3240,7 +3240,7 @@
         "recoveryUsed": 0,
         "scope": "0074→0075 운영적용·Gmail ON·v1.58 묶음·확인표 실OAuth/Gmail검증"
       },
-      "lastReviewedAt": "2026-11-18T13:33:07.353Z",
+      "lastReviewedAt": "2026-11-18T13:51:42.961Z",
       "sha": "9ea979de9 (Gmail ON 722a3ba99 포함)",
       "validation": {
         "author": "전체61파일840/840·tsc0·qa_0",
@@ -3288,7 +3288,8 @@
           "trial": 0,
           "admin": 0,
           "source": "Workspace 존재 여부만 확인 보고"
-        }
+        },
+        "inboxConnectionState": "v1.59 화면 미연결 Workspace 확인"
       }
     },
     {
@@ -4915,13 +4916,13 @@
       "reviewer": "CX-QA-01",
       "title": "사이드바 예정된 일정 메뉴 숨김",
       "status": "done",
-      "delivery": "sidebar_trim_source_and_mac_static_review_accepted_undeployed",
+      "delivery": "sidebar_trim_production_screen_verified",
       "scopeRef": "trimPolicy.ts·Sections.tsx·Customize.tsx",
       "constraints": "기존 프리셋·주소·실화면·배포 별도",
-      "evidence": "814063801·061c13cb3·msg_16832cb7bdf5·msg_91d61ed380bf",
-      "next": "미배포. 프리셋 UI·화면 확인은 이번 정적 범위 밖.",
+      "evidence": "814063801·061c13cb3·msg_16832cb7bdf5·msg_91d61ed380bf / Workspace v1.59 화면·배포 보고 / b0911ac94",
+      "next": "v1.59 운영 시험 화면에서 메뉴 숨김 확인.",
       "completion": "기존/신규 섹션 숨김, /calendar-sync 링크와 다른 섹션 보존 정적 검수",
-      "lastReviewedAt": "2026-11-18T13:37:47.042Z",
+      "lastReviewedAt": "2026-11-18T13:51:42.961Z",
       "sha": "814063801"
     },
     {
@@ -4930,14 +4931,14 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-QA-01",
       "title": "워크스페이스 내부 네 화면 연결",
-      "status": "reviewing",
-      "delivery": "four_views_routing_mac_pass_browser_verification_pending",
+      "status": "done",
+      "delivery": "four_views_production_desktop_verified",
       "scopeRef": "셸·새 View·필수 router/entry/시험 정확 파일 등록",
       "constraints": "기존 URL/권한/콜백·콘텐츠 보존. 실 OAuth/DB/키·빌드/배포 0.",
-      "evidence": "e7f72c5a7·dbd8d046d·f09f4a737·Workspace 직접 보고·msg_df532636f435 / msg_935315da80f1 / .ai/results/WS-20261118-04-CX-QA-01.md",
-      "next": "경로 모의·접근/CSS 정적 확인. 실제 좌우 스크롤·좁은 폭/뒤로가기·빌드 미검증.",
+      "evidence": "e7f72c5a7·dbd8d046d·f09f4a737·Workspace 직접 보고·msg_df532636f435 / msg_935315da80f1 / .ai/results/WS-20261118-04-CX-QA-01.md / Workspace v1.59 화면·배포 보고 / b0911ac94",
+      "next": "네 화면·좌측 유지·본문 스크롤·뒤로가기 운영 확인. 767px 이하·주소 새로고침·타 공간은 운영 미검증.",
       "completion": "/inbox·/calendar-sync·/settings/keys·/guide, 좌측 메뉴 유지 및 독립 스크롤, 직접/뒤로/모바일 보존",
-      "lastReviewedAt": "2026-11-18T13:44:59.939Z",
+      "lastReviewedAt": "2026-11-18T13:51:42.961Z",
       "sha": "e7f72c5a7",
       "validation": {
         "author": "vitest 9파일 131/131 모의·tsc 통과 보고.",
@@ -4972,19 +4973,20 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "워크스페이스 v1.59 승인 묶음 운영 배포",
-      "status": "reviewing",
-      "delivery": "production_ready_login_boundary_checked_screen_blocked_without_session",
+      "status": "done",
+      "delivery": "production_ready_owner_desktop_checks_accepted",
       "sha": "b24b9595a",
       "scopeRef": "814063801·e7f72c5a7 고정 앱 트리 + v1.59 표시",
       "constraints": "원격 운영 1회, Gmail 스위치·SQL/DB 버전·환경·push 0",
       "completion": "로컬 build·범위 및 팀 대기 검증→원격 READY/공식 별칭·가용 화면 확인",
-      "evidence": "주인님 Workspace 직접 배포 보고·Vercel 3상태 0/기존 alias 9ea979de9·22:45:34 workspace next build 관찰·msg_925719d8b2fa 전달 보류 / dpl_3TyMVfb6WGcXbxVgtYZ38699Upfr / msg_aedca062e527 / msg_621687fb940b / msg_3f2581151fe5",
-      "next": "공식 별칭 READY·비로그인 307 확인. Workspace 기존 시험 세션 화면 및 배포 보고 대기.",
-      "lastReviewedAt": "2026-11-18T13:50:25.374Z",
+      "evidence": "주인님 Workspace 직접 배포 보고·Vercel 3상태 0/기존 alias 9ea979de9·22:45:34 workspace next build 관찰·msg_925719d8b2fa 전달 보류 / dpl_3TyMVfb6WGcXbxVgtYZ38699Upfr / msg_aedca062e527 / msg_621687fb940b / msg_3f2581151fe5 / Workspace v1.59 화면·배포 보고 / b0911ac94",
+      "next": "운영 v1.59 확인. 프로그램 목록 DB v1.58 보고는 운영 쓰기 범위 결정 대기.",
+      "lastReviewedAt": "2026-11-18T13:51:42.961Z",
       "validation": {
         "master": "Vercel 운영 READY 및 공식 별칭 직접 일치. 11개 변경 파일 업로드 SHA-1 일치, 생략 6개 로컬 콘텐츠 해시로 배포 파일 반환 확인, version.ts 업로드 v1.59.",
         "provenance": "Vercel Git 메타 SHA 04bdc3743와 로컬 표시 버전 커밋 b24b9595a 다름. CLI 업로드 파일 근거로 대조.",
-        "screen": "Mac 쿠키 없는 307→동일 사이트 로그인 확인. 기존 허용 검수 세션 부재로 인증 후 실제 화면 미확인. msg_621687fb940b"
+        "screen": "v1.59 운영, 네 화면·메뉴 데스크톱 확인",
+        "author": "로컬 빌드 1회 통과·운영 배포 1회, 데스크톱 네 경로·사이드바·본문 스크롤·뒤로가기 확인. push/DB 쓰기/외부연동 실행 0 보고."
       }
     }
   ],
@@ -5172,12 +5174,12 @@
     {
       "slug": "ai-work-workspace",
       "owner": "CC-WORKSPACE-01",
-      "reportedVersion": "v1.58",
-      "stage": "E3/예약수정/요일칩/Gmail ON 배포·실OAuth설정대조",
-      "completed": "0074/75운영적용작성자검증·v1.58공식alias Master확인·전체840/tsc",
-      "next": "redirect_uri_mismatch 실제요청/회원앱/GCP일치→OAuth/공통실검증·Mac독립",
-      "evidence": "9ea979de9·dpl_8GoargZugPSSqT5atpJ5PZqWbDyd·Master get_alias·WS27보고",
-      "evidenceLevel": "운영alias직접확인·SQL/DB버전/DOM작성자·실Gmail아직0"
+      "reportedVersion": "v1.59",
+      "stage": "v1.59 운영, 네 화면·메뉴 데스크톱 확인",
+      "completed": "b24b9595a·공식 alias dpl_3TyMVfb6WGcXbxVgtYZ38699Upfr READY·로컬 build 1회 작성자 통과",
+      "next": "목록 DB v1.58 보고·버전 쓰기 미실행. 좁은 화면/직접 주소/타 공간·Gmail 실검증 별도.",
+      "evidence": "Workspace 직접 화면/배포 보고·b0911ac94, Master Vercel alias",
+      "evidenceLevel": "운영 별칭 직접 확인, 화면/DB 표시 버전은 담당 보고"
     },
     {
       "slug": "ai-task-planner",
@@ -5504,20 +5506,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T13:50:25.374Z",
+      "at": "2026-11-18T13:51:42.961Z",
       "timezone": "Asia/Seoul",
-      "trigger": "v1.59 Mac 운영 접근 회신",
-      "scope": "운영 비로그인 경계와 인증 후 화면 미검증 사유 확인.",
+      "trigger": "WS05 운영 화면 및 배포 반환",
+      "scope": "v1.59 자원·동선·로컬/운영 빌드·WS27 미연결·목록 버전 불일치 대조.",
       "evidence": [
-        "msg_621687fb940b·.ai/results/WS-20261118-04-CX-QA-01.md",
-        "msg_3f2581151fe5"
+        "b24b9595a·b0911ac94",
+        "dpl_3TyMVfb6WGcXbxVgtYZ38699Upfr",
+        "Workspace 직접 보고 운영 데스크톱"
       ],
-      "judgment": "공식 별칭 READY 유지. 로그인 후 화면 검수는 기존 허용 세션 확인에 의존.",
+      "judgment": "승인 묶음 운영 데스크톱 검수 완료. 목록 버전 DB 쓰기 범위는 별도, Gmail 연결 미확인으로 실검증 보류.",
       "unverified": [
-        "네 화면·메뉴·좌우 스크롤·좁은 폭·뒤로가기 운영 실동작",
-        "Workspace 로컬 build 및 배포 보고·Gmail WS27"
+        "767px 이하·직접 주소 새로고침·다른 워크스페이스 운영 화면",
+        "Gmail 콜백 원인·실검증",
+        "목록 DB 버전 독립 확인 및 변경 승인"
       ],
-      "nextAction": "기존 허용 Workspace 시험 세션의 읽기 결과와 담당 배포 보고 회수."
+      "nextAction": "기존 운영 범위 유지. 목록 버전 수정과 Gmail 검증은 별도."
     },
     "notifications": [
       {
@@ -8111,9 +8115,11 @@
       "normalUsed": 1,
       "previousAlias": "dpl_8GoargZugPSSqT5atpJ5PZqWbDyd",
       "owner": "CC-WORKSPACE-01",
-      "status": "production_ready_screen_pending",
+      "status": "production_desktop_verified",
       "releaseSha": "b24b9595a",
-      "deploymentId": "dpl_3TyMVfb6WGcXbxVgtYZ38699Upfr"
+      "deploymentId": "dpl_3TyMVfb6WGcXbxVgtYZ38699Upfr",
+      "dbVersionReported": "v1.58",
+      "dbVersionWrites": 0
     }
   }
 }

@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 22:50:25 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 22:51:42 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -367,15 +367,15 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | QA-20261117-039 | CX-QA-01 | done / integrated | Gmail OFF 패널 실제 TSX 모의 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
 | QA-20261117-040 | CX-QA-01 | done / integrated | Gmail OFF 배선·실제 RPC 입구·어댑터·화면 통합 독립검수 | 배선소스수락·동결, 패널disconnect unknown후속별도 |
 | QA-20261117-041 | CX-QA-01 | done / integrated | Gmail 연결 해제 재시도·계정교체 조건부삭제 독립검수 | 소스수락·두SHA같이배포, 활성화단계별도 |
-| WS-20261117-27 | CC-WORKSPACE-01 | waiting_human / user_connection_signal_saved_account_not_confirmed | Gmail 운영 SQL 적용·실계정 검증·활성화 | 기존 받은 업무 화면 확인 대기. 로그 도구 403으로 콜백 결과 미확인, 실검증 미시작. |
+| WS-20261117-27 | CC-WORKSPACE-01 | waiting_human / production_screen_disconnected_callback_unconfirmed | Gmail 운영 SQL 적용·실계정 검증·활성화 | v1.59 받은 업무 화면에서 Gmail 미연결 확인. 기존 콜백 결과 분류 미확인, 실검증 보류. |
 | DES-20261118-01 | AG-UI-01 | done / integrated | 감성 글귀 이미지 직접지시 v1.28/v1.29 배포 회수 | P3 두건 DES02 다음묶음·375px/실위젯 미검수 유지 |
 | QA-20261118-042 | CX-QA-01 | done / integrated | emotion-writer 메뉴·키설정 독립검수 | DES02 반환시 두건 재검수·실375/위젯/회원키는 미검수 |
 | DES-20261118-02 | AG-UI-01 | done / accepted_pending_batch_deploy | 키보기 키보드 접근·키발급 링크 hover 대비 보완 | 다음 emotion-writer 묶음배포에 포함·운영반영 전까지 미배포 유지 |
 | WS-20261118-01 | CC-WORKSPACE-01 | done / accepted_pending_batch_deploy | 예약요일 칩·busy·키보드 국소UI 보완 | v1.58묶음포함·375/390·다크/:has포커스실화면은배포후 |
 | WS-20261118-02 | CC-WORKSPACE-01 | waiting_human / calendar_upgrade_plan_received_scope_decisions_pending | 워크스페이스 캘린더 업그레이드 계획 | 화면 기능/데이터 범위, 데이터 포함 시 일회 가져오기/동기화 결정. 중복 메뉴는 WS03에서 숨김 완료·미배포. |
-| WS-20261118-03 | CC-WORKSPACE-01 | done / sidebar_trim_source_and_mac_static_review_accepted_undeployed | 사이드바 예정된 일정 메뉴 숨김 | 미배포. 프리셋 UI·화면 확인은 이번 정적 범위 밖. |
-| WS-20261118-04 | CC-WORKSPACE-01 | reviewing / four_views_routing_mac_pass_browser_verification_pending | 워크스페이스 내부 네 화면 연결 | 경로 모의·접근/CSS 정적 확인. 실제 좌우 스크롤·좁은 폭/뒤로가기·빌드 미검증. |
-| WS-20261118-05 | CC-WORKSPACE-01 | reviewing / production_ready_login_boundary_checked_screen_blocked_without_session | 워크스페이스 v1.59 승인 묶음 운영 배포 | 공식 별칭 READY·비로그인 307 확인. Workspace 기존 시험 세션 화면 및 배포 보고 대기. |
+| WS-20261118-03 | CC-WORKSPACE-01 | done / sidebar_trim_production_screen_verified | 사이드바 예정된 일정 메뉴 숨김 | v1.59 운영 시험 화면에서 메뉴 숨김 확인. |
+| WS-20261118-04 | CC-WORKSPACE-01 | done / four_views_production_desktop_verified | 워크스페이스 내부 네 화면 연결 | 네 화면·좌측 유지·본문 스크롤·뒤로가기 운영 확인. 767px 이하·주소 새로고침·타 공간은 운영 미검증. |
+| WS-20261118-05 | CC-WORKSPACE-01 | done / production_ready_owner_desktop_checks_accepted | 워크스페이스 v1.59 승인 묶음 운영 배포 | 운영 v1.59 확인. 프로그램 목록 DB v1.58 보고는 운영 쓰기 범위 결정 대기. |
 | QA-20261118-043 | CX-QA-01 | done / integrated | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | 실브라우저375/390은v1.58배포후허용된기존시험세션에서·추가dev/build0 |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
 | OPS-20261118-01 | CX-MASTER-01 | done / integrated | 전체개발플랜·카테고리·누락개선/인수인계 정합성 대조 | 미확인68프로그램 현담당근거후속연결·제품전체검증과구분, 신규후속ID별진행 |
@@ -474,7 +474,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | AI 가사영상 자동화 | CC-MUSIC-01 | v1.16 | 운영v1.16·국소수정2건 소스완료/미배포 | 취소안내fe402b1df MOV17-05 PASS·인코더2b9a06c9c QA032소스PASS | 두건 다음음악기능배포묶음·Mac MP4신뢰클릭/저장선택은QA002 별도 |
 | AI 음악 스튜디오 | CC-MUSIC-01 | v1.16 | 운영·Ready 보고 | 공통 로그아웃/UA/위젯 배포 | 명시 잔여 없음·운영전체무결함 의미아님 |
 | AI 영상 스튜디오 | CC-MOVIE-01 | v1.36 | 운영버전 담당기록·유료생성 조건대기 | version/기존배포기록대조 | 주인님 후속지시 전 실유료생성0 |
-| AI 업무 워크스페이스 자동화 | CC-WORKSPACE-01 | v1.58 | E3/예약수정/요일칩/Gmail ON 배포·실OAuth설정대조 | 0074/75운영적용작성자검증·v1.58공식alias Master확인·전체840/tsc | redirect_uri_mismatch 실제요청/회원앱/GCP일치→OAuth/공통실검증·Mac독립 |
+| AI 업무 워크스페이스 자동화 | CC-WORKSPACE-01 | v1.59 | v1.59 운영, 네 화면·메뉴 데스크톱 확인 | b24b9595a·공식 alias dpl_3TyMVfb6WGcXbxVgtYZ38699Upfr READY·로컬 build 1회 작성자 통과 | 목록 DB v1.58 보고·버전 쓰기 미실행. 좁은 화면/직접 주소/타 공간·Gmail 실검증 별도. |
 | 셀러 라벨·QR·서류 자동화 | CC-ECOM-01 | v1.04 | 운영·인쇄자료/소규모미배포 | 마켓단계48b67dd5c 구현 | 다음배포묶음·실인쇄여백자료대기 |
 | AI 쇼핑몰 주문·매출 리포트 자동화 | CC-ECOM-01 | v1.06 | 운영·자료대기 | 코드/기존검증은개별기록 | 개인정보지운실제주문파일 필요 |
 | AI 스마트스토어 상품 자동등록기 | CC-ECOM-01 | v1.28 | 운영배포기록·발행표시 수정반영 | 6a17c6123 markPosted v1.28 mxv57n8mv 포함 | 같은변경 재배포0·실제마켓쓰기 별도지시 |
@@ -613,7 +613,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | 86 | AI 댓글·DM 통합 받은편지함 / comment-inbox | 마케팅(홍보) | v1.10 / 운영(2026-10-21 신규) | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 87 | AI 음악 스튜디오 / ai-music-studio | 음악 | v1.16 / 공개(new, 2026-10-23 신규) | v1.16 | CC-MUSIC-01 · 운영·Ready 보고 | 명시 잔여 없음·운영전체무결함 의미아님 |
 | 88 | AI 영상 스튜디오 / ai-video-studio | 영상 | v1.36 / 공개(new, 2026-10-23 신규) | v1.36 | CC-MOVIE-01 · 운영버전 담당기록·유료생성 조건대기 | 주인님 후속지시 전 실유료생성0 |
-| 89 | AI 업무 워크스페이스 자동화 / ai-work-workspace | 업무자동화 | v1.57 / 공개(2026-10-24 신규, 일반 등급 이상) | v1.58 | CC-WORKSPACE-01 · E3/예약수정/요일칩/Gmail ON 배포·실OAuth설정대조 | redirect_uri_mismatch 실제요청/회원앱/GCP일치→OAuth/공통실검증·Mac독립 |
+| 89 | AI 업무 워크스페이스 자동화 / ai-work-workspace | 업무자동화 | v1.57 / 공개(기초 목록 기록) | v1.59 | CC-WORKSPACE-01 · v1.59 운영, 네 화면·메뉴 데스크톱 확인 | 목록 DB v1.58 보고·버전 쓰기 미실행. 좁은 화면/직접 주소/타 공간·Gmail 실검증 별도. |
 | 90 | 셀러 라벨·QR·서류 자동화 / seller-label-docs | 이커머스 | v1.04 / 공개(new, 2026-10-25 신규) | — | CC-ECOM-01 · 운영·인쇄자료/소규모미배포 | 다음배포묶음·실인쇄여백자료대기 |
 | 91 | AI 쇼핑몰 주문·매출 리포트 자동화 / shop-order-report | 이커머스 | v1.06 / 공개(new, 2026-10-25 신규) | — | CC-ECOM-01 · 운영·자료대기 | 개인정보지운실제주문파일 필요 |
 | 92 | AI 스마트스토어 상품 자동등록기 / smartstore-register | 이커머스 | v1.28 / 공개(new, 2026-10-26 신규 · 「바로 등록」 실제 등록 성공 2026-10-27) | v1.28 | CC-ECOM-01 · 운영배포기록·발행표시 수정반영 | 같은변경 재배포0·실제마켓쓰기 별도지시 |
