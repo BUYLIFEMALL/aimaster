@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 23:15:29 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 23:17:15 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -452,7 +452,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | AIF-20261118-W01u | CC-SNS-01 | done / p3_isolated_17_of_17_and_mac_static_review_accepted | 자산 상태 집계 후속 SQL·격리 시험 초안 | 로컬 SQL 검수 완료. 호출 경로·영속 DB 적용·배포는 별도. |
 | AIF-20261118-W01v | CC-SNS-01 | done / asset_save_indicator_local_and_mac_checks_accepted_undeployed | 생성 결과 원본 저장 상태 표시 | 로컬 검수 완료·점유 해제·OFF·미배포. |
 | AIF-20261118-W01w | CC-SNS-01 | done / g5_response_evidence_and_guard_design_accepted | 생성 이미지 응답 크기 근거 및 G5 설계 | W01x 로컬 최소 보호 배정. 실제 크기/운영 응답 및 자산 참조 전환 별도. |
-| AIF-20261118-W01x | CC-SNS-01 | reviewing / legacy_422_fixed_omitted_copy_review_returned | 생성 이미지 응답 한도 및 비JSON 안내 보호 | 이미지 생략 전용 저장 안내·비용 단정 정정 후 Mac 고정 검수. |
+| AIF-20261118-W01x | CC-SNS-01 | reviewing / g5_omitted_copy_fixed_mac_targeted_review_requested | 생성 이미지 응답 한도 및 비JSON 안내 보호 | Mac 최종 합성 응답·레거시·안내 국소검수 대기. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 
 ## 현재 담당 회신이 확보된 프로젝트
