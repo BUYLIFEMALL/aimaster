@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 17:19:06 KST",
+  "checkedAt": "2026-11-18 17:20:37 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,22 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T08:19:06.617Z",
+      "at": "2026-11-18T08:20:37.447Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM Ready/순번해소·T08백업/정적PASS",
-      "scope": "CRMalias/meta직접·문자사람단계·T08archive77raw/줄바꿈/태그·정적삭제/안전복원문구",
+      "trigger": "T08 local검증완료/기존보안차단",
+      "scope": "타입0/compile통과 vsNext security exit1·백업EOL/원복문구·다음T03scope",
       "evidence": [
-        "msg_cb7675254442·MasterVercel직접",
-        "Masterbackup77해시/8raw69CRLF만차이·tagpeeled",
-        "msg_d974b8c4bde8·Blog정정요청"
+        "msg_2c96641e6325",
+        "Macmsg_d974b8c4bde8/b26a5448dd57"
       ],
-      "judgment": "CRM배포확인/실SMS미검수·heavy해소T08검사허용·backup내용차이0/EOL차이구분·T08정적수락/문서+local결과대기",
+      "judgment": "cleanup제품참조/타입검증수락·전체build성공주장0/우회재실행0·기존보안후속분리·회원캐시읽기설계다음배정",
       "unverified": [
-        "CRM주인님실폼/문자1/중복0",
-        "T08local검사·안전복원문구",
-        "SNSIO모의보완결과"
+        "T08문서최종SHA/점유해제",
+        "SNSIO모의결과",
+        "CRM사람문자실검수"
       ],
-      "nextAction": "사람신호/검사결과회수·추가발송/원격build0"
+      "nextAction": "T08기록확정→T03계약회수·기존승인예산추가0"
     },
     "notifications": [
       {
@@ -8503,16 +8502,16 @@
       "reviewer": "CX-MASTER-01",
       "title": "T08 구형 ghost-scraper 백업후정리 승인범위 구체화",
       "status": "reviewing",
-      "delivery": "backup_tag_exact_cleanup_completed_static_PASS_local_checks_pending",
-      "evidence": "주인님직접msg_6c2b57cab944·website기존Mac결과msg_efecea98d20b · msg_4ee74b44d30f 준비착수·세배포완료 · msg_e82ddbc669e0/a03a74190 정확안·실행배정msg_b4bd370c57de · msg_22e3ec0d95dd/e038·tag/77archive Master직접대조·Macmsg_d974b8c4bde8 정적PASS",
+      "delivery": "cleanup_static_pass_tsc_compile_pass_existing_Next_security_build_stop",
+      "evidence": "주인님직접msg_6c2b57cab944·website기존Mac결과msg_efecea98d20b · msg_4ee74b44d30f 준비착수·세배포완료 · msg_e82ddbc669e0/a03a74190 정확안·실행배정msg_b4bd370c57de · msg_22e3ec0d95dd/e038·tag/77archive Master직접대조·Macmsg_d974b8c4bde8 정적PASS · msg_2c96641e6325 tsc0/compile통과·기존Next16.4.2 SecurityFatalError exit1/반복0·nextenv해시불변·백업문구정정",
       "constraints": "세배포뒤정확삭제범위/백업/태그선행·안내/410보존·비밀/env/node_modules백업제외·새빌드/공유push0 · 백업기존덮기0/태그push0/추적비밀파일있으면중단·next-env남의변경보존·전체폴더이동/재귀삭제0·tsc/buildCRM뒤",
-      "next": "tsc/build결과·복원안전문구/백업EOL국소정정→미배포정리완료판정",
-      "lastReviewedAt": "2026-11-18T08:19:06.617Z",
+      "next": "최종문서SHA/점유해제후완료판정·Next보안후속기록/추가build0",
+      "lastReviewedAt": "2026-11-18T08:20:37.447Z",
       "sha": "e038f405e",
       "scopeRef": "ghost-scraper tree436c0f813·문서§2-3 19파일·package test1·보존안내/410/고지/SQL/docs",
       "validation": {
-        "author": "19삭제/package1·추적77→58·백업태그선행·미배포/운영0·runtime의magiclink실행안함",
-        "master": "tagpeeled2706fc0b5·실backup77 raw8/LF정규화69일치/그밖0·CRMheavy종료후tsc/build1허용",
+        "author": "19삭제/package1·추적77→58·백업태그선행·미배포/운영0·runtime의magiclink실행안함 · tsc1회0/로컬build1회compile통과후security정지exit1·기존dependency동일/삭제결함아님·runtime0",
+        "master": "tagpeeled2706fc0b5·실backup77 raw8/LF정규화69일치/그밖0·CRMheavy종료후tsc/build1허용 · 선택다제한마감/같은명령우회0·기존Next패치후속·문서최종확인예정",
         "independent": "삭제정확19·남은58 참조0·안내410/logout/cookie/고지SQL보존·defaulttest제거타당·복원checkout예시문구정정필요·실runtime0"
       }
     },
@@ -8521,12 +8520,13 @@
       "owner": "CC-BLOG-01",
       "reviewer": "CX-MASTER-01",
       "title": "T03 도메인 구조 캐시 회원별 격리 결정 반영",
-      "status": "queued",
-      "delivery": "owner_product_decision_recorded_operating_DDL_Render_not_approved",
-      "evidence": "주인님직접msg_6c2b57cab944 회원별로나누기",
+      "status": "dispatched",
+      "delivery": "owner_member_scoped_cache_decision_bounded_existing_plan_design_assigned",
+      "evidence": "주인님직접msg_6c2b57cab944 회원별로나누기 · MasterT03한안읽기플랜배정(T08마감뒤)",
       "constraints": "현재는플랜반영·DB구조/Render운영재배포별도범위승인·실DDL/Render0",
-      "next": "T07Excel/T06선행관계확인뒤정확DB/Render플랜·비용취합",
-      "lastReviewedAt": "2026-11-18T07:21:05.785Z"
+      "next": "웹/Render/DBdataflow·회원신뢰/키/옛캐시격리/동시성/RLS/rollback/운영승인범위한안",
+      "lastReviewedAt": "2026-11-18T08:20:37.447Z",
+      "scopeRef": "기존SCRAPING_CONSOLIDATION_TASKS T03/최소관련원문읽기·새문서/제품코드0"
     },
     {
       "task_id": "AIF-20261118-W01j",
@@ -8645,6 +8645,18 @@
       "evidence": "79c 시간예산한계·Master새범위배정",
       "next": "정확경로/점유확인→모의deadline구현→Mac실모듈검수",
       "lastReviewedAt": "2026-11-18T08:14:39.332Z"
+    },
+    {
+      "task_id": "BLOG-20261118-05",
+      "owner": "CC-BLOG-01",
+      "title": "구형 안내앱 Next 보안 업데이트 후속",
+      "status": "queued",
+      "delivery": "existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet",
+      "scopeRef": "ghost-scraper next16.4.2 기존dependency·향후최소보안patch/lock회귀범위",
+      "evidence": "T08 localcompile후SecurityFatalError msg_2c96641e6325·삭제commit와독립",
+      "constraints": "현재반복build/설치/lock/원격배포0·실운영공격가능성단정0",
+      "next": "다음정당한범위/묶음승인때최소patch·현재T03플랜우선",
+      "lastReviewedAt": "2026-11-18T08:20:37.447Z"
     }
   ]
 }
