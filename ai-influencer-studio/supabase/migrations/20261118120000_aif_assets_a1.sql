@@ -12,6 +12,16 @@
 --  * finalize는 storage.objects의 id·bucket·name·size 일치를 확인한다. metadata는 내용 증거가 아니며, 내용 검증(서명·상한·SHA)은 업로드 전 API store가 한다(R1-1 3번).
 --  * 중앙 quota/retention 함수·표는 고치지 않는다. 버킷 생성·tracked bucket 등록·markPosted 호출은 이 파일에 없다(버킷은 별도 승인 후 생성, R1·18-6).
 --  * 잠금 순서: 회원(aif_user:<uid>) → 자산(aif_asset:<id>). 두 잠금을 반대로 잡는 함수는 없다.
+--
+-- 2차 수정(2026-11-18, Mac 검수 msg_6ffe514132b3·msg_666b5f7d4d1e, Master msg_6e34a04e985b·msg_865712ee44b0) — 같은 초안 안에서만:
+--  1) reconcile: 기대 객체 id(finalize가 기록한 object_id 또는 전달값)가 있고 그 id의 bucket·name·size가 모두 일치할 때만 ready. 기대 id 없으면 path+size 우회 금지.
+--  2) claim_delete: canonical 경로·경로 안 id = p_asset·기존 자산 행 owner/bucket/path/id 전부 일치·conflict 행 owner/bucket/path 불변 대조 뒤 토큰 재발급.
+--  3) delete_mark: 회원 확인 → 회원 잠금 → 자산 잠금 → 행/토큰/상태 재확인, 전이 행렬 고정(deleted·cancelled에서 되살림 없음), p_user 인자 추가.
+--  4) record 변수(v_*)와 SQL 별칭(t/so/d) 분리, metadata size는 aif_asset_meta_size()로 안전 변환(null·문자·범위 밖 → 불일치, 원문 예외 0).
+--  범위 정정(Master): 1~3의 소유 경계 결함은 service_role 전용 내부 함수의 계약 결함이지 회원 직접 RPC 공격 경로나 실제 DB 피해가 아니다
+--  (회원은 함수 execute 권한이 없음). 4의 cast 예외는 함수 예외 → 거래 롤백으로 예약 행이 보존되므로 용량 해제 피해로 단정하지 않는다.
+--  함수는 9개(계약 6 + 보조 usage_estimate·abort_local·meta_size). 보조 함수는 새 기능이 아니라 계약 구현을 돕는 내부용이다.
+--  미확인: 기존 정책/기본 GRANT 재적용 안전성(create or replace 시 기존 grant 유지 여부)은 격리 DB 실행 때 확인한다.
 
 -- ───────────────────────── 1. 표 aif_assets ─────────────────────────
 create table if not exists public.aif_assets (
@@ -77,6 +87,21 @@ alter table public.aif_asset_deletions enable row level security;   -- 정책 �
 revoke all on table public.aif_asset_deletions from anon, authenticated;
 
 -- ───────────────────────── 3. 내부 도우미(서비스 전용) ─────────────────────────
+-- storage.objects.metadata->>'size'를 안전하게 bigint로. null·빈 문자열·숫자 아님·범위 밖(0 이하·20MiB 초과)이면 null → 호출부는 '불일치'로 본다(원문 예외 0).
+create or replace function public.aif_asset_meta_size(p_meta jsonb)
+returns bigint
+language plpgsql immutable set search_path = '' as $$
+declare s text; v bigint;
+begin
+  s := p_meta->>'size';
+  if s is null or s !~ '^[0-9]{1,10}$' then return null; end if;
+  v := s::bigint;
+  if v <= 0 or v > 20971520 then return null; end if;
+  return v;
+end $$;
+revoke all on function public.aif_asset_meta_size(jsonb) from public, anon, authenticated;
+grant execute on function public.aif_asset_meta_size(jsonb) to service_role;
+
 -- 회원 잠금 안에서 부른다. 중앙 측정값 + 우리 미측정분. quota는 매번 다시 읽는다(null = 무제한).
 create or replace function public.aif_asset_usage_estimate(p_user uuid)
 returns table (used_bytes bigint, quota_bytes bigint, measured_at timestamptz)
@@ -139,25 +164,33 @@ grant execute on function public.aif_asset_reserve(uuid, text, text, text, bigin
 create or replace function public.aif_asset_finalize(p_asset uuid, p_user uuid, p_object_id uuid)
 returns text
 language plpgsql security definer set search_path = '' as $$
-declare a record; o record;
+declare v_asset record; v_obj record;
 begin
   perform pg_advisory_xact_lock(hashtext('aif_user:' || p_user::text));
   perform pg_advisory_xact_lock(hashtext('aif_asset:' || p_asset::text));
-  select * into a from public.aif_assets x where x.id = p_asset and x.user_id = p_user for update;
+  select * into v_asset from public.aif_assets t where t.id = p_asset and t.user_id = p_user for update;
   if not found then return 'NOT_FOUND'; end if;
-  if a.state = 'ready' then return 'ready'; end if;
-  if a.state not in ('reserved','unknown') then return 'INVALID_STATE'; end if;
+  if v_asset.state = 'ready' then return 'ready'; end if;
+  if v_asset.state not in ('reserved','unknown') then return 'INVALID_STATE'; end if;
   if exists (select 1 from public.aif_asset_deletions d where d.asset_id = p_asset and d.state in ('claimed','deleting','delete_unknown')) then
     return 'ASSET_DELETION_IN_PROGRESS';
   end if;
   if p_object_id is null then
+    -- 업로드 응답에서 객체 id를 얻지 못함 → ready 단정 0. 기대 id도 기록하지 않는다(모르는 값).
     update public.aif_assets set state = 'unknown', unknown_since = coalesce(unknown_since, clock_timestamp()), updated_at = now() where id = p_asset;
     return 'unknown';
   end if;
-  select o.id, o.bucket_id, o.name, nullif(o.metadata->>'size','')::bigint as size into o
-  from storage.objects o where o.id = p_object_id;
-  if not found or o.bucket_id <> a.bucket or o.name <> a.path or o.size is distinct from a.bytes then
-    -- 객체가 우리 예약과 다르다(다른 쓰기·크기 불일치). failed로 단정하지 않고 unknown 유지(R2-2).
+  -- 기대 객체 id를 먼저 기록해 둔다(reconcile이 같은 id로만 ready를 판정하도록, 수정 1).
+  update public.aif_assets set object_id = coalesce(object_id, p_object_id), updated_at = now() where id = p_asset;
+  if v_asset.object_id is not null and v_asset.object_id <> p_object_id then
+    -- 이미 다른 기대 id가 있다 → 두 쓰기가 섞였을 가능성. unknown 유지.
+    update public.aif_assets set state = 'unknown', unknown_since = coalesce(unknown_since, clock_timestamp()), updated_at = now() where id = p_asset;
+    return 'unknown';
+  end if;
+  select so.id, so.bucket_id, so.name, public.aif_asset_meta_size(so.metadata) as size_bytes into v_obj
+  from storage.objects so where so.id = p_object_id;
+  if not found or v_obj.bucket_id <> v_asset.bucket or v_obj.name <> v_asset.path or v_obj.size_bytes is null or v_obj.size_bytes <> v_asset.bytes then
+    -- 객체가 우리 예약과 다르거나 크기를 확인할 수 없다. failed로 단정하지 않고 unknown 유지(R2-2).
     update public.aif_assets set state = 'unknown', unknown_since = coalesce(unknown_since, clock_timestamp()), updated_at = now() where id = p_asset;
     return 'unknown';
   end if;
@@ -168,46 +201,58 @@ revoke all on function public.aif_asset_finalize(uuid, uuid, uuid) from public, 
 grant execute on function public.aif_asset_finalize(uuid, uuid, uuid) to service_role;
 
 -- ───────────────────────── 7. 대조(reconcile) ─────────────────────────
--- 객체가 있고 bucket·name·size가 맞으면 ready. 객체 없음·불일치·조회 불명은 모두 바꾸지 않는다(R2-2: 시간·횟수·부재는 failed 근거 아님).
-create or replace function public.aif_asset_reconcile(p_asset uuid, p_user uuid)
+-- 수정 1(Master msg_6e34a04e985b): 기대 객체 id가 있어야만 ready를 판정한다. finalize가 기록한 object_id 또는 호출부가 전달한 p_expected_object_id가
+-- 있고, 그 id의 객체가 bucket·name·size까지 모두 일치할 때만 ready. 기대 id가 없으면 path+size로 우회하지 않고 unknown 유지.
+-- 객체 없음·불일치·조회 불명은 모두 failed로 바꾸지 않는다(R2-2).
+create or replace function public.aif_asset_reconcile(p_asset uuid, p_user uuid, p_expected_object_id uuid default null)
 returns text
 language plpgsql security definer set search_path = '' as $$
-declare a record; o record;
+declare v_asset record; v_obj record; v_expected uuid;
 begin
   perform pg_advisory_xact_lock(hashtext('aif_user:' || p_user::text));
   perform pg_advisory_xact_lock(hashtext('aif_asset:' || p_asset::text));
-  select * into a from public.aif_assets x where x.id = p_asset and x.user_id = p_user for update;
+  select * into v_asset from public.aif_assets t where t.id = p_asset and t.user_id = p_user for update;
   if not found then return 'NOT_FOUND'; end if;
-  if a.state not in ('reserved','unknown') then return a.state; end if;
+  if v_asset.state not in ('reserved','unknown') then return v_asset.state; end if;
   if exists (select 1 from public.aif_asset_deletions d where d.asset_id = p_asset and d.state in ('claimed','deleting','delete_unknown')) then
     return 'ASSET_DELETION_IN_PROGRESS';
   end if;
-  select o.id, nullif(o.metadata->>'size','')::bigint as size into o
-  from storage.objects o where o.bucket_id = a.bucket and o.name = a.path;
-  if found and o.size = a.bytes then
-    update public.aif_assets set state = 'ready', object_id = o.id, stored_at = clock_timestamp(), unknown_since = null, updated_at = now() where id = p_asset;
+  if v_asset.object_id is not null and p_expected_object_id is not null and v_asset.object_id <> p_expected_object_id then
+    return 'unknown';   -- 기록된 기대 id와 전달된 기대 id가 다르다 → 판정 불가
+  end if;
+  v_expected := coalesce(v_asset.object_id, p_expected_object_id);
+  if v_expected is null then
+    if v_asset.state = 'reserved' then
+      update public.aif_assets set state = 'unknown', unknown_since = clock_timestamp(), updated_at = now() where id = p_asset;
+    end if;
+    return 'unknown';   -- 기대 id 없음 → path+size 우회 금지
+  end if;
+  select so.id, so.bucket_id, so.name, public.aif_asset_meta_size(so.metadata) as size_bytes into v_obj
+  from storage.objects so where so.id = v_expected;
+  if found and v_obj.bucket_id = v_asset.bucket and v_obj.name = v_asset.path and v_obj.size_bytes is not null and v_obj.size_bytes = v_asset.bytes then
+    update public.aif_assets set state = 'ready', object_id = v_expected, stored_at = clock_timestamp(), unknown_since = null, updated_at = now() where id = p_asset;
     return 'ready';
   end if;
-  if a.state = 'reserved' then
-    update public.aif_assets set state = 'unknown', unknown_since = clock_timestamp(), updated_at = now() where id = p_asset;
+  if v_asset.state = 'reserved' then
+    update public.aif_assets set state = 'unknown', unknown_since = clock_timestamp(), object_id = coalesce(v_asset.object_id, p_expected_object_id), updated_at = now() where id = p_asset;
   end if;
   return 'unknown';
 end $$;
-revoke all on function public.aif_asset_reconcile(uuid, uuid) from public, anon, authenticated;
-grant execute on function public.aif_asset_reconcile(uuid, uuid) to service_role;
+revoke all on function public.aif_asset_reconcile(uuid, uuid, uuid) from public, anon, authenticated;
+grant execute on function public.aif_asset_reconcile(uuid, uuid, uuid) to service_role;
 
 -- ───────────────────────── 8. 원격 요청 전 중단(유일한 해제 경로) ─────────────────────────
 -- 호출부(API store)가 "저장소에 요청을 보내지 않았다"를 보장할 때만 부른다(R2-2 최종). 원격 응답을 받은 뒤에는 절대 부르지 않는다.
 create or replace function public.aif_asset_abort_local(p_asset uuid, p_user uuid)
 returns text
 language plpgsql security definer set search_path = '' as $$
-declare a record;
+declare v_asset record;
 begin
   perform pg_advisory_xact_lock(hashtext('aif_user:' || p_user::text));
   perform pg_advisory_xact_lock(hashtext('aif_asset:' || p_asset::text));
-  select * into a from public.aif_assets x where x.id = p_asset and x.user_id = p_user for update;
+  select * into v_asset from public.aif_assets t where t.id = p_asset and t.user_id = p_user for update;
   if not found then return 'NOT_FOUND'; end if;
-  if a.state <> 'reserved' then return 'INVALID_STATE'; end if;   -- unknown은 여기서도 풀 수 없다
+  if v_asset.state <> 'reserved' then return 'INVALID_STATE'; end if;   -- unknown은 여기서도 풀 수 없다
   update public.aif_assets set state = 'failed', updated_at = now() where id = p_asset;
   return 'failed';
 end $$;
@@ -215,40 +260,73 @@ revoke all on function public.aif_asset_abort_local(uuid, uuid) from public, ano
 grant execute on function public.aif_asset_abort_local(uuid, uuid) to service_role;
 
 -- ───────────────────────── 9. 삭제 예약·표시(다음 단위용, 이번에 호출부 없음) ─────────────────────────
+-- 수정 2(Master msg_6e34a04e985b): 경로는 canonical 모양이어야 하고 경로 안의 id가 p_asset과 같아야 한다(고아도 동일).
+-- 기존 aif_assets 행이 있으면 owner·bucket·path·id가 전부 일치해야 하고, 쓰는 중(reserved/ready/unknown)이면 거절.
+-- 기존 예약 행(conflict)이 있으면 owner·bucket·path가 불변인지 대조한 뒤에만 토큰을 다시 발급한다. 타 회원 경로는 어떤 경우에도 0.
 create or replace function public.aif_asset_claim_delete(p_asset uuid, p_user uuid, p_bucket text, p_path text)
 returns uuid
 language plpgsql security definer set search_path = '' as $$
-declare a record; v_token uuid := gen_random_uuid();
+declare v_asset record; v_del record; v_token uuid := gen_random_uuid(); v_path_id text;
 begin
-  if p_path not like p_user::text || '/%' then raise exception 'ACCESS_DENIED' using errcode = 'P0001'; end if;
+  if p_bucket <> 'aif-assets' then raise exception 'ACCESS_DENIED' using errcode = 'P0001'; end if;
+  -- canonical 경로: {uid}/{kind}/{id}.{ext} — uid는 p_user, id는 p_asset과 같아야 한다
+  if p_path !~ ('^' || p_user::text || '/(ref_face|ref_place|ref_product|generated)/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(png|jpg|webp|heic)$') then
+    raise exception 'ACCESS_DENIED' using errcode = 'P0001';
+  end if;
+  v_path_id := substring(p_path from '/([0-9a-f-]{36})\.[a-z]+$');
+  if v_path_id is null or v_path_id::uuid <> p_asset then raise exception 'ACCESS_DENIED' using errcode = 'P0001'; end if;
   perform pg_advisory_xact_lock(hashtext('aif_user:' || p_user::text));
   perform pg_advisory_xact_lock(hashtext('aif_asset:' || p_asset::text));
-  select * into a from public.aif_assets x where x.id = p_asset;
-  if found and a.state in ('reserved','ready','unknown') then raise exception 'ASSET_IN_USE' using errcode = 'P0001'; end if;
-  insert into public.aif_asset_deletions (asset_id, user_id, bucket, path, state, fencing_token)
-  values (p_asset, p_user, p_bucket, p_path, 'claimed', v_token)
-  on conflict (asset_id) do update set state = 'claimed', fencing_token = v_token, updated_at = now()
-    where public.aif_asset_deletions.state in ('cancelled','delete_failed');
-  if not found then raise exception 'DELETION_BUSY' using errcode = 'P0001'; end if;
+  select * into v_asset from public.aif_assets t where t.id = p_asset for update;
+  if found then
+    if v_asset.user_id <> p_user or v_asset.bucket <> p_bucket or v_asset.path <> p_path then raise exception 'ACCESS_DENIED' using errcode = 'P0001'; end if;
+    if v_asset.state in ('reserved','ready','unknown') then raise exception 'ASSET_IN_USE' using errcode = 'P0001'; end if;
+  end if;
+  select * into v_del from public.aif_asset_deletions t where t.asset_id = p_asset for update;
+  if found then
+    if v_del.user_id <> p_user or v_del.bucket <> p_bucket or v_del.path <> p_path then raise exception 'ACCESS_DENIED' using errcode = 'P0001'; end if;
+    if v_del.state not in ('cancelled','delete_failed') then raise exception 'DELETION_BUSY' using errcode = 'P0001'; end if;
+    update public.aif_asset_deletions set state = 'claimed', fencing_token = v_token, updated_at = now() where asset_id = p_asset;
+  else
+    insert into public.aif_asset_deletions (asset_id, user_id, bucket, path, state, fencing_token)
+    values (p_asset, p_user, p_bucket, p_path, 'claimed', v_token);
+  end if;
   return v_token;
 end $$;
 revoke all on function public.aif_asset_claim_delete(uuid, uuid, text, text) from public, anon, authenticated;
 grant execute on function public.aif_asset_claim_delete(uuid, uuid, text, text) to service_role;
 
-create or replace function public.aif_asset_delete_mark(p_asset uuid, p_token uuid, p_state text)
+-- 수정 3(Master msg_6e34a04e985b): 예약 행의 회원을 먼저 확인 → 회원 잠금 → 자산 잠금 → 행·토큰·상태 재확인. 전이 행렬을 고정하고 deleted에서의 되살림은 없다.
+--   claimed → deleting | cancelled
+--   deleting → deleted | delete_failed | delete_unknown
+--   delete_unknown → deleted | delete_failed   (조회로 확정된 결과만)
+--   delete_failed → (claim_delete로 재예약만, 여기서는 전이 없음)
+--   deleted, cancelled → 전이 없음
+create or replace function public.aif_asset_delete_mark(p_asset uuid, p_user uuid, p_token uuid, p_state text)
 returns boolean
 language plpgsql security definer set search_path = '' as $$
-declare n integer;
+declare v_del record; v_ok boolean;
 begin
   if p_state not in ('deleting','deleted','delete_failed','delete_unknown','cancelled') then raise exception 'INVALID' using errcode = '22023'; end if;
+  -- 1) 잠금 전 회원 확인(타 회원 예약을 잠그지 않도록)
+  select t.user_id into v_del from public.aif_asset_deletions t where t.asset_id = p_asset;
+  if not found or v_del.user_id <> p_user then return false; end if;
+  -- 2) 회원 → 자산 잠금
+  perform pg_advisory_xact_lock(hashtext('aif_user:' || p_user::text));
   perform pg_advisory_xact_lock(hashtext('aif_asset:' || p_asset::text));
+  -- 3) 잠금 뒤 행·토큰·상태 재확인
+  select * into v_del from public.aif_asset_deletions t where t.asset_id = p_asset and t.user_id = p_user for update;
+  if not found or v_del.fencing_token <> p_token then return false; end if;
+  v_ok := (v_del.state = 'claimed' and p_state in ('deleting','cancelled'))
+       or (v_del.state = 'deleting' and p_state in ('deleted','delete_failed','delete_unknown'))
+       or (v_del.state = 'delete_unknown' and p_state in ('deleted','delete_failed'));
+  if not v_ok then return false; end if;
   update public.aif_asset_deletions set state = p_state, attempts = attempts + (case when p_state = 'deleting' then 1 else 0 end), updated_at = now()
   where asset_id = p_asset and fencing_token = p_token;
-  get diagnostics n = row_count;
-  return n = 1;
+  return true;
 end $$;
-revoke all on function public.aif_asset_delete_mark(uuid, uuid, text) from public, anon, authenticated;
-grant execute on function public.aif_asset_delete_mark(uuid, uuid, text) to service_role;
+revoke all on function public.aif_asset_delete_mark(uuid, uuid, uuid, text) from public, anon, authenticated;
+grant execute on function public.aif_asset_delete_mark(uuid, uuid, uuid, text) to service_role;
 
 -- ───────────────────────── 10. 이 파일에 없는 것(의도) ─────────────────────────
 -- * storage.buckets 'aif-assets' 생성(private, 20MB, mime 5종) — 별도 승인 후 생성.
