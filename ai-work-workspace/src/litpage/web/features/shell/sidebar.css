@@ -378,3 +378,7 @@ html.aww-studio.lit-light-theme .lit-sidebar-container .nc-sb-tab.selected {
   background: rgb(99 102 241 / 0.22);
   color: var(--aww-studio-nav-text-active);
 }
+
+/* 2026-11-18 주인님 지시 「하단에 겹쳐져서 안보여 잘보이게 조치」: 화면 왼쪽 아래에 고정되는 공용 저장공간 위젯([data-aimaster-storage], www.buylife.xyz/storage-widget.js)이
+   워크스페이스 이름 칸(.nc-sb-footer)을 덮었음 — 위젯이 있을 때만 좌측 메뉴 맨 아래에 위젯 자리(52px)를 비워 둔다. 위젯(공용 파일)은 건드리지 않음 */
+body:has([data-aimaster-storage]) .lit-sidebar { padding-bottom: 52px; box-sizing: border-box; }
