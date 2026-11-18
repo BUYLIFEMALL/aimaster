@@ -176,7 +176,7 @@ W01 후반 정확 경로(추가):
 | `src/lib/assets/config.ts` (신규) | 기능 플래그 `AIF_ASSETS_MODE = "off" \| "shadow" \| "on"`. off=기존 흐름만, shadow=원본 저장만 추가(전반 기본값), on=새 요청·응답 형식. migration 미적용이면 코드가 off로 동작 |
 | ~~`src/app/api/aif/assets/upload-ticket/route.ts`, `src/app/api/aif/assets/[id]/complete/route.ts` (신규)~~ → **`src/app/api/aif/assets/route.ts`의 `POST` 하나로 변경(2026-11-19, 계약 §22 가 안)** | 참고 이미지는 한 장 1MiB 이하라 허가·확정 대신 서버 경유 업로드로 받는다 — 한 요청 한 장, 서버가 MIME·파일 서명·크기·해시를 확인한 뒤 저장. 구현 기록 §14-N |
 | `src/app/api/aif/assets/[id]/route.ts` (신규) | 소유자 확인 후 단기 서명 URL 재발급 — 화면 응답이 실패해도 결과를 다시 가져오는 경로 |
-| `src/app/api/aif/generations/route.ts` (신규) | `{ referenceAssets: [{assetId, role}], config }` → 생성 → `{assetId, signedUrl}`. 기존 `/api/generate-image`는 off/shadow용으로 유지 |
+| `src/app/api/aif/generations/route.ts` (신규) | `{ config, references: [{assetId, role}] }`(필드 이름은 §23-2의 `references` 하나로 고정) → 생성 → `{assetId, signedUrl}`. 기존 `/api/generate-image`는 off/shadow용으로 유지 |
 | `src/components/InfluencerStudio.tsx` (생성·보정 호출부), `src/components/ControlPanel.tsx` (참고 이미지 올리기), `src/components/ImageDisplay.tsx`·`HistoryDrawer.tsx` (서명 URL 표시·만료 시 재발급) | on일 때 새 경로 사용 |
 | `tests/assetsMode.test.mjs`, `tests/referenceRoles.test.mjs` (신규) | 플래그 분기·역할 순번 계약 |
 
@@ -1487,7 +1487,7 @@ SQL 함수 **1개**가 「멈춰 있을 수 있는 건」의 **건수와 나이 
 ### 23-5. 처리 순서 — 유료 생성 전에 끝나야 하는 것
 
 ```
-① 권한 → ② 본인 AI 키 → ③ 모드 → ④ 본문(256KiB) → ⑤ 요청 모양(config·references·role·개수·중복·사진 칸 금지)
+① 권한 → ② 모드(off면 404 — 키·본문 미접촉) → ③ 본인 AI 키 → ④ 본문(256KiB) → ⑤ 요청 모양(config·references·role·개수·중복·사진 칸 금지)
 → ⑥ 참고 자산 행 조회(소유·상태·종류·경로·크기) → ⑦ 내려받기와 일치 확인(길이·해시·서명)
 → ⑧ 저장 한도 사전 검사(aif_asset_precheck, 화질별 예상 크기) ──────────── 여기까지 유료 호출 0
 → ⑨ 생성(유료, 정확히 1회) → ⑩ 원본 저장(예약 → 업로드 → 확정) → ⑪ 서명 주소 → ⑫ 응답
@@ -1975,3 +1975,13 @@ DB: 해당 없음(읽기만) · 배포: 해당 없음
 - 요지: `POST /api/aif/generations` — 요청은 글자 설정과 `{assetId, role}` 목록(본문 256KiB), 서버가 참고 자산의 소유·`ready`·종류·크기·**해시 일치**를 유료 생성 전에 확인하고 기존 생성·저장 함수를 그대로 부른다. 저장이 확인되면 응답은 자산 번호와 120초 서명 주소뿐이다(이미지 바이트 없음). **새 SQL 없음.** off에서는 404.
 - 정직하게 적은 것: 저장이 불명·실패면 응답에 이미지를 싣는 수밖에 없어 응답 크기 한도(G5)가 그 경우에는 남는다 · 직전 결과(`base_result`)를 서버가 어떻게 넘길지는 **미확정**이라 1차에서 받지 않는 안을 추천했다 · 응답이 끊겼을 때 방금 만든 자산을 찾는 수단은 작업 원장(W02)의 일이다 · 실제 저장소에서의 내려받기는 한 번도 실측하지 않았다.
 - 다음: Master 계약 검토와 확정 6항(§23-11) → 구현은 별도 배정(CX-QA-01 검수 대상).
+
+### 14-Q. 자산 번호 생성 경로 — 로컬 구현 (2026-11-19, AIF-20261119-W01-G3I, Master `msg_48484bbd586c`, 계약 §23 조건부 수락, 독립 검수 CX-QA-01 대기)
+
+- **Master 정정 반영(§23 본문 2곳)**: 요청 필드는 `references` 하나(§12-1 표의 옛 이름 `referenceAssets` 정정) · 처리 순서는 권한 → 모드(off면 404, 키·본문 미접촉) → 본인 키 → 검사(§23-5의 순서 줄 정정, §23-7과 일치). 확정: 조건이 맞지 않는 role은 400 · `base_result`는 1차 400(`REFERENCE_ROLE_UNSUPPORTED`) — **화면을 이 경로로 바꾸는 단위에서도 기존 보정 흐름은 유지해야 한다**.
+- 새 파일 3개, 기존 제품 파일 수정 0: `src/lib/assets/generations.ts`(처리기) · `src/app/api/aif/generations/route.ts`(라우트, `maxDuration = 300`) · `tests/generationsRoute.test.mjs`. 새 SQL·패키지·env 0. 운영 상수는 `off` 그대로라 이 경로는 권한 확인 뒤 404만 돌려준다. 부르는 화면 없음.
+- 저장소 스트림: 설치된 `@supabase/storage-js` 2.117.3의 `download(path, {}, { signal }).asStream()`이 `ReadableStream`을 돌려준다(타입 정의로 확인). 처리기는 받는 동안 실제 바이트를 세고 **행에 기록된 크기를 넘는 순간** 읽기를 취소하고 중단 신호를 보낸다 — 큰 버퍼를 미리 잡지 않는다. 통째 응답(Blob)이 오면 쓰지 않는다.
+- 시간 예산(생성 전 입출력 모두 유한): 참고 자산 전체 20초(행 조회·내려받기 한 번은 8초) + 사전 검사 10초 + 생성 240초(`gemini.ts`) + 저장 20초 + 서명 5초 = **295초 < 300초**. 상한을 넘으면 생성하지 않는다(생성 뒤 저장이 넘으면 불명으로 처리하고 응답에 이미지를 싣는다).
+- 시험: 새 모의 시험 23건(실제 라우트 2 + 처리기 21), 전체 `npm test` 256/256, `npx tsc --noEmit` 통과. 변형 10종(해시 대조·소유 재확인·스트림 상한·off 검사·role↔kind·사진 칸 금지·사전 검사 거절·합계 상한·서명 주소 검증·ready 아닌 상태) 모두 시험 실패로 잡힘.
+- 작업 중 있었던 일(정직하게): 1회차 23건 중 3건 실패는 모두 시험 결함(누출 검사가 서명 주소까지 훑음 · 글자 없는 번호를 대문자화 · 1바이트 배열에 서명 8바이트)이라 시험만 고쳤다. 스트림 상한 제거 변형에서 끝없는 가짜 스트림 때문에 시험 프로세스가 멈추지 않고 메모리 약 12GB까지 커져 내 프로세스 2개를 종료했다 → 가짜 스트림에 끝(2000덩어리)을 두어 같은 변형이 실패 1건으로 끝나게 고쳤다. 제품 코드 영향 없음.
+- **한계**: 저장소·DB·생성은 전부 가짜다. 실제 저장소가 스트림을 어떻게 끊는지·중단 신호에 실제 요청이 취소되는지는 **미실측**(시간 상한은 기다리기를 그만두는 것이지 원격 취소 보장이 아니다) · 권한 확인·키 조회·본문 읽기에는 따로 상한이 없어 295초 예산 밖이다(남는 여유 5초) · 생성 240초는 `gemini.ts`의 값이며 이 처리기가 강제하지 않는다 · 서명할 경로는 저장 함수가 돌려주지 않아 계약(회원/generated/번호.확장자)과 바이트 서명으로 다시 만든다 — 저장 모듈과 판정이 어긋나면 서명만 실패하고 번호는 유지된다 · §23-10의 운영 선행 조건 전부 그대로.
