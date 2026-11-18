@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T03:29:43.745Z",
+  "checkedAt": "2026-11-18T03:32:35.636Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3890,7 +3890,7 @@
       "title": "CRM 기존3집계 조회실패 0건오인 국소보완",
       "status": "done",
       "delivery": "specified_actual_ssr_counts_qa_pass_unreleased",
-      "evidence": "IMP-CRM-02·msg_dadd04b31f21·착수msg_c925cbcfb437·결과msg_6245745c7de7·Master4파일stat·Macmsg_8e80d8cbb82c·MacPASSmsg_dbbca5ced04b·수락/정리msg_0d7a0106f997",
+      "evidence": "IMP-CRM-02·msg_dadd04b31f21·착수msg_c925cbcfb437·결과msg_6245745c7de7·Master4파일stat·Macmsg_8e80d8cbb82c·MacPASSmsg_dbbca5ced04b·수락/정리msg_0d7a0106f997·정리msg_7b5d92cf4eb7/b68050a7f·점유해제520c9c988",
       "scopeRef": "dashboard/page.tsx·submissionStatus.ts·submission-status.test.mjs·기존결과본인절",
       "completion": "전체/최근7일/실패error/비정상count확인불가·정상0/양수회귀·실pageSSR가짜query·tsc·Mac독립",
       "constraints": "route/발송/후속정책/DDL/실API/운영DB/build0",
@@ -3902,6 +3902,21 @@
         "master": "4파일범위확인·추가쿼리/신규칼럼없음보고",
         "independent": "Mac native49/실page4카드x8경계32·정상0/양수·기존query/필터회귀PASS"
       }
+    },
+    {
+      "task_id": "DES-20261118-06",
+      "parent_task_id": "DES-20261118-05",
+      "owner": "AG-UI-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "감성 설정 화면 주인님 직접지시·새배포 상태 취합",
+      "status": "running",
+      "delivery": "direct_owner_ui_work_observed_report_requested",
+      "sha": "f474c0835·398b499e7 + KeySettings/version1.32미커밋",
+      "evidence": "12:30Master AGY실화면 직접지시확인·git경로log·msg_76ca7f95555f",
+      "scopeRef": "emotion-writer KeySettings/version 본인작업·직접지시원문/승인/실배포근거보고요구",
+      "completion": "직접UI지시/무료정책/빌드승인범위·실제manifest/배포/예산·독립검수구분",
+      "next": "AGY정확보고회수→공식표정합성/추가검수·타담당중복0",
+      "lastReviewedAt": "2026-11-18T03:32:35.636Z"
     }
   ],
   "programOverrides": [
@@ -4218,11 +4233,11 @@
     {
       "slug": "emotion-writer",
       "owner": "CC-ECOM-01",
-      "reportedVersion": "v1.30",
-      "stage": "3사글귀AI 운영·이미지엔진보완 소스완료/미배포",
+      "reportedVersion": "v1.31 작성자화면주장·실버전검증대기",
+      "stage": "새READY alias변경확인·AGY직접UI수정중·소스/승인범위취합",
       "completed": "지정0789/59cb소스트리재배포·3사3실호출작성자성공·Master alias확인·이미지1a1f64dba 지정독립PASS",
-      "next": "이미지b34+3cb+1a1 다음승인묶음까지동결·free=false·새실생성/빌드미승인",
-      "evidence": "msg_85526463335b·dpl_7XjTSJkDk6Ftzt9Lv3EVvo52HpdT·QA049·e201aed81",
+      "next": "AGY 직접지시·v1.31/freeON/실배포승인·manifest확인후정합성/검수",
+      "evidence": "msg_85526463335b·dpl_7XjTSJkDk6Ftzt9Lv3EVvo52HpdT·QA049·e201aed81·Master get_alias/get_deployment dpl_Hs8NQJXDfTuH5PeRDnQvrLwy5z6e",
       "evidenceLevel": "운영alias직접·작성자모델3/DOM375·이미지독립모의PASS/운영미반영"
     },
     {
@@ -4390,20 +4405,23 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T03:29:43.745Z",
+      "at": "2026-11-18T03:32:35.636Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM18-04 지정독립PASS msg_dbbca5ced04b",
-      "scope": "실SSR4카드오류32/정상회귀·준비완료와운영미해결분리",
+      "trigger": "12:30예약msg_5a67e3dfb5e2·CRM정리보고·감성신규미커밋발견",
+      "scope": "19카테고리/미종료작업·보고/문서증분·src미커밋/점유·AGY실화면·실운영alias",
       "evidence": [
-        "Mac native49+독립32 경계PASS",
-        "Backend기존문서정리/점유해제msg_0d7a0106f997"
+        "CRM정리b68050a7f/점유해제520c9c988 직접stat·내용확인",
+        "KeySettings/version1.32미커밋·AGY398b/f474/주인님직접세로열/Pixabay/색상지시관찰",
+        "Master Vercel alias+deployment dpl_Hs8... READY·CLI메타HEAD는실포함SHA증거아님",
+        "AGY보고요청msg_76ca7f95555f·Ecom중복금지msg_da913ed57819",
+        "예약12:30결과0/다음13:00·dev-requests0"
       ],
-      "judgment": "18-04소스완료수락·CRM운영중복위험은미해결. 제품결정전발송연결보류·불필요추가시험0",
+      "judgment": "CRM소스정리완료수락·운영미해결유지. 감성직접지시작업존중·현재운영1.30단정해제,새배포승인/소스범위미확정별도취합. 임의롤백/다른파일편집0.",
       "unverified": [
-        "주인님후속알림정책·운영DDL/연결/실발송",
-        "GmailOAuth·MacB저장"
+        "AGY직접승인/free정책/추가빌드·실배포소스/버전/검수",
+        "CRM후속알림결정·GmailOAuth·MacB저장"
       ],
-      "nextAction": "정책회신/기록SHA회수→정확연결범위배정"
+      "nextAction": "AGY상태회수→예산/범위/검수판정·13:00기존Master예약"
     },
     "notifications": [
       {
@@ -4471,7 +4489,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-18T03:30:00.000Z",
+      "nextScheduledAt": "2026-11-18T04:00:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -4489,8 +4507,8 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-18T03:00:00.000Z",
-        "messageId": "msg_c36efe57c0c0",
+        "scheduledAt": "2026-11-18T03:30:00.000Z",
+        "messageId": "msg_5a67e3dfb5e2",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false
@@ -6879,6 +6897,18 @@
         "warning": "690df10c6 단독후보는59cb미포함으로불가"
       },
       "additionalApprovalMessage": "msg_037a5d31d3f8"
+    },
+    "observedEmotionWriterChange": {
+      "at": "2026-11-18T03:32:35.636Z",
+      "alias": "emotion-writer.buylife.xyz",
+      "deploymentId": "dpl_Hs8NQJXDfTuH5PeRDnQvrLwy5z6e",
+      "url": "emotion-writer-jlytyicgp-buylife.vercel.app",
+      "state": "READY",
+      "cliGitMeta": "7d0e119a96a50e06c24cc7882c6d9e1bf3fd31d7",
+      "sourceShaConfirmed": false,
+      "version": "작성자화면v1.31주장·Master실버전미확인",
+      "approval": "주인님직접UI지시관찰·freeON/빌드범위보고대기",
+      "action": "기존파일/현재명령중단·롤백0·추가배포전보고요청·Ecom중복편집금지"
     }
   }
 }
