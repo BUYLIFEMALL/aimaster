@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T02:13:55.062Z",
+  "checkedAt": "2026-11-18T02:23:17.665Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3685,14 +3685,14 @@
       "owner": "AG-UI-01",
       "reviewer": "CX-MASTER-01",
       "title": "미확인5카테고리19프로그램 담당/잔여근거 매핑",
-      "status": "needs_revision",
-      "delivery": "reviewed_returned_evidence_correction",
+      "status": "running",
+      "delivery": "correction_acknowledged_started",
       "scopeRef": "inventory의 CRM/마케팅/인스타/성격운세/AI프롬프트 19개·기존문서읽기+본인JSON1개",
-      "evidence": "msg_bd9dfa2f47ed·Master대상19검산·수락착수msg_95cb54baa5e3·결과msg_fd9af2a7ff82·Master JSON본문/CRM원문대조·반환msg_10abb7dc1a78",
+      "evidence": "msg_bd9dfa2f47ed·Master대상19검산·수락착수msg_95cb54baa5e3·결과msg_fd9af2a7ff82·Master JSON본문/CRM원문대조·반환msg_10abb7dc1a78·정정착수msg_d3c74beed32e",
       "completion": "각slug문서의명시담당/당시버전/잔여/라이프사이클/근거절/확신/불일치·19건누락0,과거작성자=현활성담당추정0",
       "next": "동일19JSON에항목별경로/줄/원문/날짜/후속해결+사실/제안/추론구분→Master재검토,공식잔여목록반영보류",
       "blockedReason": null,
-      "lastReviewedAt": "2026-11-18T02:13:55.062Z",
+      "lastReviewedAt": "2026-11-18T02:23:17.665Z",
       "sha": "5a5ad09e4",
       "findings": [
         "CRM F-011 pending오류: IMPROVEMENTS18 옛미수정뒤21 해결명시",
@@ -4208,21 +4208,19 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T02:13:55.062Z",
+      "at": "2026-11-18T02:23:17.665Z",
       "timezone": "Asia/Seoul",
-      "trigger": "PORT19 결과 msg_fd9af2a7ff82",
-      "scope": "19개JSON 본문·CRM/웹툰/카드뉴스 문서표본·잔여항목근거/과거해결대조",
+      "trigger": "AGY PORT19 정정착수 msg_d3c74beed32e",
+      "scope": "수정반환 수락/착수 확인",
       "evidence": [
-        "5a5ad09e4 JSON19개",
-        "CRM IMPROVEMENTS18 옛미수정/21 F011해결·결과는미완료로잘못표기",
-        "수정반환msg_10abb7dc1a78"
+        "F011해결/F007미구현시점대조·19개항목근거객체확장·사실/제안구분·Support제외 수락"
       ],
-      "judgment": "전체잔여사실목록미수락·19건숫자/과거작성자미확정구분만접수. 잘못된과거대기를새작업으로배정0.",
+      "judgment": "정정착수확인·수정결과/완료판정아님·공식잔여목록반영보류유지",
       "unverified": [
-        "19항목별근거/시점정정·운영실상태/현재담당",
-        "Gmail OAuth실검증"
+        "정정JSON/SHA·근거대조결과",
+        "Gmail실OAuth/검증"
       ],
-      "nextAction": "AGY수정JSON회수후공식표반영·미확인68개감소단정0"
+      "nextAction": "AGY정정결과수신후재검토"
     },
     "notifications": [
       {
@@ -6428,7 +6426,7 @@
       ],
       "targetCount": 19,
       "owner": "AG-UI-01",
-      "delivery": "returned_for_evidence_correction",
+      "delivery": "correction_acknowledged_started",
       "messageId": "msg_bd9dfa2f47ed",
       "acknowledgment": "msg_95cb54baa5e3",
       "resultSha": "5a5ad09e4",
