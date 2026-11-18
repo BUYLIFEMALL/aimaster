@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 12:01:36 KST",
+  "checkedAt": "2026-11-18 12:05:36 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,23 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T03:01:36.416Z",
+      "at": "2026-11-18T03:05:36.470Z",
       "timezone": "Asia/Seoul",
-      "trigger": "12:00예약 msg_c36efe57c0c0 + CRM순수검수PASS",
-      "scope": "19카테고리미종료작업/담당상태·보고/문서증분·제품미커밋·Backend/Music실화면·CRM독립판정",
+      "trigger": "Backend 2단계영향조사2019381a6/msg_cf2984a5738e",
+      "scope": "상태소비자/팔로우업·회원insert/유니크격리·SQL초안단계배정",
       "evidence": [
-        "dev-requests0·src미커밋0·12:00예약결과0/다음12:30",
-        "CRM Mac msg_7b5773105100 native14+독립경계PASS",
-        "Backend2단계상태소비자읽기진행실화면확인",
-        "Music내부기록추가확인창표시·선택대행0·B완료신호0",
-        "제품/신규인계변경없음(자체진행표·이번CRM QA결과제외)"
+        "기존UI/KPI failed만집계·followup상태무관 보고",
+        "member insert user_id만검사→다른회원source키선점가능성·user_id포함복합키지시",
+        "CRM18-02 msg_47039ad6b61b"
       ],
-      "judgment": "CRM1단계순수검증소스완료수락·운영방지완료아님. 다음영향읽기조사계속·Gmail/MacB/Lab사람단계유지.",
+      "judgment": "영향읽기수락·운영연결보다SQL초안/격리시험선행. 다채널/후속발송정책미결정보존·운영권한/DDL미승인유지.",
       "unverified": [
-        "2단계상태/다채널/DDL영향",
-        "Gmail OAuth·Mac B저장·Lab시험결제"
+        "SQL정의·기존member역할격리/동시성·상태이행/팔로우업정책",
+        "GmailOAuth·MacB파일"
       ],
-      "nextAction": "Backend영향조사후정확범위후속배정·사람완료뒤실검증·12:30기존Master예약"
+      "nextAction": "단기담당키/경로/격리결과회수→Mac검수·운영연결은후속범위지정"
     },
     "notifications": [
       {
@@ -7644,11 +7642,11 @@
       "title": "CRM v2 이벤트키 순수검증·시험 1단계",
       "status": "done",
       "delivery": "pure_functions_independent_pass_unwired",
-      "evidence": "6768146ff·msg_cdd38dc32bd7·결과msg_46508dbae1da·Master3파일/헬퍼본문확인·Mac msg_fac36ddfe9e7·Mac PASSmsg_7b5773105100·수락msg_5fd5915909cc",
+      "evidence": "6768146ff·msg_cdd38dc32bd7·결과msg_46508dbae1da·Master3파일/헬퍼본문확인·Mac msg_fac36ddfe9e7·Mac PASSmsg_7b5773105100·수락msg_5fd5915909cc·영향읽기2019381a6",
       "scopeRef": "crm-google-form/lib/crm/dedupe.ts·tests/dedupe.test.mjs 신규+기존결과본인절",
       "completion": "v2/version/kind/key타입·길이/허용문자/source범위·구버전NULL·불량/같은값다른행/다른source경계·실제함수red-green/타입검사",
       "constraints": "route/dispatch/UI/snippet/DDL연결0·운영DB/발송/실API/새패키지/build/dev0",
-      "next": "Backend2단계상태소비자영향읽기조사반환→새구현범위지정,운영미연결",
+      "next": "2A CRM18-02 DDL초안/격리검증·운영연결별도",
       "lastReviewedAt": "2026-11-18T03:01:36.416Z",
       "sha": "17b45c398",
       "validation": {
@@ -7661,6 +7659,21 @@
         "legacy NULL미보호·DB복합unique/route/스트림상한미검수",
         "kind동일키는문법교집합없어시험제목확대금지"
       ]
+    },
+    {
+      "task_id": "CRM-20261118-02",
+      "parent_task_id": "CRM-20261118-01",
+      "owner": "CC-B2B-BACK-01",
+      "reviewer": "CX-QA-01",
+      "title": "CRM 중복방지 DDL 초안·격리 DB 검증 2A",
+      "status": "ready",
+      "delivery": "source_ddl_test_authorized_dispatch_sent",
+      "evidence": "영향조사2019381a6·msg_cf2984a5738e·dispatch msg_47039ad6b61b",
+      "scopeRef": "crm-google-form/supabase/migrations/20261118120000_crm_submission_dedupe.sql·tests/dedupe-db.test.mjs 신규·기존결과본인절",
+      "completion": "정의사전/사후·기존NULL/backfill0·user_id/source/key 격리·RLS/동시2연결/rollback·동명불일치멈춤·본인qa_DB정리",
+      "constraints": "운영미적용·route/UI/dispatch/snippet변경0·기존aww/aww_dev/mb_*0·실발송/build/설치0",
+      "next": "정확키/경로/격리DB보고→원문SQL/실역할/동시시험→SHA→Mac독립",
+      "lastReviewedAt": "2026-11-18T03:05:36.470Z"
     }
   ]
 }
