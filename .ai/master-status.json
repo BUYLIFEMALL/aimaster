@@ -4081,15 +4081,15 @@
       "title": "AI Influencer W00 기준·격차/공통계약 독립검수",
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
-      "status": "ready_review",
+      "status": "needs_revision",
       "sha": "a2c4a57cb",
-      "delivery": "w00_contract_revision_independent_review_dispatched",
-      "evidence": "직접지시msg_0ea177827182·Master2파일stat/W00확인·인수msg_262b806a9152·검수msg_e1009e09901a · 계획613ac1da4/msg_892ee2310efe·Mac최신반영msg_5534d83d2f04 · Macmsg_e6f0471f7d6d 0068/게시전체재시도 반례 · 최종msg_90ab319ad328/.ai/results/SNS-W00-20261118-CX-QA-01.md · msg_361d873e7d2f/f6dc9e1303fb·Master문서1개stat확인",
-      "next": "Mac a2c4a57cb P1/P2계약재검수 후W01범위판정",
+      "delivery": "remaining_budget_orphan_and_publish_success_contracts_returned",
+      "evidence": "직접지시msg_0ea177827182·Master2파일stat/W00확인·인수msg_262b806a9152·검수msg_e1009e09901a · 계획613ac1da4/msg_892ee2310efe·Mac최신반영msg_5534d83d2f04 · Macmsg_e6f0471f7d6d 0068/게시전체재시도 반례 · 최종msg_90ab319ad328/.ai/results/SNS-W00-20261118-CX-QA-01.md · msg_361d873e7d2f/f6dc9e1303fb·Master문서1개stat확인 · Mac중간msg_f9f028aea54a·잔여3건반환",
+      "next": "확정지출상한/고아삭제경합/성공게시ID보존 계약 문서보완→고정SHA 재검수",
       "constraints": "P0상한12달러미승인·실API/DB쓰기/빌드/배포0·다른Codex미커밋보존",
-      "lastReviewedAt": "2026-11-18T04:46:47.531Z",
+      "lastReviewedAt": "2026-11-18T04:48:05.851Z",
       "validation": {
-        "independent": "120ID고유/총120·G1~G10 정적대조. P1보관2/게시1, P2 dataURL후반전환·asset insert불명후삭제·paused/예산전이 누락 수정필요. 기존personImage/장소지시 존재정밀화. 미커밋PLAN은읽기해시만·원본불변"
+        "independent": "a2c 이전P1일반회원정리/유료영향/예약failclosed·G5단계 반영확인. 잔여설계반례:confirmed지출합계누락·24h고아삭제 진행/불명/경합보호누락·성공publishID후permalink실패분기누락. 실사고아님, 최종정리중"
       }
     },
     {
@@ -4606,21 +4606,19 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T04:46:47.531Z",
+      "at": "2026-11-18T04:48:05.851Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM 지정PASS·SNS 문서보완 도착",
-      "scope": "소스수락/운영차단분리·공식SDK후속읽기·SNS문서재검수",
+      "trigger": "SNS 계약 재검수 중간 반례",
+      "scope": "예산누적/단계별계상·불명객체보존·성공게시ID 영속",
       "evidence": [
-        "msg_ff85abac44f7·msg_bb305389c287",
-        "SNS a2c4a57cb 단일문서stat",
-        "Mac SNS재검수전달"
+        "msg_f9f028aea54a·SNS작성자문서반환·Mac원본보존전달"
       ],
-      "judgment": "CRM소스국소보완완료수락, 전송재시도위험은별도작업으로운영차단유지. SNS문서보완수신/독립검수전제품착수0.",
+      "judgment": "이전보완확인보존하되잔여3건은제품착수전최소실행계약보완필요. 새기능확대/실시험0.",
       "unverified": [
-        "공식SDK no-retry대안",
-        "SNS계약재검수/과거손실없음은현재건수로단정불가"
+        "고정a2c최종·보완SHA",
+        "실예산/정리/게시 동작은아직개발전"
       ],
-      "nextAction": "공식대안·문서판정 회수→작은다음단위지휘"
+      "nextAction": "새문서SHA회수후잔여필수항목만재검수"
     },
     "notifications": [
       {
