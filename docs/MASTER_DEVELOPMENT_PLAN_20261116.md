@@ -404,7 +404,7 @@ Master 마지막 실제 점검: 2026-11-19 04:01:24 KST · 실행 중 점검 주
 | B2B-20261118-03 | CC-B2B-BACK-01 | waiting_human / fixture_prepared | 주인님 직접 Lab 교환비waiting1건·토스시험흐름 | 사람시험제출/로그인신호없음·고정교환1건유지,현재주문상태는03:31자동확정가능해반복RPC없이다음읽기때판정 |
 | B2B-20261119-LAB0101 | CC-B2B-BACK-01 | done / lab_catalog_definition_and_grants_matched | B2B몰 Lab 0101 메시지 정의·권한 대조 | Lab 0101 권한·safeupdate 일치. e20574f0f 인수인계 갱신. QA037 사람 로그인 대기, 결제 시험은 최종 단계. |
 | B2B-20261119-FRONTQA | CX-QA-01 | waiting_human / public_keyboard_partial_pass_exact_143_element_located | B2B Lab 프론트 키보드·대비·화면 검수 | 공개 Lab Tab·Enter/Space 통과, 상품 탭 방향키 미동작. 143 미선택 본문 탭 과거 대비 4.15 위치 확정. Mac 실행판·직원 로그인·다크 상세·낭독기 대기. |
-| B2B-20261119-HOMETABS | CC-B2B-FRONT-01 | reviewing / tab_panel_fix_returned_independent_recheck_dispatched | 홈 상품 탭 대비와 키보드 접근성 보완 | 탭별 패널 연결 수정. 담당 모의 4/4·회귀 28/28. Mac 재검수 전달, Lab·VoiceOver 미검증. |
+| B2B-20261119-HOMETABS | CC-B2B-FRONT-01 | done / tab_panel_independent_recheck_passed_undeployed | 홈 상품 탭 대비와 키보드 접근성 보완 | Mac 독립 모의 4/4. 일대일 ARIA·로빙·비활성 본문 미렌더 확인. Lab 다크 실화면·VoiceOver 검수 대기, 미배포. |
 | B2B-20261119-FRONTP3 | CC-B2B-FRONT-01 | done / storefront_button_and_price_independent_review_accepted_undeployed | B2B몰 버튼 터치 영역과 원래 가격 대비 보완 | 두 변경 독립 15/15 수락. 미배포이며 Lab 7609748ad에 미포함. 주문서 S70은 별도 진행. |
 | B2B-20261119-FRONTREL | CC-B2B-FRONT-01 | done / production_base_proven_ui_bundle_queued | B2B몰 UI 배포 범위와 순번 준비 | 운영 v1.16 READY. 가격 두 소스는 단독 적용 가능, 갤러리 90248e5b1은 7c8ee3a81·e4ba29947 동반 필요. 기존 다음 배포 묶음에 대기. |
 | B2B-20261119-S70 | CC-B2B-BACK-01 | done / guard_rollback_independent_accepted_undeployed | 주문서 무통장 현금영수증 접수와 입금 확인 경합 처리 | 격리 21/21, Mac 롤백 정적 통과. 0105와 UI 배포 전 Lab 실검증 승인 대기. |

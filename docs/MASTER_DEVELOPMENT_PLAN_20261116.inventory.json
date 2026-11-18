@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T19:23:51.665Z",
+  "checkedAt": "2026-11-18T19:24:19.151Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9911,11 +9911,11 @@
       "owner": "CC-B2B-FRONT-01",
       "reviewer": "CX-MASTER-01",
       "title": "홈 상품 탭 대비와 키보드 접근성 보완",
-      "status": "reviewing",
-      "delivery": "tab_panel_fix_returned_independent_recheck_dispatched",
-      "evidence": "dff2790cb·msg_c63d46c190e6·msg_c7174d94647e·msg_4c4a09415f3b·489c888e6·484f8400c·msg_12f5ee2629b7·msg_69f084b5f8af·msg_e9caba12b863·msg_ab435c831d84·9f6b1c131·f2f8f718b·msg_3f1decaeecc3",
-      "next": "탭별 패널 연결 수정. 담당 모의 4/4·회귀 28/28. Mac 재검수 전달, Lab·VoiceOver 미검증.",
-      "lastReviewedAt": "2026-11-18T19:23:51.665Z",
+      "status": "done",
+      "delivery": "tab_panel_independent_recheck_passed_undeployed",
+      "evidence": "dff2790cb·msg_c63d46c190e6·msg_c7174d94647e·msg_4c4a09415f3b·489c888e6·484f8400c·msg_12f5ee2629b7·msg_69f084b5f8af·msg_e9caba12b863·msg_ab435c831d84·9f6b1c131·f2f8f718b·msg_3f1decaeecc3·msg_0864a2212ccd",
+      "next": "Mac 독립 모의 4/4. 일대일 ARIA·로빙·비활성 본문 미렌더 확인. Lab 다크 실화면·VoiceOver 검수 대기, 미배포.",
+      "lastReviewedAt": "2026-11-18T19:24:19.151Z",
       "sha": "9f6b1c131"
     }
   ]
