@@ -2,6 +2,8 @@
 // 공용 이름은 ai-doc-chatbot compatible-chat·emotion-writer 무료 엔진과 같다(한 번 등록하면 재사용).
 // 검사 규칙은 ai-doc-chatbot/src/lib/compatibleChat/config.ts credentialValue와 같다(공백·제어문자 금지, 4096자 이하, 계정 ID 32자리 hex).
 // 이 모듈은 Cloudflare에 실제로 인증·호출하지 않는다. 응답에는 키 값·마스킹 문자열을 절대 넣지 않는다(등록 여부 boolean만).
+// registered boolean은 「두 행이 저장되어 있음」만 뜻한다 — 두 값이 서로 맞는지·토큰이 유효한지의 증거가 아니다.
+// 쓰기(upsert·delete)는 결과를 행 수로 확인하지 않는다: 오류가 없으면 「요청을 처리함」, 오류·예외면 「결과 불명」(502 outcome unknown).
 
 export const CF_TOKEN_PROVIDER = "cloudflare_workers_ai_token";
 export const CF_ACCOUNT_PROVIDER = "cloudflare_account_id";
@@ -69,15 +71,46 @@ function sameOrigin(req: Request): boolean {
   }
 }
 
+/** 본문을 읽는 도중 UTF-8 누적 바이트가 16384를 넘으면 그 자리에서 끊는다(Content-Length는 사전 거절에만 쓰고 믿지 않음). */
 async function readJson(req: Request): Promise<unknown> {
   if (!(req.headers.get("content-type") ?? "").toLowerCase().startsWith("application/json"))
     throw new CloudflareKeyError("요청 형식을 확인해 주세요.", 415);
-  const text = await req.text();
-  if (text.length > MAX_BODY) throw new CloudflareKeyError("요청이 너무 큽니다.", 413);
+  if (Number(req.headers.get("content-length")) > MAX_BODY) throw new CloudflareKeyError("요청이 너무 큽니다.", 413);
+  if (!req.body) throw new CloudflareKeyError("요청 형식을 확인해 주세요.");
+  const reader = req.body.getReader();
+  const parts: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > MAX_BODY) {
+      await reader.cancel().catch(() => {});
+      throw new CloudflareKeyError("요청이 너무 큽니다.", 413);
+    }
+    parts.push(value);
+  }
+  const bytes = new Uint8Array(total);
+  let at = 0;
+  for (const p of parts) {
+    bytes.set(p, at);
+    at += p.byteLength;
+  }
   try {
-    return JSON.parse(text);
+    return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
   } catch {
     throw new CloudflareKeyError("요청 형식을 확인해 주세요.");
+  }
+}
+
+/** 쓰기 단계 DB 오류·예외는 반영 여부를 알 수 없다 — 실패로 단정하지 않고 「결과 불명」으로 돌려준다(검사·권한 거절은 쓰기 전이라 확정). */
+const UNKNOWN_WRITE = "결과를 확인하지 못했습니다. 실제로 반영됐을 수도 있으니 「등록 상태 다시 확인」으로 지금 상태를 확인해 주세요.";
+async function writeOutcome(run: () => Promise<{ error: unknown }>): Promise<"ok" | "unknown"> {
+  try {
+    const { error } = await run();
+    return error ? "unknown" : "ok";
+  } catch {
+    return "unknown";
   }
 }
 
@@ -106,15 +139,17 @@ export async function handleCloudflareKeys(method: string, req: Request, deps: C
     if (method === "POST") {
       const { accountId, token } = validateCloudflarePair(await readJson(req));
       const now = new Date().toISOString();
-      const { error } = await deps.store.upsertPair(userId, [
-        { user_id: userId, provider: CF_ACCOUNT_PROVIDER, api_key: accountId, updated_at: now },
-        { user_id: userId, provider: CF_TOKEN_PROVIDER, api_key: token, updated_at: now },
-      ]);
-      if (error) return fail("키를 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.", 500);
+      const outcome = await writeOutcome(() =>
+        deps.store.upsertPair(userId, [
+          { user_id: userId, provider: CF_ACCOUNT_PROVIDER, api_key: accountId, updated_at: now },
+          { user_id: userId, provider: CF_TOKEN_PROVIDER, api_key: token, updated_at: now },
+        ]),
+      );
+      if (outcome === "unknown") return json({ outcome: "unknown", error: UNKNOWN_WRITE }, 502);
       return json({ registered: { accountId: true, token: true } });
     }
-    const { error } = await deps.store.deletePair(userId);
-    if (error) return fail("연결을 해제하지 못했습니다. 잠시 뒤 다시 시도해 주세요.", 500);
+    const outcome = await writeOutcome(() => deps.store.deletePair(userId));
+    if (outcome === "unknown") return json({ outcome: "unknown", error: UNKNOWN_WRITE }, 502);
     return json({ registered: { accountId: false, token: false } });
   } catch (e) {
     if (e instanceof CloudflareKeyError) return fail(e.message, e.status);

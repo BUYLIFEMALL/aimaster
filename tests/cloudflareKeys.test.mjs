@@ -35,8 +35,13 @@ function builder(table) {
   };
   return api;
 }
+import { createClient as realSupabase } from "@supabase/supabase-js";
 export async function createClient() { return { auth: { getUser: async () => ({ data: { user: state.user ? { id: state.user } : null } }) } }; }
-export function createServiceClient() { return { from: (t) => builder(t) }; }
+// state.fetch가 있으면 진짜 supabase-js(PostgREST) 클라이언트에 가짜 통신을 주입한다(실제 네트워크 0).
+export function createServiceClient() {
+  if (state.fetch) return realSupabase("https://example.supabase.co", "service-test-key", { auth: { persistSession: false }, global: { fetch: state.fetch } });
+  return { from: (t) => builder(t) };
+}
 `);
 
 async function bundle(entry, name, extra = {}) {
@@ -115,6 +120,30 @@ test("CSRF: 쓰기 요청은 같은 사이트 Origin만, JSON만, 쿼리 파라�
   assert.equal((await run("DELETE", { url: "https://www.buylife.xyz/api/user/cloudflare-keys?provider=openai" })).r.status, 400);
 });
 
+test("CF-F02 본문 상한: UTF-8 바이트 16384 이하만 — ASCII 정확 16384 통과·+1 413, 다바이트(한글) 글자 수 이하라도 바이트 초과 413, 머리글 거짓·없음도 스트림 누적으로 차단, 깨진 JSON 400", async () => {
+  const LIMIT = 16384;
+  const make = (bytes, ch = "a") => {
+    const base = { accountId: ACC, token: "t", pad: "" };
+    const overhead = Buffer.byteLength(JSON.stringify(base));
+    const per = Buffer.byteLength(ch);
+    const n = Math.floor((bytes - overhead) / per);
+    const s = JSON.stringify({ ...base, pad: ch.repeat(n) });
+    return s + " ".repeat(bytes - Buffer.byteLength(s)); // 남는 바이트는 JSON 뒤 공백(유효)
+  };
+  const exact = make(LIMIT);
+  assert.equal(Buffer.byteLength(exact), LIMIT);
+  assert.equal((await run("POST", { body: exact })).r.status, 200);
+  assert.equal((await run("POST", { body: make(LIMIT + 1) })).r.status, 413);
+  const korean = make(30000, "가"); // 글자 수는 약 1만이지만 UTF-8로 30000바이트
+  assert.ok(korean.length < LIMIT && Buffer.byteLength(korean) > LIMIT);
+  assert.equal((await run("POST", { body: korean })).r.status, 413);
+  assert.equal((await run("POST", { body: korean, headers: { "content-length": "10" } })).r.status, 413);
+  assert.equal((await run("POST", { body: make(LIMIT + 5000), headers: { "content-length": String(LIMIT + 5000) } })).r.status, 413);
+  assert.equal((await run("POST", { body: "{\"accountId\":" })).r.status, 400);
+  // 상한 초과 거절은 저장 0
+  assert.equal((await run("POST", { body: korean })).log.length, 0);
+});
+
 test("저장: 두 행을 한 번에(원자) 세션 회원 ID로만, 본문 user_id 무시, 응답에 값 없음", async () => {
   const { r, body, log } = await run("POST", { body: { accountId: ACC, token: "secret-token-value", user_id: "evil", userId: "evil" } });
   assert.equal(r.status, 200);
@@ -139,9 +168,16 @@ test("조회는 등록 여부 boolean만, 삭제는 두 값 한 번에, DB 오�
   const d = await run("DELETE", {});
   assert.deepEqual(d.log, [["delete", U]]);
   assert.deepEqual(JSON.parse(d.body), { registered: { accountId: false, token: false } });
-  for (const [m, over] of [["GET", { selErr: { message: "RAW-DB-ERROR" } }], ["POST", { upErr: { message: "RAW-DB-ERROR" } }], ["DELETE", { delErr: { message: "RAW-DB-ERROR" } }]]) {
+  // 읽기 오류는 확정 실패(500), 쓰기 오류는 반영 여부를 모르므로 「결과 불명」(502, outcome unknown) — 실패 단정 문구 0
+  const gx = await run("GET", {}, { selErr: { message: "RAW-DB-ERROR" } });
+  assert.equal(gx.r.status, 500);
+  assert.ok(!gx.body.includes("RAW-DB-ERROR"));
+  for (const [m, over] of [["POST", { upErr: { message: "RAW-DB-ERROR" } }], ["DELETE", { delErr: { message: "RAW-DB-ERROR" } }]]) {
     const x = await run(m, { body: m === "POST" ? { accountId: ACC, token: "t" } : undefined }, over);
-    assert.equal(x.r.status, 500);
+    assert.equal(x.r.status, 502);
+    const b = JSON.parse(x.body);
+    assert.equal(b.outcome, "unknown");
+    assert.ok(/결과를 확인하지 못했습니다/.test(b.error) && !/저장하지 못했|해제하지 못했/.test(b.error));
     assert.ok(!x.body.includes("RAW-DB-ERROR"));
   }
 });
@@ -170,6 +206,42 @@ test("실제 route.ts: 서비스 클라이언트 쿼리가 본인 user_id·허�
   assert.ok(del[0].filters.some(([t, k, v]) => t === "in" && k === "provider" && v.length === 2));
   mocks.state.user = null;
   assert.equal((await route.GET(req("GET"))).status, 401);
+});
+
+test("실제 PostgREST(supabase-js+주입 통신): 쓰기 중 연결 초기화·503·읽을 수 없는 응답은 결과 불명, 정상은 성공, 읽기 실패는 확정", async () => {
+  mocks.state.user = U;
+  const mk = (writeMode, readMode = "ok") => async (url, init = {}) => {
+    const u = String(url);
+    const method = (init.method || "GET").toUpperCase();
+    if (u.includes("/rest/v1/profiles")) return new Response(JSON.stringify({ is_suspended: false }), { status: 200, headers: { "content-type": "application/json" } });
+    if (u.includes("/rest/v1/user_api_keys") && method === "GET") {
+      if (readMode === "reset") throw new TypeError("fetch failed: ECONNRESET");
+      return new Response(JSON.stringify([{ provider: "cloudflare_account_id" }, { provider: "cloudflare_workers_ai_token" }]), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    if (writeMode === "reset") throw new TypeError("fetch failed: ECONNRESET");
+    if (writeMode === "503") return new Response("Service Unavailable", { status: 503 });
+    if (writeMode === "badjson") return new Response("<html>oops</html>", { status: 500, headers: { "content-type": "application/json" } });
+    return new Response(null, { status: method === "DELETE" ? 204 : 201 });
+  };
+  for (const mode of ["reset", "503", "badjson"]) {
+    mocks.state.fetch = mk(mode);
+    for (const [m, call] of [["POST", () => route.POST(req("POST", { body: { accountId: ACC, token: "t" } }))], ["DELETE", () => route.DELETE(req("DELETE"))]]) {
+      const r = await call();
+      const b = await r.json();
+      assert.equal(r.status, 502, `${m} ${mode}`);
+      assert.equal(b.outcome, "unknown");
+      assert.ok(!/저장하지 못했|해제하지 못했/.test(b.error));
+    }
+  }
+  mocks.state.fetch = mk("ok");
+  assert.deepEqual(await (await route.POST(req("POST", { body: { accountId: ACC, token: "t" } }))).json(), { registered: { accountId: true, token: true } });
+  assert.deepEqual(await (await route.DELETE(req("DELETE"))).json(), { registered: { accountId: false, token: false } });
+  // 읽기 실패는 결과 불명이 아니라 확정 「불러오지 못함」
+  mocks.state.fetch = mk("ok", "reset");
+  const g = await route.GET(req("GET"));
+  assert.equal(g.status, 500);
+  assert.ok(/불러오지 못했습니다/.test((await g.json()).error));
+  mocks.state.fetch = null;
 });
 
 // ── 화면(실제 CloudflareKeysCard, jsdom) ──
@@ -214,7 +286,9 @@ test("화면: 회원 ID 없으면 요청 0, 있으면 기대 회원 머리글로
   await act(async () => tick(5));
   assert.equal(calls.length, 1);
   assert.equal(calls[0][1].headers["x-expected-user-id"], U);
-  assert.ok(text(m.host).includes("등록됨"));
+  // 「저장되어 있음」만 말하고 토큰 유효성은 주장하지 않는다
+  assert.ok(text(m.host).includes("두 값 저장됨"));
+  assert.ok(text(m.host).includes("토큰이 유효한지는 확인하지 않습니다"));
   for (const i of m.host.querySelectorAll("input")) assert.equal(i.value, "");
   m.done();
 });
@@ -230,8 +304,8 @@ test("화면: 회원 전환 뒤 늦게 온 이전 회원 응답은 무시(Strict
   await m.render(React.createElement(React.StrictMode, null, React.createElement(Card, { userId: "user-B" })));
   await act(async () => tick(5));
   await act(async () => { resolveA?.(); await tick(5); });
-  assert.ok(text(m.host).includes("등록 안 됨"));
-  assert.ok(!text(m.host).includes("등록됨 "));
+  assert.ok(text(m.host).includes("저장된 값 없음"));
+  assert.ok(!text(m.host).includes("두 값 저장됨"));
   m.done();
 });
 
@@ -253,9 +327,32 @@ test("화면: 저장 중복 클릭은 1회, 응답 유실은 「결과 확인 �
   assert.equal(posts, 1);
   await act(async () => { release(); await tick(10); });
   assert.ok(text(m.host).includes("결과를 확인하지 못했습니다"));
+  // 결과 불명 뒤: 입력한 비밀값을 지우고, 자동 재전송 0, 명시 「등록 상태 다시 확인」 버튼
+  for (const i of m.host.querySelectorAll("input")) assert.equal(i.value, "");
   await act(async () => tick(20));
   assert.equal(posts, 1);
+  let gets = 0;
+  globalThis.fetch = async (_u, o = {}) => { if (!o.method || o.method === "GET") gets++; return Response.json({ registered: { accountId: true, token: true } }); };
+  const recheck = [...m.host.querySelectorAll("button")].find((b) => b.textContent.includes("등록 상태 다시 확인"));
+  assert.ok(recheck);
+  await act(async () => { recheck.click(); await tick(10); });
+  assert.equal(gets, 1);
+  // 재확인 결과는 「지금 저장된 상태」로만 — 원래 요청이 반영됐다고 단정하지 않음
+  assert.ok(text(m.host).includes("두 값 저장됨"));
+  assert.ok(!/저장했습니다|반영되었습니다|저장에 성공/.test(text(m.host)));
   m.done();
+  // 서버가 결과 불명(502 outcome unknown)을 돌려준 경우도 같은 처리
+  globalThis.fetch = async (_u, o = {}) => (o.method === "POST" ? Response.json({ outcome: "unknown", error: "저장 결과를 확인하지 못했습니다." }, { status: 502 }) : Response.json({ registered: { accountId: false, token: false } }));
+  const m3 = mount();
+  await m3.render(React.createElement(Card, { userId: U }));
+  await act(async () => tick(5));
+  const [a3, t3] = m3.host.querySelectorAll("input");
+  await act(async () => { set(a3, ACC); set(t3, "tok"); });
+  await act(async () => { [...m3.host.querySelectorAll("button")].find((b) => b.textContent.includes("저장")).click(); await tick(10); });
+  assert.ok(text(m3.host).includes("결과를 확인하지 못했습니다"));
+  for (const i of m3.host.querySelectorAll("input")) assert.equal(i.value, "");
+  assert.ok([...m3.host.querySelectorAll("button")].some((b) => b.textContent.includes("등록 상태 다시 확인")));
+  m3.done();
   // 읽기 실패
   globalThis.fetch = async () => new Response("{}", { status: 500 });
   const m2 = mount();
