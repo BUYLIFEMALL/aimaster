@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 10:03:01 KST",
+  "checkedAt": "2026-11-18 10:10:53 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,25 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T01:03:01.253Z",
+      "at": "2026-11-18T01:10:53.820Z",
       "timezone": "Asia/Seoul",
-      "trigger": "10:00예약 msg_ce0c6e42fa6d + Ecom 완료 msg_85526463335b",
-      "scope": "19카테고리/미종료작업·보고/문서증분·담당상태·Ecom release/실alias·전달오류",
+      "trigger": "주인님 Workspace 공개/빌드 승인답변",
+      "scope": "승인/릴리스순번·담당단일화·체크리스트/점유·런타임복구/후속전달",
       "evidence": [
-        "신규제품변경0·신규인계0(자체진행표제외)·dev-requests0",
-        "작성자 v1.30 Ready/promote·DB1행·실모델3/3·375 DOM확인·캡처없음",
-        "Master get_alias dpl_7XjTSJkDk6Ftzt9Lv3EVvo52HpdT 직접확인",
-        "git기록7808faee2/2e7b5bbf2",
-        "후속dispatch runtime_unavailable·metadata없음·setup프로세스확인"
+        "Workspace msg_199efb134592",
+        "Mac 준비msg_6800c03de409",
+        "Ecom 실패지시복구 msg_3307ed544d53"
       ],
-      "judgment": "ECOM18-02 승인범위완료수락. 이미지신규코드제외·QA049계획별도. 후속전달실패를수락으로기록하지않음.",
+      "judgment": "Gmail 전원공개·정상1/실패OFF복구1 승인수락,메인PCWorkspace단일실행지정·Mac독립검수·Master중복0",
       "unverified": [
-        "이미지계획수락/회신·PORT19수락",
-        "실제독립375캡처·나머지6모델",
-        "Orca업데이트/런타임복구·다음예약전송",
-        "Gmail결정·Lab시험제출·Mac반환"
+        "소스ON SHA/검사·0074/75운영적용·배포·실OAuth/Gmail 미완",
+        "담당수락/착수는결과회수전미판정"
       ],
-      "nextAction": "런타임복구후기존Ecom계획재개지시전달·새창/중복실행0"
+      "nextAction": "Workspace 단계별SHA/SQL/배포결과회수·실alias대조·Mac연결"
     },
     "notifications": [
       {
@@ -210,15 +206,13 @@
         "observation": "기존terminal screen 빈입력줄/과거작업결과·background4개표시,원인미확정·명시수락0",
         "action": "입력대행/프로세스종료/새창0"
       },
-      "ecom": "v1.30완료수신·후속수락/계획대기,10:01송신runtime_unavailable",
-      "workspace": "기존Gmail공개/빌드선택질문 답변대기(이전실화면·현재미변화)",
+      "ecom": "완료수락후계획msg_3307ed544d53 전송성공·수락별도",
+      "workspace": "승인수신·msg_199efb134592 전달·수락/SHA 대기",
       "runtime": {
-        "at": "2026-11-18T01:03:01.253Z",
-        "error": "runtime_unavailable→CLI not found",
-        "runtimeMetadataExists": false,
-        "observation": "Orca프로세스2+orca-windows-setup 확인·업데이트중추정(원인확정아님)",
-        "action": "새창/재시작/프로세스종료0·수신복구후기존지시전달",
-        "impact": "기존30분예약등록유지,다음전송성공은미보장"
+        "at": "2026-11-18T01:10:53.820Z",
+        "status": "recovered_send_verified",
+        "evidence": "orca.exe 재발견·metadata존재·Workspace/Mac/Ecom 메시지ID발급",
+        "action": "새창/재시작0"
       }
     }
   },
@@ -6772,8 +6766,8 @@
       "owner": "CX-MASTER-01",
       "reviewer": "CX-MASTER-01",
       "title": "E3+WS23 v1.58 묶음 배포/운영 실검수",
-      "status": "waiting_human",
-      "delivery": "prepared",
+      "status": "ready",
+      "delivery": "merged_into_WS27_approved_release",
       "scopeRef": "v1.58버전/programs정확1행·localbuild1/remote1·시험계정합성UI/앱알림·선택적검색1/모델1 + WS18-01 a41a1e31e(최종묶음검증별도)",
       "evidence": "6f166ec8f全560시험/독립PASS·운영v1.57유지",
       "completion": "승인범위배포Ready/운영화면/실테스트·한계분리",
@@ -6783,7 +6777,7 @@
         "required": "묶음배포1회/운영합성검수·실검색1/모델1비용범위선택",
         "next": "승인전미배포/실호출0"
       },
-      "next": "v1.58 묶음에요일칩추가·GmailOFF서버/UI동시. 새최종전체검사와빌드승인뒤실행,실AI비용별도"
+      "next": "WS27 정상1빌드에v1.58 E3/예약/요일칩/Gmail통합·중복배포0"
     },
     {
       "task_id": "QA-20261117-036",
@@ -6875,20 +6869,23 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "Gmail 운영 SQL 적용·실계정 검증·활성화",
-      "status": "waiting_human",
-      "delivery": "activation_preparation_approved",
+      "status": "ready",
+      "delivery": "approved_dispatch_sent",
       "scopeRef": "0074→0075 운영적용/정의검증·회원본인OAuth동의/metadata·실PostgREST/주소·스위치/배포 승인별도",
-      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고",
+      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409",
       "completion": "승인된범위의운영마이그레이션·실계정/권한/계정경계·활성배포·운영동작 확인",
-      "next": "주인님공개방식·정상/복구빌드범위결정→Master실행순번, SQL/스위치0",
-      "blockedReason": "GCP설정완료주인님보고·시험ClientID/사용자실목록미확인, Workspace공개방식/빌드선택질문열림",
+      "next": "단일 메인PC Workspace: ON/시험/SHA→SQL사전검사·0074/75→v1.58검사/배포1→실alias/버전1행→주인님OAuth/실검증·Mac독립",
+      "blockedReason": null,
       "approval": {
-        "at": "2026-11-17T17:20:27.598Z",
-        "source": "주인님 직접지시 Workspace회신",
-        "quote": "Gmail 켜기 진행할테니 필요한 것 정리해서 보고해",
-        "scope": "활성추진·필요조건/실행계획 준비보고",
-        "execution": "GCP설정완료/공개방식/정상·복구빌드범위 확정전SQL/스위치/실행0"
-      }
+        "source": "주인님 Workspace 채팅 선택 답변 2026-11-18",
+        "publicMode": "all_members",
+        "normalBuilds": 1,
+        "offRecoveryBuilds": 1,
+        "normalUsed": 0,
+        "recoveryUsed": 0,
+        "scope": "0074→0075 운영적용·Gmail ON·v1.58 묶음·확인표 실OAuth/Gmail검증"
+      },
+      "lastReviewedAt": "2026-11-18T01:10:53.820Z"
     },
     {
       "task_id": "DES-20261118-01",
@@ -7290,13 +7287,13 @@
       "reviewer": "CX-MASTER-01",
       "title": "이미지3엔진 QA049 안전경계 보완계획",
       "status": "ready",
-      "delivery": "author_next_report_intent_followup_send_failed",
-      "evidence": "QA049중간msg_9ea5ee32f762·msg_21ed3b1edaab·msg_85526463335b 후속계획보고예고",
+      "delivery": "dispatch_sent",
+      "evidence": "QA049중간msg_9ea5ee32f762·msg_21ed3b1edaab·msg_85526463335b 후속계획보고예고·런타임복구후 msg_3307ed544d53 전달",
       "scopeRef": "계획/기존공용모듈재사용/정확경로먼저,제품수정freeze계속",
       "completion": "provider별공식모델allowlist·MIME/base64/크기·abort/timeout·URL取得방어·무료서비스정책/키/전송계획",
       "next": "정확범위/완료조건계획회신→Master범위승인후mock수정·실API/키/DB/build0",
       "lastReviewedAt": "2026-11-17T17:43:53.437Z",
-      "blockedReason": "재배포질문해소. 작성자계획후속예고·Master재개지시전송은Orca runtime_unavailable로실패(수락미확인)"
+      "blockedReason": null
     },
     {
       "task_id": "PORT-20261118-01",

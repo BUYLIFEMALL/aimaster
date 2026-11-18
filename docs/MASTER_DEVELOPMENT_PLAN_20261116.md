@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 10:03:01 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 10:10:53 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 10:03:01 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 10:10:53 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 19카테고리/미종료작업·보고/문서증분·담당상태·Ecom release/실alias·전달오류 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 승인/릴리스순번·담당단일화·체크리스트/점유·런타임복구/후속전달 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -133,7 +133,7 @@ Master 마지막 실제 점검: 2026-11-18 10:03:01 KST · 실행 중 점검 주
 
 | 프로그램·담당 | 상태 | 빌드 사용 / 승인 | 실모델 호출 사용 / 승인 | 현재 공식 별칭 대상 | 다음 조건 |
 | --- | --- | --- | --- | --- | --- |
-| emotion-writer · CC-ECOM-01 | completed | 2 / 2 | 3 / 3 | dpl_7XjTSJkDk6Ftzt9Lv3EVvo52HpdT | 원격빌드추가/실호출잔여0·이미지엔진계획별도 |
+| ai-work-workspace · CC-WORKSPACE-01 | approved_dispatch_sent | undefined / undefined | undefined / undefined | — | 단일 메인PC Workspace: ON/시험/SHA→SQL사전검사·0074/75→v1.58검사/배포1→실alias/버전1행→주인님OAuth/실검증·Mac독립 |
 
 ## 완료를 정정한 항목
 
@@ -145,7 +145,7 @@ Master 마지막 실제 점검: 2026-11-18 10:03:01 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 242개: done 224개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 5개 · needs_revision 2개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 242개: done 224개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 3개 · ready 4개 · needs_revision 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -358,14 +358,14 @@ Master 마지막 실제 점검: 2026-11-18 10:03:01 KST · 실행 중 점검 주
 | QA-20261117-034 | CX-QA-01 | done / integrated | E3-3 결재ACL/신뢰경계/거래우회 독립검토 | E3-3지정소스완료·운영gallery/시각/실알림미검수 |
 | QA-20261117-035 | CX-QA-01 | done / integrated | 셀AI웹출처 키·과금재시도·저장권한 독립검토 | 지정소스마감·실공급자/과금/사실성/운영UI·실DB미검수 |
 | WS-20261117-25 | CC-WORKSPACE-01 | done / integrated | E4 Gmail함 기존기능/권한 대조와 최소범위 조사 | 소스동결·릴리스표QA041지정PASS갱신, 운영활성화WS27 별도승인/실검증 |
-| WS-20261117-26 | CX-MASTER-01 | waiting_human / prepared | E3+WS23 v1.58 묶음 배포/운영 실검수 | v1.58 묶음에요일칩추가·GmailOFF서버/UI동시. 새최종전체검사와빌드승인뒤실행,실AI비용별도 |
+| WS-20261117-26 | CX-MASTER-01 | ready / merged_into_WS27_approved_release | E3+WS23 v1.58 묶음 배포/운영 실검수 | WS27 정상1빌드에v1.58 E3/예약/요일칩/Gmail통합·중복배포0 |
 | QA-20261117-036 | CX-QA-01 | done / integrated | Gmail A1 OFF 서버 OAuth 독립 검수 | 0074소스준비수락·운영미적용/OFF, A2후속은별도검수 |
 | QA-20261117-037 | CX-QA-01 | waiting_human / acknowledged | B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수 | Mac29기존주인님반환후권한/fee3000표시읽기·토스시험제출은메인243주인님한곳,Backend결과읽기대기 |
 | QA-20261117-038 | CX-QA-01 | done / integrated | Gmail A2 원자 받은업무 전달 서버·SQL 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
 | QA-20261117-039 | CX-QA-01 | done / integrated | Gmail OFF 패널 실제 TSX 모의 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
 | QA-20261117-040 | CX-QA-01 | done / integrated | Gmail OFF 배선·실제 RPC 입구·어댑터·화면 통합 독립검수 | 배선소스수락·동결, 패널disconnect unknown후속별도 |
 | QA-20261117-041 | CX-QA-01 | done / integrated | Gmail 연결 해제 재시도·계정교체 조건부삭제 독립검수 | 소스수락·두SHA같이배포, 활성화단계별도 |
-| WS-20261117-27 | CC-WORKSPACE-01 | waiting_human / activation_preparation_approved | Gmail 운영 SQL 적용·실계정 검증·활성화 | 주인님공개방식·정상/복구빌드범위결정→Master실행순번, SQL/스위치0 |
+| WS-20261117-27 | CC-WORKSPACE-01 | ready / approved_dispatch_sent | Gmail 운영 SQL 적용·실계정 검증·활성화 | 단일 메인PC Workspace: ON/시험/SHA→SQL사전검사·0074/75→v1.58검사/배포1→실alias/버전1행→주인님OAuth/실검증·Mac독립 |
 | DES-20261118-01 | AG-UI-01 | done / integrated | 감성 글귀 이미지 직접지시 v1.28/v1.29 배포 회수 | P3 두건 DES02 다음묶음·375px/실위젯 미검수 유지 |
 | QA-20261118-042 | CX-QA-01 | done / integrated | emotion-writer 메뉴·키설정 독립검수 | DES02 반환시 두건 재검수·실375/위젯/회원키는 미검수 |
 | DES-20261118-02 | AG-UI-01 | done / accepted_pending_batch_deploy | 키보기 키보드 접근·키발급 링크 hover 대비 보완 | 다음 emotion-writer 묶음배포에 포함·운영반영 전까지 미배포 유지 |
@@ -389,7 +389,7 @@ Master 마지막 실제 점검: 2026-11-18 10:03:01 KST · 실행 중 점검 주
 | DES-20261118-05 | AG-UI-01 | needs_revision / frozen_pending_review | 주인님 직접 이미지 NanoBanana/OpenAI/무료모델 3엔진 | QA049 최종P2 4건·무료정책/공식지원분리, Ecom수정계획수신전제품freeze |
 | QA-20261118-049 | CX-QA-01 | needs_revision / returned | 새이미지3엔진 소스/가짜통신·키/응답경계 검수 | Ecom정확보완계획/범위승인후mock수정→독립재검수·실endpoint/이미지/새build0 |
 | B2B-20261118-03 | CC-B2B-BACK-01 | waiting_human / fixture_prepared | 주인님 직접 Lab 교환비waiting1건·토스시험흐름 | 사람시험제출/로그인신호없음·고정교환1건유지,현재주문상태는03:31자동확정가능해반복RPC없이다음읽기때판정 |
-| ECOM-20261118-03 | CC-ECOM-01 | ready / author_next_report_intent_followup_send_failed | 이미지3엔진 QA049 안전경계 보완계획 | 정확범위/완료조건계획회신→Master범위승인후mock수정·실API/키/DB/build0 |
+| ECOM-20261118-03 | CC-ECOM-01 | ready / dispatch_sent | 이미지3엔진 QA049 안전경계 보완계획 | 정확범위/완료조건계획회신→Master범위승인후mock수정·실API/키/DB/build0 |
 | PORT-20261118-01 | AG-UI-01 | ready / queued_not_settled | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 기존창에서대기메시지수신/수락되면19문서대조. 메시지재발송/새창/다른세션중복배정0 |
 
 ## 현재 담당 회신이 확보된 프로젝트
@@ -442,8 +442,8 @@ Master 마지막 실제 점검: 2026-11-18 10:03:01 KST · 실행 중 점검 주
 | 실제 결제 검수 단계 | Lab 테스트 전용 토스 키 사용 확인 | 운영/회원실키 폴백 없이 테스트키로만,현재실결제0 |
 | 음악 실기기/저장 단계 | Intel Mac 기존공간20 본인로그인필요시직접로그인+Return, 시험중신뢰클릭/저장위치선택 | AppleSilicon은장비준비뒤후일재개로행정마감·즉시장비요청0 |
 | 블로그·마켓 외부계정 | 해당회차가필요할때본인로그인·확장연결/신뢰클릭 | 지금권한확대/실포스팅/실ESM등록은실행하지않음 |
-| E3 묶음 운영 배포·실비용 검증 | v1.58묶음배포1회/합성운영확인·실검색1+회원모델1비용승인여부 | 소스560시험/독립PASS완료·미승인동안build/실검색/AI0 |
-| Gmail 운영 활성화 | GCP설정완료 주인님신호회수·시험회원Client ID일치/테스트사용자목록·공개/실행범위확정 | DreamAI설정주인님확인(시험ClientID와동일/목록실재는미확인),운영SQL/스위치0·d612f13a/실행순번Master판정 |
+| E3 묶음 운영 배포·실비용 검증 | v1.58은WS27정상1빌드에통합승인·실검색/AI는별도미승인 | 소스560시험/독립PASS완료·미승인동안build/실검색/AI0 |
+| Gmail 운영 활성화 | 전원공개·정상1/실패OFF복구1 승인완료·실OAuth는주인님직접 | Workspace단일실행·GCP Client ID일치/시험사용자실목록은실검증때 boolean확인 |
 | 감성글귀 v1.30 再실행 | 추가승인분 재배포·실호출3회 완료 | Master alias확인·작성자DB/DOM검수,추가빌드/호출예산0 |
 
 ## 주인님 결정으로 후일 재개하는 항목
