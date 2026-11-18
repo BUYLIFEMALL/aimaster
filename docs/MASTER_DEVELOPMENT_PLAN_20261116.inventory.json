@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 18:36:23 KST",
+  "checkedAt": "2026-11-18 18:42:41 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T09:36:23.075Z",
+      "at": "2026-11-18T09:42:41.599Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS P2 설계 문서 완료 보고",
-      "scope": "W00 §20-8 고정 SHA 및 이전 보완 조건 대조",
+      "trigger": "W01r SQL 및 격리 시험 초안 회신",
+      "scope": "e3bb9132f 신규 SQL·시험·문서 범위 정적 검토.",
       "evidence": [
-        "04c7c2322·msg_05865a2ff2b8",
-        "msg_a289fd0c172a"
+        "msg_0f05ca942dad·e3bb9132f",
+        "msg_b79fa67a3680"
       ],
-      "judgment": "설계 문서 수락. 새 후속 migration과 격리 시험 소스 초안만 배정.",
+      "judgment": "실행 전 존재 검사 스냅샷과 테스트 실행기 타임아웃/오류 처리 보완 요청.",
       "unverified": [
-        "실 DB 권한·스캔 시간·동시성·Storage 물리 상태",
-        "Gmail 동의 및 실검증"
+        "P2 신규 격리 SQL 시험·실 Supabase 권한/Storage",
+        "Gmail OAuth 동의·실검증"
       ],
-      "nextAction": "W01r 초안 SHA와 격리 검증 계획 회수."
+      "nextAction": "수정 고정 SHA 확인 후 격리 시험 실행 여부 판정."
     },
     "notifications": [
       {
@@ -8749,14 +8749,19 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "누락 자산 후속 SQL·격리 시험 초안",
-      "status": "dispatched",
-      "delivery": "local_migration_and_test_draft_requested",
+      "status": "reviewing",
+      "delivery": "sql_draft_received_snapshot_and_test_harness_fix_requested",
       "scopeRef": "신규 후속 migration, 신규 격리 시험, W00 해당 근거",
       "constraints": "기존 migration·실행자/route/fixture 변경·SQL 실행/DB 생성·운영/Storage/비용/배포 0",
       "completion": "권한·인덱스 정렬·창/반환 상한·metadata 두 기준·예약 보존·격리 시험 경계 명시",
-      "evidence": "04c7c2322·msg_a289fd0c172a",
-      "next": "정확 경로와 초안 SHA 회수 후 정적 검토.",
-      "lastReviewedAt": "2026-11-18T09:36:23.075Z"
+      "evidence": "e3bb9132f·msg_0f05ca942dad·정정 요청 msg_b79fa67a3680",
+      "next": "객체 부재 단일 스냅샷 및 시험 프로세스 종료 처리 정정 SHA 확인 후 격리 실행 판정.",
+      "lastReviewedAt": "2026-11-18T09:42:41.599Z",
+      "sha": "e3bb9132f",
+      "validation": {
+        "author": "node --check, 기존 npm 171/171·tsc 보고. 신규 격리 시험 미실행.",
+        "master": "고정 SQL·격리 시험 준비/정리 코드 정적 확인. 별도 SELECT의 스냅샷과 자식 프로세스 오류/시간 경계 보완 필요."
+      }
     }
   ]
 }
