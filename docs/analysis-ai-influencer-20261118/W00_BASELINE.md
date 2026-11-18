@@ -35,8 +35,8 @@
 | ID | 내용 | 근거 | 영향 | 처리 묶음 |
 |---|---|---|---|---|
 | G5 | 요청·응답 본문 크기 한도. 참고 이미지(얼굴·장소·상품 3장·직전 결과)를 base64 JSON으로 보내고, 결과도 base64 data URL로 돌려받음 | `InfluencerStudio.tsx:272` → `api/generate-image/route.ts`, `gemini.ts:107` | Vercel 함수 본문 한도 4.5MB. 4K PNG 결과나 참고 이미지 여러 장이면 요청/응답 실패 가능(**재현 미실시**, 유료라 시험 안 함) | W01 — 참고는 자산 ID로 보내고 서버가 저장소에서 읽음, 결과는 서버 저장 후 단기 서명 URL 반환 |
-| G6 | 미세 보정이 직전 결과를 연속 참조 | `InfluencerStudio.tsx:266`(`lastResultImage`), `gemini.ts:77-87` | PLAN §5 「원본 시트 기준 생성·누적 변형 방지」와 반대. 보정을 거듭하면 얼굴이 조금씩 바뀜 | W03/W04 — 보정 요청에도 기준 시트를 함께 첨부, 입력 자산 기록 |
-| G7 | 참고 이미지 역할 구분 없음 | `gemini.ts`가 이미지를 순서대로만 붙임. 프롬프트(`influencer-engine.ts:104-108`)에는 상품 참고 이미지 역할만 설명하고 얼굴·장소 이미지가 몇 번째인지·무슨 역할인지 설명이 없음 | 장소·상품 사진을 얼굴 기준으로 오인할 위험(F06-02) | W03 |
+| G6 | 보정 때 직전 결과를 추가로 참조(정밀화 2026-11-18) | `InfluencerStudio.tsx:264-268` — `...config`로 기준 `personImage`는 **유지**하면서 `lastResultImage`를 더한다. `gemini.ts:77-87` | 기준 얼굴 참조가 없어지는 것은 아니다. 격차는 다각도 기준 시트·입력 역할 기록이 없어 보정을 거듭할 때 무엇을 기준으로 삼았는지 남지 않는 것. **실제 얼굴 변형은 실생성으로 확인하지 않음** | W03/W04 — 기준 시트 버전·입력 자산 역할 기록 |
+| G7 | 이미지별 순번·역할 계약 없음(정밀화 2026-11-18) | `gemini.ts`가 이미지를 순서대로만 붙임. 장소는 `influencer-engine.ts:122` `[Setting] MATCH PROVIDED BACKGROUND`, 상품은 `:104-108`에 지시가 **있다**. 얼굴 이미지 역할 지시와 「몇 번째 이미지가 어떤 역할인지」 순번 계약은 없음 | 장소·상품 사진을 얼굴 기준으로 오인할 위험(F06-02) | W03 |
 | G8 | 인스타 게시 재시도가 `media_publish`에도 적용 | `src/lib/instagram/publish.ts:33-46` `postGraphWithRetry`(“timeout” 문구면 2회) | 같은 컨테이너 재게시는 보통 거절되지만, 응답 유실을 일시 오류로 보고 다시 보내는 구조라 PLAN §16 「게시 응답 유실 시 재전송 금지」와 어긋남. 공용 기준 `instagram-publish`(기준 `insta_auto_poster`) | W07 + **insta 담당께** 전달 |
 | G9 | 영상 엔진 제약: Seedance 2.0은 「실사 인물 사진은 업체가 거절」 | `ai-video-studio/lib/video/videoModels.ts:68` 주석 | 실사 인물 I2V 후보에서 제외. 비교 후보는 Kling 3.0·Kling O3·Wan 3.0 | W00 비교 조건에 반영 |
 | G10 | 공식 표시명 미적용 | `src/lib/version.ts` `APP_NAME = 'AI 인플루언서 자동화'`, DB `programs.name` 같음 | 「AI Influencer」 표기 미반영. slug·도메인(`ai-influencer.buylife.xyz`)은 유지 | W08 릴리스 때 코드·DB·메타·매뉴얼 함께 |
@@ -76,7 +76,7 @@ PLAN의 표·API·상태 설계는 그대로 채택하고 아래만 확정·수�
 
 1. **표 접두어 `aif_` 유지**, 기존 `aif_history`·`aif_insta_posts`·`aif_member_scheduler`는 그대로 둔다(삭제·이름 변경 없음).
 2. **원본은 `aif_assets` + 비공개 새 버킷 `aif-assets`**, 경로 `{user_id}/{kind}/{asset_id}.{ext}` 서버 강제. 생성 원본은 해상도 그대로 저장하고 `aif_history`에는 기존처럼 축소 사본만 둔다(히스토리는 목록용, 원본 아님).
-3. **보관**: 프로그램 자체 정리는 `retentionExempt.ts`(공용 기준 미등록, 여러 프로그램이 같은 내용을 따로 둠 — `ai-video-studio/lib/retentionExempt.ts`를 그대로 가져옴)로 예외 회원을 빼고, 예외 목록을 못 읽으면 정리 전체를 멈춘다. 기간 판정은 중앙 함수 `member_storage_policy`와 맞춘다. 캐릭터 기준 자산도 기간 정책 대상이며, 만료되면 그 인물의 신규 자동 제작을 보류한다(무기한 보관 약속 없음).
+3. **보관**(2026-11-18 Mac 반례 반영, §15-1): 중앙 정리 `member_storage_expired_files`는 `retention_exempt AND NOT retention_exempt_manual`(유료·관리자 지정 연장 회원)만 대상이다. **일반 회원(500MB/30일)의 `aif-assets` 정리는 프로그램이 직접 해야 한다.** 프로그램 정리는 `retentionExempt.ts`(공용 기준 미등록, `ai-video-studio/lib/retentionExempt.ts`를 그대로 가져옴)로 `retention_exempt = true` 회원을 모두 빼고(연장 회원은 중앙, 관리자·시험은 무기한), 예외 목록을 못 읽으면 삭제 전체를 멈춘다. 캐릭터 기준 자산도 기간 정책 대상이며, 만료되면 그 인물의 신규 자동 제작을 보류한다(무기한 보관 약속 없음).
 4. **게시용 임시 사본은 원본과 별개 수명**: 지금처럼 게시 후 삭제 유지. 원본 자산은 게시 여부로 수명이 바뀌지 않는다.
 5. 금액은 `numeric(12,4)` + `currency char(3)`, 시각은 `timestamptz`(UTC).
 
@@ -88,7 +88,7 @@ PLAN의 표·API·상태 설계는 그대로 채택하고 아래만 확정·수�
 
 ### 5-3. 작업 상태
 
-1. 상태값은 PLAN §15 그대로. 잠금은 `avs_generations`의 `locked_until` 패턴을 참고하되 `aif_job_steps.lease_until + fencing_token`으로 확장.
+1. 상태값은 PLAN §15에 `paused` + `pause_reason`을 더한 §17 표를 따른다. 잠금은 `avs_generations`의 `locked_until` 패턴을 참고하되 `aif_job_steps.lease_until + fencing_token`으로 확장.
 2. **브라우저 실행과 서버 실행을 상태에 구분해 기록**: `aif_job_steps.executor` = `server|browser|runner`. `browser` 단계는 연결이 끊기면 `waiting_external`이 아니라 `paused(executor_offline)`로 보여 주고 무인 완료로 표시하지 않는다.
 3. 영상 공급자 진행은 화면 조회에만 의존하지 않도록 W06에서 서버 예약 진행(정해진 간격 상태 조회)을 추가한다. 그 전까지 「브라우저를 닫으면 영상 진행 확인이 멈춤」을 화면에 표시한다.
 
@@ -129,7 +129,7 @@ PLAN의 표·API·상태 설계는 그대로 채택하고 아래만 확정·수�
 ## 8. 다른 담당께 넘길 것
 
 - **insta 담당(공용 기준 `instagram-publish`, 기준 `insta_auto_poster/src/lib/instagram/publish.ts`)께**: `postGraphWithRetry`가 `media_publish` 요청에도 “timeout” 재시도를 적용 — 응답 유실 시 재게시 위험 구조. 컨테이너 생성은 재시도, 게시(`media_publish`)는 재시도 대신 최근 게시 대조로 바꾸는 검토 요청(G8).
-- **`insta-posting` 기준 담당(`ai-webtoon-studio/src/lib/instagram/posting.ts`)께**: `cleanupOldPosts()`가 전체 회원의 30일 지난 게시 기록·썸네일을 `retention_exempt`와 상관없이 지운다(G3). 예외 회원 제외(목록을 못 읽으면 정리 중단)를 기준에 넣고 사본(인플루언서·4컷)에 `--sync` 요청. 회원 피해가 아니라 관리자·시험 계정 보관 규칙 위반이라 「급하지 않은 변경 — 다음 배포 때 함께」 등급.
+- **`insta-posting` 기준 담당(`ai-webtoon-studio/src/lib/instagram/posting.ts`)께**: `cleanupOldPosts()`가 전체 회원의 30일 지난 게시 기록·썸네일을 `retention_exempt`와 상관없이 지운다(G3). 예외 회원 제외(목록을 못 읽으면 정리 중단)를 기준에 넣고 사본(인플루언서·4컷)에 `--sync` 요청. ~~회원 피해가 아니라 관리자·시험 계정 보관 규칙 위반~~ → 철회. 유료 보관 연장 회원도 대상이 될 수 있다(§15-2).
 - **Movie 담당(`ai-video-studio`)께**: AI Influencer W02/W05에서 `lib/video/videoProviders.ts`·`videoModels.ts`·`videoParse.ts`를 사본으로 쓸 예정 — 공용 기준 등록 여부·시점 협의 필요. 영상 진행이 화면 조회에만 의존한다는 점(G4)은 영상 스튜디오에도 해당.
 
 ## 9. 주인님 결정·조치가 필요한 것
@@ -160,10 +160,34 @@ W01 착수 조건: 이 계약(§5)에 이의 없음 + §7 파일 범위 점유 �
 
 참고 이미지를 자산 ID로 받는 새 요청 형식(G5 완전 해소)과 화면 전환은 migration 운영 적용 뒤 W01 후반으로 미룬다. 표가 없는 상태에서 배포되면 원본 저장 단계만 건너뛰고(로그 1줄) 기존 생성은 그대로 동작해야 한다.
 
+#### W01 전반·후반 수용 기준 (Mac SNS-F04 반영)
+
+| 구분 | 범위 | 수용 기준 | G5 판정 |
+|---|---|---|---|
+| W01 전반 | §12-1 표 1~7 | G1 문구 제거, 예외 회원 정리 분기, 원본 서버 저장(가능할 때)·`assetId` 응답 추가, 기존 화면 무변경 동작 | **해소 아님.** 응답은 여전히 data URL이라 큰 결과는 플랫폼 한도를 넘을 수 있고, 그때는 「원본 저장 성공 + 화면 응답 실패」가 생길 수 있음 — 이 경우를 위해 후반의 재조회 경로가 필요 |
+| W01 후반 | 아래 경로 | 요청에 base64 없음(참고 이미지는 `assetId`), 응답은 `{assetId, signedUrl}`만, 보관된 결과를 **생성 재호출 없이** 재조회 | 해소(실제 4K 결과로 확인 시) |
+
+W01 후반 정확 경로(추가):
+
+| 파일 | 변경 |
+|---|---|
+| `src/lib/assets/config.ts` (신규) | 기능 플래그 `AIF_ASSETS_MODE = "off" \| "shadow" \| "on"`. off=기존 흐름만, shadow=원본 저장만 추가(전반 기본값), on=새 요청·응답 형식. migration 미적용이면 코드가 off로 동작 |
+| `src/app/api/aif/assets/upload-ticket/route.ts`, `src/app/api/aif/assets/[id]/complete/route.ts` (신규) | 참고 이미지 업로드 허가·확정(PLAN §14). 크기·MIME·실제 형식 서버 확인 |
+| `src/app/api/aif/assets/[id]/route.ts` (신규) | 소유자 확인 후 단기 서명 URL 재발급 — 화면 응답이 실패해도 결과를 다시 가져오는 경로 |
+| `src/app/api/aif/generations/route.ts` (신규) | `{ referenceAssets: [{assetId, role}], config }` → 생성 → `{assetId, signedUrl}`. 기존 `/api/generate-image`는 off/shadow용으로 유지 |
+| `src/components/InfluencerStudio.tsx` (생성·보정 호출부), `src/components/ControlPanel.tsx` (참고 이미지 올리기), `src/components/ImageDisplay.tsx`·`HistoryDrawer.tsx` (서명 URL 표시·만료 시 재발급) | on일 때 새 경로 사용 |
+| `tests/assetsMode.test.mjs`, `tests/referenceRoles.test.mjs` (신규) | 플래그 분기·역할 순번 계약 |
+
+#### 히스토리 정리 범위 보완 (Mac 보완 제안 반영)
+
+- 정리 대상은 GET 정리(`history/route.ts:30-36`)와 **POST의 30개 초과 정리(`history/route.ts:75-76`)** 둘 다다. 「30개 목록 제한」이라 불러도 실제로는 저장 객체를 지우는 동작이다.
+- migration 미적용(원본 저장 건너뜀) 상태에서는 옛 히스토리 축소본이 **유일한 영속 사본**이므로, 「원본이 따로 있으니 30개 정리는 괜찮다」는 §12-2의 전제를 모든 기록에 적용하지 않는다. 예외 회원은 GET·POST 두 정리 모두에서 제외하고, 일반 회원의 30개 정리는 현행 유지.
+- 예외 판정은 `loadRetentionExemptIds()`(읽기 실패 시 오류)를 쓴다. `isRetentionExempt()`는 조회 오류를 `false`로 돌려주므로 **삭제 허용 판단에 쓰지 않는다**(화면 표시용만). 시험: 조회 오류·null·이상한 모양 응답 때 삭제 0건.
+
 ### 12-2. 보관과 원본 보존 규칙
 
 - 히스토리 축소본: 일반 회원 30일·30개 그대로. 예외 회원은 30일 삭제 제외. **30개 제한은 목록 제한이라 예외 회원에게도 유지**한다(원본은 `aif_assets`에 따로 있으므로 축소본 30개 정리가 원본을 지우지 않음). 이 판단에 이의가 있으면 Master가 조정.
-- 원본 자산: `expires_at` = 생성 시각 + `member_storage_policy` 기간. 정리는 중앙 함수(`member_storage_expired_files`)에 맡기고 프로그램에서 따로 지우는 코드는 만들지 않는다.
+- 원본 자산: ~~정리는 중앙 함수에 맡긴다~~ → **철회(§15-1)**. 일반 회원 정리 경로·포스팅 표시·추적 버킷 등록 명세는 §15-1을 따른다. W01에서는 명세와 순수 규칙 시험까지만 하고 실제 삭제 실행 코드는 Master 확인 뒤 연결한다.
 - 게시용 임시 사본(`insta-post-images`)은 현행 그대로(게시 후 삭제).
 
 ### 12-3. 실패 시 상태 전이
@@ -171,7 +195,7 @@ W01 착수 조건: 이 계약(§5)에 이의 없음 + §7 파일 범위 점유 �
 | 상황 | 동작 |
 |---|---|
 | 생성 성공 → 원본 저장 실패 | 생성 결과는 화면에 그대로 반환(이미 과금됨), 응답에 `assetSaved:false`와 안내. 생성을 다시 요청하지 않음 |
-| 저장 성공 → `aif_assets` 행 기록 실패 | 올린 파일을 지우고 `assetSaved:false` (기존 history POST와 같은 되돌리기) |
+| 저장 성공 → `aif_assets` 행 기록 실패 | ~~올린 파일을 지운다~~ → **철회(Mac SNS-F05)**. 아래 「자산 기록 상태 계약」을 따른다 |
 | 예외 목록 읽기 실패 | 히스토리 삭제 건너뜀, 목록은 정상 반환 |
 | `aif_assets` 표 없음(운영 미적용) | 원본 저장 건너뜀, 기존 흐름 유지 |
 
@@ -193,14 +217,111 @@ W01 착수 조건: 이 계약(§5)에 이의 없음 + §7 파일 범위 점유 �
 - 기준: `ai-webtoon-studio/src/lib/instagram/posting.ts` (마지막 변경 `237741cc3`, 미커밋 없음). 사본: `ai-influencer-studio`·`four-cut-comics` 같은 경로(`check-shared-modules` 결과 OK).
 - 호출하는 곳: 세 프로그램의 `src/app/api/instagram/dispatch/route.ts` (각 `vercel.json` 예약 실행).
 - 최소 수정안: 154줄 조회 전에 예외 회원 목록을 읽어 `.not("user_id", "in", <목록>)`을 붙이고, 목록을 못 읽으면 30일 삭제 부분만 건너뛴다(157~162줄 「게시 중 멈춤」 실패 처리는 그대로 진행). 예외 판정 컴포넌트는 `retentionExempt.ts`(확인: `four-cut-comics/src/lib/retentionExempt.ts` 있음, `ai-webtoon-studio`에는 없음 → 기준 담당이 웹툰에 추가 필요, 인플루언서는 W01에서 추가 예정).
-- 등급: 회원 피해 없음, 관리자·시험 계정 보관 규칙 위반 → 다음 배포 때 함께.
+- 등급: ~~회원 피해 없음~~ → **철회(§15-2)**. `retention_exempt`는 유료 보관 연장 회원에게도 켜지므로, 이 정리는 유료 회원의 게시 기록·썸네일을 30일에 지울 수 있다. 등급 판정은 Master 몫(§15-2 근거).
 
 ### 13-2. `instagram-publish` — 게시 요청 재시도
 
 - 기준: `insta_auto_poster/src/lib/instagram/publish.ts` (마지막 변경 `237741cc3`, 미커밋 없음). 사본: `ai-influencer-studio`·`ai-webtoon-studio`·`four-cut-comics`. 등록부 밖 손 복사: `labs/kit-insta/src/lib/instagram/client.ts`. 등록부(`docs/SHARED_MODULES.md`)에 적힌 `cardnews-studio/src/lib/instagram/publish.ts`는 실제로 없음 → 등록부 정정 필요.
 - 호출하는 곳: 세 스튜디오의 `src/lib/instagram/posting.ts`(`publishPaths`), `insta_auto_poster/src/lib/posts/publish-core.ts`·`src/lib/cardnews/instagram/posts.ts`.
-- 최소 수정안: `publishContainer()`(`media_publish`)만 `postGraphWithRetry(..., maxRetries = 0)`으로 부르고, 컨테이너 만들기 요청은 지금처럼 재시도한다. 게시 응답이 사라졌을 때는 호출부의 기존 「최근 게시 대조」(`findSameRecentPost`)가 이미 처리하므로 추가 코드가 필요 없다.
-- 위험: 같은 컨테이너를 두 번 게시하면 Meta가 보통 거절하므로 실제 중복 게시 가능성은 낮다 → 급하지 않은 변경.
+- ~~최소 수정안: `media_publish`만 재시도 0, 나머지는 기존 대조가 처리~~ → **철회(§15-3)**. 재시도 0만으로는 재게시를 막지 못한다. 전체 계약은 §15-3.
+
+## 15. Mac 독립 검수 반례 반영 (Master `msg_104630ed2e4b`, Mac `msg_e6f0471f7d6d`, 검수 고정본 `613ac1da4`)
+
+세 건 모두 **소스·DB 정의상 가능한 경로**이며, 실제 삭제나 중복 게시가 일어났다는 실증은 아니다. 운영 DB는 정의와 건수만 읽었다(2026-11-18).
+
+### 15-1. 일반 회원 원본 정리 경로 (반례 1)
+
+근거: 운영 함수 `member_storage_expired_files`(마이그레이션 `supabase/migrations/0068_storage_posted_retention.sql`·`0073`) 정의는 `where p.retention_exempt and not p.retention_exempt_manual`. 대상은 연장 회원뿐이고 일반 회원은 후보에 없다. 파일 매칭은 `o.name like '%<user_id>%'`, 버킷이 `storage_posting_tracked_buckets`에 없으면 포스팅 보관 기간(`post_days`)을 적용한다. 현재 추적 버킷 0개.
+
+대체 명세(실행 코드는 Master 확인 뒤, 삭제 실행 0):
+
+| 회원 | `aif-assets` 원본 정리 주체 | 기간 |
+|---|---|---|
+| 일반(`retention_exempt = false`) | **프로그램 정리 작업**(신규, 서버 예약 실행) | 생성 30일 — 무료 정책 `storage_plans.slug='free'`의 `retention_days`를 읽어 적용(코드에 30 고정 금지) |
+| 연장(`retention_exempt and not manual`) | 중앙 `member_storage_expired_files` | 정책의 생성/포스팅 기간 |
+| 관리자·시험(`retention_exempt_manual`) | 없음 | 무기한 |
+
+- 경로 규칙: `{user_id}/{kind}/{asset_id}.{ext}` — 중앙 매칭(`like '%uid%'`)에 걸리도록 회원 ID를 경로에 반드시 포함.
+- 표 등록: 게시한 원본이 포스팅 기간을 받도록 `aif-assets`를 `storage_posting_tracked_buckets`에 등록하고(마이그레이션 0068의 등록 함수 사용), 게시 성공 때 원본에 포스팅 표시(`member_posted_assets`, 공용 컴포넌트 `lib/storage/markPosted.ts` 방식). 등록하지 않으면 중앙 정리가 모든 파일을 포스팅 기간으로 보아 생성 기간보다 길게 남긴다.
+- 프로그램 정리 조건: `retention_exempt = false`인 회원만, 예외 목록을 못 읽으면 전체 중단, 한 번에 처리량 제한, 진행 중 작업이 참조하는 자산(`aif_job_steps` 입력)은 건너뛰고 다음 회차로.
+- `aif_assets.expires_at`은 표시용이며 삭제 판정의 근거는 위 정책 조회다(정책 변경 때 행을 일괄 갱신하지 않기 위해).
+
+### 15-2. 기존 30일 정리의 유료 회원 영향 (반례 2)
+
+근거: 운영 함수 `member_storage_refresh_exempt`는 `retention_exempt_manual` **또는** 정책상 생성/포스팅 기간이 30일 초과·무기한이면 `retention_exempt = true`로 바꾼다. 즉 저장 구독(라이트·스탠다드·프로)·등급·관리자 지정 연장 회원이 모두 포함된다.
+
+따라서 `retention_exempt`를 보지 않는 두 정리 경로는 **유료 보관 연장 회원의 자료를 30일에 지울 수 있다**(W00 §2 G3·§8·§13-1의 「회원 피해 없음」 철회):
+- `ai-influencer-studio/src/app/api/history/route.ts` GET 정리 — 히스토리 축소본과 행
+- 공용 `insta-posting`의 `cleanupOldPosts()`(기준 `ai-webtoon-studio`, 사본 인플루언서·4컷) — 게시 기록과 남긴 썸네일
+
+현재 상태(읽기, 2026-11-18): 연장 회원 0명, 관리자·시험 2명, `aif_history` 전체 0건 → **지금 시점의 유료 회원 실제 손실은 없음**. 다만 저장 구독 판매가 시작되면 바로 해당된다. 정책 변경 영향: 무료 정책 기간이 바뀌어도 두 경로는 코드에 30일이 고정돼 있어 따라가지 않는다(`RETENTION_MS = 30 * 24 * 60 * 60 * 1000`, `history/route.ts:13`·`posting.ts:17`).
+
+### 15-3. 인스타 게시 재게시 경로 전체 계약 (반례 3)
+
+`media_publish` 재시도 0만으로 막히지 않는 경로(공용 `insta-posting`·`instagram-publish` 소스, 인플루언서 사본 줄 번호):
+
+| 경로 | 현재 동작 | 위험 |
+|---|---|---|
+| A. 예약 1차 실패 → 10분 뒤 전체 재시도 | `posting.ts:138-140` — `isTransientPublishError`면 `scheduled`로 되돌림. 재시도는 컨테이너 생성부터 **처음부터 다시** | 1차의 `media_publish`가 실제로는 성공하고 응답만 사라졌으면 두 번째 글이 생김 |
+| B. 재시도 전 최근 게시 대조 실패 | `posting.ts:128` `(await fetchRecentMedia(...)) ?? []` — 조회 실패(null)를 「같은 글 없음」으로 보고 그대로 게시. `fetchRecentMedia`는 HTTP 오류·예외·연결 만료 모두 null(`posting.ts:52-64`) | 대조 불능인데 진행 → A의 중복을 막지 못함 |
+| C. 즉시 게시 응답 유실 | `api/instagram/publish/route.ts` — 일시 오류면 최근 조회, 같은 이유로 null→`[]`, 못 찾으면 502 반환 | 회원이 다시 누르면 새 사진 묶음으로 재게시 |
+| D. 즉시 게시 재진입 | 즉시 게시에 멱등 키·진행 중 잠금 없음, 누를 때마다 `/api/instagram/upload`가 새 묶음 생성 | 연타·두 탭에서 중복 게시 |
+| E. 게시 함수 내부 | `publish.ts` `postGraphWithRetry`가 `media_publish`도 “timeout”이면 2회 재시도 | 같은 컨테이너 재게시(Meta가 보통 거절하나 보장 없음) |
+
+대체 계약(공용 수정안, Master 조정 — 사본 직접 수정·`--sync` 없음):
+
+1. **단계 구분 결과**: `publishInstagramPost/Carousel`이 실패 시 `phase`를 돌려준다 — `before_publish`(컨테이너 생성·처리 대기 단계, `media_publish`를 보내지 않음) / `publish_unknown`(`media_publish`를 보냈으나 응답을 확정하지 못함) / `rejected`(Meta가 명시적으로 거절).
+2. **자동 재시도는 `before_publish`만**. `publish_unknown`은 자동 재시도 금지 → 상태 `uncertain`으로 두고 대조만 한다. `media_publish`의 `postGraphWithRetry` 재시도는 0.
+3. **대조 실패는 fail-closed**: `fetchRecentMedia`가 null이면 「없음」으로 보지 않고 게시하지 않는다. 예약은 `uncertain`(정해진 횟수만 대조 재시도, 이후 회원 확인 대기), 즉시 게시는 「확인 불가 — 인스타에서 확인 후 다시 시도」 안내.
+4. **즉시 게시 재진입 방지**: 요청마다 회원별 멱등 키를 받아 게시 기록 행을 먼저 `publishing`으로 잡고(조건부 insert/update), 같은 키나 진행 중 행이 있으면 새 게시를 시작하지 않는다.
+5. **예약 중복 실행**: 현재 `scheduled → publishing` 조건부 잠금(`posting.ts:100-107`)은 유지. 30분 넘게 `publishing`인 행을 `failed`로 바꾸는 정리(`cleanupOldPosts`)는 `uncertain`으로 바꾸고 대조 전에는 재게시 대상에서 뺀다.
+6. **기록**: `uncertain`·`already_published` 결과와 대조 시각을 남기고, 확정 성공만 게시 성공으로 집계(F14-06·F18-02).
+
+이 계약은 AI Influencer W07 게시 원장(`aif_publications`, PLAN §13)의 상태(`처리 중/불확실/성공`)와 같은 의미로 맞춘다.
+
+## 16. 자산 기록 상태 계약 (Mac SNS-F05 반영 — §12-3 「행 기록 실패 → 객체 삭제」 대체)
+
+원칙: **서버가 `asset_id`를 먼저 만들고**, 객체 경로와 행이 같은 ID를 공유한다. 결과가 불명이면 지우지 않고 대조한다. 유료 생성은 어떤 경우에도 자동으로 다시 하지 않는다.
+
+| 상황 | 판정 | 동작 |
+|---|---|---|
+| 객체 업로드 확정 실패(명시적 오류 응답) | 확정 실패 | 행 기록 안 함, `assetSaved:false`. 남았을 수 있는 객체는 아래 고아 정리 대상 |
+| 객체 업로드 응답 불명(시간 초과·연결 끊김) | 불명 | 행 기록 안 함, 응답에 `assetSaved:"unknown"`. 객체는 지우지 않음 → 고아 정리가 판단 |
+| 행 insert 명시적 실패(제약 위반 등) | 확정 실패 | 객체는 즉시 지우지 않고 고아 정리에 맡김(행이 없으므로 참조 위험 없음) |
+| 행 insert 응답 불명 | 불명 | `asset_id` + `user_id` 조건으로 **재조회**. 행이 있으면 성공으로 확정, 없으면 확정 실패로 처리. 재조회 자체가 실패하면 `unknown` 유지·객체 보존 |
+| 객체 삭제 실패(정리 중) | — | 행 상태 `deletion_state='failed'`, 다음 회차 재시도. 행을 먼저 지우지 않음 |
+| 정책 조회 실패 | — | 그 회차 삭제 전체 중단 |
+| 서명 URL 발급 실패 | — | 자산은 유효로 둠, 응답에 `signedUrl:null` + 재발급 경로(`/api/aif/assets/[id]`) 안내 |
+
+고아 정리(정리 작업 안, 같은 회원 경로만): ① 행 없는 객체 — 생성 후 24시간 지나도 행이 없을 때만 삭제 ② 객체 없는 행 — `deletion_state='missing'` 표시, 화면에서 「파일 없음」으로 보여 주고 자동 재생성 없음. 다른 회원 경로는 대상에서 제외(경로 첫 부분 = `user_id` 일치 검사).
+
+migration 초안에서 확인할 항목(DDL이 아직 없어 권한 구현 PASS 아님): `user_id NOT NULL` + FK, 서비스 키로만 쓰기·본인 SELECT RLS, `storage.objects`에 대한 클라이언트 직접 쓰기 차단(서명 업로드만), `(bucket, path)` 유일, MIME·바이트·실제 형식 서버 확인, 중앙 용량 검사(`member_storage_check`) 후 확정, 최종 확정 시험.
+
+## 17. 실행 상태·예산 전이표 (Mac SNS-F06 반영 — §5-3·§5-4 보완, PLAN §15 확장)
+
+PLAN §15 상태값에 `paused`를 **새 상태로 추가**하고, 이유는 별도 열 `pause_reason`에 둔다.
+
+| 대상 | 상태 enum |
+|---|---|
+| `aif_jobs.status` | `queued / running / paused / waiting_external / needs_review / uncertain / completed / failed / cancelled` |
+| `aif_job_steps.status` | 위와 같음 |
+| `pause_reason` | `executor_offline / budget_limit / consent_revoked / auth_expired / asset_expired / global_pause` |
+| `executor` | `server / browser / runner` |
+| 공급자 상태 | 공급자 원문 그대로 `provider_status`에 저장(업무 상태와 분리) |
+
+| 현재 | 조건 | 다음 | 재개 위치·규칙 |
+|---|---|---|---|
+| running(browser/runner) | 실행기 heartbeat 끊김 + 외부 접수 전 | paused(executor_offline) | 실행기 재연결 시 같은 단계 처음부터. 임대 만료 후 새 `fencing_token` 발급, 옛 실행기 보고는 거절 |
+| running(browser/runner) | heartbeat 끊김 + 외부 접수 ID 저장됨 | waiting_external 유지 | 서버가 공급자 상태 조회로 이어감(실행기 불필요) |
+| running | 외부 접수 직전 연결 끊김, 접수 여부 불명 | uncertain | 대조만, 자동 재접수 금지 |
+| queued/paused | 일간 예산 부족 | paused(budget_limit) | 다음 기간 시작 또는 회원이 상한 변경 후 queued |
+| 모든 비종료 상태 | 동의 철회·전체 중지 | paused(consent_revoked / global_pause) | **새 외부 쓰기(생성 접수·게시) 차단**. 이미 접수된 waiting_external은 결과 회수만 하고 후속 단계로 넘어가지 않음 |
+| paused(auth_expired / asset_expired) | 회원이 연결·자산 복구 | queued | 복구 확인 후에만 |
+
+예산 원자 계약:
+- 상한 검사 합계 = `reserved + estimated(미확정)` 전체. `reserved → estimated`로 바뀌어도 같은 행의 상태만 바뀌므로 합계에 한 번만 들어간다(이중 계산·누락 없음). 상태 변경과 상한 검사는 한 DB 함수에서 행 잠금으로 처리.
+- `confirmed`는 업체 청구 대조 후에만. `failed`(명시적 거절·비용 없음 확인)만 예약 해제. `uncertain`·`cancelled`(접수 후 취소)는 해제하지 않음.
+- 이 항목은 설계 누락 보완이며 실제 스키마 결함을 재현한 것은 아니다.
 
 ## 14. 진행 상태 기록
 
