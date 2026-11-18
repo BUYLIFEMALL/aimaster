@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T02:00:50.215Z",
+  "checkedAt": "2026-11-18T02:05:53.772Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3685,13 +3685,14 @@
       "owner": "AG-UI-01",
       "reviewer": "CX-MASTER-01",
       "title": "미확인5카테고리19프로그램 담당/잔여근거 매핑",
-      "status": "ready",
-      "delivery": "queued_not_settled",
+      "status": "running",
+      "delivery": "acknowledged_started",
       "scopeRef": "inventory의 CRM/마케팅/인스타/성격운세/AI프롬프트 19개·기존문서읽기+본인JSON1개",
-      "evidence": "msg_bd9dfa2f47ed·Master대상19검산",
+      "evidence": "msg_bd9dfa2f47ed·Master대상19검산·수락착수msg_95cb54baa5e3",
       "completion": "각slug문서의명시담당/당시버전/잔여/라이프사이클/근거절/확신/불일치·19건누락0,과거작성자=현활성담당추정0",
-      "next": "기존창에서대기메시지수신/수락되면19문서대조. 메시지재발송/새창/다른세션중복배정0",
-      "blockedReason": "실행수락미확인: Orca전달not_settled. AGY화면은빈prompt/기존background4개표시·그원인으로확정하지않음"
+      "next": "19프로그램 문서근거 대조 JSON1개 회수→Master 현재담당/잔여/신뢰도판정·전체표 반영",
+      "blockedReason": null,
+      "lastReviewedAt": "2026-11-18T02:05:53.772Z"
     },
     {
       "task_id": "ECOM-20261118-04",
@@ -4201,23 +4202,19 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T02:00:50.215Z",
+      "at": "2026-11-18T02:05:53.772Z",
       "timezone": "Asia/Seoul",
-      "trigger": "11:00예약 msg_40e44b3ae515",
-      "scope": "담당보고/관리자요청·19카테고리 미종료작업·프로그램docs/미등록인계 증분·제품미커밋·기존12세션",
+      "trigger": "AGY PORT19 수락 msg_95cb54baa5e3",
+      "scope": "19프로그램 담당/잔여근거 대조 배정 전달·수락 상태",
       "evidence": [
-        "예약11:00 결과0/다음11:30·dev-requests대기0",
-        "HEAD08081e567이후신규커밋0·제품3개src미커밋0",
-        "새보고/인계0(자체진행표3개제외)·담당preview변경은기존출력복원으로새진행근거아님",
-        "Gmail OAuth/시험완료신호0·PORT19수락0"
+        "AGY 수락/착수·단일JSON·제품/규칙/공유표/실API/DB/브라우저/배포0 확인"
       ],
-      "judgment": "이미지소스완료/미배포·Gmail운영v1.58실OAuth대기유지. 과거preview로상태역행0·중복배정/재전송/실시험0.",
+      "judgment": "queued미수신차단해소·running전환,완료아님·다른담당중복배정0",
       "unverified": [
-        "Gmail실OAuth/동작/독립화면",
-        "PORT19수신/착수·Lab시험제출·Mac반환",
-        "이번회차운영alias재조회없음"
+        "19프로그램 결과JSON·현재담당근거/잔여판정",
+        "Gmail OAuth 실검증"
       ],
-      "nextAction": "Workspace실검증/사람완료/수락이벤트후후속판정·11:30기존Master예약"
+      "nextAction": "AGY JSON수신후근거검토→공식작업표반영·필요후속단일배정"
     },
     "notifications": [
       {
@@ -4393,9 +4390,10 @@
       "checkedAt": "2026-11-17T19:03:19.921Z",
       "agy": {
         "messageId": "msg_bd9dfa2f47ed",
-        "state": "queued_not_settled",
-        "observation": "기존terminal screen 빈입력줄/과거작업결과·background4개표시,원인미확정·명시수락0",
-        "action": "입력대행/프로세스종료/새창0"
+        "state": "acknowledged_started",
+        "acknowledgment": "msg_95cb54baa5e3",
+        "observation": "AGY 명시수락/착수수신·미수신차단해소",
+        "action": "기존19문서범위유지·중복배정0·결과JSON대기"
       },
       "ecom": "계획수신·구현조건승인 msg_29d6fb7d2025 전달·착수수락별도",
       "workspace": "승인수신·msg_199efb134592 전달·수락/SHA 대기",
@@ -6422,8 +6420,9 @@
       ],
       "targetCount": 19,
       "owner": "AG-UI-01",
-      "delivery": "queued_not_settled",
-      "messageId": "msg_bd9dfa2f47ed"
+      "delivery": "acknowledged_started",
+      "messageId": "msg_bd9dfa2f47ed",
+      "acknowledgment": "msg_95cb54baa5e3"
     }
   },
   "deferredWork": [
