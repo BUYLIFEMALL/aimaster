@@ -174,7 +174,7 @@ W01 후반 정확 경로(추가):
 | 파일 | 변경 |
 |---|---|
 | `src/lib/assets/config.ts` (신규) | 기능 플래그 `AIF_ASSETS_MODE = "off" \| "shadow" \| "on"`. off=기존 흐름만, shadow=원본 저장만 추가(전반 기본값), on=새 요청·응답 형식. migration 미적용이면 코드가 off로 동작 |
-| `src/app/api/aif/assets/upload-ticket/route.ts`, `src/app/api/aif/assets/[id]/complete/route.ts` (신규) | 참고 이미지 업로드 허가·확정(PLAN §14). 크기·MIME·실제 형식 서버 확인 |
+| ~~`src/app/api/aif/assets/upload-ticket/route.ts`, `src/app/api/aif/assets/[id]/complete/route.ts` (신규)~~ → **`src/app/api/aif/assets/route.ts`의 `POST` 하나로 변경(2026-11-19, 계약 §22 가 안)** | 참고 이미지는 한 장 1MiB 이하라 허가·확정 대신 서버 경유 업로드로 받는다 — 한 요청 한 장, 서버가 MIME·파일 서명·크기·해시를 확인한 뒤 저장. 구현 기록 §14-N |
 | `src/app/api/aif/assets/[id]/route.ts` (신규) | 소유자 확인 후 단기 서명 URL 재발급 — 화면 응답이 실패해도 결과를 다시 가져오는 경로 |
 | `src/app/api/aif/generations/route.ts` (신규) | `{ referenceAssets: [{assetId, role}], config }` → 생성 → `{assetId, signedUrl}`. 기존 `/api/generate-image`는 off/shadow용으로 유지 |
 | `src/components/InfluencerStudio.tsx` (생성·보정 호출부), `src/components/ControlPanel.tsx` (참고 이미지 올리기), `src/components/ImageDisplay.tsx`·`HistoryDrawer.tsx` (서명 URL 표시·만료 시 재발급) | on일 때 새 경로 사용 |
@@ -1759,9 +1759,29 @@ DB: 해당 없음(읽기만) · 배포: 해당 없음
 - 적용된 SQL 파일의 머리말에는 「어떤 DB에도 미적용」이라는 옛 문장이 남아 있다. 운영에 적용한 파일은 고치지 않는 원칙이라 그대로 두고, 적용 사실은 이 절이 기준이다(이후 변경은 새 날짜 파일).
 - 다음: Master 판정. 계획 순서상 W01 후반(참고 이미지의 자산 번호 전환·새 생성 경로·화면 전환)이 이어진다.
 
-### 14-M. 참고 이미지 업로드 계약 — 확정안 (2026-11-19, AIF-20261119-W01-A2, Master `msg_f26fd680d2fb`, 계약 §22, 검토 대기)
+### 14-M. 참고 이미지 업로드 계약 — 확정안 (2026-11-19, AIF-20261119-W01-A2, Master `msg_f26fd680d2fb`, 계약 §22, **가 안 수락 05e8b3d10**)
 
 - 문서만 바꿨다. 소스·SQL·시험 변경 0, 실제 저장소·운영 변경·유료 호출·빌드·배포·푸시 0. 읽기 전용으로 확인한 것: `paths.ts`·`store.ts`·`read.ts`·`referenceImage.ts`, 운영에 적용된 SQL, 설치된 `@supabase/storage-js` 2.117.3의 설명.
 - 요지: 참고 이미지는 한 장 1MiB 이하라 함수 본문 한도 안이다 → 회원 브라우저가 저장소에 직접 올리는 허가·확정 방식 대신 **서버 경유 업로드**(`POST /api/aif/assets`)를 추천한다. 그러면 2시간짜리 서명 업로드 주소·늦은 쓰기·검증 실패 파일의 정리 문제가 생기지 않고, **새 SQL이 필요 없다**(운영에 적용된 함수 그대로). 허가·확정 방식을 택할 경우 필요한 새 SQL 4종도 함께 적었다(§22-6).
 - 확인한 사실: 서명 업로드 주소는 2시간 유효이고 줄일 옵션이 없다 · 서명 주소로 올린 응답에는 객체 id가 없다(서버 직접 업로드는 있다) · 현재 예약 함수는 해시가 필수라 「올리기 전 예약」에 그대로 쓸 수 없다 · 현재 확정 함수는 크기·해시를 갱신하지 않는다.
 - 다음: Master 계약 검토와 확정 4항(§22-8) → 구현은 별도 배정(CX-QA-01 독립 검수 대상).
+
+### 14-N. 참고 이미지 서버 경유 업로드 — 구현 (2026-11-19, AIF-20261119-W01-A2I, Master `msg_75a9a898c52d`, 계약 §22)
+
+**로컬 소스·모의 시험만이다. 미배포.** 신규 운영 접근·SQL·저장소·AI·빌드·배포 0. 서버 상수 `AIF_ASSETS_MODE`는 off 그대로라 **이 경로는 지금 404만 돌려준다**. 이 경로를 부르는 화면도 없다(화면·생성 요청 형식은 손대지 않았다).
+
+| 파일 | 바꾼 것 |
+|---|---|
+| `src/lib/assets/store.ts` | 저장 뼈대를 내부 함수 `saveAsset(deps, input, kind, 검증기)`로 일반화. `saveGeneratedOriginal`은 그것을 `generated`·기존 검증기로 부를 뿐이라 동작·반환이 그대로다. 추가: `REFERENCE_KINDS`·`isReferenceKind`·`verifyReferenceBytes`(1MiB 이하, 선언 MIME과 실제 서명 일치, 서버 SHA-256)·`saveReferenceImage` |
+| `src/lib/assets/upload.ts` (새 파일) | `handlePostAsset` — 권한 → 모드 → 본문(실제 스트림 2MiB) → kind → 사진(`parseImageDataUrl`) → 의존성 생성 → 저장 → 응답 |
+| `src/app/api/aif/assets/route.ts` (새 파일) | `POST` 라우트 — 권한 확인 함수와 의존성 주입만 |
+| `tests/assetUpload.test.mjs` (새 파일) | 모의 22건 |
+
+- 응답: 저장됨 200 `{ assetId, assetSaved: true }` · 불명 200 `{ assetId, assetSaved: "unknown", assetCode }` · 저장 안 됨(저장소 요청 전에 끝난 경우만) 400·413·503·507 `{ error, code }`(자산 번호 없음). 경로·버킷·객체 id·해시·오류 원문은 어디에도 없다.
+- 순서의 보장: 권한이 없거나 모드가 off면 **본문을 읽지 않고** 의존성도 만들지 않는다. 본문·kind·사진 검사를 통과한 뒤에만 의존성을 만든다.
+- **서버 형식 확인의 범위**: 선언한 MIME(허용 5종)과 파일 앞부분의 서명(PNG·JPEG·WebP·HEIC 명시 브랜드)이 일치하는지, 디코딩 바이트가 1MiB 이하인지까지다. 처리기에서 한 번(`parseImageDataUrl`), 저장 모듈에서 실제 바이트로 한 번 더 본다. **전체 디코드·화소 내용·악성 여부 검사는 하지 않는다.**
+- 자동 재전송 없음. 저장소 요청을 시작한 뒤의 실패는 불명이고 그대로 둔다. 회원이 같은 사진을 다시 올리면 새 자산이 하나 더 생긴다(중복을 합치지 않는다 — 계약대로).
+- 검증: 새 시험 22/22, 전체 `npm test` 233/233(211 + 22), `npx tsc --noEmit` 통과. 기존 저장·생성 시험(`assetsStore`·`generateImageRoute`·`generateResponseLimit`)은 수정 없이 그대로 통과(회귀). 변형 13종 중 12종 빨강 — 모드 확인 제거·본문 선독·본문 상한 3MiB·kind 확인 제거(처리기/저장 모듈)·본문의 회원 id 사용·불명을 실패로/저장됨으로 단정·1MiB 경계 +1·MIME 서명 대조 제거·예약 kind 고정·경로 대조 제거. 나머지 1종은 변형을 잘못 써서 동작이 바뀌지 않은 것이라 판정에서 뺀다(「저장 안 됨 응답에 자산 번호가 없다」는 다른 단언이 본다).
+- 작성 중 시험 결함 1건(시험만 수정): 「본문을 읽지 않았다」를 보려던 스트림이 아무도 읽지 않아도 한 덩어리를 미리 당기는 기본 설정이었다 → 미리 당기지 않게 하고, 같은 스트림이 shadow에서는 읽힌다는 대조를 더했다.
+- **격리 SQL 시험의 구멍(보고만, 추가하지 않았다)**: 기존 격리 시험에서 `ref_*`를 다루는 것은 `a1_contract`의 표 제약 한 줄(직접 insert로 `ref_face` 1MiB + 1바이트 거절)뿐이다. **예약 함수 `aif_asset_reserve`를 `ref_*` kind로 부르는 경로, 그 경로의 확정(`finalize`), `ref_place`·`ref_product`, 정확히 1MiB 통과는 격리 DB에서 실행된 적이 없다.** 함수 본문은 kind를 그대로 표에 넣고 표 제약이 거르는 구조라 동작할 것으로 보지만, 이것은 원문을 읽은 판단이지 실행 근거가 아니다.
+- 한계: 저장소·DB는 가짜다(응답 모양은 설치된 라이브러리의 선언을 따랐다). 사진은 서명만 맞춘 합성 바이트다. 실제 Supabase에서의 업로드·확정·용량 판정, 실제 요청이 플랫폼을 거칠 때의 본문 처리는 확인하지 않았다.

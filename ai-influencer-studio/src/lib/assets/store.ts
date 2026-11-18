@@ -13,7 +13,7 @@
 // 로그인·이용권 확인은 호출하는 라우트의 몫이다(이 파일은 userId 모양만 확인한다).
 
 import { sniffImageKind } from "../referenceImage";
-import { GENERATED_MAX_BYTES, buildAssetPath, estimatedGeneratedBytes, isCanonicalUuid } from "./paths";
+import { GENERATED_MAX_BYTES, REF_MAX_BYTES, buildAssetPath, estimatedGeneratedBytes, isCanonicalUuid, type AssetExt, type AssetKind } from "./paths";
 
 export type RpcResult = { data: unknown; error: unknown };
 export type Rpc = (fn: string, args: Record<string, unknown>) => PromiseLike<RpcResult>;
@@ -25,6 +25,14 @@ export type AssetStoreDeps = { rpc: Rpc; storage: StorageUploader };
 export type GeneratedMime = "image/png" | "image/jpeg" | "image/webp";
 export type VerifyCode = "ASSET_EMPTY" | "ASSET_TOO_LARGE" | "ASSET_FORMAT";
 export type VerifiedBytes = { mime: GeneratedMime; ext: "png" | "jpg" | "webp"; bytes: number; sha256: string };
+/** 저장 뼈대(saveAsset)가 받는 검증 결과 — 생성 원본·참고 이미지 공통 모양 */
+type VerifiedAny = { mime: string; ext: AssetExt; bytes: number; sha256: string };
+type Verifier = (bytes: unknown) => Promise<{ ok: true; value: VerifiedAny } | { ok: false; code: VerifyCode }>;
+
+/** 참고 이미지 종류(W01-A2I). 생성 원본(generated)은 생성 경로만 만든다 */
+export const REFERENCE_KINDS = ["ref_face", "ref_place", "ref_product"] as const;
+export type ReferenceKind = (typeof REFERENCE_KINDS)[number];
+export const isReferenceKind = (v: unknown): v is ReferenceKind => typeof v === "string" && (REFERENCE_KINDS as readonly string[]).includes(v);
 
 const toHex = (buf: ArrayBuffer) => Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, "0")).join("");
 
@@ -37,6 +45,25 @@ export async function verifyGeneratedBytes(bytes: unknown): Promise<{ ok: true; 
   if (kind !== "png" && kind !== "jpeg" && kind !== "webp") return { ok: false, code: "ASSET_FORMAT" };
   const sha256 = toHex(await globalThis.crypto.subtle.digest("SHA-256", bytes as unknown as BufferSource));
   return { ok: true, value: { mime: map[kind][0], ext: map[kind][1], bytes: bytes.length, sha256 } };
+}
+
+/** 참고 이미지 바이트 검증(W01-A2I): 0 초과·1MiB 이하, **선언한 MIME과 실제 서명이 일치**(PNG·JPEG·WebP·HEIC 명시 브랜드), 서버에서 SHA-256 계산.
+ *  확인 범위는 MIME과 파일 서명(앞부분)까지다 — 전체 디코드·화소 내용·악성 여부 검사는 아니다. 브라우저가 보낸 크기·해시는 받지 않는다. */
+export async function verifyReferenceBytes(bytes: unknown, declaredMime: unknown): Promise<{ ok: true; value: VerifiedAny } | { ok: false; code: VerifyCode }> {
+  if (!(bytes instanceof Uint8Array) || bytes.length === 0) return { ok: false, code: "ASSET_EMPTY" };
+  if (bytes.length > REF_MAX_BYTES) return { ok: false, code: "ASSET_TOO_LARGE" };
+  const kind = sniffImageKind(bytes);
+  const byMime: Record<string, { kind: string; ext: AssetExt }> = {
+    "image/png": { kind: "png", ext: "png" },
+    "image/jpeg": { kind: "jpeg", ext: "jpg" },
+    "image/webp": { kind: "webp", ext: "webp" },
+    "image/heic": { kind: "heic", ext: "heic" },
+    "image/heif": { kind: "heic", ext: "heic" },
+  };
+  const want = typeof declaredMime === "string" && Object.prototype.hasOwnProperty.call(byMime, declaredMime) ? byMime[declaredMime] : null;
+  if (!want || kind !== want.kind) return { ok: false, code: "ASSET_FORMAT" };
+  const sha256 = toHex(await globalThis.crypto.subtle.digest("SHA-256", bytes as unknown as BufferSource));
+  return { ok: true, value: { mime: declaredMime as string, ext: want.ext, bytes: bytes.length, sha256 } };
 }
 
 /** 생성 결과 data URL → 바이트. 엄격한 base64만. 형식·상한 판정은 verifyGeneratedBytes가 한다(머리 MIME은 믿지 않는다) */
@@ -102,26 +129,38 @@ export type SaveResult =
   | { assetSaved: "unknown"; code: SaveCode; assetId: string };
 
 /** 서버가 들고 있는 생성 원본을 비공개 자산으로 저장한다. 던지지 않는다. */
-export async function saveGeneratedOriginal(deps: AssetStoreDeps, input: { userId: unknown; bytes: unknown }): Promise<SaveResult> {
+export function saveGeneratedOriginal(deps: AssetStoreDeps, input: { userId: unknown; bytes: unknown }): Promise<SaveResult> {
+  return saveAsset(deps, input, "generated", verifyGeneratedBytes);
+}
+
+/** 회원이 올린 참고 이미지 한 장을 비공개 자산으로 저장한다(W01-A2I). 던지지 않는다. 저장 순서·불명 처리·응답 모양은 생성 원본과 같다.
+ *  kind는 참고 이미지 종류만 받는다. 형식은 호출부가 선언한 MIME과 실제 서명이 일치해야 한다. */
+export function saveReferenceImage(deps: AssetStoreDeps, input: { userId: unknown; kind: unknown; mime: unknown; bytes: unknown }): Promise<SaveResult> {
+  if (!isReferenceKind(input.kind)) return Promise.resolve({ assetSaved: false, code: "ASSET_FORMAT" });
+  return saveAsset(deps, input, input.kind, (b) => verifyReferenceBytes(b, input.mime));
+}
+
+/** 저장 뼈대: 로컬 검증 → 예약 → 업로드(덮어쓰기 금지) → 확정. 생성 원본과 참고 이미지가 함께 쓴다(다른 것은 kind와 검증기뿐). */
+async function saveAsset(deps: AssetStoreDeps, input: { userId: unknown; bytes: unknown }, kind: AssetKind, verify: Verifier): Promise<SaveResult> {
   let reservedId: string | null = null;   // 예약으로 받은 자산 id
   let uploadStarted = false;              // 저장소 요청을 시작했는가(시작했으면 이후 실패는 모두 불명)
   try {
     const userId = input.userId;
     if (!isCanonicalUuid(userId)) return { assetSaved: false, code: "INVALID_USER" };
     // 1) 로컬 검증 — 실패하면 RPC 0
-    const v = await verifyGeneratedBytes(input.bytes);
+    const v = await verify(input.bytes);
     if (!v.ok) return { assetSaved: false, code: v.code };
     const bytes = input.bytes as Uint8Array;
 
     // 2) 예약
-    const res = await callRpc(deps.rpc, "aif_asset_reserve", { p_user: userId, p_kind: "generated", p_mime: v.value.mime, p_ext: v.value.ext, p_bytes: v.value.bytes, p_sha256: v.value.sha256 });
+    const res = await callRpc(deps.rpc, "aif_asset_reserve", { p_user: userId, p_kind: kind, p_mime: v.value.mime, p_ext: v.value.ext, p_bytes: v.value.bytes, p_sha256: v.value.sha256 });
     if (!res.ok) return { assetSaved: false, code: /STORAGE_LIMIT/.test(res.errorText) ? "STORAGE_LIMIT" : "RESERVE_FAILED" };
     const row = singleRow(res.data);   // 정확히 1행만. 0행·2행·객체·null·원시값이면 예약 id를 인정하지 않는다(업로드 0, abort 0)
     const assetId = row?.asset_id;
     if (!isCanonicalUuid(assetId)) return { assetSaved: false, code: "RESERVE_SHAPE" };   // id를 모르면 해제도 못 한다(예약은 보수적으로 남음). 업로드 0
     let expectedPath: string;
     try {
-      expectedPath = buildAssetPath({ userId, kind: "generated", assetId, ext: v.value.ext });
+      expectedPath = buildAssetPath({ userId, kind, assetId, ext: v.value.ext });
     } catch {
       expectedPath = "";
     }
