@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T02:35:34.191Z",
+  "checkedAt": "2026-11-18T02:36:25.405Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3207,9 +3207,9 @@
       "status": "waiting_human",
       "delivery": "deployed_oauth_redirect_mismatch_diagnosis",
       "scopeRef": "0074→0075 운영적용/정의검증·회원본인OAuth동의/metadata·실PostgREST/주소·스위치/배포 승인별도",
-      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f·Workspace SQL完了報告(主会話)·주인님전달Workspace배포완료9ea979de9·Master Vercel get_alias동일dpl·Macmsg_f0e46da48809/Workspace msg_bce4e6bf3fad·실검증1차 주인님전달·판정지시msg_89ba88b28a3d",
+      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f·Workspace SQL完了報告(主会話)·주인님전달Workspace배포완료9ea979de9·Master Vercel get_alias동일dpl·Macmsg_f0e46da48809/Workspace msg_bce4e6bf3fad·실검증1차 주인님전달·판정지시msg_89ba88b28a3d·Workspace콜백상수대조true/두회원client등록boolean보고·범위정정msg_2020570870f9",
       "completion": "승인된범위의운영마이그레이션·실계정/권한/계정경계·활성배포·운영동작 확인",
-      "next": "Workspace 실제redirect/회원ClientID 동일여부 boolean확인→주인님설정완료신호뒤같은세트1회·토큰/Gmail0유지",
+      "next": "기존한곳질문회신: 로그인시험회원/실redirect/해당GCP Client일치boolean→설정완료뒤같은세트1회",
       "blockedReason": "Google 동의전400 redirect_uri_mismatch·시험회원앱/실callback/GCP클라이언트 일치확인 필요",
       "approval": {
         "source": "주인님 Workspace 채팅 선택 답변 2026-11-18",
@@ -3220,7 +3220,7 @@
         "recoveryUsed": 0,
         "scope": "0074→0075 운영적용·Gmail ON·v1.58 묶음·확인표 실OAuth/Gmail검증"
       },
-      "lastReviewedAt": "2026-11-18T02:35:34.191Z",
+      "lastReviewedAt": "2026-11-18T02:36:25.405Z",
       "sha": "9ea979de9 (Gmail ON 722a3ba99 포함)",
       "validation": {
         "author": "전체61파일840/840·tsc0·qa_0",
@@ -3252,6 +3252,15 @@
         "tokenExchanges": 0,
         "gmailCalls": 0,
         "mailImports": 0
+      },
+      "oauthDiagnosis": {
+        "deployedConstantMatchesApproved": true,
+        "sourceSha": "9ea979de9",
+        "bothTrialAndAdminHaveClientId": true,
+        "actualErrorRequestRedirectMatchesApproved": null,
+        "loggedInTrialAccountConfirmed": null,
+        "gcpClientMatchesStoredMemberClient": null,
+        "classification": "회원GCP설정불일치우선·상수오타없음확인,실요청대조전코드결함전반배제불가"
       }
     },
     {
@@ -4222,21 +4231,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T02:35:34.191Z",
+      "at": "2026-11-18T02:36:25.405Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Workspace OAuth오류1차+Mac QA002착수",
-      "scope": "OAuth400/실호출경계·설정/코드원인분리·Mac기존공간/시험자료상태",
+      "trigger": "Workspace redirect상수/회원설정존재 대조보고",
+      "scope": "정적콜백상수와실제OAuth요청 구분·원인판정범위",
       "evidence": [
-        "Workspace redirect_uri_mismatch 동의전·토큰/저장/Gmail0 보고",
-        "판정지시msg_89ba88b28a3d·실callback/회원app일치boolean확인",
-        "Mac msg_69e6e866b094 기존20 naverv1.16·6초자료발견→20초교체진행"
+        "9ea979de9 콜백상수승인주소일치true 작성자보고",
+        "시험naver/관리자gmail Client ID존재true·값원문0",
+        "msg_2020570870f9 결론범위정정"
       ],
-      "judgment": "GCP불일치우선조사·코드결함확정0/무결함확정0·OFF복구한도미사용. QA002실착수확인·영상완료아님.",
+      "judgment": "상수오타없음만수락·실제요청/로그인계정확인전전반코드결함배제0·새질문/반복인증/빌드0",
       "unverified": [
-        "실redirect/Client ID일치·GCP정정후OAuth·실Gmail",
-        "Mac20초A/B생성/저장/진단"
+        "실redirect/로그인회원/회원Client-GCP일치",
+        "MacMP4 A/B완료·AGY정정결과"
       ],
-      "nextAction": "Workspace설정확인후공통세트재개·Mac결과Music전체디코드"
+      "nextAction": "기존질문회신뒤OAuth세트재개"
     },
     "notifications": [
       {
