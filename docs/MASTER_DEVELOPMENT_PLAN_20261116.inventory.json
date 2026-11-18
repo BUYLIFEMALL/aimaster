@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 11:23:17 KST",
+  "checkedAt": "2026-11-18 11:27:12 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,19 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T02:23:17.665Z",
+      "at": "2026-11-18T02:27:12.069Z",
       "timezone": "Asia/Seoul",
-      "trigger": "AGY PORT19 정정착수 msg_d3c74beed32e",
-      "scope": "수정반환 수락/착수 확인",
+      "trigger": "PORT19 정정본88f128726/msg_70aaf2ac8ec2",
+      "scope": "19JSON본문·pending인용전수실파일매칭·거짓원문/줄번호표본",
       "evidence": [
-        "F011해결/F007미구현시점대조·19개항목근거객체확장·사실/제안구분·Support제외 수락"
+        "pending 31개검사/22개정규화후에도매칭실패",
+        "수정반환msg_6eab44c17770·exact quote/file.includes/계산line 요구"
       ],
-      "judgment": "정정착수확인·수정결과/완료판정아님·공식잔여목록반영보류유지",
+      "judgment": "정정결과미수락·잘못된잔여근거로작업배정0·F011수정만별도확인",
       "unverified": [
-        "정정JSON/SHA·근거대조결과",
-        "Gmail실OAuth/검증"
+        "19프로그램정확인용/후속해결대조·현재활성담당",
+        "Gmail실OAuth검증"
       ],
-      "nextAction": "AGY정정결과수신후재검토"
+      "nextAction": "자동인용검사실패0 정정본회수뒤근거내용재검토"
     },
     "notifications": [
       {
@@ -7357,19 +7358,19 @@
       "owner": "AG-UI-01",
       "reviewer": "CX-MASTER-01",
       "title": "미확인5카테고리19프로그램 담당/잔여근거 매핑",
-      "status": "running",
-      "delivery": "correction_acknowledged_started",
+      "status": "needs_revision",
+      "delivery": "second_report_failed_source_quote_check",
       "scopeRef": "inventory의 CRM/마케팅/인스타/성격운세/AI프롬프트 19개·기존문서읽기+본인JSON1개",
-      "evidence": "msg_bd9dfa2f47ed·Master대상19검산·수락착수msg_95cb54baa5e3·결과msg_fd9af2a7ff82·Master JSON본문/CRM원문대조·반환msg_10abb7dc1a78·정정착수msg_d3c74beed32e",
+      "evidence": "msg_bd9dfa2f47ed·Master대상19검산·수락착수msg_95cb54baa5e3·결과msg_fd9af2a7ff82·Master JSON본문/CRM원문대조·반환msg_10abb7dc1a78·정정착수msg_d3c74beed32e·정정msg_70aaf2ac8ec2·Master전수pending quote파일매칭·재반환msg_6eab44c17770",
       "completion": "각slug문서의명시담당/당시버전/잔여/라이프사이클/근거절/확신/불일치·19건누락0,과거작성자=현활성담당추정0",
-      "next": "동일19JSON에항목별경로/줄/원문/날짜/후속해결+사실/제안/추론구분→Master재검토,공식잔여목록반영보류",
+      "next": "동일JSON exact quote/file.includes/계산line 전수검사·원문기반잔여/해결대조→Master재검토·공식표반영보류",
       "blockedReason": null,
-      "lastReviewedAt": "2026-11-18T02:23:17.665Z",
-      "sha": "5a5ad09e4",
+      "lastReviewedAt": "2026-11-18T02:27:12.069Z",
+      "sha": "88f128726",
       "findings": [
-        "CRM F-011 pending오류: IMPROVEMENTS18 옛미수정뒤21 해결명시",
-        "pendingWork 항목별원문/후속해결근거없음·일반검수추천/통합추론과명시잔여혼합",
-        "APP_VERSION/package.json차이를결함단정금지·Support배정추천제외"
+        "F011해결정정확인",
+        "31 pending인용 중 22개는 markdown/공백제거후에도파일내매칭실패",
+        "mbti/tarot/kakao/웹툰 예시는존재하지않는quote/잘못된line"
       ]
     },
     {
