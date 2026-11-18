@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 04:11:30 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 04:12:48 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -407,7 +407,7 @@ Master 마지막 실제 점검: 2026-11-19 04:01:24 KST · 실행 중 점검 주
 | B2B-20261119-FRONTREL | CC-B2B-FRONT-01 | done / production_base_proven_ui_bundle_queued | B2B몰 UI 배포 범위와 순번 준비 | 운영 v1.16 READY. 가격 두 소스는 단독 적용 가능, 갤러리 90248e5b1은 7c8ee3a81·e4ba29947 동반 필요. 기존 다음 배포 묶음에 대기. |
 | B2B-20261119-S70 | CC-B2B-BACK-01 | done / guard_rollback_independent_accepted_undeployed | 주문서 무통장 현금영수증 접수와 입금 확인 경합 처리 | 격리 21/21, Mac 롤백 정적 통과. 0105와 UI 배포 전 Lab 실검증 승인 대기. |
 | B2B-20261119-S70-FRONT | CC-B2B-FRONT-01 | done / checkout_rpc_exception_independent_recheck_passed_undeployed | 주문서 UI에 무통장 현금영수증 접수 연결 | Mac 재검수 기존 6/6·별도 결제수단 3/3. 예외 때 완료 주문 상세 이동 및 기존 결제 경로 확인. 0105 롤백 보완과 Lab 검증 대기, 미배포. |
-| B2B-20261119-S70-LAB | CC-B2B-BACK-01 | queued / lab_readiness_and_visual_qa_dispatched | S70 Lab 적용 준비와 주문서 실화면·접수 검수 | Backend Lab 판·0105 적용/복구·시험 조건 확인. Mac은 대상 프론트가 떠 있을 때 주문서 택1을 제출 없이 검수. 실제 접수는 적용 승인 뒤. |
+| B2B-20261119-S70-LAB | CC-B2B-BACK-01 | waiting_human / lab_readiness_verified_approval_pending | S70 Lab 적용 준비와 주문서 실화면·접수 검수 | Lab 0105 미적용·현재 소스에 S70 없음. Lab 7609748ad에 S70 네 제품 파일만 얹는 배포 준비. 0105 적용 1회·Lab 빌드 1회·설정 켜기/복구·시험 무통장 주문 1건 승인 대기. |
 | B2B-20261119-SAMPLE-S1 | CC-B2B-BACK-01 | done / owner_direct_sample_content_update_reported | 운영 샘플몰 상품 사진과 설명 보완 | 담당 보고 기준 상품 16개 보완, 전체 상품 사진 25/25, 화면 이미지 33개 중 오류 0. |
 | B2B-20261119-SAMPLE-QA | CX-QA-01 | done / public_sample_layout_verified_read_only | 운영 B2B 샘플몰 공개 화면 독립 검수 | Mac 1280/375에서 홈·5개 카테고리·상세 2개 확인. 깨짐·가로 넘침 0. Master 무쿠키 홈 HTTP 200·상품 링크 33개 확인. |
 | B2B-20261119-MAKER | CC-B2B-BACK-01 | done / m1_stale_window_fix_independent_pass_undeployed | B2B 메이커 연계 M1~M3 선행 범위 대조 | Mac 12/12. 늦은 완료·실패 뒤 이전 창 작업 차단 및 공용 계약 보존. 실제 운영 창 미검증, M1 단독 배포 없음. |

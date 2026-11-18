@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T19:11:30.587Z",
+  "checkedAt": "2026-11-18T19:12:48.299Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9870,11 +9870,16 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-MASTER-01",
       "title": "S70 Lab 적용 준비와 주문서 실화면·접수 검수",
-      "status": "queued",
-      "delivery": "lab_readiness_and_visual_qa_dispatched",
-      "evidence": "주인님 작업 분배 요청·msg_57c5d97fdf29·msg_64d807748c54·msg_bc90cdca98d9",
-      "next": "Backend Lab 판·0105 적용/복구·시험 조건 확인. Mac은 대상 프론트가 떠 있을 때 주문서 택1을 제출 없이 검수. 실제 접수는 적용 승인 뒤.",
-      "lastReviewedAt": "2026-11-18T19:11:30.587Z"
+      "status": "waiting_human",
+      "delivery": "lab_readiness_verified_approval_pending",
+      "evidence": "주인님 작업 분배 요청·msg_57c5d97fdf29·msg_64d807748c54·msg_bc90cdca98d9·msg_c6e71fca6800·195f9ba43·ab87ecabc",
+      "next": "Lab 0105 미적용·현재 소스에 S70 없음. Lab 7609748ad에 S70 네 제품 파일만 얹는 배포 준비. 0105 적용 1회·Lab 빌드 1회·설정 켜기/복구·시험 무통장 주문 1건 승인 대기.",
+      "lastReviewedAt": "2026-11-18T19:12:48.299Z",
+      "validation": {
+        "backend": "0100 존재·checkout 없음 보고. 시험 후보 몰 현금영수증 OFF·볼타 키 없음.",
+        "master": "Lab 기준과 ee35d6eb1 사이에는 S70 외 UI 변경 포함. S70 전용 diff는 제품 4파일 및 시험 1개.",
+        "stop": "입금 확인·카드·외부 발급 0. 기존 롤백은 안전상 필요한 경우만."
+      }
     }
   ]
 }
