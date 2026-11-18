@@ -115,4 +115,43 @@
 - 사람이 누르는 거절 + 예약 기한 지난 자기 파일 지우기 + **적용 안 된 제안 30일 정리(관리자·시험 몰 포함)**. 정리 함수는 비공개 버킷 `proposals/`·`supplier-proposals/` 경로만 돌려주게 접두어 고정 — 공개 버킷 상품 사진·`applied` 제안 경로는 반환 0(시험 항목). 서버 키가 없어 실제 삭제는 직원 화면에서 브라우저가 한다(자동 예약 작업 0 — 화면을 열 때 정리).
 
 ### 10-6. 추가 결정 항목
-5. 기존 직원 읽기 규칙을 좁혀 「상품 권한 없는 직원」의 제안 파일 읽기를 막을지(서류 읽기 회귀 시험 필요) — 추천: 1차는 그대로 두고 한계로 기록.
+5. ~~기존 직원 읽기 규칙을 좁혀 「상품 권한 없는 직원」의 제안 파일 읽기를 막을지~~ → **§11-1로 대체**(Master msg_d5aebd7ca4f8: 구현 전에 닫아야 함 — 전용 버킷으로 닫는다).
+
+## 11. 2차 보완(Master msg_d5aebd7ca4f8) — §10의 해당 부분을 이 절이 대신한다
+### 11-1. 제안 파일 접근: 전용 버킷 vs 기존 버킷 정책 분리
+| 안 | 하는 일 | 기존 서류 접근 영향 | 위험 |
+|---|---|---|---|
+| **A. 전용 비공개 버킷 `mall-builder-proposals`(추천·최소안)** | 버킷 1개 추가(비공개, 5MB, `image/jpeg`만) + 이 버킷 전용 정책 4개(올리기·읽기·지우기·고치기 없음) | **0** — 기존 3개 정책은 모두 `bucket_id = 'mall-builder-private'` 조건이라 새 버킷에 적용되지 않음. 기존 정책 수정 0 | 사용량 집계(`member_storage_usage.by_bucket`)에 새 버킷이 없음 → 제안은 상품 사진이 아니라 30일 정리 대상이므로 집계 제외로 기록(필요 시 저장공간 담당께 요청) |
+| B. 기존 버킷에서 정책 분리 | `mall_builder_private_read`를 `alter policy`로 고쳐 `폴더[2] not in ('proposals','supplier-proposals')` 추가 + 제안 전용 정책 | 기존 읽기 정책 본문이 바뀜 → 사업자등록증·공급사 신청 서류 읽기 화면 회귀 시험 필요, 되돌리기도 정책 재작성 | 기존 정책 수정이 운영 묶음에 섞임 |
+- **A 채택안**의 경로: `mall-builder-proposals/<몰 id>/<제안 id>.jpg`(공급사도 같은 모양 — 공급사 구분은 행의 `supplier_id`로 하고 경로로 하지 않음). 정책은 모두 **예약·제안 행을 조건으로** 판정(경로 낱말 판정 0):
+  - 읽기: 그 경로를 `file_path`로 가진 행이 있고, 호출자가 그 몰 「상품」 권한 직원(`mall_builder_staff_can(store, 'products')`)이거나 행의 `supplier_id`가 호출자의 활성 공급사. → **상품 권한 없는 직원·손님·다른 공급사 읽기 0.**
+  - 올리기: 행 `status = 'reserved'`·`created_by = auth.uid()`·`reserved_until > now()`·`name = file_path`일 때만(덮어쓰기 0 — 고치기 정책 없음).
+  - 지우기: 행 `status in ('abandoned','rejected','expired')`이고 호출자가 그 행의 권한자(위 읽기 조건)일 때만. **`reserved`·`proposed`·`applied` 파일은 누구도 못 지움.**
+
+### 11-2. 동시 실행 시나리오 — 확정 파일이 지워지지 않는 조건
+상태 전이(모두 함수, 행 `for update` 잠금 아래): `reserved → proposed`(commit) · `reserved → abandoned`(abandon/재예약) · `proposed → rejected | applied | expired` · `applied → reverted`. 파일 삭제는 저장소 지우기 정책이 행 상태를 **커밋된 값**으로 보고 판정.
+| 시나리오 | 결과 |
+|---|---|
+| S1 commit과 abandon이 동시 | 같은 행 잠금으로 직렬화. 먼저 끝난 쪽만 성공, 나중 쪽은 상태가 `reserved`가 아니라 거절. commit이 이기면 파일은 `proposed`라 삭제 불가 |
+| S2 commit 중 다른 직원이 정리(삭제) | commit 트랜잭션이 끝나기 전 정리의 정책 하위 조회는 커밋된 `reserved`를 봄 → `reserved`는 삭제 대상 아님 → 삭제 거절. commit 뒤엔 `proposed` → 삭제 거절 |
+| S3 업로드 직후 예약 만료 | 올리기는 정책이 `reserved_until > now()`일 때만 허용. 만료 뒤 commit은 `objects.created_at <= reserved_until`이고 아직 `reserved`일 때만 허용(제때 올린 파일은 살림) |
+| S4 만료된 예약에 같은 resultId 재수신 | begin이 옛 행을 잠가 `abandoned`로 바꾸고 **새 제안 id·새 경로**로 재예약. 옛 업로더의 늦은 commit은 상태가 `abandoned`라 거절. 옛 파일은 `abandoned`라 그 뒤 정리 가능 |
+| S5 같은 resultId 동시 begin 두 번 | 고유 `(store_id, product_id, result_id) where status in ('reserved','proposed','applied')` → 한 행만, 다른 쪽은 그 행을 받아 S6 규칙 |
+| S6 같은 resultId 응답 권한 | ok:true는 ① 행이 `proposed`(또는 `applied`)이고 ② **호출자가 지금도 그 상품의 권한자**(begin마다 다시 판정: 상품 권한 직원 또는 그 상품 공급사 본인)이고 ③ 원본 지문 힌트가 같을 때만. 권한 없는 사람이 같은 resultId를 보내면 ok:false(행 내용 노출 0) |
+| S7 다른 사람 예약 중 재수신 | ok:false 고정 문구(처리 중), 파일·행 변경 0 |
+| S8 업로드 성공 뒤 브라우저 종료(commit 없음) | 행은 `reserved` 그대로 → 만료 뒤 다음 begin 또는 정리 화면이 `abandoned`로 바꾼 뒤 파일 삭제 |
+- 경로 고유: 제안 id는 begin에서 DB가 만든다(`gen_random_uuid()`), 경로 = `<몰>/<제안 id>.jpg` → 재예약마다 경로가 달라 옛 파일과 새 파일이 겹치지 않음.
+
+### 11-3. eTag·브라우저 해시의 자리
+- **무결성·권한 판정에 쓰지 않는다.** 권한은 행·정책, 상태는 잠금·전이로만 판정. eTag·원본 지문은 「같은 결과를 또 받았나」「이미 같은 사진 제안이 있나」 화면 표시·중복 안내용 힌트.
+- 같은 resultId에 원본 지문 힌트가 다르면 성공시키지 않는 것(§10-3)은 유지 — 단 힌트이므로 이를 근거로 다른 행을 고치거나 지우지 않음.
+
+### 11-4. M3 적용 전 서버 바이트 검증 위치
+- 적용은 브라우저가 공개 버킷에 직접 올리지 않고 **쇼핑몰 서버 경로(Next 서버 액션 또는 `/s/[store]/admin/products/proposals/apply` 라우트)가 회원 세션으로** 한다: ① 적용 함수 1단계(잠금·권한·`proposed` 확인·묵은 작업 판정)로 적용 예약 ② 서버가 제안 파일을 내려받아 **바이트 검사**(JPEG 시그니처·크기 ≤5MB·디코드 가능 여부·가로세로 상한) + SHA-256 계산 ③ **서버가 같은 바이트를** 공개 버킷 `<몰>/products/<새 id>.jpg`(공급사는 `<몰>/supplier/<공급사>/…`)에 회원 세션으로 올림 ④ 적용 함수 2단계에 공개 경로·서버 SHA-256 전달 → 공개 객체가 있고 소유자=호출자·크기가 제안 객체와 같을 때만 `images` 교체·`applied`·`prev_images` 기록.
+- 검사와 게시가 같은 서버 실행 안에서 같은 바이트로 이뤄지므로 「검사한 파일과 다른 파일이 공개되는」 틈이 없다. DB는 여전히 바이트를 못 보지만, 공개되는 파일은 서버가 검사한 바이트다.
+- 비용: 적용 1건당 서버 함수 1회·최대 5MB 내려받기+올리기. 저장(M2)에는 서버 경로를 쓰지 않음(비용 0).
+
+### 11-5. 바뀐 표·결정 요약
+- 표 `mall_builder_photo_proposals`에 `status` 값 `reserved`·`abandoned` 추가, `reserved_until` 칸 추가, 경로는 전용 버킷 기준. `origin`·공급사 판정은 행 기준.
+- 마이그레이션 범위(운영은 M3와 한 번에): 표 1 + 버킷 1 + 정책 3(읽기·올리기·지우기) + 함수(begin·commit·abandon·정리 목록, M3에서 적용 2단계·되돌리기).
+- 결정 5는 A안으로 닫음(기존 정책 수정 0). 새 결정: 제안 버킷을 사용량 집계에 넣을지(추천: 넣지 않음 — 30일 정리 대상).
