@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 22:33:07 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 22:37:47 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -372,7 +372,9 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | QA-20261118-042 | CX-QA-01 | done / integrated | emotion-writer 메뉴·키설정 독립검수 | DES02 반환시 두건 재검수·실375/위젯/회원키는 미검수 |
 | DES-20261118-02 | AG-UI-01 | done / accepted_pending_batch_deploy | 키보기 키보드 접근·키발급 링크 hover 대비 보완 | 다음 emotion-writer 묶음배포에 포함·운영반영 전까지 미배포 유지 |
 | WS-20261118-01 | CC-WORKSPACE-01 | done / accepted_pending_batch_deploy | 예약요일 칩·busy·키보드 국소UI 보완 | v1.58묶음포함·375/390·다크/:has포커스실화면은배포후 |
-| WS-20261118-02 | CC-WORKSPACE-01 | waiting_human / calendar_upgrade_plan_received_scope_decisions_pending | 워크스페이스 캘린더 업그레이드 계획 | 화면 기능/데이터 범위, 데이터 포함 시 일회 가져오기/동기화, 중복 메뉴 결정 대기. |
+| WS-20261118-02 | CC-WORKSPACE-01 | waiting_human / calendar_upgrade_plan_received_scope_decisions_pending | 워크스페이스 캘린더 업그레이드 계획 | 화면 기능/데이터 범위, 데이터 포함 시 일회 가져오기/동기화 결정. 중복 메뉴는 WS03에서 숨김 완료·미배포. |
+| WS-20261118-03 | CC-WORKSPACE-01 | done / sidebar_trim_source_and_mac_static_review_accepted_undeployed | 사이드바 예정된 일정 메뉴 숨김 | 미배포. 프리셋 UI·화면 확인은 이번 정적 범위 밖. |
+| WS-20261118-04 | CC-WORKSPACE-01 | dispatched / workspace_four_views_source_requested_mac_review_on_fixed_return | 워크스페이스 내부 네 화면 연결 | 구현 SHA·로컬 시험 후 Mac 독립 검수 진행. |
 | QA-20261118-043 | CX-QA-01 | done / integrated | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | 실브라우저375/390은v1.58배포후허용된기존시험세션에서·추가dev/build0 |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
 | OPS-20261118-01 | CX-MASTER-01 | done / integrated | 전체개발플랜·카테고리·누락개선/인수인계 정합성 대조 | 미확인68프로그램 현담당근거후속연결·제품전체검증과구분, 신규후속ID별진행 |
@@ -444,6 +446,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | AIF-20261118-W01s | CC-SNS-01 | done / local_integration_and_mac_budget_regression_accepted_undeployed | 누락 자산 정리 실행자 연결 | 로컬 검수 완료. 운영 SQL·PostgREST·cron/활성화 및 배포는 별도. |
 | AIF-20261118-W01t | CC-SNS-01 | done / p3_read_only_aggregate_design_accepted | 멈춘 자산·삭제 예약 읽기 전용 집계 설계 | W01u 초안 범위 배정, 조회 한도와 잠금 설명 정정. |
 | AIF-20261118-W01u | CC-SNS-01 | done / p3_isolated_17_of_17_and_mac_static_review_accepted | 자산 상태 집계 후속 SQL·격리 시험 초안 | 로컬 SQL 검수 완료. 호출 경로·영속 DB 적용·배포는 별도. |
+| AIF-20261118-W01v | CC-SNS-01 | dispatched / asset_saved_status_presentation_local_source_requested | 생성 결과 원본 저장 상태 표시 | 정확 파일 및 고정 구현·모의 결과 후 Mac 국소검수. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 
 ## 현재 담당 회신이 확보된 프로젝트

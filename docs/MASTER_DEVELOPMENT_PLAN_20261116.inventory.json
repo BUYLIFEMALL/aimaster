@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 22:33:07 KST",
+  "checkedAt": "2026-11-18 22:37:47 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T13:33:07.353Z",
+      "at": "2026-11-18T13:37:47.042Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Workspace 캘린더 계획 직접 보고",
-      "scope": "699b2d6a6 문서 범위/선행 결정과 WS27 콜백 상태 대조.",
+      "trigger": "Workspace 직접 지시 및 SNS 배정 요청·Mac 결과",
+      "scope": "기존 영수증 셸 및 814063801·061c13cb3·독립 정적 검수 확인, 후속 두 배정.",
       "evidence": [
-        "699b2d6a6",
-        "Workspace 직접 보고: 콜백 로그 도구 403·화면 확인 대기"
+        "msg_91d61ed380bf·814063801",
+        "msg_8e5568d44a86",
+        "msg_13ac252267cb·msg_d7622f67a970"
       ],
-      "judgment": "캘린더 계획 접수·범위 결정 대기. Gmail 실검증 보류.",
+      "judgment": "WS03 국소 완료, WS04 네 화면 및 W01v 저장 상태 표시 로컬 배정.",
       "unverified": [
-        "캘린더 실제 화면 동작 대조 및 구현 범위",
-        "Gmail 기존 화면/콜백 결과"
+        "WS04/W01v 고정 구현과 독립 검수",
+        "WS27 콜백·연결 상태 및 실검증"
       ],
-      "nextAction": "캘린더 범위 결정 및 WS27 기존 화면 증거 회수."
+      "nextAction": "담당 고정 SHA·모의 결과 회수 후 Mac 독립검수."
     },
     "notifications": [
       {
@@ -8842,8 +8843,54 @@
       "constraints": "계획 문서만, 구현·가져오기·동기화·빌드/배포 미승인",
       "completion": "데이터 이관과 화면 동작을 구분하고 동작 검수/우선순위 확정",
       "evidence": "주인님 Workspace 직접 지시 보고·699b2d6a6 1파일 문서",
-      "next": "화면 기능/데이터 범위, 데이터 포함 시 일회 가져오기/동기화, 중복 메뉴 결정 대기.",
-      "lastReviewedAt": "2026-11-18T13:33:07.353Z"
+      "next": "화면 기능/데이터 범위, 데이터 포함 시 일회 가져오기/동기화 결정. 중복 메뉴는 WS03에서 숨김 완료·미배포.",
+      "lastReviewedAt": "2026-11-18T13:37:47.042Z"
+    },
+    {
+      "task_id": "WS-20261118-03",
+      "parent_task_id": "WS-20261118-02",
+      "owner": "CC-WORKSPACE-01",
+      "reviewer": "CX-QA-01",
+      "title": "사이드바 예정된 일정 메뉴 숨김",
+      "status": "done",
+      "delivery": "sidebar_trim_source_and_mac_static_review_accepted_undeployed",
+      "scopeRef": "trimPolicy.ts·Sections.tsx·Customize.tsx",
+      "constraints": "기존 프리셋·주소·실화면·배포 별도",
+      "evidence": "814063801·061c13cb3·msg_16832cb7bdf5·msg_91d61ed380bf",
+      "next": "미배포. 프리셋 UI·화면 확인은 이번 정적 범위 밖.",
+      "completion": "기존/신규 섹션 숨김, /calendar-sync 링크와 다른 섹션 보존 정적 검수",
+      "lastReviewedAt": "2026-11-18T13:37:47.042Z",
+      "sha": "814063801"
+    },
+    {
+      "task_id": "WS-20261118-04",
+      "parent_task_id": "WS-20261117-17",
+      "owner": "CC-WORKSPACE-01",
+      "reviewer": "CX-QA-01",
+      "title": "워크스페이스 내부 네 화면 연결",
+      "status": "dispatched",
+      "delivery": "workspace_four_views_source_requested_mac_review_on_fixed_return",
+      "scopeRef": "셸·새 View·필수 router/entry/시험 정확 파일 등록",
+      "constraints": "기존 URL/권한/콜백·콘텐츠 보존. 실 OAuth/DB/키·빌드/배포 0.",
+      "evidence": "주인님 직접 지시 보고·msg_8e5568d44a86",
+      "next": "구현 SHA·로컬 시험 후 Mac 독립 검수 진행.",
+      "completion": "/inbox·/calendar-sync·/settings/keys·/guide, 좌측 메뉴 유지 및 독립 스크롤, 직접/뒤로/모바일 보존",
+      "lastReviewedAt": "2026-11-18T13:37:47.042Z"
+    },
+    {
+      "task_id": "AIF-20261118-W01v",
+      "parent_task_id": "AIF-20261118-W01u",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-QA-01",
+      "title": "생성 결과 원본 저장 상태 표시",
+      "status": "dispatched",
+      "delivery": "asset_saved_status_presentation_local_source_requested",
+      "scopeRef": "기존 소비 화면·최소 타입·모의 시험·관련 문서",
+      "constraints": "OFF/기존 응답 불변·자동 재조회/생성 없음·SQL/DB/Storage/AI/비용/빌드/배포 0.",
+      "evidence": "msg_13ac252267cb·msg_d7622f67a970",
+      "next": "정확 파일 및 고정 구현·모의 결과 후 Mac 국소검수.",
+      "completion": "true/false/unknown 의미만 표시, 이미지 결과와 기존 조작 보존",
+      "lastReviewedAt": "2026-11-18T13:37:47.042Z"
     }
   ]
 }
