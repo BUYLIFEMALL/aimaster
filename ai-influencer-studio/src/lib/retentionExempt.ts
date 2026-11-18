@@ -27,7 +27,10 @@ export async function isRetentionExempt(admin: ExemptAdmin, userId: string): Pro
 // 원본 loadRetentionExemptIds는 오류 없이 data가 null이면 빈 목록으로 보아 "예외 회원 없음"이 된다(삭제 쪽으로 열림).
 // 자동 삭제 판단에는 응답 모양까지 확인하는 이 함수를 쓴다: 오류·null·배열 아님, 행마다 id가 UUID 형식이 아니거나
 // retention_exempt가 정확히 true가 아니면 오류를 던진다(호출부는 "unknown"으로 보고 자동 삭제를 하지 않음). 2026-11-18 Mac 검수 P2 반영.
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+// 소문자 표준 표기(36자)만 받는다 — 대문자·앞뒤 공백·줄바꿈 등 비표준 표기는 회원 id와 짝이 안 맞아 「예외 아님」으로 기울 수 있으므로
+// 일부만 정규화하지 않고 판정 불가로 처리한다(Postgres uuid는 소문자 36자로 내보냄). 2026-11-18 Mac 검수 반영.
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const isCanonicalUuid = (v: unknown): v is string => typeof v === "string" && v.length === 36 && UUID_RE.test(v);
 export async function loadRetentionExemptIdsStrict(admin: ExemptAdmin): Promise<Set<string>> {
   const { data, error } = await admin.from("profiles").select("id, retention_exempt").eq("retention_exempt", true);
   if (error) throw new Error("자동 삭제 예외 회원 목록을 읽지 못했습니다.");
@@ -35,7 +38,7 @@ export async function loadRetentionExemptIdsStrict(admin: ExemptAdmin): Promise<
   const ids = new Set<string>();
   for (const row of data) {
     const ok = !!row && typeof row === "object" && !Array.isArray(row)
-      && typeof row.id === "string" && UUID_RE.test(row.id) && row.retention_exempt === true;
+      && isCanonicalUuid(row.id) && row.retention_exempt === true;
     if (!ok) throw new Error("자동 삭제 예외 회원 목록 응답이 올바르지 않습니다.");
     ids.add(row.id);
   }

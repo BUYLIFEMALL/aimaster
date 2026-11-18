@@ -9,6 +9,7 @@ const NOW = Date.UTC(2026, 10, 18, 3, 0);
 const DAY = 24 * 60 * 60 * 1000;
 const A = "11111111-1111-1111-1111-111111111111";
 const B = "22222222-2222-2222-2222-222222222222";
+const C = "abcdef01-2345-4789-8abc-def012345678"; // 영문자가 있는 회원 — 대문자 표기 반례용
 const JPEG = "data:image/jpeg;base64," + Buffer.from("fake-jpeg").toString("base64");
 
 /** 가짜 Supabase 서비스 클라이언트 — 이 시험이 쓰는 체인만 흉내. profilesMode로 예외 조회 실패를 만든다. */
@@ -47,6 +48,11 @@ function fakeAdmin({ history = [], profiles = [], profilesMode = "ok" } = {}) {
           flagstring: [{ id: B, retention_exempt: "true" }],
           flagfalse: [{ id: B, retention_exempt: false }],
           flagmissing: [{ id: B }],
+          upper: [{ id: C.toUpperCase(), retention_exempt: true }],
+          trailnl: [{ id: A + String.fromCharCode(10), retention_exempt: true }],
+          crlf: [{ id: A + String.fromCharCode(13, 10), retention_exempt: true }],
+          lead: [{ id: " " + A, retention_exempt: true }],
+          long: [{ id: A + "0", retention_exempt: true }],
         }[profilesMode];
         if (bad) return { data: bad, error: null };
       }
@@ -117,7 +123,7 @@ for (const [label, profile] of [
   });
 }
 
-for (const mode of ["error", "throw", "null", "weird", "badrow", "blank", "empty", "notuuid", "number", "nullrow", "nested", "flagstring", "flagfalse", "flagmissing"]) {
+for (const mode of ["error", "throw", "null", "weird", "badrow", "blank", "empty", "notuuid", "number", "nullrow", "nested", "flagstring", "flagfalse", "flagmissing", "upper", "trailnl", "crlf", "lead", "long"]) {
   test(`예외 조회 실패(${mode}) GET: 자동 삭제하지 않음(fail-closed)`, async () => {
     const f = fakeAdmin({ history: rows(A, 35, 32), profilesMode: mode });
     const r = await getHistory({ admin: f.admin, userId: A, loadExemptIds: f.loadExemptIds, now: NOW });
@@ -127,6 +133,26 @@ for (const mode of ["error", "throw", "null", "weird", "badrow", "blank", "empty
     assert.equal(f.log.removedPaths.length, 0);
   });
 }
+
+test("본인 id의 대문자 표기만 예외 목록에 있으면(비표준 UUID) GET·POST 자동 삭제 0", async () => {
+  const g = fakeAdmin({ history: rows(C, 35, 32), profilesMode: "upper" });
+  const r = await getHistory({ admin: g.admin, userId: C, loadExemptIds: g.loadExemptIds, now: NOW });
+  assert.equal(r.status, 200);
+  assert.equal(r.body.items.length, MAX_ITEMS);
+  assert.equal(g.log.removedPaths.length, 0);
+  const f = fakeAdmin({ history: rows(C, MAX_ITEMS), profilesMode: "upper" });
+  const w = await postHistory({ admin: f.admin, userId: C, loadExemptIds: f.loadExemptIds }, { image: JPEG }, () => "new-1");
+  assert.equal(w.status, 200);
+  assert.equal(f.db.aif_history.length, MAX_ITEMS + 1);
+  assert.equal(f.log.removedPaths.length, 0);
+});
+
+test("정상 소문자 표준 UUID 예외 회원은 그대로 예외(영문자 포함 id)", async () => {
+  const f = fakeAdmin({ history: rows(C, 35, 32), profiles: [{ id: C, retention_exempt: true }] });
+  await getHistory({ admin: f.admin, userId: C, loadExemptIds: f.loadExemptIds, now: NOW });
+  assert.equal(f.log.removedPaths.length, 0);
+  assert.equal(f.db.aif_history.length, 35);
+});
 
 test("회원 경계: A의 정리가 B의 행·파일을 건드리지 않음", async () => {
   const f = fakeAdmin({ history: [...rows(A, 33, 31), ...rows(B, 33, 0)] });
@@ -152,7 +178,7 @@ test("예외 회원 POST: 저장하고 30개 초과분도 지우지 않음", asy
   assert.equal(f.log.removedPaths.length, 0);
 });
 
-for (const mode of ["blank", "notuuid", "flagstring"]) {
+for (const mode of ["blank", "notuuid", "flagstring", "upper", "trailnl"]) {
   test(`이상한 예외 응답(${mode}) POST: 저장은 확정, 초과분 정리 0`, async () => {
     const f = fakeAdmin({ history: rows(A, MAX_ITEMS), profilesMode: mode });
     const r = await postHistory({ admin: f.admin, userId: A, loadExemptIds: f.loadExemptIds }, { image: JPEG }, () => "new-1");
