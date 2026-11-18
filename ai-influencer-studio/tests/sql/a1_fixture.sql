@@ -10,13 +10,8 @@
 --    (원문은 subscriptions·pricing_plans·storage_plans·member_grades·profiles 열에 의존).
 --  * storage.objects: Supabase 실물이 아니라 id·bucket_id·name·metadata·created_at만 있는 표.
 --  * auth.uid(): 세션 설정 request.jwt.claim.sub를 읽는 대역.
---  * 역할 anon·authenticated·service_role은 컨테이너에 이미 있다(없으면 만든다). 로그인 불가 역할, set role로만 쓴다.
-
-do $$ begin
-  if not exists (select 1 from pg_roles where rolname = 'anon') then create role anon nologin; end if;
-  if not exists (select 1 from pg_roles where rolname = 'authenticated') then create role authenticated nologin; end if;
-  if not exists (select 1 from pg_roles where rolname = 'service_role') then create role service_role nologin; end if;
-end $$;
+--  * 역할 anon·authenticated·service_role은 컨테이너에 이미 있어야 한다. 이 파일은 역할을 만들거나 바꾸지 않는다(클러스터 전역 변경 0).
+--    시험 실행기(a1_contract.test.mjs)가 세 역할의 존재와 속성을 미리 확인하고, 없으면 DB를 만들기 전에 시험을 중단한다. set role로만 쓴다.
 
 create schema if not exists auth;
 create schema if not exists storage;

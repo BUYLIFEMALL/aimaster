@@ -41,6 +41,22 @@ function runAsync(sql) {
   });
 }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+/** 조건을 만족하는 한 줄이 나올 때까지 관리자 조회를 반복(임의 대기 대신 실제 상태 확인) */
+async function waitRow(sql, timeoutMs = 8000) {
+  const t0 = Date.now();
+  while (Date.now() - t0 < timeoutMs) {
+    const out = q(sql);
+    if (out) return { row: out.split("\n")[0], ms: Date.now() - t0 };
+    await sleep(100);
+  }
+  throw new Error(`대기 시간 초과: ${sql.slice(0, 120)}`);
+}
+/** 장벽: 그 연결이 권고 잠금을 실제로 잡았는지 → pid */
+const lockHolder = (app) => waitRow(`select a.pid from pg_stat_activity a join pg_locks l on l.pid = a.pid
+  where a.datname = current_database() and a.application_name = '${app}' and l.locktype = 'advisory' and l.granted limit 1;`);
+/** 그 연결이 잠금 대기 중인지 → "pid|wait_event_type|wait_event|blocking_pids" */
+const lockWaiter = (app) => waitRow(`select a.pid || '|' || a.wait_event_type || '|' || a.wait_event || '|' || array_to_string(pg_blocking_pids(a.pid), ',')
+  from pg_stat_activity a where a.datname = current_database() and a.application_name = '${app}' and a.wait_event_type = 'Lock' limit 1;`);
 
 let userSeq = 0;
 /** 새 회원 + 한도(null = 무제한) + 중앙 측정값(선택) */
@@ -73,8 +89,17 @@ const dockerUp = spawnSync("docker", ["inspect", "-f", "{{.State.Running}}", CON
 const AVAILABLE = dockerUp.status === 0 && dockerUp.stdout.trim() === "true";
 let createdOid = null;
 
+let rolePreflight = "";
 before(() => {
   if (!AVAILABLE) return;
+  // 역할 사전 확인(클러스터 역할은 만들거나 바꾸지 않는다). 셋 다 있고 로그인 불가·슈퍼유저 아님이어야 한다.
+  rolePreflight = q(`select rolname || ':' || rolcanlogin || ':' || rolsuper || ':' || rolbypassrls from pg_roles where rolname in ('anon','authenticated','service_role') order by 1;`, "postgres");
+  const roles = rolePreflight.split("\n").filter(Boolean);
+  assert.equal(roles.length, 3, `필요한 역할 3개가 없습니다(있는 것: ${rolePreflight}) — 역할을 만들지 않고 중단합니다.`);
+  for (const r of roles) {
+    const [name, login, sup] = r.split(":");
+    assert.deepEqual([login, sup], ["false", "false"], `${name} 속성이 예상과 다름`);
+  }
   const exists = q(`select count(*) from pg_database where datname = '${DB}';`, "postgres");
   assert.equal(exists, "0", `${DB}가 이미 있습니다 — 다른 실행의 것일 수 있어 건드리지 않고 중단합니다.`);
   q(`create database ${DB};`, "postgres");
@@ -86,12 +111,18 @@ before(() => {
 after(() => {
   if (!AVAILABLE || !createdOid) return;
   const now = run(`select oid from pg_database where datname = '${DB}';`, "postgres");
-  if (now.ok && now.out === createdOid) run(`drop database ${DB} with (force);`, "postgres");   // 내가 만든 DB(oid 일치)만
+  if (!now.ok) throw new Error(`정리 전 조회 실패 — ${DB}가 남아 있을 수 있습니다: ${now.err}`);
+  if (now.out !== createdOid) throw new Error(`${DB}의 oid가 만든 것(${createdOid})과 다릅니다(${now.out || "없음"}) — 지우지 않았습니다.`);
+  const drop = run(`drop database ${DB} with (force);`, "postgres");   // 내가 만든 DB(oid 일치)만
+  if (!drop.ok) throw new Error(`${DB} 삭제 실패(잔존): ${drop.err}`);
+  const left = run(`select count(*) from pg_database where datname = '${DB}' or oid = ${createdOid};`, "postgres");
+  if (!left.ok || left.out !== "0") throw new Error(`${DB} 삭제 뒤에도 남아 있습니다: ${left.out} ${left.err}`);
 });
 
 const t = (name, fn) => test(name, { skip: AVAILABLE ? false : "aww-pg-test 컨테이너 없음 — 건너뜀" }, fn);
 
-t("컴파일: 표 2개·함수 9개가 만들어진다", () => {
+t("컴파일: 표 2개·함수 9개가 만들어진다", (ctx) => {
+  ctx.diagnostic(`역할 사전 확인(이름:로그인:슈퍼유저:RLS우회) ${rolePreflight.replace(/\n/g, " ")} · 시험 DB ${DB} oid=${createdOid}`);
   assert.equal(q(`select count(*) from pg_tables where schemaname='public' and tablename in ('aif_assets','aif_asset_deletions');`), "2");
   assert.equal(q(`select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'aif\\_asset\\_%';`), "9");
 });
@@ -194,18 +225,23 @@ t("용량: unknown·reserved는 계속 계산, 무제한(null)은 통과, 한도
   assert.equal(reserve(free, 20 * MiB).ok, true);
 });
 
-t("동시 예약(2연결 실측): 한도 100에 60+60 — 하나만 성공", async () => {
+t("동시 예약(2연결 실측): 한도 100에 60+60 — 하나만 성공, 둘째는 첫째의 잠금에 실제로 막힌다", async (ctx) => {
   const u = mkUser(100);
-  const first = runAsync(`set role service_role; begin; select asset_id from public.aif_asset_reserve('${u}','generated','image/png','png',60,'${SHA}'); select pg_sleep(1.5); commit;`);
-  await sleep(500);
+  const first = runAsync(`set application_name = 'aif_r1'; set role service_role; begin; select asset_id from public.aif_asset_reserve('${u}','generated','image/png','png',60,'${SHA}'); select pg_sleep(3); commit;`);
+  const holder = await lockHolder("aif_r1");   // 장벽: 첫 거래가 잠금을 잡은 것을 확인한 뒤에만 둘째 시작
   const t0 = Date.now();
-  const second = await runAsync(`set role service_role; select asset_id from public.aif_asset_reserve('${u}','generated','image/png','png',60,'${SHA}');`);
+  const secondP = runAsync(`set application_name = 'aif_r2'; set role service_role; select asset_id from public.aif_asset_reserve('${u}','generated','image/png','png',60,'${SHA}');`);
+  const waiter = await lockWaiter("aif_r2");
+  const [wPid, wType, wEvent, blockers] = waiter.row.split("|");
+  assert.equal(wType, "Lock");
+  assert.ok(blockers.split(",").includes(holder.row), `둘째(pid ${wPid})를 막은 pid 목록 [${blockers}]에 첫째 pid ${holder.row}가 있어야 함`);
+  const second = await secondP;
   const waited = Date.now() - t0;
   const a = await first;
+  ctx.diagnostic(`reserve 경합: holder pid=${holder.row}(잠금 확인 ${holder.ms}ms) waiter pid=${wPid} wait_event=${wType}/${wEvent} blocking_pids=[${blockers}] 둘째 경과=${waited}ms`);
   assert.equal(a.ok, true, a.err);
   assert.equal(second.ok, false, "두 번째는 거절");
   assert.match(second.err, /STORAGE_LIMIT/);
-  assert.ok(waited >= 600, `두 번째 연결이 첫 거래를 기다렸어야 함(실측 ${waited}ms)`);
   assert.equal(q(`select coalesce(sum(bytes),0) from public.aif_assets where user_id='${u}';`), "60");
 });
 
@@ -282,7 +318,7 @@ t("claim_delete: 소유·경로·id 일치만, 쓰는 중이면 거절, 진행 �
   assert.equal(q(`select user_id from public.aif_asset_deletions where asset_id='${orphan}';`), u, "예약 행은 바뀌지 않음");
 });
 
-t("finalize ↔ 삭제 예약 상호 배제(순차 + 2연결 실측)", async () => {
+t("finalize ↔ 삭제 예약 상호 배제(순차 + 2연결 실측)", async (ctx) => {
   const u = mkUser(null);
   const r = reserveOk(u, 10);
   const oid = putObject(r.path, 10);
@@ -294,15 +330,20 @@ t("finalize ↔ 삭제 예약 상호 배제(순차 + 2연결 실측)", async () 
   // 2연결: 확정 거래가 열려 있는 동안 들어온 삭제 예약은 기다렸다가 ASSET_IN_USE
   const r2 = reserveOk(u, 10);
   const o2 = putObject(r2.path, 10);
-  const fin = runAsync(`set role service_role; begin; select public.aif_asset_finalize('${r2.id}', '${u}', '${o2}'); select pg_sleep(1.5); commit;`);
-  await sleep(500);
+  const fin = runAsync(`set application_name = 'aif_f1'; set role service_role; begin; select public.aif_asset_finalize('${r2.id}', '${u}', '${o2}'); select pg_sleep(3); commit;`);
+  const holder = await lockHolder("aif_f1");   // 장벽: 확정 거래가 잠금을 잡은 뒤에만 삭제 예약 시작
   const t0 = Date.now();
-  const claim = await runAsync(`set role service_role; select public.aif_asset_claim_delete('${r2.id}', '${u}', 'aif-assets', '${r2.path}');`);
+  const claimP = runAsync(`set application_name = 'aif_f2'; set role service_role; select public.aif_asset_claim_delete('${r2.id}', '${u}', 'aif-assets', '${r2.path}');`);
+  const waiter = await lockWaiter("aif_f2");
+  const [wPid, wType, wEvent, blockers] = waiter.row.split("|");
+  assert.equal(wType, "Lock");
+  assert.ok(blockers.split(",").includes(holder.row), `삭제 예약(pid ${wPid})을 막은 pid [${blockers}]에 확정 거래 pid ${holder.row}가 있어야 함`);
+  const claim = await claimP;
   const waited = Date.now() - t0;
+  ctx.diagnostic(`finalize↔claim 경합: holder pid=${holder.row}(잠금 확인 ${holder.ms}ms) waiter pid=${wPid} wait_event=${wType}/${wEvent} blocking_pids=[${blockers}] 삭제 예약 경과=${waited}ms`);
   assert.equal((await fin).out.split("\n")[0], "ready");
   assert.equal(claim.ok, false);
   assert.match(claim.err, /ASSET_IN_USE/);
-  assert.ok(waited >= 600, `삭제 예약이 확정 거래를 기다렸어야 함(실측 ${waited}ms)`);
   assert.equal(q(`select count(*) from public.aif_asset_deletions where asset_id='${r2.id}';`), "0");
 });
 
