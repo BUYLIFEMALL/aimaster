@@ -4223,19 +4223,19 @@
       "parent_task_id": "AIF-20261118-W00",
       "title": "참고 이미지 MIME/서명 처리 독립 개선 범위 계획",
       "owner": "CC-SNS-01",
-      "status": "ready_review",
-      "delivery": "reference_input_three_edge_case_fixes_independent_review",
+      "status": "done",
+      "delivery": "reference_image_input_source_review_accepted_unreleased",
       "scopeRef": "순수referenceImage·gemini·generate-image route·ControlPanel/InfluencerStudio·시험/기존문서",
       "completion": "정확MIME/strictb64/서명/개수·장당/총/JSON상한·HTTPS반례·실route유료호출전거절·client변환/안내",
       "constraints": "공용모듈/모델/프롬프트/DB자산/권한불변·원격이미지fetch/실AI/유료/build/push0·출력G5미해소",
-      "evidence": "W00 G1 MIME PNG고정소스근거·Master소스개선연속작업배정 · 계획msg_256d9fae7ba4·Master실gemini/route·Google공식지원MIME독립확인 · 14:30 ACTIVE_WORK참고검사7경로진행중확인 · 완료msg_64cdc4aa9317·Master8파일stat·Mac검수전달 · Macmsg_4d664f5d4a80 실route3반례·수정반환 · 고정최종msg_2505820637b0/native13·브라우저함수모형·실UI미확인 · msg_652064f9ba5e·Master3파일stat·Mac재검수",
-      "next": "Mac ftyp/active타입/read예외·실route generate0/정상회귀 지정재검수",
-      "lastReviewedAt": "2026-11-18T05:43:18.130Z",
+      "evidence": "W00 G1 MIME PNG고정소스근거·Master소스개선연속작업배정 · 계획msg_256d9fae7ba4·Master실gemini/route·Google공식지원MIME독립확인 · 14:30 ACTIVE_WORK참고검사7경로진행중확인 · 완료msg_64cdc4aa9317·Master8파일stat·Mac검수전달 · Macmsg_4d664f5d4a80 실route3반례·수정반환 · 고정최종msg_2505820637b0/native13·브라우저함수모형·실UI미확인 · msg_652064f9ba5e·Master3파일stat·Mac재검수 · MacPASSmsg_07affb213e83·Master수락",
+      "next": "미배포묶음·출력G5/실브라우저/공급자미검수·P0상위비교최종연기",
+      "lastReviewedAt": "2026-11-18T05:48:39.596Z",
       "sha": "d4386242b",
       "validation": {
         "author": "새반례4개red→전체69/69·tsc0·정상default/명시HEIC·원문console0·실AI0",
         "master": "8파일stat·모델/공용불변보고·G5출력제한미해소분리",
-        "independent": "f805 3P2고정최종보존·d438 재검수전달·결과대기"
+        "independent": "d438 native15/15·실route/handler/refparse26경계PASS·auth403/키없음400 generate0·모형/합성ftyp한계·실UI/공급자/출력G5미검수"
       }
     },
     {
@@ -4257,6 +4257,20 @@
         "master": "DDLsha2562e0b8eb84461d47b030016a00aedd734ddaeb1cbbef46da6800e8ce84925f450일치. 현재SourceCard신규배포면바로공개·문자legacy1+v2추가1과예산1통모순 보완반환 staged지원있으나vercel보호/화면308으로실검증제약·Master추가보호변경없는정식승격동시검수안선택. 문자v2응답1+동일재전송0추가로정합,DB버전승격후.",
         "independent": "실운영/배포/SQL미실행"
       }
+    },
+    {
+      "task_id": "AIF-20261118-W01d",
+      "parent_task_id": "AIF-20261118-W00",
+      "title": "첫 원본 자산 단위 필드·권한·스토리지 구체 계약",
+      "owner": "CC-SNS-01",
+      "status": "dispatched",
+      "delivery": "concrete_asset_contract_and_non_destructive_plan_amendment_proposal",
+      "scopeRef": "검수수락W00 기존문서 내·공용quota/버킷/markPosted/정리 읽기만",
+      "completion": "자산/upload/finalize/deleteclaim 필드/제약/RLS/권한·공용재사용/원자보관·최소파일·시험/완료조건·원본PLAN해시/추가계약안",
+      "constraints": "원본PLAN/HANDOFF/CATALOG미커밋보존·제품/migration/실DB/파일업로드/유료/build/push0·예산/게시표확대0",
+      "next": "구체계약검토→Master공식추가계약효력/적용순서등록→작은소스단위배정",
+      "evidence": "W00계약지정PASS·원본PLAN미커밋/저자/mtime Master확인·소유범위보존",
+      "lastReviewedAt": "2026-11-18T05:48:39.596Z"
     }
   ],
   "programOverrides": [
@@ -4765,22 +4779,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:45:36.410Z",
+      "at": "2026-11-18T05:48:39.596Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM릴리스 공개순서 보완 최종안",
-      "scope": "staged지원/보호제약·Master배포방식판정·신규비용/운영권한 단일승인요청",
+      "trigger": "SNS입력검수PASS·상위모델비교직접연기결정",
+      "scope": "소스수락/실모형경계·P0비용질문해소·자산본체선행계약/원본계획보존",
       "evidence": [
-        "msg_d7dae74d8b00/4310d54c2",
-        "Master비우회정식승격동시검수안선택",
-        "주인님async승인질문1곳·Backend대기통보"
+        "msg_07affb213e83",
+        "직접결정msg_49528ef8856f/006137dcd",
+        "Master미커밋PLAN저자/mtime/§13읽기·SNS구체추가계약안배정"
       ],
-      "judgment": "구체릴리스준비완료·운영DDL/빌드/SMS신규승인대기. 기존소스수락을운영실행승인으로대신하지않음·보호설정변경0.",
+      "judgment": "W01c소스완료수락·실공급자/운영아님. 상위품질비교는최종으로연기·개발실호출은필요시최저가최소회차보고. 원본PLAN미커밋덮지않고첫자산필드/권한계약을구체화해다음source선행해소진행.",
       "unverified": [
-        "주인님승인·실번호/Google가용성",
-        "실운영기준버전/DDL현재상태·배포",
-        "SNS입력보완독립결과"
+        "첫자산계약·공식병합효력/권한·실구현",
+        "CRM배포승인·운영DDL",
+        "실브라우저/토큰/공급자품질"
       ],
-      "nextAction": "승인시한담당순번지정·조건별실행·회신전의존작업0"
+      "nextAction": "구체자산계약/승인신호회수·실유료/운영0"
     },
     "notifications": [
       {
