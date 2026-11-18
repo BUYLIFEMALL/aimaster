@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T16:34:20.804Z",
+  "checkedAt": "2026-11-18T16:37:22.994Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5317,19 +5317,19 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "W01 생성 저장 시간 초과 시 자산 ID 보존",
-      "status": "running",
-      "delivery": "monotonic_save_deadline_regression_returned_for_fix",
+      "status": "reviewing",
+      "delivery": "monotonic_save_deadline_fix_mac_recheck_dispatched",
       "scopeRef": "assets/store.ts·assets/generations.ts 및 generationsRoute·assetsStore 관련 시험",
       "completion": "검증된 예약 ID의 timeout/422 보존, 마감 후 새 저장 쓰기 0, 미확인 결과 분리, 기존 호출 회귀·고정 SHA.",
       "constraints": "이미 전송된 쓰기 결과는 불명 허용. 자동 재전송/삭제/재생성 및 새 SQL·실 운영·ON·UI·빌드·배포 없음.",
-      "evidence": "msg_2b300b6fcc29·msg_cccdda0e05cf·msg_6fd55dbf9cb3·msg_a57dba677ac2·msg_2870fef58f3c",
-      "next": "CC-SNS-01 단조 저장 마감 체크·검증 예약 ID만 반환 수정 → CX-QA-01 경계 재검수. OFF·미배포.",
-      "lastReviewedAt": "2026-11-18T16:34:20.804Z",
-      "sha": "ef2f26f12",
+      "evidence": "msg_2b300b6fcc29·msg_cccdda0e05cf·msg_6fd55dbf9cb3·msg_a57dba677ac2·msg_2870fef58f3c·msg_3ca4cc141890·dffa5c436·msg_8a15ad57267d",
+      "next": "CX-QA-01 단조 마감 지연 및 검증 ID 경계 재검수 회신 대기. OFF·미배포.",
+      "lastReviewedAt": "2026-11-18T16:37:22.994Z",
+      "sha": "dffa5c436",
       "validation": {
-        "author": "273/273·tsc·변형 12 검출 보고",
-        "master": "4개 blob·선택적 진행 신호·응답 id 경계 확인",
-        "independent": "CX-QA-01 가짜 I/O에서 20ms 상한/21ms/타이머 전 upload·finalize 시작 재현. ON 차단. 실 실행 0.",
+        "author": "276/276·tsc·변형 5종 검출 보고; 주입 시계로 예약/업로드/확정 경계를 검사.",
+        "master": "고정 3개 blob, 고정 단조 마감 비교, SAVE_STOPPED 및 ID 필터 분기 확인.",
+        "independent": "기존 ef2f26f12 실패 재현 보존. dffa5c436 재검수 msg_8a15ad57267d 전달.",
         "unverified": "실 DB/Storage/AI, 예약 응답 유실 후 ID 미확보는 설계 한계"
       }
     },
