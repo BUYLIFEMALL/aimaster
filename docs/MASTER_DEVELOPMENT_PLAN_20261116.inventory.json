@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T16:01:22.289Z",
+  "checkedAt": "2026-11-18T16:07:30.914Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9212,14 +9212,21 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "W01 자산 ID 기반 생성 API 로컬 구현",
-      "status": "running",
-      "delivery": "local_asset_id_generation_implementation_dispatched",
+      "status": "reviewing",
+      "delivery": "generation_api_implementation_returned_mac_review_dispatched",
       "scopeRef": "W00 §23; assets/generations.ts, api/aif/generations/route.ts, generationsRoute.test.mjs; §12-1·§23 계약 일치",
       "completion": "권한/OFF/본인 키, 역할·소유, bounded stream, 유한 I/O, 생성 1회·서명/unknown 응답, 모의·회귀·tsc 근거와 SHA.",
       "constraints": "기존 생성·보정 호환 유지. base_result 신규 API 첫 단계 미지원. SQL/실 DB/Storage/AI/스위치/UI/빌드/배포/W02 없음.",
-      "evidence": "msg_48484bbd586c",
-      "next": "담당 수락과 SHA·시험 회신 대기. 구현 후 CX-QA-01 독립 검수.",
-      "lastReviewedAt": "2026-11-18T15:52:12.202Z"
+      "evidence": "msg_48484bbd586c·msg_df83b1e84e5c·msg_27f50ad7d268",
+      "next": "CX-QA-01 수락·판정 대기. 권한/키/본문 포함 실행 시간, 스트림 중단, 저장 timeout 후 ID 없는 불명 우선 확인.",
+      "lastReviewedAt": "2026-11-18T16:07:30.914Z",
+      "sha": "750bbe818",
+      "validation": {
+        "author": "신규 모의 23건·전체 256/256·tsc 통과 보고",
+        "master": "고정 SHA·3개 blob과 구현 대조; 295초 합계의 제외 구간과 유료 생성 전 전체 잔여 확인 부재를 독립 검수에 전달",
+        "independent": "msg_27f50ad7d268 전달, 수락/회신 대기",
+        "unverified": "실 DB/Storage/AI·스트림 취소·실행 시간·Supabase/PostgREST, OFF·미배포"
+      }
     }
   ]
 }
