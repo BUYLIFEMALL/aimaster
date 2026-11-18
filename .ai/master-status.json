@@ -4157,19 +4157,19 @@
       "title": "기존 히스토리 자동정리의 보관예외 보호",
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
-      "status": "ready_review",
-      "delivery": "history_source_ready_additional_extraction_module_review",
+      "status": "needs_revision",
+      "delivery": "strict_exemption_bad_profile_id_fail_open_fix_returned",
       "scopeRef": "새retentionExempt helper·기존history GET/POST·시험/기존문서, 새자산/스키마불변",
       "completion": "paid/manual예외자동삭제0·목록30응답제한만·예외조회실패failclosed·일반/회원경계·수동DELETE회귀",
       "constraints": "실삭제/운영DB/유료/새의존성/build/push0·본체PLAN/권한미반영과독립인기존표만",
-      "evidence": "W00G3/P1근거·Master실history GET/POST 코드확인·기존공용helper경로확인 · msg_4c2bea5edf8e·Master6파일stat확인·Macmsg_3f88b197d47b",
-      "next": "Mac 실historyStore/route auth·유료/manual/unknown보존·목록/DELETE회귀 검수, 추가historyStore범위영향확인",
-      "lastReviewedAt": "2026-11-18T05:10:38.040Z",
+      "evidence": "W00G3/P1근거·Master실history GET/POST 코드확인·기존공용helper경로확인 · msg_4c2bea5edf8e·Master6파일stat확인·Macmsg_3f88b197d47b · Macmsg_7f527fa24451·strict UUID검증 반환",
+      "next": "strict공백/비UUID/shape행 unknown→자동삭제0 보완SHA 회수→Mac",
+      "lastReviewedAt": "2026-11-18T05:11:26.513Z",
       "sha": "8f453b9c4",
       "validation": {
         "author": "실historyStore모의15/15·기존포함33/33·tsc0·공용helperstrict추가",
         "master": "6파일stat·사전범위추가historyStore 시험로직분리설명수신·route동작영향독립검수필요",
-        "independent": "순차배정·결과 대기"
+        "independent": "native15/15·실route/auth/handler6경계지정통과. 공백id profile을정상집합처리→현재회원notexempt/가짜storage5객체삭제 P2·실DB피해/정상UUIDDB현실사고확정아님. 원본helper불변확인"
       }
     },
     {
@@ -4178,13 +4178,13 @@
       "title": "팔로우업 SOLAPI SDK 재시도 제거·검수 전송기 재사용",
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
-      "status": "dispatched",
-      "delivery": "existing_verified_transport_followup_reuse_dispatched",
-      "evidence": "msg_e31c07576130·동일위험후속 source범위Master판정",
+      "status": "in_progress",
+      "delivery": "exact_paths_reserved_author_started",
+      "evidence": "msg_e31c07576130·동일위험후속 source범위Master판정 · 착수msg_7fbc9d72ee68",
       "scopeRef": "followupDispatch.ts·시험/기존문서, sendOnce재사용·공용/6사본/SMTP불변",
       "constraints": "실SMS/운영DDL/build/push/deploy0·기존held/claim/회원경계/상태재확인보존",
       "next": "정확범위착수/실함수+전송기모의·새SHA회수→Mac",
-      "lastReviewedAt": "2026-11-18T05:10:38.040Z"
+      "lastReviewedAt": "2026-11-18T05:11:26.513Z"
     }
   ],
   "programOverrides": [
@@ -4688,23 +4688,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:10:38.040Z",
+      "at": "2026-11-18T05:11:26.513Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM지정PASS·SNS보관소스·감성직접스타일경위",
-      "scope": "전송기수락/후속재사용·history모듈추출영향·공용바이트한계반환·AGY직접지시취합",
+      "trigger": "SNS 보관예외 검수P2·CRM후속착수",
+      "scope": "이상profile id failclosed·실삭제사고와모의반례분리·후속정확경로",
       "evidence": [
-        "msg_c9204585b6d1·접수전송소스수락/팔로우업배정",
-        "msg_4c2bea5edf8e/8f453b9c4 6파일stat·Mac배정",
-        "msg_bac874a8f499·globals국소diff확인",
-        "msg_b8b7e1c64173 CF-F02반환"
+        "msg_7f527fa24451 모의5객체삭제·native/handler검증",
+        "SNSstrict형식보완반환",
+        "msg_7fbc9d72ee68 정확3소스/시험경로착수"
       ],
-      "judgment": "CRM접수전송 지정소스수락·후속SDK같은위험은재사용작업별도. SNS추출경로추가반영영향검수필요. AGY CSS는기존주인님직접스타일지시로범위설명수신·수락전검수.",
+      "judgment": "SNS보관소스정상경로검수보존·이상행을비예외로간주하는경계반환. CRM새경로단위시험필요성확인/착수반영, 운영0.",
       "unverified": [
-        "팔로우업새SHA/검수",
-        "SNS보관route영향/실삭제안전",
-        "공용/감성카드독립검수·실운영"
+        "SNSstrict수정/최종검수",
+        "감성카드검수",
+        "CRM followup새SHA/독립결과"
       ],
-      "nextAction": "순차검수/새보완회수·일괄푸시/새비용/운영변경0"
+      "nextAction": "새수정/검수결과회수·실삭제/전송/푸시0"
     },
     "notifications": [
       {
