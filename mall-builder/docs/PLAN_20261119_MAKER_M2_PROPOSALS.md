@@ -155,3 +155,17 @@
 - 표 `mall_builder_photo_proposals`에 `status` 값 `reserved`·`abandoned` 추가, `reserved_until` 칸 추가, 경로는 전용 버킷 기준. `origin`·공급사 판정은 행 기준.
 - 마이그레이션 범위(운영은 M3와 한 번에): 표 1 + 버킷 1 + 정책 3(읽기·올리기·지우기) + 함수(begin·commit·abandon·정리 목록, M3에서 적용 2단계·되돌리기).
 - 결정 5는 A안으로 닫음(기존 정책 수정 0). 새 결정: 제안 버킷을 사용량 집계에 넣을지(추천: 넣지 않음 — 30일 정리 대상).
+
+## 12. 구현 기록(M2 데이터 계층, Master msg_ad4382dd5bb2) — 격리 Docker만, Lab·운영 0
+- 파일: `supabase/migrations/0106_photo_proposals.sql`, `scripts/scenario-0106-photo-proposals.sql`, `scripts/check-0106-local.mjs`.
+- 실제 구현 = §11 A안: 전용 비공개 버킷 `mall-builder-proposals`(5MB, JPEG만), 표 `mall_builder_photo_proposals`(쓰기는 함수만, 회원 표 권한 select만), 저장소 정책 3개(읽기·올리기·지우기, 고치기 없음), 함수 begin·commit·abandon·cleanup_list. `result_id`는 필수(번호 없는 옛 바나나 결과는 받지 않음 → 화면에서 ok:false 고정 문구).
+- 시험에서 잡아 고친 결함: 권한 판정 함수가 「권한 없음」일 때 NULL을 돌려줘 `not row_ok` 검사가 빠지는 바람에 상품 권한 없는 직원·손님·다른 공급사·다른 몰 대표가 제안 파일을 읽을 수 있었음(P08·P13 실패) → `coalesce(…, false)`로 고침 → 71/71.
+- 중앙 사용량 반영·브라우저 통합·자동 정리 실행·M3는 아직 없음.
+
+### 12-1. M3 적용이 서버 검증을 건너뛸 수 없게 하는 구조(계획)
+- 문제: 쇼핑몰 서버에는 운영자 서버 키가 없어 회원 세션으로 일한다 → 적용 「2단계」 함수가 회원에게 열려 있으면 회원이 서버 경로를 거치지 않고 직접 불러 검사 안 된 바이트를 게시할 수 있다.
+- 계획: 적용 2단계 함수는 **서버만 아는 비밀로 만든 서명**이 있을 때만 받는다.
+  1. 몰 서버 비밀(`MALL_SECRET_KEY`, 이미 있는 서버 전용 환경변수)에서 파생한 적용 서명 열쇠를 DB 전용 비밀 표(`mall_builder_private`, 회원 읽기 0 — 기존 `store_scheduler_secrets`와 같은 방식)에 둔다.
+  2. 서버 경로가 바이트 검사(JPEG 시그니처·≤5MB·디코드·가로세로 상한)와 SHA-256을 한 뒤, 같은 바이트를 공개 버킷에 올리고 `HMAC(열쇠, 제안 id | 공개 경로 | 크기 | sha256 | 만료 시각)`을 만들어 2단계 함수에 넘긴다.
+  3. 2단계 함수는 같은 HMAC을 다시 계산해 맞고, 만료 전이며, 공개 객체의 경로·소유자·크기가 맞을 때만 `images`를 바꾼다. 회원이 직접 부르면 서명을 만들 수 없어 거절.
+- 그 전까지 M3 2단계 함수는 만들지 않는다(M3 설계·승인 때 확정). 메타데이터만으로는 JPEG 바이트 검증을 대신하지 않는다.
