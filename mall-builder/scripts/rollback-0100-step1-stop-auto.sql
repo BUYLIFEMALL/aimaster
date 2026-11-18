@@ -2,12 +2,21 @@
 -- + 발급 함수를 「볼타에 발급 요청을 보내지 않는」 정지판으로 바꿈(B2B-20261116-07 P1-2: 「상태 다시 확인」의 취소 확정 뒤 재발급 경로까지 막음)
 -- 남는 기능: 「상태 다시 확인」(볼타 조회 GET)과 그 결과 반영, 결과 확인 뒤 주문 기준 전액 취소 요청(볼타 취소 POST — 영수증을 없애는 쪽이라 유지).
 -- 막히는 것: 유저 신청, 운영사 다시 발급·취소 다시 요청·취소 후 다시 발급, 몰 설정 저장, 새 발급·재발급 POST(/v1/cashReceipts) 전부.
--- 되살리기: 0100_cash_receipts.sql을 다시 실행(함수 원래대로 + 트리거 + 실행 권한).
+-- 되살리기: 0100_cash_receipts.sql을 다시 실행(함수 원래대로 + 트리거 + 실행 권한). 0105가 적용된 DB면 이어서 0105_cash_receipt_checkout.sql도
+--   다시 실행(주문서 자동 접수 실행 권한 복구) — 순서는 반드시 0100 다음 0105.
+-- 0105(주문서 자동 접수, security definer로 신청 함수를 부름)가 있으면 그 실행 권한도 회수한다 — 없으면 건너뜀(0100만 있는 DB 그대로 성공).
+--   (S70, Master msg_216386e36b04: 신청 권한만 회수하면 0105 경유 접수가 남음)
 drop trigger if exists mall_builder_orders_cash_receipt_auto on public.mall_builder_orders;
 drop trigger if exists mall_builder_orders_receipt_one_kind on public.mall_builder_orders;
 revoke execute on function public.mall_builder_cash_receipt_request(uuid, text, text, text) from authenticated;
 revoke execute on function public.mall_builder_cash_receipt_staff(uuid, text) from authenticated;
 revoke execute on function public.mall_builder_cash_receipt_settings_save(uuid, boolean) from authenticated;
+do $$
+begin
+  if to_regprocedure('public.mall_builder_cash_receipt_checkout(uuid,text,text,text)') is not null then
+    execute 'revoke execute on function public.mall_builder_cash_receipt_checkout(uuid, text, text, text) from authenticated';
+  end if;
+end $$;
 create or replace function mall_builder_private.cash_receipt_issue(p_order_id uuid, p_amount bigint default null)
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare

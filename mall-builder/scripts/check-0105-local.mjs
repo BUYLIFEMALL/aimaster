@@ -120,6 +120,32 @@ const evidence = (db) => run(db, sp + `select
 { const [stubN, ext, httpFn, httpStub, paths] = evidence(D5).split("|");
   check("E1", stubN === "1" && ext === "0" && httpFn === "0" && httpStub === "1", `0105 DB: 볼타 통로 흉내판 ${stubN}개, http·pg_net 확장 ${ext}개, 흉내판 아닌 http 함수 ${httpFn}개(흉내 http 상태 0 반환판 ${httpStub}개), 흉내 기록 경로 ${paths}종`); }
 
+// 3b) 되돌리기 경계(Master msg_216386e36b04): 0105가 있는 DB에서 rollback-0100-step1 → 로그인 회원 역할(authenticated)로 접수·신청 모두 막힘,
+//     영수증 칸·볼타 기록 그대로 → 0100 다음 0105 순서로 되살리면 다시 접수(입금 대기라 발급 0). 0100만 있는 DB의 성공은 R1-0104가 확인.
+{
+  const EB = "00000000-0000-0000-0000-0000000000eb";
+  const r0 = run(D5, sp + `insert into mall_builder_orders (id, store_id, seq, order_no, user_id, customer_id, receiver, depositor, status, total, is_card, is_credit) values
+ ('${EB}','00000000-0000-0000-0000-00000000005a',111,'CK-11','${BUYER}','00000000-0000-0000-0000-00000000c9c9','{"zip":"1"}','영수증유저','pending_payment',22000,false,false);
+insert into mall_builder_order_items (order_id, name_snapshot, option_snapshot, unit_price, qty, line_total) values ('${EB}','시험 상품','',22000,1,22000);`);
+  if (r0.status) stop(`[RB 준비] 실패 ${errs(r0)}`);
+  const logBefore = logCount();
+  const rb = run(D5, sp + read("scripts/rollback-0100-step1-stop-auto.sql"));
+  const tryAs = (fn) => run(D5, sp + as(BUYER) + `set role authenticated;\nselect public.${fn}('${EB}', 'PHONE', '01012345678');`);
+  const c1 = tryAs("mall_builder_cash_receipt_checkout"), q1 = tryAs("mall_builder_cash_receipt_request");
+  const denied = (r) => r.status !== 0 && /permission denied/.test(r.stderr);
+  const privs = q(`select has_function_privilege('authenticated', 'public.mall_builder_cash_receipt_checkout(uuid,text,text,text)', 'execute') || '|' || has_function_privilege('authenticated', 'public.mall_builder_cash_receipt_request(uuid,text,text,text)', 'execute');`);
+  const crAfter = q(`select coalesce(cash_receipt::text, 'null') from mall_builder_orders where id = '${EB}';`);
+  check("RB1", rb.status === 0 && denied(c1) && denied(q1) && privs === "false|false" && crAfter === "null" && logCount() === logBefore,
+    `되돌리기 종료 ${rb.status}, 회원 접수 ${denied(c1) ? "권한 거부" : "막히지 않음"}, 회원 신청 ${denied(q1) ? "권한 거부" : "막히지 않음"}, 실행 권한 ${privs}, 영수증 칸 ${crAfter}, 볼타 기록 +${logCount() - logBefore}`);
+  const m = (f) => sp + read(`supabase/migrations/${f}`).replace(LAB_LINE, "-- lab").replace("create extension if not exists http with schema extensions;", "-- http 흉내");
+  const re100 = run(D5, m(migs.find((f) => f.startsWith("0100")))), re105 = run(D5, m(last));
+  const c2 = tryAs("mall_builder_cash_receipt_checkout");
+  const st2 = q(`select (cash_receipt ->> 'status') || '|' || (cash_receipt ->> 'attempt') from mall_builder_orders where id = '${EB}';`);
+  const trig = q(`select count(*) from pg_trigger where tgname in ('mall_builder_orders_cash_receipt_auto', 'mall_builder_orders_receipt_one_kind') and not tgisinternal;`);
+  check("RB2", re100.status === 0 && re105.status === 0 && c2.status === 0 && c2.stdout.includes('{"accepted": true}') && st2 === "requested|0" && trig === "2" && logCount() === logBefore,
+    `되살리기 0100 종료 ${re100.status}${re100.status ? " " + errs(re100) : ""} → 0105 종료 ${re105.status}, 회원 접수 ${c2.stdout.includes('{"accepted": true}') ? "accepted" : "실패 " + errs(c2)}, 영수증 ${st2}, 트리거 ${trig}개, 볼타 기록 +${logCount() - logBefore}`);
+}
+
 // 4) 0100 시나리오 회귀(원래 방식: 표식에서 나눠 되돌리기 1단계 먼저)
 const s100 = read("scripts/scenario-0100-cash-receipts.sql");
 const MARK = "-- @@AFTER_ROLLBACK_STEP1";
