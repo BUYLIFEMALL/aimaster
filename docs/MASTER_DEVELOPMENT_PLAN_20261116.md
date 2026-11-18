@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 16:52:58 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 16:55:31 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 16:52:58 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 16:55:31 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: d068실parser/GET44·malformed sharedStrings CPU조건 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 12e194a47 parser/시험2파일·선형cursor/textRuns·이전3건불변 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 16:52:58 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 282개: done 258개 · cancelled 7개 · ready_review 1개 · running 3개 · waiting_human 7개 · superseded 1개 · queued 3개 · reviewing 1개 · needs_revision 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 282개: done 258개 · cancelled 7개 · ready_review 1개 · running 3개 · waiting_human 7개 · superseded 1개 · queued 3개 · reviewing 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -426,12 +426,12 @@ Master 마지막 실제 점검: 2026-11-18 16:52:58 KST · 실행 중 점검 주
 | AIF-20261118-W01g | CC-SNS-01 | done / mocked_store_specified_independent_review_pass_accepted | 생성 원본 저장 계층·주입 모의 시험 | OFF 기본 라우트 연결 W01h 모의통합 |
 | AIF-20261118-W01h | CC-SNS-01 | done / default_off_route_mock_integration_specified_independent_PASS_accepted | 원본 저장 OFF 기본 라우트 연결·모의 통합 | W01i OFF 기본 원본 자산 조회 모의단위 |
 | AIF-20261118-W01i | CC-SNS-01 | done / exact_signed_object_read_route_specified_mock_review_pass_accepted | 원본 자산 조회 OFF 기본 경로·모의시험 | A1 OFF소스완료표/운영보관정리 선행조건 취합 |
-| BLOG-20261118-02 | CC-BLOG-01 | running / final_web_build_preserved_for_one_parser_CPU_fix | 승인된 블로그3프로그램 순차묶음 배포 | F04한함수선형스캔수정/국소검수→마지막1회 |
+| BLOG-20261118-02 | CC-BLOG-01 | running / final_parser_F04_patch_under_focused_review_last_remote_unused | 승인된 블로그3프로그램 순차묶음 배포 | 12e194a47 F04독립결과→정확최종manifest/큐→마지막원격1회 |
 | BLOG-20261118-03 | CC-BLOG-01 | queued / owner_approved_cleanup_backup_and_tag_first_exact_scope_after_releases | T08 구형 ghost-scraper 백업후정리 승인범위 구체화 | 기존website검수재사용·정확백업/삭제범위보고→착수범위확정 |
 | BLOG-20261118-04 | CC-BLOG-01 | queued / owner_product_decision_recorded_operating_DDL_Render_not_approved | T03 도메인 구조 캐시 회원별 격리 결정 반영 | T07Excel/T06선행관계확인뒤정확DB/Render플랜·비용취합 |
 | AIF-20261118-W01j | CC-SNS-01 | done / OFF_source_completion_and_activation_blockers_reconciled | A1 OFF소스완료표·운영선행 보관/정리 조건 취합 | W01k 30일보관정리 첫계약·운영ON차단유지 |
 | AIF-20261118-W01k | CC-SNS-01 | done / retention_R2_static_contract_accepted_with_implementation_conditions | 원본 자산 일반30일 정리 연결 첫계약 | W01l OFF 보관정리 SQL초안/실행기 모의첫구현 |
-| QA-20261118-WEB-XLSX | CX-QA-01 | needs_revision / F01_F03_fixed_F04_malformed_shared_XML_CPU_boundary_returned | 최종배포 전 T07 엑셀 미리보기 소스 독립검수 | pickSharedStrings 선형cursor/누락끝태그 즉시거절·한함수/시험 수정→MacF04국소 |
+| QA-20261118-WEB-XLSX | CX-QA-01 | reviewing / F04_linear_cursor_patch_received_focused_independent_recheck | 최종배포 전 T07 엑셀 미리보기 소스 독립검수 | Mac F04선형스캔/정상문자열 회귀국소검수→최종배포포함 |
 | AIF-20261118-W01l | CC-SNS-01 | running / author_started_exact_scoped_default_off_retention_implementation | 보관정리 SQL초안·OFF실행기·모의 시험 | 정확범위 OFF모의구현/관련반례·tsc 결과SHA회수→Mac검수 |
 
 ## 현재 담당 회신이 확보된 프로젝트

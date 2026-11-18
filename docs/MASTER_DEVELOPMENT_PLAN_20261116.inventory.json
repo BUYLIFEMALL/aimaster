@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 16:52:58 KST",
+  "checkedAt": "2026-11-18 16:55:31 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T07:52:58.676Z",
+      "at": "2026-11-18T07:55:31.045Z",
       "timezone": "Asia/Seoul",
-      "trigger": "T07보완 독립재검수결과",
-      "scope": "d068실parser/GET44·malformed sharedStrings CPU조건",
+      "trigger": "T07 F04수정완료",
+      "scope": "12e194a47 parser/시험2파일·선형cursor/textRuns·이전3건불변",
       "evidence": [
-        "msg_cda44c66a93c",
-        "MasterpickSharedStrings실물읽기·msg_16ebf398b3bf"
+        "msg_cab12c636c60/4b775d69f26b",
+        "Masterdiff읽기·Macmsg_5d1ec8ca1ebc"
       ],
-      "judgment": "기존3건해소·추가P2F04한함수정규식CPU경계최소반환·시간증거와공격주장구분·원격마지막보존",
+      "judgment": "고정수정수신·의미있는CPU3반례/정상회귀국소재검수·추가전체검증/원격소진0",
       "unverified": [
-        "F04수정/국소검수",
-        "web최종배포",
-        "SNS정리구현결과"
+        "MacF04결과",
+        "최종web배포/실화면",
+        "SNS정리모의구현결과"
       ],
-      "nextAction": "단일parser보완SHA회수→Mac국소PASS뒤마지막배포"
+      "nextAction": "국소PASS회수→최종순번배포·원격예산1남음"
     },
     "notifications": [
       {
@@ -8374,13 +8374,13 @@
       "reviewer": "CX-MASTER-01",
       "title": "승인된 블로그3프로그램 순차묶음 배포",
       "status": "running",
-      "delivery": "final_web_build_preserved_for_one_parser_CPU_fix",
+      "delivery": "final_parser_F04_patch_under_focused_review_last_remote_unused",
       "scopeRef": "tistory-auto-blog1.98→blog-neighbor-care1.22→web-crawler T04+05+07 정확manifest",
       "constraints": "Vercel최대3·T04별도1은세번째통합/추가4번째0·공용masterpush0·순차Ready/alias/버전·남의AGENTS변경보존·새AI0",
       "completion": "프로젝트/팀/기준SHA/점유/큐/notice/widget/pending·필요검사/빌드·각운영Ready/alias/버전·티스토리기존초안미리보기1/web실화면",
-      "evidence": "주인님직접승인msg_6c2b57cab944·Master배정msg_2eda31a938b1 · msg_0957e7387120: Tistory prj_p3Qc2mOwj5LnPlE5zaAd2stxvibm/team일치·운영1.97·archiveHEAD·86+44/tsc·큐0·1/3 · msg_2d43083c8301 1/3완료·Masteralias dpl_GWRtKtymAGR4sdzgywKsxeFkgMK2 직접확인·msg_555ca68934de · msg_205456c9c8e5 이웃prj_sofdvYyCKAKO5ymLTRZ0vHwYK9q8/1.21→a3fe1.22/387·tsc·큐0/남의미커밋보존·Master수락 · msg_999d4d074c92 이웃완료·Masteralias dpl_HpC2cXcGpWNyHomMSc3qg28Y82Dx·msg_4890dfc4bdcc/Mastermsg_ebbf8f33ae28 · msg_1741a93554fe 최종사전/840d672ac·msg_59d435ca60a7 범위인용정정/파일6개/실회원route시험없음·Master/ Mac검수 · Macmsg_977021413642 F01~03 반환·원격아직2/3사용 · d06842802 작성자18+26/기존51/tsc/로컬build·Mac재검수·원격아직2/3 · d068기존3건독립44PASS·새F04CPU경계만반환·원격남은1",
-      "next": "F04한함수선형스캔수정/국소검수→마지막1회",
-      "lastReviewedAt": "2026-11-18T07:52:58.676Z",
+      "evidence": "주인님직접승인msg_6c2b57cab944·Master배정msg_2eda31a938b1 · msg_0957e7387120: Tistory prj_p3Qc2mOwj5LnPlE5zaAd2stxvibm/team일치·운영1.97·archiveHEAD·86+44/tsc·큐0·1/3 · msg_2d43083c8301 1/3완료·Masteralias dpl_GWRtKtymAGR4sdzgywKsxeFkgMK2 직접확인·msg_555ca68934de · msg_205456c9c8e5 이웃prj_sofdvYyCKAKO5ymLTRZ0vHwYK9q8/1.21→a3fe1.22/387·tsc·큐0/남의미커밋보존·Master수락 · msg_999d4d074c92 이웃완료·Masteralias dpl_HpC2cXcGpWNyHomMSc3qg28Y82Dx·msg_4890dfc4bdcc/Mastermsg_ebbf8f33ae28 · msg_1741a93554fe 최종사전/840d672ac·msg_59d435ca60a7 범위인용정정/파일6개/실회원route시험없음·Master/ Mac검수 · Macmsg_977021413642 F01~03 반환·원격아직2/3사용 · d06842802 작성자18+26/기존51/tsc/로컬build·Mac재검수·원격아직2/3 · d068기존3건독립44PASS·새F04CPU경계만반환·원격남은1 · F04 12e194a47 두파일보완·Mac국소재검수중",
+      "next": "12e194a47 F04독립결과→정확최종manifest/큐→마지막원격1회",
+      "lastReviewedAt": "2026-11-18T07:55:31.045Z",
       "sha": "97ee4acbb",
       "validation": {
         "author": "version1.98/확장1.98.0·HEADarchive·미커밋삭제oldZIP보존·prebuild다시생성·test86+44/tsc0·widget/pending대조·큐0",
@@ -8493,19 +8493,19 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "최종배포 전 T07 엑셀 미리보기 소스 독립검수",
-      "status": "needs_revision",
-      "delivery": "F01_F03_fixed_F04_malformed_shared_XML_CPU_boundary_returned",
-      "sha": "d06842802",
+      "status": "reviewing",
+      "delivery": "F04_linear_cursor_patch_received_focused_independent_recheck",
+      "sha": "12e194a47",
       "scopeRef": "web-crawler/webapp xlsxPreview·previewGET·JobPreview/JobsList·xlsx-preview시험",
       "constraints": "실Storage/DB/크롤링/AI/설치/build0·고정6파일·마지막원격1회미사용",
       "completion": "실모듈시험/owner·보호회원30일예외/압축실bytes·인코딩/셀·React출력/계정전환경계·정적vs실handler구분",
-      "evidence": "Mastermsg_a661805488e9/402493be659e·Blogmsg_59d435ca60a7 · Macmsg_977021413642·.ai/results/WEB-T07-e60083fb5-CX-QA-01.md 미커밋 · msg_9fedb4193c4b 정확경로예약·미커밋0·새resultRetention/helper및실GET시험·원격0 · msg_8d25d7469fdd/d06842802·Masterhelper/stream주요코드읽기·Macmsg_dc4707fa2171 · Macmsg_cda44c66a93c 실제44/44·64kmalformed 별도3500ms타임아웃·Master함수읽기/반환msg_16ebf398b3bf",
-      "next": "pickSharedStrings 선형cursor/누락끝태그 즉시거절·한함수/시험 수정→MacF04국소",
-      "lastReviewedAt": "2026-11-18T07:52:58.676Z",
+      "evidence": "Mastermsg_a661805488e9/402493be659e·Blogmsg_59d435ca60a7 · Macmsg_977021413642·.ai/results/WEB-T07-e60083fb5-CX-QA-01.md 미커밋 · msg_9fedb4193c4b 정확경로예약·미커밋0·새resultRetention/helper및실GET시험·원격0 · msg_8d25d7469fdd/d06842802·Masterhelper/stream주요코드읽기·Macmsg_dc4707fa2171 · Macmsg_cda44c66a93c 실제44/44·64kmalformed 별도3500ms타임아웃·Master함수읽기/반환msg_16ebf398b3bf · msg_cab12c636c60/4b775d69f26b/12e194a47·Masterdiff직접읽기·Macmsg_5d1ec8ca1ebc",
+      "next": "Mac F04선형스캔/정상문자열 회귀국소검수→최종배포포함",
+      "lastReviewedAt": "2026-11-18T07:55:31.045Z",
       "validation": {
         "independent": "d068 parser18+실GET26=44/44 F01~03해소. 새P2F04 닫는si없는lazyregex 반복suffix스캔·1k14ms/4k25/16k392·64k256KB프로세스3500msETIMEDOUT·무한루프/실공격주장아님·실외부0",
         "master": "xlsx/route직접읽기일치·다운로드동일작은보호helper범위허용·실중앙/실크롤링0 · d068 helper본인프로필eq/실bool/불명503/두route·parserstreambudget/pause/DOM최소화실물읽기·독립재검수배정",
-        "author": "parser18/18·새실GET26/26·기존robots30/poller18/inbox3·tsc0/로컬build통과·수정전parser2/route15실패·실inflate16MiB누적/프로필불명503/원문로그0"
+        "author": "parser18/18·새실GET26/26·기존robots30/poller18/inbox3·tsc0/로컬build통과·수정전parser2/route15실패·실inflate16MiB누적/프로필불명503/원문로그0 · F04 3프로세스반례 수정전timeout→후parser22/GET26/tsc0·정규식/중첩DOM대체선형cursor/textRuns·새import/route0/추가제품build0"
       }
     },
     {
