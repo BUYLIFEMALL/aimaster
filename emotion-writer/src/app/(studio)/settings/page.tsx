@@ -1,5 +1,5 @@
 import { requireProgramAccess } from "@/lib/access";
-import { getRegisteredApiKeys } from "@/lib/apiKeys";
+import { getRegisteredApiKeys, hasCloudflareWorkersAiKey } from "@/lib/apiKeys";
 import { getInstagramPublicStatus } from "@/lib/instagram/memberAccount";
 import { AllKeySettings } from "@/components/KeySettings";
 import { KeyRound } from "lucide-react";
@@ -9,7 +9,7 @@ export const fetchCache = "force-no-store";
 
 export default async function SettingsPage() {
   const user = await requireProgramAccess();
-  const [keys, initialInstagram] = await Promise.all([
+  const [keys, initialInstagram, initialCloudflare] = await Promise.all([
     getRegisteredApiKeys(user.id),
     getInstagramPublicStatus(user.id).catch(() => ({
       connected: false,
@@ -17,6 +17,7 @@ export default async function SettingsPage() {
       expired: false,
       connectUrl: "https://auto-instagram-posting.buylife.xyz/settings",
     })),
+    hasCloudflareWorkersAiKey(user.id).catch(() => false),
   ]);
 
   return (
@@ -31,7 +32,11 @@ export default async function SettingsPage() {
           회원 본인의 안전한 API 키와 인스타그램 계정으로 감성 글귀와 배경 이미지를 생성하고 즉시 포스팅합니다
         </p>
       </header>
-      <AllKeySettings initial={keys} initialInstagram={initialInstagram} />
+      <AllKeySettings
+        initial={keys}
+        initialInstagram={initialInstagram}
+        initialCloudflare={initialCloudflare}
+      />
     </>
   );
 }

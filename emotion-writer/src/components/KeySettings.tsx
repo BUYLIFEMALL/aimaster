@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { type Provider } from "@/lib/studio/config";
 import {
   TEXT_MODELS,
@@ -401,7 +401,7 @@ function InstagramConnectCard({
           href={status.connectUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn-create-key inline-flex items-center gap-1.5 bg-gradient-to-r from-rose-600 to-purple-600 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-sm hover:from-rose-700 hover:to-purple-700 transition-all"
+          className="btn-create-key inline-flex items-center gap-1.5 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-sm transition-all"
           title="INSTA 포스팅 자동화 설정 화면에서 인스타그램 계정 연결하기"
         >
           <Share2 size={13} />
@@ -651,14 +651,171 @@ function PixabayKeyCard({
 }
 
 // ============================================================================
+// 3-1. Cloudflare Workers AI 무료 이미지 연동 상태 카드 (CloudflareKeyCard)
+// ============================================================================
+export function CloudflareKeyCard({
+  initialRegistered = false,
+}: {
+  initialRegistered?: boolean;
+}) {
+  const [registered, setRegistered] = useState(initialRegistered);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [lastChecked, setLastChecked] = useState<string | null>(null);
+  const activeReq = useRef(0);
+
+  const recheck = async () => {
+    const reqId = ++activeReq.current;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/keys", { cache: "no-store" });
+      if (!res.ok) throw new Error("등록 상태 확인에 실패했습니다.");
+      const json = await res.json();
+      if (reqId === activeReq.current) {
+        setRegistered(Boolean(json.cloudflare));
+        setLastChecked(
+          new Date().toLocaleTimeString("ko-KR", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          }),
+        );
+      }
+    } catch (e) {
+      if (reqId === activeReq.current) {
+        setError(e instanceof Error ? e.message : "확인에 실패했습니다.");
+      }
+    } finally {
+      if (reqId === activeReq.current) {
+        setBusy(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      activeReq.current = 0;
+    };
+  }, []);
+
+  return (
+    <section className="card border border-stone-200/90 rounded-2xl p-5 bg-white shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-orange-50 border border-orange-200/80 flex items-center justify-center text-orange-600 shadow-2xs">
+            <Sparkles size={16} />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 m-0 flex items-center gap-2">
+              <span>Cloudflare Workers AI (FLUX 무료 이미지 생성)</span>
+            </h3>
+            <p className="text-2xs text-stone-400 m-0">
+              공용 공통 키(계정 ID 및 Workers AI 토큰) 등록 상태 확인
+            </p>
+          </div>
+        </div>
+        <span
+          className={`text-xs px-2.5 py-1 rounded-full font-bold shadow-2xs self-start sm:self-auto ${
+            error
+              ? "bg-rose-50 text-rose-700 border border-rose-200"
+              : registered
+                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                : "bg-stone-100 text-stone-500 border border-stone-200"
+          }`}
+        >
+          {error
+            ? "확인 실패 · 재시도 권장"
+            : registered
+              ? "✓ 공용 키 등록됨"
+              : "키 등록 필요"}
+        </span>
+      </div>
+
+      <div className="mt-3.5 space-y-2.5">
+        <p className="text-xs text-slate-700 leading-relaxed m-0">
+          회원 본인의 <strong>Cloudflare 계정 ID</strong>와{" "}
+          <strong>Workers AI 토큰</strong>이 등록되어 있으면 감성 글귀 스튜디오
+          2단계에서 FLUX 무료 AI 배경 생성을 사용할 수 있습니다.
+        </p>
+
+        <div className="rounded-xl bg-stone-50 border border-stone-200/80 p-3.5 text-xs space-y-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-stone-600">
+              {error ? (
+                <span className="text-rose-600 font-semibold">{error}</span>
+              ) : registered ? (
+                <span className="text-emerald-700 font-semibold">
+                  계정 ID와 토큰 2개 키가 공용 계정에 등록되어 있습니다.
+                </span>
+              ) : (
+                <span className="text-stone-500">
+                  아직 Cloudflare 키가 등록되지 않았습니다. 메인 사이트 API
+                  설정에서 한 번 등록하면 모든 자동화 프로그램이 함께 사용합니다.
+                </span>
+              )}
+            </span>
+
+            <div className="flex items-center gap-2">
+              <a
+                href="https://www.buylife.xyz/api-settings#cloudflare"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-create-key text-xs py-1.5 px-3"
+                title="AIMaster 공용 API 설정에서 Cloudflare 키 등록하러 가기"
+              >
+                <span>AIMaster에서 키 등록·수정</span>
+                <ExternalLink size={12} style={{ opacity: 0.85 }} />
+              </a>
+
+              <button
+                type="button"
+                className="flex items-center gap-1.5 text-xs py-1.5 px-3 rounded-lg border border-stone-300 hover:bg-stone-100 font-medium bg-white"
+                onClick={recheck}
+                disabled={busy}
+                title="공용 키 등록 상태 다시 확인"
+              >
+                <RefreshCw size={13} className={busy ? "animate-spin" : ""} />
+                <span>{busy ? "확인 중…" : "등록 상태 재확인"}</span>
+              </button>
+            </div>
+          </div>
+
+          {lastChecked && (
+            <p className="text-[11px] text-stone-400 m-0">
+              최근 확인 시각: {lastChecked}
+            </p>
+          )}
+
+          <div className="pt-2 border-t border-stone-200/70 text-[11px] text-stone-500 leading-normal space-y-1">
+            <p className="m-0">
+              ※ 「등록됨」 표시는 공용 DB에 계정 ID와 토큰 2개 키가 저장되어
+              있음을 의미하며, 실제 Cloudflare 계정의 토큰 유효성 및 잔여 무료
+              사용량을 보증하지 않습니다.
+            </p>
+            <p className="m-0 text-amber-700">
+              ※ Cloudflare Workers AI는 일일 무료 할당량(일 약 10,000 Neurons)이
+              제공되며, 무료 한도 초과 시 또는 Paid 계정에서는 Cloudflare 정책에
+              따라 본인 계정에 요금이 청구될 수 있습니다.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ============================================================================
 // 4. 통합 전체 설정 화면 (AllKeySettings)
 // ============================================================================
 export function AllKeySettings({
   initial,
   initialInstagram,
+  initialCloudflare = false,
 }: {
   initial: Record<Provider, boolean>;
   initialInstagram?: InstagramPublicStatus;
+  initialCloudflare?: boolean;
 }) {
   const [keys, setKeys] = useState(initial);
 
@@ -755,7 +912,12 @@ export function AllKeySettings({
       <PixabayKeyCard registered={keys.pixabay} onSaved={setKeys} />
 
       {/* ==================================================================== */}
-      {/* 3. 인스타그램(Instagram) 포스팅 계정 연동 섹션 */}
+      {/* 3. Cloudflare Workers AI 무료 이미지 연동 상태 카드 */}
+      {/* ==================================================================== */}
+      <CloudflareKeyCard initialRegistered={initialCloudflare} />
+
+      {/* ==================================================================== */}
+      {/* 4. 인스타그램(Instagram) 포스팅 계정 연동 섹션 */}
       {/* ==================================================================== */}
       <InstagramConnectCard initialStatus={initialInstagram} />
     </div>

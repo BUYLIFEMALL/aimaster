@@ -81,15 +81,15 @@ textarea:focus-visible {
 }
 
 .primary {
-  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  background: linear-gradient(135deg, #fb7185 0%, #f43f5e 55%, #e11d48 100%);
   color: #ffffff;
-  border-color: #e11d48;
-  box-shadow: 0 2px 8px -2px rgba(244, 63, 94, 0.28);
+  border-color: #f43f5e;
+  box-shadow: 0 2px 8px -2px rgba(244, 63, 94, 0.32);
 }
 
 .primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #fb7185 0%, #f43f5e 100%);
-  border-color: #be123c;
+  background: linear-gradient(135deg, #fda4af 0%, #fb7185 55%, #f43f5e 100%);
+  border-color: #fb7185;
   color: #ffffff;
 }
 
@@ -778,8 +778,8 @@ section[id] {
    ========================================================================== */
 :root {
   --ew-grad-cream: linear-gradient(180deg, #ffffff 0%, #fbf6ee 100%);
-  --ew-grad-rose: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
-  --ew-grad-rose-hover: linear-gradient(135deg, #fb7185 0%, #f43f5e 100%);
+  --ew-grad-rose: linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%);
+  --ew-grad-rose-hover: linear-gradient(135deg, #fda4af 0%, #fb7185 50%, #f43f5e 100%);
   --ew-grad-blush: linear-gradient(135deg, #fff5f6 0%, #ffe1e7 100%);
   --ew-hl: inset 0 1px 0 rgba(255, 255, 255, 0.75);
 }
@@ -799,23 +799,23 @@ button:hover:not(:disabled) {
 }
 button:active:not(:disabled) { transform: translateY(0); }
 .primary {
-  background: var(--ew-grad-rose);
-  border: 1px solid #e11d48;
-  color: #ffffff;
+  background: linear-gradient(135deg, #fb7185 0%, #f43f5e 55%, #e11d48 100%) !important;
+  border: 1px solid #f43f5e !important;
+  color: #ffffff !important;
   font-weight: 750;
   letter-spacing: -0.01em;
-  text-shadow: 0 1px 1px rgba(120, 10, 30, 0.25);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 4px 14px rgba(244, 63, 94, 0.3), 0 2px 4px rgba(225, 29, 72, 0.16);
+  text-shadow: none !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 3px 10px rgba(244, 63, 94, 0.32) !important;
 }
 .primary:hover:not(:disabled) {
-  background: var(--ew-grad-rose-hover);
-  border-color: #be123c;
-  color: #ffffff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 8px 20px rgba(244, 63, 94, 0.38), 0 2px 6px rgba(225, 29, 72, 0.2);
+  background: linear-gradient(135deg, #fda4af 0%, #fb7185 55%, #f43f5e 100%) !important;
+  border-color: #fb7185 !important;
+  color: #ffffff !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 6px 16px rgba(244, 63, 94, 0.4) !important;
   transform: translateY(-1px);
 }
-.primary:active:not(:disabled) { transform: translateY(0); box-shadow: inset 0 2px 4px rgba(120, 10, 30, 0.25); }
-.primary:disabled { background: linear-gradient(180deg, #f6e9ec 0%, #efdde2 100%); border-color: #e7cfd6; color: #8a6b74; text-shadow: none; box-shadow: none; }
+.primary:active:not(:disabled) { transform: translateY(0); box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2) !important; }
+.primary:disabled { background: linear-gradient(180deg, #f6e9ec 0%, #efdde2 100%) !important; border-color: #e7cfd6 !important; color: #8a6b74 !important; text-shadow: none !important; box-shadow: none !important; }
 .selected {
   background: var(--ew-grad-blush) !important;
   border-color: #f08fa5 !important;
@@ -824,7 +824,7 @@ button:active:not(:disabled) { transform: translateY(0); }
   box-shadow: var(--ew-hl), 0 0 0 2px #fecdd3, 0 4px 12px rgba(225, 29, 72, 0.18) !important;
 }
 
-/* ---- 3. API 키 발급 바로가기 3D 버튼 (.btn-create-key) & 플랫폼 링크 ---- */
+/* ---- 3. API 키 발급 바로가기 버튼 (.btn-create-key) — 좌상단 로고와 100% 일치하는 화사한 로즈 핑크 ---- */
 .btn-create-key {
   display: inline-flex;
   align-items: center;
@@ -834,10 +834,10 @@ button:active:not(:disabled) { transform: translateY(0); }
   border-radius: 10px;
   font-size: 12px;
   font-weight: 750;
-  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  background: linear-gradient(135deg, #fb7185 0%, #f43f5e 55%, #e11d48 100%) !important;
   color: #ffffff !important;
-  border: 1px solid #be123c;
-  box-shadow: 0 2.5px 0 #be123c, 0 4px 10px rgba(244, 63, 94, 0.25);
+  border: 1px solid #f43f5e !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 3px 10px rgba(244, 63, 94, 0.32) !important;
   text-decoration: none !important;
   transition: all 0.15s ease;
   cursor: pointer;
@@ -845,13 +845,13 @@ button:active:not(:disabled) { transform: translateY(0); }
 }
 .btn-create-key:hover {
   transform: translateY(-1px);
-  background: linear-gradient(135deg, #fb7185 0%, #f43f5e 100%);
-  border-color: #be123c;
-  box-shadow: 0 3.5px 0 #be123c, 0 6px 14px rgba(244, 63, 94, 0.35);
+  background: linear-gradient(135deg, #fda4af 0%, #fb7185 55%, #f43f5e 100%) !important;
+  border-color: #fb7185 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 6px 16px rgba(244, 63, 94, 0.4) !important;
 }
 .btn-create-key:active {
-  transform: translateY(1.5px);
-  box-shadow: 0 0.5px 0 #be123c;
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15) !important;
 }
 
 .btn-platform-signup {

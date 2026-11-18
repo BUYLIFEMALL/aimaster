@@ -1,6 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { guarded } from "@/lib/apiGuard";
-import { getRegisteredApiKeys, getUserApiKey } from "@/lib/apiKeys";
+import { getRegisteredApiKeys, getUserApiKey, hasCloudflareWorkersAiKey } from "@/lib/apiKeys";
 import { isProvider } from "@/lib/studio/config";
 import { AppError, text } from "@/lib/studio/validation";
 import { searchPhotos } from "@/lib/studio/services";
@@ -9,6 +9,7 @@ export const fetchCache = "force-no-store";
 export function GET(request: Request) {
   return guarded(request, async (id) => ({
     registered: await getRegisteredApiKeys(id),
+    cloudflare: await hasCloudflareWorkersAiKey(id),
   }));
 }
 export function POST(request: Request) {
