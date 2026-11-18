@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T17:42:44.565Z",
+  "checkedAt": "2026-11-18T17:48:18.039Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5377,20 +5377,20 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "W01 자산 기반 생성 화면 로컬 연결",
-      "status": "running",
-      "delivery": "generation_ui_history_account_isolation_fix_dispatched",
+      "status": "reviewing",
+      "delivery": "ui_account_isolation_returned_mac_review_dispatched",
       "scopeRef": "W00 §24 제한 경로: 서버 공통 모드·app/page.tsx·InfluencerStudio/ImageDisplay·관련 모의 시험",
       "completion": "OFF/shadow 기존 흐름, 모의 on 업로드·생성·조회, 기존 보정/저장/발행, 계정 기억·취소·URL 해제·시간 예산. SHA·tsc·회귀 근거.",
       "constraints": "상수 OFF 유지. 실 브라우저 CORS/Supabase·AI·SQL·ON·예약·빌드·배포·W02 없음.",
-      "evidence": "msg_424b5c739f5b·msg_f1a655472cf6·msg_b80138e6de86·msg_174ea27a7497·msg_0d152d2d43b1",
-      "next": "이전 계정 히스토리 목록·늦은 요청 격리 보완 뒤 CX-QA-01. OFF·미배포.",
-      "lastReviewedAt": "2026-11-18T17:42:44.565Z",
-      "sha": "7fc410707",
+      "evidence": "msg_424b5c739f5b·msg_f1a655472cf6·msg_b80138e6de86·msg_174ea27a7497·msg_0d152d2d43b1·msg_91bafe14dc8e·msg_d531a5ea2807",
+      "next": "CX-QA-01 계정 경계 및 화면 연결 독립 검수 회신 대기. 실제 React/CORS는 미확인. OFF·미배포.",
+      "lastReviewedAt": "2026-11-18T17:48:18.039Z",
+      "sha": "fdee03d5d",
       "validation": {
-        "author": "전체 317/317·tsc, 좁은 가짜 I/O. 실제 React 분기 미실행.",
-        "master": "결과·사진 초기화 및 독립 축소본 보완 확인. 히스토리 최초 로딩이 현재 컴포넌트 수명에 묶여 이전 계정 목록이 남을 수 있어 추가 보완 요청.",
-        "independent": "계정 격리 수정 SHA 이후 검수.",
-        "unverified": "컴포넌트 실제 분기와 CORS·Storage. 기능 OFF·미배포."
+        "author": "전체 320/320·tsc, 가짜 A→B 서버 실행 확인; React 재마운트/효과는 정적.",
+        "master": "고정 파일 blob과 user.id key, 인스턴스 scope, 늦은 쓰기/응답 확인 지점 대조.",
+        "independent": "msg_d531a5ea2807 전달, 수락/회신 대기.",
+        "unverified": "실제 React 계정 전환, 브라우저 CORS/Storage, 이미 송신된 쓰기 결과; 기존 브라우저 이관은 계정 비구분."
       }
     },
     {
