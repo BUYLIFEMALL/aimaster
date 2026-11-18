@@ -16,9 +16,15 @@ export const SAVE_TIMEOUT_MS = 20_000;
 // 작게 잡은 우리 쪽 상한이다. 성공 응답을 JSON으로 직렬화한 UTF-8 바이트가 이 값을 넘으면 이미지를 싣지 않은 작은 응답으로 바꾼다.
 //   * 넘지 않으면 본문은 예전과 바이트 단위로 같다(같은 객체를 그대로 돌려준다).
 //   * 이것은 우리가 먼저 끊는 것일 뿐이다. 플랫폼이 실제로 어느 크기에서 무엇을 돌려주는지는 확인하지 못했다.
-//   * 생성은 이미 끝났고 회원 키로 비용도 발생했다 — 그래서 「생성 실패」가 아니라 성공 응답에 imageOmitted를 싣는다. 다시 생성하지 않는다.
+//   * 생성은 이미 끝났고 회원 키로 비용도 발생했다. 다시 생성하지 않는다.
+//   * 상태는 422다(Master msg_658ce1003e6f 정정). 처음에는 200에 imageOmitted만 실었는데, 배포 직후 옛 화면 코드가 남은 탭은 200이면
+//     이미지가 없어도 캡션 호출·결과 표시로 넘어갔다. 옛 코드는 200이 아니면 본문의 error 문구를 보여 주고 멈추므로, 422 + 고정 한국어 error로 바꿨다.
+//     새 화면은 imageOmitted + code 조합을 보고 「생성 실패」와 구분해 처리한다(src/lib/assets/generateResponse.ts).
 export const RESPONSE_MAX_BYTES = 4_000_000;
 export const RESPONSE_TOO_LARGE_CODE = "RESPONSE_TOO_LARGE";
+export const RESPONSE_TOO_LARGE_STATUS = 422;
+export const RESPONSE_TOO_LARGE_MESSAGE =
+  "이미지는 생성됐지만 파일이 너무 커서 지금 화면으로 전달할 수 없습니다. 이번 생성 비용은 이미 발생했습니다. 같은 설정으로 다시 생성하면 같은 일이 생길 수 있습니다.";
 
 import { handleGenerateImageRequest } from "../referenceImage";
 import { decodeGeneratedDataUrl, precheckGenerated, saveGeneratedOriginal, type AssetStoreDeps, type SaveResult } from "./store";
@@ -54,19 +60,19 @@ function withTimeout<T>(p: Promise<T>, ms: number, onTimeout: () => T): Promise<
   });
 }
 
-/** 성공 응답이 상한을 넘으면 이미지를 뺀 작은 응답으로 바꾼다. 원본 저장 결과(assetSaved·assetId·assetCode)는 받은 뜻 그대로 옮긴다. */
+/** 성공 응답이 상한을 넘으면 이미지를 뺀 작은 422 응답으로 바꾼다. 원본 저장 결과(assetSaved·assetId·assetCode)는 받은 뜻 그대로 옮긴다. */
 export function limitResponseBody(r: HandlerResult): HandlerResult {
   if (r.status !== 200) return r;
   if (new TextEncoder().encode(JSON.stringify(r.body)).length <= RESPONSE_MAX_BYTES) return r;
   const b = r.body;
-  const small: Record<string, unknown> = { success: true, imageOmitted: true, code: RESPONSE_TOO_LARGE_CODE };
+  const small: Record<string, unknown> = { error: RESPONSE_TOO_LARGE_MESSAGE, imageOmitted: true, code: RESPONSE_TOO_LARGE_CODE };
   // 값의 모양이 정해진 것만 옮긴다(큰 값이 다시 실리지 않게)
   if (b.assetSaved === true || b.assetSaved === false || b.assetSaved === "unknown") small.assetSaved = b.assetSaved;
   for (const k of ["assetId", "assetCode"] as const) {
     const v = b[k];
     if (typeof v === "string" && v.length > 0 && v.length <= 64) small[k] = v;
   }
-  return { status: 200, body: small };
+  return { status: RESPONSE_TOO_LARGE_STATUS, body: small };
 }
 
 /** POST /api/generate-image 처리. 라우트는 이 결과를 그대로 JSON으로 돌려준다. */

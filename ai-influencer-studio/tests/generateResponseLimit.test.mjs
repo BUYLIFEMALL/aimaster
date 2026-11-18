@@ -1,13 +1,15 @@
 // W01x 생성 응답 크기 보호 시험 (2026-11-18, CC-SNS-01, Master msg_29d22717b7af, 설계 W00_BASELINE §21). 실제 DB·저장소·키·AI 호출 없음.
-//  A) 서버: 성공 응답을 직렬화한 UTF-8 바이트가 상한(4,000,000)을 넘으면 이미지를 뺀 작은 응답으로 바꾼다 — 실제 라우트 POST와 조정 계층(off·shadow).
+//  A) 서버: 성공 응답을 직렬화한 UTF-8 바이트가 상한(4,000,000)을 넘으면 이미지를 뺀 작은 422 응답으로 바꾼다 — 실제 라우트 POST와 조정 계층(off·shadow).
 //  B) 화면이 응답을 읽는 한 곳(readGenerateResponse) — 비JSON·이미지 없는 응답은 고정 문구, 원문 노출 0.
 //  C) 화면 소스 정적 확인 — 이미지가 없는 결과에서는 캡션·히스토리 등 후속 호출과 재생성이 없다.
+//  D) 옛 화면 코드(배포 직후 새로고침하지 않은 탭)의 흐름을 그대로 옮긴 모의 — 422 응답에서 캡션·히스토리·재생성 없이 멈춘다.
 //  ★ 한계: 이미지는 합성 바이트다(실제 공급자가 돌려주는 크기·형식이 아니다). 「플랫폼이 실제로 어느 크기에서 끊는가」는 이 시험이 보지 않는다 —
 //     우리 쪽 상한이 먼저 동작하는지만 본다. 화면 컴포넌트를 실제로 그려 보지도 않는다(C는 소스 문자열 확인).
 import test from "node:test";
 import assert from "node:assert/strict";
 import { register } from "node:module";
 import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 
 const SRC = new URL("../src/", import.meta.url).href;
 const stub = (code) => "data:text/javascript," + encodeURIComponent(code);
@@ -27,7 +29,7 @@ export async function resolve(s, c, n) {
 }`));
 
 const { POST } = await import("../src/app/api/generate-image/route.ts");
-const { handleGenerateImagePost, limitResponseBody, RESPONSE_MAX_BYTES, RESPONSE_TOO_LARGE_CODE, AIF_ASSETS_MODE } = await import("../src/lib/assets/generation.ts");
+const { handleGenerateImagePost, limitResponseBody, RESPONSE_MAX_BYTES, RESPONSE_TOO_LARGE_CODE, RESPONSE_TOO_LARGE_STATUS, RESPONSE_TOO_LARGE_MESSAGE, AIF_ASSETS_MODE } = await import("../src/lib/assets/generation.ts");
 const { readGenerateResponse, GENERATE_MESSAGES } = await import("../src/lib/assets/generateResponse.ts");
 const { ASSET_SAVE_MESSAGES } = await import("../src/lib/assets/saveNotice.ts");
 const STUDIO = readFileSync(new URL("../src/components/InfluencerStudio.tsx", import.meta.url), "utf8").replace(/\r\n/g, "\n");
@@ -86,23 +88,28 @@ function assets(over = {}) {
 }
 const off = (w) => ({ mode: "off", checkAccess: w.checkAccess, getApiKey: w.getApiKey, generate: w.generate });
 const shadow = (w, a) => ({ mode: "shadow", checkAccess: w.checkAccess, getApiKey: w.getApiKey, generate: w.generate, getAssetDeps: a.getAssetDeps });
-const SMALL = { success: true, imageOmitted: true, code: "RESPONSE_TOO_LARGE" };
+const SMALL = { error: RESPONSE_TOO_LARGE_MESSAGE, imageOmitted: true, code: "RESPONSE_TOO_LARGE" };
 
 // ───────────── A) 서버 ─────────────
 test("상한은 4,000,000바이트이고 공식 문서의 4.5 MB를 어느 단위로 읽어도 그보다 작다", () => {
   assert.equal(RESPONSE_MAX_BYTES, 4_000_000);
   assert.ok(RESPONSE_MAX_BYTES < 4_500_000 && RESPONSE_MAX_BYTES < 4.5 * 1024 * 1024);
   assert.equal(RESPONSE_TOO_LARGE_CODE, "RESPONSE_TOO_LARGE");
+  assert.equal(RESPONSE_TOO_LARGE_STATUS, 422);
+  assert.match(RESPONSE_TOO_LARGE_MESSAGE, /이미지는 생성됐지만/);
+  assert.match(RESPONSE_TOO_LARGE_MESSAGE, /지금 화면으로 전달할 수 없습니다/);
+  assert.match(RESPONSE_TOO_LARGE_MESSAGE, /비용은 이미 발생했습니다/);
+  assert.doesNotMatch(RESPONSE_TOO_LARGE_MESSAGE, /다시 생성해 주세요|다시 시도해 주세요|재시도|[A-Z]{3,}_[A-Z]{3,}|[0-9a-f]{8}-[0-9a-f]{4}-/);
   assert.equal(AIF_ASSETS_MODE, "off");
 });
 
-test("경계(off, 실제 직렬화 UTF-8 바이트): 상한 −1·상한은 예전 본문 그대로, 상한 +1은 이미지 없는 작은 응답", async () => {
+test("경계(off, 실제 직렬화 UTF-8 바이트): 상한 −1·상한은 200에 예전 본문 그대로, 상한 +1은 422에 이미지 없는 작은 응답", async () => {
   for (const [target, omitted] of [[RESPONSE_MAX_BYTES - 1, false], [RESPONSE_MAX_BYTES, false], [RESPONSE_MAX_BYTES + 1, true]]) {
     const image = imageForBodyBytes(target);
     assert.equal(utf8({ success: true, imageUrl: image }), target, "시험 입력이 목표 바이트와 정확히 같다");
     const w = world(image);
     const r = await handleGenerateImagePost(req(), off(w));
-    assert.equal(r.status, 200);
+    assert.equal(r.status, omitted ? 422 : 200);
     assert.equal(w.n.generate, 1, "공급자 호출은 정확히 1회");
     if (omitted) {
       assert.deepEqual(r.body, SMALL);
@@ -115,19 +122,22 @@ test("경계(off, 실제 직렬화 UTF-8 바이트): 상한 −1·상한은 예�
   }
 });
 
-test("실제 라우트 POST(운영 상수 off): 큰 결과 → 200 + 이미지 없는 작은 JSON, 작은 결과 → 예전과 같은 본문", async () => {
+test("실제 라우트 POST(운영 상수 off): 큰 결과 → 422 + 이미지 없는 작은 JSON, 작은 결과 → 200에 예전과 같은 본문", async () => {
   const big = dataUrlOfBase64Length(6_000_000);
   let w = world(big);
   let res = await POST(req());
-  assert.equal(res.status, 200);
+  assert.equal(res.status, 422);
+  assert.equal(res.ok, false);
   const text = await res.text();
   assert.deepEqual(JSON.parse(text), SMALL);
-  assert.ok(utf8(text) < 200, `작은 응답(${utf8(text)}바이트)`);
+  assert.equal(text.includes("data:image"), false, "이미지가 실리지 않았다");
+  assert.ok(utf8(text) < 600, `작은 응답(${utf8(text)}바이트)`);
   assert.deepEqual([w.n.generate, w.n.admin], [1, 0], "생성 1회, 관리자 클라이언트·저장 0");
 
   const small = dataUrlOfBase64Length(4_000);
   w = world(small);
   res = await POST(req());
+  assert.equal(res.status, 200);
   assert.deepEqual(await res.json(), { success: true, imageUrl: small });
   assert.equal(w.n.generate, 1);
 });
@@ -143,7 +153,7 @@ test("한도 안이면 같은 객체를 그대로 돌려준다(본문 무변경)
 test("바이트로 잰다(글자 수가 아니다): 글자 수는 상한 아래여도 UTF-8 바이트가 넘으면 줄인다", () => {
   const body = { success: true, imageUrl: "data:image/png;base64,AAAA", note: "가".repeat(1_400_000) };   // 약 140만 자, 약 4.2MB
   assert.ok(JSON.stringify(body).length < RESPONSE_MAX_BYTES && utf8(body) > RESPONSE_MAX_BYTES);
-  assert.deepEqual(limitResponseBody({ status: 200, body }).body, SMALL);
+  assert.deepEqual(limitResponseBody({ status: 200, body }), { status: 422, body: SMALL });
 });
 
 test("shadow 경계: 저장 결과 필드까지 포함한 직렬화 바이트로 판정한다", async () => {
@@ -157,7 +167,7 @@ test("shadow 경계: 저장 결과 필드까지 포함한 직렬화 바이트로
     const image = dataUrlOfBase64Length(target - fixed);
     const w = world(image); const a = assets();
     const r = await handleGenerateImagePost(req(), shadow(w, a));
-    assert.equal(r.status, 200);
+    assert.equal(r.status, omitted ? 422 : 200);
     assert.equal(w.n.generate, 1);
     assert.equal(a.calls.filter((c) => c === "upload").length, 1, "저장 업로드 1회");
     if (omitted) assert.deepEqual(r.body, { ...SMALL, ...extra });
@@ -171,6 +181,7 @@ test("shadow 초과: 저장 결과 세 값은 받은 뜻 그대로 옮기고, �
   // 저장 확인됨
   let w = world(big); let a = assets();
   let r = await handleGenerateImagePost(req(), shadow(w, a));
+  assert.equal(r.status, 422);
   assert.deepEqual(r.body, { ...SMALL, assetSaved: true, assetId: ASSET });
   assert.deepEqual(a.calls, ["aif_asset_precheck", "aif_asset_reserve", "upload", "aif_asset_finalize"], "저장 흐름은 예전과 같고 추가 호출이 없다");
   // 저장 불명(확정 응답이 ready가 아님)
@@ -192,7 +203,8 @@ test("줄인 응답에는 정해진 필드만 실린다 — 모양이 다른 값
   assert.deepEqual(r.body, SMALL);
   const kept = limitResponseBody({ status: 200, body: { success: true, imageUrl: huge, assetSaved: false, assetId: "", assetCode: "ASSET_TOO_LARGE" } });
   assert.deepEqual(kept.body, { ...SMALL, assetSaved: false, assetCode: "ASSET_TOO_LARGE" });
-  assert.ok(utf8(kept.body) < 300);
+  assert.ok(utf8(kept.body) < 700);
+  assert.equal(kept.status, 422);
 });
 
 // ───────────── B) 화면이 응답을 읽는 곳 ─────────────
@@ -206,20 +218,26 @@ test("정상 응답: 이미지와 본문을 그대로 넘긴다(예전 동작)",
     { kind: "image", imageUrl: "data:image/png;base64,AAAA", body: { success: true, imageUrl: "data:image/png;base64,AAAA" } });
 });
 
-test("이미지를 싣지 못한 응답: 별도 결과 — 고정 한국어 안내, 재생성을 권하지 않는다", async () => {
-  const o = await readGenerateResponse(res(true, JSON.stringify(SMALL)));
+test("이미지를 싣지 못한 응답(422 + imageOmitted + RESPONSE_TOO_LARGE): 생성 실패와 구분되는 별도 결과 — 고정 한국어 안내", async () => {
+  const o = await readGenerateResponse(res(false, JSON.stringify(SMALL)));
   assert.deepEqual(o, { kind: "omitted", message: GENERATE_MESSAGES.omitted });
-  assert.match(GENERATE_MESSAGES.omitted, /생성됐지만/);
-  assert.match(GENERATE_MESSAGES.omitted, /비용은 이미 발생했습니다/);
-  assert.doesNotMatch(GENERATE_MESSAGES.omitted, /다시 생성해 주세요|다시 시도해 주세요|재시도/);
+  assert.equal(GENERATE_MESSAGES.omitted, RESPONSE_TOO_LARGE_MESSAGE, "새 화면과 옛 화면이 같은 글을 본다");
+  // 본문의 error 글이 달라도 화면은 고정 문구만 쓴다
+  assert.deepEqual(await readGenerateResponse(res(false, JSON.stringify({ ...SMALL, error: "raw <b>text</b> 0a0b0c0d" }))), { kind: "omitted", message: GENERATE_MESSAGES.omitted });
+  // 두 표지가 모두 있어야 한다: 하나만 있으면 일반 오류(상태가 실패일 때) 또는 읽지 못함(상태가 성공일 때)
+  assert.deepEqual(await readGenerateResponse(res(false, '{"error":"다른 안내","imageOmitted":true}')), { kind: "error", message: "다른 안내", needApiKey: false });
+  assert.deepEqual(await readGenerateResponse(res(false, '{"error":"다른 안내","code":"RESPONSE_TOO_LARGE"}')), { kind: "error", message: "다른 안내", needApiKey: false });
+  assert.equal((await readGenerateResponse(res(true, '{"imageOmitted":true}'))).message, GENERATE_MESSAGES.unreadable);
+  assert.equal((await readGenerateResponse(res(false, '{"imageOmitted":"true","code":"RESPONSE_TOO_LARGE"}'))).kind, "error", "값이 정확히 true가 아니면 조합이 아니다");
   // 저장 결과가 함께 오면 그 뜻 그대로 한 줄을 덧붙인다
   for (const [v, key] of [[true, "saved"], [false, "not_saved"], ["unknown", "unknown"]]) {
-    const x = await readGenerateResponse(res(true, JSON.stringify({ ...SMALL, assetSaved: v, assetId: ASSET, assetCode: "NOT_CONFIRMED" })));
+    const x = await readGenerateResponse(res(false, JSON.stringify({ ...SMALL, assetSaved: v, assetId: ASSET, assetCode: "NOT_CONFIRMED" })));
     assert.deepEqual(x, { kind: "omitted", message: `${GENERATE_MESSAGES.omitted} ${ASSET_SAVE_MESSAGES[key]}` });
     assert.equal(x.message.includes(ASSET), false);
     assert.equal(x.message.includes("NOT_CONFIRMED"), false);
   }
-  // imageOmitted가 있으면 imageUrl이 같이 와도 이미지로 보지 않는다
+  // 조합이 있으면 imageUrl이 같이 와도, 상태가 성공으로 와도 이미지로 보지 않는다
+  assert.equal((await readGenerateResponse(res(false, JSON.stringify({ ...SMALL, imageUrl: "data:image/png;base64,AAAA" })))).kind, "omitted");
   assert.equal((await readGenerateResponse(res(true, JSON.stringify({ ...SMALL, imageUrl: "data:image/png;base64,AAAA" })))).kind, "omitted");
 });
 
@@ -249,6 +267,7 @@ test("서버가 알린 오류(JSON): 서버의 안내 문구와 키 등록 안�
 test("서버가 줄여 보낸 응답을 화면 해석기가 그대로 받아 「이미지 없음」으로 읽는다(서버 → 화면 한 줄)", async () => {
   const w = world(dataUrlOfBase64Length(6_000_000));
   const r = await POST(req());
+  assert.equal(r.status, 422);
   const o = await readGenerateResponse({ ok: r.ok, text: () => r.text() });
   assert.deepEqual(o, { kind: "omitted", message: GENERATE_MESSAGES.omitted });
   assert.equal(w.n.generate, 1);
@@ -271,4 +290,63 @@ test("생성 화면: 응답은 해석기를 거쳐 읽고, 이미지가 없으�
   const block = STUDIO.slice(guard, thrown);
   for (const banned of ["fetch(", "saveToHistory", "setConfig", "handleGenerate", "setTimeout", "setInterval"]) assert.equal(block.includes(banned), false, banned);
   assert.match(block, /outcome\.kind === "error" && outcome\.needApiKey/);
+});
+
+// ───────────── D) 옛 화면 코드의 흐름 ─────────────
+// 배포 직후 새로고침하지 않은 탭에 남아 있는 코드(커밋 f1cf8b7f3의 InfluencerStudio.tsx)가 생성 응답을 처리하던 순서를 그대로 옮긴 것이다:
+//   const imgData = await imgRes.json(); if (!imgRes.ok) { …; throw new Error(imgData.error || "이미지 생성 실패"); }
+//   const generatedImageUrl = imgData.imageUrl; → 캡션 호출 → 결과 표시 → 직전 결과 갱신 → 히스토리 기록
+// 화면을 실제로 돌리는 것이 아니라 그 순서의 모의다.
+async function legacyFlow(imgRes, spy) {
+  try {
+    const imgData = await imgRes.json();
+    if (!imgRes.ok) {
+      if (imgData.needApiKey) spy.keyModal++;
+      throw new Error(imgData.error || "이미지 생성 실패");
+    }
+    const generatedImageUrl = imgData.imageUrl;
+    spy.caption++;
+    spy.shown.push(generatedImageUrl);
+    spy.lastResult++;
+    spy.history++;
+  } catch (err) {
+    spy.error = err.message || "오류가 발생했습니다.";
+  }
+}
+const newSpy = () => ({ keyModal: 0, caption: 0, shown: [], lastResult: 0, history: 0, error: null });
+
+test("옛 화면 코드 흐름: 초과 응답(422)에서 고정 한국어 안내만 보이고 캡션·결과 표시·히스토리·재생성 없이 멈춘다", async () => {
+  // 위 모의가 실제 옛 코드와 같은 순서인지 저장소 기록으로 대조한다(git을 쓸 수 없으면 이 대조만 건너뛴다)
+  const old = spawnSync("git", ["show", "f1cf8b7f3:ai-influencer-studio/src/components/InfluencerStudio.tsx"], { encoding: "utf8", cwd: new URL("..", import.meta.url) });
+  if (old.status === 0 && old.stdout) {
+    const src = old.stdout.replace(/\r\n/g, "\n");
+    const pos = ["const imgData = await imgRes.json();", "if (!imgRes.ok) {", 'throw new Error(imgData.error || "이미지 생성 실패");', "const generatedImageUrl = imgData.imageUrl;", 'fetch("/api/generate-caption"', "saveToHistory(generatedImageUrl"].map((n) => src.indexOf(n));
+    assert.ok(pos.every((i) => i > 0), "옛 코드에 그 줄들이 있다");
+    assert.deepEqual([...pos].sort((a, b) => a - b), pos, "옛 코드의 순서가 모의와 같다");
+  }
+  // 초과: 실제 라우트가 낸 응답을 옛 흐름에 넣는다
+  let w = world(dataUrlOfBase64Length(6_000_000));
+  let spy = newSpy();
+  await legacyFlow(await POST(req()), spy);
+  assert.deepEqual(spy, { ...newSpy(), error: RESPONSE_TOO_LARGE_MESSAGE });
+  assert.equal(w.n.generate, 1, "생성은 1회뿐(재생성 없음)");
+  // 바로잡기 전 모양(200 + imageOmitted)이었다면 옛 흐름은 이미지 없이 캡션·표시·히스토리로 넘어갔다 — 이번 정정의 이유
+  spy = newSpy();
+  await legacyFlow(new Response(JSON.stringify({ success: true, imageOmitted: true, code: "RESPONSE_TOO_LARGE" }), { status: 200 }), spy);
+  assert.deepEqual([spy.caption, spy.shown, spy.history, spy.error], [1, [undefined], 1, null]);
+  // 한도 안: 옛 흐름도 예전과 같다
+  const small = dataUrlOfBase64Length(4_000);
+  w = world(small);
+  spy = newSpy();
+  await legacyFlow(await POST(req()), spy);
+  assert.deepEqual(spy, { ...newSpy(), caption: 1, shown: [small], lastResult: 1, history: 1 });
+});
+
+test("옛 화면 코드 흐름: shadow 초과에서도 같다 — 저장 결과가 함께 와도 안내 문구는 고정이고 후속 호출이 없다", async () => {
+  const w = world(dataUrlOfBase64Length(6_000_000)); const a = assets();
+  const r = await handleGenerateImagePost(req(), shadow(w, a));
+  const spy = newSpy();
+  await legacyFlow(new Response(JSON.stringify(r.body), { status: r.status }), spy);
+  assert.deepEqual(spy, { ...newSpy(), error: RESPONSE_TOO_LARGE_MESSAGE });
+  assert.equal(w.n.generate, 1);
 });
