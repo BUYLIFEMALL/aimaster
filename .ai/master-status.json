@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T19:06:38.079Z",
+  "checkedAt": "2026-11-18T19:10:21.571Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5692,14 +5692,14 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-MASTER-01",
       "title": "B2B 메이커 연계 M1~M3 선행 범위 대조",
-      "status": "reviewing",
-      "delivery": "sender_window_race_fix_dispatched",
+      "status": "done",
+      "delivery": "m1_stale_window_fix_independent_pass_undeployed",
       "scopeRef": "IMPROVEMENT_HANDOFF_20261113_MAKER.md·product-photo-handoff·0066",
       "constraints": "샘플몰·Lab0101 선행. M1 쇼핑몰 측 정합/경계부터. M2/M3 운영 DB 변경 없음, 실제 등록 사진 1년 유지. H3 회원 이전 제외.",
-      "evidence": "msg_f8b6c7802a93·msg_95518039a9bf·msg_425229fba0fc·msg_1f84f57db3f2·msg_4cf852c00d8f·msg_336575c1b8e9·8c9a6b406·msg_ac8f77a35553·4c0652af8·msg_e22ad44ddd31·msg_202583c7b555·msg_4ab005ab0d96",
-      "next": "M1 로컬 7/7, Mac 7/7 및 사본 일치. 사진 로드 중 새 창/작업이 열리는 경합 보완·회귀 시험 배정.",
-      "lastReviewedAt": "2026-11-18T19:06:38.079Z",
-      "sha": "4c0652af8"
+      "evidence": "msg_f8b6c7802a93·msg_95518039a9bf·msg_425229fba0fc·msg_1f84f57db3f2·msg_4cf852c00d8f·msg_336575c1b8e9·8c9a6b406·msg_ac8f77a35553·4c0652af8·msg_e22ad44ddd31·msg_202583c7b555·msg_4ab005ab0d96·msg_c556d3398ca3·d81238310·msg_7ec3c098f05f·msg_15d0699b2a25",
+      "next": "Mac 12/12. 늦은 완료·실패 뒤 이전 창 작업 차단 및 공용 계약 보존. 실제 운영 창 미검증, M1 단독 배포 없음.",
+      "lastReviewedAt": "2026-11-18T19:10:21.571Z",
+      "sha": "d81238310"
     },
     {
       "task_id": "B2B-20261119-S70",
@@ -5911,6 +5911,18 @@
       "evidence": "msg_58fe6af49afa·3bc3013c3·2706fc0b5",
       "next": "로컬 태그와 원격 부재, 대상 커밋 origin/master 포함 확인. 태그 1개 업로드 승인 전 대기.",
       "lastReviewedAt": "2026-11-18T19:06:38.079Z"
+    },
+    {
+      "task_id": "B2B-20261119-MAKER-M2",
+      "parent_task_id": "B2B-20261119-MAKER",
+      "owner": "CC-B2B-BACK-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "메이커 M2 사진 제안 저장 범위 설계",
+      "status": "queued",
+      "delivery": "proposal_storage_contract_read_only_dispatched",
+      "evidence": "msg_8bc03c47698d",
+      "next": "미적용 제안 권한·비공개 저장·개정 충돌·중복 결과와 정확 ACK 검토. 운영/Lab 적용 없음.",
+      "lastReviewedAt": "2026-11-18T19:10:21.571Z"
     }
   ],
   "programOverrides": [
