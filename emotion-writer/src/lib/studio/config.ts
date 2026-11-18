@@ -47,7 +47,8 @@ export { TEXT_MODELS, currentTextModel } from "./textModels";
 export const OPENAI_IMAGE_MODELS = [{ id: "gpt-image-2.5-flare", label: "GPT-Image-2.5 Flare" }];
 // 무료 엔진(Pollinations FLUX, 키 없음): 회원 본인 키 규칙·공식 지원·약관·글귀 외부 전송 결정 전까지 꺼 둔다(서버 거절·화면 비활성).
 export const FREE_IMAGE_ENGINE_ENABLED = false;
-export const FREE_IMAGE_MODELS = [{ id: "pollinations-flux", label: "FLUX" }];
+// ECOM-20261118-05: 무료 엔진 = Cloudflare Workers AI(회원 본인 계정 ID + 토큰). Pollinations(키 없음)는 제거.
+export const FREE_IMAGE_MODELS = [{ id: "@cf/black-forest-labs/flux-1-schnell", label: "FLUX.1 schnell (Cloudflare)" }];
 export const IMAGE_MODELS = [
   { id: NANO_BANANA_MODEL_CONFIGS.nanobanana.modelName, label: "Nano Banana 2 Lite" },
   { id: NANO_BANANA_MODEL_CONFIGS["nanobanana-2-2k"].modelName, label: "Nano Banana 2" },
