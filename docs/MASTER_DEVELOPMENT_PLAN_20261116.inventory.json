@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 14:05:47 KST",
+  "checkedAt": "2026-11-18 14:08:16 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,22 +12,23 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:05:47.194Z",
+      "at": "2026-11-18T05:08:16.870Z",
       "timezone": "Asia/Seoul",
-      "trigger": "중앙 Cloudflare 소스완료·공유push위험",
-      "scope": "3b8933b94 5파일·키API/카드 검수배정·메인자동빌드동반배포교통정리",
+      "trigger": "공용키P2·CRM수정·AGY완료/범위추가",
+      "scope": "쓰기응답불명/환경실패구분·고정SHA대기검수·globals배정외변경근거·push수락",
       "evidence": [
-        "msg_8fde857892dc·3b8933b94 stat",
-        "Macmsg_ff1e31e50642",
-        "10담당 push순번알림 receipt(수락별도)"
+        "msg_cf35bcba3a3d 적용후reset/503모형",
+        "msg_d7797787c5e4/467068d93",
+        "3df4d0dca stat6파일/globals추가·설명요청",
+        "Backend/AGY push보류ACK"
       ],
-      "judgment": "중앙키등록소스완료/독립검수대기·실운영미반영. 공유HEAD push가미검수소스를자동배포할수있어순번/명시소스확인전무심코push금지통보. 일반구현/커밋은계속.",
+      "judgment": "공용키불명쓰기확정실패오표시반환. CRM형식보완검수대기·AGY범위초과근거미확인으로수락보류/되돌림0. 공용HEAD push조정계속.",
       "unverified": [
-        "중앙카드독립검수·실RLS/쓰기",
-        "담당별push알림수락·Blog prompt해소",
-        "메인/감성배포예산·승인"
+        "공용새수정/SHA·계정가드·nativeMac환경",
+        "AGYglobals출처/실diff·UI독립검수",
+        "CRM형식보완지정결과"
       ],
-      "nextAction": "순차검수/새SHA/알림수락회수→정확묶음배포준비,아직새배포0"
+      "nextAction": "각새결과/설명회수→검수·일괄푸시/배포0"
     },
     "notifications": [
       {
@@ -235,7 +236,17 @@
       ],
       "scope": "내파일커밋/일반구현계속·미검수공용HEAD push전검수/명시소스/빌드예산/Master순번·기존별도승인격리배포는대상별확인",
       "exceptions": "Support주인님키트새작업배정0·새비용0",
-      "delivery": "Blog전달대기·그외전송receipt발급,수락별도"
+      "delivery": "Blog전달대기·그외전송receipt발급,수락별도",
+      "acknowledgments": [
+        {
+          "owner": "CC-B2B-BACK-01",
+          "id": "msg_9133a882c219"
+        },
+        {
+          "owner": "AG-UI-01",
+          "id": "msg_ebc0f4699d85"
+        }
+      ]
     }
   },
   "count": 103,
@@ -7936,11 +7947,12 @@
       "task_id": "DES-20261118-07",
       "title": "Cloudflare 공용키 설정 UI 연결 경로 계획",
       "owner": "AG-UI-01",
-      "status": "in_progress",
-      "delivery": "exact_emotion_status_card_paths_acknowledged_started",
-      "evidence": "msg_9e8dcff42ce5 전달보류·서버ab693ba39 지정PASS · 수락msg_c38fbd244674 · 계획msg_577c1800ce82·Master GET route/settings초기연결경로확인 · msg_5af67813cd65·Master메인page/MemberIntegrations/문서봇설정소스확인 · 착수msg_78865897c0bc",
-      "next": "정확4제품파일+시험 완료SHA/tsc 회수→Mac검수, 공용중앙카드와분리",
-      "lastReviewedAt": "2026-11-18T04:55:22.706Z"
+      "status": "ready_review",
+      "delivery": "source_reported_scope_extra_globals_explanation_pending",
+      "evidence": "msg_9e8dcff42ce5 전달보류·서버ab693ba39 지정PASS · 수락msg_c38fbd244674 · 계획msg_577c1800ce82·Master GET route/settings초기연결경로확인 · msg_5af67813cd65·Master메인page/MemberIntegrations/문서봇설정소스확인 · 착수msg_78865897c0bc · ACKmsg_ebc0f4699d85·Master6파일stat/globals추가확인·설명요청msg_3ca755de2ab5",
+      "next": "정확완료근거/추가globals54줄 출처/직접지시범위회수→Mac독립검수·무단되돌림0",
+      "lastReviewedAt": "2026-11-18T05:08:16.870Z",
+      "sha": "3df4d0dca"
     },
     {
       "task_id": "AIF-20261118-W00",
@@ -7963,16 +7975,16 @@
       "parent_task_id": "CRM-20261118-06",
       "title": "SOLAPI SDK 재시도 없는 공식 대안·최소 변경 계획",
       "owner": "CC-B2B-BACK-01",
-      "status": "needs_revision",
-      "delivery": "single_http_verified_response_schema_contradictions_returned",
-      "evidence": "msg_bb305389c287·기존6.0.1 retryCount3고정/주입불가 · 조사c229a47ad/msg_e2c6bb9ee494·Master공식인증문서독립확인·판정msg_b0197652e14b · msg_797f0aaf0ecc·Master6파일stat확인 · Macmsg_48b92d818766·형식/모순응답수정반환",
-      "next": "실패목록스키마/HTTP·성공count·error봉투 모순unknown 보완SHA 회수→Mac",
+      "status": "ready_review",
+      "delivery": "contradictory_response_fix_source_ready_queued_independent_review",
+      "evidence": "msg_bb305389c287·기존6.0.1 retryCount3고정/주입불가 · 조사c229a47ad/msg_e2c6bb9ee494·Master공식인증문서독립확인·판정msg_b0197652e14b · msg_797f0aaf0ecc·Master6파일stat확인 · Macmsg_48b92d818766·형식/모순응답수정반환 · msg_d7797787c5e4/467068d93·Mac대기msg_59b33ae477a2",
+      "next": "공식실패필수필드/개수·HTTP/error봉투모순unknown/HTTP1 회귀검수",
       "constraints": "소스범위Master일반설계판정·공용SDK서명원칙은해당접수전용예외만기록·실발송/운영DDL/build/deploy0·HTTP1은클라이언트시도만",
-      "lastReviewedAt": "2026-11-18T05:02:05.366Z",
+      "lastReviewedAt": "2026-11-18T05:08:16.870Z",
       "scopeRef": "새crm/solapiSendOnce.ts·dispatch.ts·시험/기존문서, 공용래퍼/5사본/팔로우업불변",
-      "sha": "215bcfd33",
+      "sha": "467068d93",
       "validation": {
-        "author": "새전송기50·실dispatch26·전체236/236·tsc0·공용6사본불변/registryOK·실문자0",
+        "author": "수정65/65·전체251/251·tsc0·사본6 정정d91ec456e",
         "master": "정확6파일stat·공식REST인증문서근거확인, 접수성공과최종배달보장분리요청",
         "independent": "215 native129/129·3채널HTTP1확인. 실패목록null/숫자/빈객체를rejected·성공count/error봉투모순을sent/rejected로확정하는P2재현. 실네트워크0·원문0, 고정최종정리중"
       }
@@ -7981,18 +7993,18 @@
       "task_id": "ECOM-20261118-07",
       "title": "메인 공용 Cloudflare 등록 카드·서버 최소계획",
       "owner": "CC-ECOM-01",
-      "status": "ready_review",
-      "delivery": "central_keys_source_ready_unpushed_independent_review",
-      "evidence": "메인PROVIDERS5·oauth목록별도·문서봇입력은프로그램권한전제·Master소스대조 · 계획msg_b05eef62cc54/3ff187c06·Master두키원자/예상계정/CSRF보완지시 · ACTIVE_WORK본인중앙5경로예약확인 · msg_8fde857892dc·Master5파일stat·Macmsg_ff1e31e50642",
-      "next": "Mac 실제handler/route/card·기대계정·원자쌍/불명응답·CSRF/비밀0 검수→판정",
+      "status": "needs_revision",
+      "delivery": "write_response_ambiguity_false_failure_returned",
+      "evidence": "메인PROVIDERS5·oauth목록별도·문서봇입력은프로그램권한전제·Master소스대조 · 계획msg_b05eef62cc54/3ff187c06·Master두키원자/예상계정/CSRF보완지시 · ACTIVE_WORK본인중앙5경로예약확인 · msg_8fde857892dc·Master5파일stat·Macmsg_ff1e31e50642 · Macmsg_cf35bcba3a3d 적용후reset/503 반례·수정반환",
+      "next": "공용키 저장/해제 불명처리·명시상태재확인/자동재전송0 보완SHA회수→Mac",
       "constraints": "소스/모의만·키쌍단일문장·예상회원409·비밀값응답0·기존5provider/Cloudinary불변·실키쓰기/외부/API/build/push/deploy0",
-      "lastReviewedAt": "2026-11-18T05:05:47.194Z",
+      "lastReviewedAt": "2026-11-18T05:08:16.870Z",
       "scopeRef": "새검사helper·전용keys API·전용card·메인page연결·시험/기존문서",
       "sha": "3b8933b94",
       "validation": {
         "author": "handler/route/card 모의9/9·루트tsc0·실키쓰기/외부/푸시0",
         "master": "정확5파일stat·메인page연결2줄·공유push자동빌드위험교통정리",
-        "independent": "순차검수전달·수락/결과 대기"
+        "independent": "실route/설치Supabase 가짜fetch POST/DELETE 적용후reset/503 4경계:모형반영true인데확정실패/재시도안내P2. nativeWin32esbuild Mac실행실패는환경문제·설치없이TS메모리검수중"
       }
     },
     {
