@@ -181,3 +181,55 @@
 - **같은 이름 버킷**: `insert … on conflict (id) do nothing`이라 이미 같은 이름 버킷이 다른 설정(공개·한도·형식)으로 있으면 그대로 남는다. 운영·Lab 적용 precheck에 「`mall-builder-proposals` 없음」을, verify에 「public false·5242880·{image/jpeg}」를 넣는다(어긋나면 멈춤).
 - 공급사 계정이 `revoked`·`paused`로 바뀌어도 판정이 즉시 0(시험 P13-paused). 직원 `removed_at`도 `staff_can`이 이미 거름.
 - 2026-11-19 P2 추가 보완(Master msg_5aec3c932e2a, Mac msg_611c47959bd0): begin에서 권한 확인 직후 **모든 살아 있는 상태(예약 중·기한 지남·확정·적용)**에서 원본 힌트가 다르면 경로·상태 없이 `conflict`. 같은 예약자라도 다른 사진이면 업로드 경로를 다시 받지 못하고, 기한이 지나도 다른 힌트로는 재예약 불가(같은 힌트로만). 시험 P20(8건) — 고치기 전 판 82/86, 고친 판 86/86.
+
+## 13. 화면 연결 계획(Master msg_3291910227f2 — 계획만, 코드·스키마·DB·빌드 0)
+전제: 데이터 계층 0106(`a7423ed90`, Mac 독립 수락). 운영·Lab 반영은 M3와 한 번에(결정 4). 고아·만료 정리와 M3 서버 검증(§12-1)은 별도 설계 유지.
+
+### 13-1. 파일(점유 예정 — 착수 승인 때 등록)
+| 파일 | 할 일 |
+|---|---|
+| `src/lib/mallPhotoSave.ts`(새) | 결과 1건 → 제안 저장 흐름 순수 함수 `saveResultAsProposal(ctx, deps)` — rpc·업로드·지우기·JPEG 변환·해시를 주입받아 단위 시험 가능. 화면 의존 0 |
+| `src/lib/mallPhotoJob.ts` | `notReadyReply`를 `savedReply(jobId, got, ok, code)`로 일반화(고정 문구 표). M1 계약(작업 만들기·`sendMallJob`)은 그대로 |
+| `src/app/s/[store]/admin/products/banana-send.tsx` | 결과 수신 시 `notReadyReply` 대신 `saveResultAsProposal`을 **한 건씩 차례로**(체인) 실행 → 끝나면 그 결과 번호로 응답 1회. 수신 검사(바나나 주소·현재 작업·`e.source === job.win`·보낸 상품)와 작업 1회 송신은 M1 그대로 |
+| `src/app/s/[store]/supplier/products/page.tsx` | 공급사 「내 상품」에 같은 컴포넌트 연결(행 = 본인 공급사 상품만, 서버가 store·supplier로 읽음). 역할은 DB가 정함(operator/supplier) — 화면이 역할을 보내지 않음 |
+| `src/app/s/[store]/admin/products/proposals/page.tsx`(새) | 직원용 제안 목록(M2는 보기만): 상품·상태·「그사이 상품이 바뀜」(상품 `updated_at` ≠ `base_revision`) 표시, 미리보기 = 그 행 파일의 짧은 서명 주소(`createSignedUrl`, 읽기 정책 통과자만). 적용·거절 버튼은 M3 |
+| `tests/mallPhotoSave.test.mjs`(새) | 아래 13-3 응답 표 전부를 모의 rpc·업로드로 시험 + 화면 소스 계약 |
+
+### 13-2. 결과 1건 저장 순서(브라우저, 회원 세션)
+1. 결과 번호(`resultId`) 없음(옛 바나나) → 저장 0, ok:false 「바나나를 새로고침한 뒤 다시 보내 주세요」.
+2. 원본 힌트 = 받은 원본 파일 SHA-256(WebCrypto, 재인코딩 전) — 같은 결과 번호 확인용 힌트일 뿐.
+3. `begin(store, product, jobId, resultId, settingsVersion, baseRevision, 힌트)`.
+4. `upload` 응답일 때만: JPEG 변환(§13-4) → 제안 버킷 경로에 `contentType image/jpeg`·`upsert false`로 올림. 「이미 있음」 오류 = 내가 앞서 올린 같은 예약 경로 → 그대로 5로. 그 밖 실패 → `abandon(id)` → ok:false.
+5. `commit(id)` → `done`이면 ok:true. `no_file` → `abandon(id)` 뒤 그 경로 파일 지우기(정책상 abandoned만 지울 수 있음) → ok:false. `gone`·`forbidden` → ok:false(파일 손대지 않음).
+
+### 13-3. 정확한 ACK 표(바나나 저장 응답, 결과 번호·판번호 그대로, 결과 번호당 1회)
+| DB 결과 | ok | 고정 문구(번호·경로·원문 오류 없음) |
+|---|---|---|
+| begin `done` / commit `done` | true | (빈 문구) |
+| begin `busy` | false | 「다른 사람이 같은 결과를 저장하는 중입니다」 |
+| begin `conflict` | false | 「같은 결과 번호에 다른 사진이 왔습니다」 |
+| begin `forbidden` | false | 「이 상품의 사진을 저장할 권한이 없습니다」 |
+| begin `invalid` / 결과 번호 없음 | false | 「바나나를 새로고침한 뒤 다시 보내 주세요」 |
+| 변환 실패·5MB 초과 | false | 「사진이 커서 저장하지 못했습니다」 |
+| 업로드·commit 실패(`no_file`·`gone`·네트워크) | false | 「저장하지 못했습니다. 다시 보내 주세요」 |
+- ok:true는 **DB 확정 뒤에만**. 같은 결과를 다시 받으면 begin이 `done` → 업로드 없이 ok:true(바나나가 응답을 못 받은 경우 복구).
+
+### 13-4. 5MB JPEG 변환
+- 받은 파일이 이미 JPEG이고 5,242,880바이트 이하면 그대로(바이트 변화 0).
+- 아니면 `createImageBitmap` → 같은 가로세로 캔버스(흰 배경 — PNG 투명 영역) → JPEG 품질 0.92 → 0.85 → 0.75 순서로 5MB 이하가 나올 때까지. 가로세로 상한 6000px(넘으면 변환 거절 — 메모리 보호). 세 번 다 넘으면 ok:false(§13-3).
+- 변환 결과의 지문은 힌트와 무관(재수신은 begin `done`으로 끝나 재업로드 0).
+
+### 13-5. 실패·닫힘 경우
+| 경우 | 동작 |
+|---|---|
+| 저장 중 바나나 창 닫힘 | 저장은 끝까지 진행(DB 일관). 응답은 못 보냄 → 바나나를 다시 열어 같은 결과를 보내면 begin `done` → ok:true |
+| 저장 중 쇼핑몰 탭 닫힘·새로고침 | 예약이 reserved로 남음 → 10분 뒤 만료 → 같은 결과 재수신 시 재예약(같은 힌트) 또는 정리 목록이 abandoned 처리 |
+| 새 작업 시작(버튼 다시 누름) | 옛 창 메시지는 `e.source !== job.win`으로 무시(M1). 이미 시작한 저장은 끝까지(그 결과의 DB 상태는 정확), 응답은 옛 창이 살아 있을 때만 그 창으로 |
+| 같은 결과 동시 두 번 수신 | 체인으로 한 건씩 + DB begin 직렬화 → 두 번째는 done 또는 본인 같은 경로 → 중복 저장 0 |
+| 제안 버킷이 아직 없는 환경(0106 미적용) | 업로드 실패 → abandon → ok:false 고정 문구(쇼핑몰 데이터 변화 0) |
+| 공급사 정지·공급사 재지정 | begin forbidden → ok:false |
+
+### 13-6. 시험(착수 때)
+- `tests/mallPhotoSave.test.mjs`: 13-3 표 행마다 모의 rpc·업로드로 ok·문구·resultId 그대로, 업로드 「이미 있음」→ commit 진행, no_file → abandon 뒤 지우기 1회, gone·forbidden → 파일 손대지 않음, JPEG 그대로·변환·5MB 초과, 결과 번호 없음 저장 0.
+- M1 시험 12개 회귀, 화면 소스 계약(저장 체인 1건씩, 응답은 `job.win`·바나나 주소로만, ok:true는 done일 때만).
+- DB 계약은 0106 격리 시험(86/86) 그대로 재사용.
