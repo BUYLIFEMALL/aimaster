@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 14:23:39 KST",
+  "checkedAt": "2026-11-18 14:24:17 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -8082,14 +8082,14 @@
       "title": "Apps Script v2 이벤트키 스니펫·legacy 안내 연결",
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
-      "status": "dispatched",
-      "delivery": "v2_script_source_and_mock_event_tests_dispatched",
+      "status": "in_progress",
+      "delivery": "exact_script_generator_paths_acknowledged_started",
       "scopeRef": "SourceCard·기존ARCHITECTURE·스니펫시험·기존결과만",
       "completion": "form/sheet 실이벤트키·Date전제·없으면legacy보호없음·파서실판정/재시도키/오류계약",
       "constraints": "실Google/운영DDL/실문자/build/push0·v2공개전DDL/route/실검증승인·시험시트확인",
       "next": "정확경로착수/소스SHA회수→Mac",
-      "evidence": "Master기존U3단계계획에따른source배정·접수/팔로우업소스PASS선행",
-      "lastReviewedAt": "2026-11-18T05:23:02.892Z"
+      "evidence": "Master기존U3단계계획에따른source배정·접수/팔로우업소스PASS선행 · 착수msg_ae7532f0dc23·새순수생성기/실행시험경로허용",
+      "lastReviewedAt": "2026-11-18T05:24:17.871Z"
     }
   ]
 }

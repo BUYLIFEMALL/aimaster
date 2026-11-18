@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 14:23:39 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 14:24:17 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 14:23:39 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 264개: done 245개 · cancelled 7개 · ready_review 3개 · running 1개 · waiting_human 6개 · queued 1개 · dispatched 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 264개: done 245개 · cancelled 7개 · ready_review 3개 · running 1개 · waiting_human 6개 · queued 1개 · in_progress 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -414,7 +414,7 @@ Master 마지막 실제 점검: 2026-11-18 14:23:39 KST · 실행 중 점검 주
 | AIF-20261118-W01a | CC-SNS-01 | done / four_ui_claim_corrections_source_ssr_review_accepted_unreleased | 실제 없는 seed 잠금 표시 4곳 정정 | 미배포묶음보존·실브라우저/모델품질미검수·다음W01b 기존보관예외 |
 | AIF-20261118-W01b | CC-SNS-01 | ready_review / canonical_uuid_consistency_fix_independent_review_dispatched | 기존 히스토리 자동정리의 보관예외 보호 | 감성a0ec뒤SNScanonical표현잔여GET/POST삭제0·정상회원회귀검수 |
 | CRM-20261118-08 | CC-B2B-BACK-01 | done / followup_single_attempt_source_review_accepted_unreleased | 팔로우업 SOLAPI SDK 재시도 제거·검수 전송기 재사용 | 미배포묶음보존·U3/운영DDL/배포/실SMS조건후속, 다른공용SDK영향별도 |
-| CRM-20261118-09 | CC-B2B-BACK-01 | dispatched / v2_script_source_and_mock_event_tests_dispatched | Apps Script v2 이벤트키 스니펫·legacy 안내 연결 | 정확경로착수/소스SHA회수→Mac |
+| CRM-20261118-09 | CC-B2B-BACK-01 | in_progress / exact_script_generator_paths_acknowledged_started | Apps Script v2 이벤트키 스니펫·legacy 안내 연결 | 정확경로착수/소스SHA회수→Mac |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
