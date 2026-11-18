@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 15:29:12 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 15:34:06 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 15:29:12 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 15:34:06 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 고정9d5 순수paths8/정적SQL·Master지적대조 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 13로컬세션연결/이전보고기준상태·미완작업/사람목록·요청0·미등록문서증분0·최근감성제품커밋/실alias·SNS수정85 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -36,7 +36,7 @@ Master 마지막 실제 점검: 2026-11-18 15:29:12 KST · 실행 중 점검 주
 | 업무자동화 | 9 / 2 | Workspace v1.58 Gmail ON/E3·예약수정 배포 | OAuth redirect설정대조→공통실검증·Mac독립 | Workspace / Master |
 | 이커머스 | 10 / 7 | B2B운영1.16/Lab0104·ESM1.02·마켓기배포정정 | QA037/ESM사람단계→실범위검수·운영승인별도 | B2BBackend/Front·Ecom / Master |
 | 이커머스 (현재 비공개) | 1 / 1 | ESM1.02운영·지정웹QA016PASS | 공간19확장/계정/시험상품입력만·API승인회신전트랙2미구현 | Ecom·MacTester |
-| 이미지 | 10 / 2 | 감성글귀v1.30 글귀3사 운영·이미지엔진보완미배포/free OFF | 다음승인묶음·실이미지/무료정책별도 | Ecom·AGY / Master |
+| 이미지 | 10 / 2 | 감성v1.37 alias/meta확인·Cloudflare모의소스PASS/실무문자미확인·SNS A1 SQL초안재검수 | 감성최신실행manifest회수·SNS85 정적판정·main공용push/빌드승인별도 | Ecom·AGY / Master |
 | 쓰레드 | 5 / 1 | 쇼핑제휴1.89반영·나머지목록기록 | 실확장수집/대기열검수·다른Threads현담당/잔여확정 | Ecom(제휴) / Master |
 | 음악 | 11 / 6 | 6프로그램운영버전보고·가사2건미배포·공용권한분리 | 실MP4사람선택·가사다음기능묶음·나머지현담당근거확인 | Music·Movie / Master |
 | 영상 | 3 / 2 | GIF1.33/AI영상1.36 기록·공용인코더소스PASS미배포 | 실기기/왕복범위선행·유료생성승인별도 | Movie / Master |
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 15:29:12 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 270개: done 251개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 8개 · queued 1개 · needs_revision 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 271개: done 251개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 7개 · superseded 1개 · queued 1개 · reviewing 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -399,7 +399,7 @@ Master 마지막 실제 점검: 2026-11-18 15:29:12 KST · 실행 중 점검 주
 | CRM-20261118-02 | CC-B2B-BACK-01 | done / ddl_source_author_pg_static_qa_accepted_unapplied | CRM 중복방지 DDL 초안·격리 DB 검증 2A | SQL/하네스동결·운영미적용·UI오류보완후route/dispatch/정책별도범위검토 |
 | CRM-20261118-03 | CC-B2B-BACK-01 | done / specified_ssr_query_failure_qa_pass_unreleased | CRM 접수 새상태 화면·집계 준비 | 다른집계오류0은CRM18-04·운영미배포/발송연결0 |
 | CRM-20261118-04 | CC-B2B-BACK-01 | done / specified_actual_ssr_counts_qa_pass_unreleased | CRM 기존3집계 조회실패 0건오인 국소보완 | 소스정리/점유해제·후속알림제품결정전발송연결보류 |
-| DES-20261118-06 | AG-UI-01 | waiting_human / free_off_source_qa_pass_remote_build_approval_pending | 감성 설정 화면 주인님 직접지시·새배포 상태 취합 | 주인님정정안원격1회승인vs묶음대기결정→명시223dd manifest/팀큐→배포/실alias확인 |
+| DES-20261118-06 | AG-UI-01 | superseded / older_free_off_approval_question_superseded_by_owner_direct_v137_deployment | 감성 설정 화면 주인님 직접지시·새배포 상태 취합 | 새승인중복질문0·DES08최신manifest/실운영flag확인으로통합 |
 | ECOM-20261118-05 | CC-ECOM-01 | done / primary_documents_read_no_real_api | 무료 이미지 공식지원/본인키 무료할당량 대안 읽기조사 | 후보/장수는조사범위·파생참고치로만, 무료실행방식 주인님 결정대기·실생성0 |
 | CRM-20261118-05 | CC-B2B-BACK-01 | done / specified_source_review_accepted_unreleased | 미확정 접수 후속알림 기본보류·가시성 | 미배포 묶음 보존·실운영 보호 주장0, 후속 CRM18-06 웹훅 연결 읽기계획 검토 |
 | CRM-20261118-06 | CC-B2B-BACK-01 | done / u1_u2_mitigation_source_accepted_unreleased_sdk_release_blocked | 웹훅 중복 방지 실제 연결 최소 단위 계획 | SDK재시도위험 운영차단은 CRM18-07로이관·미배포소스동결/운영보호완료아님 |
@@ -420,7 +420,8 @@ Master 마지막 실제 점검: 2026-11-18 15:29:12 KST · 실행 중 점검 주
 | AIF-20261118-W01d | CC-SNS-01 | done / revised_contract_accepted_for_source_only_A1_first_unit | 첫 원본 자산 단위 필드·권한·스토리지 구체 계약 | A1 SQL초안/순수paths 첫단위 배정·실DB/저장별도 |
 | QA-20261118-ESM-01 | CX-QA-01 | waiting_human / zip_source_versions_verified_installed_extension_and_login_pending | ESM v1.02 입력만·쇼핑제휴 v1.89 네이버 수집 실확장 준비/검수 | 기존 Mac 사람요청 한곳: ESM+/네이버로그인·확장실제설치버전·brandlink1 뒤 입력만/수집검수 |
 | ECOM-20261118-08 | CC-ECOM-01 | done / specified_source_review_pass_accepted_unreleased | Cloudflare 배경 생성 프롬프트 문자 혼입 보완 | 기존 배포후보 묶음에9ccfc8dfa 포함·실 무문자품질 추가생성은 별도승인·현재무료OFF소스유지 |
-| AIF-20261118-W01e | CC-SNS-01 | needs_revision / paths_pass_sql_identity_and_delete_ownership_P1_returned | A1 자산 SQL 초안·순수 경로 검증 첫 구현 | 동일SQL초안 reconcile기대ID/삭제owner경로/잠금전이/size파싱 한꺼번에수정→Mac고정SHA재검수 |
+| AIF-20261118-W01e | CC-SNS-01 | reviewing / revised_SQL85_static_review_dispatched | A1 자산 SQL 초안·순수 경로 검증 첫 구현 | Mac85 고정SHA 정적재검수→격리실행필요 여부판정·현재실SQL0 |
+| DES-20261118-08 | AG-UI-01 | reviewing / production_alias_SHA_verified_execution_ledger_pending | 감성 v1.34~37 주인님 직접지시 배포·모델확대 취합 | AGY기존보고 실제실행수/승인/제품트리/DBversion미확인 회수→소스검수범위확정 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
@@ -439,7 +440,7 @@ Master 마지막 실제 점검: 2026-11-18 15:29:12 KST · 실행 중 점검 주
 | 뮤직비디오 자동화 | CC-MOVIE-01 + CC-MUSIC-01 | v1.31 | 운영·공통반영확인 | 저장위젯/로그인 정책 기배포 | 영상/음악 파일소유분리, 유료생성은기존보류 |
 | 음악(SUNO)자동화 | CC-MUSIC-01 | v1.58 | 운영v1.58·기존메뉴수정 반영완료 | db08afdd6가배포기준f78967bad 조상·music-b8m2pihnu/메뉴1개확인기록 | 옛미배포메뉴수정 재구현/재배포0·새배정전점유확인 |
 | AI 바나나 캔버스 자동화 | CC-ECOM-01 | v1.49 | 운영Ready·시험상품 실저장왕복 확인 | e5611755d·c41203srg Ready·DB1.49·375/320합성2/2담당보고 | 시험상품1개 운영실저장왕복/동일설정재전송방지/대표사진원복 확인보고수락, 실기기/낭독등별도 |
-| 감성 글귀 이미지 | CC-ECOM-01 | v1.33 작성자보고·alias직접일치 | 설정UI직접지시배포·freeON정책미확정→OFF로컬정정준비 | 지정0789/59cb소스트리재배포·3사3실호출작성자성공·Master alias확인·이미지1a1f64dba 지정독립PASS | AGYfreeOFF/문구정정로컬SHA회수→검수·무료방식주인님결정·배포예산별도 |
+| 감성 글귀 이미지 | CC-ECOM-01 | v1.37 작성자보고·Master운영alias/metaSHA 직접확인 | 주인님직접지시 최신배포취합·추가12모델소스/실가용성검수미완 | prod dpl_CHF7WKQQgSGngidFcVLbmJ8Zwa1i/meta57ef016cd 직접확인·Cloudflare원문제거9cc 소스지정PASS·최초실생성1 문자혼입 | 배포실행예산/제품트리/DBversion이력회수·운영무료flag 읽기별도·수정후실생성승인없음 |
 | AI 영상렌더 스튜디오 | CC-MOVIE-01 | v1.33 | 운영 Ready·독립 코드QA PASS / 실제왕복 미검수 | 2ae34fbdc·11+4독립조건PASS·38pox5t03 Ready·DB/ext/ZIP1.33일치 보고 | 시험상품 범위 확정 후 GIF/WebP 각1 실수신 검수. 추가빌드 없음 |
 | AI 상세페이지 자동화 | CC-ECOM-01 | v1.47 | 운영Ready·시험상품 실저장왕복 확인 | 0e418bab9·6esxwz43i Ready·DB1.47·products/위젯 담당확인 | 시험상품1개 운영실저장왕복/동일설정재전송방지/대표사진원복 확인보고수락, 실기기/낭독등별도 |
 | AI 쇼츠 원스톱 제작 자동화 | CC-MOVIE-01 | v1.59 | 운영·특정시험대기 | 낱말시각B안 코드·배포 | 약1원시험·시험계정 조건 및 공용인코더 다음배포 |
@@ -564,7 +565,7 @@ Master 마지막 실제 점검: 2026-11-18 15:29:12 KST · 실행 중 점검 주
 | 66 | AI 4컷 만화 자동화 / four-cut-comics | 이미지 | v1.37 / 운영 | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 67 | 이미지 변환 스튜디오 / image-convert-studio | 이미지 | v1.27 / 운영 | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 68 | AI 패션스타일 자동화 / fashion-style | 이미지 | v1.14 / 운영 | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
-| 69 | 감성 글귀 이미지 / emotion-writer | 이미지 | v1.29 / 운영 | v1.33 작성자보고·alias직접일치 | CC-ECOM-01 · 설정UI직접지시배포·freeON정책미확정→OFF로컬정정준비 | AGYfreeOFF/문구정정로컬SHA회수→검수·무료방식주인님결정·배포예산별도 |
+| 69 | 감성 글귀 이미지 / emotion-writer | 이미지 | v1.29 / 운영 | v1.37 작성자보고·Master운영alias/metaSHA 직접확인 | CC-ECOM-01 · 주인님직접지시 최신배포취합·추가12모델소스/실가용성검수미완 | 배포실행예산/제품트리/DBversion이력회수·운영무료flag 읽기별도·수정후실생성승인없음 |
 | 70 | AI 올인원 그래픽 자동화 / allinone-graphic | 이미지 | v1.11 / 병합됨 → `banana-canvas`(2026-10-21) | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 71 | AI 포토 리메이크 자동화 / photo-remake-studio | 이미지 | v1.13 / 병합됨 → `banana-canvas`(2026-10-21) | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 72 | 상품소싱 자동화 / trending-product-finder | 이커머스 | v1.39 / 운영 | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |

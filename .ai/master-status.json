@@ -3909,14 +3909,14 @@
       "owner": "AG-UI-01",
       "reviewer": "CX-MASTER-01",
       "title": "감성 설정 화면 주인님 직접지시·새배포 상태 취합",
-      "status": "waiting_human",
-      "delivery": "free_off_source_qa_pass_remote_build_approval_pending",
+      "status": "superseded",
+      "delivery": "older_free_off_approval_question_superseded_by_owner_direct_v137_deployment",
       "sha": "223ddc6b3 (v1.33UI 위OFF정정)",
-      "evidence": "12:30Master AGY실화면 직접지시확인·git경로log·msg_76ca7f95555f·AGY직접지시보고msg_6932e5bb0e45·Master88c9stat/version/free상수·alias dpl_25vo...확인·보완msg_3c76b5ef3b98·보완msg_0ade8b8574e2·정정착수msg_d50e19de0764·Master v1.33alias확인·결과msg_5ce81f23fb36·Master2파일diff·Macmsg_2161e3d6f367·질문일원화ACKmsg_126d8d773908·MacPASSmsg_92dcd770db91·대기지시msg_bd45c8702380",
+      "evidence": "12:30Master AGY실화면 직접지시확인·git경로log·msg_76ca7f95555f·AGY직접지시보고msg_6932e5bb0e45·Master88c9stat/version/free상수·alias dpl_25vo...확인·보완msg_3c76b5ef3b98·보완msg_0ade8b8574e2·정정착수msg_d50e19de0764·Master v1.33alias확인·결과msg_5ce81f23fb36·Master2파일diff·Macmsg_2161e3d6f367·질문일원화ACKmsg_126d8d773908·MacPASSmsg_92dcd770db91·대기지시msg_bd45c8702380 · msg_39b29344a69e·Master최신alias/meta확인",
       "scopeRef": "KeySettings.tsx·version.ts·globals.css UI한정",
       "completion": "직접UI지시/무료정책/빌드승인범위·실제manifest/배포/예산·독립검수구분",
-      "next": "주인님정정안원격1회승인vs묶음대기결정→명시223dd manifest/팀큐→배포/실alias확인",
-      "lastReviewedAt": "2026-11-18T03:47:57.727Z",
+      "next": "새승인중복질문0·DES08최신manifest/실운영flag확인으로통합",
+      "lastReviewedAt": "2026-11-18T06:34:06.796Z",
       "directInstructions": [
         {
           "time": "11:15 작성자보고",
@@ -4319,21 +4319,35 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "A1 자산 SQL 초안·순수 경로 검증 첫 구현",
-      "status": "needs_revision",
-      "delivery": "paths_pass_sql_identity_and_delete_ownership_P1_returned",
+      "status": "reviewing",
+      "delivery": "revised_SQL85_static_review_dispatched",
       "scopeRef": "프로그램내 신규 aif_assets_a1 migration초안·src/lib/assets/paths.ts·순수시험/본인기존문서",
       "completion": "계약두표/6함수/잠금/서비스권한/unknown보존/objectidentity 초안·경로검증실시험/tsc·정확SHA·미실행SQL구분",
       "constraints": "다른저자미커밋보존·store/라우트0·SQL실행/DB/버킷/실저장/AI/설치/build/push0·공용quota/retention수정0",
-      "evidence": "W00최종037·Masterdispatch msg_063c9804ec87 · Mac수락msg_f3fa3161bd5b(검수준비·정확SHA대기) · msg_a224024efdcf/9d5d921a7·MasterSQL직접읽기·Macmsg_7bd96acfe0b8 · Macmsg_6ffe514132b3·통합수정반환 · 고정최종msg_666b5f7d4d1e(새항목0)",
-      "next": "동일SQL초안 reconcile기대ID/삭제owner경로/잠금전이/size파싱 한꺼번에수정→Mac고정SHA재검수",
-      "lastReviewedAt": "2026-11-18T06:29:12.115Z",
-      "sha": "9d5d921a7",
+      "evidence": "W00최종037·Masterdispatch msg_063c9804ec87 · Mac수락msg_f3fa3161bd5b(검수준비·정확SHA대기) · msg_a224024efdcf/9d5d921a7·MasterSQL직접읽기·Macmsg_7bd96acfe0b8 · Macmsg_6ffe514132b3·통합수정반환 · 고정최종msg_666b5f7d4d1e(새항목0) · msg_f92baa9ea13a/7ed1d1eadb70·Macmsg_63e85dbd7f17",
+      "next": "Mac85 고정SHA 정적재검수→격리실행필요 여부판정·현재실SQL0",
+      "lastReviewedAt": "2026-11-18T06:34:06.796Z",
+      "sha": "85e8fd1f7",
       "validation": {
         "author": "순수paths8·전체77/77·tsc0·DDL실행0",
         "master": "reconcile identity/claim소유경로/delete_mark잠금/SQL alias-cast 경계독립확인배정",
         "independent": "순수paths8/8실행PASS. 정적P1 reconcile기대objectid누락·claim_delete타회원assetID/경로무대조토큰재발급, P2 delete_mark회원잠금누락·alias위험/sizecast예외. 실SQL0 · service_role내부계약문제/회원직접RPC공격아님·실DB피해0·alias컴파일실패미확정·cast예외시예약보존가능·기존policy/defaultGRANT실행검증미완",
         "runtime": "어떤DB실행/버킷/업로드0"
       }
+    },
+    {
+      "task_id": "DES-20261118-08",
+      "owner": "AG-UI-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "감성 v1.34~37 주인님 직접지시 배포·모델확대 취합",
+      "status": "reviewing",
+      "delivery": "production_alias_SHA_verified_execution_ledger_pending",
+      "sha": "57ef016cd",
+      "evidence": "msg_39b29344a69e·Master Vercel alias/deployment dpl_CHF7WKQQgSGngidFcVLbmJ8Zwa1i READY/prod/CLI/metasha57ef016cd",
+      "scopeRef": "기존직접지시 모델순서/12모델/UI 변경·빌드/배포횟수/정확manifest 기록회수",
+      "constraints": "이력취합만·새배포/빌드/실AI/DB쓰기0·공용master푸시0 보고·최신전체소스PASS아님",
+      "next": "AGY기존보고 실제실행수/승인/제품트리/DBversion미확인 회수→소스검수범위확정",
+      "lastReviewedAt": "2026-11-18T06:34:06.796Z"
     }
   ],
   "programOverrides": [
@@ -4650,12 +4664,12 @@
     {
       "slug": "emotion-writer",
       "owner": "CC-ECOM-01",
-      "reportedVersion": "v1.33 작성자보고·alias직접일치",
-      "stage": "설정UI직접지시배포·freeON정책미확정→OFF로컬정정준비",
-      "completed": "지정0789/59cb소스트리재배포·3사3실호출작성자성공·Master alias확인·이미지1a1f64dba 지정독립PASS",
-      "next": "AGYfreeOFF/문구정정로컬SHA회수→검수·무료방식주인님결정·배포예산별도",
-      "evidence": "msg_85526463335b·dpl_7XjTSJkDk6Ftzt9Lv3EVvo52HpdT·QA049·e201aed81·Master get_alias/get_deployment dpl_Hs8NQJXDfTuH5PeRDnQvrLwy5z6e·msg_6932e5bb0e45·Master dpl_25voBGygNgta1Av8eAUKN7Dy8GBk",
-      "evidenceLevel": "운영alias직접·작성자모델3/DOM375·이미지독립모의PASS/운영미반영"
+      "reportedVersion": "v1.37 작성자보고·Master운영alias/metaSHA 직접확인",
+      "stage": "주인님직접지시 최신배포취합·추가12모델소스/실가용성검수미완",
+      "completed": "prod dpl_CHF7WKQQgSGngidFcVLbmJ8Zwa1i/meta57ef016cd 직접확인·Cloudflare원문제거9cc 소스지정PASS·최초실생성1 문자혼입",
+      "next": "배포실행예산/제품트리/DBversion이력회수·운영무료flag 읽기별도·수정후실생성승인없음",
+      "evidence": "msg_85526463335b·dpl_7XjTSJkDk6Ftzt9Lv3EVvo52HpdT·QA049·e201aed81·Master get_alias/get_deployment dpl_Hs8NQJXDfTuH5PeRDnQvrLwy5z6e·msg_6932e5bb0e45·Master dpl_25voBGygNgta1Av8eAUKN7Dy8GBk · msg_39b29344a69e/Master get_alias+get_deployment 최신dpl_CHF7WKQQgSGngidFcVLbmJ8Zwa1i·msg_80d03ab59197 추가생성승인0",
+      "evidenceLevel": "최신alias/metadata직접·제품정확tree미확인·DBversion미확인·최신12모델/전체UI독립PASS아님"
     },
     {
       "slug": "threads-affiliate-poster",
@@ -4847,21 +4861,25 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T06:29:12.115Z",
+      "at": "2026-11-18T06:34:06.796Z",
       "timezone": "Asia/Seoul",
-      "trigger": "A1독립검수반례",
-      "scope": "고정9d5 순수paths8/정적SQL·Master지적대조",
+      "trigger": "15:30예약수신·정기증분/이벤트",
+      "scope": "13로컬세션연결/이전보고기준상태·미완작업/사람목록·요청0·미등록문서증분0·최근감성제품커밋/실alias·SNS수정85",
       "evidence": [
-        "msg_6ffe514132b3·Master SQL직접읽기일치",
-        "msg_666b5f7d4d1e 고정최종·범위과장방지정정"
+        "msg_71ecebae61ae/예약receipt·새창0",
+        "13terminal조회(연결은완료증거아님)·dev-requests0·changedDocs0",
+        "msg_80d03ab59197 추가생성승인0 정정",
+        "msg_f92baa9ea13a/85·Macmsg_63e85dbd7f17",
+        "msg_39b29344a69e·Master Vercel alias/deployment SHA확인·후속msg_77fe1b45a516"
       ],
-      "judgment": "paths지정수락·SQL P1/P2한번묶어수정반환·실SQL오류확정아닌항목구분",
+      "judgment": "SNS85 재검수배정·감성최신직접배포이력취합/옛질문종료·Cloudflare승인화면관찰오판담당정정수용·실제추가생성0",
       "unverified": [
-        "수정SQL·실DB권한/동시성",
-        "완전고정최종상세보고",
-        "기타운영상태"
+        "13세션의실제착수/완료는명시보고외미단정",
+        "감성최신빌드총수/정확tree/DBversion/12모델실가용성",
+        "SNS85실SQL·운영외카테고리새실측0",
+        "CRM승인/음악B/ESM/Gmail/Blog/B2B 사람단계"
       ],
-      "nextAction": "같은migration수정SHA회수·실행범위확대0"
+      "nextAction": "AGY실행이력·Mac85결과 회수·기존승인회신후실행·중복배정/새비용0"
     },
     "notifications": [
       {
@@ -4929,7 +4947,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-18T06:30:00.000Z",
+      "nextScheduledAt": "2026-11-18T07:00:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -4947,12 +4965,12 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-18T06:00:00.000Z",
-        "messageId": "msg_7cef97e9a568",
+        "scheduledAt": "2026-11-18T06:30:00.000Z",
+        "messageId": "msg_71ecebae61ae",
         "taskExitCode": null,
         "masterReceived": true,
         "newAgentCreated": false,
-        "receipt": "status message_accepted·finished06:00:04Z;Task종료코드미조회"
+        "receipt": "06:30:03 accepted/finished·Task종료코드미조회"
       }
     },
     "supersededOrcaAutomation": {
@@ -5542,10 +5560,10 @@
     },
     {
       "category": "이미지",
-      "stage": "감성글귀v1.30 글귀3사 운영·이미지엔진보완미배포/free OFF",
-      "next": "다음승인묶음·실이미지/무료정책별도",
+      "stage": "감성v1.37 alias/meta확인·Cloudflare모의소스PASS/실무문자미확인·SNS A1 SQL초안재검수",
+      "next": "감성최신실행manifest회수·SNS85 정적판정·main공용push/빌드승인별도",
       "coordinator": "Ecom·AGY / Master",
-      "reviewedAt": "2026-11-18T02:50:31.105Z"
+      "reviewedAt": "2026-11-18T06:34:06.796Z"
     },
     {
       "category": "쓰레드",
