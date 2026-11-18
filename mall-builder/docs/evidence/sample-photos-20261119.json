@@ -1,0 +1,96 @@
+{
+ "date": "2026-11-19",
+ "store": "aimaster-b2b (156ef476-9142-4c39-b79b-24a883667c32)",
+ "db": "esgxyikcnnvmlhygjkth",
+ "note": "[샘플] 상품 16개 사진 — photo=Openverse 퍼블릭 도메인(CC0/PDM, 출처 표시 의무 없음), card=직접 만든 그림 카드(PIL, Segoe UI Emoji·맑은 고딕)",
+ "items": {
+  "d56a05d2-104e-46f8-9c49-c6fbcf965f1a": {
+   "kind": "photo",
+   "license": "pdm",
+   "source": "flickr",
+   "page": "https://www.flickr.com/photos/57873306@N00/3869866336",
+   "title": "How to change the toilet paper roll",
+   "storage_path": "156ef476-9142-4c39-b79b-24a883667c32/products/46cf6f49-b77d-46c4-b87e-7f2335eca617.jpg"
+  },
+  "e03b2d6e-7b43-4621-b487-10002047055d": {
+   "kind": "photo",
+   "license": "pdm",
+   "source": "flickr",
+   "page": "https://www.flickr.com/photos/143304364@N07/28789355883",
+   "title": "cardboard boxes",
+   "storage_path": "156ef476-9142-4c39-b79b-24a883667c32/products/f30c0bcf-5ac1-4582-845f-2394c09272ed.jpg"
+  },
+  "d7fe3587-ac25-4ea3-b4d8-50992e0f174a": {
+   "kind": "photo",
+   "license": "cc0",
+   "source": "rawpixel",
+   "page": "https://www.rawpixel.com/image/6040304/photo-image-texture-public-domain-abstract",
+   "title": "Bubble wrap plastic texture close",
+   "storage_path": "156ef476-9142-4c39-b79b-24a883667c32/products/40df8bd5-5c1b-4743-a319-df2fd01dc7c4.jpg"
+  },
+  "28c52ecc-508f-445e-a5c8-e71ed4114516": {
+   "kind": "photo",
+   "license": "cc0",
+   "source": "rawpixel",
+   "page": "https://www.rawpixel.com/image/3296237/free-photo-image-beer-aircraft-airplane",
+   "title": "person pouring bottle water old",
+   "storage_path": "156ef476-9142-4c39-b79b-24a883667c32/products/239e2032-31bc-438e-bc19-1cc80a7c592e.jpg"
+  },
+  "ef9ef7df-3326-4f78-81cf-6c395d3edd4b": {
+   "kind": "photo",
+   "license": "pdm",
+   "source": "flickr",
+   "page": "https://www.flickr.com/photos/144303299@N04/51909568675",
+   "title": "Best Latex Glove Brands",
+   "storage_path": "156ef476-9142-4c39-b79b-24a883667c32/products/87f3d8e3-7353-4ae2-907c-af311f4c5909.jpg"
+  },
+  "0b57797a-d0f8-49c4-a159-1560dfad65ac": {
+   "kind": "photo",
+   "license": "cc0",
+   "source": "rawpixel",
+   "page": "https://www.rawpixel.com/image/5943362/free-public-domain-cc0-photo",
+   "title": null,
+   "storage_path": "156ef476-9142-4c39-b79b-24a883667c32/products/e07fb67a-80c2-40af-9b8f-728223bb8890.jpg"
+  },
+  "0733c214-b5c1-42c5-bb77-f9d0da30db4f": {
+   "kind": "card",
+   "storage_path": "156ef476-9142-4c39-b79b-24a883667c32/products/e7cbfd8b-0b9c-4374-82b8-1a4618998f15.jpg"
+  },
+  "758a8bd4-c124-42f7-883e-8b0c6b0c863c": {
+   "kind": "card",
+   "storage_path": "156ef476-9142-4c39-b79b-24a883667c32/products/93ccc03f-4270-45ce-9a8c-0eec4ebe96a6.jpg"
+  },
+  "3816b332-5759-4865-8193-c5a142b194a2": {
+   "kind": "card",
+   "storage_path": "156ef476-9142-4c39-b79b-24a883667c32/products/54cf5fd3-b505-4903-a5c9-c66b761972e4.jpg"
+  },
+  "2c7a25d0-23df-4b06-9dd6-193f5ba2f606": {
+   "kind": "card",
+   "storage_path": "156ef476-9142-4c39-b79b-24a883667c32/products/6be0dba7-ea32-45d0-91ca-5cdb0973d481.jpg"
+  },
+  "266de89c-b9d6-4f7d-88d4-c89e1093a27a": {
+   "kind": "card",
+   "storage_path": "156ef476-9142-4c39-b79b-24a883667c32/products/39f366eb-7be7-4237-85e0-6be7e2795908.jpg"
+  },
+  "14ab51d1-e64a-45ec-a5af-8c0d80c1a2c6": {
+   "kind": "card",
+   "storage_path": "156ef476-9142-4c39-b79b-24a883667c32/products/3b40070f-6ce5-4dc3-afdd-6378fdfe7628.jpg"
+  },
+  "21c1315e-24bf-4da3-aff7-db66b5eb81c9": {
+   "kind": "card",
+   "storage_path": "156ef476-9142-4c39-b79b-24a883667c32/products/bd87c405-0da4-4a1e-8cae-263ddbbe7f0e.jpg"
+  },
+  "04085942-08a0-4394-bedd-705fa948ee4f": {
+   "kind": "card",
+   "storage_path": "156ef476-9142-4c39-b79b-24a883667c32/products/c1530523-72b1-4eaa-b5ac-6ca7804f1bca.jpg"
+  },
+  "42f7e8c3-682c-4365-8abf-a197f38cac99": {
+   "kind": "card",
+   "storage_path": "156ef476-9142-4c39-b79b-24a883667c32/products/805770d4-2c3e-4d1a-ab44-48c05dd595b9.jpg"
+  },
+  "f06f8daa-d654-4650-8bc8-2bc86b27bf92": {
+   "kind": "card",
+   "storage_path": "156ef476-9142-4c39-b79b-24a883667c32/products/6e0e44a1-7ab8-4cb9-9823-e255cc26111d.jpg"
+  }
+ }
+}

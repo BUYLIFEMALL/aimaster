@@ -16,11 +16,11 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `mall-builder` | 샘플몰 자료 채우기·시험 데이터 정리 | 맥미니 분양 검수 종료 | [후속 플랜](../../mall-builder/docs/PLAN_20261113_NEXT_SAMPLE_RESALE_INDEPENDENT.md) |
+| `mall-builder` | 샘플몰 시험 데이터 정리(S5) — 사진·설명 보강(S1)은 2026-11-19 완료 | 주인님 판단(지울지) | [후속 플랜](../../mall-builder/docs/PLAN_20261113_NEXT_SAMPLE_RESALE_INDEPENDENT.md) |
 | `mall-builder` | 쇼핑몰 사진 30일 실제 삭제·사용량 집계 | 메인 사이트 저장공간 담당 | [요청](../../mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md) |
-| `mall-builder` | 메이커 연계 M1~M3 | 바나나 P1 승인, 몰 사진 보관 기준(policy 담당) | [검토 결과](../../mall-builder/docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md) |
-| `mall-builder` | 독립몰 H3(프로셀 회원 이전) | 주인님: 프로셀 회원 목록 「검색」 결과(회원 수)·회원 엑셀 | [V-H 플랜](../../mall-builder/docs/PLAN_20261111_VH_OWN_MALL.md) |
-| `mall-builder` | 실제 운영 전 회사 고유 토스 키·볼타 라이브 키 전환 | 운영 전환 지시(지금은 예제·테스트 키) | [T0 플랜](../../mall-builder/docs/PLAN_20261112_T0_PROD_MIGRATION.md) |
+| `mall-builder` | 메이커 연계 M1~M3 — **진행 지시**(2026-11-19 주인님), Master: 몰쪽 M1 최소 범위 먼저 회신 | Master 회신 후 착수 | [검토 결과](../../mall-builder/docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md) |
+| `mall-builder` | ~~독립몰 H3(프로셀 회원 이전)~~ **하지 않음**(2026-11-19 주인님 「안해도 되」) | — | [V-H 플랜](../../mall-builder/docs/PLAN_20261111_VH_OWN_MALL.md) |
+| `mall-builder` | 토스·볼타 **라이브 키 전환 없음** — 시험 키로 기능 시험만, 실제 결제 시험은 최종 완성 단계(2026-11-19 주인님) | 최종 완성 단계 | [T0 플랜](../../mall-builder/docs/PLAN_20261112_T0_PROD_MIGRATION.md) |
 
 ## 최근 완료 (최근 10개)
 | 2026-11-18 | `crm-google-form` 1회 전송기·팔로우업 전송기·v2 스니펫·특수 키 보존 + 릴리스 준비표(Master 배정 단기) | 215bcfd33·467068d93·a90ba8a88·63f3df162·e2581d960 Mac PASS·수락, 릴리스 준비표(결과 문서 35절) — **미배포**, 승인 취합은 Master | 미배포 |
