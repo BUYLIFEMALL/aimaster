@@ -73,7 +73,7 @@ test("입력을 바꾸지 않고, 같은 입력에는 같은 결과를 낸다", 
 test("서버가 실제로 싣는 값의 집합과 맞는다: generation.ts는 저장 결과를 true·false·\"unknown\"으로만 싣는다", () => {
   // 화면 판정이 기대는 계약을 소스에서 다시 확인한다(응답 모양이 바뀌면 이 시험이 먼저 깨진다)
   assert.match(GENERATION, /assetSaved: timedOut \? "unknown" : s\.assetSaved,/);
-  assert.match(GENERATION, /if \(result\.status !== 200 \|\| !save\) return result;/, "저장을 시도하지 않은 응답에는 필드를 싣지 않는다");
+  assert.match(GENERATION, /if \(result\.status !== 200 \|\| !save\) return limitResponseBody\(result\);/, "저장을 시도하지 않은 응답에는 필드를 싣지 않는다");
 });
 
 // ───────────── B) 화면 소스 ─────────────
@@ -121,7 +121,7 @@ test("생성 화면: 저장 결과는 생성 응답에서 한 번 읽을 뿐이�
 
 test("생성 화면: 저장 결과와 상관없이 생성 결과·캡션·히스토리 기록 흐름은 그대로 이어진다", () => {
   const at = (needle) => { const i = STUDIO.indexOf(needle); assert.ok(i > 0, needle); return i; };
-  const order = [at("const generatedImageUrl = imgData.imageUrl;"), at("const assetNotice = assetSaveNotice(imgData);"), at('fetch("/api/generate-caption"'),
+  const order = [at("const generatedImageUrl = outcome.imageUrl;"), at("const assetNotice = assetSaveNotice(imgData);"), at('fetch("/api/generate-caption"'),
     at("imageUrl: generatedImageUrl,"), at("saveToHistory(generatedImageUrl, generatedCaptions, configToSubmit);")];
   assert.deepEqual([...order].sort((a, b) => a - b), order);
   assert.match(STUDIO, /saveToHistory\(generatedImageUrl, generatedCaptions, configToSubmit\);/);

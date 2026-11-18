@@ -9,6 +9,7 @@ import { GuideView } from "@/components/GuideView";
 import { HistoryDrawer } from "@/components/HistoryDrawer";
 import type { InfluencerConfig, GenerationResult, HistoryItem } from "@/types/influencer";
 import { assetSaveNotice } from "@/lib/assets/saveNotice";
+import { readGenerateResponse } from "@/lib/assets/generateResponse";
 import { collectReferences, prepareLastResultForRefine, referenceErrorMessage } from "@/lib/referenceImage";
 
 interface InfluencerStudioProps {
@@ -297,15 +298,18 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false }: 
         body: JSON.stringify(configToSubmit),
       });
 
-      const imgData = await imgRes.json();
-      if (!imgRes.ok) {
-        if (imgData.needApiKey) {
+      // 응답 해석은 한 곳에서(W01x): JSON이 아니거나 이미지가 실리지 않은 응답은 고정 문구로 끝낸다 —
+      // 아래의 캡션 호출·결과 표시·히스토리 기록으로 넘어가지 않고, 다시 생성하지도 않는다.
+      const outcome = await readGenerateResponse(imgRes);
+      if (outcome.kind !== "image") {
+        if (outcome.kind === "error" && outcome.needApiKey) {
           setIsApiKeyModalOpen(true);
         }
-        throw new Error(imgData.error || "이미지 생성 실패");
+        throw new Error(outcome.message);
       }
+      const imgData = outcome.body;
 
-      const generatedImageUrl = imgData.imageUrl;
+      const generatedImageUrl = outcome.imageUrl;
       // 원본 저장 결과 안내(W01v). 응답에 assetSaved가 없으면 null이라 화면이 예전과 같다. 안내만 한다 — 다시 생성·조회를 시작하지 않는다.
       const assetNotice = assetSaveNotice(imgData);
 

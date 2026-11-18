@@ -12,6 +12,14 @@ export const AIF_ASSETS_MODE: AssetsMode = "off";
 export const PRECHECK_TIMEOUT_MS = 10_000;
 export const SAVE_TIMEOUT_MS = 20_000;
 
+// 응답 크기 보호(W01x, 2026-11-18, 설계 W00_BASELINE §21). 플랫폼의 함수 응답 본문 한도(공식 문서 「4.5 MB」, 단위·바이트 수 미기재)보다
+// 작게 잡은 우리 쪽 상한이다. 성공 응답을 JSON으로 직렬화한 UTF-8 바이트가 이 값을 넘으면 이미지를 싣지 않은 작은 응답으로 바꾼다.
+//   * 넘지 않으면 본문은 예전과 바이트 단위로 같다(같은 객체를 그대로 돌려준다).
+//   * 이것은 우리가 먼저 끊는 것일 뿐이다. 플랫폼이 실제로 어느 크기에서 무엇을 돌려주는지는 확인하지 못했다.
+//   * 생성은 이미 끝났고 회원 키로 비용도 발생했다 — 그래서 「생성 실패」가 아니라 성공 응답에 imageOmitted를 싣는다. 다시 생성하지 않는다.
+export const RESPONSE_MAX_BYTES = 4_000_000;
+export const RESPONSE_TOO_LARGE_CODE = "RESPONSE_TOO_LARGE";
+
 import { handleGenerateImageRequest } from "../referenceImage";
 import { decodeGeneratedDataUrl, precheckGenerated, saveGeneratedOriginal, type AssetStoreDeps, type SaveResult } from "./store";
 
@@ -46,6 +54,21 @@ function withTimeout<T>(p: Promise<T>, ms: number, onTimeout: () => T): Promise<
   });
 }
 
+/** 성공 응답이 상한을 넘으면 이미지를 뺀 작은 응답으로 바꾼다. 원본 저장 결과(assetSaved·assetId·assetCode)는 받은 뜻 그대로 옮긴다. */
+export function limitResponseBody(r: HandlerResult): HandlerResult {
+  if (r.status !== 200) return r;
+  if (new TextEncoder().encode(JSON.stringify(r.body)).length <= RESPONSE_MAX_BYTES) return r;
+  const b = r.body;
+  const small: Record<string, unknown> = { success: true, imageOmitted: true, code: RESPONSE_TOO_LARGE_CODE };
+  // 값의 모양이 정해진 것만 옮긴다(큰 값이 다시 실리지 않게)
+  if (b.assetSaved === true || b.assetSaved === false || b.assetSaved === "unknown") small.assetSaved = b.assetSaved;
+  for (const k of ["assetId", "assetCode"] as const) {
+    const v = b[k];
+    if (typeof v === "string" && v.length > 0 && v.length <= 64) small[k] = v;
+  }
+  return { status: 200, body: small };
+}
+
 /** POST /api/generate-image 처리. 라우트는 이 결과를 그대로 JSON으로 돌려준다. */
 export async function handleGenerateImagePost(req: Request, deps: GenerateImagePostDeps): Promise<HandlerResult> {
   const auth = await deps.checkAccess();
@@ -56,7 +79,7 @@ export async function handleGenerateImagePost(req: Request, deps: GenerateImageP
   if (!apiKey) return { status: 400, body: { error: NEED_KEY_MESSAGE, needApiKey: true } };
 
   // off: 예전과 완전히 같은 경로(요청 검증 → 생성 1회 → 응답). 자산 의존성은 만들지도 부르지도 않는다.
-  if (deps.mode !== "shadow") return handleGenerateImageRequest(req, (config) => deps.generate(apiKey, config));
+  if (deps.mode !== "shadow") return limitResponseBody(await handleGenerateImageRequest(req, (config) => deps.generate(apiKey, config)));
 
   // shadow
   let stop: HandlerResult | null = null;
@@ -94,11 +117,11 @@ export async function handleGenerateImagePost(req: Request, deps: GenerateImageP
   });
 
   if (stop) return stop;
-  if (result.status !== 200 || !save) return result;
+  if (result.status !== 200 || !save) return limitResponseBody(result);
   const s = save as SaveResult;
   // 저장 시간 초과는 어디까지 진행됐는지 모르므로 「불명」으로 알린다
   const timedOut = (s as { code?: string }).code === "SAVE_TIMEOUT";
-  return {
+  return limitResponseBody({
     status: 200,
     body: {
       ...result.body,
@@ -106,5 +129,5 @@ export async function handleGenerateImagePost(req: Request, deps: GenerateImageP
       ...("assetId" in s && s.assetId ? { assetId: s.assetId } : {}),
       ...("code" in s && s.code ? { assetCode: s.code } : {}),
     },
-  };
+  });
 }
