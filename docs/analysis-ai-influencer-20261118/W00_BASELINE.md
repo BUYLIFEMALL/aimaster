@@ -365,7 +365,8 @@ PLAN §15 상태값에 `paused`를 **새 상태로 추가**하고, 이유는 별
 현재 상태: W00 문서 수락(2026-11-18) — 독립 검수 Mac CX-QA-01 `msg_56d01ad0e43d`가 고정본 6e781cafa 잔여 계약 정적 문서 PASS, Master `msg_b5fe5f4c6320` 수락. 검수 이력: 613ac1da4(반례 P1 3건) → a2c4a57cb → 34dbd1c17 → 6e781cafa. 수락 범위는 문서 계약까지이며 실제 RLS·경합·fencing·늦은 업로드·게시 ID 영속화는 구현 후 별도 검증
 이행 순서(미완 계약): 1) 새 표 aif_budget_limits·aif_asset_deletions와 함수 aif_asset_finalize·aif_asset_claim_delete를 PLAN §13·권한 계약에 병합(담당 Master 지정 대기) → 2) 그 전까지 자산·보관 코드와 migration 착수 0 → 3) 병합 후 W01 본체(§12) 배정 → 4) 공용 insta-posting·instagram-publish 수정은 기준 담당 조정(§13·§15-3)
 W01a(G1 문구 4곳): 5b9018d50, 미배포, Mac 국소 PASS·Master 수락
-W01b(G3 중 히스토리 정리 보관 예외만): 미배포, Mac 검수 대기 — 게시 기록 정리(cleanupOldPosts, 공용 사본)와 원본 자산은 범위 밖
+W01b(G3 중 히스토리 정리 보관 예외만): 8f453b9c4→07df29def→efeaca0c8, 미배포, Mac 지정 PASS(msg_ceee4fb0b230)·Master 소스 수락. 실DB·실삭제 증거 아님, insert 불명 rollback 결함은 W01 본체로 보존
+W01c(G1 연관 참고 이미지 MIME 고정): 읽기 계획만 Master 회신, 소스 범위 지정 대기 — 게시 기록 정리(cleanupOldPosts, 공용 사본)와 원본 자산은 범위 밖
 검증: 소스 정적 대조(경로·줄 위 표), 운영 DB 읽기(표·함수 존재, 건수)
 유료 호출: 0건 · 비용 없음
 DB: 해당 없음(읽기만) · 배포: 해당 없음
