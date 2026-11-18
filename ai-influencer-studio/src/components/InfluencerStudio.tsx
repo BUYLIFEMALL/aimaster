@@ -11,7 +11,7 @@ import type { InfluencerConfig, GenerationResult, HistoryItem } from "@/types/in
 import { assetSaveNotice } from "@/lib/assets/saveNotice";
 import { readGenerateResponse } from "@/lib/assets/generateResponse";
 import { collectReferences, prepareLastResultForRefine, referenceErrorMessage } from "@/lib/referenceImage";
-import { AssetFlowSession, CLIENT_MESSAGES, SESSION_MESSAGES, keepPhotosIfLocked, runViewGeneration, stripPhotoFields } from "@/lib/assets/clientFlow";
+import { AccountScope, AssetFlowSession, CLIENT_MESSAGES, SESSION_MESSAGES, bootstrapHistory, keepPhotosIfLocked, runViewGeneration, stripPhotoFields } from "@/lib/assets/clientFlow";
 
 interface InfluencerStudioProps {
   userEmail?: string | null;
@@ -50,8 +50,11 @@ function toHistoryJpeg(src: string): Promise<string> {
 type ServerHistory = { id: string; createdAt: string; imageUrl: string; captions: string[]; config: InfluencerConfig; summary: string };
 const fromServer = (h: ServerHistory): HistoryItem => ({ id: h.id, timestamp: formatHistoryTime(h.createdAt), imageUrl: h.imageUrl, captions: h.captions ?? [], config: h.config, summary: h.summary });
 
-async function postHistory(imageSrc: string, captions: string[], config: InfluencerConfig, summary: string): Promise<HistoryItem | null> {
-  return postHistoryJpeg(await toHistoryJpeg(imageSrc), captions, config, summary);
+/** alive(선택): 축소본을 만드는 동안 화면 인스턴스가 끝났으면(계정 전환·이탈) 보내지 않는다 — 새 계정 이름으로 저장되지 않게 */
+async function postHistory(imageSrc: string, captions: string[], config: InfluencerConfig, summary: string, alive?: () => boolean): Promise<HistoryItem | null> {
+  const jpeg = await toHistoryJpeg(imageSrc);
+  if (alive && !alive()) return null;
+  return postHistoryJpeg(jpeg, captions, config, summary);
 }
 
 /** 이미 줄여 둔 JPEG(data URL)를 히스토리로 보낸다 — postHistory의 뒷부분 그대로 */
@@ -114,6 +117,10 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
   // ── 자산 번호 흐름(W01-UII, assetFlow일 때만) ──
   // 세션은 화면·계정 단위다: 계정이 바뀌거나 화면을 떠나면 끝낸다(진행 중 요청 취소 + 메모리 사본 주소 해제 + 번호 기억 삭제).
   // 세대 확인·취소·중복 방지는 세션(src/lib/assets/clientFlow.ts)이 한다. assetFlow가 false면 세션을 만들지 않고 아래 코드는 기존 흐름과 같다.
+  // ── 계정 경계(W01-UII 보완) ── 이 화면 인스턴스는 한 계정의 것이다(진입점이 회원 id를 key로 준다 — 계정이 바뀌면 인스턴스가 새로 만들어진다).
+  // 인스턴스가 끝난 뒤에는 늦게 온 응답을 적용하지 않고, 뒤따르는 쓰기(캡션·히스토리 저장·이관)를 보내지 않는다. 이미 보낸 요청의 결과는 알 수 없다.
+  const scopeRef = useRef<AccountScope | null>(null);
+  const alive = () => scopeRef.current?.active === true;
   const sessionRef = useRef<AssetFlowSession | null>(null);
   const hadSessionRef = useRef(false);
   const [isReloadingAsset, setIsReloadingAsset] = useState(false);
@@ -126,7 +133,8 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
       revokeObjectURL: (url) => URL.revokeObjectURL(url),
     });
     sessionRef.current = session;
-    // 계정(또는 모드)이 바뀌어 세션을 새로 만든 경우: 앞 계정의 결과·번호·로딩·다시 불러오기 상태와 참고 사진을 새 세션에 남기지 않는다(첫 마운트에서는 하지 않는다)
+    // 같은 인스턴스 안에서 모드가 바뀌어 세션을 새로 만든 경우: 앞 세션의 결과·번호·로딩·다시 불러오기 상태와 참고 사진을 남기지 않는다(첫 마운트에서는 하지 않는다).
+    // 계정이 바뀌는 경우는 진입점의 key가 인스턴스 전체를 새로 만든다 — 이메일 글자로 계정을 판정하지 않는다
     if (hadSessionRef.current) {
       setResult({ imageUrl: null, captions: [], loading: false, error: null });
       setIsReloadingAsset(false);
@@ -137,7 +145,7 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
       session.dispose();
       if (sessionRef.current === session) sessionRef.current = null;
     };
-  }, [assetFlow, userEmail]);
+  }, [assetFlow]);
   // 참고 사진이 바뀌면 세션에 알린다 — 올리는 중이던 작업은 취소된다(생성 요청이 나간 뒤에는 아래 setConfigGuarded가 변경 자체를 막는다)
   useEffect(() => {
     sessionRef.current?.photosChanged();
@@ -148,32 +156,29 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
 
   // 마운트 시 사용자 API 키 상태 및 로컬 히스토리 로드
   useEffect(() => {
+    const scope = new AccountScope();
+    scopeRef.current = scope;
     checkApiKeyStatus();
 
-    void (async () => {
-      const load = async () => {
+    // 계정의 히스토리 불러오기 + 예전 브라우저 히스토리 이관(오래된 것부터 계정으로 옮기고 브라우저에서 지운다) — 순서는 예전과 같다.
+    // 기다릴 때마다 범위를 확인한다(bootstrapHistory): 인스턴스가 끝났으면 목록을 적용하지 않고 남은 이관 쓰기를 보내지 않는다
+    void bootstrapHistory<HistoryItem, HistoryItem>(scope, {
+      list: async () => {
         const res = await fetch("/api/history", { cache: "no-store" });
-        if (!res.ok) return;
+        if (!res.ok) return null;
         const d = await res.json();
-        setHistoryItems(((d.items ?? []) as ServerHistory[]).map(fromServer));
-      };
-      try {
-        await load();
-        // 예전 브라우저 히스토리가 남아 있으면 오래된 것부터 계정으로 옮기고 브라우저에서 지운다
+        return ((d.items ?? []) as ServerHistory[]).map(fromServer);
+      },
+      readLocal: () => {
         const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-        const local = saved ? (JSON.parse(saved) as HistoryItem[]) : [];
-        if (local.length) {
-          let moved = 0;
-          for (const item of [...local].reverse()) {
-            if (item?.imageUrl && (await postHistory(item.imageUrl, item.captions ?? [], item.config, item.summary ?? "").catch(() => null))) moved++;
-          }
-          if (moved === local.length) localStorage.removeItem(LOCAL_STORAGE_KEY);
-          await load();
-        }
-      } catch (e) {
-        console.warn("히스토리 로드 실패:", e);
-      }
-    })();
+        return saved ? (JSON.parse(saved) as HistoryItem[]) : [];
+      },
+      move: async (item) => !!(item?.imageUrl && (await postHistory(item.imageUrl, item.captions ?? [], item.config, item.summary ?? "", () => scope.active).catch(() => null))),
+      clearLocal: () => localStorage.removeItem(LOCAL_STORAGE_KEY),
+      apply: (items) => setHistoryItems(items),
+    }).catch((e) => console.warn("히스토리 로드 실패:", e));
+
+    return () => { scope.end(); };
   }, []);
 
   // 컨트롤 패널 내 스텝 스크롤 위치 감지 (사이드바 활성화 동기화)
@@ -257,8 +262,8 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
 
     // 화면에는 바로 보이고, 계정 저장이 끝나면 서버 값(id·보기 주소)으로 바꾼다
     setHistoryItems((cur) => [newItem, ...cur.slice(0, 29)]);
-    void postHistory(imageUrl, captions, usedConfig, newItem.summary)
-      .then((saved) => { if (saved) setHistoryItems((cur) => cur.map((h) => (h.id === newItem.id ? saved : h))); })
+    void postHistory(imageUrl, captions, usedConfig, newItem.summary, alive)
+      .then((saved) => { if (saved && alive()) setHistoryItems((cur) => cur.map((h) => (h.id === newItem.id ? saved : h))); })
       .catch((e) => console.warn("히스토리 저장 실패:", e));
   };
 
@@ -302,7 +307,7 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
     // 이미 보낸 요청의 결과(생성·차감)는 알 수 없다. assetFlow가 아니면 항상 참이라 기존 흐름과 같다.
     const startSession = sessionRef.current;
     const startStamp = startSession?.stamp ?? 0;
-    const stillMine = () => !assetFlow || (!!startSession && sessionRef.current === startSession && startSession.isCurrent(startStamp));
+    const stillMine = () => alive() && (!assetFlow || (!!startSession && sessionRef.current === startSession && startSession.isCurrent(startStamp)));
 
     // W01c(2026-11-18): 보정은 방금 만든 결과(data URL)만 보낸다 — 히스토리에서 불러온 결과(서명 주소)는 보내지 않고 안내.
     // 큰 결과는 보내기 전에 JPEG(긴 변 2048, 1MB 이하)로 맞춘다. 정상 새 생성 경로는 그대로.
@@ -442,7 +447,7 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
       // 히스토리용 축소본(긴 변 1440 JPEG data URL) — 화면의 임시 주소(blob:)와 무관한 독립 사본
       reduce: (src) => toHistoryJpeg(src).catch(() => null),
     });
-    if (sessionRef.current !== session) return;   // 계정·모드가 바뀌어 세션이 교체됐다 — 화면을 건드리지 않는다
+    if (sessionRef.current !== session || !alive()) return;   // 화면 인스턴스가 끝났거나 세션이 교체됐다 — 화면을 건드리지 않고 히스토리도 보내지 않는다
 
     if (done.kind === "ignore") return;
     if (done.kind === "cancelled") {
@@ -485,9 +490,10 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
       config: usedConfig,
       summary: `${usedConfig.age}세 ${usedConfig.ethnicity === "kr" ? "한국인" : "모델"} · ${usedConfig.location.slice(0, 15)}`,
     };
+    if (!alive()) return;
     setHistoryItems((cur) => [newItem, ...cur.slice(0, 29)]);
     void postHistoryJpeg(jpeg, captions, usedConfig, newItem.summary)
-      .then((saved) => { if (saved && sessionRef.current === session) setHistoryItems((cur) => cur.map((h) => (h.id === newItem.id ? saved : h))); })
+      .then((saved) => { if (saved && alive() && sessionRef.current === session) setHistoryItems((cur) => cur.map((h) => (h.id === newItem.id ? saved : h))); })
       .catch((e) => console.warn("히스토리 저장 실패:", e));
   };
 
@@ -523,6 +529,7 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
         body: JSON.stringify({ config, refinementRequest: captionFeedback }),
       });
       const data = await res.json();
+      if (!alive()) return;
       if (data.success && data.captions) {
         setResult((prev) => ({ ...prev, captions: data.captions }));
       }

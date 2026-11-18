@@ -825,7 +825,20 @@ test("화면 소스 형태(실행이 아니라 글자 확인): 기존 경로 호
   assert.match(studio, /assetFlow = false \}: InfluencerStudioProps/, "속성이 없으면 꺼짐");
   assert.match(studio, /if \(!assetFlow\) return;\s*const session = new AssetFlowSession/, "꺼져 있으면 세션을 만들지 않는다");
   assert.match(studio, /session\.dispose\(\);/);
-  assert.match(studio, /\}, \[assetFlow, userEmail\]\);/, "계정이 바뀌면 세션을 새로 만든다");
+  // 계정 경계: 진입점이 서버가 확인한 회원 id를 key로 준다(이메일 글자가 아니다) → 계정이 바뀌면 화면 인스턴스 전체가 새로 만들어진다
+  const page = readFileSync(new URL("../src/app/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /<InfluencerStudio key=\{user\.id\} /);
+  assert.match(page, /const user = await requireProgramAccess\(\);/, "key의 회원은 서버 세션에서 온다");
+  assert.equal(/key=\{[^}]*email/i.test(page), false);
+  assert.match(studio, /\}, \[assetFlow\]\);/, "세션 재생성은 이메일 글자에 기대지 않는다");
+  assert.equal(/\[assetFlow, userEmail\]/.test(studio), false);
+  // 인스턴스 범위: 만들고 끝낼 때 닫는다. 범위 확인이 뒤따르는 쓰기 앞에 있다
+  assert.match(studio, /const scope = new AccountScope\(\);\s*scopeRef\.current = scope;/);
+  assert.match(studio, /return \(\) => \{ scope\.end\(\); \};/);
+  assert.match(studio, /void bootstrapHistory<HistoryItem, HistoryItem>\(scope, \{/);
+  assert.match(studio, /const stillMine = \(\) => alive\(\) && \(!assetFlow \|\|/, "기존 흐름에서도 끝난 인스턴스는 캡션·히스토리를 보내지 않는다");
+  assert.match(studio, /void postHistory\(imageUrl, captions, usedConfig, newItem\.summary, alive\)/);
+  assert.match(studio, /const jpeg = await toHistoryJpeg\(imageSrc\);\s*if \(alive && !alive\(\)\) return null;/, "축소본을 만든 뒤, 보내기 전에 범위를 확인한다");
   assert.match(studio, /setConfig=\{assetFlow \? setConfigGuarded : setConfig\}/);
   assert.match(studio, /onReloadAsset=\{assetFlow \? handleReloadAsset : undefined\}/);
   // 보정은 기존 함수·기존 경로: 사본을 data URL로 바꿔 넘길 뿐이다
@@ -841,9 +854,11 @@ test("화면 소스 형태(실행이 아니라 글자 확인): 기존 경로 호
   assert.match(studio, /if \(hadSessionRef\.current\) \{\s*setResult\(\{ imageUrl: null, captions: \[\], loading: false, error: null \}\);\s*setIsReloadingAsset\(false\);\s*setConfig\(\(prev\) => \(\{ \.\.\.prev, personImage: undefined, placeImage: undefined, productImages: \[\], lastResultImage: undefined, feedback: undefined \}\)\);/);
   // 비동기 경계의 동일성 확인: 보정(기존 경로) 4곳 + 새 흐름·다시 받기의 세션 교체 확인
   assert.equal(studio.split("if (!stillMine()) return;").length - 1, 4);
-  assert.match(studio, /const stillMine = \(\) => !assetFlow \|\| \(!!startSession && sessionRef\.current === startSession && startSession\.isCurrent\(startStamp\)\);/, "꺼져 있으면 항상 참 — 기존 흐름 불변");
-  assert.equal(studio.split("if (sessionRef.current !== session) return;").length - 1, 2);
-  assert.match(studio, /if \(saved && sessionRef\.current === session\) setHistoryItems/, "교체된 세션의 히스토리 응답을 목록에 적용하지 않는다");
+  assert.match(studio, /const stillMine = \(\) => alive\(\) && \(!assetFlow \|\| \(!!startSession && sessionRef\.current === startSession && startSession\.isCurrent\(startStamp\)\)\);/, "살아 있는 인스턴스에서 꺼져 있으면 참 — 한 계정의 기존 흐름 불변");
+  assert.match(studio, /if \(sessionRef\.current !== session \|\| !alive\(\)\) return;/);
+  assert.match(studio, /if \(sessionRef\.current !== session\) return;/);
+  assert.match(studio, /if \(saved && alive\(\) && sessionRef\.current === session\) setHistoryItems/, "끝난 인스턴스·교체된 세션의 히스토리 응답을 목록에 적용하지 않는다");
+  assert.match(studio, /if \(saved && alive\(\)\) setHistoryItems/);
   assert.equal(studio.split('fetch("/api/generate-caption"').length - 1, 3, "기존 흐름 1 + 새 흐름 1 + 캡션 다시 쓰기 1");
   // 결과 표시: 버튼은 처리기가 있을 때만, 누를 때만
   assert.match(display, /result\.needsReload && !result\.imageUrl && !result\.loading && onReloadAsset &&/);
@@ -986,6 +1001,107 @@ test("작업 표지: stamp는 취소·새 생성·다시 받기·종료 때 바�
   assert.equal(s.isCurrent(d), true);
   s.dispose();
   assert.deepEqual([s.isCurrent(d), s.isCurrent(s.stamp)], [false, false], "종료된 세션은 어떤 표지도 현재가 아니다");
+});
+
+// ───────────── W01-UII 보완(Master msg_0d152d2d43b1): 계정 경계 — A → B 전환과 늦은 응답 ─────────────
+// 실제 전환은 진입점의 key(회원 id)가 화면 인스턴스를 새로 만드는 것이다(컴포넌트는 이 저장소에서 실행할 수 없다).
+// 여기서는 인스턴스마다 하나씩 있는 범위(AccountScope)와 히스토리 불러오기·이관(bootstrapHistory)을 가짜 서버로 실제 실행한다.
+const { AccountScope, bootstrapHistory } = F;
+/** 가짜 히스토리 서버: 「지금 로그인한 계정」(쿠키에 해당)에 따라 읽고 쓴다 */
+function historyServer() {
+  const store = { A: ["A1", "A2"], B: ["B1"] };
+  const state = { current: "A", posts: [] };
+  return { store, state,
+    list: (delay = 0) => async () => { const who = state.current; if (delay) await sleep(delay); return store[who].slice(); },
+    move: (delay = 0) => async (item) => { const who = state.current; state.posts.push([who, item]); if (delay) await sleep(delay); store[who].push(item); return true; },
+  };
+}
+
+test("계정 경계 — A → B: A의 화면 범위가 끝나면 늦게 온 A의 히스토리 목록을 적용하지 않는다. B의 범위는 B의 목록만 적용한다", async () => {
+  const srv = historyServer();
+  const screenA = []; const screenB = [];
+  const scopeA = new AccountScope();
+  const pA = bootstrapHistory(scopeA, { list: srv.list(40), readLocal: () => [], move: srv.move(), clearLocal: () => {}, apply: (items) => { screenA.push(items); } });
+  await sleep(10);
+  // 계정 전환: 진입점이 A의 인스턴스를 끝내고(B의 key) 새 인스턴스를 만든다
+  scopeA.end();
+  srv.state.current = "B";
+  const scopeB = new AccountScope();
+  const pB = bootstrapHistory(scopeB, { list: srv.list(5), readLocal: () => [], move: srv.move(), clearLocal: () => {}, apply: (items) => { screenB.push(items); } });
+  await Promise.all([pA, pB]);
+  assert.deepEqual(screenA, [], "A의 늦은 목록은 어디에도 적용되지 않았다");
+  assert.deepEqual(screenB, [["B1"]], "B의 화면에는 B의 목록만");
+  assert.deepEqual([scopeA.active, scopeB.active], [false, true]);
+  // 전환이 없으면 예전과 같다: 목록을 적용한다
+  const srv2 = historyServer(); const seen = [];
+  await bootstrapHistory(new AccountScope(), { list: srv2.list(), readLocal: () => [], move: srv2.move(), clearLocal: () => {}, apply: (items) => { seen.push(items); } });
+  assert.deepEqual(seen, [["A1", "A2"]]);
+  // 목록 실패(null)는 적용하지 않는다
+  const none = [];
+  await bootstrapHistory(new AccountScope(), { list: async () => null, readLocal: () => [], move: async () => true, clearLocal: () => {}, apply: (i) => { none.push(i); } });
+  assert.deepEqual(none, []);
+});
+
+test("계정 경계 — 뒤따르는 쓰기: A의 예전 브라우저 히스토리를 옮기는 도중 계정이 바뀌면 남은 건을 보내지 않는다(B 이름으로 저장되지 않게). 브라우저 저장도 지우지 않는다", async () => {
+  // 전환 없음: 오래된 것부터 모두 옮기고, 브라우저 저장을 지우고, 다시 불러와 적용한다(예전 순서 그대로)
+  let srv = historyServer(); let cleared = 0; let applied = [];
+  await bootstrapHistory(new AccountScope(), { list: srv.list(), readLocal: () => ["L3", "L2", "L1"], move: srv.move(), clearLocal: () => { cleared++; }, apply: (i) => { applied.push(i); } });
+  assert.deepEqual([srv.state.posts, cleared, applied.length, applied[1]], [[["A", "L1"], ["A", "L2"], ["A", "L3"]], 1, 2, ["A1", "A2", "L1", "L2", "L3"]]);
+  // 첫 건을 옮기는 동안 계정이 바뀜 → 이미 보낸 한 건 뒤로는 보내지 않는다
+  srv = historyServer(); cleared = 0; applied = [];
+  const scope = new AccountScope();
+  const p = bootstrapHistory(scope, { list: srv.list(), readLocal: () => ["L3", "L2", "L1"], move: srv.move(40), clearLocal: () => { cleared++; }, apply: (i) => { applied.push(i); } });
+  await sleep(15);
+  scope.end();
+  srv.state.current = "B";
+  await p;
+  assert.deepEqual(srv.state.posts, [["A", "L1"]], "전환 전에 보낸 한 건뿐 — 그 뒤의 쓰기는 시작하지 않았다");
+  assert.deepEqual([cleared, applied, srv.store.B], [0, [["A1", "A2"]], ["B1"]], "브라우저 저장을 지우지 않았고, 다시 불러오지 않았고, B에는 아무것도 저장되지 않았다");
+  // 마지막(하나뿐인) 건을 옮기는 동안 바뀜 → 그 뒤의 브라우저 저장 삭제·다시 불러오기를 하지 않는다
+  srv = historyServer(); cleared = 0; applied = []; let lists = 0;
+  const scopeLast = new AccountScope();
+  const pLast = bootstrapHistory(scopeLast, { list: async () => { lists++; return ["A1"]; }, readLocal: () => ["L1"], move: srv.move(40), clearLocal: () => { cleared++; }, apply: (i) => { applied.push(i); } });
+  await sleep(15); scopeLast.end();
+  await pLast;
+  assert.deepEqual([srv.state.posts.length, cleared, lists, applied.length], [1, 0, 1, 1]);
+  // 다 옮기고 다시 불러오는 동안 바뀜 → 늦게 온 목록을 적용하지 않는다(브라우저 저장은 이미 지웠다 — 옮기기가 끝난 뒤다)
+  cleared = 0; applied = []; lists = 0;
+  const scopeAgain = new AccountScope();
+  const pAgain = bootstrapHistory(scopeAgain, { list: async () => { if (++lists === 2) await sleep(40); return ["목록" + lists]; }, readLocal: () => ["L1"], move: async () => true, clearLocal: () => { cleared++; }, apply: (i) => { applied.push(i); } });
+  await sleep(15); scopeAgain.end();
+  await pAgain;
+  assert.deepEqual([cleared, lists, applied], [1, 2, [["목록1"]]]);
+  // 목록을 기다리는 동안 바뀜 → 이관을 시작하지도 않는다
+  srv = historyServer(); let moves = 0;
+  const scope2 = new AccountScope();
+  const p2 = bootstrapHistory(scope2, { list: srv.list(30), readLocal: () => ["L1"], move: async () => { moves++; return true; }, clearLocal: () => { cleared++; }, apply: () => { applied.push("x"); } });
+  await sleep(5); scope2.end();
+  await p2;
+  assert.equal(moves, 0);
+  // 옮기기가 던지거나 실패하면 그 건은 세지 않고, 모두 옮기지 못했으면 브라우저 저장을 남긴다(예전과 같다)
+  let k = 0; cleared = 0;
+  await bootstrapHistory(new AccountScope(), { list: async () => [], readLocal: () => ["a", "b"], move: async () => { if (++k === 1) throw new Error("boom"); return true; }, clearLocal: () => { cleared++; }, apply: () => {} });
+  assert.equal(cleared, 0);
+});
+
+test("계정 경계 — 늦은 생성 결과: A의 세션이 끝난 뒤 도착한 결과는 적용되지 않고, 캡션·축소본(히스토리의 재료) 요청도 시작하지 않는다. B의 세션에는 A의 번호가 없다", async () => {
+  // A: 생성 응답 대기 중 계정 전환(인스턴스 종료 = 세션 dispose + 범위 end)
+  let releaseA;
+  const netA = net({ generate: () => new Promise((res) => { releaseA = () => res(json(200, { assetId: RESULT_ID, assetSaved: true, signedUrl: signed() })); }) });
+  const uA = urls(); const sA = session(netA, uA); const scopeA = new AccountScope();
+  const ioA = viewIo();
+  const pA = runViewGeneration(sA, CONFIG, ioA.io);
+  await sleep(20);
+  sA.dispose(); scopeA.end();
+  // B: 새 인스턴스
+  const netB = net(); const sB = session(netB, urls());
+  releaseA();
+  assert.deepEqual([await pA, ioA.log, uA.made.length, scopeA.active], [{ kind: "ignore" }, [], 0, false]);
+  assert.deepEqual([sB.memory.size, sB.currentAssetId, sB.hasResultCopy], [0, null, false]);
+  const rB = await runViewGeneration(sB, CONFIG, viewIo().io);
+  assert.deepEqual([rB.kind, netB.count("upload")], ["done", 4], "B는 A가 올린 번호를 쓰지 않고 자기 사진을 올린다");
+  // 이미 보낸 요청은 취소를 보장하지 않는다: A의 생성 요청은 한 번 나갔고(서버에서 계속될 수 있다) 다시 보내지도 않았다
+  assert.equal(netA.count("generate"), 1);
 });
 
 test("처리되지 않은 거부가 하나도 없다", async () => {

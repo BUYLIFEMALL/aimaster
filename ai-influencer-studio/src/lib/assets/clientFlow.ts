@@ -634,6 +634,51 @@ export async function runViewGeneration(session: AssetFlowSession, config: Recor
   };
 }
 
+// ───────────── 계정 경계(W01-UII 보완) — 한 계정의 화면 인스턴스가 살아 있는 동안만 결과를 적용하고 뒤따르는 쓰기를 보낸다 ─────────────
+// 계정이 바뀌면 화면 진입점이 화면 전체를 새로 만든다(key = 서버가 확인한 회원 id). 그때 앞 인스턴스의 범위는 끝난다(end).
+// 끝난 범위에서는: 늦게 온 응답을 목록·결과에 적용하지 않고, 뒤따르는 쓰기(캡션·히스토리 저장·이관)를 새로 보내지 않는다 —
+// 브라우저의 로그인 쿠키는 이미 새 계정의 것이므로, 앞 계정의 작업이 낸 쓰기는 새 계정 이름으로 저장되기 때문이다.
+// 이미 보낸 요청은 취소를 보장하지 않으며 그 결과(어느 계정에 어떻게 처리됐는지)는 알 수 없다.
+export class AccountScope {
+  private alive = true;
+  get active(): boolean { return this.alive; }
+  end(): void { this.alive = false; }
+}
+
+export type HistoryBootIo<Item, Local> = {
+  /** 계정의 히스토리 목록(GET). 실패하면 null */
+  list: () => Promise<Item[] | null>;
+  /** 예전 브라우저 저장 히스토리(이 브라우저에 남아 있던 것) */
+  readLocal: () => Local[];
+  /** 그 한 건을 계정으로 옮긴다(POST). 옮겼으면 true */
+  move: (item: Local) => Promise<boolean>;
+  clearLocal: () => void;
+  /** 목록을 화면에 적용한다 — 범위가 살아 있을 때만 불린다 */
+  apply: (items: Item[]) => void;
+};
+
+/** 화면을 열 때의 히스토리 불러오기 + 예전 브라우저 히스토리 이관. 기다릴 때마다 범위를 확인한다:
+ *  끝난 범위면 목록을 적용하지 않고, 남은 이관 쓰기·브라우저 저장 삭제·다시 불러오기를 시작하지 않는다 */
+export async function bootstrapHistory<Item, Local>(scope: AccountScope, io: HistoryBootIo<Item, Local>): Promise<void> {
+  const first = await io.list();
+  if (!scope.active) return;
+  if (first) io.apply(first);
+  const local = io.readLocal();
+  if (!local.length) return;
+  let moved = 0;
+  for (const item of [...local].reverse()) {
+    if (!scope.active) return;                                 // 계정이 바뀌었다 — 남은 건을 새 계정 이름으로 보내지 않는다
+    let ok = false;
+    try { ok = await io.move(item); } catch { ok = false; }
+    if (ok) moved++;
+  }
+  if (!scope.active) return;
+  if (moved === local.length) io.clearLocal();
+  const again = await io.list();
+  if (!scope.active) return;
+  if (again) io.apply(again);
+}
+
 /** 생성 요청이 나간 동안(locked)에는 참고 사진 칸의 변경을 받지 않는다 — 그 밖의 칸은 그대로 받는다. locked가 아니면 next 그대로 */
 export function keepPhotosIfLocked<T extends object>(prev: T, next: T, locked: boolean): T {
   if (!locked) return next;
