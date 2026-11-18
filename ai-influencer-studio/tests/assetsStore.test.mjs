@@ -220,3 +220,95 @@ test("precheckGenerated: 화질별 예상 크기로 조회, denied만 막음, �
   assert.deepEqual(await precheckGenerated(g.deps, "bad-user", "1K"), { status: "unavailable" });
   assert.equal(g.calls.length, 0);
 });
+
+// ───────────── W01-G3S(2026-11-19, Master msg_2b300b6fcc29): 선택적 저장 진행 신호 ─────────────
+test("진행 신호: 주지 않거나 비어 있으면(또는 멈추지 않으면) 결과와 호출 순서가 예전과 완전히 같다", async () => {
+  const scenarios = [
+    {},
+    { upload: () => { throw new Error("boom"); } },
+    { aif_asset_finalize: () => ({ data: null, error: { message: "boom" } }) },
+    { aif_asset_reserve: () => ({ data: null, error: { message: "STORAGE_LIMIT" } }) },
+    { aif_asset_reserve: (a) => ({ data: [{ asset_id: ASSET, path: `${a.p_user}/generated/other.png` }], error: null }) },
+  ];
+  for (const over of scenarios) {
+    const base = fake(over); const r0 = await saveGeneratedOriginal(base.deps, { userId: U, bytes: PNG });
+    for (const progress of [undefined, {}, { shouldStop: () => false }, { onReserved: () => {} }, { shouldStop: () => { throw new Error("x"); } }, { shouldStop: () => "yes" }]) {
+      const f = fake(over);
+      const r = await saveGeneratedOriginal(f.deps, { userId: U, bytes: PNG }, progress);
+      assert.deepEqual(r, r0);
+      assert.deepEqual(f.names(), base.names());
+    }
+  }
+});
+
+test("진행 신호 onReserved: 검증된 본인 예약 번호를 확보한 직후(업로드 전) 한 번만 — 번호·경로가 계약과 다르면 부르지 않는다", async () => {
+  // 정상: 예약 뒤·업로드 전에 한 번
+  let f = fake(); const seen = [];
+  let r = await saveGeneratedOriginal(f.deps, { userId: U, bytes: PNG }, { onReserved: (id) => { seen.push([id, f.names().slice()]); } });
+  assert.deepEqual(r, { assetSaved: true, assetId: ASSET });
+  assert.deepEqual(seen, [[ASSET, ["aif_asset_reserve"]]]);
+  // 던지는 알림은 저장을 막지 않는다
+  f = fake();
+  r = await saveGeneratedOriginal(f.deps, { userId: U, bytes: PNG }, { onReserved: () => { throw new Error("listener boom"); } });
+  assert.deepEqual([r, f.names()], [{ assetSaved: true, assetId: ASSET }, ["aif_asset_reserve", "upload", "aif_asset_finalize"]]);
+  // 부르지 않는 경우: 예약 실패 · 번호 모양 이상 · 0행/2행 · 다른 회원 경로 · 다른 번호 경로 · 로컬 검증 실패
+  const bad = [
+    { aif_asset_reserve: () => ({ data: null, error: { message: "boom" } }) },
+    { aif_asset_reserve: () => ({ data: [{ asset_id: "not-a-uuid", path: "x" }], error: null }) },
+    { aif_asset_reserve: () => ({ data: [], error: null }) },
+    { aif_asset_reserve: (a) => ({ data: [{ asset_id: ASSET, path: `${a.p_user}/generated/${ASSET}.png` }, { asset_id: ASSET, path: "x" }], error: null }) },
+    { aif_asset_reserve: () => ({ data: [{ asset_id: ASSET, path: `00000000-1111-4222-8333-444444444444/generated/${ASSET}.png` }], error: null }) },
+    { aif_asset_reserve: (a) => ({ data: [{ asset_id: ASSET, path: `${a.p_user}/generated/${OBJ}.png` }], error: null }) },
+    { aif_asset_reserve: (a) => ({ data: [{ asset_id: ASSET, path: `${a.p_user}/ref_face/${ASSET}.png` }], error: null }) },
+  ];
+  for (const over of bad) {
+    let called = 0;
+    f = fake(over);
+    r = await saveGeneratedOriginal(f.deps, { userId: U, bytes: PNG }, { onReserved: () => { called++; } });
+    assert.deepEqual([called, r.assetSaved, f.names().includes("upload")], [0, false, false]);
+  }
+  let called = 0;
+  f = fake();
+  r = await saveGeneratedOriginal(f.deps, { userId: U, bytes: GIF }, { onReserved: () => { called++; } });
+  assert.deepEqual([called, f.names()], [0, []]);
+});
+
+test("진행 신호 shouldStop: 멈추라는 신호 뒤에는 다음 쓰기(예약·해제·업로드·확정·대조)를 시작하지 않는다 — 이미 보낸 쓰기의 결과는 그대로 쓴다", async () => {
+  // 처음부터 멈춤 → 예약도 보내지 않는다
+  let f = fake();
+  assert.deepEqual([await saveGeneratedOriginal(f.deps, { userId: U, bytes: PNG }, { shouldStop: () => true }), f.names()], [{ assetSaved: false, code: "SAVE_STOPPED" }, []]);
+  // 예약을 보낸 뒤 멈춤 → 번호는 알리고, 업로드를 시작하지 않는다. 해제(abort)도 하지 않는다
+  let stop = false; let reserved = null;
+  const ok = (a) => ({ data: [{ asset_id: ASSET, path: `${a.p_user}/generated/${ASSET}.${a.p_ext}` }], error: null });
+  f = fake({ aif_asset_reserve: (a) => { stop = true; return ok(a); } });
+  let r = await saveGeneratedOriginal(f.deps, { userId: U, bytes: PNG }, { shouldStop: () => stop, onReserved: (id) => { reserved = id; } });
+  assert.deepEqual([r, f.names(), reserved], [{ assetSaved: false, code: "SAVE_STOPPED", assetId: ASSET }, ["aif_asset_reserve"], ASSET]);
+  // 예약 응답의 경로가 계약과 다름 + 멈춤 → 해제를 시작하지 않는다(알림 0)
+  stop = false; reserved = null;
+  f = fake({ aif_asset_reserve: (a) => { stop = true; return { data: [{ asset_id: ASSET, path: `${a.p_user}/generated/other.png` }], error: null }; } });
+  r = await saveGeneratedOriginal(f.deps, { userId: U, bytes: PNG }, { shouldStop: () => stop, onReserved: (id) => { reserved = id; } });
+  assert.deepEqual([r, f.names(), reserved], [{ assetSaved: false, code: "SAVE_STOPPED", assetId: ASSET }, ["aif_asset_reserve"], null]);
+  // 업로드를 보낸 뒤 멈춤(업로드 성공) → 확정을 시작하지 않는다. 불명
+  stop = false;
+  f = fake({ upload: (path) => { stop = true; return { data: { id: OBJ, path, fullPath: `aif-assets/${path}` }, error: null }; } });
+  r = await saveGeneratedOriginal(f.deps, { userId: U, bytes: PNG }, { shouldStop: () => stop });
+  assert.deepEqual([r, f.names()], [{ assetSaved: "unknown", code: "SAVE_STOPPED", assetId: ASSET }, ["aif_asset_reserve", "upload"]]);
+  // 업로드를 보낸 뒤 멈춤(업로드 실패·던짐) → 대조를 시작하지 않는다
+  for (const upload of [() => { stop = true; throw new Error("boom"); }, () => { stop = true; return { data: null, error: { message: "boom" } }; }]) {
+    stop = false;
+    f = fake({ upload });
+    r = await saveGeneratedOriginal(f.deps, { userId: U, bytes: PNG }, { shouldStop: () => stop });
+    assert.deepEqual([r, f.names()], [{ assetSaved: "unknown", code: "SAVE_STOPPED", assetId: ASSET }, ["aif_asset_reserve", "upload"]]);
+  }
+  // 확정을 보낸 뒤 멈춤: 확정이 ready라고 답했으면 그 결과를 쓴다(이미 보낸 쓰기) / 답이 불명이면 대조를 시작하지 않는다
+  stop = false;
+  f = fake({ aif_asset_finalize: () => { stop = true; return { data: "ready", error: null }; } });
+  r = await saveGeneratedOriginal(f.deps, { userId: U, bytes: PNG }, { shouldStop: () => stop });
+  assert.deepEqual([r, f.names()], [{ assetSaved: true, assetId: ASSET }, ["aif_asset_reserve", "upload", "aif_asset_finalize"]]);
+  stop = false;
+  f = fake({ aif_asset_finalize: () => { stop = true; return { data: null, error: { message: "boom" } }; } });
+  r = await saveGeneratedOriginal(f.deps, { userId: U, bytes: PNG }, { shouldStop: () => stop });
+  assert.deepEqual([r, f.names()], [{ assetSaved: "unknown", code: "SAVE_STOPPED", assetId: ASSET }, ["aif_asset_reserve", "upload", "aif_asset_finalize"]]);
+  // 어느 경우에도 삭제·재업로드 0
+  assert.equal(f.names().some((n) => /delete|remove|abort/.test(n)), false);
+});

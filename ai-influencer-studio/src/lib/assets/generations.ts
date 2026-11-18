@@ -370,14 +370,24 @@ export async function handlePostGeneration(req: Request, deps: GenerationsDeps):
   const imageUrl = gen.value;
   if (typeof imageUrl !== "string") return out(500, { error: GENERATIONS_MESSAGES.GENERATION_FAILED, code: "GENERATION_FAILED", providerCode: "UNKNOWN" });
 
-  // ⑩ 원본 저장(기존 흐름) — 남은 시간 안에서만 기다린다. 상한을 넘으면 어디까지 됐는지 모르므로 불명
+  // ⑩ 원본 저장(기존 흐름) — 남은 시간 안에서만 기다린다. 상한을 넘으면 어디까지 됐는지 모르므로 불명(W01-G3S)
+  //  * 저장 모듈이 「검증된 본인 예약 번호」를 확보하면 알려 준다 → 끝까지 기다리지 못해도 그 번호를 응답에 싣는다(나중에 조회 경로로 회수).
+  //  * 상한이 지나면 saveStopped를 세운다 → 저장 모듈은 다음 쓰기(예약·업로드·확정·대조·해제)를 시작하지 않는다.
+  //    이미 보낸 쓰기는 취소하지 못하며 성공 여부도 모른다. 예약 응답을 받지 못해 번호가 없으면 번호 없는 불명으로 둔다(다시 보내지 않는다).
+  let saveStopped = false;
+  let reservedAssetId: string | null = null;
   const saved = await bounded<SaveResult>(async () => {
     const bytes = decodeGeneratedDataUrl(imageUrl);
     if (!bytes) return { assetSaved: false, code: "ASSET_FORMAT" };
-    return saveGeneratedOriginal(assets, { userId, bytes });
-  }, Math.min(L.saveMs, left() - L.signMs - L.marginMs));
-  const save: SaveResult | { assetSaved: "unknown"; code: "SAVE_TIMEOUT"; assetId?: undefined } =
-    saved.kind === "ok" ? saved.value : { assetSaved: "unknown", code: "SAVE_TIMEOUT" };
+    return saveGeneratedOriginal(assets, { userId, bytes }, {
+      onReserved: (id) => { if (isCanonicalUuid(id)) reservedAssetId = id; },
+      shouldStop: () => saveStopped,
+    });
+  }, Math.min(L.saveMs, left() - L.signMs - L.marginMs), () => { saveStopped = true; });
+  saveStopped = true;                                           // 응답을 정한 뒤에는 어떤 경우에도 새 저장 쓰기를 시작하지 않는다
+  const timedOutId: string | null = reservedAssetId;            // 응답을 정하는 이 시점의 값만 쓴다(늦게 온 알림은 응답에 반영되지 않는다)
+  const save: SaveResult | { assetSaved: "unknown"; code: "SAVE_TIMEOUT"; assetId?: string } =
+    saved.kind === "ok" ? saved.value : { assetSaved: "unknown", code: "SAVE_TIMEOUT", ...(timedOutId ? { assetId: timedOutId } : {}) };
 
   // ⑪⑫ 저장이 확인됐으면 이미지 바이트 없이 번호와 짧은 서명 주소만
   if (save.assetSaved === true) {

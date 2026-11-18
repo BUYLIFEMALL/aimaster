@@ -122,15 +122,23 @@ export async function precheckGenerated(deps: Pick<AssetStoreDeps, "rpc">, userI
 
 export type SaveCode =
   | "INVALID_USER" | VerifyCode | "STORAGE_LIMIT" | "RESERVE_FAILED" | "RESERVE_SHAPE"   // 저장소 요청 전 — 저장 안 됨 확정
-  | "UPLOAD_UNKNOWN" | "FINALIZE_UNKNOWN" | "NOT_CONFIRMED";                              // 저장소 요청 뒤 — 불명
+  | "UPLOAD_UNKNOWN" | "FINALIZE_UNKNOWN" | "NOT_CONFIRMED"                               // 저장소 요청 뒤 — 불명
+  | "SAVE_STOPPED";                                                                        // 호출부가 멈추라고 해서 다음 쓰기를 시작하지 않음(진행 신호를 준 호출만)
 export type SaveResult =
   | { assetSaved: true; assetId: string }
   | { assetSaved: false; code: SaveCode; assetId?: string }
   | { assetSaved: "unknown"; code: SaveCode; assetId: string };
 
-/** 서버가 들고 있는 생성 원본을 비공개 자산으로 저장한다. 던지지 않는다. */
-export function saveGeneratedOriginal(deps: AssetStoreDeps, input: { userId: unknown; bytes: unknown }): Promise<SaveResult> {
-  return saveAsset(deps, input, "generated", verifyGeneratedBytes);
+/** 저장 진행 신호(선택, W01-G3S). 주지 않으면 저장 동작·결과는 예전과 완전히 같다.
+ *  - onReserved: **검증된 본인 예약 번호**를 확보한 직후 한 번 불린다(번호가 정규 UUID이고, 예약이 돌려준 경로가 「그 회원/종류/그 번호.확장자」 계약과 같을 때만).
+ *    호출부는 이 번호를 기억해 두었다가, 저장을 끝까지 기다리지 못해도 응답에 실을 수 있다. 던져도 저장을 막지 않는다.
+ *  - shouldStop: 새 저장 쓰기(예약·업로드·확정·대조·해제)를 **시작하기 직전마다** 불린다. true면 그 쓰기를 시작하지 않고 SAVE_STOPPED로 끝낸다.
+ *    이미 보낸 쓰기는 취소하지 않으며 그 성공 여부도 단정하지 않는다. 던지면 멈추지 않는 것으로 본다. */
+export type SaveProgress = { onReserved?: (assetId: string) => void; shouldStop?: () => boolean };
+
+/** 서버가 들고 있는 생성 원본을 비공개 자산으로 저장한다. 던지지 않는다. progress는 선택 — 없으면 예전과 같다. */
+export function saveGeneratedOriginal(deps: AssetStoreDeps, input: { userId: unknown; bytes: unknown }, progress?: SaveProgress): Promise<SaveResult> {
+  return saveAsset(deps, input, "generated", verifyGeneratedBytes, progress);
 }
 
 /** 회원이 올린 참고 이미지 한 장을 비공개 자산으로 저장한다(W01-A2I). 던지지 않는다. 저장 순서·불명 처리·응답 모양은 생성 원본과 같다.
@@ -141,9 +149,13 @@ export function saveReferenceImage(deps: AssetStoreDeps, input: { userId: unknow
 }
 
 /** 저장 뼈대: 로컬 검증 → 예약 → 업로드(덮어쓰기 금지) → 확정. 생성 원본과 참고 이미지가 함께 쓴다(다른 것은 kind와 검증기뿐). */
-async function saveAsset(deps: AssetStoreDeps, input: { userId: unknown; bytes: unknown }, kind: AssetKind, verify: Verifier): Promise<SaveResult> {
+async function saveAsset(deps: AssetStoreDeps, input: { userId: unknown; bytes: unknown }, kind: AssetKind, verify: Verifier, progress?: SaveProgress): Promise<SaveResult> {
   let reservedId: string | null = null;   // 예약으로 받은 자산 id
   let uploadStarted = false;              // 저장소 요청을 시작했는가(시작했으면 이후 실패는 모두 불명)
+  /** 다음 쓰기를 시작하지 말아야 하는가. 신호가 없거나 던지면 false(예전 동작) */
+  const stop = (): boolean => {
+    try { return progress?.shouldStop?.() === true; } catch { return false; }
+  };
   try {
     const userId = input.userId;
     if (!isCanonicalUuid(userId)) return { assetSaved: false, code: "INVALID_USER" };
@@ -153,6 +165,7 @@ async function saveAsset(deps: AssetStoreDeps, input: { userId: unknown; bytes: 
     const bytes = input.bytes as Uint8Array;
 
     // 2) 예약
+    if (stop()) return { assetSaved: false, code: "SAVE_STOPPED" };                          // 아무것도 보내지 않았다
     const res = await callRpc(deps.rpc, "aif_asset_reserve", { p_user: userId, p_kind: kind, p_mime: v.value.mime, p_ext: v.value.ext, p_bytes: v.value.bytes, p_sha256: v.value.sha256 });
     if (!res.ok) return { assetSaved: false, code: /STORAGE_LIMIT/.test(res.errorText) ? "STORAGE_LIMIT" : "RESERVE_FAILED" };
     const row = singleRow(res.data);   // 정확히 1행만. 0행·2행·객체·null·원시값이면 예약 id를 인정하지 않는다(업로드 0, abort 0)
@@ -166,9 +179,14 @@ async function saveAsset(deps: AssetStoreDeps, input: { userId: unknown; bytes: 
     }
     if (!expectedPath || row?.path !== expectedPath) {
       // 예약은 됐지만 경로가 계약과 다르다 → 저장소에 아무것도 보내지 않았음이 확정 → 유일한 해제 경로
+      if (stop()) return { assetSaved: false, code: "SAVE_STOPPED", assetId };              // 해제도 새 쓰기다 — 시작하지 않는다(예약은 남는다)
       await callRpc(deps.rpc, "aif_asset_abort_local", { p_asset: assetId, p_user: userId });
       return { assetSaved: false, code: "RESERVE_SHAPE", assetId };
     }
+
+    // 검증된 본인 예약 번호 확보 — 호출부에 알린다(선택). 알림이 던져도 저장은 계속한다
+    try { progress?.onReserved?.(assetId); } catch { /* 버린다 */ }
+    if (stop()) return { assetSaved: false, code: "SAVE_STOPPED", assetId };                // 업로드를 시작하지 않았다(예약 행은 남는다 — 해제하지 않는다)
 
     // 3) 업로드(덮어쓰기 금지). 여기서부터의 모든 실패는 「불명」 — 삭제·재업로드·abort 0
     reservedId = assetId;
@@ -182,6 +200,9 @@ async function saveAsset(deps: AssetStoreDeps, input: { userId: unknown; bytes: 
       objectId = null;
     }
 
+    // 업로드를 보낸 뒤다 — 멈추라는 신호가 있으면 확정·대조를 시작하지 않는다. 저장 여부는 불명
+    if (stop()) return { assetSaved: "unknown", code: "SAVE_STOPPED", assetId };
+
     // 4) 확정 — 객체 id가 있을 때만
     if (objectId) {
       const fin = await callRpc(deps.rpc, "aif_asset_finalize", { p_asset: assetId, p_user: userId, p_object_id: objectId });
@@ -189,6 +210,7 @@ async function saveAsset(deps: AssetStoreDeps, input: { userId: unknown; bytes: 
       if (known && fin.data === "ready") return { assetSaved: true, assetId };
       if (known) return { assetSaved: "unknown", code: "NOT_CONFIRMED", assetId };   // DB가 알려진 상태로 ready가 아니라고 명시 응답(unknown·삭제 진행 등) — 대조 불필요
       // 확정 응답 불명(오류·던짐·undefined·null·boolean·객체·모르는 문자열) → 같은 객체 id로 대조 1회
+      if (stop()) return { assetSaved: "unknown", code: "SAVE_STOPPED", assetId };
       const rec = await callRpc(deps.rpc, "aif_asset_reconcile", { p_asset: assetId, p_user: userId, p_expected_object_id: objectId });
       if (rec.ok && rec.data === "ready") return { assetSaved: true, assetId };
       return { assetSaved: "unknown", code: "FINALIZE_UNKNOWN", assetId };

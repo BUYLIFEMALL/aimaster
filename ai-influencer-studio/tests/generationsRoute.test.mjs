@@ -768,6 +768,84 @@ test("불변: 어떤 사례에서도 생성은 최대 1회이고, 성공·실패
   for (const m of Object.values(M)) assert.match(m, /(니다|세요)\.$/, "한국어 존댓말 고정 문구");
 });
 
+// ───────────── W01-G3S(2026-11-19, Master msg_2b300b6fcc29): 저장 시간 초과 — 번호 유지·새 쓰기 미시작 ─────────────
+const writes = (w) => w.calls.filter((c) => c !== "aif_asset_precheck" && c !== "row" && c !== "download");
+
+test("저장 시간 초과 — 예약 응답 대기 중: 번호 없는 명시적 불명. 예약 응답이 늦게 와도(또는 유실돼도) 업로드·해제를 시작하지 않고 다시 보내지 않는다", async () => {
+  // 예약 응답이 영영 오지 않음(유실)
+  let w = world({ handlers: { aif_asset_reserve: never } });
+  let r = await post(w, { config: CONFIG }, { limits: { saveMs: 30 } });
+  assert.deepEqual([r.status, r.body], [200, { success: true, imageUrl: RESULT, assetSaved: "unknown", assetCode: "SAVE_TIMEOUT" }]);
+  await sleep(60);
+  assert.deepEqual([writes(w), w.n.generate, w.n.signs], [["aif_asset_reserve"], 1, 0], "예약은 한 번만 보냈다");
+  // 예약 응답이 상한 뒤에 정상 도착 → 응답에는 번호가 없고, 그 뒤 업로드를 시작하지 않는다
+  w = world({ handlers: { aif_asset_reserve: async (a) => { await sleep(70); return { data: [{ asset_id: NEW_ASSET, path: `${a.p_user}/generated/${NEW_ASSET}.${a.p_ext}` }], error: null }; } } });
+  r = await post(w, { config: CONFIG }, { limits: { saveMs: 30 } });
+  assert.deepEqual(r.body, { success: true, imageUrl: RESULT, assetSaved: "unknown", assetCode: "SAVE_TIMEOUT" });
+  await sleep(120);
+  assert.deepEqual(writes(w), ["aif_asset_reserve"], "늦게 온 예약 뒤에 업로드·해제·대조를 시작하지 않았다");
+  // 예약 응답이 늦게 왔는데 경로가 계약과 다름 → 해제(abort)도 시작하지 않는다
+  w = world({ handlers: { aif_asset_reserve: async (a) => { await sleep(70); return { data: [{ asset_id: NEW_ASSET, path: `${a.p_user}/generated/other.png` }], error: null }; } } });
+  r = await post(w, { config: CONFIG }, { limits: { saveMs: 30 } });
+  await sleep(120);
+  assert.deepEqual([r.body.assetSaved, "assetId" in r.body, writes(w)], ["unknown", false, ["aif_asset_reserve"]]);
+});
+
+test("저장 시간 초과 — 업로드 중: 확보한 예약 번호를 불명 응답에 유지한다. 업로드가 늦게 끝나도 확정·대조를 시작하지 않는다", async () => {
+  for (const upload of [never, async (path) => { await sleep(70); return { data: { id: OBJ, path, fullPath: `aif-assets/${path}` }, error: null }; }, async () => { await sleep(70); throw new Error("late upload boom"); }]) {
+    const w = world({ handlers: { upload } });
+    const r = await post(w, { config: CONFIG }, { limits: { saveMs: 30 } });
+    assert.deepEqual([r.status, r.body], [200, { success: true, imageUrl: RESULT, assetSaved: "unknown", assetId: NEW_ASSET, assetCode: "SAVE_TIMEOUT" }]);
+    await sleep(120);
+    assert.deepEqual([writes(w), w.n.generate, w.n.signs], [["aif_asset_reserve", "upload"], 1, 0], "업로드 뒤 새 쓰기 0");
+    assertNoLeak(r);
+  }
+});
+
+test("저장 시간 초과 — 확정 중: 번호를 유지한다. 확정이 늦게 실패해도 대조를 시작하지 않고, 늦게 성공해도 응답은 「불명」 그대로다(성공 단정 0)", async () => {
+  // 확정이 늦게 오류
+  let w = world({ handlers: { aif_asset_finalize: async () => { await sleep(70); return { data: null, error: { message: "boom" } }; } } });
+  let r = await post(w, { config: CONFIG }, { limits: { saveMs: 30 } });
+  assert.deepEqual(r.body, { success: true, imageUrl: RESULT, assetSaved: "unknown", assetId: NEW_ASSET, assetCode: "SAVE_TIMEOUT" });
+  await sleep(120);
+  assert.deepEqual(writes(w), ["aif_asset_reserve", "upload", "aif_asset_finalize"], "대조를 시작하지 않았다");
+  // 확정이 늦게 ready → 응답은 이미 불명으로 나갔다. 서명 0. 번호로는 조회 경로에서 나중에 확인할 수 있다
+  w = world({ handlers: { aif_asset_finalize: async () => { await sleep(70); return { data: "ready", error: null }; } } });
+  r = await post(w, { config: CONFIG }, { limits: { saveMs: 30 } });
+  assert.deepEqual([r.body.assetSaved, r.body.assetId, r.body.assetCode, "signedUrl" in r.body], ["unknown", NEW_ASSET, "SAVE_TIMEOUT", false]);
+  await sleep(120);
+  assert.deepEqual([writes(w), w.n.signs], [["aif_asset_reserve", "upload", "aif_asset_finalize"], 0]);
+  // 확정이 영영 안 옴
+  w = world({ handlers: { aif_asset_finalize: never } });
+  r = await post(w, { config: CONFIG }, { limits: { saveMs: 30 } });
+  assert.deepEqual([r.body.assetSaved, r.body.assetId], ["unknown", NEW_ASSET]);
+});
+
+test("저장 시간 초과 + 응답 상한 초과: 422에도 확보한 번호가 남는다(번호가 없으면 없이). 생성은 1회", async () => {
+  const bigImage = dataUrl(sized(PNG_SIG, 3_200_000, 1));
+  // 업로드 중 시간 초과 → 번호 있음
+  let w = world({ image: bigImage, handlers: { upload: never } });
+  let r = await post(w, { config: CONFIG }, { limits: { saveMs: 40 } });
+  assert.deepEqual([r.status, r.body], [422, { error: RESPONSE_TOO_LARGE_MESSAGE, imageOmitted: true, code: "RESPONSE_TOO_LARGE", assetSaved: "unknown", assetId: NEW_ASSET, assetCode: "SAVE_TIMEOUT" }]);
+  // 예약 응답 대기 중 시간 초과 → 번호 없음
+  w = world({ image: bigImage, handlers: { aif_asset_reserve: never } });
+  r = await post(w, { config: CONFIG }, { limits: { saveMs: 40 } });
+  assert.deepEqual([r.status, r.body], [422, { error: RESPONSE_TOO_LARGE_MESSAGE, imageOmitted: true, code: "RESPONSE_TOO_LARGE", assetSaved: "unknown", assetCode: "SAVE_TIMEOUT" }]);
+  assert.equal(w.n.generate, 1);
+});
+
+test("저장 정상·기존 결과는 그대로: 시간 안에 끝난 저장은 진행 신호와 무관하게 예전과 같은 응답·호출 순서다", async () => {
+  let w = world();
+  let r = await post(w, { config: CONFIG });
+  assert.deepEqual([r.body.assetSaved, r.body.assetId, writes(w)], [true, NEW_ASSET, ["aif_asset_reserve", "upload", "aif_asset_finalize", "sign"]]);
+  w = world({ handlers: { aif_asset_finalize: () => ({ data: null, error: { message: "boom" } }) } });
+  r = await post(w, { config: CONFIG });
+  assert.deepEqual([r.body.assetSaved, r.body.assetCode, r.body.assetId, writes(w)], ["unknown", "FINALIZE_UNKNOWN", NEW_ASSET, ["aif_asset_reserve", "upload", "aif_asset_finalize", "aif_asset_reconcile"]]);
+  w = world({ handlers: { aif_asset_reserve: (a) => ({ data: [{ asset_id: NEW_ASSET, path: `${a.p_user}/generated/other.png` }], error: null }) } });
+  r = await post(w, { config: CONFIG });
+  assert.deepEqual([r.body.assetSaved, r.body.assetCode, writes(w)], [false, "RESERVE_SHAPE", ["aif_asset_reserve", "aif_asset_abort_local"]]);
+});
+
 test("처리되지 않은 거부가 하나도 없다(늦게 온 오류·취소 오류를 모두 소비했다)", async () => {
   await sleep(150);
   assert.deepEqual(unhandled, []);
