@@ -167,7 +167,7 @@ Master 마지막 실제 점검: 2026-11-19 05:03:45 KST · 실행 중 점검 주
 | FRONT-20261116-02 | CC-B2B-FRONT-01 | done / integrated | E3 Lab검수→식품/키즈/뷰티 각6종 템플릿 | 6종구현/420시험/E3·갤러리Lab확인·Master카탈로그등록 완료. v1.16배포는별도대기 |
 | RE-20261116-01 | CC-REALTY-01 | done / integrated | L-6 기술안·뉴스미배포정정·17시험 | 대안1 채택, 구현은RE-02로 분리 |
 | RE-20261119-EXT | CC-REALTY-01 | running / three_program_linkage_independent_accepted_crm_plan_routed | 부동산 추가 개선 순차 진행 | 매물 알림 8 blob·독립 3/3, 관심 지역 3프로그램 연계 로컬 수락. 실 화면·DB 권한 검증 및 배포 대기. 고객관리 플랜 이동. |
-| RE-20261119-DESK | CC-REALTY-01 | reviewing / l1_l2_edges_returned_independent_recheck_dispatched | 부동산 고객관리 화면 개선 | 경기 광주시·계약일 누락·발송 이력 중립 문구 보완. 작성자 35/35, Mac 독립 재검수. U-1 순서 유지. |
+| RE-20261119-DESK | CC-REALTY-01 | running / l1_l2_independent_accepted_u1_pending | 부동산 고객관리 화면 개선 | L-1/L-2 Mac 독립 11/11 수락, 미배포. U-1 화면 미리보기 후속. 실제 DB·고객 문자 검증 없음. |
 | RE-20261116-02 | CC-REALTY-01 | done / integrated | 카톡실패상태·끊긴토큰재발송방지·local로그아웃/UA | 사용자 직접 승인 배포 v1.45/v1.61. 카카오 실물·08:00 뉴스 대조 별도 |
 | BLOG-20261116-01 | CC-BLOG-01 | done / integrated | 티스토리 소제목##·이웃 전경거절 진단 보완 | 코드검증범위 완료, 이웃재시험/배포/실제소통은별도대기 |
 | QA-20261116-01 | CX-QA-01 | cancelled / integrated | 종합 QA를 영상/Workspace로 분리 | 중복 배정 종료, 검증 완료 의미 아님 |

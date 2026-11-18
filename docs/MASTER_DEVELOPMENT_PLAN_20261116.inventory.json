@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T20:04:49.807Z",
+  "checkedAt": "2026-11-18T20:05:20.427Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9975,11 +9975,11 @@
       "owner": "CC-REALTY-01",
       "reviewer": "CX-MASTER-01",
       "title": "부동산 고객관리 화면 개선",
-      "status": "reviewing",
-      "delivery": "l1_l2_edges_returned_independent_recheck_dispatched",
-      "evidence": "msg_689770148f5e·ac4d4bf59·msg_1d502a93ca22·msg_c1583351e267·c8d479cb9·msg_d05ff0a510fa·msg_dab6052e5c7b·d6786b9db·16d982cec·msg_7a575e8308b1·msg_c0c512ee2651·msg_1884123d9d90·msg_42cf6aa807dc·05902858a·msg_231ce7581816",
-      "next": "경기 광주시·계약일 누락·발송 이력 중립 문구 보완. 작성자 35/35, Mac 독립 재검수. U-1 순서 유지.",
-      "lastReviewedAt": "2026-11-18T20:04:49.807Z",
+      "status": "running",
+      "delivery": "l1_l2_independent_accepted_u1_pending",
+      "evidence": "msg_689770148f5e·ac4d4bf59·msg_1d502a93ca22·msg_c1583351e267·c8d479cb9·msg_d05ff0a510fa·msg_dab6052e5c7b·d6786b9db·16d982cec·msg_7a575e8308b1·msg_c0c512ee2651·msg_1884123d9d90·msg_42cf6aa807dc·05902858a·msg_231ce7581816·msg_a6f4aeabc535",
+      "next": "L-1/L-2 Mac 독립 11/11 수락, 미배포. U-1 화면 미리보기 후속. 실제 DB·고객 문자 검증 없음.",
+      "lastReviewedAt": "2026-11-18T20:05:20.427Z",
       "sha": "05902858a"
     }
   ]
