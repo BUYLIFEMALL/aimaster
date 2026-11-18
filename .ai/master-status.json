@@ -5000,8 +5000,8 @@
       "sha": "172e3f41f",
       "scopeRef": "calendar.css·PageView.tsx, 최소 너비 토글/시험 후속",
       "constraints": "초기 편집 사전 점유 등록 누락 보고. 새 편집은 정확 경로 등록. 실제 설정 쓰기/빌드/배포 0.",
-      "evidence": "Workspace 직접 보고·506eff4df·msg_24a5f90f409f·msg_34378dea6d4b·msg_4f89af49c4f9 / Workspace 직접 보고·236415698·b47051400·msg_039e858883a4 / 172e3f41f / bf7faf93d / msg_fe51aab0bb31 / msg_b0ae6a1d5300 / msg_36d3d349cafa",
-      "next": "로컬 완료·미배포. 실제 렌더/좁은 화면은 후속 검수.",
+      "evidence": "Workspace 직접 보고·506eff4df·msg_24a5f90f409f·msg_34378dea6d4b·msg_4f89af49c4f9 / Workspace 직접 보고·236415698·b47051400·msg_039e858883a4 / 172e3f41f / bf7faf93d / msg_fe51aab0bb31 / msg_b0ae6a1d5300 / msg_36d3d349cafa / 97cf28b5b / 63111738f",
+      "next": "로컬 완료·점유 해제·미배포. 실제 화면과 표 행 기본 폭 메뉴 제약은 별도.",
       "validation": {
         "author": "peek 보완에서 28/28 및 tsc 통과 보고. 표 행 배치 기본값 메뉴 기존 제약 유지.",
         "independent": "Mac 고정 pageWidth 모의 10조건 및 양쪽 peek/권한/단축키 소스 통과. 실제 메뉴 클릭/렌더 미실행."
