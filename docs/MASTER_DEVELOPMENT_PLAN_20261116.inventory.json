@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 14:26:41 KST",
+  "checkedAt": "2026-11-18 14:27:36 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:26:41.825Z",
+      "at": "2026-11-18T05:27:36.323Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS 기존보관 최종PASS·AGY 정리ACK",
-      "scope": "고정시험/실route 지정수락·후속독립범위/본체선행조건분리",
+      "trigger": "CRM U3 스니펫 소스완료",
+      "scope": "5파일/실행시험범위·form/sheetv2/legacy fallback·실공개선행",
       "evidence": [
-        "msg_ceee4fb0b230 native36+route8",
-        "msg_6158eb52843e AGY정리완료",
-        "SNS수락/이미지MIME읽기계획전달"
+        "msg_7f938d6f35bf/63f3df162",
+        "gitstat5파일",
+        "Mac생성실스크립트국소검수배정"
       ],
-      "judgment": "기존history예외보호소스완료수락·운영아님. 새자산본체는여전히PLAN/권한선행필요, 독립기존이미지형식개선계획만배정.",
+      "judgment": "U3작성자검사완료/독립검수대기, 운영공개아님. 새Google연결/실문자/자동스크립트교체0.",
       "unverified": [
-        "MIME계획·CRM U3",
-        "배포승인/실키/운영통합·실화면"
+        "스니펫독립검수·실제AppsScript/시험시트",
+        "DDL/운영배포/실SMS승인"
       ],
-      "nextAction": "다음소스계획/스니펫결과회수→검수·메인push보류유지"
+      "nextAction": "독립결과회수후소스묶음릴리스확인표준비·푸시0"
     },
     "notifications": [
       {
@@ -8082,14 +8082,20 @@
       "title": "Apps Script v2 이벤트키 스니펫·legacy 안내 연결",
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
-      "status": "in_progress",
-      "delivery": "exact_script_generator_paths_acknowledged_started",
+      "status": "ready_review",
+      "delivery": "v2_apps_script_source_ready_independent_execution_review",
       "scopeRef": "SourceCard·기존ARCHITECTURE·스니펫시험·기존결과만",
       "completion": "form/sheet 실이벤트키·Date전제·없으면legacy보호없음·파서실판정/재시도키/오류계약",
       "constraints": "실Google/운영DDL/실문자/build/push0·v2공개전DDL/route/실검증승인·시험시트확인",
-      "next": "정확경로착수/소스SHA회수→Mac",
-      "evidence": "Master기존U3단계계획에따른source배정·접수/팔로우업소스PASS선행 · 착수msg_ae7532f0dc23·새순수생성기/실행시험경로허용",
-      "lastReviewedAt": "2026-11-18T05:24:17.871Z"
+      "next": "Mac 생성실스크립트→파서/폼sheet이벤트키·fallback/값보존/로그0 검수→판정",
+      "evidence": "Master기존U3단계계획에따른source배정·접수/팔로우업소스PASS선행 · 착수msg_ae7532f0dc23·새순수생성기/실행시험경로허용 · msg_7f938d6f35bf·Master5파일stat·Mac검수전달",
+      "lastReviewedAt": "2026-11-18T05:27:36.323Z",
+      "sha": "63f3df162",
+      "validation": {
+        "author": "실생성스크립트24/24·전체297/297·tsc0·NOTICE0·실Google0",
+        "master": "정확5파일stat·새순수생성기사전허용·운영선행조건보존",
+        "independent": "전달·수락/결과 대기"
+      }
     },
     {
       "task_id": "AIF-20261118-W01c",
