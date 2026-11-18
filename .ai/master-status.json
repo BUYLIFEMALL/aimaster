@@ -4026,11 +4026,11 @@
       "task_id": "QA-20261118-BLOG-01",
       "title": "website-scraper 읽기·B1 사람 포커스 재시험 준비",
       "owner": "CX-QA-01",
-      "status": "dispatched",
-      "delivery": "delivered_ack_pending",
-      "next": "website읽기먼저→B1기존확장/환경영향확인·사람A/B클릭대기",
-      "evidence": "msg_6c61f3680257·기존B/Gmail보존·실크롤링/쓰기0",
-      "lastReviewedAt": "2026-11-18T04:21:29.557Z"
+      "status": "in_progress",
+      "delivery": "website_read_complete_b1_environment_preparation",
+      "next": "website 결과 Blog 전달·B1 실제공유경로 확인/기존확장관리 읽기준비→사람 A/B 각1회·복원",
+      "evidence": "msg_6c61f3680257·기존B/Gmail보존·실크롤링/쓰기0 · Macmsg_efecea98d20b·.ai/results/WEBSITE-SCRAPER-20261118-CX-QA-01.md",
+      "lastReviewedAt": "2026-11-18T04:24:50.675Z"
     },
     {
       "task_id": "RE-20261118-07",
@@ -4545,22 +4545,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T04:24:08.270Z",
+      "at": "2026-11-18T04:24:50.675Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Realty 평가 완료·무료이미지 문서보완",
-      "scope": "평가산출물·효과판정·고정라벨/후보·문서근거범위",
+      "trigger": "Mac website 읽기 완료·B1 준비 보고",
+      "scope": "구/신주소 실제화면·로그인경계·공유경로·기존공간보존",
       "evidence": [
-        "msg_7efe2d4eeca0·88c9f3efb 3파일",
-        "msg_c5630774ad36 산출물 수락·동일자료 재조정금지",
-        "msg_125a928cc47d·b96333abd 공식비교 보완(작성자 보고)"
+        "msg_efecea98d20b·결과파일",
+        "Blog 읽기결과 전달"
       ],
-      "judgment": "40건 평가작업 완료 수락하되 제외0/40·X미탐5/5로 후보효과PASS 아님. 무료플랫폼 유일성/생성장수는 조사범위/파생치로 정정 보고 수신.",
+      "judgment": "website 라이브 지정읽기 결과 회수, 옛login404는P3후보·별도수정/배포0. B1은설치/끄기전준비로실시험완료아님.",
       "unverified": [
-        "실사용 무료쿼터/모델응답·추가문서 원문 Master재검토",
-        "목표소음 포함 새기간 검증",
-        "독립/운영 효과검증"
+        "B1 사람A/B·실제설치/복원",
+        "Blog 표 갱신 수락"
       ],
-      "nextAction": "기존승인/사람단계 회신과 CRM U2 결과 회수, 추가수집/AI/배포0"
+      "nextAction": "B1 준비완료 후 기존사람단계로진행·대신클릭0"
     },
     "notifications": [
       {
