@@ -146,29 +146,34 @@ function AiPlatformCard({
   }
 
   return (
-    <div className="border border-stone-200/90 rounded-2xl p-4 sm:p-5 bg-white shadow-xs flex flex-col justify-between">
-      <div>
-        <div className="flex items-center justify-between gap-2 mb-2">
-          <div className="flex items-center gap-2">
-            <span className={`px-2 py-0.5 rounded-md text-xs font-bold ${meta.badgeClass}`}>
-              {meta.name}
-            </span>
-            <h4 className="text-sm font-bold text-slate-900 m-0">{meta.name} API</h4>
-          </div>
-          <span
-            className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-              tested || registered
-                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                : "bg-stone-100 text-stone-500"
-            }`}
-          >
-            {tested ? "✓ 테스트 성공" : registered ? "✓ 키 등록됨" : "키 등록 필요"}
+    <div className="border border-stone-200/90 rounded-2xl p-4 sm:p-5 bg-white shadow-xs">
+      {/* 1) 카드 상단 헤더 */}
+      <div className="flex items-center justify-between gap-3 pb-3 border-b border-stone-100">
+        <div className="flex items-center gap-2.5">
+          <span className={`px-2.5 py-1 rounded-lg text-xs font-bold shadow-2xs ${meta.badgeClass}`}>
+            {meta.name}
           </span>
+          <div>
+            <h4 className="text-sm font-bold text-slate-900 m-0">{meta.name} API & 모델</h4>
+            <p className="text-2xs text-stone-400 m-0">{meta.platformName} 기반 글귀 생성 및 배경 연동</p>
+          </div>
         </div>
+        <span
+          className={`text-xs px-2.5 py-1 rounded-full font-bold shadow-2xs ${
+            tested || registered
+              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+              : "bg-stone-100 text-stone-500 border border-stone-200"
+          }`}
+        >
+          {tested ? "✓ 테스트 성공" : registered ? "✓ 키 등록됨" : "키 등록 필요"}
+        </span>
+      </div>
 
-        {/* 1) 사용할 모델 선택 드롭다운 */}
-        <label className="block text-xs font-semibold text-slate-700 mb-1.5 mt-3">
-          사용할 AI 모델 선택 (기본 모델 설정)
+      {/* 2) 모델 선택 & API 키 입력 (넓은 2열 그리드 배치) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3.5">
+        {/* 사용할 모델 선택 드롭다운 */}
+        <label className="block text-xs font-semibold text-slate-700">
+          <span>사용할 AI 모델 선택 (기본 모델 설정)</span>
           <div className="relative mt-1">
             <select
               value={selectedModel}
@@ -176,7 +181,7 @@ function AiPlatformCard({
                 onModelSelect(e.target.value);
                 setNotice("");
               }}
-              className="w-full text-xs font-medium text-slate-900 bg-stone-50/80 border border-stone-300 rounded-lg p-2 focus:ring-2 focus:ring-rose-500 focus:bg-white transition-all cursor-pointer"
+              className="w-full text-xs font-medium text-slate-900 bg-stone-50/80 border border-stone-300 rounded-lg p-2.5 focus:ring-2 focus:ring-rose-500 focus:bg-white transition-all cursor-pointer shadow-2xs"
             >
               {models.map((m) => (
                 <option key={m.id} value={m.id}>
@@ -187,9 +192,9 @@ function AiPlatformCard({
           </div>
         </label>
 
-        {/* 2) API 키 입력창 */}
-        <label className="block text-xs font-semibold text-slate-700 mb-1 mt-3">
-          본인 API 키
+        {/* 본인 API 키 입력창 */}
+        <label className="block text-xs font-semibold text-slate-700">
+          <span>본인 API 키</span>
           <div className="relative mt-1">
             <input
               type={show ? "text" : "password"}
@@ -203,9 +208,10 @@ function AiPlatformCard({
               maxLength={500}
               autoComplete="off"
               style={{ paddingRight: "36px" }}
+              className="w-full text-xs font-mono"
               placeholder={
                 registered
-                  ? "키를 변경하려면 새 키를 입력하세요"
+                  ? "등록된 키가 있습니다 (변경 시에만 새 키 입력)"
                   : `${meta.name} API 키를 입력하세요`
               }
             />
@@ -232,14 +238,16 @@ function AiPlatformCard({
             </button>
           </div>
         </label>
+      </div>
 
-        {/* 3) 액션 버튼 행 */}
-        <div className="button-row justify-start items-center gap-2 mt-3 flex-wrap">
+      {/* 3) 액션 버튼 행 및 안내 */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mt-4 pt-3 border-t border-stone-100">
+        <div className="flex flex-wrap items-center gap-2">
           <a
             href={meta.createUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-create-key"
+            className="btn-create-key text-xs py-1.5 px-3"
             title={`${meta.platformName} 공식 콘솔에서 새 API 키 발급/생성하기`}
           >
             <KeyRound size={13} />
@@ -249,7 +257,7 @@ function AiPlatformCard({
 
           <button
             type="button"
-            className="flex items-center gap-1.5 text-xs py-1.5 px-3"
+            className="flex items-center gap-1.5 text-xs py-1.5 px-3 rounded-lg border border-stone-300 hover:bg-stone-50 font-medium"
             onClick={() => submit("test")}
             disabled={busy || (!key.trim() && !registered)}
           >
@@ -259,7 +267,7 @@ function AiPlatformCard({
 
           <button
             type="button"
-            className="primary flex items-center gap-1.5 text-xs py-1.5 px-3"
+            className="primary flex items-center gap-1.5 text-xs py-1.5 px-3.5 rounded-lg font-bold shadow-2xs"
             onClick={() => submit("save")}
             disabled={busy || (!key.trim() && !registered)}
           >
@@ -268,38 +276,39 @@ function AiPlatformCard({
           </button>
         </div>
 
-        {notice && (
-          <p
-            role="status"
-            className={`status-note mt-2.5 text-xs ${
-              notice.startsWith("✓") ? "text-emerald-700 bg-emerald-50" : "text-rose-700 bg-rose-50"
-            }`}
+        {/* 안내 링크 */}
+        <div className="flex items-center gap-3 text-2xs text-stone-500">
+          <a
+            href={meta.createUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-rose-600 hover:underline inline-flex items-center gap-1 font-semibold"
           >
-            {notice}
-          </p>
-        )}
+            <span>{meta.platformName} 무료 키 발급 ↗</span>
+          </a>
+          <span className="text-stone-300">·</span>
+          <a
+            href={meta.signupUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-stone-400 hover:text-stone-700 inline-flex items-center gap-0.5"
+          >
+            <span>공식 사이트</span>
+            <ExternalLink size={10} />
+          </a>
+        </div>
       </div>
 
-      {/* 안내 링크 */}
-      <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-2xs text-stone-500">
-        <a
-          href={meta.createUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-rose-600 hover:underline inline-flex items-center gap-1 font-semibold"
+      {notice && (
+        <p
+          role="status"
+          className={`status-note mt-3 text-xs ${
+            notice.startsWith("✓") ? "text-emerald-700 bg-emerald-50 border border-emerald-200" : "text-rose-700 bg-rose-50 border border-rose-200"
+          }`}
         >
-          <span>{meta.platformName} 무료 키 발급 ↗</span>
-        </a>
-        <a
-          href={meta.signupUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-stone-400 hover:text-stone-700 inline-flex items-center gap-0.5"
-        >
-          <span>공식 사이트</span>
-          <ExternalLink size={10} />
-        </a>
-      </div>
+          {notice}
+        </p>
+      )}
     </div>
   );
 }
@@ -707,8 +716,8 @@ export function AllKeySettings({
           </span>
         </div>
 
-        {/* 3대 플랫폼 카드 그리드 */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* 3대 플랫폼 카드 세로 열 나열 */}
+        <div className="flex flex-col gap-4">
           <AiPlatformCard
             provider="openai"
             registered={keys.openai}
