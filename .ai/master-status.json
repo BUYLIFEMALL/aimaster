@@ -3227,9 +3227,9 @@
       "status": "waiting_human",
       "delivery": "deployed_oauth_redirect_mismatch_diagnosis",
       "scopeRef": "0074→0075 운영적용/정의검증·회원본인OAuth동의/metadata·실PostgREST/주소·스위치/배포 승인별도",
-      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f·Workspace SQL完了報告(主会話)·주인님전달Workspace배포완료9ea979de9·Master Vercel get_alias동일dpl·Macmsg_f0e46da48809/Workspace msg_bce4e6bf3fad·실검증1차 주인님전달·판정지시msg_89ba88b28a3d·Workspace콜백상수대조true/두회원client등록boolean보고·범위정정msg_2020570870f9",
+      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f·Workspace SQL完了報告(主会話)·주인님전달Workspace배포완료9ea979de9·Master Vercel get_alias동일dpl·Macmsg_f0e46da48809/Workspace msg_bce4e6bf3fad·실검증1차 주인님전달·판정지시msg_89ba88b28a3d·Workspace콜백상수대조true/두회원client등록boolean보고·범위정정msg_2020570870f9 · 주인님시험naver로그인확인(CC-WORKSPACE-01 직접보고)",
       "completion": "승인된범위의운영마이그레이션·실계정/권한/계정경계·활성배포·운영동작 확인",
-      "next": "기존한곳질문회신: 로그인시험회원/실redirect/해당GCP Client일치boolean→설정완료뒤같은세트1회",
+      "next": "시험naver확인완료·실오류redirect/client/GCP callback 일치boolean 기존질문회신만대기·인증반복0",
       "blockedReason": "Google 동의전400 redirect_uri_mismatch·시험회원앱/실callback/GCP클라이언트 일치확인 필요",
       "approval": {
         "source": "주인님 Workspace 채팅 선택 답변 2026-11-18",
@@ -3992,25 +3992,55 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-MASTER-01",
       "title": "웹훅 중복 방지 실제 연결 최소 단위 계획",
-      "status": "ready_review",
-      "delivery": "u1_boundary_fix_independent_review_dispatched",
+      "status": "in_progress",
+      "delivery": "u1_source_accepted_u2_author_started",
       "scopeRef": "실 form-submit/[token]/route.ts·새 실제route시험·기존문서만(U1), parser/DDL/dispatch/공용SDK/스니펫 불변",
       "completion": "v2 insert선점/정확중복만200·회원source경계·legacy유지·크기/형식·실route 순차/동시/DB오류 시험",
       "constraints": "미배포 소스만·DDL선행필수·운영DDL/실API/실발송/build/deploy0",
-      "next": "Mac 662797f32 UUID/조회예외 보완 및 기존실route 회귀 검수→판정",
-      "evidence": "계획msg_300933f94c2e·546bd0fb0 21절/실dispatch 확인·점유해제0a0997c65·Master U1범위/23505검증 보완지시 · 완료msg_4f2aaf809d48 · Master4파일stat/route본문확인 · Macmsg_5445bef602a4 · Mac중간msg_24a60c98c1f9 · 기존4파일수정반환 · 원본최종msg_be55e38ccb41/수락msg_aca66829fdcd · 수정msg_94ac7ed25fc3 · Master3파일diff확인",
-      "lastReviewedAt": "2026-11-18T04:17:22.776Z",
+      "next": "U2 실제SDK 근거/상태행렬 소스 SHA 회수→Mac 검수",
+      "evidence": "계획msg_300933f94c2e·546bd0fb0 21절/실dispatch 확인·점유해제0a0997c65·Master U1범위/23505검증 보완지시 · 완료msg_4f2aaf809d48 · Master4파일stat/route본문확인 · Macmsg_5445bef602a4 · Mac중간msg_24a60c98c1f9 · 기존4파일수정반환 · 원본최종msg_be55e38ccb41/수락msg_aca66829fdcd · 수정msg_94ac7ed25fc3 · Master3파일diff확인 · MacPASSmsg_2b90f9b7a828 · U2배정msg_2424440cdc62 · 착수msg_77ee8fa7017d",
+      "lastReviewedAt": "2026-11-18T04:21:29.557Z",
       "sha": "662797f32",
       "validation": {
         "author": "실route17/17·전체112/112·tsc0, UUID모양 검증 및 admin/source예외 고정500",
         "master": "3파일stat/route diff 확인. 원본 W-F01/W-F02 결과 보존, insert불명/dispatch/update예외·received상태는 U2 미완으로 분리",
-        "independent": "원본3e2 최종 지정통과와 W-F01/W-F02 보존. 새662797f32 재검수 전달, 수락/결과 대기"
+        "independent": "U1 정확662797 지정PASS: native17/17·비정상ID6종·정상/대문자UUID·admin/source throw·응답원문0·확인3조건·기존회귀. U2 아직미검수"
       },
       "limitations": [
         "U1 단독 운영 배포 금지·운영 DDL 미적용",
         "insert 응답유실 received 행과 후속보류 정합은 U2 dispatching 연결 전 미완",
         "실제PG 동시성/운영HTTP/실발송 미검수·모의 부분유니크만"
       ]
+    },
+    {
+      "task_id": "BLOG-20261118-01",
+      "title": "T07 엑셀 미리보기 남은 단위 및 배포 선행 정리",
+      "owner": "CC-BLOG-01",
+      "status": "queued",
+      "delivery": "queued_person_prompt",
+      "next": "기존 사람선택창 해소후T07 최소구현, 배포비용기존한곳회신대기",
+      "evidence": "직접지시msg_9d1788a8c908/ad284aaf636b/2f2ef4a6994f·배정msg_2ec6df81d99d·사람prompt로전달보류",
+      "lastReviewedAt": "2026-11-18T04:21:29.557Z"
+    },
+    {
+      "task_id": "QA-20261118-BLOG-01",
+      "title": "website-scraper 읽기·B1 사람 포커스 재시험 준비",
+      "owner": "CX-QA-01",
+      "status": "dispatched",
+      "delivery": "delivered_ack_pending",
+      "next": "website읽기먼저→B1기존확장/환경영향확인·사람A/B클릭대기",
+      "evidence": "msg_6c61f3680257·기존B/Gmail보존·실크롤링/쓰기0",
+      "lastReviewedAt": "2026-11-18T04:21:29.557Z"
+    },
+    {
+      "task_id": "RE-20261118-07",
+      "title": "후보C 새기간40건 사전라벨 고정 평가",
+      "owner": "CC-REALTY-01",
+      "status": "dispatched",
+      "delivery": "delivered_ack_pending",
+      "next": "라벨선고정→후보동일SHA 평가·집계보고·새수집/AI/쓰기0",
+      "evidence": "직접지시msg_a0274f426f02·재개조건충족·Master배정",
+      "lastReviewedAt": "2026-11-18T04:21:29.557Z"
     }
   ],
   "programOverrides": [
@@ -4509,21 +4539,25 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T04:17:22.776Z",
+      "at": "2026-11-18T04:21:29.557Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM U1 원본 최종 및 수정 완료 이벤트",
-      "scope": "3e2 최종검수 보존·662797f32 범위/변경·Mac 재검수",
+      "trigger": "CRM PASS·Blog/Realty 주인님직접지시·Workspace 부분회신",
+      "scope": "U1수락/U2착수·T12기존배정·Mac읽기/B1준비·T07·새40건평가·배포승인중복방지",
       "evidence": [
-        "msg_be55e38ccb41 원본최종",
-        "msg_94ac7ed25fc3 수정완료",
-        "Master git show 3파일·실route diff"
+        "msg_2b90f9b7a828·msg_77ee8fa7017d",
+        "Blog직접지시3보고·msg_2ec6df81d99d(사람prompt전달보류)",
+        "Mac배정msg_6c61f3680257",
+        "Realtymsg_a0274f426f02 재개조건충족·배정",
+        "Workspace시험naver 직접보고"
       ],
-      "judgment": "오류경계 수정본 수신·독립 재검수 배정, 완료 수락 전 대기. U1 단독배포 금지 유지.",
+      "judgment": "T12 Blog담당유지·문서되돌림0. CRM U2 및비용없는다음작업배분, Blog는사람prompt라수락/착수로단정0. 배포비용질문기존Blog한곳유지.",
       "unverified": [
-        "새SHA 독립검수",
-        "U2/운영 연결"
+        "Blog배정실수신/사람prompt해소",
+        "Mac추가검수착수·Realty수락",
+        "Gmail 실제redirect/client일치·기존사람단계",
+        "U2/신규검수결과"
       ],
-      "nextAction": "Mac 결과 수신 후 수락/반환·U2 소스범위 검토"
+      "nextAction": "배정ACK/결과회수·승인수신때만순차배포순번확정"
     },
     "notifications": [
       {
