@@ -1,5 +1,6 @@
 import { requireProgramAccess } from "@/lib/access";
 import { getRegisteredApiKeys, hasCloudflareWorkersAiKey } from "@/lib/apiKeys";
+import { resolveInitialCloudflareStatus } from "@/lib/cloudflareStatus";
 import { getInstagramPublicStatus } from "@/lib/instagram/memberAccount";
 import { AllKeySettings } from "@/components/KeySettings";
 import { KeyRound } from "lucide-react";
@@ -17,7 +18,7 @@ export default async function SettingsPage() {
       expired: false,
       connectUrl: "https://auto-instagram-posting.buylife.xyz/settings",
     })),
-    hasCloudflareWorkersAiKey(user.id).catch(() => false),
+    resolveInitialCloudflareStatus(() => hasCloudflareWorkersAiKey(user.id)),
   ]);
 
   return (

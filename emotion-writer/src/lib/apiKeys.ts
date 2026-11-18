@@ -35,6 +35,8 @@ export async function getRegisteredApiKeys(
   ) as Record<Provider, boolean>;
 }
 
+import { checkCloudflareRegistered } from "./cloudflareStatus";
+
 /**
  * Cloudflare Workers AI(FLUX-1 Schnell)용 공용 키 등록 여부 확인
  * user_api_keys의 cloudflare_workers_ai_token과 cloudflare_account_id 두 키가 모두 존재하는지 검사(평문 반환 0).
@@ -42,19 +44,5 @@ export async function getRegisteredApiKeys(
 export async function hasCloudflareWorkersAiKey(
   userId: string,
 ): Promise<boolean> {
-  const { data, error } = await createAdminClient()
-    .from("user_api_keys")
-    .select("provider,api_key")
-    .eq("user_id", userId)
-    .in("provider", ["cloudflare_workers_ai_token", "cloudflare_account_id"]);
-  if (error) throw new Error("Cloudflare 키 등록 상태를 확인하지 못했습니다.");
-  const hasToken =
-    data?.some(
-      (r) => r.provider === "cloudflare_workers_ai_token" && Boolean(r.api_key),
-    ) || false;
-  const hasAccount =
-    data?.some(
-      (r) => r.provider === "cloudflare_account_id" && Boolean(r.api_key),
-    ) || false;
-  return hasToken && hasAccount;
+  return checkCloudflareRegistered(createAdminClient(), userId);
 }

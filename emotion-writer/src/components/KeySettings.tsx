@@ -654,13 +654,17 @@ function PixabayKeyCard({
 // 3-1. Cloudflare Workers AI 무료 이미지 연동 상태 카드 (CloudflareKeyCard)
 // ============================================================================
 export function CloudflareKeyCard({
-  initialRegistered = false,
+  initialRegistered = null,
 }: {
-  initialRegistered?: boolean;
+  initialRegistered?: boolean | null;
 }) {
-  const [registered, setRegistered] = useState(initialRegistered);
+  const [registered, setRegistered] = useState<boolean | null>(
+    typeof initialRegistered === "boolean" ? initialRegistered : null,
+  );
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    initialRegistered === null ? "초기 등록 상태를 확인하지 못했습니다." : null,
+  );
   const [lastChecked, setLastChecked] = useState<string | null>(null);
   const activeReq = useRef(0);
 
@@ -708,24 +712,24 @@ export function CloudflareKeyCard({
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-900 m-0 flex items-center gap-2">
-              <span>Cloudflare Workers AI (FLUX 무료 이미지 생성)</span>
+              <span>Cloudflare Workers AI (무료 이미지 연동 준비 중)</span>
             </h3>
             <p className="text-2xs text-stone-400 m-0">
-              공용 공통 키(계정 ID 및 Workers AI 토큰) 등록 상태 확인
+              공용 공통 키(계정 ID 및 Workers AI 토큰) 사전 등록 상태 확인
             </p>
           </div>
         </div>
         <span
           className={`text-xs px-2.5 py-1 rounded-full font-bold shadow-2xs self-start sm:self-auto ${
-            error
-              ? "bg-rose-50 text-rose-700 border border-rose-200"
+            error || registered === null
+              ? "bg-amber-50 text-amber-800 border border-amber-200"
               : registered
                 ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                 : "bg-stone-100 text-stone-500 border border-stone-200"
           }`}
         >
-          {error
-            ? "확인 실패 · 재시도 권장"
+          {error || registered === null
+            ? "확인 필요 · 재확인 권장"
             : registered
               ? "✓ 공용 키 등록됨"
               : "키 등록 필요"}
@@ -735,15 +739,18 @@ export function CloudflareKeyCard({
       <div className="mt-3.5 space-y-2.5">
         <p className="text-xs text-slate-700 leading-relaxed m-0">
           회원 본인의 <strong>Cloudflare 계정 ID</strong>와{" "}
-          <strong>Workers AI 토큰</strong>이 등록되어 있으면 감성 글귀 스튜디오
-          2단계에서 FLUX 무료 AI 배경 생성을 사용할 수 있습니다.
+          <strong>Workers AI 토큰</strong>을 메인 사이트(AIMaster) API 설정에 미리
+          등록해 둘 수 있습니다. (무료 AI 엔진 연동 기능은 현재 준비 중이며, 공용
+          등록 선행 후 기능 오픈 시 자동 연결됩니다)
         </p>
 
         <div className="rounded-xl bg-stone-50 border border-stone-200/80 p-3.5 text-xs space-y-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="text-stone-600">
-              {error ? (
-                <span className="text-rose-600 font-semibold">{error}</span>
+              {error || registered === null ? (
+                <span className="text-amber-800 font-semibold">
+                  {error || "초기 등록 상태를 확인하지 못했습니다. 아래 [등록 상태 재확인]을 눌러주세요."}
+                </span>
               ) : registered ? (
                 <span className="text-emerald-700 font-semibold">
                   계정 ID와 토큰 2개 키가 공용 계정에 등록되어 있습니다.
@@ -790,13 +797,13 @@ export function CloudflareKeyCard({
           <div className="pt-2 border-t border-stone-200/70 text-[11px] text-stone-500 leading-normal space-y-1">
             <p className="m-0">
               ※ 「등록됨」 표시는 공용 DB에 계정 ID와 토큰 2개 키가 저장되어
-              있음을 의미하며, 실제 Cloudflare 계정의 토큰 유효성 및 잔여 무료
-              사용량을 보증하지 않습니다.
+              있음을 의미하며, 실제 Cloudflare 계정의 토큰 유효성, 잔여 무료량,
+              또는 서비스 내 엔진 활성화 여부를 보증하지 않습니다.
             </p>
             <p className="m-0 text-amber-700">
-              ※ Cloudflare Workers AI는 일일 무료 할당량(일 약 10,000 Neurons)이
-              제공되며, 무료 한도 초과 시 또는 Paid 계정에서는 Cloudflare 정책에
-              따라 본인 계정에 요금이 청구될 수 있습니다.
+              ※ 무료 이미지 생성 기능은 현재 정책 점검 및 준비 단계이며, 기능이
+              정식 오픈되면 등록된 본인 키로 자동 연동됩니다. (일 약 10,000 Neurons
+              무료 제공, 초과 시 본인 계정 과금 가능)
             </p>
           </div>
         </div>
@@ -811,11 +818,11 @@ export function CloudflareKeyCard({
 export function AllKeySettings({
   initial,
   initialInstagram,
-  initialCloudflare = false,
+  initialCloudflare = null,
 }: {
   initial: Record<Provider, boolean>;
   initialInstagram?: InstagramPublicStatus;
-  initialCloudflare?: boolean;
+  initialCloudflare?: boolean | null;
 }) {
   const [keys, setKeys] = useState(initial);
 
