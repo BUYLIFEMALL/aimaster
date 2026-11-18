@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T03:12:03.618Z",
+  "checkedAt": "2026-11-18T03:14:19.290Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3821,14 +3821,14 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
       "title": "CRM 중복방지 DDL 초안·격리 DB 검증 2A",
-      "status": "ready_review",
-      "delivery": "isolated_sql_test_pass_independent_review_dispatched",
-      "evidence": "영향조사2019381a6·msg_cf2984a5738e·dispatch msg_47039ad6b61b·착수msg_3558ad0d16d2·결과msg_531796347dc0·MasterSQL원문/3파일확인·Macmsg_90839b4af302",
+      "status": "needs_revision",
+      "delivery": "static_review_pass_test_evidence_supplement_requested",
+      "evidence": "영향조사2019381a6·msg_cf2984a5738e·dispatch msg_47039ad6b61b·착수msg_3558ad0d16d2·결과msg_531796347dc0·MasterSQL원문/3파일확인·Macmsg_90839b4af302·Macmsg_261e6589ece9·보완msg_8f77f3eee758",
       "scopeRef": "crm-google-form/supabase/migrations/20261118120000_crm_submission_dedupe.sql·tests/dedupe-db.test.mjs 신규·기존결과본인절",
       "completion": "정의사전/사후·기존NULL/backfill0·user_id/source/key 격리·RLS/동시2연결/rollback·동명불일치멈춤·본인qa_DB정리",
       "constraints": "운영미적용·route/UI/dispatch/snippet변경0·기존aww/aww_dev/mb_*0·실발송/build/설치0",
-      "next": "Mac정적/가능격리검수→반례판정,화면CRM18-03분리",
-      "lastReviewedAt": "2026-11-18T03:12:03.618Z",
+      "next": "UI안전커밋뒤tests/기존결과만순차보완·SQL동결→작성자실PG결과/SHA→Mac정적재검토",
+      "lastReviewedAt": "2026-11-18T03:14:19.290Z",
       "decisions": {
         "unique": "(user_id,form_source_id,dedupe_key) WHERE dedupe_key IS NOT NULL",
         "policy": "RLS/권한변경0",
@@ -3840,8 +3840,13 @@
       "validation": {
         "author": "PG17.11본인qa_DB·11/11·독립2연결/회원역할/변이·정리보고",
         "master": "SQL86줄직접읽기·한거래/정의검사/복합키/상태확인",
-        "independent": "Mac검수대기·운영미적용"
-      }
+        "independent": "Mac DDL/하네스정적PASS권고·Docker/psql없어실행0·PG실측은작성자만"
+      },
+      "findings": [
+        "동일회원2source동일key2행증거부족(기존user도달라짐)",
+        "기존행전체지문/ACL·RLS·policy전후전체정의필요",
+        "고정qaDB선삭제/전역role생성·동시실행안전보완"
+      ]
     },
     {
       "task_id": "CRM-20261118-03",
@@ -3849,13 +3854,13 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
       "title": "CRM 접수 새상태 화면·집계 준비",
-      "status": "ready",
-      "delivery": "implementation_authorized_dispatch_sent",
-      "evidence": "영향조사2019381a6·msg_dcca549f3407",
+      "status": "running",
+      "delivery": "exact_scope_started",
+      "evidence": "영향조사2019381a6·msg_dcca549f3407·착수msg_b24ceec65e71",
       "scopeRef": "dashboard/page.tsx·submissions/page.tsx·SubmissionMatrix.tsx·필요순수submissionStatus.ts/시험·기존결과본인절",
       "completion": "기존3+새3상태 라벨/필터/집계·처리중/부분/모름누락0·기존필드만조회·가짜rows실제분류/tsc",
       "constraints": "운영미배포·DB/발송/API0·dedupe_key/channel_results조회0·route/dispatch/followup/promotions/snippet/DDL0",
-      "next": "정확경로점유보고→소스/가짜검증→SHA→Mac독립",
+      "next": "화면소스/가짜분류시험안전커밋→2A하네스보완순차,제품/DB동시수정0",
       "lastReviewedAt": "2026-11-18T03:12:03.618Z"
     }
   ],
@@ -4340,21 +4345,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T03:12:03.618Z",
+      "at": "2026-11-18T03:14:19.290Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM18-02 SQL초안/11시험 결과",
-      "scope": "f066ca944 SQL본문/허용3파일·격리시험근거·Mac검수/화면분리배정",
+      "trigger": "Mac CRM18-02 정적검수 msg_261e6589ece9",
+      "scope": "정적/실PG근거분리·시험누락3건·Backend순차배정",
       "evidence": [
-        "작성자msg_531796347dc0 PG격리11통과·운영0",
-        "MasterSQL86줄읽기·Mac msg_90839b4af302",
-        "화면준비별도msg_dcca549f3407"
+        "MacDocker/psql미보유실행0·DDL/하네스정적PASS권고",
+        "same-user2source/ACL·전체행/고정DB안전보완",
+        "msg_8f77f3eee758 UI커밋뒤시험보완"
       ],
-      "judgment": "초안자체검증접수·독립대기,운영적용아님. 화면은구DB칼럼호환범위에서만준비·발송연결보류.",
+      "judgment": "DDL코드결함확정없음·실DB독립PASS확대0. 시험근거보완요청·운영적용보류유지.",
       "unverified": [
-        "SQL독립판정·화면새상태실사용검증",
-        "발송불확실/후속발송정책·GmailOAuth·MacB"
+        "시험보완실PG/하네스SHA·UI가짜/실화면",
+        "GmailOAuth·MacB파일"
       ],
-      "nextAction": "두범위각각SHA/독립근거회수→연결단계판정"
+      "nextAction": "UI/하네스각결과회수·같은DB병렬시험0·Mac재검토"
     },
     "notifications": [
       {
