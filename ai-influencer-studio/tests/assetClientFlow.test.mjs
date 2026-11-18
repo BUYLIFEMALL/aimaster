@@ -834,12 +834,158 @@ test("화면 소스 형태(실행이 아니라 글자 확인): 기존 경로 호
   for (const src of [studio, display]) for (const bad of ["/api/aif/", "signedUrl", "token="]) assert.equal(src.includes(bad), false, bad);
   assert.equal(/localStorage\.setItem|sessionStorage/.test(studio), false);
   // 히스토리·캡션은 같은 호출을 쓴다
-  assert.equal(studio.split("saveToHistory(").length - 1, 2, "기존 흐름 1 + 새 흐름 1");
+  assert.equal(studio.split("saveToHistory(").length - 1, 1, "기존 흐름의 호출 한 곳 그대로");
+  assert.equal(studio.split("saveHistoryJpeg(done.historyImage, done.captions, configToSubmit, session)").length - 1, 1, "새 흐름은 독립 축소본으로만 기록한다");
+  assert.match(studio, /if \(done\.historyImage\) saveHistoryJpeg\(/);
+  // 계정·모드 교체: 앞 결과·로딩·다시 불러오기 상태와 참고 사진을 지운다(첫 마운트 제외)
+  assert.match(studio, /if \(hadSessionRef\.current\) \{\s*setResult\(\{ imageUrl: null, captions: \[\], loading: false, error: null \}\);\s*setIsReloadingAsset\(false\);\s*setConfig\(\(prev\) => \(\{ \.\.\.prev, personImage: undefined, placeImage: undefined, productImages: \[\], lastResultImage: undefined, feedback: undefined \}\)\);/);
+  // 비동기 경계의 동일성 확인: 보정(기존 경로) 4곳 + 새 흐름·다시 받기의 세션 교체 확인
+  assert.equal(studio.split("if (!stillMine()) return;").length - 1, 4);
+  assert.match(studio, /const stillMine = \(\) => !assetFlow \|\| \(!!startSession && sessionRef\.current === startSession && startSession\.isCurrent\(startStamp\)\);/, "꺼져 있으면 항상 참 — 기존 흐름 불변");
+  assert.equal(studio.split("if (sessionRef.current !== session) return;").length - 1, 2);
+  assert.match(studio, /if \(saved && sessionRef\.current === session\) setHistoryItems/, "교체된 세션의 히스토리 응답을 목록에 적용하지 않는다");
   assert.equal(studio.split('fetch("/api/generate-caption"').length - 1, 3, "기존 흐름 1 + 새 흐름 1 + 캡션 다시 쓰기 1");
   // 결과 표시: 버튼은 처리기가 있을 때만, 누를 때만
   assert.match(display, /result\.needsReload && !result\.imageUrl && !result\.loading && onReloadAsset &&/);
   assert.match(display, /onClick=\{onReloadAsset\}\s*disabled=\{isReloadingAsset\}/);
   assert.match(display, /\$\{result\.fileExt \?\? "png"\}/);
+});
+
+// ───────────── W01-UII 보완(Master msg_b80138e6de86): 화면 적용 순서 — 기다린 뒤의 작업 동일성, 독립 히스토리 축소본 ─────────────
+// 이 저장소에는 컴포넌트를 실행할 도구(DOM·렌더러)가 없다. 컴포넌트가 하던 「생성 → 캡션 → 축소본」 순서를 runViewGeneration으로 옮겨 가짜 입출력으로 실제 실행한다.
+const { runViewGeneration } = F;
+const JPEG_DATA = "data:image/jpeg;base64," + Buffer.from(JPEG).toString("base64");
+function viewIo(over = {}) {
+  const log = [];
+  return { log, io: {
+    captions: async (textConfig) => { log.push(["captions", textConfig]); return over.captions ? over.captions(textConfig) : ["캡션1", "캡션2", "캡션3"]; },
+    reduce: async (src) => { log.push(["reduce", src]); return over.reduce ? over.reduce(src) : JPEG_DATA; },
+  } };
+}
+
+test("화면 순서 — 정상: 생성 → 캡션(글자 설정만) → 독립 축소본. 히스토리에 쓰는 값은 임시 주소가 아니라 data URL이다", async () => {
+  const n = net(); const u = urls(); const s = session(n, u);
+  const { io, log } = viewIo();
+  const r = await runViewGeneration(s, CONFIG, io);
+  assert.deepEqual(r, { kind: "done", imageUrl: "blob:test/1", captions: ["캡션1", "캡션2", "캡션3"], assetId: RESULT_ID, needsReload: false, reloadMessage: null, fileExt: "png", assetSaved: true, lastResultImage: undefined, historyImage: JPEG_DATA });
+  assert.deepEqual(log, [["captions", { age: 25, quality: "1K", location: "서울", isAdMode: true }], ["reduce", "blob:test/1"]]);
+  assert.equal(r.historyImage.startsWith("blob:"), false);
+  // 다음 생성이 앞 사본 주소를 해제해도 앞 결과의 히스토리 값은 그대로 쓸 수 있다(주소를 참조하지 않으므로)
+  const r2 = await runViewGeneration(s, CONFIG, io);
+  assert.deepEqual([u.revoked, r2.imageUrl, r.historyImage], [["blob:test/1"], "blob:test/2", JPEG_DATA]);
+  // 축소본이 임시 주소(blob:)나 이상한 값이면 히스토리 값으로 쓰지 않는다. 축소 실패·던짐도 기록 없음(생성 결과는 그대로)
+  for (const reduce of [() => "blob:test/9", () => "https://x/y.jpg", () => null, () => 42, () => { throw new Error("canvas boom"); }]) {
+    const v = await runViewGeneration(session(net(), urls()), { age: 25 }, viewIo({ reduce }).io);
+    assert.deepEqual([v.kind, v.historyImage, v.imageUrl], ["done", null, "blob:test/1"]);
+  }
+  // 캡션 실패·이상 응답: 빈 캡션으로 계속
+  for (const captions of [() => { throw new Error("cap boom"); }, () => "not array", () => [1, "a", null]]) {
+    const v = await runViewGeneration(session(net(), urls()), { age: 25 }, viewIo({ captions }).io);
+    assert.deepEqual([v.kind, v.captions], ["done", captions.toString().includes("[1") ? ["a"] : []]);
+  }
+});
+
+test("화면 순서 — 응답 종류: 사본 없음(pending)은 축소본을 만들지 않고, 응답에 실린 이미지(inline)는 그 이미지로 축소본을 만든다. 실패는 캡션·축소본 요청 0", async () => {
+  // 저장됐지만 사본 없음
+  let x = viewIo();
+  let r = await runViewGeneration(session(net({ storage: () => bin(PNG, 403) }), urls()), { age: 25 }, x.io);
+  assert.deepEqual([r.kind, r.imageUrl, r.needsReload, r.reloadMessage, r.assetId, r.historyImage, x.log.map((l) => l[0])], ["done", null, true, M.RESULT_PENDING, RESULT_ID, null, ["captions"]]);
+  // 저장 불명 + 응답에 실린 이미지
+  x = viewIo();
+  r = await runViewGeneration(session(net({ generate: () => json(200, { imageUrl: INLINE, assetSaved: "unknown", assetId: RESULT_ID }) }), urls()), { age: 25 }, x.io);
+  assert.deepEqual([r.kind, r.imageUrl, r.assetSaved, r.lastResultImage, r.fileExt, r.historyImage, x.log[1]], ["done", INLINE, "unknown", INLINE, null, JPEG_DATA, ["reduce", INLINE]]);
+  // 실패·생략·모드 어긋남·올리기 실패 → 캡션·축소본 요청 0
+  for (const [over, expected] of [
+    [{ generate: () => json(500, { error: "생성 실패 안내" }) }, { kind: "failed", message: "생성 실패 안내", needApiKey: false, assetId: null, needsReload: false }],
+    [{ generate: () => json(400, { error: "키 등록", needApiKey: true }) }, { kind: "failed", message: "키 등록", needApiKey: true, assetId: null, needsReload: false }],
+    [{ generate: () => json(422, { error: "생략", imageOmitted: true, code: "RESPONSE_TOO_LARGE", assetId: RESULT_ID, assetSaved: true }) }, { kind: "failed", message: "생략", needApiKey: false, assetId: RESULT_ID, needsReload: true }],
+    [{ generate: () => json(422, { error: "생략", imageOmitted: true, code: "RESPONSE_TOO_LARGE" }) }, { kind: "failed", message: "생략", needApiKey: false, assetId: null, needsReload: false }],
+    [{ generate: () => json(404, { code: "ASSET_FEATURE_OFF" }) }, { kind: "failed", message: M.MODE_MISMATCH, needApiKey: false, assetId: null, needsReload: false }],
+  ]) {
+    x = viewIo();
+    assert.deepEqual([await runViewGeneration(session(net(over), urls()), { age: 25 }, x.io), x.log], [expected, []]);
+  }
+  // 이미 진행 중이면 건드리지 않는다
+  let release;
+  const n = net({ generate: () => new Promise((res) => { release = () => res(json(500, { error: "x" })); }) });
+  const s = session(n, urls());
+  const first = runViewGeneration(s, { age: 25 }, viewIo().io);
+  await sleep(10);
+  x = viewIo();
+  assert.deepEqual([await runViewGeneration(s, { age: 26 }, x.io), x.log, n.count("generate")], [{ kind: "ignore" }, [], 1]);
+  release(); await first;
+});
+
+test("화면 순서 — 늦은 캡션: 캡션을 기다리는 동안 화면을 떠나거나(계정 전환) 작업이 바뀌면 화면에 적용하지 않고 축소본 요청도 시작하지 않는다", async () => {
+  // 캡션 대기 중 종료(계정 전환·이탈)
+  let releaseCap;
+  let x = viewIo({ captions: () => new Promise((res) => { releaseCap = () => res(["늦은 캡션"]); }) });
+  let u = urls(); let s = session(net(), u);
+  let p = runViewGeneration(s, { age: 25 }, x.io);
+  await sleep(20);
+  s.dispose();
+  releaseCap();
+  assert.deepEqual([await p, x.log.map((l) => l[0]), u.live()], [{ kind: "ignore" }, ["captions"], []], "축소본을 시작하지 않았고 주소도 해제됐다");
+  // 캡션 대기 중 취소 / 새 생성 시작 / 다시 받기
+  for (const act of [(ss) => ss.cancel(), (ss) => { void ss.generate({ age: 99 }); }, (ss) => { void ss.reload(); }]) {
+    x = viewIo({ captions: () => new Promise((res) => { releaseCap = () => res(["늦은 캡션"]); }) });
+    s = session(net(), urls());
+    p = runViewGeneration(s, { age: 25 }, x.io);
+    await sleep(20);
+    act(s);
+    releaseCap();
+    assert.deepEqual([await p, x.log.map((l) => l[0])], [{ kind: "ignore" }, ["captions"]]);
+    await sleep(20);
+  }
+  // 축소본을 만드는 동안 바뀜 → 적용하지 않는다
+  let releaseRed;
+  x = viewIo({ reduce: () => new Promise((res) => { releaseRed = () => res(JPEG_DATA); }) });
+  s = session(net(), urls());
+  p = runViewGeneration(s, { age: 25 }, x.io);
+  await sleep(20);
+  s.dispose();
+  releaseRed();
+  assert.deepEqual(await p, { kind: "ignore" });
+  // 사진이 바뀌어 올리기가 취소됨 → 안내만, 캡션·축소본 0
+  let releaseUp;
+  x = viewIo();
+  s = session(net({ upload: () => new Promise((res) => { releaseUp = () => res(json(200, { assetId: id(1), assetSaved: true })); }) }), urls());
+  p = runViewGeneration(s, CONFIG, x.io);
+  await sleep(10);
+  s.photosChanged();
+  releaseUp();
+  assert.deepEqual([await p, x.log], [{ kind: "cancelled", message: SESSION_MESSAGES.PHOTOS_CHANGED }, []]);
+  // 생성 응답 대기 중 종료 → 건드리지 않는다
+  let releaseGen;
+  x = viewIo();
+  s = session(net({ generate: () => new Promise((res) => { releaseGen = () => res(json(200, { assetId: RESULT_ID, assetSaved: true, signedUrl: signed() })); }) }), urls());
+  p = runViewGeneration(s, { age: 25 }, x.io);
+  await sleep(10);
+  s.dispose();
+  releaseGen();
+  assert.deepEqual([await p, x.log], [{ kind: "ignore" }, []]);
+});
+
+test("작업 표지: stamp는 취소·새 생성·다시 받기·종료 때 바뀌고, 그대로면 isCurrent가 참이다", async () => {
+  const s = session(net(), urls());
+  await s.generate({ age: 25 });
+  const a = s.stamp;
+  assert.equal(s.isCurrent(a), true);
+  s.photosChanged();                         // 한가할 때의 사진 변경은 표지를 바꾸지 않는다
+  s.clearResult();
+  assert.equal(s.isCurrent(a), true);
+  s.cancel();
+  assert.equal(s.isCurrent(a), false);
+  const b = s.stamp;
+  await s.generate({ age: 26 });
+  assert.equal(s.isCurrent(b), false);
+  const c = s.stamp;
+  await s.reload();
+  assert.equal(s.isCurrent(c), false);
+  const d = s.stamp;
+  assert.equal(s.isCurrent(d), true);
+  s.dispose();
+  assert.deepEqual([s.isCurrent(d), s.isCurrent(s.stamp)], [false, false], "종료된 세션은 어떤 표지도 현재가 아니다");
 });
 
 test("처리되지 않은 거부가 하나도 없다", async () => {

@@ -11,7 +11,7 @@ import type { InfluencerConfig, GenerationResult, HistoryItem } from "@/types/in
 import { assetSaveNotice } from "@/lib/assets/saveNotice";
 import { readGenerateResponse } from "@/lib/assets/generateResponse";
 import { collectReferences, prepareLastResultForRefine, referenceErrorMessage } from "@/lib/referenceImage";
-import { AssetFlowSession, CLIENT_MESSAGES, SESSION_MESSAGES, keepPhotosIfLocked, stripPhotoFields } from "@/lib/assets/clientFlow";
+import { AssetFlowSession, CLIENT_MESSAGES, SESSION_MESSAGES, keepPhotosIfLocked, runViewGeneration, stripPhotoFields } from "@/lib/assets/clientFlow";
 
 interface InfluencerStudioProps {
   userEmail?: string | null;
@@ -51,7 +51,11 @@ type ServerHistory = { id: string; createdAt: string; imageUrl: string; captions
 const fromServer = (h: ServerHistory): HistoryItem => ({ id: h.id, timestamp: formatHistoryTime(h.createdAt), imageUrl: h.imageUrl, captions: h.captions ?? [], config: h.config, summary: h.summary });
 
 async function postHistory(imageSrc: string, captions: string[], config: InfluencerConfig, summary: string): Promise<HistoryItem | null> {
-  const image = await toHistoryJpeg(imageSrc);
+  return postHistoryJpeg(await toHistoryJpeg(imageSrc), captions, config, summary);
+}
+
+/** 이미 줄여 둔 JPEG(data URL)를 히스토리로 보낸다 — postHistory의 뒷부분 그대로 */
+async function postHistoryJpeg(image: string, captions: string[], config: InfluencerConfig, summary: string): Promise<HistoryItem | null> {
   // 사진 데이터(얼굴·장소·상품 사진, 직전 결과)는 보내지 않는다 — 글자 설정만 저장(서버도 한 번 더 뺀다)
   const { personImage: _p, placeImage: _l, productImages: _i, lastResultImage: _r, ...textConfig } = config ?? ({} as InfluencerConfig);
   void _p; void _l; void _i; void _r;
@@ -111,6 +115,7 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
   // 세션은 화면·계정 단위다: 계정이 바뀌거나 화면을 떠나면 끝낸다(진행 중 요청 취소 + 메모리 사본 주소 해제 + 번호 기억 삭제).
   // 세대 확인·취소·중복 방지는 세션(src/lib/assets/clientFlow.ts)이 한다. assetFlow가 false면 세션을 만들지 않고 아래 코드는 기존 흐름과 같다.
   const sessionRef = useRef<AssetFlowSession | null>(null);
+  const hadSessionRef = useRef(false);
   const [isReloadingAsset, setIsReloadingAsset] = useState(false);
   useEffect(() => {
     if (!assetFlow) return;
@@ -121,6 +126,13 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
       revokeObjectURL: (url) => URL.revokeObjectURL(url),
     });
     sessionRef.current = session;
+    // 계정(또는 모드)이 바뀌어 세션을 새로 만든 경우: 앞 계정의 결과·번호·로딩·다시 불러오기 상태와 참고 사진을 새 세션에 남기지 않는다(첫 마운트에서는 하지 않는다)
+    if (hadSessionRef.current) {
+      setResult({ imageUrl: null, captions: [], loading: false, error: null });
+      setIsReloadingAsset(false);
+      setConfig((prev) => ({ ...prev, personImage: undefined, placeImage: undefined, productImages: [], lastResultImage: undefined, feedback: undefined }));
+    }
+    hadSessionRef.current = true;
     return () => {
       session.dispose();
       if (sessionRef.current === session) sessionRef.current = null;
@@ -286,6 +298,11 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
     }
 
     const isRefining = !!refinementFeedback;
+    // 자산 번호 흐름일 때만: 기다린 뒤 「아직 같은 세션·같은 작업인가」를 확인한다 — 화면을 떠났거나 계정·작업이 바뀌었으면 화면에 적용하지 않고 다음 요청도 보내지 않는다.
+    // 이미 보낸 요청의 결과(생성·차감)는 알 수 없다. assetFlow가 아니면 항상 참이라 기존 흐름과 같다.
+    const startSession = sessionRef.current;
+    const startStamp = startSession?.stamp ?? 0;
+    const stillMine = () => !assetFlow || (!!startSession && sessionRef.current === startSession && startSession.isCurrent(startStamp));
 
     // W01c(2026-11-18): 보정은 방금 만든 결과(data URL)만 보낸다 — 히스토리에서 불러온 결과(서명 주소)는 보내지 않고 안내.
     // 큰 결과는 보내기 전에 JPEG(긴 변 2048, 1MB 이하)로 맞춘다. 정상 새 생성 경로는 그대로.
@@ -299,6 +316,7 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
         return;
       }
       const prepared = await prepareLastResultForRefine(refineSource);
+      if (!stillMine()) return;
       if (!prepared.ok) {
         setResult((prev) => ({ ...prev, loading: false, error: prepared.message }));
         return;
@@ -345,6 +363,7 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
       // 응답 해석은 한 곳에서(W01x): JSON이 아니거나 이미지가 실리지 않은 응답은 고정 문구로 끝낸다 —
       // 아래의 캡션 호출·결과 표시·히스토리 기록으로 넘어가지 않고, 다시 생성하지도 않는다.
       const outcome = await readGenerateResponse(imgRes);
+      if (!stillMine()) return;   // 떠났거나 바뀐 작업 — 결과를 화면에 적용하지 않고 캡션·히스토리 요청도 보내지 않는다
       if (outcome.kind !== "image") {
         if (outcome.kind === "error" && outcome.needApiKey) {
           setIsApiKeyModalOpen(true);
@@ -372,6 +391,7 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
       } catch (capErr) {
         console.warn("캡션 생성 실패:", capErr);
       }
+      if (!stillMine()) return;
 
       sessionRef.current?.clearResult();   // 기존 경로의 결과(data URL)로 바뀐다 — 앞 결과의 메모리 사본을 놓는다(assetFlow가 아니면 세션이 없다)
       setResult({
@@ -391,6 +411,7 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
 
       saveToHistory(generatedImageUrl, generatedCaptions, configToSubmit);
     } catch (err: any) {
+      if (!stillMine()) return;
       setResult((prev) => ({
         ...prev,
         loading: false,
@@ -401,6 +422,7 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
   };
 
   // ── 자산 번호 흐름의 새 생성(W01-UII) — 참고 사진 올리기 → 번호로 생성 → 결과 사본 표시. 어디서 끝나든 다시 보내지 않는다 ──
+  // 순서와 「아직 같은 작업인가」 확인은 runViewGeneration(src/lib/assets/clientFlow.ts)이 한다. 여기서는 그 결과를 화면에 적용할 뿐이다.
   const handleGenerateWithAssets = async (configToSubmit: InfluencerConfig) => {
     const session = sessionRef.current;
     if (!session) {
@@ -410,68 +432,77 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
     if (session.busy) return;   // 이미 진행 중 — 두 번 보내지 않는다
 
     setResult((prev) => ({ ...prev, loading: true, error: null, imageUrl: null, captions: [], assetNotice: null, assetId: null, needsReload: false, reloadMessage: null, fileExt: undefined }));
-    const view = await session.generate(configToSubmit as unknown as Record<string, unknown>);
+    const done = await runViewGeneration(session, configToSubmit as unknown as Record<string, unknown>, {
+      // 캡션: 기존과 같은 호출. 캡션은 사진을 쓰지 않으므로 글자 설정만 보낸다
+      captions: async (textConfig) => {
+        const capRes = await fetch("/api/generate-caption", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ config: textConfig }) });
+        const capData = await capRes.json();
+        return capData.success ? capData.captions : [];
+      },
+      // 히스토리용 축소본(긴 변 1440 JPEG data URL) — 화면의 임시 주소(blob:)와 무관한 독립 사본
+      reduce: (src) => toHistoryJpeg(src).catch(() => null),
+    });
+    if (sessionRef.current !== session) return;   // 계정·모드가 바뀌어 세션이 교체됐다 — 화면을 건드리지 않는다
 
-    if (view.kind === "busy") return;
-    if (view.kind === "stale") {
-      // 화면을 떠났거나 계정이 바뀐 경우에는 화면 상태를 건드리지 않는다. 사진이 바뀌어 취소된 경우만 안내한다
-      if (!view.disposed) setResult((prev) => ({ ...prev, loading: false, error: SESSION_MESSAGES.PHOTOS_CHANGED }));
+    if (done.kind === "ignore") return;
+    if (done.kind === "cancelled") {
+      setResult((prev) => ({ ...prev, loading: false, error: done.message }));
       return;
     }
-    if (view.kind === "error" || view.kind === "mode_mismatch" || view.kind === "checking" || view.kind === "gone") {
-      if (view.kind === "error" && view.needApiKey) setIsApiKeyModalOpen(true);
-      setResult((prev) => ({ ...prev, loading: false, error: view.message }));
-      alert(view.message);
-      return;
-    }
-    if (view.kind === "omitted") {
-      // 생성은 됐지만 응답에 이미지가 없다. 번호가 있으면 [다시 불러오기]만 보여 준다(스스로 조회하지 않는다)
-      setResult((prev) => ({ ...prev, loading: false, error: view.message, assetId: view.assetId, needsReload: !!view.assetId, reloadMessage: null }));
-      alert(view.message);
+    if (done.kind === "failed") {
+      if (done.needApiKey) setIsApiKeyModalOpen(true);
+      // 생성은 됐지만 이미지를 받지 못한 경우(번호가 있으면) [다시 불러오기]만 보여 준다 — 스스로 조회하지 않는다
+      setResult((prev) => ({ ...prev, loading: false, error: done.message, assetId: done.assetId, needsReload: done.needsReload, reloadMessage: null }));
+      alert(done.message);
       return;
     }
 
-    // 여기부터는 생성이 끝난 경우다: shown(사본 있음) · pending(저장됐지만 사본 없음) · inline(저장 불명·안 됨 — 응답에 실린 이미지)
-    // 캡션: 기존과 같은 호출. 캡션은 사진을 쓰지 않으므로 글자 설정만 보낸다
-    let generatedCaptions: string[] = [];
-    try {
-      const capRes = await fetch("/api/generate-caption", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ config: stripPhotoFields(configToSubmit as unknown as Record<string, unknown>) }),
-      });
-      const capData = await capRes.json();
-      if (capData.success) generatedCaptions = capData.captions;
-    } catch (capErr) {
-      console.warn("캡션 생성 실패:", capErr);
-    }
-
-    const imageUrl = view.kind === "shown" ? view.src : view.kind === "inline" ? view.imageUrl : null;
-    const assetNotice = view.kind === "shown" ? assetSaveNotice({ assetSaved: true }) : view.kind === "inline" ? assetSaveNotice({ assetSaved: view.assetSaved }) : null;
+    const assetNotice = done.assetSaved === null ? null : assetSaveNotice({ assetSaved: done.assetSaved });
     setResult({
-      imageUrl,
-      captions: generatedCaptions,
+      imageUrl: done.imageUrl,
+      captions: done.captions,
       loading: false,
       error: null,
-      assetId: view.assetId,
-      needsReload: view.kind === "pending",
-      reloadMessage: view.kind === "pending" ? view.message : null,
-      ...(view.kind === "shown" ? { fileExt: view.fileExt } : {}),
+      assetId: done.assetId,
+      needsReload: done.needsReload,
+      reloadMessage: done.reloadMessage,
+      ...(done.fileExt ? { fileExt: done.fileExt } : {}),
       ...(assetNotice ? { assetNotice } : {}),
     });
     // 직전 결과 칸: 응답에 실린 이미지(data URL)는 기존처럼 둔다. 메모리 사본(blob:)은 설정에 넣지 않는다 — 보정 때 세션에서 꺼낸다
-    setConfig((prev) => ({ ...prev, lastResultImage: view.kind === "inline" ? view.imageUrl : undefined, feedback: undefined }));
-    // 히스토리: 화면에 이미지가 있을 때만 기존과 같은 호출로 저장한다(축소본). 사본이 없으면 저장하지 않는다
-    if (imageUrl) saveToHistory(imageUrl, generatedCaptions, configToSubmit);
+    setConfig((prev) => ({ ...prev, lastResultImage: done.lastResultImage, feedback: undefined }));
+    // 히스토리: 독립 축소본으로만 기록한다(목록의 항목이 임시 주소를 참조하지 않는다). 축소본을 만들지 못했으면 기록하지 않는다
+    if (done.historyImage) saveHistoryJpeg(done.historyImage, done.captions, configToSubmit, session);
   };
 
-  // [다시 불러오기] — 누를 때마다 조회 한 번. 스스로 되풀이하지 않는다
+  // 히스토리 기록(자산 번호 흐름): 이미 줄인 JPEG를 목록에 넣고 같은 호출(/api/history)로 저장한다. 세션이 바뀌었으면 서버 응답을 목록에 적용하지 않는다
+  const saveHistoryJpeg = (jpeg: string, captions: string[], usedConfig: InfluencerConfig, session: AssetFlowSession) => {
+    const newItem: HistoryItem = {
+      id: "hist_" + Date.now(),
+      timestamp: new Date().toLocaleString("ko-KR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
+      imageUrl: jpeg,
+      captions,
+      config: usedConfig,
+      summary: `${usedConfig.age}세 ${usedConfig.ethnicity === "kr" ? "한국인" : "모델"} · ${usedConfig.location.slice(0, 15)}`,
+    };
+    setHistoryItems((cur) => [newItem, ...cur.slice(0, 29)]);
+    void postHistoryJpeg(jpeg, captions, usedConfig, newItem.summary)
+      .then((saved) => { if (saved && sessionRef.current === session) setHistoryItems((cur) => cur.map((h) => (h.id === newItem.id ? saved : h))); })
+      .catch((e) => console.warn("히스토리 저장 실패:", e));
+  };
+
+  // [다시 불러오기] — 누를 때마다 조회 한 번. 스스로 되풀이하지 않는다.
+  // 제한: 이렇게 받아 온 결과는 히스토리에 기록하지 않는다(버튼 1회 = 조회 1회, 기록 중복 0). 그 결과는 화면과 내려받기·발행·보정에만 쓰인다
   const handleReloadAsset = async () => {
     const session = sessionRef.current;
     if (!session || isReloadingAsset) return;
     setIsReloadingAsset(true);
     const view = await session.reload();
-    if (view.kind === "stale" && view.disposed) return;
+    if (sessionRef.current !== session) return;   // 세션이 교체됐다 — 새 세션의 상태를 건드리지 않는다(교체 때 이미 초기화했다)
+    if (view.kind === "stale") {
+      if (!view.disposed) setIsReloadingAsset(false);
+      return;
+    }
     setIsReloadingAsset(false);
     if (view.kind === "shown") {
       setResult((prev) => ({ ...prev, imageUrl: view.src, fileExt: view.fileExt, needsReload: false, reloadMessage: null, error: null, assetNotice: assetSaveNotice({ assetSaved: true }) }));

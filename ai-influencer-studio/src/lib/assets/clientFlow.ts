@@ -459,6 +459,10 @@ export class AssetFlowSession {
   get locked(): boolean { return this.phase === "generating" || this.phase === "receiving"; }
   get hasResultCopy(): boolean { return this.blob !== null; }
   get currentAssetId(): string | null { return this.assetId; }
+  /** 지금 작업의 표지. 취소·새 작업·종료 때마다 바뀐다 — 기다린 뒤 isCurrent로 「아직 같은 작업인가」를 확인한다 */
+  get stamp(): number { return this.epoch; }
+  /** 그 표지를 받은 뒤로 취소·새 생성·다시 받기·종료가 없었는가 */
+  isCurrent(stamp: number): boolean { return !this.disposed && stamp === this.epoch; }
 
   /** 새 생성 한 번. 이미 진행 중이면 시작하지 않는다 */
   async generate(config: Record<string, unknown>): Promise<SessionView> {
@@ -574,6 +578,60 @@ export class AssetFlowSession {
     this.blob = null;
     if (u) { try { this.deps.revokeObjectURL(u); } catch { /* 버린다 */ } }
   }
+}
+
+// ───────────── 화면 적용 순서(W01-UII 보완) — 생성 → 캡션 → 히스토리용 축소본. 기다릴 때마다 「아직 같은 작업인가」를 확인한다 ─────────────
+export type ViewIo = {
+  /** 캡션 요청(글자 설정만 받는다). 실패하면 빈 배열로 돌려주거나 던져도 된다 */
+  captions: (textConfig: Record<string, unknown>) => Promise<string[]>;
+  /** 화면에 있는 이미지 주소(blob: 또는 data:)에서 히스토리용 축소본(data URL)을 만든다. 못 만들면 null */
+  reduce: (src: string) => Promise<string | null>;
+};
+export type ViewResult =
+  /** 화면을 건드리지 않는다: 이미 진행 중이었거나, 그사이 화면을 떠났거나 계정·작업이 바뀌었다. 새 요청도 보내지 않는다 */
+  | { kind: "ignore" }
+  /** 참고 사진이 바뀌어 올리기를 취소했다 */
+  | { kind: "cancelled"; message: string }
+  | { kind: "failed"; message: string; needApiKey: boolean; assetId: string | null; needsReload: boolean }
+  | {
+      kind: "done"; imageUrl: string | null; captions: string[]; assetId: string | null; needsReload: boolean; reloadMessage: string | null;
+      fileExt: "png" | "jpg" | "webp" | null; assetSaved: true | false | "unknown" | null;
+      /** 기존 설정 칸(lastResultImage)에 둘 값: 응답에 실린 이미지(data URL)일 때만. 메모리 사본(blob:)은 넣지 않는다 */
+      lastResultImage: string | undefined;
+      /** 히스토리에 쓸 독립 축소본(data URL). blob: 주소를 히스토리가 참조하지 않게 한다. 만들지 못했거나 이미지가 없으면 null */
+      historyImage: string | null;
+    };
+
+/** 새 생성 한 번의 화면 쪽 순서. 세션이 바뀌거나 작업이 바뀌면 그 뒤의 요청(캡션·축소본)을 시작하지 않고 ignore를 돌려준다 */
+export async function runViewGeneration(session: AssetFlowSession, config: Record<string, unknown>, io: ViewIo): Promise<ViewResult> {
+  const view = await session.generate(config);
+  if (view.kind === "busy") return { kind: "ignore" };
+  if (view.kind === "stale") return view.disposed ? { kind: "ignore" } : { kind: "cancelled", message: SESSION_MESSAGES.PHOTOS_CHANGED };
+  if (view.kind === "error") return { kind: "failed", message: view.message, needApiKey: view.needApiKey, assetId: null, needsReload: false };
+  if (view.kind === "mode_mismatch" || view.kind === "checking" || view.kind === "gone") return { kind: "failed", message: view.message, needApiKey: false, assetId: null, needsReload: false };
+  if (view.kind === "omitted") return { kind: "failed", message: view.message, needApiKey: false, assetId: view.assetId, needsReload: !!view.assetId };
+
+  // 생성은 끝났다(shown·pending·inline). 여기서부터 기다릴 때마다 같은 작업인지 확인한다 — 아니면 화면에 적용하지 않고 다음 요청도 보내지 않는다
+  const stamp = session.stamp;
+  let captions: string[] = [];
+  try {
+    const c = await io.captions(stripPhotoFields(config));
+    if (Array.isArray(c)) captions = c.filter((x): x is string => typeof x === "string");
+  } catch { captions = []; }
+  if (!session.isCurrent(stamp)) return { kind: "ignore" };
+
+  const imageUrl = view.kind === "shown" ? view.src : view.kind === "inline" ? view.imageUrl : null;
+  let historyImage: string | null = null;
+  if (imageUrl) {
+    try { historyImage = await io.reduce(imageUrl); } catch { historyImage = null; }
+    if (!session.isCurrent(stamp)) return { kind: "ignore" };
+    if (typeof historyImage !== "string" || !historyImage.startsWith("data:image/")) historyImage = null;   // 독립된 data URL만 — blob: 주소를 히스토리에 넣지 않는다
+  }
+  return {
+    kind: "done", imageUrl, captions, assetId: view.assetId, needsReload: view.kind === "pending", reloadMessage: view.kind === "pending" ? view.message : null,
+    fileExt: view.kind === "shown" ? view.fileExt : null, assetSaved: view.kind === "shown" ? true : view.kind === "inline" ? view.assetSaved : true,
+    lastResultImage: view.kind === "inline" ? view.imageUrl : undefined, historyImage,
+  };
 }
 
 /** 생성 요청이 나간 동안(locked)에는 참고 사진 칸의 변경을 받지 않는다 — 그 밖의 칸은 그대로 받는다. locked가 아니면 next 그대로 */
