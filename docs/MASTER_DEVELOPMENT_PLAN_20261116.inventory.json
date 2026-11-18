@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 12:56:17 KST",
+  "checkedAt": "2026-11-18 12:57:23 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T03:56:17.455Z",
+      "at": "2026-11-18T03:57:23.114Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Mac 독립검수 P2 즉시 확인",
-      "scope": "CRM18-05 F-F02 선점 해제 실패·재개 보장 판정",
+      "trigger": "Mac 최종 보고·수락 이벤트 확인",
+      "scope": "CRM18-05 b777 최종 검수 범위와 F-F02 미해결 분리",
       "evidence": [
-        "msg_21e5d6846290 가짜DB 발송0/held1/claim1·다음회 미재개",
-        "msg_b1c76dd8b54c Backend 수정 반환",
-        "msg_f0646441a224 Mac 원본 판정 보존 전달"
+        "msg_2e62f3c51424 최종 결과 파일 보고",
+        "msg_a97802e08ee5 새 SHA 전 반복시험 중지 수락"
       ],
-      "judgment": "완료 수락 보류. 해제 실패를 정상 보류와 구분하도록 반환, claim 임의 삭제·자동 재발송 금지.",
+      "judgment": "기존 수정 통과 범위는 보존하되 F-F02 미해결로 needs_revision 유지. 추가 중복 배정 없음.",
       "unverified": [
-        "작성자 수정 수락·새 SHA·독립 재검수"
+        "Backend F-F02 수정 SHA",
+        "실DB/실발송/운영 반영"
       ],
-      "nextAction": "수정본 수신 후 지정 반례 재검수 배정"
+      "nextAction": "작성자 수정본이 도착하면 Mac 재검수 배정"
     },
     "notifications": [
       {
@@ -7812,17 +7812,17 @@
       "title": "미확정 접수 후속알림 기본보류·가시성",
       "status": "needs_revision",
       "delivery": "claim_release_failure_fix_dispatched",
-      "evidence": "주인님Backend직접결정msg_1a6232e00dae·Mastermsg_38c5209014e0·결과msg_c55199dc02d9·Master5파일stat·Macmsg_3c7aed78d74d · Mac원본최종msg_6d66044115ee · Backend수정msg_b02e2a979da0 · Master수정범위/본문확인 · 재검수msg_b846a65474f7 · Mac F-F02 msg_21e5d6846290 · 수정반환 msg_b1c76dd8b54c · Mac범위보존 msg_f0646441a224",
+      "evidence": "주인님Backend직접결정msg_1a6232e00dae·Mastermsg_38c5209014e0·결과msg_c55199dc02d9·Master5파일stat·Macmsg_3c7aed78d74d · Mac원본최종msg_6d66044115ee · Backend수정msg_b02e2a979da0 · Master수정범위/본문확인 · 재검수msg_b846a65474f7 · Mac F-F02 msg_21e5d6846290 · 수정반환 msg_b1c76dd8b54c · Mac범위보존 msg_f0646441a224 · Mac최종 msg_2e62f3c51424 · 검수대기수락 msg_a97802e08ee5",
       "scopeRef": "followupDispatch.ts·submissionStatus.ts·시험/기존문서·추가호출자필요시경로먼저",
       "completion": "dispatching/partial/unknown/미지값보류·발송/선점0·실화면보류이유/held가시성·확정후1회재개/limit기아검증",
       "constraints": "received/failed/notified기존동작·실DB/DDL/웹훅/실발송/배포0",
       "next": "Backend F-F02 삭제 실패/불명 진단·claim 보존·자동 재발송0 수정 SHA 회수 후 Mac 재검수",
-      "lastReviewedAt": "2026-11-18T03:56:17.455Z",
+      "lastReviewedAt": "2026-11-18T03:57:23.114Z",
       "sha": "b777bf01c",
       "validation": {
         "author": "수정 실함수64/64·dedupe14/14·tsc0(작성자 보고)",
         "master": "3파일 stat·실 followupDispatch 본문 확인, 기존 회원 경계 문제와 새 회귀 구분",
-        "independent": "b777 회원경계·상태재확인·정상 해제/재개·부분시도 보존 지정 통과. 새 F-F02: DELETE 오류 무시로 held1/claim잔류 후 확정돼도 재개 불가. 최종 보고 대기, 수정 반환."
+        "independent": "b777 최종보고 .ai/results/CRM-20261118-05-CX-QA-01.md: native64/64 및 회원/소스·재조회실패·계정await·정상해제/재개·부분시도보존 지정 통과. F-F02 삭제오류 무시로 claim 잔류·미재개 재현으로 전체 수락 보류. 새 SHA 전 반복시험 중지 수락."
       },
       "limitations": [
         "운영 미배포·운영 RLS/DDL/실발송0",
