@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 10:14:04 KST",
+  "checkedAt": "2026-11-18 10:15:44 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,19 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T01:14:04.413Z",
+      "at": "2026-11-18T01:15:44.278Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Workspace WS27 ON소스/840시험 보고",
-      "scope": "722a3ba99 실제diff·SQL2파일 sha256·다음단계/중복검사방지",
+      "trigger": "Workspace WS27 SQL完了報告",
+      "scope": "0074/0075適用・事前/事後権限根拠・リリース順番",
       "evidence": [
-        "Master git diff 정확2파일·SQL지문2개일치",
-        "작성자61/840·tsc0·qa_0",
-        "SQL계속/명시manifest 지시 msg_de065db7e67f"
+        "担当報告: ref一致・2migration success・index/role/RLS確認",
+        "build0・カタログGmail項目露出済み"
       ],
-      "judgment": "ON소스 지정범위수락·운영SQL/배포완료와분리·Master중복실행0",
+      "judgment": "SQL段階は作成者運用確認として受理・Master独立DB再照会0。指定Workspaceのv1.58準備継続・重複SQL0",
       "unverified": [
-        "사전검사/운영0074-75·권한·v1.58배포·실OAuth/Gmail"
+        "v1.58 manifest/Ready/alias/DBversion・実OAuth/Gmail・Mac独立検収"
       ],
-      "nextAction": "Workspace SQL/배포단계보고 회수→실alias확인→Mac검수"
+      "nextAction": "同一担当のreleaseSHA/manifest/配布結果回収→Master alias→Mac連携"
     },
     "notifications": [
       {
@@ -6869,11 +6868,11 @@
       "reviewer": "CX-MASTER-01",
       "title": "Gmail 운영 SQL 적용·실계정 검증·활성화",
       "status": "running",
-      "delivery": "source_reviewed_sql_phase_reported",
+      "delivery": "sql_applied_author_verified_release_preparing",
       "scopeRef": "0074→0075 운영적용/정의검증·회원본인OAuth동의/metadata·실PostgREST/주소·스위치/배포 승인별도",
-      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f",
+      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f·Workspace SQL完了報告(主会話)",
       "completion": "승인된범위의운영마이그레이션·실계정/권한/계정경계·활성배포·운영동작 확인",
-      "next": "사전읽기/0074→0075/권한단계보고→명시v1.58 SHA/manifest·정상빌드1회",
+      "next": "カタログ露出済み→同一担当v1.58明示SHA/manifest・build1→Ready/alias・version1行→OAuth/Gmail",
       "blockedReason": null,
       "approval": {
         "source": "주인님 Workspace 채팅 선택 답변 2026-11-18",
@@ -6884,12 +6883,24 @@
         "recoveryUsed": 0,
         "scope": "0074→0075 운영적용·Gmail ON·v1.58 묶음·확인표 실OAuth/Gmail검증"
       },
-      "lastReviewedAt": "2026-11-18T01:14:04.413Z",
+      "lastReviewedAt": "2026-11-18T01:15:44.278Z",
       "sha": "722a3ba99",
       "validation": {
         "author": "전체61파일840/840·tsc0·qa_0",
         "master": "정확2파일diff·스위치ON/시험명시OFF·0074/75 지문일치",
         "runtime": "미배포·운영SQL결과대기"
+      },
+      "sql": {
+        "projectRef": "esgxyikcnnvmlhygjkth",
+        "migrations": [
+          "0074_gmail_catalog_one_account",
+          "0075_gmail_inbox_claims"
+        ],
+        "status": "applied_author_report",
+        "precheck": "重複0・既存Gmail/索引/表/関数0・schema一致",
+        "postcheck": "catalog1·index unique/valid/ready/live true·anon/auth表/関数false·service_role true·RLS true/policy0·SECURITY INVOKER/search_path空",
+        "transaction": "apply_migration道具のtransactionで実行·ファイルbegin/commit/末尾確認除外と報告",
+        "masterIndependentDbRead": false
       }
     },
     {
