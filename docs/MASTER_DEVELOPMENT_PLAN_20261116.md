@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 16:26:15 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 16:29:56 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 16:26:15 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 16:29:56 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: e701경로SHA/운영차단15·30일정리다음계약·티스토리prj/source/검사/큐/예산 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 티스토리운영alias/작성자ZIP·DB·예산1/3·SNS553정리상태/용량계약 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 16:26:15 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 280개: done 257개 · cancelled 7개 · ready_review 1개 · running 2개 · waiting_human 7개 · superseded 1개 · queued 3개 · reviewing 1개 · dispatched 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 280개: done 257개 · cancelled 7개 · ready_review 1개 · running 2개 · waiting_human 7개 · superseded 1개 · queued 3개 · reviewing 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -426,11 +426,11 @@ Master 마지막 실제 점검: 2026-11-18 16:26:15 KST · 실행 중 점검 주
 | AIF-20261118-W01g | CC-SNS-01 | done / mocked_store_specified_independent_review_pass_accepted | 생성 원본 저장 계층·주입 모의 시험 | OFF 기본 라우트 연결 W01h 모의통합 |
 | AIF-20261118-W01h | CC-SNS-01 | done / default_off_route_mock_integration_specified_independent_PASS_accepted | 원본 저장 OFF 기본 라우트 연결·모의 통합 | W01i OFF 기본 원본 자산 조회 모의단위 |
 | AIF-20261118-W01i | CC-SNS-01 | done / exact_signed_object_read_route_specified_mock_review_pass_accepted | 원본 자산 조회 OFF 기본 경로·모의시험 | A1 OFF소스완료표/운영보관정리 선행조건 취합 |
-| BLOG-20261118-02 | CC-BLOG-01 | running / first_tistory_release_preflight_accepted | 승인된 블로그3프로그램 순차묶음 배포 | 티스토리승인1/3 배포1회→Ready/alias/버전/확장검사→이웃2/3 |
+| BLOG-20261118-02 | CC-BLOG-01 | running / tistory_1of3_completed_second_preflight | 승인된 블로그3프로그램 순차묶음 배포 | 이웃소통1.22 사전대조/두번째1회→Ready/alias/버전·마지막webT04합침 |
 | BLOG-20261118-03 | CC-BLOG-01 | queued / owner_approved_cleanup_backup_and_tag_first_exact_scope_after_releases | T08 구형 ghost-scraper 백업후정리 승인범위 구체화 | 기존website검수재사용·정확백업/삭제범위보고→착수범위확정 |
 | BLOG-20261118-04 | CC-BLOG-01 | queued / owner_product_decision_recorded_operating_DDL_Render_not_approved | T03 도메인 구조 캐시 회원별 격리 결정 반영 | T07Excel/T06선행관계확인뒤정확DB/Render플랜·비용취합 |
 | AIF-20261118-W01j | CC-SNS-01 | done / OFF_source_completion_and_activation_blockers_reconciled | A1 OFF소스완료표·운영선행 보관/정리 조건 취합 | W01k 30일보관정리 첫계약·운영ON차단유지 |
-| AIF-20261118-W01k | CC-SNS-01 | dispatched / bounded_existing_W00_read_design_only | 원본 자산 일반30일 정리 연결 첫계약 | 정확계약/기존공용대조회수→독립검토후첫정리구현범위배정 |
+| AIF-20261118-W01k | CC-SNS-01 | reviewing / retention_contract_553_received_static_cross_function_review | 원본 자산 일반30일 정리 연결 첫계약 | Mac정적계약결과/expired용량·재처리/복원·기산일/추적버킷검토→한번수정반환 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
@@ -440,7 +440,7 @@ Master 마지막 실제 점검: 2026-11-18 16:26:15 KST · 실행 중 점검 주
 | Website Scraper | CC-BLOG-01 (문서·요청 조정) | v1.15 | 병합·비활성·백업비공개 | WS10 DB v1.15/is_activefalse/backup비공개·옛API410 코드 | T12 문서/요청조정Blog 배정완료·라이브화면확인은담당미정, 재활성화/운영변경0 |
 | 웹 크롤링 자동화 | CC-BLOG-01 (문서·요청 조정) | v1.12 | T05 robots/DNS·T07 폴러 소스독립PASS/미배포 | T05 fc48ebcba+8172d8084/DNS보완·T07 40662e6ae+1a54bdd06, QA023/029 지정PASS | 다음web-crawler묶음·화면/실HTTP는후속, T12조정담당Blog·제품권한확대0 |
 | 부동산 실거래 투자분석 자동화 | CC-REALTY-01 | v1.61 | 운영v1.61·뉴스기존회차대조완료 | 08시옛대기 해소·11-17기존측정완료, 후보C는개발분석결과만 | 뉴스후보C 독립기간표본 확보후Master별도배정·새수집/기존개발표본반복0 |
-| 티스토리 포스팅 자동화 | CC-BLOG-01 | v1.97 / v1.98 후보 | 운영·소제목수정완료 / 미배포 | B4생성/보관완료,a27861137 소제목8시험 | 다음배포후H2확인·실청구검증별도 |
+| 티스토리 포스팅 자동화 | CC-BLOG-01 | v1.98 작성자 DB/ext확인·Master운영alias직접 | 승인3배포 첫번째Ready·미리보기검수대기 | B4생성/보관완료,a27861137 소제목8시험 | 세배포뒤기존원고1 미리보기·AI0 |
 | Threads 쇼핑제휴 자동화 | CC-ECOM-01 | v1.89 | 네이버수집/원자등록 수정 운영·실확장검수대기 | URL/protocol/경합수정·WS17-01~04 및지정QA근거, qkncpet55배포 담당기록 | Mac공간19 설치1.89·네이버로그인·본인링크로수집/대기열만, 실제등록/글AI 별도범위 |
 | AI 유튜브 떡상 분석 자동화 | CC-MOVIE-01 | v1.30 | 운영v1.30·1단계실검색/AI기획안 담당운영검수완료 | 주인님직접실검색+Claude Haiku기획안1회·cache67/68재사용·본문표시확인, 캡처미확보·약$0.03추정 | 1단계실검색/AI옛대기마감·반복유료호출0·추가기능은별도배정 |
 | YOUTUBE 플레이리스트 자동화 | CC-MUSIC-01 | v1.42 | 운영·실화면 검증 | 곡0개 업로드기록/업무단추 확인, 30일정리11-14 확인 | 업무전달 재실행 안 함; 직접파일저장/예외검수는별도 |
@@ -542,7 +542,7 @@ Master 마지막 실제 점검: 2026-11-18 16:26:15 KST · 실행 중 점검 주
 | 33 | 무한루프 영상자동화 / infinite-loop-video | 영상 | v1.10 / 운영 | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 34 | 부동산 실거래 투자분석 자동화 / real-estate-sales | 부동산 | v1.61 / 운영 | v1.61 | CC-REALTY-01 · 운영v1.61·뉴스기존회차대조완료 | 뉴스후보C 독립기간표본 확보후Master별도배정·새수집/기존개발표본반복0 |
 | 35 | AI 블로그 키워드 자동화 / blog-keyword | 블로그 | v1.13 / 운영 | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
-| 36 | 티스토리 포스팅 자동화 / tistory-auto-blog | 블로그 | v1.98 / 운영 | v1.97 / v1.98 후보 | CC-BLOG-01 · 운영·소제목수정완료 / 미배포 | 다음배포후H2확인·실청구검증별도 |
+| 36 | 티스토리 포스팅 자동화 / tistory-auto-blog | 블로그 | v1.98 / 운영 | v1.98 작성자 DB/ext확인·Master운영alias직접 | CC-BLOG-01 · 승인3배포 첫번째Ready·미리보기검수대기 | 세배포뒤기존원고1 미리보기·AI0 |
 | 37 | 블로그 포스팅 자동화 / ai-auto-blog | 블로그 | v1.87 / 운영 | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 38 | 네이버 블로그 에이전트 / naver-blog-agent | 블로그 | v2.28 / 운영 | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 39 | 네이버 블로그 올인원 자동화 / naver-blog-allinone | 블로그 | v1.60 / 운영 | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |

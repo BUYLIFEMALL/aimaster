@@ -4450,17 +4450,34 @@
       "reviewer": "CX-MASTER-01",
       "title": "승인된 블로그3프로그램 순차묶음 배포",
       "status": "running",
-      "delivery": "first_tistory_release_preflight_accepted",
+      "delivery": "tistory_1of3_completed_second_preflight",
       "scopeRef": "tistory-auto-blog1.98→blog-neighbor-care1.22→web-crawler T04+05+07 정확manifest",
       "constraints": "Vercel최대3·T04별도1은세번째통합/추가4번째0·공용masterpush0·순차Ready/alias/버전·남의AGENTS변경보존·새AI0",
       "completion": "프로젝트/팀/기준SHA/점유/큐/notice/widget/pending·필요검사/빌드·각운영Ready/alias/버전·티스토리기존초안미리보기1/web실화면",
-      "evidence": "주인님직접승인msg_6c2b57cab944·Master배정msg_2eda31a938b1 · msg_0957e7387120: Tistory prj_p3Qc2mOwj5LnPlE5zaAd2stxvibm/team일치·운영1.97·archiveHEAD·86+44/tsc·큐0·1/3",
-      "next": "티스토리승인1/3 배포1회→Ready/alias/버전/확장검사→이웃2/3",
-      "lastReviewedAt": "2026-11-18T07:26:15.858Z",
+      "evidence": "주인님직접승인msg_6c2b57cab944·Master배정msg_2eda31a938b1 · msg_0957e7387120: Tistory prj_p3Qc2mOwj5LnPlE5zaAd2stxvibm/team일치·운영1.97·archiveHEAD·86+44/tsc·큐0·1/3 · msg_2d43083c8301 1/3완료·Masteralias dpl_GWRtKtymAGR4sdzgywKsxeFkgMK2 직접확인·msg_555ca68934de",
+      "next": "이웃소통1.22 사전대조/두번째1회→Ready/alias/버전·마지막webT04합침",
+      "lastReviewedAt": "2026-11-18T07:29:56.352Z",
       "sha": "97ee4acbb",
       "validation": {
         "author": "version1.98/확장1.98.0·HEADarchive·미커밋삭제oldZIP보존·prebuild다시생성·test86+44/tsc0·widget/pending대조·큐0",
         "master": "사전보고수락·승인첫1회진행·Ready/실ZIP/DB1행후2/3·실배포아직결과미수신"
+      },
+      "releaseProgress": {
+        "budgetRemoteMax": 3,
+        "remoteAttemptsUsed": 1,
+        "remaining": 2,
+        "retries": 0,
+        "completed": [
+          {
+            "slug": "tistory-auto-blog",
+            "version": "v1.98",
+            "sha": "97ee4acbb",
+            "deploymentId": "dpl_GWRtKtymAGR4sdzgywKsxeFkgMK2",
+            "masterAliasVerified": true,
+            "authorEvidence": "Ready·programs/ext1.98·실ZIPmanifest1.98.0/NOTICE/16files·extension-releaseOK·로그인307",
+            "runtimePending": "기존원고미리보기1은세배포뒤·새AI0"
+          }
+        ]
       }
     },
     {
@@ -4509,14 +4526,20 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "원본 자산 일반30일 정리 연결 첫계약",
-      "status": "dispatched",
-      "delivery": "bounded_existing_W00_read_design_only",
+      "status": "reviewing",
+      "delivery": "retention_contract_553_received_static_cross_function_review",
       "scopeRef": "기존W00 보관정리계약·공용0063/65/68/73/보호정책/markPosted 읽기",
       "constraints": "새제품/SQL실행/표/문서/DB/Storage/AI/cron/build/push0·원본PLAN보존·15항전체재설계0",
       "completion": "기산일/동적보호·실행자인증·ready기간만료→삭제claim CAS/fencing·외부원자성한계/불명보존·quota해제/unknown복구분리·최소경로/시험한안",
-      "evidence": "Mastermsg_3e5657eeafec·A1운영ON차단보관미연결",
-      "next": "정확계약/기존공용대조회수→독립검토후첫정리구현범위배정",
-      "lastReviewedAt": "2026-11-18T07:26:15.858Z"
+      "evidence": "Mastermsg_3e5657eeafec·A1운영ON차단보관미연결 · msg_55e57d698737/5533833cf·Master주요문장읽기·Macmsg_79a7cdce1fab",
+      "next": "Mac정적계약결과/expired용량·재처리/복원·기산일/추적버킷검토→한번수정반환",
+      "lastReviewedAt": "2026-11-18T07:29:56.352Z",
+      "sha": "5533833cf",
+      "validation": {
+        "author": "설계만·새expired상태/만료verify2함수/CRON0FF한안·보호제외·unknown후속분리",
+        "master": "expired추가quota제외시측정갭/ready후보재시도/claim뒤expire재확인/복원·기산시각·tracked지연 독립대조배정",
+        "independent": "고정정적검토중·실SQL/삭제0"
+      }
     }
   ],
   "programOverrides": [
@@ -4783,12 +4806,12 @@
     {
       "slug": "tistory-auto-blog",
       "owner": "CC-BLOG-01",
-      "reportedVersion": "v1.97 / v1.98 후보",
-      "stage": "운영·소제목수정완료 / 미배포",
+      "reportedVersion": "v1.98 작성자 DB/ext확인·Master운영alias직접",
+      "stage": "승인3배포 첫번째Ready·미리보기검수대기",
       "completed": "B4생성/보관완료,a27861137 소제목8시험",
-      "next": "다음배포후H2확인·실청구검증별도",
-      "evidence": ".ai/results/BLOG-20261116-01-CC-BLOG-01.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "next": "세배포뒤기존원고1 미리보기·AI0",
+      "evidence": ".ai/results/BLOG-20261116-01-CC-BLOG-01.md · msg_2d43083c8301/Master dpl_GWRtKtymAGR4sdzgywKsxeFkgMK2",
+      "evidenceLevel": "alias직접·Ready/DB/ext/ZIP작성자·미리보기미검수"
     },
     {
       "slug": "wp-blogger-auto",
@@ -5035,22 +5058,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T07:26:15.858Z",
+      "at": "2026-11-18T07:29:56.352Z",
       "timezone": "Asia/Seoul",
-      "trigger": "A1완료표·Blog1/3사전점검",
-      "scope": "e701경로SHA/운영차단15·30일정리다음계약·티스토리prj/source/검사/큐/예산",
+      "trigger": "첫Blog배포완료·보관정리계약완료보고",
+      "scope": "티스토리운영alias/작성자ZIP·DB·예산1/3·SNS553정리상태/용량계약",
       "evidence": [
-        "msg_ef4ab0782e7c/e7014bb2c",
-        "msg_0957e7387120/97ee4acbb",
-        "Mastermsg_3e5657eeafec·Blog사전수락"
+        "msg_2d43083c8301·Master alias직접",
+        "msg_55e57d698737/553·Macmsg_79a7cdce1fab"
       ],
-      "judgment": "A1 OFF완료표수락/보관정리설계다음배정·티스토리승인1/3단일실행진행·다른미커밋보존·운영ON0",
+      "judgment": "티스토리첫배포수락/실별칭확인·2번째순차진행·SNS코드전정적반례검토·새ON/실삭제0",
       "unverified": [
-        "Tistory배포결과/실ZIP/DBversion",
-        "보관정리계약·실중앙/Storage",
+        "이웃배포/티스토리원고미리보기",
+        "SNS보관계약정합/실중앙Storage",
         "다른사람단계"
       ],
-      "nextAction": "첫Ready결과뒤Blog2/3·SNS정리계약회수"
+      "nextAction": "이웃사전/Ready회수·Mac정리계약결과→통합반환"
     },
     "notifications": [
       {
