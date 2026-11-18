@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T19:54:24.614Z",
+  "checkedAt": "2026-11-18T19:55:29.208Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9968,6 +9968,18 @@
       "next": "Mac 독립 24/24. 오래된 작업 저장/응답과 불명 업로드 처리 반례, JPEG 치수 경계 보완 배정. 실제 Storage·Lab 미검증.",
       "lastReviewedAt": "2026-11-18T19:54:24.614Z",
       "sha": "b658c10e4"
+    },
+    {
+      "task_id": "RE-20261119-DESK",
+      "parent_task_id": "RE-20261119-EXT",
+      "owner": "CC-REALTY-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "부동산 고객관리 화면 개선",
+      "status": "queued",
+      "delivery": "owner_sequence_plan_accepted_l1_implementation_dispatched",
+      "evidence": "msg_689770148f5e·ac4d4bf59·msg_1d502a93ca22",
+      "next": "L-1 최근 실거래 읽기부터, L-2 사유 합계와 U-1 미리보기 다음. 확장 연계 C-1 별도. 발송·DB 쓰기·배포 없음.",
+      "lastReviewedAt": "2026-11-18T19:55:29.208Z"
     }
   ]
 }
