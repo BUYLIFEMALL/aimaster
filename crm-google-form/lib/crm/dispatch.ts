@@ -1,11 +1,5 @@
 import "server-only";
-import {
-  ApiKeyError,
-  BadRequestError,
-  ClientError,
-  InvalidDateError,
-  MessageNotReceivedError,
-} from "solapi";
+import { ApiKeyError, BadRequestError, InvalidDateError } from "solapi";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendViaSmtpAccount } from "@/lib/email/transport";
 import { sendTelegramMessage } from "@/lib/telegram/client";
@@ -51,21 +45,17 @@ export interface DispatchResult {
 const LABEL: Record<ChannelName, string> = { email: "이메일", telegram: "텔레그램", sms: "문자", alimtalk: "알림톡", friendtalk: "친구톡" };
 
 /**
- * 문자(SOLAPI) 오류 분류 — 설치된 solapi SDK 소스(dist/index.js) 기준(2026-11-18 확인, solapi 6.0.1):
- * - 보내기 전 입력 검증에서 생기는 오류: ApiKeyError(인증 정보 없음), BadRequestError(요청 스키마 검증), InvalidDateError(날짜 변환)
- * - 서버가 응답을 주며 명시적으로 거절: ClientError(HTTP 4xx 응답), MessageNotReceivedError(모든 메시지 접수 불가 응답)
- * 위 다섯 가지만 「확실히 안 나감」. ServerError(5xx)·NetworkError·DefaultError(응답 해석 실패·재시도 소진 등)·
- * ResponseSchemaMismatchError(응답은 왔으나 형식 불일치)·그 밖 모든 예외는 「모름」. 이름 문자열이 아니라 instanceof로만 판정.
- * 참고: SDK가 연결 끊김 계열 오류·503 응답에서 스스로 최대 3번 재시도한다(우리 코드에서 바꿀 수 없음).
+ * 문자(SOLAPI) 오류 분류 — A안(2026-11-18, Master 배정): 설치된 solapi 6.0.1(dist/index.js) 기준으로
+ * **요청을 보내기 전에만 생기는** 오류만 「확실히 안 나감」으로 본다.
+ * - ApiKeyError: 서비스 생성자·인증 정보 단계(:2935, :1252) — HTTP 0번
+ * - BadRequestError: send()가 요청 전에 메시지·설정 스키마를 검증(:2491-2512) — HTTP 0번
+ * - InvalidDateError: 요청 전 날짜 변환
+ * ClientError(4xx)·MessageNotReceivedError(전부 접수 실패 응답)는 **HTTP 응답 뒤**라 「모름」 — SDK가 연결 끊김·503에서
+ * 스스로 최대 3번 다시 보내므로(:1405-1413) 앞선 시도가 서버에서 처리됐는지 밖에서 알 수 없다. 그 밖 모든 오류도 「모름」.
+ * 한계: 이 분류는 잘못된 「실패 확정」만 없앤다. SDK 내부 재시도로 인한 이중 전송 위험은 그대로다(공용 래퍼·SDK 수정 0).
  */
 function classifySolapiError(err: unknown): "rejected" | "unknown" {
-  if (
-    err instanceof ApiKeyError ||
-    err instanceof BadRequestError ||
-    err instanceof InvalidDateError ||
-    err instanceof ClientError ||
-    err instanceof MessageNotReceivedError
-  ) {
+  if (err instanceof ApiKeyError || err instanceof BadRequestError || err instanceof InvalidDateError) {
     return "rejected";
   }
   return "unknown";
@@ -232,7 +222,9 @@ export async function dispatchSubmissionNotifications(
           await attempt("sms", () => sendSms(account, phone, `[${source.name}] ${displayName}, 신청이 정상적으로 접수되었습니다.`));
         }
         if (source.notify_alimtalk) {
-          if (!source.kakao_template_id) add("alimtalk", "rejected", "템플릿 없음");
+          // 카카오 채널 ID 없음은 공용 래퍼가 일반 Error로 던져 종류를 알 수 없으므로 보내기 전에 여기서 막는다.
+          if (!account.kakao_pf_id) add("alimtalk", "rejected", "카카오 채널 없음");
+          else if (!source.kakao_template_id) add("alimtalk", "rejected", "템플릿 없음");
           else {
             const templateId = source.kakao_template_id;
             // kakao_variables: {"#{변수명}": "구글폼 질문 제목"} — 오른쪽 질문 제목으로 실제

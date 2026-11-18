@@ -114,9 +114,9 @@ const E = {
   type: () => new TypeError("fetch failed"),
 };
 
-test("문자 오류 분류 근거: 보내기 전 검증·서버 명시 거절만 확정 실패(rejected), 나머지는 불명(unknown)", async () => {
+test("문자 오류 분류 근거(A안): 보내기 전 검증만 확정 실패(rejected), HTTP 응답 뒤 오류(4xx·전부 접수 실패 포함)와 나머지는 불명(unknown)", async () => {
   const table = [
-    ["client", "rejected"], ["notReceived", "rejected"], ["badRequest", "rejected"], ["apiKey", "rejected"], ["invalidDate", "rejected"],
+    ["client", "unknown"], ["notReceived", "unknown"], ["badRequest", "rejected"], ["apiKey", "rejected"], ["invalidDate", "rejected"],
     ["server", "unknown"], ["network", "unknown"], ["def", "unknown"], ["schema", "unknown"], ["defect", "unknown"], ["plain", "unknown"], ["type", "unknown"],
   ];
   for (const [k, want] of table) {
@@ -161,10 +161,11 @@ test("텔레그램 오류는 공용 코드가 종류를 구분해 주지 않아 
 test("최종 상태: 불명이 하나라도 있으면 unknown(성공+불명도 unknown), 성공+확정 실패만 partial, 전부 성공 notified, 확정 실패만 failed", async () => {
   const cases = [
     [{ sms: null, friendtalk: null }, "notified"],
-    [{ sms: null, friendtalk: "client" }, "partial"],
+    [{ sms: null, friendtalk: "apiKey" }, "partial"],
+    [{ sms: null, friendtalk: "client" }, "unknown"],
     [{ sms: null, friendtalk: "network" }, "unknown"],
     [{ sms: "client", friendtalk: "network" }, "unknown"],
-    [{ sms: "client", friendtalk: "apiKey" }, "failed"],
+    [{ sms: "badRequest", friendtalk: "apiKey" }, "failed"],
   ];
   for (const [m, want] of cases) {
     setup({ channel: (k) => (m[k] ? E[m[k]]() : undefined) });
@@ -234,7 +235,7 @@ test("계정 조회는 폼 연결 회원으로만 건다", async () => {
 });
 
 test("진단 문구는 고정 문구뿐(키·연락처·이름·서버 원문 0)", async () => {
-  setup({ channel: (k) => (k === "sms" ? E.client() : k === "email" ? Object.assign(new Error("550 a@b.c rejected"), { code: "EENVELOPE", responseCode: 550, command: "RCPT TO" }) : E.network()) });
+  setup({ channel: (k) => (k === "sms" ? E.apiKey() : k === "email" ? Object.assign(new Error("550 a@b.c rejected"), { code: "EENVELOPE", responseCode: 550, command: "RCPT TO" }) : E.network()) });
   const r = await run(SOURCE({ notify_sms: true, notify_email: true, notify_telegram: true }), SUB());
   assert.doesNotMatch(r.errorMessage, SECRETS);
   assert.match(r.errorMessage, /문자: 거절됨/);
@@ -299,9 +300,12 @@ test("통합: 문자 성공 + 친구톡 네트워크 오류 → 행 unknown(part
   assert.equal(followupAllowed(rows[0].status), false);
 });
 
-test("통합: 문자 성공 + 친구톡 4xx 거절 → partial, 구버전 본문은 같은 흐름이지만 키 없이 저장", async () => {
+test("통합: 문자 성공 + 친구톡 4xx → unknown(A안), 친구톡 요청 전 검증 거절 → partial, 구버전 본문은 키 없이 저장", async () => {
   let { rows } = setupIntegrated((k) => (k === "friendtalk" ? E.client() : undefined));
   await postReal(v2body(7));
+  assert.equal(rows[0].status, "unknown");
+  ({ rows } = setupIntegrated((k) => (k === "friendtalk" ? E.badRequest() : undefined)));
+  await postReal(v2body(8));
   assert.equal(rows[0].status, "partial");
   ({ rows } = setupIntegrated());
   await postReal(JSON.stringify({ values: { 연락처: ["010-1111-2222"] } }));
