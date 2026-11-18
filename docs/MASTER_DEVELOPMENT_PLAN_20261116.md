@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 03:11:01 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 03:14:24 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -379,7 +379,7 @@ Master 마지막 실제 점검: 2026-11-19 03:01:00 KST · 실행 중 점검 주
 | WS-20261118-06 | CC-WORKSPACE-01 | done / calendar_and_dashboard_width_local_mac_checks_accepted_undeployed | 달력 월 구분 정리·업무 현황판 너비 | 로컬 완료·점유 해제·미배포. 실제 화면과 표 행 기본 폭 메뉴 제약은 별도. |
 | WS-20261118-07 | CC-WORKSPACE-01 | reviewing / v160_deployed_calendar_verified_dashboard_page_unavailable | 워크스페이스 v1.60 캘린더·현황판 운영 배포 | 운영 달력 확인. 기존 시험 현황판 페이지를 찾을 수 없어 폭/메뉴 확인 보류. |
 | WS-20261118-08 | CC-WORKSPACE-01 | done / collapsed_widget_spacing_static_mac_review_accepted_undeployed | 좌측 하단 저장공간 위젯과 푸터 겹침 | 미배포. 기본 위젯 겹침 국소 정적 검수 완료, 확장/좁은 폭·실화면은 별도. |
-| WS-20261119-01 | CC-WORKSPACE-01 | running / general_html_zero_width_space_regression_returned_for_fix | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | 독립 15/15. 일반 HTML U+200B 보존 회귀 수정 요청. 미배포. |
+| WS-20261119-01 | CC-WORKSPACE-01 | running / recursive_zip_document_isolation_returned_for_fix | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | 8225ca66b 순차 통과, 혼합 ZIP 재귀 U+200B 보완 요청. |
 | QA-20261118-043 | CX-QA-01 | done / integrated | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | 실브라우저375/390은v1.58배포후허용된기존시험세션에서·추가dev/build0 |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
 | OPS-20261118-01 | CX-MASTER-01 | done / integrated | 전체개발플랜·카테고리·누락개선/인수인계 정합성 대조 | 미확인68프로그램 현담당근거후속연결·제품전체검증과구분, 신규후속ID별진행 |
@@ -399,6 +399,7 @@ Master 마지막 실제 점검: 2026-11-19 03:01:00 KST · 실행 중 점검 주
 | DES-20261118-05 | AG-UI-01 | done / source_revised_qa_pass_unreleased_free_disabled | 주인님 직접 이미지 NanoBanana/OpenAI/무료모델 3엔진 | free=false유지·무료정책미결정/추가빌드미승인·다음묶음배포만 |
 | QA-20261118-049 | CX-QA-01 | done / specified_source_scope_pass | 새이미지3엔진 소스/가짜통신·키/응답경계 검수 | 새Gemini반환보완SHA별도검수·현재실API/운영PASS아님 |
 | B2B-20261118-03 | CC-B2B-BACK-01 | waiting_human / fixture_prepared | 주인님 직접 Lab 교환비waiting1건·토스시험흐름 | 사람시험제출/로그인신호없음·고정교환1건유지,현재주문상태는03:31자동확정가능해반복RPC없이다음읽기때판정 |
+| B2B-20261119-LAB0101 | CC-B2B-BACK-01 | queued / lab_catalog_check_acknowledged_after_owner_sample_work | B2B몰 Lab 0101 메시지 정의·권한 대조 | 로그인·결제 없이 Lab 카탈로그 대조 배정. 기존 샘플몰 직접 작업 뒤 진행. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
@@ -467,7 +468,7 @@ Master 마지막 실제 점검: 2026-11-19 03:01:00 KST · 실행 중 점검 주
 | AIF-20261119-W01-UIC | CC-SNS-01 | done / client_flow_bounded_stream_independent_mock_accepted | W01 화면용 자산 API 클라이언트 구현 | 547142805 독립 모의 11/11; 실제 CORS 미확인. |
 | AIF-20261119-W01-UII | CC-SNS-01 | done / ui_integration_local_source_and_mock_review_accepted | W01 자산 기반 생성 화면 로컬 연결 | fdee03d5d 범위 내 소스/모의 14/14. 실제 React 검증 별도·OFF. |
 | AIF-20261119-W01-UIV | CX-QA-01 | done / isolated_real_react_screen_check_accepted | W01 실제 React 화면 격리 확인 | fdee03d5d 격리 Chrome 통과. 실제 로그인/CORS/발행 별도. |
-| AIF-20261119-W01-READY | CC-SNS-01 | running / v2_test_photo_owner_approved_execution_dispatched | W01 운영 전 검증 계획 및 승인 범위 정리 | 주인님 V2 승인. 격리 시험 사진 1회·서명 다운로드/소유권 확인 전달. 운영 OFF 유지. |
+| AIF-20261119-W01-READY | CC-SNS-01 | waiting_human / v2_waiting_isolated_config_and_test_login | W01 운영 전 검증 계획 및 승인 범위 정리 | V2 승인·격리 준비 완료. 시험 접속 설정과 로그인 대기, 업로드 0. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |

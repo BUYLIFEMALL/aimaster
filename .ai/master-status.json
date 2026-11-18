@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T18:11:01.506Z",
+  "checkedAt": "2026-11-18T18:14:24.781Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5420,14 +5420,14 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "W01 운영 전 검증 계획 및 승인 범위 정리",
-      "status": "running",
-      "delivery": "v2_test_photo_owner_approved_execution_dispatched",
+      "status": "waiting_human",
+      "delivery": "v2_waiting_isolated_config_and_test_login",
       "scopeRef": "W00 §14-B·§14-L·§24-10 및 W00_BASELINE.md 한 절",
       "completion": "최소 무과금 검증 및 실제 Storage·CORS·회원 한도·생성/발행 검증 순서, 환경/조건/상한·비용·중단/복구·승인 항목 정리.",
       "constraints": "문서/기존 소스 읽기만. 실 운영·로그인·Storage·SQL·배포·AI·ON·W02 없음.",
-      "evidence": "msg_496f86e32649·msg_15dcc644b0cb·msg_825c94316f8b·msg_ffa781221a60·551c6301f·a8acd43a2·msg_5519f687c39b·816496328·주인님 현재 채팅 「진행해」·msg_cc47d020250e",
-      "next": "CC-SNS-01 격리 환경/계정 확인 뒤 시험 사진 실제 1회. 수락·결과 회신 대기. 로그인 필요 시 주인님 직접.",
-      "lastReviewedAt": "2026-11-18T18:05:57.100Z",
+      "evidence": "msg_496f86e32649·msg_15dcc644b0cb·msg_825c94316f8b·msg_ffa781221a60·551c6301f·a8acd43a2·msg_5519f687c39b·816496328·주인님 현재 채팅 「진행해」·msg_cc47d020250e·7aa156b88·msg_8dfe64a7672a",
+      "next": "주인님이 격리 사본용 접속 설정 제공 후 시험 계정에 직접 로그인. 설정이 준비되면 담당 서버 실행·로그인 안내 후 같은 V2 재개.",
+      "lastReviewedAt": "2026-11-18T18:14:24.781Z",
       "sha": "816496328",
       "verificationScope": {
         "preflight": "No-auth read only, existing Storage host, at most two requests; headers only, no live signed token or object target",
@@ -5446,10 +5446,13 @@
           "result": "참고 신호, 유효한 서명 GET 미확인, 운영 DB/쓰기/AI 0"
         },
         "v2": {
-          "status": "owner_approved_dispatch_sent",
+          "status": "isolated_source_and_dependencies_prepared_human_config_pending",
           "scope": "격리 로컬 서버·지정 시험 계정; 사진 약 100KB 1회 저장, 본인 및 타 계정 권한 조회, 브라우저 서명 URL 1회. 별도 AI/삭제/배포/ON 없음; 자산 1건 및 파일 1개 남음.",
           "approval": "주인님 현재 채팅 「진행해」",
-          "dispatch": "msg_cc47d020250e"
+          "dispatch": "msg_cc47d020250e",
+          "workPath": "D:/AIMaster-qa/aif-v2-20261119/ai-influencer-studio",
+          "port": 3417,
+          "result": "운영 접근·업로드·비용 0 보고; 공유 비밀 설정 복사 금지의 기존 계획에 따라 대기."
         }
       }
     },
@@ -5612,20 +5615,35 @@
       "reviewer": "CX-QA-01",
       "title": "노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존",
       "status": "running",
-      "delivery": "general_html_zero_width_space_regression_returned_for_fix",
+      "delivery": "recursive_zip_document_isolation_returned_for_fix",
       "scopeRef": "ee73ff8eb · ai-work-workspace/src/litpage/server/content/html.ts · tests/integration/notionSavedHtml.test.ts",
       "completion": "저장 HTML의 본문을 분리하고 콜아웃·목록·할일·코드·북마크·영상·목차 구조 보존. 일반 HTML/ZIP·기존 URL 허용/정제 경계 회귀 확인.",
       "constraints": "import.ts·DB·API·권한 변경과 운영 쓰기·빌드·배포·push 없음.",
-      "evidence": "주인님 전달 착수 보고 · ee73ff8eb 파일 점유·112ada09d·2f1e70268·msg_ae2068e3e9b1·msg_7dc2611a8abf·msg_63a46ac8b66c",
-      "next": "CC-WORKSPACE-01 일반 HTML U+200B 보존 국소 수정 및 재검수. push 순번·배포 아직 대기.",
-      "lastReviewedAt": "2026-11-18T18:11:01.506Z",
-      "sha": "112ada09d",
+      "evidence": "주인님 전달 착수 보고 · ee73ff8eb 파일 점유·112ada09d·2f1e70268·msg_ae2068e3e9b1·msg_7dc2611a8abf·msg_63a46ac8b66c·8225ca66b·msg_fa4c83b077f0·msg_3c1580a00f03·msg_1ce4182d8db2·msg_da5761aceccd",
+      "next": "혼합 ZIP resolvePageLink 재귀에서 문서별 U+200B 옵션으로 국소 수정. 독립 재검수 및 push 순번 대기.",
+      "lastReviewedAt": "2026-11-18T18:14:24.781Z",
+      "sha": "8225ca66b",
       "validation": {
         "author": "구조 모의 15·HTML 회귀 3·변경 파일 tsc 오류 0, 실제 저장 문서 DOM 블록 수 대조 보고",
         "master": "고정 파일 2개 Git blob 및 구현/문서 범위 확인",
-        "independent": "고정 두 blob·합성 15/15(Node 대체); 일반 HTML U+200B 제거 P3 발견. 실제 DOM/외부 임베드/ZIP 전체 미실행.",
+        "independent": "8225ca66b 일반·export·순차/예외 통과. 실제 ZIP 호출 구조를 모의 재현하여 자식 U+200B 손실 발견, 수정 반환.",
         "unverified": "독립 회귀·운영 화면 및 배포"
       }
+    },
+    {
+      "task_id": "B2B-20261119-LAB0101",
+      "parent_task_id": "B2B-20261118-02",
+      "owner": "CC-B2B-BACK-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "B2B몰 Lab 0101 메시지 정의·권한 대조",
+      "status": "queued",
+      "delivery": "lab_catalog_check_acknowledged_after_owner_sample_work",
+      "scopeRef": "mall-builder Lab 0101 · 5989f69af anon 회수 · 51b2f3e91 safeupdate",
+      "completion": "Lab pg_catalog·적용 기록 읽기로 두 고정 수정본 반영 일치/불일치 근거 반환.",
+      "constraints": "Lab 읽기만. 운영 접근·회원/주문 자료·함수 실행/쓰기·결제·배포 없음.",
+      "evidence": "msg_9dceed2390f0·msg_a4d20955cdf3",
+      "next": "담당자 기존 주인님 직접 샘플몰 상품 등록/진열 뒤 착수. 로그인·토스 테스트 제출 없는 선행 작업.",
+      "lastReviewedAt": "2026-11-18T18:14:24.781Z"
     }
   ],
   "programOverrides": [
