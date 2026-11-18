@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T19:01:24.314Z",
+  "checkedAt": "2026-11-18T19:02:27.117Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5750,12 +5750,12 @@
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace v1.61 기존 중단 빌드 로그 진단",
       "status": "reviewing",
-      "delivery": "synthetic_startup_probe_pass_boundary_design_dispatched",
+      "delivery": "startup_boundary_design_review_changes_requested",
       "sha": "30bcfdee1",
-      "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef·dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o·msg_0a595caceefd·주인님 전달 진단·msg_afbf609d8871·msg_8512331d6d20·담당 msg_8512331d6d20 결과·msg_7489b02d1a30·f330050c3·담당 msg_7489b02d1a30 결과·msg_4a10308bf15c",
+      "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef·dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o·msg_0a595caceefd·주인님 전달 진단·msg_afbf609d8871·msg_8512331d6d20·담당 msg_8512331d6d20 결과·msg_7489b02d1a30·f330050c3·담당 msg_7489b02d1a30 결과·msg_4a10308bf15c·f26ab0e58·담당 msg_4a10308bf15c 회신·msg_6f6e00bdcc31",
       "constraints": "기존 근거 읽기만. 재빌드·배포·push·운영 설정/DB 변경 0.",
-      "next": "합성 일정 60개, 예약 93개, 실작업·외부 연결 0. 정체 미재현. 모듈 평가 시 DDL·일정 초기화 분리 설계 검토. 운영 조회·빌드 추가 없음.",
-      "lastReviewedAt": "2026-11-18T18:58:54.753Z",
+      "next": "빌드 평가에서 DDL·웹훅 비밀 이관·일정 등록의 실행 지점 확인. 첫 질의 전후 순서와 동시 초기화 설계 보완 요청. 운영 v1.60.",
+      "lastReviewedAt": "2026-11-18T19:02:27.117Z",
       "validation": {
         "author": "컴파일·타입 통과 후 Collecting 약 11분 무출력. 성공판 같은 단계 35.4초. 시작 시 동시 빌드 0, 이후 11번가 약 8분 대기 보고.",
         "master": "v1.60~v1.61 제품 변경 3파일 및 html.ts의 기존 정적 import 경로 확인.",
@@ -5864,11 +5864,12 @@
       "owner": "CC-ECOM-01",
       "reviewer": "CX-MASTER-01",
       "title": "영상에서 상세페이지로 WebP 한 건 실검수",
-      "status": "running",
-      "delivery": "single_send_received_approved_section_save_dispatched",
-      "evidence": "msg_a92dd99bda3f·msg_1cd837404734·msg_4864c1d5702d·msg_9d3bfa9f750a·msg_c952203e1bae·msg_f5eaa62ab458·msg_1977ec1c7260·msg_1d49f335f68b·msg_47e45a2faca7·msg_c3ea31ffe067·msg_7728aab38637",
-      "next": "03:57:13 KST 애니메이션 WebP 366,874B 수신. ego253 p2, 승인된 시험 상품 섹션에 파일/행 각 1건 이내 저장 및 ZIP 확인 중.",
-      "lastReviewedAt": "2026-11-18T18:58:54.753Z"
+      "status": "done",
+      "delivery": "live_single_webp_save_and_zip_verified",
+      "evidence": "msg_a92dd99bda3f·msg_1cd837404734·msg_4864c1d5702d·msg_9d3bfa9f750a·msg_c952203e1bae·msg_f5eaa62ab458·msg_1977ec1c7260·msg_1d49f335f68b·msg_47e45a2faca7·msg_c3ea31ffe067·msg_7728aab38637·msg_17062af868d7·0d4502b2f",
+      "next": "승인 시험 상품에 -anim.webp 파일·행 각 1건, 기존 2행 변화 없음. 화면 애니메이션·ZIP 원본 72프레임 확인. 시험 자료는 남김.",
+      "lastReviewedAt": "2026-11-18T19:02:27.117Z",
+      "sha": "0d4502b2f"
     },
     {
       "task_id": "ECOM-20261119-CFREL",

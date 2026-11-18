@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 04:01:24 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 04:02:27 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -158,7 +158,7 @@ Master 마지막 실제 점검: 2026-11-19 04:01:24 KST · 실행 중 점검 주
 | DES-20261116-01 | AG-UI-01 | done / integrated | M1 정적 품질 명세·잘못된 단정 정정 | 실기기·낭독 검수로 확대하지 않음 |
 | DES-20261116-02 | AG-UI-01 | done / integrated | 7b5d3b053 정적 독립 재검토 | 필수 남은 정적결함0; 실화면 별도대기 |
 | MOV-20261116-01 | CC-MOVIE-01 | done / integrated | GIF/WebP 송신·0/10MB·origin/source 보완 | 초기 구현·수정·독립QA 완료; MOV03 배포 완료, 실왕복 미검수 |
-| ECOM-20261119-WEBP | CC-ECOM-01 | running / single_send_received_approved_section_save_dispatched | 영상에서 상세페이지로 WebP 한 건 실검수 | 03:57:13 KST 애니메이션 WebP 366,874B 수신. ego253 p2, 승인된 시험 상품 섹션에 파일/행 각 1건 이내 저장 및 ZIP 확인 중. |
+| ECOM-20261119-WEBP | CC-ECOM-01 | done / live_single_webp_save_and_zip_verified | 영상에서 상세페이지로 WebP 한 건 실검수 | 승인 시험 상품에 -anim.webp 파일·행 각 1건, 기존 2행 변화 없음. 화면 애니메이션·ZIP 원본 72프레임 확인. 시험 자료는 남김. |
 | WS-20261116-01 | CC-WORKSPACE-01 | done / integrated | Agent MCP 연결4개·회원한도·무인쓰기검토 | v1.52 운영 사용자 직접 배포 완료. 외부 MCP 실제 쓰기는 미검수 |
 | WS-20261116-02 | CC-WORKSPACE-01 | done / integrated | 영속 승인1회 소모·동시재개1회 보완 | MUS03 독립12시험 통과. 운영 전체 무결함 의미 아님 |
 | B2B-20261116-01 | CC-B2B-BACK-01 | done / integrated | v1.15 정정·M2-8~11/0100 준비·415시험 | 준비/최종422시험·Front합의 검토완료. 실제배포는B2B-20261116-03/DEC-002로분리 |
@@ -381,7 +381,7 @@ Master 마지막 실제 점검: 2026-11-19 04:01:24 KST · 실행 중 점검 주
 | WS-20261118-07 | CC-WORKSPACE-01 | reviewing / v160_deployed_calendar_verified_dashboard_page_unavailable | 워크스페이스 v1.60 캘린더·현황판 운영 배포 | 운영 달력 확인. 기존 시험 현황판 페이지를 찾을 수 없어 폭/메뉴 확인 보류. |
 | WS-20261118-08 | CC-WORKSPACE-01 | done / collapsed_widget_spacing_static_mac_review_accepted_undeployed | 좌측 하단 저장공간 위젯과 푸터 겹침 | 미배포. 기본 위젯 겹침 국소 정적 검수 완료, 확장/좁은 폭·실화면은 별도. |
 | WS-20261119-01 | CC-WORKSPACE-01 | done / saved_notion_html_recursive_fix_independent_review_accepted | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | 로컬 독립 수락. v1.61 첫 빌드 취소, 운영 v1.60. 배포 진단 WS-20261119-REL. |
-| WS-20261119-REL | CC-WORKSPACE-01 | reviewing / synthetic_startup_probe_pass_boundary_design_dispatched | Workspace v1.61 기존 중단 빌드 로그 진단 | 합성 일정 60개, 예약 93개, 실작업·외부 연결 0. 정체 미재현. 모듈 평가 시 DDL·일정 초기화 분리 설계 검토. 운영 조회·빌드 추가 없음. |
+| WS-20261119-REL | CC-WORKSPACE-01 | reviewing / startup_boundary_design_review_changes_requested | Workspace v1.61 기존 중단 빌드 로그 진단 | 빌드 평가에서 DDL·웹훅 비밀 이관·일정 등록의 실행 지점 확인. 첫 질의 전후 순서와 동시 초기화 설계 보완 요청. 운영 v1.60. |
 | QA-20261118-043 | CX-QA-01 | done / integrated | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | 실브라우저375/390은v1.58배포후허용된기존시험세션에서·추가dev/build0 |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
 | OPS-20261118-01 | CX-MASTER-01 | done / integrated | 전체개발플랜·카테고리·누락개선/인수인계 정합성 대조 | 미확인68프로그램 현담당근거후속연결·제품전체검증과구분, 신규후속ID별진행 |
