@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T01:26:05.172Z",
+  "checkedAt": "2026-11-18T01:27:59.617Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3699,14 +3699,25 @@
       "owner": "CC-ECOM-01",
       "reviewer": "CX-QA-01",
       "title": "Gemini 이미지 반환값 엄격검사 국소보완",
-      "status": "ready",
-      "delivery": "dispatch_sent",
-      "evidence": "msg_6fdcdffd921d·QA049기존hello경계",
-      "scopeRef": "services.ts 반환경계·실제정상fixture시험경로확인후·imageProvider.test.mjs·본인기존문서",
+      "status": "ready_review",
+      "delivery": "independent_review_dispatched",
+      "evidence": "msg_6fdcdffd921d·QA049기존hello경계·착수msg_c4a6208489b0·결과msg_d17d4211f33a·Master4파일diffstat·Mac msg_a1f1e128eba4",
+      "scopeRef": "emotion-writer/src/lib/studio/services.ts·tests/imageProvider.test.mjs·tests/studio.test.mjs·docs/IMPROVEMENTS.md",
       "completion": "공유strictBase64/imageDataUrl재사용·불량/MIME불일치/패딩/3MiB경계 red-green·정상3형식·guard/tsc·공용클라이언트/재시도/timeout불변",
-      "next": "정확시험경로/점유확인→국소구현/시험→SHA→Mac독립",
+      "next": "Mac 실제서비스/가능guard통합·정상3형식/3MiB/불량·MIME/502고정문구검수→판정",
       "constraints": "실통신/키/DB/build/deploy0·운영v1.30미변경·기존결함별도후속",
-      "lastReviewedAt": "2026-11-18T01:26:05.172Z"
+      "lastReviewedAt": "2026-11-18T01:27:59.617Z",
+      "sha": "1a1f64dba",
+      "validation": {
+        "author": "전체63/63·tsc0·신규반례red-green",
+        "master": "4파일diffstat 범위일치",
+        "independent": "Mac국소검수대기"
+      },
+      "limits": [
+        "24바이트PNG서명fixture/서명검사는완전이미지디코드아님",
+        "작성자route+guard통합미실행·Mac가능범위검수요청",
+        "실통신/키/DB/build/deploy0·운영v1.30변경0"
+      ]
     }
   ],
   "programOverrides": [
@@ -4190,20 +4201,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T01:26:05.172Z",
+      "at": "2026-11-18T01:27:59.617Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Mac QA049 3cb 잔여PASS권고 msg_86f8ab1545a0",
-      "scope": "독립2경계판정수락·기존Gemini한계후속단일배정",
+      "trigger": "ECOM18-04 ready_review msg_d17d4211f33a",
+      "scope": "1a1f64dba 변경4파일/자체시험근거·독립검수배정",
       "evidence": [
-        "Mac 정확상한/6MiB/CL/stream cancel/guard408·실외부0",
-        "ECOM18-04 msg_6fdcdffd921d"
+        "Master diffstat4파일일치",
+        "자체63/tsc0·공유클라이언트불변 보고",
+        "Mac독립검수 msg_a1f1e128eba4"
       ],
-      "judgment": "ECOM18-03/QA049 지정소스범위완료수락·운영/실지원검증으로확대0. 기존Gemini반환경계서비스수정만후속배정.",
+      "judgment": "자체통과접수·독립검수대기. 완전이미지디코드보증/운영검증으로확대0",
       "unverified": [
-        "ECOM18-04 수락/경로/수정SHA·독립검수",
-        "Gmail OAuth실검증·Mac실화면"
+        "1a1f64dba 독립판정·Gmail 실OAuth/동작검증"
       ],
-      "nextAction": "후속경로/SHA회수→독립검수, 실API/배포0"
+      "nextAction": "Mac판정후완료수락/정확반례반환·추가배포/실호출0"
     },
     "notifications": [
       {
