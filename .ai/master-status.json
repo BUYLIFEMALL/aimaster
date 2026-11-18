@@ -4883,24 +4883,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T06:42:00.471Z",
+      "at": "2026-11-18T06:43:16.858Z",
       "timezone": "Asia/Seoul",
-      "trigger": "최종소스수락·격리시험ACK·직접승인실호출취합",
-      "scope": "a29지정정적검수완료/중복요청실패정정·새DB명/oid/fixture/stub/범위·Cloudflare2번째호출",
+      "trigger": "생성샘플보존완료",
+      "scope": "JPEG원본2장 bytes/SHA/시각직접대조·추가호출0",
       "evidence": [
-        "msg_51ea8f84abf8",
-        "msg_8bc13715716b/92c543f748b4",
-        "msg_b62624ce5cd1·Mastermsg_1fd1abd7c316",
-        "msg_1cc9ae2dafdb/담당msg_7b75b7373f82",
-        "msg_0b543d9a26a0·샘플소실방지 원본복사배정"
+        "msg_0cb61e533976/aa9847f1f",
+        "Master SHA2개재계산/view_image2장"
       ],
-      "judgment": "W01e정적소스수락→W01f격리시험착수·실중앙/운영PASS아님. 주인님최신추가1호출승인취합·이전추가승인0은그이전시점기록으로보존.",
+      "judgment": "보존완료수락·한장무문자관찰확인·인물여백/실카드가독성미검수·같은이미지중복검수배정0",
       "unverified": [
-        "격리SQL결과·실중앙Supabase/RLS통합",
-        "수정이미지카드가독성/무료잔여",
-        "기타사람/운영승인"
+        "실제카드합성/가독성·지속무문자품질",
+        "SNS격리SQL결과",
+        "기타사람/배포승인"
       ],
-      "nextAction": "격리SQL결과회수·기존JPEG2 보존SHA확인뒤시각검수범위·새생성0"
+      "nextAction": "SNS계약시험결과회수·실화면검수기회에기존샘플재사용·새유료0"
     },
     "notifications": [
       {
@@ -5152,15 +5149,20 @@
         "limits": "잔여Neurons/정확비용미확인·추가호출0·운영OFF반영아님",
         "followup": {
           "at": "2026-11-18T06:41:18.808Z",
-          "evidence": "msg_1cc9ae2dafdb · msg_0b543d9a26a0/dc240435a",
+          "evidence": "msg_1cc9ae2dafdb · msg_0b543d9a26a0/dc240435a · msg_0cb61e533976/aa9847f1f·Master view_image2/sha256",
           "approval": "최신담당채팅 재생성1회승인해진행해",
           "calls": 1,
           "totalCalls": 2,
           "preCallScriptFailures": 2,
           "result": "실제generateImage/HTTP1·2.7초·JPEG456549B1024²·한글/원문전송0·이1장글자없음관찰",
           "limits": "인물크기/카드여백미검수·모든이미지무문자보장0·새생성0",
-          "artifact": "scratchpad ephemeral 원본2개·보존복사배정(새이미지/편집/생성0)",
-          "renderLimit": "기존시험fake ctx·실Canvas패키지없음·실제render가독성미검수"
+          "artifact": "aa9847f1f emotion-writer/docs/evidence/cloudflare-20261118/{before,after}-prompt.jpg 원본복사·Master bytes/SHA일치확인",
+          "renderLimit": "기존시험fake ctx·실Canvas패키지없음·실제render가독성미검수",
+          "artifactHashes": {
+            "before": "5151bca453d1424f4a291566516a6d70415aef340a9440d1915525959a8323d8",
+            "after": "7c7604b61c52be00b8546c529a791901305bc4b3eb2c9722803a6dad18d042df"
+          },
+          "masterVisual": "원본2장직접대조: before문자/after이1장문자없음·인물크게차지. 실제카드합성/가독성PASS아님"
         }
       }
     }
