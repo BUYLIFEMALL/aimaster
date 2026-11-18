@@ -147,10 +147,10 @@ begin
   if r.id is not null then
     -- 기존 행은 볼 권한이 있을 때만 상태·경로를 알려 준다(공급사가 바뀐 상품 등 — 없으면 아무 정보 없이 거절)
     if not mall_builder_private.photo_proposal_row_ok(r) then return jsonb_build_object('ok', false, 'reason', 'forbidden'); end if;
-    if r.status in ('proposed', 'applied') then
-      if r.source_hint is distinct from v_hint then return jsonb_build_object('ok', false, 'reason', 'conflict'); end if;
-      return jsonb_build_object('ok', true, 'state', 'done');
-    end if;
+    -- 같은 결과 번호에 다른 원본 힌트 = 다른 사진 → 상태(예약 중·기한 지남·확정·적용)와 상관없이 경로·상태 없이 conflict
+    -- (같은 예약자라도 다른 사진이면 업로드 경로를 다시 주지 않는다 — Mac msg_611c47959bd0)
+    if r.source_hint is distinct from v_hint then return jsonb_build_object('ok', false, 'reason', 'conflict'); end if;
+    if r.status in ('proposed', 'applied') then return jsonb_build_object('ok', true, 'state', 'done'); end if;
     -- 예약 중
     if r.reserved_until > now() then
       if r.created_by = auth.uid() then return jsonb_build_object('ok', true, 'state', 'upload', 'id', r.id, 'path', r.file_path); end if;

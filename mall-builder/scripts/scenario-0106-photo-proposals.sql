@@ -338,6 +338,40 @@ begin
   g2 := mall_builder_photo_proposal_begin(S, P1, JOB, R1, 'c2', '2026-11-19T00:00:00Z', ''); reset role;
   insert into qa_r select 'P19-empty-hint', r = '{"ok": false, "reason": "invalid"}'::jsonb and g2 = r
     and not exists (select 1 from mall_builder_photo_proposals where result_id = '00000000-0000-4000-8000-000000000013');
+
+  -- P20 예약 중인 같은 결과 번호에 다른 원본 힌트(Mac msg_611c47959bd0): 같은 예약자·다른 권한자 모두 conflict(경로·상태 없음),
+  --     권한 없는 사람은 forbidden, 같은 힌트면 같은 예약자 = 같은 경로·다른 권한자 = busy, 기한 지난 뒤에도 다른 힌트는 conflict,
+  --     같은 힌트로만 재예약, 확정 뒤 다른 힌트 conflict·같은 힌트 done.
+  declare R14 uuid := '00000000-0000-4000-8000-000000000014'; k_id uuid; k_path text; t jsonb; ok2 boolean := true; begin
+    perform set_config('request.jwt.claim.sub', qa_id('S3')::text, false); set role authenticated;
+    r := mall_builder_photo_proposal_begin(S, P1, JOB, R14, 'c2', '2026-11-19T00:00:00Z', 'ha'); k_id := (r ->> 'id')::uuid; k_path := r ->> 'path';
+    t := mall_builder_photo_proposal_begin(S, P1, JOB, R14, 'c2', '2026-11-19T00:00:00Z', 'hb'); reset role;
+    insert into qa_r values ('P20-same-reserver-other-photo', t = '{"ok": false, "reason": "conflict"}'::jsonb);
+    perform set_config('request.jwt.claim.sub', qa_id('A1')::text, false); set role authenticated;
+    t := mall_builder_photo_proposal_begin(S, P1, JOB, R14, 'c2', '2026-11-19T00:00:00Z', 'hb');
+    g2 := mall_builder_photo_proposal_begin(S, P1, JOB, R14, 'c2', '2026-11-19T00:00:00Z', 'ha'); reset role;
+    insert into qa_r values ('P20-other-operator', t = '{"ok": false, "reason": "conflict"}'::jsonb and g2 = '{"ok": false, "reason": "busy"}'::jsonb);
+    perform set_config('request.jwt.claim.sub', qa_id('S2')::text, false); set role authenticated;
+    t := mall_builder_photo_proposal_begin(S, P1, JOB, R14, 'c2', '2026-11-19T00:00:00Z', 'hb'); reset role;
+    insert into qa_r values ('P20-no-perm', t = '{"ok": false, "reason": "forbidden"}'::jsonb);
+    perform set_config('request.jwt.claim.sub', qa_id('S3')::text, false); set role authenticated;
+    t := mall_builder_photo_proposal_begin(S, P1, JOB, R14, 'c2', '2026-11-19T00:00:00Z', 'ha'); reset role;
+    insert into qa_r values ('P20-same-hint-same-path', t ->> 'state' = 'upload' and t ->> 'path' = k_path and (t ->> 'id')::uuid = k_id);
+    update mall_builder_photo_proposals set reserved_until = now() - interval '1 minute' where id = k_id;
+    perform set_config('request.jwt.claim.sub', qa_id('S3')::text, false); set role authenticated;
+    t := mall_builder_photo_proposal_begin(S, P1, JOB, R14, 'c2', '2026-11-19T00:00:00Z', 'hb'); reset role;
+    insert into qa_r select 'P20-expired-other-photo', t = '{"ok": false, "reason": "conflict"}'::jsonb
+      and exists (select 1 from mall_builder_photo_proposals where id = k_id and status = 'reserved');
+    perform set_config('request.jwt.claim.sub', qa_id('S3')::text, false); set role authenticated;
+    t := mall_builder_photo_proposal_begin(S, P1, JOB, R14, 'c2', '2026-11-19T00:00:00Z', 'ha');
+    perform qa_put(t ->> 'path', 2500); g2 := mall_builder_photo_proposal_commit((t ->> 'id')::uuid);
+    r := mall_builder_photo_proposal_begin(S, P1, JOB, R14, 'c2', '2026-11-19T00:00:00Z', 'hb');
+    ok2 := mall_builder_photo_proposal_begin(S, P1, JOB, R14, 'c2', '2026-11-19T00:00:00Z', 'ha') = '{"ok": true, "state": "done"}'::jsonb; reset role;
+    insert into qa_r select 'P20-rereserve-same-hint', (t ->> 'id')::uuid <> k_id and t ->> 'path' <> k_path and g2 = '{"ok": true, "state": "done"}'::jsonb
+      and exists (select 1 from mall_builder_photo_proposals where id = k_id and status = 'abandoned');
+    insert into qa_r values ('P20-after-commit', r = '{"ok": false, "reason": "conflict"}'::jsonb and ok2);
+    insert into qa_r select 'P20-one-live-row', (select count(*) = 1 from mall_builder_photo_proposals where result_id = R14 and status in ('reserved', 'proposed', 'applied'));
+  end;
 end $$;
 
 select k || E'\t' || case when ok then 't' when not ok then 'f' else 'n' end from public.qa_r order by k;
