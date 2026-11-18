@@ -4324,14 +4324,14 @@
       "scopeRef": "프로그램내 신규 aif_assets_a1 migration초안·src/lib/assets/paths.ts·순수시험/본인기존문서",
       "completion": "계약두표/6함수/잠금/서비스권한/unknown보존/objectidentity 초안·경로검증실시험/tsc·정확SHA·미실행SQL구분",
       "constraints": "다른저자미커밋보존·store/라우트0·SQL실행/DB/버킷/실저장/AI/설치/build/push0·공용quota/retention수정0",
-      "evidence": "W00최종037·Masterdispatch msg_063c9804ec87 · Mac수락msg_f3fa3161bd5b(검수준비·정확SHA대기) · msg_a224024efdcf/9d5d921a7·MasterSQL직접읽기·Macmsg_7bd96acfe0b8 · Macmsg_6ffe514132b3·통합수정반환",
+      "evidence": "W00최종037·Masterdispatch msg_063c9804ec87 · Mac수락msg_f3fa3161bd5b(검수준비·정확SHA대기) · msg_a224024efdcf/9d5d921a7·MasterSQL직접읽기·Macmsg_7bd96acfe0b8 · Macmsg_6ffe514132b3·통합수정반환 · 고정최종msg_666b5f7d4d1e(새항목0)",
       "next": "동일SQL초안 reconcile기대ID/삭제owner경로/잠금전이/size파싱 한꺼번에수정→Mac고정SHA재검수",
-      "lastReviewedAt": "2026-11-18T06:28:35.799Z",
+      "lastReviewedAt": "2026-11-18T06:29:12.115Z",
       "sha": "9d5d921a7",
       "validation": {
         "author": "순수paths8·전체77/77·tsc0·DDL실행0",
         "master": "reconcile identity/claim소유경로/delete_mark잠금/SQL alias-cast 경계독립확인배정",
-        "independent": "순수paths8/8실행PASS. 정적P1 reconcile기대objectid누락·claim_delete타회원assetID/경로무대조토큰재발급, P2 delete_mark회원잠금누락·alias위험/sizecast예외. 실SQL0",
+        "independent": "순수paths8/8실행PASS. 정적P1 reconcile기대objectid누락·claim_delete타회원assetID/경로무대조토큰재발급, P2 delete_mark회원잠금누락·alias위험/sizecast예외. 실SQL0 · service_role내부계약문제/회원직접RPC공격아님·실DB피해0·alias컴파일실패미확정·cast예외시예약보존가능·기존policy/defaultGRANT실행검증미완",
         "runtime": "어떤DB실행/버킷/업로드0"
       }
     }
@@ -4847,12 +4847,13 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T06:28:35.799Z",
+      "at": "2026-11-18T06:29:12.115Z",
       "timezone": "Asia/Seoul",
       "trigger": "A1독립검수반례",
       "scope": "고정9d5 순수paths8/정적SQL·Master지적대조",
       "evidence": [
-        "msg_6ffe514132b3·Master SQL직접읽기일치"
+        "msg_6ffe514132b3·Master SQL직접읽기일치",
+        "msg_666b5f7d4d1e 고정최종·범위과장방지정정"
       ],
       "judgment": "paths지정수락·SQL P1/P2한번묶어수정반환·실SQL오류확정아닌항목구분",
       "unverified": [
