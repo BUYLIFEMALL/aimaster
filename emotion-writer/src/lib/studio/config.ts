@@ -29,7 +29,7 @@ export const THEMES = [
 export const SOURCES: { id: Provider; emoji: string; name: string; description?: string }[] = [
   { id: "gemini", emoji: "🍌", name: "나노바나나 AI 생성", description: "Gemini AI 감성 일러스트·수채화 배경" },
   { id: "openai", emoji: "🤖", name: "OpenAI 이미지 생성", description: "GPT Image 고해상도 예술 배경 생성" },
-  { id: "free", emoji: "✨", name: "무료 모델 (FLUX)", description: "키 등록 없이 100% 무료 즉시 생성" },
+  { id: "free", emoji: "✨", name: "무료 모델 (FLUX)", description: "준비 중 — 이용 정책 확인 뒤 열립니다" },
 ];
 
 export const RATIOS = ["9:16", "1:1", "3:4"] as const;
@@ -45,8 +45,8 @@ export { TEXT_MODELS, currentTextModel } from "./textModels";
 // OpenAI는 공식 문서 확인분만(2026-11-18 https://developers.openai.com/api/docs/models · /api/reference/resources/images):
 // b64_json 응답 전용(url 미지원), response_format 미지원, 표준 크기 1024x1024·1536x1024·1024x1536.
 export const OPENAI_IMAGE_MODELS = [{ id: "gpt-image-2.5-flare", label: "GPT-Image-2.5 Flare" }];
-// 무료 엔진(Pollinations FLUX, 키 없음): 구현 가능한 무료 이미지 모델로 활성화.
-export const FREE_IMAGE_ENGINE_ENABLED = true;
+// 무료 엔진(Pollinations FLUX, 키 없음): 회원 본인 키 규칙·공식 지원·약관·글귀 외부 전송 결정 전까지 꺼 둔다(서버 거절·화면 비활성).
+export const FREE_IMAGE_ENGINE_ENABLED = false;
 export const FREE_IMAGE_MODELS = [{ id: "pollinations-flux", label: "FLUX" }];
 export const IMAGE_MODELS = [
   { id: NANO_BANANA_MODEL_CONFIGS.nanobanana.modelName, label: "Nano Banana 2 Lite" },
