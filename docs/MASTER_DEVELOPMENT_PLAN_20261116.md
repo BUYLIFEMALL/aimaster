@@ -1,10 +1,10 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 16:29:56 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 16:30:30 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 16:29:56 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 16:30:30 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
 점검 범위: 티스토리운영alias/작성자ZIP·DB·예산1/3·SNS553정리상태/용량계약 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
@@ -426,7 +426,7 @@ Master 마지막 실제 점검: 2026-11-18 16:29:56 KST · 실행 중 점검 주
 | AIF-20261118-W01g | CC-SNS-01 | done / mocked_store_specified_independent_review_pass_accepted | 생성 원본 저장 계층·주입 모의 시험 | OFF 기본 라우트 연결 W01h 모의통합 |
 | AIF-20261118-W01h | CC-SNS-01 | done / default_off_route_mock_integration_specified_independent_PASS_accepted | 원본 저장 OFF 기본 라우트 연결·모의 통합 | W01i OFF 기본 원본 자산 조회 모의단위 |
 | AIF-20261118-W01i | CC-SNS-01 | done / exact_signed_object_read_route_specified_mock_review_pass_accepted | 원본 자산 조회 OFF 기본 경로·모의시험 | A1 OFF소스완료표/운영보관정리 선행조건 취합 |
-| BLOG-20261118-02 | CC-BLOG-01 | running / tistory_1of3_completed_second_preflight | 승인된 블로그3프로그램 순차묶음 배포 | 이웃소통1.22 사전대조/두번째1회→Ready/alias/버전·마지막webT04합침 |
+| BLOG-20261118-02 | CC-BLOG-01 | running / second_neighbor_preflight_accepted_first_release_verified | 승인된 블로그3프로그램 순차묶음 배포 | 이웃a3fe11b2e 승인2/3 배포1회→Ready/alias/ext검사→web보안패치사전 |
 | BLOG-20261118-03 | CC-BLOG-01 | queued / owner_approved_cleanup_backup_and_tag_first_exact_scope_after_releases | T08 구형 ghost-scraper 백업후정리 승인범위 구체화 | 기존website검수재사용·정확백업/삭제범위보고→착수범위확정 |
 | BLOG-20261118-04 | CC-BLOG-01 | queued / owner_product_decision_recorded_operating_DDL_Render_not_approved | T03 도메인 구조 캐시 회원별 격리 결정 반영 | T07Excel/T06선행관계확인뒤정확DB/Render플랜·비용취합 |
 | AIF-20261118-W01j | CC-SNS-01 | done / OFF_source_completion_and_activation_blockers_reconciled | A1 OFF소스완료표·운영선행 보관/정리 조건 취합 | W01k 30일보관정리 첫계약·운영ON차단유지 |
@@ -606,7 +606,7 @@ Master 마지막 실제 점검: 2026-11-18 16:29:56 KST · 실행 중 점검 주
 | 97 | AI 무료음악 자동화 / free-music-studio | 음악 | v1.67 / 운영(Windows 엔진, Mac x64 설치·실행 검수/생성 미지원) | v1.67 / engine0.8.5 | CC-MUSIC-01 · 운영·조건부 후속 | LeVo 공개/Mureka 충전 등 외부조건 있을 때만 후속 |
 | 98 | AI 워드프레스·구글블로그 자동화 / wp-blogger-auto | 블로그 | v1.05 / 운영(공개 2026-11-11, 관리자 실물 재검수 완료) | v1.05 | CC-BLOG-01 · 운영·B2검수완료 | WP기간은정책담당유지·중복기간부여안함 |
 | 99 | AI 11번가 상품 자동등록기 / elevenst-register | 이커머스 | v1.07 / 비공개·v1.07운영/실등록시험완료기록 | v1.07 | CC-ECOM-01 · 운영·실등록검증완료 | 관리자잠금화면·시험상품은사용자직접삭제 |
-| 100 | AI 블로그 이웃 소통 자동화 / blog-neighbor-care | 블로그 | v1.21 / 운영(C-3 진행 중) | v1.21 / v1.22 후보 | CC-BLOG-01 · 운영·진단구현완료 / 실검수대기 | 맥일반창/작업공간창진단 재시험·신청있는계정·배포묶음 |
+| 100 | AI 블로그 이웃 소통 자동화 / blog-neighbor-care | 블로그 | v1.22 / 운영(C-3 진행 중) | v1.21 / v1.22 후보 | CC-BLOG-01 · 운영·진단구현완료 / 실검수대기 | 맥일반창/작업공간창진단 재시험·신청있는계정·배포묶음 |
 | 101 | 네이버 카페 회원 모집 자동화 / naver-cafe-recruit | 네이버 | v1.04 / 비공개(실물 초대 1건 성공, 표시 수정 미배포) | v1.04 | CC-BLOG-01 · 운영·가입계정조건대기 | 가입카페계정으로운영진제외검수,외부초대재실행안함 |
 | 102 | AI 쇼핑몰 빌더 / mall-builder | 이커머스 | v1.16 / 운영(샘플몰 `aimaster-b2b`, 손님 화면·분양 안내 공개 2026-11-13) | v1.16 | CC-B2B-BACK-01 + CC-B2B-FRONT-01 · 운영0100/v1.16·Lab0104/7609748ad 반영완료 | QA037 기존공간29 고객/관리자로그인·반환뒤읽기검수. 운영0101~0104미반영, 실제토스/새fixture 별도지시·옛0102정리SQL사용금지 |
 | 103 | G마켓·옥션 등록기 / esm-register | 이커머스 (현재 비공개) | 신규 / 비교표 미등재 신규 | v1.02 | CC-ECOM-01 · 운영 배포·Mac 지정 웹 회귀 PASS | 실확장업데이트/계정연결/ESM실입력등록은별도범위 |
