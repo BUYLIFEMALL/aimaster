@@ -4203,19 +4203,19 @@
       "title": "Apps Script v2 이벤트키 스니펫·legacy 안내 연결",
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
-      "status": "needs_revision",
-      "delivery": "script_special_question_key_and_timestamp_contract_fix_returned",
+      "status": "ready_review",
+      "delivery": "script_and_server_own_field_preservation_fix_independent_review",
       "scopeRef": "스니펫/SourceCard/기존문서·웹훅flatValues·실스크립트→route시험",
       "completion": "form/sheet 실이벤트키·Date전제·없으면legacy보호없음·파서실판정/재시도키/오류계약",
       "constraints": "실Google/운영DDL/실문자/build/push0·v2공개전DDL/route/실검증승인·시험시트확인",
-      "next": "script와server 자체질문키 roundtrip/Datedigits 보완SHA회수→Mac",
-      "evidence": "Master기존U3단계계획에따른source배정·접수/팔로우업소스PASS선행 · 착수msg_ae7532f0dc23·새순수생성기/실행시험경로허용 · msg_7f938d6f35bf·Master5파일stat·Mac검수전달 · Macmsg_a7658c0027dd 특수키유실/음수Date 계약반례 · Mac고정최종msg_24cb5a0e0908·서버flatValues범위추가msg_fcfc5c28f112",
-      "lastReviewedAt": "2026-11-18T05:31:50.615Z",
-      "sha": "63f3df162",
+      "next": "Mac 실제생성script→route→raw_values JSON왕복/Date계약 지정재검수",
+      "evidence": "Master기존U3단계계획에따른source배정·접수/팔로우업소스PASS선행 · 착수msg_ae7532f0dc23·새순수생성기/실행시험경로허용 · msg_7f938d6f35bf·Master5파일stat·Mac검수전달 · Macmsg_a7658c0027dd 특수키유실/음수Date 계약반례 · Mac고정최종msg_24cb5a0e0908·서버flatValues범위추가msg_fcfc5c28f112 · msg_ae72141871ec/f43cdf2c57ab·Master5파일stat/route차이·Mac재검수",
+      "lastReviewedAt": "2026-11-18T05:34:15.612Z",
+      "sha": "e2581d960",
       "validation": {
-        "author": "실생성스크립트24/24·전체297/297·tsc0·NOTICE0·실Google0",
-        "master": "정확5파일stat·새순수생성기사전허용·운영선행조건보존",
-        "independent": "native24/24·실생성script→parser에서__proto__질문답변JSON유실(v2수용)P2·음수Date길이13 v2생성/서버400 P3·실Google/DB/SMS0"
+        "author": "스니펫30/30·route39/39·전체305/305·tsc0·서버/script특수키왕복·매핑누락null",
+        "master": "정확5파일stat/실route nullprototype·defineProperty/own매핑 diff확인",
+        "independent": "63f 특수키/Date 반례최종보존·새e258 지정검수 전달"
       }
     },
     {
@@ -4734,25 +4734,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:31:50.615Z",
+      "at": "2026-11-18T05:34:15.612Z",
       "timezone": "Asia/Seoul",
-      "trigger": "14:30 KST 정기메시지 수신·CRM고정최종",
-      "scope": "103프로그램/19카테고리·265작업 잔여와선행 기존표·마지막점검이후미등록docs/results/handoffs·활성점유·요청함/예약receipt·직접지시취합",
+      "trigger": "CRM U3 특수키 왕복/날짜 보완 완료",
+      "scope": "script/server5파일·질문값/매핑보존·날짜v2/legacy·Mac재검수",
       "evidence": [
-        "msg_8a12df0bde54 현재Master수신/receipt일치·새창0",
-        "dev-requests0·변경scan ACTIVE_WORK/.pdca만(타변경보존)",
-        "SNS W01c정확경로ACTIVE진행·CRM U3동일담당수정중",
-        "Macmsg_24cb5a0e0908·script키수정외serverflatValues roundtrip보완배정",
-        "이전검수수락범위/미배포·사람대기6건/Blog전달보류분리"
+        "msg_ae72141871ec/f43cdf2c57ab",
+        "e2581d960 stat/실route diff",
+        "Mac 고정SHA 재검수전달"
       ],
-      "judgment": "정기점검완료. 실행가능SNS입력검사/CRM특수키보완은한책임자진행·파일충돌새근거0. 중앙/감성/SNS보관/CRM발송소스PASS는운영PASS와분리. 새운영/유료/푸시0.",
+      "judgment": "작성자왕복시험완료·독립검수전수락보류. 기존서버결함포함한정·전역오염/실Google동작보증으로확장0.",
       "unverified": [
-        "CRM U3새수정·SNS입력검사결과",
-        "Blog사람prompt해소/배포3회승인·MacB/블로그B1/토스/Gmail사람단계",
-        "감성정정원격1회/새중앙+감성통합배포예산·실토큰/잔여",
-        "전체운영/카테고리기능을이번새로검증한것아님"
+        "새e258 독립판정·실AppsScript/시트Date",
+        "SNS입력검사소스·운영릴리스조건"
       ],
-      "nextAction": "새SHA→Mac검수·남은조건/릴리스묶음정리·15:00메시지는기존대화만"
+      "nextAction": "결과회수후CRM소스묶음확인표·실API/배포0"
     },
     "notifications": [
       {
