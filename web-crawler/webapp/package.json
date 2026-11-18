@@ -10,7 +10,8 @@
     "test:work-inbox": "node --test tests/work-inbox-content.test.cjs",
     "test:inspect-robots": "node --test tests/inspect-robots.test.cjs",
     "test:jobs-poller": "node --test tests/active-jobs-poller.test.cjs",
-    "test:xlsx-preview": "node --test tests/xlsx-preview.test.cjs"
+    "test:xlsx-preview": "node --test tests/xlsx-preview.test.cjs",
+    "test:job-result-routes": "node --test tests/job-result-routes.test.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

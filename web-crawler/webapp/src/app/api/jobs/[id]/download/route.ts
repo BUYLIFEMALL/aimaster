@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkProgramAccessApi } from "@/lib/access";
+import { checkResultRetention } from "@/lib/jobs/resultRetention";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -11,7 +12,6 @@ export const fetchCache = "force-no-store";
 // 파일 경로는 service/pipeline.py `_upload_result`와 같은 `${user_id}/${job_id}.xlsx`.
 const RESULT_BUCKET = "web-crawler-results";
 const SIGNED_URL_SECONDS = 600;
-const RETENTION_DAYS = 30;
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const access = await checkProgramAccessApi();
@@ -28,11 +28,13 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 
   if (!job) return NextResponse.json({ error: "작업을 찾을 수 없습니다." }, { status: 404 });
   if (job.status !== "completed") return NextResponse.json({ error: "아직 완료되지 않은 작업입니다." }, { status: 409 });
-  if (Date.parse(job.created_at) < Date.now() - RETENTION_DAYS * 86400000) {
-    return NextResponse.json({ error: "30일 보관 기간이 지나 결과 파일이 삭제되었습니다." }, { status: 410 });
-  }
 
-  const { data, error } = await createAdminClient()
+  // 2026-11-18 T-07 F02: 보관 예외(profiles.retention_exempt) 회원은 30일 제한에서 빼고, 확인 못 하면 503(공용 판정).
+  const admin = createAdminClient();
+  const retention = await checkResultRetention(admin, job.user_id, job.created_at);
+  if (!retention.ok) return NextResponse.json({ error: retention.error }, { status: retention.status });
+
+  const { data, error } = await admin
     .storage.from(RESULT_BUCKET)
     .createSignedUrl(`${job.user_id}/${job.id}.xlsx`, SIGNED_URL_SECONDS, { download: `크롤링결과_${job.id.slice(0, 8)}.xlsx` });
   if (error || !data?.signedUrl) {

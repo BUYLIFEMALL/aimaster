@@ -133,3 +133,62 @@ test('칸 안의 HTML 같은 글자는 글자 그대로(해석하지 않음)', a
   const p = await parseXlsxPreview(await makeXlsx([['t'], ['<script>alert(1)</script>']]));
   assert.equal(p.rows[0][0], '<script>alert(1)</script>');
 });
+
+// ── QA(Mac) F01 반례: 실제로 풀린 바이트 기준 전체 16MiB 상한 ─────────────
+const MiB = 1024 * 1024;
+function wbParts(zip) {
+  zip.file('xl/workbook.xml', '<workbook><sheets><sheet r:id="rId1" xmlns:r="x"/></sheets></workbook>');
+  zip.file('xl/_rels/workbook.xml.rels', '<Relationships><Relationship Id="rId1" Target="worksheets/sheet1.xml"/></Relationships>');
+}
+const tooLarge = (e) => e instanceof XlsxPreviewError && e.code === 'too_large';
+
+test('F01 한글(3바이트) 시트: 글자 수는 16M 아래지만 풀린 바이트가 16MiB 초과 → too_large', async () => {
+  const zip = new JSZip();
+  wbParts(zip);
+  const chars = Math.ceil((16 * MiB + 1024) / 3);
+  zip.file('xl/worksheets/sheet1.xml', `<worksheet><sheetData><row r="1"><c r="A1" t="inlineStr"><is><t>${'가'.repeat(chars)}</t></is></c></row></sheetData></worksheet>`);
+  const bytes = await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' });
+  await assert.rejects(parseXlsxPreview(bytes), tooLarge);
+});
+
+test('F01 파일 4개가 각각 5MiB(합 20MiB) → 누적 상한으로 too_large', async () => {
+  const zip = new JSZip();
+  const pad = ' '.repeat(5 * MiB);
+  zip.file('xl/workbook.xml', `<workbook><sheets><sheet r:id="rId1" xmlns:r="x"/></sheets>${pad}</workbook>`);
+  zip.file('xl/_rels/workbook.xml.rels', `<Relationships><Relationship Id="rId1" Target="worksheets/sheet1.xml"/>${pad}</Relationships>`);
+  zip.file('xl/sharedStrings.xml', `<sst><si><t>a</t></si>${pad}</sst>`);
+  zip.file('xl/worksheets/sheet1.xml', `<worksheet><sheetData><row r="1"><c r="A1" t="s"><v>0</v></c></row></sheetData>${pad}</worksheet>`);
+  const bytes = await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' });
+  await assert.rejects(parseXlsxPreview(bytes), tooLarge);
+});
+
+test('F01 중앙 디렉터리에 크기를 작게 거짓 선언한 17MiB 시트 → too_large', async () => {
+  const zip = new JSZip();
+  wbParts(zip);
+  zip.file('xl/worksheets/sheet1.xml', `<worksheet><sheetData><row r="1"><c r="A1" t="inlineStr"><is><t>${'나'.repeat(Math.ceil(17 * MiB / 3))}</t></is></c></row></sheetData></worksheet>`);
+  const bytes = await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' });
+  // 시트 항목만: 중앙 디렉터리(PK\x01\x02)와 로컬 헤더(PK\x03\x04)의 "풀린 크기" 칸을 100으로 바꾼다.
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const dec = new TextDecoder();
+  const SHEET = 'xl/worksheets/sheet1.xml';
+  for (let i = 0; i + 46 < bytes.length; i++) {
+    const sig = dv.getUint32(i, true);
+    if (sig === 0x02014b50 && dec.decode(bytes.subarray(i + 46, i + 46 + dv.getUint16(i + 28, true))) === SHEET) dv.setUint32(i + 24, 100, true);
+    else if (sig === 0x04034b50 && dec.decode(bytes.subarray(i + 30, i + 30 + dv.getUint16(i + 26, true))) === SHEET) dv.setUint32(i + 22, 100, true);
+  }
+  await assert.rejects(parseXlsxPreview(bytes), tooLarge);
+});
+
+test('F01 상한 안의 정상 파일(2000행)은 그대로 읽힘·앞 20행', async () => {
+  const rows = [['n']];
+  for (let i = 1; i <= 2000; i++) rows.push([`행${i}`]);
+  const p = await parseXlsxPreview(await makeXlsx(rows));
+  assert.equal(p.totalRows, 2000);
+  assert.equal(p.rows.length, 20);
+  assert.equal(p.rows[0][0], '행1');
+});
+
+test('F01 too_large 메시지는 고정 문구', async () => {
+  const big = new Uint8Array(PREVIEW_LIMITS.fileBytes + 1);
+  await assert.rejects(parseXlsxPreview(big), (e) => e.message === '결과 파일이 커서 미리보기를 만들 수 없습니다. 엑셀로 내려받아 확인해 주세요.');
+});
