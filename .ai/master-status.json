@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T00:30:45.919Z",
+  "checkedAt": "2026-11-18T00:57:40.580Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3477,10 +3477,10 @@
       "owner": "CC-ECOM-01",
       "reviewer": "CX-MASTER-01",
       "title": "감성v1.30 승인배포/3사실호출·범위사고복구",
-      "status": "needs_revision",
-      "delivery": "rolled_back",
-      "sha": "c585b034c (d21eb96d7 미검수포함)",
-      "evidence": "직접승인msg_d5fbe8f307d8·범위사고msg_e5ab9f819b61·롤백msg_3e45eb66363e·Master Vercel get_alias 확인",
+      "status": "running",
+      "delivery": "owner_authorized_dispatch_sent",
+      "sha": "0789d0829 + version.ts v1.30 overlay only",
+      "evidence": "직접승인msg_d5fbe8f307d8·범위사고msg_e5ab9f819b61·롤백msg_3e45eb66363e·Master Vercel get_alias 확인·재승인msg_037a5d31d3f8·Master git subtree 직접일치·dispatch msg_edf0fbf92a1d",
       "approval": {
         "scope": "Vercel1회·시험회원본인각3사가성비1회 총3",
         "budgetUsed": {
@@ -3489,7 +3489,13 @@
           "dbVersionWrites": 0
         },
         "source": "주인님 직접지시 Ecom보고",
-        "remainingModelCalls": 3
+        "remainingModelCalls": 3,
+        "additionalBuild": {
+          "messageId": "msg_037a5d31d3f8",
+          "remoteBuilds": 1,
+          "source": "주인님 Ecom 채팅 선택 재배포 진행",
+          "modelCalls": "기존3회 잔여 재확인·추가3회 아님"
+        }
       },
       "deployment": {
         "attempt": "dpl_HUX84NzDEA2A3cV8CxjUxgZaYJYL",
@@ -3499,11 +3505,11 @@
         "repositoryVersion": "v1.30"
       },
       "completion": "명시검수SHA/경로manifest·모든포함분검수·정확재실행승인범위후Ready/실호출검수",
-      "next": "명시59cb재배포는追加Vercel1회승인필요·같은3사실호출기승인잔여3/3 유지·운영1.29",
-      "blockedReason": "기존빌드1회소진·新增원격빌드1미승인, Ecom재배포선택질문이열려후속메시지전달보류",
-      "lastReviewedAt": "2026-11-17T17:37:37.000Z",
+      "next": "Ecom 명시0789 archive+version overlay·manifest·팀큐 확인→원격1회→실alias/DB1행/3사총3호출/375 확인",
+      "blockedReason": null,
+      "lastReviewedAt": "2026-11-18T00:57:40.580Z",
       "safeCandidate": {
-        "sha": "59cb81d8e",
+        "sha": "0789d0829",
         "sourceTree": "4d114e25605d67e787328ddcfd4f277fb03f20bb",
         "sourceCommits": [
           "59cb81d8e",
@@ -3515,9 +3521,10 @@
         ],
         "excluded": "d21eb96d7",
         "versionOverlay": "emotion-writer/src/lib/version.ts v1.30만",
-        "verification": "각SHA ancestor=true·원본1.29..59cb 소스commit6개일치·d21 ancestor=false, Master git 직접대조",
+        "verification": "Master git 직접대조: src subtree 4d114e25605d67e787328ddcfd4f277fb03f20bb=59cb. 둘 차이는 IMPROVEMENTS만. version overlay전 c585대비11경로, overlay뒤d21 10경로.",
         "warning": "690df10c6 단독후보는59cb미포함으로불가"
-      }
+      },
+      "dispatchMessage": "msg_edf0fbf92a1d"
     },
     {
       "task_id": "INC-20261118-01",
@@ -4075,8 +4082,8 @@
     },
     {
       "condition": "감성글귀 v1.30 再실행",
-      "action": "검수된59cb81d8e로재배포할원격빌드1회 추가승인",
-      "recommendation": "新이미지d21제외·버전1.30만오버레이,실3회는기승인잔여0/3사용으로재승인불필요·무조건실행아님"
+      "action": "추가빌드1회 주인님 승인 수신·Ecom 단일 실행 중",
+      "recommendation": "0789d0829 소스트리검수판동일·d21제외·총모델3회 잔여 유지, 추가승인질문0"
     }
   ],
   "redispatch": {
@@ -4103,22 +4110,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T00:30:45.919Z",
+      "at": "2026-11-18T00:57:40.580Z",
       "timezone": "Asia/Seoul",
-      "trigger": "09:30 Windows예약 기존Master수신",
-      "scope": "담당보고/관리자요청·19카테고리 미종료작업·프로그램docs/미등록인계 증분·제품미커밋·기존12세션",
+      "trigger": "Ecom 직접승인 이벤트 msg_037a5d31d3f8",
+      "scope": "해당승인·릴리스후보 Git SHA/소스트리/변경경로·빌드/모델예산·담당 지시",
       "evidence": [
-        "msg_ec1cd273b404·예약09:30 종료0/다음10:00",
-        "dev-requests 대기0·신규보고/인계0(자체진행표3개제외)",
-        "HEAD e52f120e0 이후 신규커밋0·제품3개 src미커밋0",
-        "담당 lastOutput 변화0·PORT19수락/산출물0·사람단계 완료신호0"
+        "0789d0829/59cb src subtree 동일4d114e25605d67e787328ddcfd4f277fb03f20bb",
+        "version overlay전11경로/overlay뒤d21 10경로 차이 구분",
+        "추가빌드1회 승인·총3모델실호출기승인재확인·Ecom dispatch msg_edf0fbf92a1d"
       ],
-      "judgment": "기존배정·차단조건유지. 연결/유휴를착수·완료로단정0·중복배정/재발송/시험/배포0.",
+      "judgment": "후보 수락·Ecom 단일 재배포 허용, Master 중복실행0·d21 제외유지. 배포/운영완료는 결과 전 미판정.",
       "unverified": [
-        "PORT19 수신/착수·Ecom/Gmail 선택질문답변",
-        "Lab 시험제출·Mac 반환·이번회차 운영 재조회없음"
+        "실제배포착수/Ready/alias·DB변경·3실호출·375검수"
       ],
-      "nextAction": "수락/사람완료/결정 이벤트후 후속판정·10:00 기존Master 예약메시지"
+      "nextAction": "Ecom 실행결과 회수→운영alias 대조·판정, 10:00 기존예약유지"
     },
     "notifications": [
       {
@@ -4298,7 +4303,7 @@
         "observation": "기존terminal screen 빈입력줄/과거작업결과·background4개표시,원인미확정·명시수락0",
         "action": "입력대행/프로세스종료/새창0"
       },
-      "ecom": "기존재배포선택질문 답변대기(이전실화면·현재미변화)",
+      "ecom": "재배포 선택 직접승인 수신·msg_edf0fbf92a1d 전달, 실행결과 대기",
       "workspace": "기존Gmail공개/빌드선택질문 답변대기(이전실화면·현재미변화)"
     }
   },
@@ -6335,9 +6340,9 @@
     "current": {
       "program": "emotion-writer",
       "owner": "CC-ECOM-01",
-      "status": "rolled_back_frozen",
+      "status": "redeployment_authorized",
       "approvalMessage": "msg_d5fbe8f307d8",
-      "remoteBudget": 1,
+      "remoteBudget": 2,
       "remoteUsed": 1,
       "modelBudget": 3,
       "modelUsed": 0,
@@ -6345,9 +6350,9 @@
       "activeAlias": "dpl_D9ExEsYD9sH9zAxZy38dkU2UUMUz",
       "outOfScopeCommit": "d21eb96d7",
       "rollbackConfirmedBy": "Master Vercel get_alias + msg_3e45eb66363e",
-      "next": "명시59cb재배포는追加Vercel1회승인필요·같은3사실호출기승인잔여3/3 유지·운영1.29",
+      "next": "Ecom 명시0789 archive+version overlay·manifest·팀큐 확인→원격1회→실alias/DB1행/3사총3호출/375 확인",
       "safeCandidate": {
-        "sha": "59cb81d8e",
+        "sha": "0789d0829",
         "sourceTree": "4d114e25605d67e787328ddcfd4f277fb03f20bb",
         "sourceCommits": [
           "59cb81d8e",
@@ -6359,9 +6364,10 @@
         ],
         "excluded": "d21eb96d7",
         "versionOverlay": "emotion-writer/src/lib/version.ts v1.30만",
-        "verification": "각SHA ancestor=true·원본1.29..59cb 소스commit6개일치·d21 ancestor=false, Master git 직접대조",
+        "verification": "Master git 직접대조: src subtree 4d114e25605d67e787328ddcfd4f277fb03f20bb=59cb. 둘 차이는 IMPROVEMENTS만. version overlay전 c585대비11경로, overlay뒤d21 10경로.",
         "warning": "690df10c6 단독후보는59cb미포함으로불가"
-      }
+      },
+      "additionalApprovalMessage": "msg_037a5d31d3f8"
     }
   }
 }
