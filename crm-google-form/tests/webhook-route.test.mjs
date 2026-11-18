@@ -392,9 +392,9 @@ test("recordFinal: 다른 id·여러 행 → recorded false·uncertain", async (
     assert.deepEqual([r.body.recorded, r.body.recordState], [false, "uncertain"], JSON.stringify(data));
   }
 });
-test("recordFinal: DB 오류 응답(미반영) → not_recorded, 반영 뒤 응답 유실(예외) → uncertain이고 실제 행은 최종 상태일 수 있음", async () => {
+test("recordFinal: DB 오류 응답도 미반영 확정이 아님 → uncertain, 반영 뒤 응답 유실(예외) → uncertain이고 실제 행은 최종 상태일 수 있음", async () => {
   let { db, r } = await rfCase(() => ({ data: null, error: { message: "boom" } }));
-  assert.deepEqual([r.body.recorded, r.body.recordState], [false, "not_recorded"]);
+  assert.deepEqual([r.body.recorded, r.body.recordState], [false, "uncertain"]);
   assert.equal(db.rows[0].status, "dispatching");
   ({ db, r } = await rfCase((q, rows, matches) => { for (const x of rows) if (matches(x, q)) Object.assign(x, q.ops.find((o) => o[0] === "update")[1]); throw new Error("socket hang up"); }));
   assert.deepEqual([r.body.recorded, r.body.recordState], [false, "uncertain"]);
@@ -415,3 +415,60 @@ test("recordFinal: 응답 본문은 고정 형식(원문 0)", async () => {
   const { r } = await rfCase(() => { throw new Error("secret-detail 010-1111-2222"); });
   assert.doesNotMatch(JSON.stringify(r.body), /secret-detail|010-1111-2222/);
 });
+
+
+// ── 실제 설치된 supabase-js(PostgREST 클라이언트) + 시험용 fetch 옵션(전역 교체 0) ─────────────────────────
+import { createRequire as __cr } from "node:module";
+const { createClient: realCreateClient } = __cr(join(PROJECT, "package.json"))("@supabase/supabase-js");
+const SOURCE_ROW = { id: SRC1, user_id: OWNER, name: "폼1", field_mapping: {}, notify_email: false, notify_telegram: false, notify_sms: false, notify_alimtalk: false, notify_friendtalk: false, kakao_template_id: null, kakao_variables: {}, is_active: true };
+/** patch: 최종 상태 PATCH에 대한 시나리오 함수(state를 바꿀 수 있음) */
+function realClientRoute(patch) {
+  const state = { rowStatus: null, patchUrl: null, patchCalls: 0 };
+  const ROW_ID = "00000000-0000-4000-8000-000000000001";
+  const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
+  const fetchImpl = async (input, init = {}) => {
+    const url = new URL(typeof input === "string" ? input : input.url);
+    const method = (init.method ?? "GET").toUpperCase();
+    if (url.pathname.endsWith("/crm_form_sources")) return json(200, SOURCE_ROW);
+    if (url.pathname.endsWith("/crm_submissions") && method === "POST") {
+      const body = JSON.parse(init.body);
+      state.rowStatus = body.status;
+      return json(201, { id: ROW_ID, user_id: OWNER, name: null, phone: null, email: null, raw_values: {} });
+    }
+    if (url.pathname.endsWith("/crm_submissions") && method === "PATCH") {
+      state.patchCalls++;
+      state.patchUrl = url;
+      return patch(state, JSON.parse(init.body), ROW_ID, json);
+    }
+    return json(404, {});
+  };
+  const client = realCreateClient("http://localhost:54321", "test-anon-key", { auth: { persistSession: false, autoRefreshToken: false }, global: { fetch: fetchImpl } });
+  makeDb();
+  globalThis.__whFake = { client: () => client };
+  return state;
+}
+const applied = (st, body) => { st.rowStatus = body.status; };
+for (const [name, patch, want] of [
+  ["정상 1행", (st, b, id, json) => { applied(st, b); return json(200, [{ id }]); }, [true, undefined]],
+  ["정상 0행", (st, b, id, json) => json(200, []), [false, "not_recorded"]],
+  ["다른 id 1행", (st, b, id, json) => { applied(st, b); return json(200, [{ id: "00000000-0000-4000-8000-0000000000ff" }]); }, [false, "uncertain"]],
+  ["여러 행", (st, b, id, json) => { applied(st, b); return json(200, [{ id }, { id }]); }, [false, "uncertain"]],
+  ["적용 뒤 연결 리셋", (st, b) => { applied(st, b); throw Object.assign(new TypeError("fetch failed"), { cause: { code: "ECONNRESET" } }); }, [false, "uncertain"]],
+  ["적용 뒤 HTTP 503", (st, b) => { applied(st, b); return new Response("unavailable", { status: 503 }); }, [false, "uncertain"]],
+  ["적용 뒤 200 깨진 JSON", (st, b) => { applied(st, b); return new Response("{not json", { status: 200, headers: { "content-type": "application/json" } }); }, [false, "uncertain"]],
+  ["명시 PostgREST 오류(400)", (st, b, id, json) => json(400, { code: "22P02", message: "invalid input", details: null, hint: null }), [false, "uncertain"]],
+]) {
+  test(`실제 supabase-js recordFinal: ${name} → recorded ${want[0]}${want[1] ? " · " + want[1] : ""}`, async () => {
+    const st = realClientRoute(patch);
+    const r = await post("tok-1", v2());
+    assert.equal(r.status, 200);
+    assert.deepEqual([r.body.recorded, r.body.recordState], want);
+    assert.equal(r.body.status, "notified");
+    assert.equal(st.patchCalls, 1); // 재기록 0
+    assert.equal(globalThis.__whDispatched.length, 1); // 재발송 0
+    // 갱신 조건: id·회원·폼 3개 + select=id
+    for (const k of ["id", "user_id", "form_source_id"]) assert.ok(st.patchUrl.searchParams.get(k)?.startsWith("eq."), k);
+    assert.equal(st.patchUrl.searchParams.get("select"), "id");
+    assert.doesNotMatch(JSON.stringify(r.body), /fetch failed|ECONNRESET|unavailable|not json|invalid input|22P02/);
+  });
+}

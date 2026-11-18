@@ -146,8 +146,9 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
   }
 
   // 최종 상태 기록: 정확히 이 1행이 갱신된 것을 응답으로 확인한 경우만 recorded true.
-  // not_recorded = DB가 오류를 돌려줬거나 0행 갱신(반영 안 된 것으로 봄, 행은 보통 「발송 처리 중」)
-  // uncertain = 예외·이상한 응답(실제로는 반영됐을 수도 있음 — 「발송 처리 중 잔류」로 단정하지 않음).
+  // not_recorded = 정상 응답으로 0행 갱신(반영 안 됨)
+  // uncertain = 오류 응답·예외·이상한 응답(실제로는 반영됐을 수도 있음 — supabase-js는 연결 끊김·5xx·깨진 응답도
+  // error로 바꿔 돌려주므로 error만으로 미반영을 확정하지 않는다. 「발송 처리 중 잔류」로 단정하지 않음).
   // 어느 경우든 재기록·재발송 0, 응답은 고정 형식·원문 0.
   const record = await recordFinal(untyped, submission.id, source.user_id, source.id, result.status, result.errorMessage);
   if (record !== "recorded") {
@@ -158,7 +159,8 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
 
 /**
  * 접수 최종 상태를 이 회원·이 폼 조건으로 기록하고 반환 행으로 결과를 확인한다(재시도 0).
- * recorded = 오류 없음 + 배열 + 정확히 1행 + id 일치 / not_recorded = DB 오류 응답 또는 0행 / uncertain = 예외·이상한 응답.
+ * recorded = 오류 없음 + 배열 + 정확히 1행 + id 일치 / not_recorded = 오류 없음 + 배열 0행 / uncertain = 그 밖(오류 응답 전부·예외·이상한 응답).
+ * error를 「미반영 확정」으로 보지 않는다 — PostgREST 클라이언트가 적용 뒤 연결 끊김·503·깨진 JSON도 error로 바꾸기 때문(Mac 실측).
  */
 async function recordFinal(
   client: SupabaseClient,
@@ -176,7 +178,7 @@ async function recordFinal(
       .eq("user_id", userId)
       .eq("form_source_id", formSourceId)
       .select("id");
-    if (error) return "not_recorded";
+    if (error) return "uncertain";
     if (!Array.isArray(data)) return "uncertain";
     if (data.length === 0) return "not_recorded";
     if (data.length === 1 && (data[0] as { id?: unknown })?.id === submissionId) return "recorded";
