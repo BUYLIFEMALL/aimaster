@@ -4813,17 +4813,18 @@
       "reviewer": "CX-MASTER-01",
       "title": "누락 자산 후속 SQL·격리 시험 초안",
       "status": "reviewing",
-      "delivery": "corrected_sql_draft_isolated_test_run_requested",
+      "delivery": "isolated_first_run_17_of_20_test_corrections_requested",
       "scopeRef": "신규 후속 migration, 신규 격리 시험, W00 해당 근거",
       "constraints": "기존 migration·실행자/route/fixture 변경·SQL 실행/DB 생성·운영/Storage/비용/배포 0",
       "completion": "권한·인덱스 정렬·창/반환 상한·metadata 두 기준·예약 보존·격리 시험 경계 명시",
-      "evidence": "e3bb9132f·msg_0f05ca942dad·정정 요청 msg_b79fa67a3680 / msg_c93d4f3c6d24 / msg_1ede944e2a6c",
-      "next": "고정 2d6dfff03 로컬 격리 시험 1회 결과·OID 정리 검증 대기.",
-      "lastReviewedAt": "2026-11-18T09:44:17.490Z",
+      "evidence": "e3bb9132f·msg_0f05ca942dad·정정 요청 msg_b79fa67a3680 / msg_c93d4f3c6d24 / msg_1ede944e2a6c / msg_d9560a3b5fae / msg_e35ee13c657f",
+      "next": "시험 세 준비/단언만 수정해 1회 재검증. 제품 SQL 고정.",
+      "lastReviewedAt": "2026-11-18T09:47:07.577Z",
       "sha": "2d6dfff03",
       "validation": {
         "author": "node --check, 기존 npm 171/171·tsc 보고. 신규 격리 시험 미실행.",
-        "master": "Storage 단일 스냅샷과 CLI 대기 한도 확인. 컨테이너 내부 프로세스 종료는 별도 검증."
+        "master": "Storage 단일 스냅샷과 CLI 대기 한도 확인. 컨테이너 내부 프로세스 종료는 별도 검증.",
+        "isolated": "격리 PG17 17/20 통과, 실패 3·skip 0·exit 1. OID 2545004 일치 후 시험 DB/세션 부재 담당 보고. 실패 원인은 시험 준비/기대값 가설, 재검증 대기."
       }
     }
   ],
@@ -5343,20 +5344,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T09:44:17.490Z",
+      "at": "2026-11-18T09:47:07.577Z",
       "timezone": "Asia/Seoul",
-      "trigger": "W01r 실행 전 정정 회신",
-      "scope": "동일 스냅샷 SQL 판정 및 격리 시험 종료 처리 고정 diff 검토.",
+      "trigger": "W01r 첫 격리 SQL 시험 보고",
+      "scope": "고정 2d6dfff03 시험 결과 및 실패 단언·정리 보고 대조.",
       "evidence": [
-        "2d6dfff03·msg_c93d4f3c6d24",
-        "msg_1ede944e2a6c"
+        "msg_d9560a3b5fae·2d6dfff03",
+        "msg_e35ee13c657f"
       ],
-      "judgment": "정정 수락, 기존 로컬 컨테이너 내 고정 격리 시험 1회 배정.",
+      "judgment": "17/20, 전체 격리 시험 미통과. 시험 준비/단언 보완 및 같은 제품 SQL로 1회 재검증 배정.",
       "unverified": [
-        "격리 SQL 통과/건너뜀 및 OID 정리",
-        "실 Supabase Storage·권한 및 Gmail 동의/실검증"
+        "수정 시험의 전부 통과",
+        "실 Supabase Storage/권한",
+        "Gmail OAuth 동의/실검증"
       ],
-      "nextAction": "격리 실행 결과 회수 후 판정, 운영 SQL/배포 0."
+      "nextAction": "시험만 바뀐 SHA·격리 재시험 결과 및 정리 근거 회수."
     },
     "notifications": [
       {
