@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T17:04:59.580Z",
+  "checkedAt": "2026-11-18T17:08:11.814Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5391,17 +5391,35 @@
       "owner": "AG-UI-01",
       "reviewer": "CX-MASTER-01",
       "title": "메인 히어로 실사 시안 148~150",
-      "status": "waiting_human",
-      "delivery": "showcase_verified_selection_and_release_pending",
-      "sha": "e73d362fc",
+      "status": "running",
+      "delivery": "hero_production_approval_isolated_release_dispatched",
+      "sha": "60703d554",
       "scopeRef": "components/home/HeroShowcase.tsx·public/images/hero/*·docs/HERO_VISUAL_ARCHIVE_20261119.md",
-      "evidence": "1edd6f67c·e73d362fc·msg_3ea7dcd725b1·msg_d61f61aef3a0; localhost:3800 showcase/comparison/hero 200·D:/PDS/Design/148~150 존재",
-      "next": "주인님 시안 선택 또는 3안 유지와 메인 배포 승인 대기. V2 제품 브라우저 렌더 확인은 쇼케이스 응답과 별도.",
+      "evidence": "1edd6f67c·e73d362fc·msg_3ea7dcd725b1·msg_d61f61aef3a0; localhost:3800 showcase/comparison/hero 200·D:/PDS/Design/148~150 존재·msg_33a7c9bdc92b·msg_5bec9d89aa89",
+      "next": "AG-UI-01 운영 기준+승인 두 경로로 격리 배포·검증 결과 회신, Master 운영 alias 검증.",
       "validation": {
-        "author": "V1·V2 각 tsc 0·로컬 build 77/77 보고; V2 Next.js 실제 화면 미검수, 원격 배포/push 0 보고",
-        "master": "커밋·V2 이미지 참조·3개 폴더·쇼케이스 HTTP 응답 확인"
+        "author": "선택 1차-3안과 주인님 배포 직접 승인 회수. 공유 소스 tsc 0 및 로컬 build 77/77 보고; 격리 배포 검증 대기.",
+        "master": "Vercel 운영 alias READY·기준 SHA·공식 프로젝트 확인, 팀 대기/빌드 0, 두 경로 diff 범위 확인."
       },
-      "lastReviewedAt": "2026-11-18T16:33:14.330Z"
+      "lastReviewedAt": "2026-11-18T17:08:11.814Z",
+      "release": {
+        "program": "aimaster",
+        "owner": "AG-UI-01",
+        "reviewer": "CX-MASTER-01",
+        "status": "dispatch_sent",
+        "approvalMessage": "msg_33a7c9bdc92b",
+        "dispatchMessage": "msg_5bec9d89aa89",
+        "baseSha": "ba31f40809f285c5c378e59213c76d227188ac11",
+        "baseDeployment": "dpl_HrwPHSqGcwRBAhSrBDMAk5KAWqHG",
+        "approvedSource": "60703d554",
+        "alias": "www.buylife.xyz",
+        "normalBudget": 1,
+        "paths": [
+          "components/home/HeroShowcase.tsx",
+          "public/images/hero/concept_3_command_hub.jpg"
+        ],
+        "method": "Production-base tracked snapshot with two approved paths; one staged production build and promotion after verification. No master push."
+      }
     }
   ],
   "programOverrides": [
@@ -8546,6 +8564,24 @@
       "deploymentId": "dpl_DC9Bifer8U1oZ67QFRJNkaAQ1Pj6",
       "dbVersionReported": "v1.58",
       "dbVersionWrites": 0
+    },
+    "mainHero": {
+      "program": "aimaster",
+      "owner": "AG-UI-01",
+      "reviewer": "CX-MASTER-01",
+      "status": "dispatch_sent",
+      "approvalMessage": "msg_33a7c9bdc92b",
+      "dispatchMessage": "msg_5bec9d89aa89",
+      "baseSha": "ba31f40809f285c5c378e59213c76d227188ac11",
+      "baseDeployment": "dpl_HrwPHSqGcwRBAhSrBDMAk5KAWqHG",
+      "approvedSource": "60703d554",
+      "alias": "www.buylife.xyz",
+      "normalBudget": 1,
+      "paths": [
+        "components/home/HeroShowcase.tsx",
+        "public/images/hero/concept_3_command_hub.jpg"
+      ],
+      "method": "Production-base tracked snapshot with two approved paths; one staged production build and promotion after verification. No master push."
     }
   }
 }
