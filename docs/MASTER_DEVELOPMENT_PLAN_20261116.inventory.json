@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 13:24:50 KST",
+  "checkedAt": "2026-11-18 13:28:08 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T04:24:50.675Z",
+      "at": "2026-11-18T04:28:07.933Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Mac website 읽기 완료·B1 준비 보고",
-      "scope": "구/신주소 실제화면·로그인경계·공유경로·기존공간보존",
+      "trigger": "Cloudflare 직접승인·B1 차단·CRM U2 완료",
+      "scope": "직접결정취합·공용키/잔여확인·서버/UI충돌방지·B1 도구실패·U2 검수배정",
       "evidence": [
-        "msg_efecea98d20b·결과파일",
-        "Blog 읽기결과 전달"
+        "msg_00629cba67a2/b8fd1ac455e5·msg_30e31b48ec32",
+        "msg_300ed7a832fd·Blog전달보류",
+        "msg_1291f34e4144·6파일stat·Mac재검수전달"
       ],
-      "judgment": "website 라이브 지정읽기 결과 회수, 옛login404는P3후보·별도수정/배포0. B1은설치/끄기전준비로실시험완료아님.",
+      "judgment": "Cloudflare방식결정수락, 기존무료정책질문해소. 실호출0원보장전잔여확인. CRM U2는SDK재시도남아HTTP1회보장아님·독립검수필요. B1은사람설치확인대기/앱focus실패아님.",
       "unverified": [
-        "B1 사람A/B·실제설치/복원",
-        "Blog 표 갱신 수락"
+        "Cloudflare현재잔여/계정귀속·실응답",
+        "U2독립검수/SDK재시도차단필요",
+        "AGY/Blog전달보류해소·B1사람확인"
       ],
-      "nextAction": "B1 준비완료 후 기존사람단계로진행·대신클릭0"
+      "nextAction": "각담당결과회수·권한/비용증가독자실행0"
     },
     "notifications": [
       {
@@ -7836,19 +7838,19 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-MASTER-01",
       "title": "웹훅 중복 방지 실제 연결 최소 단위 계획",
-      "status": "in_progress",
-      "delivery": "u1_source_accepted_u2_author_started",
+      "status": "ready_review",
+      "delivery": "u2_source_ready_sdk_retry_risk_independent_review",
       "scopeRef": "실 form-submit/[token]/route.ts·새 실제route시험·기존문서만(U1), parser/DDL/dispatch/공용SDK/스니펫 불변",
       "completion": "v2 insert선점/정확중복만200·회원source경계·legacy유지·크기/형식·실route 순차/동시/DB오류 시험",
       "constraints": "미배포 소스만·DDL선행필수·운영DDL/실API/실발송/build/deploy0",
-      "next": "U2 실제SDK 근거/상태행렬 소스 SHA 회수→Mac 검수",
-      "evidence": "계획msg_300933f94c2e·546bd0fb0 21절/실dispatch 확인·점유해제0a0997c65·Master U1범위/23505검증 보완지시 · 완료msg_4f2aaf809d48 · Master4파일stat/route본문확인 · Macmsg_5445bef602a4 · Mac중간msg_24a60c98c1f9 · 기존4파일수정반환 · 원본최종msg_be55e38ccb41/수락msg_aca66829fdcd · 수정msg_94ac7ed25fc3 · Master3파일diff확인 · MacPASSmsg_2b90f9b7a828 · U2배정msg_2424440cdc62 · 착수msg_77ee8fa7017d",
-      "lastReviewedAt": "2026-11-18T04:21:29.557Z",
-      "sha": "662797f32",
+      "next": "Mac U2 실제분류/route통합·SDK내부재시도 위험검수→판정",
+      "evidence": "계획msg_300933f94c2e·546bd0fb0 21절/실dispatch 확인·점유해제0a0997c65·Master U1범위/23505검증 보완지시 · 완료msg_4f2aaf809d48 · Master4파일stat/route본문확인 · Macmsg_5445bef602a4 · Mac중간msg_24a60c98c1f9 · 기존4파일수정반환 · 원본최종msg_be55e38ccb41/수락msg_aca66829fdcd · 수정msg_94ac7ed25fc3 · Master3파일diff확인 · MacPASSmsg_2b90f9b7a828 · U2배정msg_2424440cdc62 · 착수msg_77ee8fa7017d · U2완료msg_1291f34e4144·Master6파일stat확인",
+      "lastReviewedAt": "2026-11-18T04:28:07.933Z",
+      "sha": "aeadf3f7f",
       "validation": {
-        "author": "실route17/17·전체112/112·tsc0, UUID모양 검증 및 admin/source예외 고정500",
+        "author": "U2 실제오류instance·실route/dispatch통합36/36·전체131/131·tsc0. SDK내부재시도최대3 남음(작성자 보고)",
         "master": "3파일stat/route diff 확인. 원본 W-F01/W-F02 결과 보존, insert불명/dispatch/update예외·received상태는 U2 미완으로 분리",
-        "independent": "U1 정확662797 지정PASS: native17/17·비정상ID6종·정상/대문자UUID·admin/source throw·응답원문0·확인3조건·기존회귀. U2 아직미검수"
+        "independent": "U1 662797 지정PASS 보존·U2 aeadf3f7f 재검수 전달, HTTP1회 보장 아닌 SDK재시도 추가검토"
       },
       "limitations": [
         "U1 단독 운영 배포 금지·운영 DDL 미적용",
@@ -7870,11 +7872,11 @@
       "task_id": "QA-20261118-BLOG-01",
       "title": "website-scraper 읽기·B1 사람 포커스 재시험 준비",
       "owner": "CX-QA-01",
-      "status": "in_progress",
-      "delivery": "website_read_complete_b1_environment_preparation",
-      "next": "website 결과 Blog 전달·B1 실제공유경로 확인/기존확장관리 읽기준비→사람 A/B 각1회·복원",
-      "evidence": "msg_6c61f3680257·기존B/Gmail보존·실크롤링/쓰기0 · Macmsg_efecea98d20b·.ai/results/WEBSITE-SCRAPER-20261118-CX-QA-01.md",
-      "lastReviewedAt": "2026-11-18T04:24:50.675Z"
+      "status": "waiting_human",
+      "delivery": "website_complete_b1_renderer_timeout_human_setup_pending",
+      "next": "기존9 확장설치/버전/ON 사람확인→일반창A/공간9 B 직접읽기각1회→기존확장복원",
+      "evidence": "msg_6c61f3680257·기존B/Gmail보존·실크롤링/쓰기0 · Macmsg_efecea98d20b·.ai/results/WEBSITE-SCRAPER-20261118-CX-QA-01.md · msg_300ed7a832fd·Blog전달msg_37b42631aab5(사람prompt보류)",
+      "lastReviewedAt": "2026-11-18T04:28:07.933Z"
     },
     {
       "task_id": "RE-20261118-07",
@@ -7891,6 +7893,17 @@
         "master": "산출물/한계 수락·효과PASS/운영적용 보류",
         "independent": "독립 검수/운영 검증 없음(새기간 평가와 독립검수 구분)"
       }
+    },
+    {
+      "task_id": "ECOM-20261118-06",
+      "title": "Cloudflare 본인 공용키 무료 이미지 경로 검증·연결 계획",
+      "owner": "CC-ECOM-01",
+      "status": "dispatched",
+      "delivery": "direct_owner_choice_received_conditional_probe_and_plan_dispatched",
+      "evidence": "직접승인msg_00629cba67a2·키이름정정b8fd1ac455e5·지시msg_30e31b48ec32·AGY점유조정msg_3048250caeb3(전달대기)",
+      "constraints": "본인키·무료잔여확인전실생성0·확인되면정확1회재시도0·이미지/키로그저장0·UI공동편집/빌드/배포0",
+      "next": "공식무료잔여/귀속 확인가능여부·서버정확경로계획 회수, UI는별도담당",
+      "lastReviewedAt": "2026-11-18T04:28:07.933Z"
     }
   ]
 }

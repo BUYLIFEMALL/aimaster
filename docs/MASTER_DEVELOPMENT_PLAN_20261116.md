@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 13:24:50 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 13:28:08 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 13:24:50 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 13:28:07 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 구/신주소 실제화면·로그인경계·공유경로·기존공간보존 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 직접결정취합·공용키/잔여확인·서버/UI충돌방지·B1 도구실패·U2 검수배정 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 13:24:50 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 255개: done 238개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 5개 · in_progress 2개 · queued 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 256개: done 238개 · cancelled 7개 · ready_review 2개 · running 1개 · waiting_human 6개 · queued 1개 · dispatched 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -402,10 +402,11 @@ Master 마지막 실제 점검: 2026-11-18 13:24:50 KST · 실행 중 점검 주
 | DES-20261118-06 | AG-UI-01 | waiting_human / free_off_source_qa_pass_remote_build_approval_pending | 감성 설정 화면 주인님 직접지시·새배포 상태 취합 | 주인님정정안원격1회승인vs묶음대기결정→명시223dd manifest/팀큐→배포/실alias확인 |
 | ECOM-20261118-05 | CC-ECOM-01 | done / primary_documents_read_no_real_api | 무료 이미지 공식지원/본인키 무료할당량 대안 읽기조사 | 후보/장수는조사범위·파생참고치로만, 무료실행방식 주인님 결정대기·실생성0 |
 | CRM-20261118-05 | CC-B2B-BACK-01 | done / specified_source_review_accepted_unreleased | 미확정 접수 후속알림 기본보류·가시성 | 미배포 묶음 보존·실운영 보호 주장0, 후속 CRM18-06 웹훅 연결 읽기계획 검토 |
-| CRM-20261118-06 | CC-B2B-BACK-01 | in_progress / u1_source_accepted_u2_author_started | 웹훅 중복 방지 실제 연결 최소 단위 계획 | U2 실제SDK 근거/상태행렬 소스 SHA 회수→Mac 검수 |
+| CRM-20261118-06 | CC-B2B-BACK-01 | ready_review / u2_source_ready_sdk_retry_risk_independent_review | 웹훅 중복 방지 실제 연결 최소 단위 계획 | Mac U2 실제분류/route통합·SDK내부재시도 위험검수→판정 |
 | BLOG-20261118-01 | CC-BLOG-01 | queued / queued_person_prompt | T07 엑셀 미리보기 남은 단위 및 배포 선행 정리 | 기존 사람선택창 해소후T07 최소구현, 배포비용기존한곳회신대기 |
-| QA-20261118-BLOG-01 | CX-QA-01 | in_progress / website_read_complete_b1_environment_preparation | website-scraper 읽기·B1 사람 포커스 재시험 준비 | website 결과 Blog 전달·B1 실제공유경로 확인/기존확장관리 읽기준비→사람 A/B 각1회·복원 |
+| QA-20261118-BLOG-01 | CX-QA-01 | waiting_human / website_complete_b1_renderer_timeout_human_setup_pending | website-scraper 읽기·B1 사람 포커스 재시험 준비 | 기존9 확장설치/버전/ON 사람확인→일반창A/공간9 B 직접읽기각1회→기존확장복원 |
 | RE-20261118-07 | CC-REALTY-01 | done / evaluation_deliverable_accepted_no_effectiveness_pass | 후보C 새기간40건 사전라벨 고정 평가 | 정상운영 새기간에서 목표소음이 포함된 검증조건 충족 시에만 별도배정·동일40건 규칙조정/재시험0 |
+| ECOM-20261118-06 | CC-ECOM-01 | dispatched / direct_owner_choice_received_conditional_probe_and_plan_dispatched | Cloudflare 본인 공용키 무료 이미지 경로 검증·연결 계획 | 공식무료잔여/귀속 확인가능여부·서버정확경로계획 회수, UI는별도담당 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
@@ -461,7 +462,7 @@ Master 마지막 실제 점검: 2026-11-18 13:24:50 KST · 실행 중 점검 주
 | Gmail 운영 활성화 | 전원공개·정상1/실패OFF복구1 승인완료·실OAuth는주인님직접 | Workspace단일실행·GCP Client ID일치/시험사용자실목록은실검증때 boolean확인 |
 | 감성글귀 v1.30 再실행 | 추가승인분 재배포·실호출3회 완료 | Master alias확인·작성자DB/DOM검수,추가빌드/호출예산0 |
 | CRM 중복방지 연결 후속알림 정책 | 주인님Backend직접결정: 미확정/미지상태후속기본보류·보류사실표시 | 기존질문이결정으로해소·CRM18-05소스만진행·운영연결/DDL별도 |
-| 감성 무료이미지 실행방식 | 회원본인무료할당량키(권장)/고지·약관확인뒤keyless외부/로컬 중 선택질문 | 현재publicURL프롬프트·IP45초제한·공유캐시·100%즉시보증불가,OFF정정안준비·신규배포별도 |
+| 감성 무료이미지 실행방식 | 주인님ECOM직접 진행해=Cloudflare회원본인키 방식 선택완료 | 공용키2개재사용·무료량잔여/귀속확인·실생성최대1조건부·서버/UI점유분리·정정배포승인별도 |
 | 감성 무료OFF 정정안 운영반영 | 검수완료223ddc6b3 UI보존·원격빌드1회 승인vs묶음대기 질문 | 실이미지호출0·현재운영freeOFF아님·승인전신규배포0 |
 
 ## 주인님 결정으로 후일 재개하는 항목
