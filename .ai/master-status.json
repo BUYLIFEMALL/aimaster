@@ -4569,15 +4569,15 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "최종배포 전 T07 엑셀 미리보기 소스 독립검수",
-      "status": "needs_revision",
-      "delivery": "parser_core_pass_actual_inflate_budget_retention_exception_raw_log_fixes_returned",
+      "status": "running",
+      "delivery": "author_acknowledged_exact_patch_paths_no_remote_build",
       "sha": "e60083fb5",
       "scopeRef": "web-crawler/webapp xlsxPreview·previewGET·JobPreview/JobsList·xlsx-preview시험",
       "constraints": "실Storage/DB/크롤링/AI/설치/build0·고정6파일·마지막원격1회미사용",
       "completion": "실모듈시험/owner·보호회원30일예외/압축실bytes·인코딩/셀·React출력/계정전환경계·정적vs실handler구분",
-      "evidence": "Mastermsg_a661805488e9/402493be659e·Blogmsg_59d435ca60a7 · Macmsg_977021413642·.ai/results/WEB-T07-e60083fb5-CX-QA-01.md 미커밋",
-      "next": "Blog세경계1패치·실GET/압축반례회귀→Mac국소재검수",
-      "lastReviewedAt": "2026-11-18T07:41:14.383Z",
+      "evidence": "Mastermsg_a661805488e9/402493be659e·Blogmsg_59d435ca60a7 · Macmsg_977021413642·.ai/results/WEB-T07-e60083fb5-CX-QA-01.md 미커밋 · msg_9fedb4193c4b 정확경로예약·미커밋0·새resultRetention/helper및실GET시험·원격0",
+      "next": "Blog압축/두route보호helper/고정로그 패치·반례→Mac재검수",
+      "lastReviewedAt": "2026-11-18T07:44:51.729Z",
       "validation": {
         "independent": "parser13/13·실GET모의5/ZIP추가. F01각XML선언상한만/합계20MiB수락·실17MiB선언1은inflate후일반오류·실스트림상한없음. F0230일예외누락/실삭제단정. F03raw Error stack로그. owner/React text/수식0확인",
         "master": "xlsx/route직접읽기일치·다운로드동일작은보호helper범위허용·실중앙/실크롤링0"
@@ -5115,20 +5115,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T07:42:18.988Z",
+      "at": "2026-11-18T07:44:51.729Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS R2 독립정적최종",
-      "scope": "R2기존P1해소/주의3항·보관정리OFF첫구현범위",
+      "trigger": "T07수정착수",
+      "scope": "기존5/신규helper·실GET시험2 경로·프로필불명503/Storage0·공유미커밋보존",
       "evidence": [
-        "msg_6318619e8ba6"
+        "msg_9fedb4193c4b"
       ],
-      "judgment": "조건명시계약수락·SQL초안/모의실행기다음배정·현재부재/물리삭제/지연상한과장0·실삭제크론0",
+      "judgment": "정확착수수락·같은두route보호/시험command만범위·새패키지/운영0·마지막원격미사용",
       "unverified": [
-        "정리구현/모의검수/SQL실행",
-        "web Excel수정후최종배포",
-        "다른운영사람단계"
+        "T07수정결과/독립검수",
+        "SNS정리구현결과",
+        "다른사람단계"
       ],
-      "nextAction": "정확경로/수정SHA회수→지정독립검수"
+      "nextAction": "반례/고정SHA회수→국소재검수뒤배포판정"
     },
     "notifications": [
       {
