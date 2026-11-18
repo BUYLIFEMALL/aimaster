@@ -37,6 +37,18 @@ function fakeAdmin({ history = [], profiles = [], profilesMode = "ok" } = {}) {
         if (profilesMode === "null") return { data: null, error: null };
         if (profilesMode === "weird") return { data: { id: A }, error: null };
         if (profilesMode === "badrow") return { data: [{ nope: 1 }], error: null };
+        const bad = {
+          blank: [{ id: "   ", retention_exempt: true }],
+          empty: [{ id: "", retention_exempt: true }],
+          notuuid: [{ id: "abc", retention_exempt: true }],
+          number: [{ id: 123, retention_exempt: true }],
+          nullrow: [null],
+          nested: [[{ id: B, retention_exempt: true }]],
+          flagstring: [{ id: B, retention_exempt: "true" }],
+          flagfalse: [{ id: B, retention_exempt: false }],
+          flagmissing: [{ id: B }],
+        }[profilesMode];
+        if (bad) return { data: bad, error: null };
       }
       const rows = db[table];
       if (st.op === "insert") {
@@ -105,7 +117,7 @@ for (const [label, profile] of [
   });
 }
 
-for (const mode of ["error", "throw", "null", "weird", "badrow"]) {
+for (const mode of ["error", "throw", "null", "weird", "badrow", "blank", "empty", "notuuid", "number", "nullrow", "nested", "flagstring", "flagfalse", "flagmissing"]) {
   test(`예외 조회 실패(${mode}) GET: 자동 삭제하지 않음(fail-closed)`, async () => {
     const f = fakeAdmin({ history: rows(A, 35, 32), profilesMode: mode });
     const r = await getHistory({ admin: f.admin, userId: A, loadExemptIds: f.loadExemptIds, now: NOW });
@@ -139,6 +151,16 @@ test("예외 회원 POST: 저장하고 30개 초과분도 지우지 않음", asy
   assert.equal(f.db.aif_history.length, MAX_ITEMS + 1);
   assert.equal(f.log.removedPaths.length, 0);
 });
+
+for (const mode of ["blank", "notuuid", "flagstring"]) {
+  test(`이상한 예외 응답(${mode}) POST: 저장은 확정, 초과분 정리 0`, async () => {
+    const f = fakeAdmin({ history: rows(A, MAX_ITEMS), profilesMode: mode });
+    const r = await postHistory({ admin: f.admin, userId: A, loadExemptIds: f.loadExemptIds }, { image: JPEG }, () => "new-1");
+    assert.equal(r.status, 200);
+    assert.equal(f.db.aif_history.length, MAX_ITEMS + 1);
+    assert.equal(f.log.removedPaths.length, 0);
+  });
+}
 
 test("예외 조회 실패 POST: 저장은 확정, 초과분 정리만 건너뜀(모호한 상태 없음)", async () => {
   const f = fakeAdmin({ history: rows(A, MAX_ITEMS), profilesMode: "throw" });

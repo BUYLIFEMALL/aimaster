@@ -1,6 +1,8 @@
 # 개선사항 원장 — AI 인플루언서 자동화 (ai-influencer-studio)
 
 > **미배포 대기: W01b 기존 히스토리 자동 정리 보관 예외 (2026-11-18, Claude(SNS) `CC-SNS-01`, Master `msg_e0f696b36644` 배정)** — `profiles.retention_exempt = true` 회원(유료 저장 구독·등급·관리자 지정·관리자/시험 계정)은 히스토리 GET의 30일·30개 초과 자동 삭제와 POST의 30개 초과 자동 삭제에서 모두 제외. 목록 응답은 누구나 최근 30개(응답 제한일 뿐 삭제 아님). 예외 확인 실패(오류·예외·null·배열 아님·id 없는 행)면 자동 삭제 0(fail-closed). POST는 쓰기 전에 예외를 확인하고, 실패해도 저장은 확정·초과 정리만 건너뜀. 수동 DELETE는 그대로. 처리 로직을 `src/lib/historyStore.ts`로 옮기고 라우트는 로그인·응답만. `src/lib/retentionExempt.ts`는 `ai-video-studio/lib/retentionExempt.ts`(82ed32bca) 원본 그대로 + 엄격 판정 `loadRetentionExemptIdsStrict` 추가. 시험 `tests/historyRetention.test.mjs` 15개. 일반 회원 동작·DB·게시 공용 코드 변경 없음.
+> **W01b 보완(같은 날, Mac 검수 P2)**: 엄격 판정이 공백·비 UUID id도 받아들여 그 회원을 「예외 아님」으로 보던 빈틈 수정 — 행마다 id UUID 형식·`retention_exempt === true`를 확인하고 아니면 unknown(자동 삭제 0). 시험 12개 추가(GET 9가지 이상 응답, POST 3가지).
+> **기존 결함(이번 범위 밖, 기록만)**: 히스토리 POST에서 객체 업로드 뒤 행 insert가 오류를 돌려주면 객체를 바로 지운다(`historyStore.ts` `postHistory`, 예전 route와 같은 동작). insert가 실제로는 커밋되고 응답만 사라진 경우 행이 지워진 객체를 가리킬 수 있다. W00_BASELINE §16 계약(재조회 후 판정)으로 W01 본체에서 처리.
 > **이번 범위 밖 발견(보고만)**: 원본 `loadRetentionExemptIds`(여러 프로그램이 같은 내용을 따로 둠)는 오류 없이 `data`가 null이면 빈 목록을 돌려줘 「예외 회원 없음」 → 자동 삭제 쪽으로 열린다. 이 함수를 삭제 판단에 쓰는 프로그램은 응답 모양 확인이 필요하다.
 
 > **미배포 대기: W01a seed 잠금 오표시 정정 (2026-11-18, Claude(SNS) `CC-SNS-01`, Master `msg_3a8ca669473c` 배정)** — 실제 생성 요청에 seed가 없는데 「Seed #98241 LOCK」류 보증 문구가 4곳에 있던 것을 고침. `ControlPanel.tsx` 툴바 배지 → 기준 사진 유무에 따라 「기준 사진 참고 중」/「기준 사진 없음」, 생성 버튼 → 「기준 사진 참고 화보 생성」, `ImageDisplay.tsx` 결과 배지 → 「동일 얼굴 보장 아님」, 빈 화면 → 「기준 얼굴 사진을 넣으면 참고해 생성」. 생성 요청·API·프롬프트·DB 변경 없음. 버전은 다음 배포 때 올림. 근거·전체 격차: `docs/analysis-ai-influencer-20261118/W00_BASELINE.md` G1.

@@ -25,14 +25,18 @@ export async function isRetentionExempt(admin: ExemptAdmin, userId: string): Pro
 
 // ── 아래는 AI Influencer 추가분(2026-11-18 W01b, CC-SNS-01) — 위 원본 함수는 바꾸지 않았다.
 // 원본 loadRetentionExemptIds는 오류 없이 data가 null이면 빈 목록으로 보아 "예외 회원 없음"이 된다(삭제 쪽으로 열림).
-// 자동 삭제 판단에는 응답 모양까지 확인하는 이 함수를 쓴다: 오류·null·배열 아님·id 없는 행이면 오류를 던진다.
+// 자동 삭제 판단에는 응답 모양까지 확인하는 이 함수를 쓴다: 오류·null·배열 아님, 행마다 id가 UUID 형식이 아니거나
+// retention_exempt가 정확히 true가 아니면 오류를 던진다(호출부는 "unknown"으로 보고 자동 삭제를 하지 않음). 2026-11-18 Mac 검수 P2 반영.
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export async function loadRetentionExemptIdsStrict(admin: ExemptAdmin): Promise<Set<string>> {
-  const { data, error } = await admin.from("profiles").select("id").eq("retention_exempt", true);
+  const { data, error } = await admin.from("profiles").select("id, retention_exempt").eq("retention_exempt", true);
   if (error) throw new Error("자동 삭제 예외 회원 목록을 읽지 못했습니다.");
   if (!Array.isArray(data)) throw new Error("자동 삭제 예외 회원 목록 응답이 올바르지 않습니다.");
   const ids = new Set<string>();
   for (const row of data) {
-    if (!row || typeof row.id !== "string" || !row.id) throw new Error("자동 삭제 예외 회원 목록 응답이 올바르지 않습니다.");
+    const ok = !!row && typeof row === "object" && !Array.isArray(row)
+      && typeof row.id === "string" && UUID_RE.test(row.id) && row.retention_exempt === true;
+    if (!ok) throw new Error("자동 삭제 예외 회원 목록 응답이 올바르지 않습니다.");
     ids.add(row.id);
   }
   return ids;
