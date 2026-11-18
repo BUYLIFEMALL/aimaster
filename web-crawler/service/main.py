@@ -20,7 +20,8 @@ SERVICE_SECRET = os.environ.get("WEB_CRAWLER_SERVICE_SECRET")
 def _verify_job_owner(job_id: str, user_id: str) -> None:
     """T-03 1단계(2026-11-18): 작업을 예약하기 전에 그 작업 행의 주인이 요청한 회원인지 확인한다.
 
-    웹앱이 보낸 user_id를 그대로 믿지 않는다(비밀값이 새도 남의 작업을 돌리지 못하게).
+    공유 비밀값으로 인증된 웹앱 요청의 본문 job_id·user_id가 DB의 작업 행 소유자와 맞는지(ID 일치)만 확인한다.
+    회원 본인을 증명하는 것은 아니다 — 공유 비밀값이 새면 맞는 job_id·user_id 쌍을 보낸 요청은 통과한다.
     행 없음 → 404, 조회 실패·응답 모양 이상 → 503, 주인 불일치·빈 user_id → 403.
     어느 경우든 이 요청에서는 수집·캐시·작업 행 변경을 하지 않는다(읽기 1회만, fail closed).
     """
