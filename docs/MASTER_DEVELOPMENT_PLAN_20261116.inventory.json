@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 22:42:12 KST",
+  "checkedAt": "2026-11-18 22:43:33 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T13:42:12.437Z",
+      "at": "2026-11-18T13:43:33.237Z",
       "timezone": "Asia/Seoul",
-      "trigger": "W01v 원본 저장 결과 표시 소스 회신",
-      "scope": "f1cf8b7f3 저장 상태 변환·표시·OFF 경계와 담당 시험 보고 대조.",
+      "trigger": "WS04 소스 반환 및 W01v Mac 검수",
+      "scope": "e7f72c5a7 셸/직접 주소/접근 소스와 f1cf8b7f3 독립 검수 확인.",
       "evidence": [
-        "msg_a81fdcbe74c3·f1cf8b7f3",
-        "msg_7ca7555f31a1"
+        "Workspace 직접 보고·e7f72c5a7·msg_df532636f435",
+        "msg_6276b0a24e0b·msg_8bd73bf64832"
       ],
-      "judgment": "로컬 소스 확인 및 독립 국소검수 배정.",
+      "judgment": "WS04 독립 검수 배정, W01v 로컬 단계 완료.",
       "unverified": [
-        "Mac 결과 및 실제 렌더",
-        "WS04 화면 구현, WS27 Gmail 콜백/실검증"
+        "WS04 실 스크롤·뒤로·모바일·빌드 및 독립 판정",
+        "WS27 콜백·Gmail 실검증",
+        "W01v 브라우저 렌더·운영"
       ],
-      "nextAction": "Mac 고정 근거 회수."
+      "nextAction": "WS04 Mac 근거와 W01v 점유 해제 회수."
     },
     "notifications": [
       {
@@ -8867,14 +8868,20 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-QA-01",
       "title": "워크스페이스 내부 네 화면 연결",
-      "status": "dispatched",
-      "delivery": "workspace_four_views_source_requested_mac_review_on_fixed_return",
+      "status": "reviewing",
+      "delivery": "four_views_source_received_mac_review_requested",
       "scopeRef": "셸·새 View·필수 router/entry/시험 정확 파일 등록",
       "constraints": "기존 URL/권한/콜백·콘텐츠 보존. 실 OAuth/DB/키·빌드/배포 0.",
-      "evidence": "주인님 직접 지시 보고·msg_8e5568d44a86",
-      "next": "구현 SHA·로컬 시험 후 Mac 독립 검수 진행.",
+      "evidence": "e7f72c5a7·dbd8d046d·f09f4a737·Workspace 직접 보고·msg_df532636f435",
+      "next": "Mac 경로·계정·Gmail 플래그·스크롤 검수 대기. 일부 내부 링크/OAuth 복귀는 기존 별도 페이지.",
       "completion": "/inbox·/calendar-sync·/settings/keys·/guide, 좌측 메뉴 유지 및 독립 스크롤, 직접/뒤로/모바일 보존",
-      "lastReviewedAt": "2026-11-18T13:37:47.042Z"
+      "lastReviewedAt": "2026-11-18T13:43:33.237Z",
+      "sha": "e7f72c5a7",
+      "validation": {
+        "author": "vitest 9파일 131/131 모의·tsc 통과 보고.",
+        "master": "셸 경로 및 기존 URL/OAuth 접근과 서버 진입 차이 확인. 실 브라우저/빌드 미확인.",
+        "independent": "Mac 고정 국소 검수 전송"
+      }
     },
     {
       "task_id": "AIF-20261118-W01v",
@@ -8882,20 +8889,19 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "생성 결과 원본 저장 상태 표시",
-      "status": "reviewing",
-      "delivery": "asset_save_indicator_source_received_mac_review_requested",
+      "status": "done",
+      "delivery": "asset_save_indicator_local_and_mac_checks_accepted_undeployed",
       "scopeRef": "기존 소비 화면·최소 타입·모의 시험·관련 문서",
       "constraints": "OFF/기존 응답 불변·자동 재조회/생성 없음·SQL/DB/Storage/AI/비용/빌드/배포 0.",
-      "evidence": "msg_13ac252267cb·msg_d7622f67a970 / msg_a81fdcbe74c3 / msg_7ca7555f31a1",
-      "next": "Mac 고정 국소검수 결과 대기. 실제 화면/운영 모드 검증 별도.",
+      "evidence": "f1cf8b7f3·msg_6276b0a24e0b·msg_8bd73bf64832",
+      "next": "로컬 검수 완료·OFF·미배포. 담당 점유 해제 대기.",
       "completion": "true/false/unknown 의미만 표시, 이미지 결과와 기존 조작 보존",
-      "lastReviewedAt": "2026-11-18T13:42:12.437Z",
+      "lastReviewedAt": "2026-11-18T13:43:33.237Z",
       "sha": "f1cf8b7f3",
       "validation": {
-        "author": "신규 11/11·전체 195/195·tsc 통과, 모듈 실행 및 일부 화면 정적 시험. 0번 고지 이상 0.",
-        "master": "기존 저장 응답 의미·엄격 분기·생성 초기화·화면 안내 diff 대조.",
-        "independent": "msg_7ca7555f31a1 전송, 결과 대기",
-        "limits": "실제 렌더, 실 AI/DB/Storage 및 배포 미실행."
+        "author": "신규 11/11·전체 195/195·tsc 통과 보고",
+        "master": "응답 표시 의미·OFF/기존 결과 보존과 고정 diff 확인",
+        "independent": "Mac 11/11, 표시 함수 실행 및 화면 소스 확인. 실제 렌더 미실행."
       }
     }
   ]
