@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T19:46:27.316Z",
+  "checkedAt": "2026-11-18T19:47:02.638Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5996,10 +5996,10 @@
       "reviewer": "CX-MASTER-01",
       "title": "부동산 추가 개선 순차 진행",
       "status": "running",
-      "delivery": "two_input_edge_fixes_returned_independent_recheck_dispatched",
-      "evidence": "msg_c042ddbde7d9·481829768·msg_d71d13d13791·msg_8689d9857513·8767db0a8·msg_51fbe0b8b070·msg_611c47959bd0·msg_6898c765a184·msg_11e579abb78b·63e7c429f·a6544db4e·msg_37fee34e31a2·msg_fd4070a962c7·msg_812736bb6257·msg_c4f750983a84·e7084ca24·msg_ed97e4233323",
-      "next": "같은 링크 다른 지역과 비활성 감시 제안 보완. 담당 뉴스 23/23·지역 제안 4/4 및 타입 통과. Mac 독립 재검수 대기.",
-      "lastReviewedAt": "2026-11-18T19:46:27.316Z",
+      "delivery": "real_sales_independent_accepted_commercial_plan_dispatched",
+      "evidence": "msg_c042ddbde7d9·481829768·msg_d71d13d13791·msg_8689d9857513·8767db0a8·msg_51fbe0b8b070·msg_611c47959bd0·msg_6898c765a184·msg_11e579abb78b·63e7c429f·a6544db4e·msg_37fee34e31a2·msg_fd4070a962c7·msg_812736bb6257·msg_c4f750983a84·e7084ca24·msg_ed97e4233323·msg_557c23dbeb70·msg_aa5d5224bad6",
+      "next": "실거래 로컬 27/27 독립 수락, 미배포. 상가 연계 2단계 계획 착수. 실제 DB/브라우저 미검증.",
+      "lastReviewedAt": "2026-11-18T19:47:02.638Z",
       "sha": "e7084ca24"
     },
     {
