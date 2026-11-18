@@ -72,15 +72,25 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
 
   // Apps Script의 e.namedValues는 { "질문 제목": ["답변"] } 형태(응답 하나가 배열)라, 화면/알림에
   // 쓰기 좋게 첫 값만 꺼내서 평탄화한다.
-  const flatValues: Record<string, string> = {};
+  // 질문 제목이 __proto__·constructor 같은 이름이어도 자기 키로 남도록 원형 없는 객체에 직접 정의한다(U3, 2026-11-18 —
+  // 예전엔 `{}`에 대입해 __proto__ 질문의 답이 사라졌다. 기존 서버 결함 수정 범위).
+  const flatValues: Record<string, string> = Object.create(null);
   for (const [question, answers] of Object.entries(body.values ?? {})) {
-    flatValues[question] = Array.isArray(answers) ? answers[0] ?? "" : String(answers ?? "");
+    Object.defineProperty(flatValues, question, {
+      value: Array.isArray(answers) ? answers[0] ?? "" : String(answers ?? ""),
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    });
   }
+  // 매핑 조회는 자기 키만(상속된 이름을 값으로 잡지 않음). 매핑이 없거나 응답에 없으면 지금처럼 null.
+  const own = (key: unknown): string | null =>
+    typeof key === "string" && key && Object.prototype.hasOwnProperty.call(flatValues, key) ? flatValues[key] : null;
 
   const mapping = (source.field_mapping ?? {}) as Record<string, string>;
-  const name = mapping.name ? flatValues[mapping.name] ?? null : null;
-  const phone = mapping.phone ? flatValues[mapping.phone] ?? null : null;
-  const email = mapping.email ? flatValues[mapping.email] ?? null : null;
+  const name = own(mapping.name);
+  const phone = own(mapping.phone);
+  const email = own(mapping.email);
 
   const insertValues: Record<string, unknown> = {
     user_id: source.user_id,

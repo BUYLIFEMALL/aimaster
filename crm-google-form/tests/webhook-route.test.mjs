@@ -472,3 +472,40 @@ for (const [name, patch, want] of [
     assert.doesNotMatch(JSON.stringify(r.body), /fetch failed|ECONNRESET|unavailable|not json|invalid input|22P02/);
   });
 }
+
+// ── U3 특수 질문 키 왕복(Mac msg_24cb5a0e0908): 실제 스니펫 → JSON → 실제 route → insert raw_values ───────────
+const { appsScriptSnippet } = await import(pathToFileURL(join(PROJECT, "lib/crm/appsScriptSnippet.ts")).href);
+function snippetPayload(e) {
+  let sent = null;
+  const fn = new Function("UrlFetchApp", "e", appsScriptSnippet("https://x.test/hook") + "\nonFormSubmit(e);");
+  fn({ fetch: (u, o) => { sent = o.payload; } }, e);
+  return sent;
+}
+const formE = (items) => ({ response: { getId: () => "2_SPECIAL", getItemResponses: () => items.map(([t, v]) => ({ getItem: () => ({ getTitle: () => t }), getResponse: () => v })) } });
+
+test("특수 질문 키(__proto__·constructor·prototype·toString)가 실제 스니펫 → 실제 route → 저장값(raw_values JSON)까지 그대로", async () => {
+  let inserted = null;
+  const sources = [{ id: SRC1, user_id: OWNER, webhook_token: "tok-sp", is_active: true, name: "폼", field_mapping: { name: "__proto__", phone: "constructor", email: "toString" } }];
+  makeDb({ sources, hooks: { before: (q) => { const i = q.ops.find((o) => o[0] === "insert"); if (i) inserted = JSON.parse(JSON.stringify(i[1])); } } });
+  const raw = snippetPayload(formE([["__proto__", "홍길동"], ["constructor", "010-1111-2222"], ["prototype", "답3"], ["toString", "a@b.c"], ["관심", ["A", "B"]]]));
+  const r = await post("tok-sp", raw);
+  assert.equal(r.status, 200);
+  const rv = inserted.raw_values;
+  assert.ok(Object.prototype.hasOwnProperty.call(rv, "__proto__"));
+  assert.equal(rv["__proto__"], "홍길동");
+  assert.equal(rv.constructor, "010-1111-2222");
+  assert.equal(rv.prototype, "답3");
+  assert.equal(rv.toString, "a@b.c");
+  assert.equal(rv.관심, "A,B");
+  // 자체 키 매핑 조회도 같은 값
+  assert.deepEqual([inserted.name, inserted.phone, inserted.email], ["홍길동", "010-1111-2222", "a@b.c"]);
+});
+
+test("매핑된 질문이 응답에 없으면 null(원형의 constructor·toString 같은 상속 이름을 값으로 잡지 않음)", async () => {
+  let inserted = null;
+  const sources = [{ id: SRC1, user_id: OWNER, webhook_token: "tok-sp2", is_active: true, name: "폼", field_mapping: { name: "constructor", phone: "toString", email: "없는질문" } }];
+  makeDb({ sources, hooks: { before: (q) => { const i = q.ops.find((o) => o[0] === "insert"); if (i) inserted = JSON.parse(JSON.stringify(i[1])); } } });
+  await post("tok-sp2", { values: { 이름: ["홍길동"] } });
+  assert.deepEqual([inserted.name, inserted.phone, inserted.email], [null, null, null]);
+  assert.deepEqual(inserted.raw_values, { 이름: "홍길동" });
+});

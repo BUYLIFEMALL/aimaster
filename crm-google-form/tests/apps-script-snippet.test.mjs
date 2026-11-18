@@ -150,3 +150,37 @@ test("화면(SourceCard)이 이 생성 함수를 쓰고 예전 내장 스니펫�
   assert.match(src, /from "@\/lib\/crm\/appsScriptSnippet"/);
   assert.doesNotMatch(src, /Utilities\.getUuid/);
 });
+
+// ── 반례(Mac msg_a7658c0027dd): 특수 질문 제목·음수 Date ───────────────────────────────────────────
+test("폼 질문 제목이 __proto__·constructor·prototype이어도 모든 답변이 자기 키로 보존(JSON → 서버 파서 왕복)", () => {
+  const items = [["__proto__", "답1"], ["constructor", "답2"], ["prototype", "답3"], ["hasOwnProperty", "답4"], ["관심", ["A", "B"]]];
+  const p = runSnippet(formEvent("2_ABC", items));
+  assert.equal(p.v, 2);
+  const keys = Object.keys(p.values);
+  assert.deepEqual(keys.sort(), ["__proto__", "constructor", "hasOwnProperty", "prototype", "관심"].sort());
+  assert.deepEqual(p.values["__proto__"], ["답1"]);
+  assert.ok(Object.prototype.hasOwnProperty.call(p.values, "__proto__"));
+  assert.deepEqual(p.values.constructor, ["답2"]);
+  assert.deepEqual(p.values.prototype, ["답3"]);
+  assert.deepEqual(p.values.관심, ["A,B"]); // 다중 값 쉼표 계약 유지
+  const c = classifyWebhookBody(SRC_A, p);
+  assert.equal(c.type, "v2");
+});
+
+for (const [name, first] of [
+  ["음수 ms Date(1966년)", new Date(-100000000000)],
+  ["0 ms Date", new Date(0)],
+  ["12자리 ms Date", new Date(999999999999)],
+  ["14자리 ms Date", new Date(10000000000000)],
+]) {
+  test(`시트 첫 칸 ${name} → 양수 13자리가 아니므로 구버전`, () => {
+    const p = runSnippet(sheetEvent({ first }));
+    assert.deepEqual(Object.keys(p), ["values"]);
+    assert.equal(classifyWebhookBody(SRC_A, p).type, "legacy");
+  });
+}
+
+test("현대 Date + 시트 ID 0 + 행 1 → v2 sheet(서버 파서 수용)", () => {
+  const p = runSnippet(sheetEvent({ sheetId: 0, row: 1, first: new Date(Date.UTC(2026, 0, 2, 3, 4, 5, 6)) }));
+  assert.equal(classifyWebhookBody(SRC_A, p).dedupeKey, `v2:sheet:${FILE}:0:1:${Date.UTC(2026, 0, 2, 3, 4, 5, 6)}`);
+});

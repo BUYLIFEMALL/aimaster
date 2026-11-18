@@ -2,7 +2,7 @@
 //
 // 보내는 본문(서버 파서 lib/crm/dedupe.ts와 같은 형식):
 //   폼에 붙인 스크립트(양식 제출 이벤트에 e.response 있음): { v: 2, kind: "form", eventKey: <실제 응답 ID>, values }
-//   시트에 붙인 스크립트(e.range 있음): 문서 ID·시트 ID·행 번호·그 행 첫 칸의 실제 Date(13자리 ms)가 **모두** 있을 때만
+//   시트에 붙인 스크립트(e.range 있음): 문서 ID·시트 ID·행 번호·그 행 첫 칸의 실제 Date(ms가 양수 숫자 13자리 — 서버와 같은 조건)가 **모두** 있을 때만
 //     { v: 2, kind: "sheet", eventKey: "<문서ID>:<시트ID>:<행>:<ms>", values }
 //   그 밖(필수 값 하나라도 없음·첫 칸이 Date가 아님·형식이 다름·도중 오류): 구버전 본문 { values } — **중복 보호 없음**.
 //     임의 UUID나 본문 해시로 v2를 흉내 내지 않는다(예전 스니펫의 Utilities.getUuid() 제거).
@@ -28,10 +28,13 @@ function crmPayload_(e) {
   try {
     // 폼에 직접 붙인 경우: 구글폼이 주는 실제 응답 ID
     if (e && e.response && typeof e.response.getId === "function") {
-      var formValues = {};
+      // 질문 제목이 __proto__·constructor 같은 이름이어도 자기 키로 남도록 원형 없는 객체에 직접 정의한다.
+      var formValues = Object.create(null);
       var items = e.response.getItemResponses();
       for (var i = 0; i < items.length; i++) {
-        formValues[items[i].getItem().getTitle()] = [String(items[i].getResponse())];
+        Object.defineProperty(formValues, String(items[i].getItem().getTitle()), {
+          value: [String(items[i].getResponse())], enumerable: true, writable: true, configurable: true
+        });
       }
       var rid = e.response.getId();
       if (typeof rid === "string" && /^[A-Za-z0-9_-]{1,200}$/.test(rid)) {
@@ -50,7 +53,7 @@ function crmPayload_(e) {
       if (typeof fileId === "string" && /^[A-Za-z0-9_-]{20,100}$/.test(fileId) &&
           typeof sheetId === "number" && sheetId >= 0 && sheetId <= 9999999999 && Math.floor(sheetId) === sheetId &&
           typeof row === "number" && row >= 1 && row <= 9999999 && Math.floor(row) === row &&
-          isFinite(ms) && String(ms).length === 13 && Math.floor(ms) === ms) {
+          isFinite(ms) && /^[0-9]{13}$/.test(String(ms))) {
         return { v: 2, kind: "sheet", eventKey: fileId + ":" + sheetId + ":" + row + ":" + ms, values: values };
       }
     }
