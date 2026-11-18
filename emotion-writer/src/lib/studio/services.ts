@@ -122,6 +122,8 @@ export async function generateImage(
 // ── ECOM-20261118-03(QA049 I-F02~04): 새 이미지 엔진 공통 방어 ──
 // 한계: MIME·파일 앞부분 서명·base64·크기 검사는 「이미지처럼 보이는지」까지만 본다. 완전한 이미지 해석이나 안전성을 보증하지 않는다.
 const IMAGE_BUDGET_MS = 110_000;
+// OpenAI 응답 JSON 전체 상한: 3MiB 이미지의 base64(≈4MiB) + 작은 JSON 여유 64KiB. 이미지 자체 상한(MAX_IMAGE)은 그대로 따로 검사한다.
+const MAX_OPENAI_JSON = Math.ceil((MAX_IMAGE * 4) / 3) + 64 * 1024;
 function budgetSignal(parent: AbortSignal | undefined, ms: number): AbortSignal {
   const t = AbortSignal.timeout(ms);
   return parent ? AbortSignal.any([parent, t]) : t;
@@ -190,6 +192,8 @@ async function generateOpenAiImage(
       // response_format은 GPT Image에서 지원하지 않아 보내지 않는다(응답은 항상 b64_json).
       body: JSON.stringify({ model: input.model, prompt, n: 1, size }),
       cache: "no-store",
+      // QA049 잔여: 이동(3xx) 응답을 따라가지 않는다 — 추가 요청 0.
+      redirect: "error",
       signal,
     });
   } catch (e) {
@@ -201,9 +205,11 @@ async function generateOpenAiImage(
     if (res.status === 429) throw new AppError("OpenAI API 사용 한도를 초과했습니다. 계정 크레딧을 확인해 주세요.", 429);
     throw new AppError(`OpenAI 이미지 생성 오류 (${res.status})`, 502);
   }
+  // QA049 잔여: res.json()으로 통째로 읽지 않는다 — 머리글 크기 사전 거절 + 스트림 누적 상한까지만 읽고 해석(무시 필드가 커도 차단).
   let json: { data?: Array<{ b64_json?: unknown }> };
   try {
-    json = await res.json();
+    const raw = await readCapped(res, MAX_OPENAI_JSON);
+    json = JSON.parse(Buffer.from(raw).toString("utf8"));
   } catch (e) {
     rethrowAbort(e);
     throw new AppError(BAD_IMAGE, 502);
