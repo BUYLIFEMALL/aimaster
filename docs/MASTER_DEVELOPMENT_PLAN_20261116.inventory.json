@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 18:01:10 KST",
+  "checkedAt": "2026-11-18 18:30:00 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,23 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T09:01:10.715Z",
+      "at": "2026-11-18T09:30:00.437Z",
       "timezone": "Asia/Seoul",
-      "trigger": "18:00 KST 30분 예약 메시지 수신",
-      "scope": "17:47 KST 이후 Git·미추적 결과/인수인계, 관리자 요청, 19개 분류와 미종결 작업·담당·사람 단계·배포 선행조건 증분 대조.",
+      "trigger": "Workspace GCP 저장 직접 보고와 Orca 후속",
+      "scope": "WS27 OAuth 진행·확인표 §11-3, SNS P2 사전 검토 요청. 전체 정기 재점검 아님.",
       "evidence": [
-        "msg_0845f2f5bd09",
-        "dev-requests codex-master 대기 0",
-        "1b1b577b8 직전 판정 기록 외 새 커밋/결과 없음",
-        "공용 HANDOFF 기존 미커밋 9줄, 기존 AI Influencer 계획 인수인계"
+        "CC-WORKSPACE-01 직접 보고: 주소 10→11·콜백 1개·시험/관리자 Client ID 일치",
+        "msg_ac60ef28f478",
+        "msg_a9d05d0ade96·msg_7d23ebae7985"
       ],
-      "judgment": "신규 완료·직접 지시·점유 충돌 근거 없음. 보안패치와 운영 변경은 승인 조건 유지, 사람 단계는 기존 경로 유지, 중복 배정 0.",
+      "judgment": "WS27 설정 단계 확인, 주인님 동의 대기. SNS P2는 소스 정적 사전 검토만 전달.",
       "unverified": [
-        "T03 운영 전환·회원 AI 호출 비용",
-        "W01p 실제 원격 취소 및 운영 활성화",
-        "감성 글귀 운영 플래그/12모델 실제 호출 및 기존 사람 의존 단계"
+        "Google 전파·동의 및 실메일 흐름",
+        "SNS P2 저장소 부재·지연 쓰기 경계의 사전 검토"
       ],
-      "nextAction": "새 근거 또는 승인 회신에 해당 담당 기준으로 재개. Support는 주인님 설치 전담 결과만 회수."
+      "nextAction": "기존 자리에서 동의 1회와 §11-3 실검증 한 세트. SNS 사전 검토 근거 회수."
     },
     "notifications": [
       {
@@ -7165,12 +7163,12 @@
       "reviewer": "CX-MASTER-01",
       "title": "Gmail 운영 SQL 적용·실계정 검증·활성화",
       "status": "waiting_human",
-      "delivery": "deployed_oauth_redirect_mismatch_diagnosis",
+      "delivery": "gcp_callback_saved_waiting_single_user_oauth_consent",
       "scopeRef": "0074→0075 운영적용/정의검증·회원본인OAuth동의/metadata·실PostgREST/주소·스위치/배포 승인별도",
-      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f·Workspace SQL完了報告(主会話)·주인님전달Workspace배포완료9ea979de9·Master Vercel get_alias동일dpl·Macmsg_f0e46da48809/Workspace msg_bce4e6bf3fad·실검증1차 주인님전달·판정지시msg_89ba88b28a3d·Workspace콜백상수대조true/두회원client등록boolean보고·범위정정msg_2020570870f9 · 주인님시험naver로그인확인(CC-WORKSPACE-01 직접보고) · 주인님보고 DreamAI웹client Gmail callback누락확인(회원client일치미대조)",
+      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f·Workspace SQL完了報告(主会話)·주인님전달Workspace배포완료9ea979de9·Master Vercel get_alias동일dpl·Macmsg_f0e46da48809/Workspace msg_bce4e6bf3fad·실검증1차 주인님전달·판정지시msg_89ba88b28a3d·Workspace콜백상수대조true/두회원client등록boolean보고·범위정정msg_2020570870f9 · 주인님시험naver로그인확인(CC-WORKSPACE-01 직접보고) · 주인님보고 DreamAI웹client Gmail callback누락확인(회원client일치미대조) / CC-WORKSPACE-01 직접 보고: 주소 10→11·콜백 1개·시험/관리자 Client ID 일치·msg_ac60ef28f478",
       "completion": "승인된범위의운영마이그레이션·실계정/권한/계정경계·활성배포·운영동작 확인",
-      "next": "기존한곳에서시험naver client일치boolean+GCP callback추가저장 완료→동일세트1회재개·반복인증0",
-      "blockedReason": "Google 동의전400 redirect_uri_mismatch·시험회원앱/실callback/GCP클라이언트 일치확인 필요",
+      "next": "기존 시험 계정에서 주인님 Gmail 동의 1회 후 확인표 §11-3 한 세트. 오류 재발 시 중단.",
+      "blockedReason": "GCP 콜백 저장 및 Client ID 일치 담당 확인. Google 전파·회원 OAuth 동의·실제 교환 성공은 미확인.",
       "approval": {
         "source": "주인님 Workspace 채팅 선택 답변 2026-11-18",
         "publicMode": "all_members",
@@ -7180,12 +7178,12 @@
         "recoveryUsed": 0,
         "scope": "0074→0075 운영적용·Gmail ON·v1.58 묶음·확인표 실OAuth/Gmail검증"
       },
-      "lastReviewedAt": "2026-11-18T04:22:35.924Z",
+      "lastReviewedAt": "2026-11-18T09:30:00.437Z",
       "sha": "9ea979de9 (Gmail ON 722a3ba99 포함)",
       "validation": {
         "author": "전체61파일840/840·tsc0·qa_0",
         "master": "정확2파일diff·스위치ON/시험명시OFF·0074/75 지문일치",
-        "runtime": "미배포·운영SQL결과대기"
+        "runtime": "v1.58 공식 별칭 기존 확인. Google 전파 및 단일 실검증 대기."
       },
       "sql": {
         "projectRef": "esgxyikcnnvmlhygjkth",
@@ -7218,9 +7216,12 @@
         "sourceSha": "9ea979de9",
         "bothTrialAndAdminHaveClientId": true,
         "actualErrorRequestRedirectMatchesApproved": null,
-        "loggedInTrialAccountConfirmed": null,
-        "gcpClientMatchesStoredMemberClient": null,
-        "classification": "회원GCP설정불일치우선·상수오타없음확인,실요청대조전코드결함전반배제불가"
+        "loggedInTrialAccountConfirmed": true,
+        "gcpClientMatchesStoredMemberClient": true,
+        "classification": "GCP 저장/Client ID 일치 보고. 실제 OAuth 요청과 토큰 교환 대기.",
+        "configuredRedirectCount": 11,
+        "matchingGmailRedirects": 1,
+        "configurationEvidence": "주인님 저장 후 Workspace 읽기 확인 보고"
       }
     },
     {

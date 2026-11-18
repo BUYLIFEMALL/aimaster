@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 18:01:10 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 18:30:00 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -91,7 +91,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 
 | 담당 | 현재 작업·점유 | 완료/대기·다음 행동 | 확인 근거 |
 | --- | --- | --- | --- |
-| CC-WORKSPACE-01 | Gmail공개방식/빌드선택질문대기·GCP완료신호반영 | 주인님결정→ClientID일치/실행순번확정·SQL/스위치0 | f6e6b1da3 / a41a1e31e·5f9e66d7f |
+| CC-WORKSPACE-01 | v1.58 Gmail ON 배포, GCP 콜백 저장 및 Client ID 일치 보고 수신 | 기존 시험 계정에서 주인님 동의 후 §11-3 단일 검증 | msg_ac60ef28f478 |
 | CC-B2B-BACK-01 | 운영준비QA047문구마감·Lab시험교환1건준비 | 주인님메인243시험결제→기록/상태읽기·추가RPC/fixture0 | 9668a2a6c/7a0800203·msg_bdbf073001ca |
 | CC-B2B-FRONT-01 | hover77c50f27c QA045소스수락·미배포 | 다음묶음/QA037대기 | c6931bfbe / 55368bd4c |
 | CC-ECOM-01 | 재배포선택질문대기·후속메시지전달보류·운영1.29 | 追加빌드1예산결정전0·안전후보59cb고정·실3회기승인잔여 | 26e1353c5 / msg_c6e462ca244b·msg_b8292d9e0030/ACTIVE_WORK |
@@ -367,7 +367,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | QA-20261117-039 | CX-QA-01 | done / integrated | Gmail OFF 패널 실제 TSX 모의 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
 | QA-20261117-040 | CX-QA-01 | done / integrated | Gmail OFF 배선·실제 RPC 입구·어댑터·화면 통합 독립검수 | 배선소스수락·동결, 패널disconnect unknown후속별도 |
 | QA-20261117-041 | CX-QA-01 | done / integrated | Gmail 연결 해제 재시도·계정교체 조건부삭제 독립검수 | 소스수락·두SHA같이배포, 활성화단계별도 |
-| WS-20261117-27 | CC-WORKSPACE-01 | waiting_human / deployed_oauth_redirect_mismatch_diagnosis | Gmail 운영 SQL 적용·실계정 검증·활성화 | 기존한곳에서시험naver client일치boolean+GCP callback추가저장 완료→동일세트1회재개·반복인증0 |
+| WS-20261117-27 | CC-WORKSPACE-01 | waiting_human / gcp_callback_saved_waiting_single_user_oauth_consent | Gmail 운영 SQL 적용·실계정 검증·활성화 | 기존 시험 계정에서 주인님 Gmail 동의 1회 후 확인표 §11-3 한 세트. 오류 재발 시 중단. |
 | DES-20261118-01 | AG-UI-01 | done / integrated | 감성 글귀 이미지 직접지시 v1.28/v1.29 배포 회수 | P3 두건 DES02 다음묶음·375px/실위젯 미검수 유지 |
 | QA-20261118-042 | CX-QA-01 | done / integrated | emotion-writer 메뉴·키설정 독립검수 | DES02 반환시 두건 재검수·실375/위젯/회원키는 미검수 |
 | DES-20261118-02 | AG-UI-01 | done / accepted_pending_batch_deploy | 키보기 키보드 접근·키발급 링크 hover 대비 보완 | 다음 emotion-writer 묶음배포에 포함·운영반영 전까지 미배포 유지 |
@@ -491,7 +491,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | 음악 실기기/저장 단계 | A 실제MP4 PASS·B기존Mac20 저장창확인/저장·Return 필요 | 추가렌더클릭전진행/완료확인·저장창있으면mac-file.mp4 지정폴더·실가속사용미확인 |
 | 블로그·마켓 외부계정 | 해당회차가필요할때본인로그인·확장연결/신뢰클릭 | 지금권한확대/실포스팅/실ESM등록은실행하지않음 |
 | E3 묶음 운영 배포·실비용 검증 | v1.58은WS27정상1빌드에통합승인·실검색/AI는별도미승인 | 소스560시험/독립PASS완료·미승인동안build/실검색/AI0 |
-| Gmail 운영 활성화 | 전원공개·정상1/실패OFF복구1 승인완료·실OAuth는주인님직접 | Workspace단일실행·GCP Client ID일치/시험사용자실목록은실검증때 boolean확인 |
+| Gmail 운영 활성화 | 기존 시험 계정 창에서 주인님 Gmail 동의 1회 | 저장/Client ID 일치 확인 완료, 전파 뒤 §11-3 한 세트. 반복 인증·빌드 0. |
 | 감성글귀 v1.30 再실행 | 추가승인분 재배포·실호출3회 완료 | Master alias확인·작성자DB/DOM검수,추가빌드/호출예산0 |
 | CRM 중복방지 연결 후속알림 정책 | 주인님Backend직접결정: 미확정/미지상태후속기본보류·보류사실표시 | 기존질문이결정으로해소·CRM18-05소스만진행·운영연결/DDL별도 |
 | 감성 무료이미지 실행방식 | 주인님ECOM직접 진행해=Cloudflare회원본인키 방식 선택완료 | 공용키2개재사용·무료량잔여/귀속확인·실생성최대1조건부·서버/UI점유분리·정정배포승인별도 |
