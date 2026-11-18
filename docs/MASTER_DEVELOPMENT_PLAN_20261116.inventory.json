@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 14:34:15 KST",
+  "checkedAt": "2026-11-18 14:36:48 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:34:15.612Z",
+      "at": "2026-11-18T05:36:48.769Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM U3 특수키 왕복/날짜 보완 완료",
-      "scope": "script/server5파일·질문값/매핑보존·날짜v2/legacy·Mac재검수",
+      "trigger": "CRM스니펫PASS·SNS입력검사소스완료",
+      "scope": "소스수락과운영릴리스조건분리·명시릴리스준비·SNS8파일검수",
       "evidence": [
-        "msg_ae72141871ec/f43cdf2c57ab",
-        "e2581d960 stat/실route diff",
-        "Mac 고정SHA 재검수전달"
+        "msg_5c79425572b6 e258 지정PASS",
+        "CRM단일담당릴리스구체안준비배정",
+        "msg_64cdc4aa9317/f805 8파일stat·Mac배정"
       ],
-      "judgment": "작성자왕복시험완료·독립검수전수락보류. 기존서버결함포함한정·전역오염/실Google동작보증으로확장0.",
+      "judgment": "CRM전체소스단위지정수락·실운영미완, 승인요청전구체manifest/DDL/비용/사람단계정리. SNS입력검사작성자시험완료/독립검수대기.",
       "unverified": [
-        "새e258 독립판정·실AppsScript/시트Date",
-        "SNS입력검사소스·운영릴리스조건"
+        "CRM릴리스구체안/새승인",
+        "SNS실입력경계/클라이언트변환·공급자출력",
+        "운영RLS/실키/문자/Google"
       ],
-      "nextAction": "결과회수후CRM소스묶음확인표·실API/배포0"
+      "nextAction": "구체릴리스안/독립판정회수·미승인실행0"
     },
     "notifications": [
       {
@@ -8082,19 +8083,19 @@
       "title": "Apps Script v2 이벤트키 스니펫·legacy 안내 연결",
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
-      "status": "ready_review",
-      "delivery": "script_and_server_own_field_preservation_fix_independent_review",
+      "status": "done",
+      "delivery": "versioned_script_and_server_field_preservation_source_accepted_unreleased",
       "scopeRef": "스니펫/SourceCard/기존문서·웹훅flatValues·실스크립트→route시험",
       "completion": "form/sheet 실이벤트키·Date전제·없으면legacy보호없음·파서실판정/재시도키/오류계약",
       "constraints": "실Google/운영DDL/실문자/build/push0·v2공개전DDL/route/실검증승인·시험시트확인",
-      "next": "Mac 실제생성script→route→raw_values JSON왕복/Date계약 지정재검수",
-      "evidence": "Master기존U3단계계획에따른source배정·접수/팔로우업소스PASS선행 · 착수msg_ae7532f0dc23·새순수생성기/실행시험경로허용 · msg_7f938d6f35bf·Master5파일stat·Mac검수전달 · Macmsg_a7658c0027dd 특수키유실/음수Date 계약반례 · Mac고정최종msg_24cb5a0e0908·서버flatValues범위추가msg_fcfc5c28f112 · msg_ae72141871ec/f43cdf2c57ab·Master5파일stat/route차이·Mac재검수",
-      "lastReviewedAt": "2026-11-18T05:34:15.612Z",
+      "next": "CRM18-10 명시릴리스준비·실AppsScript/DDL/배포/SMS승인별도",
+      "evidence": "Master기존U3단계계획에따른source배정·접수/팔로우업소스PASS선행 · 착수msg_ae7532f0dc23·새순수생성기/실행시험경로허용 · msg_7f938d6f35bf·Master5파일stat·Mac검수전달 · Macmsg_a7658c0027dd 특수키유실/음수Date 계약반례 · Mac고정최종msg_24cb5a0e0908·서버flatValues범위추가msg_fcfc5c28f112 · msg_ae72141871ec/f43cdf2c57ab·Master5파일stat/route차이·Mac재검수 · MacPASSmsg_5c79425572b6·Master수락",
+      "lastReviewedAt": "2026-11-18T05:36:48.769Z",
       "sha": "e2581d960",
       "validation": {
         "author": "스니펫30/30·route39/39·전체305/305·tsc0·서버/script특수키왕복·매핑누락null",
         "master": "정확5파일stat/실route nullprototype·defineProperty/own매핑 diff확인",
-        "independent": "63f 특수키/Date 반례최종보존·새e258 지정검수 전달"
+        "independent": "e258 native30+39=69/69·실생성script/JSON/parser/route/DB모형왕복5경계PASS·기존입구/회원/저장회귀·실Google/DB/SMS미검수"
       }
     },
     {
@@ -8102,14 +8103,34 @@
       "parent_task_id": "AIF-20261118-W00",
       "title": "참고 이미지 MIME/서명 처리 독립 개선 범위 계획",
       "owner": "CC-SNS-01",
-      "status": "in_progress",
-      "delivery": "exact_reference_validation_paths_reserved",
+      "status": "ready_review",
+      "delivery": "reference_input_validation_source_ready_independent_review",
       "scopeRef": "순수referenceImage·gemini·generate-image route·ControlPanel/InfluencerStudio·시험/기존문서",
       "completion": "정확MIME/strictb64/서명/개수·장당/총/JSON상한·HTTPS반례·실route유료호출전거절·client변환/안내",
       "constraints": "공용모듈/모델/프롬프트/DB자산/권한불변·원격이미지fetch/실AI/유료/build/push0·출력G5미해소",
-      "evidence": "W00 G1 MIME PNG고정소스근거·Master소스개선연속작업배정 · 계획msg_256d9fae7ba4·Master실gemini/route·Google공식지원MIME독립확인 · 14:30 ACTIVE_WORK참고검사7경로진행중확인",
-      "next": "정확경로착수/상한근거·소스SHA/실route모의검증 회수→Mac",
-      "lastReviewedAt": "2026-11-18T05:31:50.615Z"
+      "evidence": "W00 G1 MIME PNG고정소스근거·Master소스개선연속작업배정 · 계획msg_256d9fae7ba4·Master실gemini/route·Google공식지원MIME독립확인 · 14:30 ACTIVE_WORK참고검사7경로진행중확인 · 완료msg_64cdc4aa9317·Master8파일stat·Mac검수전달",
+      "next": "Mac형식/바이트/상한/실handler사전거절·클라이언트경계검수",
+      "lastReviewedAt": "2026-11-18T05:36:48.769Z",
+      "sha": "f805100ce",
+      "validation": {
+        "author": "reference13·전체67/67·tsc0·실AI0·PNG/JPEG/WebP실fixture·HEIC합성표시",
+        "master": "8파일stat·모델/공용불변보고·G5출력제한미해소분리",
+        "independent": "Mac 전달·수락/결과대기"
+      }
+    },
+    {
+      "task_id": "CRM-20261118-10",
+      "parent_task_id": "CRM-20261118-09",
+      "title": "CRM 중복방지 묶음 명시소스·DDL·실검수 릴리스 준비",
+      "owner": "CC-B2B-BACK-01",
+      "status": "dispatched",
+      "delivery": "concrete_release_manifest_and_approval_scope_preparation",
+      "scopeRef": "기존결과/개선표/역할·읽기검사만, 제품소스동결",
+      "completion": "파일별SHA/blob/tree·DDLhash/사전SQL/권한/롤백·정확순서·빌드예산/실SMS/사람단계 구체안",
+      "constraints": "운영SQL/버전/빌드/실문자/Google/push0·메인동반자동배포주의",
+      "next": "구체확인표회수→Master승인취합·실행책임단일지정",
+      "evidence": "U1/U2/접수/팔로우업/U3 지정소스PASS·Master범위준비배정",
+      "lastReviewedAt": "2026-11-18T05:36:48.769Z"
     }
   ]
 }
