@@ -56,10 +56,12 @@ function cacheClear() {
 // DB를 아직 쓰지 않은 동안의 db.exec(표 확인 DDL)과 atStartup(시작 작업)은 대기 목록에 쌓였다가, DB를 실제로 처음 쓰는
 // 순간(첫 질의 직전) 불러온 순서 그대로 실행된다. 한 번 시작된 뒤에는 예전과 똑같다 — db.exec는 그 자리에서 바로 실행되고
 // (잠금을 잡은 트랜잭션 안에서 표를 만드는 코드가 그 순서에 기대므로), 늦게 불려온 모듈의 시작 작업도 등록하는 자리에서 실행된다.
-// 실패 처리는 예전(불러올 때 바로 실행)과 같다: DDL이나 시작 작업이 던지면 그 인스턴스의 이후 질의도 같은 오류를 받는다
-// (예전에는 모듈 평가가 깨져 같은 결과였다). 자동 재시도는 하지 않는다.
+// 실패 처리(자동 재시도 없음):
+//  - 필수 DDL이 던지면 그 질의가 오류를 받고, 이 인스턴스의 이후 질의도 같은 오류를 받는다(표가 없는 채로 진행하지 않는 안전 실패).
+//  - 시작 작업은 한 건씩 격리한다: 던져도 그 질의·다른 시작 작업·이후 질의는 계속되고, 실패한 작업은 다시 돌리지 않는다.
+//    기록에는 작업 이름과 오류 종류만 남긴다(오류 문구·값은 남기지 않음 — 저장 값이 섞여 있을 수 있다).
 const pendingDdl: string[] = [];
-const startupTasks: (() => void)[] = [];
+const startupTasks: { name: string; run: () => void }[] = [];
 let started = false;
 let starting = false;
 let startFailure: { error: unknown } | null = null;
@@ -71,19 +73,37 @@ function flushPendingDdl() {
   }
 }
 
+/** 기록에 남겨도 되는 오류 종류(코드나 오류 이름) — 오류 문구와 값은 내보내지 않는다 */
+export function errorKind(e: unknown): string {
+  const code = (e as { code?: unknown } | null)?.code;
+  if (typeof code === 'string' && /^[A-Za-z0-9_]{1,40}$/.test(code)) return code;
+  const name = e instanceof Error ? e.name : '';
+  return /^[A-Za-z0-9_]{1,40}$/.test(name) ? name : 'error';
+}
+
+function runStartupTask(task: { name: string; run: () => void }) {
+  try {
+    task.run();
+  } catch (e) {
+    console.error(`[startup] ${task.name} failed`, errorKind(e));
+  }
+}
+
 function ensureStarted() {
   if (startFailure) throw startFailure.error;
   if (started || starting) return; // 이미 시작됐거나, 시작 작업 안에서 나온 질의(재진입)
   starting = true;
   try {
-    flushPendingDdl();
+    try {
+      flushPendingDdl();
+    } catch (error) {
+      startFailure = { error }; // 필수 DDL 실패만 남긴다
+      throw error;
+    }
     started = true; // 이 뒤로 db.exec는 바로 실행된다(시작 작업 안의 DDL 포함)
     // 시작 작업이 다른 시작 작업을 등록할 수 있으므로 길이를 매번 다시 본다
-    for (let i = 0; i < startupTasks.length; i++) startupTasks[i]();
+    for (let i = 0; i < startupTasks.length; i++) runStartupTask(startupTasks[i]);
     startupTasks.length = 0;
-  } catch (error) {
-    startFailure = { error };
-    throw error;
   } finally {
     starting = false;
   }
@@ -92,10 +112,11 @@ function ensureStarted() {
 /**
  * 예전에 모듈 최상위에서 바로 하던 DB 작업(주기 작업 예약·자료 이관 등)을 등록한다.
  * 아직 DB를 쓰기 전이면 첫 질의 직전에(표 확인 DDL 다음, 등록한 순서대로) 실행되고, 이미 시작된 뒤면 지금 바로 실행된다.
+ * 어느 쪽이든 실패는 그 작업에서 끝난다(이름과 오류 종류만 기록).
  */
-export function atStartup(task: () => void): void {
-  if (started && !starting) task();
-  else startupTasks.push(task);
+export function atStartup(run: () => void, name = 'task'): void {
+  if (started && !starting) runStartupTask({ name, run });
+  else startupTasks.push({ name, run });
 }
 
 function querySync(text: string, params: unknown[] = []) {

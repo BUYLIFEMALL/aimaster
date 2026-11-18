@@ -691,4 +691,4 @@ registerJobHandler('w3set-temp-members', () => {
   expireTemporaryMembers();
   scheduleJob('w3set-temp-members', 'w3set-temp-members:hourly', Date.now() + 3600_000);
 });
-atStartup(() => scheduleJob('w3set-temp-members', 'w3set-temp-members:hourly', Date.now() + 5 * 60_000)); // WS-20261119-REL: DB를 처음 쓸 때 예약
+atStartup(() => scheduleJob('w3set-temp-members', 'w3set-temp-members:hourly', Date.now() + 5 * 60_000), 'temp members schedule'); // WS-20261119-REL: DB를 처음 쓸 때 예약

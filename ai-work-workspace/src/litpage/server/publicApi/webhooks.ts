@@ -55,7 +55,7 @@ CREATE INDEX IF NOT EXISTS idx_api_webhook_failures ON api_webhook_failures(webh
 // 2026-11-19 WS-20261119-REL: 버전 맞춤을 DB를 처음 쓸 때로
 atStartup(() => {
   db.prepare('UPDATE api_webhooks SET api_version = ? WHERE api_version != ?').run(API_VERSION, API_VERSION);
-});
+}, 'api webhook version alignment');
 
 export const PAGE_EVENTS = ['page.created', 'page.content_updated', 'page.properties_updated', 'page.moved', 'page.deleted', 'page.undeleted', 'page.locked', 'page.unlocked'];
 export const DATABASE_EVENTS = ['database.created', 'database.content_updated', 'database.schema_updated', 'database.moved', 'database.deleted', 'database.undeleted'];

@@ -174,4 +174,4 @@ registerJobHandler('w3set-retention', () => {
   scheduleJob('w3set-retention', 'w3set-retention:daily', Date.now() + DAY);
 });
 // first run a minute after start, then daily (upsert by key: restarts don't pile up jobs)
-atStartup(() => scheduleJob('w3set-retention', 'w3set-retention:daily', Date.now() + 60_000)); // WS-20261119-REL: DB를 처음 쓸 때 예약
+atStartup(() => scheduleJob('w3set-retention', 'w3set-retention:daily', Date.now() + 60_000), 'retention schedule'); // WS-20261119-REL: DB를 처음 쓸 때 예약

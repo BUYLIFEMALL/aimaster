@@ -17,7 +17,7 @@ import type { PermissionLookup } from '#shared/permissions.ts';
 import type { BlockRecord, CollectionRecord, CollectionViewRecord, CommentRecord, DiscussionRecord, UserRecord } from '#shared/records.ts';
 import { toPlainText, type RichText } from '#shared/richtext.ts';
 import { triggerRowTitle, type AgentRecord, type AgentTrigger } from '#shared/agents.ts';
-import { atStartup, db, getRecord } from '../db.ts';
+import { atStartup, db, errorKind, getRecord } from '../db.ts';
 import { blockRole, onCommit, type CommitInfo } from '../records.ts';
 import { canSeeRowValue, propertyThreadVisible } from '../propaccess.ts';
 import { registerJobHandler, scheduleJob, cancelJobs } from '../scheduler.ts';
@@ -118,10 +118,10 @@ atStartup(() => {
         if (live(a) && a.data.triggers.some((t) => t.type === 'recurrence' && t.enabled)) syncAgentSchedules(a);
       }
     } catch (e) {
-      console.error('[agents] schedule sync failed', e);
+      console.error('[agents] schedule sync failed', errorKind(e)); // 오류 종류만(문구·값 미기록)
     }
   }, 1500).unref?.();
-});
+}, 'agent schedule re-arm timer');
 
 // ---------------------------------------------------------------- page events
 

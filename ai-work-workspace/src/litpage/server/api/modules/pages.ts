@@ -6,7 +6,7 @@ import { roleAtLeast } from '#shared/permissions.ts';
 import type { BlockRecord, CollectionRecord, CommentRecord, DiscussionRecord } from '#shared/records.ts';
 import { toPlainText } from '#shared/richtext.ts';
 import { isDatabaseLocked } from '#shared/database/access.ts';
-import { atStartup, childrenOf, db, getRecord } from '../../db.ts';
+import { atStartup, childrenOf, db, errorKind, getRecord } from '../../db.ts';
 import { ApiError, type Ctx } from '../handlers.ts';
 import { RecordMapBuilder, applyTransactions, blockRole } from '../../records.ts';
 import { getSnapshot, listSnapshots, serializePage, takeSnapshot, type DatabaseSnapshot } from '../../history.ts';
@@ -110,14 +110,14 @@ function idleSnapshotTick() {
       snapshotIfChanged(r.page_id, authors, now);
     }
   } catch (e) {
-    console.error('[pages] idle snapshot failed', e);
+    console.error('[pages] idle snapshot failed', errorKind(e)); // 2026-11-19 WS-20261119-REL: 오류 종류만(문구·값 미기록)
   }
 }
 // 2026-11-19 WS-20261119-REL: 주기 타이머를 불러올 때가 아니라 DB를 처음 쓴 뒤에 건다(빌드 평가에서는 돌지 않음)
 atStartup(() => {
   const timer = setInterval(idleSnapshotTick, 15_000);
   (timer as any).unref?.();
-});
+}, 'idle snapshot timer');
 
 function addUsers(rm: RecordMapBuilder, ids: Iterable<string | undefined | null>) {
   for (const id of ids) if (id) rm.add('lit_user', getRecord('lit_user', id), 'reader');

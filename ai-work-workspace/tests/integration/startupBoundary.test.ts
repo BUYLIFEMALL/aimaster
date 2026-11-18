@@ -198,11 +198,17 @@ describe('재진입', () => {
   });
 });
 
-describe('실패 처리(예전과 같은 범위, 자동 재시도 없음)', () => {
-  it('DDL 실패: 그 질의가 오류를 받고, 이후 질의도 같은 오류 — DDL을 다시 보내지 않고 시작 작업도 돌지 않는다', async () => {
+describe('실패 처리 — 필수 DDL은 안전 실패, 시작 작업은 한 건씩 격리(자동 재실행 없음)', () => {
+  const spyErrors = () => {
+    const logged: unknown[][] = [];
+    vi.spyOn(console, 'error').mockImplementation((...a: unknown[]) => void logged.push(a));
+    return logged;
+  };
+
+  it('필수 DDL 실패: 그 질의가 오류를 받고, 이후 질의도 같은 오류 — DDL을 다시 보내지 않고 시작 작업도 돌지 않는다', async () => {
     const { db, atStartup } = await import(SERVER + 'db.ts');
     const ran = vi.fn();
-    atStartup(ran);
+    atStartup(ran, 'probe');
     const boom = new Error('ddl failed');
     h.onExec = (_t, n) => {
       if (n === 1) throw boom;
@@ -216,23 +222,89 @@ describe('실패 처리(예전과 같은 범위, 자동 재시도 없음)', () =
     expect(ran).not.toHaveBeenCalled();
   });
 
-  it('시작 작업 실패(이관 외): 예전에 모듈 평가가 깨지던 것과 같이 이후 질의가 같은 오류를 받는다', async () => {
-    const { db, atStartup } = await import(SERVER + 'db.ts');
-    const boom = new Error('startup task failed');
-    const later = vi.fn();
-    atStartup(() => {
+  it('시작 뒤의 늦은 DDL 실패는 부른 쪽만 오류를 받고, 다른 질의는 계속된다', async () => {
+    const { db } = await import(SERVER + 'db.ts');
+    db.prepare('SELECT 1 AS x').get();
+    const boom = new Error('late ddl failed');
+    h.onExec = () => {
       throw boom;
-    });
-    atStartup(later);
-    expect(() => db.prepare('SELECT 1 AS x').get()).toThrow(boom);
-    expect(() => db.prepare('SELECT 2 AS y').get()).toThrow(boom);
-    expect(later).not.toHaveBeenCalled();
-    expect(queries()).toHaveLength(0);
+    };
+    expect(() => db.exec('CREATE TABLE IF NOT EXISTS t_late_fail (id TEXT)')).toThrow(boom);
+    h.onExec = null;
+    expect(db.prepare('SELECT 2 AS y').get()).toBeUndefined();
   });
 
-  it('웹훅 비밀값 이관 실패: 예전처럼 요청은 계속되고, 기록에는 오류 종류만 남는다(값·오류 문구 미출력)', async () => {
-    const logged: unknown[][] = [];
-    vi.spyOn(console, 'error').mockImplementation((...a: unknown[]) => void logged.push(a));
+  it('시작 작업 한 건이 실패해도 그 질의·다른 시작 작업·이후 질의는 계속되고, 실패한 작업은 다시 돌지 않는다', async () => {
+    const logged = spyErrors();
+    const { db, atStartup } = await import(SERVER + 'db.ts');
+    const first = vi.fn(() => {
+      throw new Error('row (token)=(SECRET-VALUE-9) rejected');
+    });
+    const second = vi.fn();
+    atStartup(first, 'first job');
+    atStartup(second, 'second job');
+    expect(db.prepare('SELECT 1 AS x').get()).toBeUndefined();
+    expect(second).toHaveBeenCalledTimes(1);
+    db.prepare('SELECT 2 AS y').get();
+    db.prepare('SELECT 3 AS z').get();
+    expect(first).toHaveBeenCalledTimes(1);
+    expect(second).toHaveBeenCalledTimes(1);
+    expect(queries().map((c) => c.text.match(/\d AS \w/)?.[0])).toEqual(['1 AS x', '2 AS y', '3 AS z']);
+    expect(logged).toEqual([['[startup] first job failed', 'Error']]); // 이름과 오류 종류만
+    expect(JSON.stringify(logged)).not.toContain('SECRET-VALUE-9');
+  });
+
+  it('시작 뒤에 등록한 작업의 실패도 격리된다(부른 쪽이 깨지지 않음)', async () => {
+    const logged = spyErrors();
+    const { db, atStartup } = await import(SERVER + 'db.ts');
+    db.prepare('SELECT 1 AS x').get();
+    expect(() => atStartup(() => {
+      throw Object.assign(new Error('boom (v)=(SECRET-LATE)'), { code: 'TIMEOUT' });
+    }, 'late job')).not.toThrow();
+    expect(db.prepare('SELECT 2 AS y').get()).toBeUndefined();
+    expect(logged).toEqual([['[startup] late job failed', 'TIMEOUT']]);
+  });
+
+  it('전체 불러오기: 주기 예약 한 건이 실패해도 나머지 예약 4건·버전 맞춤·이관·사용자 질의·지연 타이머는 그대로 실행된다', async () => {
+    const logged = spyErrors();
+    const { PgError } = await import(SERVER + 'pg/bridge.ts');
+    h.onQuery = (text, params) => {
+      if (/INSERT INTO scheduled_jobs/.test(text) && params.includes('sprints:tick')) throw new PgError('insert failed (payload)=(SECRET-PAYLOAD)', '57014');
+      return undefined;
+    };
+    const { db } = await loadEverything();
+    expect(db.prepare('SELECT 42 AS first_user_query').get()).toBeUndefined();
+    expect(count(/INSERT INTO scheduled_jobs/, 'sprints:tick')).toBe(1);
+    for (const key of SCHEDULE_KEYS.filter((k) => k !== 'sprints:tick')) expect(count(/INSERT INTO scheduled_jobs/, key), key).toBe(1);
+    expect(count(/UPDATE api_webhooks SET api_version/)).toBe(1);
+    expect(count(/FROM records WHERE tbl = 'automation'/)).toBe(1);
+    db.prepare('SELECT 43 AS second').get();
+    await vi.advanceTimersByTimeAsync(17_000);
+    expect(count(/INSERT INTO scheduled_jobs/, 'sprints:tick')).toBe(1); // 다시 시도하지 않음
+    expect(count(/FROM records WHERE tbl = 'workflow' AND alive = 1/)).toBe(1);
+    expect(count(/FROM activity WHERE created_time/)).toBe(1);
+    expect(logged).toEqual([['[startup] sprints tick schedule failed', '57014']]);
+    expect(JSON.stringify(logged)).not.toContain('SECRET-PAYLOAD');
+  }, 120_000);
+
+  it('지연 타이머 안의 실패: 기록에 오류 종류만 남고 이후 질의는 계속된다', async () => {
+    const logged = spyErrors();
+    const { PgError } = await import(SERVER + 'pg/bridge.ts');
+    h.onQuery = (text) => {
+      if (/FROM records WHERE tbl = 'workflow'/.test(text)) throw new PgError('select failed near SECRET-WF', '08006');
+      if (/FROM activity WHERE created_time/.test(text)) throw new PgError('select failed near SECRET-ACT', '08006');
+      return undefined;
+    };
+    const { db } = await loadEverything();
+    db.prepare('SELECT 1 AS x').get();
+    await vi.advanceTimersByTimeAsync(17_000);
+    expect(db.prepare('SELECT 2 AS y').get()).toBeUndefined();
+    expect(logged).toEqual([['[agents] schedule sync failed', '08006'], ['[pages] idle snapshot failed', '08006']]);
+    expect(JSON.stringify(logged)).not.toMatch(/SECRET-WF|SECRET-ACT/);
+  }, 120_000);
+
+  it('웹훅 비밀값 이관 실패: 요청은 계속되고, 기록에는 작업 이름과 오류 종류만 남는다(값·오류 문구 미출력), 다시 돌지 않는다', async () => {
+    const logged = spyErrors();
     const { PgError } = await import(SERVER + 'pg/bridge.ts');
     h.onQuery = (text) => {
       if (/FROM records WHERE tbl = 'automation'/.test(text)) throw new PgError('duplicate key value (header)=(Bearer SECRET-VALUE-123)', '23505');
@@ -241,9 +313,7 @@ describe('실패 처리(예전과 같은 범위, 자동 재시도 없음)', () =
     await import(SERVER + 'automations/engine.ts');
     const { db } = await import(SERVER + 'db.ts');
     expect(db.prepare('SELECT 1 AS x').get()).toBeUndefined(); // 질의는 정상 진행
-    const line = logged.find((a) => String(a[0]).includes('webhook secret migration failed'));
-    expect(line).toBeDefined();
-    expect(line![1]).toBe('23505');
+    expect(logged).toEqual([['[startup] webhook secret migration failed', '23505']]);
     expect(JSON.stringify(logged)).not.toContain('SECRET-VALUE-123');
     db.prepare('SELECT 2 AS y').get(); // 이후 질의도 정상(이관은 다시 돌지 않음)
     expect(count(/FROM records WHERE tbl = 'automation'/)).toBe(1);

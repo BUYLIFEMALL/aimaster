@@ -207,4 +207,4 @@ registerJobHandler('workspace-digest-sweep', () => {
 // 2026-11-19 WS-20261119-REL: 조회·예약을 DB를 처음 쓸 때로
 atStartup(() => {
   if (!getJob('workspace-digest-sweep')) scheduleJob('workspace-digest-sweep', 'workspace-digest-sweep', nextSweepTime());
-});
+}, 'digest sweep schedule');

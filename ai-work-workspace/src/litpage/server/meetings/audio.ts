@@ -299,4 +299,4 @@ registerJobHandler('meeting-retention', () => {
 // 2026-11-19 WS-20261119-REL: 조회·예약을 DB를 처음 쓸 때로
 atStartup(() => {
   if (!getJob('meeting-retention')) scheduleJob('meeting-retention', 'meeting-retention', Date.now() + 5 * 60_000);
-});
+}, 'meeting retention schedule');

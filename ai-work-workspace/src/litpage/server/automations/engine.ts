@@ -510,14 +510,8 @@ export function startAutomationEngine() {
   // webhook header values of buttons are sealed before any write is persisted; old stored values are migrated
   onBeforePersist((changed, userId) => sealChangedRecords(changed, (id) => blockRole(id, userId)));
   // 2026-11-19 WS-20261119-REL: 불러올 때가 아니라 DB를 처음 쓸 때(첫 질의의 결과가 돌아오기 전에) 이관한다.
-  // 실패해도 오류 내용은 남기지 않는다(오류 문구에 헤더 값이 섞일 수 있음) — 종류만 기록.
-  atStartup(() => {
-    try {
-      migrateWebhookSecrets();
-    } catch (e) {
-      console.error('[automation] webhook secret migration failed', (e as { code?: unknown })?.code ?? (e as Error)?.name ?? 'error');
-    }
-  });
+  // 실패해도 예전처럼 요청은 계속된다. 기록은 db.ts가 작업 이름과 오류 종류만 남긴다(오류 문구에 헤더 값이 섞일 수 있음).
+  atStartup(() => void migrateWebhookSecrets(), 'webhook secret migration');
   registerJobHandler(JOB_KIND, (p) => runRecurrence(p));
 }
 startAutomationEngine();
