@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,7 +29,11 @@ export default function RootLayout({
       lang="ko"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-mx-bg text-mx-text">{children}</body>
+      <body className="min-h-full flex flex-col bg-mx-bg text-mx-text">
+        {children}
+        {/* 회원 저장공간 위젯(루트 지침 「저장공간 위젯」 — 배포 때 함께, docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md) */}
+        <Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />
+      </body>
     </html>
   );
 }
