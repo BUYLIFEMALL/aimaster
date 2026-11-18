@@ -16,6 +16,7 @@ export const CATEGORY_KEYWORDS: Record<NewsCategory, string[]> = {
 export const MAX_NEWS_REGIONS = 5; // 결정 5(2026-11-09): 관심 지역 중 앞 5곳
 export const NEWS_HOUR_KST = 8; // 결정 4: 아침 8시 이후 첫 예약 회차에 1번
 export const NEWS_MAX_AGE_DAYS = 3; // 처음 켠 날 오래된 기사가 쏟아지지 않게
+export const NEWS_MAX_PER_REGION = 15; // 2026-11-19: 알림(AI 요약 입력)에만 쓰는 지역당 상한 — 저장은 상한 없음(docs/PLAN_20261119_NEWS_CAP_OPINION.md)
 
 const SIDO_BY_PREFIX: Record<string, string> = {
   "11": "서울", "26": "부산", "27": "대구", "28": "인천", "29": "광주", "30": "대전", "31": "울산", "36": "세종",
@@ -120,6 +121,11 @@ export function onlyPassingMention(text: string, terms: RegionTerms): boolean {
 /** 여러 회사·여러 소식을 한 기사에 모은 묶음 기사 제목(「[건설 브리핑]」「[오늘의 건설]」「이 시각 헤드라인」) */
 export function isRoundupTitle(title: string): boolean {
   return /(브리핑|라운지|레이더|업계 소식|오늘의 건설|건설·분양오늘|헤드라인|이 시각)/.test(title);
+}
+
+/** 사설·칼럼·기고 같은 의견 글(제목 머리 대괄호로 판단) — 빼지 않고 같은 지역 후보 중 맨 뒤로 미룬다(2026-11-19) */
+export function isOpinionTitle(title: string): boolean {
+  return /^\s*[[［〔<〈【][^\]］〕>〉】]{0,20}(사설|칼럼|시론|기고|기자의\s?눈|오피니언|데스크|씨줄날줄|논단)[^\]］〕>〉】]{0,20}[\]］〕>〉】]/.test(title);
 }
 
 /** 같은 기사를 다른 주소로 받지 않게: 소문자 호스트, 끝 「/」·추적 꼬리(utm_·fbclid) 제거 */
@@ -244,8 +250,10 @@ export function pickCandidates(
     }
   }
   // 개선 후보 2(2026-11-09 첫 실측): 「의원(서울 서초구 갑)안」처럼 요약에만 지나가듯 나온 기사보다 제목에 지역 이름이 있는 기사를 앞에(같은 무리 안 순서는 그대로)
+  // 2026-11-19: 사설·칼럼은 맨 뒤(빼지는 않음) → 순서 = 제목에 지역 있음 · 그 밖 · 사설·칼럼
   const inTitle = (c: NewsCandidate) => titleMentionsRegion(c.title, terms);
-  const ordered = [...out.filter(inTitle), ...out.filter((c) => !inTitle(c))];
+  const news = out.filter((c) => !isOpinionTitle(c.title));
+  const ordered = [...news.filter(inTitle), ...news.filter((c) => !inTitle(c)), ...out.filter((c) => isOpinionTitle(c.title))];
   // 같은 사건은 앞에 온 것(제목에 지역 이름 있는 쪽)만 남긴다. 이미 받은 기사와 같은 사건이면 넣지 않는다
   const kept: Set<string>[] = recentTitles.map((t) => storyTokens(t, terms));
   return ordered.filter((c) => {
@@ -253,6 +261,17 @@ export function pickCandidates(
     if (kept.some((k) => isSameStory(tokens, k))) return false;
     kept.push(tokens);
     return true;
+  });
+}
+
+/** 알림 쪽 지역당 상한(2026-11-19 주인님 결정 「알림에만 상한」) — 저장·화면은 그대로 두고, 알림에 쓰는 목록만 지역마다 앞에서 max건.
+ *  같은 지역 안 순서(제목에 지역 있음 → 그 밖 → 사설·칼럼)는 유지한다. 11-18 서초 22건에 저장 상한을 걸면 관련 기사 5건이 빠져 저장 상한은 쓰지 않음 */
+export function capPerRegion<T extends { sggNm: string }>(items: T[], max = NEWS_MAX_PER_REGION): T[] {
+  const n = new Map<string, number>();
+  return items.filter((it) => {
+    const k = (n.get(it.sggNm) ?? 0) + 1;
+    n.set(it.sggNm, k);
+    return k <= max;
   });
 }
 

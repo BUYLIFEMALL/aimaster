@@ -6,7 +6,7 @@ import { sendAlimtalk } from "@/lib/solapi/client";
 import { summarizeNews, NEWS_DIGEST_MODEL } from "@/lib/ai/newsDigest";
 import { searchNaverNews, NaverNewsError } from "./naverNews";
 import { NEWS_DONGS } from "./dongNames";
-import { MAX_NEWS_REGIONS, NEWS_MAX_AGE_DAYS, buildNewsMessage, buildQueries, isNewsDue, kstDateHour, pickCandidates, regionTerms, type DigestItem, type NewsCategory, type RawNews } from "./radarCore";
+import { MAX_NEWS_REGIONS, NEWS_MAX_AGE_DAYS, buildNewsMessage, buildQueries, capPerRegion, interleaveByRegion, isNewsDue, kstDateHour, pickCandidates, regionTerms, type DigestItem, type NewsCategory, type RawNews } from "./radarCore";
 
 // RQ-C 지역 뉴스 레이더 실행(2026-11-09, v1.57). /api/collect/dispatch(5분 예약)가 매 회차 부르고,
 // 여기서 「뉴스 받기를 켠 회원 중 아침 8시가 지났고 오늘 아직 안 보낸 회원」만 하루 1번 처리한다.
@@ -88,7 +88,9 @@ export async function runNewsForUser(supabase: AdminClient, userId: string, opts
     const anthropicKey = await userKey(supabase, userId, "anthropic");
     if (anthropicKey) {
       try {
-        aiSummary = await summarizeNews(anthropicKey, inserted.slice(0, 40).map((r) => `[${r.sgg_nm}·${r.category}] ${r.title} — ${r.snippet ?? ""}`));
+        // 2026-11-19 「알림에만 상한」: 요약 입력은 지역당 15건까지, 지역을 번갈아(서초 기사가 40칸을 다 차지하던 문제). 저장·화면은 그대로
+        const forSummary = interleaveByRegion(capPerRegion(inserted.map((r) => ({ ...r, sggNm: r.sgg_nm })))).slice(0, 40);
+        aiSummary = await summarizeNews(anthropicKey, forSummary.map((r) => `[${r.sgg_nm}·${r.category}] ${r.title} — ${r.snippet ?? ""}`));
         await loose(supabase)
           .from("real_estate_news_digests")
           .upsert({ user_id: userId, digest_date: kstDateHour(now).date, content: aiSummary, ai_model: NEWS_DIGEST_MODEL }, { onConflict: "user_id,digest_date" });

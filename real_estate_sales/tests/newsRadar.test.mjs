@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildNewsMessage, buildQueries, interleaveByRegion, isNewsDue, kstDateHour, mentionsRegion, normalizeLink, pickCandidates, regionTerms, storyTokens, isSameStory, onlyListedInStats, onlyPassingMention, isRoundupTitle, titleMentionsRegion } from "../src/lib/news/radarCore.ts";
+import { buildNewsMessage, buildQueries, interleaveByRegion, isNewsDue, kstDateHour, mentionsRegion, normalizeLink, pickCandidates, regionTerms, storyTokens, isSameStory, onlyListedInStats, onlyPassingMention, isRoundupTitle, titleMentionsRegion, isOpinionTitle, NEWS_MAX_PER_REGION, capPerRegion } from "../src/lib/news/radarCore.ts";
 
 test("RQ-C 지역 이름: 시+구, 서울 구, 흔한 구 이름", () => {
   assert.deepEqual(regionTerms("41285", "고양시 일산동구"), { query: "고양시 일산동구", anyOf: ["일산동구", "일산"], alsoNeed: null });
@@ -196,4 +196,46 @@ test("잡음 줄이기: pickCandidates에 적용", () => {
     item("전성수 서초구청장, 'IMAX 행정'으로 명품 주거단지", "전성수 서울 서초구청장이 서울 서초구 aT센터에서 열린 박람회에서", 6),
   ] }], t, now);
   assert.deepEqual(out.map((c) => c.link.slice(-1)), ["4", "6", "5"], "잡음 3건 빠지고, 제목에 지역·동 이름 있는 기사가 앞");
+});
+
+test("2026-11-19 사설·칼럼 판정: 제목 머리 대괄호만", () => {
+  assert.equal(isOpinionTitle("[사설] '닥공' 엇박자"), true);
+  assert.equal(isOpinionTitle("[데스크 칼럼] 구호뿐인 '닥공' 안 되려면"), true);
+  assert.equal(isOpinionTitle("[기자의 눈] 재초환의 역설"), true);
+  assert.equal(isOpinionTitle("[박일근 칼럼] 압구정 20억 빠져도"), true);
+  assert.equal(isOpinionTitle("[시론] 전통 유교 가치의 붕괴"), true);
+  assert.equal(isOpinionTitle("[단독] 서초 재건축 12곳 재초환"), false);
+  assert.equal(isOpinionTitle("서초 재건축, 칼럼니스트가 본 시장"), false, "머리 대괄호가 아니면 아님");
+  assert.equal(isOpinionTitle("[2026 주거ㆍ도시정비 박람회] 서울시 속도전"), false);
+});
+
+test("2026-11-19 사설·칼럼은 빼지 않고 맨 뒤로", () => {
+  const t = regionTerms("11650", "서초구");
+  const recent = "Wed, 18 Nov 2026 10:00:00 +0900";
+  const out = pickCandidates([{ category: "개발", items: [
+    { title: "[데스크 칼럼] 서초 반포현대 재초환 청구서", link: "https://a.com/1", description: "서초구 반포현대 재초환", pubDate: recent },
+    { title: "강남 재건축 단지 매물 증가", link: "https://a.com/2", description: "서초구 반포동 재건축 단지 매물이 늘었다", pubDate: recent },
+    { title: "서초구 방배동 분양 일정", link: "https://a.com/3", description: "", pubDate: recent },
+  ] }], t, new Date("2026-11-19T00:00:00Z"));
+  assert.deepEqual(out.map((c) => c.link), ["https://a.com/3", "https://a.com/2", "https://a.com/1"]);
+});
+
+test("2026-11-19 저장은 상한 없음, 알림 목록만 지역당 상한(주인님 결정)", () => {
+  assert.equal(NEWS_MAX_PER_REGION, 15);
+  const t = regionTerms("11650", "서초구");
+  const recent = "Wed, 18 Nov 2026 10:00:00 +0900";
+  const names = ["반포", "잠원", "방배", "양재", "우면", "내곡", "서초", "신원", "염곡", "원지", "세곡", "하정", "청계", "남태령", "말죽"];
+  const items = [
+    { title: "[사설] 서초구 재건축 부담금", link: "https://o.com/1", description: "", pubDate: recent },
+    ...names.map((n, i) => ({ title: `서초구 ${n}${i}호 단지 ${1000 + i}가구 분양`, link: `https://t.com/${i}`, description: "", pubDate: recent })),
+    { title: "강남 집값 흐름", link: "https://s.com/1", description: "서초구 아파트값이 내렸다", pubDate: recent },
+  ];
+  const out = pickCandidates([{ category: "개발", items }], t, new Date("2026-11-19T00:00:00Z"));
+  assert.equal(out.length, 17, "저장 후보는 모두 남음");
+  assert.equal(out[16].link, "https://o.com/1", "사설은 맨 뒤");
+  const tagged = [...out.map((c) => ({ ...c, sggNm: "서초구" })), { sggNm: "종로구", link: "z1" }, { sggNm: "종로구", link: "z2" }];
+  const capped = capPerRegion(tagged);
+  assert.equal(capped.filter((c) => c.sggNm === "서초구").length, 15, "서초는 앞 15건");
+  assert.ok(!capped.some((c) => c.link === "https://o.com/1"), "뒤쪽 사설이 먼저 잘림");
+  assert.equal(capped.filter((c) => c.sggNm === "종로구").length, 2, "다른 지역은 그대로");
 });
