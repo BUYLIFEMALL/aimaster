@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 03:58:54 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 04:01:24 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-19 03:32:15 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-19 04:01:24 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 03:01 이후 증분. B2B UI 독립 수락·Lab 0101 읽기 대조·샘플몰 보고 확인, S70 격리 구현 배정. W01 저장 V2·Next.js 로컬 패치 확인. Workspace v1.61 중단 로그 진단 배정. 11번가 v1.09는 로컬 변경 확인.
+점검 범위: 03:30 이후 증분. S70 회귀·롤백 및 샘플몰, M1 점유, AIF V4 실저장·V3 로그인 단계, Workspace 합성 진단 및 WebP 실제 전송. 운영 미배포와 기존 사람 단계 확인.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -408,8 +408,8 @@ Master 마지막 실제 점검: 2026-11-19 03:32:15 KST · 실행 중 점검 주
 | B2B-20261119-S70 | CC-B2B-BACK-01 | done / guard_rollback_independent_accepted_undeployed | 주문서 무통장 현금영수증 접수와 입금 확인 경합 처리 | 격리 21/21, Mac 롤백 정적 통과. 0105와 UI 배포 전 Lab 실검증 승인 대기. |
 | B2B-20261119-S70-FRONT | CC-B2B-FRONT-01 | done / checkout_rpc_exception_independent_recheck_passed_undeployed | 주문서 UI에 무통장 현금영수증 접수 연결 | Mac 재검수 기존 6/6·별도 결제수단 3/3. 예외 때 완료 주문 상세 이동 및 기존 결제 경로 확인. 0105 롤백 보완과 Lab 검증 대기, 미배포. |
 | B2B-20261119-SAMPLE-S1 | CC-B2B-BACK-01 | done / owner_direct_sample_content_update_reported | 운영 샘플몰 상품 사진과 설명 보완 | 담당 보고 기준 상품 16개 보완, 전체 상품 사진 25/25, 화면 이미지 33개 중 오류 0. |
-| B2B-20261119-SAMPLE-QA | CX-QA-01 | queued / public_read_only_review_dispatched | 운영 B2B 샘플몰 공개 화면 독립 검수 | 1280/375 사진·설명과 가로 넘침·상표/인물 읽기 검수. 운영 쓰기 없음. |
-| B2B-20261119-MAKER | CC-B2B-BACK-01 | queued / mall_admin_send_implementation_dispatched | B2B 메이커 연계 M1~M3 선행 범위 대조 | M1 관리자 상품 목록 보내기·공용 사본·부정 응답 계약의 로컬 구현 배정. M2/M3와 운영 저장·배포 제외. |
+| B2B-20261119-SAMPLE-QA | CX-QA-01 | done / public_sample_layout_verified_read_only | 운영 B2B 샘플몰 공개 화면 독립 검수 | Mac 1280/375에서 홈·5개 카테고리·상세 2개 확인. 깨짐·가로 넘침 0. Master 무쿠키 홈 HTTP 200·상품 링크 33개 확인. |
+| B2B-20261119-MAKER | CC-B2B-BACK-01 | running / m1_shared_registry_and_occupancy_confirmed | B2B 메이커 연계 M1~M3 선행 범위 대조 | 공용 사진 계약 사본 등록·점유 확인. 관리자 사진 보내기 로컬 구현과 계약 시험 결과 대기. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
@@ -483,8 +483,8 @@ Master 마지막 실제 점검: 2026-11-19 03:32:15 KST · 실행 중 점검 주
 | AIF-20261119-W01-UIV | CX-QA-01 | done / isolated_real_react_screen_check_accepted | W01 실제 React 화면 격리 확인 | fdee03d5d 격리 Chrome 통과. 실제 로그인/CORS/발행 별도. |
 | AIF-20261119-W01-READY | CC-SNS-01 | done / v2_storage_signed_browser_read_and_ownership_verified | W01 운영 전 검증 계획과 V2 저장·다운로드 검증 | V2 서명 다운로드·권한 확인 완료. V3 유료 범위 별도, V4 시험 계정 지정 수신 및 실행 조건 미확정. |
 | AIF-20261119-W01-NEXT | CC-SNS-01 | done / dependency_patch_verified_locally_undeployed | AI Influencer Next.js 보안 패치 | 16.4.6 파일 지문과 잠금 범위 대조 완료. 담당 시험 320/320·타입 통과·audit 0. 번들 및 운영 응답 확인은 배포 단계. |
-| AIF-20261119-W01-V4 | CC-SNS-01 | waiting_human / isolated_server_ready_waiting_designated_login | 일반 회원 한도와 운영 다운로드 선행 검증 | 사본 shadow 127.0.0.1:3417 기동·로그인 200. 허용 설정만 메모리 전달, 파일 복사 없음. 지정 일반 회원 로그인 후 합성 사진 1회. |
-| AIF-20261119-W01-V3 | CC-SNS-01 | queued / official_pricing_confirmed_waiting_v4_and_account | AI Influencer 대표 생성 및 보정 검증 | 코드 모델과 공식 가격 원문 대조 보고. V4 뒤 로그아웃·시험 계정과 1K 확인 후 승인 범위만 실행. 유료 호출 0. |
+| AIF-20261119-W01-V4 | CC-SNS-01 | done / finite_member_real_storage_verified_isolated_origin | 일반 회원 한도와 운영 다운로드 선행 검증 | 지정 일반 회원 실제 이용·합성 JPEG 1회 업로드·본인 조회·서명 다운로드 200. 일반 한도 초과·정리·운영 출처는 미검증. |
+| AIF-20261119-W01-V3 | CC-SNS-01 | waiting_human / isolated_on_waiting_test_account_login | AI Influencer 대표 생성 및 보정 검증 | 격리 사본만 on, 공유 off. 시험 계정 로그인 뒤 본인 키·1K 확인 후 신규·보정 각 1회 조건부 실행. 유료 호출 아직 0. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |

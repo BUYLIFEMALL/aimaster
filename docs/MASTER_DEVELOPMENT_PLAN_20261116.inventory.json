@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T18:58:54.753Z",
+  "checkedAt": "2026-11-18T19:01:24.314Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,22 +12,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T18:32:15.461Z",
+      "at": "2026-11-18T19:01:24.314Z",
       "timezone": "Asia/Seoul",
-      "trigger": "03:30 예약 점검 메시지 msg_7ed6499344f5 수신",
-      "scope": "03:01 이후 증분. 프로그램별·카테고리 작업표, 열려 있는 과제·담당 범위·승인·검수·미배포, 관리자 요청 및 HANDOFF·결과 파일 상태와 최근 Git 대조.",
+      "trigger": "04:00 예약 점검 메시지 msg_06337be02703 수신",
+      "scope": "03:30 점검 이후 증분. 103개 프로그램의 분류/우선순위와 활성 작업 24행, 담당·점유·15분 내외 변경/승인·미배포, 관리자 요청·최근 결과/인수인계 확인.",
       "evidence": [
-        "0f72ac2f2 이후 Git 이력, ACTIVE_WORK·FILE_OWNERSHIP·HANDOFF·dev-requests(Master 대기 0)",
-        "B2B 90248e5b1·86e5ad1bf·msg_02200dae89c6, Lab e20574f0f, 샘플 41d13d369, 0100 잠금과 msg_3c12a55255d2",
-        "W01 59f0718b2·cd992f592의 잠금 파일 지문 및 변경 범위, Workspace cbfe4b86e의 취소 근거, 11번가 a10384ef8 로컬 변경"
+        "1912b5a72 이후 Git 이력, docs/ACTIVE_WORK.md 및 .ai/FILE_OWNERSHIP.md, dev-requests Master 대기 0",
+        "S70 독립 재검수·롤백 21/21, M1 점유 8c9a6b406, 샘플몰 Mac 및 무쿠키 홈 응답",
+        "9beb60b21 V4 운영 저장소 시험, f330050c3 Workspace 로컬 DB·합성 자료, WebP 송신 1회 수신"
       ],
-      "judgment": "B2B UI 독립 수락, Lab 읽기 대조 완료. W01 V2·패치 증거 수락, Workspace v1.61 취소 뒤 v1.60 유지 보고. 11번가 v1.09 로컬 커밋 확인, 운영 반영 근거 미확인. 새 운영 실행 없음.",
-      "nextAction": "S70 격리 구현 msg_d8108566a5f9, 메이커 M1 후순위 msg_1f84f57db3f2, Workspace 읽기 진단 msg_4c3fbd7968b1.",
+      "judgment": "V4와 샘플몰 검수 수락. Workspace 운영 v1.60·기존 취소 이후 추가 배포 없음. B2B M1 진행. 실검수와 운영 적용 분리.",
+      "nextAction": "V3 로그인·계정 확인 후 승인 범위 실행 msg_b3def667492a. 시험 WebP 저장 결과·Workspace 초기화 설계·B2B M1 구현 회수. 이전 로그인 대기 유지.",
       "unverified": [
-        "QA037 고객·직원 로그인 및 최종 단계 테스트 결제",
-        "W01 운영 브라우저 origin·스트리밍·한도·유료 생성, V4 실행 조건",
-        "Workspace 운영 가져오기와 빌드 중단 원인, 11번가 v1.09 배포 여부",
-        "예약 실행 로그와 기존 미추적 인수인계 전수 재검증은 미실행. 현재 Master 수신 확인."
+        "Workspace 빌드 정체 원인과 v1.61 운영 반영",
+        "V3 실호출 및 청구·V4 운영 출처·초과 거절·자동정리",
+        "B2B QA037 및 Lab 0105 실접수, ESM·11번가 로그인 의존 검수",
+        "예약 실행 기록 및 오래된 미추적 인수인계 전수 재검증 미실행"
       ]
     },
     "notifications": [
@@ -9632,13 +9632,13 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-MASTER-01",
       "title": "B2B 메이커 연계 M1~M3 선행 범위 대조",
-      "status": "queued",
-      "delivery": "mall_admin_send_implementation_dispatched",
+      "status": "running",
+      "delivery": "m1_shared_registry_and_occupancy_confirmed",
       "scopeRef": "IMPROVEMENT_HANDOFF_20261113_MAKER.md·product-photo-handoff·0066",
       "constraints": "샘플몰·Lab0101 선행. M1 쇼핑몰 측 정합/경계부터. M2/M3 운영 DB 변경 없음, 실제 등록 사진 1년 유지. H3 회원 이전 제외.",
-      "evidence": "msg_f8b6c7802a93·msg_95518039a9bf·msg_425229fba0fc·msg_1f84f57db3f2·msg_4cf852c00d8f·msg_336575c1b8e9",
-      "next": "M1 관리자 상품 목록 보내기·공용 사본·부정 응답 계약의 로컬 구현 배정. M2/M3와 운영 저장·배포 제외.",
-      "lastReviewedAt": "2026-11-18T18:58:54.753Z"
+      "evidence": "msg_f8b6c7802a93·msg_95518039a9bf·msg_425229fba0fc·msg_1f84f57db3f2·msg_4cf852c00d8f·msg_336575c1b8e9·8c9a6b406",
+      "next": "공용 사진 계약 사본 등록·점유 확인. 관리자 사진 보내기 로컬 구현과 계약 시험 결과 대기.",
+      "lastReviewedAt": "2026-11-18T19:01:24.314Z"
     },
     {
       "task_id": "B2B-20261119-S70",
@@ -9734,17 +9734,17 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "일반 회원 한도와 운영 다운로드 선행 검증",
-      "status": "waiting_human",
-      "delivery": "isolated_server_ready_waiting_designated_login",
+      "status": "done",
+      "delivery": "finite_member_real_storage_verified_isolated_origin",
       "scopeRef": "지정 회원 자격 읽기·격리 한도 경계·운영 다운로드 선행조건",
       "constraints": "개인정보 출력·접속 설정 복사·운영 DB/Storage 쓰기·유료 AI·배포·스위치 변경 0.",
-      "evidence": "msg_1531209c451e·msg_0b10f8b59272·msg_49d6c4a9e5a3·10aedfb2e·msg_adecea24720e·26ec71c09·msg_b92bd531fea0·msg_2516c8d780b2·345eb10f8",
-      "next": "사본 shadow 127.0.0.1:3417 기동·로그인 200. 허용 설정만 메모리 전달, 파일 복사 없음. 지정 일반 회원 로그인 후 합성 사진 1회.",
-      "lastReviewedAt": "2026-11-18T18:58:54.753Z",
-      "sha": "10aedfb2e",
+      "evidence": "msg_1531209c451e·msg_0b10f8b59272·msg_49d6c4a9e5a3·10aedfb2e·msg_adecea24720e·26ec71c09·msg_b92bd531fea0·msg_2516c8d780b2·345eb10f8·msg_43f23b594003·9beb60b21",
+      "next": "지정 일반 회원 실제 이용·합성 JPEG 1회 업로드·본인 조회·서명 다운로드 200. 일반 한도 초과·정리·운영 출처는 미검증.",
+      "lastReviewedAt": "2026-11-18T19:01:24.314Z",
+      "sha": "9beb60b21",
       "validation": {
-        "limitation": "계정 판정 읽기만, 실제 로그인·업로드 미시행. 운영 출처 GET 미검증.",
-        "deviation": "격리 시험 신규 파일은 담당 초기 점유 목록에 없었음."
+        "result": "52,434바이트·다운로드 같은 크기, DBA 확인 소유 행/객체 각 1건. 로그아웃·서버 중지 보고.",
+        "deviation": "대조 조회에서 저장 경로가 도구 출력에 한 번 포함됨. 문서 기록에는 옮기지 않았으며 이후 명시적 열 선택으로 제외."
       }
     },
     {
@@ -9768,11 +9768,11 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "AI Influencer 대표 생성 및 보정 검증",
-      "status": "queued",
-      "delivery": "official_pricing_confirmed_waiting_v4_and_account",
-      "evidence": "msg_adecea24720e·msg_6450ddaf24a6·9f1e3697e·msg_640d108b3984·msg_2516c8d780b2·345eb10f8",
-      "next": "코드 모델과 공식 가격 원문 대조 보고. V4 뒤 로그아웃·시험 계정과 1K 확인 후 승인 범위만 실행. 유료 호출 0.",
-      "lastReviewedAt": "2026-11-18T18:58:54.753Z"
+      "status": "waiting_human",
+      "delivery": "isolated_on_waiting_test_account_login",
+      "evidence": "msg_adecea24720e·msg_6450ddaf24a6·9f1e3697e·msg_640d108b3984·msg_2516c8d780b2·345eb10f8·msg_43f23b594003·msg_b3def667492a",
+      "next": "격리 사본만 on, 공유 off. 시험 계정 로그인 뒤 본인 키·1K 확인 후 신규·보정 각 1회 조건부 실행. 유료 호출 아직 0.",
+      "lastReviewedAt": "2026-11-18T19:01:24.314Z"
     },
     {
       "task_id": "ECOM-20261119-BANANA-QA",
@@ -9828,11 +9828,15 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "운영 B2B 샘플몰 공개 화면 독립 검수",
-      "status": "queued",
-      "delivery": "public_read_only_review_dispatched",
-      "evidence": "84113aede·msg_f926bb943410·msg_02ed96144fc4",
-      "next": "1280/375 사진·설명과 가로 넘침·상표/인물 읽기 검수. 운영 쓰기 없음.",
-      "lastReviewedAt": "2026-11-18T18:58:54.753Z"
+      "status": "done",
+      "delivery": "public_sample_layout_verified_read_only",
+      "evidence": "84113aede·msg_f926bb943410·msg_02ed96144fc4·msg_7dfdeed85c4b·.ai/results/B2B-20261119-SAMPLE-CX-QA-01.md",
+      "next": "Mac 1280/375에서 홈·5개 카테고리·상세 2개 확인. 깨짐·가로 넘침 0. Master 무쿠키 홈 HTTP 200·상품 링크 33개 확인.",
+      "lastReviewedAt": "2026-11-18T19:01:24.314Z",
+      "validation": {
+        "limitation": "Mac 레이아웃은 기존 세션의 공개 경로. 비로그인 브라우저 전체 레이아웃과 상세 미확인.",
+        "visual": "16개 카드에 식별 상표·얼굴 없음. 두 카드에는 손 일부."
+      }
     }
   ]
 }
