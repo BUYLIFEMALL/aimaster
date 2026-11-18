@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 18:33:35 KST",
+  "checkedAt": "2026-11-18 18:36:23 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T09:33:35.360Z",
+      "at": "2026-11-18T09:36:23.075Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS P2 추가 설계 회신",
-      "scope": "W01q 후보 창·예약 이력·migration 설계와 관련 원문 대조.",
+      "trigger": "SNS P2 설계 문서 완료 보고",
+      "scope": "W00 §20-8 고정 SHA 및 이전 보완 조건 대조",
       "evidence": [
-        "msg_a07bbc971c87",
-        "msg_7394ed0c36ed"
+        "04c7c2322·msg_05865a2ff2b8",
+        "msg_a289fd0c172a"
       ],
-      "judgment": "설계 방향 수락. 설계 문서 정리 요청, 소스/DDL 승인 없음.",
+      "judgment": "설계 문서 수락. 새 후속 migration과 격리 시험 소스 초안만 배정.",
       "unverified": [
-        "스캔 성능·동시성·영속 migration 이력",
-        "Gmail OAuth 동의 및 실검증"
+        "실 DB 권한·스캔 시간·동시성·Storage 물리 상태",
+        "Gmail 동의 및 실검증"
       ],
-      "nextAction": "W00 변경 SHA 수신 후 경계·완료 기준 검토."
+      "nextAction": "W01r 초안 SHA와 격리 검증 계획 회수."
     },
     "notifications": [
       {
@@ -8733,14 +8733,30 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "객체 없는 ready 자산 판정 설계",
-      "status": "reviewing",
-      "delivery": "bounded_scan_design_direction_accepted_documentation_requested",
+      "status": "done",
+      "delivery": "bounded_missing_scan_design_document_accepted",
       "scopeRef": "W00 P2 및 기존 자산/Storage 메타데이터 계약 읽기",
       "constraints": "편집·SQL/DB 생성·실Storage/AI·비용·배포 0",
       "completion": "후보 탐색 상한/공정성·동일 경로 다른 객체·migration 이력·missing 뒤 remove 0 근거",
-      "evidence": "msg_a9d05d0ade96·msg_7d23ebae7985·msg_0d9c3b13f113·msg_05be62cbca23 / msg_a07bbc971c87 / msg_7394ed0c36ed",
-      "next": "W00 설계 문서 SHA 회수. 스캔/반환 상한 분리, 예약 이력 보존 및 DB에서 missing 제외. 구현 전 검토.",
-      "lastReviewedAt": "2026-11-18T09:33:35.360Z"
+      "evidence": "msg_a9d05d0ade96·msg_7d23ebae7985·msg_0d9c3b13f113·msg_05be62cbca23 / msg_a07bbc971c87 / msg_7394ed0c36ed / 04c7c2322 / msg_05865a2ff2b8",
+      "next": "W01r 신규 후속 SQL과 격리 시험 초안. A1 기존 파일 보존.",
+      "lastReviewedAt": "2026-11-18T09:36:23.075Z",
+      "sha": "04c7c2322"
+    },
+    {
+      "task_id": "AIF-20261118-W01r",
+      "parent_task_id": "AIF-20261118-W01q",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "누락 자산 후속 SQL·격리 시험 초안",
+      "status": "dispatched",
+      "delivery": "local_migration_and_test_draft_requested",
+      "scopeRef": "신규 후속 migration, 신규 격리 시험, W00 해당 근거",
+      "constraints": "기존 migration·실행자/route/fixture 변경·SQL 실행/DB 생성·운영/Storage/비용/배포 0",
+      "completion": "권한·인덱스 정렬·창/반환 상한·metadata 두 기준·예약 보존·격리 시험 경계 명시",
+      "evidence": "04c7c2322·msg_a289fd0c172a",
+      "next": "정확 경로와 초안 SHA 회수 후 정적 검토.",
+      "lastReviewedAt": "2026-11-18T09:36:23.075Z"
     }
   ]
 }
