@@ -4428,14 +4428,21 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "원본 자산 조회 OFF 기본 경로·모의시험",
-      "status": "running",
-      "delivery": "exact_read_scope_and_SDK_contract_acknowledged",
+      "status": "reviewing",
+      "delivery": "asset_read_route_source_received_independent_exact_signed_path_review",
       "scopeRef": "assets/read.ts·api/aif/assets/[id]/route.ts·새모의시험1·본인기존문서",
       "constraints": "동일모드OFF·실DB/Storage/키/AI/서버/설치/build/push0·SQL/공용변경0·새UI/표0",
       "completion": "owner/id/상태/객체경로검증·서명URL/캐시·오류는503/상태보존·missing확정불가시자동쓰기제외명시·실route모의/tsc · OFF0은자산용의존성만/기존accessDB와구분·signedURL path포함가능/원문행로그0·서명URL120초잔존한계",
-      "evidence": "Mastermsg_c5faabaaa12c·W00 §18조회계약 · msg_8d3bac1363ac 정확경로3/SDK2.117.3 exists400도false·보수missing안수락",
-      "next": "인증먼저OFF·owner/id/경로/서명120s·missing자동쓰기0 구현/모의시험→Mac",
-      "lastReviewedAt": "2026-11-18T07:12:45.702Z"
+      "evidence": "Mastermsg_c5faabaaa12c·W00 §18조회계약 · msg_8d3bac1363ac 정확경로3/SDK2.117.3 exists400도false·보수missing안수락 · msg_578ca859774a/53fe00a72·Masterread실물읽기·Macmsg_12759d8519c6",
+      "next": "Mac 실제GET/모의상태·서명URL정확경로/응답불명경계 결과회수",
+      "lastReviewedAt": "2026-11-18T07:16:18.683Z",
+      "sha": "53fe00a72",
+      "validation": {
+        "author": "전체122/122·tsc0·실GET+주입handler16·변형4유형·실API0",
+        "master": "off인증후자산deps0·owner/path再검증·ready서명/실패503보존 직접읽기. signedURLsamehost다른객체·rowundefined404 경계독립확인배정",
+        "independent": "지정실GET/실모듈모의검수중",
+        "limits": "missing자동쓰기0·URL120s권한철회뒤잔존가능·실DB/Storage/ON0"
+      }
     }
   ],
   "programOverrides": [
@@ -4949,20 +4956,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T07:12:45.702Z",
+      "at": "2026-11-18T07:16:18.683Z",
       "timezone": "Asia/Seoul",
-      "trigger": "원본조회 착수/SDK근거보고",
-      "scope": "정확3경로/SDK signedURL/exists false계약·인증OFF/부재불명",
+      "trigger": "자산조회소스완료 이벤트",
+      "scope": "53fe read/GETroute·서명URL/owner/캐시·실모의범위",
       "evidence": [
-        "msg_8d3bac1363ac"
+        "msg_578ca859774a",
+        "Masterread직접읽기·Macmsg_12759d8519c6"
       ],
-      "judgment": "A1 missing자동쓰기 제외확정·auth먼저OFF 자산의존성0/기존auth내부0아님·정확범위구현착수",
+      "judgment": "작성자완료수신·정확서명객체/모양불명경계포함 독립검수배정·고정SHA유지·실외부0",
       "unverified": [
-        "조회결과소스/모의통합",
-        "실Storage identity/URL실효·권한철회잔존",
-        "기타사람/운영승인"
+        "Mac지정결과",
+        "실Supabase Storage/ON",
+        "다른승인/사람단계"
       ],
-      "nextAction": "고정소스/시험결과회수→독립검수·실호출0"
+      "nextAction": "지적한번취합→수정반환/지정수락"
     },
     "notifications": [
       {
