@@ -345,3 +345,5 @@ WS-20261118-06 CC-WORKSPACE-01: ai-work-workspace/src/litpage/web/features/page/
 WS-20261118-06 추가 CC-WORKSPACE-01: ai-work-workspace/src/litpage/web/features/page/PeekPanel.tsx(openPageMenu 호출 두 곳에 peek 문맥 전달만)·PageMenu.tsx(openPageMenu·Switch·pageSetting·togglePageSetting의 peek 선택 인자, page_full_width 판정만)·tests/integration/pageWidth.test.ts. 옆 미리보기 메뉴의 전체 너비 표시·첫 토글을 본문 기본 폭과 일치. 실제 설정 쓰기/빌드/배포/push0.
 
 WS-20261118-06 점유 해제 CC-WORKSPACE-01: 40896d037·236415698·172e3f41f 로컬 검수 종결(Master msg_36d3d349cafa)·미배포. page/PageView.tsx·PageMenu.tsx·PeekPanel.tsx·pageWidth.ts·shell/shortcuts.ts·calendar.css·tests/integration/pageWidth.test.ts 점유 해제. 분리 기록: 실제 화면 미확인, 표 행 페이지 배치 기본 폭은 메뉴 스위치에 원래 반영 안 됨(변경 0).
+
+WS-20261119-01 CC-WORKSPACE-01: 주인님 지시(노션 공개 페이지를 저장한 HTML 가져오기 보완). ai-work-workspace/src/litpage/server/content/html.ts(노션 화면 HTML 인식: notion-page-content 본문 범위·notion-*-block 클래스→블록 변환·iframe 주소 보존)·새 tests/integration/notionSavedHtml.test.ts 및 본인 문서. 기존 HTML/ZIP 가져오기 동작 보존, import.ts·DB·API·권한 변경0, 운영 쓰기/빌드/배포/push0.
