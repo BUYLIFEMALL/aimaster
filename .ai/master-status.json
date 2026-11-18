@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T20:03:45.969Z",
+  "checkedAt": "2026-11-18T20:04:49.807Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -6022,10 +6022,10 @@
       "reviewer": "CX-MASTER-01",
       "title": "메이커 M2 사진 제안 화면·저장 응답 연결",
       "status": "reviewing",
-      "delivery": "contradictory_sdk_codes_fix_returned_recheck_dispatched",
-      "evidence": "msg_b70ca64fa3f5·dc779bc2a·msg_c506ba34f9a0·msg_f0cc2be892c9·b658c10e4·4819453de·msg_a43696ef5490·msg_3c336c319413·msg_d7d48cd11e2e·msg_e3de9bf4cbc4·2761ee0e1·msg_7006be1418d0·msg_65c79c2fe3bd·msg_4ba128209829·msg_e53aca4fc578·630ac8167·msg_874fa890eb89·msg_bcd7364f56e4·msg_2419ded1b505·msg_46ca82d3c8d9·7bf4efb2f·msg_e6a472310f04",
-      "next": "상충 Storage 409 코드는 불명 처리, 후속 호출 0. 작성자 모의 30/30·전체 537/537, Mac 최종 재검수 전달.",
-      "lastReviewedAt": "2026-11-18T20:03:45.969Z",
+      "delivery": "product_independent_pass_test_reachability_cleanup_dispatched",
+      "evidence": "msg_b70ca64fa3f5·dc779bc2a·msg_c506ba34f9a0·msg_f0cc2be892c9·b658c10e4·4819453de·msg_a43696ef5490·msg_3c336c319413·msg_d7d48cd11e2e·msg_e3de9bf4cbc4·2761ee0e1·msg_7006be1418d0·msg_65c79c2fe3bd·msg_4ba128209829·msg_e53aca4fc578·630ac8167·msg_874fa890eb89·msg_bcd7364f56e4·msg_2419ded1b505·msg_46ca82d3c8d9·7bf4efb2f·msg_e6a472310f04·msg_984ad49be819·msg_843e68c20bf4·msg_8c090ffa44f6",
+      "next": "Mac 독립 30/30 및 상충 코드 별도 모의 통과. 테스트 미실행 단언만 정리 배정. 실제 Storage/Lab·배포 없음.",
+      "lastReviewedAt": "2026-11-18T20:04:49.807Z",
       "sha": "7bf4efb2f"
     },
     {
@@ -6035,11 +6035,11 @@
       "reviewer": "CX-MASTER-01",
       "title": "부동산 고객관리 화면 개선",
       "status": "reviewing",
-      "delivery": "l1_l2_independent_pass_address_and_label_edge_fixes_dispatched",
-      "evidence": "msg_689770148f5e·ac4d4bf59·msg_1d502a93ca22·msg_c1583351e267·c8d479cb9·msg_d05ff0a510fa·msg_dab6052e5c7b·d6786b9db·16d982cec·msg_7a575e8308b1·msg_c0c512ee2651·msg_1884123d9d90",
-      "next": "지역코드 조회와 발송 불가 합계 독립 9/9. 경기 광주시 해석과 발송 이력 문구 반례 보완 배정. 문자·운영 없음.",
-      "lastReviewedAt": "2026-11-18T20:03:45.969Z",
-      "sha": "d6786b9db"
+      "delivery": "l1_l2_edges_returned_independent_recheck_dispatched",
+      "evidence": "msg_689770148f5e·ac4d4bf59·msg_1d502a93ca22·msg_c1583351e267·c8d479cb9·msg_d05ff0a510fa·msg_dab6052e5c7b·d6786b9db·16d982cec·msg_7a575e8308b1·msg_c0c512ee2651·msg_1884123d9d90·msg_42cf6aa807dc·05902858a·msg_231ce7581816",
+      "next": "경기 광주시·계약일 누락·발송 이력 중립 문구 보완. 작성자 35/35, Mac 독립 재검수. U-1 순서 유지.",
+      "lastReviewedAt": "2026-11-18T20:04:49.807Z",
+      "sha": "05902858a"
     }
   ],
   "programOverrides": [
