@@ -6,6 +6,7 @@ import { DEFAULT_INTERVAL_MINUTES } from "@/lib/schedule";
 import ScheduleClient from "../schedule/ScheduleClient";
 import WeeklyReportCard from "../schedule/WeeklyReportCard";
 import LimitNotice from "@/components/LimitNotice";
+import { suggestRegionsFromOtherPrograms, type OwnTargetRow, type WatchRow } from "@/lib/crossWatch";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -35,6 +36,18 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
       .eq("user_id", user.id)
       .maybeSingle(),
   ]);
+  // 연계 3단계(2026-11-19): 실거래·상가에 켠 시군구를 제안만. 회원 세션 + 본인 행 RLS로 읽기만, 실패해도 화면은 그대로.
+  // 켜짐 판정(is_active)과 「이미 동 감시 중」 판정은 순수 함수 lib/crossWatch.ts에서
+  const loose = supabase as unknown as { from: (t: string) => { select: (c: string) => PromiseLike<{ data: Record<string, string | boolean | null>[] | null }> } };
+  const [salesRes, commercialRes] = await Promise.all([
+    loose.from("real_estate_watch_districts").select("sgg_cd, is_active").then((r) => r, () => ({ data: null })),
+    loose.from("commercial_land_watch").select("sgg_cd, is_active").then((r) => r, () => ({ data: null })),
+  ]);
+  const crossSuggestions = suggestRegionsFromOtherPrograms({
+    own: (data ?? []) as OwnTargetRow[],
+    sales: (salesRes.data ?? []) as unknown as WatchRow[],
+    commercial: (commercialRes.data ?? []) as unknown as WatchRow[],
+  });
 
   return (
     <div className="studio-shell">
@@ -47,7 +60,7 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
             <p className="lede">네이버 부동산에서 단지를 열고 초록 버튼 한 번만 누르면 추가돼요. 최대 10곳까지 등록하고, 단지마다 켜고 끌 수 있어요.</p>
           </div>
         </div>
-        <TargetsClient initialTargets={(data ?? []) as TargetRow[]} prefill={prefill} />
+        <TargetsClient initialTargets={(data ?? []) as TargetRow[]} prefill={prefill} crossSuggestions={crossSuggestions} />
         <div id="schedule" style={{ scrollMarginTop: 24, marginTop: 32 }}>
           <h2>⏰ 얼마나 자주 살펴볼까요?</h2>
           <p className="lede">크롬이 켜져 있는 동안 회원님 PC의 확장이 정한 간격마다 감시 대상을 살펴봅니다. 바꾸면 바로 저장돼요.</p>

@@ -45,3 +45,4 @@
 ## 6. 진행
 - 1단계 실거래: `a6544db4e`, 보완 `e7084ca24`(켜진 감시만) — Mac 독립 27/27, Master 수락(미배포).
 - 2단계 상가(2026-11-19): `commercial-land-trade-alert/src/lib/crossWatch.ts`(출처 실거래·매물 알림)·시험 3개·`districts/page.tsx` 상자. 상가 `npm test` 68/68, tsc 0. 상가 매물 감시 지역은 원래 상가 실거래 지역을 자동으로 켜므로 출처에서 뺌.
+- 3단계 매물 알림(2026-11-19): `realty-listing-alert/lib/crossWatch.ts`(출처 실거래·상가, 켜진 동 감시가 있는 시군구는 제외)·시험 3개·`app/targets/{page,TargetsClient,RegionPicker}.tsx` — 제안 버튼은 시·도·시·군·구만 미리 선택, 동·추가는 회원. `npm test` 123/123, tsc 0.

@@ -5,6 +5,7 @@ import { addTargetAction, deleteTargetAction, toggleTargetAction, updateTargetAc
 import { MAX_TARGETS, TRADE_TYPES, parseComplexNo } from "@/lib/targets";
 import { buildTradeListLink } from "@/lib/tradeLink";
 import RegionPicker from "./RegionPicker";
+import type { CrossSuggestion } from "@/lib/crossWatch";
 import { askExtension } from "@/lib/extensionBridge";
 import { createClient } from "@/lib/supabase/client";
 import { overlapNotesFor, type OverlapCheck } from "@/lib/targetOverlap";
@@ -158,7 +159,7 @@ function AddressInput() {
   );
 }
 
-export default function TargetsClient({ initialTargets, prefill = null }: { initialTargets: TargetRow[]; prefill?: Prefill }) {
+export default function TargetsClient({ initialTargets, prefill = null, crossSuggestions = [] }: { initialTargets: TargetRow[]; prefill?: Prefill; crossSuggestions?: CrossSuggestion[] }) {
   const [state, action, adding] = useActionState(addTargetAction, {});
   const full = initialTargets.length >= MAX_TARGETS;
   // U-5: 이 브라우저의 확장에 마지막 회차 겹침을 묻는다(확장 연결 계정 = 로그인 계정일 때만 답함, 서버 미경유)
@@ -195,7 +196,7 @@ export default function TargetsClient({ initialTargets, prefill = null }: { init
             </div>
             <details className="ra-manual" open>
               <summary>🏙 지역(시·구·동)으로 추가하기</summary>
-              <RegionPicker disabled={full} />
+              <RegionPicker disabled={full} suggestions={crossSuggestions} />
             </details>
             <details className="ra-manual" open={!!prefill}>
               <summary>✏️ 인터넷 주소를 복사해서 추가하기</summary>

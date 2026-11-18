@@ -5,8 +5,9 @@
 import { useActionState, useEffect, useMemo, useState } from "react";
 import { addRegionTargetAction, type TargetActionState } from "@/lib/actions/targets";
 import { DEFAULT_REGION_MAX, REGION_MAX_OPTIONS, type RegionSido } from "@/lib/regions";
+import type { CrossSuggestion } from "@/lib/crossWatch";
 
-export default function RegionPicker({ disabled }: { disabled: boolean }) {
+export default function RegionPicker({ disabled, suggestions = [] }: { disabled: boolean; suggestions?: CrossSuggestion[] }) {
   const [regions, setRegions] = useState<RegionSido[] | null>(null);
   const [sido, setSido] = useState<string | null>(null);
   const [sgg, setSgg] = useState<string | null>(null);
@@ -26,8 +27,29 @@ export default function RegionPicker({ disabled }: { disabled: boolean }) {
 
   if (!regions) return <p className="card-caption">지역 목록을 불러오는 중…</p>;
 
+  // 연계 3단계(2026-11-19): 실거래·상가에 켠 시군구를 제안 — 누르면 ①·②만 미리 골라 두고 ③ 동과 「추가」는 회원이 한다(자동 추가 없음)
+  const picks = suggestions
+    .map((s) => {
+      const sd = regions.find((r) => r.c === s.sgg_cd.slice(0, 2));
+      const g = sd?.g.find((x) => x.c === s.sgg_cd);
+      return sd && g ? { ...s, sido: sd.c, name: g.n } : null;
+    })
+    .filter((x): x is CrossSuggestion & { sido: string; name: string } => x !== null);
+
   return (
     <div className="ra-region">
+      {picks.length > 0 && (
+        <div className="ra-region-cross">
+          <p className="ra-region-step">🔗 다른 부동산 프로그램에서 켠 지역 — 누르면 아래에서 동만 고르면 돼요(자동으로 추가하지 않아요)</p>
+          <div className="ra-region-grid">
+            {picks.map((p) => (
+              <button key={p.sgg_cd} type="button" className={`ra-region-btn ${sgg === p.sgg_cd ? "on" : ""}`} onClick={() => { setSido(p.sido); setSgg(p.sgg_cd); setDong(null); }}>
+                {p.name} <small>({p.sources.join("·")})</small>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       <p className="ra-region-step">① 시·도</p>
       <div className="ra-region-grid">
         {regions.map((s) => (
