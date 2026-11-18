@@ -39,19 +39,25 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
     return NextResponse.json({ error: "잘못된 요청 본문입니다." }, { status: 400 });
   }
 
-  const admin = createAdminClient();
-
-  const { data: source, error: sourceError } = await admin
-    .from("crm_form_sources")
-    .select(
-      "id, user_id, name, field_mapping, notify_email, notify_telegram, notify_sms, notify_alimtalk, notify_friendtalk, kakao_template_id, kakao_variables, is_active",
-    )
-    .eq("webhook_token", token)
-    .maybeSingle();
-
-  // 조회 실패(DB 오류)와 진짜 없음·꺼짐을 구분한다 — 실패를 404로 숨기지 않는다.
-  if (sourceError) {
-    return NextResponse.json({ error: "폼 연결을 확인하지 못했습니다. 잠시 뒤 다시 시도해 주세요." }, { status: 500 });
+  // 관리자 DB 클라이언트 생성(설정 누락 등)과 폼 연결 조회에서 난 예외도 오류 응답(DB 오류)과 같은 고정 500으로 바꾼다 —
+  // 예외가 밖으로 나가 원문·토큰이 응답이나 서버 로그로 퍼지지 않게 한다. 발송 뒤 예외·insert 결과 불명 정책과는 별개.
+  const SOURCE_UNAVAILABLE = "폼 연결을 확인하지 못했습니다. 잠시 뒤 다시 시도해 주세요.";
+  let admin: ReturnType<typeof createAdminClient>;
+  let source: SourceRow | null = null;
+  try {
+    admin = createAdminClient();
+    const { data, error: sourceError } = await admin
+      .from("crm_form_sources")
+      .select(
+        "id, user_id, name, field_mapping, notify_email, notify_telegram, notify_sms, notify_alimtalk, notify_friendtalk, kakao_template_id, kakao_variables, is_active",
+      )
+      .eq("webhook_token", token)
+      .maybeSingle();
+    // 조회 실패(DB 오류)와 진짜 없음·꺼짐을 구분한다 — 실패를 404로 숨기지 않는다.
+    if (sourceError) return NextResponse.json({ error: SOURCE_UNAVAILABLE }, { status: 500 });
+    source = data as SourceRow | null;
+  } catch {
+    return NextResponse.json({ error: SOURCE_UNAVAILABLE }, { status: 500 });
   }
   if (!source || !source.is_active) {
     return NextResponse.json({ error: "등록되지 않았거나 비활성화된 폼입니다." }, { status: 404 });
@@ -153,8 +159,27 @@ async function confirmDuplicate(
       .eq("dedupe_key", dedupeKey)
       .maybeSingle();
     if (error || data === null || typeof data !== "object" || Array.isArray(data)) return false;
-    return typeof (data as { id?: unknown }).id === "string";
+    // DB가 돌려주는 접수 id는 UUID다 — 빈 값·공백·UUID가 아닌 문자열은 확인된 기존 행으로 보지 않는다.
+    const id = (data as { id?: unknown }).id;
+    return typeof id === "string" && UUID_RE.test(id);
   } catch {
     return false;
   }
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+interface SourceRow {
+  id: string;
+  user_id: string;
+  name: string;
+  field_mapping: unknown;
+  notify_email: boolean;
+  notify_telegram: boolean;
+  notify_sms: boolean;
+  notify_alimtalk: boolean;
+  notify_friendtalk: boolean;
+  kakao_template_id: string | null;
+  kakao_variables: unknown;
+  is_active: boolean;
 }

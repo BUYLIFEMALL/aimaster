@@ -16,7 +16,7 @@ const HOOKS = [
   `const req = createRequire(pathToFileURL(ROOT + "/package.json"));`,
   `const ts = req("typescript");`,
   `const FAKES = ${JSON.stringify({
-    "@/lib/supabase/admin": "export function createAdminClient(){ return globalThis.__whFake.client(); }",
+    "@/lib/supabase/admin": "export function createAdminClient(){ if (globalThis.__whAdminThrow) throw new Error(globalThis.__whAdminThrow); return globalThis.__whFake.client(); }",
     "@/lib/crm/dispatch": "export async function dispatchSubmissionNotifications(source, submission){ globalThis.__whDispatched.push(submission.id); return { status: 'notified' }; }",
     "next/server": "export const NextResponse = { json(body, init) { return { status: (init && init.status) || 200, body }; } }; export class NextRequest {}",
     "server-only": "export {};",
@@ -89,7 +89,7 @@ function makeDb(opts = {}) {
         if (v.dedupe_key != null && rows.some((r) => r.user_id === v.user_id && r.form_source_id === v.form_source_id && r.dedupe_key === v.dedupe_key)) {
           return { data: null, error: { code: "23505", message: DUP_MSG } };
         }
-        const row = { id: "row-" + (rows.length + 1), status: "received", dedupe_key: null, ...v };
+        const row = { id: "00000000-0000-4000-8000-" + String(rows.length + 1).padStart(12, "0"), status: "received", dedupe_key: null, ...v };
         rows.push(row);
         if (hooks.afterInsert) { const r = hooks.afterInsert(row); if (r !== undefined) return r; }
         return { data: { id: row.id, user_id: row.user_id, name: row.name, phone: row.phone, email: row.email, raw_values: row.raw_values }, error: null };
@@ -108,6 +108,7 @@ function makeDb(opts = {}) {
   };
   globalThis.__whFake = { client: () => fakeClient((q) => db.answer(q)) };
   globalThis.__whDispatched = [];
+  globalThis.__whAdminThrow = null;
   return db;
 }
 
@@ -150,7 +151,7 @@ test("v2 순차 두 번: 1행·발송 1번, 두 번째는 200 duplicate·발송 
   assert.equal(db.rows.length, 1);
   assert.equal(db.rows[0].dedupe_key, `v2:sheet:${FILE}:0:5:1794969285544`);
   assert.equal(db.rows[0].user_id, OWNER);
-  assert.deepEqual(globalThis.__whDispatched, ["row-1"]);
+  assert.deepEqual(globalThis.__whDispatched, ["00000000-0000-4000-8000-000000000001"]);
 });
 
 test("v2 동시 두 번: 1행·발송 1번", async () => {
@@ -242,4 +243,60 @@ test("오류 응답 본문에 토큰·본문 값·DB 원문이 없다", async ()
   const r = await post("tok-1", v2());
   assert.equal(r.status, 500);
   assert.doesNotMatch(JSON.stringify(r.body), SECRETS);
+});
+
+
+// ── U1 보완(Mac msg_24a60c98c1f9) ────────────────────────────────────────────────────────────
+test("중복 확인: 기존 행 id가 UUID가 아니면(빈 값·공백·not-a-uuid·UUID 비슷한 문자열) duplicate 아님 → 500·발송 0", async () => {
+  for (const id of ["", " ", "not-a-uuid", "00000000-0000-4000-8000-00000000000Z", " 00000000-0000-4000-8000-000000000001"]) {
+    makeDb({ hooks: { before: (q) => {
+      if (q.ops.some((o) => o[0] === "insert")) return { data: null, error: { code: "23505", message: DUP_MSG } };
+      if (q.single === "maybeSingle" && q.table === "crm_submissions") return { data: { id }, error: null };
+      return undefined;
+    } } });
+    const r = await post("tok-1", v2());
+    assert.equal(r.status, 500, JSON.stringify(id));
+    assert.notEqual(r.body.duplicate, true);
+    assert.deepEqual(globalThis.__whDispatched, []);
+  }
+});
+
+test("중복 확인: 정상 UUID 기존 행이면 duplicate(회귀)", async () => {
+  makeDb({ hooks: { before: (q) => {
+    if (q.ops.some((o) => o[0] === "insert")) return { data: null, error: { code: "23505", message: DUP_MSG } };
+    if (q.single === "maybeSingle" && q.table === "crm_submissions") return { data: { id: "3f2504e0-4f89-41d3-9a0c-0305e82c3301" }, error: null };
+    return undefined;
+  } } });
+  const r = await post("tok-1", v2());
+  assert.deepEqual([r.status, r.body.duplicate], [200, true]);
+});
+
+test("폼 연결 조회가 예외를 던지면 같은 고정 500·발송 0·원문/토큰/본문 노출 0(밖으로 던지지 않음)", async () => {
+  makeDb({ hooks: { before: (q) => { if (q.table === "crm_form_sources") throw new Error("fetch failed tok-1 010-1111-2222 secret-detail"); return undefined; } } });
+  const r = await post("tok-1", v2());
+  assert.equal(r.status, 500);
+  assert.equal(r.body.error, "폼 연결을 확인하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+  assert.doesNotMatch(JSON.stringify(r.body), /secret-detail|tok-1|010-1111-2222/);
+  assert.deepEqual(globalThis.__whDispatched, []);
+});
+
+test("관리자 DB 클라이언트 생성 예외(설정 누락 등)도 고정 500·원문 노출 0", async () => {
+  makeDb();
+  globalThis.__whAdminThrow = "Missing SUPABASE_SECRET_KEY secret-env";
+  const r = await post("tok-1", v2());
+  assert.equal(r.status, 500);
+  assert.doesNotMatch(JSON.stringify(r.body), /secret-env|SUPABASE/);
+  assert.deepEqual(globalThis.__whDispatched, []);
+});
+
+test("폼 연결 회귀: 정상 200 / 없음 404 / 꺼짐 404 / 조회 오류 500 / 조회 예외 500", async () => {
+  makeDb();
+  assert.equal((await post("tok-1", v2())).status, 200);
+  assert.equal((await post("tok-none", v2())).status, 404);
+  makeDb({ sources: [{ id: SRC1, user_id: OWNER, webhook_token: "tok-off", is_active: false, name: "x", field_mapping: {} }] });
+  assert.equal((await post("tok-off", v2())).status, 404);
+  makeDb({ hooks: { before: (q) => (q.table === "crm_form_sources" ? { data: null, error: { message: "x" } } : undefined) } });
+  assert.equal((await post("tok-1", v2())).status, 500);
+  makeDb({ hooks: { before: (q) => { if (q.table === "crm_form_sources") throw new Error("x"); return undefined; } } });
+  assert.equal((await post("tok-1", v2())).status, 500);
 });
