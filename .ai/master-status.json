@@ -4018,9 +4018,9 @@
       "owner": "CC-BLOG-01",
       "status": "queued",
       "delivery": "queued_person_prompt",
-      "next": "기존 사람선택창 해소후T07 최소구현, 배포비용기존한곳회신대기",
-      "evidence": "직접지시msg_9d1788a8c908/ad284aaf636b/2f2ef4a6994f·배정msg_2ec6df81d99d·사람prompt로전달보류",
-      "lastReviewedAt": "2026-11-18T04:21:29.557Z"
+      "next": "기존사람선택창해소/새3배포승인수신·T07 Excel미리보기 배포포함필수vs후속 근거정리→단일Blog담당진행",
+      "evidence": "직접지시msg_9d1788a8c908/ad284aaf636b/2f2ef4a6994f·배정msg_2ec6df81d99d·사람prompt로전달보류 · msg_6c2b57cab944 직접승인수신·3배포별도BLOG02",
+      "lastReviewedAt": "2026-11-18T07:21:05.785Z"
     },
     {
       "task_id": "QA-20261118-BLOG-01",
@@ -4428,21 +4428,59 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "원본 자산 조회 OFF 기본 경로·모의시험",
-      "status": "needs_revision",
-      "delivery": "read_route_core_pass_signed_URL_exact_object_mismatch_returned",
+      "status": "reviewing",
+      "delivery": "signed_URL_exact_path_fix_received_focused_independent_review",
       "scopeRef": "assets/read.ts·api/aif/assets/[id]/route.ts·새모의시험1·본인기존문서",
       "constraints": "동일모드OFF·실DB/Storage/키/AI/서버/설치/build/push0·SQL/공용변경0·새UI/표0",
       "completion": "owner/id/상태/객체경로검증·서명URL/캐시·오류는503/상태보존·missing확정불가시자동쓰기제외명시·실route모의/tsc · OFF0은자산용의존성만/기존accessDB와구분·signedURL path포함가능/원문행로그0·서명URL120초잔존한계",
-      "evidence": "Mastermsg_c5faabaaa12c·W00 §18조회계약 · msg_8d3bac1363ac 정확경로3/SDK2.117.3 exists400도false·보수missing안수락 · msg_578ca859774a/53fe00a72·Masterread실물읽기·Macmsg_12759d8519c6 · Macmsg_dc983e3d26a6 실제GET16/16+URL9",
-      "next": "기대bucket/정확path/단일token·정상fixture·rowundefined503 최소수정→관련모의/tsc→Mac",
-      "lastReviewedAt": "2026-11-18T07:17:48.307Z",
-      "sha": "53fe00a72",
+      "evidence": "Mastermsg_c5faabaaa12c·W00 §18조회계약 · msg_8d3bac1363ac 정확경로3/SDK2.117.3 exists400도false·보수missing안수락 · msg_578ca859774a/53fe00a72·Masterread실물읽기·Macmsg_12759d8519c6 · Macmsg_dc983e3d26a6 실제GET16/16+URL9 · msg_7e1110f677b3/403fca68e·Macmsg_1e50088f495a",
+      "next": "Mac403 정확경로/단일token/rowundefined 경계재검수",
+      "lastReviewedAt": "2026-11-18T07:21:05.785Z",
+      "sha": "403fca68e",
       "validation": {
-        "author": "전체122/122·tsc0·실GET+주입handler16·변형4유형·실API0",
+        "author": "전체122/122·tsc0·실GET+주입handler16·변형4유형·실API0 · 403 반례2실패→관련17/전체123·tsc0·정확원문path/단일token/undefined503",
         "master": "off인증후자산deps0·owner/path再검증·ready서명/실패503보존 직접읽기. signedURLsamehost다른객체·rowundefined404 경계독립확인배정",
         "independent": "native실GET16/16·추가URL9: 동일origin다른bucket/타회원/asset/random/%ZZ도200 P2F01. 실제타회원서명발급/노출공격재현아님. OFF/owner/state/202/TTL120/no-store/503쓰기0확인·wrongtoken키503/중복token200",
         "limits": "missing자동쓰기0·URL120s권한철회뒤잔존가능·실DB/Storage/ON0"
       }
+    },
+    {
+      "task_id": "BLOG-20261118-02",
+      "owner": "CC-BLOG-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "승인된 블로그3프로그램 순차묶음 배포",
+      "status": "dispatched",
+      "delivery": "owner_approved_max_three_Vercel_builds_single_executor",
+      "scopeRef": "tistory-auto-blog1.98→blog-neighbor-care1.22→web-crawler T04+05+07 정확manifest",
+      "constraints": "Vercel최대3·T04별도1은세번째통합/추가4번째0·공용masterpush0·순차Ready/alias/버전·남의AGENTS변경보존·새AI0",
+      "completion": "프로젝트/팀/기준SHA/점유/큐/notice/widget/pending·필요검사/빌드·각운영Ready/alias/버전·티스토리기존초안미리보기1/web실화면",
+      "evidence": "주인님직접승인msg_6c2b57cab944·Master배정msg_2eda31a938b1",
+      "next": "Blog사전manifest/운영/예산보고→순차단일실행·추가비용시자동확대0",
+      "lastReviewedAt": "2026-11-18T07:21:05.785Z"
+    },
+    {
+      "task_id": "BLOG-20261118-03",
+      "owner": "CC-BLOG-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "T08 구형 ghost-scraper 백업후정리 승인범위 구체화",
+      "status": "queued",
+      "delivery": "owner_approved_cleanup_backup_and_tag_first_exact_scope_after_releases",
+      "evidence": "주인님직접msg_6c2b57cab944·website기존Mac결과msg_efecea98d20b",
+      "constraints": "세배포뒤정확삭제범위/백업/태그선행·안내/410보존·비밀/env/node_modules백업제외·새빌드/공유push0",
+      "next": "기존website검수재사용·정확백업/삭제범위보고→착수범위확정",
+      "lastReviewedAt": "2026-11-18T07:21:05.785Z"
+    },
+    {
+      "task_id": "BLOG-20261118-04",
+      "owner": "CC-BLOG-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "T03 도메인 구조 캐시 회원별 격리 결정 반영",
+      "status": "queued",
+      "delivery": "owner_product_decision_recorded_operating_DDL_Render_not_approved",
+      "evidence": "주인님직접msg_6c2b57cab944 회원별로나누기",
+      "constraints": "현재는플랜반영·DB구조/Render운영재배포별도범위승인·실DDL/Render0",
+      "next": "T07Excel/T06선행관계확인뒤정확DB/Render플랜·비용취합",
+      "lastReviewedAt": "2026-11-18T07:21:05.785Z"
     }
   ],
   "programOverrides": [
@@ -4930,6 +4968,11 @@
       "condition": "Mac ESM/쇼핑제휴 실확장 시험",
       "action": "Mac준비후 ESM+/네이버 로그인·브랜드커넥트실링크1개·필요시확장폴더선택은주인님직접",
       "recommendation": "정상기존설치는재사용·ESM입력만1/외부등록0·네이버대기열까지·기존B/Gmail/Blog창보존"
+    },
+    {
+      "condition": "블로그3프로그램 묶음배포/T04/T08/T03 결정",
+      "action": "주인님직접선택창 승인: Vercel최대3·T04보안빌드1은세번째통합·T08백업태그선정리·T03회원별결정",
+      "recommendation": "중복승인질문0·Blog단일순차담당·T03운영DDL/Render별도·T08정확삭제범위후착수"
     }
   ],
   "redispatch": {
@@ -4956,20 +4999,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T07:17:48.307Z",
+      "at": "2026-11-18T07:21:05.785Z",
       "timezone": "Asia/Seoul",
-      "trigger": "조회독립검수반례",
-      "scope": "53fe 실제GET/실read모듈·서명경로추가9조건",
+      "trigger": "Blog 주인님직접승인·SNS수정완료",
+      "scope": "3배포/T04통합예산/T08백업선행/T03회원별결정·SNS403",
       "evidence": [
-        "msg_dc983e3d26a6"
+        "msg_6c2b57cab944·Blogmsg_2eda31a938b1",
+        "msg_7e1110f677b3/403·Macmsg_1e50088f495a"
       ],
-      "judgment": "기본모의행동수락·동일host다른객체URL정상승인P2 최소반환·실데이터피해단정0",
+      "judgment": "승인범위취합·Blog단일순차배포배정/추가4번째빌드0·DB/Render결정과운영승인분리·SNS고정국소재검수",
       "unverified": [
-        "정확서명경로수정",
-        "실Storage권한/서명동작",
-        "기타운영사람단계"
+        "Blog사전manifest/착수/실배포",
+        "SNS403독립결과",
+        "T08정확삭제범위/T03운영플랜"
       ],
-      "nextAction": "한패치결과회수→국소재검수·실호출0"
+      "nextAction": "Blog수락/사전대조·Mac403결과 회수→순번추적"
     },
     "notifications": [
       {

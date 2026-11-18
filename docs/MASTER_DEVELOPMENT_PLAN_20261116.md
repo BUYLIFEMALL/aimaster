@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 16:17:48 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 16:21:05 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 16:17:48 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 16:21:05 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 53fe 실제GET/실read모듈·서명경로추가9조건 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 3배포/T04통합예산/T08백업선행/T03회원별결정·SNS403 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 16:17:48 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 275개: done 255개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 7개 · superseded 1개 · queued 1개 · reviewing 1개 · needs_revision 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 278개: done 255개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 7개 · superseded 1개 · queued 3개 · reviewing 2개 · dispatched 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -403,7 +403,7 @@ Master 마지막 실제 점검: 2026-11-18 16:17:48 KST · 실행 중 점검 주
 | ECOM-20261118-05 | CC-ECOM-01 | done / primary_documents_read_no_real_api | 무료 이미지 공식지원/본인키 무료할당량 대안 읽기조사 | 후보/장수는조사범위·파생참고치로만, 무료실행방식 주인님 결정대기·실생성0 |
 | CRM-20261118-05 | CC-B2B-BACK-01 | done / specified_source_review_accepted_unreleased | 미확정 접수 후속알림 기본보류·가시성 | 미배포 묶음 보존·실운영 보호 주장0, 후속 CRM18-06 웹훅 연결 읽기계획 검토 |
 | CRM-20261118-06 | CC-B2B-BACK-01 | done / u1_u2_mitigation_source_accepted_unreleased_sdk_release_blocked | 웹훅 중복 방지 실제 연결 최소 단위 계획 | SDK재시도위험 운영차단은 CRM18-07로이관·미배포소스동결/운영보호완료아님 |
-| BLOG-20261118-01 | CC-BLOG-01 | queued / queued_person_prompt | T07 엑셀 미리보기 남은 단위 및 배포 선행 정리 | 기존 사람선택창 해소후T07 최소구현, 배포비용기존한곳회신대기 |
+| BLOG-20261118-01 | CC-BLOG-01 | queued / queued_person_prompt | T07 엑셀 미리보기 남은 단위 및 배포 선행 정리 | 기존사람선택창해소/새3배포승인수신·T07 Excel미리보기 배포포함필수vs후속 근거정리→단일Blog담당진행 |
 | QA-20261118-BLOG-01 | CX-QA-01 | waiting_human / website_complete_b1_renderer_timeout_human_setup_pending | website-scraper 읽기·B1 사람 포커스 재시험 준비 | 기존9 확장설치/버전/ON 사람확인→일반창A/공간9 B 직접읽기각1회→기존확장복원 |
 | RE-20261118-07 | CC-REALTY-01 | done / evaluation_deliverable_accepted_no_effectiveness_pass | 후보C 새기간40건 사전라벨 고정 평가 | 정상운영 새기간에서 목표소음이 포함된 검증조건 충족 시에만 별도배정·동일40건 규칙조정/재시험0 |
 | ECOM-20261118-06 | CC-ECOM-01 | done / specified_mock_server_source_accepted_off_unreleased | Cloudflare 본인 공용키 무료 이미지 경로 검증·연결 계획 | 실키유효/잔여사람단계·AGY UI 연결계획·OFF미배포 보존 |
@@ -425,7 +425,10 @@ Master 마지막 실제 점검: 2026-11-18 16:17:48 KST · 실행 중 점검 주
 | AIF-20261118-W01f | CC-SNS-01 | done / isolated_author_15_pass_and_static_harness_review_accepted | A1 격리 PostgreSQL 계약시험 | W01g 저장계층 모의독립검수·실중앙/스토리지통합은별도 |
 | AIF-20261118-W01g | CC-SNS-01 | done / mocked_store_specified_independent_review_pass_accepted | 생성 원본 저장 계층·주입 모의 시험 | OFF 기본 라우트 연결 W01h 모의통합 |
 | AIF-20261118-W01h | CC-SNS-01 | done / default_off_route_mock_integration_specified_independent_PASS_accepted | 원본 저장 OFF 기본 라우트 연결·모의 통합 | W01i OFF 기본 원본 자산 조회 모의단위 |
-| AIF-20261118-W01i | CC-SNS-01 | needs_revision / read_route_core_pass_signed_URL_exact_object_mismatch_returned | 원본 자산 조회 OFF 기본 경로·모의시험 | 기대bucket/정확path/단일token·정상fixture·rowundefined503 최소수정→관련모의/tsc→Mac |
+| AIF-20261118-W01i | CC-SNS-01 | reviewing / signed_URL_exact_path_fix_received_focused_independent_review | 원본 자산 조회 OFF 기본 경로·모의시험 | Mac403 정확경로/단일token/rowundefined 경계재검수 |
+| BLOG-20261118-02 | CC-BLOG-01 | dispatched / owner_approved_max_three_Vercel_builds_single_executor | 승인된 블로그3프로그램 순차묶음 배포 | Blog사전manifest/운영/예산보고→순차단일실행·추가비용시자동확대0 |
+| BLOG-20261118-03 | CC-BLOG-01 | queued / owner_approved_cleanup_backup_and_tag_first_exact_scope_after_releases | T08 구형 ghost-scraper 백업후정리 승인범위 구체화 | 기존website검수재사용·정확백업/삭제범위보고→착수범위확정 |
+| BLOG-20261118-04 | CC-BLOG-01 | queued / owner_product_decision_recorded_operating_DDL_Render_not_approved | T03 도메인 구조 캐시 회원별 격리 결정 반영 | T07Excel/T06선행관계확인뒤정확DB/Render플랜·비용취합 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
@@ -486,6 +489,7 @@ Master 마지막 실제 점검: 2026-11-18 16:17:48 KST · 실행 중 점검 주
 | Cloudflare 재생성후 카드 가독성 | 최신 주인님직접 재생성1승인→9cc실제1회완료·누적2·이1장무문자관찰 | 새이미지 JPEG456549B/1024²·인물커짐/여백미검수·추가호출0·인물제외임의변경0·기존샘플오프라인가독성준비 |
 | CRM v1.18 운영 릴리스 묶음 | Master단일승인질문: 운영DDL1/버전·로컬빌드1+Vercel1·시험번호SMS1/동일이벤트재전송추가0·Google직접단계 | 명시e258제품tree+버전overlay·정식주소승격후같은회차실검수·실패빌드없는rollback·보호우회토큰0 |
 | Mac ESM/쇼핑제휴 실확장 시험 | Mac준비후 ESM+/네이버 로그인·브랜드커넥트실링크1개·필요시확장폴더선택은주인님직접 | 정상기존설치는재사용·ESM입력만1/외부등록0·네이버대기열까지·기존B/Gmail/Blog창보존 |
+| 블로그3프로그램 묶음배포/T04/T08/T03 결정 | 주인님직접선택창 승인: Vercel최대3·T04보안빌드1은세번째통합·T08백업태그선정리·T03회원별결정 | 중복승인질문0·Blog단일순차담당·T03운영DDL/Render별도·T08정확삭제범위후착수 |
 
 ## 주인님 결정으로 후일 재개하는 항목
 
