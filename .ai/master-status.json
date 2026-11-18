@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T17:49:48.508Z",
+  "checkedAt": "2026-11-18T17:52:21.652Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5399,14 +5399,35 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "W01 실제 React 화면 격리 확인",
-      "status": "running",
-      "delivery": "isolated_react_screen_check_dispatched",
+      "status": "done",
+      "delivery": "isolated_real_react_screen_check_accepted",
       "scopeRef": "fdee03d5d 실제 화면 컴포넌트·기설치 도구·격리 가짜 I/O",
       "completion": "가능하면 React 계정 A→B 교체/늦은 응답과 자산 화면·수동 조회·blob 해제 확인. 불가 시 구체적 도구 차단 반환.",
       "constraints": "제품 수정·설치·Next 빌드·운영 Storage/AI·ON·배포 없음. 기존 14 시험 재실행 없음.",
-      "evidence": "msg_3a86b206ca5c",
-      "next": "CX-QA-01 수락·실행 범위/근거 회신 대기.",
-      "lastReviewedAt": "2026-11-18T17:49:48.508Z"
+      "evidence": "msg_3a86b206ca5c·msg_54ca8302b9f6·.ai/results/SNS-ASSETS-A1-20261118-CX-QA-01.md",
+      "next": "실제 React 격리 브라우저 판정 수락. 운영 선행 검증 계획 READY 배정. OFF·미배포.",
+      "lastReviewedAt": "2026-11-18T17:52:21.652Z",
+      "sha": "fdee03d5d",
+      "validation": {
+        "independent": "실제 InfluenceStudio/ImageDisplay 격리 React/Chrome, 주변 대역·가짜 네트워크. key 전환·늦은 상태 차단·수동 재조회 1·blob 해제.",
+        "master": "정확한 전체 SHA와 결과 기록·격리 범위·실패 첫 fixture 교정 및 최종 동작 대조.",
+        "unverified": "실제 로그인·쿠키 전환·브라우저 저장 이관·발행·서명 CORS·Storage."
+      }
+    },
+    {
+      "task_id": "AIF-20261119-W01-READY",
+      "parent_task_id": "AIF-20261119-W01-UIV",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "W01 운영 전 검증 계획 및 승인 범위 정리",
+      "status": "running",
+      "delivery": "production_readiness_checklist_dispatched",
+      "scopeRef": "W00 §14-B·§14-L·§24-10 및 W00_BASELINE.md 한 절",
+      "completion": "최소 무과금 검증 및 실제 Storage·CORS·회원 한도·생성/발행 검증 순서, 환경/조건/상한·비용·중단/복구·승인 항목 정리.",
+      "constraints": "문서/기존 소스 읽기만. 실 운영·로그인·Storage·SQL·배포·AI·ON·W02 없음.",
+      "evidence": "msg_496f86e32649",
+      "next": "CC-SNS-01 계획 SHA와 근거 반환 뒤 Master 승인 범위 검토.",
+      "lastReviewedAt": "2026-11-18T17:52:21.652Z"
     },
     {
       "task_id": "DES-20261119-HERO",
