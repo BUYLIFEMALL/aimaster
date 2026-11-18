@@ -207,12 +207,12 @@
 - 되돌리기: Render를 **캐시 우회 버전**으로 재배포(공용 표 사용 재개 0). 새 표는 그대로 두어도 무해.
 
 **1단계 로컬 소스 완료(2026-11-18 BLOG-20261118-06, `a7ef59164`, 미배포·운영 승인 없음)**
-- `web-crawler/service/main.py`: `_verify_job_owner()` — 시작(`POST /jobs`)·재개(`/jobs/{id}/resume`) 모두 **예약(`add_task`) 전에** `web_crawler_jobs`의 `user_id`를 1회 읽음. 빈 `user_id` 403(조회 0), 행 없음 404, 조회 예외·응답 모양 이상 503, 불일치·`user_id` 칸 없음 403 — 모두 예약 0·작업 행 변경 0·캐시 0, 로그는 고정 코드만. 주인이 맞으면 기존 202·백그라운드 흐름 그대로. `/health`가 `commit`(Render 자동 값 `RENDER_GIT_COMMIT` 앞 9자, 새 환경변수 0)과 `domain_cache: "bypass"`를 함께 돌려줌.
-- `web-crawler/service/pipeline.py`: `domain_cache` import·조회·삭제·저장 제거 — 매번 회원 본인 키로 셀렉터를 새로 정함. `service/domain_cache.py` 파일과 옛 표는 그대로.
+- `web-crawler/service/main.py`: `_verify_job_owner()` — 시작(`POST /jobs`)·재개(`/jobs/{id}/resume`) 모두 **예약(`add_task`) 전에** `web_crawler_jobs`의 `user_id`를 1회 읽음. 빈 `user_id` 403(조회 0), 행 없음 404, 조회 예외·응답 모양 이상 503, 불일치·`user_id` 칸 없음 403 — 모두 예약 0·작업 행 변경 0·캐시 0, 로그는 고정 코드만. 주인이 맞으면 기존 202·백그라운드 흐름 그대로. **한계**: 공유 비밀값으로 인증된 웹앱 요청 본문의 `job_id`·`user_id`가 DB 작업 행 소유자와 맞는지(ID 일치)만 확인한다 — 회원 본인 증명이 아니며, 공유 비밀값이 새면 맞는 ID 쌍을 보낸 요청은 통과한다. `/health`가 `commit`(Render 자동 값 `RENDER_GIT_COMMIT` 앞 9자, 새 환경변수 0)과 `domain_cache: "bypass"`를 함께 돌려줌.
+- `web-crawler/service/pipeline.py`: `domain_cache` import·조회·삭제·저장 제거 — 매번 회원 본인 키로 셀렉터를 새로 정함. **1단계 동안의 임시 우회**이며 캐시 기능의 영구 중단이 아니다 — 회원별 캐시는 2단계에서 새 표로 다시 켠다(옛 공용 캐시는 재사용 0). `service/domain_cache.py` 파일과 옛 표는 그대로.
 - 시험 `web-crawler/service/tests/test_stage1_owner_and_cache.py` 18개 통과(`.venv` python -m pytest service/tests). 고치기 전 코드로 돌리면 2 실패(수집 중 캐시 표 호출·코드에 캐시 참조 — 행동 반례) + 15 오류(소유자 확인 함수가 없어 시험 준비 단계 오류 — 행동 반례 아님, 구분 기록).
 
 **전환 완료 증명(T1 시각·DB 행 수만으로는 부족 — 따로 증명)**
-- 첫째, 옛 공용 버전으로 새 요청이 갈 수 없음: 배포 뒤 `/health`를 연속으로 여러 번 불러 모두 새 커밋·`"domain_cache": "bypass"`를 돌려주는지 확인 + Render 배포 기록에서 이전 배포가 종료(live 해제)된 것 확인.
+- 첫째, 옛 공용 버전으로 새 요청이 갈 수 없음: 배포 뒤 `/health`를 연속으로 여러 번 불러 모두 새 커밋·`"domain_cache": "bypass"`를 돌려주는지 확인 + Render 배포 기록에서 이전 배포가 종료(live 해제)된 것 확인. `/health`는 **응답한 그 인스턴스만** 증명한다 — 이전 인스턴스 종료와 진행 작업 배출은 아래 둘째의 별도 근거로만 판정.
 - 둘째, 옛 인스턴스·진행 중 작업이 모두 빠짐: Render 이벤트에서 이전 인스턴스 종료 시각(T1') 확인 + `created_at < T1'`인 `pending`·`running` 0 + T1' 이후 서비스 로그에 옛 커밋으로 처리된 요청 0.
 - 두 조건을 모두 증거로 남기기 전에는 다음 단계(새 표 마이그레이션·2단계) 금지.
 
