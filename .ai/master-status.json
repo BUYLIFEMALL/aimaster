@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T02:27:12.069Z",
+  "checkedAt": "2026-11-18T02:31:16.669Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3685,10 +3685,10 @@
       "owner": "AG-UI-01",
       "reviewer": "CX-MASTER-01",
       "title": "미확인5카테고리19프로그램 담당/잔여근거 매핑",
-      "status": "needs_revision",
-      "delivery": "second_report_failed_source_quote_check",
+      "status": "running",
+      "delivery": "verbatim_correction_in_progress",
       "scopeRef": "inventory의 CRM/마케팅/인스타/성격운세/AI프롬프트 19개·기존문서읽기+본인JSON1개",
-      "evidence": "msg_bd9dfa2f47ed·Master대상19검산·수락착수msg_95cb54baa5e3·결과msg_fd9af2a7ff82·Master JSON본문/CRM원문대조·반환msg_10abb7dc1a78·정정착수msg_d3c74beed32e·정정msg_70aaf2ac8ec2·Master전수pending quote파일매칭·재반환msg_6eab44c17770",
+      "evidence": "msg_bd9dfa2f47ed·Master대상19검산·수락착수msg_95cb54baa5e3·결과msg_fd9af2a7ff82·Master JSON본문/CRM원문대조·반환msg_10abb7dc1a78·정정착수msg_d3c74beed32e·정정msg_70aaf2ac8ec2·Master전수pending quote파일매칭·재반환msg_6eab44c17770·수락msg_e6c87abd0185·11:30실화면정확인용추출중·임시본인파일정리지시msg_6c60994d4d1b",
       "completion": "각slug문서의명시담당/당시버전/잔여/라이프사이클/근거절/확신/불일치·19건누락0,과거작성자=현활성담당추정0",
       "next": "동일JSON exact quote/file.includes/계산line 전수검사·원문기반잔여/해결대조→Master재검토·공식표반영보류",
       "blockedReason": null,
@@ -4208,20 +4208,23 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T02:27:12.069Z",
+      "at": "2026-11-18T02:31:16.669Z",
       "timezone": "Asia/Seoul",
-      "trigger": "PORT19 정정본88f128726/msg_70aaf2ac8ec2",
-      "scope": "19JSON본문·pending인용전수실파일매칭·거짓원문/줄번호표본",
+      "trigger": "11:30예약 msg_a117d5943f48",
+      "scope": "담당보고/요청·19카테고리 미종료작업·docs/미등록인계증분·src미커밋·기존12세션/Workspace·AGY실화면",
       "evidence": [
-        "pending 31개검사/22개정규화후에도매칭실패",
-        "수정반환msg_6eab44c17770·exact quote/file.includes/계산line 요구"
+        "dev-requests0·새문서0(자체진행표제외)·제품3개src미커밋0",
+        "Workspace실화면v1.58패널표시·로그인계정미확인·본인로그인/OAuth요청후대기(작성자10:23출력)",
+        "AGY인용추출/검사명령진행중·정정결과아직없음·임시본인파일정리지시msg_6c60994d4d1b",
+        "예약11:30결과0/다음12:00"
       ],
-      "judgment": "정정결과미수락·잘못된잔여근거로작업배정0·F011수정만별도확인",
+      "judgment": "PORT19정정진행중/공식잔여표미반영유지. Gmail실OAuth대기·브라우저계정은시험제목만으로확정금지. 중복시험/배포0.",
       "unverified": [
-        "19프로그램정확인용/후속해결대조·현재활성담당",
-        "Gmail실OAuth검증"
+        "AGY정정JSON/자동검사실패0·소스원문내용판정",
+        "Gmail로그인시험계정/OAuth/실검증·Mac독립",
+        "Lab시험제출·Mac영상/반환"
       ],
-      "nextAction": "자동인용검사실패0 정정본회수뒤근거내용재검토"
+      "nextAction": "정정결과근거검토·Workspace사람완료후실검수연결·12:00기존Master예약"
     },
     "notifications": [
       {
@@ -4289,7 +4292,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-18T02:30:00.000Z",
+      "nextScheduledAt": "2026-11-18T03:00:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -4307,8 +4310,8 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-18T02:00:00.000Z",
-        "messageId": "msg_40e44b3ae515",
+        "scheduledAt": "2026-11-18T02:30:00.000Z",
+        "messageId": "msg_a117d5943f48",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false
@@ -6427,7 +6430,7 @@
       ],
       "targetCount": 19,
       "owner": "AG-UI-01",
-      "delivery": "second_report_failed_source_quote_check",
+      "delivery": "verbatim_correction_in_progress",
       "messageId": "msg_bd9dfa2f47ed",
       "acknowledgment": "msg_95cb54baa5e3",
       "resultSha": "88f128726",
