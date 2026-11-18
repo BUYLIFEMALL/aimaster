@@ -1,5 +1,5 @@
 // W01u 멈춘 건 읽기 전용 집계(복구 P3) SQL 격리 계약 시험 — 초안 (2026-11-18, CC-SNS-01, Master msg_5ffb8d03b1ee).
-// ★ 이 파일은 작성만 했고 아직 한 번도 실행하지 않았다(격리 DB 생성 0). 실행은 격리 실행 배정 뒤에 한다.
+// ★ 실행 이력·결과는 이 파일에 적지 않는다 — docs/analysis-ai-influencer-20261118/W00_BASELINE.md §14-H에 적는다(결과를 적느라 시험 SHA가 바뀌지 않게).
 // 대상: supabase/migrations/20261118140000_aif_assets_p3_summary.sql — 색인 1개·함수 aif_asset_stuck_summary.
 // 실행(배정 뒤): node --test tests/sql/a1_summary.test.mjs   (npm test에는 포함되지 않는다 — tests/*.test.mjs 밖)
 // 조건: 로컬 Docker 컨테이너 aww-pg-test(postgres 17)가 떠 있어야 한다. 없으면 전체를 건너뛴다(설치·재시작하지 않음).
@@ -190,7 +190,7 @@ const t = (name, fn) => test(name, { skip: AVAILABLE ? false : "aww-pg-test 컨�
 t("컴파일: A1 → P2 뒤에 P3 파일이 적용되고 함수 14개·색인 1개가 되며 기존 표·함수는 그대로다", (ctx) => {
   ctx.diagnostic(`역할 사전 확인(이름:로그인:슈퍼유저:RLS우회) ${rolePreflight.replace(/\n/g, " ")} · 시험 DB ${DB} oid=${createdOid}`);
   assert.equal(q(`select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'aif\\_asset\\_%';`), "14");
-  assert.equal(q(`select pg_get_function_identity_arguments(p.oid) || ' -> ' || pg_get_function_result(p.oid) || ' | ' || p.provolatile || ' | ' || p.pronargdefaults
+  assert.equal(q(`select pg_get_function_identity_arguments(p.oid) || ' -> ' || pg_get_function_result(p.oid) || ' | ' || p.provolatile::text || ' | ' || p.pronargdefaults
                   from pg_proc p where p.proname = 'aif_asset_stuck_summary';`), "p_cap integer -> jsonb | s | 1");
   const idx = q(`select indexdef from pg_indexes where schemaname='public' and indexname='aif_asset_deletions_parked_idx';`);
   assert.match(idx, /\(parked_at\)/);
@@ -410,19 +410,44 @@ t("2연결: 다른 거래가 권고 잠금·행 잠금을 쥐고 있어도 기�
   assert.equal(r.ok, true, r.err);
 });
 
-t("한 스냅샷: 호출한 문장이 시작된 뒤에 커밋된 행은 그 호출의 건수에 들지 않는다", async () => {
+t("한 스냅샷(양성 대조 포함): 같은 문장에서 관문이 끝난 뒤에 불린 STABLE 집계는 이전 값을, VOLATILE 대조 함수는 커밋된 새 값을 읽는다", async (ctx) => {
   reset();
-  // 문장이 먼저 시작되고(스냅샷 확정) 안쪽 pg_sleep이 끝난 뒤에야 집계가 평가된다. 그 사이에 다른 연결이 행을 커밋한다.
-  const pending = runAsync(`set application_name = 'aif_s2'; set role service_role;
-    select s.z, public.aif_asset_stuck_summary() from (select pg_sleep(4) as z offset 0) s;`);
-  await sleeping("aif_s2");
-  q(asset("reserved").sql + asset("missing").sql);
-  const r = await pending;
-  assert.equal(r.ok, true, r.err);
-  const during = JSON.parse(r.out.slice(r.out.indexOf("{")));
-  assert.deepEqual([during.assets.reserved.count, during.assets.missing.count], [0, 0], "문장 시작 시점의 스냅샷");
-  const afterwards = summarize();
-  assert.deepEqual([afterwards.assets.reserved.count, afterwards.assets.missing.count], [1, 1]);
+  // 시험 DB 전용 도우미 두 개(제품 SQL이 아니다. 이 시험 안에서 만들고 지운다).
+  //   qa_gate(초)        — VOLATILE. 그만큼 잔 뒤 「관문이 끝난 시각」을 돌려준다.
+  //   qa_volatile_counts — VOLATILE. 부를 때의 새 스냅샷으로 reserved·missing 건수를 읽는다(인자는 관문 결과에 의존시키려는 것일 뿐 쓰지 않는다).
+  q(`create function public.qa_gate(p_seconds double precision) returns timestamptz language plpgsql volatile as $f$
+       begin perform pg_sleep(p_seconds); return clock_timestamp(); end $f$;
+     create function public.qa_volatile_counts(p_gate_end timestamptz) returns text language plpgsql volatile as $f$
+       begin return (select count(*) from public.aif_assets a where a.state = 'reserved') || ':' || (select count(*) from public.aif_assets a where a.state = 'missing'); end $f$;`);
+  try {
+    // 한 문장. 안쪽(offset 0으로 풀리지 않게 한 부분 조회)의 관문이 먼저 끝나야 바깥 두 호출의 인자(g.gate_end)가 정해진다 —
+    // 두 호출 모두 관문 결과에 명시적으로 의존하므로 관문보다 먼저 평가될 수 없다.
+    const pending = runAsync(`set application_name = 'aif_s2';
+      select g.gate_end,
+             public.aif_asset_stuck_summary(case when g.gate_end is not null then 2000 end),
+             public.qa_volatile_counts(g.gate_end)
+        from (select public.qa_gate(5) as gate_end offset 0) g;`);
+    const seen = await waitRow(`select a.pid from pg_stat_activity a where a.datname = current_database() and a.application_name = 'aif_s2' and a.query like '%qa_gate(5)%' and a.state = 'active' limit 1;`);
+    q(asset("reserved").sql + asset("missing").sql);            // 다른 연결에서 삽입·커밋(이 호출이 돌아오면 커밋이 끝난 것이다)
+    const committedBy = q(`select clock_timestamp();`);         // 커밋이 끝난 **뒤의** DB 시각
+    const r = await pending;
+    assert.equal(r.ok, true, r.err);
+    const line = r.out.split("\n").filter(Boolean).pop();
+    const gateEnd = line.slice(0, line.indexOf("|"));
+    const stable = JSON.parse(line.slice(line.indexOf("|") + 1, line.lastIndexOf("|")));
+    const volatileCounts = line.slice(line.lastIndexOf("|") + 1);
+    ctx.diagnostic(`관문 실행 중 관측 pid=${seen.row} · 커밋 완료 뒤 시각 ${committedBy} · 관문 종료 시각 ${gateEnd} · STABLE 집계 reserved:missing=${stable.assets.reserved.count}:${stable.assets.missing.count} · VOLATILE 대조 ${volatileCounts}`);
+    // 커밋은 관문이 끝나기 전에 끝났다(시각 비교는 DB 안에서)
+    assert.equal(q(`select '${committedBy}'::timestamptz < '${gateEnd}'::timestamptz;`), "t", "커밋이 관문 종료보다 먼저");
+    // 양성 대조: 같은 문장·같은 관문 뒤에 불린 VOLATILE 함수는 커밋된 새 행을 본다 → 두 호출이 실제로 커밋 뒤에 평가됐다는 근거
+    assert.equal(volatileCounts, "1:1", "VOLATILE 대조군은 새 값을 읽는다");
+    // 같은 조건에서 STABLE 집계는 호출 문장이 시작될 때의 스냅샷(행 0건)을 읽는다
+    assert.deepEqual([stable.assets.reserved.count, stable.assets.missing.count], [0, 0], "STABLE 집계는 문장 시작 시점의 값");
+    const afterwards = summarize();
+    assert.deepEqual([afterwards.assets.reserved.count, afterwards.assets.missing.count], [1, 1], "다음 문장에서는 보인다");
+  } finally {
+    q(`drop function if exists public.qa_gate(double precision); drop function if exists public.qa_volatile_counts(timestamptz);`);
+  }
 });
 
 // ───────────── 비노출 ─────────────
