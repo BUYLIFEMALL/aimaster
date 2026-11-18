@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 23:35:29 KST",
+  "checkedAt": "2026-11-18 23:37:20 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T14:35:29.679Z",
+      "at": "2026-11-18T14:37:20.548Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS 직접 계속 지시 보고",
-      "scope": "캡션 소비 경로/텍스트 전용 서버와 히스토리 브라우저 요청 원문 대조.",
+      "trigger": "AI Influencer 사용자 기능 우선순위 피드백",
+      "scope": "SNS 직접 보고와 PLAN §18 W01-W05 선행조건 대조.",
       "evidence": [
-        "msg_eb328c52dc5a",
-        "msg_a7ec6bd328f6"
+        "msg_56460fadd26a",
+        "msg_447f0e0ca06b",
+        "W01y 편집·점유·커밋 0 담당 보고"
       ],
-      "judgment": "W01y 두 요청 경계 로컬 변경만 배정.",
+      "judgment": "W01y 착수 전 보류. W03 인물 라이브러리·W04 일괄 이미지·W05 영상은 미착수이고 W01 기반과 별도. 기존 확인 채널로 회신 대기.",
       "unverified": [
-        "W01y 고정 코드·시험",
-        "기존 Workspace/Gmail 운영 확인"
+        "주인님이 우선 구현할 회원 기능",
+        "W03 구체 범위와 W01/W02 의존성"
       ],
-      "nextAction": "담당 결과 회수 후 Mac 국소검수."
+      "nextAction": "SNS 기존 대화의 주인님 회신을 회수한 뒤 회원용 첫 흐름을 배정."
     },
     "notifications": [
       {
@@ -9023,14 +9024,28 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "캡션 사진 전송 제거와 기록 요청 크기 보호",
-      "status": "dispatched",
-      "delivery": "caption_privacy_history_request_guard_requested",
+      "status": "queued",
+      "delivery": "deferred_before_edits_for_member_feature_priority",
       "scopeRef": "기존 소비 화면·최소 공용 함수·모의 시험·관련 문서",
       "constraints": "API/DB/Storage/실 AI/비용/build/deploy/push 0",
-      "evidence": "msg_eb328c52dc5a·msg_a7ec6bd328f6",
-      "next": "고정 구현·캡션 두 경로·JSON UTF-8 경계 모의 결과 회수.",
+      "evidence": "msg_eb328c52dc5a·msg_a7ec6bd328f6 / msg_56460fadd26a / msg_447f0e0ca06b",
+      "next": "착수 전 보류. 회원 기능 순서 확정 후 필요 시 재개.",
       "completion": "캡션 사진 4종만 제외. 기록 상한 초과시 POST 0, 현재 결과/임시 기록 보존·미저장 1회 안내.",
-      "lastReviewedAt": "2026-11-18T14:35:29.679Z"
+      "lastReviewedAt": "2026-11-18T14:37:20.548Z"
+    },
+    {
+      "task_id": "AIF-20261118-W03",
+      "owner": "미배정",
+      "reviewer": "CX-MASTER-01",
+      "title": "회원용 인물 라이브러리·시트·버전",
+      "status": "waiting_human",
+      "delivery": "member_feature_priority_pending_after_owner_feedback",
+      "scopeRef": "AI Influencer PLAN §18 W03, HANDOFF 작업/검수 조건",
+      "constraints": "우선순위 확인 전 구현 미착수. 새 유료 생성·영속 DB·배포 별도.",
+      "evidence": "msg_56460fadd26a·msg_447f0e0ca06b",
+      "next": "기존 담당 대화의 주인님 우선순위 회신 대기. W03 첫 흐름과 W01/W02 의존 범위 확정.",
+      "completion": "회원이 인물을 선택·참조 적용·복원하는 기능. W04 일괄 생성·W05 영상도 아직 미구현.",
+      "lastReviewedAt": "2026-11-18T14:37:20.548Z"
     }
   ]
 }

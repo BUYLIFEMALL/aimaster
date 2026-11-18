@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 23:35:29 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 23:37:20 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -453,7 +453,8 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | AIF-20261118-W01v | CC-SNS-01 | done / asset_save_indicator_local_and_mac_checks_accepted_undeployed | 생성 결과 원본 저장 상태 표시 | 로컬 검수 완료·점유 해제·OFF·미배포. |
 | AIF-20261118-W01w | CC-SNS-01 | done / g5_response_evidence_and_guard_design_accepted | 생성 이미지 응답 크기 근거 및 G5 설계 | W01x 로컬 최소 보호 배정. 실제 크기/운영 응답 및 자산 참조 전환 별도. |
 | AIF-20261118-W01x | CC-SNS-01 | done / g5_response_guard_local_mac_review_accepted_undeployed | 생성 이미지 응답 한도 및 비JSON 안내 보호 | 로컬 완료·점유 해제·미배포. 한도 초과 이미지 전달 및 실제 응답 검증은 별도. |
-| AIF-20261118-W01y | CC-SNS-01 | dispatched / caption_privacy_history_request_guard_requested | 캡션 사진 전송 제거와 기록 요청 크기 보호 | 고정 구현·캡션 두 경로·JSON UTF-8 경계 모의 결과 회수. |
+| AIF-20261118-W01y | CC-SNS-01 | queued / deferred_before_edits_for_member_feature_priority | 캡션 사진 전송 제거와 기록 요청 크기 보호 | 착수 전 보류. 회원 기능 순서 확정 후 필요 시 재개. |
+| AIF-20261118-W03 | 미배정 | waiting_human / member_feature_priority_pending_after_owner_feedback | 회원용 인물 라이브러리·시트·버전 | 기존 담당 대화의 주인님 우선순위 회신 대기. W03 첫 흐름과 W01/W02 의존 범위 확정. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 
 ## 현재 담당 회신이 확보된 프로젝트
