@@ -115,8 +115,8 @@ const HOOKS = [
     "next/link": "import { createElement } from \"react\"; export default function Link({ href, className, children }) { return createElement(\"a\", { href, className }, children); }",
     "server-only": "export {};",
     "@/lib/supabase/admin": "export function createAdminClient(){ return globalThis.__crmFake.client(); }",
-    "@/lib/email/transport": "export async function sendViaSmtpAccount(a, to){ (globalThis.__crmSent ??= []).push(['email', to]); }",
-    "@/lib/solapi/client": "export async function sendSms(a, to){ (globalThis.__crmSent ??= []).push(['sms', to]); } export async function sendAlimtalk(a, to){ (globalThis.__crmSent ??= []).push(['alimtalk', to]); } export async function sendFriendtalk(a, to){ (globalThis.__crmSent ??= []).push(['friendtalk', to]); }",
+    "@/lib/email/transport": "export async function sendViaSmtpAccount(a, to){ (globalThis.__crmSent ??= []).push(['email', to]); await globalThis.__crmOnSend?.('email', to); }",
+    "@/lib/solapi/client": "export async function sendSms(a, to){ (globalThis.__crmSent ??= []).push(['sms', to]); await globalThis.__crmOnSend?.('sms', to); } export async function sendAlimtalk(a, to){ (globalThis.__crmSent ??= []).push(['alimtalk', to]); await globalThis.__crmOnSend?.('alimtalk', to); } export async function sendFriendtalk(a, to){ (globalThis.__crmSent ??= []).push(['friendtalk', to]); await globalThis.__crmOnSend?.('friendtalk', to); }",
   })};`,
   `export async function resolve(spec, ctx, next) {`,
   `  if (ctx.parentURL && ctx.parentURL.startsWith("crmfake:")) return next(spec, { ...ctx, parentURL: pathToFileURL(ROOT + "/package.json").href });`,
@@ -336,30 +336,14 @@ test("확인 필요 상태 안내에 「팔로우업 자동 보류」가 보인�
 
 test("실제 runFollowupRule: 미확정 접수는 발송·선점 기록 0, 보류 개수로 돌려준다", async () => {
   const STATUSES = ["received", "notified", "failed", "dispatching", "partial", "unknown", "weird"];
-  const candidates = STATUSES.map((status, i) => ({ id: "sub-" + i, name: "n" + i, phone: "0100000000" + i, email: null, raw_values: {}, status }));
-  const inserted = [];
-  let candidateSelect = "";
-  globalThis.__crmSent = [];
-  globalThis.__crmFake = {
-    client: () => fakeClient((q) => {
-      const ins = q.ops.find((o) => o[0] === "insert");
-      if (q.table === "crm_submissions") { candidateSelect = q.ops.find((o) => o[0] === "select")[1]; return { data: candidates, error: null }; }
-      if (q.table === "crm_followup_sends" && ins) { inserted.push(ins[1].submission_id); return { data: { id: "claim-" + inserted.length }, error: null }; }
-      if (q.table === "crm_followup_sends") return { data: [], error: null };
-      if (q.table === "user_solapi_accounts") return { data: { api_key: "k", api_secret: "s", sender_phone: "010", kakao_pf_id: null }, error: null };
-      return { data: null, error: null };
-    }),
-  };
-  const mod = await import(pathToFileURL(__jn(PROJECT, "lib/crm/followupDispatch.ts")).href);
-  const r = await mod.runFollowupRule({
-    id: "rule-1", user_id: "user-1", form_source_id: "s1", name: "규칙", days_after: 3,
-    channel_email: false, channel_sms: true, channel_alimtalk: false, channel_friendtalk: false,
-    message_subject: null, message_text: "안녕하세요 {name}", kakao_template_id: null, kakao_variables: {},
-  });
-  assert.match(candidateSelect, /status/);
-  assert.deepEqual(r, { sent: 3, failed: 0, held: 4 });
-  assert.deepEqual(inserted, ["sub-0", "sub-1", "sub-2"]); // 보류 건은 선점 기록도 0 → 결과가 확인되면 다음 실행 때 보낼 수 있음
-  assert.deepEqual(globalThis.__crmSent.map((x) => x[1]), ["01000000000", "01000000001", "01000000002"]);
+  const db = statefulDb(STATUSES.map((st, i) => row("sub-" + i, st)));
+  db.install();
+  const r = await runRule();
+  const cand = db.queries.find((q) => q.table === "crm_submissions" && !q.single);
+  assert.match(cand.ops.find((o) => o[0] === "select")[1], /status/);
+  assert.deepEqual(r, { sent: 3, failed: 0, held: 4, interrupted: 0 });
+  assert.deepEqual(db.sends.map((x) => x.submission_id), ["sub-0", "sub-1", "sub-2"]);
+  assert.deepEqual(globalThis.__crmSent.map((x) => x[1]), ["010-sub-0", "010-sub-1", "010-sub-2"]);
 });
 
 // ── CRM18-05: 보류의 반복·재개·밀림·화면 근거(실제 runFollowupRule·실제 page.tsx, 가짜 DB·발송만) ──────────
@@ -369,24 +353,53 @@ const RULE = {
   message_subject: null, message_text: "안녕하세요 {name}", kakao_template_id: null, kakao_variables: {},
 };
 /** 실행 사이에 상태가 남는 가짜 DB: 접수 목록과 발송 기록 표 */
-function statefulDb(rows) {
-  const sends = []; // { submission_id }
+/**
+ * 실행 사이에 상태가 남는 가짜 DB. eq 조건(user_id·form_source_id·id·rule_id)으로 실제처럼 걸러서,
+ * 코드가 회원·폼 조건을 빠뜨리면 다른 회원 행이 그대로 돌아오게 한다. hooks로 조회 오류·상태 변경 끼워 넣기.
+ */
+function statefulDb(rows, opts = {}) {
+  const sources = opts.sources ?? [{ id: "s1", user_id: "user-1" }];
+  const hooks = opts.hooks ?? {};
+  const sends = []; // { id, submission_id, user_id, rule_id, status, error_message }
   const queries = [];
+  const eqs = (q) => q.ops.filter((o) => o[0] === "eq");
+  const matches = (obj, q) => eqs(q).every((o) => !(o[1] in obj) || obj[o[1]] === o[2]);
+  globalThis.__crmSent = [];
+  globalThis.__crmOnSend = opts.onSend ?? null;
   return {
     rows, sends, queries,
     install() {
       globalThis.__crmFake = {
         client: () => fakeClient((q) => {
           queries.push(q);
+          if (hooks.error?.(q)) return { data: null, error: { message: "fake error" } };
+          hooks.before?.(q);
           const ins = q.ops.find((o) => o[0] === "insert");
-          if (q.table === "crm_submissions") return { data: rows.map((r) => ({ ...r })), error: null };
-          if (q.table === "crm_followup_sends" && ins) {
-            if (sends.some((x) => x.submission_id === ins[1].submission_id)) return { data: null, error: { code: "23505" } };
-            sends.push({ submission_id: ins[1].submission_id });
-            return { data: { id: "claim-" + sends.length }, error: null };
+          const del = q.ops.some((o) => o[0] === "delete");
+          const upd = q.ops.find((o) => o[0] === "update");
+          if (q.table === "crm_form_sources") return { data: sources.find((x) => matches(x, q)) ?? null, error: null };
+          if (q.table === "crm_submissions" && q.single) {
+            const hit = rows.find((r) => matches(r, q));
+            return { data: hit ? { id: hit.id, status: hit.status } : null, error: null };
           }
-          if (q.table === "crm_followup_sends" && q.ops.some((o) => o[0] === "in")) return { data: sends.map((x) => ({ ...x })), error: null };
-          if (q.table === "crm_followup_sends") return { data: null, error: null }; // 결과 update
+          if (q.table === "crm_submissions") return { data: rows.filter((r) => matches(r, q)).map((r) => ({ ...r })), error: null };
+          if (q.table === "crm_followup_sends" && ins) {
+            const v = ins[1];
+            if (sends.some((x) => x.submission_id === v.submission_id && x.rule_id === v.rule_id)) return { data: null, error: { code: "23505" } };
+            const rec = { id: "claim-" + (sends.length + 1) + "-" + v.submission_id, ...v };
+            sends.push(rec);
+            hooks.afterClaim?.(rec);
+            return { data: { id: rec.id }, error: null };
+          }
+          if (q.table === "crm_followup_sends" && del) {
+            for (let i = sends.length - 1; i >= 0; i--) if (matches(sends[i], q)) sends.splice(i, 1);
+            return { data: null, error: null };
+          }
+          if (q.table === "crm_followup_sends" && upd) {
+            for (const x of sends) if (matches(x, q)) Object.assign(x, upd[1]);
+            return { data: null, error: null };
+          }
+          if (q.table === "crm_followup_sends") return { data: sends.filter((x) => matches(x, q)).map((x) => ({ submission_id: x.submission_id })), error: null };
           if (q.table === "user_solapi_accounts") return { data: { api_key: "k", api_secret: "s", sender_phone: "010", kakao_pf_id: null }, error: null };
           return { data: null, error: null };
         }),
@@ -395,18 +408,17 @@ function statefulDb(rows) {
   };
 }
 const runRule = async () => (await import(pathToFileURL(__jn(PROJECT, "lib/crm/followupDispatch.ts")).href)).runFollowupRule(RULE);
-const row = (id, status) => ({ id, name: id, phone: "010-" + id, email: null, raw_values: {}, status });
+const row = (id, status, user_id = "user-1", form_source_id = "s1") => ({ id, name: id, phone: "010-" + id, email: null, raw_values: {}, status, user_id, form_source_id });
 
 test("보류 반복: 같은 규칙을 3번 돌려도 보류 건 기록·발송 0, 정상 건은 한 번만", async () => {
   const db = statefulDb([row("a", "notified"), row("b", "unknown"), row("c", null), row("d", "partial")]);
   db.install();
-  globalThis.__crmSent = [];
   const r1 = await runRule();
   const r2 = await runRule();
   const r3 = await runRule();
-  assert.deepEqual(r1, { sent: 1, failed: 0, held: 3 });
-  assert.deepEqual(r2, { sent: 0, failed: 0, held: 3 });
-  assert.deepEqual(r3, { sent: 0, failed: 0, held: 3 });
+  assert.deepEqual(r1, { sent: 1, failed: 0, held: 3, interrupted: 0 });
+  assert.deepEqual(r2, { sent: 0, failed: 0, held: 3, interrupted: 0 });
+  assert.deepEqual(r3, { sent: 0, failed: 0, held: 3, interrupted: 0 });
   assert.deepEqual(db.sends.map((x) => x.submission_id), ["a"]); // 보류 건은 선점·기록 0(기록 폭증 0)
   assert.deepEqual(globalThis.__crmSent.map((x) => x[1]), ["010-a"]);
 });
@@ -414,11 +426,10 @@ test("보류 반복: 같은 규칙을 3번 돌려도 보류 건 기록·발송 0
 test("재개: 보류 건의 상태가 나중에 확정되면 다음 실행에서 한 번만 보낸다", async () => {
   const db = statefulDb([row("a", "notified"), row("b", "unknown")]);
   db.install();
-  globalThis.__crmSent = [];
-  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 1 });
+  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 1, interrupted: 0 });
   db.rows[1].status = "notified"; // 사람이 확인해 확정
-  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 0 });
-  assert.deepEqual(await runRule(), { sent: 0, failed: 0, held: 0 });
+  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 0, interrupted: 0 });
+  assert.deepEqual(await runRule(), { sent: 0, failed: 0, held: 0, interrupted: 0 });
   assert.deepEqual(globalThis.__crmSent.map((x) => x[1]), ["010-a", "010-b"]);
 });
 
@@ -427,8 +438,7 @@ test("밀림 없음: 보류 건이 많아도 정상 건은 같은 실행에서 �
   rows.push(row("ok", "received"));
   const db = statefulDb(rows);
   db.install();
-  globalThis.__crmSent = [];
-  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 500 });
+  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 500, interrupted: 0 });
   const cand = db.queries.find((q) => q.table === "crm_submissions");
   assert.ok(!cand.ops.some((o) => o[0] === "limit" || o[0] === "range"), "후보 조회에 limit/range 없음");
   assert.deepEqual(globalThis.__crmSent.map((x) => x[1]), ["010-ok"]);
@@ -437,8 +447,7 @@ test("밀림 없음: 보류 건이 많아도 정상 건은 같은 실행에서 �
 test("기존 상태 회귀: received·notified·failed는 모두 기존처럼 팔로우업 발송", async () => {
   const db = statefulDb([row("r", "received"), row("n", "notified"), row("f", "failed")]);
   db.install();
-  globalThis.__crmSent = [];
-  assert.deepEqual(await runRule(), { sent: 3, failed: 0, held: 0 });
+  assert.deepEqual(await runRule(), { sent: 3, failed: 0, held: 0, interrupted: 0 });
 });
 
 test("화면 근거: 접수 내역 표의 미확정 행에 「팔로우업 자동 보류」 이유가 실제로 보인다", async () => {
@@ -446,4 +455,82 @@ test("화면 근거: 접수 내역 표의 미확정 행에 「팔로우업 자�
   const html = await renderPage(SUBS, subsAnswer({ data: rows, error: null }));
   const n = (html.match(/팔로우업 문자는 자동으로 보내지 않습니다/g) ?? []).length;
   assert.equal(n, 3); // 미확정 3행에만, 발송 완료 행에는 없음
+});
+
+// ── CRM18-05 반례(Mac msg_5640c7509c6e): 회원 경계·상태 경합 — 실제 runFollowupRule, 가짜 DB·발송만 ──────────
+const runRuleWith = async (over) => (await import(pathToFileURL(__jn(PROJECT, "lib/crm/followupDispatch.ts")).href)).runFollowupRule({ ...RULE, ...over });
+
+test("회원 경계: 다른 회원이 이 폼 id로 넣은 접수는 발송·보류 개수 어디에도 섞이지 않는다", async () => {
+  const db = statefulDb([row("own", "notified"), row("foreign", "notified", "user-2"), row("foreign-held", "unknown", "user-2")]);
+  db.install();
+  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 0, interrupted: 0 });
+  assert.deepEqual(globalThis.__crmSent.map((x) => x[1]), ["010-own"]);
+  assert.deepEqual(db.sends.map((x) => x.submission_id), ["own"]);
+});
+
+test("폼 연결이 규칙 회원 것이 아니면 후보·계정 조회·발송 0", async () => {
+  const db = statefulDb([row("a", "notified")], { sources: [{ id: "s1", user_id: "user-2" }] });
+  db.install();
+  const r = await runRule();
+  assert.equal(r.sent + r.failed + r.held + r.interrupted, 0);
+  assert.match(r.skippedReason, /이 회원 것이 아님/);
+  assert.ok(!db.queries.some((q) => q.table === "crm_submissions" || q.table === "user_solapi_accounts"));
+  assert.deepEqual(globalThis.__crmSent, []);
+});
+
+test("폼 연결·접수·발송 기록 조회 실패 → 발송 0, 실패 이유 반환", async () => {
+  for (const [table, reason] of [["crm_form_sources", /폼 연결 조회 실패/], ["crm_submissions", /접수 조회 실패/], ["crm_followup_sends", /발송 기록 조회 실패/]]) {
+    const db = statefulDb([row("a", "notified")], { hooks: { error: (q) => q.table === table && !q.single || (table === "crm_form_sources" && q.table === table) } });
+    db.install();
+    const r = await runRule();
+    assert.match(r.skippedReason ?? "", reason, table);
+    assert.deepEqual(globalThis.__crmSent, [], table);
+    assert.deepEqual(db.sends, [], table);
+  }
+});
+
+test("계정 조회(await) 사이에 상태가 미확정으로 바뀌면 선점·발송 0, 보류로 센다", async () => {
+  const rows = [row("a", "notified")];
+  const db = statefulDb(rows, { hooks: { before: (q) => { if (q.table === "user_solapi_accounts") rows[0].status = "unknown"; } } });
+  db.install();
+  assert.deepEqual(await runRule(), { sent: 0, failed: 0, held: 1, interrupted: 0 });
+  assert.deepEqual(db.sends, []);
+  assert.deepEqual(globalThis.__crmSent, []);
+});
+
+test("선점 직후 상태가 바뀌면(시도 0) 선점을 풀어 보류, 확정되면 다음 실행에 한 번만", async () => {
+  const rows = [row("a", "notified")];
+  let flipped = false;
+  const db = statefulDb(rows, { hooks: { afterClaim: () => { if (!flipped) { flipped = true; rows[0].status = "dispatching"; } } } });
+  db.install();
+  assert.deepEqual(await runRule(), { sent: 0, failed: 0, held: 1, interrupted: 0 });
+  assert.deepEqual(db.sends, []); // 선점 풀림
+  rows[0].status = "notified";
+  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 0, interrupted: 0 });
+  assert.deepEqual(await runRule(), { sent: 0, failed: 0, held: 0, interrupted: 0 });
+  assert.deepEqual(globalThis.__crmSent.map((x) => x[0]), ["sms"]);
+});
+
+test("채널 사이에 상태가 바뀌면 남은 채널 중단, 이미 보낸 기록은 남기고 다시 보내지 않는다", async () => {
+  const rows = [row("a", "notified")];
+  const db = statefulDb(rows, { onSend: (kind) => { if (kind === "sms") rows[0].status = "unknown"; } });
+  db.install();
+  const r = await runRuleWith({ channel_friendtalk: true });
+  assert.deepEqual(r, { sent: 0, failed: 0, held: 0, interrupted: 1 });
+  assert.deepEqual(globalThis.__crmSent.map((x) => x[0]), ["sms"]); // 친구톡은 안 감
+  assert.equal(db.sends.length, 1); // 기록 보존
+  assert.equal(db.sends[0].status, "failed");
+  assert.match(db.sends[0].error_message, /남은 채널을 멈춤\(시도: SMS\)/);
+  rows[0].status = "notified"; // 나중에 확정돼도
+  assert.deepEqual(await runRuleWith({ channel_friendtalk: true }), { sent: 0, failed: 0, held: 0, interrupted: 0 });
+  assert.deepEqual(globalThis.__crmSent.map((x) => x[0]), ["sms"]); // 자동 재발송 0
+});
+
+test("정상 다채널: 상태가 안 바뀌면 SMS·친구톡 모두, 선점 1번", async () => {
+  const db = statefulDb([row("a", "received")]);
+  db.install();
+  assert.deepEqual(await runRuleWith({ channel_friendtalk: true }), { sent: 1, failed: 0, held: 0, interrupted: 0 });
+  assert.deepEqual(globalThis.__crmSent.map((x) => x[0]), ["sms", "friendtalk"]);
+  assert.equal(db.sends.length, 1);
+  assert.equal(db.sends[0].status, "sent");
 });
