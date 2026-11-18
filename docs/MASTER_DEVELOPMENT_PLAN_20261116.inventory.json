@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T19:55:29.208Z",
+  "checkedAt": "2026-11-18T19:57:09.298Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9963,11 +9963,11 @@
       "reviewer": "CX-MASTER-01",
       "title": "메이커 M2 사진 제안 화면·저장 응답 연결",
       "status": "reviewing",
-      "delivery": "stale_save_and_ambiguous_storage_fix_dispatched",
-      "evidence": "msg_b70ca64fa3f5·dc779bc2a·msg_c506ba34f9a0·msg_f0cc2be892c9·b658c10e4·4819453de·msg_a43696ef5490·msg_3c336c319413·msg_d7d48cd11e2e",
-      "next": "Mac 독립 24/24. 오래된 작업 저장/응답과 불명 업로드 처리 반례, JPEG 치수 경계 보완 배정. 실제 Storage·Lab 미검증.",
-      "lastReviewedAt": "2026-11-18T19:54:24.614Z",
-      "sha": "b658c10e4"
+      "delivery": "stale_storage_jpeg_fixes_returned_recheck_dispatched",
+      "evidence": "msg_b70ca64fa3f5·dc779bc2a·msg_c506ba34f9a0·msg_f0cc2be892c9·b658c10e4·4819453de·msg_a43696ef5490·msg_3c336c319413·msg_d7d48cd11e2e·msg_e3de9bf4cbc4·2761ee0e1·msg_7006be1418d0",
+      "next": "작업 전환·불명 오류·삭제 승인·JPEG 치수 보완. 작성자 모의 30/30·전체 537/537, Mac 재검수 전달. 실제 Storage/Lab 미검증.",
+      "lastReviewedAt": "2026-11-18T19:57:09.298Z",
+      "sha": "2761ee0e1"
     },
     {
       "task_id": "RE-20261119-DESK",
