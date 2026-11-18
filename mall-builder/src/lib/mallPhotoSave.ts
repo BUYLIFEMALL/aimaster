@@ -67,7 +67,13 @@ export function classifyUploadError(e: StorageError): "exists" | "reject" | "unk
   const code = typeof e.code === "string" ? e.code : "";
   const sc = e.statusCode === undefined || e.statusCode === null ? "" : String(e.statusCode);
   const dup = OBJECT_EXISTS_CODES.has(code) || OBJECT_EXISTS_CODES.has(sc);
-  if (status === 409) return dup ? "exists" : "unknown";
+  if (status === 409) {
+    // 두 칸(code·statusCode) 중 빈 값이나 같은 HTTP 상태 글자(「409」)는 중립. 그 밖 값은 모두 객체 중복 코드여야 하고,
+    // 하나라도 다른 값(BucketAlreadyExists·503 등 명시 상충)이 섞이면 unknown(Mac msg_bcd7364f56e4)
+    const vals = [code, sc].filter((v) => v !== "" && v !== "409");
+    if (vals.some((v) => !OBJECT_EXISTS_CODES.has(v))) return "unknown";
+    return vals.length > 0 ? "exists" : "unknown";
+  }
   if (dup || sc === "409" || /^5\d\d$/.test(sc) || /AlreadyExists$/.test(code) || /AlreadyExists$/.test(sc)) return "unknown"; // 코드·상태 불일치
   return status >= 400 && status < 500 ? "reject" : "unknown";
 }

@@ -168,6 +168,17 @@ test("업로드 오류 분류: 불명이 먼저 — 5xx·상태 없음은 duplic
   assert.equal(classifyUploadError({ status: 500, statusCode: "ResourceAlreadyExists", code: "ResourceAlreadyExists" }), "unknown", "5xx + 중복 코드");
   assert.equal(classifyUploadError({ statusCode: "502", message: "Duplicate" }), "unknown");
   assert.equal(classifyUploadError({ statusCode: "ResourceAlreadyExists", code: "ResourceAlreadyExists" }), "unknown", "HTTP 숫자 없는 본문 코드만");
+  // 상충 정보(Mac msg_bcd7364f56e4): 409여도 한 칸은 객체 중복·다른 칸은 버킷 중복·503 등이면 unknown, 빈 값·「409」 글자는 중립
+  assert.equal(classifyUploadError({ status: 409, code: "ResourceAlreadyExists", statusCode: "BucketAlreadyExists" }), "unknown");
+  assert.equal(classifyUploadError({ status: 409, code: "BucketAlreadyExists", statusCode: "KeyAlreadyExists" }), "unknown");
+  assert.equal(classifyUploadError({ status: 409, code: "ResourceAlreadyExists", statusCode: "503" }), "unknown");
+  assert.equal(classifyUploadError({ status: 409, code: "KeyAlreadyExists", statusCode: "InternalError" }), "unknown");
+  assert.equal(classifyUploadError({ status: 409, code: "ResourceAlreadyExists", statusCode: "409" }), "exists", "「409」 글자는 중립");
+  assert.equal(classifyUploadError({ status: 409, code: "ResourceAlreadyExists", statusCode: "" }), "exists", "빈 값은 중립");
+  assert.equal(classifyUploadError({ status: 409, code: "KeyAlreadyExists", statusCode: "ResourceAlreadyExists" }), "exists", "두 칸 모두 문서의 객체 중복 코드");
+  assert.equal(classifyUploadError({ status: 409, code: "", statusCode: "409" }), "unknown", "중립뿐이면 코드 없는 409");
+  const mixed = mock({ upload: { error: { status: 409, code: "ResourceAlreadyExists", statusCode: "BucketAlreadyExists" } } });
+  return saveResultAsProposal(input(), mixed.d).then((c) => { assert.equal(c, "unknown"); assert.deepEqual(mixed.names(), ["begin", "toJpeg", "upload"], "상충이면 commit·abandon·remove 0"); });
   assert.equal(classifyUploadError({ message: "The resource already exists" }), "unknown");
   assert.equal(classifyUploadError({ status: 409 }), "unknown", "코드 없는 409는 불명");
   assert.equal(classifyUploadError({ statusCode: "403", status: 403 }), "reject");
