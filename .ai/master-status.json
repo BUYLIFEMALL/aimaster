@@ -4263,20 +4263,33 @@
       "parent_task_id": "AIF-20261118-W00",
       "title": "첫 원본 자산 단위 필드·권한·스토리지 구체 계약",
       "owner": "CC-SNS-01",
-      "status": "ready_review",
-      "delivery": "asset_contract_fields_ready_independent_review_master_concerns_pending",
+      "status": "needs_revision",
+      "delivery": "asset_quota_measured_ready_gap_and_signed_upload_lifetime_contract_returned",
       "scopeRef": "검수수락W00 기존문서 내·공용quota/버킷/markPosted/정리 읽기만",
       "completion": "자산/upload/finalize/deleteclaim 필드/제약/RLS/권한·공용재사용/원자보관·최소파일·시험/완료조건·원본PLAN해시/추가계약안",
       "constraints": "원본PLAN/HANDOFF/CATALOG미커밋보존·제품/migration/실DB/파일업로드/유료/build/push0·예산/게시표확대0",
-      "next": "Mac정적계약최종·quota측정지연/lateuploadTTL/실바이트/finalize·단위경계 보완→공식추가계약판정",
-      "evidence": "W00계약지정PASS·원본PLAN미커밋/저자/mtime Master확인·소유범위보존 · msg_a0230c44e9de/684ea110b·Master§18직접읽기·Macmsg_fb98184acf82",
-      "lastReviewedAt": "2026-11-18T05:53:45.687Z",
+      "next": "Mac고정684최종뒤quota/TTL/실바이트/missing정합 한문서보완→재검수",
+      "evidence": "W00계약지정PASS·원본PLAN미커밋/저자/mtime Master확인·소유범위보존 · msg_a0230c44e9de/684ea110b·Master§18직접읽기·Macmsg_fb98184acf82 · Macmsg_21d4cc225cb8·Master검토점일치·반환msg_e3692104bca7",
+      "lastReviewedAt": "2026-11-18T05:56:19.908Z",
       "sha": "684ea110b",
       "validation": {
         "author": "§18필드/RLS/service함수4/버킷/보관/잠금/불명/시험·원본PLANhash보존, 제품0",
         "master": "quota ready미측정누락/만료ticket예약해제와실uploadTTL/서버hash·실바이트위치/generated상한·shadow연결/일시오류missing단정 우려 전달",
-        "independent": "Mac 정적검수전달·최종대기"
+        "independent": "0065measured0·ticketed합계만/ready즉시제외로같은앱20x6/q100상한우회 설계반례P1·설치storage signedUploadURL2h vsDBticket15min·metadata실바이트증거없음/missing오표시우려. 실업로드0·최종정리중"
       }
+    },
+    {
+      "task_id": "QA-20261118-ESM-01",
+      "title": "ESM v1.02 입력만·쇼핑제휴 v1.89 네이버 수집 실확장 준비/검수",
+      "owner": "CX-QA-01",
+      "reviewer": "CC-ECOM-01",
+      "status": "dispatched",
+      "delivery": "direct_owner_request_forwarded_after_asset_document_review",
+      "evidence": "주인님직접지시msg_aa2299240077·Master11-17정정요청서읽기·Macmsg_55747fedf42b·Ecom통보msg_ac99cb9b6809",
+      "scopeRef": "운영ZIP2개버전/NOTICE·시험naver·고정ESM상품입력만1·본인brandlink수집대기열1",
+      "constraints": "ESM저장/임시저장/등록0·대기열등록/유료AI0·같은실패자동반복0·로그인/폴더선택주인님·직접SQL/npm/build0·기존음악/Gmail/Blog보존",
+      "next": "Mac준비/설치현황·사람필요단계보고→로그인/링크뒤범위실행→Master/Ecom칸보정",
+      "lastReviewedAt": "2026-11-18T05:56:19.908Z"
     }
   ],
   "programOverrides": [
@@ -4759,6 +4772,11 @@
       "condition": "CRM v1.18 운영 릴리스 묶음",
       "action": "Master단일승인질문: 운영DDL1/버전·로컬빌드1+Vercel1·시험번호SMS1/동일이벤트재전송추가0·Google직접단계",
       "recommendation": "명시e258제품tree+버전overlay·정식주소승격후같은회차실검수·실패빌드없는rollback·보호우회토큰0"
+    },
+    {
+      "condition": "Mac ESM/쇼핑제휴 실확장 시험",
+      "action": "Mac준비후 ESM+/네이버 로그인·브랜드커넥트실링크1개·필요시확장폴더선택은주인님직접",
+      "recommendation": "정상기존설치는재사용·ESM입력만1/외부등록0·네이버대기열까지·기존B/Gmail/Blog창보존"
     }
   ],
   "redispatch": {
@@ -4785,22 +4803,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:53:45.687Z",
+      "at": "2026-11-18T05:56:19.908Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS 첫자산 구체계약안 완료",
-      "scope": "§18필드/권한/공용quota/보관·확정상태측정지연·uploadTTL/삭제·실검증위치",
+      "trigger": "Ecom주인님직접실확장요청·SNS계약P1",
+      "scope": "ESM/제휴실물범위·ZIP/설치/사람단계/앱쓰기범위·quota/토큰TTL·코드전계약정합",
       "evidence": [
-        "msg_a0230c44e9de/684ea110b·W00§18직접읽기",
-        "원본PLAN해시/mtime보존확인",
-        "Mac정적검수msg_fb98184acf82·Master정합확인점작성자전달"
+        "msg_aa2299240077·요청서11-17정정4d31d626e직접읽기",
+        "Mac배정msg_55747fedf42b/Ecom통보msg_ac99cb9b6809",
+        "msg_21d4cc225cb8·SNS반환msg_e3692104bca7"
       ],
-      "judgment": "첫자산계약구체안수신·제품/SQL착수전정합검수필요. 특히같은프로그램ready후측정전누락은타프로그램한계로면책하지않기. 원본계획기여보존.",
+      "judgment": "Mac실확장준비배정·저장/등록/AI금지·내부시험대기열/이력변경만범위허용으로직접SQL0과분리. SNS핵심계약P1미해결로제품/DDL0.",
       "unverified": [
-        "독립계약최종/구체보완·공식추가계약효력",
-        "quota/권한/경합실SQL·실스토리지",
+        "Mac설치/로그인/실제brandlink·실ESM칸",
+        "SNS고정최종/계약보완",
         "CRM운영승인"
       ],
-      "nextAction": "Mac최종+Master확인점한번에문서보완→작은source단위·실비용0"
+      "nextAction": "준비/사람단계와계약결과회수·운영실행자동확대0"
     },
     "notifications": [
       {
