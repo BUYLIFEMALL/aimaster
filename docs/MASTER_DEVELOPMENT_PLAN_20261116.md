@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 13:13:01 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 13:15:08 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 13:13:01 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 13:15:08 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 3e2eb60a9 4파일·실route·중복확인/legacy/오류 경계·Mac 배정 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 중복확인 id 검증·source조회 예외 처리·후속 수정 반환 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 13:13:01 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 252개: done 237개 · cancelled 7개 · ready_review 2개 · running 1개 · waiting_human 5개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 252개: done 237개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 5개 · needs_revision 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -402,7 +402,7 @@ Master 마지막 실제 점검: 2026-11-18 13:13:01 KST · 실행 중 점검 주
 | DES-20261118-06 | AG-UI-01 | waiting_human / free_off_source_qa_pass_remote_build_approval_pending | 감성 설정 화면 주인님 직접지시·새배포 상태 취합 | 주인님정정안원격1회승인vs묶음대기결정→명시223dd manifest/팀큐→배포/실alias확인 |
 | ECOM-20261118-05 | CC-ECOM-01 | done / primary_documents_read_no_real_api | 무료 이미지 공식지원/본인키 무료할당량 대안 읽기조사 | 주인님무료방식결정후정확구현계획·공식약관/라이선스미확인유지 |
 | CRM-20261118-05 | CC-B2B-BACK-01 | done / specified_source_review_accepted_unreleased | 미확정 접수 후속알림 기본보류·가시성 | 미배포 묶음 보존·실운영 보호 주장0, 후속 CRM18-06 웹훅 연결 읽기계획 검토 |
-| CRM-20261118-06 | CC-B2B-BACK-01 | ready_review / u1_route_source_ready_independent_review_dispatched | 웹훅 중복 방지 실제 연결 최소 단위 계획 | Mac 실제route 중복/동시/회원범위/DB오류/응답유실/legacy 지정 검수→판정 |
+| CRM-20261118-06 | CC-B2B-BACK-01 | needs_revision / duplicate_id_validation_and_source_throw_fix_dispatched | 웹훅 중복 방지 실제 연결 최소 단위 계획 | Backend duplicate UUID/조회throw 고정오류 수정 SHA 회수→Mac 재검수 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
