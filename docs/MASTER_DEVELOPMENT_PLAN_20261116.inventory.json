@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 15:50:49 KST",
+  "checkedAt": "2026-11-18 15:52:18 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T06:50:49.518Z",
+      "at": "2026-11-18T06:52:18.858Z",
       "timezone": "Asia/Seoul",
-      "trigger": "격리시험 보강완료이벤트",
-      "scope": "3a48682cd 2파일diff·실잠금로그/정리/역할전제",
+      "trigger": "격리시험 독립최종판정",
+      "scope": "3a OID획득전실패안내 경계·store구현단위분리",
       "evidence": [
-        "msg_926fae1a46ad",
-        "Masterdiff직접·Macmsg_25e6a4769c00"
+        "msg_3f7a37ce6fa0"
       ],
-      "judgment": "보강작성자15/15수신·독립지정diff확인배정·migration불변/반복실행배정0",
+      "judgment": "시험핵심근거지정수락·도구P2최소경고보완/재DB시험불필요·이후store모의첫구현배정·운영효과주장0",
       "unverified": [
-        "Mac보강최종판정",
-        "실Supabase중앙/Storage통합",
-        "기타사람/승인단계"
+        "잔여cleanup경고diff",
+        "store구현/모의검수",
+        "실중앙Supabase/실upload"
       ],
-      "nextAction": "지정결과회수→다음store단위·유료/운영0"
+      "nextAction": "작은보완확인후store정확SHA회수→독립검수"
     },
     "notifications": [
       {
@@ -8285,22 +8284,37 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "A1 격리 PostgreSQL 계약시험",
-      "status": "reviewing",
-      "delivery": "harness_lock_PID_cleanup_role_preflight_fixed_final_review",
+      "status": "needs_revision",
+      "delivery": "specified_harness_review_accepted_minor_oid_capture_warning_remaining",
       "sha": "3a48682cd",
       "scopeRef": "tests/sql/a1_fixture.sql·a1_contract.test.mjs·필요최소migration수정·기존문서",
       "constraints": "기존Docker PG17.11·신규qa_aif_a1_20261118/oid검증후자기DB정리·aww/aww_dev/mb/운영접속reset0·설치0·store/route/upload/AI/build/push0",
       "completion": "원문migration컴파일/ACL/RLS/check/NULL/2연결reserve상한/identity/delete경합/토큰전이/재적용·stub vs실중앙분리·정리증거",
-      "evidence": "Mastermsg_1fd1abd7c316·사전msg_b62624ce5cd1(새DB아직0)·정확경로수락 · msg_46fae32a6a33/dcc798e12·Mastertest주요assertion읽기·Macmsg_1f5d56553c51 · msg_7273fa2ccde2 독립정적시험검수·msg_ebbf9064254a 다음store읽기준비 · msg_926fae1a46ad/3a48682cd·Masterdiff직접확인·Macmsg_25e6a4769c00",
-      "next": "Mac 보강diff/예외정리경로 최종판정→store모의첫단위배정",
-      "lastReviewedAt": "2026-11-18T06:50:49.518Z",
+      "evidence": "Mastermsg_1fd1abd7c316·사전msg_b62624ce5cd1(새DB아직0)·정확경로수락 · msg_46fae32a6a33/dcc798e12·Mastertest주요assertion읽기·Macmsg_1f5d56553c51 · msg_7273fa2ccde2 독립정적시험검수·msg_ebbf9064254a 다음store읽기준비 · msg_926fae1a46ad/3a48682cd·Masterdiff직접확인·Macmsg_25e6a4769c00 · Macmsg_3f7a37ce6fa0·잠금/정리/role보강지정수락·OID획득전실패안내P2",
+      "next": "CREATE 성공flag/OID미확보 잔존안내 최소보완·이름만DROP0·DB재시험불필요→별도커밋",
+      "lastReviewedAt": "2026-11-18T06:52:18.858Z",
       "validation": {
         "author": "PG17.11 새qaDB2회·1회14/15 시험자storage권한단언결함→시험만수정 15/15·migrationa29수정0·실2psql동시reserve/finalizeclaim·cleanup다른DBoid불변/qa잔존0 · 보강1회15/15·reserve holder59256/waiter59278 Lock/advisory blocking59256 2823ms·finalize59909/59930 blocking59909 2806ms·DROP성공/부재assert/role생성0",
         "master": "3a48682cd diff직접: pg_locks장벽/pg_stat_activity wait/pg_blocking_pids단언·cleanup조회/oid/DROP/부재throw·fixture CREATE ROLE제거·3역할preflight. 실재실행0",
-        "independent": "a29hash동일/SET ROLE/assert/stub범위확인·시험14→15는시험조회수정. 잠금은2프로세스+sleep경과만으로직접증거부족,cleanupDROP결과/부재assert누락,fixture clusterCREATE ROLE가능성→기존role전제확인/제거필요. 실SQL독립실행0",
+        "independent": "3a두시험파일 지정diff수락가능·실제잠금assert/확보OID정리/role전제해소. 잔여P2 CREATE성공후OID조회실패면잔존안내누락·원래시험실패이므로거짓15/15아님·이름만DROP금지",
         "limits": "policy본문/storage/auth대역·실Supabase권한/기본GRANT/중앙합산/실upload미검증"
       },
       "migrationSha256": "6733e508b80327062c5118a3ccd6bf0afe88a071a703b416c81ad391d38a5b2e"
+    },
+    {
+      "task_id": "AIF-20261118-W01g",
+      "parent_task_id": "AIF-20261118-W01f",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-QA-01",
+      "title": "생성 원본 저장 계층·주입 모의 시험",
+      "status": "dispatched",
+      "delivery": "bounded_implementation_after_cleanup_warning_patch",
+      "scopeRef": "src/lib/assets/store.ts·referenceImage.ts 최소export·tests/assetsStore.test.mjs·본인기존문서",
+      "constraints": "모의rpc/storage만·SQL/DB/실upload/실키/AI/패키지/route/build/push0·기존참고이미지1MiB불변·다른저자원본보존",
+      "completion": "generated20MiB/서명/SHA·reserve전실패RPC0·원격후unknown보존/삭제재업로드0·기대objectid·잘못된응답성공0·기존생성결과보존·관련시험/tsc",
+      "evidence": "msg_ebbf9064254a 인터페이스준비·Master지정소스배정(도구P2선보완뒤)",
+      "next": "정확경로점유등록/고지확인→모의단위구현/실모듈시험→Mac검수",
+      "lastReviewedAt": "2026-11-18T06:52:18.858Z"
     }
   ]
 }
