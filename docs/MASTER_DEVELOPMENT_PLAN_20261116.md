@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 16:34:46 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 16:36:17 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 16:34:46 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 16:36:17 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 이웃alias직접/작성자ZIPDB·예산2/3·공식GHSA 패치버전/직접Agent사용·보관R1불명경계 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: dd360 삭제불명/자동retry/보호복원·기산/기간·최초추적등록 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 16:34:46 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 280개: done 257개 · cancelled 7개 · ready_review 1개 · running 2개 · waiting_human 7개 · superseded 1개 · queued 3개 · reviewing 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 280개: done 257개 · cancelled 7개 · ready_review 1개 · running 2개 · waiting_human 7개 · superseded 1개 · queued 3개 · reviewing 1개 · needs_revision 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -430,7 +430,7 @@ Master 마지막 실제 점검: 2026-11-18 16:34:46 KST · 실행 중 점검 주
 | BLOG-20261118-03 | CC-BLOG-01 | queued / owner_approved_cleanup_backup_and_tag_first_exact_scope_after_releases | T08 구형 ghost-scraper 백업후정리 승인범위 구체화 | 기존website검수재사용·정확백업/삭제범위보고→착수범위확정 |
 | BLOG-20261118-04 | CC-BLOG-01 | queued / owner_product_decision_recorded_operating_DDL_Render_not_approved | T03 도메인 구조 캐시 회원별 격리 결정 반영 | T07Excel/T06선행관계확인뒤정확DB/Render플랜·비용취합 |
 | AIF-20261118-W01j | CC-SNS-01 | done / OFF_source_completion_and_activation_blockers_reconciled | A1 OFF소스완료표·운영선행 보관/정리 조건 취합 | W01k 30일보관정리 첫계약·운영ON차단유지 |
-| AIF-20261118-W01k | CC-SNS-01 | reviewing / retention_R1_received_delete_uncertainty_and_period_review | 원본 자산 일반30일 정리 연결 첫계약 | Mac R1 삭제불명현재존재→재시도/복원·1일정책·최초추적등록 정합검토 |
+| AIF-20261118-W01k | CC-SNS-01 | needs_revision / R1_quota_fixed_late_DELETE_unknown_and_retention_clock_returned | 원본 자산 일반30일 정리 연결 첫계약 | 외부DELETE시작후unknown 자동재삭제/복원0·claimed CAS근거·storage created_at 기산/+1일제거·최초ON tracking한안→국소검토 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
