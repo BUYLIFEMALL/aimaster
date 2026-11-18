@@ -1,15 +1,16 @@
 // ECOM-20261118-06 공용 「API 설정」 Cloudflare 2키 카드 — 모의 시험만(실제 Cloudflare·DB·키 쓰기 0).
-// 실행: node --test tests/cloudflareKeys.test.mjs  (메인 루트에 tsx·jsdom이 없어, 이미 설치된 emotion-writer의 esbuild와 ai-work-workspace의 jsdom을 빌려 묶어 실행한다. 새 설치 0)
+// 실행: node --test tests/cloudflareKeys.test.mjs
+// TypeScript는 tests/ts-loader.mjs(루트에 이미 설치된 typescript의 transpileModule)로 바로 불러온다 — 플랫폼 중립(Mac·Windows), 새 설치 0.
+// jsdom은 ai-work-workspace에 이미 설치된 것을 빌려 쓴다.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createRequire } from "node:module";
+import { createRequire, register } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1")), "..");
-const esbuild = createRequire(path.join(ROOT, "emotion-writer/package.json"))("esbuild");
-// 묶은 파일은 저장소 node_modules/.cache(git 제외)에 둔다 — react를 루트 node_modules에서 같은 인스턴스로 찾게 하려고.
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+// 모의 모듈은 저장소 node_modules/.cache(git 제외)에 둔다 — @supabase/supabase-js·react를 루트 node_modules에서 같은 인스턴스로 찾게 하려고.
 const OUT = path.join(ROOT, "node_modules", ".cache", "cfkeys-test");
 fs.mkdirSync(OUT, { recursive: true });
 
@@ -44,27 +45,16 @@ export function createServiceClient() {
 }
 `);
 
-async function bundle(entry, name, extra = {}) {
-  const outfile = path.join(OUT, name + ".mjs");
-  await esbuild.build({
-    entryPoints: [path.join(ROOT, entry)],
-    bundle: true, platform: "node", format: "esm", outfile, jsx: "automatic", logLevel: "error",
-    nodePaths: [path.join(ROOT, "node_modules")],
-    define: { "process.env.NODE_ENV": '"development"' },
-    external: ["react", "react-dom", "react-dom/client"],
-    plugins: [{ name: "alias", setup(b) {
-      // 모의 모듈은 묶지 않고 같은 파일을 공유(시험이 쿼리 기록을 볼 수 있게)
-      b.onResolve({ filter: /^@\/lib\/supabase\/(server|service)$/ }, () => ({ path: pathToFileURL(MOCKS).href, external: true }));
-      b.onResolve({ filter: /^@\// }, (a) => b.resolve(path.join(ROOT, a.path.slice(2)), { kind: a.kind, resolveDir: a.resolveDir }));
-    } }],
-    ...extra,
-  });
-  return import(pathToFileURL(outfile).href);
-}
+// '@/lib/supabase/server'·'service'는 모의 모듈로(이전 esbuild 별칭과 같은 범위), 나머지 '@/'는 저장소 루트로.
+const MOCKS_URL = pathToFileURL(MOCKS).href;
+register(new URL("./ts-loader.mjs", import.meta.url), {
+  data: { root: ROOT, aliases: { "@/lib/supabase/server": MOCKS_URL, "@/lib/supabase/service": MOCKS_URL } },
+});
+const load = (rel) => import(pathToFileURL(path.join(ROOT, rel)).href);
 
-const lib = await bundle("lib/integrations/cloudflareKeys.ts", "lib");
-const route = await bundle("app/api/user/cloudflare-keys/route.ts", "route");
-const mocks = await import(pathToFileURL(MOCKS).href);
+const lib = await load("lib/integrations/cloudflareKeys.ts");
+const route = await load("app/api/user/cloudflare-keys/route.ts");
+const mocks = await import(MOCKS_URL);
 const ACC = "0123456789abcdef0123456789abcdef";
 const U = "user-A";
 const req = (method, { body, headers = {}, url = "https://www.buylife.xyz/api/user/cloudflare-keys" } = {}) =>
@@ -253,18 +243,8 @@ const rq = createRequire(path.join(ROOT, "package.json"));
 const React = rq("react");
 const { createRoot } = rq("react-dom/client");
 const { act } = React;
-// 카드가 쓰는 의존성(lucide-react 등)이 require("react")를 써서, 화면만 CommonJS로 묶고 require로 불러온다(같은 react 인스턴스).
-await esbuild.build({
-  entryPoints: [path.join(ROOT, "components/settings/CloudflareKeysCard.tsx")],
-  bundle: true, platform: "node", format: "cjs", outfile: path.join(OUT, "card.cjs"), jsx: "automatic", logLevel: "error",
-  nodePaths: [path.join(ROOT, "node_modules")],
-  define: { "process.env.NODE_ENV": '"development"' },
-  external: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
-  plugins: [{ name: "alias", setup(b) {
-    b.onResolve({ filter: /^@\// }, (a) => b.resolve(path.join(ROOT, a.path.slice(2)), { kind: a.kind, resolveDir: a.resolveDir }));
-  } }],
-});
-const Card = createRequire(path.join(OUT, "x.cjs"))("./card.cjs").default;
+// 실제 카드 컴포넌트를 로더로 바로 불러온다(복제·대체 함수 0, react는 루트 node_modules의 같은 인스턴스).
+const Card = (await load("components/settings/CloudflareKeysCard.tsx")).default;
 const tick = (ms = 0) => new Promise((r) => setTimeout(r, ms));
 const text = (h) => h.textContent.replace(/\s+/g, " ");
 
