@@ -5367,13 +5367,13 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T12:00:42.737Z",
+      "at": "2026-11-18T12:30:52.353Z",
       "timezone": "Asia/Seoul",
-      "trigger": "21:00 KST 30분 예약 메시지 수신",
-      "scope": "20:30 이후 Git·결과·인수인계·점유·관리자 요청, 19개 분류와 미종결 작업의 사람/운영 선행조건 대조.",
+      "trigger": "21:30 KST 30분 예약 메시지 수신",
+      "scope": "21:00 이후 Git·결과·인수인계·점유·관리자 요청, 19개 분류와 미종결 작업의 사람/운영 선행조건 대조.",
       "evidence": [
-        "msg_44a95ef69fdf",
-        "1541e6bab 직전 점검 이후 새 작업 커밋과 결과 없음",
+        "msg_130d79b8719d",
+        "c07dae158 직전 점검 이후 새 작업 커밋과 결과 없음",
         "관리자 요청 대기 0·기존 HANDOFF 9줄"
       ],
       "judgment": "새 완료·직접 지시·승인 신호 없음. W01s 로컬 종결·미배포, Gmail 시험 동의 대기. 새 배정 없음.",
