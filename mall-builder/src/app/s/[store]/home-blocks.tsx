@@ -196,7 +196,7 @@ export function TabsView({ title, labels, panels, skin }: { title: string; label
   // 편집기에서 탭을 줄이면 고른 번호가 범위 밖일 수 있다 → 마지막 탭(빈 패널·선택 없음 방지)
   const sel = labels.length ? Math.min(i, labels.length - 1) : 0;
   const tabId = (j: number) => `${uid}-tab-${j}`;
-  const panelId = `${uid}-panel`;
+  const panelId = (j: number) => `${uid}-panel-${j}`;
   return (
     <div className="px-4 sm:px-6" data-tabs>
       {title && <h2 className="mb-4 text-xl font-black tracking-tight text-slate-900" data-edit-field="title">{title}</h2>}
@@ -221,7 +221,7 @@ export function TabsView({ title, labels, panels, skin }: { title: string; label
             role="tab"
             id={tabId(j)}
             aria-selected={sel === j}
-            aria-controls={panelId}
+            aria-controls={panelId(j)}
             tabIndex={sel === j ? 0 : -1}
             onClick={() => setI(j)}
             className={
@@ -236,12 +236,12 @@ export function TabsView({ title, labels, panels, skin }: { title: string; label
           </button>
         ))}
       </div>
-      {/* 패널은 지금처럼 고른 것 하나만 그린다(숨은 패널 없음 = 추가 조회·부하·초점 없음) */}
-      {labels.length > 0 && (
-        <div role="tabpanel" id={panelId} aria-labelledby={tabId(sel)} tabIndex={0}>
-          {panels[sel]}
+      {/* 탭마다 자기 패널(일대일 id·aria). 내용은 지금처럼 고른 패널에만 — 안 고른 패널은 hidden 빈 상자(내용·조회·초점 없음) */}
+      {labels.map((_, j) => (
+        <div key={j} role="tabpanel" id={panelId(j)} aria-labelledby={tabId(j)} hidden={sel !== j} tabIndex={sel === j ? 0 : undefined}>
+          {sel === j ? panels[j] : null}
         </div>
-      )}
+      ))}
     </div>
   );
 }

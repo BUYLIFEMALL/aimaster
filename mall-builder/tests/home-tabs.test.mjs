@@ -51,7 +51,7 @@ test("tabKeyIndex: →/← 순환, Home/End 처음·끝, 위/아래·Tab·Enter�
   assert.equal(tabKeyIndex("ArrowRight", 0, 0), null);
 });
 
-test("실제 키 이벤트: 로빙 tabIndex(0은 하나), ←/→/Home/End로 선택·초점 이동, 패널 하나·id/aria 관계, 두 블록 ID 안 겹침", async () => {
+test("실제 키 이벤트: 로빙 tabIndex(0은 하나), ←/→/Home/End로 선택·초점 이동, 탭·패널 일대일 id/aria, 안 고른 패널은 hidden 빈 상자, 두 블록 ID 안 겹침", async () => {
   const { TabsView } = await loadTabs();
   const h = await mount(null);
   const { React, root, win } = h;
@@ -62,15 +62,27 @@ test("실제 키 이벤트: 로빙 tabIndex(0은 하나), ←/→/Home/End로 �
   const state = (list) => {
     const tabs = [...list.querySelectorAll("[role=tab]")];
     const panels = [...list.parentElement.querySelectorAll("[role=tabpanel]")];
-    return { tabs, panels, sel: tabs.findIndex((t) => t.getAttribute("aria-selected") === "true"), tab0: tabs.filter((t) => t.tabIndex === 0).length };
+    const shown = panels.filter((p) => !p.hidden);
+    return { tabs, panels, shown, sel: tabs.findIndex((t) => t.getAttribute("aria-selected") === "true"), tab0: tabs.filter((t) => t.tabIndex === 0).length };
+  };
+  // 일대일: 탭 j → 패널 j(aria-controls ↔ id, aria-labelledby ↔ 탭 id), 고른 패널만 보이고 내용, 안 고른 패널은 hidden 빈 상자
+  const pairs = (s) => {
+    assert.equal(s.panels.length, s.tabs.length, "탭마다 패널");
+    s.tabs.forEach((t, j) => {
+      const p = s.panels[j];
+      assert.equal(t.getAttribute("aria-controls"), p.id, `탭 ${j} → 패널 ${j}`);
+      assert.equal(p.getAttribute("aria-labelledby"), t.id, `패널 ${j} ← 탭 ${j}`);
+      assert.equal(p.hidden, j !== s.sel, `패널 ${j} 보임 여부`);
+      assert.equal(p.childElementCount, j === s.sel ? 1 : 0, `패널 ${j} 내용(안 고른 패널은 비어 있음)`);
+      if (j !== s.sel) assert.notEqual(p.tabIndex, 0, "숨은 패널은 Tab 대상 아님");
+    });
+    assert.equal(s.shown.length, 1, "보이는 패널 하나");
+    assert.equal(s.shown[0].tabIndex, 0);
   };
   for (const list of lists) {
     const s = state(list);
     assert.equal(s.tab0, 1, "Tab으로 들어가는 탭은 하나");
-    assert.equal(s.panels.length, 1, "패널은 지금처럼 하나만");
-    assert.equal(s.panels[0].tabIndex, 0);
-    for (const t of s.tabs) assert.equal(t.getAttribute("aria-controls"), s.panels[0].id);
-    assert.equal(s.panels[0].getAttribute("aria-labelledby"), s.tabs[s.sel].id);
+    pairs(s);
   }
   const ids = [...root.querySelectorAll("[role=tab],[role=tabpanel]")].map((e) => e.id);
   assert.equal(new Set(ids).size, ids.length, "여러 블록이어도 id 안 겹침");
@@ -82,7 +94,9 @@ test("실제 키 이벤트: 로빙 tabIndex(0은 하나), ←/→/Home/End로 �
   let s = state(line);
   assert.equal(s.sel, 2, "← 처음에서 끝으로 순환");
   assert.equal(document.activeElement, s.tabs[2], "초점도 함께");
+  assert.equal(line.parentElement.querySelectorAll("[data-panel]").length, 1, "본문은 고른 패널 하나에만");
   assert.equal(line.parentElement.querySelector("[data-panel]").getAttribute("data-panel"), "P2");
+  pairs(s);
   await key(line, "ArrowRight");
   assert.equal(state(line).sel, 0);
   await key(line, "End");
@@ -92,10 +106,11 @@ test("실제 키 이벤트: 로빙 tabIndex(0은 하나), ←/→/Home/End로 �
   assert.equal(s.sel, 0);
   assert.equal(s.tab0, 1);
   assert.equal(document.activeElement, s.tabs[0]);
-  assert.equal(s.panels[0].getAttribute("aria-labelledby"), s.tabs[0].id);
+  pairs(s);
   // 클릭으로 고르기는 그대로
   await React.act(async () => s.tabs[1].click());
   assert.equal(state(line).sel, 1);
+  pairs(state(line));
   // 다른 블록은 영향 없음
   assert.equal(state(lists[1]).sel, 0);
   await h.close();
@@ -113,6 +128,8 @@ test("편집기에서 탭 수가 줄면 선택이 마지막 탭으로 — 빈 �
   assert.equal(tabs.findIndex((t) => t.getAttribute("aria-selected") === "true"), 1);
   assert.equal(tabs.filter((t) => t.tabIndex === 0).length, 1);
   assert.equal(root.querySelector("[data-panel]").getAttribute("data-panel"), "b");
+  assert.equal(root.querySelectorAll("[role=tabpanel]").length, 2, "줄어든 탭 수만큼 패널");
+  assert.equal(root.querySelectorAll("[data-panel]").length, 1);
   await h.close();
 });
 
