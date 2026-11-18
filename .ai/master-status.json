@@ -4931,18 +4931,18 @@
       "reviewer": "CX-QA-01",
       "title": "워크스페이스 내부 네 화면 연결",
       "status": "reviewing",
-      "delivery": "four_views_source_received_mac_review_requested",
+      "delivery": "four_views_routing_mac_pass_browser_verification_pending",
       "scopeRef": "셸·새 View·필수 router/entry/시험 정확 파일 등록",
       "constraints": "기존 URL/권한/콜백·콘텐츠 보존. 실 OAuth/DB/키·빌드/배포 0.",
-      "evidence": "e7f72c5a7·dbd8d046d·f09f4a737·Workspace 직접 보고·msg_df532636f435",
-      "next": "Mac 경로·계정·Gmail 플래그·스크롤 검수 대기. 일부 내부 링크/OAuth 복귀는 기존 별도 페이지.",
+      "evidence": "e7f72c5a7·dbd8d046d·f09f4a737·Workspace 직접 보고·msg_df532636f435 / msg_935315da80f1 / .ai/results/WS-20261118-04-CX-QA-01.md",
+      "next": "경로 모의·접근/CSS 정적 확인. 실제 좌우 스크롤·좁은 폭/뒤로가기·빌드 미검증.",
       "completion": "/inbox·/calendar-sync·/settings/keys·/guide, 좌측 메뉴 유지 및 독립 스크롤, 직접/뒤로/모바일 보존",
-      "lastReviewedAt": "2026-11-18T13:43:33.237Z",
+      "lastReviewedAt": "2026-11-18T13:44:59.939Z",
       "sha": "e7f72c5a7",
       "validation": {
         "author": "vitest 9파일 131/131 모의·tsc 통과 보고.",
         "master": "셸 경로 및 기존 URL/OAuth 접근과 서버 진입 차이 확인. 실 브라우저/빌드 미확인.",
-        "independent": "Mac 고정 국소 검수 전송"
+        "independent": "Mac 실제 router/routeSpace 가짜 location·history 모의 통과. 권한·계정·Gmail·CSS는 정적. Rolldown native binding 누락으로 Vitest DOM 미실행."
       }
     },
     {
@@ -5483,21 +5483,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T13:43:33.237Z",
+      "at": "2026-11-18T13:44:59.939Z",
       "timezone": "Asia/Seoul",
-      "trigger": "WS04 소스 반환 및 W01v Mac 검수",
-      "scope": "e7f72c5a7 셸/직접 주소/접근 소스와 f1cf8b7f3 독립 검수 확인.",
+      "trigger": "WS04 Mac 독립 판정 및 W01v 점유 해제",
+      "scope": "고정 e7f72c5a7 경로 모의 결과와 실제 화면 검수 한계 확인.",
       "evidence": [
-        "Workspace 직접 보고·e7f72c5a7·msg_df532636f435",
-        "msg_6276b0a24e0b·msg_8bd73bf64832"
+        "msg_935315da80f1·.ai/results/WS-20261118-04-CX-QA-01.md",
+        "msg_86309813dfaf·7cd93fa15"
       ],
-      "judgment": "WS04 독립 검수 배정, W01v 로컬 단계 완료.",
+      "judgment": "네 경로 국소 모의 수락. 스크롤·모바일은 실제 브라우저 확인 대기. W01v 점유 해제.",
       "unverified": [
-        "WS04 실 스크롤·뒤로·모바일·빌드 및 독립 판정",
-        "WS27 콜백·Gmail 실검증",
-        "W01v 브라우저 렌더·운영"
+        "WS04 실 스크롤·좁은 폭·뒤로가기 및 빌드",
+        "WS27 Gmail 콜백·실검증",
+        "W01v 실제 렌더·운영"
       ],
-      "nextAction": "WS04 Mac 근거와 W01v 점유 해제 회수."
+      "nextAction": "WS04 실제 화면 근거 확보 전 화면 완료/운영으로 판정하지 않음."
     },
     "notifications": [
       {
