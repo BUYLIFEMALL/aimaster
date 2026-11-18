@@ -4324,7 +4324,7 @@
       "scopeRef": "프로그램내 신규 aif_assets_a1 migration초안·src/lib/assets/paths.ts·순수시험/본인기존문서",
       "completion": "계약두표/6함수/잠금/서비스권한/unknown보존/objectidentity 초안·경로검증실시험/tsc·정확SHA·미실행SQL구분",
       "constraints": "다른저자미커밋보존·store/라우트0·SQL실행/DB/버킷/실저장/AI/설치/build/push0·공용quota/retention수정0",
-      "evidence": "W00최종037·Masterdispatch msg_063c9804ec87",
+      "evidence": "W00최종037·Masterdispatch msg_063c9804ec87 · Mac수락msg_f3fa3161bd5b(검수준비·정확SHA대기)",
       "next": "담당정확경로예약/착수→첫코드SHA→Mac지정검수",
       "lastReviewedAt": "2026-11-18T06:20:22.198Z"
     }
@@ -4840,13 +4840,14 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T06:20:22.198Z",
+      "at": "2026-11-18T06:20:48.002Z",
       "timezone": "Asia/Seoul",
       "trigger": "SNS 마지막계약수정완료",
       "scope": "037 실제diff·기존원본계획 소유보존·후속실행범위",
       "evidence": [
         "msg_bb04d135f9b2/037bfcacc",
-        "msg_063c9804ec87/5d20c706126b"
+        "msg_063c9804ec87/5d20c706126b",
+        "msg_f3fa3161bd5b Mac준비ACK"
       ],
       "judgment": "A1 개정계약수락·SQL초안/순수paths 한책임자첫구현배정·운영승인확대0",
       "unverified": [
