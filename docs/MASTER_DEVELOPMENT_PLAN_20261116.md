@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 14:43:18 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 14:45:36 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 14:43:18 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 14:45:36 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: HEIF식별/모호코덱거절·활성필드타입·스트림고정오류·실route검수 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: staged지원/보호제약·Master배포방식판정·신규비용/운영권한 단일승인요청 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 14:43:18 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 266개: done 248개 · cancelled 7개 · ready_review 2개 · running 1개 · waiting_human 6개 · queued 1개 · needs_revision 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 266개: done 248개 · cancelled 7개 · ready_review 2개 · running 1개 · waiting_human 7개 · queued 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -416,7 +416,7 @@ Master 마지막 실제 점검: 2026-11-18 14:43:18 KST · 실행 중 점검 주
 | CRM-20261118-08 | CC-B2B-BACK-01 | done / followup_single_attempt_source_review_accepted_unreleased | 팔로우업 SOLAPI SDK 재시도 제거·검수 전송기 재사용 | 미배포묶음보존·U3/운영DDL/배포/실SMS조건후속, 다른공용SDK영향별도 |
 | CRM-20261118-09 | CC-B2B-BACK-01 | done / versioned_script_and_server_field_preservation_source_accepted_unreleased | Apps Script v2 이벤트키 스니펫·legacy 안내 연결 | CRM18-10 명시릴리스준비·실AppsScript/DDL/배포/SMS승인별도 |
 | AIF-20261118-W01c | CC-SNS-01 | ready_review / reference_input_three_edge_case_fixes_independent_review | 참고 이미지 MIME/서명 처리 독립 개선 범위 계획 | Mac ftyp/active타입/read예외·실route generate0/정상회귀 지정재검수 |
-| CRM-20261118-10 | CC-B2B-BACK-01 | needs_revision / release_checklist_review_publication_and_sms_budget_sequence_fix_requested | CRM 중복방지 묶음 명시소스·DDL·실검수 릴리스 준비 | staged production지원/보호/AppsScript제약·공개순서·문자1통시나리오정합 보완→구체승인요청 |
+| CRM-20261118-10 | CC-B2B-BACK-01 | waiting_human / concrete_release_prepared_single_owner_approval_pending | CRM 중복방지 묶음 명시소스·DDL·실검수 릴리스 준비 | 주인님 DDL/버전/로컬1+원격1/SMS1 승인신호→단일담당순번·직전운영기준대조·실행 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
@@ -475,6 +475,7 @@ Master 마지막 실제 점검: 2026-11-18 14:43:18 KST · 실행 중 점검 주
 | 감성 무료이미지 실행방식 | 주인님ECOM직접 진행해=Cloudflare회원본인키 방식 선택완료 | 공용키2개재사용·무료량잔여/귀속확인·실생성최대1조건부·서버/UI점유분리·정정배포승인별도 |
 | 감성 무료OFF 정정안 운영반영 | 검수완료223ddc6b3 UI보존·원격빌드1회 승인vs묶음대기 질문 | 실이미지호출0·현재운영freeOFF아님·승인전신규배포0 |
 | Cloudflare 시험계정 토큰 인증/잔여 확인 | 시험회원본인 Cloudflare 토큰/계정권한 확인 후 기존API키화면에서 직접수정(키채팅0) | 인증401/권한403·잔여미확인, 원인미확정. 실생성0·서버모의구현은계속, 추가Analytics권한은자동부여0 |
+| CRM v1.18 운영 릴리스 묶음 | Master단일승인질문: 운영DDL1/버전·로컬빌드1+Vercel1·시험번호SMS1/동일이벤트재전송추가0·Google직접단계 | 명시e258제품tree+버전overlay·정식주소승격후같은회차실검수·실패빌드없는rollback·보호우회토큰0 |
 
 ## 주인님 결정으로 후일 재개하는 항목
 

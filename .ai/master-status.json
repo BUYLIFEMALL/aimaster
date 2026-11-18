@@ -4243,18 +4243,18 @@
       "parent_task_id": "CRM-20261118-09",
       "title": "CRM 중복방지 묶음 명시소스·DDL·실검수 릴리스 준비",
       "owner": "CC-B2B-BACK-01",
-      "status": "needs_revision",
-      "delivery": "release_checklist_review_publication_and_sms_budget_sequence_fix_requested",
+      "status": "waiting_human",
+      "delivery": "concrete_release_prepared_single_owner_approval_pending",
       "scopeRef": "기존결과/개선표/역할·읽기검사만, 제품소스동결",
       "completion": "파일별SHA/blob/tree·DDLhash/사전SQL/권한/롤백·정확순서·빌드예산/실SMS/사람단계 구체안",
-      "constraints": "운영SQL/버전/빌드/실문자/Google/push0·메인동반자동배포주의",
-      "next": "staged production지원/보호/AppsScript제약·공개순서·문자1통시나리오정합 보완→구체승인요청",
-      "evidence": "U1/U2/접수/팔로우업/U3 지정소스PASS·Master범위준비배정 · msg_a62d1b410a26·Master35절/실SourceCard/DDLhash확인",
-      "lastReviewedAt": "2026-11-18T05:41:09.763Z",
-      "sha": "47cd321da",
+      "constraints": "승인전SQL/버전/빌드/실문자/Google/push0·보호우회토큰생성0·추가비용임의실행0",
+      "next": "주인님 DDL/버전/로컬1+원격1/SMS1 승인신호→단일담당순번·직전운영기준대조·실행",
+      "evidence": "U1/U2/접수/팔로우업/U3 지정소스PASS·Master범위준비배정 · msg_a62d1b410a26·Master35절/실SourceCard/DDLhash확인 · msg_d7dae74d8b00/4310d54c2·Master승격동시검수안선택/승인질문1곳",
+      "lastReviewedAt": "2026-11-18T05:45:36.410Z",
+      "sha": "4310d54c2",
       "validation": {
         "author": "35절 파일12SHA/blob/tree024f2427·DDL원문hash·순서/권한/멈춤/예산표 준비·실행0",
-        "master": "DDLsha2562e0b8eb84461d47b030016a00aedd734ddaeb1cbbef46da6800e8ce84925f450일치. 현재SourceCard신규배포면바로공개·문자legacy1+v2추가1과예산1통모순 보완반환",
+        "master": "DDLsha2562e0b8eb84461d47b030016a00aedd734ddaeb1cbbef46da6800e8ce84925f450일치. 현재SourceCard신규배포면바로공개·문자legacy1+v2추가1과예산1통모순 보완반환 staged지원있으나vercel보호/화면308으로실검증제약·Master추가보호변경없는정식승격동시검수안선택. 문자v2응답1+동일재전송0추가로정합,DB버전승격후.",
         "independent": "실운영/배포/SQL미실행"
       }
     }
@@ -4734,6 +4734,11 @@
       "condition": "Cloudflare 시험계정 토큰 인증/잔여 확인",
       "action": "시험회원본인 Cloudflare 토큰/계정권한 확인 후 기존API키화면에서 직접수정(키채팅0)",
       "recommendation": "인증401/권한403·잔여미확인, 원인미확정. 실생성0·서버모의구현은계속, 추가Analytics권한은자동부여0"
+    },
+    {
+      "condition": "CRM v1.18 운영 릴리스 묶음",
+      "action": "Master단일승인질문: 운영DDL1/버전·로컬빌드1+Vercel1·시험번호SMS1/동일이벤트재전송추가0·Google직접단계",
+      "recommendation": "명시e258제품tree+버전overlay·정식주소승격후같은회차실검수·실패빌드없는rollback·보호우회토큰0"
     }
   ],
   "redispatch": {
@@ -4760,20 +4765,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:43:18.130Z",
+      "at": "2026-11-18T05:45:36.410Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS 입력경계 3반례 수정완료",
-      "scope": "HEIF식별/모호코덱거절·활성필드타입·스트림고정오류·실route검수",
+      "trigger": "CRM릴리스 공개순서 보완 최종안",
+      "scope": "staged지원/보호제약·Master배포방식판정·신규비용/운영권한 단일승인요청",
       "evidence": [
-        "msg_652064f9ba5e/d4386242b 3파일stat",
-        "Mac3반례/정상회귀 검수전달"
+        "msg_d7dae74d8b00/4310d54c2",
+        "Master비우회정식승격동시검수안선택",
+        "주인님async승인질문1곳·Backend대기통보"
       ],
-      "judgment": "보완소스수신·작성자69시험과독립지정판정분리. 공급자지원/전체디코드/실AI보증아님·유료0유지.",
+      "judgment": "구체릴리스준비완료·운영DDL/빌드/SMS신규승인대기. 기존소스수락을운영실행승인으로대신하지않음·보호설정변경0.",
       "unverified": [
-        "d438 독립검수·클라이언트변환실UI",
-        "CRM staged릴리스순서/승인"
+        "주인님승인·실번호/Google가용성",
+        "실운영기준버전/DDL현재상태·배포",
+        "SNS입력보완독립결과"
       ],
-      "nextAction": "지정결과/구체릴리스안회수·배포/푸시0"
+      "nextAction": "승인시한담당순번지정·조건별실행·회신전의존작업0"
     },
     "notifications": [
       {
