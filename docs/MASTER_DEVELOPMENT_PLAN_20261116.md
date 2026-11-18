@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 03:46:09 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 03:46:57 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -405,7 +405,7 @@ Master 마지막 실제 점검: 2026-11-19 03:32:15 KST · 실행 중 점검 주
 | B2B-20261119-FRONTP3 | CC-B2B-FRONT-01 | done / storefront_button_and_price_independent_review_accepted_undeployed | B2B몰 버튼 터치 영역과 원래 가격 대비 보완 | 두 변경 독립 15/15 수락. 미배포이며 Lab 7609748ad에 미포함. 주문서 S70은 별도 진행. |
 | B2B-20261119-FRONTREL | CC-B2B-FRONT-01 | done / production_base_proven_ui_bundle_queued | B2B몰 UI 배포 범위와 순번 준비 | 운영 v1.16 READY. 가격 두 소스는 단독 적용 가능, 갤러리 90248e5b1은 7c8ee3a81·e4ba29947 동반 필요. 기존 다음 배포 묶음에 대기. |
 | B2B-20261119-S70 | CC-B2B-BACK-01 | reviewing / hardened_suite_pass_rollback_guard_dispatched | 주문서 무통장 현금영수증 접수와 입금 확인 경합 처리 | 전용 Docker·DB 보호 및 엄격한 0100 회귀 포함 격리 19/19. 신규 접수 권한도 되돌리기에서 회수하도록 보완 배정. |
-| B2B-20261119-S70-FRONT | CC-B2B-FRONT-01 | reviewing / checkout_rpc_exception_fixed_recheck_dispatched | 주문서 UI에 무통장 현금영수증 접수 연결 | 0105 접수 호출 reject/throw 시 완료 주문 상세 이동을 유지. 작성자 모의 25/25·타입 통과, Mac 재검수 전달. |
+| B2B-20261119-S70-FRONT | CC-B2B-FRONT-01 | done / checkout_rpc_exception_independent_recheck_passed_undeployed | 주문서 UI에 무통장 현금영수증 접수 연결 | Mac 재검수 기존 6/6·별도 결제수단 3/3. 예외 때 완료 주문 상세 이동 및 기존 결제 경로 확인. 0105 롤백 보완과 Lab 검증 대기, 미배포. |
 | B2B-20261119-SAMPLE-S1 | CC-B2B-BACK-01 | done / owner_direct_sample_content_update_reported | 운영 샘플몰 상품 사진과 설명 보완 | 담당 보고 기준 상품 16개 보완, 전체 상품 사진 25/25, 화면 이미지 33개 중 오류 0. |
 | B2B-20261119-MAKER | CC-B2B-BACK-01 | queued / m1_scope_reviewed_queued_after_s70 | B2B 메이커 연계 M1~M3 선행 범위 대조 | S70 결과 뒤 M1 점유·순번 확정. 공용 사본·관리 상품 목록 보내기만. M2 저장·정리 정책 별도, M1 단독 배포 없음. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |

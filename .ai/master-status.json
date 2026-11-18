@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T18:46:09.432Z",
+  "checkedAt": "2026-11-18T18:46:57.548Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5810,13 +5810,13 @@
       "owner": "CC-B2B-FRONT-01",
       "reviewer": "CX-MASTER-01",
       "title": "주문서 UI에 무통장 현금영수증 접수 연결",
-      "status": "reviewing",
-      "delivery": "checkout_rpc_exception_fixed_recheck_dispatched",
+      "status": "done",
+      "delivery": "checkout_rpc_exception_independent_recheck_passed_undeployed",
       "scopeRef": "장바구니 order 페이지·액션·폼·로컬 계약 시험",
       "constraints": "운영·공용 Lab·SQL 적용·빌드·배포·실결제·push 0.",
-      "evidence": "msg_dc044907421b·msg_25b454a8d3b9·9d1b8624e·50d3e6162·aa3304c73·59b30d2a5·msg_fad3e5743c94·msg_c95a652555d5·msg_1896ea3cbaa4·msg_56ced92ca77d·ee35d6eb1·2dbf6c4bd·msg_11d5f66c69e5·msg_a6d2273ae709",
-      "next": "0105 접수 호출 reject/throw 시 완료 주문 상세 이동을 유지. 작성자 모의 25/25·타입 통과, Mac 재검수 전달.",
-      "lastReviewedAt": "2026-11-18T18:46:09.432Z",
+      "evidence": "msg_dc044907421b·msg_25b454a8d3b9·9d1b8624e·50d3e6162·aa3304c73·59b30d2a5·msg_fad3e5743c94·msg_c95a652555d5·msg_1896ea3cbaa4·msg_56ced92ca77d·ee35d6eb1·2dbf6c4bd·msg_11d5f66c69e5·msg_a6d2273ae709·msg_756d7e2088dc·.ai/results/B2B-20261119-S70-CX-QA-01.md",
+      "next": "Mac 재검수 기존 6/6·별도 결제수단 3/3. 예외 때 완료 주문 상세 이동 및 기존 결제 경로 확인. 0105 롤백 보완과 Lab 검증 대기, 미배포.",
+      "lastReviewedAt": "2026-11-18T18:46:57.548Z",
       "sha": "ee35d6eb1"
     }
   ],
