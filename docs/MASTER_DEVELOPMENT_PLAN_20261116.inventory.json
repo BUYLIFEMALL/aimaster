@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T19:57:09.298Z",
+  "checkedAt": "2026-11-18T19:58:52.904Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9963,10 +9963,10 @@
       "reviewer": "CX-MASTER-01",
       "title": "메이커 M2 사진 제안 화면·저장 응답 연결",
       "status": "reviewing",
-      "delivery": "stale_storage_jpeg_fixes_returned_recheck_dispatched",
-      "evidence": "msg_b70ca64fa3f5·dc779bc2a·msg_c506ba34f9a0·msg_f0cc2be892c9·b658c10e4·4819453de·msg_a43696ef5490·msg_3c336c319413·msg_d7d48cd11e2e·msg_e3de9bf4cbc4·2761ee0e1·msg_7006be1418d0",
-      "next": "작업 전환·불명 오류·삭제 승인·JPEG 치수 보완. 작성자 모의 30/30·전체 537/537, Mac 재검수 전달. 실제 Storage/Lab 미검증.",
-      "lastReviewedAt": "2026-11-18T19:57:09.298Z",
+      "delivery": "independent_p2_pass_sdk_conflict_fix_dispatched",
+      "evidence": "msg_b70ca64fa3f5·dc779bc2a·msg_c506ba34f9a0·msg_f0cc2be892c9·b658c10e4·4819453de·msg_a43696ef5490·msg_3c336c319413·msg_d7d48cd11e2e·msg_e3de9bf4cbc4·2761ee0e1·msg_7006be1418d0·msg_65c79c2fe3bd·msg_4ba128209829",
+      "next": "Mac 독립 30/30, 이전 P2 해소. Storage SDK에서 명확한 객체 중복 코드만 구분하도록 보완. 실제 Storage 미검증.",
+      "lastReviewedAt": "2026-11-18T19:58:52.904Z",
       "sha": "2761ee0e1"
     },
     {
@@ -9975,11 +9975,12 @@
       "owner": "CC-REALTY-01",
       "reviewer": "CX-MASTER-01",
       "title": "부동산 고객관리 화면 개선",
-      "status": "queued",
-      "delivery": "owner_sequence_plan_accepted_l1_implementation_dispatched",
-      "evidence": "msg_689770148f5e·ac4d4bf59·msg_1d502a93ca22",
-      "next": "L-1 최근 실거래 읽기부터, L-2 사유 합계와 U-1 미리보기 다음. 확장 연계 C-1 별도. 발송·DB 쓰기·배포 없음.",
-      "lastReviewedAt": "2026-11-18T19:55:29.208Z"
+      "status": "reviewing",
+      "delivery": "l1_returned_exact_region_query_fix_requested",
+      "evidence": "msg_689770148f5e·ac4d4bf59·msg_1d502a93ca22·msg_c1583351e267·c8d479cb9·msg_d05ff0a510fa",
+      "next": "최근 실거래 작성자 30/30. 조회 제한 전에 정확 지역을 결정하고 오류/빈 응답 및 계약일 문구를 구분하도록 보완.",
+      "lastReviewedAt": "2026-11-18T19:58:52.904Z",
+      "sha": "c8d479cb9"
     }
   ]
 }

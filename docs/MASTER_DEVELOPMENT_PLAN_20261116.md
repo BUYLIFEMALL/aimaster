@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 04:55:29 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 04:58:52 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -167,7 +167,7 @@ Master 마지막 실제 점검: 2026-11-19 04:31:21 KST · 실행 중 점검 주
 | FRONT-20261116-02 | CC-B2B-FRONT-01 | done / integrated | E3 Lab검수→식품/키즈/뷰티 각6종 템플릿 | 6종구현/420시험/E3·갤러리Lab확인·Master카탈로그등록 완료. v1.16배포는별도대기 |
 | RE-20261116-01 | CC-REALTY-01 | done / integrated | L-6 기술안·뉴스미배포정정·17시험 | 대안1 채택, 구현은RE-02로 분리 |
 | RE-20261119-EXT | CC-REALTY-01 | running / three_program_linkage_independent_accepted_crm_plan_routed | 부동산 추가 개선 순차 진행 | 매물 알림 8 blob·독립 3/3, 관심 지역 3프로그램 연계 로컬 수락. 실 화면·DB 권한 검증 및 배포 대기. 고객관리 플랜 이동. |
-| RE-20261119-DESK | CC-REALTY-01 | queued / owner_sequence_plan_accepted_l1_implementation_dispatched | 부동산 고객관리 화면 개선 | L-1 최근 실거래 읽기부터, L-2 사유 합계와 U-1 미리보기 다음. 확장 연계 C-1 별도. 발송·DB 쓰기·배포 없음. |
+| RE-20261119-DESK | CC-REALTY-01 | reviewing / l1_returned_exact_region_query_fix_requested | 부동산 고객관리 화면 개선 | 최근 실거래 작성자 30/30. 조회 제한 전에 정확 지역을 결정하고 오류/빈 응답 및 계약일 문구를 구분하도록 보완. |
 | RE-20261116-02 | CC-REALTY-01 | done / integrated | 카톡실패상태·끊긴토큰재발송방지·local로그아웃/UA | 사용자 직접 승인 배포 v1.45/v1.61. 카카오 실물·08:00 뉴스 대조 별도 |
 | BLOG-20261116-01 | CC-BLOG-01 | done / integrated | 티스토리 소제목##·이웃 전경거절 진단 보완 | 코드검증범위 완료, 이웃재시험/배포/실제소통은별도대기 |
 | QA-20261116-01 | CX-QA-01 | cancelled / integrated | 종합 QA를 영상/Workspace로 분리 | 중복 배정 종료, 검증 완료 의미 아님 |
@@ -415,7 +415,7 @@ Master 마지막 실제 점검: 2026-11-19 04:31:21 KST · 실행 중 점검 주
 | B2B-20261119-SAMPLE-QA | CX-QA-01 | done / public_sample_layout_verified_read_only | 운영 B2B 샘플몰 공개 화면 독립 검수 | Mac 1280/375에서 홈·5개 카테고리·상세 2개 확인. 깨짐·가로 넘침 0. Master 무쿠키 홈 HTTP 200·상품 링크 33개 확인. |
 | B2B-20261119-MAKER | CC-B2B-BACK-01 | done / m1_stale_window_fix_independent_pass_undeployed | B2B 메이커 연계 M1~M3 선행 범위 대조 | Mac 12/12. 늦은 완료·실패 뒤 이전 창 작업 차단 및 공용 계약 보존. 실제 운영 창 미검증, M1 단독 배포 없음. |
 | B2B-20261119-MAKER-M2 | CC-B2B-BACK-01 | done / data_layer_independent_accepted_undeployed_ui_design_dispatched | 메이커 M2 사진 제안 저장 범위 설계 | 0106 데이터 계층 Mac 독립 수락. UI 연결 계획 배정. 실제 Storage·Lab·운영 및 M3 미적용. |
-| B2B-20261119-MAKER-M2-UI | CC-B2B-BACK-01 | reviewing / stale_storage_jpeg_fixes_returned_recheck_dispatched | 메이커 M2 사진 제안 화면·저장 응답 연결 | 작업 전환·불명 오류·삭제 승인·JPEG 치수 보완. 작성자 모의 30/30·전체 537/537, Mac 재검수 전달. 실제 Storage/Lab 미검증. |
+| B2B-20261119-MAKER-M2-UI | CC-B2B-BACK-01 | reviewing / independent_p2_pass_sdk_conflict_fix_dispatched | 메이커 M2 사진 제안 화면·저장 응답 연결 | Mac 독립 30/30, 이전 P2 해소. Storage SDK에서 명확한 객체 중복 코드만 구분하도록 보완. 실제 Storage 미검증. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
