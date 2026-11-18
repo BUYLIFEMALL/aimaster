@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T19:20:50.160Z",
+  "checkedAt": "2026-11-18T19:21:43.717Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5969,10 +5969,10 @@
       "reviewer": "CX-MASTER-01",
       "title": "홈 상품 탭 대비와 키보드 접근성 보완",
       "status": "reviewing",
-      "delivery": "candidate_returned_mac_review_dispatched",
-      "evidence": "dff2790cb·msg_c63d46c190e6·msg_c7174d94647e·msg_4c4a09415f3b·489c888e6·484f8400c·msg_12f5ee2629b7",
-      "next": "대비·키보드 개선, 작성자 69/69·타입 통과. Mac 독립 모의 검수 전달. VoiceOver·Lab 실화면 미검증.",
-      "lastReviewedAt": "2026-11-18T19:20:50.160Z",
+      "delivery": "tab_panel_one_to_one_fix_dispatched",
+      "evidence": "dff2790cb·msg_c63d46c190e6·msg_c7174d94647e·msg_4c4a09415f3b·489c888e6·484f8400c·msg_12f5ee2629b7·msg_69f084b5f8af·msg_e9caba12b863",
+      "next": "Mac 독립 모의 4/4. 대비·키보드 통과, 탭별 고유 패널의 ARIA 관계 보완 배정. VoiceOver·Lab 실화면 대기.",
+      "lastReviewedAt": "2026-11-18T19:21:43.717Z",
       "sha": "489c888e6"
     }
   ],
