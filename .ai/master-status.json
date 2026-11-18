@@ -5030,18 +5030,19 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "생성 이미지 응답 한도 및 비JSON 안내 보호",
-      "status": "reviewing",
-      "delivery": "g5_omitted_copy_fixed_mac_targeted_review_requested",
+      "status": "done",
+      "delivery": "g5_response_guard_local_mac_review_accepted_undeployed",
       "scopeRef": "기존 생성 응답/클라이언트 처리와 모의 시험",
       "constraints": "앱 내부 UTF-8 4,000,000바이트·새 생성/조회 없음·SQL/운영/API/실 AI/비용/build/deploy 0",
       "completion": "초과 결과 최소 200 분리·비JSON 고정 안내·한도 이내 기존 동작·모의 경계",
-      "evidence": "1364afbda·27b1804fe·msg_d1ccf57d8e4a·msg_ca9e8561ff8a / msg_407ed1bb6611 / msg_76c5a1a51312",
-      "next": "Mac 최종 합성 응답·레거시·안내 국소검수 대기.",
-      "lastReviewedAt": "2026-11-18T14:17:15.173Z",
+      "evidence": "1364afbda·27b1804fe·msg_d1ccf57d8e4a·msg_ca9e8561ff8a / msg_407ed1bb6611 / msg_76c5a1a51312 / msg_c9c6de0cfcf2 / msg_04f197cb83d3",
+      "next": "로컬 보호 구현·검수 완료. 실제 구 탭·운영 응답 및 배포 별도.",
+      "lastReviewedAt": "2026-11-18T14:18:05.256Z",
       "sha": "0f570dfd0",
       "validation": {
         "author": "국소 16/16·전체 211/211·tsc 통과 담당 보고.",
-        "master": "422 유지·이미지 다운로드/사용 가능 및 과금 단정 제거 diff 확인."
+        "master": "422 유지·이미지 다운로드/사용 가능 및 과금 단정 제거 diff 확인.",
+        "independent": "Mac 고정 모의/소스 16/16. 실제 구 탭·공급자 환경 미검증."
       }
     },
     {
@@ -5596,21 +5597,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T14:17:15.173Z",
+      "at": "2026-11-18T14:18:05.256Z",
       "timezone": "Asia/Seoul",
-      "trigger": "G5 생성 이미지 생략 문구 정정 회신",
-      "scope": "0f570dfd0 422 응답·서버/구·신규 안내·저장 상태 고정 diff 대조.",
+      "trigger": "G5 응답 한도 Mac 국소검수 회신",
+      "scope": "0f570dfd0 합성 경계·422 레거시·비JSON/보관 안내 독립 판정.",
       "evidence": [
-        "msg_407ed1bb6611·0f570dfd0",
-        "msg_76c5a1a51312"
+        "msg_c9c6de0cfcf2·0f570dfd0",
+        "msg_04f197cb83d3"
       ],
-      "judgment": "실제 이미지 없음·사용량 불확실에 맞춘 안내 정정 수신, Mac 독립 국소 검수 배정.",
+      "judgment": "Mac 16/16 수락, W01x 로컬 검수 종결·미배포.",
       "unverified": [
-        "Mac 국소검수 및 실제 응답/브라우저",
-        "Workspace 현황판·WS08 운영 화면",
+        "실 공급자·브라우저 구탭·플랫폼 한도 및 배포",
+        "워크스페이스 현황판/WS08 운영 화면",
         "Gmail 실검증"
       ],
-      "nextAction": "G5 독립 판정·미검증 범위 회수."
+      "nextAction": "담당 점유 해제 및 상태 줄 기록 회수."
     },
     "notifications": [
       {
