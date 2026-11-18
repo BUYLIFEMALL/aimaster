@@ -65,3 +65,76 @@ test("화면: 장바구니 주문·몰 설정·무통장·1원 이상일 때만 
   assert.match(page, /cashReceipt=\{cashReceiptEnabled\(store\.settings\)\}/);
   assert.ok(!quotePage.includes("cashReceipt="), "견적 주문은 다른 액션이라 칸을 넘기지 않음");
 });
+
+// Mac 독립 검수 P2(msg_1896ea3cbaa4) — 주문이 만들어진 뒤 0105 호출이 오류 값 대신 예외(reject·throw)를 내도
+// 생성된 주문 상세(done=1)로 고정 안내와 함께 가야 한다. 실제 actions.ts를 가짜 next·supabase에 붙여 돌린다(네트워크·DB 0)
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
+
+async function loadAction() {
+  const dir = mkdtempSync(join(tmpdir(), "s70-act-"));
+  const stub = (name, body) => { const p = join(dir, name); writeFileSync(p, body); return pathToFileURL(p).href; };
+  const nav = stub("nav.mjs", "export function redirect(u) { globalThis.__s70.redirects.push(u); const e = new Error('NEXT_REDIRECT'); e.digest = 'NEXT_REDIRECT;' + u; throw e; }");
+  const cache = stub("cache.mjs", "export function revalidatePath() {}");
+  const sb = stub("sb.mjs", "export async function createClient() { return globalThis.__s70.client; }");
+  const tax = stub("tax.mjs", "export function validateInvoiceEmail(v) { return { ok: true, value: String(v) }; }");
+  const helper = new URL("../src/app/s/[store]/(shop)/order/cash-receipt-checkout.ts", import.meta.url).href;
+  const src = read("../src/app/s/[store]/(shop)/order/actions.ts")
+    .replace('"use server";', "")
+    .replace('from "next/navigation"', `from "${nav}"`)
+    .replace('from "next/cache"', `from "${cache}"`)
+    .replace('from "@/lib/supabase/server"', `from "${sb}"`)
+    .replace('from "@/lib/taxInvoice"', `from "${tax}"`)
+    .replace('from "./cash-receipt-checkout"', `from "${helper}"`);
+  assert.ok(!/from "(@\/|\.\/|next\/)/.test(src), "바꾸지 못한 import 없음");
+  return (await import(stub("actions.ts", src))).placeOrderAction;
+}
+
+function fakeClient(checkout) {
+  const calls = [];
+  const chain = (data) => ({ select: () => chain(data), delete: () => chain(data), eq: () => chain(data), maybeSingle: async () => ({ data, error: null }), then: (r) => r({ data: null, error: null }) });
+  return {
+    calls,
+    client: {
+      from: (t) => chain(t === "mall_builder_stores" ? { id: "store-1" } : null),
+      auth: { getUser: async () => ({ data: { user: { id: "user-1" } } }) },
+      rpc: (name, args) => {
+        calls.push(name);
+        if (name === "mall_builder_place_order_v2") return Promise.resolve({ data: [{ order_id: "ord-1", order_no: "N-1" }], error: null });
+        if (name === "mall_builder_cash_receipt_checkout") return checkout(args);
+        return Promise.resolve({ data: null, error: null });
+      },
+    },
+  };
+}
+
+test("실제 액션: 0105가 reject·throw·오류값·not_eligible이어도 주문 1회 → 생성된 주문 상세 done=1 + 고정 안내(원문·번호 없음), 접수 1회", async () => {
+  const placeOrderAction = await loadAction();
+  const cases = {
+    reject: () => Promise.reject(new Error(`network down ${SECRET}`)),
+    throw: () => { throw new Error(`sync ${SECRET}`); },
+    errorValue: () => Promise.resolve({ data: null, error: { message: `볼타 ${SECRET}` } }),
+    notEligible: () => Promise.resolve({ data: { accepted: false, reason: "not_eligible" }, error: null }),
+  };
+  const expect = `/s/shop/orders/ord-1?done=1&error=${encodeURIComponent(CHECKOUT_CR_FAIL)}`;
+  for (const [name, checkout] of Object.entries(cases)) {
+    const f = fakeClient(checkout);
+    globalThis.__s70 = { client: f.client, redirects: [] };
+    const fdata = new FormData();
+    for (const [k, v] of Object.entries({ address_id: "addr-1", expected_total: "33000", pay_method: "bank", depositor: "유저", want_cash_receipt: "on", cr_kind: "PHONE:INCOME_DEDUCTION", cr_value: SECRET })) fdata.set(k, v);
+    await assert.rejects(placeOrderAction("shop", { error: null, depositor: "", memo: "" }, fdata), (e) => String(e.digest ?? "").startsWith("NEXT_REDIRECT"), name);
+    assert.deepEqual(globalThis.__s70.redirects, [expect], `${name}: 주문 상세로 1번`);
+    assert.equal(f.calls.filter((c) => c === "mall_builder_place_order_v2").length, 1, `${name}: 주문 1회`);
+    assert.equal(f.calls.filter((c) => c === "mall_builder_cash_receipt_checkout").length, 1, `${name}: 접수 1회(재시도 없음)`);
+    assert.ok(!globalThis.__s70.redirects[0].includes(SECRET), `${name}: 번호 없음`);
+  }
+  // 접수 성공은 안내 없이 done=1
+  const ok = fakeClient(() => Promise.resolve({ data: { accepted: true }, error: null }));
+  globalThis.__s70 = { client: ok.client, redirects: [] };
+  const fd2 = new FormData();
+  for (const [k, v] of Object.entries({ address_id: "addr-1", expected_total: "33000", pay_method: "bank", want_cash_receipt: "on", cr_kind: "PHONE:INCOME_DEDUCTION", cr_value: SECRET })) fd2.set(k, v);
+  await assert.rejects(placeOrderAction("shop", { error: null, depositor: "", memo: "" }, fd2));
+  assert.deepEqual(globalThis.__s70.redirects, ["/s/shop/orders/ord-1?done=1"]);
+});

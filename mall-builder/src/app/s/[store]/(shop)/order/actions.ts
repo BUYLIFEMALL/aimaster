@@ -53,9 +53,14 @@ export async function placeOrderAction(slug: string, _prev: PlaceOrderState, for
   // 접수 안 되면 고정 안내만(오류 원문·번호를 주소·로그에 넣지 않음), 다시 신청은 주문 상세의 기존 칸에서. 재시도 호출 없음(1회)
   let cashReceiptNotice: string | null = null;
   if (cashReceipt.kind === "request") {
-    cashReceiptNotice = checkoutCashReceiptNotice(
-      await supabase.rpc("mall_builder_cash_receipt_checkout", { p_order_id: row.order_id, p_type: cashReceipt.type, p_value: cashReceipt.value, p_purpose: cashReceipt.purpose }),
-    );
+    // 호출이 오류 값 대신 예외(reject·throw)를 내도 주문은 이미 됐으므로 같은 고정 안내로 생성된 주문 상세에 보낸다(Mac 검수 P2). 예외 원문은 버림
+    let res: { data: unknown; error: unknown };
+    try {
+      res = await supabase.rpc("mall_builder_cash_receipt_checkout", { p_order_id: row.order_id, p_type: cashReceipt.type, p_value: cashReceipt.value, p_purpose: cashReceipt.purpose });
+    } catch {
+      res = { data: null, error: true };
+    }
+    cashReceiptNotice = checkoutCashReceiptNotice(res);
   }
   revalidatePath(`/s/${slug}`, "layout");
   // 카드 주문은 결제 화면으로(토스 결제위젯). 결제가 끝나야 결제 완료가 된다
