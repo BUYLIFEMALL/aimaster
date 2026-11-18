@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 15:57:39 KST",
+  "checkedAt": "2026-11-18 15:58:07 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T06:52:18.858Z",
+      "at": "2026-11-18T06:58:07.082Z",
       "timezone": "Asia/Seoul",
-      "trigger": "격리시험 독립최종판정",
-      "scope": "3a OID획득전실패안내 경계·store구현단위분리",
+      "trigger": "cleanup최소보완·store완료이벤트",
+      "scope": "90ba cleanupdiff·4d88실store·시험resolver/응답경계",
       "evidence": [
-        "msg_3f7a37ce6fa0"
+        "msg_f324c69f0ab4",
+        "Master90ba/store실물읽기",
+        "Macmsg_bbafc7f7a2f2"
       ],
-      "judgment": "시험핵심근거지정수락·도구P2최소경고보완/재DB시험불필요·이후store모의첫구현배정·운영효과주장0",
+      "judgment": "W01f 대역작성자실측+지정독립정적완료수락·W01g모의단위검수진행·라우트/실업로드확대0",
       "unverified": [
-        "잔여cleanup경고diff",
-        "store구현/모의검수",
-        "실중앙Supabase/실upload"
+        "store지정독립결과",
+        "실Supabase권한/중앙/스토리지",
+        "다른운영사람단계"
       ],
-      "nextAction": "작은보완확인후store정확SHA회수→독립검수"
+      "nextAction": "고정SHA결과회수·반례통합반환/수락"
     },
     "notifications": [
       {
@@ -8284,18 +8286,18 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "A1 격리 PostgreSQL 계약시험",
-      "status": "needs_revision",
-      "delivery": "specified_harness_review_accepted_minor_oid_capture_warning_remaining",
+      "status": "done",
+      "delivery": "isolated_author_15_pass_and_static_harness_review_accepted",
       "sha": "3a48682cd",
       "scopeRef": "tests/sql/a1_fixture.sql·a1_contract.test.mjs·필요최소migration수정·기존문서",
       "constraints": "기존Docker PG17.11·신규qa_aif_a1_20261118/oid검증후자기DB정리·aww/aww_dev/mb/운영접속reset0·설치0·store/route/upload/AI/build/push0",
       "completion": "원문migration컴파일/ACL/RLS/check/NULL/2연결reserve상한/identity/delete경합/토큰전이/재적용·stub vs실중앙분리·정리증거",
-      "evidence": "Mastermsg_1fd1abd7c316·사전msg_b62624ce5cd1(새DB아직0)·정확경로수락 · msg_46fae32a6a33/dcc798e12·Mastertest주요assertion읽기·Macmsg_1f5d56553c51 · msg_7273fa2ccde2 독립정적시험검수·msg_ebbf9064254a 다음store읽기준비 · msg_926fae1a46ad/3a48682cd·Masterdiff직접확인·Macmsg_25e6a4769c00 · Macmsg_3f7a37ce6fa0·잠금/정리/role보강지정수락·OID획득전실패안내P2",
-      "next": "CREATE 성공flag/OID미확보 잔존안내 최소보완·이름만DROP0·DB재시험불필요→별도커밋",
-      "lastReviewedAt": "2026-11-18T06:52:18.858Z",
+      "evidence": "Mastermsg_1fd1abd7c316·사전msg_b62624ce5cd1(새DB아직0)·정확경로수락 · msg_46fae32a6a33/dcc798e12·Mastertest주요assertion읽기·Macmsg_1f5d56553c51 · msg_7273fa2ccde2 독립정적시험검수·msg_ebbf9064254a 다음store읽기준비 · msg_926fae1a46ad/3a48682cd·Masterdiff직접확인·Macmsg_25e6a4769c00 · Macmsg_3f7a37ce6fa0·잠금/정리/role보강지정수락·OID획득전실패안내P2 · msg_f324c69f0ab4/90ba12b30 cleanup 경고diff Master수락·SQL재실행0",
+      "next": "W01g 저장계층 모의독립검수·실중앙/스토리지통합은별도",
+      "lastReviewedAt": "2026-11-18T06:58:07.082Z",
       "validation": {
         "author": "PG17.11 새qaDB2회·1회14/15 시험자storage권한단언결함→시험만수정 15/15·migrationa29수정0·실2psql동시reserve/finalizeclaim·cleanup다른DBoid불변/qa잔존0 · 보강1회15/15·reserve holder59256/waiter59278 Lock/advisory blocking59256 2823ms·finalize59909/59930 blocking59909 2806ms·DROP성공/부재assert/role생성0",
-        "master": "3a48682cd diff직접: pg_locks장벽/pg_stat_activity wait/pg_blocking_pids단언·cleanup조회/oid/DROP/부재throw·fixture CREATE ROLE제거·3역할preflight. 실재실행0",
+        "master": "3a48682cd diff직접: pg_locks장벽/pg_stat_activity wait/pg_blocking_pids단언·cleanup조회/oid/DROP/부재throw·fixture CREATE ROLE제거·3역할preflight. 실재실행0 · 90ba dbCreated/OID미확보명시경고/이름DROP금지 보완확인",
         "independent": "3a두시험파일 지정diff수락가능·실제잠금assert/확보OID정리/role전제해소. 잔여P2 CREATE성공후OID조회실패면잔존안내누락·원래시험실패이므로거짓15/15아님·이름만DROP금지",
         "limits": "policy본문/storage/auth대역·실Supabase권한/기본GRANT/중앙합산/실upload미검증"
       },
@@ -8307,14 +8309,21 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "생성 원본 저장 계층·주입 모의 시험",
-      "status": "dispatched",
-      "delivery": "bounded_implementation_after_cleanup_warning_patch",
+      "status": "reviewing",
+      "delivery": "store_source_and_mock_tests_received_independent_real_module_review",
       "scopeRef": "src/lib/assets/store.ts·referenceImage.ts 최소export·tests/assetsStore.test.mjs·본인기존문서",
       "constraints": "모의rpc/storage만·SQL/DB/실upload/실키/AI/패키지/route/build/push0·기존참고이미지1MiB불변·다른저자원본보존",
       "completion": "generated20MiB/서명/SHA·reserve전실패RPC0·원격후unknown보존/삭제재업로드0·기대objectid·잘못된응답성공0·기존생성결과보존·관련시험/tsc",
-      "evidence": "msg_ebbf9064254a 인터페이스준비·Master지정소스배정(도구P2선보완뒤)",
-      "next": "정확경로점유등록/고지확인→모의단위구현/실모듈시험→Mac검수",
-      "lastReviewedAt": "2026-11-18T06:52:18.858Z"
+      "evidence": "msg_ebbf9064254a 인터페이스준비·Master지정소스배정(도구P2선보완뒤) · msg_f324c69f0ab4/4d88a8cab·Master store직접읽기·Macmsg_bbafc7f7a2f2/담당msg_cac61ac79573",
+      "next": "Mac 실제모듈 모의검수→RPC모양/불명경계/기존참고입력불변 판정",
+      "lastReviewedAt": "2026-11-18T06:58:07.082Z",
+      "sha": "4d88a8cab",
+      "validation": {
+        "author": "전체89/89·tsc0·변형검증4유형·node module register resolver 시험한정·실upload0",
+        "master": "실store읽기·reserve전RPC0/20MiB/서명/SHA/upsertfalse/원격뒤불명보존·cardinality/undefined응답설명대조 독립배정",
+        "independent": "실제모듈+가짜RPC/storage 검수전달·결과대기",
+        "runtime": "route/실DB/실Storage/키/AI/build0"
+      }
     }
   ]
 }
