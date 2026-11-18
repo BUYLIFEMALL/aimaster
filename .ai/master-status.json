@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T17:08:11.814Z",
+  "checkedAt": "2026-11-18T17:15:36.942Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5391,22 +5391,23 @@
       "owner": "AG-UI-01",
       "reviewer": "CX-MASTER-01",
       "title": "메인 히어로 실사 시안 148~150",
-      "status": "running",
-      "delivery": "hero_production_approval_isolated_release_dispatched",
+      "status": "done",
+      "delivery": "isolated_production_release_live_verified",
       "sha": "60703d554",
       "scopeRef": "components/home/HeroShowcase.tsx·public/images/hero/*·docs/HERO_VISUAL_ARCHIVE_20261119.md",
-      "evidence": "1edd6f67c·e73d362fc·msg_3ea7dcd725b1·msg_d61f61aef3a0; localhost:3800 showcase/comparison/hero 200·D:/PDS/Design/148~150 존재·msg_33a7c9bdc92b·msg_5bec9d89aa89",
-      "next": "AG-UI-01 운영 기준+승인 두 경로로 격리 배포·검증 결과 회신, Master 운영 alias 검증.",
+      "evidence": "1edd6f67c·e73d362fc·msg_3ea7dcd725b1·msg_d61f61aef3a0; localhost:3800 showcase/comparison/hero 200·D:/PDS/Design/148~150 존재·msg_33a7c9bdc92b·msg_5bec9d89aa89·msg_2f02252dd225",
+      "next": "공식 도메인 운영 반영 확인 완료. 공유 Git push는 하지 않았으며 향후 묶음 배포 때 기존 승인 범위 유지.",
       "validation": {
         "author": "선택 1차-3안과 주인님 배포 직접 승인 회수. 공유 소스 tsc 0 및 로컬 build 77/77 보고; 격리 배포 검증 대기.",
-        "master": "Vercel 운영 alias READY·기준 SHA·공식 프로젝트 확인, 팀 대기/빌드 0, 두 경로 diff 범위 확인."
+        "master": "공식 호스트 Vercel READY/production ID 일치, 라이브 페이지·JPEG 200, 마크업/경로, JPEG blob 체크 확인.",
+        "runtime": "공식 도메인 HTTP/자산 검증. 페이지 시각 비교는 이번 확인 범위 밖."
       },
-      "lastReviewedAt": "2026-11-18T17:08:11.814Z",
+      "lastReviewedAt": "2026-11-18T17:15:36.942Z",
       "release": {
         "program": "aimaster",
         "owner": "AG-UI-01",
         "reviewer": "CX-MASTER-01",
-        "status": "dispatch_sent",
+        "status": "live_verified",
         "approvalMessage": "msg_33a7c9bdc92b",
         "dispatchMessage": "msg_5bec9d89aa89",
         "baseSha": "ba31f40809f285c5c378e59213c76d227188ac11",
@@ -5418,7 +5419,24 @@
           "components/home/HeroShowcase.tsx",
           "public/images/hero/concept_3_command_hub.jpg"
         ],
-        "method": "Production-base tracked snapshot with two approved paths; one staged production build and promotion after verification. No master push."
+        "method": "Production-base tracked snapshot with two approved paths; one staged production build and promotion after verification. No master push.",
+        "normalUsed": 1,
+        "deployment": {
+          "id": "dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N",
+          "url": "aimaster-aru7tq4fz-buylife.vercel.app",
+          "alias": "www.buylife.xyz",
+          "state": "READY",
+          "source": "approved hero files on tracked production-base snapshot",
+          "builds": 1,
+          "pushes": 0,
+          "fileBlobs": {
+            "components/home/HeroShowcase.tsx": "c08da6acba0d2cc87f16a1c810cebdb0b5e7bc35",
+            "public/images/hero/concept_3_command_hub.jpg": "84c0ec3306b740f72cf7097916c6caedf75deff6"
+          },
+          "verification": "Official hostname resolves to this READY Vercel project deployment. Direct live page/image both HTTP 200; command center markup and path present; served image Git blob matches approved file.",
+          "evidence": "msg_2f02252dd225",
+          "verifiedAt": "2026-11-18T17:15:36.942Z"
+        }
       }
     }
   ],
@@ -8569,7 +8587,7 @@
       "program": "aimaster",
       "owner": "AG-UI-01",
       "reviewer": "CX-MASTER-01",
-      "status": "dispatch_sent",
+      "status": "live_verified",
       "approvalMessage": "msg_33a7c9bdc92b",
       "dispatchMessage": "msg_5bec9d89aa89",
       "baseSha": "ba31f40809f285c5c378e59213c76d227188ac11",
@@ -8581,7 +8599,24 @@
         "components/home/HeroShowcase.tsx",
         "public/images/hero/concept_3_command_hub.jpg"
       ],
-      "method": "Production-base tracked snapshot with two approved paths; one staged production build and promotion after verification. No master push."
+      "method": "Production-base tracked snapshot with two approved paths; one staged production build and promotion after verification. No master push.",
+      "normalUsed": 1,
+      "deployment": {
+        "id": "dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N",
+        "url": "aimaster-aru7tq4fz-buylife.vercel.app",
+        "alias": "www.buylife.xyz",
+        "state": "READY",
+        "source": "approved hero files on tracked production-base snapshot",
+        "builds": 1,
+        "pushes": 0,
+        "fileBlobs": {
+          "components/home/HeroShowcase.tsx": "c08da6acba0d2cc87f16a1c810cebdb0b5e7bc35",
+          "public/images/hero/concept_3_command_hub.jpg": "84c0ec3306b740f72cf7097916c6caedf75deff6"
+        },
+        "verification": "Official hostname resolves to this READY Vercel project deployment. Direct live page/image both HTTP 200; command center markup and path present; served image Git blob matches approved file.",
+        "evidence": "msg_2f02252dd225",
+        "verifiedAt": "2026-11-18T17:15:36.942Z"
+      }
     }
   }
 }
