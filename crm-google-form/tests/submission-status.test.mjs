@@ -341,7 +341,7 @@ test("실제 runFollowupRule: 미확정 접수는 발송·선점 기록 0, 보�
   const r = await runRule();
   const cand = db.queries.find((q) => q.table === "crm_submissions" && !q.single);
   assert.match(cand.ops.find((o) => o[0] === "select")[1], /status/);
-  assert.deepEqual(r, { sent: 3, failed: 0, held: 4, interrupted: 0 });
+  assert.deepEqual(r, { sent: 3, failed: 0, held: 4, interrupted: 0, releaseFailed: 0 });
   assert.deepEqual(db.sends.map((x) => x.submission_id), ["sub-0", "sub-1", "sub-2"]);
   assert.deepEqual(globalThis.__crmSent.map((x) => x[1]), ["010-sub-0", "010-sub-1", "010-sub-2"]);
 });
@@ -392,8 +392,10 @@ function statefulDb(rows, opts = {}) {
             return { data: { id: rec.id }, error: null };
           }
           if (q.table === "crm_followup_sends" && del) {
-            for (let i = sends.length - 1; i >= 0; i--) if (matches(sends[i], q)) sends.splice(i, 1);
-            return { data: null, error: null };
+            if (hooks.onDelete) { const r = hooks.onDelete(q); if (r) return r; }
+            const gone = [];
+            for (let i = sends.length - 1; i >= 0; i--) if (matches(sends[i], q)) gone.push(...sends.splice(i, 1));
+            return { data: gone.map((x) => ({ id: x.id })), error: null };
           }
           if (q.table === "crm_followup_sends" && upd) {
             for (const x of sends) if (matches(x, q)) Object.assign(x, upd[1]);
@@ -416,9 +418,9 @@ test("보류 반복: 같은 규칙을 3번 돌려도 보류 건 기록·발송 0
   const r1 = await runRule();
   const r2 = await runRule();
   const r3 = await runRule();
-  assert.deepEqual(r1, { sent: 1, failed: 0, held: 3, interrupted: 0 });
-  assert.deepEqual(r2, { sent: 0, failed: 0, held: 3, interrupted: 0 });
-  assert.deepEqual(r3, { sent: 0, failed: 0, held: 3, interrupted: 0 });
+  assert.deepEqual(r1, { sent: 1, failed: 0, held: 3, interrupted: 0, releaseFailed: 0 });
+  assert.deepEqual(r2, { sent: 0, failed: 0, held: 3, interrupted: 0, releaseFailed: 0 });
+  assert.deepEqual(r3, { sent: 0, failed: 0, held: 3, interrupted: 0, releaseFailed: 0 });
   assert.deepEqual(db.sends.map((x) => x.submission_id), ["a"]); // 보류 건은 선점·기록 0(기록 폭증 0)
   assert.deepEqual(globalThis.__crmSent.map((x) => x[1]), ["010-a"]);
 });
@@ -426,10 +428,10 @@ test("보류 반복: 같은 규칙을 3번 돌려도 보류 건 기록·발송 0
 test("재개: 보류 건의 상태가 나중에 확정되면 다음 실행에서 한 번만 보낸다", async () => {
   const db = statefulDb([row("a", "notified"), row("b", "unknown")]);
   db.install();
-  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 1, interrupted: 0 });
+  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 1, interrupted: 0, releaseFailed: 0 });
   db.rows[1].status = "notified"; // 사람이 확인해 확정
-  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 0, interrupted: 0 });
-  assert.deepEqual(await runRule(), { sent: 0, failed: 0, held: 0, interrupted: 0 });
+  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 0, interrupted: 0, releaseFailed: 0 });
+  assert.deepEqual(await runRule(), { sent: 0, failed: 0, held: 0, interrupted: 0, releaseFailed: 0 });
   assert.deepEqual(globalThis.__crmSent.map((x) => x[1]), ["010-a", "010-b"]);
 });
 
@@ -438,7 +440,7 @@ test("밀림 없음: 보류 건이 많아도 정상 건은 같은 실행에서 �
   rows.push(row("ok", "received"));
   const db = statefulDb(rows);
   db.install();
-  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 500, interrupted: 0 });
+  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 500, interrupted: 0, releaseFailed: 0 });
   const cand = db.queries.find((q) => q.table === "crm_submissions");
   assert.ok(!cand.ops.some((o) => o[0] === "limit" || o[0] === "range"), "후보 조회에 limit/range 없음");
   assert.deepEqual(globalThis.__crmSent.map((x) => x[1]), ["010-ok"]);
@@ -447,7 +449,7 @@ test("밀림 없음: 보류 건이 많아도 정상 건은 같은 실행에서 �
 test("기존 상태 회귀: received·notified·failed는 모두 기존처럼 팔로우업 발송", async () => {
   const db = statefulDb([row("r", "received"), row("n", "notified"), row("f", "failed")]);
   db.install();
-  assert.deepEqual(await runRule(), { sent: 3, failed: 0, held: 0, interrupted: 0 });
+  assert.deepEqual(await runRule(), { sent: 3, failed: 0, held: 0, interrupted: 0, releaseFailed: 0 });
 });
 
 test("화면 근거: 접수 내역 표의 미확정 행에 「팔로우업 자동 보류」 이유가 실제로 보인다", async () => {
@@ -463,7 +465,7 @@ const runRuleWith = async (over) => (await import(pathToFileURL(__jn(PROJECT, "l
 test("회원 경계: 다른 회원이 이 폼 id로 넣은 접수는 발송·보류 개수 어디에도 섞이지 않는다", async () => {
   const db = statefulDb([row("own", "notified"), row("foreign", "notified", "user-2"), row("foreign-held", "unknown", "user-2")]);
   db.install();
-  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 0, interrupted: 0 });
+  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 0, interrupted: 0, releaseFailed: 0 });
   assert.deepEqual(globalThis.__crmSent.map((x) => x[1]), ["010-own"]);
   assert.deepEqual(db.sends.map((x) => x.submission_id), ["own"]);
 });
@@ -493,7 +495,7 @@ test("계정 조회(await) 사이에 상태가 미확정으로 바뀌면 선점�
   const rows = [row("a", "notified")];
   const db = statefulDb(rows, { hooks: { before: (q) => { if (q.table === "user_solapi_accounts") rows[0].status = "unknown"; } } });
   db.install();
-  assert.deepEqual(await runRule(), { sent: 0, failed: 0, held: 1, interrupted: 0 });
+  assert.deepEqual(await runRule(), { sent: 0, failed: 0, held: 1, interrupted: 0, releaseFailed: 0 });
   assert.deepEqual(db.sends, []);
   assert.deepEqual(globalThis.__crmSent, []);
 });
@@ -503,11 +505,11 @@ test("선점 직후 상태가 바뀌면(시도 0) 선점을 풀어 보류, 확�
   let flipped = false;
   const db = statefulDb(rows, { hooks: { afterClaim: () => { if (!flipped) { flipped = true; rows[0].status = "dispatching"; } } } });
   db.install();
-  assert.deepEqual(await runRule(), { sent: 0, failed: 0, held: 1, interrupted: 0 });
+  assert.deepEqual(await runRule(), { sent: 0, failed: 0, held: 1, interrupted: 0, releaseFailed: 0 });
   assert.deepEqual(db.sends, []); // 선점 풀림
   rows[0].status = "notified";
-  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 0, interrupted: 0 });
-  assert.deepEqual(await runRule(), { sent: 0, failed: 0, held: 0, interrupted: 0 });
+  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 0, interrupted: 0, releaseFailed: 0 });
+  assert.deepEqual(await runRule(), { sent: 0, failed: 0, held: 0, interrupted: 0, releaseFailed: 0 });
   assert.deepEqual(globalThis.__crmSent.map((x) => x[0]), ["sms"]);
 });
 
@@ -516,21 +518,68 @@ test("채널 사이에 상태가 바뀌면 남은 채널 중단, 이미 보낸 �
   const db = statefulDb(rows, { onSend: (kind) => { if (kind === "sms") rows[0].status = "unknown"; } });
   db.install();
   const r = await runRuleWith({ channel_friendtalk: true });
-  assert.deepEqual(r, { sent: 0, failed: 0, held: 0, interrupted: 1 });
+  assert.deepEqual(r, { sent: 0, failed: 0, held: 0, interrupted: 1, releaseFailed: 0 });
   assert.deepEqual(globalThis.__crmSent.map((x) => x[0]), ["sms"]); // 친구톡은 안 감
   assert.equal(db.sends.length, 1); // 기록 보존
   assert.equal(db.sends[0].status, "failed");
   assert.match(db.sends[0].error_message, /남은 채널을 멈춤\(시도: SMS\)/);
   rows[0].status = "notified"; // 나중에 확정돼도
-  assert.deepEqual(await runRuleWith({ channel_friendtalk: true }), { sent: 0, failed: 0, held: 0, interrupted: 0 });
+  assert.deepEqual(await runRuleWith({ channel_friendtalk: true }), { sent: 0, failed: 0, held: 0, interrupted: 0, releaseFailed: 0 });
   assert.deepEqual(globalThis.__crmSent.map((x) => x[0]), ["sms"]); // 자동 재발송 0
 });
 
 test("정상 다채널: 상태가 안 바뀌면 SMS·친구톡 모두, 선점 1번", async () => {
   const db = statefulDb([row("a", "received")]);
   db.install();
-  assert.deepEqual(await runRuleWith({ channel_friendtalk: true }), { sent: 1, failed: 0, held: 0, interrupted: 0 });
+  assert.deepEqual(await runRuleWith({ channel_friendtalk: true }), { sent: 1, failed: 0, held: 0, interrupted: 0, releaseFailed: 0 });
   assert.deepEqual(globalThis.__crmSent.map((x) => x[0]), ["sms", "friendtalk"]);
   assert.equal(db.sends.length, 1);
   assert.equal(db.sends[0].status, "sent");
+});
+
+
+// ── F-F02(Mac msg_21e5d6846290): 선점 해제 실패를 보류로 숨기지 않는다 ──────────────────────────────
+const flipAfterClaim = (rows) => { let done = false; return () => { if (!done) { done = true; rows[0].status = "dispatching"; } }; };
+for (const [name, onDelete] of [
+  ["DB 오류 응답", () => ({ data: null, error: { message: "delete denied" } })],
+  ["예외", () => { throw new Error("network down"); }],
+  ["0행 삭제", () => ({ data: [], error: null })],
+  ["행 수 불명(null)", () => ({ data: null, error: null })],
+]) {
+  test(`선점 해제 실패(${name}) → held가 아니라 releaseFailed, 기록 보존·재삭제·재발송 0, 확정 뒤에도 자동 재개 안 함`, async () => {
+    const rows = [row("a", "notified")];
+    let deletes = 0;
+    const db = statefulDb(rows, { hooks: { afterClaim: flipAfterClaim(rows), onDelete: (q) => { deletes++; return onDelete(q); } } });
+    db.install();
+    const r = await runRule();
+    assert.deepEqual(r, { sent: 0, failed: 0, held: 0, interrupted: 0, releaseFailed: 1 });
+    assert.equal(deletes, 1); // 재삭제 0
+    assert.equal(db.sends.length, 1); // 기록 보존
+    assert.match(db.sends[0].error_message ?? "", /선점 해제 실패/);
+    rows[0].status = "notified";
+    const r2 = await runRule();
+    assert.deepEqual(r2, { sent: 0, failed: 0, held: 0, interrupted: 0, releaseFailed: 0 });
+    assert.deepEqual(globalThis.__crmSent, []); // 자동 재발송 0
+  });
+}
+
+test("선점 해제 성공(1행 확인)만 held, 확정 뒤 1회 발송", async () => {
+  const rows = [row("a", "notified")];
+  const db = statefulDb(rows, { hooks: { afterClaim: flipAfterClaim(rows) } });
+  db.install();
+  assert.deepEqual(await runRule(), { sent: 0, failed: 0, held: 1, interrupted: 0, releaseFailed: 0 });
+  assert.equal(db.sends.length, 0);
+  rows[0].status = "notified";
+  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 0, interrupted: 0, releaseFailed: 0 });
+  assert.deepEqual(await runRule(), { sent: 0, failed: 0, held: 0, interrupted: 0, releaseFailed: 0 });
+});
+
+test("선점 해제는 이 회원·이 기록에만 건다(삭제 조건 확인)", async () => {
+  const rows = [row("a", "notified")];
+  let delQ = null;
+  const db = statefulDb(rows, { hooks: { afterClaim: flipAfterClaim(rows), onDelete: (q) => { delQ = q; return null; } } });
+  db.install();
+  await runRule();
+  const eqs = delQ.ops.filter((o) => o[0] === "eq").map((o) => o[1]).sort();
+  assert.deepEqual(eqs, ["id", "user_id"]);
 });

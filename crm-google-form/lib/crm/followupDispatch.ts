@@ -41,6 +41,12 @@ export interface FollowupRunResult {
   held: number;
   /** 보내는 도중 상태가 미확정으로 바뀌어 남은 채널을 멈춘 건(이미 보낸 채널이 있어 기록은 남김, 자동 재발송 0) */
   interrupted: number;
+  /**
+   * 한 채널도 보내기 전에 상태가 미확정으로 바뀌었는데 선점 기록을 지우지 못한 건(오류·예외·0행·행 수 불명).
+   * 기록이 남아 있어 상태가 확정돼도 **자동으로 재개되지 않는다** — 운영자가 예약 실행 결과(요약)에서 보고 확인해야 한다.
+   * 자동 재삭제·재발송 0.
+   */
+  releaseFailed: number;
   /** 규칙 자체를 실행하지 않은 이유(폼 연결 소유 불일치·조회 실패) */
   skippedReason?: string;
 }
@@ -75,7 +81,7 @@ async function ownedAndAllowed(admin: Admin, rule: FollowupRule, submissionId: s
  */
 export async function runFollowupRule(rule: FollowupRule): Promise<FollowupRunResult> {
   const admin = createAdminClient();
-  const empty = { sent: 0, failed: 0, held: 0, interrupted: 0 };
+  const empty = { sent: 0, failed: 0, held: 0, interrupted: 0, releaseFailed: 0 };
 
   const { data: source, error: sourceError } = await admin
     .from("crm_form_sources")
@@ -141,6 +147,7 @@ export async function runFollowupRule(rule: FollowupRule): Promise<FollowupRunRe
   let sent = 0;
   let failed = 0;
   let interrupted = 0;
+  let releaseFailed = 0;
 
   for (const submission of due as DueSubmission[]) {
     // 계정 조회(await) 사이에 상태가 바뀌었을 수 있으니 선점 직전에 이 회원·이 폼의 최신 상태를 다시 읽는다.
@@ -213,9 +220,39 @@ export async function runFollowupRule(rule: FollowupRule): Promise<FollowupRunRe
     }
 
     if (halted && attempted.length === 0) {
-      // 한 채널도 시도하지 않았으면 선점만 풀어 보류로 되돌린다 — 상태가 확정되면 다음 실행에서 보낸다.
-      await admin.from("crm_followup_sends").delete().eq("id", claim.id).eq("user_id", rule.user_id);
-      held++;
+      // 한 채널도 시도하지 않았으면 선점을 풀어 보류로 되돌린다 — 상태가 확정되면 다음 실행에서 보낸다.
+      // 삭제가 정확히 1행으로 확인된 경우만 보류(held). 오류·예외·0행·행 수 불명이면 기록이 남아 자동 재개가 안 되므로
+      // releaseFailed로 따로 세고, 기록에 진단 문구를 남긴다(재삭제·재발송 0).
+      let released = false;
+      try {
+        const { data: gone, error: delError } = await admin
+          .from("crm_followup_sends")
+          .delete()
+          .eq("id", claim.id)
+          .eq("user_id", rule.user_id)
+          .select("id");
+        released = !delError && Array.isArray(gone) && gone.length === 1;
+      } catch {
+        released = false;
+      }
+      if (released) {
+        held++;
+        continue;
+      }
+      releaseFailed++;
+      try {
+        await admin
+          .from("crm_followup_sends")
+          .update({
+            status: "failed",
+            error_message: "선점 해제 실패 — 결과가 확정돼도 자동으로 보내지 않음(운영자 확인 필요). 발송 시도 0",
+            sent_at: new Date().toISOString(),
+          })
+          .eq("id", claim.id)
+          .eq("user_id", rule.user_id);
+      } catch {
+        // 진단 문구 기록도 실패하면 기록은 「발송 중」으로 남는다 — 어느 쪽이든 자동 재발송은 없다.
+      }
       continue;
     }
     if (halted) {
@@ -241,5 +278,5 @@ export async function runFollowupRule(rule: FollowupRule): Promise<FollowupRunRe
       .eq("user_id", rule.user_id);
   }
 
-  return { sent, failed, held, interrupted };
+  return { sent, failed, held, interrupted, releaseFailed };
 }
