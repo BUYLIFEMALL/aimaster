@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 17:07:51 KST",
+  "checkedAt": "2026-11-18 17:10:29 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T08:07:51.330Z",
+      "at": "2026-11-18T08:10:29.205Z",
       "timezone": "Asia/Seoul",
-      "trigger": "배포후기존자료실화면검수",
-      "scope": "기존로그인/티스토리1원고·web jobs/dashboard/widget·자료없음미검수구분·T08후속",
+      "trigger": "SNS 새SQL 격리시험완료/OID정정",
+      "scope": "3eae6파일·19/15동일새SQL/제품불변·실2연결/정리/대역",
       "evidence": [
-        "msg_4ee74b44d30f"
+        "msg_103521e36bae/28847d5bea0f",
+        "Master주요코드읽기·Macmsg_622aae7794e1"
       ],
-      "judgment": "세배포/제한된기존UI검수완료수락·옛저장값과새생성효과구분·자료없는기능미검수유지·T08정확범위준비/임의데이터생성0",
+      "judgment": "작성자새SQL검증결과수신·제품결함아닌시험3보정분리·독립근거검수배정·실Storage삭제0",
       "unverified": [
-        "실Excel/폴러/T05실분석·신규원고생성효과",
-        "T08구체백업/삭제안",
-        "SNS새SQL격리결과"
+        "Mac시험근거최종",
+        "실Supabase/Storage/중앙통합",
+        "T08정확백업범위·다른사람단계"
       ],
-      "nextAction": "T08정확안/SQL검증결과회수·예산추가0"
+      "nextAction": "지정독립판정회수→ON선행미완정리/다음소스범위"
     },
     "notifications": [
       {
@@ -8576,14 +8577,21 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "보관정리 새 SQL 격리 계약검증",
-      "status": "running",
-      "delivery": "exact_new_fixture_scope_and_database_preflight_acknowledged",
+      "status": "reviewing",
+      "delivery": "new_retention_SQL_author_19_plus_15_PASS_evidence_review",
       "scopeRef": "tests/sql/a1_retention.test.mjs 신규·a1_fixture.sql추가·a1_contract 함수수9→11 영향회귀·필요최소migration수정",
       "constraints": "기존컨테이너내새qa_aif_retention_20261118/qa_aif_a1_20261118 존재/oid보호·자기DB정리·업무DB/운영접속reset0·역할CREATE/설치재시작0·실Storage/remove/AI/cron/build/push0",
       "completion": "새85eb원문컴파일/ACL/RLS/check/expiry/objectcreated/보호/unknown/quota/claimfence/verify/재적용·실2연결blockingPID·DROP/부재·대역한계분리",
-      "evidence": "Mastermsg_7418b7ac3cf6·사전msg_b3b098523f19·ACTIVE_WORKb17d522a9",
-      "next": "새SQL/영향회귀 각1회→고정SHA/실측/정리로그→Mac정적근거검수",
-      "lastReviewedAt": "2026-11-18T08:03:07.298Z"
+      "evidence": "Mastermsg_7418b7ac3cf6·사전msg_b3b098523f19·ACTIVE_WORKb17d522a9 · msg_103521e36bae/3eae07764·OID정정msg_28847d5bea0f·Master주요assert/cleanup읽기·Macmsg_622aae7794e1",
+      "next": "Mac 고정fixture/test/동시성·cleanup근거 정적독립검수→격리단위판정",
+      "lastReviewedAt": "2026-11-18T08:10:29.205Z",
+      "sha": "3eae07764",
+      "validation": {
+        "author": "신규19/19 oid2544770·같은새SQL기존15/15 oid2544887·첫16/19는시험3결함보정/제품SQL불변·원문SQL85eb·모의152/tsc유지·실blockingPID2경합·DROP부재/기존DB보존",
+        "master": "6파일목록/실잠금장벽/cleanup oid·생성flag·반례별역할/fixture범위주요코드읽기·실DB재실행0",
+        "independent": "고정시험근거정적검수배정·Mac실SQL0",
+        "limits": "정책/profiles/Storage/usage대역·표행삭제모사=실Storage remove아님·실운영/권한/PostgREST통합미검수"
+      }
     }
   ]
 }
