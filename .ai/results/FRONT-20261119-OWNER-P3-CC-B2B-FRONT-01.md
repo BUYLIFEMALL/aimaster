@@ -50,3 +50,7 @@
 - 화면: 장바구니 주문(`order/page.tsx`가 `cashReceiptEnabled(store.settings)` 전달)·무통장·결제 금액 1원 이상에서만 칸, 세금계산서와 체크 택1. 견적 주문(`quotes/[id]`)·비회원·카드·외상·주문 상세 수동 신청(0100) 불변.
 - 시험(모의만): 새 6(판단 함수 3 + 소스 계약 2 + …) — `cash-receipt-checkout`+기존 `cash-receipt`·주문 시험 25/25, 수정 전 3파일로 계약 시험 fail 2, 전체 tsc 오류 0.
 - 미검수: 실제 화면(주문서 칸 표시·택1 동작), Lab 0105 적용 뒤 실제 접수 흐름 — Mac/Backend 단계. 0105는 Lab·운영 미적용이라 지금 배포되면 RPC 없음 오류 → 고정 안내로 떨어짐(주문은 정상) — **배포는 0105 적용과 같은 묶음 필요**.
+
+### S70 P2 수정(Mac msg_1896ea3cbaa4, Master msg_56ced92ca77d) — ready_review
+- 커밋 `ee35d6eb1`(actions.ts·tests/cash-receipt-checkout.test.mjs). 0105 호출·응답 해석만 try/catch, 예외(reject·throw)도 같은 고정 안내로 생성된 주문 상세 done=1. redirect·주문 생성·세금계산서·결제 동작 불변, 호출 1회·재시도 0·예외 원문 버림.
+- 실제 actions.ts를 가짜 next·supabase에 붙인 모의 시험: reject·throw·오류값·not_eligible 모두 주문 1회·접수 1회·리다이렉트 1번(`/s/shop/orders/ord-1?done=1&error=<고정 안내>`)·번호 없음, accepted는 `done=1`만. 수정 전 코드로 fail 1(reject가 원문 오류를 그대로 던짐) → 후 25/25, tsc 0.
