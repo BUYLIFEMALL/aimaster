@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 22:51:42 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 23:01:41 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -376,6 +376,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | WS-20261118-03 | CC-WORKSPACE-01 | done / sidebar_trim_production_screen_verified | 사이드바 예정된 일정 메뉴 숨김 | v1.59 운영 시험 화면에서 메뉴 숨김 확인. |
 | WS-20261118-04 | CC-WORKSPACE-01 | done / four_views_production_desktop_verified | 워크스페이스 내부 네 화면 연결 | 네 화면·좌측 유지·본문 스크롤·뒤로가기 운영 확인. 767px 이하·주소 새로고침·타 공간은 운영 미검증. |
 | WS-20261118-05 | CC-WORKSPACE-01 | done / production_ready_owner_desktop_checks_accepted | 워크스페이스 v1.59 승인 묶음 운영 배포 | 운영 v1.59 확인. 프로그램 목록 DB v1.58 보고는 운영 쓰기 범위 결정 대기. |
+| WS-20261118-06 | CC-WORKSPACE-01 | reviewing / calendar_and_width_source_reviewed_toggle_fix_requested | 달력 월 구분 정리·업무 현황판 너비 | 현황판 유효 너비 메뉴·키보드 일치 및 공개/peek 기존 경계 보완 회수. |
 | QA-20261118-043 | CX-QA-01 | done / integrated | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | 실브라우저375/390은v1.58배포후허용된기존시험세션에서·추가dev/build0 |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
 | OPS-20261118-01 | CX-MASTER-01 | done / integrated | 전체개발플랜·카테고리·누락개선/인수인계 정합성 대조 | 미확인68프로그램 현담당근거후속연결·제품전체검증과구분, 신규후속ID별진행 |
@@ -448,6 +449,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | AIF-20261118-W01t | CC-SNS-01 | done / p3_read_only_aggregate_design_accepted | 멈춘 자산·삭제 예약 읽기 전용 집계 설계 | W01u 초안 범위 배정, 조회 한도와 잠금 설명 정정. |
 | AIF-20261118-W01u | CC-SNS-01 | done / p3_isolated_17_of_17_and_mac_static_review_accepted | 자산 상태 집계 후속 SQL·격리 시험 초안 | 로컬 SQL 검수 완료. 호출 경로·영속 DB 적용·배포는 별도. |
 | AIF-20261118-W01v | CC-SNS-01 | done / asset_save_indicator_local_and_mac_checks_accepted_undeployed | 생성 결과 원본 저장 상태 표시 | 로컬 검수 완료·점유 해제·OFF·미배포. |
+| AIF-20261118-W01w | CC-SNS-01 | running / g5_response_design_requested_scope_claimed | 생성 이미지 응답 크기 근거 및 G5 설계 | 고정 설계 SHA와 근거 회수. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 
 ## 현재 담당 회신이 확보된 프로젝트

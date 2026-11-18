@@ -4988,6 +4988,40 @@
         "screen": "v1.59 운영, 네 화면·메뉴 데스크톱 확인",
         "author": "로컬 빌드 1회 통과·운영 배포 1회, 데스크톱 네 경로·사이드바·본문 스크롤·뒤로가기 확인. push/DB 쓰기/외부연동 실행 0 보고."
       }
+    },
+    {
+      "task_id": "WS-20261118-06",
+      "parent_task_id": "WS-20261118-02",
+      "owner": "CC-WORKSPACE-01",
+      "reviewer": "CX-QA-01",
+      "title": "달력 월 구분 정리·업무 현황판 너비",
+      "status": "reviewing",
+      "delivery": "calendar_and_width_source_reviewed_toggle_fix_requested",
+      "sha": "40896d037",
+      "scopeRef": "calendar.css·PageView.tsx, 최소 너비 토글/시험 후속",
+      "constraints": "초기 편집 사전 점유 등록 누락 보고. 새 편집은 정확 경로 등록. 실제 설정 쓰기/빌드/배포 0.",
+      "evidence": "Workspace 직접 보고·506eff4df·msg_24a5f90f409f·msg_34378dea6d4b·msg_4f89af49c4f9",
+      "next": "현황판 유효 너비 메뉴·키보드 일치 및 공개/peek 기존 경계 보완 회수.",
+      "validation": {
+        "author": "35/35·tsc 통과, 임시 CSS 표시 참고·미배포.",
+        "independent": "Mac 두 파일 정적. 라이트/다크 규칙 및 너비 분기 확인, 실제 화면 미검증."
+      },
+      "lastReviewedAt": "2026-11-18T14:01:41.663Z"
+    },
+    {
+      "task_id": "AIF-20261118-W01w",
+      "parent_task_id": "AIF-20261118-W01v",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "생성 이미지 응답 크기 근거 및 G5 설계",
+      "status": "running",
+      "delivery": "g5_response_design_requested_scope_claimed",
+      "scopeRef": "W00 G5 해당 절과 관련 상태 줄",
+      "constraints": "설계 문서만. 소스/SQL/운영/실 AI/비용/build/deploy 0.",
+      "completion": "현 응답 바이트와 플랫폼 근거·합성 경계·기존 결과/권한 및 저장 불명 대안 비교",
+      "evidence": "msg_2f0d84e6cd34·msg_cdc1505e1891·9ec034adb",
+      "next": "고정 설계 SHA와 근거 회수.",
+      "lastReviewedAt": "2026-11-18T14:01:41.663Z"
     }
   ],
   "programOverrides": [
@@ -5506,22 +5540,23 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T13:51:42.961Z",
+      "at": "2026-11-18T14:01:41.663Z",
       "timezone": "Asia/Seoul",
-      "trigger": "WS05 운영 화면 및 배포 반환",
-      "scope": "v1.59 자원·동선·로컬/운영 빌드·WS27 미연결·목록 버전 불일치 대조.",
+      "trigger": "23:00 정기 점검 및 Workspace/SNS 직접 지시 보고",
+      "scope": "22:50 이후 Git·결과/인수인계·점유·관리자 요청, 19개 분류와 미종결 선행조건. WS06 및 W01w 대조.",
       "evidence": [
-        "b24b9595a·b0911ac94",
-        "dpl_3TyMVfb6WGcXbxVgtYZ38699Upfr",
-        "Workspace 직접 보고 운영 데스크톱"
+        "msg_6b0d5319049e",
+        "40896d037·506eff4df·msg_34378dea6d4b·msg_4f89af49c4f9",
+        "msg_2f0d84e6cd34·msg_cdc1505e1891·9ec034adb",
+        "관리자 요청 대기 0"
       ],
-      "judgment": "승인 묶음 운영 데스크톱 검수 완료. 목록 버전 DB 쓰기 범위는 별도, Gmail 연결 미확인으로 실검증 보류.",
+      "judgment": "WS06 정적 결과 및 너비 토글 보완, W01w G5 설계 배정/점유 확인. 새 운영 승인 없음.",
       "unverified": [
-        "767px 이하·직접 주소 새로고침·다른 워크스페이스 운영 화면",
-        "Gmail 콜백 원인·실검증",
-        "목록 DB 버전 독립 확인 및 변경 승인"
+        "WS06 너비 토글·실화면/배포",
+        "W01w G5 설계 근거",
+        "기존 Gmail 연결·운영 버전 및 사람 의존 단계"
       ],
-      "nextAction": "기존 운영 범위 유지. 목록 버전 수정과 Gmail 검증은 별도."
+      "nextAction": "WS06 보완 근거 및 W01w 문서 SHA 회수."
     },
     "notifications": [
       {
