@@ -1575,3 +1575,27 @@ DB: 해당 없음(읽기만) · 배포: 해당 없음
 - 이미지가 없는 결과에 덧붙이는 저장 상태 한 줄을 **전용 문구**로 바꿨다(`generateResponse.ts` `OMITTED_SAVE_LINES`): 보관됨 → 「원본은 내 저장공간에 보관됐습니다.」 · 보관 안 됨 → 「원본은 저장공간에 보관되지 않았습니다.」 · 미확인 → 「원본이 보관됐는지는 아직 확인하지 못했습니다.」 앞서는 정상 이미지용 안내(W01v)를 그대로 붙였는데, 그 문구는 「지금 화면에서 내려받을 수 있다·그대로 쓸 수 있다」를 말해 이미지가 없는 화면과 모순이었다. 전용 문구는 사실만 말하고 내려받기·조회·재생성을 안내하지 않는다. 정상 이미지 쪽 안내(W01v)는 바뀌지 않았다.
 - 검증: `tests/generateResponseLimit.test.mjs` 16/16, 전체 `npm test` 211/211, `npx tsc --noEmit` 통과. 서버·새 화면·옛 화면 흐름의 문구 일치, 세 상태의 전용 한 줄, 정상 이미지용 문구 미사용, 식별자·코드·원문 미노출을 단언한다. 변형 5종 빨강(정상 이미지용 문구 재사용·미확인을 보관 안 됨으로 단정·재생성 안내 추가·서버 문구만 과금 단정·새 화면 문구만 다름).
 - (2026-11-18 상태, Master `msg_04f197cb83d3`) **W01x 로컬 종료 — 미배포.** 최종 0f570dfd0(1364afbda → 27b1804fe → 0f570dfd0), Mac 고정 모의·소스 16/16 수락. **별도로 남은 검증(하지 않았다)**: 실제 브라우저의 옛 탭 동작 · 플랫폼의 실제 응답 한도 동작 · 공급자의 등급별 실제 이미지 크기 · 화면 실물. G5 자체는 **해소가 아니다** — 넘은 이미지를 받게 하는 것(§21-6 A·B)은 그대로 남아 있다. 점유 해제.
+
+### 14-L. 운영 DB 첫 적용과 권한 불일치 — 중단 기록 (2026-11-19, W01z, 주인님 승인 「승인해 진행해」, Master `msg_ee7317b3640a`)
+
+**운영 DB(ref `esgxyikcnnvmlhygjkth`)에 고정 SQL 3개를 적용했다. 적용 뒤 확인에서 권한 불일치 1건이 나와 멈췄다 — 버킷 생성과 나머지 확인은 하지 않았다.** 서버 상수 `AIF_ASSETS_MODE`는 off 그대로라 앱 동작 변화는 없다. 빌드·배포·푸시·비용 0.
+
+| 단계 | 결과 |
+|---|---|
+| 대상 확인 | 프로젝트 주소로 운영 DB임을 확인 |
+| 실행 전 읽기 | 이름 충돌 0건(표·함수·색인 7개·정책·버킷). 의존 객체 모양 일치(`profiles`·`member_storage_usage`·`member_storage_policy(uuid)`·`storage.objects`·역할 3개). PostgreSQL 17.6 |
+| 적용 | `aif_assets_a1` → `aif_assets_p2_missing` → `aif_assets_p3_summary` 각 1회, 모두 성공. 실행문은 저장소 파일 원문 그대로(파일 머리의 설명 주석 블록만 생략). 재시도·수정 0 |
+| 원문 일치 | 함수 14개의 본문 해시(`md5(prosrc)`)가 로컬 파일에서 뽑은 본문 해시와 14/14 일치 |
+| 함수 | 소유자 `postgres`, `search_path` 빈 값, 실행 권한은 `service_role`만(PUBLIC 부여 0) |
+| 표 | 2개 모두 RLS 켜짐, 정책은 `aif_assets`의 본인·ready 읽기 1개뿐, 열 18·10, 행 0·0 |
+| 함수 소유자의 읽기 권한 | `storage` 스키마 USAGE·`storage.objects` SELECT·`member_storage_usage` SELECT·`member_storage_policy` EXECUTE·`profiles` SELECT 모두 있음(소유자는 `bypassrls`) |
+| **불일치** | `public.aif_assets`의 표 권한이 `authenticated = arwdDxtm`(전부). 기대는 읽기만 |
+
+- 원인: 운영 DB는 public 스키마의 기본 권한(`pg_default_acl`)이 새 표에 anon·authenticated·service_role 전부를 준다. A1 원문은 anon만 회수하고 authenticated에는 `grant select`만 했다. `aif_asset_deletions`는 둘 다 회수해 정상.
+- 영향: insert·update·delete는 RLS(해당 정책 없음)가 막는다. truncate·references·trigger는 RLS 대상이 아니어서 권한상 열려 있다 — 앱의 API로 닿는 경로는 알지 못하지만 「회원은 어떤 쓰기도 직접 하지 못한다」는 원칙과 다르다. 표가 0행이고 모드가 off라 실제 피해는 없다.
+- **왜 격리 시험이 못 잡았나**: 대역 DB에는 그 기본 권한이 없었다. 지금까지의 권한 단언(`a1_contract` 등)은 대역 전제에서만 참이었다 — 시험의 한계였고, 운영에서 처음 드러났다.
+- 로컬 준비(운영 미적용): 새 파일 `supabase/migrations/20261119100000_aif_assets_grants_fix.sql`(blob `5c554656d`) — `revoke all on table public.aif_assets from authenticated;` + `grant select …` 두 문장. 이미 적용된 3개 파일·표 구조·데이터·정책·함수·기본 권한은 건드리지 않는다.
+- 격리 시험 `tests/sql/a1_grants.test.mjs`(blob `341208ac6`, 커밋 1dfadb3dc, 시험 DB `qa_aif_grants_20261119`) **8/8, 1회 실행**: 시험 DB에 운영과 같은 표 기본 권한을 재현 → 정정 전에는 `authenticated=arwdDxtm`이고 회원 역할의 truncate가 실제로 성공함을 재현 → 정정 후 authenticated는 SELECT만, anon 0, service_role·소유자 그대로, 예약 표·정책·RLS·함수 권한 무변경, PUBLIC·열 단위·역할 상속 경로 0, 회원 역할로 본인 ready만 읽히고 insert·update·delete·truncate는 권한 오류, 재적용해도 같음. 시험 DB oid 2549247 생성·삭제, 종료 후 `qa_aif_%` DB·세션 0.
+- 그 시험의 한계: 재현한 것은 **표의** 기본 권한 하나다. 운영의 다른 기본 권한(함수·시퀀스)·역할 구성·PostgREST를 거친 실제 접근은 재현하지 않았다. 대역에서의 통과이지 운영에서의 확인이 아니다.
+- 운영 재개 순서(승인 뒤): ① 정정 파일 적용(1회) → ② 카탈로그 재확인(`aif_assets`의 authenticated가 SELECT만, 나머지 무변경) → ③ 비공개 버킷 `aif-assets` 생성과 속성 확인 → ④ 시험 계정으로 `aif_asset_usage_estimate`·`aif_asset_precheck`를 되돌리는 거래 안에서 호출. 어긋나면 고치지 않고 보고.
+- 지금 운영 DB 상태: 표 2·함수 14·색인·정책 존재, **권한 불일치 그대로**, 버킷 없음, 행 0.
