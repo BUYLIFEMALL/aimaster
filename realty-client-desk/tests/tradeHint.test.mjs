@@ -48,3 +48,20 @@ test("월세는 보증금/월세로 표시", () => {
   const h = toTradeHint({ data: [row({ deal_type: "월세", price_amount: 5000, monthly_rent: 150 })], error: null }, region, "월세");
   assert.match(h.lines[0], /보증금 5,000만\/월 150만$/);
 });
+
+test("2026-11-19 보완: 경기 광주시와 광주광역시를 섞지 않음", () => {
+  assert.deepEqual(resolveAddressRegion("경기 광주시 오포읍 1"), { sggCd: "41610", sggNm: "광주시", dong: "오포읍" });
+  assert.deepEqual(resolveAddressRegion("경기도 광주시 경안동 1"), { sggCd: "41610", sggNm: "광주시", dong: "경안동" });
+  assert.deepEqual(resolveAddressRegion("광주시 경안동 1"), { sggCd: "41610", sggNm: "광주시", dong: "경안동" }, "「광주시」는 시·도가 아니라 경기 광주시");
+  assert.deepEqual(resolveAddressRegion("광주광역시 광산구 수완동 1"), { sggCd: "12330", sggNm: "광산구", dong: "수완동" });
+  assert.deepEqual(resolveAddressRegion("광주시 광산구 수완동 1"), { sggCd: "12330", sggNm: "광산구", dong: "수완동" }, "붙인 이름이 목록에 없으면 구 이름으로");
+  assert.equal(resolveAddressRegion("광주 동구 충장동 1")?.sggCd, "12210", "광주(전남광주 묶음) 동구");
+  assert.equal(resolveAddressRegion("동구 충장동 1"), null, "시도 없는 동구는 여러 곳 → 조회 안 함");
+  assert.deepEqual(resolveAddressRegion("제주시 노형동 1"), { sggCd: "50110", sggNm: "제주시", dong: "노형동" }, "「제주시」는 시군구");
+});
+
+test("2026-11-19 보완: 계약일이 빈 행은 버리고 계약일 있는 최신 순", () => {
+  const data = [row({ contract_date: null }), row({ contract_date: null }), row({ contract_date: "2026-10-01" }), row({ contract_date: null })];
+  assert.deepEqual(toTradeHint({ data, error: null }, region, "매매"), { status: "ok", lines: ["2026-10-01 · 경희궁자이 · 전용 84.9㎡ · 23억"] });
+  assert.deepEqual(toTradeHint({ data: [row({ contract_date: null })], error: null }, region, "매매"), { status: "none" });
+});

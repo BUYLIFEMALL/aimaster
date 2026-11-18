@@ -5,13 +5,17 @@
 //   - 같은 이름의 시군구가 여러 곳(서울·부산 중구 등)이면 주소의 시·도 글자로 하나로 가려질 때만
 //   - 못 가리면 조회도 표시도 하지 않는다(결과를 가정하지 않음). 조회는 그 코드(sgg_cd)로만 한다.
 
-/** 주소의 시·도 글자 → 목록의 시·도 묶음 이름. 광주·전남은 목록에서 한 묶음(전남광주, 코드 12…) */
-const SIDO_ALIASES: [RegExp, string][] = [
-  [/^서울/, "서울"], [/^경기/, "경기"], [/^인천/, "인천"], [/^부산/, "부산"], [/^대구/, "대구"], [/^대전/, "대전"], [/^울산/, "울산"],
-  [/^세종/, "세종"], [/^광주/, "전남광주"], [/^전남|^전라남/, "전남광주"], [/^충북|^충청북/, "충북"], [/^충남|^충청남/, "충남"],
-  [/^경북|^경상북/, "경북"], [/^경남|^경상남/, "경남"], [/^제주/, "제주"], [/^강원/, "강원"], [/^전북|^전라북/, "전북"],
-];
-const sidoOfToken = (w: string) => SIDO_ALIASES.find(([re]) => re.test(w))?.[1] ?? null;
+/** 주소의 시·도 낱말(정확히 같은 낱말만) → 목록의 시·도 묶음 이름. 광주·전남은 목록에서 한 묶음(전남광주, 코드 12…).
+ *  2026-11-19 보완(Master msg_1884123d9d90): 「광주시」(경기 광주시)·「제주시」·「세종시」처럼 시군구 이름과 겹치는 낱말은 시·도로 보지 않는다 */
+const SIDO_WORDS: Record<string, string> = {
+  서울: "서울", 서울시: "서울", 서울특별시: "서울", 경기: "경기", 경기도: "경기", 인천: "인천", 인천시: "인천", 인천광역시: "인천",
+  부산: "부산", 부산시: "부산", 부산광역시: "부산", 대구: "대구", 대구시: "대구", 대구광역시: "대구", 대전: "대전", 대전시: "대전", 대전광역시: "대전",
+  울산: "울산", 울산시: "울산", 울산광역시: "울산", 세종: "세종", 세종특별자치시: "세종", 광주: "전남광주", 광주광역시: "전남광주",
+  전남: "전남광주", 전라남도: "전남광주", 충북: "충북", 충청북도: "충북", 충남: "충남", 충청남도: "충남", 경북: "경북", 경상북도: "경북",
+  경남: "경남", 경상남도: "경남", 제주: "제주", 제주도: "제주", 제주특별자치도: "제주", 강원: "강원", 강원도: "강원", 강원특별자치도: "강원",
+  전북: "전북", 전라북도: "전북", 전북특별자치도: "전북",
+};
+const sidoOfToken = (w: string) => SIDO_WORDS[w] ?? null;
 
 export interface ResolvedRegion {
   sggCd: string; // 실거래 표 sgg_cd(조회 조건)
@@ -34,7 +38,9 @@ export function resolveAddressRegion(address: string, districts: readonly (reado
     if (!/[가-힣](구|시|군)$/.test(prev) || sidoOfToken(prev)) continue;
     // 「고양시 일산동구」처럼 시 아래 구면 시 이름까지 붙인다(목록 sgg_nm 모양)
     const before = t[i - 2];
-    const sggNm = /구$/.test(prev) && before && /[가-힣]시$/.test(before) && !sidoOfToken(before) ? `${before} ${prev}` : prev;
+    const joined = /구$/.test(prev) && before && /[가-힣]시$/.test(before) && !sidoOfToken(before) ? `${before} ${prev}` : null;
+    // 「광주시 광산구」처럼 붙인 이름이 목록에 없으면 구 이름만으로 다시 찾는다
+    const sggNm = joined && districts.some(([, nm]) => nm === joined) ? joined : prev;
     let hits = districts.filter(([, nm]) => nm === sggNm);
     if (sido) hits = hits.filter(([, , s]) => s === sido);
     if (hits.length !== 1) return null; // 없음 또는 동명 시군구를 못 가림 → 조회하지 않음

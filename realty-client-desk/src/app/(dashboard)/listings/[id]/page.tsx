@@ -52,7 +52,8 @@ export default async function ListingMatchPage({ params }: { params: Promise<{ i
       const res = await db.from("real_estate_listings")
         .select("sgg_cd, stdg_nm, bldg_nm, deal_type, exclusive_area, price_amount, monthly_rent, contract_date")
         .eq("sgg_cd", region.sggCd).eq("stdg_nm", region.dong).eq("deal_type", listing.deal_type)
-        .order("contract_date", { ascending: false }).limit(3);
+        .not("contract_date", "is", null) // 계약일 칸은 비어 있을 수 있음(스키마 contract_date date) — 빈 행이 3건 자리를 차지하지 않게
+        .order("contract_date", { ascending: false, nullsFirst: false }).limit(3);
       tradeHint = toTradeHint({ data: (res.data ?? null) as TradeRow[] | null, error: res.error ?? null }, region, listing.deal_type);
     } catch {
       tradeHint = { status: "error" };
