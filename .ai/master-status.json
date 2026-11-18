@@ -4450,13 +4450,13 @@
       "reviewer": "CX-MASTER-01",
       "title": "승인된 블로그3프로그램 순차묶음 배포",
       "status": "running",
-      "delivery": "final_web_release_held_for_new_excel_independent_review",
+      "delivery": "final_web_release_held_for_required_preview_fixes",
       "scopeRef": "tistory-auto-blog1.98→blog-neighbor-care1.22→web-crawler T04+05+07 정확manifest",
       "constraints": "Vercel최대3·T04별도1은세번째통합/추가4번째0·공용masterpush0·순차Ready/alias/버전·남의AGENTS변경보존·새AI0",
       "completion": "프로젝트/팀/기준SHA/점유/큐/notice/widget/pending·필요검사/빌드·각운영Ready/alias/버전·티스토리기존초안미리보기1/web실화면",
-      "evidence": "주인님직접승인msg_6c2b57cab944·Master배정msg_2eda31a938b1 · msg_0957e7387120: Tistory prj_p3Qc2mOwj5LnPlE5zaAd2stxvibm/team일치·운영1.97·archiveHEAD·86+44/tsc·큐0·1/3 · msg_2d43083c8301 1/3완료·Masteralias dpl_GWRtKtymAGR4sdzgywKsxeFkgMK2 직접확인·msg_555ca68934de · msg_205456c9c8e5 이웃prj_sofdvYyCKAKO5ymLTRZ0vHwYK9q8/1.21→a3fe1.22/387·tsc·큐0/남의미커밋보존·Master수락 · msg_999d4d074c92 이웃완료·Masteralias dpl_HpC2cXcGpWNyHomMSc3qg28Y82Dx·msg_4890dfc4bdcc/Mastermsg_ebbf8f33ae28 · msg_1741a93554fe 최종사전/840d672ac·msg_59d435ca60a7 범위인용정정/파일6개/실회원route시험없음·Master/ Mac검수",
-      "next": "web840d672ac 포함e60083fb5 Excel프리뷰 국소독립검수→필요수정/검사후마지막1회배포",
-      "lastReviewedAt": "2026-11-18T07:38:53.852Z",
+      "evidence": "주인님직접승인msg_6c2b57cab944·Master배정msg_2eda31a938b1 · msg_0957e7387120: Tistory prj_p3Qc2mOwj5LnPlE5zaAd2stxvibm/team일치·운영1.97·archiveHEAD·86+44/tsc·큐0·1/3 · msg_2d43083c8301 1/3완료·Masteralias dpl_GWRtKtymAGR4sdzgywKsxeFkgMK2 직접확인·msg_555ca68934de · msg_205456c9c8e5 이웃prj_sofdvYyCKAKO5ymLTRZ0vHwYK9q8/1.21→a3fe1.22/387·tsc·큐0/남의미커밋보존·Master수락 · msg_999d4d074c92 이웃완료·Masteralias dpl_HpC2cXcGpWNyHomMSc3qg28Y82Dx·msg_4890dfc4bdcc/Mastermsg_ebbf8f33ae28 · msg_1741a93554fe 최종사전/840d672ac·msg_59d435ca60a7 범위인용정정/파일6개/실회원route시험없음·Master/ Mac검수 · Macmsg_977021413642 F01~03 반환·원격아직2/3사용",
+      "next": "T07압축누적실bytes/보호회원/로그 최소수정→지정재검수뒤마지막1회",
+      "lastReviewedAt": "2026-11-18T07:41:14.383Z",
       "sha": "97ee4acbb",
       "validation": {
         "author": "version1.98/확장1.98.0·HEADarchive·미커밋삭제oldZIP보존·prebuild다시생성·test86+44/tsc0·widget/pending대조·큐0",
@@ -4569,15 +4569,19 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "최종배포 전 T07 엑셀 미리보기 소스 독립검수",
-      "status": "running",
-      "delivery": "priority_exact_source_review_before_last_remote_build",
+      "status": "needs_revision",
+      "delivery": "parser_core_pass_actual_inflate_budget_retention_exception_raw_log_fixes_returned",
       "sha": "e60083fb5",
       "scopeRef": "web-crawler/webapp xlsxPreview·previewGET·JobPreview/JobsList·xlsx-preview시험",
       "constraints": "실Storage/DB/크롤링/AI/설치/build0·고정6파일·마지막원격1회미사용",
       "completion": "실모듈시험/owner·보호회원30일예외/압축실bytes·인코딩/셀·React출력/계정전환경계·정적vs실handler구분",
-      "evidence": "Mastermsg_a661805488e9/402493be659e·Blogmsg_59d435ca60a7",
-      "next": "고정결과회수→Master포함/수정판정·예산추가0",
-      "lastReviewedAt": "2026-11-18T07:38:53.852Z"
+      "evidence": "Mastermsg_a661805488e9/402493be659e·Blogmsg_59d435ca60a7 · Macmsg_977021413642·.ai/results/WEB-T07-e60083fb5-CX-QA-01.md 미커밋",
+      "next": "Blog세경계1패치·실GET/압축반례회귀→Mac국소재검수",
+      "lastReviewedAt": "2026-11-18T07:41:14.383Z",
+      "validation": {
+        "independent": "parser13/13·실GET모의5/ZIP추가. F01각XML선언상한만/합계20MiB수락·실17MiB선언1은inflate후일반오류·실스트림상한없음. F0230일예외누락/실삭제단정. F03raw Error stack로그. owner/React text/수식0확인",
+        "master": "xlsx/route직접읽기일치·다운로드동일작은보호helper범위허용·실중앙/실크롤링0"
+      }
     }
   ],
   "programOverrides": [
@@ -5096,22 +5100,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T07:38:53.852Z",
+      "at": "2026-11-18T07:41:14.383Z",
       "timezone": "Asia/Seoul",
-      "trigger": "최종web배포 사전/엑셀범위확인·SNS R2",
-      "scope": "web실parser/GET직접읽기·동일파일독립검수·보안예산/신규프리뷰포함판정·SNS계약개정",
+      "trigger": "배포전엑셀 독립검수반례",
+      "scope": "e600실parser/GET·압축실측/30일예외/로그·기존download동일경계",
       "evidence": [
-        "msg_1741a93554fe/59d435ca60a7·Masterxlsx/route직접읽기",
-        "Macmsg_a661805488e9/402493be659e",
-        "msg_b613f184e03a/3b84540d7"
+        "msg_977021413642",
+        "Master기존xlsx/GET실물확인"
       ],
-      "judgment": "최종원격미사용·새Excel검수우선배정/같은승인재질문0·보호회원30일/실압축상한Master추가확인·SNSR2국소후순위검토",
+      "judgment": "기본owner/텍스트검증수락·3건같은패치반환·필요동일download보호helper범위허용·원격마지막보존",
       "unverified": [
-        "Excel압축/보호/계정권한경계",
-        "web마지막배포",
-        "SNS R2국소판정"
+        "수정압축budget/프로필예외/로그",
+        "web최종배포",
+        "SNS R2계약검토중"
       ],
-      "nextAction": "Mac Excel결과통합→필요수정반환/포함승인·R2판정"
+      "nextAction": "Blog고정수정SHA/의미있는반례→Mac국소재검수·추가비용0"
     },
     "notifications": [
       {
