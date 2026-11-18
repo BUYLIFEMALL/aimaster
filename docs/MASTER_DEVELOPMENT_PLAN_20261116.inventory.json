@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 12:14:19 KST",
+  "checkedAt": "2026-11-18 12:15:40 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T03:14:19.290Z",
+      "at": "2026-11-18T03:15:40.479Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Mac CRM18-02 정적검수 msg_261e6589ece9",
-      "scope": "정적/실PG근거분리·시험누락3건·Backend순차배정",
+      "trigger": "CRM18-03 1fe179bd6 자체완료보고",
+      "scope": "UI6파일범위·10시험근거·Mac독립검수·DB하네스순차",
       "evidence": [
-        "MacDocker/psql미보유실행0·DDL/하네스정적PASS권고",
-        "same-user2source/ACL·전체행/고정DB안전보완",
-        "msg_8f77f3eee758 UI커밋뒤시험보완"
+        "작성자msg_b381c1f09e8a·Masterstat",
+        "Mac dispatch msg_1c4a0f1d0b13"
       ],
-      "judgment": "DDL코드결함확정없음·실DB독립PASS확대0. 시험근거보완요청·운영적용보류유지.",
+      "judgment": "자체통과접수·실화면/실쿼리연결검수별도. 미배포/운영DB/발송0유지.",
       "unverified": [
-        "시험보완실PG/하네스SHA·UI가짜/실화면",
-        "GmailOAuth·MacB파일"
+        "실제UI/query모의·집계실패표시·미래status노출",
+        "DB하네스보완·GmailOAuth·MacB"
       ],
-      "nextAction": "UI/하네스각결과회수·같은DB병렬시험0·Mac재검토"
+      "nextAction": "Mac판정/하네스결과각각회수→수정필요시정확범위반환"
     },
     "notifications": [
       {
@@ -7699,14 +7698,20 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
       "title": "CRM 접수 새상태 화면·집계 준비",
-      "status": "running",
-      "delivery": "exact_scope_started",
-      "evidence": "영향조사2019381a6·msg_dcca549f3407·착수msg_b24ceec65e71",
+      "status": "ready_review",
+      "delivery": "status_ui_independent_review_dispatched",
+      "evidence": "영향조사2019381a6·msg_dcca549f3407·착수msg_b24ceec65e71·결과msg_b381c1f09e8a·Master6파일stat·Macmsg_1c4a0f1d0b13",
       "scopeRef": "dashboard/page.tsx·submissions/page.tsx·SubmissionMatrix.tsx·필요순수submissionStatus.ts/시험·기존결과본인절",
       "completion": "기존3+새3상태 라벨/필터/집계·처리중/부분/모름누락0·기존필드만조회·가짜rows실제분류/tsc",
       "constraints": "운영미배포·DB/발송/API0·dedupe_key/channel_results조회0·route/dispatch/followup/promotions/snippet/DDL0",
-      "next": "화면소스/가짜분류시험안전커밋→2A하네스보완순차,제품/DB동시수정0",
-      "lastReviewedAt": "2026-11-18T03:12:03.618Z"
+      "next": "Mac순수분류+실컴포넌트/쿼리모의검수→판정,Backend는2A하네스순차보완",
+      "lastReviewedAt": "2026-11-18T03:15:40.479Z",
+      "sha": "1fe179bd6",
+      "validation": {
+        "author": "상태10/10·dedupe포함24/24·tsc0",
+        "master": "정확6파일diffstat·허용범위",
+        "independent": "Mac 실제화면/조회연결·누락/오류0단정검수대기"
+      }
     }
   ]
 }
