@@ -250,7 +250,7 @@ describe('실패 처리 — 필수 DDL은 안전 실패, 시작 작업은 한 �
     expect(first).toHaveBeenCalledTimes(1);
     expect(second).toHaveBeenCalledTimes(1);
     expect(queries().map((c) => c.text.match(/\d AS \w/)?.[0])).toEqual(['1 AS x', '2 AS y', '3 AS z']);
-    expect(logged).toEqual([['[startup] first job failed', 'Error']]); // 이름과 오류 종류만
+    expect(logged).toEqual([['[startup] first job failed', 'error']]); // 정해 둔 작업 이름과 고정 분류만
     expect(JSON.stringify(logged)).not.toContain('SECRET-VALUE-9');
   });
 
@@ -262,7 +262,47 @@ describe('실패 처리 — 필수 DDL은 안전 실패, 시작 작업은 한 �
       throw Object.assign(new Error('boom (v)=(SECRET-LATE)'), { code: 'TIMEOUT' });
     }, 'late job')).not.toThrow();
     expect(db.prepare('SELECT 2 AS y').get()).toBeUndefined();
-    expect(logged).toEqual([['[startup] late job failed', 'TIMEOUT']]);
+    expect(logged).toEqual([['[startup] late job failed', 'error']]); // 오류 객체의 code 값을 읽거나 기록하지 않는다
+  });
+
+  it('속성을 읽기만 해도 던지는 오류 객체: 기록 중에 다시 던지지 않고 격리가 유지되며, 임의 값은 기록되지 않는다', async () => {
+    const logged = spyErrors();
+    const { db, atStartup, errorKind } = await import(SERVER + 'db.ts');
+    const trap = () => {
+      throw new Error('getter exploded SECRET-GETTER');
+    };
+    const hostile = Object.defineProperties(new Error('x'), {
+      code: { get: trap }, name: { get: trap }, message: { get: trap }, stack: { get: trap }, toString: { get: trap },
+    });
+    const proxy = new Proxy({}, { get: trap, has: trap, getPrototypeOf: trap, ownKeys: trap, getOwnPropertyDescriptor: trap });
+    const arbitrary = Object.assign(new Error('y'), { code: 'SECRET_CODE_VALUE', name: 'SecretNameValue' });
+    for (const e of [hostile, proxy, arbitrary, null, undefined, 'SECRET-STRING', 42, Symbol('s')]) expect(errorKind(e)).toBe('error');
+
+    const after = vi.fn();
+    atStartup(() => {
+      throw hostile;
+    }, 'hostile job');
+    atStartup(() => {
+      throw proxy;
+    }, 'proxy job');
+    atStartup(() => {
+      throw arbitrary;
+    }, 'arbitrary job');
+    atStartup(after, 'after job');
+    expect(db.prepare('SELECT 1 AS x').get()).toBeUndefined(); // 그 질의는 정상
+    expect(after).toHaveBeenCalledTimes(1); // 뒤 작업도 실행
+    expect(db.prepare('SELECT 2 AS y').get()).toBeUndefined();
+    expect(logged).toEqual([
+      ['[startup] hostile job failed', 'error'],
+      ['[startup] proxy job failed', 'error'],
+      ['[startup] arbitrary job failed', 'error'],
+    ]);
+    expect(JSON.stringify(logged)).not.toMatch(/SECRET|SecretNameValue/);
+    // 시작 뒤 등록한 작업도 같다
+    expect(() => atStartup(() => {
+      throw hostile;
+    }, 'late hostile job')).not.toThrow();
+    expect(logged.at(-1)).toEqual(['[startup] late hostile job failed', 'error']);
   });
 
   it('전체 불러오기: 주기 예약 한 건이 실패해도 나머지 예약 4건·버전 맞춤·이관·사용자 질의·지연 타이머는 그대로 실행된다', async () => {
@@ -283,7 +323,7 @@ describe('실패 처리 — 필수 DDL은 안전 실패, 시작 작업은 한 �
     expect(count(/INSERT INTO scheduled_jobs/, 'sprints:tick')).toBe(1); // 다시 시도하지 않음
     expect(count(/FROM records WHERE tbl = 'workflow' AND alive = 1/)).toBe(1);
     expect(count(/FROM activity WHERE created_time/)).toBe(1);
-    expect(logged).toEqual([['[startup] sprints tick schedule failed', '57014']]);
+    expect(logged).toEqual([['[startup] sprints tick schedule failed', 'db']]);
     expect(JSON.stringify(logged)).not.toContain('SECRET-PAYLOAD');
   }, 120_000);
 
@@ -299,7 +339,7 @@ describe('실패 처리 — 필수 DDL은 안전 실패, 시작 작업은 한 �
     db.prepare('SELECT 1 AS x').get();
     await vi.advanceTimersByTimeAsync(17_000);
     expect(db.prepare('SELECT 2 AS y').get()).toBeUndefined();
-    expect(logged).toEqual([['[agents] schedule sync failed', '08006'], ['[pages] idle snapshot failed', '08006']]);
+    expect(logged).toEqual([['[agents] schedule sync failed', 'db'], ['[pages] idle snapshot failed', 'db']]);
     expect(JSON.stringify(logged)).not.toMatch(/SECRET-WF|SECRET-ACT/);
   }, 120_000);
 
@@ -313,7 +353,7 @@ describe('실패 처리 — 필수 DDL은 안전 실패, 시작 작업은 한 �
     await import(SERVER + 'automations/engine.ts');
     const { db } = await import(SERVER + 'db.ts');
     expect(db.prepare('SELECT 1 AS x').get()).toBeUndefined(); // 질의는 정상 진행
-    expect(logged).toEqual([['[startup] webhook secret migration failed', '23505']]);
+    expect(logged).toEqual([['[startup] webhook secret migration failed', 'db']]);
     expect(JSON.stringify(logged)).not.toContain('SECRET-VALUE-123');
     db.prepare('SELECT 2 AS y').get(); // 이후 질의도 정상(이관은 다시 돌지 않음)
     expect(count(/FROM records WHERE tbl = 'automation'/)).toBe(1);

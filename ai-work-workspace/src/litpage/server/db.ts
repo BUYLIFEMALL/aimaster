@@ -7,7 +7,7 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import type { BaseRecord, Table } from '#shared/records.ts';
-import { execSync as bridgeExec, querySync as bridgeQuery } from './pg/bridge.ts';
+import { PgError, execSync as bridgeExec, querySync as bridgeQuery } from './pg/bridge.ts';
 import { translateBatch, translateQuery } from './pg/translate.ts';
 
 /** 원본이 업로드 파일을 두던 폴더. 이식판은 파일을 Supabase Storage에 두므로 임시 작업 폴더로만 쓴다. */
@@ -59,7 +59,7 @@ function cacheClear() {
 // 실패 처리(자동 재시도 없음):
 //  - 필수 DDL이 던지면 그 질의가 오류를 받고, 이 인스턴스의 이후 질의도 같은 오류를 받는다(표가 없는 채로 진행하지 않는 안전 실패).
 //  - 시작 작업은 한 건씩 격리한다: 던져도 그 질의·다른 시작 작업·이후 질의는 계속되고, 실패한 작업은 다시 돌리지 않는다.
-//    기록에는 작업 이름과 오류 종류만 남긴다(오류 문구·값은 남기지 않음 — 저장 값이 섞여 있을 수 있다).
+//    기록에는 코드에 적어 둔 작업 이름과 고정 분류('db'·'error')만 남긴다(오류 객체의 속성은 읽지도 남기지도 않음).
 const pendingDdl: string[] = [];
 const startupTasks: { name: string; run: () => void }[] = [];
 let started = false;
@@ -73,12 +73,17 @@ function flushPendingDdl() {
   }
 }
 
-/** 기록에 남겨도 되는 오류 종류(코드나 오류 이름) — 오류 문구와 값은 내보내지 않는다 */
-export function errorKind(e: unknown): string {
-  const code = (e as { code?: unknown } | null)?.code;
-  if (typeof code === 'string' && /^[A-Za-z0-9_]{1,40}$/.test(code)) return code;
-  const name = e instanceof Error ? e.name : '';
-  return /^[A-Za-z0-9_]{1,40}$/.test(name) ? name : 'error';
+/**
+ * 기록에 남기는 오류 분류 — 정해 둔 두 낱말뿐이다('db': DB 브리지가 낸 오류, 'error': 그 밖).
+ * 오류 객체의 속성(code·name·message 등)은 읽지도 기록하지도 않는다: 읽는 것만으로 던지는 객체가 있을 수 있고,
+ * 값에 저장 자료가 섞여 있을 수 있다. 판정 자체가 던져도(프록시 등) 'error'로 떨어진다.
+ */
+export function errorKind(e: unknown): 'db' | 'error' {
+  try {
+    return e instanceof PgError ? 'db' : 'error';
+  } catch {
+    return 'error';
+  }
 }
 
 function runStartupTask(task: { name: string; run: () => void }) {
