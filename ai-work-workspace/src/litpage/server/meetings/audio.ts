@@ -10,7 +10,7 @@
 // 이식판: 음성 파일 내용은 DB(files.content)에서 읽는다(디스크 사용 안 함)
 import type { BlockRecord, SpaceRecord } from '#shared/records.ts';
 import { roleAtLeast } from '#shared/permissions.ts';
-import { db, getRecord } from '../db.ts';
+import { atStartup, db, getRecord } from '../db.ts';
 import { blockRole } from '../records.ts';
 import { fileRow, readFileContent } from '../content/files.ts';
 import { registerJobHandler, scheduleJob, getJob, cancelJob } from '../scheduler.ts';
@@ -296,4 +296,7 @@ registerJobHandler('meeting-retention', () => {
   runTranscriptRetention();
   scheduleJob('meeting-retention', 'meeting-retention', Date.now() + 86_400_000);
 });
-if (!getJob('meeting-retention')) scheduleJob('meeting-retention', 'meeting-retention', Date.now() + 5 * 60_000);
+// 2026-11-19 WS-20261119-REL: 조회·예약을 DB를 처음 쓸 때로
+atStartup(() => {
+  if (!getJob('meeting-retention')) scheduleJob('meeting-retention', 'meeting-retention', Date.now() + 5 * 60_000);
+});

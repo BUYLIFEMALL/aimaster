@@ -7,7 +7,7 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import type { BaseRecord, Table } from '#shared/records.ts';
-import { execSync, querySync } from './pg/bridge.ts';
+import { execSync as bridgeExec, querySync as bridgeQuery } from './pg/bridge.ts';
 import { translateBatch, translateQuery } from './pg/translate.ts';
 
 /** 원본이 업로드 파일을 두던 폴더. 이식판은 파일을 Supabase Storage에 두므로 임시 작업 폴더로만 쓴다. */
@@ -51,6 +51,63 @@ function cacheClear() {
   requestCache.getStore()?.clear();
 }
 
+// ---------------------------------------------------------------- 시작 경계 (2026-11-19 WS-20261119-REL)
+// 모듈을 불러오는 것만으로는 DB에 가지 않는다 — `next build`의 경로 평가가 운영 DB에 닿지 않게 하기 위해서다.
+// DB를 아직 쓰지 않은 동안의 db.exec(표 확인 DDL)과 atStartup(시작 작업)은 대기 목록에 쌓였다가, DB를 실제로 처음 쓰는
+// 순간(첫 질의 직전) 불러온 순서 그대로 실행된다. 한 번 시작된 뒤에는 예전과 똑같다 — db.exec는 그 자리에서 바로 실행되고
+// (잠금을 잡은 트랜잭션 안에서 표를 만드는 코드가 그 순서에 기대므로), 늦게 불려온 모듈의 시작 작업도 등록하는 자리에서 실행된다.
+// 실패 처리는 예전(불러올 때 바로 실행)과 같다: DDL이나 시작 작업이 던지면 그 인스턴스의 이후 질의도 같은 오류를 받는다
+// (예전에는 모듈 평가가 깨져 같은 결과였다). 자동 재시도는 하지 않는다.
+const pendingDdl: string[] = [];
+const startupTasks: (() => void)[] = [];
+let started = false;
+let starting = false;
+let startFailure: { error: unknown } | null = null;
+
+function flushPendingDdl() {
+  while (pendingDdl.length) {
+    bridgeExec(pendingDdl[0]);
+    pendingDdl.shift();
+  }
+}
+
+function ensureStarted() {
+  if (startFailure) throw startFailure.error;
+  if (started || starting) return; // 이미 시작됐거나, 시작 작업 안에서 나온 질의(재진입)
+  starting = true;
+  try {
+    flushPendingDdl();
+    started = true; // 이 뒤로 db.exec는 바로 실행된다(시작 작업 안의 DDL 포함)
+    // 시작 작업이 다른 시작 작업을 등록할 수 있으므로 길이를 매번 다시 본다
+    for (let i = 0; i < startupTasks.length; i++) startupTasks[i]();
+    startupTasks.length = 0;
+  } catch (error) {
+    startFailure = { error };
+    throw error;
+  } finally {
+    starting = false;
+  }
+}
+
+/**
+ * 예전에 모듈 최상위에서 바로 하던 DB 작업(주기 작업 예약·자료 이관 등)을 등록한다.
+ * 아직 DB를 쓰기 전이면 첫 질의 직전에(표 확인 DDL 다음, 등록한 순서대로) 실행되고, 이미 시작된 뒤면 지금 바로 실행된다.
+ */
+export function atStartup(task: () => void): void {
+  if (started && !starting) task();
+  else startupTasks.push(task);
+}
+
+function querySync(text: string, params: unknown[] = []) {
+  ensureStarted();
+  return bridgeQuery(text, params);
+}
+
+function execSync(text: string): void {
+  ensureStarted();
+  bridgeExec(text);
+}
+
 // ---------------------------------------------------------------- node:sqlite와 같은 모양의 문장 객체
 const WRITES_RECORDS = /^\s*(UPDATE|DELETE|INSERT)\b[\s\S]*\brecords\b/i;
 
@@ -85,7 +142,9 @@ export const db = {
     const parts = translateBatch(sql);
     if (!parts.length) return;
     if (parts.some((p) => WRITES_RECORDS.test(p))) cacheClear();
-    execSync(parts.join(';\n'));
+    // DB를 아직 쓰기 전(모듈을 불러오는 중)이면 대기 — 첫 질의 직전에 순서대로 나간다. 시작된 뒤에는 예전처럼 바로 실행
+    if (started) execSync(parts.join(';\n'));
+    else pendingDdl.push(parts.join(';\n'));
   },
 };
 

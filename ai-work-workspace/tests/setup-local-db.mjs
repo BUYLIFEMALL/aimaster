@@ -7,7 +7,8 @@ import { join } from 'node:path';
 import postgres from 'postgres';
 
 const ADMIN_URL = process.env.AWW_LOCAL_ADMIN_URL ?? 'postgres://postgres:awwlocal@127.0.0.1:55432/aww';
-export const LOCAL_APP_URL = 'postgres://aww_app:awwapp@127.0.0.1:55432/aww';
+// 2026-11-19 WS-20261119-REL: 다른 세션과 함께 쓰는 aww 대신 전용 DB로 돌릴 수 있게 주소를 환경변수로도 받는다(없으면 예전 그대로)
+export const LOCAL_APP_URL = process.env.AWW_LOCAL_APP_URL ?? 'postgres://aww_app:awwapp@127.0.0.1:55432/aww';
 
 export async function setupLocalDb({ reset = false } = {}) {
   const sql = postgres(ADMIN_URL, { max: 1, onnotice: () => {} });

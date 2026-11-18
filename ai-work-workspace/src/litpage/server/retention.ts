@@ -11,7 +11,7 @@ import { newId } from '#shared/ids.ts';
 import type { BlockRecord, SpaceRecord, UserSettingsRecord } from '#shared/records.ts';
 import { toPlainText } from '#shared/richtext.ts';
 import { DEFAULT_RETENTION_DAYS, purgeRetentionDays, trashRetentionDays } from '#shared/retention.ts';
-import { db, getRecord, putRecord } from './db.ts';
+import { atStartup, db, getRecord, putRecord } from './db.ts';
 import { childBlocks } from './tree.ts';
 import { onCommit, recordRole } from './records.ts';
 import { realtime } from './realtime.ts';
@@ -174,4 +174,4 @@ registerJobHandler('w3set-retention', () => {
   scheduleJob('w3set-retention', 'w3set-retention:daily', Date.now() + DAY);
 });
 // first run a minute after start, then daily (upsert by key: restarts don't pile up jobs)
-scheduleJob('w3set-retention', 'w3set-retention:daily', Date.now() + 60_000);
+atStartup(() => scheduleJob('w3set-retention', 'w3set-retention:daily', Date.now() + 60_000)); // WS-20261119-REL: DB를 처음 쓸 때 예약

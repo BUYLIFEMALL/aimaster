@@ -19,7 +19,7 @@ import {
   type AutomationAction, type AutomationRecord, type AutomationRun, type RunContext,
 } from '#shared/automation/index.ts';
 import type { RichText } from '#shared/richtext.ts';
-import { childrenOf, db, getRecord, putRecord } from '../db.ts';
+import { atStartup, childrenOf, db, getRecord, putRecord } from '../db.ts';
 import { applyTransactions, blockRole, onBeforePersist, onCommit, TransactionError, type CommitInfo } from '../records.ts';
 import { automationOwner, copySecrets, migrateWebhookSecrets, resolveHeaders, sealActions, sealChangedRecords } from '../webhookSecrets.ts';
 import { DEMO_MESSAGE, isDemoMode } from '../demo.ts';
@@ -509,11 +509,15 @@ export function startAutomationEngine() {
   onCommit(onCommitted);
   // webhook header values of buttons are sealed before any write is persisted; old stored values are migrated
   onBeforePersist((changed, userId) => sealChangedRecords(changed, (id) => blockRole(id, userId)));
-  try {
-    migrateWebhookSecrets();
-  } catch (e) {
-    console.error('[automation] webhook secret migration failed', e);
-  }
+  // 2026-11-19 WS-20261119-REL: 불러올 때가 아니라 DB를 처음 쓸 때(첫 질의의 결과가 돌아오기 전에) 이관한다.
+  // 실패해도 오류 내용은 남기지 않는다(오류 문구에 헤더 값이 섞일 수 있음) — 종류만 기록.
+  atStartup(() => {
+    try {
+      migrateWebhookSecrets();
+    } catch (e) {
+      console.error('[automation] webhook secret migration failed', (e as { code?: unknown })?.code ?? (e as Error)?.name ?? 'error');
+    }
+  });
   registerJobHandler(JOB_KIND, (p) => runRecurrence(p));
 }
 startAutomationEngine();

@@ -7,7 +7,7 @@
 import { newId, pageSlug } from '#shared/ids.ts';
 import type { BlockRecord, FollowRecord, SpaceRecord, UserRecord } from '#shared/records.ts';
 import { toPlainText } from '#shared/richtext.ts';
-import { db, getRecord } from './db.ts';
+import { atStartup, db, getRecord } from './db.ts';
 import { blockRole, onCommit, type CommitInfo } from './records.ts';
 import { pageIdOf } from './search.ts';
 import { getJob, registerJobHandler, scheduleJob } from './scheduler.ts';
@@ -204,4 +204,7 @@ registerJobHandler('workspace-digest-sweep', () => {
   }
 });
 
-if (!getJob('workspace-digest-sweep')) scheduleJob('workspace-digest-sweep', 'workspace-digest-sweep', nextSweepTime());
+// 2026-11-19 WS-20261119-REL: 조회·예약을 DB를 처음 쓸 때로
+atStartup(() => {
+  if (!getJob('workspace-digest-sweep')) scheduleJob('workspace-digest-sweep', 'workspace-digest-sweep', nextSweepTime());
+});

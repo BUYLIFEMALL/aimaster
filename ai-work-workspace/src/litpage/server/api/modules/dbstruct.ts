@@ -8,7 +8,7 @@ import {
   canEditDatabaseContent, childIdsOf, encodeRelation, parentMap, descendantIds, subitemConfigOf, isTaskDatabase, taskDatabaseInfo, planSprintCompletion,
   sprintInfoOf, sprintStatusOf, sprintDatesOf, dayIndex, getPropertyValue, type SprintSettings,
 } from '#shared/database/index.ts';
-import { childrenOf, db as sqlite, getRecord, recordsInSpace } from '../../db.ts';
+import { atStartup, childrenOf, db as sqlite, getRecord, recordsInSpace } from '../../db.ts';
 import { registerJobHandler, scheduleJob } from '../../scheduler.ts';
 import { readableQueryContext } from '../../queryctx.ts';
 import { applyTransactions, blockRole, RecordMapBuilder } from '../../records.ts';
@@ -258,7 +258,7 @@ function automatedSprintCollections(): CollectionRecord[] {
   return rows.map((r) => JSON.parse(r.data) as CollectionRecord).filter((c) => c.alive !== false && (c.format?.sprint_settings as { automated?: boolean } | undefined)?.automated === true);
 }
 
-scheduleJob('sprints.tick', 'sprints:tick', Date.now() + 60_000, null);
+atStartup(() => scheduleJob('sprints.tick', 'sprints:tick', Date.now() + 60_000, null)); // WS-20261119-REL: DB를 처음 쓸 때 예약
 
 /** WS-20261117-15: duplicateDatabaseRows overrides 검사(적용 전). 통과하면 원본 루트 id → { 속성 id → 값 }. */
 function checkDateOverrides(raw: unknown, roots: BlockRecord[], col: CollectionRecord, uid: string): Map<string, Record<string, unknown>> {

@@ -5,7 +5,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { newId } from '#shared/ids.ts';
 import { isSpaceAdmin, isSpaceMember, publicLinksOff } from '#shared/permissions.ts';
 import type { BaseRecord, BlockRecord, SpaceRecord, SpaceViewRecord, Table, TeamRecord, UserRootRecord } from '#shared/records.ts';
-import { db, findUserIdByEmail, getRecord } from '../../db.ts';
+import { atStartup, db, findUserIdByEmail, getRecord } from '../../db.ts';
 import { ApiError, handlers as coreHandlers, type Ctx } from '../handlers.ts';
 import { memberRequestResolved, type MemberRequest } from './membership.ts';
 import { RecordMapBuilder, blockRole, lookup } from '../../records.ts';
@@ -691,4 +691,4 @@ registerJobHandler('w3set-temp-members', () => {
   expireTemporaryMembers();
   scheduleJob('w3set-temp-members', 'w3set-temp-members:hourly', Date.now() + 3600_000);
 });
-scheduleJob('w3set-temp-members', 'w3set-temp-members:hourly', Date.now() + 5 * 60_000);
+atStartup(() => scheduleJob('w3set-temp-members', 'w3set-temp-members:hourly', Date.now() + 5 * 60_000)); // WS-20261119-REL: DB를 처음 쓸 때 예약

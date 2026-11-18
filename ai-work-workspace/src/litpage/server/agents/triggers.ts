@@ -17,7 +17,7 @@ import type { PermissionLookup } from '#shared/permissions.ts';
 import type { BlockRecord, CollectionRecord, CollectionViewRecord, CommentRecord, DiscussionRecord, UserRecord } from '#shared/records.ts';
 import { toPlainText, type RichText } from '#shared/richtext.ts';
 import { triggerRowTitle, type AgentRecord, type AgentTrigger } from '#shared/agents.ts';
-import { db, getRecord } from '../db.ts';
+import { atStartup, db, getRecord } from '../db.ts';
 import { blockRole, onCommit, type CommitInfo } from '../records.ts';
 import { canSeeRowValue, propertyThreadVisible } from '../propaccess.ts';
 import { registerJobHandler, scheduleJob, cancelJobs } from '../scheduler.ts';
@@ -109,16 +109,19 @@ registerJobHandler('agent-recurrence', (payload: { agentId: string; triggerId: s
 });
 
 /** Re-arm every agent's schedules once at startup (jobs persist, but configurations may have changed offline). */
-setTimeout(() => {
-  try {
-    for (const r of db.prepare(`SELECT data FROM records WHERE tbl = 'workflow' AND alive = 1`).all() as { data: string }[]) {
-      const a = JSON.parse(r.data) as AgentRecord;
-      if (live(a) && a.data.triggers.some((t) => t.type === 'recurrence' && t.enabled)) syncAgentSchedules(a);
+// 2026-11-19 WS-20261119-REL: 타이머를 불러올 때가 아니라 DB를 처음 쓴 뒤에 건다(빌드 평가에서는 돌지 않음)
+atStartup(() => {
+  setTimeout(() => {
+    try {
+      for (const r of db.prepare(`SELECT data FROM records WHERE tbl = 'workflow' AND alive = 1`).all() as { data: string }[]) {
+        const a = JSON.parse(r.data) as AgentRecord;
+        if (live(a) && a.data.triggers.some((t) => t.type === 'recurrence' && t.enabled)) syncAgentSchedules(a);
+      }
+    } catch (e) {
+      console.error('[agents] schedule sync failed', e);
     }
-  } catch (e) {
-    console.error('[agents] schedule sync failed', e);
-  }
-}, 1500).unref?.();
+  }, 1500).unref?.();
+});
 
 // ---------------------------------------------------------------- page events
 
