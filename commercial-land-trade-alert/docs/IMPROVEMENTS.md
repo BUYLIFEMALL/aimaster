@@ -1,5 +1,9 @@
 # 개선사항 기록 — 상업용지·토지 실거래가 레이더 (`commercial-land-trade-alert`)
 
+## 2026-11-19 [역할: realty] Claude(RealEstate) — 관심 지역 연계 2단계: 다른 부동산 프로그램 지역 제안 (**미배포 대기**, 주인님 「순서대로 진행해」)
+- 실거래 지역 추가 화면(`src/app/(dashboard)/districts/page.tsx`)에 「🔗 다른 부동산 프로그램에 등록한 지역」: 실거래 `real_estate_watch_districts`(is_active)·매물 알림 `realty_alert_targets`(region+enabled, `cortar_no` 앞 5자리)를 회원 세션으로 읽어, 상가에 없는 시군구를 기존 켜기 버튼(`toggleDistrictAction`, 이용 권한 확인)으로 제안. 자동 등록·다른 표 쓰기·DB 변경 없음.
+- 순수 함수 `src/lib/crossWatch.ts`, 시험 `tests/crossWatch.test.mjs` 3개(`npm test` 68/68), tsc 0. 플랜: `real_estate_sales/docs/PLAN_20261119_CROSS_WATCH.md`. 다음 상가 배포(v1.35) 때 함께.
+
 ## 2026-11-17 [역할: realty] Claude(RealEstate) — 서버 로그인 기기 정보 전달 (**미배포 대기**, RE-20261117-02)
 
 - `src/lib/supabase/server.ts` 서버용 Supabase 클라이언트에 `global.headers["User-Agent"]`(요청의 `user-agent` 헤더) 한 줄. 인증·쿠키·스키마 변경 없음, UA 원문 로그 없음. tsc 0, 기존 시험 65/65, `pending-check` 「서버 로그인 기기 정보 미전달」 지적 사라짐(공통 대기 없음). 버전·빌드·배포 없음 → 다음 상가 기능 배포 때 아래 로그아웃 1건과 함께.
