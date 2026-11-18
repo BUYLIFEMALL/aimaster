@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T03:19:11.159Z",
+  "checkedAt": "2026-11-18T03:20:01.834Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3856,17 +3856,17 @@
       "title": "CRM 접수 새상태 화면·집계 준비",
       "status": "needs_revision",
       "delivery": "actual_ssr_query_failure_returned",
-      "evidence": "영향조사2019381a6·msg_dcca549f3407·착수msg_b24ceec65e71·결과msg_b381c1f09e8a·Master6파일stat·Macmsg_1c4a0f1d0b13·Mac중간msg_307a04320e51·수정msg_91e8c48f64fa",
+      "evidence": "영향조사2019381a6·msg_dcca549f3407·착수msg_b24ceec65e71·결과msg_b381c1f09e8a·Master6파일stat·Macmsg_1c4a0f1d0b13·Mac중간msg_307a04320e51·수정msg_91e8c48f64fa·1fe고정최종msg_8d85baa86885/.ai/results/CRM-20261118-03-CX-QA-01.md",
       "scopeRef": "dashboard/page.tsx·submissions/page.tsx·SubmissionMatrix.tsx·필요순수submissionStatus.ts/시험·기존결과본인절",
       "completion": "기존3+새3상태 라벨/필터/집계·처리중/부분/모름누락0·기존필드만조회·가짜rows실제분류/tsc",
       "constraints": "운영미배포·DB/발송/API0·dedupe_key/channel_results조회0·route/dispatch/followup/promotions/snippet/DDL0",
       "next": "실제SSR/가짜query로error/null/0/양수/목록실패 red-green→새SHA→Mac재검수",
-      "lastReviewedAt": "2026-11-18T03:19:11.159Z",
+      "lastReviewedAt": "2026-11-18T03:20:01.834Z",
       "sha": "1fe179bd6",
       "validation": {
         "author": "상태10/10·dedupe포함24/24·tsc0",
         "master": "정확6파일diffstat·허용범위",
-        "independent": "Mac 실제화면/조회연결·누락/오류0단정검수대기"
+        "independent": "native10/10+실페이지/KPI/Matrix SSR·ReactDOM필터1/1/1/4/7 PASS,UI-F01쿼리실패카드숨김P2 재현"
       },
       "findings": [
         "review query.error/countnull이면KPI숨김·실패안내0 새P2",
@@ -4355,21 +4355,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T03:19:11.159Z",
+      "at": "2026-11-18T03:20:01.834Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Mac UI중간P2+Backend DB하네스보완",
-      "scope": "실SSR집계오류/목록오류·DB하네스3증거/독립정적재검토",
+      "trigger": "CRM18-03 1fe고정최종검수 msg_8d85baa86885",
+      "scope": "실페이지SSR/실ReactDOM필터·P2반례최종근거",
       "evidence": [
-        "msg_307a04320e51 query.error/countnull 숨김반례",
-        "UI반환msg_91e8c48f64fa",
-        "하네스a1cd3df44/12시험msg_380b7b5f2622·Macmsg_3ccb33da09fc"
+        "native10·SSR정상7/분류·실제클릭필터각개수PASS",
+        "UI-F01 error/countnull 카드숨김P2·목록오류기존패턴분리"
       ],
-      "judgment": "UI새P2로반환·DB하네스는소스동결상태로증거보완재검토. 운영연결/배포0.",
+      "judgment": "1fe소스반환판정유지·정상필터PASS를전체PASS로확대0·이미배정한수정중복지시0",
       "unverified": [
-        "UI수정/실SSR회귀·하네스정적재판정",
-        "GmailOAuth·MacB파일"
+        "UI수정SHA/실패경로재검수·DB하네스정적판정",
+        "GmailOAuth·MacB"
       ],
-      "nextAction": "두검수SHA별결과회수→정확판정·중복시험/배포0"
+      "nextAction": "Backend새SHA회수후오류경로별도검수"
     },
     "notifications": [
       {
