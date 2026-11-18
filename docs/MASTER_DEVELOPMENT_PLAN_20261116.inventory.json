@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T18:20:59.288Z",
+  "checkedAt": "2026-11-18T18:23:23.948Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9608,18 +9608,20 @@
       "owner": "CC-B2B-FRONT-01",
       "reviewer": "CX-MASTER-01",
       "title": "B2B 터치 영역·가격 대비·S70 순차 보완",
-      "status": "running",
-      "delivery": "two_local_ui_fixes_and_checkout_contract_review_dispatched",
+      "status": "reviewing",
+      "delivery": "two_ui_fixes_returned_mac_review_s70_contract_pending",
       "scopeRef": "template-gallery.tsx+시험 → product-card/product-detail 원가격 대비 → 주문서 S70 계약/정확 경로 읽기",
       "constraints": "1·2 각 고정 SHA. S70 Backend 경계/멱등 및 일부 실패 합의 뒤 코드. 운영·DB·빌드·배포·push 없음.",
-      "evidence": "msg_3b3bee3c725f·msg_5b03c9657475·90248e5b1·msg_3e6e9ffc03e6·56785ebd8",
-      "next": "1 색상 터치 영역 44×44 로컬 완료, 작성자 1280/390 및 5/5. 2 원가격 대비 작업 중. S70 계약 읽기 선행.",
-      "lastReviewedAt": "2026-11-18T18:20:59.288Z",
+      "evidence": "msg_3b3bee3c725f·msg_5b03c9657475·90248e5b1·msg_3e6e9ffc03e6·56785ebd8·msg_82d70a727810·86e5ad1bf·62fda63a3·msg_cdd12fbdc316·msg_c937016a8334",
+      "next": "90248e5b1/86e5ad1bf Mac 독립 검수. S70 Backend 경계 회신 전 코드 보류(0원·paid 발급 가드, 고정 문구·멱등·상호 배제).",
+      "lastReviewedAt": "2026-11-18T18:23:23.948Z",
       "validation": {
-        "author": "90248e5b1 로컬 브라우저 1280·390/5개 시험 보고",
-        "master": "두 Git blob 일치, 점유 등록이 첫 편집 뒤였음 기록",
-        "remaining": "가격 대비·S70 및 로컬 묶음 독립 검수/배포"
-      }
+        "author": "90248e5b1 로컬 브라우저 1280·390/5개 시험 보고; 원가격 대비 6.57~7.58:1, CSS 모의 시험 27/27·상품 20/20 보고.",
+        "master": "두 Git blob 일치, 점유 등록이 첫 편집 뒤였음 기록; 86e5ad1bf 두 가격 요소 및 시험 blob 확인, S70 제안 문서 독립 범위로 분리.",
+        "remaining": "가격 대비·S70 및 로컬 묶음 독립 검수/배포",
+        "independent": "msg_cdd12fbdc316 두 로컬 소스 검수 전달. Lab 7609748ad와 별도."
+      },
+      "sha": "86e5ad1bf"
     },
     {
       "task_id": "B2B-20261119-MAKER",

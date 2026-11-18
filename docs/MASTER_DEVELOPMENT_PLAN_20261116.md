@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 03:20:59 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 03:23:23 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -401,7 +401,7 @@ Master 마지막 실제 점검: 2026-11-19 03:01:00 KST · 실행 중 점검 주
 | B2B-20261118-03 | CC-B2B-BACK-01 | waiting_human / fixture_prepared | 주인님 직접 Lab 교환비waiting1건·토스시험흐름 | 사람시험제출/로그인신호없음·고정교환1건유지,현재주문상태는03:31자동확정가능해반복RPC없이다음읽기때판정 |
 | B2B-20261119-LAB0101 | CC-B2B-BACK-01 | queued / lab_catalog_check_acknowledged_after_owner_sample_work | B2B몰 Lab 0101 메시지 정의·권한 대조 | 로그인·결제 없이 Lab 카탈로그 대조 배정. 기존 샘플몰 직접 작업 뒤 진행. |
 | B2B-20261119-FRONTQA | CX-QA-01 | waiting_human / public_lab_checks_passed_waiting_staff_and_dark_fixture | B2B Lab 프론트 키보드·대비·화면 검수 | 공개 밝기·포커스·PWA 메타 확인. 직원용 143 및 다크 시험몰 접근 대기. |
-| B2B-20261119-FRONTP3 | CC-B2B-FRONT-01 | running / two_local_ui_fixes_and_checkout_contract_review_dispatched | B2B 터치 영역·가격 대비·S70 순차 보완 | 90248e5b1 색 선택 44×44 및 작성자 5/5. 가격 대비 진행. |
+| B2B-20261119-FRONTP3 | CC-B2B-FRONT-01 | reviewing / two_ui_fixes_returned_mac_review_s70_contract_pending | B2B 터치 영역·가격 대비·S70 순차 보완 | 90248e5b1·86e5ad1bf 독립 검수 전달. S70 백엔드 경계 합의 대기. |
 | B2B-20261119-MAKER | CC-B2B-BACK-01 | queued / owner_work_approved_maker_m1_scope_review_queued | B2B 메이커 연계 M1~M3 선행 범위 대조 | Backend가 바나나 계약·역할 점유·M1 최소 파일/검증 근거 반환 후 구현 범위 확정. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
