@@ -356,6 +356,132 @@ PLAN §15 상태값에 `paused`를 **새 상태로 추가**하고, 이유는 별
 - 상한을 낮추면: 이미 예약·접수된 행은 그대로 두고, 새 예약만 합계가 새 상한 아래로 내려갈 때까지 막는다(`paused(budget_limit)`).
 - 이 항목은 설계 누락 보완이며 실제 스키마 결함을 재현한 것은 아니다.
 
+## 18. PLAN 패치 제안 — W01 자산 첫 단위(W01-A1) 계약 (Master 승인 대상, Master `msg_e908eb8351a4`)
+
+**원본 PLAN은 고치지 않는다.** 이 절은 원본 `docs/analysis-ai-influencer-20261118/PLAN.md`(작성 `codex-win-20261118-influencer-plan`, 미커밋, mtime 2026-11-18T04:24Z, sha256 `31d1ef885f1eb81375cb0140bf3eb5401d69e12f39e5b97391a667d0204ed787`)의 §13 데이터·§14 API·§15 상태에 **추가**할 계약안이다. 효력과 적용 순서는 Master가 검토 후 공식 등록한다. 근거는 검수 수락된 W00 §16(확정·삭제 원자 배제)·§15-1(정리 주체)이다. 이 단위에서 예산 표(`aif_budget_limits`)·작업 원장·유료 AI·게시·새 예약 실행은 만들지 않는다.
+
+### 18-1. 범위
+
+- **포함**: 비공개 원본 자산의 메타 표, 서버가 먼저 정하는 자산 ID, 업로드 허가(ticket)·확정(complete/finalize), 삭제 예약(claim)과 확정의 상호 배제, 조회(서명 URL), 용량 검사 연결.
+- **제외**: 실제 삭제를 실행하는 정리 작업(다음 단위), 참고 이미지 요청의 자산 ID 전환(W01 후반), 예산·작업 원장·게시.
+
+### 18-2. 기존 공용 기능 대조 (같은 기능의 새 표를 만들지 않음)
+
+| 공용 기능(실코드) | 실제 동작 | 이 단위의 사용 |
+|---|---|---|
+| `member_storage_check(uid, add_bytes)` (마이그레이션 `0065`) | `member_storage_usage`의 **측정값**을 읽어 한도와 비교. 80% 넘고 1시간 지났으면 다시 측정. 서비스 키만 실행. **원자적 예약 기능은 없음** | 업로드 허가 때 `add_bytes = 이번 바이트 + 이 회원의 미확정 허가 바이트 합계`로 호출. 새 용량 표 만들지 않음 |
+| `member_storage_measure` (`0065`) | `storage.objects`에서 `name like '%<uid>%'`로 회원 파일 크기를 합산 | 경로에 `user_id` 포함 필수 |
+| `member_storage_expired_files` (`0068`·`0073`) | 연장 회원(`retention_exempt and not manual`)의 기간 지난 파일만 반환 → 중앙 정리가 **객체를 직접 삭제** | 중앙이 지운 객체의 자산 행은 남음 → 조회 시 `missing` 처리(18-6) |
+| `member_mark_posted` / `lib/storage/markPosted.ts` (`0068`) | 게시 파일을 `member_posted_assets`(PK `bucket_id, object_name`)에 기록. 처음 부르면 `storage_posting_tracked_buckets`에 버킷 등록 → 그 뒤 **표시 없는 파일은 생성 기간**으로 정리 | W07 게시 성공 때 `aif-assets` 파일에 호출. 이 단위에서는 호출하지 않음(등록 전에는 중앙이 이 버킷 파일을 「게시됨」으로 보아 길게 보관) |
+| `profiles.retention_exempt` + `loadRetentionExemptIdsStrict` (W01b) | 예외 회원 판정, 실패 시 삭제 중단 | 다음 단위 정리 작업에서 그대로 사용 |
+
+### 18-3. 표 `aif_assets` (원본 자산 메타)
+
+| 필드 | 타입·제약 |
+|---|---|
+| `id` | `uuid primary key` — **기본값 없음**, 허가 함수가 `gen_random_uuid()`로 만든다(클라이언트 ID 불허) |
+| `user_id` | `uuid not null references public.profiles(id) on delete cascade` (중앙 `member_storage_usage`와 같은 FK) |
+| `kind` | `text not null check (kind in ('ref_face','ref_place','ref_product','generated'))` |
+| `bucket` | `text not null default 'aif-assets' check (bucket = 'aif-assets')` |
+| `ext` | `text not null check (ext in ('png','jpg','webp','heic'))` |
+| `path` | `text not null`, `check (path = user_id::text || '/' || kind || '/' || id::text || '.' || ext)` — 서버 강제 경로 |
+| `mime` | `text not null check (mime in ('image/png','image/jpeg','image/webp','image/heic','image/heif'))` |
+| `bytes` | `bigint not null check (bytes > 0)` + `check ((kind like 'ref_%' and bytes <= 1048576) or (kind = 'generated' and bytes <= 20971520))` |
+| `sha256` | `text null check (sha256 is null or sha256 ~ '^[0-9a-f]{64}$')` — 확정 때 서버가 계산 |
+| `state` | `text not null default 'ticketed' check (state in ('ticketed','ready','failed','missing'))` |
+| `ticket_expires_at` | `timestamptz not null` — 허가 후 15분 |
+| `created_at`·`finalized_at`·`updated_at` | `timestamptz`, `created_at`/`updated_at` not null default now() |
+
+- 유일: `unique (bucket, path)`. 색인: `(user_id, created_at desc)`(목록), `(state, created_at)`(고아·만료 허가 검색), `(user_id, state)`(미확정 합계).
+- RLS: `enable`. 정책은 `select` 하나 — `auth.uid() = user_id and state = 'ready'`. insert·update·delete 정책 없음(회원은 쓰기 불가, 서버 함수만).
+- `aif_history`와의 연결 칸은 이 단위에서 만들지 않는다(18-8).
+
+### 18-4. 표 `aif_asset_deletions` (삭제 예약, W00 §16)
+
+| 필드 | 타입·제약 |
+|---|---|
+| `asset_id` | `uuid primary key` — **FK 없음**(행 없는 고아 객체도 경로의 ID로 예약해야 하므로) |
+| `user_id` | `uuid not null` |
+| `bucket`·`path` | `text not null`, `unique (bucket, path)`, path는 `user_id::text || '/'`로 시작해야 함(check) |
+| `state` | `text not null check (state in ('claimed','deleting','deleted','delete_failed','delete_unknown','cancelled'))` |
+| `fencing_token` | `uuid not null` — 예약할 때마다 새로 |
+| `attempts` | `integer not null default 0 check (attempts >= 0)` |
+| `claimed_at`·`updated_at` | `timestamptz not null default now()` |
+
+- 색인 `(state, updated_at)`. RLS `enable`, 정책 없음(서비스 전용, 회원 조회 불필요).
+
+### 18-5. DB 함수와 실행 권한
+
+모든 함수: `security definer`, `set search_path = ''`, `revoke all ... from public, anon, authenticated`, `grant execute ... to service_role`. **회원 세션은 직접 실행하지 못한다** — API 라우트가 `checkProgramAccessApi()`로 로그인·이용권을 확인한 뒤 서비스 키로 부른다(중앙 저장 함수들과 같은 방식).
+
+| 함수 | 입력 → 출력 | 잠금·원자 처리 |
+|---|---|---|
+| `aif_asset_ticket(p_user, p_kind, p_mime, p_ext, p_bytes)` | → `asset_id, path, ticket_expires_at` 또는 `STORAGE_LIMIT`·`INVALID` | 회원 잠금 `pg_advisory_xact_lock(hashtext('aif_user:'||p_user))` 안에서: ① 만료 안 된 `ticketed` 바이트 합계 계산 ② `member_storage_check(p_user, p_bytes + 합계)`가 false면 거절 ③ 행 insert. 같은 회원의 동시 허가가 서로의 미확정 바이트를 본다 |
+| `aif_asset_finalize(p_asset, p_user, p_sha256)` | → `ready` 또는 `ASSET_DELETION_IN_PROGRESS`·`NOT_FOUND`·`EXPIRED`·`MISMATCH` | 자산 잠금 `pg_advisory_xact_lock(hashtext('aif_asset:'||p_asset))` 안에서: ① `aif_asset_deletions`에 `claimed/deleting/delete_unknown` 있으면 거절 ② 행이 `ticketed`·본인·미만료인지 ③ **`storage.objects`에 같은 bucket·name 객체가 있고 `metadata.size = bytes`·`metadata.mimetype = mime`인지** 확인 ④ `ready`로 변경 |
+| `aif_asset_claim_delete(p_asset, p_user, p_bucket, p_path)` | → `fencing_token` 또는 거절 | 같은 자산 잠금. `aif_assets`가 `ready`이거나 미만료 `ticketed`면 거절. 아니면 예약 insert/update(새 토큰) |
+| `aif_asset_delete_mark(p_asset, p_token, p_state)` | → 성공/토큰 불일치 | 같은 자산 잠금. 토큰이 다르면 아무것도 바꾸지 않음 |
+
+- 잠금 순서: `ticket`만 회원 잠금, 나머지는 자산 잠금 하나 → 두 잠금을 겹쳐 잡는 함수가 없어 교착 없음.
+- **용량의 한계(정직하게)**: 중앙에는 예약 기능이 없으므로, 같은 회원이 **다른 프로그램**에서 동시에 저장하는 양은 이 검사에 들어오지 않는다. 그 차이만큼 한도를 잠시 넘을 수 있다(다음 측정 때 반영). 같은 프로그램 안의 동시 허가는 위 잠금으로 막는다.
+- **되돌리기**: 허가 15분 만료 시 미확정 합계에서 자동 제외(별도 정리 불필요). 확정이 거절되면 `failed`로 바꿔 합계에서 제외. 올라간 객체는 고아 정리 대상(W00 §16 조건).
+
+### 18-6. 저장소·보관
+
+- 버킷 `aif-assets`: `public = false`, `file_size_limit = 20971520`, `allowed_mime_types = (위 5개)`. `storage.objects`에 회원(authenticated)용 정책을 만들지 않는다 → 클라이언트 직접 쓰기·읽기 불가. 업로드는 서버가 해당 path로만 발급한 서명 업로드 URL(`upsert: false`), 읽기는 서버가 소유자 확인 후 발급한 단기 서명 URL(1시간).
+- 보관: 일반 회원 = 프로그램 정리 작업(다음 단위, 무료 정책 기간 조회·`loadRetentionExemptIdsStrict`로 예외 제외). 연장 회원 = 중앙. 관리자·시험 = 없음. 이 단위는 아무것도 지우지 않는다.
+- 중앙이 객체를 지운 경우: 조회 API가 서명 URL 발급에 실패하거나 객체가 없으면 행을 `missing`으로 바꾸고 「파일 없음(보관 기간 지남)」으로 응답. 다시 만들지 않음.
+- 게시 표시: W07에서 게시 성공 직후 `markPosted(admin, { userId, files: [{ bucket: 'aif-assets', path }], program: 'ai-influencer-studio' })`. 첫 호출부터 이 버킷은 추적 버킷이 된다.
+
+### 18-7. 결과 불명 쓰기 (W00 §16 적용)
+
+| 단계 | 불명일 때 |
+|---|---|
+| 허가 함수 응답 유실 | 같은 요청을 다시 보내지 않는다. 미확정 허가는 15분 뒤 합계에서 빠지고, 객체가 없으면 정리 대상도 아님 |
+| 업로드 응답 유실 | `complete`를 그대로 호출 — finalize가 `storage.objects`를 직접 확인하므로 실제로 올라갔으면 `ready` |
+| finalize 응답 유실 | `asset_id + user_id`로 행 재조회해 상태 판정. 재조회 실패면 `unknown`으로 응답하고 아무것도 지우지 않음 |
+| 생성 결과 저장(서버 쓰기) 불명 | 유료 생성을 다시 하지 않음. 서버가 결과 바이트를 들고 있는 동안 finalize 재조회 → 실패면 화면에는 생성 결과를 그대로 반환하고 `assetSaved: "unknown"` |
+
+### 18-8. 기존 히스토리와 앞뒤 호환
+
+- **이 단위 적용 전**: 히스토리는 1440px JPEG 축소본만, 원본은 브라우저 메모리에만 있다.
+- **적용 후(`AIF_ASSETS_MODE = shadow`)**: 생성 성공 시 원본을 `generated` 자산으로 추가 저장한다. 히스토리 저장·목록·정리(W01b)는 **바뀌지 않는다**. 응답에 `assetId`만 덧붙고, 기존 `imageUrl`(data URL)은 그대로다.
+- **migration 미적용·표 없음**: 코드는 `off`로 동작하고 기존 흐름이 그대로 유지된다.
+- **옛 히스토리 행**: 원본 자산이 없다. 「원본 없음」으로 두고 소급 생성은 하지 않는다. 히스토리↔자산 연결 칸은 W01 후반에 별도로 제안한다.
+
+### 18-9. 최소 파일과 재사용
+
+| 파일 | 내용 |
+|---|---|
+| `ai-influencer-studio/supabase/migrations/2026111810xxxx_aif_assets_a1.sql` (초안) | 두 표, 네 함수, 버킷, 권한. **운영 적용은 별도 승인** |
+| `src/lib/assets/paths.ts` | 경로·확장자·kind 규칙(순수) |
+| `src/lib/assets/store.ts` | 허가·확정·조회 호출, 결과 불명 재조회 |
+| `src/app/api/aif/assets/upload-ticket/route.ts`·`[id]/complete/route.ts`·`[id]/route.ts` | 로그인·이용권 확인 후 서버 함수 호출 |
+| `tests/assetsA1.test.mjs` | 아래 시험 |
+
+재사용: `referenceImage.ts`의 형식·서명 검사(업로드 확정 전 바이트 확인), `retentionExempt.ts`, `checkProgramAccessApi`, 중앙 `member_storage_check`. 새 패키지 없음.
+
+### 18-10. 시험 계획 (실제 파일 업로드·운영 DB는 미승인 — 격리 환경에서만)
+
+1. **순수·모의(지금 가능)**: `paths.ts` 경로 규칙, `store.ts`를 가짜 RPC로 — 허가 거절·만료·결과 불명 재조회·`missing` 처리·회원 경계.
+2. **SQL 계약 시험(격리 DB 승인 필요)**: 트랜잭션 안에서 실행하고 끝에 되돌리는 SQL 스크립트. 확인 항목은 다음과 같다.
+   - 동시 허가 2건의 합계가 한도를 넘지 않음
+   - 삭제 예약이 있으면 확정이 거절되고, 확정된 자산은 예약이 거절됨
+   - 토큰이 맞지 않으면 상태가 바뀌지 않음
+   - 회원(authenticated) 역할로 함수 실행이 거부됨
+   - RLS가 다른 회원 행과 `ticketed` 행을 숨김
+   - check 제약이 잘못된 경로·크기·형식을 거부함
+
+   실행 장소(Supabase 로컬 Docker 또는 브랜치)와 비용은 Master·주인님이 결정한다.
+3. **실제 업로드**: 시험 계정, 격리 버킷, 최소 1~2회. 별도 승인이 필요하다.
+
+### 18-11. 단위 완료 조건
+
+- 위 1의 시험이 통과하고, 2는 격리 DB에서 통과(승인 후).
+- `AIF_ASSETS_MODE = off`에서 기존 생성·히스토리·게시 회귀가 0.
+- `shadow`에서 생성 1건당 자산 행 1개가 `ready`, 경로는 회원 ID로 시작, 다른 회원은 조회 불가.
+- 확정과 삭제 예약이 동시에 들어와도 둘 중 하나만 성공.
+- 원본 PLAN 미변경, 이 제안의 Master 공식 등록, 원저자 기여 보존.
+
 ## 14. 진행 상태 기록
 
 ```text
