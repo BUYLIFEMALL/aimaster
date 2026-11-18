@@ -34,7 +34,9 @@
 //       · 늦게 도착한 응답·거절은 버린다(추가 작업 0, 처리되지 않은 거절 0).
 //  8. 삭제 진입 전 시간 확인(2026-11-18 P1, Master msg_7932d8b18fa0): delete_mark(deleting)을 부르기 전에 회차에 남은 시간이
 //     「deleting 커밋 + remove + 확인」 세 번의 호출 상한(CLEANUP_IO_TIMEOUT_MS × 3)보다 적으면 그 삭제에 들어가지 않는다.
-//     이때 우리 토큰으로 cancelled를 한 번만 시도하고(남은 시간 안에서), 결과가 불명이면 예약은 claimed로 남는다(1시간 뒤 토큰 없는 판정이 정리).
+//     이때 우리 토큰으로 cancelled를 한 번만 시도한다(남은 시간 안에서). 그 결과가 불명이면(대기 초과·오류) 이 회차에서는 그 자산에 더 부르지 않는다 —
+//     예약 상태는 모른다: 취소가 반영되지 않아 claimed로 남았을 수도, 원격에서 늦게 커밋돼 cancelled가 됐을 수도 있다.
+//     어느 쪽이든 다음 회차가 이어 간다(claimed면 1시간 뒤 토큰 없는 판정이 정리, cancelled면 「이어 하기」 묶음).
 //     그 회차에서는 새 삭제를 더 시작하지 않는다(stopCode "TIME_BUDGET", 건수 deferredForTime). remove·delete_failed 전이는 쓰지 않는다.
 //     목적은 「deleting으로 커밋됐는데 remove를 보내지 못한」 경우(removeNotSent)를 줄이는 것이다 — 없앤다는 보장이 아니다.
 //     시계가 건너뛰거나 이벤트 루프가 밀리거나 응답이 늦으면 여전히 생길 수 있고, 그때는 아래 보호(deleting 보존·removeNotSent 집계)가 그대로 적용된다.
@@ -277,7 +279,8 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
     if (deadline - now() < ioTimeoutMs * 3) {
       noMoreDeletes = true;
       c.deferredForTime++;
-      // 우리 토큰으로 취소를 한 번만 시도한다(남은 시간 안에서). 실패·불명이면 claimed로 남는다 — 다른 토큰의 예약은 건드리지 못한다.
+      // 우리 토큰으로 취소를 한 번만 시도한다(남은 시간 안에서). 결과는 보지 않고 끝낸다: 거절(false)이면 그 예약은 우리 것이 아니라 무변경이고,
+      // 대기 초과·오류면 결과 불명이다(취소가 늦게 커밋될 수 있다 — claimed로 남았다고 단정하지 않는다). 어느 경우든 이 회차의 추가 호출은 0.
       await yes("aif_asset_delete_mark", { ...mine, p_state: "cancelled" });
       return;
     }

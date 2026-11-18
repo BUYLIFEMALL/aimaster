@@ -851,8 +851,9 @@ test("진입 전 시간 확인 — 경계: 남은 시간이 상한 × 3과 같�
   assert.equal(r3.counts.deleted, 2);
 });
 
-test("진입 전 시간 확인 — 취소가 불명이면 claimed로 남는다(remove 0, delete_failed 0, 추가 시도 0)", async () => {
-  // 취소 응답이 오지 않음(실제 시계, 호출 상한 30ms·필요 90ms인데 남은 시간 80ms)
+test("진입 전 시간 확인 — 취소 결과가 불명이면 이 회차의 추가 호출 0(remove 0, delete_failed 0, 취소 재시도 0)", async () => {
+  // 취소 응답이 오지 않음(실제 시계, 호출 상한 30ms·필요 90ms인데 남은 시간 80ms).
+  // 아래에서 claimed가 관찰되는 것은 「끝나지 않는 응답」 대역이 실제로 아무것도 실행하지 않기 때문이다 — 실제 원격에서는 취소가 늦게 커밋돼 cancelled가 될 수도 있다.
   const w = world().profile(U1); const a = w.asset(1, U1); w.asset(2, U1);
   w.hook = (fn, args) => (fn === "aif_asset_delete_mark" && args.p_state === "cancelled" ? never() : undefined);
   const r = await timed(w, { ioTimeoutMs: 30, roundDeadlineMs: 80 });
@@ -871,7 +872,7 @@ test("진입 전 시간 확인 — 취소가 불명이면 claimed로 남는다(r
   assert.equal(w2.removes.length, 0);
   assert.equal(r2.counts.deferredForTime, 1);
 
-  // 취소 호출이 오류로 끝남 → 역시 claimed 보존, delete_failed로 바꾸지 않는다
+  // 취소 호출이 오류로 끝남 → 더 부르지 않고 delete_failed로 바꾸지 않는다(이 대역은 오류 때 실행하지 않으므로 claimed가 관찰된다)
   const w3 = budgetWorld(59); const c3 = w3.asset(1, U1);
   w3.hook = (fn) => (fn === "aif_asset_delete_mark" ? { data: null, error: { message: "boom" } } : undefined);
   await run(w3);
