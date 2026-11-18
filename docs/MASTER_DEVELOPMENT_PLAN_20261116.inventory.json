@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 16:04:39 KST",
+  "checkedAt": "2026-11-18 16:08:50 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,22 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T07:04:39.305Z",
+      "at": "2026-11-18T07:08:49.963Z",
       "timezone": "Asia/Seoul",
-      "trigger": "store최종지정PASS·감성문서정정완료",
-      "scope": "19실모듈4/4·817최신사실/소스차이·다음OFF라우트단위범위",
+      "trigger": "OFF라우트연결완료이벤트",
+      "scope": "152 route/generation실물·시간상한정책·OFF불변/이미지보존모의근거",
       "evidence": [
-        "msg_941afb1e2d22",
-        "msg_23fdb02ec283/81722dd6e",
-        "Master route직접읽기·msg_d61d73a0ed2a"
+        "msg_bfa234193dd1",
+        "Master실코드읽기·Macmsg_0eb99cd3504d"
       ],
-      "judgment": "W01g모의소스수락·OFF기본라우트모의연결배정·운영ON/유료승인확대0·감성문서중복갱신종료",
+      "judgment": "작성자완료수신·실POST모의독립검수진행·OFF고정·timeout=취소보장아님 구분·운영승인확대0",
       "unverified": [
-        "라우트구현/모의통합",
-        "실중앙/Storage·운영ON",
-        "감성운영무료라우트·12모델실가용성"
+        "Mac모의통합결과/늦은promise경계",
+        "실Supabase/Storage·ON",
+        "G5응답상한/회원화면표시"
       ],
-      "nextAction": "정확경로/결과SHA회수→독립handler검수"
+      "nextAction": "고정SHA검수결과회수→지정수락/반례반환"
     },
     "notifications": [
       {
@@ -8331,14 +8330,21 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "원본 저장 OFF 기본 라우트 연결·모의 통합",
-      "status": "dispatched",
-      "delivery": "bounded_route_integration_no_real_external_calls",
+      "status": "reviewing",
+      "delivery": "default_off_route_source_received_actual_POST_mock_review",
       "scopeRef": "generate-image/route.ts·필요 assets/generation.ts·실handler통합시험1·본인기존문서",
       "constraints": "서버상수off기본/request로ON불가·OFF admin/rpc/storage0·실DB/SQL/버킷/upload/AI/env/설치/build/push0·history/모델/prompt불변",
       "completion": "실POST auth/키/검증/OFF기존응답불변·shadow precheck denied/unavailable생성0·allowed모델1·저장불명이어도기존imageUrl보존·모의통합/tsc",
-      "evidence": "Mastermsg_d61d73a0ed2a·Master기존route직접읽기",
-      "next": "정확경로/점유등록→OFF라우트연결모의구현→Mac실handler검수",
-      "lastReviewedAt": "2026-11-18T07:04:39.305Z"
+      "evidence": "Mastermsg_d61d73a0ed2a·Master기존route직접읽기 · msg_bfa234193dd1/1525cd92d·Masterroute/generation실물읽기·Macmsg_0eb99cd3504d·담당msg_3b0196858585",
+      "next": "Mac 실제POST/명시shadow모의 검수→OFF회귀/이미지보존/시간불명경계 판정",
+      "lastReviewedAt": "2026-11-18T07:08:49.963Z",
+      "sha": "1525cd92d",
+      "validation": {
+        "author": "전체106/106·tsc0·실route16 모의·변형3유형·실키/DB/AI0",
+        "master": "off admin생성0/lazydeps·shadow precheck failclosed·imageUrl보존 직접읽기·pre10s/save20s 대기반환은취소완료/총300s보장아님",
+        "independent": "실POST/실generation모듈·외부alias4모의 지정검수배정·결과대기",
+        "limits": "저장timeout후미완료promise계속가능·응답unknown·4.5MB/history/UI/실Supabase통합미해결"
+      }
     }
   ]
 }
