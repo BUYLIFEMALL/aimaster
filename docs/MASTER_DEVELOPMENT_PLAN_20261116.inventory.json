@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T15:10:32.614Z",
+  "checkedAt": "2026-11-18T15:16:06.104Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9055,13 +9055,13 @@
       "reviewer": "CX-MASTER-01",
       "title": "W01 운영 마이그레이션·비공개 버킷 적용",
       "status": "running",
-      "delivery": "owner_approved_cc_sns_preflight_started",
+      "delivery": "three_migrations_applied_acl_mismatch_local_fix_dispatched",
       "scopeRef": "W00 §12-1·§14-B·기존 migration/버킷 근거",
       "constraints": "고정 SQL 3건·비공개 aif-assets 버킷·카탈로그와 되돌리는 정책 확인만. OFF 유지. 기존 데이터 변경·실 업로드·삭제·DROP·예약·빌드·배포·push 0.",
       "completion": "이름 충돌 0·의존성 확인 → 파일별 1회 적용 → 버킷 생성 → 권한·중앙 정책 확인. CC-SNS-01이 단계별 결과를 반환하고 Master가 근거 대조.",
-      "evidence": "msg_87b90f221906·msg_810dd5a290d5·msg_4226586a400d / msg_2b225b2fb07a / msg_c5bd6fe086ef / msg_2c8864e0b02f·msg_16ca87b1cb6c·f1e40294e",
-      "next": "CC-SNS-01 운영 사전 확인 착수 보고. 충돌·불일치·오류 시 중단하고 재시도나 수정 전에 결과 반환.",
-      "lastReviewedAt": "2026-11-18T15:10:32.614Z",
+      "evidence": "msg_87b90f221906·msg_810dd5a290d5·msg_4226586a400d / msg_2b225b2fb07a / msg_c5bd6fe086ef / msg_2c8864e0b02f·msg_16ca87b1cb6c·f1e40294e / msg_3e8a4935ff3c·msg_ee7317b3640a",
+      "next": "운영 중단. CC-SNS-01이 권한 수정용 신규 SQL 1건과 격리 회귀 시험을 준비. Master 근거 검토와 별도 운영 승인 후 권한 재확인 → 기존 승인 버킷·정책 검증 재개.",
+      "lastReviewedAt": "2026-11-18T15:16:06.104Z",
       "approvalScope": {
         "migrations": [
           "20261118120000_aif_assets_a1.sql / 85eb99ea7",
@@ -9077,8 +9077,24 @@
         "ownerQuote": "승인해 진행해",
         "target": "esgxyikcnnvmlhygjkth",
         "executionOwner": "CC-SNS-01",
-        "state": "preflight_started_reported",
-        "verificationResult": "pending"
+        "state": "three_migrations_applied_reported_production_paused",
+        "verificationResult": "catalog_acl_mismatch_bucket_and_policy_pending"
+      },
+      "productionReport": {
+        "evidence": "msg_3e8a4935ff3c",
+        "appliedMigrations": 3,
+        "functionBodyHashesMatched": 14,
+        "defect": "public.aif_assets inherited default table grant to authenticated; expected SELECT only. RLS enabled and both tables reported empty.",
+        "bucketCreated": false,
+        "policyChecksComplete": false,
+        "featureEnabled": false
+      },
+      "localRemediation": {
+        "owner": "CC-SNS-01",
+        "reviewer": "CX-MASTER-01",
+        "delivery": "msg_ee7317b3640a",
+        "acceptance": "Simulate default grants; prove authenticated SELECT only, anon none, service_role and RLS unchanged. Return new migration SHA and isolated test evidence.",
+        "productionApproval": "required_before_apply"
       }
     }
   ]
