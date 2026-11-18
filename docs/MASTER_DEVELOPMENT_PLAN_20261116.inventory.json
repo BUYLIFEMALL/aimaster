@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T15:34:30.180Z",
+  "checkedAt": "2026-11-18T15:38:46.459Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9136,14 +9136,30 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "W01 후반 참고 이미지 업로드 허가·확정 계약",
-      "status": "running",
-      "delivery": "local_a2_contract_dispatched_acceptance_pending",
+      "status": "done",
+      "delivery": "server_mediated_reference_upload_contract_accepted",
       "scopeRef": "W00 §12-1·R1-7, W00_BASELINE.md 추가 절 1개와 관련 소스 읽기",
       "constraints": "설계 한 단위. 운영 DB·Storage·스위치·유료 호출·빌드·배포·새 생성/UI·W02 제외.",
       "completion": "허가 수명·늦은 쓰기·덮어쓰기 금지·서버 크기/형식/SHA·소유권·동시성·예약/확정/복구·OFF 및 격리 시험 계획과 대상 파일 반환.",
-      "evidence": "msg_f26fd680d2fb",
-      "next": "담당 수락·계약 SHA 회신 대기. Master 계약 검토, 후속 구현은 CX-QA-01 검수.",
-      "lastReviewedAt": "2026-11-18T15:34:30.180Z"
+      "evidence": "msg_f26fd680d2fb·msg_92c6ba41f0a4·05e8b3d10·msg_75a9a898c52d",
+      "next": "서버 경유 단일 POST 채택. 구현 A2I 배정. 업로드용 서명 URL 미발급, 실제 저장 연동 별도.",
+      "lastReviewedAt": "2026-11-18T15:38:46.459Z",
+      "sha": "05e8b3d10"
+    },
+    {
+      "task_id": "AIF-20261119-W01-A2I",
+      "parent_task_id": "AIF-20261119-W01-A2",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-QA-01",
+      "title": "W01 참고 이미지 서버 업로드 구현",
+      "status": "running",
+      "delivery": "local_reference_upload_implementation_dispatched",
+      "scopeRef": "§22 안 가 · assets/store.ts, assets/upload.ts, POST /api/aif/assets, assetUpload.test.mjs · W00 §12-1 경로 반영",
+      "constraints": "한 장, JSON 2 MiB, 디코딩 1 MiB. OFF 유지. 운영/실 Storage/AI/SQL/빌드/배포/기존 생성·UI 변경 없음.",
+      "completion": "§22-5 모의 시험과 저장/생성 회귀·tsc, ref_* SQL 기존 근거 및 확정된 소스 SHA 반환. 독립 검수 CX-QA-01.",
+      "evidence": "msg_75a9a898c52d",
+      "next": "담당 수락 및 구현 근거 대기",
+      "lastReviewedAt": "2026-11-18T15:38:46.459Z"
     }
   ]
 }
