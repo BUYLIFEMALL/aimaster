@@ -42,3 +42,11 @@
 - 0원 주문은 신청 시 즉시 `cash_receipt_issue`가 불리지만 1원 미만이면 볼타 미호출·`failed`(「발급할 금액이 없습니다」) — 외부 발급 0이나 유저 화면에 실패로 보여 **0원은 칸 숨김/호출 건너뜀 권장** → 가드안 1과 일치.
 - 지킬 것: 로그인 세션 클라이언트로만 RPC(서비스 키 금지), 번호 로그·URL·오류 문구 0, 최종 검증은 DB, 세금계산서 동시 불가, `settings.cash_receipt.enabled` 꺼지면 칸 미노출, 실패해도 주문 유지·`?done=1&error=`, 비회원·카드·외상 제외. 실제 볼타 발급은 시험 키로만, 실제 결제 시험은 최종 완성 단계(2026-11-19 주인님).
 - 차이 1개: Backend는 「DB 오류 문구만 노출 가능」, Master는 고정 안내 — **더 엄격한 고정 안내 채택**(DB 문구도 URL에 넣지 않음).
+
+### S70 구현 (B2B-20261119-S70-FRONT, Master msg_dc044907421b, 0105 계약 `195f9ba43`) — ready_review
+- 커밋 `50d3e6162`(5 files +164 −1). 점유 `9d1b8624e` → 해제 이 기록과 함께. 운영·Lab·SQL 적용·빌드·배포·푸시·실결제 0.
+- SHA(작업폴더 = HEAD): `order/order-form.tsx` ab22968a4088 · `order/actions.ts` e9e2a29608c5 · `order/page.tsx` 0d6c2a9809d2 · 새 `order/cash-receipt-checkout.ts` 3b9af74e6302 · 새 `tests/cash-receipt-checkout.test.mjs` 5a9a21f470f6.
+- 흐름: 주문 전 `readCheckoutCashReceipt`(무통장+선택일 때만, 세금계산서 동시·형식 오류는 고정 문구로 주문 0건) → `place_order_v2` → 세금계산서(기존) → 선택 시 세션 `rpc("mall_builder_cash_receipt_checkout")` 1회 → `checkoutCashReceiptNotice`: `accepted:true`만 성공, `not_eligible`·오류·빈 응답은 같은 고정 안내 「현금영수증 신청이 처리되지 않았습니다. 주문 상세 아래 현금영수증 칸에서 다시 신청해 주세요.」로 `orders/[id]?done=1&error=`. 주문은 그대로, 재시도 호출 0, 0100 신청 직접 호출 0, 앱 선조회 0(판정은 0105 행 잠금), `console` 0, 번호·원문 URL/로그 0.
+- 화면: 장바구니 주문(`order/page.tsx`가 `cashReceiptEnabled(store.settings)` 전달)·무통장·결제 금액 1원 이상에서만 칸, 세금계산서와 체크 택1. 견적 주문(`quotes/[id]`)·비회원·카드·외상·주문 상세 수동 신청(0100) 불변.
+- 시험(모의만): 새 6(판단 함수 3 + 소스 계약 2 + …) — `cash-receipt-checkout`+기존 `cash-receipt`·주문 시험 25/25, 수정 전 3파일로 계약 시험 fail 2, 전체 tsc 오류 0.
+- 미검수: 실제 화면(주문서 칸 표시·택1 동작), Lab 0105 적용 뒤 실제 접수 흐름 — Mac/Backend 단계. 0105는 Lab·운영 미적용이라 지금 배포되면 RPC 없음 오류 → 고정 안내로 떨어짐(주문은 정상) — **배포는 0105 적용과 같은 묶음 필요**.
