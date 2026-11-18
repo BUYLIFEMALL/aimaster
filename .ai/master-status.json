@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T01:31:24.425Z",
+  "checkedAt": "2026-11-18T02:00:50.215Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -4201,24 +4201,23 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T01:31:24.425Z",
+      "at": "2026-11-18T02:00:50.215Z",
       "timezone": "Asia/Seoul",
-      "trigger": "10:30예약msg_1207a7cd5a3e + GeminiPASS/정리보고",
-      "scope": "19카테고리/미종료작업·문서증분·담당12세션·QA049최종본문·소스/점유해제",
+      "trigger": "11:00예약 msg_40e44b3ae515",
+      "scope": "담당보고/관리자요청·19카테고리 미종료작업·프로그램docs/미등록인계 증분·제품미커밋·기존12세션",
       "evidence": [
-        "Mac msg_6c71d4073077 실제route/guard17PASS·말미본문확인",
-        "Ecom정리msg_7b0e6109f4a2/e201aed81/e7fe8a42f",
-        "dev-requests0·신규미등록보고는QA049추기만(이번회수)",
-        "제품src미커밋0·예약10:30결과0/다음11:00",
-        "terminal preview 과거선택질문재표시→현재승인/배포상태를역행판정0"
+        "예약11:00 결과0/다음11:30·dev-requests대기0",
+        "HEAD08081e567이후신규커밋0·제품3개src미커밋0",
+        "새보고/인계0(자체진행표3개제외)·담당preview변경은기존출력복원으로새진행근거아님",
+        "Gmail OAuth/시험완료신호0·PORT19수락0"
       ],
-      "judgment": "ECOM18-04지정범위완료수락·이미지소스후보동결/미배포. Gmailv1.58배포완료/실OAuth대기유지, 과거preview보다확정보고/alias우선.",
+      "judgment": "이미지소스완료/미배포·Gmail운영v1.58실OAuth대기유지. 과거preview로상태역행0·중복배정/재전송/실시험0.",
       "unverified": [
         "Gmail실OAuth/동작/독립화면",
-        "PORT19수신/착수·Lab시험제출/Mac반환",
-        "이미지실생성/완전디코드/Gemini전체JSON상한"
+        "PORT19수신/착수·Lab시험제출·Mac반환",
+        "이번회차운영alias재조회없음"
       ],
-      "nextAction": "Workspace실시험보고→Mac독립연결·11:00기존Master예약"
+      "nextAction": "Workspace실검증/사람완료/수락이벤트후후속판정·11:30기존Master예약"
     },
     "notifications": [
       {
@@ -4286,7 +4285,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-18T02:00:00.000Z",
+      "nextScheduledAt": "2026-11-18T02:30:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -4304,8 +4303,8 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-18T01:30:00.000Z",
-        "messageId": "msg_1207a7cd5a3e",
+        "scheduledAt": "2026-11-18T02:00:00.000Z",
+        "messageId": "msg_40e44b3ae515",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false
