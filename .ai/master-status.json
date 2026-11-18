@@ -3227,9 +3227,9 @@
       "status": "waiting_human",
       "delivery": "deployed_oauth_redirect_mismatch_diagnosis",
       "scopeRef": "0074→0075 운영적용/정의검증·회원본인OAuth동의/metadata·실PostgREST/주소·스위치/배포 승인별도",
-      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f·Workspace SQL完了報告(主会話)·주인님전달Workspace배포완료9ea979de9·Master Vercel get_alias동일dpl·Macmsg_f0e46da48809/Workspace msg_bce4e6bf3fad·실검증1차 주인님전달·판정지시msg_89ba88b28a3d·Workspace콜백상수대조true/두회원client등록boolean보고·범위정정msg_2020570870f9 · 주인님시험naver로그인확인(CC-WORKSPACE-01 직접보고)",
+      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f·Workspace SQL完了報告(主会話)·주인님전달Workspace배포완료9ea979de9·Master Vercel get_alias동일dpl·Macmsg_f0e46da48809/Workspace msg_bce4e6bf3fad·실검증1차 주인님전달·판정지시msg_89ba88b28a3d·Workspace콜백상수대조true/두회원client등록boolean보고·범위정정msg_2020570870f9 · 주인님시험naver로그인확인(CC-WORKSPACE-01 직접보고) · 주인님보고 DreamAI웹client Gmail callback누락확인(회원client일치미대조)",
       "completion": "승인된범위의운영마이그레이션·실계정/권한/계정경계·활성배포·운영동작 확인",
-      "next": "시험naver확인완료·실오류redirect/client/GCP callback 일치boolean 기존질문회신만대기·인증반복0",
+      "next": "기존한곳에서시험naver client일치boolean+GCP callback추가저장 완료→동일세트1회재개·반복인증0",
       "blockedReason": "Google 동의전400 redirect_uri_mismatch·시험회원앱/실callback/GCP클라이언트 일치확인 필요",
       "approval": {
         "source": "주인님 Workspace 채팅 선택 답변 2026-11-18",
@@ -3240,7 +3240,7 @@
         "recoveryUsed": 0,
         "scope": "0074→0075 운영적용·Gmail ON·v1.58 묶음·확인표 실OAuth/Gmail검증"
       },
-      "lastReviewedAt": "2026-11-18T02:36:25.405Z",
+      "lastReviewedAt": "2026-11-18T04:22:35.924Z",
       "sha": "9ea979de9 (Gmail ON 722a3ba99 포함)",
       "validation": {
         "author": "전체61파일840/840·tsc0·qa_0",
@@ -3955,9 +3955,9 @@
       "status": "done",
       "delivery": "primary_documents_read_no_real_api",
       "sha": "4a5d59dcf",
-      "evidence": "msg_b40a72761bf2·Master공식Pollinations APIDOCS/Cloudflare pricing직접열람",
+      "evidence": "msg_b40a72761bf2·Master공식Pollinations APIDOCS/Cloudflare pricing직접열람 · 추가조사msg_40684dce21e7",
       "completion": "실이미지/등록/결제/회원키조회0·현공식문서/실지원미검증구분",
-      "next": "주인님무료방식결정후정확구현계획·공식약관/라이선스미확인유지",
+      "next": "기존문서에공식URL/조사범위/파생수치한계국소보완·실생성0",
       "lastReviewedAt": "2026-11-18T03:43:52.865Z"
     },
     {
@@ -4036,11 +4036,11 @@
       "task_id": "RE-20261118-07",
       "title": "후보C 새기간40건 사전라벨 고정 평가",
       "owner": "CC-REALTY-01",
-      "status": "dispatched",
-      "delivery": "delivered_ack_pending",
-      "next": "라벨선고정→후보동일SHA 평가·집계보고·새수집/AI/쓰기0",
-      "evidence": "직접지시msg_a0274f426f02·재개조건충족·Master배정",
-      "lastReviewedAt": "2026-11-18T04:21:29.557Z"
+      "status": "in_progress",
+      "delivery": "owner_acknowledged_label_before_evaluation",
+      "next": "KST11-18 저장40건 라벨선고정·후보해시불변 평가·결과회수",
+      "evidence": "직접지시msg_a0274f426f02·재개조건충족·Master배정 · 착수msg_299e738ec773",
+      "lastReviewedAt": "2026-11-18T04:22:35.924Z"
     }
   ],
   "programOverrides": [
@@ -4539,25 +4539,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T04:21:29.557Z",
+      "at": "2026-11-18T04:22:35.924Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM PASS·Blog/Realty 주인님직접지시·Workspace 부분회신",
-      "scope": "U1수락/U2착수·T12기존배정·Mac읽기/B1준비·T07·새40건평가·배포승인중복방지",
+      "trigger": "Realty 착수·무료이미지 추가조사·Workspace 직접보고",
+      "scope": "사전라벨 착수범위·공식조사 결론과 파생수치·GCP누락발견/실제client대조분리",
       "evidence": [
-        "msg_2b90f9b7a828·msg_77ee8fa7017d",
-        "Blog직접지시3보고·msg_2ec6df81d99d(사람prompt전달보류)",
-        "Mac배정msg_6c61f3680257",
-        "Realtymsg_a0274f426f02 재개조건충족·배정",
-        "Workspace시험naver 직접보고"
+        "msg_299e738ec773 Realty 경로예약/착수",
+        "msg_40684dce21e7 추가조사, Master외부문서재확인아직0",
+        "CC-WORKSPACE-01 직접보고 GCP목록누락·client대조미완"
       ],
-      "judgment": "T12 Blog담당유지·문서되돌림0. CRM U2 및비용없는다음작업배분, Blog는사람prompt라수락/착수로단정0. 배포비용질문기존Blog한곳유지.",
+      "judgment": "Realty 진행 확인. 무료쿼터 유일성/장수 보장 단정금지·공식근거기존문서보완요청. Gmail설정누락은관측됐지만실제회원client와일치미완으로최종원인단정0.",
       "unverified": [
-        "Blog배정실수신/사람prompt해소",
-        "Mac추가검수착수·Realty수락",
-        "Gmail 실제redirect/client일치·기존사람단계",
-        "U2/신규검수결과"
+        "Realty 라벨/평가결과",
+        "추가조사 공식URL 원문 Master재검토",
+        "GCP수정저장/회원client일치·OAuth재시도"
       ],
-      "nextAction": "배정ACK/결과회수·승인수신때만순차배포순번확정"
+      "nextAction": "각담당결과/기존사람신호회수·새과금/빌드0"
     },
     "notifications": [
       {
