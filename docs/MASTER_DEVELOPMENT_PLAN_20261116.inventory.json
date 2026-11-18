@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 13:08:21 KST",
+  "checkedAt": "2026-11-18 13:13:01 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T04:08:21.887Z",
+      "at": "2026-11-18T04:13:01.745Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Backend 다음 연결 계획 완료 보고",
-      "scope": "계획21절·실dispatch·단위순서/중복판정/불명결과 정책 검토",
+      "trigger": "CRM U1 소스 완료 보고",
+      "scope": "3e2eb60a9 4파일·실route·중복확인/legacy/오류 경계·Mac 배정",
       "evidence": [
-        "msg_300933f94c2e·546bd0fb0",
-        "실 dispatch 현재 오류문자열/notified|failed 확인",
-        "U1 실제route/새시험 범위 배정"
+        "msg_4f2aaf809d48",
+        "git show 실제route",
+        "msg_5445bef602a4"
       ],
-      "judgment": "U1 소스만 진행하도록 배정. 일반23505를 중복확정하지 않도록 보완, U2/스니펫/운영 실행은 이번 범위 제외.",
+      "judgment": "U1 작성자 시험 통과·독립 검수 대기. 운영 보호 완료 아님, DDL/U2 선행 조건 보존.",
       "unverified": [
-        "U1 착수수락/구현/독립검수",
-        "운영 F007 중복발송 위험은 아직 미해결"
+        "U1 독립검수",
+        "실DB·운영HTTP/발송",
+        "U2 채널결과 불명우선·dispatching 연결"
       ],
-      "nextAction": "U1 SHA/시험 결과 수신 후 Mac 검수 배정"
+      "nextAction": "Mac 판정 회수 후 수락/반환, U2는 후속 단위 검토"
     },
     "notifications": [
       {
@@ -7837,14 +7838,25 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-MASTER-01",
       "title": "웹훅 중복 방지 실제 연결 최소 단위 계획",
-      "status": "dispatched",
-      "delivery": "plan_reviewed_u1_source_implementation_dispatched",
+      "status": "ready_review",
+      "delivery": "u1_route_source_ready_independent_review_dispatched",
       "scopeRef": "실 form-submit/[token]/route.ts·새 실제route시험·기존문서만(U1), parser/DDL/dispatch/공용SDK/스니펫 불변",
       "completion": "v2 insert선점/정확중복만200·회원source경계·legacy유지·크기/형식·실route 순차/동시/DB오류 시험",
       "constraints": "미배포 소스만·DDL선행필수·운영DDL/실API/실발송/build/deploy0",
-      "next": "U1 수신부 수정 SHA 회수→Mac 독립검수, U2 불명 우선순위/확정거절 근거는 후속 검토",
-      "evidence": "계획msg_300933f94c2e·546bd0fb0 21절/실dispatch 확인·점유해제0a0997c65·Master U1범위/23505검증 보완지시",
-      "lastReviewedAt": "2026-11-18T04:08:21.887Z"
+      "next": "Mac 실제route 중복/동시/회원범위/DB오류/응답유실/legacy 지정 검수→판정",
+      "evidence": "계획msg_300933f94c2e·546bd0fb0 21절/실dispatch 확인·점유해제0a0997c65·Master U1범위/23505검증 보완지시 · 완료msg_4f2aaf809d48 · Master4파일stat/route본문확인 · Macmsg_5445bef602a4",
+      "lastReviewedAt": "2026-11-18T04:13:01.745Z",
+      "sha": "3e2eb60a9",
+      "validation": {
+        "author": "실route 모의DB/dispatch12/12·전체107/107·tsc0, NOTICE check 수정0",
+        "master": "정확4파일/실route확인. legacy dedupe컬럼미포함·v2 23505후user/source/key 확인·완독후64KiB 제한",
+        "independent": "Mac 전달, 수락/결과 대기"
+      },
+      "limitations": [
+        "U1 단독 운영 배포 금지·운영 DDL 미적용",
+        "insert 응답유실 received 행과 후속보류 정합은 U2 dispatching 연결 전 미완",
+        "실제PG 동시성/운영HTTP/실발송 미검수·모의 부분유니크만"
+      ]
     }
   ]
 }
