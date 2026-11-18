@@ -29,7 +29,7 @@ const OTHER = "00000000-1111-4222-8333-444444444444";
 const ASSET = "0a0b0c0d-1111-4222-8333-444455556666";
 const OBJ = "99999999-aaaa-4bbb-8ccc-dddddddddddd";
 const PATH = `${U}/generated/${ASSET}.png`;
-const SIGNED = "https://example.supabase.co/storage/v1/object/sign/aif-assets/x?token=SECRETTOKEN";
+const SIGNED = `https://example.supabase.co/storage/v1/object/sign/aif-assets/${PATH}?token=SECRETTOKEN`;   // 설치 SDK가 만드는 모양: <저장소>/object/sign/<버킷>/<경로>?token=…
 const okRow = (over = {}) => ({ id: ASSET, user_id: U, state: "ready", bucket: "aif-assets", path: PATH, object_id: OBJ, mime: "image/png", bytes: 70, ...over });
 
 function world(access) {
@@ -121,7 +121,7 @@ test("shadow: 정상 ready → 본인 id+uid로 조회, 짧은 서명 URL, no-st
 });
 
 test("shadow: 본인 행이 없거나(타 회원 포함) 응답 행의 소유·id가 다르면 같은 404, 서명 0", async () => {
-  for (const row of [null, undefined, okRow({ user_id: OTHER }), okRow({ id: OTHER })]) {
+  for (const row of [null, okRow({ user_id: OTHER }), okRow({ id: OTHER })]) {
     const s = shadow({ row });
     const r = await handleGetAsset(s.deps, ASSET);
     assert.deepEqual([r.status, r.body.code], [404, "ASSET_NOT_FOUND"]);
@@ -132,7 +132,7 @@ test("shadow: 본인 행이 없거나(타 회원 포함) 응답 행의 소유·i
 });
 
 test("shadow: 행 조회 오류·던짐·모양 이상 → 503(없음으로 단정하지 않음), 서명 0", async () => {
-  const rows = [() => ({ data: null, error: { message: "permission denied secret" } }), () => { throw new Error("network secret"); }, () => null, () => ({ data: [okRow()], error: null }), () => ({ data: "ready", error: null }), () => ({ data: 1, error: null })];
+  const rows = [() => ({ data: null, error: { message: "permission denied secret" } }), () => { throw new Error("network secret"); }, () => null, () => ({ data: undefined, error: null }), () => ({ error: null }), () => ({}), () => ({ data: [okRow()], error: null }), () => ({ data: "ready", error: null }), () => ({ data: 1, error: null })];
   for (const row of rows) {
     const s = shadow({ row });
     const r = await handleGetAsset(s.deps, ASSET);
@@ -215,6 +215,35 @@ test("shadow: 서명 URL은 기대하는 저장소 주소의 서명 경로일 �
     assert.deepEqual([r.status, r.body.code], [503, UNAVAILABLE], String(storageOrigin));
   }
   assert.equal((await handleGetAsset(shadow().deps, ASSET)).status, 200, "기대 주소와 일치하면 정상");
+});
+
+test("shadow: 서명 URL은 요청한 버킷·경로와 정확히 같아야 한다(READ-F01: 다른 버킷·타 회원·다른 자산·임의 경로·깨진 인코딩·token 이상 → 503)", async () => {
+  const base = "https://example.supabase.co/storage/v1/object/sign/";
+  const bad = [
+    base + "other-bucket/" + PATH + "?token=t",                                  // 같은 origin 다른 버킷
+    base + "aif-assets/" + PATH.replace(U, OTHER) + "?token=t",                  // 다른 회원 경로
+    base + "aif-assets/" + PATH.replace(ASSET, OTHER) + "?token=t",              // 다른 자산
+    base + "aif-assets/random/file.png?token=t",                                 // 임의 경로
+    base + "aif-assets/" + PATH + "%ZZ?token=t",                                 // 깨진 인코딩
+    base + "aif-assets/" + PATH.replace("generated", "%67enerated") + "?token=t",// 의미 없는 % 인코딩
+    base + "aif-assets/" + PATH + "/extra?token=t",                              // 세그먼트 추가
+    base + "aif-assets/" + PATH.slice(0, -4) + "?token=t",                       // 축약
+    base + "aif-assets/sub/../" + PATH + "?token=t",                             // 점 세그먼트(정규화 뒤 같아 보이는 주소)
+    base + "aif-assets/" + PATH + "?token=a&token=b",                            // token 중복
+    base + "aif-assets/" + PATH + "?token=",                                     // 빈 token
+    base + "aif-assets/" + PATH + "?token=t&download=1",                         // 예상 밖 매개변수
+    base + "aif-assets/" + PATH + "?token=t#frag",                               // fragment
+    base + "aif-assets/" + PATH,                                                 // token 없음
+  ];
+  for (const url of bad) {
+    const s = shadow({ sign: () => ({ data: { signedUrl: url }, error: null }) });
+    const r = await handleGetAsset(s.deps, ASSET);
+    assert.deepEqual([r.status, r.body.code], [503, UNAVAILABLE], url);
+    assert.ok(!JSON.stringify(r.body).includes("token=t") && !JSON.stringify(r.body).includes(OTHER), "거절한 주소를 돌려주지 않음");
+    assert.deepEqual(s.calls.map((c) => c[0]), ["row", "sign"], "상태 쓰기·재시도 0");
+  }
+  const ok = await handleGetAsset(shadow().deps, ASSET);
+  assert.deepEqual([ok.status, ok.body.signedUrl], [200, SIGNED], "요청한 버킷·경로와 정확히 같으면 정상");
 });
 
 test("shadow: 조회 의존성이 없거나 만들다 실패하면 503", async () => {

@@ -29,19 +29,28 @@ export type AssetReadDeps = {
   storageOrigin: string;
 };
 
-/** 서명 URL 검증: https, 기대 저장소와 같은 origin(계정 정보·다른 포트 불가), 저장소 서명 경로, token 있음. 아니면 null — 임의 주소를 회원에게 돌려주지 않는다 */
-export function validSignedUrl(value: unknown, storageOrigin: unknown): string | null {
-  if (typeof value !== "string" || typeof storageOrigin !== "string") return null;
+/** 서명 URL 검증(READ-F01, Mac 검수 2026-11-18): 원문 문자열이 정확히
+ *    <기대 저장소 origin>/storage/v1/object/sign/<요청한 버킷>/<요청한 경로>?token=<비어 있지 않은 토큰 1개>
+ *  꼴일 때만 돌려준다. 같은 origin이라도 다른 버킷·다른 회원·다른 자산·임의 경로·% 인코딩·세그먼트 추가/축약·점 세그먼트·
+ *  token 중복/빈 값·다른 매개변수·fragment·계정 정보는 모두 거절(null). URL을 정규화한 값이 아니라 원문 접두사로 비교한다
+ *  (점 세그먼트처럼 정규화하면 같아 보이는 주소를 걸러내기 위해). 우리 경로는 소문자 UUID·종류·확장자뿐이라 인코딩이 필요 없다.
+ *  설치된 @supabase/storage-js 2.117.3의 createSignedUrl은 `<저장소 url>/object/sign/<버킷>/<경로>?token=…` 을 만든다. */
+export function validSignedUrl(value: unknown, storageOrigin: unknown, bucket: unknown, path: unknown): string | null {
+  if (typeof value !== "string" || typeof storageOrigin !== "string" || bucket !== ASSET_BUCKET || !parseAssetPath(path)) return null;
+  let origin: string;
   try {
     const expected = new URL(storageOrigin);
-    const u = new URL(value);
-    if (expected.protocol !== "https:" || u.protocol !== "https:") return null;
-    if (u.origin !== expected.origin || u.username || u.password) return null;
-    if (!u.pathname.startsWith("/storage/v1/object/sign/") || !u.searchParams.get("token")) return null;
-    return value;
+    if (expected.protocol !== "https:" || expected.username || expected.password) return null;
+    origin = expected.origin;
   } catch {
     return null;
   }
+  const prefix = `${origin}/storage/v1/object/sign/${bucket}/${path as string}?token=`;
+  if (!value.startsWith(prefix)) return null;
+  const token = value.slice(prefix.length);
+  // 토큰은 JWT(base64url과 점)다. &·#·%·공백 등이 섞이면 매개변수 추가·중복·fragment이므로 거절
+  if (!/^[A-Za-z0-9._~-]+$/.test(token)) return null;
+  return value;
 }
 export type AssetGetDeps = {
   mode: AssetsMode;
@@ -79,7 +88,8 @@ export async function handleGetAsset(deps: AssetGetDeps, assetId: unknown): Prom
   try {
     const r = await read.getAssetRow(userId, assetId);
     if (!r || typeof r !== "object" || r.error) return UNAVAILABLE();
-    if (r.data === null || r.data === undefined) return NOT_FOUND();   // 본인 것이 아니거나 없는 id — 다른 회원 자료도 같은 404
+    if (r.data === undefined) return UNAVAILABLE();   // data 칸이 없거나 undefined — 「행 없음」이라는 명시 응답이 아니라 모양 불명
+    if (r.data === null) return NOT_FOUND();          // maybeSingle의 「행 없음」(본인 것이 아니거나 없는 id) — 다른 회원 자료도 같은 404
     if (typeof r.data !== "object" || Array.isArray(r.data)) return UNAVAILABLE();
     row = r.data as Record<string, unknown>;
   } catch {
@@ -103,7 +113,7 @@ export async function handleGetAsset(deps: AssetGetDeps, assetId: unknown): Prom
   try {
     const s = await read.createSignedUrl(row.path as string, SIGNED_URL_TTL_SECONDS);
     const raw = s && typeof s === "object" && !s.error ? (s.data as { signedUrl?: unknown } | null)?.signedUrl : null;
-    const signedUrl = validSignedUrl(raw, read.storageOrigin);
+    const signedUrl = validSignedUrl(raw, read.storageOrigin, row.bucket, row.path);   // 위에서 검증한 바로 그 버킷·경로와 정확히 같아야 한다
     if (!signedUrl) return UNAVAILABLE();
     return out(200, {
       id: assetId,
