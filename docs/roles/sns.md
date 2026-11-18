@@ -16,7 +16,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| AI Influencer | P0 유료 품질 비교(51건) | 주인님 승인·시험 계정 Gemini/fal 키 확인 | W00_BASELINE §6·§9 |
+| AI Influencer | 상위 모델 품질 비교(P0) | 프로그램 완성 후 최종 테스트 때 진행(주인님 결정 2026-11-18). 개발 중은 저렴한 모델 | W00_BASELINE §6 |
 | AI Influencer | `cleanupOldPosts` 보관 예외 | `insta-posting` 기준 담당 수정 | W00_BASELINE §8 |
 | AI Influencer | W01 본체(원본 자산·보관 예외·migration) | 새 표 2개·함수 2개의 PLAN §13·권한 계약 병합(담당 Master 지정) — 그 전 착수 0 | W00_BASELINE §10·§14 |
 
@@ -31,4 +31,4 @@
 1. 새 표 2개·함수 2개의 PLAN §13·권한 계약 병합을 기다린다(담당 Master 지정). 그 전까지 자산·보관 코드와 migration은 착수하지 않는다. 병합 뒤 W01 본체(W00_BASELINE §12) 배정을 받는다.
 
 ## 주인님께 여쭐 것
-- P0 품질 비교 유료 실행 승인(시험 계정 본인 키, 이미지 42장·영상 9클립, 예상 약 $8.7·상한 $12)
+- 개발 중 기능 시험에 쓸 시험 계정(`buylifemall@naver.com`)의 Gemini·fal 키 등록 여부(실제 생성 시험이 필요해질 때)
