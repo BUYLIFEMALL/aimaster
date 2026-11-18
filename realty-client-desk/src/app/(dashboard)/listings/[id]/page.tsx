@@ -9,6 +9,7 @@ import { missingAdItems } from "@/lib/desk/adCheck";
 import { day, priceText } from "@/lib/desk/format";
 import { SendAdForm, type Candidate } from "@/components/desk/SendAdForm";
 import { PageHero } from "@/components/ui/PageHero";
+import { parseAddressRegion, pickTradeHint, type TradeHint, type TradeRow } from "@/lib/desk/tradeHint";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -41,12 +42,37 @@ export default async function ListingMatchPage({ params }: { params: Promise<{ i
   candidates.sort((a, b) => Number(b.ok && !b.sent) - Number(a.ok && !a.sent));
   const o: Office = office ?? { office_name: "사무소 이름", office_phone: "전화번호", office_address: null, reject_080: null };
   const ready = !office ? "사무소 이름·전화번호를 먼저 저장해 주세요(문자 맨 앞에 들어가요)." : !account ? "본인 SOLAPI 계정을 먼저 등록해 주세요." : null;
+  // L-1(2026-11-19): 이 동 최근 실거래 — 실거래 프로그램이 모은 공공 실거래(real_estate_listings)를 회원 세션으로 읽기만.
+  // 주소에서 시군구·동을 못 찾거나, 동명 지역을 못 가리거나, 읽기 실패면 줄을 숨기고 나머지 화면은 그대로.
+  const region = parseAddressRegion(listing.address);
+  let tradeHint: TradeHint = { status: "none" };
+  if (region) {
+    try {
+      const { data: trades } = await db.from("real_estate_listings")
+        .select("sgg_cd, sgg_nm, stdg_nm, bldg_nm, deal_type, exclusive_area, price_amount, monthly_rent, contract_date")
+        .eq("sgg_nm", region.sggNm).eq("stdg_nm", region.dong).eq("deal_type", listing.deal_type)
+        .order("contract_date", { ascending: false }).limit(30);
+      tradeHint = pickTradeHint((trades ?? []) as TradeRow[], region, listing.deal_type);
+    } catch {
+      tradeHint = { status: "none" };
+    }
+  }
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-4">
       <Link href="/listings" className="text-sm text-mx-link">← 내 매물</Link>
       <PageHero badge="👥 맞는 고객" title={listing.title} description={`${listing.property_type} · ${priceText(listing)}${listing.area_m2 ? ` · 전용 ${listing.area_m2}㎡` : ""} · ${listing.address}`} />
       <Link href={`/fee?kind=${encodeURIComponent(feeKindOf(listing.property_type))}${listing.property_type === "분양권" ? "&presale=1" : ""}&deal=${encodeURIComponent(listing.deal_type)}&price=${listing.price}${listing.monthly ? `&monthly=${listing.monthly}` : ""}`} className="mx-btn-ghost inline-flex min-h-[40px] w-fit items-center px-3 text-xs">💰 이 매물 중개보수 계산</Link>
+      {region && tradeHint.status === "ok" && (
+        <section className="mx-card p-4 text-sm">
+          <h2 className="text-sm font-bold text-mx-text">📈 {region.sggNm} {region.dong} 최근 {listing.deal_type} 실거래</h2>
+          <ul className="mt-1 space-y-0.5 text-mx-text">{tradeHint.lines.map((l) => <li key={l}>• {l}</li>)}</ul>
+          <p className="mt-1 text-xs text-mx-muted">국토교통부·서울시 공개 실거래(신고일 기준, 실거래 투자분석 프로그램이 모은 지역만). 고객에게 설명할 참고 자료예요.</p>
+        </section>
+      )}
+      {region && tradeHint.status === "none" && (
+        <p className="text-xs text-mx-muted">📈 {region.sggNm} {region.dong} 실거래 자료가 아직 없어요 — 「부동산 실거래 투자분석」에서 이 지역을 켜면 여기에 최근 신고가 보여요.</p>
+      )}
       {listing.status !== "광고 중" ? (
         <p className="mx-card p-5 text-sm text-mx-muted">「광고 중」인 매물만 안내할 수 있어요. 목록에서 상태를 바꿔 주세요.</p>
       ) : (
