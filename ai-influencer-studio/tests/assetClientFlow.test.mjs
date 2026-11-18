@@ -69,7 +69,9 @@ test("참고 사진은 얼굴 → 장소 → 상품 순서로 모으고, 상품�
   assert.deepEqual(collectSlots(CONFIG).map((s) => s.role), ["face", "place", "product", "product"]);
   assert.deepEqual(collectSlots({ ...CONFIG, isAdMode: false }).map((s) => s.role), ["face", "place"]);
   assert.deepEqual(collectSlots({ productImages: [photo(3)], isAdMode: true, personImage: undefined, placeImage: "" }).map((s) => s.role), ["product"]);
-  assert.deepEqual(collectSlots({ isAdMode: true, productImages: [photo(3), photo(3), photo(4)] }).map((s) => s.dataUrl), [photo(3), photo(4)]);
+  // 같은 상품 사진이 여러 칸에 있어도 칸 수와 순서를 지킨다(몇 번째인지로 구분)
+  assert.deepEqual(collectSlots({ isAdMode: true, productImages: [photo(3), photo(3), photo(4)] }).map((s) => [s.dataUrl, s.occurrence]), [[photo(3), 0], [photo(3), 1], [photo(4), 0]]);
+  assert.deepEqual(collectSlots({ isAdMode: true, productImages: [photo(3), photo(4), photo(3)] }).map((s) => [s.dataUrl, s.occurrence]), [[photo(3), 0], [photo(4), 0], [photo(3), 1]]);
   assert.equal(collectSlots({ isAdMode: true, productImages: [photo(1), photo(2), photo(3), photo(4)] }).length, 3, "상품은 3장까지");
   // 사진이 아닌 값·서명 주소는 올릴 대상이 아니다. 직전 결과는 다루지 않는다
   assert.deepEqual(collectSlots({ personImage: "https://x/y.png", placeImage: 5, productImages: "x", isAdMode: true, lastResultImage: INLINE }), []);
@@ -207,11 +209,13 @@ test("생성 응답 — 오류: 서버의 고정 문구를 쓰고 다시 생성�
     [() => json(500, { error: "요청이 너무 많았습니다.", code: "GENERATION_FAILED", providerCode: "RATE_LIMITED" }), { message: "요청이 너무 많았습니다.", status: 500, code: "GENERATION_FAILED", needApiKey: false }],
     [() => json(500, {}), { message: M.GENERATION_FAILED, status: 500, code: null, needApiKey: false }],
     [() => json(400, { error: "x", needApiKey: "yes" }), { message: "x", status: 400, code: null, needApiKey: false }],
-    [() => new Response("<html>504 Gateway</html>", { status: 504 }), { message: M.GENERATION_NO_RESPONSE, status: 504, code: null, needApiKey: false }],
-    [() => new Response("[1,2]", { status: 200 }), { message: M.GENERATION_NO_RESPONSE, status: 200, code: null, needApiKey: false }],
-    [() => json(200, { success: true }), { message: M.GENERATION_NO_RESPONSE, status: 200, code: null, needApiKey: false }],
+    // 생성 요청을 보낸 뒤 결과를 모르고 끝난 경우는 모두 같은 코드(RESULT_UNKNOWN)와 「차감됐을 수 있다」 안내
+    [() => new Response("<html>504 Gateway</html>", { status: 504 }), { message: M.GENERATION_NO_RESPONSE, status: 504, code: "RESULT_UNKNOWN", needApiKey: false }],
+    [() => new Response("[1,2]", { status: 200 }), { message: M.GENERATION_NO_RESPONSE, status: 200, code: "RESULT_UNKNOWN", needApiKey: false }],
+    [() => json(200, { success: true }), { message: M.GENERATION_NO_RESPONSE, status: 200, code: "RESULT_UNKNOWN", needApiKey: false }],
+    [() => ({ ok: true, status: 200, headers: new Headers(), body: null, json: async () => ({ assetId: RESULT_ID, assetSaved: true }) }), { message: M.GENERATION_NO_RESPONSE, status: 200, code: "RESULT_UNKNOWN", needApiKey: false }],   // 스트림 없는 응답은 읽지 않는다
     [() => json(200, { assetSaved: true, assetId: RESULT_ID, imageUrl: "https://evil.example/x.png" }), null],     // 저장 확인 + 서명 주소 없음 → 아래에서 따로 본다
-    [() => { throw new TypeError("network RAW"); }, { message: M.GENERATION_NO_RESPONSE, status: null, code: null, needApiKey: false }],
+    [() => { throw new TypeError("network RAW"); }, { message: M.GENERATION_NO_RESPONSE, status: null, code: "RESULT_UNKNOWN", needApiKey: false }],
   ];
   for (const [generate, expected] of cases) {
     if (!expected) continue;
@@ -291,10 +295,11 @@ test("결과 받기 상한: 실제로 받은 바이트를 세어 상한을 넘�
   // 정확히 상한은 통과
   r = await fetchResultBlob(async () => bin(sized(PNG_SIG, 3000)), signed(), opts(live(), 3000));
   assert.deepEqual([r.ok, r.blob.size], [true, 3000]);
-  // 스트림이 없는 응답(환경 차이)도 길이로 본다
-  const noStream = (n) => ({ ok: true, status: 200, headers: new Headers(), body: null, arrayBuffer: async () => sized(PNG_SIG, n).buffer });
-  assert.deepEqual(await fetchResultBlob(async () => noStream(3001), signed(), opts(live(), 3000)), { ok: false, reason: "too_large" });
-  assert.equal((await fetchResultBlob(async () => noStream(2999), signed(), opts(live(), 3000))).ok, true);
+  // 읽을 수 있는 스트림이 없는 응답은 쓰지 않는다 — 통째로 받는 길(arrayBuffer·blob)을 부르지 않는다
+  let buffered = 0;
+  const noStream = (body) => ({ ok: true, status: 200, headers: new Headers(), body, arrayBuffer: async () => { buffered++; return sized(PNG_SIG, 100).buffer; }, blob: async () => { buffered++; return new Blob([PNG]); }, text: async () => { buffered++; return ""; } });
+  for (const body of [null, undefined, {}, { getReader: "no" }]) assert.deepEqual(await fetchResultBlob(async () => noStream(body), signed(), opts(live(), 3000)), { ok: false, reason: "no_stream" });
+  assert.equal(buffered, 0);
   await sleep(10);
 });
 
@@ -321,10 +326,11 @@ test("취소 — 올리는 중 신호가 끊기면: 그 번호를 기억하지 �
   const p3 = runAssetGeneration(deps(n3, m3), CONFIG, ac3.signal);
   await sleep(5); ac3.abort();
   assert.deepEqual([await p3, m3.size, n3.kinds()], [{ kind: "aborted" }, 0, ["upload"]]);
-  // 모든 요청에 같은 신호가 실린다
+  // 모든 요청에 중단 신호가 실리고(단계별 시간 상한을 겸한 신호), 단계가 끝나면 그 신호는 끊겨 있다
   const n4 = net(); const ac4 = new AbortController();
   await runAssetGeneration(deps(n4), CONFIG, ac4.signal);
-  assert.equal(n4.calls.filter((c) => c.kind !== "storage").every((c) => c.init.signal === ac4.signal), true);
+  assert.equal(n4.calls.every((c) => c.init.signal instanceof AbortSignal && c.init.signal.aborted), true);
+  assert.equal(ac4.signal.aborted, false, "바깥 신호는 건드리지 않는다");
 });
 
 test("취소 — 생성 응답 대기 중·결과 받는 중에 끊기면: 결과를 돌려주지 않는다(늦게 온 결과·오류는 버린다). 이미 나간 생성은 다시 보내지 않는다", async () => {
@@ -416,6 +422,150 @@ test("불변: 어떤 사례에서도 생성은 최대 1회·결과 받기는 최
     assertNoUrl(mem);
   }
   for (const m of Object.values(M)) assert.match(m, /(니다|세요)\.$/, "한국어 존댓말 고정 문구");
+});
+
+// ───────────── W01-UIC 보완(Master msg_5562dd13e7ce, 검수 재현): 유한 대기·스트림 필수·사진 기억 정리·같은 상품 사진 ─────────────
+test("유한 대기 — 올리기: 응답이 오지 않거나 본문이 멈추면 상한 뒤 그만둔다. 생성 0, 번호 미기억, 다시 올리지 않는다. 늦게 온 응답은 버린다", async () => {
+  const stalledBody = () => new Response(new ReadableStream({ start(c) { c.enqueue(new TextEncoder().encode('{"assetId":')); }, cancel() { return never(); } }));
+  for (const upload of [never, stalledBody, async () => { await sleep(80); return json(200, { assetId: id(1), assetSaved: true }); }, async () => { await sleep(80); throw new Error("late RAW"); }]) {
+    const n = net({ upload });
+    const memory = new AssetIdMemory();
+    const t0 = Date.now();
+    const r = await runAssetGeneration({ ...deps(n, memory), limits: { uploadMs: 30 } }, CONFIG, live());
+    assert.deepEqual(r, { kind: "error", message: M.UPLOAD_TIMEOUT, status: null, code: "UPLOAD_TIMEOUT", needApiKey: false, stage: "upload" });
+    assert.ok(Date.now() - t0 < 1000);
+    await sleep(110);
+    assert.deepEqual([n.kinds(), memory.size], [["upload"], 0], "늦게 온 번호를 기억하지 않았고 다음 요청도 없다");
+    assert.equal(n.calls[0].init.signal.aborted, true, "요청에 중단 신호를 보냈다");
+  }
+  assert.match(M.UPLOAD_TIMEOUT, /보관됐는지는 확인하지 못했습니다/);
+});
+
+test("유한 대기 — 생성: 화면의 대기 상한은 서버 예산(300초)보다 길고, 지나면 「결과·차감 불명」으로 끝난다. 다시 보내지 않고 늦은 결과는 버린다", async () => {
+  assert.ok(F.GENERATION_WAIT_MS > 300_000, "서버가 답할 시간을 화면이 먼저 끊지 않는다");
+  const stalledBody = () => new Response(new ReadableStream({ start(c) { c.enqueue(new TextEncoder().encode('{"assetSaved":true,')); }, cancel() { return never(); } }));
+  for (const generate of [never, stalledBody, async () => { await sleep(80); return json(200, { assetId: RESULT_ID, assetSaved: true, signedUrl: signed() }); }, async () => { await sleep(80); throw new Error("late RAW"); }]) {
+    const n = net({ generate });
+    const t0 = Date.now();
+    const r = await runAssetGeneration({ ...deps(n), limits: { generationMs: 30 } }, { age: 25 }, live());
+    assert.deepEqual(r, { kind: "error", message: M.GENERATION_NO_RESPONSE, status: null, code: "RESULT_UNKNOWN", needApiKey: false, stage: "generation" });
+    assert.ok(Date.now() - t0 < 1000);
+    await sleep(110);
+    assert.deepEqual(n.kinds(), ["generate"], "생성 1회, 결과 받기·재전송 0");
+  }
+  assert.equal(F.RESULT_UNKNOWN_CODE, "RESULT_UNKNOWN");
+});
+
+test("유한 대기 — 결과 받기·다시 받기: 멈추면 상한 뒤 「다시 불러오기」 상태로 끝난다(끝나지 않는 cancel에도). 스스로 다시 받지 않는다", async () => {
+  const stalled = () => new Response(new ReadableStream({ start(c) { c.enqueue(PNG.subarray(0, 10)); }, cancel() { return never(); } }));
+  for (const storage of [never, stalled, async () => { await sleep(80); return bin(PNG); }]) {
+    let n = net({ storage });
+    let t0 = Date.now();
+    let r = await runAssetGeneration({ ...deps(n), limits: { resultMs: 30 } }, { age: 25 }, live());
+    assert.deepEqual([r, n.kinds()], [{ kind: "asset_pending", assetId: RESULT_ID, message: M.RESULT_PENDING }, ["generate", "storage"]]);
+    assert.ok(Date.now() - t0 < 1000);
+    n = net({ storage });
+    r = await reloadAsset({ ...deps(n), limits: { resultMs: 30 } }, RESULT_ID, live());
+    assert.deepEqual([r, n.kinds()], [{ kind: "asset_pending", assetId: RESULT_ID, message: M.RELOAD_FAILED }, ["asset", "storage"]]);
+  }
+  // 조회 자체가 멈춤
+  for (const asset of [never, () => new Response(new ReadableStream({ start(c) { c.enqueue(new TextEncoder().encode("{")); }, cancel() { return never(); } }))]) {
+    const n = net({ asset });
+    const t0 = Date.now();
+    const r = await reloadAsset({ ...deps(n), limits: { reloadMs: 30 } }, RESULT_ID, live());
+    assert.deepEqual([r, n.kinds()], [{ kind: "asset_pending", assetId: RESULT_ID, message: M.RELOAD_FAILED }, ["asset"]]);
+    assert.ok(Date.now() - t0 < 1000);
+  }
+  // fetchResultBlob 단독: 시간 초과는 timeout, 바깥 취소는 aborted로 구분한다
+  const o = (signal) => ({ storageOrigin: ORIGIN, assetId: RESULT_ID, signal, waitMs: 30 });
+  assert.deepEqual(await fetchResultBlob(never, signed(), o(live())), { ok: false, reason: "timeout" });
+  const ac = new AbortController(); setTimeout(() => ac.abort(), 10);
+  assert.deepEqual(await fetchResultBlob(never, signed(), { ...o(ac.signal), waitMs: 5000 }), { ok: false, reason: "aborted" });
+  await sleep(110);
+});
+
+test("API 응답도 스트림으로 상한까지만 읽는다: 너무 큰 응답·끝없는 응답·스트림 없는 응답은 쓰지 않고, res.json()을 부르지 않는다", async () => {
+  assert.deepEqual([F.API_JSON_MAX_BYTES, F.GENERATION_JSON_MAX_BYTES > 4_000_000], [64 * 1024, true]);
+  let jsonCalled = 0;
+  const huge = () => { const r = new Response(JSON.stringify({ assetId: id(1), assetSaved: true, pad: "x".repeat(70 * 1024) })); r.json = async () => { jsonCalled++; return {}; }; return r; };
+  let n = net({ upload: huge });
+  let r = await runAssetGeneration(deps(n), CONFIG, live());
+  assert.deepEqual([r.kind, r.stage, r.message, n.kinds()], ["error", "upload", M.UPLOAD_FAILED, ["upload"]]);
+  // 끝없는 올리기 응답: 상한 직후 끊는다
+  let pulled = 0;
+  n = net({ upload: () => new Response(new ReadableStream({ pull(c) { pulled++; if (pulled > 4000) { c.close(); return; } c.enqueue(new Uint8Array(1024).fill(0x20)); }, cancel() { return never(); } }, { highWaterMark: 0 })) });
+  r = await runAssetGeneration(deps(n), CONFIG, live());
+  assert.deepEqual([r.kind, r.stage], ["error", "upload"]);
+  assert.ok(pulled <= 70, `64KiB를 넘긴 직후 멈췄다(덩어리 ${pulled}개)`);
+  // 생성 응답이 상한(4.5MB)을 넘으면 읽지 않고 「결과 불명」
+  n = net({ generate: () => new Response(JSON.stringify({ imageUrl: "data:image/png;base64," + "A".repeat(4_600_000), assetSaved: false })) });
+  r = await runAssetGeneration(deps(n), { age: 25 }, live());
+  assert.deepEqual([r.kind, r.code, n.kinds()], ["error", "RESULT_UNKNOWN", ["generate"]]);
+  // 상한 안의 큰 이미지 응답(약 3.9MB)은 읽는다
+  const bigInline = "data:image/png;base64," + "A".repeat(3_900_000);
+  n = net({ generate: () => new Response(JSON.stringify({ imageUrl: bigInline, assetSaved: false })) });
+  r = await runAssetGeneration(deps(n), { age: 25 }, live());
+  assert.deepEqual([r.kind, r.imageUrl.length], ["inline", bigInline.length]);
+  // 스트림 없는 올리기·조회 응답
+  const noStream = (body) => ({ ok: true, status: 200, headers: new Headers(), body: null, json: async () => { jsonCalled++; return body; } });
+  n = net({ upload: () => noStream({ assetId: id(1), assetSaved: true }) });
+  r = await runAssetGeneration(deps(n), CONFIG, live());
+  assert.deepEqual([r.kind, r.stage, n.kinds()], ["error", "upload", ["upload"]]);
+  n = net({ asset: () => noStream({ id: RESULT_ID, state: "ready", signedUrl: signed() }) });
+  assert.deepEqual([(await reloadAsset(deps(n), RESULT_ID, live())).kind, n.kinds()], ["asset_pending", ["asset"]]);
+  assert.equal(jsonCalled, 0);
+  await sleep(10);
+});
+
+test("사진 기억 정리: 생성을 시작할 때 지금 칸에 있는 사진의 번호만 남는다 — 바꾸거나 뺀 사진의 번호는 지워지고 되살아나지 않는다", async () => {
+  const n = net();
+  const memory = new AssetIdMemory();
+  await runAssetGeneration(deps(n, memory), CONFIG, live());                                  // 얼굴1·장소2·상품3·상품4
+  assert.equal(memory.size, 4);
+  // 얼굴을 바꾸고 상품 하나를 뺌 → 옛 얼굴·뺀 상품의 번호가 지워진다
+  const next = { ...CONFIG, personImage: photo(9), productImages: [photo(4)] };
+  await runAssetGeneration(deps(n, memory), next, live());
+  assert.equal(memory.size, 3);
+  assert.deepEqual([memory.get({ role: "face", dataUrl: photo(1) }), memory.get({ role: "product", dataUrl: photo(3) })], [undefined, undefined]);
+  assert.deepEqual(n.calls.filter((c) => c.kind === "generate")[1].body.references, [{ assetId: id(5), role: "face" }, { assetId: id(2), role: "place" }, { assetId: id(4), role: "product" }]);
+  // 원래 사진으로 되돌리면 옛 번호를 다시 쓰지 않고 새로 올린다(지워졌으므로)
+  await runAssetGeneration(deps(n, memory), CONFIG, live());
+  assert.deepEqual(n.calls.filter((c) => c.kind === "generate")[2].body.references.map((x) => x.assetId), [id(6), id(2), id(7), id(4)]);
+  // 광고 모드를 끄면 상품 번호가 지워진다. 참고 사진이 하나도 없으면 기억이 빈다
+  await runAssetGeneration(deps(n, memory), { ...CONFIG, isAdMode: false }, live());
+  assert.equal(memory.size, 2);
+  await runAssetGeneration(deps(n, memory), { age: 25 }, live());
+  assert.equal(memory.size, 0);
+  // 여러 번 바꿔도 기억은 칸 수(최대 5)를 넘지 않는다
+  for (let i = 20; i < 40; i++) await runAssetGeneration(deps(n, memory), { ...CONFIG, personImage: photo(i), productImages: [photo(i + 100), photo(i + 200), photo(i + 300)] }, live());
+  assert.equal(memory.size, 5);
+});
+
+test("같은 상품 사진: 칸 수와 순서를 지켜 칸마다 따로 올리고 서로 다른 번호를 보낸다. 다시 생성하면 다시 올리지 않는다", async () => {
+  const n = net();
+  const memory = new AssetIdMemory();
+  const cfg = { isAdMode: true, productImages: [photo(3), photo(3), photo(3)] };
+  let r = await runAssetGeneration(deps(n, memory), cfg, live());
+  assert.equal(r.kind, "asset");
+  assert.deepEqual(n.kinds(), ["upload", "upload", "upload", "generate", "storage"]);
+  assert.deepEqual(n.calls[3].body.references, [{ assetId: id(1), role: "product" }, { assetId: id(2), role: "product" }, { assetId: id(3), role: "product" }]);
+  assert.equal(new Set(n.calls[3].body.references.map((x) => x.assetId)).size, 3, "번호가 서로 다르다");
+  await runAssetGeneration(deps(n, memory), cfg, live());
+  assert.deepEqual([n.count("upload"), n.calls.filter((c) => c.kind === "generate")[1].body.references.map((x) => x.assetId)], [3, [id(1), id(2), id(3)]]);
+  // 가운데에 다른 사진이 끼어도 순서 그대로: [A, B, A] → A의 첫째·B·A의 둘째
+  const n2 = net(); const m2 = new AssetIdMemory();
+  await runAssetGeneration(deps(n2, m2), { isAdMode: true, productImages: [photo(3), photo(4), photo(3)] }, live());
+  assert.deepEqual(n2.calls.slice(0, 3).map((c) => c.body.image), [photo(3), photo(4), photo(3)]);
+  assert.deepEqual(n2.calls[3].body.references.map((x) => x.assetId), [id(1), id(2), id(3)]);
+  // 서버가 같은 번호를 두 번 돌려주면(이상 응답) 그 번호를 두 칸에 쓰지 않고 생성하지 않는다
+  const n3 = net({ upload: () => json(200, { assetId: id(1), assetSaved: true }) });
+  r = await runAssetGeneration(deps(n3), cfg, live());
+  assert.deepEqual([r.kind, r.stage, n3.kinds()], ["error", "upload", ["upload", "upload"]]);
+  // 기억은 한 번호를 한 칸에만 둔다
+  const m = new AssetIdMemory();
+  m.set({ role: "product", dataUrl: photo(3), occurrence: 0 }, id(1));
+  m.set({ role: "product", dataUrl: photo(3), occurrence: 1 }, id(1));
+  assert.deepEqual([m.size, m.get({ role: "product", dataUrl: photo(3), occurrence: 1 })], [1, undefined]);
 });
 
 test("처리되지 않은 거부가 하나도 없다", async () => {
