@@ -4228,9 +4228,9 @@
       "scopeRef": "순수referenceImage·gemini·generate-image route·ControlPanel/InfluencerStudio·시험/기존문서",
       "completion": "정확MIME/strictb64/서명/개수·장당/총/JSON상한·HTTPS반례·실route유료호출전거절·client변환/안내",
       "constraints": "공용모듈/모델/프롬프트/DB자산/권한불변·원격이미지fetch/실AI/유료/build/push0·출력G5미해소",
-      "evidence": "W00 G1 MIME PNG고정소스근거·Master소스개선연속작업배정 · 계획msg_256d9fae7ba4·Master실gemini/route·Google공식지원MIME독립확인 · 14:30 ACTIVE_WORK참고검사7경로진행중확인 · 완료msg_64cdc4aa9317·Master8파일stat·Mac검수전달 · Macmsg_4d664f5d4a80 실route3반례·수정반환",
+      "evidence": "W00 G1 MIME PNG고정소스근거·Master소스개선연속작업배정 · 계획msg_256d9fae7ba4·Master실gemini/route·Google공식지원MIME독립확인 · 14:30 ACTIVE_WORK참고검사7경로진행중확인 · 완료msg_64cdc4aa9317·Master8파일stat·Mac검수전달 · Macmsg_4d664f5d4a80 실route3반례·수정반환 · 고정최종msg_2505820637b0/native13·브라우저함수모형·실UI미확인",
       "next": "BMFFAVIF모호거절·명시비문자active필드거절·스트림읽기예외고정오류 보완SHA→Mac",
-      "lastReviewedAt": "2026-11-18T05:39:34.710Z",
+      "lastReviewedAt": "2026-11-18T05:41:09.763Z",
       "sha": "f805100ce",
       "validation": {
         "author": "reference13·전체67/67·tsc0·실AI0·PNG/JPEG/WebP실fixture·HEIC합성표시",
@@ -4243,14 +4243,20 @@
       "parent_task_id": "CRM-20261118-09",
       "title": "CRM 중복방지 묶음 명시소스·DDL·실검수 릴리스 준비",
       "owner": "CC-B2B-BACK-01",
-      "status": "dispatched",
-      "delivery": "concrete_release_manifest_and_approval_scope_preparation",
+      "status": "needs_revision",
+      "delivery": "release_checklist_review_publication_and_sms_budget_sequence_fix_requested",
       "scopeRef": "기존결과/개선표/역할·읽기검사만, 제품소스동결",
       "completion": "파일별SHA/blob/tree·DDLhash/사전SQL/권한/롤백·정확순서·빌드예산/실SMS/사람단계 구체안",
       "constraints": "운영SQL/버전/빌드/실문자/Google/push0·메인동반자동배포주의",
-      "next": "구체확인표회수→Master승인취합·실행책임단일지정",
-      "evidence": "U1/U2/접수/팔로우업/U3 지정소스PASS·Master범위준비배정",
-      "lastReviewedAt": "2026-11-18T05:36:48.769Z"
+      "next": "staged production지원/보호/AppsScript제약·공개순서·문자1통시나리오정합 보완→구체승인요청",
+      "evidence": "U1/U2/접수/팔로우업/U3 지정소스PASS·Master범위준비배정 · msg_a62d1b410a26·Master35절/실SourceCard/DDLhash확인",
+      "lastReviewedAt": "2026-11-18T05:41:09.763Z",
+      "sha": "47cd321da",
+      "validation": {
+        "author": "35절 파일12SHA/blob/tree024f2427·DDL원문hash·순서/권한/멈춤/예산표 준비·실행0",
+        "master": "DDLsha2562e0b8eb84461d47b030016a00aedd734ddaeb1cbbef46da6800e8ce84925f450일치. 현재SourceCard신규배포면바로공개·문자legacy1+v2추가1과예산1통모순 보완반환",
+        "independent": "실운영/배포/SQL미실행"
+      }
     }
   ],
   "programOverrides": [
@@ -4754,20 +4760,23 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:39:34.710Z",
+      "at": "2026-11-18T05:41:09.763Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS 입력형식 실route 독립 반례",
-      "scope": "컨테이너codec브랜드모호성·참조truthy/타입·read stream예외/원문",
+      "trigger": "CRM릴리스구체안·SNS고정최종",
+      "scope": "명시manifest/DDLhash·실스크립트공개순서·1통SMS예산정합·입력검수최종보존",
       "evidence": [
-        "msg_4d664f5d4a80·Master타입/검사경로읽기",
-        "SNS기존범위3건반환"
+        "msg_a62d1b410a26/47cd321da 35절직접읽기·DDLhash일치",
+        "SourceCardwindow.location.origin 즉시v2공개소스확인",
+        "staged무도메인배포가능성/실보호제약읽기배정",
+        "msg_2505820637b0 SNS고정최종"
       ],
-      "judgment": "유료전입력검사우회/예외전파 반례수정필요. 정상optional빈상태와비문자구분·실파일디코드/실AI증거로과장0.",
+      "judgment": "승인요청전릴리스계획실행순서/문자예산모순보완필요. 아직SQL/배포/문자0. SNS3P2고정결과보존·새수정대기.",
       "unverified": [
-        "W01c보완/고정최종·클라이언트변환",
-        "실공급자지원/출력·운영동작"
+        "staged production공식지원/실보호·실Google조건",
+        "운영기준버전/DB제약현재값·승인",
+        "SNS입력수정SHA"
       ],
-      "nextAction": "새SHA회수→국소실route검수·실유료0"
+      "nextAction": "구체최종릴리스안수신→한곳승인취합·새운영0"
     },
     "notifications": [
       {
