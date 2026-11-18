@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T19:44:01.455Z",
+  "checkedAt": "2026-11-18T19:46:27.316Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5996,11 +5996,11 @@
       "reviewer": "CX-MASTER-01",
       "title": "부동산 추가 개선 순차 진행",
       "status": "running",
-      "delivery": "independent_25_pass_duplicate_link_and_enabled_fixes_requested",
-      "evidence": "msg_c042ddbde7d9·481829768·msg_d71d13d13791·msg_8689d9857513·8767db0a8·msg_51fbe0b8b070·msg_611c47959bd0·msg_6898c765a184·msg_11e579abb78b·63e7c429f·a6544db4e·msg_37fee34e31a2·msg_fd4070a962c7·msg_812736bb6257",
-      "next": "Mac 순수 25/25. 교차 지역 동일 링크 정렬·꺼진 감시 지역 제안 두 반례 보완 배정. 미배포.",
-      "lastReviewedAt": "2026-11-18T19:44:01.455Z",
-      "sha": "63e7c429f"
+      "delivery": "two_input_edge_fixes_returned_independent_recheck_dispatched",
+      "evidence": "msg_c042ddbde7d9·481829768·msg_d71d13d13791·msg_8689d9857513·8767db0a8·msg_51fbe0b8b070·msg_611c47959bd0·msg_6898c765a184·msg_11e579abb78b·63e7c429f·a6544db4e·msg_37fee34e31a2·msg_fd4070a962c7·msg_812736bb6257·msg_c4f750983a84·e7084ca24·msg_ed97e4233323",
+      "next": "같은 링크 다른 지역과 비활성 감시 제안 보완. 담당 뉴스 23/23·지역 제안 4/4 및 타입 통과. Mac 독립 재검수 대기.",
+      "lastReviewedAt": "2026-11-18T19:46:27.316Z",
+      "sha": "e7084ca24"
     },
     {
       "task_id": "B2B-20261119-HOMETABS",
@@ -6014,6 +6014,18 @@
       "next": "Mac 독립 모의 4/4. 일대일 ARIA·로빙·비활성 본문 미렌더 확인. Lab 다크 실화면·VoiceOver 검수 대기, 미배포.",
       "lastReviewedAt": "2026-11-18T19:24:19.151Z",
       "sha": "9f6b1c131"
+    },
+    {
+      "task_id": "B2B-20261119-MAKER-M2-UI",
+      "parent_task_id": "B2B-20261119-MAKER-M2",
+      "owner": "CC-B2B-BACK-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "메이커 M2 사진 제안 화면·저장 응답 연결",
+      "status": "queued",
+      "delivery": "approved_local_ui_and_exact_ack_dispatched",
+      "evidence": "msg_b70ca64fa3f5·dc779bc2a·msg_c506ba34f9a0",
+      "next": "5MB JPEG·직원/공급사 전용·정확 ACK와 모호한 실패 보호를 로컬 모의로 검증. Lab/운영 저장·배포 없음.",
+      "lastReviewedAt": "2026-11-18T19:46:27.316Z"
     }
   ],
   "programOverrides": [
