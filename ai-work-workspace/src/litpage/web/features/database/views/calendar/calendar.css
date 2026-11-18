@@ -45,11 +45,13 @@
 .nc-cal-card-subitems:hover { background: var(--lp-bg-interactive-transparent); }
 .nc-cal-card-subitems .lit-icon { color: var(--lp-icon-secondary); }
 
-/* 2026-11-17 주인님 지시: 달별 구분 — 짝수 달 옅은 바탕 + 달 경계선(1~7일 위쪽, 1일 왼쪽) */
-.nc-cal-day.nc-cal-month-alt { background: rgba(99, 102, 241, 0.05); }
-.nc-cal-day.weekend.nc-cal-month-alt { background: rgba(99, 102, 241, 0.09); }
-.nc-cal-day.nc-cal-month-top { box-shadow: inset 0 2px 0 rgba(99, 102, 241, 0.55); }
-.nc-cal-day.nc-cal-month-start { box-shadow: inset 0 2px 0 rgba(99, 102, 241, 0.55), inset 2px 0 0 rgba(99, 102, 241, 0.55); }
+/* 2026-11-17 주인님 지시: 달별 구분 — 짝수 달 옅은 바탕.
+   2026-11-18 주인님 지시 「노션처럼 깔끔하게 달력이 표시되게」: 보라색 바탕·굵은 달 경계선(1~7일 위쪽, 1일 왼쪽)을 빼고
+   노션 톤의 아주 옅은 중립 회색 바탕만 남김(달 구분은 「11월 1일」 표기 + 옅은 바탕). 경계선 클래스(nc-cal-month-top·start)는 남겨 두되 그리지 않음 */
+.nc-cal-day.nc-cal-month-alt { background: rgba(15, 23, 42, 0.022); }
+.nc-cal-day.weekend.nc-cal-month-alt { background: rgba(15, 23, 42, 0.05); }
+.lit-dark-theme .nc-cal-day.nc-cal-month-alt { background: rgba(255, 255, 255, 0.03); }
+.lit-dark-theme .nc-cal-day.weekend.nc-cal-month-alt { background: rgba(255, 255, 255, 0.055); }
 
 /* 2026-11-17 Alt(Option) 끌기 = 복제: 끄는 동안 복사 커서 */
 body.nc-cal-copying, body.nc-cal-copying * { cursor: copy !important; }
