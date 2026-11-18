@@ -65,13 +65,14 @@ test("변환 실패·5MB 초과 → abandon 1회 후 too_large(업로드·삭제
 });
 
 test("업로드 「이미 있음」(내 앞선 업로드) → commit 진행 → done", async () => {
-  const m = mock({ upload: { error: { statusCode: "409", message: "The resource already exists" } } });
+  // 실제 storage-js 2.118 모양: status = HTTP 409, statusCode·code = 본문 code
+  const m = mock({ upload: { error: { status: 409, statusCode: "ResourceAlreadyExists", code: "ResourceAlreadyExists", message: "The resource already exists" } } });
   assert.equal(await saveResultAsProposal(input(), m.d), "done");
   assert.deepEqual(m.names(), ["begin", "toJpeg", "upload", "commit"]);
 });
 
 test("업로드 확정 거절(4xx) → abandon → failed / 알 수 없음(예외·5xx·상태 없음) → unknown, 포기·삭제 0", async () => {
-  const r4 = mock({ upload: { error: { statusCode: "403", message: "denied" } } });
+  const r4 = mock({ upload: { error: { status: 403, statusCode: "AccessDenied", code: "AccessDenied", message: "denied" } } });
   assert.equal(await saveResultAsProposal(input(), r4.d), "failed");
   assert.deepEqual(r4.names(), ["begin", "toJpeg", "upload", "abandon"]);
   for (const s of [{ uploadThrow: true }, { upload: { error: { statusCode: "500" } } }, { upload: { error: { message: "fetch failed" } } }]) {
@@ -113,9 +114,9 @@ test("JPEG 계획·오류 판정", () => {
   assert.equal(jpegPlan("image/jpeg", 1000), "reuse");
   assert.equal(jpegPlan("image/jpeg", PROPOSAL_MAX_BYTES + 1), "convert");
   assert.equal(jpegPlan("image/png", 1000), "convert");
-  assert.ok(isAlreadyExists({ statusCode: "409" }) && isAlreadyExists({ statusCode: "409", status: 400 }) && !isAlreadyExists({ statusCode: "403" }));
+  assert.ok(isAlreadyExists({ status: 409, statusCode: "KeyAlreadyExists", code: "KeyAlreadyExists" }) && !isAlreadyExists({ status: 403, statusCode: "403" }));
   assert.ok(!isAlreadyExists({ message: "Duplicate" }), "문구만으로는 이미 있음 아님(불명)");
-  assert.ok(isDefiniteReject({ statusCode: "413" }) && !isDefiniteReject({ statusCode: "409" }) && !isDefiniteReject({ statusCode: "502" }) && !isDefiniteReject({ message: "x" }));
+  assert.ok(isDefiniteReject({ status: 413, statusCode: "EntityTooLarge", code: "EntityTooLarge" }) && !isDefiniteReject({ status: 409 }) && !isDefiniteReject({ status: 502 }) && !isDefiniteReject({ message: "x" }));
 });
 
 test("정확 ACK: done만 ok:true(빈 문구), 그 밖은 고정 문구 — 바나나 readProductSaved가 결과 번호 그대로 읽음", () => {
@@ -155,12 +156,22 @@ test("화면 소스 계약: 제안 버킷만, 저장은 체인으로 한 건씩,
 import { browserToJpeg, classifyUploadError, runQueuedSave } from "../src/lib/mallPhotoSave.ts";
 
 test("업로드 오류 분류: 불명이 먼저 — 5xx·상태 없음은 duplicate 문구여도 unknown, 409 코드만 exists", () => {
-  assert.equal(classifyUploadError({ statusCode: "409", status: 400, message: "The resource already exists" }), "exists");
+  // P3(Master msg_4ba128209829): HTTP 409 + 공식 객체 중복 코드일 때만 exists
+  assert.equal(classifyUploadError({ status: 409, statusCode: "ResourceAlreadyExists", code: "ResourceAlreadyExists" }), "exists");
+  assert.equal(classifyUploadError({ status: 409, statusCode: "KeyAlreadyExists" }), "exists", "본문 code가 statusCode로만 와도");
+  assert.equal(classifyUploadError({ status: 409, statusCode: "409" }), "unknown", "코드 없는 일반 409");
+  assert.equal(classifyUploadError({ status: 409, statusCode: "BucketAlreadyExists", code: "BucketAlreadyExists" }), "unknown", "버킷 중복은 객체 중복 아님");
+  assert.equal(classifyUploadError({ status: 409, statusCode: "InvalidRequest", code: "InvalidRequest" }), "unknown", "다른 충돌 코드");
+  assert.equal(classifyUploadError({ statusCode: "409", status: 400, message: "The resource already exists" }), "unknown", "옛 형식(HTTP 400 + 숫자 409만) — 불일치");
+  assert.equal(classifyUploadError({ status: 400, statusCode: "ResourceAlreadyExists", code: "ResourceAlreadyExists" }), "unknown", "중복 코드인데 HTTP 409 아님");
   assert.equal(classifyUploadError({ statusCode: "409", status: 500 }), "unknown");
+  assert.equal(classifyUploadError({ status: 500, statusCode: "ResourceAlreadyExists", code: "ResourceAlreadyExists" }), "unknown", "5xx + 중복 코드");
   assert.equal(classifyUploadError({ statusCode: "502", message: "Duplicate" }), "unknown");
+  assert.equal(classifyUploadError({ statusCode: "ResourceAlreadyExists", code: "ResourceAlreadyExists" }), "unknown", "HTTP 숫자 없는 본문 코드만");
   assert.equal(classifyUploadError({ message: "The resource already exists" }), "unknown");
-  assert.equal(classifyUploadError({ status: 409 }), "reject", "statusCode 409가 없으면 이미 있음으로 보지 않음");
+  assert.equal(classifyUploadError({ status: 409 }), "unknown", "코드 없는 409는 불명");
   assert.equal(classifyUploadError({ statusCode: "403", status: 403 }), "reject");
+  assert.equal(classifyUploadError({ status: 400, statusCode: "InvalidKey", code: "InvalidKey" }), "reject", "명확한 4xx는 거절");
   assert.equal(classifyUploadError(null), "unknown");
 });
 

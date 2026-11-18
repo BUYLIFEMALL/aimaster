@@ -32,7 +32,7 @@ export const SAVE_STATUS: Record<SaveCode, string> = {
 };
 
 type RpcResult = { data?: unknown; error?: unknown } | null | undefined;
-type StorageError = { statusCode?: string | number; status?: number; message?: string } | null | undefined;
+type StorageError = { statusCode?: string | number; status?: number; code?: string; message?: string } | null | undefined;
 
 export interface SaveDeps {
   begin(a: { store: string; product: string; job: string; result: string; settings: string; baseRevision: string; hint: string }): Promise<RpcResult>;
@@ -48,18 +48,28 @@ export interface SaveInput { storeId: string; productId: string; jobId: string; 
 
 const rec = (v: unknown): Record<string, unknown> | null => (v && typeof v === "object" ? (v as Record<string, unknown>) : null);
 
+/** 공식 Storage 오류표의 「객체가 이미 있음」 코드(HTTP 409) — https://supabase.com/docs/guides/storage/debugging/error-codes */
+export const OBJECT_EXISTS_CODES = new Set(["ResourceAlreadyExists", "KeyAlreadyExists"]);
+
 /**
- * 업로드 오류 분류(Mac msg_3c336c319413): 결과를 알 수 없음이 가장 먼저 —
- *  - 숫자 상태가 하나도 없거나(네트워크 등) 5xx가 하나라도 있으면 "unknown"(문구에 duplicate가 있어도)
- *  - Storage의 명확한 코드 `statusCode` 409일 때만 "exists"(= 내가 앞서 올린 같은 예약 경로) — 문구만으로는 인정하지 않음
- *  - 나머지가 모두 4xx면 "reject", 그 밖은 "unknown"
+ * 업로드 오류 분류(Mac msg_3c336c319413·Master msg_4ba128209829). 근거: 설치된 @supabase/storage-js 2.118 `common/fetch.ts` —
+ * StorageApiError(message, status = HTTP 숫자, statusCode = 본문 statusCode || 본문 code || HTTP 숫자 글자, code = 본문 code).
+ * 결과를 알 수 없음이 가장 먼저:
+ *  - HTTP 상태 숫자가 없거나(네트워크 = StorageUnknownError) 5xx → "unknown"(문구에 duplicate가 있어도)
+ *  - **HTTP 409이고 서비스 코드(code 또는 statusCode)가 객체 중복 코드일 때만** "exists"(= 내가 앞서 올린 같은 예약 경로)
+ *  - 409인데 코드가 없거나 다른 코드(BucketAlreadyExists 등), 또는 409가 아닌데 중복 코드·「409」 글자가 붙은 경우(옛 형식 등 불일치) → "unknown"
+ *  - 그 밖 4xx → "reject"
  */
 export function classifyUploadError(e: StorageError): "exists" | "reject" | "unknown" {
   if (!e) return "unknown";
-  const codes = [e.statusCode, e.status].map((v) => (v === undefined || v === null || v === "" ? NaN : Number(v))).filter((n) => Number.isInteger(n));
-  if (!codes.length || codes.some((n) => n >= 500)) return "unknown";
-  if (String(e.statusCode ?? "") === "409") return "exists";
-  return codes.every((n) => n >= 400 && n < 500) ? "reject" : "unknown";
+  const status = typeof e.status === "number" ? e.status : Number.NaN;
+  if (!Number.isInteger(status) || status >= 500) return "unknown";
+  const code = typeof e.code === "string" ? e.code : "";
+  const sc = e.statusCode === undefined || e.statusCode === null ? "" : String(e.statusCode);
+  const dup = OBJECT_EXISTS_CODES.has(code) || OBJECT_EXISTS_CODES.has(sc);
+  if (status === 409) return dup ? "exists" : "unknown";
+  if (dup || sc === "409" || /^5\d\d$/.test(sc) || /AlreadyExists$/.test(code) || /AlreadyExists$/.test(sc)) return "unknown"; // 코드·상태 불일치
+  return status >= 400 && status < 500 ? "reject" : "unknown";
 }
 export const isAlreadyExists = (e: StorageError) => classifyUploadError(e) === "exists";
 export const isDefiniteReject = (e: StorageError) => classifyUploadError(e) === "reject";
