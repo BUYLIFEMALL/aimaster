@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 13:51:12 KST",
+  "checkedAt": "2026-11-18 13:54:40 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,22 +12,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T04:51:12.935Z",
+      "at": "2026-11-18T04:54:40.266Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS 최신문서·Cloudflare UI계획·CRM 공식대안",
-      "scope": "3계약재검수·기존설정조회/재확인배선·공식REST전송과공용영향제한",
+      "trigger": "SNS 잔여최종·Cloudflare 공용등록 누락",
+      "scope": "삭제finalizer 원자배제·공용입력/프로그램권한·서버/UI책임분리",
       "evidence": [
-        "SNS34dbd1c17/1파일·Macmsg_b05643cdc61e",
-        "AGYmsg_577c1800ce82·Master apiKeys/GET/settings실코드",
-        "CRM c229a47ad·SOLAPI공식인증primary독립확인·msg_b0197652e14b"
+        "msg_bd008991c240",
+        "msg_5af67813cd65·Master 메인page/MemberIntegrations/문서봇소스",
+        "ECOM 중앙계획/AGY감성상태카드/SNS계약보완 전달"
       ],
-      "judgment": "SNS문서재검수. Cloudflare기존등록링크카드채택/정확배선보완. CRM공용영향없는접수전용REST소스예외는Master일반구현판정으로배정, 실호출/배포미승인유지.",
+      "judgment": "중앙키등록없어링크만으론불완전. 공용2키입력은한곳추가계획·감성은상태카드로분리, 새배포예산0. SNS기존통과범위보존·삭제경합계약보완필수.",
       "unverified": [
-        "SNS재검수",
-        "Cloudflare공용입력실존재/카드구현",
-        "CRM공식응답계약/전송기소스검수·실서비스"
+        "공용등록정확보안/경로계획",
+        "감성상태카드구현",
+        "SNS마지막보완/원자배제"
       ],
-      "nextAction": "각정확경로착수/결과회수·새운영/비용0"
+      "nextAction": "각담당정확범위/새SHA회수·동일파일중복편집0"
     },
     "notifications": [
       {
@@ -7917,25 +7917,25 @@
       "title": "Cloudflare 공용키 설정 UI 연결 경로 계획",
       "owner": "AG-UI-01",
       "status": "in_progress",
-      "delivery": "registration_card_plan_accepted_exact_paths_and_public_form_verification_requested",
-      "evidence": "msg_9e8dcff42ce5 전달보류·서버ab693ba39 지정PASS · 수락msg_c38fbd244674 · 계획msg_577c1800ce82·Master GET route/settings초기연결경로확인",
-      "next": "apiKeys/GET api-keys/settings초기/KeySettings 최소경로착수보고, 공용Cloudflare입력칸실존재먼저확인·POST/Workspace불변",
-      "lastReviewedAt": "2026-11-18T04:51:12.935Z"
+      "delivery": "shared_form_missing_emotion_status_card_implementation_assigned",
+      "evidence": "msg_9e8dcff42ce5 전달보류·서버ab693ba39 지정PASS · 수락msg_c38fbd244674 · 계획msg_577c1800ce82·Master GET route/settings초기연결경로확인 · msg_5af67813cd65·Master메인page/MemberIntegrations/문서봇설정소스확인",
+      "next": "감성상태/등록링크/재확인 최소구현·공용입력은ECOM별도계획·공용선행배포전완료공개0",
+      "lastReviewedAt": "2026-11-18T04:54:40.266Z"
     },
     {
       "task_id": "AIF-20261118-W00",
       "title": "AI Influencer W00 기준·격차/공통계약 독립검수",
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
-      "status": "ready_review",
+      "status": "needs_revision",
       "sha": "34dbd1c17",
-      "delivery": "remaining_contracts_revision_34db_independent_review",
-      "evidence": "직접지시msg_0ea177827182·Master2파일stat/W00확인·인수msg_262b806a9152·검수msg_e1009e09901a · 계획613ac1da4/msg_892ee2310efe·Mac최신반영msg_5534d83d2f04 · Macmsg_e6f0471f7d6d 0068/게시전체재시도 반례 · 최종msg_90ab319ad328/.ai/results/SNS-W00-20261118-CX-QA-01.md · msg_361d873e7d2f/f6dc9e1303fb·Master문서1개stat확인 · Mac중간msg_f9f028aea54a·잔여3건반환 · msg_94143b2fdf34·Master1파일stat확인·Macmsg_b05643cdc61e",
-      "next": "Mac 잔여3계약·부수정합지정재검수→W01 최소범위판정",
+      "delivery": "budget_publish_contract_pass_orphan_finalizer_atomic_exclusion_missing",
+      "evidence": "직접지시msg_0ea177827182·Master2파일stat/W00확인·인수msg_262b806a9152·검수msg_e1009e09901a · 계획613ac1da4/msg_892ee2310efe·Mac최신반영msg_5534d83d2f04 · Macmsg_e6f0471f7d6d 0068/게시전체재시도 반례 · 최종msg_90ab319ad328/.ai/results/SNS-W00-20261118-CX-QA-01.md · msg_361d873e7d2f/f6dc9e1303fb·Master문서1개stat확인 · Mac중간msg_f9f028aea54a·잔여3건반환 · msg_94143b2fdf34·Master1파일stat확인·Macmsg_b05643cdc61e · Mac최종msg_bd008991c240·잔여반환",
+      "next": "finalizer/삭제claim 동일원자배제·PLAN권한선행·옛문구정정 후잔여재검수",
       "constraints": "P0상한12달러미승인·실API/DB쓰기/빌드/배포0·다른Codex미커밋보존",
-      "lastReviewedAt": "2026-11-18T04:51:12.935Z",
+      "lastReviewedAt": "2026-11-18T04:54:40.266Z",
       "validation": {
-        "independent": "a2c 이전P1일반회원정리/유료영향/예약failclosed·G5단계 반영확인. 잔여설계반례:confirmed지출합계누락·24h고아삭제 진행/불명/경합보호누락·성공publishID후permalink실패분기누락. 실사고아님, 최종정리중"
+        "independent": "34db 예산/성공게시ID후GET재개 문서PASS, 고아삭제와complete 최종경합 원자배제 누락P1·새2표 PLAN권한선행누락·예외30개/손실없음옛문구정정필요"
       }
     },
     {
@@ -7950,6 +7950,17 @@
       "constraints": "소스범위Master일반설계판정·공용SDK서명원칙은해당접수전용예외만기록·실발송/운영DDL/build/deploy0·HTTP1은클라이언트시도만",
       "lastReviewedAt": "2026-11-18T04:51:12.935Z",
       "scopeRef": "새crm/solapiSendOnce.ts·dispatch.ts·시험/기존문서, 공용래퍼/5사본/팔로우업불변"
+    },
+    {
+      "task_id": "ECOM-20261118-07",
+      "title": "메인 공용 Cloudflare 등록 카드·서버 최소계획",
+      "owner": "CC-ECOM-01",
+      "status": "dispatched",
+      "delivery": "central_credential_entry_missing_read_only_plan_assigned",
+      "evidence": "메인PROVIDERS5·oauth목록별도·문서봇입력은프로그램권한전제·Master소스대조",
+      "next": "중앙2키등록카드/존재boolean서버·회원경계·정확파일·시험/배포선행계획 회수",
+      "constraints": "읽기만·중복입력/키평문응답/실인증/키쓰기/빌드/배포0·기존5provider/Cloudinary불변",
+      "lastReviewedAt": "2026-11-18T04:54:40.266Z"
     }
   ]
 }

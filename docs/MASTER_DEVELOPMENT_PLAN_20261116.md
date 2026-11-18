@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 13:51:12 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 13:54:40 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 13:51:12 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 13:54:40 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 3계약재검수·기존설정조회/재확인배선·공식REST전송과공용영향제한 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 삭제finalizer 원자배제·공용입력/프로그램권한·서버/UI책임분리 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 13:51:12 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 259개: done 240개 · cancelled 7개 · ready_review 2개 · running 1개 · waiting_human 6개 · queued 1개 · in_progress 1개 · dispatched 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 260개: done 240개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 6개 · queued 1개 · in_progress 1개 · needs_revision 1개 · dispatched 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -407,9 +407,10 @@ Master 마지막 실제 점검: 2026-11-18 13:51:12 KST · 실행 중 점검 주
 | QA-20261118-BLOG-01 | CX-QA-01 | waiting_human / website_complete_b1_renderer_timeout_human_setup_pending | website-scraper 읽기·B1 사람 포커스 재시험 준비 | 기존9 확장설치/버전/ON 사람확인→일반창A/공간9 B 직접읽기각1회→기존확장복원 |
 | RE-20261118-07 | CC-REALTY-01 | done / evaluation_deliverable_accepted_no_effectiveness_pass | 후보C 새기간40건 사전라벨 고정 평가 | 정상운영 새기간에서 목표소음이 포함된 검증조건 충족 시에만 별도배정·동일40건 규칙조정/재시험0 |
 | ECOM-20261118-06 | CC-ECOM-01 | done / specified_mock_server_source_accepted_off_unreleased | Cloudflare 본인 공용키 무료 이미지 경로 검증·연결 계획 | 실키유효/잔여사람단계·AGY UI 연결계획·OFF미배포 보존 |
-| DES-20261118-07 | AG-UI-01 | in_progress / registration_card_plan_accepted_exact_paths_and_public_form_verification_requested | Cloudflare 공용키 설정 UI 연결 경로 계획 | apiKeys/GET api-keys/settings초기/KeySettings 최소경로착수보고, 공용Cloudflare입력칸실존재먼저확인·POST/Workspace불변 |
-| AIF-20261118-W00 | CC-SNS-01 | ready_review / remaining_contracts_revision_34db_independent_review | AI Influencer W00 기준·격차/공통계약 독립검수 | Mac 잔여3계약·부수정합지정재검수→W01 최소범위판정 |
+| DES-20261118-07 | AG-UI-01 | in_progress / shared_form_missing_emotion_status_card_implementation_assigned | Cloudflare 공용키 설정 UI 연결 경로 계획 | 감성상태/등록링크/재확인 최소구현·공용입력은ECOM별도계획·공용선행배포전완료공개0 |
+| AIF-20261118-W00 | CC-SNS-01 | needs_revision / budget_publish_contract_pass_orphan_finalizer_atomic_exclusion_missing | AI Influencer W00 기준·격차/공통계약 독립검수 | finalizer/삭제claim 동일원자배제·PLAN권한선행·옛문구정정 후잔여재검수 |
 | CRM-20261118-07 | CC-B2B-BACK-01 | dispatched / official_rest_single_attempt_crm_scoped_exception_implementation_dispatched | SOLAPI SDK 재시도 없는 공식 대안·최소 변경 계획 | 공식REST/HMAC 표준암호라이브러리로접수전용1HTTP·엄격응답/타임아웃/상한 구현 SHA→Mac검수 |
+| ECOM-20261118-07 | CC-ECOM-01 | dispatched / central_credential_entry_missing_read_only_plan_assigned | 메인 공용 Cloudflare 등록 카드·서버 최소계획 | 중앙2키등록카드/존재boolean서버·회원경계·정확파일·시험/배포선행계획 회수 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
