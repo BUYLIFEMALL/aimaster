@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 10:16:03 KST",
+  "checkedAt": "2026-11-18 10:19:53 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,19 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T01:15:44.278Z",
+      "at": "2026-11-18T01:19:53.800Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Workspace WS27 SQL 완료 보고",
-      "scope": "0074/0075 적용·사전/사후 권한 근거·릴리스 순번",
+      "trigger": "Ecom ready_review/한계정정 msg_ffaf78f3fade·msg_77cb7fb78832",
+      "scope": "b34cba02b7파일/검사연결·계획대비범위차이·QA049재배정",
       "evidence": [
-        "담당 보고: ref일치·2마이그레이션 success·인덱스/역할/RLS확인",
-        "빌드0·카탈로그 Gmail 항목 노출됨"
+        "Master gitstat/rg·Gemini엄격검사미적용작성자인정",
+        "자체56시험/tsc통과·실호출/빌드0",
+        "Mac재검수 msg_a301cb82d277·작성자동결 msg_a96b1ecdbdb9"
       ],
-      "judgment": "SQL단계는 작성자 운영확인으로 수락·Master 독립DB재조회0. 지정 Workspace v1.58 준비 계속·중복SQL0",
+      "judgment": "작성자자체완료와독립검수구분·재검수전전체PASS판정0. Gemini기존경계한계명시.",
       "unverified": [
-        "v1.58 manifest/Ready/alias/DB버전·실OAuth/Gmail·Mac독립검수"
+        "QA049 b34 결과·OpenAI실모델/응답준수·Gmail배포단계"
       ],
-      "nextAction": "동일담당 릴리스SHA/manifest/배포결과 회수→Master alias→Mac연결"
+      "nextAction": "Mac반례후정확범위반환·Workspace배포결과회수"
     },
     "notifications": [
       {
@@ -7248,7 +7249,7 @@
       "evidence": "d21eb96d7·정정보고88616a6cf·.ai/results/DES-20261118-05-AG-UI-01.md·msg_a03fce38d53c",
       "scopeRef": "image provider/config/validation/services/image route/Workspace/KeySettings/guide/시험",
       "completion": "공식지원/회원키·무료서비스방식/데이터전송·MIME/크기/timeout/허용모델·회귀·비용/권한범위 검토",
-      "next": "ECOM18-03 허용경로만보완승인·AGY제품수정금지·기존운영v1.30미포함",
+      "next": "b34cba02b Mac재검수·새경로엄격검사/Gemini기존경계분리·AGY제품수정금지",
       "lastReviewedAt": "2026-11-17T17:43:53.437Z"
     },
     {
@@ -7257,13 +7258,13 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "새이미지3엔진 소스/가짜통신·키/응답경계 검수",
-      "status": "needs_revision",
-      "delivery": "returned",
-      "sha": "d21eb96d7",
-      "evidence": ".ai/results/QA-20261118-049-CX-QA-01.md / msg_ae43db14fe10",
+      "status": "ready",
+      "delivery": "retest_dispatched",
+      "sha": "b34cba02b",
+      "evidence": ".ai/results/QA-20261118-049-CX-QA-01.md / msg_ae43db14fe10·msg_a301cb82d277",
       "scopeRef": "고정SHA 읽기/기존패키지모의만·실이미지/키/네트워크/DB/build/새창0",
       "completion": "고정d21 신규이미지에P2 I-F01모델/I-F02응답/I-F03URL/I-F04timeout 반례, 기존3test/글귀/권한PASS와분리",
-      "next": "ECOM18-03 수정SHA/가짜통신결과수신후같은4반례 독립재검수·실API/build0",
+      "next": "독립모의재검수→반례/한계보고, Gmail배포후브라우저와순번조정",
       "lastReviewedAt": "2026-11-17T17:43:53.437Z"
     },
     {
@@ -7302,19 +7303,30 @@
       "owner": "CC-ECOM-01",
       "reviewer": "CX-MASTER-01",
       "title": "이미지3엔진 QA049 안전경계 보완 구현",
-      "status": "ready",
-      "delivery": "implementation_authorized_dispatch_sent",
-      "evidence": "QA049중간msg_9ea5ee32f762·msg_21ed3b1edaab·msg_85526463335b 후속계획보고예고·런타임복구후 msg_3307ed544d53 전달·계획msg_9ef8951a4a40·조건부구현dispatch msg_29d6fb7d2025",
+      "status": "ready_review",
+      "delivery": "qa_dispatched",
+      "evidence": "QA049중간msg_9ea5ee32f762·msg_21ed3b1edaab·msg_85526463335b 후속계획보고예고·런타임복구후 msg_3307ed544d53 전달·계획msg_9ef8951a4a40·조건부구현dispatch msg_29d6fb7d2025·readymsg_ffaf78f3fade·Macmsg_a301cb82d277·범위정정msg_77cb7fb78832",
       "scopeRef": "emotion-writer/src/lib/studio/{config,validation,services}.ts·src/app/api/image/route.ts·src/components/Workspace.tsx·src/app/(studio)/guide/page.tsx·tests/imageProvider.test.mjs·본인기존문서",
       "completion": "모델허용목록/strict응답·3MiB/URL follow제거/본문포함110s·parentAbort408; free/공식모델미확인 비활성·가짜통신 red-green/tsc·Mac재검수",
-      "next": "허용경로 보안수정·공식1차모델/출력/size지원 읽기확인·실호출0→SHA/시험→QA049재검수",
-      "lastReviewedAt": "2026-11-18T01:12:16.793Z",
+      "next": "Mac QA049 동일4반례·OpenAI/free 응답전체상한/redirect/timeout·Gemini기존경계분리→판정",
+      "lastReviewedAt": "2026-11-18T01:19:53.800Z",
       "blockedReason": null,
       "constraints": [
         "기존운영v1.30 변경0·빌드/배포/실호출/DB0",
         "다른프로그램모델주석=현재지원근거아님·공식미확인OpenAI도비활성",
         "free 키/외부전송정책 미결정동안서버거절·UI비활성",
         "신규문서남발0·timeout 가짜시계"
+      ],
+      "sha": "b34cba02b",
+      "validation": {
+        "author": "imageProvider10/10·전체56/56·tsc0·red7→green",
+        "master": "git stat7파일·services검사연결확인·Gemini기존검사만범위차이확인",
+        "independent": "Mac재검수대기"
+      },
+      "limits": [
+        "엄격반환검사 새OpenAI/free만·Gemini 기존느슨한검사그대로(작성자인정)",
+        "OpenAI 공식문서확인 작성자보고·실호출0·free비활성",
+        "소스검수중동결·운영v1.30에미포함"
       ]
     },
     {
