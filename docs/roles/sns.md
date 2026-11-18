@@ -18,6 +18,7 @@
 |---|---|---|---|
 | AI Influencer | P0 유료 품질 비교(51건) | 주인님 승인·시험 계정 Gemini/fal 키 확인 | W00_BASELINE §6·§9 |
 | AI Influencer | `cleanupOldPosts` 보관 예외 | `insta-posting` 기준 담당 수정 | W00_BASELINE §8 |
+| AI Influencer | W01 본체(원본 자산·보관 예외·migration) | 새 표 2개·함수 2개의 PLAN §13·권한 계약 병합(담당 Master 지정) — 그 전 착수 0 | W00_BASELINE §10·§14 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
