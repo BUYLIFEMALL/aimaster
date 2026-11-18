@@ -96,7 +96,7 @@ const as = (uid) => `select set_config('request.jwt.claim.sub','${uid}', false);
 const q = (sql) => run(D, sp + sql).stdout.trim();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const reserveUploaded = (result) => {
-  const out = q(as(S3) + `select (r ->> 'id') || '|' || (r ->> 'path') from (select mall_builder_photo_proposal_begin('${S}', '${P1}', '${JOB}', '${result}', 'c2', '2026-11-19T00:00:00Z', '') r) x;`);
+  const out = q(as(S3) + `select (r ->> 'id') || '|' || (r ->> 'path') from (select mall_builder_photo_proposal_begin('${S}', '${P1}', '${JOB}', '${result}', 'c2', '2026-11-19T00:00:00Z', 'hx') r) x;`);
   const [id, path] = out.split("\n").pop().split("|");
   q(as(S3) + `select qa_put('${path}', 4000);`);
   return { id, path };
@@ -135,9 +135,9 @@ const objCount = (path) => Number(q(`select count(*) from storage.objects where 
 }
 { // L4 같은 결과 번호 동시 예약(다른 사람) → 뒤 요청은 기다린 뒤 busy, 살아 있는 행 1개
   const R = "00000000-0000-4000-8000-000000000104";
-  const a = runAsync(D, sp + as(S3) + `begin;\nselect mall_builder_photo_proposal_begin('${S}', '${P1}', '${JOB}', '${R}', 'c2', '2026-11-19T00:00:00Z', '');\nselect pg_sleep(3);\ncommit;`);
+  const a = runAsync(D, sp + as(S3) + `begin;\nselect mall_builder_photo_proposal_begin('${S}', '${P1}', '${JOB}', '${R}', 'c2', '2026-11-19T00:00:00Z', 'hx');\nselect pg_sleep(3);\ncommit;`);
   await sleep(1000);
-  const b = await runAsync(D, sp + as(A1) + `select mall_builder_photo_proposal_begin('${S}', '${P1}', '${JOB}', '${R}', 'c2', '2026-11-19T00:00:00Z', '');`);
+  const b = await runAsync(D, sp + as(A1) + `select mall_builder_photo_proposal_begin('${S}', '${P1}', '${JOB}', '${R}', 'c2', '2026-11-19T00:00:00Z', 'hx');`);
   await a;
   const live = q(`select count(*) from mall_builder_photo_proposals where result_id = '${R}' and status in ('reserved','proposed','applied');`);
   check("L4", b.code === 0 && b.ms >= 1500 && b.out.includes('"busy"') && live === "1", `뒤 요청 대기 ${b.ms}ms, 응답 ${b.out.includes('"busy"') ? "busy" : "?"}, 살아 있는 행 ${live}`);

@@ -66,14 +66,23 @@ begin
 end;
 $$;
 
--- 행 하나를 볼 수 있는가: operator는 그 몰 상품 제안 전부, supplier는 자기 상품의 supplier 제안만
+-- 행 하나를 볼 수 있는가: operator는 그 몰 상품 제안 전부.
+-- supplier는 supplier 제안 중 「제안에 기록된 공급사 = 지금 상품의 공급사 = 호출자 본인의 활성 공급사」일 때만
+-- (상품 공급사가 바뀌면 예전 공급사도 새 공급사도 예전 제안을 못 봄 — Mac msg_b59905da566c).
 create or replace function mall_builder_private.photo_proposal_row_ok(r public.mall_builder_photo_proposals)
 returns boolean language plpgsql stable security definer set search_path = '' as $$
 declare
   a text := mall_builder_private.photo_proposal_actor(r.store_id, r.product_id);
 begin
-  -- 권한 없음(a = null)이면 비교가 null이 되어 「not row_ok」 검사를 빠져나가므로 반드시 참·거짓으로 돌려준다
-  return coalesce(a = 'operator' or (a = 'supplier' and r.origin = 'supplier'), false);
+  if a = 'operator' then return true; end if;
+  if a = 'supplier' and r.origin = 'supplier' and r.supplier_id is not null then
+    return exists (
+      select 1 from public.mall_builder_products p join public.mall_builder_suppliers s on s.id = p.supplier_id
+      where p.id = r.product_id and p.supplier_id = r.supplier_id
+        and s.user_id = auth.uid() and s.status = 'active' and s.store_id = r.store_id);
+  end if;
+  -- 권한 없음(a = null)도 반드시 false — null을 돌려주면 「not row_ok」 검사를 빠져나간다
+  return false;
 end;
 $$;
 
@@ -121,7 +130,8 @@ declare
   v_hint text := left(coalesce(p_source_hint, ''), 128);
 begin
   if auth.uid() is null then raise exception '로그인이 필요합니다.'; end if;
-  if p_store is null or p_product is null or p_job is null or p_result is null
+  -- 원본 지문 힌트는 필수(빈 값이면 같은 결과 번호의 다른 사진 검사를 빠져나가므로 받지 않음)
+  if p_store is null or p_product is null or p_job is null or p_result is null or v_hint = ''
      or coalesce(btrim(p_base_revision), '') = '' or char_length(p_base_revision) > 40 or char_length(coalesce(p_settings, '')) > 40 then
     return jsonb_build_object('ok', false, 'reason', 'invalid');
   end if;
@@ -135,9 +145,10 @@ begin
    where store_id = p_store and product_id = p_product and result_id = p_result and status in ('reserved', 'proposed', 'applied')
    for update;
   if r.id is not null then
-    if a = 'supplier' and r.origin <> 'supplier' then return jsonb_build_object('ok', false, 'reason', 'forbidden'); end if;
+    -- 기존 행은 볼 권한이 있을 때만 상태·경로를 알려 준다(공급사가 바뀐 상품 등 — 없으면 아무 정보 없이 거절)
+    if not mall_builder_private.photo_proposal_row_ok(r) then return jsonb_build_object('ok', false, 'reason', 'forbidden'); end if;
     if r.status in ('proposed', 'applied') then
-      if r.source_hint <> '' and v_hint <> '' and r.source_hint <> v_hint then return jsonb_build_object('ok', false, 'reason', 'conflict'); end if;
+      if r.source_hint is distinct from v_hint then return jsonb_build_object('ok', false, 'reason', 'conflict'); end if;
       return jsonb_build_object('ok', true, 'state', 'done');
     end if;
     -- 예약 중

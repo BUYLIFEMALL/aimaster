@@ -175,17 +175,17 @@ begin
 
   -- P12 확정 실패 경로: 파일 없음 / 형식 PNG / 5MB 초과 / 소유자 위조 → no_file, 상태 reserved 유지
   perform set_config('request.jwt.claim.sub', qa_id('S3')::text, false); set role authenticated;
-  r := mall_builder_photo_proposal_begin(S, P1, JOB, R2, 'c2', '2026-11-19T00:00:00Z', ''); b_id := (r ->> 'id')::uuid; b_path := r ->> 'path';
+  r := mall_builder_photo_proposal_begin(S, P1, JOB, R2, 'c2', '2026-11-19T00:00:00Z', 'hx'); b_id := (r ->> 'id')::uuid; b_path := r ->> 'path';
   g2 := mall_builder_photo_proposal_commit(b_id);
   insert into qa_r values ('P12-no-file', g2 = '{"ok": false, "reason": "no_file"}'::jsonb);
   perform qa_put(b_path, 1000, 'image/png');
   g2 := mall_builder_photo_proposal_commit(b_id);
   insert into qa_r values ('P12-png', g2 = '{"ok": false, "reason": "no_file"}'::jsonb);
-  r := mall_builder_photo_proposal_begin(S, P1, JOB, R3, 'c2', '2026-11-19T00:00:00Z', ''); c_id := (r ->> 'id')::uuid; c_path := r ->> 'path';
+  r := mall_builder_photo_proposal_begin(S, P1, JOB, R3, 'c2', '2026-11-19T00:00:00Z', 'hx'); c_id := (r ->> 'id')::uuid; c_path := r ->> 'path';
   perform qa_put(c_path, 5242881);
   g2 := mall_builder_photo_proposal_commit(c_id);
   insert into qa_r values ('P12-over-5mb', g2 = '{"ok": false, "reason": "no_file"}'::jsonb);
-  r := mall_builder_photo_proposal_begin(S, P1, JOB, R4, 'c2', '2026-11-19T00:00:00Z', ''); d_id := (r ->> 'id')::uuid; d_path := r ->> 'path';
+  r := mall_builder_photo_proposal_begin(S, P1, JOB, R4, 'c2', '2026-11-19T00:00:00Z', 'hx'); d_id := (r ->> 'id')::uuid; d_path := r ->> 'path';
   perform qa_put(d_path, 1000, 'image/jpeg', qa_id('A1')::text);
   g2 := mall_builder_photo_proposal_commit(d_id);
   insert into qa_r values ('P12-owner-spoof', g2 = '{"ok": false, "reason": "no_file"}'::jsonb);
@@ -202,18 +202,18 @@ begin
 
   -- P13 공급사 흐름: 본인 상품만, 운영자 제안은 못 봄, 남 공급사 0
   perform set_config('request.jwt.claim.sub', qa_id('U4')::text, false); set role authenticated;
-  r := mall_builder_photo_proposal_begin(S, P2, JOB, R5, 'c2', '2026-11-19T00:00:00Z', ''); s_id := (r ->> 'id')::uuid; s_path := r ->> 'path';
+  r := mall_builder_photo_proposal_begin(S, P2, JOB, R5, 'c2', '2026-11-19T00:00:00Z', 'hx'); s_id := (r ->> 'id')::uuid; s_path := r ->> 'path';
   perform qa_put(s_path, 2000);
   g2 := mall_builder_photo_proposal_commit(s_id); reset role;
   insert into qa_r select 'P13-supplier-commit', g2 = '{"ok": true, "state": "done"}'::jsonb
     and exists (select 1 from mall_builder_photo_proposals where id = s_id and origin = 'supplier' and supplier_id = qa_id('SUP1') and status = 'proposed');
   perform set_config('request.jwt.claim.sub', qa_id('S3')::text, false); set role authenticated;
   n := (select count(*) from mall_builder_photo_proposals where id = s_id);
-  r := mall_builder_photo_proposal_begin(S, P2, JOB, R6, 'c2', '2026-11-19T00:00:00Z', ''); o_id := (r ->> 'id')::uuid; reset role;
+  r := mall_builder_photo_proposal_begin(S, P2, JOB, R6, 'c2', '2026-11-19T00:00:00Z', 'hx'); o_id := (r ->> 'id')::uuid; reset role;
   insert into qa_r values ('P13-operator-sees-supplier', n = 1 and r ->> 'state' = 'upload');
   perform set_config('request.jwt.claim.sub', qa_id('U4')::text, false); set role authenticated;
   n := (select count(*) from mall_builder_photo_proposals where id = o_id);
-  r := mall_builder_photo_proposal_begin(S, P2, JOB, R6, 'c2', '2026-11-19T00:00:00Z', ''); reset role;
+  r := mall_builder_photo_proposal_begin(S, P2, JOB, R6, 'c2', '2026-11-19T00:00:00Z', 'hx'); reset role;
   insert into qa_r values ('P13-supplier-not-operator-row', n = 0 and r = '{"ok": false, "reason": "forbidden"}'::jsonb);
   perform set_config('request.jwt.claim.sub', qa_id('U5')::text, false); set role authenticated;
   n := (select count(*) from mall_builder_photo_proposals where id = s_id) + qa_see(s_path); reset role;
@@ -227,7 +227,7 @@ begin
 
   -- P14 만료: 기한 안에 올린 파일은 기한 뒤 확정 가능 / 기한 뒤 올리기 거절 / 재예약은 새 id·새 경로, 옛 예약 확정 거절
   perform set_config('request.jwt.claim.sub', qa_id('S3')::text, false); set role authenticated;
-  r := mall_builder_photo_proposal_begin(S, P1, JOB, R7, 'c2', '2026-11-19T00:00:00Z', ''); f_id := (r ->> 'id')::uuid; f_path := r ->> 'path';
+  r := mall_builder_photo_proposal_begin(S, P1, JOB, R7, 'c2', '2026-11-19T00:00:00Z', 'hx'); f_id := (r ->> 'id')::uuid; f_path := r ->> 'path';
   perform qa_put(f_path, 3000); reset role;
   update storage.objects set created_at = now() - interval '5 minutes' where bucket_id = 'mall-builder-proposals' and name = f_path;
   update mall_builder_photo_proposals set reserved_until = now() - interval '1 minute' where id = f_id;
@@ -235,7 +235,7 @@ begin
   r := mall_builder_photo_proposal_commit(f_id); reset role;
   insert into qa_r values ('P14-in-time-commit', r = '{"ok": true, "state": "done"}'::jsonb);
   perform set_config('request.jwt.claim.sub', qa_id('S3')::text, false); set role authenticated;
-  r := mall_builder_photo_proposal_begin(S, P1, JOB, R8, 'c2', '2026-11-19T00:00:00Z', ''); g_id := (r ->> 'id')::uuid; g_path := r ->> 'path'; reset role;
+  r := mall_builder_photo_proposal_begin(S, P1, JOB, R8, 'c2', '2026-11-19T00:00:00Z', 'hx'); g_id := (r ->> 'id')::uuid; g_path := r ->> 'path'; reset role;
   update mall_builder_photo_proposals set reserved_until = now() - interval '1 minute' where id = g_id;
   begin
     perform set_config('request.jwt.claim.sub', qa_id('S3')::text, false); set role authenticated;
@@ -243,7 +243,7 @@ begin
     insert into qa_r values ('P14-late-upload', false);
   exception when insufficient_privilege then reset role; insert into qa_r values ('P14-late-upload', true); end;
   perform set_config('request.jwt.claim.sub', qa_id('A1')::text, false); set role authenticated;
-  g2 := mall_builder_photo_proposal_begin(S, P1, JOB, R8, 'c2', '2026-11-19T00:00:00Z', ''); reset role;
+  g2 := mall_builder_photo_proposal_begin(S, P1, JOB, R8, 'c2', '2026-11-19T00:00:00Z', 'hx'); reset role;
   insert into qa_r select 'P14-rebegin', g2 ->> 'state' = 'upload' and (g2 ->> 'id')::uuid <> g_id and g2 ->> 'path' <> g_path
     and exists (select 1 from mall_builder_photo_proposals where id = g_id and status = 'abandoned');
   perform set_config('request.jwt.claim.sub', qa_id('S3')::text, false); set role authenticated;
@@ -251,14 +251,14 @@ begin
   insert into qa_r values ('P14-old-commit', r = '{"ok": false, "reason": "gone"}'::jsonb);
   -- 남의 예약이 살아 있으면 busy, 파일·행 변경 0
   perform set_config('request.jwt.claim.sub', qa_id('S3')::text, false); set role authenticated;
-  r := mall_builder_photo_proposal_begin(S, P1, JOB, R8, 'c2', '2026-11-19T00:00:00Z', ''); reset role;
+  r := mall_builder_photo_proposal_begin(S, P1, JOB, R8, 'c2', '2026-11-19T00:00:00Z', 'hx'); reset role;
   insert into qa_r values ('P14-busy', r = '{"ok": false, "reason": "busy"}'::jsonb);
 
   -- P15 정리 목록: 지워도 되는 파일만(포기·만료 예약), 확정 파일·다른 버킷 0, 권한 없는 직원 0
   perform set_config('request.jwt.claim.sub', qa_id('S3')::text, false); set role authenticated;
-  r := mall_builder_photo_proposal_begin(S, P1, JOB, R9, 'c2', '2026-11-19T00:00:00Z', ''); i_id := (r ->> 'id')::uuid; i_path := r ->> 'path';
+  r := mall_builder_photo_proposal_begin(S, P1, JOB, R9, 'c2', '2026-11-19T00:00:00Z', 'hx'); i_id := (r ->> 'id')::uuid; i_path := r ->> 'path';
   perform qa_put(i_path, 1000); perform mall_builder_photo_proposal_abandon(i_id);
-  r := mall_builder_photo_proposal_begin(S, P1, JOB, R10, 'c2', '2026-11-19T00:00:00Z', ''); j_id := (r ->> 'id')::uuid; j_path := r ->> 'path';
+  r := mall_builder_photo_proposal_begin(S, P1, JOB, R10, 'c2', '2026-11-19T00:00:00Z', 'hx'); j_id := (r ->> 'id')::uuid; j_path := r ->> 'path';
   perform qa_put(j_path, 1000); reset role;
   update mall_builder_photo_proposals set reserved_until = now() - interval '1 minute' where id = j_id;
   update storage.objects set created_at = now() - interval '20 minutes' where bucket_id = 'mall-builder-proposals' and name = j_path;
@@ -296,6 +296,48 @@ begin
     perform qa_put(S::text || '/' || qa_id('C6')::text || '/x.jpg', 1000); reset role;
     insert into qa_r values ('P17-customer-no-proposals', false);
   exception when insufficient_privilege then reset role; insert into qa_r values ('P17-customer-no-proposals', true); end;
+
+  -- P18 공급사 재지정(Mac msg_b59905da566c): P2를 공급사1 → 공급사2로 바꾸면 예전·새 공급사 모두 예전 제안(확정 s_id, 포기 x_id)을
+  --     못 보고·못 지우고·같은 결과로 정보를 못 얻는다. 상품 권한 직원은 그대로, 새 공급사의 새 제안은 정상.
+  declare x_id uuid; x_path text; y jsonb; R11 uuid := '00000000-0000-4000-8000-000000000011'; R12 uuid := '00000000-0000-4000-8000-000000000012'; begin
+    perform set_config('request.jwt.claim.sub', qa_id('U4')::text, false); set role authenticated;
+    r := mall_builder_photo_proposal_begin(S, P2, JOB, R11, 'c2', '2026-11-19T00:00:00Z', 'hx'); x_id := (r ->> 'id')::uuid; x_path := r ->> 'path';
+    perform qa_put(x_path, 1000); perform mall_builder_photo_proposal_abandon(x_id); reset role;
+    update mall_builder_products set supplier_id = qa_id('SUP2') where id = P2;  -- 재지정(관리자)
+    for y in select jsonb_build_object('u', v.u) from (values ('U4'), ('U5')) v(u) loop
+      perform set_config('request.jwt.claim.sub', qa_id(y ->> 'u')::text, false); set role authenticated;
+      n := (select count(*) from mall_builder_photo_proposals where id in (s_id, x_id)) + qa_see(s_path) + qa_see(x_path)
+         + (select count(*) from mall_builder_photo_proposal_cleanup_list(S)) + qa_del(x_path);
+      r := mall_builder_photo_proposal_begin(S, P2, JOB, R5, 'c2', '2026-11-19T00:00:00Z', 'hx');
+      g2 := mall_builder_photo_proposal_commit(s_id); reset role;
+      insert into qa_r values ('P18-old-rows-' || (y ->> 'u'),
+        n = 0 and r = '{"ok": false, "reason": "forbidden"}'::jsonb and g2 = '{"ok": false, "reason": "forbidden"}'::jsonb);
+    end loop;
+    perform set_config('request.jwt.claim.sub', qa_id('U4')::text, false); set role authenticated;
+    r := mall_builder_photo_proposal_abandon(x_id); reset role;
+    insert into qa_r values ('P18-old-abandon-U4', r = '{"ok": false, "reason": "forbidden"}'::jsonb and qa_see(x_path) = 1);
+    perform set_config('request.jwt.claim.sub', qa_id('S3')::text, false); set role authenticated;
+    n := (select count(*) from mall_builder_photo_proposals where id in (s_id, x_id)) + qa_see(s_path);
+    r := mall_builder_photo_proposal_begin(S, P2, JOB, R5, 'c2', '2026-11-19T00:00:00Z', 'hx'); reset role;
+    insert into qa_r values ('P18-operator-still', n = 3 and r = '{"ok": true, "state": "done"}'::jsonb);
+    perform set_config('request.jwt.claim.sub', qa_id('U5')::text, false); set role authenticated;
+    r := mall_builder_photo_proposal_begin(S, P2, JOB, R12, 'c2', '2026-11-19T00:00:00Z', 'hy');
+    perform qa_put(r ->> 'path', 1500); g2 := mall_builder_photo_proposal_commit((r ->> 'id')::uuid);
+    n := (select count(*) from mall_builder_photo_proposals where id = (r ->> 'id')::uuid) + qa_see(r ->> 'path'); reset role;
+    insert into qa_r select 'P18-new-supplier-own', g2 = '{"ok": true, "state": "done"}'::jsonb and n = 2
+      and exists (select 1 from mall_builder_photo_proposals where result_id = R12 and supplier_id = qa_id('SUP2') and origin = 'supplier' and status = 'proposed');
+    perform set_config('request.jwt.claim.sub', qa_id('U4')::text, false); set role authenticated;
+    n := (select count(*) from mall_builder_photo_proposals where result_id = R12); reset role;
+    insert into qa_r values ('P18-old-supplier-not-new', n = 0);
+    update mall_builder_products set supplier_id = qa_id('SUP1') where id = P2;
+  end;
+
+  -- P19 원본 지문 힌트 필수: 빈 값 → invalid(행 0), 같은 결과 번호에 다른 힌트 → conflict(이미 P11)
+  perform set_config('request.jwt.claim.sub', qa_id('S3')::text, false); set role authenticated;
+  r := mall_builder_photo_proposal_begin(S, P1, JOB, '00000000-0000-4000-8000-000000000013', 'c2', '2026-11-19T00:00:00Z', '');
+  g2 := mall_builder_photo_proposal_begin(S, P1, JOB, R1, 'c2', '2026-11-19T00:00:00Z', ''); reset role;
+  insert into qa_r select 'P19-empty-hint', r = '{"ok": false, "reason": "invalid"}'::jsonb and g2 = r
+    and not exists (select 1 from mall_builder_photo_proposals where result_id = '00000000-0000-4000-8000-000000000013');
 end $$;
 
 select k || E'\t' || case when ok then 't' when not ok then 'f' else 'n' end from public.qa_r order by k;
