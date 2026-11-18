@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T17:33:00.698Z",
+  "checkedAt": "2026-11-18T17:37:41.689Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5378,13 +5378,20 @@
       "reviewer": "CX-QA-01",
       "title": "W01 자산 기반 생성 화면 로컬 연결",
       "status": "running",
-      "delivery": "local_generation_ui_integration_dispatched",
+      "delivery": "generation_ui_account_lifecycle_fix_dispatched_before_review",
       "scopeRef": "W00 §24 제한 경로: 서버 공통 모드·app/page.tsx·InfluencerStudio/ImageDisplay·관련 모의 시험",
       "completion": "OFF/shadow 기존 흐름, 모의 on 업로드·생성·조회, 기존 보정/저장/발행, 계정 기억·취소·URL 해제·시간 예산. SHA·tsc·회귀 근거.",
       "constraints": "상수 OFF 유지. 실 브라우저 CORS/Supabase·AI·SQL·ON·예약·빌드·배포·W02 없음.",
-      "evidence": "msg_424b5c739f5b",
-      "next": "CC-SNS-01 수락·구현/시험 회신, CX-QA-01 독립 검수.",
-      "lastReviewedAt": "2026-11-18T17:04:59.580Z"
+      "evidence": "msg_424b5c739f5b·msg_f1a655472cf6·msg_b80138e6de86",
+      "next": "CC-SNS-01 계정/모드 전환·늦은 캡션/히스토리·blob 수명 보완. 고정 SHA 반환 뒤 CX-QA-01.",
+      "lastReviewedAt": "2026-11-18T17:37:41.689Z",
+      "sha": "ff31cb324",
+      "validation": {
+        "author": "전체 313/313·tsc; 세션·가짜 I/O·소스 단언. 실제 React 새 분기 미실행.",
+        "master": "서버 OFF, 계약 파일 검토. 계정 전환 시 결과 잔존과 캡션 await 뒤 세션 확인 부재 및 해제될 blob 히스토리 수정 반환.",
+        "independent": "수정본 받은 뒤 CX-QA-01.",
+        "unverified": "컴포넌트 실제 분기와 CORS·Storage. 기능 OFF·미배포."
+      }
     },
     {
       "task_id": "DES-20261119-HERO",
@@ -5445,21 +5452,21 @@
       "owner": "AG-UI-01",
       "reviewer": "CX-MASTER-01",
       "title": "메인 히어로 하단 지표·버튼 제거 운영 배포",
-      "status": "running",
-      "delivery": "owner_approved_isolated_followup_release_in_progress",
+      "status": "done",
+      "delivery": "hero_followup_production_live_verified",
       "sha": "216c5e071",
       "scopeRef": "components/home/HeroShowcase.tsx 단일 후속 diff",
-      "evidence": "216c5e071·msg_41c18e8b48a9·msg_bf6de8b7d679·msg_59ecafa0c388",
+      "evidence": "216c5e071·msg_41c18e8b48a9·msg_bf6de8b7d679·msg_59ecafa0c388·msg_773d6d2fded2",
       "validation": {
         "author": "tsc 통과 보고; 승인 및 단일 배포 착수 방침 회신.",
-        "master": "운영 기준 dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N·HeroShowcase 단일 차이/이미지 동일·팀 대기 0 확인."
+        "master": "공식 호스트 READY/production ID, 라이브 HTML과 JPEG 200, 지표 3·CTA 제거 및 JPEG 승인 blob 일치. 화면 시각 비교는 범위 밖."
       },
-      "next": "AG-UI-01 1회 격리 배포/검증 결과 회신 뒤 Master 공식 alias·하단 제거 확인.",
+      "next": "공식 도메인 하단 제거 및 기존 히어로/이미지 확인 완료. 추가 빌드/푸시 없음.",
       "release": {
         "program": "aimaster",
         "owner": "AG-UI-01",
         "reviewer": "CX-MASTER-01",
-        "status": "owner_approved_author_reported_start",
+        "status": "live_verified",
         "approvalMessage": "msg_59ecafa0c388",
         "baseDeployment": "dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N",
         "baseSha": "ba31f40809f285c5c378e59213c76d227188ac11",
@@ -5470,9 +5477,24 @@
           "components/home/HeroShowcase.tsx",
           "public/images/hero/concept_3_command_hub.jpg"
         ],
-        "method": "Same isolated base snapshot with prior approved image unchanged; only HeroShowcase changes from current live. Single staged production build and promotion."
+        "method": "Same isolated base snapshot with prior approved image unchanged; only HeroShowcase changes from current live. Single staged production build and promotion.",
+        "normalUsed": 1,
+        "deployment": {
+          "id": "dpl_3Mk2kLgLyzbhmagxfoWTwFACGWXK",
+          "url": "aimaster-nmskn1d2m-buylife.vercel.app",
+          "alias": "www.buylife.xyz",
+          "state": "READY",
+          "builds": 1,
+          "pushes": 0,
+          "fileBlobs": {
+            "components/home/HeroShowcase.tsx": "a35c77818846a361d7158d635b98e2f5a054caf6",
+            "public/images/hero/concept_3_command_hub.jpg": "84c0ec3306b740f72cf7097916c6caedf75deff6"
+          },
+          "verification": "Live HTML 200, hero/command unchanged and three metric values and CTA absent. JPEG HTTP 200 and approved blob match.",
+          "verifiedAt": "2026-11-18T17:37:41.689Z"
+        }
       },
-      "lastReviewedAt": "2026-11-18T17:33:00.698Z"
+      "lastReviewedAt": "2026-11-18T17:37:41.689Z"
     }
   ],
   "programOverrides": [
@@ -8658,7 +8680,7 @@
       "program": "aimaster",
       "owner": "AG-UI-01",
       "reviewer": "CX-MASTER-01",
-      "status": "owner_approved_author_reported_start",
+      "status": "live_verified",
       "approvalMessage": "msg_59ecafa0c388",
       "baseDeployment": "dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N",
       "baseSha": "ba31f40809f285c5c378e59213c76d227188ac11",
@@ -8669,7 +8691,22 @@
         "components/home/HeroShowcase.tsx",
         "public/images/hero/concept_3_command_hub.jpg"
       ],
-      "method": "Same isolated base snapshot with prior approved image unchanged; only HeroShowcase changes from current live. Single staged production build and promotion."
+      "method": "Same isolated base snapshot with prior approved image unchanged; only HeroShowcase changes from current live. Single staged production build and promotion.",
+      "normalUsed": 1,
+      "deployment": {
+        "id": "dpl_3Mk2kLgLyzbhmagxfoWTwFACGWXK",
+        "url": "aimaster-nmskn1d2m-buylife.vercel.app",
+        "alias": "www.buylife.xyz",
+        "state": "READY",
+        "builds": 1,
+        "pushes": 0,
+        "fileBlobs": {
+          "components/home/HeroShowcase.tsx": "a35c77818846a361d7158d635b98e2f5a054caf6",
+          "public/images/hero/concept_3_command_hub.jpg": "84c0ec3306b740f72cf7097916c6caedf75deff6"
+        },
+        "verification": "Live HTML 200, hero/command unchanged and three metric values and CTA absent. JPEG HTTP 200 and approved blob match.",
+        "verifiedAt": "2026-11-18T17:37:41.689Z"
+      }
     }
   }
 }
