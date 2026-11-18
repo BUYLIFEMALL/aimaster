@@ -414,7 +414,7 @@ Master 마지막 실제 점검: 2026-11-19 04:31:21 KST · 실행 중 점검 주
 | B2B-20261119-SAMPLE-QA | CX-QA-01 | done / public_sample_layout_verified_read_only | 운영 B2B 샘플몰 공개 화면 독립 검수 | Mac 1280/375에서 홈·5개 카테고리·상세 2개 확인. 깨짐·가로 넘침 0. Master 무쿠키 홈 HTTP 200·상품 링크 33개 확인. |
 | B2B-20261119-MAKER | CC-B2B-BACK-01 | done / m1_stale_window_fix_independent_pass_undeployed | B2B 메이커 연계 M1~M3 선행 범위 대조 | Mac 12/12. 늦은 완료·실패 뒤 이전 창 작업 차단 및 공용 계약 보존. 실제 운영 창 미검증, M1 단독 배포 없음. |
 | B2B-20261119-MAKER-M2 | CC-B2B-BACK-01 | done / data_layer_independent_accepted_undeployed_ui_design_dispatched | 메이커 M2 사진 제안 저장 범위 설계 | 0106 데이터 계층 Mac 독립 수락. UI 연결 계획 배정. 실제 Storage·Lab·운영 및 M3 미적용. |
-| B2B-20261119-MAKER-M2-UI | CC-B2B-BACK-01 | reviewing / local_ui_returned_independent_review_dispatched | 메이커 M2 사진 제안 화면·저장 응답 연결 | 5MB JPEG, 제안 비공개 저장·정확 ACK·실패 안전 경계 구현. 작성자 전체 531/531·타입 통과, Mac 독립 검수. 실제 Storage/Lab 미검증. |
+| B2B-20261119-MAKER-M2-UI | CC-B2B-BACK-01 | reviewing / stale_save_and_ambiguous_storage_fix_dispatched | 메이커 M2 사진 제안 화면·저장 응답 연결 | Mac 독립 24/24. 오래된 작업 저장/응답과 불명 업로드 처리 반례, JPEG 치수 경계 보완 배정. 실제 Storage·Lab 미검증. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
