@@ -8,15 +8,12 @@ import {
   Layers,
   ChevronRight,
   Activity,
-  Terminal,
   Cpu,
-  TrendingUp,
-  ShieldCheck,
   Zap,
 } from "lucide-react";
 
 interface HeroConcept {
-  id: "ops" | "neural" | "command";
+  id: "studio" | "briefing" | "office";
   title: string;
   badge: string;
   badgeColor: string;
@@ -31,14 +28,14 @@ interface HeroConcept {
 
 const HERO_CONCEPTS: HeroConcept[] = [
   {
-    id: "ops",
-    title: "스마트 AI Ops 워크스페이스",
-    badge: "🎯 Concept 01 · Smart Ops",
+    id: "studio",
+    title: "에디토리얼 마케팅 워크스테이션",
+    badge: "🖥️ 1안 · 워크스테이션",
     badgeColor: "border-amber-400/40 bg-amber-500/10 text-amber-300",
-    subtitle: "원클릭 올인원 AI 마케팅 관제 파이프라인",
+    subtitle: "정제된 데이터 관제와 크리에이티브 자동화의 정점",
     description:
-      "고해상도 홀로그램 대시보드에서 블로그, SNS, 쇼핑몰, 영상 마케팅 엔진을 한눈에 조망하고 실시간으로 제어합니다.",
-    imageSrc: "/images/hero/concept_1_smart_ops.jpg",
+      "월넛과 브라스 조명의 차분한 워크스테이션 환경에서 블로그·SNS·영상·쇼핑몰을 아우르는 84개 AI 자동화 파이프라인을 직관적으로 제어합니다.",
+    imageSrc: "/images/hero/v2_concept_1_studio.jpg",
     metrics: [
       { label: "AI 가동 솔루션", value: "84개 정식 엔진", color: "text-amber-400" },
       { label: "콘텐츠 생산 속도", value: "10배 단축 (30초)", color: "text-emerald-400" },
@@ -46,48 +43,48 @@ const HERO_CONCEPTS: HeroConcept[] = [
     ],
     primaryCtaText: "AI 솔루션 둘러보기",
     primaryCtaUrl: "/programs",
-    categoryTag: "비즈니스 리더를 위한 실시간 AI 관제",
+    categoryTag: "프로페셔널 AI 마케팅 워크스테이션",
   },
   {
-    id: "neural",
-    title: "인간-AI 신경망 협업 흐름",
-    badge: "⚡ Concept 02 · Neural Flow",
-    badgeColor: "border-cyan-400/40 bg-cyan-500/10 text-cyan-300",
-    subtitle: "인간의 기획과 AI 자율 생성의 유기적 결합",
+    id: "briefing",
+    title: "이그제큐티브 데이터 브리핑",
+    badge: "💼 2안 · 데이터 브리핑",
+    badgeColor: "border-amber-300/40 bg-amber-400/10 text-amber-200",
+    subtitle: "전문가의 통찰과 실시간 AI 분석의 완벽한 결합",
     description:
-      "한 줄의 아이디어만 입력하면 황금빛 데이터 신경망이 이커머스 상세페이지, 릴스 영상, SNS 바이럴 카피를 자동으로 완결합니다.",
-    imageSrc: "/images/hero/concept_2_neural_flow.jpg",
+      "어디서나 노트북 한 대로 실시간 트래픽·매출 지표와 경쟁사 분석 데이터를 확보하고, 원클릭으로 콘텐츠 생성부터 자동 발행까지 완결합니다.",
+    imageSrc: "/images/hero/v2_concept_2_briefing.jpg",
     metrics: [
-      { label: "플랫폼 연동", value: "네이버·인스타·유튜브", color: "text-cyan-400" },
-      { label: "자동화 완결도", value: "소재부터 발행까지", color: "text-emerald-400" },
+      { label: "플랫폼 연동", value: "네이버·인스타·유튜브", color: "text-amber-300" },
+      { label: "자동화 완결도", value: "기획부터 발행까지", color: "text-emerald-400" },
       { label: "비용 절감율", value: "외주 대비 90%↓", color: "text-amber-400" },
     ],
     primaryCtaText: "SNS & 마케팅 자동화 보기",
     primaryCtaUrl: "/programs?category=sns",
-    categoryTag: "1인 크리에이터 & 셀러를 위한 신경망 자동화",
+    categoryTag: "비즈니스 리더를 위한 데이터 브리핑",
   },
   {
-    id: "command",
-    title: "24/7 무인 자율 비즈니스 센터",
-    badge: "🏢 Concept 03 · Command Hub",
-    badgeColor: "border-purple-400/40 bg-purple-500/10 text-purple-300",
-    subtitle: "잠든 사이에도 쉬지 않고 일하는 무인 수익화 엔진",
+    id: "office",
+    title: "미니멀 럭셔리 CEO 오피스",
+    badge: "🏢 3안 · CEO 오피스",
+    badgeColor: "border-emerald-400/40 bg-emerald-500/10 text-emerald-300",
+    subtitle: "단정하고 여유로운 공간, 24시간 멈추지 않는 자동화",
     description:
-      "다크 슬레이트와 골드 관제 시스템 아래 수십 개의 AI 에이전트가 24시간 실시간으로 데이터를 수집하고 고객에게 가치를 전달합니다.",
-    imageSrc: "/images/hero/concept_3_command_hub.jpg",
+      "복잡한 수작업은 AI 시스템에 맡기고 오너는 핵심 의사결정에만 집중할 수 있는 시간의 자유와 비즈니스의 품격을 제공합니다.",
+    imageSrc: "/images/hero/v2_concept_3_office.jpg",
     metrics: [
-      { label: "가동 시간", value: "24시간 365일 무중단", color: "text-purple-400" },
-      { label: "반복 업무 감소", value: "주당 25시간 절약", color: "text-emerald-400" },
-      { label: "글로벌 AI 모델", value: "GPT·Claude·Gemini", color: "text-amber-400" },
+      { label: "가동 시간", value: "24시간 365일 무중단", color: "text-emerald-400" },
+      { label: "반복 업무 감소", value: "주당 25시간 절약", color: "text-amber-400" },
+      { label: "글로벌 AI 모델", value: "GPT·Claude·Gemini", color: "text-sky-400" },
     ],
     primaryCtaText: "무료 체험 솔루션 시작",
     primaryCtaUrl: "/programs?badge=free",
-    categoryTag: "완전 자동화 수익 파이프라인",
+    categoryTag: "시간의 자유를 선사하는 올인원 자동화",
   },
 ];
 
 export default function HeroShowcase() {
-  const [activeTab, setActiveTab] = useState<"ops" | "neural" | "command">("ops");
+  const [activeTab, setActiveTab] = useState<"studio" | "briefing" | "office">("studio");
   const [isAutoPlay, setIsAutoPlay] = useState(true);
 
   // 7초마다 다음 콘셉트로 부드럽게 자동 전환
@@ -95,9 +92,9 @@ export default function HeroShowcase() {
     if (!isAutoPlay) return;
     const timer = setInterval(() => {
       setActiveTab((prev) => {
-        if (prev === "ops") return "neural";
-        if (prev === "neural") return "command";
-        return "ops";
+        if (prev === "studio") return "briefing";
+        if (prev === "briefing") return "office";
+        return "studio";
       });
     }, 7000);
     return () => clearInterval(timer);
@@ -166,11 +163,11 @@ export default function HeroShowcase() {
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 1024px"
-                className="object-cover object-center filter brightness-[0.75] contrast-[1.08] transition-transform duration-10000 ease-out group-hover:scale-105"
+                className="object-cover object-center filter brightness-[0.82] contrast-[1.05] transition-transform duration-10000 ease-out group-hover:scale-105"
               />
               {/* 비주얼 오버레이 그라데이션 (가독성 & 깊이감 확보) */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#09090e] via-[#09090e]/60 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#09090e]/80 via-transparent to-[#09090e]/40" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#09090e] via-[#09090e]/55 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#09090e]/75 via-transparent to-[#09090e]/30" />
             </div>
           ))}
 
@@ -186,7 +183,7 @@ export default function HeroShowcase() {
               </span>
               <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/60 border border-white/10 text-[11px] text-white/70 font-mono backdrop-blur-md">
                 <Cpu size={11} className="text-amber-400" />
-                <span>Next-Gen Workflow</span>
+                <span>Enterprise Workflow</span>
               </span>
             </div>
 
@@ -205,7 +202,7 @@ export default function HeroShowcase() {
               {current.metrics.map((metric, idx) => (
                 <div
                   key={idx}
-                  className="px-3 py-2 sm:py-2.5 rounded-xl bg-black/60 border border-white/15 backdrop-blur-md shadow-inner flex flex-col justify-center"
+                  className="px-3 py-2 sm:py-2.5 rounded-xl bg-black/65 border border-white/15 backdrop-blur-md shadow-inner flex flex-col justify-center"
                 >
                   <span className="text-[10px] sm:text-[11px] text-white/55 font-medium truncate">
                     {metric.label}
@@ -241,7 +238,7 @@ export default function HeroShowcase() {
         <div className="border-t border-white/10 px-4 py-3 bg-black/60 flex flex-col sm:flex-row items-center justify-between text-xs text-subtext gap-2">
           <div className="flex items-center gap-2 text-white/70">
             <Layers size={13} className="text-gold" />
-            <span>상단 탭을 클릭하여 3가지 실사 자동화 비주얼 콘셉트를 실시간으로 전환해 볼 수 있습니다.</span>
+            <span>상단 탭을 클릭하여 3가지 실사 비주얼 콘셉트를 실시간으로 전환해 볼 수 있습니다.</span>
           </div>
           <Link
             href="/programs"
