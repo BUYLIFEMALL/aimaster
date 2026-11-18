@@ -305,25 +305,28 @@ grant execute on function public.aif_asset_claim_delete(uuid, uuid, text, text) 
 create or replace function public.aif_asset_delete_mark(p_asset uuid, p_user uuid, p_token uuid, p_state text)
 returns boolean
 language plpgsql security definer set search_path = '' as $$
-declare v_del record; v_ok boolean;
+declare v_del record; v_ok boolean; v_rows integer;
 begin
+  -- 수정 5(Mac F05): NULL 인자는 모두 명시 거절(fail-closed). NULL과의 <> 비교는 NULL이 되어 거절되지 않으므로 IS DISTINCT FROM을 쓴다.
+  if p_asset is null or p_user is null or p_token is null or p_state is null then return false; end if;
   if p_state not in ('deleting','deleted','delete_failed','delete_unknown','cancelled') then raise exception 'INVALID' using errcode = '22023'; end if;
   -- 1) 잠금 전 회원 확인(타 회원 예약을 잠그지 않도록)
   select t.user_id into v_del from public.aif_asset_deletions t where t.asset_id = p_asset;
-  if not found or v_del.user_id <> p_user then return false; end if;
+  if not found or v_del.user_id is distinct from p_user then return false; end if;
   -- 2) 회원 → 자산 잠금
   perform pg_advisory_xact_lock(hashtext('aif_user:' || p_user::text));
   perform pg_advisory_xact_lock(hashtext('aif_asset:' || p_asset::text));
   -- 3) 잠금 뒤 행·토큰·상태 재확인
   select * into v_del from public.aif_asset_deletions t where t.asset_id = p_asset and t.user_id = p_user for update;
-  if not found or v_del.fencing_token <> p_token then return false; end if;
+  if not found or v_del.fencing_token is distinct from p_token or v_del.state is null then return false; end if;
   v_ok := (v_del.state = 'claimed' and p_state in ('deleting','cancelled'))
        or (v_del.state = 'deleting' and p_state in ('deleted','delete_failed','delete_unknown'))
        or (v_del.state = 'delete_unknown' and p_state in ('deleted','delete_failed'));
-  if not v_ok then return false; end if;
+  if not coalesce(v_ok, false) then return false; end if;
   update public.aif_asset_deletions set state = p_state, attempts = attempts + (case when p_state = 'deleting' then 1 else 0 end), updated_at = now()
-  where asset_id = p_asset and fencing_token = p_token;
-  return true;
+  where asset_id = p_asset and user_id = p_user and fencing_token = p_token and state = v_del.state;
+  get diagnostics v_rows = row_count;
+  return v_rows = 1;   -- 실제로 1행이 바뀌었을 때만 true
 end $$;
 revoke all on function public.aif_asset_delete_mark(uuid, uuid, uuid, text) from public, anon, authenticated;
 grant execute on function public.aif_asset_delete_mark(uuid, uuid, uuid, text) to service_role;
