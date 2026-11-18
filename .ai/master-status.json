@@ -4361,15 +4361,22 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "A1 격리 PostgreSQL 계약시험",
-      "status": "running",
-      "delivery": "acknowledged_exact_fixture_scope_before_database_creation",
-      "sha": "a29ffd287",
+      "status": "reviewing",
+      "delivery": "author_isolated_postgres_15_pass_static_independent_review_pending",
+      "sha": "dcc798e12",
       "scopeRef": "tests/sql/a1_fixture.sql·a1_contract.test.mjs·필요최소migration수정·기존문서",
       "constraints": "기존Docker PG17.11·신규qa_aif_a1_20261118/oid검증후자기DB정리·aww/aww_dev/mb/운영접속reset0·설치0·store/route/upload/AI/build/push0",
       "completion": "원문migration컴파일/ACL/RLS/check/NULL/2연결reserve상한/identity/delete경합/토큰전이/재적용·stub vs실중앙분리·정리증거",
-      "evidence": "Mastermsg_1fd1abd7c316·사전msg_b62624ce5cd1(새DB아직0)·정확경로수락",
-      "next": "기존로컬신규DB한정 시험→발견결함고정반례/최소수정→정확SHA/2연결근거 Mac검수",
-      "lastReviewedAt": "2026-11-18T06:41:18.808Z"
+      "evidence": "Mastermsg_1fd1abd7c316·사전msg_b62624ce5cd1(새DB아직0)·정확경로수락 · msg_46fae32a6a33/dcc798e12·Mastertest주요assertion읽기·Macmsg_1f5d56553c51",
+      "next": "Mac 고정test/fixture/a29 정적독립검수→대역범위 수락판정·store정확인터페이스읽기준비",
+      "lastReviewedAt": "2026-11-18T06:46:03.404Z",
+      "validation": {
+        "author": "PG17.11 새qaDB2회·1회14/15 시험자storage권한단언결함→시험만수정 15/15·migrationa29수정0·실2psql동시reserve/finalizeclaim·cleanup다른DBoid불변/qa잔존0",
+        "master": "고정파일4/원문migration hash·test존재oid조건cleanup/역할assertion직접읽기·실DB재실행0",
+        "independent": "Mac정적시험근거검수배정·실SQL독립실행0",
+        "limits": "policy본문/storage/auth대역·실Supabase권한/기본GRANT/중앙합산/실upload미검증"
+      },
+      "migrationSha256": "6733e508b80327062c5118a3ccd6bf0afe88a071a703b416c81ad391d38a5b2e"
     }
   ],
   "programOverrides": [
@@ -4883,21 +4890,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T06:43:16.858Z",
+      "at": "2026-11-18T06:46:03.404Z",
       "timezone": "Asia/Seoul",
-      "trigger": "생성샘플보존완료",
-      "scope": "JPEG원본2장 bytes/SHA/시각직접대조·추가호출0",
+      "trigger": "SNS 격리계약시험 완료",
+      "scope": "dcc test/fixture/migration a29·작성자15/15/실2연결/cleanup·대역범위",
       "evidence": [
-        "msg_0cb61e533976/aa9847f1f",
-        "Master SHA2개재계산/view_image2장"
+        "msg_46fae32a6a33",
+        "Mastertest assertion/cleanup검토",
+        "Macmsg_1f5d56553c51"
       ],
-      "judgment": "보존완료수락·한장무문자관찰확인·인물여백/실카드가독성미검수·같은이미지중복검수배정0",
+      "judgment": "작성자실PG계약시험결과수신·독립정적검수진행·첫시험결함을제품수정반례로포장0·운영통합PASS아님",
       "unverified": [
-        "실제카드합성/가독성·지속무문자품질",
-        "SNS격리SQL결과",
-        "기타사람/배포승인"
+        "Mac시험근거검수",
+        "실Supabase/중앙/스토리지통합",
+        "다른사람/승인단계"
       ],
-      "nextAction": "SNS계약시험결과회수·실화면검수기회에기존샘플재사용·새유료0"
+      "nextAction": "Mac결과판정후store모의단위범위배정·추가DB실행반복0"
     },
     "notifications": [
       {
