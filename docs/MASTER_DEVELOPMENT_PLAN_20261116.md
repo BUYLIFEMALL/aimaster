@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 02:37:41 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 02:42:44 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -464,7 +464,7 @@ Master 마지막 실제 점검: 2026-11-19 02:33:00 KST · 실행 중 점검 주
 | AIF-20261119-W01-G3S | CC-SNS-01 | done / monotonic_save_deadline_independent_mock_accepted | W01 생성 저장 시간 초과 시 자산 ID 보존 | dffa5c436 독립 지정 모의 3/3. 실제 저장소는 미검증. |
 | AIF-20261119-W01-UID | CC-SNS-01 | done / generation_ui_contract_accepted_with_cors_gate | W01 자산 기반 생성 화면 연결 계약 | 3a41efdd0 계약 수락. 기존 보정/히스토리 유지, 브라우저 CORS 확인 필요. |
 | AIF-20261119-W01-UIC | CC-SNS-01 | done / client_flow_bounded_stream_independent_mock_accepted | W01 화면용 자산 API 클라이언트 구현 | 547142805 독립 모의 11/11; 실제 CORS 미확인. |
-| AIF-20261119-W01-UII | CC-SNS-01 | running / generation_ui_account_lifecycle_fix_dispatched_before_review | W01 자산 기반 생성 화면 로컬 연결 | ff31cb324 313/313·tsc. 계정 전환·늦은 응답·히스토리 주소 보완 반환. OFF. |
+| AIF-20261119-W01-UII | CC-SNS-01 | running / generation_ui_history_account_isolation_fix_dispatched | W01 자산 기반 생성 화면 로컬 연결 | 7fc410707 작성자 317/317·tsc. 계정 간 히스토리 목록/늦은 요청 격리 보완. OFF. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
 | AIF-20261118-W03 | 미배정 | queued / sequenced_after_w01_and_w02_by_owner_instruction | 회원용 인물 라이브러리·시트·버전 | 주인님 지시대로 W01·W02 이후 시작. 인물 라이브러리·일괄 이미지·영상 미착수. |
