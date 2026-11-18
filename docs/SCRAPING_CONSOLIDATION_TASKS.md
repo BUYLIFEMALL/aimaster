@@ -142,7 +142,7 @@
 
 **1단계 영구 백업(삭제 전)**
 - git 태그 `backup/website-scraper-20261118` → 실행 시점의 `ghost-scraper` 마지막 커밋(트리가 `436c0f813`과 같은지 확인 후). 로컬 태그만, **원격 push는 Master 순번 확인 뒤**(공용 master push 금지 유지).
-- 백업 폴더 `D:\Antigravity\AIMaster_backup\retired-programs\website-scraper\` ← `git archive <그 커밋> ghost-scraper`로 **추적 파일 77개만** 풀기. 제외: `.env.local`(비밀값)·`.vercel/`·`.next/`·`node_modules/`·`tsconfig.tsbuildinfo` — 모두 `.gitignore` 대상이라 archive에 안 들어감. 같은 폴더 `README.md` 표에 한 줄(프로그램·합쳐진 곳 `web-crawler-saas` `/inspect`·병합일 2026-10-21·정리일·파일 수·태그).
+- 백업 폴더(실제) `D:\Antigravity\AIMaster_backup\retired-programs\website-scraper\2706fc0b5\`(실행 커밋 하위 폴더, `MANIFEST.txt` — 바이트 일치 8·CRLF→LF 정규화 뒤 일치 69) ← `git archive <그 커밋> ghost-scraper`로 **추적 파일 77개만** 풀기. 제외: `.env.local`(비밀값)·`.vercel/`·`.next/`·`node_modules/`·`tsconfig.tsbuildinfo` — 모두 `.gitignore` 대상이라 archive에 안 들어감. 같은 폴더 `README.md` 표에 한 줄(프로그램·합쳐진 곳 `web-crawler-saas` `/inspect`·병합일 2026-10-21·정리일·파일 수·태그).
 
 **2단계 삭제 목록(19개, 운영 경로에서 import 0 확인)**
 - `src/components/`: `ScraperWorkspace.tsx` · `guide/GuideShell.tsx` · `layout/Header.tsx` · `layout/Sidebar.tsx` · `modals/SectorModal.tsx` · `modals/SettingsModal.tsx` · `scraper/ScraperTabs.tsx` · `scraper/UrlInputSection.tsx` · `ui/KpiCard.tsx` · `ui/PageHero.tsx`
@@ -151,9 +151,9 @@
 
 **남기는 것(운영 동작 그대로)**: 첫 화면·`/guide` 이동 안내(`src/app/page.tsx`·`src/app/guide/page.tsx`·`src/components/MovedNotice.tsx`·`src/app/layout.tsx`·`src/app/globals.css`·`src/lib/version.ts`), 410 API 4개(`/api/crawl`·`/api/proxy`·`/api/proxy-image`·`/api/user/key`), `/api/auth/logout`(+`src/lib/supabase/server.ts`·`cookieDomain.ts`), 0번 규칙 고지 `NOTICE`·`public/ai.txt`·`public/robots.txt`(검색·광고 로봇 허용 정책 그대로), 썸네일, `supabase/` 이력 SQL 13개, `docs/`·`AGENTS.md`·`README.md`, 설정 파일.
 
-**검증(빌드 비용 0)**: 삭제 뒤 로컬 `tsc --noEmit`·`npm run test:runtime`·로컬 `next build`(무료) — 남는 파일이 지운 파일을 부르지 않는지. Vercel 배포는 하지 않음(운영 화면은 지금 배포본 그대로 유지, 다음 website-scraper 배포 때 함께 나감). 문서: `ghost-scraper/AGENTS.md` 맨 위 「정리 완료·백업 위치·태그·복원 방법」, 이 표 T-08 줄.
+**검증(빌드 비용 0, 실행 결과)**: 삭제 뒤 로컬 `tsc --noEmit` 0 · 로컬 `next build` 컴파일 통과 후 Next 16.4.2 보안 권고로 중단(삭제 무관) · `test:runtime`은 서버 키로 실제 magic link를 만드는 시험이라 **실행하지 않음** — 남는 파일이 지운 파일을 부르지 않는지. Vercel 배포는 하지 않음(운영 화면은 지금 배포본 그대로 유지, 다음 website-scraper 배포 때 함께 나감). 문서: `ghost-scraper/AGENTS.md` 맨 위 「정리 완료·백업 위치·태그·복원 방법」, 이 표 T-08 줄.
 
-**되돌리기**: `git checkout backup/website-scraper-20261118 -- ghost-scraper/<파일>` 또는 백업 폴더에서 복사. 지운 커밋을 되돌리는 새 커밋으로만(이력 다시 쓰기 0).
+**되돌리기**: 태그에서 **필요한 파일만** 명시 복구 — 먼저 그 파일 경로를 `docs/ACTIVE_WORK.md`·점유표와 `git status --porcelain -- <파일>`로 확인(남의 미커밋·점유 없을 때만), `git show backup/website-scraper-20261118:ghost-scraper/<파일> > ghost-scraper/<파일>`로 그 파일 하나만 쓰고 `commit-paths.mjs`로 새 커밋. `git checkout <태그> -- <폴더>`(공용 index·남의 미커밋 덮어씀)·reset·폴더 통째 복원은 하지 않는다. 바이트 원본은 태그의 Git blob(백업 폴더 사본은 69개가 CRLF). 지운 커밋을 되돌리는 새 커밋으로만(이력 다시 쓰기 0).
 
 **하지 않는 것**: 운영 DB·Vercel 프로젝트·도메인 삭제 0, 키·`.env*` 쓰기 0, 다른 프로그램 0, 태그 원격 push는 Master 확인 전 0. 옛 `/login` 404(P3)는 이번 범위 밖 — 후속 후보로만 기록.
 
