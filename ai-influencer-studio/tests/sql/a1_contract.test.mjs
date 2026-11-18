@@ -88,6 +88,7 @@ const stateOf = (id) => q(`select state from public.aif_assets where id = '${id}
 const dockerUp = spawnSync("docker", ["inspect", "-f", "{{.State.Running}}", CONTAINER], { encoding: "utf8" });
 const AVAILABLE = dockerUp.status === 0 && dockerUp.stdout.trim() === "true";
 let createdOid = null;
+let dbCreated = false;
 
 let rolePreflight = "";
 before(() => {
@@ -103,13 +104,20 @@ before(() => {
   const exists = q(`select count(*) from pg_database where datname = '${DB}';`, "postgres");
   assert.equal(exists, "0", `${DB}가 이미 있습니다 — 다른 실행의 것일 수 있어 건드리지 않고 중단합니다.`);
   q(`create database ${DB};`, "postgres");
-  createdOid = q(`select oid from pg_database where datname = '${DB}';`, "postgres");
+  dbCreated = true;   // 생성 성공 표시는 oid 확보와 따로 둔다 — oid 조회가 실패해도 정리 단계가 조용히 넘어가지 않게
+  const oid = run(`select oid from pg_database where datname = '${DB}';`, "postgres");
+  if (!oid.ok || !/^[0-9]+$/.test(oid.out)) throw new Error(`${DB}를 만들었지만 oid를 확인하지 못했습니다: ${oid.err || oid.out}`);
+  createdOid = oid.out;
   q(FIXTURE);
   q(MIGRATION);
 });
 
 after(() => {
-  if (!AVAILABLE || !createdOid) return;
+  if (!AVAILABLE || !dbCreated) return;   // 이 실행이 DB를 만들지 않았으면 아무것도 지우지 않는다
+  if (!createdOid) {
+    // 만들었지만 oid를 모른다 → 이름만으로는 지우지 않는다(다른 실행의 DB일 수 있음). 명시 실패 + 수동 확인 안내.
+    throw new Error(`[수동 확인 필요] ${DB}를 이 실행이 만들었으나 oid를 확보하지 못해 자동 삭제하지 않았습니다. 컨테이너 ${CONTAINER}에서 DB 존재 여부를 직접 확인해 주세요.`);
+  }
   const now = run(`select oid from pg_database where datname = '${DB}';`, "postgres");
   if (!now.ok) throw new Error(`정리 전 조회 실패 — ${DB}가 남아 있을 수 있습니다: ${now.err}`);
   if (now.out !== createdOid) throw new Error(`${DB}의 oid가 만든 것(${createdOid})과 다릅니다(${now.out || "없음"}) — 지우지 않았습니다.`);
