@@ -4367,7 +4367,7 @@
       "scopeRef": "tests/sql/a1_fixture.sql·a1_contract.test.mjs·필요최소migration수정·기존문서",
       "constraints": "기존Docker PG17.11·신규qa_aif_a1_20261118/oid검증후자기DB정리·aww/aww_dev/mb/운영접속reset0·설치0·store/route/upload/AI/build/push0",
       "completion": "원문migration컴파일/ACL/RLS/check/NULL/2연결reserve상한/identity/delete경합/토큰전이/재적용·stub vs실중앙분리·정리증거",
-      "evidence": "Mastermsg_1fd1abd7c316·사전msg_b62624ce5cd1(새DB아직0)·정확경로수락 · msg_46fae32a6a33/dcc798e12·Mastertest주요assertion읽기·Macmsg_1f5d56553c51 · msg_7273fa2ccde2 독립정적시험검수·msg_ebbf9064254a 다음store읽기준비 · msg_926fae1a46ad/3a48682cd·Masterdiff직접확인·Macmsg_25e6a4769c00 · Macmsg_3f7a37ce6fa0·잠금/정리/role보강지정수락·OID획득전실패안내P2 · msg_f324c69f0ab4/90ba12b30 cleanup 경고diff Master수락·SQL재실행0",
+      "evidence": "Mastermsg_1fd1abd7c316·사전msg_b62624ce5cd1(새DB아직0)·정확경로수락 · msg_46fae32a6a33/dcc798e12·Mastertest주요assertion읽기·Macmsg_1f5d56553c51 · msg_7273fa2ccde2 독립정적시험검수·msg_ebbf9064254a 다음store읽기준비 · msg_926fae1a46ad/3a48682cd·Masterdiff직접확인·Macmsg_25e6a4769c00 · Macmsg_3f7a37ce6fa0·잠금/정리/role보강지정수락·OID획득전실패안내P2 · msg_f324c69f0ab4/90ba12b30 cleanup 경고diff Master수락·SQL재실행0 · Macmsg_8911670b1982 90ba정리경고최종정적해소",
       "next": "W01g 저장계층 모의독립검수·실중앙/스토리지통합은별도",
       "lastReviewedAt": "2026-11-18T06:58:07.082Z",
       "validation": {
@@ -4384,19 +4384,19 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "생성 원본 저장 계층·주입 모의 시험",
-      "status": "reviewing",
-      "delivery": "store_source_and_mock_tests_received_independent_real_module_review",
+      "status": "needs_revision",
+      "delivery": "store_mock_core_pass_RPC_cardinality_and_unknown_response_boundaries_returned",
       "scopeRef": "src/lib/assets/store.ts·referenceImage.ts 최소export·tests/assetsStore.test.mjs·본인기존문서",
       "constraints": "모의rpc/storage만·SQL/DB/실upload/실키/AI/패키지/route/build/push0·기존참고이미지1MiB불변·다른저자원본보존",
       "completion": "generated20MiB/서명/SHA·reserve전실패RPC0·원격후unknown보존/삭제재업로드0·기대objectid·잘못된응답성공0·기존생성결과보존·관련시험/tsc",
-      "evidence": "msg_ebbf9064254a 인터페이스준비·Master지정소스배정(도구P2선보완뒤) · msg_f324c69f0ab4/4d88a8cab·Master store직접읽기·Macmsg_bbafc7f7a2f2/담당msg_cac61ac79573",
-      "next": "Mac 실제모듈 모의검수→RPC모양/불명경계/기존참고입력불변 판정",
-      "lastReviewedAt": "2026-11-18T06:58:07.082Z",
+      "evidence": "msg_ebbf9064254a 인터페이스준비·Master지정소스배정(도구P2선보완뒤) · msg_f324c69f0ab4/4d88a8cab·Master store직접읽기·Macmsg_bbafc7f7a2f2/담당msg_cac61ac79573 · Macmsg_8911670b1982 실제모듈27/27+추가9조건·90ba정리해소",
+      "next": "precheck/reserve 정확1행배열·finalize불명응답 기대ID reconcile1 최소보완→관련모의회귀/tsc",
+      "lastReviewedAt": "2026-11-18T07:00:05.248Z",
       "sha": "4d88a8cab",
       "validation": {
         "author": "전체89/89·tsc0·변형검증4유형·node module register resolver 시험한정·실upload0",
         "master": "실store읽기·reserve전RPC0/20MiB/서명/SHA/upsertfalse/원격뒤불명보존·cardinality/undefined응답설명대조 독립배정",
-        "independent": "실제모듈+가짜RPC/storage 검수전달·결과대기",
+        "independent": "고정실제모듈 store12/reference15=27/27·추가9조건. F01 precheck/reserve 배열2행/객체 첫값승인→예상외저장성공, F02 finalize undefined fin.ok부정취급/reconcile0·거짓성공아님. SDK id/path/fullPath·20MiB/SHA/upsertfalse/원격후abort삭제재업로드0확인. 미연결caller PASS아님",
         "runtime": "route/실DB/실Storage/키/AI/build0"
       }
     }
@@ -4912,22 +4912,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T06:58:07.082Z",
+      "at": "2026-11-18T07:00:05.248Z",
       "timezone": "Asia/Seoul",
-      "trigger": "cleanup최소보완·store완료이벤트",
-      "scope": "90ba cleanupdiff·4d88실store·시험resolver/응답경계",
+      "trigger": "store실제모듈 독립검수완료",
+      "scope": "4d88 store/reference27·추가9조건·90ba cleanupdiff",
       "evidence": [
-        "msg_f324c69f0ab4",
-        "Master90ba/store실물읽기",
-        "Macmsg_bbafc7f7a2f2"
+        "msg_8911670b1982"
       ],
-      "judgment": "W01f 대역작성자실측+지정독립정적완료수락·W01g모의단위검수진행·라우트/실업로드확대0",
+      "judgment": "기본모의행동/참조회귀수락·RPC2경계한번묶어수정반환·cleanup도구완료·caller통합확대0",
       "unverified": [
-        "store지정독립결과",
-        "실Supabase권한/중앙/스토리지",
+        "F01/F02수정",
+        "실SQL/Storage연결·caller통합",
         "다른운영사람단계"
       ],
-      "nextAction": "고정SHA결과회수·반례통합반환/수락"
+      "nextAction": "같은소스2경계수정SHA회수→지정재검수"
     },
     "notifications": [
       {

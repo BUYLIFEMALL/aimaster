@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 15:58:07 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 16:00:05 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 15:58:07 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 16:00:05 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 90ba cleanupdiff·4d88실store·시험resolver/응답경계 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 4d88 store/reference27·추가9조건·90ba cleanupdiff · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 15:58:07 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 273개: done 253개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 7개 · superseded 1개 · queued 1개 · reviewing 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 273개: done 253개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 7개 · superseded 1개 · queued 1개 · reviewing 1개 · needs_revision 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -423,7 +423,7 @@ Master 마지막 실제 점검: 2026-11-18 15:58:07 KST · 실행 중 점검 주
 | AIF-20261118-W01e | CC-SNS-01 | done / pure_paths_and_fixed_SQL_specified_static_review_accepted | A1 자산 SQL 초안·순수 경로 검증 첫 구현 | 새격리SQL계약시험단위 W01f 진행·실SQL PASS는그결과와별도 |
 | DES-20261118-08 | AG-UI-01 | reviewing / production_alias_SHA_verified_execution_ledger_pending | 감성 v1.34~37 주인님 직접지시 배포·모델확대 취합 | 정확배포제품트리/최신12모델·UI 검수범위정리·추가실행0·기존보고이력갱신 |
 | AIF-20261118-W01f | CC-SNS-01 | done / isolated_author_15_pass_and_static_harness_review_accepted | A1 격리 PostgreSQL 계약시험 | W01g 저장계층 모의독립검수·실중앙/스토리지통합은별도 |
-| AIF-20261118-W01g | CC-SNS-01 | reviewing / store_source_and_mock_tests_received_independent_real_module_review | 생성 원본 저장 계층·주입 모의 시험 | Mac 실제모듈 모의검수→RPC모양/불명경계/기존참고입력불변 판정 |
+| AIF-20261118-W01g | CC-SNS-01 | needs_revision / store_mock_core_pass_RPC_cardinality_and_unknown_response_boundaries_returned | 생성 원본 저장 계층·주입 모의 시험 | precheck/reserve 정확1행배열·finalize불명응답 기대ID reconcile1 최소보완→관련모의회귀/tsc |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
