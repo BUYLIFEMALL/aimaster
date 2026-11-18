@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T19:36:12.949Z",
+  "checkedAt": "2026-11-18T19:37:28.537Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5750,13 +5750,13 @@
       "parent_task_id": "WS-20261119-01",
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace v1.61 기존 중단 빌드 로그 진단",
-      "status": "reviewing",
-      "delivery": "local_independent_accepted_isolated_build_plan_requested",
+      "status": "running",
+      "delivery": "owner_authorized_one_production_build_reported_started",
       "sha": "cea50d189",
-      "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef·dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o·msg_0a595caceefd·주인님 전달 진단·msg_afbf609d8871·msg_8512331d6d20·담당 msg_8512331d6d20 결과·msg_7489b02d1a30·f330050c3·담당 msg_7489b02d1a30 결과·msg_4a10308bf15c·f26ab0e58·담당 msg_4a10308bf15c 회신·msg_6f6e00bdcc31·d3d2d531f·담당 msg_6f6e00bdcc31 회신·msg_748c12b7d46d·5efdefd22·a63e7e26a·76fd2c9b9·담당 msg_748c12b7d46d 결과·msg_61b93dfbb0d1·7c283738f·b081eed5b·담당 msg_61b93dfbb0d1 결과·msg_4e206a030d6b·msg_1b80513953df·msg_3f61f6f5a0·cea50d189·7f0757d61·담당 msg_3f61f6f5b5a0 결과·msg_c7b20d50ff1d·msg_8004451fdf3f·msg_e0973ea0b19d",
+      "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef·dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o·msg_0a595caceefd·주인님 전달 진단·msg_afbf609d8871·msg_8512331d6d20·담당 msg_8512331d6d20 결과·msg_7489b02d1a30·f330050c3·담당 msg_7489b02d1a30 결과·msg_4a10308bf15c·f26ab0e58·담당 msg_4a10308bf15c 회신·msg_6f6e00bdcc31·d3d2d531f·담당 msg_6f6e00bdcc31 회신·msg_748c12b7d46d·5efdefd22·a63e7e26a·76fd2c9b9·담당 msg_748c12b7d46d 결과·msg_61b93dfbb0d1·7c283738f·b081eed5b·담당 msg_61b93dfbb0d1 결과·msg_4e206a030d6b·msg_1b80513953df·msg_3f61f6f5a0·cea50d189·7f0757d61·담당 msg_3f61f6f5b5a0 결과·msg_c7b20d50ff1d·msg_8004451fdf3f·msg_e0973ea0b19d·주인님 직접 배포 지시·담당 시작 보고·msg_b97a8c78bcbe",
       "constraints": "기존 근거 읽기만. 재빌드·배포·push·운영 설정/DB 변경 0.",
-      "next": "Mac 재검수 고정 오류 분류·실패 격리 통과. 로컬 코드 수락. DB 접근 없이 실제 빌드할 실행안만 준비, 운영 v1.60.",
-      "lastReviewedAt": "2026-11-18T19:36:12.949Z",
+      "next": "cea50d189 기준 승인 프로덕션 빌드 1회 시작 보고. 새 감시로 수집 120초 제한, 결과/공식 도메인 확인 중.",
+      "lastReviewedAt": "2026-11-18T19:37:28.537Z",
       "validation": {
         "author": "컴파일·타입 통과 후 Collecting 약 11분 무출력. 성공판 같은 단계 35.4초. 시작 시 동시 빌드 0, 이후 11번가 약 8분 대기 보고.",
         "master": "v1.60~v1.61 제품 변경 3파일 및 html.ts의 기존 정적 import 경로 확인.",
@@ -5779,6 +5779,13 @@
         "live": "dpl_DC9Bifer8U1oZ67QFRJNkaAQ1Pj6",
         "builds": 1,
         "cancelledBy": "CX-MASTER-01, Vercel cancel API"
+      },
+      "productionRelease": {
+        "approvedSource": "cea50d189",
+        "previousDeployment": "dpl_DC9Bifer8U1oZ67QFRJNkaAQ1Pj6",
+        "budget": 1,
+        "collectingDeadlineSeconds": 120,
+        "preflightReportedAt": "2026-11-18T19:35:55Z"
       }
     },
     {
