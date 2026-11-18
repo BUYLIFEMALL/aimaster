@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 14:21:29 KST",
+  "checkedAt": "2026-11-18 14:23:02 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:21:29.825Z",
+      "at": "2026-11-18T05:23:02.892Z",
       "timezone": "Asia/Seoul",
-      "trigger": "공용native PASS·SNS UUID표현 별도경계",
-      "scope": "중앙제품/시험수락·엄격예외UUID세션동일표현·정상PG/모의반례구분",
+      "trigger": "CRM팔로우업PASS·감성shape보완·순차검수완료",
+      "scope": "CRM소스수락/다음U3·감성고정SHA 분리·중앙제품/시험완료",
       "evidence": [
-        "msg_58a201229361 native11·SNS27",
-        "ECOM수락/정리요청",
-        "SNScanonical표현failclosed 국소반환"
+        "msg_2fd2d6dab882 103/103",
+        "msg_5624852b8e0c/a0ec stat·Mac재검수",
+        "msg_d226a9dd2453 고정2d69한계보존"
       ],
-      "judgment": "중앙82/e34소스+시험수락·실운영미완. SNS정상DB회귀아니지만임의형식예외행삭제방향으로열리지않도록canonical불명보존보완요청.",
+      "judgment": "CRM팔로우업소스수락·실운영아님. U3이벤트키스니펫은소스/모의만진행. 감성strict bool보완새SHA검수, 이전DIFF수치를혼합수락0.",
       "unverified": [
-        "SNS최종strict보완/CRM후속/감성보완 검수",
-        "중앙실DB/키/운영및배포승인"
+        "U3스니펫/시험시트실전제",
+        "감성최종shape검수·SNScanonical",
+        "DDL/운영/실키/문자·배포승인"
       ],
-      "nextAction": "남은소스검수후명시묶음정리·운영/푸시/새비용0"
+      "nextAction": "소스/국소판정회수후정확릴리스선행정리·푸시0"
     },
     "notifications": [
       {
@@ -7950,15 +7951,15 @@
       "title": "Cloudflare 공용키 설정 UI 연결 경로 계획",
       "owner": "AG-UI-01",
       "status": "ready_review",
-      "delivery": "initial_unknown_disabled_guidance_real_helper_test_fix_review_queued",
-      "evidence": "msg_9e8dcff42ce5 전달보류·서버ab693ba39 지정PASS · 수락msg_c38fbd244674 · 계획msg_577c1800ce82·Master GET route/settings초기연결경로확인 · msg_5af67813cd65·Master메인page/MemberIntegrations/문서봇설정소스확인 · 착수msg_78865897c0bc · ACKmsg_ebc0f4699d85·Master6파일stat/globals추가확인·설명요청msg_3ca755de2ab5 · globals직접지시경위msg_bac874a8f499 · Macmsg_b803170ef815·초기error/false·OFF안내모순·복제시험반환 · 고정최종msg_c8053a39da39·recheck정확boolean 검증추가반환 · 완료msg_c8e89bea66e0·Masterstat확인·Mac순차추가",
-      "next": "중앙native→SNSstrict→CRM후속뒤감성초기unknown/OFF/실함수배선/shape 국소검수",
-      "lastReviewedAt": "2026-11-18T05:18:58.452Z",
-      "sha": "2d69d577b",
+      "delivery": "strict_boolean_recheck_fix_independent_review_dispatched",
+      "evidence": "msg_9e8dcff42ce5 전달보류·서버ab693ba39 지정PASS · 수락msg_c38fbd244674 · 계획msg_577c1800ce82·Master GET route/settings초기연결경로확인 · msg_5af67813cd65·Master메인page/MemberIntegrations/문서봇설정소스확인 · 착수msg_78865897c0bc · ACKmsg_ebc0f4699d85·Master6파일stat/globals추가확인·설명요청msg_3ca755de2ab5 · globals직접지시경위msg_bac874a8f499 · Macmsg_b803170ef815·초기error/false·OFF안내모순·복제시험반환 · 고정최종msg_c8053a39da39·recheck정확boolean 검증추가반환 · 완료msg_c8e89bea66e0·Masterstat확인·Mac순차추가 · msg_5624852b8e0c·Masterstat·2d69고정최종msg_d226a9dd2453",
+      "next": "새a0ec 고정실card/parseBoolean·초기unknown/OFF회귀 판정",
+      "lastReviewedAt": "2026-11-18T05:23:02.892Z",
+      "sha": "a0ec6b705",
       "validation": {
-        "author": "74/74·tsc0·초기null/준비중·실cloudflareStatus 직접import·빌드푸시실API0",
+        "author": "a0ec shape4포함78/78·tsc0·POST/빌드푸시불변",
         "master": "6파일/globals직접지시범위확인·검수전수락보류",
-        "independent": "이전3df4P2/시험한계보존·새2d69순차재검수대기"
+        "independent": "2d69 초기unknown/SSR3/OFF정합/실모듈9지정확인·recheckshapeP2보존. 새a0ec재검수전달"
       }
     },
     {
@@ -8062,19 +8063,34 @@
       "title": "팔로우업 SOLAPI SDK 재시도 제거·검수 전송기 재사용",
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
-      "status": "ready_review",
-      "delivery": "followup_single_attempt_source_ready_queued_review",
-      "evidence": "msg_e31c07576130·동일위험후속 source범위Master판정 · 착수msg_7fbc9d72ee68 · msg_5f8296f5e417·Master4파일stat",
+      "status": "done",
+      "delivery": "followup_single_attempt_source_review_accepted_unreleased",
+      "evidence": "msg_e31c07576130·동일위험후속 source범위Master판정 · 착수msg_7fbc9d72ee68 · msg_5f8296f5e417·Master4파일stat · MacPASSmsg_2fd2d6dab882·수락/U3후속배정",
       "scopeRef": "followupDispatch.ts·시험/기존문서, sendOnce재사용·공용/6사본/SMTP불변",
       "constraints": "실SMS/운영DDL/build/push/deploy0·기존held/claim/회원경계/상태재확인보존",
-      "next": "Mac 실followup+sendOnce HTTP1/unknown/claim/상태변경/회원·기존회귀 검수",
-      "lastReviewedAt": "2026-11-18T05:17:13.122Z",
+      "next": "미배포묶음보존·U3/운영DDL/배포/실SMS조건후속, 다른공용SDK영향별도",
+      "lastReviewedAt": "2026-11-18T05:23:02.892Z",
       "sha": "a90ba8a88",
       "validation": {
         "author": "새22/22·전체273/273·tsc0·sharedregistryOK·실SMS0",
         "master": "정확4파일stat·같은검수전송기재사용·공용/SMTP불변보고",
-        "independent": "중앙→SNS후순차배정"
+        "independent": "a90 native신규22+기존81=103/103·실followup→sendOnce3채널HTTP1/claim·부분시도·상태·본문·회원/cron회귀 지정PASS·실운영/배달/원자보장아님"
       }
+    },
+    {
+      "task_id": "CRM-20261118-09",
+      "parent_task_id": "CRM-20261118-08",
+      "title": "Apps Script v2 이벤트키 스니펫·legacy 안내 연결",
+      "owner": "CC-B2B-BACK-01",
+      "reviewer": "CX-QA-01",
+      "status": "dispatched",
+      "delivery": "v2_script_source_and_mock_event_tests_dispatched",
+      "scopeRef": "SourceCard·기존ARCHITECTURE·스니펫시험·기존결과만",
+      "completion": "form/sheet 실이벤트키·Date전제·없으면legacy보호없음·파서실판정/재시도키/오류계약",
+      "constraints": "실Google/운영DDL/실문자/build/push0·v2공개전DDL/route/실검증승인·시험시트확인",
+      "next": "정확경로착수/소스SHA회수→Mac",
+      "evidence": "Master기존U3단계계획에따른source배정·접수/팔로우업소스PASS선행",
+      "lastReviewedAt": "2026-11-18T05:23:02.892Z"
     }
   ]
 }
