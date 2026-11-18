@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 17:03:53 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 17:06:44 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 17:03:53 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 17:06:44 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 1a03 고지/위젯필수보완·경로별최종SHA/프로그램tree/잠금큐·로그인후속분리 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: web alias/prj/READY/meta1a03 직접대조·3회예산·비로그인확인/로그인후속범위 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -43,7 +43,7 @@ Master 마지막 실제 점검: 2026-11-18 17:03:53 KST · 실행 중 점검 주
 | 유튜브 | 9 / 4 | YVS1단계실검색/AI 담당운영완료·Shots1.51/원스톱1.59/플레이리스트1.42 | 기완료검색/AI재실행0·공용인코더미배포/나머지개별문서현담당확인 | Movie·Music / Master |
 | 블로그 | 10 / 3 | 이웃1.21/티스토리1.97·후속1.22/1.98미배포 | B1사람클릭/C3계정·기능묶음·백업5개제외 | Blog / Master |
 | 네이버 | 4 / 1 | 카페1.04운영기록·SEO/블로그앱은개별기록 | 본인가입카페/계정조건·기완료초대재실행0 | Blog(기존범위) / Master |
-| 데이터수집 | 1 / 1 | T05/T07지정소스PASS·미배포·T12조정Blog배정 | 다음web-crawler묶음/화면·제품권한확대0 | Blog(문서·요청조정) / Master |
+| 데이터수집 | 1 / 1 | web-crawler v1.13 배포확인·T04/05/07 지정소스PASS·T03회원별결정/T08정리후속 | 로그인기존자료실화면·T08정확백업/태그범위·T03DB/Render플랜별도 | Blog(문서·요청조정) / Master |
 | 데이터수집\|기획 | 4 / 1 | 원문옛분류·website-scraper백업비공개확인 | T12조정근거연결·비활성라이브/별칭은미확인·재활성화0 | Blog(문서·요청조정) / Master |
 | 부동산 | 4 / 4 | 4운영버전근거·실거래/매물정상회차기록·C독립미검증 | 상가/고객공통다음묶음·미사용기간표본뒤별도평가 | Realty / Master |
 | 디자인 | 3 / 0 | 146인계/운영구현마감·DES04요일명세완료 | AGY명세→Workspace/QA043·기존개별디자인툴현담당확인 | AGY(배정된디자인범위) / Master |
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 17:03:53 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 283개: done 261개 · cancelled 7개 · ready_review 1개 · running 3개 · waiting_human 7개 · superseded 1개 · reviewing 1개 · queued 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 283개: done 261개 · cancelled 7개 · ready_review 1개 · running 2개 · waiting_human 7개 · superseded 1개 · reviewing 2개 · queued 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -426,7 +426,7 @@ Master 마지막 실제 점검: 2026-11-18 17:03:53 KST · 실행 중 점검 주
 | AIF-20261118-W01g | CC-SNS-01 | done / mocked_store_specified_independent_review_pass_accepted | 생성 원본 저장 계층·주입 모의 시험 | OFF 기본 라우트 연결 W01h 모의통합 |
 | AIF-20261118-W01h | CC-SNS-01 | done / default_off_route_mock_integration_specified_independent_PASS_accepted | 원본 저장 OFF 기본 라우트 연결·모의 통합 | W01i OFF 기본 원본 자산 조회 모의단위 |
 | AIF-20261118-W01i | CC-SNS-01 | done / exact_signed_object_read_route_specified_mock_review_pass_accepted | 원본 자산 조회 OFF 기본 경로·모의시험 | A1 OFF소스완료표/운영보관정리 선행조건 취합 |
-| BLOG-20261118-02 | CC-BLOG-01 | running / final_web_manifest_confirmed_required_notice_widget_added_deploy_starting | 승인된 블로그3프로그램 순차묶음 배포 | 최종1a03 archive/큐0→마지막1회배포→Ready/alias/DB1.13/기존화면검수 |
+| BLOG-20261118-02 | CC-BLOG-01 | reviewing / three_approved_deployments_ready_post_release_existing_data_QA_pending | 승인된 블로그3프로그램 순차묶음 배포 | 기존로그인세션에서티스토리원고1/web기존결과·jobs/Excel미리보기→필요로그인주인님한곳·추가AI/크롤링0 |
 | BLOG-20261118-03 | CC-BLOG-01 | queued / owner_approved_cleanup_backup_and_tag_first_exact_scope_after_releases | T08 구형 ghost-scraper 백업후정리 승인범위 구체화 | 기존website검수재사용·정확백업/삭제범위보고→착수범위확정 |
 | BLOG-20261118-04 | CC-BLOG-01 | queued / owner_product_decision_recorded_operating_DDL_Render_not_approved | T03 도메인 구조 캐시 회원별 격리 결정 반영 | T07Excel/T06선행관계확인뒤정확DB/Render플랜·비용취합 |
 | AIF-20261118-W01j | CC-SNS-01 | done / OFF_source_completion_and_activation_blockers_reconciled | A1 OFF소스완료표·운영선행 보관/정리 조건 취합 | W01k 30일보관정리 첫계약·운영ON차단유지 |
@@ -441,7 +441,7 @@ Master 마지막 실제 점검: 2026-11-18 17:03:53 KST · 실행 중 점검 주
 | --- | --- | --- | --- | --- | --- |
 | AI 할 일·성과 관리 | CC-WORKSPACE-01 | v1.14 | 운영배포기록·받은할일 분류/일괄추가 구현 | 457855225 받은할일3개 실제분류추가·배지소진 담당기록 | 새개발배정없음·Workspace와중복구현0 |
 | Website Scraper | CC-BLOG-01 (문서·요청 조정) | v1.15 | 병합·비활성·백업비공개 | WS10 DB v1.15/is_activefalse/backup비공개·옛API410 코드 | T12 문서/요청조정Blog 배정완료·라이브화면확인은담당미정, 재활성화/운영변경0 |
-| 웹 크롤링 자동화 | CC-BLOG-01 (문서·요청 조정) | v1.13 | T05 robots/DNS·T07 폴러 소스독립PASS/미배포 | T05 fc48ebcba+8172d8084/DNS보완·T07 40662e6ae+1a54bdd06, QA023/029 지정PASS | 다음web-crawler묶음·화면/실HTTP는후속, T12조정담당Blog·제품권한확대0 |
+| 웹 크롤링 자동화 | CC-BLOG-01 | v1.13 작성자DB·Masteralias/READY/metaSHA직접 | T04보안/T05/T07엑셀보완 포함 운영배포완료·로그인실화면대기 | 1a03b9734 prodReady·T07독립소스/parser44+F04국소PASS·공지/위젯포함 | 기존완료결과/Excel미리보기실화면·새크롤링/AI0·T03회원캐시DBRender별도 |
 | 부동산 실거래 투자분석 자동화 | CC-REALTY-01 | v1.61 | 운영v1.61·뉴스기존회차대조완료 | 08시옛대기 해소·11-17기존측정완료, 후보C는개발분석결과만 | 뉴스후보C 독립기간표본 확보후Master별도배정·새수집/기존개발표본반복0 |
 | 티스토리 포스팅 자동화 | CC-BLOG-01 | v1.98 작성자 DB/ext확인·Master운영alias직접 | 승인3배포 첫번째Ready·미리보기검수대기 | B4생성/보관완료,a27861137 소제목8시험 | 세배포뒤기존원고1 미리보기·AI0 |
 | Threads 쇼핑제휴 자동화 | CC-ECOM-01 | v1.89 | 네이버수집/원자등록 수정 운영·실확장검수대기 | URL/protocol/경합수정·WS17-01~04 및지정QA근거, qkncpet55배포 담당기록 | Mac공간19 설치1.89·네이버로그인·본인링크로수집/대기열만, 실제등록/글AI 별도범위 |
@@ -531,7 +531,7 @@ Master 마지막 실제 점검: 2026-11-18 17:03:53 KST · 실행 중 점검 주
 | 19 | 페르소나 문체 자동화 / persona-style-studio | 데이터수집\|기획 | v1.10 / 병합됨 → ai-writing-editor(2026-10-21) | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 20 | AI 랜딩페이지 기획 자동화 / landing-architect | 디자인 | v1.16 / 운영 | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 21 | UI Canvas 자동화 / ui-canvas | 디자인 | v1.15 / 운영 | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
-| 22 | 웹 크롤링 자동화 / web-crawler-saas | 데이터수집 | v1.13 / 운영 | — | CC-BLOG-01 (문서·요청 조정) · T05 robots/DNS·T07 폴러 소스독립PASS/미배포 | 다음web-crawler묶음·화면/실HTTP는후속, T12조정담당Blog·제품권한확대0 |
+| 22 | 웹 크롤링 자동화 / web-crawler-saas | 데이터수집 | v1.13 / 운영 | v1.13 작성자DB·Masteralias/READY/metaSHA직접 | CC-BLOG-01 · T04보안/T05/T07엑셀보완 포함 운영배포완료·로그인실화면대기 | 기존완료결과/Excel미리보기실화면·새크롤링/AI0·T03회원캐시DBRender별도 |
 | 23 | AI Prompt 자동화 / ai-prompt-studio | AI 프롬프트 | v1.11 / 운영 | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 24 | AI 프롬프트 템플릿 자동화 / prompt-template-studio | 데이터수집\|기획 | v1.07 / 병합됨 → `ai-prompt-studio`(2026-10-21) | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 25 | AI 슬라이드 자동화 / ai-slide-builder | 업무자동화 | v1.13 / 운영 | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
