@@ -27,3 +27,24 @@
 - 택1 확인: 세금계산서 칸은 **승인 사업자 회원만** 보임. 승인 사업자 계정이면 「세금계산서 발행 요청」 체크 → 「현금영수증 신청」 체크가 풀림, 반대도 같음(같은 화면 안 체크만, 서버 전송 없음). 일반 회원이면 세금계산서 칸이 없어 택1은 화면으로 확인 불가 → 서버 거절은 단위 시험(`tests/cash-receipt-checkout.test.mjs`)으로만 확인됨.
 - 숨김 확인: 결제 방법 「카드」·「외상」(보이는 몰·회원만)으로 바꾸면 칸이 사라짐, 무통장으로 되돌리면 다시 보임(체크 상태는 유지되나 숨겨지면 전송 안 됨).
 - 막히는 지점: 몰 설정 꺼짐·장바구니 비어 있음·승인 사업자 계정 없음 → 각각 Master/Backend/사람 결정 필요.
+
+## 3. 홈 상품 탭 블록 — 색(4.15)·키보드(Mac msg_f97fee71a875) 공통 구현 대조와 최소 계획 (msg_928a6980c452, 읽기·계획만)
+### 공통 구현 확인
+- 두 결과 모두 **같은 컴포넌트** `mall-builder/src/app/s/[store]/home-blocks.tsx:182` `TabsView`. 호출부는 `home-slots.tsx:86` 상품 탭 블록 1곳뿐(유저 화면·디자인 편집기 미리보기가 같은 코드). Lab `7609748ad`·운영 v1.16 모두 같은 코드(197줄 11-15 `6576abb46` 이후 변경 0).
+- 현재 상태: 탭 단추 전부 기본 Tab 순서(그래서 tabIndex 0이 탭 수만큼), `onKeyDown` 없음(←/→/Home/End 무반응), `aria-selected`만 있고 `id`·`aria-controls`·`role="tabpanel"`·`aria-labelledby` 없음. 패널은 `panels[i]`를 그대로 렌더.
+- 색: 밑줄 스킨(`skin:"line"`) 선택 안 된 탭 `text-slate-500` → 어둡게 `#0c0a09` 위 4.15(밝게 몰 바탕 4.37~4.59, 흰 바탕 4.76). 알약 스킨 선택 안 된 탭 `text-slate-600` on `bg-white`는 밝게 7.58·어둡게 6.57로 통과, 선택 탭 `bg-slate-900 text-white`는 어둡게 기존 규칙(globals `:is(.bg-slate-900…).text-white`)으로 통과.
+- 갤러리(`template-gallery.tsx` radiogroup·`radioKeyIndex`)와는 **코드 공유 없음** — 이번 계획에서 갤러리는 건드리지 않음.
+- 영향 범위: 템플릿 33종 중 탭 블록 29곳(templates 6·extra 3·extra-2 6·extra-3 8·extra-4 6), 밑줄 스킨은 extra-2·3·4 일부, 어두운 템플릿 6종. 운영사가 직접 만든 탭 블록도 같음.
+- `[data-tabs]`를 겨냥한 CSS 0 → 패널 감싸개 추가해도 배치 영향 없음.
+
+### 최소 수정안(배정 시, 파일 1개 + 새 시험 1개)
+1. 색: 197줄 밑줄 스킨 선택 안 된 탭 `text-slate-500` → `text-slate-600`(같은 단계 실측: 밝게 6.95~7.58, 어둡게 6.57~7.51 — FRONT-20261119 원래 가격 측정과 같은 바탕). 선택 탭·알약 스킨·hover 그대로. 블록 바탕색을 운영사가 임의로 바꾼 경우는 범위 밖.
+2. 키보드·패널(WAI-ARIA 탭, 자동 선택 — 패널이 이미 화면에 있어 고르면 바로 보여도 됨):
+   - `useId()`로 `id={uid-t{j}}`·`aria-controls={uid-p}`, 단추 `tabIndex={i === j ? 0 : -1}`(로빙).
+   - tablist `onKeyDown`: ArrowRight/ArrowLeft 순환, Home/End 처음·끝 → `preventDefault` → `setI` → 해당 단추 `.focus()`. 가로 탭이라 위/아래는 처리 안 함. 키 계산은 작은 순수 함수 `tabKeyIndex`(home-blocks 안, 갤러리 함수와 분리).
+   - 패널: `<div role="tabpanel" id={uid-p} aria-labelledby={uid-t{i}} tabIndex={0}>{panels[i]}</div>`(클래스 없음).
+   - `onClick`·`aria-selected`·클래스·`data-tabs`·`data-tabs-skin` 그대로.
+3. 회귀 시험 `tests/home-tabs.test.mjs`(새): `tabKeyIndex` 순환·Home/End·무관 키 null, 소스 계약(로빙 tabIndex·aria-controls/labelledby·tabpanel·onKeyDown에 preventDefault+focus, 밑줄 선택 안 된 탭 slate-600·알약 클래스 불변·onClick 유지). 가능하면 TabsView만 happy-dom으로 그려 ←/→/Home/End 실제 이벤트(갤러리 하네스 방식, 저장소 밖 1회용은 증거로만).
+- 수정 전 실패/후 통과 확인, tsc, 기존 block-skins·templates 시험 회귀.
+- 실검수(Mac, Lab 배포 뒤): 실제 Tab이 탭 줄에서 1번만 멈추는지, ←/→/Home/End로 탭·초점 이동, Tab으로 패널(상품 목록) 진입, 낭독기 「탭 n/m 선택됨」, 어두운 143 밑줄 탭 대비.
+- 제외: 갤러리, 다른 블록, 디자인 편집기 자체 UI, DB·운영·Lab·빌드·배포.
