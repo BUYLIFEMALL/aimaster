@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T18:01:00.381Z",
+  "checkedAt": "2026-11-18T18:03:55.268Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9527,6 +9527,20 @@
         "author": "격리 스냅샷·1회 빌드 READY 및 promote 보고. 공유 push/설정/운영 DB 변경 0.",
         "master": "공식 호스트 Vercel READY ID, 홈/JPEG 200, 표시 4곳 제외 및 승인 JPEG 체크 확인; 시각 비교 미실행."
       }
+    },
+    {
+      "task_id": "WS-20261119-01",
+      "owner": "CC-WORKSPACE-01",
+      "reviewer": "CX-QA-01",
+      "title": "노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존",
+      "status": "running",
+      "delivery": "owner_direct_instruction_implementation_started",
+      "scopeRef": "ee73ff8eb · ai-work-workspace/src/litpage/server/content/html.ts · tests/integration/notionSavedHtml.test.ts",
+      "completion": "저장 HTML의 본문을 분리하고 콜아웃·목록·할일·코드·북마크·영상·목차 구조 보존. 일반 HTML/ZIP·기존 URL 허용/정제 경계 회귀 확인.",
+      "constraints": "import.ts·DB·API·권한 변경과 운영 쓰기·빌드·배포·push 없음.",
+      "evidence": "주인님 전달 착수 보고 · ee73ff8eb 파일 점유",
+      "next": "CC-WORKSPACE-01 고정 결과 SHA/시험·일반 HTML/ZIP 회귀 근거 회신 후 독립 검수 배정.",
+      "lastReviewedAt": "2026-11-18T18:03:55.268Z"
     }
   ]
 }
