@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 11:59:30 KST",
+  "checkedAt": "2026-11-18 12:01:36 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,23 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T02:59:30.709Z",
+      "at": "2026-11-18T03:01:36.416Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM18-01 17b45c398 자체완료보고",
-      "scope": "순수헬퍼/시험변경3파일·정확키형식·운영미연결·검수/다음읽기배정",
+      "trigger": "12:00예약 msg_c36efe57c0c0 + CRM순수검수PASS",
+      "scope": "19카테고리미종료작업/담당상태·보고/문서증분·제품미커밋·Backend/Music실화면·CRM독립판정",
       "evidence": [
-        "Master helper본문/diffstat·작성자14/tsc0",
-        "Mac msg_fac36ddfe9e7·Backend다음영향읽기msg_788ea7b746bd"
+        "dev-requests0·src미커밋0·12:00예약결과0/다음12:30",
+        "CRM Mac msg_7b5773105100 native14+독립경계PASS",
+        "Backend2단계상태소비자읽기진행실화면확인",
+        "Music내부기록추가확인창표시·선택대행0·B완료신호0",
+        "제품/신규인계변경없음(자체진행표·이번CRM QA결과제외)"
       ],
-      "judgment": "자체통과접수·운영중복방지완료아님. Mac독립검수와다음단계영향읽기분리·제품추가수정0",
+      "judgment": "CRM1단계순수검증소스완료수락·운영방지완료아님. 다음영향읽기조사계속·Gmail/MacB/Lab사람단계유지.",
       "unverified": [
-        "Mac독립판정·state소비자/다채널unknown설계",
-        "Gmail실OAuth·Mac B저장"
+        "2단계상태/다채널/DDL영향",
+        "Gmail OAuth·Mac B저장·Lab시험결제"
       ],
-      "nextAction": "검수/범위읽기결과회수후2단계구현범위판정·운영DDL/비용별도"
+      "nextAction": "Backend영향조사후정확범위후속배정·사람완료뒤실검증·12:30기존Master예약"
     },
     "notifications": [
       {
@@ -93,7 +96,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-18T03:00:00.000Z",
+      "nextScheduledAt": "2026-11-18T03:30:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -111,8 +114,8 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-18T02:30:00.000Z",
-        "messageId": "msg_a117d5943f48",
+        "scheduledAt": "2026-11-18T03:00:00.000Z",
+        "messageId": "msg_c36efe57c0c0",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false
@@ -7639,20 +7642,25 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
       "title": "CRM v2 이벤트키 순수검증·시험 1단계",
-      "status": "ready_review",
-      "delivery": "pure_source_independent_review_dispatched",
-      "evidence": "6768146ff·msg_cdd38dc32bd7·결과msg_46508dbae1da·Master3파일/헬퍼본문확인·Mac msg_fac36ddfe9e7",
+      "status": "done",
+      "delivery": "pure_functions_independent_pass_unwired",
+      "evidence": "6768146ff·msg_cdd38dc32bd7·결과msg_46508dbae1da·Master3파일/헬퍼본문확인·Mac msg_fac36ddfe9e7·Mac PASSmsg_7b5773105100·수락msg_5fd5915909cc",
       "scopeRef": "crm-google-form/lib/crm/dedupe.ts·tests/dedupe.test.mjs 신규+기존결과본인절",
       "completion": "v2/version/kind/key타입·길이/허용문자/source범위·구버전NULL·불량/같은값다른행/다른source경계·실제함수red-green/타입검사",
       "constraints": "route/dispatch/UI/snippet/DDL연결0·운영DB/발송/실API/새패키지/build/dev0",
-      "next": "Mac타입/길이/키/source/UTF8독립검수·Backend2단계소비자영향읽기조사(msg_788ea7b746bd)",
-      "lastReviewedAt": "2026-11-18T02:59:30.709Z",
+      "next": "Backend2단계상태소비자영향읽기조사반환→새구현범위지정,운영미연결",
+      "lastReviewedAt": "2026-11-18T03:01:36.416Z",
       "sha": "17b45c398",
       "validation": {
         "author": "Node26 실제TS node--test14/14·tsc0·red-green/변이",
         "master": "diffstat3파일·helper읽기·운영연결0확인",
-        "independent": "Mac모의국소대기"
-      }
+        "independent": "Mac Node24.18 native14/14+UTF8/이모지/키줄바꿈/파일ID/행/source/legacy 국소반례PASS"
+      },
+      "limits": [
+        "values plainobject까지만·UUID/13자리시각형식만",
+        "legacy NULL미보호·DB복합unique/route/스트림상한미검수",
+        "kind동일키는문법교집합없어시험제목확대금지"
+      ]
     }
   ]
 }
