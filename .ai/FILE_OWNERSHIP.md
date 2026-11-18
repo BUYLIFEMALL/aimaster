@@ -343,3 +343,5 @@ WS-20261118-04 CC-WORKSPACE-01: ai-work-workspace/src/litpage/web/lib/router.ts�
 WS-20261118-06 CC-WORKSPACE-01: ai-work-workspace/src/litpage/web/features/page/PageView.tsx·PageMenu.tsx(pageSetting의 page_full_width 판정만)·새 page/pageWidth.ts·web/features/shell/shortcuts.ts(toggleFullWidth 한 곳)·database/views/calendar/calendar.css(40896d037 완료분)·새 tests/integration/pageWidth.test.ts. 업무 현황판 유효 너비를 본문·메뉴·단축키가 공유, 첫 토글은 명시 false 저장. 타 페이지·명시 값·권한·공개/peek 기본 폭 보존. 실제 설정 쓰기/빌드/배포/push0.
 
 WS-20261118-06 추가 CC-WORKSPACE-01: ai-work-workspace/src/litpage/web/features/page/PeekPanel.tsx(openPageMenu 호출 두 곳에 peek 문맥 전달만)·PageMenu.tsx(openPageMenu·Switch·pageSetting·togglePageSetting의 peek 선택 인자, page_full_width 판정만)·tests/integration/pageWidth.test.ts. 옆 미리보기 메뉴의 전체 너비 표시·첫 토글을 본문 기본 폭과 일치. 실제 설정 쓰기/빌드/배포/push0.
+
+WS-20261118-06 점유 해제 CC-WORKSPACE-01: 40896d037·236415698·172e3f41f 로컬 검수 종결(Master msg_36d3d349cafa)·미배포. page/PageView.tsx·PageMenu.tsx·PeekPanel.tsx·pageWidth.ts·shell/shortcuts.ts·calendar.css·tests/integration/pageWidth.test.ts 점유 해제. 분리 기록: 실제 화면 미확인, 표 행 페이지 배치 기본 폭은 메뉴 스위치에 원래 반영 안 됨(변경 0).
