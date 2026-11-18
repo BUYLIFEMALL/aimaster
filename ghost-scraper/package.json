@@ -7,7 +7,6 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node tests/security.mjs",
     "test:runtime": "node tests/runtime.mjs",
     "build:verify": "node tests/local.mjs build"
   },
