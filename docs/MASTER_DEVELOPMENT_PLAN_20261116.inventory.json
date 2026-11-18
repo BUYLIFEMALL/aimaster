@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 11:41:28 KST",
+  "checkedAt": "2026-11-18 11:50:31 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T02:41:28.562Z",
+      "at": "2026-11-18T02:50:31.105Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Music 역할기록 완료시점 정정 msg_82929bde1f62",
-      "scope": "실제2커밋/역할파일diff·완료보고순서",
+      "trigger": "PORT19 최종72467a6ee/69인용검사",
+      "scope": "19근거전수quote/line·의미필터·카테고리/개선표실제버전갱신·CRM단기배정",
       "evidence": [
-        "e4693e0d7+96d92d9c8 합산diff 본인갱신/최근완료1행",
-        "실행성공/SHA확인뒤회신지시msg_185776443355"
+        "Master69/69 quote+line PASS",
+        "규칙/병합완료/메타차이 미완료제외·68담당미확정유지",
+        "Backend PORT18-02 msg_e239ca3d4f76·AGY수락msg_88880ff57727"
       ],
-      "judgment": "문서기록실커밋확인수락·이전선행완료보고오류이력보존·A영상PASS불변",
+      "judgment": "인용근거자료수락·미완료사실자동확대0. CRM고위험과거항목현재검증한건단일배정·운영v1.58/v1.30카테고리정합성갱신.",
       "unverified": [
-        "Mac B파일/진단",
-        "Gmail실OAuth·PORT19정정결과"
+        "CRM F007현재소스/배포·19현재활성담당",
+        "Gmail OAuth·Mac B저장"
       ],
-      "nextAction": "B사람Return후검증·새시험/렌더0"
+      "nextAction": "Backend현재검증/사람완료신호회수→정확다음작업판정"
     },
     "notifications": [
       {
@@ -248,7 +249,16 @@
         "pendingMarkers": 39,
         "reviewedAt": "2026-11-17T16:58:50.290Z",
         "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
-        "gap": ""
+        "gap": "",
+        "portfolioEvidence": {
+          "sha": "72467a6ee",
+          "source": ".ai/results/PORT-20261118-01-AG-UI-01.json",
+          "quotesVerified": true,
+          "currentOwnerConfirmed": false,
+          "runtimeVerified": false,
+          "interpretation": "문서의잔여/제안후보·현행소스/배포시점재확인후작업화",
+          "reviewedAt": "2026-11-18T02:50:31.105Z"
+        }
       }
     },
     {
@@ -281,7 +291,16 @@
         "pendingMarkers": 28,
         "reviewedAt": "2026-11-17T16:58:50.290Z",
         "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
-        "gap": ""
+        "gap": "",
+        "portfolioEvidence": {
+          "sha": "72467a6ee",
+          "source": ".ai/results/PORT-20261118-01-AG-UI-01.json",
+          "quotesVerified": true,
+          "currentOwnerConfirmed": false,
+          "runtimeVerified": false,
+          "interpretation": "문서의잔여/제안후보·현행소스/배포시점재확인후작업화",
+          "reviewedAt": "2026-11-18T02:50:31.105Z"
+        }
       }
     },
     {
@@ -347,7 +366,16 @@
         "pendingMarkers": 19,
         "reviewedAt": "2026-11-17T16:58:50.290Z",
         "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
-        "gap": ""
+        "gap": "",
+        "portfolioEvidence": {
+          "sha": "72467a6ee",
+          "source": ".ai/results/PORT-20261118-01-AG-UI-01.json",
+          "quotesVerified": true,
+          "currentOwnerConfirmed": false,
+          "runtimeVerified": false,
+          "interpretation": "과거미배포표시는현재배포차이재확인필요",
+          "reviewedAt": "2026-11-18T02:50:31.105Z"
+        }
       }
     },
     {
@@ -447,7 +475,16 @@
         "pendingMarkers": 17,
         "reviewedAt": "2026-11-17T16:58:50.290Z",
         "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
-        "gap": ""
+        "gap": "",
+        "portfolioEvidence": {
+          "sha": "72467a6ee",
+          "source": ".ai/results/PORT-20261118-01-AG-UI-01.json",
+          "quotesVerified": true,
+          "currentOwnerConfirmed": false,
+          "runtimeVerified": false,
+          "interpretation": "문서의잔여/제안후보·현행소스/배포시점재확인후작업화",
+          "reviewedAt": "2026-11-18T02:50:31.105Z"
+        }
       }
     },
     {
@@ -480,7 +517,16 @@
         "pendingMarkers": 17,
         "reviewedAt": "2026-11-17T16:58:50.290Z",
         "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
-        "gap": ""
+        "gap": "",
+        "portfolioEvidence": {
+          "sha": "72467a6ee",
+          "source": ".ai/results/PORT-20261118-01-AG-UI-01.json",
+          "quotesVerified": true,
+          "currentOwnerConfirmed": false,
+          "runtimeVerified": false,
+          "interpretation": "package.json/APP_VERSION차이는검증후보·실결함아님",
+          "reviewedAt": "2026-11-18T02:50:31.105Z"
+        }
       }
     },
     {
@@ -514,7 +560,16 @@
         "pendingMarkers": 20,
         "reviewedAt": "2026-11-17T16:58:50.290Z",
         "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
-        "gap": ""
+        "gap": "",
+        "portfolioEvidence": {
+          "sha": "72467a6ee",
+          "source": ".ai/results/PORT-20261118-01-AG-UI-01.json",
+          "quotesVerified": true,
+          "currentOwnerConfirmed": false,
+          "runtimeVerified": false,
+          "interpretation": "문서의잔여/제안후보·현행소스/배포시점재확인후작업화",
+          "reviewedAt": "2026-11-18T02:50:31.105Z"
+        }
       }
     },
     {
@@ -981,7 +1036,16 @@
         "pendingMarkers": 35,
         "reviewedAt": "2026-11-17T16:58:50.290Z",
         "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
-        "gap": ""
+        "gap": "",
+        "portfolioEvidence": {
+          "sha": "72467a6ee",
+          "source": ".ai/results/PORT-20261118-01-AG-UI-01.json",
+          "quotesVerified": true,
+          "currentOwnerConfirmed": false,
+          "runtimeVerified": false,
+          "interpretation": "문서의잔여/제안후보·현행소스/배포시점재확인후작업화",
+          "reviewedAt": "2026-11-18T02:50:31.105Z"
+        }
       }
     },
     {
@@ -1115,7 +1179,16 @@
         "pendingMarkers": 28,
         "reviewedAt": "2026-11-17T16:58:50.290Z",
         "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
-        "gap": ""
+        "gap": "",
+        "portfolioEvidence": {
+          "sha": "72467a6ee",
+          "source": ".ai/results/PORT-20261118-01-AG-UI-01.json",
+          "quotesVerified": true,
+          "currentOwnerConfirmed": false,
+          "runtimeVerified": false,
+          "interpretation": "문서의잔여/제안후보·현행소스/배포시점재확인후작업화",
+          "reviewedAt": "2026-11-18T02:50:31.105Z"
+        }
       }
     },
     {
@@ -1148,7 +1221,16 @@
         "pendingMarkers": 49,
         "reviewedAt": "2026-11-17T16:58:50.290Z",
         "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
-        "gap": ""
+        "gap": "",
+        "portfolioEvidence": {
+          "sha": "72467a6ee",
+          "source": ".ai/results/PORT-20261118-01-AG-UI-01.json",
+          "quotesVerified": true,
+          "currentOwnerConfirmed": false,
+          "runtimeVerified": false,
+          "interpretation": "문서의잔여/제안후보·현행소스/배포시점재확인후작업화",
+          "reviewedAt": "2026-11-18T02:50:31.105Z"
+        }
       }
     },
     {
@@ -1181,7 +1263,16 @@
         "pendingMarkers": 6,
         "reviewedAt": "2026-11-17T16:58:50.290Z",
         "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
-        "gap": ""
+        "gap": "",
+        "portfolioEvidence": {
+          "sha": "72467a6ee",
+          "source": ".ai/results/PORT-20261118-01-AG-UI-01.json",
+          "quotesVerified": true,
+          "currentOwnerConfirmed": false,
+          "runtimeVerified": false,
+          "interpretation": "병합완료안내는잔여아님·competitor-analysis로문서상병합",
+          "reviewedAt": "2026-11-18T02:50:31.105Z"
+        }
       }
     },
     {
@@ -1214,7 +1305,16 @@
         "pendingMarkers": 34,
         "reviewedAt": "2026-11-17T16:58:50.290Z",
         "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
-        "gap": ""
+        "gap": "",
+        "portfolioEvidence": {
+          "sha": "72467a6ee",
+          "source": ".ai/results/PORT-20261118-01-AG-UI-01.json",
+          "quotesVerified": true,
+          "currentOwnerConfirmed": false,
+          "runtimeVerified": false,
+          "interpretation": "문서의잔여/제안후보·현행소스/배포시점재확인후작업화",
+          "reviewedAt": "2026-11-18T02:50:31.105Z"
+        }
       }
     },
     {
@@ -1281,7 +1381,16 @@
         "pendingMarkers": 21,
         "reviewedAt": "2026-11-17T16:58:50.290Z",
         "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
-        "gap": ""
+        "gap": "",
+        "portfolioEvidence": {
+          "sha": "72467a6ee",
+          "source": ".ai/results/PORT-20261118-01-AG-UI-01.json",
+          "quotesVerified": true,
+          "currentOwnerConfirmed": false,
+          "runtimeVerified": false,
+          "interpretation": "구버전문서잔존은문서대조후보·기능미완료아님",
+          "reviewedAt": "2026-11-18T02:50:31.105Z"
+        }
       }
     },
     {
@@ -2508,13 +2617,13 @@
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
         "line": 152
       },
-      "owner": "AG-UI-01",
-      "stage": "v1.30범위사고→v1.29무빌드복구·이미지3엔진동결/검수중",
-      "completed": "기존QA042/044/046/048 지정소스PASS(소스미반영),공식alias dpl_D9 독립복구확인",
-      "next": "d21 이미지QA049·키/무료서비스정책/실지원·명시SHAmanifest 확인후새실행범위·재빌드승인,실모델0",
-      "reportedVersion": "v1.29",
-      "evidence": "msg_3e45eb66363e·Master Vercel get_alias dpl_D9ExEsYD9sH9zAxZy38dkU2UUMUz·INC18-01",
-      "evidenceLevel": "별칭대상독립확인·DB1.29/HTTP200담당보고·소스검수와미배포/롤백구분",
+      "owner": "CC-ECOM-01",
+      "stage": "3사글귀AI 운영·이미지엔진보완 소스완료/미배포",
+      "completed": "지정0789/59cb소스트리재배포·3사3실호출작성자성공·Master alias확인·이미지1a1f64dba 지정독립PASS",
+      "next": "이미지b34+3cb+1a1 다음승인묶음까지동결·free=false·새실생성/빌드미승인",
+      "reportedVersion": "v1.30",
+      "evidence": "msg_85526463335b·dpl_7XjTSJkDk6Ftzt9Lv3EVvo52HpdT·QA049·e201aed81",
+      "evidenceLevel": "운영alias직접·작성자모델3/DOM375·이미지독립모의PASS/운영미반영",
       "documentReview": {
         "slug": "emotion-writer",
         "folder": "emotion-writer",
@@ -2793,7 +2902,16 @@
         "pendingMarkers": 73,
         "reviewedAt": "2026-11-17T16:58:50.290Z",
         "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
-        "gap": ""
+        "gap": "",
+        "portfolioEvidence": {
+          "sha": "72467a6ee",
+          "source": ".ai/results/PORT-20261118-01-AG-UI-01.json",
+          "quotesVerified": true,
+          "currentOwnerConfirmed": false,
+          "runtimeVerified": false,
+          "interpretation": "본인Meta규칙은운영정책·미완료아님",
+          "reviewedAt": "2026-11-18T02:50:31.105Z"
+        }
       }
     },
     {
@@ -2827,7 +2945,16 @@
         "pendingMarkers": 36,
         "reviewedAt": "2026-11-17T16:58:50.290Z",
         "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
-        "gap": ""
+        "gap": "",
+        "portfolioEvidence": {
+          "sha": "72467a6ee",
+          "source": ".ai/results/PORT-20261118-01-AG-UI-01.json",
+          "quotesVerified": true,
+          "currentOwnerConfirmed": false,
+          "runtimeVerified": false,
+          "interpretation": "옛DB버전보고는현재운영사실아님·재확인후보",
+          "reviewedAt": "2026-11-18T02:50:31.105Z"
+        }
       }
     },
     {
@@ -2861,7 +2988,16 @@
         "pendingMarkers": 45,
         "reviewedAt": "2026-11-17T16:58:50.290Z",
         "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
-        "gap": ""
+        "gap": "",
+        "portfolioEvidence": {
+          "sha": "72467a6ee",
+          "source": ".ai/results/PORT-20261118-01-AG-UI-01.json",
+          "quotesVerified": true,
+          "currentOwnerConfirmed": false,
+          "runtimeVerified": false,
+          "interpretation": "문서의잔여/제안후보·현행소스/배포시점재확인후작업화",
+          "reviewedAt": "2026-11-18T02:50:31.105Z"
+        }
       }
     },
     {
@@ -2894,7 +3030,16 @@
         "pendingMarkers": 5,
         "reviewedAt": "2026-11-17T16:58:50.290Z",
         "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
-        "gap": ""
+        "gap": "",
+        "portfolioEvidence": {
+          "sha": "72467a6ee",
+          "source": ".ai/results/PORT-20261118-01-AG-UI-01.json",
+          "quotesVerified": true,
+          "currentOwnerConfirmed": false,
+          "runtimeVerified": false,
+          "interpretation": "문서의잔여/제안후보·현행소스/배포시점재확인후작업화",
+          "reviewedAt": "2026-11-18T02:50:31.105Z"
+        }
       }
     },
     {
@@ -2928,7 +3073,16 @@
         "pendingMarkers": 36,
         "reviewedAt": "2026-11-17T16:58:50.290Z",
         "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
-        "gap": ""
+        "gap": "",
+        "portfolioEvidence": {
+          "sha": "72467a6ee",
+          "source": ".ai/results/PORT-20261118-01-AG-UI-01.json",
+          "quotesVerified": true,
+          "currentOwnerConfirmed": false,
+          "runtimeVerified": false,
+          "interpretation": "문서의잔여/제안후보·현행소스/배포시점재확인후작업화",
+          "reviewedAt": "2026-11-18T02:50:31.105Z"
+        }
       }
     },
     {
@@ -2962,7 +3116,16 @@
         "pendingMarkers": 27,
         "reviewedAt": "2026-11-17T16:58:50.290Z",
         "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
-        "gap": ""
+        "gap": "",
+        "portfolioEvidence": {
+          "sha": "72467a6ee",
+          "source": ".ai/results/PORT-20261118-01-AG-UI-01.json",
+          "quotesVerified": true,
+          "currentOwnerConfirmed": false,
+          "runtimeVerified": false,
+          "interpretation": "개발금지는운영제약·문서상병합완료/동결",
+          "reviewedAt": "2026-11-18T02:50:31.105Z"
+        }
       }
     },
     {
@@ -3098,7 +3261,16 @@
         "pendingMarkers": 38,
         "reviewedAt": "2026-11-17T16:58:50.290Z",
         "method": "파일수집/상태표식계수·현재성은담당회신/근거수동판정만",
-        "gap": ""
+        "gap": "",
+        "portfolioEvidence": {
+          "sha": "72467a6ee",
+          "source": ".ai/results/PORT-20261118-01-AG-UI-01.json",
+          "quotesVerified": true,
+          "currentOwnerConfirmed": false,
+          "runtimeVerified": false,
+          "interpretation": "문서의잔여/제안후보·현행소스/배포시점재확인후작업화",
+          "reviewedAt": "2026-11-18T02:50:31.105Z"
+        }
       }
     },
     {
@@ -3182,12 +3354,12 @@
         "line": 172
       },
       "owner": "CC-WORKSPACE-01",
-      "stage": "예약링크 운영활성·146/E1/E2반영, E3/Gmail OFF/WS23 미배포",
-      "completed": "v1.56 146운영·v1.57 예약실검증 및 QA정리, E3독립소스PASS·Gmail QA041까지지정PASS",
-      "next": "v1.58 E3+WS23+GmailOFF 묶음 승인대기, Gmail활성SQL/실OAuth 별도. WS18-01 요일칩a41a1e31e QA043진행·미배포",
-      "reportedVersion": "v1.57",
-      "evidence": "WS22 ce23306cc/c41a5b613·WS24 6f166ec8f·WS25 a3cc19d77·정합성f6e6b1da3",
-      "evidenceLevel": "기존운영증거·지정독립검수·담당문서대조, 이번운영재시험0",
+      "stage": "E3/예약수정/요일칩/Gmail ON 배포·실OAuth설정대조",
+      "completed": "0074/75운영적용작성자검증·v1.58공식alias Master확인·전체840/tsc",
+      "next": "redirect_uri_mismatch 실제요청/회원앱/GCP일치→OAuth/공통실검증·Mac독립",
+      "reportedVersion": "v1.58",
+      "evidence": "9ea979de9·dpl_8GoargZugPSSqT5atpJ5PZqWbDyd·Master get_alias·WS27보고",
+      "evidenceLevel": "운영alias직접확인·SQL/DB버전/DOM작성자·실Gmail아직0",
       "documentReview": {
         "slug": "ai-work-workspace",
         "folder": "ai-work-workspace",
@@ -7401,15 +7573,15 @@
       "owner": "AG-UI-01",
       "reviewer": "CX-MASTER-01",
       "title": "미확인5카테고리19프로그램 담당/잔여근거 매핑",
-      "status": "running",
-      "delivery": "verbatim_correction_in_progress",
+      "status": "done",
+      "delivery": "quote_registry_accepted_semantics_filtered",
       "scopeRef": "inventory의 CRM/마케팅/인스타/성격운세/AI프롬프트 19개·기존문서읽기+본인JSON1개",
-      "evidence": "msg_bd9dfa2f47ed·Master대상19검산·수락착수msg_95cb54baa5e3·결과msg_fd9af2a7ff82·Master JSON본문/CRM원문대조·반환msg_10abb7dc1a78·정정착수msg_d3c74beed32e·정정msg_70aaf2ac8ec2·Master전수pending quote파일매칭·재반환msg_6eab44c17770·수락msg_e6c87abd0185·11:30실화면정확인용추출중·임시본인파일정리지시msg_6c60994d4d1b",
+      "evidence": "msg_bd9dfa2f47ed·Master대상19검산·수락착수msg_95cb54baa5e3·결과msg_fd9af2a7ff82·Master JSON본문/CRM원문대조·반환msg_10abb7dc1a78·정정착수msg_d3c74beed32e·정정msg_70aaf2ac8ec2·Master전수pending quote파일매칭·재반환msg_6eab44c17770·수락msg_e6c87abd0185·11:30실화면정확인용추출중·임시본인파일정리지시msg_6c60994d4d1b·결과msg_99ca36cb9c29·Master exact quote/line69/69·동결ACKmsg_88880ff57727",
       "completion": "각slug문서의명시담당/당시버전/잔여/라이프사이클/근거절/확신/불일치·19건누락0,과거작성자=현활성담당추정0",
-      "next": "동일JSON exact quote/file.includes/계산line 전수검사·원문기반잔여/해결대조→Master재검토·공식표반영보류",
+      "next": "현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도",
       "blockedReason": null,
-      "lastReviewedAt": "2026-11-18T02:27:12.069Z",
-      "sha": "88f128726",
+      "lastReviewedAt": "2026-11-18T02:50:31.105Z",
+      "sha": "72467a6ee",
       "findings": [
         "F011해결정정확인",
         "31 pending인용 중 22개는 markdown/공백제거후에도파일내매칭실패",
@@ -7441,6 +7613,20 @@
         "작성자route+guard통합미실행·Mac가능범위검수요청",
         "실통신/키/DB/build/deploy0·운영v1.30변경0"
       ]
+    },
+    {
+      "task_id": "PORT-20261118-02",
+      "parent_task_id": "PORT-20261118-01",
+      "owner": "CC-B2B-BACK-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "CRM F007 웹훅 중복발송 현행 소스 검증",
+      "status": "ready",
+      "delivery": "dispatch_sent",
+      "evidence": "CRM IMPROVEMENTS7·msg_e239ca3d4f76",
+      "scopeRef": "crm-google-form 읽기/기존가짜검증·결과1개만",
+      "completion": "정확SHA/중복호출·DB제약/후속해결여부·정적vsmock근거·최소플랜/DDL/비용·실발송/운영DB0",
+      "next": "담당수락→현재코드확인→Master구현범위판정",
+      "lastReviewedAt": "2026-11-18T02:50:31.105Z"
     }
   ]
 }
