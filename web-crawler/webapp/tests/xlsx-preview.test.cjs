@@ -192,3 +192,50 @@ test('F01 too_large 메시지는 고정 문구', async () => {
   const big = new Uint8Array(PREVIEW_LIMITS.fileBytes + 1);
   await assert.rejects(parseXlsxPreview(big), (e) => e.message === '결과 파일이 커서 미리보기를 만들 수 없습니다. 엑셀로 내려받아 확인해 주세요.');
 });
+
+// ── QA(Mac) F04: 공유 문자열 닫는 태그 누락 시 시간 경계(별도 프로세스·시간 예산) ─────────────
+const { spawnSync } = require('node:child_process');
+/** 별도 프로세스에서 sharedStrings 본문으로 파싱하고 {code|ok, ms}를 받는다. 시간 예산을 넘으면 timedOut. */
+function runIsolated(sharedXml, budgetMs = 3000) {
+  const script = `
+    const fs=require('fs'),path=require('path'),ts=require('typescript'),JSZip=require('jszip');
+    const js=ts.transpileModule(fs.readFileSync(path.join(${JSON.stringify(path.join(__dirname, '../src/lib/jobs/xlsxPreview.ts'))}),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText;
+    const m={exports:{}};new Function('module','exports','require',js)(m,m.exports,id=>id==='server-only'?{}:require(id));
+    (async()=>{const z=new JSZip();
+      z.file('xl/workbook.xml','<workbook><sheets><sheet r:id="rId1" xmlns:r="x"/></sheets></workbook>');
+      z.file('xl/_rels/workbook.xml.rels','<Relationships><Relationship Id="rId1" Target="worksheets/sheet1.xml"/></Relationships>');
+      z.file('xl/worksheets/sheet1.xml','<worksheet><sheetData><row r="1"><c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>2</v></c></row><row r="2"><c r="A2" t="s"><v>1</v></c><c r="B2" t="s"><v>999999</v></c></row></sheetData></worksheet>');
+      z.file('xl/sharedStrings.xml',fs.readFileSync(0,'utf8'));
+      const b=await z.generateAsync({type:'uint8array',compression:'DEFLATE'});const t=Date.now();
+      try{const p=await m.exports.parseXlsxPreview(b);process.stdout.write(JSON.stringify({ok:true,p,ms:Date.now()-t}))}
+      catch(e){process.stdout.write(JSON.stringify({code:e.code,ms:Date.now()-t}))}})();`;
+  const r = spawnSync(process.execPath, ['-e', script], { input: sharedXml, timeout: budgetMs, cwd: path.join(__dirname, '..'), encoding: 'utf8' });
+  if (r.error && r.error.code === 'ETIMEDOUT') return { timedOut: true };
+  return JSON.parse(r.stdout || '{}');
+}
+
+test('F04 닫는 </si> 없는 공유 문자열 64k → 시간 예산 안에 not_xlsx', () => {
+  const r = runIsolated(`<sst>${'<si><t>a</t>'.repeat(64 * 1024)}</sst>`);
+  assert.notEqual(r.timedOut, true, '시간 예산(3초) 초과');
+  assert.equal(r.code, 'not_xlsx');
+});
+
+test('F04 닫는 태그 없는 문자열 128k(입력 상한 안) → 시간 예산 안에 끝남', () => {
+  const r = runIsolated(`<sst>${'<si><t>b</t>'.repeat(128 * 1024)}</sst>`);
+  assert.notEqual(r.timedOut, true, '시간 예산(3초) 초과');
+  assert.equal(r.code, 'not_xlsx');
+});
+
+test('F04 <si>가 반복되고 끝에만 </si> → 시간 예산 안에 끝나고 칸 길이 상한 유지', () => {
+  const r = runIsolated(`<sst>${'<si><t>x'.repeat(64 * 1024)}</t></si></sst>`);
+  assert.notEqual(r.timedOut, true, '시간 예산(3초) 초과');
+  assert.ok(r.ok || r.code === 'not_xlsx', JSON.stringify(r).slice(0, 200));
+  if (r.ok) assert.ok(r.p.headers[0].length <= PREVIEW_LIMITS.cellChars + 1);
+});
+
+test('F04 정상 공유 문자열: 조각(rich)·자기 닫힘·없는 번호는 빈 칸', () => {
+  const r = runIsolated('<sst><si><r><t>상</t></r><r><t>품</t></r></si><si><t>사과&amp;배</t></si><si/></sst>');
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.deepEqual(r.p.headers, ['상품', '열 2']);
+  assert.deepEqual(r.p.rows, [['사과&배', '']]);
+});

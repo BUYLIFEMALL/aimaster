@@ -140,18 +140,64 @@ function sliceSheet(sheetXml: string, keep: number): { head: string; rowCount: n
 }
 
 /** sharedStrings.xml에서 필요한 번호만 꺼낸다(전체를 DOM으로 만들지 않음). 칸이 여러 조각(<r><t>)이어도 이어 붙인다. */
+// F04(맥미니 QA 2026-11-18): 예전 정규식은 </si>가 없으면 시작 위치마다 끝까지 다시 찾아(64k개 3.5초) 시간이 폭증했다.
+// 지금은 앞으로만 움직이는 위치(cursor) 하나로 indexOf만 쓴다 — 각 바이트를 상수 번만 본다. 닫는 태그가 없으면 즉시 not_xlsx.
 function pickSharedStrings(xml: string, wanted: Set<number>): Map<number, string> {
   const out = new Map<number, string>();
   if (wanted.size === 0) return out;
   const max = Math.max(...wanted);
-  const si = /<si\b[^>]*?(?:\/>|>([\s\S]*?)<\/si>)/g;
-  let index = 0;
-  for (let m = si.exec(xml); m && index <= max; m = si.exec(xml), index++) {
+  let cursor = 0;
+  for (let index = 0; index <= max; index++) {
+    // "<si" 뒤가 공백·">"·"/"인 진짜 <si> 시작만(예: <sis> 같은 다른 태그는 건너뜀)
+    let start = xml.indexOf("<si", cursor);
+    while (start >= 0 && !/[\s>/]/.test(xml.charAt(start + 3))) start = xml.indexOf("<si", start + 3);
+    if (start < 0) break; // 문자열이 더 없음 — 남은 번호는 빈 칸
+    const tagEnd = xml.indexOf(">", start + 3);
+    if (tagEnd < 0) throw notXlsx();
+    let body = "";
+    if (xml.charAt(tagEnd - 1) === "/") {
+      cursor = tagEnd + 1; // <si/>
+    } else {
+      const close = xml.indexOf("</si>", tagEnd + 1);
+      if (close < 0) throw notXlsx(); // 닫는 태그 누락 — 더 찾지 않고 끝낸다
+      body = xml.slice(tagEnd + 1, close);
+      cursor = close + 5;
+    }
     if (!wanted.has(index)) continue;
-    const $ = cheerio.load(`<si>${m[1] ?? ""}</si>`, { xml: true });
-    out.set(index, $("t").map((_, t) => $(t).text()).get().join(""));
+    out.set(index, textRuns(body));
   }
   return out;
+}
+
+const XML_ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
+function decodeXml(s: string): string {
+  return s.replace(/&(#x[0-9a-f]+|#\d+|amp|lt|gt|quot|apos);/gi, (all, e: string) => {
+    if (e[0] !== "#") return XML_ENTITIES[e.toLowerCase()] ?? all;
+    const code = e[1] === "x" || e[1] === "X" ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10);
+    return Number.isFinite(code) && code >= 0 && code <= 0x10ffff ? String.fromCodePoint(code) : all;
+  });
+}
+
+/** 공유 문자열 한 칸(<si> 본문)의 <t> 글자를 이어 붙인다. DOM 없이 앞으로만 움직이며, 칸 글자 상한을 넘으면 더 읽지 않는다. */
+function textRuns(body: string): string {
+  let text = "";
+  let cursor = 0;
+  while (text.length <= PREVIEW_LIMITS.cellChars) {
+    let start = body.indexOf("<t", cursor);
+    while (start >= 0 && !/[\s>/]/.test(body.charAt(start + 2))) start = body.indexOf("<t", start + 2);
+    if (start < 0) break;
+    const tagEnd = body.indexOf(">", start + 2);
+    if (tagEnd < 0) throw notXlsx();
+    if (body.charAt(tagEnd - 1) === "/") {
+      cursor = tagEnd + 1; // <t/>
+      continue;
+    }
+    const close = body.indexOf("</t>", tagEnd + 1);
+    if (close < 0) throw notXlsx();
+    text += decodeXml(body.slice(tagEnd + 1, close));
+    cursor = close + 4;
+  }
+  return text;
 }
 
 export async function parseXlsxPreview(bytes: Uint8Array): Promise<XlsxPreview> {
