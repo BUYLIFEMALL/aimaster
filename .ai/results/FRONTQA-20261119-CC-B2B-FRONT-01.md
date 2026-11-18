@@ -54,3 +54,7 @@
 - 변경: `tabKeyIndex`(→/← 순환·Home/End, 그 밖 null) 추가, TabsView에 `useId` 탭/패널 id, 로빙 tabIndex(고른 탭만 0), tablist onKeyDown(preventDefault·선택·초점), `aria-controls`/`aria-labelledby`, 패널 `role=tabpanel tabIndex=0` 하나만(숨은 패널 없음), 탭 수가 줄면 선택을 마지막 탭으로(기존 버그: 선택 없음·빈 패널), 밑줄 미선택 `text-slate-500`→`text-slate-600`(같은 바탕 실측 밝게 6.95~7.58·어둡게 6.57~7.51). 알약 스킨·선택 탭·hover·onClick·data 속성 그대로.
 - 시험(작성자 자체): 새 4(키 함수, happy-dom 실제 키 이벤트 두 블록·ID 중복 0·초점·패널 연결·클릭, 탭 감소, 색) — 수정 전 4/4 실패(tab0 3개·감소 시 선택 -1 등) → 후 통과. 기존 block-skins·templates 5·dark-header·theme·block-frame-full 포함 69/69, tsc 0.
 - 실화면(3210, ego, 저장·게시 없음): 상점 첫 화면 탭 2개 tab0 1·패널 연결·← 순환(「추천」 선택)·Home(「신상품」), 143 편집기 미리보기 탭 4개 tab0 1·패널 연결. 낭독기·실기기·Lab 배포 뒤 확인은 Mac.
+
+### HOMETABS P3 일대일 연결 (Mac msg_69f084b5f8af 4/4, Master msg_e9caba12b863) — ready_review
+- 커밋 `9f6b1c131`(home-blocks.tsx·tests/home-tabs.test.mjs). 점유 `f1cf6b8a8` → 해제 이 기록과 함께. 탭 j `aria-controls=panel-j`, 패널 j `id=panel-j`·`aria-labelledby=tab-j`, 안 고른 패널은 `hidden` 빈 상자(내용 null·tabIndex 없음), 고른 패널만 기존 본문·`tabIndex 0`. 로빙 키보드·대비·편집기·클릭 그대로.
+- 시험: 모든 탭·패널 쌍·보임 여부·안 고른 패널 빈 내용·본문 1개 확인 추가 → 4/4, 직전 `489c888e6` 코드로 2 실패, block-skins·block-frame-full·templates·templates-extra-4 28/28, tsc 0.
