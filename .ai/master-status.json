@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T15:45:13.697Z",
+  "checkedAt": "2026-11-18T15:46:13.062Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5213,20 +5213,21 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "W01 참고 이미지 서버 업로드 구현",
-      "status": "reviewing",
-      "delivery": "implementation_returned_independent_qa_dispatched",
+      "status": "done",
+      "delivery": "independent_source_review_accepted_local_undeployed",
       "scopeRef": "§22 안 가 · assets/store.ts, assets/upload.ts, POST /api/aif/assets, assetUpload.test.mjs · W00 §12-1 경로 반영",
       "constraints": "한 장, JSON 2 MiB, 디코딩 1 MiB. OFF 유지. 운영/실 Storage/AI/SQL/빌드/배포/기존 생성·UI 변경 없음.",
       "completion": "§22-5 모의 시험과 저장/생성 회귀·tsc, ref_* SQL 기존 근거 및 확정된 소스 SHA 반환. 독립 검수 CX-QA-01.",
-      "evidence": "msg_75a9a898c52d·msg_a32f13177142·msg_4e02c95d597d",
-      "next": "Mac CX-QA-01 독립 검수 수락·근거 대기. SQL 근거 공백은 A2S 별도. OFF·미배포.",
-      "lastReviewedAt": "2026-11-18T15:45:13.697Z",
+      "evidence": "msg_75a9a898c52d·msg_a32f13177142·msg_4e02c95d597d·msg_d660f5e477da·.ai/results/SNS-ASSETS-A1-20261118-CX-QA-01.md",
+      "next": "로컬 API 검수 종결. A2S 격리 SQL 결과 뒤 W01 다음 단위 검토. OFF·미배포, 실 Storage 미확인.",
+      "lastReviewedAt": "2026-11-18T15:46:13.062Z",
       "sha": "3776d54f7",
       "validation": {
         "author": "신규 모의 22/22, 전체 233/233, tsc PASS 보고",
         "master": "고정 네 경로 blob·스코프·SQL 기존 초과 제약 확인",
-        "independent": "msg_4e02c95d597d 전달; 수락 대기",
-        "unverified": "실 Storage·플랫폼 본문 처리. ref_* 실제 격리 SQL은 A2S."
+        "independent": "CX-QA-01 고정 3776d54f7 소스·기존 시험 근거 검토, 차단 반례 없음; 독립 재실행 0.",
+        "unverified": "실 Storage·플랫폼 본문 처리. ref_* 실제 격리 SQL은 A2S.",
+        "boundary": "2 MiB 정확한 본문은 JSON 검사를 통과하여 이미지 형식 오류에 도달하는 단언 확인. 정확한 상한에서 유효 사진 저장 성공의 별도 사례는 없음."
       }
     },
     {
