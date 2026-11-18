@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 14:27:36 KST",
+  "checkedAt": "2026-11-18 14:30:11 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:27:36.323Z",
+      "at": "2026-11-18T05:30:11.687Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM U3 스니펫 소스완료",
-      "scope": "5파일/실행시험범위·form/sheetv2/legacy fallback·실공개선행",
+      "trigger": "CRM U3 반례·SNS 입력형식 계획",
+      "scope": "실스크립트키보존/타임스탬프·이미지MIME/HTTPS사전검사·유료호출경계",
       "evidence": [
-        "msg_7f938d6f35bf/63f3df162",
-        "gitstat5파일",
-        "Mac생성실스크립트국소검수배정"
+        "msg_a7658c0027dd U3반례·수정반환",
+        "msg_256d9fae7ba4·Master실소스/Google공식docs",
+        "SNS제한된입력검사source배정"
       ],
-      "judgment": "U3작성자검사완료/독립검수대기, 운영공개아님. 새Google연결/실문자/자동스크립트교체0.",
+      "judgment": "CRM특수질문유실/날짜계약보완필요. SNS기존base64경로형식검증은새자산계약과독립으로진행·실생성0, 본문요청제한과출력G5미해소분리.",
       "unverified": [
-        "스니펫독립검수·실제AppsScript/시험시트",
-        "DDL/운영배포/실SMS승인"
+        "U3보완/실Google",
+        "SNS입력경계구현/검수·HEIFbrand계약/상한",
+        "운영/배포/실키"
       ],
-      "nextAction": "독립결과회수후소스묶음릴리스확인표준비·푸시0"
+      "nextAction": "새SHA/정확경로회수·다음정기14:30·실API0"
     },
     "notifications": [
       {
@@ -8082,19 +8083,19 @@
       "title": "Apps Script v2 이벤트키 스니펫·legacy 안내 연결",
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
-      "status": "ready_review",
-      "delivery": "v2_apps_script_source_ready_independent_execution_review",
+      "status": "needs_revision",
+      "delivery": "script_special_question_key_and_timestamp_contract_fix_returned",
       "scopeRef": "SourceCard·기존ARCHITECTURE·스니펫시험·기존결과만",
       "completion": "form/sheet 실이벤트키·Date전제·없으면legacy보호없음·파서실판정/재시도키/오류계약",
       "constraints": "실Google/운영DDL/실문자/build/push0·v2공개전DDL/route/실검증승인·시험시트확인",
-      "next": "Mac 생성실스크립트→파서/폼sheet이벤트키·fallback/값보존/로그0 검수→판정",
-      "evidence": "Master기존U3단계계획에따른source배정·접수/팔로우업소스PASS선행 · 착수msg_ae7532f0dc23·새순수생성기/실행시험경로허용 · msg_7f938d6f35bf·Master5파일stat·Mac검수전달",
-      "lastReviewedAt": "2026-11-18T05:27:36.323Z",
+      "next": "자체질문키보존/Date ASCII13계약 보완SHA회수→Mac",
+      "evidence": "Master기존U3단계계획에따른source배정·접수/팔로우업소스PASS선행 · 착수msg_ae7532f0dc23·새순수생성기/실행시험경로허용 · msg_7f938d6f35bf·Master5파일stat·Mac검수전달 · Macmsg_a7658c0027dd 특수키유실/음수Date 계약반례",
+      "lastReviewedAt": "2026-11-18T05:30:11.687Z",
       "sha": "63f3df162",
       "validation": {
         "author": "실생성스크립트24/24·전체297/297·tsc0·NOTICE0·실Google0",
         "master": "정확5파일stat·새순수생성기사전허용·운영선행조건보존",
-        "independent": "전달·수락/결과 대기"
+        "independent": "native24/24·실생성script→parser에서__proto__질문답변JSON유실(v2수용)P2·음수Date길이13 v2생성/서버400 P3·실Google/DB/SMS0"
       }
     },
     {
@@ -8103,13 +8104,13 @@
       "title": "참고 이미지 MIME/서명 처리 독립 개선 범위 계획",
       "owner": "CC-SNS-01",
       "status": "dispatched",
-      "delivery": "read_only_image_input_contract_plan_assigned",
-      "scopeRef": "기존W00문서·gemini/참고입력/공용검사 읽기만",
-      "completion": "실입력형식/생성경로·MIME고정문제·공용검사재사용·정확파일/모의검증/호환성",
-      "constraints": "읽기만·새자산/DDL/공급자교체/실AI/비용/build/push0·본체PLAN권한미완과독립",
-      "evidence": "W00 G1 MIME PNG고정소스근거·Master소스개선연속작업배정",
-      "next": "정확계획 회수→작은소스단위판정",
-      "lastReviewedAt": "2026-11-18T05:26:41.825Z"
+      "delivery": "image_reference_input_validation_source_implementation_assigned",
+      "scopeRef": "순수referenceImage·gemini·generate-image route·ControlPanel/InfluencerStudio·시험/기존문서",
+      "completion": "정확MIME/strictb64/서명/개수·장당/총/JSON상한·HTTPS반례·실route유료호출전거절·client변환/안내",
+      "constraints": "공용모듈/모델/프롬프트/DB자산/권한불변·원격이미지fetch/실AI/유료/build/push0·출력G5미해소",
+      "evidence": "W00 G1 MIME PNG고정소스근거·Master소스개선연속작업배정 · 계획msg_256d9fae7ba4·Master실gemini/route·Google공식지원MIME독립확인",
+      "next": "정확경로착수/상한근거·소스SHA/실route모의검증 회수→Mac",
+      "lastReviewedAt": "2026-11-18T05:30:11.687Z"
     }
   ]
 }
