@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T18:35:37.444Z",
+  "checkedAt": "2026-11-18T18:40:37.006Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9646,14 +9646,15 @@
       "parent_task_id": "B2B-20261119-FRONTP3",
       "owner": "CC-B2B-BACK-01",
       "title": "주문서 무통장 현금영수증 접수와 입금 확인 경합 처리",
-      "status": "queued",
-      "delivery": "atomic_checkout_rpc_implementation_dispatched",
+      "status": "reviewing",
+      "delivery": "guard_static_pass_test_hardening_dispatched",
       "scopeRef": "새 0105 로컬 마이그레이션과 격리 시험",
       "completion": "주문 행 잠금 안에서 본인·입금대기·금액·중복·상호배제 검증과 접수. 두 경합 순서 및 기존 주문 상세 회귀 확인.",
       "constraints": "외부 발급·결제, 공용 Lab·운영 적용, 빌드·배포·push 0.",
-      "evidence": "5f7ea2519·e8fbd8816·msg_3c12a55255d2·msg_d8108566a5f9",
-      "next": "백엔드 고정 SHA·격리 시험 반환 후 독립 검수와 Front 연결 배정.",
-      "lastReviewedAt": "2026-11-18T18:32:15.461Z"
+      "evidence": "5f7ea2519·e8fbd8816·msg_3c12a55255d2·msg_d8108566a5f9·msg_65e2a554b0f9·msg_2cd4b73dc162·msg_64e586875016·msg_8dba92300cba",
+      "next": "격리 16/16 보고, Mac 제품 정적 통과. R1 성공 판정·전용 DB 정리 보호를 보완. Front 로컬 연계 병행.",
+      "lastReviewedAt": "2026-11-18T18:40:37.006Z",
+      "sha": "195f9ba43"
     },
     {
       "task_id": "B2B-20261119-SAMPLE-S1",
@@ -9688,16 +9689,25 @@
       "parent_task_id": "WS-20261119-01",
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace v1.61 기존 중단 빌드 로그 진단",
-      "status": "queued",
-      "delivery": "approved_single_production_retry_dispatched",
+      "status": "reviewing",
+      "delivery": "retry_canceled_after_same_stall_live_v160_verified",
       "sha": "30bcfdee1",
-      "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef",
+      "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef·dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o·msg_0a595caceefd",
       "constraints": "기존 근거 읽기만. 재빌드·배포·push·운영 설정/DB 변경 0.",
-      "next": "팀 빌드·대기 0 재확인 후 배포 빌드 1회. Collecting 단계 120초 초과 시 취소. READY와 운영 화면 증거 회수.",
-      "lastReviewedAt": "2026-11-18T18:35:37.444Z",
+      "next": "재시도 1회도 페이지 데이터 수집에서 멈춤. Master 취소 및 공식 도메인 v1.60 READY 확인. 새 빌드 없이 감시 지연과 공통 재현 조건 진단.",
+      "lastReviewedAt": "2026-11-18T18:40:37.006Z",
       "validation": {
         "author": "컴파일·타입 통과 후 Collecting 약 11분 무출력. 성공판 같은 단계 35.4초. 시작 시 동시 빌드 0, 이후 11번가 약 8분 대기 보고.",
-        "master": "v1.60~v1.61 제품 변경 3파일 및 html.ts의 기존 정적 import 경로 확인."
+        "master": "v1.60~v1.61 제품 변경 3파일 및 html.ts의 기존 정적 import 경로 확인.",
+        "retry": "빌드 시작 전 팀 여유 확인. 두 번째 동일 단계 정체, 120초 기준 이후 수동 취소. 자동 중단 지연 원인 미확인."
+      },
+      "retry": {
+        "id": "dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o",
+        "collectingAt": "2026-11-18T18:36:21.665Z",
+        "result": "CANCELED",
+        "live": "dpl_DC9Bifer8U1oZ67QFRJNkaAQ1Pj6",
+        "builds": 1,
+        "cancelledBy": "CX-MASTER-01, Vercel cancel API"
       }
     },
     {
@@ -9706,13 +9716,14 @@
       "owner": "CC-B2B-FRONT-01",
       "reviewer": "CX-MASTER-01",
       "title": "B2B몰 UI 배포 범위와 순번 준비",
-      "status": "queued",
-      "delivery": "isolated_release_preflight_dispatched",
+      "status": "done",
+      "delivery": "production_base_proven_ui_bundle_queued",
       "scopeRef": "90248e5b1·86e5ad1bf 승인 UI만, 현재 운영 소스 기준",
       "constraints": "읽기·대조만. 빌드·운영·공용 Lab·push 없이 준비.",
-      "evidence": "msg_9084bc8e87cb",
-      "next": "운영 기준 SHA·대상 경로·의존성·복구 근거 반환 후 배포 묶음과 실행 담당 확정.",
-      "lastReviewedAt": "2026-11-18T18:35:37.444Z"
+      "evidence": "msg_9084bc8e87cb·msg_276204ab5b03·df1c73970",
+      "next": "운영 v1.16 READY. 가격 두 소스는 단독 적용 가능, 갤러리 90248e5b1은 7c8ee3a81·e4ba29947 동반 필요. 기존 다음 배포 묶음에 대기.",
+      "lastReviewedAt": "2026-11-18T18:40:37.006Z",
+      "sha": "df1c73970"
     },
     {
       "task_id": "AIF-20261119-W01-V4",
@@ -9720,13 +9731,32 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "일반 회원 한도와 운영 다운로드 선행 검증",
-      "status": "queued",
-      "delivery": "quota_read_and_isolated_boundary_preflight_dispatched",
+      "status": "waiting_human",
+      "delivery": "quota_boundary_pass_member_entitlement_approval_pending",
       "scopeRef": "지정 회원 자격 읽기·격리 한도 경계·운영 다운로드 선행조건",
       "constraints": "개인정보 출력·접속 설정 복사·운영 DB/Storage 쓰기·유료 AI·배포·스위치 변경 0.",
-      "evidence": "msg_1531209c451e·msg_0b10f8b59272",
-      "next": "읽기·격리 근거 확보 후 실제 운영 출처/계정 사용에 남은 선행조건 반환.",
-      "lastReviewedAt": "2026-11-18T18:35:37.444Z"
+      "evidence": "msg_1531209c451e·msg_0b10f8b59272·msg_49d6c4a9e5a3·10aedfb2e",
+      "next": "지정 일반 회원 500MB 정책 읽기 확인과 격리 한도 경계 5/5. 이용 자격 없어 14일 무결제 시험 권한 승인 대기. 운영 서명 다운로드는 배포 후 검증.",
+      "lastReviewedAt": "2026-11-18T18:40:37.006Z",
+      "sha": "10aedfb2e",
+      "validation": {
+        "limitation": "계정 판정 읽기만, 실제 로그인·업로드 미시행. 운영 출처 GET 미검증.",
+        "deviation": "격리 시험 신규 파일은 담당 초기 점유 목록에 없었음."
+      }
+    },
+    {
+      "task_id": "B2B-20261119-S70-FRONT",
+      "parent_task_id": "B2B-20261119-S70",
+      "owner": "CC-B2B-FRONT-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "주문서 UI에 무통장 현금영수증 접수 연결",
+      "status": "running",
+      "delivery": "checkout_front_scope_accepted_occupied",
+      "scopeRef": "장바구니 order 페이지·액션·폼·로컬 계약 시험",
+      "constraints": "운영·공용 Lab·SQL 적용·빌드·배포·실결제·push 0.",
+      "evidence": "msg_dc044907421b·msg_25b454a8d3b9·9d1b8624e",
+      "next": "주문 성공 후 RPC 1회 및 오류 분리. 모의 시험과 고정 소스 반환 후 독립 검수.",
+      "lastReviewedAt": "2026-11-18T18:40:37.006Z"
     }
   ]
 }
