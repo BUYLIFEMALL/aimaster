@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T02:40:05.164Z",
+  "checkedAt": "2026-11-18T02:41:28.562Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -1880,7 +1880,7 @@
       "status": "waiting_human",
       "delivery": "A_real_mp4_pass_B_save_dialog_pending",
       "title": "실제Intel Mac MP4파일내보내기 보조검수",
-      "evidence": "msg_44a7b56f0c81 / msg_0da73bcc8c24 / 요청 b9c115b01 REQUEST_20261118_MACMINI_V116_MP4.md·msg_b5ed90b53bf7·주인님Master직접진행지시·Mac msg_b60727c3b123·Music msg_9f301d9e2e55·착수msg_69e6e866b094·Mac Amsg_975970910010·Music decodePASSmsg_7238e49515f0·B중지ACKmsg_75f35f6074fa·가속단정정정msg_77578ef81f77",
+      "evidence": "msg_44a7b56f0c81 / msg_0da73bcc8c24 / 요청 b9c115b01 REQUEST_20261118_MACMINI_V116_MP4.md·msg_b5ed90b53bf7·주인님Master직접진행지시·Mac msg_b60727c3b123·Music msg_9f301d9e2e55·착수msg_69e6e866b094·Mac Amsg_975970910010·Music decodePASSmsg_7238e49515f0·B중지ACKmsg_75f35f6074fa·가속단정정정msg_77578ef81f77·기록선행완료주장정정msg_82929bde1f62·실제e4693e0d7/96d92d9c8 Master diff확인",
       "next": "주인님기존20 저장창있으면mac-file.mp4→PDS/mus-mac저장·Return,없으면현재진행/완료확인후안내→Mac diag-B→Music검증",
       "lastReviewedAt": "2026-11-18T02:40:05.164Z",
       "blockedReason": "Mac기존20 저장창확인/저장선택 직접조치필요·B현재상태불명이라재클릭중지",
@@ -1901,7 +1901,8 @@
           "audio": "AAC LC 48kHz stereo 20.0747s·유음",
           "verification": "Music 전체ffmpeg -xerror 종료0·오류0·600프레임·1회",
           "hardwareAcceleration": "실사용미확인·사전가능표시만",
-          "fallback": "대체안내/진행정지없음"
+          "fallback": "대체안내/진행정지없음",
+          "recordCorrection": "msg_775 완료/푸시주장은당시편집실패로부정확·이후실커밋e4693e0d7/96d92d9c8 확인, A파일검증판정불변"
         },
         "B": {
           "status": "waiting_human",
@@ -4250,22 +4251,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T02:40:05.164Z",
+      "at": "2026-11-18T02:41:28.562Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Mac A완료/Music전체decodePASS·B사람단계",
-      "scope": "A실파일2개/전체디코드·하드웨어추론정정·B불확실중복방지",
+      "trigger": "Music 역할기록 완료시점 정정 msg_82929bde1f62",
+      "scope": "실제2커밋/역할파일diff·완료보고순서",
       "evidence": [
-        "Mac msg_975970910010·Music msg_7238e49515f0",
-        "A 9022290B·600frame·유음·전체decode0",
-        "가속사전가능값≠실사용정정msg_77578ef81f77",
-        "B중지/Return조건ACKmsg_75f35f6074fa"
+        "e4693e0d7+96d92d9c8 합산diff 본인갱신/최근완료1행",
+        "실행성공/SHA확인뒤회신지시msg_185776443355"
       ],
-      "judgment": "메모리방식A지정범위PASS·B/실가속/대체경로PASS확대0. 실제native창미식별이라사람저장단계만요청.",
+      "judgment": "문서기록실커밋확인수락·이전선행완료보고오류이력보존·A영상PASS불변",
       "unverified": [
-        "B현재저장창/실파일/diag-B·실가속사용",
-        "GmailOAuth·PORT19정정결과"
+        "Mac B파일/진단",
+        "Gmail실OAuth·PORT19정정결과"
       ],
-      "nextAction": "주인님기존20 저장확인/Return뒤Mac읽기→B진단/파일→Music1회검증"
+      "nextAction": "B사람Return후검증·새시험/렌더0"
     },
     "notifications": [
       {
