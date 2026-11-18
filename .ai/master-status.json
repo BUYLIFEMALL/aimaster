@@ -4835,18 +4835,19 @@
       "reviewer": "CX-MASTER-01",
       "title": "누락 자산 정리 실행자 연결",
       "status": "reviewing",
-      "delivery": "cleanup_integration_source_received_three_contract_gaps_returned",
+      "delivery": "corrected_integration_mac_targeted_review_requested",
       "scopeRef": "retention.ts·cleanup route·assetRetention 시험·기존 해당 문구",
       "constraints": "SQL/fixture/read/store/모드/cron 고정·실행 DB/Storage/비용/빌드/배포 0",
       "completion": "C→D→B→A·검사/반환/처리 상한·DB parked_at 필터·D remove 0·OFF/불명 경계·로컬 모의",
-      "evidence": "msg_bf03508f5f2a / 9d62b80f9 / msg_4ae6f0ab8b0b / msg_eb6b37119dcb",
-      "next": "A 기존 후보 경계, D 응답 정합성, C 확인 우선순위 보완 SHA·모의시험 회수.",
-      "lastReviewedAt": "2026-11-18T10:02:52.223Z",
-      "sha": "2acb43f95",
+      "evidence": "msg_bf03508f5f2a / 9d62b80f9 / msg_4ae6f0ab8b0b / msg_eb6b37119dcb / msg_d0f856e36744 / msg_cdb5e8d6545b",
+      "next": "Mac 모의 독립 검수 결과 대기. C 앞 25건·D 쓰기/시간 경계 포함.",
+      "lastReviewedAt": "2026-11-18T10:07:41.945Z",
+      "sha": "09a2b3b94",
       "validation": {
-        "author": "retention 58/58·전체 181/181·tsc 통과 담당 보고. 고지 이상 0.",
-        "master": "고정 diff. 미판정 D 후보의 A 제외, D 응답 산술/중복, C 확인 전에 D scan 시작 및 timeout 시 C 차단 보완 요청.",
-        "limits": "실 PostgREST·DB·Storage·cron·활성화·배포 미실행."
+        "author": "retention 60/60·전체 183/183·tsc 통과 보고.",
+        "master": "기존 A 재확인·D 응답 산술/중복·앞 C 검증 25 우선의 고정 diff 확인. D 쓰기 시작 시간 경계 Mac 추가 확인 요청.",
+        "independent": "msg_cdb5e8d6545b 전송",
+        "limits": "실 PostgREST·DB·Storage·ON·cron·비용·빌드·배포 0."
       }
     }
   ],
@@ -5366,21 +5367,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T10:02:52.223Z",
+      "at": "2026-11-18T10:07:41.945Z",
       "timezone": "Asia/Seoul",
-      "trigger": "W01s 구현 회신",
-      "scope": "2acb43f95 실행자·라우트 고정 diff 및 담당 모의시험 보고 대조.",
+      "trigger": "W01s 세 계약 보완 회신",
+      "scope": "09a2b3b94 실행자 고정 diff와 담당 시험·제한 대조.",
       "evidence": [
-        "msg_4ae6f0ab8b0b·2acb43f95",
-        "msg_eb6b37119dcb"
+        "msg_d0f856e36744·09a2b3b94",
+        "msg_cdb5e8d6545b"
       ],
-      "judgment": "작성자 시험 근거 확보. 기존 A 재확인·D 응답 정합성·C 우선 확인 보완을 반환.",
+      "judgment": "A 재확인/D 응답 검증/C 앞 몫 우선 보완 수신. Mac 국소 독립 검수 배정.",
       "unverified": [
-        "보완 SHA 및 Mac 독립 검수",
-        "실 Supabase/Storage·모드/cron·배포",
-        "Gmail 동의/실검증"
+        "Mac 국소 시험 및 D 쓰기 시간 경계",
+        "운영 PostgREST/DB/Storage/cron·배포",
+        "Gmail 동의·실검증"
       ],
-      "nextAction": "국소 수정 근거 회수 후 Mac 검증."
+      "nextAction": "Mac 근거 회수 후 W01s 판정."
     },
     "notifications": [
       {
