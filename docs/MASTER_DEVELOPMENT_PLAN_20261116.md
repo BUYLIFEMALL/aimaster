@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 10:21:43 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 10:23:19 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 10:21:43 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 10:23:19 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: QA잔여2반례수정반환·Gmail배포/실alias/예산·OAuth/Mac검수순번 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 3cb7c147e2파일diff·b34국소검수보존·새SHA재검수배정·Gmail준비ACK · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -145,7 +145,7 @@ Master 마지막 실제 점검: 2026-11-18 10:21:43 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 242개: done 225개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 4개 · needs_revision 3개 · ready 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 242개: done 225개 · cancelled 7개 · ready_review 2개 · running 1개 · waiting_human 4개 · needs_revision 1개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -387,9 +387,9 @@ Master 마지막 실제 점검: 2026-11-18 10:21:43 KST · 실행 중 점검 주
 | ECOM-20261118-02 | CC-ECOM-01 | done / released_author_verified_master_alias_verified | 감성v1.30 승인배포/3사실호출·범위사고복구 | 원격빌드추가/실호출잔여0·이미지엔진계획별도 |
 | INC-20261118-01 | CX-MASTER-01 | done / contained_followup_required | HEAD추종배포 未검수포함·v1.29 복구 | 새이미지QA049·명시SHA릴리스manifest·추가빌드승인 별도, 재발방지미완까지사고전체종결로확대0 |
 | DES-20261118-05 | AG-UI-01 | needs_revision / frozen_pending_review | 주인님 직접 이미지 NanoBanana/OpenAI/무료모델 3엔진 | b34cba02b Mac재검수·새경로엄격검사/Gemini기존경계분리·AGY제품수정금지 |
-| QA-20261118-049 | CX-QA-01 | needs_revision / partial_retest_findings_returned | 새이미지3엔진 소스/가짜통신·키/응답경계 검수 | b34고정나머지guard/DOM마무리→새수정SHA 재검수 |
+| QA-20261118-049 | CX-QA-01 | ready / residual_fix_retest_dispatched | 새이미지3엔진 소스/가짜통신·키/응답경계 검수 | 3cb 새총JSON상한/redirect경계 독립재검수·Gmail사람단계와중복호출0 |
 | B2B-20261118-03 | CC-B2B-BACK-01 | waiting_human / fixture_prepared | 주인님 직접 Lab 교환비waiting1건·토스시험흐름 | 사람시험제출/로그인신호없음·고정교환1건유지,현재주문상태는03:31자동확정가능해반복RPC없이다음읽기때판정 |
-| ECOM-20261118-03 | CC-ECOM-01 | needs_revision / qa_partial_failed_fix_dispatched | 이미지3엔진 QA049 안전경계 보완 구현 | services/test만 OpenAI 전체JSON수신상한+redirect:error red-green→새SHA→Mac재검수 |
+| ECOM-20261118-03 | CC-ECOM-01 | ready_review / residual_fix_retest_dispatched | 이미지3엔진 QA049 안전경계 보완 구현 | Mac 3cb 동일잔여2반례 재검수→판정·실호출/배포0 |
 | PORT-20261118-01 | AG-UI-01 | ready / queued_not_settled | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 기존창에서대기메시지수신/수락되면19문서대조. 메시지재발송/새창/다른세션중복배정0 |
 
 ## 현재 담당 회신이 확보된 프로젝트
