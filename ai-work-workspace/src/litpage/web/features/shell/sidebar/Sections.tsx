@@ -26,6 +26,7 @@ import { ChatThreadIcon, chatUrl, openThreadMenu, UNTITLED_CHAT } from '../../ai
 import { AgentsSection } from '../../agents/AgentsSection.tsx';
 import { DeveloperSection } from '../../developer/SidebarSection.tsx';
 import { runQuery } from '#shared/database/index.ts';
+import { SHOW_UPCOMING_EVENTS } from '../trimPolicy.ts';
 import { collectionOfView, collectionRows, makeQueryContext } from '../../database/data.ts';
 import { effectiveView, useViewTempVersion } from '../../database/viewState.ts';
 
@@ -265,7 +266,7 @@ function ViewAllRowFor({ section }: { section: SidebarSection }) {
 export function SectionView({ section }: { section: SidebarSection }) {
   switch (section.type) {
     case 'upcoming_events':
-      return <UpcomingEventsSection section={section} />;
+      return SHOW_UPCOMING_EVENTS ? <UpcomingEventsSection section={section} /> : null;
     case 'recents':
       return <RecentsSection section={section} />;
     case 'favorites':

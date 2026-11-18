@@ -17,6 +17,7 @@ import {
 } from './model.ts';
 import { SECTION_ICON, SHORTCUT_ICON, sectionLabel, shortcutLabel } from './labels.ts';
 import { newPageShortcutLabel } from './newPagePreview.tsx';
+import { SHOW_UPCOMING_EVENTS } from '../trimPolicy.ts';
 import { openSectionMenu, openShortcutMenu, removeSection, removeShortcut } from './menus.tsx';
 
 const MAX_SHORTCUTS = 25;
@@ -223,7 +224,7 @@ function openAddSectionMenu(tab: SidebarTab, anchor: HTMLElement) {
   const teams = (records.all<TeamRecord>('team') as TeamRecord[]).filter((x) => x.space_id === useSession.getState().spaceId && x.alive !== false);
   const sec = (type: SectionType, extra?: Partial<MenuItemDef>): MenuItemDef => ({ label: sectionLabel(type), icon: SECTION_ICON[type], onSelect: () => addSection(tab, type), ...extra });
   const existing = new Set(tab.sections.map((s) => s.type));
-  const builtins: SectionType[] = ['upcoming_events', 'recents', 'favorites', 'teamspaces', 'shared', 'private'].filter((x) => !existing.has(x as SectionType)) as SectionType[];
+  const builtins: SectionType[] = ['upcoming_events', 'recents', 'favorites', 'teamspaces', 'shared', 'private'].filter((x) => !existing.has(x as SectionType) && (SHOW_UPCOMING_EVENTS || x !== 'upcoming_events')) as SectionType[];
   openMenu(anchor, {
     width: 240,
     dividers: false,

@@ -39,6 +39,9 @@ export const SHOW_MARKETPLACE = false;
 /** 계정 메뉴의 다른 계정 추가·전환(AIMaster 통합 계정이 맡음) */
 export const SHOW_MULTI_ACCOUNT = false;
 
+/** 사이드바 「예정된 일정 › 캘린더 연결」 — 숨긴 「메일·캘린더」 설정만 여는 원본 빈 자리(일정 표시 기능 없음). 구글 캘린더는 「캘린더 연동」 메뉴가 맡음(2026-11-18 주인님 지시) */
+export const SHOW_UPCOMING_EVENTS = false;
+
 /** 알림 설정의 이메일 묶음(운영자 메일 서버 필요) */
 export const SHOW_EMAIL_NOTIFICATIONS = false;
 
