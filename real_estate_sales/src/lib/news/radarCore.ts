@@ -266,13 +266,28 @@ export function pickCandidates(
 
 /** 알림 쪽 지역당 상한(2026-11-19 주인님 결정 「알림에만 상한」) — 저장·화면은 그대로 두고, 알림에 쓰는 목록만 지역마다 앞에서 max건.
  *  같은 지역 안 순서(제목에 지역 있음 → 그 밖 → 사설·칼럼)는 유지한다. 11-18 서초 22건에 저장 상한을 걸면 관련 기사 5건이 빠져 저장 상한은 쓰지 않음 */
-export function capPerRegion<T extends { sggNm: string }>(items: T[], max = NEWS_MAX_PER_REGION): T[] {
+export function capPerRegion<T>(items: T[], max: number, keyOf: (it: T) => string): T[] {
   const n = new Map<string, number>();
   return items.filter((it) => {
-    const k = (n.get(it.sggNm) ?? 0) + 1;
-    n.set(it.sggNm, k);
+    const key = keyOf(it);
+    const k = (n.get(key) ?? 0) + 1;
+    n.set(key, k);
     return k <= max;
   });
+}
+
+/** AI 요약 입력 목록(2026-11-19 P3 보완): ① DB가 돌려준 순서에 기대지 않고 저장할 때의 순서(orderedLinks)로 다시 정렬
+ *  ② 지역 묶음은 이름이 아니라 시군구 코드(서울 중구·부산 중구처럼 이름 같은 지역 7묶음) ③ 지역당 max건 ④ 지역 번갈아 ⑤ 앞 limit건 */
+export function summaryInput<T extends { link: string; sgg_cd: string }>(inserted: T[], orderedLinks: string[], max = NEWS_MAX_PER_REGION, limit = 40): T[] {
+  const pos = new Map(orderedLinks.map((l, i) => [l, i]));
+  const sorted = [...inserted].sort((a, b) => (pos.get(a.link) ?? Number.MAX_SAFE_INTEGER) - (pos.get(b.link) ?? Number.MAX_SAFE_INTEGER));
+  const capped = capPerRegion(sorted, max, (r) => r.sgg_cd);
+  const groups = new Map<string, T[]>();
+  for (const r of capped) groups.set(r.sgg_cd, [...(groups.get(r.sgg_cd) ?? []), r]);
+  const lists = [...groups.values()];
+  const out: T[] = [];
+  for (let i = 0; out.length < capped.length; i++) for (const l of lists) if (l[i]) out.push(l[i]);
+  return out.slice(0, limit);
 }
 
 /** 한국 시각 날짜 「2026-11-09」와 시(0~23) */

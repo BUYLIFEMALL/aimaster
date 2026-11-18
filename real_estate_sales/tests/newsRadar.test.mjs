@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildNewsMessage, buildQueries, interleaveByRegion, isNewsDue, kstDateHour, mentionsRegion, normalizeLink, pickCandidates, regionTerms, storyTokens, isSameStory, onlyListedInStats, onlyPassingMention, isRoundupTitle, titleMentionsRegion, isOpinionTitle, NEWS_MAX_PER_REGION, capPerRegion } from "../src/lib/news/radarCore.ts";
+import { buildNewsMessage, buildQueries, interleaveByRegion, isNewsDue, kstDateHour, mentionsRegion, normalizeLink, pickCandidates, regionTerms, storyTokens, isSameStory, onlyListedInStats, onlyPassingMention, isRoundupTitle, titleMentionsRegion, isOpinionTitle, NEWS_MAX_PER_REGION, capPerRegion, summaryInput } from "../src/lib/news/radarCore.ts";
 
 test("RQ-C 지역 이름: 시+구, 서울 구, 흔한 구 이름", () => {
   assert.deepEqual(regionTerms("41285", "고양시 일산동구"), { query: "고양시 일산동구", anyOf: ["일산동구", "일산"], alsoNeed: null });
@@ -234,8 +234,26 @@ test("2026-11-19 저장은 상한 없음, 알림 목록만 지역당 상한(주�
   assert.equal(out.length, 17, "저장 후보는 모두 남음");
   assert.equal(out[16].link, "https://o.com/1", "사설은 맨 뒤");
   const tagged = [...out.map((c) => ({ ...c, sggNm: "서초구" })), { sggNm: "종로구", link: "z1" }, { sggNm: "종로구", link: "z2" }];
-  const capped = capPerRegion(tagged);
+  const capped = capPerRegion(tagged, NEWS_MAX_PER_REGION, (c) => c.sggNm);
   assert.equal(capped.filter((c) => c.sggNm === "서초구").length, 15, "서초는 앞 15건");
   assert.ok(!capped.some((c) => c.link === "https://o.com/1"), "뒤쪽 사설이 먼저 잘림");
   assert.equal(capped.filter((c) => c.sggNm === "종로구").length, 2, "다른 지역은 그대로");
+});
+
+test("2026-11-19 P3: 요약 입력은 이름이 같은 다른 지역(서울 중구·부산 중구)을 따로 센다", () => {
+  const rows = [
+    ...Array.from({ length: 10 }, (_, i) => ({ sgg_cd: "11140", sgg_nm: "중구", link: `s${i}` })),
+    ...Array.from({ length: 10 }, (_, i) => ({ sgg_cd: "26110", sgg_nm: "중구", link: `b${i}` })),
+  ];
+  const out = summaryInput(rows, rows.map((r) => r.link));
+  assert.equal(out.length, 20, "이름으로 묶었다면 15건으로 잘렸을 것");
+  assert.equal(out.filter((r) => r.sgg_cd === "26110").length, 10);
+  assert.deepEqual(out.slice(0, 2).map((r) => r.link), ["s0", "b0"], "지역 번갈아");
+});
+
+test("2026-11-19 P3: DB가 돌려준 순서가 섞여도 저장 순서 기준으로 자름", () => {
+  const order = Array.from({ length: 17 }, (_, i) => `l${i}`); // 저장 순서: 앞일수록 중요(뒤가 사설·칼럼)
+  const returned = [...order].reverse().map((link) => ({ sgg_cd: "11650", link })); // DB가 거꾸로 돌려준 경우
+  const out = summaryInput(returned, order);
+  assert.deepEqual(out.map((r) => r.link), order.slice(0, 15));
 });
