@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 11:52:32 KST",
+  "checkedAt": "2026-11-18 11:55:54 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T02:52:32.028Z",
+      "at": "2026-11-18T02:55:34.007Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM F007현재검토 msg_64d1cdded345",
-      "scope": "결과53d66404f·현행route/Script샘플·중복키/발송불확실설계",
+      "trigger": "Backend PORT18-02 개정6768146ff/msg_3e18459377e5",
+      "scope": "v2명시적키/구스크립트호환·발송불확실/DDL계획·단계분할",
       "evidence": [
-        "Master route insert/dispatch/UUIDfallback 직접확인",
-        "작성자정적반례·실발송/DB0·F011해결유지",
-        "설계보완dispatch msg_ce843cedb7a4"
+        "ID모양추정/본문hashfallback폐기·구스크립트미방지명시",
+        "Master결과본문/현재status제약읽기",
+        "순수2파일구현지시msg_cdd38dc32bd7"
       ],
-      "judgment": "현재소스F007유효수락·운영실발송반례아님. ID모양/내용hash오병합위험으로최소계획보완,제품/DDL구현승인전.",
+      "judgment": "현행분석/개정계획수락·순수헬퍼/시험만구현허용,운영경로/DDL/발송변경미승인",
       "unverified": [
-        "안정키/구스크립트호환·원자선점후불확실발송",
-        "Gmail실OAuth·Mac B파일"
+        "sheetKey timestamp설명앞뒤불일치/재사용경계·신규헬퍼결과",
+        "status소비자/다음단계영속화설계·Gmail/Mac사람단계"
       ],
-      "nextAction": "Backend보완계획검토→필요파일한정구현/격리시험판정·운영DDL/비용별도"
+      "nextAction": "헬퍼SHA/시험회수→Mac검수·다음단계범위확인뒤"
     },
     "notifications": [
       {
@@ -7620,19 +7620,34 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-MASTER-01",
       "title": "CRM F007 웹훅 중복발송 현행 소스 검증",
-      "status": "needs_revision",
-      "delivery": "current_source_defect_accepted_plan_refinement",
-      "evidence": "CRM IMPROVEMENTS7·msg_e239ca3d4f76·msg_64d1cdded345·Master route/SourceCard直接대조·계획보완msg_ce843cedb7a4",
+      "status": "done",
+      "delivery": "source_analysis_and_revised_plan_accepted",
+      "evidence": "CRM IMPROVEMENTS7·msg_e239ca3d4f76·msg_64d1cdded345·Master route/SourceCard直接대조·계획보완msg_ce843cedb7a4·msg_3e18459377e5·Master개정본문확인",
       "scopeRef": "crm-google-form 읽기/기존가짜검증·결과1개만",
       "completion": "정확SHA/중복호출·DB제약/후속해결여부·정적vsmock근거·최소플랜/DDL/비용·실발송/운영DB0",
-      "next": "같은결과파일에서안정이벤트키/구스크립트호환/불확실발송/정의검증·공식AppsScript근거 보완→구현범위판정",
-      "lastReviewedAt": "2026-11-18T02:52:32.028Z",
-      "sha": "53d66404f",
+      "next": "순수검증은CRM18-01·route/dispatch/DDL은후속범위확정뒤",
+      "lastReviewedAt": "2026-11-18T02:55:34.007Z",
+      "sha": "6768146ff",
       "findings": [
         "현재route는확인없이insert후dispatch·response_id unique없음(정적확인)",
         "시트e.response없으면Utilities UUID매회생성·ID유니크만으로불충분",
         "본문hash/ID모양추정안은정상동일응답오병합·식별보장부족"
       ]
+    },
+    {
+      "task_id": "CRM-20261118-01",
+      "parent_task_id": "PORT-20261118-02",
+      "owner": "CC-B2B-BACK-01",
+      "reviewer": "CX-QA-01",
+      "title": "CRM v2 이벤트키 순수검증·시험 1단계",
+      "status": "ready",
+      "delivery": "implementation_authorized_dispatch_sent",
+      "evidence": "6768146ff·msg_cdd38dc32bd7",
+      "scopeRef": "crm-google-form/lib/crm/dedupe.ts·tests/dedupe.test.mjs 신규+기존결과본인절",
+      "completion": "v2/version/kind/key타입·길이/허용문자/source범위·구버전NULL·불량/같은값다른행/다른source경계·실제함수red-green/타입검사",
+      "constraints": "route/dispatch/UI/snippet/DDL연결0·운영DB/발송/실API/새패키지/build/dev0",
+      "next": "정확경로점유→순수구현/시험→SHA→Mac독립",
+      "lastReviewedAt": "2026-11-18T02:55:34.007Z"
     }
   ]
 }
