@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T03:05:36.470Z",
+  "checkedAt": "2026-11-18T03:06:29.404Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3821,14 +3821,21 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
       "title": "CRM 중복방지 DDL 초안·격리 DB 검증 2A",
-      "status": "ready",
-      "delivery": "source_ddl_test_authorized_dispatch_sent",
-      "evidence": "영향조사2019381a6·msg_cf2984a5738e·dispatch msg_47039ad6b61b",
+      "status": "running",
+      "delivery": "exact_scope_acknowledged_started",
+      "evidence": "영향조사2019381a6·msg_cf2984a5738e·dispatch msg_47039ad6b61b·착수msg_3558ad0d16d2",
       "scopeRef": "crm-google-form/supabase/migrations/20261118120000_crm_submission_dedupe.sql·tests/dedupe-db.test.mjs 신규·기존결과본인절",
       "completion": "정의사전/사후·기존NULL/backfill0·user_id/source/key 격리·RLS/동시2연결/rollback·동명불일치멈춤·본인qa_DB정리",
       "constraints": "운영미적용·route/UI/dispatch/snippet변경0·기존aww/aww_dev/mb_*0·실발송/build/설치0",
       "next": "정확키/경로/격리DB보고→원문SQL/실역할/동시시험→SHA→Mac독립",
-      "lastReviewedAt": "2026-11-18T03:05:36.470Z"
+      "lastReviewedAt": "2026-11-18T03:06:29.404Z",
+      "decisions": {
+        "unique": "(user_id,form_source_id,dedupe_key) WHERE dedupe_key IS NOT NULL",
+        "policy": "RLS/권한변경0",
+        "constraint": "실status검사제약정확1개/기존3값일치확인뒤실이름유지",
+        "isolatedDb": "aww-pg-test/qa_crm_dedupe_20261118·본인DB만정리",
+        "baseline": "CRM0001원문·Supabase역할/auth.uid/updated_at흉내·실Supabase검증아님"
+      }
     }
   ],
   "programOverrides": [
@@ -4312,21 +4319,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T03:05:36.470Z",
+      "at": "2026-11-18T03:06:29.404Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Backend 2단계영향조사2019381a6/msg_cf2984a5738e",
-      "scope": "상태소비자/팔로우업·회원insert/유니크격리·SQL초안단계배정",
+      "trigger": "CRM18-02 정확범위/키/격리DB 착수보고 msg_3558ad0d16d2",
+      "scope": "배정범위수락/시작·DB대상/권한불변조건",
       "evidence": [
-        "기존UI/KPI failed만집계·followup상태무관 보고",
-        "member insert user_id만검사→다른회원source키선점가능성·user_id포함복합키지시",
-        "CRM18-02 msg_47039ad6b61b"
+        "3신규/기존결과경로예약·user_id복합unique·RLS불변",
+        "본인qa_crm_dedupe_20261118·기존DB/운영0"
       ],
-      "judgment": "영향읽기수락·운영연결보다SQL초안/격리시험선행. 다채널/후속발송정책미결정보존·운영권한/DDL미승인유지.",
+      "judgment": "지정범위내착수확인·격리검증완료/운영반영판정아님",
       "unverified": [
-        "SQL정의·기존member역할격리/동시성·상태이행/팔로우업정책",
-        "GmailOAuth·MacB파일"
+        "실SQL/역할/동시성/제약멈춤시험결과",
+        "GmailOAuth·MacB저장"
       ],
-      "nextAction": "단기담당키/경로/격리결과회수→Mac검수·운영연결은후속범위지정"
+      "nextAction": "SHA/격리시험결과회수→독립검수"
     },
     "notifications": [
       {
