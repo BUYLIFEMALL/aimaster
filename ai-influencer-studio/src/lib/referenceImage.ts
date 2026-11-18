@@ -40,14 +40,17 @@ export function referenceErrorMessage(code: RefErrorCode, field: RefField | "tot
 const B64_RE = /^[A-Za-z0-9+/]+={0,2}$/;
 const DATA_URL_RE = /^data:([^;,]*);base64,([^]*)$/;
 const HEIC_BRANDS = new Set(["heic", "heix", "heim", "heis", "hevc", "hevx"]);
-const HEIF_GENERIC_BRANDS = new Set(["mif1", "msf1", "heif"]);
+// AVIF 계열 — 주 브랜드든 호환 브랜드든 하나라도 있으면 HEIF로 보지 않는다(mif1 주 브랜드 + avif 호환 위장 반례, 2026-11-18 Mac 검수)
+const AVIF_BRANDS = new Set(["avif", "avis"]);
+// 범용 HEIF(mif1·msf1)만 있고 HEIC 브랜드가 없으면 실제 코덱을 확인할 수 없어 거절한다(HEIC 명시 브랜드만 허용).
+const FTYP_MAX_BYTES = 256;
 
 function decodedLength(b64: string): number {
   const pad = b64.endsWith("==") ? 2 : b64.endsWith("=") ? 1 : 0;
   return (b64.length / 4) * 3 - pad;
 }
 
-function headBytes(b64: string, n = 16): Uint8Array {
+function headBytes(b64: string, n = FTYP_MAX_BYTES + 16): Uint8Array {
   const chunk = b64.slice(0, Math.ceil(n / 3) * 4);
   const bin = globalThis.atob(chunk);
   const out = new Uint8Array(bin.length);
@@ -57,25 +60,34 @@ function headBytes(b64: string, n = 16): Uint8Array {
 
 const ascii = (b: Uint8Array, from: number, to: number) => String.fromCharCode(...b.subarray(from, to));
 
-/** 실제 바이트 서명으로 판정한 형식. 허용 외 형식(avif 등)·모르는 형식은 null */
-function sniff(b: Uint8Array): { kind: "png" | "jpeg" | "webp" | "heic" | "heif-generic" } | null {
-  if (b.length >= 8 && b[0] === 0x89 && ascii(b, 1, 4) === "PNG" && b[4] === 0x0d && b[5] === 0x0a && b[6] === 0x1a && b[7] === 0x0a) return { kind: "png" };
-  if (b.length >= 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return { kind: "jpeg" };
-  if (b.length >= 12 && ascii(b, 0, 4) === "RIFF" && ascii(b, 8, 12) === "WEBP") return { kind: "webp" };
-  if (b.length >= 12 && ascii(b, 4, 8) === "ftyp") {
-    const major = ascii(b, 8, 12);
-    if (HEIC_BRANDS.has(major)) return { kind: "heic" };
-    if (HEIF_GENERIC_BRANDS.has(major)) return { kind: "heif-generic" };
-  }
+type SniffKind = "png" | "jpeg" | "webp" | "heic" | "bmff-unsupported";
+
+/** ISO BMFF 첫 상자(ftyp)를 경계까지 정확히 읽는다: [크기 4][ftyp][주 브랜드 4][부 버전 4][호환 브랜드 4×n].
+ *  크기가 16 미만·상한 초과·4바이트 정렬 아님·받은 바이트보다 길면 null(깨진 상자). AVIF/AVIS 브랜드가 하나라도 있거나
+ *  HEIC 브랜드가 없으면 bmff-unsupported. 이것은 파일 식별일 뿐 전체 디코드 보증이 아니다. */
+function sniffFtyp(b: Uint8Array): SniffKind | null {
+  const size = ((b[0] << 24) >>> 0) + (b[1] << 16) + (b[2] << 8) + b[3];
+  if (size < 16 || size > FTYP_MAX_BYTES || (size - 16) % 4 !== 0 || size > b.length) return null;
+  const brands = [ascii(b, 8, 12)];
+  for (let at = 16; at < size; at += 4) brands.push(ascii(b, at, at + 4));
+  if (brands.some((x) => AVIF_BRANDS.has(x))) return "bmff-unsupported";
+  return brands.some((x) => HEIC_BRANDS.has(x)) ? "heic" : "bmff-unsupported";
+}
+
+/** 실제 바이트 서명으로 판정한 형식. 모르는 바이트·깨진 상자는 null */
+function sniff(b: Uint8Array): SniffKind | null {
+  if (b.length >= 8 && b[0] === 0x89 && ascii(b, 1, 4) === "PNG" && b[4] === 0x0d && b[5] === 0x0a && b[6] === 0x1a && b[7] === 0x0a) return "png";
+  if (b.length >= 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return "jpeg";
+  if (b.length >= 12 && ascii(b, 0, 4) === "RIFF" && ascii(b, 8, 12) === "WEBP") return "webp";
+  if (b.length >= 16 && ascii(b, 4, 8) === "ftyp") return sniffFtyp(b);
   return null;
 }
 
-function mimeMatches(mime: AllowedMime, kind: NonNullable<ReturnType<typeof sniff>>["kind"]): boolean {
+function mimeMatches(mime: AllowedMime, kind: SniffKind): boolean {
   if (mime === "image/png") return kind === "png";
   if (mime === "image/jpeg") return kind === "jpeg";
   if (mime === "image/webp") return kind === "webp";
-  if (mime === "image/heic") return kind === "heic";
-  return kind === "heic" || kind === "heif-generic"; // image/heif
+  return kind === "heic"; // image/heic·image/heif 모두 HEIC 명시 브랜드만
 }
 
 /** data URL 한 장을 검사한다. 원격 주소는 가져오지 않는다(https 등은 그대로 거절). */
@@ -93,17 +105,16 @@ export function parseImageDataUrl(value: unknown): { ok: true; image: ParsedImag
   const bytes = decodedLength(b64);
   if (bytes <= 0) return { ok: false, code: "REFERENCE_INVALID" };
   if (bytes > PER_IMAGE_MAX_BYTES) return { ok: false, code: "REFERENCE_TOO_LARGE" };
-  let kind;
+  let kind: SniffKind | null;
   try {
     kind = sniff(headBytes(b64));
   } catch {
     return { ok: false, code: "REFERENCE_INVALID" };
   }
-  if (!kind) {
-    // 서명이 허용 형식이 아님 — avif 등 다른 형식이면 미지원, 아예 모르는 바이트면 깨진 것으로 본다
-    return { ok: false, code: mime === "image/heif" || mime === "image/heic" ? "REFERENCE_UNSUPPORTED" : "REFERENCE_INVALID" };
-  }
-  if (!mimeMatches(mime as AllowedMime, kind.kind)) return { ok: false, code: "REFERENCE_INVALID" };
+  const heifMime = mime === "image/heif" || mime === "image/heic";
+  if (!kind) return { ok: false, code: heifMime ? "REFERENCE_UNSUPPORTED" : "REFERENCE_INVALID" };
+  if (kind === "bmff-unsupported") return { ok: false, code: heifMime ? "REFERENCE_UNSUPPORTED" : "REFERENCE_INVALID" };
+  if (!mimeMatches(mime as AllowedMime, kind)) return { ok: false, code: "REFERENCE_INVALID" };
   return { ok: true, image: { mime: mime as AllowedMime, base64: b64, bytes } };
 }
 
@@ -121,14 +132,17 @@ export function collectReferences(config: RefConfig): CollectResult {
     items.push({ field, ...(index !== undefined ? { index } : {}), image: r.image });
     return null;
   };
-  if (config.personImage) { const e = one("personImage", config.personImage); if (e) return e; }
-  if (config.placeImage) { const e = one("placeImage", config.placeImage); if (e) return e; }
-  if (config.isAdMode && config.productImages !== undefined && config.productImages !== null) {
+  // 값 없음은 null·undefined·빈 문자열뿐. 그 밖의 값(0·false·숫자·객체·배열 등)이 활성 칸에 오면 생략하지 않고 거절한다.
+  const absent = (v: unknown) => v === undefined || v === null || v === "";
+  if (!absent(config.personImage)) { const e = one("personImage", config.personImage); if (e) return e; }
+  if (!absent(config.placeImage)) { const e = one("placeImage", config.placeImage); if (e) return e; }
+  // 비활성 칸은 예전처럼 무시: 광고 모드가 아니면 상품 사진, 보정 요청(feedback)이 없으면 직전 결과
+  if (config.isAdMode && !absent(config.productImages)) {
     if (!Array.isArray(config.productImages)) return { ok: false, code: "REFERENCE_INVALID", field: "productImages" };
     if (config.productImages.length > MAX_PRODUCT_IMAGES) return { ok: false, code: "REFERENCE_TOO_MANY", field: "productImages" };
     for (let i = 0; i < config.productImages.length; i++) { const e = one("productImages", config.productImages[i], i); if (e) return e; }
   }
-  if (config.lastResultImage && config.feedback) { const e = one("lastResultImage", config.lastResultImage); if (e) return e; }
+  if (config.feedback && !absent(config.lastResultImage)) { const e = one("lastResultImage", config.lastResultImage); if (e) return e; }
   if (items.length > MAX_REFERENCE_IMAGES) return { ok: false, code: "REFERENCE_TOO_MANY", field: "total" };
   const totalBytes = items.reduce((s, i) => s + i.image.bytes, 0);
   if (totalBytes > TOTAL_MAX_BYTES) return { ok: false, code: "REFERENCE_TOO_LARGE", field: "total" };
@@ -144,19 +158,24 @@ export function buildReferenceParts(items: RefItem[]): { inlineData: { data: str
 export async function readJsonBodyLimited(req: Request, maxBytes: number): Promise<{ ok: true; value: unknown } | { ok: false; status: 400 | 413; code: "BODY_TOO_LARGE" | "BODY_INVALID" }> {
   const declared = Number(req.headers.get("content-length"));
   if (Number.isFinite(declared) && declared > maxBytes) return { ok: false, status: 413, code: "BODY_TOO_LARGE" };
-  if (!req.body) return { ok: false, status: 400, code: "BODY_INVALID" };
-  const reader = req.body.getReader();
   const chunks: Uint8Array[] = [];
   let size = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    size += value.byteLength;
-    if (size > maxBytes) {
-      await reader.cancel().catch(() => undefined);
-      return { ok: false, status: 413, code: "BODY_TOO_LARGE" };
+  try {
+    if (!req.body) return { ok: false, status: 400, code: "BODY_INVALID" };
+    const reader = req.body.getReader();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > maxBytes) {
+        await reader.cancel().catch(() => undefined);
+        return { ok: false, status: 413, code: "BODY_TOO_LARGE" };
+      }
+      chunks.push(value);
     }
-    chunks.push(value);
+  } catch {
+    // 스트림 읽기 오류 — 원문(오류 메시지)은 응답·로그에 남기지 않는다
+    return { ok: false, status: 400, code: "BODY_INVALID" };
   }
   const all = new Uint8Array(size);
   let at = 0;
