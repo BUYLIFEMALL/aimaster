@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 19:09:13 KST",
+  "checkedAt": "2026-11-18 19:11:45 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,22 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T10:09:13.344Z",
+      "at": "2026-11-18T10:11:45.001Z",
       "timezone": "Asia/Seoul",
-      "trigger": "W01s Mac 국소 검수 회신",
-      "scope": "09a2b3b94 지정 모의·소스 및 시간 경계 판정 확인.",
+      "trigger": "W01s 새 쓰기 시간 경계 정정 회신",
+      "scope": "1a3832e7b 고정 diff와 담당 모의시험 대조.",
       "evidence": [
-        "msg_02dea45ade4a",
-        ".ai/results/SNS-ASSETS-A1-20261118-CX-QA-01.md",
-        "msg_f8278f869b1a"
+        "msg_0c1b078fd011·1a3832e7b",
+        "msg_57744964e97d"
       ],
-      "judgment": "지정 경계 시험 통과, C 예산 소진 뒤 D 스캔을 시작하는 경계 보완 배정.",
+      "judgment": "수정 수신, 새 시간 예산 회귀만 Mac 재검수 배정.",
       "unverified": [
-        "시간 예산 보완 SHA 및 국소 회귀",
-        "운영 DB/Storage/cron·배포",
+        "Mac 국소 회귀 판정",
+        "실 DB/Storage/cron·배포",
         "Gmail 동의·실검증"
       ],
-      "nextAction": "D 새 쓰기 미호출과 기존 C 확인 보존의 정정 근거 회수."
+      "nextAction": "새 회귀 독립실행 결과 회수 후 W01s 판정."
     },
     "notifications": [
       {
@@ -8774,18 +8773,18 @@
       "reviewer": "CX-MASTER-01",
       "title": "누락 자산 정리 실행자 연결",
       "status": "reviewing",
-      "delivery": "mac_targeted_checks_received_scan_start_budget_fix_requested",
+      "delivery": "scan_start_budget_fix_received_mac_regression_requested",
       "scopeRef": "retention.ts·cleanup route·assetRetention 시험·기존 해당 문구",
       "constraints": "SQL/fixture/read/store/모드/cron 고정·실행 DB/Storage/비용/빌드/배포 0",
       "completion": "C→D→B→A·검사/반환/처리 상한·DB parked_at 필터·D remove 0·OFF/불명 경계·로컬 모의",
-      "evidence": "msg_bf03508f5f2a / 9d62b80f9 / msg_4ae6f0ab8b0b / msg_eb6b37119dcb / msg_d0f856e36744 / msg_cdb5e8d6545b / msg_02dea45ade4a / msg_f8278f869b1a",
-      "next": "시간 예산 소진 시 D 쓰기 미호출 국소 수정 및 고정 모의시험 대기.",
-      "lastReviewedAt": "2026-11-18T10:09:13.344Z",
-      "sha": "09a2b3b94",
+      "evidence": "msg_bf03508f5f2a / 9d62b80f9 / msg_4ae6f0ab8b0b / msg_eb6b37119dcb / msg_d0f856e36744 / msg_cdb5e8d6545b / msg_02dea45ade4a / msg_f8278f869b1a / msg_0c1b078fd011 / msg_57744964e97d",
+      "next": "Mac 새 시간 예산 회귀만 검증 대기.",
+      "lastReviewedAt": "2026-11-18T10:11:45.001Z",
+      "sha": "1a3832e7b",
       "validation": {
-        "author": "retention 60/60·전체 183/183·tsc 통과 보고.",
-        "master": "기존 A 재확인·D 응답 산술/중복·앞 C 검증 25 우선의 고정 diff 확인. D 쓰기 시작 시간 경계 Mac 추가 확인 요청.",
-        "independent": "Mac 고정 두 필터 각 8/8, 중복 포함. 추가 harness 결과 집계 제외. D 새 쓰기 예산 문제는 고정 소스에서 확인.",
+        "author": "retention 61/61·전체 184/184·tsc 통과 보고.",
+        "master": "시작 검사, 의도 미시작 건수 및 IO_TIMEOUT 우선순위 고정 diff 확인.",
+        "independent": "이전 Mac 두 필터 각 8/8(중복). 새 회귀 1건만 재검수 배정.",
         "limits": "실 PostgREST·DB·Storage·ON·cron·비용·빌드·배포 0."
       }
     }
