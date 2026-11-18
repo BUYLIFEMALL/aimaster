@@ -4995,18 +4995,18 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-QA-01",
       "title": "달력 월 구분 정리·업무 현황판 너비",
-      "status": "reviewing",
-      "delivery": "peek_width_fix_received_mac_targeted_review_requested",
+      "status": "done",
+      "delivery": "calendar_and_dashboard_width_local_mac_checks_accepted_undeployed",
       "sha": "172e3f41f",
       "scopeRef": "calendar.css·PageView.tsx, 최소 너비 토글/시험 후속",
       "constraints": "초기 편집 사전 점유 등록 누락 보고. 새 편집은 정확 경로 등록. 실제 설정 쓰기/빌드/배포 0.",
-      "evidence": "Workspace 직접 보고·506eff4df·msg_24a5f90f409f·msg_34378dea6d4b·msg_4f89af49c4f9 / Workspace 직접 보고·236415698·b47051400·msg_039e858883a4 / 172e3f41f / bf7faf93d / msg_fe51aab0bb31",
-      "next": "Mac 고정 국소검수 대기. 표 행 배치 기본값 메뉴 제약 기존대로.",
+      "evidence": "Workspace 직접 보고·506eff4df·msg_24a5f90f409f·msg_34378dea6d4b·msg_4f89af49c4f9 / Workspace 직접 보고·236415698·b47051400·msg_039e858883a4 / 172e3f41f / bf7faf93d / msg_fe51aab0bb31 / msg_b0ae6a1d5300 / msg_36d3d349cafa",
+      "next": "로컬 완료·미배포. 실제 렌더/좁은 화면은 후속 검수.",
       "validation": {
         "author": "peek 보완에서 28/28 및 tsc 통과 보고. 표 행 배치 기본값 메뉴 기존 제약 유지.",
-        "independent": "초기 CSS 정적 확인. 고정 너비 국소 재검수 요청."
+        "independent": "Mac 고정 pageWidth 모의 10조건 및 양쪽 peek/권한/단축키 소스 통과. 실제 메뉴 클릭/렌더 미실행."
       },
-      "lastReviewedAt": "2026-11-18T14:06:46.663Z"
+      "lastReviewedAt": "2026-11-18T14:07:40.661Z"
     },
     {
       "task_id": "AIF-20261118-W01w",
@@ -5556,20 +5556,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T14:06:46.663Z",
+      "at": "2026-11-18T14:07:40.661Z",
       "timezone": "Asia/Seoul",
-      "trigger": "WS06 peek 너비 정정 반환",
-      "scope": "172e3f41f 본문/표시/토글 문맥과 bf7faf93d 점유 대조.",
+      "trigger": "WS06 Mac 국소 재검수 회신",
+      "scope": "172e3f41f 너비 함수·일반/peek 메뉴 경계 및 담당 범위 대조.",
       "evidence": [
-        "172e3f41f·bf7faf93d·Workspace 직접 보고",
-        "msg_fe51aab0bb31"
+        "msg_b0ae6a1d5300·.ai/results/WS-20261118-06-CX-QA-01.md",
+        "msg_36d3d349cafa"
       ],
-      "judgment": "보완 소스 수신, Mac 고정 국소 검수 배정. 미배포.",
+      "judgment": "WS06 로컬 검수 종결. 운영과 배포 변경 없음.",
       "unverified": [
-        "Mac 국소 판정 및 실제 화면",
-        "G5 W01x 결과·Gmail 실검증"
+        "실 화면·표 행 기본값의 기존 메뉴 제약",
+        "G5 W01x 및 Gmail WS27"
       ],
-      "nextAction": "WS06 근거 회수 후 로컬 종결 검토."
+      "nextAction": "WS06 담당 점유 해제 기록 회수."
     },
     "notifications": [
       {
