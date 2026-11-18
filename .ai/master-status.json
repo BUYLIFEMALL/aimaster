@@ -4449,14 +4449,19 @@
       "owner": "CC-BLOG-01",
       "reviewer": "CX-MASTER-01",
       "title": "승인된 블로그3프로그램 순차묶음 배포",
-      "status": "dispatched",
-      "delivery": "owner_approved_max_three_Vercel_builds_single_executor",
+      "status": "running",
+      "delivery": "first_tistory_release_preflight_accepted",
       "scopeRef": "tistory-auto-blog1.98→blog-neighbor-care1.22→web-crawler T04+05+07 정확manifest",
       "constraints": "Vercel최대3·T04별도1은세번째통합/추가4번째0·공용masterpush0·순차Ready/alias/버전·남의AGENTS변경보존·새AI0",
       "completion": "프로젝트/팀/기준SHA/점유/큐/notice/widget/pending·필요검사/빌드·각운영Ready/alias/버전·티스토리기존초안미리보기1/web실화면",
-      "evidence": "주인님직접승인msg_6c2b57cab944·Master배정msg_2eda31a938b1",
-      "next": "Blog사전manifest/운영/예산보고→순차단일실행·추가비용시자동확대0",
-      "lastReviewedAt": "2026-11-18T07:21:05.785Z"
+      "evidence": "주인님직접승인msg_6c2b57cab944·Master배정msg_2eda31a938b1 · msg_0957e7387120: Tistory prj_p3Qc2mOwj5LnPlE5zaAd2stxvibm/team일치·운영1.97·archiveHEAD·86+44/tsc·큐0·1/3",
+      "next": "티스토리승인1/3 배포1회→Ready/alias/버전/확장검사→이웃2/3",
+      "lastReviewedAt": "2026-11-18T07:26:15.858Z",
+      "sha": "97ee4acbb",
+      "validation": {
+        "author": "version1.98/확장1.98.0·HEADarchive·미커밋삭제oldZIP보존·prebuild다시생성·test86+44/tsc0·widget/pending대조·큐0",
+        "master": "사전보고수락·승인첫1회진행·Ready/실ZIP/DB1행후2/3·실배포아직결과미수신"
+      }
     },
     {
       "task_id": "BLOG-20261118-03",
@@ -4488,14 +4493,30 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "A1 OFF소스완료표·운영선행 보관/정리 조건 취합",
-      "status": "dispatched",
-      "delivery": "bounded_existing_document_status_reconciliation",
+      "status": "done",
+      "delivery": "OFF_source_completion_and_activation_blockers_reconciled",
       "scopeRef": "기존W00 §14·IMPROVEMENTS·본인역할 국소",
       "constraints": "새문서/기능/시험/SQL/버킷/upload/AI/버전/build/push0·타저자원본초안보존",
       "completion": "경로별SHA/blob·모의/격리대역/실운영구분·30일정리/retention_exempt/claim전이·unknown복구/G5/실중앙Storage미완·ON차단조건",
-      "evidence": "Mastermsg_b0a3b18ad98c·Mac통보msg_80e00d6557da",
-      "next": "완료표수신→다음30일정리연결단위 정확계약/경로 배정·운영ON별도",
-      "lastReviewedAt": "2026-11-18T07:23:18.833Z"
+      "evidence": "Mastermsg_b0a3b18ad98c·Mac통보msg_80e00d6557da · msg_ef4ab0782e7c/e7014bb2c·점유해제127073f1c",
+      "next": "W01k 30일보관정리 첫계약·운영ON차단유지",
+      "lastReviewedAt": "2026-11-18T07:26:15.858Z",
+      "sha": "e7014bb2c"
+    },
+    {
+      "task_id": "AIF-20261118-W01k",
+      "parent_task_id": "AIF-20261118-W01j",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "원본 자산 일반30일 정리 연결 첫계약",
+      "status": "dispatched",
+      "delivery": "bounded_existing_W00_read_design_only",
+      "scopeRef": "기존W00 보관정리계약·공용0063/65/68/73/보호정책/markPosted 읽기",
+      "constraints": "새제품/SQL실행/표/문서/DB/Storage/AI/cron/build/push0·원본PLAN보존·15항전체재설계0",
+      "completion": "기산일/동적보호·실행자인증·ready기간만료→삭제claim CAS/fencing·외부원자성한계/불명보존·quota해제/unknown복구분리·최소경로/시험한안",
+      "evidence": "Mastermsg_3e5657eeafec·A1운영ON차단보관미연결",
+      "next": "정확계약/기존공용대조회수→독립검토후첫정리구현범위배정",
+      "lastReviewedAt": "2026-11-18T07:26:15.858Z"
     }
   ],
   "programOverrides": [
@@ -5014,21 +5035,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T07:23:18.833Z",
+      "at": "2026-11-18T07:26:15.858Z",
       "timezone": "Asia/Seoul",
-      "trigger": "조회최종지정PASS",
-      "scope": "403 실GET/read 국소·A1 OFF묶음완료/운영선행구분",
+      "trigger": "A1완료표·Blog1/3사전점검",
+      "scope": "e701경로SHA/운영차단15·30일정리다음계약·티스토리prj/source/검사/큐/예산",
       "evidence": [
-        "msg_fd794c2c2f61",
-        "msg_b0a3b18ad98c/80e00d6557da"
+        "msg_ef4ab0782e7c/e7014bb2c",
+        "msg_0957e7387120/97ee4acbb",
+        "Mastermsg_3e5657eeafec·Blog사전수락"
       ],
-      "judgment": "W01i 소스모의수락·운영30일보관정리/실중앙Storage미완조건취합배정·유휴채우기중복시험0",
+      "judgment": "A1 OFF완료표수락/보관정리설계다음배정·티스토리승인1/3단일실행진행·다른미커밋보존·운영ON0",
       "unverified": [
-        "A1보관정리실행자/claim상태전이/unknown복구",
-        "실운영DDL/버킷/Storage/ON",
-        "Blog승인배포착수/다른사람단계"
+        "Tistory배포결과/실ZIP/DBversion",
+        "보관정리계약·실중앙/Storage",
+        "다른사람단계"
       ],
-      "nextAction": "소스완료표·Blog사전manifest회수→후속범위지정"
+      "nextAction": "첫Ready결과뒤Blog2/3·SNS정리계약회수"
     },
     "notifications": [
       {
