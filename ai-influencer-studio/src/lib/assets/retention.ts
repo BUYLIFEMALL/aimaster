@@ -32,6 +32,12 @@
 //       · delete_mark(deleting)이 대기 초과면 remove 0 — 나중에 커밋돼 deleting으로 남으면 다음 회차의 「확인만」 묶음이 본다.
 //       · remove가 대기 초과면 성공·실패를 단정하지 않고 다시 지우지 않는다. 회차에 남은 시간이 있으면 확인(delete_verify)을 한 번만 하고, 없으면 새 요청 없이 다음 회차로 넘긴다.
 //       · 늦게 도착한 응답·거절은 버린다(추가 작업 0, 처리되지 않은 거절 0).
+//  8. 삭제 진입 전 시간 확인(2026-11-18 P1, Master msg_7932d8b18fa0): delete_mark(deleting)을 부르기 전에 회차에 남은 시간이
+//     「deleting 커밋 + remove + 확인」 세 번의 호출 상한(CLEANUP_IO_TIMEOUT_MS × 3)보다 적으면 그 삭제에 들어가지 않는다.
+//     이때 우리 토큰으로 cancelled를 한 번만 시도하고(남은 시간 안에서), 결과가 불명이면 예약은 claimed로 남는다(1시간 뒤 토큰 없는 판정이 정리).
+//     그 회차에서는 새 삭제를 더 시작하지 않는다(stopCode "TIME_BUDGET", 건수 deferredForTime). remove·delete_failed 전이는 쓰지 않는다.
+//     목적은 「deleting으로 커밋됐는데 remove를 보내지 못한」 경우(removeNotSent)를 줄이는 것이다 — 없앤다는 보장이 아니다.
+//     시계가 건너뛰거나 이벤트 루프가 밀리거나 응답이 늦으면 여전히 생길 수 있고, 그때는 아래 보호(deleting 보존·removeNotSent 집계)가 그대로 적용된다.
 //     이것은 「기다리기를 그만두는 것」일 뿐이다. 원격 요청을 실제로 취소하지 않으며(AbortSignal 미전달 — 아래 한계), 회차가 정확히 몇 초 안에 끝난다는 보장도 아니다.
 // 한계
 //  * 설치된 SDK의 DB 조회에는 AbortSignal을 넘기는 방법이 있으나(읽기만 확인) 여기서는 쓰지 않았다 — 저장소 remove에는 같은 경로가 확인되지 않았고,
@@ -81,6 +87,8 @@ export type CleanupCounts = {
   removeCalls: number;
   /** deleting 커밋 뒤 회차 마감에 걸려 remove를 시작하지 못한 건(외부 요청 미전송 — 「응답 불명」과 다르다) */
   removeNotSent: number;
+  /** 남은 시간이 모자라 삭제에 들어가지 않은 건(deleting 커밋 전 — 외부 요청·deleting 기록 모두 없음) */
+  deferredForTime: number;
   deleted: number;
   deleteUnknown: number;
   mismatch: number;
@@ -107,7 +115,7 @@ export type CleanupResult =
   | { ok: false; aborted: true; code: "EXEMPT_UNAVAILABLE"; counts: CleanupCounts };
 
 const emptyCounts = (): CleanupCounts => ({
-  examined: 0, removeCalls: 0, removeNotSent: 0, deleted: 0, deleteUnknown: 0, mismatch: 0, restored: 0, notDue: 0, undetermined: 0, busy: 0, locked: 0,
+  examined: 0, removeCalls: 0, removeNotSent: 0, deferredForTime: 0, deleted: 0, deleteUnknown: 0, mismatch: 0, restored: 0, notDue: 0, undetermined: 0, busy: 0, locked: 0,
   skipped: 0, protectedSkipped: 0, claimFailed: 0, markFailed: 0, denied: 0, gaveUp: 0, invalidRows: 0, listFailed: 0, measureFailed: 0, timeouts: 0,
 });
 
@@ -148,6 +156,8 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
 
   // 규칙 7: 유한 대기. halted가 한 번 켜지면 그 뒤로는 어떤 입출력도 새로 시작하지 않는다(force는 remove 대기 초과 뒤의 확인 한 번 전용).
   let halted = false;
+  /** 삭제 진입 전 시간 확인에 걸리면 켜진다 — 이 회차에서는 새 삭제를 시작하지 않는다 */
+  let noMoreDeletes = false;
   type Waited<T> = { done: true; value: T } | { done: false };
   const bounded = async <T>(call: () => PromiseLike<T> | T, force = false): Promise<Waited<T>> => {
     if (halted && !force) return { done: false };
@@ -263,6 +273,14 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
       return;
     }
     // deleting 커밋이 명시적으로 성공했을 때만 외부 삭제를 보낸다
+    // 규칙 8: deleting 커밋·remove·확인 세 번을 기다릴 시간이 남아 있을 때만 들어간다
+    if (deadline - now() < ioTimeoutMs * 3) {
+      noMoreDeletes = true;
+      c.deferredForTime++;
+      // 우리 토큰으로 취소를 한 번만 시도한다(남은 시간 안에서). 실패·불명이면 claimed로 남는다 — 다른 토큰의 예약은 건드리지 못한다.
+      await yes("aif_asset_delete_mark", { ...mine, p_state: "cancelled" });
+      return;
+    }
     const entered = await yes("aif_asset_delete_mark", { ...mine, p_state: "deleting" });
     if (halted) return;   // deleting 응답 없음 → remove 0. 나중에 커밋되면 deleting으로 남고 다음 회차가 확인한다
     if (!entered) { c.markFailed++; return; }
@@ -326,7 +344,7 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
 
   // B) 이어 하기 — 보호 변경을 먼저 다시 본다(보호 회원이면 DB 함수가 ready로 되돌린다)
   for (const it of listB.slice(0, takeB)) {
-    if (halted || outOfTime()) break;
+    if (halted || noMoreDeletes || outOfTime()) break;
     c.examined++;
     const first = await text("aif_asset_expire", { p_asset: it.assetId, p_user: it.userId });
     if (halted) break;
@@ -338,7 +356,7 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
 
   // A) 신규
   for (const it of listA.slice(0, takeA)) {
-    if (halted || outOfTime()) break;
+    if (halted || noMoreDeletes || outOfTime()) break;
     c.examined++;
     if (exempt.has(it.userId)) { c.protectedSkipped++; continue; }   // 조회 조건이 빠진 호출부 방어
     const first = await text("aif_asset_expire", { p_asset: it.assetId, p_user: it.userId });
@@ -357,8 +375,8 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
       c.measureFailed++;
     }
   }
-  const stopCode: CleanupStopCode = halted ? "IO_TIMEOUT" : stoppedEarly ? "TIME_BUDGET" : null;
-  return { ok: true, aborted: false, stoppedEarly: stoppedEarly || halted, stopCode, counts: c };
+  const stopCode: CleanupStopCode = halted ? "IO_TIMEOUT" : stoppedEarly || noMoreDeletes ? "TIME_BUDGET" : null;
+  return { ok: true, aborted: false, stoppedEarly: stoppedEarly || halted || noMoreDeletes, stopCode, counts: c };
 }
 
 // ───────────────────────── 요청 처리(인증·모드) ─────────────────────────

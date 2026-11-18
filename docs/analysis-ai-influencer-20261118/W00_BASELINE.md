@@ -887,7 +887,7 @@ where so.id = v_asset.object_id and so.bucket_id = v_asset.bucket and so.name = 
 | D2 | `deleting` | remove 직전·도중·직후 끊김, 또는 미전송(`removeNotSent`) | 상태뿐(송신 여부 없음) | 다음 회차 「확인만」: 객체 없으면 `deleted`, 있으면 `delete_unknown` | 객체 없음 → 자동(구현됨). 있음 → D3 |
 | D3 | `delete_unknown` + **같은 객체**가 남아 있음 | 삭제 응답 불명·늦은 처리·미전송 | 같은 `object_id`의 객체 행 | 확인만 반복, 용량 계속 가산, `ready` 복원 금지 | **대조**: 아래 20-4의 조건을 운영자가 확인한 뒤 「다시 삭제 대기로 돌림」. 자동으로 하지 않는다(원격 종료 증거 없음). **이 전이는 지금 없다**(`claim_delete`는 `DELETION_BUSY`, `delete_mark`에는 `delete_unknown → cancelled`가 없음) |
 | D4 | `delete_unknown` + **다른 id**의 객체(mismatch) | 설계상 생기지 않는다(경로는 자산당 하나, `upsert:false`) — 생겼다면 외부 개입 | 다른 id의 객체 행 | 무변경 | **대조만, 자동 0**: 운영자가 그 객체의 출처를 확인. 지우거나 살리는 결정은 사람이 한다 |
-| D5 | `delete_failed` + `attempts` ≥ 5 | deleting 진입 5회. 단 **현재 실행자는 `delete_failed`를 쓰지 않으므로**(전이는 「미전송 확정」 전용) 지금 코드에서는 이 건이 생기지 않는다 | `attempts` | 건너뛰고 건수(`gaveUp`)만 | 20-5의 P1이 들어가 `delete_failed`가 실제로 쓰이기 시작하면 의미가 생긴다. 그때는 대조(왜 5번 미전송이었는지 — 시간 부족·저장소 장애) |
+| D5 | `delete_failed` + `attempts` ≥ 5 | deleting 진입 5회. 단 **현재 실행자는 `delete_failed`를 쓰지 않으므로**(전이는 「미전송 확정」 전용) 지금 코드에서는 이 건이 생기지 않는다 | `attempts` | 건너뛰고 건수(`gaveUp`)만 | **정정(2026-11-18 P1 구현)**: P1은 `delete_failed`를 쓰지 않는다 — deleting 커밋 **전에** 그만두므로 `cancelled`로 돌아갈 뿐이고 `attempts`도 늘지 않는다. 따라서 이 건은 P1 뒤에도 생기지 않는다. `delete_failed`·`attempts` 상한은 「deleting 커밋 뒤 미전송 확정」을 기록하는 호출부가 생길 때만 의미가 있다(지금은 없음) |
 | R1 | `ready`인데 객체가 없음(id로도 경로로도) | **중앙 정리가 연장 회원의 기간 지난 파일을 저장소에서 직접 지움**(§19-1 — 우리 행은 그대로 남는다), 저장소 수동 삭제 | `storage.objects`에 그 id·그 경로 행 없음 | 조회는 503(서명 실패), `expire`는 `unknown`, 묶음 A 앞자리를 계속 차지 | **자동 가능 — 유일하게 「부재」가 증거가 되는 경우**(20-6) |
 | R2 | `ready`인데 경로에 **다른 id**의 객체 | 외부 개입 | 다른 id | `expire`는 `unknown` | 대조만 |
 | E1 | `expired` + 예약 `cancelled`/`delete_failed`, `expire`가 계속 `unknown`(객체 없음·정책 불명) | 만료 뒤 객체가 사라짐·정책 함수 오류 | 객체 행 없음 | 묶음 B에서 매 회차 확인(`updated_at` 순환) | 객체가 id·경로 모두 없으면 R1과 같은 근거로 자동 종결 가능(20-6의 확장). 정책 불명이면 보존 |
@@ -908,7 +908,7 @@ where so.id = v_asset.object_id and so.bucket_id = v_asset.bucket and so.name = 
 
 | 순서 | 단위 | 바꾸는 것 | 근거의 강도 | 없애는 것 |
 |---|---|---|---|---|
-| **P1** | **삭제 진입 전 시간 확인(예방)** | `retention.ts`만: `delete_mark(deleting)`을 부르기 **전에** 회차에 남은 시간이 「remove + 확인」에 쓸 상한(호출 상한 × 2)보다 적으면 그 항목을 시작하지 않고 우리 토큰으로 `cancelled` | 코드만, DB 계약 변경 0 | `removeNotSent` 경우(미전송인데 `deleting`으로 남아 D3이 되는 길)를 **만들지 않는다** — 다음 회차가 증명할 수 없는 것을 복구하려 하지 않고 발생을 막는다 |
+| **P1** | **삭제 진입 전 시간 확인(예방)** — **구현됨(2026-11-18, 미배포)** | `retention.ts`만: `delete_mark(deleting)`을 부르기 **전에** 회차에 남은 시간이 「deleting 커밋 + remove + 확인」 세 호출의 상한(호출 상한 × 3)보다 적으면 그 삭제에 들어가지 않고, 우리 토큰으로 `cancelled`를 한 번만 시도(불명이면 `claimed` 보존), 그 회차의 새 삭제 중단 | 코드만, DB 계약 변경 0 | `removeNotSent` 경우(미전송인데 `deleting`으로 남아 D3이 되는 길)를 **줄인다 — 없앤다는 보장이 아니다**. 시계 급변·이벤트 루프 지연·늦은 응답이면 여전히 생길 수 있고, 그때는 기존 보호(`deleting` 보존·`removeNotSent` 집계)가 적용된다 |
 | **P2** | **객체 없는 `ready` → `missing`** | SQL 함수 1개(`aif_asset_mark_missing`) + 실행자의 한 단계 | 20-6 — DB 안에서 증명됨 | R1(조회 503이 영원히 남는 것, 묶음 A 앞자리 막힘, 중앙이 지운 연장 회원 자산의 유령 행) |
 | P3 | 멈춘 건 읽기 전용 집계 | 관리자 전용 조회(상태·나이 구간별 건수) | 읽기만 | 운영자가 대조 대상을 알 수 없는 문제 |
 | P4 | 운영자 승인 전이(U4 해제, D3 다시 삭제) | SQL 함수 + 기록 열 | 사람이 저장소 로그로 확인 | 장기 `unknown`·`delete_unknown` |
@@ -927,7 +927,7 @@ P1·P2는 자동이고 근거가 닫혀 있다. P3·P4는 운영 절차(누가·
 
 ### 20-7. 필수 회귀 반례 (구현 단위에 넣을 것)
 
-- P1: 남은 시간이 상한 × 2보다 적으면 `delete_mark(deleting)` 0·remove 0·예약 `cancelled` · 충분하면 예전과 같음 · 그 뒤로 `removeNotSent`가 정상 경로에서 0 · 시계가 건너뛰어 그래도 미전송이 생기면 지금처럼 `deleting` 보존(동작 불변).
+- P1(구현 반영: 기준은 상한 × 3): 남은 시간이 상한 × 3보다 적으면 `delete_mark(deleting)` 0·remove 0·예약 `cancelled` · 충분하면 예전과 같음 · 그 뒤로 `removeNotSent`가 정상 경로에서 0 · 시계가 건너뛰어 그래도 미전송이 생기면 지금처럼 `deleting` 보존(동작 불변).
 - P2: 객체가 id·경로 모두 없을 때만 `missing` · 경로에 다른 id가 있으면 무변경 · `reserved`·`unknown`·`expired`·`failed`는 무변경 · 삭제 예약이 `claimed`·`deleting`·`delete_unknown`이면 무변경 · 타 회원 이름으로 호출 무변경 · `storage.objects` 조회 오류면 무변경(예외 → 롤백) · `missing` 뒤 조회 404·용량 불변·묶음 A 미포함 · 2연결: `finalize`·`expire`와 같은 잠금 순서로 서로 기다림 · 멱등.
 - 공통(이미 있는 것이 깨지지 않는지): 업로드 `unknown`은 시간·부재로 `failed`가 되지 않는다 · `delete_unknown`은 재삭제·복원되지 않는다 · 다른 토큰은 남의 예약을 바꾸지 못한다 · `abort_local`은 `reserved` + 원격 요청 전에만.
 - 대조 단위(P4)가 생기면: 운영자 전용 권한 · 사유·실행자·시각 기록 · 조건 하나라도 어긋나면 무변경 · 자동 실행자가 그 전이를 부르는 경로 0.
@@ -1046,3 +1046,5 @@ DB: 해당 없음(읽기만) · 배포: 해당 없음
 검증: `tests/assetRetention.test.mjs` 44건(기존 29 + 유한 대기 15: 끝나지 않는 약속·한도 뒤에 커밋되는 늦은 응답·늦은 거절·회차 마감 소진·각 단계별), 전체 `npm test` 167/167, `npx tsc --noEmit` 통과. 변형 검증에서 새 규칙 14종 + 기존 핵심 6종을 확인했고, 그 과정에서 **불필요한 방어 코드 2줄을 찾아 지웠다**(늦은 거절 무시용 catch — race가 이미 처리기를 붙임 / 멈춘 뒤 측정 건너뛰기 — 공통 차단과 중복). 모의 시험이며 실제 DB·저장소·삭제 호출은 0이다.
 
 - (2026-11-18 보완, Mac IO-F01·Master `msg_d998e2a2d9ec`) 14-D의 집계 결함 1건 수정: deleting 커밋 직후 회차 마감이면 remove를 시작하지 않는데 `removeCalls` 1·`deleteUnknown` 1로 세고 있었다(실제 삭제 동작은 맞았고 건수만 틀림). `removeCalls`는 실제로 호출을 시작하는 순간에만 올리고, 미전송은 새 건수 `removeNotSent`로 따로 센다. 미전송이면 추가 호출 0·예약 deleting 보존(다음 회차는 확인만 — 다시 지우지 않으므로 객체가 남아 있으면 delete_unknown이 되며, 미전송 건의 재시도 경로는 후속 복구 단위). 시험 45건(반례 1 추가)·전체 168/168·tsc 통과, 집계를 호출 밖으로 되돌린 변형은 빨강.
+
+- (2026-11-18 P1 구현, Master `msg_7932d8b18fa0`) 삭제 진입 전 시간 확인을 `retention.ts`에 넣었다(§20-5 P1·§20-3 D5 문구를 구현과 맞게 정정). 새 건수 `deferredForTime`, 멈춤 코드는 `TIME_BUDGET`. 시험 48건(경계·취소 불명 3가지·묶음별 3건 추가, 미전송·remove 마감 시험 2건은 「진입 전 확인을 통과한 뒤 시계가 건너뛰는」 재현으로 교체)·전체 171/171·tsc 통과, 변형 10종 빨강. SQL·대역·read·route 변경 0.
