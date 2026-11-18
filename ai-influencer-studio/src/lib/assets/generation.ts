@@ -4,8 +4,14 @@
 //
 // ★ 원본 저장 모드는 서버 코드 상수다. 기본 "off". 환경변수·요청 본문·머리글로 켤 수 없다.
 //   "shadow"로 바꾸는 것은 DB migration·버킷 운영 적용과 함께 별도 승인 뒤의 코드 변경이다.
-export type AssetsMode = "off" | "shadow";
+//   값(W01-UII, 2026-11-19): "off" = 저장 기능 없음(화면도 지금 그대로) / "shadow" = 서버만 원본을 저장(화면은 지금 그대로) /
+//   "on" = shadow와 같은 서버 동작 + 화면이 자산 번호 흐름을 쓴다(W00_BASELINE §24). "on"도 별도 승인 뒤의 코드 변경이다.
+export type AssetsMode = "off" | "shadow" | "on";
 export const AIF_ASSETS_MODE: AssetsMode = "off";
+/** 서버의 원본 저장·자산 경로가 동작하는 모드인가(shadow 또는 on). 모드 판정은 이 함수 한 곳에서 한다 */
+export const assetsEnabled = (mode: AssetsMode): boolean => mode === "shadow" || mode === "on";
+/** 화면이 자산 번호 흐름을 쓰는 모드인가(on만). 서버 컴포넌트가 이 값을 화면에 속성으로 넘긴다 */
+export const assetFlowEnabled = (mode: AssetsMode): boolean => mode === "on";
 
 // 시간 예산: 라우트 한도 300초, 생성 호출 제한 240초(src/lib/gemini.ts). 남는 시간 안에 끝나도록 사전 검사·저장에 상한을 둔다.
 // 상한을 넘기면 사전 검사는 「확인 불가」, 저장은 「불명」으로 처리하고 생성 결과는 그대로 돌려준다(저장 요청을 다시 보내지 않는다).
@@ -85,7 +91,7 @@ export async function handleGenerateImagePost(req: Request, deps: GenerateImageP
   if (!apiKey) return { status: 400, body: { error: NEED_KEY_MESSAGE, needApiKey: true } };
 
   // off: 예전과 완전히 같은 경로(요청 검증 → 생성 1회 → 응답). 자산 의존성은 만들지도 부르지도 않는다.
-  if (deps.mode !== "shadow") return limitResponseBody(await handleGenerateImageRequest(req, (config) => deps.generate(apiKey, config)));
+  if (!assetsEnabled(deps.mode)) return limitResponseBody(await handleGenerateImageRequest(req, (config) => deps.generate(apiKey, config)));
 
   // shadow
   let stop: HandlerResult | null = null;

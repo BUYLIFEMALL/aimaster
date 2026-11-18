@@ -61,6 +61,13 @@ export interface GenerationResult {
   finalPrompt?: string;
   /** 방금 생성한 결과의 원본 저장 안내(W01v). 생성 응답에 저장 결과가 실렸을 때만 있다 — 없으면 화면은 예전과 같다 */
   assetNotice?: import("@/lib/assets/saveNotice").AssetSaveNotice | null;
+  /** 자산 번호 흐름(W01-UII, 서버 모드가 on일 때만): 방금 결과의 자산 번호. 화면 메모리에만 있다(저장하지 않는다) */
+  assetId?: string | null;
+  /** 원본은 저장됐지만 화면에 사본이 없다 — [다시 불러오기] 버튼을 보여 준다 */
+  needsReload?: boolean;
+  reloadMessage?: string | null;
+  /** 내려받을 때 쓸 확장자(메모리 사본의 실제 형식). 없으면 예전처럼 png */
+  fileExt?: "png" | "jpg" | "webp";
 }
 
 export interface HistoryItem {

@@ -14,7 +14,7 @@
 // 한계: 서명 URL은 발급 뒤 SIGNED_URL_TTL_SECONDS(120초) 동안 유효하다. 그사이 이용 권한이 철회돼도 이미 발급된 URL은 만료 전까지 열린다.
 // reserved·unknown의 202는 「다시 조회해 달라」는 안내일 뿐이다 — 서버가 뒤에서 주기 조회나 자동 대조를 돌리지 않는다.
 
-import type { AssetsMode } from "./generation";
+import { assetsEnabled, type AssetsMode } from "./generation";
 import { ASSET_BUCKET, isCanonicalUuid, parseAssetPath } from "./paths";
 
 export const SIGNED_URL_TTL_SECONDS = 120;
@@ -71,7 +71,7 @@ export async function handleGetAsset(deps: AssetGetDeps, assetId: unknown): Prom
   const userId = auth.user.id;
 
   // off: 기능이 꺼져 있다. 자산용 DB·저장소 의존성을 만들지도 부르지도 않는다.
-  if (deps.mode !== "shadow") return out(404, { error: "자료를 찾을 수 없습니다.", code: "ASSET_FEATURE_OFF" });
+  if (!assetsEnabled(deps.mode)) return out(404, { error: "자료를 찾을 수 없습니다.", code: "ASSET_FEATURE_OFF" });
 
   if (!isCanonicalUuid(assetId) || !isCanonicalUuid(userId)) return NOT_FOUND();
 

@@ -23,7 +23,7 @@
 // 1차에서 받지 않는 것: role "base_result"(보정용 직전 결과). 직전 결과 원본은 20MiB까지일 수 있고 서버에는 줄일 수단이 없다 — 방법이 정해질 때까지 400.
 //   (보정은 기존 경로가 지금처럼 처리한다. 화면을 이 경로로 바꾸는 단위에서도 기존 보정 흐름은 유지해야 한다.)
 import { collectReferences, readJsonBodyLimited, sniffImageKind } from "../referenceImage";
-import { limitResponseBody, NEED_KEY_MESSAGE } from "./generation";
+import { assetsEnabled, limitResponseBody, NEED_KEY_MESSAGE, type AssetsMode } from "./generation";
 import { ASSET_BUCKET, REF_MAX_BYTES, buildAssetPath, isCanonicalUuid, parseAssetPath } from "./paths";
 import { SIGNED_URL_TTL_SECONDS, validSignedUrl } from "./read";
 import { decodeGeneratedDataUrl, precheckGenerated, saveGeneratedOriginal, verifyReferenceBytes, type AssetStoreDeps, type SaveResult } from "./store";
@@ -66,7 +66,7 @@ export type GenerationsAssetDeps = AssetStoreDeps & {
   createSignedUrl: (path: string, expiresIn: number) => PromiseLike<Res>;
 };
 export type GenerationsDeps = {
-  mode: "off" | "shadow";
+  mode: AssetsMode;
   checkAccess: () => Promise<AccessResult>;
   getApiKey: (userId: string) => Promise<string | null>;
   generate: (apiKey: string, config: Record<string, unknown>) => Promise<string>;
@@ -255,7 +255,7 @@ export async function handlePostGeneration(req: Request, deps: GenerationsDeps):
   const auth = access.value;
   if (!auth.allowed) return out(auth.status, { error: auth.error });
   const userId = auth.user.id;
-  if (deps.mode !== "shadow") return out(404, { error: "자료를 찾을 수 없습니다.", code: "ASSET_FEATURE_OFF" });
+  if (!assetsEnabled(deps.mode)) return out(404, { error: "자료를 찾을 수 없습니다.", code: "ASSET_FEATURE_OFF" });
 
   // ③ 본인 키(회원 본인 것만 — 없으면 등록 안내, 다른 키로 대신하지 않는다)
   const key = await bounded(() => deps.getApiKey(userId), pre(L.keyMs));

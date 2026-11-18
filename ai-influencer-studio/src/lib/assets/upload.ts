@@ -10,13 +10,14 @@
 //  * 자동으로 다시 보내지 않는다. 불명인 자산은 그대로 둔다. 회원이 같은 사진을 다시 올리면 새 자산이 하나 더 생긴다(중복을 합치지 않는다 — 계약 §22-4).
 //  * 응답·로그에는 코드와 고정 문구만. 경로·버킷·객체 id·해시·오류 원문을 싣지 않는다.
 import { parseImageDataUrl, readJsonBodyLimited } from "../referenceImage";
+import { assetsEnabled, type AssetsMode } from "./generation";
 import { isReferenceKind, saveReferenceImage, type AssetStoreDeps } from "./store";
 
 export const UPLOAD_BODY_MAX_BYTES = 2 * 1024 * 1024;
 
 export type AccessResult = { allowed: true; user: { id: string } } | { allowed: false; error: string; status: number };
 export type AssetUploadDeps = {
-  mode: "off" | "shadow";
+  mode: AssetsMode;
   checkAccess: () => Promise<AccessResult>;
   /** shadow일 때, 본문 검사를 통과한 뒤에만 불린다 */
   getAssetDeps?: () => AssetStoreDeps;
@@ -54,7 +55,7 @@ export async function handlePostAsset(req: Request, deps: AssetUploadDeps): Prom
   // 1) 권한 → 모드. 둘 중 하나에서 끝나면 본문·저장소에 닿지 않는다
   const auth = await deps.checkAccess();
   if (!auth.allowed) return out(auth.status, { error: auth.error });
-  if (deps.mode !== "shadow") return fail(404, "ASSET_FEATURE_OFF", "자료를 찾을 수 없습니다.");
+  if (!assetsEnabled(deps.mode)) return fail(404, "ASSET_FEATURE_OFF", "자료를 찾을 수 없습니다.");
 
   // 2) 본문 — 실제로 읽은 바이트 기준 상한
   const body = await readJsonBodyLimited(req, UPLOAD_BODY_MAX_BYTES);

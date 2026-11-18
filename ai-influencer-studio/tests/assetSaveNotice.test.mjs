@@ -112,7 +112,10 @@ test("생성 화면: 저장 결과는 생성 응답에서 한 번 읽을 뿐이�
   assert.match(STUDIO, /\.\.\.\(assetNotice \? \{ assetNotice \} : \{\}\),/, "저장 결과가 없으면 결과 상태에 필드를 더하지 않는다");
   assert.match(STUDIO, /assetNotice: null,/, "새 생성을 시작하면 앞 결과의 안내를 지운다");
   // 저장 결과를 읽은 뒤의 흐름에 저장 결과에 따른 분기가 없다(안내를 상태에 싣는 한 곳뿐)
-  assert.equal(STUDIO.split("assetNotice").length - 1, 4);
+  // W01-UII(2026-11-19): 컴포넌트에 자산 번호 흐름(서버 모드 on일 때만 타는 별도 함수)이 더해져, 횟수는 기존 생성 함수 범위에서만 센다
+  const legacy = STUDIO.slice(STUDIO.indexOf("const handleGenerate = async"), STUDIO.indexOf("const handleGenerateWithAssets = async"));
+  assert.ok(legacy.length > 0);
+  assert.equal(legacy.split("assetNotice").length - 1, 4);
   assert.equal(/if \(\s*!?assetNotice|assetNotice\s*(\?\.|\.)kind|assetNotice\s*===/.test(STUDIO), false, "저장 결과로 다른 동작을 고르지 않는다");
   // 히스토리에서 불러온 결과에는 저장 안내를 싣지 않는다
   const select = STUDIO.slice(STUDIO.indexOf("const handleSelectHistoryItem"), STUDIO.indexOf("setIsHistoryOpen(false);"));

@@ -42,7 +42,10 @@ export const UPLOAD_WAIT_MS = 60_000;
 export const GENERATION_WAIT_MS = 310_000;   // 서버 생성 경로의 한도 300초 + 여유. 이 시간이 지나도 서버의 생성·과금은 멈추지 않는다
 export const RELOAD_WAIT_MS = 20_000;
 export const RESULT_WAIT_MS = 60_000;
-export type FlowLimits = { uploadMs?: number; generationMs?: number; reloadMs?: number; resultMs?: number };
+/** 참고 사진 올리기 전체(여러 장 합계)의 상한 — 한 장 상한(60초)과 별개. 이 시간이 지나면 남은 사진을 올리지 않고 생성도 하지 않는다 */
+export const UPLOAD_TOTAL_WAIT_MS = 120_000;
+export type FlowLimits = { uploadMs?: number; uploadTotalMs?: number; generationMs?: number; reloadMs?: number; resultMs?: number };
+export type FlowPhase = "uploading" | "generating" | "receiving";
 
 export const CLIENT_MESSAGES = {
   MODE_MISMATCH: "화면이 최신 상태가 아닙니다. 새로고침한 뒤 다시 시도해 주세요.",
@@ -297,7 +300,13 @@ export type GenerationOutcome =
   | { kind: "mode_mismatch"; message: string }
   | { kind: "aborted" };
 
-export type FlowDeps = { fetch: FetchLike; storageOrigin: string; memory: AssetIdMemory; limits?: FlowLimits };
+export type FlowDeps = {
+  fetch: FetchLike; storageOrigin: string; memory: AssetIdMemory; limits?: FlowLimits;
+  /** 단조 시계(밀리초). 기본 performance.now() */
+  now?: () => number;
+  /** 단계가 바뀔 때 알린다: 올리는 중 → 생성 요청을 보냄(이때부터 과금될 수 있다) → 결과를 받는 중 */
+  onPhase?: (phase: FlowPhase) => void;
+};
 /** 생성 요청을 보낸 뒤 결과를 알 수 없게 끝났다(시간 초과·연결 끊김·읽지 못한 응답) — 생성과 차감이 됐는지 모른다 */
 export const RESULT_UNKNOWN_CODE = "RESULT_UNKNOWN";
 /** 이 코드가 오면 그 요청에 쓴 번호의 기억을 지운다(그 사진은 다음에 다시 올려야 한다) */
@@ -307,7 +316,11 @@ const FORGET_CODES = new Set(["REFERENCE_NOT_FOUND", "REFERENCE_NOT_READY", "REF
 export async function runAssetGeneration(deps: FlowDeps, config: Record<string, unknown>, signal: AbortSignal): Promise<GenerationOutcome> {
   if (signal.aborted) return { kind: "aborted" };
   const L = deps.limits ?? {};
+  const now = deps.now ?? (() => performance.now());
+  const phase = (p: FlowPhase) => { try { deps.onPhase?.(p); } catch { /* 알림의 오류는 버린다 */ } };
   const slots = collectSlots(config);
+  phase("uploading");
+  const uploadDeadline = now() + (L.uploadTotalMs ?? UPLOAD_TOTAL_WAIT_MS);   // 올리기 전체의 고정 마감
   deps.memory.retainOnly(slots);                                // 지금 칸에 없는 사진의 번호는 지운다(기억이 쌓이지 않게)
   const references: { assetId: string; role: ReferenceRole }[] = [];
   const used = new Set<string>();
@@ -315,7 +328,10 @@ export async function runAssetGeneration(deps: FlowDeps, config: Record<string, 
     let assetId = deps.memory.get(slot);
     if (assetId && used.has(assetId)) assetId = undefined;      // 한 요청 안에서 같은 번호를 두 칸에 쓰지 않는다
     if (!assetId) {
-      const up = await uploadReference(deps.fetch, slot, signal, L.uploadMs ?? UPLOAD_WAIT_MS);
+      const wait = Math.min(L.uploadMs ?? UPLOAD_WAIT_MS, uploadDeadline - now());
+      // 올리기 전체 상한이 지났다 — 이 사진은 보내지 않는다(생성 0)
+      if (!(wait > 0)) return { kind: "error", message: CLIENT_MESSAGES.UPLOAD_TIMEOUT, status: null, code: "UPLOAD_TIMEOUT", needApiKey: false, stage: "upload" };
+      const up = await uploadReference(deps.fetch, slot, signal, wait);
       if (signal.aborted || up.kind === "aborted") return { kind: "aborted" };       // 끊긴 뒤에는 번호를 기억하지 않는다
       if (up.kind === "mode_mismatch") return up;
       if (up.kind === "upload_unknown") return { kind: "error", message: up.message, status: 200, code: "UPLOAD_UNKNOWN", needApiKey: false, stage: "upload" };
@@ -333,6 +349,7 @@ export async function runAssetGeneration(deps: FlowDeps, config: Record<string, 
   // 여기서부터는 생성 요청을 보낸 것이다: 어떻게 끝나든 다시 보내지 않는다. 결과를 모르고 끝나면 「차감됐을 수 있다」고 알린다
   const unknown = (status: number | null): GenerationOutcome =>
     ({ kind: "error", message: CLIENT_MESSAGES.GENERATION_NO_RESPONSE, status, code: RESULT_UNKNOWN_CODE, needApiKey: false, stage: "generation" });
+  phase("generating");
   const r = await callApi(deps.fetch, GENERATIONS_PATH, { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body: JSON.stringify({ config: stripPhotoFields(config), references }) },
     signal, L.generationMs ?? GENERATION_WAIT_MS, GENERATION_JSON_MAX_BYTES);
   if (r.end !== "ok") return r.end === "aborted" ? { kind: "aborted" } : unknown(null);
@@ -348,6 +365,7 @@ export async function runAssetGeneration(deps: FlowDeps, config: Record<string, 
   }
   if (res.status === 200) {
     if (savedFlag === true && idOrNull) {
+      phase("receiving");
       const got = await fetchResultBlob(deps.fetch, body.signedUrl, { storageOrigin: deps.storageOrigin, assetId: idOrNull, signal, waitMs: L.resultMs ?? RESULT_WAIT_MS });
       if (signal.aborted || (!got.ok && got.reason === "aborted")) return { kind: "aborted" };
       if (got.ok) return { kind: "asset", assetId: idOrNull, blob: got.blob };
@@ -390,4 +408,179 @@ export async function reloadAsset(deps: Pick<FlowDeps, "fetch" | "storageOrigin"
     if (got.ok) return { kind: "asset", assetId, blob: got.blob };
   }
   return { kind: "asset_pending", assetId, message: CLIENT_MESSAGES.RELOAD_FAILED };
+}
+
+// ───────────── 화면 세션(W01-UII) — 컴포넌트가 들고 있는 상태를 React 없이 ─────────────
+// 컴포넌트는 이 저장소에서 단위 시험으로 실행할 수 없다. 그래서 「늦은 결과를 버리는 세대 확인·취소·중복 생성 방지·메모리 사본 주소의 해제」를 여기에 두고 모의로 확인한다.
+export const SESSION_MESSAGES = {
+  PHOTOS_CHANGED: "참고 사진이 바뀌어 생성을 취소했습니다. 다시 눌러 주세요.",
+  NO_COPY: "원본을 먼저 불러와 주세요. [다시 불러오기]를 눌러 주세요.",
+} as const;
+
+export type SessionView =
+  /** 결과의 메모리 사본을 화면에 보여 준다. src는 blob: 주소 — 세션이 교체·종료 때 해제한다 */
+  | { kind: "shown"; src: string; assetId: string; fileExt: "png" | "jpg" | "webp" }
+  | { kind: "pending"; assetId: string; message: string }
+  | { kind: "inline"; imageUrl: string; assetSaved: false | "unknown" | null; assetId: string | null; assetCode: string | null }
+  | { kind: "omitted"; message: string; assetSaved: true | false | "unknown" | null; assetId: string | null }
+  | { kind: "error"; message: string; code: string | null; needApiKey: boolean; stage: "upload" | "generation" }
+  | { kind: "mode_mismatch"; message: string }
+  | { kind: "checking"; message: string }
+  | { kind: "gone"; message: string }
+  /** 이미 진행 중이라 시작하지 않았다(중복 생성·중복 조회 방지) */
+  | { kind: "busy" }
+  /** 그사이 취소됐거나 세션이 끝났다 — 이 결과를 화면에 적용하지 않는다 */
+  | { kind: "stale"; disposed: boolean };
+
+export type SessionDeps = {
+  fetch: FetchLike; storageOrigin: string; limits?: FlowLimits; now?: () => number;
+  createObjectURL: (blob: Blob) => string;
+  revokeObjectURL: (url: string) => void;
+};
+type SessionPhase = "idle" | FlowPhase | "reloading";
+const EXT: Record<string, "png" | "jpg" | "webp"> = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp" };
+
+/** 화면 하나(계정 하나)가 들고 있는 자산 흐름 상태. 계정이 바뀌거나 화면을 떠나면 dispose()하고 새로 만든다 */
+export class AssetFlowSession {
+  /** 올린 참고 사진의 번호 — 이 세션 안에서만 */
+  readonly memory = new AssetIdMemory();
+  private epoch = 0;                              // 세대: 취소·새 작업마다 올린다. 늦게 끝난 작업은 세대가 달라 버려진다
+  private controller: AbortController | null = null;
+  private phase: SessionPhase = "idle";
+  private url: string | null = null;              // 메모리 사본의 blob: 주소(서명 주소가 아니다)
+  private blob: Blob | null = null;
+  private assetId: string | null = null;
+  private disposed = false;
+  private readonly deps: SessionDeps;
+  constructor(deps: SessionDeps) { this.deps = deps; }
+
+  get busy(): boolean { return this.phase !== "idle"; }
+  /** 유료 생성 요청이 나간 뒤다 — 참이면 화면은 참고 사진을 바꾸지 못하게 한다 */
+  get locked(): boolean { return this.phase === "generating" || this.phase === "receiving"; }
+  get hasResultCopy(): boolean { return this.blob !== null; }
+  get currentAssetId(): string | null { return this.assetId; }
+
+  /** 새 생성 한 번. 이미 진행 중이면 시작하지 않는다 */
+  async generate(config: Record<string, unknown>): Promise<SessionView> {
+    if (this.disposed) return { kind: "stale", disposed: true };
+    if (this.busy) return { kind: "busy" };
+    const epoch = ++this.epoch;
+    const controller = new AbortController();
+    this.controller = controller;
+    this.phase = "uploading";
+    this.dropCopy();                              // 앞 결과의 사본과 번호를 놓는다(새 생성이 시작됐다)
+    this.assetId = null;
+    let out: GenerationOutcome;
+    try {
+      out = await runAssetGeneration({
+        fetch: this.deps.fetch, storageOrigin: this.deps.storageOrigin, memory: this.memory, limits: this.deps.limits, now: this.deps.now,
+        onPhase: (p) => { if (epoch === this.epoch) this.phase = p; },
+      }, config, controller.signal);
+    } finally {
+      if (epoch === this.epoch) { this.phase = "idle"; this.controller = null; }
+    }
+    if (epoch !== this.epoch || out.kind === "aborted") return { kind: "stale", disposed: this.disposed };
+    switch (out.kind) {
+      case "asset": this.assetId = out.assetId; return this.keepCopy(out.blob, out.assetId);
+      case "asset_pending": this.assetId = out.assetId; return { kind: "pending", assetId: out.assetId, message: out.message };
+      case "inline": this.assetId = out.assetId; return out;
+      case "omitted": this.assetId = out.assetId; return out;
+      case "error": return { kind: "error", message: out.message, code: out.code, needApiKey: out.needApiKey, stage: out.stage };
+      default: return out;
+    }
+  }
+
+  /** 지금 결과의 번호로 한 번 다시 받는다(사용자가 누를 때만). 한 번 부르면 조회 1회 */
+  async reload(): Promise<SessionView> {
+    if (this.disposed) return { kind: "stale", disposed: true };
+    if (this.busy) return { kind: "busy" };
+    const assetId = this.assetId;
+    if (!assetId) return { kind: "gone", message: CLIENT_MESSAGES.GONE };
+    const epoch = ++this.epoch;
+    const controller = new AbortController();
+    this.controller = controller;
+    this.phase = "reloading";
+    let out: ReloadOutcome;
+    try {
+      out = await reloadAsset({ fetch: this.deps.fetch, storageOrigin: this.deps.storageOrigin, limits: this.deps.limits }, assetId, controller.signal);
+    } finally {
+      if (epoch === this.epoch) { this.phase = "idle"; this.controller = null; }
+    }
+    if (epoch !== this.epoch || out.kind === "aborted") return { kind: "stale", disposed: this.disposed };
+    switch (out.kind) {
+      case "asset": return this.keepCopy(out.blob, assetId);
+      case "asset_pending": return { kind: "pending", assetId, message: out.message };
+      case "checking": return { kind: "checking", message: out.message };
+      case "gone": this.assetId = null; return { kind: "gone", message: out.message };
+      default: return out;
+    }
+  }
+
+  /** 참고 사진이 바뀌었다. 올리는 중(아직 생성 요청 전)이면 그 작업을 취소한다. 생성 요청이 나간 뒤에는 아무것도 하지 않는다 — 화면이 사진 변경 자체를 막는다(locked) */
+  photosChanged(): void {
+    if (this.phase === "uploading") this.cancel();
+  }
+
+  /** 진행 중인 작업을 끊는다. 늦게 끝난 결과는 세대가 달라 버려진다. 이미 나간 생성 요청의 서버 처리·과금은 멈추지 않는다 */
+  cancel(): void {
+    this.epoch++;
+    const c = this.controller;
+    this.controller = null;
+    this.phase = "idle";
+    try { c?.abort(); } catch { /* 버린다 */ }
+  }
+
+  /** 화면이 다른 결과(기존 경로의 보정 결과·히스토리 항목)로 바뀌었다 — 사본과 번호를 놓는다 */
+  clearResult(): void {
+    this.dropCopy();
+    this.assetId = null;
+  }
+
+  /** 화면을 떠나거나 계정이 바뀐다: 작업 취소 + 사본 주소 해제 + 번호 기억 삭제. 이후 이 세션은 아무것도 시작하지 않는다 */
+  dispose(): void {
+    this.disposed = true;
+    this.cancel();
+    this.dropCopy();
+    this.assetId = null;
+    this.memory.clear();
+  }
+
+  /** 보정(기존 경로)에 넘길 수 있도록 지금 결과 사본을 data URL로. 사본이 없으면 null */
+  async resultDataUrl(): Promise<string | null> {
+    const blob = this.blob;
+    if (!blob) return null;
+    try {
+      const bytes = new Uint8Array(await blob.arrayBuffer());
+      let bin = "";
+      const step = 0x8000;
+      for (let i = 0; i < bytes.length; i += step) bin += String.fromCharCode(...bytes.subarray(i, i + step));
+      return "data:" + blob.type + ";base64," + globalThis.btoa(bin);
+    } catch {
+      return null;
+    }
+  }
+
+  private keepCopy(blob: Blob, assetId: string): SessionView {
+    this.dropCopy();
+    let src: string;
+    try { src = this.deps.createObjectURL(blob); } catch { return { kind: "pending", assetId, message: CLIENT_MESSAGES.RESULT_PENDING }; }
+    this.blob = blob;
+    this.url = src;
+    return { kind: "shown", src, assetId, fileExt: EXT[blob.type] ?? "png" };
+  }
+  private dropCopy(): void {
+    const u = this.url;
+    this.url = null;
+    this.blob = null;
+    if (u) { try { this.deps.revokeObjectURL(u); } catch { /* 버린다 */ } }
+  }
+}
+
+/** 생성 요청이 나간 동안(locked)에는 참고 사진 칸의 변경을 받지 않는다 — 그 밖의 칸은 그대로 받는다. locked가 아니면 next 그대로 */
+export function keepPhotosIfLocked<T extends object>(prev: T, next: T, locked: boolean): T {
+  if (!locked) return next;
+  const p = prev as Record<string, unknown>;
+  const n = next as Record<string, unknown>;
+  if (n.personImage === p.personImage && n.placeImage === p.placeImage && n.productImages === p.productImages) return next;
+  return { ...next, personImage: p.personImage, placeImage: p.placeImage, productImages: p.productImages } as T;
 }

@@ -67,7 +67,7 @@
 //  * deleted는 「저장소 메타데이터에 지금 없다」는 확인이다. 물리 파일의 영구 삭제를 보장하지 않는다.
 // 응답·로그에는 건수와 코드만 싣는다. 경로·회원 id·토큰·오류 원문·비밀값은 싣지 않는다.
 
-import type { AssetsMode } from "./generation";
+import { assetsEnabled, type AssetsMode } from "./generation";
 import { ASSET_BUCKET, isCanonicalUuid, parseAssetPath } from "./paths";
 
 export const CLEANUP_MAX_ITEMS = 100;
@@ -517,7 +517,7 @@ const NO_STORE = { "Cache-Control": "no-store" };
 export async function handleCleanupRequest(d: CleanupHandlerDeps): Promise<CleanupResponse> {
   if (!bearerOk(d.secret, d.authorization)) return { status: 401, body: { error: "unauthorized" }, headers: { ...NO_STORE } };
   // off: 인증만 확인하고 끝낸다. 자산용 DB·저장소 의존성을 만들지도 부르지도 않는다.
-  if (d.mode !== "shadow") return { status: 200, body: { ok: true, skipped: true }, headers: { ...NO_STORE } };
+  if (!assetsEnabled(d.mode)) return { status: 200, body: { ok: true, skipped: true }, headers: { ...NO_STORE } };
 
   let deps: RetentionDeps;
   try {

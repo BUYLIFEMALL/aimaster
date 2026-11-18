@@ -30,6 +30,9 @@ interface ImageDisplayProps {
   onOpenSettings?: () => void;
   /** v1.21 「🗓 하루 일과 자동 예약」 표시(스위치 src/lib/routineSchedule.ts) */
   routineScheduleEnabled?: boolean;
+  /** 자산 번호 흐름(W01-UII): [다시 불러오기] — 누를 때마다 조회 한 번. 없으면 버튼을 보이지 않는다 */
+  onReloadAsset?: () => void;
+  isReloadingAsset?: boolean;
 }
 
 export function ImageDisplay({
@@ -40,6 +43,8 @@ export function ImageDisplay({
   history = [],
   onOpenSettings,
   routineScheduleEnabled = false,
+  onReloadAsset,
+  isReloadingAsset = false,
 }: ImageDisplayProps) {
   const [selectedCaptionTab, setSelectedCaptionTab] = useState<number>(0);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
@@ -56,7 +61,7 @@ export function ImageDisplay({
     if (!result.imageUrl) return;
     const a = document.createElement("a");
     a.href = result.imageUrl;
-    a.download = `vogue-influencer-${Date.now()}.png`;
+    a.download = `vogue-influencer-${Date.now()}.${result.fileExt ?? "png"}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -75,6 +80,24 @@ export function ImageDisplay({
           classes={{ border: "border-[#282e42]", item: "bg-[#1c202e]", muted: "text-slate-400", danger: "text-rose-400" }}
         />
         {routineScheduleEnabled && <RoutineSchedulePanel history={history} />}
+
+        {/* 자산 번호 흐름(W01-UII): 원본은 저장됐지만 화면에 사본이 없을 때 — 안내와 [다시 불러오기]. 스스로 다시 받지 않는다(누를 때마다 한 번) */}
+        {result.needsReload && !result.imageUrl && !result.loading && onReloadAsset && (
+          <div role="status" data-asset-reload className="w-full max-w-2xl mb-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3">
+            <p className="flex-1 text-xs leading-relaxed text-amber-100">
+              {result.reloadMessage || "원본을 불러오지 못했습니다. [다시 불러오기]를 눌러 주세요."}
+            </p>
+            <button
+              type="button"
+              onClick={onReloadAsset}
+              disabled={isReloadingAsset}
+              className="px-3.5 py-2 rounded-xl btn-3d btn-3d-rose text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <RefreshCw className={`w-4 h-4 ${isReloadingAsset ? "animate-spin" : ""}`} />
+              <span>{isReloadingAsset ? "불러오는 중" : "다시 불러오기"}</span>
+            </button>
+          </div>
+        )}
 
         {result.imageUrl ? (
           <div className="w-full max-w-2xl bg-[#141721] rounded-2xl border border-[#282e42] shadow-2xl p-4 space-y-4">

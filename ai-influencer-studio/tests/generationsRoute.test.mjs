@@ -914,6 +914,53 @@ test("검증되지 않은 번호는 응답에 남지 않는다: 예약 경로가
   assert.deepEqual([r.status, r.body], [422, { error: RESPONSE_TOO_LARGE_MESSAGE, imageOmitted: true, code: "RESPONSE_TOO_LARGE", assetSaved: "unknown", assetId: NEW_ASSET, assetCode: "SAVE_TIMEOUT" }]);
 });
 
+// ───────────── W01-UII(2026-11-19, Master msg_424b5c739f5b): 모드 3값 — off / shadow / on. 운영 상수는 off ─────────────
+test("모드: 판정은 한 함수 — off는 꺼짐, shadow·on은 서버 저장 동작, 화면의 자산 번호 흐름은 on뿐. 운영 상수는 off이고 화면 속성은 false다", async () => {
+  const gen = await import("../src/lib/assets/generation.ts");
+  assert.deepEqual(["off", "shadow", "on"].map((m) => [gen.assetsEnabled(m), gen.assetFlowEnabled(m)]), [[false, false], [true, false], [true, true]]);
+  for (const bad of [undefined, null, "", "ON", "true", 1]) assert.deepEqual([gen.assetsEnabled(bad), gen.assetFlowEnabled(bad)], [false, false]);
+  assert.equal(gen.AIF_ASSETS_MODE, "off");
+  assert.equal(gen.assetFlowEnabled(gen.AIF_ASSETS_MODE), false);
+  // 화면 진입점은 그 상수를 판정 함수에 넣어 속성으로 넘긴다(다른 원천 없음)
+  const { readFileSync } = await import("node:fs");
+  const page = readFileSync(new URL("../src/app/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /assetFlow=\{assetFlowEnabled\(AIF_ASSETS_MODE\)\}/);
+  assert.equal(/process\.env|searchParams|cookies\(/.test(page), false, "환경변수·주소 매개변수·쿠키로 켜지 않는다");
+  // 모드 값을 직접 비교하는 곳이 처리기에 남아 있지 않다
+  for (const f of ["generation", "generations", "upload", "read", "retention"]) {
+    const src = readFileSync(new URL(`../src/lib/assets/${f}.ts`, import.meta.url), "utf8");
+    assert.equal(/mode\s*[!=]==\s*"(shadow|on|off)"/.test(src.replace(/export const asset\w+ = .*/g, "")), false, f);
+  }
+});
+
+test("모드: 새 생성 경로·올리기·조회·정리 처리기가 off에서는 꺼지고 shadow·on에서는 같은 동작을 한다", async () => {
+  const { handlePostAsset } = await import("../src/lib/assets/upload.ts");
+  const { handleGetAsset } = await import("../src/lib/assets/read.ts");
+  const { handleCleanupRequest } = await import("../src/lib/assets/retention.ts");
+  const { handleGenerateImagePost } = await import("../src/lib/assets/generation.ts");
+  const access = async () => ({ allowed: true, user: { id: U } });
+  const results = {};
+  for (const mode of ["off", "shadow", "on"]) {
+    // 새 생성 경로
+    const w = world();
+    const g = await handlePostGeneration(req({ config: CONFIG }), { ...shadow(w), mode });
+    // 올리기: 깨진 본문 — 켜져 있으면 본문 검사까지 간다
+    const up = await handlePostAsset(new Request("http://local/x", { method: "POST", body: "{깨진" }), { mode, checkAccess: access });
+    // 조회: 의존성 없음 — 켜져 있으면 「확인 불가」까지 간다
+    const rd = await handleGetAsset({ mode, checkAccess: access }, id(1));
+    // 정리: 인증 통과 — 켜져 있으면 건너뛰지 않는다
+    const cl = await handleCleanupRequest({ mode, secret: "s3cret-s3cret-s3cret", authorization: "Bearer s3cret-s3cret-s3cret" });
+    // 기존 생성 경로: 켜져 있으면 생성 뒤 원본을 저장한다
+    const w2 = world();
+    const legacy = await handleGenerateImagePost(req({ age: 25, quality: "1K" }), { mode, checkAccess: w2.checkAccess, getApiKey: w2.getApiKey, generate: (_k, c) => w2.generate(_k, c), getAssetDeps: w2.getAssetDeps });
+    results[mode] = [g.status, g.body.code ?? null, up.status, up.body.code, rd.status, rd.body.code, cl.body.skipped === true, legacy.status, legacy.body.assetSaved ?? null, w2.calls.includes("aif_asset_reserve")];
+  }
+  assert.deepEqual(results.off, [404, "ASSET_FEATURE_OFF", 404, "ASSET_FEATURE_OFF", 404, "ASSET_FEATURE_OFF", true, 200, null, false]);
+  assert.deepEqual(results.shadow.slice(0, 7), [200, null, 400, "BODY_INVALID", 503, "ASSET_TEMPORARILY_UNAVAILABLE", false]);
+  assert.deepEqual(results.shadow.slice(7), [200, true, true]);
+  assert.deepEqual(results.on, results.shadow, "on의 서버 동작은 shadow와 같다");
+});
+
 test("처리되지 않은 거부가 하나도 없다(늦게 온 오류·취소 오류를 모두 소비했다)", async () => {
   await sleep(150);
   assert.deepEqual(unhandled, []);

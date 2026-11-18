@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { ControlPanel } from "@/components/ControlPanel";
 import { ImageDisplay } from "@/components/ImageDisplay";
@@ -11,11 +11,14 @@ import type { InfluencerConfig, GenerationResult, HistoryItem } from "@/types/in
 import { assetSaveNotice } from "@/lib/assets/saveNotice";
 import { readGenerateResponse } from "@/lib/assets/generateResponse";
 import { collectReferences, prepareLastResultForRefine, referenceErrorMessage } from "@/lib/referenceImage";
+import { AssetFlowSession, CLIENT_MESSAGES, SESSION_MESSAGES, keepPhotosIfLocked, stripPhotoFields } from "@/lib/assets/clientFlow";
 
 interface InfluencerStudioProps {
   userEmail?: string | null;
   /** v1.21 「🗓 하루 일과 자동 예약」 표시 여부(서버가 src/lib/routineSchedule.ts 스위치로 판정) */
   routineScheduleEnabled?: boolean;
+  /** 자산 번호 흐름(W01-UII): 서버가 모드 상수(AIF_ASSETS_MODE)로 판정해 넘긴다. 지금은 항상 false — 그때 이 화면은 기존 흐름만 쓴다 */
+  assetFlow?: boolean;
 }
 
 const LOCAL_STORAGE_KEY = "ai_influencer_history_v1"; // v1.20부터는 예전 브라우저 히스토리를 계정으로 옮길 때만 읽는다
@@ -58,7 +61,7 @@ async function postHistory(imageSrc: string, captions: string[], config: Influen
   return d.item ? fromServer(d.item) : null;
 }
 
-export function InfluencerStudio({ userEmail, routineScheduleEnabled = false }: InfluencerStudioProps) {
+export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, assetFlow = false }: InfluencerStudioProps) {
   // 인플루언서 설정 기본값 (기본 선택은 아무것도 안 되어 있는 값)
   const [config, setConfig] = useState<InfluencerConfig>({
     gender: "",
@@ -103,6 +106,33 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false }: 
   // 작업 히스토리 목록
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
   const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
+
+  // ── 자산 번호 흐름(W01-UII, assetFlow일 때만) ──
+  // 세션은 화면·계정 단위다: 계정이 바뀌거나 화면을 떠나면 끝낸다(진행 중 요청 취소 + 메모리 사본 주소 해제 + 번호 기억 삭제).
+  // 세대 확인·취소·중복 방지는 세션(src/lib/assets/clientFlow.ts)이 한다. assetFlow가 false면 세션을 만들지 않고 아래 코드는 기존 흐름과 같다.
+  const sessionRef = useRef<AssetFlowSession | null>(null);
+  const [isReloadingAsset, setIsReloadingAsset] = useState(false);
+  useEffect(() => {
+    if (!assetFlow) return;
+    const session = new AssetFlowSession({
+      fetch: (input, init) => fetch(input, init),
+      storageOrigin: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
+      createObjectURL: (blob) => URL.createObjectURL(blob),
+      revokeObjectURL: (url) => URL.revokeObjectURL(url),
+    });
+    sessionRef.current = session;
+    return () => {
+      session.dispose();
+      if (sessionRef.current === session) sessionRef.current = null;
+    };
+  }, [assetFlow, userEmail]);
+  // 참고 사진이 바뀌면 세션에 알린다 — 올리는 중이던 작업은 취소된다(생성 요청이 나간 뒤에는 아래 setConfigGuarded가 변경 자체를 막는다)
+  useEffect(() => {
+    sessionRef.current?.photosChanged();
+  }, [config.personImage, config.placeImage, config.productImages, config.isAdMode]);
+  // 생성 요청이 나간 동안에는 참고 사진 칸의 변경을 받지 않는다(그 밖의 칸은 그대로). assetFlow가 아니면 쓰이지 않는다
+  const setConfigGuarded: typeof setConfig = (value) =>
+    setConfig((prev) => keepPhotosIfLocked(prev, typeof value === "function" ? value(prev) : value, !!sessionRef.current?.locked));
 
   // 마운트 시 사용자 API 키 상태 및 로컬 히스토리 로드
   useEffect(() => {
@@ -222,6 +252,7 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false }: 
 
   // 히스토리 항목 선택
   const handleSelectHistoryItem = (item: HistoryItem) => {
+    sessionRef.current?.clearResult();   // 화면이 히스토리 항목으로 바뀐다 — 메모리 사본을 놓는다(assetFlow가 아니면 세션이 없다)
     setResult({
       imageUrl: item.imageUrl,
       captions: item.captions,
@@ -260,7 +291,14 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false }: 
     // 큰 결과는 보내기 전에 JPEG(긴 변 2048, 1MB 이하)로 맞춘다. 정상 새 생성 경로는 그대로.
     let lastResultImage: string | undefined;
     if (isRefining) {
-      const prepared = await prepareLastResultForRefine(result.imageUrl);
+      // 자산 번호 흐름의 결과는 메모리 사본(blob:)이다 — 보정에는 지금처럼 data URL이 필요하므로 사본을 data URL로 바꿔 넘긴다. 보정 자체는 기존 경로 그대로다
+      let refineSource = result.imageUrl;
+      if (assetFlow && sessionRef.current?.hasResultCopy) refineSource = await sessionRef.current.resultDataUrl();
+      else if (assetFlow && result.needsReload) {
+        setResult((prev) => ({ ...prev, loading: false, error: SESSION_MESSAGES.NO_COPY }));
+        return;
+      }
+      const prepared = await prepareLastResultForRefine(refineSource);
       if (!prepared.ok) {
         setResult((prev) => ({ ...prev, loading: false, error: prepared.message }));
         return;
@@ -278,6 +316,12 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false }: 
     const refCheck = collectReferences(configToSubmit as unknown as Record<string, unknown>);
     if (!refCheck.ok) {
       setResult((prev) => ({ ...prev, loading: false, error: referenceErrorMessage(refCheck.code, refCheck.field) }));
+      return;
+    }
+
+    // 자산 번호 흐름: 새 생성만 새 경로로 간다. 보정은 아래의 기존 경로 그대로(사진 data URL + lastResultImage)
+    if (assetFlow && !isRefining) {
+      await handleGenerateWithAssets(configToSubmit);
       return;
     }
 
@@ -329,6 +373,7 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false }: 
         console.warn("캡션 생성 실패:", capErr);
       }
 
+      sessionRef.current?.clearResult();   // 기존 경로의 결과(data URL)로 바뀐다 — 앞 결과의 메모리 사본을 놓는다(assetFlow가 아니면 세션이 없다)
       setResult({
         imageUrl: generatedImageUrl,
         captions: generatedCaptions,
@@ -352,6 +397,88 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false }: 
         error: err.message || "오류가 발생했습니다.",
       }));
       alert(err.message || "이미지 생성 중 오류가 발생했습니다.");
+    }
+  };
+
+  // ── 자산 번호 흐름의 새 생성(W01-UII) — 참고 사진 올리기 → 번호로 생성 → 결과 사본 표시. 어디서 끝나든 다시 보내지 않는다 ──
+  const handleGenerateWithAssets = async (configToSubmit: InfluencerConfig) => {
+    const session = sessionRef.current;
+    if (!session) {
+      setResult((prev) => ({ ...prev, loading: false, error: CLIENT_MESSAGES.MODE_MISMATCH }));
+      return;
+    }
+    if (session.busy) return;   // 이미 진행 중 — 두 번 보내지 않는다
+
+    setResult((prev) => ({ ...prev, loading: true, error: null, imageUrl: null, captions: [], assetNotice: null, assetId: null, needsReload: false, reloadMessage: null, fileExt: undefined }));
+    const view = await session.generate(configToSubmit as unknown as Record<string, unknown>);
+
+    if (view.kind === "busy") return;
+    if (view.kind === "stale") {
+      // 화면을 떠났거나 계정이 바뀐 경우에는 화면 상태를 건드리지 않는다. 사진이 바뀌어 취소된 경우만 안내한다
+      if (!view.disposed) setResult((prev) => ({ ...prev, loading: false, error: SESSION_MESSAGES.PHOTOS_CHANGED }));
+      return;
+    }
+    if (view.kind === "error" || view.kind === "mode_mismatch" || view.kind === "checking" || view.kind === "gone") {
+      if (view.kind === "error" && view.needApiKey) setIsApiKeyModalOpen(true);
+      setResult((prev) => ({ ...prev, loading: false, error: view.message }));
+      alert(view.message);
+      return;
+    }
+    if (view.kind === "omitted") {
+      // 생성은 됐지만 응답에 이미지가 없다. 번호가 있으면 [다시 불러오기]만 보여 준다(스스로 조회하지 않는다)
+      setResult((prev) => ({ ...prev, loading: false, error: view.message, assetId: view.assetId, needsReload: !!view.assetId, reloadMessage: null }));
+      alert(view.message);
+      return;
+    }
+
+    // 여기부터는 생성이 끝난 경우다: shown(사본 있음) · pending(저장됐지만 사본 없음) · inline(저장 불명·안 됨 — 응답에 실린 이미지)
+    // 캡션: 기존과 같은 호출. 캡션은 사진을 쓰지 않으므로 글자 설정만 보낸다
+    let generatedCaptions: string[] = [];
+    try {
+      const capRes = await fetch("/api/generate-caption", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ config: stripPhotoFields(configToSubmit as unknown as Record<string, unknown>) }),
+      });
+      const capData = await capRes.json();
+      if (capData.success) generatedCaptions = capData.captions;
+    } catch (capErr) {
+      console.warn("캡션 생성 실패:", capErr);
+    }
+
+    const imageUrl = view.kind === "shown" ? view.src : view.kind === "inline" ? view.imageUrl : null;
+    const assetNotice = view.kind === "shown" ? assetSaveNotice({ assetSaved: true }) : view.kind === "inline" ? assetSaveNotice({ assetSaved: view.assetSaved }) : null;
+    setResult({
+      imageUrl,
+      captions: generatedCaptions,
+      loading: false,
+      error: null,
+      assetId: view.assetId,
+      needsReload: view.kind === "pending",
+      reloadMessage: view.kind === "pending" ? view.message : null,
+      ...(view.kind === "shown" ? { fileExt: view.fileExt } : {}),
+      ...(assetNotice ? { assetNotice } : {}),
+    });
+    // 직전 결과 칸: 응답에 실린 이미지(data URL)는 기존처럼 둔다. 메모리 사본(blob:)은 설정에 넣지 않는다 — 보정 때 세션에서 꺼낸다
+    setConfig((prev) => ({ ...prev, lastResultImage: view.kind === "inline" ? view.imageUrl : undefined, feedback: undefined }));
+    // 히스토리: 화면에 이미지가 있을 때만 기존과 같은 호출로 저장한다(축소본). 사본이 없으면 저장하지 않는다
+    if (imageUrl) saveToHistory(imageUrl, generatedCaptions, configToSubmit);
+  };
+
+  // [다시 불러오기] — 누를 때마다 조회 한 번. 스스로 되풀이하지 않는다
+  const handleReloadAsset = async () => {
+    const session = sessionRef.current;
+    if (!session || isReloadingAsset) return;
+    setIsReloadingAsset(true);
+    const view = await session.reload();
+    if (view.kind === "stale" && view.disposed) return;
+    setIsReloadingAsset(false);
+    if (view.kind === "shown") {
+      setResult((prev) => ({ ...prev, imageUrl: view.src, fileExt: view.fileExt, needsReload: false, reloadMessage: null, error: null, assetNotice: assetSaveNotice({ assetSaved: true }) }));
+    } else if (view.kind === "pending" || view.kind === "checking" || view.kind === "mode_mismatch") {
+      setResult((prev) => ({ ...prev, reloadMessage: view.message }));
+    } else if (view.kind === "gone") {
+      setResult((prev) => ({ ...prev, needsReload: false, reloadMessage: null, error: view.message }));
     }
   };
 
@@ -397,7 +524,7 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false }: 
       <div className={showGuide ? "hidden" : "contents"}>
         <ControlPanel
           config={config}
-          setConfig={setConfig}
+          setConfig={assetFlow ? setConfigGuarded : setConfig}
           onGenerate={() => handleGenerate()}
           isLoading={result.loading}
           onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
@@ -416,6 +543,8 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false }: 
           history={historyItems}
           onOpenSettings={() => setIsApiKeyModalOpen(true)}
           routineScheduleEnabled={routineScheduleEnabled}
+          onReloadAsset={assetFlow ? handleReloadAsset : undefined}
+          isReloadingAsset={isReloadingAsset}
         />
       </div>
 

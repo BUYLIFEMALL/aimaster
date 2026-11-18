@@ -568,6 +568,280 @@ test("같은 상품 사진: 칸 수와 순서를 지켜 칸마다 따로 올리�
   assert.deepEqual([m.size, m.get({ role: "product", dataUrl: photo(3), occurrence: 1 })], [1, undefined]);
 });
 
+// ───────────── W01-UII(2026-11-19, Master msg_424b5c739f5b): 화면 세션 — 세대 확인·취소·중복 방지·메모리 사본 주소 ─────────────
+const { AssetFlowSession, keepPhotosIfLocked, SESSION_MESSAGES } = F;
+/** 가짜 주소 발급기: 만든 주소와 해제한 주소를 기록한다 */
+function urls() {
+  const made = []; const revoked = [];
+  return { made, revoked, createObjectURL: (b) => { const u = `blob:test/${made.length + 1}`; made.push([u, b]); return u; }, revokeObjectURL: (u) => { revoked.push(u); }, live: () => made.map((m) => m[0]).filter((u) => !revoked.includes(u)) };
+}
+const session = (n, u, extra = {}) => new AssetFlowSession({ fetch: n.fetch, storageOrigin: ORIGIN, createObjectURL: u.createObjectURL, revokeObjectURL: u.revokeObjectURL, ...extra });
+
+test("세션 — 결과 사본: 받은 결과를 blob 주소로 보여 주고, 새 생성·다른 결과로 교체·종료 때 앞 주소를 해제한다. 살아 있는 주소는 최대 하나", async () => {
+  const n = net(); const u = urls();
+  const s = session(n, u);
+  let v = await s.generate({ age: 25 });
+  assert.deepEqual(v, { kind: "shown", src: "blob:test/1", assetId: RESULT_ID, fileExt: "png" });
+  assert.deepEqual([s.hasResultCopy, s.currentAssetId, u.live()], [true, RESULT_ID, ["blob:test/1"]]);
+  // 보정에 넘길 data URL로 바꿀 수 있다(같은 바이트)
+  assert.equal(await s.resultDataUrl(), "data:image/png;base64," + Buffer.from(PNG).toString("base64"));
+  // 새 생성 → 앞 주소 해제, 새 주소 하나
+  v = await s.generate({ age: 26 });
+  assert.deepEqual([v.src, u.revoked, u.live()], ["blob:test/2", ["blob:test/1"], ["blob:test/2"]]);
+  // 화면이 다른 결과(기존 경로의 보정 결과·히스토리 항목)로 바뀜
+  s.clearResult();
+  assert.deepEqual([u.live(), s.hasResultCopy, s.currentAssetId, await s.resultDataUrl()], [[], false, null, null]);
+  // 형식별 확장자
+  for (const [bytes, ext, fileExt] of [[JPEG, "jpg", "jpg"], [WEBP, "webp", "webp"]]) {
+    const n2 = net({ generate: () => json(200, { assetId: RESULT_ID, assetSaved: true, signedUrl: signed(RESULT_ID, ext) }), storage: () => bin(bytes) });
+    assert.equal((await session(n2, urls()).generate({ age: 25 })).fileExt, fileExt);
+  }
+  // 종료: 주소 해제 + 번호 기억 삭제, 이후 아무것도 시작하지 않는다
+  const n3 = net(); const u3 = urls(); const s3 = session(n3, u3);
+  await s3.generate(CONFIG);
+  assert.equal(s3.memory.size, 4);
+  s3.dispose();
+  assert.deepEqual([u3.live(), s3.memory.size, s3.hasResultCopy], [[], 0, false]);
+  const before = n3.calls.length;
+  assert.deepEqual([await s3.generate(CONFIG), await s3.reload(), n3.calls.length], [{ kind: "stale", disposed: true }, { kind: "stale", disposed: true }, before]);
+  // 주소 발급이 던지면 사본 없이 「다시 불러오기」 상태
+  const s4 = session(net(), { createObjectURL: () => { throw new Error("no URL"); }, revokeObjectURL: () => {} });
+  assert.deepEqual(await s4.generate({ age: 25 }), { kind: "pending", assetId: RESULT_ID, message: M.RESULT_PENDING });
+  // 세션은 서명 주소를 들고 있지 않다
+  const s5 = session(net(), urls()); await s5.generate(CONFIG);
+  const dump = JSON.stringify(Object.entries(s5).map(([k, val]) => [k, val instanceof Blob ? "[blob]" : val instanceof AbortController ? "[ac]" : typeof val === "function" ? "[fn]" : k === "deps" ? "[deps]" : k === "memory" ? "[memory]" : val]));
+  for (const leak of ["token=", "/object/sign/", "supabase.co"]) assert.equal(dump.includes(leak), false, leak);
+});
+
+test("세션 — 중복 생성 방지: 진행 중에 다시 누르면 시작하지 않는다(요청 0). 생성 요청이 나간 뒤에는 잠금이 걸린다", async () => {
+  const releases = []; const release = () => { for (const f of releases.splice(0)) f(); };
+  let phaseAtGenerate = null;
+  const u = urls();
+  const n = net({ generate: () => new Promise((res) => { releases.push(() => res(json(200, { assetId: RESULT_ID, assetSaved: true, signedUrl: signed() }))); }) });
+  const s = session(n, u);
+  assert.deepEqual([s.busy, s.locked], [false, false]);
+  const p = s.generate({ age: 25 });
+  await sleep(10);
+  phaseAtGenerate = [s.busy, s.locked];   // 단언은 보류 중인 응답을 푼 뒤에 한다(단언이 먼저 던지면 시험이 끝나지 않는다)
+  const second = await Promise.race([s.generate({ age: 99 }), sleep(300).then(() => ({ kind: "started" }))]);
+  const reload = await Promise.race([s.reload(), sleep(300).then(() => ({ kind: "started" }))]);
+  release();
+  assert.deepEqual(phaseAtGenerate, [true, true], "생성 요청이 나갔다 — 잠금");
+  assert.deepEqual([second, reload, n.count("generate"), n.count("asset")], [{ kind: "busy" }, { kind: "busy" }, 1, 0]);
+  assert.equal((await p).kind, "shown");
+  assert.deepEqual([s.busy, s.locked, n.count("generate")], [false, false, 1]);
+  // 올리는 중에는 바쁘지만 잠금은 아니다(아직 과금 전)
+  let releaseUp;
+  const n2 = net({ upload: () => new Promise((res) => { releaseUp = () => res(json(200, { assetId: id(1), assetSaved: true })); }) });
+  const s2 = session(n2, urls());
+  const p2 = s2.generate({ personImage: photo(1) });
+  await sleep(10);
+  assert.deepEqual([s2.busy, s2.locked], [true, false]);
+  releaseUp();
+  await p2;
+});
+
+test("세션 — 사진이 바뀜: 올리는 중이면 취소하고 늦은 번호·결과를 버린다(생성 0). 생성 요청이 나간 뒤에는 취소하지 않는다", async () => {
+  // 올리는 중에 사진이 바뀜
+  let releaseUp;
+  const n = net({ upload: () => new Promise((res) => { releaseUp = () => res(json(200, { assetId: id(1), assetSaved: true })); }) });
+  const u = urls(); const s = session(n, u);
+  const p = s.generate(CONFIG);
+  await sleep(10);
+  s.photosChanged();
+  assert.deepEqual([s.busy, n.calls[0].init.signal.aborted], [false, true], "요청에 중단 신호를 보냈고 바로 다시 누를 수 있다");
+  releaseUp();
+  assert.deepEqual(await p, { kind: "stale", disposed: false });
+  await sleep(20);
+  assert.deepEqual([n.kinds(), s.memory.size, u.made.length], [["upload"], 0, 0], "늦게 온 번호를 기억하지 않았고 생성도 하지 않았다");
+  // 취소 뒤 새 사진으로 다시 생성하면 새로 올린다
+  const n2 = net(); const s2 = session(n2, urls());
+  s2.photosChanged();                                   // 한가할 때는 아무 일도 없다
+  assert.equal((await s2.generate({ personImage: photo(9) })).kind, "shown");
+  // 생성 요청이 나간 뒤의 사진 변경 알림 → 취소하지 않고 결과를 적용한다(화면은 변경 자체를 막는다)
+  let release;
+  const n3 = net({ generate: () => new Promise((res) => { release = () => res(json(200, { assetId: RESULT_ID, assetSaved: true, signedUrl: signed() })); }) });
+  const s3 = session(n3, urls());
+  const p3 = s3.generate({ age: 25 });
+  await sleep(10);
+  s3.photosChanged();
+  assert.equal(s3.locked, true);
+  release();
+  assert.equal((await p3).kind, "shown");
+});
+
+test("세션 — 이탈·계정 변경: 진행 중 요청을 취소하고, 늦게 끝난 결과는 세대가 달라 적용되지 않는다(주소 발급 0)", async () => {
+  // 생성 응답 대기 중 이탈
+  let release;
+  let n = net({ generate: () => new Promise((res) => { release = () => res(json(200, { assetId: RESULT_ID, assetSaved: true, signedUrl: signed() })); }) });
+  let u = urls(); let s = session(n, u);
+  let p = s.generate({ age: 25 });
+  await sleep(10);
+  s.dispose();
+  release();
+  assert.deepEqual([await p, u.made.length, n.kinds()], [{ kind: "stale", disposed: true }, 0, ["generate"]]);
+  // 결과를 받는 중 이탈
+  n = net({ storage: async () => { await sleep(40); return bin(PNG); } });
+  u = urls(); s = session(n, u);
+  p = s.generate({ age: 25 });
+  await sleep(15);
+  s.dispose();
+  assert.deepEqual([await p, u.made.length], [{ kind: "stale", disposed: true }, 0]);
+  // 취소(cancel)만 한 경우: 세션은 살아 있고 다시 쓸 수 있다
+  n = net({ storage: async () => { await sleep(40); return bin(PNG); } });
+  u = urls(); s = session(n, u);
+  p = s.generate({ age: 25 });
+  await sleep(15);
+  s.cancel();
+  assert.deepEqual(await p, { kind: "stale", disposed: false });
+  assert.equal(s.busy, false);
+  // 취소 뒤 시작한 새 작업의 결과만 적용된다(앞 작업이 늦게 끝나도)
+  let releaseOld;
+  let k = 0;
+  n = net({ generate: () => (++k === 1 ? new Promise((res) => { releaseOld = () => res(json(200, { assetId: id(77), assetSaved: true, signedUrl: signed(id(77)) })); }) : json(200, { assetId: RESULT_ID, assetSaved: true, signedUrl: signed() })) });
+  u = urls(); s = session(n, u);
+  const old = s.generate({ age: 1 });
+  await sleep(10);
+  s.cancel();
+  const fresh = await s.generate({ age: 2 });
+  releaseOld();
+  assert.deepEqual([(await old).kind, fresh.assetId, s.currentAssetId, u.made.length], ["stale", RESULT_ID, RESULT_ID, 1], "늦게 온 옛 결과가 새 결과를 덮지 않았다");
+  // 계정이 바뀌면 새 세션: 번호 기억이 이어지지 않는다
+  n = net();
+  const a = session(n, urls()); await a.generate({ personImage: photo(1) }); a.dispose();
+  const b = session(n, urls()); await b.generate({ personImage: photo(1) });
+  assert.equal(n.count("upload"), 2, "같은 사진이어도 새 세션은 다시 올린다");
+  await sleep(60);
+});
+
+test("세션 — 사본 주소 해제의 나머지 경우: 다시 받기로 사본을 바꾸면 앞 주소를 해제하고, 새 생성이 실패·보류로 끝나면 앞 결과의 사본을 들고 있지 않는다", async () => {
+  // 사본이 있는 상태에서 다시 받기 → 새 주소 하나, 앞 주소 해제
+  const n = net(); const u = urls(); const s = session(n, u);
+  await s.generate({ age: 25 });
+  const v = await s.reload();
+  assert.deepEqual([v.kind, v.src, u.revoked, u.live()], ["shown", "blob:test/2", ["blob:test/1"], ["blob:test/2"]]);
+  // 새 생성이 오류로 끝남 → 앞 결과의 사본·번호를 놓았다(화면도 앞 이미지를 지운 상태다)
+  for (const over of [{ generate: () => json(500, { error: "x" }) }, { generate: () => json(404, { code: "ASSET_FEATURE_OFF" }) }, { upload: () => json(503, {}) },
+    { storage: () => bin(PNG, 403) }, { generate: () => json(200, { imageUrl: INLINE, assetSaved: false }) }, { generate: () => json(422, { error: "x", imageOmitted: true, code: "RESPONSE_TOO_LARGE" }) }]) {
+    let first = true;
+    const pick = (k, dflt) => (c) => (first || !over[k] ? dflt(c) : over[k](c));
+    let up = 0;
+    const n2 = net({ upload: pick("upload", () => json(200, { assetId: id(++up), assetSaved: true })), generate: pick("generate", () => json(200, { assetId: RESULT_ID, assetSaved: true, signedUrl: signed() })), storage: pick("storage", () => bin(PNG)) });
+    const u2 = urls(); const s2 = session(n2, u2);
+    assert.equal((await s2.generate({ age: 25 })).kind, "shown");
+    first = false;
+    const next = await s2.generate({ age: 26, personImage: photo(5) });
+    assert.notEqual(next.kind, "shown");
+    assert.deepEqual([u2.live(), s2.hasResultCopy, await s2.resultDataUrl()], [[], false, null], next.kind);
+  }
+});
+
+test("세션 — 다시 불러오기: 누를 때마다 조회 한 번. 사본이 없던 결과를 받아 오면 주소를 만들고, 번호가 없으면 요청하지 않는다", async () => {
+  // 결과 받기 실패 → pending → 버튼 한 번 → shown
+  let fail = true;
+  const n = net({ storage: () => (fail ? bin(PNG, 403) : bin(PNG)) });
+  const u = urls(); const s = session(n, u);
+  assert.deepEqual(await s.generate({ age: 25 }), { kind: "pending", assetId: RESULT_ID, message: M.RESULT_PENDING });
+  assert.deepEqual([s.hasResultCopy, s.currentAssetId, n.count("asset")], [false, RESULT_ID, 0], "스스로 조회하지 않았다");
+  let v = await s.reload();
+  assert.deepEqual([v, n.count("asset")], [{ kind: "pending", assetId: RESULT_ID, message: M.RELOAD_FAILED }, 1]);
+  fail = false;
+  v = await s.reload();
+  assert.deepEqual([v, n.count("asset"), u.live()], [{ kind: "shown", src: "blob:test/1", assetId: RESULT_ID, fileExt: "png" }, 2, ["blob:test/1"]]);
+  // 확인 중·사라짐
+  const n2 = net({ storage: () => bin(PNG, 403), asset: () => json(202, { id: RESULT_ID, state: "checking" }) });
+  const s2 = session(n2, urls()); await s2.generate({ age: 25 });
+  assert.deepEqual(await s2.reload(), { kind: "checking", message: M.CHECKING });
+  const n3 = net({ storage: () => bin(PNG, 403), asset: () => json(404, { error: "보관 기간이 지난 자료입니다.", code: "ASSET_EXPIRED" }) });
+  const s3 = session(n3, urls()); await s3.generate({ age: 25 });
+  assert.deepEqual([await s3.reload(), s3.currentAssetId], [{ kind: "gone", message: "보관 기간이 지난 자료입니다." }, null]);
+  assert.deepEqual([await s3.reload(), n3.count("asset")], [{ kind: "gone", message: M.GONE }, 1], "번호가 없으면 요청하지 않는다");
+  // 422(이미지 생략) 뒤에도 번호가 있으면 버튼으로 받을 수 있다
+  const n4 = net({ generate: () => json(422, { error: "생략", imageOmitted: true, code: "RESPONSE_TOO_LARGE", assetSaved: true, assetId: RESULT_ID }) });
+  const s4 = session(n4, urls());
+  assert.equal((await s4.generate({ age: 25 })).kind, "omitted");
+  assert.deepEqual([(await s4.reload()).kind, n4.kinds()], ["shown", ["generate", "asset", "storage"]]);
+  // 동시에 두 번 눌러도 조회는 한 번
+  const n5 = net({ storage: () => bin(PNG, 403) });
+  const s5 = session(n5, urls()); await s5.generate({ age: 25 });
+  const [r1, r2] = await Promise.all([s5.reload(), s5.reload()]);
+  assert.deepEqual([[r1.kind, r2.kind].sort(), n5.count("asset")], [["busy", "pending"], 1]);
+  // 저장 불명 + 응답에 실린 이미지: 주소를 만들지 않고 번호만 기억한다
+  const n6 = net({ generate: () => json(200, { imageUrl: INLINE, assetSaved: "unknown", assetId: RESULT_ID, assetCode: "SAVE_TIMEOUT" }) });
+  const u6 = urls(); const s6 = session(n6, u6);
+  assert.deepEqual([(await s6.generate({ age: 25 })).kind, u6.made.length, s6.hasResultCopy, s6.currentAssetId, n6.kinds()], ["inline", 0, false, RESULT_ID, ["generate"]]);
+});
+
+test("올리기 전체 상한(가짜 시계): 여러 장을 올리는 동안 합계 시간이 지나면 남은 사진을 보내지 않고 생성하지 않는다", async () => {
+  assert.equal(F.UPLOAD_TOTAL_WAIT_MS, 120_000);
+  let clock = 0; let k = 0;
+  const n = net({ upload: () => { clock += 70_000; return json(200, { assetId: id(++k), assetSaved: true }); } });
+  const memory = new AssetIdMemory();
+  const r = await runAssetGeneration({ ...deps(n, memory), now: () => clock }, CONFIG, live());
+  assert.deepEqual(r, { kind: "error", message: M.UPLOAD_TIMEOUT, status: null, code: "UPLOAD_TIMEOUT", needApiKey: false, stage: "upload" });
+  assert.deepEqual([n.kinds(), memory.size], [["upload", "upload"], 2], "두 장 뒤 합계 140초 — 셋째 장을 보내지 않았다. 올린 두 장의 번호는 기억한다");
+  // 합계 안이면 끝까지
+  clock = 0; k = 0;
+  const n2 = net({ upload: () => { clock += 29_000; return json(200, { assetId: id(++k), assetSaved: true }); } });
+  assert.equal((await runAssetGeneration({ ...deps(n2), now: () => clock }, CONFIG, live())).kind, "asset");
+  // 생성 요청 뒤에는 이 상한과 무관하다(전송 이후는 결과 불명 규칙)
+  clock = 0;
+  const n3 = net({ generate: () => { clock += 500_000; return json(200, { assetId: RESULT_ID, assetSaved: true, signedUrl: signed() }); } });
+  assert.equal((await runAssetGeneration({ ...deps(n3), now: () => clock }, { age: 25 }, live())).kind, "asset");
+});
+
+test("단계 알림: 올리는 중 → 생성 요청을 보냄 → 결과를 받는 중 순서로 알리고, 알림이 던져도 흐름은 계속된다", async () => {
+  const seen = [];
+  const n = net();
+  await runAssetGeneration({ ...deps(n), onPhase: (p) => { seen.push([p, n.kinds().length]); } }, CONFIG, live());
+  assert.deepEqual(seen, [["uploading", 0], ["generating", 4], ["receiving", 5]]);
+  const r = await runAssetGeneration({ ...deps(net()), onPhase: () => { throw new Error("listener boom"); } }, { age: 25 }, live());
+  assert.equal(r.kind, "asset");
+});
+
+test("사진 잠금: 생성 요청이 나간 동안에는 참고 사진 칸의 변경만 되돌리고 그 밖의 칸은 받는다. 잠금이 아니면 그대로", () => {
+  const prev = { age: 25, personImage: photo(1), placeImage: photo(2), productImages: [photo(3)], isAdMode: true };
+  const next = { age: 30, personImage: photo(9), placeImage: undefined, productImages: [], isAdMode: false };
+  assert.equal(keepPhotosIfLocked(prev, next, false), next);
+  const kept = keepPhotosIfLocked(prev, next, true);
+  assert.deepEqual(kept, { age: 30, personImage: photo(1), placeImage: photo(2), productImages: prev.productImages, isAdMode: false });
+  assert.equal(kept.productImages, prev.productImages, "같은 배열을 그대로 둔다(변경 알림이 다시 일어나지 않게)");
+  // 사진 칸이 그대로면 next를 그대로 돌려준다
+  const same = { ...prev, age: 31 };
+  assert.equal(keepPhotosIfLocked(prev, same, true), same);
+  for (const m of Object.values(SESSION_MESSAGES)) assert.match(m, /(니다|세요)\.$/);
+});
+
+test("화면 소스 형태(실행이 아니라 글자 확인): 기존 경로 호출은 그대로 한 곳이고, 새 흐름은 assetFlow일 때만 타며, 화면에 서명 주소·자산 경로 글자가 없다", async () => {
+  const { readFileSync } = await import("node:fs");
+  const studio = readFileSync(new URL("../src/components/InfluencerStudio.tsx", import.meta.url), "utf8");
+  const display = readFileSync(new URL("../src/components/ImageDisplay.tsx", import.meta.url), "utf8");
+  // 기존 경로: 호출 한 곳, 본문은 설정 전체 그대로
+  assert.equal(studio.split('fetch("/api/generate-image"').length - 1, 1);
+  assert.match(studio, /fetch\("\/api\/generate-image", \{\s*method: "POST",\s*headers: \{ "Content-Type": "application\/json" \},\s*body: JSON\.stringify\(configToSubmit\),/);
+  // 새 흐름의 입구는 한 곳: assetFlow이고 보정이 아닐 때만
+  assert.equal(studio.split("handleGenerateWithAssets(").length - 1, 1);
+  assert.match(studio, /if \(assetFlow && !isRefining\) \{\s*await handleGenerateWithAssets\(configToSubmit\);\s*return;\s*\}/);
+  assert.match(studio, /assetFlow = false \}: InfluencerStudioProps/, "속성이 없으면 꺼짐");
+  assert.match(studio, /if \(!assetFlow\) return;\s*const session = new AssetFlowSession/, "꺼져 있으면 세션을 만들지 않는다");
+  assert.match(studio, /session\.dispose\(\);/);
+  assert.match(studio, /\}, \[assetFlow, userEmail\]\);/, "계정이 바뀌면 세션을 새로 만든다");
+  assert.match(studio, /setConfig=\{assetFlow \? setConfigGuarded : setConfig\}/);
+  assert.match(studio, /onReloadAsset=\{assetFlow \? handleReloadAsset : undefined\}/);
+  // 보정은 기존 함수·기존 경로: 사본을 data URL로 바꿔 넘길 뿐이다
+  assert.match(studio, /const prepared = await prepareLastResultForRefine\(refineSource\);/);
+  // 화면 코드에 자산 경로·서명 주소·브라우저 저장소의 번호 보관이 없다
+  for (const src of [studio, display]) for (const bad of ["/api/aif/", "signedUrl", "token="]) assert.equal(src.includes(bad), false, bad);
+  assert.equal(/localStorage\.setItem|sessionStorage/.test(studio), false);
+  // 히스토리·캡션은 같은 호출을 쓴다
+  assert.equal(studio.split("saveToHistory(").length - 1, 2, "기존 흐름 1 + 새 흐름 1");
+  assert.equal(studio.split('fetch("/api/generate-caption"').length - 1, 3, "기존 흐름 1 + 새 흐름 1 + 캡션 다시 쓰기 1");
+  // 결과 표시: 버튼은 처리기가 있을 때만, 누를 때만
+  assert.match(display, /result\.needsReload && !result\.imageUrl && !result\.loading && onReloadAsset &&/);
+  assert.match(display, /onClick=\{onReloadAsset\}\s*disabled=\{isReloadingAsset\}/);
+  assert.match(display, /\$\{result\.fileExt \?\? "png"\}/);
+});
+
 test("처리되지 않은 거부가 하나도 없다", async () => {
   await sleep(80);
   assert.deepEqual(unhandled, []);
