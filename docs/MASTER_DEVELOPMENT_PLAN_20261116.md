@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 23:18:05 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 23:30:46 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -372,7 +372,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | QA-20261118-042 | CX-QA-01 | done / integrated | emotion-writer 메뉴·키설정 독립검수 | DES02 반환시 두건 재검수·실375/위젯/회원키는 미검수 |
 | DES-20261118-02 | AG-UI-01 | done / accepted_pending_batch_deploy | 키보기 키보드 접근·키발급 링크 hover 대비 보완 | 다음 emotion-writer 묶음배포에 포함·운영반영 전까지 미배포 유지 |
 | WS-20261118-01 | CC-WORKSPACE-01 | done / accepted_pending_batch_deploy | 예약요일 칩·busy·키보드 국소UI 보완 | v1.58묶음포함·375/390·다크/:has포커스실화면은배포후 |
-| WS-20261118-02 | CC-WORKSPACE-01 | waiting_human / calendar_upgrade_plan_received_scope_decisions_pending | 워크스페이스 캘린더 업그레이드 계획 | 화면 기능/데이터 범위, 데이터 포함 시 일회 가져오기/동기화 결정. 중복 메뉴는 WS03에서 숨김 완료·미배포. |
+| WS-20261118-02 | CC-WORKSPACE-01 | waiting_human / calendar_upgrade_plan_received_scope_decisions_pending | 워크스페이스 캘린더 업그레이드 계획 | 화면 기능/데이터 범위 및 데이터 포함 시 일회 가져오기/동기화 결정. 중복 메뉴는 v1.59부터 운영 반영. |
 | WS-20261118-03 | CC-WORKSPACE-01 | done / sidebar_trim_production_screen_verified | 사이드바 예정된 일정 메뉴 숨김 | v1.59 운영 시험 화면에서 메뉴 숨김 확인. |
 | WS-20261118-04 | CC-WORKSPACE-01 | done / four_views_production_desktop_verified | 워크스페이스 내부 네 화면 연결 | 네 화면·좌측 유지·본문 스크롤·뒤로가기 운영 확인. 767px 이하·주소 새로고침·타 공간은 운영 미검증. |
 | WS-20261118-05 | CC-WORKSPACE-01 | done / production_ready_owner_desktop_checks_accepted | 워크스페이스 v1.59 승인 묶음 운영 배포 | 운영 v1.59 확인. 프로그램 목록 DB v1.58 보고는 운영 쓰기 범위 결정 대기. |

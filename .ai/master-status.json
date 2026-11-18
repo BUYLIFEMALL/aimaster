@@ -4906,7 +4906,7 @@
       "constraints": "계획 문서만, 구현·가져오기·동기화·빌드/배포 미승인",
       "completion": "데이터 이관과 화면 동작을 구분하고 동작 검수/우선순위 확정",
       "evidence": "주인님 Workspace 직접 지시 보고·699b2d6a6 1파일 문서",
-      "next": "화면 기능/데이터 범위, 데이터 포함 시 일회 가져오기/동기화 결정. 중복 메뉴는 WS03에서 숨김 완료·미배포.",
+      "next": "화면 기능/데이터 범위 및 데이터 포함 시 일회 가져오기/동기화 결정. 중복 메뉴는 v1.59부터 운영 반영.",
       "lastReviewedAt": "2026-11-18T13:37:47.042Z"
     },
     {
@@ -5597,21 +5597,23 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T14:18:05.256Z",
+      "at": "2026-11-18T14:30:46.529Z",
       "timezone": "Asia/Seoul",
-      "trigger": "G5 응답 한도 Mac 국소검수 회신",
-      "scope": "0f570dfd0 합성 경계·422 레거시·비JSON/보관 안내 독립 판정.",
+      "trigger": "23:30 KST 30분 예약 메시지 수신",
+      "scope": "23:18 이후 Git·결과/인수인계·점유·관리자 요청, 19개 분류와 미종결/권한 조건 대조.",
       "evidence": [
-        "msg_c9c6de0cfcf2·0f570dfd0",
-        "msg_04f197cb83d3"
+        "msg_cf047be53d8e",
+        "fecf480be·7ba8ec819·da7f1c0eb",
+        "관리자 요청 대기 0·기존 HANDOFF 9줄",
+        "WS03 v1.59 운영 확인 기록과 WS02 표시 대조"
       ],
-      "judgment": "Mac 16/16 수락, W01x 로컬 검수 종결·미배포.",
+      "judgment": "새 작업 결과나 승인 없음. WS02의 이전 메뉴 미배포 표시만 운영 근거에 맞춤. 새 배정 없음.",
       "unverified": [
-        "실 공급자·브라우저 구탭·플랫폼 한도 및 배포",
-        "워크스페이스 현황판/WS08 운영 화면",
-        "Gmail 실검증"
+        "v1.60 운영 현황판 폭/스위치·목록 DB 버전",
+        "Gmail 콜백과 실검증",
+        "AI Influencer 미배포 및 기존 사람 의존 단계"
       ],
-      "nextAction": "담당 점유 해제 및 상태 줄 기록 회수."
+      "nextAction": "해당 담당의 기존 화면/사람 단계 완료 또는 승인 신호 회수."
     },
     "notifications": [
       {
