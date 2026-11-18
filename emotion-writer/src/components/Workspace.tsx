@@ -455,7 +455,7 @@ export function Workspace({
             title="이미지 생성 방식 (AI·무료 사진)"
             icon={ImageIcon}
           >
-            <div className="choice-grid">
+            <div className="three-grid">
               {SOURCES.map((s) => (
                 <div className="source-wrap" key={s.id}>
                   <button

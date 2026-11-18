@@ -383,6 +383,12 @@ section[id] {
   flex-shrink: 0;
 }
 
+.three-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
 .four-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -744,6 +750,26 @@ section[id] {
   .choice-grid {
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+  .three-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .three-grid .source-choice {
+    padding: 12px 6px;
+    min-height: 100px;
+  }
+  .three-grid .source-choice > span {
+    font-size: 24px;
+  }
+  .three-grid .source-choice strong {
+    font-size: 11px;
+    text-align: center;
+    word-break: keep-all;
+  }
+  .three-grid .source-choice small {
+    font-size: 10px;
+    text-align: center;
   }
   .source-choice {
     padding: 16px 20px;

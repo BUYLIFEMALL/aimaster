@@ -27,8 +27,8 @@ export const THEMES = [
 ];
 
 export const SOURCES: { id: Provider; emoji: string; name: string; description?: string }[] = [
+  { id: "openai", emoji: "🤖", name: "GPT Image 생성", description: "GPT Image 고해상도 예술 배경 생성" },
   { id: "gemini", emoji: "🍌", name: "나노바나나 AI 생성", description: "Gemini AI 감성 일러스트·수채화 배경" },
-  { id: "openai", emoji: "🤖", name: "OpenAI 이미지 생성", description: "GPT Image 고해상도 예술 배경 생성" },
   { id: "free", emoji: "✨", name: "무료 모델 (FLUX)", description: "준비 중 — 이용 정책 확인 뒤 열립니다" },
 ];
 
