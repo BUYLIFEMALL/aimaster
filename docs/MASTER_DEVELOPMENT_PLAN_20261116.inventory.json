@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 14:18:05 KST",
+  "checkedAt": "2026-11-18 14:18:58 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,24 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:18:05.492Z",
+      "at": "2026-11-18T05:18:58.452Z",
       "timezone": "Asia/Seoul",
-      "trigger": "중앙시험infra·SNSstrict·CRM팔로우업 소스완료",
-      "scope": "새SHA3개 파일수/검증범위·Mac단일순서·제품/시험infra분리",
+      "trigger": "감성 Cloudflare 카드 P2 보완 완료",
+      "scope": "초기unknown/미등록 구분·OFF문구·새helper실제품배선 검수대기",
       "evidence": [
-        "msg_c5a232ed7dc3/07df29def 3파일",
-        "msg_5f8296f5e417/a90ba8a88 4파일",
-        "msg_bced7282c8d0/e34ab92fc 2시험파일",
-        "Mac중앙→SNS→CRM순차전달",
-        "msg_700f9519e45b 제품보완지정PASS 수락, native시험로더별도대기"
+        "msg_c8e89bea66e0/2d69d577b",
+        "Masterstat·Mac기존순서후국소검수추가"
       ],
-      "judgment": "중앙82 제품보완은독립지정PASS 수락·실운영미반영, 시험로더Mac동등성별도대기. SNS/CRM후속검수순서보존·배포0.",
+      "judgment": "작성자보완수신·74시험이실전체화면PASS아님. 중앙제품82지정PASS보존/native별도대기·감성수정독립판정대기.",
       "unverified": [
-        "세범위Mac지정결과",
-        "AGY상태카드보완SHA",
-        "실운영/실키/전송/삭제"
+        "새helper제품배선/초기SSR/shape·DOM",
+        "중앙native·SNSstrict·CRM후속결과",
+        "실키/운영/실화면"
       ],
-      "nextAction": "순차검수결과회수·푸시/배포0"
+      "nextAction": "순차결과회수·새운영/푸시0"
     },
     "notifications": [
       {
@@ -7952,16 +7949,16 @@
       "task_id": "DES-20261118-07",
       "title": "Cloudflare 공용키 설정 UI 연결 경로 계획",
       "owner": "AG-UI-01",
-      "status": "needs_revision",
-      "delivery": "initial_lookup_error_false_and_disabled_engine_guidance_fix_returned",
-      "evidence": "msg_9e8dcff42ce5 전달보류·서버ab693ba39 지정PASS · 수락msg_c38fbd244674 · 계획msg_577c1800ce82·Master GET route/settings초기연결경로확인 · msg_5af67813cd65·Master메인page/MemberIntegrations/문서봇설정소스확인 · 착수msg_78865897c0bc · ACKmsg_ebc0f4699d85·Master6파일stat/globals추가확인·설명요청msg_3ca755de2ab5 · globals직접지시경위msg_bac874a8f499 · Macmsg_b803170ef815·초기error/false·OFF안내모순·복제시험반환 · 고정최종msg_c8053a39da39·recheck정확boolean 검증추가반환",
-      "next": "초기unknown/기본OFF문구·정확bool shape·실제품시험 보완SHA회수",
-      "lastReviewedAt": "2026-11-18T05:12:41.307Z",
-      "sha": "3df4d0dca",
+      "status": "ready_review",
+      "delivery": "initial_unknown_disabled_guidance_real_helper_test_fix_review_queued",
+      "evidence": "msg_9e8dcff42ce5 전달보류·서버ab693ba39 지정PASS · 수락msg_c38fbd244674 · 계획msg_577c1800ce82·Master GET route/settings초기연결경로확인 · msg_5af67813cd65·Master메인page/MemberIntegrations/문서봇설정소스확인 · 착수msg_78865897c0bc · ACKmsg_ebc0f4699d85·Master6파일stat/globals추가확인·설명요청msg_3ca755de2ab5 · globals직접지시경위msg_bac874a8f499 · Macmsg_b803170ef815·초기error/false·OFF안내모순·복제시험반환 · 고정최종msg_c8053a39da39·recheck정확boolean 검증추가반환 · 완료msg_c8e89bea66e0·Masterstat확인·Mac순차추가",
+      "next": "중앙native→SNSstrict→CRM후속뒤감성초기unknown/OFF/실함수배선/shape 국소검수",
+      "lastReviewedAt": "2026-11-18T05:18:58.452Z",
+      "sha": "2d69d577b",
       "validation": {
-        "author": "71/71·tsc0보고, cloudflareUi6/6은복제구현시험으로실제품검증한계",
+        "author": "74/74·tsc0·초기null/준비중·실cloudflareStatus 직접import·빌드푸시실API0",
         "master": "6파일/globals직접지시범위확인·검수전수락보류",
-        "independent": "3df4 초기조회실패false오표시·OFF인데사용가능안내P2·실제품대조진행중·globals전역primary변경 확인"
+        "independent": "이전3df4P2/시험한계보존·새2d69순차재검수대기"
       }
     },
     {
