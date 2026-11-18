@@ -134,6 +134,29 @@
 
 - 범위 밖: 완료 엑셀 미리보기(T-07 뒷부분), T-03·T-04·T-08. 남의 미커밋 `web-crawler/AGENTS.md` 보존.
 
+### 2-3. T-08 옛 `ghost-scraper/`(website-scraper) 코드 정리 — 실행 안 (2026-11-18, CC-BLOG-01, Master `msg_dce7acccf159` 범위 준비 · 아직 실행 0)
+
+**근거**: 주인님 승인(2026-11-18 채팅 선택창 「T-08 정리 승인」 — 백업 폴더 + git 태그 먼저, 안내 화면·410만 남김). 선례: 상세페이지 EC-W12(2026-10-26, 이동 안내·410만 남기고 쓰지 않는 13개 삭제, 태그 `backup/ec-w12-20261026`), 백업 안내 `D:\Antigravity\AIMaster_backup\retired-programs\README.md`. 운영 상태: v1.15 · `is_active=false` · 카테고리 비공개(WS10 `c5bb52b99`), 라이브 첫 화면 200 이동 안내·`/login` 404(맥미니 `.ai/results/WEBSITE-SCRAPER-20261118-CX-QA-01.md`).
+
+**정확한 원본**: `ghost-scraper/` 마지막 커밋 `2706fc0b5`(폴더 트리 `436c0f813`, 추적 파일 77개). 남의 미커밋 `ghost-scraper/next-env.d.ts`(Next 자동 생성) 1개 — 건드리지 않음.
+
+**1단계 영구 백업(삭제 전)**
+- git 태그 `backup/website-scraper-20261118` → 실행 시점의 `ghost-scraper` 마지막 커밋(트리가 `436c0f813`과 같은지 확인 후). 로컬 태그만, **원격 push는 Master 순번 확인 뒤**(공용 master push 금지 유지).
+- 백업 폴더 `D:\Antigravity\AIMaster_backup\retired-programs\website-scraper\` ← `git archive <그 커밋> ghost-scraper`로 **추적 파일 77개만** 풀기. 제외: `.env.local`(비밀값)·`.vercel/`·`.next/`·`node_modules/`·`tsconfig.tsbuildinfo` — 모두 `.gitignore` 대상이라 archive에 안 들어감. 같은 폴더 `README.md` 표에 한 줄(프로그램·합쳐진 곳 `web-crawler-saas` `/inspect`·병합일 2026-10-21·정리일·파일 수·태그).
+
+**2단계 삭제 목록(19개, 운영 경로에서 import 0 확인)**
+- `src/components/`: `ScraperWorkspace.tsx` · `guide/GuideShell.tsx` · `layout/Header.tsx` · `layout/Sidebar.tsx` · `modals/SectorModal.tsx` · `modals/SettingsModal.tsx` · `scraper/ScraperTabs.tsx` · `scraper/UrlInputSection.tsx` · `ui/KpiCard.tsx` · `ui/PageHero.tsx`
+- `src/lib/`: `access.ts` · `auth.ts` · `gemini.ts` · `programAccess.ts` · `safeFetch.ts` · `storage.ts` · `supabase/admin.ts` · `types.ts`
+- `tests/security.mjs`(삭제 대상 `safeFetch.ts`만 시험) + `package.json`의 `"test"` 한 줄을 남는 시험(`tests/runtime.mjs`)으로 바꿈. 의존성·잠금 파일 변경 0.
+
+**남기는 것(운영 동작 그대로)**: 첫 화면·`/guide` 이동 안내(`src/app/page.tsx`·`src/app/guide/page.tsx`·`src/components/MovedNotice.tsx`·`src/app/layout.tsx`·`src/app/globals.css`·`src/lib/version.ts`), 410 API 4개(`/api/crawl`·`/api/proxy`·`/api/proxy-image`·`/api/user/key`), `/api/auth/logout`(+`src/lib/supabase/server.ts`·`cookieDomain.ts`), 0번 규칙 고지 `NOTICE`·`public/ai.txt`·`public/robots.txt`(검색·광고 로봇 허용 정책 그대로), 썸네일, `supabase/` 이력 SQL 13개, `docs/`·`AGENTS.md`·`README.md`, 설정 파일.
+
+**검증(빌드 비용 0)**: 삭제 뒤 로컬 `tsc --noEmit`·`npm run test:runtime`·로컬 `next build`(무료) — 남는 파일이 지운 파일을 부르지 않는지. Vercel 배포는 하지 않음(운영 화면은 지금 배포본 그대로 유지, 다음 website-scraper 배포 때 함께 나감). 문서: `ghost-scraper/AGENTS.md` 맨 위 「정리 완료·백업 위치·태그·복원 방법」, 이 표 T-08 줄.
+
+**되돌리기**: `git checkout backup/website-scraper-20261118 -- ghost-scraper/<파일>` 또는 백업 폴더에서 복사. 지운 커밋을 되돌리는 새 커밋으로만(이력 다시 쓰기 0).
+
+**하지 않는 것**: 운영 DB·Vercel 프로젝트·도메인 삭제 0, 키·`.env*` 쓰기 0, 다른 프로그램 0, 태그 원격 push는 Master 확인 전 0. 옛 `/login` 404(P3)는 이번 범위 밖 — 후속 후보로만 기록.
+
 ## 3. 진행 규칙
 
 - 한 번에 하나씩 끝낸다(플랜 → 구현 → 로컬 검사 → 커밋 → 배포 규칙에 따라 배포 또는 「미배포 대기」 → 화면 검수 → 문서). 작은 수정은 모았다가 배포한다.
