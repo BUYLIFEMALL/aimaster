@@ -25,8 +25,14 @@ const A1 = readFileSync(join(MIG, "20261118120000_aif_assets_a1.sql"), "utf8");
 const P2 = readFileSync(join(MIG, "20261118130000_aif_assets_p2_missing.sql"), "utf8");
 
 const psqlArgs = (db) => ["exec", "-i", CONTAINER, "psql", "-U", "postgres", "-d", db, "-v", "ON_ERROR_STOP=1", "-X", "-q", "-At", "-f", "-"];
+const SYNC_TIMEOUT_MS = 60_000;    // 한 번의 psql 호출이 이보다 길면 중단하고 실패로 본다(끝없이 기다리지 않는다)
+const ASYNC_TIMEOUT_MS = 30_000;   // 2연결 시험의 비동기 호출(안에서 pg_sleep 최대 3초)
 function run(sql, db = DB) {
-  const r = spawnSync("docker", psqlArgs(db), { input: sql, encoding: "utf8" });
+  const r = spawnSync("docker", psqlArgs(db), { input: sql, encoding: "utf8", timeout: SYNC_TIMEOUT_MS, killSignal: "SIGKILL" });
+  // docker를 실행하지 못했거나(r.error) 시간 초과로 중단된 경우(status null)는 명확한 실패다
+  if (r.error || r.status === null) {
+    return { ok: false, out: "", err: `docker 실행 실패: ${r.error ? r.error.message : `종료 코드 없음(신호 ${r.signal ?? "?"})`}` };
+  }
   return { ok: r.status === 0, out: (r.stdout ?? "").trim(), err: (r.stderr ?? "").trim() };
 }
 function q(sql, db = DB) {
@@ -36,13 +42,32 @@ function q(sql, db = DB) {
 }
 const svc = (sql) => run(`set role service_role;\n${sql}`);
 const svcOk = (sql) => { const r = svc(sql); assert.equal(r.ok, true, `service 호출 실패: ${r.err}\n${sql.slice(0, 200)}`); return r.out; };
+/** 비동기 psql 호출. 어떤 경우에도 한 번은 끝난다: 정상 종료·docker 실행 실패(error 이벤트)·입력 스트림 오류·시간 초과(강제 종료) 모두 결과를 돌려준다. */
 function runAsync(sql) {
   return new Promise((resolve) => {
-    const p = spawn("docker", psqlArgs(DB));
-    let out = "", err = "";
+    let done = false, out = "", err = "", timer;
+    const finish = (result) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      resolve(result);
+    };
+    let p;
+    try {
+      p = spawn("docker", psqlArgs(DB));
+    } catch (e) {
+      finish({ ok: false, out: "", err: `docker 실행 실패: ${e.message}` });
+      return;
+    }
+    timer = setTimeout(() => {
+      try { p.kill("SIGKILL"); } catch { /* 이미 끝났으면 무시 */ }
+      finish({ ok: false, out: out.trim(), err: `시간 초과(${ASYNC_TIMEOUT_MS}ms)로 중단했습니다. ${err.trim()}` });
+    }, ASYNC_TIMEOUT_MS);
+    p.on("error", (e) => finish({ ok: false, out: out.trim(), err: `docker 실행 실패: ${e.message}` }));   // 실행 파일 없음 등 — close가 오지 않을 수 있다
     p.stdout.on("data", (d) => (out += d));
     p.stderr.on("data", (d) => (err += d));
-    p.on("close", (code) => resolve({ ok: code === 0, out: out.trim(), err: err.trim() }));
+    p.stdin.on("error", (e) => finish({ ok: false, out: out.trim(), err: `입력 전달 실패: ${e.message}` }));
+    p.on("close", (code) => finish({ ok: code === 0, out: out.trim(), err: err.trim() }));
     p.stdin.end(sql);
   });
 }
@@ -105,8 +130,9 @@ function mkRestoredWithCancelled() {
 /** 시험 사이의 간섭을 없애려고, 앞 시험이 남긴 ready 행을 모두 「방금 확인함」으로 밀어 둔다 */
 const settleAll = () => q(`update public.aif_assets set object_checked_at = now() + interval '1 day' where state = 'ready';`);
 
-const dockerUp = spawnSync("docker", ["inspect", "-f", "{{.State.Running}}", CONTAINER], { encoding: "utf8" });
-const AVAILABLE = dockerUp.status === 0 && dockerUp.stdout.trim() === "true";
+const dockerUp = spawnSync("docker", ["inspect", "-f", "{{.State.Running}}", CONTAINER], { encoding: "utf8", timeout: 15_000, killSignal: "SIGKILL" });
+// docker를 실행하지 못했거나 응답이 없으면 「컨테이너 없음」으로 보고 전체를 건너뛴다(DB를 만들지 않는다)
+const AVAILABLE = !dockerUp.error && dockerUp.status === 0 && (dockerUp.stdout ?? "").trim() === "true";
 let createdOid = null;
 let dbCreated = false;
 let rolePreflight = "";

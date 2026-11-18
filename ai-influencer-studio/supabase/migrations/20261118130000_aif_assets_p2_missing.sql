@@ -18,6 +18,7 @@
 --   * 판정은 두 기준 모두다: storage.objects에 그 object_id의 행도 없고, 그 bucket·name의 행도 없을 때만 missing.
 --     경로에 다른 id의 객체가 있거나, 그 id가 다른 자리(bucket·name)에 있으면 자동으로 아무것도 하지 않는다(other_object).
 --   * storage.objects를 읽지 못하면(권한·없는 표 등) 예외가 나고 거래가 되돌려진다 — 「0행」으로 오인해 missing으로 바꾸지 않는다.
+--   * 두 기준은 한 문장(한 스냅샷)에서 함께 읽는다 — 훑기는 한 문장 안의 분류로, 판정은 한 SELECT로. 서로 다른 시점의 관찰을 합쳐 부재를 확정하지 않는다.
 --   * 대상은 모든 회원이다. 보호 여부·보관 정책을 보지 않는다(객체가 없다는 것은 회원 등급과 무관한 사실).
 --   * 삭제 예약 행은 지우지 않는다. missing이 된 자산의 비활성 예약(cancelled·delete_failed)에는 parked_at만 기록해
 --     state·fencing_token·attempts·claimed_at을 그대로 보존한다. 정리 실행자의 「이어 하기」 목록은 parked_at is null 조건으로 그 행을 읽지 않는다.
@@ -28,6 +29,7 @@
 --   * 발견 시한·무기아: 훑기는 회차마다 정해진 수만 읽고 확인한 행을 뒤로 보내 순환하도록 했을 뿐이다. ready가 많으면 한 바퀴가 길다.
 --   * 훑기가 정확히 p_scan_limit행을 「검사」한다는 것: 잠긴 행은 건너뛴다(기다리지 않음). 건너뛴 만큼 색인을 더 읽을 수 있고, 건너뛴 행은 그 회차에 확인되지 않는다.
 --   * storage.objects 행의 부재는 「저장소 API로 접근할 수 없다」는 뜻이지 물리 파일 삭제의 증명이 아니다. 저장소 복원으로 행이 돌아오면 missing은 사람이 되돌린다.
+--   * 판정이 읽은 것은 그 순간의 스냅샷이다. 그 관찰 뒤에 저장소 쪽에서 일어나는 쓰기(객체가 다시 생김·옮겨짐)를 이 파일의 잠금으로 막지는 못한다.
 --   * 실제 Supabase에서 함수 소유자의 storage.objects 읽기 권한, 실제 실행 시간은 이 초안으로 확인되지 않는다.
 
 -- ───────────────────────── 1. 열 ─────────────────────────
@@ -152,10 +154,15 @@ begin
     return 'busy';
   end if;
 
-  -- 저장소 조회 세 번. 읽지 못하면 예외가 나고 이 거래 전체가 되돌려진다(0행으로 오인하지 않는다).
-  select exists (select 1 from storage.objects so where so.id = v_asset.object_id and so.bucket_id = v_asset.bucket and so.name = v_asset.path) into v_same;
-  select exists (select 1 from storage.objects so where so.id = v_asset.object_id) into v_id_any;
-  select exists (select 1 from storage.objects so where so.bucket_id = v_asset.bucket and so.name = v_asset.path) into v_path_any;
+  -- 저장소의 세 존재 판정을 **한 SELECT(한 스냅샷)** 에서 읽는다. READ COMMITTED에서는 문장마다 스냅샷이 새로 잡히므로, 세 번을 따로 물으면
+  -- 그 사이 객체가 옮겨지거나 바뀔 때 서로 다른 시점의 「없음」을 합쳐 부재로 잘못 확정할 수 있다(예: 첫 조회 때는 새 자리에, 둘째 조회 때는 옛 자리에 없었음).
+  -- 읽지 못하면 예외가 나고 이 거래 전체가 되돌려진다(0행으로 오인하지 않는다).
+  -- 한계: 이 스냅샷은 「읽은 시점의 사실」일 뿐이다. 그 뒤에 저장소 쪽에서 일어나는 쓰기까지 이 함수가 막지는 못한다(우리 잠금은 저장소 서비스를 잠그지 않는다).
+  select
+    exists (select 1 from storage.objects so where so.id = v_asset.object_id and so.bucket_id = v_asset.bucket and so.name = v_asset.path),
+    exists (select 1 from storage.objects so where so.id = v_asset.object_id),
+    exists (select 1 from storage.objects so where so.bucket_id = v_asset.bucket and so.name = v_asset.path)
+  into v_same, v_id_any, v_path_any;
 
   if v_same then
     update public.aif_assets set object_checked_at = now() where id = p_asset and user_id = p_user and state = 'ready';
