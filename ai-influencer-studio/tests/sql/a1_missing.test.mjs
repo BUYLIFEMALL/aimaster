@@ -438,23 +438,29 @@ t("scan — 회전: 확인된 행은 뒤로 가 연속 회차에서 다른 행�
   q(`update public.aif_assets set state = 'failed' where state = 'ready';`);   // 이 시험만의 ready 집합을 만들기 위해 앞 시험의 ready를 비운다(시험 DB 한정)
   const u = mkUser();
   const all = [1, 2, 3, 4, 5, 6, 7, 8].map(() => mkReady(u));   // 8행 ÷ 창 2 = 정확히 4회차에 한 바퀴
-  const seen = new Set();
-  const order = [];
-  for (let round = 0; round < 4; round++) {
+  // 확인 시각이 모두 NULL이므로 창은 id 오름차순으로 2행씩 잡힌다. 한 회차 안의 두 행은 「집합」으로 비교한다
+  // (한 호출이 두 행에 같은 시각을 기록하므로 회차 안의 순서는 관찰할 수 없다 — 이전 초안은 생성 순서로 기록해 틀린 비교를 했다).
+  const sorted = all.map((a) => a.id).sort();
+  /** 훑기 한 번을 돌리고, 그 호출이 확인 시각을 바꾼 행의 id를 정렬해 돌려준다 */
+  const touchedBy = () => {
     const before = new Map(all.map((a) => [a.id, checkedAt(a)]));
     const r = scan(2, 2);
     assert.equal(r.scanned, 2);
-    const touchedNow = all.filter((a) => checkedAt(a) !== before.get(a.id)).map((a) => a.id);
-    assert.equal(touchedNow.length, r.touched);
-    for (const id of touchedNow) { assert.ok(!seen.has(id), "한 바퀴가 끝나기 전에는 같은 행을 다시 읽지 않는다"); seen.add(id); order.push(id); }
+    const ids = all.filter((a) => checkedAt(a) !== before.get(a.id)).map((a) => a.id).sort();
+    assert.equal(ids.length, r.touched);
+    return ids;
+  };
+  const seen = new Set();
+  for (let round = 0; round < 4; round++) {
+    const ids = touchedBy();
+    assert.deepEqual(ids, sorted.slice(round * 2, round * 2 + 2), `${round + 1}회차의 창 = 정렬된 id의 ${round * 2 + 1}~${round * 2 + 2}번째`);
+    for (const id of ids) { assert.ok(!seen.has(id), "한 바퀴가 끝나기 전에는 같은 행을 다시 읽지 않는다"); seen.add(id); }
   }
   assert.equal(seen.size, 8, "8행을 창 2로 4회차에 모두 한 번씩");
-  assert.deepEqual(order, all.map((a) => a.id).sort(), "처음에는 확인 시각이 모두 NULL이라 id 순서");
-  // 다음 회차는 가장 먼저 확인했던 행부터 다시
-  const before = new Map(all.map((a) => [a.id, checkedAt(a)]));
-  scan(2, 2);
-  const again = all.filter((a) => checkedAt(a) !== before.get(a.id)).map((a) => a.id).sort();
-  assert.deepEqual(again, order.slice(0, 2).sort(), "5회차는 한 바퀴가 끝난 뒤라 가장 먼저 확인한 2행을 다시 읽는다(재독은 설계대로)");
+  // 5회차: 한 바퀴가 끝났으므로 가장 먼저 확인한 구간(1회차의 2행)을 다시 읽는다 — 재독은 설계대로다
+  assert.deepEqual(touchedBy(), sorted.slice(0, 2), "5회차의 창 = 1회차와 같은 구간");
+  // 6회차는 2회차의 구간
+  assert.deepEqual(touchedBy(), sorted.slice(2, 4), "6회차의 창 = 2회차와 같은 구간");
 });
 
 t("scan — 대상: 모든 회원의 ready만(보호 회원 포함). 다른 상태·other_object는 후보가 아니다", () => {
