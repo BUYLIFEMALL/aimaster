@@ -11,6 +11,7 @@ import {
   TEXT_MODELS,
   currentTextModel,
   IMAGE_MODELS,
+  FREE_IMAGE_ENGINE_ENABLED,
   DEFAULT_DESIGN,
   type Provider,
   type Photo,
@@ -68,6 +69,8 @@ function restoreDraft(raw: string | null): Draft | null {
     if (d && typeof d === "object") {
       d.textModel = currentTextModel(d.textModel);
       if (d.source === "pexels") d.source = "free";
+      // ECOM-20261118-03: 무료 엔진이 꺼져 있으면 선택만 해제(글귀·후보는 그대로 보존).
+      if (d.source === "free" && !FREE_IMAGE_ENGINE_ENABLED) d.source = "";
     }
     if (
       !d ||
@@ -450,7 +453,7 @@ export function Workspace({
                 <div className="source-wrap" key={s.id}>
                   <button
                     className={`source-choice ${draft.source === s.id ? "selected" : ""}`}
-                    disabled={disabled}
+                    disabled={disabled || (s.id === "free" && !FREE_IMAGE_ENGINE_ENABLED)}
                     aria-pressed={draft.source === s.id}
                     onClick={() => {
                       change({ source: s.id });
@@ -460,7 +463,11 @@ export function Workspace({
                     <span>{s.emoji}</span>
                     <strong>{s.name}</strong>
                     {s.id === "free" ? (
-                      <small className="font-bold text-emerald-600">✓ 키 불필요 (무료)</small>
+                      FREE_IMAGE_ENGINE_ENABLED ? (
+                        <small className="font-bold text-emerald-600">키 등록 없이 사용</small>
+                      ) : (
+                        <small className="muted">준비 중 — 이용 정책 확인 뒤 열립니다</small>
+                      )
                     ) : (
                       <small className={keys[s.id] ? "connected" : "muted"}>
                         {keys[s.id] ? "✓ 본인 키 등록됨" : "본인 API 키 필요"}
@@ -663,7 +670,7 @@ export function Workspace({
                       {draft.source === "openai" &&
                         "OpenAI 고해상도 예술 배경을 1장 생성합니다. 생성 비용은 본인 OpenAI 계정 크레딧에 적용됩니다."}
                       {draft.source === "free" &&
-                        "FLUX 무료 AI 엔진으로 감성 배경 1장을 생성합니다. 별도의 API 키 없이 100% 무료로 이용하실 수 있습니다."}
+                        "무료 모델(FLUX)은 이용 정책 확인 중이라 지금은 쓸 수 없습니다. 나노바나나 또는 OpenAI를 골라 주세요."}
                     </p>
                   </>
                 ) : (

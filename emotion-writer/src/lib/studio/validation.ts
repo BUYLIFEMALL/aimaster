@@ -1,6 +1,9 @@
 import { allowedPhotoUrl as sharedAllowedPhotoUrl, PhotoError } from "./photoSearch";
 import {
   IMAGE_MODELS,
+  OPENAI_IMAGE_MODELS,
+  FREE_IMAGE_MODELS,
+  FREE_IMAGE_ENGINE_ENABLED,
   RATIOS,
   STYLES,
   TEXT_MODELS,
@@ -45,28 +48,26 @@ export function validateImage(input: Record<string, unknown>) {
   if (!RATIOS.includes(input.ratio as Ratio))
     throw new AppError("이미지 비율을 선택해 주세요.");
 
-  const provider = (input.provider as string) || "gemini";
-  if (!["gemini", "openai", "free"].includes(provider))
+  // ECOM-20261118-03(QA049 I-F01): 제공자·모델은 문자열·길이·허용 목록으로만 — 다른 회사 모델·객체·임의 값은 외부 호출 전에 거절.
+  const providerRaw = input.provider ?? "gemini";
+  if (typeof providerRaw !== "string" || !["gemini", "openai", "free"].includes(providerRaw))
     throw new AppError("지원하지 않는 이미지 제공자입니다.");
-
-  let model = String(input.model || "");
-  if (provider === "gemini") {
-    if (!model || !IMAGE_MODELS.some((m) => m.id === model)) {
-      if (!input.model) model = IMAGE_MODELS[0].id;
-      else throw new AppError("지원하지 않는 이미지 모델입니다.");
-    }
-  } else if (provider === "openai") {
-    model = model || "gpt-image-2.5-flare";
-  } else {
-    model = model || "pollinations-flux";
-  }
+  const provider = providerRaw as "gemini" | "openai" | "free";
+  if (provider === "free" && !FREE_IMAGE_ENGINE_ENABLED)
+    throw new AppError("무료 모델(FLUX)은 준비 중입니다. 나노바나나 또는 OpenAI 이미지를 골라 주세요.");
+  const allowed = provider === "gemini" ? IMAGE_MODELS : provider === "openai" ? OPENAI_IMAGE_MODELS : FREE_IMAGE_MODELS;
+  const modelRaw = input.model;
+  let model: string;
+  if (modelRaw === undefined || modelRaw === null || modelRaw === "") model = allowed[0].id;
+  else if (typeof modelRaw === "string" && modelRaw.length <= 64 && allowed.some((m) => m.id === modelRaw)) model = modelRaw;
+  else throw new AppError("지원하지 않는 이미지 모델입니다.");
 
   return {
     quote,
     topic,
     ratio: input.ratio as Ratio,
     model,
-    provider: provider as "gemini" | "openai" | "free",
+    provider,
   };
 }
 export function parseQuotes(raw: string): string[] {

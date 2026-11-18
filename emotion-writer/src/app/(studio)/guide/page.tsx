@@ -32,7 +32,7 @@ const FAQS: FaqItem[] = [
   },
   {
     q: "나노바나나, OpenAI, 무료 모델(FLUX)의 차이는 무엇인가요?",
-    a: "나노바나나(Gemini)는 시적 감수성이 담긴 독창적인 감성 수채화/일러스트 배경을 그리며, OpenAI(GPT Image)는 정교하고 세련된 고해상도 예술 배경을 생성합니다. 무료 모델(FLUX)은 별도 API 키 등록 없이도 100% 무료로 고품질 감성 배경 이미지를 즉시 생성할 수 있습니다.",
+    a: "나노바나나(Gemini)는 시적 감수성이 담긴 독창적인 감성 수채화/일러스트 배경을 그리며, OpenAI(GPT Image)는 정교하고 세련된 고해상도 예술 배경을 생성합니다. 무료 모델(FLUX)은 이용 정책과 공식 지원 조건을 확인하는 중이라 지금은 준비 중입니다.",
   },
   {
     q: "인스타그램 릴스나 틱톡에 올리려면 어떤 비율이 좋은가요?",
@@ -235,7 +235,7 @@ export default function GuidePage() {
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
                 <span>
-                  <strong>무료 모델 (FLUX):</strong> 별도의 API 키 등록 없이도 클릭 한 번으로 잔잔한 노을, 바다, 창가의 커피 등 감성적인 고화질 배경을 100% 무료로 즉시 생성할 수 있습니다.
+                  <strong>무료 모델 (FLUX):</strong> 준비 중입니다. 이용 정책과 공식 지원 조건을 확인한 뒤 열 예정이며, 지금은 나노바나나 또는 OpenAI를 골라 주세요.
                 </span>
               </li>
               <li className="flex items-start gap-2">
