@@ -482,6 +482,107 @@ PLAN §15 상태값에 `paused`를 **새 상태로 추가**하고, 이유는 별
 - 확정과 삭제 예약이 동시에 들어와도 둘 중 하나만 성공.
 - 원본 PLAN 미변경, 이 제안의 Master 공식 등록, 원저자 기여 보존.
 
+### 18-R1. 개정 — Mac 최종 반례(`.ai/results/SNS-ASSETS-A1-20261118-CX-QA-01.md` A1-F01~F04)·Master 확인점 반영 (이 절이 18-1~18-11과 다르면 이 절이 우선)
+
+**선택(하나)**: 첫 단위 A1을 **서버가 이미 들고 있는 생성 원본만 서버가 직접 저장하는 shadow 경로**로 좁힌다. 클라이언트 업로드 허가(ticket)·complete·서명 업로드 URL은 **A2로 분리**한다. 이유: 외부 서명 업로드 URL은 설치된 `@supabase/storage-js` 2.117.3 설명상 2시간 유효이고 호출에서 줄일 옵션이 없어(옵션은 `upsert`뿐), DB 허가 시간과 늦은 쓰기 문제가 생긴다. 서버가 직접 올리면 이 문제가 첫 단위에서 사라진다.
+
+**대체되는 항목**: 18-1 포함 목록의 「업로드 허가·확정(complete)」, 18-3의 `ticket_expires_at`·state `ticketed`, 18-5 `aif_asset_ticket`·15분 만료 해제, 18-6 「서명 업로드 URL」·「서명 URL 실패 = missing」, 18-7 허가·업로드 행, 18-9 `upload-ticket`·`complete` 라우트, 18-11 완료 조건.
+
+#### R1-1. A1 흐름(서버 전용)
+
+1. **생성 전 사전 검사(유료 호출 전)**: 화질별 최대 예상 크기(1K 4MiB·2K 10MiB·4K 20MiB)로 `aif_asset_precheck`를 호출한다. 넘으면 **생성하지 않고** 저장공간 부족을 안내한다. 예상치는 보수적인 상한이며 실제 크기 보장은 아니다.
+2. **생성(유료)** — 기존 그대로.
+3. **서버 바이트 검증**(API store 계층): 생성 결과 바이트로 실제 형식 서명(PNG·JPEG·WebP)을 확인하고, **생성 결과 상한 20MiB**(참고 이미지 1MiB 상한과 분리)를 적용하고, 서버에서 SHA-256을 계산한다. `referenceImage.ts`의 서명 판정을 재사용하되 상한과 허용 형식은 생성용으로 따로 넘긴다. 전체 디코드는 하지 않는다(서명 확인만).
+4. **예약** `aif_asset_reserve(p_user, p_mime, p_ext, p_bytes, p_sha256)` → `asset_id, path`. 실제 바이트 수로 다시 검사한다.
+5. **서버 업로드**: 서비스 키로 해당 path에 `upsert: false`. 응답의 객체 id(`storage.objects.id`)를 받는다.
+6. **확정** `aif_asset_finalize(p_asset, p_user, p_object_id)`.
+7. 응답은 기존 `imageUrl`(data URL)을 그대로 두고 `assetId`·`assetSaved`(`true`/`false`/`"unknown"`)만 덧붙인다. 히스토리는 바뀌지 않는다. 응답 4.5MB 한도(G5)는 해소되지 않는다.
+
+#### R1-2. 같은 앱 용량 계산(A1-F01 반영)
+
+새 용량 표는 만들지 않는다. 회원 잠금 `aif_user:<uid>` 안에서 다음을 계산한다.
+
+`사용량 = 중앙 측정값(member_storage_usage.bytes) + 아직 측정에 안 들어간 우리 자산`
+
+`아직 측정에 안 들어간 우리 자산 = (state in reserved·unknown 인 행 전부) + (state = ready 이고 stored_at > member_storage_usage.measured_at 인 행)`
+
+- `reserved`는 업로드가 측정 전에 끝났더라도 계속 더한다(중복 계산 = 보수적인 쪽).
+- `ready`는 저장 시각이 마지막 측정보다 뒤이면 더한다. 측정 기록이 없으면 전부 더한다.
+- 한도는 같은 잠금 안에서 `member_storage_policy(uid).quota_bytes`를 매번 다시 읽는다(null이면 무제한). 한도를 낮추면 이미 저장된 것은 두고 새 예약만 거절한다.
+- `reserve`와 `finalize`는 **같은 회원 잠금**을 쓴다. 이로써 「20씩 6번 = 120 > 100」 반례가 같은 앱에서는 막힌다.
+- **보장 범위(정직하게)**: 같은 회원이 **다른 프로그램**에서 마지막 측정 뒤 저장한 바이트는 들어오지 않는다. 측정값이 오래되면 중앙 측정을 다시 부르지 않는 한 그만큼 넘을 수 있다. 원자적 전역 상한 보장이 아니다.
+
+#### R1-3. 표 `aif_assets` 수정점
+
+- state: `reserved / ready / failed / unknown / missing` (`ticketed` 삭제).
+- 추가: `stored_at timestamptz`(ready 때), `object_id uuid`(storage 객체 id, 동일성 확인), `missing_reason text check (missing_reason in ('object_absent'))`.
+- 삭제: `ticket_expires_at`.
+- A1이 쓰는 kind는 `generated`만이다. check는 A2를 위해 `ref_*`도 허용한 채 둔다. 상한 check는 kind별로 분리 유지(ref 1MiB·generated 20MiB).
+- 색인 추가 `(user_id, state, stored_at)`.
+
+#### R1-4. 함수(모두 서비스 전용, 잠금 순서 = 회원 → 자산, 예외 없음)
+
+| 함수 | 처리 |
+|---|---|
+| `aif_asset_precheck(p_user, p_est_bytes)` | 회원 잠금 안에서 R1-2 계산만, 행 없음 |
+| `aif_asset_reserve(...)` | 회원 잠금 안에서 R1-2 검사 → `reserved` 행 생성(id 서버 생성) |
+| `aif_asset_finalize(p_asset, p_user, p_object_id)` | 회원 잠금 → 자산 잠금. 삭제 예약 확인 → 행 `reserved`·본인 → `storage.objects`에서 `id = p_object_id`·bucket·name·`metadata.size = bytes` 일치 → `ready`, `stored_at = now()`. metadata는 저장소 기록일 뿐이고, 내용 검증은 3번(업로드 전 서버 바이트 검증 + 같은 바이트 업로드 + 객체 id 일치)으로 대신한다 |
+| `aif_asset_reconcile(p_asset, p_user)` | 회원 잠금 → 자산 잠금. 객체가 있고 일치하면 `ready`. 객체가 없음이 **확정**되면 `failed`(예약 해제). 조회 실패면 바꾸지 않음 |
+| `aif_asset_claim_delete`·`aif_asset_delete_mark` | 18-5와 같되 회원 잠금을 먼저 잡는다 |
+
+- **시간만으로 예약을 풀지 않는다.** `reserved`·`unknown`은 reconcile이 객체 없음을 확정할 때까지 용량에 계속 더한다(A1-F02의 「만료 즉시 해제」 제거).
+
+#### R1-5. 실패·불명 처리
+
+| 상황 | 동작 |
+|---|---|
+| 사전 검사 불통과 | 생성(유료) 안 함, 저장공간 안내 |
+| 생성 후 예약이 한도 초과(사전 예상보다 큼·동시 저장) | 생성 결과는 **그대로 반환**(이미 과금), `assetSaved:false`·`STORAGE_LIMIT`. 재생성·자동 재시도 없음 |
+| 업로드 명시적 오류 | `reconcile` 1회 → 객체 없음 확정이면 `failed`, 아니면 `reserved` 유지 |
+| 업로드·finalize 응답 불명 | `reconcile` 1회 → 결과대로. 조회도 실패하면 `unknown` 유지, `assetSaved:"unknown"`, 용량 계속 계산, 아무것도 지우지 않음 |
+| 생성 바이트 검증 실패(서명·상한) | 예약하지 않음, `assetSaved:false`, 생성 결과는 반환 |
+
+#### R1-6. 조회와 missing(A1-F04 반영)
+
+`GET /api/aif/assets/[id]`: 로그인·이용권 → 서비스 키로 본인 행 조회 → 서명 URL 발급.
+
+- 발급 실패 시 `storage.objects` 존재를 조회한다.
+  - 객체가 없다고 **확정**되면 `missing`·`object_absent`로 바꾸고 「파일을 찾을 수 없습니다」로 응답한다. 「보관 기간 지남」이라고 단정하지 않는다(삭제 사유를 알 수 없음).
+  - 조회 자체가 실패하거나 객체가 있는데 발급만 실패하면 `ready`를 유지하고 「일시적으로 확인할 수 없습니다. 잠시 뒤 다시 시도해 주세요」(503)로 응답한다.
+- 재생성은 하지 않는다.
+
+#### R1-7. A2로 넘기는 계약(이번에 구현하지 않음)
+
+- 클라이언트 업로드 허가의 수명은 실제 서명 업로드 URL 수명(2시간)에 여유를 더한 값 이상으로 한다.
+- 허가 만료로 예약을 풀지 않는다. 늦은 쓰기는 reconcile로 반영한다.
+- 확정 전에 **서버가 객체를 내려받아** 실제 크기·형식 서명·SHA-256을 계산한다. 클라이언트가 보낸 checksum은 증거가 아니다.
+- 서명 업로드 URL로 같은 path에 다시 쓰는 것은 `upsert: false`와 객체 id 비교로 막는다. DB 잠금이 외부 쓰기를 막는다고 가정하지 않는다.
+
+#### R1-8. A1 최소 파일
+
+| 파일 | 내용 |
+|---|---|
+| `supabase/migrations/…_aif_assets_a1.sql`(초안) | 두 표, 함수 6개, 버킷, 권한. 운영 적용은 별도 승인 |
+| `src/lib/assets/paths.ts` | 경로 규칙 |
+| `src/lib/assets/store.ts` | 바이트 검증·SHA·예약·업로드·확정·reconcile |
+| `src/app/api/generate-image/route.ts` | shadow 연결(사전 검사 → 생성 → 저장, `AIF_ASSETS_MODE`) |
+| `src/lib/referenceImage.ts` | 서명 판정을 상한·허용 형식 인자로 재사용할 수 있게 노출(기존 동작 불변) |
+| `src/app/api/aif/assets/[id]/route.ts` | 조회 |
+| `tests/assetsA1.test.mjs` | 모의 시험 |
+
+#### R1-9. A1 완료 조건(정직하게 구분)
+
+- **모의 시험(지금 가능)**:
+  - 바이트 검증(형식·20MiB·SHA)
+  - 예상 크기 사전 거절 시 생성 0회
+  - 생성 후 한도 초과 시 결과 반환 + `assetSaved:false`
+  - 업로드·확정 불명 시 `unknown` 유지 + 삭제 0
+  - 서명 실패 시 `missing`은 객체 없음 확정에서만
+  - `off`에서 기존 생성·히스토리 회귀 0
+- **SQL 계약 시험(격리 DB 승인 후)**: 같은 앱 순차 6회 시나리오에서 한도 준수, 잠금 순서, 서비스 전용 실행, RLS, check 제약.
+- **실제 저장 1회(별도 승인)**: 시험 계정, 가장 저렴한 모델.
+- 위 셋을 각각 따로 보고한다. 모의 시험 통과를 저장 완료로 보고하지 않는다.
+
 ## 14. 진행 상태 기록
 
 ```text
