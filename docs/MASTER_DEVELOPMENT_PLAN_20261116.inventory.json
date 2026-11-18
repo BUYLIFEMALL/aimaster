@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 14:41:09 KST",
+  "checkedAt": "2026-11-18 14:43:18 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,23 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:41:09.763Z",
+      "at": "2026-11-18T05:43:18.130Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM릴리스구체안·SNS고정최종",
-      "scope": "명시manifest/DDLhash·실스크립트공개순서·1통SMS예산정합·입력검수최종보존",
+      "trigger": "SNS 입력경계 3반례 수정완료",
+      "scope": "HEIF식별/모호코덱거절·활성필드타입·스트림고정오류·실route검수",
       "evidence": [
-        "msg_a62d1b410a26/47cd321da 35절직접읽기·DDLhash일치",
-        "SourceCardwindow.location.origin 즉시v2공개소스확인",
-        "staged무도메인배포가능성/실보호제약읽기배정",
-        "msg_2505820637b0 SNS고정최종"
+        "msg_652064f9ba5e/d4386242b 3파일stat",
+        "Mac3반례/정상회귀 검수전달"
       ],
-      "judgment": "승인요청전릴리스계획실행순서/문자예산모순보완필요. 아직SQL/배포/문자0. SNS3P2고정결과보존·새수정대기.",
+      "judgment": "보완소스수신·작성자69시험과독립지정판정분리. 공급자지원/전체디코드/실AI보증아님·유료0유지.",
       "unverified": [
-        "staged production공식지원/실보호·실Google조건",
-        "운영기준버전/DB제약현재값·승인",
-        "SNS입력수정SHA"
+        "d438 독립검수·클라이언트변환실UI",
+        "CRM staged릴리스순서/승인"
       ],
-      "nextAction": "구체최종릴리스안수신→한곳승인취합·새운영0"
+      "nextAction": "지정결과/구체릴리스안회수·배포/푸시0"
     },
     "notifications": [
       {
@@ -8104,19 +8101,19 @@
       "parent_task_id": "AIF-20261118-W00",
       "title": "참고 이미지 MIME/서명 처리 독립 개선 범위 계획",
       "owner": "CC-SNS-01",
-      "status": "needs_revision",
-      "delivery": "heif_avif_brand_ambiguity_reference_type_and_stream_error_returned",
+      "status": "ready_review",
+      "delivery": "reference_input_three_edge_case_fixes_independent_review",
       "scopeRef": "순수referenceImage·gemini·generate-image route·ControlPanel/InfluencerStudio·시험/기존문서",
       "completion": "정확MIME/strictb64/서명/개수·장당/총/JSON상한·HTTPS반례·실route유료호출전거절·client변환/안내",
       "constraints": "공용모듈/모델/프롬프트/DB자산/권한불변·원격이미지fetch/실AI/유료/build/push0·출력G5미해소",
-      "evidence": "W00 G1 MIME PNG고정소스근거·Master소스개선연속작업배정 · 계획msg_256d9fae7ba4·Master실gemini/route·Google공식지원MIME독립확인 · 14:30 ACTIVE_WORK참고검사7경로진행중확인 · 완료msg_64cdc4aa9317·Master8파일stat·Mac검수전달 · Macmsg_4d664f5d4a80 실route3반례·수정반환 · 고정최종msg_2505820637b0/native13·브라우저함수모형·실UI미확인",
-      "next": "BMFFAVIF모호거절·명시비문자active필드거절·스트림읽기예외고정오류 보완SHA→Mac",
-      "lastReviewedAt": "2026-11-18T05:41:09.763Z",
-      "sha": "f805100ce",
+      "evidence": "W00 G1 MIME PNG고정소스근거·Master소스개선연속작업배정 · 계획msg_256d9fae7ba4·Master실gemini/route·Google공식지원MIME독립확인 · 14:30 ACTIVE_WORK참고검사7경로진행중확인 · 완료msg_64cdc4aa9317·Master8파일stat·Mac검수전달 · Macmsg_4d664f5d4a80 실route3반례·수정반환 · 고정최종msg_2505820637b0/native13·브라우저함수모형·실UI미확인 · msg_652064f9ba5e·Master3파일stat·Mac재검수",
+      "next": "Mac ftyp/active타입/read예외·실route generate0/정상회귀 지정재검수",
+      "lastReviewedAt": "2026-11-18T05:43:18.130Z",
+      "sha": "d4386242b",
       "validation": {
-        "author": "reference13·전체67/67·tsc0·실AI0·PNG/JPEG/WebP실fixture·HEIC합성표시",
+        "author": "새반례4개red→전체69/69·tsc0·정상default/명시HEIC·원문console0·실AI0",
         "master": "8파일stat·모델/공용불변보고·G5출력제한미해소분리",
-        "independent": "f805 native13/13·실route/handler/refparse 모의:genericHEIF+compatibleAVIF 합성통과generate1·active0/false truthy생략generate1·스트림throw전파/generate0 P2, 실제디코드/AI사고아님"
+        "independent": "f805 3P2고정최종보존·d438 재검수전달·결과대기"
       }
     },
     {
