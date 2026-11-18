@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { type Provider } from "@/lib/studio/config";
+import { parseCloudflareCheckResponse } from "@/lib/cloudflareStatus";
 import {
   TEXT_MODELS,
   type TextProvider,
@@ -676,8 +677,9 @@ export function CloudflareKeyCard({
       const res = await fetch("/api/keys", { cache: "no-store" });
       if (!res.ok) throw new Error("등록 상태 확인에 실패했습니다.");
       const json = await res.json();
+      const isRegistered = parseCloudflareCheckResponse(json);
       if (reqId === activeReq.current) {
-        setRegistered(Boolean(json.cloudflare));
+        setRegistered(isRegistered);
         setLastChecked(
           new Date().toLocaleTimeString("ko-KR", {
             hour: "2-digit",
@@ -689,6 +691,7 @@ export function CloudflareKeyCard({
     } catch (e) {
       if (reqId === activeReq.current) {
         setError(e instanceof Error ? e.message : "확인에 실패했습니다.");
+        setRegistered(null); // 형식 깨짐이나 오류 시 등록/미등록 단정하지 않고 null(확인 필요)로 정합 유지
       }
     } finally {
       if (reqId === activeReq.current) {

@@ -53,3 +53,22 @@ export async function resolveInitialCloudflareStatus(
     return null; // 초기 조회 실패는 null로 반환하여 error/재확인 권장 표기
   }
 }
+
+/**
+ * GET /api/keys 재확인 응답 bool shape 검증 헬퍼
+ * 정확한 boolean(true | false)만 수용하며, 누락/문자열/배열/객체/숫자 등 깨진 응답은
+ * 임의로 boolean 변환(단정)하지 않고 예외를 던져 확인 실패(error)로 처리.
+ */
+export function parseCloudflareCheckResponse(json: unknown): boolean {
+  if (
+    !json ||
+    typeof json !== "object" ||
+    !("cloudflare" in json) ||
+    typeof (json as Record<string, unknown>).cloudflare !== "boolean"
+  ) {
+    throw new Error(
+      "서버 응답의 Cloudflare 등록 상태 형식이 올바르지 않습니다.",
+    );
+  }
+  return (json as { cloudflare: boolean }).cloudflare;
+}

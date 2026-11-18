@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   checkCloudflareRegistered,
   resolveInitialCloudflareStatus,
+  parseCloudflareCheckResponse,
 } from "../src/lib/cloudflareStatus.ts";
 
 // Supabase 관리자 모의 클라이언트 생성
@@ -176,4 +177,61 @@ test("API Route 불변성: Cloudflare는 POST 저장 대상이 아니며 오직 
   };
   assert.equal(typeof mockGetPayload.cloudflare, "boolean");
   assert.equal(Object.keys(mockGetPayload.keys).length, 4);
+});
+
+// ============================================================================
+// 4. 재확인 응답 bool shape 엄격 검증 (단정 0 입증)
+// ============================================================================
+test("재확인 응답 shape 검증: 정확한 boolean(true/false)만 수용", () => {
+  assert.equal(parseCloudflareCheckResponse({ cloudflare: true }), true);
+  assert.equal(parseCloudflareCheckResponse({ cloudflare: false }), false);
+});
+
+test("재확인 응답 shape 검증: 필드 누락 시 boolean 단정 없이 예외 전파", () => {
+  assert.throws(
+    () => parseCloudflareCheckResponse({}),
+    /형식이 올바르지 않습니다/,
+  );
+  assert.throws(
+    () => parseCloudflareCheckResponse({ keys: {} }),
+    /형식이 올바르지 않습니다/,
+  );
+});
+
+test("재확인 응답 shape 검증: 문자열 boolean('true', 'false', '')은 단정하지 않고 예외 전파", () => {
+  assert.throws(
+    () => parseCloudflareCheckResponse({ cloudflare: "true" }),
+    /형식이 올바르지 않습니다/,
+  );
+  assert.throws(
+    () => parseCloudflareCheckResponse({ cloudflare: "false" }),
+    /형식이 올바르지 않습니다/,
+  );
+  assert.throws(
+    () => parseCloudflareCheckResponse({ cloudflare: "" }),
+    /형식이 올바르지 않습니다/,
+  );
+});
+
+test("재확인 응답 shape 검증: null, 배열, 객체, 숫자 등 깨진 응답은 예외 전파", () => {
+  assert.throws(
+    () => parseCloudflareCheckResponse({ cloudflare: null }),
+    /형식이 올바르지 않습니다/,
+  );
+  assert.throws(
+    () => parseCloudflareCheckResponse({ cloudflare: [] }),
+    /형식이 올바르지 않습니다/,
+  );
+  assert.throws(
+    () => parseCloudflareCheckResponse({ cloudflare: {} }),
+    /형식이 올바르지 않습니다/,
+  );
+  assert.throws(
+    () => parseCloudflareCheckResponse({ cloudflare: 1 }),
+    /형식이 올바르지 않습니다/,
+  );
+  assert.throws(
+    () => parseCloudflareCheckResponse(null),
+    /형식이 올바르지 않습니다/,
+  );
 });
