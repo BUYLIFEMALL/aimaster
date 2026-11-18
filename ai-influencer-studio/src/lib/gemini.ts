@@ -3,6 +3,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { buildInfluencerPrompt } from "./influencer-engine";
 import { generateGeminiImage } from "./geminiImage";
+import { buildReferenceParts, collectReferences, referenceErrorMessage } from "./referenceImage";
 import {
   LIGHTINGS,
   CAMERA_MODES,
@@ -33,59 +34,11 @@ export async function generateInfluencerImage(
 
   const finalPrompt = buildInfluencerPrompt(config);
 
-  const parts: any[] = [];
-
-  // 인물 참조 이미지 (얼굴/이목구비 고정)
-  if (config.personImage) {
-    const base64Data = config.personImage.includes(",")
-      ? config.personImage.split(",")[1]
-      : config.personImage;
-    parts.push({
-      inlineData: {
-        data: base64Data,
-        mimeType: "image/png",
-      },
-    });
-  }
-
-  // 장소 참조 이미지 (배경 유지)
-  if (config.placeImage) {
-    const base64Data = config.placeImage.includes(",")
-      ? config.placeImage.split(",")[1]
-      : config.placeImage;
-    parts.push({
-      inlineData: {
-        data: base64Data,
-        mimeType: "image/png",
-      },
-    });
-  }
-
-  // 광고 제품 참조 이미지들 (최대 3장)
-  if (config.isAdMode && config.productImages && config.productImages.length > 0) {
-    for (const prodImg of config.productImages) {
-      const base64Data = prodImg.includes(",") ? prodImg.split(",")[1] : prodImg;
-      parts.push({
-        inlineData: {
-          data: base64Data,
-          mimeType: "image/png",
-        },
-      });
-    }
-  }
-
-  // 직전 결과물 (미세 보정 루프)
-  if (config.lastResultImage && config.feedback) {
-    const base64Data = config.lastResultImage.includes(",")
-      ? config.lastResultImage.split(",")[1]
-      : config.lastResultImage;
-    parts.push({
-      inlineData: {
-        data: base64Data,
-        mimeType: "image/png",
-      },
-    });
-  }
+  // 참고 이미지(얼굴·장소·상품·직전 결과) — W01c(2026-11-18): data URL 형식·실제 서명·상한을 검사하고 실제 MIME으로 보낸다(예전엔 모두 image/png 고정).
+  // 라우트가 먼저 같은 검사를 하므로 여기서 실패하면 호출 전에 멈춘다(유료 호출 없음). 붙이는 조건·순서는 예전과 같음.
+  const refs = collectReferences(config as unknown as Record<string, unknown>);
+  if (!refs.ok) throw new Error(referenceErrorMessage(refs.code, refs.field));
+  const parts: any[] = buildReferenceParts(refs.items);
 
   // 프롬프트 텍스트 파트
   parts.push({ text: finalPrompt });

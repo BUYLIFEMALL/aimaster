@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { getUserGeminiApiKey } from "@/lib/apiKeys";
 import { generateInfluencerImage } from "@/lib/gemini";
+import { handleGenerateImageRequest } from "@/lib/referenceImage";
 import type { InfluencerConfig } from "@/types/influencer";
 
 export const maxDuration = 300; // 2026-10-18: Pro 이미지 모델 시간 초과 방지(60 → 300초)
 
+// 2026-11-18 W01c: 본문을 3MiB까지만 읽고(초과 413), 참고 이미지 형식·크기를 검사한 뒤에만 유료 생성을 부른다 — src/lib/referenceImage.ts
 export async function POST(req: Request) {
   const auth = await checkProgramAccessApi();
   if (!auth.allowed) {
@@ -23,16 +25,6 @@ export async function POST(req: Request) {
     );
   }
 
-  try {
-    const config: InfluencerConfig = await req.json();
-    const imageUrl = await generateInfluencerImage(apiKey, config);
-
-    return NextResponse.json({ success: true, imageUrl });
-  } catch (err: any) {
-    console.error("Generate Image API Error:", err);
-    return NextResponse.json(
-      { error: err.message || "이미지 생성 중 오류가 발생했습니다." },
-      { status: 500 }
-    );
-  }
+  const r = await handleGenerateImageRequest(req, (config) => generateInfluencerImage(apiKey, config as unknown as InfluencerConfig));
+  return NextResponse.json(r.body, { status: r.status });
 }

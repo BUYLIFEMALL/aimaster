@@ -44,6 +44,7 @@ import {
 } from "@/data/influencer-options";
 import type { InfluencerConfig, TimelineScenario } from "@/types/influencer";
 import { IMAGE_READ_FAIL_MESSAGE, splitReadableImages } from "@/lib/imageFileCheck";
+import { fileToReferenceDataUrl } from "@/lib/referenceImage";
 
 interface ControlPanelProps {
   config: InfluencerConfig;
@@ -155,30 +156,22 @@ export function ControlPanel({
     if (readable.length === 0) return;
     const files = readable;
 
+    // W01c(2026-11-18): 작고 지원되는 사진(PNG·JPEG·WebP·HEIC, 1MB 이하)은 원본 그대로, 크거나 미지원이면 JPEG(긴 변 2048)로 바꿔 저장.
+    // 1MB 안으로 못 줄이면 받지 않고 안내(유료 호출 없음) — src/lib/referenceImage.ts
+    const errorField = field === "productImages" ? "product" : "reference";
     if (field === "productImages") {
       const remainingSlots = 3 - (config.productImages?.length || 0);
       const toUpload = files.slice(0, remainingSlots);
-      toUpload.forEach((file) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          if (typeof reader.result === "string") {
-            setConfig((prev) => ({
-              ...prev,
-              productImages: [...(prev.productImages || []), reader.result as string],
-            }));
-          }
-        };
-        reader.readAsDataURL(file);
-      });
+      for (const file of toUpload) {
+        const r = await fileToReferenceDataUrl(file);
+        if (!r.ok) { setFileError({ field: errorField, text: `${r.message} (${file.name})` }); continue; }
+        setConfig((prev) => ({ ...prev, productImages: [...(prev.productImages || []), r.dataUrl].slice(0, 3) }));
+      }
     } else {
       const file = files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === "string") {
-          setConfig((prev) => ({ ...prev, [field]: reader.result as string }));
-        }
-      };
-      reader.readAsDataURL(file);
+      const r = await fileToReferenceDataUrl(file);
+      if (!r.ok) { setFileError({ field: errorField, text: r.message }); return; }
+      setConfig((prev) => ({ ...prev, [field]: r.dataUrl }));
     }
   };
 

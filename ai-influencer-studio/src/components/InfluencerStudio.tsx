@@ -8,6 +8,7 @@ import { ApiKeyModal } from "@/components/ApiKeyModal";
 import { GuideView } from "@/components/GuideView";
 import { HistoryDrawer } from "@/components/HistoryDrawer";
 import type { InfluencerConfig, GenerationResult, HistoryItem } from "@/types/influencer";
+import { collectReferences, prepareLastResultForRefine, referenceErrorMessage } from "@/lib/referenceImage";
 
 interface InfluencerStudioProps {
   userEmail?: string | null;
@@ -253,6 +254,31 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false }: 
 
     const isRefining = !!refinementFeedback;
 
+    // W01c(2026-11-18): 보정은 방금 만든 결과(data URL)만 보낸다 — 히스토리에서 불러온 결과(서명 주소)는 보내지 않고 안내.
+    // 큰 결과는 보내기 전에 JPEG(긴 변 2048, 1MB 이하)로 맞춘다. 정상 새 생성 경로는 그대로.
+    let lastResultImage: string | undefined;
+    if (isRefining) {
+      const prepared = await prepareLastResultForRefine(result.imageUrl);
+      if (!prepared.ok) {
+        setResult((prev) => ({ ...prev, loading: false, error: prepared.message }));
+        return;
+      }
+      lastResultImage = prepared.dataUrl;
+    }
+
+    const configToSubmit: InfluencerConfig = {
+      ...config,
+      feedback: refinementFeedback,
+      lastResultImage,
+    };
+
+    // 서버와 같은 형식·크기 검사를 보내기 전에 한 번 — 걸리면 요청하지 않는다(유료 호출 없음, 서버도 다시 검사)
+    const refCheck = collectReferences(configToSubmit as unknown as Record<string, unknown>);
+    if (!refCheck.ok) {
+      setResult((prev) => ({ ...prev, loading: false, error: referenceErrorMessage(refCheck.code, refCheck.field) }));
+      return;
+    }
+
     setResult((prev) => ({
       ...prev,
       loading: true,
@@ -260,12 +286,6 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false }: 
       imageUrl: isRefining ? prev.imageUrl : null,
       captions: isRefining ? prev.captions : [],
     }));
-
-    const configToSubmit: InfluencerConfig = {
-      ...config,
-      feedback: refinementFeedback,
-      lastResultImage: isRefining ? result.imageUrl || undefined : undefined,
-    };
 
     try {
       // 1) 이미지 생성 호출
