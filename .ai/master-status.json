@@ -4121,18 +4121,18 @@
       "task_id": "ECOM-20261118-07",
       "title": "메인 공용 Cloudflare 등록 카드·서버 최소계획",
       "owner": "CC-ECOM-01",
-      "status": "ready_review",
-      "delivery": "central_product_scoped_review_accepted_native_loader_review_pending",
-      "evidence": "메인PROVIDERS5·oauth목록별도·문서봇입력은프로그램권한전제·Master소스대조 · 계획msg_b05eef62cc54/3ff187c06·Master두키원자/예상계정/CSRF보완지시 · ACTIVE_WORK본인중앙5경로예약확인 · msg_8fde857892dc·Master5파일stat·Macmsg_ff1e31e50642 · Macmsg_cf35bcba3a3d 적용후reset/503 반례·수정반환 · Mac고정최종msg_b8b7e1c64173·CF-F02 UTF8바이트수정반환msg_7d3bb98cba42 · msg_beafdd94f422/82e·Master3파일stat확인·Mac재검수전달 · 시험loader e34ab92fc/msg_bced7282c8d0·Master2파일stat · Mac제품PASSmsg_700f9519e45b·Master수락통보",
-      "next": "e34 Mac native동일11시험/모의범위동등성만회수·제품82동결·미푸시",
+      "status": "done",
+      "delivery": "central_keys_source_and_cross_platform_tests_accepted_unpushed",
+      "evidence": "메인PROVIDERS5·oauth목록별도·문서봇입력은프로그램권한전제·Master소스대조 · 계획msg_b05eef62cc54/3ff187c06·Master두키원자/예상계정/CSRF보완지시 · ACTIVE_WORK본인중앙5경로예약확인 · msg_8fde857892dc·Master5파일stat·Macmsg_ff1e31e50642 · Macmsg_cf35bcba3a3d 적용후reset/503 반례·수정반환 · Mac고정최종msg_b8b7e1c64173·CF-F02 UTF8바이트수정반환msg_7d3bb98cba42 · msg_beafdd94f422/82e·Master3파일stat확인·Mac재검수전달 · 시험loader e34ab92fc/msg_bced7282c8d0·Master2파일stat · Mac제품PASSmsg_700f9519e45b·Master수락통보 · MacnativePASSmsg_58a201229361·Master수락/정리통보",
+      "next": "원장/점유본인줄정리·감성QA뒤메인선행정확묶음/빌드예산승인·미푸시",
       "constraints": "소스/모의만·키쌍단일문장·예상회원409·비밀값응답0·기존5provider/Cloudinary불변·실키쓰기/외부/API/build/push/deploy0",
-      "lastReviewedAt": "2026-11-18T05:18:05.492Z",
+      "lastReviewedAt": "2026-11-18T05:21:29.825Z",
       "scopeRef": "새검사helper·전용keys API·전용card·메인page연결·시험/기존문서",
       "sha": "82e6cdfad",
       "validation": {
         "author": "수정11/11·루트tsc0·실supabase주입fetch쓰기불명6경계/UTF8reader상한·DOM재확인",
         "master": "정확5파일stat·메인page연결2줄·공유push자동빌드위험교통정리",
-        "independent": "82 CF-F01/F02 실제route/helper+설치Supabase10경계 및실cardDOM 지정PASS. expected409/UTF8상한/unknown쓰기/명시GET/late계정/삭제중복클릭 확인. e34native로더검증은별도대기, 실DB/RLS/키쓰기/외부미검수"
+        "independent": "82 CF-F01/F02 실제route/helper+설치Supabase10경계 및실cardDOM 지정PASS. expected409/UTF8상한/unknown쓰기/명시GET/late계정/삭제중복클릭 확인. e34native로더검증은별도대기, 실DB/RLS/키쓰기/외부미검수 e34 Mac native11/11·실helper/route/card동일·제품82동결확인·시험infra범위수락"
       }
     },
     {
@@ -4162,19 +4162,19 @@
       "title": "기존 히스토리 자동정리의 보관예외 보호",
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
-      "status": "ready_review",
-      "delivery": "strict_uuid_flag_fix_source_ready_queued_review",
+      "status": "needs_revision",
+      "delivery": "canonical_uuid_representation_failclosed_consistency_fix_requested",
       "scopeRef": "새retentionExempt helper·기존history GET/POST·시험/기존문서, 새자산/스키마불변",
       "completion": "paid/manual예외자동삭제0·목록30응답제한만·예외조회실패failclosed·일반/회원경계·수동DELETE회귀",
       "constraints": "실삭제/운영DB/유료/새의존성/build/push0·본체PLAN/권한미반영과독립인기존표만",
-      "evidence": "W00G3/P1근거·Master실history GET/POST 코드확인·기존공용helper경로확인 · msg_4c2bea5edf8e·Master6파일stat확인·Macmsg_3f88b197d47b · Macmsg_7f527fa24451·strict UUID검증 반환 · msg_c5a232ed7dc3·Master3파일stat",
-      "next": "Mac strict UUID/flag/badrow·실route삭제0·기존보관회귀순차검수",
-      "lastReviewedAt": "2026-11-18T05:17:13.122Z",
+      "evidence": "W00G3/P1근거·Master실history GET/POST 코드확인·기존공용helper경로확인 · msg_4c2bea5edf8e·Master6파일stat확인·Macmsg_3f88b197d47b · Macmsg_7f527fa24451·strict UUID검증 반환 · msg_c5a232ed7dc3·Master3파일stat · Macmsg_58a201229361 대문자별도Set불일치 관찰/실PG소문자정상구분",
+      "next": "strict canonical36소문자/개행완전일치 unknown보존 보완→국소검수",
+      "lastReviewedAt": "2026-11-18T05:21:29.825Z",
       "sha": "07df29def",
       "validation": {
         "author": "추가반례8개red→green·전체45/45·tsc0·공용원본helper불변",
         "master": "6파일stat·사전범위추가historyStore 시험로직분리설명수신·route동작영향독립검수필요",
-        "independent": "native15/15·실route/auth/handler6경계지정통과. 공백id profile을정상집합처리→현재회원notexempt/가짜storage5객체삭제 P2·실DB피해/정상UUIDDB현실사고확정아님. 원본helper불변확인"
+        "independent": "07 기존반례해소/native27 지정통과. 대문자UUID행이Set소문자세션과불일치해가짜route삭제5 관찰, 정상PG소문자직렬화와분리. 추가하네스마지막개행 미catch종료1은전체PASS근거아님·최소표현계약보완반환"
       }
     },
     {
@@ -4699,21 +4699,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:18:58.452Z",
+      "at": "2026-11-18T05:21:29.825Z",
       "timezone": "Asia/Seoul",
-      "trigger": "감성 Cloudflare 카드 P2 보완 완료",
-      "scope": "초기unknown/미등록 구분·OFF문구·새helper실제품배선 검수대기",
+      "trigger": "공용native PASS·SNS UUID표현 별도경계",
+      "scope": "중앙제품/시험수락·엄격예외UUID세션동일표현·정상PG/모의반례구분",
       "evidence": [
-        "msg_c8e89bea66e0/2d69d577b",
-        "Masterstat·Mac기존순서후국소검수추가"
+        "msg_58a201229361 native11·SNS27",
+        "ECOM수락/정리요청",
+        "SNScanonical표현failclosed 국소반환"
       ],
-      "judgment": "작성자보완수신·74시험이실전체화면PASS아님. 중앙제품82지정PASS보존/native별도대기·감성수정독립판정대기.",
+      "judgment": "중앙82/e34소스+시험수락·실운영미완. SNS정상DB회귀아니지만임의형식예외행삭제방향으로열리지않도록canonical불명보존보완요청.",
       "unverified": [
-        "새helper제품배선/초기SSR/shape·DOM",
-        "중앙native·SNSstrict·CRM후속결과",
-        "실키/운영/실화면"
+        "SNS최종strict보완/CRM후속/감성보완 검수",
+        "중앙실DB/키/운영및배포승인"
       ],
-      "nextAction": "순차결과회수·새운영/푸시0"
+      "nextAction": "남은소스검수후명시묶음정리·운영/푸시/새비용0"
     },
     "notifications": [
       {
