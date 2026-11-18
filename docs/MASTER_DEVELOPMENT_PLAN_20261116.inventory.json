@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 10:19:53 KST",
+  "checkedAt": "2026-11-18 10:21:43 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T01:19:53.800Z",
+      "at": "2026-11-18T01:21:43.429Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Ecom ready_review/한계정정 msg_ffaf78f3fade·msg_77cb7fb78832",
-      "scope": "b34cba02b7파일/검사연결·계획대비범위차이·QA049재배정",
+      "trigger": "Mac QA049중간+Workspace v1.58배포완료",
+      "scope": "QA잔여2반례수정반환·Gmail배포/실alias/예산·OAuth/Mac검수순번",
       "evidence": [
-        "Master gitstat/rg·Gemini엄격검사미적용작성자인정",
-        "자체56시험/tsc통과·실호출/빌드0",
-        "Mac재검수 msg_a301cb82d277·작성자동결 msg_a96b1ecdbdb9"
+        "QA049 msg_9e34bbcda285·Ecom수정dispatch msg_13cc1666f23c",
+        "Master get_alias dpl_8GoargZugPSSqT5atpJ5PZqWbDyd·작성자버전/빌드·tree보고",
+        "Mac msg_f0e46da48809·Workspace msg_bce4e6bf3fad"
       ],
-      "judgment": "작성자자체완료와독립검수구분·재검수전전체PASS판정0. Gemini기존경계한계명시.",
+      "judgment": "v1.58배포단계수락·Gmail실동작완료아님. 정상빌드1소진·OFF복구1남음. 이미지신규코드는잔여P2로반환·운영v1.30미포함.",
       "unverified": [
-        "QA049 b34 결과·OpenAI실모델/응답준수·Gmail배포단계"
+        "실OAuth/metadata/중복/끊기·375요일칩",
+        "QA049 새수정SHA/재검수"
       ],
-      "nextAction": "Mac반례후정확범위반환·Workspace배포결과회수"
+      "nextAction": "주인님동의뒤공통1세트결과회수·Mac독립·반례시기승인복구"
     },
     "notifications": [
       {
@@ -6765,8 +6766,8 @@
       "owner": "CX-MASTER-01",
       "reviewer": "CX-MASTER-01",
       "title": "E3+WS23 v1.58 묶음 배포/운영 실검수",
-      "status": "ready",
-      "delivery": "merged_into_WS27_approved_release",
+      "status": "done",
+      "delivery": "v158_released_runtime_checks_partial",
       "scopeRef": "v1.58버전/programs정확1행·localbuild1/remote1·시험계정합성UI/앱알림·선택적검색1/모델1 + WS18-01 a41a1e31e(최종묶음검증별도)",
       "evidence": "6f166ec8f全560시험/독립PASS·운영v1.57유지",
       "completion": "승인범위배포Ready/운영화면/실테스트·한계분리",
@@ -6776,7 +6777,7 @@
         "required": "묶음배포1회/운영합성검수·실검색1/모델1비용범위선택",
         "next": "승인전미배포/실호출0"
       },
-      "next": "WS27 정상1빌드에v1.58 E3/예약/요일칩/Gmail통합·중복배포0"
+      "next": "E3/요일칩 실화면·실AI별도 미검수경계유지"
     },
     {
       "task_id": "QA-20261117-036",
@@ -6868,24 +6869,24 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "Gmail 운영 SQL 적용·실계정 검증·활성화",
-      "status": "running",
-      "delivery": "sql_applied_author_verified_release_preparing",
+      "status": "waiting_human",
+      "delivery": "v158_deployed_oauth_validation_pending",
       "scopeRef": "0074→0075 운영적용/정의검증·회원본인OAuth동의/metadata·실PostgREST/주소·스위치/배포 승인별도",
-      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f·Workspace SQL完了報告(主会話)",
+      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f·Workspace SQL完了報告(主会話)·주인님전달Workspace배포완료9ea979de9·Master Vercel get_alias동일dpl·Macmsg_f0e46da48809/Workspace msg_bce4e6bf3fad",
       "completion": "승인된범위의운영마이그레이션·실계정/권한/계정경계·활성배포·운영동작 확인",
-      "next": "카탈로그 노출됨→동일 담당 v1.58 명시SHA/manifest·빌드1→Ready/alias·버전1행→OAuth/Gmail",
-      "blockedReason": null,
+      "next": "주인님본인로그인/OAuth→Workspace 공통1세트실검증→Mac 독립읽기/375, 실패조건시OFF복구1회",
+      "blockedReason": "실OAuth 본인동의/로그인 사람단계·Workspace단일요청",
       "approval": {
         "source": "주인님 Workspace 채팅 선택 답변 2026-11-18",
         "publicMode": "all_members",
         "normalBuilds": 1,
         "offRecoveryBuilds": 1,
-        "normalUsed": 0,
+        "normalUsed": 1,
         "recoveryUsed": 0,
         "scope": "0074→0075 운영적용·Gmail ON·v1.58 묶음·확인표 실OAuth/Gmail검증"
       },
-      "lastReviewedAt": "2026-11-18T01:15:44.278Z",
-      "sha": "722a3ba99",
+      "lastReviewedAt": "2026-11-18T01:21:43.429Z",
+      "sha": "9ea979de9 (Gmail ON 722a3ba99 포함)",
       "validation": {
         "author": "전체61파일840/840·tsc0·qa_0",
         "master": "정확2파일diff·스위치ON/시험명시OFF·0074/75 지문일치",
@@ -6902,6 +6903,14 @@
         "postcheck": "catalog1·index unique/valid/ready/live true·anon/auth表/関数false·service_role true·RLS true/policy0·SECURITY INVOKER/search_path空",
         "transaction": "apply_migration 도구 거래로 실행·파일 begin/commit/끝 확인조회 제외 보고",
         "masterIndependentDbRead": false
+      },
+      "deployment": {
+        "id": "dpl_8GoargZugPSSqT5atpJ5PZqWbDyd",
+        "alias": "ai-work-workspace.buylife.xyz",
+        "status": "READY author_report; alias Master verified",
+        "version": "v1.58",
+        "tree": "9e05abab2c71",
+        "dbVersion": "v1.58 author_report"
       }
     },
     {
@@ -7258,14 +7267,19 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "새이미지3엔진 소스/가짜통신·키/응답경계 검수",
-      "status": "ready",
-      "delivery": "retest_dispatched",
+      "status": "needs_revision",
+      "delivery": "partial_retest_findings_returned",
       "sha": "b34cba02b",
       "evidence": ".ai/results/QA-20261118-049-CX-QA-01.md / msg_ae43db14fe10·msg_a301cb82d277",
       "scopeRef": "고정SHA 읽기/기존패키지모의만·실이미지/키/네트워크/DB/build/새창0",
       "completion": "고정d21 신규이미지에P2 I-F01모델/I-F02응답/I-F03URL/I-F04timeout 반례, 기존3test/글귀/권한PASS와분리",
-      "next": "독립모의재검수→반례/한계보고, Gmail배포후브라우저와순번조정",
-      "lastReviewedAt": "2026-11-17T17:43:53.437Z"
+      "next": "b34고정나머지guard/DOM마무리→새수정SHA 재검수",
+      "lastReviewedAt": "2026-11-17T17:43:53.437Z",
+      "findings": [
+        "P2 OpenAI res.json 전체수신상한없음·ignored6MiB JSON수락",
+        "P2 OpenAI redirect 기본follow",
+        "Gemini hello 허용은기존한계·새회귀아님"
+      ]
     },
     {
       "task_id": "B2B-20261118-03",
@@ -7303,12 +7317,12 @@
       "owner": "CC-ECOM-01",
       "reviewer": "CX-MASTER-01",
       "title": "이미지3엔진 QA049 안전경계 보완 구현",
-      "status": "ready_review",
-      "delivery": "qa_dispatched",
-      "evidence": "QA049중간msg_9ea5ee32f762·msg_21ed3b1edaab·msg_85526463335b 후속계획보고예고·런타임복구후 msg_3307ed544d53 전달·계획msg_9ef8951a4a40·조건부구현dispatch msg_29d6fb7d2025·readymsg_ffaf78f3fade·Macmsg_a301cb82d277·범위정정msg_77cb7fb78832",
+      "status": "needs_revision",
+      "delivery": "qa_partial_failed_fix_dispatched",
+      "evidence": "QA049중간msg_9ea5ee32f762·msg_21ed3b1edaab·msg_85526463335b 후속계획보고예고·런타임복구후 msg_3307ed544d53 전달·계획msg_9ef8951a4a40·조건부구현dispatch msg_29d6fb7d2025·readymsg_ffaf78f3fade·Macmsg_a301cb82d277·범위정정msg_77cb7fb78832·Mac중간msg_9e34bbcda285·수정msg_13cc1666f23c",
       "scopeRef": "emotion-writer/src/lib/studio/{config,validation,services}.ts·src/app/api/image/route.ts·src/components/Workspace.tsx·src/app/(studio)/guide/page.tsx·tests/imageProvider.test.mjs·본인기존문서",
       "completion": "모델허용목록/strict응답·3MiB/URL follow제거/본문포함110s·parentAbort408; free/공식모델미확인 비활성·가짜통신 red-green/tsc·Mac재검수",
-      "next": "Mac QA049 동일4반례·OpenAI/free 응답전체상한/redirect/timeout·Gemini기존경계분리→판정",
+      "next": "services/test만 OpenAI 전체JSON수신상한+redirect:error red-green→새SHA→Mac재검수",
       "lastReviewedAt": "2026-11-18T01:19:53.800Z",
       "blockedReason": null,
       "constraints": [
