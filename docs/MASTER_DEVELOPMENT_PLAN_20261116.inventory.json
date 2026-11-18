@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 10:15:44 KST",
+  "checkedAt": "2026-11-18 10:16:03 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -14,17 +14,17 @@
     "lastInspection": {
       "at": "2026-11-18T01:15:44.278Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Workspace WS27 SQL完了報告",
-      "scope": "0074/0075適用・事前/事後権限根拠・リリース順番",
+      "trigger": "Workspace WS27 SQL 완료 보고",
+      "scope": "0074/0075 적용·사전/사후 권한 근거·릴리스 순번",
       "evidence": [
-        "担当報告: ref一致・2migration success・index/role/RLS確認",
-        "build0・カタログGmail項目露出済み"
+        "담당 보고: ref일치·2마이그레이션 success·인덱스/역할/RLS확인",
+        "빌드0·카탈로그 Gmail 항목 노출됨"
       ],
-      "judgment": "SQL段階は作成者運用確認として受理・Master独立DB再照会0。指定Workspaceのv1.58準備継続・重複SQL0",
+      "judgment": "SQL단계는 작성자 운영확인으로 수락·Master 독립DB재조회0. 지정 Workspace v1.58 준비 계속·중복SQL0",
       "unverified": [
-        "v1.58 manifest/Ready/alias/DBversion・実OAuth/Gmail・Mac独立検収"
+        "v1.58 manifest/Ready/alias/DB버전·실OAuth/Gmail·Mac독립검수"
       ],
-      "nextAction": "同一担当のreleaseSHA/manifest/配布結果回収→Master alias→Mac連携"
+      "nextAction": "동일담당 릴리스SHA/manifest/배포결과 회수→Master alias→Mac연결"
     },
     "notifications": [
       {
@@ -6872,7 +6872,7 @@
       "scopeRef": "0074→0075 운영적용/정의검증·회원본인OAuth동의/metadata·실PostgREST/주소·스위치/배포 승인별도",
       "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f·Workspace SQL完了報告(主会話)",
       "completion": "승인된범위의운영마이그레이션·실계정/권한/계정경계·활성배포·운영동작 확인",
-      "next": "カタログ露出済み→同一担当v1.58明示SHA/manifest・build1→Ready/alias・version1行→OAuth/Gmail",
+      "next": "카탈로그 노출됨→동일 담당 v1.58 명시SHA/manifest·빌드1→Ready/alias·버전1행→OAuth/Gmail",
       "blockedReason": null,
       "approval": {
         "source": "주인님 Workspace 채팅 선택 답변 2026-11-18",
@@ -6897,9 +6897,9 @@
           "0075_gmail_inbox_claims"
         ],
         "status": "applied_author_report",
-        "precheck": "重複0・既存Gmail/索引/表/関数0・schema一致",
+        "precheck": "중복0·기존Gmail/인덱스/표/함수0·스키마일치",
         "postcheck": "catalog1·index unique/valid/ready/live true·anon/auth表/関数false·service_role true·RLS true/policy0·SECURITY INVOKER/search_path空",
-        "transaction": "apply_migration道具のtransactionで実行·ファイルbegin/commit/末尾確認除外と報告",
+        "transaction": "apply_migration 도구 거래로 실행·파일 begin/commit/끝 확인조회 제외 보고",
         "masterIndependentDbRead": false
       }
     },
