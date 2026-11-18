@@ -452,7 +452,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | AIF-20261118-W01u | CC-SNS-01 | done / p3_isolated_17_of_17_and_mac_static_review_accepted | 자산 상태 집계 후속 SQL·격리 시험 초안 | 로컬 SQL 검수 완료. 호출 경로·영속 DB 적용·배포는 별도. |
 | AIF-20261118-W01v | CC-SNS-01 | done / asset_save_indicator_local_and_mac_checks_accepted_undeployed | 생성 결과 원본 저장 상태 표시 | 로컬 검수 완료·점유 해제·OFF·미배포. |
 | AIF-20261118-W01w | CC-SNS-01 | done / g5_response_evidence_and_guard_design_accepted | 생성 이미지 응답 크기 근거 및 G5 설계 | W01x 로컬 최소 보호 배정. 실제 크기/운영 응답 및 자산 참조 전환 별도. |
-| AIF-20261118-W01x | CC-SNS-01 | done / g5_response_guard_local_mac_review_accepted_undeployed | 생성 이미지 응답 한도 및 비JSON 안내 보호 | 로컬 보호 구현·검수 완료. 실제 구 탭·운영 응답 및 배포 별도. |
+| AIF-20261118-W01x | CC-SNS-01 | done / g5_response_guard_local_mac_review_accepted_undeployed | 생성 이미지 응답 한도 및 비JSON 안내 보호 | 로컬 완료·점유 해제·미배포. 한도 초과 이미지 전달 및 실제 응답 검증은 별도. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 
 ## 현재 담당 회신이 확보된 프로젝트

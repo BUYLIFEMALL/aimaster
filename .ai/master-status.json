@@ -5035,8 +5035,8 @@
       "scopeRef": "기존 생성 응답/클라이언트 처리와 모의 시험",
       "constraints": "앱 내부 UTF-8 4,000,000바이트·새 생성/조회 없음·SQL/운영/API/실 AI/비용/build/deploy 0",
       "completion": "초과 결과 최소 200 분리·비JSON 고정 안내·한도 이내 기존 동작·모의 경계",
-      "evidence": "1364afbda·27b1804fe·msg_d1ccf57d8e4a·msg_ca9e8561ff8a / msg_407ed1bb6611 / msg_76c5a1a51312 / msg_c9c6de0cfcf2 / msg_04f197cb83d3",
-      "next": "로컬 보호 구현·검수 완료. 실제 구 탭·운영 응답 및 배포 별도.",
+      "evidence": "1364afbda·27b1804fe·msg_d1ccf57d8e4a·msg_ca9e8561ff8a / msg_407ed1bb6611 / msg_76c5a1a51312 / msg_c9c6de0cfcf2 / msg_04f197cb83d3 / msg_372fa12ada96 / da7f1c0eb / 7ba8ec819",
+      "next": "로컬 완료·점유 해제·미배포. 한도 초과 이미지 전달 및 실제 응답 검증은 별도.",
       "lastReviewedAt": "2026-11-18T14:18:05.256Z",
       "sha": "0f570dfd0",
       "validation": {
