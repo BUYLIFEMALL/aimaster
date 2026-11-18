@@ -158,6 +158,41 @@ describe('기존 HTML 가져오기 회귀', () => {
     expect(plain(parseHtml(`<p>다${zw}시</p>`).blocks[0].text)).toBe(`다${zw}시`);
   });
 
+  it('ZIP처럼 문서 안에서 다른 문서를 이어 읽을 때(동기 재귀)도 문서마다 따로 정리한다', () => {
+    const zw = '\u200b';
+    const nBlock = (id: string, kind: string, inner: string) => `<div data-block-id="${id}" class="notion-selectable notion-${kind}-block">${inner}</div>`;
+    const nLeaf = (t: string) => `<div data-content-editable-leaf="true">${t}</div>`;
+    const docs: Record<string, string> = {
+      'general.html': `<html><body><h1>일반 자식</h1><p>일${zw}반 자식 글</p></body></html>`,
+      'notion.html': `<html><body><div class="notion-page-content">${nBlock('c1', 'text', nLeaf(`노${zw}션 자식 글`))}</div></body></html>`,
+    };
+    const ctx = {
+      resolvePageLink: (href: string) => {
+        const src = docs[href];
+        if (!src) return null;
+        const r = parseHtml(src, ctx);
+        return { type: 'page' as const, text: r.title ?? href, children: r.blocks };
+      },
+    };
+    // 노션 부모 → 일반 자식: 자식의 문자는 남고, 자식을 읽은 뒤 이어지는 부모 글은 계속 정리된다
+    const notionParent = parseHtml(`<html><body><div class="notion-page-content">${nBlock('p1', 'text', nLeaf(`앞${zw}글`))}${nBlock('p2', 'page', `<a href="general.html"><div>일반 자식</div></a>`)}${nBlock('p3', 'page', `<a href="notion.html"><div>노션 자식</div></a>`)}${nBlock('p4', 'text', nLeaf(`뒤${zw}글`))}</div></body></html>`, ctx);
+    expect(notionParent.blocks.map((b) => [b.type, plain(b.text)])).toEqual([['text', '앞글'], ['page', '일반 자식'], ['page', 'notion.html'], ['text', '뒤글']]);
+    expect(notionParent.blocks[1].children!.map((b) => plain(b.text))).toEqual([`일${zw}반 자식 글`]);
+    expect(notionParent.blocks[2].children!.map((b) => plain(b.text))).toEqual(['노션 자식 글']);
+    // 일반 부모 → 노션 자식: 자식만 정리되고, 자식을 읽은 뒤 이어지는 부모 글은 그대로다
+    const generalParent = parseHtml(`<html><body><p>앞${zw}글</p><a href="notion.html">노션 자식</a><p>뒤${zw}글</p></body></html>`, ctx);
+    expect(generalParent.blocks.map((b) => [b.type, plain(b.text)])).toEqual([['text', `앞${zw}글`], ['page', 'notion.html'], ['text', `뒤${zw}글`]]);
+    expect(generalParent.blocks[1].children!.map((b) => plain(b.text))).toEqual(['노션 자식 글']);
+  });
+
+  it('노션 본문의 하위 페이지 블록: 이어 읽을 문서가 없으면 링크 글로 남긴다', () => {
+    const page = (href: string) => `<div data-block-id="s1" class="notion-selectable notion-page-block"><a href="${href}"><div>하위 문서</div></a></div>`;
+    const web = parseHtml(`<div class="notion-page-content">${page('https://x.notion.site/sub')}</div>`);
+    expect(web.blocks).toEqual([{ type: 'text', text: [['하위 문서', [['a', 'https://x.notion.site/sub']]]] }]);
+    const local = parseHtml(`<div class="notion-page-content">${page('./sub.html')}</div>`);
+    expect(local.blocks).toEqual([{ type: 'text', text: [['하위 문서']] }]);
+  });
+
   it('노션 클래스 이름이 글에만 나오는 일반 문서는 노션 경로로 가지 않는다', () => {
     const r = parseHtml('<html><body><p>notion-page-content 라는 낱말</p><div class="notion-text-block">블록 id 없는 div</div></body></html>');
     expect(r.blocks.map((b) => plain(b.text))).toEqual(['notion-page-content 라는 낱말', '블록 id 없는 div']);

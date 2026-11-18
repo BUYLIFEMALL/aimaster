@@ -124,14 +124,10 @@ function isBlockEl(n: Node): boolean {
 
 // ---------------- inline
 
-/** 저장된 노션 본문을 읽는 동안만 참 — 노션 화면이 끼워 넣는 보이지 않는 문자(U+200B)를 그때만 지운다(일반 HTML은 그대로 둔다) */
-let stripZeroWidth = false;
-
 function inline(nodes: Node[], anns: Annotation[], out: Decoration[], pre = false) {
   for (const n of nodes) {
     if (typeof n === 'string') {
-      const t0 = pre ? n : n.replace(/[ \t\r\n]+/g, ' ');
-      const t = stripZeroWidth ? t0.replace(/\u200b/g, '') : t0;
+      const t = pre ? n : n.replace(/[ \t\r\n]+/g, ' ');
       if (!t) continue;
       const last = out[out.length - 1];
       if (last && JSON.stringify(last[1] ?? []) === JSON.stringify(anns)) last[0] += t;
@@ -416,6 +412,14 @@ function notionFind(el: El, pred: (e: El) => boolean): El | null {
   return null;
 }
 
+function stripZeroWidthIn(el: El) {
+  el.children = el.children.map((c) => {
+    if (typeof c === 'string') return c.replace(/\u200b/g, '');
+    stripZeroWidthIn(c);
+    return c;
+  });
+}
+
 const NOTION_COLORS: Record<string, string> = { gra: 'gray', bro: 'brown', ora: 'orange', yel: 'yellow', gre: 'green', blu: 'blue', pur: 'purple', pin: 'pink', red: 'red' };
 
 function notionBlock(n: El, ctx: HtmlContext): Spec[] | null {
@@ -454,7 +458,7 @@ function notionBlock(n: El, ctx: HtmlContext): Spec[] | null {
     case 'divider':
       return [{ type: 'divider' }];
     case 'code':
-      return [{ type: 'code', text: leaf ? textOf(leaf).replace(/\u200b/g, '').replace(/\n$/, '') : '', language: codeLanguage('') }];
+      return [{ type: 'code', text: leaf ? textOf(leaf).replace(/\n$/, '') : '', language: codeLanguage('') }];
     case 'callout': {
       const iconEl = notionFind(n, (e) => hasClass(e, 'notion-emoji'));
       const icon = (iconEl?.attrs.alt ?? '').replace(/\s*Callout icon$/i, '').trim() || '💡';
@@ -515,8 +519,16 @@ function notionBlock(n: El, ctx: HtmlContext): Spec[] | null {
       return [{ type: 'table_of_contents' }];
     case 'column_list':
       return [{ type: 'column_list', children: notionKids(n).map((c) => ({ type: 'column' as const, children: blocks(notionKids(c), ctx) })) }];
-    case 'page':
-      return []; // 페이지 제목 블록 — 제목은 parseHtml이 따로 읽는다
+    case 'page': {
+      // 본문 안의 페이지 블록 = 하위 페이지 링크(문서 제목 블록은 본문 밖이라 여기 오지 않는다)
+      const a = notionFind(n, (e) => e.tag === 'a' && !!e.attrs.href);
+      const sub = a && ctx.resolvePageLink ? ctx.resolvePageLink(a.attrs.href) : null;
+      if (sub) return [sub];
+      const label = a ? richOf(a.children) : text();
+      const href = a && /^https?:\/\//i.test(a.attrs.href) ? safeHref(a.attrs.href) : null;
+      if (!label.length) return [];
+      return [{ type: 'text', text: href ? label.map((d) => [d[0], [...(d[1] ?? []).filter((x) => x[0] !== 'a'), ['a', href]]] as Decoration) : label }];
+    }
     default: {
       // 모르는 종류(동기화 블록·데이터베이스 등): 하위 블록이 있으면 그것을, 없으면 글만
       const k = kids();
@@ -536,12 +548,10 @@ export function parseHtml(src: string, ctx: HtmlContext = {}): { title?: string;
     const pageEl = find(root, (e) => notionKind(e) === 'page');
     const h = pageEl ? find(pageEl, (e) => 'data-content-editable-leaf' in e.attrs) : null;
     const t = h ? textOf(h).replace(/\u200b/g, '').trim() : '';
-    stripZeroWidth = true;
-    try {
-      return { title: t || undefined, blocks: blocks(notionBody.children, ctx) };
-    } finally {
-      stripZeroWidth = false;
-    }
+    // 노션 화면이 끼워 넣는 보이지 않는 문자(U+200B)는 이 문서의 본문 트리에서만 지운다 —
+    // 문서마다 따로 만든 트리라, 링크로 이어 읽는 다른 문서(ZIP의 하위 HTML)나 일반 HTML에는 영향이 없다
+    stripZeroWidthIn(notionBody);
+    return { title: t || undefined, blocks: blocks(notionBody.children, ctx) };
   }
   const titleEl = find(root, (e) => e.tag === 'title');
   const pageTitle = find(root, (e) => (e.tag === 'h1' && hasClass(e, 'page-title')) || hasClass(e, 'page-title'));
