@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T17:15:36.942Z",
+  "checkedAt": "2026-11-18T17:33:00.698Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5438,6 +5438,41 @@
           "verifiedAt": "2026-11-18T17:15:36.942Z"
         }
       }
+    },
+    {
+      "task_id": "DES-20261119-HERO-FOLLOWUP",
+      "parent_task_id": "DES-20261119-HERO",
+      "owner": "AG-UI-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "메인 히어로 하단 지표·버튼 제거 운영 배포",
+      "status": "running",
+      "delivery": "owner_approved_isolated_followup_release_in_progress",
+      "sha": "216c5e071",
+      "scopeRef": "components/home/HeroShowcase.tsx 단일 후속 diff",
+      "evidence": "216c5e071·msg_41c18e8b48a9·msg_bf6de8b7d679·msg_59ecafa0c388",
+      "validation": {
+        "author": "tsc 통과 보고; 승인 및 단일 배포 착수 방침 회신.",
+        "master": "운영 기준 dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N·HeroShowcase 단일 차이/이미지 동일·팀 대기 0 확인."
+      },
+      "next": "AG-UI-01 1회 격리 배포/검증 결과 회신 뒤 Master 공식 alias·하단 제거 확인.",
+      "release": {
+        "program": "aimaster",
+        "owner": "AG-UI-01",
+        "reviewer": "CX-MASTER-01",
+        "status": "owner_approved_author_reported_start",
+        "approvalMessage": "msg_59ecafa0c388",
+        "baseDeployment": "dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N",
+        "baseSha": "ba31f40809f285c5c378e59213c76d227188ac11",
+        "approvedSource": "216c5e071",
+        "alias": "www.buylife.xyz",
+        "normalBudget": 1,
+        "paths": [
+          "components/home/HeroShowcase.tsx",
+          "public/images/hero/concept_3_command_hub.jpg"
+        ],
+        "method": "Same isolated base snapshot with prior approved image unchanged; only HeroShowcase changes from current live. Single staged production build and promotion."
+      },
+      "lastReviewedAt": "2026-11-18T17:33:00.698Z"
     }
   ],
   "programOverrides": [
@@ -5956,21 +5991,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T17:00:55.639Z",
+      "at": "2026-11-18T17:33:00.698Z",
       "timezone": "Asia/Seoul",
-      "trigger": "02:00 정기 예약 msg_b5ade7398bec 회수",
-      "scope": "01:33 이후 증분 점검. 프로그램 103개·카테고리 19개·열린 작업 17개·담당 기록 11개를 변경 SHA·검수·점유·미배포와 대조. 미등록 결과와 인수인계 및 직접지시 충돌 확인.",
+      "trigger": "02:30 정기 예약 msg_2393b96f6204 회수와 히어로 후속 보고",
+      "scope": "02:00 이후 증분. 프로그램 103개·카테고리 19개·열린 작업 16개·담당 기록 11개 대조. 변경·점유·미배포·담당 보고·인수인계·직접 승인 확인.",
       "evidence": [
-        "Windows Task Scheduler 02:00:01 실행·종료 0, wake 메시지 02:00:03 전송 종료·기존 Master 수신",
-        "24afa7274..7798301ab 증분. G3S dffa5c436 독립 모의 3/3, UID 3a41efdd0 수락, UIC 00abbf149 검수 반례 및 수정 지시 msg_5562dd13e7ce",
-        "QA 변경 파일 1개는 UIC 등록 근거와 일치. 새 관리자 요청·별도 미등록 결과 없음."
+        "스케줄러 02:30:01 실행·종료 0, wake 02:30:03 전송 종료 및 동일 메시지 수신",
+        "b073595d9..216c5e071 증분, UIC 547142805 및 독립 11/11, UII 점유 709184af6",
+        "히어로 이전 운영 dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 재확인; 새 216c5e071 단일 경로 / 기존 보고 msg_bf6de8b7d679 / 별도 승인 msg_59ecafa0c388",
+        "신규 미등록 인수인계 없음. QA 파일 갱신은 기존 UIC 11/11 결과와 일치. 관리자 새 요청 0."
       ],
-      "judgment": "AI Influencer 생성 API 로컬 검수 종료, UIC 보완은 직접 계속 지시 순서에 맞게 먼저 진행 중. 새 구현/검수 중복 배정 없음. 메인 히어로 시안 선택·배포와 기존 Workspace 및 다른 사람단계는 새 증거 없음.",
-      "nextAction": "CC-SNS-01 UIC 수정 근거가 오면 CX-QA-01 재검수 후 화면 연결. 메인 히어로는 기존 선택·배포 승인 대기. W01 모드 OFF 유지.",
+      "judgment": "W01-UII는 승인된 로컬 연결 진행. 히어로의 새 단일 소스 변경을 등록하고 기존 배포와 분리해 별도 직접 승인에 따른 AG 단일 실행 확인. 중복 배정/정기점검 자체 운영 변경 없음.",
+      "nextAction": "AG-UI-01 운영 배포 결과/alias 재확인; CC-SNS-01 UII 고정 SHA·회귀 결과 뒤 CX-QA-01 검수. 기존 다른 인간 단계는 재개 근거 대기.",
       "unverified": [
-        "UIC 수정본·실 브라우저 CORS 및 실제 Storage 동작",
-        "메인 히어로 최종 선택·실 제품 화면/배포",
-        "기존 Workspace 현황판·Gmail 및 이전 사람단계. 운영 재측정 없음."
+        "히어로 변경 새 배포·실 화면",
+        "UIC 브라우저 CORS·실 Storage 및 UII 결과",
+        "Workspace 현황판/Gmail·이전 사람단계; 새 운영 재시험 없음."
       ]
     },
     "notifications": [
@@ -6039,7 +6075,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-18T17:30:00.000Z",
+      "nextScheduledAt": "2026-11-18T18:00:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -6057,12 +6093,12 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-18T17:00:00.000Z",
-        "messageId": "msg_b5ade7398bec",
+        "scheduledAt": "2026-11-18T17:30:00.000Z",
+        "messageId": "msg_2393b96f6204",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false,
-        "receipt": "02:00:03 KST 전송 종료 및 기존 Master 수신. 실제 점검 시각 별도."
+        "receipt": "02:30:03 KST 전송 종료 및 기존 Master 수신. 실제 점검 시각 별도."
       }
     },
     "supersededOrcaAutomation": {
@@ -8617,6 +8653,23 @@
         "evidence": "msg_2f02252dd225",
         "verifiedAt": "2026-11-18T17:15:36.942Z"
       }
+    },
+    "mainHeroFollowup": {
+      "program": "aimaster",
+      "owner": "AG-UI-01",
+      "reviewer": "CX-MASTER-01",
+      "status": "owner_approved_author_reported_start",
+      "approvalMessage": "msg_59ecafa0c388",
+      "baseDeployment": "dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N",
+      "baseSha": "ba31f40809f285c5c378e59213c76d227188ac11",
+      "approvedSource": "216c5e071",
+      "alias": "www.buylife.xyz",
+      "normalBudget": 1,
+      "paths": [
+        "components/home/HeroShowcase.tsx",
+        "public/images/hero/concept_3_command_hub.jpg"
+      ],
+      "method": "Same isolated base snapshot with prior approved image unchanged; only HeroShowcase changes from current live. Single staged production build and promotion."
     }
   }
 }
