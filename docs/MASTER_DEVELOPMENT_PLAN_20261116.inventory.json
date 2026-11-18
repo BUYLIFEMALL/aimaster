@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 13:55:22 KST",
+  "checkedAt": "2026-11-18 13:57:03 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T04:55:22.706Z",
+      "at": "2026-11-18T04:57:03.575Z",
       "timezone": "Asia/Seoul",
-      "trigger": "AGY 정확경로 착수 수신",
-      "scope": "Cloudflare 상태카드 서버GET/초기props/UI·중앙등록과 파일분리",
+      "trigger": "SNS 잔여 원자배제 계약 보완 도착",
+      "scope": "문서재검수와독립G1 표시수정의선행조건분리·PLAN미커밋보존",
       "evidence": [
-        "msg_78865897c0bc 착수",
-        "apiKeys/GET keys/settings/KeySettings+시험·POST/Workspace/버전불변"
+        "msg_516569c6726a/6e781cafa",
+        "Mac잔여읽기재검수전달·SNS W01a표시4곳배정"
       ],
-      "judgment": "전달에서착수로갱신. ECOM공용등록과편집경로겹침없음, 아직완료/운영반영아님.",
+      "judgment": "자산/예산/게시계약은검수중, 독립표시오류4곳은먼저소스수정배정. 타사람PLAN미커밋덮기0·자산제품구현승인아님.",
       "unverified": [
-        "구현SHA/시험/독립검수",
-        "공용등록계획/배포선행"
+        "잔여계약수락",
+        "W01a착수/SHA/국소검수",
+        "PLAN/권한계약미반영선행"
       ],
-      "nextAction": "각담당완료보고회수·검수배정"
+      "nextAction": "문서판정/소스결과회수후정확다음단위지휘"
     },
     "notifications": [
       {
@@ -7925,13 +7926,13 @@
       "title": "AI Influencer W00 기준·격차/공통계약 독립검수",
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
-      "status": "needs_revision",
-      "sha": "34dbd1c17",
-      "delivery": "budget_publish_contract_pass_orphan_finalizer_atomic_exclusion_missing",
-      "evidence": "직접지시msg_0ea177827182·Master2파일stat/W00확인·인수msg_262b806a9152·검수msg_e1009e09901a · 계획613ac1da4/msg_892ee2310efe·Mac최신반영msg_5534d83d2f04 · Macmsg_e6f0471f7d6d 0068/게시전체재시도 반례 · 최종msg_90ab319ad328/.ai/results/SNS-W00-20261118-CX-QA-01.md · msg_361d873e7d2f/f6dc9e1303fb·Master문서1개stat확인 · Mac중간msg_f9f028aea54a·잔여3건반환 · msg_94143b2fdf34·Master1파일stat확인·Macmsg_b05643cdc61e · Mac최종msg_bd008991c240·잔여반환",
-      "next": "finalizer/삭제claim 동일원자배제·PLAN권한선행·옛문구정정 후잔여재검수",
+      "status": "ready_review",
+      "sha": "6e781cafa",
+      "delivery": "atomic_finalizer_cleanup_contract_revision_review_dispatched",
+      "evidence": "직접지시msg_0ea177827182·Master2파일stat/W00확인·인수msg_262b806a9152·검수msg_e1009e09901a · 계획613ac1da4/msg_892ee2310efe·Mac최신반영msg_5534d83d2f04 · Macmsg_e6f0471f7d6d 0068/게시전체재시도 반례 · 최종msg_90ab319ad328/.ai/results/SNS-W00-20261118-CX-QA-01.md · msg_361d873e7d2f/f6dc9e1303fb·Master문서1개stat확인 · Mac중간msg_f9f028aea54a·잔여3건반환 · msg_94143b2fdf34·Master1파일stat확인·Macmsg_b05643cdc61e · Mac최종msg_bd008991c240·잔여반환 · msg_516569c6726a·Mac잔여재검수전달",
+      "next": "6e781 자산최종저장/삭제 원자배제·옛문구 정정만검수·PLAN권한병합은별도선행",
       "constraints": "P0상한12달러미승인·실API/DB쓰기/빌드/배포0·다른Codex미커밋보존",
-      "lastReviewedAt": "2026-11-18T04:54:40.266Z",
+      "lastReviewedAt": "2026-11-18T04:57:03.575Z",
       "validation": {
         "independent": "34db 예산/성공게시ID후GET재개 문서PASS, 고아삭제와complete 최종경합 원자배제 누락P1·새2표 PLAN권한선행누락·예외30개/손실없음옛문구정정필요"
       }
@@ -7959,6 +7960,21 @@
       "next": "중앙2키등록카드/존재boolean서버·회원경계·정확파일·시험/배포선행계획 회수",
       "constraints": "읽기만·중복입력/키평문응답/실인증/키쓰기/빌드/배포0·기존5provider/Cloudinary불변",
       "lastReviewedAt": "2026-11-18T04:54:40.266Z"
+    },
+    {
+      "task_id": "AIF-20261118-W01a",
+      "parent_task_id": "AIF-20261118-W00",
+      "title": "실제 없는 seed 잠금 표시 4곳 정정",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-QA-01",
+      "status": "dispatched",
+      "delivery": "independent_small_ui_claim_correction_dispatched",
+      "scopeRef": "ControlPanel.tsx·ImageDisplay.tsx 표시문구4곳·기존문서만",
+      "completion": "seed LOCK/동일얼굴보증 제거·실제기준사진참고 안내·API/생성요청불변·tsc/기존검사",
+      "constraints": "자산/삭제/예약/공용/DB/프롬프트/실AI/비용/build/push0·타미커밋보존",
+      "next": "정확경로착수/소스SHA 회수→Mac국소검수",
+      "evidence": "Master 일반개발배정·W00 G1 정적근거확인·계약검수와독립",
+      "lastReviewedAt": "2026-11-18T04:57:03.575Z"
     }
   ]
 }
