@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 03:03:55 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 03:04:54 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -467,7 +467,7 @@ Master 마지막 실제 점검: 2026-11-19 03:01:00 KST · 실행 중 점검 주
 | AIF-20261119-W01-UIC | CC-SNS-01 | done / client_flow_bounded_stream_independent_mock_accepted | W01 화면용 자산 API 클라이언트 구현 | 547142805 독립 모의 11/11; 실제 CORS 미확인. |
 | AIF-20261119-W01-UII | CC-SNS-01 | done / ui_integration_local_source_and_mock_review_accepted | W01 자산 기반 생성 화면 로컬 연결 | fdee03d5d 범위 내 소스/모의 14/14. 실제 React 검증 별도·OFF. |
 | AIF-20261119-W01-UIV | CX-QA-01 | done / isolated_real_react_screen_check_accepted | W01 실제 React 화면 격리 확인 | fdee03d5d 격리 Chrome 통과. 실제 로그인/CORS/발행 별도. |
-| AIF-20261119-W01-READY | CC-SNS-01 | waiting_human / read_only_probe_scope_narrowed_owner_approval_pending | W01 운영 전 검증 계획 및 승인 범위 정리 | 551c6301f 정정 확인. 무인증 Storage 머리말 읽기 최대 2회 승인 대기. DB·쓰기 0. |
+| AIF-20261119-W01-READY | CC-SNS-01 | waiting_human / read_only_probe_complete_v2_approval_pending | W01 운영 전 검증 계획 및 승인 범위 정리 | V1 무인증 오류 응답 2건에 CORS 헤더 확인. 실제 시험 사진 1장으로 V2 검증 승인 대기. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |

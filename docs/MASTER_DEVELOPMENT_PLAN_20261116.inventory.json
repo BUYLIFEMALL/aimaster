@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T18:03:55.268Z",
+  "checkedAt": "2026-11-18T18:04:54.940Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9359,20 +9359,34 @@
       "reviewer": "CX-MASTER-01",
       "title": "W01 운영 전 검증 계획 및 승인 범위 정리",
       "status": "waiting_human",
-      "delivery": "read_only_probe_scope_narrowed_owner_approval_pending",
+      "delivery": "read_only_probe_complete_v2_approval_pending",
       "scopeRef": "W00 §14-B·§14-L·§24-10 및 W00_BASELINE.md 한 절",
       "completion": "최소 무과금 검증 및 실제 Storage·CORS·회원 한도·생성/발행 검증 순서, 환경/조건/상한·비용·중단/복구·승인 항목 정리.",
       "constraints": "문서/기존 소스 읽기만. 실 운영·로그인·Storage·SQL·배포·AI·ON·W02 없음.",
-      "evidence": "msg_496f86e32649·msg_15dcc644b0cb·msg_825c94316f8b·msg_ffa781221a60·551c6301f·a8acd43a2",
-      "next": "수정 문서 수락. 무인증 Storage 응답 헤더 최대 2회 승인 대기. 기존 요청함의 DB 조회 문구는 이전 초안이며 승인 대상 아님. 실제 서명·DB·파일·활성화는 별도.",
-      "lastReviewedAt": "2026-11-18T17:57:58.356Z",
-      "sha": "551c6301f",
+      "evidence": "msg_496f86e32649·msg_15dcc644b0cb·msg_825c94316f8b·msg_ffa781221a60·551c6301f·a8acd43a2·msg_5519f687c39b·816496328",
+      "next": "V1 승인 범위 2회 완료. V2 격리 로컬+기존 시험 계정으로 실제 Storage 시험 사진 1장 저장/본인 조회·서명 CORS·타 계정 접근 거절은 별도 승인 대기.",
+      "lastReviewedAt": "2026-11-18T18:04:54.940Z",
+      "sha": "816496328",
       "verificationScope": {
         "preflight": "No-auth read only, existing Storage host, at most two requests; headers only, no live signed token or object target",
         "reuses": "W00 §14-L authority and bucket evidence",
         "caveat": "Error response CORS is preliminary only. Absence alone cannot block a signed response test.",
         "document": "551c6301f / a8acd43a2",
-        "ownerRequest": "Current requested scope is header-only; worker flagged earlier inbox draft for correction."
+        "ownerRequest": "Current requested scope is header-only; worker flagged earlier inbox draft for correction.",
+        "v1": {
+          "approval": "msg_5519f687c39b, 주인님 「승인해 진행해」",
+          "requests": 2,
+          "statuses": [
+            400,
+            400
+          ],
+          "acao": "* on both origins",
+          "result": "참고 신호, 유효한 서명 GET 미확인, 운영 DB/쓰기/AI 0"
+        },
+        "v2": {
+          "status": "owner_approval_pending",
+          "scope": "격리 로컬 서버·지정 시험 계정; 사진 약 100KB 1회 저장, 본인 및 타 계정 권한 조회, 브라우저 서명 URL 1회. 별도 AI/삭제/배포/ON 없음; 자산 1건 및 파일 1개 남음."
+        }
       }
     },
     {
