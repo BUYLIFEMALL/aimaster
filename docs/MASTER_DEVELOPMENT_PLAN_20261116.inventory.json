@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 16:57:35 KST",
+  "checkedAt": "2026-11-18 17:03:07 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,24 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T07:57:35.700Z",
+      "at": "2026-11-18T08:03:07.298Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS OFF정리 첫구현완료",
-      "scope": "79c9파일/새SQL85eb 미실행·상태기계모의152/tsc·계약차이6·OFF/비밀/동적보호",
+      "trigger": "17:00예약수신·국소검수완료/격리착수",
+      "scope": "13로컬연결·전체미완/카테고리선행조건·관리자요청0·16:30후변경문서10/미커밋보존·Blog3번째실행/새SQL격리",
       "evidence": [
-        "msg_506a593b76e4",
-        "Master파일/주요함수route읽기·Macmsg_e23f764fa9cc"
+        "msg_7b4f597da895·동일터미널예약receipt·새창0",
+        "13terminal조회(실제작업은명시보고기준)·devrequests0",
+        "Mac WEB/SNS미커밋보고·W00/roles/IMPROVEMENTS/PENDING/CAPABILITY/ACTIVE변경대조·다른framework메모보존",
+        "msg_63d21a083016/49e3c9a6a963 지정PASS·배정msg_84093b131be8/7418b7ac3cf6",
+        "msg_b3b098523f19 정확경로/새DB사전"
       ],
-      "judgment": "작성자완료수신·모의/새SQL미실행/옛격리구분·독립검수후6차이판정·실삭제/ON0",
+      "judgment": "Blog Excel소스미완줄완료로정정/마지막승인배포지시·SNS OFF정리모의수락/새SQL검증착수·기존사람단계새완료증거없음/중복0",
       "unverified": [
-        "Mac정리소스/SQL정적검수",
-        "새SQL컴파일/권한/동시성·실Storage",
-        "web F04최종PASS/마지막배포"
+        "web마지막Ready/alias/DB1.13/실화면",
+        "SNS 새SQL/실중앙Storage·개별IOtimeout",
+        "CRM승인/음악B/B2B/Gmail/ESM/Blog 사람단계"
       ],
-      "nextAction": "web우선국소결과회수·SNS고정반례취합→한번반환"
+      "nextAction": "최종web Ready직접대조·SNS격리결과회수·기존사람신호때만재개"
     },
     "notifications": [
       {
@@ -94,7 +97,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-18T08:00:00.000Z",
+      "nextScheduledAt": "2026-11-18T08:30:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -112,12 +115,12 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-18T07:30:00.000Z",
-        "messageId": "msg_bf2096e6b4f5",
+        "scheduledAt": "2026-11-18T08:00:00.000Z",
+        "messageId": "msg_7b4f597da895",
         "taskExitCode": null,
         "masterReceived": true,
         "newAgentCreated": false,
-        "receipt": "07:30:03 accepted/finished04Z·Task종료코드미조회"
+        "receipt": "08:00:03 messageaccepted/finished04Z·Task종료코드미조회"
       }
     },
     "supersededOrcaAutomation": {
@@ -7940,11 +7943,11 @@
       "task_id": "BLOG-20261118-01",
       "title": "T07 엑셀 미리보기 남은 단위 및 배포 선행 정리",
       "owner": "CC-BLOG-01",
-      "status": "queued",
-      "delivery": "queued_person_prompt",
-      "next": "기존사람선택창해소/새3배포승인수신·T07 Excel미리보기 배포포함필수vs후속 근거정리→단일Blog담당진행",
-      "evidence": "직접지시msg_9d1788a8c908/ad284aaf636b/2f2ef4a6994f·배정msg_2ec6df81d99d·사람prompt로전달보류 · msg_6c2b57cab944 직접승인수신·3배포별도BLOG02",
-      "lastReviewedAt": "2026-11-18T07:21:05.785Z"
+      "status": "done",
+      "delivery": "Excel_preview_source_and_deployment_prerequisites_integrated",
+      "next": "운영반영/실화면은BLOG02최종배포에서추적",
+      "evidence": "직접지시msg_9d1788a8c908/ad284aaf636b/2f2ef4a6994f·배정msg_2ec6df81d99d·사람prompt로전달보류 · msg_6c2b57cab944 직접승인수신·3배포별도BLOG02 · e600+d068+12e194a47·Mac44/F04지정PASS·최종묶음포함판정",
+      "lastReviewedAt": "2026-11-18T08:03:07.298Z"
     },
     {
       "task_id": "QA-20261118-BLOG-01",
@@ -8374,13 +8377,13 @@
       "reviewer": "CX-MASTER-01",
       "title": "승인된 블로그3프로그램 순차묶음 배포",
       "status": "running",
-      "delivery": "final_parser_F04_patch_under_focused_review_last_remote_unused",
+      "delivery": "final_web_release_authorized_after_independent_preview_pass",
       "scopeRef": "tistory-auto-blog1.98→blog-neighbor-care1.22→web-crawler T04+05+07 정확manifest",
       "constraints": "Vercel최대3·T04별도1은세번째통합/추가4번째0·공용masterpush0·순차Ready/alias/버전·남의AGENTS변경보존·새AI0",
       "completion": "프로젝트/팀/기준SHA/점유/큐/notice/widget/pending·필요검사/빌드·각운영Ready/alias/버전·티스토리기존초안미리보기1/web실화면",
-      "evidence": "주인님직접승인msg_6c2b57cab944·Master배정msg_2eda31a938b1 · msg_0957e7387120: Tistory prj_p3Qc2mOwj5LnPlE5zaAd2stxvibm/team일치·운영1.97·archiveHEAD·86+44/tsc·큐0·1/3 · msg_2d43083c8301 1/3완료·Masteralias dpl_GWRtKtymAGR4sdzgywKsxeFkgMK2 직접확인·msg_555ca68934de · msg_205456c9c8e5 이웃prj_sofdvYyCKAKO5ymLTRZ0vHwYK9q8/1.21→a3fe1.22/387·tsc·큐0/남의미커밋보존·Master수락 · msg_999d4d074c92 이웃완료·Masteralias dpl_HpC2cXcGpWNyHomMSc3qg28Y82Dx·msg_4890dfc4bdcc/Mastermsg_ebbf8f33ae28 · msg_1741a93554fe 최종사전/840d672ac·msg_59d435ca60a7 범위인용정정/파일6개/실회원route시험없음·Master/ Mac검수 · Macmsg_977021413642 F01~03 반환·원격아직2/3사용 · d06842802 작성자18+26/기존51/tsc/로컬build·Mac재검수·원격아직2/3 · d068기존3건독립44PASS·새F04CPU경계만반환·원격남은1 · F04 12e194a47 두파일보완·Mac국소재검수중",
-      "next": "12e194a47 F04독립결과→정확최종manifest/큐→마지막원격1회",
-      "lastReviewedAt": "2026-11-18T07:55:31.045Z",
+      "evidence": "주인님직접승인msg_6c2b57cab944·Master배정msg_2eda31a938b1 · msg_0957e7387120: Tistory prj_p3Qc2mOwj5LnPlE5zaAd2stxvibm/team일치·운영1.97·archiveHEAD·86+44/tsc·큐0·1/3 · msg_2d43083c8301 1/3완료·Masteralias dpl_GWRtKtymAGR4sdzgywKsxeFkgMK2 직접확인·msg_555ca68934de · msg_205456c9c8e5 이웃prj_sofdvYyCKAKO5ymLTRZ0vHwYK9q8/1.21→a3fe1.22/387·tsc·큐0/남의미커밋보존·Master수락 · msg_999d4d074c92 이웃완료·Masteralias dpl_HpC2cXcGpWNyHomMSc3qg28Y82Dx·msg_4890dfc4bdcc/Mastermsg_ebbf8f33ae28 · msg_1741a93554fe 최종사전/840d672ac·msg_59d435ca60a7 범위인용정정/파일6개/실회원route시험없음·Master/ Mac검수 · Macmsg_977021413642 F01~03 반환·원격아직2/3사용 · d06842802 작성자18+26/기존51/tsc/로컬build·Mac재검수·원격아직2/3 · d068기존3건독립44PASS·새F04CPU경계만반환·원격남은1 · F04 12e194a47 두파일보완·Mac국소재검수중 · Macmsg_63d21a083016 PASS·최종진행msg_84093b131be8",
+      "next": "최종프로그램tree/큐/manifest확인→승인마지막원격1회→Ready/alias/DB버전/실화면",
+      "lastReviewedAt": "2026-11-18T08:03:07.298Z",
       "sha": "97ee4acbb",
       "validation": {
         "author": "version1.98/확장1.98.0·HEADarchive·미커밋삭제oldZIP보존·prebuild다시생성·test86+44/tsc0·widget/pending대조·큐0",
@@ -8493,17 +8496,17 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "최종배포 전 T07 엑셀 미리보기 소스 독립검수",
-      "status": "reviewing",
-      "delivery": "F04_linear_cursor_patch_received_focused_independent_recheck",
+      "status": "done",
+      "delivery": "F01_F04_specified_independent_review_PASS_accepted",
       "sha": "12e194a47",
       "scopeRef": "web-crawler/webapp xlsxPreview·previewGET·JobPreview/JobsList·xlsx-preview시험",
       "constraints": "실Storage/DB/크롤링/AI/설치/build0·고정6파일·마지막원격1회미사용",
       "completion": "실모듈시험/owner·보호회원30일예외/압축실bytes·인코딩/셀·React출력/계정전환경계·정적vs실handler구분",
-      "evidence": "Mastermsg_a661805488e9/402493be659e·Blogmsg_59d435ca60a7 · Macmsg_977021413642·.ai/results/WEB-T07-e60083fb5-CX-QA-01.md 미커밋 · msg_9fedb4193c4b 정확경로예약·미커밋0·새resultRetention/helper및실GET시험·원격0 · msg_8d25d7469fdd/d06842802·Masterhelper/stream주요코드읽기·Macmsg_dc4707fa2171 · Macmsg_cda44c66a93c 실제44/44·64kmalformed 별도3500ms타임아웃·Master함수읽기/반환msg_16ebf398b3bf · msg_cab12c636c60/4b775d69f26b/12e194a47·Masterdiff직접읽기·Macmsg_5d1ec8ca1ebc",
-      "next": "Mac F04선형스캔/정상문자열 회귀국소검수→최종배포포함",
-      "lastReviewedAt": "2026-11-18T07:55:31.045Z",
+      "evidence": "Mastermsg_a661805488e9/402493be659e·Blogmsg_59d435ca60a7 · Macmsg_977021413642·.ai/results/WEB-T07-e60083fb5-CX-QA-01.md 미커밋 · msg_9fedb4193c4b 정확경로예약·미커밋0·새resultRetention/helper및실GET시험·원격0 · msg_8d25d7469fdd/d06842802·Masterhelper/stream주요코드읽기·Macmsg_dc4707fa2171 · Macmsg_cda44c66a93c 실제44/44·64kmalformed 별도3500ms타임아웃·Master함수읽기/반환msg_16ebf398b3bf · msg_cab12c636c60/4b775d69f26b/12e194a47·Masterdiff직접읽기·Macmsg_5d1ec8ca1ebc · Macmsg_63d21a083016 F04지정6/6+독립3·기존44해소유지·Mastermsg_84093b131be8",
+      "next": "Blog최종manifest/큐대조후승인마지막1회배포",
+      "lastReviewedAt": "2026-11-18T08:03:07.298Z",
       "validation": {
-        "independent": "d068 parser18+실GET26=44/44 F01~03해소. 새P2F04 닫는si없는lazyregex 반복suffix스캔·1k14ms/4k25/16k392·64k256KB프로세스3500msETIMEDOUT·무한루프/실공격주장아님·실외부0",
+        "independent": "d068 parser18+실GET26=44/44 F01~03해소. 새P2F04 닫는si없는lazyregex 반복suffix스캔·1k14ms/4k25/16k392·64k256KB프로세스3500msETIMEDOUT·무한루프/실공격주장아님·실외부0 · 12eF04고정6/6·엔티티/정상3조건PASS·일반XML전체CPU보장아님",
         "master": "xlsx/route직접읽기일치·다운로드동일작은보호helper범위허용·실중앙/실크롤링0 · d068 helper본인프로필eq/실bool/불명503/두route·parserstreambudget/pause/DOM최소화실물읽기·독립재검수배정",
         "author": "parser18/18·새실GET26/26·기존robots30/poller18/inbox3·tsc0/로컬build통과·수정전parser2/route15실패·실inflate16MiB누적/프로필불명503/원문로그0 · F04 3프로세스반례 수정전timeout→후parser22/GET26/tsc0·정규식/중첩DOM대체선형cursor/textRuns·새import/route0/추가제품build0"
       }
@@ -8514,23 +8517,38 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "보관정리 SQL초안·OFF실행기·모의 시험",
-      "status": "reviewing",
-      "delivery": "retention_off_source_mock_tests_received_SQL_unexecuted_static_review",
+      "status": "done",
+      "delivery": "default_off_retention_mock_and_static_contract_review_accepted",
       "scopeRef": "미적용aif_assets_a1.sql·assets/retention.ts·cleanup/route.ts·read.ts expired·assetRetention.test.mjs·assetReadRoute.test.mjs expired·IMPROVEMENTS/W00/roles sns",
       "constraints": "SQL작성만/실DB·Storage·삭제·AI·env·cron등록·서버·설치·build·push0·공용정책코드0·ON별도",
       "completion": "30일/objectcreated·동적보호·batch100공정재개·토큰/CAS/외부미전송/unknown보존·실행자Bearer/no-raw·모의반례/tsc·정적SQL",
-      "evidence": "R2 3b84540d7·Macmsg_6318619e8ba6·Master범위배정 · msg_27793feac0ac/ACTIVE_WORK83517d1c7·정확9경로/미커밋0/고지0 · msg_506a593b76e4/79c222710 9파일·Macmsg_e23f764fa9cc·담당msg_986e2c50f127",
-      "next": "Mac webF04뒤 실retention/GET모의·새SQL정적/계약차이6 검수→수락/통합반환",
-      "lastReviewedAt": "2026-11-18T07:57:35.700Z",
+      "evidence": "R2 3b84540d7·Macmsg_6318619e8ba6·Master범위배정 · msg_27793feac0ac/ACTIVE_WORK83517d1c7·정확9경로/미커밋0/고지0 · msg_506a593b76e4/79c222710 9파일·Macmsg_e23f764fa9cc·담당msg_986e2c50f127 · Macmsg_49e3c9a6a963 실제모의29/read1·계약6차이정적수용·Mastermsg_7418b7ac3cf6",
+      "next": "W01m 변경SQL격리실행/영향있는기존회귀·실Storage0",
+      "lastReviewedAt": "2026-11-18T08:03:07.298Z",
       "sha": "79c222710",
       "validation": {
         "author": "모의retention29/전체152·tsc0·변형21·SQL3차작성만/실행0·DB모의상태기계·OFF실GET admin0·공정100/240s/보호불명중단",
         "master": "9파일/주요함수·route/SQL변경범위확인·차이6건판정별도·기존격리15는새SQLPASS아님",
-        "independent": "webF04우선뒤지정실모듈모의/SQL정적검수배정",
+        "independent": "79c 실retention+모의DB상태기계/GET29/29·readexpired1·차이6정적수용/추가차단반례0. newSQL85eb실행0·옛격리PASS전용0. 시간예산항목진입만/개별IO무한가능/전체300보장0·실PostgREST/권한/동시성미완",
         "limits": "새SQL문법/잠금/실PostgREST profiles관계/소유자권한/실Storage미검증·ON/cron등록0·장기unknown/고아후속"
       },
       "sqlBlob": "85eb99ea7",
       "sqlSha256": "a97c03a5236bcca3c943c9c2789920d7a7ec7443ad96fe76c7f7cc78ffc627d2"
+    },
+    {
+      "task_id": "AIF-20261118-W01m",
+      "parent_task_id": "AIF-20261118-W01l",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-QA-01",
+      "title": "보관정리 새 SQL 격리 계약검증",
+      "status": "running",
+      "delivery": "exact_new_fixture_scope_and_database_preflight_acknowledged",
+      "scopeRef": "tests/sql/a1_retention.test.mjs 신규·a1_fixture.sql추가·a1_contract 함수수9→11 영향회귀·필요최소migration수정",
+      "constraints": "기존컨테이너내새qa_aif_retention_20261118/qa_aif_a1_20261118 존재/oid보호·자기DB정리·업무DB/운영접속reset0·역할CREATE/설치재시작0·실Storage/remove/AI/cron/build/push0",
+      "completion": "새85eb원문컴파일/ACL/RLS/check/expiry/objectcreated/보호/unknown/quota/claimfence/verify/재적용·실2연결blockingPID·DROP/부재·대역한계분리",
+      "evidence": "Mastermsg_7418b7ac3cf6·사전msg_b3b098523f19·ACTIVE_WORKb17d522a9",
+      "next": "새SQL/영향회귀 각1회→고정SHA/실측/정리로그→Mac정적근거검수",
+      "lastReviewedAt": "2026-11-18T08:03:07.298Z"
     }
   ]
 }
