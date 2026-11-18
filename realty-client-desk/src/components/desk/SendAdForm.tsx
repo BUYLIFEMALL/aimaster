@@ -4,6 +4,7 @@ import { useActionState, useEffect, useMemo, useState } from "react";
 import { sendListingAdAction, type SendState } from "@/lib/actions/listings";
 import { draftListingAction, type DraftState } from "@/lib/actions/aiDraft";
 import { AI_ENGINES, aiEngine, aiModelName, resolveAiModel, toAiProvider, type AiProvider } from "@/lib/ai/engines";
+import { skipSummary } from "@/lib/desk/skipSummary";
 
 const AI_CHOICE_KEY = "desk-ai-choice"; // 이 브라우저에 마지막으로 고른 엔진·모델(편의 기능 — 못 읽어도 기본값으로 동작)
 
@@ -46,6 +47,7 @@ export function SendAdForm({ listingId, draft, header, footer, candidates, night
     try { setAi(await draftListingAction(listingId, provider, models[provider])); } finally { setAiBusy(false); }
   }
   const selectable = candidates.filter((c) => c.ok && !c.sent);
+  const skipped = useMemo(() => skipSummary(candidates), [candidates]); // L-2(2026-11-19): 보낼 수 없는 사람 사유별 합계(화면 계산만)
   const preview = useMemo(() => `${header}\n${body.trim()}\n${footer}`, [header, body, footer]);
   const len = [...preview].length;
   const blocked = night || Boolean(ready);
@@ -62,6 +64,7 @@ export function SendAdForm({ listingId, draft, header, footer, candidates, night
             </button>
           )}
         </div>
+        {skipped && <p className="mb-2 text-xs text-mx-muted">보낼 수 없는 고객: {skipped}</p>}
         {candidates.length === 0 ? (
           <p className="text-sm text-mx-muted">조건이 맞는 고객이 아직 없어요. 관심고객의 원하는 지역에 이 매물 소재지의 동 이름이 들어 있는지 확인해 보세요.</p>
         ) : (
