@@ -366,7 +366,7 @@ const MODULES = [
     copies: ["emotion-writer/src/lib/studio/zip.ts", "shop-detail-page/lib/zip.ts", "video-to-gif/lib/zip.ts"],
   },
   { id: "nukki-handoff", source: "banana-canvas/src/lib/nukkiHandoff.ts", copies: ["shop-detail-page/lib/nukkiHandoff.ts", "thumbnail-master/src/lib/nukkiHandoff.ts", "insta_auto_poster/src/lib/nukkiHandoff.ts"] }, // E5-2(2026-10-26) 상세페이지 → 바나나 무료 이미지 도구 그림 넘기기
-  { id: "product-photo-handoff", source: "banana-canvas/src/lib/productPhotoHandoff.ts", copies: ["shop-detail-page/lib/productPhotoHandoff.ts"] }, // 메이커 P2(2026-11-13) 상세페이지 상품 → 바나나 상품 대표사진 합성 → 결과 반환
+  { id: "product-photo-handoff", source: "banana-canvas/src/lib/productPhotoHandoff.ts", copies: ["shop-detail-page/lib/productPhotoHandoff.ts", "mall-builder/src/lib/productPhotoHandoff.ts"] }, // 메이커 P2(2026-11-13) 상세페이지 상품 → 바나나 상품 대표사진 합성 → 결과 반환
   { id: "reference-photo-handoff", source: "shop-detail-page/lib/referencePhotoHandoff.ts", copies: ["trending-product-finder/lib/referencePhotoHandoff.ts"] }, // 2026-11-13 상품소싱 → 상세페이지 새 상품 창으로 수집 참고 사진 넘기기
   { id: "collected-photo", source: "shop-detail-page/lib/collectedPhoto.ts", copies: ["elevenst-register/src/lib/collectedPhoto.ts", "smartstore-register/src/lib/collectedPhoto.ts"] }, // 2026-11-13 수집 원본 사진 판정·등록 전 경고 문구(등록기는 경고 후 회원 선택)
   {
