@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T16:43:12.016Z",
+  "checkedAt": "2026-11-18T16:50:31.817Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9294,14 +9294,21 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "W01 화면용 자산 API 클라이언트 구현",
-      "status": "running",
-      "delivery": "asset_client_flow_dispatched",
+      "status": "reviewing",
+      "delivery": "client_flow_implementation_returned_mac_review_dispatched",
       "scopeRef": "새 clientFlow.ts·assetClientFlow.test.mjs, 필요한 경우 W00 계약 기록",
       "completion": "선택 사진 업로드/ID 요청/서명 다운로드·재조회, 실패/취소·본문 비노출·중복 호출 금지 시험과 SHA.",
       "constraints": "기존 제품/모드·실 DB/Storage/AI·ON·빌드·배포·W02 변경 없음. 브라우저 연결과 CORS 검증은 후속.",
-      "evidence": "msg_f3348556982f",
-      "next": "CC-SNS-01 수락·구현·시험 회신, CX-QA-01 검수.",
-      "lastReviewedAt": "2026-11-18T16:43:12.016Z"
+      "evidence": "msg_f3348556982f·msg_8585cdf1aea2·msg_935add0c874a",
+      "next": "CX-QA-01 검수 대기. no-stream 메모리 상한, 취소 대기, 메모리 수명·동일 상품 사진 차이 확인.",
+      "lastReviewedAt": "2026-11-18T16:50:31.817Z",
+      "sha": "00abbf149",
+      "validation": {
+        "author": "새 모의 19/19, 전체 295/295·tsc 통과 보고",
+        "master": "고정 2개 blob·새 경로 범위 대조; no-stream arrayBuffer 분기 등 검수 지정",
+        "independent": "msg_935add0c874a 전달, 수락/회신 대기",
+        "unverified": "실 브라우저/CORS·Storage·화면 연결. OFF·미배포."
+      }
     },
     {
       "task_id": "DES-20261119-HERO",

@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 01:43:12 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 01:50:31 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -463,7 +463,7 @@ Master 마지막 실제 점검: 2026-11-19 01:33:14 KST · 실행 중 점검 주
 | AIF-20261119-W01-G3T | CC-SNS-01 | done / deadline_fix_independent_static_review_accepted | W01 생성 API 전체 시간·스트림 취소·오류 처리 보완 | 5eced061e 독립 소스 재검수 수락. 실제 마감·원격 취소 별도. |
 | AIF-20261119-W01-G3S | CC-SNS-01 | done / monotonic_save_deadline_independent_mock_accepted | W01 생성 저장 시간 초과 시 자산 ID 보존 | dffa5c436 독립 지정 모의 3/3. 실제 저장소는 미검증. |
 | AIF-20261119-W01-UID | CC-SNS-01 | done / generation_ui_contract_accepted_with_cors_gate | W01 자산 기반 생성 화면 연결 계약 | 3a41efdd0 계약 수락. 기존 보정/히스토리 유지, 브라우저 CORS 확인 필요. |
-| AIF-20261119-W01-UIC | CC-SNS-01 | running / asset_client_flow_dispatched | W01 화면용 자산 API 클라이언트 구현 | 순수 클라이언트 요청/응답 구현 전달, 수락 대기. |
+| AIF-20261119-W01-UIC | CC-SNS-01 | reviewing / client_flow_implementation_returned_mac_review_dispatched | W01 화면용 자산 API 클라이언트 구현 | 00abbf149 작성자 295/295·tsc. CX-QA-01 검수 전달. 화면 미연결·OFF. |
 | DES-20261119-HERO | AG-UI-01 | waiting_human / showcase_verified_selection_and_release_pending | 메인 히어로 실사 시안 148~150 | e73d362fc, 쇼케이스 응답 확인. 시안 선택과 배포 승인 대기, V2 제품 브라우저 미검수. |
 | AIF-20261118-W03 | 미배정 | queued / sequenced_after_w01_and_w02_by_owner_instruction | 회원용 인물 라이브러리·시트·버전 | 주인님 지시대로 W01·W02 이후 시작. 인물 라이브러리·일괄 이미지·영상 미착수. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
