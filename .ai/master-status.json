@@ -4526,19 +4526,19 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "원본 자산 일반30일 정리 연결 첫계약",
-      "status": "reviewing",
-      "delivery": "retention_contract_553_received_static_cross_function_review",
+      "status": "needs_revision",
+      "delivery": "retention_contract_quota_gap_retry_reachability_and_restore_race_returned",
       "scopeRef": "기존W00 보관정리계약·공용0063/65/68/73/보호정책/markPosted 읽기",
       "constraints": "새제품/SQL실행/표/문서/DB/Storage/AI/cron/build/push0·원본PLAN보존·15항전체재설계0",
       "completion": "기산일/동적보호·실행자인증·ready기간만료→삭제claim CAS/fencing·외부원자성한계/불명보존·quota해제/unknown복구분리·최소경로/시험한안",
-      "evidence": "Mastermsg_3e5657eeafec·A1운영ON차단보관미연결 · msg_55e57d698737/5533833cf·Master주요문장읽기·Macmsg_79a7cdce1fab",
-      "next": "Mac정적계약결과/expired용량·재처리/복원·기산일/추적버킷검토→한번수정반환",
-      "lastReviewedAt": "2026-11-18T07:29:56.352Z",
+      "evidence": "Mastermsg_3e5657eeafec·A1운영ON차단보관미연결 · msg_55e57d698737/5533833cf·Master주요문장읽기·Macmsg_79a7cdce1fab · Macmsg_7ca376e6f3a6·반환msg_41d24656f73f",
+      "next": "§19 만료미측정bytes보존·재처리상태/토큰검증·보호복원/verify분기·기산/tracking 한안보완→Mac",
+      "lastReviewedAt": "2026-11-18T07:32:14.012Z",
       "sha": "5533833cf",
       "validation": {
         "author": "설계만·새expired상태/만료verify2함수/CRON0FF한안·보호제외·unknown후속분리",
         "master": "expired추가quota제외시측정갭/ready후보재시도/claim뒤expire재확인/복원·기산시각·tracked지연 독립대조배정",
-        "independent": "고정정적검토중·실SQL/삭제0"
+        "independent": "정적P1 expired quota추가분제외/중앙미측정 반례·ready후보만재개도달불가·expire진행claim충돌/삭제중ready복원위험. P2 기산시각차이·첫tracked유료기간단축/verify최종분기누락·중앙등급전환이중삭제0 절대보장불가. 코드/실SQL/삭제0"
       }
     }
   ],
@@ -5058,22 +5058,24 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T07:30:30.250Z",
+      "at": "2026-11-18T07:32:14.012Z",
       "timezone": "Asia/Seoul",
-      "trigger": "첫Blog배포완료·보관정리계약완료보고",
-      "scope": "티스토리운영alias/작성자ZIP·DB·예산1/3·SNS553정리상태/용량계약",
+      "trigger": "16:30예약수신·정기증분/계약검수",
+      "scope": "13로컬연결/이전명시보고기준담당상태·관리자요청0·16시후변경문서10/타저자미커밋·Blog1/3완료2/3사전·SNS보관계약",
       "evidence": [
-        "msg_2d43083c8301·Master alias직접",
-        "msg_55e57d698737/553·Macmsg_79a7cdce1fab",
-        "msg_205456c9c8e5 이웃2/3사전수락"
+        "msg_bf2096e6b4f5/동일Master예약receipt·새창0",
+        "terminal13·devrequests0·SNS점유해제후문서작업·타pdca보존",
+        "SNSMac보고/W00/2개역할/프로그램IMPROVEMENTS·PENDING/CAPABILITY 티스토리1.98 근거대조",
+        "msg_205456c9c8e5 이웃사전·Mastermsg_89896779074d",
+        "msg_7ca376e6f3a6·Master반환msg_41d24656f73f"
       ],
-      "judgment": "티스토리첫배포수락/실별칭확인·2번째순차진행·SNS코드전정적반례검토·새ON/실삭제0",
+      "judgment": "실행가능Blog승인순차배포진행/첫예산1사용·SNS코드전계약P1반환·다른사람대기변화근거없음/중복배정0·全포트폴리오운영PASS아님",
       "unverified": [
-        "이웃배포/티스토리원고미리보기",
-        "SNS보관계약정합/실중앙Storage",
-        "다른사람단계"
+        "이웃두번째Ready·마지막web보안사전",
+        "SNS보관정리계약수정·실Storage",
+        "CRM승인/음악B/Gmail/B2B/ESM/Blog 사람완료신호"
       ],
-      "nextAction": "이웃2/3 Ready회수·SNS계약검수회수·예산기존3내"
+      "nextAction": "이웃Ready확인뒤3/3·SNS한안개정회수→지정재검토"
     },
     "notifications": [
       {
@@ -5141,7 +5143,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-18T07:30:00.000Z",
+      "nextScheduledAt": "2026-11-18T08:00:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -5159,12 +5161,12 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-18T07:00:00.000Z",
-        "messageId": "msg_570c46596c59",
+        "scheduledAt": "2026-11-18T07:30:00.000Z",
+        "messageId": "msg_bf2096e6b4f5",
         "taskExitCode": null,
         "masterReceived": true,
         "newAgentCreated": false,
-        "receipt": "07:00:03 messageaccepted/finished·Task종료코드미조회"
+        "receipt": "07:30:03 accepted/finished04Z·Task종료코드미조회"
       }
     },
     "supersededOrcaAutomation": {
