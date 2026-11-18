@@ -1,7 +1,8 @@
-// CRM U2 A안 — 실제 solapi SDK + 실제 공용 래퍼(lib/solapi/client.ts) + 실제 dispatch.ts로 문자·알림톡·친구톡 분류 시험.
+// CRM B′ — 실제 dispatch.ts + 실제 접수 확인 전용 1회 전송기(lib/crm/solapiSendOnce.ts)로 문자·알림톡·친구톡 분류 시험.
+// (A안 때는 실제 solapi SDK를 거쳤으나 B′부터 접수 확인 발송은 SDK를 쓰지 않는다 — SDK 내부 재시도로 HTTP가 여러 번 나가던 것을 1번으로.)
 // 실행: node --test crm-google-form/tests/dispatch-solapi-sdk.test.mjs   (새 패키지 0, 실네트워크·실문자 0)
 // 네트워크는 이 시험 파일 안에서만 globalThis.fetch를 가짜로 바꾸고 각 시험 끝에 원래대로 돌린다(운영 코드의 전역 교체 0).
-// 주의: A안은 「잘못된 실패 확정」만 없앤다. SDK 내부 재시도(503·연결 끊김 최대 3회)로 인한 이중 전송 위험은 그대로다.
+// 접수 확인 발송은 HTTP를 정확히 1번만 부른다(뒤 응답이 큐에 남아 있어도). 팔로우업은 여전히 SDK라 같은 위험이 남아 있다.
 import { test, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import { register } from "node:module";
@@ -66,13 +67,13 @@ function fakeClient(answer) {
 function useAccount(account = { api_key: "key-secret", api_secret: "sec-secret", sender_phone: "0101112222", kakao_pf_id: "pf-1" }) {
   globalThis.__sdkFake = { client: () => fakeClient((q) => ({ data: q.table === "user_solapi_accounts" ? account : null, error: null })) };
 }
-const OK_JSON = { groupInfo: { count: { total: 1, registeredFailed: 0 } }, failedMessageList: [] };
+const OK_JSON = { groupInfo: { count: { total: 1, sentTotal: 0, sentFailed: 0, sentSuccess: 0, sentPending: 0, sentReplacement: 0, refund: 0, registeredFailed: 0, registeredSuccess: 1 } }, failedMessageList: [] };
 const step = {
   s503: () => new Response("unavailable", { status: 503 }),
   reset: () => { throw Object.assign(new TypeError("fetch failed"), { cause: { code: "ECONNRESET" } }); },
   s400: () => new Response(JSON.stringify({ errorCode: "ValidationError", errorMessage: "bad 010-1111-2222" }), { status: 400 }),
   ok: () => new Response(JSON.stringify(OK_JSON), { status: 200 }),
-  allFailed: () => new Response(JSON.stringify({ groupInfo: { count: { total: 1, registeredFailed: 1 } }, failedMessageList: [{ to: "x", statusCode: "3059" }] }), { status: 200 }),
+  allFailed: () => new Response(JSON.stringify({ groupInfo: { count: { ...OK_JSON.groupInfo.count, registeredFailed: 1, registeredSuccess: 0 } }, failedMessageList: [{ to: "x", from: "y", type: "SMS", statusMessage: "m", country: "82", messageId: "i", statusCode: "3059", accountId: "a" }] }), { status: 200 }),
 };
 /** 응답 순서를 정해 가짜 fetch 설치, 호출 수를 센다(마지막 응답은 반복). */
 function script(...steps) {
@@ -100,12 +101,12 @@ const SECRETS = /key-secret|sec-secret|010-1111-2222|홍길동|bad |ValidationEr
 
 for (const [ch, flags] of CHANNELS) {
   const cases = [
-    ["503×4(재시도 소진)", [step.s503], "unknown", 4],
-    ["503 → 400", [step.s503, step.s400], "unknown", 2],
-    ["연결 리셋 → 400", [step.reset, step.s400], "unknown", 2],
-    ["400 단독(재시도 여부를 밖에서 알 수 없어 확정 안 함)", [step.s400], "unknown", 1],
-    ["2xx 전부 접수 실패(MessageNotReceived)", [step.allFailed], "unknown", 1],
-    ["503 → 성공(SDK 내부 재시도 — 이중 전송 가능성, 결과는 sent로 보임)", [step.s503, step.ok], "sent", 2],
+    ["503이 계속 와도(예전 SDK는 4번)", [step.s503], "unknown", 1],
+    ["503 → 400이 큐에 있어도", [step.s503, step.s400], "unknown", 1],
+    ["연결 리셋 → 400이 큐에 있어도", [step.reset, step.s400], "unknown", 1],
+    ["400 공식 오류 본문(1번만 보냈으니 명시 거절 확정)", [step.s400], "rejected", 1],
+    ["2xx 전부 접수 실패", [step.allFailed], "rejected", 1],
+    ["503 → 성공이 큐에 있어도(다시 보내지 않음)", [step.s503, step.ok], "unknown", 1],
     ["성공", [step.ok], "sent", 1],
   ];
   for (const [name, steps, want, http] of cases) {
@@ -121,7 +122,7 @@ for (const [ch, flags] of CHANNELS) {
   }
 }
 
-test("요청 전 검증(받는 번호 형식 오류) → BadRequestError → rejected, HTTP 0번", async () => {
+test("요청 전 검증(받는 번호 형식 오류) → rejected, HTTP 0번", async () => {
   useAccount();
   const st = script(step.ok);
   // 공백만 있는 번호는 「주소 없음」이 아니라 SDK 스키마 검증 단계에서 막힌다
@@ -134,7 +135,7 @@ test("요청 전 검증(받는 번호 형식 오류) → BadRequestError → rej
   assert.equal(st.calls, 0);
 });
 
-test("요청 전 검증(API 키 없음) → ApiKeyError → rejected, HTTP 0번", async () => {
+test("요청 전 검증(API 키 없음) → rejected, HTTP 0번", async () => {
   useAccount({ api_key: "", api_secret: "", sender_phone: "0101112222", kakao_pf_id: "pf-1" });
   const st = script(step.ok);
   const r = await run(SOURCE({ notify_sms: true, notify_friendtalk: true }));
@@ -152,10 +153,22 @@ test("알림톡 카카오 채널 ID 없음 → 보내기 전 rejected(공용 래
   assert.equal(st.calls, 0);
 });
 
-test("최종 상태 회귀: 문자 성공 + 친구톡 400 → unknown(A안: 400은 확정 아님)", async () => {
+test("최종 상태: 문자 성공 + 친구톡 400 → partial, 문자 성공 + 친구톡 503 → unknown(각 채널 HTTP 1번)", async () => {
   useAccount();
   let n = 0;
   globalThis.fetch = async () => (n++ === 0 ? step.ok() : step.s400());
-  const r = await run(SOURCE({ notify_sms: true, notify_friendtalk: true }));
+  let r = await run(SOURCE({ notify_sms: true, notify_friendtalk: true }));
+  assert.equal(r.status, "partial");
+  assert.equal(n, 2);
+  n = 0;
+  globalThis.fetch = async () => (n++ === 0 ? step.ok() : step.s503());
+  r = await run(SOURCE({ notify_sms: true, notify_friendtalk: true }));
   assert.equal(r.status, "unknown");
+  assert.equal(n, 2);
+});
+
+test("공용 래퍼(SDK 경로)를 부르지 않는다: dispatch 원본에 sendSms·sendAlimtalk·sendFriendtalk 호출 0", async () => {
+  const src = (await import("node:fs")).readFileSync(join(PROJECT, "lib/crm/dispatch.ts"), "utf8");
+  assert.doesNotMatch(src, /\bsend(Sms|Alimtalk|Friendtalk)\(/);
+  assert.match(src, /sendSolapiOnce\(/);
 });

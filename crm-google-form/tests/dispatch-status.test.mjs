@@ -19,7 +19,7 @@ const HOOKS = [
     "@/lib/supabase/admin": "export function createAdminClient(){ return globalThis.__dsFake.client(); }",
     "@/lib/email/transport": "export async function sendViaSmtpAccount(a, to){ return globalThis.__dsChannel('email', to); }",
     "@/lib/telegram/client": "export async function sendTelegramMessage(p){ return globalThis.__dsChannel('telegram', p.chatId); }",
-    "@/lib/solapi/client": "export async function sendSms(a, to){ return globalThis.__dsChannel('sms', to); } export async function sendAlimtalk(a, to){ return globalThis.__dsChannel('alimtalk', to); } export async function sendFriendtalk(a, to){ return globalThis.__dsChannel('friendtalk', to); }",
+    "@/lib/crm/solapiSendOnce": "import * as S from 'solapi'; export async function sendSolapiOnce(acc, msg){ try { await globalThis.__dsChannel(msg.kind, msg.to); return { outcome: 'sent', httpCalls: 1, reason: 'accepted' }; } catch (e) { if (e instanceof S.ApiKeyError || e instanceof S.BadRequestError || e instanceof S.InvalidDateError) return { outcome: 'rejected', httpCalls: 0, reason: 'precheck' }; if (e instanceof S.ClientError) return { outcome: 'rejected', httpCalls: 1, reason: 'client_rejected' }; if (e instanceof S.MessageNotReceivedError) return { outcome: 'rejected', httpCalls: 1, reason: 'registration_failed' }; return { outcome: 'unknown', httpCalls: 1, reason: 'network' }; } }",
     "server-only": "export {};",
     "next/server": "export const NextResponse = { json(body, init) { return { status: (init && init.status) || 200, body }; } }; export class NextRequest {}",
   })};`,
@@ -114,9 +114,9 @@ const E = {
   type: () => new TypeError("fetch failed"),
 };
 
-test("문자 오류 분류 근거(A안): 보내기 전 검증만 확정 실패(rejected), HTTP 응답 뒤 오류(4xx·전부 접수 실패 포함)와 나머지는 불명(unknown)", async () => {
+test("문자 채널은 1회 전송기 결과를 그대로 기록(가짜 전송기: 요청 전 검증·4xx 명시 거절·전부 접수 실패 = rejected, 그 밖 = unknown)", async () => {
   const table = [
-    ["client", "unknown"], ["notReceived", "unknown"], ["badRequest", "rejected"], ["apiKey", "rejected"], ["invalidDate", "rejected"],
+    ["client", "rejected"], ["notReceived", "rejected"], ["badRequest", "rejected"], ["apiKey", "rejected"], ["invalidDate", "rejected"],
     ["server", "unknown"], ["network", "unknown"], ["def", "unknown"], ["schema", "unknown"], ["defect", "unknown"], ["plain", "unknown"], ["type", "unknown"],
   ];
   for (const [k, want] of table) {
@@ -162,7 +162,7 @@ test("최종 상태: 불명이 하나라도 있으면 unknown(성공+불명도 u
   const cases = [
     [{ sms: null, friendtalk: null }, "notified"],
     [{ sms: null, friendtalk: "apiKey" }, "partial"],
-    [{ sms: null, friendtalk: "client" }, "unknown"],
+    [{ sms: null, friendtalk: "client" }, "partial"],
     [{ sms: null, friendtalk: "network" }, "unknown"],
     [{ sms: "client", friendtalk: "network" }, "unknown"],
     [{ sms: "badRequest", friendtalk: "apiKey" }, "failed"],
@@ -238,7 +238,7 @@ test("진단 문구는 고정 문구뿐(키·연락처·이름·서버 원문 0)
   setup({ channel: (k) => (k === "sms" ? E.apiKey() : k === "email" ? Object.assign(new Error("550 a@b.c rejected"), { code: "EENVELOPE", responseCode: 550, command: "RCPT TO" }) : E.network()) });
   const r = await run(SOURCE({ notify_sms: true, notify_email: true, notify_telegram: true }), SUB());
   assert.doesNotMatch(r.errorMessage, SECRETS);
-  assert.match(r.errorMessage, /문자: 거절됨/);
+  assert.match(r.errorMessage, /문자: 보내기 전 검증 실패/);
   assert.match(r.errorMessage, /텔레그램: 결과 모름/);
 });
 
@@ -305,10 +305,10 @@ test("통합: 문자 성공 + 친구톡 네트워크 오류 → 행 unknown(part
   assert.equal(followupAllowed(rows[0].status), false);
 });
 
-test("통합: 문자 성공 + 친구톡 4xx → unknown(A안), 친구톡 요청 전 검증 거절 → partial, 구버전 본문은 키 없이 저장", async () => {
+test("통합: 문자 성공 + 친구톡 4xx 명시 거절 → partial(B′: 1번만 보냄), 친구톡 요청 전 검증 거절 → partial, 구버전 본문은 키 없이 저장", async () => {
   let { rows } = setupIntegrated((k) => (k === "friendtalk" ? E.client() : undefined));
   await postReal(v2body(7));
-  assert.equal(rows[0].status, "unknown");
+  assert.equal(rows[0].status, "partial");
   ({ rows } = setupIntegrated((k) => (k === "friendtalk" ? E.badRequest() : undefined)));
   await postReal(v2body(8));
   assert.equal(rows[0].status, "partial");
