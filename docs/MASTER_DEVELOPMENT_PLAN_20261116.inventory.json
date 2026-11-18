@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T18:43:02.287Z",
+  "checkedAt": "2026-11-18T18:44:07.075Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9751,12 +9751,12 @@
       "reviewer": "CX-MASTER-01",
       "title": "주문서 UI에 무통장 현금영수증 접수 연결",
       "status": "reviewing",
-      "delivery": "checkout_front_returned_independent_review_dispatched",
+      "delivery": "checkout_rpc_exception_fix_dispatched",
       "scopeRef": "장바구니 order 페이지·액션·폼·로컬 계약 시험",
       "constraints": "운영·공용 Lab·SQL 적용·빌드·배포·실결제·push 0.",
-      "evidence": "msg_dc044907421b·msg_25b454a8d3b9·9d1b8624e·50d3e6162·aa3304c73·59b30d2a5·msg_fad3e5743c94·msg_c95a652555d5",
-      "next": "작성자 모의 25/25·타입 통과. Mac 독립 검수 전달. Lab 실제 접수 미검증, 배포는 0105와 같은 묶음.",
-      "lastReviewedAt": "2026-11-18T18:43:02.287Z",
+      "evidence": "msg_dc044907421b·msg_25b454a8d3b9·9d1b8624e·50d3e6162·aa3304c73·59b30d2a5·msg_fad3e5743c94·msg_c95a652555d5·msg_1896ea3cbaa4·msg_56ced92ca77d",
+      "next": "Mac 5개 blob 일치·기존 모의 5/5. 주문 성공 뒤 접수 RPC 예외로 완료 화면 이동 누락 재현. 0105 호출만 예외 처리하는 수정 배정.",
+      "lastReviewedAt": "2026-11-18T18:44:07.075Z",
       "sha": "50d3e6162"
     }
   ]
