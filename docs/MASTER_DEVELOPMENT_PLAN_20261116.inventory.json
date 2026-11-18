@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 12:25:57 KST",
+  "checkedAt": "2026-11-18 12:28:04 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T03:25:57.633Z",
+      "at": "2026-11-18T03:28:04.228Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM18-03 독립PASS/CRM18-04착수",
-      "scope": "405실SSR판정수락·기존집계한계후속범위/점유",
+      "trigger": "CRM18-04 7b002047d 자체시험결과",
+      "scope": "4파일/실pageSSR49·독립검수배정·후속알림제품결정",
       "evidence": [
-        "msg_d743373a7588 Mac19/실SSR경계PASS",
-        "후속msg_dadd04b31f21·착수msg_c925cbcfb437"
+        "작성자msg_6245745c7de7·Masterdiffstat",
+        "Mac msg_8e80d8cbb82c·주인님제품선택비동기질문접수"
       ],
-      "judgment": "18-03지정소스완료수락·운영미배포유지,기존3집계동일helper범위만후속배정",
+      "judgment": "자체검증접수·독립대기,후속알림중지는제품선택으로사람결정요청·기존운영변경0",
       "unverified": [
-        "CRM18-04소스/독립검수·발송연결정책",
+        "7b독립판정·주인님후속알림선택",
         "GmailOAuth·MacB저장"
       ],
-      "nextAction": "새SHA회수→Mac검수·운영SQL/배포별도"
+      "nextAction": "독립결과/사람결정회수→연결단계정확범위판정"
     },
     "notifications": [
       {
@@ -7732,14 +7732,20 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
       "title": "CRM 기존3집계 조회실패 0건오인 국소보완",
-      "status": "running",
-      "delivery": "scope_acknowledged_started",
-      "evidence": "IMP-CRM-02·msg_dadd04b31f21·착수msg_c925cbcfb437",
+      "status": "ready_review",
+      "delivery": "all_count_failure_fix_independent_review_dispatched",
+      "evidence": "IMP-CRM-02·msg_dadd04b31f21·착수msg_c925cbcfb437·결과msg_6245745c7de7·Master4파일stat·Macmsg_8e80d8cbb82c",
       "scopeRef": "dashboard/page.tsx·submissionStatus.ts·submission-status.test.mjs·기존결과본인절",
       "completion": "전체/최근7일/실패error/비정상count확인불가·정상0/양수회귀·실pageSSR가짜query·tsc·Mac독립",
       "constraints": "route/발송/후속정책/DDL/실API/운영DB/build0",
-      "next": "작성자새SHA/실SSR반례→Mac재검수",
-      "lastReviewedAt": "2026-11-18T03:25:57.633Z"
+      "next": "Mac독립판정→후속발송정책주인님결정회수후연결범위지정",
+      "lastReviewedAt": "2026-11-18T03:28:04.228Z",
+      "sha": "7b002047d",
+      "validation": {
+        "author": "실pageSSR49/49·dedupe포함63/63·tsc0·비정상24 red→green",
+        "master": "4파일범위확인·추가쿼리/신규칼럼없음보고",
+        "independent": "Mac실SSR경계대기"
+      }
     }
   ]
 }
