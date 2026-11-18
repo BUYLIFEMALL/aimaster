@@ -26,6 +26,7 @@ export async function resolve(s, c, n) {
 const {
   runRetentionCleanup, handleCleanupRequest, bearerOk, allot,
   CLEANUP_MAX_ITEMS, CLEANUP_MAX_ATTEMPTS, CLEANUP_TIME_BUDGET_MS, CLEANUP_SECRET_MIN_LENGTH,
+  CLEANUP_IO_TIMEOUT_MS, CLEANUP_ROUND_DEADLINE_MS,
 } = await import("../src/lib/assets/retention.ts");
 const { AIF_ASSETS_MODE } = await import("../src/lib/assets/generation.ts");
 
@@ -174,6 +175,7 @@ function world(over = {}) {
     remove: async (paths) => {
       w.removes.push([...paths]);
       const mode = typeof w.removeMode === "function" ? w.removeMode(paths) : w.removeMode;
+      if (mode && typeof mode.then === "function") return mode;   // 응답이 오지 않거나 늦게 오는 저장소
       if (mode === "ok") { for (const p of paths) w.objects.delete(p); return { data: paths.map((name) => ({ name })), error: null }; }
       if (mode === "error-deleted") { for (const p of paths) w.objects.delete(p); return { data: null, error: { message: "timeout", status: 504 } }; }
       if (mode === "error-kept") return { data: null, error: { message: "bad request", status: 400 } };
@@ -532,10 +534,13 @@ test(`한 회차는 최대 ${CLEANUP_MAX_ITEMS}건, 세 묶음에 공정하게 �
 });
 
 test("시간 예산을 넘기면 새 항목을 시작하지 않는다(진행 중이던 삭제는 끝까지)", async () => {
-  const w = world({ tick: CLEANUP_TIME_BUDGET_MS / 4 }).profile(U1);
+  const w = world({ tick: 50_000 }).profile(U1);   // 호출 5번 = 250초: 항목 진입 한도(240초)는 넘고 회차 마감(280초)은 넘지 않는다
   for (let i = 1; i <= 5; i++) w.asset(i, U1);
   const r = await run(w);
   assert.equal(r.stoppedEarly, true);
+  assert.equal(r.stopCode, "TIME_BUDGET");
+  assert.equal(r.counts.timeouts, 0);
+  assert.deepEqual(w.measured, [U1], "마감 전이라 측정까지 마친다");
   assert.equal(r.counts.examined, 1);
   assert.equal(r.counts.deleted, 1, "시작한 한 건은 확인까지 마친다");
   assert.equal([...w.assets.values()].filter((a) => a.state === "ready").length, 4);
@@ -558,6 +563,238 @@ test("결과에는 건수와 코드만 있다 — 경로·회원 id·토큰·오
   const text = JSON.stringify(r);
   for (const secret of [U1, U2, a.id, a.path, a.oid, w.deletions.get(a.id).fencing_token, "bad request", "generated"]) assert.ok(!text.includes(secret), secret);
   for (const v of Object.values(r.counts)) assert.equal(typeof v, "number");
+});
+
+// ───────────── A-2) 유한 대기: 응답이 오지 않거나 늦게 오는 입출력 ─────────────
+// 실제 시계와 짧은 한도(호출당 30ms)를 쓴다. 「오지 않는 응답」은 끝나지 않는 약속, 「늦은 응답」은 한도 뒤에 끝나는 약속으로 흉내 낸다.
+const IO = 30;
+const LATE = 90;
+const never = () => new Promise(() => {});
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+/** 실제 시계 + 짧은 한도로 돌린다 */
+function timed(w, limits = {}) {
+  w.deps.now = Date.now;
+  w.deps.limits = { ioTimeoutMs: IO, roundDeadlineMs: 5000, ...limits };
+  return runRetentionCleanup(w.deps);
+}
+/** 한도 뒤에 실제로 실행되고 응답하는 DB 호출(= 우리가 기다리기를 그만둔 뒤에 커밋되는 경우) */
+const lateCommit = (fn) => (f, args, ww) => (f === fn ? new Promise((res) => setTimeout(() => res({ data: ww.fns[f](args), error: null }), LATE)) : undefined);
+
+test("기본 한도: 호출당 상한 < 항목 진입 한도 < 회차 마감 < 라우트 한도 300초", () => {
+  assert.ok(CLEANUP_IO_TIMEOUT_MS > 0 && CLEANUP_IO_TIMEOUT_MS < CLEANUP_TIME_BUDGET_MS);
+  assert.ok(CLEANUP_TIME_BUDGET_MS < CLEANUP_ROUND_DEADLINE_MS && CLEANUP_ROUND_DEADLINE_MS < 300_000);
+});
+
+test("보호 회원 목록 응답이 오지 않으면 유한 시간 안에 회차를 중단한다(목록·판정·삭제 0)", async () => {
+  const w = world().profile(U1); w.asset(1, U1);
+  w.deps.loadExemptIds = never;
+  const t0 = Date.now();
+  const r = await timed(w);
+  assert.ok(Date.now() - t0 < 1000, "끝없이 기다리지 않는다");
+  assert.deepEqual({ ok: r.ok, aborted: r.aborted, code: r.code }, { ok: false, aborted: true, code: "EXEMPT_UNAVAILABLE" });
+  assert.equal(r.counts.timeouts, 1);
+  assert.equal(w.lists.length + w.calls.length + w.removes.length, 0);
+});
+
+test("목록 조회 응답이 오지 않으면 그 뒤로 아무것도 시작하지 않는다", async () => {
+  const w = world().profile(U1); const a = w.asset(1, U1);
+  w.deps.listVerifyPending = never;
+  const r = await timed(w);
+  assert.equal(r.ok, true);
+  assert.deepEqual([r.stoppedEarly, r.stopCode], [true, "IO_TIMEOUT"]);
+  assert.equal(r.counts.timeouts, 1);
+  assert.equal(r.counts.examined, 0);
+  assert.equal(w.calls.length + w.removes.length, 0);
+  assert.equal(w.lists.length, 0, "나머지 목록 조회도 시작하지 않는다");
+  assert.equal(r.counts.listFailed, 3, "읽지 못한 묶음 3개");
+  assert.equal(w.assets.get(a.id).state, "ready");
+});
+
+test("만료 판정 응답이 오지 않으면 그 자산과 뒤 항목 모두 멈춘다(remove 0, 뒤 항목 호출 0)", async () => {
+  const w = world().profile(U1); const a = w.asset(1, U1); const b = w.asset(2, U1);
+  w.hook = (fn) => (fn === "aif_asset_expire" ? never() : undefined);
+  const r = await timed(w);
+  assert.deepEqual([r.stopCode, r.counts.timeouts, r.counts.examined], ["IO_TIMEOUT", 1, 1]);
+  assert.equal(w.calls.length, 1);
+  assert.equal(w.removes.length, 0);
+  assert.equal(r.counts.undetermined, 0, "응답 없음을 「판정 불가 응답」으로 세지 않는다");
+  assert.equal(w.assets.get(a.id).state, "ready");
+  assert.equal(w.assets.get(b.id).state, "ready");
+});
+
+test("예약(claim) 응답이 늦으면: 더 진행하지 않는다 — 나중에 커밋돼 claimed로 남아도 remove 0, 다음 회차는 busy", async () => {
+  const w = world().profile(U1); const a = w.asset(1, U1); w.asset(2, U1);
+  w.hook = lateCommit("aif_asset_claim_delete");
+  const r = await timed(w);
+  assert.deepEqual([r.stopCode, r.counts.timeouts, r.counts.claimFailed], ["IO_TIMEOUT", 1, 0]);
+  assert.deepEqual(w.fnNames(), ["aif_asset_expire", "aif_asset_claim_delete"]);
+  assert.equal(w.removes.length, 0);
+  const callsAtReturn = w.calls.length;
+  await wait(LATE + 60);
+  assert.equal(w.deletions.get(a.id).state, "claimed", "DB는 나중에 커밋됐다");
+  assert.equal(w.calls.length, callsAtReturn, "늦은 응답이 와도 추가 작업 0");
+  assert.equal(w.removes.length, 0);
+  // 다음 회차(정상 속도): 방금 잡힌 예약이라 busy — 삭제하지 않는다
+  w.hook = null; w.calls.length = 0;
+  const r2 = await timed(w);
+  assert.equal(w.deletions.get(a.id).state, "claimed");
+  assert.ok(r2.counts.busy >= 1);
+  assert.ok(!w.removes.some((p) => p[0] === a.path));
+});
+
+test("삭제 직전 재확인 응답이 오지 않으면: remove 0, 취소 시도도 0(현재 상태 보존)", async () => {
+  const w = world().profile(U1); const a = w.asset(1, U1);
+  w.hook = (fn, args) => (fn === "aif_asset_expire" && args.p_token ? never() : undefined);
+  const r = await timed(w);
+  assert.deepEqual([r.stopCode, r.counts.timeouts], ["IO_TIMEOUT", 1]);
+  assert.equal(w.removes.length, 0);
+  assert.equal(w.count("aif_asset_delete_mark"), 0);
+  assert.equal(r.counts.undetermined, 0, "응답 없음을 판정 불가로 세지 않는다");
+  assert.equal(w.deletions.get(a.id).state, "claimed");
+  assert.equal(w.assets.get(a.id).state, "expired");
+});
+
+test("deleting 커밋 응답이 늦으면: remove 0 — 나중에 커밋돼 deleting으로 남고, 다음 회차는 확인만 한다(재삭제 0)", async () => {
+  const w = world().profile(U1); const a = w.asset(1, U1); const b = w.asset(2, U1);
+  w.hook = (fn, args, ww) => (fn === "aif_asset_delete_mark" && args.p_state === "deleting" ? lateCommit(fn)(fn, args, ww) : undefined);
+  const r = await timed(w);
+  assert.deepEqual([r.stopCode, r.counts.timeouts, r.counts.markFailed, r.counts.removeCalls], ["IO_TIMEOUT", 1, 0, 0]);
+  assert.equal(w.removes.length, 0);
+  assert.equal(w.count("aif_asset_delete_verify"), 0);
+  assert.equal(w.assets.get(b.id).state, "ready", "뒤 항목은 시작하지 않았다");
+  await wait(LATE + 60);
+  assert.equal(w.deletions.get(a.id).state, "deleting", "DB는 나중에 커밋됐다");
+  assert.equal(w.removes.length, 0, "늦은 성공 뒤에도 remove를 보내지 않는다");
+  // 다음 회차: 확인만. 객체가 남아 있으므로 delete_unknown — 여기서도 remove는 그 자산에 0
+  w.hook = null; w.calls.length = 0;
+  await timed(w);
+  assert.equal(w.deletions.get(a.id).state, "delete_unknown");
+  assert.ok(!w.removes.some((p) => p[0] === a.path), "그 자산은 끝까지 remove 0");
+  assert.equal(w.assets.get(a.id).state, "expired");
+});
+
+test("remove 응답이 오지 않으면: 성공·실패를 단정하지 않고 재삭제 0, 남은 시간으로 확인 한 번, 뒤 항목 중단", async () => {
+  const w = world({ removeMode: () => never() }).profile(U1); const a = w.asset(1, U1); const b = w.asset(2, U1);
+  const r = await timed(w);
+  assert.deepEqual([r.stopCode, r.counts.timeouts, r.counts.removeCalls], ["IO_TIMEOUT", 1, 1]);
+  assert.deepEqual(w.removes, [[a.path]], "remove는 한 번뿐");
+  assert.equal(w.count("aif_asset_delete_verify"), 1, "확인 한 번");
+  assert.equal(w.deletions.get(a.id).state, "delete_unknown", "객체가 남아 있다");
+  assert.deepEqual([r.counts.deleted, r.counts.deleteUnknown], [0, 1]);
+  assert.equal(w.assets.get(a.id).state, "expired");
+  assert.equal(w.assets.get(b.id).state, "ready", "뒤 항목은 시작하지 않았다");
+  assert.equal(w.measured.length, 0);
+  // 다음 회차: 확인만(재삭제 0)
+  w.removeMode = "ok"; w.calls.length = 0; w.removes.length = 0;
+  await timed(w);
+  assert.ok(!w.removes.some((p) => p[0] === a.path));
+  assert.equal(w.deletions.get(a.id).state, "delete_unknown");
+});
+
+test("remove가 늦게 성공한 경우: 대기 초과 뒤의 확인은 그때 본 대로만 판정하고, 늦은 응답은 버린다", async () => {
+  const w = world().profile(U1); const a = w.asset(1, U1);
+  w.removeMode = (paths) => new Promise((res) => setTimeout(() => { for (const p of paths) w.objects.delete(p); res({ data: [], error: null }); }, LATE));
+  const r = await timed(w);
+  assert.equal(r.counts.deleted, 0, "확인 시점에는 객체가 남아 있었다 — 성공으로 단정하지 않는다");
+  assert.equal(w.deletions.get(a.id).state, "delete_unknown");
+  const callsAtReturn = w.calls.length;
+  await wait(LATE + 60);
+  assert.equal(w.calls.length, callsAtReturn, "늦은 성공 응답으로 추가 작업을 하지 않는다");
+  assert.equal(w.deletions.get(a.id).state, "delete_unknown", "늦은 응답이 상태를 바꾸지 않는다");
+  w.removeMode = "ok"; w.calls.length = 0;
+  const r2 = await timed(w);   // 다음 회차의 확인에서 deleted
+  assert.equal(r2.counts.deleted, 1);
+  assert.deepEqual(w.removes, [[a.path]], "remove는 처음 한 번뿐");
+});
+
+test("remove 대기에서 회차 마감이 끝나면: 확인 요청도 새로 보내지 않고 다음 회차로 넘긴다", async () => {
+  const w = world({ removeMode: () => never() }).profile(U1); const a = w.asset(1, U1);
+  const t0d = Date.now();
+  const r = await timed(w, { ioTimeoutMs: 200, roundDeadlineMs: 40 });   // remove를 기다리다 회차 마감에 닿는다
+  assert.ok(Date.now() - t0d < 150, "호출당 상한(200ms)이 아니라 회차에 남은 시간(40ms)만 기다린다");
+  assert.equal(r.stopCode, "IO_TIMEOUT");
+  assert.equal(w.removes.length, 1);
+  assert.equal(w.count("aif_asset_delete_verify"), 0, "남은 시간이 없으면 확인 새 요청 0");
+  assert.equal(w.deletions.get(a.id).state, "deleting", "상태 보존");
+  assert.equal(r.counts.deleteUnknown, 1);
+  assert.equal(r.counts.deleted, 0);
+  w.removeMode = "ok"; w.calls.length = 0;
+  await timed(w);
+  assert.deepEqual(w.fnNames(), ["aif_asset_delete_verify"], "다음 회차는 확인만");
+  assert.equal(w.removes.length, 1);
+  assert.equal(w.deletions.get(a.id).state, "delete_unknown");
+});
+
+test("삭제 확인 응답이 오지 않으면: 불명 표시 시도도 하지 않는다(deleting 보존) — 다음 회차가 확인한다", async () => {
+  const w = world().profile(U1); const a = w.asset(1, U1); w.asset(2, U1);
+  w.hook = (fn) => (fn === "aif_asset_delete_verify" ? never() : undefined);
+  const r = await timed(w);
+  assert.deepEqual([r.stopCode, r.counts.timeouts, r.counts.deleted, r.counts.deleteUnknown], ["IO_TIMEOUT", 1, 0, 1]);
+  assert.deepEqual(w.calls.filter(([fn]) => fn === "aif_asset_delete_mark").map(([, x]) => x.p_state), ["deleting"], "delete_unknown 표시 시도 없음");
+  assert.equal(w.deletions.get(a.id).state, "deleting");
+  assert.equal(w.removes.length, 1);
+  w.hook = null; w.calls.length = 0;
+  const r2 = await timed(w);
+  assert.equal(w.deletions.get(a.id).state, "deleted", "객체는 실제로 지워져 있었다");
+  assert.equal(w.removes.filter((p) => p[0] === a.path).length, 1);
+  assert.ok(r2.counts.deleted >= 1);
+});
+
+test("확인만 하는 묶음에서 응답이 오지 않으면: 상태 보존, 뒤 항목 중단, 새 삭제 0", async () => {
+  const w = world().profile(U1);
+  const a = w.asset(1, U1, { state: "expired" }); w.deletion(a, { state: "delete_unknown", ageMs: 10 });
+  const b = w.asset(2, U1, { state: "expired" }); w.deletion(b, { state: "deleting", ageMs: 5 });
+  w.hook = (fn) => (fn === "aif_asset_delete_verify" ? never() : undefined);
+  const r = await timed(w);
+  assert.deepEqual([r.stopCode, r.counts.timeouts, r.counts.examined], ["IO_TIMEOUT", 1, 1]);
+  assert.equal(w.calls.length, 1);
+  assert.equal(w.removes.length, 0);
+  assert.equal(w.deletions.get(a.id).state, "delete_unknown");
+  assert.equal(w.deletions.get(b.id).state, "deleting");
+  assert.equal(r.counts.deleteUnknown, 0, "방금 삭제를 보낸 건이 아니면 불명 건수로 세지 않는다");
+});
+
+test("측정 응답이 오지 않아도 삭제 결과는 그대로이고 남은 측정은 시작하지 않는다", async () => {
+  const w = world().profile(U1).profile(U2); const a = w.asset(1, U1); const b = w.asset(2, U2);
+  w.hook = (fn) => (fn === "member_storage_measure" ? never() : undefined);
+  const r = await timed(w);
+  assert.equal(r.ok, true);
+  assert.deepEqual([r.counts.deleted, r.counts.timeouts, r.counts.measureFailed, r.stopCode], [2, 1, 2, "IO_TIMEOUT"]);
+  assert.equal(w.count("member_storage_measure"), 1, "두 번째 측정은 시작하지 않는다");
+  assert.equal(w.deletions.get(a.id).state, "deleted");
+  assert.equal(w.deletions.get(b.id).state, "deleted");
+});
+
+test("대기를 그만둔 뒤 늦게 거절되는 요청은 조용히 버려진다(처리되지 않은 거절 0, 결과는 한 번만)", async () => {
+  let unhandled = 0;
+  const onUnhandled = () => { unhandled++; };
+  process.on("unhandledRejection", onUnhandled);
+  try {
+    const lateReject = () => new Promise((_, rej) => setTimeout(() => rej(new Error("late failure with secret-ish text")), LATE));
+    for (const breakAt of ["exempt", "list", "rpc", "remove", "measure"]) {
+      const w = world().profile(U1); w.asset(1, U1);
+      if (breakAt === "exempt") w.deps.loadExemptIds = lateReject;
+      if (breakAt === "list") w.deps.listReady = lateReject;
+      if (breakAt === "rpc") w.hook = (fn) => (fn === "aif_asset_claim_delete" ? lateReject() : undefined);
+      if (breakAt === "remove") w.removeMode = () => lateReject();
+      if (breakAt === "measure") w.hook = (fn) => (fn === "member_storage_measure" ? lateReject() : undefined);
+      const r = await timed(w);
+      assert.equal(r.counts.timeouts, 1, breakAt);
+      assert.ok(!JSON.stringify(r).includes("late failure"), "오류 원문 0");
+    }
+    await wait(LATE + 80);
+    assert.equal(unhandled, 0);
+  } finally {
+    process.off("unhandledRejection", onUnhandled);
+  }
+});
+
+test("한도 안에 오류로 끝나는 호출은 예전과 같다(대기 초과로 세지 않고 회차를 멈추지 않는다)", async () => {
+  const w = world().profile(U1); const a = w.asset(1, U1); const b = w.asset(2, U1);
+  w.hook = (fn, args) => (fn === "aif_asset_claim_delete" && args.p_asset === a.id ? new Error("boom") : undefined);
+  const r = await timed(w);
+  assert.deepEqual([r.stopCode, r.counts.timeouts, r.counts.claimFailed, r.counts.deleted], [null, 0, 1, 1]);
+  assert.equal(w.deletions.get(b.id).state, "deleted", "뒤 항목은 계속 진행");
 });
 
 // ───────────── B) 요청 처리: 인증·모드 ─────────────

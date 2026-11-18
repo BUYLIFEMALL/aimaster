@@ -25,7 +25,17 @@
 //  4. 토큰·상태 대조가 맞지 않으면(CAS 실패) 그 행은 우리 것이 아니다 — 아무것도 바꾸지 않고 그 자산 처리를 멈춘다.
 //  5. deleting 커밋 전에 그만둘 때는 우리 토큰으로 cancelled를 시도한다(예약됨 → 실패 전이는 없다).
 //  6. 보호 회원 목록을 읽지 못하면 회차 전체를 시작하지 않는다.
+//  7. 유한 대기(2026-11-18 보완, Master msg_1bc70971878e): 주입된 모든 입출력(보호 목록·목록 조회·DB 함수·remove·측정)은
+//     「호출당 상한(CLEANUP_IO_TIMEOUT_MS)」과 「회차 마감(CLEANUP_ROUND_DEADLINE_MS)까지 남은 시간」 중 짧은 쪽만 기다린다. 남은 시간이 없으면 호출 자체를 시작하지 않는다.
+//     대기 초과는 「요청이 취소됐다」도 「실행되지 않았다」도 아니다 — 그 요청은 뒤에서 계속될 수 있고 DB는 나중에 커밋될 수 있다. 그래서
+//       · 대기 초과가 나면 그 자산에 대해 더 진행하지 않고(추가 remove·자동 재시도·취소 시도 0), 그 뒤 항목도 시작하지 않는다(stopCode "IO_TIMEOUT").
+//       · delete_mark(deleting)이 대기 초과면 remove 0 — 나중에 커밋돼 deleting으로 남으면 다음 회차의 「확인만」 묶음이 본다.
+//       · remove가 대기 초과면 성공·실패를 단정하지 않고 다시 지우지 않는다. 회차에 남은 시간이 있으면 확인(delete_verify)을 한 번만 하고, 없으면 새 요청 없이 다음 회차로 넘긴다.
+//       · 늦게 도착한 응답·거절은 버린다(추가 작업 0, 처리되지 않은 거절 0).
+//     이것은 「기다리기를 그만두는 것」일 뿐이다. 원격 요청을 실제로 취소하지 않으며(AbortSignal 미전달 — 아래 한계), 회차가 정확히 몇 초 안에 끝난다는 보장도 아니다.
 // 한계
+//  * 설치된 SDK의 DB 조회에는 AbortSignal을 넘기는 방법이 있으나(읽기만 확인) 여기서는 쓰지 않았다 — 저장소 remove에는 같은 경로가 확인되지 않았고,
+//    신호를 보내도 서버 쪽 실행이 멈춘다는 보장이 없어 판정 규칙은 달라지지 않는다. 실제 취소 연결은 후속 검토 대상.
 //  * 재확인과 외부 삭제 사이에 회원이 보호 대상이 되면 그 파일은 지워질 수 있다(원자적이지 않다).
 //  * 「정책 기간이 지난 뒤 다음 회차에 지워진다」는 정상 회차의 예일 뿐 보장이 아니다 — 밀린 건이 회차 상한보다 많거나, 회차가 중단되거나, 판정 불가(unknown)면 더 늦어진다.
 //  * 객체가 없는 ready 행은 만료시키지 않는다(판정 불가). 그런 행이 많으면 묶음 A의 앞자리를 차지한다 — 복구는 후속 단위.
@@ -38,8 +48,12 @@ import { ASSET_BUCKET, isCanonicalUuid, parseAssetPath } from "./paths";
 export const CLEANUP_MAX_ITEMS = 100;
 /** 삭제 진입(deleting) 횟수가 이 값에 이른 예약은 더 시도하지 않고 건수만 센다(사람 확인 대상) */
 export const CLEANUP_MAX_ATTEMPTS = 5;
-/** 라우트 한도 300초 안에서 끝나도록, 이 시간이 지나면 새 항목을 시작하지 않는다 */
+/** 이 시간이 지나면 새 항목을 시작하지 않는다(진행 중이던 항목은 아래 회차 마감까지 이어 간다) */
 export const CLEANUP_TIME_BUDGET_MS = 240_000;
+/** 주입된 입출력 한 번을 기다리는 상한 */
+export const CLEANUP_IO_TIMEOUT_MS = 15_000;
+/** 회차 마감: 이 시각이 지나면 어떤 입출력도 새로 시작하지 않는다(라우트 한도 300초보다 앞). 기다림의 상한일 뿐 원격 요청 취소나 종료 시각 보장이 아니다 */
+export const CLEANUP_ROUND_DEADLINE_MS = 280_000;
 /** 인증 비밀값의 최소 길이. 이보다 짧거나 비어 있으면 모든 요청을 거절한다(fail-closed) */
 export const CLEANUP_SECRET_MIN_LENGTH = 16;
 
@@ -57,6 +71,8 @@ export type RetentionDeps = {
   /** 비공개 버킷에서 경로 삭제 */
   remove: (paths: string[]) => PromiseLike<Res>;
   now?: () => number;
+  /** 시험용 시간 한도 덮어쓰기(운영 라우트는 넘기지 않는다) */
+  limits?: { ioTimeoutMs?: number; timeBudgetMs?: number; roundDeadlineMs?: number };
 };
 
 export type CleanupCounts = {
@@ -79,14 +95,17 @@ export type CleanupCounts = {
   invalidRows: number;
   listFailed: number;
   measureFailed: number;
+  /** 대기 초과(또는 회차 마감으로 시작하지 못한) 입출력 수 */
+  timeouts: number;
 };
+export type CleanupStopCode = "TIME_BUDGET" | "IO_TIMEOUT" | null;
 export type CleanupResult =
-  | { ok: true; aborted: false; stoppedEarly: boolean; counts: CleanupCounts }
+  | { ok: true; aborted: false; stoppedEarly: boolean; stopCode: CleanupStopCode; counts: CleanupCounts }
   | { ok: false; aborted: true; code: "EXEMPT_UNAVAILABLE"; counts: CleanupCounts };
 
 const emptyCounts = (): CleanupCounts => ({
   examined: 0, removeCalls: 0, deleted: 0, deleteUnknown: 0, mismatch: 0, restored: 0, notDue: 0, undetermined: 0, busy: 0, locked: 0,
-  skipped: 0, protectedSkipped: 0, claimFailed: 0, markFailed: 0, denied: 0, gaveUp: 0, invalidRows: 0, listFailed: 0, measureFailed: 0,
+  skipped: 0, protectedSkipped: 0, claimFailed: 0, markFailed: 0, denied: 0, gaveUp: 0, invalidRows: 0, listFailed: 0, measureFailed: 0, timeouts: 0,
 });
 
 type Item = { assetId: string; userId: string; path: string };
@@ -100,16 +119,6 @@ function checkItem(assetId: unknown, userId: unknown, bucket: unknown, path: unk
   return { assetId, userId, path: path as string };
 }
 const isRow = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
-
-async function readList(call: () => PromiseLike<Res>): Promise<unknown[] | null> {
-  try {
-    const r = await call();
-    if (!isRow(r) || r.error || !Array.isArray(r.data)) return null;
-    return r.data;
-  } catch {
-    return null;
-  }
-}
 
 /** 세 묶음에 한 건씩 돌아가며 나눠 준다(한 묶음이 상한을 다 쓰지 못하게) */
 export function allot(sizes: number[], max: number): number[] {
@@ -130,28 +139,71 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
   const c = emptyCounts();
   const now = deps.now ?? Date.now;
   const started = now();
+  const ioTimeoutMs = deps.limits?.ioTimeoutMs ?? CLEANUP_IO_TIMEOUT_MS;
+  const timeBudgetMs = deps.limits?.timeBudgetMs ?? CLEANUP_TIME_BUDGET_MS;
+  const deadline = started + (deps.limits?.roundDeadlineMs ?? CLEANUP_ROUND_DEADLINE_MS);
 
-  // 규칙 6: 보호 회원 목록을 읽지 못하면 아무것도 하지 않는다(목록 조회·확인·삭제 전부 0)
+  // 규칙 7: 유한 대기. halted가 한 번 켜지면 그 뒤로는 어떤 입출력도 새로 시작하지 않는다(force는 remove 대기 초과 뒤의 확인 한 번 전용).
+  let halted = false;
+  type Waited<T> = { done: true; value: T } | { done: false };
+  const bounded = async <T>(call: () => PromiseLike<T> | T, force = false): Promise<Waited<T>> => {
+    if (halted && !force) return { done: false };
+    const remaining = deadline - now();
+    if (remaining <= 0) {
+      if (!halted) { halted = true; c.timeouts++; }
+      return { done: false };   // 남은 시간이 없으면 호출을 시작하지 않는다
+    }
+    // 아래 race가 work에 처리기를 붙여 두므로, 기다리기를 그만둔 뒤 늦게 도착한 응답·거절은 조용히 버려진다(처리되지 않은 거절 0 — 시험으로 확인).
+    const work = Promise.resolve().then(call);
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const gaveUp = new Promise<"timeout">((resolve) => { timer = setTimeout(() => resolve("timeout"), Math.min(ioTimeoutMs, remaining)); });
+    try {
+      const r = await Promise.race([work.then((value) => ({ value })), gaveUp]);
+      if (r === "timeout") { halted = true; c.timeouts++; return { done: false }; }   // 늦게 오는 응답은 버린다
+      return { done: true, value: r.value };
+    } finally {
+      if (timer !== undefined) clearTimeout(timer);
+    }
+  };
+  const readList = async (call: () => PromiseLike<Res>): Promise<unknown[] | null> => {
+    try {
+      const w = await bounded(call);
+      if (!w.done) return null;
+      const r = w.value;
+      if (!isRow(r) || r.error || !Array.isArray(r.data)) return null;
+      return r.data;
+    } catch {
+      return null;
+    }
+  };
+
+  // 규칙 6: 보호 회원 목록을 읽지 못하면 아무것도 하지 않는다(목록 조회·확인·삭제 전부 0). 대기 초과도 같다.
   let exempt: Set<string>;
   try {
-    exempt = await deps.loadExemptIds();
-    if (!(exempt instanceof Set)) throw new Error("shape");
+    const w = await bounded(() => deps.loadExemptIds());
+    if (!w.done || !(w.value instanceof Set)) throw new Error("shape");
+    exempt = w.value;
   } catch {
     return { ok: false, aborted: true, code: "EXEMPT_UNAVAILABLE", counts: c };
   }
 
-  const text = async (fn: string, args: Record<string, unknown>): Promise<string | null> => {
+  /** 대기 초과면 null을 돌려주고 halted가 켜진다 — 호출부는 halted를 먼저 확인해 「응답 없음」과 「오류 응답」을 구분한다 */
+  const text = async (fn: string, args: Record<string, unknown>, force = false): Promise<string | null> => {
     try {
-      const r = await deps.rpc(fn, args);
+      const w = await bounded(() => deps.rpc(fn, args), force);
+      if (!w.done) return null;
+      const r = w.value;
       return isRow(r) && !r.error && typeof r.data === "string" ? r.data : null;
     } catch {
       return null;
     }
   };
-  /** 정확히 true일 때만 true. 오류·던짐·다른 값은 전부 false */
+  /** 정확히 true일 때만 true. 오류·던짐·다른 값·대기 초과는 전부 false */
   const yes = async (fn: string, args: Record<string, unknown>): Promise<boolean> => {
     try {
-      const r = await deps.rpc(fn, args);
+      const w = await bounded(() => deps.rpc(fn, args));
+      if (!w.done) return false;
+      const r = w.value;
       return isRow(r) && !r.error && r.data === true;
     } catch {
       return false;
@@ -168,12 +220,17 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
   const touched = new Set<string>();
 
   /** 삭제 요청 뒤(또는 확인만 하는 묶음)의 마무리. 판정과 표시는 DB 함수가 한 거래에서 한다 */
-  const verify = async (it: Item, token: string, afterRemove: boolean) => {
-    const v = await text("aif_asset_delete_verify", { p_asset: it.assetId, p_user: it.userId, p_token: token });
+  const verify = async (it: Item, token: string, afterRemove: boolean, force = false) => {
+    const v = await text("aif_asset_delete_verify", { p_asset: it.assetId, p_user: it.userId, p_token: token }, force);
     if (v === "deleted") { c.deleted++; touched.add(it.userId); return; }
     if (v === "unknown") { c.deleteUnknown++; return; }
     if (v === "mismatch") { c.mismatch++; return; }
     if (v === "denied") { c.denied++; return; }   // 우리 것이 아니다 → 여기서 멈춘다
+    if (halted) {
+      // 대기 초과(이번 확인 또는 직전 remove): 표시 시도를 포함해 더 부르지 않는다. 상태는 deleting·delete_unknown으로 남아 다음 회차가 확인한다.
+      if (afterRemove) c.deleteUnknown++;
+      return;
+    }
     // 확인 호출 자체가 실패. 방금 삭제 요청을 보낸 경우에만 「불명」 표시를 한 번 시도한다(실패해도 상태는 deleting으로 남아 다음 회차에 확인된다)
     if (afterRemove) await yes("aif_asset_delete_mark", { p_asset: it.assetId, p_user: it.userId, p_token: token, p_state: "delete_unknown" });
     c.deleteUnknown++;
@@ -183,16 +240,19 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
   const proceedDelete = async (it: Item) => {
     let token: string | null = null;
     try {
-      const r = await deps.rpc("aif_asset_claim_delete", { p_asset: it.assetId, p_user: it.userId, p_bucket: ASSET_BUCKET, p_path: it.path });
+      const w = await bounded(() => deps.rpc("aif_asset_claim_delete", { p_asset: it.assetId, p_user: it.userId, p_bucket: ASSET_BUCKET, p_path: it.path }));
+      const r = w.done ? w.value : null;
       token = isRow(r) && !r.error && isCanonicalUuid(r.data) ? r.data : null;
     } catch {
       token = null;
     }
+    if (halted) return;                        // 예약 응답을 받지 못함 → 나중에 커밋돼 claimed로 남을 수 있다. 더 진행하지 않는다
     if (!token) { c.claimFailed++; return; }   // 사용 중·다른 실행이 쥠·오류 → 삭제 0
 
     const mine = { p_asset: it.assetId, p_user: it.userId, p_token: token };
     // 삭제 직전 재확인(같은 토큰). expired가 아니면 삭제하지 않는다.
     const again = await text("aif_asset_expire", mine);
+    if (halted) return;   // 재확인 응답 없음 → 삭제 0, 취소 시도도 하지 않는다(현재 상태 보존)
     if (again !== "expired") {
       // restored면 DB 함수가 이미 예약을 취소했다. 그 밖에는 우리 토큰으로 취소를 시도한다(맞지 않으면 아무것도 바뀌지 않는다).
       if (again !== "restored") await yes("aif_asset_delete_mark", { ...mine, p_state: "cancelled" });
@@ -200,15 +260,18 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
       return;
     }
     // deleting 커밋이 명시적으로 성공했을 때만 외부 삭제를 보낸다
-    if (!(await yes("aif_asset_delete_mark", { ...mine, p_state: "deleting" }))) { c.markFailed++; return; }
+    const entered = await yes("aif_asset_delete_mark", { ...mine, p_state: "deleting" });
+    if (halted) return;   // deleting 응답 없음 → remove 0. 나중에 커밋되면 deleting으로 남고 다음 회차가 확인한다
+    if (!entered) { c.markFailed++; return; }
 
     c.removeCalls++;
     try {
-      await deps.remove([it.path]);   // 정확히 1회. 응답 내용으로는 아무것도 정하지 않는다
+      await bounded(() => deps.remove([it.path]));   // 정확히 1회. 응답 내용으로는 아무것도 정하지 않는다
     } catch {
-      // 던짐·시간 초과도 「보내지 않았다」의 증거가 아니다
+      // 던짐도 「보내지 않았다」의 증거가 아니다
     }
-    await verify(it, token, true);
+    // remove가 대기 초과였으면(halted): 다시 지우지 않는다. 회차에 남은 시간이 있을 때만 확인을 한 번 하고(force), 없으면 bounded가 호출을 시작하지 않는다.
+    await verify(it, token, true, halted);
   };
 
   // 세 묶음을 읽는다(읽기만). 한 묶음을 읽지 못해도 나머지는 진행한다.
@@ -240,22 +303,23 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
   const [takeC, takeB, takeA] = allot([listC.length, listB.length, listA.length], CLEANUP_MAX_ITEMS);
   let stoppedEarly = false;
   const outOfTime = () => {
-    if (now() - started > CLEANUP_TIME_BUDGET_MS) stoppedEarly = true;
+    if (now() - started > timeBudgetMs) stoppedEarly = true;
     return stoppedEarly;
   };
 
   // C) 확인만 — 새 삭제 요청 0
   for (const it of listC.slice(0, takeC)) {
-    if (outOfTime()) break;
+    if (halted || outOfTime()) break;
     c.examined++;
     await verify(it, it.token, false);
   }
 
   // B) 이어 하기 — 보호 변경을 먼저 다시 본다(보호 회원이면 DB 함수가 ready로 되돌린다)
   for (const it of listB.slice(0, takeB)) {
-    if (outOfTime()) break;
+    if (halted || outOfTime()) break;
     c.examined++;
     const first = await text("aif_asset_expire", { p_asset: it.assetId, p_user: it.userId });
+    if (halted) break;
     if (first !== "expired") { tally(first); continue; }
     if (exempt.has(it.userId)) { c.protectedSkipped++; continue; }   // 목록과 DB 판정이 어긋남 → 삭제하지 않는다
     if (it.attempts >= CLEANUP_MAX_ATTEMPTS) { c.gaveUp++; continue; }
@@ -264,24 +328,27 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
 
   // A) 신규
   for (const it of listA.slice(0, takeA)) {
-    if (outOfTime()) break;
+    if (halted || outOfTime()) break;
     c.examined++;
     if (exempt.has(it.userId)) { c.protectedSkipped++; continue; }   // 조회 조건이 빠진 호출부 방어
     const first = await text("aif_asset_expire", { p_asset: it.assetId, p_user: it.userId });
+    if (halted) break;
     if (first !== "expired") { tally(first); continue; }
     await proceedDelete(it);
   }
 
   // 삭제가 확인된 회원의 중앙 측정 갱신(중앙 정리와 같은 방식). 실패해도 상태를 바꾸지 않는다 — 측정이 늦을 뿐이다.
+  //   대기 초과로 멈춘 회차에서는 남은 측정을 시작하지 않는다(중앙 측정이 늦을 뿐이고, 늦는 쪽이 용량을 더 많이 세는 보수 방향이다).
   for (const uid of touched) {
     try {
-      const r = await deps.rpc("member_storage_measure", { uid });
-      if (!isRow(r) || r.error) c.measureFailed++;
+      const w = await bounded(() => deps.rpc("member_storage_measure", { uid }));
+      if (!w.done || !isRow(w.value) || w.value.error) c.measureFailed++;
     } catch {
       c.measureFailed++;
     }
   }
-  return { ok: true, aborted: false, stoppedEarly, counts: c };
+  const stopCode: CleanupStopCode = halted ? "IO_TIMEOUT" : stoppedEarly ? "TIME_BUDGET" : null;
+  return { ok: true, aborted: false, stoppedEarly: stoppedEarly || halted, stopCode, counts: c };
 }
 
 // ───────────────────────── 요청 처리(인증·모드) ─────────────────────────
@@ -329,5 +396,5 @@ export async function handleCleanupRequest(d: CleanupHandlerDeps): Promise<Clean
     return { status: 503, body: { ok: false, code: "CLEANUP_UNAVAILABLE" }, headers: { ...NO_STORE } };
   }
   if (r.aborted) return { status: 503, body: { ok: false, code: r.code, counts: r.counts }, headers: { ...NO_STORE } };
-  return { status: 200, body: { ok: true, stoppedEarly: r.stoppedEarly, counts: r.counts }, headers: { ...NO_STORE } };
+  return { status: 200, body: { ok: true, stoppedEarly: r.stoppedEarly, stopCode: r.stopCode, counts: r.counts }, headers: { ...NO_STORE } };
 }
