@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T19:10:21.571Z",
+  "checkedAt": "2026-11-18T19:11:30.587Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9595,12 +9595,12 @@
       "reviewer": "CX-MASTER-01",
       "title": "B2B Lab 프론트 키보드·대비·화면 검수",
       "status": "waiting_human",
-      "delivery": "public_lab_checks_passed_waiting_staff_and_dark_fixture",
+      "delivery": "detailed_mac_accessibility_review_and_front_support_dispatched",
       "scopeRef": "7609748ad Lab; 템플릿 143 키보드·초점·대비/VoiceOver, 다크 상세·PWA 화면",
       "constraints": "77c50f27c 미포함. 저장·게시·설치·결제·배포 없음.",
-      "evidence": "msg_7e9d4cae2fee·msg_7b2287b746f4·msg_f561bbcfa676·msg_8336bb2a2684·.ai/results/B2B-20261119-LAB-CX-QA-01.md",
-      "next": "직원 접속 후 143 저장 없는 미리보기/라디오·필터/대비·낭독기. 기존 다크 Lab 상품 상세 URL 있으면 확인, 실폰 별도.",
-      "lastReviewedAt": "2026-11-18T18:20:59.288Z",
+      "evidence": "msg_7e9d4cae2fee·msg_7b2287b746f4·msg_f561bbcfa676·msg_8336bb2a2684·.ai/results/B2B-20261119-LAB-CX-QA-01.md·msg_57c5d97fdf29·msg_bc90cdca98d9",
+      "next": "Mac 실제 키보드와 낭독기·다크 상품/앱 설치/게시 화면. 143 과거 수치 재현 근거는 Front가 지원. 직원 로그인·대상 판 조건 확인.",
+      "lastReviewedAt": "2026-11-18T19:11:30.587Z",
       "validation": {
         "independent": "공개 밝기 가입 5.25:1·카테고리 7.58:1, 검색/가입 키보드 포커스·Enter, 밝기 상세, PWA manifest/아이콘, 미인증 리다이렉트 검증.",
         "unverified": "143의 실제 다크·갤러리·VoiceOver·실기기 설치/터치·로그인 안쪽."
@@ -9863,6 +9863,18 @@
       "evidence": "msg_8bc03c47698d",
       "next": "미적용 제안 권한·비공개 저장·개정 충돌·중복 결과와 정확 ACK 검토. 운영/Lab 적용 없음.",
       "lastReviewedAt": "2026-11-18T19:10:21.571Z"
+    },
+    {
+      "task_id": "B2B-20261119-S70-LAB",
+      "parent_task_id": "B2B-20261119-S70-FRONT",
+      "owner": "CC-B2B-BACK-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "S70 Lab 적용 준비와 주문서 실화면·접수 검수",
+      "status": "queued",
+      "delivery": "lab_readiness_and_visual_qa_dispatched",
+      "evidence": "주인님 작업 분배 요청·msg_57c5d97fdf29·msg_64d807748c54·msg_bc90cdca98d9",
+      "next": "Backend Lab 판·0105 적용/복구·시험 조건 확인. Mac은 대상 프론트가 떠 있을 때 주문서 택1을 제출 없이 검수. 실제 접수는 적용 승인 뒤.",
+      "lastReviewedAt": "2026-11-18T19:11:30.587Z"
     }
   ]
 }
