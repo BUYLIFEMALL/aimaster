@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T15:02:00.315Z",
+  "checkedAt": "2026-11-18T15:10:32.614Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5114,15 +5114,15 @@
       "parent_task_id": "AIF-20261118-W01x",
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
-      "title": "W01 운영 적용 선행 범위 확정",
-      "status": "waiting_human",
-      "delivery": "w01_operational_schema_bucket_scope_verified_approval_pending",
+      "title": "W01 운영 마이그레이션·비공개 버킷 적용",
+      "status": "running",
+      "delivery": "owner_approved_cc_sns_preflight_started",
       "scopeRef": "W00 §12-1·§14-B·기존 migration/버킷 근거",
-      "constraints": "기존 근거만 회신. 편집/SQL/운영 조회 및 쓰기/ON/배포 0.",
-      "completion": "정확 SQL 지문·비공개 버킷 범위·권한/중앙 정책 검증 및 복구 조건",
-      "evidence": "msg_87b90f221906·msg_810dd5a290d5·msg_4226586a400d / msg_2b225b2fb07a / msg_c5bd6fe086ef",
-      "next": "주인님 승인 뒤 고정 SQL 3개·비공개 버킷 1개 적용. OFF 유지·카탈로그/정책만 확인.",
-      "lastReviewedAt": "2026-11-18T14:41:23.026Z",
+      "constraints": "고정 SQL 3건·비공개 aif-assets 버킷·카탈로그와 되돌리는 정책 확인만. OFF 유지. 기존 데이터 변경·실 업로드·삭제·DROP·예약·빌드·배포·push 0.",
+      "completion": "이름 충돌 0·의존성 확인 → 파일별 1회 적용 → 버킷 생성 → 권한·중앙 정책 확인. CC-SNS-01이 단계별 결과를 반환하고 Master가 근거 대조.",
+      "evidence": "msg_87b90f221906·msg_810dd5a290d5·msg_4226586a400d / msg_2b225b2fb07a / msg_c5bd6fe086ef / msg_2c8864e0b02f·msg_16ca87b1cb6c·f1e40294e",
+      "next": "CC-SNS-01 운영 사전 확인 착수 보고. 충돌·불일치·오류 시 중단하고 재시도나 수정 전에 결과 반환.",
+      "lastReviewedAt": "2026-11-18T15:10:32.614Z",
       "approvalScope": {
         "migrations": [
           "20261118120000_aif_assets_a1.sql / 85eb99ea7",
@@ -5132,6 +5132,14 @@
         "bucket": "aif-assets private, 20971520 bytes, PNG/JPEG/WebP/HEIC/HEIF",
         "verification": "신규 객체·권한·의존 정책/버킷 속성 읽기, 실제 업로드 없음",
         "exclusions": "모드/cron·실 객체 저장/삭제·빌드·배포·기존 운영 데이터 변경·DROP"
+      },
+      "authorization": {
+        "source": "msg_16ca87b1cb6c",
+        "ownerQuote": "승인해 진행해",
+        "target": "esgxyikcnnvmlhygjkth",
+        "executionOwner": "CC-SNS-01",
+        "state": "preflight_started_reported",
+        "verificationResult": "pending"
       }
     }
   ],
