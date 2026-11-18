@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 12:23:19 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 12:25:57 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 12:23:19 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 12:25:57 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 5파일범위/실pageSSR반례시험·Mac재검수·기존count한계분리 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 405실SSR판정수락·기존집계한계후속범위/점유 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -83,7 +83,7 @@ Master 마지막 실제 점검: 2026-11-18 12:23:19 KST · 실행 중 점검 주
 | IMP-IMAGE-04 / 직접지시/미배포수정 | 배경외부링크 버튼화 · AG-UI-01 | v1.30운영반영 · msg_10b55a37b895 | 독립실모바일배치미검수 | 두링크/본문인계·키보드/넘침·저장버튼불변 |
 | IMP-IMAGE-05 / 직접추가요구/동결검토 | NanoBanana/OpenAI/무료FLUX 이미지엔진 · AG-UI-01 / CX-MASTER-01 | 1a1f64dba 지정소스독립PASS·미배포/free=false · msg_97466d3e6af4·INC18-01·fc7536040 | 무료정책/실생성/추가빌드별도 | 회원권한/본인키·무료방식근거·timeout/응답MIME/크기/URL·실지원/비용·명시릴리스manifest |
 | IMP-CRM-01 / 현행확인필요 | 웹훅 response_id 중복 발송 F007 · CC-B2B-BACK-01(단기검증) | 현재소스결함정적확인·운영실측0 · crm-google-form/docs/IMPROVEMENTS.md:7·PORT18-02·53d66404f·route/SourceCard Master대조 | 안정이벤트키/오병합/구스크립트호환플랜보완→코드/격리검증범위판정 | 이미해결F011재배정0·실SMS/DB0 |
-| IMP-CRM-02 / 기존오류처리한계 | 대시보드 전체/발송실패/최근7일 count 조회실패 0건오인 · CC-B2B-BACK-01(단기) | 작성자읽기보고·현행독립반례미완 · 405ebdb8c 결과msg_7e48457823e8 | 현재UI-F01검수후동일분류재사용최소안판정·실DB/API0 | 조회실패와정상0구분·기존정상개수회귀 |
+| IMP-CRM-02 / 기존오류처리한계 | 대시보드 전체/발송실패/최근7일 count 조회실패 0건오인 · CC-B2B-BACK-01(단기) | CRM18-04 구현착수 · 405ebdb8c 결과msg_7e48457823e8 | 실SSR query별오류/정상회귀→Mac독립 | 조회실패와정상0구분·기존정상개수회귀 |
 
 ## 담당별 현재 상태·인수인계
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 12:23:19 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 247개: done 233개 · cancelled 7개 · ready_review 2개 · running 1개 · waiting_human 4개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 248개: done 234개 · cancelled 7개 · ready_review 1개 · running 2개 · waiting_human 4개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -397,7 +397,8 @@ Master 마지막 실제 점검: 2026-11-18 12:23:19 KST · 실행 중 점검 주
 | PORT-20261118-02 | CC-B2B-BACK-01 | done / source_analysis_and_revised_plan_accepted | CRM F007 웹훅 중복발송 현행 소스 검증 | 순수검증은CRM18-01·route/dispatch/DDL은후속범위확정뒤 |
 | CRM-20261118-01 | CC-B2B-BACK-01 | done / pure_functions_independent_pass_unwired | CRM v2 이벤트키 순수검증·시험 1단계 | 2A CRM18-02 DDL초안/격리검증·운영연결별도 |
 | CRM-20261118-02 | CC-B2B-BACK-01 | done / ddl_source_author_pg_static_qa_accepted_unapplied | CRM 중복방지 DDL 초안·격리 DB 검증 2A | SQL/하네스동결·운영미적용·UI오류보완후route/dispatch/정책별도범위검토 |
-| CRM-20261118-03 | CC-B2B-BACK-01 | ready_review / query_failure_fix_actual_ssr_retest_dispatched | CRM 접수 새상태 화면·집계 준비 | Mac실SSR오류반례재검수→지정범위수락/반환 |
+| CRM-20261118-03 | CC-B2B-BACK-01 | done / specified_ssr_query_failure_qa_pass_unreleased | CRM 접수 새상태 화면·집계 준비 | 다른집계오류0은CRM18-04·운영미배포/발송연결0 |
+| CRM-20261118-04 | CC-B2B-BACK-01 | running / scope_acknowledged_started | CRM 기존3집계 조회실패 0건오인 국소보완 | 작성자새SHA/실SSR반례→Mac재검수 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
