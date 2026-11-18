@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 04:12:48 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 04:14:59 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -166,6 +166,7 @@ Master 마지막 실제 점검: 2026-11-19 04:01:24 KST · 실행 중 점검 주
 | FRONT-20261116-01 | CC-B2B-FRONT-01 | done / integrated | v1.15/0095/S61 정정·S74 배포합의 | E3 실화면은FRONT-02에서 완료조건별 계속 |
 | FRONT-20261116-02 | CC-B2B-FRONT-01 | done / integrated | E3 Lab검수→식품/키즈/뷰티 각6종 템플릿 | 6종구현/420시험/E3·갤러리Lab확인·Master카탈로그등록 완료. v1.16배포는별도대기 |
 | RE-20261116-01 | CC-REALTY-01 | done / integrated | L-6 기술안·뉴스미배포정정·17시험 | 대안1 채택, 구현은RE-02로 분리 |
+| RE-20261119-EXT | CC-REALTY-01 | running / owner_direct_plan_first_real_sales_started | 부동산 추가 개선 순차 진행 | 실거래부터 계획→로컬 구현·시험 순서. 고객관리·상가·매물 알림 후순위. 뉴스 N-1 동결 유지, 빌드·배포 별도. |
 | RE-20261116-02 | CC-REALTY-01 | done / integrated | 카톡실패상태·끊긴토큰재발송방지·local로그아웃/UA | 사용자 직접 승인 배포 v1.45/v1.61. 카카오 실물·08:00 뉴스 대조 별도 |
 | BLOG-20261116-01 | CC-BLOG-01 | done / integrated | 티스토리 소제목##·이웃 전경거절 진단 보완 | 코드검증범위 완료, 이웃재시험/배포/실제소통은별도대기 |
 | QA-20261116-01 | CX-QA-01 | cancelled / integrated | 종합 QA를 영상/Workspace로 분리 | 중복 배정 종료, 검증 완료 의미 아님 |
@@ -402,16 +403,16 @@ Master 마지막 실제 점검: 2026-11-19 04:01:24 KST · 실행 중 점검 주
 | QA-20261118-049 | CX-QA-01 | done / specified_source_scope_pass | 새이미지3엔진 소스/가짜통신·키/응답경계 검수 | 새Gemini반환보완SHA별도검수·현재실API/운영PASS아님 |
 | B2B-20261118-03 | CC-B2B-BACK-01 | waiting_human / fixture_prepared | 주인님 직접 Lab 교환비waiting1건·토스시험흐름 | 사람시험제출/로그인신호없음·고정교환1건유지,현재주문상태는03:31자동확정가능해반복RPC없이다음읽기때판정 |
 | B2B-20261119-LAB0101 | CC-B2B-BACK-01 | done / lab_catalog_definition_and_grants_matched | B2B몰 Lab 0101 메시지 정의·권한 대조 | Lab 0101 권한·safeupdate 일치. e20574f0f 인수인계 갱신. QA037 사람 로그인 대기, 결제 시험은 최종 단계. |
-| B2B-20261119-FRONTQA | CX-QA-01 | waiting_human / detailed_mac_accessibility_review_and_front_support_dispatched | B2B Lab 프론트 키보드·대비·화면 검수 | Mac 실제 키보드와 낭독기·다크 상품/앱 설치/게시 화면. 143 과거 수치 재현 근거는 Front가 지원. 직원 로그인·대상 판 조건 확인. |
+| B2B-20261119-FRONTQA | CX-QA-01 | waiting_human / public_keyboard_partial_pass_exact_143_element_located | B2B Lab 프론트 키보드·대비·화면 검수 | 공개 Lab Tab·Enter/Space 통과, 상품 탭 방향키 미동작. 143 미선택 본문 탭 과거 대비 4.15 위치 확정. Mac 실행판·직원 로그인·다크 상세·낭독기 대기. |
 | B2B-20261119-FRONTP3 | CC-B2B-FRONT-01 | done / storefront_button_and_price_independent_review_accepted_undeployed | B2B몰 버튼 터치 영역과 원래 가격 대비 보완 | 두 변경 독립 15/15 수락. 미배포이며 Lab 7609748ad에 미포함. 주문서 S70은 별도 진행. |
 | B2B-20261119-FRONTREL | CC-B2B-FRONT-01 | done / production_base_proven_ui_bundle_queued | B2B몰 UI 배포 범위와 순번 준비 | 운영 v1.16 READY. 가격 두 소스는 단독 적용 가능, 갤러리 90248e5b1은 7c8ee3a81·e4ba29947 동반 필요. 기존 다음 배포 묶음에 대기. |
 | B2B-20261119-S70 | CC-B2B-BACK-01 | done / guard_rollback_independent_accepted_undeployed | 주문서 무통장 현금영수증 접수와 입금 확인 경합 처리 | 격리 21/21, Mac 롤백 정적 통과. 0105와 UI 배포 전 Lab 실검증 승인 대기. |
 | B2B-20261119-S70-FRONT | CC-B2B-FRONT-01 | done / checkout_rpc_exception_independent_recheck_passed_undeployed | 주문서 UI에 무통장 현금영수증 접수 연결 | Mac 재검수 기존 6/6·별도 결제수단 3/3. 예외 때 완료 주문 상세 이동 및 기존 결제 경로 확인. 0105 롤백 보완과 Lab 검증 대기, 미배포. |
-| B2B-20261119-S70-LAB | CC-B2B-BACK-01 | waiting_human / lab_readiness_verified_approval_pending | S70 Lab 적용 준비와 주문서 실화면·접수 검수 | Lab 0105 미적용·현재 소스에 S70 없음. Lab 7609748ad에 S70 네 제품 파일만 얹는 배포 준비. 0105 적용 1회·Lab 빌드 1회·설정 켜기/복구·시험 무통장 주문 1건 승인 대기. |
+| B2B-20261119-S70-LAB | CC-B2B-BACK-01 | waiting_human / lab_readiness_verified_approval_pending | S70 Lab 적용 준비와 주문서 실화면·접수 검수 | Lab 0105 및 주문서 코드 미반영. Mac에서 Windows 로컬 3210 접근 불가. 격리 적용·빌드 승인과 양수 무통장·승인 사업자·설정 ON 시험 자료 필요. |
 | B2B-20261119-SAMPLE-S1 | CC-B2B-BACK-01 | done / owner_direct_sample_content_update_reported | 운영 샘플몰 상품 사진과 설명 보완 | 담당 보고 기준 상품 16개 보완, 전체 상품 사진 25/25, 화면 이미지 33개 중 오류 0. |
 | B2B-20261119-SAMPLE-QA | CX-QA-01 | done / public_sample_layout_verified_read_only | 운영 B2B 샘플몰 공개 화면 독립 검수 | Mac 1280/375에서 홈·5개 카테고리·상세 2개 확인. 깨짐·가로 넘침 0. Master 무쿠키 홈 HTTP 200·상품 링크 33개 확인. |
 | B2B-20261119-MAKER | CC-B2B-BACK-01 | done / m1_stale_window_fix_independent_pass_undeployed | B2B 메이커 연계 M1~M3 선행 범위 대조 | Mac 12/12. 늦은 완료·실패 뒤 이전 창 작업 차단 및 공용 계약 보존. 실제 운영 창 미검증, M1 단독 배포 없음. |
-| B2B-20261119-MAKER-M2 | CC-B2B-BACK-01 | queued / proposal_storage_contract_read_only_dispatched | 메이커 M2 사진 제안 저장 범위 설계 | 미적용 제안 권한·비공개 저장·개정 충돌·중복 결과와 정확 ACK 검토. 운영/Lab 적용 없음. |
+| B2B-20261119-MAKER-M2 | CC-B2B-BACK-01 | reviewing / proposal_contract_returned_boundary_review_requested | 메이커 M2 사진 제안 저장 범위 설계 | 사진 제안 저장 설계 수신. 기존 비공개 정책 중첩·서버 해시·동시 ACK 및 안전 정리를 보완. 제품 구현 없음. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |

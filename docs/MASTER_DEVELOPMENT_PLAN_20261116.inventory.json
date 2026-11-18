@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T19:12:48.299Z",
+  "checkedAt": "2026-11-18T19:14:59.091Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9595,12 +9595,12 @@
       "reviewer": "CX-MASTER-01",
       "title": "B2B Lab 프론트 키보드·대비·화면 검수",
       "status": "waiting_human",
-      "delivery": "detailed_mac_accessibility_review_and_front_support_dispatched",
+      "delivery": "public_keyboard_partial_pass_exact_143_element_located",
       "scopeRef": "7609748ad Lab; 템플릿 143 키보드·초점·대비/VoiceOver, 다크 상세·PWA 화면",
       "constraints": "77c50f27c 미포함. 저장·게시·설치·결제·배포 없음.",
-      "evidence": "msg_7e9d4cae2fee·msg_7b2287b746f4·msg_f561bbcfa676·msg_8336bb2a2684·.ai/results/B2B-20261119-LAB-CX-QA-01.md·msg_57c5d97fdf29·msg_bc90cdca98d9",
-      "next": "Mac 실제 키보드와 낭독기·다크 상품/앱 설치/게시 화면. 143 과거 수치 재현 근거는 Front가 지원. 직원 로그인·대상 판 조건 확인.",
-      "lastReviewedAt": "2026-11-18T19:11:30.587Z",
+      "evidence": "msg_7e9d4cae2fee·msg_7b2287b746f4·msg_f561bbcfa676·msg_8336bb2a2684·.ai/results/B2B-20261119-LAB-CX-QA-01.md·msg_57c5d97fdf29·msg_bc90cdca98d9·da2b77ae2·msg_be0fcc207f30·msg_a7df5784e886·msg_f97fee71a875·msg_403e6ec01677·msg_928a6980c452",
+      "next": "공개 Lab Tab·Enter/Space 통과, 상품 탭 방향키 미동작. 143 미선택 본문 탭 과거 대비 4.15 위치 확정. Mac 실행판·직원 로그인·다크 상세·낭독기 대기.",
+      "lastReviewedAt": "2026-11-18T19:14:59.091Z",
       "validation": {
         "independent": "공개 밝기 가입 5.25:1·카테고리 7.58:1, 검색/가입 키보드 포커스·Enter, 밝기 상세, PWA manifest/아이콘, 미인증 리다이렉트 검증.",
         "unverified": "143의 실제 다크·갤러리·VoiceOver·실기기 설치/터치·로그인 안쪽."
@@ -9858,11 +9858,11 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-MASTER-01",
       "title": "메이커 M2 사진 제안 저장 범위 설계",
-      "status": "queued",
-      "delivery": "proposal_storage_contract_read_only_dispatched",
-      "evidence": "msg_8bc03c47698d",
-      "next": "미적용 제안 권한·비공개 저장·개정 충돌·중복 결과와 정확 ACK 검토. 운영/Lab 적용 없음.",
-      "lastReviewedAt": "2026-11-18T19:10:21.571Z"
+      "status": "reviewing",
+      "delivery": "proposal_contract_returned_boundary_review_requested",
+      "evidence": "msg_8bc03c47698d·msg_283337366ae8·msg_d7ccf525cd20",
+      "next": "사진 제안 저장 설계 수신. 기존 비공개 정책 중첩·서버 해시·동시 ACK 및 안전 정리를 보완. 제품 구현 없음.",
+      "lastReviewedAt": "2026-11-18T19:14:59.091Z"
     },
     {
       "task_id": "B2B-20261119-S70-LAB",
@@ -9872,14 +9872,26 @@
       "title": "S70 Lab 적용 준비와 주문서 실화면·접수 검수",
       "status": "waiting_human",
       "delivery": "lab_readiness_verified_approval_pending",
-      "evidence": "주인님 작업 분배 요청·msg_57c5d97fdf29·msg_64d807748c54·msg_bc90cdca98d9·msg_c6e71fca6800·195f9ba43·ab87ecabc",
-      "next": "Lab 0105 미적용·현재 소스에 S70 없음. Lab 7609748ad에 S70 네 제품 파일만 얹는 배포 준비. 0105 적용 1회·Lab 빌드 1회·설정 켜기/복구·시험 무통장 주문 1건 승인 대기.",
-      "lastReviewedAt": "2026-11-18T19:12:48.299Z",
+      "evidence": "주인님 작업 분배 요청·msg_57c5d97fdf29·msg_64d807748c54·msg_bc90cdca98d9·msg_c6e71fca6800·195f9ba43·ab87ecabc·da2b77ae2·msg_403e6ec01677",
+      "next": "Lab 0105 및 주문서 코드 미반영. Mac에서 Windows 로컬 3210 접근 불가. 격리 적용·빌드 승인과 양수 무통장·승인 사업자·설정 ON 시험 자료 필요.",
+      "lastReviewedAt": "2026-11-18T19:14:59.091Z",
       "validation": {
         "backend": "0100 존재·checkout 없음 보고. 시험 후보 몰 현금영수증 OFF·볼타 키 없음.",
         "master": "Lab 기준과 ee35d6eb1 사이에는 S70 외 UI 변경 포함. S70 전용 diff는 제품 4파일 및 시험 1개.",
         "stop": "입금 확인·카드·외부 발급 0. 기존 롤백은 안전상 필요한 경우만."
       }
+    },
+    {
+      "task_id": "RE-20261119-EXT",
+      "parent_task_id": "RE-20261116-01",
+      "owner": "CC-REALTY-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "부동산 추가 개선 순차 진행",
+      "status": "running",
+      "delivery": "owner_direct_plan_first_real_sales_started",
+      "evidence": "msg_c042ddbde7d9·481829768·msg_d71d13d13791",
+      "next": "실거래부터 계획→로컬 구현·시험 순서. 고객관리·상가·매물 알림 후순위. 뉴스 N-1 동결 유지, 빌드·배포 별도.",
+      "lastReviewedAt": "2026-11-18T19:14:59.091Z"
     }
   ]
 }
