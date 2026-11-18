@@ -36,7 +36,7 @@
 |---|---|---|---|---|---|
 | T-01 | 결과 버킷 비공개 + 10분 임시 주소 | ✅ 완료 2026-10-23 | `8515b3bdf` · v1.10 · `IMPROVEMENTS.md` #9 | — | 첫 실제 완료 작업이 나오면 내려받기 확인(인수인계에 「미확인」으로 남아 있음) |
 | T-02 | 생성 데이터 30일 자동 삭제 | ✅ 완료(코드 v1.08 `9204a3069`, 첫 배포 v1.09) | `IMPROVEMENTS.md` #5 | — | 정리 경로 실행 기록(삭제 건수) 확인 — **확인 필요** |
-| T-03 | 도메인 구조 캐시 회원별 전환 또는 끄기 | 계획 제출 2026-11-18(주인님 결정: **회원별로 나누기**, §2-4) — 실행은 운영 DB·Render 승인 뒤 | `IMPROVEMENTS.md` #8, 비교표 R4 | 표 구조 변경 + 크롤링 서버(Render) 재배포 | 주인님께 「회원별로 나누기 / 끄기」 중 선택 여쭘 |
+| T-03 | 도메인 구조 캐시 회원별 전환(주인님 결정 2026-11-18: 회원별로 나누기) | 계획 보완 2026-11-18(회원별 **새 표** 전환안, §2-4) — 실행은 운영 DB·Render 승인 뒤 | `IMPROVEMENTS.md` #8, 비교표 R4 | 새 표 추가 + 크롤링 서버(Render) 재배포 | §2-4 승인 순서 1번(운영 행 수 읽기)부터 Master 배정 |
 | T-04 | 웹앱 Next.js 16.2.11 → 16.4.2 보안 업데이트 | ✅ 배포 완료 2026-11-18 web-crawler-saas **v1.13** `web-crawler-saas-ljvtual5y`(소스 `1a03b9734`, 주인님 승인 묶음 3/3) — next 16.4.6(공식 advisory 최소 패치)·eslint-config-next 16.4.6·undici ^7.30.2·zod ^4.6.7 `2b328bbcc`·`840d672ac`. 잔여: source-map-js high(개발 빌드 도구 경유) | `docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md` 묶음 E(미커밋 `web-crawler/AGENTS.md` 때문에 제외됨 — 그 변경은 빈 줄 1개 삭제뿐) | Vercel 빌드 1회(사전 승인) | 미커밋 변경 주인 확인 → `npm install next@16.4.2` → tsc·build → 배포 |
 | T-05 | 한 페이지 분석에 robots.txt 확인 | ✅ 배포 완료 2026-11-18 web-crawler-saas **v1.13** `web-crawler-saas-ljvtual5y`(소스 `1a03b9734`, 주인님 승인 묶음 3/3) — `fc48ebcba`+`8172d8084`, QA023 PASS. 실제 로그인 화면 확인 대기 | 완성 기준 §2 조건 4, 비교표 R1, 아래 §2-1 | 웹앱 배포(모아서 배포, 버전 +0.01은 배포 때) | 다음 web-crawler 묶음 배포 때 함께 내보내고 고지·버전·실제 화면 확인. 미검수: 실제 전송·route 전체·운영 화면 |
 | T-06 | `Crawl-delay` 반영 + 다음 페이지 robots 확인 | 대기 | 비교표 R2·R3 | 크롤링 서버 재배포 | `pipeline.py` `RateLimiter` 지연값 계산 플랜 |
@@ -157,7 +157,7 @@
 
 **하지 않는 것**: 운영 DB·Vercel 프로젝트·도메인 삭제 0, 키·`.env*` 쓰기 0, 다른 프로그램 0, 태그 원격 push는 Master 확인 전 0. 옛 `/login` 404(P3)는 이번 범위 밖 — 후속 후보로만 기록.
 
-### 2-4. T-03 도메인 구조 캐시 회원별 전환 — 계획 (2026-11-18, CC-BLOG-01, Master `msg_c0d8c59bbaec` 읽기 배정 · 코드·DB·SQL·Render·빌드 0)
+### 2-4. T-03 도메인 구조 캐시 회원별 전환 — 계획 (2026-11-18, CC-BLOG-01, Master `msg_c0d8c59bbaec` 읽기 배정 · `msg_2b9c81750d2a` 새 표 전환안으로 보완 · 코드·DB·SQL·Render·빌드 0)
 
 **결정**: 주인님 2026-11-18 채팅 선택창 「회원별로 나누기」(끄기 아님). 근거 규칙: 루트 최상위 규칙 「생성 데이터도 회원 본인 소유로 격리, 비용 절감을 이유로 전역 생성 캐시 예외를 만들지 않는다」, `web-crawler/IMPROVEMENTS.md` #8.
 
@@ -168,27 +168,41 @@
 - 30일 정리 `webapp/src/app/api/cron/purge-expired/route.ts`는 `web_crawler_jobs`·결과 파일만 지우고 이 표는 대상 아님.
 - 시험: `service/`에는 Python 시험 0(`pytest.ini` testpaths = `scripts`).
 
-**최소 변경안**
-1. **DB(3단계로 나눠 옛 서비스가 깨지지 않게)**
-   - A(추가만, 되돌리기 쉬움): `user_id uuid null references auth.users(id) on delete cascade` 칸 추가 + `unique (user_id, domain, target_fields_key)` 새 인덱스. 옛 `unique (domain, target_fields_key)`는 **남김** → 지금 Render 코드의 upsert가 그대로 동작.
-   - B 뒤 C(정리): `user_id is null` 옛 공용 행은 **어느 회원에게도 붙이지 않음**(임의 귀속·다른 회원 재사용 0). 행이 있으면 셀렉터만 들어 있는 행을 JSON으로 저장소 밖에 백업 뒤 삭제(재정찰 비용만 생김). 그다음 옛 unique 삭제 + `user_id not null`.
-   - RLS: 켠 채 정책 없음 유지(서버 키 전용, 웹앱 노출 0).
-   - 파일: `web-crawler/webapp/supabase/migrations/2026111x_domain_profiles_per_member_a.sql`·`_c.sql`(이력 보존).
-2. **Render 코드(B)**: `domain_cache.get_cached_plan/save_plan/invalidate`에 `user_id` 필수 인자 → 모든 조회·삭제에 `.eq("user_id", user_id)`, upsert에 `user_id` 포함·`on_conflict="user_id,domain,target_fields_key"`. `pipeline._crawl()`이 `run_job`의 `user_id`를 받아 넘김. **보강 1줄**: `run_job` 시작에 `web_crawler_jobs`에서 `job_id`의 `user_id`를 읽어 요청 값과 다르면 중단(비밀값이 새도 남의 캐시를 쓰지 못하게).
-3. **보관**: 회원별 AI 생성 셀렉터 = 생성 데이터 → 30일 정리 대상에 넣음(`last_used_at` 30일 경과 삭제, `profiles.retention_exempt` 회원 제외). 위치는 웹앱 purge 경로(다음 web-crawler 배포 때 함께, 별도 빌드 0) — **주인님 확인 항목**.
-4. **동시성·오류 캐시**: 같은 회원 같은 키는 upsert 1행. `hit_count` 읽고-쓰기 경합은 숫자만 어긋남(기능 영향 없음, 그대로). 실패·0건 결과는 저장하지 않음(지금 규칙 유지), 0건이면 그 회원 행만 삭제.
+**최소 변경안 — 회원별 새 표로 전환(한 안, 2026-11-18 Master `msg_2b9c81750d2a` 보완)**
 
-**시험(외부 요청 0)**: 새 `web-crawler/service/tests/test_domain_cache.py`(가짜 supabase): 회원 A 저장 → 회원 B 조회 None · A 조회 hit · B의 invalidate가 A 행을 지우지 않음 · upsert 충돌 키에 user_id 포함 · `user_id` 없으면 호출 거부. `run_job` 주인 불일치 시 캐시·수집 0. 실행은 `pytest web-crawler/service/tests`(설정 변경 없이 경로 지정).
+*옛 안(같은 표에 `user_id` 추가 + 옛 전역 unique 유지)을 버린 이유*: 옛 `unique (domain, target_fields_key)`가 남아 있으면 새 코드의 회원별 저장이 첫째 기존 공용 행(`user_id` 없음), 둘째 같은 도메인·항목을 저장하는 두 번째 회원에서 전역 제약에 걸려 실패한다. 또 옛 Render로 되돌리면 공용 행 조회·갱신·삭제가 다시 살아난다.
 
-**운영 반영 순서·승인 항목(각각 주인님/Master 승인)**
-1. 운영 DB 읽기 1회: 현재 행 수·`user_id is null` 수(쓰기 0).
-2. 마이그레이션 A 적용(운영 DB 쓰기).
-3. Render 서비스 재배포(B 코드) — 새 환경변수 0. 비용은 Render 요금제 확인 필요.
-4. 안정 확인 뒤 마이그레이션 C(옛 행 백업·삭제·옛 unique 제거·not null).
-5. 30일 정리 확장은 다음 web-crawler 묶음 배포 때(Vercel 빌드 별도 승인).
-- 되돌리기: B 실패 → Render 이전 커밋 재배포(A 상태에선 옛 unique가 남아 안전). C 이후 되돌리기는 회원 간 같은 도메인 행 충돌로 옛 unique 재생성 불가 → C는 B 안정 뒤에만.
+1. **DB — 새 표 하나만 추가(옛 표는 손대지 않음)**
+   - `web_crawler_member_domain_profiles`: `id`, `user_id uuid not null references auth.users(id) on delete cascade`, 옛 표와 같은 셀렉터 칸들, `hit_count`, `last_used_at`, `created_at`, **`unique (user_id, domain, target_fields_key)`**(전역 unique 없음). RLS 켬·정책 0(서버 키 전용, 웹앱 노출 0). 인덱스 `(user_id, domain, target_fields_key)`.
+   - 옛 공용 표 `web_crawler_domain_profiles`: **새 코드는 읽기·쓰기·삭제 모두 0**. 행을 새 표로 **옮기지 않음**(어느 회원에게도 귀속 0, 다른 회원 재사용 0). 옛 표 삭제는 새 코드가 안정된 뒤 별도 승인(그 전까지는 아무도 안 쓰는 상태로 보존).
+   - 파일: `web-crawler/webapp/supabase/migrations/2026111x_member_domain_profiles.sql`(추가만, 옛 표 DDL 0).
+2. **Render 코드**
+   - `domain_cache.py` 3함수가 새 표만 쓰고 `user_id` 필수(없거나 빈 값이면 캐시 호출 자체를 하지 않음). 조회·삭제 모두 `.eq("user_id", user_id)`, upsert `on_conflict="user_id,domain,target_fields_key"`.
+   - **소유자 확인(fail closed)**: `run_job` 맨 앞, 수집·캐시·작업 행 갱신 **전에** `web_crawler_jobs`에서 `job_id` 행의 `user_id`를 읽는다. 행 없음·조회 오류·요청 `user_id`와 불일치면 **그 자리에서 끝냄**(수집 0·캐시 0·작업 행 갱신 0, 서버 로그에 고정 코드만). 처음 시작(`POST /jobs`)과 재개(`/jobs/{id}/resume`) 모두 같은 함수 경로.
+   - **캐시 실패는 작업을 막지 않음**: 새 표 조회·저장·삭제가 오류를 내면 캐시 없음으로 보고 정상 수집을 계속(저장 실패도 결과에 영향 0). 소유자 확인 실패와 구분.
+   - **되돌리기용 버전을 함께 준비**: 같은 변경 묶음 안에 「캐시를 아예 부르지 않는 버전」(domain_cache 호출을 건너뜀) 커밋을 따로 만들어 둔다. 롤백은 **이 캐시 우회 버전으로만** — 옛 공용 표를 쓰던 이전 커밋으로는 되돌리지 않는다.
+3. **배포 중 옛 인스턴스 정리**: Render 재배포 전 `web_crawler_jobs`의 `pending`·`running` 0을 확인(진행 중 작업이 끝나기를 기다림). 새 인스턴스가 뜬 뒤 옛 인스턴스가 늦게 남긴 쓰기는 옛 표에만 들어가고 새 코드는 그 표를 읽지 않으므로 회원 경계에 영향 0.
+4. **보관**: 새 표는 회원별 생성 데이터 → `last_used_at` 30일 경과 행 삭제, `profiles.retention_exempt = true` 회원 제외(공용 판정 `resultRetention`과 같은 원칙). 웹앱 purge 경로에 추가, 다음 web-crawler 배포 때(별도 Vercel 빌드 승인).
+5. **동시성·오류 캐시**: 같은 회원 같은 키는 upsert 1행, 두 회원 같은 키는 각자 1행. `hit_count` 경합은 숫자만 어긋남. 실패·0건 결과는 저장 0, 0건이면 그 회원 행만 삭제.
 
-**하지 않는 것**: 캐시 끄기, 공용 행을 특정 회원에게 붙이기, 웹앱에 이 표 노출, 실크롤링·AI 호출, T-06 동시 진행.
+**시험(외부 요청 0)** — 새 `web-crawler/service/tests/test_domain_cache.py`·`test_job_owner.py`(가짜 supabase, `pytest web-crawler/service/tests`):
+- 두 회원이 **같은 도메인·항목을 각각 저장 → 둘 다 성공**, 서로 조회 시 자기 것만.
+- 옛 공용 표에 행이 있어도 새 코드의 저장·조회가 충돌 없이 성공하고, **옛 표 호출 기록 0**.
+- 회원 B의 invalidate가 회원 A 행을 지우지 않음 · `user_id` 없으면 캐시 호출 0.
+- 캐시 우회(롤백) 버전: 어떤 표도 조회 0 — 공용 행 읽기 0.
+- 소유자 확인: 시작·재개 각각 — 작업 행 없음·조회 오류·불일치면 수집 호출 0·캐시 호출 0·작업 행 update 0.
+- 캐시 조회·저장이 예외를 내도 작업은 끝까지 처리되고 결과 저장.
+- 보관: 30일 경과 행 삭제·`retention_exempt` 회원 행 유지·조회 오류면 삭제 0.
+
+**운영 반영 순서·승인 항목(각각 Master/주인님 승인)**
+1. 운영 DB 읽기 1회: 옛 공용 표의 **전체 행 수만**(옛 표에는 `user_id` 칸이 없으므로 「회원 없는 행 수」 = 전체 행 수, 쓰기 0).
+2. 새 표 마이그레이션 적용(추가만, 옛 표 변경 0).
+3. Render 재배포 — 사전에 진행 중 작업 0 확인, 새 환경변수 0, 비용은 Render 요금제 확인.
+4. 안정 뒤 옛 공용 표 삭제는 별도 승인(이관 0, 필요하면 셀렉터만 저장소 밖 JSON 백업 뒤).
+5. 30일 정리 확장은 다음 web-crawler 묶음 배포 때.
+- 되돌리기: Render를 **캐시 우회 버전**으로 재배포(공용 표 사용 재개 0). 새 표는 그대로 두어도 무해.
+
+**하지 않는 것**: 캐시 끄기(결정과 다름), 옛 공용 행을 새 표로 옮기거나 특정 회원에게 붙이기, 옛 Render 커밋으로 롤백, 웹앱에 표 노출, 실크롤링·AI 호출, T-06 동시 진행. 주인님 결정은 확정이므로 「나누기/끄기」 재질문 0.
 
 ## 3. 진행 규칙
 
