@@ -10,7 +10,13 @@
 //    두 집합이 겹치지 않는 것은 「정적인」 사실일 뿐이다 — 정리 도중 회원 등급이 바뀌면 겹칠 수 있다(한계).
 //  * 보호 여부·보관 기간·기산일 판정은 전부 DB 함수 aif_asset_expire가 잠금 안에서 한다. 이 파일은 날짜를 계산하지 않고 30이라는 숫자도 모른다.
 //
-// 한 회차(최대 CLEANUP_MAX_ITEMS건)는 네 묶음을 공정하게 나눠 본다. 처리 순서는 C → D → B → A.
+// 한 회차(최대 CLEANUP_MAX_ITEMS건)는 네 묶음을 공정하게 나눠 본다. 묶음의 처리 순서는 C → D → B → A.
+// 실제 호출 순서(2026-11-18 정정 — 「처리 순서」와 「호출 순서」는 다르다):
+//   ① C 목록 읽기 → ② C의 앞 몫(최대 CLEANUP_VERIFY_FIRST건) 확인 → ③ D 훑기(확인 시각을 쓰는 DB 호출) → ④ B·A 목록 읽기
+//   → ⑤ 네 묶음 분배 → ⑥ C의 나머지 몫 → ⑦ D 판정 → ⑧ B → ⑨ A.
+//   ②를 ③보다 앞에 두는 이유: 훑기는 쓰기를 하고, 응답이 오지 않으면 회차가 멈춘다. 이미 삭제 요청이 나간 건의 확인(C)이 그 때문에 한 건도 못 도는 일이 없게 한다.
+//   한정: 훑기보다 먼저 도는 것은 C의 「앞 몫」뿐이다. C가 그보다 많으면 나머지는 훑기 뒤(⑥)에 돈다 — 훑기·목록 조회가 대기 초과면 그 나머지는 그 회차에 확인되지 않는다.
+//   분배는 예전과 같다: 네 묶음이 한 건씩 돌아가며 나눠 가지므로 각 묶음은 적어도 min(자기 건수, 상한 ÷ 4)를 받는다 — 앞 몫은 그 범위 안이다.
 //  C) 확인만: 삭제 예약이 deleting·delete_unknown — 새 삭제 요청 없이 aif_asset_delete_verify만 부른다.
 //  D) 객체 없는 ready 정리(2026-11-18 W01s, 설계 W00 §20-8): 모든 회원의 ready 자산 가운데 저장소에 객체가 없는 것을 missing으로 표시한다.
 //     DB 호출만 한다 — 이 묶음에는 저장소 remove가 없다. 보호 회원도 대상이다(중앙 정리가 저장소에서 직접 지운 뒤 남는 행이 주 대상).
@@ -18,6 +24,8 @@
 //     상한이 셋이며 서로 다르다: 훑는 창(CLEANUP_MISSING_SCAN_WINDOW행) / 돌려받는 후보(최대 CLEANUP_MAX_ITEMS개) / 이 회차에 실제로 판정하는 수(네 묶음이 나눠 쓰는 몫).
 //     돌려받고도 판정하지 못한 후보는 확인 시각이 그대로라 다음 회차에 다시 온다. 발견 시한은 보장하지 않는다.
 //     「missing으로 바꿨다」고 세는 것은 DB 함수가 정확히 "missing"을 돌려줬을 때뿐이다. 응답 이상·오류는 미확정으로 세고, 대기 초과면 회차를 멈춘다.
+//     후보라고 해서 다른 묶음에서 빼지 않는다: 훑은 뒤 저장소 상태가 바뀔 수 있고 이 회차의 D 몫에서 밀릴 수도 있으므로, 신규 묶음(A)은 예전대로
+//     그 자산에도 만료 판정을 다시 부른다(D가 방금 missing으로 바꿨다면 DB가 skip을 돌려준다).
 //  B) 이어 하기: 삭제 예약이 cancelled·delete_failed·claimed — 보호 변경을 다시 확인한 뒤 삭제를 진행한다.
 //     (missing이 된 자산의 비활성 예약은 parked_at이 찍혀 목록 조회의 DB 조건에서 빠진다 — 라우트의 조회 참고.)
 //  A) 신규: ready 자산 — 만료 판정 뒤 삭제를 진행한다.
@@ -61,6 +69,8 @@ import type { AssetsMode } from "./generation";
 import { ASSET_BUCKET, isCanonicalUuid, parseAssetPath } from "./paths";
 
 export const CLEANUP_MAX_ITEMS = 100;
+/** 묶음 C 가운데 훑기(쓰기)·다른 목록 조회보다 먼저 확인하는 건수. 네 묶음 분배에서 C가 항상 받는 최소 몫(상한 ÷ 4)과 같다 */
+export const CLEANUP_VERIFY_FIRST = Math.floor(CLEANUP_MAX_ITEMS / 4);
 /** 묶음 D가 한 회차에 훑는 ready 행 수의 상한(DB 함수의 창). 한 바퀴 = ready 수 ÷ 이 값 ÷ 회차 빈도 — 발견 시한의 보장이 아니다.
  *  행마다 저장소 색인 조회가 세 번이라 보수적으로 잡은 값이며, 실제 DB에서의 실행 시간은 아직 재지 않았다(운영 ON 전 실측 대상). */
 export const CLEANUP_MISSING_SCAN_WINDOW = 500;
@@ -340,9 +350,18 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
       if (![d.scanned, d.present, d.other_object, d.absent, d.touched].every(count)) return null;
       if ((d.scanned as number) > CLEANUP_MISSING_SCAN_WINDOW) return null;                       // 요청한 창보다 많이 읽었다고 하면 믿지 않는다
       if (!Array.isArray(d.candidates) || d.candidates.length > CLEANUP_MAX_ITEMS) return null;   // 요청한 반환 상한을 넘으면 믿지 않는다
+      // SQL 계약의 건수 관계: 읽은 행은 세 분류의 합이고, 갱신한 행은 present + other_object이며, 후보는 absent 가운데서만 나온다.
+      // 서로 모순된 응답이면 어느 숫자도 믿을 수 없으므로 통째로 버린다(D 판정 0).
+      const present = d.present as number, other = d.other_object as number, absent = d.absent as number;
+      if ((d.scanned as number) !== present + other + absent) return null;
+      if ((d.touched as number) !== present + other) return null;
+      if (d.candidates.length > absent) return null;
       const candidates: { assetId: string; userId: string }[] = [];
+      const seen = new Set<string>();
       for (const row of d.candidates) {
         if (!isRow(row) || !isCanonicalUuid(row.asset_id) || !isCanonicalUuid(row.user_id)) return null;
+        if (seen.has(row.asset_id)) return null;   // 같은 자산이 두 번 오면 믿지 않는다
+        seen.add(row.asset_id);
         candidates.push({ assetId: row.asset_id, userId: row.user_id });
       }
       return { candidates, scanned: d.scanned as number, otherObject: d.other_object as number };
@@ -351,15 +370,11 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
     }
   };
 
-  // 네 묶음의 대상을 읽는다. 한 묶음을 읽지 못해도 나머지는 진행한다(대기 초과면 그 뒤로는 아무것도 시작하지 않는다).
-  const rawC = await readList(() => deps.listVerifyPending(CLEANUP_MAX_ITEMS));
-  const scanD = await readMissingScan();
-  if (scanD === null) c.missingScanFailed++;
-  else { c.missingScanned += scanD.scanned; c.otherObject += scanD.otherObject; }
-  const listD = scanD?.candidates ?? [];
-  const rawB = await readList(() => deps.listDeletePending(CLEANUP_MAX_ITEMS));
-  const rawA = await readList(() => deps.listReady(CLEANUP_MAX_ITEMS));
-  for (const raw of [rawC, rawB, rawA]) if (raw === null) c.listFailed++;
+  let stoppedEarly = false;
+  const outOfTime = () => {
+    if (now() - started > timeBudgetMs) stoppedEarly = true;
+    return stoppedEarly;
+  };
 
   const deletionItems = (raw: unknown[] | null, states: string[]): DeletionItem[] => {
     const out: DeletionItem[] = [];
@@ -372,28 +387,40 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
     }
     return out;
   };
+  // ① C 목록을 읽고 ② 그 앞 몫을 먼저 확인한다 — 아래 ③의 훑기(쓰기)·④의 목록 조회가 멈춰도 이만큼은 이미 확인돼 있다.
+  const rawC = await readList(() => deps.listVerifyPending(CLEANUP_MAX_ITEMS));
+  if (rawC === null) c.listFailed++;
   const listC = deletionItems(rawC, ["deleting", "delete_unknown"]);
+  const firstC = Math.min(listC.length, CLEANUP_VERIFY_FIRST);
+  let doneC = 0;
+  // C) 확인만 — 새 삭제 요청 0 (앞 몫)
+  for (const it of listC.slice(0, firstC)) {
+    if (halted || outOfTime()) break;
+    c.examined++; doneC++;
+    await verify(it, it.token, false);
+  }
+
+  // ③ D 훑기 → ④ B·A 목록. 한 묶음을 읽지 못해도 나머지는 진행한다(대기 초과면 그 뒤로는 아무것도 시작하지 않는다).
+  const scanD = await readMissingScan();
+  if (scanD === null) c.missingScanFailed++;
+  else { c.missingScanned += scanD.scanned; c.otherObject += scanD.otherObject; }
+  const listD = scanD?.candidates ?? [];
+  const rawB = await readList(() => deps.listDeletePending(CLEANUP_MAX_ITEMS));
+  const rawA = await readList(() => deps.listReady(CLEANUP_MAX_ITEMS));
+  for (const raw of [rawB, rawA]) if (raw === null) c.listFailed++;
   const listB = deletionItems(rawB, ["cancelled", "delete_failed", "claimed"]);
-  // 묶음 D의 후보(객체가 없는 ready)는 신규 묶음에서 뺀다: 객체가 없으면 만료 판정은 어차피 판정 불가이고, D가 방금 missing으로 바꾼 행에
-  // 만료 판정을 한 번 더 부르는 것은 신규 묶음의 몫만 낭비한다. (D가 이번 회차에 판정하지 못한 후보도 빠진다 — 다음 회차의 D가 본다.)
-  const missingCandidates = new Set(listD.map((it) => it.assetId));
   const listA: Item[] = [];
   for (const row of rawA ?? []) {
     const it = isRow(row) && row.state === "ready" ? checkItem(row.id, row.user_id, row.bucket, row.path) : null;
     if (!it) { c.invalidRows++; continue; }
-    if (missingCandidates.has(it.assetId)) continue;
     listA.push(it);
   }
 
+  // ⑤ 분배. 네 묶음이 한 건씩 돌아가며 나눠 가지므로 takeC ≥ min(C 건수, 상한 ÷ 4) = 앞 몫이다(이미 확인한 만큼은 그 안에 들어 있다).
   const [takeC, takeD, takeB, takeA] = allot([listC.length, listD.length, listB.length, listA.length], CLEANUP_MAX_ITEMS);
-  let stoppedEarly = false;
-  const outOfTime = () => {
-    if (now() - started > timeBudgetMs) stoppedEarly = true;
-    return stoppedEarly;
-  };
 
-  // C) 확인만 — 새 삭제 요청 0
-  for (const it of listC.slice(0, takeC)) {
+  // ⑥ C의 나머지 몫
+  for (const it of listC.slice(doneC, takeC)) {
     if (halted || outOfTime()) break;
     c.examined++;
     await verify(it, it.token, false);
