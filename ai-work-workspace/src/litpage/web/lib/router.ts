@@ -31,6 +31,11 @@ export type Route =
   | { name: 'studio'; domain: string }
   // 2026-11-17 주인님 지시: 영수증·세금계산서를 워크스페이스 안(왼쪽 메인 메뉴 보이게) /<domain>/receipts
   | { name: 'receipts'; domain: string }
+  // 2026-11-18 WS-20261118-04 주인님 지시: 받은 업무·캘린더 연동·API키등록·매뉴얼도 워크스페이스 안 화면(왼쪽 메뉴 유지)
+  | { name: 'inbox'; domain: string }
+  | { name: 'calendarSync'; domain: string }
+  | { name: 'keys'; domain: string }
+  | { name: 'guide'; domain: string }
   
   | { name: 'developers'; domain: string; tab?: string; id?: string }
   | { name: 'uniqueId'; domain: string; uid: string }
@@ -48,7 +53,7 @@ export interface Location {
   hash: string;
 }
 
-const SPECIAL = new Set(['chat', 'meetings', 'library', 'marketplace', 'people', 'tasks', 'developers', 'studio', 'receipts']);
+const SPECIAL = new Set(['chat', 'meetings', 'library', 'marketplace', 'people', 'tasks', 'developers', 'studio', 'receipts', 'inbox', 'calendar-sync', 'keys', 'guide']);
 
 export function parseLocation(pathname: string, search: string, hash: string): Location {
   const parts = pathname.split('/').filter(Boolean).map(decodeURIComponent);
@@ -79,6 +84,10 @@ export function parseLocation(pathname: string, search: string, hash: string): L
     else if (parts[1] === 'tasks') route = { name: 'tasks', domain };
     else if (parts[1] === 'studio') route = { name: 'studio', domain };
     else if (parts[1] === 'receipts') route = { name: 'receipts', domain };
+    else if (parts[1] === 'inbox') route = { name: 'inbox', domain };
+    else if (parts[1] === 'calendar-sync') route = { name: 'calendarSync', domain };
+    else if (parts[1] === 'keys') route = { name: 'keys', domain };
+    else if (parts[1] === 'guide') route = { name: 'guide', domain };
     else if (parts[1] === 'developers') route = { name: 'developers', domain, tab: parts[2], id: parts[3] };
     else route = { name: 'library', domain, tab: parts[2] };
   } else {

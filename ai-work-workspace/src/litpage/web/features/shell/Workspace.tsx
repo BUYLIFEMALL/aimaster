@@ -18,6 +18,7 @@ import { MarketplacePage } from '../templates/MarketplacePage.tsx';
 import { PeoplePage } from '../home/PeoplePage.tsx';
 import { MyTasksPage } from '../home/MyTasksPage.tsx';
 import { StudioDashboard } from '../home/StudioDashboard.tsx';
+import { CalendarSyncView, GuideView, InboxView, KeysView } from '../appviews/AppViews.tsx'; // 2026-11-18 WS-20261118-04 네 화면도 워크스페이스 안에서
 import { ReceiptsView } from '../receipts/ReceiptsView.tsx'; // 2026-11-17 WS-20261117-17 영수증·세금계산서(왼쪽 메뉴 보이게)
 import { spaceForDomainRoute } from './routeSpace.ts'; // 2026-11-17 WS-20261117-17 QA017 P2
 import { UniqueIdRedirect } from '../database/uniqueIdRoute.tsx';
@@ -140,6 +141,14 @@ export function Workspace() {
         return <StudioDashboard />;
       case 'receipts': // 2026-11-17 WS-20261117-17 영수증·세금계산서
         return <ReceiptsView />;
+      case 'inbox': // 2026-11-18 WS-20261118-04
+        return <InboxView />;
+      case 'calendarSync':
+        return <CalendarSyncView />;
+      case 'keys':
+        return <KeysView />;
+      case 'guide':
+        return <GuideView />;
       case 'developers':
         return <DeveloperTools tab={route.tab} id={route.id} />;
       case 'uniqueId':

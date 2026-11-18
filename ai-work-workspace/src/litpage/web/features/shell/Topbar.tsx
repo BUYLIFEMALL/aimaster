@@ -79,12 +79,22 @@ function OpenSidebarButton() {
 // 2026-11-17 WS-20261117-19: 관제 대시보드·영수증 화면도 상단에 화면 이름(빈 제목 띠 해소, 시험에서 쓰려고 export)
 export function RouteTitle({ name }: { name: string }) {
   const { route } = useLocation();
-  if (name === 'studio' || name === 'receipts') {
+  // 2026-11-18 WS-20261118-04: 받은 업무·캘린더 연동·API키등록·매뉴얼도 같은 방식으로 화면 이름 표시
+  const APP_TITLES: Record<string, [string, string]> = {
+    studio: ['📊', tx('Control dashboard')],
+    receipts: ['🧾', tx('Receipts & tax invoices')],
+    inbox: ['📨', tx('Work inbox')],
+    calendarSync: ['📅', tx('Calendar sync')],
+    keys: ['🔑', tx('API keys & platform links')],
+    guide: ['📖', tx('Setup & user guide')],
+  };
+  const appTitle = APP_TITLES[name];
+  if (appTitle) {
     return (
       <div className="nc-breadcrumb notranslate">
         <div className="nc-crumb">
-          <span aria-hidden>{name === 'studio' ? '📊' : '🧾'}</span>
-          <span className="nc-ellipsis" style={{ marginInlineStart: 6 }}>{name === 'studio' ? tx('Control dashboard') : tx('Receipts & tax invoices')}</span>
+          <span aria-hidden>{appTitle[0]}</span>
+          <span className="nc-ellipsis" style={{ marginInlineStart: 6 }}>{appTitle[1]}</span>
         </div>
       </div>
     );

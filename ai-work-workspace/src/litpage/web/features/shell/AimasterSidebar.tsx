@@ -53,6 +53,17 @@ export function AimasterSidebarBottom() {
   const studioHref = studioSpace ? `/${spaceDomain(studioSpace)}/studio` : '';
   // 2026-11-17 WS-20261117-17: 영수증도 워크스페이스 안 화면으로(왼쪽 메뉴 유지). 워크스페이스를 아직 모르면 기존 /receipts
   const receiptsHref = studioSpace ? `/${spaceDomain(studioSpace)}/receipts` : '/receipts';
+  // 2026-11-18 WS-20261118-04: 받은 업무·캘린더 연동·API키등록·매뉴얼도 워크스페이스 안 화면으로(왼쪽 메뉴 유지). 워크스페이스를 아직 모르면 기존 주소
+  const inShell = (seg: string, fallback: string) => (studioSpace ? `/${spaceDomain(studioSpace)}/${seg}` : fallback);
+  const go = (href: string) => (e: { metaKey: boolean; ctrlKey: boolean; shiftKey: boolean; button: number; preventDefault: () => void }) => {
+    if (!studioSpace || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+    e.preventDefault();
+    navigate(href);
+  };
+  const inboxHref = inShell('inbox', '/inbox');
+  const calendarHref = inShell('calendar-sync', '/calendar-sync');
+  const keysHref = inShell('keys', '/settings/keys');
+  const guideHref = inShell('guide', '/guide');
   const email = user?.email || (typeof document !== 'undefined' ? document.getElementById('lit-app')?.dataset.memberEmail : '') || '';
   return (
     <div className="aww-sb-bottom">
@@ -74,7 +85,7 @@ export function AimasterSidebarBottom() {
           </div>
         </a>
         {/* U7: 다른 프로그램 결과가 모이는 받은 업무함(/inbox) */}
-        <a className="aww-sb-item" href="/inbox">
+        <a className="aww-sb-item" href={inboxHref} onClick={go(inboxHref)}>
           <div className="aww-sb-item-inner">
             <span className="aww-sb-item-icon">📨</span>
             <span className="aww-sb-item-label">{tx('Work inbox')}</span>
@@ -98,21 +109,21 @@ export function AimasterSidebarBottom() {
           <span className="aww-sb-item-chip">{tx('Evidence')}</span>
         </a>
         {/* 2026-11-11: 캘린더 연동(/calendar-sync) — 간편 구독(ICS)·구글 계정 연결 */}
-        <a className="aww-sb-item" href="/calendar-sync">
+        <a className="aww-sb-item" href={calendarHref} onClick={go(calendarHref)}>
           <div className="aww-sb-item-inner">
             <span className="aww-sb-item-icon">📅</span>
             <span className="aww-sb-item-label">{tx('Calendar sync')}</span>
           </div>
           <span className="aww-sb-item-chip">{tx('Google')}</span>
         </a>
-        <a className="aww-sb-item" href="/settings/keys">
+        <a className="aww-sb-item" href={keysHref} onClick={go(keysHref)}>
           <div className="aww-sb-item-inner">
             <span className="aww-sb-item-icon">🔑</span>
             <span className="aww-sb-item-label">{tx('API keys & platform links')}</span>
           </div>
           <span className="aww-sb-item-chip">{tx('Links')}</span>
         </a>
-        <a className="aww-sb-item" href="/guide">
+        <a className="aww-sb-item" href={guideHref} onClick={go(guideHref)}>
           <div className="aww-sb-item-inner">
             <span className="aww-sb-item-icon">📖</span>
             <span className="aww-sb-item-label">{tx('Setup & user guide')}</span>

@@ -1,0 +1,13 @@
+/* 2026-11-18 WS-20261118-04 워크스페이스 안 앱 화면(받은 업무·캘린더 연동·API키등록·매뉴얼):
+   별도 페이지용 .aww-guide(화면 전체 높이·자체 스크롤)를 본문 영역에 맞춤 — 영수증 화면(receiptsView.css)과 같은 규칙.
+   왼쪽 메뉴와 이 본문이 따로 스크롤된다(상위 .lit-body가 overflow hidden). */
+.aww-guide.aww-app-view {
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 32px 24px 80px;
+  box-sizing: border-box;
+}
+@media (max-width: 767px) {
+  .aww-guide.aww-app-view { padding: 20px 16px 64px; }
+}

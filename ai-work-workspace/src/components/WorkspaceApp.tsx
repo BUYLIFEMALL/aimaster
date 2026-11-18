@@ -12,9 +12,10 @@ const App = dynamic(
   { ssr: false, loading: () => <div className="nc-boot" /> },
 );
 
-export function WorkspaceApp({ email }: { email: string }) {
+// gmailOn: E4 Gmail 서버 스위치(2026-11-18 WS-20261118-04 워크스페이스 안 받은 업무 화면이 읽음, 서버가 준 값만)
+export function WorkspaceApp({ email, gmailOn }: { email: string; gmailOn?: boolean }) {
   return (
-    <div id="lit-app" data-member-email={email}>
+    <div id="lit-app" data-member-email={email} data-gmail-on={gmailOn ? "1" : undefined}>
       <App />
     </div>
   );
