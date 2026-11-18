@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 17:41:26 KST",
+  "checkedAt": "2026-11-18 17:45:59 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,25 +12,24 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T08:41:26.722Z",
+      "at": "2026-11-18T08:45:59.679Z",
       "timezone": "Asia/Seoul",
-      "trigger": "17:30 KST 예약 메시지 수신 및 후속 보고 대조",
-      "scope": "전체 미종결 작업·19개 분류 작업표·사람/승인 조건과 최신 Git·결과/인수인계 변경 확인. T03·SNS 고정 SHA와 담당별 범위 대조.",
+      "trigger": "Mac 독립 검수 및 정정 보고 수신",
+      "scope": "웹 크롤러 T03 1단계와 SNS W01p 고정 SHA, 모의 범위 및 문구 검토",
       "evidence": [
-        "msg_264303c04f89",
-        "6b45a39b3·msg_1e0d4418c6a5",
-        "35853fad1·msg_f41a1598c878",
-        "msg_7c179d3cca83·msg_ac69e77c6859",
-        "0dfeaad54 / msg_7932d8b18fa0",
-        "a7ef59164 / bf81ae061 / msg_2ee438e9de12"
+        "msg_f1ceae7ab7fe",
+        "msg_28adaec01c93",
+        "msg_b73f83cd1a93",
+        "msg_dd4bd3aed79a",
+        "msg_397185be002a"
       ],
-      "judgment": "T03 설계 방향 수락, 1단계 로컬 소스 배정. SNS 모의 국소 검수 수락 및 복구 설계 배정. 기존 사람 단계·배포 승인 범위 유지.",
+      "judgment": "T03 1단계 소스 국소 검수 수락. W01p 국소 시험 수락, 설명 정정 대기.",
       "unverified": [
-        "T03 Render 구 인스턴스 배출·운영 DB/배포",
-        "SNS 실제 DB/Storage·W01p 구현",
-        "CRM 사람 SMS 및 기존 사람 의존 단계"
+        "T03 Render 이전 인스턴스 배출·운영 및 회원 호출 비용",
+        "W01p 원격 취소 동작과 문구 정정",
+        "기존 사람 의존 단계"
       ],
-      "nextAction": "Blog Mac 고정 소스 검수와 SNS W01p 구현 근거·국소 검수 회수."
+      "nextAction": "W01p 문구 diff 확인. T03 운영 비용과 배포 조건은 별도."
     },
     "notifications": [
       {
@@ -8676,19 +8675,19 @@
       "owner": "CC-BLOG-01",
       "reviewer": "CX-MASTER-01",
       "title": "T03 1단계 캐시 우회·작업 소유자 확인",
-      "status": "reviewing",
-      "delivery": "local_phase_one_report_received_mac_review_requested",
+      "status": "done",
+      "delivery": "local_phase_one_and_mac_targeted_checks_accepted_undeployed",
       "scopeRef": "web-crawler/service/main.py·pipeline.py·해당 로컬시험·T03 문서 해당 절",
       "constraints": "새표·SQL·운영 읽기·Render/Vercel·비용·외부수집 0",
       "completion": "정상 202/결과 보존·시작/재개 소유자 실패 시 실행/캐시/행 변경 0·캐시 호출 0·가상 검증",
-      "evidence": "a7ef59164 코드·bf81ae061 문서·msg_70de86524c41·Mac msg_2ee438e9de12",
-      "next": "Mac 고정 소스 검수 대기. 운영 비용·기존 인스턴스 배출 증거·배포 승인 별도.",
-      "lastReviewedAt": "2026-11-18T08:42:48.614Z",
-      "sha": "a7ef59164",
+      "evidence": "a7ef59164 기능·bf81ae061 문서·Mac msg_f1ceae7ab7fe·문구 c9f4c0a17/e0dda434b msg_28adaec01c93",
+      "next": "운영 전 사용자 AI 호출 증가·Render 이전 인스턴스와 작업 배출 확인 및 별도 승인.",
+      "lastReviewedAt": "2026-11-18T08:45:59.679Z",
+      "sha": "c9f4c0a17",
       "validation": {
-        "author": "가짜 Supabase/FastAPI 18/18, py_compile, 권리 고지 검사 0건",
-        "master": "소유자 검사 위치·공용 캐시 제거 diff 대조. 캐시 우회로 재수집 시 회원 AI 호출이 늘 수 있음.",
-        "independent": "Mac 배정 전송 완료, 결과 대기"
+        "author": "FastAPI/가짜 Supabase 18/18·py_compile·0번 고지 검사 0건",
+        "master": "동작 고정 diff와 문구만 정정 확인. 요청 ID와 DB 행 일치 검사의 범위 명시.",
+        "independent": "Mac 고정 함수 가짜 Supabase 6/6, 예약 전 검사와 캐시 제거 정적 확인. pytest/가상환경 부재로 통합 미실행."
       }
     },
     {
@@ -8713,14 +8712,21 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "삭제 진입 전 남은 시간 점검",
-      "status": "dispatched",
-      "delivery": "bounded_pre_delete_admission_sent_ack_pending",
+      "status": "reviewing",
+      "delivery": "mac_targeted_checks_passed_uncertain_cancel_wording_returned",
       "scopeRef": "retention.ts·assetRetention 시험·W00 해당 문구",
       "constraints": "SQL/P2/실DB/Storage/AI/비용/build/deploy/push 0",
       "completion": "mark/remove/verify 예산·소유 토큰 내 제한 취소·불명 보존·모의 경계·tsc",
-      "evidence": "msg_7932d8b18fa0·0dfeaad54",
-      "next": "고정 SHA/모의시험 회수 뒤 Mac 국소검수",
-      "lastReviewedAt": "2026-11-18T08:41:26.722Z"
+      "evidence": "msg_b73f83cd1a93·8913e8136·Mac msg_dd4bd3aed79a·문구 정정 msg_397185be002a",
+      "next": "취소 응답 불명과 늦은 원격 커밋 가능성을 정확히 설명한 문구 SHA 확인.",
+      "lastReviewedAt": "2026-11-18T08:45:59.679Z",
+      "sha": "8913e8136",
+      "validation": {
+        "author": "retention 48/48·전체 171/171·tsc 통과·고지 이상 0",
+        "master": "3호출 시간 예산과 취소/후속 차단 diff 대조",
+        "independent": "Mac 고정 실모듈 모의 4/4. 불명·늦은 원격 커밋 문구 보완 요청.",
+        "limits": "운영 DB·Storage·실제 원격 취소·빌드·배포 검증 없음."
+      }
     }
   ]
 }

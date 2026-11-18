@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 17:41:26 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 17:45:59 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -429,7 +429,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | BLOG-20261118-02 | CC-BLOG-01 | done / three_releases_complete_existing_data_screen_review_limited_accepted | 승인된 블로그3프로그램 순차묶음 배포 | T08승인정리정확백업/삭제범위검토·실Excel/폴러/T05분석·새생성효과미검수별도 |
 | BLOG-20261118-03 | CC-BLOG-01 | done / approved_19_file_cleanup_backup_tag_static_and_limited_local_validation_accepted | T08 구형 ghost-scraper 백업후정리 승인범위 구체화 | 미배포유지·기존Next보안후속/실runtime미검수·T03회원캐시플랜진행 |
 | BLOG-20261118-04 | CC-BLOG-01 | done / member_cache_design_accepted_local_phase_one_separately_assigned | T03 도메인 구조 캐시 회원별 격리 결정 반영 | BLOG-20261118-06 로컬 1단계. 운영 전 기존 공용 인스턴스·진행 요청 배출 증거 필요. |
-| BLOG-20261118-06 | CC-BLOG-01 | reviewing / local_phase_one_report_received_mac_review_requested | T03 1단계 캐시 우회·작업 소유자 확인 | Mac 고정 소스 검수 대기. 운영 비용·기존 인스턴스 배출 증거·배포 승인 별도. |
+| BLOG-20261118-06 | CC-BLOG-01 | done / local_phase_one_and_mac_targeted_checks_accepted_undeployed | T03 1단계 캐시 우회·작업 소유자 확인 | 운영 전 사용자 AI 호출 증가·Render 이전 인스턴스와 작업 배출 확인 및 별도 승인. |
 | AIF-20261118-W01j | CC-SNS-01 | done / OFF_source_completion_and_activation_blockers_reconciled | A1 OFF소스완료표·운영선행 보관/정리 조건 취합 | W01k 30일보관정리 첫계약·운영ON차단유지 |
 | AIF-20261118-W01k | CC-SNS-01 | done / retention_R2_static_contract_accepted_with_implementation_conditions | 원본 자산 일반30일 정리 연결 첫계약 | W01l OFF 보관정리 SQL초안/실행기 모의첫구현 |
 | QA-20261118-WEB-XLSX | CX-QA-01 | done / F01_F04_specified_independent_review_PASS_accepted | 최종배포 전 T07 엑셀 미리보기 소스 독립검수 | Blog최종manifest/큐대조후승인마지막1회배포 |
@@ -437,7 +437,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | AIF-20261118-W01m | CC-SNS-01 | done / new_SQL_isolated_author_execution_and_independent_evidence_review_accepted | 보관정리 새 SQL 격리 계약검증 | W01n 정리IO 유한대기/불명보존 좁은소스단위 |
 | AIF-20261118-W01n | CC-SNS-01 | done / bounded_cleanup_and_remove_count_local_validation_accepted_undeployed | 정리 실행기 개별 I/O 유한 대기·불명 보존 | W01o 복구 설계. 미전송 이후 객체 잔존은 다음 회차 확인으로 delete_unknown 가능. |
 | AIF-20261118-W01o | CC-SNS-01 | done / recovery_design_accepted_local_p1_separately_assigned | 정리·업로드 불명 상태 복구 설계 | W01p 국소 진입 시간 점검. P2·운영 복구 별도. |
-| AIF-20261118-W01p | CC-SNS-01 | dispatched / bounded_pre_delete_admission_sent_ack_pending | 삭제 진입 전 남은 시간 점검 | 고정 SHA/모의시험 회수 뒤 Mac 국소검수 |
+| AIF-20261118-W01p | CC-SNS-01 | reviewing / mac_targeted_checks_passed_uncertain_cancel_wording_returned | 삭제 진입 전 남은 시간 점검 | 취소 응답 불명과 늦은 원격 커밋 가능성을 정확히 설명한 문구 SHA 확인. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 
 ## 현재 담당 회신이 확보된 프로젝트
