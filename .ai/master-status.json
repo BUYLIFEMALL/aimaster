@@ -4856,14 +4856,30 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "멈춘 자산·삭제 예약 읽기 전용 집계 설계",
-      "status": "dispatched",
-      "delivery": "p3_aggregate_design_requested",
+      "status": "done",
+      "delivery": "p3_read_only_aggregate_design_accepted",
       "scopeRef": "W00 P3 해당 절 및 본인 개선/역할 관련 줄",
       "constraints": "SQL·DB 생성·운영 조회/쓰기·Storage/AI·비용/빌드/배포 0",
       "completion": "상태·나이 집계 정의, 중복 및 상한, 권한과 식별자 미반환, 최소 SQL/격리 시험 범위",
-      "evidence": "msg_8f4adf634586·msg_037b8444a5bf",
-      "next": "고정 문서 SHA와 조회 계약 회수 후 초안 범위 판정.",
-      "lastReviewedAt": "2026-11-18T13:02:19.662Z"
+      "evidence": "msg_8f4adf634586·msg_037b8444a5bf / msg_2e9754c4255a / 989d26b3c",
+      "next": "W01u 초안 범위 배정, 조회 한도와 잠금 설명 정정.",
+      "lastReviewedAt": "2026-11-18T13:07:28.650Z",
+      "sha": "989d26b3c"
+    },
+    {
+      "task_id": "AIF-20261118-W01u",
+      "parent_task_id": "AIF-20261118-W01t",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "자산 상태 집계 후속 SQL·격리 시험 초안",
+      "status": "dispatched",
+      "delivery": "p3_sql_and_isolated_test_draft_requested",
+      "scopeRef": "신규 P3 migration·격리 시험·W00 해당 근거",
+      "constraints": "기존 migration/런타임/fixture 변경·SQL 실행·DB 생성·운영/Storage/비용/빌드/배포 0",
+      "completion": "영속 10범주·별도 축·나이와 일치 행 한도·서비스 권한·식별자 미반환 시험 초안",
+      "evidence": "989d26b3c·msg_5ffb8d03b1ee",
+      "next": "고정 SQL/시험 초안 SHA 회수.",
+      "lastReviewedAt": "2026-11-18T13:07:28.650Z"
     }
   ],
   "programOverrides": [
@@ -5382,21 +5398,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T13:02:19.662Z",
+      "at": "2026-11-18T13:07:28.650Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS 주인님 직접 계속 지시 전달",
-      "scope": "W01s 종결 확인·W00 P3 범위와 후속 배정.",
+      "trigger": "SNS P3 설계 문서 회신",
+      "scope": "989d26b3c W00 §20-9·권한/상한/상태 집계 대조.",
       "evidence": [
-        "msg_8f4adf634586",
-        "msg_037b8444a5bf",
-        "d98038661·e6f759208"
+        "msg_2e9754c4255a·989d26b3c",
+        "msg_5ffb8d03b1ee"
       ],
-      "judgment": "W01t P3 설계만 배정. 운영 조건과 실제 적용은 기존 기준 유지.",
+      "judgment": "읽기 전용 집계 설계 수락, 조회 한도/잠금 문구 정정 및 후속 초안만 배정.",
       "unverified": [
-        "P3 문서와 구현 범위",
-        "Gmail 동의 및 실검증"
+        "P3 SQL·격리 시험 및 운영 조회",
+        "Gmail 동의·실검증"
       ],
-      "nextAction": "P3 집계 설계 근거 회수."
+      "nextAction": "W01u 초안 수신 뒤 정적 검토."
     },
     "notifications": [
       {
