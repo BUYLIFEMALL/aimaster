@@ -3966,19 +3966,19 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
       "title": "미확정 접수 후속알림 기본보류·가시성",
-      "status": "ready_review",
-      "delivery": "member_boundary_status_race_fix_independent_review_dispatched",
-      "evidence": "주인님Backend직접결정msg_1a6232e00dae·Mastermsg_38c5209014e0·결과msg_c55199dc02d9·Master5파일stat·Macmsg_3c7aed78d74d · Mac원본최종msg_6d66044115ee · Backend수정msg_b02e2a979da0 · Master수정범위/본문확인 · 재검수msg_b846a65474f7",
+      "status": "needs_revision",
+      "delivery": "claim_release_failure_fix_dispatched",
+      "evidence": "주인님Backend직접결정msg_1a6232e00dae·Mastermsg_38c5209014e0·결과msg_c55199dc02d9·Master5파일stat·Macmsg_3c7aed78d74d · Mac원본최종msg_6d66044115ee · Backend수정msg_b02e2a979da0 · Master수정범위/본문확인 · 재검수msg_b846a65474f7 · Mac F-F02 msg_21e5d6846290 · 수정반환 msg_b1c76dd8b54c · Mac범위보존 msg_f0646441a224",
       "scopeRef": "followupDispatch.ts·submissionStatus.ts·시험/기존문서·추가호출자필요시경로먼저",
       "completion": "dispatching/partial/unknown/미지값보류·발송/선점0·실화면보류이유/held가시성·확정후1회재개/limit기아검증",
       "constraints": "received/failed/notified기존동작·실DB/DDL/웹훅/실발송/배포0",
-      "next": "Mac b777bf01c 회원범위·계정await/채널사이 상태변경·claim 보존/해제·조회실패 재검수 후 판정",
-      "lastReviewedAt": "2026-11-18T03:54:35.919Z",
+      "next": "Backend F-F02 삭제 실패/불명 진단·claim 보존·자동 재발송0 수정 SHA 회수 후 Mac 재검수",
+      "lastReviewedAt": "2026-11-18T03:56:17.455Z",
       "sha": "b777bf01c",
       "validation": {
         "author": "수정 실함수64/64·dedupe14/14·tsc0(작성자 보고)",
         "master": "3파일 stat·실 followupDispatch 본문 확인, 기존 회원 경계 문제와 새 회귀 구분",
-        "independent": "원본239824dfd 조회시점 보류 PASS, F-F01 기존 타회원 후보/발송 반례 및 F-L01 stale 상태 반례 확인. 수정b777bf01c 재검수 전달, 수락/결과 대기"
+        "independent": "b777 회원경계·상태재확인·정상 해제/재개·부분시도 보존 지정 통과. 새 F-F02: DELETE 오류 무시로 held1/claim잔류 후 확정돼도 재개 불가. 최종 보고 대기, 수정 반환."
       },
       "limitations": [
         "운영 미배포·운영 RLS/DDL/실발송0",
@@ -4483,24 +4483,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T03:54:35.919Z",
+      "at": "2026-11-18T03:56:17.455Z",
       "timezone": "Asia/Seoul",
-      "trigger": "요청된 Orca 알림 수신 점검",
-      "scope": "CRM18-05 원본 독립검수·Backend 수정 전달 확인·수정 SHA/3파일/본문·Master 요청함",
+      "trigger": "Mac 독립검수 P2 즉시 확인",
+      "scope": "CRM18-05 F-F02 선점 해제 실패·재개 보장 판정",
       "evidence": [
-        "msg_6d66044115ee 원본 독립검수 최종",
-        "msg_b02e2a979da0 이전 수정 지시 수신 및 완료 확인",
-        "b777bf01c 실소스 경계/재확인 검토",
-        "msg_b846a65474f7 Mac 재검수 전송, 수락 별도",
-        "codex-master 요청함 대기0"
+        "msg_21e5d6846290 가짜DB 발송0/held1/claim1·다음회 미재개",
+        "msg_b1c76dd8b54c Backend 수정 반환",
+        "msg_f0646441a224 Mac 원본 판정 보존 전달"
       ],
-      "judgment": "원본 보류 동작 지정 PASS 보존. 회원 경계와 stale 상태 반례는 수정 반환되어 b777bf01c 작성자 검사 완료, 독립 검수 전 완료 수락하지 않음.",
+      "judgment": "완료 수락 보류. 해제 실패를 정상 보류와 구분하도록 반환, claim 임의 삭제·자동 재발송 금지.",
       "unverified": [
-        "수정본 Mac 재검수",
-        "무료 엔진 OFF 운영 반영 승인",
-        "Gmail GCP 실제 요청 대조·Mac MP4 B 저장"
+        "작성자 수정 수락·새 SHA·독립 재검수"
       ],
-      "nextAction": "Mac 재검수 결과에 따라 수락 또는 수정 반환. 기존 사람 단계 중복 요청 없이 대기."
+      "nextAction": "수정본 수신 후 지정 반례 재검수 배정"
     },
     "notifications": [
       {
