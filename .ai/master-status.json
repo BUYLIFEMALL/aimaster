@@ -4290,6 +4290,21 @@
       "constraints": "ESM저장/임시저장/등록0·대기열등록/유료AI0·같은실패자동반복0·로그인/폴더선택주인님·직접SQL/npm/build0·기존음악/Gmail/Blog보존",
       "next": "기존 Mac 사람요청 한곳: ESM+/네이버로그인·확장실제설치버전·brandlink1 뒤 입력만/수집검수",
       "lastReviewedAt": "2026-11-18T06:08:28.458Z"
+    },
+    {
+      "task_id": "ECOM-20261118-08",
+      "parent_task_id": "ECOM-20261118-06",
+      "owner": "CC-ECOM-01",
+      "reviewer": "CX-QA-01",
+      "title": "Cloudflare 배경 생성 프롬프트 문자 혼입 보완",
+      "status": "dispatched",
+      "delivery": "source_only_prompt_fix_assigned_after_owner_approved_one_real_call",
+      "evidence": "msg_121e44a17ff5·주인님 직접 실제생성1 승인→1완료. HTTP200/JSONresult.image/JPEG695091B/1024²·Master services.ts254 원문삽입 확인",
+      "scopeRef": "services.ts generateFreeImage 프롬프트·관련 서비스 모의시험·본인 문서",
+      "constraints": "한국어topic/quote 원문제외·외부번역0·유료다른공급자불변·FREE OFF·추가실생성/build/deploy/push0·UI읽기만",
+      "completion": "원문 비포함/중립기본/배경지시·HTTP1 모의회귀/tsc·지정독립검수",
+      "next": "담당 최소수정 SHA→Mac 소스검수→추가실생성 필요성/승인 별도",
+      "lastReviewedAt": "2026-11-18T06:12:36.043Z"
     }
   ],
   "programOverrides": [
@@ -4764,9 +4779,9 @@
       "recommendation": "실이미지호출0·현재운영freeOFF아님·승인전신규배포0"
     },
     {
-      "condition": "Cloudflare FLUX 실생성 1회 승인",
-      "action": "주인님 직접 새토큰재등록 완료·인증active/모델목록75 읽기 성공. Master 단일 1회 생성 질문 제출·답 대기",
-      "recommendation": "무료잔여/유료플랜 과금가능성 미확인·생성/재시도0·OFF유지. 답 전 실행0"
+      "condition": "Cloudflare 문자혼입 보완 뒤 추가 실검증",
+      "action": "담당세션 주인님 직접 승인으로 최초생성1 완료. Master 중복 승인질문은 선행1회에 대해 해소·추가생성 승인 아님",
+      "recommendation": "코드/모의검수 먼저·추가생성0·FREE OFF·무료잔여 미확인·문자없는 이미지 보장0"
     },
     {
       "condition": "CRM v1.18 운영 릴리스 묶음",
@@ -4803,26 +4818,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T06:10:44.059Z",
+      "at": "2026-11-18T06:12:36.043Z",
       "timezone": "Asia/Seoul",
-      "trigger": "15:00예약메시지수신·메시지증분점검",
-      "scope": "새보고3·담당13로컬연결목록·미등록/수정문서증분3·관리자요청0·잔여/선행조건/승인분리",
+      "trigger": "실생성완료 이벤트",
+      "scope": "담당직접승인/1회호출결과·services 프롬프트·담당파일미커밋0",
       "evidence": [
-        "msg_7cef97e9a568·예약receipt수신",
-        "msg_fead1e7b84cf·ESM요청서미커밋보존",
-        "0f8715d14 R1 직접읽기·msg_5e4cf37ef2e3/77d84ced12da",
-        "d11f866bd·AGENTS공유예외동등반영",
-        "msg_5ea5eec8607d·R1 P1 반환",
-        "msg_f716cecfa1b0·Cloudflare인증해소/실생성별도질문"
+        "msg_121e44a17ff5",
+        "services.ts generateFreeImage254 직접읽기"
       ],
-      "judgment": "ESM 준비수락·사람단계대기. SNS R1 방향수락/시각경합재검수. 주인님 두 소유계정공유지침취합. 공용HEAD push보류와기존범위유지. R1 시간측정 단순반례 미확정으로정정·늦은쓰기 P1 반환. Cloudflare 새토큰 인증 해소/실생성 승인답 대기.",
+      "judgment": "실전송형식/상한 지정수락·품질보류·일반코드수정 한담당배정·추가실호출승인확대0",
       "unverified": [
-        "실확장설치/로그인/입력·브랜드수집",
-        "SNS R1 SQL/실저장·시각경계",
-        "CRM운영승인·Cloudflare무료잔여/실생성·메인/감성배포예산",
-        "그밖의카테고리운영상태새실측0"
+        "문자혼입 원인확정/개선실효성",
+        "추가생성·크롭시각·무료잔여",
+        "다른카테고리운영새실측0"
       ],
-      "nextAction": "Mac R1 결과회수·기존사람요청/승인답뒤후속·중복작업0"
+      "nextAction": "프롬프트소스결과회수·Mac독립검수"
     },
     "notifications": [
       {
@@ -5063,7 +5073,16 @@
       "at": "2026-11-18T06:10:44.059Z",
       "evidence": "msg_f716cecfa1b0·담당msg_0fd6169a701e",
       "result": "trial 새등록·user token verify200 active·WorkersAI model search200 75",
-      "limits": "키값출력0·실생성0·Neurons잔여미확인·목록개수는생성쿼터아님"
+      "limits": "키값출력0·실생성0·Neurons잔여미확인·목록개수는생성쿼터아님",
+      "realGeneration": {
+        "at": "2026-11-18T06:12:36.043Z",
+        "evidence": "msg_121e44a17ff5",
+        "approval": "담당세션 주인님 직접 실제생성1 승인",
+        "calls": 1,
+        "result": "HTTP200 result.image JPEG695091bytes1024x1024",
+        "quality": "의미없는한글모양혼입·보완필요",
+        "limits": "잔여Neurons/정확비용미확인·추가호출0·운영OFF반영아님"
+      }
     }
   },
   "planCorrections": [
