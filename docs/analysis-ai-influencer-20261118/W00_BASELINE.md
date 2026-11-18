@@ -142,7 +142,67 @@ PLAN의 표·API·상태 설계는 그대로 채택하고 아래만 확정·수�
 
 W01 착수 조건: 이 계약(§5)에 이의 없음 + §7 파일 범위 점유 등록. W01 첫 단계는 비용·DB 쓰기 없는 코드 수정(G1 문구, G3 예외 정리, G5 참고 입력 자산화의 서버 경로)과 순수 규칙 시험이다. migration은 초안 파일까지만 만들고 운영 적용은 별도 승인 뒤 메인 PC에서 한다.
 
-## 11. 진행 상태 기록
+## 12. W01 실행 계획 (제품 코드 착수 전 준비 — Master `msg_262b806a9152` 지시)
+
+세션 ID `CC-SNS-01`. 이 절은 계획이며 코드 변경은 아직 없다. 착수 때 `ACTIVE_WORK` 줄과 점유표에 아래 경로를 그대로 등록한다.
+
+### 12-1. 정확한 경로와 권한
+
+| 순서 | 파일 | 변경 | 권한·접근 |
+|---|---|---|---|
+| 1 | `ai-influencer-studio/src/components/ControlPanel.tsx` (294, 1103줄), `src/components/ImageDisplay.tsx` (90, 295줄) | seed 문구 4곳 → `personImage` 유무로 「기준 얼굴 참조 사용 중」/「기준 얼굴 없음」 표시 (G1) | 화면만, 요청 변화 없음 |
+| 2 | `src/lib/retentionExempt.ts` (신규) | `ai-video-studio/lib/retentionExempt.ts` 내용 그대로 가져옴 | 서버 전용, 관리자 클라이언트로 `profiles.retention_exempt`만 읽음 |
+| 3 | `src/app/api/history/route.ts` | GET 정리에서 예외 회원은 30일 삭제 제외. 예외 여부를 못 읽으면 **삭제는 하지 않고** 목록만 반환 | 기존 `checkProgramAccessApi()` 유지, 본인 `user_id`만 |
+| 4 | `src/lib/assets/` (신규: `paths.ts` 경로 규칙·소유자 검사, `store.ts` 저장/서명 URL) | 원본 자산 저장 컴포넌트 | 경로 `{user_id}/{kind}/{asset_id}.{ext}`를 서버가 만듦, 클라이언트 경로 입력 불허 |
+| 5 | `src/app/api/generate-image/route.ts`, `src/lib/gemini.ts`(참고 입력 부분만) | 생성 원본을 서버에서 `aif-assets`에 저장하고 `{assetId, signedUrl}`도 함께 반환. **기존 `imageUrl`(data URL) 응답은 이번 단계에서 유지**(화면 호환), 참고 이미지의 실제 MIME 사용 | 회원 본인 Gemini 키만(현행 `getUserGeminiApiKey`) |
+| 6 | `supabase/migrations/20261118100000_aif_assets_w01.sql` (신규, **초안만**) | `aif_assets` 표 + 본인 읽기 RLS + 비공개 버킷 `aif-assets` + `(user_id, created_at desc)`·`(expires_at, deletion_state)` 색인 | 쓰기는 서버(서비스 키)만. 운영 적용은 별도 승인 후 메인 PC |
+| 7 | `tests/assetPaths.test.mjs`, `tests/historyRetention.test.mjs` (신규) | 순수 규칙 시험 | — |
+
+참고 이미지를 자산 ID로 받는 새 요청 형식(G5 완전 해소)과 화면 전환은 migration 운영 적용 뒤 W01 후반으로 미룬다. 표가 없는 상태에서 배포되면 원본 저장 단계만 건너뛰고(로그 1줄) 기존 생성은 그대로 동작해야 한다.
+
+### 12-2. 보관과 원본 보존 규칙
+
+- 히스토리 축소본: 일반 회원 30일·30개 그대로. 예외 회원은 30일 삭제 제외. **30개 제한은 목록 제한이라 예외 회원에게도 유지**한다(원본은 `aif_assets`에 따로 있으므로 축소본 30개 정리가 원본을 지우지 않음). 이 판단에 이의가 있으면 Master가 조정.
+- 원본 자산: `expires_at` = 생성 시각 + `member_storage_policy` 기간. 정리는 중앙 함수(`member_storage_expired_files`)에 맡기고 프로그램에서 따로 지우는 코드는 만들지 않는다.
+- 게시용 임시 사본(`insta-post-images`)은 현행 그대로(게시 후 삭제).
+
+### 12-3. 실패 시 상태 전이
+
+| 상황 | 동작 |
+|---|---|
+| 생성 성공 → 원본 저장 실패 | 생성 결과는 화면에 그대로 반환(이미 과금됨), 응답에 `assetSaved:false`와 안내. 생성을 다시 요청하지 않음 |
+| 저장 성공 → `aif_assets` 행 기록 실패 | 올린 파일을 지우고 `assetSaved:false` (기존 history POST와 같은 되돌리기) |
+| 예외 목록 읽기 실패 | 히스토리 삭제 건너뜀, 목록은 정상 반환 |
+| `aif_assets` 표 없음(운영 미적용) | 원본 저장 건너뜀, 기존 흐름 유지 |
+
+### 12-4. 시험
+
+- 자체: `npm test`(기존 3개 + 신규 2개), `npx tsc --noEmit`, 로컬 `npm run build`. 유료 생성 호출 없이 경로·예외·소유자 규칙만 시험.
+- 독립 검수(Mac Tester) 요청 항목: T02 일부(다른 회원 경로 거부), T13 일부(예외/일반 회원 정리 분기), T15 일부(기존 생성·히스토리 화면 회귀). 실제 생성 1회 확인은 유료라 P0 승인 범위 안에서 함께 한다.
+
+### 12-5. 다른 담당 파일과의 충돌
+
+- 공용 사본 `src/lib/instagram/posting.ts`·`publish.ts`는 W01에서 손대지 않는다(§13 수정안은 Master 조정).
+- `ai-video-studio/lib/retentionExempt.ts`는 읽기만, 같은 내용을 새 파일로 둔다.
+- 배포는 W01 묶음 끝에 한 번(작은 수정 모아 배포), 버전 v1.27은 실제 배포 때만 올린다.
+
+## 13. 공용 코드 최소 수정안 (Master 조정용, 직접 수정·`--sync` 하지 않음)
+
+### 13-1. `insta-posting` — `cleanupOldPosts()` 보관 예외
+
+- 기준: `ai-webtoon-studio/src/lib/instagram/posting.ts` (마지막 변경 `237741cc3`, 미커밋 없음). 사본: `ai-influencer-studio`·`four-cut-comics` 같은 경로(`check-shared-modules` 결과 OK).
+- 호출하는 곳: 세 프로그램의 `src/app/api/instagram/dispatch/route.ts` (각 `vercel.json` 예약 실행).
+- 최소 수정안: 154줄 조회 전에 예외 회원 목록을 읽어 `.not("user_id", "in", <목록>)`을 붙이고, 목록을 못 읽으면 30일 삭제 부분만 건너뛴다(157~162줄 「게시 중 멈춤」 실패 처리는 그대로 진행). 예외 판정 컴포넌트는 `retentionExempt.ts`(확인: `four-cut-comics/src/lib/retentionExempt.ts` 있음, `ai-webtoon-studio`에는 없음 → 기준 담당이 웹툰에 추가 필요, 인플루언서는 W01에서 추가 예정).
+- 등급: 회원 피해 없음, 관리자·시험 계정 보관 규칙 위반 → 다음 배포 때 함께.
+
+### 13-2. `instagram-publish` — 게시 요청 재시도
+
+- 기준: `insta_auto_poster/src/lib/instagram/publish.ts` (마지막 변경 `237741cc3`, 미커밋 없음). 사본: `ai-influencer-studio`·`ai-webtoon-studio`·`four-cut-comics`. 등록부 밖 손 복사: `labs/kit-insta/src/lib/instagram/client.ts`. 등록부(`docs/SHARED_MODULES.md`)에 적힌 `cardnews-studio/src/lib/instagram/publish.ts`는 실제로 없음 → 등록부 정정 필요.
+- 호출하는 곳: 세 스튜디오의 `src/lib/instagram/posting.ts`(`publishPaths`), `insta_auto_poster/src/lib/posts/publish-core.ts`·`src/lib/cardnews/instagram/posts.ts`.
+- 최소 수정안: `publishContainer()`(`media_publish`)만 `postGraphWithRetry(..., maxRetries = 0)`으로 부르고, 컨테이너 만들기 요청은 지금처럼 재시도한다. 게시 응답이 사라졌을 때는 호출부의 기존 「최근 게시 대조」(`findSameRecentPost`)가 이미 처리하므로 추가 코드가 필요 없다.
+- 위험: 같은 컨테이너를 두 번 게시하면 Meta가 보통 거절하므로 실제 중복 게시 가능성은 낮다 → 급하지 않은 변경.
+
+## 14. 진행 상태 기록
 
 ```text
 작업 ID / 기능 ID: W00 / F20-04·C03·C07
