@@ -1598,4 +1598,22 @@ DB: 해당 없음(읽기만) · 배포: 해당 없음
 - 격리 시험 `tests/sql/a1_grants.test.mjs`(blob `341208ac6`, 커밋 1dfadb3dc, 시험 DB `qa_aif_grants_20261119`) **8/8, 1회 실행**: 시험 DB에 운영과 같은 표 기본 권한을 재현 → 정정 전에는 `authenticated=arwdDxtm`이고 회원 역할의 truncate가 실제로 성공함을 재현 → 정정 후 authenticated는 SELECT만, anon 0, service_role·소유자 그대로, 예약 표·정책·RLS·함수 권한 무변경, PUBLIC·열 단위·역할 상속 경로 0, 회원 역할로 본인 ready만 읽히고 insert·update·delete·truncate는 권한 오류, 재적용해도 같음. 시험 DB oid 2549247 생성·삭제, 종료 후 `qa_aif_%` DB·세션 0.
 - 그 시험의 한계: 재현한 것은 **표의** 기본 권한 하나다. 운영의 다른 기본 권한(함수·시퀀스)·역할 구성·PostgREST를 거친 실제 접근은 재현하지 않았다. 대역에서의 통과이지 운영에서의 확인이 아니다.
 - 운영 재개 순서(승인 뒤): ① 정정 파일 적용(1회) → ② 카탈로그 재확인(`aif_assets`의 authenticated가 SELECT만, 나머지 무변경) → ③ 비공개 버킷 `aif-assets` 생성과 속성 확인 → ④ 시험 계정으로 `aif_asset_usage_estimate`·`aif_asset_precheck`를 되돌리는 거래 안에서 호출. 어긋나면 고치지 않고 보고.
-- 지금 운영 DB 상태: 표 2·함수 14·색인·정책 존재, **권한 불일치 그대로**, 버킷 없음, 행 0.
+- 지금 운영 DB 상태: 표 2·함수 14·색인·정책 존재, **권한 불일치 그대로**, 버킷 없음, 행 0. *(이 줄은 중단 시점의 상태다 — 아래 「재개 기록」으로 갱신됐다.)*
+
+**14-L 재개 기록 (2026-11-19, 주인님 두 번째 승인 「승인해 진행해」, Master `msg_68b820d2fde1`) — 운영 첫 적용 완료.** 모드 off 그대로, 빌드·배포·푸시·비용 0, DROP·삭제·운영 재현용 truncate 0.
+
+| 단계 | 결과 |
+|---|---|
+| 적용 전 읽기 | 중단 시점과 같은 상태(`authenticated=arwdDxtm`, 행 0). 범위를 넘는 권한 경로 없음 — PUBLIC 부여 0, 열 단위 부여 0, anon·authenticated가 구성원으로 물려받는 역할 없음(`authenticator`·`postgres`가 두 역할이 될 수 있는 것은 이 플랫폼의 정상 구성) |
+| 권한 정정 적용 | 고정 blob `5c554656d`의 두 문장, 1회, 성공(적용 기록 `aif_assets_grants_fix`) |
+| 정정 뒤 권한 | `aif_assets`: authenticated 유효 권한 **select 하나**(`authenticated=r/postgres`), anon 0, service_role·소유자 전부. `aif_asset_deletions`: anon·authenticated 0. PUBLIC·열 단위 0. 정책 1개·RLS·함수 14개 서비스 전용 무변경 |
+| 버킷 | `aif-assets` 생성(적용 기록 `aif_assets_bucket`, 문장은 `supabase/migrations/20261119110000_aif_assets_bucket.sql`): 비공개·20971520바이트·MIME 5종·객체 0개. 저장소 정책 0, 추적 버킷 등록 0 |
+| 실제 정책 연결 | 되돌리는 거래 안에서 `service_role`로 시험 계정에 `aif_asset_usage_estimate`·`aif_asset_precheck(1MiB)` 호출 — 사용량 값 있음(0 이상), 중앙 측정 시각 있음, 한도 종류 **무제한**, 판정 허용, 두 함수의 사용량·한도 값 일치 |
+| 흔적 | 행 0·0, 버킷 객체 0, 권고 잠금 0 |
+| 적용 기록 | `aif_assets_a1` · `aif_assets_p2_missing` · `aif_assets_p3_summary` · `aif_assets_grants_fix` · `aif_assets_bucket` 5건 |
+
+- 조회 중 실수 2건(둘 다 읽기 조회문의 결함이고 DB 변화 없음): 카탈로그 조회에서 한 글자 형 열을 글자로 바꾸지 않아 1회 실패 · 정책 연결 확인에서 서비스 역할로 계정 표를 읽으려다 권한 거절 1회(계정 번호를 역할 전환 전에 구하도록 고쳐 재실행).
+- **이 확인의 한계**: 시험 계정은 보관 연장 계정이라 한도가 「무제한」으로 나왔다 — **한도가 있는 일반 회원의 실제 판정 경로는 운영에서 확인하지 않았다**(다른 회원 자료를 읽는 일이라 승인 범위 밖). 실제 파일 업로드·서명 주소·삭제(§14-B 5)와 PostgREST를 거친 호출 모양도 미확인이다.
+- §14-B 갱신: 1(migration 적용)·2(버킷)·3(함수 소유자 권한·기본 GRANT·`storage.objects` 조회 권한)은 **닫혔다**. 4(중앙 측정·정책 합산)는 무제한 계정 1건만 확인 — 부분. 5 이하는 그대로.
+- 적용된 SQL 파일의 머리말에는 「어떤 DB에도 미적용」이라는 옛 문장이 남아 있다. 운영에 적용한 파일은 고치지 않는 원칙이라 그대로 두고, 적용 사실은 이 절이 기준이다(이후 변경은 새 날짜 파일).
+- 다음: Master 판정. 계획 순서상 W01 후반(참고 이미지의 자산 번호 전환·새 생성 경로·화면 전환)이 이어진다.
