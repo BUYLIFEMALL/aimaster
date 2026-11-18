@@ -429,7 +429,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | BLOG-20261118-02 | CC-BLOG-01 | done / three_releases_complete_existing_data_screen_review_limited_accepted | 승인된 블로그3프로그램 순차묶음 배포 | T08승인정리정확백업/삭제범위검토·실Excel/폴러/T05분석·새생성효과미검수별도 |
 | BLOG-20261118-03 | CC-BLOG-01 | done / approved_19_file_cleanup_backup_tag_static_and_limited_local_validation_accepted | T08 구형 ghost-scraper 백업후정리 승인범위 구체화 | 미배포유지·기존Next보안후속/실runtime미검수·T03회원캐시플랜진행 |
 | BLOG-20261118-04 | CC-BLOG-01 | done / member_cache_design_accepted_local_phase_one_separately_assigned | T03 도메인 구조 캐시 회원별 격리 결정 반영 | BLOG-20261118-06 로컬 1단계. 운영 전 기존 공용 인스턴스·진행 요청 배출 증거 필요. |
-| BLOG-20261118-06 | CC-BLOG-01 | dispatched / local_phase_one_sent_ack_pending | T03 1단계 캐시 우회·작업 소유자 확인 | 고지/점유 확인 후 구현, 고정 SHA 및 로컬 모의시험 회수 |
+| BLOG-20261118-06 | CC-BLOG-01 | reviewing / local_phase_one_report_received_mac_review_requested | T03 1단계 캐시 우회·작업 소유자 확인 | Mac 고정 소스 검수 대기. 운영 비용·기존 인스턴스 배출 증거·배포 승인 별도. |
 | AIF-20261118-W01j | CC-SNS-01 | done / OFF_source_completion_and_activation_blockers_reconciled | A1 OFF소스완료표·운영선행 보관/정리 조건 취합 | W01k 30일보관정리 첫계약·운영ON차단유지 |
 | AIF-20261118-W01k | CC-SNS-01 | done / retention_R2_static_contract_accepted_with_implementation_conditions | 원본 자산 일반30일 정리 연결 첫계약 | W01l OFF 보관정리 SQL초안/실행기 모의첫구현 |
 | QA-20261118-WEB-XLSX | CX-QA-01 | done / F01_F04_specified_independent_review_PASS_accepted | 최종배포 전 T07 엑셀 미리보기 소스 독립검수 | Blog최종manifest/큐대조후승인마지막1회배포 |
