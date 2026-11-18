@@ -917,6 +917,8 @@ P1·P2는 자동이고 근거가 닫혀 있다. P3·P4는 운영 절차(누가·
 
 ### 20-6. P2의 근거 — 왜 이 경우만 「부재」가 증거인가
 
+> 구현 범위·후보 탐색·예약 행 처리·migration 방식은 §20-8이 우선한다(2026-11-18 정리). 아래는 「부재가 증거가 되는 이유」로만 읽는다.
+
 - `ready`는 `finalize`·`reconcile`이 **그 객체가 저장소에 있음(id·bucket·name·size 일치)을 확인한 뒤에만** 되는 상태다. 즉 그 시점에 객체는 있었다.
 - 그 경로에 다시 쓸 주체가 없다: 경로는 자산당 하나이고 업로드는 예약당 한 번·`upsert:false`이며, `ready`가 된 자산에는 진행 중 업로드가 없다. 그래서 「지금 없으면 나중에 생긴다」는 늦은 쓰기가 성립하지 않는다(업로드 `unknown`과 다른 점).
 - 판정은 `storage.objects`와 같은 DB·같은 거래 안에서 한다 → 읽은 시점의 사실이다.
@@ -931,6 +933,91 @@ P1·P2는 자동이고 근거가 닫혀 있다. P3·P4는 운영 절차(누가·
 - P2: 객체가 id·경로 모두 없을 때만 `missing` · 경로에 다른 id가 있으면 무변경 · `reserved`·`unknown`·`expired`·`failed`는 무변경 · 삭제 예약이 `claimed`·`deleting`·`delete_unknown`이면 무변경 · 타 회원 이름으로 호출 무변경 · `storage.objects` 조회 오류면 무변경(예외 → 롤백) · `missing` 뒤 조회 404·용량 불변·묶음 A 미포함 · 2연결: `finalize`·`expire`와 같은 잠금 순서로 서로 기다림 · 멱등.
 - 공통(이미 있는 것이 깨지지 않는지): 업로드 `unknown`은 시간·부재로 `failed`가 되지 않는다 · `delete_unknown`은 재삭제·복원되지 않는다 · 다른 토큰은 남의 예약을 바꾸지 못한다 · `abort_local`은 `reserved` + 원격 요청 전에만.
 - 대조 단위(P4)가 생기면: 운영자 전용 권한 · 사유·실행자·시각 기록 · 조건 하나라도 어긋나면 무변경 · 자동 실행자가 그 전이를 부르는 경로 0.
+
+### 20-8. P2 설계 정리 — 구현 배정 전 확정안 (Master `msg_05be62cbca23`·`msg_7394ed0c36ed`, 방향 승인)
+
+**설계만이다. 런타임·DDL·SQL 실행·DB 생성 0.** §20-5의 P2 행·§20-6·§20-7의 P2 항목과 다르면 이 절이 우선한다. 범위는 처음 적은 「함수 1개」에서 **열 2개·색인 2개·함수 2개**로 늘었다.
+
+#### (1) 대상과 실행 위치
+
+- 대상은 회원 등급과 무관한 **모든 회원**의 `ready` 자산이다(보관 연장 회원 포함 — 중앙 정리가 저장소에서 직접 지운 뒤 남는 행이 주 대상). 보호 여부·정책은 보지 않는다: 「객체가 없다」는 등급과 무관한 사실이다.
+- 정리 실행자에 묶음 **D**를 둔다. 순서는 **C(확인만) → D → B → A**. D는 DB 호출만 하고 저장소 `remove`를 부르지 않으므로 「새 삭제 중단(`noMoreDeletes`)」과 무관하다. 회차 상한 100건은 네 묶음이 나눠 쓴다. 유한 대기·중단 규칙(§14-D)은 D에도 그대로다.
+
+#### (2) 훑기 함수 `aif_asset_missing_scan(p_scan_limit, p_limit)` — 창 상한과 반환 상한을 분리한다
+
+| 항목 | 내용 |
+|---|---|
+| 새 열·색인 | `aif_assets.object_checked_at timestamptz`(마지막으로 객체 존재를 확인한 시각), 색인 `(state, object_checked_at, id)` |
+| 읽는 범위 | `state = 'ready'` 행을 `(object_checked_at nulls first, id)` — **유일키를 포함한 안정 정렬** — 로 **최대 `p_scan_limit`행**. 이것이 탐색 상한이다(반환 상한과 별개) |
+| 분류 | 각 행을 `storage.objects`에서 id(PK)와 (bucket_id, name)으로 조회: `present`(기대 객체 그대로) / `other_object`(그 id 없음 + 경로에 다른 id, 또는 id는 있으나 bucket·name이 다름) / `absent`(id로도 경로로도 없음) |
+| 갱신 | `present`·`other_object` 행은 `object_checked_at = now()` — 다음 회차에는 뒤에서 읽힌다. `absent`는 갱신하지 않는다 |
+| 반환 | `absent` 행을 **최대 `p_limit`개**(asset_id·user_id) + 창 안의 `other_object` **건수**. `other_object` 행 자체는 돌려주지 않는다 |
+| 권한 | security definer · search_path 고정 · service_role 전용 |
+
+**이 함수는 읽기 전용이 아니다**(확인 시각을 쓴다). 반환된 것은 후보일 뿐이고 판정은 (3)이 잠금 안에서 다시 한다.
+
+#### (3) 판정 함수 `aif_asset_mark_missing(p_asset, p_user)`
+
+- 순서: NULL 거절 → 회원 잠금 → 자산 잠금(기존 순서 그대로) → 자산 행 `for update`(id + user_id) → 삭제 예약 행 `for update` → `storage.objects` 두 조회 → `update … where state = 'ready' and object_id = <읽은 값>`(CAS).
+- 조건(전부): 자산 `ready` · 삭제 예약이 없거나 `cancelled`·`delete_failed` · 그 `object_id`의 행도, 그 bucket·name의 행도 없음.
+- 반환: `missing`(바꿨다 / 이미 missing — 멱등) · `present` · `other_object` · `busy`(예약이 `claimed`·`deleting`·`delete_unknown`·`deleted` — 설계상 `ready`와 함께 있을 수 없는 조합이므로 보이면 무변경) · `skip`(없는 자산·다른 회원·`ready`가 아닌 상태).
+- `ready`로 남기는 모든 반환(`present`·`other_object`·`busy`)에서 `object_checked_at`을 갱신한다 → 바꾸지 못한 후보가 훑기 창의 앞자리에 계속 남지 않게.
+- `storage.objects`를 읽지 못하면(권한 오류 등) 예외 → 거래 롤백 → 무변경. 「0행」으로 오인하지 않는다.
+
+#### (4) 묶음 B가 missing 자산의 예약을 읽지 않게 — 예약 행은 지우지 않는다
+
+문제: `missing`이 된 자산에 예전 복원으로 남은 예약 행(`cancelled`·`delete_failed`)이 있으면 묶음 B가 그 행을 읽는다. `aif_asset_expire`는 `ready`·`expired`가 아니면 곧바로 `skip`으로 돌아가며(초안 383행) 예약 행의 `updated_at`을 갱신하지 않는다(400~401행에 닿지 않음) → 그 행이 B 목록 앞자리를 계속 차지한다. 삭제는 일어나지 않지만(아래 (6)) 뒤 항목이 밀린다. **조회한 뒤 실행자에서 거르는 것으로는 풀리지 않는다** — 목록의 `limit`을 이미 차지했기 때문이다.
+
+- 채택: 예약 표에 열 `parked_at timestamptz`를 두고, `mark_missing`이 `missing`으로 바꾸는 **같은 거래에서** 그 자산의 비활성 예약 행에 `parked_at = now()`만 기록한다. 예약의 `state`·`fencing_token`·`attempts`·`claimed_at`은 그대로 보존한다(행 삭제 없음).
+- 묶음 B의 목록 조회에 **DB 쪽 조건** `parked_at is null`을 넣는다(정리 라우트의 조회 한 줄). 색인은 `(state, updated_at) where parked_at is null` 부분 색인.
+- 기존 `claim_delete`·`delete_mark`·`expire`·`delete_verify` 본문은 바꾸지 않는다(claim 동작 변경 보류). `parked_at`을 푸는 것은 사람이 `missing`을 되돌릴 때의 운영 절차다(P4).
+- 대안(채택하지 않음): B 목록을 자산 상태와 조인하는 SQL 함수로 바꾸기 — 조회 경로 전체를 함수로 옮겨야 해서 변경이 더 크다.
+
+#### (5) 정직하게 적는 동작 — 보장하지 않는 것
+
+| 상황 | 일어나는 일 | 보장하지 않는 것 |
+|---|---|---|
+| **absent 반환 포화**: 창 안의 `absent`가 `p_limit`보다 많다 | `p_limit`개만 반환. 나머지는 `object_checked_at`이 그대로라 다음 회차 창의 앞에서 다시 읽힌다 | 한 회차에 다 처리된다는 것. 묶음 D의 몫(회차 상한을 네 묶음이 나눔)이 `p_limit`보다 작으면 반환된 것 중에서도 일부만 판정된다 |
+| **훑기는 했는데 판정을 부르지 못함**(시간 예산·중단·실행 종료) | `present`·`other_object`는 이미 뒤로 갔고, `absent`는 그대로 앞에 남아 다음 회차에 다시 반환된다. 상태 변화 0 | 그 회차 안의 처리 |
+| **훑기 응답이 오지 않음**(대기 초과) | 실행자는 그 회차를 멈춘다. 원격에서 훑기가 뒤늦게 끝나 확인 시각만 갱신됐을 수 있다 — 자산 상태에는 영향이 없다 | 원격 실행의 취소·완료 시각 |
+| **판정 응답이 오지 않음** | 그 회차 중단. 원격에서 뒤늦게 `missing`으로 커밋됐을 수 있다 — 조건을 잠금 안에서 확인한 결과이므로 옳은 전이이고, 다음 회차는 그 행을 더 읽지 않는다 | 어느 쪽으로 끝났는지 그 회차가 아는 것 |
+| **두 회차가 동시에 돈다** | 훑기의 행 읽기를 `for update skip locked`로 해 **같은 순간에는** 서로 다른 행을 읽게 한다. 그래도 한쪽 훑기가 끝난 직후 다른 쪽이 같은 `absent` 후보를 다시 읽을 수 있다(갱신하지 않으므로) → 같은 자산에 판정이 두 번 불릴 수 있고, 회원 → 자산 잠금에서 차례로 실행돼 둘째는 `missing`(멱등)을 돌려준다. 건수는 두 회차에 각각 잡힐 수 있다 | 동시 회차 사이의 중복 호출 0 |
+| **훑기와 다른 함수의 잠금 경합** | 훑기는 권고 잠금을 잡지 않고 행 잠금만 짧게 잡으며 잠긴 행은 건너뛴다(기다리지 않음) → 훑기가 교착의 한쪽이 되지 않는다. `finalize`·`expire`·`claim`·`mark_missing`은 기존대로 회원 → 자산 순서라 서로 기다릴 뿐이다. 훑기가 건너뛴 행은 그 회차에 확인되지 않는다 | 창 안의 모든 행이 그 회차에 확인된다는 것 |
+| **대량의 ready** | 한 바퀴 = ready 수 ÷ 창 크기 ÷ 회차 빈도. 그동안 유령 행은 조회에서 계속 503을 낸다 | **발견 시한·무기아**. 순환하도록 설계했을 뿐 보장으로 적지 않는다 |
+| **실제 DB에서의 훑기 시간** | 창 크기는 구현 때 근거와 함께 정한다(상수). 실행자는 호출당 15초만 기다린다 | 15초 안에 끝난다는 것(실 DB 실측 전 미검증) |
+
+#### (6) missing 자산은 정리 실행자의 삭제 대상이 되지 않는다 — 경로 근거
+
+- 저장소 `remove`에 이르는 길은 `proceedDelete` 하나이고, 그 앞에서 `aif_asset_expire`가 `expired`를 돌려줘야 한다. `expire`는 `ready`·`expired`가 아니면 `skip`이므로(초안 383행) `missing` 자산은 항상 `skip` → 예약(claim)·deleting 표시·remove 0.
+- 묶음 A는 라우트가 `state = 'ready'`만 읽고 실행자가 행의 `state === "ready"`를 다시 확인한다. 묶음 C(`deleting`·`delete_unknown`)는 `mark_missing`이 그 예약 상태에서 `busy`로 거절하므로 `missing`과 함께 있을 수 없다. 묶음 D는 DB 호출만 한다.
+- `claim_delete`는 지금 `missing` 자산을 거절하지 않지만(거절 대상은 `reserved`·`ready`·`unknown`) 그것을 부르는 경로가 없다. **claim 동작은 이번에 바꾸지 않는다** — 대신 아래 시험으로 remove 0을 증명한다.
+
+#### (7) migration 반영 방식 — 두 안을 함께 둔다(선택은 근거 확인 뒤)
+
+| 안 | 내용 | 조건 |
+|---|---|---|
+| **가. 새 파일(기본안)** | `20261118130000_aif_assets_p2_missing.sql`(이름 예): `alter table … add column if not exists` 2건, 색인 2건, 함수 2건. A1 파일 뒤에 실행 | A1 파일이 이미 어딘가에 적용됐든 아니든 안전하다 |
+| 나. 기존 초안에 합침(4차 수정) | 지금까지 1~3차와 같은 방식 | **A1 파일이 어떤 영속 DB에도 적용된 적이 없음을 확인한 뒤에만.** 지금 근거는 작업 기록(격리 DB `qa_aif_*`에서만 생성·삭제, 루트 migration에 `aif_assets` 없음)뿐이고 운영·Lab DB를 직접 조회한 것은 아니다 |
+
+어느 영속 DB든 A1 파일이 처음 적용되는 순간 그 파일은 동결하고, 이후 변경은 새 날짜 파일로 한다. 격리 시험은 어느 안이든 「A1 원문 → (새 파일)」 순서로 적용해 재적용까지 확인한다.
+
+#### (8) 구현 단위의 필수 시험(§20-7의 P2 항목 대체)
+
+- **판정**: id·경로 모두 없을 때만 `missing` · 경로에 다른 id → `other_object` 무변경 · id는 있으나 bucket·name 다름 → 무변경 · 정상 → `present` · `reserved`·`unknown`·`failed`·`expired` → `skip` · 이미 missing → `missing`(멱등) · 예약 `claimed`·`deleting`·`delete_unknown`·`deleted` → `busy` 무변경, 없음·`cancelled`·`delete_failed` → 허용 · 다른 회원·NULL → `skip` · `storage.objects` 읽기 권한 없음 → 예외·롤백(0행 오인 금지) · `ready`로 남기는 반환마다 `object_checked_at` 갱신.
+- **예약 보존**: `missing` 전이 뒤 예약 행의 `state`·`fencing_token`·`attempts`가 그대로이고 `parked_at`만 기록됨 · 활성 예약에는 기록하지 않음 · B 목록 조회(조건 `parked_at is null`)에 그 행이 나오지 않음.
+- **훑기 — 한 회차 상한과 회전**: 창 크기보다 많은 `ready`에서 읽은 행 수 ≤ `p_scan_limit` · 반환 수 ≤ `p_limit` · 정렬이 `(object_checked_at nulls first, id)`로 안정(같은 시각이면 id 순) · 연속 회차에서 `present` 행이 뒤로 가 다른 행이 읽힘(여러 회차에 걸쳐 전부 한 번씩) · `absent` 포화 시 남은 것이 다음 회차에 다시 반환 · `other_object`는 건수만·행 미반환·뒤로 감 · `ready`가 아닌 상태는 읽지 않음 · 모든 회원 대상(보호 회원 포함).
+- **동시성(2연결 실측)**: 훑기 둘이 동시에 돌 때 같은 순간의 창이 겹치지 않음(skip locked) · `mark_missing`이 `expire`(같은 자산)·`finalize`(같은 회원 다른 자산)와 회원 → 자산 순서로 서로 기다림(대기 연결의 `pg_blocking_pids` 일치) · 같은 후보에 판정 두 번 → 둘째 `missing`.
+- **삭제 0 증명**: `missing` 자산에 `expire` → `skip` 무변경 · 실행자 모의에서 `missing` 자산 + 비활성 예약 행이 있어도 claim 0·deleting 표시 0·remove 0 · 묶음 D 전체에서 remove 0 · 보호 회원 행도 D에서 처리되고 삭제 0.
+- **실행자 모의**: 순서 C → D → B → A · 네 묶음 분배와 회차 상한 100 · 훑기·판정의 대기 초과 시 중단·상태 보존·추가 호출 0 · `other_object`·`busy` 건수 · 결과에 경로·회원 id 0.
+- **기존 불변**: 용량(`missing`은 추가분에 들지 않음, 최근 ready였으면 그만큼 줄어듦) · 조회 404 `ASSET_MISSING` · 기존 격리 시험 두 벌을 새 blob으로 1회 재실행(함수 수 단언만 갱신).
+
+#### (9) 그대로 남는 경계
+
+- `storage.objects` 행의 부재는 「저장소 API로 접근할 수 없다」는 뜻이지 물리 파일 삭제의 증명이 아니다. 저장소 복원으로 행이 돌아오면 `missing` 행은 사람이 되돌린다(자동 복구 없음).
+- 인프라가 업로드 요청을 중복 전달해 삭제 뒤에 객체가 다시 생기는 경우(`missing` 행 + 짝 없는 객체)는 우리 코드에 그런 재전송이 없어도 배제를 증명할 수 없다 — 한계로 남기고 짝 없는 객체 정리는 후속이다.
+- 같은 경로의 다른 id·자리를 옮긴 객체는 어떤 경우에도 자동으로 처리하지 않는다. 지금은 건수만 볼 수 있고, 행 단위로 보는 수단은 P3(읽기 전용 집계)이다.
+- 실제 Supabase에서 함수 소유자의 `storage.objects` 읽기 권한, 실제 PostgREST의 함수 응답 모양, 중앙 정리와의 실제 상호작용은 격리 대역으로 확인되지 않는다.
+
 
 ## 14. 진행 상태 기록
 
