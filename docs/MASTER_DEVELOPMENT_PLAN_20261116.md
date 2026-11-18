@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 01:08:51 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 01:26:27 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -460,7 +460,7 @@ Master 마지막 실제 점검: 2026-11-19 01:01:22 KST · 실행 중 점검 주
 | AIF-20261119-W01-A2S | CC-SNS-01 | done / isolated_reference_sql_contract_accepted | W01 참고 이미지 SQL 격리 계약 확인 | 6c4388e52 격리 9/9. ref 3종·크기·권한 확인. 실 Storage 미확인. |
 | AIF-20261119-W01-G3D | CC-SNS-01 | done / asset_id_generation_contract_accepted_with_io_conditions | W01 자산 ID 기반 생성 API 계약 설계 | 8080ce604 조건부 수락. OFF 순서·다운로드 상한·I/O 예산 명확화. |
 | AIF-20261119-W01-G3I | CC-SNS-01 | reviewing / independent_review_changes_required_before_activation | W01 자산 ID 기반 생성 API 로컬 구현 | 독립 검수에서 시간/취소/공급자 오류 및 저장 불명 보완 요구. ON 전 차단. |
-| AIF-20261119-W01-G3T | CC-SNS-01 | running / generation_deadline_and_error_fix_dispatched | W01 생성 API 전체 시간·스트림 취소·오류 처리 보완 | 로컬 수정 전달, 저장 불명 후속 계약 별도. |
+| AIF-20261119-W01-G3T | CC-SNS-01 | reviewing / deadline_fix_returned_mac_recheck_dispatched | W01 생성 API 전체 시간·스트림 취소·오류 처리 보완 | 5eced061e 작성자 265/265·tsc. CX-QA-01 재검수 전달, 저장 불명 별도. |
 | AIF-20261118-W03 | 미배정 | queued / sequenced_after_w01_and_w02_by_owner_instruction | 회원용 인물 라이브러리·시트·버전 | 주인님 지시대로 W01·W02 이후 시작. 인물 라이브러리·일괄 이미지·영상 미착수. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 

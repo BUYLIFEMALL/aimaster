@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T16:08:51.670Z",
+  "checkedAt": "2026-11-18T16:26:27.201Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5295,14 +5295,21 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "W01 생성 API 전체 시간·스트림 취소·오류 처리 보완",
-      "status": "running",
-      "delivery": "generation_deadline_and_error_fix_dispatched",
+      "status": "reviewing",
+      "delivery": "deadline_fix_returned_mac_recheck_dispatched",
       "scopeRef": "generations.ts·generationsRoute.test.mjs와 필요한 경우 referenceImage.ts 선택적 취소 인자",
       "completion": "전체 마감·남은 시간 유료 진입 조건·취소 대기 분리·고정 오류/로그의 좁은 회귀 시험. 저장 불명은 후속 최소 계약 보고.",
       "constraints": "OFF·기존 호출 계약 유지. 실 DB/Storage/AI·빌드·배포·UI·W02 없음.",
-      "evidence": "msg_8006700cd7e4",
-      "next": "담당 수락, 수정 SHA, 시험 근거 후 CX-QA-01 재검수.",
-      "lastReviewedAt": "2026-11-18T16:08:51.670Z"
+      "evidence": "msg_8006700cd7e4·msg_d9e2b0529a75·msg_3de30516387c",
+      "next": "CX-QA-01 독립 재검수 회신 대기. 이후 저장 시간 초과 후 예약 ID 회수와 미확보 시 결과 계약을 별도 보완.",
+      "lastReviewedAt": "2026-11-18T16:26:27.201Z",
+      "sha": "5eced061e",
+      "validation": {
+        "author": "변경 경로 32/32, 전체 265/265 및 tsc 보고. 변형 12 assertion 실패·4 외부 시간 제한.",
+        "master": "고정 3개 blob·요청 마감/예약 불명 경계·수정 범위 확인",
+        "independent": "msg_3de30516387c 전달, 수락 대기",
+        "unverified": "운영 타임아웃·원격 신호 취소, 저장 timeout 이후 ID; OFF/미배포"
+      }
     }
   ],
   "programOverrides": [
