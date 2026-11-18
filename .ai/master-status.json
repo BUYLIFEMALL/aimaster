@@ -3992,19 +3992,19 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-MASTER-01",
       "title": "웹훅 중복 방지 실제 연결 최소 단위 계획",
-      "status": "needs_revision",
-      "delivery": "duplicate_id_validation_and_source_throw_fix_dispatched",
+      "status": "ready_review",
+      "delivery": "u1_boundary_fix_independent_review_dispatched",
       "scopeRef": "실 form-submit/[token]/route.ts·새 실제route시험·기존문서만(U1), parser/DDL/dispatch/공용SDK/스니펫 불변",
       "completion": "v2 insert선점/정확중복만200·회원source경계·legacy유지·크기/형식·실route 순차/동시/DB오류 시험",
       "constraints": "미배포 소스만·DDL선행필수·운영DDL/실API/실발송/build/deploy0",
-      "next": "Backend duplicate UUID/조회throw 고정오류 수정 SHA 회수→Mac 재검수",
-      "evidence": "계획msg_300933f94c2e·546bd0fb0 21절/실dispatch 확인·점유해제0a0997c65·Master U1범위/23505검증 보완지시 · 완료msg_4f2aaf809d48 · Master4파일stat/route본문확인 · Macmsg_5445bef602a4 · Mac중간msg_24a60c98c1f9 · 기존4파일수정반환",
-      "lastReviewedAt": "2026-11-18T04:15:08.847Z",
-      "sha": "3e2eb60a9",
+      "next": "Mac 662797f32 UUID/조회예외 보완 및 기존실route 회귀 검수→판정",
+      "evidence": "계획msg_300933f94c2e·546bd0fb0 21절/실dispatch 확인·점유해제0a0997c65·Master U1범위/23505검증 보완지시 · 완료msg_4f2aaf809d48 · Master4파일stat/route본문확인 · Macmsg_5445bef602a4 · Mac중간msg_24a60c98c1f9 · 기존4파일수정반환 · 원본최종msg_be55e38ccb41/수락msg_aca66829fdcd · 수정msg_94ac7ed25fc3 · Master3파일diff확인",
+      "lastReviewedAt": "2026-11-18T04:17:22.776Z",
+      "sha": "662797f32",
       "validation": {
-        "author": "실route 모의DB/dispatch12/12·전체107/107·tsc0, NOTICE check 수정0",
-        "master": "정확4파일/실route확인. legacy dedupe컬럼미포함·v2 23505후user/source/key 확인·완독후64KiB 제한",
-        "independent": "3e2 native12/12 및 실route 동시1회/폼분리/token/UTF8경계/커밋유실/legacy 지정통과. 빈/공백/비UUID id도duplicate200, source조회throw 예외전파 재현. 실Next로그/HTTP누출 증거 아님. 수정 반환."
+        "author": "실route17/17·전체112/112·tsc0, UUID모양 검증 및 admin/source예외 고정500",
+        "master": "3파일stat/route diff 확인. 원본 W-F01/W-F02 결과 보존, insert불명/dispatch/update예외·received상태는 U2 미완으로 분리",
+        "independent": "원본3e2 최종 지정통과와 W-F01/W-F02 보존. 새662797f32 재검수 전달, 수락/결과 대기"
       },
       "limitations": [
         "U1 단독 운영 배포 금지·운영 DDL 미적용",
@@ -4509,20 +4509,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T04:15:08.847Z",
+      "at": "2026-11-18T04:17:22.776Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM U1 독립검수 중간 보고",
-      "scope": "중복확인 id 검증·source조회 예외 처리·후속 수정 반환",
+      "trigger": "CRM U1 원본 최종 및 수정 완료 이벤트",
+      "scope": "3e2 최종검수 보존·662797f32 범위/변경·Mac 재검수",
       "evidence": [
-        "msg_24a60c98c1f9",
-        "Backend 기존4파일 보완 전달·Mac 원본판정 보존 전달"
+        "msg_be55e38ccb41 원본최종",
+        "msg_94ac7ed25fc3 수정완료",
+        "Master git show 3파일·실route diff"
       ],
-      "judgment": "정상경로 지정통과 보존, 오류경계2건 수정 후 재검수. 운영 보호완료/로그누출 재현으로 과장하지 않음.",
+      "judgment": "오류경계 수정본 수신·독립 재검수 배정, 완료 수락 전 대기. U1 단독배포 금지 유지.",
       "unverified": [
-        "수정SHA/독립재검수",
+        "새SHA 독립검수",
         "U2/운영 연결"
       ],
-      "nextAction": "새SHA 회수 후 Mac 지정검수"
+      "nextAction": "Mac 결과 수신 후 수락/반환·U2 소스범위 검토"
     },
     "notifications": [
       {
