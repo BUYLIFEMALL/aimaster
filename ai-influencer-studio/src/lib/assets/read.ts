@@ -107,6 +107,8 @@ export async function handleGetAsset(deps: AssetGetDeps, assetId: unknown): Prom
   }
   if (state === "failed") return out(404, { error: "저장되지 않은 자료입니다.", code: "ASSET_NOT_SAVED" });
   if (state === "missing") return out(404, { error: "파일을 찾을 수 없습니다.", code: "ASSET_MISSING" });
+  // 보관 정리가 「기간 만료」로 판정해 기록한 상태(W01-R1). 우리가 판정한 확정 사실이라 이 문구를 쓴다. 서명 URL을 더 발급하지 않는다(서명 호출 0).
+  if (state === "expired") return out(404, { error: "보관 기간이 지난 자료입니다.", code: "ASSET_EXPIRED" });
   if (state !== "ready" || !isCanonicalUuid(row.object_id)) return UNAVAILABLE();   // 모르는 상태·객체 id 없는 ready는 확인 불가
 
   // 짧은 서명 URL. 실패·던짐·모양 이상은 삭제·보관 만료로 단정하지 않고 503, DB 상태는 바꾸지 않는다.

@@ -22,6 +22,14 @@
 --  (회원은 함수 execute 권한이 없음). 4의 cast 예외는 함수 예외 → 거래 롤백으로 예약 행이 보존되므로 용량 해제 피해로 단정하지 않는다.
 --  함수는 9개(계약 6 + 보조 usage_estimate·abort_local·meta_size). 보조 함수는 새 기능이 아니라 계약 구현을 돕는 내부용이다.
 --  미확인: 기존 정책/기본 GRANT 재적용 안전성(create or replace 시 기존 grant 유지 여부)은 격리 DB 실행 때 확인한다.
+--
+-- 3차 수정(2026-11-18, 보관 정리 W01-R1 — 계약 W00 §19·§19-R1·§19-R2 최종 3b84540d7, Master msg_aa5f14772e27) — ★ 이 수정분은 어떤 DB에도 실행하지 않았다(격리 DB 포함):
+--  a) 상태 expired(+expired_at): 일반 회원의 기간 지난 ready 자산 전용. ready를 곧바로 삭제 예약으로 풀지 않기 위한 한 단계.
+--  b) usage_estimate: expired는 삭제 예약이 deleted로 확정되기 전까지 전부 더한다(시간·중앙 측정 추정으로 빼지 않는다, R1-F01).
+--  c) aif_asset_expire(신규): 잠금 안에서 보호 여부·정책 기간·객체 생성 시각을 다시 읽어 ready→expired / expired→ready(복원) 판정. 기산은 중앙과 같은 storage.objects.created_at(R2-3).
+--  d) aif_asset_delete_verify(신규): 외부 삭제 요청 뒤의 유일한 확정 경로. 객체 없음만 deleted, 그 밖은 delete_unknown 유지(R2-1).
+--  e) delete_mark: delete_unknown → delete_failed 전이 제거(외부 요청이 나간 뒤에는 「실패(재시도 가능)」로 확정할 근거가 없다, R2-1).
+--  함수는 11개(기존 9 + expire·delete_verify). 예약 실행 등록·버킷·추적 버킷 등록은 여전히 이 파일에 없다.
 
 -- ───────────────────────── 1. 표 aif_assets ─────────────────────────
 create table if not exists public.aif_assets (
@@ -34,9 +42,10 @@ create table if not exists public.aif_assets (
   path            text not null,
   bytes           bigint not null check (bytes > 0),
   sha256          text check (sha256 is null or sha256 ~ '^[0-9a-f]{64}$'),
-  state           text not null default 'reserved' check (state in ('reserved','ready','failed','unknown','missing')),
+  state           text not null default 'reserved' check (state in ('reserved','ready','failed','unknown','missing','expired')),
   object_id       uuid,                                               -- storage.objects.id (finalize 때 기록, 객체 동일성)
   stored_at       timestamptz,                                        -- ready 전환 시각(clock_timestamp)
+  expired_at      timestamptz,                                        -- expired 전환 시각. 보관 기간 판정에는 쓰지 않는다(기산은 storage.objects.created_at)
   unknown_since   timestamptz,                                        -- 표시·사람 복구용. 시간 판정에 쓰지 않음(R2-2)
   missing_reason  text check (missing_reason is null or missing_reason in ('object_absent')),
   created_at      timestamptz not null default now(),
@@ -53,7 +62,8 @@ create table if not exists public.aif_assets (
     (mime in ('image/heic','image/heif') and ext = 'heic')
   ),
   constraint aif_assets_ready_shape check (state <> 'ready' or (object_id is not null and stored_at is not null)),
-  constraint aif_assets_missing_shape check (state <> 'missing' or missing_reason is not null)
+  constraint aif_assets_missing_shape check (state <> 'missing' or missing_reason is not null),
+  constraint aif_assets_expired_shape check (state <> 'expired' or (expired_at is not null and object_id is not null))
 );
 create index if not exists aif_assets_user_created_idx on public.aif_assets (user_id, created_at desc);
 create index if not exists aif_assets_state_created_idx on public.aif_assets (state, created_at);
@@ -68,7 +78,7 @@ revoke all on table public.aif_assets from anon;
 grant select on table public.aif_assets to authenticated;   -- RLS가 본인 ready만 보이게 한다
 
 -- ───────────────────────── 2. 표 aif_asset_deletions ─────────────────────────
--- 삭제 예약(W00 §16). 이 단위에서는 외부 삭제를 실행하지 않는다 — claim/mark 함수만 계약대로 두고 호출부는 다음 단위.
+-- 삭제 예약(W00 §16). 호출부는 보관 정리 실행자(src/lib/assets/retention.ts, 3차 수정) 하나다.
 create table if not exists public.aif_asset_deletions (
   asset_id        uuid primary key,                                   -- FK 없음(행 없는 고아 객체도 경로의 id로 예약)
   user_id         uuid not null,
@@ -113,11 +123,15 @@ begin
   v_central := coalesce(v_central, 0);
   select pol.quota_bytes into v_quota from public.member_storage_policy(p_user) pol;
   -- R1-2·R2-1: reserved/unknown 전부 + 측정에 아직 안 들어갔을 수 있는 ready(측정 시각 - 10분 여유). 측정 기록이 없으면 ready 전부.
+  -- §19-R1-F01: expired는 삭제 예약이 deleted로 확정된 것만 빼고 전부 더한다. 중앙 측정이 같은 객체를 이미 세면 이중 계산(보수)이며 허용한다.
+  --   「오래됐으니 중앙에 이미 들어 있을 것」이라는 이유로 빼지 않는다(중앙 미측정·오래된 회차에서 과소 계산).
   select coalesce(sum(a.bytes), 0) into v_ours
   from public.aif_assets a
   where a.user_id = p_user
     and (a.state in ('reserved','unknown')
-         or (a.state = 'ready' and (v_measured is null or a.stored_at > v_measured - interval '10 minutes')));
+         or (a.state = 'ready' and (v_measured is null or a.stored_at > v_measured - interval '10 minutes'))
+         or (a.state = 'expired' and not exists (
+               select 1 from public.aif_asset_deletions d where d.asset_id = a.id and d.state = 'deleted')));
   return query select (v_central + v_ours)::bigint, v_quota, v_measured;
 end $$;
 revoke all on function public.aif_asset_usage_estimate(uuid) from public, anon, authenticated;
@@ -299,7 +313,9 @@ grant execute on function public.aif_asset_claim_delete(uuid, uuid, text, text) 
 -- 수정 3(Master msg_6e34a04e985b): 예약 행의 회원을 먼저 확인 → 회원 잠금 → 자산 잠금 → 행·토큰·상태 재확인. 전이 행렬을 고정하고 deleted에서의 되살림은 없다.
 --   claimed → deleting | cancelled
 --   deleting → deleted | delete_failed | delete_unknown
---   delete_unknown → deleted | delete_failed   (조회로 확정된 결과만)
+--   delete_unknown → deleted   (aif_asset_delete_verify의 「객체 없음」 확인으로만. 3차 수정: delete_unknown → delete_failed 제거 —
+--                               외부 삭제 요청이 나간 뒤에는 「지금 객체가 있다」가 요청 종료의 증거가 아니라 재시도 가능으로 확정할 수 없다)
+--   deleting → delete_failed 는 「deleting 커밋 뒤 외부 요청을 보내지 않은 것이 확정된」 호출부만 쓴다(현재 정리 실행자는 쓰지 않는다)
 --   delete_failed → (claim_delete로 재예약만, 여기서는 전이 없음)
 --   deleted, cancelled → 전이 없음
 create or replace function public.aif_asset_delete_mark(p_asset uuid, p_user uuid, p_token uuid, p_state text)
@@ -321,7 +337,7 @@ begin
   if not found or v_del.fencing_token is distinct from p_token or v_del.state is null then return false; end if;
   v_ok := (v_del.state = 'claimed' and p_state in ('deleting','cancelled'))
        or (v_del.state = 'deleting' and p_state in ('deleted','delete_failed','delete_unknown'))
-       or (v_del.state = 'delete_unknown' and p_state in ('deleted','delete_failed'));
+       or (v_del.state = 'delete_unknown' and p_state = 'deleted');
   if not coalesce(v_ok, false) then return false; end if;
   update public.aif_asset_deletions set state = p_state, attempts = attempts + (case when p_state = 'deleting' then 1 else 0 end), updated_at = now()
   where asset_id = p_asset and user_id = p_user and fencing_token = p_token and state = v_del.state;
@@ -331,8 +347,157 @@ end $$;
 revoke all on function public.aif_asset_delete_mark(uuid, uuid, uuid, text) from public, anon, authenticated;
 grant execute on function public.aif_asset_delete_mark(uuid, uuid, uuid, text) to service_role;
 
+-- ───────────────────────── 9-b. 기간 만료 판정(보관 정리, 3차 수정) ─────────────────────────
+-- 계약 W00 §19-R1-F03 상태표 + §19-R2-2·R2-3. 반환값:
+--   expired  — 지금 만료 대상이 맞다(ready였으면 expired로 바꿨다). 삭제 진행의 전제.
+--   restored — expired였는데 더는 대상이 아니다(보호 회원이 됨·기간 미경과·무기한) → ready로 되돌렸다. 삭제 0.
+--   not_due  — ready이고 대상이 아니다. 무변경.
+--   unknown  — 판정에 필요한 값을 읽지 못했다(프로필·정책·객체 생성 시각 없음). 자산 상태 무변경. 삭제 0.
+--   busy     — 다른 실행이 삭제 예약(claimed)을 쥐고 있다. 무변경. 삭제 0.
+--   locked   — 외부 삭제가 이미 나갔거나 끝났다(deleting·delete_unknown·deleted). 복원 금지. 무변경.
+--   skip     — 대상 행이 아니다(없음·타 회원·reserved/unknown/failed/missing).
+-- 규칙
+--  * 보호 판정은 프로필 한 곳(profiles.retention_exempt)만 본다. 기간은 member_storage_policy(uid).retention_days — 코드·SQL에 30을 적지 않는다.
+--  * 기산일은 중앙과 같은 storage.objects.created_at이며, 우리가 기대하는 객체(id·bucket·name 모두 일치)에서만 읽는다.
+--    그 행이 없거나 created_at이 NULL이면 만료시키지 않는다(unknown). 객체 없는 ready 행의 복구는 후속 단위.
+--  * 삭제 예약이 claimed일 때: 같은 토큰으로 부른 호출만 판정을 계속한다. 토큰 없이 부른 호출은, 그 claimed가 1시간 넘게 그대로일 때만
+--    cancelled로 바꾼다. 근거는 시간이 아니라 상태 불변식이다 — 외부 삭제는 delete_mark(deleting) 커밋 뒤에만 나가므로 claimed 동안에는
+--    외부 요청이 나간 적이 없다. 1시간은 「멈춘 실행으로 볼 최소 대기」일 뿐이다. 취소는 읽은 토큰·updated_at이 그대로일 때만(CAS) 한다.
+--    취소된 옛 실행은 delete_mark(deleting)이 false가 되므로 외부 삭제를 보내지 못한다. 토큰이 「다른」 호출은 남의 예약을 건드리지 않는다(busy).
+--  * 만료로 바꿀 때 삭제 예약 행이 없으면 같은 거래에서 cancelled 행을 만든다(토큰은 아무도 모르는 새 값 → claim_delete가 새로 발급해야 쓸 수 있다).
+--    「expired인데 예약 행이 없는」 상태를 만들지 않아, 정리 실행자가 예약 표만 보고 이어 갈 수 있게 하기 위해서다.
+--  * cancelled·delete_failed 예약 행은 확인할 때마다 updated_at만 갱신한다(상태 무변경). 정리 실행자가 updated_at 오름차순으로 돌아가며 보게 하려는 것.
+--  * 한계: 이 함수의 재확인과 외부 삭제 요청 사이에 회원이 보호 대상이 되면 그 파일은 지워질 수 있다(원자적이지 않다).
+create or replace function public.aif_asset_expire(p_asset uuid, p_user uuid, p_token uuid default null)
+returns text
+language plpgsql security definer set search_path = '' as $$
+declare
+  v_asset record; v_del record; v_has_del boolean := false; v_del_state text;
+  v_exempt boolean; v_days integer; v_unlimited boolean; v_created timestamptz; v_due boolean; v_rows integer;
+begin
+  if p_asset is null or p_user is null then return 'skip'; end if;
+  perform pg_advisory_xact_lock(hashtext('aif_user:' || p_user::text));
+  perform pg_advisory_xact_lock(hashtext('aif_asset:' || p_asset::text));
+  select * into v_asset from public.aif_assets t where t.id = p_asset and t.user_id = p_user for update;
+  if not found then return 'skip'; end if;
+  if v_asset.state not in ('ready','expired') then return 'skip'; end if;
+
+  -- 삭제 예약 상태
+  select * into v_del from public.aif_asset_deletions t where t.asset_id = p_asset for update;
+  v_has_del := found;
+  if v_has_del then
+    if v_del.user_id is distinct from p_user or v_del.bucket is distinct from v_asset.bucket or v_del.path is distinct from v_asset.path then return 'locked'; end if;
+    if v_del.state in ('deleting','delete_unknown','deleted') then return 'locked'; end if;
+    v_del_state := v_del.state;
+    if v_del.state = 'claimed' and (p_token is null or v_del.fencing_token is distinct from p_token) then
+      -- 토큰이 다른 호출은 남의 예약을 건드리지 않는다. 토큰 없는 호출만 오래 멈춘 claimed를 취소한다.
+      if p_token is not null or v_del.updated_at >= now() - interval '1 hour' then return 'busy'; end if;
+      update public.aif_asset_deletions set state = 'cancelled', updated_at = now()
+      where asset_id = p_asset and state = 'claimed' and fencing_token = v_del.fencing_token and updated_at = v_del.updated_at;
+      get diagnostics v_rows = row_count;
+      if v_rows <> 1 then return 'busy'; end if;
+      v_del_state := 'cancelled';
+    elsif v_del.state in ('cancelled','delete_failed') then
+      update public.aif_asset_deletions set updated_at = now() where asset_id = p_asset and state = v_del.state;   -- 확인 시각만(상태 무변경)
+    end if;
+  end if;
+
+  -- 보호 여부(프로필 한 곳)와 정책 기간
+  select p.retention_exempt into v_exempt from public.profiles p where p.id = p_user;
+  if not found or v_exempt is null then return 'unknown'; end if;
+  select pol.retention_days, pol.unlimited_retention into v_days, v_unlimited from public.member_storage_policy(p_user) pol;
+  if not found then return 'unknown'; end if;
+
+  if v_exempt or coalesce(v_unlimited, false) or v_days is null then
+    v_due := false;                                   -- 확정: 대상 아님(보호 회원·무기한)
+  else
+    if v_days < 1 then return 'unknown'; end if;      -- 이상한 정책 값으로는 지우지 않는다
+    select so.created_at into v_created
+    from storage.objects so
+    where so.id = v_asset.object_id and so.bucket_id = v_asset.bucket and so.name = v_asset.path;
+    if not found or v_created is null then return 'unknown'; end if;   -- 행 없음·다른 객체·시각 없음 → 만료 0
+    v_due := v_created < now() - make_interval(days => v_days);
+  end if;
+
+  if v_due then
+    if v_asset.state = 'ready' then
+      update public.aif_assets set state = 'expired', expired_at = clock_timestamp(), updated_at = now()
+      where id = p_asset and user_id = p_user and state = 'ready' and object_id = v_asset.object_id;
+      get diagnostics v_rows = row_count;
+      if v_rows <> 1 then return 'unknown'; end if;
+    end if;
+    if not v_has_del then
+      insert into public.aif_asset_deletions (asset_id, user_id, bucket, path, state, fencing_token)
+      values (p_asset, p_user, v_asset.bucket, v_asset.path, 'cancelled', gen_random_uuid());
+    end if;
+    return 'expired';
+  end if;
+
+  -- 대상이 아니다
+  if v_asset.state = 'expired' then
+    update public.aif_assets set state = 'ready', expired_at = null, updated_at = now()
+    where id = p_asset and user_id = p_user and state = 'expired';
+    get diagnostics v_rows = row_count;
+    if v_rows <> 1 then return 'unknown'; end if;
+    if v_has_del and v_del_state = 'claimed' then
+      -- 같은 토큰으로 쥔 예약을 같은 거래에서 취소한다(이 뒤로 그 토큰은 deleting에 들어갈 수 없다)
+      update public.aif_asset_deletions set state = 'cancelled', updated_at = now()
+      where asset_id = p_asset and state = 'claimed' and fencing_token = p_token;
+    end if;
+    return 'restored';
+  end if;
+  return 'not_due';
+end $$;
+revoke all on function public.aif_asset_expire(uuid, uuid, uuid) from public, anon, authenticated;
+grant execute on function public.aif_asset_expire(uuid, uuid, uuid) to service_role;
+
+-- ───────────────────────── 9-c. 삭제 결과 확인(보관 정리, 3차 수정) ─────────────────────────
+-- 계약 W00 §19-R2-1. 외부 삭제 요청을 보낸 뒤(deleting·delete_unknown)의 유일한 확정 경로. 판정과 표시를 한 거래에서 한다. 반환값:
+--   deleted  — storage.objects에 그 bucket·name 행이 없다 → 예약을 deleted로 바꿨다(이미 deleted면 그대로 deleted).
+--   unknown  — 우리가 기대한 객체(같은 id)가 아직 있다 → delete_unknown 유지. 재삭제·복원 금지(요청이 늦게 처리될 수 있다).
+--   mismatch — 같은 경로에 다른 id의 객체가 있다(또는 기대 id를 모른다) → delete_unknown 유지. 재삭제 0, 사람 확인 대상.
+--   denied   — 토큰·회원·상태가 맞지 않는다 → 아무것도 바꾸지 않는다. 호출부는 그 자산 처리를 즉시 멈춘다.
+-- 주의: 「행이 없다」는 것은 저장소 메타데이터에 지금 없다는 뜻이다. 물리 파일의 영구 삭제를 보장하지 않는다.
+--   delete_unknown인 행은 확인할 때마다 updated_at이 갱신된다(정리 실행자의 순환 조회용).
+create or replace function public.aif_asset_delete_verify(p_asset uuid, p_user uuid, p_token uuid)
+returns text
+language plpgsql security definer set search_path = '' as $$
+declare v_del record; v_expected uuid; v_any boolean; v_same boolean; v_rows integer;
+begin
+  if p_asset is null or p_user is null or p_token is null then return 'denied'; end if;
+  select t.user_id into v_del from public.aif_asset_deletions t where t.asset_id = p_asset;
+  if not found or v_del.user_id is distinct from p_user then return 'denied'; end if;
+  perform pg_advisory_xact_lock(hashtext('aif_user:' || p_user::text));
+  perform pg_advisory_xact_lock(hashtext('aif_asset:' || p_asset::text));
+  select * into v_del from public.aif_asset_deletions t where t.asset_id = p_asset and t.user_id = p_user for update;
+  if not found or v_del.fencing_token is distinct from p_token then return 'denied'; end if;
+  if v_del.state = 'deleted' then return 'deleted'; end if;
+  if v_del.state not in ('deleting','delete_unknown') then return 'denied'; end if;
+
+  select exists (select 1 from storage.objects so where so.bucket_id = v_del.bucket and so.name = v_del.path) into v_any;
+  if not v_any then
+    update public.aif_asset_deletions set state = 'deleted', updated_at = now()
+    where asset_id = p_asset and user_id = p_user and fencing_token = p_token and state = v_del.state;
+    get diagnostics v_rows = row_count;
+    if v_rows <> 1 then return 'denied'; end if;
+    return 'deleted';
+  end if;
+
+  select a.object_id into v_expected from public.aif_assets a where a.id = p_asset and a.user_id = p_user;
+  select exists (select 1 from storage.objects so where so.bucket_id = v_del.bucket and so.name = v_del.path and so.id = v_expected) into v_same;
+  update public.aif_asset_deletions set state = 'delete_unknown', updated_at = now()
+  where asset_id = p_asset and user_id = p_user and fencing_token = p_token and state = v_del.state;
+  get diagnostics v_rows = row_count;
+  if v_rows <> 1 then return 'denied'; end if;
+  return case when coalesce(v_same, false) then 'unknown' else 'mismatch' end;
+end $$;
+revoke all on function public.aif_asset_delete_verify(uuid, uuid, uuid) from public, anon, authenticated;
+grant execute on function public.aif_asset_delete_verify(uuid, uuid, uuid) to service_role;
+
 -- ───────────────────────── 10. 이 파일에 없는 것(의도) ─────────────────────────
 -- * storage.buckets 'aif-assets' 생성(private, 20MB, mime 5종) — 별도 승인 후 생성.
--- * storage_posting_tracked_buckets 등록·member_mark_posted 호출 — W07 게시 성공 때.
+-- * storage_posting_tracked_buckets 등록 — 최초 운영 ON 때 버킷 생성과 함께(W00 §19-R2-4, 별도 승인). member_mark_posted 호출 — W07 게시 성공 때.
+-- * 보관 정리 예약 실행(vercel.json crons) 등록 — 운영 ON 승인 때.
+-- * reserved·unknown(업로드 불명)·delete_unknown(삭제 불명)·객체 없는 ready 행의 복구 — 후속 단위.
 -- * programs.version 갱신 — 배포 때.
 -- * 중앙 quota/retention 함수·표 수정 — 없음.

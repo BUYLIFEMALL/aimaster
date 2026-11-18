@@ -818,6 +818,41 @@ where so.id = v_asset.object_id and so.bucket_id = v_asset.bucket and so.name = 
 
 반례 교체·추가: `remove` 뒤 같은 객체가 남아 있음 → `delete_unknown`·재삭제 0·복원 0·용량 유지 · `remove` 오류 응답(4xx 포함)도 미전송으로 보지 않음 · 옛 토큰으로 `deleting` 진입 실패 시 `remove` 0회 · `claimed` 취소 CAS(토큰·`updated_at` 불일치면 무변경) · 기산 조회에서 행 없음·다른 객체·`created_at` NULL·기간 NULL이면 만료 0 · `finalize`가 늦어도 객체 생성 시각 기준으로 만료.
 
+### 19-R3. 구현 전 주의 3개와 첫 구현 기록 — Mac `msg_6318619e8ba6`·Master `msg_aa5f14772e27` (§19-R2 조건부 수락)
+
+#### 주의 3개 (R2의 해당 문장보다 이 절이 우선)
+
+1. **CAS 실패는 그 행의 상태를 바꿀 권한이 아니다.** 토큰·상태 대조가 맞지 않으면 그 예약은 우리 것이 아니므로 아무것도 바꾸지 않고 그 자산 처리를 멈춘다. R2-1에서 「deleting 커밋 전 로컬 실패(토큰·상태 CAS 실패 …)에 delete_failed」라고 쓴 것은 틀렸다 — 전이 행렬에 `claimed → delete_failed`는 없다. **deleting 커밋 전에 그만둘 때는 우리 토큰으로 `cancelled`**를 시도하고(맞지 않으면 무변경), `delete_failed`는 「deleting 커밋 뒤 외부 요청을 보내지 않은 것이 확정된」 호출부만 쓴다(현재 정리 실행자는 쓰지 않는다).
+2. **「기간이 지나면 다음 회차(하루 1회면 약 하루 안)에 지워진다」는 정상 회차의 예일 뿐 보장이 아니다.** 밀린 건이 회차 상한(100건)보다 많거나, 회차가 중단되거나(보호 목록 불명·시간 예산), 판정 불가(`unknown`)·삭제 불명(`delete_unknown`)이면 더 늦어지거나 지워지지 않는다.
+3. **`deleted`는 「저장소 메타데이터(`storage.objects`)에 지금 그 행이 없다」는 확인이다.** 물리 파일의 영구 삭제를 보장하지 않는다.
+
+유지되는 한계: 재확인과 외부 삭제 사이의 보호 변경, 외부 DELETE의 비원자성(§19-4·R1).
+
+#### 첫 구현(OFF·모의) — 계약과 다르게 구현한 점 (Master 판정 대상)
+
+| # | 계약 문장 | 구현 | 이유 |
+|---|---|---|---|
+| 1 | `delete_verify`가 판정하고 실행자가 `delete_mark`로 표시 | **`delete_verify`가 판정과 표시를 한 거래에서** 한다(`deleting/delete_unknown → deleted` 또는 `→ delete_unknown`) | 판정과 표시 사이의 틈을 없앤다. 전이 자체는 행렬과 같다 |
+| 2 | 묶음 B에 「expired인데 예약 없음」 포함 | **`aif_asset_expire`가 만료로 바꾸는 같은 거래에서 예약 행을 `cancelled`(아무도 모르는 새 토큰)로 만든다** → 실행자는 예약 표만 읽는다 | 「expired + 예약 없음」을 찾으려면 두 표의 반대 조인이 필요하고, 끝난(`deleted`) 행이 쌓이면 조회 앞자리를 막는다. 새 토큰은 `claim_delete`가 다시 발급해야 쓸 수 있어 삭제 권한이 아니다 |
+| 3 | (명시 없음) | `aif_asset_expire`·`delete_verify`가 확인한 `cancelled`·`delete_failed`·`delete_unknown` 예약 행의 **`updated_at`만 갱신**(상태 무변경) | 실행자가 `updated_at` 오름차순으로 읽어 매 회차 다른 행부터 보게 한다(같은 행이 앞자리를 계속 차지하지 않게) |
+| 4 | 오래된 `claimed` 취소(R2-2) | **토큰 없이 부른 호출만** 취소한다. 다른 토큰으로 부른 호출은 항상 `busy` | 토큰이 다른 실행이 남의 예약을 취소하지 못하게 |
+| 5 | `delete_mark` 행렬 `delete_unknown → deleted \| delete_failed` | **`delete_unknown → delete_failed` 제거** | R2-1: 외부 요청이 나간 뒤에는 재시도 가능으로 확정할 근거가 없다 |
+| 6 | Bearer 전용 | 추가로 **비밀값이 16자 미만·앞뒤 공백 포함이면 모든 요청 거절** | 비어 있거나 `"undefined"` 같은 값으로 열리지 않게(fail-closed). 운영 `CRON_SECRET`이 16자 미만이면 이 라우트는 401만 낸다 — ON 전 확인 항목 |
+
+#### 검증 구분 (서로 다른 것 — 합쳐 읽지 않는다)
+
+| 구분 | 내용 |
+|---|---|
+| 작성자 모의 시험 | `tests/assetRetention.test.mjs` 29건(가짜 DB 상태 기계 = SQL 초안 함수를 계약대로 흉내 낸 것, 실제 라우트 GET 포함) + 조회 `expired` 1건. 전체 `npm test` 152/152, `npx tsc --noEmit` 통과. 변형 21종 전부 빨강 확인 뒤 원복 |
+| SQL | **작성만. 어떤 DB에도 실행하지 않았다(격리 DB 포함).** 정적 확인(파일 글자)만 시험에 있다. 문법·권한·잠금·실제 동작은 미검증 |
+| 기존 격리 시험 15/15 | **수정 전 SQL(blob b29821216)의 결과다.** 이번 3차 수정 뒤에는 다시 돌리지 않았다 — 새 함수 2개와 `expired`의 격리 시험은 미작성 |
+| Mac 독립 검수 | 대기 |
+| 실 운영 | 스위치 off(서버 상수), 예약 실행 미등록, 버킷·DB·저장소·삭제 0, 미배포 |
+
+미확인(운영 ON 전): 실제 PostgREST에서 `aif_assets → profiles` 포함 조회(`profiles!inner(retention_exempt)`)가 동작하는지, 실제 Supabase에서 함수 소유자가 `storage.objects`·`profiles`·`member_storage_policy`를 읽을 수 있는지, 운영 `CRON_SECRET` 길이.
+
+후속 단위로 넘긴 것: 업로드 `unknown`·`reserved` 복구, 오래 남는 `delete_unknown`·`mismatch` 해소, 객체 없는 `ready` 행(묶음 A 앞자리를 막을 수 있음), `attempts` 상한에 걸린 예약, 메타 행 보관 기간, `markPosted`.
+
 ## 14. 진행 상태 기록
 
 ```text
@@ -888,3 +923,5 @@ DB: 해당 없음(읽기만) · 배포: 해당 없음
 | 15 | 히스토리↔자산 연결, 참고 이미지의 자산 ID 전환(A2: 클라이언트 업로드 ticket) | 미착수 | 차단 아님(후속) |
 
 결론: **일반 회원 보관 정리(6·7·8)가 연결되기 전에는 운영 ON을 하지 않는다.** 위 항목 가운데 완료된 것은 없다 — 모두 준비 목록이다.
+
+- (2026-11-18 갱신) 14-B의 6·7·8은 **OFF·모의 첫 구현**이 들어갔다(§19-R3). 운영 ON 차단은 그대로다 — SQL 미실행·실 DB/저장소 통합 미검증·예약 실행 미등록.

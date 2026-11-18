@@ -162,12 +162,14 @@ test("shadow: reserved·unknown은 「확인 중」(202) — 서명·재생성·
   }
 });
 
-test("shadow: failed·missing은 구분된 404, 서명 0", async () => {
-  for (const [state, code] of [["failed", "ASSET_NOT_SAVED"], ["missing", "ASSET_MISSING"]]) {
+test("shadow: failed·missing·expired는 구분된 404, 서명 0", async () => {
+  // expired = 보관 정리가 기간 만료로 판정해 기록한 상태(W01-R1). 객체 id가 남아 있어도 서명 URL을 발급하지 않는다.
+  for (const [state, code] of [["failed", "ASSET_NOT_SAVED"], ["missing", "ASSET_MISSING"], ["expired", "ASSET_EXPIRED"]]) {
     const s = shadow({ row: okRow({ state }) });
     const r = await handleGetAsset(s.deps, ASSET);
     assert.deepEqual([r.status, r.body.code], [404, code]);
     assert.ok(!s.calls.some((c) => c[0] === "sign"));
+    noStore(r);
   }
 });
 
