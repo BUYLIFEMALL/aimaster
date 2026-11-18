@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 09:57:40 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 10:03:01 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 09:57:40 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 10:03:01 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 해당승인·릴리스후보 Git SHA/소스트리/변경경로·빌드/모델예산·담당 지시 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 19카테고리/미종료작업·보고/문서증분·담당상태·Ecom release/실alias·전달오류 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -133,7 +133,7 @@ Master 마지막 실제 점검: 2026-11-18 09:57:40 KST · 실행 중 점검 주
 
 | 프로그램·담당 | 상태 | 빌드 사용 / 승인 | 실모델 호출 사용 / 승인 | 현재 공식 별칭 대상 | 다음 조건 |
 | --- | --- | --- | --- | --- | --- |
-| emotion-writer · CC-ECOM-01 | redeployment_authorized | 1 / 2 | 0 / 3 | dpl_D9ExEsYD9sH9zAxZy38dkU2UUMUz | Ecom 명시0789 archive+version overlay·manifest·팀큐 확인→원격1회→실alias/DB1행/3사총3호출/375 확인 |
+| emotion-writer · CC-ECOM-01 | completed | 2 / 2 | 3 / 3 | dpl_7XjTSJkDk6Ftzt9Lv3EVvo52HpdT | 원격빌드추가/실호출잔여0·이미지엔진계획별도 |
 
 ## 완료를 정정한 항목
 
@@ -145,7 +145,7 @@ Master 마지막 실제 점검: 2026-11-18 09:57:40 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 242개: done 223개 · cancelled 7개 · ready_review 1개 · running 2개 · waiting_human 5개 · needs_revision 2개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 242개: done 224개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 5개 · needs_revision 2개 · ready 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -384,12 +384,12 @@ Master 마지막 실제 점검: 2026-11-18 09:57:40 KST · 실행 중 점검 주
 | QA-20261118-047 | CX-QA-01 | done / integrated | 운영0101~0104 실행준비파일 정적검수 | README원자성한정7a0800203담당정정수락·지정소스검토마감,실SQL/운영권한보장아님 |
 | DES-20261118-04 | AG-UI-01 | done / accepted_pending_batch_deploy | 주인님 직접 배경링크 버튼화/줄바꿈 개선 | 링크/인계/기존저장로직소스수락·실320/375/외부수신未검수·롤백v1.29에는미반영 |
 | QA-20261118-048 | CX-QA-01 | done / integrated | 배경제작 링크버튼 지정소스 검수 | 링크/인계/기존저장로직소스수락·실320/375/외부수신未검수·롤백v1.29에는미반영 |
-| ECOM-20261118-02 | CC-ECOM-01 | running / owner_authorized_dispatch_sent | 감성v1.30 승인배포/3사실호출·범위사고복구 | Ecom 명시0789 archive+version overlay·manifest·팀큐 확인→원격1회→실alias/DB1행/3사총3호출/375 확인 |
+| ECOM-20261118-02 | CC-ECOM-01 | done / released_author_verified_master_alias_verified | 감성v1.30 승인배포/3사실호출·범위사고복구 | 원격빌드추가/실호출잔여0·이미지엔진계획별도 |
 | INC-20261118-01 | CX-MASTER-01 | done / contained_followup_required | HEAD추종배포 未검수포함·v1.29 복구 | 새이미지QA049·명시SHA릴리스manifest·추가빌드승인 별도, 재발방지미완까지사고전체종결로확대0 |
 | DES-20261118-05 | AG-UI-01 | needs_revision / frozen_pending_review | 주인님 직접 이미지 NanoBanana/OpenAI/무료모델 3엔진 | QA049 최종P2 4건·무료정책/공식지원분리, Ecom수정계획수신전제품freeze |
 | QA-20261118-049 | CX-QA-01 | needs_revision / returned | 새이미지3엔진 소스/가짜통신·키/응답경계 검수 | Ecom정확보완계획/범위승인후mock수정→독립재검수·실endpoint/이미지/새build0 |
 | B2B-20261118-03 | CC-B2B-BACK-01 | waiting_human / fixture_prepared | 주인님 직접 Lab 교환비waiting1건·토스시험흐름 | 사람시험제출/로그인신호없음·고정교환1건유지,현재주문상태는03:31자동확정가능해반복RPC없이다음읽기때판정 |
-| ECOM-20261118-03 | CC-ECOM-01 | ready / queued_held_at_redeployment_question | 이미지3엔진 QA049 안전경계 보완계획 | 정확범위/완료조건계획회신→Master범위승인후mock수정·실API/키/DB/build0 |
+| ECOM-20261118-03 | CC-ECOM-01 | ready / author_next_report_intent_followup_send_failed | 이미지3엔진 QA049 안전경계 보완계획 | 정확범위/완료조건계획회신→Master범위승인후mock수정·실API/키/DB/build0 |
 | PORT-20261118-01 | AG-UI-01 | ready / queued_not_settled | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 기존창에서대기메시지수신/수락되면19문서대조. 메시지재발송/새창/다른세션중복배정0 |
 
 ## 현재 담당 회신이 확보된 프로젝트
@@ -444,7 +444,7 @@ Master 마지막 실제 점검: 2026-11-18 09:57:40 KST · 실행 중 점검 주
 | 블로그·마켓 외부계정 | 해당회차가필요할때본인로그인·확장연결/신뢰클릭 | 지금권한확대/실포스팅/실ESM등록은실행하지않음 |
 | E3 묶음 운영 배포·실비용 검증 | v1.58묶음배포1회/합성운영확인·실검색1+회원모델1비용승인여부 | 소스560시험/독립PASS완료·미승인동안build/실검색/AI0 |
 | Gmail 운영 활성화 | GCP설정완료 주인님신호회수·시험회원Client ID일치/테스트사용자목록·공개/실행범위확정 | DreamAI설정주인님확인(시험ClientID와동일/목록실재는미확인),운영SQL/스위치0·d612f13a/실행순번Master판정 |
-| 감성글귀 v1.30 再실행 | 추가빌드1회 주인님 승인 수신·Ecom 단일 실행 중 | 0789d0829 소스트리검수판동일·d21제외·총모델3회 잔여 유지, 추가승인질문0 |
+| 감성글귀 v1.30 再실행 | 추가승인분 재배포·실호출3회 완료 | Master alias확인·작성자DB/DOM검수,추가빌드/호출예산0 |
 
 ## 주인님 결정으로 후일 재개하는 항목
 
