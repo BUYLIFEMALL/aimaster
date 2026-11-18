@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 12:20:01 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 12:21:06 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 12:20:01 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 12:21:06 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 실페이지SSR/실ReactDOM필터·P2반례최종근거 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 시험증거보완3건/SQL동결·작성자실PG와독립정적판정분리 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -146,7 +146,7 @@ Master 마지막 실제 점검: 2026-11-18 12:20:01 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 247개: done 232개 · cancelled 7개 · ready_review 2개 · running 1개 · waiting_human 4개 · needs_revision 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 247개: done 233개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 4개 · needs_revision 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -395,7 +395,7 @@ Master 마지막 실제 점검: 2026-11-18 12:20:01 KST · 실행 중 점검 주
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
 | PORT-20261118-02 | CC-B2B-BACK-01 | done / source_analysis_and_revised_plan_accepted | CRM F007 웹훅 중복발송 현행 소스 검증 | 순수검증은CRM18-01·route/dispatch/DDL은후속범위확정뒤 |
 | CRM-20261118-01 | CC-B2B-BACK-01 | done / pure_functions_independent_pass_unwired | CRM v2 이벤트키 순수검증·시험 1단계 | 2A CRM18-02 DDL초안/격리검증·운영연결별도 |
-| CRM-20261118-02 | CC-B2B-BACK-01 | ready_review / expanded_harness_static_rereview_dispatched | CRM 중복방지 DDL 초안·격리 DB 검증 2A | Mac하네스보완3건정적재검토→지정범위판정·운영0 |
+| CRM-20261118-02 | CC-B2B-BACK-01 | done / ddl_source_author_pg_static_qa_accepted_unapplied | CRM 중복방지 DDL 초안·격리 DB 검증 2A | SQL/하네스동결·운영미적용·UI오류보완후route/dispatch/정책별도범위검토 |
 | CRM-20261118-03 | CC-B2B-BACK-01 | needs_revision / actual_ssr_query_failure_returned | CRM 접수 새상태 화면·집계 준비 | 실제SSR/가짜query로error/null/0/양수/목록실패 red-green→새SHA→Mac재검수 |
 
 ## 현재 담당 회신이 확보된 프로젝트

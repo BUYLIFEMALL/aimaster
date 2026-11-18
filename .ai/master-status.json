@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T03:20:01.834Z",
+  "checkedAt": "2026-11-18T03:21:06.618Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3821,14 +3821,14 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
       "title": "CRM 중복방지 DDL 초안·격리 DB 검증 2A",
-      "status": "ready_review",
-      "delivery": "expanded_harness_static_rereview_dispatched",
-      "evidence": "영향조사2019381a6·msg_cf2984a5738e·dispatch msg_47039ad6b61b·착수msg_3558ad0d16d2·결과msg_531796347dc0·MasterSQL원문/3파일확인·Macmsg_90839b4af302·Macmsg_261e6589ece9·보완msg_8f77f3eee758·보완msg_380b7b5f2622·Macmsg_3ccb33da09fc",
+      "status": "done",
+      "delivery": "ddl_source_author_pg_static_qa_accepted_unapplied",
+      "evidence": "영향조사2019381a6·msg_cf2984a5738e·dispatch msg_47039ad6b61b·착수msg_3558ad0d16d2·결과msg_531796347dc0·MasterSQL원문/3파일확인·Macmsg_90839b4af302·Macmsg_261e6589ece9·보완msg_8f77f3eee758·보완msg_380b7b5f2622·Macmsg_3ccb33da09fc·Mac정적보완PASSmsg_60c73dc7025f·수락msg_084286b62e05",
       "scopeRef": "crm-google-form/supabase/migrations/20261118120000_crm_submission_dedupe.sql·tests/dedupe-db.test.mjs 신규·기존결과본인절",
       "completion": "정의사전/사후·기존NULL/backfill0·user_id/source/key 격리·RLS/동시2연결/rollback·동명불일치멈춤·본인qa_DB정리",
       "constraints": "운영미적용·route/UI/dispatch/snippet변경0·기존aww/aww_dev/mb_*0·실발송/build/설치0",
-      "next": "Mac하네스보완3건정적재검토→지정범위판정·운영0",
-      "lastReviewedAt": "2026-11-18T03:19:11.159Z",
+      "next": "SQL/하네스동결·운영미적용·UI오류보완후route/dispatch/정책별도범위검토",
+      "lastReviewedAt": "2026-11-18T03:21:06.618Z",
       "decisions": {
         "unique": "(user_id,form_source_id,dedupe_key) WHERE dedupe_key IS NOT NULL",
         "policy": "RLS/권한변경0",
@@ -3840,12 +3840,17 @@
       "validation": {
         "author": "PG17.11 12/12·동일회원2폼/전체행·보안지문/변이3/고유DB정리",
         "master": "SQL86줄직접읽기·한거래/정의검사/복합키/상태확인",
-        "independent": "Mac DDL/하네스정적PASS권고·Docker/psql없어실행0·PG실측은작성자만"
+        "independent": "a1cd하네스3건정적충족PASS·SQLf066변경0·Mac실PG0"
       },
       "findings": [
         "동일회원2source동일key2행증거부족(기존user도달라짐)",
         "기존행전체지문/ACL·RLS·policy전후전체정의필요",
         "고정qaDB선삭제/전역role생성·동시실행안전보완"
+      ],
+      "limits": [
+        "실PG12/변이3은작성자근거·Mac실행0",
+        "없는role생성전역/lock시험delay의존",
+        "운영/웹훅연결PASS아님"
       ]
     },
     {
@@ -4355,20 +4360,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T03:20:01.834Z",
+      "at": "2026-11-18T03:21:06.618Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM18-03 1fe고정최종검수 msg_8d85baa86885",
-      "scope": "실페이지SSR/실ReactDOM필터·P2반례최종근거",
+      "trigger": "CRM18-02 하네스보완정적PASS msg_60c73dc7025f",
+      "scope": "시험증거보완3건/SQL동결·작성자실PG와독립정적판정분리",
       "evidence": [
-        "native10·SSR정상7/분류·실제클릭필터각개수PASS",
-        "UI-F01 error/countnull 카드숨김P2·목록오류기존패턴분리"
+        "동일회원2폼/전체행보안지문/고유DB3건충족·SQLf066동일",
+        "Mac실PG0·작성자12/변이3 경계유지",
+        "수락msg_084286b62e05"
       ],
-      "judgment": "1fe소스반환판정유지·정상필터PASS를전체PASS로확대0·이미배정한수정중복지시0",
+      "judgment": "2A소스/격리검증준비완료수락·운영적용/DB독립실행PASS아님. 현재UI P2수정계속.",
       "unverified": [
-        "UI수정SHA/실패경로재검수·DB하네스정적판정",
+        "UI P2수정/독립검수·연결/정책/운영SQL",
         "GmailOAuth·MacB"
       ],
-      "nextAction": "Backend새SHA회수후오류경로별도검수"
+      "nextAction": "UI새SHA회수→오류경로재검수·다음연결단계별도판정"
     },
     "notifications": [
       {
