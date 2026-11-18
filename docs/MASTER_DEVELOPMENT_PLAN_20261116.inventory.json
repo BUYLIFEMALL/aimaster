@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 10:27:59 KST",
+  "checkedAt": "2026-11-18 10:31:47 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,24 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T01:27:59.617Z",
+      "at": "2026-11-18T01:31:24.425Z",
       "timezone": "Asia/Seoul",
-      "trigger": "ECOM18-04 ready_review msg_d17d4211f33a",
-      "scope": "1a1f64dba 변경4파일/자체시험근거·독립검수배정",
+      "trigger": "10:30예약msg_1207a7cd5a3e + GeminiPASS/정리보고",
+      "scope": "19카테고리/미종료작업·문서증분·담당12세션·QA049최종본문·소스/점유해제",
       "evidence": [
-        "Master diffstat4파일일치",
-        "자체63/tsc0·공유클라이언트불변 보고",
-        "Mac독립검수 msg_a1f1e128eba4"
+        "Mac msg_6c71d4073077 실제route/guard17PASS·말미본문확인",
+        "Ecom정리msg_7b0e6109f4a2/e201aed81/e7fe8a42f",
+        "dev-requests0·신규미등록보고는QA049추기만(이번회수)",
+        "제품src미커밋0·예약10:30결과0/다음11:00",
+        "terminal preview 과거선택질문재표시→현재승인/배포상태를역행판정0"
       ],
-      "judgment": "자체통과접수·독립검수대기. 완전이미지디코드보증/운영검증으로확대0",
+      "judgment": "ECOM18-04지정범위완료수락·이미지소스후보동결/미배포. Gmailv1.58배포완료/실OAuth대기유지, 과거preview보다확정보고/alias우선.",
       "unverified": [
-        "1a1f64dba 독립판정·Gmail 실OAuth/동작검증"
+        "Gmail실OAuth/동작/독립화면",
+        "PORT19수신/착수·Lab시험제출/Mac반환",
+        "이미지실생성/완전디코드/Gemini전체JSON상한"
       ],
-      "nextAction": "Mac판정후완료수락/정확반례반환·추가배포/실호출0"
+      "nextAction": "Workspace실시험보고→Mac독립연결·11:00기존Master예약"
     },
     "notifications": [
       {
@@ -93,7 +97,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-18T01:30:00.000Z",
+      "nextScheduledAt": "2026-11-18T02:00:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -111,8 +115,8 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-18T01:00:00.000Z",
-        "messageId": "msg_ce0c6e42fa6d",
+        "scheduledAt": "2026-11-18T01:30:00.000Z",
+        "messageId": "msg_1207a7cd5a3e",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false
@@ -7251,13 +7255,13 @@
       "owner": "AG-UI-01",
       "reviewer": "CX-QA-01",
       "title": "주인님 직접 이미지 NanoBanana/OpenAI/무료모델 3엔진",
-      "status": "needs_revision",
-      "delivery": "frozen_pending_review",
-      "sha": "d21eb96d7",
+      "status": "done",
+      "delivery": "source_revised_qa_pass_unreleased_free_disabled",
+      "sha": "1a1f64dba (b34+3cb 포함)",
       "evidence": "d21eb96d7·정정보고88616a6cf·.ai/results/DES-20261118-05-AG-UI-01.md·msg_a03fce38d53c",
       "scopeRef": "image provider/config/validation/services/image route/Workspace/KeySettings/guide/시험",
       "completion": "공식지원/회원키·무료서비스방식/데이터전송·MIME/크기/timeout/허용모델·회귀·비용/권한범위 검토",
-      "next": "b34cba02b Mac재검수·새경로엄격검사/Gemini기존경계분리·AGY제품수정금지",
+      "next": "free=false유지·무료정책미결정/추가빌드미승인·다음묶음배포만",
       "lastReviewedAt": "2026-11-17T17:43:53.437Z"
     },
     {
@@ -7371,19 +7375,19 @@
       "owner": "CC-ECOM-01",
       "reviewer": "CX-QA-01",
       "title": "Gemini 이미지 반환값 엄격검사 국소보완",
-      "status": "ready_review",
-      "delivery": "independent_review_dispatched",
-      "evidence": "msg_6fdcdffd921d·QA049기존hello경계·착수msg_c4a6208489b0·결과msg_d17d4211f33a·Master4파일diffstat·Mac msg_a1f1e128eba4",
+      "status": "done",
+      "delivery": "source_qa_pass_unreleased",
+      "evidence": "msg_6fdcdffd921d·QA049기존hello경계·착수msg_c4a6208489b0·결과msg_d17d4211f33a·Master4파일diffstat·Mac msg_a1f1e128eba4·MacPASS msg_6c71d4073077·Master결과말미확인·정리msg_7b0e6109f4a2/e201aed81/e7fe8a42f",
       "scopeRef": "emotion-writer/src/lib/studio/services.ts·tests/imageProvider.test.mjs·tests/studio.test.mjs·docs/IMPROVEMENTS.md",
       "completion": "공유strictBase64/imageDataUrl재사용·불량/MIME불일치/패딩/3MiB경계 red-green·정상3형식·guard/tsc·공용클라이언트/재시도/timeout불변",
-      "next": "Mac 실제서비스/가능guard통합·정상3형식/3MiB/불량·MIME/502고정문구검수→판정",
+      "next": "1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수",
       "constraints": "실통신/키/DB/build/deploy0·운영v1.30미변경·기존결함별도후속",
-      "lastReviewedAt": "2026-11-18T01:27:59.617Z",
+      "lastReviewedAt": "2026-11-18T01:31:24.425Z",
       "sha": "1a1f64dba",
       "validation": {
         "author": "전체63/63·tsc0·신규반례red-green",
         "master": "4파일diffstat 범위일치",
-        "independent": "Mac국소검수대기"
+        "independent": "실제geminiImage/service/route/guard·5반례502/비노출·정상200/no-store·17/17"
       },
       "limits": [
         "24바이트PNG서명fixture/서명검사는완전이미지디코드아님",
