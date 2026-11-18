@@ -4965,6 +4965,22 @@
         "master": "응답 표시 의미·OFF/기존 결과 보존과 고정 diff 확인",
         "independent": "Mac 11/11, 표시 함수 실행 및 화면 소스 확인. 실제 렌더 미실행."
       }
+    },
+    {
+      "task_id": "WS-20261118-05",
+      "parent_task_id": "WS-20261118-04",
+      "owner": "CC-WORKSPACE-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "워크스페이스 v1.59 승인 묶음 운영 배포",
+      "status": "running",
+      "delivery": "explicit_owner_release_approved_local_build_observed",
+      "sha": "e7f72c5a7",
+      "scopeRef": "814063801·e7f72c5a7 고정 앱 트리 + v1.59 표시",
+      "constraints": "원격 운영 1회, Gmail 스위치·SQL/DB 버전·환경·push 0",
+      "completion": "로컬 build·범위 및 팀 대기 검증→원격 READY/공식 별칭·가용 화면 확인",
+      "evidence": "주인님 Workspace 직접 배포 보고·Vercel 3상태 0/기존 alias 9ea979de9·22:45:34 workspace next build 관찰·msg_925719d8b2fa 전달 보류",
+      "next": "단일 담당 로컬 결과·릴리스 SHA·운영 ID 및 브라우저 확인 회수.",
+      "lastReviewedAt": "2026-11-18T13:46:38.078Z"
     }
   ],
   "programOverrides": [
@@ -5483,21 +5499,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T13:44:59.939Z",
+      "at": "2026-11-18T13:46:38.078Z",
       "timezone": "Asia/Seoul",
-      "trigger": "WS04 Mac 독립 판정 및 W01v 점유 해제",
-      "scope": "고정 e7f72c5a7 경로 모의 결과와 실제 화면 검수 한계 확인.",
+      "trigger": "Workspace v1.59 직접 배포 지시",
+      "scope": "승인 두 커밋·현재 공식 별칭·팀 빌드 3상태·로컬 빌드 및 담당 동시 작업 대조.",
       "evidence": [
-        "msg_935315da80f1·.ai/results/WS-20261118-04-CX-QA-01.md",
-        "msg_86309813dfaf·7cd93fa15"
+        "814063801·e7f72c5a7",
+        "dpl_8GoargZugPSSqT5atpJ5PZqWbDyd·9ea979de9",
+        "msg_925719d8b2fa"
       ],
-      "judgment": "네 경로 국소 모의 수락. 스크롤·모바일은 실제 브라우저 확인 대기. W01v 점유 해제.",
+      "judgment": "Workspace 단일 실행. 원격 1회 승인, 로컬 Workspace 빌드 관찰, 팀 대기 0 조회. 메시지 전달은 입력 보류 표기.",
       "unverified": [
-        "WS04 실 스크롤·좁은 폭·뒤로가기 및 빌드",
-        "WS27 Gmail 콜백·실검증",
-        "W01v 실제 렌더·운영"
+        "로컬 build 결과·고정 릴리스 SHA·원격 READY/화면",
+        "WS27 Gmail 콜백·실검증"
       ],
-      "nextAction": "WS04 실제 화면 근거 확보 전 화면 완료/운영으로 판정하지 않음."
+      "nextAction": "담당 결과 및 운영 별칭 독립 확인."
     },
     "notifications": [
       {
@@ -8084,6 +8100,14 @@
       "dbVersionWrite": "미실행 작성자보고·실DB버전미확인",
       "freePolicy": "unknown·주인님선택질문대기",
       "actualPaidApiCalls": 0
+    },
+    "workspaceV159": {
+      "sourceSha": "e7f72c5a7",
+      "normalBudget": 1,
+      "normalUsed": 0,
+      "previousAlias": "dpl_8GoargZugPSSqT5atpJ5PZqWbDyd",
+      "owner": "CC-WORKSPACE-01",
+      "status": "local_build_observed"
     }
   }
 }
