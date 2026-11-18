@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T17:48:18.039Z",
+  "checkedAt": "2026-11-18T17:49:48.508Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5377,21 +5377,36 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "W01 자산 기반 생성 화면 로컬 연결",
-      "status": "reviewing",
-      "delivery": "ui_account_isolation_returned_mac_review_dispatched",
+      "status": "done",
+      "delivery": "ui_integration_local_source_and_mock_review_accepted",
       "scopeRef": "W00 §24 제한 경로: 서버 공통 모드·app/page.tsx·InfluencerStudio/ImageDisplay·관련 모의 시험",
       "completion": "OFF/shadow 기존 흐름, 모의 on 업로드·생성·조회, 기존 보정/저장/발행, 계정 기억·취소·URL 해제·시간 예산. SHA·tsc·회귀 근거.",
       "constraints": "상수 OFF 유지. 실 브라우저 CORS/Supabase·AI·SQL·ON·예약·빌드·배포·W02 없음.",
-      "evidence": "msg_424b5c739f5b·msg_f1a655472cf6·msg_b80138e6de86·msg_174ea27a7497·msg_0d152d2d43b1·msg_91bafe14dc8e·msg_d531a5ea2807",
-      "next": "CX-QA-01 계정 경계 및 화면 연결 독립 검수 회신 대기. 실제 React/CORS는 미확인. OFF·미배포.",
-      "lastReviewedAt": "2026-11-18T17:48:18.039Z",
+      "evidence": "msg_424b5c739f5b·msg_f1a655472cf6·msg_b80138e6de86·msg_174ea27a7497·msg_0d152d2d43b1·msg_91bafe14dc8e·msg_d531a5ea2807·msg_c3ee655d15b8·.ai/results/SNS-ASSETS-A1-20261118-CX-QA-01.md",
+      "next": "fdee03d5d 독립 소스/모의 14/14 수락. 실제 React는 UIV 및 실제 CORS·Storage는 별도. OFF·미배포.",
+      "lastReviewedAt": "2026-11-18T17:49:48.508Z",
       "sha": "fdee03d5d",
       "validation": {
         "author": "전체 320/320·tsc, 가짜 A→B 서버 실행 확인; React 재마운트/효과는 정적.",
         "master": "고정 파일 blob과 user.id key, 인스턴스 scope, 늦은 쓰기/응답 확인 지점 대조.",
-        "independent": "msg_d531a5ea2807 전달, 수락/회신 대기.",
+        "independent": "고정 blob·지정 14/14, 새 차단 없음. React 실제 효과·로그인 전환·발행·CORS 미검증.",
         "unverified": "실제 React 계정 전환, 브라우저 CORS/Storage, 이미 송신된 쓰기 결과; 기존 브라우저 이관은 계정 비구분."
       }
+    },
+    {
+      "task_id": "AIF-20261119-W01-UIV",
+      "parent_task_id": "AIF-20261119-W01-UII",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "W01 실제 React 화면 격리 확인",
+      "status": "running",
+      "delivery": "isolated_react_screen_check_dispatched",
+      "scopeRef": "fdee03d5d 실제 화면 컴포넌트·기설치 도구·격리 가짜 I/O",
+      "completion": "가능하면 React 계정 A→B 교체/늦은 응답과 자산 화면·수동 조회·blob 해제 확인. 불가 시 구체적 도구 차단 반환.",
+      "constraints": "제품 수정·설치·Next 빌드·운영 Storage/AI·ON·배포 없음. 기존 14 시험 재실행 없음.",
+      "evidence": "msg_3a86b206ca5c",
+      "next": "CX-QA-01 수락·실행 범위/근거 회신 대기.",
+      "lastReviewedAt": "2026-11-18T17:49:48.508Z"
     },
     {
       "task_id": "DES-20261119-HERO",
