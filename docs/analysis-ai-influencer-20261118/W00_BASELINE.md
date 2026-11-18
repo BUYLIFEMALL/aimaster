@@ -692,6 +692,81 @@ A1 업로드는 서버가 서비스 키로 직접 올리며 `upsert: false`다. 
 - **이 단위 완료**: 위 모의·격리 반례 통과, off에서 동작 변화 0, 일반 회원의 기간 지난 `ready`가 `expired → deleted`로 가고 보호 회원·`reserved`·`unknown`은 건드리지 않음. 실제 저장소 삭제·예약 등록·운영 적용은 포함하지 않는다.
 - **후속(별도 단위)**: `unknown`·`reserved` 복구와 고아 객체 정리, 중앙이 지운 연장 회원 자산 행의 정리, 메타 행 보관 기간, 게시 연결 시 `markPosted`.
 
+### 19-R1. 개정 — Mac 정적 검토(`msg_7ca376e6f3a6`)·Master `msg_41d24656f73f` 반영 (§19-1~19-9와 다르면 이 절이 우선, 코드 0)
+
+**정정하는 표현**
+- §19-1의 「이중 삭제 0」은 **정적 집합이 겹치지 않는다**는 뜻일 뿐 절대 보장이 아니다. 회원 등급·구독이 정리 도중 바뀌면 우리 정리와 중앙 정리가 같은 파일을 다룰 수 있다(한계). 외부 삭제 요청도 원자적이지 않다.
+- §19-1의 「중앙 cron은 `CRON_SECRET` Bearer 인증」은 불완전했다. 실코드(`app/api/cron/storage-retention/route.ts`)는 **Bearer 머리글 또는 `?secret=` 쿼리**를 받는다. 새 정리 라우트는 **Bearer 전용**으로 한다(쿼리 비밀값은 접근 기록에 남을 수 있음).
+
+#### R1-F01. 용량 계산 — `expired`를 빼지 않는다 (§19-6 대체)
+
+반례: 한도 100, 오래된 `ready` 60, 중앙 측정 0(미측정·오래된 회차) → `expired`로 바뀌어 추가 합계 0 → 삭제가 끝나지 않았는데 새 60이 허용된다.
+
+- `aif_asset_usage_estimate`의 추가분 = `reserved`·`unknown` 전부 + 최근 `ready`(기존 규칙) + **`expired` 전부. 단 그 자산의 삭제 예약이 `deleted`로 확정된 것만 제외**한다.
+- 「중앙 측정에 이미 들어 있을 것」을 근거로 시간만 지났다고 빼지 않는다. 제외 근거는 `delete_verify`가 `storage.objects` 부재를 확인해 남긴 `deleted`뿐이다.
+- 결과: 중앙 측정이 그 객체를 이미 세고 있으면 삭제 전까지 **이중 계산**된다(보수적인 쪽, 허용). `deleting`·`delete_failed`·`delete_unknown`·예약 없음인 `expired`는 모두 계속 계산한다.
+
+#### R1-F02. 후보는 `ready`만이 아니다 — 재처리·재개 (§19-4 1번 대체)
+
+한 회차는 아래 세 묶음을 모두 훑는다. 각 단계는 멱등이라 중간에 죽어도 다음 회차가 같은 지점에서 이어 간다.
+
+| 묶음 | 대상 | 처리 |
+|---|---|---|
+| A | `ready` + 기간 경과 + 예외 회원 아님 | `expire` → `claim` → … (신규) |
+| B | `expired`이고 삭제 예약이 **없음 / `cancelled` / `delete_failed` / `claimed`** | 보호 변경 재검사(`expire`) → 유효하면 `claim`(또는 기존 `claimed` 토큰은 버리고 재발급 가능한 상태일 때만 새 토큰) → 삭제 |
+| C | 삭제 예약이 **`deleting` / `delete_unknown`** | 새 삭제 요청 없이 `delete_verify`만. 결과가 `delete_failed`면 다음 회차 B로 |
+
+- `claimed`에서 멈춘 것(토큰을 잃은 경우): `claim_delete`는 `claimed` 중 재발급을 거절하므로(`DELETION_BUSY`), `claimed`가 일정 회차 이상 그대로면 **토큰 없이도 부를 수 있는 「claimed → cancelled」 정리 경로가 필요**하다 → `aif_asset_expire`가 토큰 없이 호출됐고 예약이 `claimed`이며 `updated_at`이 1시간 넘었으면 `cancelled`로 바꾸게 한다(외부 삭제는 `deleting` 커밋 뒤에만 나가므로 `claimed`에는 외부 쓰기가 없다 — 안전하게 취소 가능).
+- 여기의 `delete_unknown`(삭제 결과 불명)은 §18-R2의 `unknown`(업로드 결과 불명)과 **다른 것**이다. 업로드 `unknown`·`reserved`·고아는 계속 후속 단위다.
+
+#### R1-F03. `expire`와 삭제 예약의 관계 (§19-3·19-4 4번 대체)
+
+§19-3은 「삭제 예약 진행 중 아님」을 `expire` 조건으로 적고, §19-4는 `claim` 뒤에 `expire`를 다시 부른다고 적어 서로 부딪쳤다. 아래로 통일한다.
+
+`aif_asset_expire(p_asset, p_user, p_token default null)` — 잠금 안에서 현재 삭제 예약 상태에 따라:
+
+| 삭제 예약 상태 | 조건 충족(보호 아님·기간 경과) | 조건 깨짐(보호됨·기간 미경과·정책 무기한) |
+|---|---|---|
+| 없음 / `cancelled` / `delete_failed` | `ready`→`expired`(CAS) 또는 `expired` 유지 → `expired` | `expired`면 `ready`로 복원 → `restored` |
+| `claimed` + **토큰 일치** | `expired`(삭제 진행 허용) | `ready` 복원 + 예약을 같은 거래에서 `cancelled` → `restored` |
+| `claimed` + 토큰 없음·불일치 | 바꾸지 않음 → `busy`(위 R1-F02의 1시간 경과 취소만 예외) | 같음 |
+| `deleting` / `delete_unknown` / `deleted` | 바꾸지 않음 → `locked` | **복원 금지** → `locked`(이미 외부 삭제가 나갔거나 끝남) |
+
+- 보호 여부·정책을 읽지 못하면 `unknown`을 돌려주고 아무것도 바꾸지 않는다.
+- **삭제 허용 조건은 하나**: 같은 토큰으로 부른 재확인이 `expired`를 돌려준 직후, 같은 토큰의 `delete_mark(deleting)`이 `true`. 그 밖의 반환(`restored`·`not_due`·`skip`·`busy`·`locked`·`unknown`)과 호출 오류는 모두 **삭제 0**.
+
+#### R1-verify. 삭제 요청·확인 결과별 최종 처리 (§19-4 6번 대체)
+
+`storage.remove()` 응답만으로 `deleted`·`delete_failed`를 단정하지 않는다. 항상 `delete_verify`의 판정으로 마무리한다.
+
+| `remove` 응답 | 다음 |
+|---|---|
+| 성공 응답(목록에 path 있음·없음 무관), 오류 응답, 던짐·시간 초과·모양 이상 | 먼저 `delete_mark(delete_unknown)`(성공 응답이고 목록에 있으면 생략 가능) → `delete_verify` |
+
+| `delete_verify` 판정 | 근거 | 최종 mark | 그 뒤 |
+|---|---|---|---|
+| 객체 없음 | `storage.objects`에 그 bucket·name 행이 없음 | `deleted` | 자산은 `expired`로 남음(종료). 용량 추가분에서 제외, `member_storage_measure(uid)` |
+| 같은 객체 있음 | 같은 `object_id`의 행이 있음 | `delete_failed`(`attempts` 유지) | 다음 회차 B에서 재시도. 5회 초과면 건너뜀·건수 기록 |
+| 다른 id의 객체 있음 | 같은 path에 다른 `id` | 바꾸지 않음(`delete_unknown` 유지) | **재삭제 0**, 사람 확인 대상으로 건수 기록 |
+| 조회 오류 | `storage.objects` 읽기 실패 | 바꾸지 않음 | 다음 회차 C에서 다시 확인 |
+| 토큰 불일치 | `delete_mark`·`delete_verify`가 false | mark 0 | **그 자산 처리 즉시 중단**(다른 실행이 가져감), 원문 로그 0 |
+
+#### R1-기산일. 보관 기간을 세기 시작하는 시각 (§19-3 ③ 대체)
+
+- 후보: 예약 시각 `aif_assets.created_at` / 객체 생성 시각 `storage.objects.created_at`(중앙이 쓰는 값) / 확정 시각 `aif_assets.stored_at`.
+- **선택: `stored_at`**. 이유: 셋 중 가장 늦어 조기 삭제가 없고, 우리 행에 있어 저장소 조회 없이 판정할 수 있다. 예약~확정 차이는 보통 초 단위다.
+- **보수 여유 1일**: 삭제 기준 = `stored_at + retention_days + 1일`. 회차 지연·시간대 차이로 기간보다 일찍 지우는 일을 막는다. 결과적으로 일반 회원 원본은 정책 기간보다 최대 「1일 + 회차 간격」 늦게 지워진다(중앙과 기준 시각이 달라 생기는 차이도 이 여유 안).
+
+#### R1-tracked. 추적 버킷 등록 시점은 정책 결정으로 분리 (§19-1 표의 해당 줄 대체)
+
+- 사실: `aif-assets`가 `storage_posting_tracked_buckets`에 없는 동안 중앙은 연장 회원의 이 버킷 파일을 **포스팅 기간**으로 보관한다. W07에서 첫 `markPosted`가 불리면 그 순간부터 이 버킷이 추적 버킷이 되고, **그 전에 저장된 미발행 유료 회원 원본의 기간이 포스팅 기간 → 생성 기간으로 한꺼번에 줄어든다**(예: 스탠다드 180일 → 60일). 이미 그 기간을 넘긴 파일은 다음 중앙 회차에 지워질 수 있다.
+- 그래서 「W07 때 자연히 등록」을 기본으로 두지 않는다. **운영 ON 전에 정할 정책**으로 분리한다: (가) ON과 동시에 추적 버킷으로 등록해 처음부터 생성 기간을 적용 / (나) W07까지 미등록으로 두고 전환 때 기존 파일을 어떻게 다룰지 정함. 공용 표에 쓰는 일이므로 Master 조정·주인님 결정 대상이며 이 단위에서는 실행하지 않는다.
+- 일반 회원은 발행과 무관하게 같은 기간이라 이 결정의 영향을 받지 않는다.
+
+#### R1-완료 조건(§19-9 보완)
+
+모의·격리 반례에 다음을 더한다: 오래된 `ready` 60·중앙 0·한도 100에서 `expired` 뒤 새 60 거절 · `deleted` 확정 뒤에만 허용 · 묶음 B·C 재개(회차 중단 뒤 다음 회차) · `claimed` 토큰 분실 1시간 뒤 취소 · `deleting`/`delete_unknown`/`deleted`에서 복원 0 · 토큰 불일치 시 mark 0·중단 · `remove` 오류 응답인데 실제로 지워진 경우 `deleted` · 다른 id 객체면 재삭제 0.
+
 ## 14. 진행 상태 기록
 
 ```text
