@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T02:36:25.405Z",
+  "checkedAt": "2026-11-18T02:40:05.164Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -1877,19 +1877,38 @@
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "owner": "CX-QA-01",
-      "status": "running",
-      "delivery": "started_existing_space_verified",
+      "status": "waiting_human",
+      "delivery": "A_real_mp4_pass_B_save_dialog_pending",
       "title": "실제Intel Mac MP4파일내보내기 보조검수",
-      "evidence": "msg_44a7b56f0c81 / msg_0da73bcc8c24 / 요청 b9c115b01 REQUEST_20261118_MACMINI_V116_MP4.md·msg_b5ed90b53bf7·주인님Master직접진행지시·Mac msg_b60727c3b123·Music msg_9f301d9e2e55·착수msg_69e6e866b094",
-      "next": "Mac기존20 로그인v1.16 확인·기존6초자료→20초합성음/지정LRC교체→A/B/진단4파일→Music",
-      "lastReviewedAt": "2026-11-18T02:35:34.191Z",
-      "blockedReason": null,
+      "evidence": "msg_44a7b56f0c81 / msg_0da73bcc8c24 / 요청 b9c115b01 REQUEST_20261118_MACMINI_V116_MP4.md·msg_b5ed90b53bf7·주인님Master직접진행지시·Mac msg_b60727c3b123·Music msg_9f301d9e2e55·착수msg_69e6e866b094·Mac Amsg_975970910010·Music decodePASSmsg_7238e49515f0·B중지ACKmsg_75f35f6074fa·가속단정정정msg_77578ef81f77",
+      "next": "주인님기존20 저장창있으면mac-file.mp4→PDS/mus-mac저장·Return,없으면현재진행/완료확인후안내→Mac diag-B→Music검증",
+      "lastReviewedAt": "2026-11-18T02:40:05.164Z",
+      "blockedReason": "Mac기존20 저장창확인/저장선택 직접조치필요·B현재상태불명이라재클릭중지",
       "resume": {
         "requestId": "35cd4475-eee1-4826-ab69-9aee944ddcd7",
         "initial": "remote_runtime_unavailable·실행여부불명",
         "recovery": "request-show absent만으로미실행단정0→원격기존terminal동일/현재화면확인→동일request재시도성공",
         "messageId": "msg_b60727c3b123",
         "scope": "기존Mac20만·저장소밖mus-mac·무료기존/합성음·유료AI/npm/dev/build/deploy0"
+      },
+      "results": {
+        "A": {
+          "status": "pass",
+          "file": "D:/PDS/mus-mac/mac-memory.mp4",
+          "bytes": 9022290,
+          "diagnostic": "diag-A.txt",
+          "video": "h264 High 1920x1080 30fps 600frames 20.000s",
+          "audio": "AAC LC 48kHz stereo 20.0747s·유음",
+          "verification": "Music 전체ffmpeg -xerror 종료0·오류0·600프레임·1회",
+          "hardwareAcceleration": "실사용미확인·사전가능표시만",
+          "fallback": "대체안내/진행정지없음"
+        },
+        "B": {
+          "status": "waiting_human",
+          "reason": "click1후저장창/새실행도구미식별·native대상없음",
+          "additionalClicks": 0,
+          "existingSpace": 20
+        }
       }
     },
     {
@@ -4183,8 +4202,8 @@
     },
     {
       "condition": "음악 실기기/저장 단계",
-      "action": "주인님진행지시수신·Mac도구가능클릭/저장우선재개,실제로그인/도구불가만구체요청",
-      "recommendation": "Mac기존20·A/B·파일4개후Music전체decode·AppleSilicon후일재개유지"
+      "action": "A 실제MP4 PASS·B기존Mac20 저장창확인/저장·Return 필요",
+      "recommendation": "추가렌더클릭전진행/완료확인·저장창있으면mac-file.mp4 지정폴더·실가속사용미확인"
     },
     {
       "condition": "블로그·마켓 외부계정",
@@ -4231,21 +4250,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T02:36:25.405Z",
+      "at": "2026-11-18T02:40:05.164Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Workspace redirect상수/회원설정존재 대조보고",
-      "scope": "정적콜백상수와실제OAuth요청 구분·원인판정범위",
+      "trigger": "Mac A완료/Music전체decodePASS·B사람단계",
+      "scope": "A실파일2개/전체디코드·하드웨어추론정정·B불확실중복방지",
       "evidence": [
-        "9ea979de9 콜백상수승인주소일치true 작성자보고",
-        "시험naver/관리자gmail Client ID존재true·값원문0",
-        "msg_2020570870f9 결론범위정정"
+        "Mac msg_975970910010·Music msg_7238e49515f0",
+        "A 9022290B·600frame·유음·전체decode0",
+        "가속사전가능값≠실사용정정msg_77578ef81f77",
+        "B중지/Return조건ACKmsg_75f35f6074fa"
       ],
-      "judgment": "상수오타없음만수락·실제요청/로그인계정확인전전반코드결함배제0·새질문/반복인증/빌드0",
+      "judgment": "메모리방식A지정범위PASS·B/실가속/대체경로PASS확대0. 실제native창미식별이라사람저장단계만요청.",
       "unverified": [
-        "실redirect/로그인회원/회원Client-GCP일치",
-        "MacMP4 A/B완료·AGY정정결과"
+        "B현재저장창/실파일/diag-B·실가속사용",
+        "GmailOAuth·PORT19정정결과"
       ],
-      "nextAction": "기존질문회신뒤OAuth세트재개"
+      "nextAction": "주인님기존20 저장확인/Return뒤Mac읽기→B진단/파일→Music1회검증"
     },
     "notifications": [
       {
