@@ -206,7 +206,7 @@ test("image adapter extracts image from mixed text/image response and exposes no
               content: {
                 parts: [
                   { text: "background" },
-                  { inlineData: { mimeType: "image/png", data: "aGVsbG8=" } },
+                  { inlineData: { mimeType: "image/png", data: "iVBORw0KGgoBAQEBAQEBAQEBAQEBAQEB" } }, // ECOM-20261118-04: hello(비이미지) → PNG 서명 바이트
                 ],
               },
             },
@@ -214,7 +214,7 @@ test("image adapter extracts image from mixed text/image response and exposes no
         });
       },
     ),
-    "data:image/png;base64,aGVsbG8=",
+    "data:image/png;base64,iVBORw0KGgoBAQEBAQEBAQEBAQEBAQEB",
   );
   await assert.rejects(
     generateImage(

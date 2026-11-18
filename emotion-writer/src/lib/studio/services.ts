@@ -104,19 +104,23 @@ export async function generateImage(
     else if (e.code === "CANCELLED" || e.code === "TIMEOUT" || e.code === "NETWORK") throw new AppError(e.message, 504);
     else throw providerError(e.status, "Gemini");
   }
-  if (
-    !image ||
-    !["image/png", "image/jpeg", "image/webp"].includes(image.mimeType) ||
-    typeof image.data !== "string" ||
-    image.data.length > MAX_IMAGE * 1.4 ||
-    !/^[A-Za-z0-9+/=\s]+$/.test(image.data)
-  ) {
-    throw new AppError(
-      "사용 가능한 배경 이미지를 받지 못했습니다. 주제나 모델을 바꿔 다시 시도해 주세요.",
-      502,
-    );
+  // ECOM-20261118-04: 반환 지점에서만 새 엔진과 같은 엄격 검사(엄격 base64·3MiB·서명) + 선언 MIME과 실제 서명이 같아야 통과.
+  // 공용 geminiImage.ts·재시도·시간 제한·호출 옵션은 그대로. 한계: 「이미지처럼 보이는지」까지만, 완전 해석·안전성 보증 아님.
+  const GEMINI_BAD = "사용 가능한 배경 이미지를 받지 못했습니다. 주제나 모델을 바꿔 다시 시도해 주세요.";
+  if (!image || !["image/png", "image/jpeg", "image/webp"].includes(image.mimeType))
+    throw new AppError(GEMINI_BAD, 502);
+  let bytes: Uint8Array;
+  try {
+    bytes = strictBase64(image.data);
+  } catch {
+    throw new AppError(GEMINI_BAD, 502);
   }
-  return `data:${image.mimeType};base64,${image.data.replace(/\s+/g, "")}`;
+  if (sniffImage(bytes) !== image.mimeType) throw new AppError(GEMINI_BAD, 502);
+  try {
+    return imageDataUrl(bytes);
+  } catch {
+    throw new AppError(GEMINI_BAD, 502);
+  }
 }
 
 // ── ECOM-20261118-03(QA049 I-F02~04): 새 이미지 엔진 공통 방어 ──

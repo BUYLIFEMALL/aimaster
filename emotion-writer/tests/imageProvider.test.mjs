@@ -202,3 +202,30 @@ test("OpenAI JSON 본문이 오다 멈추면 같은 예산 신호로 TimeoutErro
   await assert.rejects(generateImage("k", validateImage({ ...base, provider: "openai" }), undefined, stalled, 20), (e) => e.name === "TimeoutError");
   assert.equal(calls, 1);
 });
+
+// ── ECOM-20261118-04: 기존 Gemini 경로 반환값도 엄격 검사(공용 geminiImage.ts·재시도·timeout 변경 0) ──
+const WEBP = Buffer.concat([Buffer.from("RIFF"), Buffer.alloc(4, 0), Buffer.from("WEBP"), Buffer.alloc(16, 5)]);
+const geminiResp = (mimeType, data) => async () =>
+  Response.json({ candidates: [{ content: { parts: [{ text: "background" }, { inlineData: { mimeType, data } }] } }] });
+const gInput = () => validateImage({ ...base, provider: "gemini" });
+
+test("Gemini 반환: hello·패딩 오류·선언과 서명 불일치·3MiB 초과는 502", async () => {
+  const cases = [
+    ["image/png", "aGVsbG8="], // hello — 이미지 아님
+    ["image/png", "QUJD="], // 패딩 오류
+    ["image/jpeg", PNG.toString("base64")], // 선언 JPEG, 실제 PNG
+    ["image/png", pngOf(MAX_IMG + 1).toString("base64")], // 3MiB+1
+    ["text/html", Buffer.from("<html>x</html>").toString("base64")], // 비이미지 MIME
+  ];
+  for (const [mime, data] of cases) {
+    await assert.rejects(generateImage("k", gInput(), undefined, geminiResp(mime, data)), (e) => e.status === 502);
+  }
+});
+
+test("Gemini 반환: 정상 PNG·JPEG·WEBP와 정확히 3MiB PNG는 통과(서명 기준 형식)", async () => {
+  for (const [mime, bytes] of [["image/png", PNG], ["image/jpeg", JPG], ["image/webp", WEBP], ["image/png", pngOf(MAX_IMG)]]) {
+    const url = await generateImage("k", gInput(), undefined, geminiResp(mime, bytes.toString("base64")));
+    assert.ok(url.startsWith(`data:${mime};base64,`));
+    assert.equal(Buffer.from(url.split(",")[1], "base64").length, bytes.length);
+  }
+});
