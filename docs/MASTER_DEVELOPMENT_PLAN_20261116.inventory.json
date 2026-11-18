@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 16:44:51 KST",
+  "checkedAt": "2026-11-18 16:45:36 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T07:44:51.729Z",
+      "at": "2026-11-18T07:45:36.451Z",
       "timezone": "Asia/Seoul",
-      "trigger": "T07수정착수",
-      "scope": "기존5/신규helper·실GET시험2 경로·프로필불명503/Storage0·공유미커밋보존",
+      "trigger": "SNS 보관정리 구현착수",
+      "scope": "정확9경로/점유83517d1c7·상수OFF/새DB실행0/고지확인",
       "evidence": [
-        "msg_9fedb4193c4b"
+        "msg_27793feac0ac"
       ],
-      "judgment": "정확착수수락·같은두route보호/시험command만범위·새패키지/운영0·마지막원격미사용",
+      "judgment": "기존계약구현착수수락·새SQL실행/Storage삭제/cron/유료배정0·같은범위결과대기",
       "unverified": [
-        "T07수정결과/독립검수",
-        "SNS정리구현결과",
-        "다른사람단계"
+        "SNS정리소스/모의시험결과",
+        "web보완/독립검수",
+        "기타사람단계"
       ],
-      "nextAction": "반례/고정SHA회수→국소재검수뒤배포판정"
+      "nextAction": "각담당고정결과SHA회수→실행단계구분검수"
     },
     "notifications": [
       {
@@ -8512,14 +8512,14 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "보관정리 SQL초안·OFF실행기·모의 시험",
-      "status": "dispatched",
-      "delivery": "bounded_default_off_retention_implementation",
-      "scopeRef": "기존미적용migration·assets/retention.ts·cleanup route·read expired분기·관련모의시험·본인기존문서",
+      "status": "running",
+      "delivery": "author_started_exact_scoped_default_off_retention_implementation",
+      "scopeRef": "미적용aif_assets_a1.sql·assets/retention.ts·cleanup/route.ts·read.ts expired·assetRetention.test.mjs·assetReadRoute.test.mjs expired·IMPROVEMENTS/W00/roles sns",
       "constraints": "SQL작성만/실DB·Storage·삭제·AI·env·cron등록·서버·설치·build·push0·공용정책코드0·ON별도",
       "completion": "30일/objectcreated·동적보호·batch100공정재개·토큰/CAS/외부미전송/unknown보존·실행자Bearer/no-raw·모의반례/tsc·정적SQL",
-      "evidence": "R2 3b84540d7·Macmsg_6318619e8ba6·Master범위배정",
-      "next": "정확경로/점유보고→소스/관련시험→Mac지정검수·실삭제0",
-      "lastReviewedAt": "2026-11-18T07:42:18.988Z"
+      "evidence": "R2 3b84540d7·Macmsg_6318619e8ba6·Master범위배정 · msg_27793feac0ac/ACTIVE_WORK83517d1c7·정확9경로/미커밋0/고지0",
+      "next": "정확범위 OFF모의구현/관련반례·tsc 결과SHA회수→Mac검수",
+      "lastReviewedAt": "2026-11-18T07:45:36.451Z"
     }
   ]
 }

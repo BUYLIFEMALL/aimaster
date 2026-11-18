@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 16:44:51 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 16:45:36 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 16:44:51 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 16:45:36 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 기존5/신규helper·실GET시험2 경로·프로필불명503/Storage0·공유미커밋보존 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 정확9경로/점유83517d1c7·상수OFF/새DB실행0/고지확인 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 16:44:51 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 282개: done 258개 · cancelled 7개 · ready_review 1개 · running 3개 · waiting_human 7개 · superseded 1개 · queued 3개 · reviewing 1개 · dispatched 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 282개: done 258개 · cancelled 7개 · ready_review 1개 · running 4개 · waiting_human 7개 · superseded 1개 · queued 3개 · reviewing 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -432,7 +432,7 @@ Master 마지막 실제 점검: 2026-11-18 16:44:51 KST · 실행 중 점검 주
 | AIF-20261118-W01j | CC-SNS-01 | done / OFF_source_completion_and_activation_blockers_reconciled | A1 OFF소스완료표·운영선행 보관/정리 조건 취합 | W01k 30일보관정리 첫계약·운영ON차단유지 |
 | AIF-20261118-W01k | CC-SNS-01 | done / retention_R2_static_contract_accepted_with_implementation_conditions | 원본 자산 일반30일 정리 연결 첫계약 | W01l OFF 보관정리 SQL초안/실행기 모의첫구현 |
 | QA-20261118-WEB-XLSX | CX-QA-01 | running / author_acknowledged_exact_patch_paths_no_remote_build | 최종배포 전 T07 엑셀 미리보기 소스 독립검수 | Blog압축/두route보호helper/고정로그 패치·반례→Mac재검수 |
-| AIF-20261118-W01l | CC-SNS-01 | dispatched / bounded_default_off_retention_implementation | 보관정리 SQL초안·OFF실행기·모의 시험 | 정확경로/점유보고→소스/관련시험→Mac지정검수·실삭제0 |
+| AIF-20261118-W01l | CC-SNS-01 | running / author_started_exact_scoped_default_off_retention_implementation | 보관정리 SQL초안·OFF실행기·모의 시험 | 정확범위 OFF모의구현/관련반례·tsc 결과SHA회수→Mac검수 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
