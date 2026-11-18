@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 22:49:18 KST",
+  "checkedAt": "2026-11-18 22:50:25 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T13:49:18.057Z",
+      "at": "2026-11-18T13:50:25.374Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Workspace v1.59 Vercel READY·별칭 독립 확인",
-      "scope": "승인 로컬 소스·version 및 업로드 해시, 공식 프로덕션 도메인 대조.",
+      "trigger": "v1.59 Mac 운영 접근 회신",
+      "scope": "운영 비로그인 경계와 인증 후 화면 미검증 사유 확인.",
       "evidence": [
-        "dpl_3TyMVfb6WGcXbxVgtYZ38699Upfr",
-        "e7f72c5a7·b24b9595a·업로드 version v1.59",
-        "msg_aedca062e527"
+        "msg_621687fb940b·.ai/results/WS-20261118-04-CX-QA-01.md",
+        "msg_3f2581151fe5"
       ],
-      "judgment": "정상 운영 배포 1회 및 alias READY 확인. Git 메타 차이는 업로드 파일로 대조. 실제 화면 검수 배정.",
+      "judgment": "공식 별칭 READY 유지. 로그인 후 화면 검수는 기존 허용 세션 확인에 의존.",
       "unverified": [
-        "실제 좌우 스크롤·좁은 폭·뒤로가기",
-        "Workspace 담당 전체 배포 보고 및 Gmail WS27"
+        "네 화면·메뉴·좌우 스크롤·좁은 폭·뒤로가기 운영 실동작",
+        "Workspace 로컬 build 및 배포 보고·Gmail WS27"
       ],
-      "nextAction": "Mac 화면 확인과 담당 결과 회수."
+      "nextAction": "기존 허용 Workspace 시험 세션의 읽기 결과와 담당 배포 보고 회수."
     },
     "notifications": [
       {
@@ -8911,18 +8910,18 @@
       "reviewer": "CX-MASTER-01",
       "title": "워크스페이스 v1.59 승인 묶음 운영 배포",
       "status": "reviewing",
-      "delivery": "production_ready_alias_verified_screen_check_requested",
+      "delivery": "production_ready_login_boundary_checked_screen_blocked_without_session",
       "sha": "b24b9595a",
       "scopeRef": "814063801·e7f72c5a7 고정 앱 트리 + v1.59 표시",
       "constraints": "원격 운영 1회, Gmail 스위치·SQL/DB 버전·환경·push 0",
       "completion": "로컬 build·범위 및 팀 대기 검증→원격 READY/공식 별칭·가용 화면 확인",
-      "evidence": "주인님 Workspace 직접 배포 보고·Vercel 3상태 0/기존 alias 9ea979de9·22:45:34 workspace next build 관찰·msg_925719d8b2fa 전달 보류 / dpl_3TyMVfb6WGcXbxVgtYZ38699Upfr / msg_aedca062e527",
-      "next": "공식 별칭 READY. Mac 실제 화면 읽기 검수와 담당 로컬 build 결과 회수.",
-      "lastReviewedAt": "2026-11-18T13:49:18.057Z",
+      "evidence": "주인님 Workspace 직접 배포 보고·Vercel 3상태 0/기존 alias 9ea979de9·22:45:34 workspace next build 관찰·msg_925719d8b2fa 전달 보류 / dpl_3TyMVfb6WGcXbxVgtYZ38699Upfr / msg_aedca062e527 / msg_621687fb940b / msg_3f2581151fe5",
+      "next": "공식 별칭 READY·비로그인 307 확인. Workspace 기존 시험 세션 화면 및 배포 보고 대기.",
+      "lastReviewedAt": "2026-11-18T13:50:25.374Z",
       "validation": {
         "master": "Vercel 운영 READY 및 공식 별칭 직접 일치. 11개 변경 파일 업로드 SHA-1 일치, 생략 6개 로컬 콘텐츠 해시로 배포 파일 반환 확인, version.ts 업로드 v1.59.",
         "provenance": "Vercel Git 메타 SHA 04bdc3743와 로컬 표시 버전 커밋 b24b9595a 다름. CLI 업로드 파일 근거로 대조.",
-        "screen": "Mac 읽기 검수 요청 msg_aedca062e527"
+        "screen": "Mac 쿠키 없는 307→동일 사이트 로그인 확인. 기존 허용 검수 세션 부재로 인증 후 실제 화면 미확인. msg_621687fb940b"
       }
     }
   ]

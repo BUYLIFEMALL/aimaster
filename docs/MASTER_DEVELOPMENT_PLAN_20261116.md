@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 22:49:18 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 22:50:25 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -375,7 +375,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | WS-20261118-02 | CC-WORKSPACE-01 | waiting_human / calendar_upgrade_plan_received_scope_decisions_pending | 워크스페이스 캘린더 업그레이드 계획 | 화면 기능/데이터 범위, 데이터 포함 시 일회 가져오기/동기화 결정. 중복 메뉴는 WS03에서 숨김 완료·미배포. |
 | WS-20261118-03 | CC-WORKSPACE-01 | done / sidebar_trim_source_and_mac_static_review_accepted_undeployed | 사이드바 예정된 일정 메뉴 숨김 | 미배포. 프리셋 UI·화면 확인은 이번 정적 범위 밖. |
 | WS-20261118-04 | CC-WORKSPACE-01 | reviewing / four_views_routing_mac_pass_browser_verification_pending | 워크스페이스 내부 네 화면 연결 | 경로 모의·접근/CSS 정적 확인. 실제 좌우 스크롤·좁은 폭/뒤로가기·빌드 미검증. |
-| WS-20261118-05 | CC-WORKSPACE-01 | reviewing / production_ready_alias_verified_screen_check_requested | 워크스페이스 v1.59 승인 묶음 운영 배포 | 공식 별칭 READY. Mac 실제 화면 읽기 검수와 담당 로컬 build 결과 회수. |
+| WS-20261118-05 | CC-WORKSPACE-01 | reviewing / production_ready_login_boundary_checked_screen_blocked_without_session | 워크스페이스 v1.59 승인 묶음 운영 배포 | 공식 별칭 READY·비로그인 307 확인. Workspace 기존 시험 세션 화면 및 배포 보고 대기. |
 | QA-20261118-043 | CX-QA-01 | done / integrated | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | 실브라우저375/390은v1.58배포후허용된기존시험세션에서·추가dev/build0 |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
 | OPS-20261118-01 | CX-MASTER-01 | done / integrated | 전체개발플랜·카테고리·누락개선/인수인계 정합성 대조 | 미확인68프로그램 현담당근거후속연결·제품전체검증과구분, 신규후속ID별진행 |
