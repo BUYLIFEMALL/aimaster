@@ -3,11 +3,30 @@ import { requireProgramAccess } from "@/lib/access";
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { getSetupStatus } from "@/lib/setupStatus";
 import { createClient } from "@/lib/supabase/server";
-import { listShopProducts } from "@/lib/shop";
-import { CheckCircle2, Circle, BookOpen, KeyRound, Package, ArrowRight, ShieldCheck, Activity, SendHorizontal, Zap } from "lucide-react";
+import { listShopProducts, productName } from "@/lib/shop";
+import {
+  CheckCircle2,
+  Circle,
+  BookOpen,
+  Package,
+  ArrowRight,
+  ShieldCheck,
+  Activity,
+  SendHorizontal,
+  Zap,
+  KeyRound,
+} from "lucide-react";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
+
+const BADGE_LABEL: Record<string, { text: string; cls: string }> = {
+  stopped: { text: "🟢 등록됨·전시중지", cls: "bg-emerald-50 text-emerald-800 border-emerald-200" },
+  registered: { text: "🟠 등록됨(전시 확인)", cls: "bg-amber-50 text-amber-900 border-amber-200" },
+  sending: { text: "⏳ 보내는 중", cls: "bg-slate-100 text-slate-700 border-slate-200" },
+  unknown: { text: "⚠ 확인 필요", cls: "bg-amber-50 text-amber-900 border-amber-200" },
+  failed: { text: "❌ 실패", cls: "bg-rose-50 text-rose-800 border-rose-200" },
+};
 
 function Step({ done, n, title, detail, children }: { done: boolean; n: number; title: string; detail: string; children?: React.ReactNode }) {
   return (
@@ -29,20 +48,48 @@ export default async function HomePage() {
   const s = await getSetupStatus(user.id);
   const supabase = await createClient();
 
-  // 대시보드 4대 KPI 지표 실측
-  const [shopRes, jobsRes] = await Promise.all([
+  const [shopRes, jobsCountRes, recentJobsRes] = await Promise.all([
     listShopProducts(user.id),
     supabase.from("elevenst_register_jobs").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+    supabase
+      .from("elevenst_register_jobs")
+      .select("product_id, status, elevenst_product_no")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(100),
   ]);
 
   const readyProductCount = shopRes.rows.length;
-  const registeredCount = jobsRes.count ?? 0;
+  const registeredCount = jobsCountRes.count ?? 0;
+  const recentProducts = shopRes.rows.slice(0, 4);
+  const lastJob = new Map<string, { status: string; elevenst_product_no: number | null }>();
+  for (const j of recentJobsRes.data ?? []) {
+    if (j.product_id && !lastJob.has(j.product_id)) lastJob.set(j.product_id, j);
+  }
 
   return (
     <div className="space-y-6">
-      <PageHeader emoji="🏪" title="AI 11번가 상품 자동등록기" description="상세페이지에서 만든 상품을 11번가 공식 Seller API로 등록합니다. 판매자 화면을 대신 조작하지 않고 서버가 직접 보냅니다." />
+      <PageHeader
+        emoji="🏪"
+        title="AI 11번가 상품 자동등록기"
+        description="상세페이지에서 만든 상품을 11번가 공식 Seller API로 등록합니다. 판매자 화면을 대신 조작하지 않고 서버가 직접 보냅니다."
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <Link href="/products" className="btn-3d-11st">
+            <Package size={15} />
+            <span>상품 등록 바로가기</span>
+          </Link>
+          <Link
+            href="/connect"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:border-rose-200 hover:text-[#FA0050] transition-colors"
+          >
+            <KeyRound size={14} />
+            <span>API 연동</span>
+          </Link>
+        </div>
+      </PageHeader>
 
-      {/* 107. 4단계 오픈마켓 파이프라인 배너 */}
+      {/* 151. 클린 레드 스튜디오 4단계 오픈마켓 파이프라인 배너 */}
       <section className="rounded-2xl border border-rose-100 bg-gradient-to-r from-rose-50/60 via-white to-rose-50/40 p-4 sm:p-5 shadow-xs">
         <div className="flex items-center justify-between mb-3">
           <span className="text-xs font-extrabold text-[#FA0050] tracking-wider uppercase flex items-center gap-1.5">
@@ -70,7 +117,7 @@ export default async function HomePage() {
             <div className="mx-auto mb-1.5 flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 font-mono text-xs font-black text-slate-700">
               3
             </div>
-            <p className="text-xs font-bold text-slate-900">10원 절사 & 고시</p>
+            <p className="text-xs font-bold text-slate-900">10원 절사 &amp; 고시</p>
             <p className="text-[11px] text-slate-500 mt-0.5">규칙 위반 자동 검사</p>
           </div>
           <div className="rounded-xl border border-rose-300 bg-rose-50/80 p-3 shadow-2xs">
@@ -118,13 +165,61 @@ export default async function HomePage() {
 
         <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs">
           <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-[11px] font-bold text-slate-500">데이터 보관 정책</span>
+            <span className="text-[11px] font-bold text-slate-500">일일 공식 API 한도</span>
             <ShieldCheck size={16} className="text-blue-600" />
           </div>
-          <p className="text-lg font-black text-slate-900">30일 보관</p>
-          <p className="text-[11px] text-slate-500 mt-1">저장 구독 시 자동 연장</p>
+          <p className="text-lg font-black text-slate-900">일 500건</p>
+          <p className="text-[11px] text-slate-500 mt-1">30일 보관 (구독 연장)</p>
         </div>
       </section>
+
+      {/* 최근 상세페이지 연계 상품 빠른 이동 카드 (151. 클린 레드 스튜디오 UI 반영) */}
+      {recentProducts.length > 0 && (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-extrabold text-slate-900">최근 상세페이지 연계 상품</h2>
+            <Link href="/products" className="inline-flex items-center gap-1 text-xs font-bold text-[#FA0050] hover:underline">
+              <span>전체 {readyProductCount}건 보기</span>
+              <ArrowRight size={12} />
+            </Link>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {recentProducts.map((p) => {
+              const job = lastJob.get(p.id);
+              const badge = job && BADGE_LABEL[job.status];
+              return (
+                <Link
+                  key={p.id}
+                  href={`/products/${p.id}`}
+                  className="studio-card flex items-center justify-between gap-3 p-4"
+                >
+                  <div className="min-w-0 space-y-1">
+                    <p className="truncate text-sm font-extrabold text-slate-900">{productName(p)}</p>
+                    <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
+                      {badge ? (
+                        <span className={`rounded-md border px-2 py-0.5 text-[11px] font-bold ${badge.cls}`}>
+                          {badge.text}
+                        </span>
+                      ) : (
+                        <span className={p.reviewed_at ? "font-bold text-emerald-700" : "text-slate-400"}>
+                          {p.reviewed_at ? "✅ 검토 완료" : "검토 전"}
+                        </span>
+                      )}
+                      <span>·</span>
+                      <span className="font-extrabold text-slate-800">
+                        {p.sale_price ? `${p.sale_price.toLocaleString()}원` : p.price ? `${p.price.toLocaleString()}원` : "가격 없음"}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="shrink-0 rounded-lg bg-[#FA0050] px-3 py-1.5 text-xs font-extrabold text-white shadow-2xs">
+                    {badge ? "상세" : "전송"}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <Notice tone="tip">
         💡 <b>안전한 공식 Seller API 연동</b>: 11번가 공식 Seller API를 통해 서버가 직접 통신하므로 브라우저 조작 차단 위험이 없습니다. 등록 즉시 자동으로 전시중지되므로 셀러오피스에서 최종 점검 후 판매를 개시하세요.
@@ -160,7 +255,7 @@ export default async function HomePage() {
 
       <div className="pt-2">
         <Link href="/guide" className="inline-flex items-center gap-1.5 text-sm font-bold text-[#FA0050] hover:underline">
-          <BookOpen size={16} /> 11번가 연동 & 사용 매뉴얼 보기 →
+          <BookOpen size={16} /> 11번가 연동 &amp; 사용자 매뉴얼 보기 →
         </Link>
       </div>
     </div>
