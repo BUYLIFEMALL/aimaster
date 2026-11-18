@@ -4813,18 +4813,18 @@
       "reviewer": "CX-MASTER-01",
       "title": "누락 자산 후속 SQL·격리 시험 초안",
       "status": "reviewing",
-      "delivery": "isolated_first_run_17_of_20_test_corrections_requested",
+      "delivery": "isolated_rerun_19_of_20_rotation_assertion_fix_requested",
       "scopeRef": "신규 후속 migration, 신규 격리 시험, W00 해당 근거",
       "constraints": "기존 migration·실행자/route/fixture 변경·SQL 실행/DB 생성·운영/Storage/비용/배포 0",
       "completion": "권한·인덱스 정렬·창/반환 상한·metadata 두 기준·예약 보존·격리 시험 경계 명시",
-      "evidence": "e3bb9132f·msg_0f05ca942dad·정정 요청 msg_b79fa67a3680 / msg_c93d4f3c6d24 / msg_1ede944e2a6c / msg_d9560a3b5fae / msg_e35ee13c657f",
-      "next": "시험 세 준비/단언만 수정해 1회 재검증. 제품 SQL 고정.",
-      "lastReviewedAt": "2026-11-18T09:47:07.577Z",
-      "sha": "2d6dfff03",
+      "evidence": "e3bb9132f·msg_0f05ca942dad·정정 요청 msg_b79fa67a3680 / msg_c93d4f3c6d24 / msg_1ede944e2a6c / msg_d9560a3b5fae / msg_e35ee13c657f / msg_c1ffe34be953 / msg_1b9327970031",
+      "next": "회차별 UUID 집합 단언 정정 뒤 격리 1회 재검증, 제품 SQL 고정.",
+      "lastReviewedAt": "2026-11-18T09:50:39.895Z",
+      "sha": "4e0c27cc5",
       "validation": {
         "author": "node --check, 기존 npm 171/171·tsc 보고. 신규 격리 시험 미실행.",
         "master": "Storage 단일 스냅샷과 CLI 대기 한도 확인. 컨테이너 내부 프로세스 종료는 별도 검증.",
-        "isolated": "격리 PG17 17/20 통과, 실패 3·skip 0·exit 1. OID 2545004 일치 후 시험 DB/세션 부재 담당 보고. 실패 원인은 시험 준비/기대값 가설, 재검증 대기."
+        "isolated": "첫 17/20, 재검증 19/20·실패 1·skip 0·exit 1. OID 2545126 일치 후 DB/세션 부재 담당 보고. 회차별 집합 일치 및 5회차 단언 미실행."
       }
     }
   ],
@@ -5344,21 +5344,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T09:47:07.577Z",
+      "at": "2026-11-18T09:50:39.895Z",
       "timezone": "Asia/Seoul",
-      "trigger": "W01r 첫 격리 SQL 시험 보고",
-      "scope": "고정 2d6dfff03 시험 결과 및 실패 단언·정리 보고 대조.",
+      "trigger": "W01r 격리 재검증 보고",
+      "scope": "고정 4e0c27cc5 시험 결과 및 회차별 UUID 단언 원문 대조.",
       "evidence": [
-        "msg_d9560a3b5fae·2d6dfff03",
-        "msg_e35ee13c657f"
+        "msg_c1ffe34be953·4e0c27cc5",
+        "msg_1b9327970031"
       ],
-      "judgment": "17/20, 전체 격리 시험 미통과. 시험 준비/단언 보완 및 같은 제품 SQL로 1회 재검증 배정.",
+      "judgment": "19/20. 생성 순서로 모은 배열에 UUID 정렬을 기대한 마지막 단언 보완, 같은 SQL로 1회 재검증 배정.",
       "unverified": [
-        "수정 시험의 전부 통과",
+        "회전 시험 전체와 5회차 재독",
         "실 Supabase Storage/권한",
         "Gmail OAuth 동의/실검증"
       ],
-      "nextAction": "시험만 바뀐 SHA·격리 재시험 결과 및 정리 근거 회수."
+      "nextAction": "시험만 바뀐 SHA·격리 재검증·정리 근거 회수."
     },
     "notifications": [
       {
