@@ -446,7 +446,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | AIF-20261118-W01s | CC-SNS-01 | done / local_integration_and_mac_budget_regression_accepted_undeployed | 누락 자산 정리 실행자 연결 | 로컬 검수 완료. 운영 SQL·PostgREST·cron/활성화 및 배포는 별도. |
 | AIF-20261118-W01t | CC-SNS-01 | done / p3_read_only_aggregate_design_accepted | 멈춘 자산·삭제 예약 읽기 전용 집계 설계 | W01u 초안 범위 배정, 조회 한도와 잠금 설명 정정. |
 | AIF-20261118-W01u | CC-SNS-01 | done / p3_isolated_17_of_17_and_mac_static_review_accepted | 자산 상태 집계 후속 SQL·격리 시험 초안 | 로컬 SQL 검수 완료. 호출 경로·영속 DB 적용·배포는 별도. |
-| AIF-20261118-W01v | CC-SNS-01 | done / asset_save_indicator_local_and_mac_checks_accepted_undeployed | 생성 결과 원본 저장 상태 표시 | 로컬 검수 완료·OFF·미배포. 담당 점유 해제 대기. |
+| AIF-20261118-W01v | CC-SNS-01 | done / asset_save_indicator_local_and_mac_checks_accepted_undeployed | 생성 결과 원본 저장 상태 표시 | 로컬 검수 완료·점유 해제·OFF·미배포. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 
 ## 현재 담당 회신이 확보된 프로젝트
