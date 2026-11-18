@@ -624,7 +624,8 @@ A1 업로드는 서버가 서비스 키로 직접 올리며 `upsert: false`다. 
 이행 순서(미완 계약): 1) 새 표 aif_budget_limits·aif_asset_deletions와 함수 aif_asset_finalize·aif_asset_claim_delete를 PLAN §13·권한 계약에 병합(담당 Master 지정 대기) → 2) 그 전까지 자산·보관 코드와 migration 착수 0 → 3) 병합 후 W01 본체(§12) 배정 → 4) 공용 insta-posting·instagram-publish 수정은 기준 담당 조정(§13·§15-3)
 W01a(G1 문구 4곳): 5b9018d50, 미배포, Mac 국소 PASS·Master 수락
 W01b(G3 중 히스토리 정리 보관 예외만): 8f453b9c4→07df29def→efeaca0c8, 미배포, Mac 지정 PASS(msg_ceee4fb0b230)·Master 소스 수락. 실DB·실삭제 증거 아님, insert 불명 rollback 결함은 W01 본체로 보존
-W01c(참고 이미지 MIME 고정·사전 검사·히스토리 보정 주소 전송): f805100ce→d4386242b, 미배포, Mac 지정 PASS(msg_07affb213e83)·Master 소스 수락. 실제 UI·브라우저 변환·실제 공급자 HEIC 수용·응답 크기(G5)는 미검증 — 게시 기록 정리(cleanupOldPosts, 공용 사본)와 원본 자산은 범위 밖
+W01c(참고 이미지 MIME 고정·사전 검사·히스토리 보정 주소 전송): f805100ce→d4386242b, 미배포, Mac 지정 PASS(msg_07affb213e83)·Master 소스 수락. 실제 UI·브라우저 변환·실제 공급자 HEIC 수용·응답 크기(G5)는 미검증
+W01-A1 계약: §18·R1·R2 최종 037bfcacc Master 수락(msg_063c9804ec87) → 첫 구현 SQL 초안(실행 0)·paths.ts·순수 시험 8개, Mac 검수 대기. SQL 실행 검증은 격리 DB 승인 후 별도 — 게시 기록 정리(cleanupOldPosts, 공용 사본)와 원본 자산은 범위 밖
 검증: 소스 정적 대조(경로·줄 위 표), 운영 DB 읽기(표·함수 존재, 건수)
 유료 호출: 0건 · 비용 없음
 DB: 해당 없음(읽기만) · 배포: 해당 없음
