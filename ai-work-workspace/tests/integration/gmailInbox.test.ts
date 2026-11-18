@@ -122,9 +122,9 @@ afterEach(() => {
 const tagCookie = () => `${'s'.repeat(48)}.${USER}.${gm.appTagOf(CLIENT)}`;
 
 // ---------------------------------------------------------------- 꺼짐
-describe('기능 꺼짐(기본) — DB·구글 호출 0', () => {
-  it('불러온 뒤 기본값은 꺼짐', () => {
-    expect(gm.gmailEnabled()).toBe(false);
+describe('기능 꺼짐(시험에서 명시적으로 끔) — Gmail 저장소·구글 호출 0', () => {
+  it('출시 기본값은 켜짐(v1.58 WS27), 불러올 때 DB 0', () => {
+    expect(gm.gmailEnabled()).toBe(true);
     expect(adminCalls.n).toBe(0);
   });
   it('모든 진입 함수가 DB·구글 전에 거절', async () => {

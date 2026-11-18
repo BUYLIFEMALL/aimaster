@@ -14,8 +14,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { markMemberAccountNeedsReconnect, saveMemberAccount, updateMemberAccountToken, type MemberPlatform } from "@/lib/memberIntegrations";
 import { getGoogleApp, SITE_ORIGIN } from "./googleCalendar";
 
-// ---------------------------------------------------------------- 기능 스위치(기본 꺼짐)
-let GMAIL_ENABLED = false;
+// ---------------------------------------------------------------- 기능 스위치 — 2026-11-18 WS27 주인님 승인으로 켬(v1.58, 전원 공개). 끄려면 false + 재빌드
+let GMAIL_ENABLED = true;
 export function gmailEnabled(): boolean {
   return GMAIL_ENABLED;
 }
