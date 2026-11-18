@@ -65,3 +65,4 @@ F-007: CRM 웹훅 재전송이 접수/유료 발송을 중복 실행, F-011: Cro
 - **실제 중복 발송 위험은 운영에서 아직 그대로다** — 웹훅은 여전히 확인 없이 저장·발송(`app/api/webhooks/form-submit/[token]/route.ts` 미수정), 운영 DB에 유니크 없음.
 - 남은 순서(각각 별도 승인): 주인님 정책 결정(dispatching·partial·unknown 접수에 팔로우업 기본 중지 vs 기존 계속) → 웹훅·발송 연결 구현 → 운영 DDL(초안 `supabase/migrations/20261118120000_crm_submission_dedupe.sql`, 사전 확인이 운영 상태 제약 이름·정의를 읽어 다르면 멈춤) → 화면 포함 묶음 배포(버전 +0.01) → 본인 번호 실제 문자 시험 → v2 스니펫(시험 시트 첫 칸 Date 확인 뒤).
 - 범위 밖으로 기록만: 회원 insert RLS가 user_id만 검사(남의 source id로 자기 행 삽입 가능, 유니크에 user_id를 넣어 방해는 막음).
+- 2026-11-18 주인님 결정 반영(미배포): 발송 결과 미확정 접수(dispatching·partial·unknown·목록 밖·상태 없음)는 팔로우업 자동 보류, 접수 내역 미확정 행에 보류 이유 표시, `runFollowupRule` 반환에 `held`. received·notified·failed는 기존 그대로. 근거: 루트 `.ai/results/PORT-20261118-02-CC-B2B-BACK-01.md` 17절.

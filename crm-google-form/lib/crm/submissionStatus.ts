@@ -24,19 +24,19 @@ const META: Record<SubmissionStatus, StatusMeta> = {
     label: "발송 처리 중",
     chip: "mx-chip-amber",
     review: true,
-    hint: "결과가 아직 확정되지 않았습니다. 오래 이 상태면 발송 계정 쪽 기록을 확인해 주세요.",
+    hint: "결과가 아직 확정되지 않았습니다. 오래 이 상태면 발송 계정 쪽 기록을 확인해 주세요. 결과가 확인될 때까지 팔로우업 문자는 자동으로 보내지 않습니다.",
   },
   partial: {
     label: "일부만 전송",
     chip: "mx-chip-amber",
     review: true,
-    hint: "일부 채널만 전송됐습니다. 어떤 채널이 빠졌는지 확인이 필요합니다.",
+    hint: "일부 채널만 전송됐습니다. 어떤 채널이 빠졌는지 확인이 필요합니다. 결과가 확인될 때까지 팔로우업 문자는 자동으로 보내지 않습니다.",
   },
   unknown: {
     label: "결과 확인 필요",
     chip: "mx-chip-amber",
     review: true,
-    hint: "발송 여부를 알 수 없어 자동으로 다시 보내지 않습니다. 발송 계정 기록에서 확인해 주세요.",
+    hint: "발송 여부를 알 수 없어 자동으로 다시 보내지 않습니다. 발송 계정 기록에서 확인해 주세요. 결과가 확인될 때까지 팔로우업 문자는 자동으로 보내지 않습니다.",
   },
 };
 
@@ -51,7 +51,7 @@ export function statusMeta(status: string): StatusMeta {
     label: `확인 필요(${status || "빈 값"})`,
     chip: "mx-chip-amber",
     review: true,
-    hint: "알 수 없는 상태 값입니다. 관리자에게 알려 주세요.",
+    hint: "알 수 없는 상태 값입니다. 관리자에게 알려 주세요. 결과가 확인될 때까지 팔로우업 문자는 자동으로 보내지 않습니다.",
   };
 }
 
@@ -128,4 +128,12 @@ export function reviewCountView(res: CountResult): CountView {
 /** 목록 조회 실패 여부 — 오류가 있거나 배열이 아니면 「빈 목록」이 아니라 「조회 실패」. */
 export function listLoadFailed(res: { data: unknown; error: unknown }): boolean {
   return Boolean(res.error) || !Array.isArray(res.data);
+}
+
+/**
+ * 팔로우업 자동 발송 허용 — 주인님 결정(2026-11-18): 접수 확인 발송 결과가 확정되지 않은 접수
+ * (dispatching·partial·unknown, 목록 밖 값, 상태 없음)는 보류한다. received·notified·failed는 기존 동작 그대로.
+ */
+export function followupAllowed(status: string | null | undefined): boolean {
+  return status === "received" || status === "notified" || status === "failed";
 }

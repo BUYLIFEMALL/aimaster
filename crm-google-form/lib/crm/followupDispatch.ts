@@ -2,6 +2,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendViaSmtpAccount, type SmtpAccountCredentials } from "@/lib/email/transport";
 import { sendAlimtalk, sendFriendtalk, sendSms, type SolapiAccountCredentials } from "@/lib/solapi/client";
+import { followupAllowed } from "@/lib/crm/submissionStatus";
 
 interface FollowupRule {
   id: string;
@@ -25,6 +26,7 @@ interface DueSubmission {
   phone: string | null;
   email: string | null;
   raw_values: Record<string, string>;
+  status: string | null;
 }
 
 function fillTemplate(text: string, submission: DueSubmission): string {
@@ -36,18 +38,18 @@ function fillTemplate(text: string, submission: DueSubmission): string {
  * 접수건을 찾아 채널별로 발송하고, crm_followup_sends에 먼저 기록(선점)해 중복 발송을 막는다.
  * lib/schedulerMember/dispatch.ts(운영자 cron·회원 cron-job.org 공용)에서 규칙마다 호출한다.
  */
-export async function runFollowupRule(rule: FollowupRule): Promise<{ sent: number; failed: number }> {
+export async function runFollowupRule(rule: FollowupRule): Promise<{ sent: number; failed: number; held: number }> {
   const admin = createAdminClient();
 
   const cutoff = new Date(Date.now() - rule.days_after * 24 * 60 * 60 * 1000).toISOString();
 
   const { data: candidates } = await admin
     .from("crm_submissions")
-    .select("id, name, phone, email, raw_values")
+    .select("id, name, phone, email, raw_values, status")
     .eq("form_source_id", rule.form_source_id)
     .lte("created_at", cutoff);
 
-  if (!candidates || candidates.length === 0) return { sent: 0, failed: 0 };
+  if (!candidates || candidates.length === 0) return { sent: 0, failed: 0, held: 0 };
 
   const { data: alreadySent } = await admin
     .from("crm_followup_sends")
@@ -58,9 +60,14 @@ export async function runFollowupRule(rule: FollowupRule): Promise<{ sent: numbe
       candidates.map((c) => c.id),
     );
   const sentIds = new Set((alreadySent ?? []).map((s) => s.submission_id));
-  const due = candidates.filter((c) => !sentIds.has(c.id));
+  const notYetSent = candidates.filter((c) => !sentIds.has(c.id));
+  // 주인님 결정(2026-11-18): 접수 확인 발송 결과가 확정되지 않은 접수는 팔로우업을 보류한다.
+  // 보류 건은 발송·선점 기록을 남기지 않으므로, 나중에 상태가 확정되면 다음 실행 때 한 번 보낸다.
+  // 보류 개수는 반환값 held로 호출자(예약 실행 요약)에 그대로 전달된다.
+  const due = notYetSent.filter((c) => followupAllowed(c.status));
+  const held = notYetSent.length - due.length;
 
-  if (due.length === 0) return { sent: 0, failed: 0 };
+  if (due.length === 0) return { sent: 0, failed: 0, held };
 
   let smtpAccount: SmtpAccountCredentials | null = null;
   let solapiAccount: SolapiAccountCredentials | null = null;
@@ -162,5 +169,5 @@ export async function runFollowupRule(rule: FollowupRule): Promise<{ sent: numbe
       .eq("id", claim.id);
   }
 
-  return { sent, failed };
+  return { sent, failed, held };
 }

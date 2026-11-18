@@ -14,6 +14,7 @@ import {
   reviewCountView,
   listLoadFailed,
   countView,
+  followupAllowed,
 } from "../lib/crm/submissionStatus.ts";
 
 const rows = (list) => list.map((status, i) => ({ id: String(i), status }));
@@ -113,6 +114,9 @@ const HOOKS = [
     "@/lib/supabase/server": "export async function createClient(){ return globalThis.__crmFake.client(); }",
     "next/link": "import { createElement } from \"react\"; export default function Link({ href, className, children }) { return createElement(\"a\", { href, className }, children); }",
     "server-only": "export {};",
+    "@/lib/supabase/admin": "export function createAdminClient(){ return globalThis.__crmFake.client(); }",
+    "@/lib/email/transport": "export async function sendViaSmtpAccount(a, to){ (globalThis.__crmSent ??= []).push(['email', to]); }",
+    "@/lib/solapi/client": "export async function sendSms(a, to){ (globalThis.__crmSent ??= []).push(['sms', to]); } export async function sendAlimtalk(a, to){ (globalThis.__crmSent ??= []).push(['alimtalk', to]); } export async function sendFriendtalk(a, to){ (globalThis.__crmSent ??= []).push(['friendtalk', to]); }",
   })};`,
   `export async function resolve(spec, ctx, next) {`,
   `  if (ctx.parentURL && ctx.parentURL.startsWith("crmfake:")) return next(spec, { ...ctx, parentURL: pathToFileURL(ROOT + "/package.json").href });`,
@@ -317,4 +321,129 @@ test("countView: 정상 0 이상 정수만 값", () => {
   assert.deepEqual(countView({ count: 0, error: null }), { kind: "value", value: 0 });
   assert.deepEqual(countView({ count: 12, error: null }), { kind: "value", value: 12 });
   for (const [, res] of BAD) assert.deepEqual(countView(res), { kind: "unavailable" });
+});
+
+
+// ── 주인님 결정(2026-11-18): 발송 결과 미확정 접수는 팔로우업 자동 보류, 보류 사실은 알 수 있게 ──────────
+test("followupAllowed: 기존 3개만 허용, 미확정 3개·목록 밖 값은 보류", () => {
+  for (const st of ["received", "notified", "failed"]) assert.equal(followupAllowed(st), true, st);
+  for (const st of ["dispatching", "partial", "unknown", "weird", ""]) assert.equal(followupAllowed(st), false, st);
+});
+
+test("확인 필요 상태 안내에 「팔로우업 자동 보류」가 보인다", () => {
+  for (const st of ["dispatching", "partial", "unknown", "weird"]) assert.match(statusMeta(st).hint, /팔로우업/, st);
+});
+
+test("실제 runFollowupRule: 미확정 접수는 발송·선점 기록 0, 보류 개수로 돌려준다", async () => {
+  const STATUSES = ["received", "notified", "failed", "dispatching", "partial", "unknown", "weird"];
+  const candidates = STATUSES.map((status, i) => ({ id: "sub-" + i, name: "n" + i, phone: "0100000000" + i, email: null, raw_values: {}, status }));
+  const inserted = [];
+  let candidateSelect = "";
+  globalThis.__crmSent = [];
+  globalThis.__crmFake = {
+    client: () => fakeClient((q) => {
+      const ins = q.ops.find((o) => o[0] === "insert");
+      if (q.table === "crm_submissions") { candidateSelect = q.ops.find((o) => o[0] === "select")[1]; return { data: candidates, error: null }; }
+      if (q.table === "crm_followup_sends" && ins) { inserted.push(ins[1].submission_id); return { data: { id: "claim-" + inserted.length }, error: null }; }
+      if (q.table === "crm_followup_sends") return { data: [], error: null };
+      if (q.table === "user_solapi_accounts") return { data: { api_key: "k", api_secret: "s", sender_phone: "010", kakao_pf_id: null }, error: null };
+      return { data: null, error: null };
+    }),
+  };
+  const mod = await import(pathToFileURL(__jn(PROJECT, "lib/crm/followupDispatch.ts")).href);
+  const r = await mod.runFollowupRule({
+    id: "rule-1", user_id: "user-1", form_source_id: "s1", name: "규칙", days_after: 3,
+    channel_email: false, channel_sms: true, channel_alimtalk: false, channel_friendtalk: false,
+    message_subject: null, message_text: "안녕하세요 {name}", kakao_template_id: null, kakao_variables: {},
+  });
+  assert.match(candidateSelect, /status/);
+  assert.deepEqual(r, { sent: 3, failed: 0, held: 4 });
+  assert.deepEqual(inserted, ["sub-0", "sub-1", "sub-2"]); // 보류 건은 선점 기록도 0 → 결과가 확인되면 다음 실행 때 보낼 수 있음
+  assert.deepEqual(globalThis.__crmSent.map((x) => x[1]), ["01000000000", "01000000001", "01000000002"]);
+});
+
+// ── CRM18-05: 보류의 반복·재개·밀림·화면 근거(실제 runFollowupRule·실제 page.tsx, 가짜 DB·발송만) ──────────
+const RULE = {
+  id: "rule-1", user_id: "user-1", form_source_id: "s1", name: "규칙", days_after: 3,
+  channel_email: false, channel_sms: true, channel_alimtalk: false, channel_friendtalk: false,
+  message_subject: null, message_text: "안녕하세요 {name}", kakao_template_id: null, kakao_variables: {},
+};
+/** 실행 사이에 상태가 남는 가짜 DB: 접수 목록과 발송 기록 표 */
+function statefulDb(rows) {
+  const sends = []; // { submission_id }
+  const queries = [];
+  return {
+    rows, sends, queries,
+    install() {
+      globalThis.__crmFake = {
+        client: () => fakeClient((q) => {
+          queries.push(q);
+          const ins = q.ops.find((o) => o[0] === "insert");
+          if (q.table === "crm_submissions") return { data: rows.map((r) => ({ ...r })), error: null };
+          if (q.table === "crm_followup_sends" && ins) {
+            if (sends.some((x) => x.submission_id === ins[1].submission_id)) return { data: null, error: { code: "23505" } };
+            sends.push({ submission_id: ins[1].submission_id });
+            return { data: { id: "claim-" + sends.length }, error: null };
+          }
+          if (q.table === "crm_followup_sends" && q.ops.some((o) => o[0] === "in")) return { data: sends.map((x) => ({ ...x })), error: null };
+          if (q.table === "crm_followup_sends") return { data: null, error: null }; // 결과 update
+          if (q.table === "user_solapi_accounts") return { data: { api_key: "k", api_secret: "s", sender_phone: "010", kakao_pf_id: null }, error: null };
+          return { data: null, error: null };
+        }),
+      };
+    },
+  };
+}
+const runRule = async () => (await import(pathToFileURL(__jn(PROJECT, "lib/crm/followupDispatch.ts")).href)).runFollowupRule(RULE);
+const row = (id, status) => ({ id, name: id, phone: "010-" + id, email: null, raw_values: {}, status });
+
+test("보류 반복: 같은 규칙을 3번 돌려도 보류 건 기록·발송 0, 정상 건은 한 번만", async () => {
+  const db = statefulDb([row("a", "notified"), row("b", "unknown"), row("c", null), row("d", "partial")]);
+  db.install();
+  globalThis.__crmSent = [];
+  const r1 = await runRule();
+  const r2 = await runRule();
+  const r3 = await runRule();
+  assert.deepEqual(r1, { sent: 1, failed: 0, held: 3 });
+  assert.deepEqual(r2, { sent: 0, failed: 0, held: 3 });
+  assert.deepEqual(r3, { sent: 0, failed: 0, held: 3 });
+  assert.deepEqual(db.sends.map((x) => x.submission_id), ["a"]); // 보류 건은 선점·기록 0(기록 폭증 0)
+  assert.deepEqual(globalThis.__crmSent.map((x) => x[1]), ["010-a"]);
+});
+
+test("재개: 보류 건의 상태가 나중에 확정되면 다음 실행에서 한 번만 보낸다", async () => {
+  const db = statefulDb([row("a", "notified"), row("b", "unknown")]);
+  db.install();
+  globalThis.__crmSent = [];
+  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 1 });
+  db.rows[1].status = "notified"; // 사람이 확인해 확정
+  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 0 });
+  assert.deepEqual(await runRule(), { sent: 0, failed: 0, held: 0 });
+  assert.deepEqual(globalThis.__crmSent.map((x) => x[1]), ["010-a", "010-b"]);
+});
+
+test("밀림 없음: 보류 건이 많아도 정상 건은 같은 실행에서 보낸다(후보 조회에 개수 제한 0)", async () => {
+  const rows = Array.from({ length: 500 }, (_, i) => row("h" + i, "dispatching"));
+  rows.push(row("ok", "received"));
+  const db = statefulDb(rows);
+  db.install();
+  globalThis.__crmSent = [];
+  assert.deepEqual(await runRule(), { sent: 1, failed: 0, held: 500 });
+  const cand = db.queries.find((q) => q.table === "crm_submissions");
+  assert.ok(!cand.ops.some((o) => o[0] === "limit" || o[0] === "range"), "후보 조회에 limit/range 없음");
+  assert.deepEqual(globalThis.__crmSent.map((x) => x[1]), ["010-ok"]);
+});
+
+test("기존 상태 회귀: received·notified·failed는 모두 기존처럼 팔로우업 발송", async () => {
+  const db = statefulDb([row("r", "received"), row("n", "notified"), row("f", "failed")]);
+  db.install();
+  globalThis.__crmSent = [];
+  assert.deepEqual(await runRule(), { sent: 3, failed: 0, held: 0 });
+});
+
+test("화면 근거: 접수 내역 표의 미확정 행에 「팔로우업 자동 보류」 이유가 실제로 보인다", async () => {
+  const rows = ["notified", "unknown", "partial", "dispatching"].map((s, i) => okRow(String(i), s));
+  const html = await renderPage(SUBS, subsAnswer({ data: rows, error: null }));
+  const n = (html.match(/팔로우업 문자는 자동으로 보내지 않습니다/g) ?? []).length;
+  assert.equal(n, 3); // 미확정 3행에만, 발송 완료 행에는 없음
 });
