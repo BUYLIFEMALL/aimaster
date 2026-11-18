@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 17:45:59 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 17:47:01 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -437,7 +437,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | AIF-20261118-W01m | CC-SNS-01 | done / new_SQL_isolated_author_execution_and_independent_evidence_review_accepted | 보관정리 새 SQL 격리 계약검증 | W01n 정리IO 유한대기/불명보존 좁은소스단위 |
 | AIF-20261118-W01n | CC-SNS-01 | done / bounded_cleanup_and_remove_count_local_validation_accepted_undeployed | 정리 실행기 개별 I/O 유한 대기·불명 보존 | W01o 복구 설계. 미전송 이후 객체 잔존은 다음 회차 확인으로 delete_unknown 가능. |
 | AIF-20261118-W01o | CC-SNS-01 | done / recovery_design_accepted_local_p1_separately_assigned | 정리·업로드 불명 상태 복구 설계 | W01p 국소 진입 시간 점검. P2·운영 복구 별도. |
-| AIF-20261118-W01p | CC-SNS-01 | reviewing / mac_targeted_checks_passed_uncertain_cancel_wording_returned | 삭제 진입 전 남은 시간 점검 | 취소 응답 불명과 늦은 원격 커밋 가능성을 정확히 설명한 문구 SHA 확인. |
+| AIF-20261118-W01p | CC-SNS-01 | done / pre_delete_time_check_mac_validated_and_wording_accepted_undeployed | 삭제 진입 전 남은 시간 점검 | 미배포 유지. P2 및 운영 복구는 별도 범위. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 
 ## 현재 담당 회신이 확보된 프로젝트

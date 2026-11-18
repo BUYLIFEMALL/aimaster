@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 17:45:59 KST",
+  "checkedAt": "2026-11-18 17:47:01 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,24 +12,25 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T08:45:59.679Z",
+      "at": "2026-11-18T08:47:01.859Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Mac 독립 검수 및 정정 보고 수신",
-      "scope": "웹 크롤러 T03 1단계와 SNS W01p 고정 SHA, 모의 범위 및 문구 검토",
+      "trigger": "W01p 문구 정정 회신 수신",
+      "scope": "W01p 정정 SHA의 주석·시험 제목·기존 문서 차이 확인. 전체 작업 재점검 범위는 아님.",
       "evidence": [
         "msg_f1ceae7ab7fe",
         "msg_28adaec01c93",
         "msg_b73f83cd1a93",
         "msg_dd4bd3aed79a",
-        "msg_397185be002a"
+        "msg_397185be002a",
+        "msg_133b06f40b4f / d84a201b9"
       ],
-      "judgment": "T03 1단계 소스 국소 검수 수락. W01p 국소 시험 수락, 설명 정정 대기.",
+      "judgment": "T03 기존 국소 판정 유지. W01p 국소 검수와 문구 정정 수락.",
       "unverified": [
         "T03 Render 이전 인스턴스 배출·운영 및 회원 호출 비용",
-        "W01p 원격 취소 동작과 문구 정정",
+        "W01p 실제 원격 취소와 운영 활성화",
         "기존 사람 의존 단계"
       ],
-      "nextAction": "W01p 문구 diff 확인. T03 운영 비용과 배포 조건은 별도."
+      "nextAction": "미배포 유지. P2 및 운영 복구는 별도 범위."
     },
     "notifications": [
       {
@@ -8712,18 +8713,18 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "삭제 진입 전 남은 시간 점검",
-      "status": "reviewing",
-      "delivery": "mac_targeted_checks_passed_uncertain_cancel_wording_returned",
+      "status": "done",
+      "delivery": "pre_delete_time_check_mac_validated_and_wording_accepted_undeployed",
       "scopeRef": "retention.ts·assetRetention 시험·W00 해당 문구",
       "constraints": "SQL/P2/실DB/Storage/AI/비용/build/deploy/push 0",
       "completion": "mark/remove/verify 예산·소유 토큰 내 제한 취소·불명 보존·모의 경계·tsc",
-      "evidence": "msg_b73f83cd1a93·8913e8136·Mac msg_dd4bd3aed79a·문구 정정 msg_397185be002a",
-      "next": "취소 응답 불명과 늦은 원격 커밋 가능성을 정확히 설명한 문구 SHA 확인.",
-      "lastReviewedAt": "2026-11-18T08:45:59.679Z",
-      "sha": "8913e8136",
+      "evidence": "8913e8136 동작·Mac msg_dd4bd3aed79a 4/4·d84a201b9 설명 정정 msg_133b06f40b4f",
+      "next": "미배포 유지. P2 및 운영 복구는 별도 범위.",
+      "lastReviewedAt": "2026-11-18T08:47:01.859Z",
+      "sha": "d84a201b9",
       "validation": {
         "author": "retention 48/48·전체 171/171·tsc 통과·고지 이상 0",
-        "master": "3호출 시간 예산과 취소/후속 차단 diff 대조",
+        "master": "세 호출의 시간 예산 및 문구 차이 확인. 타임아웃의 원격 결과는 불명.",
         "independent": "Mac 고정 실모듈 모의 4/4. 불명·늦은 원격 커밋 문구 보완 요청.",
         "limits": "운영 DB·Storage·실제 원격 취소·빌드·배포 검증 없음."
       }
