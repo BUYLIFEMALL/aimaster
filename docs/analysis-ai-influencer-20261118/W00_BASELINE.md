@@ -275,7 +275,8 @@ W01 후반 정확 경로(추가):
 3. **대조 실패는 fail-closed**: `fetchRecentMedia`가 null이면 「없음」으로 보지 않고 게시하지 않는다. 예약은 `uncertain`(정해진 횟수만 대조 재시도, 이후 회원 확인 대기), 즉시 게시는 「확인 불가 — 인스타에서 확인 후 다시 시도」 안내.
 4. **즉시 게시 재진입 방지**: 요청마다 회원별 멱등 키를 받아 게시 기록 행을 먼저 `publishing`으로 잡고(조건부 insert/update), 같은 키나 진행 중 행이 있으면 새 게시를 시작하지 않는다.
 5. **예약 중복 실행**: 현재 `scheduled → publishing` 조건부 잠금(`posting.ts:100-107`)은 유지. 30분 넘게 `publishing`인 행을 `failed`로 바꾸는 정리(`cleanupOldPosts`)는 `uncertain`으로 바꾸고 대조 전에는 재게시 대상에서 뺀다.
-6. **기록**: `uncertain`·`already_published` 결과와 대조 시각을 남기고, 확정 성공만 게시 성공으로 집계(F14-06·F18-02).
+6. **게시 ID 확보 후 주소 조회 실패**(Mac `msg_f9f028aea54a` 반영): 현재 `publishInstagramPost/Carousel`은 `media_publish`로 게시 ID를 받은 뒤 `getPermalink()`에서 오류가 나면 전체를 예외로 던져 호출부가 「게시 실패」로 기록한다(`publish.ts` `publishInstagramPost` 마지막 두 줄). 계약: `media_publish`가 ID를 돌려준 순간 **게시 성공으로 확정**하고 `media_id`를 즉시 기록에 저장한다. 주소(permalink) 조회 실패는 `permalink = null`로 두고 「주소 확인 대기」로 표시한다. 이후에는 그 `media_id`로 **조회(GET)만** 다시 하며, 다시 게시(`media_publish`)하지 않는다. 실패나 `uncertain`으로 되돌리지 않는다.
+7. **기록**: `uncertain`·`already_published` 결과와 대조 시각을 남기고, 확정 성공만 게시 성공으로 집계(F14-06·F18-02).
 
 이 계약은 AI Influencer W07 게시 원장(`aif_publications`, PLAN §13)의 상태(`처리 중/불확실/성공`)와 같은 의미로 맞춘다.
 
@@ -293,7 +294,15 @@ W01 후반 정확 경로(추가):
 | 정책 조회 실패 | — | 그 회차 삭제 전체 중단 |
 | 서명 URL 발급 실패 | — | 자산은 유효로 둠, 응답에 `signedUrl:null` + 재발급 경로(`/api/aif/assets/[id]`) 안내 |
 
-고아 정리(정리 작업 안, 같은 회원 경로만): ① 행 없는 객체 — 생성 후 24시간 지나도 행이 없을 때만 삭제 ② 객체 없는 행 — `deletion_state='missing'` 표시, 화면에서 「파일 없음」으로 보여 주고 자동 재생성 없음. 다른 회원 경로는 대상에서 제외(경로 첫 부분 = `user_id` 일치 검사).
+고아 정리(정리 작업 안, 같은 회원 경로만 — 경로 첫 부분 = `user_id` 일치 검사). **시간만 지났다는 이유로 지우지 않는다**(Mac `msg_f9f028aea54a` 반영). 행 없는 객체는 아래를 **모두** 만족할 때만 삭제한다:
+
+1. 생성 후 24시간 이상 지남.
+2. 같은 `asset_id`에 열린 업로드 허가(`upload-ticket` 발급 후 `complete` 전)가 없음.
+3. 같은 `asset_id`에 `unknown` 쓰기 기록(§16 표의 불명 행)이 없음 — 불명 기록이 있으면 보존하고 「확인 필요」로 남긴다.
+4. 그 자산을 입력으로 쓰는 진행 중 작업 단계(`aif_job_steps` 비종료 상태)가 없음.
+5. **삭제 예약 → 재확인 → 삭제** 순서: 먼저 `aif_asset_deletions`에 삭제 예약 행(정리 실행의 `fencing_token` 포함)을 만들고, 삭제 직전에 1~4를 다시 확인한다. 그사이 행이 생겼거나 다른 정리 실행이 같은 예약을 가져갔으면(토큰 불일치) 삭제하지 않는다.
+
+조건 판단에 필요한 기록을 읽지 못하면(조회 실패·증거 불명) **보존**한다. 객체 없는 행은 `deletion_state='missing'`으로 표시하고 화면에 「파일 없음」으로 보여 준다. 자동 재생성은 하지 않는다.
 
 migration 초안에서 확인할 항목(DDL이 아직 없어 권한 구현 PASS 아님): `user_id NOT NULL` + FK, 서비스 키로만 쓰기·본인 SELECT RLS, `storage.objects`에 대한 클라이언트 직접 쓰기 차단(서명 업로드만), `(bucket, path)` 유일, MIME·바이트·실제 형식 서버 확인, 중앙 용량 검사(`member_storage_check`) 후 확정, 최종 확정 시험.
 
@@ -318,9 +327,14 @@ PLAN §15 상태값에 `paused`를 **새 상태로 추가**하고, 이유는 별
 | 모든 비종료 상태 | 동의 철회·전체 중지 | paused(consent_revoked / global_pause) | **새 외부 쓰기(생성 접수·게시) 차단**. 이미 접수된 waiting_external은 결과 회수만 하고 후속 단계로 넘어가지 않음 |
 | paused(auth_expired / asset_expired) | 회원이 연결·자산 복구 | queued | 복구 확인 후에만 |
 
-예산 원자 계약:
-- 상한 검사 합계 = `reserved + estimated(미확정)` 전체. `reserved → estimated`로 바뀌어도 같은 행의 상태만 바뀌므로 합계에 한 번만 들어간다(이중 계산·누락 없음). 상태 변경과 상한 검사는 한 DB 함수에서 행 잠금으로 처리.
-- `confirmed`는 업체 청구 대조 후에만. `failed`(명시적 거절·비용 없음 확인)만 예약 해제. `uncertain`·`cancelled`(접수 후 취소)는 해제하지 않음.
+예산 원자 계약(Mac `msg_f9f028aea54a` 반영 — 확정 지출 누락 정정):
+- **원장 행 하나 = 단계 시도 하나**(`aif_budget_entries`, `step_id+attempt` 유일). 금액 칸은 하나(`amount`)이고 상태만 `reserved → estimated → confirmed` 또는 `released`로 바뀐다. 같은 비용이 두 행에 동시에 있지 않으므로 중복 계상이 없다.
+- **일간 상한 사용액 = 같은 회원·같은 예산 일자의 `reserved + estimated + uncertain + confirmed` 합계**. 해제(`released`)만 빠진다. 확정 지출이 빠져 상한을 다시 쓰는 일이 없다.
+- 예산 일자: 예약 시각을 회원 시간대로 바꾼 날짜를 행에 고정 저장(`budget_day`). 나중에 확정돼도 날짜를 옮기지 않는다(자정 경계에서 이중·누락 방지).
+- 통화: 회원 상한 하나에 통화 하나. 다른 통화 공급자 비용은 실행 전 사전 점검에서 거절(환산하지 않음).
+- 원자 처리: 예약·확정·해제는 모두 한 DB 함수 안에서 회원 단위 행 잠금(`aif_budget_limits` 회원 행 `for update`)을 잡고 합계를 다시 계산한 뒤 처리.
+- 해제 조건: `failed`(명시적 거절 + 비용 없음 확인)만. `uncertain`·접수 후 `cancelled`는 해제하지 않음.
+- 상한을 낮추면: 이미 예약·접수된 행은 그대로 두고, 새 예약만 합계가 새 상한 아래로 내려갈 때까지 막는다(`paused(budget_limit)`).
 - 이 항목은 설계 누락 보완이며 실제 스키마 결함을 재현한 것은 아니다.
 
 ## 14. 진행 상태 기록
