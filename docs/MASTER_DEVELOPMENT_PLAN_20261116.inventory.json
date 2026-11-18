@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T19:17:02.924Z",
+  "checkedAt": "2026-11-18T19:18:13.795Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9863,10 +9863,15 @@
       "reviewer": "CX-MASTER-01",
       "title": "메이커 M2 사진 제안 저장 범위 설계",
       "status": "reviewing",
-      "delivery": "proposal_contract_returned_boundary_review_requested",
-      "evidence": "msg_8bc03c47698d·msg_283337366ae8·msg_d7ccf525cd20",
-      "next": "사진 제안 저장 설계 수신. 기존 비공개 정책 중첩·서버 해시·동시 ACK 및 안전 정리를 보완. 제품 구현 없음.",
-      "lastReviewedAt": "2026-11-18T19:14:59.091Z"
+      "delivery": "owner_policy_confirmed_proposal_acl_and_cleanup_review_requested",
+      "evidence": "msg_8bc03c47698d·msg_283337366ae8·msg_d7ccf525cd20·msg_bf8f3313b68a·88850694c·msg_d5aebd7ca4f8",
+      "next": "비공개·5MB·미적용 30일 정리·M3 동시 운영 반영 결정. 상품 권한 없는 직원 접근 차단과 확정 파일 정리 경합 보완 후 구현 검토.",
+      "lastReviewedAt": "2026-11-18T19:18:13.795Z",
+      "sha": "88850694c",
+      "validation": {
+        "decision": "제안 비공개, 브라우저에서 5MB 이하, 미적용 30일 정리 관리자·시험 몰 포함, M3와 함께 운영 반영.",
+        "open": "기존 비공개 버킷에서 일부 직원의 상품 권한 우회 읽기 가능. 전용 버킷/정책 분리 검토. eTag/클라이언트 해시는 힌트만."
+      }
     },
     {
       "task_id": "B2B-20261119-S70-LAB",
