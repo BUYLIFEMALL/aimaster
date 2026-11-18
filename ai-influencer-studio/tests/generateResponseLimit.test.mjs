@@ -30,7 +30,7 @@ export async function resolve(s, c, n) {
 
 const { POST } = await import("../src/app/api/generate-image/route.ts");
 const { handleGenerateImagePost, limitResponseBody, RESPONSE_MAX_BYTES, RESPONSE_TOO_LARGE_CODE, RESPONSE_TOO_LARGE_STATUS, RESPONSE_TOO_LARGE_MESSAGE, AIF_ASSETS_MODE } = await import("../src/lib/assets/generation.ts");
-const { readGenerateResponse, GENERATE_MESSAGES } = await import("../src/lib/assets/generateResponse.ts");
+const { readGenerateResponse, GENERATE_MESSAGES, OMITTED_SAVE_LINES } = await import("../src/lib/assets/generateResponse.ts");
 const { ASSET_SAVE_MESSAGES } = await import("../src/lib/assets/saveNotice.ts");
 const STUDIO = readFileSync(new URL("../src/components/InfluencerStudio.tsx", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 
@@ -98,7 +98,8 @@ test("상한은 4,000,000바이트이고 공식 문서의 4.5 MB를 어느 단�
   assert.equal(RESPONSE_TOO_LARGE_STATUS, 422);
   assert.match(RESPONSE_TOO_LARGE_MESSAGE, /이미지는 생성됐지만/);
   assert.match(RESPONSE_TOO_LARGE_MESSAGE, /지금 화면으로 전달할 수 없습니다/);
-  assert.match(RESPONSE_TOO_LARGE_MESSAGE, /비용은 이미 발생했습니다/);
+  assert.match(RESPONSE_TOO_LARGE_MESSAGE, /생성은 이미 진행됐으며, 사용량이 차감됐을 수 있습니다/);
+  assert.doesNotMatch(RESPONSE_TOO_LARGE_MESSAGE, /비용은 이미 발생|과금됐습니다|차감됐습니다\./, "공급자 과금을 단정하지 않는다");
   assert.doesNotMatch(RESPONSE_TOO_LARGE_MESSAGE, /다시 생성해 주세요|다시 시도해 주세요|재시도|[A-Z]{3,}_[A-Z]{3,}|[0-9a-f]{8}-[0-9a-f]{4}-/);
   assert.equal(AIF_ASSETS_MODE, "off");
 });
@@ -232,10 +233,24 @@ test("이미지를 싣지 못한 응답(422 + imageOmitted + RESPONSE_TOO_LARGE)
   // 저장 결과가 함께 오면 그 뜻 그대로 한 줄을 덧붙인다
   for (const [v, key] of [[true, "saved"], [false, "not_saved"], ["unknown", "unknown"]]) {
     const x = await readGenerateResponse(res(false, JSON.stringify({ ...SMALL, assetSaved: v, assetId: ASSET, assetCode: "NOT_CONFIRMED" })));
-    assert.deepEqual(x, { kind: "omitted", message: `${GENERATE_MESSAGES.omitted} ${ASSET_SAVE_MESSAGES[key]}` });
+    assert.deepEqual(x, { kind: "omitted", message: `${GENERATE_MESSAGES.omitted} ${OMITTED_SAVE_LINES[key]}` });
+    assert.equal(x.message.includes(ASSET_SAVE_MESSAGES[key]), false, "정상 이미지용 안내 문구를 쓰지 않는다");
     assert.equal(x.message.includes(ASSET), false);
     assert.equal(x.message.includes("NOT_CONFIRMED"), false);
   }
+  // 저장 상태 한 줄은 사실만: 이미지가 화면에 없으므로 내려받기·사용·조회·재생성을 말하지 않는다
+  assert.deepEqual(Object.keys(OMITTED_SAVE_LINES).sort(), ["not_saved", "saved", "unknown"]);
+  for (const line of Object.values(OMITTED_SAVE_LINES)) {
+    assert.doesNotMatch(line, /내려받|다운로드|쓰실 수|사용할 수|그대로|조회|확인해 주세요|다시 생성|재생성|다시 시도/);
+    assert.doesNotMatch(line, /[0-9a-f]{8}-[0-9a-f]{4}-|[A-Z]{3,}_[A-Z]{3,}/);
+    assert.match(line, /니다\.$/);
+  }
+  assert.match(OMITTED_SAVE_LINES.saved, /보관됐습니다/);
+  assert.match(OMITTED_SAVE_LINES.not_saved, /보관되지 않았습니다/);
+  assert.match(OMITTED_SAVE_LINES.unknown, /아직 확인하지 못했습니다/);
+  assert.doesNotMatch(OMITTED_SAVE_LINES.unknown, /보관됐습니다|보관되지 않았습니다|실패/, "미확인은 어느 쪽으로도 단정하지 않는다");
+  // 저장 결과가 세 값 밖이면 한 줄을 덧붙이지 않는다
+  assert.deepEqual(await readGenerateResponse(res(false, JSON.stringify({ ...SMALL, assetSaved: "ready" }))), { kind: "omitted", message: GENERATE_MESSAGES.omitted });
   // 조합이 있으면 imageUrl이 같이 와도, 상태가 성공으로 와도 이미지로 보지 않는다
   assert.equal((await readGenerateResponse(res(false, JSON.stringify({ ...SMALL, imageUrl: "data:image/png;base64,AAAA" })))).kind, "omitted");
   assert.equal((await readGenerateResponse(res(true, JSON.stringify({ ...SMALL, imageUrl: "data:image/png;base64,AAAA" })))).kind, "omitted");

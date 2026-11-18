@@ -4,18 +4,27 @@
 //   * 응답 본문은 글자로 한 번 읽고 여기서 JSON으로 푼다. 풀지 못하면 고정 문구만 돌려준다(본문·파싱 오류 원문을 화면에 내지 않는다).
 //   * 정상 응답(200 + imageUrl 문자열)의 처리는 예전과 같다 — 본문을 그대로 넘긴다.
 //   * 서버가 「이미지를 싣지 못했다」고 명시한 응답(imageOmitted: true + code: "RESPONSE_TOO_LARGE", 상태 422)은 생성 실패와 구분되는 별도 결과다.
-//     생성은 끝났고 비용도 발생했다. 이 조합은 응답 상태보다 먼저 본다(상태만 보면 일반 오류로 뭉개진다).
+//     생성은 끝났다(과금 여부는 확인하지 않는다). 이 조합은 응답 상태보다 먼저 본다(상태만 보면 일반 오류로 뭉개진다).
+//   * 이미지가 없는 결과에 덧붙이는 저장 상태 한 줄은 전용 문구다(OMITTED_SAVE_LINES). 정상 이미지용 안내(saveNotice.ts)는 「지금 내려받을 수 있다·그대로 쓸 수 있다」를
+//     말하는데, 여기서는 화면에 이미지가 없어 모순이 된다. 보관됨·보관 안 됨·미확인이라는 사실만 말하고 내려받기·조회·재생성을 안내하지 않는다.
 //   * 이 모듈은 결과를 해석할 뿐이다. 다시 생성·자산 조회·재시도를 시작하는 코드는 여기에도, 이것을 쓰는 화면에도 두지 않는다.
 import { assetSaveNotice } from "./saveNotice";
 
 export const GENERATE_MESSAGES = {
   /** 서버가 응답 크기 때문에 이미지를 싣지 않았다. 서버가 같은 응답의 error에 싣는 문구(generation.ts RESPONSE_TOO_LARGE_MESSAGE)와 같은 글이다 */
   omitted:
-    "이미지는 생성됐지만 파일이 너무 커서 지금 화면으로 전달할 수 없습니다. 이번 생성 비용은 이미 발생했습니다. 같은 설정으로 다시 생성하면 같은 일이 생길 수 있습니다.",
+    "이미지는 생성됐지만 파일이 너무 커서 지금 화면으로 전달할 수 없습니다. 생성은 이미 진행됐으며, 사용량이 차감됐을 수 있습니다. 같은 설정으로 다시 생성하면 같은 일이 생길 수 있습니다.",
   /** 응답을 읽지 못했거나 JSON이 아니거나 모양이 맞지 않는다(생성 여부를 모른다) */
   unreadable: "서버 응답을 읽지 못했습니다. 이미지 생성이 이미 진행됐을 수 있으니, 바로 다시 누르지 말고 잠시 뒤 확인해 주세요.",
   /** 서버가 오류를 알렸는데 안내 문구가 없다(예전 기본 문구 그대로) */
   failed: "이미지 생성 실패",
+} as const;
+
+/** 이미지를 싣지 못한 결과에 덧붙이는 원본 저장 상태 한 줄. 사실만 말한다(내려받기·조회·재생성 안내 없음) */
+export const OMITTED_SAVE_LINES = {
+  saved: "원본은 내 저장공간에 보관됐습니다.",
+  not_saved: "원본은 저장공간에 보관되지 않았습니다.",
+  unknown: "원본이 보관됐는지는 아직 확인하지 못했습니다.",
 } as const;
 
 export type GenerateOutcome =
@@ -36,9 +45,9 @@ export async function readGenerateResponse(res: ResponseLike): Promise<GenerateO
     return unreadable;
   }
   if (body.imageOmitted === true && body.code === "RESPONSE_TOO_LARGE") {
-    // 원본 저장 결과가 함께 왔으면 그 뜻 그대로 한 줄을 덧붙인다(별도 조회 없음). 본문의 error 글은 쓰지 않는다(고정 문구만)
+    // 원본 저장 결과가 함께 왔으면 그 상태만 전용 문구 한 줄로 덧붙인다(별도 조회 없음). 본문의 error 글은 쓰지 않는다(고정 문구만)
     const saved = assetSaveNotice(body);
-    return { kind: "omitted", message: saved ? `${GENERATE_MESSAGES.omitted} ${saved.message}` : GENERATE_MESSAGES.omitted };
+    return { kind: "omitted", message: saved ? `${GENERATE_MESSAGES.omitted} ${OMITTED_SAVE_LINES[saved.kind]}` : GENERATE_MESSAGES.omitted };
   }
   if (!res.ok) {
     // 서버가 만든 안내 문구는 예전처럼 그대로 보여 준다(우리 서버의 한국어 문구다)
