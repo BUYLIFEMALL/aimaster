@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T02:55:34.007Z",
+  "checkedAt": "2026-11-18T02:59:30.709Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3795,14 +3795,20 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
       "title": "CRM v2 이벤트키 순수검증·시험 1단계",
-      "status": "ready",
-      "delivery": "implementation_authorized_dispatch_sent",
-      "evidence": "6768146ff·msg_cdd38dc32bd7",
+      "status": "ready_review",
+      "delivery": "pure_source_independent_review_dispatched",
+      "evidence": "6768146ff·msg_cdd38dc32bd7·결과msg_46508dbae1da·Master3파일/헬퍼본문확인·Mac msg_fac36ddfe9e7",
       "scopeRef": "crm-google-form/lib/crm/dedupe.ts·tests/dedupe.test.mjs 신규+기존결과본인절",
       "completion": "v2/version/kind/key타입·길이/허용문자/source범위·구버전NULL·불량/같은값다른행/다른source경계·실제함수red-green/타입검사",
       "constraints": "route/dispatch/UI/snippet/DDL연결0·운영DB/발송/실API/새패키지/build/dev0",
-      "next": "정확경로점유→순수구현/시험→SHA→Mac독립",
-      "lastReviewedAt": "2026-11-18T02:55:34.007Z"
+      "next": "Mac타입/길이/키/source/UTF8독립검수·Backend2단계소비자영향읽기조사(msg_788ea7b746bd)",
+      "lastReviewedAt": "2026-11-18T02:59:30.709Z",
+      "sha": "17b45c398",
+      "validation": {
+        "author": "Node26 실제TS node--test14/14·tsc0·red-green/변이",
+        "master": "diffstat3파일·helper읽기·운영연결0확인",
+        "independent": "Mac모의국소대기"
+      }
     }
   ],
   "programOverrides": [
@@ -4286,21 +4292,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T02:55:34.007Z",
+      "at": "2026-11-18T02:59:30.709Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Backend PORT18-02 개정6768146ff/msg_3e18459377e5",
-      "scope": "v2명시적키/구스크립트호환·발송불확실/DDL계획·단계분할",
+      "trigger": "CRM18-01 17b45c398 자체완료보고",
+      "scope": "순수헬퍼/시험변경3파일·정확키형식·운영미연결·검수/다음읽기배정",
       "evidence": [
-        "ID모양추정/본문hashfallback폐기·구스크립트미방지명시",
-        "Master결과본문/현재status제약읽기",
-        "순수2파일구현지시msg_cdd38dc32bd7"
+        "Master helper본문/diffstat·작성자14/tsc0",
+        "Mac msg_fac36ddfe9e7·Backend다음영향읽기msg_788ea7b746bd"
       ],
-      "judgment": "현행분석/개정계획수락·순수헬퍼/시험만구현허용,운영경로/DDL/발송변경미승인",
+      "judgment": "자체통과접수·운영중복방지완료아님. Mac독립검수와다음단계영향읽기분리·제품추가수정0",
       "unverified": [
-        "sheetKey timestamp설명앞뒤불일치/재사용경계·신규헬퍼결과",
-        "status소비자/다음단계영속화설계·Gmail/Mac사람단계"
+        "Mac독립판정·state소비자/다채널unknown설계",
+        "Gmail실OAuth·Mac B저장"
       ],
-      "nextAction": "헬퍼SHA/시험회수→Mac검수·다음단계범위확인뒤"
+      "nextAction": "검수/범위읽기결과회수후2단계구현범위판정·운영DDL/비용별도"
     },
     "notifications": [
       {
