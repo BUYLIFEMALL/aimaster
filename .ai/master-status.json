@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T02:31:16.669Z",
+  "checkedAt": "2026-11-18T02:34:35.845Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -1877,12 +1877,20 @@
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "owner": "CX-QA-01",
-      "status": "waiting_human",
-      "delivery": "returned",
+      "status": "ready",
+      "delivery": "owner_resume_dispatch_sent",
       "title": "실제Intel Mac MP4파일내보내기 보조검수",
-      "evidence": "msg_44a7b56f0c81 / msg_0da73bcc8c24 / 요청 b9c115b01 REQUEST_20261118_MACMINI_V116_MP4.md·msg_b5ed90b53bf7",
-      "next": "Intel 실제MP4는기존공간20 로그인필요시본인로그인+Return→실시험·파일2/진단2. AppleSilicon은주인님결정으로후일재개행정마감·실PASS아님",
-      "lastReviewedAt": "2026-11-16T16:41:48.543594+00:00"
+      "evidence": "msg_44a7b56f0c81 / msg_0da73bcc8c24 / 요청 b9c115b01 REQUEST_20261118_MACMINI_V116_MP4.md·msg_b5ed90b53bf7·주인님Master직접진행지시·Mac msg_b60727c3b123·Music msg_9f301d9e2e55",
+      "next": "Mac기존20 상태확인→가능도구로MP4 A/B·저장/진단4파일→Music 지정파일ffprobe/전체decode,실제도구불가/로그인만사람요청",
+      "lastReviewedAt": "2026-11-18T02:34:35.845Z",
+      "blockedReason": "기존사람대기상태는재개지시로재확인필요·Mac착수/현재화면회신대기",
+      "resume": {
+        "requestId": "35cd4475-eee1-4826-ab69-9aee944ddcd7",
+        "initial": "remote_runtime_unavailable·실행여부불명",
+        "recovery": "request-show absent만으로미실행단정0→원격기존terminal동일/현재화면확인→동일request재시도성공",
+        "messageId": "msg_b60727c3b123",
+        "scope": "기존Mac20만·저장소밖mus-mac·무료기존/합성음·유료AI/npm/dev/build/deploy0"
+      }
     },
     {
       "task_id": "QA-20261117-003",
@@ -4160,8 +4168,8 @@
     },
     {
       "condition": "음악 실기기/저장 단계",
-      "action": "Intel Mac 기존공간20 본인로그인필요시직접로그인+Return, 시험중신뢰클릭/저장위치선택",
-      "recommendation": "AppleSilicon은장비준비뒤후일재개로행정마감·즉시장비요청0"
+      "action": "주인님진행지시수신·Mac도구가능클릭/저장우선재개,실제로그인/도구불가만구체요청",
+      "recommendation": "Mac기존20·A/B·파일4개후Music전체decode·AppleSilicon후일재개유지"
     },
     {
       "condition": "블로그·마켓 외부계정",
@@ -4208,23 +4216,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T02:31:16.669Z",
+      "at": "2026-11-18T02:34:35.845Z",
       "timezone": "Asia/Seoul",
-      "trigger": "11:30예약 msg_a117d5943f48",
-      "scope": "담당보고/요청·19카테고리 미종료작업·docs/미등록인계증분·src미커밋·기존12세션/Workspace·AGY실화면",
+      "trigger": "주인님 Mac MP4 진행 직접지시",
+      "scope": "요청서/기존공간·재개권한·원격전달복구·Mac실행/Music판정분리",
       "evidence": [
-        "dev-requests0·새문서0(자체진행표제외)·제품3개src미커밋0",
-        "Workspace실화면v1.58패널표시·로그인계정미확인·본인로그인/OAuth요청후대기(작성자10:23출력)",
-        "AGY인용추출/검사명령진행중·정정결과아직없음·임시본인파일정리지시msg_6c60994d4d1b",
-        "예약11:30결과0/다음12:00"
+        "요청서원문확인·Mac msg_b60727c3b123·Music msg_9f301d9e2e55",
+        "원격일시실패→동일request35cd... 재시도성공·새창0",
+        "PORT19 임시파일정리ACK msg_8e99e9a6b612"
       ],
-      "judgment": "PORT19정정진행중/공식잔여표미반영유지. Gmail실OAuth대기·브라우저계정은시험제목만으로확정금지. 중복시험/배포0.",
+      "judgment": "기존Intel Mac MP4검수재개배정,착수/완료는회신전미판정·중복렌더/유료0",
       "unverified": [
-        "AGY정정JSON/자동검사실패0·소스원문내용판정",
-        "Gmail로그인시험계정/OAuth/실검증·Mac독립",
-        "Lab시험제출·Mac영상/반환"
+        "Mac현재로그인/20시험자료·클릭/저장도구가능여부·MP4/진단",
+        "Gmail OAuth실검증·PORT19정정결과"
       ],
-      "nextAction": "정정결과근거검토·Workspace사람완료후실검수연결·12:00기존Master예약"
+      "nextAction": "Mac착수/구체막힘회수→A/B결과Music검증연결"
     },
     "notifications": [
       {
