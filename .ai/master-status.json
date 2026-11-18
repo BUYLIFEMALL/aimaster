@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T03:34:58.651Z",
+  "checkedAt": "2026-11-18T03:43:52.865Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3910,13 +3910,13 @@
       "reviewer": "CX-MASTER-01",
       "title": "감성 설정 화면 주인님 직접지시·새배포 상태 취합",
       "status": "running",
-      "delivery": "direct_owner_ui_work_observed_report_requested",
+      "delivery": "v133_observed_free_off_correction_in_progress",
       "sha": "88c9b2dcc + KeySettings/version/globals UI후속",
-      "evidence": "12:30Master AGY실화면 직접지시확인·git경로log·msg_76ca7f95555f·AGY직접지시보고msg_6932e5bb0e45·Master88c9stat/version/free상수·alias dpl_25vo...확인·보완msg_3c76b5ef3b98",
+      "evidence": "12:30Master AGY실화면 직접지시확인·git경로log·msg_76ca7f95555f·AGY직접지시보고msg_6932e5bb0e45·Master88c9stat/version/free상수·alias dpl_25vo...확인·보완msg_3c76b5ef3b98·보완msg_0ade8b8574e2·정정착수msg_d50e19de0764·Master v1.33alias확인",
       "scopeRef": "KeySettings.tsx·version.ts·globals.css UI한정",
       "completion": "직접UI지시/무료정책/빌드승인범위·실제manifest/배포/예산·독립검수구분",
-      "next": "부족한명시빌드승인/사용횟수·free키/외부전송정책·실호출/manifest/DB버전보고회수→검수·예산정합성",
-      "lastReviewedAt": "2026-11-18T03:34:58.651Z",
+      "next": "AGYfreeOFF/문구정정로컬SHA회수→검수·무료방식주인님결정·배포예산별도",
+      "lastReviewedAt": "2026-11-18T03:43:52.865Z",
       "directInstructions": [
         {
           "time": "11:15 작성자보고",
@@ -3939,6 +3939,35 @@
           "status": "로컬작업중"
         }
       ]
+    },
+    {
+      "task_id": "ECOM-20261118-05",
+      "parent_task_id": "DES-20261118-06",
+      "owner": "CC-ECOM-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "무료 이미지 공식지원/본인키 무료할당량 대안 읽기조사",
+      "status": "done",
+      "delivery": "primary_documents_read_no_real_api",
+      "sha": "4a5d59dcf",
+      "evidence": "msg_b40a72761bf2·Master공식Pollinations APIDOCS/Cloudflare pricing직접열람",
+      "completion": "실이미지/등록/결제/회원키조회0·현공식문서/실지원미검증구분",
+      "next": "주인님무료방식결정후정확구현계획·공식약관/라이선스미확인유지",
+      "lastReviewedAt": "2026-11-18T03:43:52.865Z"
+    },
+    {
+      "task_id": "CRM-20261118-05",
+      "parent_task_id": "CRM-20261118-04",
+      "owner": "CC-B2B-BACK-01",
+      "reviewer": "CX-QA-01",
+      "title": "미확정 접수 후속알림 기본보류·가시성",
+      "status": "running",
+      "delivery": "direct_owner_policy_accepted_dispatch_sent",
+      "evidence": "주인님Backend직접결정msg_1a6232e00dae·Mastermsg_38c5209014e0",
+      "scopeRef": "followupDispatch.ts·submissionStatus.ts·시험/기존문서·추가호출자필요시경로먼저",
+      "completion": "dispatching/partial/unknown/미지값보류·발송/선점0·실화면보류이유/held가시성·확정후1회재개/limit기아검증",
+      "constraints": "received/failed/notified기존동작·실DB/DDL/웹훅/실발송/배포0",
+      "next": "실함수모의/보류가시성근거·SHA→Mac독립",
+      "lastReviewedAt": "2026-11-18T03:43:52.865Z"
     }
   ],
   "programOverrides": [
@@ -4255,10 +4284,10 @@
     {
       "slug": "emotion-writer",
       "owner": "CC-ECOM-01",
-      "reportedVersion": "v1.32 작성자보고·alias직접일치",
-      "stage": "3사설정세로배치 운영보고·freeON소스확인·추가UI직접지시진행",
+      "reportedVersion": "v1.33 작성자보고·alias직접일치",
+      "stage": "설정UI직접지시배포·freeON정책미확정→OFF로컬정정준비",
       "completed": "지정0789/59cb소스트리재배포·3사3실호출작성자성공·Master alias확인·이미지1a1f64dba 지정독립PASS",
-      "next": "부족한명시빌드승인/사용횟수·free키/외부전송정책·실호출/manifest/DB버전보고회수→검수·예산정합성",
+      "next": "AGYfreeOFF/문구정정로컬SHA회수→검수·무료방식주인님결정·배포예산별도",
       "evidence": "msg_85526463335b·dpl_7XjTSJkDk6Ftzt9Lv3EVvo52HpdT·QA049·e201aed81·Master get_alias/get_deployment dpl_Hs8NQJXDfTuH5PeRDnQvrLwy5z6e·msg_6932e5bb0e45·Master dpl_25voBGygNgta1Av8eAUKN7Dy8GBk",
       "evidenceLevel": "운영alias직접·작성자모델3/DOM375·이미지독립모의PASS/운영미반영"
     },
@@ -4399,8 +4428,13 @@
     },
     {
       "condition": "CRM 중복방지 연결 후속알림 정책",
-      "action": "최초처리중/부분전송/결과모름 접수 후속알림 기본중지(권장) vs 기존계속 선택",
-      "recommendation": "중지는미확정유료발송방지·실제수신접수도사람확인전보류절충. 비동기질문제출·답변전코드연결0"
+      "action": "주인님Backend직접결정: 미확정/미지상태후속기본보류·보류사실표시",
+      "recommendation": "기존질문이결정으로해소·CRM18-05소스만진행·운영연결/DDL별도"
+    },
+    {
+      "condition": "감성 무료이미지 실행방식",
+      "action": "회원본인무료할당량키(권장)/고지·약관확인뒤keyless외부/로컬 중 선택질문",
+      "recommendation": "현재publicURL프롬프트·IP45초제한·공유캐시·100%즉시보증불가,OFF정정안준비·신규배포별도"
     }
   ],
   "redispatch": {
@@ -4427,21 +4461,23 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T03:34:58.651Z",
+      "at": "2026-11-18T03:43:52.865Z",
       "timezone": "Asia/Seoul",
-      "trigger": "AGY 직접UI/v1.32보고 msg_6932e5bb0e45",
-      "scope": "직접지시이력·2파일커밋/버전/free상수·현재alias·예산/정책누락",
+      "trigger": "AGY배포근거보완/Ecom공식조사/CRM직접정책결정",
+      "scope": "v1.33alias/구자율지침충돌·free정책/공식제약·CRM보류결정취합",
       "evidence": [
-        "Master88c9 2파일·버전1.32/freetrue소스",
-        "Master alias dpl_25voBGygNgta1Av8eAUKN7Dy8GBk 직접일치",
-        "보완요청msg_3c76b5ef3b98"
+        "AGYmsg_0ade8b8574e2·Masteralias dpl_A4hm...",
+        "구.agents 실제읽기/최신협업연결정정·freeOFF로컬msg_18360ea27ea8",
+        "Ecom4a5d59dcf·공식APIDOCS IP45초/URL캐시·Cloudflare가격읽기",
+        "CRM결정msg_1a6232e00dae·범위검증msg_38c5209014e0"
       ],
-      "judgment": "직접UI지시접수·현운영alias정정. 코드상수/alias가빌드승인/정책결정을대신하지않음·누락근거보완중.",
+      "judgment": "현재직접UI완료존중·추가배포중지·freeOFF정정안/무료방식결정분리. CRM사람결정수락·미확정후속보류실함수검증추진.",
       "unverified": [
-        "배포별승인/빌드횟수·free정책·실호출·manifest/DB버전",
-        "GmailOAuth·MacB·CRM정책"
+        "AGY정정SHA/실무료호출수·DB버전·추가배포예산",
+        "무료약관/모델실지원/비용·주인님실행방식",
+        "CRM실함수보류/held가시성·GmailOAuth·MacB"
       ],
-      "nextAction": "추가원격배포전보고회수·UI로컬편집존중/중복수정0"
+      "nextAction": "로컬정정/정책구현SHA각회수→독립검수·실API0"
     },
     "notifications": [
       {
@@ -6919,17 +6955,22 @@
       "additionalApprovalMessage": "msg_037a5d31d3f8"
     },
     "observedEmotionWriterChange": {
-      "at": "2026-11-18T03:34:58.651Z",
+      "at": "2026-11-18T03:43:52.865Z",
       "alias": "emotion-writer.buylife.xyz",
-      "deploymentId": "dpl_25voBGygNgta1Av8eAUKN7Dy8GBk",
-      "url": "emotion-writer-6lefac8qj-buylife.vercel.app",
+      "deploymentId": "dpl_A4hmHB9DTioPdS2A9Ur6hFUXdwwq",
+      "url": "emotion-writer-7kf5u4cq4-buylife.vercel.app",
       "state": "READY",
       "cliGitMeta": "7d0e119a96a50e06c24cc7882c6d9e1bf3fd31d7",
       "sourceShaConfirmed": false,
-      "version": "v1.32 작성자보고/88c9소스상수·공식alias직접일치",
+      "version": "v1.33 작성자보고/공식alias직접일치",
       "approval": "UI직접지시수신·원격빌드/무료전송정책별도근거보완대기",
       "action": "기존파일/현재명령중단·롤백0·추가배포전보고요청·Ecom중복편집금지",
-      "freeEnabledSource": true
+      "freeEnabledSource": true,
+      "remoteBuildsReported": 3,
+      "buildApproval": "명시배포단어미수신·반영안됨+구.agents자율배포를근거로작성자실행,기존권한맥락별취합",
+      "dbVersionWrite": "미실행 작성자보고·실DB버전미확인",
+      "freePolicy": "unknown·주인님선택질문대기",
+      "actualPaidApiCalls": 0
     }
   }
 }
