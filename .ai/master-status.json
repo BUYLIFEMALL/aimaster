@@ -4263,14 +4263,20 @@
       "parent_task_id": "AIF-20261118-W00",
       "title": "첫 원본 자산 단위 필드·권한·스토리지 구체 계약",
       "owner": "CC-SNS-01",
-      "status": "dispatched",
-      "delivery": "concrete_asset_contract_and_non_destructive_plan_amendment_proposal",
+      "status": "ready_review",
+      "delivery": "asset_contract_fields_ready_independent_review_master_concerns_pending",
       "scopeRef": "검수수락W00 기존문서 내·공용quota/버킷/markPosted/정리 읽기만",
       "completion": "자산/upload/finalize/deleteclaim 필드/제약/RLS/권한·공용재사용/원자보관·최소파일·시험/완료조건·원본PLAN해시/추가계약안",
       "constraints": "원본PLAN/HANDOFF/CATALOG미커밋보존·제품/migration/실DB/파일업로드/유료/build/push0·예산/게시표확대0",
-      "next": "구체계약검토→Master공식추가계약효력/적용순서등록→작은소스단위배정",
-      "evidence": "W00계약지정PASS·원본PLAN미커밋/저자/mtime Master확인·소유범위보존",
-      "lastReviewedAt": "2026-11-18T05:48:39.596Z"
+      "next": "Mac정적계약최종·quota측정지연/lateuploadTTL/실바이트/finalize·단위경계 보완→공식추가계약판정",
+      "evidence": "W00계약지정PASS·원본PLAN미커밋/저자/mtime Master확인·소유범위보존 · msg_a0230c44e9de/684ea110b·Master§18직접읽기·Macmsg_fb98184acf82",
+      "lastReviewedAt": "2026-11-18T05:53:45.687Z",
+      "sha": "684ea110b",
+      "validation": {
+        "author": "§18필드/RLS/service함수4/버킷/보관/잠금/불명/시험·원본PLANhash보존, 제품0",
+        "master": "quota ready미측정누락/만료ticket예약해제와실uploadTTL/서버hash·실바이트위치/generated상한·shadow연결/일시오류missing단정 우려 전달",
+        "independent": "Mac 정적검수전달·최종대기"
+      }
     }
   ],
   "programOverrides": [
@@ -4779,22 +4785,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:48:39.596Z",
+      "at": "2026-11-18T05:53:45.687Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS입력검수PASS·상위모델비교직접연기결정",
-      "scope": "소스수락/실모형경계·P0비용질문해소·자산본체선행계약/원본계획보존",
+      "trigger": "SNS 첫자산 구체계약안 완료",
+      "scope": "§18필드/권한/공용quota/보관·확정상태측정지연·uploadTTL/삭제·실검증위치",
       "evidence": [
-        "msg_07affb213e83",
-        "직접결정msg_49528ef8856f/006137dcd",
-        "Master미커밋PLAN저자/mtime/§13읽기·SNS구체추가계약안배정"
+        "msg_a0230c44e9de/684ea110b·W00§18직접읽기",
+        "원본PLAN해시/mtime보존확인",
+        "Mac정적검수msg_fb98184acf82·Master정합확인점작성자전달"
       ],
-      "judgment": "W01c소스완료수락·실공급자/운영아님. 상위품질비교는최종으로연기·개발실호출은필요시최저가최소회차보고. 원본PLAN미커밋덮지않고첫자산필드/권한계약을구체화해다음source선행해소진행.",
+      "judgment": "첫자산계약구체안수신·제품/SQL착수전정합검수필요. 특히같은프로그램ready후측정전누락은타프로그램한계로면책하지않기. 원본계획기여보존.",
       "unverified": [
-        "첫자산계약·공식병합효력/권한·실구현",
-        "CRM배포승인·운영DDL",
-        "실브라우저/토큰/공급자품질"
+        "독립계약최종/구체보완·공식추가계약효력",
+        "quota/권한/경합실SQL·실스토리지",
+        "CRM운영승인"
       ],
-      "nextAction": "구체자산계약/승인신호회수·실유료/운영0"
+      "nextAction": "Mac최종+Master확인점한번에문서보완→작은source단위·실비용0"
     },
     "notifications": [
       {
