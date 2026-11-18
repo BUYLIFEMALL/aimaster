@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T17:59:43.186Z",
+  "checkedAt": "2026-11-18T18:01:00.381Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,22 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T17:33:00.698Z",
+      "at": "2026-11-18T18:01:00.381Z",
       "timezone": "Asia/Seoul",
-      "trigger": "02:30 정기 예약 msg_2393b96f6204 회수와 히어로 후속 보고",
-      "scope": "02:00 이후 증분. 프로그램 103개·카테고리 19개·열린 작업 16개·담당 기록 11개 대조. 변경·점유·미배포·담당 보고·인수인계·직접 승인 확인.",
+      "trigger": "03:00 정기 예약 msg_d6f2c8db1a87 회수",
+      "scope": "02:33 이후 증분. 프로그램 103·카테고리 19·열린 작업 16·담당 기록 11, 새 보고·변경 SHA·점유/검수·미배포·인수인계와 직접지시 대조.",
       "evidence": [
-        "스케줄러 02:30:01 실행·종료 0, wake 02:30:03 전송 종료 및 동일 메시지 수신",
-        "b073595d9..216c5e071 증분, UIC 547142805 및 독립 11/11, UII 점유 709184af6",
-        "히어로 이전 운영 dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 재확인; 새 216c5e071 단일 경로 / 기존 보고 msg_bf6de8b7d679 / 별도 승인 msg_59ecafa0c388",
-        "신규 미등록 인수인계 없음. QA 파일 갱신은 기존 UIC 11/11 결과와 일치. 관리자 새 요청 0."
+        "스케줄러 03:00:01 실행·종료 0, wake 03:00:03 전송 종료, 동일 메시지 현재 Master 수신",
+        "8f221d505..e7443994b 증분, 히어로 단일 변경 0b2835c07 및 공식 도메인 READY/200·표시 4곳 제거 확인 이력",
+        "W01 화면 소스 fdee03d5d·격리 Chrome UIV msg_54ca8302b9f6 및 551c6301f 운영 전 문서 확인. 결과 파일 갱신은 기존 등록 근거와 일치. 관리자 새 요청·미등록 인수인계 없음."
       ],
-      "judgment": "W01-UII는 승인된 로컬 연결 진행. 히어로의 새 단일 소스 변경을 등록하고 기존 배포와 분리해 별도 직접 승인에 따른 AG 단일 실행 확인. 중복 배정/정기점검 자체 운영 변경 없음.",
-      "nextAction": "AG-UI-01 운영 배포 결과/alias 재확인; CC-SNS-01 UII 고정 SHA·회귀 결과 뒤 CX-QA-01 검수. 기존 다른 인간 단계는 재개 근거 대기.",
+      "judgment": "메인 히어로 승인 두 후속 배포는 각 결과까지 기록됨. AI Influencer 로컬 React 검증 수락과 W01 운영 사전 읽기 승인 대기 유지. 새 배정·운영 실행 없음.",
+      "nextAction": "CC-SNS-01은 W01 Storage 무인증 헤더 최대 2회에 대한 주인님 승인 시 정해진 범위만 수행. 나머지 운영/사람단계는 기존 재개 조건.",
       "unverified": [
-        "히어로 변경 새 배포·실 화면",
-        "UIC 브라우저 CORS·실 Storage 및 UII 결과",
-        "Workspace 현황판/Gmail·이전 사람단계; 새 운영 재시험 없음."
+        "W01 헤더 참고 확인·실제 Storage/CORS·일반 회원 한도·발행",
+        "Workspace 현황판·Gmail 및 기존 사람단계. 새 운영 재시험 없음."
       ]
     },
     "notifications": [
@@ -96,7 +94,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-18T18:00:00.000Z",
+      "nextScheduledAt": "2026-11-18T18:30:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -114,12 +112,12 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-18T17:30:00.000Z",
-        "messageId": "msg_2393b96f6204",
+        "scheduledAt": "2026-11-18T18:00:00.000Z",
+        "messageId": "msg_d6f2c8db1a87",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false,
-        "receipt": "02:30:03 KST 전송 종료 및 기존 Master 수신. 실제 점검 시각 별도."
+        "receipt": "03:00:03 KST 전송 종료 및 기존 Master 수신. 실제 점검 시각 별도."
       }
     },
     "supersededOrcaAutomation": {
