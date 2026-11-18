@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 00:31:16 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 00:34:30 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -454,7 +454,8 @@ Master 마지막 실제 점검: 2026-11-19 00:31:16 KST · 실행 중 점검 주
 | AIF-20261118-W01w | CC-SNS-01 | done / g5_response_evidence_and_guard_design_accepted | 생성 이미지 응답 크기 근거 및 G5 설계 | W01x 로컬 최소 보호 배정. 실제 크기/운영 응답 및 자산 참조 전환 별도. |
 | AIF-20261118-W01x | CC-SNS-01 | done / g5_response_guard_local_mac_review_accepted_undeployed | 생성 이미지 응답 한도 및 비JSON 안내 보호 | 로컬 완료·점유 해제·미배포. 한도 초과 이미지 전달 및 실제 응답 검증은 별도. |
 | AIF-20261118-W01y | CC-SNS-01 | queued / deferred_before_edits_for_member_feature_priority | 캡션 사진 전송 제거와 기록 요청 크기 보호 | 계획 밖 부가 보완 보류. 착수/편집 0, 순차 계획 유지. |
-| AIF-20261118-W01z | CC-SNS-01 | running / acl_fix_production_owner_approved_execution_report_pending | W01 운영 마이그레이션·비공개 버킷 적용 | 새 권한 SQL 1건 운영 승인 회수. 사전 확인·단일 거래 적용·유효 권한 확인 후 버킷·정책 확인. 결과 회신 대기. |
+| AIF-20261118-W01z | CC-SNS-01 | done / operational_foundations_accepted_policy_unlimited_only | W01 운영 마이그레이션·비공개 버킷 적용 | 권한 정정·비공개 버킷·무제한 시험 계정 정책 확인. 일반 한도·실 Storage 통합 미확인, OFF. |
+| AIF-20261119-W01-A2 | CC-SNS-01 | running / local_a2_contract_dispatched_acceptance_pending | W01 후반 참고 이미지 업로드 허가·확정 계약 | W00 §12-1·R1-7의 로컬 계약 설계 전달. 담당 수락·계약 SHA 회신 대기. |
 | AIF-20261118-W03 | 미배정 | queued / sequenced_after_w01_and_w02_by_owner_instruction | 회원용 인물 라이브러리·시트·버전 | 주인님 지시대로 W01·W02 이후 시작. 인물 라이브러리·일괄 이미지·영상 미착수. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 
