@@ -10,6 +10,7 @@ import {
   updateKakaoConfigAction,
 } from "@/lib/actions/sources";
 import { FollowupRulesSection, type FollowupRuleData } from "@/components/sources/FollowupRulesSection";
+import { appsScriptSnippet } from "@/lib/crm/appsScriptSnippet";
 
 export interface FormSourceData {
   id: string;
@@ -26,20 +27,6 @@ export interface FormSourceData {
   is_active: boolean;
 }
 
-function appsScriptSnippet(webhookUrl: string): string {
-  return `function onFormSubmit(e) {
-  var payload = {
-    responseId: e.response ? e.response.getId() : Utilities.getUuid(),
-    values: e.namedValues
-  };
-  UrlFetchApp.fetch("${webhookUrl}", {
-    method: "post",
-    contentType: "application/json",
-    payload: JSON.stringify(payload),
-    muteHttpExceptions: true
-  });
-}`;
-}
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -168,6 +155,16 @@ export function SourceCard({ source, followupRules }: { source: FormSourceData; 
             <li>Apps Script 편집기의 <b>트리거(시계 아이콘) → 트리거 추가</b>에서 이벤트 유형을 &quot;양식 제출 시&quot;로 등록하세요.</li>
             <li>폼에 테스트 응답을 1건 제출하면, 잠시 후 &quot;접수 내역&quot; 페이지에 떠요.</li>
           </ol>
+          {/* CRM U3(2026-11-18): v2 스니펫의 중복 접수 방지 조건과 한계 안내 */}
+          <div className="rounded-lg border border-mx-border bg-mx-surface px-3 py-2 leading-relaxed">
+            <p className="font-semibold text-mx-text">🛡️ 같은 응답이 두 번 들어와도 문자가 한 번만 나가게 하려면</p>
+            <ul className="mt-1 list-inside list-disc space-y-0.5">
+              <li>연결된 시트의 <b>첫 번째 칸(타임스탬프)</b>을 지우거나 옮기지 마세요. 이 칸의 제출 시각으로 같은 응답을 알아봅니다.</li>
+              <li>이 조건이 맞지 않으면 접수는 그대로 되지만 <b>중복 방지 없이</b> 처리됩니다.</li>
+              <li>예전에 코드를 붙여 넣으셨다면 <b>아래 코드를 다시 복사해 바꿔 붙여 넣어야</b> 중복 방지가 적용됩니다(자동으로 바뀌지 않아요).</li>
+              <li>시트의 행을 지우거나 정렬하거나, 시트를 다른 파일로 복사하면 중복 판단이 어긋날 수 있어요.</li>
+            </ul>
+          </div>
           <div>
             <div className="mb-1 flex items-center justify-between">
               <span className="font-semibold text-mx-text">웹훅 URL (참고용)</span>

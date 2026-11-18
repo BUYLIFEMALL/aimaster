@@ -31,21 +31,14 @@ Google 계정 하나(운영자 개인 계정)의 OAuth 연결로만 동작하는
    "양식 제출 시(On form submit)"로 등록.
 5. 폼에 테스트 응답을 1건 제출 → 우리 대시보드에 접수 내역이 뜨는지 확인(연동 확인 버튼 제공).
 
-```javascript
-// Apps Script — 스프레드시트에 바인딩해서 사용 (URL의 webhook_token만 사용자별로 다름)
-function onFormSubmit(e) {
-  var payload = {
-    responseId: e.response ? e.response.getId() : Utilities.getUuid(),
-    values: e.namedValues // { "질문 제목": ["답변"], ... }
-  };
-  UrlFetchApp.fetch("https://<도메인>/api/webhooks/form-submit/《설정 페이지에서 발급된 webhook_token》", {
-    method: "post",
-    contentType: "application/json",
-    payload: JSON.stringify(payload),
-    muteHttpExceptions: true
-  });
-}
-```
+**Apps Script 코드는 `lib/crm/appsScriptSnippet.ts`가 만든다(2026-11-18 CRM U3, 화면 `components/sources/SourceCard.tsx`가 그대로 보여 줌).** 규칙:
+- 폼에 직접 붙인 스크립트(양식 제출 이벤트에 `e.response`): 실제 응답 ID가 `[A-Za-z0-9_-]{1,200}`이면 `{ v: 2, kind: "form", eventKey: <응답 ID>, values: <응답 항목 제목 → [값]> }`.
+- 시트에 붙인 스크립트(`e.range`): 문서 ID(`[A-Za-z0-9_-]{20,100}`)·시트 ID(0 이상 정수)·행(1 이상 정수)·**그 행 첫 칸의 실제 Date(13자리 ms)**가 모두 있으면 `{ v: 2, kind: "sheet", eventKey: "<문서ID>:<시트ID>:<행>:<ms>", values: e.namedValues }`.
+- 그 밖(필수 값 하나라도 없음·첫 칸이 Date 아님·형식 다름·도중 오류): 구버전 본문 `{ values }` — **중복 보호 없음**. 예전처럼 `Utilities.getUuid()`로 임의 ID를 만들거나 본문 해시로 v2를 흉내 내지 않는다.
+- 서버 판정은 `lib/crm/dedupe.ts`(`classifyWebhookBody`) — 스니펫과 같은 형식. 스크립트는 로그를 남기지 않는다.
+- 안내(화면): 첫 칸(타임스탬프)을 지우거나 옮기지 말 것, 조건이 안 맞으면 중복 방지 없이 처리됨, **기존 회원은 코드를 다시 복사해 붙여야 적용(자동 교체 없음)**, 행 삭제·정렬·시트 복사 시 판단이 어긋날 수 있음.
+- 운영 공개 전 선행 조건: 운영 DDL(`20261118120000_crm_submission_dedupe.sql`) → 웹훅·발송 연결 배포 → 주인님 승인 실제 문자 시험 → **실제 시험 시트에서 첫 칸이 Date로 읽히는지 확인**. 그 전에는 운영에 내보내지 않는다.
+
 
 - `e.namedValues`는 **질문 "제목" 텍스트를 키로** 쓴다 — 원본 Make 시나리오처럼 질문 ID 해시로
   매핑하지 않아도 돼서 폼 구조가 바뀌어도(질문 순서 변경 등) 매핑이 안 깨진다. 단, **질문 제목을
