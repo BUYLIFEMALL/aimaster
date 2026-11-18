@@ -2,6 +2,7 @@
 
 import { StatusBadge } from "@/components/jobs/StatusBadge";
 import { useActiveJobsRefresh } from "@/components/jobs/useActiveJobsRefresh";
+import { JobPreview } from "@/components/jobs/JobPreview";
 import { SendToWorkspaceButton } from "@/components/jobs/SendToWorkspaceButton";
 import { resumeJobAction, cancelJobAction } from "@/lib/actions/jobs";
 import type { Database, JobStatus } from "@/types/database.types";
@@ -92,6 +93,7 @@ export function JobsList({ jobs }: { jobs: Job[] }) {
               )}
               {job.status === "completed" && <SendToWorkspaceButton jobId={job.id} />}
             </div>
+            {job.status === "completed" && job.result_url && <JobPreview jobId={job.id} />}
           </li>
         ))}
       </ul>
