@@ -31,6 +31,8 @@ import { backlinksMode, setBacklinksMode } from './Backlinks.tsx';
 import { connectionsMenuItem } from '../developer/PageConnections.tsx';
 import { markAsMeetingInstructions } from '../meetings/instructions.tsx';
 import { collectionAccess } from '../database/access.ts';
+import { getUserPrefs } from '../settings/userSettings.ts';
+import { effectiveFullWidth, isWorkDashboardPage } from './pageWidth.ts';
 
 type FormatKey = 'page_small_text' | 'page_full_width' | 'block_locked' | 'page_floating_table_of_contents' | 'page_discussions';
 
@@ -39,6 +41,8 @@ export function pageSetting(page: BlockRecord | undefined, key: FormatKey): bool
   const f = (page?.format ?? {}) as any;
   if (key === 'page_floating_table_of_contents') return f.page_floating_table_of_contents !== false;
   if (key === 'page_discussions') return (f.page_section_visibility?.comments ?? 'section_show') !== 'section_hide';
+  // 2026-11-18 WS-20261118-06: 업무 현황판은 값이 없으면 기본 전체 너비 — 본문(PageView)과 같은 판정이라 스위치가 화면과 맞고, 첫 토글이 명시 false를 저장
+  if (key === 'page_full_width') return effectiveFullWidth(f, isWorkDashboardPage(getUserPrefs(), page?.id));
   return !!f[key];
 }
 

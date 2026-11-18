@@ -17,7 +17,8 @@ import { getLocation, openPage } from '../../lib/router.ts';
 import { newPage, copyPageLink } from '../page/pageActions.ts';
 import { useSession } from '../../lib/store/session.ts';
 import { ancestorsOf, getBlock, run, setFormat } from '../../lib/blocks.ts';
-import { savePreferredTheme, savePref, applyContrast } from '../settings/userSettings.ts';
+import { savePreferredTheme, savePref, applyContrast, getUserPrefs } from '../settings/userSettings.ts';
+import { isWorkDashboardPage, nextFullWidthByShortcut } from '../page/pageWidth.ts';
 
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
 
@@ -89,7 +90,9 @@ export function installGlobalShortcuts(): () => void {
     if (code === 'Backslash' && shift && pageId) {
       return hit(() => {
         const p = getBlock(pageId);
-        run('toggleFullWidth', (tx) => setFormat(tx, pageId, { page_full_width: !p?.format?.page_full_width || undefined }));
+        // 2026-11-18 WS-20261118-06: 업무 현황판은 보이는 상태의 반대를 명시 값으로(그 밖의 페이지는 예전 그대로)
+        const next = nextFullWidthByShortcut(p?.format, isWorkDashboardPage(getUserPrefs(), pageId));
+        run('toggleFullWidth', (tx) => setFormat(tx, pageId, { page_full_width: next }));
       });
     }
     // pages, windows, tabs

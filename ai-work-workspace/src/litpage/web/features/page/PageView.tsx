@@ -24,6 +24,7 @@ import { PageIcon } from '../shell/PageIcon.tsx';
 import { getLocale, t, tx } from '../shell/i18n.ts';
 import { retentionDurationLabel } from '../settings/spaceSettings.ts';
 import { getUserPrefs } from '../settings/userSettings.ts';
+import { effectiveFullWidth, isWorkDashboardPage } from './pageWidth.ts';
 import { openIconPicker, randomEmoji } from './IconPicker.tsx';
 import { PageCover, randomCover } from './Cover.tsx';
 import { EmptyRowHint } from '../database/RowPageExtras.tsx';
@@ -132,8 +133,9 @@ export function PageView({ pageId, state, inPeek, publicView }: { pageId: string
 
   // 2026-11-18 주인님 지시(노션처럼 달력이 깔끔하게): 「📊 업무 현황판」은 전체 너비 값이 없으면 기본 전체 너비
   // (전에는 받은 업무의 「업무 현황판」 버튼으로 열 때만 값이 켜져, 왼쪽 목록·주소로 열면 좁게 보였음). 회원이 ··· 메뉴에서 끈 false는 그대로.
-  const isWorkDashboard = (getUserPrefs() as Record<string, unknown>).aww_work_dashboard === page.id;
-  const full = !!(page.format?.page_full_width ?? (isWorkDashboard ? true : rowLayout.fullWidth));
+  // WS-20261118-06: 판정은 pageWidth.ts(··· 메뉴 스위치·단축키와 공유). 공개 보기·옆 미리보기는 예전 기본 폭 그대로.
+  const isWorkDashboard = !publicView && !inPeek && isWorkDashboardPage(getUserPrefs(), page.id);
+  const full = effectiveFullWidth(page.format, isWorkDashboard, rowLayout.fullWidth);
   const small = !!page.format?.page_small_text;
   const font = (page.format?.page_font as string) ?? 'default';
   const showToc = !inPeek && !margin && pageSetting(page, 'page_floating_table_of_contents');
