@@ -651,7 +651,7 @@ test("목록 조회 응답이 오지 않으면 그 뒤로 아무것도 시작하
   assert.equal(w.calls.length + w.removes.length, 0);
   assert.equal(w.lists.length, 0, "나머지 목록 조회도 시작하지 않는다");
   assert.equal(w.scans.length, 0, "객체 없는 ready 훑기도 시작하지 않는다");
-  assert.deepEqual([r.counts.listFailed, r.counts.missingScanFailed], [3, 1], "읽지 못한 목록 3개 + 훑기 1");
+  assert.deepEqual([r.counts.listFailed, r.counts.missingScanFailed], [3, 0], "읽지 못한 목록 3개. 훑기는 의도적으로 시작하지 않은 것이라 실패로 세지 않는다");
   assert.equal(w.assets.get(a.id).state, "ready");
 });
 
@@ -1122,6 +1122,53 @@ test("묶음 D와 삭제 흐름의 분리: 새 삭제가 중단돼도 D는 처�
   const r4 = await run(w2);
   assert.deepEqual(w2.fnNames(), ["aif_asset_expire"]);
   assert.deepEqual([r4.counts.skipped, w2.count("aif_asset_claim_delete"), w2.removes.length, w2.assets.get(p.id).state], [1, 0, 0, "missing"]);
+});
+
+test("삭제 확인(C) 앞 몫 뒤에 새 항목 시간 예산이 지났으면 훑기(쓰기)를 시작하지 않는다 — 회차 마감 전이어도", async () => {
+  // 가짜 시계: DB 호출 한 번에 10씩 흐른다. C 3건을 확인하면 시각 30. 회차 마감(100000)까지는 한참 남았다.
+  const setup = (timeBudgetMs) => {
+    const w = world({ tick: 10 }).profile(U1);
+    w.deps.limits = { ioTimeoutMs: 1000, timeBudgetMs, roundDeadlineMs: 100_000 };
+    const cs = [1, 2, 3].map((i) => { const a = w.asset(i, U1, { state: "expired" }); w.deletion(a, { state: "deleting", ageMs: 10 - i }); w.objects.delete(a.path); return a; });
+    const g = ghost(w, 11, U1, 1); const fresh = w.asset(12, U1);
+    return { w, cs, g, fresh };
+  };
+  // (가) 예산 25: 세 번째 C를 시작할 때는 시각 20이라 통과, 끝나면 30 > 25 → 훑기 미호출
+  const x = setup(25);
+  const r = await run(x.w);
+  assert.deepEqual([r.counts.deleted, r.counts.examined], [3, 3], "이미 확인한 C는 그대로 남는다");
+  for (const a of x.cs) assert.equal(x.w.deletions.get(a.id).state, "deleted");
+  assert.equal(x.w.scans.length, 0, "훑기(확인 시각 쓰기)를 시작하지 않았다");
+  assert.deepEqual([r.stoppedEarly, r.stopCode, r.counts.timeouts], [true, "TIME_BUDGET", 0]);
+  assert.deepEqual([r.counts.missingScanFailed, r.counts.listFailed, r.counts.markedMissing, r.counts.missingScanned], [0, 0, 0, 0], "의도적 미시작은 실패로 세지 않는다");
+  assert.deepEqual(x.w.lists.map(([n]) => n), ["C"], "뒤 묶음의 목록도 읽지 않는다");
+  assert.deepEqual([x.w.count("aif_asset_mark_missing"), x.w.count("aif_asset_expire"), x.w.removes.length], [0, 0, 0]);
+  assert.equal(x.w.assets.get(x.g.id).state, "ready");
+  assert.equal(x.w.assets.get(x.g.id).checked, null, "확인 시각도 그대로");
+  assert.equal(x.w.assets.get(x.fresh.id).state, "ready");
+  assert.deepEqual(x.w.measured, [U1], "확인된 삭제의 측정은 한다");
+  // (나) 예산 30(경계 — 30 > 30이 아니므로 통과): 훑기와 뒤 묶음이 예전 흐름대로 시작된다
+  const y = setup(30);
+  const r2 = await run(y.w);
+  assert.equal(y.w.scans.length, 1);
+  assert.deepEqual(y.w.events.slice(0, 7), ["list:C", "delete_verify", "delete_verify", "delete_verify", "scan", "list:B", "list:A"]);
+  assert.equal(r2.counts.missingScanFailed, 0);
+  // 훑기·목록 조회는 가짜 시계를 흘리지 않으므로 첫 판정을 시작할 때도 시각은 30이다 → 판정 한 건은 시작되고(시각 40), 그 뒤 새 항목은 예산에 걸린다
+  assert.deepEqual([y.w.count("aif_asset_mark_missing"), r2.counts.markedMissing, y.w.count("aif_asset_expire")], [1, 1, 0]);
+  assert.equal(y.w.assets.get(y.fresh.id).state, "ready", "신규 묶음은 시작하지 않았다");
+  assert.equal(r2.stopCode, "TIME_BUDGET");
+  // (다) 예산이 넉넉하면 전부 처리
+  const z = setup(100_000);
+  const r3 = await run(z.w);
+  assert.deepEqual([r3.counts.deleted, r3.counts.markedMissing, r3.stopCode], [4, 1, null]);
+  // (라) 앞 몫에서 응답이 오지 않아 멈춘 회차: 훑기를 부르지 않고, 멈춘 이유는 대기 초과가 우선
+  const h = world().profile(U1);
+  const hc = h.asset(1, U1, { state: "expired" }); h.deletion(hc, { state: "deleting" });
+  ghost(h, 2, U1, 1);
+  h.hook = (fn) => (fn === "aif_asset_delete_verify" ? never() : undefined);
+  const r4 = await timed(h, { timeBudgetMs: 1 });   // 시간 예산도 함께 지난 상황
+  assert.deepEqual([r4.stopCode, r4.counts.timeouts, r4.counts.missingScanFailed, h.scans.length], ["IO_TIMEOUT", 1, 0, 0]);
+  assert.equal(h.deletions.get(hc.id).state, "deleting");
 });
 
 test("후보도 신규 묶음에서 다시 확인한다 — 훑은 뒤 객체가 돌아왔거나 D 몫에서 밀린 자산을 미리 빼지 않는다", async () => {

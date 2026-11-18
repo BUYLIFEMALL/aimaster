@@ -15,6 +15,8 @@
 //   ① C 목록 읽기 → ② C의 앞 몫(최대 CLEANUP_VERIFY_FIRST건) 확인 → ③ D 훑기(확인 시각을 쓰는 DB 호출) → ④ B·A 목록 읽기
 //   → ⑤ 네 묶음 분배 → ⑥ C의 나머지 몫 → ⑦ D 판정 → ⑧ B → ⑨ A.
 //   ②를 ③보다 앞에 두는 이유: 훑기는 쓰기를 하고, 응답이 오지 않으면 회차가 멈춘다. 이미 삭제 요청이 나간 건의 확인(C)이 그 때문에 한 건도 못 도는 일이 없게 한다.
+//   ③은 「새 일을 시작해도 되는 때」에만 부른다: 앞 몫을 마친 시점에 회차가 이미 멈췄거나 새 항목 시간 예산(CLEANUP_TIME_BUDGET_MS)이 지났으면
+//   훑기와 그 뒤 목록 조회를 시작하지 않는다(stopCode는 대기 초과면 IO_TIMEOUT, 시간 예산이면 TIME_BUDGET). 이미 확인한 C는 그대로 남는다.
 //   한정: 훑기보다 먼저 도는 것은 C의 「앞 몫」뿐이다. C가 그보다 많으면 나머지는 훑기 뒤(⑥)에 돈다 — 훑기·목록 조회가 대기 초과면 그 나머지는 그 회차에 확인되지 않는다.
 //   분배는 예전과 같다: 네 묶음이 한 건씩 돌아가며 나눠 가지므로 각 묶음은 적어도 min(자기 건수, 상한 ÷ 4)를 받는다 — 앞 몫은 그 범위 안이다.
 //  C) 확인만: 삭제 예약이 deleting·delete_unknown — 새 삭제 요청 없이 aif_asset_delete_verify만 부른다.
@@ -401,12 +403,20 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
   }
 
   // ③ D 훑기 → ④ B·A 목록. 한 묶음을 읽지 못해도 나머지는 진행한다(대기 초과면 그 뒤로는 아무것도 시작하지 않는다).
-  const scanD = await readMissingScan();
-  if (scanD === null) c.missingScanFailed++;
-  else { c.missingScanned += scanD.scanned; c.otherObject += scanD.otherObject; }
-  const listD = scanD?.candidates ?? [];
-  const rawB = await readList(() => deps.listDeletePending(CLEANUP_MAX_ITEMS));
-  const rawA = await readList(() => deps.listReady(CLEANUP_MAX_ITEMS));
+  // 훑기는 쓰기다(확인 시각 갱신). 앞 몫을 마친 시점에 이미 회차가 멈췄거나(대기 초과) 새 항목을 시작할 시간 예산이 지났으면 부르지 않는다 —
+  // 회차 마감 전이라는 이유만으로 새 쓰기를 시작하지 않는다. 의도적으로 시작하지 않은 것은 훑기 실패(missingScanFailed)로 세지 않는다.
+  const startMore = !halted && !outOfTime();
+  let listD: { assetId: string; userId: string }[] = [];
+  if (startMore) {
+    const scanD = await readMissingScan();
+    if (scanD === null) c.missingScanFailed++;
+    else { c.missingScanned += scanD.scanned; c.otherObject += scanD.otherObject; listD = scanD.candidates; }
+  }
+  // 시간 예산이 지나 멈춘 회차는 뒤 묶음을 시작하지 않으므로 그 목록도 읽지 않는다(읽지 않은 것은 조회 실패로 세지 않는다).
+  // 대기 초과로 멈춘 회차는 예전대로다: readList가 호출을 시작하지 않고 null을 돌려준다.
+  const timeUp = stoppedEarly && !halted;
+  const rawB = timeUp ? [] : await readList(() => deps.listDeletePending(CLEANUP_MAX_ITEMS));
+  const rawA = timeUp ? [] : await readList(() => deps.listReady(CLEANUP_MAX_ITEMS));
   for (const raw of [rawB, rawA]) if (raw === null) c.listFailed++;
   const listB = deletionItems(rawB, ["cancelled", "delete_failed", "claimed"]);
   const listA: Item[] = [];
