@@ -30,7 +30,13 @@ test("actual workspace: selection causes no paid calls, cancellation discards st
     new Promise((resolve) => calls.push({ path, opts, resolve }));
   const { createRoot } = await import("react-dom/client");
   const root = createRoot(document.querySelector("#root"));
-  const keys = { gemini: true, pixabay: false, pexels: false };
+  const keys = {
+    openai: true,
+    gemini: false,
+    anthropic: false,
+    pixabay: false,
+    pexels: false,
+  };
   const button = (name) =>
     [...document.querySelectorAll("button")].find(
       (b) => b.textContent.trim() === name,

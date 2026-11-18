@@ -28,11 +28,11 @@ import {
 export const STORAGE_KEY_PLATFORM_MODELS = "emotion_writer_platform_models_v1";
 export const STORAGE_KEY_PREFERRED_MODEL = "emotion_writer_preferred_model";
 
-// 플랫폼별 기본 모델
+// 플랫폼별 기본 모델 (docs/AI_MODEL_CATALOG.md 기준 균형 추천)
 const DEFAULT_PLATFORM_MODELS: Record<TextProvider, string> = {
-  gemini: "gemini-3.8-flash",
   openai: "gpt-6.1-terra",
-  anthropic: "claude-opus-5-5",
+  anthropic: "claude-sonnet-5-5",
+  gemini: "gemini-3.8-flash",
 };
 
 interface ProviderMeta {

@@ -16,12 +16,12 @@ import { PROVIDERS, isProvider } from "../src/lib/studio/config.ts";
 const QUOTES = ["하나", "둘", "셋", "넷", "다섯"];
 const input = (model) => validateCopy({ topic: "가을 위로", style: "시", lines: 5, model });
 
-test("모델 목록 9개(3사×3등급), 기본값은 기존과 같은 Gemini 3.8 Flash", () => {
+test("모델 목록 9개(3사×3등급), 기본 순서는 OpenAI(GPT) > Claude > Gemini", () => {
   assert.equal(TEXT_MODELS.length, 9);
-  assert.equal(DEFAULT_TEXT_MODEL, "gemini-3.8-flash");
+  assert.equal(DEFAULT_TEXT_MODEL, "gpt-6.1-terra");
   assert.equal(TEXT_MODELS[0].id, DEFAULT_TEXT_MODEL);
   const groups = textModelGroups();
-  assert.deepEqual(groups.map((g) => g.provider), ["gemini", "openai", "anthropic"]);
+  assert.deepEqual(groups.map((g) => g.provider), ["openai", "anthropic", "gemini"]);
   assert.ok(groups.every((g) => g.models.length === 3));
 });
 
