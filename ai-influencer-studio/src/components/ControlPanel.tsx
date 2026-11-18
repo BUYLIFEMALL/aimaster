@@ -291,7 +291,7 @@ export function ControlPanel({
         <div className="flex items-center gap-2">
           <span className="text-[11px] font-extrabold text-slate-200">에디토리얼 패널</span>
           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/40">
-            Seed #98241 LOCK
+            {config.personImage ? "기준 사진 참고 중" : "기준 사진 없음"}
           </span>
         </div>
         {/* 우측 툴바 아이콘 도구 */}
@@ -1100,7 +1100,7 @@ export function ControlPanel({
           ) : config.personImage ? (
             <>
               <User className="w-4 h-4" />
-              <span>페이스 락(#98241) 화보 생성</span>
+              <span>기준 사진 참고 화보 생성</span>
             </>
           ) : (
             <>

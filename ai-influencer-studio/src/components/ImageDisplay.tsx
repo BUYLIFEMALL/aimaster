@@ -87,7 +87,7 @@ export function ImageDisplay({
                   <span>VOGUE STUDIO RENDER</span>
                 </div>
                 <div className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-[#282e42] text-[10px] font-mono text-amber-300 font-bold">
-                  <span>SEED: #98241 LOCK</span>
+                  <span>동일 얼굴 보장 아님</span>
                 </div>
               </div>
 
@@ -292,7 +292,7 @@ export function ImageDisplay({
                   PORTRAIT VIEWFINDER
                 </div>
                 <div className="text-[10px] text-rose-300 font-bold bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/30">
-                  FACE SEED #98241 LOCK
+                  기준 얼굴 사진을 넣으면 참고해 생성
                 </div>
               </div>
 
