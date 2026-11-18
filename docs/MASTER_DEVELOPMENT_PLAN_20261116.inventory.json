@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 23:07:40 KST",
+  "checkedAt": "2026-11-18 23:10:41 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T14:07:40.661Z",
+      "at": "2026-11-18T14:10:41.967Z",
       "timezone": "Asia/Seoul",
-      "trigger": "WS06 Mac 국소 재검수 회신",
-      "scope": "172e3f41f 너비 함수·일반/peek 메뉴 경계 및 담당 범위 대조.",
+      "trigger": "Workspace v1.60 운영 지시 및 G5 초안 회신",
+      "scope": "워크스페이스 승인 범위·기존 별칭·팀 대기/실행과 G5 열린 탭 계약 확인.",
       "evidence": [
-        "msg_b0ae6a1d5300·.ai/results/WS-20261118-06-CX-QA-01.md",
-        "msg_36d3d349cafa"
+        "msg_183b3e4d30a5·172e3f41f",
+        "msg_0c9d5b14cbab·1364afbda·msg_658ce1003e6f"
       ],
-      "judgment": "WS06 로컬 검수 종결. 운영과 배포 변경 없음.",
+      "judgment": "Workspace 단일 정상 운영 배포 순번 전달. G5 구 탭 호환 정정 요청.",
       "unverified": [
-        "실 화면·표 행 기본값의 기존 메뉴 제약",
-        "G5 W01x 및 Gmail WS27"
+        "v1.60 빌드·프로덕션/화면",
+        "G5 구 탭 회귀 및 운영"
       ],
-      "nextAction": "WS06 담당 점유 해제 기록 회수."
+      "nextAction": "v1.60 운영 배포 상태와 G5 보완 결과 회수."
     },
     "notifications": [
       {
@@ -8967,14 +8967,35 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "생성 이미지 응답 한도 및 비JSON 안내 보호",
-      "status": "dispatched",
-      "delivery": "g5_local_response_guard_requested",
+      "status": "reviewing",
+      "delivery": "g5_guard_source_received_legacy_compatibility_fix_requested",
       "scopeRef": "기존 생성 응답/클라이언트 처리와 모의 시험",
       "constraints": "앱 내부 UTF-8 4,000,000바이트·새 생성/조회 없음·SQL/운영/API/실 AI/비용/build/deploy 0",
       "completion": "초과 결과 최소 200 분리·비JSON 고정 안내·한도 이내 기존 동작·모의 경계",
-      "evidence": "55010250e·msg_29d22717b7af",
-      "next": "고정 구현 SHA와 합성 직렬화 및 모의 호출 근거 회수.",
-      "lastReviewedAt": "2026-11-18T14:05:20.138Z"
+      "evidence": "55010250e·msg_29d22717b7af / msg_0c9d5b14cbab / msg_658ce1003e6f",
+      "next": "구 열린 탭의 초과 응답 후속 호출을 차단하는 응답/시험 보완 회수.",
+      "lastReviewedAt": "2026-11-18T14:10:41.967Z",
+      "sha": "1364afbda",
+      "validation": {
+        "author": "신규 14/14·전체 209/209·tsc, 합성 응답 경계 시험 담당 보고",
+        "master": "200 imageOmitted를 기존 구 탭이 인식하지 못해 캡션을 부르는 경계. 422 고정 안내 호환 보완 요청."
+      }
+    },
+    {
+      "task_id": "WS-20261118-07",
+      "parent_task_id": "WS-20261118-06",
+      "owner": "CC-WORKSPACE-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "워크스페이스 v1.60 캘린더·현황판 운영 배포",
+      "status": "running",
+      "delivery": "v160_release_authorized_and_workspace_single_executor",
+      "sha": "172e3f41f",
+      "scopeRef": "40896d037·236415698·172e3f41f 및 v1.60 표시",
+      "constraints": "프로덕션 1회. Gmail/운영 SQL/설정/DB 버전/push 0.",
+      "completion": "로컬 build·앱 범위/팀 대기 확인→프로덕션 alias READY→기존 화면 확인",
+      "evidence": "주인님 직접 배포 보고·기존 alias dpl_3TyMVfb6WGcXbxVgtYZ38699Upfr·팀 대기/실행0·msg_183b3e4d30a5",
+      "next": "고정 버전 및 실 배포 ID/화면 근거 회수.",
+      "lastReviewedAt": "2026-11-18T14:10:41.967Z"
     }
   ]
 }
