@@ -2,7 +2,7 @@
 // 순수 함수만(단위 시험 대상, DB·네트워크·화면 없음). 약속은 공용 사본 productPhotoHandoff(기준 banana-canvas, 직접 고치지 않음).
 // M1 범위: 보내기까지. 돌아온 결과를 쇼핑몰에 저장하는 일(사진 제안 표·적용)은 M2·M3 — 그 전까지는 결과를 저장하지 않고
 // 고정 문구 「아직 받을 수 없음」으로 그 결과의 번호(resultId)를 정확히 되돌려 바나나가 「전송 중」에 머물지 않게 한다(재시도·저장 0).
-import { PRODUCT_MAX_PHOTOS, PRODUCT_MAX_PRODUCTS, PRODUCT_MSG_SAVED } from "./productPhotoHandoff.ts";
+import { PRODUCT_MAX_PHOTOS, PRODUCT_MAX_PRODUCTS, PRODUCT_MSG_JOB, PRODUCT_MSG_SAVED, PRODUCT_RECEIVER_ORIGIN } from "./productPhotoHandoff.ts";
 
 export interface MallPhotoRow {
   id: string;
@@ -49,6 +49,41 @@ export function planMallPhotoJob(rows: readonly MallPhotoRow[], pickedIds: reado
     items.push({ productId: id, label, baseRevision, photos: urls.map((url, i) => ({ role: i === 0 ? "main" : "sub", url })) });
   }
   return { items, skipped };
+}
+
+/**
+ * 작업 보내기(「준비됨」을 받은 뒤 1번). 사진을 불러오는 동안 새 작업이 시작되거나 창이 닫히면(isActive false)
+ * 그 뒤로는 아무것도 하지 않는다 — 옛 작업의 늦은 완료·실패가 새 작업의 창·메시지·상태 표시를 건드리지 않게(Master msg_4ab005ab0d96).
+ * win은 이 작업을 시작할 때 연 창(호출하는 쪽이 작업과 함께 기억). 보내는 곳은 바나나 주소 하나.
+ */
+export async function sendMallJob(ctx: {
+  jobId: string;
+  items: readonly MallPhotoItem[];
+  win: { postMessage: (msg: unknown, targetOrigin: string) => void };
+  isActive: () => boolean;
+  fetchPhoto: (url: string) => Promise<Blob>;
+  mark: (productId: string, text: string) => void;
+}): Promise<{ state: "sent" | "stale" | "empty"; sentIds: string[] }> {
+  const products: { productId: string; label: string; baseRevision: string; photos: { role: "main" | "sub"; ref: string; file: Blob }[] }[] = [];
+  for (const it of ctx.items) {
+    if (!ctx.isActive()) return { state: "stale", sentIds: [] };
+    ctx.mark(it.productId, "사진 읽는 중");
+    let photos: { role: "main" | "sub"; ref: string; file: Blob }[] | null = null;
+    let failed = "";
+    try {
+      photos = await Promise.all(it.photos.map(async (p) => ({ role: p.role, ref: p.url.split("/").pop() ?? "", file: await ctx.fetchPhoto(p.url) })));
+    } catch (err) {
+      failed = err instanceof Error ? err.message : "사진을 불러오지 못했습니다.";
+    }
+    if (!ctx.isActive()) return { state: "stale", sentIds: [] }; // 기다리는 사이 새 작업·창 닫힘 → 표시도 하지 않음
+    if (!photos) { ctx.mark(it.productId, failed || "사진을 불러오지 못했습니다."); continue; }
+    products.push({ productId: it.productId, label: it.label, baseRevision: it.baseRevision, photos });
+    ctx.mark(it.productId, "바나나로 보냄");
+  }
+  if (!ctx.isActive()) return { state: "stale", sentIds: [] };
+  if (!products.length) return { state: "empty", sentIds: [] };
+  ctx.win.postMessage({ type: PRODUCT_MSG_JOB, jobId: ctx.jobId, products }, PRODUCT_RECEIVER_ORIGIN);
+  return { state: "sent", sentIds: products.map((p) => p.productId) };
 }
 
 /** M2 전: 받은 결과에 보낼 「저장 안 함」 응답 — 같은 작업·상품·결과 번호·판번호를 그대로, ok는 항상 false */

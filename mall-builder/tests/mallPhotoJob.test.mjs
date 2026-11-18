@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
-  MALL_RESULT_NOT_READY, SKIP_MIRROR, SKIP_NO_PHOTO, SKIP_NO_REVISION, SKIP_NOT_MINE, SKIP_TOO_MANY, notReadyReply, planMallPhotoJob,
+  MALL_RESULT_NOT_READY, SKIP_MIRROR, SKIP_NO_PHOTO, SKIP_NO_REVISION, SKIP_NOT_MINE, SKIP_TOO_MANY, notReadyReply, planMallPhotoJob, sendMallJob,
 } from "../src/lib/mallPhotoJob.ts";
 import {
   PRODUCT_MALL_ORIGIN, PRODUCT_MSG_JOB, PRODUCT_MSG_READY, PRODUCT_MSG_RESULT, PRODUCT_RECEIVER_ORIGIN, PRODUCT_SENDER_ORIGIN,
@@ -73,9 +73,68 @@ test("M2 전 응답: ok false·고정 문구·결과 번호 그대로 — 바나
 test("화면 소스 계약: 쇼핑몰 보낸 곳 주소로 열고, 바나나 주소로만 보내고, 그 창의 메시지만 받고, 저장 함수 호출 없음", () => {
   const src = readFileSync(new URL("../src/app/s/[store]/admin/products/banana-send.tsx", import.meta.url), "utf8");
   assert.match(src, /productBatchUrl\("mall"\)/);
-  assert.match(src, /e\.source !== winRef\.current/);
+  assert.match(src, /e\.source !== job\.win/);
+  assert.match(src, /jobRef\.current === job && winRef\.current === job\.win && !job\.win\.closed/, "현재 작업·현재 창·열린 창일 때만");
+  assert.match(src, /r\.state === "stale" \|\| !isActive\(job\)/, "늦게 끝난 옛 작업은 안내도 안 바꿈");
   assert.match(src, /window\.location\.origin !== PRODUCT_MALL_ORIGIN/);
   for (const m of src.matchAll(/postMessage\([^)]*?,\s*([A-Z_]+)\)/g)) assert.equal(m[1], "PRODUCT_RECEIVER_ORIGIN");
   assert.match(src, /if \(job\.sent\) return/);
   assert.doesNotMatch(src, /supabase|storage\.from|upload|Action\(/, "M1은 저장·업로드 0");
+});
+
+// ── P2(Master msg_4ab005ab0d96): 오래된 비동기 작업과 새 창·새 작업 분리 — 모의 창·모의 사진(네트워크 0)
+const deferred = () => { let res, rej; const p = new Promise((a, b) => { res = a; rej = b; }); return { p, res, rej }; };
+const fakeWin = () => { const sent = []; return { sent, postMessage: (msg, origin) => sent.push({ msg, origin }) }; };
+const blob = () => new Blob([new Uint8Array([1])], { type: "image/jpeg" });
+const two = () => planMallPhotoJob([row(1), row(2, { images: [img(2), img(3)] })], [U(1), U(2)]).items;
+
+test("정상 송신: 활성인 동안 사진을 모두 읽고 바나나 주소로 작업 1통(그 작업 번호)", async () => {
+  const win = fakeWin();
+  const r = await sendMallJob({ jobId: U(600), items: two(), win, isActive: () => true, fetchPhoto: async () => blob(), mark: () => {} });
+  assert.deepEqual(r, { state: "sent", sentIds: [U(1), U(2)] });
+  assert.equal(win.sent.length, 1);
+  assert.equal(win.sent[0].origin, PRODUCT_RECEIVER_ORIGIN);
+  assert.equal(win.sent[0].msg.jobId, U(600));
+  assert.deepEqual(win.sent[0].msg.products.map((p) => p.photos.length), [1, 2]);
+  const job = readProductJob(PRODUCT_MALL_ORIGIN, win.sent[0].msg, PRODUCT_MALL_ORIGIN);
+  assert.ok(job && !("error" in job), "바나나 검사 통과");
+});
+
+test("늦은 완료 반례: 사진을 기다리는 사이 새 작업이 시작되면 옛 작업은 보내기 0·표시 0", async () => {
+  const win = fakeWin(); const marks = []; const d = deferred(); let active = true;
+  const run = sendMallJob({ jobId: U(601), items: two(), win, isActive: () => active, fetchPhoto: () => d.p, mark: (id, t) => marks.push([id, t]) });
+  active = false; // 새 작업 시작(또는 창 닫힘)
+  d.res(blob());
+  assert.deepEqual(await run, { state: "stale", sentIds: [] });
+  assert.equal(win.sent.length, 0, "옛 작업이 창에 보내지 않음");
+  assert.deepEqual(marks, [[U(1), "사진 읽는 중"]], "기다린 뒤에는 상태 표시도 하지 않음");
+});
+
+test("늦은 실패 반례: 새 작업 뒤 옛 작업 사진이 실패해도 실패 표시·보내기 0", async () => {
+  const win = fakeWin(); const marks = []; const d = deferred(); let active = true;
+  const run = sendMallJob({ jobId: U(602), items: two(), win, isActive: () => active, fetchPhoto: () => d.p, mark: (id, t) => marks.push([id, t]) });
+  active = false; d.rej(new Error("사진을 불러오지 못했습니다."));
+  assert.equal((await run).state, "stale");
+  assert.equal(win.sent.length, 0);
+  assert.deepEqual(marks, [[U(1), "사진 읽는 중"]]);
+});
+
+test("다음 상품으로 넘어가기 전에 비활성이 되면 거기서 멈춤(앞 상품도 보내지 않음)", async () => {
+  const win = fakeWin(); let n = 0;
+  const r = await sendMallJob({ jobId: U(603), items: two(), win, isActive: () => n++ < 2, fetchPhoto: async () => blob(), mark: () => {} });
+  assert.equal(r.state, "stale"); assert.equal(win.sent.length, 0);
+});
+
+test("활성 중 일부 실패: 실패 상품은 표시하고 빼고 나머지만 1통 / 전부 실패면 empty·보내기 0", async () => {
+  const win = fakeWin(); const marks = [];
+  const r = await sendMallJob({ jobId: U(604), items: two(), win, isActive: () => true,
+    fetchPhoto: async (u) => { if (u.endsWith("/p1.jpg")) throw new Error("25MB 이하 사진만 보낼 수 있습니다."); return blob(); },
+    mark: (id, t) => marks.push([id, t]) });
+  assert.deepEqual(r, { state: "sent", sentIds: [U(2)] });
+  assert.equal(win.sent.length, 1);
+  assert.deepEqual(win.sent[0].msg.products.map((p) => p.productId), [U(2)]);
+  assert.ok(marks.some(([id, t]) => id === U(1) && t === "25MB 이하 사진만 보낼 수 있습니다."));
+  const w2 = fakeWin();
+  const r2 = await sendMallJob({ jobId: U(605), items: two(), win: w2, isActive: () => true, fetchPhoto: async () => { throw new Error("x"); }, mark: () => {} });
+  assert.deepEqual(r2, { state: "empty", sentIds: [] }); assert.equal(w2.sent.length, 0);
 });
