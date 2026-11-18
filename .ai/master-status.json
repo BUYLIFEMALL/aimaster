@@ -4223,19 +4223,19 @@
       "parent_task_id": "AIF-20261118-W00",
       "title": "참고 이미지 MIME/서명 처리 독립 개선 범위 계획",
       "owner": "CC-SNS-01",
-      "status": "ready_review",
-      "delivery": "reference_input_validation_source_ready_independent_review",
+      "status": "needs_revision",
+      "delivery": "heif_avif_brand_ambiguity_reference_type_and_stream_error_returned",
       "scopeRef": "순수referenceImage·gemini·generate-image route·ControlPanel/InfluencerStudio·시험/기존문서",
       "completion": "정확MIME/strictb64/서명/개수·장당/총/JSON상한·HTTPS반례·실route유료호출전거절·client변환/안내",
       "constraints": "공용모듈/모델/프롬프트/DB자산/권한불변·원격이미지fetch/실AI/유료/build/push0·출력G5미해소",
-      "evidence": "W00 G1 MIME PNG고정소스근거·Master소스개선연속작업배정 · 계획msg_256d9fae7ba4·Master실gemini/route·Google공식지원MIME독립확인 · 14:30 ACTIVE_WORK참고검사7경로진행중확인 · 완료msg_64cdc4aa9317·Master8파일stat·Mac검수전달",
-      "next": "Mac형식/바이트/상한/실handler사전거절·클라이언트경계검수",
-      "lastReviewedAt": "2026-11-18T05:36:48.769Z",
+      "evidence": "W00 G1 MIME PNG고정소스근거·Master소스개선연속작업배정 · 계획msg_256d9fae7ba4·Master실gemini/route·Google공식지원MIME독립확인 · 14:30 ACTIVE_WORK참고검사7경로진행중확인 · 완료msg_64cdc4aa9317·Master8파일stat·Mac검수전달 · Macmsg_4d664f5d4a80 실route3반례·수정반환",
+      "next": "BMFFAVIF모호거절·명시비문자active필드거절·스트림읽기예외고정오류 보완SHA→Mac",
+      "lastReviewedAt": "2026-11-18T05:39:34.710Z",
       "sha": "f805100ce",
       "validation": {
         "author": "reference13·전체67/67·tsc0·실AI0·PNG/JPEG/WebP실fixture·HEIC합성표시",
         "master": "8파일stat·모델/공용불변보고·G5출력제한미해소분리",
-        "independent": "Mac 전달·수락/결과대기"
+        "independent": "f805 native13/13·실route/handler/refparse 모의:genericHEIF+compatibleAVIF 합성통과generate1·active0/false truthy생략generate1·스트림throw전파/generate0 P2, 실제디코드/AI사고아님"
       }
     },
     {
@@ -4754,22 +4754,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:36:48.769Z",
+      "at": "2026-11-18T05:39:34.710Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM스니펫PASS·SNS입력검사소스완료",
-      "scope": "소스수락과운영릴리스조건분리·명시릴리스준비·SNS8파일검수",
+      "trigger": "SNS 입력형식 실route 독립 반례",
+      "scope": "컨테이너codec브랜드모호성·참조truthy/타입·read stream예외/원문",
       "evidence": [
-        "msg_5c79425572b6 e258 지정PASS",
-        "CRM단일담당릴리스구체안준비배정",
-        "msg_64cdc4aa9317/f805 8파일stat·Mac배정"
+        "msg_4d664f5d4a80·Master타입/검사경로읽기",
+        "SNS기존범위3건반환"
       ],
-      "judgment": "CRM전체소스단위지정수락·실운영미완, 승인요청전구체manifest/DDL/비용/사람단계정리. SNS입력검사작성자시험완료/독립검수대기.",
+      "judgment": "유료전입력검사우회/예외전파 반례수정필요. 정상optional빈상태와비문자구분·실파일디코드/실AI증거로과장0.",
       "unverified": [
-        "CRM릴리스구체안/새승인",
-        "SNS실입력경계/클라이언트변환·공급자출력",
-        "운영RLS/실키/문자/Google"
+        "W01c보완/고정최종·클라이언트변환",
+        "실공급자지원/출력·운영동작"
       ],
-      "nextAction": "구체릴리스안/독립판정회수·미승인실행0"
+      "nextAction": "새SHA회수→국소실route검수·실유료0"
     },
     "notifications": [
       {
