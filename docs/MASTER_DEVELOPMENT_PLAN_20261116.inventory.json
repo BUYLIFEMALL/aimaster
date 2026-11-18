@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 10:10:53 KST",
+  "checkedAt": "2026-11-18 10:12:16 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T01:10:53.820Z",
+      "at": "2026-11-18T01:12:16.793Z",
       "timezone": "Asia/Seoul",
-      "trigger": "주인님 Workspace 공개/빌드 승인답변",
-      "scope": "승인/릴리스순번·담당단일화·체크리스트/점유·런타임복구/후속전달",
+      "trigger": "msg_d8626c441488 Mac준비·msg_9ef8951a4a40 Ecom수정계획",
+      "scope": "Gmail독립검수준비·이미지QA049 보안4반례 계획검토/범위·후속구현승인",
       "evidence": [
-        "Workspace msg_199efb134592",
-        "Mac 준비msg_6800c03de409",
-        "Ecom 실패지시복구 msg_3307ed544d53"
+        "Mac 준비ACK·배포ID전브라우저/실Gmail0 확인",
+        "Ecom 로컬헬퍼 재사용/반례/정확경로 계획·신규제품코드0",
+        "구현조건dispatch msg_29d6fb7d2025"
       ],
-      "judgment": "Gmail 전원공개·정상1/실패OFF복구1 승인수락,메인PCWorkspace단일실행지정·Mac독립검수·Master중복0",
+      "judgment": "일반기술보완 Master승인. 공식미확인모델/free는비활성·제품안전경계만수정,실호출/빌드미승인유지. Mac은Gmail배포후검수대기.",
       "unverified": [
-        "소스ON SHA/검사·0074/75운영적용·배포·실OAuth/Gmail 미완",
-        "담당수락/착수는결과회수전미판정"
+        "Ecom수정착수/결과·공식모델지원",
+        "Workspace ON SHA/운영SQL/배포·OAuth 실검증"
       ],
-      "nextAction": "Workspace 단계별SHA/SQL/배포결과회수·실alias대조·Mac연결"
+      "nextAction": "Ecom SHA수신→QA049재검수·Workspace단계보고회수후Mac검수연결"
     },
     "notifications": [
       {
@@ -206,7 +206,7 @@
         "observation": "기존terminal screen 빈입력줄/과거작업결과·background4개표시,원인미확정·명시수락0",
         "action": "입력대행/프로세스종료/새창0"
       },
-      "ecom": "완료수락후계획msg_3307ed544d53 전송성공·수락별도",
+      "ecom": "계획수신·구현조건승인 msg_29d6fb7d2025 전달·착수수락별도",
       "workspace": "승인수신·msg_199efb134592 전달·수락/SHA 대기",
       "runtime": {
         "at": "2026-11-18T01:10:53.820Z",
@@ -7232,7 +7232,7 @@
       "evidence": "d21eb96d7·정정보고88616a6cf·.ai/results/DES-20261118-05-AG-UI-01.md·msg_a03fce38d53c",
       "scopeRef": "image provider/config/validation/services/image route/Workspace/KeySettings/guide/시험",
       "completion": "공식지원/회원키·무료서비스방식/데이터전송·MIME/크기/timeout/허용모델·회귀·비용/권한범위 검토",
-      "next": "QA049 최종P2 4건·무료정책/공식지원분리, Ecom수정계획수신전제품freeze",
+      "next": "ECOM18-03 허용경로만보완승인·AGY제품수정금지·기존운영v1.30미포함",
       "lastReviewedAt": "2026-11-17T17:43:53.437Z"
     },
     {
@@ -7247,7 +7247,7 @@
       "evidence": ".ai/results/QA-20261118-049-CX-QA-01.md / msg_ae43db14fe10",
       "scopeRef": "고정SHA 읽기/기존패키지모의만·실이미지/키/네트워크/DB/build/새창0",
       "completion": "고정d21 신규이미지에P2 I-F01모델/I-F02응답/I-F03URL/I-F04timeout 반례, 기존3test/글귀/권한PASS와분리",
-      "next": "Ecom정확보완계획/범위승인후mock수정→독립재검수·실endpoint/이미지/새build0",
+      "next": "ECOM18-03 수정SHA/가짜통신결과수신후같은4반례 독립재검수·실API/build0",
       "lastReviewedAt": "2026-11-17T17:43:53.437Z"
     },
     {
@@ -7285,15 +7285,21 @@
       "parent_task_id": "DES-20261118-05",
       "owner": "CC-ECOM-01",
       "reviewer": "CX-MASTER-01",
-      "title": "이미지3엔진 QA049 안전경계 보완계획",
+      "title": "이미지3엔진 QA049 안전경계 보완 구현",
       "status": "ready",
-      "delivery": "dispatch_sent",
-      "evidence": "QA049중간msg_9ea5ee32f762·msg_21ed3b1edaab·msg_85526463335b 후속계획보고예고·런타임복구후 msg_3307ed544d53 전달",
-      "scopeRef": "계획/기존공용모듈재사용/정확경로먼저,제품수정freeze계속",
-      "completion": "provider별공식모델allowlist·MIME/base64/크기·abort/timeout·URL取得방어·무료서비스정책/키/전송계획",
-      "next": "정확범위/완료조건계획회신→Master범위승인후mock수정·실API/키/DB/build0",
-      "lastReviewedAt": "2026-11-17T17:43:53.437Z",
-      "blockedReason": null
+      "delivery": "implementation_authorized_dispatch_sent",
+      "evidence": "QA049중간msg_9ea5ee32f762·msg_21ed3b1edaab·msg_85526463335b 후속계획보고예고·런타임복구후 msg_3307ed544d53 전달·계획msg_9ef8951a4a40·조건부구현dispatch msg_29d6fb7d2025",
+      "scopeRef": "emotion-writer/src/lib/studio/{config,validation,services}.ts·src/app/api/image/route.ts·src/components/Workspace.tsx·src/app/(studio)/guide/page.tsx·tests/imageProvider.test.mjs·본인기존문서",
+      "completion": "모델허용목록/strict응답·3MiB/URL follow제거/본문포함110s·parentAbort408; free/공식모델미확인 비활성·가짜통신 red-green/tsc·Mac재검수",
+      "next": "허용경로 보안수정·공식1차모델/출력/size지원 읽기확인·실호출0→SHA/시험→QA049재검수",
+      "lastReviewedAt": "2026-11-18T01:12:16.793Z",
+      "blockedReason": null,
+      "constraints": [
+        "기존운영v1.30 변경0·빌드/배포/실호출/DB0",
+        "다른프로그램모델주석=현재지원근거아님·공식미확인OpenAI도비활성",
+        "free 키/외부전송정책 미결정동안서버거절·UI비활성",
+        "신규문서남발0·timeout 가짜시계"
+      ]
     },
     {
       "task_id": "PORT-20261118-01",
