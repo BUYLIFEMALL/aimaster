@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T19:28:05.168Z",
+  "checkedAt": "2026-11-18T19:31:21.307Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3157,11 +3157,11 @@
       "status": "waiting_human",
       "delivery": "waiting_customer_staff_login_read_only_scope_confirmed",
       "sha": "7609748ad",
-      "evidence": "msg_d9ff650f722a: Mac ego공간29 Lab로그인폼/375확인·기존세션없음. Backend 89a489a12/9256b3782·msg_7918bcbb8f5c 합성경로/역할확정; msg_5e5b219f6d11 23:47 Mac공간29 제어반환미완료 재확인·로그인내용미확인 / B2B18-03 waiting교환420bfb91…·msg_d4ef7792280b·msg_f8b6c7802a93·msg_7b2287b746f4·msg_8336bb2a2684·.ai/results/B2B-20261119-LAB-CX-QA-01.md·84113aede·msg_f926bb943410·msg_02ed96144fc4",
+      "evidence": "msg_d9ff650f722a: Mac ego공간29 Lab로그인폼/375확인·기존세션없음. Backend 89a489a12/9256b3782·msg_7918bcbb8f5c 합성경로/역할확정; msg_5e5b219f6d11 23:47 Mac공간29 제어반환미완료 재확인·로그인내용미확인 / B2B18-03 waiting교환420bfb91…·msg_d4ef7792280b·msg_f8b6c7802a93·msg_7b2287b746f4·msg_8336bb2a2684·.ai/results/B2B-20261119-LAB-CX-QA-01.md·84113aede·msg_f926bb943410·msg_02ed96144fc4·msg_9d09da552ba0·7acb0f2e",
       "scopeRef": "Mac 기존시험세션·Lab실화면읽기, 결제/RPC상태변경/발송/키/운영/build0",
       "completion": "Lab 로그인/고객교환비UI/권한차단/375·darkhover 확인, 실결제미검수분리",
-      "next": "Mac ego29 고객 및 직원 로그인 후 화면·권한 읽기. 기존 교환 증거 재사용, 실제 결제 입력/결과는 최종 단계.",
-      "lastReviewedAt": "2026-11-18T18:58:54.753Z"
+      "next": "Windows 로그인 뒤 일부 화면 작성자 확인. Mac ego29 별도 고객·직원 역할 읽기 검수 대기. 결제 입력·결과 최종 단계.",
+      "lastReviewedAt": "2026-11-18T19:31:21.307Z"
     },
     {
       "task_id": "QA-20261117-038",
@@ -5655,12 +5655,12 @@
       "reviewer": "CX-MASTER-01",
       "title": "B2B Lab 프론트 키보드·대비·화면 검수",
       "status": "waiting_human",
-      "delivery": "public_keyboard_partial_pass_exact_143_element_located",
+      "delivery": "windows_lab_gallery_verified_mac_execution_followup_pending",
       "scopeRef": "7609748ad Lab; 템플릿 143 키보드·초점·대비/VoiceOver, 다크 상세·PWA 화면",
       "constraints": "77c50f27c 미포함. 저장·게시·설치·결제·배포 없음.",
-      "evidence": "msg_7e9d4cae2fee·msg_7b2287b746f4·msg_f561bbcfa676·msg_8336bb2a2684·.ai/results/B2B-20261119-LAB-CX-QA-01.md·msg_57c5d97fdf29·msg_bc90cdca98d9·da2b77ae2·msg_be0fcc207f30·msg_a7df5784e886·msg_f97fee71a875·msg_403e6ec01677·msg_928a6980c452",
-      "next": "공개 Lab Tab·Enter/Space 통과, 상품 탭 방향키 미동작. 143 미선택 본문 탭 과거 대비 4.15 위치 확정. Mac 실행판·직원 로그인·다크 상세·낭독기 대기.",
-      "lastReviewedAt": "2026-11-18T19:14:59.091Z",
+      "evidence": "msg_7e9d4cae2fee·msg_7b2287b746f4·msg_f561bbcfa676·msg_8336bb2a2684·.ai/results/B2B-20261119-LAB-CX-QA-01.md·msg_57c5d97fdf29·msg_bc90cdca98d9·da2b77ae2·msg_be0fcc207f30·msg_a7df5784e886·msg_f97fee71a875·msg_403e6ec01677·msg_928a6980c452·msg_9d09da552ba0·7acb0f2e",
+      "next": "Windows Lab 7609748ad 로그인 후 갤러리 로빙·라디오 방향키 작성자 확인. Mac 다크·VoiceOver·홈 탭·S70 대상 판 검수 대기.",
+      "lastReviewedAt": "2026-11-18T19:31:21.307Z",
       "validation": {
         "independent": "공개 밝기 가입 5.25:1·카테고리 7.58:1, 검색/가입 키보드 포커스·Enter, 밝기 상세, PWA manifest/아이콘, 미인증 리다이렉트 검증.",
         "unverified": "143의 실제 다크·갤러리·VoiceOver·실기기 설치/터치·로그인 안쪽."
@@ -5751,12 +5751,12 @@
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace v1.61 기존 중단 빌드 로그 진단",
       "status": "reviewing",
-      "delivery": "startup_implementation_returned_failure_isolation_fix_dispatched",
-      "sha": "5efdefd22",
-      "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef·dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o·msg_0a595caceefd·주인님 전달 진단·msg_afbf609d8871·msg_8512331d6d20·담당 msg_8512331d6d20 결과·msg_7489b02d1a30·f330050c3·담당 msg_7489b02d1a30 결과·msg_4a10308bf15c·f26ab0e58·담당 msg_4a10308bf15c 회신·msg_6f6e00bdcc31·d3d2d531f·담당 msg_6f6e00bdcc31 회신·msg_748c12b7d46d·5efdefd22·a63e7e26a·76fd2c9b9·담당 msg_748c12b7d46d 결과·msg_61b93dfbb0d1",
+      "delivery": "startup_failure_isolation_returned_independent_review_dispatched",
+      "sha": "7c283738f",
+      "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef·dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o·msg_0a595caceefd·주인님 전달 진단·msg_afbf609d8871·msg_8512331d6d20·담당 msg_8512331d6d20 결과·msg_7489b02d1a30·f330050c3·담당 msg_7489b02d1a30 결과·msg_4a10308bf15c·f26ab0e58·담당 msg_4a10308bf15c 회신·msg_6f6e00bdcc31·d3d2d531f·담당 msg_6f6e00bdcc31 회신·msg_748c12b7d46d·5efdefd22·a63e7e26a·76fd2c9b9·담당 msg_748c12b7d46d 결과·msg_61b93dfbb0d1·7c283738f·b081eed5b·담당 msg_61b93dfbb0d1 결과·msg_4e206a030d6b",
       "constraints": "기존 근거 읽기만. 재빌드·배포·push·운영 설정/DB 변경 0.",
-      "next": "새 모의 12/12·격리 회귀 811 통과, Gmail 3파일 제외. 시작 작업 오류가 모든 DB 요청을 막지 않도록 보완 배정. 실제 빌드 미실행.",
-      "lastReviewedAt": "2026-11-18T19:23:51.665Z",
+      "next": "선택 작업 실패 격리, 모의 16/16·격리 회귀 815. 필수 DDL 실패 범위 및 첫 질의 검수 Mac 전달. 실제 Next 빌드 없음.",
+      "lastReviewedAt": "2026-11-18T19:31:21.307Z",
       "validation": {
         "author": "컴파일·타입 통과 후 Collecting 약 11분 무출력. 성공판 같은 단계 35.4초. 시작 시 동시 빌드 0, 이후 11번가 약 8분 대기 보고.",
         "master": "v1.60~v1.61 제품 변경 3파일 및 html.ts의 기존 정적 import 경로 확인.",
@@ -5766,7 +5766,9 @@
         "synthetic": "전용 DB에 합성 일정 60개, 미래 예약 93개, 전체 10.3초, 외부 시도·실행 0 및 OID 확인 후 정리 보고. 자료량·캐시 가설은 미확정.",
         "implementation": "불러오기 모의 브리지 63→0, 가짜 시계 16초 2→0. 초기 DDL·시작 작업 첫 질의 직전, 시작 후 DDL 즉시.",
         "unverified": "실제 Next 빌드·운영 지연·Gmail 3파일·정체 원인. 제품 배포 없음.",
-        "regression": "장애 범위가 전체 질의로 확장되는 문제 확인. 예약 등 선택 작업 격리 재검토."
+        "regression": "장애 범위가 전체 질의로 확장되는 문제 확인. 예약 등 선택 작업 격리 재검토.",
+        "result": "선택 작업 실패 후 요청·다른 시작 작업 계속, 늦은 DDL 오류 호출부 한정. 오류 문자열 비출력 시험.",
+        "limitation": "필수 초기 DDL 실패 시 인스턴스 전 요청 영향. 기존 웹훅 이관 실패의 평문 읽기 경로 미변경. Gmail 3파일 및 실제 build/운영 미검증."
       },
       "retry": {
         "id": "dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o",
@@ -5930,11 +5932,11 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-MASTER-01",
       "title": "메이커 M2 사진 제안 저장 범위 설계",
-      "status": "queued",
-      "delivery": "dedicated_private_bucket_local_data_layer_dispatched",
-      "evidence": "msg_8bc03c47698d·msg_283337366ae8·msg_d7ccf525cd20·msg_bf8f3313b68a·88850694c·msg_d5aebd7ca4f8·msg_0176871edc33·0889e87f3·msg_ad4382dd5bb2",
-      "next": "사진 제안 전용 비공개 5MB 버킷·권한·예약 전이 로컬 구현 배정. 기존 서류·공용 Lab·운영·사용량 집계 변경 없음.",
-      "lastReviewedAt": "2026-11-18T19:20:50.160Z",
+      "status": "running",
+      "delivery": "dedicated_private_bucket_local_scope_registered",
+      "evidence": "msg_8bc03c47698d·msg_283337366ae8·msg_d7ccf525cd20·msg_bf8f3313b68a·88850694c·msg_d5aebd7ca4f8·msg_0176871edc33·0889e87f3·msg_ad4382dd5bb2·999368758",
+      "next": "전용 DB 계층 점유 등록 확인. 5MB 비공개 버킷·권한·예약 상태 전이 격리 구현 진행.",
+      "lastReviewedAt": "2026-11-18T19:31:21.307Z",
       "sha": "0889e87f3",
       "validation": {
         "decision": "제안 비공개, 브라우저에서 5MB 이하, 미적용 30일 정리 관리자·시험 몰 포함, M3와 함께 운영 반영.",
@@ -6500,22 +6502,23 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T19:01:24.314Z",
+      "at": "2026-11-18T19:31:21.307Z",
       "timezone": "Asia/Seoul",
-      "trigger": "04:00 예약 점검 메시지 msg_06337be02703 수신",
-      "scope": "03:30 점검 이후 증분. 103개 프로그램의 분류/우선순위와 활성 작업 24행, 담당·점유·15분 내외 변경/승인·미배포, 관리자 요청·최근 결과/인수인계 확인.",
+      "trigger": "04:30 예약 점검 메시지 msg_05a90c9429b0 수신",
+      "scope": "04:00 실제 점검 이후 증분. 103개 프로그램·19개 분류 상태의 기존 표 및 열린 작업 24행과 담당 11명, 변경 SHA·점유·승인·미배포 및 사람 단계, 최근 결과/인수인계 대조.",
       "evidence": [
-        "1912b5a72 이후 Git 이력, docs/ACTIVE_WORK.md 및 .ai/FILE_OWNERSHIP.md, dev-requests Master 대기 0",
-        "S70 독립 재검수·롤백 21/21, M1 점유 8c9a6b406, 샘플몰 Mac 및 무쿠키 홈 응답",
-        "9beb60b21 V4 운영 저장소 시험, f330050c3 Workspace 로컬 DB·합성 자료, WebP 송신 1회 수신"
+        "e09f39bc0 이후 Git 이력, Master 요청함 대기 0, 공유 인덱스 잠금 없음 확인, 최신 결과 파일 3개와 기존 배정 대조",
+        "Workspace 5efdefd22→7c283738f·b081eed5b, Mac 독립 검수 msg_4e206a030d6b",
+        "B2B 9f6b1c131·독립 4/4, M1 독립 12/12, M2 점유 999368758, Windows Lab 갤러리 msg_9d09da552ba0",
+        "AIF 첫 INVALID_KEY·서버 종료 및 갱신 감지, V3 나머지 이미지 1회 지시 msg_26f84745cf68; WebP 보존 ad5dd3449"
       ],
-      "judgment": "V4와 샘플몰 검수 수락. Workspace 운영 v1.60·기존 취소 이후 추가 배포 없음. B2B M1 진행. 실검수와 운영 적용 분리.",
-      "nextAction": "V3 로그인·계정 확인 후 승인 범위 실행 msg_b3def667492a. 시험 WebP 저장 결과·Workspace 초기화 설계·B2B M1 구현 회수. 이전 로그인 대기 유지.",
+      "judgment": "Workspace 선택 작업 예외 보완 독립 검수로 이동. B2B 홈 탭 로컬 수락, Windows 갤러리 작성자 실화면과 Mac 사람 단계를 구분. 신규 운영 배포 없음.",
+      "nextAction": "Workspace 독립 검수 회수 후 실제 격리 빌드 조건 검토, M2 로컬 결과 회수. V3 기존 승인 누적 상한과 로그인 대기, B2B S70 Lab 적용 승인 대기.",
       "unverified": [
-        "Workspace 빌드 정체 원인과 v1.61 운영 반영",
-        "V3 실호출 및 청구·V4 운영 출처·초과 거절·자동정리",
-        "B2B QA037 및 Lab 0105 실접수, ESM·11번가 로그인 의존 검수",
-        "예약 실행 기록 및 오래된 미추적 인수인계 전수 재검증 미실행"
+        "Workspace 실제 빌드·운영 원인 및 필수 DDL 실패 운영 영향",
+        "S70 Lab 적용/실접수, B2B Mac VoiceOver/다크, 고객·직원 권한",
+        "V3 갱신 키 유효성·생성/보정·청구, ESM/B1/11번가 사람 단계",
+        "예약 설정/실행 로그와 기존 미추적 파일 전수 재검증은 생략"
       ]
     },
     "notifications": [
