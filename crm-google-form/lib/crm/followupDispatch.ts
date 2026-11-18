@@ -42,11 +42,16 @@ export interface FollowupRunResult {
   /** 보내는 도중 상태가 미확정으로 바뀌어 남은 채널을 멈춘 건(이미 보낸 채널이 있어 기록은 남김, 자동 재발송 0) */
   interrupted: number;
   /**
-   * 한 채널도 보내기 전에 상태가 미확정으로 바뀌었는데 선점 기록을 지우지 못한 건(오류·예외·0행·행 수 불명).
-   * 기록이 남아 있어 상태가 확정돼도 **자동으로 재개되지 않는다** — 운영자가 예약 실행 결과(요약)에서 보고 확인해야 한다.
-   * 자동 재삭제·재발송 0.
+   * 한 채널도 보내기 전에 상태가 미확정으로 바뀌어 선점을 풀려 했는데, 다시 읽어 보니 **선점 기록이 그대로 남아 있는** 건.
+   * 상태가 확정돼도 자동으로 재개되지 않는다 — 운영자가 예약 실행 요약에서 보고 기록을 확인해야 한다. 재삭제·재발송 0.
    */
   releaseFailed: number;
+  /**
+   * 선점 해제 응답도, 확인 읽기도 불확실해 기록이 남았는지 모르는 건(오류·예외·이상한 응답). 기록이 이미 지워졌다면
+   * 다음 실행에서 자동 재개될 수 있고, 남았다면 재개되지 않는다 — 운영자가 다음 실행 요약에서 held·sent로 해소되는지 확인.
+   * 이 경로는 한 채널도 보내기 전이라 이 건에 대해 이미 나간 발송은 없다(다른 프로세스·외부 호출 틈까지의 중복 0 보증은 아님).
+   */
+  releaseUnknown: number;
   /** 규칙 자체를 실행하지 않은 이유(폼 연결 소유 불일치·조회 실패) */
   skippedReason?: string;
 }
@@ -81,7 +86,7 @@ async function ownedAndAllowed(admin: Admin, rule: FollowupRule, submissionId: s
  */
 export async function runFollowupRule(rule: FollowupRule): Promise<FollowupRunResult> {
   const admin = createAdminClient();
-  const empty = { sent: 0, failed: 0, held: 0, interrupted: 0, releaseFailed: 0 };
+  const empty = { sent: 0, failed: 0, held: 0, interrupted: 0, releaseFailed: 0, releaseUnknown: 0 };
 
   const { data: source, error: sourceError } = await admin
     .from("crm_form_sources")
@@ -148,6 +153,7 @@ export async function runFollowupRule(rule: FollowupRule): Promise<FollowupRunRe
   let failed = 0;
   let interrupted = 0;
   let releaseFailed = 0;
+  let releaseUnknown = 0;
 
   for (const submission of due as DueSubmission[]) {
     // 계정 조회(await) 사이에 상태가 바뀌었을 수 있으니 선점 직전에 이 회원·이 폼의 최신 상태를 다시 읽는다.
@@ -221,9 +227,10 @@ export async function runFollowupRule(rule: FollowupRule): Promise<FollowupRunRe
 
     if (halted && attempted.length === 0) {
       // 한 채널도 시도하지 않았으면 선점을 풀어 보류로 되돌린다 — 상태가 확정되면 다음 실행에서 보낸다.
-      // 삭제가 정확히 1행으로 확인된 경우만 보류(held). 오류·예외·0행·행 수 불명이면 기록이 남아 자동 재개가 안 되므로
-      // releaseFailed로 따로 세고, 기록에 진단 문구를 남긴다(재삭제·재발송 0).
-      let released = false;
+      // 해제 성공 = 오류 없음 + 배열 + 정확히 1행 + 그 행 id가 이 선점 id. 그 밖(오류·예외·null·0행·다른 id)은
+      // 같은 회원·같은 id로 한 번만 다시 읽어(재삭제 0) 판정한다 — maybeSingle 계약: 오류 없음+data null = 행 없음,
+      // 오류 없음+객체 = 행 있음, 오류(여러 행 포함)·예외 = 모름.
+      let release: "released" | "remaining" | "unknown" = "unknown";
       try {
         const { data: gone, error: delError } = await admin
           .from("crm_followup_sends")
@@ -231,12 +238,38 @@ export async function runFollowupRule(rule: FollowupRule): Promise<FollowupRunRe
           .eq("id", claim.id)
           .eq("user_id", rule.user_id)
           .select("id");
-        released = !delError && Array.isArray(gone) && gone.length === 1;
+        if (!delError && Array.isArray(gone) && gone.length === 1 && (gone[0] as { id?: unknown })?.id === claim.id) {
+          release = "released";
+        }
       } catch {
-        released = false;
+        // 아래 확인 읽기로 판정
       }
-      if (released) {
+      if (release !== "released") {
+        try {
+          const { data: still, error: readError } = await admin
+            .from("crm_followup_sends")
+            .select("id, user_id")
+            .eq("id", claim.id)
+            .eq("user_id", rule.user_id)
+            .maybeSingle();
+          if (readError) release = "unknown";
+          else if (still === null) release = "released";
+          else if (
+            typeof still === "object" &&
+            !Array.isArray(still) &&
+            (still as { id?: unknown }).id === claim.id
+          ) release = "remaining";
+          else release = "unknown";
+        } catch {
+          release = "unknown";
+        }
+      }
+      if (release === "released") {
         held++;
+        continue;
+      }
+      if (release === "unknown") {
+        releaseUnknown++;
         continue;
       }
       releaseFailed++;
@@ -251,7 +284,7 @@ export async function runFollowupRule(rule: FollowupRule): Promise<FollowupRunRe
           .eq("id", claim.id)
           .eq("user_id", rule.user_id);
       } catch {
-        // 진단 문구 기록도 실패하면 기록은 「발송 중」으로 남는다 — 어느 쪽이든 자동 재발송은 없다.
+        // 진단 문구 기록이 실패해도 분류는 releaseFailed(기록은 「발송 중」으로 남음) — 자동 재발송 0.
       }
       continue;
     }
@@ -278,5 +311,5 @@ export async function runFollowupRule(rule: FollowupRule): Promise<FollowupRunRe
       .eq("user_id", rule.user_id);
   }
 
-  return { sent, failed, held, interrupted, releaseFailed };
+  return { sent, failed, held, interrupted, releaseFailed, releaseUnknown };
 }
