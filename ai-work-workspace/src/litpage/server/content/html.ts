@@ -124,10 +124,14 @@ function isBlockEl(n: Node): boolean {
 
 // ---------------- inline
 
+/** 저장된 노션 본문을 읽는 동안만 참 — 노션 화면이 끼워 넣는 보이지 않는 문자(U+200B)를 그때만 지운다(일반 HTML은 그대로 둔다) */
+let stripZeroWidth = false;
+
 function inline(nodes: Node[], anns: Annotation[], out: Decoration[], pre = false) {
   for (const n of nodes) {
     if (typeof n === 'string') {
-      const t = (pre ? n : n.replace(/[ \t\r\n]+/g, ' ')).replace(/\u200b/g, '');
+      const t0 = pre ? n : n.replace(/[ \t\r\n]+/g, ' ');
+      const t = stripZeroWidth ? t0.replace(/\u200b/g, '') : t0;
       if (!t) continue;
       const last = out[out.length - 1];
       if (last && JSON.stringify(last[1] ?? []) === JSON.stringify(anns)) last[0] += t;
@@ -532,7 +536,12 @@ export function parseHtml(src: string, ctx: HtmlContext = {}): { title?: string;
     const pageEl = find(root, (e) => notionKind(e) === 'page');
     const h = pageEl ? find(pageEl, (e) => 'data-content-editable-leaf' in e.attrs) : null;
     const t = h ? textOf(h).replace(/\u200b/g, '').trim() : '';
-    return { title: t || undefined, blocks: blocks(notionBody.children, ctx) };
+    stripZeroWidth = true;
+    try {
+      return { title: t || undefined, blocks: blocks(notionBody.children, ctx) };
+    } finally {
+      stripZeroWidth = false;
+    }
   }
   const titleEl = find(root, (e) => e.tag === 'title');
   const pageTitle = find(root, (e) => (e.tag === 'h1' && hasClass(e, 'page-title')) || hasClass(e, 'page-title'));

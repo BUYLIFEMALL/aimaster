@@ -144,6 +144,20 @@ describe('기존 HTML 가져오기 회귀', () => {
     expect(r.blocks.map((b) => [b.type, b.checked ?? null, plain(b.text)])).toEqual([['to_do', true, '끝남'], ['to_do', false, '남음'], ['text', null, '본문']]);
   });
 
+  it('보이지 않는 문자(U+200B)는 노션 본문에서만 지운다 — 일반 HTML·내보내기 HTML은 그대로', () => {
+    const zw = '​';
+    const general = parseHtml(`<html><body><p>긴${zw}낱말 <b>굵${zw}게</b></p><ul><li>항${zw}목</li></ul><table><tr><td>칸${zw}안</td></tr></table></body></html>`);
+    expect(plain(general.blocks[0].text)).toBe(`긴${zw}낱말 굵${zw}게`);
+    expect(plain(general.blocks[1].text)).toBe(`항${zw}목`);
+    expect(plain((general.blocks[2].table as unknown[][])[0][0])).toBe(`칸${zw}안`);
+    const exported = parseHtml(`<html><body><header><h1 class="page-title">제목</h1></header><div class="page-body"><p>내${zw}보낸 글</p></div></body></html>`);
+    expect(plain(exported.blocks[0].text)).toBe(`내${zw}보낸 글`);
+    // 노션 문서를 읽은 바로 다음에 읽어도(같은 프로세스) 일반 문서는 그대로다 — 상태가 남지 않음
+    const notion = parseHtml(`<html><body><div class="notion-page-content"><div data-block-id="z1" class="notion-selectable notion-text-block"><div data-content-editable-leaf="true">노${zw}션 글</div></div>${zw}</div></body></html>`);
+    expect(notion.blocks.map((b) => plain(b.text))).toEqual(['노션 글']);
+    expect(plain(parseHtml(`<p>다${zw}시</p>`).blocks[0].text)).toBe(`다${zw}시`);
+  });
+
   it('노션 클래스 이름이 글에만 나오는 일반 문서는 노션 경로로 가지 않는다', () => {
     const r = parseHtml('<html><body><p>notion-page-content 라는 낱말</p><div class="notion-text-block">블록 id 없는 div</div></body></html>');
     expect(r.blocks.map((b) => plain(b.text))).toEqual(['notion-page-content 라는 낱말', '블록 id 없는 div']);
