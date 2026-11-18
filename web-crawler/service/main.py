@@ -10,10 +10,43 @@ from fastapi import BackgroundTasks, FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
 
 from pipeline import MAX_ROWS, run_job
+from supabase_client import get_service_client
 
 app = FastAPI(title="web-crawler-saas service")
 
 SERVICE_SECRET = os.environ.get("WEB_CRAWLER_SERVICE_SECRET")
+
+
+def _verify_job_owner(job_id: str, user_id: str) -> None:
+    """T-03 1단계(2026-11-18): 작업을 예약하기 전에 그 작업 행의 주인이 요청한 회원인지 확인한다.
+
+    웹앱이 보낸 user_id를 그대로 믿지 않는다(비밀값이 새도 남의 작업을 돌리지 못하게).
+    행 없음 → 404, 조회 실패·응답 모양 이상 → 503, 주인 불일치·빈 user_id → 403.
+    어느 경우든 이 요청에서는 수집·캐시·작업 행 변경을 하지 않는다(읽기 1회만, fail closed).
+    """
+    if not job_id or not user_id:
+        raise HTTPException(status_code=403, detail="작업 소유자를 확인할 수 없습니다.")
+    try:
+        res = (
+            get_service_client()
+            .table("web_crawler_jobs")
+            .select("user_id")
+            .eq("id", job_id)
+            .limit(1)
+            .execute()
+        )
+        rows = res.data
+    except Exception:
+        print("[web-crawler] job_owner_lookup_failed")  # 고정 코드만 — 원문·키 미기록
+        raise HTTPException(status_code=503, detail="작업 소유자를 지금 확인할 수 없습니다.")
+    if not isinstance(rows, list):
+        raise HTTPException(status_code=503, detail="작업 소유자를 지금 확인할 수 없습니다.")
+    if not rows:
+        raise HTTPException(status_code=404, detail="작업을 찾을 수 없습니다.")
+    owner = rows[0].get("user_id") if isinstance(rows[0], dict) else None
+    if owner != user_id:
+        print("[web-crawler] job_owner_mismatch")
+        raise HTTPException(status_code=403, detail="작업 소유자가 일치하지 않습니다.")
 
 
 class JobRequest(BaseModel):
@@ -51,7 +84,13 @@ def _verify_secret(authorization: str | None):
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    # T-03 전환 증명용(2026-11-18): 지금 요청을 받는 인스턴스의 커밋과 캐시 방식을 알려 준다.
+    # RENDER_GIT_COMMIT은 Render가 자동으로 넣는 값(비밀 아님). 새 환경변수 0.
+    return {
+        "status": "ok",
+        "commit": (os.environ.get("RENDER_GIT_COMMIT") or "")[:9],
+        "domain_cache": "bypass",
+    }
 
 
 @app.post("/jobs", status_code=202)
@@ -60,6 +99,8 @@ def create_job(req: JobRequest, background_tasks: BackgroundTasks, authorization
 
     if not req.target_fields:
         raise HTTPException(status_code=400, detail="target_fields가 비어 있습니다.")
+
+    _verify_job_owner(req.job_id, req.user_id)  # 예약 전에 확인(실패면 아래 예약 0)
 
     background_tasks.add_task(
         run_job,
@@ -86,6 +127,8 @@ def resume_job(
 
     if not req.target_fields:
         raise HTTPException(status_code=400, detail="target_fields가 비어 있습니다.")
+
+    _verify_job_owner(job_id, req.user_id)  # 재개도 예약 전에 같은 확인
 
     background_tasks.add_task(
         run_job,

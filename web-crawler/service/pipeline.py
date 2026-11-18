@@ -10,9 +10,9 @@ StealthyFetcher, `escalation.py`). Chrome CDP(사다리 6단, Akamai용)는 사�
 "확인 대기"로 멈추지 않고 바로 실패 처리한다(우회해봐야 안 되므로 헛수고시키지 않는다).
 
 "정찰"(사이트 구조 파악)은 원본 도구에서 AI 에이전트가 대화하며 판단하던 부분을, 여기서는
-회원 본인의 AI 키로 하는 LLM 1회 호출(`llm.extract_selectors`)로 대체한다. 같은 도메인+
-수집항목 조합을 재수집할 때는 `domain_cache`에 저장해둔 이전 셀렉터를 재사용해 이 LLM
-호출(비용+시간)을 건너뛴다.
+회원 본인의 AI 키로 하는 LLM 1회 호출(`llm.extract_selectors`)로 대체한다. (2026-11-18 T-03
+1단계: 회원 구분 없는 공용 셀렉터 캐시 `domain_cache`는 쓰지 않는다 — 매번 새로 정한다.
+회원별 캐시는 2단계에서 별도 표로 연다.)
 """
 import os
 import sys
@@ -40,7 +40,8 @@ from utils import (  # noqa: E402
 )
 from export_excel import export_to_excel  # noqa: E402
 
-import domain_cache  # noqa: E402
+# T-03 1단계(2026-11-18): 회원 구분 없는 공용 도메인 캐시(domain_cache)를 쓰지 않는다 — 조회·저장·삭제 0.
+# 회원별 캐시는 2단계에서 새 표로 연다(docs/SCRAPING_CONSOLIDATION_TASKS.md §2-4). domain_cache.py 파일은 그대로 둔다.
 from escalation import fetch_escalated, fetch_escalated_by_method, looks_like_akamai  # noqa: E402
 from llm import LLMError, extract_selectors  # noqa: E402
 from supabase_client import get_service_client  # noqa: E402
@@ -132,7 +133,6 @@ def _crawl(
             "이 서비스는 사이트가 명시적으로 막은 곳은 자동으로 수집하지 않습니다."
         )
 
-    cached = None if escalate else domain_cache.get_cached_plan(supabase, url, target_fields)
     fetch_method = "ladder_a"
 
     if escalate:
@@ -143,7 +143,7 @@ def _crawl(
                 "이 서비스가 지원하는 범위를 벗어난 사이트입니다."
             )
     else:
-        page, used_dynamic = _fetch(url, force_dynamic=bool(cached and cached.get("needs_dynamic")))
+        page, used_dynamic = _fetch(url)
         html = str(page.html_content)
 
         softblock = detect_softblock(html, status=getattr(page, "status", 200))
@@ -158,20 +158,11 @@ def _crawl(
                 "우회를 시도해볼 수 있지만 100% 성공을 보장하지는 못합니다."
             )
 
-    if cached:
-        item_selector = cached["item_selector"]
-        field_selectors = cached["field_selectors"]
-        next_page_selector = cached.get("next_page_selector")
-        if not page.css(item_selector):
-            # 캐시된 셀렉터가 더 이상 안 맞는다(사이트 구조 변경) — 버리고 새로 정찰한다.
-            domain_cache.invalidate(supabase, url, target_fields)
-            cached = None
-
-    if not cached:
-        plan = extract_selectors(html, target_fields, ai_provider, ai_model, ai_api_key)
-        item_selector = plan["item_selector"]
-        field_selectors = plan["field_selectors"]
-        next_page_selector = plan.get("next_page_selector")
+    # 1단계: 캐시 없이 매번 회원 본인 키로 셀렉터를 새로 정한다.
+    plan = extract_selectors(html, target_fields, ai_provider, ai_model, ai_api_key)
+    item_selector = plan["item_selector"]
+    field_selectors = plan["field_selectors"]
+    next_page_selector = plan.get("next_page_selector")
 
     limiter = RateLimiter(delay=1.5, max_requests=500, max_consecutive_errors=3)
     rows: list[dict] = []
@@ -216,18 +207,6 @@ def _crawl(
 
     if not rows:
         raise PipelineError("수집된 데이터가 없습니다.")
-
-    if not cached:
-        domain_cache.save_plan(
-            supabase,
-            url,
-            target_fields,
-            item_selector,
-            field_selectors,
-            next_page_selector,
-            needs_dynamic=False if escalate else used_dynamic,
-            fetch_method=fetch_method,
-        )
 
     pii_warnings = detect_pii(rows)
     return rows, pii_warnings
