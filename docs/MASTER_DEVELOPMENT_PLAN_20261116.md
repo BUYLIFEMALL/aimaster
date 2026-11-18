@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 03:18:23 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 03:20:59 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -67,7 +67,7 @@ Master 마지막 실제 점검: 2026-11-19 03:01:00 KST · 실행 중 점검 주
 | IMP-DES-01 / 미배포수정 | emotion-writer 접근성 · AG-UI-01 | 국소QA042 PASS · 121317458 | 다음감성글귀기능묶음·단독빌드0 | Tab/토글이름·hover대비·실375/위젯은후속 |
 | IMP-ECOM-01 / 실검수 | ESM 입력만 · CC-ECOM-01 / CX-QA-01 | 운영1.02·웹QA016완료 · 4d31d626e·QA016 | 주인님공간19 로그인/확장1.02/제어반환 | 시험상품82deeddc 입력1회·임시저장/등록0 |
 | IMP-ECOM-02 / 실검수 | Threads 네이버수집 · CC-ECOM-01 / CX-QA-01 | 운영1.89·격리소스검수완료 · ECOM17-01·WS17-04 | 공간19본인로그인·확장1.89·실브랜드커넥트링크 | 수집/대기열만·등록/AI생성0 |
-| IMP-B2B-01 / 실검수 | Lab 교환비 고객/직원화면 · CX-QA-01 | QA037 읽기대기·Lab waiting교환1건준비완료 · Lab0104/7609748ad·공간29·420bfb91… | 주인님메인243시험제출1회→Backend읽기/Mac권한검수,중복결제0 | 권한/교환상태/375읽기·실결제/상태변경0 |
+| IMP-B2B-01 / 실검수 | Lab 교환비 고객/직원화면 · CX-QA-01 | QA037 읽기대기·Lab waiting교환1건준비완료 · Lab0104/7609748ad·공간29·420bfb91… | Mac 공간29 고객·직원 로그인/Return 뒤 화면·권한만 확인. 시험 키 결제 최종 단계 | 권한/교환상태/375읽기·실결제/상태변경0 |
 | IMP-B2B-02 / 운영반영승인 | 0101~0104/Front묶음 · CC-B2B-BACK-01 | 준비파일/문구9668a2a6c+7a0800203 마감 · d43255f8f·c6931bfbe | 운영실행승인/선행조건 확정전적용0 | 운영0100기준보존·옛0102 rollback사용0 |
 | IMP-FRONT-01 / 신규발견/미확인 | navCls hover7색 · CC-B2B-FRONT-01 | 77c50f27c QA045소스PASS·미배포 · 77c50f27c·QA045 msg_b36218feed71 | 운영/Lab반영은다음묶음·실시각범위별도 | 미달색4.5이상·비대상theme회귀·143추측수정0 |
 | IMP-FRONT-02 / 제안/미착수 | 갤러리누름크기·원래가격·S70 · CC-B2B-FRONT-01 | 제안단계 · c6931bfbe | 우선순위/실근거·S70결제흐름범위확정후배정 | 각변경완료조건 별도정의·기존승인으로임의확대0 |
@@ -92,7 +92,7 @@ Master 마지막 실제 점검: 2026-11-19 03:01:00 KST · 실행 중 점검 주
 | 담당 | 현재 작업·점유 | 완료/대기·다음 행동 | 확인 근거 |
 | --- | --- | --- | --- |
 | CC-WORKSPACE-01 | v1.58 Gmail ON 배포, GCP 콜백 저장 및 Client ID 일치 보고 수신 | 기존 시험 계정에서 주인님 동의 후 §11-3 단일 검증 | msg_ac60ef28f478 |
-| CC-B2B-BACK-01 | 운영준비QA047문구마감·Lab시험교환1건준비 | 주인님메인243시험결제→기록/상태읽기·추가RPC/fixture0 | 9668a2a6c/7a0800203·msg_bdbf073001ca |
+| CC-B2B-BACK-01 | 운영준비QA047문구마감·Lab시험교환1건준비 | 샘플몰 뒤 Lab0101 읽기·운영 준비 문서 정정. 시험 키 결제는 최종 단계 | 9668a2a6c/7a0800203·msg_bdbf073001ca |
 | CC-B2B-FRONT-01 | hover77c50f27c QA045소스수락·미배포 | 다음묶음/QA037대기 | c6931bfbe / 55368bd4c |
 | CC-ECOM-01 | 재배포선택질문대기·후속메시지전달보류·운영1.29 | 追加빌드1예산결정전0·안전후보59cb고정·실3회기승인잔여 | 26e1353c5 / msg_c6e462ca244b·msg_b8292d9e0030/ACTIVE_WORK |
 | CC-BLOG-01 | 현재요약정정완료·점유0 | 다음묶음/사람계정조건·T12문서조정, 새생성0 | 2f15cafc9 / msg_de0bdb33dbeb |
@@ -362,7 +362,7 @@ Master 마지막 실제 점검: 2026-11-19 03:01:00 KST · 실행 중 점검 주
 | WS-20261117-25 | CC-WORKSPACE-01 | done / integrated | E4 Gmail함 기존기능/권한 대조와 최소범위 조사 | 소스동결·릴리스표QA041지정PASS갱신, 운영활성화WS27 별도승인/실검증 |
 | WS-20261117-26 | CX-MASTER-01 | done / v158_released_runtime_checks_partial | E3+WS23 v1.58 묶음 배포/운영 실검수 | E3/요일칩 실화면·실AI별도 미검수경계유지 |
 | QA-20261117-036 | CX-QA-01 | done / integrated | Gmail A1 OFF 서버 OAuth 독립 검수 | 0074소스준비수락·운영미적용/OFF, A2후속은별도검수 |
-| QA-20261117-037 | CX-QA-01 | reviewing / lab_screen_and_access_only_existing_login_check_dispatched | B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수 | 기존 로그인 확인 가능한 범위부터. 결제 제출은 최종 단계 시험 키만. |
+| QA-20261117-037 | CX-QA-01 | waiting_human / public_login_redirect_verified_waiting_customer_staff_login | B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수 | 비로그인 차단 확인. 기존 Mac 공간29 고객/직원 로그인·Return 대기. 결제 최종 시험 키 단계. |
 | QA-20261117-038 | CX-QA-01 | done / integrated | Gmail A2 원자 받은업무 전달 서버·SQL 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
 | QA-20261117-039 | CX-QA-01 | done / integrated | Gmail OFF 패널 실제 TSX 모의 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
 | QA-20261117-040 | CX-QA-01 | done / integrated | Gmail OFF 배선·실제 RPC 입구·어댑터·화면 통합 독립검수 | 배선소스수락·동결, 패널disconnect unknown후속별도 |
@@ -400,8 +400,8 @@ Master 마지막 실제 점검: 2026-11-19 03:01:00 KST · 실행 중 점검 주
 | QA-20261118-049 | CX-QA-01 | done / specified_source_scope_pass | 새이미지3엔진 소스/가짜통신·키/응답경계 검수 | 새Gemini반환보완SHA별도검수·현재실API/운영PASS아님 |
 | B2B-20261118-03 | CC-B2B-BACK-01 | waiting_human / fixture_prepared | 주인님 직접 Lab 교환비waiting1건·토스시험흐름 | 사람시험제출/로그인신호없음·고정교환1건유지,현재주문상태는03:31자동확정가능해반복RPC없이다음읽기때판정 |
 | B2B-20261119-LAB0101 | CC-B2B-BACK-01 | queued / lab_catalog_check_acknowledged_after_owner_sample_work | B2B몰 Lab 0101 메시지 정의·권한 대조 | 로그인·결제 없이 Lab 카탈로그 대조 배정. 기존 샘플몰 직접 작업 뒤 진행. |
-| B2B-20261119-FRONTQA | CX-QA-01 | running / lab_front_read_only_review_started | B2B Lab 프론트 키보드·대비·화면 검수 | 기존 접근 범위부터 Mac 확인. 로그인/실폰 등 사람 조치만 결과에 명시. |
-| B2B-20261119-FRONTP3 | CC-B2B-FRONT-01 | running / two_local_ui_fixes_and_checkout_contract_review_dispatched | B2B 터치 영역·가격 대비·S70 순차 보완 | 색 터치 영역→가격 대비 순차 결과 대기. S70은 주문 경계 설계만 선행. |
+| B2B-20261119-FRONTQA | CX-QA-01 | waiting_human / public_lab_checks_passed_waiting_staff_and_dark_fixture | B2B Lab 프론트 키보드·대비·화면 검수 | 공개 밝기·포커스·PWA 메타 확인. 직원용 143 및 다크 시험몰 접근 대기. |
+| B2B-20261119-FRONTP3 | CC-B2B-FRONT-01 | running / two_local_ui_fixes_and_checkout_contract_review_dispatched | B2B 터치 영역·가격 대비·S70 순차 보완 | 90248e5b1 색 선택 44×44 및 작성자 5/5. 가격 대비 진행. |
 | B2B-20261119-MAKER | CC-B2B-BACK-01 | queued / owner_work_approved_maker_m1_scope_review_queued | B2B 메이커 연계 M1~M3 선행 범위 대조 | Backend가 바나나 계약·역할 점유·M1 최소 파일/검증 근거 반환 후 구현 범위 확정. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |

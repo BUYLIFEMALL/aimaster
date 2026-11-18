@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T18:18:23.158Z",
+  "checkedAt": "2026-11-18T18:20:59.288Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3154,14 +3154,14 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수",
-      "status": "reviewing",
-      "delivery": "lab_screen_and_access_only_existing_login_check_dispatched",
+      "status": "waiting_human",
+      "delivery": "public_login_redirect_verified_waiting_customer_staff_login",
       "sha": "7609748ad",
-      "evidence": "msg_d9ff650f722a: Mac ego공간29 Lab로그인폼/375확인·기존세션없음. Backend 89a489a12/9256b3782·msg_7918bcbb8f5c 합성경로/역할확정; msg_5e5b219f6d11 23:47 Mac공간29 제어반환미완료 재확인·로그인내용미확인 / B2B18-03 waiting교환420bfb91…·msg_d4ef7792280b·msg_f8b6c7802a93·msg_7b2287b746f4",
+      "evidence": "msg_d9ff650f722a: Mac ego공간29 Lab로그인폼/375확인·기존세션없음. Backend 89a489a12/9256b3782·msg_7918bcbb8f5c 합성경로/역할확정; msg_5e5b219f6d11 23:47 Mac공간29 제어반환미완료 재확인·로그인내용미확인 / B2B18-03 waiting교환420bfb91…·msg_d4ef7792280b·msg_f8b6c7802a93·msg_7b2287b746f4·msg_8336bb2a2684·.ai/results/B2B-20261119-LAB-CX-QA-01.md",
       "scopeRef": "Mac 기존시험세션·Lab실화면읽기, 결제/RPC상태변경/발송/키/운영/build0",
       "completion": "Lab 로그인/고객교환비UI/권한차단/375·darkhover 확인, 실결제미검수분리",
-      "next": "Mac 기존 Lab 접근 범위에서 교환 화면/접근 권한만. 직접 로그인 필요 시 주인님, 결제는 최종 단계 시험 키만.",
-      "lastReviewedAt": "2026-11-18T18:18:23.158Z"
+      "next": "기존 Mac ego 공간29 시험 고객 로그인·Return 뒤 고객 조회, 이어 직원 로그인·Return으로 권한 확인만. 시험 결제는 최종 단계.",
+      "lastReviewedAt": "2026-11-18T18:20:59.288Z"
     },
     {
       "task_id": "QA-20261117-038",
@@ -5652,13 +5652,17 @@
       "owner": "CX-QA-01",
       "reviewer": "CX-MASTER-01",
       "title": "B2B Lab 프론트 키보드·대비·화면 검수",
-      "status": "running",
-      "delivery": "lab_front_read_only_review_started",
+      "status": "waiting_human",
+      "delivery": "public_lab_checks_passed_waiting_staff_and_dark_fixture",
       "scopeRef": "7609748ad Lab; 템플릿 143 키보드·초점·대비/VoiceOver, 다크 상세·PWA 화면",
       "constraints": "77c50f27c 미포함. 저장·게시·설치·결제·배포 없음.",
-      "evidence": "msg_7e9d4cae2fee·msg_7b2287b746f4·msg_f561bbcfa676",
-      "next": "기존 접근 범위부터 Mac 확인. 로그인/실폰 등 사람 조치만 결과에 명시.",
-      "lastReviewedAt": "2026-11-18T18:18:23.158Z"
+      "evidence": "msg_7e9d4cae2fee·msg_7b2287b746f4·msg_f561bbcfa676·msg_8336bb2a2684·.ai/results/B2B-20261119-LAB-CX-QA-01.md",
+      "next": "직원 접속 후 143 저장 없는 미리보기/라디오·필터/대비·낭독기. 기존 다크 Lab 상품 상세 URL 있으면 확인, 실폰 별도.",
+      "lastReviewedAt": "2026-11-18T18:20:59.288Z",
+      "validation": {
+        "independent": "공개 밝기 가입 5.25:1·카테고리 7.58:1, 검색/가입 키보드 포커스·Enter, 밝기 상세, PWA manifest/아이콘, 미인증 리다이렉트 검증.",
+        "unverified": "143의 실제 다크·갤러리·VoiceOver·실기기 설치/터치·로그인 안쪽."
+      }
     },
     {
       "task_id": "B2B-20261119-FRONTP3",
@@ -5670,9 +5674,14 @@
       "delivery": "two_local_ui_fixes_and_checkout_contract_review_dispatched",
       "scopeRef": "template-gallery.tsx+시험 → product-card/product-detail 원가격 대비 → 주문서 S70 계약/정확 경로 읽기",
       "constraints": "1·2 각 고정 SHA. S70 Backend 경계/멱등 및 일부 실패 합의 뒤 코드. 운영·DB·빌드·배포·push 없음.",
-      "evidence": "msg_3b3bee3c725f·msg_5b03c9657475",
-      "next": "색 터치 영역→가격 대비 순차 결과 대기. S70은 주문 경계 설계만 선행.",
-      "lastReviewedAt": "2026-11-18T18:18:23.158Z"
+      "evidence": "msg_3b3bee3c725f·msg_5b03c9657475·90248e5b1·msg_3e6e9ffc03e6·56785ebd8",
+      "next": "1 색상 터치 영역 44×44 로컬 완료, 작성자 1280/390 및 5/5. 2 원가격 대비 작업 중. S70 계약 읽기 선행.",
+      "lastReviewedAt": "2026-11-18T18:20:59.288Z",
+      "validation": {
+        "author": "90248e5b1 로컬 브라우저 1280·390/5개 시험 보고",
+        "master": "두 Git blob 일치, 점유 등록이 첫 편집 뒤였음 기록",
+        "remaining": "가격 대비·S70 및 로컬 묶음 독립 검수/배포"
+      }
     },
     {
       "task_id": "B2B-20261119-MAKER",
@@ -6652,7 +6661,7 @@
       "owner": "CX-QA-01",
       "status": "QA037 읽기대기·Lab waiting교환1건준비완료",
       "evidence": "Lab0104/7609748ad·공간29·420bfb91…",
-      "next": "주인님메인243시험제출1회→Backend읽기/Mac권한검수,중복결제0",
+      "next": "주인님 Mac QA037 고객·직원 로그인과 Return → 화면/권한만 확인. 시험 키 결제는 최종 단계.",
       "acceptance": "권한/교환상태/375읽기·실결제/상태변경0"
     },
     {
@@ -6828,7 +6837,7 @@
     {
       "owner": "CC-B2B-BACK-01",
       "state": "운영준비QA047문구마감·Lab시험교환1건준비",
-      "next": "주인님메인243시험결제→기록/상태읽기·추가RPC/fixture0",
+      "next": "샘플몰 작업 후 Lab0101 읽기 대조·운영 준비 문서 국소 정정. 시험 키 결제는 최종 단계.",
       "evidence": "9668a2a6c/7a0800203·msg_bdbf073001ca",
       "reviewedAt": "2026-11-17T16:58:50.290Z",
       "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
