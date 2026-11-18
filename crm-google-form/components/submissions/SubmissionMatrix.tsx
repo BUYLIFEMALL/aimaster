@@ -2,6 +2,7 @@
 
 import { Fragment, useMemo, useState } from "react";
 import { formatDateTime } from "@/lib/format";
+import { STATUS_FILTERS, matchesStatusFilter, showsErrorMessage, statusMeta, type StatusFilter } from "@/lib/crm/submissionStatus";
 
 export interface SubmissionRow {
   id: string;
@@ -15,16 +16,10 @@ export interface SubmissionRow {
   createdAt: string;
 }
 
-const STATUS: Record<string, { label: string; chip: string }> = {
-  received: { label: "접수됨", chip: "mx-chip" },
-  notified: { label: "발송 완료", chip: "mx-chip-green" },
-  failed: { label: "발송 실패", chip: "mx-chip-red" },
-};
-
 // 접수 내역 — 검색(이름·연락처·이메일) + 상태·폼 필터 + 표, 행마다 원본 응답 펼치기 (스마트 매트릭스 스타일)
 export function SubmissionMatrix({ rows, sources }: { rows: SubmissionRow[]; sources: string[] }) {
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState<string>("all");
+  const [status, setStatus] = useState<StatusFilter>("all");
   const [source, setSource] = useState<string>("all");
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -32,7 +27,7 @@ export function SubmissionMatrix({ rows, sources }: { rows: SubmissionRow[]; sou
     const q = query.trim().toLowerCase();
     return rows.filter(
       (r) =>
-        (status === "all" || r.status === status) &&
+        matchesStatusFilter(r.status, status) &&
         (source === "all" || r.sourceName === source) &&
         (!q || [r.name, r.phone, r.email].some((v) => (v ?? "").toLowerCase().includes(q))),
     );
@@ -50,9 +45,9 @@ export function SubmissionMatrix({ rows, sources }: { rows: SubmissionRow[]; sou
         />
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex rounded-lg border border-mx-border p-0.5" role="group" aria-label="상태 필터">
-            {(["all", "received", "notified", "failed"] as const).map((s) => (
-              <button key={s} type="button" onClick={() => setStatus(s)} className={`mx-toggle ${status === s ? "mx-toggle-active" : ""}`}>
-                {s === "all" ? "전체" : STATUS[s].label}
+            {STATUS_FILTERS.map((s) => (
+              <button key={s.value} type="button" onClick={() => setStatus(s.value)} className={`mx-toggle ${status === s.value ? "mx-toggle-active" : ""}`}>
+                {s.label}
               </button>
             ))}
           </div>
@@ -86,7 +81,7 @@ export function SubmissionMatrix({ rows, sources }: { rows: SubmissionRow[]; sou
             </thead>
             <tbody>
               {filtered.map((r) => {
-                const st = STATUS[r.status] ?? { label: r.status, chip: "mx-chip" };
+                const st = statusMeta(r.status);
                 const open = openId === r.id;
                 return (
                   <Fragment key={r.id}>
@@ -100,7 +95,8 @@ export function SubmissionMatrix({ rows, sources }: { rows: SubmissionRow[]; sou
                       <td className="whitespace-nowrap text-mx-muted">{formatDateTime(r.createdAt)}</td>
                       <td>
                         <span className={st.chip}>{st.label}</span>
-                        {r.status === "failed" && r.errorMessage && <p className="mt-1 max-w-[220px] text-xs text-mx-danger">{r.errorMessage}</p>}
+                        {showsErrorMessage(r.status) && r.errorMessage && <p className="mt-1 max-w-[220px] text-xs text-mx-danger">{r.errorMessage}</p>}
+                        {st.review && st.hint && <p className="mt-1 max-w-[220px] text-xs text-mx-muted">{st.hint}</p>}
                       </td>
                       <td className="text-right">
                         <button

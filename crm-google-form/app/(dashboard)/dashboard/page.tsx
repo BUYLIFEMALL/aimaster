@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHero } from "@/components/layout/PageHero";
 import { KpiCard, KpiGrid } from "@/components/dashboard/KpiCard";
 import { formatDateTime } from "@/lib/format";
+import { REVIEW_STATUS_NOT_IN, statusMeta } from "@/lib/crm/submissionStatus";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -15,22 +16,17 @@ const PIPELINE = [
   { icon: "📥", title: "자동 접수·발송", desc: "응답마다 접수 확인 + 운영자 알림", href: "/submissions" },
 ];
 
-const STATUS: Record<string, { label: string; chip: string }> = {
-  received: { label: "접수됨", chip: "mx-chip" },
-  notified: { label: "발송 완료", chip: "mx-chip-green" },
-  failed: { label: "발송 실패", chip: "mx-chip-red" },
-};
-
 export default async function DashboardPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
-  const [sourcesRes, totalRes, weekRes, failedRes, recentRes, smtpRes, solapiRes, telegramRes] = await Promise.all([
+  const [sourcesRes, totalRes, weekRes, failedRes, reviewRes, recentRes, smtpRes, solapiRes, telegramRes] = await Promise.all([
     supabase.from("crm_form_sources").select("id, name, is_active").eq("user_id", user.id),
     supabase.from("crm_submissions").select("id", { count: "exact", head: true }).eq("user_id", user.id),
     supabase.from("crm_submissions").select("id", { count: "exact", head: true }).eq("user_id", user.id).gte("created_at", weekAgo),
     supabase.from("crm_submissions").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("status", "failed"),
+    supabase.from("crm_submissions").select("id", { count: "exact", head: true }).eq("user_id", user.id).not("status", "in", REVIEW_STATUS_NOT_IN),
     supabase
       .from("crm_submissions")
       .select("id, form_source_id, name, status, created_at")
@@ -77,6 +73,9 @@ export default async function DashboardPage() {
         <KpiCard icon="📥" label="전체 접수" value={totalRes.count ?? 0} tone="green" />
         <KpiCard icon="📅" label="최근 7일 접수" value={weekRes.count ?? 0} tone="amber" />
         <KpiCard icon="⚠️" label="발송 실패" value={failedRes.count ?? 0} hint="접수 내역에서 원인 확인" tone="muted" />
+        {(reviewRes.count ?? 0) > 0 && (
+          <KpiCard icon="🔍" label="확인 필요" value={reviewRes.count ?? 0} hint="발송 결과 미확정 · 자동 재시도 없음" tone="amber" />
+        )}
       </KpiGrid>
 
       <div className="mb-6 grid gap-6 lg:grid-cols-3">
@@ -153,7 +152,7 @@ export default async function DashboardPage() {
               </thead>
               <tbody>
                 {recent.map((s) => {
-                  const st = STATUS[s.status] ?? { label: s.status, chip: "mx-chip" };
+                  const st = statusMeta(s.status);
                   return (
                     <tr key={s.id}>
                       <td className="font-semibold">{s.name ?? "이름 미매핑"}</td>

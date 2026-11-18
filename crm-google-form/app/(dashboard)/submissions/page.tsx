@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHero } from "@/components/layout/PageHero";
 import { KpiCard, KpiGrid } from "@/components/dashboard/KpiCard";
 import { SubmissionMatrix, type SubmissionRow } from "@/components/submissions/SubmissionMatrix";
+import { countSubmissionStatuses } from "@/lib/crm/submissionStatus";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -33,7 +34,7 @@ export default async function SubmissionsPage() {
     rawValues: (s.raw_values as Record<string, string>) ?? {},
     createdAt: s.created_at,
   }));
-  const count = (st: string) => rows.filter((r) => r.status === st).length;
+  const counts = countSubmissionStatuses(rows);
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -46,9 +47,12 @@ export default async function SubmissionsPage() {
 
       <KpiGrid>
         <KpiCard icon="📥" label="표시된 접수" value={rows.length} hint="최근 100건 기준" />
-        <KpiCard icon="✅" label="발송 완료" value={count("notified")} tone="green" />
-        <KpiCard icon="⏳" label="접수만 됨" value={count("received")} tone="muted" />
-        <KpiCard icon="⚠️" label="발송 실패" value={count("failed")} tone="amber" />
+        <KpiCard icon="✅" label="발송 완료" value={counts.notified} tone="green" />
+        <KpiCard icon="⏳" label="접수만 됨" value={counts.received} tone="muted" />
+        <KpiCard icon="⚠️" label="발송 실패" value={counts.failed} tone="amber" />
+        {counts.review > 0 && (
+          <KpiCard icon="🔍" label="확인 필요" value={counts.review} hint="발송 결과 미확정 · 자동 재시도 없음" tone="amber" />
+        )}
       </KpiGrid>
 
       {rows.length === 0 ? (
