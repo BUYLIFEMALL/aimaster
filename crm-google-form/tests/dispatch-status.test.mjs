@@ -245,7 +245,7 @@ test("진단 문구는 고정 문구뿐(키·연락처·이름·서버 원문 0)
 
 // ── 통합: 실제 웹훅 라우트 → 실제 발송 함수(가짜 DB·가짜 채널) ──────────────────────────────────
 const TOKEN_SRC = { ...SOURCE({ notify_sms: true, notify_friendtalk: true }), webhook_token: "tok-1", is_active: true, field_mapping: { phone: "연락처" } };
-function setupIntegrated(channel = () => undefined) {
+function setupIntegrated(channel = () => undefined, onUpdate = null) {
   const rows = [];
   const base = setup({ channel });
   const accountAnswer = globalThis.__dsFake.client;
@@ -268,7 +268,12 @@ function setupIntegrated(channel = () => undefined) {
               rows.push(row);
               return { data: { id: row.id, user_id: row.user_id, name: row.name, phone: row.phone, email: row.email, raw_values: row.raw_values }, error: null };
             }
-            if (upd) { for (const r of rows) if (m(r)) Object.assign(r, upd[1]); return { data: null, error: null }; }
+            if (upd) {
+              if (onUpdate) { const r = onUpdate(q, rows, m); if (r !== undefined) return r; }
+              const hit = rows.filter(m);
+              for (const r of hit) Object.assign(r, upd[1]);
+              return { data: q.ops.some((o) => o[0] === "select") ? hit.map((r) => ({ id: r.id })) : null, error: null };
+            }
             if (q.single) { const h = rows.filter(m); return { data: h.length === 1 ? { id: h[0].id } : null, error: null }; }
             return { data: null, error: null };
           }).from(table);
@@ -311,4 +316,23 @@ test("통합: 문자 성공 + 친구톡 4xx → unknown(A안), 친구톡 요청 
   await postReal(JSON.stringify({ values: { 연락처: ["010-1111-2222"] } }));
   assert.equal(rows[0].status, "notified");
   assert.equal("dedupe_key" in rows[0], false);
+});
+
+
+test("통합 recordFinal: 실제 dispatch 뒤 0행 갱신 → recorded false·not_recorded, 반영 뒤 응답 유실 → uncertain(행은 실제 최종 상태)", async () => {
+  let { rows } = setupIntegrated(undefined, () => ({ data: [], error: null }));
+  let r = await postReal(v2body(9));
+  assert.deepEqual([r.body.status, r.body.recorded, r.body.recordState], ["notified", false, "not_recorded"]);
+  assert.equal(rows[0].status, "dispatching");
+  ({ rows } = setupIntegrated(undefined, (q, rs, m) => { for (const x of rs) if (m(x)) Object.assign(x, q.ops.find((o) => o[0] === "update")[1]); throw new Error("lost"); }));
+  r = await postReal(v2body(10));
+  assert.deepEqual([r.body.recorded, r.body.recordState], [false, "uncertain"]);
+  assert.equal(rows[0].status, "notified");
+});
+
+test("통합 recordFinal: 정상 → recorded true", async () => {
+  const { rows } = setupIntegrated();
+  const r = await postReal(v2body(11));
+  assert.deepEqual([r.body.status, r.body.recorded], ["notified", true]);
+  assert.equal(rows[0].status, "notified");
 });

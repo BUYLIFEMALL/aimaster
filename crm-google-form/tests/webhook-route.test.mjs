@@ -96,9 +96,11 @@ function makeDb(opts = {}) {
       }
       if (q.table === "crm_submissions" && upd) {
         db.updates = (db.updates ?? []).concat([q]);
-        if (hooks.onUpdate) { const r = hooks.onUpdate(q); if (r !== undefined) return r; }
-        for (const r of rows) if (matches(r, q)) Object.assign(r, upd[1]);
-        return { data: null, error: null };
+        if (hooks.onUpdate) { const r = hooks.onUpdate(q, rows, matches); if (r !== undefined) return r; }
+        const hit = rows.filter((r) => matches(r, q));
+        for (const r of hit) Object.assign(r, upd[1]);
+        // 실제 PostgREST처럼 .select()가 붙으면 갱신된 행을 돌려준다
+        return { data: q.ops.some((o) => o[0] === "select") ? hit.map((r) => ({ id: r.id })) : null, error: null };
       }
       if (q.table === "crm_submissions" && q.single) {
         const hit = rows.filter((r) => matches(r, q));
@@ -314,7 +316,7 @@ test("U2: 구버전·v2 모두 「발송 처리 중」으로 먼저 저장하고
   const r = await post("tok-1", v2());
   await post("tok-1", { values: {} });
   assert.deepEqual(inserted, ["dispatching", "dispatching"]);
-  assert.deepEqual([r.status, r.body.status], [200, "unknown"]);
+  assert.deepEqual([r.status, r.body.status, r.body.recorded], [200, "unknown", true]);
   assert.equal(db.rows[0].status, "unknown");
   assert.equal(db.rows[0].error_message, "문자: 결과 모름");
 });
@@ -326,12 +328,12 @@ test("U2: 최종 상태 기록은 id·회원·폼 조건으로만", async () => 
   assert.deepEqual(eqs, ["form_source_id", "id", "user_id"]);
 });
 
-test("U2: 최종 기록 오류·예외 → 행은 「발송 처리 중」 그대로, 응답은 recorded false(성공 저장 표시 0), 재발송 0", async () => {
+test("U2: 최종 기록 오류·예외(반영 전) → recorded false, 행은 「발송 처리 중」, 재발송 0", async () => {
   for (const onUpdate of [() => ({ data: null, error: { message: "x" } }), () => { throw new Error("x"); }]) {
     const db = makeDb({ hooks: { onUpdate } });
     const r = await post("tok-1", v2());
     assert.equal(r.status, 200);
-    assert.deepEqual([r.body.status, r.body.recorded], ["dispatching", false]);
+    assert.equal(r.body.recorded, false);
     assert.equal(db.rows[0].status, "dispatching");
     const again = await post("tok-1", v2());
     assert.equal(again.body.duplicate, true);
@@ -361,4 +363,55 @@ test("U2: insert 응답 유실 → 행은 「발송 처리 중」 그대로, 재
   const r2 = await post("tok-1", v2());
   assert.equal(r2.body.duplicate, true);
   assert.deepEqual(globalThis.__whDispatched, []);
+});
+
+
+// ── recordFinal 보완(Mac msg_e752306f1e50): 반환 행으로 기록 확인, 불확실은 「잔류」로 단정하지 않음 ──────────
+const rfCase = async (onUpdate) => {
+  const db = makeDb({ hooks: { onUpdate } });
+  const r = await post("tok-1", v2());
+  return { db, r };
+};
+test("recordFinal: 정상 1행·id 일치 → recorded true", async () => {
+  const { db, r } = await rfCase();
+  assert.deepEqual([r.body.recorded, r.body.recordState], [true, undefined]);
+  assert.equal(db.rows[0].status, "notified");
+});
+test("recordFinal: 0행 갱신(오류 없음) → recorded false·not_recorded, 행 그대로", async () => {
+  const { db, r } = await rfCase(() => ({ data: [], error: null }));
+  assert.deepEqual([r.body.recorded, r.body.recordState], [false, "not_recorded"]);
+  assert.equal(db.rows[0].status, "dispatching");
+});
+test("recordFinal: error null + data null(select 무시된 응답) → recorded false·uncertain", async () => {
+  const { r } = await rfCase(() => ({ data: null, error: null }));
+  assert.deepEqual([r.body.recorded, r.body.recordState], [false, "uncertain"]);
+});
+test("recordFinal: 다른 id·여러 행 → recorded false·uncertain", async () => {
+  for (const data of [[{ id: "00000000-0000-4000-8000-0000000000ff" }], [{ id: "a" }, { id: "b" }], [{}]]) {
+    const { r } = await rfCase(() => ({ data, error: null }));
+    assert.deepEqual([r.body.recorded, r.body.recordState], [false, "uncertain"], JSON.stringify(data));
+  }
+});
+test("recordFinal: DB 오류 응답(미반영) → not_recorded, 반영 뒤 응답 유실(예외) → uncertain이고 실제 행은 최종 상태일 수 있음", async () => {
+  let { db, r } = await rfCase(() => ({ data: null, error: { message: "boom" } }));
+  assert.deepEqual([r.body.recorded, r.body.recordState], [false, "not_recorded"]);
+  assert.equal(db.rows[0].status, "dispatching");
+  ({ db, r } = await rfCase((q, rows, matches) => { for (const x of rows) if (matches(x, q)) Object.assign(x, q.ops.find((o) => o[0] === "update")[1]); throw new Error("socket hang up"); }));
+  assert.deepEqual([r.body.recorded, r.body.recordState], [false, "uncertain"]);
+  assert.equal(db.rows[0].status, "notified"); // 응답은 「발송 처리 중」이라 단정하지 않음
+  assert.notEqual(r.body.status, "dispatching");
+  assert.equal(globalThis.__whDispatched.length, 1);
+});
+test("recordFinal: 갱신은 id·회원·폼 조건 + select(id)로만, 다른 회원 행은 갱신되지 않음", async () => {
+  const db = makeDb();
+  db.rows.push({ id: "00000000-0000-4000-8000-0000000000aa", user_id: OTHER, form_source_id: SRC1, status: "dispatching", dedupe_key: null });
+  await post("tok-1", v2());
+  const q = db.updates[0];
+  assert.deepEqual(q.ops.filter((o) => o[0] === "eq").map((o) => o[1]).sort(), ["form_source_id", "id", "user_id"]);
+  assert.ok(q.ops.some((o) => o[0] === "select" && o[1] === "id"));
+  assert.equal(db.rows.find((x) => x.user_id === OTHER).status, "dispatching");
+});
+test("recordFinal: 응답 본문은 고정 형식(원문 0)", async () => {
+  const { r } = await rfCase(() => { throw new Error("secret-detail 010-1111-2222"); });
+  assert.doesNotMatch(JSON.stringify(r.body), /secret-detail|010-1111-2222/);
 });
