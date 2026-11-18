@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T16:38:38.106Z",
+  "checkedAt": "2026-11-18T16:43:12.016Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5339,14 +5339,30 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "W01 자산 기반 생성 화면 연결 계약",
-      "status": "running",
-      "delivery": "local_generation_ui_contract_dispatched",
+      "status": "done",
+      "delivery": "generation_ui_contract_accepted_with_cors_gate",
       "scopeRef": "W00 §12-1·§23, W00_BASELINE.md 새 절 및 기존 소스 읽기",
       "completion": "참고 업로드·자산 ID 생성·서명 재조회, OFF/보정/히스토리·캡션·내보내기 호환, 시험·파일·운영 선행 범위 반환.",
       "constraints": "설계 한 단위. UI 구현·실 DB/Storage/AI·ON·빌드·배포·W02 없음.",
-      "evidence": "msg_f85e8ff59045",
-      "next": "담당 수락·계약 SHA 대기. Master 계약 검토.",
-      "lastReviewedAt": "2026-11-18T16:38:38.106Z"
+      "evidence": "msg_f85e8ff59045·msg_c768fd9a0996·3a41efdd0·msg_f3348556982f",
+      "next": "서버 모드 단일, 기존 보정/히스토리 유지, 수동 재조회·서명 주소 미보관 수락. 첫 클라이언트 구현 UIC 배정. 브라우저 CORS 운영 전 별도 확인.",
+      "lastReviewedAt": "2026-11-18T16:43:12.016Z",
+      "sha": "3a41efdd0"
+    },
+    {
+      "task_id": "AIF-20261119-W01-UIC",
+      "parent_task_id": "AIF-20261119-W01-UID",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-QA-01",
+      "title": "W01 화면용 자산 API 클라이언트 구현",
+      "status": "running",
+      "delivery": "asset_client_flow_dispatched",
+      "scopeRef": "새 clientFlow.ts·assetClientFlow.test.mjs, 필요한 경우 W00 계약 기록",
+      "completion": "선택 사진 업로드/ID 요청/서명 다운로드·재조회, 실패/취소·본문 비노출·중복 호출 금지 시험과 SHA.",
+      "constraints": "기존 제품/모드·실 DB/Storage/AI·ON·빌드·배포·W02 변경 없음. 브라우저 연결과 CORS 검증은 후속.",
+      "evidence": "msg_f3348556982f",
+      "next": "CC-SNS-01 수락·구현·시험 회신, CX-QA-01 검수.",
+      "lastReviewedAt": "2026-11-18T16:43:12.016Z"
     },
     {
       "task_id": "DES-20261119-HERO",
