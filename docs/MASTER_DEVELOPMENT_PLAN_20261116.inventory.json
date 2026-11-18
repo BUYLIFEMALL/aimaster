@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 15:15:34 KST",
+  "checkedAt": "2026-11-18 15:17:12 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,22 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T06:15:34.051Z",
+      "at": "2026-11-18T06:17:12.216Z",
       "timezone": "Asia/Seoul",
-      "trigger": "수정완료 이벤트 두 건",
-      "scope": "Cloudflare프롬프트 실제diff·SNS unknown해제최소계약 보고",
+      "trigger": "Cloudflare 독립검수완료",
+      "scope": "고정SHA9ccfc8dfa/실제모듈모의10/지정변경·기존운영상태분리",
       "evidence": [
-        "9ccfc8dfa/msg_1547cbbfa798",
-        "219562534/msg_69649db24743",
-        "Macmsg_184e287b9e6f·최종A1재검수전달"
+        "msg_2709a8fc13d1·기존Mac보고미커밋보존",
+        "Master직전diff확인"
       ],
-      "judgment": "두단위 지정독립검수배정·제품완료/운영효과 선단정0·추가비용0",
+      "judgment": "지정프롬프트소스완료수락·실무문자품질미검증·추가시험/생성/빌드0·기존묶음대기",
       "unverified": [
-        "프롬프트독립결과/실품질",
-        "A1최종계약수락·실SQL/업로드",
-        "운영FREE OFF미반영"
+        "수정후실이미지품질",
+        "SNS최종계약검수진행중",
+        "전체카테고리운영새실측0"
       ],
-      "nextAction": "Mac결과회수·범위별수락/반환"
+      "nextAction": "SNS최종검수회수·기존승인/사람단계 회신뒤후속"
     },
     "notifications": [
       {
@@ -8205,19 +8204,19 @@
       "owner": "CC-ECOM-01",
       "reviewer": "CX-QA-01",
       "title": "Cloudflare 배경 생성 프롬프트 문자 혼입 보완",
-      "status": "reviewing",
-      "delivery": "prompt_fix_source_received_independent_review_dispatched",
-      "evidence": "msg_121e44a17ff5·주인님 직접 실제생성1 승인→1완료. HTTP200/JSONresult.image/JPEG695091B/1024²·Master services.ts254 원문삽입 확인 · msg_1547cbbfa798/9ccfc8dfa·Masterdiff직접읽기·Macmsg_184e287b9e6f·담당msg_af903ac5928a",
+      "status": "done",
+      "delivery": "specified_source_review_pass_accepted_unreleased",
+      "evidence": "msg_121e44a17ff5·주인님 직접 실제생성1 승인→1완료. HTTP200/JSONresult.image/JPEG695091B/1024²·Master services.ts254 원문삽입 확인 · msg_1547cbbfa798/9ccfc8dfa·Masterdiff직접읽기·Macmsg_184e287b9e6f·담당msg_af903ac5928a · Macmsg_2709a8fc13d1·.ai/results/ECOM-20261118-05-CX-QA-01.md 미커밋추가",
       "scopeRef": "services.ts generateFreeImage 프롬프트·관련 서비스 모의시험·본인 문서",
       "constraints": "한국어topic/quote 원문제외·외부번역0·유료다른공급자불변·FREE OFF·추가실생성/build/deploy/push0·UI읽기만",
       "completion": "원문 비포함/중립기본/배경지시·HTTP1 모의회귀/tsc·지정독립검수",
-      "next": "Mac 실제서비스 모의 검수→소스수락·실품질 추가생성은 별도승인",
-      "lastReviewedAt": "2026-11-18T06:15:34.051Z",
+      "next": "기존 배포후보 묶음에9ccfc8dfa 포함·실 무문자품질 추가생성은 별도승인·현재무료OFF소스유지",
+      "lastReviewedAt": "2026-11-18T06:17:12.216Z",
       "sha": "9ccfc8dfa",
       "validation": {
         "author": "79/79·tsc0·실생성0·유료프롬프트/옵션/OFF불변",
         "master": "주제정규식→고정영문8/중립·quote미삽입·서비스/시험diff확인",
-        "independent": "배정·결과미수신",
+        "independent": "실제 services 메모리모듈+가짜fetch10경계PASS·원문sentinel URL/body0·고정분위기8/기본/우선순위·HTTP1/steps4/POST/redirecterror·유료/옵션/파서불변",
         "runtime": "기존1회 문자혼입·수정후실생성0"
       }
     }

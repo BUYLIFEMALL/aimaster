@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 15:15:34 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 15:17:12 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 15:15:34 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 15:17:12 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: Cloudflare프롬프트 실제diff·SNS unknown해제최소계약 보고 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 고정SHA9ccfc8dfa/실제모듈모의10/지정변경·기존운영상태분리 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 15:15:34 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 269개: done 249개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 8개 · queued 1개 · reviewing 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 269개: done 250개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 8개 · queued 1개 · reviewing 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -419,7 +419,7 @@ Master 마지막 실제 점검: 2026-11-18 15:15:34 KST · 실행 중 점검 주
 | CRM-20261118-10 | CC-B2B-BACK-01 | waiting_human / concrete_release_prepared_single_owner_approval_pending | CRM 중복방지 묶음 명시소스·DDL·실검수 릴리스 준비 | 주인님 DDL/버전/로컬1+원격1/SMS1 승인신호→단일담당순번·직전운영기준대조·실행 |
 | AIF-20261118-W01d | CC-SNS-01 | reviewing / final_unknown_reservation_preservation_contract_review | 첫 원본 자산 단위 필드·권한·스토리지 구체 계약 | Mac 해당P1/중복경로해제조건 최종 정적검수→코드범위배정 여부판정 |
 | QA-20261118-ESM-01 | CX-QA-01 | waiting_human / zip_source_versions_verified_installed_extension_and_login_pending | ESM v1.02 입력만·쇼핑제휴 v1.89 네이버 수집 실확장 준비/검수 | 기존 Mac 사람요청 한곳: ESM+/네이버로그인·확장실제설치버전·brandlink1 뒤 입력만/수집검수 |
-| ECOM-20261118-08 | CC-ECOM-01 | reviewing / prompt_fix_source_received_independent_review_dispatched | Cloudflare 배경 생성 프롬프트 문자 혼입 보완 | Mac 실제서비스 모의 검수→소스수락·실품질 추가생성은 별도승인 |
+| ECOM-20261118-08 | CC-ECOM-01 | done / specified_source_review_pass_accepted_unreleased | Cloudflare 배경 생성 프롬프트 문자 혼입 보완 | 기존 배포후보 묶음에9ccfc8dfa 포함·실 무문자품질 추가생성은 별도승인·현재무료OFF소스유지 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
