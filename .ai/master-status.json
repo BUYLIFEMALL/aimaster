@@ -4070,12 +4070,17 @@
       "task_id": "DES-20261118-07",
       "title": "Cloudflare 공용키 설정 UI 연결 경로 계획",
       "owner": "AG-UI-01",
-      "status": "ready_review",
-      "delivery": "owner_direct_style_scope_explained_pending_full_source_review",
-      "evidence": "msg_9e8dcff42ce5 전달보류·서버ab693ba39 지정PASS · 수락msg_c38fbd244674 · 계획msg_577c1800ce82·Master GET route/settings초기연결경로확인 · msg_5af67813cd65·Master메인page/MemberIntegrations/문서봇설정소스확인 · 착수msg_78865897c0bc · ACKmsg_ebc0f4699d85·Master6파일stat/globals추가확인·설명요청msg_3ca755de2ab5 · globals직접지시경위msg_bac874a8f499",
-      "next": "직접지시핑크버튼/세로3카드/Pixabay순서범위보존·6파일/상태카드·CSS검수후수락",
-      "lastReviewedAt": "2026-11-18T05:10:38.040Z",
-      "sha": "3df4d0dca"
+      "status": "needs_revision",
+      "delivery": "initial_lookup_error_false_and_disabled_engine_guidance_fix_returned",
+      "evidence": "msg_9e8dcff42ce5 전달보류·서버ab693ba39 지정PASS · 수락msg_c38fbd244674 · 계획msg_577c1800ce82·Master GET route/settings초기연결경로확인 · msg_5af67813cd65·Master메인page/MemberIntegrations/문서봇설정소스확인 · 착수msg_78865897c0bc · ACKmsg_ebc0f4699d85·Master6파일stat/globals추가확인·설명요청msg_3ca755de2ab5 · globals직접지시경위msg_bac874a8f499 · Macmsg_b803170ef815·초기error/false·OFF안내모순·복제시험반환",
+      "next": "초기unknown/등록false분리·OFF문구정합·실helper/handler/SSR시험 보완SHA→Mac",
+      "lastReviewedAt": "2026-11-18T05:12:41.307Z",
+      "sha": "3df4d0dca",
+      "validation": {
+        "author": "71/71·tsc0보고, cloudflareUi6/6은복제구현시험으로실제품검증한계",
+        "master": "6파일/globals직접지시범위확인·검수전수락보류",
+        "independent": "3df4 초기조회실패false오표시·OFF인데사용가능안내P2·실제품대조진행중·globals전역primary변경 확인"
+      }
     },
     {
       "task_id": "AIF-20261118-W00",
@@ -4688,22 +4693,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:11:26.513Z",
+      "at": "2026-11-18T05:12:41.307Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS 보관예외 검수P2·CRM후속착수",
-      "scope": "이상profile id failclosed·실삭제사고와모의반례분리·후속정확경로",
+      "trigger": "감성 상태카드 독립검수 P2",
+      "scope": "조회실패/미등록 구분·기본OFF와기능안내·실제품시험근거",
       "evidence": [
-        "msg_7f527fa24451 모의5객체삭제·native/handler검증",
-        "SNSstrict형식보완반환",
-        "msg_7fbc9d72ee68 정확3소스/시험경로착수"
+        "msg_b803170ef815",
+        "AGY기존범위수정/복제시험교체지시"
       ],
-      "judgment": "SNS보관소스정상경로검수보존·이상행을비예외로간주하는경계반환. CRM새경로단위시험필요성확인/착수반영, 운영0.",
+      "judgment": "상태카드초기실패와기능꺼짐을정직하게표시하도록반환. 71개통과를새카드실제품검증으로확장수락하지않음.",
       "unverified": [
-        "SNSstrict수정/최종검수",
-        "감성카드검수",
-        "CRM followup새SHA/독립결과"
+        "감성카드실helper/SSR·globals독립최종",
+        "새보완SHA·중앙등록선행배포"
       ],
-      "nextAction": "새수정/검수결과회수·실삭제/전송/푸시0"
+      "nextAction": "AGY새수정/고정검수회수·OFF/미배포유지"
     },
     "notifications": [
       {
