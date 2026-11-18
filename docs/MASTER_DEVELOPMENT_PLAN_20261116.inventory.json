@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T19:35:13.880Z",
+  "checkedAt": "2026-11-18T19:36:12.949Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9692,12 +9692,12 @@
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace v1.61 기존 중단 빌드 로그 진단",
       "status": "reviewing",
-      "delivery": "fixed_error_classifier_returned_mac_recheck_dispatched",
+      "delivery": "local_independent_accepted_isolated_build_plan_requested",
       "sha": "cea50d189",
-      "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef·dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o·msg_0a595caceefd·주인님 전달 진단·msg_afbf609d8871·msg_8512331d6d20·담당 msg_8512331d6d20 결과·msg_7489b02d1a30·f330050c3·담당 msg_7489b02d1a30 결과·msg_4a10308bf15c·f26ab0e58·담당 msg_4a10308bf15c 회신·msg_6f6e00bdcc31·d3d2d531f·담당 msg_6f6e00bdcc31 회신·msg_748c12b7d46d·5efdefd22·a63e7e26a·76fd2c9b9·담당 msg_748c12b7d46d 결과·msg_61b93dfbb0d1·7c283738f·b081eed5b·담당 msg_61b93dfbb0d1 결과·msg_4e206a030d6b·msg_1b80513953df·msg_3f61f6f5a0·cea50d189·7f0757d61·담당 msg_3f61f6f5b5a0 결과·msg_c7b20d50ff1d",
+      "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef·dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o·msg_0a595caceefd·주인님 전달 진단·msg_afbf609d8871·msg_8512331d6d20·담당 msg_8512331d6d20 결과·msg_7489b02d1a30·f330050c3·담당 msg_7489b02d1a30 결과·msg_4a10308bf15c·f26ab0e58·담당 msg_4a10308bf15c 회신·msg_6f6e00bdcc31·d3d2d531f·담당 msg_6f6e00bdcc31 회신·msg_748c12b7d46d·5efdefd22·a63e7e26a·76fd2c9b9·담당 msg_748c12b7d46d 결과·msg_61b93dfbb0d1·7c283738f·b081eed5b·담당 msg_61b93dfbb0d1 결과·msg_4e206a030d6b·msg_1b80513953df·msg_3f61f6f5a0·cea50d189·7f0757d61·담당 msg_3f61f6f5b5a0 결과·msg_c7b20d50ff1d·msg_8004451fdf3f·msg_e0973ea0b19d",
       "constraints": "기존 근거 읽기만. 재빌드·배포·push·운영 설정/DB 변경 0.",
-      "next": "오류 기록을 db/error 고정값으로 제한. 작성자 모의 17/17, Mac 재검수 전달. 운영 v1.60, 실제 빌드 미실행.",
-      "lastReviewedAt": "2026-11-18T19:35:13.880Z",
+      "next": "Mac 재검수 고정 오류 분류·실패 격리 통과. 로컬 코드 수락. DB 접근 없이 실제 빌드할 실행안만 준비, 운영 v1.60.",
+      "lastReviewedAt": "2026-11-18T19:36:12.949Z",
       "validation": {
         "author": "컴파일·타입 통과 후 Collecting 약 11분 무출력. 성공판 같은 단계 35.4초. 시작 시 동시 빌드 0, 이후 11번가 약 8분 대기 보고.",
         "master": "v1.60~v1.61 제품 변경 3파일 및 html.ts의 기존 정적 import 경로 확인.",
@@ -9710,7 +9710,8 @@
         "regression": "장애 범위가 전체 질의로 확장되는 문제 확인. 예약 등 선택 작업 격리 재검토.",
         "result": "선택 작업 실패 후 요청·다른 시작 작업 계속, 늦은 DDL 오류 호출부 한정. 오류 문자열 비출력 시험.",
         "limitation": "필수 초기 DDL 실패 시 인스턴스 전 요청 영향. 기존 웹훅 이관 실패의 평문 읽기 경로 미변경. Gmail 3파일 및 실제 build/운영 미검증.",
-        "errorClassifier": "getter·프록시·임의 오류값에도 다른 시작 작업/질의 정상, 로그는 고정 분류. DB 접속 없음."
+        "errorClassifier": "getter·프록시·임의 오류값에도 다른 시작 작업/질의 정상, 로그는 고정 분류. DB 접속 없음.",
+        "independent": "두 blob 일치. 독립 Node 모의에서 getter 호출 0, 고정 분류와 계속 실행 확인. DB/전체 Vitest/실제 빌드 없음."
       },
       "retry": {
         "id": "dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o",
