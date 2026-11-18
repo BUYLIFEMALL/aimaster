@@ -612,6 +612,86 @@ A1 업로드는 서버가 서비스 키로 직접 올리며 `upsert: false`다. 
 
 보장 범위(정직하게): `unknown`이 쌓이면 그만큼 회원 한도가 보수적으로 줄어든다(실제보다 많이 쓴 것으로 계산). 이것은 한도를 넘기지 않는 쪽의 오차이며, 풀어 주는 일은 사람 확인·별도 복구 단위에서만 한다. R2-1의 10분 여유도 정확성 증명이 아니라 보수적 여유일 뿐이며, 측정 시각 순서 조건(측정 트랜잭션 시작 ≤ 스냅숏 < 우리 객체 커밋 < `stored_at`)이 실제 근거다.
 
+## 19. 일반 회원 30일 보관 정리 — 첫 정리 단위 계약안 (W01-R1, Master `msg_3e5657eeafec`, 판정 대기)
+
+**설계안이다. 제품 코드·SQL 실행·표 생성·예약 등록 0.** §14-B의 6·7·8과 10의 최소 범위만 다룬다. 9(`unknown`·고아 복구)는 후속 단위로 분리한다(§19-9).
+
+### 19-1. 공용 원문 대조 (변경 없이 쓰는 것)
+
+| 원문 | 실제 동작 | 이 단위의 결론 |
+|---|---|---|
+| `supabase/migrations/0068`·`0073` `member_storage_expired_files` | `p.retention_exempt and not p.retention_exempt_manual` 회원의 기간 지난 객체만 반환(`workspace-files` 제외). 기산일은 `storage.objects.created_at` | 중앙은 **연장 회원만** 다룬다. 일반 회원은 우리 정리가 맡는다 |
+| `app/api/cron/storage-retention/route.ts` | 위 목록을 `storage.remove()`로 지우고 회원별 `member_storage_measure(uid)` 호출. `CRON_SECRET` Bearer 인증 | 같은 인증·같은 측정 갱신 방식을 따른다 |
+| `0068` `member_storage_refresh_exempt` | 수동 열외 **또는** 정책 기간이 30일 초과·무기한이면 `profiles.retention_exempt = true` | 보호 판정은 **프로필 한 곳**(`retention_exempt`)만 본다. 구독·등급·관리자 지정을 따로 계산하지 않는다 |
+| `0068` `member_storage_policy(uid)` | 회원의 `retention_days`(무기한이면 null) | 일반 회원의 기간은 이 함수 값(무료 정책)을 읽는다. 코드에 30 고정 금지 |
+| `0068` `member_mark_posted`·`storage_posting_tracked_buckets` | 추적 버킷이 아니면 중앙은 모든 파일을 포스팅 기간으로 본다 | **일반 회원은 발행과 무관하게 같은 기간**(주인님 2026-11-11 결정)이라 이 단위는 posted를 보지 않는다. 연장 회원은 `aif-assets`가 추적 버킷이 되기 전까지 중앙이 포스팅 기간(더 긺)으로 보관한다 — 회원에게 유리한 쪽의 오차. 등록 시점은 W07에서 게시 성공 직후 첫 `markPosted` 호출(공용 변경 없음) |
+| `ai-influencer-studio/src/app/api/instagram/dispatch/route.ts` | `CRON_SECRET` Bearer, Vercel 예약 호출 | 운영 정리 작업은 운영자 예약 호출 대상(루트 원칙 26: 30일 자동 삭제 같은 운영 정리는 회원 cron 규칙 대상 아님) |
+
+**이중 삭제 0**: 우리 정리는 `retention_exempt = false`만, 중앙은 `retention_exempt = true and not manual`만 다룬다 — 두 집합은 겹치지 않는다. 관리자·시험(`manual`)은 양쪽 모두 대상이 아니다.
+
+### 19-2. 새 상태가 하나 필요한 이유 — `expired`
+
+지금 `aif_asset_claim_delete`는 `reserved·ready·unknown`을 「사용 중」으로 거절한다. `ready`를 곧바로 삭제 예약할 수 있게 풀면 ① 「사용 중 자산은 지우지 않는다」는 뜻이 깨지고 ② 조회가 서명 URL을 막 발급한 직후 삭제가 들어오는 경합이 생긴다. 임의로 `failed`·`missing`으로 바꾸는 것은 사실과 다른 상태다. 그래서 **기한 만료 전용 상태 하나**를 둔다.
+
+- `aif_assets.state`에 `expired` 추가, `expired_at timestamptz` 열 추가, 제약 `state <> 'expired' or expired_at is not null`.
+- `expired`는 조회에서 404 `ASSET_EXPIRED`(「보관 기간이 지났습니다」 — 우리가 판정한 확정 사실이므로 이 문구를 쓸 수 있다). 서명 URL을 더 발급하지 않는다.
+- `claim_delete`는 지금도 `reserved·ready·unknown`만 거절하므로 `expired`는 **기존 함수 수정 없이** 삭제 예약이 된다.
+
+### 19-3. 추가 DB 함수 2개 (서비스 전용, 잠금 순서 회원 → 자산)
+
+| 함수 | 처리 |
+|---|---|
+| `aif_asset_expire(p_asset, p_user)` → `expired / restored / not_due / skip` | 잠금 안에서 ① `profiles.retention_exempt`를 **그 순간 다시 읽는다**(true면 대상 아님) ② `member_storage_policy(p_user).retention_days`(null이면 대상 아님) ③ 기산일 `aif_assets.created_at` + 기간 < now() ④ 삭제 예약 진행 중 아님. `ready`이고 조건 충족 → `update … where state = 'ready' and object_id = <읽은 값>`(CAS)로 `expired`. 이미 `expired`인데 조건이 더는 맞지 않으면(그사이 구독·정책 연장) `ready`로 **복원**하고 `restored`. 멱등 |
+| `aif_asset_delete_verify(p_asset, p_user, p_token)` → `deleted / delete_failed / unknown` | 토큰 일치 확인 뒤 `storage.objects`에서 `bucket`·`name`을 조회. 행이 없으면 `deleted`, 우리 `object_id`와 같은 객체가 있으면 `delete_failed`(다시 시도 대상), 조회 불가·다른 id의 객체가 있으면 바꾸지 않고 `unknown`. Supabase 저장소의 객체 목록 원천이 `storage.objects`이므로 SDK `exists()`(400/404 구분 불가) 대신 이것을 쓴다 |
+
+### 19-4. 정리 실행 순서 (한 자산)
+
+1. 후보 조회: `state = 'ready'`, `created_at < now() - 최소 기간`, `user_id not in (예외 회원)` — 예외 목록은 `loadRetentionExemptIdsStrict`(못 읽으면 **회차 전체 중단**). 한 회차 최대 100건.
+2. `aif_asset_expire` → `expired`가 아니면 건너뜀.
+3. `aif_asset_claim_delete`(경로·소유·id 대조, fencing 토큰 발급).
+4. **삭제 직전 재확인**: `aif_asset_expire`를 다시 호출 — `restored`면 `delete_mark(cancelled)`로 끝낸다(삭제 0).
+5. `delete_mark(deleting)` 커밋 → `storage.remove([path])`.
+6. 결과: 성공 응답이고 반환 목록에 그 path가 있으면 `delete_verify` → `deleted`면 `delete_mark(deleted)`. 오류 응답이면 `delete_mark(delete_failed)`. 던짐·시간 초과·모양 이상·반환 목록에 없음이면 `delete_mark(delete_unknown)` 뒤 `delete_verify` 1회.
+7. 회원별로 `member_storage_measure(uid)` 호출(중앙 정리와 같음).
+
+**원자성 한계(정직하게)**: 4의 재확인과 5의 외부 삭제 사이에 회원이 구독하면 그 파일은 지워질 수 있다(창은 요청 한 번 길이). 외부 삭제는 DB 밖이라 원자적이지 않고, `remove()`는 path 기준이라 객체 id를 지정하지 못한다 — 우리 경로는 `upsert:false`로 우리만 쓰므로 다른 객체로 바뀌는 일은 설계상 없지만 보장은 아니다.
+
+### 19-5. 재시도·기록
+
+- `delete_failed`는 다음 회차에 `claim_delete`가 새 토큰으로 다시 잡는다. `attempts` 5회를 넘으면 그 자산은 건너뛰고 건수만 기록(사람 확인 대상).
+- `delete_unknown`은 `delete_verify`가 `deleted`·`delete_failed`로 확정할 때만 바뀐다. 시간으로 넘기지 않는다.
+- 계보: `aif_assets` 행(`expired`·`expired_at`)과 `aif_asset_deletions` 행(상태·`attempts`·시각)을 남긴다. 메타 행 자체의 정리는 이번 범위 밖.
+- 로그·응답: 건수와 코드만. 경로·키·오류 원문 0.
+
+### 19-6. 용량 계산에 미치는 영향
+
+- `aif_asset_usage_estimate`는 `reserved·unknown` 전부와 최근 `ready`만 더한다 → `expired`는 **우리 추가분에 들어가지 않는다**. 객체가 실제로 남아 있는 동안에는 중앙 측정이 그 바이트를 센다(저장된 지 오래라 측정에 이미 포함) → 과소 계산 없음.
+- 삭제가 `deleted`로 확정되고 7의 측정이 돌면 그 바이트가 빠진다. 「예약 해제」의 근거는 `storage.objects`에 객체가 없다는 확인이다.
+- `reserved`·`unknown`·고아 객체는 **이 단위에서 풀지 않는다** — 늦은 쓰기가 더는 없다는 증거가 없기 때문이다(§18-R2).
+
+### 19-7. 실행자·인증·모드
+
+- 라우트 `GET /api/aif/assets/cleanup`: `CRON_SECRET` Bearer(없거나 다르면 401). `AIF_ASSETS_MODE`가 off면 인증 뒤 `{ skipped: true }`만 돌려주고 DB·저장소 호출 0.
+- **예약 등록(`vercel.json`)은 이 단위에서 하지 않는다** — 운영 ON 승인 때 함께.
+- 회원 키·사용기간: 정리는 AI·외부 계정 호출이 없어 **회원 키가 필요 없다**. 이용 권한이 끝난 회원의 원본에도 같은 기간 규칙을 적용한다(권한 유무로 보관을 늘리거나 줄이지 않는다).
+
+### 19-8. 최소 파일(구현 배정 시)
+
+| 파일 | 변경 |
+|---|---|
+| `supabase/migrations/20261118120000_aif_assets_a1.sql`(미적용 초안) | `expired` 상태·`expired_at`·제약, 함수 2개 |
+| `src/lib/assets/retention.ts` (신규) | 주입형 정리 로직(§19-4) |
+| `src/app/api/aif/assets/cleanup/route.ts` (신규) | 인증·모드·지연 의존성 |
+| `src/lib/assets/read.ts` | `expired` → 404 `ASSET_EXPIRED` |
+| `tests/assetRetention.test.mjs` (신규), `tests/sql/a1_contract.test.mjs`(추가) | 아래 반례 |
+
+필요 반례만: 예외 목록 조회 실패 시 삭제 0 · 보호 회원(유료·수동) 미대상 · 기간 미도래 미대상 · 무기한(null) 미대상 · `expire` CAS(다른 `object_id`) · 재확인에서 `restored` → 삭제 0·`cancelled` · `remove` 오류/던짐/목록에 없음 → `deleted` 아님 · `delete_verify` 세 갈래 · `attempts` 상한 · off에서 호출 0 · 다른 회원 경로 0 · `reserved`/`unknown`은 후보 아님 · (격리 2연결) 조회 직후 `expire`와 `finalize`·`claim` 경합.
+
+### 19-9. 완료 조건과 후속 분리
+
+- **이 단위 완료**: 위 모의·격리 반례 통과, off에서 동작 변화 0, 일반 회원의 기간 지난 `ready`가 `expired → deleted`로 가고 보호 회원·`reserved`·`unknown`은 건드리지 않음. 실제 저장소 삭제·예약 등록·운영 적용은 포함하지 않는다.
+- **후속(별도 단위)**: `unknown`·`reserved` 복구와 고아 객체 정리, 중앙이 지운 연장 회원 자산 행의 정리, 메타 행 보관 기간, 게시 연결 시 `markPosted`.
+
 ## 14. 진행 상태 기록
 
 ```text
