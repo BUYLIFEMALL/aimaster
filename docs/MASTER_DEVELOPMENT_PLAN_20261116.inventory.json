@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 17:03:07 KST",
+  "checkedAt": "2026-11-18 17:03:53 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,24 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T08:03:07.298Z",
+      "at": "2026-11-18T08:03:53.635Z",
       "timezone": "Asia/Seoul",
-      "trigger": "17:00예약수신·국소검수완료/격리착수",
-      "scope": "13로컬연결·전체미완/카테고리선행조건·관리자요청0·16:30후변경문서10/미커밋보존·Blog3번째실행/새SQL격리",
+      "trigger": "web 마지막배포최종manifest",
+      "scope": "1a03 고지/위젯필수보완·경로별최종SHA/프로그램tree/잠금큐·로그인후속분리",
       "evidence": [
-        "msg_7b4f597da895·동일터미널예약receipt·새창0",
-        "13terminal조회(실제작업은명시보고기준)·devrequests0",
-        "Mac WEB/SNS미커밋보고·W00/roles/IMPROVEMENTS/PENDING/CAPABILITY/ACTIVE변경대조·다른framework메모보존",
-        "msg_63d21a083016/49e3c9a6a963 지정PASS·배정msg_84093b131be8/7418b7ac3cf6",
-        "msg_b3b098523f19 정확경로/새DB사전"
+        "msg_74eddc079cff/1a03b9734"
       ],
-      "judgment": "Blog Excel소스미완줄완료로정정/마지막승인배포지시·SNS OFF정리모의수락/새SQL검증착수·기존사람단계새완료증거없음/중복0",
+      "judgment": "필수고지/위젯포함수락·예전위젯보고정정·검수된프리뷰포함기존마지막승인1회배포유지·로그인변경분리",
       "unverified": [
-        "web마지막Ready/alias/DB1.13/실화면",
-        "SNS 새SQL/실중앙Storage·개별IOtimeout",
-        "CRM승인/음악B/B2B/Gmail/ESM/Blog 사람단계"
+        "실Ready/alias/DB1.13/화면",
+        "SNS새SQL격리결과",
+        "다른사람단계"
       ],
-      "nextAction": "최종web Ready직접대조·SNS격리결과회수·기존사람신호때만재개"
+      "nextAction": "실배포결과직접대조·세묶음예산정리"
     },
     "notifications": [
       {
@@ -1061,7 +1057,7 @@
       "slug": "web-crawler-saas",
       "folder": "web-crawler",
       "category": "데이터수집",
-      "catalogVersion": "v1.12",
+      "catalogVersion": "v1.13",
       "catalogState": "운영",
       "source": {
         "path": "docs/PROGRAM_CAPABILITY_MAP.md",
@@ -8377,14 +8373,14 @@
       "reviewer": "CX-MASTER-01",
       "title": "승인된 블로그3프로그램 순차묶음 배포",
       "status": "running",
-      "delivery": "final_web_release_authorized_after_independent_preview_pass",
+      "delivery": "final_web_manifest_confirmed_required_notice_widget_added_deploy_starting",
       "scopeRef": "tistory-auto-blog1.98→blog-neighbor-care1.22→web-crawler T04+05+07 정확manifest",
       "constraints": "Vercel최대3·T04별도1은세번째통합/추가4번째0·공용masterpush0·순차Ready/alias/버전·남의AGENTS변경보존·새AI0",
       "completion": "프로젝트/팀/기준SHA/점유/큐/notice/widget/pending·필요검사/빌드·각운영Ready/alias/버전·티스토리기존초안미리보기1/web실화면",
-      "evidence": "주인님직접승인msg_6c2b57cab944·Master배정msg_2eda31a938b1 · msg_0957e7387120: Tistory prj_p3Qc2mOwj5LnPlE5zaAd2stxvibm/team일치·운영1.97·archiveHEAD·86+44/tsc·큐0·1/3 · msg_2d43083c8301 1/3완료·Masteralias dpl_GWRtKtymAGR4sdzgywKsxeFkgMK2 직접확인·msg_555ca68934de · msg_205456c9c8e5 이웃prj_sofdvYyCKAKO5ymLTRZ0vHwYK9q8/1.21→a3fe1.22/387·tsc·큐0/남의미커밋보존·Master수락 · msg_999d4d074c92 이웃완료·Masteralias dpl_HpC2cXcGpWNyHomMSc3qg28Y82Dx·msg_4890dfc4bdcc/Mastermsg_ebbf8f33ae28 · msg_1741a93554fe 최종사전/840d672ac·msg_59d435ca60a7 범위인용정정/파일6개/실회원route시험없음·Master/ Mac검수 · Macmsg_977021413642 F01~03 반환·원격아직2/3사용 · d06842802 작성자18+26/기존51/tsc/로컬build·Mac재검수·원격아직2/3 · d068기존3건독립44PASS·새F04CPU경계만반환·원격남은1 · F04 12e194a47 두파일보완·Mac국소재검수중 · Macmsg_63d21a083016 PASS·최종진행msg_84093b131be8",
-      "next": "최종프로그램tree/큐/manifest확인→승인마지막원격1회→Ready/alias/DB버전/실화면",
-      "lastReviewedAt": "2026-11-18T08:03:07.298Z",
-      "sha": "97ee4acbb",
+      "evidence": "주인님직접승인msg_6c2b57cab944·Master배정msg_2eda31a938b1 · msg_0957e7387120: Tistory prj_p3Qc2mOwj5LnPlE5zaAd2stxvibm/team일치·운영1.97·archiveHEAD·86+44/tsc·큐0·1/3 · msg_2d43083c8301 1/3완료·Masteralias dpl_GWRtKtymAGR4sdzgywKsxeFkgMK2 직접확인·msg_555ca68934de · msg_205456c9c8e5 이웃prj_sofdvYyCKAKO5ymLTRZ0vHwYK9q8/1.21→a3fe1.22/387·tsc·큐0/남의미커밋보존·Master수락 · msg_999d4d074c92 이웃완료·Masteralias dpl_HpC2cXcGpWNyHomMSc3qg28Y82Dx·msg_4890dfc4bdcc/Mastermsg_ebbf8f33ae28 · msg_1741a93554fe 최종사전/840d672ac·msg_59d435ca60a7 범위인용정정/파일6개/실회원route시험없음·Master/ Mac검수 · Macmsg_977021413642 F01~03 반환·원격아직2/3사용 · d06842802 작성자18+26/기존51/tsc/로컬build·Mac재검수·원격아직2/3 · d068기존3건독립44PASS·새F04CPU경계만반환·원격남은1 · F04 12e194a47 두파일보완·Mac국소재검수중 · Macmsg_63d21a083016 PASS·최종진행msg_84093b131be8 · msg_74eddc079cff/1a03b9734 최종고지3/위젯누락보완·오독정정·tsc/localbuild/check0·프로그램tree일치",
+      "next": "최종1a03 archive/큐0→마지막1회배포→Ready/alias/DB1.13/기존화면검수",
+      "lastReviewedAt": "2026-11-18T08:03:53.635Z",
+      "sha": "1a03b9734",
       "validation": {
         "author": "version1.98/확장1.98.0·HEADarchive·미커밋삭제oldZIP보존·prebuild다시생성·test86+44/tsc0·widget/pending대조·큐0",
         "master": "사전보고수락·승인첫1회진행·Ready/실ZIP/DB1행후2/3·실배포아직결과미수신",
@@ -8428,6 +8424,29 @@
           "https://github.com/advisories/GHSA-vc7v-qv4w-wrv8"
         ],
         "limits": "zod는minor변경·기존타입/전체시험/검증/safeFetch회귀·npm audit fix무차별0"
+      },
+      "finalManifest": {
+        "sha": "1a03b9734",
+        "paths": {
+          "xlsxPreview": "12e194a47",
+          "resultRetention": "d06842802",
+          "preview": "d06842802",
+          "download": "d06842802",
+          "safeFetch": "8172d8084",
+          "robots": "fc48ebcba",
+          "poller": "1a54bdd06",
+          "version": "840d672ac",
+          "layoutAndNotices": "1a03b9734"
+        },
+        "versions": {
+          "program": "v1.13",
+          "next": "16.4.6",
+          "undici": "7.30.2",
+          "zod": "4.6.7",
+          "robotsParser": "3.0.1",
+          "jszip": "3.10.2"
+        },
+        "limits": "저장공간위젯있다는앞보고오독→이번보완·로그인scope/local/UserAgent2건별도후속·남의AGENTS미포함·원격실행결과미수신"
       }
     },
     {
