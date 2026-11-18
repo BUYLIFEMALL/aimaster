@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 13:41:55 KST",
+  "checkedAt": "2026-11-18 13:42:40 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,23 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T04:41:55.210Z",
+      "at": "2026-11-18T04:42:40.497Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM PostgREST 반례·SNS 계획/푸시차단 보고",
-      "scope": "실클라이언트 응답불명 판정·A소스PASS/운영차단분리·W01계약/공용모듈·푸시혼재",
+      "trigger": "SNS 문서 독립검수 반례",
+      "scope": "0068정리실제대상·유료보관영향·게시전체재시도와실패닫힘",
       "evidence": [
-        "msg_4cab8962c05f·msg_4b3af7b73df6",
-        "Backend수정반환msg_10884d12bbab",
-        "SNSmsg_892ee2310efe/613ac1da4·보류msg_0bd7825d71e2",
-        "Mac최신문서검수msg_5534d83d2f04"
+        "msg_e6f0471f7d6d",
+        "SNS 기존문서보완 반환 전달"
       ],
-      "judgment": "A오분류완화 지정수락가능하나SDK전송위험운영차단. 최종저장오류는일괄불명처리보완필요. SNS W01제품착수전문서검수·혼재20커밋push자동빌드위험으로보류.",
+      "judgment": "W01제품착수전계약수정필요·실삭제/중복게시사고확정0. 새제품편집/공용일괄수정/푸시0.",
       "unverified": [
-        "최종저장보완SHA/독립판정",
-        "SNS 문서정합·공용기준변경범위",
-        "혼재커밋원격push영향/비용"
+        "SNS 고정613최종검수·보완SHA",
+        "실운영보관/게시상태"
       ],
-      "nextAction": "수정/문서검수결과회수·임의푸시/설치/운영변경0"
+      "nextAction": "문서보완과CRM저장수정결과순차회수"
     },
     "notifications": [
       {
@@ -7928,13 +7925,16 @@
       "title": "AI Influencer W00 기준·격차/공통계약 독립검수",
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
-      "status": "ready_review",
+      "status": "needs_revision",
       "sha": "ab9bd10da",
-      "delivery": "independent_document_review_started_w01_plan_ready",
-      "evidence": "직접지시msg_0ea177827182·Master2파일stat/W00확인·인수msg_262b806a9152·검수msg_e1009e09901a · 계획613ac1da4/msg_892ee2310efe·Mac최신반영msg_5534d83d2f04",
-      "next": "Mac W00/W01계약 정합판정·공용2모듈분리·P0비용미승인·혼재푸시보류",
+      "delivery": "retention_and_publish_contract_counterexamples_returned",
+      "evidence": "직접지시msg_0ea177827182·Master2파일stat/W00확인·인수msg_262b806a9152·검수msg_e1009e09901a · 계획613ac1da4/msg_892ee2310efe·Mac최신반영msg_5534d83d2f04 · Macmsg_e6f0471f7d6d 0068/게시전체재시도 반례",
+      "next": "W00/W01 보관정리/유료조기삭제/전체게시재시도 계약 문서보완 SHA 회수→Mac재검수",
       "constraints": "P0상한12달러미승인·실API/DB쓰기/빌드/배포0·다른Codex미커밋보존",
-      "lastReviewedAt": "2026-11-18T04:41:55.210Z"
+      "lastReviewedAt": "2026-11-18T04:42:40.497Z",
+      "validation": {
+        "independent": "고정613 문서/소스:0068일반회원원본정리누락·유료retention_exempt 조기삭제영향·10분전체재시도/최근조회실패진행 남음 반례. 실삭제/중복게시 실증아님, 최종정리중"
+      }
     }
   ]
 }

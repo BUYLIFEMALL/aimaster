@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 13:41:55 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 13:42:40 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 13:41:55 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 13:42:40 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 실클라이언트 응답불명 판정·A소스PASS/운영차단분리·W01계약/공용모듈·푸시혼재 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 0068정리실제대상·유료보관영향·게시전체재시도와실패닫힘 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 13:41:55 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 258개: done 239개 · cancelled 7개 · ready_review 2개 · running 1개 · waiting_human 6개 · needs_revision 1개 · queued 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 258개: done 239개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 6개 · needs_revision 2개 · queued 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -408,7 +408,7 @@ Master 마지막 실제 점검: 2026-11-18 13:41:55 KST · 실행 중 점검 주
 | RE-20261118-07 | CC-REALTY-01 | done / evaluation_deliverable_accepted_no_effectiveness_pass | 후보C 새기간40건 사전라벨 고정 평가 | 정상운영 새기간에서 목표소음이 포함된 검증조건 충족 시에만 별도배정·동일40건 규칙조정/재시험0 |
 | ECOM-20261118-06 | CC-ECOM-01 | done / specified_mock_server_source_accepted_off_unreleased | Cloudflare 본인 공용키 무료 이미지 경로 검증·연결 계획 | 실키유효/잔여사람단계·AGY UI 연결계획·OFF미배포 보존 |
 | DES-20261118-07 | AG-UI-01 | queued / queued_prompt_not_settled | Cloudflare 공용키 설정 UI 연결 경로 계획 | 기존공용키등록 재사용/중복입력회피·정확파일/권한/시험계획, 코드/빌드0 |
-| AIF-20261118-W00 | CC-SNS-01 | ready_review / independent_document_review_started_w01_plan_ready | AI Influencer W00 기준·격차/공통계약 독립검수 | Mac W00/W01계약 정합판정·공용2모듈분리·P0비용미승인·혼재푸시보류 |
+| AIF-20261118-W00 | CC-SNS-01 | needs_revision / retention_and_publish_contract_counterexamples_returned | AI Influencer W00 기준·격차/공통계약 독립검수 | W00/W01 보관정리/유료조기삭제/전체게시재시도 계약 문서보완 SHA 회수→Mac재검수 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
