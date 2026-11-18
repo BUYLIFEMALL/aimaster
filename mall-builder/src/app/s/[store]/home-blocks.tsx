@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useId, useState, type CSSProperties, type ReactNode } from "react";
 import {
   BLOCK_DEFS, SHOWCASE_SOURCE_LABEL, TITLE_FONTS, titleFontHref, videoEmbed,
   type BannerSettings, type Block, type GallerySettings, type HtmlSettings, type NoticeSettings, type ShowcaseSettings, type SliderSettings,
@@ -179,24 +179,56 @@ function Gallery({ s }: { s: GallerySettings }) {
 }
 
 /** D28 탭 상품 — 서버가 탭마다 만든 상품 격자를 받아 누르면 바꿔 보인다 */
+/** 가로 탭 키(B2B-20261119-HOMETABS) — →/← 순환, Home/End 처음·끝. 그 밖의 키·빈 목록은 null(기본 동작 그대로) */
+export function tabKeyIndex(key: string, i: number, n: number): number | null {
+  if (n < 1) return null;
+  if (key === "ArrowRight") return (i + 1) % n;
+  if (key === "ArrowLeft") return (i - 1 + n) % n;
+  if (key === "Home") return 0;
+  if (key === "End") return n - 1;
+  return null;
+}
+
 export function TabsView({ title, labels, panels, skin }: { title: string; labels: string[]; panels: ReactNode[]; skin?: "line" }) {
   const [i, setI] = useState(0);
+  // 블록마다 다른 id(한 화면에 탭 블록이 여럿이어도 안 겹침)
+  const uid = useId();
+  // 편집기에서 탭을 줄이면 고른 번호가 범위 밖일 수 있다 → 마지막 탭(빈 패널·선택 없음 방지)
+  const sel = labels.length ? Math.min(i, labels.length - 1) : 0;
+  const tabId = (j: number) => `${uid}-tab-${j}`;
+  const panelId = `${uid}-panel`;
   return (
     <div className="px-4 sm:px-6" data-tabs>
       {title && <h2 className="mb-4 text-xl font-black tracking-tight text-slate-900" data-edit-field="title">{title}</h2>}
-      <div className={skin === "line" ? "mb-5 flex gap-6 overflow-x-auto border-b border-slate-200 scrollbar-none" : "mb-5 flex gap-2 overflow-x-auto pb-1 scrollbar-none"} role="tablist" data-tabs-skin={skin ?? "pill"}>
+      {/* 탭 줄은 Tab 한 번(고른 탭만 tabIndex 0), ←/→·Home/End로 고르고 초점도 옮긴다(WAI-ARIA 탭, 자동 선택) */}
+      <div
+        className={skin === "line" ? "mb-5 flex gap-6 overflow-x-auto border-b border-slate-200 scrollbar-none" : "mb-5 flex gap-2 overflow-x-auto pb-1 scrollbar-none"}
+        role="tablist"
+        aria-label={title || undefined}
+        data-tabs-skin={skin ?? "pill"}
+        onKeyDown={(e) => {
+          const next = tabKeyIndex(e.key, sel, labels.length);
+          if (next === null) return;
+          e.preventDefault();
+          setI(next);
+          e.currentTarget.querySelectorAll<HTMLButtonElement>("[role=tab]")[next]?.focus();
+        }}
+      >
         {labels.map((l, j) => (
           <button
             key={j}
             type="button"
             role="tab"
-            aria-selected={i === j}
+            id={tabId(j)}
+            aria-selected={sel === j}
+            aria-controls={panelId}
+            tabIndex={sel === j ? 0 : -1}
             onClick={() => setI(j)}
             className={
               skin === "line"
-                ? `-mb-px whitespace-nowrap border-b-2 px-1 pb-2.5 text-sm font-semibold transition-colors ${i === j ? "border-slate-900 text-slate-900" : "border-transparent text-slate-500 hover:text-slate-800"}`
+                ? `-mb-px whitespace-nowrap border-b-2 px-1 pb-2.5 text-sm font-semibold transition-colors ${sel === j ? "border-slate-900 text-slate-900" : "border-transparent text-slate-600 hover:text-slate-800"}`
                 : `whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
-                    i === j ? "bg-slate-900 text-white shadow-xs" : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                    sel === j ? "bg-slate-900 text-white shadow-xs" : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                   }`
             }
           >
@@ -204,7 +236,12 @@ export function TabsView({ title, labels, panels, skin }: { title: string; label
           </button>
         ))}
       </div>
-      {panels[i]}
+      {/* 패널은 지금처럼 고른 것 하나만 그린다(숨은 패널 없음 = 추가 조회·부하·초점 없음) */}
+      {labels.length > 0 && (
+        <div role="tabpanel" id={panelId} aria-labelledby={tabId(sel)} tabIndex={0}>
+          {panels[sel]}
+        </div>
+      )}
     </div>
   );
 }
