@@ -19,7 +19,7 @@ import {
   type Ratio,
 } from "@/lib/studio/config";
 import { QuoteCanvas } from "./QuoteCanvas";
-import { TEXT_PROVIDER_LABEL, textModelGroups, textModelProvider } from "@/lib/studio/textModels";
+import { TEXT_PROVIDER_LABEL, textModelGroups, textModelProvider, isTextModel } from "@/lib/studio/textModels";
 import { useBandColor } from "./useBandColor";
 import { adviseOverlay } from "@/lib/studio/readability";
 import { toEnglishKeywords } from "@/lib/studio/photoKeywords";
@@ -153,8 +153,15 @@ export function Workspace({
     const generationState = generation.current;
     try {
       const restored = restoreDraft(localStorage.getItem(storageKey));
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (restored) setDraft(restored);
+      const preferred = localStorage.getItem("emotion_writer_preferred_model");
+      if (restored) {
+        if (preferred && isTextModel(preferred) && !localStorage.getItem(storageKey)) {
+          restored.textModel = preferred;
+        }
+        setDraft(restored);
+      } else if (preferred && isTextModel(preferred)) {
+        setDraft((prev) => ({ ...prev, textModel: preferred }));
+      }
     } catch {
       /* Storage may be unavailable; work remains possible in this tab. */
     }

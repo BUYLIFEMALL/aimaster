@@ -332,7 +332,10 @@ export function QuoteCanvas({
         </div>
       )}
       {!instaRatioOk(ratio) && ready && (
-        <p className="status-note centered">인스타에 올리려면 비율을 1:1로 바꿔 주세요(인스타 피드는 9:16·3:4 세로 비율을 받지 않습니다).</p>
+        <p className="status-note centered">인스타에 올리려면 비율을 1:1로 바꿔 주세요 (인스타 피드는 9:16·3:4 세로 비율을 지원하지 않습니다).</p>
+      )}
+      {instaRatioOk(ratio) && ready && (
+        <p className="status-note centered text-emerald-700 bg-emerald-50/70 border border-emerald-200/80">📱 1:1 정사각형 피드 규격입니다. [인스타에 올리기]를 눌러 INSTA 포스팅으로 보낼 수 있습니다.</p>
       )}
 
       {ready && (
