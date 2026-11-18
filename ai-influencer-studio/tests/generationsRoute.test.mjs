@@ -846,6 +846,74 @@ test("저장 정상·기존 결과는 그대로: 시간 안에 끝난 저장은 
   assert.deepEqual([r.body.assetSaved, r.body.assetCode, writes(w)], [false, "RESERVE_SHAPE", ["aif_asset_reserve", "aif_asset_abort_local"]]);
 });
 
+// ───────────── W01-G3S 수정(Master msg_2870fef58f3c, 검수 msg_a57dba677ac2): 단조 시계 기준 저장 마감 — 타이머가 돌기 전에도 마감 뒤 새 쓰기 0 ─────────────
+// 가짜 시계만 움직인다. 실제 타이머(5초)는 시험 중 돌지 않는다 — 저장 모듈이 시계를 보고 스스로 멈추는지를 본다.
+const SAVE_MS = 5000;
+const okReserve = (a) => ({ data: [{ asset_id: NEW_ASSET, path: `${a.p_user}/generated/${NEW_ASSET}.${a.p_ext}` }], error: null });
+const badPathReserve = (a) => ({ data: [{ asset_id: NEW_ASSET, path: `${a.p_user}/generated/other.png` }], error: null });
+const okUpload = (path) => ({ data: { id: OBJ, path, fullPath: `aif-assets/${path}` }, error: null });
+async function clocked(handlersOf, image) {
+  const t = { clock: 1000 };
+  const w = world({ ...(image ? { image } : {}), handlers: handlersOf(t) });
+  const t0 = Date.now();
+  const r = await post(w, { config: CONFIG }, { now: () => t.clock, limits: { saveMs: SAVE_MS } });
+  assert.ok(Date.now() - t0 < 2000, "실제 타이머(5초)를 기다리지 않았다");
+  return { w, r };
+}
+
+test("단조 저장 마감 — 예약 뒤: 마감 1ms 전이면 계속하고, 정확히 마감·마감 뒤(타이머 전)면 업로드를 시작하지 않는다. 응답은 검증된 번호가 실린 불명", async () => {
+  // 마감 전(4999ms) → 끝까지 저장
+  let { w, r } = await clocked((t) => ({ aif_asset_reserve: (a) => { t.clock += SAVE_MS - 1; return okReserve(a); } }));
+  assert.deepEqual([r.body.assetSaved, r.body.assetId, writes(w)], [true, NEW_ASSET, ["aif_asset_reserve", "upload", "aif_asset_finalize", "sign"]]);
+  // 정확히 마감(5000ms) / 마감 뒤(5001ms) → 업로드 0
+  for (const add of [SAVE_MS, SAVE_MS + 1]) {
+    ({ w, r } = await clocked((t) => ({ aif_asset_reserve: (a) => { t.clock += add; return okReserve(a); } })));
+    assert.deepEqual([r.status, r.body], [200, { success: true, imageUrl: RESULT, assetSaved: "unknown", assetId: NEW_ASSET, assetCode: "SAVE_TIMEOUT" }], "+" + add);
+    assert.deepEqual([writes(w), w.n.generate, w.n.signs], [["aif_asset_reserve"], 1, 0], "업로드·해제·대조를 시작하지 않았다");
+  }
+});
+
+test("단조 저장 마감 — 업로드 뒤·확정 뒤: 마감에 닿았으면 확정·대조를 시작하지 않는다. 이미 보낸 확정이 ready라고 답했으면 그 결과는 쓴다", async () => {
+  // 업로드 동안 마감에 닿음 → 확정 0
+  for (const add of [SAVE_MS, SAVE_MS + 1]) {
+    const { w, r } = await clocked((t) => ({ upload: (path) => { t.clock += add; return okUpload(path); } }));
+    assert.deepEqual(r.body, { success: true, imageUrl: RESULT, assetSaved: "unknown", assetId: NEW_ASSET, assetCode: "SAVE_TIMEOUT" });
+    assert.deepEqual(writes(w), ["aif_asset_reserve", "upload"]);
+  }
+  // 업로드가 실패했고 마감에 닿음 → 대조 0
+  let { w, r } = await clocked((t) => ({ upload: () => { t.clock += SAVE_MS; return { data: null, error: { message: "boom" } }; } }));
+  assert.deepEqual([r.body.assetSaved, r.body.assetId, r.body.assetCode, writes(w)], ["unknown", NEW_ASSET, "SAVE_TIMEOUT", ["aif_asset_reserve", "upload"]]);
+  // 업로드 동안 마감 1ms 전 → 확정까지 진행
+  ({ w, r } = await clocked((t) => ({ upload: (path) => { t.clock += SAVE_MS - 1; return okUpload(path); } })));
+  assert.deepEqual([r.body.assetSaved, writes(w).slice(0, 3)], [true, ["aif_asset_reserve", "upload", "aif_asset_finalize"]]);
+  // 확정이 불명으로 답했고 마감에 닿음 → 대조 0
+  ({ w, r } = await clocked((t) => ({ aif_asset_finalize: () => { t.clock += SAVE_MS; return { data: null, error: { message: "boom" } }; } })));
+  assert.deepEqual([r.body.assetSaved, r.body.assetId, r.body.assetCode, writes(w)], ["unknown", NEW_ASSET, "SAVE_TIMEOUT", ["aif_asset_reserve", "upload", "aif_asset_finalize"]]);
+  // 확정이 ready라고 답함(마감은 지남) → 이미 보낸 쓰기의 결과이므로 저장됨
+  ({ w, r } = await clocked((t) => ({ aif_asset_finalize: () => { t.clock += SAVE_MS; return { data: "ready", error: null }; } })));
+  assert.deepEqual([r.body.assetSaved, r.body.assetId, "imageUrl" in r.body], [true, NEW_ASSET, false]);
+});
+
+test("검증되지 않은 번호는 응답에 남지 않는다: 예약 경로가 계약과 다르면(마감 전·후 모두) 일반 응답에도 422에도 assetId가 없다", async () => {
+  const bigImage = dataUrl(sized(PNG_SIG, 3_200_000, 1));
+  // 마감 뒤(타이머 전): 해제를 시작하지 않고, 번호 없는 불명
+  let { w, r } = await clocked((t) => ({ aif_asset_reserve: (a) => { t.clock += SAVE_MS; return badPathReserve(a); } }));
+  assert.deepEqual([r.status, r.body], [200, { success: true, imageUrl: RESULT, assetSaved: "unknown", assetCode: "SAVE_TIMEOUT" }]);
+  assert.deepEqual(writes(w), ["aif_asset_reserve"], "해제(abort)를 시작하지 않았다");
+  ({ w, r } = await clocked((t) => ({ aif_asset_reserve: (a) => { t.clock += SAVE_MS; return badPathReserve(a); } }), bigImage));
+  assert.deepEqual([r.status, r.body], [422, { error: RESPONSE_TOO_LARGE_MESSAGE, imageOmitted: true, code: "RESPONSE_TOO_LARGE", assetSaved: "unknown", assetCode: "SAVE_TIMEOUT" }]);
+  // 마감 전: 기존대로 해제하고 「저장 안 됨」 — 그 번호도 응답에 싣지 않는다
+  ({ w, r } = await clocked(() => ({ aif_asset_reserve: badPathReserve })));
+  assert.deepEqual([r.status, r.body], [200, { success: true, imageUrl: RESULT, assetSaved: false, assetCode: "RESERVE_SHAPE" }]);
+  assert.deepEqual(writes(w), ["aif_asset_reserve", "aif_asset_abort_local"]);
+  ({ w, r } = await clocked(() => ({ aif_asset_reserve: badPathReserve }), bigImage));
+  assert.deepEqual([r.status, r.body], [422, { error: RESPONSE_TOO_LARGE_MESSAGE, imageOmitted: true, code: "RESPONSE_TOO_LARGE", assetSaved: false, assetCode: "RESERVE_SHAPE" }]);
+  for (const x of [r]) assert.equal(JSON.stringify(x.body).includes(NEW_ASSET), false);
+  // 대조: 검증된 번호는 422에도 남는다(마감 뒤·타이머 전)
+  ({ w, r } = await clocked((t) => ({ aif_asset_reserve: (a) => { t.clock += SAVE_MS; return okReserve(a); } }), bigImage));
+  assert.deepEqual([r.status, r.body], [422, { error: RESPONSE_TOO_LARGE_MESSAGE, imageOmitted: true, code: "RESPONSE_TOO_LARGE", assetSaved: "unknown", assetId: NEW_ASSET, assetCode: "SAVE_TIMEOUT" }]);
+});
+
 test("처리되지 않은 거부가 하나도 없다(늦게 온 오류·취소 오류를 모두 소비했다)", async () => {
   await sleep(150);
   assert.deepEqual(unhandled, []);

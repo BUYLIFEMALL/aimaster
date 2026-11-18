@@ -372,22 +372,36 @@ export async function handlePostGeneration(req: Request, deps: GenerationsDeps):
 
   // ⑩ 원본 저장(기존 흐름) — 남은 시간 안에서만 기다린다. 상한을 넘으면 어디까지 됐는지 모르므로 불명(W01-G3S)
   //  * 저장 모듈이 「검증된 본인 예약 번호」를 확보하면 알려 준다 → 끝까지 기다리지 못해도 그 번호를 응답에 싣는다(나중에 조회 경로로 회수).
-  //  * 상한이 지나면 saveStopped를 세운다 → 저장 모듈은 다음 쓰기(예약·업로드·확정·대조·해제)를 시작하지 않는다.
+  //  * 저장을 시작할 때 단조 시계로 고정 마감(saveDeadline)을 정한다. 저장 모듈은 다음 쓰기(예약·업로드·확정·대조·해제) 직전마다
+  //    「멈춤 표시가 섰는가 또는 시계가 마감에 닿았는가(now >= 마감)」를 본다 — 타이머가 아직 돌지 못한 순간에도 마감 뒤의 새 쓰기를 시작하지 않는다.
   //    이미 보낸 쓰기는 취소하지 못하며 성공 여부도 모른다. 예약 응답을 받지 못해 번호가 없으면 번호 없는 불명으로 둔다(다시 보내지 않는다).
+  //  * 응답에 싣는 번호는 저장이 확인된 경우를 빼면 onReserved로 받은 「검증된 본인 예약 번호」뿐이다(경로가 계약과 달랐던 예약 번호는 싣지 않는다).
   let saveStopped = false;
   let reservedAssetId: string | null = null;
+  const saveWait = Math.min(L.saveMs, left() - L.signMs - L.marginMs);
+  const saveDeadline = now() + saveWait;
   const saved = await bounded<SaveResult>(async () => {
     const bytes = decodeGeneratedDataUrl(imageUrl);
     if (!bytes) return { assetSaved: false, code: "ASSET_FORMAT" };
     return saveGeneratedOriginal(assets, { userId, bytes }, {
       onReserved: (id) => { if (isCanonicalUuid(id)) reservedAssetId = id; },
-      shouldStop: () => saveStopped,
+      shouldStop: () => saveStopped || now() >= saveDeadline,
     });
-  }, Math.min(L.saveMs, left() - L.signMs - L.marginMs), () => { saveStopped = true; });
+  }, saveWait, () => { saveStopped = true; });
   saveStopped = true;                                           // 응답을 정한 뒤에는 어떤 경우에도 새 저장 쓰기를 시작하지 않는다
-  const timedOutId: string | null = reservedAssetId;            // 응답을 정하는 이 시점의 값만 쓴다(늦게 온 알림은 응답에 반영되지 않는다)
-  const save: SaveResult | { assetSaved: "unknown"; code: "SAVE_TIMEOUT"; assetId?: string } =
-    saved.kind === "ok" ? saved.value : { assetSaved: "unknown", code: "SAVE_TIMEOUT", ...(timedOutId ? { assetId: timedOutId } : {}) };
+  const verifiedId: string | null = reservedAssetId;            // 응답을 정하는 이 시점의 값만 쓴다(늦게 온 알림은 응답에 반영되지 않는다)
+  // 시간 초과로 본다: 타이머가 먼저 끝낸 경우 + 저장 모듈이 마감을 보고 먼저 멈춘 경우(SAVE_STOPPED). 둘 다 같은 불명 응답이다
+  const stoppedEarly = saved.kind === "ok" && saved.value.assetSaved !== true && saved.value.code === "SAVE_STOPPED";
+  let save: { assetSaved: true; assetId: string } | { assetSaved: false | "unknown"; code: string; assetId?: string };
+  if (saved.kind !== "ok" || stoppedEarly) {
+    save = { assetSaved: "unknown", code: "SAVE_TIMEOUT", ...(verifiedId ? { assetId: verifiedId } : {}) };
+  } else if (saved.value.assetSaved === true) {
+    save = saved.value;
+  } else {
+    // 저장 안 됨·불명: 번호는 검증된 예약 번호만(저장 모듈이 돌려준 번호가 그것과 같을 때만) 싣는다
+    const id = verifiedId && saved.value.assetId === verifiedId ? verifiedId : null;
+    save = { assetSaved: saved.value.assetSaved, code: saved.value.code, ...(id ? { assetId: id } : {}) };
+  }
 
   // ⑪⑫ 저장이 확인됐으면 이미지 바이트 없이 번호와 짧은 서명 주소만
   if (save.assetSaved === true) {
