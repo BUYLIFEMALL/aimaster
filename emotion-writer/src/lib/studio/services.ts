@@ -243,6 +243,23 @@ export function cloudflareCredentials(token: string | null | undefined, accountI
   return { accountId: a, token: t };
 }
 const CF_IMAGE_MODEL = "@cf/black-forest-labs/flux-1-schnell";
+// 무료(FLUX) 프롬프트에는 회원이 쓴 주제·글귀 원문을 넣지 않는다(2026-11-18 실호출에서 배경에 글자 모양이 그려져 보완).
+// 주제에 아래 낱말이 있으면 고정 영문 분위기만 쓰고, 없으면 중립 기본값. 외부 번역 호출 없음.
+const FREE_MOODS: [RegExp, string][] = [
+  [/위로|응원|힘내|괜찮/, "gentle comforting warm light"],
+  [/사랑|연인|설렘/, "soft romantic pastel tones"],
+  [/이별|그리움|슬픔|눈물/, "quiet wistful rainy mood"],
+  [/휴식|쉼|여유|힐링/, "calm restful slow afternoon"],
+  [/희망|시작|새해|도전/, "hopeful bright sunrise"],
+  [/가족|부모|엄마|아빠/, "warm cozy family home feeling"],
+  [/친구|우정/, "cheerful friendly open air"],
+  [/밤|새벽|달|별/, "serene night sky with soft stars"],
+];
+const FREE_MOOD_DEFAULT = "calm peaceful soft natural light";
+function freeImagePrompt(topic: string): string {
+  const mood = FREE_MOODS.find(([re]) => re.test(topic))?.[1] ?? FREE_MOOD_DEFAULT;
+  return `A beautiful peaceful photographic background, ${mood}. Airy composition with large uncluttered empty space. If people appear, depict Korean/East Asian adults, small in frame. Pure scenery photo only: absolutely no text, no letters, no characters, no words, no signs, no captions, no logos, no watermarks.`;
+}
 
 async function generateFreeImage(
   cred: CloudflareCredentials,
@@ -251,7 +268,7 @@ async function generateFreeImage(
   call: Fetcher = fetch,
 ): Promise<string> {
   // 지금은 꺼짐(FREE_IMAGE_ENGINE_ENABLED=false — validateImage가 거절). 실검증·승인 뒤에만 켠다.
-  const prompt = `Create a beautiful peaceful photographic background for a Korean emotional quote card. Korean sensibility, airy composition with uncluttered space for later text overlay. If people appear, depict Korean/East Asian adults. BACKGROUND ONLY: no text, letters, logos or watermarks. Topic: ${input.topic.replace(/[<>]/g, "")}, inspiration: ${input.quote.slice(0, 150).replace(/[<>]/g, "")}`.slice(0, 2048);
+  const prompt = freeImagePrompt(input.topic);
   let res: Response;
   try {
     // 프롬프트는 본문으로만 보낸다(주소에 회원 글귀를 싣지 않음).
