@@ -59,3 +59,9 @@ F-007: CRM 웹훅 재전송이 접수/유료 발송을 중복 실행, F-011: Cro
 - 서버 로그인 기기 정보 미전달: 서버용 Supabase 클라이언트에 `User-Agent` 전달 필요(`docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md` 2-2절). 상태 「대기」.
 - 30일 정리 예외 회원: 정리 코드 자체가 없어 해당 없음(위 1) 첫 항목).
 - 최상위 규칙(본인 계정): 발송 계정은 모두 회원 행에서만 읽음, 운영자 SOLAPI·SMTP·텔레그램 환경변수 사용 없음(검색 0건).
+
+## 2026-11-18 웹훅 중복 발송(F007·개선 #1) 소스 준비 — Claude(B2BBackend) CC-B2B-BACK-01 단기 검토(Master 지휘, Mac 독립 검수 PASS)
+- **소스 준비 완료·운영 미적용·미배포**: 17b45c398(중복 판정 순수 함수)·f066ca944(DB 초안 SQL)·a1cd3df44(격리 DB 시험 틀)·1fe179bd6/405ebdb8c/7b002047d(화면 상태·조회 실패 표시). 상세 근거·시험·한계: 루트 `.ai/results/PORT-20261118-02-CC-B2B-BACK-01.md`.
+- **실제 중복 발송 위험은 운영에서 아직 그대로다** — 웹훅은 여전히 확인 없이 저장·발송(`app/api/webhooks/form-submit/[token]/route.ts` 미수정), 운영 DB에 유니크 없음.
+- 남은 순서(각각 별도 승인): 주인님 정책 결정(dispatching·partial·unknown 접수에 팔로우업 기본 중지 vs 기존 계속) → 웹훅·발송 연결 구현 → 운영 DDL(초안 `supabase/migrations/20261118120000_crm_submission_dedupe.sql`, 사전 확인이 운영 상태 제약 이름·정의를 읽어 다르면 멈춤) → 화면 포함 묶음 배포(버전 +0.01) → 본인 번호 실제 문자 시험 → v2 스니펫(시험 시트 첫 칸 Date 확인 뒤).
+- 범위 밖으로 기록만: 회원 insert RLS가 user_id만 검사(남의 source id로 자기 행 삽입 가능, 유니크에 user_id를 넣어 방해는 막음).
