@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 01:27:46 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 01:33:14 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-19 01:01:22 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-19 01:33:14 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 00:31 이후 증분 대조. W01 운영 기반과 A2 검수·격리 시험 확인, G3I 진행 중. 미배포·사람단계 유지, 신규 배정 없음.
+점검 범위: 01:01 이후 증분 대조. G3S 제출·독립 검수 전달, 메인 히어로 V2 쇼케이스/기존 근거 확인·선택 대기.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -461,7 +461,8 @@ Master 마지막 실제 점검: 2026-11-19 01:01:22 KST · 실행 중 점검 주
 | AIF-20261119-W01-G3D | CC-SNS-01 | done / asset_id_generation_contract_accepted_with_io_conditions | W01 자산 ID 기반 생성 API 계약 설계 | 8080ce604 조건부 수락. OFF 순서·다운로드 상한·I/O 예산 명확화. |
 | AIF-20261119-W01-G3I | CC-SNS-01 | reviewing / independent_review_changes_required_before_activation | W01 자산 ID 기반 생성 API 로컬 구현 | 독립 검수에서 시간/취소/공급자 오류 및 저장 불명 보완 요구. ON 전 차단. |
 | AIF-20261119-W01-G3T | CC-SNS-01 | done / deadline_fix_independent_static_review_accepted | W01 생성 API 전체 시간·스트림 취소·오류 처리 보완 | 5eced061e 독립 소스 재검수 수락. 실제 마감·원격 취소 별도. |
-| AIF-20261119-W01-G3S | CC-SNS-01 | running / generation_save_timeout_recovery_fix_dispatched | W01 생성 저장 시간 초과 시 자산 ID 보존 | 로컬 보완 배정. 검수 회신까지 ON 차단. |
+| AIF-20261119-W01-G3S | CC-SNS-01 | reviewing / save_timeout_fix_returned_mac_review_dispatched | W01 생성 저장 시간 초과 시 자산 ID 보존 | ef2f26f12 작성자 273/273·tsc, CX-QA-01 전달. OFF. |
+| DES-20261119-HERO | AG-UI-01 | waiting_human / showcase_verified_selection_and_release_pending | 메인 히어로 실사 시안 148~150 | e73d362fc, 쇼케이스 응답 확인. 시안 선택과 배포 승인 대기, V2 제품 브라우저 미검수. |
 | AIF-20261118-W03 | 미배정 | queued / sequenced_after_w01_and_w02_by_owner_instruction | 회원용 인물 라이브러리·시트·버전 | 주인님 지시대로 W01·W02 이후 시작. 인물 라이브러리·일괄 이미지·영상 미착수. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 

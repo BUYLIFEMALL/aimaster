@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T16:27:46.499Z",
+  "checkedAt": "2026-11-18T16:33:14.330Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T16:01:22.289Z",
+      "at": "2026-11-18T16:33:14.330Z",
       "timezone": "Asia/Seoul",
-      "trigger": "01:00 정기 예약 메시지 msg_b8002d91ff3c 수신",
-      "scope": "00:31 이후 증분. 프로그램 목록 103개·카테고리 19개·열린 작업 16건과 등록 담당 11명 기록을 대조. 작업 우선순위·점유·검수·승인·배포 및 미등록 인수인계 변경 확인.",
+      "trigger": "01:30 정기 예약 msg_9f8032e15c00 수신 및 후속 보고",
+      "scope": "01:01 이후 증분. 프로그램 103·카테고리 19·기존 열린 작업 17·담당 기록 11, 변경 SHA·점유·검수·승인·미배포·신규 인수인계 대조.",
       "evidence": [
-        "Windows Task Scheduler 01:00:01 실행·종료 0, wake 기록 01:00:15 처리 종료, Orca에서 동일 메시지 회수",
-        "f8abbbc53..5d7ea9ef5 변경과 W01 운영 보고 5c96623b0·A2I 3776d54f7·격리 A2S 6c4388e52/1d9c7a022·G3D 8080ce604",
-        "CX-QA-01 신규 변경 기록은 기존 처리된 A2I 독립 소스 검수 msg_d660f5e477da와 일치. G3I 점유 5d7ea9ef5 및 해당 미추적 3경로는 작업표 등록 범위. 새 관리자 요청 0."
+        "스케줄러 01:30:01 실행 종료 0·wake 기록 01:30:03 종료·동일 메시지 수신",
+        "e83102cc5 이후 G3I·G3T 기록 및 SNS Mac 결과/G3S ef2f26f12; msg_cccdda0e05cf·msg_6fd55dbf9cb3",
+        "메인 히어로 1edd6f67c·e73d362fc·msg_d61f61aef3a0 및 시안 폴더·세 HTTP 결과 200; 새 관리자 요청 0"
       ],
-      "judgment": "W01 운영 선행 조건의 권한·비공개 버킷·무제한 정책 확인, A2 로컬 구현/독립 소스 검수 및 격리 SQL 종결 기록을 확인. G3I는 CC-SNS-01이 범위 등록 후 실행 중. 별도 설치 요청은 충돌 근거 없음. 추가 후속 배정 없음.",
-      "nextAction": "CC-SNS-01 G3I 고정 SHA·시험 회신 뒤 CX-QA-01 독립 검수 전달. Workspace 현황판은 접근 가능 페이지, Gmail은 연결 근거 확보 뒤 기존 담당이 검증. W02/W03 순서 유지.",
+      "judgment": "G3T 독립 소스 수락 유지, G3S 구현 반환 뒤 독립 검수 전달. 미등록 히어로 V2는 담당자 근거 회수·시안 선택과 메인 배포 승인 대기로 등록. 추가 운영 작업 없음.",
+      "nextAction": "CX-QA-01 G3S 경계 판정 대기. AG-UI-01 히어로는 주인님 선택/승인 이후 기존 담당 진행. W02/W03 순서 유지.",
       "unverified": [
-        "G3I 구현 최종 결과와 독립 검수",
-        "운영 Storage 실연동·일반 회원 제한 정책",
-        "Workspace 현황판·Gmail·위젯 운영 화면, 기존 사람 단계 및 Emotion Writer 실행 원장; 운영 재시험 없음"
+        "G3S 독립 검수 및 실제 DB/Storage/AI 연동",
+        "메인 히어로 V2 Next.js 라이브 렌더·운영 배포 확인",
+        "Workspace 현황판/Gmail·기존 사람단계와 미배포 상태를 다시 실측하지 않음"
       ]
     },
     "notifications": [
@@ -95,7 +95,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-18T16:30:00.000Z",
+      "nextScheduledAt": "2026-11-18T17:00:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -113,12 +113,12 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-18T16:00:00.000Z",
-        "messageId": "msg_b8002d91ff3c",
+        "scheduledAt": "2026-11-18T16:30:00.000Z",
+        "messageId": "msg_9f8032e15c00",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false,
-        "receipt": "01:00:15 KST 예약 실행 종료·기존 Master 수신 확인. 실제 점검 시각 별도."
+        "receipt": "01:30:03 KST 전송 종료 및 기존 Master 수신. 실제 점검 시각 별도."
       }
     },
     "supersededOrcaAutomation": {
@@ -9256,14 +9256,38 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "W01 생성 저장 시간 초과 시 자산 ID 보존",
-      "status": "running",
-      "delivery": "generation_save_timeout_recovery_fix_dispatched",
+      "status": "reviewing",
+      "delivery": "save_timeout_fix_returned_mac_review_dispatched",
       "scopeRef": "assets/store.ts·assets/generations.ts 및 generationsRoute·assetsStore 관련 시험",
       "completion": "검증된 예약 ID의 timeout/422 보존, 마감 후 새 저장 쓰기 0, 미확인 결과 분리, 기존 호출 회귀·고정 SHA.",
       "constraints": "이미 전송된 쓰기 결과는 불명 허용. 자동 재전송/삭제/재생성 및 새 SQL·실 운영·ON·UI·빌드·배포 없음.",
-      "evidence": "msg_2b300b6fcc29",
-      "next": "담당 수락·구현/시험 회신, CX-QA-01 독립 검수.",
-      "lastReviewedAt": "2026-11-18T16:27:46.499Z"
+      "evidence": "msg_2b300b6fcc29·msg_cccdda0e05cf·msg_6fd55dbf9cb3",
+      "next": "CX-QA-01 회신 대기. 단조 마감과 타이머가 늦게 실행될 때 새 쓰기 경계 확인.",
+      "lastReviewedAt": "2026-11-18T16:33:14.330Z",
+      "sha": "ef2f26f12",
+      "validation": {
+        "author": "273/273·tsc·변형 12 검출 보고",
+        "master": "4개 blob·선택적 진행 신호·응답 id 경계 확인",
+        "independent": "msg_6fd55dbf9cb3 전달, 수락 대기",
+        "unverified": "실 DB/Storage/AI, 예약 응답 유실 후 ID 미확보는 설계 한계"
+      }
+    },
+    {
+      "task_id": "DES-20261119-HERO",
+      "owner": "AG-UI-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "메인 히어로 실사 시안 148~150",
+      "status": "waiting_human",
+      "delivery": "showcase_verified_selection_and_release_pending",
+      "sha": "e73d362fc",
+      "scopeRef": "components/home/HeroShowcase.tsx·public/images/hero/*·docs/HERO_VISUAL_ARCHIVE_20261119.md",
+      "evidence": "1edd6f67c·e73d362fc·msg_3ea7dcd725b1·msg_d61f61aef3a0; localhost:3800 showcase/comparison/hero 200·D:/PDS/Design/148~150 존재",
+      "next": "주인님 시안 선택 또는 3안 유지와 메인 배포 승인 대기. V2 제품 브라우저 렌더 확인은 쇼케이스 응답과 별도.",
+      "validation": {
+        "author": "V1·V2 각 tsc 0·로컬 build 77/77 보고; V2 Next.js 실제 화면 미검수, 원격 배포/push 0 보고",
+        "master": "커밋·V2 이미지 참조·3개 폴더·쇼케이스 HTTP 응답 확인"
+      },
+      "lastReviewedAt": "2026-11-18T16:33:14.330Z"
     }
   ]
 }
