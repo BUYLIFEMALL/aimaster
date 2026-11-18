@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T18:23:23.948Z",
+  "checkedAt": "2026-11-18T18:32:15.461Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5420,16 +5420,16 @@
       "parent_task_id": "AIF-20261119-W01-UIV",
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
-      "title": "W01 운영 전 검증 계획 및 승인 범위 정리",
-      "status": "waiting_human",
-      "delivery": "v2_waiting_isolated_config_and_test_login",
+      "title": "W01 운영 전 검증 계획과 V2 저장·다운로드 검증",
+      "status": "done",
+      "delivery": "v2_storage_signed_browser_read_and_ownership_verified",
       "scopeRef": "W00 §14-B·§14-L·§24-10 및 W00_BASELINE.md 한 절",
       "completion": "최소 무과금 검증 및 실제 Storage·CORS·회원 한도·생성/발행 검증 순서, 환경/조건/상한·비용·중단/복구·승인 항목 정리.",
       "constraints": "문서/기존 소스 읽기만. 실 운영·로그인·Storage·SQL·배포·AI·ON·W02 없음.",
-      "evidence": "msg_496f86e32649·msg_15dcc644b0cb·msg_825c94316f8b·msg_ffa781221a60·551c6301f·a8acd43a2·msg_5519f687c39b·816496328·주인님 현재 채팅 「진행해」·msg_cc47d020250e·7aa156b88·msg_8dfe64a7672a",
-      "next": "주인님이 격리 사본용 접속 설정 제공 후 시험 계정에 직접 로그인. 설정이 준비되면 담당 서버 실행·로그인 안내 후 같은 V2 재개.",
-      "lastReviewedAt": "2026-11-18T18:14:24.781Z",
-      "sha": "816496328",
+      "evidence": "msg_496f86e32649·msg_15dcc644b0cb·msg_825c94316f8b·msg_ffa781221a60·551c6301f·a8acd43a2·msg_5519f687c39b·816496328·주인님 현재 채팅 「진행해」·msg_cc47d020250e·7aa156b88·msg_8dfe64a7672a·msg_695173163e30·59f0718b2·a2537bc1b·msg_1531209c451e",
+      "next": "V2 서명 다운로드·권한 확인 완료. V3 유료 범위 별도, V4 시험 계정 지정 수신 및 실행 조건 미확정.",
+      "lastReviewedAt": "2026-11-18T18:32:15.461Z",
+      "sha": "59f0718b2",
       "verificationScope": {
         "preflight": "No-auth read only, existing Storage host, at most two requests; headers only, no live signed token or object target",
         "reuses": "W00 §14-L authority and bucket evidence",
@@ -5447,13 +5447,15 @@
           "result": "참고 신호, 유효한 서명 GET 미확인, 운영 DB/쓰기/AI 0"
         },
         "v2": {
-          "status": "isolated_source_and_dependencies_prepared_human_config_pending",
+          "status": "passed_isolated_browser",
           "scope": "격리 로컬 서버·지정 시험 계정; 사진 약 100KB 1회 저장, 본인 및 타 계정 권한 조회, 브라우저 서명 URL 1회. 별도 AI/삭제/배포/ON 없음; 자산 1건 및 파일 1개 남음.",
           "approval": "주인님 현재 채팅 「진행해」",
           "dispatch": "msg_cc47d020250e",
           "workPath": "D:/AIMaster-qa/aif-v2-20261119/ai-influencer-studio",
           "port": 3417,
-          "result": "운영 접근·업로드·비용 0 보고; 공유 비밀 설정 복사 금지의 기존 계획에 따라 대기."
+          "result": "PNG 88,401바이트 1회 저장·본인 조회와 서명 GET 200, 해시 일치, 타 계정 404. 운영 행·파일 각 1건 남음.",
+          "limitation": "로컬 브라우저 배열 버퍼 검증. 운영 origin·clientFlow 스트리밍·한도·생성 미검증.",
+          "deviation": "계획과 달리 격리 사본에 비밀 설정을 복사했고 시험 뒤 그 사본을 삭제했다고 담당 보고. 같은 방식 재사용 금지."
         }
       }
     },
@@ -5620,9 +5622,9 @@
       "scopeRef": "ee73ff8eb · ai-work-workspace/src/litpage/server/content/html.ts · tests/integration/notionSavedHtml.test.ts",
       "completion": "저장 HTML의 본문을 분리하고 콜아웃·목록·할일·코드·북마크·영상·목차 구조 보존. 일반 HTML/ZIP·기존 URL 허용/정제 경계 회귀 확인.",
       "constraints": "import.ts·DB·API·권한 변경과 운영 쓰기·빌드·배포·push 없음.",
-      "evidence": "주인님 전달 착수 보고 · ee73ff8eb 파일 점유·112ada09d·2f1e70268·msg_ae2068e3e9b1·msg_7dc2611a8abf·msg_63a46ac8b66c·8225ca66b·msg_fa4c83b077f0·msg_3c1580a00f03·msg_1ce4182d8db2·msg_da5761aceccd·2c7f6945d·msg_7b2287b746f4·msg_f561bbcfa676·msg_ead1f07719be",
-      "next": "로컬 독립 수락. 문서/점유 해제 요청. 공유 브랜치 push 범위 미확정·미배포.",
-      "lastReviewedAt": "2026-11-18T18:18:23.158Z",
+      "evidence": "주인님 전달 착수 보고 · ee73ff8eb 파일 점유·112ada09d·2f1e70268·msg_ae2068e3e9b1·msg_7dc2611a8abf·msg_63a46ac8b66c·8225ca66b·msg_fa4c83b077f0·msg_3c1580a00f03·msg_1ce4182d8db2·msg_da5761aceccd·2c7f6945d·msg_7b2287b746f4·msg_f561bbcfa676·msg_ead1f07719be·30bcfdee1·cbfe4b86e",
+      "next": "로컬 독립 수락. v1.61 첫 빌드 취소, 운영 v1.60. 배포 진단 WS-20261119-REL.",
+      "lastReviewedAt": "2026-11-18T18:32:15.461Z",
       "sha": "2c7f6945d",
       "validation": {
         "author": "보완판 18/18·해당 경로 tsc 0·실제 저장 문서 402 최상위 블록/인라인코드 49 보고.",
@@ -5637,14 +5639,14 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-MASTER-01",
       "title": "B2B몰 Lab 0101 메시지 정의·권한 대조",
-      "status": "queued",
-      "delivery": "lab_catalog_check_acknowledged_after_owner_sample_work",
+      "status": "done",
+      "delivery": "lab_catalog_definition_and_grants_matched",
       "scopeRef": "mall-builder Lab 0101 · 5989f69af anon 회수 · 51b2f3e91 safeupdate",
       "completion": "Lab pg_catalog·적용 기록 읽기로 두 고정 수정본 반영 일치/불일치 근거 반환.",
       "constraints": "Lab 읽기만. 운영 접근·회원/주문 자료·함수 실행/쓰기·결제·배포 없음.",
-      "evidence": "msg_9dceed2390f0·msg_a4d20955cdf3",
-      "next": "담당자 기존 주인님 직접 샘플몰 상품 등록/진열 뒤 착수. 로그인·토스 테스트 제출 없는 선행 작업.",
-      "lastReviewedAt": "2026-11-18T18:14:24.781Z"
+      "evidence": "msg_9dceed2390f0·msg_a4d20955cdf3·msg_7dd6bd101320·e20574f0f",
+      "next": "Lab 0101 권한·safeupdate 일치. e20574f0f 인수인계 갱신. QA037 사람 로그인 대기, 결제 시험은 최종 단계.",
+      "lastReviewedAt": "2026-11-18T18:32:15.461Z"
     },
     {
       "task_id": "B2B-20261119-FRONTQA",
@@ -5669,19 +5671,19 @@
       "parent_task_id": "FRONT-20261118-02",
       "owner": "CC-B2B-FRONT-01",
       "reviewer": "CX-MASTER-01",
-      "title": "B2B 터치 영역·가격 대비·S70 순차 보완",
-      "status": "reviewing",
-      "delivery": "two_ui_fixes_returned_mac_review_s70_contract_pending",
+      "title": "B2B몰 버튼 터치 영역과 원래 가격 대비 보완",
+      "status": "done",
+      "delivery": "storefront_button_and_price_independent_review_accepted_undeployed",
       "scopeRef": "template-gallery.tsx+시험 → product-card/product-detail 원가격 대비 → 주문서 S70 계약/정확 경로 읽기",
       "constraints": "1·2 각 고정 SHA. S70 Backend 경계/멱등 및 일부 실패 합의 뒤 코드. 운영·DB·빌드·배포·push 없음.",
-      "evidence": "msg_3b3bee3c725f·msg_5b03c9657475·90248e5b1·msg_3e6e9ffc03e6·56785ebd8·msg_82d70a727810·86e5ad1bf·62fda63a3·msg_cdd12fbdc316·msg_c937016a8334",
-      "next": "90248e5b1/86e5ad1bf Mac 독립 검수. S70 Backend 경계 회신 전 코드 보류(0원·paid 발급 가드, 고정 문구·멱등·상호 배제).",
-      "lastReviewedAt": "2026-11-18T18:23:23.948Z",
+      "evidence": "msg_3b3bee3c725f·msg_5b03c9657475·90248e5b1·msg_3e6e9ffc03e6·56785ebd8·msg_82d70a727810·86e5ad1bf·62fda63a3·msg_cdd12fbdc316·msg_c937016a8334·msg_02200dae89c6",
+      "next": "두 변경 독립 15/15 수락. 미배포이며 Lab 7609748ad에 미포함. 주문서 S70은 별도 진행.",
+      "lastReviewedAt": "2026-11-18T18:32:15.461Z",
       "validation": {
         "author": "90248e5b1 로컬 브라우저 1280·390/5개 시험 보고; 원가격 대비 6.57~7.58:1, CSS 모의 시험 27/27·상품 20/20 보고.",
         "master": "두 Git blob 일치, 점유 등록이 첫 편집 뒤였음 기록; 86e5ad1bf 두 가격 요소 및 시험 blob 확인, S70 제안 문서 독립 범위로 분리.",
-        "remaining": "가격 대비·S70 및 로컬 묶음 독립 검수/배포",
-        "independent": "msg_cdd12fbdc316 두 로컬 소스 검수 전달. Lab 7609748ad와 별도."
+        "remaining": "운영 배포·확인",
+        "independent": "Mac 5개 blob 일치, 15/15 통과. .ai/results/B2B-20261119-LAB-CX-QA-01.md"
       },
       "sha": "86e5ad1bf"
     },
@@ -5691,12 +5693,68 @@
       "reviewer": "CX-MASTER-01",
       "title": "B2B 메이커 연계 M1~M3 선행 범위 대조",
       "status": "queued",
-      "delivery": "owner_work_approved_maker_m1_scope_review_queued",
+      "delivery": "m1_scope_reviewed_queued_after_s70",
       "scopeRef": "IMPROVEMENT_HANDOFF_20261113_MAKER.md·product-photo-handoff·0066",
       "constraints": "샘플몰·Lab0101 선행. M1 쇼핑몰 측 정합/경계부터. M2/M3 운영 DB 변경 없음, 실제 등록 사진 1년 유지. H3 회원 이전 제외.",
-      "evidence": "msg_f8b6c7802a93·msg_95518039a9bf",
-      "next": "Backend가 바나나 계약·역할 점유·M1 최소 파일/검증 근거 반환 후 구현 범위 확정.",
-      "lastReviewedAt": "2026-11-18T18:18:23.158Z"
+      "evidence": "msg_f8b6c7802a93·msg_95518039a9bf·msg_425229fba0fc·msg_1f84f57db3f2",
+      "next": "S70 결과 뒤 M1 점유·순번 확정. 공용 사본·관리 상품 목록 보내기만. M2 저장·정리 정책 별도, M1 단독 배포 없음.",
+      "lastReviewedAt": "2026-11-18T18:32:15.461Z"
+    },
+    {
+      "task_id": "B2B-20261119-S70",
+      "reviewer": "CX-MASTER-01",
+      "parent_task_id": "B2B-20261119-FRONTP3",
+      "owner": "CC-B2B-BACK-01",
+      "title": "주문서 무통장 현금영수증 접수와 입금 확인 경합 처리",
+      "status": "queued",
+      "delivery": "atomic_checkout_rpc_implementation_dispatched",
+      "scopeRef": "새 0105 로컬 마이그레이션과 격리 시험",
+      "completion": "주문 행 잠금 안에서 본인·입금대기·금액·중복·상호배제 검증과 접수. 두 경합 순서 및 기존 주문 상세 회귀 확인.",
+      "constraints": "외부 발급·결제, 공용 Lab·운영 적용, 빌드·배포·push 0.",
+      "evidence": "5f7ea2519·e8fbd8816·msg_3c12a55255d2·msg_d8108566a5f9",
+      "next": "백엔드 고정 SHA·격리 시험 반환 후 독립 검수와 Front 연결 배정.",
+      "lastReviewedAt": "2026-11-18T18:32:15.461Z"
+    },
+    {
+      "task_id": "B2B-20261119-SAMPLE-S1",
+      "reviewer": "CX-MASTER-01",
+      "parent_task_id": "B2B-20261118-02",
+      "owner": "CC-B2B-BACK-01",
+      "title": "운영 샘플몰 상품 사진과 설명 보완",
+      "status": "done",
+      "delivery": "owner_direct_sample_content_update_reported",
+      "sha": "41d13d369",
+      "evidence": "msg_844ccf16bea9·41d13d369·mall-builder/docs/evidence/sample-photos-20261119.json",
+      "next": "담당 보고 기준 상품 16개 보완, 전체 상품 사진 25/25, 화면 이미지 33개 중 오류 0.",
+      "lastReviewedAt": "2026-11-18T18:32:15.461Z"
+    },
+    {
+      "task_id": "AIF-20261119-W01-NEXT",
+      "reviewer": "CX-MASTER-01",
+      "parent_task_id": "AIF-20261119-W01-READY",
+      "owner": "CC-SNS-01",
+      "title": "AI Influencer Next.js 보안 패치",
+      "status": "done",
+      "delivery": "dependency_patch_verified_locally_undeployed",
+      "sha": "cd992f592",
+      "scopeRef": "ai-influencer-studio/package.json 및 잠금 파일",
+      "evidence": "msg_819506e21b8b·msg_1531209c451e·cd992f592",
+      "next": "16.4.6 파일 지문과 잠금 범위 대조 완료. 담당 시험 320/320·타입 통과·audit 0. 번들 및 운영 응답 확인은 배포 단계.",
+      "lastReviewedAt": "2026-11-18T18:32:15.461Z"
+    },
+    {
+      "task_id": "WS-20261119-REL",
+      "reviewer": "CX-MASTER-01",
+      "parent_task_id": "WS-20261119-01",
+      "owner": "CC-WORKSPACE-01",
+      "title": "Workspace v1.61 기존 중단 빌드 로그 진단",
+      "status": "queued",
+      "delivery": "cancelled_build_read_only_diagnosis_dispatched",
+      "sha": "30bcfdee1",
+      "evidence": "cbfe4b86e·msg_4c3fbd7968b1",
+      "constraints": "기존 근거 읽기만. 재빌드·배포·push·운영 설정/DB 변경 0.",
+      "next": "기존 v1.60 성공 로그와 중단 지점을 대조하고 재시도 조건 반환.",
+      "lastReviewedAt": "2026-11-18T18:32:15.461Z"
     }
   ],
   "programOverrides": [
@@ -6215,20 +6273,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T18:01:00.381Z",
+      "at": "2026-11-18T18:32:15.461Z",
       "timezone": "Asia/Seoul",
-      "trigger": "03:00 정기 예약 msg_d6f2c8db1a87 회수",
-      "scope": "02:33 이후 증분. 프로그램 103·카테고리 19·열린 작업 16·담당 기록 11, 새 보고·변경 SHA·점유/검수·미배포·인수인계와 직접지시 대조.",
+      "trigger": "03:30 예약 점검 메시지 msg_7ed6499344f5 수신",
+      "scope": "03:01 이후 증분. 프로그램별·카테고리 작업표, 열려 있는 과제·담당 범위·승인·검수·미배포, 관리자 요청 및 HANDOFF·결과 파일 상태와 최근 Git 대조.",
       "evidence": [
-        "스케줄러 03:00:01 실행·종료 0, wake 03:00:03 전송 종료, 동일 메시지 현재 Master 수신",
-        "8f221d505..e7443994b 증분, 히어로 단일 변경 0b2835c07 및 공식 도메인 READY/200·표시 4곳 제거 확인 이력",
-        "W01 화면 소스 fdee03d5d·격리 Chrome UIV msg_54ca8302b9f6 및 551c6301f 운영 전 문서 확인. 결과 파일 갱신은 기존 등록 근거와 일치. 관리자 새 요청·미등록 인수인계 없음."
+        "0f72ac2f2 이후 Git 이력, ACTIVE_WORK·FILE_OWNERSHIP·HANDOFF·dev-requests(Master 대기 0)",
+        "B2B 90248e5b1·86e5ad1bf·msg_02200dae89c6, Lab e20574f0f, 샘플 41d13d369, 0100 잠금과 msg_3c12a55255d2",
+        "W01 59f0718b2·cd992f592의 잠금 파일 지문 및 변경 범위, Workspace cbfe4b86e의 취소 근거, 11번가 a10384ef8 로컬 변경"
       ],
-      "judgment": "메인 히어로 승인 두 후속 배포는 각 결과까지 기록됨. AI Influencer 로컬 React 검증 수락과 W01 운영 사전 읽기 승인 대기 유지. 새 배정·운영 실행 없음.",
-      "nextAction": "CC-SNS-01은 W01 Storage 무인증 헤더 최대 2회에 대한 주인님 승인 시 정해진 범위만 수행. 나머지 운영/사람단계는 기존 재개 조건.",
+      "judgment": "B2B UI 독립 수락, Lab 읽기 대조 완료. W01 V2·패치 증거 수락, Workspace v1.61 취소 뒤 v1.60 유지 보고. 11번가 v1.09 로컬 커밋 확인, 운영 반영 근거 미확인. 새 운영 실행 없음.",
+      "nextAction": "S70 격리 구현 msg_d8108566a5f9, 메이커 M1 후순위 msg_1f84f57db3f2, Workspace 읽기 진단 msg_4c3fbd7968b1.",
       "unverified": [
-        "W01 헤더 참고 확인·실제 Storage/CORS·일반 회원 한도·발행",
-        "Workspace 현황판·Gmail 및 기존 사람단계. 새 운영 재시험 없음."
+        "QA037 고객·직원 로그인 및 최종 단계 테스트 결제",
+        "W01 운영 브라우저 origin·스트리밍·한도·유료 생성, V4 실행 조건",
+        "Workspace 운영 가져오기와 빌드 중단 원인, 11번가 v1.09 배포 여부",
+        "예약 실행 로그와 기존 미추적 인수인계 전수 재검증은 미실행. 현재 Master 수신 확인."
       ]
     },
     "notifications": [
