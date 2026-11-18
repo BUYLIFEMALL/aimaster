@@ -6,6 +6,8 @@ import { APPROVAL_LABEL, type Approval } from "@/lib/supplier";
 import { PRODUCT_BULK_MAX, PRODUCT_STATUSES, parseProductListQuery, productListHref, productPageCount } from "@/lib/product-list";
 import { AdminShell, NoPermission } from "../admin-shell";
 import { productBulkAction } from "./bulk-actions";
+import { BananaSend } from "./banana-send";
+import type { MallPhotoRow } from "@/lib/mallPhotoJob";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -36,10 +38,12 @@ export default async function ProductsPage({
   const pageIds = products.map((p) => p.id);
   // 재입고 알림 대기 인원(D16)·공급사 상품 표시(D35) — 이 쪽 상품만
   const supabase = await createClient();
-  const [{ data: waitingRows }, { data: supRows }, { data: supNames }] = await Promise.all([
+  const [{ data: waitingRows }, { data: supRows }, { data: supNames }, { data: photoRows }] = await Promise.all([
     supabase.from("mall_builder_restock_requests").select("product_id").eq("store_id", store.id).eq("status", "waiting").in("product_id", pageIds.length ? pageIds : ["00000000-0000-0000-0000-000000000000"]).limit(5000),
     supabase.from("mall_builder_products").select("id, supplier_id, approval").eq("store_id", store.id).not("supplier_id", "is", null).in("id", pageIds.length ? pageIds : ["00000000-0000-0000-0000-000000000000"]),
     supabase.from("mall_builder_suppliers").select("id, name").eq("store_id", store.id).order("name"),
+    // 메이커 M1 바나나 보내기: 이 몰 상품만(거울 표시·수정 시각) — 공용 조회 칸(PRODUCT_COLUMNS)은 그대로 둔다
+    supabase.from("mall_builder_products").select("id, name, images, source_product_id, updated_at").eq("store_id", store.id).in("id", pageIds.length ? pageIds : ["00000000-0000-0000-0000-000000000000"]),
   ]);
   const waiting = new Map<string, number>();
   for (const r of waitingRows ?? []) waiting.set(r.product_id as string, (waiting.get(r.product_id as string) ?? 0) + 1);
@@ -152,6 +156,7 @@ export default async function ProductsPage({
             <button className="rounded bg-gray-900 px-3 py-1 text-white">한꺼번에 바꾸기</button>
             <span className="text-xs text-gray-400">한 번에 {PRODUCT_BULK_MAX}개까지</span>
           </div>
+          <BananaSend rows={(photoRows ?? []) as MallPhotoRow[]} />
           <ul className="mt-2 divide-y rounded-lg border">
             {products.map((p) => {
               const rate = discountRate(p.base_price, p.list_price);
