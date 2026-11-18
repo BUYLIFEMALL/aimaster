@@ -8,6 +8,7 @@
 --  * public.member_storage_usage: 원문(supabase/migrations/0063) 표 정의 그대로(RLS 정책 제외).
 --  * public.member_storage_policy(uid): 원문(0068)과 **반환 열 모양만 같고** 본문은 qa_quota 표에서 quota만 읽는다
 --    (원문은 subscriptions·pricing_plans·storage_plans·member_grades·profiles 열에 의존).
+--    retention_days·unlimited_retention도 qa_quota의 값을 그대로 돌려줄 뿐이다 — 실제 요금제·구독 판정이 아니다(2026-11-18 추가).
 --  * storage.objects: Supabase 실물이 아니라 id·bucket_id·name·metadata·created_at만 있는 표.
 --  * auth.uid(): 세션 설정 request.jwt.claim.sub를 읽는 대역.
 --  * 역할 anon·authenticated·service_role은 컨테이너에 이미 있어야 한다. 이 파일은 역할을 만들거나 바꾸지 않는다(클러스터 전역 변경 0).
@@ -36,14 +37,16 @@ create table public.member_storage_usage (
   measured_at timestamptz not null default now()
 );
 
-create table public.qa_quota (user_id uuid primary key, quota_bytes bigint);   -- null = 무제한
+create table public.qa_quota (user_id uuid primary key, quota_bytes bigint,   -- null = 무제한
+  -- 보관 정리 시험용 추가(2026-11-18 W01-R1): 정책의 생성 보관 기간·무기한 여부 대역. 기본값은 예전 고정값(30·false)과 같다.
+  retention_days integer default 30, unlimited_retention boolean not null default false);
 
 create function public.member_storage_policy(uid uuid)
 returns table (quota_bytes bigint, retention_days integer, unlimited_retention boolean, source text,
                plan_slug text, plan_name text, plan_expires_at timestamptz, override_until timestamptz,
                posted_retention_days integer, posted_unlimited boolean)
 language sql stable security definer set search_path = '' as $$
-  select q.quota_bytes, 30, false, 'qa-stub'::text, 'free'::text, 'qa'::text, null::timestamptz, null::timestamptz, 30, false
+  select q.quota_bytes, q.retention_days, q.unlimited_retention, 'qa-stub'::text, 'free'::text, 'qa'::text, null::timestamptz, null::timestamptz, 30, false
   from public.qa_quota q where q.user_id = uid
 $$;
 revoke all on function public.member_storage_policy(uuid) from public, anon, authenticated;

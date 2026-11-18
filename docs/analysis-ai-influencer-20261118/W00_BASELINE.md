@@ -925,3 +925,19 @@ DB: 해당 없음(읽기만) · 배포: 해당 없음
 결론: **일반 회원 보관 정리(6·7·8)가 연결되기 전에는 운영 ON을 하지 않는다.** 위 항목 가운데 완료된 것은 없다 — 모두 준비 목록이다.
 
 - (2026-11-18 갱신) 14-B의 6·7·8은 **OFF·모의 첫 구현**이 들어갔다(§19-R3). 운영 ON 차단은 그대로다 — SQL 미실행·실 DB/저장소 통합 미검증·예약 실행 미등록.
+
+### 14-C. 보관 정리 새 SQL 격리 계약 실행 (2026-11-18, Master `msg_7418b7ac3cf6`)
+
+대상은 migration 3차 수정분 blob `85eb99ea7`(커밋 79c222710)이며 **이번 실행에서 제품 SQL은 고치지 않았다**(결함 0건). §19-R3의 「SQL 작성만·격리 미실행」은 이 절로 갱신된다.
+
+| 구분 | 결과 |
+|---|---|
+| 새 격리 시험 `tests/sql/a1_retention.test.mjs` | **19/19** — 시험 DB `qa_aif_retention_20261118`(실행마다 새로 만들고 oid 일치 확인 뒤 삭제·부재 검증) |
+| 기존 격리 시험 `tests/sql/a1_contract.test.mjs` | **15/15** — 새 blob으로 1회 재실행(함수 수 단언 9→11만 수정), 시험 DB `qa_aif_a1_20261118`. 예전 15/15(blob b29821216)와는 다른 실행이다 |
+| 첫 실행 | 16/19 — 실패 3건은 모두 **시험 결함**(설정값 정규식, 시험 준비가 한도에 걸림, boolean 글자 표기). 시험만 고쳐 19/19 |
+| 모의·타입 | `npm test` 152/152, `npx tsc --noEmit` 통과(변경 없음 확인) |
+
+확인한 것: 원문 적용·컴파일(함수 11개·`expired_at`·제약) · 새 함수 2개 security definer·search_path 고정·service_role 전용(anon·authenticated 호출 거절) · RLS(회원은 expired 자산·삭제 예약 표를 못 봄) · check 제약 · 기산(객체 생성 시각+정책 기간, 경계 29/31일·정책 7일·늦은 확정·오래된 행 시각 무시) · 판정 불가(객체 없음·다른 객체·생성 시각 NULL·기간 0/음수·정책 행 없음) · skip · 동적 보호(보호·무기한·기간 없음·기간 연장 → 복원) · claimed 토큰 fence(다른 토큰 busy·59분 busy·61분 취소·옛 토큰 deleting 실패·새 토큰) · 삭제 직전 복원 시 예약 cancelled · deleting/delete_unknown/deleted에서 복원 금지(locked) · delete_verify(없음 deleted·같은 객체 unknown·다른 객체 mismatch·토큰/회원/NULL denied) · delete_unknown→delete_failed 불가 · 용량(한도 100·중앙 0·오래된 60 → expired 뒤 새 60 거절, deleted 확정 뒤에만 허용, 중앙이 이미 세면 이중 계산) · updated_at 순환 · 재적용 · **2연결 실잠금 2건**(대기 연결의 `wait_event`=Lock/advisory, `pg_blocking_pids`가 잠금 보유 연결의 pid와 일치).
+
+한계(그대로): `storage.objects`·`profiles`·`member_storage_policy`·`member_storage_usage`는 전부 대역이다 — 실제 Supabase 저장소·실제 중앙 정책·실제 함수 소유자 권한과의 통합 통과가 아니다. 「객체가 지워졌다」는 대역 표의 행을 지워 흉내 냈고 **실제 저장소 삭제(remove)는 한 번도 부르지 않았다.** `storage.objects.created_at`의 NULL 허용은 새 시험 DB 안에서만 맞췄다(대역 파일 무변경). 대역 파일에는 정책 대역이 읽을 `retention_days`·`unlimited_retention` 열만 추가했다(기본값은 예전 고정값과 같다).
+격리 환경: 로컬 Docker `aww-pg-test`(postgres:17-alpine). 실행 뒤 `qa_aif%` DB 0개, 기존 DB 목록(aww·aww_dev·mb_dry·mb_reh·mb_scn·postgres) 그대로, 업무 DB 접속 0, 역할 생성·변경 0(관리용 postgres DB에는 역할·DB 목록 조회와 시험 DB 생성·삭제를 위해 접속).

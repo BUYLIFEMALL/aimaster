@@ -129,17 +129,17 @@ after(() => {
 
 const t = (name, fn) => test(name, { skip: AVAILABLE ? false : "aww-pg-test 컨테이너 없음 — 건너뜀" }, fn);
 
-t("컴파일: 표 2개·함수 9개가 만들어진다", (ctx) => {
+t("컴파일: 표 2개·함수 11개가 만들어진다(3차 수정 뒤: 기존 9 + expire·delete_verify)", (ctx) => {
   ctx.diagnostic(`역할 사전 확인(이름:로그인:슈퍼유저:RLS우회) ${rolePreflight.replace(/\n/g, " ")} · 시험 DB ${DB} oid=${createdOid}`);
   assert.equal(q(`select count(*) from pg_tables where schemaname='public' and tablename in ('aif_assets','aif_asset_deletions');`), "2");
-  assert.equal(q(`select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'aif\\_asset\\_%';`), "9");
+  assert.equal(q(`select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'aif\\_asset\\_%';`), "11");
 });
 
-t("권한: 함수 9개는 service_role만 실행, anon·authenticated·public 불가", () => {
+t("권한: 함수 11개는 service_role만 실행, anon·authenticated·public 불가", () => {
   const rows = q(`select p.proname, has_function_privilege('authenticated', p.oid, 'execute'), has_function_privilege('anon', p.oid, 'execute'),
                          has_function_privilege('service_role', p.oid, 'execute'), p.prosecdef
                   from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'aif\\_asset\\_%' order by 1;`).split("\n");
-  assert.equal(rows.length, 9);
+  assert.equal(rows.length, 11);
   for (const r of rows) {
     const [name, authd, anon, service, secdef] = r.split("|");
     assert.deepEqual([authd, anon, service], ["f", "f", "t"], name);
@@ -390,6 +390,6 @@ t("재적용: migration을 다시 실행해도 성공하고 권한·정책·데�
   assert.equal(q(`select count(*) from pg_policies where schemaname='public' and tablename='aif_assets';`), "1");
   assert.equal(q(`select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'aif\\_asset\\_%'
                   and (has_function_privilege('authenticated', p.oid, 'execute') or has_function_privilege('anon', p.oid, 'execute'));`), "0");
-  assert.equal(q(`select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'aif\\_asset\\_%' and has_function_privilege('service_role', p.oid, 'execute');`), "9");
+  assert.equal(q(`select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'aif\\_asset\\_%' and has_function_privilege('service_role', p.oid, 'execute');`), "11");
   assert.equal(q(`select has_table_privilege('authenticated','public.aif_asset_deletions','select') or has_table_privilege('anon','public.aif_assets','select');`), "f");
 });
