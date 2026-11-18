@@ -189,3 +189,48 @@ test("전역 fetch를 쓰지 않는다(인자로 받은 fetch만)", async () => 
   assert.equal(globalCalls, 0);
   assert.equal(st.calls, 1);
 });
+
+// ── P2(Mac msg_48b92d818766): 실패 목록 스키마·모순 응답은 unknown ─────────────────────────────────────
+const FAILED_ITEM = ALL_FAILED.failedMessageList[0];
+const withFailed = (list, count = { registeredFailed: 1, registeredSuccess: 0 }) =>
+  ({ failedMessageList: list, groupInfo: { count: { ...OK.groupInfo.count, ...count } } });
+for (const [name, body] of [
+  ["실패 목록 null", withFailed(null)],
+  ["실패 목록 항목이 숫자", withFailed([1])],
+  ["실패 목록 항목이 빈 객체", withFailed([{}])],
+  ["실패 목록 항목 필수 필드 누락(statusCode)", withFailed([{ ...FAILED_ITEM, statusCode: undefined }])],
+  ["실패 목록 항목 필드 타입 이상(messageId 숫자)", withFailed([{ ...FAILED_ITEM, messageId: 7 }])],
+  ["실패 목록 2개인데 registeredFailed 1", withFailed([FAILED_ITEM, FAILED_ITEM])],
+  ["2xx 접수 성공 개수 + 오류 봉투 공존", { ...OK, errorCode: "X", errorMessage: "y" }],
+  ["2xx 접수 실패 + 오류 봉투 공존", { ...ALL_FAILED, errorCode: "X" }],
+  ["2xx 접수 성공인데 실패 목록 항목 있음", withFailed([FAILED_ITEM], { registeredFailed: 0, registeredSuccess: 1 })],
+]) {
+  test(`2xx 모순·스키마 위반: ${name} → unknown(bad_response), HTTP 1번`, async () => {
+    const st = queue(() => json(200, body));
+    assert.deepEqual(await M.sendSolapiOnce(ACC, MSGS.sms, { fetch: st.fetch }), { outcome: "unknown", httpCalls: 1, reason: "bad_response" });
+    assert.equal(st.calls, 1);
+  });
+}
+for (const [name, body] of [
+  ["400 오류 봉투 + 접수 성공 개수 공존", { errorCode: "X", errorMessage: "y", ...OK }],
+  ["400 오류 봉투 + 실패 목록 공존", { errorCode: "X", errorMessage: "y", failedMessageList: [] }],
+  ["400 errorCode만", { errorCode: "X" }],
+  ["400 errorCode 숫자", { errorCode: 1, errorMessage: "y" }],
+]) {
+  test(`4xx 모순·불완전: ${name} → unknown, HTTP 1번`, async () => {
+    const st = queue(() => json(400, body));
+    assert.deepEqual(await M.sendSolapiOnce(ACC, MSGS.sms, { fetch: st.fetch }), { outcome: "unknown", httpCalls: 1, reason: "bad_response" });
+  });
+}
+test("회귀: 공식 실패 항목(customFields 포함) 1개 + 개수 일치 → rejected, 정상 성공 → sent, 공식 오류 봉투 400 → rejected", async () => {
+  let st = queue(() => json(200, withFailed([{ ...FAILED_ITEM, customFields: { a: "b" } }])));
+  assert.equal((await M.sendSolapiOnce(ACC, MSGS.alimtalk, { fetch: st.fetch })).outcome, "rejected");
+  st = queue(() => json(200, OK));
+  assert.equal((await M.sendSolapiOnce(ACC, MSGS.friendtalk, { fetch: st.fetch })).outcome, "sent");
+  st = queue(s400);
+  assert.equal((await M.sendSolapiOnce(ACC, MSGS.sms, { fetch: st.fetch })).outcome, "rejected");
+});
+test("실패 항목 customFields 타입 이상 → unknown", async () => {
+  const st = queue(() => json(200, withFailed([{ ...FAILED_ITEM, customFields: { a: 1 } }])));
+  assert.equal((await M.sendSolapiOnce(ACC, MSGS.sms, { fetch: st.fetch })).outcome, "unknown");
+});

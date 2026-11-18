@@ -93,23 +93,49 @@ function isPlainObject(x: unknown): x is Record<string, unknown> {
 }
 const isCount = (x: unknown): x is number => typeof x === "number" && Number.isInteger(x) && x >= 0;
 
-/** 2xx 본문을 공식 응답 계약으로 엄격히 분류(1건 발송 기준). 계약과 다르면 unknown. */
-export function classifySuccessBody(body: unknown): Pick<OnceResult, "outcome" | "reason"> {
-  if (!isPlainObject(body) || !Array.isArray(body.failedMessageList) || !isPlainObject(body.groupInfo)) {
-    return { outcome: "unknown", reason: "bad_response" };
+/** 공식 SDK failedMessageSchema의 필수 문자열 필드(설치 6.0.1 dist/index.js:2717-2731) */
+const FAILED_ITEM_FIELDS = ["to", "from", "type", "statusMessage", "country", "messageId", "statusCode", "accountId"] as const;
+
+/** 실패 목록 항목 1개가 공식 스키마와 맞는지: 필수 필드 모두 문자열, customFields는 없거나 문자열 값만 가진 객체. */
+function isFailedItem(x: unknown): boolean {
+  if (!isPlainObject(x)) return false;
+  for (const k of FAILED_ITEM_FIELDS) if (typeof x[k] !== "string") return false;
+  if (x.customFields !== undefined) {
+    if (!isPlainObject(x.customFields)) return false;
+    for (const v of Object.values(x.customFields)) if (typeof v !== "string") return false;
   }
+  return true;
+}
+
+/** 오류 봉투(errorCode·errorMessage) 흔적이 하나라도 있는지 */
+const hasErrorEnvelope = (b: Record<string, unknown>) => "errorCode" in b || "errorMessage" in b;
+/** 발송 결과 흔적(failedMessageList·groupInfo)이 하나라도 있는지 */
+const hasSendResult = (b: Record<string, unknown>) => "failedMessageList" in b || "groupInfo" in b;
+
+/**
+ * 2xx 본문을 공식 응답 계약으로 엄격히 분류(1건 발송 기준). 계약과 다르거나 서로 모순되면 unknown.
+ * 근거로 쓰는 범위는 설치된 공식 SDK의 detailGroupMessageResponseSchema·failedMessageSchema·countSchema뿐이며,
+ * 그 밖의 필드(예: 실패 항목의 to·from이 요청 번호와 같은지)는 확인된 계약이 아니라 판정에 쓰지 않는다.
+ * 「sent」는 SOLAPI가 접수(registered)했다는 뜻이지 최종 배달 보장이 아니다.
+ */
+export function classifySuccessBody(body: unknown): Pick<OnceResult, "outcome" | "reason"> {
+  const unknown = { outcome: "unknown" as const, reason: "bad_response" as const };
+  if (!isPlainObject(body) || hasErrorEnvelope(body)) return unknown; // 성공 응답에 오류 봉투가 섞이면 모순
+  if (!Array.isArray(body.failedMessageList) || !isPlainObject(body.groupInfo)) return unknown;
   const count = (body.groupInfo as Record<string, unknown>).count;
   if (!isPlainObject(count) || !isCount(count.total) || !isCount(count.registeredFailed) || !isCount(count.registeredSuccess)) {
-    return { outcome: "unknown", reason: "bad_response" };
+    return unknown;
   }
-  const failed = body.failedMessageList.length;
-  if (count.total === 1 && count.registeredSuccess === 1 && count.registeredFailed === 0 && failed === 0) {
+  const list = body.failedMessageList;
+  if (!list.every(isFailedItem)) return unknown;
+  if (list.length !== count.registeredFailed) return unknown; // 실패 목록 개수와 접수 실패 개수가 다르면 모순
+  if (count.total === 1 && count.registeredSuccess === 1 && count.registeredFailed === 0) {
     return { outcome: "sent", reason: "accepted" };
   }
-  if (count.total === 1 && count.registeredFailed === 1 && count.registeredSuccess === 0 && failed === 1) {
+  if (count.total === 1 && count.registeredFailed === 1 && count.registeredSuccess === 0) {
     return { outcome: "rejected", reason: "registration_failed" };
   }
-  return { outcome: "unknown", reason: "bad_response" };
+  return unknown;
 }
 
 /** 본문을 상한까지만 읽는다. 상한 초과·읽기 실패면 null. */
@@ -186,7 +212,8 @@ export async function sendSolapiOnce(account: SolapiAccount, msg: OnceMessage, d
   }
   if (status >= 200 && status < 300) return { ...classifySuccessBody(parsed), httpCalls: 1 };
   if (status >= 400 && status < 500) {
-    if (isPlainObject(parsed) && typeof parsed.errorCode === "string" && typeof parsed.errorMessage === "string") {
+    // 4xx는 공식 오류 봉투만 있고 발송 결과 흔적이 없을 때만 명시 거절(오류 봉투 + 성공 개수 공존 = 모순 → unknown)
+    if (isPlainObject(parsed) && typeof parsed.errorCode === "string" && typeof parsed.errorMessage === "string" && !hasSendResult(parsed)) {
       return { outcome: "rejected", httpCalls: 1, reason: "client_rejected" };
     }
     return { outcome: "unknown", httpCalls: 1, reason: "bad_response" };
