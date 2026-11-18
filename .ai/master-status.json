@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T17:57:58.356Z",
+  "checkedAt": "2026-11-18T17:59:43.186Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5546,17 +5546,17 @@
       "owner": "AG-UI-01",
       "reviewer": "CX-MASTER-01",
       "title": "메인 히어로 표시 요소 4곳 정리 운영 배포",
-      "status": "running",
-      "delivery": "owner_approved_isolated_hero_trim_release_in_progress",
+      "status": "done",
+      "delivery": "hero_trim_production_live_verified",
       "sha": "0b2835c07",
-      "evidence": "msg_16be4a1dca6e·0b2835c07",
+      "evidence": "msg_16be4a1dca6e·0b2835c07·msg_67f998597d8c",
       "scopeRef": "직전 운영 대비 HeroShowcase.tsx 단일 변경",
-      "next": "AG-UI-01 결과 회신 대기. Master 운영 alias와 승인 변경 재확인.",
+      "next": "공식 도메인·해당 소스 표시 4곳 및 이미지를 확인. 추가 실행 없음.",
       "release": {
         "program": "aimaster",
         "owner": "AG-UI-01",
         "reviewer": "CX-MASTER-01",
-        "status": "owner_approved_author_reported_start",
+        "status": "live_verified",
         "approvalMessage": "msg_16be4a1dca6e",
         "baseDeployment": "dpl_3Mk2kLgLyzbhmagxfoWTwFACGWXK",
         "baseSha": "ba31f40809f285c5c378e59213c76d227188ac11",
@@ -5567,9 +5567,28 @@
           "components/home/HeroShowcase.tsx",
           "public/images/hero/concept_3_command_hub.jpg"
         ],
-        "method": "Isolated snapshot with unchanged approved image; HeroShowcase-only live diff, one staged build."
+        "method": "Isolated snapshot with unchanged approved image; HeroShowcase-only live diff, one staged build.",
+        "normalUsed": 1,
+        "deployment": {
+          "id": "dpl_BGPCaMbH6kHsdwcPbpFuyurce6V2",
+          "url": "aimaster-odkxrnitt-buylife.vercel.app",
+          "alias": "www.buylife.xyz",
+          "state": "READY",
+          "builds": 1,
+          "pushes": 0,
+          "fileBlobs": {
+            "components/home/HeroShowcase.tsx": "46b3545948d47ed9bc9d3985894c2bb9f100175f",
+            "public/images/hero/concept_3_command_hub.jpg": "84c0ec3306b740f72cf7097916c6caedf75deff6"
+          },
+          "verification": "Official live page and JPEG HTTP 200, command center present; autonomous suffix, dots, overlay label, free-trial link absent; approved JPEG blob matches.",
+          "verifiedAt": "2026-11-18T17:59:43.186Z"
+        }
       },
-      "lastReviewedAt": "2026-11-18T17:56:45.432Z"
+      "lastReviewedAt": "2026-11-18T17:59:43.186Z",
+      "validation": {
+        "author": "격리 스냅샷·1회 빌드 READY 및 promote 보고. 공유 push/설정/운영 DB 변경 0.",
+        "master": "공식 호스트 Vercel READY ID, 홈/JPEG 200, 표시 4곳 제외 및 승인 JPEG 체크 확인; 시각 비교 미실행."
+      }
     }
   ],
   "programOverrides": [
@@ -8787,7 +8806,7 @@
       "program": "aimaster",
       "owner": "AG-UI-01",
       "reviewer": "CX-MASTER-01",
-      "status": "owner_approved_author_reported_start",
+      "status": "live_verified",
       "approvalMessage": "msg_16be4a1dca6e",
       "baseDeployment": "dpl_3Mk2kLgLyzbhmagxfoWTwFACGWXK",
       "baseSha": "ba31f40809f285c5c378e59213c76d227188ac11",
@@ -8798,7 +8817,22 @@
         "components/home/HeroShowcase.tsx",
         "public/images/hero/concept_3_command_hub.jpg"
       ],
-      "method": "Isolated snapshot with unchanged approved image; HeroShowcase-only live diff, one staged build."
+      "method": "Isolated snapshot with unchanged approved image; HeroShowcase-only live diff, one staged build.",
+      "normalUsed": 1,
+      "deployment": {
+        "id": "dpl_BGPCaMbH6kHsdwcPbpFuyurce6V2",
+        "url": "aimaster-odkxrnitt-buylife.vercel.app",
+        "alias": "www.buylife.xyz",
+        "state": "READY",
+        "builds": 1,
+        "pushes": 0,
+        "fileBlobs": {
+          "components/home/HeroShowcase.tsx": "46b3545948d47ed9bc9d3985894c2bb9f100175f",
+          "public/images/hero/concept_3_command_hub.jpg": "84c0ec3306b740f72cf7097916c6caedf75deff6"
+        },
+        "verification": "Official live page and JPEG HTTP 200, command center present; autonomous suffix, dots, overlay label, free-trial link absent; approved JPEG blob matches.",
+        "verifiedAt": "2026-11-18T17:59:43.186Z"
+      }
     }
   }
 }
