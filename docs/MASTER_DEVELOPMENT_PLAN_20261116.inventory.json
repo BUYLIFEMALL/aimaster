@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T16:52:34.982Z",
+  "checkedAt": "2026-11-18T17:00:55.639Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T16:33:14.330Z",
+      "at": "2026-11-18T17:00:55.639Z",
       "timezone": "Asia/Seoul",
-      "trigger": "01:30 정기 예약 msg_9f8032e15c00 수신 및 후속 보고",
-      "scope": "01:01 이후 증분. 프로그램 103·카테고리 19·기존 열린 작업 17·담당 기록 11, 변경 SHA·점유·검수·승인·미배포·신규 인수인계 대조.",
+      "trigger": "02:00 정기 예약 msg_b5ade7398bec 회수",
+      "scope": "01:33 이후 증분 점검. 프로그램 103개·카테고리 19개·열린 작업 17개·담당 기록 11개를 변경 SHA·검수·점유·미배포와 대조. 미등록 결과와 인수인계 및 직접지시 충돌 확인.",
       "evidence": [
-        "스케줄러 01:30:01 실행 종료 0·wake 기록 01:30:03 종료·동일 메시지 수신",
-        "e83102cc5 이후 G3I·G3T 기록 및 SNS Mac 결과/G3S ef2f26f12; msg_cccdda0e05cf·msg_6fd55dbf9cb3",
-        "메인 히어로 1edd6f67c·e73d362fc·msg_d61f61aef3a0 및 시안 폴더·세 HTTP 결과 200; 새 관리자 요청 0"
+        "Windows Task Scheduler 02:00:01 실행·종료 0, wake 메시지 02:00:03 전송 종료·기존 Master 수신",
+        "24afa7274..7798301ab 증분. G3S dffa5c436 독립 모의 3/3, UID 3a41efdd0 수락, UIC 00abbf149 검수 반례 및 수정 지시 msg_5562dd13e7ce",
+        "QA 변경 파일 1개는 UIC 등록 근거와 일치. 새 관리자 요청·별도 미등록 결과 없음."
       ],
-      "judgment": "G3T 독립 소스 수락 유지, G3S 구현 반환 뒤 독립 검수 전달. 미등록 히어로 V2는 담당자 근거 회수·시안 선택과 메인 배포 승인 대기로 등록. 추가 운영 작업 없음.",
-      "nextAction": "CX-QA-01 G3S 경계 판정 대기. AG-UI-01 히어로는 주인님 선택/승인 이후 기존 담당 진행. W02/W03 순서 유지.",
+      "judgment": "AI Influencer 생성 API 로컬 검수 종료, UIC 보완은 직접 계속 지시 순서에 맞게 먼저 진행 중. 새 구현/검수 중복 배정 없음. 메인 히어로 시안 선택·배포와 기존 Workspace 및 다른 사람단계는 새 증거 없음.",
+      "nextAction": "CC-SNS-01 UIC 수정 근거가 오면 CX-QA-01 재검수 후 화면 연결. 메인 히어로는 기존 선택·배포 승인 대기. W01 모드 OFF 유지.",
       "unverified": [
-        "G3S 독립 검수 및 실제 DB/Storage/AI 연동",
-        "메인 히어로 V2 Next.js 라이브 렌더·운영 배포 확인",
-        "Workspace 현황판/Gmail·기존 사람단계와 미배포 상태를 다시 실측하지 않음"
+        "UIC 수정본·실 브라우저 CORS 및 실제 Storage 동작",
+        "메인 히어로 최종 선택·실 제품 화면/배포",
+        "기존 Workspace 현황판·Gmail 및 이전 사람단계. 운영 재측정 없음."
       ]
     },
     "notifications": [
@@ -95,7 +95,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-18T17:00:00.000Z",
+      "nextScheduledAt": "2026-11-18T17:30:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -113,12 +113,12 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-18T16:30:00.000Z",
-        "messageId": "msg_9f8032e15c00",
+        "scheduledAt": "2026-11-18T17:00:00.000Z",
+        "messageId": "msg_b5ade7398bec",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false,
-        "receipt": "01:30:03 KST 전송 종료 및 기존 Master 수신. 실제 점검 시각 별도."
+        "receipt": "02:00:03 KST 전송 종료 및 기존 Master 수신. 실제 점검 시각 별도."
       }
     },
     "supersededOrcaAutomation": {
