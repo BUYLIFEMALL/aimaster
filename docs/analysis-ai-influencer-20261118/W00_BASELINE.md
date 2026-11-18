@@ -635,3 +635,50 @@ W01-A1 조회 경로 GET /api/aif/assets/[id](read.ts, 기본 off) 시험 16개,
 DB: 해당 없음(읽기만) · 배포: 해당 없음
 남은 일: P0 상위 모델 비교는 최종 테스트로 연기(주인님 결정 2026-11-18), 개발 중 기능 시험은 저렴한 모델, 영상 23건 중 인물 클립 선별
 ```
+
+### 14-A. W01-A1 OFF 소스 묶음 — 첫 단계 완료표 (2026-11-18, Master `msg_b0a3b18ad98c`)
+
+**원본 저장 스위치 `AIF_ASSETS_MODE`는 서버 상수 "off"**(`src/lib/assets/generation.ts:8`). 운영 DB·시험 DB에 migration 적용 0, 버킷 생성 0, 실제 업로드 0, 배포 0, 버전 올림 0. 아래 「검증」 열은 서로 다른 것이므로 합쳐 읽지 않는다.
+
+| 경로(`ai-influencer-studio/`) | 최종 커밋 | blob | 작성자 자체 시험 | Mac 독립 검수 | 격리 대역 실측 | 실 운영 |
+|---|---|---|---|---|---|---|
+| `supabase/migrations/20261118120000_aif_assets_a1.sql` | a29ffd287 | b29821216 | — | 정적 F01~F05 해소 | 15/15(작성자 실행) | 미적용 |
+| `src/lib/assets/paths.ts` | 9d5d921a7 | 59d4c75aa | 8/8 | 지정 수락 | — | 미배포 |
+| `src/lib/assets/store.ts` | 19ea5eab5 | 06f94480f | 13/13(가짜 rpc/storage) | 실모듈 F01·F02 PASS | — | 미배포·미연결 실행 0 |
+| `src/lib/assets/generation.ts` | 1525cd92d | fa292bf6a | 16/16(실 라우트 POST + shadow 주입) | 실 POST 통합 PASS | — | 미배포(off) |
+| `src/app/api/generate-image/route.ts` | 1525cd92d | 608d215c0 | 위와 같음 | 위와 같음 | — | 미배포(off) |
+| `src/lib/assets/read.ts` | 403fca68e | 526bb4355 | 17/17(실 라우트 GET + shadow 주입) | 실 GET 국소 PASS | — | 미배포(off) |
+| `src/app/api/aif/assets/[id]/route.ts` | 53fe00a72 | 7e129d91b | 위와 같음 | 위와 같음 | — | 미배포(off) |
+| `src/lib/referenceImage.ts`(`sniffImageKind` export) | 4d88a8cab | a695a9096 | 기존 15 + store 시험 | 포함 검수 | — | 미배포 |
+| `tests/assetPaths.test.mjs` | 9d5d921a7 | 723c65791 | | | | |
+| `tests/assetsStore.test.mjs` | 19ea5eab5 | f1e8b06fd | | | | |
+| `tests/generateImageRoute.test.mjs` | 1525cd92d | b3827db8c | | | | |
+| `tests/assetReadRoute.test.mjs` | 403fca68e | 4053504f4 | | | | |
+| `tests/sql/a1_contract.test.mjs` | 90ba12b30 | 7a0168d31 | | 잠금 PID·정리·역할 보강 수락 | | |
+| `tests/sql/a1_fixture.sql` | 3a48682cd | dc6d5a8a6 | | | | |
+
+- 자체 시험 합계: `npm test` 123/123(격리 SQL 시험 15는 별도 실행 `node --test tests/sql/a1_contract.test.mjs`).
+- 「격리 대역 실측」은 로컬 Docker의 시험 DB에서 대역(profiles·member_storage_policy·storage.objects·auth.uid) 위로 돌린 것이다 — 실제 중앙 함수·실제 Supabase 통합 통과가 아니다.
+- 「Mac 독립 검수」는 소스·모의 범위의 지정 검수다. 실제 DB·저장소·업로드·화면 검수가 아니다.
+
+### 14-B. 운영 ON 전 선행 조건 — 미해결 목록 (준비 목록일 뿐, 승인 요청·실행 아님)
+
+| # | 미해결 항목 | 현재 상태 | ON을 막는가 |
+|---|---|---|---|
+| 1 | migration 적용: 표 2개·함수 9개 | 초안만(a29ffd287), 어떤 DB에도 미적용 | **차단** |
+| 2 | 버킷 `aif-assets`(비공개·20MB·MIME 5종) 생성 | 미생성(migration에 일부러 없음) | **차단** |
+| 3 | 실제 Supabase에서 함수 소유자 권한·기본 GRANT·`storage.objects` 조회 권한 | 미검증(대역만) | **차단** |
+| 4 | 실제 중앙 측정(`member_storage_measure`)·정책(`member_storage_policy`)과의 합산 | 미검증(정책은 대역) | **차단** |
+| 5 | 실제 저장소 업로드·서명 URL 통합(SDK 응답 모양 실측 포함) | 미검증(가짜 주입) | **차단** |
+| 6 | **일반 회원 30일 보관 정리 실행자** — 중앙 `member_storage_expired_files`는 `retention_exempt and not manual`(연장 회원)만 다루고 기본 회원 파일을 자동 삭제하지 않는다(§15-1 근거). `aif-assets`의 일반 회원 원본을 지우는 프로그램 정리 작업이 없다 | **미구현** | **차단 — 연결 전 ON 금지**(일반 회원 원본이 기한 없이 쌓여 보관 규칙 위반) |
+| 7 | 정리 작업의 `retention_exempt` 제외(`loadRetentionExemptIdsStrict`) 연결 | 히스토리에는 적용(W01b), 원본 자산 정리는 6과 함께 미구현 | 차단(6에 포함) |
+| 8 | 삭제 예약(claim)과 `ready` 자산의 관계 — 지금 `claim_delete`는 reserved·ready·unknown을 모두 「사용 중」으로 거절한다. 기간 만료 정리가 `ready` 자산을 지우려면 `ready → 만료/삭제 대상` 전이가 따로 필요 | **계약 미정**(SQL에 전이 없음) | 차단(6의 전제) |
+| 9 | `unknown` 예약 복구·고아 객체 정리(사람 확인 또는 별도 복구 단위) | 미구현(§18-R2) | ON은 가능하나 unknown이 쌓이면 회원 한도가 보수적으로 줄어듦 — 복구 경로 없이 장기 운영 불가 |
+| 10 | 게시한 원본의 포스팅 표시(`markPosted`)·추적 버킷 등록 | 미연결(W07) | 6·8 설계에 영향 |
+| 11 | G5: 생성 결과 응답 4.5MB 한도 | 미해결(응답은 여전히 data URL) | ON과 무관하게 남는 기존 한계 |
+| 12 | 화면의 `assetSaved` 표시·`unknown` 안내·조회 재시도 | 미구현(UI 0) | shadow에서 회원이 저장 결과를 알 수 없음 |
+| 13 | 저장 시간 상한 초과 뒤 요청 중단(AbortSignal) | 미구현(대기만 끊고 요청은 계속될 수 있음) | 차단 아님 |
+| 14 | 원본 PLAN(타 저자 미커밋)에 §18·R1·R2·A1 보완 계약 병합 | Master 등록 대기 | 문서 정합 |
+| 15 | 히스토리↔자산 연결, 참고 이미지의 자산 ID 전환(A2: 클라이언트 업로드 ticket) | 미착수 | 차단 아님(후속) |
+
+결론: **일반 회원 보관 정리(6·7·8)가 연결되기 전에는 운영 ON을 하지 않는다.** 위 항목 가운데 완료된 것은 없다 — 모두 준비 목록이다.
