@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T19:14:59.091Z",
+  "checkedAt": "2026-11-18T19:16:35.733Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5830,10 +5830,14 @@
       "reviewer": "CX-MASTER-01",
       "title": "AI Influencer 대표 생성 및 보정 검증",
       "status": "waiting_human",
-      "delivery": "test_account_required_after_ego_restart_zero_calls",
-      "evidence": "msg_adecea24720e·msg_6450ddaf24a6·9f1e3697e·msg_640d108b3984·msg_2516c8d780b2·345eb10f8·msg_43f23b594003·msg_b3def667492a·msg_98a00503835e·msg_51f88e4ea1b2·msg_b0363e5b9ba3",
-      "next": "ego 재시작 뒤 기존 로그로 생성·저장 0 확인. V4 일반 회원이 로그인되어 로그아웃 처리. V3 전용 시험 계정 재로그인 대기.",
-      "lastReviewedAt": "2026-11-18T19:06:38.079Z"
+      "delivery": "provider_key_rejected_server_shutdown_requested",
+      "evidence": "msg_adecea24720e·msg_6450ddaf24a6·9f1e3697e·msg_640d108b3984·msg_2516c8d780b2·345eb10f8·msg_43f23b594003·msg_b3def667492a·msg_98a00503835e·msg_51f88e4ea1b2·msg_b0363e5b9ba3·msg_fd234e802a57·msg_00d7dcc5a167",
+      "next": "시험 계정 본인 Gemini 키 INVALID_KEY. 이미지 시도 1·캡션 0·참고 업로드 1, 재시도 0. 격리 서버 종료 요청, 키 갱신 신호 대기.",
+      "lastReviewedAt": "2026-11-18T19:16:35.733Z",
+      "validation": {
+        "result": "POST /api/aif/generations 500 INVALID_KEY. 작업 결과 없음, 과금 실측 미확인.",
+        "limitation": "생성/저장 성공, 캡션, 보정 및 히스토리 검증 미완료. 업로드 시험 자산 보존."
+      }
     },
     {
       "task_id": "ECOM-20261119-BANANA-QA",
@@ -5952,6 +5956,18 @@
       "evidence": "msg_c042ddbde7d9·481829768·msg_d71d13d13791",
       "next": "실거래부터 계획→로컬 구현·시험 순서. 고객관리·상가·매물 알림 후순위. 뉴스 N-1 동결 유지, 빌드·배포 별도.",
       "lastReviewedAt": "2026-11-18T19:14:59.091Z"
+    },
+    {
+      "task_id": "B2B-20261119-HOMETABS",
+      "parent_task_id": "B2B-20261119-FRONTQA",
+      "owner": "CC-B2B-FRONT-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "홈 상품 탭 대비와 키보드 접근성 보완",
+      "status": "queued",
+      "delivery": "tabs_view_contrast_keyboard_fix_dispatched",
+      "evidence": "dff2790cb·msg_c63d46c190e6·msg_c7174d94647e",
+      "next": "밑줄 미선택 대비와 두 스킨 로빙 포커스·가로 방향키·탭/패널 관계 로컬 보완. Mac 실검수는 대상 판 뒤.",
+      "lastReviewedAt": "2026-11-18T19:16:35.733Z"
     }
   ],
   "programOverrides": [
