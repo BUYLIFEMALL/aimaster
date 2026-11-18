@@ -4268,13 +4268,13 @@
       "scopeRef": "검수수락W00 기존문서 내·공용quota/버킷/markPosted/정리 읽기만",
       "completion": "자산/upload/finalize/deleteclaim 필드/제약/RLS/권한·공용재사용/원자보관·최소파일·시험/완료조건·원본PLAN해시/추가계약안",
       "constraints": "원본PLAN/HANDOFF/CATALOG미커밋보존·제품/migration/실DB/파일업로드/유료/build/push0·예산/게시표확대0",
-      "next": "unknown 예약 유지·원격 미접수/종료 확정 때만 해제하도록 계약 보완→Mac 재검수",
-      "evidence": "W00계약지정PASS·원본PLAN미커밋/저자/mtime Master확인·소유범위보존 · msg_a0230c44e9de/684ea110b·Master§18직접읽기·Macmsg_fb98184acf82 · Macmsg_21d4cc225cb8·Master검토점일치·반환msg_e3692104bca7 · Mac최종msg_3fb8d882b996/684반환·R1msg_04f574322ed9·직접읽기·재검수msg_5e4cf37ef2e3/작성자msg_77d84ced12da · Mac고정최종msg_5ea5eec8607d·작성자정정msg_c41eb08b5d1c",
-      "lastReviewedAt": "2026-11-18T06:10:44.059Z",
-      "sha": "0f8715d14",
+      "next": "2h+absence2회도 미래쓰기종료증거아님: unknown 시간기반해제 제거·원격미접수/종료확정만 해제하는 최소계약으로 한 번 정정→Mac최종",
+      "evidence": "W00계약지정PASS·원본PLAN미커밋/저자/mtime Master확인·소유범위보존 · msg_a0230c44e9de/684ea110b·Master§18직접읽기·Macmsg_fb98184acf82 · Macmsg_21d4cc225cb8·Master검토점일치·반환msg_e3692104bca7 · Mac최종msg_3fb8d882b996/684반환·R1msg_04f574322ed9·직접읽기·재검수msg_5e4cf37ef2e3/작성자msg_77d84ced12da · Mac고정최종msg_5ea5eec8607d·작성자정정msg_c41eb08b5d1c · msg_a4a26e69fd6c/0c6d09fc7eb5 R2 수신",
+      "lastReviewedAt": "2026-11-18T06:13:18.136Z",
+      "sha": "2a21c7e0a",
       "validation": {
         "author": "§18필드/RLS/service함수4/버킷/보관/잠금/불명/시험·원본PLANhash보존, 제품0",
-        "master": "quota ready미측정누락/만료ticket예약해제와실uploadTTL/서버hash·실바이트위치/generated상한·shadow연결/일시오류missing단정 우려 전달",
+        "master": "R2 측정순서설명 수신. 2h 임의유예/absence2회와 미래 orphan청소는 A1 예약상한 증거가 아니므로 불명 예약 유지하도록 반환",
         "independent": "R1 측정시각 단순반례 미확정(0065 now=거래시작·upload ACK후 새finalize·동일snapshot used/time조건). P1 timeout/진행중 absence1회 failed해제→늦은commit 미해결. SQL/업로드0"
       }
     },
@@ -4818,13 +4818,14 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T06:12:36.043Z",
+      "at": "2026-11-18T06:13:18.136Z",
       "timezone": "Asia/Seoul",
       "trigger": "실생성완료 이벤트",
       "scope": "담당직접승인/1회호출결과·services 프롬프트·담당파일미커밋0",
       "evidence": [
         "msg_121e44a17ff5",
-        "services.ts generateFreeImage254 직접읽기"
+        "services.ts generateFreeImage254 직접읽기",
+        "R2msg_a4a26e69fd6c·시간유예 미해소 반환"
       ],
       "judgment": "실전송형식/상한 지정수락·품질보류·일반코드수정 한담당배정·추가실호출승인확대0",
       "unverified": [

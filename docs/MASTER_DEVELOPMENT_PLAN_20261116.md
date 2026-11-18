@@ -1,10 +1,10 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 15:12:36 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 15:13:18 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 15:12:36 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 15:13:18 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
 점검 범위: 담당직접승인/1회호출결과·services 프롬프트·담당파일미커밋0 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
@@ -417,7 +417,7 @@ Master 마지막 실제 점검: 2026-11-18 15:12:36 KST · 실행 중 점검 주
 | CRM-20261118-09 | CC-B2B-BACK-01 | done / versioned_script_and_server_field_preservation_source_accepted_unreleased | Apps Script v2 이벤트키 스니펫·legacy 안내 연결 | CRM18-10 명시릴리스준비·실AppsScript/DDL/배포/SMS승인별도 |
 | AIF-20261118-W01c | CC-SNS-01 | done / reference_image_input_source_review_accepted_unreleased | 참고 이미지 MIME/서명 처리 독립 개선 범위 계획 | 미배포묶음·출력G5/실브라우저/공급자미검수·P0상위비교최종연기 |
 | CRM-20261118-10 | CC-B2B-BACK-01 | waiting_human / concrete_release_prepared_single_owner_approval_pending | CRM 중복방지 묶음 명시소스·DDL·실검수 릴리스 준비 | 주인님 DDL/버전/로컬1+원격1/SMS1 승인신호→단일담당순번·직전운영기준대조·실행 |
-| AIF-20261118-W01d | CC-SNS-01 | needs_revision / R1_timeout_late_storage_commit_reservation_release_P1 | 첫 원본 자산 단위 필드·권한·스토리지 구체 계약 | unknown 예약 유지·원격 미접수/종료 확정 때만 해제하도록 계약 보완→Mac 재검수 |
+| AIF-20261118-W01d | CC-SNS-01 | needs_revision / R1_timeout_late_storage_commit_reservation_release_P1 | 첫 원본 자산 단위 필드·권한·스토리지 구체 계약 | 2h+absence2회도 미래쓰기종료증거아님: unknown 시간기반해제 제거·원격미접수/종료확정만 해제하는 최소계약으로 한 번 정정→Mac최종 |
 | QA-20261118-ESM-01 | CX-QA-01 | waiting_human / zip_source_versions_verified_installed_extension_and_login_pending | ESM v1.02 입력만·쇼핑제휴 v1.89 네이버 수집 실확장 준비/검수 | 기존 Mac 사람요청 한곳: ESM+/네이버로그인·확장실제설치버전·brandlink1 뒤 입력만/수집검수 |
 | ECOM-20261118-08 | CC-ECOM-01 | dispatched / source_only_prompt_fix_assigned_after_owner_approved_one_real_call | Cloudflare 배경 생성 프롬프트 문자 혼입 보완 | 담당 최소수정 SHA→Mac 소스검수→추가실생성 필요성/승인 별도 |
 
