@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 18:53:54 KST",
+  "checkedAt": "2026-11-18 18:55:27 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T09:53:54.259Z",
+      "at": "2026-11-18T09:55:27.463Z",
       "timezone": "Asia/Seoul",
-      "trigger": "W01r 최종 격리 재검증 보고",
-      "scope": "da5996c2a 회전 시험 diff 및 SQL blob·격리 실행 보고 대조.",
+      "trigger": "W01r 독립 Mac 판정 및 담당 증거 문서",
+      "scope": "SQL/시험 정적 판정 1회와 06d4f2557 담당 문서 범위 확인.",
       "evidence": [
-        "msg_b087ad72b7ad·da5996c2a·19af3e6bb",
-        "msg_824abfdf2bc5·msg_7d9b8080609d"
+        "msg_78970d4fa565·da5996c2a",
+        "msg_d356994ff02b·06d4f2557",
+        "msg_bf03508f5f2a"
       ],
-      "judgment": "작성자 격리 PostgreSQL 20/20 수락. 통과 범위는 대역 SQL 계약. Mac 정적 검수 요청.",
+      "judgment": "W01r 격리 시험 및 정적 검수 단계 종결, W01s 로컬 실행자 연결 범위 배정.",
       "unverified": [
-        "Mac 정적 독립 검수·실 Supabase Storage/권한/성능·런타임 연결",
-        "Gmail OAuth 동의/실검증"
+        "실 Supabase 권한/Storage·운영 적용 및 성능",
+        "W01s 실행자 연결",
+        "Gmail 동의 및 실검증"
       ],
-      "nextAction": "Mac 판정과 문서 근거 수신 후 W01r 종결 검토."
+      "nextAction": "W01s 로컬 소스와 모의시험 회수."
     },
     "notifications": [
       {
@@ -8749,21 +8751,36 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "누락 자산 후속 SQL·격리 시험 초안",
-      "status": "reviewing",
-      "delivery": "isolated_20_of_20_accepted_mac_static_review_requested",
+      "status": "done",
+      "delivery": "isolated_20_of_20_and_mac_static_review_accepted",
       "scopeRef": "신규 후속 migration, 신규 격리 시험, W00 해당 근거",
       "constraints": "기존 migration·실행자/route/fixture 변경·SQL 실행/DB 생성·운영/Storage/비용/배포 0",
       "completion": "권한·인덱스 정렬·창/반환 상한·metadata 두 기준·예약 보존·격리 시험 경계 명시",
-      "evidence": "e3bb9132f·msg_0f05ca942dad·정정 요청 msg_b79fa67a3680 / msg_c93d4f3c6d24 / msg_1ede944e2a6c / msg_d9560a3b5fae / msg_e35ee13c657f / msg_c1ffe34be953 / msg_1b9327970031 / msg_b087ad72b7ad / msg_824abfdf2bc5 / msg_7d9b8080609d",
-      "next": "Mac 정적 독립 검수와 담당 증거 문서 갱신 대기. 런타임 연결 별도.",
-      "lastReviewedAt": "2026-11-18T09:53:54.259Z",
+      "evidence": "e3bb9132f·msg_0f05ca942dad·정정 요청 msg_b79fa67a3680 / msg_c93d4f3c6d24 / msg_1ede944e2a6c / msg_d9560a3b5fae / msg_e35ee13c657f / msg_c1ffe34be953 / msg_1b9327970031 / msg_b087ad72b7ad / msg_824abfdf2bc5 / msg_7d9b8080609d / msg_78970d4fa565 / 06d4f2557",
+      "next": "W01s 정리 실행자 소스 연결. 운영 적용 별도.",
+      "lastReviewedAt": "2026-11-18T09:55:27.463Z",
       "sha": "da5996c2a",
       "validation": {
         "author": "node --check, 기존 npm 171/171·tsc 보고. 신규 격리 시험 미실행.",
         "master": "Storage 단일 스냅샷과 CLI 대기 한도 확인. 컨테이너 내부 프로세스 종료는 별도 검증.",
         "isolated": "고정 제품 SQL 19af3e6bb. 시험 SHA 2d6dfff03 17/20 → 4e0c27cc5 19/20 → da5996c2a 20/20·skip 0·exit 0. OID 2545248 일치 DROP·DB와 세션 부재 담당 보고. 초기 실패는 시험 수정으로 해소.",
-        "independent": "Mac 정적 검수 요청, 결과 대기"
+        "independent": "Mac 정적 독립 검수 추가 차단 0. Mac SQL 미실행."
       }
+    },
+    {
+      "task_id": "AIF-20261118-W01s",
+      "parent_task_id": "AIF-20261118-W01r",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "누락 자산 정리 실행자 연결",
+      "status": "dispatched",
+      "delivery": "local_cleanup_integration_requested",
+      "scopeRef": "retention.ts·cleanup route·assetRetention 시험·기존 해당 문구",
+      "constraints": "SQL/fixture/read/store/모드/cron 고정·실행 DB/Storage/비용/빌드/배포 0",
+      "completion": "C→D→B→A·검사/반환/처리 상한·DB parked_at 필터·D remove 0·OFF/불명 경계·로컬 모의",
+      "evidence": "msg_bf03508f5f2a",
+      "next": "고지·점유 확인 후 로컬 구현 SHA와 시험 결과 회수.",
+      "lastReviewedAt": "2026-11-18T09:55:27.463Z"
     }
   ]
 }
