@@ -75,7 +75,7 @@ export function ProductCard({ base, product, card }: { base: string; product: Sh
               </span>
             </div>
             {showList && (graded || rate > 0) && (
-              <div className="flex items-center gap-1.5 text-xs text-slate-400 line-through mt-0.5">
+              <div className="flex items-center gap-1.5 text-xs text-slate-600 line-through mt-0.5">
                 {graded && <span>{product.base_price.toLocaleString("ko-KR")}원</span>}
                 {rate > 0 && <span>{product.list_price!.toLocaleString("ko-KR")}원</span>}
               </div>

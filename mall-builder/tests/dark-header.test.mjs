@@ -153,3 +153,15 @@ test("탭 올림 글자 규칙은 상점 표식(--mall-nav-hover) 안 hover:bg-s
   assert.equal(hit(renderToStaticMarkup(React.createElement("main", null, React.createElement("a", { className: navCls }, "메뉴")))), 0, "관리자 모양");
   await win.happyDOM.close();
 });
+
+// 주인님 직접 지시 P3(2026-11-19) — 줄 그은 원래 가격이 text-slate-400이라 밝게 2.41~2.63·어둡게 2.28~2.6.
+// 실제 Tailwind 컴파일 실측(12색 × 밝게/어둡게 × 흰 카드/몰 바탕): slate-500도 3.63~4.59로 미달, slate-600만 6.57~7.58
+test("줄 그은 원래 가격(상품 카드·상세)은 text-slate-600 — 밝게·어둡게 모두 4.5 이상", () => {
+  for (const f of ["../src/app/s/[store]/(shop)/product-card.tsx", "../src/app/s/[store]/(shop)/p/[id]/product-detail.tsx"]) {
+    const s = readFileSync(new URL(f, import.meta.url), "utf8");
+    const lines = s.split("\n").filter((l) => /className="[^"]*line-through/.test(l));
+    assert.equal(lines.length, 1, f);
+    assert.match(lines[0], /\btext-slate-600\b/, f);
+    assert.doesNotMatch(lines[0], /\btext-slate-(300|400|500)\b/, f);
+  }
+});

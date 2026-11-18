@@ -193,7 +193,7 @@ export default function ProductDetail({
                     </span>
                   </div>
                   {(graded || rate > 0) && (
-                    <div className="mt-1.5 flex items-center gap-2 text-sm text-slate-400 line-through">
+                    <div className="mt-1.5 flex items-center gap-2 text-sm text-slate-600 line-through">
                       {graded && <span>{(basePrice + (variant?.extra_price ?? 0)).toLocaleString("ko-KR")}원</span>}
                       {rate > 0 && <span>{listPrice!.toLocaleString("ko-KR")}원</span>}
                     </div>
