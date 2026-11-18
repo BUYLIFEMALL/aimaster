@@ -1,5 +1,7 @@
 // HTML → block specs (the "HTML" importer): tolerant tokenizer + tree builder, then block/inline mapping.
 // Understands Workspace's HTML export (page-title header, to-do lists, callouts, toggles, simple tables).
+// 2026-11-19 WS-20261119-01: 노션 공개 페이지를 브라우저에서 「웹 페이지, 전체」로 저장한 HTML도 읽는다 —
+// 본문은 notion-page-content 안만(상단 바·목차 띠·알림 문구 제외), 블록은 notion-*-block 클래스로 종류를 판정한다.
 import type { Annotation, Decoration, RichText } from '#shared/richtext.ts';
 import type { Spec } from './spec.ts';
 import { safeHref } from '#shared/url.ts';
@@ -61,6 +63,8 @@ export function parseHtmlTree(src: string): El {
       continue;
     }
     if (!closing && SKIP.has(tag)) {
+      // iframe 안쪽은 버리되 주소(src)는 남긴다 — 저장된 노션 페이지의 영상·임베드 블록이 읽는다
+      if (tag === 'iframe') top.children.push({ tag, attrs: parseAttrs(m[2] ?? ''), children: [] });
       if (!/\/>$/.test(whole)) {
         skipDepth = 1;
         skipTag = tag;
@@ -123,7 +127,7 @@ function isBlockEl(n: Node): boolean {
 function inline(nodes: Node[], anns: Annotation[], out: Decoration[], pre = false) {
   for (const n of nodes) {
     if (typeof n === 'string') {
-      const t = pre ? n : n.replace(/[ \t\r\n]+/g, ' ');
+      const t = (pre ? n : n.replace(/[ \t\r\n]+/g, ' ')).replace(/\u200b/g, '');
       if (!t) continue;
       const last = out[out.length - 1];
       if (last && JSON.stringify(last[1] ?? []) === JSON.stringify(anns)) last[0] += t;
@@ -131,6 +135,7 @@ function inline(nodes: Node[], anns: Annotation[], out: Decoration[], pre = fals
       continue;
     }
     const a: Annotation[] = [];
+    if (hasClass(n, 'notion-inline-code-container')) a.push(['c']); // 노션 화면의 인라인 코드(div로 그려짐)
     switch (n.tag) {
       case 'b':
       case 'strong':
@@ -164,6 +169,8 @@ function inline(nodes: Node[], anns: Annotation[], out: Decoration[], pre = fals
         inline(['\n'], anns, out, true);
         continue;
       case 'img':
+        // 노션 화면의 이모지는 글자가 아니라 alt에 글자가 든 그림이다
+        if (hasClass(n, 'notion-emoji') && n.attrs.alt) inline([n.attrs.alt], anns, out, true);
         continue;
       case 'span': {
         const st = n.attrs.style ?? '';
@@ -255,6 +262,11 @@ function blocks(nodes: Node[], ctx: HtmlContext): Spec[] {
       continue;
     }
     flushInline();
+    const notion = notionBlock(n, ctx);
+    if (notion) {
+      out.push(...notion);
+      continue;
+    }
     switch (n.tag) {
       case 'h1':
         out.push({ type: 'header', text: richOf(n.children) });
@@ -367,9 +379,161 @@ function callout(n: El, ctx: HtmlContext): Spec {
   return { type: 'callout', icon: icon || '💡', text: first?.text ?? [], format: { block_color: 'gray_background' }, children: inner };
 }
 
+// ---------------- 노션 화면 HTML(브라우저로 저장한 공개 페이지)
+
+/** notion-<종류>-block 클래스 + data-block-id가 있는 요소의 종류(없으면 null) */
+function notionKind(n: Node): string | null {
+  if (typeof n === 'string' || !n.attrs['data-block-id']) return null;
+  return /(?:^|\s)notion-([a-z_0-9]+)-block(?:\s|$)/.exec(n.attrs.class ?? '')?.[1] ?? null;
+}
+
+/** 바로 아래 단계의 노션 블록들(다른 블록 안쪽으로는 내려가지 않음) */
+function notionKids(el: El): El[] {
+  const out: El[] = [];
+  const walk = (e: El) => {
+    for (const c of e.children) {
+      if (typeof c === 'string') continue;
+      if (notionKind(c)) out.push(c);
+      else walk(c);
+    }
+  };
+  walk(el);
+  return out;
+}
+
+/** 이 블록 자신의 요소 찾기(하위 블록 안쪽은 보지 않음) */
+function notionFind(el: El, pred: (e: El) => boolean): El | null {
+  for (const c of el.children) {
+    if (typeof c === 'string' || notionKind(c)) continue;
+    if (pred(c)) return c;
+    const f = notionFind(c, pred);
+    if (f) return f;
+  }
+  return null;
+}
+
+const NOTION_COLORS: Record<string, string> = { gra: 'gray', bro: 'brown', ora: 'orange', yel: 'yellow', gre: 'green', blu: 'blue', pur: 'purple', pin: 'pink', red: 'red' };
+
+function notionBlock(n: El, ctx: HtmlContext): Spec[] | null {
+  const kind = notionKind(n);
+  if (!kind) return null;
+  const leaf = notionFind(n, (e) => 'data-content-editable-leaf' in e.attrs);
+  const text = (): RichText => (leaf ? richOf(leaf.children) : []);
+  const kids = (): Spec[] => blocks(notionKids(n), ctx);
+  const withKids = (spec: Spec): Spec[] => {
+    const k = kids();
+    if (k.length) spec.children = k;
+    return [spec];
+  };
+  switch (kind) {
+    case 'text':
+      return withKids({ type: 'text', text: text() });
+    case 'header':
+      return [{ type: 'header', text: text() }, ...kids()];
+    case 'sub_header':
+      return [{ type: 'sub_header', text: text() }, ...kids()];
+    case 'sub_sub_header':
+      return [{ type: 'sub_sub_header', text: text() }, ...kids()];
+    case 'bulleted_list':
+      return withKids({ type: 'bulleted_list', text: text() });
+    case 'numbered_list':
+      return withKids({ type: 'numbered_list', text: text() });
+    case 'toggle':
+      return withKids({ type: 'toggle', text: text() });
+    case 'quote':
+      return withKids({ type: 'quote', text: text() });
+    case 'to_do': {
+      const box = notionFind(n, (e) => e.tag === 'input' && (e.attrs.type ?? '').toLowerCase() === 'checkbox');
+      const checked = (!!box && ('checked' in box.attrs || box.attrs['aria-checked'] === 'true')) || /line-through/.test(leaf?.attrs.style ?? '');
+      return withKids({ type: 'to_do', checked, text: text() });
+    }
+    case 'divider':
+      return [{ type: 'divider' }];
+    case 'code':
+      return [{ type: 'code', text: leaf ? textOf(leaf).replace(/\u200b/g, '').replace(/\n$/, '') : '', language: codeLanguage('') }];
+    case 'callout': {
+      const iconEl = notionFind(n, (e) => hasClass(e, 'notion-emoji'));
+      const icon = (iconEl?.attrs.alt ?? '').replace(/\s*Callout icon$/i, '').trim() || '💡';
+      const bg = notionFind(n, (e) => /--c-[a-z]{3}Bac/.test(e.attrs.style ?? ''));
+      const color = NOTION_COLORS[/--c-([a-z]{3})Bac/.exec(bg?.attrs.style ?? '')?.[1] ?? ''] ?? 'gray';
+      const inner = kids();
+      const first = inner[0]?.type === 'text' && !inner[0].children?.length ? inner.shift()! : null;
+      return [{ type: 'callout', icon, text: first?.text ?? text(), format: { block_color: `${color}_background` }, children: inner }];
+    }
+    case 'bookmark': {
+      const a = notionFind(n, (e) => e.tag === 'a' && !!e.attrs.href);
+      const href = a?.attrs.href ? safeHref(a.attrs.href) : null;
+      if (!a || !href) return kids();
+      const parts: string[] = [];
+      const collect = (e: El) => {
+        for (const c of e.children) {
+          if (typeof c === 'string') {
+            if (c.trim()) parts.push(c.trim());
+          } else collect(c);
+        }
+      };
+      collect(a);
+      const [title, desc] = parts.filter((t) => t !== a.attrs.href);
+      return [{ type: 'bookmark', url: href, ...(title ? { text: title } : {}), ...(desc ? { props: { description: [[desc]] } } : {}) }];
+    }
+    case 'image': {
+      const img = notionFind(n, (e) => e.tag === 'img' && !hasClass(e, 'notion-emoji'));
+      const raw = img?.attrs.src ?? '';
+      const src = ctx.resolveImage ? ctx.resolveImage(raw) : /^https?:\/\//i.test(raw) ? raw : null;
+      const cap = text();
+      if (src) return [{ type: 'image', url: src, ...(cap.length ? { props: { caption: cap } } : {}) }];
+      return cap.length ? [{ type: 'text', text: cap }] : [];
+    }
+    case 'video':
+    case 'embed':
+    case 'audio':
+    case 'pdf':
+    case 'figma':
+    case 'maps':
+    case 'codepen':
+    case 'gist':
+    case 'loom':
+    case 'tweet': {
+      const frame = notionFind(n, (e) => e.tag === 'iframe');
+      const raw = frame?.attrs.src ?? '';
+      // 저장할 때 브라우저가 유튜브 영상 틀을 「<영상 id>.html」 파일로 바꿔 놓는다 — 파일 이름에서 id를 되살린다
+      const yt = kind === 'video' ? /(?:^|\/)([A-Za-z0-9_-]{11})\.html?$/.exec(raw)?.[1] : undefined;
+      const url = /^https?:\/\//i.test(raw) ? safeHref(raw) : yt ? `https://www.youtube.com/watch?v=${yt}` : null;
+      const cap = text();
+      if (url) return [{ type: kind === 'video' ? 'video' : 'embed', url, ...(cap.length ? { props: { caption: cap } } : {}) }];
+      return cap.length ? [{ type: 'text', text: cap }] : [];
+    }
+    case 'table': {
+      const table = find(n, (e) => e.tag === 'table');
+      return table ? blocks([table], ctx) : kids();
+    }
+    case 'table_of_contents':
+      return [{ type: 'table_of_contents' }];
+    case 'column_list':
+      return [{ type: 'column_list', children: notionKids(n).map((c) => ({ type: 'column' as const, children: blocks(notionKids(c), ctx) })) }];
+    case 'page':
+      return []; // 페이지 제목 블록 — 제목은 parseHtml이 따로 읽는다
+    default: {
+      // 모르는 종류(동기화 블록·데이터베이스 등): 하위 블록이 있으면 그것을, 없으면 글만
+      const k = kids();
+      if (k.length) return k;
+      const t = text();
+      return t.length ? [{ type: 'text', text: t }] : blocks(n.children, ctx);
+    }
+  }
+}
+
 /** Parse an HTML document → title + blocks. */
 export function parseHtml(src: string, ctx: HtmlContext = {}): { title?: string; blocks: Spec[] } {
   const root = parseHtmlTree(src);
+  // 노션 화면 HTML: 본문 영역만 읽고(화면 문구 제외), 제목은 페이지 제목 블록에서
+  const notionBody = find(root, (e) => hasClass(e, 'notion-page-content'));
+  if (notionBody) {
+    const pageEl = find(root, (e) => notionKind(e) === 'page');
+    const h = pageEl ? find(pageEl, (e) => 'data-content-editable-leaf' in e.attrs) : null;
+    const t = h ? textOf(h).replace(/\u200b/g, '').trim() : '';
+    return { title: t || undefined, blocks: blocks(notionBody.children, ctx) };
+  }
   const titleEl = find(root, (e) => e.tag === 'title');
   const pageTitle = find(root, (e) => (e.tag === 'h1' && hasClass(e, 'page-title')) || hasClass(e, 'page-title'));
   const body = find(root, (e) => hasClass(e, 'page-body')) ?? find(root, (e) => e.tag === 'body') ?? root;
