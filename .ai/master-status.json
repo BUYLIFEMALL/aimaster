@@ -3227,9 +3227,9 @@
       "status": "waiting_human",
       "delivery": "user_connection_signal_saved_account_not_confirmed",
       "scopeRef": "0074→0075 운영적용/정의검증·회원본인OAuth동의/metadata·실PostgREST/주소·스위치/배포 승인별도",
-      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f·Workspace SQL完了報告(主会話)·주인님전달Workspace배포완료9ea979de9·Master Vercel get_alias동일dpl·Macmsg_f0e46da48809/Workspace msg_bce4e6bf3fad·실검증1차 주인님전달·판정지시msg_89ba88b28a3d·Workspace콜백상수대조true/두회원client등록boolean보고·범위정정msg_2020570870f9 · 주인님시험naver로그인확인(CC-WORKSPACE-01 직접보고) · 주인님보고 DreamAI웹client Gmail callback누락확인(회원client일치미대조) / CC-WORKSPACE-01 직접 보고: 주소 10→11·콜백 1개·시험/관리자 Client ID 일치·msg_ac60ef28f478 / Workspace 연결 신호·저장 행 0 보고· msg_e70d3630952c",
+      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f·Workspace SQL完了報告(主会話)·주인님전달Workspace배포완료9ea979de9·Master Vercel get_alias동일dpl·Macmsg_f0e46da48809/Workspace msg_bce4e6bf3fad·실검증1차 주인님전달·판정지시msg_89ba88b28a3d·Workspace콜백상수대조true/두회원client등록boolean보고·범위정정msg_2020570870f9 · 주인님시험naver로그인확인(CC-WORKSPACE-01 직접보고) · 주인님보고 DreamAI웹client Gmail callback누락확인(회원client일치미대조) / CC-WORKSPACE-01 직접 보고: 주소 10→11·콜백 1개·시험/관리자 Client ID 일치·msg_ac60ef28f478 / Workspace 연결 신호·저장 행 0 보고· msg_e70d3630952c / Workspace 콜백 로그 도구 403·결과 분류 미확인·실검증 미시작",
       "completion": "승인된범위의운영마이그레이션·실계정/권한/계정경계·활성배포·운영동작 확인",
-      "next": "기존 받은 업무 화면의 연결 표시와 콜백 결과 확인 후 §11-3 재개 판단.",
+      "next": "기존 받은 업무 화면 확인 대기. 로그 도구 403으로 콜백 결과 미확인, 실검증 미시작.",
       "blockedReason": "연결 완료 신호를 받았으나 시험·관리자 계정의 google_gmail 저장 행은 0으로 담당 보고. 동의 및 콜백 성공 경계 미확인.",
       "approval": {
         "source": "주인님 Workspace 채팅 선택 답변 2026-11-18",
@@ -3240,7 +3240,7 @@
         "recoveryUsed": 0,
         "scope": "0074→0075 운영적용·Gmail ON·v1.58 묶음·확인표 실OAuth/Gmail검증"
       },
-      "lastReviewedAt": "2026-11-18T13:22:22.559Z",
+      "lastReviewedAt": "2026-11-18T13:33:07.353Z",
       "sha": "9ea979de9 (Gmail ON 722a3ba99 포함)",
       "validation": {
         "author": "전체61파일840/840·tsc0·qa_0",
@@ -4892,6 +4892,21 @@
         "isolated": "담당 PG17 16/17→17/17·skip 0, 제품 SQL 67b91845a 불변. OID 2545883 일치 정리·DB/세션 부재. 게이트 뒤 STABLE 0:0/VOLATILE 1:1, 다음 문장 1:1.",
         "independent": "Mac 독립 정적 검수 추가 차단 0. 직접 SQL 미실행."
       }
+    },
+    {
+      "task_id": "WS-20261118-02",
+      "owner": "CC-WORKSPACE-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "워크스페이스 캘린더 업그레이드 계획",
+      "status": "waiting_human",
+      "delivery": "calendar_upgrade_plan_received_scope_decisions_pending",
+      "sha": "699b2d6a6",
+      "scopeRef": "ai-work-workspace/docs/PLAN_20261118_NOTION_CALENDAR_PARITY.md",
+      "constraints": "계획 문서만, 구현·가져오기·동기화·빌드/배포 미승인",
+      "completion": "데이터 이관과 화면 동작을 구분하고 동작 검수/우선순위 확정",
+      "evidence": "주인님 Workspace 직접 지시 보고·699b2d6a6 1파일 문서",
+      "next": "화면 기능/데이터 범위, 데이터 포함 시 일회 가져오기/동기화, 중복 메뉴 결정 대기.",
+      "lastReviewedAt": "2026-11-18T13:33:07.353Z"
     }
   ],
   "programOverrides": [
@@ -5410,22 +5425,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T13:30:48.853Z",
+      "at": "2026-11-18T13:33:07.353Z",
       "timezone": "Asia/Seoul",
-      "trigger": "22:30 KST 30분 예약 메시지 수신",
-      "scope": "22:22 이후 Git·결과/인수인계·점유·관리자 요청, 19개 분류와 미종결 작업·사람/운영 선행조건 대조.",
+      "trigger": "Workspace 캘린더 계획 직접 보고",
+      "scope": "699b2d6a6 문서 범위/선행 결정과 WS27 콜백 상태 대조.",
       "evidence": [
-        "msg_4dc41e78c94b",
-        "1c78a46bd 기존 Gmail 및 P3 판정 이후 새 근거 없음",
-        "관리자 요청 대기 0·기존 HANDOFF 9줄"
+        "699b2d6a6",
+        "Workspace 직접 보고: 콜백 로그 도구 403·화면 확인 대기"
       ],
-      "judgment": "새 완료·승인 신호 없음. WS27 저장 연결 확인 대기, P3 로컬 SQL 종결·미배포. 새 배정 없음.",
+      "judgment": "캘린더 계획 접수·범위 결정 대기. Gmail 실검증 보류.",
       "unverified": [
-        "Gmail 기존 화면/콜백 및 저장 확인, §11-3 미실행",
-        "AI Influencer 실 DB/Storage·호출 경로·운영 적용",
-        "기존 운영 및 사람 의존 단계"
+        "캘린더 실제 화면 동작 대조 및 구현 범위",
+        "Gmail 기존 화면/콜백 결과"
       ],
-      "nextAction": "Workspace 기존 연결/콜백 상태 회신, 새 사람 완료/운영 승인 수신 시 해당 담당 재개."
+      "nextAction": "캘린더 범위 결정 및 WS27 기존 화면 증거 회수."
     },
     "notifications": [
       {
