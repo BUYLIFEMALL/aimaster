@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T03:28:04.228Z",
+  "checkedAt": "2026-11-18T03:29:43.745Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3888,19 +3888,19 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
       "title": "CRM 기존3집계 조회실패 0건오인 국소보완",
-      "status": "ready_review",
-      "delivery": "all_count_failure_fix_independent_review_dispatched",
-      "evidence": "IMP-CRM-02·msg_dadd04b31f21·착수msg_c925cbcfb437·결과msg_6245745c7de7·Master4파일stat·Macmsg_8e80d8cbb82c",
+      "status": "done",
+      "delivery": "specified_actual_ssr_counts_qa_pass_unreleased",
+      "evidence": "IMP-CRM-02·msg_dadd04b31f21·착수msg_c925cbcfb437·결과msg_6245745c7de7·Master4파일stat·Macmsg_8e80d8cbb82c·MacPASSmsg_dbbca5ced04b·수락/정리msg_0d7a0106f997",
       "scopeRef": "dashboard/page.tsx·submissionStatus.ts·submission-status.test.mjs·기존결과본인절",
       "completion": "전체/최근7일/실패error/비정상count확인불가·정상0/양수회귀·실pageSSR가짜query·tsc·Mac독립",
       "constraints": "route/발송/후속정책/DDL/실API/운영DB/build0",
-      "next": "Mac독립판정→후속발송정책주인님결정회수후연결범위지정",
-      "lastReviewedAt": "2026-11-18T03:28:04.228Z",
+      "next": "소스정리/점유해제·후속알림제품결정전발송연결보류",
+      "lastReviewedAt": "2026-11-18T03:29:43.745Z",
       "sha": "7b002047d",
       "validation": {
         "author": "실pageSSR49/49·dedupe포함63/63·tsc0·비정상24 red→green",
         "master": "4파일범위확인·추가쿼리/신규칼럼없음보고",
-        "independent": "Mac실SSR경계대기"
+        "independent": "Mac native49/실page4카드x8경계32·정상0/양수·기존query/필터회귀PASS"
       }
     }
   ],
@@ -4390,20 +4390,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T03:28:04.228Z",
+      "at": "2026-11-18T03:29:43.745Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM18-04 7b002047d 자체시험결과",
-      "scope": "4파일/실pageSSR49·독립검수배정·후속알림제품결정",
+      "trigger": "CRM18-04 지정독립PASS msg_dbbca5ced04b",
+      "scope": "실SSR4카드오류32/정상회귀·준비완료와운영미해결분리",
       "evidence": [
-        "작성자msg_6245745c7de7·Masterdiffstat",
-        "Mac msg_8e80d8cbb82c·주인님제품선택비동기질문접수"
+        "Mac native49+독립32 경계PASS",
+        "Backend기존문서정리/점유해제msg_0d7a0106f997"
       ],
-      "judgment": "자체검증접수·독립대기,후속알림중지는제품선택으로사람결정요청·기존운영변경0",
+      "judgment": "18-04소스완료수락·CRM운영중복위험은미해결. 제품결정전발송연결보류·불필요추가시험0",
       "unverified": [
-        "7b독립판정·주인님후속알림선택",
+        "주인님후속알림정책·운영DDL/연결/실발송",
         "GmailOAuth·MacB저장"
       ],
-      "nextAction": "독립결과/사람결정회수→연결단계정확범위판정"
+      "nextAction": "정책회신/기록SHA회수→정확연결범위배정"
     },
     "notifications": [
       {
@@ -4892,9 +4892,9 @@
       "kind": "현행확인필요",
       "target": "웹훅 response_id 중복 발송 F007",
       "owner": "CC-B2B-BACK-01(단기검증)",
-      "status": "현재소스결함정적확인·운영실측0",
+      "status": "운영결함미해결·순수키/SQL초안/UI준비완료",
       "evidence": "crm-google-form/docs/IMPROVEMENTS.md:7·PORT18-02·53d66404f·route/SourceCard Master대조",
-      "next": "안정이벤트키/오병합/구스크립트호환플랜보완→코드/격리검증범위판정",
+      "next": "주인님불확실후속알림정책선택→route/dispatch구현범위·운영DDL/빌드/실문자별도",
       "acceptance": "이미해결F011재배정0·실SMS/DB0"
     },
     {
@@ -4902,9 +4902,9 @@
       "kind": "기존오류처리한계",
       "target": "대시보드 전체/발송실패/최근7일 count 조회실패 0건오인",
       "owner": "CC-B2B-BACK-01(단기)",
-      "status": "7b002047d 소스자체통과·Mac검수대기",
+      "status": "7b002047d 지정실SSR독립PASS·미배포",
       "evidence": "405ebdb8c 결과msg_7e48457823e8",
-      "next": "실SSR각카드독립오류/정상회귀 검수",
+      "next": "다음승인묶음·실운영조회미검수",
       "acceptance": "조회실패와정상0구분·기존정상개수회귀"
     }
   ],
