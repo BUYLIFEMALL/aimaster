@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 23:11:34 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 23:15:29 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -377,7 +377,8 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | WS-20261118-04 | CC-WORKSPACE-01 | done / four_views_production_desktop_verified | 워크스페이스 내부 네 화면 연결 | 네 화면·좌측 유지·본문 스크롤·뒤로가기 운영 확인. 767px 이하·주소 새로고침·타 공간은 운영 미검증. |
 | WS-20261118-05 | CC-WORKSPACE-01 | done / production_ready_owner_desktop_checks_accepted | 워크스페이스 v1.59 승인 묶음 운영 배포 | 운영 v1.59 확인. 프로그램 목록 DB v1.58 보고는 운영 쓰기 범위 결정 대기. |
 | WS-20261118-06 | CC-WORKSPACE-01 | done / calendar_and_dashboard_width_local_mac_checks_accepted_undeployed | 달력 월 구분 정리·업무 현황판 너비 | 로컬 완료·점유 해제·미배포. 실제 화면과 표 행 기본 폭 메뉴 제약은 별도. |
-| WS-20261118-07 | CC-WORKSPACE-01 | reviewing / v160_production_ready_alias_verified_screen_pending | 워크스페이스 v1.60 캘린더·현황판 운영 배포 | 운영 공식 별칭 READY. 담당 기존 로그인 화면 검수·로컬 빌드 결과 회수. |
+| WS-20261118-07 | CC-WORKSPACE-01 | reviewing / v160_deployed_calendar_verified_dashboard_page_unavailable | 워크스페이스 v1.60 캘린더·현황판 운영 배포 | 운영 달력 확인. 기존 시험 현황판 페이지를 찾을 수 없어 폭/메뉴 확인 보류. |
+| WS-20261118-08 | CC-WORKSPACE-01 | done / collapsed_widget_spacing_static_mac_review_accepted_undeployed | 좌측 하단 저장공간 위젯과 푸터 겹침 | 미배포. 기본 위젯 겹침 국소 정적 검수 완료, 확장/좁은 폭·실화면은 별도. |
 | QA-20261118-043 | CX-QA-01 | done / integrated | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | 실브라우저375/390은v1.58배포후허용된기존시험세션에서·추가dev/build0 |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
 | OPS-20261118-01 | CX-MASTER-01 | done / integrated | 전체개발플랜·카테고리·누락개선/인수인계 정합성 대조 | 미확인68프로그램 현담당근거후속연결·제품전체검증과구분, 신규후속ID별진행 |
@@ -451,7 +452,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | AIF-20261118-W01u | CC-SNS-01 | done / p3_isolated_17_of_17_and_mac_static_review_accepted | 자산 상태 집계 후속 SQL·격리 시험 초안 | 로컬 SQL 검수 완료. 호출 경로·영속 DB 적용·배포는 별도. |
 | AIF-20261118-W01v | CC-SNS-01 | done / asset_save_indicator_local_and_mac_checks_accepted_undeployed | 생성 결과 원본 저장 상태 표시 | 로컬 검수 완료·점유 해제·OFF·미배포. |
 | AIF-20261118-W01w | CC-SNS-01 | done / g5_response_evidence_and_guard_design_accepted | 생성 이미지 응답 크기 근거 및 G5 설계 | W01x 로컬 최소 보호 배정. 실제 크기/운영 응답 및 자산 참조 전환 별도. |
-| AIF-20261118-W01x | CC-SNS-01 | reviewing / g5_guard_source_received_legacy_compatibility_fix_requested | 생성 이미지 응답 한도 및 비JSON 안내 보호 | 구 열린 탭의 초과 응답 후속 호출을 차단하는 응답/시험 보완 회수. |
+| AIF-20261118-W01x | CC-SNS-01 | reviewing / legacy_422_fixed_omitted_copy_review_returned | 생성 이미지 응답 한도 및 비JSON 안내 보호 | 이미지 생략 전용 저장 안내·비용 단정 정정 후 Mac 고정 검수. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 
 ## 현재 담당 회신이 확보된 프로젝트
@@ -478,7 +479,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | AI 가사영상 자동화 | CC-MUSIC-01 | v1.16 | 운영v1.16·국소수정2건 소스완료/미배포 | 취소안내fe402b1df MOV17-05 PASS·인코더2b9a06c9c QA032소스PASS | 두건 다음음악기능배포묶음·Mac MP4신뢰클릭/저장선택은QA002 별도 |
 | AI 음악 스튜디오 | CC-MUSIC-01 | v1.16 | 운영·Ready 보고 | 공통 로그아웃/UA/위젯 배포 | 명시 잔여 없음·운영전체무결함 의미아님 |
 | AI 영상 스튜디오 | CC-MOVIE-01 | v1.36 | 운영버전 담당기록·유료생성 조건대기 | version/기존배포기록대조 | 주인님 후속지시 전 실유료생성0 |
-| AI 업무 워크스페이스 자동화 | CC-WORKSPACE-01 | v1.59 | v1.59 운영, 네 화면·메뉴 데스크톱 확인 | b24b9595a·공식 alias dpl_3TyMVfb6WGcXbxVgtYZ38699Upfr READY·로컬 build 1회 작성자 통과 | 목록 DB v1.58 보고·버전 쓰기 미실행. 좁은 화면/직접 주소/타 공간·Gmail 실검증 별도. |
+| AI 업무 워크스페이스 자동화 | CC-WORKSPACE-01 | v1.60 | v1.60 운영·캘린더 스타일 확인 | 36af44608·dpl_DC9Bifer8U1oZ67QFRJNkaAQ1Pj6 READY·로컬 build 1회 담당 통과 | 시험 현황판 주소 미존재로 폭/메뉴 미확인. DB 목록 v1.58 보고·미변경. WS08 미배포. |
 | 셀러 라벨·QR·서류 자동화 | CC-ECOM-01 | v1.04 | 운영·인쇄자료/소규모미배포 | 마켓단계48b67dd5c 구현 | 다음배포묶음·실인쇄여백자료대기 |
 | AI 쇼핑몰 주문·매출 리포트 자동화 | CC-ECOM-01 | v1.06 | 운영·자료대기 | 코드/기존검증은개별기록 | 개인정보지운실제주문파일 필요 |
 | AI 스마트스토어 상품 자동등록기 | CC-ECOM-01 | v1.28 | 운영배포기록·발행표시 수정반영 | 6a17c6123 markPosted v1.28 mxv57n8mv 포함 | 같은변경 재배포0·실제마켓쓰기 별도지시 |
@@ -617,7 +618,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | 86 | AI 댓글·DM 통합 받은편지함 / comment-inbox | 마케팅(홍보) | v1.10 / 운영(2026-10-21 신규) | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 87 | AI 음악 스튜디오 / ai-music-studio | 음악 | v1.16 / 공개(new, 2026-10-23 신규) | v1.16 | CC-MUSIC-01 · 운영·Ready 보고 | 명시 잔여 없음·운영전체무결함 의미아님 |
 | 88 | AI 영상 스튜디오 / ai-video-studio | 영상 | v1.36 / 공개(new, 2026-10-23 신규) | v1.36 | CC-MOVIE-01 · 운영버전 담당기록·유료생성 조건대기 | 주인님 후속지시 전 실유료생성0 |
-| 89 | AI 업무 워크스페이스 자동화 / ai-work-workspace | 업무자동화 | v1.57 / 공개(기초 목록 기록) | v1.59 | CC-WORKSPACE-01 · v1.59 운영, 네 화면·메뉴 데스크톱 확인 | 목록 DB v1.58 보고·버전 쓰기 미실행. 좁은 화면/직접 주소/타 공간·Gmail 실검증 별도. |
+| 89 | AI 업무 워크스페이스 자동화 / ai-work-workspace | 업무자동화 | v1.57 / 공개(기초 목록 기록) | v1.60 | CC-WORKSPACE-01 · v1.60 운영·캘린더 스타일 확인 | 시험 현황판 주소 미존재로 폭/메뉴 미확인. DB 목록 v1.58 보고·미변경. WS08 미배포. |
 | 90 | 셀러 라벨·QR·서류 자동화 / seller-label-docs | 이커머스 | v1.04 / 공개(new, 2026-10-25 신규) | — | CC-ECOM-01 · 운영·인쇄자료/소규모미배포 | 다음배포묶음·실인쇄여백자료대기 |
 | 91 | AI 쇼핑몰 주문·매출 리포트 자동화 / shop-order-report | 이커머스 | v1.06 / 공개(new, 2026-10-25 신규) | — | CC-ECOM-01 · 운영·자료대기 | 개인정보지운실제주문파일 필요 |
 | 92 | AI 스마트스토어 상품 자동등록기 / smartstore-register | 이커머스 | v1.28 / 공개(new, 2026-10-26 신규 · 「바로 등록」 실제 등록 성공 2026-10-27) | v1.28 | CC-ECOM-01 · 운영배포기록·발행표시 수정반영 | 같은변경 재배포0·실제마켓쓰기 별도지시 |
