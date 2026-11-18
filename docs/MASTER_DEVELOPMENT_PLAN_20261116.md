@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 13:54:40 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 13:55:22 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 13:54:40 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 13:55:22 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 삭제finalizer 원자배제·공용입력/프로그램권한·서버/UI책임분리 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: Cloudflare 상태카드 서버GET/초기props/UI·중앙등록과 파일분리 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -407,7 +407,7 @@ Master 마지막 실제 점검: 2026-11-18 13:54:40 KST · 실행 중 점검 주
 | QA-20261118-BLOG-01 | CX-QA-01 | waiting_human / website_complete_b1_renderer_timeout_human_setup_pending | website-scraper 읽기·B1 사람 포커스 재시험 준비 | 기존9 확장설치/버전/ON 사람확인→일반창A/공간9 B 직접읽기각1회→기존확장복원 |
 | RE-20261118-07 | CC-REALTY-01 | done / evaluation_deliverable_accepted_no_effectiveness_pass | 후보C 새기간40건 사전라벨 고정 평가 | 정상운영 새기간에서 목표소음이 포함된 검증조건 충족 시에만 별도배정·동일40건 규칙조정/재시험0 |
 | ECOM-20261118-06 | CC-ECOM-01 | done / specified_mock_server_source_accepted_off_unreleased | Cloudflare 본인 공용키 무료 이미지 경로 검증·연결 계획 | 실키유효/잔여사람단계·AGY UI 연결계획·OFF미배포 보존 |
-| DES-20261118-07 | AG-UI-01 | in_progress / shared_form_missing_emotion_status_card_implementation_assigned | Cloudflare 공용키 설정 UI 연결 경로 계획 | 감성상태/등록링크/재확인 최소구현·공용입력은ECOM별도계획·공용선행배포전완료공개0 |
+| DES-20261118-07 | AG-UI-01 | in_progress / exact_emotion_status_card_paths_acknowledged_started | Cloudflare 공용키 설정 UI 연결 경로 계획 | 정확4제품파일+시험 완료SHA/tsc 회수→Mac검수, 공용중앙카드와분리 |
 | AIF-20261118-W00 | CC-SNS-01 | needs_revision / budget_publish_contract_pass_orphan_finalizer_atomic_exclusion_missing | AI Influencer W00 기준·격차/공통계약 독립검수 | finalizer/삭제claim 동일원자배제·PLAN권한선행·옛문구정정 후잔여재검수 |
 | CRM-20261118-07 | CC-B2B-BACK-01 | dispatched / official_rest_single_attempt_crm_scoped_exception_implementation_dispatched | SOLAPI SDK 재시도 없는 공식 대안·최소 변경 계획 | 공식REST/HMAC 표준암호라이브러리로접수전용1HTTP·엄격응답/타임아웃/상한 구현 SHA→Mac검수 |
 | ECOM-20261118-07 | CC-ECOM-01 | dispatched / central_credential_entry_missing_read_only_plan_assigned | 메인 공용 Cloudflare 등록 카드·서버 최소계획 | 중앙2키등록카드/존재boolean서버·회원경계·정확파일·시험/배포선행계획 회수 |

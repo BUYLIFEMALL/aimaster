@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 13:54:40 KST",
+  "checkedAt": "2026-11-18 13:55:22 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,22 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T04:54:40.266Z",
+      "at": "2026-11-18T04:55:22.706Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS 잔여최종·Cloudflare 공용등록 누락",
-      "scope": "삭제finalizer 원자배제·공용입력/프로그램권한·서버/UI책임분리",
+      "trigger": "AGY 정확경로 착수 수신",
+      "scope": "Cloudflare 상태카드 서버GET/초기props/UI·중앙등록과 파일분리",
       "evidence": [
-        "msg_bd008991c240",
-        "msg_5af67813cd65·Master 메인page/MemberIntegrations/문서봇소스",
-        "ECOM 중앙계획/AGY감성상태카드/SNS계약보완 전달"
+        "msg_78865897c0bc 착수",
+        "apiKeys/GET keys/settings/KeySettings+시험·POST/Workspace/버전불변"
       ],
-      "judgment": "중앙키등록없어링크만으론불완전. 공용2키입력은한곳추가계획·감성은상태카드로분리, 새배포예산0. SNS기존통과범위보존·삭제경합계약보완필수.",
+      "judgment": "전달에서착수로갱신. ECOM공용등록과편집경로겹침없음, 아직완료/운영반영아님.",
       "unverified": [
-        "공용등록정확보안/경로계획",
-        "감성상태카드구현",
-        "SNS마지막보완/원자배제"
+        "구현SHA/시험/독립검수",
+        "공용등록계획/배포선행"
       ],
-      "nextAction": "각담당정확범위/새SHA회수·동일파일중복편집0"
+      "nextAction": "각담당완료보고회수·검수배정"
     },
     "notifications": [
       {
@@ -7917,10 +7915,10 @@
       "title": "Cloudflare 공용키 설정 UI 연결 경로 계획",
       "owner": "AG-UI-01",
       "status": "in_progress",
-      "delivery": "shared_form_missing_emotion_status_card_implementation_assigned",
-      "evidence": "msg_9e8dcff42ce5 전달보류·서버ab693ba39 지정PASS · 수락msg_c38fbd244674 · 계획msg_577c1800ce82·Master GET route/settings초기연결경로확인 · msg_5af67813cd65·Master메인page/MemberIntegrations/문서봇설정소스확인",
-      "next": "감성상태/등록링크/재확인 최소구현·공용입력은ECOM별도계획·공용선행배포전완료공개0",
-      "lastReviewedAt": "2026-11-18T04:54:40.266Z"
+      "delivery": "exact_emotion_status_card_paths_acknowledged_started",
+      "evidence": "msg_9e8dcff42ce5 전달보류·서버ab693ba39 지정PASS · 수락msg_c38fbd244674 · 계획msg_577c1800ce82·Master GET route/settings초기연결경로확인 · msg_5af67813cd65·Master메인page/MemberIntegrations/문서봇설정소스확인 · 착수msg_78865897c0bc",
+      "next": "정확4제품파일+시험 완료SHA/tsc 회수→Mac검수, 공용중앙카드와분리",
+      "lastReviewedAt": "2026-11-18T04:55:22.706Z"
     },
     {
       "task_id": "AIF-20261118-W00",
