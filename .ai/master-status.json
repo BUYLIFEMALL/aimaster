@@ -4361,18 +4361,18 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "A1 격리 PostgreSQL 계약시험",
-      "status": "needs_revision",
-      "delivery": "isolated_harness_lock_observation_cleanup_role_preflight_evidence_returned",
-      "sha": "dcc798e12",
+      "status": "reviewing",
+      "delivery": "harness_lock_PID_cleanup_role_preflight_fixed_final_review",
+      "sha": "3a48682cd",
       "scopeRef": "tests/sql/a1_fixture.sql·a1_contract.test.mjs·필요최소migration수정·기존문서",
       "constraints": "기존Docker PG17.11·신규qa_aif_a1_20261118/oid검증후자기DB정리·aww/aww_dev/mb/운영접속reset0·설치0·store/route/upload/AI/build/push0",
       "completion": "원문migration컴파일/ACL/RLS/check/NULL/2연결reserve상한/identity/delete경합/토큰전이/재적용·stub vs실중앙분리·정리증거",
-      "evidence": "Mastermsg_1fd1abd7c316·사전msg_b62624ce5cd1(새DB아직0)·정확경로수락 · msg_46fae32a6a33/dcc798e12·Mastertest주요assertion읽기·Macmsg_1f5d56553c51 · msg_7273fa2ccde2 독립정적시험검수·msg_ebbf9064254a 다음store읽기준비",
-      "next": "실잠금barrier/blockingPID·cleanupDROP/부재assert·기존role전제(clusterCREATE0) 보강→동일범위1회실행→Mac증거검수",
-      "lastReviewedAt": "2026-11-18T06:47:37.296Z",
+      "evidence": "Mastermsg_1fd1abd7c316·사전msg_b62624ce5cd1(새DB아직0)·정확경로수락 · msg_46fae32a6a33/dcc798e12·Mastertest주요assertion읽기·Macmsg_1f5d56553c51 · msg_7273fa2ccde2 독립정적시험검수·msg_ebbf9064254a 다음store읽기준비 · msg_926fae1a46ad/3a48682cd·Masterdiff직접확인·Macmsg_25e6a4769c00",
+      "next": "Mac 보강diff/예외정리경로 최종판정→store모의첫단위배정",
+      "lastReviewedAt": "2026-11-18T06:50:49.518Z",
       "validation": {
-        "author": "PG17.11 새qaDB2회·1회14/15 시험자storage권한단언결함→시험만수정 15/15·migrationa29수정0·실2psql동시reserve/finalizeclaim·cleanup다른DBoid불변/qa잔존0",
-        "master": "고정파일4/원문migration hash·test존재oid조건cleanup/역할assertion직접읽기·실DB재실행0",
+        "author": "PG17.11 새qaDB2회·1회14/15 시험자storage권한단언결함→시험만수정 15/15·migrationa29수정0·실2psql동시reserve/finalizeclaim·cleanup다른DBoid불변/qa잔존0 · 보강1회15/15·reserve holder59256/waiter59278 Lock/advisory blocking59256 2823ms·finalize59909/59930 blocking59909 2806ms·DROP성공/부재assert/role생성0",
+        "master": "3a48682cd diff직접: pg_locks장벽/pg_stat_activity wait/pg_blocking_pids단언·cleanup조회/oid/DROP/부재throw·fixture CREATE ROLE제거·3역할preflight. 실재실행0",
         "independent": "a29hash동일/SET ROLE/assert/stub범위확인·시험14→15는시험조회수정. 잠금은2프로세스+sleep경과만으로직접증거부족,cleanupDROP결과/부재assert누락,fixture clusterCREATE ROLE가능성→기존role전제확인/제거필요. 실SQL독립실행0",
         "limits": "policy본문/storage/auth대역·실Supabase권한/기본GRANT/중앙합산/실upload미검증"
       },
@@ -4890,21 +4890,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T06:47:37.296Z",
+      "at": "2026-11-18T06:50:49.518Z",
       "timezone": "Asia/Seoul",
-      "trigger": "격리시험 독립검수결과·store읽기준비",
-      "scope": "dcc harness동시성증거/cleanup/cluster role범위·다음store interface",
+      "trigger": "격리시험 보강완료이벤트",
+      "scope": "3a48682cd 2파일diff·실잠금로그/정리/역할전제",
       "evidence": [
-        "msg_7273fa2ccde2",
-        "msg_ebbf9064254a"
+        "msg_926fae1a46ad",
+        "Masterdiff직접·Macmsg_25e6a4769c00"
       ],
-      "judgment": "제품a29정적해소유지·시험증거3항목보강반환·새qaDB한정의미있는1회재실행·store코드아직0",
+      "judgment": "보강작성자15/15수신·독립지정diff확인배정·migration불변/반복실행배정0",
       "unverified": [
-        "직접잠금대기증거/cleanup부재assert",
-        "실중앙통합/스토리지",
-        "기타사람/승인"
+        "Mac보강최종판정",
+        "실Supabase중앙/Storage통합",
+        "기타사람/승인단계"
       ],
-      "nextAction": "시험보강SHA/로그→독립판정뒤store모의단위배정"
+      "nextAction": "지정결과회수→다음store단위·유료/운영0"
     },
     "notifications": [
       {
