@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 16:55:31 KST",
+  "checkedAt": "2026-11-18 16:57:35 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T07:55:31.045Z",
+      "at": "2026-11-18T07:57:35.700Z",
       "timezone": "Asia/Seoul",
-      "trigger": "T07 F04수정완료",
-      "scope": "12e194a47 parser/시험2파일·선형cursor/textRuns·이전3건불변",
+      "trigger": "SNS OFF정리 첫구현완료",
+      "scope": "79c9파일/새SQL85eb 미실행·상태기계모의152/tsc·계약차이6·OFF/비밀/동적보호",
       "evidence": [
-        "msg_cab12c636c60/4b775d69f26b",
-        "Masterdiff읽기·Macmsg_5d1ec8ca1ebc"
+        "msg_506a593b76e4",
+        "Master파일/주요함수route읽기·Macmsg_e23f764fa9cc"
       ],
-      "judgment": "고정수정수신·의미있는CPU3반례/정상회귀국소재검수·추가전체검증/원격소진0",
+      "judgment": "작성자완료수신·모의/새SQL미실행/옛격리구분·독립검수후6차이판정·실삭제/ON0",
       "unverified": [
-        "MacF04결과",
-        "최종web배포/실화면",
-        "SNS정리모의구현결과"
+        "Mac정리소스/SQL정적검수",
+        "새SQL컴파일/권한/동시성·실Storage",
+        "web F04최종PASS/마지막배포"
       ],
-      "nextAction": "국소PASS회수→최종순번배포·원격예산1남음"
+      "nextAction": "web우선국소결과회수·SNS고정반례취합→한번반환"
     },
     "notifications": [
       {
@@ -8514,14 +8514,23 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "보관정리 SQL초안·OFF실행기·모의 시험",
-      "status": "running",
-      "delivery": "author_started_exact_scoped_default_off_retention_implementation",
+      "status": "reviewing",
+      "delivery": "retention_off_source_mock_tests_received_SQL_unexecuted_static_review",
       "scopeRef": "미적용aif_assets_a1.sql·assets/retention.ts·cleanup/route.ts·read.ts expired·assetRetention.test.mjs·assetReadRoute.test.mjs expired·IMPROVEMENTS/W00/roles sns",
       "constraints": "SQL작성만/실DB·Storage·삭제·AI·env·cron등록·서버·설치·build·push0·공용정책코드0·ON별도",
       "completion": "30일/objectcreated·동적보호·batch100공정재개·토큰/CAS/외부미전송/unknown보존·실행자Bearer/no-raw·모의반례/tsc·정적SQL",
-      "evidence": "R2 3b84540d7·Macmsg_6318619e8ba6·Master범위배정 · msg_27793feac0ac/ACTIVE_WORK83517d1c7·정확9경로/미커밋0/고지0",
-      "next": "정확범위 OFF모의구현/관련반례·tsc 결과SHA회수→Mac검수",
-      "lastReviewedAt": "2026-11-18T07:45:36.451Z"
+      "evidence": "R2 3b84540d7·Macmsg_6318619e8ba6·Master범위배정 · msg_27793feac0ac/ACTIVE_WORK83517d1c7·정확9경로/미커밋0/고지0 · msg_506a593b76e4/79c222710 9파일·Macmsg_e23f764fa9cc·담당msg_986e2c50f127",
+      "next": "Mac webF04뒤 실retention/GET모의·새SQL정적/계약차이6 검수→수락/통합반환",
+      "lastReviewedAt": "2026-11-18T07:57:35.700Z",
+      "sha": "79c222710",
+      "validation": {
+        "author": "모의retention29/전체152·tsc0·변형21·SQL3차작성만/실행0·DB모의상태기계·OFF실GET admin0·공정100/240s/보호불명중단",
+        "master": "9파일/주요함수·route/SQL변경범위확인·차이6건판정별도·기존격리15는새SQLPASS아님",
+        "independent": "webF04우선뒤지정실모듈모의/SQL정적검수배정",
+        "limits": "새SQL문법/잠금/실PostgREST profiles관계/소유자권한/실Storage미검증·ON/cron등록0·장기unknown/고아후속"
+      },
+      "sqlBlob": "85eb99ea7",
+      "sqlSha256": "a97c03a5236bcca3c943c9c2789920d7a7ec7443ad96fe76c7f7cc78ffc627d2"
     }
   ]
 }
