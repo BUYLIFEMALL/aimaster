@@ -13,6 +13,7 @@ import {
   REVIEW_STATUS_NOT_IN,
   reviewCountView,
   listLoadFailed,
+  countView,
 } from "../lib/crm/submissionStatus.ts";
 
 const rows = (list) => list.map((status, i) => ({ id: String(i), status }));
@@ -170,14 +171,22 @@ const SUBS = "app/(dashboard)/submissions/page.tsx";
 const okRow = (id, status) => ({ id, form_source_id: "s1", name: `이름${id}`, phone: null, email: null, status, error_message: status === "failed" ? "SMTP 오류 원문" : null, raw_values: {}, created_at: "2026-11-18T00:00:00Z" });
 
 /** 대시보드 응답: 확인 필요 개수·최근 목록만 시험값, 나머지는 정상 */
-const dashAnswer = ({ review, list }) => (q) => {
+const isWeekCount = (q) => q.table === "crm_submissions" && q.ops.some((o) => o[0] === "gte");
+const OKC = (n) => ({ data: null, count: n, error: null });
+const dashAnswer = ({ review, list, total = OKC(3), week = OKC(2), failed = OKC(1) }) => (q) => {
   if (q.single) return { data: null, error: null };
   if (q.table === "crm_form_sources") return { data: [{ id: "s1", name: "폼1", is_active: true }], error: null };
   if (isReviewCount(q)) return review;
   if (isList(q)) return list;
-  if (isFailedCount(q)) return { data: null, count: 1, error: null };
-  if (isCount(q)) return { data: null, count: 3, error: null };
+  if (isFailedCount(q)) return failed;
+  if (isWeekCount(q)) return week;
+  if (isCount(q)) return total;
   return { data: [], error: null };
+};
+/** KPI 카드 숫자 칸 글자 */
+const kpi = (html, label) => {
+  const m = html.match(new RegExp(label + '</p><p class="mx-kpi-value">([^<]*)<'));
+  return m ? m[1] : null;
 };
 const LIST_OK = { data: [okRow("1", "notified"), okRow("2", "failed")], error: null };
 
@@ -251,4 +260,61 @@ test("판정 함수: 개수·목록", () => {
   assert.equal(listLoadFailed({ data: [], error: null }), false);
   assert.equal(listLoadFailed({ data: null, error: null }), true);
   assert.equal(listLoadFailed({ data: [], error: { message: "x" } }), true);
+});
+
+
+// ── CRM-20261118-04: 전체·최근 7일·발송 실패 개수도 조회 오류를 0으로 보이지 않기 ─────────────────
+const REVIEW0 = { data: null, count: 0, error: null };
+const BAD = [
+  ["오류", { data: null, count: null, error: { message: "timeout secret-x" } }],
+  ["오류+숫자", { data: null, count: 5, error: { message: "boom" } }],
+  ["count null", { data: null, count: null, error: null }],
+  ["음수", { data: null, count: -1, error: null }],
+  ["NaN", { data: null, count: Number.NaN, error: null }],
+  ["Infinity", { data: null, count: Number.POSITIVE_INFINITY, error: null }],
+  ["소수", { data: null, count: 1.5, error: null }],
+  ["문자열", { data: null, count: "3", error: null }],
+];
+const CARDS = [
+  ["total", "전체 접수"],
+  ["week", "최근 7일 접수"],
+  ["failed", "발송 실패"],
+];
+
+for (const [key, label] of CARDS) {
+  for (const [name, res] of BAD) {
+    test(`대시보드 ${label}: ${name} → 「확인 불가」, 다른 카드·목록은 정상, 오류 원문 0`, async () => {
+      const html = await renderPage(DASH, dashAnswer({ review: REVIEW0, list: LIST_OK, [key]: res }));
+      assert.equal(kpi(html, label), "확인 불가");
+      for (const [k2, l2] of CARDS) if (k2 !== key) assert.notEqual(kpi(html, l2), "확인 불가", l2);
+      assert.match(html, /이름1/); // 최근 목록 그대로
+      assert.doesNotMatch(html, /secret-x|boom/);
+      assert.doesNotMatch(html, /확인 필요/); // 확인 필요 0은 숨김 그대로
+    });
+  }
+  test(`대시보드 ${label}: 정상 0은 0, 양수는 그 숫자`, async () => {
+    assert.equal(kpi(await renderPage(DASH, dashAnswer({ review: REVIEW0, list: LIST_OK, [key]: OKC(0) })), label), "0");
+    assert.equal(kpi(await renderPage(DASH, dashAnswer({ review: REVIEW0, list: LIST_OK, [key]: OKC(7) })), label), "7");
+  });
+}
+
+test("대시보드: 세 개수 모두 정상이면 기존 값 그대로(3·2·1), 확인 필요 양수·목록 오류와 함께여도 각자 표시", async () => {
+  const ok = await renderPage(DASH, dashAnswer({ review: REVIEW0, list: LIST_OK }));
+  assert.deepEqual([kpi(ok, "전체 접수"), kpi(ok, "최근 7일 접수"), kpi(ok, "발송 실패")], ["3", "2", "1"]);
+  const mix = await renderPage(DASH, dashAnswer({ review: OKC(4), list: { data: null, error: { message: "x" } } }));
+  assert.equal(kpi(mix, "확인 필요"), "4");
+  assert.equal(kpi(mix, "발송 실패"), "1");
+  assert.match(mix, /최근 접수를 불러오지 못했습니다/);
+});
+
+test("확인 필요 개수도 비정상 숫자(음수·NaN·소수)는 확인 불가", () => {
+  for (const c of [-1, Number.NaN, Number.POSITIVE_INFINITY, 1.5]) {
+    assert.deepEqual(reviewCountView({ count: c, error: null }), { kind: "unavailable" }, String(c));
+  }
+});
+
+test("countView: 정상 0 이상 정수만 값", () => {
+  assert.deepEqual(countView({ count: 0, error: null }), { kind: "value", value: 0 });
+  assert.deepEqual(countView({ count: 12, error: null }), { kind: "value", value: 12 });
+  for (const [, res] of BAD) assert.deepEqual(countView(res), { kind: "unavailable" });
 });

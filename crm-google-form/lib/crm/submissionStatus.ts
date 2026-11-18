@@ -110,9 +110,19 @@ export const REVIEW_STATUS_NOT_IN = "(received,notified,failed)";
  */
 export type CountView = { kind: "hidden" } | { kind: "value"; value: number } | { kind: "unavailable" };
 
-export function reviewCountView(res: { count: number | null | undefined; error: unknown }): CountView {
-  if (res.error || typeof res.count !== "number") return { kind: "unavailable" };
-  return res.count > 0 ? { kind: "value", value: res.count } : { kind: "hidden" };
+type CountResult = { count?: unknown; error?: unknown };
+
+/** 개수 조회 결과 → 값 또는 「확인 불가」. 오류가 없고 0 이상 정수일 때만 값(음수·NaN·Infinity·소수·문자열은 확인 불가). CRM-20261118-04. */
+export function countView(res: CountResult): { kind: "value"; value: number } | { kind: "unavailable" } {
+  const c = res.count;
+  if (res.error || typeof c !== "number" || !Number.isInteger(c) || c < 0) return { kind: "unavailable" };
+  return { kind: "value", value: c };
+}
+
+export function reviewCountView(res: CountResult): CountView {
+  const v = countView(res);
+  if (v.kind === "unavailable") return v;
+  return v.value > 0 ? v : { kind: "hidden" };
 }
 
 /** 목록 조회 실패 여부 — 오류가 있거나 배열이 아니면 「빈 목록」이 아니라 「조회 실패」. */
