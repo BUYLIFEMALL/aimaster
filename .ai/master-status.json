@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T20:08:56.381Z",
+  "checkedAt": "2026-11-18T20:10:27.968Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -6048,11 +6048,11 @@
       "reviewer": "CX-MASTER-01",
       "title": "메이커 M3 제안 적용·서버 바이트 검증 설계",
       "status": "reviewing",
-      "delivery": "immutable_storage_proposal_visibility_options_requested",
-      "sha": "b3026067e",
-      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1",
-      "next": "기존 공개 저장소에서 게시 바이트 변경 가능 확인. 불변 저장소 대안의 적용 전 공개/검증 깊이·정리/비용 비교 요청. 구현 대기.",
-      "lastReviewedAt": "2026-11-18T20:08:56.381Z"
+      "delivery": "visibility_comparison_returned_nonprivileged_variant_queued",
+      "sha": "8be47a12f",
+      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1·msg_09c13f44d34f·8be47a12f·msg_2639b1f89d07",
+      "next": "불변 공개/비공개 중계 방식 비교. 적용 행에만 RLS 읽기를 허용하는 비특권 서명 대안 대조 요청은 담당 입력 대기로 전달 보류. 구현 없음.",
+      "lastReviewedAt": "2026-11-18T20:10:27.968Z"
     }
   ],
   "programOverrides": [
