@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T18:44:07.075Z",
+  "checkedAt": "2026-11-18T18:46:09.432Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9647,13 +9647,13 @@
       "owner": "CC-B2B-BACK-01",
       "title": "주문서 무통장 현금영수증 접수와 입금 확인 경합 처리",
       "status": "reviewing",
-      "delivery": "guard_static_pass_test_hardening_dispatched",
+      "delivery": "hardened_suite_pass_rollback_guard_dispatched",
       "scopeRef": "새 0105 로컬 마이그레이션과 격리 시험",
       "completion": "주문 행 잠금 안에서 본인·입금대기·금액·중복·상호배제 검증과 접수. 두 경합 순서 및 기존 주문 상세 회귀 확인.",
       "constraints": "외부 발급·결제, 공용 Lab·운영 적용, 빌드·배포·push 0.",
-      "evidence": "5f7ea2519·e8fbd8816·msg_3c12a55255d2·msg_d8108566a5f9·msg_65e2a554b0f9·msg_2cd4b73dc162·msg_64e586875016·msg_8dba92300cba",
-      "next": "격리 16/16 보고, Mac 제품 정적 통과. R1 성공 판정·전용 DB 정리 보호를 보완. Front 로컬 연계 병행.",
-      "lastReviewedAt": "2026-11-18T18:40:37.006Z",
+      "evidence": "5f7ea2519·e8fbd8816·msg_3c12a55255d2·msg_d8108566a5f9·msg_65e2a554b0f9·msg_2cd4b73dc162·msg_64e586875016·msg_8dba92300cba·d5afddea4·msg_dc645833416d·msg_216386e36b04",
+      "next": "전용 Docker·DB 보호 및 엄격한 0100 회귀 포함 격리 19/19. 신규 접수 권한도 되돌리기에서 회수하도록 보완 배정.",
+      "lastReviewedAt": "2026-11-18T18:46:09.432Z",
       "sha": "195f9ba43"
     },
     {
@@ -9751,13 +9751,13 @@
       "reviewer": "CX-MASTER-01",
       "title": "주문서 UI에 무통장 현금영수증 접수 연결",
       "status": "reviewing",
-      "delivery": "checkout_rpc_exception_fix_dispatched",
+      "delivery": "checkout_rpc_exception_fixed_recheck_dispatched",
       "scopeRef": "장바구니 order 페이지·액션·폼·로컬 계약 시험",
       "constraints": "운영·공용 Lab·SQL 적용·빌드·배포·실결제·push 0.",
-      "evidence": "msg_dc044907421b·msg_25b454a8d3b9·9d1b8624e·50d3e6162·aa3304c73·59b30d2a5·msg_fad3e5743c94·msg_c95a652555d5·msg_1896ea3cbaa4·msg_56ced92ca77d",
-      "next": "Mac 5개 blob 일치·기존 모의 5/5. 주문 성공 뒤 접수 RPC 예외로 완료 화면 이동 누락 재현. 0105 호출만 예외 처리하는 수정 배정.",
-      "lastReviewedAt": "2026-11-18T18:44:07.075Z",
-      "sha": "50d3e6162"
+      "evidence": "msg_dc044907421b·msg_25b454a8d3b9·9d1b8624e·50d3e6162·aa3304c73·59b30d2a5·msg_fad3e5743c94·msg_c95a652555d5·msg_1896ea3cbaa4·msg_56ced92ca77d·ee35d6eb1·2dbf6c4bd·msg_11d5f66c69e5·msg_a6d2273ae709",
+      "next": "0105 접수 호출 reject/throw 시 완료 주문 상세 이동을 유지. 작성자 모의 25/25·타입 통과, Mac 재검수 전달.",
+      "lastReviewedAt": "2026-11-18T18:46:09.432Z",
+      "sha": "ee35d6eb1"
     }
   ]
 }
