@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 22:16:57 KST",
+  "checkedAt": "2026-11-18 22:19:50 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T13:16:57.627Z",
+      "at": "2026-11-18T13:19:50.493Z",
       "timezone": "Asia/Seoul",
-      "trigger": "W01u 첫 P3 격리 시험 회신",
-      "scope": "f4c2d2c12 격리 결과·시험 실패문 및 스냅샷 근거 대조.",
+      "trigger": "W01u P3 격리 재검증 회신",
+      "scope": "80ac8fc43 수정 시험·고정 제품 SQL·175dbfadd의 시험/정리 보고 확인.",
       "evidence": [
-        "msg_44d23e653c3f·f4c2d2c12",
-        "msg_4f04324ccb1d"
+        "msg_e383f98c7559·80ac8fc43·175dbfadd",
+        "msg_2811fef7f7f8"
       ],
-      "judgment": "16/17. 제품 SQL 고정, 시험 형 변환과 스냅샷 대조군만 수정·재검증 배정.",
+      "judgment": "담당 격리 17/17 및 조건부 스냅샷 관측 수락. Mac 정적 독립검수 배정.",
       "unverified": [
-        "컴파일 시험의 미실행 단언·스냅샷 양성 대조",
-        "실 Supabase/RPC/성능",
+        "Mac 판정·실 Supabase/RPC/성능 및 런타임 연결",
         "Gmail 동의·실검증"
       ],
-      "nextAction": "수정 시험 고정 SHA·결과·OID 정리 근거 회수."
+      "nextAction": "Mac 정적 근거 회수 후 W01u 판정."
     },
     "notifications": [
       {
@@ -8811,18 +8810,18 @@
       "reviewer": "CX-MASTER-01",
       "title": "자산 상태 집계 후속 SQL·격리 시험 초안",
       "status": "reviewing",
-      "delivery": "p3_first_isolated_run_16_of_17_test_fix_requested",
+      "delivery": "p3_isolated_17_of_17_mac_static_review_requested",
       "scopeRef": "신규 P3 migration·격리 시험·W00 해당 근거",
       "constraints": "기존 migration/런타임/fixture 변경·SQL 실행·DB 생성·운영/Storage/비용/빌드/배포 0",
       "completion": "영속 10범주·별도 축·나이와 일치 행 한도·서비스 권한·식별자 미반환 시험 초안",
-      "evidence": "989d26b3c·msg_5ffb8d03b1ee / msg_d4df140232a4 / msg_d548a412ba12 / msg_44d23e653c3f / msg_4f04324ccb1d",
-      "next": "시험 형 변환과 스냅샷 대조군 추가 후 격리 1회 재검증.",
-      "lastReviewedAt": "2026-11-18T13:16:57.627Z",
-      "sha": "f4c2d2c12",
+      "evidence": "989d26b3c·msg_5ffb8d03b1ee / msg_d4df140232a4 / msg_d548a412ba12 / msg_44d23e653c3f / msg_4f04324ccb1d / msg_e383f98c7559 / 175dbfadd / msg_2811fef7f7f8",
+      "next": "고정 80ac8fc43 Mac 정적 독립 검수 대기.",
+      "lastReviewedAt": "2026-11-18T13:19:50.493Z",
+      "sha": "80ac8fc43",
       "validation": {
         "author": "node --check와 기존 npm 184/184 보고. 신규 SQL/격리 시험 미실행.",
         "master": "정적 SQL·시험 준비 검토. 우선 분류·기본 한도/시간 단위·소유자 일치 반영 수락, 로컬 격리 1회 배정.",
-        "isolated": "16/17 통과·실패 1·skip 0. PG17 OID 2545369 정리 및 DB·세션 부재 담당 보고. 실패는 메타데이터 char 변환 누락. 스냅샷 타이밍 양성 대조 부족."
+        "isolated": "담당 PG17 16/17→17/17·skip 0, 제품 SQL 67b91845a 불변. OID 2545883 일치 정리·DB/세션 부재. 게이트 뒤 STABLE 0:0/VOLATILE 1:1, 다음 문장 1:1."
       }
     }
   ]
