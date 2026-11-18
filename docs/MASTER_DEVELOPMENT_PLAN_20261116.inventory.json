@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 12:21:06 KST",
+  "checkedAt": "2026-11-18 12:23:19 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T03:21:06.618Z",
+      "at": "2026-11-18T03:23:19.425Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM18-02 하네스보완정적PASS msg_60c73dc7025f",
-      "scope": "시험증거보완3건/SQL동결·작성자실PG와독립정적판정분리",
+      "trigger": "CRM18-03 P2수정405ebdb8c",
+      "scope": "5파일범위/실pageSSR반례시험·Mac재검수·기존count한계분리",
       "evidence": [
-        "동일회원2폼/전체행보안지문/고유DB3건충족·SQLf066동일",
-        "Mac실PG0·작성자12/변이3 경계유지",
-        "수락msg_084286b62e05"
+        "작성자19/33·tsc0·red4→green",
+        "Masterdiffstat5파일·Mac msg_efd2e47eadc7"
       ],
-      "judgment": "2A소스/격리검증준비완료수락·운영적용/DB독립실행PASS아님. 현재UI P2수정계속.",
+      "judgment": "수정자체통과접수·독립재검수전완료판정0. 기존집계오류0은별도원장등록·새결함으로혼동0",
       "unverified": [
-        "UI P2수정/독립검수·연결/정책/운영SQL",
+        "405실SSR/필터회귀독립판정·기존count한계",
         "GmailOAuth·MacB"
       ],
-      "nextAction": "UI새SHA회수→오류경로재검수·다음연결단계별도판정"
+      "nextAction": "Mac지정오류경계재판정후후속범위결정"
     },
     "notifications": [
       {
@@ -7704,23 +7703,27 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
       "title": "CRM 접수 새상태 화면·집계 준비",
-      "status": "needs_revision",
-      "delivery": "actual_ssr_query_failure_returned",
-      "evidence": "영향조사2019381a6·msg_dcca549f3407·착수msg_b24ceec65e71·결과msg_b381c1f09e8a·Master6파일stat·Macmsg_1c4a0f1d0b13·Mac중간msg_307a04320e51·수정msg_91e8c48f64fa·1fe고정최종msg_8d85baa86885/.ai/results/CRM-20261118-03-CX-QA-01.md",
+      "status": "ready_review",
+      "delivery": "query_failure_fix_actual_ssr_retest_dispatched",
+      "evidence": "영향조사2019381a6·msg_dcca549f3407·착수msg_b24ceec65e71·결과msg_b381c1f09e8a·Master6파일stat·Macmsg_1c4a0f1d0b13·Mac중간msg_307a04320e51·수정msg_91e8c48f64fa·1fe고정최종msg_8d85baa86885/.ai/results/CRM-20261118-03-CX-QA-01.md·수정msg_7e48457823e8·Master5파일stat·Macmsg_efd2e47eadc7",
       "scopeRef": "dashboard/page.tsx·submissions/page.tsx·SubmissionMatrix.tsx·필요순수submissionStatus.ts/시험·기존결과본인절",
       "completion": "기존3+새3상태 라벨/필터/집계·처리중/부분/모름누락0·기존필드만조회·가짜rows실제분류/tsc",
       "constraints": "운영미배포·DB/발송/API0·dedupe_key/channel_results조회0·route/dispatch/followup/promotions/snippet/DDL0",
-      "next": "실제SSR/가짜query로error/null/0/양수/목록실패 red-green→새SHA→Mac재검수",
-      "lastReviewedAt": "2026-11-18T03:20:01.834Z",
-      "sha": "1fe179bd6",
+      "next": "Mac실SSR오류반례재검수→지정범위수락/반환",
+      "lastReviewedAt": "2026-11-18T03:23:19.425Z",
+      "sha": "405ebdb8c",
       "validation": {
-        "author": "상태10/10·dedupe포함24/24·tsc0",
+        "author": "순수11+실pageSSR8=19/19·dedupe포함33/33·tsc0·기존반례red4→green",
         "master": "정확6파일diffstat·허용범위",
-        "independent": "native10/10+실페이지/KPI/Matrix SSR·ReactDOM필터1/1/1/4/7 PASS,UI-F01쿼리실패카드숨김P2 재현"
+        "independent": "새SHA Mac error/null/0/양수/목록실패재검수대기"
       },
       "findings": [
         "review query.error/countnull이면KPI숨김·실패안내0 새P2",
         "목록query.error→빈목록/첫접수안내 기존패턴동시최소보완"
+      ],
+      "limits": [
+        "실라우팅/실Supabase아님·실page SSR+가짜query",
+        "기존전체/실패/7일count 오류0은별도미수정"
       ]
     }
   ]
