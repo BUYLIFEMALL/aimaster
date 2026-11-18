@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 18:50:39 KST",
+  "checkedAt": "2026-11-18 18:53:54 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T09:50:39.895Z",
+      "at": "2026-11-18T09:53:54.259Z",
       "timezone": "Asia/Seoul",
-      "trigger": "W01r 격리 재검증 보고",
-      "scope": "고정 4e0c27cc5 시험 결과 및 회차별 UUID 단언 원문 대조.",
+      "trigger": "W01r 최종 격리 재검증 보고",
+      "scope": "da5996c2a 회전 시험 diff 및 SQL blob·격리 실행 보고 대조.",
       "evidence": [
-        "msg_c1ffe34be953·4e0c27cc5",
-        "msg_1b9327970031"
+        "msg_b087ad72b7ad·da5996c2a·19af3e6bb",
+        "msg_824abfdf2bc5·msg_7d9b8080609d"
       ],
-      "judgment": "19/20. 생성 순서로 모은 배열에 UUID 정렬을 기대한 마지막 단언 보완, 같은 SQL로 1회 재검증 배정.",
+      "judgment": "작성자 격리 PostgreSQL 20/20 수락. 통과 범위는 대역 SQL 계약. Mac 정적 검수 요청.",
       "unverified": [
-        "회전 시험 전체와 5회차 재독",
-        "실 Supabase Storage/권한",
+        "Mac 정적 독립 검수·실 Supabase Storage/권한/성능·런타임 연결",
         "Gmail OAuth 동의/실검증"
       ],
-      "nextAction": "시험만 바뀐 SHA·격리 재검증·정리 근거 회수."
+      "nextAction": "Mac 판정과 문서 근거 수신 후 W01r 종결 검토."
     },
     "notifications": [
       {
@@ -8751,18 +8750,19 @@
       "reviewer": "CX-MASTER-01",
       "title": "누락 자산 후속 SQL·격리 시험 초안",
       "status": "reviewing",
-      "delivery": "isolated_rerun_19_of_20_rotation_assertion_fix_requested",
+      "delivery": "isolated_20_of_20_accepted_mac_static_review_requested",
       "scopeRef": "신규 후속 migration, 신규 격리 시험, W00 해당 근거",
       "constraints": "기존 migration·실행자/route/fixture 변경·SQL 실행/DB 생성·운영/Storage/비용/배포 0",
       "completion": "권한·인덱스 정렬·창/반환 상한·metadata 두 기준·예약 보존·격리 시험 경계 명시",
-      "evidence": "e3bb9132f·msg_0f05ca942dad·정정 요청 msg_b79fa67a3680 / msg_c93d4f3c6d24 / msg_1ede944e2a6c / msg_d9560a3b5fae / msg_e35ee13c657f / msg_c1ffe34be953 / msg_1b9327970031",
-      "next": "회차별 UUID 집합 단언 정정 뒤 격리 1회 재검증, 제품 SQL 고정.",
-      "lastReviewedAt": "2026-11-18T09:50:39.895Z",
-      "sha": "4e0c27cc5",
+      "evidence": "e3bb9132f·msg_0f05ca942dad·정정 요청 msg_b79fa67a3680 / msg_c93d4f3c6d24 / msg_1ede944e2a6c / msg_d9560a3b5fae / msg_e35ee13c657f / msg_c1ffe34be953 / msg_1b9327970031 / msg_b087ad72b7ad / msg_824abfdf2bc5 / msg_7d9b8080609d",
+      "next": "Mac 정적 독립 검수와 담당 증거 문서 갱신 대기. 런타임 연결 별도.",
+      "lastReviewedAt": "2026-11-18T09:53:54.259Z",
+      "sha": "da5996c2a",
       "validation": {
         "author": "node --check, 기존 npm 171/171·tsc 보고. 신규 격리 시험 미실행.",
         "master": "Storage 단일 스냅샷과 CLI 대기 한도 확인. 컨테이너 내부 프로세스 종료는 별도 검증.",
-        "isolated": "첫 17/20, 재검증 19/20·실패 1·skip 0·exit 1. OID 2545126 일치 후 DB/세션 부재 담당 보고. 회차별 집합 일치 및 5회차 단언 미실행."
+        "isolated": "고정 제품 SQL 19af3e6bb. 시험 SHA 2d6dfff03 17/20 → 4e0c27cc5 19/20 → da5996c2a 20/20·skip 0·exit 0. OID 2545248 일치 DROP·DB와 세션 부재 담당 보고. 초기 실패는 시험 수정으로 해소.",
+        "independent": "Mac 정적 검수 요청, 결과 대기"
       }
     }
   ]

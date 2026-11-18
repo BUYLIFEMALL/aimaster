@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 18:50:39 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 18:53:54 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -439,7 +439,7 @@ Master 마지막 실제 점검: 2026-11-18 17:23:58 KST · 실행 중 점검 주
 | AIF-20261118-W01o | CC-SNS-01 | done / recovery_design_accepted_local_p1_separately_assigned | 정리·업로드 불명 상태 복구 설계 | W01p 국소 진입 시간 점검. P2·운영 복구 별도. |
 | AIF-20261118-W01p | CC-SNS-01 | done / pre_delete_time_check_mac_validated_and_wording_accepted_undeployed | 삭제 진입 전 남은 시간 점검 | 미배포 유지. P2 및 운영 복구는 별도 범위. |
 | AIF-20261118-W01q | CC-SNS-01 | done / bounded_missing_scan_design_document_accepted | 객체 없는 ready 자산 판정 설계 | W01r 신규 후속 SQL과 격리 시험 초안. A1 기존 파일 보존. |
-| AIF-20261118-W01r | CC-SNS-01 | reviewing / isolated_rerun_19_of_20_rotation_assertion_fix_requested | 누락 자산 후속 SQL·격리 시험 초안 | 회차별 UUID 집합 단언 정정 뒤 격리 1회 재검증, 제품 SQL 고정. |
+| AIF-20261118-W01r | CC-SNS-01 | reviewing / isolated_20_of_20_accepted_mac_static_review_requested | 누락 자산 후속 SQL·격리 시험 초안 | Mac 정적 독립 검수와 담당 증거 문서 갱신 대기. 런타임 연결 별도. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 
 ## 현재 담당 회신이 확보된 프로젝트
