@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 12:47:57 KST",
+  "checkedAt": "2026-11-18 12:54:35 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,24 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T03:47:57.727Z",
+      "at": "2026-11-18T03:54:35.919Z",
       "timezone": "Asia/Seoul",
-      "trigger": "Mac freeOFF223dd 소스PASS msg_92dcd770db91",
-      "scope": "실route/키0/SSR비활성·소스vs운영·정정원격빌드1회결정",
+      "trigger": "요청된 Orca 알림 수신 점검",
+      "scope": "CRM18-05 원본 독립검수·Backend 수정 전달 확인·수정 SHA/3파일/본문·Master 요청함",
       "evidence": [
-        "Mac 실제free400·권한403·키/외부0·SSRdisabled",
-        "소스2파일·서비스/검증/route는1a1동일",
-        "Master정정배포질문1곳·AGY대기msg_bd45c8702380"
+        "msg_6d66044115ee 원본 독립검수 최종",
+        "msg_b02e2a979da0 이전 수정 지시 수신 및 완료 확인",
+        "b777bf01c 실소스 경계/재확인 검토",
+        "msg_b846a65474f7 Mac 재검수 전송, 수락 별도",
+        "codex-master 요청함 대기0"
       ],
-      "judgment": "정정소스지정PASS수락·운영OFF판정0. 추가원격1회는아직미승인·배포보류.",
+      "judgment": "원본 보류 동작 지정 PASS 보존. 회원 경계와 stale 상태 반례는 수정 반환되어 b777bf01c 작성자 검사 완료, 독립 검수 전 완료 수락하지 않음.",
       "unverified": [
-        "정정운영반영승인/실alias·무료실행방식결정",
-        "CRM후속정책독립검수·GmailOAuth·MacB"
+        "수정본 Mac 재검수",
+        "무료 엔진 OFF 운영 반영 승인",
+        "Gmail GCP 실제 요청 대조·Mac MP4 B 저장"
       ],
-      "nextAction": "주인님결정후단일배포책임/순번지정·CRM검수결과회수"
+      "nextAction": "Mac 재검수 결과에 따라 수락 또는 수정 반환. 기존 사람 단계 중복 요청 없이 대기."
     },
     "notifications": [
       {
@@ -7812,19 +7815,24 @@
       "reviewer": "CX-QA-01",
       "title": "미확정 접수 후속알림 기본보류·가시성",
       "status": "ready_review",
-      "delivery": "followup_hold_real_function_review_dispatched",
-      "evidence": "주인님Backend직접결정msg_1a6232e00dae·Mastermsg_38c5209014e0·결과msg_c55199dc02d9·Master5파일stat·Macmsg_3c7aed78d74d",
+      "delivery": "member_boundary_status_race_fix_independent_review_dispatched",
+      "evidence": "주인님Backend직접결정msg_1a6232e00dae·Mastermsg_38c5209014e0·결과msg_c55199dc02d9·Master5파일stat·Macmsg_3c7aed78d74d · Mac원본최종msg_6d66044115ee · Backend수정msg_b02e2a979da0 · Master수정범위/본문확인 · 재검수msg_b846a65474f7",
       "scopeRef": "followupDispatch.ts·submissionStatus.ts·시험/기존문서·추가호출자필요시경로먼저",
       "completion": "dispatching/partial/unknown/미지값보류·발송/선점0·실화면보류이유/held가시성·확정후1회재개/limit기아검증",
       "constraints": "received/failed/notified기존동작·실DB/DDL/웹훅/실발송/배포0",
-      "next": "Mac상태행렬/보류0선점/반복/재개/cron/가시성·조회후변경경계검수→판정",
-      "lastReviewedAt": "2026-11-18T03:45:58.154Z",
-      "sha": "239824dfd",
+      "next": "Mac b777bf01c 회원범위·계정await/채널사이 상태변경·claim 보존/해제·조회실패 재검수 후 판정",
+      "lastReviewedAt": "2026-11-18T03:54:35.919Z",
+      "sha": "b777bf01c",
       "validation": {
-        "author": "실runFollowupRule/실page 가짜DB·발송57/57·dedupe포함71/71·tsc0",
-        "master": "정확5파일범위확인",
-        "independent": "Mac실함수/held가시성/경합경계대기"
-      }
+        "author": "수정 실함수64/64·dedupe14/14·tsc0(작성자 보고)",
+        "master": "3파일 stat·실 followupDispatch 본문 확인, 기존 회원 경계 문제와 새 회귀 구분",
+        "independent": "원본239824dfd 조회시점 보류 PASS, F-F01 기존 타회원 후보/발송 반례 및 F-L01 stale 상태 반례 확인. 수정b777bf01c 재검수 전달, 수락/결과 대기"
+      },
+      "limitations": [
+        "운영 미배포·운영 RLS/DDL/실발송0",
+        "DB 재조회와 외부 발송 사이 원자 보장 없음",
+        "501 fixture는 서버 최대행수 초과 후보 밀림 보장 아님"
+      ]
     }
   ]
 }

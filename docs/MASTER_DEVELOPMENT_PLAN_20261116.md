@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 12:47:57 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 12:54:35 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 12:47:57 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 12:54:35 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 실route/키0/SSR비활성·소스vs운영·정정원격빌드1회결정 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: CRM18-05 원본 독립검수·Backend 수정 전달 확인·수정 SHA/3파일/본문·Master 요청함 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -401,7 +401,7 @@ Master 마지막 실제 점검: 2026-11-18 12:47:57 KST · 실행 중 점검 주
 | CRM-20261118-04 | CC-B2B-BACK-01 | done / specified_actual_ssr_counts_qa_pass_unreleased | CRM 기존3집계 조회실패 0건오인 국소보완 | 소스정리/점유해제·후속알림제품결정전발송연결보류 |
 | DES-20261118-06 | AG-UI-01 | waiting_human / free_off_source_qa_pass_remote_build_approval_pending | 감성 설정 화면 주인님 직접지시·새배포 상태 취합 | 주인님정정안원격1회승인vs묶음대기결정→명시223dd manifest/팀큐→배포/실alias확인 |
 | ECOM-20261118-05 | CC-ECOM-01 | done / primary_documents_read_no_real_api | 무료 이미지 공식지원/본인키 무료할당량 대안 읽기조사 | 주인님무료방식결정후정확구현계획·공식약관/라이선스미확인유지 |
-| CRM-20261118-05 | CC-B2B-BACK-01 | ready_review / followup_hold_real_function_review_dispatched | 미확정 접수 후속알림 기본보류·가시성 | Mac상태행렬/보류0선점/반복/재개/cron/가시성·조회후변경경계검수→판정 |
+| CRM-20261118-05 | CC-B2B-BACK-01 | ready_review / member_boundary_status_race_fix_independent_review_dispatched | 미확정 접수 후속알림 기본보류·가시성 | Mac b777bf01c 회원범위·계정await/채널사이 상태변경·claim 보존/해제·조회실패 재검수 후 판정 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
