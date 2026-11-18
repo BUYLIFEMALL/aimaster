@@ -4450,13 +4450,13 @@
       "reviewer": "CX-MASTER-01",
       "title": "승인된 블로그3프로그램 순차묶음 배포",
       "status": "running",
-      "delivery": "second_neighbor_preflight_accepted_first_release_verified",
+      "delivery": "two_releases_complete_web_security_dependencies_preparing",
       "scopeRef": "tistory-auto-blog1.98→blog-neighbor-care1.22→web-crawler T04+05+07 정확manifest",
       "constraints": "Vercel최대3·T04별도1은세번째통합/추가4번째0·공용masterpush0·순차Ready/alias/버전·남의AGENTS변경보존·새AI0",
       "completion": "프로젝트/팀/기준SHA/점유/큐/notice/widget/pending·필요검사/빌드·각운영Ready/alias/버전·티스토리기존초안미리보기1/web실화면",
-      "evidence": "주인님직접승인msg_6c2b57cab944·Master배정msg_2eda31a938b1 · msg_0957e7387120: Tistory prj_p3Qc2mOwj5LnPlE5zaAd2stxvibm/team일치·운영1.97·archiveHEAD·86+44/tsc·큐0·1/3 · msg_2d43083c8301 1/3완료·Masteralias dpl_GWRtKtymAGR4sdzgywKsxeFkgMK2 직접확인·msg_555ca68934de · msg_205456c9c8e5 이웃prj_sofdvYyCKAKO5ymLTRZ0vHwYK9q8/1.21→a3fe1.22/387·tsc·큐0/남의미커밋보존·Master수락",
-      "next": "이웃a3fe11b2e 승인2/3 배포1회→Ready/alias/ext검사→web보안패치사전",
-      "lastReviewedAt": "2026-11-18T07:30:30.250Z",
+      "evidence": "주인님직접승인msg_6c2b57cab944·Master배정msg_2eda31a938b1 · msg_0957e7387120: Tistory prj_p3Qc2mOwj5LnPlE5zaAd2stxvibm/team일치·운영1.97·archiveHEAD·86+44/tsc·큐0·1/3 · msg_2d43083c8301 1/3완료·Masteralias dpl_GWRtKtymAGR4sdzgywKsxeFkgMK2 직접확인·msg_555ca68934de · msg_205456c9c8e5 이웃prj_sofdvYyCKAKO5ymLTRZ0vHwYK9q8/1.21→a3fe1.22/387·tsc·큐0/남의미커밋보존·Master수락 · msg_999d4d074c92 이웃완료·Masteralias dpl_HpC2cXcGpWNyHomMSc3qg28Y82Dx·msg_4890dfc4bdcc/Mastermsg_ebbf8f33ae28",
+      "next": "web-crawler/webapp Next16.4.6/eslint동기화+undici7.30.1/zod4.6.6 보안업데이트·검사/manifest뒤마지막1회",
+      "lastReviewedAt": "2026-11-18T07:34:46.131Z",
       "sha": "97ee4acbb",
       "validation": {
         "author": "version1.98/확장1.98.0·HEADarchive·미커밋삭제oldZIP보존·prebuild다시생성·test86+44/tsc0·widget/pending대조·큐0",
@@ -4464,8 +4464,8 @@
       },
       "releaseProgress": {
         "budgetRemoteMax": 3,
-        "remoteAttemptsUsed": 1,
-        "remaining": 2,
+        "remoteAttemptsUsed": 2,
+        "remaining": 1,
         "retries": 0,
         "completed": [
           {
@@ -4476,8 +4476,30 @@
             "masterAliasVerified": true,
             "authorEvidence": "Ready·programs/ext1.98·실ZIPmanifest1.98.0/NOTICE/16files·extension-releaseOK·로그인307",
             "runtimePending": "기존원고미리보기1은세배포뒤·새AI0"
+          },
+          {
+            "slug": "blog-neighbor-care",
+            "version": "v1.22",
+            "sha": "a3fe11b2e",
+            "deploymentId": "dpl_HpC2cXcGpWNyHomMSc3qg28Y82Dx",
+            "masterAliasVerified": true,
+            "authorEvidence": "Ready·DB/ext1.22·운영ZIP1.22.0/NOTICE21files·releasecheckOK·남의미커밋23보존",
+            "runtimePending": "B1사람확장재시험별도"
           }
         ]
+      },
+      "securityScope": {
+        "next": "16.4.6",
+        "eslintConfigNext": "16.4.6",
+        "undici": "7.30.1",
+        "zod": "4.6.6",
+        "decision": "T04관련직접보안의존성 같은빌드포함 Master기술판단·추가4번째원격0",
+        "primarySources": [
+          "https://github.com/advisories/GHSA-2m5v-pch6-74hx",
+          "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5",
+          "https://github.com/advisories/GHSA-vc7v-qv4w-wrv8"
+        ],
+        "limits": "zod는minor변경·기존타입/전체시험/검증/safeFetch회귀·npm audit fix무차별0"
       }
     },
     {
@@ -4526,18 +4548,18 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "원본 자산 일반30일 정리 연결 첫계약",
-      "status": "needs_revision",
-      "delivery": "retention_contract_quota_gap_retry_reachability_and_restore_race_returned",
+      "status": "reviewing",
+      "delivery": "retention_R1_received_delete_uncertainty_and_period_review",
       "scopeRef": "기존W00 보관정리계약·공용0063/65/68/73/보호정책/markPosted 읽기",
       "constraints": "새제품/SQL실행/표/문서/DB/Storage/AI/cron/build/push0·원본PLAN보존·15항전체재설계0",
       "completion": "기산일/동적보호·실행자인증·ready기간만료→삭제claim CAS/fencing·외부원자성한계/불명보존·quota해제/unknown복구분리·최소경로/시험한안",
-      "evidence": "Mastermsg_3e5657eeafec·A1운영ON차단보관미연결 · msg_55e57d698737/5533833cf·Master주요문장읽기·Macmsg_79a7cdce1fab · Macmsg_7ca376e6f3a6·반환msg_41d24656f73f",
-      "next": "§19 만료미측정bytes보존·재처리상태/토큰검증·보호복원/verify분기·기산/tracking 한안보완→Mac",
-      "lastReviewedAt": "2026-11-18T07:32:14.012Z",
-      "sha": "5533833cf",
+      "evidence": "Mastermsg_3e5657eeafec·A1운영ON차단보관미연결 · msg_55e57d698737/5533833cf·Master주요문장읽기·Macmsg_79a7cdce1fab · Macmsg_7ca376e6f3a6·반환msg_41d24656f73f · msg_150097fd87eb/dd3606f63·Macmsg_f85f2e50eed0",
+      "next": "Mac R1 삭제불명현재존재→재시도/복원·1일정책·최초추적등록 정합검토",
+      "lastReviewedAt": "2026-11-18T07:34:46.131Z",
+      "sha": "dd3606f63",
       "validation": {
-        "author": "설계만·새expired상태/만료verify2함수/CRON0FF한안·보호제외·unknown후속분리",
-        "master": "expired추가quota제외시측정갭/ready후보재시도/claim뒤expire재확인/복원·기산시각·tracked지연 독립대조배정",
+        "author": "R1expired전부가산/deleted확정만제외·A/B/C재개/토큰표·verify상태표·등급경합한계·stored_at기산+1일·tracking선결정·설계만",
+        "master": "expired추가quota제외시측정갭/ready후보재시도/claim뒤expire재확인/복원·기산시각·tracked지연 독립대조배정 · R1추가1일은30일보관정책변경아님주의·같은object현재존재≠늦은DELETE종료·최초빈버킷ON동시tracked등록검토",
         "independent": "정적P1 expired quota추가분제외/중앙미측정 반례·ready후보만재개도달불가·expire진행claim충돌/삭제중ready복원위험. P2 기산시각차이·첫tracked유료기간단축/verify최종분기누락·중앙등급전환이중삭제0 절대보장불가. 코드/실SQL/삭제0"
       }
     }
@@ -4796,12 +4818,12 @@
     {
       "slug": "blog-neighbor-care",
       "owner": "CC-BLOG-01",
-      "reportedVersion": "v1.21 / v1.22 후보",
-      "stage": "운영·진단구현완료 / 실검수대기",
+      "reportedVersion": "v1.22 작성자DB/ext·Masteralias직접",
+      "stage": "승인묶음 두번째Ready·B1확장실시험사람대기별도",
       "completed": "387시험·타입0,e35947191 진단추가",
-      "next": "맥일반창/작업공간창진단 재시험·신청있는계정·배포묶음",
-      "evidence": "blog-neighbor-care/docs/REQUEST_20261116_MACMINI_B1_FOCUS_RETEST.md",
-      "evidenceLevel": "담당 회신·기록 대조 (Master 운영 재시험 아님)"
+      "next": "기존B1사람확인뒤실확장·새읽기/AI0",
+      "evidence": "blog-neighbor-care/docs/REQUEST_20261116_MACMINI_B1_FOCUS_RETEST.md · msg_999d4d074c92/Master dpl_HpC2cXcGpWNyHomMSc3qg28Y82Dx",
+      "evidenceLevel": "alias직접·Ready/DB/ext/ZIP작성자·B1실검수미완"
     },
     {
       "slug": "tistory-auto-blog",
@@ -5058,24 +5080,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T07:32:14.012Z",
+      "at": "2026-11-18T07:34:46.131Z",
       "timezone": "Asia/Seoul",
-      "trigger": "16:30예약수신·정기증분/계약검수",
-      "scope": "13로컬연결/이전명시보고기준담당상태·관리자요청0·16시후변경문서10/타저자미커밋·Blog1/3완료2/3사전·SNS보관계약",
+      "trigger": "이웃배포완료·보안패치판단·SNS R1",
+      "scope": "이웃alias직접/작성자ZIPDB·예산2/3·공식GHSA 패치버전/직접Agent사용·보관R1불명경계",
       "evidence": [
-        "msg_bf2096e6b4f5/동일Master예약receipt·새창0",
-        "terminal13·devrequests0·SNS점유해제후문서작업·타pdca보존",
-        "SNSMac보고/W00/2개역할/프로그램IMPROVEMENTS·PENDING/CAPABILITY 티스토리1.98 근거대조",
-        "msg_205456c9c8e5 이웃사전·Mastermsg_89896779074d",
-        "msg_7ca376e6f3a6·Master반환msg_41d24656f73f"
+        "msg_999d4d074c92·Masteralias직접",
+        "msg_4890dfc4bdcc·공식GHSA3개직접읽기/실package/safeFetch Agent확인·msg_ebbf8f33ae28",
+        "msg_150097fd87eb/dd3606f63·Macmsg_f85f2e50eed0"
       ],
-      "judgment": "실행가능Blog승인순차배포진행/첫예산1사용·SNS코드전계약P1반환·다른사람대기변화근거없음/중복배정0·全포트폴리오운영PASS아님",
+      "judgment": "이웃완료수락·관련direct보안의존성 같은마지막빌드포함범위판단·SNSR1정적재검토/삭제실행0",
       "unverified": [
-        "이웃두번째Ready·마지막web보안사전",
-        "SNS보관정리계약수정·실Storage",
-        "CRM승인/음악B/Gmail/B2B/ESM/Blog 사람완료신호"
+        "web마지막패치/검사/배포",
+        "SNS늦은삭제/보관기산정합",
+        "다른운영사람단계"
       ],
-      "nextAction": "이웃Ready확인뒤3/3·SNS한안개정회수→지정재검토"
+      "nextAction": "web사전manifest/결과회수·Mac R1결과→통합반환"
     },
     "notifications": [
       {
