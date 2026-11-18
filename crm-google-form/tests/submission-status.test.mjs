@@ -120,6 +120,7 @@ const HOOKS = [
     "@/lib/programAccess": "export async function checkProgramAccess(){ return { allowed: true }; }",
     "@/lib/email/transport": "export async function sendViaSmtpAccount(a, to){ (globalThis.__crmSent ??= []).push(['email', to]); await globalThis.__crmOnSend?.('email', to); }",
     "@/lib/solapi/client": "export async function sendSms(a, to){ (globalThis.__crmSent ??= []).push(['sms', to]); await globalThis.__crmOnSend?.('sms', to); } export async function sendAlimtalk(a, to){ (globalThis.__crmSent ??= []).push(['alimtalk', to]); await globalThis.__crmOnSend?.('alimtalk', to); } export async function sendFriendtalk(a, to){ (globalThis.__crmSent ??= []).push(['friendtalk', to]); await globalThis.__crmOnSend?.('friendtalk', to); }",
+    "@/lib/crm/solapiSendOnce": "export async function sendSolapiOnce(acc, msg){ (globalThis.__crmSent ??= []).push([msg.kind, msg.to]); await globalThis.__crmOnSend?.(msg.kind, msg.to); return globalThis.__crmOnceResult?.(msg.kind) ?? { outcome: 'sent', httpCalls: 1, reason: 'accepted' }; }",
   })};`,
   `export async function resolve(spec, ctx, next) {`,
   `  if (ctx.parentURL && ctx.parentURL.startsWith("crmfake:")) return next(spec, { ...ctx, parentURL: pathToFileURL(ROOT + "/package.json").href });`,

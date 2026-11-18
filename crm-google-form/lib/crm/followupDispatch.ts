@@ -1,7 +1,30 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendViaSmtpAccount, type SmtpAccountCredentials } from "@/lib/email/transport";
-import { sendAlimtalk, sendFriendtalk, sendSms, type SolapiAccountCredentials } from "@/lib/solapi/client";
+import type { SolapiAccountCredentials } from "@/lib/solapi/client";
+import { sendSolapiOnce, type OnceMessage, type OnceResult } from "@/lib/crm/solapiSendOnce";
+
+/**
+ * 팔로우업 문자·알림톡·친구톡도 접수 확인과 같은 검수된 1회 전송기로 보낸다(2026-11-18 Master 범위 확대 판정).
+ * 공용 래퍼(SDK)는 연결 끊김·503에서 스스로 최대 3번 다시 보내 이중 전송될 수 있기 때문. 결과가 「보냄」이 아니면
+ * 고정 진단 문구로 기록하고 그 팔로우업은 failed(「모름」을 성공으로 치지 않음). 기록이 남으므로 자동 재발송 0.
+ */
+const SOLAPI_FOLLOWUP_NOTE: Record<OnceResult["reason"], string> = {
+  accepted: "보냄",
+  precheck: "보내기 전 검증 실패",
+  registration_failed: "접수 실패",
+  client_rejected: "거절됨",
+  rate_limited: "결과 모름",
+  server_error: "결과 모름",
+  network: "결과 모름",
+  bad_response: "결과 모름",
+  unexpected_status: "결과 모름",
+};
+
+export interface FollowupDeps {
+  /** 시험용: 1회 전송기에 넘길 fetch(운영에서는 생략 — 기본 fetch) */
+  solapiFetch?: typeof fetch;
+}
 import { followupAllowed } from "@/lib/crm/submissionStatus";
 
 interface FollowupRule {
@@ -84,7 +107,7 @@ async function ownedAndAllowed(admin: Admin, rule: FollowupRule, submissionId: s
  * user_id와 form_source_id를 함께 건다 — 다른 회원이 남의 폼 id로 넣은 접수는 후보·보류 개수 어디에도 섞이지 않는다.
  * 미확정 보류(주인님 결정 2026-11-18): 선점 직전과 채널마다 발송 직전에 최신 상태를 다시 읽는다.
  */
-export async function runFollowupRule(rule: FollowupRule): Promise<FollowupRunResult> {
+export async function runFollowupRule(rule: FollowupRule, deps: FollowupDeps = {}): Promise<FollowupRunResult> {
   const admin = createAdminClient();
   const empty = { sent: 0, failed: 0, held: 0, interrupted: 0, releaseFailed: 0, releaseUnknown: 0 };
 
@@ -174,7 +197,8 @@ export async function runFollowupRule(rule: FollowupRule): Promise<FollowupRunRe
 
     const text = fillTemplate(rule.message_text, submission);
     const errors: string[] = [];
-    const steps: { label: string; run: () => Promise<unknown> }[] = [];
+    // run이 문자열을 돌려주면 그 채널은 실패(고정 진단), null이면 성공. 이메일은 기존처럼 예외로 실패를 알린다.
+    const steps: { label: string; run: () => Promise<string | null | void> }[] = [];
 
     if (rule.channel_email && submission.email) {
       if (!smtpAccount) errors.push("SMTP 계정 미등록");
@@ -191,7 +215,16 @@ export async function runFollowupRule(rule: FollowupRule): Promise<FollowupRunRe
       } else {
         const acc = solapiAccount;
         const phone = submission.phone;
-        if (rule.channel_sms) steps.push({ label: "SMS", run: () => sendSms(acc, phone, text) });
+        const once = async (msg: OnceMessage): Promise<string | null> => {
+          let r: OnceResult;
+          try {
+            r = await sendSolapiOnce(acc, msg, { fetch: deps.solapiFetch });
+          } catch {
+            return "결과 모름"; // 전송기는 예외를 던지지 않도록 만들었지만, 던지면 결과를 모른다고 본다
+          }
+          return r.outcome === "sent" ? null : SOLAPI_FOLLOWUP_NOTE[r.reason];
+        };
+        if (rule.channel_sms) steps.push({ label: "SMS", run: () => once({ kind: "sms", to: phone, text }) });
         if (rule.channel_alimtalk && rule.kakao_template_id) {
           const templateId = rule.kakao_template_id;
           steps.push({
@@ -201,11 +234,11 @@ export async function runFollowupRule(rule: FollowupRule): Promise<FollowupRunRe
               for (const [kakaoVar, question] of Object.entries(rule.kakao_variables)) {
                 variables[kakaoVar] = submission.raw_values[question] ?? "";
               }
-              return sendAlimtalk(acc, phone, { templateId, variables });
+              return once({ kind: "alimtalk", to: phone, templateId, variables });
             },
           });
         }
-        if (rule.channel_friendtalk) steps.push({ label: "친구톡", run: () => sendFriendtalk(acc, phone, text) });
+        if (rule.channel_friendtalk) steps.push({ label: "친구톡", run: () => once({ kind: "friendtalk", to: phone, text }) });
       }
     }
 
@@ -219,7 +252,8 @@ export async function runFollowupRule(rule: FollowupRule): Promise<FollowupRunRe
       }
       attempted.push(step.label);
       try {
-        await step.run();
+        const note = await step.run();
+        if (typeof note === "string") errors.push(`${step.label}: ${note}`);
       } catch (err) {
         errors.push(`${step.label}: ${err instanceof Error ? err.message : String(err)}`);
       }
