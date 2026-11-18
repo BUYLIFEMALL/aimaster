@@ -767,6 +767,57 @@ A1 업로드는 서버가 서비스 키로 직접 올리며 `upsert: false`다. 
 
 모의·격리 반례에 다음을 더한다: 오래된 `ready` 60·중앙 0·한도 100에서 `expired` 뒤 새 60 거절 · `deleted` 확정 뒤에만 허용 · 묶음 B·C 재개(회차 중단 뒤 다음 회차) · `claimed` 토큰 분실 1시간 뒤 취소 · `deleting`/`delete_unknown`/`deleted`에서 복원 0 · 토큰 불일치 시 mark 0·중단 · `remove` 오류 응답인데 실제로 지워진 경우 `deleted` · 다른 id 객체면 재삭제 0.
 
+### 19-R2. 최종 잔여 정정 — Mac `msg_203fc69604e2`·Master `msg_da2a74d17657` (§19·§19-R1과 다르면 이 절이 우선, 코드 0)
+
+R1의 F01(`expired` 전부 가산)은 그대로 둔다. 아래 네 가지만 바꾼다.
+
+#### R2-1. 외부 삭제를 시작한 뒤의 판정 (R1-verify 표 대체)
+
+원칙은 업로드 때(§18-R2)와 같다. **외부 `remove` 요청을 보낸 뒤에는, 「지금 객체가 있다」는 사실이 그 요청이 끝났다는 증거가 아니다**(늦게 처리될 수 있다).
+
+| `remove` 뒤 `delete_verify` 판정 | 최종 상태 | 그 뒤 |
+|---|---|---|
+| 객체 없음(`storage.objects`에 그 bucket·name 행 없음) | `deleted` | 용량 추가분에서 제외, `member_storage_measure(uid)` |
+| 같은 `object_id`의 객체가 아직 있음 | **`delete_unknown` 유지**(R1의 `delete_failed` 철회) | 용량 계속 계산. **자동 재삭제 0, `ready` 복원 0.** 다음 회차는 확인(verify)만 |
+| 조회 불명(읽기 실패) | `delete_unknown` 유지 | 다음 회차 확인만 |
+| 같은 path에 다른 `id`의 객체 | `delete_unknown` 유지 | 재삭제 0, 사람 확인 대상 건수 기록 |
+| 토큰 불일치 | mark 0 | 그 자산 처리 즉시 중단 |
+
+- `delete_failed`(재시도 가능)와 「보호 변경으로 `ready` 복원」은 **외부 요청을 보내지 않았음이 확정된 실패에만** 쓴다 — `deleting`을 커밋하기 전의 로컬 실패(토큰·상태 CAS 실패, 재확인에서 `restored`·`busy`·`unknown`). `remove`를 부른 뒤의 오류 응답·4xx 전체·던짐·시간 초과는 모두 「미전송」으로 취급하지 않는다.
+- 따라서 R1-F02의 묶음 B(재시도)는 예약 없음·`cancelled`·`delete_failed`·오래된 `claimed`만 다루고, **`delete_unknown`은 묶음 C에서 확인만 한다**. 오래 남는 `delete_unknown`의 해소(사람 확인·별도 복구)는 업로드 `unknown`과 마찬가지로 후속 단위다(서로 다른 상태임은 R1 그대로).
+
+#### R2-2. 오래된 `claimed` 취소의 근거와 절차 (R1-F02의 해당 항 대체)
+
+- 근거는 「1시간이 지났다」가 아니다. **상태 불변식**이다: 외부 `remove`는 `delete_mark(deleting)`이 커밋된 뒤에만 나간다. 그러므로 예약이 `claimed`인 동안에는 외부 삭제 요청이 나간 적이 없다.
+- 절차: 회원 → 자산 잠금 안에서 `where asset_id = … and state = 'claimed' and fencing_token = <읽은 토큰> and updated_at = <읽은 값>` 조건(CAS)으로 `cancelled`로 바꾸고, 다시 잡을 때는 **새 토큰**을 발급한다. 1시간은 「멈춘 실행으로 볼 최소 대기」일 뿐 원격 종료의 증거로 쓰지 않는다.
+- 옛 실행(worker)의 의무: `delete_mark(deleting)`이 `false`(토큰·상태 불일치)면 **`remove`를 부르지 않는다**. 취소 뒤 옛 토큰으로는 `deleting`에 들어갈 수 없으므로 외부 요청도 나가지 않는다.
+
+#### R2-3. 기산일 — 중앙과 같은 `storage.objects.created_at` (R1-기산일 대체, 임의 +1일 철회)
+
+- **`stored_at` 철회**: `finalize`가 늦어지는 데 상한이 없어(불명 → 뒤늦은 대조로 `ready`), `stored_at` 기준이면 보관이 30일보다 무제한 길어질 수 있다.
+- **+1일 여유 철회**: 승인된 보관 기간(일반 회원 30일)과 다른 값을 「보수적」이라는 이유로 넣지 않는다.
+- **선택**: 중앙과 같은 **객체 생성 시각 `storage.objects.created_at`**. 우리가 기대하는 객체(`object_id`)로 맞춰 읽는다. `aif_asset_expire` 안의 판정:
+
+```sql
+select so.created_at into v_created
+from storage.objects so
+where so.id = v_asset.object_id and so.bucket_id = v_asset.bucket and so.name = v_asset.path;
+-- 만료 조건: found and v_created is not null and v_created < now() - make_interval(days => v_days)
+```
+
+- **조기 삭제 0 조건**: 그 행이 없음 / `id`는 같으나 bucket·name이 다름(다른 객체) / `created_at`이 NULL / `v_days`가 NULL(무기한) / 읽기 오류 → 모두 **만료시키지 않는다**(`not_due` 또는 `unknown`). 객체가 없는 `ready` 행은 이 단위에서 건드리지 않고 후속 복구 단위로 넘긴다.
+- 남는 지연은 **정리 회차 간격**뿐이다: 기간이 지난 뒤 다음 회차가 돌 때까지(하루 1회면 최대 약 하루) 남아 있을 수 있다. 이것은 정책 기간을 바꾸는 것이 아니라 실행 주기에서 오는 지연이다.
+
+#### R2-4. 추적 버킷 등록 — 최초 ON과 동시에 등록이 기본 (R1-tracked 대체)
+
+- 전제 재확인: 지금 `aif-assets` 버킷은 없고 저장된 원본은 0건이다(§14-A: migration 미적용·버킷 미생성).
+- 그러므로 **최초 운영 ON 때 버킷 생성과 함께 `storage_posting_tracked_buckets`에 등록**하면 「기존 미발행 유료 원본의 기간이 갑자기 줄어드는」 전환 문제가 생기지 않는다. 이것을 기본 실행안으로 한다. R1에서 적은 두 갈래 선택지와 별도 정책 질문은 철회한다.
+- 실제 등록은 공용 표에 쓰는 일이므로 운영 ON 승인 절차 안에서 따로 승인받아 실행한다(이 단위 실행 0). ON 시점에 전제가 깨져 있으면(이미 자산이 있음) 그때 다시 판단한다.
+
+#### R2-완료 조건(§19-9·R1 보완)
+
+반례 교체·추가: `remove` 뒤 같은 객체가 남아 있음 → `delete_unknown`·재삭제 0·복원 0·용량 유지 · `remove` 오류 응답(4xx 포함)도 미전송으로 보지 않음 · 옛 토큰으로 `deleting` 진입 실패 시 `remove` 0회 · `claimed` 취소 CAS(토큰·`updated_at` 불일치면 무변경) · 기산 조회에서 행 없음·다른 객체·`created_at` NULL·기간 NULL이면 만료 0 · `finalize`가 늦어도 객체 생성 시각 기준으로 만료.
+
 ## 14. 진행 상태 기록
 
 ```text
