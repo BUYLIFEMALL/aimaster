@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T17:52:21.652Z",
+  "checkedAt": "2026-11-18T17:56:45.432Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5420,14 +5420,20 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "W01 운영 전 검증 계획 및 승인 범위 정리",
-      "status": "running",
-      "delivery": "production_readiness_checklist_dispatched",
+      "status": "waiting_human",
+      "delivery": "read_only_probe_scope_narrowed_owner_approval_pending",
       "scopeRef": "W00 §14-B·§14-L·§24-10 및 W00_BASELINE.md 한 절",
       "completion": "최소 무과금 검증 및 실제 Storage·CORS·회원 한도·생성/발행 검증 순서, 환경/조건/상한·비용·중단/복구·승인 항목 정리.",
       "constraints": "문서/기존 소스 읽기만. 실 운영·로그인·Storage·SQL·배포·AI·ON·W02 없음.",
-      "evidence": "msg_496f86e32649",
-      "next": "CC-SNS-01 계획 SHA와 근거 반환 뒤 Master 승인 범위 검토.",
-      "lastReviewedAt": "2026-11-18T17:52:21.652Z"
+      "evidence": "msg_496f86e32649·msg_15dcc644b0cb·msg_825c94316f8b",
+      "next": "§25 소폭 정정 및 무인증 Storage 읽기 최대 2회에 대한 주인님 승인 대기. 헤더는 참고용. 실제 서명 GET·DB·쓰기·활성화/배포는 이후 별도.",
+      "lastReviewedAt": "2026-11-18T17:56:45.432Z",
+      "sha": "7fc3f2f84",
+      "verificationScope": {
+        "preflight": "No-auth read only, existing Storage host, at most two requests; headers only, no live signed token or object target",
+        "reuses": "W00 §14-L authority and bucket evidence",
+        "caveat": "Error response CORS is preliminary only. Absence alone cannot block a signed response test."
+      }
     },
     {
       "task_id": "DES-20261119-HERO",
@@ -5531,6 +5537,37 @@
         }
       },
       "lastReviewedAt": "2026-11-18T17:37:41.689Z"
+    },
+    {
+      "task_id": "DES-20261119-HERO-TRIM",
+      "parent_task_id": "DES-20261119-HERO-FOLLOWUP",
+      "owner": "AG-UI-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "메인 히어로 표시 요소 4곳 정리 운영 배포",
+      "status": "running",
+      "delivery": "owner_approved_isolated_hero_trim_release_in_progress",
+      "sha": "0b2835c07",
+      "evidence": "msg_16be4a1dca6e·0b2835c07",
+      "scopeRef": "직전 운영 대비 HeroShowcase.tsx 단일 변경",
+      "next": "AG-UI-01 결과 회신 대기. Master 운영 alias와 승인 변경 재확인.",
+      "release": {
+        "program": "aimaster",
+        "owner": "AG-UI-01",
+        "reviewer": "CX-MASTER-01",
+        "status": "owner_approved_author_reported_start",
+        "approvalMessage": "msg_16be4a1dca6e",
+        "baseDeployment": "dpl_3Mk2kLgLyzbhmagxfoWTwFACGWXK",
+        "baseSha": "ba31f40809f285c5c378e59213c76d227188ac11",
+        "approvedSource": "0b2835c07",
+        "alias": "www.buylife.xyz",
+        "normalBudget": 1,
+        "paths": [
+          "components/home/HeroShowcase.tsx",
+          "public/images/hero/concept_3_command_hub.jpg"
+        ],
+        "method": "Isolated snapshot with unchanged approved image; HeroShowcase-only live diff, one staged build."
+      },
+      "lastReviewedAt": "2026-11-18T17:56:45.432Z"
     }
   ],
   "programOverrides": [
@@ -8743,6 +8780,23 @@
         "verification": "Live HTML 200, hero/command unchanged and three metric values and CTA absent. JPEG HTTP 200 and approved blob match.",
         "verifiedAt": "2026-11-18T17:37:41.689Z"
       }
+    },
+    "mainHeroTrim": {
+      "program": "aimaster",
+      "owner": "AG-UI-01",
+      "reviewer": "CX-MASTER-01",
+      "status": "owner_approved_author_reported_start",
+      "approvalMessage": "msg_16be4a1dca6e",
+      "baseDeployment": "dpl_3Mk2kLgLyzbhmagxfoWTwFACGWXK",
+      "baseSha": "ba31f40809f285c5c378e59213c76d227188ac11",
+      "approvedSource": "0b2835c07",
+      "alias": "www.buylife.xyz",
+      "normalBudget": 1,
+      "paths": [
+        "components/home/HeroShowcase.tsx",
+        "public/images/hero/concept_3_command_hub.jpg"
+      ],
+      "method": "Isolated snapshot with unchanged approved image; HeroShowcase-only live diff, one staged build."
     }
   }
 }
