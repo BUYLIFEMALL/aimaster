@@ -1135,3 +1135,27 @@ DB: 해당 없음(읽기만) · 배포: 해당 없음
 - (2026-11-18 보완, Mac IO-F01·Master `msg_d998e2a2d9ec`) 14-D의 집계 결함 1건 수정: deleting 커밋 직후 회차 마감이면 remove를 시작하지 않는데 `removeCalls` 1·`deleteUnknown` 1로 세고 있었다(실제 삭제 동작은 맞았고 건수만 틀림). `removeCalls`는 실제로 호출을 시작하는 순간에만 올리고, 미전송은 새 건수 `removeNotSent`로 따로 센다. 미전송이면 추가 호출 0·예약 deleting 보존(다음 회차는 확인만 — 다시 지우지 않으므로 객체가 남아 있으면 delete_unknown이 되며, 미전송 건의 재시도 경로는 후속 복구 단위). 시험 45건(반례 1 추가)·전체 168/168·tsc 통과, 집계를 호출 밖으로 되돌린 변형은 빨강.
 
 - (2026-11-18 P1 구현, Master `msg_7932d8b18fa0`) 삭제 진입 전 시간 확인을 `retention.ts`에 넣었다(§20-5 P1·§20-3 D5 문구를 구현과 맞게 정정). 새 건수 `deferredForTime`, 멈춤 코드는 `TIME_BUDGET`. 시험 48건(경계·취소 불명 3가지·묶음별 3건 추가, 미전송·remove 마감 시험 2건은 「진입 전 확인을 통과한 뒤 시계가 건너뛰는」 재현으로 교체)·전체 171/171·tsc 통과, 변형 10종 빨강. SQL·대역·read·route 변경 0.
+
+### 14-E. 복구 P2 SQL 소스·격리 시험 초안 (2026-11-18, Master `msg_a289fd0c172a`, 설계 §20-8)
+
+**작성만 했다. SQL 실행 0·격리 DB 생성 0·기존 migration(A1 원문)·대역·런타임·라우트 변경 0.**
+
+| 파일 | 내용 | 상태 |
+|---|---|---|
+| `ai-influencer-studio/supabase/migrations/20261118130000_aif_assets_p2_missing.sql` | 새 후속 파일(§20-8 (7)의 가 안). 열 2개(`aif_assets.object_checked_at`, `aif_asset_deletions.parked_at`), 색인 2개, 함수 2개(`aif_asset_missing_scan`, `aif_asset_mark_missing`). A1 원문 뒤에 실행 | 초안·미실행 |
+| `ai-influencer-studio/tests/sql/a1_missing.test.mjs` | 격리 계약 시험 초안 20건(스키마·색인·권한 3, 판정·예약 보존·삭제 흐름 격리 6, 용량 1, 롤백 1, 훑기 5, 2연결 3, 재적용 1 — 실행 전이라 통과 여부는 미확정이고 실행 결과에 따라 시험이 고쳐질 수 있다) | 초안·**한 번도 실행하지 않음**(`node --check` 문법 검사만) |
+
+초안에서 정한 것(설계 §20-8의 구체화)
+- **색인과 정렬**: 훑기의 `order by object_checked_at asc nulls first, id asc`와 같은 순서의 부분 색인 `(object_checked_at asc nulls first, id asc) where state = 'ready'`. btree의 ASC 기본은 NULLS LAST라서 명시하지 않으면 이 정렬에 쓰이지 않는다 — 시험 초안이 `explain`으로 「색인 사용·Sort 없음」과 「NULLS FIRST를 빼면 Sort 필요」를 함께 본다(대역의 작은 표에서의 계획 확인이지 실제 규모의 성능 증거가 아니다).
+- **상한 두 개와 줄임**: `p_scan_limit`(읽을 ready 행 수, 최대 5000)과 `p_limit`(돌려줄 후보 수, 최대 500이고 창보다 클 수 없음)은 별개다. NULL·1 미만은 예외. 실제로 쓴 값을 결과에 싣는다.
+- **조회 결과와 변경 행의 구분**: 훑기는 jsonb 한 값으로 `scanned`·`present`·`other_object`·`absent`(창 안의 분류 건수)와 `touched`(확인 시각을 갱신한 행 수 = present + other_object), `candidates`(absent 중 앞에서부터 최대 limit개)를 따로 돌려준다. 훑기가 바꾸는 것은 확인 시각뿐이고 상태는 바꾸지 않는다.
+- **잠금 건너뛰기의 한계**: `for update skip locked` — 잠긴 행은 기다리지 않고 건너뛴다. 건너뛴 만큼 색인을 더 읽을 수 있고, 건너뛴 행은 그 회차에 확인되지 않는다. 「정확히 창 크기만큼 검사한다」는 보장이 아니다.
+- **판정**: 저장소 두 기준(그 id의 행 없음 **그리고** 그 bucket·name의 행 없음)이 모두일 때만 `missing`. 읽지 못하면 예외·롤백 — 시험 초안은 한 거래 안에서 대역 표 이름을 바꿔 「읽을 수 없음」을 흉내 낸다.
+- **예약 보존**: `missing` 전이와 같은 거래에서 비활성 예약에 `parked_at`만 기록(상태·토큰·시도 횟수·행 보존). 기존 함수 본문에 `parked_at`이 들어가지 않았음을 시험 초안이 확인한다.
+
+향후 격리 실행 대상·명령(배정 뒤, 지금은 실행 0)
+- 새 시험: `cd ai-influencer-studio && node --test tests/sql/a1_missing.test.mjs` — 시험 DB `qa_aif_missing_20261118`(사전 미존재 확인 → 생성 oid 기록 → 대역 → A1 원문 → P2 파일 → 시험 → oid 일치 시에만 삭제 → 부재 검증).
+- A1 원문과 대역은 바뀌지 않으므로 기존 두 시험(`a1_contract`·`a1_retention`)은 다시 돌릴 필요가 없다(영향 범위 밖). 런타임 연결 단위에서 A1 원문을 고치게 되면 그때 재실행한다.
+- 조건: 로컬 Docker `aww-pg-test`, 역할 3개 사전 확인, 업무 DB 접속 0, 역할 생성·변경 0, 실제 저장소 호출 0.
+
+남은 것: 격리 실행과 그 결과에 따른 초안 수정 · 런타임 연결(정리 실행자 묶음 D, 라우트의 목록 조건 `parked_at is null`) · 실제 Supabase에서의 권한·실행 시간.
