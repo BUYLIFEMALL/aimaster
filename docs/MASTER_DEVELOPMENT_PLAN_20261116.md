@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 03:09:51 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 03:11:01 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -379,7 +379,7 @@ Master 마지막 실제 점검: 2026-11-19 03:01:00 KST · 실행 중 점검 주
 | WS-20261118-06 | CC-WORKSPACE-01 | done / calendar_and_dashboard_width_local_mac_checks_accepted_undeployed | 달력 월 구분 정리·업무 현황판 너비 | 로컬 완료·점유 해제·미배포. 실제 화면과 표 행 기본 폭 메뉴 제약은 별도. |
 | WS-20261118-07 | CC-WORKSPACE-01 | reviewing / v160_deployed_calendar_verified_dashboard_page_unavailable | 워크스페이스 v1.60 캘린더·현황판 운영 배포 | 운영 달력 확인. 기존 시험 현황판 페이지를 찾을 수 없어 폭/메뉴 확인 보류. |
 | WS-20261118-08 | CC-WORKSPACE-01 | done / collapsed_widget_spacing_static_mac_review_accepted_undeployed | 좌측 하단 저장공간 위젯과 푸터 겹침 | 미배포. 기본 위젯 겹침 국소 정적 검수 완료, 확장/좁은 폭·실화면은 별도. |
-| WS-20261119-01 | CC-WORKSPACE-01 | reviewing / saved_notion_html_fix_returned_mac_review_dispatched | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | 112ada09d 담당 시험/실파일 대조 보고. Mac 독립 검수 전달, 미배포. |
+| WS-20261119-01 | CC-WORKSPACE-01 | running / general_html_zero_width_space_regression_returned_for_fix | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | 독립 15/15. 일반 HTML U+200B 보존 회귀 수정 요청. 미배포. |
 | QA-20261118-043 | CX-QA-01 | done / integrated | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | 실브라우저375/390은v1.58배포후허용된기존시험세션에서·추가dev/build0 |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
 | OPS-20261118-01 | CX-MASTER-01 | done / integrated | 전체개발플랜·카테고리·누락개선/인수인계 정합성 대조 | 미확인68프로그램 현담당근거후속연결·제품전체검증과구분, 신규후속ID별진행 |
