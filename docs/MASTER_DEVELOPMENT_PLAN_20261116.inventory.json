@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 15:34:37 KST",
+  "checkedAt": "2026-11-18 15:35:36 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,26 +12,19 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T06:34:37.900Z",
+      "at": "2026-11-18T06:35:36.352Z",
       "timezone": "Asia/Seoul",
-      "trigger": "15:30예약수신·정기증분/이벤트",
-      "scope": "13로컬세션연결/이전보고기준상태·미완작업/사람목록·요청0·미등록문서증분0·최근감성제품커밋/실alias·SNS수정85",
+      "trigger": "AGY 협업/실행제약 수락",
+      "scope": "묶음배포·즉시지시예산/시도 사전보고·main카드승인/push보류",
       "evidence": [
-        "msg_71ecebae61ae/예약receipt·새창0",
-        "13terminal조회(연결은완료증거아님)·dev-requests0·changedDocs0",
-        "msg_80d03ab59197 추가생성승인0 정정",
-        "msg_f92baa9ea13a/85·Macmsg_63e85dbd7f17",
-        "msg_39b29344a69e·Master Vercel alias/deployment SHA확인·후속msg_77fe1b45a516",
-        "msg_ea23fb6648be 실행수회수·msg_dd358e09deaa 상태명시"
+        "msg_e4f5382fa23d"
       ],
-      "judgment": "SNS85 재검수배정·감성최신직접배포이력취합/옛질문종료·Cloudflare승인화면관찰오판담당정정수용·실제추가생성0 감성원격5시도/로컬3 작성자이력회수·DBversion/12모델실호출미확인분리·추가예산승인단정0.",
+      "judgment": "담당명시수락기록·새작업/중복검증배정0·기존SNS검수진행유지",
       "unverified": [
-        "13세션의실제착수/완료는명시보고외미단정",
-        "감성최신빌드총수/정확tree/DBversion/12모델실가용성",
-        "SNS85실SQL·운영외카테고리새실측0",
-        "CRM승인/음악B/ESM/Gmail/Blog/B2B 사람단계"
+        "감성최신12모델/전체UI·DBversion",
+        "SNS85 정적재검수결과"
       ],
-      "nextAction": "AGY실행이력·Mac85결과 회수·기존승인회신후실행·중복배정/새비용0"
+      "nextAction": "기존결과회수·승인답대기·추가운영실행0"
     },
     "notifications": [
       {
@@ -8255,11 +8248,11 @@
       "status": "reviewing",
       "delivery": "production_alias_SHA_verified_execution_ledger_pending",
       "sha": "57ef016cd",
-      "evidence": "msg_39b29344a69e·Master Vercel alias/deployment dpl_CHF7WKQQgSGngidFcVLbmJ8Zwa1i READY/prod/CLI/metasha57ef016cd · msg_ea23fb6648be 원격5시도(4ready/1APP_NAME실패)·로컬3·DBversion미확인/쓰기0·12모델실호출0",
+      "evidence": "msg_39b29344a69e·Master Vercel alias/deployment dpl_CHF7WKQQgSGngidFcVLbmJ8Zwa1i READY/prod/CLI/metasha57ef016cd · msg_ea23fb6648be 원격5시도(4ready/1APP_NAME실패)·로컬3·DBversion미확인/쓰기0·12모델실호출0 · msg_e4f5382fa23d 묶음/사전보고·추가실행0·push보류 명시수락",
       "scopeRef": "기존직접지시 모델순서/12모델/UI 변경·빌드/배포횟수/정확manifest 기록회수",
       "constraints": "이력취합만·새배포/빌드/실AI/DB쓰기0·공용master푸시0 보고·최신전체소스PASS아님",
       "next": "정확배포제품트리/최신12모델·UI 검수범위정리·추가실행0·기존보고이력갱신",
-      "lastReviewedAt": "2026-11-18T06:34:37.900Z",
+      "lastReviewedAt": "2026-11-18T06:35:36.352Z",
       "validation": {
         "author": "주인님 배포해+연쇄UI/모델직접지시·원격5/로컬3·79시험·현재프로그램clean·masterpush0",
         "master": "최신aliasREADY/metaSHA직접·빌드총수작성자보고·직접지시횟수범위는포괄신규예산으로확대0",
