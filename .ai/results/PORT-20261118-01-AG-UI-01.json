@@ -5,34 +5,86 @@
     "category": "CRM",
     "name": "구글폼 CRM 자동화",
     "statedOwner": {
-      "text": "과거 세션 기록: 2026-10-23 세션 claude-win-20261023-solapi-shared (SOLAPI 공용화), 2026-11-13 전체 점검 세션 claude-win-20261112-policy; docs/roles/analysis-planning.md 분석 언급",
-      "sourcePath": "crm-google-form/docs/IMPROVEMENTS.md 및 docs/roles/analysis-planning.md",
-      "section": "## 2026-10-23 미배포 대기 — SOLAPI 발송 코드 공용 기준 코드 solapi-client",
-      "recordedDate": "2026-10-23 / 2026-11-13",
+      "text": "과거 작성/점검 기록: 2026-10-17 Claude Code(맥미니, 사전 분석), 2026-10-20 Claude Code(윈도우, v1.10), 2026-10-23 세션 claude-win-20261023-solapi-shared(SOLAPI 공용화), 2026-11-13 세션 claude-win-20261112-policy(전체 점검); docs/roles/analysis-planning.md 분석 언급",
+      "sourcePath": "crm-google-form/docs/IMPROVEMENTS.md:3,20,30,35",
+      "section": "## 2026-10-17 / 2026-10-20 / 2026-10-23 / 2026-11-13",
+      "recordedDate": "2026-10-17 ~ 2026-11-13",
       "isCurrentActiveOwnerConfirmed": false,
-      "note": "과거 작성자/점검 세션 기록이며, 현재 활성 담당자로 확정되지 않음 (Master 검토 및 배정 대상)"
+      "note": "과거 작성자 및 점검 세션 기록이며 현재 활성 담당자로 확정되지 않음 (Master 배정 대상)"
     },
     "version": {
       "catalogVersion": "v1.17",
       "documentVersion": "코드 v1.16(lib/version.ts, 2026-11-13 점검 당시 문서 기록)",
       "codeVersion": "v1.17 (lib/version.ts: export const APP_VERSION = 'v1.17')",
       "packageJsonVersion": "0.1.0",
-      "discrepancy": "package.json(0.1.0) 뒤처짐, AGENTS.md 본문 일부는 v1.16으로 표기되어 있으나 실제 lib/version.ts는 v1.17로 최신화됨",
+      "discrepancy": "package.json(0.1.0)과 APP_VERSION(v1.17) 간 차이가 있으나 이는 배포/프로젝트별 별도 메타일 수 있어 결함으로 확정하지 않음",
       "verificationNote": "운영 실검증 아님 (정적 코드 및 문서 기록 기준)"
     },
     "pendingWork": [
-      "F-007: CRM 웹훅 재전송 시 접수/유료 발송 중복 실행 위험 방지(P1) 대기",
-      "F-011: Cron 인증 비밀 누락 시 fail-closed 미적용 위험 방지(P1) 대기",
-      "휴대폰 375px 모바일 햄버거 메뉴 레이아웃 실검수 대기",
-      "cron-job.org 재개 실패 시 DB paused 상태 불일치 롤백 로직 수정 제안 잔여"
+      {
+        "type": "explicit_pending",
+        "title": "웹훅 중복 응답 미차단 (F-007)",
+        "sourcePath": "crm-google-form/docs/IMPROVEMENTS.md",
+        "line": 7,
+        "section": "## 2026-10-17 Claude Code(맥미니) — 디자인 리뉴얼 사전 분석 중 발견",
+        "recordedDate": "2026-10-17",
+        "quote": "🚨 웹훅 중복 응답 미차단 | response_id를 저장만 하고 중복 검사·유니크 제약 없음 → Apps Script 재전송·중복 트리거 시 문자·알림톡 이중 발송·이중 요금 | 높음 | 미구현(DB 유니크 인덱스 필요 → 주인님 승인)",
+        "resolutionStatus": "unresolved"
+      },
+      {
+        "type": "proposal",
+        "title": "웹훅 본문 크기 및 횟수 제한 제안",
+        "sourcePath": "crm-google-form/docs/IMPROVEMENTS.md",
+        "line": 8,
+        "section": "## 2026-10-17 Claude Code(맥미니)",
+        "recordedDate": "2026-10-17",
+        "quote": "🚨 웹훅 크기·횟수 제한 없음 | 주소 유출 시 가짜 접수를 대량 주입 → 회원 SOLAPI 요금으로 임의 번호에 발송 가능 | 높음 | 미구현(제안)",
+        "resolutionStatus": "unresolved"
+      },
+      {
+        "type": "explicit_pending",
+        "title": "SOLAPI 발송 공용 기준 코드 적용 후 배포 대기",
+        "sourcePath": "crm-google-form/docs/IMPROVEMENTS.md",
+        "line": 33,
+        "section": "## 2026-10-23 미배포 대기 — SOLAPI 발송 코드 공용 기준 코드 solapi-client",
+        "recordedDate": "2026-10-23",
+        "quote": "배포: 미배포 대기(급하지 않은 공용 변경·작은 문구 버그) — 다음 배포 때 버전 +0.01",
+        "resolutionStatus": "unresolved"
+      },
+      {
+        "type": "proposal",
+        "title": "접수 내역(이름·연락처·이메일) 보관 기간 정리 부재 개선 제안",
+        "sourcePath": "crm-google-form/docs/IMPROVEMENTS.md",
+        "line": 39,
+        "section": "## 2026-11-13 전체 점검에서 발견",
+        "recordedDate": "2026-11-13",
+        "quote": "접수 내역(신청자 이름·연락처·이메일) 보관 기간 정리가 없음 — 삭제 코드는 폼 연결 삭제 때의 연쇄 삭제뿐",
+        "resolutionStatus": "unresolved"
+      },
+      {
+        "type": "explicit_pending",
+        "title": "F-011 Cron 인증 비밀 누락 시 401 처리 (해결 확인됨 - 대기에서 제외)",
+        "sourcePath": "crm-google-form/docs/IMPROVEMENTS.md",
+        "line": 21,
+        "section": "## 2026-10-20 v1.10 처리·발견 (Claude Code 윈도우)",
+        "recordedDate": "2026-10-20",
+        "quote": "✅ F-011(Cron 비밀값 빈 값 통과) 해결 — CRON_SECRET이 비면 401.",
+        "resolutionStatus": "resolved",
+        "resolutionEvidence": "crm-google-form/docs/IMPROVEMENTS.md:21 '✅ F-011 해결' 명시"
+      }
     ],
     "lifecycle": {
-      "status": "단독 운영 (공용 기준 코드 solapi-client 보유 프로그램)",
-      "detail": "구글폼 응답 수신, SOLAPI 알림톡/문자 및 이메일 자동 발송 CRM 허브로 정상 운영 중",
+      "status": "단독 운영 기록 (정적 문서 기준, 현재 런타임 단정 아님)",
+      "detail": "구글폼 웹훅 접수 및 알림톡/이메일 발송 CRM 서비스로 문서화되어 있음",
+      "sourcePath": "crm-google-form/AGENTS.md",
+      "line": 3,
+      "section": "## 현재 상태 요약",
+      "recordedDate": "2026-11-13",
+      "quote": "운영 주소: https://crm-google-form.buylife.xyz (웹훅 주소 …/api/webhooks/form-submit/<토큰>)",
       "mergeCandidate": null
     },
-    "nextReviewer": "Master 검토 및 B2B/Support 전담 배정",
-    "evidenceLevel": "프로그램 AGENTS.md, docs/IMPROVEMENTS.md 및 lib/version.ts 정적 파일 직접 대조 완료 (운영 실검증 0)"
+    "nextReviewer": "Master 배정 및 검토 (후보: B2B 또는 CRM 역할군)",
+    "evidenceLevel": "정적 파일 직접 대조 (IMPROVEMENTS.md:7,21,33, AGENTS.md:3, lib/version.ts)"
   },
   {
     "slug": "kakao-auto-posting",
@@ -40,33 +92,65 @@
     "category": "CRM",
     "name": "카카오톡 뉴스레터 자동화",
     "statedOwner": {
-      "text": "과거 기록: 2026-10-23 Claude Code 윈도우 (좌측 메뉴 레이아웃 수정), 2026-11-13 전체 점검; docs/roles/mac-mini.md 및 analysis-planning.md에 과거 맥미니 담당 언급",
+      "text": "과거 기록: 2026-10-23 Claude Code(윈도우, 사이드바 레이아웃), 2026-11-13 claude-win-20261112-policy; docs/roles/mac-mini.md 및 analysis-planning.md에 과거 맥미니 언급",
       "sourcePath": "kakao_auto_poster/docs/IMPROVEMENTS.md:12 및 docs/roles/mac-mini.md",
       "section": "- 미배포 대기(2026-10-23, 커밋 22c6cda35): 좌측 메뉴 계정·로그아웃 위치",
       "recordedDate": "2026-10-23 / 2026-11-13",
       "isCurrentActiveOwnerConfirmed": false,
-      "note": "과거 작업자 기록이며 현재 활성 담당자 미확정"
+      "note": "과거 작업자 기록이며 현재 활성 담당자로 확정되지 않음"
     },
     "version": {
       "catalogVersion": "v1.32",
       "documentVersion": "코드 v1.30(src/lib/version.ts, 2026-11-13 점검 기록)",
       "codeVersion": "v1.32 (src/lib/version.ts: export const APP_VERSION = 'v1.32')",
       "packageJsonVersion": "1.27.0",
-      "discrepancy": "package.json(1.27.0)이 심하게 뒤처져 있으며, 카탈로그(v1.32)와 코드(v1.32)는 일치하나 문서 본문 일부에 v1.30 기록 잔존",
+      "discrepancy": "package.json(1.27.0)과 APP_VERSION(v1.32) 간 차이 존재 (독립 메타 가능성으로 결함 확정 배제)",
       "verificationNote": "운영 실검증 아님 (정적 코드 및 문서 기록 기준)"
     },
     "pendingWork": [
-      "사용기간 종료 회원의 예약 켜진 주제 수 DB 조회 및 영향 범위 확인 플랜 보고 대기",
-      "좌측 메뉴 계정/로그아웃 8~16px 위치 조정 데스크톱/모바일 폭 화면 실검수 대기",
-      "SOLAPI 공용 모듈 동기화 상태 검증 대기"
+      {
+        "type": "explicit_pending",
+        "title": "사용기간 만료 회원의 예약 발송 잔여 영향도 조사",
+        "sourcePath": "kakao_auto_poster/docs/IMPROVEMENTS.md",
+        "line": 9,
+        "section": "## 개선사항 기록 — 카카오톡 뉴스레터 자동화",
+        "recordedDate": "2026-10-23",
+        "quote": "다음 첫 단계: 사용기간이 끝난 회원의 예약 켜진 주제 수를 DB로 세어 영향 범위 확인 → 플랜 보고.",
+        "resolutionStatus": "unresolved"
+      },
+      {
+        "type": "explicit_pending",
+        "title": "좌측 메뉴 계정/로그아웃 위치 클래스 수정 배포 대기",
+        "sourcePath": "kakao_auto_poster/docs/IMPROVEMENTS.md",
+        "line": 12,
+        "section": "## 2026-10-23 미배포 대기",
+        "recordedDate": "2026-10-23",
+        "quote": "미배포 대기(2026-10-23, 커밋 22c6cda35): 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래로",
+        "resolutionStatus": "unresolved"
+      },
+      {
+        "type": "proposal",
+        "title": "뉴스레터 전송 로그 보관 30일 초과 데이터 정리 규정 점검",
+        "sourcePath": "kakao_auto_poster/docs/IMPROVEMENTS.md",
+        "line": 45,
+        "section": "## 2026-11-13 전체 점검",
+        "recordedDate": "2026-11-13",
+        "quote": "발송 이력 및 전송 로그의 30일 보관 후 자동 정리 규칙 미반영 여부 확인 필요",
+        "resolutionStatus": "unresolved"
+      }
     ],
     "lifecycle": {
-      "status": "단독 운영 (카카오 나에게보내기/채널 뉴스레터 자동화)",
-      "detail": "옛 도메인 kakaoautoposter.vercel.app 308/307 리다이렉트 유지 중",
+      "status": "단독 운영 기록 (정적 문서 기준)",
+      "detail": "카카오 뉴스레터 자동화 서비스로 기록됨. 옛 도메인 kakaoautoposter.vercel.app 308/307 리다이렉트 설정 기록 존재",
+      "sourcePath": "kakao_auto_poster/AGENTS.md",
+      "line": 3,
+      "section": "## 현재 상태 요약",
+      "recordedDate": "2026-11-13",
+      "quote": "운영 주소: https://kakao-auto-posting.buylife.xyz (옛 kakaoautoposter.vercel.app은 화면 308·카카오 콜백 307로 살아 있음)",
       "mergeCandidate": null
     },
-    "nextReviewer": "Master 검토 및 B2B/Support 배정",
-    "evidenceLevel": "프로그램 AGENTS.md, IMPROVEMENTS.md 및 src/lib/version.ts 정적 파일 직접 대조 완료 (운영 실검증 0)"
+    "nextReviewer": "Master 배정 및 검토 (후보: B2B 또는 메시징 역할군)",
+    "evidenceLevel": "정적 파일 직접 대조 (IMPROVEMENTS.md:9,12, AGENTS.md:3, src/lib/version.ts)"
   },
   {
     "slug": "personality-suite",
@@ -74,33 +158,55 @@
     "category": "성격·운세",
     "name": "AI 종합 성격 진단 자동화",
     "statedOwner": {
-      "text": "과거 기록: 2026-11-13 전체 점검 세션 claude-win-20261112-policy; 특정 단독 전담 역할 문서 미발견",
-      "sourcePath": "personality-suite/AGENTS.md:1 및 docs/roles/unassigned.md",
+      "text": "과거 기록: 2026-11-13 세션 claude-win-20261112-policy 전체 점검; 특정 전담 역할 미지정",
+      "sourcePath": "personality-suite/AGENTS.md:1",
       "section": "## 현재 상태 요약 (2026-11-13 전체 점검)",
       "recordedDate": "2026-11-13",
       "isCurrentActiveOwnerConfirmed": false,
-      "note": "문서상 명시적 단독 담당자 미발견 (현재 활성 담당 미확정)"
+      "note": "전담 역할 문서 미발견 (현재 활성 담당 미확정)"
     },
     "version": {
       "catalogVersion": "v1.30",
       "documentVersion": "코드 v1.29(src/lib/version.ts, 2026-11-13 점검 기록)",
       "codeVersion": "v1.30 (src/lib/version.ts: export const APP_VERSION = 'v1.30')",
       "packageJsonVersion": "1.27.0",
-      "discrepancy": "package.json(1.27.0) 뒤처짐, 문서 헤더 v1.29 대비 실제 코드 v1.30으로 0.01 상향됨",
+      "discrepancy": "package.json(1.27.0)과 APP_VERSION(v1.30) 간 차이 존재",
       "verificationNote": "운영 실검증 아님 (정적 코드 및 문서 기록 기준)"
     },
     "pendingWork": [
-      "저장공간 위젯 한 줄 추가(bf686b2b0) 실배포 검수 대기",
-      "회원 본인 Gemini 키 글 모델 교체(gemini-3.8-flash -> gemini-3.5-flash-lite 폴백) 실동작 검증 대기",
-      "16종 검사 풀이 후 종합 프로필 AI 생성 흐름 실데이터 검증 대기"
+      {
+        "type": "explicit_pending",
+        "title": "저장공간 위젯 한 줄 추가(bf686b2b0) 실배포 대기",
+        "sourcePath": "personality-suite/AGENTS.md",
+        "line": 5,
+        "section": "## 현재 상태 요약",
+        "recordedDate": "2026-11-13",
+        "quote": "최근 변경: bf686b2b0 저장공간 위젯 한 줄 추가 / d1e710d68 권한 판정 조회 병렬화(미배포)",
+        "resolutionStatus": "unresolved"
+      },
+      {
+        "type": "verification_candidate",
+        "title": "글 모델 gemini-3.8-flash 실패 시 gemini-3.5-flash-lite 폴백 동작 검증",
+        "sourcePath": "personality-suite/AGENTS.md",
+        "line": 5,
+        "section": "## 현재 상태 요약",
+        "recordedDate": "2026-11-13",
+        "quote": "73e8ac110 글 모델 gemini-3.8-flash → 실패 시 gemini-3.5-flash-lite 폴백 반영됨",
+        "resolutionStatus": "unresolved"
+      }
     ],
     "lifecycle": {
-      "status": "단독 운영 (성격·운세 카테고리 종합 플랫폼)",
-      "detail": "16종 검사(상황별 10종, 심리 성격 5종, 자기점검 1종) 제공 중이며, personality-code/mbti-character와 연계 가능",
+      "status": "단독 운영 기록 (정적 문서 기준)",
+      "detail": "16종 심리/성격 검사 종합 플랫폼으로 기록됨",
+      "sourcePath": "personality-suite/AGENTS.md",
+      "line": 4,
+      "section": "## 현재 상태 요약",
+      "recordedDate": "2026-11-13",
+      "quote": "한 줄 정의: 16종 검사(상황별 16유형 10종·심리 성격 5종·마음 상태 자기점검 1종)를 한 문항씩 풀어 점수·기본 해석을 바로 보고",
       "mergeCandidate": null
     },
-    "nextReviewer": "Master 검토 및 포트폴리오 담당 지정",
-    "evidenceLevel": "프로그램 AGENTS.md, IMPROVEMENTS.md, src/lib/version.ts 정적 대조 완료 (운영 실검증 0)"
+    "nextReviewer": "Master 배정 및 검토 (후보: AI 콘텐츠 또는 성격진단 역할군)",
+    "evidenceLevel": "정적 파일 직접 대조 (AGENTS.md:4,5, src/lib/version.ts)"
   },
   {
     "slug": "personality-code",
@@ -108,33 +214,50 @@
     "category": "성격·운세",
     "name": "성격코드(MBTI) 측정기",
     "statedOwner": {
-      "text": "과거 기록: 2026-11-13 전체 점검 세션 claude-win-20261112-policy; 특정 전담 역할 미발견",
+      "text": "과거 기록: 2026-11-13 세션 claude-win-20261112-policy 전체 점검; 전담 역할 미지정",
       "sourcePath": "mbti/AGENTS.md:1",
-      "section": "## 현재 상태 요약 (2026-11-13 전체 점검)",
+      "section": "## 현재 상태 요약",
       "recordedDate": "2026-11-13",
       "isCurrentActiveOwnerConfirmed": false,
-      "note": "전담 역할 문서 미발견 (현재 활성 담당 미확정)"
+      "note": "현재 활성 담당 미확정"
     },
     "version": {
       "catalogVersion": "v1.23",
       "documentVersion": "코드 v1.23(src/lib/version.ts)",
       "codeVersion": "v1.23 (src/lib/version.ts: export const APP_VERSION = 'v1.23')",
       "packageJsonVersion": "1.21.0",
-      "discrepancy": "카탈로그와 코드 버전 v1.23 일치, package.json(1.21.0) 뒤처짐",
+      "discrepancy": "카탈로그와 코드 버전 v1.23 일치, package.json(1.21.0) 차이",
       "verificationNote": "운영 실검증 아님 (정적 코드 및 문서 기록 기준)"
     },
     "pendingWork": [
-      "성격코드 질문/응답 결과 화면의 카드 이미지 다운로드 및 복사 기능 검수",
-      "personality-suite와의 문항 중복도 점검 및 번들링 방안 검토 대기",
-      "모바일 375px 결과지 가로 스크롤/텍스트 넘침 검증"
+      {
+        "type": "proposal",
+        "title": "질문지 문항 로딩 및 결과 카드 다운로드 검수 제안",
+        "sourcePath": "mbti/docs/IMPROVEMENTS.md",
+        "line": 12,
+        "section": "## 개선사항 기록",
+        "recordedDate": "2026-10-21",
+        "quote": "검사 완료 후 결과 이미지 렌더링 시 모바일 뷰포트 여백 확인 필요",
+        "resolutionStatus": "unresolved"
+      }
     ],
     "lifecycle": {
-      "status": "단독 운영 (향후 personality-suite와의 통합 또는 독립 경량 버전 유지 검토 대상)",
-      "detail": "심플 MBTI 측정기로 독립 서비스 중",
-      "mergeCandidate": "personality-suite"
+      "status": "단독 운영 기록 (정적 문서 기준)",
+      "detail": "성격코드(MBTI) 측정 도구로 독립 기록됨",
+      "sourcePath": "mbti/AGENTS.md",
+      "line": 3,
+      "section": "## 현재 상태 요약",
+      "recordedDate": "2026-11-13",
+      "quote": "운영 주소: https://personality-code.buylife.xyz (slug personality-code, 폴더 mbti)",
+      "mergeCandidate": {
+        "target": "personality-suite",
+        "type": "merge_proposal_candidate",
+        "evidence": "docs/analysis-20261019/REPORT.md: 성격·운세 군 통합 제안 검토 대상",
+        "isRuntimeConfirmed": false
+      }
     },
-    "nextReviewer": "Master 검토 및 통합 여부 결정",
-    "evidenceLevel": "프로그램 AGENTS.md, src/lib/version.ts 대조 완료 (운영 실검증 0)"
+    "nextReviewer": "Master 배정 및 검토 (통합 또는 독립 유지 여부 판정)",
+    "evidenceLevel": "정적 파일 직접 대조 (mbti/AGENTS.md:3, src/lib/version.ts)"
   },
   {
     "slug": "mbti-character",
@@ -142,33 +265,50 @@
     "category": "성격·운세",
     "name": "캐릭코드(MBTI) 측정기",
     "statedOwner": {
-      "text": "과거 기록: 2026-11-13 전체 점검 세션 claude-win-20261112-policy; 특정 전담 역할 미발견",
+      "text": "과거 기록: 2026-11-13 세션 claude-win-20261112-policy 전체 점검; 전담 역할 미지정",
       "sourcePath": "mbti-character/AGENTS.md:1",
-      "section": "## 현재 상태 요약 (2026-11-13 전체 점검)",
+      "section": "## 현재 상태 요약",
       "recordedDate": "2026-11-13",
       "isCurrentActiveOwnerConfirmed": false,
-      "note": "전담 역할 문서 미발견 (현재 활성 담당 미확정)"
+      "note": "현재 활성 담당 미확정"
     },
     "version": {
       "catalogVersion": "v1.26",
       "documentVersion": "코드 v1.26(src/lib/version.ts)",
       "codeVersion": "v1.26 (src/lib/version.ts: export const APP_VERSION = 'v1.26')",
       "packageJsonVersion": "1.22.0",
-      "discrepancy": "카탈로그와 코드 버전 v1.26 일치, package.json(1.22.0) 뒤처짐",
+      "discrepancy": "카탈로그와 코드 버전 v1.26 일치, package.json(1.22.0) 차이",
       "verificationNote": "운영 실검증 아님 (정적 코드 및 문서 기록 기준)"
     },
     "pendingWork": [
-      "캐릭터 일러스트 카드 생성 결과의 Canvas 다운로드 검수",
-      "카카오톡/인스타 공유용 썸네일 이미지 오픈그래프(OG) 메타태그 실검증",
-      "저장공간 위젯 실배포 반영 확인"
+      {
+        "type": "proposal",
+        "title": "캐릭터 일러스트 카드 SNS 공유 메타태그 점검 제안",
+        "sourcePath": "mbti-character/docs/IMPROVEMENTS.md",
+        "line": 8,
+        "section": "## 개선사항 기록",
+        "recordedDate": "2026-10-21",
+        "quote": "카카오톡/인스타 공유 시 오픈그래프 이미지 동적 렌더링 최적화",
+        "resolutionStatus": "unresolved"
+      }
     ],
     "lifecycle": {
-      "status": "단독 운영",
-      "detail": "캐릭터 중심 MBTI 측정 도구로 서비스 중",
-      "mergeCandidate": "personality-suite"
+      "status": "단독 운영 기록 (정적 문서 기준)",
+      "detail": "캐릭터 중심 MBTI 측정기로 독립 기록됨",
+      "sourcePath": "mbti-character/AGENTS.md",
+      "line": 3,
+      "section": "## 현재 상태 요약",
+      "recordedDate": "2026-11-13",
+      "quote": "운영 주소: https://mbti-character.buylife.xyz",
+      "mergeCandidate": {
+        "target": "personality-suite",
+        "type": "merge_proposal_candidate",
+        "evidence": "docs/analysis-20261019/REPORT.md: 성격·운세 군 통합 제안 검토 대상",
+        "isRuntimeConfirmed": false
+      }
     },
-    "nextReviewer": "Master 검토 대기",
-    "evidenceLevel": "프로그램 AGENTS.md, src/lib/version.ts 대조 완료 (운영 실검증 0)"
+    "nextReviewer": "Master 배정 및 검토",
+    "evidenceLevel": "정적 파일 직접 대조 (mbti-character/AGENTS.md:3, src/lib/version.ts)"
   },
   {
     "slug": "tarot-reading",
@@ -176,12 +316,12 @@
     "category": "성격·운세",
     "name": "AIMaster 타로점",
     "statedOwner": {
-      "text": "과거 기록: docs/roles/analysis-planning.md 분석 언급; 2026-11-13 전체 점검 세션 claude-win-20261112-policy",
+      "text": "과거 기록: docs/roles/analysis-planning.md 분석 언급; 2026-11-13 세션 claude-win-20261112-policy 전체 점검",
       "sourcePath": "tarot/AGENTS.md:1 및 docs/roles/analysis-planning.md",
       "section": "## 현재 상태 요약 (2026-11-13 전체 점검)",
       "recordedDate": "2026-11-13",
       "isCurrentActiveOwnerConfirmed": false,
-      "note": "현재 활성 담당자 미확정 (Master 검토 대상)"
+      "note": "현재 활성 담당 미확정"
     },
     "version": {
       "catalogVersion": "v1.29",
@@ -192,17 +332,29 @@
       "verificationNote": "운영 실검증 아님 (정적 코드 및 문서 기록 기준)"
     },
     "pendingWork": [
-      "타로 셔플 인터랙션 및 카드 뒤집기 애니메이션 모바일 뷰포트 검수",
-      "회원 본인 Gemini 키 기반 운세 해석 프롬프트 길이 및 응답 속도 최적화",
-      "공유용 결과 카드 렌더링 검수"
+      {
+        "type": "verification_candidate",
+        "title": "타로 카드 셔플 3D/Canvas 애니메이션 뷰포트 검수",
+        "sourcePath": "tarot/docs/IMPROVEMENTS.md",
+        "line": 14,
+        "section": "## 개선사항 기록",
+        "recordedDate": "2026-10-22",
+        "quote": "카드 셔플 및 오픈 애니메이션 시 375px 화면 가로 넘침 여부 검증 필요",
+        "resolutionStatus": "unresolved"
+      }
     ],
     "lifecycle": {
-      "status": "단독 운영",
-      "detail": "타로점 운세 서비스로 독립 운영 중",
+      "status": "단독 운영 기록 (정적 문서 기준)",
+      "detail": "타로점 운세 서비스로 독립 운영 기록됨",
+      "sourcePath": "tarot/AGENTS.md",
+      "line": 3,
+      "section": "## 현재 상태 요약",
+      "recordedDate": "2026-11-13",
+      "quote": "운영 주소: https://tarot-reading.buylife.xyz (slug tarot-reading, 폴더 tarot)",
       "mergeCandidate": null
     },
-    "nextReviewer": "Master 검토 대기",
-    "evidenceLevel": "프로그램 AGENTS.md, src/lib/version.ts 대조 완료 (운영 실검증 0)"
+    "nextReviewer": "Master 배정 및 검토",
+    "evidenceLevel": "정적 파일 직접 대조 (tarot/AGENTS.md:3, src/lib/version.ts)"
   },
   {
     "slug": "ai-prompt-studio",
@@ -212,31 +364,43 @@
     "statedOwner": {
       "text": "과거 기록: docs/roles/docbot-prompt.md 과거 작성 기록; 2026-11-13 전체 점검",
       "sourcePath": "ai-prompt-studio/AGENTS.md:1 및 docs/roles/docbot-prompt.md",
-      "section": "## 현재 상태 요약 (2026-11-13 전체 점검)",
+      "section": "## 현재 상태 요약",
       "recordedDate": "2026-11-13",
       "isCurrentActiveOwnerConfirmed": false,
-      "note": "과거 작성 역할 기록이며 현재 활성 담당자 미확정"
+      "note": "과거 작성 역할 기록이며 현재 활성 담당 미확정"
     },
     "version": {
       "catalogVersion": "v1.11",
       "documentVersion": "코드 v1.11(lib/version.ts)",
       "codeVersion": "v1.11 (lib/version.ts: export const APP_VERSION = 'v1.11')",
       "packageJsonVersion": "1.08.0",
-      "discrepancy": "카탈로그/코드 v1.11 일치, package.json(1.08.0) 뒤처짐",
+      "discrepancy": "카탈로그/코드 v1.11 일치, package.json(1.08.0) 차이",
       "verificationNote": "운영 실검증 아님 (정적 코드 및 문서 기록 기준)"
     },
     "pendingWork": [
-      "프롬프트 카테고리별 템플릿 복사 및 실시간 미리보기 UI 검수",
-      "reverse-prompt와의 상호 링크 및 연계 플로우 점검",
-      "저장공간 위젯 연동 확인"
+      {
+        "type": "proposal",
+        "title": "프롬프트 템플릿 복사 및 즐겨찾기 보관함 UI 개선 제안",
+        "sourcePath": "ai-prompt-studio/docs/IMPROVEMENTS.md",
+        "line": 11,
+        "section": "## 개선사항 기록",
+        "recordedDate": "2026-10-21",
+        "quote": "자주 쓰는 프롬프트 템플릿 로컬 저장 및 원클릭 복사 편의성 제안",
+        "resolutionStatus": "unresolved"
+      }
     ],
     "lifecycle": {
-      "status": "단독 운영",
-      "detail": "AI 프롬프트 엔지니어링 템플릿 생성/보관 스튜디오",
+      "status": "단독 운영 기록 (정적 문서 기준)",
+      "detail": "AI 프롬프트 생성/관리 스튜디오로 기록됨",
+      "sourcePath": "ai-prompt-studio/AGENTS.md",
+      "line": 3,
+      "section": "## 현재 상태 요약",
+      "recordedDate": "2026-11-13",
+      "quote": "운영 주소: https://ai-prompt-studio.buylife.xyz",
       "mergeCandidate": null
     },
-    "nextReviewer": "Master 검토 및 프롬프트/AI 전담 배정",
-    "evidenceLevel": "프로그램 AGENTS.md, lib/version.ts 대조 완료 (운영 실검증 0)"
+    "nextReviewer": "Master 배정 및 검토 (후보: AI/프롬프트 역할군)",
+    "evidenceLevel": "정적 파일 직접 대조 (ai-prompt-studio/AGENTS.md:3, lib/version.ts)"
   },
   {
     "slug": "stepmail",
@@ -244,33 +408,55 @@
     "category": "마케팅(홍보)",
     "name": "대량 메일발송 자동화(Step Mail)",
     "statedOwner": {
-      "text": "과거 기록: 2026-10-23 SOLAPI 공용 사본 대기; 2026-11-13 전체 점검 세션 claude-win-20261112-policy",
-      "sourcePath": "stepmail/AGENTS.md:1 및 stepmail/docs/IMPROVEMENTS.md",
-      "section": "## 2026-10-23 미배포 대기 — SOLAPI 발송 코드 공용 사본",
+      "text": "과거 기록: 2026-10-23 SOLAPI 공용 사본 대기; 2026-11-13 세션 claude-win-20261112-policy 전체 점검",
+      "sourcePath": "stepmail/AGENTS.md:1 및 stepmail/docs/IMPROVEMENTS.md:15",
+      "section": "## 2026-10-23 미배포 대기",
       "recordedDate": "2026-10-23 / 2026-11-13",
       "isCurrentActiveOwnerConfirmed": false,
-      "note": "전담 역할 문서 미발견 (현재 활성 담당 미확정)"
+      "note": "현재 활성 담당 미확정"
     },
     "version": {
       "catalogVersion": "v1.30",
       "documentVersion": "코드 v1.30(src/lib/version.ts)",
       "codeVersion": "v1.30 (src/lib/version.ts: export const APP_VERSION = 'v1.30')",
       "packageJsonVersion": "1.28.0",
-      "discrepancy": "카탈로그/코드 v1.30 일치, package.json(1.28.0) 0.02 뒤처짐",
+      "discrepancy": "카탈로그/코드 v1.30 일치, package.json(1.28.0) 0.02 차이",
       "verificationNote": "운영 실검증 아님 (정적 코드 및 문서 기록 기준)"
     },
     "pendingWork": [
-      "대량 이메일 단계별 발송 스케줄러(cron-job.org) 발송 실패 시 재시도 로직 검수",
-      "SOLAPI 발송 공용 모듈 동기화 검증",
-      "이메일 본문 HTML 치환 변수(이름/연락처 등) 누락 시 검증 가드 확인"
+      {
+        "type": "explicit_pending",
+        "title": "SOLAPI 발송 코드 공용 사본 동기화 대기",
+        "sourcePath": "stepmail/docs/IMPROVEMENTS.md",
+        "line": 18,
+        "section": "## 2026-10-23 미배포 대기 — SOLAPI 발송 코드 공용 사본",
+        "recordedDate": "2026-10-23",
+        "quote": "사본 5곳(booking-reminder·stepmail·kakao_auto_poster·trending-product-finder·real_estate_sales) 동기화",
+        "resolutionStatus": "unresolved"
+      },
+      {
+        "type": "proposal",
+        "title": "대량 발송 시 실패 행 개별 재전송 버튼 부재 개선 제안",
+        "sourcePath": "stepmail/docs/IMPROVEMENTS.md",
+        "line": 28,
+        "section": "## 2026-11-13 전체 점검",
+        "recordedDate": "2026-11-13",
+        "quote": "SMTP 발송 실패 시 건별 재시도 옵션 미비",
+        "resolutionStatus": "unresolved"
+      }
     ],
     "lifecycle": {
-      "status": "단독 운영",
-      "detail": "마케팅 스텝메일 시퀀스 자동화 도구로 운영 중",
+      "status": "단독 운영 기록 (정적 문서 기준)",
+      "detail": "스텝메일 시퀀스 자동 발송 서비스로 기록됨",
+      "sourcePath": "stepmail/AGENTS.md",
+      "line": 3,
+      "section": "## 현재 상태 요약",
+      "recordedDate": "2026-11-13",
+      "quote": "운영 주소: https://stepmail.buylife.xyz",
       "mergeCandidate": null
     },
-    "nextReviewer": "Master 검토 및 B2B/마케팅 배정",
-    "evidenceLevel": "프로그램 AGENTS.md, src/lib/version.ts 대조 완료 (운영 실검증 0)"
+    "nextReviewer": "Master 배정 및 검토 (후보: B2B 또는 마케팅 역할군)",
+    "evidenceLevel": "정적 파일 직접 대조 (stepmail/AGENTS.md:3, src/lib/version.ts)"
   },
   {
     "slug": "competitor-analysis",
@@ -280,31 +466,43 @@
     "statedOwner": {
       "text": "과거 기록: docs/roles/workspace.md, mac-mini.md, analysis-planning.md에 과거 언급; 2026-11-13 전체 점검",
       "sourcePath": "competitor-analysis/AGENTS.md:1 및 docs/roles/workspace.md",
-      "section": "## 현재 상태 요약 (2026-11-13 전체 점검)",
+      "section": "## 현재 상태 요약",
       "recordedDate": "2026-11-13",
       "isCurrentActiveOwnerConfirmed": false,
-      "note": "과거 다수 역할에서 분산 언급되었으나 현재 활성 담당 미확정"
+      "note": "과거 다수 문서에서 분산 언급되었으나 현재 활성 담당 미확정"
     },
     "version": {
       "catalogVersion": "v1.14",
       "documentVersion": "코드 v1.14(src/lib/version.ts)",
       "codeVersion": "v1.14 (src/lib/version.ts: export const APP_VERSION = 'v1.14')",
       "packageJsonVersion": "1.8.0",
-      "discrepancy": "카탈로그/코드 v1.14 일치, package.json(1.8.0) 차이 큼",
+      "discrepancy": "카탈로그/코드 v1.14 일치, package.json(1.8.0) 차이",
       "verificationNote": "운영 실검증 아님 (정적 코드 및 문서 기록 기준)"
     },
     "pendingWork": [
-      "네이버 쇼핑/스마트스토어 경쟁사 크롤링 시 차단/레이트리밋 방어 로직 검수",
-      "키워드 순위 변동 추적 그래프 렌더링 실데이터 검증",
-      "longtail-keyword-expander와의 키워드 연계 인터페이스 정비"
+      {
+        "type": "verification_candidate",
+        "title": "네이버 쇼핑 크롤링 시 차단/레이트리밋 방어 안정성 검증",
+        "sourcePath": "competitor-analysis/docs/IMPROVEMENTS.md",
+        "line": 16,
+        "section": "## 개선사항 기록",
+        "recordedDate": "2026-10-22",
+        "quote": "검색 결과 크롤링 시 일시적 차단 응답 처리 로직 실환경 검증 필요",
+        "resolutionStatus": "unresolved"
+      }
     ],
     "lifecycle": {
-      "status": "단독 운영",
-      "detail": "키워드 및 스마트스토어 경쟁사 분석 도구",
+      "status": "단독 운영 기록 (정적 문서 기준)",
+      "detail": "키워드 및 스마트스토어 경쟁사 분석 도구로 기록됨",
+      "sourcePath": "competitor-analysis/AGENTS.md",
+      "line": 3,
+      "section": "## 현재 상태 요약",
+      "recordedDate": "2026-11-13",
+      "quote": "운영 주소: https://competitor-analysis.buylife.xyz",
       "mergeCandidate": null
     },
-    "nextReviewer": "Master 검토 대기",
-    "evidenceLevel": "프로그램 AGENTS.md, src/lib/version.ts 대조 완료 (운영 실검증 0)"
+    "nextReviewer": "Master 배정 및 검토",
+    "evidenceLevel": "정적 파일 직접 대조 (competitor-analysis/AGENTS.md:3, src/lib/version.ts)"
   },
   {
     "slug": "longtail-keyword-expander",
@@ -312,33 +510,50 @@
     "category": "마케팅(홍보)",
     "name": "롱테일 키워드분석 자동화",
     "statedOwner": {
-      "text": "과거 기록: 2026-11-13 전체 점검 세션 claude-win-20261112-policy; 특정 전담 역할 미발견",
+      "text": "과거 기록: 2026-11-13 세션 claude-win-20261112-policy 전체 점검; 전담 역할 미지정",
       "sourcePath": "longtail-keyword-expander/AGENTS.md:1",
-      "section": "## 현재 상태 요약 (2026-11-13 전체 점검)",
+      "section": "## 현재 상태 요약",
       "recordedDate": "2026-11-13",
       "isCurrentActiveOwnerConfirmed": false,
-      "note": "전담 역할 문서 미발견 (현재 활성 담당 미확정)"
+      "note": "현재 활성 담당 미확정"
     },
     "version": {
       "catalogVersion": "v1.11",
       "documentVersion": "코드 v1.11(src/lib/version.ts)",
       "codeVersion": "v1.11 (src/lib/version.ts: export const APP_VERSION = 'v1.11')",
       "packageJsonVersion": "0.1.0",
-      "discrepancy": "카탈로그/코드 v1.11 일치, package.json(0.1.0) 뒤처짐",
+      "discrepancy": "카탈로그/코드 v1.11 일치, package.json(0.1.0) 차이",
       "verificationNote": "운영 실검증 아님 (정적 코드 및 문서 기록 기준)"
     },
     "pendingWork": [
-      "연관 검색어 다중 확장 시 비동기 큐 처리 및 타임아웃 검수",
-      "추출된 롱테일 키워드 CSV/엑셀 다운로드 파일명 및 UTF-8 BOM 인코딩 검증",
-      "모바일 화면 키워드 태그 클라우드 가로 넘침 여부 점검"
+      {
+        "type": "proposal",
+        "title": "추출 키워드 엑셀 내보내기 시 인코딩 오류 방지 제안",
+        "sourcePath": "longtail-keyword-expander/docs/IMPROVEMENTS.md",
+        "line": 9,
+        "section": "## 개선사항 기록",
+        "recordedDate": "2026-10-21",
+        "quote": "CSV 다운로드 시 Excel 한글 깨짐 방지 UTF-8 with BOM 적용 제안",
+        "resolutionStatus": "unresolved"
+      }
     ],
     "lifecycle": {
-      "status": "단독 운영 (향후 competitor-analysis로의 기능 통합 검토 대상)",
-      "detail": "네이버/구글 롱테일 키워드 확장 추출 전문 도구",
-      "mergeCandidate": "competitor-analysis"
+      "status": "단독 운영 기록 (정적 문서 기준)",
+      "detail": "롱테일 키워드 다중 확장 도구로 기록됨",
+      "sourcePath": "longtail-keyword-expander/AGENTS.md",
+      "line": 3,
+      "section": "## 현재 상태 요약",
+      "recordedDate": "2026-11-13",
+      "quote": "운영 주소: https://longtail-keyword-expander.buylife.xyz",
+      "mergeCandidate": {
+        "target": "competitor-analysis",
+        "type": "merge_proposal_candidate",
+        "evidence": "docs/analysis-20261019/REPORT.md: 키워드 분석 도구군 통합 제안",
+        "isRuntimeConfirmed": false
+      }
     },
-    "nextReviewer": "Master 검토 및 통합 여부 결정",
-    "evidenceLevel": "프로그램 AGENTS.md, src/lib/version.ts 대조 완료 (운영 실검증 0)"
+    "nextReviewer": "Master 배정 및 검토",
+    "evidenceLevel": "정적 파일 직접 대조 (longtail-keyword-expander/AGENTS.md:3, src/lib/version.ts)"
   },
   {
     "slug": "booking-reminder",
@@ -346,12 +561,12 @@
     "category": "마케팅(홍보)",
     "name": "예약(취소)방지 리마인드 자동화",
     "statedOwner": {
-      "text": "과거 기록: 2026-10-23 SOLAPI 공용 사본 대기; 2026-11-13 전체 점검 세션 claude-win-20261112-policy",
-      "sourcePath": "booking-reminder/AGENTS.md:1 및 booking-reminder/docs/IMPROVEMENTS.md",
-      "section": "## 2026-10-23 미배포 대기 — SOLAPI 발송 코드 공용 사본",
+      "text": "과거 기록: 2026-10-23 SOLAPI 공용 사본 대기; 2026-11-13 세션 claude-win-20261112-policy 전체 점검",
+      "sourcePath": "booking-reminder/AGENTS.md:1 및 booking-reminder/docs/IMPROVEMENTS.md:16",
+      "section": "## 2026-10-23 미배포 대기",
       "recordedDate": "2026-10-23 / 2026-11-13",
       "isCurrentActiveOwnerConfirmed": false,
-      "note": "전담 역할 문서 미발견 (현재 활성 담당 미확정)"
+      "note": "현재 활성 담당 미확정"
     },
     "version": {
       "catalogVersion": "v1.29",
@@ -362,17 +577,29 @@
       "verificationNote": "운영 실검증 아님 (정적 코드 및 문서 기록 기준)"
     },
     "pendingWork": [
-      "예약 D-1, D-Day 알림톡/문자 자동 발송 스케줄러 트리거 동작 검증",
-      "SOLAPI 발송 공용 사본 최신화 상태 확인",
-      "구글 캘린더 연동 또는 수동 예약 등록 시 타임존 오차 점검"
+      {
+        "type": "explicit_pending",
+        "title": "SOLAPI 공용 사본 모듈 동기화 대기",
+        "sourcePath": "booking-reminder/docs/IMPROVEMENTS.md",
+        "line": 19,
+        "section": "## 2026-10-23 미배포 대기 — SOLAPI 발송 코드 공용 사본",
+        "recordedDate": "2026-10-23",
+        "quote": "사본 5곳(booking-reminder 등) 기준 코드 동기화 후 배포 대기",
+        "resolutionStatus": "unresolved"
+      }
     ],
     "lifecycle": {
-      "status": "단독 운영",
-      "detail": "병원/학원/예약제 매장 대상 노쇼 방지 알림톡 자동화",
+      "status": "단독 운영 기록 (정적 문서 기준)",
+      "detail": "예약 알림톡 및 문자 발송 도구로 기록됨",
+      "sourcePath": "booking-reminder/AGENTS.md",
+      "line": 3,
+      "section": "## 현재 상태 요약",
+      "recordedDate": "2026-11-13",
+      "quote": "운영 주소: https://booking-reminder.buylife.xyz",
       "mergeCandidate": null
     },
-    "nextReviewer": "Master 검토 및 B2B/마케팅 배정",
-    "evidenceLevel": "프로그램 AGENTS.md, src/lib/version.ts 대조 완료 (운영 실검증 0)"
+    "nextReviewer": "Master 배정 및 검토 (후보: B2B 또는 메시징 역할군)",
+    "evidenceLevel": "정적 파일 직접 대조 (booking-reminder/AGENTS.md:3, src/lib/version.ts)"
   },
   {
     "slug": "reverse-prompt",
@@ -380,33 +607,45 @@
     "category": "AI 프롬프트",
     "name": "AI 리버스 프롬프트 자동화",
     "statedOwner": {
-      "text": "과거 기록: 2026-11-13 전체 점검 세션 claude-win-20261112-policy; 특정 전담 역할 미발견",
+      "text": "과거 기록: 2026-11-13 세션 claude-win-20261112-policy 전체 점검; 전담 역할 미지정",
       "sourcePath": "reverse-prompt/AGENTS.md:1",
-      "section": "## 현재 상태 요약 (2026-11-13 전체 점검)",
+      "section": "## 현재 상태 요약",
       "recordedDate": "2026-11-13",
       "isCurrentActiveOwnerConfirmed": false,
-      "note": "전담 역할 문서 미발견 (현재 활성 담당 미확정)"
+      "note": "현재 활성 담당 미확정"
     },
     "version": {
       "catalogVersion": "v1.15",
       "documentVersion": "코드 v1.15(src/lib/version.ts)",
       "codeVersion": "v1.15 (src/lib/version.ts: export const APP_VERSION = 'v1.15')",
       "packageJsonVersion": "1.11.0",
-      "discrepancy": "카탈로그/코드 v1.15 일치, package.json(1.11.0) 뒤처짐",
+      "discrepancy": "카탈로그/코드 v1.15 일치, package.json(1.11.0) 차이",
       "verificationNote": "운영 실검증 아님 (정적 코드 및 문서 기록 기준)"
     },
     "pendingWork": [
-      "이미지 업로드 시 Vision AI 분석을 통한 역프롬프트 추출 정확도 검수",
-      "회원 본인 Gemini/OpenAI 키 모델 최신 스펙 반영 검증",
-      "ai-prompt-studio로의 프롬프트 전송 버튼 동작 확인"
+      {
+        "type": "verification_candidate",
+        "title": "이미지 Vision AI 역분석 프롬프트 결과 정확도 검증",
+        "sourcePath": "reverse-prompt/docs/IMPROVEMENTS.md",
+        "line": 10,
+        "section": "## 개선사항 기록",
+        "recordedDate": "2026-10-21",
+        "quote": "업로드 이미지에 대한 키워드/스타일 추출 정확도 실데이터 검수 필요",
+        "resolutionStatus": "unresolved"
+      }
     ],
     "lifecycle": {
-      "status": "단독 운영",
-      "detail": "이미지/글귀 분석 후 재현용 AI 프롬프트 역추출 도구",
+      "status": "단독 운영 기록 (정적 문서 기준)",
+      "detail": "역프롬프트 분석 전문 도구로 기록됨",
+      "sourcePath": "reverse-prompt/AGENTS.md",
+      "line": 3,
+      "section": "## 현재 상태 요약",
+      "recordedDate": "2026-11-13",
+      "quote": "운영 주소: https://reverse-prompt.buylife.xyz",
       "mergeCandidate": null
     },
-    "nextReviewer": "Master 검토 대기",
-    "evidenceLevel": "프로그램 AGENTS.md, src/lib/version.ts 대조 완료 (운영 실검증 0)"
+    "nextReviewer": "Master 배정 및 검토",
+    "evidenceLevel": "정적 파일 직접 대조 (reverse-prompt/AGENTS.md:3, src/lib/version.ts)"
   },
   {
     "slug": "auto-instagram-posting",
@@ -414,33 +653,55 @@
     "category": "인스타",
     "name": "INSTA 포스팅 자동화",
     "statedOwner": {
-      "text": "과거 기록: docs/roles/ecommerce-image.md, workspace.md, video.md 과거 언급; 2026-10-20 cardnews-studio 병합 작업 (Claude Code 윈도우); 2026-11-13 전체 점검",
+      "text": "과거 기록: docs/roles/ecommerce-image.md, workspace.md, video.md 과거 언급; 2026-10-20 cardnews-studio 병합 작업(Claude Code 윈도우); 2026-11-13 전체 점검",
       "sourcePath": "insta_auto_poster/AGENTS.md:1 및 docs/roles/ecommerce-image.md",
-      "section": "## 현재 상태 요약 (2026-11-13 전체 점검)",
+      "section": "## 현재 상태 요약",
       "recordedDate": "2026-10-20 / 2026-11-13",
       "isCurrentActiveOwnerConfirmed": false,
-      "note": "다수 과거 세션 기록 존재하나 현재 활성 담당자 미확정 (Master 배정 대상)"
+      "note": "다수 과거 세션 기록이 있으나 현재 활성 담당 미확정 (Master 배정 대상)"
     },
     "version": {
       "catalogVersion": "v1.74",
       "documentVersion": "코드 v1.74(src/lib/version.ts)",
       "codeVersion": "v1.74 (src/lib/version.ts: export const APP_VERSION = 'v1.74')",
       "packageJsonVersion": "0.1.0",
-      "discrepancy": "카탈로그/코드 v1.74 일치, package.json(0.1.0) 뒤처짐",
+      "discrepancy": "카탈로그/코드 v1.74 일치, package.json(0.1.0) 차이",
       "verificationNote": "운영 실검증 아님 (정적 코드 및 문서 기록 기준)"
     },
     "pendingWork": [
-      "인스타그램 Graph API v21 토큰 갱신 및 페이스북 페이지 연동 점검",
-      "하위 통합된 /cardnews/* 라우트의 카드뉴스 발행 기능 실검수",
-      "5분 자동 실행 cron 작업 및 회원 예약 dispatch 안정성 검증"
+      {
+        "type": "verification_candidate",
+        "title": "인스타그램 Graph API v21 토큰 갱신 및 페이스북 페이지 권한 검증",
+        "sourcePath": "insta_auto_poster/docs/IMPROVEMENTS.md",
+        "line": 24,
+        "section": "## 개선사항 기록",
+        "recordedDate": "2026-10-23",
+        "quote": "토큰 만료 시 재인증 흐름 및 자동 갱신 백그라운드 작업 안정성 확인 필요",
+        "resolutionStatus": "unresolved"
+      },
+      {
+        "type": "explicit_pending",
+        "title": "하위 통합된 /cardnews/* 라우트 실운영 호환성 유지",
+        "sourcePath": "insta_auto_poster/docs/PLAN_20261020_CARDNEWS_MERGE.md",
+        "line": 12,
+        "section": "## 병합 계획",
+        "recordedDate": "2026-10-20",
+        "quote": "cardnews-studio 화면 및 API를 insta_auto_poster 안으로 통합하여 실행",
+        "resolutionStatus": "unresolved"
+      }
     ],
     "lifecycle": {
-      "status": "단독 운영 및 핵심 허브 (cardnews-studio를 하위 라우트로 통합 완료)",
-      "detail": "인스타그램 피드/릴스/카드뉴스 통합 자동 포스팅 핵심 프로그램",
+      "status": "단독 운영 및 통합 허브 기록 (정적 문서 기준, 현재 런타임 단정 아님)",
+      "detail": "인스타그램 피드/릴스/카드뉴스 통합 자동 포스팅 서비스로 문서화되어 있으며, cardnews-studio를 하위 라우트로 흡수한 기록 존재",
+      "sourcePath": "insta_auto_poster/AGENTS.md",
+      "line": 3,
+      "section": "## 현재 상태 요약",
+      "recordedDate": "2026-11-13",
+      "quote": "운영 주소: https://auto-instagram-posting.buylife.xyz",
       "mergeCandidate": null
     },
-    "nextReviewer": "Master 검토 및 SNS/인스타 전담 배정",
-    "evidenceLevel": "프로그램 AGENTS.md, src/lib/version.ts 대조 완료 (운영 실검증 0)"
+    "nextReviewer": "Master 배정 및 검토 (후보: SNS 또는 인스타 전담 역할군)",
+    "evidenceLevel": "정적 파일 직접 대조 (insta_auto_poster/AGENTS.md:3, src/lib/version.ts)"
   },
   {
     "slug": "ai-influencer-studio",
@@ -448,33 +709,45 @@
     "category": "인스타",
     "name": "AI 인플루언서 자동화",
     "statedOwner": {
-      "text": "과거 기록: docs/roles/design.md에 'ai-influencer-studio' 언급; 2026-11-13 전체 점검 세션 claude-win-20261112-policy",
+      "text": "과거 기록: docs/roles/design.md에 'ai-influencer-studio' 언급; 2026-11-13 세션 claude-win-20261112-policy 전체 점검",
       "sourcePath": "ai-influencer-studio/AGENTS.md:1 및 docs/roles/design.md",
-      "section": "## 현재 상태 요약 (2026-11-13 전체 점검)",
+      "section": "## 현재 상태 요약",
       "recordedDate": "2026-11-13",
       "isCurrentActiveOwnerConfirmed": false,
-      "note": "과거 디자인 역할 언급이 있으나 현재 활성 담당자로 확정되지 않음"
+      "note": "과거 디자인 역할에 언급되었으나 현재 활성 담당 미확정"
     },
     "version": {
       "catalogVersion": "v1.26",
       "documentVersion": "코드 v1.26(src/lib/version.ts)",
       "codeVersion": "v1.26 (src/lib/version.ts: export const APP_VERSION = 'v1.26')",
       "packageJsonVersion": "1.12.0",
-      "discrepancy": "카탈로그/코드 v1.26 일치, package.json(1.12.0) 뒤처짐",
+      "discrepancy": "카탈로그/코드 v1.26 일치, package.json(1.12.0) 차이",
       "verificationNote": "운영 실검증 아님 (정적 코드 및 문서 기록 기준)"
     },
     "pendingWork": [
-      "AI 페르소나 얼굴 일관성 유지 프롬프트 가이드 최적화",
-      "생성된 인플루언서 이미지의 auto-instagram-posting 전송 연동 검수",
-      "모바일 375px 갤러리 뷰 렌더링 검증"
+      {
+        "type": "verification_candidate",
+        "title": "가상 인플루언서 얼굴 일관성 프롬프트 렌더링 검수",
+        "sourcePath": "ai-influencer-studio/docs/IMPROVEMENTS.md",
+        "line": 15,
+        "section": "## 개선사항 기록",
+        "recordedDate": "2026-10-22",
+        "quote": "동일 페르소나 캐릭터 생성 시 얼굴 특징 유지 프롬프트 가이드 실검수 필요",
+        "resolutionStatus": "unresolved"
+      }
     ],
     "lifecycle": {
-      "status": "단독 운영",
-      "detail": "가상 AI 인플루언서 프로필 및 피드 이미지 생성 스튜디오",
+      "status": "단독 운영 기록 (정적 문서 기준)",
+      "detail": "가상 AI 인플루언서 생성 및 콘텐츠 제작 스튜디오로 기록됨",
+      "sourcePath": "ai-influencer-studio/AGENTS.md",
+      "line": 3,
+      "section": "## 현재 상태 요약",
+      "recordedDate": "2026-11-13",
+      "quote": "운영 주소: https://ai-influencer-studio.buylife.xyz",
       "mergeCandidate": null
     },
-    "nextReviewer": "Master 검토 및 Design/SNS 담당 배정",
-    "evidenceLevel": "프로그램 AGENTS.md, src/lib/version.ts 대조 완료 (운영 실검증 0)"
+    "nextReviewer": "Master 배정 및 검토 (후보: Design 또는 SNS 역할군)",
+    "evidenceLevel": "정적 파일 직접 대조 (ai-influencer-studio/AGENTS.md:3, src/lib/version.ts)"
   },
   {
     "slug": "instagram-comment-reply",
@@ -482,33 +755,50 @@
     "category": "인스타",
     "name": "INSTA 댓글·DM 자동화",
     "statedOwner": {
-      "text": "과거 기록: docs/roles/unassigned.md에 'instagram-comment-reply' 미배정 명시; 2026-11-13 전체 점검 세션 claude-win-20261112-policy",
+      "text": "과거 기록: docs/roles/unassigned.md에 'instagram-comment-reply' 공식 미배정 명시; 2026-11-13 전체 점검",
       "sourcePath": "instagram-comment-reply/AGENTS.md:1 및 docs/roles/unassigned.md",
       "section": "docs/roles/unassigned.md 미배정 목록",
       "recordedDate": "2026-11-13",
       "isCurrentActiveOwnerConfirmed": false,
-      "note": "roles/unassigned.md에 공식 미배정으로 등록되어 있음 (현재 활성 담당 미확정)"
+      "note": "roles/unassigned.md에 미배정으로 명시되어 있음"
     },
     "version": {
       "catalogVersion": "v1.37",
       "documentVersion": "코드 v1.37(src/lib/version.ts)",
       "codeVersion": "v1.37 (src/lib/version.ts: export const APP_VERSION = 'v1.37')",
       "packageJsonVersion": "0.1.0",
-      "discrepancy": "카탈로그/코드 v1.37 일치, package.json(0.1.0) 뒤처짐",
+      "discrepancy": "카탈로그/코드 v1.37 일치, package.json(0.1.0) 차이",
       "verificationNote": "운영 실검증 아님 (정적 코드 및 문서 기록 기준)"
     },
     "pendingWork": [
-      "인스타 댓글 웹훅 수신 및 AI 초안 작성 백그라운드 프로세스 검수",
-      "instagram-dm-reply와의 중복 로직 정비 및 단일 앱 통합 여부 검토",
-      "comment-inbox와의 연동 데이터 수집 주기 일치 확인"
+      {
+        "type": "verification_candidate",
+        "title": "댓글 웹훅 수신 및 AI 답글 작성 백그라운드 프로세스 검증",
+        "sourcePath": "instagram-comment-reply/docs/IMPROVEMENTS.md",
+        "line": 18,
+        "section": "## 개선사항 기록",
+        "recordedDate": "2026-10-23",
+        "quote": "댓글 감지 후 자동 응답 트리거 시 텔레그램 알림 및 상태 기록 검수",
+        "resolutionStatus": "unresolved"
+      }
     ],
     "lifecycle": {
-      "status": "단독 운영 (instagram-dm-reply와의 기능 통합 검토 대상)",
-      "detail": "인스타 댓글 감지 및 AI 자동 답글 작성 도구",
-      "mergeCandidate": "instagram-dm-reply 통합"
+      "status": "단독 운영 기록 (정적 문서 기준)",
+      "detail": "인스타 댓글 자동 답글 서비스로 기록됨. instagram-dm-reply와의 기능 중복 검토 대상",
+      "sourcePath": "instagram-comment-reply/AGENTS.md",
+      "line": 3,
+      "section": "## 현재 상태 요약",
+      "recordedDate": "2026-11-13",
+      "quote": "운영 주소: https://instagram-comment-reply.buylife.xyz",
+      "mergeCandidate": {
+        "target": "instagram-dm-reply",
+        "type": "merge_proposal_candidate",
+        "evidence": "docs/analysis-20261019/REPORT.md: 인스타 댓글/DM 응대 통합 제안",
+        "isRuntimeConfirmed": false
+      }
     },
-    "nextReviewer": "Master 검토 및 미배정 해소/전담 배정",
-    "evidenceLevel": "프로그램 AGENTS.md, docs/roles/unassigned.md, src/lib/version.ts 대조 완료 (운영 실검증 0)"
+    "nextReviewer": "Master 배정 및 검토 (미배정 해소 대상)",
+    "evidenceLevel": "정적 파일 직접 대조 (instagram-comment-reply/AGENTS.md:3, docs/roles/unassigned.md, src/lib/version.ts)"
   },
   {
     "slug": "instagram-dm-reply",
@@ -516,33 +806,50 @@
     "category": "인스타",
     "name": "INSTA DM답변 자동화",
     "statedOwner": {
-      "text": "과거 기록: 2026-11-13 전체 점검 세션 claude-win-20261112-policy; 특정 전담 역할 미발견",
+      "text": "과거 기록: 2026-11-13 세션 claude-win-20261112-policy 전체 점검; 전담 역할 미지정",
       "sourcePath": "instagram-dm-reply/AGENTS.md:1",
-      "section": "## 현재 상태 요약 (2026-11-13 전체 점검)",
+      "section": "## 현재 상태 요약",
       "recordedDate": "2026-11-13",
       "isCurrentActiveOwnerConfirmed": false,
-      "note": "전담 역할 문서 미발견 (현재 활성 담당 미확정)"
+      "note": "현재 활성 담당 미확정"
     },
     "version": {
       "catalogVersion": "v1.17",
       "documentVersion": "코드 v1.17(src/lib/version.ts)",
       "codeVersion": "v1.17 (src/lib/version.ts: export const APP_VERSION = 'v1.17')",
       "packageJsonVersion": "0.1.4",
-      "discrepancy": "카탈로그/코드 v1.17 일치, package.json(0.1.4) 뒤처짐",
+      "discrepancy": "카탈로그/코드 v1.17 일치, package.json(0.1.4) 차이",
       "verificationNote": "운영 실검증 아님 (정적 코드 및 문서 기록 기준)"
     },
     "pendingWork": [
-      "인스타 DM 수신 시 자동 답장 발송 타임아웃 및 레이트 리밋 방어 점검",
-      "instagram-comment-reply와의 기능 중복 해소 및 통합 제안 검토",
-      "comment-inbox 통합 받은편지함 연계 실데이터 검증"
+      {
+        "type": "verification_candidate",
+        "title": "인스타 DM 웹훅 수신 시 템플릿 매칭 및 자동 답변 발송 검증",
+        "sourcePath": "instagram-dm-reply/docs/IMPROVEMENTS.md",
+        "line": 12,
+        "section": "## 개선사항 기록",
+        "recordedDate": "2026-10-21",
+        "quote": "DM 메시지 유입 시 키워드 매칭 및 AI 응답 처리 속도 확인 필요",
+        "resolutionStatus": "unresolved"
+      }
     ],
     "lifecycle": {
-      "status": "단독 운영 또는 instagram-comment-reply로의 통합 후보",
-      "detail": "인스타그램 비즈니스 DM 자동 응대 전문 도구",
-      "mergeCandidate": "instagram-comment-reply"
+      "status": "단독 운영 기록 (정적 문서 기준)",
+      "detail": "인스타그램 비즈니스 DM 자동 응대 도구로 기록됨",
+      "sourcePath": "instagram-dm-reply/AGENTS.md",
+      "line": 3,
+      "section": "## 현재 상태 요약",
+      "recordedDate": "2026-11-13",
+      "quote": "운영 주소: https://instagram-dm-reply.buylife.xyz",
+      "mergeCandidate": {
+        "target": "instagram-comment-reply",
+        "type": "merge_proposal_candidate",
+        "evidence": "docs/analysis-20261019/REPORT.md: 인스타 댓글/DM 통합 제안 검토 대상",
+        "isRuntimeConfirmed": false
+      }
     },
-    "nextReviewer": "Master 검토 및 통합 여부 결정",
-    "evidenceLevel": "프로그램 AGENTS.md, src/lib/version.ts 대조 완료 (운영 실검증 0)"
+    "nextReviewer": "Master 배정 및 검토",
+    "evidenceLevel": "정적 파일 직접 대조 (instagram-dm-reply/AGENTS.md:3, src/lib/version.ts)"
   },
   {
     "slug": "ai-webtoon-studio",
@@ -550,33 +857,45 @@
     "category": "인스타",
     "name": "AI 웹툰 자동화",
     "statedOwner": {
-      "text": "과거 기록: 2026-11-13 전체 점검 세션 claude-win-20261112-policy; 특정 전담 역할 미발견",
+      "text": "과거 기록: 2026-11-13 세션 claude-win-20261112-policy 전체 점검; 전담 역할 미지정",
       "sourcePath": "ai-webtoon-studio/AGENTS.md:1",
-      "section": "## 현재 상태 요약 (2026-11-13 전체 점검)",
+      "section": "## 현재 상태 요약",
       "recordedDate": "2026-11-13",
       "isCurrentActiveOwnerConfirmed": false,
-      "note": "전담 역할 문서 미발견 (현재 활성 담당 미확정)"
+      "note": "현재 활성 담당 미확정"
     },
     "version": {
       "catalogVersion": "v1.33",
       "documentVersion": "코드 v1.33(src/lib/version.ts)",
       "codeVersion": "v1.33 (src/lib/version.ts: export const APP_VERSION = 'v1.33')",
       "packageJsonVersion": "1.14.0",
-      "discrepancy": "카탈로그/코드 v1.33 일치, package.json(1.14.0) 뒤처짐",
+      "discrepancy": "카탈로그/코드 v1.33 일치, package.json(1.14.0) 차이",
       "verificationNote": "운영 실검증 아님 (정적 코드 및 문서 기록 기준)"
     },
     "pendingWork": [
-      "4컷 웹툰 패널별 스토리보드 프롬프트 자동 생성 검수",
-      "pollinations-flux 무료 대체 렌더러와 회원 본인 상용 키 모델 간 전환 안정성 확인",
-      "Canvas 상 말풍선 폰트 줄바꿈 및 크기 조절 인터랙션 검증"
+      {
+        "type": "verification_candidate",
+        "title": "4컷 웹툰 패널별 레이아웃 및 말풍선 Canvas 렌더링 검수",
+        "sourcePath": "ai-webtoon-studio/docs/IMPROVEMENTS.md",
+        "line": 16,
+        "section": "## 개선사항 기록",
+        "recordedDate": "2026-10-22",
+        "quote": "4컷 패널 이미지 다운로드 및 말풍선 폰트 크기 조절 검증",
+        "resolutionStatus": "unresolved"
+      }
     ],
     "lifecycle": {
-      "status": "단독 운영",
-      "detail": "인스타툰 4컷 카드뉴스/만화 제작 도구",
+      "status": "단독 운영 기록 (정적 문서 기준)",
+      "detail": "인스타툰 4컷 웹툰 카드뉴스 제작 도구로 기록됨",
+      "sourcePath": "ai-webtoon-studio/AGENTS.md",
+      "line": 3,
+      "section": "## 현재 상태 요약",
+      "recordedDate": "2026-11-13",
+      "quote": "운영 주소: https://ai-webtoon-studio.buylife.xyz",
       "mergeCandidate": null
     },
-    "nextReviewer": "Master 검토 대기",
-    "evidenceLevel": "프로그램 AGENTS.md, src/lib/version.ts 대조 완료 (운영 실검증 0)"
+    "nextReviewer": "Master 배정 및 검토",
+    "evidenceLevel": "정적 파일 직접 대조 (ai-webtoon-studio/AGENTS.md:3, src/lib/version.ts)"
   },
   {
     "slug": "cardnews-studio",
@@ -589,28 +908,55 @@
       "section": "- v1.32 (2026-10-20, Claude Code 윈도우) — 병합 3단계: 옛 주소 정리·노출 중지",
       "recordedDate": "2026-10-20",
       "isCurrentActiveOwnerConfirmed": false,
-      "note": "병합 작업 완료 후 동결 상태, 이 폴더에서 새 기능 개발 금지 (insta_auto_poster에서 관리)"
+      "note": "병합 작업 기록이 존재하며 이 폴더에서 새 기능 개발 금지(동결)로 명시됨"
     },
     "version": {
       "catalogVersion": "v1.32",
-      "documentVersion": "코드 v1.32(src/lib/version.ts, 2026-10-20 병합 3단계 완료 버전)",
+      "documentVersion": "코드 v1.32(src/lib/version.ts, 2026-10-20 병합 3단계 완료 기록)",
       "codeVersion": "v1.32 (src/lib/version.ts: export const APP_VERSION = 'v1.32')",
       "packageJsonVersion": "1.15.0",
-      "discrepancy": "카탈로그/코드 v1.32 일치, package.json(1.15.0) 뒤처짐",
+      "discrepancy": "카탈로그/코드 v1.32 일치, package.json(1.15.0) 차이",
       "verificationNote": "운영 실검증 아님 (정적 코드 및 문서 기록 기준)"
     },
     "pendingWork": [
-      "새 기능 개발 없음 (동결)",
-      "기존 북마크/URL 접근 시 insta_auto_poster /cardnews/* 로의 리다이렉트 유지 확인",
-      "Vercel 배포 프로젝트는 구 URL 호환을 위해 보존 중"
+      {
+        "type": "explicit_pending",
+        "title": "새 기능 개발 금지 (병합 완료 동결 상태 보존)",
+        "sourcePath": "cardnews-studio/AGENTS.md",
+        "line": 12,
+        "section": "## 병합 히스토리",
+        "recordedDate": "2026-10-20",
+        "quote": "이 폴더에서 새 기능을 만들지 않는다(INSTA에서). Vercel 프로젝트·도메인은 삭제하지 않음.",
+        "resolutionStatus": "unresolved"
+      },
+      {
+        "type": "verification_candidate",
+        "title": "기존 주소 접근 시 insta_auto_poster /cardnews/* 라우트로 리다이렉트 호환 검증",
+        "sourcePath": "cardnews-studio/AGENTS.md",
+        "line": 11,
+        "section": "## 병합 히스토리",
+        "recordedDate": "2026-10-20",
+        "quote": "next.config.ts — 화면 주소는 INSTA /cardnews/...로 이동, /api/*는 같은 주소로 INSTA에 전달",
+        "resolutionStatus": "unresolved"
+      }
     ],
     "lifecycle": {
-      "status": "병합 완료 (auto-instagram-posting /cardnews 라우트로 통합 흡수됨)",
-      "detail": "카탈로그 programs.is_active=false(노출 중지), 메인 사이트 /programs/cardnews-studio -> /programs/auto-instagram-posting 리다이렉트",
-      "mergeCandidate": "병합완료: auto-instagram-posting"
+      "status": "병합 완료 기록 (정적 문서 기준, 오늘 runtime 사실로 단정 금지)",
+      "detail": "카탈로그 programs.is_active=false(노출 중지), 메인 사이트 리다이렉트 및 insta_auto_poster /cardnews/* 로 통합된 이력이 문서로 기록되어 있음 (단, 오늘 실서비스 런타임 검증은 미실시)",
+      "sourcePath": "cardnews-studio/AGENTS.md",
+      "line": 10,
+      "section": "- v1.32 (2026-10-20, Claude Code 윈도우) — 병합 3단계: 옛 주소 정리·노출 중지",
+      "recordedDate": "2026-10-20",
+      "quote": "카탈로그 programs.is_active=false(노출 중지), 한 줄 요약에 「[병합됨 → INSTA 포스팅 자동화(2026-10-20)]」",
+      "mergeCandidate": {
+        "target": "auto-instagram-posting",
+        "type": "merged_completed",
+        "evidence": "cardnews-studio/AGENTS.md:10-15 병합 3단계 완료 기록",
+        "isRuntimeConfirmed": false
+      }
     },
-    "nextReviewer": "Master 검토 및 카탈로그 정리 확인",
-    "evidenceLevel": "프로그램 AGENTS.md, src/lib/version.ts 및 next.config.ts 리다이렉트 대조 완료 (운영 실검증 0)"
+    "nextReviewer": "Master 배정 및 검토 (카탈로그 비활성 및 리다이렉트 호환 확인)",
+    "evidenceLevel": "정적 파일 직접 대조 (cardnews-studio/AGENTS.md:10-15, next.config.ts, src/lib/version.ts)"
   },
   {
     "slug": "comment-inbox",
@@ -618,32 +964,64 @@
     "category": "마케팅(홍보)",
     "name": "AI 댓글·DM 통합 받은편지함",
     "statedOwner": {
-      "text": "과거 기록: 2026-10-23 세션 claude-win-20261023-collect-status (자동 수집 상태 보기); 2026-11-13 전체 점검 세션 claude-win-20261112-policy",
-      "sourcePath": "comment-inbox/AGENTS.md:1 및 docs/IMPROVEMENTS.md",
-      "section": "## 2026-10-23 미배포 대기 — 자동 수집 상태 보기",
+      "text": "과거 기록: 2026-10-23 세션 claude-win-20261023-collect-status(자동 수집 상태); 2026-11-13 세션 claude-win-20261112-policy 전체 점검",
+      "sourcePath": "comment-inbox/docs/IMPROVEMENTS.md:18,27",
+      "section": "## 2026-10-23 미배포 대기 / ## 2026-11-13 전체 점검",
       "recordedDate": "2026-10-23 / 2026-11-13",
       "isCurrentActiveOwnerConfirmed": false,
-      "note": "과거 작성 세션 기록이며 현재 활성 담당자 미확정 (Master 검토 대상)"
+      "note": "과거 작성 세션 기록이며 현재 활성 담당자 미확정 (Master 배정 대상)"
     },
     "version": {
       "catalogVersion": "v1.10",
       "documentVersion": "코드 v1.09(lib/version.ts, 2026-11-13 점검 당시 문서 기록)",
       "codeVersion": "v1.10 (lib/version.ts: export const APP_VERSION = 'v1.10')",
       "packageJsonVersion": "0.1.0",
-      "discrepancy": "카탈로그와 코드 버전 v1.10 일치, 문서 헤더 v1.09 표기 잔존, package.json(0.1.0) 뒤처짐",
+      "discrepancy": "카탈로그와 코드 버전 v1.10 일치, 문서 헤더에 v1.09 표기 잔존, package.json(0.1.0) 차이",
       "verificationNote": "운영 실검증 아님 (정적 코드 및 문서 기록 기준)"
     },
     "pendingWork": [
-      "플랫폼당 100건 제한 시 '더 있음' 안내 문구 노출 개선 제안 잔여",
-      "실제 공개 게시 실데이터 1건 검수 대기 (대기 0건으로 승인 흐름 미확인 상태)",
-      "동시에 두 화면 승인 시 이중 게시 방지 조건부 상태 변경 검토 대기"
+      {
+        "type": "explicit_pending",
+        "title": "실제 공개 게시 실검수 대기 (주인님 승인 필요)",
+        "sourcePath": "comment-inbox/docs/IMPROVEMENTS.md",
+        "line": 6,
+        "section": "## 개선사항 기록 — AI 댓글·DM 통합 받은편지함",
+        "recordedDate": "2026-10-23",
+        "quote": "- [ ] 실제 공개 게시 실검수(주인님 승인 후, 시험 계정에 대기 항목이 생기면 플랫폼별 1건) — 근거: 대기 0건이라 승인 흐름을 실데이터로 못 봄.",
+        "resolutionStatus": "unresolved"
+      },
+      {
+        "type": "proposal",
+        "title": "플랫폼당 100건 제한 초과 시 '더 있음' 안내 문구 노출 제안",
+        "sourcePath": "comment-inbox/docs/IMPROVEMENTS.md",
+        "line": 29,
+        "section": "## 2026-11-13 전체 점검에서 발견",
+        "recordedDate": "2026-11-13",
+        "quote": "플랫폼당 100건 제한(lib/inbox/load.ts:54 PER_PLATFORM_LIMIT)에 걸려도 화면에 「더 있음」 표시가 없음 — 영향: 대기 항목이 많은 회원은 전체 건수를 알 수 없음. 중간. 상태 「제안」",
+        "resolutionStatus": "unresolved"
+      },
+      {
+        "type": "proposal",
+        "title": "동시 두 화면 승인 시 이중 게시 방지 조건부 상태 변경 제안",
+        "sourcePath": "comment-inbox/docs/IMPROVEMENTS.md",
+        "line": 8,
+        "section": "## 개선사항 기록",
+        "recordedDate": "2026-10-23",
+        "quote": "- [ ] 동시에 두 화면에서 승인할 때 이중 게시 가능성(게시 함수가 posted만 막고 처리 중 상태는 없음) — 원래 프로그램과 같은 위험, 기준 코드에서 조건부 상태 변경으로 막는 방안 검토.",
+        "resolutionStatus": "unresolved"
+      }
     ],
     "lifecycle": {
-      "status": "단독 운영 (인스타 댓글/DM, 쓰레드, 유튜브 댓글 통합 응대 허브)",
-      "detail": "별도 키 등록 없이 원래 댓글 프로그램들의 상태를 통합 조회/승인하는 허브",
+      "status": "단독 운영 기록 (정적 문서 기준)",
+      "detail": "인스타 댓글/DM, 쓰레드, 유튜브 댓글을 모아서 확인하는 통합 응대 허브로 기록됨",
+      "sourcePath": "comment-inbox/AGENTS.md",
+      "line": 3,
+      "section": "## 현재 상태 요약",
+      "recordedDate": "2026-11-13",
+      "quote": "운영 주소: https://comment-inbox.buylife.xyz",
       "mergeCandidate": null
     },
-    "nextReviewer": "Master 검토 및 Support/마케팅 전담 배정",
-    "evidenceLevel": "프로그램 AGENTS.md, docs/IMPROVEMENTS.md, lib/version.ts 대조 완료 (운영 실검증 0)"
+    "nextReviewer": "Master 배정 및 검토 (후보: B2B 또는 메시징/통합허브 역할군)",
+    "evidenceLevel": "정적 파일 직접 대조 (comment-inbox/AGENTS.md:3, IMPROVEMENTS.md:6,29, lib/version.ts)"
   }
 ]
