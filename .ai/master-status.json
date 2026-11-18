@@ -3966,19 +3966,19 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
       "title": "미확정 접수 후속알림 기본보류·가시성",
-      "status": "ready_review",
-      "delivery": "release_failure_fix_review_dispatched_with_delete_ambiguity_check",
-      "evidence": "주인님Backend직접결정msg_1a6232e00dae·Mastermsg_38c5209014e0·결과msg_c55199dc02d9·Master5파일stat·Macmsg_3c7aed78d74d · Mac원본최종msg_6d66044115ee · Backend수정msg_b02e2a979da0 · Master수정범위/본문확인 · 재검수msg_b846a65474f7 · Mac F-F02 msg_21e5d6846290 · 수정반환 msg_b1c76dd8b54c · Mac범위보존 msg_f0646441a224 · Mac최종 msg_2e62f3c51424 · 검수대기수락 msg_a97802e08ee5 · 작성자msg_01f030138865 · 4파일diff확인 · 재검수msg_48fa3b69b1de",
+      "status": "needs_revision",
+      "delivery": "ambiguous_delete_reconciliation_fix_dispatched",
+      "evidence": "주인님Backend직접결정msg_1a6232e00dae·Mastermsg_38c5209014e0·결과msg_c55199dc02d9·Master5파일stat·Macmsg_3c7aed78d74d · Mac원본최종msg_6d66044115ee · Backend수정msg_b02e2a979da0 · Master수정범위/본문확인 · 재검수msg_b846a65474f7 · Mac F-F02 msg_21e5d6846290 · 수정반환 msg_b1c76dd8b54c · Mac범위보존 msg_f0646441a224 · Mac최종 msg_2e62f3c51424 · 검수대기수락 msg_a97802e08ee5 · 작성자msg_01f030138865 · 4파일diff확인 · 재검수msg_48fa3b69b1de · Backend분석msg_cee47a4dc875 · Mac최종msg_58eaaf7940e6 · 수정지시msg_6797bb58b65f · Mac수락msg_6f24b0099421",
       "scopeRef": "followupDispatch.ts·submissionStatus.ts·시험/기존문서·추가호출자필요시경로먼저",
       "completion": "dispatching/partial/unknown/미지값보류·발송/선점0·실화면보류이유/held가시성·확정후1회재개/limit기아검증",
       "constraints": "received/failed/notified기존동작·실DB/DDL/웹훅/실발송/배포0",
-      "next": "Mac 오류/예외/행수불명 및 DELETE 실제완료 후 응답오류·다음회 재선점 경계 검수 후 판정",
-      "lastReviewedAt": "2026-11-18T03:58:37.547Z",
+      "next": "Backend 정확 id 검사·불확실 해제 후 읽기1회·releaseUnknown 분리 수정 SHA 회수→Mac 지정 재검수",
+      "lastReviewedAt": "2026-11-18T04:01:35.424Z",
       "sha": "fcdb971eb",
       "validation": {
         "author": "70/70·dedupe포함84/84·tsc0(작성자 보고), 정확1행 해제만 held, 나머지 releaseFailed",
         "master": "4파일diff 확인. DELETE 실제완료 후 응답오류이면 claim잔류/자동재개없음 보장은 불가하여 Mac에 해당경계 추가검수 요청",
-        "independent": "b777 지정 통과범위 보존·F-F02 재현. fcdb971eb 재검수 전송, 수락/결과 대기"
+        "independent": "fcdb native70/70·실claim잔류 때 실패분리/재발송0·cron JSON 지정 통과. F-F03: DELETE 실제완료 후 error/throw/null/0응답→기록0인데 releaseFailed, 다음회sent1. 이전시도0이라 중복문자 반례 아님. 다른id 1행도held로 수락하는 shape 결함. 수정 반환."
       },
       "limitations": [
         "운영 미배포·운영 RLS/DDL/실발송0",
@@ -4483,21 +4483,25 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T03:58:37.547Z",
+      "at": "2026-11-18T04:01:35.424Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM F-F02 수정 완료 이벤트",
-      "scope": "fcdb971eb 4파일diff·새 releaseFailed 의미·삭제 응답 유실 경계·후속 재검수",
+      "trigger": "13:00 KST 정기 메시지 수신 및 변경분 점검",
+      "scope": "251작업/19카테고리 기존 잔여·사람단계, ACTIVE_WORK 관련점유, 최근커밋, 변경 인수인계/결과, 로컬13터미널 존재·새 보고, 예약 전송/수신",
       "evidence": [
-        "msg_01f030138865 작성자 완료",
-        "git show fcdb971eb 정확4파일",
-        "msg_48fa3b69b1de Mac 재검수 전달"
+        "예약receipt msg_789a69bd84bf 현재Master수신·새창0",
+        "변경스캔 신규 CRM05 QA결과 외 미등록 docs/handoffs 변경 없음",
+        "CRM 최종msg_58eaaf7940e6 및 Backend분석 일치",
+        "수정지시msg_6797bb58b65f·Mac수락msg_6f24b0099421",
+        "ACTIVE_WORK CRM 담당1·기존 B2B 별도행·충돌 새근거0"
       ],
-      "judgment": "작성자 보완 수신, 완료 수락 전 DELETE 실제성공/응답오류 경계를 추가 확인. 새 중복 구현 없이 독립검수 우선.",
+      "judgment": "CRM 불명 삭제를 실패와 구분하도록 단일 담당에게 보완 배정. 타 프로젝트는 기존 사람단계/승인 대기 유지, 중복시험·새 비용·배포0. 터미널 존재만으로 작업완료 판단하지 않음.",
       "unverified": [
-        "삭제 결과 불명 시 다음회 동작·운영자 진단 보장",
-        "실DB/실발송/운영 반영"
+        "새 CRM 소스/독립검수",
+        "Gmail 실제GCP요청대조·Mac MP4 B 저장·B2B 시험카드 사람단계",
+        "감성 freeOFF 운영반영 승인 및 무료실행방식 결정",
+        "전체 카테고리 운영을 이번 점검에서 새로 검증한 것은 아님"
       ],
-      "nextAction": "Mac 결과에 따라 범위정정 또는 수정 반환"
+      "nextAction": "CRM 새 SHA 수신 시 Mac 재검수, 사람/승인 신호 수신 시 기존 단일 담당 재개"
     },
     "notifications": [
       {
@@ -4565,7 +4569,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-18T04:00:00.000Z",
+      "nextScheduledAt": "2026-11-18T04:30:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -4583,8 +4587,8 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-18T03:30:00.000Z",
-        "messageId": "msg_5a67e3dfb5e2",
+        "scheduledAt": "2026-11-18T04:00:00.000Z",
+        "messageId": "msg_789a69bd84bf",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false
