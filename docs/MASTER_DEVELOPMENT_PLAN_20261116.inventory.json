@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T19:02:27.117Z",
+  "checkedAt": "2026-11-18T19:06:38.079Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -7977,10 +7977,10 @@
       "title": "website-scraper 읽기·B1 사람 포커스 재시험 준비",
       "owner": "CX-QA-01",
       "status": "waiting_human",
-      "delivery": "website_complete_b1_renderer_timeout_human_setup_pending",
-      "next": "기존9 확장설치/버전/ON 사람확인→일반창A/공간9 B 직접읽기각1회→기존확장복원",
-      "evidence": "msg_6c61f3680257·기존B/Gmail보존·실크롤링/쓰기0 · Macmsg_efecea98d20b·.ai/results/WEBSITE-SCRAPER-20261118-CX-QA-01.md · msg_300ed7a832fd·Blog전달msg_37b42631aab5(사람prompt보류)",
-      "lastReviewedAt": "2026-11-18T04:28:07.933Z"
+      "delivery": "b1_v122_mac_retest_dispatched_human_clicks_required",
+      "next": "v1.22 재검수 전달. 확장 버전·활성 상태 수동 확인과 A/B 사용자 클릭 각각 1회 후 Mac lastProbe 기록.",
+      "evidence": "msg_6c61f3680257·기존B/Gmail보존·실크롤링/쓰기0 · Macmsg_efecea98d20b·.ai/results/WEBSITE-SCRAPER-20261118-CX-QA-01.md · msg_300ed7a832fd·Blog전달msg_37b42631aab5(사람prompt보류)·msg_cdfff750b2ef·msg_e70d2e5cddc7",
+      "lastReviewedAt": "2026-11-18T19:06:38.079Z"
     },
     {
       "task_id": "RE-20261118-07",
@@ -9632,13 +9632,14 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-MASTER-01",
       "title": "B2B 메이커 연계 M1~M3 선행 범위 대조",
-      "status": "running",
-      "delivery": "m1_shared_registry_and_occupancy_confirmed",
+      "status": "reviewing",
+      "delivery": "sender_window_race_fix_dispatched",
       "scopeRef": "IMPROVEMENT_HANDOFF_20261113_MAKER.md·product-photo-handoff·0066",
       "constraints": "샘플몰·Lab0101 선행. M1 쇼핑몰 측 정합/경계부터. M2/M3 운영 DB 변경 없음, 실제 등록 사진 1년 유지. H3 회원 이전 제외.",
-      "evidence": "msg_f8b6c7802a93·msg_95518039a9bf·msg_425229fba0fc·msg_1f84f57db3f2·msg_4cf852c00d8f·msg_336575c1b8e9·8c9a6b406",
-      "next": "공용 사진 계약 사본 등록·점유 확인. 관리자 사진 보내기 로컬 구현과 계약 시험 결과 대기.",
-      "lastReviewedAt": "2026-11-18T19:01:24.314Z"
+      "evidence": "msg_f8b6c7802a93·msg_95518039a9bf·msg_425229fba0fc·msg_1f84f57db3f2·msg_4cf852c00d8f·msg_336575c1b8e9·8c9a6b406·msg_ac8f77a35553·4c0652af8·msg_e22ad44ddd31·msg_202583c7b555·msg_4ab005ab0d96",
+      "next": "M1 로컬 7/7, Mac 7/7 및 사본 일치. 사진 로드 중 새 창/작업이 열리는 경합 보완·회귀 시험 배정.",
+      "lastReviewedAt": "2026-11-18T19:06:38.079Z",
+      "sha": "4c0652af8"
     },
     {
       "task_id": "B2B-20261119-S70",
@@ -9689,13 +9690,13 @@
       "parent_task_id": "WS-20261119-01",
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace v1.61 기존 중단 빌드 로그 진단",
-      "status": "reviewing",
-      "delivery": "startup_boundary_design_review_changes_requested",
+      "status": "queued",
+      "delivery": "local_lazy_startup_boundary_implementation_dispatched",
       "sha": "30bcfdee1",
-      "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef·dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o·msg_0a595caceefd·주인님 전달 진단·msg_afbf609d8871·msg_8512331d6d20·담당 msg_8512331d6d20 결과·msg_7489b02d1a30·f330050c3·담당 msg_7489b02d1a30 결과·msg_4a10308bf15c·f26ab0e58·담당 msg_4a10308bf15c 회신·msg_6f6e00bdcc31",
+      "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef·dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o·msg_0a595caceefd·주인님 전달 진단·msg_afbf609d8871·msg_8512331d6d20·담당 msg_8512331d6d20 결과·msg_7489b02d1a30·f330050c3·담당 msg_7489b02d1a30 결과·msg_4a10308bf15c·f26ab0e58·담당 msg_4a10308bf15c 회신·msg_6f6e00bdcc31·d3d2d531f·담당 msg_6f6e00bdcc31 회신·msg_748c12b7d46d",
       "constraints": "기존 근거 읽기만. 재빌드·배포·push·운영 설정/DB 변경 0.",
-      "next": "빌드 평가에서 DDL·웹훅 비밀 이관·일정 등록의 실행 지점 확인. 첫 질의 전후 순서와 동시 초기화 설계 보완 요청. 운영 v1.60.",
-      "lastReviewedAt": "2026-11-18T19:02:27.117Z",
+      "next": "빌드 평가의 추가 예약·UPDATE·타이머 반영한 설계로 로컬 구현·격리 시험 배정. 운영 DB 및 빌드·배포 없음.",
+      "lastReviewedAt": "2026-11-18T19:06:38.079Z",
       "validation": {
         "author": "컴파일·타입 통과 후 Collecting 약 11분 무출력. 성공판 같은 단계 35.4초. 시작 시 동시 빌드 0, 이후 11번가 약 8분 대기 보고.",
         "master": "v1.60~v1.61 제품 변경 3파일 및 html.ts의 기존 정적 import 경로 확인.",
@@ -9769,10 +9770,10 @@
       "reviewer": "CX-MASTER-01",
       "title": "AI Influencer 대표 생성 및 보정 검증",
       "status": "waiting_human",
-      "delivery": "isolated_on_waiting_test_account_login",
-      "evidence": "msg_adecea24720e·msg_6450ddaf24a6·9f1e3697e·msg_640d108b3984·msg_2516c8d780b2·345eb10f8·msg_43f23b594003·msg_b3def667492a",
-      "next": "격리 사본만 on, 공유 off. 시험 계정 로그인 뒤 본인 키·1K 확인 후 신규·보정 각 1회 조건부 실행. 유료 호출 아직 0.",
-      "lastReviewedAt": "2026-11-18T19:01:24.314Z"
+      "delivery": "test_account_required_after_ego_restart_zero_calls",
+      "evidence": "msg_adecea24720e·msg_6450ddaf24a6·9f1e3697e·msg_640d108b3984·msg_2516c8d780b2·345eb10f8·msg_43f23b594003·msg_b3def667492a·msg_98a00503835e·msg_51f88e4ea1b2·msg_b0363e5b9ba3",
+      "next": "ego 재시작 뒤 기존 로그로 생성·저장 0 확인. V4 일반 회원이 로그인되어 로그아웃 처리. V3 전용 시험 계정 재로그인 대기.",
+      "lastReviewedAt": "2026-11-18T19:06:38.079Z"
     },
     {
       "task_id": "ECOM-20261119-BANANA-QA",
@@ -9805,10 +9806,10 @@
       "reviewer": "CX-MASTER-01",
       "title": "영상에서 상세페이지로 WebP 한 건 실검수",
       "status": "done",
-      "delivery": "live_single_webp_save_and_zip_verified",
-      "evidence": "msg_a92dd99bda3f·msg_1cd837404734·msg_4864c1d5702d·msg_9d3bfa9f750a·msg_c952203e1bae·msg_f5eaa62ab458·msg_1977ec1c7260·msg_1d49f335f68b·msg_47e45a2faca7·msg_c3ea31ffe067·msg_7728aab38637·msg_17062af868d7·0d4502b2f",
-      "next": "승인 시험 상품에 -anim.webp 파일·행 각 1건, 기존 2행 변화 없음. 화면 애니메이션·ZIP 원본 72프레임 확인. 시험 자료는 남김.",
-      "lastReviewedAt": "2026-11-18T19:02:27.117Z",
+      "delivery": "live_webp_verified_owner_retains_test_data",
+      "evidence": "msg_a92dd99bda3f·msg_1cd837404734·msg_4864c1d5702d·msg_9d3bfa9f750a·msg_c952203e1bae·msg_f5eaa62ab458·msg_1977ec1c7260·msg_1d49f335f68b·msg_47e45a2faca7·msg_c3ea31ffe067·msg_7728aab38637·msg_17062af868d7·0d4502b2f·msg_01c402c56284·ad5dd3449",
+      "next": "원본 72프레임과 ZIP 확인 완료. 주인님 지시로 시험 상품 이미지 파일·DB 행 각 1건 보존.",
+      "lastReviewedAt": "2026-11-18T19:06:38.079Z",
       "sha": "0d4502b2f"
     },
     {
@@ -9838,6 +9839,18 @@
         "limitation": "Mac 레이아웃은 기존 세션의 공개 경로. 비로그인 브라우저 전체 레이아웃과 상세 미확인.",
         "visual": "16개 카드에 식별 상표·얼굴 없음. 두 카드에는 손 일부."
       }
+    },
+    {
+      "task_id": "BLOG-20261119-T08-TAG",
+      "parent_task_id": "BLOG-20261118-03",
+      "owner": "CC-BLOG-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "Website Scraper 백업 태그 원격 보관 요청",
+      "status": "waiting_human",
+      "delivery": "local_tag_and_remote_absence_verified_push_pending",
+      "evidence": "msg_58fe6af49afa·3bc3013c3·2706fc0b5",
+      "next": "로컬 태그와 원격 부재, 대상 커밋 origin/master 포함 확인. 태그 1개 업로드 승인 전 대기.",
+      "lastReviewedAt": "2026-11-18T19:06:38.079Z"
     }
   ]
 }
