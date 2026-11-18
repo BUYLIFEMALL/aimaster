@@ -4813,17 +4813,17 @@
       "reviewer": "CX-MASTER-01",
       "title": "누락 자산 후속 SQL·격리 시험 초안",
       "status": "reviewing",
-      "delivery": "sql_draft_received_snapshot_and_test_harness_fix_requested",
+      "delivery": "corrected_sql_draft_isolated_test_run_requested",
       "scopeRef": "신규 후속 migration, 신규 격리 시험, W00 해당 근거",
       "constraints": "기존 migration·실행자/route/fixture 변경·SQL 실행/DB 생성·운영/Storage/비용/배포 0",
       "completion": "권한·인덱스 정렬·창/반환 상한·metadata 두 기준·예약 보존·격리 시험 경계 명시",
-      "evidence": "e3bb9132f·msg_0f05ca942dad·정정 요청 msg_b79fa67a3680",
-      "next": "객체 부재 단일 스냅샷 및 시험 프로세스 종료 처리 정정 SHA 확인 후 격리 실행 판정.",
-      "lastReviewedAt": "2026-11-18T09:42:41.599Z",
-      "sha": "e3bb9132f",
+      "evidence": "e3bb9132f·msg_0f05ca942dad·정정 요청 msg_b79fa67a3680 / msg_c93d4f3c6d24 / msg_1ede944e2a6c",
+      "next": "고정 2d6dfff03 로컬 격리 시험 1회 결과·OID 정리 검증 대기.",
+      "lastReviewedAt": "2026-11-18T09:44:17.490Z",
+      "sha": "2d6dfff03",
       "validation": {
         "author": "node --check, 기존 npm 171/171·tsc 보고. 신규 격리 시험 미실행.",
-        "master": "고정 SQL·격리 시험 준비/정리 코드 정적 확인. 별도 SELECT의 스냅샷과 자식 프로세스 오류/시간 경계 보완 필요."
+        "master": "Storage 단일 스냅샷과 CLI 대기 한도 확인. 컨테이너 내부 프로세스 종료는 별도 검증."
       }
     }
   ],
@@ -5343,20 +5343,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T09:42:41.599Z",
+      "at": "2026-11-18T09:44:17.490Z",
       "timezone": "Asia/Seoul",
-      "trigger": "W01r SQL 및 격리 시험 초안 회신",
-      "scope": "e3bb9132f 신규 SQL·시험·문서 범위 정적 검토.",
+      "trigger": "W01r 실행 전 정정 회신",
+      "scope": "동일 스냅샷 SQL 판정 및 격리 시험 종료 처리 고정 diff 검토.",
       "evidence": [
-        "msg_0f05ca942dad·e3bb9132f",
-        "msg_b79fa67a3680"
+        "2d6dfff03·msg_c93d4f3c6d24",
+        "msg_1ede944e2a6c"
       ],
-      "judgment": "실행 전 존재 검사 스냅샷과 테스트 실행기 타임아웃/오류 처리 보완 요청.",
+      "judgment": "정정 수락, 기존 로컬 컨테이너 내 고정 격리 시험 1회 배정.",
       "unverified": [
-        "P2 신규 격리 SQL 시험·실 Supabase 권한/Storage",
-        "Gmail OAuth 동의·실검증"
+        "격리 SQL 통과/건너뜀 및 OID 정리",
+        "실 Supabase Storage·권한 및 Gmail 동의/실검증"
       ],
-      "nextAction": "수정 고정 SHA 확인 후 격리 시험 실행 여부 판정."
+      "nextAction": "격리 실행 결과 회수 후 판정, 운영 SQL/배포 0."
     },
     "notifications": [
       {
