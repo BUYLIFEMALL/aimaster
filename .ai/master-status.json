@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T19:52:56.879Z",
+  "checkedAt": "2026-11-18T19:53:31.653Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5996,10 +5996,10 @@
       "reviewer": "CX-MASTER-01",
       "title": "부동산 추가 개선 순차 진행",
       "status": "running",
-      "delivery": "listing_stage_returned_independent_review_dispatched",
-      "evidence": "msg_c042ddbde7d9·481829768·msg_d71d13d13791·msg_8689d9857513·8767db0a8·msg_51fbe0b8b070·msg_611c47959bd0·msg_6898c765a184·msg_11e579abb78b·63e7c429f·a6544db4e·msg_37fee34e31a2·msg_fd4070a962c7·msg_812736bb6257·msg_c4f750983a84·e7084ca24·msg_ed97e4233323·msg_557c23dbeb70·msg_aa5d5224bad6·msg_0383dfa7adbe·dab9d80e1·msg_fef16dc91fd1·msg_3d838ec1338e·msg_ca348a97c6ce·.ai/results/RE-20261119-CROSS-COMMERCIAL-CX-QA-01.md·msg_292f3841389f·a6e11f679·msg_eaab1602a473",
-      "next": "매물 알림에서 타 프로그램 활성 시군구 제안 및 기존 동 선택. 작성자 123/123·타입 통과, Mac 독립 검수. 미배포.",
-      "lastReviewedAt": "2026-11-18T19:52:56.879Z",
+      "delivery": "three_program_linkage_independent_accepted_crm_plan_routed",
+      "evidence": "msg_c042ddbde7d9·481829768·msg_d71d13d13791·msg_8689d9857513·8767db0a8·msg_51fbe0b8b070·msg_611c47959bd0·msg_6898c765a184·msg_11e579abb78b·63e7c429f·a6544db4e·msg_37fee34e31a2·msg_fd4070a962c7·msg_812736bb6257·msg_c4f750983a84·e7084ca24·msg_ed97e4233323·msg_557c23dbeb70·msg_aa5d5224bad6·msg_0383dfa7adbe·dab9d80e1·msg_fef16dc91fd1·msg_3d838ec1338e·msg_ca348a97c6ce·.ai/results/RE-20261119-CROSS-COMMERCIAL-CX-QA-01.md·msg_292f3841389f·a6e11f679·msg_eaab1602a473·msg_0a5e1faf648c·msg_e9656d3909fb",
+      "next": "매물 알림 8 blob·독립 3/3, 관심 지역 3프로그램 연계 로컬 수락. 실 화면·DB 권한 검증 및 배포 대기. 고객관리 플랜 이동.",
+      "lastReviewedAt": "2026-11-18T19:53:31.653Z",
       "sha": "a6e11f679"
     },
     {
