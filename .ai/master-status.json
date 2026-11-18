@@ -4263,19 +4263,19 @@
       "parent_task_id": "AIF-20261118-W00",
       "title": "첫 원본 자산 단위 필드·권한·스토리지 구체 계약",
       "owner": "CC-SNS-01",
-      "status": "needs_revision",
-      "delivery": "timeout_release_fixed_duplicate_path_release_example_still_unsafe",
+      "status": "done",
+      "delivery": "revised_contract_accepted_for_source_only_A1_first_unit",
       "scopeRef": "검수수락W00 기존문서 내·공용quota/버킷/markPosted/정리 읽기만",
       "completion": "자산/upload/finalize/deleteclaim 필드/제약/RLS/권한·공용재사용/원자보관·최소파일·시험/완료조건·원본PLAN해시/추가계약안",
       "constraints": "원본PLAN/HANDOFF/CATALOG미커밋보존·제품/migration/실DB/파일업로드/유료/build/push0·예산/게시표확대0",
-      "next": "R2 중복경로거절=failed해제 예시제거·검증동일ready/불명unknown보존 한곳정정→해당문장최종확인",
-      "evidence": "W00계약지정PASS·원본PLAN미커밋/저자/mtime Master확인·소유범위보존 · msg_a0230c44e9de/684ea110b·Master§18직접읽기·Macmsg_fb98184acf82 · Macmsg_21d4cc225cb8·Master검토점일치·반환msg_e3692104bca7 · Mac최종msg_3fb8d882b996/684반환·R1msg_04f574322ed9·직접읽기·재검수msg_5e4cf37ef2e3/작성자msg_77d84ced12da · Mac고정최종msg_5ea5eec8607d·작성자정정msg_c41eb08b5d1c · msg_a4a26e69fd6c/0c6d09fc7eb5 R2 수신 · msg_69649db24743/219562534·Mac최종재검수 전달 · Macmsg_ab2d8837d7e2 지정최종·해제조건최소수정반환",
-      "lastReviewedAt": "2026-11-18T06:18:12.219Z",
-      "sha": "219562534",
+      "next": "A1 SQL초안/순수paths 첫단위 배정·실DB/저장별도",
+      "evidence": "W00계약지정PASS·원본PLAN미커밋/저자/mtime Master확인·소유범위보존 · msg_a0230c44e9de/684ea110b·Master§18직접읽기·Macmsg_fb98184acf82 · Macmsg_21d4cc225cb8·Master검토점일치·반환msg_e3692104bca7 · Mac최종msg_3fb8d882b996/684반환·R1msg_04f574322ed9·직접읽기·재검수msg_5e4cf37ef2e3/작성자msg_77d84ced12da · Mac고정최종msg_5ea5eec8607d·작성자정정msg_c41eb08b5d1c · msg_a4a26e69fd6c/0c6d09fc7eb5 R2 수신 · msg_69649db24743/219562534·Mac최종재검수 전달 · Macmsg_ab2d8837d7e2 지정최종·해제조건최소수정반환 · msg_bb04d135f9b2/037 직접diff확인·배정msg_063c9804ec87/Macmsg_5d20c706126b",
+      "lastReviewedAt": "2026-11-18T06:20:22.198Z",
+      "sha": "037bfcacc",
       "validation": {
         "author": "§18필드/RLS/service함수4/버킷/보관/잠금/불명/시험·원본PLANhash보존, 제품0",
-        "master": "R2 측정순서설명 수신. 2h 임의유예/absence2회와 미래 orphan청소는 A1 예약상한 증거가 아니므로 불명 예약 유지하도록 반환",
-        "independent": "시간/absence해제 P1 문서해소·잔여P1 duplicate거절은기존object없음증거아님→측정전failed해제불가·실SQL0"
+        "master": "최종037 실패해제는외부쓰기불가능확정만·duplicate/4xx는해제근거아님·불명예약유지 문장직접확인. W00최종개정을 소스용보완계약으로수락·원본다른저자초안보존",
+        "independent": "시간/absence해제 P1 문서해소·잔여P1 duplicate거절은기존object없음증거아님→측정전failed해제불가·실SQL0 · 마지막037 수정은Master직접대조수락,독립실SQL PASS아님"
       }
     },
     {
@@ -4312,6 +4312,21 @@
         "independent": "실제 services 메모리모듈+가짜fetch10경계PASS·원문sentinel URL/body0·고정분위기8/기본/우선순위·HTTP1/steps4/POST/redirecterror·유료/옵션/파서불변",
         "runtime": "기존1회 문자혼입·수정후실생성0"
       }
+    },
+    {
+      "task_id": "AIF-20261118-W01e",
+      "parent_task_id": "AIF-20261118-W01d",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-QA-01",
+      "title": "A1 자산 SQL 초안·순수 경로 검증 첫 구현",
+      "status": "dispatched",
+      "delivery": "bounded_source_only_first_unit",
+      "scopeRef": "프로그램내 신규 aif_assets_a1 migration초안·src/lib/assets/paths.ts·순수시험/본인기존문서",
+      "completion": "계약두표/6함수/잠금/서비스권한/unknown보존/objectidentity 초안·경로검증실시험/tsc·정확SHA·미실행SQL구분",
+      "constraints": "다른저자미커밋보존·store/라우트0·SQL실행/DB/버킷/실저장/AI/설치/build/push0·공용quota/retention수정0",
+      "evidence": "W00최종037·Masterdispatch msg_063c9804ec87",
+      "next": "담당정확경로예약/착수→첫코드SHA→Mac지정검수",
+      "lastReviewedAt": "2026-11-18T06:20:22.198Z"
     }
   ],
   "programOverrides": [
@@ -4825,21 +4840,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T06:18:12.219Z",
+      "at": "2026-11-18T06:20:22.198Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS최종정적판정·Ecom정리완료",
-      "scope": "219계약 한정검수/프롬프트완료기록/묶음SHA",
+      "trigger": "SNS 마지막계약수정완료",
+      "scope": "037 실제diff·기존원본계획 소유보존·후속실행범위",
       "evidence": [
-        "msg_ab2d8837d7e2",
-        "msg_d6c668cecb2e/5f9ae32ee"
+        "msg_bb04d135f9b2/037bfcacc",
+        "msg_063c9804ec87/5d20c706126b"
       ],
-      "judgment": "SNS중복경로실패=예약해제 예시만최소반환·Ecom소스수락유지/문서정리완료·새비용0",
+      "judgment": "A1 개정계약수락·SQL초안/순수paths 한책임자첫구현배정·운영승인확대0",
       "unverified": [
-        "SNS잔여해제조건/실SQL",
-        "실무문자품질/배포",
-        "기타사람단계"
+        "첫SQL실행/RLS/동시성/저장미검증",
+        "담당착수수락",
+        "기타사람/승인단계"
       ],
-      "nextAction": "SNS한곳수정SHA뒤해당문장확인·제품구현은범위확정후"
+      "nextAction": "정확경로/착수/결과회수→독립검수"
     },
     "notifications": [
       {

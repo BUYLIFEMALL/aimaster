@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 15:18:12 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 15:20:22 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 15:18:12 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 15:20:22 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 219계약 한정검수/프롬프트완료기록/묶음SHA · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 037 실제diff·기존원본계획 소유보존·후속실행범위 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 15:18:12 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 269개: done 250개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 8개 · queued 1개 · needs_revision 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 270개: done 251개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 8개 · queued 1개 · dispatched 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -417,9 +417,10 @@ Master 마지막 실제 점검: 2026-11-18 15:18:12 KST · 실행 중 점검 주
 | CRM-20261118-09 | CC-B2B-BACK-01 | done / versioned_script_and_server_field_preservation_source_accepted_unreleased | Apps Script v2 이벤트키 스니펫·legacy 안내 연결 | CRM18-10 명시릴리스준비·실AppsScript/DDL/배포/SMS승인별도 |
 | AIF-20261118-W01c | CC-SNS-01 | done / reference_image_input_source_review_accepted_unreleased | 참고 이미지 MIME/서명 처리 독립 개선 범위 계획 | 미배포묶음·출력G5/실브라우저/공급자미검수·P0상위비교최종연기 |
 | CRM-20261118-10 | CC-B2B-BACK-01 | waiting_human / concrete_release_prepared_single_owner_approval_pending | CRM 중복방지 묶음 명시소스·DDL·실검수 릴리스 준비 | 주인님 DDL/버전/로컬1+원격1/SMS1 승인신호→단일담당순번·직전운영기준대조·실행 |
-| AIF-20261118-W01d | CC-SNS-01 | needs_revision / timeout_release_fixed_duplicate_path_release_example_still_unsafe | 첫 원본 자산 단위 필드·권한·스토리지 구체 계약 | R2 중복경로거절=failed해제 예시제거·검증동일ready/불명unknown보존 한곳정정→해당문장최종확인 |
+| AIF-20261118-W01d | CC-SNS-01 | done / revised_contract_accepted_for_source_only_A1_first_unit | 첫 원본 자산 단위 필드·권한·스토리지 구체 계약 | A1 SQL초안/순수paths 첫단위 배정·실DB/저장별도 |
 | QA-20261118-ESM-01 | CX-QA-01 | waiting_human / zip_source_versions_verified_installed_extension_and_login_pending | ESM v1.02 입력만·쇼핑제휴 v1.89 네이버 수집 실확장 준비/검수 | 기존 Mac 사람요청 한곳: ESM+/네이버로그인·확장실제설치버전·brandlink1 뒤 입력만/수집검수 |
 | ECOM-20261118-08 | CC-ECOM-01 | done / specified_source_review_pass_accepted_unreleased | Cloudflare 배경 생성 프롬프트 문자 혼입 보완 | 기존 배포후보 묶음에9ccfc8dfa 포함·실 무문자품질 추가생성은 별도승인·현재무료OFF소스유지 |
+| AIF-20261118-W01e | CC-SNS-01 | dispatched / bounded_source_only_first_unit | A1 자산 SQL 초안·순수 경로 검증 첫 구현 | 담당정확경로예약/착수→첫코드SHA→Mac지정검수 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
