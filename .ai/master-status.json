@@ -4883,7 +4883,7 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T06:41:18.808Z",
+      "at": "2026-11-18T06:42:00.471Z",
       "timezone": "Asia/Seoul",
       "trigger": "최종소스수락·격리시험ACK·직접승인실호출취합",
       "scope": "a29지정정적검수완료/중복요청실패정정·새DB명/oid/fixture/stub/범위·Cloudflare2번째호출",
@@ -4891,7 +4891,8 @@
         "msg_51ea8f84abf8",
         "msg_8bc13715716b/92c543f748b4",
         "msg_b62624ce5cd1·Mastermsg_1fd1abd7c316",
-        "msg_1cc9ae2dafdb/담당msg_7b75b7373f82"
+        "msg_1cc9ae2dafdb/담당msg_7b75b7373f82",
+        "msg_0b543d9a26a0·샘플소실방지 원본복사배정"
       ],
       "judgment": "W01e정적소스수락→W01f격리시험착수·실중앙/운영PASS아님. 주인님최신추가1호출승인취합·이전추가승인0은그이전시점기록으로보존.",
       "unverified": [
@@ -4899,7 +4900,7 @@
         "수정이미지카드가독성/무료잔여",
         "기타사람/운영승인"
       ],
-      "nextAction": "격리시험정확SHA·샘플오프라인준비회수→독립검수·추가과금0"
+      "nextAction": "격리SQL결과회수·기존JPEG2 보존SHA확인뒤시각검수범위·새생성0"
     },
     "notifications": [
       {
@@ -5151,13 +5152,15 @@
         "limits": "잔여Neurons/정확비용미확인·추가호출0·운영OFF반영아님",
         "followup": {
           "at": "2026-11-18T06:41:18.808Z",
-          "evidence": "msg_1cc9ae2dafdb",
+          "evidence": "msg_1cc9ae2dafdb · msg_0b543d9a26a0/dc240435a",
           "approval": "최신담당채팅 재생성1회승인해진행해",
           "calls": 1,
           "totalCalls": 2,
           "preCallScriptFailures": 2,
           "result": "실제generateImage/HTTP1·2.7초·JPEG456549B1024²·한글/원문전송0·이1장글자없음관찰",
-          "limits": "인물크기/카드여백미검수·모든이미지무문자보장0·새생성0"
+          "limits": "인물크기/카드여백미검수·모든이미지무문자보장0·새생성0",
+          "artifact": "scratchpad ephemeral 원본2개·보존복사배정(새이미지/편집/생성0)",
+          "renderLimit": "기존시험fake ctx·실Canvas패키지없음·실제render가독성미검수"
         }
       }
     }
