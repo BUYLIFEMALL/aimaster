@@ -5079,6 +5079,21 @@
       "evidence": "Workspace 직접 보고·7a1e25e7b·f6696458f·msg_e7bc7b63c174·msg_877819af5a6d",
       "next": "미배포. 기본 위젯 겹침 국소 정적 검수 완료, 확장/좁은 폭·실화면은 별도.",
       "lastReviewedAt": "2026-11-18T14:15:29.892Z"
+    },
+    {
+      "task_id": "AIF-20261118-W01y",
+      "parent_task_id": "AIF-20261118-W01x",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-QA-01",
+      "title": "캡션 사진 전송 제거와 기록 요청 크기 보호",
+      "status": "dispatched",
+      "delivery": "caption_privacy_history_request_guard_requested",
+      "scopeRef": "기존 소비 화면·최소 공용 함수·모의 시험·관련 문서",
+      "constraints": "API/DB/Storage/실 AI/비용/build/deploy/push 0",
+      "evidence": "msg_eb328c52dc5a·msg_a7ec6bd328f6",
+      "next": "고정 구현·캡션 두 경로·JSON UTF-8 경계 모의 결과 회수.",
+      "completion": "캡션 사진 4종만 제외. 기록 상한 초과시 POST 0, 현재 결과/임시 기록 보존·미저장 1회 안내.",
+      "lastReviewedAt": "2026-11-18T14:35:29.679Z"
     }
   ],
   "programOverrides": [
@@ -5597,23 +5612,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T14:30:46.529Z",
+      "at": "2026-11-18T14:35:29.679Z",
       "timezone": "Asia/Seoul",
-      "trigger": "23:30 KST 30분 예약 메시지 수신",
-      "scope": "23:18 이후 Git·결과/인수인계·점유·관리자 요청, 19개 분류와 미종결/권한 조건 대조.",
+      "trigger": "SNS 직접 계속 지시 보고",
+      "scope": "캡션 소비 경로/텍스트 전용 서버와 히스토리 브라우저 요청 원문 대조.",
       "evidence": [
-        "msg_cf047be53d8e",
-        "fecf480be·7ba8ec819·da7f1c0eb",
-        "관리자 요청 대기 0·기존 HANDOFF 9줄",
-        "WS03 v1.59 운영 확인 기록과 WS02 표시 대조"
+        "msg_eb328c52dc5a",
+        "msg_a7ec6bd328f6"
       ],
-      "judgment": "새 작업 결과나 승인 없음. WS02의 이전 메뉴 미배포 표시만 운영 근거에 맞춤. 새 배정 없음.",
+      "judgment": "W01y 두 요청 경계 로컬 변경만 배정.",
       "unverified": [
-        "v1.60 운영 현황판 폭/스위치·목록 DB 버전",
-        "Gmail 콜백과 실검증",
-        "AI Influencer 미배포 및 기존 사람 의존 단계"
+        "W01y 고정 코드·시험",
+        "기존 Workspace/Gmail 운영 확인"
       ],
-      "nextAction": "해당 담당의 기존 화면/사람 단계 완료 또는 승인 신호 회수."
+      "nextAction": "담당 결과 회수 후 Mac 국소검수."
     },
     "notifications": [
       {
