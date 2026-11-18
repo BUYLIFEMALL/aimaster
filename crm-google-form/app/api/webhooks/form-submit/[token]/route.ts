@@ -90,6 +90,9 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
     name,
     phone,
     email,
+    // CRM U2(2026-11-18): 구버전·v2 모두 「발송 처리 중」으로 먼저 넣고 발송 뒤 최종 상태로 바꾼다.
+    // 운영 DDL(20261118120000, 상태 제약 확장)이 먼저 있어야 한다 — U2 단독 배포 금지.
+    status: "dispatching",
   };
   // 구버전 본문은 dedupe_key 칸을 아예 보내지 않는다(DDL 적용 전 운영 스키마와 호환). v2는 DDL이 먼저 있어야 한다.
   if (kind.type === "v2") insertValues.dedupe_key = kind.dedupeKey;
@@ -119,7 +122,10 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
     return NextResponse.json({ error: "접수 저장에 실패했습니다." }, { status: 500 });
   }
 
-  const result = await dispatchSubmissionNotifications(
+  // 발송 중 예외(예상 밖)는 결과를 알 수 없다 — 「결과 모름」으로 기록을 시도하고 고정 문구로 응답(재시도·재발송 0).
+  let result: Awaited<ReturnType<typeof dispatchSubmissionNotifications>>;
+  try {
+    result = await dispatchSubmissionNotifications(
     {
       id: source.id,
       user_id: source.user_id,
@@ -134,13 +140,39 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
     },
     submission,
   );
+  } catch {
+    await recordFinal(untyped, submission.id, source.user_id, source.id, "unknown", "발송 처리 중 예외 — 결과 모름");
+    return NextResponse.json({ error: "발송 결과를 확인하지 못했습니다." }, { status: 500 });
+  }
 
-  await admin
-    .from("crm_submissions")
-    .update({ status: result.status, error_message: result.errorMessage ?? null })
-    .eq("id", submission.id);
-
+  // 최종 상태 기록이 실패하면 행은 「발송 처리 중」으로 남는다(화면 「확인 필요」·팔로우업 보류) — 성공 저장으로 표시하지 않는다.
+  const recorded = await recordFinal(untyped, submission.id, source.user_id, source.id, result.status, result.errorMessage);
+  if (!recorded) {
+    return NextResponse.json({ ok: true, submissionId: submission.id, status: "dispatching", recorded: false });
+  }
   return NextResponse.json({ ok: true, submissionId: submission.id, status: result.status });
+}
+
+/** 접수 최종 상태를 이 회원·이 폼 조건으로 기록한다. 오류·예외면 false(재시도 0). */
+async function recordFinal(
+  client: SupabaseClient,
+  submissionId: string,
+  userId: string,
+  formSourceId: string,
+  status: string,
+  errorMessage: string | null,
+): Promise<boolean> {
+  try {
+    const { error } = await client
+      .from("crm_submissions")
+      .update({ status, error_message: errorMessage })
+      .eq("id", submissionId)
+      .eq("user_id", userId)
+      .eq("form_source_id", formSourceId);
+    return !error;
+  } catch {
+    return false;
+  }
 }
 
 /** 같은 회원·폼·중복 키의 기존 접수가 정확히 1행 있는지 다시 읽어 확인한다. 오류·예외·이상한 응답이면 false(중복으로 보지 않음). */

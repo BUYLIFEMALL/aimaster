@@ -17,7 +17,7 @@ const HOOKS = [
   `const ts = req("typescript");`,
   `const FAKES = ${JSON.stringify({
     "@/lib/supabase/admin": "export function createAdminClient(){ if (globalThis.__whAdminThrow) throw new Error(globalThis.__whAdminThrow); return globalThis.__whFake.client(); }",
-    "@/lib/crm/dispatch": "export async function dispatchSubmissionNotifications(source, submission){ globalThis.__whDispatched.push(submission.id); return { status: 'notified' }; }",
+    "@/lib/crm/dispatch": "export async function dispatchSubmissionNotifications(source, submission){ globalThis.__whDispatched.push(submission.id); if (globalThis.__whDispatchThrow) throw new Error('dispatch blew up 010-1111-2222'); return globalThis.__whDispatchResult || { status: 'notified', errorMessage: null, channels: [] }; }",
     "next/server": "export const NextResponse = { json(body, init) { return { status: (init && init.status) || 200, body }; } }; export class NextRequest {}",
     "server-only": "export {};",
   })};`,
@@ -95,6 +95,8 @@ function makeDb(opts = {}) {
         return { data: { id: row.id, user_id: row.user_id, name: row.name, phone: row.phone, email: row.email, raw_values: row.raw_values }, error: null };
       }
       if (q.table === "crm_submissions" && upd) {
+        db.updates = (db.updates ?? []).concat([q]);
+        if (hooks.onUpdate) { const r = hooks.onUpdate(q); if (r !== undefined) return r; }
         for (const r of rows) if (matches(r, q)) Object.assign(r, upd[1]);
         return { data: null, error: null };
       }
@@ -109,6 +111,8 @@ function makeDb(opts = {}) {
   globalThis.__whFake = { client: () => fakeClient((q) => db.answer(q)) };
   globalThis.__whDispatched = [];
   globalThis.__whAdminThrow = null;
+  globalThis.__whDispatchThrow = false;
+  globalThis.__whDispatchResult = null;
   return db;
 }
 
@@ -299,4 +303,62 @@ test("폼 연결 회귀: 정상 200 / 없음 404 / 꺼짐 404 / 조회 오류 50
   assert.equal((await post("tok-1", v2())).status, 500);
   makeDb({ hooks: { before: (q) => { if (q.table === "crm_form_sources") throw new Error("x"); return undefined; } } });
   assert.equal((await post("tok-1", v2())).status, 500);
+});
+
+
+// ── CRM U2: 상태 전이(가짜 발송 결과로 라우트 동작만) ──────────────────────────────────────────
+test("U2: 구버전·v2 모두 「발송 처리 중」으로 먼저 저장하고, 발송 결과로 최종 상태 기록", async () => {
+  let inserted = [];
+  const db = makeDb({ hooks: { before: (q) => { const i = q.ops.find((o) => o[0] === "insert"); if (i) inserted.push(i[1].status); return undefined; } } });
+  globalThis.__whDispatchResult = { status: "unknown", errorMessage: "문자: 결과 모름", channels: [] };
+  const r = await post("tok-1", v2());
+  await post("tok-1", { values: {} });
+  assert.deepEqual(inserted, ["dispatching", "dispatching"]);
+  assert.deepEqual([r.status, r.body.status], [200, "unknown"]);
+  assert.equal(db.rows[0].status, "unknown");
+  assert.equal(db.rows[0].error_message, "문자: 결과 모름");
+});
+
+test("U2: 최종 상태 기록은 id·회원·폼 조건으로만", async () => {
+  const db = makeDb();
+  await post("tok-1", v2());
+  const eqs = db.updates[0].ops.filter((o) => o[0] === "eq").map((o) => o[1]).sort();
+  assert.deepEqual(eqs, ["form_source_id", "id", "user_id"]);
+});
+
+test("U2: 최종 기록 오류·예외 → 행은 「발송 처리 중」 그대로, 응답은 recorded false(성공 저장 표시 0), 재발송 0", async () => {
+  for (const onUpdate of [() => ({ data: null, error: { message: "x" } }), () => { throw new Error("x"); }]) {
+    const db = makeDb({ hooks: { onUpdate } });
+    const r = await post("tok-1", v2());
+    assert.equal(r.status, 200);
+    assert.deepEqual([r.body.status, r.body.recorded], ["dispatching", false]);
+    assert.equal(db.rows[0].status, "dispatching");
+    const again = await post("tok-1", v2());
+    assert.equal(again.body.duplicate, true);
+    assert.equal(globalThis.__whDispatched.length, 1);
+  }
+});
+
+test("U2: 발송 중 예외 → 「결과 모름」 기록 시도·고정 500·원문 0, 기록도 실패하면 「발송 처리 중」 잔류", async () => {
+  let db = makeDb();
+  globalThis.__whDispatchThrow = true;
+  let r = await post("tok-1", v2());
+  assert.equal(r.status, 500);
+  assert.doesNotMatch(JSON.stringify(r.body), /blew up|010-1111-2222/);
+  assert.equal(db.rows[0].status, "unknown");
+  db = makeDb({ hooks: { onUpdate: () => ({ data: null, error: { message: "x" } }) } });
+  globalThis.__whDispatchThrow = true;
+  r = await post("tok-1", v2());
+  assert.equal(r.status, 500);
+  assert.equal(db.rows[0].status, "dispatching");
+});
+
+test("U2: insert 응답 유실 → 행은 「발송 처리 중」 그대로, 재요청은 duplicate·발송 0", async () => {
+  let lose = true;
+  const db = makeDb({ hooks: { afterInsert: () => { if (lose) { lose = false; throw new Error("socket hang up"); } } } });
+  await post("tok-1", v2());
+  assert.equal(db.rows[0].status, "dispatching");
+  const r2 = await post("tok-1", v2());
+  assert.equal(r2.body.duplicate, true);
+  assert.deepEqual(globalThis.__whDispatched, []);
 });
