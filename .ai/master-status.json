@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T02:50:31.105Z",
+  "checkedAt": "2026-11-18T02:52:32.028Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3775,13 +3775,19 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-MASTER-01",
       "title": "CRM F007 웹훅 중복발송 현행 소스 검증",
-      "status": "ready",
-      "delivery": "dispatch_sent",
-      "evidence": "CRM IMPROVEMENTS7·msg_e239ca3d4f76",
+      "status": "needs_revision",
+      "delivery": "current_source_defect_accepted_plan_refinement",
+      "evidence": "CRM IMPROVEMENTS7·msg_e239ca3d4f76·msg_64d1cdded345·Master route/SourceCard直接대조·계획보완msg_ce843cedb7a4",
       "scopeRef": "crm-google-form 읽기/기존가짜검증·결과1개만",
       "completion": "정확SHA/중복호출·DB제약/후속해결여부·정적vsmock근거·최소플랜/DDL/비용·실발송/운영DB0",
-      "next": "담당수락→현재코드확인→Master구현범위판정",
-      "lastReviewedAt": "2026-11-18T02:50:31.105Z"
+      "next": "같은결과파일에서안정이벤트키/구스크립트호환/불확실발송/정의검증·공식AppsScript근거 보완→구현범위판정",
+      "lastReviewedAt": "2026-11-18T02:52:32.028Z",
+      "sha": "53d66404f",
+      "findings": [
+        "현재route는확인없이insert후dispatch·response_id unique없음(정적확인)",
+        "시트e.response없으면Utilities UUID매회생성·ID유니크만으로불충분",
+        "본문hash/ID모양추정안은정상동일응답오병합·식별보장부족"
+      ]
     }
   ],
   "programOverrides": [
@@ -4265,21 +4271,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T02:50:31.105Z",
+      "at": "2026-11-18T02:52:32.028Z",
       "timezone": "Asia/Seoul",
-      "trigger": "PORT19 최종72467a6ee/69인용검사",
-      "scope": "19근거전수quote/line·의미필터·카테고리/개선표실제버전갱신·CRM단기배정",
+      "trigger": "CRM F007현재검토 msg_64d1cdded345",
+      "scope": "결과53d66404f·현행route/Script샘플·중복키/발송불확실설계",
       "evidence": [
-        "Master69/69 quote+line PASS",
-        "규칙/병합완료/메타차이 미완료제외·68담당미확정유지",
-        "Backend PORT18-02 msg_e239ca3d4f76·AGY수락msg_88880ff57727"
+        "Master route insert/dispatch/UUIDfallback 직접확인",
+        "작성자정적반례·실발송/DB0·F011해결유지",
+        "설계보완dispatch msg_ce843cedb7a4"
       ],
-      "judgment": "인용근거자료수락·미완료사실자동확대0. CRM고위험과거항목현재검증한건단일배정·운영v1.58/v1.30카테고리정합성갱신.",
+      "judgment": "현재소스F007유효수락·운영실발송반례아님. ID모양/내용hash오병합위험으로최소계획보완,제품/DDL구현승인전.",
       "unverified": [
-        "CRM F007현재소스/배포·19현재활성담당",
-        "Gmail OAuth·Mac B저장"
+        "안정키/구스크립트호환·원자선점후불확실발송",
+        "Gmail실OAuth·Mac B파일"
       ],
-      "nextAction": "Backend현재검증/사람완료신호회수→정확다음작업판정"
+      "nextAction": "Backend보완계획검토→필요파일한정구현/격리시험판정·운영DDL/비용별도"
     },
     "notifications": [
       {
@@ -4768,9 +4774,9 @@
       "kind": "현행확인필요",
       "target": "웹훅 response_id 중복 발송 F007",
       "owner": "CC-B2B-BACK-01(단기검증)",
-      "status": "과거문서미구현·현행미확정",
-      "evidence": "crm-google-form/docs/IMPROVEMENTS.md:7·PORT18-02",
-      "next": "현재소스/기존mock확인→필요DDL/구현범위판정",
+      "status": "현재소스결함정적확인·운영실측0",
+      "evidence": "crm-google-form/docs/IMPROVEMENTS.md:7·PORT18-02·53d66404f·route/SourceCard Master대조",
+      "next": "안정이벤트키/오병합/구스크립트호환플랜보완→코드/격리검증범위판정",
       "acceptance": "이미해결F011재배정0·실SMS/DB0"
     }
   ],

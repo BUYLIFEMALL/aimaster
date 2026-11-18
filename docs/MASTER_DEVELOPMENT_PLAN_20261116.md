@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 11:50:31 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 11:52:32 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 11:50:31 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 11:52:32 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 19근거전수quote/line·의미필터·카테고리/개선표실제버전갱신·CRM단기배정 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 결과53d66404f·현행route/Script샘플·중복키/발송불확실설계 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -82,7 +82,7 @@ Master 마지막 실제 점검: 2026-11-18 11:50:31 KST · 실행 중 점검 주
 | IMP-IMAGE-03 / 미배포수정 | Pexels 선택/가이드제거 · AG-UI-01 | v1.30운영반영 · de49e96e9+62189915b | Pexels서버옛호환과UI제거구분 | UI선택제거·구초안pixabay·기존키/서버호환보존 |
 | IMP-IMAGE-04 / 직접지시/미배포수정 | 배경외부링크 버튼화 · AG-UI-01 | v1.30운영반영 · msg_10b55a37b895 | 독립실모바일배치미검수 | 두링크/본문인계·키보드/넘침·저장버튼불변 |
 | IMP-IMAGE-05 / 직접추가요구/동결검토 | NanoBanana/OpenAI/무료FLUX 이미지엔진 · AG-UI-01 / CX-MASTER-01 | 1a1f64dba 지정소스독립PASS·미배포/free=false · msg_97466d3e6af4·INC18-01·fc7536040 | 무료정책/실생성/추가빌드별도 | 회원권한/본인키·무료방식근거·timeout/응답MIME/크기/URL·실지원/비용·명시릴리스manifest |
-| IMP-CRM-01 / 현행확인필요 | 웹훅 response_id 중복 발송 F007 · CC-B2B-BACK-01(단기검증) | 과거문서미구현·현행미확정 · crm-google-form/docs/IMPROVEMENTS.md:7·PORT18-02 | 현재소스/기존mock확인→필요DDL/구현범위판정 | 이미해결F011재배정0·실SMS/DB0 |
+| IMP-CRM-01 / 현행확인필요 | 웹훅 response_id 중복 발송 F007 · CC-B2B-BACK-01(단기검증) | 현재소스결함정적확인·운영실측0 · crm-google-form/docs/IMPROVEMENTS.md:7·PORT18-02·53d66404f·route/SourceCard Master대조 | 안정이벤트키/오병합/구스크립트호환플랜보완→코드/격리검증범위판정 | 이미해결F011재배정0·실SMS/DB0 |
 
 ## 담당별 현재 상태·인수인계
 
@@ -146,7 +146,7 @@ Master 마지막 실제 점검: 2026-11-18 11:50:31 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 244개: done 230개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 4개 · ready 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 244개: done 230개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 4개 · needs_revision 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -393,7 +393,7 @@ Master 마지막 실제 점검: 2026-11-18 11:50:31 KST · 실행 중 점검 주
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
-| PORT-20261118-02 | CC-B2B-BACK-01 | ready / dispatch_sent | CRM F007 웹훅 중복발송 현행 소스 검증 | 담당수락→현재코드확인→Master구현범위판정 |
+| PORT-20261118-02 | CC-B2B-BACK-01 | needs_revision / current_source_defect_accepted_plan_refinement | CRM F007 웹훅 중복발송 현행 소스 검증 | 같은결과파일에서안정이벤트키/구스크립트호환/불확실발송/정의검증·공식AppsScript근거 보완→구현범위판정 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
