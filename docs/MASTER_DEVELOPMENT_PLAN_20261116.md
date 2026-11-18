@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 14:24:59 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 14:26:41 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 14:24:59 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 14:26:41 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 고정a0ec 모듈/실SSR/DOM판정·중앙선행소스와릴리스조건분리 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 고정시험/실route 지정수락·후속독립범위/본체선행조건분리 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 14:24:59 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 264개: done 246개 · cancelled 7개 · ready_review 2개 · running 1개 · waiting_human 6개 · queued 1개 · in_progress 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 265개: done 247개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 6개 · queued 1개 · in_progress 1개 · dispatched 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -412,9 +412,10 @@ Master 마지막 실제 점검: 2026-11-18 14:24:59 KST · 실행 중 점검 주
 | CRM-20261118-07 | CC-B2B-BACK-01 | done / receipt_single_attempt_mock_source_review_accepted_unreleased | SOLAPI SDK 재시도 없는 공식 대안·최소 변경 계획 | 접수전용소스미배포보존·팔로우업동일위험은CRM18-08로이관·DDL/배포/실문자별도 |
 | ECOM-20261118-07 | CC-ECOM-01 | done / central_keys_source_and_cross_platform_tests_accepted_unpushed | 메인 공용 Cloudflare 등록 카드·서버 최소계획 | 감성QA뒤정확묶음/중앙선행배포승인·토큰요청a2c0632b 한곳유지·미푸시 |
 | AIF-20261118-W01a | CC-SNS-01 | done / four_ui_claim_corrections_source_ssr_review_accepted_unreleased | 실제 없는 seed 잠금 표시 4곳 정정 | 미배포묶음보존·실브라우저/모델품질미검수·다음W01b 기존보관예외 |
-| AIF-20261118-W01b | CC-SNS-01 | ready_review / canonical_uuid_consistency_fix_independent_review_dispatched | 기존 히스토리 자동정리의 보관예외 보호 | 감성a0ec뒤SNScanonical표현잔여GET/POST삭제0·정상회원회귀검수 |
+| AIF-20261118-W01b | CC-SNS-01 | done / retention_exception_existing_history_source_review_accepted_unreleased | 기존 히스토리 자동정리의 보관예외 보호 | 미배포묶음보존·새자산PLAN/권한병합전본체보류·기존insert불명삭제후속별도 |
 | CRM-20261118-08 | CC-B2B-BACK-01 | done / followup_single_attempt_source_review_accepted_unreleased | 팔로우업 SOLAPI SDK 재시도 제거·검수 전송기 재사용 | 미배포묶음보존·U3/운영DDL/배포/실SMS조건후속, 다른공용SDK영향별도 |
 | CRM-20261118-09 | CC-B2B-BACK-01 | in_progress / exact_script_generator_paths_acknowledged_started | Apps Script v2 이벤트키 스니펫·legacy 안내 연결 | 정확경로착수/소스SHA회수→Mac |
+| AIF-20261118-W01c | CC-SNS-01 | dispatched / read_only_image_input_contract_plan_assigned | 참고 이미지 MIME/서명 처리 독립 개선 범위 계획 | 정확계획 회수→작은소스단위판정 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
