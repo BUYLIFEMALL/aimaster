@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 23:05:20 KST",
+  "checkedAt": "2026-11-18 23:06:46 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T14:05:20.138Z",
+      "at": "2026-11-18T14:06:46.663Z",
       "timezone": "Asia/Seoul",
-      "trigger": "G5 설계 및 Workspace 너비 2차 구현 회신",
-      "scope": "55010250e 설계와 236415698 본문·메뉴·단축키·peek 호출 원문 대조.",
+      "trigger": "WS06 peek 너비 정정 반환",
+      "scope": "172e3f41f 본문/표시/토글 문맥과 bf7faf93d 점유 대조.",
       "evidence": [
-        "msg_528b9f71a802·55010250e·msg_29d22717b7af",
-        "Workspace 직접 보고·236415698·b47051400·msg_039e858883a4"
+        "172e3f41f·bf7faf93d·Workspace 직접 보고",
+        "msg_fe51aab0bb31"
       ],
-      "judgment": "G5 설계 수락 및 국소 보호 배정. WS06 본문/일반 메뉴 개선 수신, peek 메뉴 동작 보완 요청.",
+      "judgment": "보완 소스 수신, Mac 고정 국소 검수 배정. 미배포.",
       "unverified": [
-        "G5 실 응답 크기·초과 운영 동작·W01x 구현",
-        "WS06 peek 보완·실화면·배포",
-        "Gmail 콜백·실검증"
+        "Mac 국소 판정 및 실제 화면",
+        "G5 W01x 결과·Gmail 실검증"
       ],
-      "nextAction": "두 후속 고정 SHA 및 시험 회수."
+      "nextAction": "WS06 근거 회수 후 로컬 종결 검토."
     },
     "notifications": [
       {
@@ -8934,17 +8933,17 @@
       "reviewer": "CX-QA-01",
       "title": "달력 월 구분 정리·업무 현황판 너비",
       "status": "reviewing",
-      "delivery": "effective_width_source_received_peek_menu_fix_requested",
-      "sha": "236415698",
+      "delivery": "peek_width_fix_received_mac_targeted_review_requested",
+      "sha": "172e3f41f",
       "scopeRef": "calendar.css·PageView.tsx, 최소 너비 토글/시험 후속",
       "constraints": "초기 편집 사전 점유 등록 누락 보고. 새 편집은 정확 경로 등록. 실제 설정 쓰기/빌드/배포 0.",
-      "evidence": "Workspace 직접 보고·506eff4df·msg_24a5f90f409f·msg_34378dea6d4b·msg_4f89af49c4f9 / Workspace 직접 보고·236415698·b47051400·msg_039e858883a4",
-      "next": "현황판 peek 메뉴 표시/토글과 본문 일치 보완 후 Mac 국소검수.",
+      "evidence": "Workspace 직접 보고·506eff4df·msg_24a5f90f409f·msg_34378dea6d4b·msg_4f89af49c4f9 / Workspace 직접 보고·236415698·b47051400·msg_039e858883a4 / 172e3f41f / bf7faf93d / msg_fe51aab0bb31",
+      "next": "Mac 고정 국소검수 대기. 표 행 배치 기본값 메뉴 제약 기존대로.",
       "validation": {
-        "author": "담당 모의 62/62·tsc 통과. Peek 본문 기존 폭 유지 중 메뉴 표시 불일치 가능.",
-        "independent": "Mac 두 파일 정적. 라이트/다크 규칙 및 너비 분기 확인, 실제 화면 미검증."
+        "author": "peek 보완에서 28/28 및 tsc 통과 보고. 표 행 배치 기본값 메뉴 기존 제약 유지.",
+        "independent": "초기 CSS 정적 확인. 고정 너비 국소 재검수 요청."
       },
-      "lastReviewedAt": "2026-11-18T14:05:20.138Z"
+      "lastReviewedAt": "2026-11-18T14:06:46.663Z"
     },
     {
       "task_id": "AIF-20261118-W01w",
