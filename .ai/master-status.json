@@ -4450,17 +4450,18 @@
       "reviewer": "CX-MASTER-01",
       "title": "승인된 블로그3프로그램 순차묶음 배포",
       "status": "running",
-      "delivery": "two_releases_complete_web_security_dependencies_preparing",
+      "delivery": "final_web_release_held_for_new_excel_independent_review",
       "scopeRef": "tistory-auto-blog1.98→blog-neighbor-care1.22→web-crawler T04+05+07 정확manifest",
       "constraints": "Vercel최대3·T04별도1은세번째통합/추가4번째0·공용masterpush0·순차Ready/alias/버전·남의AGENTS변경보존·새AI0",
       "completion": "프로젝트/팀/기준SHA/점유/큐/notice/widget/pending·필요검사/빌드·각운영Ready/alias/버전·티스토리기존초안미리보기1/web실화면",
-      "evidence": "주인님직접승인msg_6c2b57cab944·Master배정msg_2eda31a938b1 · msg_0957e7387120: Tistory prj_p3Qc2mOwj5LnPlE5zaAd2stxvibm/team일치·운영1.97·archiveHEAD·86+44/tsc·큐0·1/3 · msg_2d43083c8301 1/3완료·Masteralias dpl_GWRtKtymAGR4sdzgywKsxeFkgMK2 직접확인·msg_555ca68934de · msg_205456c9c8e5 이웃prj_sofdvYyCKAKO5ymLTRZ0vHwYK9q8/1.21→a3fe1.22/387·tsc·큐0/남의미커밋보존·Master수락 · msg_999d4d074c92 이웃완료·Masteralias dpl_HpC2cXcGpWNyHomMSc3qg28Y82Dx·msg_4890dfc4bdcc/Mastermsg_ebbf8f33ae28",
-      "next": "web-crawler/webapp Next16.4.6/eslint동기화+undici7.30.1/zod4.6.6 보안업데이트·검사/manifest뒤마지막1회",
-      "lastReviewedAt": "2026-11-18T07:34:46.131Z",
+      "evidence": "주인님직접승인msg_6c2b57cab944·Master배정msg_2eda31a938b1 · msg_0957e7387120: Tistory prj_p3Qc2mOwj5LnPlE5zaAd2stxvibm/team일치·운영1.97·archiveHEAD·86+44/tsc·큐0·1/3 · msg_2d43083c8301 1/3완료·Masteralias dpl_GWRtKtymAGR4sdzgywKsxeFkgMK2 직접확인·msg_555ca68934de · msg_205456c9c8e5 이웃prj_sofdvYyCKAKO5ymLTRZ0vHwYK9q8/1.21→a3fe1.22/387·tsc·큐0/남의미커밋보존·Master수락 · msg_999d4d074c92 이웃완료·Masteralias dpl_HpC2cXcGpWNyHomMSc3qg28Y82Dx·msg_4890dfc4bdcc/Mastermsg_ebbf8f33ae28 · msg_1741a93554fe 최종사전/840d672ac·msg_59d435ca60a7 범위인용정정/파일6개/실회원route시험없음·Master/ Mac검수",
+      "next": "web840d672ac 포함e60083fb5 Excel프리뷰 국소독립검수→필요수정/검사후마지막1회배포",
+      "lastReviewedAt": "2026-11-18T07:38:53.852Z",
       "sha": "97ee4acbb",
       "validation": {
         "author": "version1.98/확장1.98.0·HEADarchive·미커밋삭제oldZIP보존·prebuild다시생성·test86+44/tsc0·widget/pending대조·큐0",
-        "master": "사전보고수락·승인첫1회진행·Ready/실ZIP/DB1행후2/3·실배포아직결과미수신"
+        "master": "사전보고수락·승인첫1회진행·Ready/실ZIP/DB1행후2/3·실배포아직결과미수신",
+        "finalWebPreflight": "prj_vbFOc4iVBpvHJUZdpDdiOr2vZDch·운영1.12→1.13·Next16.4.6/undici7.30.2/zod4.6.7·tsc/관련3+30+18+13·로컬build통과·source-map-js high잔여·신규Excel독립검수대기"
       },
       "releaseProgress": {
         "budgetRemoteMax": 3,
@@ -4548,20 +4549,35 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "원본 자산 일반30일 정리 연결 첫계약",
-      "status": "needs_revision",
-      "delivery": "R1_quota_fixed_late_DELETE_unknown_and_retention_clock_returned",
+      "status": "reviewing",
+      "delivery": "retention_R2_received_after_late_delete_and_clock_fixes",
       "scopeRef": "기존W00 보관정리계약·공용0063/65/68/73/보호정책/markPosted 읽기",
       "constraints": "새제품/SQL실행/표/문서/DB/Storage/AI/cron/build/push0·원본PLAN보존·15항전체재설계0",
       "completion": "기산일/동적보호·실행자인증·ready기간만료→삭제claim CAS/fencing·외부원자성한계/불명보존·quota해제/unknown복구분리·최소경로/시험한안",
-      "evidence": "Mastermsg_3e5657eeafec·A1운영ON차단보관미연결 · msg_55e57d698737/5533833cf·Master주요문장읽기·Macmsg_79a7cdce1fab · Macmsg_7ca376e6f3a6·반환msg_41d24656f73f · msg_150097fd87eb/dd3606f63·Macmsg_f85f2e50eed0 · Macmsg_203fc69604e2 R1지정최종",
-      "next": "외부DELETE시작후unknown 자동재삭제/복원0·claimed CAS근거·storage created_at 기산/+1일제거·최초ON tracking한안→국소검토",
-      "lastReviewedAt": "2026-11-18T07:36:17.801Z",
-      "sha": "dd3606f63",
+      "evidence": "Mastermsg_3e5657eeafec·A1운영ON차단보관미연결 · msg_55e57d698737/5533833cf·Master주요문장읽기·Macmsg_79a7cdce1fab · Macmsg_7ca376e6f3a6·반환msg_41d24656f73f · msg_150097fd87eb/dd3606f63·Macmsg_f85f2e50eed0 · Macmsg_203fc69604e2 R1지정최종 · msg_b613f184e03a/3b84540d7 R2·Mac후순위재검토전달",
+      "next": "Mac Excel우선뒤R2기존잔여 정적재검토→계약판정",
+      "lastReviewedAt": "2026-11-18T07:38:53.852Z",
+      "sha": "3b84540d7",
       "validation": {
         "author": "R1expired전부가산/deleted확정만제외·A/B/C재개/토큰표·verify상태표·등급경합한계·stored_at기산+1일·tracking선결정·설계만",
         "master": "expired추가quota제외시측정갭/ready후보재시도/claim뒤expire재확인/복원·기산시각·tracked지연 독립대조배정 · R1추가1일은30일보관정책변경아님주의·같은object현재존재≠늦은DELETE종료·최초빈버킷ON동시tracked등록검토",
         "independent": "R1 expired전부가산해소. 잔여P1 timeout→존재→failed→보호ready→옛DELETE소실. claimed1h취소는미전송상태/CAS/token조건필수. stored_at지연상한없음/+1일임의정책연장·최초빈ON tracked최소안. 실삭제0"
       }
+    },
+    {
+      "task_id": "QA-20261118-WEB-XLSX",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "최종배포 전 T07 엑셀 미리보기 소스 독립검수",
+      "status": "running",
+      "delivery": "priority_exact_source_review_before_last_remote_build",
+      "sha": "e60083fb5",
+      "scopeRef": "web-crawler/webapp xlsxPreview·previewGET·JobPreview/JobsList·xlsx-preview시험",
+      "constraints": "실Storage/DB/크롤링/AI/설치/build0·고정6파일·마지막원격1회미사용",
+      "completion": "실모듈시험/owner·보호회원30일예외/압축실bytes·인코딩/셀·React출력/계정전환경계·정적vs실handler구분",
+      "evidence": "Mastermsg_a661805488e9/402493be659e·Blogmsg_59d435ca60a7",
+      "next": "고정결과회수→Master포함/수정판정·예산추가0",
+      "lastReviewedAt": "2026-11-18T07:38:53.852Z"
     }
   ],
   "programOverrides": [
@@ -5080,20 +5096,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T07:36:17.801Z",
+      "at": "2026-11-18T07:38:53.852Z",
       "timezone": "Asia/Seoul",
-      "trigger": "보관정리 R1 독립최종",
-      "scope": "dd360 삭제불명/자동retry/보호복원·기산/기간·최초추적등록",
+      "trigger": "최종web배포 사전/엑셀범위확인·SNS R2",
+      "scope": "web실parser/GET직접읽기·동일파일독립검수·보안예산/신규프리뷰포함판정·SNS계약개정",
       "evidence": [
-        "msg_203fc69604e2"
+        "msg_1741a93554fe/59d435ca60a7·Masterxlsx/route직접읽기",
+        "Macmsg_a661805488e9/402493be659e",
+        "msg_b613f184e03a/3b84540d7"
       ],
-      "judgment": "quota1건해소·늦은DELETE와임의기산연장핵심반환·원격결과불명자동재실행0·새승인질문확대0",
+      "judgment": "최종원격미사용·새Excel검수우선배정/같은승인재질문0·보호회원30일/실압축상한Master추가확인·SNSR2국소후순위검토",
       "unverified": [
-        "R2계약정합·실Storage/정리",
-        "web마지막패치/검사/배포",
-        "다른사람단계"
+        "Excel압축/보호/계정권한경계",
+        "web마지막배포",
+        "SNS R2국소판정"
       ],
-      "nextAction": "같은계약최소개정→독립검토·코드/실삭제0"
+      "nextAction": "Mac Excel결과통합→필요수정반환/포함승인·R2판정"
     },
     "notifications": [
       {
