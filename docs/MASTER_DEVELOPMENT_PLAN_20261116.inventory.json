@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 18:55:27 KST",
+  "checkedAt": "2026-11-18 19:00:52 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,22 +12,23 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T09:55:27.463Z",
+      "at": "2026-11-18T10:00:52.037Z",
       "timezone": "Asia/Seoul",
-      "trigger": "W01r 독립 Mac 판정 및 담당 증거 문서",
-      "scope": "SQL/시험 정적 판정 1회와 06d4f2557 담당 문서 범위 확인.",
+      "trigger": "19:00 KST 30분 예약 메시지 수신",
+      "scope": "18:55 이후 Git/결과·인수인계·점유·관리자 요청, 19개 분류와 미종결 작업·사람 단계·운영 승인 조건 대조.",
       "evidence": [
-        "msg_78970d4fa565·da5996c2a",
-        "msg_d356994ff02b·06d4f2557",
-        "msg_bf03508f5f2a"
+        "msg_c8ed20b07ac3",
+        "a332b5e50·9d62b80f9",
+        "ACTIVE_WORK W01r 해제/W01s 등록",
+        "관리자 요청 대기 0, 기존 HANDOFF 9줄 외 새 인수인계 없음"
       ],
-      "judgment": "W01r 격리 시험 및 정적 검수 단계 종결, W01s 로컬 실행자 연결 범위 배정.",
+      "judgment": "SNS W01s 담당 점유 확인, 구현 결과 대기. Gmail 기존 동의 대기. 새 승인·배포·중복 배정 없음.",
       "unverified": [
-        "실 Supabase 권한/Storage·운영 적용 및 성능",
-        "W01s 실행자 연결",
-        "Gmail 동의 및 실검증"
+        "W01s 소스 SHA·모의시험",
+        "Gmail 설정 전파·기존 창 동의 및 실검증",
+        "이전 운영·사람 의존 단계"
       ],
-      "nextAction": "W01s 로컬 소스와 모의시험 회수."
+      "nextAction": "W01s 로컬 결과와 기존 Gmail 동의 신호를 회수."
     },
     "notifications": [
       {
@@ -8773,14 +8774,14 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "누락 자산 정리 실행자 연결",
-      "status": "dispatched",
-      "delivery": "local_cleanup_integration_requested",
+      "status": "running",
+      "delivery": "scope_claimed_local_integration_in_progress",
       "scopeRef": "retention.ts·cleanup route·assetRetention 시험·기존 해당 문구",
       "constraints": "SQL/fixture/read/store/모드/cron 고정·실행 DB/Storage/비용/빌드/배포 0",
       "completion": "C→D→B→A·검사/반환/처리 상한·DB parked_at 필터·D remove 0·OFF/불명 경계·로컬 모의",
-      "evidence": "msg_bf03508f5f2a",
-      "next": "고지·점유 확인 후 로컬 구현 SHA와 시험 결과 회수.",
-      "lastReviewedAt": "2026-11-18T09:55:27.463Z"
+      "evidence": "msg_bf03508f5f2a / 9d62b80f9",
+      "next": "정리 실행자 연결의 고정 구현 SHA·모의시험 결과 대기.",
+      "lastReviewedAt": "2026-11-18T10:00:52.037Z"
     }
   ]
 }
