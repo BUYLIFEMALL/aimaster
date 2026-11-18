@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T16:07:30.914Z",
+  "checkedAt": "2026-11-18T16:08:51.670Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5274,20 +5274,35 @@
       "reviewer": "CX-QA-01",
       "title": "W01 자산 ID 기반 생성 API 로컬 구현",
       "status": "reviewing",
-      "delivery": "generation_api_implementation_returned_mac_review_dispatched",
+      "delivery": "independent_review_changes_required_before_activation",
       "scopeRef": "W00 §23; assets/generations.ts, api/aif/generations/route.ts, generationsRoute.test.mjs; §12-1·§23 계약 일치",
       "completion": "권한/OFF/본인 키, 역할·소유, bounded stream, 유한 I/O, 생성 1회·서명/unknown 응답, 모의·회귀·tsc 근거와 SHA.",
       "constraints": "기존 생성·보정 호환 유지. base_result 신규 API 첫 단계 미지원. SQL/실 DB/Storage/AI/스위치/UI/빌드/배포/W02 없음.",
-      "evidence": "msg_48484bbd586c·msg_df83b1e84e5c·msg_27f50ad7d268",
-      "next": "CX-QA-01 수락·판정 대기. 권한/키/본문 포함 실행 시간, 스트림 중단, 저장 timeout 후 ID 없는 불명 우선 확인.",
-      "lastReviewedAt": "2026-11-18T16:07:30.914Z",
+      "evidence": "msg_48484bbd586c·msg_df83b1e84e5c·msg_27f50ad7d268·msg_81f3d497720a·msg_8006700cd7e4·.ai/results/SNS-ASSETS-A1-20261118-CX-QA-01.md",
+      "next": "ON 전 차단. G3T 전체 마감/스트림/오류부터 수정. 저장 timeout 이후 계속 진행과 ID 없는 불명은 후속 계약 및 수정 필요.",
+      "lastReviewedAt": "2026-11-18T16:08:51.670Z",
       "sha": "750bbe818",
       "validation": {
         "author": "신규 모의 23건·전체 256/256·tsc 통과 보고",
         "master": "고정 SHA·3개 blob과 구현 대조; 295초 합계의 제외 구간과 유료 생성 전 전체 잔여 확인 부재를 독립 검수에 전달",
-        "independent": "msg_27f50ad7d268 전달, 수락/회신 대기",
+        "independent": "CX-QA-01 고정 소스·기존 시험 검토. 전체 deadline, cancel 대기, 저장 불명 ID 및 공급자 텍스트 노출 지적. 맥 재실행 0.",
         "unverified": "실 DB/Storage/AI·스트림 취소·실행 시간·Supabase/PostgREST, OFF·미배포"
       }
+    },
+    {
+      "task_id": "AIF-20261119-W01-G3T",
+      "parent_task_id": "AIF-20261119-W01-G3I",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-QA-01",
+      "title": "W01 생성 API 전체 시간·스트림 취소·오류 처리 보완",
+      "status": "running",
+      "delivery": "generation_deadline_and_error_fix_dispatched",
+      "scopeRef": "generations.ts·generationsRoute.test.mjs와 필요한 경우 referenceImage.ts 선택적 취소 인자",
+      "completion": "전체 마감·남은 시간 유료 진입 조건·취소 대기 분리·고정 오류/로그의 좁은 회귀 시험. 저장 불명은 후속 최소 계약 보고.",
+      "constraints": "OFF·기존 호출 계약 유지. 실 DB/Storage/AI·빌드·배포·UI·W02 없음.",
+      "evidence": "msg_8006700cd7e4",
+      "next": "담당 수락, 수정 SHA, 시험 근거 후 CX-QA-01 재검수.",
+      "lastReviewedAt": "2026-11-18T16:08:51.670Z"
     }
   ],
   "programOverrides": [
