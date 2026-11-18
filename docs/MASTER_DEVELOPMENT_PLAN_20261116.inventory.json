@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 11:34:35 KST",
+  "checkedAt": "2026-11-18 11:35:34 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T02:34:35.845Z",
+      "at": "2026-11-18T02:35:34.191Z",
       "timezone": "Asia/Seoul",
-      "trigger": "주인님 Mac MP4 진행 직접지시",
-      "scope": "요청서/기존공간·재개권한·원격전달복구·Mac실행/Music판정분리",
+      "trigger": "Workspace OAuth오류1차+Mac QA002착수",
+      "scope": "OAuth400/실호출경계·설정/코드원인분리·Mac기존공간/시험자료상태",
       "evidence": [
-        "요청서원문확인·Mac msg_b60727c3b123·Music msg_9f301d9e2e55",
-        "원격일시실패→동일request35cd... 재시도성공·새창0",
-        "PORT19 임시파일정리ACK msg_8e99e9a6b612"
+        "Workspace redirect_uri_mismatch 동의전·토큰/저장/Gmail0 보고",
+        "판정지시msg_89ba88b28a3d·실callback/회원app일치boolean확인",
+        "Mac msg_69e6e866b094 기존20 naverv1.16·6초자료발견→20초교체진행"
       ],
-      "judgment": "기존Intel Mac MP4검수재개배정,착수/완료는회신전미판정·중복렌더/유료0",
+      "judgment": "GCP불일치우선조사·코드결함확정0/무결함확정0·OFF복구한도미사용. QA002실착수확인·영상완료아님.",
       "unverified": [
-        "Mac현재로그인/20시험자료·클릭/저장도구가능여부·MP4/진단",
-        "Gmail OAuth실검증·PORT19정정결과"
+        "실redirect/Client ID일치·GCP정정후OAuth·실Gmail",
+        "Mac20초A/B생성/저장/진단"
       ],
-      "nextAction": "Mac착수/구체막힘회수→A/B결과Music검증연결"
+      "nextAction": "Workspace설정확인후공통세트재개·Mac결과Music전체디코드"
     },
     "notifications": [
       {
@@ -5551,13 +5551,13 @@
       "reviewer": "CX-MASTER-01",
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "owner": "CX-QA-01",
-      "status": "ready",
-      "delivery": "owner_resume_dispatch_sent",
+      "status": "running",
+      "delivery": "started_existing_space_verified",
       "title": "실제Intel Mac MP4파일내보내기 보조검수",
-      "evidence": "msg_44a7b56f0c81 / msg_0da73bcc8c24 / 요청 b9c115b01 REQUEST_20261118_MACMINI_V116_MP4.md·msg_b5ed90b53bf7·주인님Master직접진행지시·Mac msg_b60727c3b123·Music msg_9f301d9e2e55",
-      "next": "Mac기존20 상태확인→가능도구로MP4 A/B·저장/진단4파일→Music 지정파일ffprobe/전체decode,실제도구불가/로그인만사람요청",
-      "lastReviewedAt": "2026-11-18T02:34:35.845Z",
-      "blockedReason": "기존사람대기상태는재개지시로재확인필요·Mac착수/현재화면회신대기",
+      "evidence": "msg_44a7b56f0c81 / msg_0da73bcc8c24 / 요청 b9c115b01 REQUEST_20261118_MACMINI_V116_MP4.md·msg_b5ed90b53bf7·주인님Master직접진행지시·Mac msg_b60727c3b123·Music msg_9f301d9e2e55·착수msg_69e6e866b094",
+      "next": "Mac기존20 로그인v1.16 확인·기존6초자료→20초합성음/지정LRC교체→A/B/진단4파일→Music",
+      "lastReviewedAt": "2026-11-18T02:35:34.191Z",
+      "blockedReason": null,
       "resume": {
         "requestId": "35cd4475-eee1-4826-ab69-9aee944ddcd7",
         "initial": "remote_runtime_unavailable·실행여부불명",
@@ -6879,12 +6879,12 @@
       "reviewer": "CX-MASTER-01",
       "title": "Gmail 운영 SQL 적용·실계정 검증·활성화",
       "status": "waiting_human",
-      "delivery": "v158_deployed_oauth_validation_pending",
+      "delivery": "deployed_oauth_redirect_mismatch_diagnosis",
       "scopeRef": "0074→0075 운영적용/정의검증·회원본인OAuth동의/metadata·실PostgREST/주소·스위치/배포 승인별도",
-      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f·Workspace SQL完了報告(主会話)·주인님전달Workspace배포완료9ea979de9·Master Vercel get_alias동일dpl·Macmsg_f0e46da48809/Workspace msg_bce4e6bf3fad",
+      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f·Workspace SQL完了報告(主会話)·주인님전달Workspace배포완료9ea979de9·Master Vercel get_alias동일dpl·Macmsg_f0e46da48809/Workspace msg_bce4e6bf3fad·실검증1차 주인님전달·판정지시msg_89ba88b28a3d",
       "completion": "승인된범위의운영마이그레이션·실계정/권한/계정경계·활성배포·운영동작 확인",
-      "next": "주인님본인로그인/OAuth→Workspace 공통1세트실검증→Mac 독립읽기/375, 실패조건시OFF복구1회",
-      "blockedReason": "실OAuth 본인동의/로그인 사람단계·Workspace단일요청",
+      "next": "Workspace 실제redirect/회원ClientID 동일여부 boolean확인→주인님설정완료신호뒤같은세트1회·토큰/Gmail0유지",
+      "blockedReason": "Google 동의전400 redirect_uri_mismatch·시험회원앱/실callback/GCP클라이언트 일치확인 필요",
       "approval": {
         "source": "주인님 Workspace 채팅 선택 답변 2026-11-18",
         "publicMode": "all_members",
@@ -6894,7 +6894,7 @@
         "recoveryUsed": 0,
         "scope": "0074→0075 운영적용·Gmail ON·v1.58 묶음·확인표 실OAuth/Gmail검증"
       },
-      "lastReviewedAt": "2026-11-18T01:21:43.429Z",
+      "lastReviewedAt": "2026-11-18T02:35:34.191Z",
       "sha": "9ea979de9 (Gmail ON 722a3ba99 포함)",
       "validation": {
         "author": "전체61파일840/840·tsc0·qa_0",
@@ -6920,6 +6920,12 @@
         "version": "v1.58",
         "tree": "9e05abab2c71",
         "dbVersion": "v1.58 author_report"
+      },
+      "actualCalls": {
+        "oauthStarts": 1,
+        "tokenExchanges": 0,
+        "gmailCalls": 0,
+        "mailImports": 0
       }
     },
     {
