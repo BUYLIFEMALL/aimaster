@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 15:20:48 KST",
+  "checkedAt": "2026-11-18 15:26:58 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,22 +12,24 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T06:20:48.002Z",
+      "at": "2026-11-18T06:26:58.310Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS 마지막계약수정완료",
-      "scope": "037 실제diff·기존원본계획 소유보존·후속실행범위",
+      "trigger": "첫자산소스완료·5분증분점검",
+      "scope": "9d5 SQL실물·변경파일5/시험근거/미등록수정문서증분",
       "evidence": [
-        "msg_bb04d135f9b2/037bfcacc",
-        "msg_063c9804ec87/5d20c706126b",
-        "msg_f3fa3161bd5b Mac준비ACK"
+        "msg_a224024efdcf·Master SQL직접읽기",
+        "Macmsg_7bd96acfe0b8",
+        "ai-influencer-studio\\docs\\IMPROVEMENTS.md",
+        "docs\\analysis-ai-influencer-20261118\\W00_BASELINE.md",
+        "docs\\.pdca-status.json"
       ],
-      "judgment": "A1 개정계약수락·SQL초안/순수paths 한책임자첫구현배정·운영승인확대0",
+      "judgment": "작성완료수신·정적DDL/순수paths 독립검수배정·아직SQL실행/제품PASS아님",
       "unverified": [
-        "첫SQL실행/RLS/동시성/저장미검증",
-        "담당착수수락",
-        "기타사람/승인단계"
+        "정적SQL반례·실행가능성",
+        "실RLS/동시성/업로드",
+        "기타사람/운영승인답"
       ],
-      "nextAction": "정확경로/착수/결과회수→독립검수"
+      "nextAction": "고정SHA검수→반례통합반환·중복수정0"
     },
     "notifications": [
       {
@@ -8227,14 +8229,21 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "A1 자산 SQL 초안·순수 경로 검증 첫 구현",
-      "status": "dispatched",
-      "delivery": "bounded_source_only_first_unit",
+      "status": "reviewing",
+      "delivery": "first_source_received_static_ddl_and_pure_paths_review",
       "scopeRef": "프로그램내 신규 aif_assets_a1 migration초안·src/lib/assets/paths.ts·순수시험/본인기존문서",
       "completion": "계약두표/6함수/잠금/서비스권한/unknown보존/objectidentity 초안·경로검증실시험/tsc·정확SHA·미실행SQL구분",
       "constraints": "다른저자미커밋보존·store/라우트0·SQL실행/DB/버킷/실저장/AI/설치/build/push0·공용quota/retention수정0",
-      "evidence": "W00최종037·Masterdispatch msg_063c9804ec87 · Mac수락msg_f3fa3161bd5b(검수준비·정확SHA대기)",
-      "next": "담당정확경로예약/착수→첫코드SHA→Mac지정검수",
-      "lastReviewedAt": "2026-11-18T06:20:22.198Z"
+      "evidence": "W00최종037·Masterdispatch msg_063c9804ec87 · Mac수락msg_f3fa3161bd5b(검수준비·정확SHA대기) · msg_a224024efdcf/9d5d921a7·MasterSQL직접읽기·Macmsg_7bd96acfe0b8",
+      "next": "Mac 고정SHA 순수시험/정적DDL검수→반례한번묶어수정반환·실SQL0",
+      "lastReviewedAt": "2026-11-18T06:26:58.310Z",
+      "sha": "9d5d921a7",
+      "validation": {
+        "author": "순수paths8·전체77/77·tsc0·DDL실행0",
+        "master": "reconcile identity/claim소유경로/delete_mark잠금/SQL alias-cast 경계독립확인배정",
+        "independent": "고정소스배정·결과미수신",
+        "runtime": "어떤DB실행/버킷/업로드0"
+      }
     }
   ]
 }
