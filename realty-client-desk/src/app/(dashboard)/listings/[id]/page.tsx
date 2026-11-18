@@ -9,7 +9,8 @@ import { missingAdItems } from "@/lib/desk/adCheck";
 import { day, priceText } from "@/lib/desk/format";
 import { SendAdForm, type Candidate } from "@/components/desk/SendAdForm";
 import { PageHero } from "@/components/ui/PageHero";
-import { parseAddressRegion, pickTradeHint, type TradeHint, type TradeRow } from "@/lib/desk/tradeHint";
+import { resolveAddressRegion, toTradeHint, type TradeHint, type TradeRow } from "@/lib/desk/tradeHint";
+import { DISTRICTS } from "@/lib/desk/districts";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -43,18 +44,18 @@ export default async function ListingMatchPage({ params }: { params: Promise<{ i
   const o: Office = office ?? { office_name: "사무소 이름", office_phone: "전화번호", office_address: null, reject_080: null };
   const ready = !office ? "사무소 이름·전화번호를 먼저 저장해 주세요(문자 맨 앞에 들어가요)." : !account ? "본인 SOLAPI 계정을 먼저 등록해 주세요." : null;
   // L-1(2026-11-19): 이 동 최근 실거래 — 실거래 프로그램이 모은 공공 실거래(real_estate_listings)를 회원 세션으로 읽기만.
-  // 주소에서 시군구·동을 못 찾거나, 동명 지역을 못 가리거나, 읽기 실패면 줄을 숨기고 나머지 화면은 그대로.
-  const region = parseAddressRegion(listing.address);
-  let tradeHint: TradeHint = { status: "none" };
+  // 조회 전에 주소를 하나의 시군구 코드로 정한다(못 정하면 조회·표시 안 함). 조회는 그 코드로만, 오류면 줄 전체를 숨기고 나머지 화면은 그대로.
+  const region = resolveAddressRegion(listing.address, DISTRICTS);
+  let tradeHint: TradeHint = { status: "error" };
   if (region) {
     try {
-      const { data: trades } = await db.from("real_estate_listings")
-        .select("sgg_cd, sgg_nm, stdg_nm, bldg_nm, deal_type, exclusive_area, price_amount, monthly_rent, contract_date")
-        .eq("sgg_nm", region.sggNm).eq("stdg_nm", region.dong).eq("deal_type", listing.deal_type)
-        .order("contract_date", { ascending: false }).limit(30);
-      tradeHint = pickTradeHint((trades ?? []) as TradeRow[], region, listing.deal_type);
+      const res = await db.from("real_estate_listings")
+        .select("sgg_cd, stdg_nm, bldg_nm, deal_type, exclusive_area, price_amount, monthly_rent, contract_date")
+        .eq("sgg_cd", region.sggCd).eq("stdg_nm", region.dong).eq("deal_type", listing.deal_type)
+        .order("contract_date", { ascending: false }).limit(3);
+      tradeHint = toTradeHint({ data: (res.data ?? null) as TradeRow[] | null, error: res.error ?? null }, region, listing.deal_type);
     } catch {
-      tradeHint = { status: "none" };
+      tradeHint = { status: "error" };
     }
   }
 
@@ -67,11 +68,11 @@ export default async function ListingMatchPage({ params }: { params: Promise<{ i
         <section className="mx-card p-4 text-sm">
           <h2 className="text-sm font-bold text-mx-text">📈 {region.sggNm} {region.dong} 최근 {listing.deal_type} 실거래</h2>
           <ul className="mt-1 space-y-0.5 text-mx-text">{tradeHint.lines.map((l) => <li key={l}>• {l}</li>)}</ul>
-          <p className="mt-1 text-xs text-mx-muted">국토교통부·서울시 공개 실거래(신고일 기준, 실거래 투자분석 프로그램이 모은 지역만). 고객에게 설명할 참고 자료예요.</p>
+          <p className="mt-1 text-xs text-mx-muted">국토교통부·서울시 공개 실거래(날짜는 계약일, 실거래 투자분석 프로그램이 모은 지역만). 고객에게 설명할 참고 자료예요.</p>
         </section>
       )}
       {region && tradeHint.status === "none" && (
-        <p className="text-xs text-mx-muted">📈 {region.sggNm} {region.dong} 실거래 자료가 아직 없어요 — 「부동산 실거래 투자분석」에서 이 지역을 켜면 여기에 최근 신고가 보여요.</p>
+        <p className="text-xs text-mx-muted">📈 {region.sggNm} {region.dong} 실거래 자료가 아직 없어요 — 「부동산 실거래 투자분석」에서 이 지역을 켜면 여기에 최근 거래가 보여요.</p>
       )}
       {listing.status !== "광고 중" ? (
         <p className="mx-card p-5 text-sm text-mx-muted">「광고 중」인 매물만 안내할 수 있어요. 목록에서 상태를 바꿔 주세요.</p>
