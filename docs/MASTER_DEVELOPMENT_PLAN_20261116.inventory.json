@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 15:38:25 KST",
+  "checkedAt": "2026-11-18 15:41:18 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,23 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T06:38:25.384Z",
+      "at": "2026-11-18T06:41:18.808Z",
       "timezone": "Asia/Seoul",
-      "trigger": "F05수정완료이벤트",
-      "scope": "a29 고정diff/delete_mark한함수",
+      "trigger": "최종소스수락·격리시험ACK·직접승인실호출취합",
+      "scope": "a29지정정적검수완료/중복요청실패정정·새DB명/oid/fixture/stub/범위·Cloudflare2번째호출",
       "evidence": [
-        "msg_52ad9530913c/a29ffd287",
-        "Macmsg_398860c357e2"
+        "msg_51ea8f84abf8",
+        "msg_8bc13715716b/92c543f748b4",
+        "msg_b62624ce5cd1·Mastermsg_1fd1abd7c316",
+        "msg_1cc9ae2dafdb/담당msg_7b75b7373f82"
       ],
-      "judgment": "최소수정실물대조·지정최종검수전달·SQL실행/기존paths반복0",
+      "judgment": "W01e정적소스수락→W01f격리시험착수·실중앙/운영PASS아님. 주인님최신추가1호출승인취합·이전추가승인0은그이전시점기록으로보존.",
       "unverified": [
-        "Mac F05최종",
-        "실SQL권한/동시성/컴파일",
-        "기타운영사람단계"
+        "격리SQL결과·실중앙Supabase/RLS통합",
+        "수정이미지카드가독성/무료잔여",
+        "기타사람/운영승인"
       ],
-      "nextAction": "해당diff결과회수→첫소스단위판정"
+      "nextAction": "격리시험정확SHA·샘플오프라인준비회수→독립검수·추가과금0"
     },
     "notifications": [
       {
@@ -275,7 +277,17 @@
         "calls": 1,
         "result": "HTTP200 result.image JPEG695091bytes1024x1024",
         "quality": "의미없는한글모양혼입·보완필요",
-        "limits": "잔여Neurons/정확비용미확인·추가호출0·운영OFF반영아님"
+        "limits": "잔여Neurons/정확비용미확인·추가호출0·운영OFF반영아님",
+        "followup": {
+          "at": "2026-11-18T06:41:18.808Z",
+          "evidence": "msg_1cc9ae2dafdb",
+          "approval": "최신담당채팅 재생성1회승인해진행해",
+          "calls": 1,
+          "totalCalls": 2,
+          "preCallScriptFailures": 2,
+          "result": "실제generateImage/HTTP1·2.7초·JPEG456549B1024²·한글/원문전송0·이1장글자없음관찰",
+          "limits": "인물크기/카드여백미검수·모든이미지무문자보장0·새생성0"
+        }
       }
     }
   },
@@ -8226,19 +8238,19 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "A1 자산 SQL 초안·순수 경로 검증 첫 구현",
-      "status": "reviewing",
-      "delivery": "F05_minimal_fix_received_master_diff_checked_independent_pending",
+      "status": "done",
+      "delivery": "pure_paths_and_fixed_SQL_specified_static_review_accepted",
       "scopeRef": "프로그램내 신규 aif_assets_a1 migration초안·src/lib/assets/paths.ts·순수시험/본인기존문서",
       "completion": "계약두표/6함수/잠금/서비스권한/unknown보존/objectidentity 초안·경로검증실시험/tsc·정확SHA·미실행SQL구분",
       "constraints": "다른저자미커밋보존·store/라우트0·SQL실행/DB/버킷/실저장/AI/설치/build/push0·공용quota/retention수정0",
-      "evidence": "W00최종037·Masterdispatch msg_063c9804ec87 · Mac수락msg_f3fa3161bd5b(검수준비·정확SHA대기) · msg_a224024efdcf/9d5d921a7·MasterSQL직접읽기·Macmsg_7bd96acfe0b8 · Macmsg_6ffe514132b3·통합수정반환 · 고정최종msg_666b5f7d4d1e(새항목0) · msg_f92baa9ea13a/7ed1d1eadb70·Macmsg_63e85dbd7f17 · msg_dd358e09deaa 기존수정완료/검수대기명시 · Macmsg_5db0bc893652/85 지정정적검수 · msg_52ad9530913c/a29ffd287 Masterdiff직접확인·Macmsg_398860c357e2",
-      "next": "Mac F05 한함수diff최종확인→소스초안수락·격리DB실행은별도범위배정",
-      "lastReviewedAt": "2026-11-18T06:38:25.384Z",
+      "evidence": "W00최종037·Masterdispatch msg_063c9804ec87 · Mac수락msg_f3fa3161bd5b(검수준비·정확SHA대기) · msg_a224024efdcf/9d5d921a7·MasterSQL직접읽기·Macmsg_7bd96acfe0b8 · Macmsg_6ffe514132b3·통합수정반환 · 고정최종msg_666b5f7d4d1e(새항목0) · msg_f92baa9ea13a/7ed1d1eadb70·Macmsg_63e85dbd7f17 · msg_dd358e09deaa 기존수정완료/검수대기명시 · Macmsg_5db0bc893652/85 지정정적검수 · msg_52ad9530913c/a29ffd287 Masterdiff직접확인·Macmsg_398860c357e2 · Macmsg_51ea8f84abf8 F05해소·직접요청실패정정msg_8bc13715716b/중복종료92c543f748b4",
+      "next": "새격리SQL계약시험단위 W01f 진행·실SQL PASS는그결과와별도",
+      "lastReviewedAt": "2026-11-18T06:41:18.808Z",
       "sha": "a29ffd287",
       "validation": {
         "author": "순수paths8·전체77/77·tsc0·DDL실행0",
         "master": "a29 delete_mark NULL4인자 선거절·IS DISTINCT FROM·coalesce·UPDATE owner/token/state·ROW_COUNT=1만true 직접diff확인",
-        "independent": "85에서F01기대ID/F02owner경로conflict/F03회원잠금전이/F04안전size별칭 수정확인. 잔여P2F05 NULLtoken비교 unknown→UPDATE0에도true. 실SQL/paths반복0",
+        "independent": "85에서F01기대ID/F02owner경로conflict/F03회원잠금전이/F04안전size별칭 수정확인. 잔여P2F05 NULLtoken비교 unknown→UPDATE0에도true. 실SQL/paths반복0 · a29 F05한함수diff NULL/실제ROWCOUNT 정적해소·기존F01~04유지·실SQL0",
         "runtime": "어떤DB실행/버킷/업로드0"
       }
     },
@@ -8261,6 +8273,22 @@
         "independent": "9cc프롬프트지정검수만PASS·새12모델/최신UI미검수",
         "runtime": "DBprogramsversion미확인·12모델실호출0·운영무료flag미확인"
       }
+    },
+    {
+      "task_id": "AIF-20261118-W01f",
+      "parent_task_id": "AIF-20261118-W01e",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-QA-01",
+      "title": "A1 격리 PostgreSQL 계약시험",
+      "status": "running",
+      "delivery": "acknowledged_exact_fixture_scope_before_database_creation",
+      "sha": "a29ffd287",
+      "scopeRef": "tests/sql/a1_fixture.sql·a1_contract.test.mjs·필요최소migration수정·기존문서",
+      "constraints": "기존Docker PG17.11·신규qa_aif_a1_20261118/oid검증후자기DB정리·aww/aww_dev/mb/운영접속reset0·설치0·store/route/upload/AI/build/push0",
+      "completion": "원문migration컴파일/ACL/RLS/check/NULL/2연결reserve상한/identity/delete경합/토큰전이/재적용·stub vs실중앙분리·정리증거",
+      "evidence": "Mastermsg_1fd1abd7c316·사전msg_b62624ce5cd1(새DB아직0)·정확경로수락",
+      "next": "기존로컬신규DB한정 시험→발견결함고정반례/최소수정→정확SHA/2연결근거 Mac검수",
+      "lastReviewedAt": "2026-11-18T06:41:18.808Z"
     }
   ]
 }

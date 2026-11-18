@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 15:38:25 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 15:41:18 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 15:38:25 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 15:41:18 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: a29 고정diff/delete_mark한함수 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: a29지정정적검수완료/중복요청실패정정·새DB명/oid/fixture/stub/범위·Cloudflare2번째호출 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 15:38:25 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 271개: done 251개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 7개 · superseded 1개 · queued 1개 · reviewing 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 272개: done 252개 · cancelled 7개 · ready_review 1개 · running 2개 · waiting_human 7개 · superseded 1개 · queued 1개 · reviewing 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -420,8 +420,9 @@ Master 마지막 실제 점검: 2026-11-18 15:38:25 KST · 실행 중 점검 주
 | AIF-20261118-W01d | CC-SNS-01 | done / revised_contract_accepted_for_source_only_A1_first_unit | 첫 원본 자산 단위 필드·권한·스토리지 구체 계약 | A1 SQL초안/순수paths 첫단위 배정·실DB/저장별도 |
 | QA-20261118-ESM-01 | CX-QA-01 | waiting_human / zip_source_versions_verified_installed_extension_and_login_pending | ESM v1.02 입력만·쇼핑제휴 v1.89 네이버 수집 실확장 준비/검수 | 기존 Mac 사람요청 한곳: ESM+/네이버로그인·확장실제설치버전·brandlink1 뒤 입력만/수집검수 |
 | ECOM-20261118-08 | CC-ECOM-01 | done / specified_source_review_pass_accepted_unreleased | Cloudflare 배경 생성 프롬프트 문자 혼입 보완 | 기존 배포후보 묶음에9ccfc8dfa 포함·실 무문자품질 추가생성은 별도승인·현재무료OFF소스유지 |
-| AIF-20261118-W01e | CC-SNS-01 | reviewing / F05_minimal_fix_received_master_diff_checked_independent_pending | A1 자산 SQL 초안·순수 경로 검증 첫 구현 | Mac F05 한함수diff최종확인→소스초안수락·격리DB실행은별도범위배정 |
+| AIF-20261118-W01e | CC-SNS-01 | done / pure_paths_and_fixed_SQL_specified_static_review_accepted | A1 자산 SQL 초안·순수 경로 검증 첫 구현 | 새격리SQL계약시험단위 W01f 진행·실SQL PASS는그결과와별도 |
 | DES-20261118-08 | AG-UI-01 | reviewing / production_alias_SHA_verified_execution_ledger_pending | 감성 v1.34~37 주인님 직접지시 배포·모델확대 취합 | 정확배포제품트리/최신12모델·UI 검수범위정리·추가실행0·기존보고이력갱신 |
+| AIF-20261118-W01f | CC-SNS-01 | running / acknowledged_exact_fixture_scope_before_database_creation | A1 격리 PostgreSQL 계약시험 | 기존로컬신규DB한정 시험→발견결함고정반례/최소수정→정확SHA/2연결근거 Mac검수 |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
@@ -479,7 +480,7 @@ Master 마지막 실제 점검: 2026-11-18 15:38:25 KST · 실행 중 점검 주
 | CRM 중복방지 연결 후속알림 정책 | 주인님Backend직접결정: 미확정/미지상태후속기본보류·보류사실표시 | 기존질문이결정으로해소·CRM18-05소스만진행·운영연결/DDL별도 |
 | 감성 무료이미지 실행방식 | 주인님ECOM직접 진행해=Cloudflare회원본인키 방식 선택완료 | 공용키2개재사용·무료량잔여/귀속확인·실생성최대1조건부·서버/UI점유분리·정정배포승인별도 |
 | 감성 무료OFF 정정안 운영반영 | 검수완료223ddc6b3 UI보존·원격빌드1회 승인vs묶음대기 질문 | 실이미지호출0·현재운영freeOFF아님·승인전신규배포0 |
-| Cloudflare 문자혼입 보완 뒤 추가 실검증 | 담당세션 주인님 직접 승인으로 최초생성1 완료. Master 중복 승인질문은 선행1회에 대해 해소·추가생성 승인 아님 | 코드/모의검수 먼저·추가생성0·FREE OFF·무료잔여 미확인·문자없는 이미지 보장0 |
+| Cloudflare 재생성후 카드 가독성 | 최신 주인님직접 재생성1승인→9cc실제1회완료·누적2·이1장무문자관찰 | 새이미지 JPEG456549B/1024²·인물커짐/여백미검수·추가호출0·인물제외임의변경0·기존샘플오프라인가독성준비 |
 | CRM v1.18 운영 릴리스 묶음 | Master단일승인질문: 운영DDL1/버전·로컬빌드1+Vercel1·시험번호SMS1/동일이벤트재전송추가0·Google직접단계 | 명시e258제품tree+버전overlay·정식주소승격후같은회차실검수·실패빌드없는rollback·보호우회토큰0 |
 | Mac ESM/쇼핑제휴 실확장 시험 | Mac준비후 ESM+/네이버 로그인·브랜드커넥트실링크1개·필요시확장폴더선택은주인님직접 | 정상기존설치는재사용·ESM입력만1/외부등록0·네이버대기열까지·기존B/Gmail/Blog창보존 |
 
