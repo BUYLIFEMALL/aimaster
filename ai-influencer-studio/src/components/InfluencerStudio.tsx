@@ -8,6 +8,7 @@ import { ApiKeyModal } from "@/components/ApiKeyModal";
 import { GuideView } from "@/components/GuideView";
 import { HistoryDrawer } from "@/components/HistoryDrawer";
 import type { InfluencerConfig, GenerationResult, HistoryItem } from "@/types/influencer";
+import { assetSaveNotice } from "@/lib/assets/saveNotice";
 import { collectReferences, prepareLastResultForRefine, referenceErrorMessage } from "@/lib/referenceImage";
 
 interface InfluencerStudioProps {
@@ -285,6 +286,7 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false }: 
       error: null,
       imageUrl: isRefining ? prev.imageUrl : null,
       captions: isRefining ? prev.captions : [],
+      assetNotice: null,   // 앞 결과의 저장 안내는 새 생성을 시작할 때 지운다
     }));
 
     try {
@@ -304,6 +306,8 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false }: 
       }
 
       const generatedImageUrl = imgData.imageUrl;
+      // 원본 저장 결과 안내(W01v). 응답에 assetSaved가 없으면 null이라 화면이 예전과 같다. 안내만 한다 — 다시 생성·조회를 시작하지 않는다.
+      const assetNotice = assetSaveNotice(imgData);
 
       // 2) 캡션 생성 병렬 호출
       let generatedCaptions: string[] = [];
@@ -326,6 +330,7 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false }: 
         captions: generatedCaptions,
         loading: false,
         error: null,
+        ...(assetNotice ? { assetNotice } : {}),
       });
 
       // 직전 결과물 보관 & 히스토리 기록

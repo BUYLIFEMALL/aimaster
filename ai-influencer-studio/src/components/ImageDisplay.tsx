@@ -120,6 +120,24 @@ export function ImageDisplay({
               </div>
             </div>
 
+            {/* 원본 저장 안내(W01v) — 방금 생성한 응답에 저장 결과가 실렸을 때만. 안내 문구뿐이고 버튼·자동 동작은 없다 */}
+            {result.assetNotice && !result.loading && (
+              <p
+                role="status"
+                data-asset-notice={result.assetNotice.kind}
+                className={`px-3 py-2 rounded-lg border text-[11px] leading-relaxed ${
+                  result.assetNotice.kind === "saved"
+                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-200"
+                    : result.assetNotice.kind === "unknown"
+                      ? "bg-amber-500/10 border-amber-500/30 text-amber-200"
+                      : "bg-[#1c202e] border-[#282e42] text-slate-300"
+                }`}
+              >
+                {result.assetNotice.kind === "saved" ? "💾 " : result.assetNotice.kind === "unknown" ? "⏳ " : "ℹ️ "}
+                {result.assetNotice.message}
+              </p>
+            )}
+
             {/* 인스타그램 캡션 스튜디오 */}
             <div className="p-4 rounded-xl bg-[#1c202e] border border-[#282e42] space-y-3">
               <div className="flex items-center justify-between">

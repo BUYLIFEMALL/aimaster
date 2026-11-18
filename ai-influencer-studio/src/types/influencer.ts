@@ -59,6 +59,8 @@ export interface GenerationResult {
   loading: boolean;
   error: string | null;
   finalPrompt?: string;
+  /** 방금 생성한 결과의 원본 저장 안내(W01v). 생성 응답에 저장 결과가 실렸을 때만 있다 — 없으면 화면은 예전과 같다 */
+  assetNotice?: import("@/lib/assets/saveNotice").AssetSaveNotice | null;
 }
 
 export interface HistoryItem {
