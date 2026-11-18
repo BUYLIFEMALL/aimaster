@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 10:12:16 KST",
+  "checkedAt": "2026-11-18 10:14:04 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T01:12:16.793Z",
+      "at": "2026-11-18T01:14:04.413Z",
       "timezone": "Asia/Seoul",
-      "trigger": "msg_d8626c441488 Mac준비·msg_9ef8951a4a40 Ecom수정계획",
-      "scope": "Gmail독립검수준비·이미지QA049 보안4반례 계획검토/범위·후속구현승인",
+      "trigger": "Workspace WS27 ON소스/840시험 보고",
+      "scope": "722a3ba99 실제diff·SQL2파일 sha256·다음단계/중복검사방지",
       "evidence": [
-        "Mac 준비ACK·배포ID전브라우저/실Gmail0 확인",
-        "Ecom 로컬헬퍼 재사용/반례/정확경로 계획·신규제품코드0",
-        "구현조건dispatch msg_29d6fb7d2025"
+        "Master git diff 정확2파일·SQL지문2개일치",
+        "작성자61/840·tsc0·qa_0",
+        "SQL계속/명시manifest 지시 msg_de065db7e67f"
       ],
-      "judgment": "일반기술보완 Master승인. 공식미확인모델/free는비활성·제품안전경계만수정,실호출/빌드미승인유지. Mac은Gmail배포후검수대기.",
+      "judgment": "ON소스 지정범위수락·운영SQL/배포완료와분리·Master중복실행0",
       "unverified": [
-        "Ecom수정착수/결과·공식모델지원",
-        "Workspace ON SHA/운영SQL/배포·OAuth 실검증"
+        "사전검사/운영0074-75·권한·v1.58배포·실OAuth/Gmail"
       ],
-      "nextAction": "Ecom SHA수신→QA049재검수·Workspace단계보고회수후Mac검수연결"
+      "nextAction": "Workspace SQL/배포단계보고 회수→실alias확인→Mac검수"
     },
     "notifications": [
       {
@@ -6869,12 +6868,12 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "Gmail 운영 SQL 적용·실계정 검증·활성화",
-      "status": "ready",
-      "delivery": "approved_dispatch_sent",
+      "status": "running",
+      "delivery": "source_reviewed_sql_phase_reported",
       "scopeRef": "0074→0075 운영적용/정의검증·회원본인OAuth동의/metadata·실PostgREST/주소·스위치/배포 승인별도",
-      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409",
+      "evidence": "WS25 OFF소스준비완료·RELEASE_CHECKLIST_20261117_E4_GMAIL.md a44c792ad / f4a6854e9·msg_99c304d7619d / 주인님GCP다등록완료신호·Workspace직접보고·주인님 승인답변 직접전달·dispatch msg_199efb134592·Mac msg_6800c03de409·소스단계주인님전달722a3ba99·Master2파일diff/0074-75전체sha256일치·msg_de065db7e67f",
       "completion": "승인된범위의운영마이그레이션·실계정/권한/계정경계·활성배포·운영동작 확인",
-      "next": "단일 메인PC Workspace: ON/시험/SHA→SQL사전검사·0074/75→v1.58검사/배포1→실alias/버전1행→주인님OAuth/실검증·Mac독립",
+      "next": "사전읽기/0074→0075/권한단계보고→명시v1.58 SHA/manifest·정상빌드1회",
       "blockedReason": null,
       "approval": {
         "source": "주인님 Workspace 채팅 선택 답변 2026-11-18",
@@ -6885,7 +6884,13 @@
         "recoveryUsed": 0,
         "scope": "0074→0075 운영적용·Gmail ON·v1.58 묶음·확인표 실OAuth/Gmail검증"
       },
-      "lastReviewedAt": "2026-11-18T01:10:53.820Z"
+      "lastReviewedAt": "2026-11-18T01:14:04.413Z",
+      "sha": "722a3ba99",
+      "validation": {
+        "author": "전체61파일840/840·tsc0·qa_0",
+        "master": "정확2파일diff·스위치ON/시험명시OFF·0074/75 지문일치",
+        "runtime": "미배포·운영SQL결과대기"
+      }
     },
     {
       "task_id": "DES-20261118-01",

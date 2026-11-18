@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 10:12:16 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 10:14:04 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 10:12:16 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 10:14:04 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: Gmail독립검수준비·이미지QA049 보안4반례 계획검토/범위·후속구현승인 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 722a3ba99 실제diff·SQL2파일 sha256·다음단계/중복검사방지 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -133,7 +133,7 @@ Master 마지막 실제 점검: 2026-11-18 10:12:16 KST · 실행 중 점검 주
 
 | 프로그램·담당 | 상태 | 빌드 사용 / 승인 | 실모델 호출 사용 / 승인 | 현재 공식 별칭 대상 | 다음 조건 |
 | --- | --- | --- | --- | --- | --- |
-| ai-work-workspace · CC-WORKSPACE-01 | approved_dispatch_sent | undefined / undefined | undefined / undefined | — | 단일 메인PC Workspace: ON/시험/SHA→SQL사전검사·0074/75→v1.58검사/배포1→실alias/버전1행→주인님OAuth/실검증·Mac독립 |
+| ai-work-workspace · CC-WORKSPACE-01 | source_validated_sql_phase | undefined / undefined | undefined / undefined | — | 단일 메인PC Workspace: ON/시험/SHA→SQL사전검사·0074/75→v1.58검사/배포1→실alias/버전1행→주인님OAuth/실검증·Mac독립 |
 
 ## 완료를 정정한 항목
 
@@ -145,7 +145,7 @@ Master 마지막 실제 점검: 2026-11-18 10:12:16 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 242개: done 224개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 3개 · ready 4개 · needs_revision 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 242개: done 224개 · cancelled 7개 · ready_review 1개 · running 2개 · waiting_human 3개 · ready 3개 · needs_revision 2개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -365,7 +365,7 @@ Master 마지막 실제 점검: 2026-11-18 10:12:16 KST · 실행 중 점검 주
 | QA-20261117-039 | CX-QA-01 | done / integrated | Gmail OFF 패널 실제 TSX 모의 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
 | QA-20261117-040 | CX-QA-01 | done / integrated | Gmail OFF 배선·실제 RPC 입구·어댑터·화면 통합 독립검수 | 배선소스수락·동결, 패널disconnect unknown후속별도 |
 | QA-20261117-041 | CX-QA-01 | done / integrated | Gmail 연결 해제 재시도·계정교체 조건부삭제 독립검수 | 소스수락·두SHA같이배포, 활성화단계별도 |
-| WS-20261117-27 | CC-WORKSPACE-01 | ready / approved_dispatch_sent | Gmail 운영 SQL 적용·실계정 검증·활성화 | 단일 메인PC Workspace: ON/시험/SHA→SQL사전검사·0074/75→v1.58검사/배포1→실alias/버전1행→주인님OAuth/실검증·Mac독립 |
+| WS-20261117-27 | CC-WORKSPACE-01 | running / source_reviewed_sql_phase_reported | Gmail 운영 SQL 적용·실계정 검증·활성화 | 사전읽기/0074→0075/권한단계보고→명시v1.58 SHA/manifest·정상빌드1회 |
 | DES-20261118-01 | AG-UI-01 | done / integrated | 감성 글귀 이미지 직접지시 v1.28/v1.29 배포 회수 | P3 두건 DES02 다음묶음·375px/실위젯 미검수 유지 |
 | QA-20261118-042 | CX-QA-01 | done / integrated | emotion-writer 메뉴·키설정 독립검수 | DES02 반환시 두건 재검수·실375/위젯/회원키는 미검수 |
 | DES-20261118-02 | AG-UI-01 | done / accepted_pending_batch_deploy | 키보기 키보드 접근·키발급 링크 hover 대비 보완 | 다음 emotion-writer 묶음배포에 포함·운영반영 전까지 미배포 유지 |
