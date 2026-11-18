@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T03:15:40.479Z",
+  "checkedAt": "2026-11-18T03:19:11.159Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -3821,14 +3821,14 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
       "title": "CRM 중복방지 DDL 초안·격리 DB 검증 2A",
-      "status": "needs_revision",
-      "delivery": "static_review_pass_test_evidence_supplement_requested",
-      "evidence": "영향조사2019381a6·msg_cf2984a5738e·dispatch msg_47039ad6b61b·착수msg_3558ad0d16d2·결과msg_531796347dc0·MasterSQL원문/3파일확인·Macmsg_90839b4af302·Macmsg_261e6589ece9·보완msg_8f77f3eee758",
+      "status": "ready_review",
+      "delivery": "expanded_harness_static_rereview_dispatched",
+      "evidence": "영향조사2019381a6·msg_cf2984a5738e·dispatch msg_47039ad6b61b·착수msg_3558ad0d16d2·결과msg_531796347dc0·MasterSQL원문/3파일확인·Macmsg_90839b4af302·Macmsg_261e6589ece9·보완msg_8f77f3eee758·보완msg_380b7b5f2622·Macmsg_3ccb33da09fc",
       "scopeRef": "crm-google-form/supabase/migrations/20261118120000_crm_submission_dedupe.sql·tests/dedupe-db.test.mjs 신규·기존결과본인절",
       "completion": "정의사전/사후·기존NULL/backfill0·user_id/source/key 격리·RLS/동시2연결/rollback·동명불일치멈춤·본인qa_DB정리",
       "constraints": "운영미적용·route/UI/dispatch/snippet변경0·기존aww/aww_dev/mb_*0·실발송/build/설치0",
-      "next": "UI안전커밋뒤tests/기존결과만순차보완·SQL동결→작성자실PG결과/SHA→Mac정적재검토",
-      "lastReviewedAt": "2026-11-18T03:14:19.290Z",
+      "next": "Mac하네스보완3건정적재검토→지정범위판정·운영0",
+      "lastReviewedAt": "2026-11-18T03:19:11.159Z",
       "decisions": {
         "unique": "(user_id,form_source_id,dedupe_key) WHERE dedupe_key IS NOT NULL",
         "policy": "RLS/권한변경0",
@@ -3836,9 +3836,9 @@
         "isolatedDb": "aww-pg-test/qa_crm_dedupe_20261118·본인DB만정리",
         "baseline": "CRM0001원문·Supabase역할/auth.uid/updated_at흉내·실Supabase검증아님"
       },
-      "sha": "f066ca944",
+      "sha": "a1cd3df44 (SQL f066ca944 동결)",
       "validation": {
-        "author": "PG17.11본인qa_DB·11/11·독립2연결/회원역할/변이·정리보고",
+        "author": "PG17.11 12/12·동일회원2폼/전체행·보안지문/변이3/고유DB정리",
         "master": "SQL86줄직접읽기·한거래/정의검사/복합키/상태확인",
         "independent": "Mac DDL/하네스정적PASS권고·Docker/psql없어실행0·PG실측은작성자만"
       },
@@ -3854,20 +3854,24 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
       "title": "CRM 접수 새상태 화면·집계 준비",
-      "status": "ready_review",
-      "delivery": "status_ui_independent_review_dispatched",
-      "evidence": "영향조사2019381a6·msg_dcca549f3407·착수msg_b24ceec65e71·결과msg_b381c1f09e8a·Master6파일stat·Macmsg_1c4a0f1d0b13",
+      "status": "needs_revision",
+      "delivery": "actual_ssr_query_failure_returned",
+      "evidence": "영향조사2019381a6·msg_dcca549f3407·착수msg_b24ceec65e71·결과msg_b381c1f09e8a·Master6파일stat·Macmsg_1c4a0f1d0b13·Mac중간msg_307a04320e51·수정msg_91e8c48f64fa",
       "scopeRef": "dashboard/page.tsx·submissions/page.tsx·SubmissionMatrix.tsx·필요순수submissionStatus.ts/시험·기존결과본인절",
       "completion": "기존3+새3상태 라벨/필터/집계·처리중/부분/모름누락0·기존필드만조회·가짜rows실제분류/tsc",
       "constraints": "운영미배포·DB/발송/API0·dedupe_key/channel_results조회0·route/dispatch/followup/promotions/snippet/DDL0",
-      "next": "Mac순수분류+실컴포넌트/쿼리모의검수→판정,Backend는2A하네스순차보완",
-      "lastReviewedAt": "2026-11-18T03:15:40.479Z",
+      "next": "실제SSR/가짜query로error/null/0/양수/목록실패 red-green→새SHA→Mac재검수",
+      "lastReviewedAt": "2026-11-18T03:19:11.159Z",
       "sha": "1fe179bd6",
       "validation": {
         "author": "상태10/10·dedupe포함24/24·tsc0",
         "master": "정확6파일diffstat·허용범위",
         "independent": "Mac 실제화면/조회연결·누락/오류0단정검수대기"
-      }
+      },
+      "findings": [
+        "review query.error/countnull이면KPI숨김·실패안내0 새P2",
+        "목록query.error→빈목록/첫접수안내 기존패턴동시최소보완"
+      ]
     }
   ],
   "programOverrides": [
@@ -4351,20 +4355,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T03:15:40.479Z",
+      "at": "2026-11-18T03:19:11.159Z",
       "timezone": "Asia/Seoul",
-      "trigger": "CRM18-03 1fe179bd6 자체완료보고",
-      "scope": "UI6파일범위·10시험근거·Mac독립검수·DB하네스순차",
+      "trigger": "Mac UI중간P2+Backend DB하네스보완",
+      "scope": "실SSR집계오류/목록오류·DB하네스3증거/독립정적재검토",
       "evidence": [
-        "작성자msg_b381c1f09e8a·Masterstat",
-        "Mac dispatch msg_1c4a0f1d0b13"
+        "msg_307a04320e51 query.error/countnull 숨김반례",
+        "UI반환msg_91e8c48f64fa",
+        "하네스a1cd3df44/12시험msg_380b7b5f2622·Macmsg_3ccb33da09fc"
       ],
-      "judgment": "자체통과접수·실화면/실쿼리연결검수별도. 미배포/운영DB/발송0유지.",
+      "judgment": "UI새P2로반환·DB하네스는소스동결상태로증거보완재검토. 운영연결/배포0.",
       "unverified": [
-        "실제UI/query모의·집계실패표시·미래status노출",
-        "DB하네스보완·GmailOAuth·MacB"
+        "UI수정/실SSR회귀·하네스정적재판정",
+        "GmailOAuth·MacB파일"
       ],
-      "nextAction": "Mac판정/하네스결과각각회수→수정필요시정확범위반환"
+      "nextAction": "두검수SHA별결과회수→정확판정·중복시험/배포0"
     },
     "notifications": [
       {
