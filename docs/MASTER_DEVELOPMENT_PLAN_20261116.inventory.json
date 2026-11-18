@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 13:58:15 KST",
+  "checkedAt": "2026-11-18 13:59:15 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,20 +12,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T04:58:15.780Z",
+      "at": "2026-11-18T04:59:15.416Z",
       "timezone": "Asia/Seoul",
-      "trigger": "공용 Cloudflare 중앙등록 정확계획 도착",
-      "scope": "원자키쌍·세션/예상계정/CSRF·조회/결과불명·정확범위/공용영향",
+      "trigger": "CRM 전용전송기 완료·SNS 계약PASS",
+      "scope": "공용소스구현배정·접수전용HTTP1검수·SNS문서수락/제품경계",
       "evidence": [
-        "msg_b05eef62cc54·3ff187c06",
-        "Master source5경로+시험구현배정"
+        "CRMmsg_797f0aaf0ecc/215bcfd33·6파일stat",
+        "SNSmsg_56d01ad0e43d·문서수락통보",
+        "Mac CRM새범위검수배정"
       ],
-      "judgment": "중앙등록1곳 소스구현허용·감성AGY상태카드와분리. 쌍저장원자·다른계정쓰기차단/불명처리보완, 자동메인build푸시미승인.",
+      "judgment": "SNSW00정적문서완료수락·개발/운영완료아님. CRM새전송기작성자시험통과·독립검수전운영차단유지, 팔로우업SDK위험별도.",
       "unverified": [
-        "정확경로착수/구현SHA·검수",
-        "중앙/감성순서배포예산"
+        "전용전송기독립결과·실공급자계약/배달",
+        "SNSW01a·PLAN권한병합",
+        "중앙키등록구현/검수"
       ],
-      "nextAction": "구현결과회수→Mac 독립검수·운영변경0"
+      "nextAction": "Mac소스판정·정확후속SHA회수·실API/배포0"
     },
     "notifications": [
       {
@@ -7925,15 +7927,15 @@
       "title": "AI Influencer W00 기준·격차/공통계약 독립검수",
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
-      "status": "ready_review",
+      "status": "done",
       "sha": "6e781cafa",
-      "delivery": "atomic_finalizer_cleanup_contract_revision_review_dispatched",
-      "evidence": "직접지시msg_0ea177827182·Master2파일stat/W00확인·인수msg_262b806a9152·검수msg_e1009e09901a · 계획613ac1da4/msg_892ee2310efe·Mac최신반영msg_5534d83d2f04 · Macmsg_e6f0471f7d6d 0068/게시전체재시도 반례 · 최종msg_90ab319ad328/.ai/results/SNS-W00-20261118-CX-QA-01.md · msg_361d873e7d2f/f6dc9e1303fb·Master문서1개stat확인 · Mac중간msg_f9f028aea54a·잔여3건반환 · msg_94143b2fdf34·Master1파일stat확인·Macmsg_b05643cdc61e · Mac최종msg_bd008991c240·잔여반환 · msg_516569c6726a·Mac잔여재검수전달",
-      "next": "6e781 자산최종저장/삭제 원자배제·옛문구 정정만검수·PLAN권한병합은별도선행",
+      "delivery": "static_contract_review_accepted_implementation_unverified",
+      "evidence": "직접지시msg_0ea177827182·Master2파일stat/W00확인·인수msg_262b806a9152·검수msg_e1009e09901a · 계획613ac1da4/msg_892ee2310efe·Mac최신반영msg_5534d83d2f04 · Macmsg_e6f0471f7d6d 0068/게시전체재시도 반례 · 최종msg_90ab319ad328/.ai/results/SNS-W00-20261118-CX-QA-01.md · msg_361d873e7d2f/f6dc9e1303fb·Master문서1개stat확인 · Mac중간msg_f9f028aea54a·잔여3건반환 · msg_94143b2fdf34·Master1파일stat확인·Macmsg_b05643cdc61e · Mac최종msg_bd008991c240·잔여반환 · msg_516569c6726a·Mac잔여재검수전달 · MacPASSmsg_56d01ad0e43d·Master수락",
+      "next": "W01a별도검수·PLAN/권한선행병합전자산코드/DDL0·후속경합/RLS실검증별도",
       "constraints": "P0상한12달러미승인·실API/DB쓰기/빌드/배포0·다른Codex미커밋보존",
-      "lastReviewedAt": "2026-11-18T04:57:03.575Z",
+      "lastReviewedAt": "2026-11-18T04:59:15.416Z",
       "validation": {
-        "independent": "34db 예산/성공게시ID후GET재개 문서PASS, 고아삭제와complete 최종경합 원자배제 누락P1·새2표 PLAN권한선행누락·예외30개/손실없음옛문구정정필요"
+        "independent": "정확6e781 잔여계약 정적문서PASS·기존예산/게시IDPASS보존. 실제RLS/경합/fencing/늦은업로드/게시ID저장불명은후속검증·전체게시보증아님"
       }
     },
     {
@@ -7941,13 +7943,19 @@
       "parent_task_id": "CRM-20261118-06",
       "title": "SOLAPI SDK 재시도 없는 공식 대안·최소 변경 계획",
       "owner": "CC-B2B-BACK-01",
-      "status": "dispatched",
-      "delivery": "official_rest_single_attempt_crm_scoped_exception_implementation_dispatched",
-      "evidence": "msg_bb305389c287·기존6.0.1 retryCount3고정/주입불가 · 조사c229a47ad/msg_e2c6bb9ee494·Master공식인증문서독립확인·판정msg_b0197652e14b",
-      "next": "공식REST/HMAC 표준암호라이브러리로접수전용1HTTP·엄격응답/타임아웃/상한 구현 SHA→Mac검수",
+      "status": "ready_review",
+      "delivery": "crm_single_attempt_transport_source_ready_independent_review",
+      "evidence": "msg_bb305389c287·기존6.0.1 retryCount3고정/주입불가 · 조사c229a47ad/msg_e2c6bb9ee494·Master공식인증문서독립확인·판정msg_b0197652e14b · msg_797f0aaf0ecc·Master6파일stat확인",
+      "next": "Mac3채널HTTP1/HMAC/상한/총마감/응답계약·실route회귀 검수→판정",
       "constraints": "소스범위Master일반설계판정·공용SDK서명원칙은해당접수전용예외만기록·실발송/운영DDL/build/deploy0·HTTP1은클라이언트시도만",
-      "lastReviewedAt": "2026-11-18T04:51:12.935Z",
-      "scopeRef": "새crm/solapiSendOnce.ts·dispatch.ts·시험/기존문서, 공용래퍼/5사본/팔로우업불변"
+      "lastReviewedAt": "2026-11-18T04:59:15.416Z",
+      "scopeRef": "새crm/solapiSendOnce.ts·dispatch.ts·시험/기존문서, 공용래퍼/5사본/팔로우업불변",
+      "sha": "215bcfd33",
+      "validation": {
+        "author": "새전송기50·실dispatch26·전체236/236·tsc0·공용6사본불변/registryOK·실문자0",
+        "master": "정확6파일stat·공식REST인증문서근거확인, 접수성공과최종배달보장분리요청",
+        "independent": "Mac 전달·수락/결과 대기"
+      }
     },
     {
       "task_id": "ECOM-20261118-07",
