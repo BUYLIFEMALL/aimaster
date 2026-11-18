@@ -628,7 +628,8 @@ W01c(참고 이미지 MIME 고정·사전 검사·히스토리 보정 주소 전
 W01-A1 계약: §18·R1·R2 최종 037bfcacc Master 수락(msg_063c9804ec87) → 첫 구현 SQL 초안(실행 0)·paths.ts·순수 시험 8개, Mac 검수 대기. SQL 실행 검증은 격리 DB 승인 후 별도
 W01-A1 SQL 초안 a29ffd287: Mac 정적 검수 F01~F05 해소·Master 지정 정적 수락. 격리 계약 시험 15/15(로컬 Docker 대역 DB, 실중앙·실Supabase 통합 아님) — 보강 3a48682cd·90ba12b30, Mac 지정 수락
 W01-A1 저장 로직 store.ts 19ea5eab5: Mac 실모듈 검수 F01/F02 해소·소스 모의 단위 수락
-W01-A1 생성 라우트 연결(generation.ts·route.ts, 서버 상수 기본 off, shadow는 시험 주입만) 시험 16개, Mac 검수 대기. ON·운영 적용은 별도 승인 — 게시 기록 정리(cleanupOldPosts, 공용 사본)와 원본 자산은 범위 밖
+W01-A1 생성 라우트 연결(generation.ts·route.ts, 서버 상수 기본 off, shadow는 시험 주입만) 1525cd92d: Mac 실POST 통합 검수 PASS·소스 모의 통합 수락(timeout은 취소 보장 아님, G5 미해결). ON·운영 적용은 별도 승인
+W01-A1 조회 경로 GET /api/aif/assets/[id](read.ts, 기본 off) 시험 16개, Mac 검수 대기 — **A1 보완 계약**: SDK exists()가 400·404를 모두 없음으로 접고 객체 동일성 대조가 안 되므로 R1-6의 missing(object_absent) 자동 기록은 A1에서 하지 않고 서명 실패·조회 불명은 503·상태 보존 — 게시 기록 정리(cleanupOldPosts, 공용 사본)와 원본 자산은 범위 밖
 검증: 소스 정적 대조(경로·줄 위 표), 운영 DB 읽기(표·함수 존재, 건수)
 유료 호출: 0건 · 비용 없음
 DB: 해당 없음(읽기만) · 배포: 해당 없음
