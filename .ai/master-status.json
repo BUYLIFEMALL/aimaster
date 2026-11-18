@@ -5115,14 +5115,24 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "W01 운영 적용 선행 범위 확정",
-      "status": "dispatched",
-      "delivery": "w01_operational_gate_scope_requested_read_only",
+      "status": "waiting_human",
+      "delivery": "w01_operational_schema_bucket_scope_verified_approval_pending",
       "scopeRef": "W00 §12-1·§14-B·기존 migration/버킷 근거",
       "constraints": "기존 근거만 회신. 편집/SQL/운영 조회 및 쓰기/ON/배포 0.",
       "completion": "정확 SQL 지문·비공개 버킷 범위·권한/중앙 정책 검증 및 복구 조건",
-      "evidence": "msg_87b90f221906·msg_810dd5a290d5·msg_4226586a400d",
-      "next": "운영 적용 범위 수신 및 주인님 별도 승인 후 실행. 이후에만 W01 후반.",
-      "lastReviewedAt": "2026-11-18T14:39:47.090Z"
+      "evidence": "msg_87b90f221906·msg_810dd5a290d5·msg_4226586a400d / msg_2b225b2fb07a / msg_c5bd6fe086ef",
+      "next": "주인님 승인 뒤 고정 SQL 3개·비공개 버킷 1개 적용. OFF 유지·카탈로그/정책만 확인.",
+      "lastReviewedAt": "2026-11-18T14:41:23.026Z",
+      "approvalScope": {
+        "migrations": [
+          "20261118120000_aif_assets_a1.sql / 85eb99ea7",
+          "20261118130000_aif_assets_p2_missing.sql / 19af3e6bb",
+          "20261118140000_aif_assets_p3_summary.sql / 67b91845a"
+        ],
+        "bucket": "aif-assets private, 20971520 bytes, PNG/JPEG/WebP/HEIC/HEIF",
+        "verification": "신규 객체·권한·의존 정책/버킷 속성 읽기, 실제 업로드 없음",
+        "exclusions": "모드/cron·실 객체 저장/삭제·빌드·배포·기존 운영 데이터 변경·DROP"
+      }
     }
   ],
   "programOverrides": [
@@ -5641,21 +5651,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T14:39:47.090Z",
+      "at": "2026-11-18T14:41:23.026Z",
       "timezone": "Asia/Seoul",
-      "trigger": "AI Influencer 계획 순서 주인님 결정 및 W01 잔여 회신",
-      "scope": "W00 §12-1·§14-B와 완료된 W01 전반/미완 후반의 적용 선행조건 대조.",
+      "trigger": "W01 운영 적용 범위 회신",
+      "scope": "고정 SQL/A1·P2·P3 Git blob과 저장소/정책 검증 계획 대조.",
       "evidence": [
-        "msg_87b90f221906",
-        "msg_810dd5a290d5",
-        "msg_4226586a400d"
+        "msg_2b225b2fb07a·85eb99ea7·19af3e6bb·67b91845a",
+        "msg_c5bd6fe086ef"
       ],
-      "judgment": "W01→W02→W03 순서. 계획 밖 W01y 보류, W01 다음 운영 적용 범위만 준비.",
+      "judgment": "고정 SQL 세 건과 신규 비공개 버킷은 별도 운영 승인 대기. 빈 표 호출 대신 카탈로그 권한 검증으로 정정.",
       "unverified": [
-        "운영 적용 정확 범위·별도 승인",
-        "W01 후반 참조 업로드/생성/화면 전환"
+        "운영 적용 승인·실 운영 권한/중앙 정책",
+        "실 Storage 통합/W01 후반",
+        "Workspace 현황판/Gmail"
       ],
-      "nextAction": "고정 운영 적용 범위를 회수하고 기존 순서로 한 단계씩 진행."
+      "nextAction": "명시 운영 승인과 사전 조건 확인 후 W01 단계만 실행."
     },
     "notifications": [
       {
