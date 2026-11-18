@@ -9,7 +9,7 @@ import { PageHero } from "@/components/ui/PageHero";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { tradeVolumeTrends } from "@/lib/realestate/collect";
 import { recentMonths, ymLabel } from "@/lib/realestate/insights";
-import { suggestFromOtherPrograms } from "@/lib/realestate/crossWatch";
+import { suggestFromOtherPrograms, type CommercialWatchRow, type ListingTargetRow } from "@/lib/realestate/crossWatch";
 
 export default async function DistrictsPage() {
   const user = await requireUser();
@@ -25,15 +25,16 @@ export default async function DistrictsPage() {
 
   const watchMap = new Map((watches ?? []).map((w) => [w.sgg_cd, w]));
   // 연계(2026-11-19): 상가·매물 알림에 등록한 지역을 제안만(자동 등록 없음). 회원 세션 + 본인 행 RLS로 읽기만, 실패해도 화면은 그대로
-  const loose = supabase as unknown as { from: (t: string) => { select: (c: string) => { eq: (k: string, v: unknown) => PromiseLike<{ data: Record<string, string | null>[] | null }> } } };
+  // 켜짐 판정(상가 is_active·매물 알림 enabled+region)은 순수 함수 안에서 — 각 프로그램 수집 조건과 같게
+  const loose = supabase as unknown as { from: (t: string) => { select: (c: string) => PromiseLike<{ data: Record<string, string | boolean | null>[] | null }> } };
   const [commercialRes, listingRes] = await Promise.all([
-    loose.from("commercial_land_watch").select("sgg_cd").eq("is_active", true).then((r) => r, () => ({ data: null })),
-    loose.from("realty_alert_targets").select("cortar_no").eq("target_type", "region").then((r) => r, () => ({ data: null })),
+    loose.from("commercial_land_watch").select("sgg_cd, is_active").then((r) => r, () => ({ data: null })),
+    loose.from("realty_alert_targets").select("cortar_no, target_type, enabled").then((r) => r, () => ({ data: null })),
   ]);
   const crossSuggestions = suggestFromOtherPrograms({
     own: watchMap.keys(),
-    commercial: (commercialRes.data ?? []).map((r) => r.sgg_cd),
-    listingCortars: (listingRes.data ?? []).map((r) => r.cortar_no),
+    commercial: (commercialRes.data ?? []) as unknown as CommercialWatchRow[],
+    listing: (listingRes.data ?? []) as unknown as ListingTargetRow[],
     known: ALL_DISTRICTS,
   });
   // A2(2026-11-02): 관심 지역 달별 매매 신고 건수. 공공 집계라 회원 정보가 없고 서버 키로 읽는다

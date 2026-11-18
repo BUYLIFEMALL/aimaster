@@ -278,9 +278,12 @@ export function capPerRegion<T>(items: T[], max: number, keyOf: (it: T) => strin
 
 /** AI 요약 입력 목록(2026-11-19 P3 보완): ① DB가 돌려준 순서에 기대지 않고 저장할 때의 순서(orderedLinks)로 다시 정렬
  *  ② 지역 묶음은 이름이 아니라 시군구 코드(서울 중구·부산 중구처럼 이름 같은 지역 7묶음) ③ 지역당 max건 ④ 지역 번갈아 ⑤ 앞 limit건 */
-export function summaryInput<T extends { link: string; sgg_cd: string }>(inserted: T[], orderedLinks: string[], max = NEWS_MAX_PER_REGION, limit = 40): T[] {
-  const pos = new Map(orderedLinks.map((l, i) => [l, i]));
-  const sorted = [...inserted].sort((a, b) => (pos.get(a.link) ?? Number.MAX_SAFE_INTEGER) - (pos.get(b.link) ?? Number.MAX_SAFE_INTEGER));
+export function summaryInput<T extends { link: string; sgg_cd: string }>(inserted: T[], ordered: readonly { link: string; sgg_cd: string }[], max = NEWS_MAX_PER_REGION, limit = 40): T[] {
+  // 같은 기사 링크가 두 지역 후보에 함께 있을 수 있어(지역마다 따로 검색) 순서 키는 「지역 코드+링크」, 처음 나온 자리를 쓴다(2026-11-19 보완 msg_812736bb6257)
+  const keyOf = (r: { link: string; sgg_cd: string }) => `${r.sgg_cd}\u0000${r.link}`;
+  const pos = new Map<string, number>();
+  ordered.forEach((r, i) => { if (!pos.has(keyOf(r))) pos.set(keyOf(r), i); });
+  const sorted = [...inserted].sort((a, b) => (pos.get(keyOf(a)) ?? Number.MAX_SAFE_INTEGER) - (pos.get(keyOf(b)) ?? Number.MAX_SAFE_INTEGER));
   const capped = capPerRegion(sorted, max, (r) => r.sgg_cd);
   const groups = new Map<string, T[]>();
   for (const r of capped) groups.set(r.sgg_cd, [...(groups.get(r.sgg_cd) ?? []), r]);

@@ -89,7 +89,7 @@ export async function runNewsForUser(supabase: AdminClient, userId: string, opts
     if (anthropicKey) {
       try {
         // 2026-11-19 「알림에만 상한」: 요약 입력은 지역(시군구 코드)당 15건까지, 저장 순서 기준, 지역을 번갈아(서초 기사가 40칸을 다 차지하던 문제). 저장·화면은 그대로
-        const forSummary = summaryInput(inserted, withHash.map((r) => r.link));
+        const forSummary = summaryInput(inserted, withHash);
         aiSummary = await summarizeNews(anthropicKey, forSummary.map((r) => `[${r.sgg_nm}·${r.category}] ${r.title} — ${r.snippet ?? ""}`));
         await loose(supabase)
           .from("real_estate_news_digests")

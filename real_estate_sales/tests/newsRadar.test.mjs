@@ -245,7 +245,7 @@ test("2026-11-19 P3: 요약 입력은 이름이 같은 다른 지역(서울 중�
     ...Array.from({ length: 10 }, (_, i) => ({ sgg_cd: "11140", sgg_nm: "중구", link: `s${i}` })),
     ...Array.from({ length: 10 }, (_, i) => ({ sgg_cd: "26110", sgg_nm: "중구", link: `b${i}` })),
   ];
-  const out = summaryInput(rows, rows.map((r) => r.link));
+  const out = summaryInput(rows, rows);
   assert.equal(out.length, 20, "이름으로 묶었다면 15건으로 잘렸을 것");
   assert.equal(out.filter((r) => r.sgg_cd === "26110").length, 10);
   assert.deepEqual(out.slice(0, 2).map((r) => r.link), ["s0", "b0"], "지역 번갈아");
@@ -254,6 +254,18 @@ test("2026-11-19 P3: 요약 입력은 이름이 같은 다른 지역(서울 중�
 test("2026-11-19 P3: DB가 돌려준 순서가 섞여도 저장 순서 기준으로 자름", () => {
   const order = Array.from({ length: 17 }, (_, i) => `l${i}`); // 저장 순서: 앞일수록 중요(뒤가 사설·칼럼)
   const returned = [...order].reverse().map((link) => ({ sgg_cd: "11650", link })); // DB가 거꾸로 돌려준 경우
-  const out = summaryInput(returned, order);
+  const out = summaryInput(returned, order.map((link) => ({ sgg_cd: "11650", link })));
   assert.deepEqual(out.map((r) => r.link), order.slice(0, 15));
+});
+
+test("2026-11-19 보완: 같은 링크가 두 지역 후보에 함께 있어도 지역별 순서가 섞이지 않음", () => {
+  // 저장 순서: 종로 맨 앞에 공통 기사 x, 종로 16건 더 / 서초 16건, 서초 맨 뒤에도 같은 x
+  const ordered = [{ sgg_cd: "11110", link: "x" }, ...Array.from({ length: 16 }, (_, i) => ({ sgg_cd: "11110", link: `z${i}` })), ...Array.from({ length: 16 }, (_, i) => ({ sgg_cd: "11650", link: `s${i}` })), { sgg_cd: "11650", link: "x" }];
+  // DB는 같은 회원·같은 링크를 한 번만 저장 → 먼저 나온 종로 행으로 저장. 링크만 키로 쓰면 x가 서초 자리(맨 뒤)로 정렬돼 종로 상위 15에서 잘림
+  const inserted = ordered.filter((r, i) => !(r.link === "x" && i > 0)).reverse();
+  const out = summaryInput(inserted, ordered);
+  const jongno = out.filter((r) => r.sgg_cd === "11110").map((r) => r.link);
+  assert.equal(jongno.length, 15);
+  assert.equal(jongno[0], "x", "종로 맨 앞 공통 기사는 남음");
+  assert.deepEqual(jongno, ["x", ...Array.from({ length: 14 }, (_, i) => `z${i}`)]);
 });
