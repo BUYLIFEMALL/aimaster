@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T19:21:43.717Z",
+  "checkedAt": "2026-11-18T19:23:51.665Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5750,20 +5750,23 @@
       "parent_task_id": "WS-20261119-01",
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace v1.61 기존 중단 빌드 로그 진단",
-      "status": "queued",
-      "delivery": "local_lazy_startup_boundary_implementation_dispatched",
-      "sha": "30bcfdee1",
-      "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef·dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o·msg_0a595caceefd·주인님 전달 진단·msg_afbf609d8871·msg_8512331d6d20·담당 msg_8512331d6d20 결과·msg_7489b02d1a30·f330050c3·담당 msg_7489b02d1a30 결과·msg_4a10308bf15c·f26ab0e58·담당 msg_4a10308bf15c 회신·msg_6f6e00bdcc31·d3d2d531f·담당 msg_6f6e00bdcc31 회신·msg_748c12b7d46d",
+      "status": "reviewing",
+      "delivery": "startup_implementation_returned_failure_isolation_fix_dispatched",
+      "sha": "5efdefd22",
+      "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef·dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o·msg_0a595caceefd·주인님 전달 진단·msg_afbf609d8871·msg_8512331d6d20·담당 msg_8512331d6d20 결과·msg_7489b02d1a30·f330050c3·담당 msg_7489b02d1a30 결과·msg_4a10308bf15c·f26ab0e58·담당 msg_4a10308bf15c 회신·msg_6f6e00bdcc31·d3d2d531f·담당 msg_6f6e00bdcc31 회신·msg_748c12b7d46d·5efdefd22·a63e7e26a·76fd2c9b9·담당 msg_748c12b7d46d 결과·msg_61b93dfbb0d1",
       "constraints": "기존 근거 읽기만. 재빌드·배포·push·운영 설정/DB 변경 0.",
-      "next": "빌드 평가의 추가 예약·UPDATE·타이머 반영한 설계로 로컬 구현·격리 시험 배정. 운영 DB 및 빌드·배포 없음.",
-      "lastReviewedAt": "2026-11-18T19:06:38.079Z",
+      "next": "새 모의 12/12·격리 회귀 811 통과, Gmail 3파일 제외. 시작 작업 오류가 모든 DB 요청을 막지 않도록 보완 배정. 실제 빌드 미실행.",
+      "lastReviewedAt": "2026-11-18T19:23:51.665Z",
       "validation": {
         "author": "컴파일·타입 통과 후 Collecting 약 11분 무출력. 성공판 같은 단계 35.4초. 시작 시 동시 빌드 0, 이후 11번가 약 8분 대기 보고.",
         "master": "v1.60~v1.61 제품 변경 3파일 및 html.ts의 기존 정적 import 경로 확인.",
         "retry": "빌드 시작 전 팀 여유 확인. 두 번째 동일 단계 정체, 120초 기준 이후 수동 취소. 자동 중단 지연 원인 미확인.",
         "isolatedModules": "전용 DB 39개 2.3초·진입점 78개 1.3초, 지연 타이머 통과 및 전용 DB 정리 보고. .next 미사용, server-only·CSS 대체. 캐시·운영 자료 원인 판별 미완료.",
         "deviation": "첫 실행은 승인 조건 확인 전 공유 aww 로컬 시험 DB에 1회 실행. 초기화 및 IF NOT EXISTS DDL 도달, 실제 스키마 변화 미확인. 운영 연결 0 보고. 공유 DB 재접속·되돌리기 없이 기존 로그만 보존.",
-        "synthetic": "전용 DB에 합성 일정 60개, 미래 예약 93개, 전체 10.3초, 외부 시도·실행 0 및 OID 확인 후 정리 보고. 자료량·캐시 가설은 미확정."
+        "synthetic": "전용 DB에 합성 일정 60개, 미래 예약 93개, 전체 10.3초, 외부 시도·실행 0 및 OID 확인 후 정리 보고. 자료량·캐시 가설은 미확정.",
+        "implementation": "불러오기 모의 브리지 63→0, 가짜 시계 16초 2→0. 초기 DDL·시작 작업 첫 질의 직전, 시작 후 DDL 즉시.",
+        "unverified": "실제 Next 빌드·운영 지연·Gmail 3파일·정체 원인. 제품 배포 없음.",
+        "regression": "장애 범위가 전체 질의로 확장되는 문제 확인. 예약 등 선택 작업 격리 재검토."
       },
       "retry": {
         "id": "dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o",
@@ -5969,11 +5972,11 @@
       "reviewer": "CX-MASTER-01",
       "title": "홈 상품 탭 대비와 키보드 접근성 보완",
       "status": "reviewing",
-      "delivery": "tab_panel_one_to_one_fix_dispatched",
-      "evidence": "dff2790cb·msg_c63d46c190e6·msg_c7174d94647e·msg_4c4a09415f3b·489c888e6·484f8400c·msg_12f5ee2629b7·msg_69f084b5f8af·msg_e9caba12b863",
-      "next": "Mac 독립 모의 4/4. 대비·키보드 통과, 탭별 고유 패널의 ARIA 관계 보완 배정. VoiceOver·Lab 실화면 대기.",
-      "lastReviewedAt": "2026-11-18T19:21:43.717Z",
-      "sha": "489c888e6"
+      "delivery": "tab_panel_fix_returned_independent_recheck_dispatched",
+      "evidence": "dff2790cb·msg_c63d46c190e6·msg_c7174d94647e·msg_4c4a09415f3b·489c888e6·484f8400c·msg_12f5ee2629b7·msg_69f084b5f8af·msg_e9caba12b863·msg_ab435c831d84·9f6b1c131·f2f8f718b·msg_3f1decaeecc3",
+      "next": "탭별 패널 연결 수정. 담당 모의 4/4·회귀 28/28. Mac 재검수 전달, Lab·VoiceOver 미검증.",
+      "lastReviewedAt": "2026-11-18T19:23:51.665Z",
+      "sha": "9f6b1c131"
     }
   ],
   "programOverrides": [

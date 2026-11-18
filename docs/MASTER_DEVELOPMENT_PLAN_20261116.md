@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 04:20:50 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 04:23:51 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -382,7 +382,7 @@ Master 마지막 실제 점검: 2026-11-19 04:01:24 KST · 실행 중 점검 주
 | WS-20261118-07 | CC-WORKSPACE-01 | reviewing / v160_deployed_calendar_verified_dashboard_page_unavailable | 워크스페이스 v1.60 캘린더·현황판 운영 배포 | 운영 달력 확인. 기존 시험 현황판 페이지를 찾을 수 없어 폭/메뉴 확인 보류. |
 | WS-20261118-08 | CC-WORKSPACE-01 | done / collapsed_widget_spacing_static_mac_review_accepted_undeployed | 좌측 하단 저장공간 위젯과 푸터 겹침 | 미배포. 기본 위젯 겹침 국소 정적 검수 완료, 확장/좁은 폭·실화면은 별도. |
 | WS-20261119-01 | CC-WORKSPACE-01 | done / saved_notion_html_recursive_fix_independent_review_accepted | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | 로컬 독립 수락. v1.61 첫 빌드 취소, 운영 v1.60. 배포 진단 WS-20261119-REL. |
-| WS-20261119-REL | CC-WORKSPACE-01 | queued / local_lazy_startup_boundary_implementation_dispatched | Workspace v1.61 기존 중단 빌드 로그 진단 | 빌드 평가의 추가 예약·UPDATE·타이머 반영한 설계로 로컬 구현·격리 시험 배정. 운영 DB 및 빌드·배포 없음. |
+| WS-20261119-REL | CC-WORKSPACE-01 | reviewing / startup_implementation_returned_failure_isolation_fix_dispatched | Workspace v1.61 기존 중단 빌드 로그 진단 | 새 모의 12/12·격리 회귀 811 통과, Gmail 3파일 제외. 시작 작업 오류가 모든 DB 요청을 막지 않도록 보완 배정. 실제 빌드 미실행. |
 | QA-20261118-043 | CX-QA-01 | done / integrated | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | 실브라우저375/390은v1.58배포후허용된기존시험세션에서·추가dev/build0 |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
 | OPS-20261118-01 | CX-MASTER-01 | done / integrated | 전체개발플랜·카테고리·누락개선/인수인계 정합성 대조 | 미확인68프로그램 현담당근거후속연결·제품전체검증과구분, 신규후속ID별진행 |
@@ -404,7 +404,7 @@ Master 마지막 실제 점검: 2026-11-19 04:01:24 KST · 실행 중 점검 주
 | B2B-20261118-03 | CC-B2B-BACK-01 | waiting_human / fixture_prepared | 주인님 직접 Lab 교환비waiting1건·토스시험흐름 | 사람시험제출/로그인신호없음·고정교환1건유지,현재주문상태는03:31자동확정가능해반복RPC없이다음읽기때판정 |
 | B2B-20261119-LAB0101 | CC-B2B-BACK-01 | done / lab_catalog_definition_and_grants_matched | B2B몰 Lab 0101 메시지 정의·권한 대조 | Lab 0101 권한·safeupdate 일치. e20574f0f 인수인계 갱신. QA037 사람 로그인 대기, 결제 시험은 최종 단계. |
 | B2B-20261119-FRONTQA | CX-QA-01 | waiting_human / public_keyboard_partial_pass_exact_143_element_located | B2B Lab 프론트 키보드·대비·화면 검수 | 공개 Lab Tab·Enter/Space 통과, 상품 탭 방향키 미동작. 143 미선택 본문 탭 과거 대비 4.15 위치 확정. Mac 실행판·직원 로그인·다크 상세·낭독기 대기. |
-| B2B-20261119-HOMETABS | CC-B2B-FRONT-01 | reviewing / tab_panel_one_to_one_fix_dispatched | 홈 상품 탭 대비와 키보드 접근성 보완 | Mac 독립 모의 4/4. 대비·키보드 통과, 탭별 고유 패널의 ARIA 관계 보완 배정. VoiceOver·Lab 실화면 대기. |
+| B2B-20261119-HOMETABS | CC-B2B-FRONT-01 | reviewing / tab_panel_fix_returned_independent_recheck_dispatched | 홈 상품 탭 대비와 키보드 접근성 보완 | 탭별 패널 연결 수정. 담당 모의 4/4·회귀 28/28. Mac 재검수 전달, Lab·VoiceOver 미검증. |
 | B2B-20261119-FRONTP3 | CC-B2B-FRONT-01 | done / storefront_button_and_price_independent_review_accepted_undeployed | B2B몰 버튼 터치 영역과 원래 가격 대비 보완 | 두 변경 독립 15/15 수락. 미배포이며 Lab 7609748ad에 미포함. 주문서 S70은 별도 진행. |
 | B2B-20261119-FRONTREL | CC-B2B-FRONT-01 | done / production_base_proven_ui_bundle_queued | B2B몰 UI 배포 범위와 순번 준비 | 운영 v1.16 READY. 가격 두 소스는 단독 적용 가능, 갤러리 90248e5b1은 7c8ee3a81·e4ba29947 동반 필요. 기존 다음 배포 묶음에 대기. |
 | B2B-20261119-S70 | CC-B2B-BACK-01 | done / guard_rollback_independent_accepted_undeployed | 주문서 무통장 현금영수증 접수와 입금 확인 경합 처리 | 격리 21/21, Mac 롤백 정적 통과. 0105와 UI 배포 전 Lab 실검증 승인 대기. |
