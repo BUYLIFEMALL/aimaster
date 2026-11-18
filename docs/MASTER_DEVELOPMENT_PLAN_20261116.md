@@ -489,7 +489,7 @@ Master 마지막 실제 점검: 2026-11-19 04:01:24 KST · 실행 중 점검 주
 | AIF-20261119-W01-READY | CC-SNS-01 | done / v2_storage_signed_browser_read_and_ownership_verified | W01 운영 전 검증 계획과 V2 저장·다운로드 검증 | V2 서명 다운로드·권한 확인 완료. V3 유료 범위 별도, V4 시험 계정 지정 수신 및 실행 조건 미확정. |
 | AIF-20261119-W01-NEXT | CC-SNS-01 | done / dependency_patch_verified_locally_undeployed | AI Influencer Next.js 보안 패치 | 16.4.6 파일 지문과 잠금 범위 대조 완료. 담당 시험 320/320·타입 통과·audit 0. 번들 및 운영 응답 확인은 배포 단계. |
 | AIF-20261119-W01-V4 | CC-SNS-01 | done / finite_member_real_storage_verified_isolated_origin | 일반 회원 한도와 운영 다운로드 선행 검증 | 지정 일반 회원 실제 이용·합성 JPEG 1회 업로드·본인 조회·서명 다운로드 200. 일반 한도 초과·정리·운영 출처는 미검증. |
-| AIF-20261119-W01-V3 | CC-SNS-01 | waiting_human / provider_key_rejected_isolated_server_closed | AI Influencer 대표 생성 및 보정 검증 | Gemini INVALID_KEY로 이미지 시도 1·캡션 0·참고 업로드 1. 재시도 없이 로그아웃 및 격리 서버 종료. 시험 계정 키 갱신 대기. |
+| AIF-20261119-W01-V3 | CC-SNS-01 | waiting_human / updated_owner_key_login_pending_remaining_call_capped | AI Influencer 대표 생성 및 보정 검증 | 시험 계정 키 갱신 시각 확인, 유효성 미확인. 격리 로그인 뒤 1K 새 이미지 최대 1회·캡션 1회만. 기존 실패 시도도 누적 한도에 포함, 보정 대기. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T19:24:19.151Z",
+  "checkedAt": "2026-11-18T19:28:05.168Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5833,13 +5833,18 @@
       "reviewer": "CX-MASTER-01",
       "title": "AI Influencer 대표 생성 및 보정 검증",
       "status": "waiting_human",
-      "delivery": "provider_key_rejected_isolated_server_closed",
-      "evidence": "msg_adecea24720e·msg_6450ddaf24a6·9f1e3697e·msg_640d108b3984·msg_2516c8d780b2·345eb10f8·msg_43f23b594003·msg_b3def667492a·msg_98a00503835e·msg_51f88e4ea1b2·msg_b0363e5b9ba3·msg_fd234e802a57·msg_00d7dcc5a167·msg_f5f7a430a7b1·e5a6dc890",
-      "next": "Gemini INVALID_KEY로 이미지 시도 1·캡션 0·참고 업로드 1. 재시도 없이 로그아웃 및 격리 서버 종료. 시험 계정 키 갱신 대기.",
-      "lastReviewedAt": "2026-11-18T19:17:02.924Z",
+      "delivery": "updated_owner_key_login_pending_remaining_call_capped",
+      "evidence": "msg_adecea24720e·msg_6450ddaf24a6·9f1e3697e·msg_640d108b3984·msg_2516c8d780b2·345eb10f8·msg_43f23b594003·msg_b3def667492a·msg_98a00503835e·msg_51f88e4ea1b2·msg_b0363e5b9ba3·msg_fd234e802a57·msg_00d7dcc5a167·msg_f5f7a430a7b1·e5a6dc890·msg_a347af4f72e8·msg_26f84745cf68",
+      "next": "시험 계정 키 갱신 시각 확인, 유효성 미확인. 격리 로그인 뒤 1K 새 이미지 최대 1회·캡션 1회만. 기존 실패 시도도 누적 한도에 포함, 보정 대기.",
+      "lastReviewedAt": "2026-11-18T19:28:05.168Z",
       "validation": {
         "result": "POST /api/aif/generations 500 INVALID_KEY. 작업 결과 없음, 과금 실측 미확인.",
         "limitation": "생성/저장 성공, 캡션, 보정 및 히스토리 검증 미완료. 업로드 시험 자산 보존."
+      },
+      "productionAlias": {
+        "url": "https://ai-influencer.buylife.xyz",
+        "deploymentId": "dpl_HVenAJdk1W8o7CCpqJabSKWeWz5e",
+        "state": "READY"
       }
     },
     {
