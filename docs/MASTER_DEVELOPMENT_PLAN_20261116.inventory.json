@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 14:14:06 KST",
+  "checkedAt": "2026-11-18 14:17:13 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,23 +12,23 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:14:05.964Z",
+      "at": "2026-11-18T05:17:13.122Z",
       "timezone": "Asia/Seoul",
-      "trigger": "공용키2보완 완료·감성 고정최종",
-      "scope": "불명쓰기/재확인·UTF8스트림16KiB·플랫폼중립시험infra·카드bool계약",
+      "trigger": "중앙시험infra·SNSstrict·CRM팔로우업 소스완료",
+      "scope": "새SHA3개 파일수/검증범위·Mac단일순서·제품/시험infra분리",
       "evidence": [
-        "msg_beafdd94f422/82e6cdfad stat",
-        "Mac공용82재검수배정",
-        "시험전용loader별도범위허용·새설치0",
-        "감성최종msg_c8053a39da39/정확bool보완반환"
+        "msg_c5a232ed7dc3/07df29def 3파일",
+        "msg_5f8296f5e417/a90ba8a88 4파일",
+        "msg_bced7282c8d0/e34ab92fc 2시험파일",
+        "Mac중앙→SNS→CRM순차전달"
       ],
-      "judgment": "공용2보완소스수신·독립검수전수락0. native플랫폼문제는시험전용loader로분리개선, 제품시험복제대체금지. 감성카드는수정필요유지.",
+      "judgment": "세소스/시험보완수신·독립검수순서지정, 환경개선은시험만·공급자/운영미검수보존. 첫메시지CLI인자오류는실행거부로미전달, 정상명령으로1회전달.",
       "unverified": [
-        "공용82독립결과/새loader동등성",
-        "감성보완실제품시험·초기상태·OFF안내",
-        "SNSstrict/CRM팔로우업새SHA"
+        "세범위Mac지정결과",
+        "AGY상태카드보완SHA",
+        "실운영/실키/전송/삭제"
       ],
-      "nextAction": "새SHA/지정검수회수·실키/푸시/배포0"
+      "nextAction": "순차검수결과회수·푸시/배포0"
     },
     "notifications": [
       {
@@ -8004,10 +8004,10 @@
       "owner": "CC-ECOM-01",
       "status": "ready_review",
       "delivery": "write_unknown_and_utf8_stream_fix_review_platform_test_loader_assigned",
-      "evidence": "메인PROVIDERS5·oauth목록별도·문서봇입력은프로그램권한전제·Master소스대조 · 계획msg_b05eef62cc54/3ff187c06·Master두키원자/예상계정/CSRF보완지시 · ACTIVE_WORK본인중앙5경로예약확인 · msg_8fde857892dc·Master5파일stat·Macmsg_ff1e31e50642 · Macmsg_cf35bcba3a3d 적용후reset/503 반례·수정반환 · Mac고정최종msg_b8b7e1c64173·CF-F02 UTF8바이트수정반환msg_7d3bb98cba42 · msg_beafdd94f422/82e·Master3파일stat확인·Mac재검수전달",
-      "next": "Mac CF-F01/F02검수·별도시험전용TSloader SHA로native11회귀·제품소스동결",
+      "evidence": "메인PROVIDERS5·oauth목록별도·문서봇입력은프로그램권한전제·Master소스대조 · 계획msg_b05eef62cc54/3ff187c06·Master두키원자/예상계정/CSRF보완지시 · ACTIVE_WORK본인중앙5경로예약확인 · msg_8fde857892dc·Master5파일stat·Macmsg_ff1e31e50642 · Macmsg_cf35bcba3a3d 적용후reset/503 반례·수정반환 · Mac고정최종msg_b8b7e1c64173·CF-F02 UTF8바이트수정반환msg_7d3bb98cba42 · msg_beafdd94f422/82e·Master3파일stat확인·Mac재검수전달 · 시험loader e34ab92fc/msg_bced7282c8d0·Master2파일stat",
+      "next": "Mac82제품보완+e34 loader동일11시험·mock범위동등성검증→수락",
       "constraints": "소스/모의만·키쌍단일문장·예상회원409·비밀값응답0·기존5provider/Cloudinary불변·실키쓰기/외부/API/build/push/deploy0",
-      "lastReviewedAt": "2026-11-18T05:14:05.964Z",
+      "lastReviewedAt": "2026-11-18T05:17:13.122Z",
       "scopeRef": "새검사helper·전용keys API·전용card·메인page연결·시험/기존문서",
       "sha": "82e6cdfad",
       "validation": {
@@ -8043,17 +8043,17 @@
       "title": "기존 히스토리 자동정리의 보관예외 보호",
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
-      "status": "needs_revision",
-      "delivery": "strict_exemption_bad_profile_id_fail_open_fix_returned",
+      "status": "ready_review",
+      "delivery": "strict_uuid_flag_fix_source_ready_queued_review",
       "scopeRef": "새retentionExempt helper·기존history GET/POST·시험/기존문서, 새자산/스키마불변",
       "completion": "paid/manual예외자동삭제0·목록30응답제한만·예외조회실패failclosed·일반/회원경계·수동DELETE회귀",
       "constraints": "실삭제/운영DB/유료/새의존성/build/push0·본체PLAN/권한미반영과독립인기존표만",
-      "evidence": "W00G3/P1근거·Master실history GET/POST 코드확인·기존공용helper경로확인 · msg_4c2bea5edf8e·Master6파일stat확인·Macmsg_3f88b197d47b · Macmsg_7f527fa24451·strict UUID검증 반환",
-      "next": "strict공백/비UUID/shape행 unknown→자동삭제0 보완SHA 회수→Mac",
-      "lastReviewedAt": "2026-11-18T05:11:26.513Z",
-      "sha": "8f453b9c4",
+      "evidence": "W00G3/P1근거·Master실history GET/POST 코드확인·기존공용helper경로확인 · msg_4c2bea5edf8e·Master6파일stat확인·Macmsg_3f88b197d47b · Macmsg_7f527fa24451·strict UUID검증 반환 · msg_c5a232ed7dc3·Master3파일stat",
+      "next": "Mac strict UUID/flag/badrow·실route삭제0·기존보관회귀순차검수",
+      "lastReviewedAt": "2026-11-18T05:17:13.122Z",
+      "sha": "07df29def",
       "validation": {
-        "author": "실historyStore모의15/15·기존포함33/33·tsc0·공용helperstrict추가",
+        "author": "추가반례8개red→green·전체45/45·tsc0·공용원본helper불변",
         "master": "6파일stat·사전범위추가historyStore 시험로직분리설명수신·route동작영향독립검수필요",
         "independent": "native15/15·실route/auth/handler6경계지정통과. 공백id profile을정상집합처리→현재회원notexempt/가짜storage5객체삭제 P2·실DB피해/정상UUIDDB현실사고확정아님. 원본helper불변확인"
       }
@@ -8064,13 +8064,19 @@
       "title": "팔로우업 SOLAPI SDK 재시도 제거·검수 전송기 재사용",
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
-      "status": "in_progress",
-      "delivery": "exact_paths_reserved_author_started",
-      "evidence": "msg_e31c07576130·동일위험후속 source범위Master판정 · 착수msg_7fbc9d72ee68",
+      "status": "ready_review",
+      "delivery": "followup_single_attempt_source_ready_queued_review",
+      "evidence": "msg_e31c07576130·동일위험후속 source범위Master판정 · 착수msg_7fbc9d72ee68 · msg_5f8296f5e417·Master4파일stat",
       "scopeRef": "followupDispatch.ts·시험/기존문서, sendOnce재사용·공용/6사본/SMTP불변",
       "constraints": "실SMS/운영DDL/build/push/deploy0·기존held/claim/회원경계/상태재확인보존",
-      "next": "정확범위착수/실함수+전송기모의·새SHA회수→Mac",
-      "lastReviewedAt": "2026-11-18T05:11:26.513Z"
+      "next": "Mac 실followup+sendOnce HTTP1/unknown/claim/상태변경/회원·기존회귀 검수",
+      "lastReviewedAt": "2026-11-18T05:17:13.122Z",
+      "sha": "a90ba8a88",
+      "validation": {
+        "author": "새22/22·전체273/273·tsc0·sharedregistryOK·실SMS0",
+        "master": "정확4파일stat·같은검수전송기재사용·공용/SMTP불변보고",
+        "independent": "중앙→SNS후순차배정"
+      }
     }
   ]
 }
