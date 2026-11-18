@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T19:39:52.147Z",
+  "checkedAt": "2026-11-18T19:43:18.324Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9563,9 +9563,9 @@
       "scopeRef": "ee73ff8eb · ai-work-workspace/src/litpage/server/content/html.ts · tests/integration/notionSavedHtml.test.ts",
       "completion": "저장 HTML의 본문을 분리하고 콜아웃·목록·할일·코드·북마크·영상·목차 구조 보존. 일반 HTML/ZIP·기존 URL 허용/정제 경계 회귀 확인.",
       "constraints": "import.ts·DB·API·권한 변경과 운영 쓰기·빌드·배포·push 없음.",
-      "evidence": "주인님 전달 착수 보고 · ee73ff8eb 파일 점유·112ada09d·2f1e70268·msg_ae2068e3e9b1·msg_7dc2611a8abf·msg_63a46ac8b66c·8225ca66b·msg_fa4c83b077f0·msg_3c1580a00f03·msg_1ce4182d8db2·msg_da5761aceccd·2c7f6945d·msg_7b2287b746f4·msg_f561bbcfa676·msg_ead1f07719be·30bcfdee1·cbfe4b86e",
-      "next": "로컬 독립 수락. v1.61 첫 빌드 취소, 운영 v1.60. 배포 진단 WS-20261119-REL.",
-      "lastReviewedAt": "2026-11-18T18:32:15.461Z",
+      "evidence": "주인님 전달 착수 보고 · ee73ff8eb 파일 점유·112ada09d·2f1e70268·msg_ae2068e3e9b1·msg_7dc2611a8abf·msg_63a46ac8b66c·8225ca66b·msg_fa4c83b077f0·msg_3c1580a00f03·msg_1ce4182d8db2·msg_da5761aceccd·2c7f6945d·msg_7b2287b746f4·msg_f561bbcfa676·msg_ead1f07719be·30bcfdee1·cbfe4b86e·25ab6bba8·dpl_CLGZ7CA84iyodmiSEjoPccxMMyBp",
+      "next": "v1.61 배포 완료, 기존 가져온 본문 읽기 확인. 운영에서 노션 저장 HTML 다시 가져오기 시험은 미실행.",
+      "lastReviewedAt": "2026-11-18T19:43:18.324Z",
       "sha": "2c7f6945d",
       "validation": {
         "author": "보완판 18/18·해당 경로 tsc 0·실제 저장 문서 402 최상위 블록/인라인코드 49 보고.",
@@ -9691,13 +9691,13 @@
       "parent_task_id": "WS-20261119-01",
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace v1.61 기존 중단 빌드 로그 진단",
-      "status": "reviewing",
-      "delivery": "production_ready_official_alias_verified_ui_review_pending",
+      "status": "done",
+      "delivery": "production_v161_live_verified_catalog_version_synced",
       "sha": "cea50d189",
-      "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef·dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o·msg_0a595caceefd·주인님 전달 진단·msg_afbf609d8871·msg_8512331d6d20·담당 msg_8512331d6d20 결과·msg_7489b02d1a30·f330050c3·담당 msg_7489b02d1a30 결과·msg_4a10308bf15c·f26ab0e58·담당 msg_4a10308bf15c 회신·msg_6f6e00bdcc31·d3d2d531f·담당 msg_6f6e00bdcc31 회신·msg_748c12b7d46d·5efdefd22·a63e7e26a·76fd2c9b9·담당 msg_748c12b7d46d 결과·msg_61b93dfbb0d1·7c283738f·b081eed5b·담당 msg_61b93dfbb0d1 결과·msg_4e206a030d6b·msg_1b80513953df·msg_3f61f6f5a0·cea50d189·7f0757d61·담당 msg_3f61f6f5b5a0 결과·msg_c7b20d50ff1d·msg_8004451fdf3f·msg_e0973ea0b19d·주인님 직접 배포 지시·담당 시작 보고·msg_b97a8c78bcbe·dpl_CLGZ7CA84iyodmiSEjoPccxMMyBp·Vercel 빌드 이벤트·공식 도메인 로그인 200",
+      "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef·dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o·msg_0a595caceefd·주인님 전달 진단·msg_afbf609d8871·msg_8512331d6d20·담당 msg_8512331d6d20 결과·msg_7489b02d1a30·f330050c3·담당 msg_7489b02d1a30 결과·msg_4a10308bf15c·f26ab0e58·담당 msg_4a10308bf15c 회신·msg_6f6e00bdcc31·d3d2d531f·담당 msg_6f6e00bdcc31 회신·msg_748c12b7d46d·5efdefd22·a63e7e26a·76fd2c9b9·담당 msg_748c12b7d46d 결과·msg_61b93dfbb0d1·7c283738f·b081eed5b·담당 msg_61b93dfbb0d1 결과·msg_4e206a030d6b·msg_1b80513953df·msg_3f61f6f5a0·cea50d189·7f0757d61·담당 msg_3f61f6f5b5a0 결과·msg_c7b20d50ff1d·msg_8004451fdf3f·msg_e0973ea0b19d·주인님 직접 배포 지시·담당 시작 보고·msg_b97a8c78bcbe·dpl_CLGZ7CA84iyodmiSEjoPccxMMyBp·Vercel 빌드 이벤트·공식 도메인 로그인 200·25ab6bba8·담당 msg_b97a8c78bcbe 운영 결과·msg_a8f523227f16",
       "constraints": "기존 근거 읽기만. 재빌드·배포·push·운영 설정/DB 변경 0.",
-      "next": "승인 빌드 1회 READY·공식 도메인 연결. 페이지 데이터 수집 0.99초 통과. 담당 로그인 운영 화면·DB 로그 확인 결과 회수.",
-      "lastReviewedAt": "2026-11-18T19:39:05.018Z",
+      "next": "운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음.",
+      "lastReviewedAt": "2026-11-18T19:43:18.324Z",
       "validation": {
         "author": "컴파일·타입 통과 후 Collecting 약 11분 무출력. 성공판 같은 단계 35.4초. 시작 시 동시 빌드 0, 이후 11번가 약 8분 대기 보고.",
         "master": "v1.60~v1.61 제품 변경 3파일 및 html.ts의 기존 정적 import 경로 확인.",
@@ -9733,7 +9733,18 @@
         "collectingMs": 990,
         "cacheRestoredFrom": "dpl_DC9Bifer8U1oZ67QFRJNkaAQ1Pj6",
         "loginStatus": 200,
-        "builds": 1
+        "builds": 1,
+        "dbVersion": "v1.61",
+        "dbVersionWrites": 1,
+        "buildTimeDdlCountReported": 0,
+        "firstReadDdlEntriesReported": 730,
+        "verifiedUi": "목록 버전·가져온 기존 본문·inbox·저장공간 위젯 겹침",
+        "pendingUi": [
+          "운영 새 가져오기",
+          "cron/에이전트 반복 일정·들어오는 웹훅",
+          "콜드스타트 시간·좁은 화면"
+        ],
+        "rootCause": "같은 캐시에서도 통과. 이전에 정체된 정확한 질의는 미확정."
       }
     },
     {
@@ -9792,10 +9803,10 @@
       "reviewer": "CX-MASTER-01",
       "title": "AI Influencer 대표 생성 및 보정 검증",
       "status": "waiting_human",
-      "delivery": "approved_image_request_limit_exhausted_key_diagnosis_read_only",
-      "evidence": "msg_adecea24720e·msg_6450ddaf24a6·9f1e3697e·msg_640d108b3984·msg_2516c8d780b2·345eb10f8·msg_43f23b594003·msg_b3def667492a·msg_98a00503835e·msg_51f88e4ea1b2·msg_b0363e5b9ba3·msg_fd234e802a57·msg_00d7dcc5a167·msg_f5f7a430a7b1·e5a6dc890·msg_a347af4f72e8·msg_26f84745cf68·msg_21f343488a1b·f73f98778·msg_6d485fa3d150",
-      "next": "키 갱신 후 2차도 INVALID_KEY. 누적 이미지 요청 2회 소진·생성 0·캡션 0. 서버 종료, 공식 문서·코드 읽기 진단만.",
-      "lastReviewedAt": "2026-11-18T19:39:05.018Z",
+      "delivery": "key_docs_review_completed_waiting_console_diagnosis",
+      "evidence": "msg_adecea24720e·msg_6450ddaf24a6·9f1e3697e·msg_640d108b3984·msg_2516c8d780b2·345eb10f8·msg_43f23b594003·msg_b3def667492a·msg_98a00503835e·msg_51f88e4ea1b2·msg_b0363e5b9ba3·msg_fd234e802a57·msg_00d7dcc5a167·msg_f5f7a430a7b1·e5a6dc890·msg_a347af4f72e8·msg_26f84745cf68·msg_21f343488a1b·f73f98778·msg_6d485fa3d150·msg_d678e74285db·a18c18f45",
+      "next": "공식 문서와 요청 코드 대조로 INVALID_KEY 원인 미확정. 사용자 AI Studio 키/프로젝트 제한 확인, 추가 호출 0.",
+      "lastReviewedAt": "2026-11-18T19:43:18.324Z",
       "validation": {
         "result": "두 번째도 INVALID_KEY. 누적 이미지 시도 2회, 결과 0, 참고 업로드 2회, 캡션 0. 과금 미확인.",
         "limitation": "생성/저장 성공, 캡션, 보정 및 히스토리 검증 미완료. 업로드 시험 자산 보존."
@@ -9891,11 +9902,11 @@
       "reviewer": "CX-MASTER-01",
       "title": "메이커 M2 사진 제안 저장 범위 설계",
       "status": "reviewing",
-      "delivery": "same_reservation_payload_gate_fix_dispatched",
-      "evidence": "msg_8bc03c47698d·msg_283337366ae8·msg_d7ccf525cd20·msg_bf8f3313b68a·88850694c·msg_d5aebd7ca4f8·msg_0176871edc33·0889e87f3·msg_ad4382dd5bb2·999368758·msg_00eae57a6ddd·da99d4fb4·msg_1f0e4ad7ebfa·msg_b59905da566c·msg_6eabad5da94d·msg_d025969397a9·97669e523·msg_51fbe0b8b070·msg_611c47959bd0·msg_5aec3c932e2a",
-      "next": "Mac 공급사 P2 해소 확인. 활성 예약에 다른 원본 힌트가 오면 기존 업로드 경로를 돌려주는 문제의 보완 배정.",
-      "lastReviewedAt": "2026-11-18T19:39:52.147Z",
-      "sha": "97669e523",
+      "delivery": "same_reservation_payload_gate_returned_recheck_dispatched",
+      "evidence": "msg_8bc03c47698d·msg_283337366ae8·msg_d7ccf525cd20·msg_bf8f3313b68a·88850694c·msg_d5aebd7ca4f8·msg_0176871edc33·0889e87f3·msg_ad4382dd5bb2·999368758·msg_00eae57a6ddd·da99d4fb4·msg_1f0e4ad7ebfa·msg_b59905da566c·msg_6eabad5da94d·msg_d025969397a9·97669e523·msg_51fbe0b8b070·msg_611c47959bd0·msg_5aec3c932e2a·msg_6c87eab04eed·a7423ed90·msg_37fee34e31a2",
+      "next": "유효·만료 예약을 포함해 같은 결과 ID의 다른 지문은 충돌, 정보 반환 없음. 격리 86/86, Mac 재검수 전달.",
+      "lastReviewedAt": "2026-11-18T19:43:18.324Z",
+      "sha": "a7423ed90",
       "validation": {
         "scope": "전용 격리 DB, 정책/실패 경계/두 세션 4개. 기존 서류 정책 대조 동일. 실제 Storage API·Lab·운영·브라우저 미검증.",
         "open": "재지정 권한, 빈 source_hint 및 동일 ID 계약, FK 이후 고아 파일·동명 버킷과 실제 Storage 확인 남음.",
@@ -9926,11 +9937,11 @@
       "reviewer": "CX-MASTER-01",
       "title": "부동산 추가 개선 순차 진행",
       "status": "running",
-      "delivery": "news_independent_pass_input_order_followup_dispatched",
-      "evidence": "msg_c042ddbde7d9·481829768·msg_d71d13d13791·msg_8689d9857513·8767db0a8·msg_51fbe0b8b070·msg_611c47959bd0·msg_6898c765a184",
-      "next": "Mac 알림 입력 순수 시험 20/20. 동명 지역·DB 순서 반례를 보완 검토. 실거래 관심 지역 공유 설계 병행, 미배포.",
-      "lastReviewedAt": "2026-11-18T19:39:52.147Z",
-      "sha": "8767db0a8"
+      "delivery": "regional_code_sort_and_shared_watch_candidate_recheck_dispatched",
+      "evidence": "msg_c042ddbde7d9·481829768·msg_d71d13d13791·msg_8689d9857513·8767db0a8·msg_51fbe0b8b070·msg_611c47959bd0·msg_6898c765a184·msg_11e579abb78b·63e7c429f·a6544db4e·msg_37fee34e31a2",
+      "next": "시군구 코드별 알림 상한·저장 후보 순서 명시, 자체 22/22. 실거래 관심 지역 읽기 제안 코드도 독립 검수 배정. 미배포.",
+      "lastReviewedAt": "2026-11-18T19:43:18.324Z",
+      "sha": "63e7c429f"
     },
     {
       "task_id": "B2B-20261119-HOMETABS",
