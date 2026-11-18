@@ -8,6 +8,7 @@ import GlassCard from "@/components/ui/GlassCard";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import GoldButton from "@/components/ui/GoldButton";
 import MemberIntegrations from "@/components/settings/MemberIntegrations";
+import CloudflareKeysCard from "@/components/settings/CloudflareKeysCard";
 
 type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "perplexity" | "kakao_js_key";
 
@@ -312,6 +313,7 @@ export default function ApiSettingsPage() {
           )}
         </GlassCard>
 
+        <CloudflareKeysCard userId={userId} />
         <MemberIntegrations userId={userId} />
       </div>
     </div>
