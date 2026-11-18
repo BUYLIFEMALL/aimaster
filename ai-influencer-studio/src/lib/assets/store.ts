@@ -69,6 +69,17 @@ async function callRpc(rpc: Rpc, fn: string, args: Record<string, unknown>): Pro
   }
 }
 
+/** PostgreSQL `returns table` 함수의 응답 계약: **정확히 1행짜리 배열**이고 그 행은 배열이 아닌 객체. 0행·2행 이상·객체·null·원시값은 null(성공 단정 0).
+ *  행의 추가 필드는 허용하지만 판정에는 쓰지 않는다. — Mac 검수 F01(2026-11-18) */
+function singleRow(data: unknown): Record<string, unknown> | null {
+  if (!Array.isArray(data) || data.length !== 1) return null;
+  const row = data[0];
+  return row !== null && typeof row === "object" && !Array.isArray(row) ? (row as Record<string, unknown>) : null;
+}
+
+/** finalize·reconcile이 돌려주는 알려진 상태 문자열. 이 밖의 값(undefined·null·boolean·객체·모르는 문자열)은 「응답 불명」으로 본다 — Mac 검수 F02 */
+const KNOWN_FINALIZE_STATES = new Set(["ready", "unknown", "ASSET_DELETION_IN_PROGRESS", "INVALID_STATE", "NOT_FOUND"]);
+
 export type PrecheckResult = { status: "allowed" | "denied" | "unavailable" };
 
 /** 유료 생성 전 사전 검사(화질별 보수적 예상 크기). denied일 때만 생성을 막는다. 확인 불가(unavailable)는 호출부 정책에 맡긴다 */
@@ -76,8 +87,7 @@ export async function precheckGenerated(deps: Pick<AssetStoreDeps, "rpc">, userI
   if (!isCanonicalUuid(userId)) return { status: "unavailable" };
   const r = await callRpc(deps.rpc, "aif_asset_precheck", { p_user: userId, p_est_bytes: estimatedGeneratedBytes(quality) });
   if (!r.ok) return { status: "unavailable" };
-  const row = Array.isArray(r.data) ? r.data[0] : r.data;
-  const allowed = (row as { allowed?: unknown } | null)?.allowed;
+  const allowed = singleRow(r.data)?.allowed;   // 정확히 1행 + 실제 boolean만 인정
   if (allowed === true) return { status: "allowed" };
   if (allowed === false) return { status: "denied" };
   return { status: "unavailable" };
@@ -106,7 +116,7 @@ export async function saveGeneratedOriginal(deps: AssetStoreDeps, input: { userI
     // 2) 예약
     const res = await callRpc(deps.rpc, "aif_asset_reserve", { p_user: userId, p_kind: "generated", p_mime: v.value.mime, p_ext: v.value.ext, p_bytes: v.value.bytes, p_sha256: v.value.sha256 });
     if (!res.ok) return { assetSaved: false, code: /STORAGE_LIMIT/.test(res.errorText) ? "STORAGE_LIMIT" : "RESERVE_FAILED" };
-    const row = (Array.isArray(res.data) ? res.data[0] : res.data) as { asset_id?: unknown; path?: unknown } | null;
+    const row = singleRow(res.data);   // 정확히 1행만. 0행·2행·객체·null·원시값이면 예약 id를 인정하지 않는다(업로드 0, abort 0)
     const assetId = row?.asset_id;
     if (!isCanonicalUuid(assetId)) return { assetSaved: false, code: "RESERVE_SHAPE" };   // id를 모르면 해제도 못 한다(예약은 보수적으로 남음). 업로드 0
     let expectedPath: string;
@@ -136,9 +146,10 @@ export async function saveGeneratedOriginal(deps: AssetStoreDeps, input: { userI
     // 4) 확정 — 객체 id가 있을 때만
     if (objectId) {
       const fin = await callRpc(deps.rpc, "aif_asset_finalize", { p_asset: assetId, p_user: userId, p_object_id: objectId });
-      if (fin.ok && fin.data === "ready") return { assetSaved: true, assetId };
-      if (fin.ok) return { assetSaved: "unknown", code: "NOT_CONFIRMED", assetId };   // DB가 ready가 아니라고 명시 응답(unknown·삭제 진행 등) — 대조 불필요
-      // 확정 응답 불명 → 같은 객체 id로 대조 1회
+      const known = fin.ok && typeof fin.data === "string" && KNOWN_FINALIZE_STATES.has(fin.data);
+      if (known && fin.data === "ready") return { assetSaved: true, assetId };
+      if (known) return { assetSaved: "unknown", code: "NOT_CONFIRMED", assetId };   // DB가 알려진 상태로 ready가 아니라고 명시 응답(unknown·삭제 진행 등) — 대조 불필요
+      // 확정 응답 불명(오류·던짐·undefined·null·boolean·객체·모르는 문자열) → 같은 객체 id로 대조 1회
       const rec = await callRpc(deps.rpc, "aif_asset_reconcile", { p_asset: assetId, p_user: userId, p_expected_object_id: objectId });
       if (rec.ok && rec.data === "ready") return { assetSaved: true, assetId };
       return { assetSaved: "unknown", code: "FINALIZE_UNKNOWN", assetId };

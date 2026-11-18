@@ -155,8 +155,8 @@ test("업로드 시작 뒤 실패(오류·중복 경로·시간 초과 던짐·i
   }
 });
 
-test("finalize가 ready가 아니라고 답함(unknown·삭제 진행·그 밖): 불명, 대조 0", async () => {
-  for (const ans of ["unknown", "ASSET_DELETION_IN_PROGRESS", "INVALID_STATE", "NOT_FOUND", null, true, { state: "ready" }]) {
+test("finalize가 알려진 상태로 ready가 아니라고 답함(unknown·삭제 진행·INVALID_STATE·NOT_FOUND): 불명, 대조 0", async () => {
+  for (const ans of ["unknown", "ASSET_DELETION_IN_PROGRESS", "INVALID_STATE", "NOT_FOUND"]) {
     const f = fake({ aif_asset_finalize: () => ({ data: ans, error: null }) });
     const r = await save(f);
     assert.deepEqual(r, { assetSaved: "unknown", code: "NOT_CONFIRMED", assetId: ASSET });
@@ -165,8 +165,9 @@ test("finalize가 ready가 아니라고 답함(unknown·삭제 진행·그 밖):
   }
 });
 
-test("finalize 응답 불명(오류·던짐): 같은 객체 id로 대조 1회 — ready면 저장됨, 아니면 불명", async () => {
-  for (const fin of [() => ({ data: null, error: { message: "x" } }), () => { throw new Error("lost"); }, () => undefined]) {
+test("finalize 응답 불명(오류·던짐·모르는 값): 같은 객체 id로 대조 1회 — ready면 저장됨, 아니면 불명", async () => {
+  const unknownAnswers = [undefined, null, true, false, 1, { state: "ready" }, ["ready"], "READY", "ok", ""].map((d) => () => ({ data: d, error: null }));
+  for (const fin of [() => ({ data: null, error: { message: "x" } }), () => { throw new Error("lost"); }, () => undefined, ...unknownAnswers]) {
     const ok = fake({ aif_asset_finalize: fin, aif_asset_reconcile: () => ({ data: "ready", error: null }) });
     assert.deepEqual(await save(ok), { assetSaved: true, assetId: ASSET });
     assert.deepEqual(ok.calls.at(-1), { fn: "aif_asset_reconcile", args: { p_asset: ASSET, p_user: U, p_expected_object_id: OBJ } });
@@ -177,6 +178,22 @@ test("finalize 응답 불명(오류·던짐): 같은 객체 id로 대조 1회 �
       assertNoDestructive(f);
     }
   }
+});
+
+test("reserve·precheck 응답은 정확히 1행 배열만 인정(0행·2행·객체·null·원시값은 성공 단정 0)", async () => {
+  const good = { asset_id: ASSET, path: pathOf() };
+  for (const data of [[], [good, good], good, null, undefined, "x", 1, true, [null], [[good]], ["x"]]) {
+    const f = fake({ aif_asset_reserve: () => ({ data, error: null }) });
+    const r = await save(f);
+    assert.deepEqual(r, { assetSaved: false, code: "RESERVE_SHAPE" }, JSON.stringify(data));
+    assert.deepEqual(f.names(), ["aif_asset_reserve"], "업로드 0·abort 0(예약 id를 인정하지 않음)");
+  }
+  const extra = fake({ aif_asset_reserve: () => ({ data: [{ ...good, note: "extra", ready: true }], error: null }) });
+  assert.deepEqual(await save(extra), { assetSaved: true, assetId: ASSET }, "추가 필드는 허용하되 판정에 쓰지 않음");
+  for (const data of [[], [{ allowed: true }, { allowed: true }], { allowed: true }, null, "true", true, [null], [[{ allowed: true }]], [{ allowed: "true" }], [{ allowed: 1 }], [{}]]) {
+    assert.deepEqual(await precheckGenerated(fake({ aif_asset_precheck: () => ({ data, error: null }) }).deps, U, "1K"), { status: "unavailable" }, JSON.stringify(data));
+  }
+  assert.deepEqual(await precheckGenerated(fake({ aif_asset_precheck: () => ({ data: [{ allowed: false, extra: 1 }], error: null }) }).deps, U, "1K"), { status: "denied" });
 });
 
 test("어떤 경우에도 던지지 않는다(생성 결과 반환을 막지 않음)", async () => {
