@@ -244,28 +244,30 @@ t("mark_missing: 객체가 id로도 경로로도 없을 때만 missing(사유 ob
 
 t("mark_missing — 저장소 두 기준: 경로에 다른 객체, 그 id가 다른 자리에 있으면 other_object(무변경)", () => {
   const u = mkUser();
+  // 준비를 먼저 끝낸다(저장소 대역을 바꾸는 것은 여기까지)
   // (가) 그 id는 없는데 같은 경로에 다른 id의 객체가 있다
   const a = mkReady(u); dropObject(a);
   q(`insert into storage.objects(bucket_id, name, metadata) values ('aif-assets', '${a.path}', '{"size":10}'::jsonb);`);
-  assert.equal(markMissing(a), "other_object");
-  assert.equal(assetRow(a), "ready|null|true");
   // (나) 그 id의 객체가 다른 이름으로 옮겨져 있다(경로에는 아무것도 없다)
   const b = mkReady(u);
   q(`update storage.objects set name = '${b.path}.moved' where id = '${b.oid}';`);
-  assert.equal(markMissing(b), "other_object");
-  assert.equal(stateOnly(b), "ready");
   // (다) 그 id의 객체가 다른 버킷에 있다
   const c = mkReady(u);
   q(`update storage.objects set bucket_id = 'other-bucket' where id = '${c.oid}';`);
-  assert.equal(markMissing(c), "other_object");
-  assert.equal(stateOnly(c), "ready");
   // (라) 그 id도 다른 자리에 있고 경로에도 다른 객체가 있다
   const d = mkReady(u);
   q(`update storage.objects set name = '${d.path}.moved' where id = '${d.oid}';
      insert into storage.objects(bucket_id, name, metadata) values ('aif-assets', '${d.path}', '{"size":10}'::jsonb);`);
-  assert.equal(markMissing(d), "other_object");
-  assert.equal(stateOnly(d), "ready");
-  assert.equal(q(`select count(*) from storage.objects where name like '${u}/%' or name like '${u}/%.moved';`), "4", "저장소 대역의 객체는 하나도 지워지거나 바뀌지 않았다");
+  // 판정 호출 전의 저장소 대역 전체(행 수 + 모든 행의 id·버킷·이름·메타데이터·생성 시각 지문)
+  const storageSnapshot = () => q(`select count(*) || '|' || coalesce(md5(string_agg(so.id::text || '|' || so.bucket_id || '|' || so.name || '|' || coalesce(so.metadata::text, '') || '|' || coalesce(so.created_at::text, ''), ',' order by so.id)), '') from storage.objects so;`);
+  const before = storageSnapshot();
+  assert.equal(markMissing(a), "other_object");
+  assert.equal(assetRow(a), "ready|null|true");
+  for (const x of [b, c, d]) {
+    assert.equal(markMissing(x), "other_object");
+    assert.equal(stateOnly(x), "ready");
+  }
+  assert.equal(storageSnapshot(), before, "판정 호출 전후로 저장소 대역이 같다 — 객체를 지우거나 바꾸지 않는다");
 });
 
 t("mark_missing — 대상 아님(skip): 없는 자산·다른 회원·NULL·reserved·unknown·failed·expired", () => {
@@ -412,44 +414,47 @@ t("scan — 한 회차 상한: 읽은 행 ≤ 창, 반환 ≤ 반환 상한. 조
 });
 
 t("scan — absent 포화와 회전: 반환되지 않은 후보는 다음 회차에 다시 앞에서 읽히고, 판정된 것은 빠진다", () => {
-  settleAll();
+  // 앞 시험이 남긴 ready 행(객체 없이 남겨 둔 것 포함)이 창에 들어오면 건수가 섞인다 → 이 시험만의 ready 집합을 만든다(시험 DB 한정)
+  q(`update public.aif_assets set state = 'failed' where state = 'ready';`);
   const u = mkUser();
   const absent = [1, 2, 3, 4, 5].map(() => { const a = mkReady(u); dropObject(a); return a; });
   const ids = absent.map((a) => a.id).sort();   // 확인 시각이 모두 NULL이므로 id 오름차순으로 읽힌다(안정 정렬)
   const r1 = scan(5, 2);
+  assert.deepEqual([r1.scanned, r1.absent, r1.touched], [5, 5, 0], "창 안은 이 시험의 5행뿐이고 후보는 갱신하지 않는다");
   assert.deepEqual(r1.candidates.map((c) => c.asset_id), ids.slice(0, 2));
   const r1b = scan(5, 2);
   assert.deepEqual(r1b.candidates.map((c) => c.asset_id), ids.slice(0, 2), "판정을 부르지 않으면 같은 후보가 다시 온다(상태 변화 0)");
   for (const c of r1.candidates) assert.equal(svcOk(`select public.aif_asset_mark_missing('${c.asset_id}', '${c.user_id}');`), "missing");
   const r2 = scan(5, 2);
   assert.deepEqual(r2.candidates.map((c) => c.asset_id), ids.slice(2, 4), "missing이 된 것은 ready가 아니라 더 읽히지 않는다");
-  assert.equal(r2.absent, 3);
+  assert.deepEqual([r2.scanned, r2.absent], [3, 3]);
   for (const c of r2.candidates) svcOk(`select public.aif_asset_mark_missing('${c.asset_id}', '${c.user_id}');`);
   const r3 = scan(5, 2);
+  assert.deepEqual([r3.scanned, r3.absent], [1, 1]);
   assert.deepEqual(r3.candidates.map((c) => c.asset_id), ids.slice(4));
 });
 
 t("scan — 회전: 확인된 행은 뒤로 가 연속 회차에서 다른 행이 읽힌다(여러 회차에 걸쳐 전부 한 번씩)", () => {
   q(`update public.aif_assets set state = 'failed' where state = 'ready';`);   // 이 시험만의 ready 집합을 만들기 위해 앞 시험의 ready를 비운다(시험 DB 한정)
   const u = mkUser();
-  const all = [1, 2, 3, 4, 5, 6, 7].map(() => mkReady(u));
+  const all = [1, 2, 3, 4, 5, 6, 7, 8].map(() => mkReady(u));   // 8행 ÷ 창 2 = 정확히 4회차에 한 바퀴
   const seen = new Set();
   const order = [];
   for (let round = 0; round < 4; round++) {
     const before = new Map(all.map((a) => [a.id, checkedAt(a)]));
     const r = scan(2, 2);
-    assert.ok(r.scanned <= 2);
+    assert.equal(r.scanned, 2);
     const touchedNow = all.filter((a) => checkedAt(a) !== before.get(a.id)).map((a) => a.id);
     assert.equal(touchedNow.length, r.touched);
     for (const id of touchedNow) { assert.ok(!seen.has(id), "한 바퀴가 끝나기 전에는 같은 행을 다시 읽지 않는다"); seen.add(id); order.push(id); }
   }
-  assert.equal(seen.size, 7, "7행을 창 2로 4회차에 모두 한 번씩");
+  assert.equal(seen.size, 8, "8행을 창 2로 4회차에 모두 한 번씩");
   assert.deepEqual(order, all.map((a) => a.id).sort(), "처음에는 확인 시각이 모두 NULL이라 id 순서");
   // 다음 회차는 가장 먼저 확인했던 행부터 다시
   const before = new Map(all.map((a) => [a.id, checkedAt(a)]));
   scan(2, 2);
   const again = all.filter((a) => checkedAt(a) !== before.get(a.id)).map((a) => a.id).sort();
-  assert.deepEqual(again, order.slice(0, 2).sort());
+  assert.deepEqual(again, order.slice(0, 2).sort(), "5회차는 한 바퀴가 끝난 뒤라 가장 먼저 확인한 2행을 다시 읽는다(재독은 설계대로)");
 });
 
 t("scan — 대상: 모든 회원의 ready만(보호 회원 포함). 다른 상태·other_object는 후보가 아니다", () => {
