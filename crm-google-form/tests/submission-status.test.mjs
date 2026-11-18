@@ -11,6 +11,8 @@ import {
   matchesStatusFilter,
   showsErrorMessage,
   REVIEW_STATUS_NOT_IN,
+  reviewCountView,
+  listLoadFailed,
 } from "../lib/crm/submissionStatus.ts";
 
 const rows = (list) => list.map((status, i) => ({ id: String(i), status }));
@@ -87,4 +89,166 @@ test("오류 원문 표시는 기존처럼 failed만(확대 0)", () => {
 
 test("대시보드 확인 필요 개수용 조건: 기존 3개가 아닌 모든 값", () => {
   assert.equal(REVIEW_STATUS_NOT_IN, "(received,notified,failed)");
+});
+
+// ── 실제 페이지 서버 렌더 시험(CRM-20261118-03 P2) ─────────────────────────────────────────────
+// 새 패키지 0: 이미 설치된 typescript로 .ts/.tsx를 바꾸고, 로그인(@/lib/access)·DB(@/lib/supabase/server)·
+// next/link·server-only만 가짜로 갈아 끼운 뒤 실제 page.tsx를 react-dom/server로 그린다. 실DB·API 0.
+import { register } from "node:module";
+import { pathToFileURL } from "node:url";
+import { dirname as __dn, join as __jn } from "node:path";
+import { fileURLToPath as __f2p } from "node:url";
+
+const PROJECT = __jn(__dn(__f2p(import.meta.url)), "..");
+const HOOKS = [
+  `import { createRequire } from "node:module";`,
+  `import { existsSync, readFileSync } from "node:fs";`,
+  `import { pathToFileURL, fileURLToPath } from "node:url";`,
+  `const ROOT = ${JSON.stringify(PROJECT.replace(/\\/g, "/"))};`,
+  `const req = createRequire(pathToFileURL(ROOT + "/package.json"));`,
+  `const ts = req("typescript");`,
+  `const FAKES = ${JSON.stringify({
+    "@/lib/access": "export async function requireProgramAccess(){ return { id: \"user-1\" }; }",
+    "@/lib/supabase/server": "export async function createClient(){ return globalThis.__crmFake.client(); }",
+    "next/link": "import { createElement } from \"react\"; export default function Link({ href, className, children }) { return createElement(\"a\", { href, className }, children); }",
+    "server-only": "export {};",
+  })};`,
+  `export async function resolve(spec, ctx, next) {`,
+  `  if (ctx.parentURL && ctx.parentURL.startsWith("crmfake:")) return next(spec, { ...ctx, parentURL: pathToFileURL(ROOT + "/package.json").href });`,
+  `  if (spec in FAKES) return { url: "crmfake:///" + encodeURIComponent(spec), shortCircuit: true };`,
+  `  if (spec.startsWith("@/")) {`,
+  `    const base = ROOT + "/" + spec.slice(2);`,
+  `    for (const ext of [".ts", ".tsx", "/index.ts", "/index.tsx"]) {`,
+  `      if (existsSync(base + ext)) return { url: pathToFileURL(base + ext).href, shortCircuit: true };`,
+  `    }`,
+  `  }`,
+  `  return next(spec, ctx);`,
+  `}`,
+  `export async function load(url, ctx, next) {`,
+  `  if (url.startsWith("crmfake:")) return { format: "module", source: FAKES[decodeURIComponent(url.slice(11))], shortCircuit: true };`,
+  `  const clean = url.split("?")[0];`,
+  `  if (clean.startsWith("file:") && (clean.endsWith(".ts") || clean.endsWith(".tsx")) && !clean.includes("/node_modules/")) {`,
+  `    const file = fileURLToPath(clean);`,
+  `    const out = ts.transpileModule(readFileSync(file, "utf8"), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, isolatedModules: true }, fileName: file });`,
+  `    return { format: "module", source: out.outputText, shortCircuit: true };`,
+  `  }`,
+  `  return next(url, ctx);`,
+  `}`,
+].join("\n");
+register("data:text/javascript," + encodeURIComponent(HOOKS));
+
+/** 가짜 Supabase: 표·필터를 기록하고, 응답은 시험이 정한 함수가 돌려준다. */
+function fakeClient(answer) {
+  return {
+    from(table) {
+      const q = { table, ops: [] };
+      const b = new Proxy({}, {
+        get(_, k) {
+          if (k === "then") return (res, rej) => Promise.resolve(answer(q)).then(res, rej);
+          if (k === "maybeSingle") return () => Promise.resolve(answer({ ...q, single: true }));
+          return (...args) => { q.ops.push([k, ...args]); return b; };
+        },
+      });
+      return b;
+    },
+  };
+}
+const isReviewCount = (q) => q.table === "crm_submissions" && q.ops.some((o) => o[0] === "not");
+const isFailedCount = (q) => q.table === "crm_submissions" && q.ops.some((o) => o[0] === "eq" && o[1] === "status");
+const isList = (q) => q.table === "crm_submissions" && q.ops.some((o) => o[0] === "order");
+const isCount = (q) => q.table === "crm_submissions" && q.ops.some((o) => o[0] === "select" && o[2] && o[2].head);
+
+async function renderPage(path, answer) {
+  globalThis.__crmFake = { client: () => fakeClient(answer) };
+  const server = await import("react-dom/server");
+  const render = server.renderToStaticMarkup ?? server.default.renderToStaticMarkup;
+  const mod = await import(pathToFileURL(__jn(PROJECT, path)).href);
+  return render(await mod.default());
+}
+const DASH = "app/(dashboard)/dashboard/page.tsx";
+const SUBS = "app/(dashboard)/submissions/page.tsx";
+const okRow = (id, status) => ({ id, form_source_id: "s1", name: `이름${id}`, phone: null, email: null, status, error_message: status === "failed" ? "SMTP 오류 원문" : null, raw_values: {}, created_at: "2026-11-18T00:00:00Z" });
+
+/** 대시보드 응답: 확인 필요 개수·최근 목록만 시험값, 나머지는 정상 */
+const dashAnswer = ({ review, list }) => (q) => {
+  if (q.single) return { data: null, error: null };
+  if (q.table === "crm_form_sources") return { data: [{ id: "s1", name: "폼1", is_active: true }], error: null };
+  if (isReviewCount(q)) return review;
+  if (isList(q)) return list;
+  if (isFailedCount(q)) return { data: null, count: 1, error: null };
+  if (isCount(q)) return { data: null, count: 3, error: null };
+  return { data: [], error: null };
+};
+const LIST_OK = { data: [okRow("1", "notified"), okRow("2", "failed")], error: null };
+
+test("대시보드: 확인 필요 개수 조회 오류 → 0으로 숨기지 않고 「확인 불가」, 오류 원문 0", async () => {
+  const html = await renderPage(DASH, dashAnswer({ review: { data: null, count: null, error: { message: "permission denied for table x" } }, list: LIST_OK }));
+  assert.match(html, /확인 필요/);
+  assert.match(html, /확인 불가/);
+  assert.doesNotMatch(html, /permission denied/);
+});
+
+test("대시보드: count null(오류 없음)도 「확인 불가」", async () => {
+  const html = await renderPage(DASH, dashAnswer({ review: { data: null, count: null, error: null }, list: LIST_OK }));
+  assert.match(html, /확인 불가/);
+});
+
+test("대시보드: 정상 0이면 확인 필요 카드 숨김(기존 배치), 양수면 그 숫자", async () => {
+  const zero = await renderPage(DASH, dashAnswer({ review: { data: null, count: 0, error: null }, list: LIST_OK }));
+  assert.doesNotMatch(zero, /확인 필요/);
+  assert.match(zero, /발송 실패/);
+  const two = await renderPage(DASH, dashAnswer({ review: { data: null, count: 2, error: null }, list: LIST_OK }));
+  assert.match(two, /확인 필요<\/p><p class="mx-kpi-value">2</);
+});
+
+test("대시보드: 최근 접수 조회 실패 → 「없어요」 대신 조회 실패·새로고침 안내, 오류 원문 0", async () => {
+  const html = await renderPage(DASH, dashAnswer({ review: { data: null, count: 0, error: null }, list: { data: null, error: { message: "relation does not exist" } } }));
+  assert.doesNotMatch(html, /아직 접수된 신청이 없어요/);
+  assert.match(html, /불러오지 못했습니다/);
+  assert.match(html, /새로고침/);
+  assert.doesNotMatch(html, /relation does not exist/);
+});
+
+test("대시보드: 정상 목록은 기존처럼 표·상태 라벨", async () => {
+  const html = await renderPage(DASH, dashAnswer({ review: { data: null, count: 0, error: null }, list: LIST_OK }));
+  assert.match(html, /이름1/);
+  assert.match(html, /발송 완료/);
+  assert.doesNotMatch(html, /불러오지 못했습니다/);
+});
+
+/** 접수 내역 응답 */
+const subsAnswer = (list) => (q) => (q.table === "crm_form_sources" ? { data: [{ id: "s1", name: "폼1" }], error: null } : list);
+
+test("접수 내역: 목록 조회 실패 → 빈 목록·0 KPI 대신 조회 실패 안내, 오류 원문 0", async () => {
+  const html = await renderPage(SUBS, subsAnswer({ data: null, error: { message: "JWT expired secret-detail" } }));
+  assert.doesNotMatch(html, /아직 접수된 신청이 없습니다/);
+  assert.doesNotMatch(html, /표시된 접수/);
+  assert.match(html, /불러오지 못했습니다/);
+  assert.match(html, /새로고침/);
+  assert.doesNotMatch(html, /JWT expired|secret-detail/);
+});
+
+test("접수 내역: 정상 빈 목록은 기존 첫 접수 안내 그대로", async () => {
+  const html = await renderPage(SUBS, subsAnswer({ data: [], error: null }));
+  assert.match(html, /아직 접수된 신청이 없습니다/);
+  assert.doesNotMatch(html, /불러오지 못했습니다/);
+});
+
+test("접수 내역: 6상태 + 미래 값 → KPI·확인 필요 개수, 실패 원문은 failed 1건만", async () => {
+  const rows = ["received", "notified", "failed", "dispatching", "partial", "unknown", "future_value"].map((s, i) => okRow(String(i), s));
+  const html = await renderPage(SUBS, subsAnswer({ data: rows, error: null }));
+  assert.match(html, /확인 필요<\/p><p class="mx-kpi-value">4</);
+  assert.match(html, /발송 실패<\/p><p class="mx-kpi-value">1</);
+  assert.match(html, /확인 필요\(future_value\)/);
+  assert.equal((html.match(/SMTP 오류 원문/g) ?? []).length, 1);
+});
+
+test("판정 함수: 개수·목록", () => {
+  assert.deepEqual(reviewCountView({ count: null, error: null }), { kind: "unavailable" });
+  assert.deepEqual(reviewCountView({ count: 3, error: { message: "x" } }), { kind: "unavailable" });
+  assert.deepEqual(reviewCountView({ count: 0, error: null }), { kind: "hidden" });
+  assert.deepEqual(reviewCountView({ count: 2, error: null }), { kind: "value", value: 2 });
+  assert.equal(listLoadFailed({ data: [], error: null }), false);
+  assert.equal(listLoadFailed({ data: null, error: null }), true);
+  assert.equal(listLoadFailed({ data: [], error: { message: "x" } }), true);
 });

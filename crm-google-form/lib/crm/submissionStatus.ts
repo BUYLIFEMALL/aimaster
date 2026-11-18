@@ -103,3 +103,19 @@ export function showsErrorMessage(status: string): boolean {
 
 /** 대시보드 「확인 필요」 개수 조회용 — supabase-js `.not("status", "in", REVIEW_STATUS_NOT_IN)` */
 export const REVIEW_STATUS_NOT_IN = "(received,notified,failed)";
+
+/**
+ * 개수 조회 결과 → 화면 표시. 조회 오류나 count 없음은 0이 아니라 「확인 불가」로 보여 준다
+ * (정상 0일 때만 숨김). CRM-20261118-03 P2.
+ */
+export type CountView = { kind: "hidden" } | { kind: "value"; value: number } | { kind: "unavailable" };
+
+export function reviewCountView(res: { count: number | null | undefined; error: unknown }): CountView {
+  if (res.error || typeof res.count !== "number") return { kind: "unavailable" };
+  return res.count > 0 ? { kind: "value", value: res.count } : { kind: "hidden" };
+}
+
+/** 목록 조회 실패 여부 — 오류가 있거나 배열이 아니면 「빈 목록」이 아니라 「조회 실패」. */
+export function listLoadFailed(res: { data: unknown; error: unknown }): boolean {
+  return Boolean(res.error) || !Array.isArray(res.data);
+}

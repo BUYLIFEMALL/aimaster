@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHero } from "@/components/layout/PageHero";
 import { KpiCard, KpiGrid } from "@/components/dashboard/KpiCard";
 import { formatDateTime } from "@/lib/format";
-import { REVIEW_STATUS_NOT_IN, statusMeta } from "@/lib/crm/submissionStatus";
+import { REVIEW_STATUS_NOT_IN, listLoadFailed, reviewCountView, statusMeta } from "@/lib/crm/submissionStatus";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -45,7 +45,9 @@ export default async function DashboardPage() {
 
   const sources = sourcesRes.data ?? [];
   const sourceNameById = new Map(sources.map((s) => [s.id, s.name]));
-  const recent = recentRes.data ?? [];
+  const recentFailed = listLoadFailed(recentRes);
+  const recent = recentFailed ? [] : recentRes.data ?? [];
+  const reviewView = reviewCountView(reviewRes);
   const channels = [
     { label: "이메일(SMTP)", ok: (smtpRes.data ?? []).length > 0, hint: "신청자 이메일 발송" },
     { label: "문자·카카오(SOLAPI)", ok: !!solapiRes.data, hint: "SMS·알림톡·친구톡·RCS" },
@@ -73,8 +75,11 @@ export default async function DashboardPage() {
         <KpiCard icon="📥" label="전체 접수" value={totalRes.count ?? 0} tone="green" />
         <KpiCard icon="📅" label="최근 7일 접수" value={weekRes.count ?? 0} tone="amber" />
         <KpiCard icon="⚠️" label="발송 실패" value={failedRes.count ?? 0} hint="접수 내역에서 원인 확인" tone="muted" />
-        {(reviewRes.count ?? 0) > 0 && (
-          <KpiCard icon="🔍" label="확인 필요" value={reviewRes.count ?? 0} hint="발송 결과 미확정 · 자동 재시도 없음" tone="amber" />
+        {reviewView.kind === "value" && (
+          <KpiCard icon="🔍" label="확인 필요" value={reviewView.value} hint="발송 결과 미확정 · 자동 재시도 없음" tone="amber" />
+        )}
+        {reviewView.kind === "unavailable" && (
+          <KpiCard icon="🔍" label="확인 필요" value="확인 불가" hint="개수를 불러오지 못했습니다 · 새로고침해 주세요" tone="amber" />
         )}
       </KpiGrid>
 
@@ -131,7 +136,15 @@ export default async function DashboardPage() {
             </Link>
           )}
         </div>
-        {recent.length === 0 ? (
+        {recentFailed ? (
+          <div className="py-10 text-center">
+            <p className="text-4xl">⚠️</p>
+            <p className="mt-3 text-sm text-mx-muted">최근 접수를 불러오지 못했습니다. 잠시 뒤 새로고침해 주세요.</p>
+            <Link href="/dashboard" className="mx-btn-ghost mt-4">
+              🔄 다시 불러오기
+            </Link>
+          </div>
+        ) : recent.length === 0 ? (
           <div className="py-10 text-center">
             <p className="text-4xl">📭</p>
             <p className="mt-3 text-sm text-mx-muted">아직 접수된 신청이 없어요. 구글폼을 연결하고 테스트 응답을 1건 보내 보세요!</p>

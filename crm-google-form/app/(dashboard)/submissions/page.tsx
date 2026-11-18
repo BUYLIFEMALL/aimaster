@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHero } from "@/components/layout/PageHero";
 import { KpiCard, KpiGrid } from "@/components/dashboard/KpiCard";
 import { SubmissionMatrix, type SubmissionRow } from "@/components/submissions/SubmissionMatrix";
-import { countSubmissionStatuses } from "@/lib/crm/submissionStatus";
+import { countSubmissionStatuses, listLoadFailed } from "@/lib/crm/submissionStatus";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -12,7 +12,7 @@ export default async function SubmissionsPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const [{ data: submissions }, { data: sources }] = await Promise.all([
+  const [submissionsRes, { data: sources }] = await Promise.all([
     supabase
       .from("crm_submissions")
       .select("id, form_source_id, name, phone, email, status, error_message, raw_values, created_at")
@@ -22,8 +22,24 @@ export default async function SubmissionsPage() {
     supabase.from("crm_form_sources").select("id, name").eq("user_id", user.id),
   ]);
 
+  // 목록 조회가 실패하면 빈 목록·0 개수로 보이지 않게 실패 안내만 보여 준다(DB 오류 원문은 보이지 않음).
+  if (listLoadFailed(submissionsRes)) {
+    return (
+      <div className="mx-auto max-w-6xl">
+        <PageHero badge="📥 STEP 2 · 접수 내역" title="접수 내역" description="연결된 구글폼에 새 응답이 들어올 때마다 여기 자동으로 쌓입니다." />
+        <div className="mx-card py-16 text-center">
+          <p className="text-5xl">⚠️</p>
+          <p className="mt-4 text-sm text-mx-muted">접수 내역을 불러오지 못했습니다. 잠시 뒤 새로고침해 주세요.</p>
+          <a href="/submissions" className="mx-btn-ghost mt-4">
+            🔄 다시 불러오기
+          </a>
+        </div>
+      </div>
+    );
+  }
+  const submissions = submissionsRes.data ?? [];
   const sourceNameById = new Map((sources ?? []).map((s) => [s.id, s.name]));
-  const rows: SubmissionRow[] = (submissions ?? []).map((s) => ({
+  const rows: SubmissionRow[] = submissions.map((s) => ({
     id: s.id,
     sourceName: sourceNameById.get(s.form_source_id) ?? "폼",
     name: s.name,
