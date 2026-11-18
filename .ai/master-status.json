@@ -4319,19 +4319,19 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "A1 자산 SQL 초안·순수 경로 검증 첫 구현",
-      "status": "reviewing",
-      "delivery": "revised_SQL85_static_review_dispatched",
+      "status": "needs_revision",
+      "delivery": "SQL_F01_F04_fixed_F05_null_token_false_success_returned",
       "scopeRef": "프로그램내 신규 aif_assets_a1 migration초안·src/lib/assets/paths.ts·순수시험/본인기존문서",
       "completion": "계약두표/6함수/잠금/서비스권한/unknown보존/objectidentity 초안·경로검증실시험/tsc·정확SHA·미실행SQL구분",
       "constraints": "다른저자미커밋보존·store/라우트0·SQL실행/DB/버킷/실저장/AI/설치/build/push0·공용quota/retention수정0",
-      "evidence": "W00최종037·Masterdispatch msg_063c9804ec87 · Mac수락msg_f3fa3161bd5b(검수준비·정확SHA대기) · msg_a224024efdcf/9d5d921a7·MasterSQL직접읽기·Macmsg_7bd96acfe0b8 · Macmsg_6ffe514132b3·통합수정반환 · 고정최종msg_666b5f7d4d1e(새항목0) · msg_f92baa9ea13a/7ed1d1eadb70·Macmsg_63e85dbd7f17 · msg_dd358e09deaa 기존수정완료/검수대기명시",
-      "next": "Mac85 고정SHA 정적재검수→격리실행필요 여부판정·현재실SQL0",
-      "lastReviewedAt": "2026-11-18T06:34:06.796Z",
+      "evidence": "W00최종037·Masterdispatch msg_063c9804ec87 · Mac수락msg_f3fa3161bd5b(검수준비·정확SHA대기) · msg_a224024efdcf/9d5d921a7·MasterSQL직접읽기·Macmsg_7bd96acfe0b8 · Macmsg_6ffe514132b3·통합수정반환 · 고정최종msg_666b5f7d4d1e(새항목0) · msg_f92baa9ea13a/7ed1d1eadb70·Macmsg_63e85dbd7f17 · msg_dd358e09deaa 기존수정완료/검수대기명시 · Macmsg_5db0bc893652/85 지정정적검수",
+      "next": "delete_mark NULL입력거절/실제ROW_COUNT=1만true 최소보완→Mac해당diff확인",
+      "lastReviewedAt": "2026-11-18T06:36:50.480Z",
       "sha": "85e8fd1f7",
       "validation": {
         "author": "순수paths8·전체77/77·tsc0·DDL실행0",
         "master": "reconcile identity/claim소유경로/delete_mark잠금/SQL alias-cast 경계독립확인배정",
-        "independent": "순수paths8/8실행PASS. 정적P1 reconcile기대objectid누락·claim_delete타회원assetID/경로무대조토큰재발급, P2 delete_mark회원잠금누락·alias위험/sizecast예외. 실SQL0 · service_role내부계약문제/회원직접RPC공격아님·실DB피해0·alias컴파일실패미확정·cast예외시예약보존가능·기존policy/defaultGRANT실행검증미완",
+        "independent": "85에서F01기대ID/F02owner경로conflict/F03회원잠금전이/F04안전size별칭 수정확인. 잔여P2F05 NULLtoken비교 unknown→UPDATE0에도true. 실SQL/paths반복0",
         "runtime": "어떤DB실행/버킷/업로드0"
       }
     },
@@ -4867,19 +4867,19 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T06:35:36.352Z",
+      "at": "2026-11-18T06:36:50.480Z",
       "timezone": "Asia/Seoul",
-      "trigger": "AGY 협업/실행제약 수락",
-      "scope": "묶음배포·즉시지시예산/시도 사전보고·main카드승인/push보류",
+      "trigger": "SNS85 독립재검수완료",
+      "scope": "85 고정정적검수 F01~05·서비스경계",
       "evidence": [
-        "msg_e4f5382fa23d"
+        "msg_5db0bc893652"
       ],
-      "judgment": "담당명시수락기록·새작업/중복검증배정0·기존SNS검수진행유지",
+      "judgment": "기존4항목해소·NULL토큰거짓성공1건 최소수정반환·전체SQL PASS보류",
       "unverified": [
-        "감성최신12모델/전체UI·DBversion",
-        "SNS85 정적재검수결과"
+        "F05수정·실SQL/권한/동시성",
+        "다른승인/사람단계변경없음"
       ],
-      "nextAction": "기존결과회수·승인답대기·추가운영실행0"
+      "nextAction": "한함수수정SHA→한정재검수·중복시험0"
     },
     "notifications": [
       {
