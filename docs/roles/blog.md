@@ -13,7 +13,7 @@
 - **T-12(데이터수집 카테고리 담당)**: 2026-11-17 Master 배정(msg_228df86d95ed)으로 **`blog`가 문서·요청 조정 담당** — `docs/CATEGORY_GUIDE_MAP.md` 114행·`docs/SCRAPING_CONSOLIDATION_TASKS.md` T-12에 반영(`c3a7d77b7`). 제품 코드 권한·`website-scraper` 재활성화는 범위 밖.
 - **`PENDING_DEPLOYS` 64행(30일 보관 열외 블로그)**: `blog-keyword` `6c9f6d8a1`은 코드상 v1.13(11-10)에 포함·배포 산출물 미대조, `blog-workroom`·`blog-content-maker`는 주인님 결정으로 배포 안 함(백업 카테고리) — `c3a7d77b7`에서 문구 정정, 행은 유지.
 - **범위 밖**: 백업 카테고리 5개, `blog-keyword`(agy 담당) — 아래 「담당 제외」.
-- **차단·사람 선행**: 이웃 B-1 「화면에 유지」 재시험 = 맥미니 세션 + 사람 클릭(`blog-neighbor-care/docs/REQUEST_20261116_MACMINI_B1_FOCUS_RETEST.md`, 배포 불요) · 블로그 키트 실제 설치 = 주인님 · 계정 C-3·B-3 결정 = 주인님 · website-scraper 라이브 화면 = 담당 미정(Master).
+- **차단·사람 선행**: 이웃 B-1 「화면에 유지」 재시험 = 맥미니 세션 + 사람 클릭(`blog-neighbor-care/docs/REQUEST_20261116_MACMINI_B1_FOCUS_RETEST.md`, 배포 불요) · 블로그 키트 실제 설치 = 주인님 · 계정 2건 결정 = 주인님(이웃 C-3 수락 시험용 「받은 이웃 신청이 있는 네이버 계정」 이름 · WP·구글블로그 P3·P7용 「이용기간·키 없는 새 시험 계정」 이메일 — 근거 `docs/REQUEST_20261115_MACMINI_BLOG_CHECKLIST.md` 18·41·106~108행) · website-scraper 라이브 화면 = 담당 미정(Master).
 - **후속 후보(배정 전)**: ghost-scraper Next 16.4.2→16.4.6 · web-crawler 로그인 정책 2건(로그아웃 범위·User-Agent) · 옛 website-scraper 로그인 주소 404 · 기존 티스토리 원고 `##` 화면 정리 여부 · 데이터수집 T-06·T-09·T-10.
 - **다음 첫 단계**: Master 다음 배정 대기. T-03 운영 단계(Render 1단계 배포 → 전환 완료 증명 → 새 표 마이그레이션)는 Master 배정·주인님 승인 뒤 한 단계씩.
 
