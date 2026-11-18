@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 03:46:57 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 03:53:25 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -158,6 +158,7 @@ Master 마지막 실제 점검: 2026-11-19 03:32:15 KST · 실행 중 점검 주
 | DES-20261116-01 | AG-UI-01 | done / integrated | M1 정적 품질 명세·잘못된 단정 정정 | 실기기·낭독 검수로 확대하지 않음 |
 | DES-20261116-02 | AG-UI-01 | done / integrated | 7b5d3b053 정적 독립 재검토 | 필수 남은 정적결함0; 실화면 별도대기 |
 | MOV-20261116-01 | CC-MOVIE-01 | done / integrated | GIF/WebP 송신·0/10MB·origin/source 보완 | 초기 구현·수정·독립QA 완료; MOV03 배포 완료, 실왕복 미검수 |
+| ECOM-20261119-WEBP | CC-ECOM-01 | queued / single_send_preview_dispatched_writes_pending | 영상에서 상세페이지로 WebP 한 건 실검수 | Windows 같은 작업 공간에서 Movie 송신 1회와 ECOM 수신 미리보기. 섹션·ZIP 검수에 필요한 운영 행·파일 각 1건 승인 대기. |
 | WS-20261116-01 | CC-WORKSPACE-01 | done / integrated | Agent MCP 연결4개·회원한도·무인쓰기검토 | v1.52 운영 사용자 직접 배포 완료. 외부 MCP 실제 쓰기는 미검수 |
 | WS-20261116-02 | CC-WORKSPACE-01 | done / integrated | 영속 승인1회 소모·동시재개1회 보완 | MUS03 독립12시험 통과. 운영 전체 무결함 의미 아님 |
 | B2B-20261116-01 | CC-B2B-BACK-01 | done / integrated | v1.15 정정·M2-8~11/0100 준비·415시험 | 준비/최종422시험·Front합의 검토완료. 실제배포는B2B-20261116-03/DEC-002로분리 |
@@ -380,7 +381,7 @@ Master 마지막 실제 점검: 2026-11-19 03:32:15 KST · 실행 중 점검 주
 | WS-20261118-07 | CC-WORKSPACE-01 | reviewing / v160_deployed_calendar_verified_dashboard_page_unavailable | 워크스페이스 v1.60 캘린더·현황판 운영 배포 | 운영 달력 확인. 기존 시험 현황판 페이지를 찾을 수 없어 폭/메뉴 확인 보류. |
 | WS-20261118-08 | CC-WORKSPACE-01 | done / collapsed_widget_spacing_static_mac_review_accepted_undeployed | 좌측 하단 저장공간 위젯과 푸터 겹침 | 미배포. 기본 위젯 겹침 국소 정적 검수 완료, 확장/좁은 폭·실화면은 별도. |
 | WS-20261119-01 | CC-WORKSPACE-01 | done / saved_notion_html_recursive_fix_independent_review_accepted | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | 로컬 독립 수락. v1.61 첫 빌드 취소, 운영 v1.60. 배포 진단 WS-20261119-REL. |
-| WS-20261119-REL | CC-WORKSPACE-01 | reviewing / retry_canceled_after_same_stall_live_v160_verified | Workspace v1.61 기존 중단 빌드 로그 진단 | 재시도 1회도 페이지 데이터 수집에서 멈춤. Master 취소 및 공식 도메인 v1.60 READY 확인. 새 빌드 없이 감시 지연과 공통 재현 조건 진단. |
+| WS-20261119-REL | CC-WORKSPACE-01 | running / isolated_module_probe_dispatched_after_retry_cancel | Workspace v1.61 기존 중단 빌드 로그 진단 | 재시도 취소·v1.60 유지. 자동 감시 지연 66초, 실제 취소 주체 단일 귀속 미확인. 전용 로컬 DB로 모듈·라우트 로드 진단 배정. 빌드 없음. |
 | QA-20261118-043 | CX-QA-01 | done / integrated | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | 실브라우저375/390은v1.58배포후허용된기존시험세션에서·추가dev/build0 |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
 | OPS-20261118-01 | CX-MASTER-01 | done / integrated | 전체개발플랜·카테고리·누락개선/인수인계 정합성 대조 | 미확인68프로그램 현담당근거후속연결·제품전체검증과구분, 신규후속ID별진행 |
@@ -404,7 +405,7 @@ Master 마지막 실제 점검: 2026-11-19 03:32:15 KST · 실행 중 점검 주
 | B2B-20261119-FRONTQA | CX-QA-01 | waiting_human / public_lab_checks_passed_waiting_staff_and_dark_fixture | B2B Lab 프론트 키보드·대비·화면 검수 | 공개 밝기·포커스·PWA 메타 확인. 직원용 143 및 다크 시험몰 접근 대기. |
 | B2B-20261119-FRONTP3 | CC-B2B-FRONT-01 | done / storefront_button_and_price_independent_review_accepted_undeployed | B2B몰 버튼 터치 영역과 원래 가격 대비 보완 | 두 변경 독립 15/15 수락. 미배포이며 Lab 7609748ad에 미포함. 주문서 S70은 별도 진행. |
 | B2B-20261119-FRONTREL | CC-B2B-FRONT-01 | done / production_base_proven_ui_bundle_queued | B2B몰 UI 배포 범위와 순번 준비 | 운영 v1.16 READY. 가격 두 소스는 단독 적용 가능, 갤러리 90248e5b1은 7c8ee3a81·e4ba29947 동반 필요. 기존 다음 배포 묶음에 대기. |
-| B2B-20261119-S70 | CC-B2B-BACK-01 | reviewing / hardened_suite_pass_rollback_guard_dispatched | 주문서 무통장 현금영수증 접수와 입금 확인 경합 처리 | 전용 Docker·DB 보호 및 엄격한 0100 회귀 포함 격리 19/19. 신규 접수 권한도 되돌리기에서 회수하도록 보완 배정. |
+| B2B-20261119-S70 | CC-B2B-BACK-01 | done / guard_rollback_independent_accepted_undeployed | 주문서 무통장 현금영수증 접수와 입금 확인 경합 처리 | 격리 21/21, Mac 롤백 정적 통과. 0105와 UI 배포 전 Lab 실검증 승인 대기. |
 | B2B-20261119-S70-FRONT | CC-B2B-FRONT-01 | done / checkout_rpc_exception_independent_recheck_passed_undeployed | 주문서 UI에 무통장 현금영수증 접수 연결 | Mac 재검수 기존 6/6·별도 결제수단 3/3. 예외 때 완료 주문 상세 이동 및 기존 결제 경로 확인. 0105 롤백 보완과 Lab 검증 대기, 미배포. |
 | B2B-20261119-SAMPLE-S1 | CC-B2B-BACK-01 | done / owner_direct_sample_content_update_reported | 운영 샘플몰 상품 사진과 설명 보완 | 담당 보고 기준 상품 16개 보완, 전체 상품 사진 25/25, 화면 이미지 33개 중 오류 0. |
 | B2B-20261119-MAKER | CC-B2B-BACK-01 | queued / m1_scope_reviewed_queued_after_s70 | B2B 메이커 연계 M1~M3 선행 범위 대조 | S70 결과 뒤 M1 점유·순번 확정. 공용 사본·관리 상품 목록 보내기만. M2 저장·정리 정책 별도, M1 단독 배포 없음. |
@@ -424,6 +425,7 @@ Master 마지막 실제 점검: 2026-11-19 03:32:15 KST · 실행 중 점검 주
 | QA-20261118-BLOG-01 | CX-QA-01 | waiting_human / website_complete_b1_renderer_timeout_human_setup_pending | website-scraper 읽기·B1 사람 포커스 재시험 준비 | 기존9 확장설치/버전/ON 사람확인→일반창A/공간9 B 직접읽기각1회→기존확장복원 |
 | RE-20261118-07 | CC-REALTY-01 | done / evaluation_deliverable_accepted_no_effectiveness_pass | 후보C 새기간40건 사전라벨 고정 평가 | 정상운영 새기간에서 목표소음이 포함된 검증조건 충족 시에만 별도배정·동일40건 규칙조정/재시험0 |
 | ECOM-20261118-06 | CC-ECOM-01 | done / specified_mock_server_source_accepted_off_unreleased | Cloudflare 본인 공용키 무료 이미지 경로 검증·연결 계획 | 실키유효/잔여사람단계·AGY UI 연결계획·OFF미배포 보존 |
+| ECOM-20261119-CFREL | CC-ECOM-01 | queued / source_and_dependencies_checked_release_queued | 메인 API 설정 Cloudflare 카드 배포 선행 확인 | 세 SHA·기존 DB 제약·시험 11/11 보고 수락. 운영 기준 격리 배포 순번 대기, 공유 master push 없음. |
 | DES-20261118-07 | AG-UI-01 | done / emotion_cloudflare_status_card_source_review_accepted_unreleased | Cloudflare 공용키 설정 UI 연결 경로 계획 | 본인문서/점유정리·중앙82/e34와통합후보·메인선행/감성배포예산·실키검증별도 |
 | AIF-20261118-W00 | CC-SNS-01 | done / static_contract_review_accepted_implementation_unverified | AI Influencer W00 기준·격차/공통계약 독립검수 | W01a별도검수·PLAN/권한선행병합전자산코드/DDL0·후속경합/RLS실검증별도 |
 | CRM-20261118-07 | CC-B2B-BACK-01 | done / receipt_single_attempt_mock_source_review_accepted_unreleased | SOLAPI SDK 재시도 없는 공식 대안·최소 변경 계획 | 접수전용소스미배포보존·팔로우업동일위험은CRM18-08로이관·DDL/배포/실문자별도 |
@@ -435,7 +437,9 @@ Master 마지막 실제 점검: 2026-11-19 03:32:15 KST · 실행 중 점검 주
 | AIF-20261118-W01c | CC-SNS-01 | done / reference_image_input_source_review_accepted_unreleased | 참고 이미지 MIME/서명 처리 독립 개선 범위 계획 | 미배포묶음·출력G5/실브라우저/공급자미검수·P0상위비교최종연기 |
 | CRM-20261118-10 | CC-B2B-BACK-01 | waiting_human / production_v118_Ready_alias_verified_waiting_owner_real_form_SMS_trial | CRM 중복방지 묶음 명시소스·DDL·실검수 릴리스 준비 | 기존한곳주인님 폼SMS켜기/이메일끄기·시트v2·본인응답1/SMS1·동일행추가0 신호→Backend운영읽기 |
 | AIF-20261118-W01d | CC-SNS-01 | done / revised_contract_accepted_for_source_only_A1_first_unit | 첫 원본 자산 단위 필드·권한·스토리지 구체 계약 | A1 SQL초안/순수paths 첫단위 배정·실DB/저장별도 |
-| QA-20261118-ESM-01 | CX-QA-01 | waiting_human / zip_source_versions_verified_installed_extension_and_login_pending | ESM v1.02 입력만·쇼핑제휴 v1.89 네이버 수집 실확장 준비/검수 | 기존 Mac 사람요청 한곳: ESM+/네이버로그인·확장실제설치버전·brandlink1 뒤 입력만/수집검수 |
+| QA-20261118-ESM-01 | CX-QA-01 | waiting_human / existing_ego19_ready_for_esm_login | ESM v1.02 입력만·쇼핑제휴 v1.89 네이버 수집 실확장 준비/검수 | 맥미니 ego19 ESM+ 로그인 후 Return. v1.02 설치 확인 후 상품 입력만 1회. 기존 쇼핑제휴 경계 유지. |
+| ECOM-20261119-BANANA-QA | CX-QA-01 | running / mac_existing_login_actual_check_dispatched | Banana v1.49 운영 합성 기능 검수 | 맥미니 ego32 로그인 확인. 무료 합성·로컬 파일과 375px·F-09 범위 확인. |
+| ECOM-20261119-11ST-QA | CX-QA-01 | waiting_human / v109_observed_waiting_admin_login | 11번가 기존 시험 상품 잠금 읽기 검수 | 운영 표시 v1.09. ego33 관리자 로그인 및 Return 후 등록 기록·잠금·375px 확인. 전송·전시 변경·삭제 없음. |
 | ECOM-20261118-08 | CC-ECOM-01 | done / specified_source_review_pass_accepted_unreleased | Cloudflare 배경 생성 프롬프트 문자 혼입 보완 | 기존 배포후보 묶음에9ccfc8dfa 포함·실 무문자품질 추가생성은 별도승인·현재무료OFF소스유지 |
 | AIF-20261118-W01e | CC-SNS-01 | done / pure_paths_and_fixed_SQL_specified_static_review_accepted | A1 자산 SQL 초안·순수 경로 검증 첫 구현 | 새격리SQL계약시험단위 W01f 진행·실SQL PASS는그결과와별도 |
 | DES-20261118-08 | AG-UI-01 | reviewing / production_alias_SHA_verified_execution_ledger_pending | 감성 v1.34~37 주인님 직접지시 배포·모델확대 취합 | 이전 토큰실패/미배포 문서 최신사실 국소정정·운영flag/12모델실가용성 별도미검수 |
@@ -478,7 +482,8 @@ Master 마지막 실제 점검: 2026-11-19 03:32:15 KST · 실행 중 점검 주
 | AIF-20261119-W01-UIV | CX-QA-01 | done / isolated_real_react_screen_check_accepted | W01 실제 React 화면 격리 확인 | fdee03d5d 격리 Chrome 통과. 실제 로그인/CORS/발행 별도. |
 | AIF-20261119-W01-READY | CC-SNS-01 | done / v2_storage_signed_browser_read_and_ownership_verified | W01 운영 전 검증 계획과 V2 저장·다운로드 검증 | V2 서명 다운로드·권한 확인 완료. V3 유료 범위 별도, V4 시험 계정 지정 수신 및 실행 조건 미확정. |
 | AIF-20261119-W01-NEXT | CC-SNS-01 | done / dependency_patch_verified_locally_undeployed | AI Influencer Next.js 보안 패치 | 16.4.6 파일 지문과 잠금 범위 대조 완료. 담당 시험 320/320·타입 통과·audit 0. 번들 및 운영 응답 확인은 배포 단계. |
-| AIF-20261119-W01-V4 | CC-SNS-01 | waiting_human / quota_boundary_pass_member_entitlement_approval_pending | 일반 회원 한도와 운영 다운로드 선행 검증 | 지정 일반 회원 500MB 정책 읽기 확인과 격리 한도 경계 5/5. 이용 자격 없어 14일 무결제 시험 권한 승인 대기. 운영 서명 다운로드는 배포 후 검증. |
+| AIF-20261119-W01-V4 | CC-SNS-01 | running / trial_granted_isolated_login_preparation | 일반 회원 한도와 운영 다운로드 선행 검증 | 14일 테스트 권한 1행, 결제 0 보고. 설정 복사 없이 격리 서버 준비, 지정 회원 로그인 뒤 합성 사진 1회. |
+| AIF-20261119-W01-V3 | CC-SNS-01 | queued / approved_paid_test_preflight_and_v4_dependency | AI Influencer 대표 생성 및 보정 검증 | V4 뒤 계정 분리, 공식 가격 원문과 최대 호출 수 확인. 1K 이미지 2회·캡션 2회 이내, 미호출. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |

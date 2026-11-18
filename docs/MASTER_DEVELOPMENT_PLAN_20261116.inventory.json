@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T18:46:57.548Z",
+  "checkedAt": "2026-11-18T18:53:25.285Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -8250,12 +8250,12 @@
       "owner": "CX-QA-01",
       "reviewer": "CC-ECOM-01",
       "status": "waiting_human",
-      "delivery": "zip_source_versions_verified_installed_extension_and_login_pending",
-      "evidence": "주인님직접지시msg_aa2299240077·Master11-17정정요청서읽기·Macmsg_55747fedf42b·Ecom통보msg_ac99cb9b6809 · msg_fead1e7b84cf·기존요청서말미미커밋·ZIP2/로컬버전고지일치·확장관리자timeout은설치미확인",
+      "delivery": "existing_ego19_ready_for_esm_login",
+      "evidence": "주인님직접지시msg_aa2299240077·Master11-17정정요청서읽기·Macmsg_55747fedf42b·Ecom통보msg_ac99cb9b6809 · msg_fead1e7b84cf·기존요청서말미미커밋·ZIP2/로컬버전고지일치·확장관리자timeout은설치미확인·msg_cb7803617a97·msg_5dfd087a81e2·msg_92187e9a692d",
       "scopeRef": "운영ZIP2개버전/NOTICE·시험naver·고정ESM상품입력만1·본인brandlink수집대기열1",
       "constraints": "ESM저장/임시저장/등록0·대기열등록/유료AI0·같은실패자동반복0·로그인/폴더선택주인님·직접SQL/npm/build0·기존음악/Gmail/Blog보존",
-      "next": "기존 Mac 사람요청 한곳: ESM+/네이버로그인·확장실제설치버전·brandlink1 뒤 입력만/수집검수",
-      "lastReviewedAt": "2026-11-18T06:08:28.458Z"
+      "next": "맥미니 ego19 ESM+ 로그인 후 Return. v1.02 설치 확인 후 상품 입력만 1회. 기존 쇼핑제휴 경계 유지.",
+      "lastReviewedAt": "2026-11-18T18:53:25.285Z"
     },
     {
       "task_id": "ECOM-20261118-08",
@@ -9646,14 +9646,14 @@
       "parent_task_id": "B2B-20261119-FRONTP3",
       "owner": "CC-B2B-BACK-01",
       "title": "주문서 무통장 현금영수증 접수와 입금 확인 경합 처리",
-      "status": "reviewing",
-      "delivery": "hardened_suite_pass_rollback_guard_dispatched",
+      "status": "done",
+      "delivery": "guard_rollback_independent_accepted_undeployed",
       "scopeRef": "새 0105 로컬 마이그레이션과 격리 시험",
       "completion": "주문 행 잠금 안에서 본인·입금대기·금액·중복·상호배제 검증과 접수. 두 경합 순서 및 기존 주문 상세 회귀 확인.",
       "constraints": "외부 발급·결제, 공용 Lab·운영 적용, 빌드·배포·push 0.",
-      "evidence": "5f7ea2519·e8fbd8816·msg_3c12a55255d2·msg_d8108566a5f9·msg_65e2a554b0f9·msg_2cd4b73dc162·msg_64e586875016·msg_8dba92300cba·d5afddea4·msg_dc645833416d·msg_216386e36b04",
-      "next": "전용 Docker·DB 보호 및 엄격한 0100 회귀 포함 격리 19/19. 신규 접수 권한도 되돌리기에서 회수하도록 보완 배정.",
-      "lastReviewedAt": "2026-11-18T18:46:09.432Z",
+      "evidence": "5f7ea2519·e8fbd8816·msg_3c12a55255d2·msg_d8108566a5f9·msg_65e2a554b0f9·msg_2cd4b73dc162·msg_64e586875016·msg_8dba92300cba·d5afddea4·msg_dc645833416d·msg_216386e36b04·msg_6790a65a124a·ab87ecabc·msg_92187e9a692d",
+      "next": "격리 21/21, Mac 롤백 정적 통과. 0105와 UI 배포 전 Lab 실검증 승인 대기.",
+      "lastReviewedAt": "2026-11-18T18:53:25.285Z",
       "sha": "195f9ba43"
     },
     {
@@ -9689,13 +9689,13 @@
       "parent_task_id": "WS-20261119-01",
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace v1.61 기존 중단 빌드 로그 진단",
-      "status": "reviewing",
-      "delivery": "retry_canceled_after_same_stall_live_v160_verified",
+      "status": "running",
+      "delivery": "isolated_module_probe_dispatched_after_retry_cancel",
       "sha": "30bcfdee1",
-      "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef·dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o·msg_0a595caceefd",
+      "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef·dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o·msg_0a595caceefd·주인님 전달 진단·msg_afbf609d8871·msg_8512331d6d20",
       "constraints": "기존 근거 읽기만. 재빌드·배포·push·운영 설정/DB 변경 0.",
-      "next": "재시도 1회도 페이지 데이터 수집에서 멈춤. Master 취소 및 공식 도메인 v1.60 READY 확인. 새 빌드 없이 감시 지연과 공통 재현 조건 진단.",
-      "lastReviewedAt": "2026-11-18T18:40:37.006Z",
+      "next": "재시도 취소·v1.60 유지. 자동 감시 지연 66초, 실제 취소 주체 단일 귀속 미확인. 전용 로컬 DB로 모듈·라우트 로드 진단 배정. 빌드 없음.",
+      "lastReviewedAt": "2026-11-18T18:53:25.285Z",
       "validation": {
         "author": "컴파일·타입 통과 후 Collecting 약 11분 무출력. 성공판 같은 단계 35.4초. 시작 시 동시 빌드 0, 이후 11번가 약 8분 대기 보고.",
         "master": "v1.60~v1.61 제품 변경 3파일 및 html.ts의 기존 정적 import 경로 확인.",
@@ -9731,13 +9731,13 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "일반 회원 한도와 운영 다운로드 선행 검증",
-      "status": "waiting_human",
-      "delivery": "quota_boundary_pass_member_entitlement_approval_pending",
+      "status": "running",
+      "delivery": "trial_granted_isolated_login_preparation",
       "scopeRef": "지정 회원 자격 읽기·격리 한도 경계·운영 다운로드 선행조건",
       "constraints": "개인정보 출력·접속 설정 복사·운영 DB/Storage 쓰기·유료 AI·배포·스위치 변경 0.",
-      "evidence": "msg_1531209c451e·msg_0b10f8b59272·msg_49d6c4a9e5a3·10aedfb2e",
-      "next": "지정 일반 회원 500MB 정책 읽기 확인과 격리 한도 경계 5/5. 이용 자격 없어 14일 무결제 시험 권한 승인 대기. 운영 서명 다운로드는 배포 후 검증.",
-      "lastReviewedAt": "2026-11-18T18:40:37.006Z",
+      "evidence": "msg_1531209c451e·msg_0b10f8b59272·msg_49d6c4a9e5a3·10aedfb2e·msg_adecea24720e·26ec71c09·msg_b92bd531fea0",
+      "next": "14일 테스트 권한 1행, 결제 0 보고. 설정 복사 없이 격리 서버 준비, 지정 회원 로그인 뒤 합성 사진 1회.",
+      "lastReviewedAt": "2026-11-18T18:53:25.285Z",
       "sha": "10aedfb2e",
       "validation": {
         "limitation": "계정 판정 읽기만, 실제 로그인·업로드 미시행. 운영 출처 GET 미검증.",
@@ -9758,6 +9758,66 @@
       "next": "Mac 재검수 기존 6/6·별도 결제수단 3/3. 예외 때 완료 주문 상세 이동 및 기존 결제 경로 확인. 0105 롤백 보완과 Lab 검증 대기, 미배포.",
       "lastReviewedAt": "2026-11-18T18:46:57.548Z",
       "sha": "ee35d6eb1"
+    },
+    {
+      "task_id": "AIF-20261119-W01-V3",
+      "parent_task_id": "AIF-20261119-W01-V4",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "AI Influencer 대표 생성 및 보정 검증",
+      "status": "queued",
+      "delivery": "approved_paid_test_preflight_and_v4_dependency",
+      "evidence": "msg_adecea24720e·msg_6450ddaf24a6·9f1e3697e·msg_640d108b3984",
+      "next": "V4 뒤 계정 분리, 공식 가격 원문과 최대 호출 수 확인. 1K 이미지 2회·캡션 2회 이내, 미호출.",
+      "lastReviewedAt": "2026-11-18T18:53:25.285Z"
+    },
+    {
+      "task_id": "ECOM-20261119-BANANA-QA",
+      "parent_task_id": "QA-20261118-ESM-01",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "Banana v1.49 운영 합성 기능 검수",
+      "status": "running",
+      "delivery": "mac_existing_login_actual_check_dispatched",
+      "evidence": "msg_9d38fe421cfb·msg_5dfd087a81e2·msg_92187e9a692d·msg_75d867d0680d",
+      "next": "맥미니 ego32 로그인 확인. 무료 합성·로컬 파일과 375px·F-09 범위 확인.",
+      "lastReviewedAt": "2026-11-18T18:53:25.285Z"
+    },
+    {
+      "task_id": "ECOM-20261119-11ST-QA",
+      "parent_task_id": "QA-20261118-ESM-01",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "11번가 기존 시험 상품 잠금 읽기 검수",
+      "status": "waiting_human",
+      "delivery": "v109_observed_waiting_admin_login",
+      "evidence": "msg_e153368ef6cc·msg_049d331bc5fa·msg_edd50b38f3c9",
+      "next": "운영 표시 v1.09. ego33 관리자 로그인 및 Return 후 등록 기록·잠금·375px 확인. 전송·전시 변경·삭제 없음.",
+      "lastReviewedAt": "2026-11-18T18:53:25.285Z"
+    },
+    {
+      "task_id": "ECOM-20261119-WEBP",
+      "parent_task_id": "MOV-20261116-01",
+      "owner": "CC-ECOM-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "영상에서 상세페이지로 WebP 한 건 실검수",
+      "status": "queued",
+      "delivery": "single_send_preview_dispatched_writes_pending",
+      "evidence": "msg_a92dd99bda3f·msg_1cd837404734·msg_4864c1d5702d·msg_9d3bfa9f750a·msg_c952203e1bae",
+      "next": "Windows 같은 작업 공간에서 Movie 송신 1회와 ECOM 수신 미리보기. 섹션·ZIP 검수에 필요한 운영 행·파일 각 1건 승인 대기.",
+      "lastReviewedAt": "2026-11-18T18:53:25.285Z"
+    },
+    {
+      "task_id": "ECOM-20261119-CFREL",
+      "parent_task_id": "ECOM-20261118-06",
+      "owner": "CC-ECOM-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "메인 API 설정 Cloudflare 카드 배포 선행 확인",
+      "status": "queued",
+      "delivery": "source_and_dependencies_checked_release_queued",
+      "evidence": "msg_cb7803617a97·msg_ecc69c203761·msg_323c6d0c4fe1",
+      "next": "세 SHA·기존 DB 제약·시험 11/11 보고 수락. 운영 기준 격리 배포 순번 대기, 공유 master push 없음.",
+      "lastReviewedAt": "2026-11-18T18:53:25.285Z"
     }
   ]
 }
