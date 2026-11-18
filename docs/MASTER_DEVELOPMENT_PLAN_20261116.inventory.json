@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T19:58:52.904Z",
+  "checkedAt": "2026-11-18T20:03:45.969Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,23 +12,23 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T19:31:21.307Z",
+      "at": "2026-11-18T20:03:45.969Z",
       "timezone": "Asia/Seoul",
-      "trigger": "04:30 예약 점검 메시지 msg_05a90c9429b0 수신",
-      "scope": "04:00 실제 점검 이후 증분. 103개 프로그램·19개 분류 상태의 기존 표 및 열린 작업 24행과 담당 11명, 변경 SHA·점유·승인·미배포 및 사람 단계, 최근 결과/인수인계 대조.",
+      "trigger": "05:00 예약 점검 메시지 msg_338b0b9dd2e3 수신",
+      "scope": "04:30 이후 증분. 프로그램 103·분류 19와 열린 작업 24행·담당 11명, Git 변경·점유·승인·미배포, 관리자 요청 및 최근 인수인계·결과 파일 대조.",
       "evidence": [
-        "e09f39bc0 이후 Git 이력, Master 요청함 대기 0, 공유 인덱스 잠금 없음 확인, 최신 결과 파일 3개와 기존 배정 대조",
-        "Workspace 5efdefd22→7c283738f·b081eed5b, Mac 독립 검수 msg_4e206a030d6b",
-        "B2B 9f6b1c131·독립 4/4, M1 독립 12/12, M2 점유 999368758, Windows Lab 갤러리 msg_9d09da552ba0",
-        "AIF 첫 INVALID_KEY·서버 종료 및 갱신 감지, V3 나머지 이미지 1회 지시 msg_26f84745cf68; WebP 보존 ad5dd3449"
+        "c3c47108b 이후 Git 증분, Master 요청함 대기 0, 활성 파일·점유표, 새 결과 파일 5개 및 기존 작업 대조",
+        "Workspace 공식 도메인 dpl_CLGZ7CA84iyodmiSEjoPccxMMyBp READY·로그인 200·수집 0.99초·운영 읽기, 카탈로그 버전 v1.61 확인",
+        "B2B M2 0106 86/86·Mac 정적 수락, UI 7bf4efb2f·537/537 작성자, 고객관리 d6786b9db·16d982cec 독립 9/9",
+        "관심 지역 세 프로그램 독립 수락, AIF 두 번 INVALID_KEY 및 호출 한도 종료"
       ],
-      "judgment": "Workspace 선택 작업 예외 보완 독립 검수로 이동. B2B 홈 탭 로컬 수락, Windows 갤러리 작성자 실화면과 Mac 사람 단계를 구분. 신규 운영 배포 없음.",
-      "nextAction": "Workspace 독립 검수 회수 후 실제 격리 빌드 조건 검토, M2 로컬 결과 회수. V3 기존 승인 누적 상한과 로그인 대기, B2B S70 Lab 적용 승인 대기.",
+      "judgment": "Workspace 승인 배포 및 버전 1행 동기화 종결. M2 UI 최종 후보와 고객관리 반례는 로컬 검수 중. 실거래·상가·매물 알림 상태는 로컬 독립 수락 및 미배포.",
+      "nextAction": "M2 최종 재검수 msg_e6a472310f04, 고객관리 범위 보완 msg_1884123d9d90 및 U-1 순서. B2B S70 Lab 승인·Mac 로그인, AIF 제공사 콘솔 결과 대기.",
       "unverified": [
-        "Workspace 실제 빌드·운영 원인 및 필수 DDL 실패 운영 영향",
-        "S70 Lab 적용/실접수, B2B Mac VoiceOver/다크, 고객·직원 권한",
-        "V3 갱신 키 유효성·생성/보정·청구, ESM/B1/11번가 사람 단계",
-        "예약 설정/실행 로그와 기존 미추적 파일 전수 재검증은 생략"
+        "Workspace 운영 내 새 노션 가져오기·cron/웹훅·좁은 화면 및 과거 정체 정확 쿼리",
+        "B2B 실제 Storage/API·Lab 0105/S70·VoiceOver·QA037, 부동산 실제 DB/브라우저",
+        "AIF 키 원인·청구, ESM/B1/11번가 사람 단계",
+        "예약 실행 로그와 기존 미추적 인수인계 전수 재점검 미실행"
       ]
     },
     "notifications": [
@@ -9963,11 +9963,11 @@
       "reviewer": "CX-MASTER-01",
       "title": "메이커 M2 사진 제안 화면·저장 응답 연결",
       "status": "reviewing",
-      "delivery": "independent_p2_pass_sdk_conflict_fix_dispatched",
-      "evidence": "msg_b70ca64fa3f5·dc779bc2a·msg_c506ba34f9a0·msg_f0cc2be892c9·b658c10e4·4819453de·msg_a43696ef5490·msg_3c336c319413·msg_d7d48cd11e2e·msg_e3de9bf4cbc4·2761ee0e1·msg_7006be1418d0·msg_65c79c2fe3bd·msg_4ba128209829",
-      "next": "Mac 독립 30/30, 이전 P2 해소. Storage SDK에서 명확한 객체 중복 코드만 구분하도록 보완. 실제 Storage 미검증.",
-      "lastReviewedAt": "2026-11-18T19:58:52.904Z",
-      "sha": "2761ee0e1"
+      "delivery": "contradictory_sdk_codes_fix_returned_recheck_dispatched",
+      "evidence": "msg_b70ca64fa3f5·dc779bc2a·msg_c506ba34f9a0·msg_f0cc2be892c9·b658c10e4·4819453de·msg_a43696ef5490·msg_3c336c319413·msg_d7d48cd11e2e·msg_e3de9bf4cbc4·2761ee0e1·msg_7006be1418d0·msg_65c79c2fe3bd·msg_4ba128209829·msg_e53aca4fc578·630ac8167·msg_874fa890eb89·msg_bcd7364f56e4·msg_2419ded1b505·msg_46ca82d3c8d9·7bf4efb2f·msg_e6a472310f04",
+      "next": "상충 Storage 409 코드는 불명 처리, 후속 호출 0. 작성자 모의 30/30·전체 537/537, Mac 최종 재검수 전달.",
+      "lastReviewedAt": "2026-11-18T20:03:45.969Z",
+      "sha": "7bf4efb2f"
     },
     {
       "task_id": "RE-20261119-DESK",
@@ -9976,11 +9976,11 @@
       "reviewer": "CX-MASTER-01",
       "title": "부동산 고객관리 화면 개선",
       "status": "reviewing",
-      "delivery": "l1_returned_exact_region_query_fix_requested",
-      "evidence": "msg_689770148f5e·ac4d4bf59·msg_1d502a93ca22·msg_c1583351e267·c8d479cb9·msg_d05ff0a510fa",
-      "next": "최근 실거래 작성자 30/30. 조회 제한 전에 정확 지역을 결정하고 오류/빈 응답 및 계약일 문구를 구분하도록 보완.",
-      "lastReviewedAt": "2026-11-18T19:58:52.904Z",
-      "sha": "c8d479cb9"
+      "delivery": "l1_l2_independent_pass_address_and_label_edge_fixes_dispatched",
+      "evidence": "msg_689770148f5e·ac4d4bf59·msg_1d502a93ca22·msg_c1583351e267·c8d479cb9·msg_d05ff0a510fa·msg_dab6052e5c7b·d6786b9db·16d982cec·msg_7a575e8308b1·msg_c0c512ee2651·msg_1884123d9d90",
+      "next": "지역코드 조회와 발송 불가 합계 독립 9/9. 경기 광주시 해석과 발송 이력 문구 반례 보완 배정. 문자·운영 없음.",
+      "lastReviewedAt": "2026-11-18T20:03:45.969Z",
+      "sha": "d6786b9db"
     }
   ]
 }
