@@ -86,6 +86,17 @@ export async function sendMallJob(ctx: {
   return { state: "sent", sentIds: products.map((p) => p.productId) };
 }
 
+/**
+ * M2(2026-11-19): 저장 결과 응답 — ok는 DB가 done이라고 답했을 때(code === "done")만 true, 그 밖은 고정 문구.
+ * 같은 작업·상품·결과 번호·판번호를 그대로 되돌린다(번호 없는 옛 결과는 생략).
+ */
+export function savedReply(jobId: string, got: { productId: string; resultId: string | null; settingsVersion: string }, code: string, text: string) {
+  return {
+    type: PRODUCT_MSG_SAVED, jobId, productId: got.productId, ok: code === "done", error: code === "done" ? "" : text,
+    ...(got.resultId ? { resultId: got.resultId } : {}), settingsVersion: got.settingsVersion,
+  };
+}
+
 /** M2 전: 받은 결과에 보낼 「저장 안 함」 응답 — 같은 작업·상품·결과 번호·판번호를 그대로, ok는 항상 false */
 export function notReadyReply(jobId: string, got: { productId: string; resultId: string | null; settingsVersion: string }) {
   return {

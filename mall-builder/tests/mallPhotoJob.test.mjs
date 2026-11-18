@@ -79,7 +79,8 @@ test("화면 소스 계약: 쇼핑몰 보낸 곳 주소로 열고, 바나나 주
   assert.match(src, /window\.location\.origin !== PRODUCT_MALL_ORIGIN/);
   for (const m of src.matchAll(/postMessage\([^)]*?,\s*([A-Z_]+)\)/g)) assert.equal(m[1], "PRODUCT_RECEIVER_ORIGIN");
   assert.match(src, /if \(job\.sent\) return/);
-  assert.doesNotMatch(src, /supabase|storage\.from|upload|Action\(/, "M1은 저장·업로드 0");
+  // M2(2026-11-19)부터 저장은 제안 버킷·0106 함수로만 — 그 밖 저장소·서버 액션 0(세부 계약은 tests/mallPhotoSave.test.mjs)
+  assert.doesNotMatch(src, /storage\.from\("|Action\(/, "제안 버킷 상수 외 저장소·서버 액션 0");
 });
 
 // ── P2(Master msg_4ab005ab0d96): 오래된 비동기 작업과 새 창·새 작업 분리 — 모의 창·모의 사진(네트워크 0)

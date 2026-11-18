@@ -156,7 +156,8 @@ export default async function ProductsPage({
             <button className="rounded bg-gray-900 px-3 py-1 text-white">한꺼번에 바꾸기</button>
             <span className="text-xs text-gray-400">한 번에 {PRODUCT_BULK_MAX}개까지</span>
           </div>
-          <BananaSend rows={(photoRows ?? []) as MallPhotoRow[]} />
+          <BananaSend rows={(photoRows ?? []) as MallPhotoRow[]} storeId={store.id} />
+          <a href={`${base}/proposals`} className="mt-1 inline-block text-xs underline" data-proposals-link>사진 제안 목록 보기</a>
           <ul className="mt-2 divide-y rounded-lg border">
             {products.map((p) => {
               const rate = discountRate(p.base_price, p.list_price);

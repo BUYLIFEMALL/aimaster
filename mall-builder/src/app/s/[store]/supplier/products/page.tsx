@@ -4,6 +4,9 @@ import { pauseSupplierProductAction } from "@/lib/supplier-actions";
 import { APPROVAL_LABEL, marginOf, supplierProductLive } from "@/lib/supplier";
 import { PRODUCT_STATUS, formatWon } from "@/lib/products";
 import { getSupplierContext, NotSupplier, SupplierShell } from "../supplier-shell";
+import { createClient } from "@/lib/supabase/server";
+import { BananaSend } from "../../admin/products/banana-send";
+import type { MallPhotoRow } from "@/lib/mallPhotoJob";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -20,6 +23,14 @@ export default async function SupplierProductsPage({ params, searchParams }: { p
   const notice = await searchParams;
   const { user, store, me } = await getSupplierContext(slug, `/s/${slug}/supplier/products`);
   const products = me ? await getMySupplierProducts(me.id) : [];
+  // 메이커 M2: 바나나 보내기용 — 이 몰·본인 공급사 상품만(거울 표시·수정 시각). 저장 권한은 DB가 매번 다시 판정
+  let photoRows: MallPhotoRow[] = [];
+  if (me && me.status === "active" && products.length) {
+    const supabase = await createClient();
+    const { data } = await supabase.from("mall_builder_products").select("id, name, images, source_product_id, updated_at")
+      .eq("store_id", store.id).eq("supplier_id", me.id).in("id", products.map((p) => p.id));
+    photoRows = (data ?? []) as MallPhotoRow[];
+  }
 
   return (
     <SupplierShell slug={store.slug} storeName={store.name} email={user.email ?? ""} active="/products" notice={notice}>
@@ -38,12 +49,15 @@ export default async function SupplierProductsPage({ params, searchParams }: { p
           {products.length === 0 ? (
             <p className="mt-6 rounded border border-dashed p-8 text-center text-sm text-gray-500">아직 올린 상품이 없습니다.</p>
           ) : (
+            <>
+            {photoRows.length > 0 && <BananaSend rows={photoRows} storeId={store.id} pickSelector='[data-supplier-products] input[name="ids"]:checked' />}
             <ul className="mt-4 divide-y rounded border" data-supplier-products>
               {products.map((p) => {
                 const live = supplierProductLive(p, me.status);
                 const m = p.supply_price != null ? marginOf(p.base_price, p.supply_price) : null;
                 return (
                   <li key={p.id} className="flex gap-3 p-3 text-sm" data-supplier-product>
+                    {photoRows.length > 0 && <input type="checkbox" name="ids" value={p.id} aria-label={`${p.name} 고르기`} className="mt-1 h-4 w-4 shrink-0" />}
                     <div className="h-16 w-16 shrink-0 overflow-hidden rounded border bg-gray-50">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       {p.images?.[0] && <img src={p.images[0].url} alt="" className="h-full w-full object-cover" />}
@@ -70,6 +84,7 @@ export default async function SupplierProductsPage({ params, searchParams }: { p
                 );
               })}
             </ul>
+            </>
           )}
         </>
       )}
