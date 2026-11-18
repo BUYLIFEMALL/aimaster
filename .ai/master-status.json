@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T15:52:12.202Z",
+  "checkedAt": "2026-11-18T16:01:22.289Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5799,21 +5799,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T15:31:16.590Z",
+      "at": "2026-11-18T16:01:22.289Z",
       "timezone": "Asia/Seoul",
-      "trigger": "00:30 정기 예약 메시지 msg_ea9ae380eebe와 W01 권한 수정 승인 msg_8ef985572ae1 수신",
-      "scope": "00:02 이후 작업·보고 증분, 프로그램 103개·카테고리 19개·열린 작업 16건, 담당·점유·인수인계·검수·사람단계·미배포·직접지시 대조.",
+      "trigger": "01:00 정기 예약 메시지 msg_b8002d91ff3c 수신",
+      "scope": "00:31 이후 증분. 프로그램 목록 103개·카테고리 19개·열린 작업 16건과 등록 담당 11명 기록을 대조. 작업 우선순위·점유·검수·승인·배포 및 미등록 인수인계 변경 확인.",
       "evidence": [
-        "00:30:03 KST 예약 메시지 전송 기록·스케줄러 종료 0·현재 Master 수신",
-        "2ebe6c5ea..f1c3ade6e 변경, W01 기록 dcef14738·고정 수정 1dfadb3dc, 추가 미등록 결과/인수인계 변경 없음",
-        "msg_8ef985572ae1 주인님 승인 회수 및 CC-SNS-01 실행 순서 수락"
+        "Windows Task Scheduler 01:00:01 실행·종료 0, wake 기록 01:00:15 처리 종료, Orca에서 동일 메시지 회수",
+        "f8abbbc53..5d7ea9ef5 변경과 W01 운영 보고 5c96623b0·A2I 3776d54f7·격리 A2S 6c4388e52/1d9c7a022·G3D 8080ce604",
+        "CX-QA-01 신규 변경 기록은 기존 처리된 A2I 독립 소스 검수 msg_d660f5e477da와 일치. G3I 점유 5d7ea9ef5 및 해당 미추적 3경로는 작업표 등록 범위. 새 관리자 요청 0."
       ],
-      "judgment": "W01 최초 SQL 3건 적용 보고 후 권한 불일치로 중단했던 작업은 추가 승인으로 재개. 기존 단일 담당이 처리하며 중복 배정 없음. 나머지 진행 조건과 미배포 항목은 확인된 변경 없음.",
-      "nextAction": "CC-SNS-01이 운영 권한 사전 확인 → 고정 권한 SQL 1회 → 유효 권한 재확인 → 통과 시 기존 승인 버킷·정책 검증. W01 근거 회신 뒤 Master 판정, W02/W03 순서 유지.",
+      "judgment": "W01 운영 선행 조건의 권한·비공개 버킷·무제한 정책 확인, A2 로컬 구현/독립 소스 검수 및 격리 SQL 종결 기록을 확인. G3I는 CC-SNS-01이 범위 등록 후 실행 중. 별도 설치 요청은 충돌 근거 없음. 추가 후속 배정 없음.",
+      "nextAction": "CC-SNS-01 G3I 고정 SHA·시험 회신 뒤 CX-QA-01 독립 검수 전달. Workspace 현황판은 접근 가능 페이지, Gmail은 연결 근거 확보 뒤 기존 담당이 검증. W02/W03 순서 유지.",
       "unverified": [
-        "W01 새 SQL 운영 적용, 실제 역할 권한·버킷·정책 결과",
-        "Workspace 시험 현황판·Gmail 콜백·사이드바 실화면",
-        "기존 CRM/Lab/확장 사람단계와 Emotion Writer 실행 원장; 운영 재시험 없음"
+        "G3I 구현 최종 결과와 독립 검수",
+        "운영 Storage 실연동·일반 회원 제한 정책",
+        "Workspace 현황판·Gmail·위젯 운영 화면, 기존 사람 단계 및 Emotion Writer 실행 원장; 운영 재시험 없음"
       ]
     },
     "notifications": [
@@ -5882,7 +5882,7 @@
       "masterTerminal": "term_d8c5d7ed-7c8e-4a20-a22f-8f3919ad3a5a",
       "sameTerminalOnly": true,
       "createsAgentOrTerminal": false,
-      "nextScheduledAt": "2026-11-18T16:00:00.000Z",
+      "nextScheduledAt": "2026-11-18T16:30:00.000Z",
       "configuredAt": "2026-11-17T15:23:15.099Z",
       "scheduledOccurrenceVerified": true,
       "test": {
@@ -5900,12 +5900,12 @@
         "Master부재/실패시새창생성0·재전송자동반복0"
       ],
       "lastScheduledRun": {
-        "scheduledAt": "2026-11-18T15:30:00.000Z",
-        "messageId": "msg_ea9ae380eebe",
+        "scheduledAt": "2026-11-18T16:00:00.000Z",
+        "messageId": "msg_b8002d91ff3c",
         "taskExitCode": 0,
         "masterReceived": true,
         "newAgentCreated": false,
-        "receipt": "00:30:03 KST 전송 수락과 기존 Master 수신 확인. 실제 점검 시각은 lastInspection 별도 기록."
+        "receipt": "01:00:15 KST 예약 실행 종료·기존 Master 수신 확인. 실제 점검 시각 별도."
       }
     },
     "supersededOrcaAutomation": {
