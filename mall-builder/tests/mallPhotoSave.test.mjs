@@ -155,7 +155,7 @@ test("화면 소스 계약: 제안 버킷만, 저장은 체인으로 한 건씩,
 // ── P2 보완(Master msg_d7d48cd11e2e, Mac msg_3c336c319413)
 import { browserToJpeg, classifyUploadError, runQueuedSave } from "../src/lib/mallPhotoSave.ts";
 
-test("업로드 오류 분류: 불명이 먼저 — 5xx·상태 없음은 duplicate 문구여도 unknown, 409 코드만 exists", () => {
+test("업로드 오류 분류: 불명이 먼저 — 5xx·상태 없음은 duplicate 문구여도 unknown, 409 코드만 exists", async () => {
   // P3(Master msg_4ba128209829): HTTP 409 + 공식 객체 중복 코드일 때만 exists
   assert.equal(classifyUploadError({ status: 409, statusCode: "ResourceAlreadyExists", code: "ResourceAlreadyExists" }), "exists");
   assert.equal(classifyUploadError({ status: 409, statusCode: "KeyAlreadyExists" }), "exists", "본문 code가 statusCode로만 와도");
@@ -178,12 +178,15 @@ test("업로드 오류 분류: 불명이 먼저 — 5xx·상태 없음은 duplic
   assert.equal(classifyUploadError({ status: 409, code: "KeyAlreadyExists", statusCode: "ResourceAlreadyExists" }), "exists", "두 칸 모두 문서의 객체 중복 코드");
   assert.equal(classifyUploadError({ status: 409, code: "", statusCode: "409" }), "unknown", "중립뿐이면 코드 없는 409");
   const mixed = mock({ upload: { error: { status: 409, code: "ResourceAlreadyExists", statusCode: "BucketAlreadyExists" } } });
-  return saveResultAsProposal(input(), mixed.d).then((c) => { assert.equal(c, "unknown"); assert.deepEqual(mixed.names(), ["begin", "toJpeg", "upload"], "상충이면 commit·abandon·remove 0"); });
   assert.equal(classifyUploadError({ message: "The resource already exists" }), "unknown");
   assert.equal(classifyUploadError({ status: 409 }), "unknown", "코드 없는 409는 불명");
   assert.equal(classifyUploadError({ statusCode: "403", status: 403 }), "reject");
   assert.equal(classifyUploadError({ status: 400, statusCode: "InvalidKey", code: "InvalidKey" }), "reject", "명확한 4xx는 거절");
   assert.equal(classifyUploadError(null), "unknown");
+  // 상충 업로드 경로(모든 단언 뒤에 await — 앞선 return 때문에 뒤 단언 5개가 실행되지 않던 시험 결함 수정, Mac msg_984ad49be819)
+  const c = await saveResultAsProposal(input(), mixed.d);
+  assert.equal(c, "unknown");
+  assert.deepEqual(mixed.names(), ["begin", "toJpeg", "upload"], "상충이면 commit·abandon·remove 0");
 });
 
 test("업로드 5xx + duplicate 문구 → unknown, commit·abandon·remove 0", async () => {
