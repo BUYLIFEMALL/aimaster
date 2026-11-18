@@ -16,13 +16,13 @@ import { PROVIDERS, isProvider } from "../src/lib/studio/config.ts";
 const QUOTES = ["하나", "둘", "셋", "넷", "다섯"];
 const input = (model) => validateCopy({ topic: "가을 위로", style: "시", lines: 5, model });
 
-test("모델 목록 9개(3사×3등급), 기본 순서는 OpenAI(GPT) > Claude > Gemini", () => {
-  assert.equal(TEXT_MODELS.length, 9);
+test("모델 목록 12개(3사×4종), 기본 순서는 OpenAI(GPT) > Claude > Gemini", () => {
+  assert.equal(TEXT_MODELS.length, 12);
   assert.equal(DEFAULT_TEXT_MODEL, "gpt-6.1-terra");
   assert.equal(TEXT_MODELS[0].id, DEFAULT_TEXT_MODEL);
   const groups = textModelGroups();
   assert.deepEqual(groups.map((g) => g.provider), ["openai", "anthropic", "gemini"]);
-  assert.ok(groups.every((g) => g.models.length === 3));
+  assert.ok(groups.every((g) => g.models.length === 4));
 });
 
 test("모델 → 플랫폼 판정과 옛 모델 이름 바꾸기", () => {
