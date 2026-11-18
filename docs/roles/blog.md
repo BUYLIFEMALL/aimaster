@@ -1,18 +1,21 @@
 # 블로그
 
-## 현재 요약 (2026-11-18 기준 — 이 절을 먼저 읽는다)
+## 현재 요약 (2026-11-19 기준 — 이 절을 먼저 읽는다)
 
 > 이 절 아래의 `> [역할: blog] …` 인용 줄들(2026-10-28~11-16)은 **당시 작업 이력**이다. 거기 적힌 「로컬 완료·미배포·대기」는 지금 상태가 아니다. 현재 상태는 이 절과 `## 지금 하는 일` 맨 위 줄을 기준으로 본다.
 
 - **담당 세션**: Claude(Blog) `CC-BLOG-01`, Codex Master(CX-MASTER-01) 지휘. 지금 진행 중인 작업 0 · 점유 파일 0.
-- **운영 버전**: `blog-neighbor-care` v1.21 · `tistory-auto-blog` v1.97(각 `APP_VERSION` 확인).
-- **미배포 대기(다음 묶음 배포 때 함께)**: 이웃 소통 v1.22 `3bb238398`·`e35947191` · 티스토리 v1.98 `a27861137` — `docs/PENDING_DEPLOYS.md` 55·56행 등록. `web-crawler` T-05 robots 판정 `fc48ebcba`+`8172d8084`, T-07 대시보드 자동 새로고침 `40662e6ae`+`1a54bdd06` — 둘 다 소스 완료·맥미니 독립 검수 PASS(QA023·QA029)·미배포, 실제 화면·운영 미검수.
-- **완료(Master 판정)**: BLOG-20261117-01(비교표·T-11 정합성·대기 표 등록 `3c7c41aa2`), BLOG-07(website-scraper 운영 DB는 WS10 `c5bb52b99` 근거로 해소 `eedde91b6`), BLOG-08(T-05), BLOG-09(T-07). website-scraper 공개 라이브 화면은 미확인.
+- **운영 버전(2026-11-18 묶음 배포, 빌드 3회 주인님 승인)**: `tistory-auto-blog` v1.98(`lihd5up0w`) · `blog-neighbor-care` v1.22(`kpfpbchh9`) · `web-crawler-saas` v1.13(`ljvtual5y`, T-04 Next 16.4.6·T-05 robots·T-07 자동 새로고침·엑셀 미리보기 F01~F04·고지·저장공간 위젯 포함). DB·확장 ZIP 버전 일치 확인. 미배포 대기 0.
+- **실화면 미검수**: 티스토리 소제목 `##` 수정은 새 원고에서만 확인 가능(기존 원고 25의 `##`는 저장값) · web-crawler 엑셀 미리보기·자동 새로고침·T-05는 시험 계정 작업 0건이라 화면 미확인(판정 시험만 통과).
+- **T-08(옛 website-scraper 정리, Master 「선택 다」 마감)**: 19개 파일 삭제 `e038f405e`, 백업 태그 `backup/website-scraper-20261118`(로컬, push 0)·저장소 밖 백업 77파일. 다음 website-scraper 배포 때 함께 나감.
+- **T-03(공용 셀렉터 캐시 회원별 분리, 주인님 결정 「회원별로 나누기」)**: 1단계 로컬 완료 — `web-crawler/service` 작업 주인 확인(ID 일치, 회원 본인 증명 아님)·공용 캐시 임시 우회·`/health` 표시 `a7ef59164`·설명 정정 `c9f4c0a17`, 시험 18개 통과. 계획·전환 완료 증명 조건: `docs/SCRAPING_CONSOLIDATION_TASKS.md` §2-4(`bf81ae061`·`e0dda434b`). **운영 DB 읽기·Render 배포는 승인 전 0.**
+- **완료(Master 판정)**: BLOG-20261117-01, BLOG-07~09, 11-18 묶음 배포 3건, T-04·T-07(F01~F04), T-08.
 - **T-12(데이터수집 카테고리 담당)**: 2026-11-17 Master 배정(msg_228df86d95ed)으로 **`blog`가 문서·요청 조정 담당** — `docs/CATEGORY_GUIDE_MAP.md` 114행·`docs/SCRAPING_CONSOLIDATION_TASKS.md` T-12에 반영(`c3a7d77b7`). 제품 코드 권한·`website-scraper` 재활성화는 범위 밖.
 - **`PENDING_DEPLOYS` 64행(30일 보관 열외 블로그)**: `blog-keyword` `6c9f6d8a1`은 코드상 v1.13(11-10)에 포함·배포 산출물 미대조, `blog-workroom`·`blog-content-maker`는 주인님 결정으로 배포 안 함(백업 카테고리) — `c3a7d77b7`에서 문구 정정, 행은 유지.
 - **범위 밖**: 백업 카테고리 5개, `blog-keyword`(agy 담당) — 아래 「담당 제외」.
 - **차단·사람 선행**: 이웃 B-1 「화면에 유지」 재시험 = 맥미니 세션 + 사람 클릭(`blog-neighbor-care/docs/REQUEST_20261116_MACMINI_B1_FOCUS_RETEST.md`, 배포 불요) · 블로그 키트 실제 설치 = 주인님 · 계정 C-3·B-3 결정 = 주인님 · website-scraper 라이브 화면 = 담당 미정(Master).
-- **다음 첫 단계**: Master 다음 배정 대기. 묶음 배포가 오면 티스토리 v1.98 기존 원고 1개 미리보기(새 AI 생성 없음) → web-crawler T-05·T-07 실제 화면 확인.
+- **후속 후보(배정 전)**: ghost-scraper Next 16.4.2→16.4.6 · web-crawler 로그인 정책 2건(로그아웃 범위·User-Agent) · 옛 website-scraper 로그인 주소 404 · 기존 티스토리 원고 `##` 화면 정리 여부 · 데이터수집 T-06·T-09·T-10.
+- **다음 첫 단계**: Master 다음 배정 대기. T-03 운영 단계(Render 1단계 배포 → 전환 완료 증명 → 새 표 마이그레이션)는 Master 배정·주인님 승인 뒤 한 단계씩.
 
 > [역할: blog] **블로그 총괄 지정(2026-11-16 주인님 지시: 「너의 이름은 Claude(Blog) 야」「블로그 관련 작업을 총괄해」)** — 윈도우 Claude Code 세션 **Claude(Blog)**가 블로그 카테고리 작업 전체를 총괄합니다. 우선순위 결정, 미배포 묶음 관리, 맥미니 검수 요청과 결과 대조, 다른 담당과의 조율을 맡습니다. 「담당 제외」 칸의 범위(백업 5개·`blog-keyword`=agy·5번 연계 작업)는 그대로 두고, 디버깅·실물 시험은 계속 맥미니에 요청합니다.
 
@@ -186,7 +189,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-11-18 (CC-BLOG-01 — 맨 위 「현재 요약」 추가, PLAN-REVIEW-20261118) · 이전: 2026-11-15 (`claude-win-photo` — 미배포 대기 4개 배포: 이웃 v1.21 · WP v1.05 · 카페 v1.04 · 티스토리 v1.97, 남은 시험은 전부 맥미니 몫)
+- 마지막 갱신: 2026-11-19 (CC-BLOG-01 — 「현재 요약」을 11-18 묶음 배포·T-03 1단계·T-08 마감 기준으로 갱신) · 이전: 2026-11-18 (CC-BLOG-01 — 맨 위 「현재 요약」 추가, PLAN-REVIEW-20261118) · 이전: 2026-11-15 (`claude-win-photo` — 미배포 대기 4개 배포: 이웃 v1.21 · WP v1.05 · 카페 v1.04 · 티스토리 v1.97, 남은 시험은 전부 맥미니 몫)
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
