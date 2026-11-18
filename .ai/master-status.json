@@ -3992,19 +3992,19 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-MASTER-01",
       "title": "웹훅 중복 방지 실제 연결 최소 단위 계획",
-      "status": "needs_revision",
-      "delivery": "postgrest_ambiguous_error_record_state_fix_returned",
+      "status": "ready_review",
+      "delivery": "record_state_uncertain_fix_independent_review_dispatched",
       "scopeRef": "실 form-submit/[token]/route.ts·새 실제route시험·기존문서만(U1), parser/DDL/dispatch/공용SDK/스니펫 불변",
       "completion": "v2 insert선점/정확중복만200·회원source경계·legacy유지·크기/형식·실route 순차/동시/DB오류 시험",
       "constraints": "미배포 소스만·DDL선행필수·운영DDL/실API/실발송/build/deploy0",
-      "next": "recordFinal error→uncertain 보완SHA회수→Mac지정검수·SDK내부재시도운영차단유지",
-      "evidence": "계획msg_300933f94c2e·546bd0fb0 21절/실dispatch 확인·점유해제0a0997c65·Master U1범위/23505검증 보완지시 · 완료msg_4f2aaf809d48 · Master4파일stat/route본문확인 · Macmsg_5445bef602a4 · Mac중간msg_24a60c98c1f9 · 기존4파일수정반환 · 원본최종msg_be55e38ccb41/수락msg_aca66829fdcd · 수정msg_94ac7ed25fc3 · Master3파일diff확인 · MacPASSmsg_2b90f9b7a828 · U2배정msg_2424440cdc62 · 착수msg_77ee8fa7017d · U2완료msg_1291f34e4144·Master6파일stat확인 · Macmsg_79cbbbc6e06a 실제SDK모의HTTP4/불명이력유실 · 반환msg_812d747e9f4e · e3c0272bb/msg_a5a65fc1cc5a SDKretry3고정·설정불가 · A수정지시msg_82c62acdc514 · Mac최종msg_e752306f1e50/.ai/results/CRM-20261118-06-U2-CX-QA-01.md(작성자미커밋) · msg_ae6e83ecba76·A46f75fcfe/저장6cf48cd70 · Mac반례msg_4cab8962c05f·최종msg_4b3af7b73df6·수정반환msg_10884d12bbab",
-      "lastReviewedAt": "2026-11-18T04:41:55.210Z",
-      "sha": "6cf48cd70",
+      "next": "Mac 95e5653a4 실제PostgREST/route 재검수→지정수락, SDK위험운영차단유지",
+      "evidence": "계획msg_300933f94c2e·546bd0fb0 21절/실dispatch 확인·점유해제0a0997c65·Master U1범위/23505검증 보완지시 · 완료msg_4f2aaf809d48 · Master4파일stat/route본문확인 · Macmsg_5445bef602a4 · Mac중간msg_24a60c98c1f9 · 기존4파일수정반환 · 원본최종msg_be55e38ccb41/수락msg_aca66829fdcd · 수정msg_94ac7ed25fc3 · Master3파일diff확인 · MacPASSmsg_2b90f9b7a828 · U2배정msg_2424440cdc62 · 착수msg_77ee8fa7017d · U2완료msg_1291f34e4144·Master6파일stat확인 · Macmsg_79cbbbc6e06a 실제SDK모의HTTP4/불명이력유실 · 반환msg_812d747e9f4e · e3c0272bb/msg_a5a65fc1cc5a SDKretry3고정·설정불가 · A수정지시msg_82c62acdc514 · Mac최종msg_e752306f1e50/.ai/results/CRM-20261118-06-U2-CX-QA-01.md(작성자미커밋) · msg_ae6e83ecba76·A46f75fcfe/저장6cf48cd70 · Mac반례msg_4cab8962c05f·최종msg_4b3af7b73df6·수정반환msg_10884d12bbab · msg_7c11366a4b89·Master3파일diff확인",
+      "lastReviewedAt": "2026-11-18T04:44:10.129Z",
+      "sha": "95e5653a4",
       "validation": {
-        "author": "A실SDK25/25·실route/dispatch45/45·전체177/177·tsc0. SDKHTTP4/2 남음·운영차단",
+        "author": "실제supabase주입fetch+실route37/37·전체185/185·tsc0·각PATCH/발송모의1회·원문0",
         "master": "3파일stat/route diff 확인. 원본 W-F01/W-F02 결과 보존, insert불명/dispatch/update예외·received상태는 U2 미완으로 분리",
-        "independent": "LF정규화 고정객체·native70/70·실PostgREST/recordFinal 모의7경계. A분류보수화 지정통과, SDK HTTP4위험별도차단. 적용후reset/503/200깨진JSON을not_recorded로잘못표시 재현·수정반환."
+        "independent": "이전원본P2보존·95e5653a4 재검수전달, 수락/결과 대기"
       },
       "limitations": [
         "U1 단독 운영 배포 금지·운영 DDL 미적용",
@@ -4084,12 +4084,12 @@
       "status": "needs_revision",
       "sha": "ab9bd10da",
       "delivery": "retention_and_publish_contract_counterexamples_returned",
-      "evidence": "직접지시msg_0ea177827182·Master2파일stat/W00확인·인수msg_262b806a9152·검수msg_e1009e09901a · 계획613ac1da4/msg_892ee2310efe·Mac최신반영msg_5534d83d2f04 · Macmsg_e6f0471f7d6d 0068/게시전체재시도 반례",
-      "next": "W00/W01 보관정리/유료조기삭제/전체게시재시도 계약 문서보완 SHA 회수→Mac재검수",
+      "evidence": "직접지시msg_0ea177827182·Master2파일stat/W00확인·인수msg_262b806a9152·검수msg_e1009e09901a · 계획613ac1da4/msg_892ee2310efe·Mac최신반영msg_5534d83d2f04 · Macmsg_e6f0471f7d6d 0068/게시전체재시도 반례 · 최종msg_90ab319ad328/.ai/results/SNS-W00-20261118-CX-QA-01.md",
+      "next": "기존W00문서에P1/P2계약·기존기능정밀화보완SHA 회수→Mac",
       "constraints": "P0상한12달러미승인·실API/DB쓰기/빌드/배포0·다른Codex미커밋보존",
-      "lastReviewedAt": "2026-11-18T04:42:40.497Z",
+      "lastReviewedAt": "2026-11-18T04:44:10.129Z",
       "validation": {
-        "independent": "고정613 문서/소스:0068일반회원원본정리누락·유료retention_exempt 조기삭제영향·10분전체재시도/최근조회실패진행 남음 반례. 실삭제/중복게시 실증아님, 최종정리중"
+        "independent": "120ID고유/총120·G1~G10 정적대조. P1보관2/게시1, P2 dataURL후반전환·asset insert불명후삭제·paused/예산전이 누락 수정필요. 기존personImage/장소지시 존재정밀화. 미커밋PLAN은읽기해시만·원본불변"
       }
     }
   ],
@@ -4594,20 +4594,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T04:42:40.497Z",
+      "at": "2026-11-18T04:44:10.129Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS 문서 독립검수 반례",
-      "scope": "0068정리실제대상·유료보관영향·게시전체재시도와실패닫힘",
+      "trigger": "CRM 수정·SNS 최종 문서검수",
+      "scope": "저장불명3파일·실클라이언트시험범위·SNS120기능/보관/게시/자산불명계약",
       "evidence": [
-        "msg_e6f0471f7d6d",
-        "SNS 기존문서보완 반환 전달"
+        "msg_7c11366a4b89·95e5653a4",
+        "msg_90ab319ad328 SNS최종",
+        "Mac CRM재검수·SNS작성자추가P2반환"
       ],
-      "judgment": "W01제품착수전계약수정필요·실삭제/중복게시사고확정0. 새제품편집/공용일괄수정/푸시0.",
+      "judgment": "CRM보수적저장분류 수정수신/재검수. SNS정적120기능목록확인되나실행계약결함보완전개발착수보류.",
       "unverified": [
-        "SNS 고정613최종검수·보완SHA",
-        "실운영보관/게시상태"
+        "CRM 새SHA독립결과·SDK위험해소",
+        "SNS보완SHA/재검수·유료비교승인"
       ],
-      "nextAction": "문서보완과CRM저장수정결과순차회수"
+      "nextAction": "재검수/문서보완회수·운영/새비용0"
     },
     "notifications": [
       {
