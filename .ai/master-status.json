@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T19:33:21.022Z",
+  "checkedAt": "2026-11-18T19:34:39.134Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5933,14 +5933,15 @@
       "reviewer": "CX-MASTER-01",
       "title": "메이커 M2 사진 제안 저장 범위 설계",
       "status": "reviewing",
-      "delivery": "local_0106_returned_independent_review_dispatched",
-      "evidence": "msg_8bc03c47698d·msg_283337366ae8·msg_d7ccf525cd20·msg_bf8f3313b68a·88850694c·msg_d5aebd7ca4f8·msg_0176871edc33·0889e87f3·msg_ad4382dd5bb2·999368758·msg_00eae57a6ddd·da99d4fb4·msg_1f0e4ad7ebfa",
-      "next": "전용 비공개 저장소·RLS·예약/확정/정리 로컬 시험 71/71. 권한 NULL 반례 수정 후 Mac 독립 정적 검수 전달.",
-      "lastReviewedAt": "2026-11-18T19:33:21.022Z",
+      "delivery": "supplier_reassignment_permission_fix_dispatched",
+      "evidence": "msg_8bc03c47698d·msg_283337366ae8·msg_d7ccf525cd20·msg_bf8f3313b68a·88850694c·msg_d5aebd7ca4f8·msg_0176871edc33·0889e87f3·msg_ad4382dd5bb2·999368758·msg_00eae57a6ddd·da99d4fb4·msg_1f0e4ad7ebfa·msg_b59905da566c·msg_6eabad5da94d",
+      "next": "Mac 정적 검수에서 상품 공급사 재지정 시 기존 제안 접근 가능성 확인. 행·저장소·동일 결과 권한 보완과 격리 회귀 배정. Lab/운영 미적용.",
+      "lastReviewedAt": "2026-11-18T19:34:39.134Z",
       "sha": "da99d4fb4",
       "validation": {
         "scope": "전용 격리 DB, 정책/실패 경계/두 세션 4개. 기존 서류 정책 대조 동일. 실제 Storage API·Lab·운영·브라우저 미검증.",
-        "open": "빈 source_hint·동일 ID 메타 계약, 30일 미적용 제안 정리 실행 및 M3 서버 게시 검증은 다음 단계."
+        "open": "재지정 권한, 빈 source_hint 및 동일 ID 계약, FK 이후 고아 파일·동명 버킷과 실제 Storage 확인 남음.",
+        "independent": "4개 blob 일치. 기본 권한·잠금 경계 통과, 공급사 재지정 P2."
       }
     },
     {
