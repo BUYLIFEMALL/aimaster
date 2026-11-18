@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T19:18:13.795Z",
+  "checkedAt": "2026-11-18T19:20:50.160Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9862,12 +9862,12 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-MASTER-01",
       "title": "메이커 M2 사진 제안 저장 범위 설계",
-      "status": "reviewing",
-      "delivery": "owner_policy_confirmed_proposal_acl_and_cleanup_review_requested",
-      "evidence": "msg_8bc03c47698d·msg_283337366ae8·msg_d7ccf525cd20·msg_bf8f3313b68a·88850694c·msg_d5aebd7ca4f8",
-      "next": "비공개·5MB·미적용 30일 정리·M3 동시 운영 반영 결정. 상품 권한 없는 직원 접근 차단과 확정 파일 정리 경합 보완 후 구현 검토.",
-      "lastReviewedAt": "2026-11-18T19:18:13.795Z",
-      "sha": "88850694c",
+      "status": "queued",
+      "delivery": "dedicated_private_bucket_local_data_layer_dispatched",
+      "evidence": "msg_8bc03c47698d·msg_283337366ae8·msg_d7ccf525cd20·msg_bf8f3313b68a·88850694c·msg_d5aebd7ca4f8·msg_0176871edc33·0889e87f3·msg_ad4382dd5bb2",
+      "next": "사진 제안 전용 비공개 5MB 버킷·권한·예약 전이 로컬 구현 배정. 기존 서류·공용 Lab·운영·사용량 집계 변경 없음.",
+      "lastReviewedAt": "2026-11-18T19:20:50.160Z",
+      "sha": "0889e87f3",
       "validation": {
         "decision": "제안 비공개, 브라우저에서 5MB 이하, 미적용 30일 정리 관리자·시험 몰 포함, M3와 함께 운영 반영.",
         "open": "기존 비공개 버킷에서 일부 직원의 상품 권한 우회 읽기 가능. 전용 버킷/정책 분리 검토. eTag/클라이언트 해시는 힌트만."
@@ -9908,11 +9908,12 @@
       "owner": "CC-B2B-FRONT-01",
       "reviewer": "CX-MASTER-01",
       "title": "홈 상품 탭 대비와 키보드 접근성 보완",
-      "status": "queued",
-      "delivery": "tabs_view_contrast_keyboard_fix_dispatched",
-      "evidence": "dff2790cb·msg_c63d46c190e6·msg_c7174d94647e",
-      "next": "밑줄 미선택 대비와 두 스킨 로빙 포커스·가로 방향키·탭/패널 관계 로컬 보완. Mac 실검수는 대상 판 뒤.",
-      "lastReviewedAt": "2026-11-18T19:16:35.733Z"
+      "status": "reviewing",
+      "delivery": "candidate_returned_mac_review_dispatched",
+      "evidence": "dff2790cb·msg_c63d46c190e6·msg_c7174d94647e·msg_4c4a09415f3b·489c888e6·484f8400c·msg_12f5ee2629b7",
+      "next": "대비·키보드 개선, 작성자 69/69·타입 통과. Mac 독립 모의 검수 전달. VoiceOver·Lab 실화면 미검증.",
+      "lastReviewedAt": "2026-11-18T19:20:50.160Z",
+      "sha": "489c888e6"
     }
   ]
 }
