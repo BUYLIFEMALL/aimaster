@@ -113,7 +113,8 @@ test("JPEG 계획·오류 판정", () => {
   assert.equal(jpegPlan("image/jpeg", 1000), "reuse");
   assert.equal(jpegPlan("image/jpeg", PROPOSAL_MAX_BYTES + 1), "convert");
   assert.equal(jpegPlan("image/png", 1000), "convert");
-  assert.ok(isAlreadyExists({ statusCode: "409" }) && isAlreadyExists({ message: "Duplicate" }) && !isAlreadyExists({ statusCode: "403" }));
+  assert.ok(isAlreadyExists({ statusCode: "409" }) && isAlreadyExists({ statusCode: "409", status: 400 }) && !isAlreadyExists({ statusCode: "403" }));
+  assert.ok(!isAlreadyExists({ message: "Duplicate" }), "문구만으로는 이미 있음 아님(불명)");
   assert.ok(isDefiniteReject({ statusCode: "413" }) && !isDefiniteReject({ statusCode: "409" }) && !isDefiniteReject({ statusCode: "502" }) && !isDefiniteReject({ message: "x" }));
 });
 
@@ -148,4 +149,59 @@ test("화면 소스 계약: 제안 버킷만, 저장은 체인으로 한 건씩,
   assert.match(pv, /createSignedUrl\(path, 60\)/);
   assert.doesNotMatch(pv, /console\.|\{src\}<|>\{src\}|href=\{src\}/, "서명 주소 글자 표시·기록 0");
   assert.equal(PROPOSAL_BUCKET, "mall-builder-proposals");
+});
+
+// ── P2 보완(Master msg_d7d48cd11e2e, Mac msg_3c336c319413)
+import { browserToJpeg, classifyUploadError, runQueuedSave } from "../src/lib/mallPhotoSave.ts";
+
+test("업로드 오류 분류: 불명이 먼저 — 5xx·상태 없음은 duplicate 문구여도 unknown, 409 코드만 exists", () => {
+  assert.equal(classifyUploadError({ statusCode: "409", status: 400, message: "The resource already exists" }), "exists");
+  assert.equal(classifyUploadError({ statusCode: "409", status: 500 }), "unknown");
+  assert.equal(classifyUploadError({ statusCode: "502", message: "Duplicate" }), "unknown");
+  assert.equal(classifyUploadError({ message: "The resource already exists" }), "unknown");
+  assert.equal(classifyUploadError({ status: 409 }), "reject", "statusCode 409가 없으면 이미 있음으로 보지 않음");
+  assert.equal(classifyUploadError({ statusCode: "403", status: 403 }), "reject");
+  assert.equal(classifyUploadError(null), "unknown");
+});
+
+test("업로드 5xx + duplicate 문구 → unknown, commit·abandon·remove 0", async () => {
+  const m = mock({ upload: { error: { statusCode: "500", message: "duplicate key value" } } });
+  assert.equal(await saveResultAsProposal(input(), m.d), "unknown");
+  assert.deepEqual(m.names(), ["begin", "toJpeg", "upload"]);
+});
+
+test("no_file 뒤 abandon 응답에 error가 있으면(data가 함께 와도) 삭제 0", async () => {
+  const m = mock({ commit: { data: { ok: false, reason: "no_file" } }, abandon: { error: { message: "x" }, data: { ok: true, state: "abandoned" } } });
+  assert.equal(await saveResultAsProposal(input(), m.d), "failed");
+  assert.ok(!m.names().includes("remove"));
+});
+
+test("대기열: 시작 전 작업이 바뀌면 저장 0(skipped), 저장 중 바뀌면 표시·응답 0(stale), 그대로면 onDone 1회", async () => {
+  let saved = 0, done = 0;
+  assert.equal(await runQueuedSave({ isActive: () => false, save: async () => { saved++; return "done"; }, onDone: () => done++ }), "skipped");
+  assert.equal(saved, 0); assert.equal(done, 0);
+  let active = true;
+  assert.equal(await runQueuedSave({ isActive: () => active, save: async () => { saved++; active = false; return "done"; }, onDone: () => done++ }), "stale");
+  assert.equal(saved, 1); assert.equal(done, 0, "늦게 끝난 옛 저장은 새 화면·창에 표시·응답 0");
+  assert.equal(await runQueuedSave({ isActive: () => true, save: async () => { throw new Error("x"); }, onDone: (c) => { done++; assert.equal(c, "unknown"); } }), "unknown");
+  assert.equal(done, 1);
+});
+
+test("5MB 이하 JPEG 그대로 쓸 때도 디코딩·6000px 확인(원본 바이트 그대로 반환), 초과·디코딩 실패면 null", async () => {
+  const keep = globalThis.createImageBitmap;
+  try {
+    const small = jpg(1000);
+    globalThis.createImageBitmap = async () => ({ width: 1000, height: 800, close() {} });
+    assert.equal(await browserToJpeg(small), small, "통과하면 원본 그대로(바이트 변화 0)");
+    globalThis.createImageBitmap = async () => ({ width: 7000, height: 10, close() {} });
+    assert.equal(await browserToJpeg(small), null, "그대로 쓸 파일도 6000px 초과면 거절");
+    globalThis.createImageBitmap = async () => { throw new Error("decode"); };
+    assert.equal(await browserToJpeg(small), null, "디코딩 실패면 거절");
+  } finally { globalThis.createImageBitmap = keep; }
+});
+
+test("화면 소스 계약(P2): 대기열은 runQueuedSave로 — 시작·끝 모두 지금 작업+원래 창 확인", () => {
+  const send = readFileSync(new URL("../src/app/s/[store]/admin/products/banana-send.tsx", import.meta.url), "utf8");
+  assert.match(send, /runQueuedSave\(\{\s*isActive: \(\) => isActive\(job\) && job\.win === win/);
+  assert.doesNotMatch(send, /if \(!win\.closed\) win\.postMessage/, "확인 없는 응답 0");
 });

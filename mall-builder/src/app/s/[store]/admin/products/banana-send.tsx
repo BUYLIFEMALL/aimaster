@@ -11,7 +11,7 @@ import {
 } from "@/lib/productPhotoHandoff";
 import { planMallPhotoJob, savedReply, sendMallJob, type MallPhotoItem, type MallPhotoRow, type MallPhotoSkip } from "@/lib/mallPhotoJob";
 import {
-  PROPOSAL_BUCKET, SAVE_STATUS, SAVE_TEXT, browserSha256, browserToJpeg, saveResultAsProposal, type SaveCode, type SaveDeps,
+  PROPOSAL_BUCKET, SAVE_STATUS, SAVE_TEXT, browserSha256, browserToJpeg, runQueuedSave, saveResultAsProposal, type SaveCode, type SaveDeps,
 } from "@/lib/mallPhotoSave";
 import { createClient } from "@/lib/supabase/client";
 
@@ -72,17 +72,19 @@ export function BananaSend({ rows, storeId, pickSelector = DEFAULT_PICK }: { row
       job.answered.add(key);
       const item = job.items.find((i) => i.productId === got.productId);
       const win = job.win;
-      // 한 건씩 차례로(같은 상품·같은 결과 겹침 방지). 응답은 그 작업의 창이 살아 있을 때만, 바나나 주소로만
-      chain.current = chain.current.then(async () => {
-        mark(got.productId, "사진 제안으로 저장 중");
-        let code: SaveCode = "unknown";
-        try {
-          code = await saveResultAsProposal({ storeId, productId: got.productId, jobId: job.jobId, resultId: got.resultId,
+      // 한 건씩 차례로(같은 상품·같은 결과 겹침 방지). 시작 직전·끝난 뒤 모두 「지금 작업 + 원래 창」일 때만 저장·표시·응답(runQueuedSave)
+      chain.current = chain.current.then(() => runQueuedSave({
+        isActive: () => isActive(job) && job.win === win,
+        save: async () => {
+          mark(got.productId, "사진 제안으로 저장 중");
+          return saveResultAsProposal({ storeId, productId: got.productId, jobId: job.jobId, resultId: got.resultId,
             settingsVersion: got.settingsVersion, baseRevision: item?.baseRevision ?? "", file: got.file }, deps);
-        } catch { code = "unknown"; }
-        mark(got.productId, SAVE_STATUS[code]);
-        if (!win.closed) win.postMessage(savedReply(job.jobId, got, code, SAVE_TEXT[code]), PRODUCT_RECEIVER_ORIGIN);
-      });
+        },
+        onDone: (code: SaveCode) => {
+          mark(got.productId, SAVE_STATUS[code]);
+          win.postMessage(savedReply(job.jobId, got, code, SAVE_TEXT[code]), PRODUCT_RECEIVER_ORIGIN);
+        },
+      })).then(() => undefined, () => undefined);
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);

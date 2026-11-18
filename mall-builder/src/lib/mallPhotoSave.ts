@@ -48,18 +48,21 @@ export interface SaveInput { storeId: string; productId: string; jobId: string; 
 
 const rec = (v: unknown): Record<string, unknown> | null => (v && typeof v === "object" ? (v as Record<string, unknown>) : null);
 
-/** 업로드 오류가 「같은 경로에 이미 있음」(= 내가 앞서 올린 같은 예약 경로)인지 */
-export function isAlreadyExists(e: StorageError): boolean {
-  if (!e) return false;
-  const code = String(e.statusCode ?? e.status ?? "");
-  return code === "409" || /already exists|duplicate/i.test(e.message ?? "");
+/**
+ * 업로드 오류 분류(Mac msg_3c336c319413): 결과를 알 수 없음이 가장 먼저 —
+ *  - 숫자 상태가 하나도 없거나(네트워크 등) 5xx가 하나라도 있으면 "unknown"(문구에 duplicate가 있어도)
+ *  - Storage의 명확한 코드 `statusCode` 409일 때만 "exists"(= 내가 앞서 올린 같은 예약 경로) — 문구만으로는 인정하지 않음
+ *  - 나머지가 모두 4xx면 "reject", 그 밖은 "unknown"
+ */
+export function classifyUploadError(e: StorageError): "exists" | "reject" | "unknown" {
+  if (!e) return "unknown";
+  const codes = [e.statusCode, e.status].map((v) => (v === undefined || v === null || v === "" ? NaN : Number(v))).filter((n) => Number.isInteger(n));
+  if (!codes.length || codes.some((n) => n >= 500)) return "unknown";
+  if (String(e.statusCode ?? "") === "409") return "exists";
+  return codes.every((n) => n >= 400 && n < 500) ? "reject" : "unknown";
 }
-/** 업로드 오류가 확정적인 거절(4xx)인지 — 아니면(5xx·상태 없음) 결과를 알 수 없음 */
-export function isDefiniteReject(e: StorageError): boolean {
-  if (!e) return false;
-  const n = Number(e.statusCode ?? e.status);
-  return Number.isInteger(n) && n >= 400 && n < 500 && n !== 409;
-}
+export const isAlreadyExists = (e: StorageError) => classifyUploadError(e) === "exists";
+export const isDefiniteReject = (e: StorageError) => classifyUploadError(e) === "reject";
 
 export async function saveResultAsProposal(input: SaveInput, d: SaveDeps): Promise<SaveCode> {
   if (!input.resultId) return "invalid"; // 번호 없는 옛 바나나 결과는 저장하지 않음
@@ -93,10 +96,14 @@ export async function saveResultAsProposal(input: SaveInput, d: SaveDeps): Promi
 
   let up: { error?: StorageError };
   try { up = await d.upload(path, jpeg); } catch { return "unknown"; } // 올라갔는지 알 수 없음 — 포기·삭제 0
-  if (up?.error && !isAlreadyExists(up.error)) {
-    if (!isDefiniteReject(up.error)) return "unknown";
-    try { await d.abandon(id); } catch { /* 위와 같음 */ }
-    return "failed"; // 확정적 거절 → 파일 없음, 예약만 포기
+  if (up?.error) {
+    const kind = classifyUploadError(up.error);
+    if (kind === "unknown") return "unknown"; // 올라갔는지 알 수 없음 — commit·abandon·remove 0
+    if (kind === "reject") {
+      try { await d.abandon(id); } catch { /* 위와 같음 */ }
+      return "failed"; // 확정적 거절 → 파일 없음, 예약만 포기
+    }
+    // "exists" → 앞서 올린 본인 예약 경로 → commit으로
   }
 
   let c: RpcResult;
@@ -110,11 +117,26 @@ export async function saveResultAsProposal(input: SaveInput, d: SaveDeps): Promi
     let a: RpcResult = null;
     try { a = await d.abandon(id); } catch { return "failed"; }
     const ad = rec(a?.data);
-    if (ad && ad.ok === true && ad.state === "abandoned") { try { await d.remove(path); } catch { /* 남으면 정리 목록 */ } }
+    // 오류가 없고(error와 data가 함께 와도 금지) 「포기됨」이 확실할 때만 지운다
+    if (a && !a.error && ad && ad.ok === true && ad.state === "abandoned") { try { await d.remove(path); } catch { /* 남으면 정리 목록 */ } }
     return "failed";
   }
   if (cd.reason === "gone" || cd.reason === "forbidden") return "failed"; // 파일 손대지 않음
   return "unknown";
+}
+
+/**
+ * 대기열 한 칸(Mac msg_3c336c319413): 시작 직전에 「지금 작업 + 원래 창」이 그대로인지 확인 — 아니면 저장 0("skipped").
+ * 이미 시작한 저장은 계약대로 끝내되, 끝난 뒤 다시 확인해 바뀌었으면 상태 표시·응답 0("stale").
+ */
+export async function runQueuedSave(t: { isActive: () => boolean; save: () => Promise<SaveCode>; onDone: (code: SaveCode) => void }):
+  Promise<SaveCode | "skipped" | "stale"> {
+  if (!t.isActive()) return "skipped";
+  let code: SaveCode;
+  try { code = await t.save(); } catch { code = "unknown"; }
+  if (!t.isActive()) return "stale";
+  t.onDone(code);
+  return code;
 }
 
 /** 받은 파일 → 5MB 이하 JPEG 계획(순수): 그대로 쓸지, 변환할지 */
@@ -123,13 +145,17 @@ export function jpegPlan(type: string, size: number): "reuse" | "convert" {
 }
 
 // ── 브라우저 전용(화면에서만 부름 — 시험은 위 순수 함수를 모의 deps로)
-/** 5MB 이하 JPEG로: 이미 그렇다면 그대로, 아니면 같은 크기 캔버스(흰 배경)에 그려 품질 0.92→0.85→0.75. 가로세로 6000px 초과·디코딩 실패면 null */
+/**
+ * 5MB 이하 JPEG로. 먼저 항상 디코딩해 가로세로(1~6000px)를 확인한다 — 원본을 그대로 쓰는 경우(이미 5MB 이하 JPEG)에도.
+ * 통과하면: 그대로 쓸 수 있으면 원본 바이트 그대로, 아니면 같은 크기 캔버스(흰 배경)에 그려 품질 0.92→0.85→0.75. 실패면 null.
+ * (이 확인은 브라우저 단계의 메모리·크기 보호일 뿐 — 공개 전 JPEG 바이트 검증은 M3 서버 경로가 따로 한다)
+ */
 export async function browserToJpeg(file: Blob): Promise<Blob | null> {
-  if (jpegPlan(file.type, file.size) === "reuse") return file;
   let bmp: ImageBitmap | null = null;
   try {
     bmp = await createImageBitmap(file);
     if (bmp.width < 1 || bmp.height < 1 || bmp.width > PROPOSAL_MAX_SIDE || bmp.height > PROPOSAL_MAX_SIDE) return null;
+    if (jpegPlan(file.type, file.size) === "reuse") return file;
     const canvas = document.createElement("canvas");
     canvas.width = bmp.width; canvas.height = bmp.height;
     const g = canvas.getContext("2d");
