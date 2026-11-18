@@ -77,7 +77,10 @@ export type RetentionDeps = {
 
 export type CleanupCounts = {
   examined: number;
+  /** 저장소 remove를 실제로 호출하기 시작한 횟수 */
   removeCalls: number;
+  /** deleting 커밋 뒤 회차 마감에 걸려 remove를 시작하지 못한 건(외부 요청 미전송 — 「응답 불명」과 다르다) */
+  removeNotSent: number;
   deleted: number;
   deleteUnknown: number;
   mismatch: number;
@@ -104,7 +107,7 @@ export type CleanupResult =
   | { ok: false; aborted: true; code: "EXEMPT_UNAVAILABLE"; counts: CleanupCounts };
 
 const emptyCounts = (): CleanupCounts => ({
-  examined: 0, removeCalls: 0, deleted: 0, deleteUnknown: 0, mismatch: 0, restored: 0, notDue: 0, undetermined: 0, busy: 0, locked: 0,
+  examined: 0, removeCalls: 0, removeNotSent: 0, deleted: 0, deleteUnknown: 0, mismatch: 0, restored: 0, notDue: 0, undetermined: 0, busy: 0, locked: 0,
   skipped: 0, protectedSkipped: 0, claimFailed: 0, markFailed: 0, denied: 0, gaveUp: 0, invalidRows: 0, listFailed: 0, measureFailed: 0, timeouts: 0,
 });
 
@@ -264,11 +267,18 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
     if (halted) return;   // deleting 응답 없음 → remove 0. 나중에 커밋되면 deleting으로 남고 다음 회차가 확인한다
     if (!entered) { c.markFailed++; return; }
 
-    c.removeCalls++;
+    // 집계는 실제로 호출을 시작하는 순간에 한다(Mac 검수 2026-11-18): 회차 마감에 걸려 bounded가 호출을 시작하지 않으면 remove는 0회다.
+    let sent = false;
     try {
-      await bounded(() => deps.remove([it.path]));   // 정확히 1회. 응답 내용으로는 아무것도 정하지 않는다
+      await bounded(() => { sent = true; c.removeCalls++; return deps.remove([it.path]); });   // 정확히 1회. 응답 내용으로는 아무것도 정하지 않는다
     } catch {
       // 던짐도 「보내지 않았다」의 증거가 아니다
+    }
+    if (!sent) {
+      // 외부 요청 미전송이 확정된 경우다. 남은 시간이 없으므로 더 부르지 않는다 — 예약은 deleting으로 남고 다음 회차의 「확인만」 묶음이 본다
+      // (그 묶음은 다시 지우지 않으므로 객체가 남아 있으면 delete_unknown이 된다 — 미전송 건의 재시도 경로는 후속 복구 단위).
+      c.removeNotSent++;
+      return;
     }
     // remove가 대기 초과였으면(halted): 다시 지우지 않는다. 회차에 남은 시간이 있을 때만 확인을 한 번 하고(force), 없으면 bounded가 호출을 시작하지 않는다.
     await verify(it, token, true, halted);

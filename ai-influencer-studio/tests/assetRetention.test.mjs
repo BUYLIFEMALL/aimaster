@@ -725,6 +725,25 @@ test("remove 대기에서 회차 마감이 끝나면: 확인 요청도 새로 �
   assert.equal(w.deletions.get(a.id).state, "delete_unknown");
 });
 
+test("deleting 커밋 직후 회차 마감이면: remove를 시작하지 않고 「미전송」으로 센다(삭제 호출·응답 불명으로 세지 않는다)", async () => {
+  // 가짜 시계: DB 호출 한 번에 10씩 흐른다. 만료·예약·재확인·deleting 네 번 뒤 정확히 마감(40)에 닿아 remove는 시작되지 않는다.
+  const w = world({ tick: 10 }).profile(U1); const a = w.asset(1, U1); const b = w.asset(2, U1);
+  w.deps.limits = { ioTimeoutMs: 1000, roundDeadlineMs: 40 };
+  const r = await run(w);
+  assert.deepEqual(w.fnNames(), ["aif_asset_expire", "aif_asset_claim_delete", "aif_asset_expire", "aif_asset_delete_mark"]);
+  assert.equal(w.removes.length, 0, "실제 remove 0회");
+  assert.deepEqual([r.counts.removeCalls, r.counts.removeNotSent, r.counts.deleteUnknown, r.counts.deleted], [0, 1, 0, 0]);
+  assert.deepEqual([r.stopCode, r.counts.timeouts], ["IO_TIMEOUT", 1]);
+  assert.equal(w.deletions.get(a.id).state, "deleting", "예약은 deleting으로 남는다");
+  assert.equal(w.assets.get(b.id).state, "ready");
+  assert.equal(w.measured.length, 0);
+  // 다음 회차: 확인만 — 다시 지우지 않는다
+  w.deps.limits = undefined; w.tick = 0; w.clock = 0; w.calls.length = 0;
+  await run(w);
+  assert.ok(!w.removes.some((p) => p[0] === a.path), "그 자산은 remove 0");
+  assert.equal(w.deletions.get(a.id).state, "delete_unknown");
+});
+
 test("삭제 확인 응답이 오지 않으면: 불명 표시 시도도 하지 않는다(deleting 보존) — 다음 회차가 확인한다", async () => {
   const w = world().profile(U1); const a = w.asset(1, U1); w.asset(2, U1);
   w.hook = (fn) => (fn === "aif_asset_delete_verify" ? never() : undefined);
