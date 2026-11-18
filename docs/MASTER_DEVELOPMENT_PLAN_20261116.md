@@ -1,10 +1,10 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 15:08:28 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 15:10:44 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 15:08:28 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 15:10:44 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
 점검 범위: 새보고3·담당13로컬연결목록·미등록/수정문서증분3·관리자요청0·잔여/선행조건/승인분리 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 15:08:28 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 268개: done 249개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 8개 · queued 1개 · reviewing 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 268개: done 249개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 8개 · queued 1개 · needs_revision 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -417,7 +417,7 @@ Master 마지막 실제 점검: 2026-11-18 15:08:28 KST · 실행 중 점검 주
 | CRM-20261118-09 | CC-B2B-BACK-01 | done / versioned_script_and_server_field_preservation_source_accepted_unreleased | Apps Script v2 이벤트키 스니펫·legacy 안내 연결 | CRM18-10 명시릴리스준비·실AppsScript/DDL/배포/SMS승인별도 |
 | AIF-20261118-W01c | CC-SNS-01 | done / reference_image_input_source_review_accepted_unreleased | 참고 이미지 MIME/서명 처리 독립 개선 범위 계획 | 미배포묶음·출력G5/실브라우저/공급자미검수·P0상위비교최종연기 |
 | CRM-20261118-10 | CC-B2B-BACK-01 | waiting_human / concrete_release_prepared_single_owner_approval_pending | CRM 중복방지 묶음 명시소스·DDL·실검수 릴리스 준비 | 주인님 DDL/버전/로컬1+원격1/SMS1 승인신호→단일담당순번·직전운영기준대조·실행 |
-| AIF-20261118-W01d | CC-SNS-01 | reviewing / server_generated_shadow_R1_contract_under_independent_review | 첫 원본 자산 단위 필드·권한·스토리지 구체 계약 | Mac R1 정적재검수→중앙측정시각·업로드불명중 예약해제 경계보완 후 코드범위배정 |
+| AIF-20261118-W01d | CC-SNS-01 | needs_revision / R1_timeout_late_storage_commit_reservation_release_P1 | 첫 원본 자산 단위 필드·권한·스토리지 구체 계약 | unknown 예약 유지·원격 미접수/종료 확정 때만 해제하도록 계약 보완→Mac 재검수 |
 | QA-20261118-ESM-01 | CX-QA-01 | waiting_human / zip_source_versions_verified_installed_extension_and_login_pending | ESM v1.02 입력만·쇼핑제휴 v1.89 네이버 수집 실확장 준비/검수 | 기존 Mac 사람요청 한곳: ESM+/네이버로그인·확장실제설치버전·brandlink1 뒤 입력만/수집검수 |
 
 ## 현재 담당 회신이 확보된 프로젝트
@@ -476,7 +476,7 @@ Master 마지막 실제 점검: 2026-11-18 15:08:28 KST · 실행 중 점검 주
 | CRM 중복방지 연결 후속알림 정책 | 주인님Backend직접결정: 미확정/미지상태후속기본보류·보류사실표시 | 기존질문이결정으로해소·CRM18-05소스만진행·운영연결/DDL별도 |
 | 감성 무료이미지 실행방식 | 주인님ECOM직접 진행해=Cloudflare회원본인키 방식 선택완료 | 공용키2개재사용·무료량잔여/귀속확인·실생성최대1조건부·서버/UI점유분리·정정배포승인별도 |
 | 감성 무료OFF 정정안 운영반영 | 검수완료223ddc6b3 UI보존·원격빌드1회 승인vs묶음대기 질문 | 실이미지호출0·현재운영freeOFF아님·승인전신규배포0 |
-| Cloudflare 시험계정 토큰 인증/잔여 확인 | 주인님 소유 관리자·시험 계정은 같은 Cloudflare 키를 각 계정에 등록 가능. 새 토큰은 중앙 카드 배포 뒤 직접 등록·인증 확인 | 별도 시험 외부계정 요구0·두 지정계정만 공유·다른회원/운영자폴백0·현재 새토큰등록/인증/잔여미확인 |
+| Cloudflare FLUX 실생성 1회 승인 | 주인님 직접 새토큰재등록 완료·인증active/모델목록75 읽기 성공. Master 단일 1회 생성 질문 제출·답 대기 | 무료잔여/유료플랜 과금가능성 미확인·생성/재시도0·OFF유지. 답 전 실행0 |
 | CRM v1.18 운영 릴리스 묶음 | Master단일승인질문: 운영DDL1/버전·로컬빌드1+Vercel1·시험번호SMS1/동일이벤트재전송추가0·Google직접단계 | 명시e258제품tree+버전overlay·정식주소승격후같은회차실검수·실패빌드없는rollback·보호우회토큰0 |
 | Mac ESM/쇼핑제휴 실확장 시험 | Mac준비후 ESM+/네이버 로그인·브랜드커넥트실링크1개·필요시확장폴더선택은주인님직접 | 정상기존설치는재사용·ESM입력만1/외부등록0·네이버대기열까지·기존B/Gmail/Blog창보존 |
 
