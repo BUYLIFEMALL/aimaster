@@ -4243,15 +4243,15 @@
       "parent_task_id": "CRM-20261118-09",
       "title": "CRM 중복방지 묶음 명시소스·DDL·실검수 릴리스 준비",
       "owner": "CC-B2B-BACK-01",
-      "status": "running",
-      "delivery": "owner_direct_go_approved_single_executor_release_started",
+      "status": "waiting_human",
+      "delivery": "production_v118_Ready_alias_verified_waiting_owner_real_form_SMS_trial",
       "scopeRef": "기존결과/개선표/역할·읽기검사만, 제품소스동결",
       "completion": "파일별SHA/blob/tree·DDLhash/사전SQL/권한/롤백·정확순서·빌드예산/실SMS/사람단계 구체안",
       "constraints": "승인전SQL/버전/빌드/실문자/Google/push0·보호우회토큰생성0·추가비용임의실행0",
-      "next": "운영사전/DDL지문/사후→v1.18소스검사/로컬1→큐후원격1/정식승격→버전/주인님실SMS1·동일이벤트추가0",
-      "evidence": "U1/U2/접수/팔로우업/U3 지정소스PASS·Master범위준비배정 · msg_a62d1b410a26·Master35절/실SourceCard/DDLhash확인 · msg_d7dae74d8b00/4310d54c2·Master승격동시검수안선택/승인질문1곳 · msg_abd379267b31 주인님직접진행해·Master조정msg_a6dc5c3e43c2",
-      "lastReviewedAt": "2026-11-18T08:12:46.288Z",
-      "sha": "4310d54c2",
+      "next": "기존한곳주인님 폼SMS켜기/이메일끄기·시트v2·본인응답1/SMS1·동일행추가0 신호→Backend운영읽기",
+      "evidence": "U1/U2/접수/팔로우업/U3 지정소스PASS·Master범위준비배정 · msg_a62d1b410a26·Master35절/실SourceCard/DDLhash확인 · msg_d7dae74d8b00/4310d54c2·Master승격동시검수안선택/승인질문1곳 · msg_abd379267b31 주인님직접진행해·Master조정msg_a6dc5c3e43c2 · msg_cb7675254442 DDL사후/local/원격1완료·Masterget_alias/get_deployment dpl_2FqV7BNufn1FJajv2ETYN7chpUWw READY/meta c5aa4c373/prj_vhsX9ix7k45wDFvoG2I8a79bhXPb",
+      "lastReviewedAt": "2026-11-18T08:19:06.617Z",
+      "sha": "c5aa4c373",
       "validation": {
         "author": "35절 파일12SHA/blob/tree024f2427·DDL원문hash·순서/권한/멈춤/예산표 준비·실행0",
         "master": "DDLsha2562e0b8eb84461d47b030016a00aedd734ddaeb1cbbef46da6800e8ce84925f450일치. 현재SourceCard신규배포면바로공개·문자legacy1+v2추가1과예산1통모순 보완반환 staged지원있으나vercel보호/화면308으로실검증제약·Master추가보호변경없는정식승격동시검수안선택. 문자v2응답1+동일재전송0추가로정합,DB버전승격후.",
@@ -4260,12 +4260,18 @@
       "releaseBudget": {
         "localBuildMax": 1,
         "remoteBuildMax": 1,
-        "remoteUsed": null,
+        "remoteUsed": 1,
         "smsMax": 1,
         "smsUsed": 0,
         "extraChannels": 0,
         "rollback": "이미있는배포복구·새build0",
-        "limits": "모델/다른도구중복일반해결아님·시험번호/키원문0·무조건자동재시도0"
+        "limits": "모델/다른도구중복일반해결아님·시험번호/키원문0·무조건자동재시도0",
+        "localBuildUsed": 1
+      },
+      "operatingEvidence": {
+        "master": "alias/READY/prod/CLI/meta c5aa4c373 직접확인",
+        "author": "운영DDL/사후검사완료·programs1.18·로컬성공·원격1",
+        "pending": "실Google AppsScript v2/문자수신1·동일이벤트중복0 미검수·실롤백미실행"
       }
     },
     {
@@ -4557,14 +4563,19 @@
       "owner": "CC-BLOG-01",
       "reviewer": "CX-MASTER-01",
       "title": "T08 구형 ghost-scraper 백업후정리 승인범위 구체화",
-      "status": "dispatched",
-      "delivery": "owner_approved_exact_backup_tag_and_19_file_cleanup_execution_dispatched",
-      "evidence": "주인님직접msg_6c2b57cab944·website기존Mac결과msg_efecea98d20b · msg_4ee74b44d30f 준비착수·세배포완료 · msg_e82ddbc669e0/a03a74190 정확안·실행배정msg_b4bd370c57de",
+      "status": "reviewing",
+      "delivery": "backup_tag_exact_cleanup_completed_static_PASS_local_checks_pending",
+      "evidence": "주인님직접msg_6c2b57cab944·website기존Mac결과msg_efecea98d20b · msg_4ee74b44d30f 준비착수·세배포완료 · msg_e82ddbc669e0/a03a74190 정확안·실행배정msg_b4bd370c57de · msg_22e3ec0d95dd/e038·tag/77archive Master직접대조·Macmsg_d974b8c4bde8 정적PASS",
       "constraints": "세배포뒤정확삭제범위/백업/태그선행·안내/410보존·비밀/env/node_modules백업제외·새빌드/공유push0 · 백업기존덮기0/태그push0/추적비밀파일있으면중단·next-env남의변경보존·전체폴더이동/재귀삭제0·tsc/buildCRM뒤",
-      "next": "원본tree/77추적/영구백업해시/로컬태그확인→19파일만정리/runtime·heavy검사CRM뒤",
-      "lastReviewedAt": "2026-11-18T08:12:46.288Z",
-      "sha": "a03a74190",
-      "scopeRef": "ghost-scraper tree436c0f813·문서§2-3 19파일·package test1·보존안내/410/고지/SQL/docs"
+      "next": "tsc/build결과·복원안전문구/백업EOL국소정정→미배포정리완료판정",
+      "lastReviewedAt": "2026-11-18T08:19:06.617Z",
+      "sha": "e038f405e",
+      "scopeRef": "ghost-scraper tree436c0f813·문서§2-3 19파일·package test1·보존안내/410/고지/SQL/docs",
+      "validation": {
+        "author": "19삭제/package1·추적77→58·백업태그선행·미배포/운영0·runtime의magiclink실행안함",
+        "master": "tagpeeled2706fc0b5·실backup77 raw8/LF정규화69일치/그밖0·CRMheavy종료후tsc/build1허용",
+        "independent": "삭제정확19·남은58 참조0·안내410/logout/cookie/고지SQL보존·defaulttest제거타당·복원checkout예시문구정정필요·실runtime0"
+      }
     },
     {
       "task_id": "BLOG-20261118-04",
@@ -5213,20 +5224,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T08:14:39.332Z",
+      "at": "2026-11-18T08:19:06.617Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS 새SQL 근거독립최종수락",
-      "scope": "3eae신규19/기존15·원문hash/2연결·cleanup·다음무한IO경계",
+      "trigger": "CRM Ready/순번해소·T08백업/정적PASS",
+      "scope": "CRMalias/meta직접·문자사람단계·T08archive77raw/줄바꿈/태그·정적삭제/안전복원문구",
       "evidence": [
-        "msg_4e82833dc42a"
+        "msg_cb7675254442·MasterVercel직접",
+        "Masterbackup77해시/8raw69CRLF만차이·tagpeeled",
+        "msg_d974b8c4bde8·Blog정정요청"
       ],
-      "judgment": "격리대역검증단위수락·운영/실Storage확대0·정리IO유한대기모의보완다음배정",
+      "judgment": "CRM배포확인/실SMS미검수·heavy해소T08검사허용·backup내용차이0/EOL차이구분·T08정적수락/문서+local결과대기",
       "unverified": [
-        "개별IO상한구현/모의검수",
-        "실Supabase/Storage/ON",
-        "CRM릴리스단계/T08백업결과"
+        "CRM주인님실폼/문자1/중복0",
+        "T08local검사·안전복원문구",
+        "SNSIO모의보완결과"
       ],
-      "nextAction": "한정소스결과/CRM단계회수·heavy검증순번조정"
+      "nextAction": "사람신호/검사결과회수·추가발송/원격build0"
     },
     "notifications": [
       {
@@ -5500,12 +5513,14 @@
       "priorityOwner": "CC-B2B-BACK-01",
       "reason": "CRM 주인님직접릴리스승인·로컬검사/build1 우선",
       "waitingOwner": "CC-BLOG-01",
-      "waitingWork": "T08백업/19파일편집/순수runtime가능·tsc/nextbuild는CRM종료신호뒤",
+      "waitingWork": "T08 tsc/build1 결과대기",
       "messages": [
         "msg_a6dc5c3e43c2",
         "msg_b4bd370c57de"
       ],
-      "remoteLimits": "CRM별도승인1·Blog3/3소진·다른추가0"
+      "remoteLimits": "CRM별도승인1·Blog3/3소진·다른추가0",
+      "status": "CRM local build complete; T08 checks allowed",
+      "completedEvidence": "msg_cb7675254442·허용msg_423779848733"
     }
   },
   "planCorrections": [
@@ -6020,10 +6035,10 @@
     },
     {
       "category": "CRM",
-      "stage": "비교표/개별문서 수집·현재담당실회신없음 / PORT19 문서인용69개대조(운영/현재담당확정아님)",
-      "next": "PORT18-02 F007현행검증·F011해결제외",
+      "stage": "crm-google-form v1.18 운영소스/DDL반영보고·alias직접·실폼/SMS사람대기",
+      "next": "주인님직접응답1/SMS1·동일재전송0 검수·예산추가0",
       "coordinator": "Master (담당확인)",
-      "reviewedAt": "2026-11-18T02:50:31.105Z"
+      "reviewedAt": "2026-11-18T08:19:06.617Z"
     },
     {
       "category": "마케팅(홍보)",

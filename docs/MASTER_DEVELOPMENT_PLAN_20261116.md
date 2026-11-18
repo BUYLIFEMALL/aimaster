@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 17:14:39 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 17:19:06 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 17:14:39 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 17:19:06 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 3eae신규19/기존15·원문hash/2연결·cleanup·다음무한IO경계 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: CRMalias/meta직접·문자사람단계·T08archive77raw/줄바꿈/태그·정적삭제/안전복원문구 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -48,7 +48,7 @@ Master 마지막 실제 점검: 2026-11-18 17:14:39 KST · 실행 중 점검 주
 | 부동산 | 4 / 4 | 4운영버전근거·실거래/매물정상회차기록·C독립미검증 | 상가/고객공통다음묶음·미사용기간표본뒤별도평가 | Realty / Master |
 | 디자인 | 3 / 0 | 146인계/운영구현마감·DES04요일명세완료 | AGY명세→Workspace/QA043·기존개별디자인툴현담당확인 | AGY(배정된디자인범위) / Master |
 | AI 프롬프트 | 2 / 0 | Prompt/리버스의기존문서·docbot역할이력확인, 현세션미확정 / PORT19 문서인용69개대조(운영/현재담당확정아님) | 정책/병합완료/제안과잔여분리·현재성확인후작업화 | Master (기존docbot-prompt 역할재연결) |
-| CRM | 2 / 0 | 비교표/개별문서 수집·현재담당실회신없음 / PORT19 문서인용69개대조(운영/현재담당확정아님) | PORT18-02 F007현행검증·F011해결제외 | Master (담당확인) |
+| CRM | 2 / 0 | crm-google-form v1.18 운영소스/DDL반영보고·alias직접·실폼/SMS사람대기 | 주인님직접응답1/SMS1·동일재전송0 검수·예산추가0 | Master (담당확인) |
 | 마케팅(홍보) | 5 / 0 | 5프로그램목록·개별문서표식확인, 현담당회신없음 / PORT19 문서인용69개대조(운영/현재담당확정아님) | 정책/병합완료/제안과잔여분리·현재성확인후작업화 | Master (담당확인) |
 | 인스타 | 6 / 0 | 6프로그램목록/개별문서·AGY과거배포이력은존재, 현총괄미확정 / PORT19 문서인용69개대조(운영/현재담당확정아님) | 정책/병합완료/제안과잔여분리·현재성확인후작업화 | Master (담당확인) |
 | 성격·운세 | 4 / 0 | 4프로그램목록/개별문서·현재담당회신없음 / PORT19 문서인용69개대조(운영/현재담당확정아님) | 정책/병합완료/제안과잔여분리·현재성확인후작업화 | Master (담당확인) |
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 17:14:39 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 284개: done 263개 · cancelled 7개 · ready_review 1개 · running 2개 · waiting_human 6개 · superseded 1개 · reviewing 1개 · dispatched 2개 · queued 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 284개: done 263개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 7개 · superseded 1개 · reviewing 2개 · queued 1개 · dispatched 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -416,7 +416,7 @@ Master 마지막 실제 점검: 2026-11-18 17:14:39 KST · 실행 중 점검 주
 | CRM-20261118-08 | CC-B2B-BACK-01 | done / followup_single_attempt_source_review_accepted_unreleased | 팔로우업 SOLAPI SDK 재시도 제거·검수 전송기 재사용 | 미배포묶음보존·U3/운영DDL/배포/실SMS조건후속, 다른공용SDK영향별도 |
 | CRM-20261118-09 | CC-B2B-BACK-01 | done / versioned_script_and_server_field_preservation_source_accepted_unreleased | Apps Script v2 이벤트키 스니펫·legacy 안내 연결 | CRM18-10 명시릴리스준비·실AppsScript/DDL/배포/SMS승인별도 |
 | AIF-20261118-W01c | CC-SNS-01 | done / reference_image_input_source_review_accepted_unreleased | 참고 이미지 MIME/서명 처리 독립 개선 범위 계획 | 미배포묶음·출력G5/실브라우저/공급자미검수·P0상위비교최종연기 |
-| CRM-20261118-10 | CC-B2B-BACK-01 | running / owner_direct_go_approved_single_executor_release_started | CRM 중복방지 묶음 명시소스·DDL·실검수 릴리스 준비 | 운영사전/DDL지문/사후→v1.18소스검사/로컬1→큐후원격1/정식승격→버전/주인님실SMS1·동일이벤트추가0 |
+| CRM-20261118-10 | CC-B2B-BACK-01 | waiting_human / production_v118_Ready_alias_verified_waiting_owner_real_form_SMS_trial | CRM 중복방지 묶음 명시소스·DDL·실검수 릴리스 준비 | 기존한곳주인님 폼SMS켜기/이메일끄기·시트v2·본인응답1/SMS1·동일행추가0 신호→Backend운영읽기 |
 | AIF-20261118-W01d | CC-SNS-01 | done / revised_contract_accepted_for_source_only_A1_first_unit | 첫 원본 자산 단위 필드·권한·스토리지 구체 계약 | A1 SQL초안/순수paths 첫단위 배정·실DB/저장별도 |
 | QA-20261118-ESM-01 | CX-QA-01 | waiting_human / zip_source_versions_verified_installed_extension_and_login_pending | ESM v1.02 입력만·쇼핑제휴 v1.89 네이버 수집 실확장 준비/검수 | 기존 Mac 사람요청 한곳: ESM+/네이버로그인·확장실제설치버전·brandlink1 뒤 입력만/수집검수 |
 | ECOM-20261118-08 | CC-ECOM-01 | done / specified_source_review_pass_accepted_unreleased | Cloudflare 배경 생성 프롬프트 문자 혼입 보완 | 기존 배포후보 묶음에9ccfc8dfa 포함·실 무문자품질 추가생성은 별도승인·현재무료OFF소스유지 |
@@ -427,7 +427,7 @@ Master 마지막 실제 점검: 2026-11-18 17:14:39 KST · 실행 중 점검 주
 | AIF-20261118-W01h | CC-SNS-01 | done / default_off_route_mock_integration_specified_independent_PASS_accepted | 원본 저장 OFF 기본 라우트 연결·모의 통합 | W01i OFF 기본 원본 자산 조회 모의단위 |
 | AIF-20261118-W01i | CC-SNS-01 | done / exact_signed_object_read_route_specified_mock_review_pass_accepted | 원본 자산 조회 OFF 기본 경로·모의시험 | A1 OFF소스완료표/운영보관정리 선행조건 취합 |
 | BLOG-20261118-02 | CC-BLOG-01 | done / three_releases_complete_existing_data_screen_review_limited_accepted | 승인된 블로그3프로그램 순차묶음 배포 | T08승인정리정확백업/삭제범위검토·실Excel/폴러/T05분석·새생성효과미검수별도 |
-| BLOG-20261118-03 | CC-BLOG-01 | dispatched / owner_approved_exact_backup_tag_and_19_file_cleanup_execution_dispatched | T08 구형 ghost-scraper 백업후정리 승인범위 구체화 | 원본tree/77추적/영구백업해시/로컬태그확인→19파일만정리/runtime·heavy검사CRM뒤 |
+| BLOG-20261118-03 | CC-BLOG-01 | reviewing / backup_tag_exact_cleanup_completed_static_PASS_local_checks_pending | T08 구형 ghost-scraper 백업후정리 승인범위 구체화 | tsc/build결과·복원안전문구/백업EOL국소정정→미배포정리완료판정 |
 | BLOG-20261118-04 | CC-BLOG-01 | queued / owner_product_decision_recorded_operating_DDL_Render_not_approved | T03 도메인 구조 캐시 회원별 격리 결정 반영 | T07Excel/T06선행관계확인뒤정확DB/Render플랜·비용취합 |
 | AIF-20261118-W01j | CC-SNS-01 | done / OFF_source_completion_and_activation_blockers_reconciled | A1 OFF소스완료표·운영선행 보관/정리 조건 취합 | W01k 30일보관정리 첫계약·운영ON차단유지 |
 | AIF-20261118-W01k | CC-SNS-01 | done / retention_R2_static_contract_accepted_with_implementation_conditions | 원본 자산 일반30일 정리 연결 첫계약 | W01l OFF 보관정리 SQL초안/실행기 모의첫구현 |
