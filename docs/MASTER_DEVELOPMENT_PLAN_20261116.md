@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-18 14:03:34 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-18 14:05:47 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-18 14:03:34 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-18 14:05:47 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: W01a수락·기존history위험/새자산계약과독립범위·후속 source배정 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
+점검 범위: 3b8933b94 5파일·키API/카드 검수배정·메인자동빌드동반배포교통정리 · 문서 생성 시각과 실제 점검 시각은 다르며 전체 서비스 운영 검증을 뜻하지 않는다.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -147,7 +147,7 @@ Master 마지막 실제 점검: 2026-11-18 14:03:34 KST · 실행 중 점검 주
 
 ## 현재 작업 ID와 Master 처리
 
-작업 기록 262개: done 242개 · cancelled 7개 · ready_review 1개 · running 1개 · waiting_human 6개 · queued 1개 · in_progress 2개 · needs_revision 1개 · dispatched 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
+작업 기록 262개: done 242개 · cancelled 7개 · ready_review 2개 · running 1개 · waiting_human 6개 · queued 1개 · in_progress 1개 · needs_revision 1개 · dispatched 1개. 아래 done은 해당 작업의 완료조건만 닫은 것이며 제품 전체 개발·배포 완료율이 아니다.
 
 | 작업 ID | 담당 | 상태 / 전달 | 완료·진행 범위 | Master의 다음 지휘 |
 | --- | --- | --- | --- | --- |
@@ -410,7 +410,7 @@ Master 마지막 실제 점검: 2026-11-18 14:03:34 KST · 실행 중 점검 주
 | DES-20261118-07 | AG-UI-01 | in_progress / exact_emotion_status_card_paths_acknowledged_started | Cloudflare 공용키 설정 UI 연결 경로 계획 | 정확4제품파일+시험 완료SHA/tsc 회수→Mac검수, 공용중앙카드와분리 |
 | AIF-20261118-W00 | CC-SNS-01 | done / static_contract_review_accepted_implementation_unverified | AI Influencer W00 기준·격차/공통계약 독립검수 | W01a별도검수·PLAN/권한선행병합전자산코드/DDL0·후속경합/RLS실검증별도 |
 | CRM-20261118-07 | CC-B2B-BACK-01 | needs_revision / single_http_verified_response_schema_contradictions_returned | SOLAPI SDK 재시도 없는 공식 대안·최소 변경 계획 | 실패목록스키마/HTTP·성공count·error봉투 모순unknown 보완SHA 회수→Mac |
-| ECOM-20261118-07 | CC-ECOM-01 | in_progress / central_credential_paths_reserved_mock_source_implementation | 메인 공용 Cloudflare 등록 카드·서버 최소계획 | 정확경로점유/모의구현SHA·보안/DOM시험/tsc 회수→Mac검수 |
+| ECOM-20261118-07 | CC-ECOM-01 | ready_review / central_keys_source_ready_unpushed_independent_review | 메인 공용 Cloudflare 등록 카드·서버 최소계획 | Mac 실제handler/route/card·기대계정·원자쌍/불명응답·CSRF/비밀0 검수→판정 |
 | AIF-20261118-W01a | CC-SNS-01 | done / four_ui_claim_corrections_source_ssr_review_accepted_unreleased | 실제 없는 seed 잠금 표시 4곳 정정 | 미배포묶음보존·실브라우저/모델품질미검수·다음W01b 기존보관예외 |
 | AIF-20261118-W01b | CC-SNS-01 | dispatched / existing_history_retention_exception_source_assigned | 기존 히스토리 자동정리의 보관예외 보호 | 정확범위착수/SHA·실handler모의/tsc→Mac검수 |
 

@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18 14:03:34 KST",
+  "checkedAt": "2026-11-18 14:05:47 KST",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T05:03:34.884Z",
+      "at": "2026-11-18T05:05:47.194Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS 제품국소PASS·상태정리",
-      "scope": "W01a수락·기존history위험/새자산계약과독립범위·후속 source배정",
+      "trigger": "중앙 Cloudflare 소스완료·공유push위험",
+      "scope": "3b8933b94 5파일·키API/카드 검수배정·메인자동빌드동반배포교통정리",
       "evidence": [
-        "msg_eb064386849e ReactSSR4상태",
-        "msg_9adc0fe02991/e95ad3ee4/af36bb467",
-        "Master실history GET/POST 자동30일/개수삭제 및helper존재확인"
+        "msg_8fde857892dc·3b8933b94 stat",
+        "Macmsg_ff1e31e50642",
+        "10담당 push순번알림 receipt(수락별도)"
       ],
-      "judgment": "표시수정소스수락·기존history보관예외를작은독립단위로배정. 새자산/PLAN권한병합전자산구현금지유지·실삭제/운영0.",
+      "judgment": "중앙키등록소스완료/독립검수대기·실운영미반영. 공유HEAD push가미검수소스를자동배포할수있어순번/명시소스확인전무심코push금지통보. 일반구현/커밋은계속.",
       "unverified": [
-        "W01b착수/검수",
-        "전체보관정책집행·게시공용위험·운영실화면"
+        "중앙카드독립검수·실RLS/쓰기",
+        "담당별push알림수락·Blog prompt해소",
+        "메인/감성배포예산·승인"
       ],
-      "nextAction": "각제품SHA/독립결과회수·본체계약선행보존"
+      "nextAction": "순차검수/새SHA/알림수락회수→정확묶음배포준비,아직새배포0"
     },
     "notifications": [
       {
@@ -215,6 +216,26 @@
         "evidence": "orca.exe 재발견·metadata존재·Workspace/Mac/Ecom 메시지ID발급",
         "action": "새창/재시작0"
       }
+    },
+    "pushCoordination": {
+      "at": "2026-11-18T05:05:47.194Z",
+      "reason": "공유master에메인미검수Cloudflare소스3b8933b94 포함·push자동빌드위험",
+      "status": "ten_terminals_notified_ack_pending",
+      "messageIds": [
+        "msg_f2b7bd8ca959",
+        "msg_5ecb78d19c71",
+        "msg_12f44104fd6e",
+        "msg_e6afd951efc0",
+        "msg_4d8730d9f0fd",
+        "msg_df18c7f321dc",
+        "msg_fac6cffe8768",
+        "msg_5594f81481d8",
+        "msg_d14ec10305cf",
+        "msg_7943b68c5759"
+      ],
+      "scope": "내파일커밋/일반구현계속·미검수공용HEAD push전검수/명시소스/빌드예산/Master순번·기존별도승인격리배포는대상별확인",
+      "exceptions": "Support주인님키트새작업배정0·새비용0",
+      "delivery": "Blog전달대기·그외전송receipt발급,수락별도"
     }
   },
   "count": 103,
@@ -7960,13 +7981,19 @@
       "task_id": "ECOM-20261118-07",
       "title": "메인 공용 Cloudflare 등록 카드·서버 최소계획",
       "owner": "CC-ECOM-01",
-      "status": "in_progress",
-      "delivery": "central_credential_paths_reserved_mock_source_implementation",
-      "evidence": "메인PROVIDERS5·oauth목록별도·문서봇입력은프로그램권한전제·Master소스대조 · 계획msg_b05eef62cc54/3ff187c06·Master두키원자/예상계정/CSRF보완지시 · ACTIVE_WORK본인중앙5경로예약확인",
-      "next": "정확경로점유/모의구현SHA·보안/DOM시험/tsc 회수→Mac검수",
+      "status": "ready_review",
+      "delivery": "central_keys_source_ready_unpushed_independent_review",
+      "evidence": "메인PROVIDERS5·oauth목록별도·문서봇입력은프로그램권한전제·Master소스대조 · 계획msg_b05eef62cc54/3ff187c06·Master두키원자/예상계정/CSRF보완지시 · ACTIVE_WORK본인중앙5경로예약확인 · msg_8fde857892dc·Master5파일stat·Macmsg_ff1e31e50642",
+      "next": "Mac 실제handler/route/card·기대계정·원자쌍/불명응답·CSRF/비밀0 검수→판정",
       "constraints": "소스/모의만·키쌍단일문장·예상회원409·비밀값응답0·기존5provider/Cloudinary불변·실키쓰기/외부/API/build/push/deploy0",
-      "lastReviewedAt": "2026-11-18T05:02:05.366Z",
-      "scopeRef": "새검사helper·전용keys API·전용card·메인page연결·시험/기존문서"
+      "lastReviewedAt": "2026-11-18T05:05:47.194Z",
+      "scopeRef": "새검사helper·전용keys API·전용card·메인page연결·시험/기존문서",
+      "sha": "3b8933b94",
+      "validation": {
+        "author": "handler/route/card 모의9/9·루트tsc0·실키쓰기/외부/푸시0",
+        "master": "정확5파일stat·메인page연결2줄·공유push자동빌드위험교통정리",
+        "independent": "순차검수전달·수락/결과 대기"
+      }
     },
     {
       "task_id": "AIF-20261118-W01a",
