@@ -161,7 +161,10 @@ export function buildReferenceParts(items: RefItem[]): { inlineData: { data: str
 }
 
 /** 요청 본문을 상한까지만 읽는다. 초과 413, UTF-8·JSON 오류 400 */
-export async function readJsonBodyLimited(req: Request, maxBytes: number): Promise<{ ok: true; value: unknown } | { ok: false; status: 400 | 413; code: "BODY_TOO_LARGE" | "BODY_INVALID" }> {
+/** opts.signal(선택, W01-G3T): 주면 신호가 끊기는 즉시 읽기를 그만두고(400 BODY_INVALID), 상한 초과·중단 때 reader.cancel()의 완료를 기다리지 않는다.
+ *  주지 않으면 예전과 완전히 같은 동작이다(기존 호출부는 인자 2개 그대로). */
+export async function readJsonBodyLimited(req: Request, maxBytes: number, opts?: { signal?: AbortSignal }): Promise<{ ok: true; value: unknown } | { ok: false; status: 400 | 413; code: "BODY_TOO_LARGE" | "BODY_INVALID" }> {
+  const signal = opts?.signal;
   const declared = Number(req.headers.get("content-length"));
   if (Number.isFinite(declared) && declared > maxBytes) return { ok: false, status: 413, code: "BODY_TOO_LARGE" };
   const chunks: Uint8Array[] = [];
@@ -169,12 +172,29 @@ export async function readJsonBodyLimited(req: Request, maxBytes: number): Promi
   try {
     if (!req.body) return { ok: false, status: 400, code: "BODY_INVALID" };
     const reader = req.body.getReader();
+    // 취소 신호가 있을 때만: 신호가 끊기면 읽기 대기에서 바로 빠져나온다
+    const aborted: Promise<"aborted"> | null = signal
+      ? new Promise((resolve) => { if (signal.aborted) resolve("aborted"); else signal.addEventListener("abort", () => resolve("aborted"), { once: true }); })
+      : null;
     for (;;) {
-      const { done, value } = await reader.read();
+      let step: ReadableStreamReadResult<Uint8Array> | "aborted";
+      if (aborted) {
+        const pending = reader.read();
+        pending.catch(() => undefined);                       // 빠져나온 뒤 늦게 오는 오류를 소비한다
+        step = await Promise.race([pending, aborted]);
+      } else {
+        step = await reader.read();
+      }
+      if (step === "aborted") {
+        void reader.cancel().catch(() => undefined);          // 취소 완료를 기다리지 않는다
+        return { ok: false, status: 400, code: "BODY_INVALID" };
+      }
+      const { done, value } = step;
       if (done) break;
       size += value.byteLength;
       if (size > maxBytes) {
-        await reader.cancel().catch(() => undefined);
+        if (signal) void reader.cancel().catch(() => undefined);
+        else await reader.cancel().catch(() => undefined);
         return { ok: false, status: 413, code: "BODY_TOO_LARGE" };
       }
       chunks.push(value);

@@ -2,7 +2,8 @@
 //  A) 실제 라우트 파일(src/app/api/aif/generations/route.ts)의 POST — 권한·키·생성·관리자 클라이언트만 가짜 모듈(운영 상수 off).
 //  B) 처리기(handlePostGeneration)에 shadow 모드와 가짜 의존성을 넣어 계약의 사례별로 본다(§23-8 표).
 //  ★ 한계: 저장소·DB·생성은 전부 가짜다. 저장소 스트림은 시험이 만든 ReadableStream이고, 실제 저장소가 스트림을 어떻게 끊는지·중단 신호에 어떻게 반응하는지는 보지 않는다.
-//     사진은 서명만 맞춘 합성 바이트다. 시간 상한 시험은 짧게 줄인 값으로 본다(실제 300초 한도 안에서의 동작이 아니다).
+//     사진은 서명만 맞춘 합성 바이트다. 시간 상한 시험은 짧게 줄인 값·가짜 시계로 본다(실제 300초 한도 안에서의 동작이 아니다).
+//  W01-G3T(2026-11-19, Master msg_8006700cd7e4) 추가: 총 마감·생성 직전 관문·권한/키/본문 유한 대기·멈춘 cancel·늦은 응답·공급자 오류 원문 비노출.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { register } from "node:module";
@@ -28,7 +29,19 @@ const { POST } = await import("../src/app/api/aif/generations/route.ts");
 const G = await import("../src/lib/assets/generations.ts");
 const { handlePostGeneration, GENERATIONS_MESSAGES: M } = G;
 const { AIF_ASSETS_MODE, NEED_KEY_MESSAGE, RESPONSE_MAX_BYTES, RESPONSE_TOO_LARGE_MESSAGE } = await import("../src/lib/assets/generation.ts");
-const { collectReferences } = await import("../src/lib/referenceImage.ts");
+const { collectReferences, readJsonBodyLimited } = await import("../src/lib/referenceImage.ts");
+
+// 처리되지 않은 거부가 하나라도 생기면 마지막 시험이 잡는다(늦게 온 오류를 소비하는지)
+const unhandled = [];
+process.on("unhandledRejection", (e) => { unhandled.push(String(e)); });
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const never = () => new Promise(() => {});
+/** console.error에 찍힌 글을 모은다 */
+async function captureErrors(fn) {
+  const lines = []; const real = console.error;
+  console.error = (...a) => { lines.push(a.map(String).join(" ")); };
+  try { return { result: await fn(), lines }; } finally { console.error = real; }
+}
 
 const U = "abcdef01-2345-4789-8abc-def012345678";
 const OTHER = "00000000-1111-4222-8333-444444444444";
@@ -421,10 +434,12 @@ test("시간 상한: 행 조회나 내려받기가 돌아오지 않으면 기다
   assertNothingPaid(w);
 });
 
-test("시간 예산 합계가 함수 한도 300초 안이다: 참고 20 + 사전 검사 10 + 생성 240 + 저장 20 + 서명 5 = 295초", () => {
-  const sum = G.REFERENCE_LOAD_BUDGET_MS + G.GENERATIONS_PRECHECK_TIMEOUT_MS + G.GENERATION_CALL_BUDGET_MS + G.GENERATIONS_SAVE_TIMEOUT_MS + G.GENERATIONS_SIGN_TIMEOUT_MS;
-  assert.equal(sum, 295_000);
-  assert.ok(sum < G.GENERATIONS_ROUTE_LIMIT_MS);
+test("시간 예산: 유료 호출에 필요한 시간은 270초(생성 240 + 여유 2 + 저장 20 + 서명 5 + 응답 3)이고 총 마감 300초 안이다", () => {
+  const need = G.GENERATION_CALL_BUDGET_MS + G.GENERATION_WAIT_GRACE_MS + G.GENERATIONS_SAVE_TIMEOUT_MS + G.GENERATIONS_SIGN_TIMEOUT_MS + G.GENERATIONS_RESPONSE_MARGIN_MS;
+  assert.equal(need, 270_000);
+  assert.equal(G.GENERATIONS_ROUTE_LIMIT_MS, 300_000);
+  assert.equal(G.GENERATIONS_ROUTE_LIMIT_MS - need, 30_000, "생성 전 단계 전체가 쓸 수 있는 시간");
+  for (const ms of [G.GENERATIONS_ACCESS_TIMEOUT_MS, G.GENERATIONS_KEY_TIMEOUT_MS, G.GENERATIONS_BODY_TIMEOUT_MS, G.REFERENCE_LOAD_BUDGET_MS, G.GENERATIONS_PRECHECK_TIMEOUT_MS]) assert.ok(ms > 0 && ms < 30_000);
   assert.ok(G.REFERENCE_IO_TIMEOUT_MS < G.REFERENCE_LOAD_BUDGET_MS);
 });
 
@@ -497,12 +512,227 @@ test("저장 불명·안 됨: 응답에 이미지를 싣는다(서명 0). 그 �
   assert.ok(JSON.stringify(r.body).length < 600);
 });
 
-test("생성 실패: 500과 생성 함수의 안내 문구, 저장·서명 0, 재호출 0", async () => {
-  const w = world({ generateThrows: "이미지 모델이 응답하지 않았습니다. 잠시 뒤 다시 시도해 주세요." });
-  const a = await w.put(1, "ref_face");
-  const r = await post(w, { config: CONFIG, references: [{ assetId: a.assetId, role: "face" }] });
-  assert.deepEqual([r.status, r.body], [500, { error: "이미지 모델이 응답하지 않았습니다. 잠시 뒤 다시 시도해 주세요." }]);
-  assert.deepEqual([w.n.generate, w.n.signs, w.calls.includes("aif_asset_reserve")], [1, 0, false]);
+test("공급자 오류: 허용된 코드만 고정 문구로 — 원문·임의 코드는 응답에도 로그에도 없다. 저장·서명 0, 재호출 0", async () => {
+  const SENTINEL = "RAW-PROVIDER-SENTINEL-7f3a key=AIzaSECRET https://generativelanguage.example/v1?x=1";
+  const mk = (code, own = true) => { const e = new Error(SENTINEL); if (own) e.code = code; return e; };
+  const proto = Object.create({ code: "RATE_LIMITED" }); proto.message = SENTINEL;      // 상속된 code는 쓰지 않는다
+  const cases = [
+    [mk("RATE_LIMITED"), "RATE_LIMITED", G.PROVIDER_ERROR_MESSAGES.RATE_LIMITED],
+    [mk("INVALID_KEY"), "INVALID_KEY", G.PROVIDER_ERROR_MESSAGES.INVALID_KEY],
+    [mk("SAFETY_BLOCKED"), "SAFETY_BLOCKED", G.PROVIDER_ERROR_MESSAGES.SAFETY_BLOCKED],
+    [mk("TIMEOUT"), "TIMEOUT", G.PROVIDER_ERROR_MESSAGES.TIMEOUT],
+    [mk("EVIL_" + SENTINEL), "UNKNOWN", M.GENERATION_FAILED],                         // 임의 코드
+    [mk("__proto__"), "UNKNOWN", M.GENERATION_FAILED],
+    [mk("toString"), "UNKNOWN", M.GENERATION_FAILED],
+    [mk(42), "UNKNOWN", M.GENERATION_FAILED],
+    [mk(null, false), "UNKNOWN", M.GENERATION_FAILED],
+    [proto, "UNKNOWN", M.GENERATION_FAILED],
+    [SENTINEL, "UNKNOWN", M.GENERATION_FAILED],                                        // 문자열을 던짐
+    [null, "UNKNOWN", M.GENERATION_FAILED],
+  ];
+  for (const [thrown, providerCode, message] of cases) {
+    const w = world();
+    w.generate = async () => { w.n.generate++; throw thrown; };
+    const a = await w.put(1, "ref_face");
+    const { result: r, lines } = await captureErrors(() => post(w, { config: CONFIG, references: [{ assetId: a.assetId, role: "face" }] }));
+    assert.deepEqual([r.status, r.body], [500, { error: message, code: "GENERATION_FAILED", providerCode }]);
+    assert.deepEqual([w.n.generate, w.n.signs, w.calls.includes("aif_asset_reserve")], [1, 0, false]);
+    const all = JSON.stringify(r.body) + lines.join("\n");
+    for (const leak of ["SENTINEL", "AIza", "generativelanguage", "EVIL_"]) assert.equal(all.includes(leak), false, leak);
+    assert.deepEqual(lines, ["Generations API Error: " + providerCode]);
+  }
+  for (const m of Object.values(G.PROVIDER_ERROR_MESSAGES)) assert.match(m, /(니다|세요)\.$/);
+});
+
+test("생성 직전 관문(가짜 시계): 생성·저장·서명·응답에 필요한 270초가 남지 않았으면 생성하지 않는다. 정확히 남았으면 생성한다", async () => {
+  const need = 270_000;
+  // 사전 검사 동안 시계가 흘러 남은 시간이 1ms 모자람 → 생성 0
+  let clock = 1000;
+  let w = world({ handlers: { aif_asset_precheck: () => { clock = 1000 + 300_000 - need + 1; return { data: [{ allowed: true }], error: null }; } } });
+  let r = await post(w, { config: CONFIG }, { now: () => clock });
+  assert.deepEqual([r.status, r.body], [503, { error: M.TIME_BUDGET_EXCEEDED, code: "TIME_BUDGET_EXCEEDED" }]);
+  assertNothingPaid(w);
+  // 정확히 필요한 만큼 남음 → 생성 1회
+  clock = 1000;
+  w = world({ handlers: { aif_asset_precheck: () => { clock = 1000 + 300_000 - need; return { data: [{ allowed: true }], error: null }; } } });
+  r = await post(w, { config: CONFIG }, { now: () => clock });
+  assert.deepEqual([r.status, w.n.generate], [200, 1]);
+  // 시작부터 시간이 없음(권한 단계에서 이미 관문을 지남) → 권한 확인도 시작하지 않는다
+  clock = 0;
+  w = world();
+  let first = true;
+  r = await post(w, { config: CONFIG }, { now: () => { if (first) { first = false; return 0; } return 300_000 - need + 5; } });
+  assert.deepEqual([r.status, r.body.code, w.n.access, w.n.key], [503, "TIME_BUDGET_EXCEEDED", 0, 0]);
+  assertNothingPaid(w);
+  // 시계의 기준은 요청 시작이다: 시작값이 아주 커도(단조 시계의 임의 원점) 같은 결과
+  clock = 9_000_000;
+  w = world();
+  r = await post(w, { config: CONFIG }, { now: () => clock });
+  assert.deepEqual([r.status, w.n.generate], [200, 1]);
+});
+
+test("권한·키가 돌아오지 않거나 던지면 유한 대기 뒤 503 — 본문·저장소·생성에 닿지 않는다", async () => {
+  let w = world();
+  let t0 = Date.now();
+  let r = await handlePostGeneration(req({ config: CONFIG }), { ...shadow(w), checkAccess: never, limits: { accessMs: 30 } });
+  assert.deepEqual([r.status, r.body.code, w.n.key, w.n.deps], [503, "TIME_BUDGET_EXCEEDED", 0, 0]);
+  assert.ok(Date.now() - t0 < 1000);
+  w = world();
+  r = await handlePostGeneration(req({ config: CONFIG }), { ...shadow(w), checkAccess: async () => { throw new Error("auth boom"); } });
+  assert.deepEqual([r.status, r.body.code, w.n.key], [503, "ASSET_UNAVAILABLE", 0]);
+  w = world();
+  r = await handlePostGeneration(req({ config: CONFIG }), { ...shadow(w), checkAccess: async () => undefined });
+  assert.deepEqual([r.status, r.body.code], [503, "ASSET_UNAVAILABLE"]);
+  w = world();
+  r = await handlePostGeneration(req("{깨진"), { ...shadow(w), getApiKey: never, limits: { keyMs: 30 } });
+  assert.deepEqual([r.status, r.body.code, w.n.deps], [503, "TIME_BUDGET_EXCEEDED", 0]);
+  w = world();
+  r = await handlePostGeneration(req("{깨진"), { ...shadow(w), getApiKey: async () => { throw new Error("key boom"); } });
+  assert.deepEqual([r.status, r.body.code, w.n.deps], [503, "ASSET_UNAVAILABLE", 0]);
+  assertNothingPaid(w);
+  assertNoLeak(r);
+});
+
+test("본문: 멈춘 본문은 유한 대기 뒤 408, 상한 초과는 즉시 413 — cancel이 끝나지 않아도 응답이 붙잡히지 않는다", async () => {
+  // 한 덩어리도 오지 않는 본문 + 끝나지 않는 cancel
+  let cancelCalled = 0;
+  let w = world();
+  let stalled = new ReadableStream({ pull() { return never(); }, cancel() { cancelCalled++; return never(); } }, { highWaterMark: 0 });
+  let t0 = Date.now();
+  let r = await handlePostGeneration(new Request("http://local/x", { method: "POST", body: stalled, duplex: "half" }), shadow(w, { limits: { bodyMs: 40 } }));
+  assert.deepEqual([r.status, r.body], [408, { error: M.BODY_TIMEOUT, code: "BODY_TIMEOUT" }]);
+  assert.ok(Date.now() - t0 < 1000, "cancel을 기다리지 않았다");
+  assert.equal(w.n.deps, 0);
+  // 상한을 넘는 본문 + 끝나지 않는 cancel → 즉시 413
+  w = world();
+  let sent = 0;
+  const huge = new ReadableStream({ pull(c) { sent++; c.enqueue(new Uint8Array(64 * 1024).fill(0x20)); }, cancel() { cancelCalled++; return never(); } }, { highWaterMark: 0 });
+  t0 = Date.now();
+  r = await handlePostGeneration(new Request("http://local/x", { method: "POST", body: huge, duplex: "half" }), shadow(w));
+  assert.deepEqual([r.status, r.body.code, w.n.deps], [413, "BODY_TOO_LARGE", 0]);
+  assert.ok(Date.now() - t0 < 1000);
+  assert.ok(sent <= 6, `상한(256KiB)을 넘긴 직후 멈췄다(덩어리 ${sent}개)`);
+  // 읽는 도중 오류가 나는 본문
+  w = world();
+  const broken = new ReadableStream({ start(c) { c.enqueue(new TextEncoder().encode('{"config":')); c.error(new Error("body boom")); } });
+  r = await handlePostGeneration(new Request("http://local/x", { method: "POST", body: broken, duplex: "half" }), shadow(w));
+  assert.deepEqual([r.status, r.body.code], [400, "BODY_INVALID"]);
+  assertNothingPaid(w);
+  await sleep(20);
+  assert.ok(cancelCalled >= 2, "두 경우 모두 cancel은 불렀다(완료는 기다리지 않음)");
+});
+
+test("readJsonBodyLimited: 취소 인자가 없으면 예전 동작 그대로(cancel 완료를 기다린다), 있으면 신호에 즉시 반응한다", async () => {
+  // 인자 2개: 상한 초과 때 cancel이 끝난 뒤에 돌아온다
+  let cancelDone = false;
+  const big = () => new ReadableStream({ pull(c) { c.enqueue(new Uint8Array(100)); }, cancel() { return sleep(30).then(() => { cancelDone = true; }); } }, { highWaterMark: 0 });
+  let r = await readJsonBodyLimited(new Request("http://local/x", { method: "POST", body: big(), duplex: "half" }), 150);
+  assert.deepEqual([r, cancelDone], [{ ok: false, status: 413, code: "BODY_TOO_LARGE" }, true]);
+  // 인자 2개: 정상 본문
+  r = await readJsonBodyLimited(req({ a: 1 }), 1000);
+  assert.deepEqual(r, { ok: true, value: { a: 1 } });
+  // 신호 있음: 상한 초과 때 cancel을 기다리지 않는다
+  cancelDone = false;
+  r = await readJsonBodyLimited(new Request("http://local/x", { method: "POST", body: big(), duplex: "half" }), 150, { signal: new AbortController().signal });
+  assert.deepEqual([r, cancelDone], [{ ok: false, status: 413, code: "BODY_TOO_LARGE" }, false]);
+  // 신호 있음: 정상 본문은 같은 결과
+  r = await readJsonBodyLimited(req({ a: 1 }), 1000, { signal: new AbortController().signal });
+  assert.deepEqual(r, { ok: true, value: { a: 1 } });
+  // 이미 끊긴 신호 / 읽는 중 끊김 → 400
+  const ac = new AbortController(); ac.abort();
+  r = await readJsonBodyLimited(req({ a: 1 }), 1000, { signal: ac.signal });
+  assert.deepEqual(r, { ok: false, status: 400, code: "BODY_INVALID" });
+  const ac2 = new AbortController();
+  const stalled = new ReadableStream({ pull() { return never(); }, cancel() { return never(); } }, { highWaterMark: 0 });
+  setTimeout(() => ac2.abort(), 20);
+  r = await readJsonBodyLimited(new Request("http://local/x", { method: "POST", body: stalled, duplex: "half" }), 1000, { signal: ac2.signal });
+  assert.deepEqual(r, { ok: false, status: 400, code: "BODY_INVALID" });
+  await sleep(40);
+});
+
+test("내려받기: 초과·정지 때 cancel이 끝나지 않아도 즉시 응답을 정한다(중단 신호 전송)", async () => {
+  // 기록보다 큰 스트림 + 끝나지 않는 cancel → 즉시 502
+  let cancels = 0;
+  let w = world({ downloadFn: async () => ({ data: new ReadableStream({ pull(c) { c.enqueue(new Uint8Array(1024).fill(9)); }, cancel() { cancels++; return never(); } }, { highWaterMark: 0 }), error: null }) });
+  let a = await w.put(1, "ref_face", { bytes: sized(PNG_SIG, 3000, 1) });
+  let t0 = Date.now();
+  let r = await post(w, { config: CONFIG, references: [{ assetId: a.assetId, role: "face" }] });
+  assert.deepEqual([r.status, r.body.code, w.n.aborted, cancels], [502, "REFERENCE_MISMATCH", 1, 1]);
+  assert.ok(Date.now() - t0 < 1000, "cancel을 기다리지 않았다");
+  assertNothingPaid(w);
+  // 한 덩어리 뒤 멈춘 스트림 + 끝나지 않는 cancel → 상한 뒤 503
+  cancels = 0;
+  w = world({ downloadFn: async () => ({ data: new ReadableStream({ start(c) { c.enqueue(new Uint8Array(10)); }, cancel() { cancels++; return never(); } }), error: null }) });
+  a = await w.put(1, "ref_face");
+  t0 = Date.now();
+  r = await post(w, { config: CONFIG, references: [{ assetId: a.assetId, role: "face" }] }, { limits: { ioTimeoutMs: 40 } });
+  assert.ok(Date.now() - t0 < 1000);
+  await sleep(20);                                             // 응답이 먼저 돌아오고, 취소 호출은 바로 뒤에 일어난다
+  assert.deepEqual([r.status, r.body.code, w.n.aborted, cancels], [503, "REFERENCE_READ_FAILED", 1, 1]);
+  assertNothingPaid(w);
+  // cancel이 던지는 스트림
+  w = world({ downloadFn: async () => ({ data: new ReadableStream({ pull(c) { c.enqueue(new Uint8Array(1024)); }, cancel() { throw new Error("cancel boom"); } }, { highWaterMark: 0 }), error: null }) });
+  a = await w.put(1, "ref_face", { bytes: sized(PNG_SIG, 2000, 1) });
+  r = await post(w, { config: CONFIG, references: [{ assetId: a.assetId, role: "face" }] });
+  assert.deepEqual([r.status, r.body.code], [502, "REFERENCE_MISMATCH"]);
+  await sleep(20);
+});
+
+test("늦은 응답: 상한 뒤에 도착한 결과·오류는 버린다 — 생성하지 않고, 늦게 온 스트림은 읽지 않고 취소한다", async () => {
+  // 행 조회가 상한 뒤에 정상 응답
+  let w = world({ rowFn: async (_u, assetId) => { await sleep(80); return { data: { ...w.rows.get(assetId) }, error: null }; } });
+  let a = await w.put(1, "ref_face");
+  let r = await post(w, { config: CONFIG, references: [{ assetId: a.assetId, role: "face" }] }, { limits: { ioTimeoutMs: 20 } });
+  assert.deepEqual([r.status, r.body.code, w.n.downloads], [503, "REFERENCE_READ_FAILED", 0]);
+  await sleep(100);
+  assertNothingPaid(w);
+  // 행 조회가 상한 뒤에 거부
+  w = world({ rowFn: async () => { await sleep(60); throw new Error("late row boom"); } });
+  r = await post(w, { config: CONFIG, references: [{ assetId: id(1), role: "face" }] }, { limits: { ioTimeoutMs: 20 } });
+  assert.equal(r.status, 503);
+  // 내려받기가 상한 뒤에 스트림을 돌려줌 → 읽지 않고 취소
+  let lateCancelled = 0; let latePulled = 0;
+  w = world({ downloadFn: async () => { await sleep(60); return { data: new ReadableStream({ pull(c) { latePulled++; c.enqueue(new Uint8Array(10)); }, cancel() { lateCancelled++; } }, { highWaterMark: 0 }), error: null }; } });
+  a = await w.put(1, "ref_face");
+  r = await post(w, { config: CONFIG, references: [{ assetId: a.assetId, role: "face" }] }, { limits: { ioTimeoutMs: 20 } });
+  assert.deepEqual([r.status, r.body.code, w.n.aborted], [503, "REFERENCE_READ_FAILED", 1]);
+  await sleep(100);
+  assert.deepEqual([lateCancelled, latePulled], [1, 0], "늦게 온 스트림은 읽지 않고 취소했다");
+  assertNothingPaid(w);
+  // 사전 검사가 상한 뒤에 「허용」으로 응답 → 생성 0
+  w = world({ handlers: { aif_asset_precheck: async () => { await sleep(60); return { data: [{ allowed: true }], error: null }; } } });
+  r = await post(w, { config: CONFIG }, { limits: { precheckMs: 20 } });
+  assert.deepEqual([r.status, r.body.code], [503, "ASSET_PRECHECK_UNAVAILABLE"]);
+  await sleep(80);
+  assertNothingPaid(w);
+});
+
+test("생성 대기 초과: 생성 함수가 자기 상한을 지나도 돌아오지 않으면 504 고정 문구 — 저장·서명 0, 재호출 0, 늦은 결과·오류는 버린다", async () => {
+  for (const late of [never, async () => { await sleep(60); return RESULT; }, async () => { await sleep(60); throw new Error("late RAW-SENTINEL"); }]) {
+    const w = world();
+    w.generate = async () => { w.n.generate++; return late(); };
+    const { result: r, lines } = await captureErrors(() => post(w, { config: CONFIG }, { limits: { generationMs: 20, graceMs: 10 } }));
+    assert.deepEqual([r.status, r.body], [504, { error: M.GENERATION_TIMEOUT, code: "GENERATION_TIMEOUT" }]);
+    assert.deepEqual(lines, ["Generations API Error: WAIT_TIMEOUT"]);
+    await sleep(90);
+    assert.deepEqual([w.n.generate, w.n.signs, w.calls.includes("aif_asset_reserve")], [1, 0, false]);
+  }
+  assert.match(M.GENERATION_TIMEOUT, /차감됐을 수 있습니다/);
+});
+
+test("생성 뒤 남은 시간(가짜 시계): 저장·서명은 총 마감 안에서만 기다린다 — 시간이 없으면 저장을 시작하지 않고 이미지를 응답에 싣는다", async () => {
+  // 생성 동안 시계가 흘러 저장에 쓸 시간이 없음(남은 시간 ≤ 서명 5초 + 응답 3초)
+  let clock = 0;
+  let w = world();
+  w.generate = async () => { w.n.generate++; clock = 300_000 - 8_000; return RESULT; };
+  let r = await post(w, { config: CONFIG }, { now: () => clock });
+  assert.deepEqual([r.status, r.body], [200, { success: true, imageUrl: RESULT, assetSaved: "unknown", assetCode: "SAVE_TIMEOUT" }]);
+  assert.deepEqual([w.n.generate, w.calls.includes("aif_asset_reserve"), w.n.signs], [1, false, 0], "저장을 시작하지 않았다");
+  // 저장 뒤 서명에 쓸 시간이 없음 → 번호만
+  clock = 0;
+  w = world({ handlers: { aif_asset_finalize: () => { clock = 300_000 - 3_000; return { data: "ready", error: null }; } } });
+  r = await post(w, { config: CONFIG }, { now: () => clock });
+  assert.deepEqual([r.status, r.body, w.n.signs], [200, { assetId: NEW_ASSET, assetSaved: true, signedUrl: null }, 0]);
 });
 
 test("소유: 본문의 다른 회원 id·경로는 쓰이지 않는다 — 행 조회·사전 검사·저장 모두 세션의 회원으로", async () => {
@@ -536,4 +766,9 @@ test("불변: 어떤 사례에서도 생성은 최대 1회이고, 성공·실패
     for (const leak of [OBJ, "aif-assets", "boom", `${U}/generated`]) assert.equal(text.includes(leak), false, leak);
   }
   for (const m of Object.values(M)) assert.match(m, /(니다|세요)\.$/, "한국어 존댓말 고정 문구");
+});
+
+test("처리되지 않은 거부가 하나도 없다(늦게 온 오류·취소 오류를 모두 소비했다)", async () => {
+  await sleep(150);
+  assert.deepEqual(unhandled, []);
 });

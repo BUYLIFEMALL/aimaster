@@ -12,7 +12,10 @@
 //  * 회원 id는 호출부가 확인한 세션에서만 온다. 참고 자산은 id와 회원 id 둘 다로 조회한 행만 쓴다(다른 회원 것·없는 번호는 같은 404).
 //  * 참고 자산은 ready만 쓴다. 받은 바이트의 길이·SHA-256이 예약 때 서버가 기록한 값과 같고, 서명이 기록된 MIME과 같을 때만 쓴다.
 //  * 저장소에서 받는 동안 실제로 받은 바이트를 세고, 기록된 크기를 넘는 순간 끊는다(큰 버퍼를 미리 잡지 않는다).
-//  * 생성 전의 모든 입출력에는 시간 상한이 있다(아래 상수). 상한을 넘으면 생성하지 않는다. 기다리기를 그만둘 뿐이고 원격 요청의 취소를 보장하지는 않는다.
+//  * 시간(W01-G3T): 요청이 시작된 순간부터 단조 시계로 총 마감(300초)을 잰다. 권한·키·본문을 포함한 모든 단계에 유한한 대기가 있고,
+//    유료 호출 직전에 「생성 240초 + 여유 + 저장 + 서명 + 응답 여유」가 남지 않았으면 생성하지 않는다. 생성 뒤 단계는 남은 시간 안에서만 기다린다.
+//    기다리기를 그만둘 뿐이고 원격 요청의 취소를 보장하지는 않는다(본문·내려받기는 중단 신호를 보내고 reader.cancel의 완료를 기다리지 않는다).
+//  * 생성 오류는 허용된 코드만 고정 문구로 바꿔 응답·로그에 쓴다. 공급자가 준 원문·임의 코드는 싣지 않는다.
 //  * 생성은 어떤 경우에도 최대 1회다. 실패·불명·서명 실패 어디서도 다시 부르지 않는다. 자동 조회·폴링도 없다.
 //  * 저장이 확인되면 응답에는 자산 번호와 짧은 서명 주소만 싣는다(이미지 바이트 없음). 서명에 실패하면 번호만 싣는다 — 화면은 조회 경로로 다시 받는다.
 //  * 저장이 불명·실패면 지금 경로처럼 응답에 이미지를 싣는다(응답 상한 보호 limitResponseBody 그대로).
@@ -29,9 +32,15 @@ export const GENERATIONS_BODY_MAX_BYTES = 256 * 1024;
 /** 참고 자산 합계 상한(기존 경로의 TOTAL_MAX_BYTES와 같은 값 — 같은 입력 조건으로 맞춘다) */
 export const GENERATIONS_REFERENCE_TOTAL_MAX_BYTES = 2 * 1024 * 1024;
 
-// 시간 예산(밀리초). 함수 한도 300초 안에 들어야 한다: 참고 자산 읽기 20 + 사전 검사 10 + 생성 240(gemini.ts) + 저장 20 + 서명 5 = 295초.
-// 권한·키·본문 읽기에는 따로 상한을 두지 않았다(짧은 호출이지만 보장은 아니다 — 한계로 남긴다).
-export const GENERATION_CALL_BUDGET_MS = 240_000;    // gemini.ts의 timeoutMs와 같은 값(이 파일이 강제하지는 않는다)
+// 시간 예산(밀리초). 총 마감은 요청 시작 + 300초(함수 한도).
+// 유료 호출 직전 관문: 생성 240 + 여유 2 + 저장 20 + 서명 5 + 응답 여유 3 = 270초가 남아 있어야 생성한다 → 생성 전 단계 전체가 쓸 수 있는 시간은 30초.
+// 생성 전 단계의 개별 상한(권한 5·키 5·본문 10·참고 자산 20·사전 검사 10)은 합이 30초를 넘지만, 각 단계는 「관문까지 남은 시간」으로도 잘리고 관문이 최종 판정한다.
+export const GENERATION_CALL_BUDGET_MS = 240_000;    // gemini.ts의 timeoutMs와 같은 값
+export const GENERATION_WAIT_GRACE_MS = 2_000;       // 생성 함수가 자기 상한에서 돌아오기를 조금 더 기다리는 여유
+export const GENERATIONS_RESPONSE_MARGIN_MS = 3_000; // 응답을 만들어 보내는 여유
+export const GENERATIONS_ACCESS_TIMEOUT_MS = 5_000;
+export const GENERATIONS_KEY_TIMEOUT_MS = 5_000;
+export const GENERATIONS_BODY_TIMEOUT_MS = 10_000;
 export const REFERENCE_LOAD_BUDGET_MS = 20_000;      // 참고 자산 전체(행 조회 + 내려받기)의 합계 상한
 export const REFERENCE_IO_TIMEOUT_MS = 8_000;        // 행 조회 한 번·내려받기 한 번의 상한
 export const GENERATIONS_PRECHECK_TIMEOUT_MS = 10_000;
@@ -63,8 +72,12 @@ export type GenerationsDeps = {
   generate: (apiKey: string, config: Record<string, unknown>) => Promise<string>;
   /** shadow일 때, 요청 모양 검사를 통과한 뒤에만 불린다 */
   getAssetDeps?: () => GenerationsAssetDeps;
+  /** 단조 시계(밀리초). 기본은 performance.now() — 벽시계 변경의 영향을 받지 않는다 */
   now?: () => number;
-  limits?: { loadBudgetMs?: number; ioTimeoutMs?: number; precheckMs?: number; saveMs?: number; signMs?: number };
+  limits?: {
+    totalMs?: number; accessMs?: number; keyMs?: number; bodyMs?: number; loadBudgetMs?: number; ioTimeoutMs?: number; precheckMs?: number;
+    generationMs?: number; graceMs?: number; saveMs?: number; signMs?: number; marginMs?: number;
+  };
 };
 export type GenerationsResult = { status: number; body: Record<string, unknown>; headers: Record<string, string> };
 
@@ -86,8 +99,34 @@ export const GENERATIONS_MESSAGES = {
   ASSET_UNAVAILABLE: "지금은 생성할 수 없습니다. 잠시 뒤 다시 시도해 주세요.",
   STORAGE_LIMIT: "저장공간이 부족해 이미지를 생성하지 않았습니다. 저장공간을 정리하거나 용량을 늘린 뒤 다시 시도해 주세요.",
   ASSET_PRECHECK_UNAVAILABLE: "저장공간을 확인하지 못해 이미지를 생성하지 않았습니다. 잠시 뒤 다시 시도해 주세요.",
-  GENERATION_FAILED: "이미지 생성 중 오류가 발생했습니다.",
+  GENERATION_FAILED: "이미지 생성 중 오류가 발생했습니다. 잠시 뒤 다시 시도해 주세요.",
+  GENERATION_TIMEOUT: "이미지 생성 응답을 제때 받지 못했습니다. 생성이 진행됐을 수 있으며 사용량이 차감됐을 수 있습니다. 바로 다시 시도하면 중복으로 차감될 수 있습니다.",
+  TIME_BUDGET_EXCEEDED: "요청을 처리하는 데 시간이 너무 걸려 이미지를 생성하지 않았습니다. 잠시 뒤 다시 시도해 주세요.",
+  BODY_TIMEOUT: "요청을 제때 받지 못해 이미지를 생성하지 않았습니다. 다시 시도해 주세요.",
 } as const;
+
+/** 생성 함수(geminiImage)의 오류 코드 가운데 응답·로그에 써도 되는 것과 그 고정 문구. 여기에 없는 코드·원문은 쓰지 않는다 */
+export const PROVIDER_ERROR_MESSAGES: Record<string, string> = {
+  QUOTA_EXCEEDED: "본인 Gemini API 사용 한도 또는 결제 설정에 걸렸습니다. Google AI Studio에서 확인해 주세요.",
+  RATE_LIMITED: "이미지 생성 요청이 짧은 시간에 너무 많았습니다. 1~2분 뒤 다시 시도해 주세요.",
+  INVALID_KEY: "Gemini API 키가 올바르지 않습니다. 설정에서 본인 키를 다시 확인해 주세요.",
+  API_NOT_ENABLED: "본인 Google Cloud 프로젝트에서 Gemini API 사용 설정을 확인해 주세요.",
+  PERMISSION_DENIED: "본인 Google Cloud 프로젝트에서 Gemini API 사용 권한을 확인해 주세요.",
+  MODEL_NOT_FOUND: "이미지 생성 요청을 처리하지 못했습니다. 잠시 뒤 다시 시도해 주세요.",
+  BAD_REQUEST: "이미지 생성 요청을 처리하지 못했습니다. 설정을 바꿔 다시 시도해 주세요.",
+  SAFETY_BLOCKED: "안전 정책에 따라 이미지가 생성되지 않았습니다. 설정이나 문구를 바꿔 주세요.",
+  NO_IMAGE: "이미지가 만들어지지 않았습니다. 설정을 바꿔 다시 시도해 주세요.",
+  TIMEOUT: "이미지 생성 응답을 제때 받지 못했습니다. 생성이 진행됐을 수 있으며 사용량이 차감됐을 수 있습니다. 바로 다시 시도하면 중복으로 차감될 수 있습니다.",
+  NETWORK: "이미지 생성 서버에 연결하지 못했습니다. 잠시 뒤 다시 시도해 주세요.",
+  SERVER_ERROR: "이미지 생성 서버에 문제가 있습니다. 잠시 뒤 다시 시도해 주세요.",
+};
+/** 던져진 값에서 허용된 코드만 고른다. 자기 속성인 문자열 code가 허용 목록에 있을 때만 — 그 밖은 "UNKNOWN" */
+export function providerErrorCode(err: unknown): string {
+  if (typeof err !== "object" || err === null) return "UNKNOWN";
+  if (!Object.prototype.hasOwnProperty.call(err, "code")) return "UNKNOWN";          // 상속된 code는 쓰지 않는다
+  const code = (err as { code?: unknown }).code;
+  return typeof code === "string" && Object.prototype.hasOwnProperty.call(PROVIDER_ERROR_MESSAGES, code) ? code : "UNKNOWN";
+}
 type Code = keyof typeof GENERATIONS_MESSAGES;
 
 const NO_STORE = { "Cache-Control": "no-store" };
@@ -96,17 +135,23 @@ const fail = (status: number, code: Code) => out(status, { error: GENERATIONS_ME
 const own = (o: object, k: string) => Object.prototype.hasOwnProperty.call(o, k);
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
 
-const TIMED_OUT = Symbol("timed-out");
-/** 유한 대기: ms 안에 끝나지 않으면 TIMED_OUT. 던지면 null. 늦게 끝난 결과는 버린다 */
-function bounded<T>(run: () => PromiseLike<T>, ms: number): Promise<T | null | typeof TIMED_OUT> {
+type Bounded<T> = { kind: "ok"; value: T } | { kind: "timeout" } | { kind: "error"; error: unknown };
+/** 유한 대기. ms 안에 끝나지 않으면 timeout(그때 onTimeout을 부른다), 던지면 error. ms가 0 이하면 실행하지 않고 timeout.
+ *  늦게 끝난 결과·늦게 온 오류는 버린다(처리되지 않은 거부가 남지 않는다). */
+function bounded<T>(run: () => PromiseLike<T> | T, ms: number, onTimeout?: () => void): Promise<Bounded<T>> {
+  if (!(ms > 0)) return Promise.resolve({ kind: "timeout" });
   return new Promise((resolve) => {
     let done = false;
-    const finish = (v: T | null | typeof TIMED_OUT) => { if (!done) { done = true; clearTimeout(timer); resolve(v); } };
-    const timer = setTimeout(() => finish(TIMED_OUT), Math.max(0, ms));
+    const finish = (v: Bounded<T>) => { if (!done) { done = true; clearTimeout(timer); resolve(v); } };
+    const timer = setTimeout(() => {
+      if (done) return;
+      finish({ kind: "timeout" });
+      try { onTimeout?.(); } catch { /* 중단 콜백의 오류는 버린다 */ }
+    }, ms);
     try {
-      Promise.resolve(run()).then((v) => finish(v), () => finish(null));
-    } catch {
-      finish(null);
+      Promise.resolve(run()).then((value) => finish({ kind: "ok", value }), (error) => finish({ kind: "error", error }));
+    } catch (error) {
+      finish({ kind: "error", error });
     }
   });
 }
@@ -142,8 +187,9 @@ function parseReferences(value: unknown, config: Record<string, unknown>): { ok:
   return { ok: true, refs: [...by.face, ...by.place, ...by.product] };
 }
 
-/** 스트림을 상한까지만 받는다. 상한을 넘는 순간 끊고 "too_large". 읽기 오류는 null */
-async function readStreamLimited(stream: unknown, maxBytes: number): Promise<Uint8Array | "too_large" | null> {
+/** 스트림을 상한까지만 받는다. 상한을 넘는 순간 끊고 "too_large". 읽기 오류·중단은 null.
+ *  끊을 때 reader.cancel()의 완료를 기다리지 않는다(멈춘 cancel이 응답을 붙잡지 않게) — 그 오류는 소비한다. */
+async function readStreamLimited(stream: unknown, maxBytes: number, signal: AbortSignal): Promise<Uint8Array | "too_large" | null> {
   if (!stream || typeof (stream as { getReader?: unknown }).getReader !== "function") return null;
   let reader: ReadableStreamDefaultReader<Uint8Array>;
   try {
@@ -151,15 +197,22 @@ async function readStreamLimited(stream: unknown, maxBytes: number): Promise<Uin
   } catch {
     return null;
   }
+  const drop = () => { try { void reader.cancel().catch(() => undefined); } catch { /* 버린다 */ } };
+  if (signal.aborted) { drop(); return null; }                 // 늦게 도착한 스트림 — 읽지 않고 버린다
+  const aborted = new Promise<"aborted">((resolve) => signal.addEventListener("abort", () => resolve("aborted"), { once: true }));
   const chunks: Uint8Array[] = [];
   let size = 0;
   try {
     for (;;) {
-      const { done, value } = await reader.read();
+      const pending = reader.read();
+      pending.catch(() => undefined);                           // 빠져나온 뒤 늦게 오는 오류를 소비한다
+      const step = await Promise.race([pending, aborted]);
+      if (step === "aborted") { drop(); return null; }
+      const { done, value } = step;
       if (done) break;
-      if (!(value instanceof Uint8Array)) { await reader.cancel().catch(() => undefined); return null; }
+      if (!(value instanceof Uint8Array)) { drop(); return null; }
       size += value.byteLength;
-      if (size > maxBytes) { await reader.cancel().catch(() => undefined); return "too_large"; }
+      if (size > maxBytes) { drop(); return "too_large"; }
       chunks.push(value);
     }
   } catch {
@@ -172,28 +225,54 @@ async function readStreamLimited(stream: unknown, maxBytes: number): Promise<Uin
 }
 
 export async function handlePostGeneration(req: Request, deps: GenerationsDeps): Promise<GenerationsResult> {
-  const now = deps.now ?? (() => Date.now());
+  const now = deps.now ?? (() => performance.now());
+  const startedAt = now();                                      // 요청 시작 — 이후 모든 마감의 기준
   const L = {
+    totalMs: deps.limits?.totalMs ?? GENERATIONS_ROUTE_LIMIT_MS,
+    accessMs: deps.limits?.accessMs ?? GENERATIONS_ACCESS_TIMEOUT_MS,
+    keyMs: deps.limits?.keyMs ?? GENERATIONS_KEY_TIMEOUT_MS,
+    bodyMs: deps.limits?.bodyMs ?? GENERATIONS_BODY_TIMEOUT_MS,
     loadBudgetMs: deps.limits?.loadBudgetMs ?? REFERENCE_LOAD_BUDGET_MS,
     ioTimeoutMs: deps.limits?.ioTimeoutMs ?? REFERENCE_IO_TIMEOUT_MS,
     precheckMs: deps.limits?.precheckMs ?? GENERATIONS_PRECHECK_TIMEOUT_MS,
+    generationMs: deps.limits?.generationMs ?? GENERATION_CALL_BUDGET_MS,
+    graceMs: deps.limits?.graceMs ?? GENERATION_WAIT_GRACE_MS,
     saveMs: deps.limits?.saveMs ?? GENERATIONS_SAVE_TIMEOUT_MS,
     signMs: deps.limits?.signMs ?? GENERATIONS_SIGN_TIMEOUT_MS,
+    marginMs: deps.limits?.marginMs ?? GENERATIONS_RESPONSE_MARGIN_MS,
   };
+  /** 총 마감까지 남은 시간 */
+  const left = () => startedAt + L.totalMs - now();
+  /** 유료 호출에 필요한 시간(생성 + 여유 + 저장 + 서명 + 응답 여유) */
+  const needForGeneration = L.generationMs + L.graceMs + L.saveMs + L.signMs + L.marginMs;
+  /** 생성 전 단계가 쓸 수 있는 시간: 관문까지 남은 시간과 단계 상한 가운데 작은 값 */
+  const pre = (stageMs: number) => Math.min(stageMs, left() - needForGeneration);
 
   // ① 권한 → ② 모드. off면 본인 키·본문·저장소·생성에 닿지 않는다
-  const auth = await deps.checkAccess();
+  const access = await bounded(() => deps.checkAccess(), pre(L.accessMs));
+  if (access.kind === "timeout") return fail(503, "TIME_BUDGET_EXCEEDED");
+  if (access.kind === "error" || !isObject(access.value)) return fail(503, "ASSET_UNAVAILABLE");
+  const auth = access.value;
   if (!auth.allowed) return out(auth.status, { error: auth.error });
   const userId = auth.user.id;
   if (deps.mode !== "shadow") return out(404, { error: "자료를 찾을 수 없습니다.", code: "ASSET_FEATURE_OFF" });
 
   // ③ 본인 키(회원 본인 것만 — 없으면 등록 안내, 다른 키로 대신하지 않는다)
-  const apiKey = await deps.getApiKey(userId);
+  const key = await bounded(() => deps.getApiKey(userId), pre(L.keyMs));
+  if (key.kind === "timeout") return fail(503, "TIME_BUDGET_EXCEEDED");
+  if (key.kind === "error") return fail(503, "ASSET_UNAVAILABLE");
+  const apiKey = key.value;
   if (!apiKey) return out(400, { error: NEED_KEY_MESSAGE, needApiKey: true });
 
-  // ④ 본문 ⑤ 요청 모양
-  const body = await readJsonBodyLimited(req, GENERATIONS_BODY_MAX_BYTES);
+  // ④ 본문 — 상한을 넘거나 시간이 지나면 즉시 응답을 정하고 읽기를 끊는다(취소 완료를 기다리지 않는다)
+  const bodyAbort = new AbortController();
+  const read = await bounded(() => readJsonBodyLimited(req, GENERATIONS_BODY_MAX_BYTES, { signal: bodyAbort.signal }), pre(L.bodyMs), () => bodyAbort.abort());
+  if (read.kind === "timeout") { bodyAbort.abort(); return fail(408, "BODY_TIMEOUT"); }
+  if (read.kind === "error") return fail(400, "BODY_INVALID");
+  const body = read.value;
   if (!body.ok) return fail(body.status, body.code);
+
+  // ⑤ 요청 모양
   if (!isObject(body.value) || !isObject(body.value.config)) return fail(400, "BODY_INVALID");
   const config = body.value.config;
   for (const k of PHOTO_KEYS) if (own(config, k)) return fail(400, "REFERENCE_INLINE_NOT_ALLOWED");
@@ -211,13 +290,14 @@ export async function handlePostGeneration(req: Request, deps: GenerationsDeps):
 
   // ⑥ 참고 자산 행 — 전부 먼저 확인한다(하나라도 어긋나면 내려받기 0)
   const loadDeadline = now() + L.loadBudgetMs;
-  const remaining = () => Math.min(L.ioTimeoutMs, loadDeadline - now());
+  const remaining = () => Math.min(pre(L.ioTimeoutMs), loadDeadline - now());
   const rows: { ref: Ref; path: string; mime: string; bytes: number; sha256: string }[] = [];
   let total = 0;
   for (const ref of parsed.refs) {
-    if (remaining() <= 0) return fail(503, "REFERENCE_READ_FAILED");
-    const r = await bounded(() => assets.getAssetRow(userId, ref.assetId), remaining());
-    if (r === TIMED_OUT || r === null || !isObject(r) || r.error) return fail(503, "REFERENCE_READ_FAILED");
+    const got = await bounded(() => assets.getAssetRow(userId, ref.assetId), remaining());
+    if (got.kind !== "ok") return fail(503, "REFERENCE_READ_FAILED");
+    const r = got.value;
+    if (!isObject(r) || r.error) return fail(503, "REFERENCE_READ_FAILED");
     if (r.data === null) return fail(404, "REFERENCE_NOT_FOUND");            // 다른 회원 것·없는 번호 — 같은 응답
     if (!isObject(r.data)) return fail(503, "REFERENCE_READ_FAILED");
     const row = r.data;
@@ -236,24 +316,23 @@ export async function handlePostGeneration(req: Request, deps: GenerationsDeps):
     rows.push({ ref, path: row.path as string, mime: row.mime, bytes: row.bytes, sha256: row.sha256 });
   }
 
-  // ⑦ 저장소에서 받아 대조 — 받는 동안 실제 바이트를 세고, 기록된 크기를 넘으면 끊는다
+  // ⑦ 저장소에서 받아 대조 — 받는 동안 실제 바이트를 세고, 기록된 크기를 넘으면 그 자리에서 끊는다
   const loaded: Loaded[] = [];
   for (const row of rows) {
-    const wait = remaining();
-    if (wait <= 0) return fail(503, "REFERENCE_READ_FAILED");
     const abort = new AbortController();
     const got = await bounded(async () => {
       const r = await assets.downloadStream(row.path, abort.signal);
       if (!isObject(r) || r.error) return null;
-      return readStreamLimited(r.data, row.bytes);
-    }, wait);
-    if (got === TIMED_OUT) { abort.abort(); return fail(503, "REFERENCE_READ_FAILED"); }
-    if (got === null) return fail(503, "REFERENCE_READ_FAILED");
-    if (got === "too_large") { abort.abort(); return fail(502, "REFERENCE_MISMATCH"); }      // 기록된 크기보다 크다 = 기록된 그 파일이 아니다
-    if (got.length !== row.bytes) return fail(502, "REFERENCE_MISMATCH");
-    const v = await verifyReferenceBytes(got, row.mime);                                      // 서명이 기록된 MIME과 같은지 + 서버 SHA-256
+      return readStreamLimited(r.data, row.bytes, abort.signal);
+    }, remaining(), () => abort.abort());
+    if (got.kind === "timeout") { abort.abort(); return fail(503, "REFERENCE_READ_FAILED"); }
+    if (got.kind === "error" || got.value === null) { abort.abort(); return fail(503, "REFERENCE_READ_FAILED"); }
+    const bytes = got.value;
+    if (bytes === "too_large") { abort.abort(); return fail(502, "REFERENCE_MISMATCH"); }    // 기록된 크기보다 크다 = 기록된 그 파일이 아니다
+    if (bytes.length !== row.bytes) return fail(502, "REFERENCE_MISMATCH");
+    const v = await verifyReferenceBytes(bytes, row.mime);                                    // 서명이 기록된 MIME과 같은지 + 서버 SHA-256
     if (!v.ok || v.value.sha256 !== row.sha256) return fail(502, "REFERENCE_MISMATCH");
-    loaded.push({ ...row.ref, mime: row.mime, bytes: got });
+    loaded.push({ ...row.ref, mime: row.mime, bytes });
   }
 
   // 공급자에 넘길 설정: 받은 바이트를 기존 칸에 넣는다(순서·조건은 기존 collectReferences가 정한다). 기존 생성 함수를 그대로 쓴다.
@@ -269,28 +348,36 @@ export async function handlePostGeneration(req: Request, deps: GenerationsDeps):
   if (!check.ok || check.items.length !== loaded.length) return fail(502, "REFERENCE_MISMATCH");   // 붙을 사진 수가 받은 수와 다르면 생성하지 않는다
 
   // ⑧ 저장 한도 사전 검사 — 저장 가능 여부를 모르는 채 과금되는 생성을 시작하지 않는다
-  const pre = await bounded(() => precheckGenerated(assets, userId, config.quality), L.precheckMs);
-  if (pre === TIMED_OUT || pre === null || pre.status === "unavailable") return fail(503, "ASSET_PRECHECK_UNAVAILABLE");
-  if (pre.status === "denied") return fail(507, "STORAGE_LIMIT");
+  const checked = await bounded(() => precheckGenerated(assets, userId, config.quality), pre(L.precheckMs));
+  if (checked.kind !== "ok" || checked.value.status === "unavailable") return fail(503, "ASSET_PRECHECK_UNAVAILABLE");
+  if (checked.value.status === "denied") return fail(507, "STORAGE_LIMIT");
 
-  // ⑨ 생성 — 정확히 1회. 실패해도 다시 부르지 않는다
-  let imageUrl: string;
-  try {
-    imageUrl = await deps.generate(apiKey, genConfig);
-  } catch (err) {
-    const e = err as { code?: unknown; message?: unknown };
-    console.error("Generations API Error:", typeof e?.code === "string" ? e.code : "");
-    return out(500, { error: (typeof e?.message === "string" && e.message) || GENERATIONS_MESSAGES.GENERATION_FAILED });
+  // ★ 유료 호출 직전 관문: 생성·저장·서명·응답에 필요한 시간이 남지 않았으면 생성하지 않는다
+  if (left() < needForGeneration) return fail(503, "TIME_BUDGET_EXCEEDED");
+
+  // ⑨ 생성 — 정확히 1회. 실패·시간 초과 어디서도 다시 부르지 않는다
+  const gen = await bounded(() => deps.generate(apiKey, genConfig), Math.min(L.generationMs + L.graceMs, left() - L.marginMs));
+  if (gen.kind === "timeout") {
+    console.error("Generations API Error:", "WAIT_TIMEOUT");
+    return out(504, { error: GENERATIONS_MESSAGES.GENERATION_TIMEOUT, code: "GENERATION_TIMEOUT" });
   }
+  if (gen.kind === "error") {
+    // 공급자 오류: 허용된 코드만 고정 문구로. 원문(message)·임의 코드는 응답에도 로그에도 쓰지 않는다
+    const providerCode = providerErrorCode(gen.error);
+    console.error("Generations API Error:", providerCode);
+    return out(500, { error: PROVIDER_ERROR_MESSAGES[providerCode] ?? GENERATIONS_MESSAGES.GENERATION_FAILED, code: "GENERATION_FAILED", providerCode });
+  }
+  const imageUrl = gen.value;
+  if (typeof imageUrl !== "string") return out(500, { error: GENERATIONS_MESSAGES.GENERATION_FAILED, code: "GENERATION_FAILED", providerCode: "UNKNOWN" });
 
-  // ⑩ 원본 저장(기존 흐름). 시간 상한을 넘으면 어디까지 됐는지 모르므로 불명
+  // ⑩ 원본 저장(기존 흐름) — 남은 시간 안에서만 기다린다. 상한을 넘으면 어디까지 됐는지 모르므로 불명
   const saved = await bounded<SaveResult>(async () => {
     const bytes = decodeGeneratedDataUrl(imageUrl);
     if (!bytes) return { assetSaved: false, code: "ASSET_FORMAT" };
     return saveGeneratedOriginal(assets, { userId, bytes });
-  }, L.saveMs);
+  }, Math.min(L.saveMs, left() - L.signMs - L.marginMs));
   const save: SaveResult | { assetSaved: "unknown"; code: "SAVE_TIMEOUT"; assetId?: undefined } =
-    saved === TIMED_OUT || saved === null ? { assetSaved: "unknown", code: "SAVE_TIMEOUT" } : saved;
+    saved.kind === "ok" ? saved.value : { assetSaved: "unknown", code: "SAVE_TIMEOUT" };
 
   // ⑪⑫ 저장이 확인됐으면 이미지 바이트 없이 번호와 짧은 서명 주소만
   if (save.assetSaved === true) {
@@ -300,9 +387,9 @@ export async function handlePostGeneration(req: Request, deps: GenerationsDeps):
     let signedUrl: string | null = null;
     const path = generatedPath(userId, assetId, imageUrl);
     if (path) {
-      const s = await bounded(() => assets.createSignedUrl(path, SIGNED_URL_TTL_SECONDS), L.signMs);
-      if (s !== TIMED_OUT && s !== null && isObject(s) && !s.error) {
-        signedUrl = validSignedUrl((s.data as { signedUrl?: unknown } | null)?.signedUrl, assets.storageOrigin, ASSET_BUCKET, path);
+      const s = await bounded(() => assets.createSignedUrl(path, SIGNED_URL_TTL_SECONDS), Math.min(L.signMs, left() - L.marginMs));
+      if (s.kind === "ok" && isObject(s.value) && !s.value.error) {
+        signedUrl = validSignedUrl((s.value.data as { signedUrl?: unknown } | null)?.signedUrl, assets.storageOrigin, ASSET_BUCKET, path);
       }
     }
     return out(200, { assetId, assetSaved: true, signedUrl, ...(signedUrl ? { expiresIn: SIGNED_URL_TTL_SECONDS } : {}) });
