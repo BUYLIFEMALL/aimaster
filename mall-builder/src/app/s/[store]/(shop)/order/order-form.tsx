@@ -5,6 +5,7 @@ import { noResetSubmit } from "@/lib/no-reset-submit";
 import type { CustomerAddress } from "@/lib/store";
 import { placeOrderAction, type PlaceOrderState } from "./actions";
 import { canUseCredit, creditAvailable } from "@/lib/credit";
+import { CASH_RECEIPT_KINDS } from "@/lib/cash-receipt";
 import { clampPoints, couponDiscount, earnPreview, maxPoints, type BenefitLine, type CouponDef, type PointSettings } from "@/lib/benefits";
 
 /** 쿠폰·포인트(D17·D18) — 장바구니 주문에만 넘긴다(견적·비회원 주문은 없음) */
@@ -33,6 +34,7 @@ export default function OrderForm({
   invoice,
   card,
   benefits,
+  cashReceipt,
 }: {
   slug: string;
   addresses: CustomerAddress[];
@@ -51,6 +53,8 @@ export default function OrderForm({
   /** 몰이 카드 결제(토스페이먼츠)를 켰으면 결제 방법에 「카드 결제」가 보인다 — 장바구니 주문만 */
   card?: boolean;
   benefits?: OrderBenefits;
+  /** S70: 몰이 현금영수증을 켰으면(장바구니 주문만) 무통장·결제 금액 1원 이상일 때 신청 칸이 보인다 — 접수 판정은 DB 0105 */
+  cashReceipt?: boolean;
 }) {
   const [addressId, setAddressId] = useState(addresses.find((a) => a.is_default)?.id ?? addresses[0]?.id ?? "");
   const initial: PlaceOrderState = { error: null, depositor: defaultDepositor, memo: "" };
@@ -68,6 +72,9 @@ export default function OrderForm({
   const earn = benefits?.points ? earnPreview(benefits.points.settings, benefits.gradeRate, t.total, base.shipping) : 0;
   const [pay, setPay] = useState<"bank" | "credit" | "card">("bank");
   const [wantInvoice, setWantInvoice] = useState(false);
+  // 세금계산서와 현금영수증은 하나만(서버·DB도 다시 막음)
+  const [wantCashReceipt, setWantCashReceipt] = useState(false);
+  const [crKind, setCrKind] = useState<string>(CASH_RECEIPT_KINDS[0].value);
   const creditOk = !!credit && canUseCredit(credit.limit, credit.balance, t.total);
   // 배송지를 바꿔 금액이 한도를 넘으면 무통장으로 되돌린다
   // 0원(쿠폰·포인트로 전액)이면 카드 결제를 할 수 없어 무통장으로(바로 결제 완료)
@@ -160,7 +167,7 @@ export default function OrderForm({
               type="checkbox"
               name="want_invoice"
               checked={wantInvoice}
-              onChange={(e) => setWantInvoice(e.target.checked)}
+              onChange={(e) => { setWantInvoice(e.target.checked); if (e.target.checked) setWantCashReceipt(false); }}
               className="rounded text-blue-600 focus:ring-blue-500"
             />
             <span>세금계산서 발행 요청</span>
@@ -178,6 +185,50 @@ export default function OrderForm({
                 className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 sm:w-80 focus:border-blue-500 focus:outline-hidden"
               />
             </label>
+          )}
+        </section>
+      )}
+
+      {/* S70 현금영수증 — 무통장·결제 금액 1원 이상만(0원은 바로 결제 완료라 신청하지 않음). 접수되면 입금 확인 뒤 발급 */}
+      {cashReceipt && payMethod === "bank" && t.total > 0 && (
+        <section className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 text-sm" data-cash-receipt-request>
+          <label className="flex items-center gap-2 font-medium text-slate-800">
+            <input
+              type="checkbox"
+              name="want_cash_receipt"
+              checked={wantCashReceipt}
+              onChange={(e) => { setWantCashReceipt(e.target.checked); if (e.target.checked) setWantInvoice(false); }}
+              className="rounded text-blue-600 focus:ring-blue-500"
+            />
+            <span>현금영수증 신청</span>
+            <span className="text-xs font-normal text-slate-500">(입금이 확인되면 발급)</span>
+          </label>
+          {wantCashReceipt && (
+            <div className="flex flex-col gap-2 pt-1 sm:flex-row">
+              <label className="block">
+                <span className="text-xs font-semibold text-slate-600">받을 방법</span>
+                <select
+                  name="cr_kind"
+                  value={crKind}
+                  onChange={(e) => setCrKind(e.target.value)}
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 sm:w-64 focus:border-blue-500 focus:outline-hidden"
+                >
+                  {CASH_RECEIPT_KINDS.map((k) => <option key={k.value} value={k.value}>{k.label}</option>)}
+                </select>
+              </label>
+              <label className="block">
+                <span className="text-xs font-semibold text-slate-600">{crKind.startsWith("PHONE") ? "휴대폰 번호" : "사업자등록번호"}</span>
+                <input
+                  name="cr_value"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  required
+                  maxLength={20}
+                  placeholder={crKind.startsWith("PHONE") ? "01012345678" : "1234567890"}
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 sm:w-56 focus:border-blue-500 focus:outline-hidden"
+                />
+              </label>
+            </div>
           )}
         </section>
       )}

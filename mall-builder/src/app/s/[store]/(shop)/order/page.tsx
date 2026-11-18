@@ -12,6 +12,7 @@ import { createClient } from "@/lib/supabase/server";
 import OrderForm from "./order-form";
 import { getMyCoupons, getPointBalance, getPointSettings, getProductCategoryMap, usableCoupons } from "@/lib/benefits-store";
 import { couponLabel } from "@/lib/benefits";
+import { cashReceiptEnabled } from "@/lib/cash-receipt";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -169,6 +170,7 @@ export default async function OrderPage({ params }: { params: Promise<{ store: s
             invoice={isBusiness ? { defaultEmail: user.email ?? "" } : undefined}
             card={card}
             benefits={benefits}
+            cashReceipt={cashReceiptEnabled(store.settings)}
           />
         </div>
       )}

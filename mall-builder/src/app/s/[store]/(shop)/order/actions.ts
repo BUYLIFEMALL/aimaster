@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { validateInvoiceEmail } from "@/lib/taxInvoice";
+import { checkoutCashReceiptNotice, readCheckoutCashReceipt } from "./cash-receipt-checkout";
 
 export type PlaceOrderState = { error: string | null; depositor: string; memo: string };
 
@@ -16,6 +17,9 @@ export async function placeOrderAction(slug: string, _prev: PlaceOrderState, for
   const raw = form.get("pay_method");
   const payMethod = raw === "credit" ? "credit" : raw === "card" ? "card" : "bank";
   if (!addressId) return { ...values, error: "배송지를 골라 주세요." };
+  // S70 현금영수증(무통장만): 형식·세금계산서 동시 선택은 주문 만들기 전에 막는다(주문 0건)
+  const cashReceipt = readCheckoutCashReceipt(form, payMethod);
+  if (cashReceipt.kind === "error") return { ...values, error: cashReceipt.error };
   const supabase = await createClient();
   const { data: store } = await supabase.from("mall_builder_stores").select("id").eq("slug", slug).maybeSingle();
   if (!store) return { ...values, error: "몰을 찾을 수 없습니다." };
@@ -45,9 +49,18 @@ export async function placeOrderAction(slug: string, _prev: PlaceOrderState, for
     const res = email.ok ? await supabase.rpc("mall_builder_request_tax_invoice", { p_order_id: row.order_id, p_email: email.value }) : null;
     invoiceError = !email.ok ? email.error : res?.error?.message ?? "";
   }
+  // S70 현금영수증 — 주문은 이미 됐으므로 결과와 상관없이 주문은 그대로. 접수 판정은 DB 0105가 행 잠금 아래에서(앱 선조회 없음),
+  // 접수 안 되면 고정 안내만(오류 원문·번호를 주소·로그에 넣지 않음), 다시 신청은 주문 상세의 기존 칸에서. 재시도 호출 없음(1회)
+  let cashReceiptNotice: string | null = null;
+  if (cashReceipt.kind === "request") {
+    cashReceiptNotice = checkoutCashReceiptNotice(
+      await supabase.rpc("mall_builder_cash_receipt_checkout", { p_order_id: row.order_id, p_type: cashReceipt.type, p_value: cashReceipt.value, p_purpose: cashReceipt.purpose }),
+    );
+  }
   revalidatePath(`/s/${slug}`, "layout");
   // 카드 주문은 결제 화면으로(토스 결제위젯). 결제가 끝나야 결제 완료가 된다
   if (payMethod === "card") redirect(`/s/${slug}/orders/${row.order_id}/pay${invoiceError ? `?error=${encodeURIComponent(`세금계산서 요청 실패: ${invoiceError}`)}` : ""}`);
   if (invoiceError) redirect(`/s/${slug}/orders/${row.order_id}?done=1&error=${encodeURIComponent(`세금계산서 요청 실패: ${invoiceError}`)}`);
+  if (cashReceiptNotice) redirect(`/s/${slug}/orders/${row.order_id}?done=1&error=${encodeURIComponent(cashReceiptNotice)}`);
   redirect(`/s/${slug}/orders/${row.order_id}?done=1`);
 }
