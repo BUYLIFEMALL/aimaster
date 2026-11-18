@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T15:46:13.062Z",
+  "checkedAt": "2026-11-18T15:48:33.730Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5236,14 +5236,35 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "W01 참고 이미지 SQL 격리 계약 확인",
-      "status": "running",
-      "delivery": "reference_sql_contract_test_dispatched",
+      "status": "done",
+      "delivery": "isolated_reference_sql_contract_accepted",
       "scopeRef": "ai-influencer-studio/tests/sql/a1_reference_assets.test.mjs 신규 1개",
       "completion": "ref 3종 예약→대역 객체→확정, 1 MiB 경계, HEIC MIME/확장자, 실패 상태 일관성 및 격리 정리 근거.",
       "constraints": "기존 SQL·기존 시험·제품 소스 변경 0. 새 로컬 격리 DB만. 운영·실 Storage·AI·빌드·배포 제외.",
-      "evidence": "msg_589f2b895796",
-      "next": "CC-SNS-01 수락과 시험 결과 대기. CX-QA-01 앱 검수와 중복 없음.",
-      "lastReviewedAt": "2026-11-18T15:45:13.697Z"
+      "evidence": "msg_589f2b895796·msg_b9eebd11eb34·6c4388e52·1d9c7a022",
+      "next": "격리 9/9 수락. 실제 Storage·같은 회원 동시 예약의 신규 2연결 시험 미확인. G3D 계약 배정.",
+      "lastReviewedAt": "2026-11-18T15:48:33.730Z",
+      "sha": "6c4388e52",
+      "validation": {
+        "author": "격리 PostgreSQL 9/9 및 시험 DB 정리 보고",
+        "master": "고정 단일 파일 blob b7ec16970, 범위·9개 시험 사례와 결과 기록 확인; 재실행 없음",
+        "unverified": "실 Supabase Storage·실제 사진 데이터·신규 동시 2연결 시험"
+      }
+    },
+    {
+      "task_id": "AIF-20261119-W01-G3D",
+      "parent_task_id": "AIF-20261119-W01-A2S",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "W01 자산 ID 기반 생성 API 계약 설계",
+      "status": "running",
+      "delivery": "local_asset_id_generation_contract_dispatched",
+      "scopeRef": "W00 §12-1 /api/aif/generations; W00_BASELINE.md 새 절 1개·현행 코드 읽기",
+      "completion": "참조 ID/역할·소유·바이트 상한·생성 전 조건·서명 응답/복구·모드·기존 코드 재사용과 시험 계획 반환.",
+      "constraints": "설계만. 제품 코드·운영 DB/Storage·유료·ON·빌드·배포·UI·W02 제외.",
+      "evidence": "msg_ee72a1294952",
+      "next": "CC-SNS-01 수락·계약 SHA 대기. Master 계약 검토, 구현 이후 CX-QA-01 검수.",
+      "lastReviewedAt": "2026-11-18T15:48:33.730Z"
     }
   ],
   "programOverrides": [

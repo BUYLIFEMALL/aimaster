@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 00:46:13 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 00:48:33 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -457,7 +457,8 @@ Master 마지막 실제 점검: 2026-11-19 00:31:16 KST · 실행 중 점검 주
 | AIF-20261118-W01z | CC-SNS-01 | done / operational_foundations_accepted_policy_unlimited_only | W01 운영 마이그레이션·비공개 버킷 적용 | 권한 정정·비공개 버킷·무제한 시험 계정 정책 확인. 일반 한도·실 Storage 통합 미확인, OFF. |
 | AIF-20261119-W01-A2 | CC-SNS-01 | done / server_mediated_reference_upload_contract_accepted | W01 후반 참고 이미지 업로드 계약 | 서버 경유 POST 1개 채택, JSON 2 MiB·이미지 1 MiB. |
 | AIF-20261119-W01-A2I | CC-SNS-01 | done / independent_source_review_accepted_local_undeployed | W01 참고 이미지 서버 업로드 구현 | 3776d54f7 독립 소스 검수 완료. 작성자 시험 근거 재사용. A2S·실 Storage 별도, OFF·미배포. |
-| AIF-20261119-W01-A2S | CC-SNS-01 | running / reference_sql_contract_test_dispatched | W01 참고 이미지 SQL 격리 계약 확인 | ref 3종 및 1 MiB 경계 실행 근거 보강 배정. 결과 대기. |
+| AIF-20261119-W01-A2S | CC-SNS-01 | done / isolated_reference_sql_contract_accepted | W01 참고 이미지 SQL 격리 계약 확인 | 6c4388e52 격리 9/9. ref 3종·크기·권한 확인. 실 Storage 미확인. |
+| AIF-20261119-W01-G3D | CC-SNS-01 | running / local_asset_id_generation_contract_dispatched | W01 자산 ID 기반 생성 API 계약 설계 | /api/aif/generations 계약 설계 전달. 담당 수락·회신 대기. |
 | AIF-20261118-W03 | 미배정 | queued / sequenced_after_w01_and_w02_by_owner_instruction | 회원용 인물 라이브러리·시트·버전 | 주인님 지시대로 W01·W02 이후 시작. 인물 라이브러리·일괄 이미지·영상 미착수. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 
