@@ -26,7 +26,7 @@ export async function resolve(s, c, n) {
 const {
   runRetentionCleanup, handleCleanupRequest, bearerOk, allot,
   CLEANUP_MAX_ITEMS, CLEANUP_MAX_ATTEMPTS, CLEANUP_TIME_BUDGET_MS, CLEANUP_SECRET_MIN_LENGTH,
-  CLEANUP_IO_TIMEOUT_MS, CLEANUP_ROUND_DEADLINE_MS,
+  CLEANUP_IO_TIMEOUT_MS, CLEANUP_ROUND_DEADLINE_MS, CLEANUP_MISSING_SCAN_WINDOW,
 } = await import("../src/lib/assets/retention.ts");
 const { AIF_ASSETS_MODE } = await import("../src/lib/assets/generation.ts");
 
@@ -45,7 +45,8 @@ function world(over = {}) {
   const w = {
     now: 1_800_000_000_000,
     assets: new Map(), deletions: new Map(), objects: new Map(), profiles: new Map(),
-    calls: [], removes: [], lists: [], measured: [],
+    calls: [], removes: [], lists: [], measured: [], scans: [],
+    scanOverride: null, ignoreParked: false,
     tokenSeq: 0, exemptLoads: 0,
     exemptFails: false, hook: null, removeMode: "ok", listFail: {}, readyIncludesProtected: false,
     clock: 0, tick: 0,
@@ -58,7 +59,7 @@ function world(over = {}) {
     const id = assetId(n);
     const path = `${user}/generated/${id}.png`;
     const oid = objectId(n);
-    w.assets.set(id, { id, user_id: user, state, bucket: BUCKET, path, object_id: ["ready", "expired"].includes(state) ? oid : null, bytes, created_at: w.now - ageDays * DAY });
+    w.assets.set(id, { id, user_id: user, state, bucket: BUCKET, path, object_id: ["ready", "expired"].includes(state) ? oid : null, bytes, created_at: w.now - ageDays * DAY, checked: null });
     if (object) w.objects.set(path, { id: oid, createdAt: w.now - ageDays * DAY });
     return { id, path, user, oid };
   };
@@ -143,10 +144,43 @@ function world(over = {}) {
       return a && o.id === a.object_id ? "unknown" : "mismatch";
     },
     member_storage_measure({ uid }) { w.measured.push(uid); return null; },
+    // 후속 migration 20261118130000의 aif_asset_mark_missing을 계약대로 흉내 낸 것(실제 SQL 실행 증거가 아니다)
+    aif_asset_mark_missing({ p_asset, p_user }) {
+      const a = w.assets.get(p_asset);
+      if (!a || a.user_id !== p_user) return "skip";
+      if (a.state === "missing") return "missing";
+      if (a.state !== "ready") return "skip";
+      const d = w.deletions.get(p_asset);
+      if (d && !["cancelled", "delete_failed"].includes(d.state)) { a.checked = w.now; return "busy"; }
+      const atPath = w.objects.get(a.path);
+      const same = !!atPath && atPath.id === a.object_id;
+      const idAny = [...w.objects.values()].some((o) => o.id === a.object_id);
+      if (same) { a.checked = w.now; return "present"; }
+      if (idAny || atPath) { a.checked = w.now; return "other_object"; }
+      a.state = "missing"; a.checked = w.now;
+      if (d) d.parked_at = w.now;   // 예약 행은 그대로 두고 보류 표시만
+      return "missing";
+    },
   };
 
   w.fns = fns;
-  const byUpdated = (states) => [...w.deletions.values()].filter((d) => states.includes(d.state)).sort((x, y) => x.updated_at - y.updated_at);
+  /** aif_asset_missing_scan을 계약대로 흉내 낸 것: ready를 (확인 시각 없음 먼저, id) 순으로 창만큼 읽어 분류하고 present·other_object의 확인 시각을 갱신한다 */
+  w.scanFn = (scanLimit, limit) => {
+    const win = [...w.assets.values()].filter((a) => a.state === "ready")
+      .sort((x, y) => (x.checked === null ? -1 : x.checked) - (y.checked === null ? -1 : y.checked) || (x.id < y.id ? -1 : x.id > y.id ? 1 : 0))
+      .slice(0, scanLimit);
+    const out = { scan_limit: scanLimit, limit, scanned: win.length, present: 0, other_object: 0, absent: 0, touched: 0, candidates: [] };
+    for (const a of win) {
+      const atPath = w.objects.get(a.path);
+      const idAny = [...w.objects.values()].some((o) => o.id === a.object_id);
+      if (atPath && atPath.id === a.object_id) { out.present++; out.touched++; a.checked = w.now; }
+      else if (!atPath && !idAny) { out.absent++; if (out.candidates.length < limit) out.candidates.push({ asset_id: a.id, user_id: a.user_id }); }
+      else { out.other_object++; out.touched++; a.checked = w.now; }
+    }
+    return out;
+  };
+  // 「이어 하기」 목록은 실제로는 DB 조건 parked_at is null로 거른다(라우트의 조회). 가짜 목록도 같은 조건을 적용한다.
+  const byUpdated = (states) => [...w.deletions.values()].filter((d) => states.includes(d.state) && (w.ignoreParked || !d.parked_at)).sort((x, y) => x.updated_at - y.updated_at);
   const list = (name, rows) => async (limit) => {
     w.lists.push([name, limit]);
     if (w.listFail[name] === "error") return { data: null, error: { message: "boom" } };
@@ -165,6 +199,12 @@ function world(over = {}) {
     listReady: list("A", () => [...w.assets.values()]
       .filter((a) => a.state === "ready" && (w.readyIncludesProtected || w.profiles.get(a.user_id)?.exempt === false))
       .sort((x, y) => x.created_at - y.created_at)),
+    scanMissing: async (scanLimit, limit) => {
+      w.scans.push([scanLimit, limit]);
+      const o = w.scanOverride ? w.scanOverride(scanLimit, limit, w) : undefined;
+      if (o !== undefined) { if (o instanceof Error) throw o; return o; }
+      return { data: w.scanFn(scanLimit, limit), error: null };
+    },
     rpc: async (fn, args) => {
       w.calls.push([fn, { ...args }]);
       w.clock += w.tick;
@@ -458,10 +498,14 @@ test("객체가 없거나 다른 객체·생성 시각 없음·이상한 정책 
   const noProfile = w.asset(5, userId(9));
   w.readyIncludesProtected = true;   // 프로필 없는 회원 행도 목록에 넣어 본다
   const r = await run(w);
-  for (const a of [noObject, other, noTime, badDays, noProfile]) assert.equal(w.assets.get(a.id).state, "ready");
+  for (const a of [other, noTime, badDays, noProfile]) assert.equal(w.assets.get(a.id).state, "ready");
   assert.equal(w.removes.length, 0);
   assert.equal(w.deletions.size, 0);
-  assert.equal(r.counts.undetermined, 5);
+  assert.equal(r.counts.undetermined, 4, "만료 판정은 넷 다 판정 불가");
+  // 객체가 id로도 경로로도 없는 ready는 묶음 D가 missing으로 표시한다(만료·삭제가 아니다). 그 뒤 신규 묶음의 만료 판정은 skip
+  assert.equal(w.assets.get(noObject.id).state, "missing");
+  assert.deepEqual([r.counts.markedMissing, r.counts.skipped, r.counts.otherObject], [1, 0, 1], "other는 경로에 다른 객체 → 건수만. 후보는 신규 묶음에서 빠져 만료 판정을 부르지 않는다");
+  assert.ok(!w.calls.some(([fn, x]) => fn === "aif_asset_expire" && x.p_asset === noObject.id));
 });
 
 test("확정이 늦어도(finalize 지연) 기산은 객체 생성 시각이다 — 자산 행이 방금 만들어졌어도 객체가 오래됐으면 대상", async () => {
@@ -606,7 +650,8 @@ test("목록 조회 응답이 오지 않으면 그 뒤로 아무것도 시작하
   assert.equal(r.counts.examined, 0);
   assert.equal(w.calls.length + w.removes.length, 0);
   assert.equal(w.lists.length, 0, "나머지 목록 조회도 시작하지 않는다");
-  assert.equal(r.counts.listFailed, 3, "읽지 못한 묶음 3개");
+  assert.equal(w.scans.length, 0, "객체 없는 ready 훑기도 시작하지 않는다");
+  assert.deepEqual([r.counts.listFailed, r.counts.missingScanFailed], [3, 1], "읽지 못한 목록 3개 + 훑기 1");
   assert.equal(w.assets.get(a.id).state, "ready");
 });
 
@@ -898,6 +943,192 @@ test("진입 전 시간 확인 — 이어 하기 묶음도 같다. 확인만 하
   assert.equal(w.removes.length, 0);
 });
 
+// ───────────── A-4) 묶음 D — 객체 없는 ready → missing (W01s) ─────────────
+/** 객체 없는 ready 자산(ageDays = 행이 만들어진 지 며칠 — 신규 묶음 목록의 순서에 영향을 준다) */
+const ghost = (w, n, user, ageDays = 400) => w.asset(n, user, { object: false, ageDays });
+
+test("묶음 D: 순서는 C → D → B → A, 모든 회원(보호 회원 포함)의 객체 없는 ready를 missing으로 — 저장소 remove 0", async () => {
+  const w = world().profile(U1).profile(U2, { exempt: true });
+  const cItem = w.asset(1, U1, { state: "expired" }); w.deletion(cItem, { state: "delete_unknown" });   // C: 확인만(객체가 남아 있어 불명 유지)
+  const g1 = ghost(w, 2, U1);                                                                          // D: 일반 회원
+  const g2 = ghost(w, 3, U2);                                                                          // D: 보호 회원(중앙 정리가 지운 파일)
+  const bItem = w.asset(4, U1, { state: "expired" }); w.deletion(bItem, { state: "cancelled" });        // B: 이어 하기
+  const aItem = w.asset(5, U1, { ageDays: 1 });                                                        // A: 신규(기간 미도래)
+  w.removeMode = "error-kept";   // B의 삭제 요청은 실패로 답하게 해 remove 기록을 구분한다
+  const r = await run(w);
+  assert.deepEqual(w.scans, [[CLEANUP_MISSING_SCAN_WINDOW, CLEANUP_MAX_ITEMS]], "훑기 한 번: 창과 반환 상한은 서로 다른 값");
+  const seq = w.calls.map(([fn, x]) => `${fn}:${x.p_asset ?? x.uid}`);
+  const at = (fn, a) => seq.indexOf(`${fn}:${a.id}`);
+  assert.ok(at("aif_asset_delete_verify", cItem) >= 0);
+  assert.ok(at("aif_asset_delete_verify", cItem) < Math.min(at("aif_asset_mark_missing", g1), at("aif_asset_mark_missing", g2)), "C 다음 D");
+  assert.ok(Math.max(at("aif_asset_mark_missing", g1), at("aif_asset_mark_missing", g2)) < at("aif_asset_expire", bItem), "D 다음 B");
+  assert.ok(at("aif_asset_expire", bItem) < at("aif_asset_expire", aItem), "B 다음 A");
+  assert.equal(w.assets.get(g1.id).state, "missing");
+  assert.equal(w.assets.get(g2.id).state, "missing", "보호 회원의 유령 행도 정리된다(삭제가 아니라 표시)");
+  assert.deepEqual([r.counts.markedMissing, r.counts.missingScanFailed, r.counts.protectedSkipped], [2, 0, 0]);
+  assert.deepEqual(w.removes, [[bItem.path]], "remove는 B의 한 건뿐 — D가 부른 것은 없다");
+  assert.equal(w.deletions.has(g1.id) || w.deletions.has(g2.id), false, "D는 삭제 예약을 만들지 않는다");
+  assert.ok(!w.calls.some(([fn, x]) => (x.p_asset === g1.id || x.p_asset === g2.id) && fn !== "aif_asset_mark_missing"), "D의 자산에는 판정 호출만");
+});
+
+test("묶음 D: remove·삭제 예약·deleting 표시가 전혀 없다(D만 있는 회차)", async () => {
+  const w = world().profile(U1).profile(U2, { exempt: true });
+  for (let i = 1; i <= 6; i++) ghost(w, i, i % 2 ? U1 : U2);
+  const r = await run(w);
+  assert.equal(r.counts.markedMissing, 6);
+  assert.equal(w.removes.length, 0);
+  assert.deepEqual([...new Set(w.fnNames())], ["aif_asset_mark_missing"]);
+  assert.deepEqual([r.counts.removeCalls, r.counts.deleted, r.counts.deleteUnknown, w.deletions.size, w.measured.length], [0, 0, 0, 0, 0]);
+});
+
+test(`묶음 D: 상한 셋은 서로 다르다 — 훑는 창 ${CLEANUP_MISSING_SCAN_WINDOW}, 돌려받는 후보 최대 ${CLEANUP_MAX_ITEMS}, 판정은 회차 상한을 나눠 쓴 몫만`, async () => {
+  assert.ok(CLEANUP_MISSING_SCAN_WINDOW > CLEANUP_MAX_ITEMS);
+  const w = world().profile(U1);
+  for (let i = 1; i <= 130; i++) ghost(w, i, U1, 1);         // 객체 없는 ready 130(최근 행 — 신규 묶음 목록의 앞자리를 차지하지 않게)
+  for (let i = 201; i <= 330; i++) w.asset(i, U1);            // 기간 지난 ready 130(신규 묶음)
+  const r = await run(w);
+  assert.deepEqual(w.scans, [[CLEANUP_MISSING_SCAN_WINDOW, CLEANUP_MAX_ITEMS]]);
+  assert.equal(r.counts.missingScanned, 260, "창(500) 안에서 ready 260행을 모두 읽었다");
+  assert.equal(r.counts.examined, CLEANUP_MAX_ITEMS, "네 묶음을 합쳐 회차 상한");
+  assert.equal(r.counts.markedMissing, 50, "돌려받은 후보는 100개지만 이 회차의 D 몫은 50");
+  assert.equal(r.counts.deleted, 50, "신규 묶음 50");
+  assert.equal([...w.assets.values()].filter((a) => a.state === "missing").length, 50);
+  // 판정하지 못한 후보는 그대로 ready·확인 시각 없음 → 다음 회차에 다시 후보가 된다
+  const left = [...w.assets.values()].filter((a) => a.state === "ready" && !w.objects.has(a.path));
+  assert.equal(left.length, 80);
+  assert.ok(left.every((a) => a.checked === null));
+  const r2 = await run(w);
+  assert.equal(r2.counts.markedMissing, 50, "다음 회차도 몫만큼");
+  // 훑기 창이 작으면 그만큼만 읽는다(창 상한과 반환 상한은 별개)
+  assert.deepEqual([w.scanFn(7, 3).scanned, w.scanFn(7, 3).candidates.length <= 3], [7, true]);
+});
+
+test("묶음 D: missing으로 세는 것은 DB가 정확히 missing을 돌려줬을 때뿐 — 그 밖은 present·other_object·busy·skip·미확정으로 나눠 센다", async () => {
+  const replies = [
+    [{ data: "missing", error: null }, "markedMissing"], [{ data: "present", error: null }, "missingPresent"], [{ data: "other_object", error: null }, "otherObject"],
+    [{ data: "busy", error: null }, "busy"], [{ data: "skip", error: null }, "skipped"],
+    [{ data: "MISSING", error: null }, "undetermined"], [{ data: true, error: null }, "undetermined"], [{ data: null, error: null }, "undetermined"],
+    [{ data: "missing", error: { message: "x" } }, "undetermined"], [{ data: null, error: { message: "function public.aif_asset_mark_missing does not exist" } }, "undetermined"],
+    [new Error("boom"), "undetermined"],
+  ];
+  for (const [reply, key] of replies) {
+    const w = world().profile(U1); const g = ghost(w, 1, U1); const g2 = ghost(w, 2, U1);
+    w.hook = (fn, args) => (fn === "aif_asset_mark_missing" && args.p_asset === [g.id, g2.id].sort()[0] ? reply : undefined);
+    const r = await run(w);
+    const first = [g.id, g2.id].sort()[0];
+    assert.equal(r.counts[key] >= 1, true, `${JSON.stringify(reply.data ?? "throw")} → ${key}`);
+    if (key !== "markedMissing") assert.equal(w.assets.get(first).state, "ready", "응답이 missing이 아니면 전이됐다고 보지 않는다(가짜도 실행하지 않음)");
+    assert.equal(r.counts.markedMissing, key === "markedMissing" ? 2 : 1, "뒤 후보는 계속 판정");
+    assert.deepEqual([r.stopCode, r.counts.timeouts, w.removes.length], [null, 0, 0]);
+  }
+});
+
+test("묶음 D: 훑기 응답이 이상하거나 함수가 적용돼 있지 않으면 D만 건너뛴다 — 판정 0, 다른 묶음은 진행", async () => {
+  const U = U1; const good = (over = {}) => ({ scan_limit: 500, limit: 100, scanned: 1, present: 0, other_object: 0, absent: 1, touched: 0, candidates: [], ...over });
+  const bad = [
+    { data: null, error: { message: "Could not find the function public.aif_asset_missing_scan" } },   // 후속 migration 미적용
+    { data: null, error: null }, { data: [], error: null }, { data: "ok", error: null }, { data: good(), error: { message: "x" } },
+    { data: good({ scanned: -1 }), error: null }, { data: good({ scanned: 1.5 }), error: null }, { data: good({ touched: "0" }), error: null }, { data: good({ absent: undefined }), error: null },
+    { data: good({ scanned: CLEANUP_MISSING_SCAN_WINDOW + 1 }), error: null },                          // 요청한 창보다 많이 읽었다고 함
+    { data: good({ candidates: null }), error: null }, { data: good({ candidates: {} }), error: null },
+    { data: good({ candidates: Array.from({ length: CLEANUP_MAX_ITEMS + 1 }, (_, i) => ({ asset_id: assetId(i + 1), user_id: U })) }), error: null },   // 반환 상한 초과
+    { data: good({ candidates: [{ asset_id: assetId(1).toUpperCase(), user_id: U }] }), error: null },   // 대문자 id
+    { data: good({ candidates: [{ asset_id: assetId(1), user_id: "nope" }] }), error: null },
+    { data: good({ candidates: [{ asset_id: assetId(1) }] }), error: null }, { data: good({ candidates: [null] }), error: null },
+    { data: good({ candidates: [{ asset_id: assetId(1), user_id: U }, "x"] }), error: null },             // 하나라도 이상하면 통째로 버린다
+    new Error("socket hang up"),
+  ];
+  for (const reply of bad) {
+    const w = world().profile(U); const g = ghost(w, 1, U); const a = w.asset(2, U);
+    w.scanOverride = () => reply;
+    const r = await run(w);
+    assert.deepEqual([r.counts.missingScanFailed, r.counts.markedMissing, r.counts.missingScanned, w.count("aif_asset_mark_missing")], [1, 0, 0, 0], JSON.stringify(reply?.data ?? "throw").slice(0, 60));
+    assert.equal(w.assets.get(g.id).state, "ready", "판정하지 않았다");
+    assert.equal(w.deletions.get(a.id).state, "deleted", "신규 묶음은 그대로 진행");
+    assert.deepEqual([r.ok, r.stopCode, r.counts.listFailed], [true, null, 0]);
+  }
+});
+
+test("묶음 D: 훑기·판정 응답이 오지 않으면 회차를 멈춘다 — 전이됐다고 세지 않고, 늦게 커밋돼도 추가 호출 0", async () => {
+  // 훑기 응답 없음
+  const w = world().profile(U1); const g = ghost(w, 1, U1); const a = w.asset(2, U1);
+  w.scanOverride = () => never();
+  const r = await timed(w);
+  assert.deepEqual([r.stopCode, r.counts.timeouts, r.counts.missingScanFailed, r.counts.examined], ["IO_TIMEOUT", 1, 1, 0]);
+  assert.deepEqual([w.calls.length, w.removes.length, w.assets.get(g.id).state, w.assets.get(a.id).state], [0, 0, "ready", "ready"]);
+  assert.deepEqual(w.lists.map(([n]) => n), ["C"], "훑기 뒤의 목록 조회는 시작하지 않는다");
+  // 판정 응답이 늦게 온다(우리가 기다리기를 그만둔 뒤에 DB는 missing으로 커밋)
+  const w2 = world().profile(U1); const g1 = ghost(w2, 1, U1); const g2 = ghost(w2, 2, U1); const a2 = w2.asset(3, U1);
+  w2.hook = lateCommit("aif_asset_mark_missing");
+  const r2 = await timed(w2);
+  assert.deepEqual([r2.stopCode, r2.counts.timeouts, r2.counts.markedMissing, r2.counts.undetermined, r2.counts.examined], ["IO_TIMEOUT", 1, 0, 0, 1], "응답 없음은 전이로도 미확정 응답으로도 세지 않는다");
+  assert.equal(w2.count("aif_asset_mark_missing"), 1, "뒤 후보는 시작하지 않는다");
+  assert.equal(w2.assets.get(a2.id).state, "ready", "뒤 묶음도 시작하지 않는다");
+  const callsAtReturn = w2.calls.length;
+  await wait(LATE + 60);
+  assert.equal(w2.assets.get([g1.id, g2.id].sort()[0]).state, "missing", "DB는 나중에 커밋됐다");
+  assert.equal(w2.calls.length, callsAtReturn, "늦은 응답으로 추가 작업 0");
+  assert.equal(w2.removes.length, 0);
+});
+
+test("묶음 D와 삭제 흐름의 분리: 새 삭제가 중단돼도 D는 처리되고, missing 자산의 보류된 예약은 이어 하기에서 빠진다", async () => {
+  // (가) 남은 시간이 모자라 새 삭제가 중단되는 회차 — D는 그 앞에서 처리된다
+  const w = world({ tick: 10 }).profile(U1);
+  w.deps.limits = { ioTimeoutMs: 10, roundDeadlineMs: 69 };   // D 판정 1회(10) 뒤 시각 10, 신규 묶음의 세 호출 뒤 시각 40 → 남은 29 < 30
+  const g = ghost(w, 1, U1); const a = w.asset(2, U1); const b = w.asset(3, U1);
+  const r = await run(w);
+  assert.equal(w.assets.get(g.id).state, "missing");
+  assert.deepEqual([r.counts.markedMissing, r.counts.deferredForTime, r.stopCode], [1, 1, "TIME_BUDGET"]);
+  assert.equal(w.removes.length, 0);
+  assert.equal(w.assets.get(b.id).state, "ready");
+  assert.equal(w.deletions.get(a.id).state, "cancelled");
+
+  // (나) 복원으로 비활성 예약이 남은 ready 자산이 객체를 잃음 → missing + 예약은 보류 표시만(토큰·시도 횟수 보존)
+  const w2 = world().profile(U1);
+  const p = w2.asset(1, U1); const token = w2.deletion(p, { state: "delete_failed", attempts: 2 });
+  w2.objects.delete(p.path);
+  const r2 = await run(w2);
+  assert.equal(w2.assets.get(p.id).state, "missing");
+  const d = w2.deletions.get(p.id);
+  assert.deepEqual([d.state, d.fencing_token, d.attempts, d.parked_at !== undefined && d.parked_at !== null], ["delete_failed", token, 2, true]);
+  assert.equal(w2.removes.length, 0);
+  assert.equal(w2.count("aif_asset_claim_delete"), 0);
+  assert.equal(r2.counts.markedMissing, 1);
+  // 다음 회차: 그 예약은 목록(DB 조건 parked_at is null)에 나오지 않는다 → 호출 0
+  w2.calls.length = 0;
+  const r3 = await run(w2);
+  assert.deepEqual([w2.calls.length, r3.counts.examined, w2.removes.length], [0, 0, 0]);
+  // DB 조건이 빠진 상황을 가정해도(목록에 그 예약이 들어와도) 삭제로 가는 길은 없다: 만료 판정이 skip
+  w2.ignoreParked = true; w2.calls.length = 0;
+  const r4 = await run(w2);
+  assert.deepEqual(w2.fnNames(), ["aif_asset_expire"]);
+  assert.deepEqual([r4.counts.skipped, w2.count("aif_asset_claim_delete"), w2.removes.length, w2.assets.get(p.id).state], [1, 0, 0, "missing"]);
+});
+
+test("묶음 D의 후보는 신규 묶음에서 빠진다 — 오래된 유령 행이 신규 목록 앞자리를 차지해도 회차를 거치며 풀린다", async () => {
+  const w = world().profile(U1);
+  for (let i = 1; i <= 120; i++) ghost(w, i, U1, 400);        // 아주 오래된 유령 행 120 → 신규 목록(오래된 순 100)의 앞자리를 전부 차지한다
+  for (let i = 201; i <= 210; i++) w.asset(i, U1);            // 실제로 기간이 지난 원본 10
+  const r1 = await run(w);
+  assert.ok(!w.calls.some(([fn, x]) => fn === "aif_asset_expire" && !w.objects.has(w.assets.get(x.p_asset).path)), "후보에게는 만료 판정을 부르지 않는다");
+  assert.equal(r1.counts.markedMissing, 100, "신규 목록이 후보로만 차 있어 D가 회차 상한을 다 쓴다");
+  assert.equal(r1.counts.deleted, 0, "이 회차에는 진짜 대상이 목록에 들어오지 못했다(앞자리 막힘 — 보장하지 않는 지연)");
+  const r2 = await run(w);
+  assert.equal(r2.counts.markedMissing, 20);
+  assert.equal(r2.counts.deleted, 10, "유령 행이 정리되면서 다음 회차에 진짜 대상이 처리된다");
+  assert.equal(w.removes.length, 10);
+});
+
+test("묶음 D: 결과에는 건수만 있다(자산·회원 id 0)", async () => {
+  const w = world().profile(U1).profile(U2, { exempt: true });
+  const g = ghost(w, 1, U1); const g2 = ghost(w, 2, U2);
+  const o = w.asset(3, U1); w.objects.get(o.path).id = objectId(0xbeef);
+  const r = await run(w);
+  const text = JSON.stringify(r);
+  for (const secret of [U1, U2, g.id, g2.id, o.id, g.path, "generated"]) assert.ok(!text.includes(secret), secret);
+  assert.deepEqual([r.counts.markedMissing, r.counts.otherObject, r.counts.missingScanned], [2, 1, 3]);
+});
+
 // ───────────── B) 요청 처리: 인증·모드 ─────────────
 const SECRET = "s3cr3t-value-0123456789abcdef";
 test("인증: Authorization: Bearer <비밀값> 한 가지만. 비밀값이 없거나 짧으면 모든 요청 거절", () => {
@@ -970,6 +1201,22 @@ test("실제 라우트: 운영 상수는 off — 인증 없으면 401, 인증되
   } finally {
     if (before === undefined) delete process.env.CRON_SECRET; else process.env.CRON_SECRET = before;
   }
+});
+
+test("실제 라우트 소스: 이어 하기 목록은 DB 조건 parked_at is null을 정렬·limit 앞에 두고, 훑기는 후속 migration의 함수를 부른다", () => {
+  const src = readFileSync(new URL("../src/app/api/aif/assets/cleanup/route.ts", import.meta.url), "utf8").replace(/\r\n/g, "\n");
+  const code = src.split("\n").filter((l) => !l.trim().startsWith("//")).join("\n");
+  const resume = code.slice(code.indexOf("listDeletePending:"), code.indexOf("listReady:"));
+  const iState = resume.indexOf('.in("state", ["cancelled", "delete_failed", "claimed"])');
+  const iParked = resume.indexOf('.is("parked_at", null)');
+  const iOrder = resume.indexOf('.order("updated_at", { ascending: true })');
+  const iLimit = resume.indexOf(".limit(limit)");
+  assert.ok(iState > 0 && iParked > iState && iOrder > iParked && iLimit > iOrder, "state → parked_at is null → order → limit 순서");
+  assert.match(code, /scanMissing: \(scanLimit, limit\) => admin\.rpc\("aif_asset_missing_scan", \{ p_scan_limit: scanLimit, p_limit: limit \}\)/);
+  // 확인만 하는 목록(deleting·delete_unknown)과 신규 목록은 그대로다
+  const verify = code.slice(code.indexOf("listVerifyPending:"), code.indexOf("listDeletePending:"));
+  assert.ok(!verify.includes("parked_at"));
+  assert.match(code, /\.eq\("state", "ready"\)\.eq\("profiles\.retention_exempt", false\)/);
 });
 
 // ───────────── D) SQL 초안 정적 확인(실행 0) ─────────────

@@ -27,13 +27,16 @@ export async function GET(req: Request) {
         listVerifyPending: (limit) =>
           admin.from("aif_asset_deletions").select("asset_id, user_id, bucket, path, state, fencing_token, attempts")
             .in("state", ["deleting", "delete_unknown"]).order("updated_at", { ascending: true }).limit(limit),
+        // parked_at is null: missing이 된 자산의 비활성 예약은 DB 조건에서 뺀다. 조회한 뒤 거르면 limit을 이미 차지한 뒤라 뒤 항목이 밀린다.
         listDeletePending: (limit) =>
           admin.from("aif_asset_deletions").select("asset_id, user_id, bucket, path, state, fencing_token, attempts")
-            .in("state", ["cancelled", "delete_failed", "claimed"]).order("updated_at", { ascending: true }).limit(limit),
+            .in("state", ["cancelled", "delete_failed", "claimed"]).is("parked_at", null).order("updated_at", { ascending: true }).limit(limit),
         // 보관 연장 표시가 없는 회원의 ready 자산만(프로필 한 곳). 실행자가 보호 회원 목록으로 한 번 더 거른다.
         listReady: (limit) =>
           admin.from("aif_assets").select("id, user_id, state, bucket, path, profiles!inner(retention_exempt)")
             .eq("state", "ready").eq("profiles.retention_exempt", false).order("created_at", { ascending: true }).limit(limit),
+        // 객체 없는 ready 후보 훑기(모든 회원). 후속 migration 20261118130000의 함수 — 적용돼 있지 않으면 오류 응답이 오고 실행자는 그 묶음만 건너뛴다.
+        scanMissing: (scanLimit, limit) => admin.rpc("aif_asset_missing_scan", { p_scan_limit: scanLimit, p_limit: limit }),
         rpc: (fn, args) => admin.rpc(fn, args),
         remove: (paths) => admin.storage.from(ASSET_BUCKET).remove(paths),
       };

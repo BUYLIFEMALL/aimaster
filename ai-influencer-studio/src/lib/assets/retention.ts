@@ -10,9 +10,16 @@
 //    두 집합이 겹치지 않는 것은 「정적인」 사실일 뿐이다 — 정리 도중 회원 등급이 바뀌면 겹칠 수 있다(한계).
 //  * 보호 여부·보관 기간·기산일 판정은 전부 DB 함수 aif_asset_expire가 잠금 안에서 한다. 이 파일은 날짜를 계산하지 않고 30이라는 숫자도 모른다.
 //
-// 한 회차(최대 CLEANUP_MAX_ITEMS건)는 세 묶음을 공정하게 나눠 본다
+// 한 회차(최대 CLEANUP_MAX_ITEMS건)는 네 묶음을 공정하게 나눠 본다. 처리 순서는 C → D → B → A.
 //  C) 확인만: 삭제 예약이 deleting·delete_unknown — 새 삭제 요청 없이 aif_asset_delete_verify만 부른다.
+//  D) 객체 없는 ready 정리(2026-11-18 W01s, 설계 W00 §20-8): 모든 회원의 ready 자산 가운데 저장소에 객체가 없는 것을 missing으로 표시한다.
+//     DB 호출만 한다 — 이 묶음에는 저장소 remove가 없다. 보호 회원도 대상이다(중앙 정리가 저장소에서 직접 지운 뒤 남는 행이 주 대상).
+//     후보는 DB 함수 aif_asset_missing_scan이 「정해진 창」만 훑어 돌려주고, 판정은 aif_asset_mark_missing이 잠금 안에서 다시 한다.
+//     상한이 셋이며 서로 다르다: 훑는 창(CLEANUP_MISSING_SCAN_WINDOW행) / 돌려받는 후보(최대 CLEANUP_MAX_ITEMS개) / 이 회차에 실제로 판정하는 수(네 묶음이 나눠 쓰는 몫).
+//     돌려받고도 판정하지 못한 후보는 확인 시각이 그대로라 다음 회차에 다시 온다. 발견 시한은 보장하지 않는다.
+//     「missing으로 바꿨다」고 세는 것은 DB 함수가 정확히 "missing"을 돌려줬을 때뿐이다. 응답 이상·오류는 미확정으로 세고, 대기 초과면 회차를 멈춘다.
 //  B) 이어 하기: 삭제 예약이 cancelled·delete_failed·claimed — 보호 변경을 다시 확인한 뒤 삭제를 진행한다.
+//     (missing이 된 자산의 비활성 예약은 parked_at이 찍혀 목록 조회의 DB 조건에서 빠진다 — 라우트의 조회 참고.)
 //  A) 신규: ready 자산 — 만료 판정 뒤 삭제를 진행한다.
 //  각 묶음은 updated_at(또는 created_at) 오름차순으로 읽고, DB 함수가 확인한 행의 updated_at을 갱신하므로 다음 회차에는 다른 행부터 본다.
 //
@@ -54,6 +61,9 @@ import type { AssetsMode } from "./generation";
 import { ASSET_BUCKET, isCanonicalUuid, parseAssetPath } from "./paths";
 
 export const CLEANUP_MAX_ITEMS = 100;
+/** 묶음 D가 한 회차에 훑는 ready 행 수의 상한(DB 함수의 창). 한 바퀴 = ready 수 ÷ 이 값 ÷ 회차 빈도 — 발견 시한의 보장이 아니다.
+ *  행마다 저장소 색인 조회가 세 번이라 보수적으로 잡은 값이며, 실제 DB에서의 실행 시간은 아직 재지 않았다(운영 ON 전 실측 대상). */
+export const CLEANUP_MISSING_SCAN_WINDOW = 500;
 /** 삭제 진입(deleting) 횟수가 이 값에 이른 예약은 더 시도하지 않고 건수만 센다(사람 확인 대상) */
 export const CLEANUP_MAX_ATTEMPTS = 5;
 /** 이 시간이 지나면 새 항목을 시작하지 않는다(진행 중이던 항목은 아래 회차 마감까지 이어 간다) */
@@ -75,6 +85,8 @@ export type RetentionDeps = {
   listDeletePending: (limit: number) => PromiseLike<Res>;
   /** ready 자산 중 보관 연장 표시가 없는 회원 것, created_at 오름차순 */
   listReady: (limit: number) => PromiseLike<Res>;
+  /** 객체 없는 ready 후보 훑기 — DB 함수 aif_asset_missing_scan(p_scan_limit, p_limit). 확인 시각을 갱신하므로 읽기 전용이 아니다 */
+  scanMissing: (scanLimit: number, limit: number) => PromiseLike<Res>;
   rpc: (fn: string, args: Record<string, unknown>) => PromiseLike<Res>;
   /** 비공개 버킷에서 경로 삭제 */
   remove: (paths: string[]) => PromiseLike<Res>;
@@ -107,6 +119,16 @@ export type CleanupCounts = {
   gaveUp: number;
   invalidRows: number;
   listFailed: number;
+  /** 묶음 D: 훑기 응답을 쓰지 못한 횟수(오류·모양 이상·함수 미적용·대기 초과). 이때 D는 아무것도 판정하지 않는다 */
+  missingScanFailed: number;
+  /** 묶음 D: 훑기가 읽었다고 알린 ready 행 수(창 안) */
+  missingScanned: number;
+  /** 묶음 D: DB 함수가 정확히 "missing"을 돌려준 수 */
+  markedMissing: number;
+  /** 묶음 D: 판정 때 객체가 있었던 수(후보가 된 뒤 사정이 바뀜) */
+  missingPresent: number;
+  /** 묶음 D: 경로에 다른 객체가 있거나 그 객체가 다른 자리에 있는 수(훑기 건수 + 판정 반환). 자동 조치 없음 */
+  otherObject: number;
   measureFailed: number;
   /** 대기 초과(또는 회차 마감으로 시작하지 못한) 입출력 수 */
   timeouts: number;
@@ -118,7 +140,8 @@ export type CleanupResult =
 
 const emptyCounts = (): CleanupCounts => ({
   examined: 0, removeCalls: 0, removeNotSent: 0, deferredForTime: 0, deleted: 0, deleteUnknown: 0, mismatch: 0, restored: 0, notDue: 0, undetermined: 0, busy: 0, locked: 0,
-  skipped: 0, protectedSkipped: 0, claimFailed: 0, markFailed: 0, denied: 0, gaveUp: 0, invalidRows: 0, listFailed: 0, measureFailed: 0, timeouts: 0,
+  skipped: 0, protectedSkipped: 0, claimFailed: 0, markFailed: 0, denied: 0, gaveUp: 0, invalidRows: 0, listFailed: 0,
+  missingScanFailed: 0, missingScanned: 0, markedMissing: 0, missingPresent: 0, otherObject: 0, measureFailed: 0, timeouts: 0,
 });
 
 type Item = { assetId: string; userId: string; path: string };
@@ -305,8 +328,35 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
     await verify(it, token, true, halted);
   };
 
-  // 세 묶음을 읽는다(읽기만). 한 묶음을 읽지 못해도 나머지는 진행한다.
+  /** 묶음 D의 후보 훑기. 응답을 그대로 믿지 않는다 — 모양·범위가 하나라도 어긋나면 통째로 버린다(null). */
+  const readMissingScan = async (): Promise<{ candidates: { assetId: string; userId: string }[]; scanned: number; otherObject: number } | null> => {
+    try {
+      const w = await bounded(() => deps.scanMissing(CLEANUP_MISSING_SCAN_WINDOW, CLEANUP_MAX_ITEMS));
+      if (!w.done) return null;
+      const r = w.value;
+      if (!isRow(r) || r.error || !isRow(r.data)) return null;
+      const d = r.data;
+      const count = (v: unknown): v is number => Number.isInteger(v) && (v as number) >= 0;
+      if (![d.scanned, d.present, d.other_object, d.absent, d.touched].every(count)) return null;
+      if ((d.scanned as number) > CLEANUP_MISSING_SCAN_WINDOW) return null;                       // 요청한 창보다 많이 읽었다고 하면 믿지 않는다
+      if (!Array.isArray(d.candidates) || d.candidates.length > CLEANUP_MAX_ITEMS) return null;   // 요청한 반환 상한을 넘으면 믿지 않는다
+      const candidates: { assetId: string; userId: string }[] = [];
+      for (const row of d.candidates) {
+        if (!isRow(row) || !isCanonicalUuid(row.asset_id) || !isCanonicalUuid(row.user_id)) return null;
+        candidates.push({ assetId: row.asset_id, userId: row.user_id });
+      }
+      return { candidates, scanned: d.scanned as number, otherObject: d.other_object as number };
+    } catch {
+      return null;
+    }
+  };
+
+  // 네 묶음의 대상을 읽는다. 한 묶음을 읽지 못해도 나머지는 진행한다(대기 초과면 그 뒤로는 아무것도 시작하지 않는다).
   const rawC = await readList(() => deps.listVerifyPending(CLEANUP_MAX_ITEMS));
+  const scanD = await readMissingScan();
+  if (scanD === null) c.missingScanFailed++;
+  else { c.missingScanned += scanD.scanned; c.otherObject += scanD.otherObject; }
+  const listD = scanD?.candidates ?? [];
   const rawB = await readList(() => deps.listDeletePending(CLEANUP_MAX_ITEMS));
   const rawA = await readList(() => deps.listReady(CLEANUP_MAX_ITEMS));
   for (const raw of [rawC, rawB, rawA]) if (raw === null) c.listFailed++;
@@ -324,14 +374,18 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
   };
   const listC = deletionItems(rawC, ["deleting", "delete_unknown"]);
   const listB = deletionItems(rawB, ["cancelled", "delete_failed", "claimed"]);
+  // 묶음 D의 후보(객체가 없는 ready)는 신규 묶음에서 뺀다: 객체가 없으면 만료 판정은 어차피 판정 불가이고, D가 방금 missing으로 바꾼 행에
+  // 만료 판정을 한 번 더 부르는 것은 신규 묶음의 몫만 낭비한다. (D가 이번 회차에 판정하지 못한 후보도 빠진다 — 다음 회차의 D가 본다.)
+  const missingCandidates = new Set(listD.map((it) => it.assetId));
   const listA: Item[] = [];
   for (const row of rawA ?? []) {
     const it = isRow(row) && row.state === "ready" ? checkItem(row.id, row.user_id, row.bucket, row.path) : null;
     if (!it) { c.invalidRows++; continue; }
+    if (missingCandidates.has(it.assetId)) continue;
     listA.push(it);
   }
 
-  const [takeC, takeB, takeA] = allot([listC.length, listB.length, listA.length], CLEANUP_MAX_ITEMS);
+  const [takeC, takeD, takeB, takeA] = allot([listC.length, listD.length, listB.length, listA.length], CLEANUP_MAX_ITEMS);
   let stoppedEarly = false;
   const outOfTime = () => {
     if (now() - started > timeBudgetMs) stoppedEarly = true;
@@ -343,6 +397,21 @@ export async function runRetentionCleanup(deps: RetentionDeps): Promise<CleanupR
     if (halted || outOfTime()) break;
     c.examined++;
     await verify(it, it.token, false);
+  }
+
+  // D) 객체 없는 ready → missing. DB 호출만(저장소 remove 0). 보호 회원 목록을 보지 않는다 — 모든 회원 대상이다.
+  //    새 삭제를 시작하지 않으므로 noMoreDeletes와 무관하다(이 묶음 뒤에야 그 값이 켜질 수 있다).
+  for (const it of listD.slice(0, takeD)) {
+    if (halted || outOfTime()) break;
+    c.examined++;
+    const v = await text("aif_asset_mark_missing", { p_asset: it.assetId, p_user: it.userId });
+    if (halted) break;                        // 응답 없음 → 전이 여부를 모른다. 세지 않고 멈춘다(뒤늦게 missing으로 커밋될 수 있다)
+    if (v === "missing") c.markedMissing++;    // DB 함수가 명시적으로 알린 경우에만 센다
+    else if (v === "present") c.missingPresent++;
+    else if (v === "other_object") c.otherObject++;
+    else if (v === "busy") c.busy++;
+    else if (v === "skip") c.skipped++;
+    else c.undetermined++;                    // 오류·모르는 값·모양 이상 → 미확정
   }
 
   // B) 이어 하기 — 보호 변경을 먼저 다시 본다(보호 회원이면 DB 함수가 ready로 되돌린다)
