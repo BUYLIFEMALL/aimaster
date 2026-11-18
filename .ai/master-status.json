@@ -4071,23 +4071,23 @@
       "title": "Cloudflare 공용키 설정 UI 연결 경로 계획",
       "owner": "AG-UI-01",
       "status": "in_progress",
-      "delivery": "acknowledged_read_only_ui_connection_plan",
-      "evidence": "msg_9e8dcff42ce5 전달보류·서버ab693ba39 지정PASS · 수락msg_c38fbd244674",
-      "next": "공용api-settings 링크/본인등록상태·정확파일/보안/시험 읽기계획 회수·새코드0",
-      "lastReviewedAt": "2026-11-18T04:48:36.281Z"
+      "delivery": "registration_card_plan_accepted_exact_paths_and_public_form_verification_requested",
+      "evidence": "msg_9e8dcff42ce5 전달보류·서버ab693ba39 지정PASS · 수락msg_c38fbd244674 · 계획msg_577c1800ce82·Master GET route/settings초기연결경로확인",
+      "next": "apiKeys/GET api-keys/settings초기/KeySettings 최소경로착수보고, 공용Cloudflare입력칸실존재먼저확인·POST/Workspace불변",
+      "lastReviewedAt": "2026-11-18T04:51:12.935Z"
     },
     {
       "task_id": "AIF-20261118-W00",
       "title": "AI Influencer W00 기준·격차/공통계약 독립검수",
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
-      "status": "needs_revision",
-      "sha": "a2c4a57cb",
-      "delivery": "remaining_budget_orphan_and_publish_success_contracts_returned",
-      "evidence": "직접지시msg_0ea177827182·Master2파일stat/W00확인·인수msg_262b806a9152·검수msg_e1009e09901a · 계획613ac1da4/msg_892ee2310efe·Mac최신반영msg_5534d83d2f04 · Macmsg_e6f0471f7d6d 0068/게시전체재시도 반례 · 최종msg_90ab319ad328/.ai/results/SNS-W00-20261118-CX-QA-01.md · msg_361d873e7d2f/f6dc9e1303fb·Master문서1개stat확인 · Mac중간msg_f9f028aea54a·잔여3건반환",
-      "next": "확정지출상한/고아삭제경합/성공게시ID보존 계약 문서보완→고정SHA 재검수",
+      "status": "ready_review",
+      "sha": "34dbd1c17",
+      "delivery": "remaining_contracts_revision_34db_independent_review",
+      "evidence": "직접지시msg_0ea177827182·Master2파일stat/W00확인·인수msg_262b806a9152·검수msg_e1009e09901a · 계획613ac1da4/msg_892ee2310efe·Mac최신반영msg_5534d83d2f04 · Macmsg_e6f0471f7d6d 0068/게시전체재시도 반례 · 최종msg_90ab319ad328/.ai/results/SNS-W00-20261118-CX-QA-01.md · msg_361d873e7d2f/f6dc9e1303fb·Master문서1개stat확인 · Mac중간msg_f9f028aea54a·잔여3건반환 · msg_94143b2fdf34·Master1파일stat확인·Macmsg_b05643cdc61e",
+      "next": "Mac 잔여3계약·부수정합지정재검수→W01 최소범위판정",
       "constraints": "P0상한12달러미승인·실API/DB쓰기/빌드/배포0·다른Codex미커밋보존",
-      "lastReviewedAt": "2026-11-18T04:48:05.851Z",
+      "lastReviewedAt": "2026-11-18T04:51:12.935Z",
       "validation": {
         "independent": "a2c 이전P1일반회원정리/유료영향/예약failclosed·G5단계 반영확인. 잔여설계반례:confirmed지출합계누락·24h고아삭제 진행/불명/경합보호누락·성공publishID후permalink실패분기누락. 실사고아님, 최종정리중"
       }
@@ -4098,11 +4098,12 @@
       "title": "SOLAPI SDK 재시도 없는 공식 대안·최소 변경 계획",
       "owner": "CC-B2B-BACK-01",
       "status": "dispatched",
-      "delivery": "official_read_only_research_dispatched",
-      "evidence": "msg_bb305389c287·기존6.0.1 retryCount3고정/주입불가",
-      "next": "공식릴리스/문서지원옵션·최소범위·라이선스·공용5사본영향/규칙예외 근거회수·설치/코드0",
-      "constraints": "운영반영차단·실발송/DDL/build/deploy/상류메시지전송0·전역fetch교체0",
-      "lastReviewedAt": "2026-11-18T04:46:47.531Z"
+      "delivery": "official_rest_single_attempt_crm_scoped_exception_implementation_dispatched",
+      "evidence": "msg_bb305389c287·기존6.0.1 retryCount3고정/주입불가 · 조사c229a47ad/msg_e2c6bb9ee494·Master공식인증문서독립확인·판정msg_b0197652e14b",
+      "next": "공식REST/HMAC 표준암호라이브러리로접수전용1HTTP·엄격응답/타임아웃/상한 구현 SHA→Mac검수",
+      "constraints": "소스범위Master일반설계판정·공용SDK서명원칙은해당접수전용예외만기록·실발송/운영DDL/build/deploy0·HTTP1은클라이언트시도만",
+      "lastReviewedAt": "2026-11-18T04:51:12.935Z",
+      "scopeRef": "새crm/solapiSendOnce.ts·dispatch.ts·시험/기존문서, 공용래퍼/5사본/팔로우업불변"
     }
   ],
   "programOverrides": [
@@ -4606,20 +4607,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-18T04:48:36.281Z",
+      "at": "2026-11-18T04:51:12.935Z",
       "timezone": "Asia/Seoul",
-      "trigger": "SNS 계약 재검수 중간 반례",
-      "scope": "예산누적/단계별계상·불명객체보존·성공게시ID 영속",
+      "trigger": "SNS 최신문서·Cloudflare UI계획·CRM 공식대안",
+      "scope": "3계약재검수·기존설정조회/재확인배선·공식REST전송과공용영향제한",
       "evidence": [
-        "msg_f9f028aea54a·SNS작성자문서반환·Mac원본보존전달",
-        "AGY UI계획 수락/착수 msg_c38fbd244674·새코드/키등록/빌드0"
+        "SNS34dbd1c17/1파일·Macmsg_b05643cdc61e",
+        "AGYmsg_577c1800ce82·Master apiKeys/GET/settings실코드",
+        "CRM c229a47ad·SOLAPI공식인증primary독립확인·msg_b0197652e14b"
       ],
-      "judgment": "이전보완확인보존하되잔여3건은제품착수전최소실행계약보완필요. 새기능확대/실시험0.",
+      "judgment": "SNS문서재검수. Cloudflare기존등록링크카드채택/정확배선보완. CRM공용영향없는접수전용REST소스예외는Master일반구현판정으로배정, 실호출/배포미승인유지.",
       "unverified": [
-        "고정a2c최종·보완SHA",
-        "실예산/정리/게시 동작은아직개발전"
+        "SNS재검수",
+        "Cloudflare공용입력실존재/카드구현",
+        "CRM공식응답계약/전송기소스검수·실서비스"
       ],
-      "nextAction": "새문서SHA회수후잔여필수항목만재검수"
+      "nextAction": "각정확경로착수/결과회수·새운영/비용0"
     },
     "notifications": [
       {
