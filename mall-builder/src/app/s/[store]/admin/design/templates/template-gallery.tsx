@@ -127,7 +127,7 @@ export default function TemplateGallery({ slug, layouts, colors, industries }: {
               </p>
               {/* 색 고르기 — 카드마다 고른 색 하나만 Tab으로 들어가고(나머지 tabIndex -1) 화살표·Home/End로 바로 고른다(초점도 함께 이동) */}
               <div
-                className="mt-3 flex flex-wrap gap-1.5"
+                className="mt-2 -mx-2 flex flex-wrap"
                 role="radiogroup"
                 aria-label={`${l.name} 색`}
                 data-color-group
@@ -150,9 +150,12 @@ export default function TemplateGallery({ slug, layouts, colors, industries }: {
                     aria-label={c.name}
                     title={c.name}
                     onClick={() => setPicked((p) => ({ ...p, [l.id]: c.id }))}
-                    className={`h-6 w-6 rounded-full border-2 ${c.id === color.id ? "border-gray-900" : "border-white ring-1 ring-gray-200"}`}
-                    style={{ background: c.primary }}
-                  />
+                    // 누르는 영역 44px(휴대폰 손가락 기준), 보이는 원은 28px — 원래 24px 원만 눌려 26px로 작았음(MOV-10 P3)
+                    className="flex h-11 w-11 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-gray-900"
+                    data-color-swatch
+                  >
+                    <span aria-hidden className={`block h-7 w-7 rounded-full border-2 ${c.id === color.id ? "border-gray-900" : "border-white ring-1 ring-gray-200"}`} style={{ background: c.primary }} />
+                  </button>
                 ))}
               </div>
               <p className="mt-1 text-[11px] text-gray-500">색: {color.name}</p>

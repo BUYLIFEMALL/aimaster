@@ -40,3 +40,11 @@ test("업종 거르기: 라디오가 아닌 토글 단추 — aria-pressed로 �
   assert.doesNotMatch(filter, /role="radio"|aria-checked/);
   assert.match(filter, /\[\{ id: "", label: "전체" \}, \.\.\.industries\]\.map/);
 });
+
+test("색 단추 누르는 영역은 44px(h-11 w-11), 보이는 원은 안쪽 28px — 원래 24px 원만 눌려 작았음(MOV-10 P3)", () => {
+  const btn = src.slice(src.indexOf('role="radio"'), src.indexOf("</button>", src.indexOf('role="radio"')));
+  assert.match(btn, /className="flex h-11 w-11 items-center justify-center rounded-full[^"]*focus-visible:ring-2/);
+  assert.match(btn, /<span aria-hidden className=\{`block h-7 w-7 rounded-full border-2 \$\{c\.id === color\.id \? "border-gray-900"/);
+  assert.match(btn, /style=\{\{ background: c\.primary \}\}/, "색은 안쪽 원에");
+  assert.doesNotMatch(btn, /h-6 w-6/, "옛 24px 단추 없음");
+});
