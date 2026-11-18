@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T18:05:57.100Z",
+  "checkedAt": "2026-11-18T18:09:51.877Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -5611,14 +5611,21 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-QA-01",
       "title": "노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존",
-      "status": "running",
-      "delivery": "owner_direct_instruction_implementation_started",
+      "status": "reviewing",
+      "delivery": "saved_notion_html_fix_returned_mac_review_dispatched",
       "scopeRef": "ee73ff8eb · ai-work-workspace/src/litpage/server/content/html.ts · tests/integration/notionSavedHtml.test.ts",
       "completion": "저장 HTML의 본문을 분리하고 콜아웃·목록·할일·코드·북마크·영상·목차 구조 보존. 일반 HTML/ZIP·기존 URL 허용/정제 경계 회귀 확인.",
       "constraints": "import.ts·DB·API·권한 변경과 운영 쓰기·빌드·배포·push 없음.",
-      "evidence": "주인님 전달 착수 보고 · ee73ff8eb 파일 점유",
-      "next": "CC-WORKSPACE-01 고정 결과 SHA/시험·일반 HTML/ZIP 회귀 근거 회신 후 독립 검수 배정.",
-      "lastReviewedAt": "2026-11-18T18:03:55.268Z"
+      "evidence": "주인님 전달 착수 보고 · ee73ff8eb 파일 점유·112ada09d·2f1e70268·msg_ae2068e3e9b1",
+      "next": "CX-QA-01 독립 판정 뒤 push 순번 판정. 배포는 별도 승인. 점유 유지.",
+      "lastReviewedAt": "2026-11-18T18:09:51.877Z",
+      "sha": "112ada09d",
+      "validation": {
+        "author": "구조 모의 15·HTML 회귀 3·변경 파일 tsc 오류 0, 실제 저장 문서 DOM 블록 수 대조 보고",
+        "master": "고정 파일 2개 Git blob 및 구현/문서 범위 확인",
+        "independent": "msg_ae2068e3e9b1 전달, 회신 대기",
+        "unverified": "독립 회귀·운영 화면 및 배포"
+      }
     }
   ],
   "programOverrides": [
