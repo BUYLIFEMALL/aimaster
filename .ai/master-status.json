@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-18T20:05:20.427Z",
+  "checkedAt": "2026-11-18T20:07:04.948Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -6021,11 +6021,11 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-MASTER-01",
       "title": "메이커 M2 사진 제안 화면·저장 응답 연결",
-      "status": "reviewing",
-      "delivery": "product_independent_pass_test_reachability_cleanup_dispatched",
-      "evidence": "msg_b70ca64fa3f5·dc779bc2a·msg_c506ba34f9a0·msg_f0cc2be892c9·b658c10e4·4819453de·msg_a43696ef5490·msg_3c336c319413·msg_d7d48cd11e2e·msg_e3de9bf4cbc4·2761ee0e1·msg_7006be1418d0·msg_65c79c2fe3bd·msg_4ba128209829·msg_e53aca4fc578·630ac8167·msg_874fa890eb89·msg_bcd7364f56e4·msg_2419ded1b505·msg_46ca82d3c8d9·7bf4efb2f·msg_e6a472310f04·msg_984ad49be819·msg_843e68c20bf4·msg_8c090ffa44f6",
-      "next": "Mac 독립 30/30 및 상충 코드 별도 모의 통과. 테스트 미실행 단언만 정리 배정. 실제 Storage/Lab·배포 없음.",
-      "lastReviewedAt": "2026-11-18T20:04:49.807Z",
+      "status": "done",
+      "delivery": "m2_ui_independent_accepted_test_assertions_verified_undeployed",
+      "evidence": "msg_b70ca64fa3f5·dc779bc2a·msg_c506ba34f9a0·msg_f0cc2be892c9·b658c10e4·4819453de·msg_a43696ef5490·msg_3c336c319413·msg_d7d48cd11e2e·msg_e3de9bf4cbc4·2761ee0e1·msg_7006be1418d0·msg_65c79c2fe3bd·msg_4ba128209829·msg_e53aca4fc578·630ac8167·msg_874fa890eb89·msg_bcd7364f56e4·msg_2419ded1b505·msg_46ca82d3c8d9·7bf4efb2f·msg_e6a472310f04·msg_984ad49be819·msg_843e68c20bf4·msg_8c090ffa44f6·msg_2ed0766d5c88·e133f31c4·Master Node 18/18",
+      "next": "독립 제품 수락, 단언 5개 도달성 수정 후 Master 시험 18/18 통과. 실제 Storage·Lab 미검증, 미배포.",
+      "lastReviewedAt": "2026-11-18T20:07:04.948Z",
       "sha": "7bf4efb2f"
     },
     {
@@ -6040,6 +6040,19 @@
       "next": "L-1/L-2 Mac 독립 11/11 수락, 미배포. U-1 화면 미리보기 후속. 실제 DB·고객 문자 검증 없음.",
       "lastReviewedAt": "2026-11-18T20:05:20.427Z",
       "sha": "05902858a"
+    },
+    {
+      "task_id": "B2B-20261119-MAKER-M3",
+      "parent_task_id": "B2B-20261119-MAKER-M2-UI",
+      "owner": "CC-B2B-BACK-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "메이커 M3 제안 적용·서버 바이트 검증 설계",
+      "status": "reviewing",
+      "delivery": "apply_design_returned_object_immutability_review_requested",
+      "sha": "d94187aee",
+      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6",
+      "next": "최종 이미지 교체 권한과 게시 전 노출, 검증한 바이트의 불변성, 동시 적용 및 복구 설계 보완. 코드·운영 환경 변경 없음.",
+      "lastReviewedAt": "2026-11-18T20:07:04.948Z"
     }
   ],
   "programOverrides": [

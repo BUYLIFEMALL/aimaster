@@ -1,6 +1,6 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 05:03:45 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 05:07:04 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
@@ -415,7 +415,8 @@ Master 마지막 실제 점검: 2026-11-19 05:03:45 KST · 실행 중 점검 주
 | B2B-20261119-SAMPLE-QA | CX-QA-01 | done / public_sample_layout_verified_read_only | 운영 B2B 샘플몰 공개 화면 독립 검수 | Mac 1280/375에서 홈·5개 카테고리·상세 2개 확인. 깨짐·가로 넘침 0. Master 무쿠키 홈 HTTP 200·상품 링크 33개 확인. |
 | B2B-20261119-MAKER | CC-B2B-BACK-01 | done / m1_stale_window_fix_independent_pass_undeployed | B2B 메이커 연계 M1~M3 선행 범위 대조 | Mac 12/12. 늦은 완료·실패 뒤 이전 창 작업 차단 및 공용 계약 보존. 실제 운영 창 미검증, M1 단독 배포 없음. |
 | B2B-20261119-MAKER-M2 | CC-B2B-BACK-01 | done / data_layer_independent_accepted_undeployed_ui_design_dispatched | 메이커 M2 사진 제안 저장 범위 설계 | 0106 데이터 계층 Mac 독립 수락. UI 연결 계획 배정. 실제 Storage·Lab·운영 및 M3 미적용. |
-| B2B-20261119-MAKER-M2-UI | CC-B2B-BACK-01 | reviewing / product_independent_pass_test_reachability_cleanup_dispatched | 메이커 M2 사진 제안 화면·저장 응답 연결 | Mac 독립 30/30 및 상충 코드 별도 모의 통과. 테스트 미실행 단언만 정리 배정. 실제 Storage/Lab·배포 없음. |
+| B2B-20261119-MAKER-M2-UI | CC-B2B-BACK-01 | done / m2_ui_independent_accepted_test_assertions_verified_undeployed | 메이커 M2 사진 제안 화면·저장 응답 연결 | 독립 제품 수락, 단언 5개 도달성 수정 후 Master 시험 18/18 통과. 실제 Storage·Lab 미검증, 미배포. |
+| B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | reviewing / apply_design_returned_object_immutability_review_requested | 메이커 M3 제안 적용·서버 바이트 검증 설계 | 최종 이미지 교체 권한과 게시 전 노출, 검증한 바이트의 불변성, 동시 적용 및 복구 설계 보완. 코드·운영 환경 변경 없음. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
