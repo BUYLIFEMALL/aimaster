@@ -118,13 +118,12 @@ test("적용 전: 원복은 「적용돼 있지 않다」며 멈추고 아무것
   assert.equal(shape(), BEFORE_SHAPE); assert.equal(rows(), BEFORE_ROWS);
 });
 
-test("적용 전 확인: 대상이 기대한 모양이 아니면 멈춘다(6가지, 변경 0)", SKIP, () => {
+test("적용 전 확인: 대상이 기대한 모양이 아니면 멈춘다(5가지, 변경 0)", SKIP, () => {
   for (const [name, breakIt, fixIt, pattern] of [
     ["행 단위 보안 꺼짐", "alter table public.aif_member_scheduler disable row level security;", "alter table public.aif_member_scheduler enable row level security;", /row level security is off/],
     ["칸 이름이 다름", "alter table public.aif_member_scheduler rename column paused to paused_x;", "alter table public.aif_member_scheduler rename column paused_x to paused;", /expected columns/],
     ["표 이름이 다름", "alter table public.aif_member_scheduler rename to aif_member_scheduler_x;", "alter table public.aif_member_scheduler_x rename to aif_member_scheduler;", /aif_member_scheduler not found/],
     ["관리자 표식 칸 없음", "alter table public.profiles rename column is_admin to is_admin_x;", "alter table public.profiles rename column is_admin_x to is_admin;", /profiles\(id, is_admin\) not found/],
-    ["회원 이메일 칸 없음", "alter table auth.users rename column email to email_x;", "alter table auth.users rename column email_x to email;", /auth\.users\(id, email\) not found/],
     ["같은 이름의 함수가 이미 있음", "create function public.aif_platform_scheduler_is_allowed() returns boolean language sql as $$ select true $$;", "drop function public.aif_platform_scheduler_is_allowed();", /a function named aif_platform_scheduler_\* already exists/],
   ]) {
     q(breakIt);
@@ -207,7 +206,15 @@ test("함수 실행 권한: 허용 여부 2개는 서비스 역할만, 관리자
       || ':' || p.prosecdef::text || ':' || coalesce(array_to_string(p.proconfig, ','), '-'), E'\\n' order by p.proname)
     from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname like 'aif\\_platform\\_scheduler\\_%';`),
     ["admin_actor:falsefalsefalse", "admin_history:falsetruefalse", "admin_list:falsetruefalse", "admin_set:falsetruefalse", "allowed_users:falsefalsetrue", "is_allowed:falsefalsetrue"]
-      .map((x) => `aif_platform_scheduler_${x}:true:search_path=pg_catalog, public`).join("\n"));
+      .map((x) => `aif_platform_scheduler_${x}:true:search_path=pg_catalog, pg_temp`).join("\n"));
+  // 함수 본문은 public·auth의 객체를 전부 스키마 이름을 붙여 부른다(이름만 적은 표·함수 호출이 없다)
+  const bodies = q(`select string_agg(p.prosrc, E'\\n') from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname like 'aif\\_platform\\_scheduler\\_%';`);
+  for (const name of ["aif_platform_scheduler_allowlist", "aif_platform_scheduler_allowlist_events", "aif_platform_scheduler_admin_actor", "profiles"]) {
+    const bare = bodies.split(name).length - 1 - (bodies.split("public." + name).length - 1);
+    assert.equal(bare, 0, `${name}: 스키마 이름 없이 불린 곳이 없어야 한다`);
+  }
+  assert.equal((bodies.match(/(^|[^.\w])users\b/g) ?? []).length, 0, "users는 auth.users로만 부른다");
+  assert.equal((bodies.match(/(^|[^.\w])uid\(\)/g) ?? []).length, 0, "uid()는 auth.uid()로만 부른다");
   // 회원은 자기 허용 여부도 직접 묻지 못한다(앱 서버가 판정해 알려 준다)
   for (const sql of [`select ${FN}is_allowed('${U.m1}');`, `select * from ${FN}allowed_users();`, `select ${FN}admin_actor();`]) {
     const r = run(as("authenticated", U.m1, sql)); assert.equal(r.ok, false, sql); assert.match(errOf(r), /permission denied/);
@@ -236,6 +243,21 @@ test("관리자 신원: 로그인 신원이 없거나 관리자가 아니면 지
   assert.equal(state(), "- | 이력 0");
 });
 
+test("이름 가로채기: 같은 이름의 임시 표를 만들어 둬도 함수는 public의 진짜 표만 본다(검색 경로 고정 + 스키마 이름 명시)", SKIP, () => {
+  // 회원이 자기 접속에 「자기가 관리자라고 적힌 profiles」와 「자기가 허용된 allowlist」를 임시 표로 만들어 둔 상황
+  const forge = `create temp table profiles (id uuid, is_admin boolean); insert into profiles values ('${U.m1}', true);
+    create temp table aif_platform_scheduler_allowlist (user_id uuid, revoked_at timestamptz, granted_at timestamptz, granted_by uuid, revoked_by uuid, note text); insert into aif_platform_scheduler_allowlist (user_id) values ('${U.m1}');
+    create temp table users (id uuid); insert into users values ('${U.gone}');`;
+  const r = run(`${forge}\n${adminSet(U.m1, U.m1, true, "가로채기")}`);
+  assert.equal(r.ok, false); assert.match(errOf(r), /AIF_ALLOWLIST_ADMIN_ONLY/, "임시 profiles로 관리자가 되지 못한다");
+  assert.equal(lastLine(q(`${forge}\n${as("service_role", null, `select ${FN}is_allowed('${U.m1}');`)}`)), "f", "임시 allowlist로 허용이 되지 못한다");
+  assert.equal(lastLine(q(`${forge}\n${as("service_role", null, `select count(*) from ${FN}allowed_users();`)}`)), "0");
+  // 진짜 관리자가 「없는 회원」을 지정하려 할 때 임시 users 표가 대상 확인을 속이지 못한다
+  const r2 = run(`${forge}\n${adminSet(U.admin, U.gone, true, null)}`);
+  assert.equal(r2.ok, false); assert.match(errOf(r2), /AIF_ALLOWLIST_TARGET_NOT_FOUND/);
+  assert.equal(state(), "- | 이력 0");
+});
+
 test("상태 전이와 이력: 지정 → (다시 지정은 그대로) → 철회 → (다시 철회는 그대로) → 재허용. 바뀐 호출만 이력에 남고, 한 사람은 로그인 신원에서 온다", SKIP, () => {
   const set = (admin, user, allow, note) => lastLine(q(adminSet(admin, user, allow, note)));
   assert.equal(set(U.admin, U.m1, false, null), "unchanged", "지정된 적 없는 회원의 철회는 아무 일도 하지 않는다");
@@ -246,8 +268,12 @@ test("상태 전이와 이력: 지정 → (다시 지정은 그대로) → 철�
   assert.equal(set(U.admin, U.m1, false, null), "unchanged");
   assert.equal(set(U.admin2, U.m1, true, "다시 허용"), "regranted"); assert.equal(isAllowed(U.m1), "t");
   assert.equal(state(), `${U.m1}:true | 이력 3`);
-  const history = q(as("authenticated", U.admin, `select action || ':' || actor_id::text || ':' || actor_email || ':' || coalesce(note, '-') from ${FN}admin_history('${U.m1}');`)).split("\n").slice(-3);
-  assert.deepEqual(history, [`granted:${U.admin}:admin@example.test:시험 계정`, `revoked:${U.admin2}:admin2@example.test:철회 사유`, `regranted:${U.admin2}:admin2@example.test:다시 허용`]);
+  const history = q(as("authenticated", U.admin, `select action || ':' || actor_id::text || ':' || coalesce(note, '-') from ${FN}admin_history('${U.m1}');`)).split("\n").slice(-3);
+  assert.deepEqual(history, [`granted:${U.admin}:시험 계정`, `revoked:${U.admin2}:철회 사유`, `regranted:${U.admin2}:다시 허용`]);
+  // 이력에는 이메일 같은 개인 식별 글자가 없다(칸 자체가 없고, 어느 칸에도 @ 글자가 없다)
+  assert.equal(q(`select string_agg(column_name, ',' order by ordinal_position) from information_schema.columns where table_schema = 'public' and table_name = 'aif_platform_scheduler_allowlist_events';`), "id,user_id,action,actor_id,note,at");
+  assert.equal(q(`select count(*) from public.aif_platform_scheduler_allowlist_events e where e::text like '%@%';`), "0");
+  assert.equal(q(`select pg_get_function_result('${FN}admin_history(uuid)'::regprocedure);`), "TABLE(id bigint, action text, actor_id uuid, note text, at timestamp with time zone)");
   assert.equal(lastLine(q(as("authenticated", U.admin2, `select user_id::text || ':' || allowed::text || ':' || granted_by::text || ':' || (revoked_at is null)::text || ':' || note from ${FN}admin_list();`))), `${U.m1}:true:${U.admin2}:true:다시 허용`);
   // 관리자 자격이 없어진 사람은 그 순간부터 못 한다(지난 이력은 그대로)
   q(`update public.profiles set is_admin = false where id = '${U.admin2}';`);
@@ -288,7 +314,7 @@ test("동시 지정: 두 관리자가 같은 회원을 같은 순간 지정해�
 });
 
 // ── 계정이 지워질 때 ──
-test("회원이 지워지면 허용 행은 함께 지워지고 이력은 남는다. 지정한 관리자 계정도 막힘 없이 지울 수 있고 이력에는 번호와 그때의 이메일이 남는다", SKIP, () => {
+test("회원이 지워지면 허용 행은 함께 지워지고 이력은 남는다. 지정한 관리자 계정도 막힘 없이 지울 수 있고 이력에는 그 번호만 남는다", SKIP, () => {
   const target = "00000000-0000-4000-8000-0000000000d1", tmpAdmin = "00000000-0000-4000-8000-0000000000a9";
   q(`delete from auth.users where id = '${target}';`);
   assert.equal(q(`select count(*) from public.aif_platform_scheduler_allowlist where user_id = '${target}';`), "0");
@@ -298,7 +324,8 @@ test("회원이 지워지면 허용 행은 함께 지워지고 이력은 남는�
   q(`delete from auth.users where id = '${tmpAdmin}';`);   // 막히지 않는다
   assert.equal(q(`select count(*) from auth.users where id = '${tmpAdmin}';`), "0");
   assert.equal(isAllowed(U.m2), "t", "지정은 유효하게 남는다");
-  assert.equal(lastLine(q(as("authenticated", U.admin, `select actor_id::text || ':' || actor_email from ${FN}admin_history('${U.m2}');`))), `${tmpAdmin}:temp-admin@example.test`, "누가 했는지는 이력에 남는다");
+  assert.equal(lastLine(q(as("authenticated", U.admin, `select actor_id::text || ':' || action from ${FN}admin_history('${U.m2}');`))), `${tmpAdmin}:granted`, "한 사람의 번호는 이력에 남는다(이메일은 남기지 않는다)");
+  assert.equal(q(`select count(*) from public.aif_platform_scheduler_allowlist_events e where e::text like '%@%';`), "0");
   q(adminSet(U.admin, U.m2, false, null));
 });
 

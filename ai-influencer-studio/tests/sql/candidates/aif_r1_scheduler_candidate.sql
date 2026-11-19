@@ -20,10 +20,11 @@
 --         ★ 누가 했는지는 인자로 받지 않는다. 함수가 요청의 로그인 신원(auth.uid())을 읽고, 그 사람이 그 순간 profiles.is_admin인지 확인한다.
 --           신원이 없거나(서비스 역할 호출 포함) 관리자가 아니면 AIF_ALLOWLIST_ADMIN_ONLY로 거절한다 — 상태도 이력도 바뀌지 않는다.
 --         상태 전이: (없음 → 허용 'granted') (철회됨 → 허용 'regranted') (허용 → 철회 'revoked'). 이미 그 상태면 'unchanged'이고 이력을 남기지 않는다.
---         이력: 상태가 바뀐 호출마다 한 줄 — 대상 회원, 한 일, 한 사람(번호 + 그 시점의 이메일), 시각, 메모. 고치거나 지우는 길이 없다.
+--         이력: 상태가 바뀐 호출마다 한 줄 — 대상 회원 번호, 한 일, 한 사람의 번호, 시각, 메모. 고치거나 지우는 길이 없다.
+--               이메일 같은 개인 식별 글자는 적지 않는다(필요성과 보관 기간이 승인되기 전에는 영속 저장하지 않는다 — Master 판정 2026-11-19).
 --   다) 허용(나)과 선택(가)은 서로 다른 것이다 — 둘 다 있어야 Vercel이 유효하다. 관리자(profiles.is_admin)는 허용 표와 상관없이 허용 — 그 판정은 프로그램 코드가 한다.
 --   라) 사람이 지워질 때: 허용 행은 회원(auth.users)이 지워지면 함께 지워진다. 한 사람·대상의 번호는 이력에 **참조 없이** 남는다(지정한 관리자 계정을 지워도 막히지 않고,
---       이력에는 번호와 그 시점의 이메일이 남는다). 대안과의 대조는 PLAN §14-3.
+--       이력에는 번호만 남는다 — 지워진 계정의 번호가 누구였는지는 이 표만으로는 알 수 없다). 대안과의 대조는 PLAN §14-3·§15.
 --   마) 기존 앱(운영 v1.27과 같은 공용 코드) 호환: 그 코드는 칸 이름을 적어 읽고 새 칸 없이 넣는다. 이 후보만 적용하고 코드를 올리지 않아도 동작이 바뀌지 않는다.
 --
 -- 권한(ACL)
@@ -31,7 +32,16 @@
 --   aif_platform_scheduler_allowlist(_events): public·anon·authenticated·service_role 모두 권한 없음. 행 단위 보안 켬(정책 0개).
 --   is_allowed · allowed_users              : service_role만 실행.
 --   admin_set · admin_list · admin_history  : authenticated만 실행(안에서 관리자 확인). service_role·anon·public 실행 불가.
---   함수는 모두 소유자 권한으로 돈다(search_path 고정). 소유자가 두 표와 profiles·auth.users를 읽을 수 있어야 한다(배포 전 점검).
+--   함수는 모두 소유자 권한으로 돈다. 검색 경로는 `pg_catalog, pg_temp`로 고정한다 — 시스템 스키마만 믿고, 임시 스키마는 맨 뒤에 적어 먼저 찾아지지 않게 한다.
+--   public·auth의 표와 함수는 전부 스키마 이름을 붙여 부른다(같은 이름의 임시 표나 다른 스키마의 객체가 끼어들 수 없다 — 격리 시험으로 확인).
+--   소유자가 두 표와 profiles·auth.users(번호만)를 읽을 수 있어야 한다(배포 전 점검).
+--
+-- 정책 결정이 필요한 것(이 후보가 정하지 않는다)
+--   * 이력의 보관 기간: 지금은 기한 없이 쌓인다.
+--   * 이력에 남는 관리자·회원 번호(UUID)의 익명화 여부와 시점(계정이 지워진 뒤에도 번호는 남는다).
+--   * 메모(note): 관리자가 자유롭게 적는 글이라 개인 정보가 들어갈 수 있다 — 적을 수 있는 내용의 범위, 보관 기간, 지우는 절차.
+--   관리자 화면의 호출: 메인 사이트 관리자 서버가 기존 로그인 세션·관리자 확인 흐름을 그대로 쓰고, 이 관리용 함수도 **같은 관리자 본인의 세션**으로 부른다.
+--                       관리자 번호를 요청 본문이나 서비스 역할의 대리 인자로 받지 않는다(Master 판정 2026-11-19).
 
 begin;
 set local lock_timeout = '10s';
@@ -59,8 +69,8 @@ begin
       where table_schema = 'public' and table_name = 'profiles' and column_name in ('id', 'is_admin')) <> 2 then
     raise exception 'AIF_R1_APPLY_REFUSED: public.profiles(id, is_admin) not found — nothing changed' using errcode = 'P0001';
   end if;
-  if (select count(*) from information_schema.columns where table_schema = 'auth' and table_name = 'users' and column_name in ('id', 'email')) <> 2 then
-    raise exception 'AIF_R1_APPLY_REFUSED: auth.users(id, email) not found — nothing changed' using errcode = 'P0001';
+  if (select count(*) from information_schema.columns where table_schema = 'auth' and table_name = 'users' and column_name = 'id') <> 1 then
+    raise exception 'AIF_R1_APPLY_REFUSED: auth.users(id) not found — nothing changed' using errcode = 'P0001';
   end if;
   if to_regclass('public.aif_platform_scheduler_allowlist') is not null or to_regclass('public.aif_platform_scheduler_allowlist_events') is not null then
     raise exception 'AIF_R1_APPLY_REFUSED: the allowlist tables already exist — nothing changed' using errcode = 'P0001';
@@ -98,12 +108,11 @@ create table public.aif_platform_scheduler_allowlist_events (
   user_id uuid not null,
   action text not null check (action in ('granted', 'regranted', 'revoked')),
   actor_id uuid not null,
-  actor_email text,
   note text,
   at timestamptz not null default now()
 );
 create index aif_platform_scheduler_allowlist_events_user_idx on public.aif_platform_scheduler_allowlist_events (user_id, id);
-comment on table public.aif_platform_scheduler_allowlist_events is 'R1: 허용 지정·철회 이력(덧붙이기만). 대상·한 사람의 번호는 참조 없이 남긴다 — 계정이 지워져도 이력은 남고, 계정 삭제를 막지도 않는다.';
+comment on table public.aif_platform_scheduler_allowlist_events is 'R1: 허용 지정·철회 이력(덧붙이기만). 대상·한 사람의 번호만 참조 없이 남긴다(이메일 등은 적지 않는다) — 계정이 지워져도 이력은 남고, 계정 삭제를 막지도 않는다.';
 
 alter table public.aif_platform_scheduler_allowlist enable row level security;
 alter table public.aif_platform_scheduler_allowlist_events enable row level security;
@@ -112,20 +121,20 @@ revoke all on table public.aif_platform_scheduler_allowlist_events from public, 
 
 -- 3. 앱 서버용 — 허용 여부만 돌려준다
 create function public.aif_platform_scheduler_is_allowed(p_user uuid) returns boolean
-language sql stable security definer set search_path = pg_catalog, public
+language sql stable security definer set search_path = pg_catalog, pg_temp
 as $$
   select exists (select 1 from public.aif_platform_scheduler_allowlist a where a.user_id = p_user and a.revoked_at is null);
 $$;
 
 create function public.aif_platform_scheduler_allowed_users() returns setof uuid
-language sql stable security definer set search_path = pg_catalog, public
+language sql stable security definer set search_path = pg_catalog, pg_temp
 as $$
   select a.user_id from public.aif_platform_scheduler_allowlist a where a.revoked_at is null;
 $$;
 
 -- 4. 관리자용 — 로그인한 관리자 본인의 세션으로만(누가 했는지는 인자가 아니라 요청의 로그인 신원에서 읽는다)
 create function public.aif_platform_scheduler_admin_actor() returns uuid
-language plpgsql stable security definer set search_path = pg_catalog, public
+language plpgsql stable security definer set search_path = pg_catalog, pg_temp
 as $$
 declare v_actor uuid := auth.uid();
 begin
@@ -136,7 +145,7 @@ begin
 end $$;
 
 create function public.aif_platform_scheduler_admin_set(p_user uuid, p_allow boolean, p_note text default null) returns text
-language plpgsql security definer set search_path = pg_catalog, public
+language plpgsql security definer set search_path = pg_catalog, pg_temp
 as $$
 declare
   v_actor uuid := public.aif_platform_scheduler_admin_actor();
@@ -180,14 +189,14 @@ begin
     end if;
   end if;
 
-  insert into public.aif_platform_scheduler_allowlist_events (user_id, action, actor_id, actor_email, note)
-    values (p_user, v_action, v_actor, (select u.email from auth.users u where u.id = v_actor), p_note);
+  insert into public.aif_platform_scheduler_allowlist_events (user_id, action, actor_id, note)
+    values (p_user, v_action, v_actor, p_note);
   return v_action;
 end $$;
 
 create function public.aif_platform_scheduler_admin_list()
 returns table (user_id uuid, allowed boolean, granted_at timestamptz, granted_by uuid, revoked_at timestamptz, revoked_by uuid, note text)
-language plpgsql stable security definer set search_path = pg_catalog, public
+language plpgsql stable security definer set search_path = pg_catalog, pg_temp
 as $$
 begin
   perform public.aif_platform_scheduler_admin_actor();
@@ -196,12 +205,12 @@ begin
 end $$;
 
 create function public.aif_platform_scheduler_admin_history(p_user uuid)
-returns table (id bigint, action text, actor_id uuid, actor_email text, note text, at timestamptz)
-language plpgsql stable security definer set search_path = pg_catalog, public
+returns table (id bigint, action text, actor_id uuid, note text, at timestamptz)
+language plpgsql stable security definer set search_path = pg_catalog, pg_temp
 as $$
 begin
   perform public.aif_platform_scheduler_admin_actor();
-  return query select e.id, e.action, e.actor_id, e.actor_email, e.note, e.at
+  return query select e.id, e.action, e.actor_id, e.note, e.at
     from public.aif_platform_scheduler_allowlist_events e where e.user_id = p_user order by e.id;
 end $$;
 
