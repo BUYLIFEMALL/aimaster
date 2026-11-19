@@ -10017,11 +10017,11 @@
       "reviewer": "CX-QA-01",
       "title": "B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계",
       "status": "reviewing",
-      "delivery": "unregistered_source_found_author_evidence_requested",
+      "delivery": "author_handoff_received_mac_review_dispatched",
       "sha": "b6b3ee7f5",
-      "evidence": "b6b3ee7f5·msg_a57d427aa295",
-      "next": "AG-UI-01 승인·점유·자체 시험·미배포 근거 반환 후 Master 대조와 Mac 독립 검수. 제품 수정·빌드·배포 범위 없음.",
-      "lastReviewedAt": "2026-11-19T01:02:10.688Z"
+      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8",
+      "next": "시안 154 직접 승인·tsc/build 통과·미배포 담당 보고. 별도 B2Btest HTTP 25와 고정 SHA UI 렌더 구분. Mac 독립 검수 전송, 수락 대기.",
+      "lastReviewedAt": "2026-11-19T01:02:57.692Z"
     }
   ]
 }
