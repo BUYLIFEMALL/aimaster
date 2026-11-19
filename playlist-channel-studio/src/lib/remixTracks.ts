@@ -41,3 +41,36 @@ export function parseIdParam(raw: string | null): string[] {
 export function mergeIncoming(suno: string[], remix: string[], max: number): string[] {
   return Array.from(new Set([...suno, ...remix])).slice(0, max);
 }
+
+/** 리믹스 조회에 필요한 만큼만 — 실제로는 Supabase 관리자 클라이언트, 시험에서는 가짜 */
+type Query = { eq(column: string, value: string): Query; maybeSingle(): PromiseLike<{ data: unknown; error: { message: string } | null }> };
+export type RemixDb = { from(table: string): { select(columns: string): Query } };
+export type RemixVariant = {
+  id: string; suno_audio_id: string | null; audio_url: string; image_url: string | null;
+  music_tracks: { title: string; task_id: string | null; mode: "vocal" | "instrumental" };
+};
+
+/**
+ * 곡 번호가 회원 본인의 「완료된」 리믹스 결과면 곡 정보로, 아니면 null(부르는 쪽이 기존 404).
+ * 곡 목록(listRemixTracks)과 같은 조건 — 변주·부모 모두 user_id, 부모는 status completed.
+ * null이면 부르는 쪽은 서명 주소·Suno 키 조회·Suno 호출 전에 멈춘다.
+ */
+export async function lookupRemixVariant(db: RemixDb, userId: string, variantId: string): Promise<RemixVariant | null> {
+  const { data: rv, error: rvErr } = await db
+    .from("music_track_remix_variants").select("id, remix_id, suno_audio_id, audio_url, image_url")
+    .eq("id", variantId).eq("user_id", userId).maybeSingle();
+  if (rvErr) throw new Error(rvErr.message);
+  const v = rv as { id: string; remix_id: string; suno_audio_id: string | null; audio_url: string; image_url: string | null } | null;
+  if (!v) return null;
+  const { data: rm, error: rmErr } = await db
+    .from("music_track_remixes").select("task_id, mode, source_title, instrumental")
+    .eq("id", v.remix_id).eq("user_id", userId).eq("status", "completed").maybeSingle();
+  if (rmErr) throw new Error(rmErr.message);
+  const r = rm as (RemixMeta & { task_id: string | null }) | null;
+  if (!r) return null;
+  const vocal = remixIsVocal(r);
+  return {
+    id: v.id, suno_audio_id: vocal ? v.suno_audio_id : null, audio_url: v.audio_url, image_url: v.image_url,
+    music_tracks: { title: remixTitle(r), task_id: vocal ? r.task_id : null, mode: vocal ? "vocal" : "instrumental" },
+  };
+}

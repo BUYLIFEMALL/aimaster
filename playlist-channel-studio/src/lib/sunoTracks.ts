@@ -1,7 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { linesFromAlignedWords, type SunoWord, type TimedLine } from "@/lib/sunoAlign";
-import { remixIsVocal, remixTitle, remixTrack, type RemixRow, type RemixVariantRow } from "@/lib/remixTracks";
+import { lookupRemixVariant, remixTrack, type RemixDb, type RemixRow, type RemixVariantRow } from "@/lib/remixTracks";
 
 // v1.19 음악(SUNO) 자동화(music/, slug music-automation)에서 회원 본인이 만든 곡을 가져온다(가사영상 v1.05 `src/lib/suno.ts`와 같은 규칙).
 // 공용 DB의 music_tracks·music_track_variants를 읽기만 하고, 모든 조회를 회원 user_id로 거른다.
@@ -86,25 +86,9 @@ async function ownVariant(userId: string, variantId: string): Promise<VariantRow
     .eq("id", variantId).eq("user_id", userId).maybeSingle();
   if (error) throw new Error(error.message);
   if (data) return data as unknown as VariantRow;
-  // 리믹스 결과(?remix=) — 회원 본인 것만. 반주 추가·연주곡은 연주곡으로 보아 시간 가사를 받지 않는다
-  const db = createAdminClient();
-  const { data: rv, error: rvErr } = await db
-    .from("music_track_remix_variants").select("id, remix_id, suno_audio_id, audio_url, image_url")
-    .eq("id", variantId).eq("user_id", userId).maybeSingle();
-  if (rvErr) throw new Error(rvErr.message);
-  if (rv) {
-    const { data: rm, error: rmErr } = await db
-      .from("music_track_remixes").select("task_id, mode, source_title, instrumental")
-      .eq("id", rv.remix_id).eq("user_id", userId).maybeSingle();
-    if (rmErr) throw new Error(rmErr.message);
-    if (rm) {
-      const vocal = remixIsVocal(rm);
-      return {
-        id: rv.id, suno_audio_id: vocal ? rv.suno_audio_id : null, audio_url: rv.audio_url, image_url: rv.image_url,
-        music_tracks: { title: remixTitle(rm), task_id: vocal ? rm.task_id : null, mode: vocal ? "vocal" : "instrumental" },
-      };
-    }
-  }
+  // 리믹스 결과(?remix=) — 회원 본인 「완료된」 것만(곡 목록과 같은 조건). 반주 추가·연주곡은 연주곡으로 보아 시간 가사를 받지 않는다
+  const remix = await lookupRemixVariant(createAdminClient() as unknown as RemixDb, userId, variantId);
+  if (remix) return remix;
   throw new SunoError(404, "곡을 찾지 못했습니다. 음악(SUNO) 자동화에서 내가 만든 곡만 가져올 수 있습니다.");
 }
 
