@@ -6323,10 +6323,10 @@
       "reviewer": "CX-QA-01",
       "title": "AI Influencer D2 정리·쿼터 격리 통합 시험",
       "status": "running",
-      "delivery": "d2_isolated_fixture_design_started",
+      "delivery": "d2_integration_15_pass_policy_gap_recheck_sent",
       "sha": "409a339af",
-      "next": "전용 로컬 시험 DB 설계 착수. 실제 SQL·정리·생성 사전 검사 연결 결과 대기. 운영 shadow·실 cron 보류.",
-      "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e·msg_01908be553ce"
+      "next": "fec7fe017 격리 15/15. 정책 0행과 명시 무제한 구분 확인 요청, Mac 독립 검토 대기. 운영 shadow·실 cron 보류.",
+      "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e·msg_01908be553ce·msg_3c0ea9d67886·fec7fe017·msg_3bdadb79cff0"
     },
     {
       "task_id": "AIF-20261119-PLAN6",
