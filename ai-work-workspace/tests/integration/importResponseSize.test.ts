@@ -295,14 +295,42 @@ describe('가져오기 응답 바이트 예산', () => {
 
   describe('화면: pending 추가 로드(loadImportPending)', () => {
     const p = (i: number) => ({ table: 'block', id: `id-${i}` });
-    const recorder = (fail: (id: string, nth: number) => boolean = () => false) => {
+    /** 화면의 조회 함수 흉내: 받은 recordMap을 돌려준다. `answer`로 응답 모양을 바꿀 수 있다(기본: 요청한 포인터가 그대로 온다) */
+    const recorder = (fail: (id: string, nth: number) => boolean = () => false, answer: (ptr: { table: string; id: string }) => unknown = (x) => ({ __version__: 3, [x.table]: { [x.id]: { value: { value: { id: x.id }, role: 'editor' } } } })) => {
       const calls: string[][] = [];
       const sync = async (pointers: { table: string; id: string }[]) => {
         calls.push(pointers.map((x) => x.id));
         if (fail(pointers[0].id, calls.length)) throw new Error('응답 없음');
+        return answer(pointers[0]);
       };
       return { calls, sync };
     };
+
+    // Mac 재현 P3(Master msg_b9c03dffb58d): 조회가 200이어도 요청한 포인터가 응답에 없으면 「다 올라옴」이 아니다
+    it('조회가 성공해도 빈 맵이면 「일부 못 올라옴」 — 다시 부르지 않고 나머지는 계속 받는다', async () => {
+      for (const empty of [{ __version__: 3 }, {}, undefined, null, { block: {} }]) {
+        const a = recorder(() => false, () => empty);
+        expect(await pend.loadImportPending({ pending: [p(1), p(2), p(3), p(4), p(5)] }, a.sync), JSON.stringify(empty)).toBe(false);
+        expect(a.calls).toEqual([['id-1'], ['id-2'], ['id-3'], ['id-4'], ['id-5']]); // 연결 실패가 아니므로 중단하지 않는다
+      }
+    });
+
+    it('응답에 다른 id·다른 표만 있으면 「일부 못 올라옴」', async () => {
+      const other = recorder(() => false, (x) => ({ __version__: 3, [x.table]: { 'id-other': { value: { value: { id: 'id-other' }, role: 'editor' } } } }));
+      expect(await pend.loadImportPending({ pending: [p(1)] }, other.sync)).toBe(false);
+      const otherTable = recorder(() => false, (x) => ({ __version__: 3, collection: { [x.id]: { value: { value: { id: x.id }, role: 'editor' } } } }));
+      expect(await pend.loadImportPending({ pending: [p(1)] }, otherTable.sync)).toBe(false);
+      // 하나만 빠져도 전체는 「일부 못 올라옴」, 호출은 포인터마다 한 번
+      const one = recorder(() => false, (x) => (x.id === 'id-2' ? { __version__: 3 } : { __version__: 3, [x.table]: { [x.id]: { value: { value: { id: x.id }, role: 'editor' } } } }));
+      expect(await pend.loadImportPending({ pending: [p(1), p(2), p(3)] }, one.sync)).toBe(false);
+      expect(one.calls).toEqual([['id-1'], ['id-2'], ['id-3']]);
+    });
+
+    it('요청한 id가 응답에 있으면 「다 올라옴」', async () => {
+      const a = recorder();
+      expect(await pend.loadImportPending({ pending: [p(1), p(2)] }, a.sync)).toBe(true);
+      expect(a.calls).toEqual([['id-1'], ['id-2']]);
+    });
 
     it('pending이 없으면 아무것도 부르지 않고 「다 올라옴」', async () => {
       const a = recorder();

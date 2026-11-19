@@ -9,7 +9,6 @@ import { api, uploadFile, ApiError } from '../../lib/api.ts';
 import { isLargeZip, prepareLargeZip, settleLargeZip, type LargeZipDeps } from './largeZipImport.ts';
 import { ZipReadError } from './zipReader.ts';
 import { loadImportPending, type ImportDeferred } from './importPending.ts';
-import { syncRecords } from '../../lib/store/sync.ts';
 import { records } from '../../lib/store/records.ts';
 import { useSession } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
@@ -178,7 +177,11 @@ export async function importUploaded(uploaded: Uploaded[], target: ImportTarget 
   }
   records.mergeRecordMap(res.recordMap);
   // 응답이 바이트 예산 때문에 싣지 못한 레코드는 따로 받는다. 여기서 실패해도 가져오기는 이미 저장됐다 — 다시 보내지 않고 안내만 구분한다
-  const loaded = await loadImportPending(res, syncRecords);
+  const loaded = await loadImportPending(res, async (pointers) => {
+    const got = await api<{ recordMap?: any }>('fetchRecords', { requests: pointers.map((p) => ({ pointer: p, version: -1 })) });
+    records.mergeRecordMap(got?.recordMap);
+    return got?.recordMap; // 요청한 포인터가 실제로 왔는지는 loadImportPending이 확인한다
+  });
   const entry: HistoryEntry = { time: Date.now(), files: uploaded.map((f) => f.name), pageIds: res.pageIds, pages: res.pages, databases: res.databases, spaceId, ...(loaded ? {} : { viewIncomplete: true }) };
   pushHistory(entry);
   return entry;

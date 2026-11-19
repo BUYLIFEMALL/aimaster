@@ -16,6 +16,8 @@ export const PENDING_MAX_FAILS_IN_A_ROW = 3;
 
 /**
  * pending 포인터를 `sync`로 받는다. 돌려주는 값은 「화면에 다 올라왔는가」.
+ * `sync`는 받은 recordMap을 돌려준다. 요청이 성공(200)해도 요청한 포인터가 그 안에 없으면(빈 맵, 다른 id만 있음 — 권한이 바뀌었거나
+ * 레코드가 없어짐) 올라온 것으로 치지 않는다.
  * 포인터마다 한 번만 부른다(실패한 것을 다시 부르지 않는다). false면 부르는 쪽이 「저장은 됐고 화면 일부는 새로 고침 뒤 보인다」고 안내한다.
  */
 export async function loadImportPending(res: ImportDeferred, sync: (pointers: ImportPointer[]) => Promise<unknown>): Promise<boolean> {
@@ -24,8 +26,11 @@ export async function loadImportPending(res: ImportDeferred, sync: (pointers: Im
   let failsInARow = 0;
   for (const p of list.slice(0, PENDING_MAX_REQUESTS)) {
     try {
-      await sync([{ table: p.table, id: p.id }]);
+      const got = (await sync([{ table: p.table, id: p.id }])) as Record<string, Record<string, unknown> | undefined> | null | undefined;
       failsInARow = 0;
+      // 서버는 답했지만 이 레코드는 오지 않았다 — 다시 부르지 않고 「일부 못 올라옴」으로만 남긴다
+      const bucket = got && typeof got === 'object' ? got[p.table] : undefined;
+      if (!bucket || typeof bucket !== 'object' || !Object.prototype.hasOwnProperty.call(bucket, p.id) || !bucket[p.id]) complete = false;
     } catch {
       complete = false;
       if (++failsInARow >= PENDING_MAX_FAILS_IN_A_ROW) break;
