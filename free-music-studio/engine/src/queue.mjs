@@ -116,9 +116,17 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
       }
       // 새 그림 사이트 범위(failClosed): 배열 안 항목까지 본다 — 항목이 깨졌는데 그대로 쓰면 아래 정리에서 예외가 나
       // 엔진 기동(최상위 await)까지 막을 수 있다. 하나라도 올바르지 않으면 이 대기열만 닫고 파일은 그대로 둔다.
-      if (failClosed && !broken && !jobs.every((j) => validJob(j) && validate(j) === true)) {
-        jobs = [];
-        broken = "작업 항목이 올바르지 않음";
+      if (failClosed && !broken) {
+        let ok = false;
+        try {
+          ok = jobs.every((j) => validJob(j) && validate(j) === true);
+        } catch {
+          ok = false; // 검증하다 난 예외도 손상으로 본다
+        }
+        if (!ok) {
+          jobs = [];
+          broken = "작업 항목이 올바르지 않음";
+        }
       }
       if (broken) {
         log(new QueueClosedError(broken));

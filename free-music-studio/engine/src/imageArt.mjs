@@ -224,11 +224,11 @@ export function isScopedArtJob(j) {
   const str = (v) => typeof v === "string" && v.length > 0;
   if (!j || j.kind !== "art" || !str(j.title) || !str(j.site) || !str(j.scope)) return false;
   if (!/^https?:\/\/[^/\s]+$/.test(j.site)) return false;
-  if (!str(j.clientRequestId) || !SCOPED_REQUEST_ID.test(j.clientRequestId) || !/^[0-9a-f]{64}$/.test(j.digest ?? "")) return false;
+  if (!str(j.clientRequestId) || !SCOPED_REQUEST_ID.test(j.clientRequestId) || !str(j.digest) || !/^[0-9a-f]{64}$/.test(j.digest)) return false;
   if (!j.track || typeof j.track !== "object" || !str(j.track.id)) return false;
   const t = j.task;
   if (!t || typeof t !== "object" || Array.isArray(t) || !str(t.prompt)) return false;
-  if (t.variantId !== undefined && !findImageVariant(t.variantId)) return false;
+  if (t.variantId !== undefined && !(str(t.variantId) && findImageVariant(t.variantId))) return false;
   const sized = t.width !== undefined || t.height !== undefined;
   if (sized && !(Number.isInteger(t.width) && Number.isInteger(t.height) && isImageSize(t.width, t.height))) return false;
   if (t.seed !== undefined && !(Number.isInteger(t.seed) && t.seed >= 0 && t.seed <= 2147483647)) return false;

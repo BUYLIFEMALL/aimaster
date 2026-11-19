@@ -690,3 +690,69 @@ test("기존 대기열 호환: 예전 형식(출처·범위·접수 번호 없�
     await rm(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
   }
 });
+
+test("검수 잔여 2: 값의 형태가 이상해 검증 도중 예외가 나도 새 대기열만 닫힌다(원본 보존·기존 대기열 계속)", async () => {
+  const now = new Date().toISOString();
+  const base = () => ({ id: randomUUID(), kind: "art", engine: "art", license: "commercial", title: "시험 그림", track: { id: randomUUID() }, task: { prompt: "a red apple on a wooden table" }, site: NEW, scope: randomUUID(), clientRequestId: `req-${randomUUID()}`, digest: "a".repeat(64), status: "queued", stage: "대기 중", createdAt: now, recorded: false });
+  assert.equal(isScopedArtJob(base()), true, "정상 표본");
+  // JSON으로 저장될 수 있는 이상한 형태 — 글자로 바꾸다 예외가 나는 객체, 배열, 숫자, null, 빈 객체
+  const odd = [{ toString: 1 }, { toString: null, valueOf: null }, [], [1], 0, 12, null, {}, true];
+  const cases = {};
+  for (const [i, v] of odd.entries()) {
+    for (const k of ["digest", "clientRequestId", "site", "scope", "title"]) cases[`${k}=${JSON.stringify(v)}#${i}`] = { ...base(), [k]: v };
+    cases[`task.prompt=${JSON.stringify(v)}#${i}`] = { ...base(), task: { prompt: v } };
+    cases[`task.variantId=${JSON.stringify(v)}#${i}`] = { ...base(), task: { prompt: "a red apple on a wooden table", variantId: v } };
+    cases[`track.id=${JSON.stringify(v)}#${i}`] = { ...base(), track: { id: v } };
+    cases[`task=${JSON.stringify(v)}#${i}`] = { ...base(), task: v };
+  }
+  // 1) 검증 함수는 어떤 형태에도 예외 없이 false
+  for (const [name, job] of Object.entries(cases)) {
+    const parsed = JSON.parse(JSON.stringify(job)); // 파일에서 읽은 것과 같은 값
+    assert.doesNotThrow(() => isScopedArtJob(parsed), name);
+    assert.equal(isScopedArtJob(parsed), false, `${name}: 걸러야 함`);
+  }
+  // 2) 실제 읽기 — 대표 형태마다 닫힘·원본 보존·기존 대기열 계속
+  const picks = ["digest", "clientRequestId", "site", "scope", "task.variantId", "task.prompt"].map((k) => Object.entries(cases).find(([n]) => n.startsWith(`${k}={"toString":1}`)));
+  for (const [name, job] of picks) {
+    const dir = await tmp();
+    const bytes = Buffer.from(JSON.stringify({ jobs: [job] }, null, 2));
+    await writeFile(path.join(dir, "queue-scoped.json"), bytes);
+    let e;
+    try {
+      e = await engine(dir); // 읽다가 예외가 새면 여기서 실패한다
+      assert.ok(e.scopedQueue.broken, `${name}: 닫혀야 함`);
+      const legacy = (await e.pair(MUSIC)).body.token;
+      const lj = (await e.call("POST", "/queue", { origin: MUSIC, token: legacy, body: legacyArt() })).body.job;
+      assert.ok(await until(() => e.queue.get(lj.id)?.status === "done"), `${name}: 기존 대기열은 돌아야 함`);
+      await sleep(40);
+      assert.deepEqual(e.stat.ran, [lj.id], `${name}: 손상 기록이 실행됨`);
+      assert.ok(bytes.equals(await readFile(e.files.queueScoped)), `${name}: 파일이 바뀜`);
+    } finally {
+      await e?.close();
+      await rm(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
+    }
+  }
+  // 3) 검증 함수 자체가 예외를 던져도(앞으로 검증이 바뀌어 생길 수 있는 경우) 대기열은 닫힐 뿐 읽기가 실패하지 않는다
+  const dir = await tmp();
+  const bytes = Buffer.from(JSON.stringify({ jobs: [base()] }));
+  await writeFile(path.join(dir, "queue-scoped.json"), bytes);
+  const q = createQueue({ file: path.join(dir, "queue-scoped.json"), failClosed: true, run: async () => ({}), validate: () => { throw new TypeError("검증 중 예외"); } });
+  try {
+    await assert.doesNotReject(q.load());
+    assert.ok(q.broken);
+    assert.ok(bytes.equals(await readFile(path.join(dir, "queue-scoped.json"))));
+  } finally {
+    await rm(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
+  }
+  // 4) 정상 저장본은 닫히지 않는다
+  const okDir = await tmp();
+  await writeFile(path.join(okDir, "queue-scoped.json"), JSON.stringify({ jobs: [base()] }));
+  const e = await engine(okDir);
+  try {
+    assert.equal(e.scopedQueue.broken, "");
+    assert.equal(e.scopedQueue.list().length, 1);
+  } finally {
+    await e.close();
+    await rm(okDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
+  }
+});
