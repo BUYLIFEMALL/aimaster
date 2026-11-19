@@ -94,7 +94,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## 2026-11-19 v1.17 — 취소 안내·공용 인코더 탭 단위 멈춤 기억 배포 (Claud(Music) `claude-win-20261024-music`, 주인님 「진행해」 승인 빌드 1회)
 - 내보낸 것: `fe402b1df` MP4 내보내기 「■ 취소」 → 오류 상자 대신 일반 안내(`role=status`), 진짜 실패는 그대로 오류 상자 · `2b9a06c9c` 공용 `browser-mp4-encoder` 사본 — 가속 멈춤 뒤 기본 방식 대체가 성공하면 같은 탭의 다음 내보내기는 기본 방식부터(10초 대기 생략), 새로고침 때 초기화
-- 검증: 시험 36·tsc·공용 사본 OK. 배포 `lyric-video-studio-eiliu83hu` Ready·DB v1.17, 운영 ego(시험 계정) 메뉴 v1.17. 운영 취소 1회·MP4 1회 실물 확인은 남음
+- 검증: 시험 36·tsc·공용 사본 OK. 배포 `lyric-video-studio-eiliu83hu` Ready·DB v1.17, 운영 ego(시험 계정) 메뉴 v1.17. 운영 실물(11-19, ego·시험 계정·20초 WAV·가사 3줄): MP4 만들기 3.5초 뒤 「■ 취소」 → 오류 상자 없이 `role=status` 「⏹ 영상 만들기를 취소했습니다…」 / 바로 다시 만들기 → 안내 지워짐, 1920×1080 30fps 메모리 방식 100%·5초·4.0MB 완성(작성자 쪽 확인, 독립 검증 아님)
 
 ## 2026-11-16 v1.16 — 「파일로 바로 저장」 인코더 멈춤 대체 배포 (Claud(Music) `claude-win-20261024-music`, 주인님 「가사영상 v1.16 배포 진행해」 승인 빌드 1회)
 - 내보낸 것: 공용 `browser-mp4-encoder` 사본 수정 `4936c5e72`(영상 담당 MOV-20261116-05) — 파일 저장 방식에서 그래픽 가속 인코더가 멈추면 이전 쓰기를 버리고 같은 파일 핸들에 새 쓰기를 열어 기본 방식으로 1번 다시 쓴다(`export.ts` `reopenStream`). 취소·멈춤 아닌 오류는 다시 시도하지 않음. 버전 커밋 `d65c40617`.
