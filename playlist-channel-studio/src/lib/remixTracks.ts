@@ -128,6 +128,16 @@ export function splitIncoming(suno: string[], remix: string[], max: number): Inc
 /** 목록 응답 상태 — 대기(이전 목록 유지)·실패·성공을 구분한다. remixOk=false는 일반 곡만 받은 부분 성공 */
 export type ListView = { state: "idle" | "loading" } | { state: "error" } | { state: "ok"; selectable: string[]; remixOk: boolean };
 
+/** 지금 목록에서 고를 수 있는 곡 중 선택된 것만 — 목록에서 사라졌거나 받을 수 없는 번호는 추가·20곡 한도 계산에 넣지 않는다 */
+export function pickedInList(picked: string[], selectable: string[]): string[] {
+  const ok = new Set(selectable);
+  return picked.filter((id) => ok.has(id));
+}
+export const canPickMore = (picked: string[], selectable: string[], max: number): boolean => pickedInList(picked, selectable).length < max;
+
+/** 「선택한 곡 추가」를 마친 뒤 받은 곡 번호 — 이미 미리 선택까지 처리한 출처만 비우고, 리믹스 부분 실패로 보류 중인 출처는 남긴다 */
+export const afterAdd = (inc: Incoming, done: { suno: boolean; remix: boolean }): Incoming => ({ suno: done.suno ? [] : inc.suno, remix: done.remix ? [] : inc.remix });
+
 /** 늦게 도착한 옛 요청의 응답은 버린다(새로고침을 연달아 눌러 응답 순서가 뒤바뀌어도 마지막 요청 결과만) */
 export const acceptResponse = (requestId: number, latestId: number): boolean => requestId === latestId;
 
@@ -142,7 +152,8 @@ export function seedStep(inc: Incoming, done: { suno: boolean; remix: boolean },
   if (!takeSuno && !takeRemix) return { picked, done };
   const ok = new Set(view.selectable), now = new Set(picked);
   const add = [...(takeSuno ? inc.suno : []), ...(takeRemix ? inc.remix : [])].filter((id) => ok.has(id) && !now.has(id));
-  return { picked: [...picked, ...add.slice(0, Math.max(0, max - picked.length))], done: { suno: done.suno || takeSuno, remix: done.remix || takeRemix } };
+  const room = max - pickedInList(picked, view.selectable).length; // 목록에서 사라진 옛 선택은 칸을 차지하지 않음
+  return { picked: [...picked, ...add.slice(0, Math.max(0, room))], done: { suno: done.suno || takeSuno, remix: done.remix || takeRemix } };
 }
 
 /**
@@ -160,6 +171,7 @@ export function incomingNotice(inc: Incoming, view: ListView, picked: string[]):
   const checked = [...inc.suno, ...(view.remixOk ? inc.remix : [])];
   const found = checked.filter((id) => ok.has(id));
   const now = found.filter((id) => sel.has(id)).length, missing = checked.length - found.length;
+  if (!checked.length && pending) return `리믹스 목록을 불러오지 못해 보낸 리믹스 ${pending}개를 아직 선택하지 못했습니다 — 「새로고침」을 눌러 주세요.`;
   return `음악(SUNO) 자동화에서 보낸 곡 ${n}개 중 ${found.length}개를 내 곡 목록에서 찾아 미리 선택했습니다(그중 지금 선택 ${now}개).`
     + (missing ? ` ${missing}개는 목록에 없거나 음원이 저장되지 않아 선택하지 못했습니다(일반 곡 최근 40곡·리믹스 최근 20개, 완성된 내 곡만).` : "")
     + (pending ? ` 리믹스 목록을 불러오지 못해 리믹스 ${pending}개는 아직 선택하지 못했습니다 — 「새로고침」을 눌러 주세요.` : "")

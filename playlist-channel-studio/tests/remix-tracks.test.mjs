@@ -256,7 +256,7 @@ test("손으로 해제한 곡은 되살리지 않고, 복구된 리믹스만 더
   s = seedStep(inc, s.done, ok([A, B, C, D], true), s.picked, 20);
   assert.deepEqual(s.picked, [B, C, D], "A는 다시 고르지 않음");
   const full = Array.from({ length: 19 }, (_, i) => `${String(i).padStart(8, "0")}-1111-1111-1111-111111111111`);
-  const capped = seedStep({ suno: [], remix: [C, D] }, { suno: true, remix: false }, ok([C, D]), full, 20);
+  const capped = seedStep({ suno: [], remix: [C, D] }, { suno: true, remix: false }, ok([...full, C, D]), full, 20); // 19곡이 목록에 있는 선택일 때
   assert.equal(capped.picked.length, 20);
   assert.deepEqual(capped.picked.slice(-1), [C]);
   const again = seedStep(inc, { suno: true, remix: true }, ok([A, B, C, D]), [], 20);
@@ -307,4 +307,48 @@ test("서버·화면 연결: 부분 실패 신호, 요청 번호, 실제 성공�
   assert.match(ui, /const pickedHere = selectable\.filter/);
   assert.match(ui, /const usable = t\.variants\.find\(\(v\) => !v\.blocked\);/);
   assert.match(ui, /disabled=\{!!busy \|\| !t\.variants\.some\(\(v\) => !v\.blocked\)\} onClick=\{\(\) => void useCover\(t\)\}/);
+});
+
+// ── 부분 실패 중 추가 (Master msg_33c8502d9f0d, Mac msg_4abb0464a25e) ──
+import { afterAdd, canPickMore, pickedInList } from "../src/lib/remixTracks.ts";
+
+test("부분 실패 중 일반 곡을 먼저 추가해도 보류 중인 리믹스 번호는 남고, 복구되면 리믹스만 미리 선택", () => {
+  const inc = { suno: [A], remix: [C] };
+  let s = seedStep(inc, NONE, ok([A, B], false), [], 20);
+  assert.deepEqual(s, { picked: [A], done: { suno: true, remix: false } });
+  // 「선택한 곡 추가」 완료 → 화면은 선택을 비우고 afterAdd로 받은 곡을 정리
+  const left = afterAdd(inc, s.done);
+  assert.deepEqual(left, { suno: [], remix: [C] }, "처리한 일반 곡만 비움");
+  assert.match(incomingNotice(left, ok([A, B], false), []), /보낸 리믹스 1개를 아직 선택하지 못했습니다/);
+  // 정상 재조회(리믹스 복구)
+  s = seedStep(left, s.done, ok([A, B, C], true), [], 20);
+  assert.deepEqual(s, { picked: [C], done: { suno: true, remix: true } }, "추가한 일반 곡은 다시 고르지 않고 리믹스만");
+  assert.match(incomingNotice(left, ok([A, B, C], true), s.picked), /보낸 곡 1개 중 1개를 .*지금 선택 1개/);
+  // 회원이 리믹스를 해제한 뒤 또 새로고침해도 되살리지 않음
+  assert.deepEqual(seedStep(left, s.done, ok([A, B, C], true), [], 20).picked, []);
+  assert.deepEqual(afterAdd(left, s.done), { suno: [], remix: [] }, "리믹스까지 처리하면 모두 비움");
+});
+
+test("일반 곡만 받은 기존 흐름 회귀: 성공 → 추가 뒤 받은 곡 모두 비움, 같은 응답에서 다시 선택 없음", () => {
+  const inc = { suno: [A, B], remix: [] };
+  const s = seedStep(inc, NONE, ok([A, B]), [], 20);
+  assert.deepEqual(s, { picked: [A, B], done: { suno: true, remix: true } });
+  assert.deepEqual(afterAdd(inc, s.done), { suno: [], remix: [] });
+});
+
+test("목록에서 사라진 곡은 실제 추가·20곡 한도 계산에서 빠진다", () => {
+  const gone = Array.from({ length: 20 }, (_, i) => `${String(i).padStart(8, "0")}-2222-2222-2222-222222222222`);
+  assert.deepEqual(pickedInList([...gone, A], [A, B]), [A]);
+  assert.equal(canPickMore([...gone, A], [A, B], 20), true, "사라진 20개는 칸을 차지하지 않음");
+  assert.equal(canPickMore(gone.slice(0, 19).concat([A]), [...gone.slice(0, 19), A, B], 20), false, "목록에 있는 20개면 막힘");
+  const s = seedStep({ suno: [], remix: [C] }, { suno: true, remix: false }, ok([C]), gone, 20);
+  assert.ok(s.picked.includes(C), "미리 선택 남은 칸도 목록에 있는 선택만 세서 계산");
+});
+
+test("화면 연결: 추가 뒤 afterAdd, 수동 선택 한도는 canPickMore(지금 목록 기준)", () => {
+  const ui = readFileSync(new URL("../src/components/video/SunoImportPanel.tsx", import.meta.url), "utf8");
+  assert.match(ui, /setIncoming\(afterAdd\(incoming, seedDone\)\)/);
+  assert.doesNotMatch(ui, /setIncoming\(\{ suno: \[\], remix: \[\] \}\)/);
+  assert.match(ui, /!canPickMore\(p, selectableIds, MAX_PICK\)/);
+  assert.match(ui, /const pickedHere = selectable\.filter/, "실제 추가는 지금 목록에 있는 선택만");
 });

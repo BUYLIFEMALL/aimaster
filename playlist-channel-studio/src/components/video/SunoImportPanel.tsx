@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ExternalLink, Loader2, Music2, RefreshCw } from "lucide-react";
 import type { Track } from "@/types/playlist";
 import type { LyricLine } from "@/lib/lyrics";
-import { acceptResponse, incomingNotice, parseIdParam, seedStep, splitIncoming, type Incoming, type ListView } from "@/lib/remixTracks";
+import { acceptResponse, afterAdd, canPickMore, incomingNotice, parseIdParam, seedStep, splitIncoming, type Incoming, type ListView } from "@/lib/remixTracks";
 
 // v1.19 음악(SUNO) 자동화에서 만든 내 곡 여러 개를 골라 플레이리스트 곡 목록에 한 번에 추가한다.
 // 음악은 비공개 저장소의 1시간 서명 주소로 받고(서버에 새로 올리지 않음), 「시간 가사도 받기」를 켜면
@@ -115,7 +115,8 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- 응답(상태·고를 수 있는 곡)이 바뀔 때만 한 단계, 선택 변화로는 다시 돌지 않음
   }, [loadState, selectableKey, remixOk, incoming, seedDone]);
   const notice = incomingNotice(incoming, view, picked);
-  const toggle = (id: string) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : p.length >= MAX_PICK ? p : [...p, id]));
+  const selectableIds = selectable.map((a) => a.v.id);
+  const toggle = (id: string) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : !canPickMore(p, selectableIds, MAX_PICK) ? p : [...p, id])); // 한도는 지금 목록에 있는 선택만 센다
   const pickWhere = (fn: (t: SunoTrack) => boolean) => setPicked(selectable.filter((a) => fn(a.t)).map((a) => a.v.id).slice(0, MAX_PICK));
   const pickedHere = selectable.filter((a) => picked.includes(a.v.id));
   const timeCalls = withTime ? pickedHere.filter((a) => a.v.canTime && !timedCache.has(a.v.id)).length : 0;
@@ -180,7 +181,7 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
       try { setBgMedia(await coverBackdrop(firstCover.url, firstCover.title, albumText(firstCover.title))); bgDone = ` 배경은 「${firstCover.title}」 커버로 만들었습니다.`; }
       catch (e) { problems.push(`배경: ${e instanceof Error ? e.message : "만들지 못함"}`); }
     }
-    setBusy(""); setPicked([]); setIncoming({ suno: [], remix: [] });
+    setBusy(""); setPicked([]); setIncoming(afterAdd(incoming, seedDone)); // 보류 중인 리믹스 번호는 남겨 복구 뒤 미리 선택
     setReport({ ok: problems.length === 0, needKey, text: `곡 ${added.length}개를 목록 끝에 추가했습니다${timedCount ? ` (시간 가사 ${timedCount}곡)` : ""}.${bgDone}${problems.length ? ` 확인할 것: ${problems.join(" / ")}` : ""}` });
   }
 
