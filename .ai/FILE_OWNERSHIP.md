@@ -443,3 +443,5 @@ MOV-SVS-RELEVANCE-UI-CLARITY A2 CC-MOVIE-01: Master msg_5103595a2f83(기준 c31b
 MOV-SVS-RELEVANCE-UI-CLARITY A2 점유 해제 CC-MOVIE-01: 9b3d91af5(안내 분리·제외 요약 단일 표시, relevance 10/10, npm test 17/17, tsc 0).
 
 WS-TIMER-ERROR-BUCKETS CC-WORKSPACE-01: Master msg_f768111041fc. ai-work-workspace/src/litpage/server/db.ts(새 내보내기 timerErrorBucket 한 함수와 고정 표, 기존 errorKind·startup 기록 무변경)·api/modules/pages.ts(유휴 스냅숏 catch 한 줄)·agents/triggers.ts(일정 재등록 catch 한 줄)·tests/integration/startupBoundary.test.ts(회귀 추가)·본인 문서. v1.64 후보(3d446effa·54183605c)와 별도 SHA. 운영 조회·쓰기·cron·빌드·배포·push 없음.
+
+WS-TIMER-ERROR-BUCKETS 점유 해제 CC-WORKSPACE-01: 로컬 후보 53add833c(db.ts timerErrorBucket·pages.ts·agents/triggers.ts catch 각 한 줄·startupBoundary.test.ts 21개·문서). 전체 1,088/1,089·tsc 0. 미배포, v1.64 후보와 별도. 독립 검수 CX-QA-01 대기.
