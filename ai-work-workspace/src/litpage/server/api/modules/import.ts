@@ -70,6 +70,9 @@ const JOB_TTL_MS = 24 * 3_600_000;
 
 const MAX_FILES = 20;
 const MAX_BLOCKS = 20_000;
+/** 2026-11-19(WS-20261119-03): importFiles 응답에 바뀐 레코드를 모두 싣는 상한. 이보다 많이 바뀌면 뿌리 페이지 범위만 싣는다.
+ *  (문서가 많은 ZIP에서 응답이 수 MB가 되어 서버리스 응답 한도를 넘는다 — 201쪽·약 4,800블록에서 3.6MB 측정) */
+const FULL_RECORD_MAP_MAX = 1000;
 const PAGE_EXT = ZIP_PAGE_EXT;
 /** File types importFiles accepts directly (ZIP aside): + Evernote .enex and Trello board .json exports. */
 export const IMPORT_EXT = /\.(md|markdown|txt|csv|tsv|html?|docx|pdf|xlsx|opml|enex|json)$/i;
@@ -536,7 +539,25 @@ export const handlers: Record<string, Handler> = {
     }
     const changes = applyTransactions(uid, [{ id: newId(), spaceId: space.id, debug: { userAction: 'importFiles' }, operations: ops }], ctx.clientId);
     const rm = new RecordMapBuilder(uid);
-    for (const ch of changes) rm.add(ch.table, ch.record);
+    // 바뀐 레코드가 많으면 화면이 바로 쓰는 것만 싣는다: 뿌리 페이지(와 그 데이터베이스·보기), 넣은 자리의 부모, 블록이 아닌 레코드
+    // (사이드바 목록 등). 나머지 본문은 화면이 페이지를 열 때 loadPage·getSidebarChildren으로 읽는다. 적은 가져오기는 예전 그대로 모두 싣는다.
+    const partial = changes.length > FULL_RECORD_MAP_MAX;
+    if (!partial) {
+      for (const ch of changes) rm.add(ch.table, ch.record);
+    } else {
+      const keep = new Set<string>(rootIds.map((id) => `block:${id}`));
+      if (target.table === 'block') keep.add(`block:${target.id}`);
+      for (const ch of changes) {
+        if (ch.table !== 'block' || !rootIds.includes(ch.record.id)) continue;
+        const b = ch.record as BlockRecord;
+        if (b.collection_id) keep.add(`collection:${b.collection_id}`);
+        for (const v of b.view_ids ?? []) keep.add(`collection_view:${v}`);
+      }
+      for (const ch of changes) {
+        const tree = ch.table === 'block' || ch.table === 'collection' || ch.table === 'collection_view';
+        if (!tree || keep.has(`${ch.table}:${ch.record.id}`)) rm.add(ch.table, ch.record);
+      }
+    }
     const counts = countPages(specs);
     // 작업을 끝냄으로 표시하고 결과와 실제로 쓰인 그림을 적어 둔다(마무리 단계가 쓰이지 않은 그림만 지운다)
     if (job) {
@@ -544,7 +565,7 @@ export const handlers: Record<string, Handler> = {
       const r = db.prepare("UPDATE import_jobs SET state = 'done', result = ? WHERE id = ? AND user_id = ? AND state = 'open'").run(JSON.stringify({ pageIds: rootIds, ...counts, used: [...usedAssets] }), job.id, uid);
       if (!r.changes) throw new JobTaken();
     }
-    return { pageIds: rootIds, ...counts, recordMap: rm.map };
+    return { pageIds: rootIds, ...counts, recordMap: rm.map, ...(partial ? { partial: true } : {}) };
     });
     } catch (e) {
       // 같은 작업이 그사이 다른 요청으로 끝났다(여기서 만든 것은 되돌려졌다) → 그 결과를 돌려준다. 취소된 작업이면 jobOrThrow가 409
