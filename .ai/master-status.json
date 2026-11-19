@@ -6078,22 +6078,22 @@
       "reviewer": "CX-QA-01",
       "title": "B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계",
       "status": "reviewing",
-      "delivery": "same_sha_render_environment_requested",
+      "delivery": "private_lab_dev_start_authorized",
       "sha": "ad046c1eb",
-      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8·msg_9f9b2521f4a8·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_621b8cb49fa9·msg_aa1479ca4c17·c17cca668·msg_e5e7af9da7fe·msg_c15db5ced233·msg_b17ccd22bc09·msg_d96d3bf2fcdb·ad046c1eb·msg_07fb8a6c148a·msg_3c961902ac23·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_92995c9f1a9f",
-      "next": "Mac 소스 수락. CC-B2B-BACK-01에 동일 SHA·Mac 접근 가능 화면 확인 요청, 확보 후 CX-QA-01 375px·키보드 검수. 미배포.",
-      "lastReviewedAt": "2026-11-19T01:49:28.990Z"
+      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8·msg_9f9b2521f4a8·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_621b8cb49fa9·msg_aa1479ca4c17·c17cca668·msg_e5e7af9da7fe·msg_c15db5ced233·msg_b17ccd22bc09·msg_d96d3bf2fcdb·ad046c1eb·msg_07fb8a6c148a·msg_3c961902ac23·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_92995c9f1a9f·msg_1c61b1683760·msg_a52a36de3fcf",
+      "next": "3210 리스너 없음·원격 Lab SHA 미확인. Backend에 동일 SHA ad046c1eb 검수용 사설 dev 1회 재개 지시. 주소/PID/SHA 확인 후 Mac 실화면 검수.",
+      "lastReviewedAt": "2026-11-19T01:51:40.258Z"
     },
     {
       "task_id": "IMG-20261119-PLAN",
-      "owner": "미배정",
-      "reviewer": "CX-MASTER-01",
+      "owner": "CC-ECOM-01",
+      "reviewer": "CX-QA-01",
       "title": "AI 무료 이미지 자동화 개발 플랜",
-      "status": "queued",
-      "delivery": "windows_gpu_preflight_complete_developer_selection_pending",
-      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기",
-      "next": "무료 후보 진행·개발 담당자 주인님 지정 확인. 현재 Windows Intel Arc 확인, 지원 런타임·VRAM·생성 미측정. P0 담당 지정 후 실기 비교.",
-      "lastReviewedAt": "2026-11-19T01:49:28.990Z"
+      "status": "running",
+      "delivery": "owner_assigned_developer_accepted_p0_planning",
+      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기·msg_4423e8b13051·msg_6d81c947bd00",
+      "next": "주인님 지정으로 CC-ECOM-01 수락, CX-QA-01 검수. Intel Arc Vulkan·RTX CUDA 시험표 및 의존성/점유 범위 준비 착수, 모델 설치·실측 전.",
+      "lastReviewedAt": "2026-11-19T01:51:40.258Z"
     },
     {
       "task_id": "ECOM-20261119-EMOTION-QA",
@@ -6101,10 +6101,10 @@
       "reviewer": "CX-MASTER-01",
       "title": "감성 글귀 합성 기존 결과 맥미니 화면 검수",
       "status": "reviewing",
-      "delivery": "mac_read_only_existing_composite_review_dispatched",
-      "evidence": "msg_34a8d9c8b06f·msg_de03e2b05eec",
-      "next": "기존 결과·버전 확인 후 한글 줄바꿈·잘림·가독성·375px를 읽기 검수. 전송 확인, 수락 대기.",
-      "lastReviewedAt": "2026-11-19T01:49:28.990Z"
+      "delivery": "initial_layout_verified_composite_evidence_requested",
+      "evidence": "msg_34a8d9c8b06f·msg_de03e2b05eec·msg_785b9a796c77·.ai/results/ECOM-20261119-EMOTION-CX-QA-01.md·msg_6d81c947bd00",
+      "next": "Mac 운영 v1.37 로그인 및 1308/375 초기 화면 가로 넘침 없음. 합성 결과 미확인, 기존 탭·동일 결과 전달을 CC-ECOM-01에 요청.",
+      "lastReviewedAt": "2026-11-19T01:51:40.258Z"
     }
   ],
   "programOverrides": [
