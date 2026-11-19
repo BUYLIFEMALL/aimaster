@@ -339,6 +339,51 @@ test("메모는 200자까지: 넘으면 지정이 거절되고(상태·이력 �
   assert.equal(state(), before);
 });
 
+test("잠금 순서: 관리자 지정·정리·원복이 모두 「허용 표 → 이력 표」 순서로 잡는다(엇갈리면 겹쳤을 때 서로 기다리다 멈출 수 있다)", SKIP, () => {
+  const src = (fn) => q(`select prosrc from pg_proc where oid = '${FN}${fn}'::regprocedure;`);
+  const first = (text, needle) => { const i = text.indexOf(needle); assert.notEqual(i, -1, needle); return i; };
+  const purge = src("purge_history()");
+  assert.equal(first(purge, "delete from public.aif_platform_scheduler_allowlist a") < first(purge, "delete from public.aif_platform_scheduler_allowlist_events e"), true, "정리: 허용 표를 먼저");
+  const set = src("admin_set(uuid, boolean, text)");
+  const lastAllow = Math.max(set.lastIndexOf("update public.aif_platform_scheduler_allowlist\n"), set.lastIndexOf("insert into public.aif_platform_scheduler_allowlist ("), set.lastIndexOf("from public.aif_platform_scheduler_allowlist a where a.user_id = p_user for update"));
+  assert.equal(lastAllow > 0 && lastAllow < first(set, "insert into public.aif_platform_scheduler_allowlist_events"), true, "지정·철회: 허용 표의 일이 모두 끝난 뒤 이력에 쓴다");
+  assert.equal(ROLLBACK.includes("lock table public.aif_member_scheduler, public.aif_platform_scheduler_allowlist, public.aif_platform_scheduler_allowlist_events in access exclusive mode;"), true, "원복: 세 표를 같은 순서로 한꺼번에");
+});
+
+test("정리와 관리자 재허용이 겹칠 때(재허용이 먼저): 정리는 기다렸다가 「지금은 허용 중」인 그 행을 지우지 않는다", SKIP, async () => {
+  const before = state(), u = "00000000-0000-4000-8000-0000000000f1";
+  q(`insert into auth.users (id) values ('${u}'); insert into public.profiles (id) values ('${u}');
+     insert into public.aif_platform_scheduler_allowlist (user_id, granted_at, granted_by, revoked_at, revoked_by) values ('${u}', now() - interval '14 months', '${U.admin}', now() - interval '13 months', '${U.admin}');`);
+  const regrant = session(as("authenticated", U.admin, `begin; select ${FN}admin_set('${u}', true, '겹친 재허용'); select pg_sleep(1.5); commit;`));
+  await wait(500);
+  const purge = await session(as("service_role", null, `select events_deleted || ':' || rows_deleted from ${FN}purge_history();`));
+  const a = await regrant;
+  assert.equal(a.ok && purge.ok, true, a.err + purge.err);
+  assert.match(a.out, /regranted/);
+  assert.equal(purge.ms >= 700, true, `정리가 재허용이 끝날 때까지 기다렸다(${purge.ms}ms)`);
+  assert.equal(lastLine(purge.out), "0:0", "재허용된 행은 정리 대상이 아니다");
+  assert.equal(isAllowed(u), "t");
+  q(`delete from auth.users where id = '${u}'; delete from public.aif_platform_scheduler_allowlist_events where user_id = '${u}';`);
+  assert.equal(state(), before);
+});
+
+test("정리와 관리자 지정이 겹칠 때(정리가 먼저): 지정은 기다렸다가 새로 지정된다 — 지워진 행을 붙잡고 실패하지 않는다", SKIP, async () => {
+  const before = state(), u = "00000000-0000-4000-8000-0000000000f2";
+  q(`insert into auth.users (id) values ('${u}'); insert into public.profiles (id) values ('${u}');
+     insert into public.aif_platform_scheduler_allowlist (user_id, granted_at, granted_by, revoked_at, revoked_by) values ('${u}', now() - interval '14 months', '${U.admin}', now() - interval '13 months', '${U.admin}');`);
+  const purge = session(as("service_role", null, `begin; select events_deleted || ':' || rows_deleted from ${FN}purge_history(); select pg_sleep(1.5); commit;`));
+  await wait(500);
+  const grant = await session(adminSet(U.admin, u, true, "정리 직후 지정"));
+  const p = await purge;
+  assert.equal(p.ok && grant.ok, true, p.err + grant.err);
+  assert.match(p.out, /0:1/, "정리가 오래된 철회 행을 지웠다");
+  assert.equal(grant.ms >= 700, true, `지정이 정리가 끝날 때까지 기다렸다(${grant.ms}ms)`);
+  assert.equal(lastLine(grant.out), "granted", "행이 지워진 뒤라 새 지정이다");
+  assert.equal(isAllowed(u), "t");
+  q(`delete from auth.users where id = '${u}'; delete from public.aif_platform_scheduler_allowlist_events where user_id = '${u}';`);
+  assert.equal(state(), before);
+});
+
 // ── 동시성 ──
 test("동시 지정: 두 관리자가 같은 회원을 같은 순간 지정해도 한 번만 지정되고 이력도 한 줄이다", SKIP, async () => {
   const target = "00000000-0000-4000-8000-0000000000d1";
@@ -407,6 +452,22 @@ test("원복 동시성: 진행 중인 관리자 지정이 끝나길 기다렸다
   assert.equal(rb.ms >= 700, true, `원복이 지정이 끝날 때까지 기다렸다(${rb.ms}ms)`);
   assert.equal(shape(), s); assert.equal(isAllowed(U.m3), "t", "지정은 그대로 있다");
   q(`delete from public.aif_platform_scheduler_allowlist; delete from public.aif_platform_scheduler_allowlist_events;`);
+});
+
+test("원복 동시성: 진행 중인 정리 호출이 끝나길 기다렸다가 판단한다 — 서로 기다리다 멈추지 않는다", SKIP, async () => {
+  const s = shape();
+  // 정리가 지울 것이 있는 상태: 13개월 전 이력 1줄 + 최근 이력 1줄(이것이 남아 원복을 멈추게 한다)
+  q(`insert into public.aif_platform_scheduler_allowlist_events (user_id, action, actor_id, at) values ('${U.m3}', 'granted', '${U.admin}', now() - interval '13 months'), ('${U.m3}', 'revoked', '${U.admin}', now());`);
+  const purge = session(as("service_role", null, `begin; select events_deleted || ':' || rows_deleted from ${FN}purge_history(); select pg_sleep(1.5); commit;`));
+  await wait(500);
+  const rb = await session(ROLLBACK);
+  const p = await purge;
+  assert.equal(p.ok, true, p.err); assert.match(p.out, /1:0/);
+  assert.equal(rb.ok, false); assert.doesNotMatch(rb.err, /deadlock/);
+  assert.match(errOf(rb), /0 member choice\(s\), 0 allowlist row\(s\), 1 history event\(s\)/, "정리가 끝난 뒤의 상태(이력 1줄 남음)를 보고 멈췄다");
+  assert.equal(rb.ms >= 700, true, `원복이 정리가 끝날 때까지 기다렸다(${rb.ms}ms)`);
+  assert.equal(shape(), s);
+  q(`delete from public.aif_platform_scheduler_allowlist_events;`);
 });
 
 test("원복 동시성: 10초 안에 잠그지 못하면 아무것도 바꾸지 않고 오류로 끝난다(무한정 기다리지 않는다)", SKIP, async () => {

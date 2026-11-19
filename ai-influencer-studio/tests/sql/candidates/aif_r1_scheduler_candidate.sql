@@ -221,16 +221,19 @@ begin
     from public.aif_platform_scheduler_allowlist_events e where e.user_id = p_user order by e.id;
 end $$;
 
+-- 잠금 순서(이 후보의 모든 쓰기가 지킨다): 실행 방식 표 → 허용 표 → 이력 표.
+--   관리자 지정·철회(admin_set): 허용 표의 행 → 이력 표에 한 줄.   정리(purge_history): 허용 표 → 이력 표.   원복: 세 표를 이 순서로 한꺼번에 잠근다.
 -- 5. 보관 기간 정리 — 1년이 지난 이력과, 철회한 지 1년이 지난 허용 행을 지운다. 지금 허용 중인 행은 건드리지 않는다. 기간은 여기 고정이다.
 create function public.aif_platform_scheduler_purge_history() returns table (events_deleted bigint, rows_deleted bigint)
 language plpgsql security definer set search_path = pg_catalog, pg_temp
 as $$
 declare v_cutoff timestamptz := now() - interval '1 year'; v_events bigint; v_rows bigint;
 begin
-  delete from public.aif_platform_scheduler_allowlist_events e where e.at < v_cutoff;
-  get diagnostics v_events = row_count;
+  -- 잠금 순서는 어디서나 같다: 허용 표 → 이력 표(관리자 지정·철회도, 원복도 이 순서로 잡는다). 순서가 엇갈리면 겹쳤을 때 서로 기다리다 멈출 수 있다.
   delete from public.aif_platform_scheduler_allowlist a where a.revoked_at is not null and a.revoked_at < v_cutoff;
   get diagnostics v_rows = row_count;
+  delete from public.aif_platform_scheduler_allowlist_events e where e.at < v_cutoff;
+  get diagnostics v_events = row_count;
   return query select v_events, v_rows;
 end $$;
 
