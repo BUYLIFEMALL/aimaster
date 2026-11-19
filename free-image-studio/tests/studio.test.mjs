@@ -206,7 +206,7 @@ test("받았는지 모르는 줄을 기록에서 지우면 맡기다 만 묶음�
   assert.equal(unknown.state, "unknown");
   assert.equal(loadDraft(storage, A)[0].requestId, unknown.requestId, "묶음의 첫 장에 적어 둔 접수 번호로 맡겼다");
   // 사용자가 그 줄을 기록에서 지운다(화면의 「기록에서 지우기」와 같은 순서)
-  assert.equal(c.forget(unknown.requestId, { force: true }), true);
+  assert.equal(await c.forget(unknown.requestId, { force: true }), true);
   assert.equal(remainingItems(c, storage).length, 2, "기록을 지워도 보내려 한 표시가 남아 있어 「보낸 적 없는 장」으로 되살아나지 않는다");
   assert.equal(loadDraft(storage, A)[0].tried > 0, true);
   dropFromDraft(storage, A, unknown.requestId);

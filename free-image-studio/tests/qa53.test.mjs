@@ -95,7 +95,7 @@ test("반례(재검수) P2-1 — 묶음을 보관한 뒤 다른 조작이 같은
   assert.deepEqual(posts(engine).map((x) => x.body.clientRequestId), [other.requestId, ...draft.items.map((i) => i.requestId)]);
   assert.equal(engine.st.jobs.length, 3);
   // 반대로, 묶음의 장을 맡긴 뒤 내용이 같은 다른 접수를 지워도 묶음 쪽 기록은 그대로다
-  assert.equal(c.forget(other.requestId), true);
+  assert.equal(await c.forget(other.requestId), true);
   assert.deepEqual(c.submissions().map((s) => s.requestId), draft.items.map((i) => i.requestId));
 });
 

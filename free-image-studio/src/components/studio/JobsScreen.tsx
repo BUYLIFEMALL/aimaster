@@ -188,7 +188,7 @@ export function JobsScreen({ memberId }: { memberId: string }) {
           }
         }
         // 받았는지 모르는 접수는 사용자가 「기록에서 지우기」를 고른 것이므로 지운다(엔진이 그렸다면 엔진 창에 남는다).
-        if (engine.forget(id, { force: true })) {
+        if (await engine.forget(id, { force: true })) {
           saves.forget(id);
           // 맡기다 만 묶음에서 이 접수 번호의 장을 뺀다(지운 그림이 「이어서 맡기기」로 되살아나지 않게). 내용이 같은 다른 장은 그대로다.
           dropFromDraft(window.localStorage, memberId, id);

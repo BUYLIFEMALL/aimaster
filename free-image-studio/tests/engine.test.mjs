@@ -248,7 +248,7 @@ test("응답 유실(엔진은 받음): unknown으로 남고 자동으로 다시 
   // 결과를 모르는 접수는 다시 보내기·지우기를 막는다(먼저 확인)
   await assert.rejects(c.resend(r.requestId), kind("invalid"));
   assert.equal(c.canResend(r.requestId), false);
-  assert.equal(c.forget(r.requestId), false, "결과를 모르는 접수는 그냥 지우지 못한다");
+  assert.equal(await c.forget(r.requestId), false, "결과를 모르는 접수는 그냥 지우지 못한다");
   assert.equal(posts(engine).length, 1);
   const confirmed = await c.confirm(r.requestId);
   assert.equal(confirmed.state, "accepted");
@@ -282,8 +282,8 @@ test("응답 유실(엔진은 못 받음): 목록에 없어도 미접수로 확�
     assert.equal(posts(engine).filter((p) => p.body.clientRequestId === r.requestId).length, 1, "같은 번호를 다시 보내지 않았다");
     assert.equal(idJobs(engine, r.requestId).length, 0);
     // 사용자가 알고 고른 경우에만 기록을 지운다(그 뒤 새로 접수하는 것은 화면·사용자의 선택)
-    assert.equal(c.forget(r.requestId), false);
-    assert.equal(c.forget(r.requestId, { force: true }), true);
+    assert.equal(await c.forget(r.requestId), false);
+    assert.equal(await c.forget(r.requestId, { force: true }), true);
     assert.equal(stateOf(c, r.requestId), undefined);
   }
 });
@@ -521,7 +521,7 @@ test("반례 1 — 범위가 끊긴 과거 접수는 확인도 다시 보내기�
   // 새 범위에 작업이 생겨도 과거 접수는 그대로
   await c.submit({ ...ART, seed: 7 });
   await mustStayUnknown(engine, c, r);
-  assert.equal(c.forget(r.requestId), true, "확인할 길이 없는 과거 접수는 기록에서 지울 수 있다");
+  assert.equal(await c.forget(r.requestId), true, "확인할 길이 없는 과거 접수는 기록에서 지울 수 있다");
 
   // 나) 엔진에서 토큰이 무효가 됨 → 401 → 새 연결
   engine = createMockEngine();
@@ -882,7 +882,7 @@ test("반례 4 — 늦게 온 확인 결과가 접수됨을 되돌리지 않는�
   // 같은 화면: 확인 중에는 그 접수의 다른 확인·다시 보내기·지우기를 받지 않는다
   await assert.rejects(c.confirm(r.requestId), kind("invalid"));
   await assert.rejects(c.resend(r.requestId), kind("invalid"));
-  assert.equal(c.forget(r.requestId, { force: true }), false);
+  assert.equal(await c.forget(r.requestId, { force: true }), false);
   // 다른 탭(같은 저장소, 다른 화면)이 그사이 온전한 목록으로 접수됨을 확인한다
   const tab2 = client(engine, storage);
   const fresh = await tab2.confirm(r.requestId);

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { BATCH_MAX, COPIES_MAX, adoptDraft, buildPlan, clearDraft, discardUncertain, draftStatus, loadCompose, parseEntries, saveCompose, saveDraft, setLineCopies, submitRemaining, type DraftStatus, type RunResult } from "@/lib/studio/batch";
+import { BATCH_MAX, COPIES_MAX, adoptDraft, buildPlan, clearDraft, confirmUncertain, discardUncertain, draftStatus, loadCompose, parseEntries, saveCompose, saveDraft, setLineCopies, submitRemaining, type DraftStatus, type RunResult } from "@/lib/studio/batch";
 import { PRESETS, SIZE_CHOICES, findPreset, findSize, pickVariantId, type ModelState, type PresetId } from "@/lib/studio/presets";
 import { messageOf, useEngine } from "./useEngine";
 
@@ -117,6 +117,22 @@ export function CreateScreen({ memberId }: { memberId: string }) {
     }
   };
 
+  // 받았는지 모르는 장을 엔진에 물어본다(같은 연결일 때만, 같은 접수 번호를 찾았을 때만 접수됨으로 적는다).
+  const askUncertain = async () => {
+    if (!engine || running) return;
+    setError(null);
+    setRunning(true);
+    try {
+      const r = await confirmUncertain(engine, window.localStorage);
+      setError(r.reason === "otherScope" ? "엔진 연결이 바뀌어 이 그림들은 확인할 수 없습니다. 엔진 창에서 직접 확인해 주세요." : r.recovered ? `${r.recovered}장은 엔진이 받은 것을 확인했습니다. 작업 기록에서 볼 수 있습니다.` : "엔진 목록에서 찾지 못했습니다. 받지 않았을 수도 있고, 이미 그린 뒤 목록에서 지워졌을 수도 있습니다.");
+    } catch (e) {
+      setError(messageOf(e, "확인하지 못했습니다."));
+    } finally {
+      setRunning(false);
+      readLeft();
+    }
+  };
+
   // 사용자가 확인한 경우에만: 엔진이 받았는지 알 수 없는 장을 묶음에서 지운다.
   const dropUncertain = () => {
     if (!engine) return;
@@ -161,9 +177,14 @@ export function CreateScreen({ memberId }: { memberId: string }) {
               </div>
             </div>
           ) : (
-            <button type="button" onClick={() => setDropAsk(true)} disabled={running} className={`${ghost} mt-3`}>
-              이 {pending.uncertain}장 정리하기…
-            </button>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button type="button" onClick={() => void askUncertain()} disabled={running} className={button}>
+                엔진에 확인
+              </button>
+              <button type="button" onClick={() => setDropAsk(true)} disabled={running} className={ghost}>
+                이 {pending.uncertain}장 정리하기…
+              </button>
+            </div>
           )}
         </section>
       )}

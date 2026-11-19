@@ -2,6 +2,8 @@
 // 계약 기준: 엔진 e8e52b505의 「새 그림 사이트 범위」(gateway.mjs handleScopedQueue·handleScopedArt, security.mjs createScopedTokens).
 // fetch·저장소·난수를 받아 쓰므로 설치 없이 시험한다(tests/engine.test.mjs, 모의 엔진 tests/mockEngine.mjs).
 
+import { defaultLock, type Lock } from "./studio/lock.ts";
+
 /** 엔진 주소는 이 PC의 루프백으로 고정한다. 설정·환경변수·사용자 입력으로 바꾸지 않는다. */
 export const ENGINE_URL = "http://127.0.0.1:47821";
 export const IMAGE_SIZES = [
@@ -54,6 +56,11 @@ export type EngineErrorKind =
 export class EngineError extends Error {
   kind: EngineErrorKind;
   status: number;
+  /**
+   * 엔진으로 요청을 **시작하기 전에** 난 오류인가. true면 이 접수는 엔진에 간 적이 없다는 명시적 근거다.
+   * 요청을 시작한 뒤의 오류(응답 유실·화면 종료·서버 오류 등)는 false — 엔진이 받았을 수 있다.
+   */
+  beforeSend = false;
   constructor(kind: EngineErrorKind, message: string, status = 0) {
     super(message);
     this.name = "EngineError";
@@ -61,6 +68,12 @@ export class EngineError extends Error {
     this.status = status;
   }
 }
+
+/** 요청을 시작하기 전에 난 오류로 표시한다 */
+const unsent = (e: EngineError): EngineError => {
+  e.beforeSend = true;
+  return e;
+};
 
 export type KeyValueStore = { getItem(key: string): string | null; setItem(key: string, value: string): void; removeItem(key: string): void };
 
@@ -142,6 +155,8 @@ export type EngineClientOptions = {
   fetch?: typeof globalThis.fetch;
   uuid?: () => string;
   now?: () => number;
+  /** 접수 기록을 읽고 고쳐 쓰는 동안 잡는 잠금(기본: 탭 사이 잠금이 있으면 그것) */
+  lock?: Lock;
 };
 
 export function createEngineClient(opts: EngineClientOptions) {
@@ -181,8 +196,8 @@ export function createEngineClient(opts: EngineClientOptions) {
 
   /** init.token: 부르는 쪽이 이미 읽어 검증한 연결의 토큰. 주면 저장소를 다시 읽지 않고 그 토큰으로 보낸다 */
   async function request(path: string, init: { method?: string; body?: unknown; auth?: boolean; timeoutMs?: number; token?: string } = {}): Promise<Response> {
-    if (disposed) throw new EngineError("stale", "연결이 바뀌어 요청을 보내지 않았습니다.");
-    if (!PATH.test(path) || path.includes("//")) throw new EngineError("invalid", "엔진 주소가 올바르지 않습니다.");
+    if (disposed) throw unsent(new EngineError("stale", "연결이 바뀌어 요청을 보내지 않았습니다."));
+    if (!PATH.test(path) || path.includes("//")) throw unsent(new EngineError("invalid", "엔진 주소가 올바르지 않습니다."));
     const e0 = epoch;
     const token = init.auth === false ? null : (init.token ?? readToken());
     const headers: Record<string, string> = {};
@@ -259,15 +274,30 @@ export function createEngineClient(opts: EngineClientOptions) {
       throw new EngineError("storage", "브라우저에 접수 기록을 적지 못했습니다. 저장 공간을 확인해 주세요.");
     }
   }
+  /**
+   * 접수 기록을 **읽고 고쳐 쓰는** 유일한 길. 회원별 접수 기록 잠금 안에서 최신 내용을 읽어 고치고 쓴다 —
+   * 다른 탭·다른 동작이 그사이에 쓴 접수를 예전에 읽은 내용으로 덮어쓰지 않는다.
+   * 잠금은 다시 들어갈 수 없으므로, fn 안에서는 접수 기록을 고치는 다른 함수를 부르지 않는다(순수한 계산만).
+   * 이 잠금은 요청을 보내는 동안에는 잡지 않는다(짧게 읽고 쓰는 동안만).
+   */
+  const ledgerLock = opts.lock ?? defaultLock;
+  const ledgerLockName = `fis.ledger:${memberId}`;
+  function mutate<T>(fn: (list: Submission[]) => { list?: Submission[]; value: T }): Promise<T> {
+    return ledgerLock(ledgerLockName, async () => {
+      const out = fn(readLedger());
+      if (out.list) writeLedger(out.list);
+      return out.value;
+    });
+  }
   /** only가 있으면 지금 상태가 그 가운데 하나일 때만 고친다(늦게 온 결과가 더 새로운 상태를 덮지 않게). 고쳤으면 true */
-  function patch(requestId: string, change: Partial<Submission>, only?: Submission["state"][]): boolean {
-    const list = readLedger();
-    const i = list.findIndex((s) => s.requestId === requestId);
-    if (i < 0 || (only && !only.includes(list[i].state))) return false;
-    list[i] = { ...list[i], ...change };
+  async function patch(requestId: string, change: Partial<Submission>, only?: Submission["state"][]): Promise<boolean> {
     try {
-      writeLedger(list);
-      return true;
+      return await mutate((list) => {
+        const i = list.findIndex((s) => s.requestId === requestId);
+        if (i < 0 || (only && !only.includes(list[i].state))) return { value: false };
+        list[i] = { ...list[i], ...change };
+        return { list, value: true };
+      });
     } catch {
       return false;
     }
@@ -292,16 +322,19 @@ export function createEngineClient(opts: EngineClientOptions) {
    * 전송이 실패·불명으로 끝났을 때 기록에 적는다. 기록이 아직 「보내는 중」일 때만 고친다 —
    * 그사이 다른 화면이 이 접수를 접수됨으로 확인했다면 그 결과를 따른다(늦은 실패가 접수됨을 덮지 않는다).
    */
-  function settle(requestId: string, state: "unknown" | "rejected", error: EngineError, errorKind: EngineErrorKind): SendResult {
-    if (patch(requestId, { state, error: error.message, errorKind }, ["pending"])) return { requestId, state, error };
+  async function settle(requestId: string, state: "unknown" | "rejected", error: EngineError, errorKind: EngineErrorKind): Promise<SendResult> {
+    if (await patch(requestId, { state, error: error.message, errorKind }, ["pending"])) return { requestId, state, error };
     const current = readLedger().find((x) => x.requestId === requestId);
     if (current?.state === "accepted") return { requestId, state: "accepted", job: null };
     return { requestId, state: current?.state === "rejected" ? "rejected" : "unknown", error };
   }
   /** token: 이 접수의 연결 범위를 확인할 때 **함께 읽은** 토큰. 확인과 전송 사이에 다른 탭이 연결을 바꿔도 이 토큰(이 범위)으로 보낸다 */
-  async function send(entry: Submission, token: string): Promise<SendResult> {
-    if (busy.has(entry.requestId)) throw new EngineError("invalid", "이 접수는 지금 처리하는 중입니다.");
-    busy.add(entry.requestId);
+  /** held: 부르는 쪽이 이미 이 접수의 「처리 중」 표시를 세워 두었다(끝나면 여기서 내린다) */
+  async function send(entry: Submission, token: string, held = false): Promise<SendResult> {
+    if (!held) {
+      if (busy.has(entry.requestId)) throw unsent(new EngineError("invalid", "이 접수는 지금 처리하는 중입니다."));
+      busy.add(entry.requestId);
+    }
     try {
       const data = await requestJson("/queue", {
         method: "POST",
@@ -320,7 +353,7 @@ export function createEngineClient(opts: EngineClientOptions) {
         const error = new EngineError("error", "엔진 응답에서 접수 결과를 확인하지 못했습니다.");
         return settle(entry.requestId, "unknown", error, error.kind);
       }
-      patch(entry.requestId, { state: "accepted", jobId: job.id, error: undefined, errorKind: undefined });
+      await patch(entry.requestId, { state: "accepted", jobId: job.id, error: undefined, errorKind: undefined });
       return { requestId: entry.requestId, state: "accepted", job };
     } catch (e) {
       const error = e instanceof EngineError ? e : new EngineError("error", "접수하지 못했습니다.");
@@ -328,7 +361,7 @@ export function createEngineClient(opts: EngineClientOptions) {
       const state = certainlyNotAccepted(error) ? "rejected" : "unknown";
       // 대기열이 가득 찬 400은 내용 문제가 아니라 잠시 뒤 같은 번호로 다시 보낼 수 있다.
       const errorKind = error.status === 400 && QUEUE_FULL_400.test(error.message) ? "busy" : error.kind;
-      const result = settle(entry.requestId, state, error, errorKind);
+      const result = await settle(entry.requestId, state, error, errorKind);
       if (error.kind === "stale") throw error;
       return result;
     } finally {
@@ -415,25 +448,32 @@ export function createEngineClient(opts: EngineClientOptions) {
      */
     async submit(input: SubmitInput, opts: { requestId?: string; tag?: string; expectLink?: string } = {}) {
       const problem = checkArtInput(input);
-      if (problem) throw new EngineError("invalid", problem);
+      // 여기부터 send()를 부르기 전까지의 오류는 모두 「요청을 시작하지 않았다」(beforeSend)로 표시한다.
+      if (problem) throw unsent(new EngineError("invalid", problem));
       // 연결돼 있지 않으면 접수 기록도 만들지 않는다(어느 범위의 접수인지 적을 수 없다).
       const session = readSession();
-      if (!session) throw new EngineError("needPair", DEFAULT_MESSAGE[401], 401);
+      if (!session) throw unsent(new EngineError("needPair", DEFAULT_MESSAGE[401], 401));
       const link = session.link;
-      if (opts.expectLink !== undefined && opts.expectLink !== link) throw new EngineError("stale", "엔진 연결이 바뀌어 맡기지 않았습니다.");
-      if (opts.requestId !== undefined && (typeof opts.requestId !== "string" || !REQUEST_ID.test(opts.requestId))) throw new EngineError("invalid", "접수 번호가 올바르지 않습니다.");
+      if (opts.expectLink !== undefined && opts.expectLink !== link) throw unsent(new EngineError("stale", "엔진 연결이 바뀌어 맡기지 않았습니다."));
+      if (opts.requestId !== undefined && (typeof opts.requestId !== "string" || !REQUEST_ID.test(opts.requestId))) throw unsent(new EngineError("invalid", "접수 번호가 올바르지 않습니다."));
       const requestId = opts.requestId ?? uuid();
       const trackId = uuid();
-      if (!REQUEST_ID.test(requestId) || !JOB_ID.test(trackId)) throw new EngineError("invalid", "접수 번호를 만들지 못했습니다.");
+      if (!REQUEST_ID.test(requestId) || !JOB_ID.test(trackId)) throw unsent(new EngineError("invalid", "접수 번호를 만들지 못했습니다."));
       const task: ArtTask = { prompt: input.prompt.trim() };
       if (input.variantId !== undefined) task.variantId = input.variantId;
       if (input.width !== undefined) (task.width = input.width), (task.height = input.height);
       if (input.seed !== undefined) task.seed = input.seed;
       const entry: Submission = { requestId, trackId, link, title: input.title.trim(), task, state: "pending", at: now() };
       if (typeof opts.tag === "string" && opts.tag) entry.tag = opts.tag.slice(0, 120);
-      const list = readLedger();
-      if (list.some((s) => s.requestId === requestId)) throw new EngineError("invalid", opts.requestId ? "이미 접수 기록에 있는 접수 번호입니다." : "접수 번호가 겹쳤습니다. 다시 시도해 주세요.");
-      writeLedger([...list, entry]); // 적지 못하면 여기서 멈추고 엔진에 보내지 않는다
+      // 접수 번호 예약: 잠금 안에서 「같은 번호가 없는지 확인 + 기록 추가」를 한 번에 한다. 적지 못하면 엔진에 보내지 않는다.
+      try {
+        await mutate((list) => {
+          if (list.some((s) => s.requestId === requestId)) throw new EngineError("invalid", opts.requestId ? "이미 접수 기록에 있는 접수 번호입니다." : "접수 번호가 겹쳤습니다. 다시 시도해 주세요.");
+          return { list: [...list, entry], value: undefined };
+        });
+      } catch (e) {
+        throw unsent(e instanceof EngineError ? e : new EngineError("storage", "브라우저에 접수 기록을 적지 못했습니다."));
+      }
       return send(entry, session.token);
     },
 
@@ -450,7 +490,7 @@ export function createEngineClient(opts: EngineClientOptions) {
       if (busy.has(requestId)) throw new EngineError("invalid", "이 접수는 지금 처리하는 중입니다.");
       const link = readLink();
       if (!link || entry.link !== link) {
-        patch(requestId, { state: "unknown" }, ["pending"]);
+        await patch(requestId, { state: "unknown" }, ["pending"]);
         return { state: "unknown", reason: "otherScope" };
       }
       busy.add(requestId);
@@ -461,13 +501,13 @@ export function createEngineClient(opts: EngineClientOptions) {
         if (readLink() !== link) return { state: "unknown", reason: "otherScope" };
         const job = (rows as EngineJob[]).find((j) => j.clientRequestId === requestId) ?? null;
         if (job) {
-          patch(requestId, { state: "accepted", jobId: job.id, error: undefined, errorKind: undefined });
+          await patch(requestId, { state: "accepted", jobId: job.id, error: undefined, errorKind: undefined });
           return { state: "accepted", job };
         }
         // 이미 받은 것으로 적힌 접수는 목록에 없다고 되돌리지 않는다(끝난 작업을 지웠거나 정리됐을 수 있다).
         if (readLedger().find((s) => s.requestId === requestId)?.state === "accepted") return { state: "accepted", job: null };
         // 보내는 중에 멈춘 기록(pending)만 unknown으로 정리한다. 거절이 확실한 기록(rejected)은 그대로 둔다.
-        patch(requestId, { state: "unknown" }, ["pending"]);
+        await patch(requestId, { state: "unknown" }, ["pending"]);
         return { state: "unknown", reason: "notListed" };
       } finally {
         busy.delete(requestId);
@@ -488,10 +528,18 @@ export function createEngineClient(opts: EngineClientOptions) {
       if (entry.state !== "rejected") throw new EngineError("invalid", "엔진이 받았는지 알 수 없는 접수는 다시 보내지 않습니다.");
       // 연결 기록을 한 번만 읽어 범위를 견주고, 그때 읽은 토큰으로 보낸다.
       const session = readSession();
-      if (!session || entry.link !== session.link) throw new EngineError("invalid", "엔진 연결이 바뀌어 이 접수는 다시 보낼 수 없습니다. 새로 접수해 주세요.");
+      if (!session || entry.link !== session.link) throw unsent(new EngineError("invalid", "엔진 연결이 바뀌어 이 접수는 다시 보낼 수 없습니다. 새로 접수해 주세요."));
       if (!entry.errorKind || !RETRYABLE.includes(entry.errorKind)) throw new EngineError("invalid", "이 접수는 다시 보낼 수 없습니다. 내용을 고쳐 새로 접수해 주세요.");
-      if (!patch(requestId, { state: "pending" }, ["rejected"])) throw new EngineError("invalid", "접수 상태가 바뀌었습니다. 다시 확인해 주세요.");
-      return send({ ...entry, state: "pending" }, session.token);
+      // 잠금을 기다리기 **전에** 「처리 중」 표시를 세운다 — 기다리는 사이 같은 접수의 확인·다시 보내기가 끼어들지 않게.
+      busy.add(requestId);
+      let ready = false;
+      try {
+        ready = await patch(requestId, { state: "pending" }, ["rejected"]);
+      } finally {
+        if (!ready) busy.delete(requestId);
+      }
+      if (!ready) throw unsent(new EngineError("invalid", "접수 상태가 바뀌었습니다. 다시 확인해 주세요."));
+      return send({ ...entry, state: "pending" }, session.token, true);
     },
 
     /** 이 접수를 resend()로 다시 보낼 수 있는가 */
@@ -517,15 +565,53 @@ export function createEngineClient(opts: EngineClientOptions) {
      * 결과를 모르는 접수(unknown)는 force일 때만 지운다 — 화면이 「엔진이 이미 그렸을 수 있음」을 알린 뒤 사용자가 고른 경우.
      * 범위가 바뀌어 더는 확인할 수 없는 과거 접수는 그냥 지울 수 있다.
      */
-    forget(requestId: string, opts: { force?: boolean } = {}): boolean {
-      const list = readLedger();
-      const entry = list.find((s) => s.requestId === requestId);
-      if (!entry || busy.has(requestId)) return false;
-      const sameScope = entry.link === readLink();
-      if (entry.state === "pending" && sameScope) return false;
-      if (entry.state === "unknown" && sameScope && !opts.force) return false;
-      writeLedger(list.filter((s) => s.requestId !== requestId));
-      return true;
+    async forget(requestId: string, opts: { force?: boolean } = {}): Promise<boolean> {
+      if (busy.has(requestId)) return false;
+      const link = readLink();
+      return mutate((list) => {
+        const entry = list.find((s) => s.requestId === requestId);
+        if (!entry) return { value: false };
+        const sameScope = entry.link === link;
+        if (entry.state === "pending" && sameScope) return { value: false };
+        if (entry.state === "unknown" && sameScope && !opts.force) return { value: false };
+        return { list: list.filter((s) => s.requestId !== requestId), value: true };
+      });
+    },
+
+    /**
+     * 접수 기록이 사라진 접수를 되찾는다(묶음에 「보내려 함」 표시만 남은 장). 엔진에 새 작업을 만들지 않는다.
+     * **같은 접수 번호**의 작업이 **그 접수를 보낸 연결 범위**의 목록에 있을 때만 접수됨으로 기록한다.
+     *  - otherScope 지금 연결이 그 범위가 아니다(엔진에 묻지 않는다)
+     *  - notListed  그 범위의 온전한 목록에 없다 — 받지 않았을 수도, 받은 뒤 정리·삭제됐을 수도 있다
+     */
+    async recover(requestId: string, input: SubmitInput, opts: { expectLink: string; tag?: string }): Promise<{ state: "accepted"; job: EngineJob } | { state: "unknown"; reason: "otherScope" | "notListed" }> {
+      if (typeof requestId !== "string" || !REQUEST_ID.test(requestId)) throw new EngineError("invalid", "접수 번호가 올바르지 않습니다.");
+      const problem = checkArtInput(input);
+      if (problem) throw new EngineError("invalid", problem);
+      const session = readSession();
+      if (!session || session.link !== opts.expectLink) return { state: "unknown", reason: "otherScope" };
+      const data = await requestJson("/queue", { token: session.token }); // 견준 그 연결의 토큰으로 묻는다
+      const rows = Array.isArray(data.jobs) ? data.jobs.map(asJob) : null;
+      if (!rows || rows.some((j) => !j)) throw new EngineError("error", "엔진의 작업 목록을 읽지 못했습니다. 접수 상태는 그대로 두었습니다.");
+      const job = (rows as EngineJob[]).find((j) => j.clientRequestId === requestId) ?? null;
+      if (!job) return { state: "unknown", reason: "notListed" };
+      const task: ArtTask = { prompt: input.prompt.trim() };
+      if (input.variantId !== undefined) task.variantId = input.variantId;
+      if (input.width !== undefined) (task.width = input.width), (task.height = input.height);
+      if (input.seed !== undefined) task.seed = input.seed;
+      await mutate((list) => {
+        const i = list.findIndex((s) => s.requestId === requestId);
+        if (i >= 0) {
+          // 이미 기록이 있으면 같은 범위의 기록일 때만 작업 번호를 채운다
+          if (list[i].link !== session.link) return { value: undefined };
+          list[i] = { ...list[i], state: "accepted", jobId: job.id, error: undefined, errorKind: undefined };
+          return { list, value: undefined };
+        }
+        const entry: Submission = { requestId, trackId: uuid(), link: session.link, title: input.title.trim(), task, state: "accepted", jobId: job.id, at: now() };
+        if (typeof opts.tag === "string" && opts.tag) entry.tag = opts.tag.slice(0, 120);
+        return { list: [...list, entry], value: undefined };
+      });
+      return { state: "accepted", job };
     },
 
     async cancel(jobId: string): Promise<void> {

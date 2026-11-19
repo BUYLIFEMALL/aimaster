@@ -167,7 +167,7 @@ export async function replace(client: EngineClient, requestId: string, acknowled
   if (s.state !== "unknown" && s.state !== "pending") throw new EngineError("invalid", "받았는지 모르는 접수만 새로 맡길 수 있습니다.");
   const res = await locked(client, () => client.submit(inputOf(s)));
   // 새 접수 기록이 생긴 뒤에만 옛 기록을 지운다(새로 맡기기가 기록도 못 남기고 실패하면 옛 기록을 잃지 않는다).
-  client.forget(requestId, { force: true });
+  await client.forget(requestId, { force: true });
   return res;
 }
 

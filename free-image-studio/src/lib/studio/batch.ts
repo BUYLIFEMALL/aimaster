@@ -304,6 +304,33 @@ export function dropFromDraft(storage: KeyValueStore, memberId: string, requestI
 }
 
 /**
+ * 받았는지 모르는 장을 엔진에 물어 되찾는다(사용자가 「엔진에 확인」을 눌렀을 때). 엔진에 새 작업을 만들지 않는다.
+ * **묶음을 만든 연결 범위가 지금 연결과 같을 때만** 묻고, **같은 접수 번호**의 작업이 그 범위 목록에 있을 때만 접수됨으로 기록한다.
+ * 찾지 못한 장은 받았는지 모르는 장으로 남는다(받지 않았다고 단정하지 않는다).
+ */
+export async function confirmUncertain(client: EngineClient, storage: KeyValueStore): Promise<{ checked: number; recovered: number; reason?: "otherScope" }> {
+  const memberId = client.memberId;
+  const draft = readDraft(storage, memberId);
+  if (!draft) return { checked: 0, recovered: 0 };
+  const { uncertain } = classify(draft, client.submissions());
+  if (!uncertain.length) return { checked: 0, recovered: 0 };
+  if (draft.link !== client.scopeId()) return { checked: 0, recovered: 0, reason: "otherScope" };
+  let recovered = 0;
+  for (const item of uncertain) {
+    const { line: _line, copy: _copy, source: _source, key, requestId, tried: _tried, ...input } = item;
+    const res = await client.recover(requestId, input, { expectLink: draft.link, tag: `batch:${draft.batchId}:${key}` });
+    if (res.state === "accepted") recovered += 1;
+    else if (res.reason === "otherScope") return { checked: uncertain.length, recovered, reason: "otherScope" };
+  }
+  const after = readDraft(storage, memberId);
+  if (after && after.batchId === draft.batchId) {
+    const left = classify(after, client.submissions());
+    if (!left.unsent.length && !left.uncertain.length) clearDraft(storage, memberId);
+  }
+  return { checked: uncertain.length, recovered };
+}
+
+/**
  * 사용자가 고른 경우에만: 엔진이 받았는지 알 수 없는 장(uncertain)을 묶음에서 지운다.
  * 엔진이 이미 그렸다면 그 그림은 엔진 창에 남는다. 지운 뒤 필요하면 사용자가 새로 적어 맡긴다.
  */
@@ -366,7 +393,8 @@ const NO_LOCK = "이 브라우저는 여러 탭이 같은 그림을 동시에 �
  *  3) 묶음의 그 장에 「보내려 함」 표시를 적는다. 적지 못하면 보내지 않는다.
  *  4) 미리 정한 접수 번호와 **기대하는 연결 범위**를 연결 계층에 넘겨 맡긴다. 연결 계층은 연결 기록을 한 번 읽어
  *     범위를 견주고 그때의 토큰으로 접수 기록을 적고 보낸다 — 2)와 4) 사이에 연결이 바뀌면 보내지 않는다.
- *  5) 연결 계층이 **보내기 전에** 거절했으면(연결 필요·범위 바뀜·접수 기록을 적지 못함) 3)의 표시를 지운다.
+ *  5) 연결 계층이 **요청을 시작하지 않았다고 명시한 오류**(beforeSend — 연결 필요·범위 바뀜·접수 기록을 적지 못함)일 때만 3)의 표시를 지운다.
+ *     요청을 시작한 뒤의 오류(화면 종료·응답 유실 등)는 접수 기록이 있든 없든 표시를 남긴다 — 엔진이 받았을 수 있다.
  *
  * - 탭 사이 잠금이 없는 브라우저에서는 맡기지 않고 이유를 돌려준다(opts.lock으로 잠금을 넣어 준 경우는 그것을 쓴다).
  * - 예전 형식 묶음은 맡기지 않는다(확인이 필요한 장으로 남는다).
@@ -431,9 +459,10 @@ export async function submitRemaining(
         }
         return true;
       } catch (e) {
-        // 5) 연결 계층이 보내기 전에 거절했다(접수 기록이 없다) — 이 장은 보낸 적이 없다. 표시를 지운다.
+        // 5) 표시를 지우는 것은 연결 계층이 「요청을 시작하지 않았다」고 명시했을 때뿐이다.
+        //    접수 기록에 없다는 것은 근거가 아니다 — 요청이 나간 뒤 화면이 닫히고 접수 기록까지 사라졌을 수 있다.
         const err = e instanceof EngineError ? e : new EngineError("error", "맡기지 못했습니다.");
-        if (!client.submissions().some((s) => s.requestId === item.requestId)) {
+        if (err.beforeSend === true) {
           try {
             mark(undefined);
           } catch {
