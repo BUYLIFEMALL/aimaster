@@ -98,3 +98,35 @@
 
 ## 6. 하지 않은 것
 - DB·운영 조회·쓰기 0, 제품 코드 변경 0, 빌드·배포·푸시 0. 실제 영향 파일·회원 수 미확인(승인 시 읽기 조회 1회로 확인 권장).
+
+## 7. 0077 운영 적용 인수인계 (Master `msg_c2a22bc17a99`, 로컬 검수 수락 기준 `592b7484a`)
+
+### 7-1. 무엇이 들어 있나
+- `supabase/migrations/0077_storage_measure_mall_owner.sql` — 규칙 함수 `member_storage_object_owner`(기준·시험용) + `member_storage_measure` 집합 방식 교체(쇼핑몰 4버킷 → 몰 대표). 사용량 쓰기는 「더 새 측정이 있으면 덮어쓰지 않음」, 전체 측정 끝 0 처리는 「이번 실행 트랜잭션 시작 전에 잰 행만」.
+- 시험 `supabase/tests/storage_measure_mall_owner.check.mjs`(127.0.0.1 전용 합성 fixture). 위젯 이름 `lib/storage/memberStorage.ts`(메인 사이트 다음 배포 때 함께).
+- 0076(정리 후보에서 `mall-builder-private` 제외)은 별개 파일·별개 승인.
+
+### 7-2. 검수가 보장하는 호출 방식 (이 범위 밖은 미검증)
+- 지금 코드의 호출은 세 가지뿐이고, 각각 **자기 트랜잭션 하나에서 한 번** 부른다.
+  - 매일 예약 `member-storage-daily`(0063): 전체 측정 1번
+  - 위젯 `lib/storage/memberStorage.ts` `remeasureIfStale`: 본인 한 명 측정 RPC 1번
+  - 정리 `app/api/cron/storage-retention/route.ts`: 지운 회원마다 한 명 측정 RPC 각각
+- **지원하지 않는 절차**: 한 트랜잭션 안에서 전체 측정을 두 번 부르거나, 몰 대표 변경(양도)과 측정을 같은 트랜잭션에 넣는 것. 같은 트랜잭션의 `now()`가 같아서 「이번 실행 전에 잰 행」 판정이 의도와 달라진다.
+- **몰 양도 절차(지금은 양도 화면·코드 없음, SQL로 할 때)**: ① `mall_builder_stores.owner_id` 변경을 **먼저 커밋** → ② 별도 호출로 옛 대표·새 대표 각각 `select public.member_storage_measure('<uid>');` 또는 별도 RPC로 전체 측정 1번. 나중에 양도 화면을 만들면 ②를 그 화면의 커밋 뒤 단계로 넣는다.
+
+### 7-3. 적용 전 확인
+- 적용 직전 실행 중인 측정이 없는지 확인한다: `pg_stat_activity`에서 `member_storage_measure`를 부르는 활성 쿼리 0, 매일 예약 시각(UTC 19:10) 근처 피함.
+- **0066/0077 혼용 경합은 검증하지 않았다**: 적용 순간 0066 정의로 돌던 측정과 0077 측정이 겹치는 경우. 그래서 위 확인 뒤 적용하고, 적용 뒤 첫 측정은 겹치지 않게 한 번만 돌린다.
+- `public.mall_builder_stores` 표가 없으면 0077은 실패하고 아무것도 바꾸지 않는다(fail-closed) — 운영 공유 DB에는 있음.
+- 0077은 적용 때 전체 측정을 자동으로 돌리지 않는다. 값 갱신은 매일 예약 또는 Master가 따로 전체 측정 1번.
+
+### 7-4. 되돌리기 (순서 고정, 세 단계 분리)
+1. **정의·권한만 복원**: `0066_member_storage_by_kind.sql`에서 `member_storage_measure`의 `create or replace … end $$;`와 그 아래 `revoke`·`grant` 두 줄만 실행. 0066 파일 전체를 실행하지 않는다(끝의 `select public.member_storage_measure();`가 운영 전체 측정 = 쓰기).
+2. **규칙 함수 삭제**: `drop function public.member_storage_object_owner(text, text);`
+3. **재측정은 별도로**, 필요할 때만 전체 측정 1번.
+- 주의: 0066으로 되돌리면 「1분」 조건도 돌아와서, 1분 안 재측정에선 몰 대표의 0077 값이 남을 수 있다(합성 시험에서 재현). 한 명 측정이나 1분 뒤 전체 측정으로 정리된다.
+- 참고: 0077 파일 머리 주석의 되돌리기 설명은 규칙 함수 삭제를 먼저 적었지만, 새 측정 본체는 규칙 함수를 부르지 않으므로 어느 순서든 동작은 같다. 운영에서는 이 절의 순서를 따른다.
+
+### 7-5. 남은 일
+- 운영 적용 승인·실행: Master(0076과 별도). 맥미니 독립 검수 결과 반영.
+- 운영 영향 확인(승인 시 읽기 1회): 이름에 회원 UUID가 2개 이상인 비몰 파일 수(한 명 측정 동작 변화 대상), 쇼핑몰 4버킷 파일 수·몰 대표별 합.
