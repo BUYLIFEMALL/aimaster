@@ -11,8 +11,8 @@
 - 잔여 P3 보완(맥미니 재검수, Master msg_5f0007596283): 통계 기록이 비었을 때 마지막 결과로 대신 만드는 호환 분기를 id 없는 옛 결과로만 한정(`statsHistory`) — 이전 회차 줄만 남은 새 결과를 이번 회차 통계로 합성하지 않음. 회귀 3개(`npm test` 84/84).
 
 ## 2026-11-19 [역할: realty] Claude(RealEstate) — 관심 지역 연계 2단계: 다른 부동산 프로그램 지역 제안 (**배포 완료 v1.35 2026-11-19**, 주인님 「순서대로 진행해」)
-- 실거래 지역 추가 화면(`src/app/(dashboard)/districts/page.tsx`)에 「🔗 다른 부동산 프로그램에 등록한 지역」: 실거래 `real_estate_watch_districts`(is_active)·매물 알림 `realty_alert_targets`(region+enabled, `cortar_no` 앞 5자리)를 회원 세션으로 읽어, 상가에 없는 시군구를 기존 켜기 버튼(`toggleDistrictAction`, 이용 권한 확인)으로 제안. 자동 등록·다른 표 쓰기·DB 변경 없음.
-- 순수 함수 `src/lib/crossWatch.ts`, 시험 `tests/crossWatch.test.mjs` 3개(`npm test` 68/68), tsc 0. 플랜: `real_estate_sales/docs/PLAN_20261119_CROSS_WATCH.md`. 다음 상가 배포(v1.35) 때 함께.
+- 상가 감시 지역 화면(`src/app/(dashboard)/districts/page.tsx`)에 「🔗 다른 부동산 프로그램에 등록한 지역」: 실거래 `real_estate_watch_districts`(is_active)·매물 알림 `realty_alert_targets`(region+enabled, `cortar_no` 앞 5자리)를 회원 세션으로 읽어, 상가에 없는 시군구를 기존 켜기 버튼(`toggleDistrictAction`, 이용 권한 확인)으로 제안. 자동 등록·다른 표 쓰기·DB 변경 없음.
+- 순수 함수 `src/lib/crossWatch.ts`, 시험 `tests/crossWatch.test.mjs` 3개(`npm test` 68/68), tsc 0. 플랜: `real_estate_sales/docs/PLAN_20261119_CROSS_WATCH.md`. 커밋 `dab9d80e1`, 독립 검수 `.ai/results/RE-20261119-CROSS-COMMERCIAL-CX-QA-01.md` PASS 3/3 → v1.35(2026-11-19, `c894f6fe1`)로 배포됨. 배포 뒤 실화면·운영 RLS 확인은 미실행(점검표 `.ai/results/RE-REGION-LINKAGE-LIVE-QA-CHECKLIST-CC-REALTY-01.md` A1·2-1).
 
 ## 2026-11-17 [역할: realty] Claude(RealEstate) — 서버 로그인 기기 정보 전달 (**배포 완료 v1.35 2026-11-19**, RE-20261117-02)
 
