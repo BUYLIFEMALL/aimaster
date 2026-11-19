@@ -33,6 +33,22 @@ export function describeExcluded(e: SearchExcluded | null | undefined): string {
   return `제외 ${total}건(${parts.join(" · ")})`;
 }
 
+/**
+ * 검색 조건 아래 안내(2026-11-20 A2): 지금 결과에 바로 적용되는 필터, 검색할 때 빠지는 영상, 다음 검색부터 적용되는 종교 옵션을 구분한다.
+ * 「바로 적용·할당량 0」은 영상 길이·최소 조회수·최대 구독자 필터에만 해당한다.
+ */
+export const SEARCH_HELP_LINES = [
+  "검색 1회는 YouTube 할당량 약 100유닛을 사용합니다(기본 하루 1만유닛 ≈ 100회).",
+  "영상 길이·최소 조회수·최대 구독자 필터는 지금 결과에 바로 적용되며 할당량을 쓰지 않습니다.",
+  "해시태그만 도배한 영상·다른 언어 영상·검색어와 무관한 영상은 검색할 때 자동으로 빠집니다(추가 할당량 없음).",
+  "「종교 영상 제외」는 지금 결과에는 적용되지 않고 다음 검색부터 적용됩니다. 검색어가 종교 단어면 종교 영상도 남깁니다.",
+] as const;
+
+/** 결과 머리글 요약: 남은 쇼츠가 있을 때만(0개면 본문 안내가 같은 요약을 보여 주므로 중복 표시하지 않음) */
+export function headerExcludedSummary(e: SearchExcluded | null | undefined, videoCount: number): string {
+  return videoCount > 0 ? describeExcluded(e) : "";
+}
+
 /** 「종교 영상 제외」 토글 옆 안내 — 이미 받은 결과를 다시 거르지 않고, 다음 검색 때 적용되며 그 검색이 할당량을 쓴다 */
 export const RELIGION_TOGGLE_NOTE = "다음 검색부터 적용 · 다시 검색하면 할당량 약 102유닛 사용";
 

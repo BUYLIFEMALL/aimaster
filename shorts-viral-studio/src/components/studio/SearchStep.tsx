@@ -6,7 +6,7 @@ import { searchShortsAction } from "@/lib/actions/svs";
 import { GRADE_STYLE, formatDuration, formatNumber } from "@/lib/youtube/metrics";
 import { useStudio } from "@/components/studio/StudioProvider";
 import { Card, ErrorBanner, GhostButton, PrimaryButton, StepHeader } from "@/components/studio/ui";
-import { RELIGION_TOGGLE_NOTE, describeExcluded, emptyResultMessage } from "@/lib/youtube/shortsSearch";
+import { RELIGION_TOGGLE_NOTE, SEARCH_HELP_LINES, emptyResultMessage, headerExcludedSummary } from "@/lib/youtube/shortsSearch";
 import type { SearchExcluded, SearchOrder, ShortVideo } from "@/types/svs";
 
 const MAX_SELECT = 3;
@@ -241,7 +241,7 @@ export function SearchStep() {
             종교 영상 제외
             <span className="font-normal text-slate-400">({RELIGION_TOGGLE_NOTE})</span>
           </label>
-          💡 검색 1회는 YouTube 할당량 약 100유닛을 사용합니다(기본 하루 1만유닛 ≈ 100회). 필터는 이미 가져온 결과에 바로 적용되며 추가 할당량을 쓰지 않습니다. 해시태그만 도배한 영상·다른 언어 영상·검색어와 무관한 영상은 자동으로 거르며(할당량 0), 검색어가 종교 단어면 종교 영상도 남깁니다.
+          💡 {SEARCH_HELP_LINES.join(" ")}
         </p>
       </Card>
 
@@ -251,7 +251,7 @@ export function SearchStep() {
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-base font-black text-slate-900">
             검색 결과 <span className="text-xs font-medium text-slate-500">({filtered.length}개 / 전체 {videos.length}개)</span>
-            {describeExcluded(excluded) && <span className="ml-2 text-xs font-medium text-slate-400">· {describeExcluded(excluded)}</span>}
+            {headerExcludedSummary(excluded, videos.length) && <span className="ml-2 text-xs font-medium text-slate-400">· {headerExcludedSummary(excluded, videos.length)}</span>}
           </h2>
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-bold text-slate-500">선택 {selectedIds.length}/{MAX_SELECT}</span>

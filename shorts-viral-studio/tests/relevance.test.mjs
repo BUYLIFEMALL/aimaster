@@ -16,7 +16,7 @@ registerHooks({
     }
   },
 });
-const { runShortsSearch, filterShortsItems, describeExcluded, excludedTotal, emptyResultMessage, RELIGION_TOGGLE_NOTE } = await import("../src/lib/youtube/shortsSearch.ts");
+const { runShortsSearch, filterShortsItems, describeExcluded, excludedTotal, emptyResultMessage, RELIGION_TOGGLE_NOTE, SEARCH_HELP_LINES, headerExcludedSummary } = await import("../src/lib/youtube/shortsSearch.ts");
 
 const NOW = new Date("2026-11-20T00:00:00Z");
 const vid = (id, title, extra = {}) => ({
@@ -111,4 +111,23 @@ test("빈 결과 안내: 종교 제외가 있을 때만 토글 조언, 제외 0�
 test("토글 안내는 다음 검색부터 적용·할당량 사용을 밝힌다", () => {
   assert.match(RELIGION_TOGGLE_NOTE, /다음 검색부터 적용/);
   assert.match(RELIGION_TOGGLE_NOTE, /할당량/);
+});
+
+test("안내 문구: 바로 적용·할당량 0은 결과 필터에만, 종교 옵션은 다음 검색부터로 구분", () => {
+  const now = SEARCH_HELP_LINES.find((l) => l.includes("바로 적용"));
+  assert.ok(now && /영상 길이·최소 조회수·최대 구독자/.test(now) && /할당량을 쓰지 않습니다/.test(now));
+  assert.ok(!/종교/.test(now), "바로 적용 문장에 종교 옵션이 섞이면 안 됨");
+  const rel = SEARCH_HELP_LINES.find((l) => l.includes("종교 영상 제외"));
+  assert.ok(rel && /다음 검색부터/.test(rel) && /지금 결과에는 적용되지 않/.test(rel));
+  assert.ok(!/바로 적용/.test(rel));
+  const auto = SEARCH_HELP_LINES.find((l) => l.includes("자동으로 빠집니다"));
+  assert.ok(auto && /검색할 때/.test(auto));
+});
+
+test("제외 이유 요약은 한 곳만: 결과가 있으면 머리글, 0개면 본문 안내만", () => {
+  const e = { spam: 1, language: 0, offtopic: 0, religion: 1 };
+  assert.equal(headerExcludedSummary(e, 3), "제외 2건(해시태그 도배 1 · 종교 1)");
+  assert.equal(headerExcludedSummary(e, 0), "");
+  assert.ok(emptyResultMessage(e).includes("제외 2건(해시태그 도배 1 · 종교 1)"));
+  assert.equal(headerExcludedSummary(null, 5), "");
 });
