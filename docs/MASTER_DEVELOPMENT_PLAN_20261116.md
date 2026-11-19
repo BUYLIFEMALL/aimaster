@@ -514,7 +514,7 @@ Master 마지막 실제 점검: 2026-11-19 14:04:40 KST · 실행 중 5분 · �
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 | BLOG-20261119-MODELS | CC-BLOG-01 | done / strict_switch_independent_accepted_undeployed | 블로그 설정 플랫폼별 AI 모델 선택 | Mac 49/49와 원문 1회·정상 전환과 503 상한 2회 수락. 승인 실호출 9/9는 앞선 버전의 담당 결과. 미배포. |
 | RE-20261119-PARTIAL | CC-REALTY-01 | waiting_human / partial_result_retention_plan_ready_decisions_pending | 상가·건물·토지 알림 부분 조회 결과 보존 | id 기준 이전 결과 보존 설계. 7일, 차단·오류 때도 보존할지, 배포 시점 결정 대기. 제품·확장·운영 변경 없음. |
-| BLOG-20261119-MODELS-3 | CC-BLOG-01 | reviewing / three_program_catalog_updates_mac_review_dispatched | 블로그 3개 프로그램 모델 목록 동기화 | 티스토리 a8ba8a9bb·SEO 980eb5303·에이전트 d7f383fcd. 모델 기본값·저장 호환 및 사진 리뷰 선택지 축소 맥미니 검수 요청. 미배포. |
+| BLOG-20261119-MODELS-3 | CC-BLOG-01 | running / provider_preserving_saved_model_fixes_dispatched | 블로그 3개 프로그램 모델 목록 동기화 | Mac 11파일 대조. 티스토리 저장값 통과. SEO·에이전트에서 폐기 ID가 다른 공급자로 바뀌는 문제 보완 배정. 사진 후기 6→2 별도 결정, 미배포. |
 | FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | running / overlap_fixed_fixture_touch_target_alternative_requested | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 격리 모형의 링크 가림·초기 접근성 일치 개선. 640 미만 16px로 남아 24px 이상과 비가림을 모두 만족할 배치 비교 요청. |
 
 ## 현재 담당 회신이 확보된 프로젝트
