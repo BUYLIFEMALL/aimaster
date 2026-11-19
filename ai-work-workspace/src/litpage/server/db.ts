@@ -351,14 +351,23 @@ export function tx<T>(fn: () => T): T {
   if (txDepth > 0) return fn();
   execSync('BEGIN');
   txDepth++;
+  // 2026-11-19(WS-20261119-03): 깊이는 어느 경로에서도 정확히 한 번만 내린다. 예전에는 COMMIT이 실패하면 성공 경로에서 이미 내린
+  // 깊이를 되돌리기 경로가 한 번 더 내려 음수가 됐고, 그 뒤의 트랜잭션에서 잠금(lockRecords)·겹친 트랜잭션 합치기·
+  // 되돌리기 알림(onTxRollback)이 「트랜잭션 밖」으로 오인했다. COMMIT은 한 번만 보내고 다시 시도하지 않는다.
+  let open = true;
+  const leave = () => {
+    if (!open) return;
+    open = false;
+    txDepth--;
+  };
   try {
     const out = fn();
-    txDepth--;
+    leave();
     execSync('COMMIT');
     rollbackFns = [];
     return out;
   } catch (e) {
-    txDepth--;
+    leave();
     try {
       execSync('ROLLBACK');
     } finally {
