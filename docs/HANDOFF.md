@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-19 ✅ [역할: music] Claude Code(윈도우) · 세션 `claude-win-20261024-music` — 가사 영상 v1.17 배포
+- 내보낸 것: 취소 안내(`fe402b1df`, MUS-20261117-01 — 「■ 취소」 때 오류 상자 대신 일반 안내) + 공용 `browser-mp4-encoder` 탭 단위 가속 멈춤 기억 사본(`2b9a06c9c`, MOV-20261117-07)
+- 버전 커밋 `4e022046e`, 배포 `lyric-video-studio-eiliu83hu`(Ready, 빌드 1회 — 주인님 채팅 승인 「진행해」), 운영 DB `programs.version` v1.17
+- 확인: 시험 36·tsc 0 오류·공용 사본 OK(배포 전), 운영 ego(시험 계정) 메뉴 v1.17·대시보드 정상. **운영에서 취소 1회·MP4 1회는 아직 안 함**(다음 실사용 때)
+- 링크: https://lyric-video-studio.buylife.xyz
+- 다음 첫 단계: 운영에서 MP4 만들기 → 「■ 취소」 1회 화면 확인. 맥 실물(QA002 시험 B)은 맥 결과 대기, 푸시는 Master 순번
+
 ## 2026-11-19 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 고객관리 v1.11 묶음 배포
 - 내보낸 것: L-1 실거래 한 줄, L-2 보낼 수 없는 고객 사유 합계, U-1 휴대폰 미리보기, U-1a 단문·장문 「약 N바이트 추정」(SOLAPI 바이트 규칙·16자 예시 토큰), 공통 3건(저장공간 위젯·서버 로그인 기기 정보·로그아웃 이 브라우저만). 맥미니 독립 검수 통과(U-1a 11/11), 시험 40·tsc 통과.
 - 버전 커밋 `86955ace6`, 배포 `realty-client-desk-lqbf3nlx0`(Ready, 빌드 1회 — 주인님 채팅 승인), 운영 DB `programs.version` v1.11, 문서 `83144f895`. 푸시 안 함(Master 지시: 공유 master 698커밋 앞섬, 순번 대기 — 배포는 로컬 폴더 업로드라 푸시 불필요).
