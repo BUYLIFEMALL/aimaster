@@ -1,21 +1,21 @@
 # 개선사항 기록 — 상업용지·토지 실거래가 레이더 (`commercial-land-trade-alert`)
 
-## 2026-11-19 [역할: realty] Claude(RealEstate) — 일부만 읽은 회차에도 못 읽은 감시 화면의 이전 결과 보존 (**미배포 대기 v1.35**, 주인님 결정: 7일·막힘/오류도 보존·v1.35 묶음)
+## 2026-11-19 [역할: realty] Claude(RealEstate) — 일부만 읽은 회차에도 못 읽은 감시 화면의 이전 결과 보존 (**배포 완료 v1.35 2026-11-19**, 주인님 결정: 7일·막힘/오류도 보존·v1.35 묶음)
 - 문제: 하루 상한·네이버 막힘·오류로 일부 화면만 읽으면 `lastResult`를 그 회차 결과로 통째 교체해 못 읽은 화면 매물이 결과 화면에서 사라짐(백로그 66줄, 실제 19:47 5곳 중 1곳). 알림 판정(`states`)은 원래 정상.
 - 구현: 순수 함수 `extension/lib/keepResult.js` `mergeLastResult` — 줄별 감시 화면 id(`rowTargetIds`)로만 묶음(이름 겹침 대비), 지운·끈·주소 바뀐 화면 제외, 이름만 바뀐 화면은 새 이름, 화면별 `at`(처음 읽은 시각 유지)·`stale`·사유, 7일 넘으면 버림, 옛 모양 결과는 통째 교체, 2000줄 자르기는 이번 회차 우선. `background.js`는 저장 직전 1회만 합치고 알림·통계·수익률·상태 보고는 이번 회차만. 결과 화면 `ResultsClient.tsx`에 「⏸ 이전 회차(시각) 결과 — 사유」.
 - 시험 `tests/keepResult.test.mjs` 8개(`npm test` 76/76), tsc 0. 플랜 `docs/PLAN_20261119_PARTIAL_RESULT_KEEP.md`. 확장 코드 변경 → v1.35 배포 때 manifest·ZIP·DB `extension_version` 함께, 회원 확장 재설치 안내.
 - 보완(맥미니 검수 `.ai/results/RE-20261119-PARTIAL-RESULT-CX-QA-01.md`, Master msg_6527dfa5a192): P2 상한 0곳·켜진 화면 0곳 분기도 `pruneLastResult`로 같은 보존 규칙(7일·켜진 화면·같은 id·같은 주소) 적용, 켜진 화면 0곳이면 결과 화면 비움, 옛 모양은 그대로 — 수집·알림·기록은 지금처럼 0. P3 행정동 경계를 감시 화면 id로 연결(`sggById`, 결과 화면·감시 화면 카드는 `src/lib/rowSgg.ts`로 id 우선·옛 결과만 이름). 회귀 시험 5개(`npm test` 81/81), tsc 0.
 - 잔여 P3 보완(맥미니 재검수, Master msg_5f0007596283): 통계 기록이 비었을 때 마지막 결과로 대신 만드는 호환 분기를 id 없는 옛 결과로만 한정(`statsHistory`) — 이전 회차 줄만 남은 새 결과를 이번 회차 통계로 합성하지 않음. 회귀 3개(`npm test` 84/84).
 
-## 2026-11-19 [역할: realty] Claude(RealEstate) — 관심 지역 연계 2단계: 다른 부동산 프로그램 지역 제안 (**미배포 대기**, 주인님 「순서대로 진행해」)
+## 2026-11-19 [역할: realty] Claude(RealEstate) — 관심 지역 연계 2단계: 다른 부동산 프로그램 지역 제안 (**배포 완료 v1.35 2026-11-19**, 주인님 「순서대로 진행해」)
 - 실거래 지역 추가 화면(`src/app/(dashboard)/districts/page.tsx`)에 「🔗 다른 부동산 프로그램에 등록한 지역」: 실거래 `real_estate_watch_districts`(is_active)·매물 알림 `realty_alert_targets`(region+enabled, `cortar_no` 앞 5자리)를 회원 세션으로 읽어, 상가에 없는 시군구를 기존 켜기 버튼(`toggleDistrictAction`, 이용 권한 확인)으로 제안. 자동 등록·다른 표 쓰기·DB 변경 없음.
 - 순수 함수 `src/lib/crossWatch.ts`, 시험 `tests/crossWatch.test.mjs` 3개(`npm test` 68/68), tsc 0. 플랜: `real_estate_sales/docs/PLAN_20261119_CROSS_WATCH.md`. 다음 상가 배포(v1.35) 때 함께.
 
-## 2026-11-17 [역할: realty] Claude(RealEstate) — 서버 로그인 기기 정보 전달 (**미배포 대기**, RE-20261117-02)
+## 2026-11-17 [역할: realty] Claude(RealEstate) — 서버 로그인 기기 정보 전달 (**배포 완료 v1.35 2026-11-19**, RE-20261117-02)
 
 - `src/lib/supabase/server.ts` 서버용 Supabase 클라이언트에 `global.headers["User-Agent"]`(요청의 `user-agent` 헤더) 한 줄. 인증·쿠키·스키마 변경 없음, UA 원문 로그 없음. tsc 0, 기존 시험 65/65, `pending-check` 「서버 로그인 기기 정보 미전달」 지적 사라짐(공통 대기 없음). 버전·빌드·배포 없음 → 다음 상가 기능 배포 때 아래 로그아웃 1건과 함께.
 
-## 2026-11-16 [역할: realty] Claude(RealEstate) — 로그아웃 이 브라우저만 (**미배포 대기**, RE-20261116-06)
+## 2026-11-16 [역할: realty] Claude(RealEstate) — 로그아웃 이 브라우저만 (**배포 완료 v1.35 2026-11-19**, RE-20261116-06)
 
 - `src/lib/actions/auth.ts` `signOutAction`의 `signOut()` → `signOut({ scope: "local" })` 한 줄. tsc 0, 기존 시험 65/65, `pending-check`의 「범위 없는 signOut」 지적 사라짐. 버전·빌드·배포 없음 → 다음 상가 기능 배포에 함께(그때 서버 기기 정보 전달 1건도 함께 검토).
 
