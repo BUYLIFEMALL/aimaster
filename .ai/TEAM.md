@@ -13,7 +13,7 @@
 | Claude(Movie) | CC-MOVIE-01 | video | claude-win-video · aimaster-57 · GT1_Mega | YVS실검색/AI기획안1회 담당운영완료·점유0 | 재호출0·새배정대기 |
 | Claude(Music) | CC-MUSIC-01 | music | claude-win-20261024-music · GT1_Mega | 현재기록정정완료·점유0·기존icon변경보존 | lyric2건다음묶음·Mac실MP4사람선택 |
 | Claude(ecommerce) | CC-ECOM-01 | ecommerce-image | claude-win-sdp · GT1_Mega | 재배포선택질문대기·후속메시지전달보류·운영1.29 | 追加빌드1예산결정전0·안전후보59cb고정·실3회기승인잔여 |
-| Claude(B2BFront) | CC-B2B-FRONT-01 | mall-design-builder | claude-win-20261114-mall-design · aimaster-64 · GT1_Mega | Sub PC 이관 문서 653a3c1f2 · 메인 신규 배정 중지 | 새 세션 핸들·인수 확인 대기. QUICKBAR 검수 완료·미배포 |
+| Claude(B2BFront) | CC-B2B-FRONT-01 | mall-design-builder | codex-sub-20261119-mall-design · Sub | 인수 확인 msg_1cc34028b4d9 | 미배포 묶음 읽기 사전 대조 msg_46d9e2cb9bb4 |
 | Claude(B2BBackend) | CC-B2B-BACK-01 | mall-builder | claude-win-20261025-workspace · GT1_Mega | Sub PC 이관 문서 33d6cd55f · 메인 전달만 | 새 세션 핸들·인수 확인 대기. 메인 3210 검수 유지 |
 | Claude(RealEstate) | CC-REALTY-01 | realty | claude-win-20261024-realty · aimaster-73 · GT1_Mega | 문서정정완료·점유0 | 독립자료미확보차단·정상회차이외새수집0 |
 | Claude(Workspace) | CC-WORKSPACE-01 | workspace | aimaster-46 · session dea6e4f6-37c0-4be8-ad50-8746e0f1c517 · GT1_Mega | Gmail공개방식/빌드선택질문대기·GCP완료신호반영 | 주인님결정→ClientID일치/실행순번확정·SQL/스위치0 |
@@ -50,7 +50,7 @@ Orca run: `run_6e348395e1fe` · runtime `4c4b684f-d0e9-4878-97d5-ce1880c55b7d` �
 | CC-B2B-BACK-01 | term_46946865-f9aa-4e38-a14f-daa1f320dd41 | msg_d7e7aa4baac6 / 정정 msg_d88e19f5c1ef |
 | CC-REALTY-01 | term_cd6b250d-2cdd-46f0-afe4-9377727d845d | REQ-STATUS-REALTY-01 msg_8f653629169e |
 | CC-MOVIE-01 | term_822b9d91-9a25-4d57-9c29-d69fc6de3d88 | IDENT msg_d5f24f5538d7 / 결과 msg_86b54902fdf7 |
-| CC-B2B-FRONT-01 | term_f4c00bf6-875e-46fa-9d0a-72df606548dc | IDENT msg_127ba32a814a / 정정 msg_bbb5c0a8e8b4 |
+| CC-B2B-FRONT-01 | **--on Sub** · term_b394f9a9-06c6-4706-b4b3-610f648453ff | 인수 msg_1cc34028b4d9 / 전달 msg_46d9e2cb9bb4 |
 | CC-WORKSPACE-01 | term_d62d586f-e201-4b83-8d7b-8bace6a06049 | IDENT msg_ee909437f911 / 구현 msg_31beb6fd1c34 |
 | CC-BLOG-01 | term_78415ab7-52b8-49a9-adbf-c6450509ec54 | IDENT msg_196120a86386 / 결과 msg_b64aa460031c |
 | CC-SNS-01 | term_a56ba842-a009-4b3b-926c-f02f9cb65153 | 직접지시 보고 msg_0ea177827182·Master 인수 msg_262b806a9152 |

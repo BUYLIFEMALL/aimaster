@@ -10185,20 +10185,20 @@
       "status": "queued",
       "delivery": "old_session_ack_new_handle_and_acceptance_pending",
       "sha": "33d6cd55f",
-      "next": "메인 세션은 전달만. Sub PC 세션 핸들과 인수 확인 뒤 전달 대상·점유 갱신. Mac 검수 종료까지 메인 3210 유지, 합성 DB는 메인 로컬만.",
-      "evidence": "msg_1475d5b05efa·msg_e258f03355fd·msg_8841e498a5a6·Master PID 43784/3210 읽기 대조",
-      "lastReviewedAt": "2026-11-19T06:21:18.896Z"
+      "next": "Sub 프런트 수신자는 백엔드가 아님을 확인. 백엔드 별도 인수자 확인 대기, 메인 전달만·3210 검수 유지·합성 DB 메인 로컬.",
+      "evidence": "msg_1475d5b05efa·msg_e258f03355fd·msg_8841e498a5a6·Master PID 43784/3210 읽기 대조·msg_1cc34028b4d9 역할 정정",
+      "lastReviewedAt": "2026-11-19T06:26:03.391Z"
     },
     {
       "task_id": "B2B-20261119-FRONT-HANDOFF",
       "owner": "CC-B2B-FRONT-01",
       "title": "B2B 프런트 Sub PC 인수인계",
-      "status": "queued",
-      "delivery": "front_handoff_documented_new_handle_pending",
+      "status": "done",
+      "delivery": "sub_handoff_accepted_and_read_only_preflight_dispatched",
       "sha": "653a3c1f2",
-      "next": "메인 세션 신규 착수 중지. Sub PC 세션 핸들과 인수 확인 대기. QUICKBAR 로컬 검수 완료·실제 편집기 미확인·미배포.",
-      "evidence": "msg_81686d2c83b8·653a3c1f2·msg_f36cdbefab57·4de6db0af",
-      "lastReviewedAt": "2026-11-19T06:22:07.031Z"
+      "next": "Sub 인수 확인·연락 대상 전환 완료. 프런트 묶음 범위 사전 대조 배정. HOMETABS·QUICKBAR 로컬 수락, 실화면·미배포 별도.",
+      "evidence": "msg_81686d2c83b8·653a3c1f2·msg_f36cdbefab57·4de6db0af·msg_1cc34028b4d9·msg_46d9e2cb9bb4",
+      "lastReviewedAt": "2026-11-19T06:26:03.391Z"
     }
   ]
 }
