@@ -9860,10 +9860,10 @@
       "reviewer": "CX-MASTER-01",
       "title": "메인 API 설정 Cloudflare 카드 배포 선행 확인",
       "status": "queued",
-      "delivery": "remote_base_role_patch_verified_release_queued",
-      "evidence": "msg_cb7803617a97·msg_ecc69c203761·msg_323c6d0c4fe1·msg_2fd7489c7154·msg_7b773773d43c·임시 Git 인덱스 대조·msg_6e8e826c45fd·Master 임시 인덱스 적용 확인 1파일 +6/-3",
-      "next": "원격 기준 Cloudflare 3개·WebP 문서 2개 적용 가능. 역할 문서 커밋 2개는 최소 패치 1개로 대체 가능(원격 기준 임시 인덱스 확인). 메인 자동 빌드 순번 대기, 공유 master 미푸시.",
-      "lastReviewedAt": "2026-11-19T00:44:47.879Z",
+      "delivery": "role_docs_candidate_prepared_release_queued",
+      "evidence": "msg_cb7803617a97·msg_ecc69c203761·msg_323c6d0c4fe1·msg_2fd7489c7154·msg_7b773773d43c·임시 Git 인덱스 대조·msg_6e8e826c45fd·Master 임시 인덱스 적용 확인 1파일 +6/-3·msg_34a8d9c8b06f·1e5f2391786fb71577527badc6499fb35dbb14a1",
+      "next": "원격 기준 역할 문서 단독 후보 1e5f23917(+6/-3) 준비. 푸시 전 Master가 비교 기준과 메인 빌드 영향 확인. Cloudflare 카드 빌드 1회는 별도 승인 대기.",
+      "lastReviewedAt": "2026-11-19T01:49:28.990Z",
       "validation": {
         "remoteDivergence": "origin/master 0, HEAD 586",
         "dryRun": {
@@ -10017,11 +10017,11 @@
       "reviewer": "CX-QA-01",
       "title": "B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계",
       "status": "reviewing",
-      "delivery": "order_status_tabs_independent_source_pass_browser_pending",
+      "delivery": "same_sha_render_environment_requested",
       "sha": "ad046c1eb",
-      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8·msg_9f9b2521f4a8·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_621b8cb49fa9·msg_aa1479ca4c17·c17cca668·msg_e5e7af9da7fe·msg_c15db5ced233·msg_b17ccd22bc09·msg_d96d3bf2fcdb·ad046c1eb·msg_07fb8a6c148a·msg_3c961902ac23·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md",
-      "next": "Mac 독립 Node 10/10, 4999/5000/5001 경계·상태 탭/검색/권한 보존 확인. 소스 검수 수락. 동일 SHA 렌더 확보 후 CX-QA-01 375px·키보드 실화면 확인, 미배포.",
-      "lastReviewedAt": "2026-11-19T01:13:32.190Z"
+      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8·msg_9f9b2521f4a8·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_621b8cb49fa9·msg_aa1479ca4c17·c17cca668·msg_e5e7af9da7fe·msg_c15db5ced233·msg_b17ccd22bc09·msg_d96d3bf2fcdb·ad046c1eb·msg_07fb8a6c148a·msg_3c961902ac23·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_92995c9f1a9f",
+      "next": "Mac 소스 수락. CC-B2B-BACK-01에 동일 SHA·Mac 접근 가능 화면 확인 요청, 확보 후 CX-QA-01 375px·키보드 검수. 미배포.",
+      "lastReviewedAt": "2026-11-19T01:49:28.990Z"
     },
     {
       "task_id": "IMG-20261119-PLAN",
@@ -10029,10 +10029,21 @@
       "reviewer": "CX-MASTER-01",
       "title": "AI 무료 이미지 자동화 개발 플랜",
       "status": "queued",
-      "delivery": "plan_found_p0_execution_scope_pending",
-      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md",
-      "next": "문서 초안 확인. P0 Windows GPU 비교는 실행 범위와 담당 확정 후 배정. 설치·실측·제품 코드·배포 확인 없음.",
-      "lastReviewedAt": "2026-11-19T01:31:35.649Z"
+      "delivery": "windows_gpu_preflight_complete_developer_selection_pending",
+      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기",
+      "next": "무료 후보 진행·개발 담당자 주인님 지정 확인. 현재 Windows Intel Arc 확인, 지원 런타임·VRAM·생성 미측정. P0 담당 지정 후 실기 비교.",
+      "lastReviewedAt": "2026-11-19T01:49:28.990Z"
+    },
+    {
+      "task_id": "ECOM-20261119-EMOTION-QA",
+      "owner": "CX-QA-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "감성 글귀 합성 기존 결과 맥미니 화면 검수",
+      "status": "reviewing",
+      "delivery": "mac_read_only_existing_composite_review_dispatched",
+      "evidence": "msg_34a8d9c8b06f·msg_de03e2b05eec",
+      "next": "기존 결과·버전 확인 후 한글 줄바꿈·잘림·가독성·375px를 읽기 검수. 전송 확인, 수락 대기.",
+      "lastReviewedAt": "2026-11-19T01:49:28.990Z"
     }
   ]
 }
