@@ -351,3 +351,5 @@ WS-20261119-01 CC-WORKSPACE-01: 주인님 지시(노션 공개 페이지를 저�
 WS-20261119-REL CC-WORKSPACE-01: Master 승인(msg_748c12b7d46d) 빌드 평가 DB 부작용 제거 로컬 구현. ai-work-workspace/src/litpage/server/db.ts(DDL 대기·atStartup·첫 질의 시작 경계) + 한 줄 감싸기 9곳(automations/engine.ts·agents/triggers.ts·api/modules/dbstruct.ts·api/modules/workspace.ts·api/modules/pages.ts·digests.ts·meetings/audio.ts·retention.ts·publicApi/webhooks.ts) + 새 tests/integration/startupBoundary.test.ts + tests/setup-local-db.mjs(전용 fixture 주소 환경변수 한 줄) + 본인 문서. 주기 예약 동기 순서 유지, 자동 재시도 확대 없음, 스키마·API·권한 변경0. 공유 aww·운영 DB 접속/Vercel/next build/배포/push0. WS-20261119-01 점유는 유지(배포 보류).
 
 IMG-20261119-P0 CC-ECOM-01: 주인님 지정·Master msg_6d81c947bd00. 새 문서 docs/analysis-free-image-automation-20261119/P0_TEST_PLAN.md·P0_RESULTS.md만 작성. 시험 산출물·모델·엔진 실행 파일은 저장소 밖 F:\FreeImageP0(미커밋). free-music-studio/engine·ai-image-studio는 읽기만, 제품 폴더 생성·엔진 수정·build/deploy·운영 DB·유료 호출 0. 검수 CX-QA-01.
+
+IMG-20261119-P0 추가 CC-ECOM-01: 주인님 「마스터 PC에서도 테스트 진행해」. 새 시험 도구 docs/analysis-free-image-automation-20261119/p0/p0.mjs(내려받기·측정, 제품 코드 아님). 이 PC 산출물 위치는 주인님 지정으로 D:\AI-Music\ImageModels·D:\AI-Music\FreeImageP0로 변경(F:\FreeImageP0 폐기).
