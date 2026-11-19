@@ -10063,11 +10063,11 @@
       "reviewer": "CX-QA-01",
       "title": "블로그 설정 플랫폼별 AI 모델 선택",
       "status": "reviewing",
-      "delivery": "fallback_narrowing_returned_mac_recheck_and_live_budget_noted",
+      "delivery": "fallback_primary_cases_pass_strict_endpoint_instruction_fix_requested",
       "sha": "d88fb7bfd",
-      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e·msg_ae0e6dba4e84·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_e75e68c7f151·msg_d6f2385e1c72·7012fe1bf·msg_c5d009c34a43·msg_9d70d930ca5b·msg_2888acb4d0d4·msg_e7fae7770278·a7df2611f·msg_d19c65d4a1e5·msg_063718bdf213·msg_963f5dc087ca·msg_a5e256873a03·msg_a9f294314f32·msg_2497dcc19f0a·msg_7990e00f7c3e·msg_5171eb3488de·f8f4520f9·e0f02d424·OpenAI 2026-11-17 릴리스 노트·msg_77eaa7b278fe·msg_0421763e1697·c213647a4·755d7c529·msg_87a196aedfda·msg_ec472c6d6552·msg_bd0707fc7039·msg_a6e246778395·d88fb7bfd·msg_13db44e2976a·msg_15f047c8dab7",
-      "next": "d88fb7bfd 파라미터·상태별 대체 호출 제한, 작성자 33/33. Mac 재검수 요청. 주인님 짧은 생성 승인 보고(총 9요청)·실행 결과 대기, 미배포.",
-      "lastReviewedAt": "2026-11-19T04:37:01.488Z"
+      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e·msg_ae0e6dba4e84·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_e75e68c7f151·msg_d6f2385e1c72·7012fe1bf·msg_c5d009c34a43·msg_9d70d930ca5b·msg_2888acb4d0d4·msg_e7fae7770278·a7df2611f·msg_d19c65d4a1e5·msg_063718bdf213·msg_963f5dc087ca·msg_a5e256873a03·msg_a9f294314f32·msg_2497dcc19f0a·msg_7990e00f7c3e·msg_5171eb3488de·f8f4520f9·e0f02d424·OpenAI 2026-11-17 릴리스 노트·msg_77eaa7b278fe·msg_0421763e1697·c213647a4·755d7c529·msg_87a196aedfda·msg_ec472c6d6552·msg_bd0707fc7039·msg_a6e246778395·d88fb7bfd·msg_13db44e2976a·msg_15f047c8dab7·msg_6dc6aac4ca1b·msg_5494b960f873",
+      "next": "Mac 독립 14/14, 일반 오류 1요청·명시 경로 오류 최대 2 검증. 문서 링크·권한 메시지의 오탐 제거 보완 요청. 승인된 실호출 결과 대기·미배포.",
+      "lastReviewedAt": "2026-11-19T04:38:32.459Z"
     },
     {
       "task_id": "RE-20261119-DESK-U1A",
@@ -10081,6 +10081,19 @@
       "evidence": "msg_5af114ba8ca6·84bfa1d05·msg_d19c65d4a1e5·msg_38b3531b63d6·msg_f529c65ef361·msg_546dc29152ff·msg_e5f0969f1ea1·msg_772e239404df·msg_6036ab5dfd3a·msg_a57316748c9b·1f55c38f2·msg_07661b6b5480·msg_a232c84b415a·.ai/results/RE-20261119-DESK-CX-QA-01.md",
       "next": "1f55c38f2 Mac 독립 11/11, 16자 예시·90/91·본문 비치환·상시 추정·발송 경로 유지 확인. 미배포.",
       "lastReviewedAt": "2026-11-19T04:27:37.267Z"
+    },
+    {
+      "task_id": "RE-20261119-DESK-REL",
+      "parent_task_id": "RE-20261119-DESK-U1A",
+      "owner": "CC-REALTY-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "부동산 고객관리 v1.11 푸시·배포 후보",
+      "status": "queued",
+      "delivery": "isolated_release_candidate_preflight_dispatched",
+      "sha": "1f55c38f2",
+      "evidence": "msg_ae423b8e833a·msg_5fa629831747·msg_8d0c2a217ded·msg_a232c84b415a·Master 원격 기준/HEAD 차이 698·msg_cf0bfc4ec2ff",
+      "next": "U1a 독립 수락. 원격 기준 고객관리만 포함한 후보·운영 diff의 읽기 사전 확인 배정. 푸시·Vercel 1회·DB 버전은 승인/순번 대기.",
+      "lastReviewedAt": "2026-11-19T04:38:32.459Z"
     }
   ]
 }

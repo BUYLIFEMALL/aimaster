@@ -173,6 +173,7 @@ Master 마지막 실제 점검: 2026-11-19 13:33:14 KST · 실행 중 점검 주
 | RE-20261119-EXT | CC-REALTY-01 | running / three_program_linkage_independent_accepted_crm_plan_routed | 부동산 추가 개선 순차 진행 | 매물 알림 8 blob·독립 3/3, 관심 지역 3프로그램 연계 로컬 수락. 실 화면·DB 권한 검증 및 배포 대기. 고객관리 플랜 이동. |
 | RE-20261119-DESK | CC-REALTY-01 | done / u1_independent_review_accepted_undeployed | 부동산 고객관리 화면 개선 | U-1 1c52f4e37 Mac 독립 수락. 중립 배지·합성 3종 본문/발송 연결·광고 규칙 6/6 확인. 기존 90자 안내는 별도 개선, 미배포. |
 | RE-20261119-DESK-U1A | CC-REALTY-01 | done / sms_estimate_mac_review_accepted_undeployed | 부동산 고객관리 미리보기 문자 바이트 안내 | 1f55c38f2 Mac 독립 11/11, 16자 예시·90/91·본문 비치환·상시 추정·발송 경로 유지 확인. 미배포. |
+| RE-20261119-DESK-REL | CC-REALTY-01 | queued / isolated_release_candidate_preflight_dispatched | 부동산 고객관리 v1.11 푸시·배포 후보 | U1a 독립 수락. 원격 기준 고객관리만 포함한 후보·운영 diff의 읽기 사전 확인 배정. 푸시·Vercel 1회·DB 버전은 승인/순번 대기. |
 | RE-20261116-02 | CC-REALTY-01 | done / integrated | 카톡실패상태·끊긴토큰재발송방지·local로그아웃/UA | 사용자 직접 승인 배포 v1.45/v1.61. 카카오 실물·08:00 뉴스 대조 별도 |
 | BLOG-20261116-01 | CC-BLOG-01 | done / integrated | 티스토리 소제목##·이웃 전경거절 진단 보완 | 코드검증범위 완료, 이웃재시험/배포/실제소통은별도대기 |
 | QA-20261116-01 | CX-QA-01 | cancelled / integrated | 종합 QA를 영상/Workspace로 분리 | 중복 배정 종료, 검증 완료 의미 아님 |
@@ -507,7 +508,7 @@ Master 마지막 실제 점검: 2026-11-19 13:33:14 KST · 실행 중 점검 주
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |
 | AIF-20261118-W03 | 미배정 | queued / sequenced_after_w01_and_w02_by_owner_instruction | 회원용 인물 라이브러리·시트·버전 | 주인님 지시대로 W01·W02 이후 시작. 인물 라이브러리·일괄 이미지·영상 미착수. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
-| BLOG-20261119-MODELS | CC-BLOG-01 | reviewing / fallback_narrowing_returned_mac_recheck_and_live_budget_noted | 블로그 설정 플랫폼별 AI 모델 선택 | d88fb7bfd 파라미터·상태별 대체 호출 제한, 작성자 33/33. Mac 재검수 요청. 주인님 짧은 생성 승인 보고(총 9요청)·실행 결과 대기, 미배포. |
+| BLOG-20261119-MODELS | CC-BLOG-01 | reviewing / fallback_primary_cases_pass_strict_endpoint_instruction_fix_requested | 블로그 설정 플랫폼별 AI 모델 선택 | Mac 독립 14/14, 일반 오류 1요청·명시 경로 오류 최대 2 검증. 문서 링크·권한 메시지의 오탐 제거 보완 요청. 승인된 실호출 결과 대기·미배포. |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
