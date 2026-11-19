@@ -6221,10 +6221,10 @@
       "owner": "CC-MUSIC-01",
       "reviewer": "CX-QA-01",
       "title": "리믹스 → 플레이리스트 수신 로컬 구현",
-      "status": "running",
-      "delivery": "receiver_mac_reload_pass_partial_add_followup",
-      "next": "04ea0054c Mac 68/68. 재조회·부분 실패·배경 버튼 확인. 부분 실패 중 일반 곡 추가 시 대기 리믹스 유지와 상한 보완 배정. 미배포.",
-      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1·msg_fd4dcdac6208·7b76ae4eb·msg_cf3cd8832343·msg_5118e37c0e3b·msg_ef79431525cb·e728f10cf·msg_53afdbd8013c·msg_6bc9c6ee0c57·ded8cece2·msg_545ceab47299·msg_12156cc001ce·msg_bf5018c5c214·msg_0659fb81e981·msg_0bbb39a1a896·f13c339f4·msg_683a6f310963·msg_31e6f7c353b0·msg_e5ae913fe5a9·msg_8aa6c8258677·04ea0054c·msg_b0ecc3b9e5f2·msg_4abb0464a25e·msg_33c8502d9f0d"
+      "status": "reviewing",
+      "delivery": "receiver_pending_choices_fixed_mac_recheck_sent",
+      "next": "6fe27dd09 담당 72/72·tsc. 미처리 리믹스 유지와 실제 목록 기준 20곡 상한 Mac 재검수 전달. 실제 화면·서명 미확인, 미배포.",
+      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1·msg_fd4dcdac6208·7b76ae4eb·msg_cf3cd8832343·msg_5118e37c0e3b·msg_ef79431525cb·e728f10cf·msg_53afdbd8013c·msg_6bc9c6ee0c57·ded8cece2·msg_545ceab47299·msg_12156cc001ce·msg_bf5018c5c214·msg_0659fb81e981·msg_0bbb39a1a896·f13c339f4·msg_683a6f310963·msg_31e6f7c353b0·msg_e5ae913fe5a9·msg_8aa6c8258677·04ea0054c·msg_b0ecc3b9e5f2·msg_4abb0464a25e·msg_33c8502d9f0d·msg_909570744d33·6fe27dd09·msg_1502b2775852"
     },
     {
       "task_id": "MUSIC-20261119-REMIX-PLAYLIST-REVIEW",
