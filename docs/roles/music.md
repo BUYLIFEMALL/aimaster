@@ -15,7 +15,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `playlist-channel-studio`·`music` | 리믹스 → 플레이리스트 연계 — **플레이리스트 받기 로컬 완료·수락(고정판 `6fba5fca2`, Mac 88/88, 미배포)**. 다음: 배포 승인 → 운영에서 받기 확인 → 음악 리믹스 카드 링크. 미확인: 실제 화면·실서명·리믹스 Suno 시간 가사. 범위 `.ai/results/MUSIC-20261119-REMIX-PLAYLIST-PRECHECK-CC-MUSIC-01.md` §4 | 새 묶음 승인 대기. 리믹스 Suno 시간 가사 조회·뮤직비디오 Gemini 영상 호출은 보류(유료 승인 없음) | `.ai/results/MUSIC-20261119-REMIX-PLAYLIST-PRECHECK-CC-MUSIC-01.md` |
+| `playlist-channel-studio`·`music` | 리믹스 → 플레이리스트 연계 — **플레이리스트 받기 v1.43 배포·운영 확인 끝(11-19 `playlist-channel-studio-hnmaikj36`)**. 다음: 음악 리믹스 카드 링크(빌드 1회 승인 필요). 미확인: 실제 화면·실서명·리믹스 Suno 시간 가사. 범위 `.ai/results/MUSIC-20261119-REMIX-PLAYLIST-PRECHECK-CC-MUSIC-01.md` §4 | 새 묶음 승인 대기. 리믹스 Suno 시간 가사 조회·뮤직비디오 Gemini 영상 호출은 보류(유료 승인 없음) | `.ai/results/MUSIC-20261119-REMIX-PLAYLIST-PRECHECK-CC-MUSIC-01.md` |
 | `free-music-studio` | B-6 LeVo 2 v2-medium | 공식 코드 `tencent-ailab/SongGeneration` 공개(아직 404) — **공개되면 바로 진행**(2026-11-10 주인님 「이건 나오면 진행」, 공개 확인 시 플랜부터) | 백로그 「보관」 B-6 |
 | `ai-music-studio` | ⏸ Mureka 켜기(코드 준비됨·숨김) | 주인님이 필요해 충전하실 때(10-23 지시) | `ai-music-studio/docs/IMPROVEMENT_BACKLOG.md` |
 | `free-music-studio` | D-2 앨범 그림 모델 이름 따라 바꾸기 | `ai-image-studio` 모델이 바뀔 때만(상시 점검) | 백로그 D-2 |

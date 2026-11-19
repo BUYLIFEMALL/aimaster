@@ -264,3 +264,8 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 
 ## 2026-11-16 v1.42 — 미배포 묶음 배포 (Claud(Music) `claude-win-20261024-music`, 주인님 「미배포 묶음 배포 진행해」 승인 빌드 5회 중 1회)
 - 내보낸 것: 곡 없이도 「내가 올린 영상」 목록·보내기 단추 `16439a8e9` + 공용 사본 `youtube-upload-client` 선택값 `containsSyntheticMedia`(`0807cf180`, 영상 담당). 시험 37·tsc 통과, 배포 `playlist-channel-studio-icbwj5qia` Ready·DB v1.42, ego lite 화면 v1.42·위젯 확인.
+
+## 2026-11-19 v1.43 — 음악(SUNO) 리믹스 결과 받기 (Claud(Music) `claude-win-20261024-music`, 주인님 「배포해」 승인 빌드 1회)
+- `?remix=<리믹스 변주 id>`(일반 곡 `?suno=`와 섞어 쓰기, 합쳐 최대 20곡 미리 선택만): 곡 목록에 본인 완료 리믹스 최근 20개, 회원 폴더 경로만 서명, 저장 안 된 변주 선택 불가, 목록 대기·실패·리믹스 부분 실패 구분, 활성/보류 선택 분리·20 이하, 추가 중 경합, 「선택 해제」 전부 해제. 규칙 `src/lib/remixTracks.ts`, 시험 `tests/remix-tracks.test.mjs`(88). 사전 검토 `.ai/results/MUSIC-20261119-REMIX-PLAYLIST-PRECHECK-CC-MUSIC-01.md`, Mac 독립 검수 `.ai/results/MUSIC-20261119-REMIX-PLAYLIST-CX-QA-01.md`(고정판 `6fba5fca2` 88/88·새 지적 0).
+- 배포 `playlist-channel-studio-hnmaikj36` Ready, 버전 커밋 `ca1a4a8ac`, DB v1.43. 운영 ego(시험 계정·본인 곡만): 화면 v1.43, `?remix=` 보컬 추가·반주 추가 2곡 → 「보낸 곡 2개 중 2개를 찾아 미리 선택」·리믹스 3줄(반주 추가는 연주곡)·「선택한 곡 추가 (2)」 → Suno 시간 가사 끄고 추가 → 「곡 2개를 목록 끝에 추가했습니다」·리믹스 커버로 배경 생성(실서명 정상), 없는 번호 404, 목록 remixError false·blocked 0. Suno 유료 호출 0.
+- 남은 일: 음악 리믹스 카드 「플레이리스트」 링크(별도 승인), 리믹스 Suno 시간 가사 실수신(유료 보류).
