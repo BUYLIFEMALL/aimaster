@@ -355,3 +355,5 @@ IMG-20261119-P0 CC-ECOM-01: 주인님 지정·Master msg_6d81c947bd00. 새 문�
 IMG-20261119-P0 추가 CC-ECOM-01: 주인님 「마스터 PC에서도 테스트 진행해」. 새 시험 도구 docs/analysis-free-image-automation-20261119/p0/p0.mjs(내려받기·측정, 제품 코드 아님). 이 PC 산출물 위치는 주인님 지정으로 D:\AI-Music\ImageModels·D:\AI-Music\FreeImageP0로 변경(F:\FreeImageP0 폐기).
 
 IMG-20261119-P1-PROPOSAL CC-ECOM-01: Master msg_7f3e70cc5834. 새 문서 docs/analysis-free-image-automation-20261119/P1_PROPOSAL.md 만 작성(P0 종합·P1 제안). free-music-studio/engine·ai-image-studio 읽기만, 코드 구현·엔진 변경·설치·실기·배포 0.
+
+IMG-20261119-PASS CC-ECOM-01: 주인님 「그렇게 진행하고 테스트는 admin pc쪽으로 요청해」. docs/analysis-free-image-automation-20261119/p0/prompts-v2.json(새 파일)·p0/p0.mjs(--prompts 옵션)·P1_PROPOSAL.md 8절. 실행은 Admin PC, 저장소 밖 산출물.
