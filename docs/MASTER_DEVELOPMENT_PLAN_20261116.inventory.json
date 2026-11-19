@@ -10260,9 +10260,9 @@
       "reviewer": "CX-QA-01",
       "title": "AI Influencer D2 정리·쿼터 격리 통합 시험",
       "status": "running",
-      "delivery": "d2_isolated_tests_accepted_waiting_plan6",
+      "delivery": "d2_isolated_tests_plan6_draft_received",
       "sha": "409a339af",
-      "next": "담당 수락. PLAN6 문서 반환 뒤 전용 시험 DB에서 실제 SQL·정리·기존 생성 사전 검사를 연결. 운영 shadow·실 cron 보류.",
+      "next": "PLAN6 초안 수신으로 전용 시험 DB 작업 착수 가능. 실제 SQL·정리·생성 사전 검사 연결 결과 대기. 운영 shadow·실 cron 보류.",
       "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e"
     },
     {
@@ -10271,10 +10271,10 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "AI Influencer 직접 요구 6건 개발 플랜 보완",
-      "status": "running",
-      "delivery": "six_requirement_plan_addendum_dispatched",
-      "next": "회원 예약 기본은 개인 cron-job.org, Vercel은 관리자·시험 계정만 선택하도록 확정. 모델 선택·숏츠·채널별 게시와 함께 보완 초안 작성 중. 구현 전.",
-      "evidence": "msg_2aef054f4218·msg_cab465419261·msg_e64517943f54·msg_8fc3f54229e4"
+      "status": "reviewing",
+      "delivery": "six_requirement_draft_received_transition_revision_requested",
+      "next": "833adcd62 요구 6건 초안 수신. 일반 회원 기존 Vercel 예약 전환 조건·시험계정 판정 보완 요청. D2 격리 시험 우선, 구현 전.",
+      "evidence": "msg_2aef054f4218·msg_cab465419261·msg_e64517943f54·msg_8fc3f54229e4·msg_142bb5f1bb17·833adcd62·msg_37800f3378aa"
     },
     {
       "task_id": "AIF-20261119-W01-D1",
