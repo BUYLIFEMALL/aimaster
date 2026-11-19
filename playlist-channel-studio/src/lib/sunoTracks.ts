@@ -41,15 +41,15 @@ type VRow = { id: string; suno_audio_id: string | null; duration_seconds: number
 
 const REMIX_LIMIT = 20;
 
-/** 회원 본인의 완료된 리믹스(최근 20개) — 읽기에 실패하면 일반 곡 목록은 그대로 두고 리믹스만 빠진다 */
-async function listRemixTracks(userId: string): Promise<SunoTrack[]> {
+/** 회원 본인의 완료된 리믹스(최근 20개) — 읽기에 실패하면 ok:false(일반 곡 목록은 그대로, 화면이 리믹스 몫을 「아직」으로 안내) */
+async function listRemixTracks(userId: string): Promise<{ tracks: SunoTrack[]; ok: boolean }> {
   const { data, error } = await createAdminClient()
     .from("music_track_remixes")
     .select("id, mode, instrumental, source_title, task_id, created_at, music_track_remix_variants(id, user_id, suno_audio_id, duration_seconds, created_at, audio_url)")
     .eq("user_id", userId).eq("status", "completed")
     .order("created_at", { ascending: false }).limit(REMIX_LIMIT);
-  if (error) { console.error("[playlist suno remixes]", error.code ?? "unknown"); return []; }
-  return (data ?? []).flatMap((r) => {
+  if (error) { console.error("[playlist suno remixes]", error.code ?? "unknown"); return { tracks: [], ok: false }; }
+  const tracks = (data ?? []).flatMap((r) => {
     const row = r as Record<string, unknown>;
     const variants = ((row.music_track_remix_variants ?? []) as (RemixVariantRow & { user_id: string })[]).filter((v) => v.user_id === userId);
     // 음원이 회원 폴더에 저장되지 않은 변주(외부 주소 등)는 「받을 수 없음」으로 — 받기에서 410이 날 곡을 미리 고르지 못하게
@@ -57,12 +57,13 @@ async function listRemixTracks(userId: string): Promise<SunoTrack[]> {
     const track = remixTrack({ ...(row as unknown as RemixRow), variants }, (v) => !!ownStoragePath(v.audio_url ?? null, base, BUCKET, userId));
     return track ? [track] : [];
   });
+  return { tracks, ok: true };
 }
 
-/** 회원 본인의 완성된 곡(보컬·인스트루멘탈, 최근 40곡) + 완료된 리믹스(최근 20개), 만든 순서 최신 먼저 */
-export async function listSunoTracks(userId: string): Promise<SunoTrack[]> {
+/** 회원 본인의 완성된 곡(보컬·인스트루멘탈, 최근 40곡) + 완료된 리믹스(최근 20개), 만든 순서 최신 먼저. 리믹스만 못 읽었으면 remixError */
+export async function listSunoTracks(userId: string): Promise<{ tracks: SunoTrack[]; remixError: boolean }> {
   const [songs, remixes] = await Promise.all([listSongTracks(userId), listRemixTracks(userId)]);
-  return [...songs, ...remixes].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return { tracks: [...songs, ...remixes.tracks].sort((a, b) => b.createdAt.localeCompare(a.createdAt)), remixError: !remixes.ok };
 }
 
 async function listSongTracks(userId: string): Promise<SunoTrack[]> {

@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ExternalLink, Loader2, Music2, RefreshCw } from "lucide-react";
 import type { Track } from "@/types/playlist";
 import type { LyricLine } from "@/lib/lyrics";
-import { incomingNotice, mergeIncoming, parseIdParam, seedSelection } from "@/lib/remixTracks";
+import { acceptResponse, incomingNotice, parseIdParam, seedStep, splitIncoming, type Incoming, type ListView } from "@/lib/remixTracks";
 
 // v1.19 음악(SUNO) 자동화에서 만든 내 곡 여러 개를 골라 플레이리스트 곡 목록에 한 번에 추가한다.
 // 음악은 비공개 저장소의 1시간 서명 주소로 받고(서버에 새로 올리지 않음), 「시간 가사도 받기」를 켜면
@@ -72,37 +72,49 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
   const [list, setList] = useState<SunoTrack[] | null>(null), [listError, setListError] = useState("");
   const [picked, setPicked] = useState<string[]>([]), [withTime, setWithTime] = useState(true), [coverAsBg, setCoverAsBg] = useState(true);
   const [busy, setBusy] = useState(""), [report, setReport] = useState<{ text: string; ok: boolean; needKey?: boolean } | null>(null);
-  const [incoming, setIncoming] = useState<string[]>([]); // 주소로 받은 곡 번호(?suno=·?remix=)
-  const [seeded, setSeeded] = useState(false); // 받은 곡으로 미리 선택을 이미 만들었는가(처음 정상 로드 한 번만)
+  const [incoming, setIncoming] = useState<Incoming>({ suno: [], remix: [] }); // 주소로 받은 곡 번호(출처별 ?suno=·?remix=)
+  const [seedDone, setSeedDone] = useState({ suno: false, remix: false }); // 출처마다 미리 선택을 이미 했는가(실제 성공 응답에서 한 번씩)
+  const [loadState, setLoadState] = useState<"idle" | "loading" | "ok" | "error">("idle"), [remixOk, setRemixOk] = useState(true);
+  const reqRef = useRef(0); // 마지막 목록 요청 번호 — 늦게 온 옛 응답은 버린다
   const [bgStyle, setBgStyle] = useState<"blur" | "album">("blur"), [heading, setHeading] = useState(""), [channel, setChannel] = useState("");
   const albumText = (title: string): AlbumText => (bgStyle === "album" ? { heading: heading.trim() || title, channel } : null);
 
   async function load() {
-    setListError("");
-    try { setList((await getJson<{ tracks: SunoTrack[] }>("/api/suno/tracks")).tracks); }
-    catch (e) { setList([]); setListError(e instanceof Error ? e.message : "곡 목록을 불러오지 못했습니다."); }
+    const id = ++reqRef.current;
+    setLoadState("loading"); // 대기 중에는 이전 목록·선택을 그대로 둔다(빈 목록을 성공으로 보지 않음)
+    try {
+      const r = await getJson<{ tracks: SunoTrack[]; remixError?: boolean }>("/api/suno/tracks");
+      if (!acceptResponse(id, reqRef.current)) return;
+      setList(r.tracks); setRemixOk(!r.remixError); setListError(""); setLoadState("ok");
+    } catch (e) {
+      if (!acceptResponse(id, reqRef.current)) return;
+      setList((l) => l ?? []); setListError(e instanceof Error ? e.message : "곡 목록을 불러오지 못했습니다."); setLoadState("error");
+    }
   }
   useEffect(() => { if (open && list === null) void load(); }, [open, list]);
 
   // 음악(SUNO) 자동화 「플레이리스트 영상 만들기 →」(?suno=)·리믹스 카드(?remix=)로 들어온 경우 — 곡을 미리 선택만 한다(Suno 조회 비용이 생길 수 있어 자동 추가하지 않음)
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
-    const uniq = mergeIncoming(parseIdParam(q.get("suno")), parseIdParam(q.get("remix")), MAX_PICK);
-    if (!uniq.length) return;
-    setIncoming(uniq); setOpen(true); // 선택은 목록을 처음 정상으로 받은 뒤(아래) — 오류·빈 목록과 구분
+    const inc = splitIncoming(parseIdParam(q.get("suno")), parseIdParam(q.get("remix")), MAX_PICK);
+    if (!inc.suno.length && !inc.remix.length) return;
+    setIncoming(inc); setOpen(true); // 선택은 목록을 실제로 받은 뒤(아래 seedStep) — 대기·오류·빈 목록과 구분
     window.history.replaceState(null, "", window.location.pathname);
   }, []);
 
   const all = (list ?? []).flatMap((t) => t.variants.map((v, i) => ({ t, v, i })));
   const selectable = all.filter((a) => !a.v.blocked);
-  const listOk = list !== null && !listError;
-  // 받은 곡은 목록을 처음 「정상으로」 받았을 때 한 번만 미리 선택한다(고를 수 있는 곡만·최대 20) — 오류 뒤 새로고침으로 성공하면 그때 선택
+  const view: ListView = loadState === "ok" ? { state: "ok", selectable: selectable.map((a) => a.v.id), remixOk } : loadState === "error" ? { state: "error" } : { state: loadState };
+  const selectableKey = view.state === "ok" ? view.selectable.join(",") : "";
+  // 받은 곡 미리 선택 — 실제 성공 응답에서만, 출처마다 한 번(리믹스를 못 읽었으면 리믹스 몫은 다음 성공 때). 이미 고른 곡·손으로 해제한 곡은 건드리지 않고 20곡 한도 유지
   useEffect(() => {
-    if (seeded || !incoming.length || !list || listError) return;
-    const ids = new Set(list.flatMap((t) => t.variants.filter((v) => !v.blocked).map((v) => v.id)));
-    setPicked(seedSelection(incoming, [...ids], MAX_PICK)); setSeeded(true);
-  }, [seeded, incoming, list, listError]);
-  const notice = incomingNotice(incoming, list === null ? null : listOk ? { ok: true, selectable: selectable.map((a) => a.v.id) } : { ok: false }, picked);
+    if (view.state !== "ok" || (!incoming.suno.length && !incoming.remix.length)) return;
+    const step = seedStep(incoming, seedDone, view, picked, MAX_PICK);
+    if (step.done.suno === seedDone.suno && step.done.remix === seedDone.remix) return;
+    setPicked(step.picked); setSeedDone(step.done);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 응답(상태·고를 수 있는 곡)이 바뀔 때만 한 단계, 선택 변화로는 다시 돌지 않음
+  }, [loadState, selectableKey, remixOk, incoming, seedDone]);
+  const notice = incomingNotice(incoming, view, picked);
   const toggle = (id: string) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : p.length >= MAX_PICK ? p : [...p, id]));
   const pickWhere = (fn: (t: SunoTrack) => boolean) => setPicked(selectable.filter((a) => fn(a.t)).map((a) => a.v.id).slice(0, MAX_PICK));
   const pickedHere = selectable.filter((a) => picked.includes(a.v.id));
@@ -112,7 +124,9 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
     if (busy) return;
     setReport(null); setBusy(`「${t.title}」 커버로 배경을 만드는 중…`);
     try {
-      const { variant } = await getJson<{ variant: VariantInfo }>(`/api/suno/tracks?variant=${t.variants[0].id}`);
+      const usable = t.variants.find((v) => !v.blocked); // 받을 수 있는 변주의 커버만(음원 저장 안 된 리믹스 변주는 건너뜀)
+      if (!usable) throw new Error("이 곡은 음원이 저장되지 않아 커버를 가져올 수 없습니다.");
+      const { variant } = await getJson<{ variant: VariantInfo }>(`/api/suno/tracks?variant=${usable.id}`);
       if (!variant.coverUrl) throw new Error("이 곡에는 커버 이미지가 없습니다.");
       setBgMedia(await coverBackdrop(variant.coverUrl, t.title, albumText(t.title)));
       setReport({ ok: true, text: `「${t.title}」 커버로 배경을 만들었습니다(흐린 확대 커버 + 가운데 원본, 1920×1080).` });
@@ -166,7 +180,7 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
       try { setBgMedia(await coverBackdrop(firstCover.url, firstCover.title, albumText(firstCover.title))); bgDone = ` 배경은 「${firstCover.title}」 커버로 만들었습니다.`; }
       catch (e) { problems.push(`배경: ${e instanceof Error ? e.message : "만들지 못함"}`); }
     }
-    setBusy(""); setPicked([]); setIncoming([]);
+    setBusy(""); setPicked([]); setIncoming({ suno: [], remix: [] });
     setReport({ ok: problems.length === 0, needKey, text: `곡 ${added.length}개를 목록 끝에 추가했습니다${timedCount ? ` (시간 가사 ${timedCount}곡)` : ""}.${bgDone}${problems.length ? ` 확인할 것: ${problems.join(" / ")}` : ""}` });
   }
 
@@ -221,7 +235,7 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
                           변주 {i + 1}{v.duration ? ` · ${fmt(v.duration)}` : ""}{timedCache.has(v.id) ? " · ✓ 가사 받음" : ""}{v.blocked ? " · ⚠ 음원 저장 안 됨" : ""}
                         </label>
                       ))}
-                      <button type="button" className={chip} disabled={!!busy} onClick={() => void useCover(t)} title="이 곡 커버로 1920×1080 배경을 만듭니다(지금 배경을 바꿉니다)">🖼 배경으로</button>
+                      <button type="button" className={chip} disabled={!!busy || !t.variants.some((v) => !v.blocked)} onClick={() => void useCover(t)} title="이 곡 커버로 1920×1080 배경을 만듭니다(지금 배경을 바꿉니다)">🖼 배경으로</button>
                     </span>
                   </div>
                 ))}

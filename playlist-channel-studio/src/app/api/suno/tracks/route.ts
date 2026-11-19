@@ -16,7 +16,8 @@ export async function GET(request: NextRequest) {
       if (!UUID.test(variant)) return NextResponse.json({ error: "곡 번호가 올바르지 않습니다." }, { status: 400, headers: NO_STORE });
       return NextResponse.json({ variant: await getSunoVariant(g.user.id, variant) }, { headers: NO_STORE });
     }
-    return NextResponse.json({ tracks: await listSunoTracks(g.user.id) }, { headers: NO_STORE });
+    const { tracks, remixError } = await listSunoTracks(g.user.id); // remixError: 리믹스만 못 읽은 부분 성공(일반 곡은 정상)
+    return NextResponse.json({ tracks, remixError }, { headers: NO_STORE });
   } catch (e) {
     if (e instanceof SunoError) return NextResponse.json({ error: e.message }, { status: e.status, headers: NO_STORE });
     console.error("[playlist suno tracks]", e instanceof Error ? e.message : "unknown");

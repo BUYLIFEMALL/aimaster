@@ -116,26 +116,52 @@ export async function signRemixAssets(
   return { audioUrl, coverUrl: coverPath ? await sign(coverPath) : null };
 }
 
-/** 처음 정상으로 받은 목록에서 미리 선택할 곡 — 받은 순서 그대로, 목록에서 고를 수 있는(blocked 아닌) 곡만, 최대 max */
-export function seedSelection(incomingIds: string[], selectableIds: string[], max: number): string[] {
-  const ok = new Set(selectableIds);
-  return incomingIds.filter((id) => ok.has(id)).slice(0, max);
+/** 주소로 받은 곡 번호 — 출처별(?suno= 일반 곡 · ?remix= 리믹스). 합쳐서 최대 max(앞쪽 우선)로 자른 뒤 나눈다 */
+export type Incoming = { suno: string[]; remix: string[] };
+export function splitIncoming(suno: string[], remix: string[], max: number): Incoming {
+  const keep = new Set(mergeIncoming(suno, remix, max));
+  const s = suno.filter((id) => keep.has(id));
+  const taken = new Set(s);
+  return { suno: s, remix: remix.filter((id) => keep.has(id) && !taken.has(id)) };
+}
+
+/** 목록 응답 상태 — 대기(이전 목록 유지)·실패·성공을 구분한다. remixOk=false는 일반 곡만 받은 부분 성공 */
+export type ListView = { state: "idle" | "loading" } | { state: "error" } | { state: "ok"; selectable: string[]; remixOk: boolean };
+
+/** 늦게 도착한 옛 요청의 응답은 버린다(새로고침을 연달아 눌러 응답 순서가 뒤바뀌어도 마지막 요청 결과만) */
+export const acceptResponse = (requestId: number, latestId: number): boolean => requestId === latestId;
+
+/**
+ * 받은 곡 미리 선택 한 단계 — 실제 성공 응답(state ok)에서만, 출처마다 한 번씩.
+ * 리믹스를 못 읽은 부분 성공이면 리믹스 몫은 보류(done.remix 그대로)하고 다음 성공 때 고른다.
+ * 이미 고른 곡은 그대로 두고(손으로 해제한 곡을 되살리지 않음) 뒤에 이어 붙이며, 합계 max를 넘기지 않는다.
+ */
+export function seedStep(inc: Incoming, done: { suno: boolean; remix: boolean }, view: ListView, picked: string[], max: number): { picked: string[]; done: { suno: boolean; remix: boolean } } {
+  if (view.state !== "ok") return { picked, done };
+  const takeSuno = !done.suno, takeRemix = !done.remix && view.remixOk;
+  if (!takeSuno && !takeRemix) return { picked, done };
+  const ok = new Set(view.selectable), now = new Set(picked);
+  const add = [...(takeSuno ? inc.suno : []), ...(takeRemix ? inc.remix : [])].filter((id) => ok.has(id) && !now.has(id));
+  return { picked: [...picked, ...add.slice(0, Math.max(0, max - picked.length))], done: { suno: done.suno || takeSuno, remix: done.remix || takeRemix } };
 }
 
 /**
- * 주소로 받은 곡 안내 — list: null(아직 못 받음) · {ok:false}(오류, 선택하지 않음) · {ok:true, selectable}(고를 수 있는 곡 번호).
- * 숫자는 「보낸 수 · 목록에서 찾은 수 · 그중 지금 선택된 수」로, 다시 불러오거나 손으로 해제해도 지금 상태와 맞는다.
+ * 주소로 받은 곡 안내 — 「보낸 수 · 목록에서 찾은 수 · 그중 지금 선택 수」, 리믹스를 못 읽었으면 그 몫은 「아직」.
+ * 숫자는 지금 목록·지금 선택으로 계산하므로 다시 불러오거나 손으로 해제해도 지금 상태와 맞는다.
  */
-export function incomingNotice(incomingIds: string[], list: { ok: false } | { ok: true; selectable: string[] } | null, pickedIds: string[]): string | null {
-  const n = incomingIds.length;
+export function incomingNotice(inc: Incoming, view: ListView, picked: string[]): string | null {
+  const n = inc.suno.length + inc.remix.length;
   if (!n) return null;
-  if (!list) return `음악(SUNO) 자동화에서 보낸 곡 ${n}개를 내 곡 목록에서 찾는 중입니다…`;
-  if (!list.ok) return `곡 목록을 불러오지 못해 보낸 곡 ${n}개를 아직 선택하지 못했습니다. 아래 「새로고침」을 눌러 다시 불러와 주세요.`;
-  const ok = new Set(list.selectable), picked = new Set(pickedIds);
-  const found = incomingIds.filter((id) => ok.has(id));
-  const now = found.filter((id) => picked.has(id)).length, missing = n - found.length;
+  if (view.state !== "ok") return view.state === "error"
+    ? `곡 목록을 불러오지 못해 보낸 곡 ${n}개를 아직 선택하지 못했습니다. 아래 「새로고침」을 눌러 다시 불러와 주세요.`
+    : `음악(SUNO) 자동화에서 보낸 곡 ${n}개를 내 곡 목록에서 찾는 중입니다…`;
+  const ok = new Set(view.selectable), sel = new Set(picked);
+  const pending = view.remixOk ? 0 : inc.remix.length;
+  const checked = [...inc.suno, ...(view.remixOk ? inc.remix : [])];
+  const found = checked.filter((id) => ok.has(id));
+  const now = found.filter((id) => sel.has(id)).length, missing = checked.length - found.length;
   return `음악(SUNO) 자동화에서 보낸 곡 ${n}개 중 ${found.length}개를 내 곡 목록에서 찾아 미리 선택했습니다(그중 지금 선택 ${now}개).`
     + (missing ? ` ${missing}개는 목록에 없거나 음원이 저장되지 않아 선택하지 못했습니다(일반 곡 최근 40곡·리믹스 최근 20개, 완성된 내 곡만).` : "")
+    + (pending ? ` 리믹스 목록을 불러오지 못해 리믹스 ${pending}개는 아직 선택하지 못했습니다 — 「새로고침」을 눌러 주세요.` : "")
     + " 확인한 뒤 「선택한 곡 추가」를 눌러 주세요.";
 }
-

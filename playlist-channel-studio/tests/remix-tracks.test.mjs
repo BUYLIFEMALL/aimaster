@@ -197,7 +197,7 @@ test("서버: 리믹스만 회원 폴더 서명, 일반 SUNO 곡 경로(signed)�
 });
 
 // ── Mac 재검수 잔여 보완 (Master msg_0659fb81e981, Mac msg_bf5018c5c214) ──
-import { REMIX_NOT_STORED, incomingNotice, seedSelection } from "../src/lib/remixTracks.ts";
+import { REMIX_NOT_STORED, acceptResponse, incomingNotice, seedStep, splitIncoming } from "../src/lib/remixTracks.ts";
 
 test("경로 조각은 공식 저장 키 형식만 — 역슬래시·%·물음표·공백·점으로 시작하는 조각은 서명 전에 거절", async () => {
   for (const bad of [`${ME}/remix/a\b.mp3`, `${ME}/remix/a%5Cb.mp3`, `${ME}/remix/a%3Fx.mp3`, `${ME}/remix/a%20b.mp3`, `${ME}/remix/.hidden.mp3`, `${ME}/remix/a%252e.mp3`, `${ME}/remix/a%2Fb.mp3`]) {
@@ -218,32 +218,93 @@ test("저장되지 않은 리믹스 변주는 목록에서 「받을 수 없음�
   assert.equal(noCheck.variants[0].blocked, undefined, "판정 함수가 없으면 표시 없음");
 });
 
-test("미리 선택: 받은 순서·고를 수 있는 곡만·최대 개수", () => {
-  assert.deepEqual(seedSelection([C, A, B], [A, C], 20), [C, A], "B(목록에 없거나 받을 수 없음)는 빠짐");
-  assert.deepEqual(seedSelection([A, B, C], [A, B, C], 2), [A, B]);
-  assert.deepEqual(seedSelection([A], [], 20), []);
+// ── 목록 재조회·부분 실패 (Master msg_e5ae913fe5a9, Mac msg_31e6f7c353b0) — 화면 load/useEffect가 그대로 쓰는 순수 함수로 상태 흐름을 모의 ──
+const D = "44444444-4444-4444-4444-444444444444";
+const NONE = { suno: false, remix: false };
+const ok = (selectable, remixOk = true) => ({ state: "ok", selectable, remixOk });
+
+test("출처별 나누기: 합쳐서 최대 개수(앞쪽 우선), 일반 곡과 겹치는 리믹스 번호는 일반 곡 쪽에만", () => {
+  assert.deepEqual(splitIncoming([A, B], [B, C], 20), { suno: [A, B], remix: [C] });
+  assert.deepEqual(splitIncoming([A, B], [C, D], 3), { suno: [A, B], remix: [C] });
 });
 
-test("받은 곡 안내: 찾는 중 → 오류(선택 안 함) → 정상(찾은 수·지금 선택 수) — 손으로 해제·다시 불러오기 뒤에도 지금 상태와 일치", () => {
-  assert.equal(incomingNotice([], null, []), null);
-  assert.match(incomingNotice([A, B], null, []), /2개를 내 곡 목록에서 찾는 중/);
-  assert.match(incomingNotice([A, B], { ok: false }, []), /불러오지 못해 보낸 곡 2개를 아직 선택하지 못했습니다/);
-  const all = incomingNotice([A, B], { ok: true, selectable: [A, B, C] }, [A, B]);
-  assert.match(all, /보낸 곡 2개 중 2개를 .*지금 선택 2개/);
-  assert.doesNotMatch(all, /선택하지 못했습니다/);
-  assert.match(incomingNotice([A, B], { ok: true, selectable: [A, B] }, [A]), /2개 중 2개를 .*지금 선택 1개/, "손으로 하나 해제");
-  const miss = incomingNotice([A, B, C], { ok: true, selectable: [A] }, [A]);
-  assert.match(miss, /3개 중 1개를 .*지금 선택 1개.* 2개는 목록에 없거나 음원이 저장되지 않아/);
-  assert.match(incomingNotice([A, B, C], { ok: true, selectable: [A, B, C] }, [A]), /3개 중 3개를 .*지금 선택 1개/, "다시 불러와 더 찾으면 찾은 수는 늘고 선택 수는 실제대로");
+test("미리 선택은 실제 성공 응답에서만 — 대기·실패 동안에는 선택·완료 표시 그대로(실패 뒤 새로고침 대기 렌더에서 초기화 금지)", () => {
+  const inc = { suno: [A], remix: [C] };
+  for (const view of [{ state: "idle" }, { state: "loading" }, { state: "error" }]) assert.deepEqual(seedStep(inc, NONE, view, [], 20), { picked: [], done: NONE });
+  // 첫 요청 실패 → 새로고침 대기 → 성공: 성공 때 비로소 선택
+  let s = { picked: [], done: NONE };
+  s = seedStep(inc, s.done, { state: "error" }, s.picked, 20);
+  s = seedStep(inc, s.done, { state: "loading" }, s.picked, 20);
+  assert.deepEqual(s.picked, []);
+  s = seedStep(inc, s.done, ok([A, C]), s.picked, 20);
+  assert.deepEqual(s, { picked: [A, C], done: { suno: true, remix: true } });
 });
 
-test("서버·화면 연결: 리믹스 목록은 음원 저장 여부로 blocked, 화면은 처음 정상 로드 때만 미리 선택·blocked는 체크 불가", () => {
+test("리믹스만 못 읽은 부분 성공: 일반 곡만 먼저 고르고 리믹스는 보류 → 다음 성공 때 리믹스만 이어 붙임", () => {
+  const inc = { suno: [A], remix: [C] };
+  let s = seedStep(inc, NONE, ok([A, B], false), [], 20);
+  assert.deepEqual(s, { picked: [A], done: { suno: true, remix: false } });
+  s = seedStep(inc, s.done, ok([A, B, C], true), s.picked, 20);
+  assert.deepEqual(s, { picked: [A, C], done: { suno: true, remix: true } });
+});
+
+test("손으로 해제한 곡은 되살리지 않고, 복구된 리믹스만 더하며, 20곡 한도를 넘기지 않는다", () => {
+  const inc = { suno: [A, B], remix: [C, D] };
+  let s = seedStep(inc, NONE, ok([A, B], false), [], 20);
+  assert.deepEqual(s.picked, [A, B]);
+  s.picked = [B]; // 회원이 A를 해제
+  s = seedStep(inc, s.done, ok([A, B, C, D], true), s.picked, 20);
+  assert.deepEqual(s.picked, [B, C, D], "A는 다시 고르지 않음");
+  const full = Array.from({ length: 19 }, (_, i) => `${String(i).padStart(8, "0")}-1111-1111-1111-111111111111`);
+  const capped = seedStep({ suno: [], remix: [C, D] }, { suno: true, remix: false }, ok([C, D]), full, 20);
+  assert.equal(capped.picked.length, 20);
+  assert.deepEqual(capped.picked.slice(-1), [C]);
+  const again = seedStep(inc, { suno: true, remix: true }, ok([A, B, C, D]), [], 20);
+  assert.deepEqual(again.picked, [], "출처마다 한 번 — 다시 불러와도 다시 고르지 않음");
+});
+
+test("정상 빈 목록: 성공으로 끝내고(선택 0) 안내는 「0개 찾음」, 오류 안내와 다름", () => {
+  const inc = { suno: [A], remix: [C] };
+  assert.deepEqual(seedStep(inc, NONE, ok([]), [], 20), { picked: [], done: { suno: true, remix: true } });
+  const msg = incomingNotice(inc, ok([]), []);
+  assert.match(msg, /보낸 곡 2개 중 0개를 .* 2개는 목록에 없거나/);
+  assert.doesNotMatch(msg, /불러오지 못해/);
+});
+
+test("받은 곡 안내: 대기·실패·부분 실패(리믹스 「아직」)·수동 해제 뒤 지금 선택 수", () => {
+  const inc = { suno: [A, B], remix: [C] };
+  assert.equal(incomingNotice({ suno: [], remix: [] }, ok([]), []), null);
+  assert.match(incomingNotice(inc, { state: "loading" }, []), /3개를 내 곡 목록에서 찾는 중/);
+  assert.match(incomingNotice(inc, { state: "error" }, []), /불러오지 못해 보낸 곡 3개를 아직 선택하지 못했습니다/);
+  const partial = incomingNotice(inc, ok([A, B], false), [A, B]);
+  assert.match(partial, /3개 중 2개를 .*지금 선택 2개/);
+  assert.match(partial, /리믹스 1개는 아직 선택하지 못했습니다/);
+  assert.doesNotMatch(partial, /목록에 없거나/, "보류 중인 리믹스를 「없음」으로 세지 않음");
+  assert.match(incomingNotice(inc, ok([A, B, C]), [B]), /3개 중 3개를 .*지금 선택 1개/, "손으로 해제");
+});
+
+test("응답 역순 경합: 마지막 요청의 응답만 받는다", () => {
+  let latest = 0; const first = ++latest, second = ++latest;
+  assert.equal(acceptResponse(second, latest), true);
+  assert.equal(acceptResponse(first, latest), false, "늦게 도착한 첫 요청 응답은 버림");
+});
+
+test("서버·화면 연결: 부분 실패 신호, 요청 번호, 실제 성공에서만 미리 선택, 배경 버튼은 받을 수 있는 변주만", () => {
   const server = readFileSync(new URL("../src/lib/sunoTracks.ts", import.meta.url), "utf8");
   assert.match(server, /music_track_remix_variants\(id, user_id, suno_audio_id, duration_seconds, created_at, audio_url\)/);
   assert.match(server, /remixTrack\(\{[^\n]*\}, \(v\) => !!ownStoragePath\(v\.audio_url \?\? null, base, BUCKET, userId\)\)/);
+  assert.match(server, /return \{ tracks: \[\], ok: false \}/);
+  assert.match(server, /remixError: !remixes\.ok/);
+  const route = readFileSync(new URL("../src/app/api/suno/tracks/route.ts", import.meta.url), "utf8");
+  assert.match(route, /NextResponse\.json\(\{ tracks, remixError \}/);
   const ui = readFileSync(new URL("../src/components/video/SunoImportPanel.tsx", import.meta.url), "utf8");
-  assert.match(ui, /if \(seeded \|\| !incoming\.length \|\| !list \|\| listError\) return;/, "오류·미로드·이미 선택했으면 미리 선택 안 함");
-  assert.doesNotMatch(ui, /setPicked\(uniq\)/, "주소를 읽자마자 선택하지 않음");
+  assert.match(ui, /const id = \+\+reqRef\.current;[\s\S]*if \(!acceptResponse\(id, reqRef\.current\)\) return;[\s\S]*if \(!acceptResponse\(id, reqRef\.current\)\) return;/, "성공·실패 응답 모두 요청 번호 확인");
+  assert.match(ui, /setLoadState\("loading"\);/);
+  assert.doesNotMatch(ui, /setListError\(""\);\s*\n\s*try/, "대기 시작 때 오류만 지워 빈 목록을 성공처럼 보이게 하지 않음");
+  assert.match(ui, /if \(view\.state !== "ok" \|\| \(!incoming\.suno\.length && !incoming\.remix\.length\)\) return;\s*\n\s*const step = seedStep\(/);
+  assert.doesNotMatch(ui, /setPicked\(uniq\)/);
   assert.match(ui, /disabled=\{!!busy \|\| !!v\.blocked\}/);
-  assert.match(ui, /const pickedHere = selectable\.filter/, "추가 대상에서도 blocked 제외");
+  assert.match(ui, /const pickedHere = selectable\.filter/);
+  assert.match(ui, /const usable = t\.variants\.find\(\(v\) => !v\.blocked\);/);
+  assert.match(ui, /disabled=\{!!busy \|\| !t\.variants\.some\(\(v\) => !v\.blocked\)\} onClick=\{\(\) => void useCover\(t\)\}/);
 });
