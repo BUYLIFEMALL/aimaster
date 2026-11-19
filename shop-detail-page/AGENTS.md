@@ -502,3 +502,11 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 운영 바나나 v1.48과 함께 써도 동작 변화 없음(옛 바나나는 resultId를 안 보내 응답에서 생략). 바나나 v1.49를 이 다음에 배포해야 「확인 필요」 없이 정상.
 - 배포 `shop-detail-page-6esxwz43i` Ready, DB v1.46→v1.47, 로그인 화면 200, ego(관리자 세션) 상품 화면 v1.47·위젯 확인. 배포 직후에는 실제 저장 응답 왕복이 미검수였음 → 같은 날 아래 줄에서 검수 완료로 해소.
 - 2026-11-17 운영 실저장 왕복 검수 ✅(주인님 「진행해」, ego, 시험 계정 `buylifemall@naver.com`): 상세 「대표사진 일괄 만들기」→ 시험용 텀블러 1개 → 바나나 v1.49 새 창 상품 1개 수신·첫 미리보기 → 합성 1/1·「반환 완료 ✓」1·확인 필요 0·응답 대기 0 → 상세 줄 「저장됨」·DB main_image_url 저장 확인 → 같은 설정 재합성은 다시 보내지 않음(저장 1 유지) → 「원본으로」로 복원·DB main_image_url 비움 확인. AI·빌드 비용 0. 남은 미검수: 실기기.
+
+## 2026-11-20 (미배포·운영 DB 미적용) — 상품에 붙인 쇼츠 저장 쪽 로컬 후보 (Claud(ecommerce) `claude-win-sdp` [역할: ecommerce-image], MOV-20261119-01-ECOM-RECEIVER-IMPLEMENT)
+- 배경: AI 쇼츠 원스톱에서 유튜브에 올린 쇼츠를 이 상품 화면에 되돌려 붙이는 연결(영상 담당 계약 `.ai/results/MOV-20261119-01-RECEIVER-CONTRACT-CC-MOVIE-01.md`). 주인님 승인 2026-11-20 「DB 표 추가 승인할게 진행해」(새 표 1개).
+- **이번에 만든 것은 저장 쪽뿐이다.** 영상 정보가 들어오는 길(원스톱이 여는 받는 창)은 **보류** — 맥미니 검수에서 원스톱의 `Cross-Origin-Opener-Policy: same-origin`(`shorts-onestop-studio/next.config.ts`) 때문에 창 연결이 끊기는 것으로 판정. 송수신 계약 수정판을 기다린다. 받는 창 화면(`/products/video-inbox`)·메시지 검사는 저장소에 넣지 않았다.
+- 새 표 SQL `supabase/migrations/20261120_product_videos.sql` — `shop_product_videos`(본인 행 읽기 + **본인 상품일 때만** 넣기, 정책 2개뿐. 고치기·지우기 정책 없음 — 「떼기」는 후속), `unique(user_id, product_id, video_id)`, 예약 없는 비공개 거절, 상품 삭제 시 함께 삭제. **운영 DB에 아직 적용하지 않았다**(순번은 Master). 상품 표에 칸을 붙이지 않은 이유: 마켓 등록 프로그램·AI 문구가 상품 표를 통째로 읽는다.
+- 규칙 `lib/productVideo.ts`(검사 `checkVideoInput`, 서버 순서 `attachVideo`, 표시 `videoStatus`) · 서버 동작 `lib/actions/productVideos.ts`(`requireProgramAccess` + 회원 세션, 관리자 키 없음 — **지금은 부르는 화면이 없다**) · 상품 화면 목록 `components/products/ProductVideos.tsx`(본인 상품 화면에서만, 예약 공개 전에는 글만·주소 없음, 붙인 영상이 없으면 안 보임 — 표가 없는 DB에서도 안 보임).
+- 시험: `node --test tests/` 25개(새 `productVideo.test.mjs` 5개 + 격리 DB `productVideoRls.test.mjs` 6개). 격리 DB 시험은 내장형 Postgres(PGlite)를 **저장소 밖에** 설치하고 `PGLITE_MODULE=<…/pglite/dist/index.js>`로 알려 줄 때만 돈다(없으면 건너뜀). tsc·eslint 통과. 버전은 올리지 않음(미배포).
+- 남은 일: 송수신 계약 수정판 → 들어오는 길 구현 → 운영 DB 적용 → 배포(v+0.01) → 실화면. 실제 동시 접속 중복(연결 2개)은 내장형 DB가 연결 하나라 미검증(unique 제약으로 방어).

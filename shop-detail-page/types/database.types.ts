@@ -246,6 +246,48 @@ export interface Database {
         };
         Relationships: [];
       };
+      shop_product_videos: {
+        Row: {
+          id: string;
+          user_id: string;
+          product_id: string;
+          video_id: string;
+          title: string;
+          privacy: string;
+          publish_at: string | null;
+          uploaded_at: string | null;
+          source: string;
+          source_item_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          product_id: string;
+          video_id: string;
+          title?: string;
+          privacy: string;
+          publish_at?: string | null;
+          uploaded_at?: string | null;
+          source?: string;
+          source_item_id?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          product_id?: string;
+          video_id?: string;
+          title?: string;
+          privacy?: string;
+          publish_at?: string | null;
+          uploaded_at?: string | null;
+          source?: string;
+          source_item_id?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       shop_page_exports: {
         Row: {
           id: string;
