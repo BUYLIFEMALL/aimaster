@@ -94,3 +94,10 @@
   - 고정 머리글이 스크롤된 본문을 덮는 것(`sticky`)은 원래 동작이라 별도.
 - 편집기 미리보기(`design-editor.tsx`, iframe 390px): 같은 `ShopHeader`라 휴대폰 미리보기에 단추가 보임. 미리보기에는 빠른 메뉴가 없어 눌러도 아무 일 없음(무해). 실제 편집기 화면 확인은 미실시.
 - 한계: Enter/Space 실제 키 입력은 브라우저에서 React를 살려 확인하지 못함(esbuild 없음) — 단추는 실제 `button`, 상태·포커스·Esc는 happy-dom으로 확인. 펼친 패널(열림 상태)의 폭별 배치는 서버 HTML로 만들 수 없어 미측정. 실제 상점·실기기·키 입력은 맥미니 1회 검수 몫.
+
+## 편집기 미리보기 보완 (Master msg_ffe5ce8f2a4a, Mac QA 잔여 P3, 커밋 `51d4b2207`)
+- 점유 `ede9373d4` → 해제(아래 커밋). 바꾼 파일: `shop-frame.tsx`, `admin/design/design-editor.tsx`(ShopHeader 호출 1곳), `tests/quick-bar-narrow.test.mjs`.
+- `ShopHeader`에 `quickBar?: boolean`(기본 true) 추가 — 실제 빠른 메뉴 패널이 함께 그려지는 상점만 단추. 상점 레이아웃은 기본값 그대로(패널도 같은 `showShop` 조건). 편집기 미리보기 호출만 `quickBar={false}`.
+- `quickBar=false`면 단추 없음, 카테고리 줄 오른쪽 여백도 원래대로(`max-md:pr-2` 붙이지 않음), 카테고리·메뉴 없는 상점은 단추만 든 빈 줄도 안 그림.
+- 자체 검증: 머리글·디자인 편집기 관련 시험 전체(`dark-header`·`my-sections`·`quick-bar-narrow`·`quick-bar`) 28/28, `tsc` 0. 새 시험: 미리보기+카테고리 = 단추 없음·줄 정상·여백 `px-4 sm:px-6`, 미리보기+카테고리 없음 = 머리글 윗줄만, 상점 기본값 = 단추 1개, 실제 호출부(편집기 1곳 false, 레이아웃 끄지 않음).
+- 미실시: 실제 편집기 화면(로그인 필요) — Mac 최종 확인 몫.
