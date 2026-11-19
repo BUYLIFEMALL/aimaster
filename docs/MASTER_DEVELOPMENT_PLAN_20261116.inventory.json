@@ -10253,10 +10253,10 @@
       "reviewer": "CX-QA-01",
       "title": "B2B몰 태블릿 폭 빠른 메뉴 상품 가림",
       "status": "running",
-      "delivery": "mac_first_display_pass_resize_followup_sent",
-      "sha": "f79554d95",
-      "next": "f79554d95 Mac 28/28 및 최초 표시 모의 통과. 폭 전환 시 패널 상태·포커스 보완 배정. 실제 후보 화면 미검증, 미배포.",
-      "evidence": "msg_0597bc4779e7·msg_b34462da0d3d·msg_c5498076ef76·msg_e3bcf97a34e6·msg_4ec4b5380205·msg_03e422ed0613",
+      "delivery": "resize_fix_local_pass_mac_recheck_sent",
+      "sha": "4fb95eaba",
+      "next": "4fb95eaba 폭 전환 상태·포커스 수정. 담당 시험 30/30·격리 Chrome 통과. Mac 재검수 요청, 실제 후보 서버 미검증·미배포.",
+      "evidence": "msg_0597bc4779e7·msg_b34462da0d3d·msg_c5498076ef76·msg_e3bcf97a34e6·msg_4ec4b5380205·msg_03e422ed0613·msg_f077e01c19e9·msg_95a50f2bc24e",
       "lastReviewedAt": "2026-11-19T07:34:18.665Z"
     }
   ]
