@@ -7,10 +7,37 @@
 --   aif_asset_usage_estimate: 지우지 않는다. 같은 반환 칸의 얇은 감싸개가 된다.
 --   aif_asset_precheck / aif_asset_reserve: 공식 RPC 서명 그대로. 스냅샷의 판정을 쓴다.
 -- 정책(중앙 member_storage_policy)은 스냅샷 함수 안에서 조회 문 하나로 한 번만 읽는다. 중앙 함수·기존 마이그레이션 파일은 고치지 않는다.
+-- 적용 전 확인: 같은 이름의 함수가 이미 있는데 이 후보의 표식이 없으면 덮어쓰지 않고 멈춘다. 적용 끝에는 세 함수의 소유자가 새 함수를 실행할 수 있는지 확인하고, 아니면 전부 취소한다.
 -- 원복: 같은 폴더의 aif_quota_state_rollback.sql(세 함수를 원문으로 되돌리고 새 함수를 지운다).
 -- 원문 출처: supabase/migrations/20261118120000_aif_assets_a1.sql — 아래 본문은 그 파일의 해당 함수에서 필요한 줄만 바꾼 것이다(생성 뒤 손으로 고치지 않음).
 
 begin;
+
+-- 0. 적용 전 확인 — 같은 이름의 함수가 이미 있으면, 이 후보가 만든 것(표식이 붙은 것)일 때만 계속한다.
+--    남의 함수(표식 없음·인자가 다른 같은 이름)를 덮어쓰지 않는다. 멈추면 이 트랜잭션 전체가 취소된다(아무것도 바뀌지 않는다).
+do $$
+declare v_other integer; v_missing integer;
+begin
+  select count(*) into v_other
+  from pg_catalog.pg_proc p join pg_catalog.pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'public' and p.proname = 'aif_asset_quota_snapshot'
+    and (pg_catalog.pg_get_function_identity_arguments(p.oid) <> 'p_user uuid'
+         or pg_catalog.obj_description(p.oid, 'pg_proc') is distinct from 'AIF quota-state candidate v1 (aif_asset_quota_snapshot)');
+  if v_other > 0 then
+    raise exception 'AIF_QUOTA_CANDIDATE_CONFLICT: public.aif_asset_quota_snapshot already exists and is not this candidate''s function' using errcode = 'P0001';
+  end if;
+  -- 바꿀 세 함수가 기대한 서명으로 정확히 하나씩 있어야 한다(없거나 겹치면 다른 상태의 DB다)
+  select 3 - count(*) into v_missing
+  from pg_catalog.pg_proc p join pg_catalog.pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'public'
+    and (p.proname, pg_catalog.pg_get_function_identity_arguments(p.oid)) in (
+      ('aif_asset_usage_estimate', 'p_user uuid'),
+      ('aif_asset_precheck', 'p_user uuid, p_est_bytes bigint'),
+      ('aif_asset_reserve', 'p_user uuid, p_kind text, p_mime text, p_ext text, p_bytes bigint, p_sha256 text'));
+  if v_missing <> 0 then
+    raise exception 'AIF_QUOTA_CANDIDATE_PRECONDITION: expected functions are not present with the expected signatures' using errcode = 'P0001';
+  end if;
+end $$;
 
 -- 1. 내부용 스냅샷(사용량 + 한도 + 판정). 서비스 역할만 실행 — API에서 직접 부르는 용도가 아니다.
 create or replace function public.aif_asset_quota_snapshot(p_user uuid)
@@ -90,5 +117,27 @@ begin
 end $$;
 revoke all on function public.aif_asset_reserve(uuid, text, text, text, bigint, text) from public, anon, authenticated;
 grant execute on function public.aif_asset_reserve(uuid, text, text, text, bigint, text) to service_role;
+
+-- 5. 표식 — 이 후보가 만든 함수임을 적어 둔다(다시 적용할 때와 원복할 때 이 글을 확인한다)
+comment on function public.aif_asset_quota_snapshot(uuid) is 'AIF quota-state candidate v1 (aif_asset_quota_snapshot)';
+
+-- 6. 적용 끝 확인 — 새 함수를 부르는 세 함수는 소유자 권한으로 돈다(security definer).
+--    그 소유자 가운데 하나라도 새 함수를 실행할 수 없으면 적용하지 않는다(전부 취소). 회원 역할·공개 실행 권한이 붙어 있어도 취소한다.
+do $$
+declare v_bad integer;
+begin
+  select count(*) into v_bad
+  from pg_catalog.pg_proc p join pg_catalog.pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'public' and p.proname in ('aif_asset_usage_estimate', 'aif_asset_precheck', 'aif_asset_reserve')
+    and not (p.prosecdef and pg_catalog.has_function_privilege(p.proowner, 'public.aif_asset_quota_snapshot(uuid)'::regprocedure, 'execute'));
+  if v_bad > 0 then
+    raise exception 'AIF_QUOTA_CANDIDATE_OWNER: a calling function''s owner cannot execute public.aif_asset_quota_snapshot' using errcode = 'P0001';
+  end if;
+  if pg_catalog.has_function_privilege('anon', 'public.aif_asset_quota_snapshot(uuid)'::regprocedure, 'execute')
+     or pg_catalog.has_function_privilege('authenticated', 'public.aif_asset_quota_snapshot(uuid)'::regprocedure, 'execute')
+     or not pg_catalog.has_function_privilege('service_role', 'public.aif_asset_quota_snapshot(uuid)'::regprocedure, 'execute') then
+    raise exception 'AIF_QUOTA_CANDIDATE_ACL: unexpected execute privileges on public.aif_asset_quota_snapshot' using errcode = 'P0001';
+  end if;
+end $$;
 
 commit;

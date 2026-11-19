@@ -89,7 +89,10 @@ const sqlOnly = (t) => t.split("\n").filter((l) => !l.trimStart().startsWith("--
 const POLICY_READS_IN_CANDIDATE = sqlOnly(CANDIDATE).split("public.member_storage_policy(").length - 1;
 const FNS = ["aif_asset_usage_estimate", "aif_asset_precheck", "aif_asset_reserve"];
 /** 함수의 겉모양(인자·반환·성질·권한)과 본문 지문 — 적용 전후·원복 뒤를 견준다 */
-const catalog = (names = FNS) => q(`select string_agg(p.proname || '(' || pg_get_function_identity_arguments(p.oid) || ') → ' || pg_get_function_result(p.oid) || ' | ' || p.provolatile::text || p.prosecdef::text || ' | ' || coalesce(p.proacl::text, '-') || ' | ' || coalesce(array_to_string(p.proconfig, ','), '-') || ' | 소유 ' || pg_get_userbyid(p.proowner) || ' | oid ' || p.oid, E'\\n' order by p.proname)
+const catalog = (names = FNS) => q(`select string_agg(p.proname || '(' || pg_get_function_identity_arguments(p.oid) || ') → ' || pg_get_function_result(p.oid) || ' | ' || p.provolatile::text || p.prosecdef::text || ' | ' || coalesce(p.proacl::text, '-') || ' | ' || coalesce(array_to_string(p.proconfig, ','), '-') || ' | 소유 ' || pg_get_userbyid(p.proowner) || ' | oid ' || p.oid
+    || ' | 성질 strict=' || p.proisstrict::text || ' parallel=' || p.proparallel::text || ' leakproof=' || p.proleakproof::text || ' cost=' || p.procost::text || ' rows=' || p.prorows::text
+    || ' lang=' || (select l.lanname from pg_language l where l.oid = p.prolang) || ' support=' || p.prosupport::text || ' ndefaults=' || p.pronargdefaults::text || ' retset=' || p.proretset::text || ' kind=' || p.prokind::text
+    || ' | 실행 가능 ' || (select string_agg(r || '=' || has_function_privilege(r, p.oid, 'execute')::text, ',' order by r) from unnest(array['anon','authenticated','service_role','postgres','public']) r), E'\\n' order by p.proname)
   from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname in (${names.map((x) => "'" + x + "'").join(",")});`);
 const bodies = (names = FNS) => q(`select string_agg(p.proname || ':' || md5(p.prosrc), ',' order by p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname in (${names.map((x) => "'" + x + "'").join(",")});`);
 const snapshotExists = () => q(`select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname = 'aif_asset_quota_snapshot';`);
@@ -304,12 +307,14 @@ test("(나-2) 지금의 동작(기록): 참고 사진 올리기는 사전 검사
   q(`delete from public.aif_asset_deletions; delete from public.aif_assets; delete from storage.objects;`);
 });
 
-test("(다) 수정 후보: 정책을 읽는 곳은 한 군데뿐이고, 판정은 정의의 모든 갈래를 가른다", SKIP, async () => {
+test("(다) 수정 후보: 정책을 읽는 곳은 한 군데뿐이고, 판정은 정의의 모든 갈래를 가른다", SKIP, async (ctx) => {
   const exec = sqlOnly(CANDIDATE), back = sqlOnly(ROLLBACK);
   assert.equal(POLICY_READS_IN_CANDIDATE, 1, "후보 전체에서 중앙 정책을 읽는 조회 문은 하나(스냅샷 함수 안)");
   assert.equal(/unlimited_retention/.test(exec), false, "보관 무기한 칸으로 용량 무제한을 판정하지 않는다");
   assert.equal(/\bcascade\b/i.test(exec + back), false, "cascade를 쓰지 않는다");
   assert.equal(/\bdrop\b/i.test(exec), false, "적용 쪽에는 drop이 없다(기존 함수를 지우지 않는다)");
+  assert.equal(exec.indexOf("do $$") < exec.indexOf("create or replace function"), true, "적용 전 확인이 첫 함수 정의보다 앞에 있다");
+  assert.equal(back.indexOf("do $$") < back.indexOf("create or replace function"), true, "원복 전 확인이 첫 함수 정의보다 앞에 있다");
   assert.deepEqual(back.match(/^drop .*$/gim), ["drop function public.aif_asset_quota_snapshot(uuid);"], "원복 쪽의 drop은 새 함수 하나뿐");
   assert.equal(/\b(alter|create|drop)\s+(table|index|policy|type|schema|trigger|role|extension)\b|\btruncate\b|\bgrant\s+(?!execute on function)|\brevoke\s+(?!all on function)/i.test(exec + back), false, "표·색인·정책·역할을 건드리지 않는다(함수와 그 실행 권한만)");
   // 후보의 문장 종류: begin · 함수 4개 create or replace · 그 실행 권한 회수/부여 · commit
@@ -320,13 +325,77 @@ test("(다) 수정 후보: 정책을 읽는 곳은 한 군데뿐이고, 판정�
   // 적용 전의 겉모양·본문을 적어 둔다
   assert.equal(snapshotExists(), "0");
   BEFORE = { catalog: catalog(), bodies: bodies() };
+  // 기존 세 함수의 선언 속성과 실제 실행 가능 역할을 직접 단언한다(전후 비교만으로는 「처음부터 틀린 상태」를 못 잡는다)
+  const lines = BEFORE.catalog.split("\n");
+  assert.equal(lines.length, 3);
+  for (const l of lines) {
+    assert.match(l, /\| (s|v)true \| /, "security definer");
+    assert.match(l, / \| search_path="" \| 소유 postgres \| /, "빈 search_path · 소유자");
+    assert.match(l, /성질 strict=false parallel=u leakproof=false cost=100 rows=1000 lang=plpgsql support=- ndefaults=0 retset=true kind=f/, "선언 속성");
+    assert.match(l, /실행 가능 anon=false,authenticated=false,postgres=true,public=false,service_role=true$/, "실제 실행 가능 역할: 서비스 역할(과 소유자)뿐");
+  }
+  assert.match(lines[0], /^aif_asset_precheck\(p_user uuid, p_est_bytes bigint\) → TABLE\(allowed boolean, used_bytes bigint, quota_bytes bigint\) \| vtrue/);
+  assert.match(lines[1], /^aif_asset_reserve\(p_user uuid, p_kind text, p_mime text, p_ext text, p_bytes bigint, p_sha256 text\) → TABLE\(asset_id uuid, path text\) \| vtrue/);
+  assert.match(lines[2], /^aif_asset_usage_estimate\(p_user uuid\) → TABLE\(used_bytes bigint, quota_bytes bigint, measured_at timestamp with time zone\) \| strue/);
+
+  // ── 적용 전 가드 1: 같은 이름의 남의 함수가 있으면 덮어쓰지 않고 멈춘다. 원복도 그것을 지우지 않는다 ──
+  const foreign = [
+    ["같은 인자의 남의 함수", `create function public.aif_asset_quota_snapshot(p_user uuid) returns integer language sql as $f$ select 42 $f$;`, "public.aif_asset_quota_snapshot(uuid)"],
+    ["인자가 다른 같은 이름", `create function public.aif_asset_quota_snapshot(p_name text) returns integer language sql as $f$ select 43 $f$;`, "public.aif_asset_quota_snapshot(text)"],
+    ["남이 다른 설명을 붙인 함수", `create function public.aif_asset_quota_snapshot(p_user uuid) returns integer language sql as $f$ select 44 $f$; comment on function public.aif_asset_quota_snapshot(uuid) is 'someone else';`, "public.aif_asset_quota_snapshot(uuid)"],
+  ];
+  for (const [name, make, sig] of foreign) {
+    q(make);
+    const mine = q(`select md5(prosrc) || '|' || oid from pg_proc where oid = '${sig}'::regprocedure;`);
+    const up = run(CANDIDATE);
+    assert.equal(up.ok, false, name);
+    assert.match(up.err, /AIF_QUOTA_CANDIDATE_CONFLICT/, name);
+    const down = run(ROLLBACK);
+    assert.equal(down.ok, false, name);
+    assert.match(down.err, /AIF_QUOTA_ROLLBACK_REFUSED/, name);
+    assert.equal(q(`select md5(prosrc) || '|' || oid from pg_proc where oid = '${sig}'::regprocedure;`), mine, `${name}: 남의 함수가 그대로다(덮어쓰지도 지우지도 않았다)`);
+    assert.equal(bodies(), BEFORE.bodies, `${name}: 세 함수 무변경`);
+    assert.equal(catalog(), BEFORE.catalog, name);
+    q(`drop function ${sig};`);   // 시험이 만든 대역 함수만 치운다
+  }
+  assert.equal(snapshotExists(), "0");
+
+  // ── 적용 전 가드 2: 바꿀 함수가 기대한 서명으로 없으면 멈춘다 ──
+  q(`alter function public.aif_asset_precheck(uuid, bigint) rename to aif_asset_precheck_moved;`);
+  try {
+    const up = run(CANDIDATE);
+    assert.equal(up.ok, false);
+    assert.match(up.err, /AIF_QUOTA_CANDIDATE_PRECONDITION/);
+    assert.equal(snapshotExists(), "0", "부분 적용 없음");
+  } finally { q(`alter function public.aif_asset_precheck_moved(uuid, bigint) rename to aif_asset_precheck;`); }
+  assert.equal(catalog(), BEFORE.catalog, "이름을 되돌린 뒤 겉모양이 같다");
+
+  // ── 적용 끝 가드: 호출하는 함수의 소유자가 새 함수를 실행할 수 없으면 전부 취소한다 ──
+  // 이 시험 DB 안에서만 사전 검사 함수의 소유자를 회원 역할로 잠시 바꾼다(역할 자체는 만들거나 바꾸지 않는다). 그 역할은 새 함수의 실행 권한이 없다.
+  q(`alter function public.aif_asset_precheck(uuid, bigint) owner to authenticated;`);
+  try {
+    const up = run(CANDIDATE);
+    assert.equal(up.ok, false);
+    ctx.diagnostic("소유자 불일치 때의 오류: " + up.err.replace(/^[\s\S]*?ERROR:\s*/, "").split("\n")[0]);
+    assert.match(up.err, /AIF_QUOTA_CANDIDATE_OWNER/, "적용 끝 확인이 소유자 불일치를 잡아 멈춘다");
+    assert.equal(snapshotExists(), "0", "전부 취소 — 새 함수도 남지 않는다");
+    assert.equal(bodies(), BEFORE.bodies, "세 함수 본문 무변경");
+  } finally { q(`alter function public.aif_asset_precheck(uuid, bigint) owner to postgres;`); }
+  assert.equal(catalog(), BEFORE.catalog, "소유자를 되돌린 뒤 겉모양(권한 글 포함)이 처음과 같다");
+
   q(CANDIDATE);
+  assert.equal(q(`select obj_description('public.aif_asset_quota_snapshot(uuid)'::regprocedure, 'pg_proc');`), "AIF quota-state candidate v1 (aif_asset_quota_snapshot)", "표식이 붙었다");
   // 공식 함수 세 개의 이름·인자·반환 칸·성질·권한은 적용 전과 글자까지 같다. 본문만 달라졌다
   assert.equal(catalog(), BEFORE.catalog, "적용 뒤에도 서명·반환형·권한이 그대로다");
   assert.notEqual(bodies(), BEFORE.bodies);
   assert.equal(snapshotExists(), "1");
   assert.match(catalog(["aif_asset_quota_snapshot"]), /aif_asset_quota_snapshot\(p_user uuid\) → TABLE\(used_bytes bigint, quota_bytes bigint, measured_at timestamp with time zone, quota_state text\) \| strue \| \S*service_role=X/, "새 함수: 서비스 역할만 실행");
   assert.equal(/(anon|authenticated|=X\/)/.test(catalog(["aif_asset_quota_snapshot"]).split(" | ")[2].replace(/postgres=X\/postgres|service_role=X\/postgres/g, "")), false, "새 함수에 회원 역할·공개 실행 권한이 없다");
+  assert.match(catalog(["aif_asset_quota_snapshot"]), /실행 가능 anon=false,authenticated=false,postgres=true,public=false,service_role=true/, "새 함수의 실제 실행 가능 역할");
+  // 새 함수를 부르는 세 함수는 소유자 권한으로 돈다(security definer). 그 소유자들이 새 함수를 실행할 수 있어야 한다
+  assert.equal(q(`select string_agg(distinct pg_get_userbyid(p.proowner) || '=' || has_function_privilege(p.proowner, 'public.aif_asset_quota_snapshot(uuid)'::regprocedure, 'execute')::text, ',')
+    from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname in ('aif_asset_usage_estimate','aif_asset_precheck','aif_asset_reserve') and p.prosecdef;`), "postgres=true", "호출하는 세 함수의 소유자가 새 함수를 실행할 수 있다");
+  assert.equal(q(`select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname in ('aif_asset_usage_estimate','aif_asset_precheck','aif_asset_reserve','aif_asset_quota_snapshot') and p.prosecdef and p.proconfig = array['search_path=""'];`), "4", "네 함수 모두 security definer + 빈 search_path");
   const state = (u) => q(`set role service_role; select quota_state || '|' || coalesce(quota_bytes::text, 'null') from public.aif_asset_quota_snapshot('${u}');`);
   // 감싸개가 된 기존 추정 함수는 같은 칸 세 개를 같은 값으로 돌려준다
   assert.equal(q(`set role service_role; select (select count(*) from information_schema.columns where false) || '|' || used_bytes || '|' || coalesce(quota_bytes::text, 'null') from public.aif_asset_usage_estimate('${U.plain}');`), `0|0|${FREE}`);
@@ -350,7 +419,13 @@ test("(다) 수정 후보: 정책을 읽는 곳은 한 군데뿐이고, 판정�
   try {
     assert.equal(state(U.plain), "unknown|null", "행이 2개면 어느 한도도 믿지 않는다");
     assert.equal(precheck(U.plain), "null|null");
+    // 감싸개가 된 기존 추정 함수를 직접 부른다: 행은 1개, 칸은 원래의 3개, 한도는 비어 있다(여러 행 가운데 하나를 골라 주지 않는다)
+    assert.equal(q(`set role service_role; select count(*) || '|' || coalesce(max(quota_bytes)::text, 'null') || '|' || (max(used_bytes) >= 0)::text from public.aif_asset_usage_estimate('${U.plain}');`), "1|null|true");
+    const direct = run(`set role service_role; select count(*) from public.aif_asset_reserve('${U.plain}', 'ref_face', 'image/png', 'png', 10, '${"f".repeat(64)}');`);
+    assert.match(direct.err, /QUOTA_UNKNOWN/, "행이 2개면 예약도 하지 않는다");
   } finally { q(RESTORE_CENTRAL); }
+  // 감싸개의 정상 경우: 칸 이름·형이 원래와 같다
+  assert.equal(q(`select pg_get_function_result('public.aif_asset_usage_estimate(uuid)'::regprocedure);`), "TABLE(used_bytes bigint, quota_bytes bigint, measured_at timestamp with time zone)");
   assert.equal(state(U.plain), `finite|${FREE}`, "원문으로 되돌린 뒤 정상");
   // 권한: 회원 역할은 네 함수 어느 것도 부르지 못한다
   for (const role of ["authenticated", "anon"]) {
@@ -453,11 +528,25 @@ test("(라) 원복: 세 함수의 본문이 적용 전과 글자까지 같아지
   assert.equal(precheck(U.none), "true|null");
   await withoutFree(async () => { assert.equal(precheck(U.plain), "true|null"); });
   assert.equal(precheck(U.full), `false|${FREE}`);
-  // 원복을 두 번 하면 두 번째는 「지울 함수가 없다」로 실패하고 아무것도 바꾸지 않는다(트랜잭션 전체 취소)
+  // 원복을 두 번 하면 두 번째는 「이 후보의 함수가 없다」로 멈추고 아무것도 바꾸지 않는다(트랜잭션 전체 취소)
   const again = run(ROLLBACK);
   assert.equal(again.ok, false);
-  assert.match(again.err, /aif_asset_quota_snapshot.*does not exist/);
+  assert.match(again.err, /AIF_QUOTA_ROLLBACK_REFUSED/);
   assert.equal(bodies(), BEFORE.bodies);
+  assert.equal(catalog(), BEFORE.catalog);
+  // 표식이 지워진 함수는 「이 후보의 것」으로 보지 않는다 — 원복이 지우지 않는다
+  q(CANDIDATE);
+  q(`comment on function public.aif_asset_quota_snapshot(uuid) is null;`);
+  const unmarked = run(ROLLBACK);
+  assert.equal(unmarked.ok, false);
+  assert.match(unmarked.err, /AIF_QUOTA_ROLLBACK_REFUSED/);
+  assert.equal(snapshotExists(), "1", "표식 없는 함수는 지우지 않았다");
+  assert.equal(precheck(U.none), "null|null", "원복이 거절되면 세 함수도 후보 상태 그대로다(부분 원복 없음)");
+  assert.match(run(CANDIDATE).err, /AIF_QUOTA_CANDIDATE_CONFLICT/, "표식이 없으면 재적용도 덮어쓰지 않는다");
+  q(`comment on function public.aif_asset_quota_snapshot(uuid) is 'AIF quota-state candidate v1 (aif_asset_quota_snapshot)';`);
+  q(ROLLBACK);
+  assert.equal(bodies(), BEFORE.bodies);
+  assert.equal(snapshotExists(), "0");
   // 적용 → 원복 → 다시 적용도 된다
   q(CANDIDATE);
   assert.equal(snapshotExists(), "1");
@@ -466,4 +555,3 @@ test("(라) 원복: 세 함수의 본문이 적용 전과 글자까지 같아지
   assert.equal(bodies(), BEFORE.bodies);
   ctx.diagnostic("적용 → 원복 → 재적용 → 원복 뒤 본문·서명·권한이 적용 전과 같음");
 });
-

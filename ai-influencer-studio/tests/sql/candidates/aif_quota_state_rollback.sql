@@ -1,9 +1,26 @@
 -- AIF 저장 한도 판정 구분 후보의 **원복**(2026-11-19, CC-SNS-01)
 -- ★ 후보와 마찬가지로 어느 DB에도 적용되지 않았다(격리 시험 DB에서만 실행).
 -- 순서: 사전 검사·예약·추정 함수를 원문으로 되돌린 뒤(스냅샷을 부르는 곳이 없어진 뒤) 스냅샷 함수를 지운다. cascade를 쓰지 않는다.
+-- 지우는 것은 이 후보가 만든 표식(함수 설명 글)이 붙은 스냅샷 함수 하나뿐이다. 표식이 없거나 함수가 없으면 아무것도 바꾸지 않고 멈춘다.
 -- 아래 세 함수는 supabase/migrations/20261118120000_aif_assets_a1.sql의 정의를 글자 그대로 옮긴 것이다.
 
 begin;
+
+-- 0. 원복 전 확인 — 지울 함수가 「이 후보가 만든 것」일 때만 진행한다.
+--    함수가 없거나, 표식이 없는 같은 이름의 함수(남의 것)면 멈춘다. 멈추면 이 트랜잭션 전체가 취소된다(세 함수도 그대로 둔다).
+do $$
+declare v_mine integer; v_any integer;
+begin
+  select count(*) filter (where pg_catalog.pg_get_function_identity_arguments(p.oid) = 'p_user uuid'
+                            and pg_catalog.obj_description(p.oid, 'pg_proc') = 'AIF quota-state candidate v1 (aif_asset_quota_snapshot)'),
+         count(*)
+    into v_mine, v_any
+  from pg_catalog.pg_proc p join pg_catalog.pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'public' and p.proname = 'aif_asset_quota_snapshot';
+  if v_mine <> 1 or v_any <> 1 then
+    raise exception 'AIF_QUOTA_ROLLBACK_REFUSED: public.aif_asset_quota_snapshot is absent or is not this candidate''s function (nothing changed)' using errcode = 'P0001';
+  end if;
+end $$;
 
 create or replace function public.aif_asset_precheck(p_user uuid, p_est_bytes bigint)
 returns table (allowed boolean, used_bytes bigint, quota_bytes bigint)
