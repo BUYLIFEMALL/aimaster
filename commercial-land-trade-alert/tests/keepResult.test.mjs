@@ -181,3 +181,33 @@ test("13. [P3] 옛 결과(sggById 없음)는 이름으로 찾음 — 호환", ()
   assert.equal(targetSgg(null, "x", "역삼"), null);
   assert.equal(targetSgg({ sggById: {}, sggByWatch: { 역삼: "11680" } }, "x", "역삼"), null, "id 칸이 있으면 이름으로 추측하지 않음");
 });
+
+// ── 맥미니 재검수 잔여 P3: 통계 대체 분기 ──
+import { statsHistory } from "../extension/lib/keepResult.js";
+import { summarizeTable } from "../extension/lib/stats.js";
+
+test("14. [잔여 P3] 통계: 기록이 있으면 그대로", () => {
+  const h = [{ at: T0, groups: [] }];
+  assert.equal(statsHistory(h, prevOf([tgt("a", "A")]), summarizeTable), h);
+});
+
+test("15. [잔여 P3] 통계: 기록이 비고 옛 결과(id 없음)면 기존처럼 마지막 결과로 대신 만듦", () => {
+  const legacy = { at: T0, columns: COLUMNS, table: [row("A", "1", "https://new.land.naver.com/offices?ms=a")], perTarget: [{ name: "A", total: 1, complete: true }] };
+  const list = statsHistory([], legacy, summarizeTable);
+  assert.equal(list.length, 1);
+  assert.deepEqual(list[0], summarizeTable(legacy.columns, legacy.table, legacy.at));
+  assert.deepEqual(statsHistory([], { ...legacy, table: [] }, summarizeTable), []);
+  assert.deepEqual(statsHistory(undefined, undefined, summarizeTable), []);
+});
+
+test("16. [잔여 P3 재현] 상한 0곳 직후 이전 회차 줄(stale)만 남은 새 결과는 이번 회차 통계로 합성하지 않음", () => {
+  const a = tgt("a", "A");
+  const staleOnly = pruneLastResult(prevOf([a]), { at: T1, targets: [a], unread: new Map([["a", "limit"]]), now: NOW });
+  assert.equal(staleOnly.table.length, 1);
+  assert.equal(staleOnly.perTarget[0].stale, true);
+  let called = 0;
+  assert.deepEqual(statsHistory([], staleOnly, (...x) => { called++; return summarizeTable(...x); }), []);
+  assert.equal(called, 0);
+  const src = readFileSync(new URL("../extension/background.js", import.meta.url), "utf8");
+  assert.match(src, /const list = statsHistory\(history, lastResult, summarizeTable\);/);
+});

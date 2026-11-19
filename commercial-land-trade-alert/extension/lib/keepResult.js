@@ -65,6 +65,16 @@ export function mergeLastResult(prev, next, { targets = [], unread = new Map(), 
 }
 
 /**
+ * 통계 화면용 기록 목록. 기록이 비었을 때 마지막 결과로 대신 만드는 호환 분기는 「통계를 넣기 전」의 옛 결과(id 없음)에만 쓴다.
+ * 새 모양 결과에는 이전 회차에서 남긴 줄(stale)이 섞일 수 있어 이번 회차 통계로 합성하지 않는다(맥미니 검수 잔여 P3, 2026-11-19).
+ */
+export function statsHistory(history, lastResult, summarize) {
+  if (history?.length) return history;
+  if (!lastResult?.table?.length || isIdResult(lastResult)) return history || [];
+  return [summarize(lastResult.columns, lastResult.table, lastResult.at)];
+}
+
+/**
  * 한 곳도 읽지 않은 회차(상한 0곳·켜진 화면 0곳)의 결과 화면 정리 — 수집·알림·기록은 하지 않고 보존 규칙만 적용한다.
  * 켜진 화면이 0곳이면 남길 것이 없으니 빈 결과. 옛 모양 결과는 id가 없어 추릴 수 없으므로 지금처럼 그대로 둔다(켜진 화면 0곳일 때만 비움).
  */

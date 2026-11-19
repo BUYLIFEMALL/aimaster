@@ -5,7 +5,7 @@ import { countByKindTrade, isWatchableUrl, matchesTarget, normalizeArticle, coor
 import { compareTarget, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, shouldRunScheduled } from "./lib/guard.js";
 import { COLUMNS, toTable, toXlsx } from "./lib/sheet.js";
-import { mergeLastResult, pruneLastResult } from "./lib/keepResult.js";
+import { mergeLastResult, pruneLastResult, statsHistory } from "./lib/keepResult.js";
 import { buildingPeerGap, daysSince, gapText, marketGap, scoreListing, applyYields } from "./lib/score.js";
 import { chosenDongs, filterEventsByDong } from "./lib/dong.js";
 import { buildAiInput, normalizeChoice, summarize } from "./lib/ai.js";
@@ -393,7 +393,8 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
       if (msg.type === "stats") {
         const { history = [], weeklyReport, lastResult, eventLog = [] } = await get(["history", "weeklyReport", "lastResult", "eventLog"]);
         // 통계를 넣기 전에 수집한 회원도 마지막 결과로 첫 화면을 볼 수 있게 한다
-        const list = history.length || !lastResult?.table?.length ? history : [summarizeTable(lastResult.columns, lastResult.table, lastResult.at)];
+        // 새 모양 결과(id 있음)는 이전 회차 줄이 섞일 수 있어 대신 통계를 만들지 않는다(statsHistory)
+        const list = statsHistory(history, lastResult, summarizeTable);
         return reply({ ok: true, history: list, weeklyReport: weeklyReport || null, events: eventLog });
       }
       if (msg.type === "locateDong") {

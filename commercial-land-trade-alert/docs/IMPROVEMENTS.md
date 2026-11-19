@@ -5,6 +5,7 @@
 - 구현: 순수 함수 `extension/lib/keepResult.js` `mergeLastResult` — 줄별 감시 화면 id(`rowTargetIds`)로만 묶음(이름 겹침 대비), 지운·끈·주소 바뀐 화면 제외, 이름만 바뀐 화면은 새 이름, 화면별 `at`(처음 읽은 시각 유지)·`stale`·사유, 7일 넘으면 버림, 옛 모양 결과는 통째 교체, 2000줄 자르기는 이번 회차 우선. `background.js`는 저장 직전 1회만 합치고 알림·통계·수익률·상태 보고는 이번 회차만. 결과 화면 `ResultsClient.tsx`에 「⏸ 이전 회차(시각) 결과 — 사유」.
 - 시험 `tests/keepResult.test.mjs` 8개(`npm test` 76/76), tsc 0. 플랜 `docs/PLAN_20261119_PARTIAL_RESULT_KEEP.md`. 확장 코드 변경 → v1.35 배포 때 manifest·ZIP·DB `extension_version` 함께, 회원 확장 재설치 안내.
 - 보완(맥미니 검수 `.ai/results/RE-20261119-PARTIAL-RESULT-CX-QA-01.md`, Master msg_6527dfa5a192): P2 상한 0곳·켜진 화면 0곳 분기도 `pruneLastResult`로 같은 보존 규칙(7일·켜진 화면·같은 id·같은 주소) 적용, 켜진 화면 0곳이면 결과 화면 비움, 옛 모양은 그대로 — 수집·알림·기록은 지금처럼 0. P3 행정동 경계를 감시 화면 id로 연결(`sggById`, 결과 화면·감시 화면 카드는 `src/lib/rowSgg.ts`로 id 우선·옛 결과만 이름). 회귀 시험 5개(`npm test` 81/81), tsc 0.
+- 잔여 P3 보완(맥미니 재검수, Master msg_5f0007596283): 통계 기록이 비었을 때 마지막 결과로 대신 만드는 호환 분기를 id 없는 옛 결과로만 한정(`statsHistory`) — 이전 회차 줄만 남은 새 결과를 이번 회차 통계로 합성하지 않음. 회귀 3개(`npm test` 84/84).
 
 ## 2026-11-19 [역할: realty] Claude(RealEstate) — 관심 지역 연계 2단계: 다른 부동산 프로그램 지역 제안 (**미배포 대기**, 주인님 「순서대로 진행해」)
 - 실거래 지역 추가 화면(`src/app/(dashboard)/districts/page.tsx`)에 「🔗 다른 부동산 프로그램에 등록한 지역」: 실거래 `real_estate_watch_districts`(is_active)·매물 알림 `realty_alert_targets`(region+enabled, `cortar_no` 앞 5자리)를 회원 세션으로 읽어, 상가에 없는 시군구를 기존 켜기 버튼(`toggleDistrictAction`, 이용 권한 확인)으로 제안. 자동 등록·다른 표 쓰기·DB 변경 없음.
