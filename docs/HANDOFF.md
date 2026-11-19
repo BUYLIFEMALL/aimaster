@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-19 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — AI 무료 이미지 자동화(`free-image-studio`) 새 웹 5-1~5-5 코드·모의 완료(미배포·미등록)
+
+- **한 일**: 새 폴더 `free-image-studio/`(v1.01 후보). 회원 PC 엔진이 그리는 무료 이미지를 일괄로 맡기는 웹 — 접근 판정·로그인, 엔진 연결 계층(접수 번호 사전 지정·접수 기록·범위 고정·탭 사이 잠금), 화면 5개(시작하기·만들기·작업 기록·API키등록·플랫폼연동·사용 매뉴얼), 한글→영문 변환(선택, 회원 본인 `user_api_keys` 키만, 버튼 누를 때 1회·재시도 0). Master(Codex) 지휘로 단계마다 맥미니 독립 검수를 거쳐 수락.
+- **고정판**: `ffa312773`(프로그램), 공용 사본 목록 등록 `7ad6d560f`(`openai-request-params` 사본 1개 추가, `--sync` 미실행). 시험 141개(`cd free-image-studio && node --test tests/*.test.mjs`, 설치 없이 실행).
+- **하지 않은 것**: `npm install`·빌드·프로그램 등록·실제 AI 호출·실제 엔진 실행·운영 DB 쓰기·배포·푸시. 엔진(`free-music-studio/engine`) 변경 없음.
+- **확인한 것과 못 한 것**: 순수 로직과 소스 검사는 시험으로 고정. **화면은 한 번도 실행해 보지 못했다** — 실제 브라우저·Web Locks·탭 두 개·키보드 초점·팝업·폴더 저장·실제 엔진·실제 AI 응답은 미검증.
+- **주인님 결정 반영**: 한글 변환 기본 모델 = 저가 등급(키가 여러 개면 `claude-haiku-5-5`), 8GB 안내 = 두 번째 안. 통과 판정 평가 43/48(89.6%) 통과(`docs/analysis-free-image-automation-20261119/P0_RESULTS.md` 11-1절).
+- **남은 일·다음 첫 단계(모두 승인 단위)**: 설치·로컬 빌드 → `.env.local`(주인님 입력) → `programs` 등록(이름·카테고리·배지·요금 결정) → 엔진 허용 출처(`SCOPED_SITE_ORIGINS`, 음악 담당·Master 조정) → 실제 창 화면 검수 → 변환 실호출 1~2회(실행 직전 승인) → 배포. 순서·전제: `free-image-studio/docs/PLAN_20261119_P1_WEB.md` 「5-5 마무리」.
+- **알아 둘 것**: Claude 키 발급 매뉴얼 글 번호 미확인(`notices.ts`의 `KEY_GUIDES`), 공용 점검의 기존 문제 1건(`safe-fetch` 기준 파일 없음)은 이 작업과 무관. 프로그램 비교표·카테고리 지침 지도는 등록·배포 때 갱신한다(지금은 미등록이라 칸을 만들지 않음).
+- **링크**: 미배포(주소 없음). 문서 `free-image-studio/AGENTS.md`, `docs/analysis-free-image-automation-20261119/P1_WEB_PLAN.md`
+- **비용**: 없음.
+
 ## 2026-11-19 ✅ [역할: music] Claude Code(윈도우) · 세션 `claude-win-20261024-music` — 플레이리스트 v1.43 리믹스 받기 배포
 - 내보낸 것: 음악(SUNO) 리믹스 결과를 `?remix=`로 받기(Mac 독립 검수 고정판 `6fba5fca2` 88/88). 버전 커밋 `ca1a4a8ac`, 배포 `playlist-channel-studio-hnmaikj36` Ready(빌드 1회 — 주인님 「배포해」), DB v1.43
 - 확인: 운영 ego(시험 계정·본인 곡만): 화면 v1.43, `?remix=` 보컬 추가·반주 추가 2곡 → 「보낸 곡 2개 중 2개를 찾아 미리 선택」·리믹스 3줄(반주 추가는 연주곡)·「선택한 곡 추가 (2)」 → Suno 시간 가사 끄고 추가 → 「곡 2개를 목록 끝에 추가했습니다」·리믹스 커버로 배경 생성(실서명 정상), 없는 번호 404, 목록 remixError false·blocked 0. Suno 유료 호출 0
