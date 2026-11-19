@@ -12,19 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T08:31:19.491Z",
+      "at": "2026-11-19T09:01:06.808Z",
       "timezone": "Asia/Seoul",
-      "trigger": "17:30 정기 점검 메시지 msg_c796ab5aa619 수신·실행",
-      "scope": "17:02 KST 이후 증분. 370건 중 미완료 29건(진행 5·검수 6·순번 4·사용자 14), 103개 프로그램·19개 분류, 담당 기록 11개와 우선순위·점유·미배포·변경 인수인계 대조.",
+      "trigger": "18:00 정기 점검 메시지 msg_6df304603e07 수신·실행",
+      "scope": "17:31 KST 이후 증분. 371건 중 미완료 28건(진행 3·검수 7·순번 4·사용자 14), 103개 프로그램·19개 분류, 담당 기록 11개·점유·미배포·사람 단계·인수인계 대조.",
       "evidence": [
-        "Master 요청 0. 신규/변경 결과 2편(음악 SWEEP·Workspace Mac). 공용 HANDOFF의 기존 AI 인플루언서 계획과 점유표, 음악 신규 점유 5b0ed996a 확인.",
-        "AI Influencer 409a339af·bcc5cedf6로 D1 후속 수락, D2 사전 58a2c9672, 별도 PLAN6 초안 진행.",
-        "Workspace f221885b4의 3시간 경계는 Mac msg_00783db43a13 반례 뒤 수정 전달. 가사 운영 취소·MP4는 담당 d0f6ad89d, 음악 7개 대조 1df2c94ae. 무료 이미지 재사용 조사 msg_a845dcfc48ab."
+        "Master 요청 0. Git 변경과 새/갱신 결과 세 편(AIF D2-IT, 가사 L5/U3, Workspace ZIP), 공용 HANDOFF 및 점유표 대조. 기존 HANDOFF와 dev-docs manifest의 타 세션 미커밋 확인.",
+        "Workspace 809f52f7e Mac 경합 3분기 통과, abc3270c6 기록, 0b43bae44·5b2f56408 점유 해제. 가사 8f1eae339 Mac 44/44·격리 390/767/768 확인, 76ff2e7ed 점유 해제.",
+        "AI Influencer PLAN6 v2 4ac03c967, D2 격리 fec7fe017 15/15 및 b9ae5bcc4 가드 5/통합 15/정책 4 작성자 통과. Mac은 최초 계약 읽기 검토, 신규 가드 추가 재검수 전달."
       ],
-      "judgment": "기존 승인 및 직접 지시의 순서를 유지. 가사 로컬 L5·U3 배정, 이미지 품질 평가 이전에는 조사만. D2 운영 shadow 전 격리 검증 근거 대기.",
-      "nextAction": "CC-MUSIC-01 가사 L5·U3 작업 msg_68526ae14db0, Mac 검수. Workspace 경계 고정판 재검수 예정. 이미지 평가 뒤 Admin→Sub, QA002 B·QA037·ESM은 기존 사람 단계 뒤 재개.",
+      "judgment": "Workspace ZIP·가사 L5/U3는 로컬 독립 검수 완료·미배포. AIF D2는 정책 미확인과 명시 무제한을 구분하는 사전 검사·예약 계약 설계 및 시험 도커 경계 보완 중. PLAN6는 시험 계정 식별 방식 확정 전 예약 구현 보류.",
+      "nextAction": "AIF 정책 수정안과 시험 엔진 경계는 CC-SNS-01 msg_4a1e08e7b950, Mac 재검수 msg_5a8997695e52. Workspace ZIP·가사는 다음 승인 배포와 실제 화면 검증에서 재개. 이미지 품질 결과 뒤 Admin→Sub, QA002 B·QA037·ESM은 기존 사용자 단계 뒤 재개.",
       "unverified": [
-        "Workspace 실 Storage, AIF 실제 생성/보정과 D2 격리 결과, Mac 가사 저장 B, 무료 이미지 품질·실기, 운영 전수 및 이전 미추적 전체."
+        "Workspace 실제 Storage·100MB대 ZIP·브라우저 종단, 가사 Safari/휴대폰·QA002 B, AIF PostgREST·실 Storage·운영 cron/shadow, 시험 계정 공식 식별, 이미지 품질·실기.",
+        "103개 운영 전수와 이전 미추적 전체는 증분 범위 밖."
       ]
     },
     "notifications": [
