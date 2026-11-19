@@ -6369,7 +6369,7 @@
       "title": "AI Influencer 회원 예약 기본값과 관리자 허용 설계",
       "status": "waiting_human",
       "delivery": "r1_v6_corrected_production_sql_approval_pending",
-      "next": "670c4f6b3 검수 수락. 함수 7개 포함 새 운영 SQL 승인 요청 856c382d 대기. 기존 c4190462 종료. 운영 SQL 미적용.",
+      "next": "670c4f6b3 검수 수락. 담당자 운영 SQL 승인 수신 보고(856c382d). 마이그레이션 명명·적용 순번·사전 점검 대기. 운영 SQL 미적용.",
       "evidence": "6425b1ec4·45e164bf1·msg_c9d7969183e0·msg_81623dd95517·msg_fb0814229b74·a5eebe012·msg_e22a2892cbd5·msg_72fcafaead67·msg_c50c2385c455·bf01913ca·msg_73e81c2e0a4e·msg_bd4f92a9c91d·8c008d1f2·msg_9798da905907·msg_4ab0bb9725fc·msg_d060c2adc362·msg_14be39e4d98c·.ai/results/AI-INFLUENCER-R1-20261119-CX-QA-01.md·msg_28535461e744·msg_c9c73cf62365·8e04faee8·msg_fdaedad88a9d·msg_7857772eff03·msg_d5a93c1e9c7d·msg_3c745fd8d0a3·msg_4669cc0adbf7·msg_2639e26effdc·msg_aab1a546a863·06653c25f·msg_de63d878490a·msg_6a61990da58e·msg_2d25cdee75db·msg_40d34547f8d2·25e25859e·msg_7903b97f1d3e·msg_9ef535f845ab·msg_29efe44c95cf·msg_88b91b62244a·msg_59b7a2e0b487·msg_7c5fad05572a·d8b38b204·msg_ff474b75b61a·msg_fd112966c24f·msg_b4daff1ee8a7·msg_ddb2a7cfa4d9·msg_06b2d22f56bc·msg_797fd5bb3cc4·msg_74298e9d0652·msg_cdfa3687207b·3e1ca67f7·msg_e6ea68b4f13d·msg_dc58d2db8e76·msg_3e2ef0600165·670c4f6b3·msg_9559b8d40dfb·msg_f0f0f6f767d5·msg_44af36f3dd24·msg_5b0d6d9c41b1·msg_35b68bff8360·msg_28cac5bb5ca8·msg_0c6946306acd·856c382d-aa15-40cc-b550-b4349eef4413"
     },
     {
@@ -6979,18 +6979,18 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T17:31:30.721Z",
+      "at": "2026-11-19T18:01:20.640Z",
       "timezone": "Asia/Seoul",
-      "trigger": "02:30 KST 정기 점검 및 관리자 HTML 현황표 요청",
-      "scope": "기존 380건, 12개 제품·검수 세션, Master·Admin Tester 역할, 최신 하네스 배정과 회신 대조",
+      "trigger": "03:00 정기 점검 msg_268b66ce9194",
+      "scope": "직전 회차 뒤 작업표·담당 보고·인수인계/결과 경로·점유·실행 자원 대조",
       "evidence": [
-        "380건 중 완료 339·취소 7·대체 1·미완료 33. 13개 기존 담당 터미널에 지침 전달.",
-        "11ab3e622 맥미니 P3 발견, 수정 08bd1c06f 개별중지·재개·전체중지 독립검수 3/3. 실제 정기 동기화 및 Master 수신 msg_031eb480509e."
+        "Workspace 3d446effa 회귀 수락 d83a6cf23. 신규 결과·인수인계는 최근 파일 시각 대조.",
+        "SNS msg_6da0372c9622, 음악 msg_3e1f401e70ae, 음악 배포 준비 실제 전송 msg_31dbe2245180."
       ],
-      "judgment": "기존 제품 상태와 하네스 전달·수락·검수는 별도 집계. 블로그 전환 준비표와 부동산 매뉴얼 기존 수락 기록 재확인.",
-      "nextAction": "Workspace 최종판 전체 회귀 결과, 이커머스 상품영상 수신 계약 결과를 기존 플랜에 연결. 다음 실행 가능 작업은 Master가 선행조건과 점유를 확인해 배정.",
+      "judgment": "SNS 운영 SQL 승인 수신 보고를 반영. 운영 적용 여부는 미적용 보고 기준. 음악 공개 배포는 승인 대기.",
+      "nextAction": "SNS 마이그레이션 명명 및 운영 적용 순번 판단. 음악 배포 묶음과 실화면 확인 절차 회수.",
       "unverified": [
-        "Workspace 570쪽 운영 ZIP·Gmail, B2B Lab 로그인 실화면, 무료 이미지 실제 React·AI, 전체 기능의 운영 재시험."
+        "SNS 운영 사전 점검 및 SQL 적용, 음악 실제 화면/운영 배포, 다른 카테고리 운영 실동작."
       ]
     },
     "notifications": [
@@ -7640,10 +7640,10 @@
     },
     {
       "owner": "CC-MUSIC-01",
-      "state": "플레이리스트 발신 Mac 수락",
-      "next": "공개 배포 승인 대기",
-      "evidence": "56211df73·msg_c6a117a2c57a",
-      "reviewedAt": "2026-11-19T14:21:27.400Z",
+      "state": "플레이리스트 링크 맥미니 6/6 수락. 공개 배포 준비 읽기 작업 전달",
+      "next": "배포 대상 변경 범위·실제 클릭 확인 절차 회신 후 공개 배포 승인 판단.",
+      "evidence": "56211df73·msg_c6a117a2c57a·msg_3e1f401e70ae·msg_31dbe2245180",
+      "reviewedAt": "2026-11-19T18:01:20.640Z",
       "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
@@ -7680,10 +7680,10 @@
     },
     {
       "owner": "CC-SNS-01",
-      "state": "R1 후보 Mac 재검수 수락·요청 교체",
-      "next": "운영 SQL 승인 856c382d 대기",
-      "evidence": "670c4f6b3·msg_0c6946306acd",
-      "reviewedAt": "2026-11-19T14:34:31.204Z",
+      "state": "R1 SQL 후보 670c4f6b3 실행 승인 수신을 담당자가 보고",
+      "next": "마이그레이션 이름·번호·적용 순번 및 운영 사전 점검 대기. 적용 전.",
+      "evidence": "670c4f6b3·msg_0c6946306acd·msg_6da0372c9622",
+      "reviewedAt": "2026-11-19T18:01:20.640Z",
       "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     }
   ],

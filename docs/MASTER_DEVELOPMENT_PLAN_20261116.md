@@ -4,7 +4,7 @@
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-20 02:31:30 KST · 02:30 예약 수신과 담당 회신 대조.
+Master 마지막 실제 점검: 2026-11-20 03:01:20 KST · 03:00 예약 수신과 SNS·음악 회신 대조. 음악 배포 준비 전달.
 
 | 공식 작업표 | 진행 | 검수 | 순번 | 사람 대기 | 완료 | 취소·대체 |
 |---|---:|---:|---:|---:|---:|---:|
@@ -105,11 +105,11 @@ Master 마지막 실제 점검: 2026-11-20 02:31:30 KST · 02:30 예약 수신�
 | CC-ECOM-01 | 상품영상 수신 계약 대조 제출. 상세페이지 영상 수신 경로·저장 칸 부재 보고 | Master 계약 검토 뒤 영상 담당과 인계. 무료 이미지 격리 화면도 별도 대기 | msg_22edc6ba9f09 |
 | CC-BLOG-01 | T03 전환 준비표 4d616adae 수락 | 전환 실행 승인·공유 push 범위 대기 | 4d616adae·msg_ad7e9afb5a0a |
 | CC-MOVIE-01 | 원스톱 상품영상 송신 측 정적 검토 완료 | 수신측 계약 검토 후 구현 범위 확정. GIF V4는 녹화 확인 대기 | msg_39488c8f7357 |
-| CC-MUSIC-01 | 플레이리스트 발신 Mac 수락 | 공개 배포 승인 대기 | 56211df73·msg_c6a117a2c57a |
+| CC-MUSIC-01 | 플레이리스트 링크 맥미니 6/6 수락. 공개 배포 준비 읽기 작업 전달 | 배포 대상 변경 범위·실제 클릭 확인 절차 회신 후 공개 배포 승인 판단. | msg_3e1f401e70ae·msg_31dbe2245180 |
 | CC-REALTY-01 | 상가 v1.35·고객관리 v1.11 배포 기록 대조 | 실화면·문자 확인 전제 유지 | 5b5b8a2a4·83144f895 |
 | AG-UI-01 | PORT19 인용 69/69 담당 회신. 조사 19개 중 2개 담당·상태 변경, 17개 담당 미확정 | Master가 기존 등록부와 17개 잔여 범위 대조 | msg_9a598192dadd |
 | CX-QA-01 | 하네스 중지 후보 표시 보완판 08bd1c06f 재검수 3/3 수락 | Lab 로그인 뒤 QA037 등 기존 검수 순번 | msg_0be20c445fd3 |
-| CC-SNS-01 | R1 후보 Mac 재검수 수락·요청 교체 | 운영 SQL 승인 856c382d 대기 | 670c4f6b3·msg_0c6946306acd |
+| CC-SNS-01 | R1 SQL 후보 670c4f6b3 실행 승인 수신을 담당자가 보고 | 마이그레이션 이름·번호·적용 순번 및 운영 사전 점검 대기. 적용 전. | msg_6da0372c9622 |
 | CC-SUPPORT-01 | 주인님 직접 키트 작업 전담 | 기존 전담 완료 신호만 회수 | SUP-20261116-05 |
 
 ## 이번 대조에서 정정한 상태와 남은 불일치
@@ -521,7 +521,7 @@ Master 마지막 실제 점검: 2026-11-20 02:31:30 KST · 02:30 예약 수신�
 | AIF-20261119-W01-RETOUCH | CC-SNS-01 | done / test_generation_and_retouch_pass_v5_upload_without_publish | AI Influencer 히스토리 재표시·일반 회원 생성·보정 | 지정 일반 회원 경로 보류. 시험 계정 생성 1·보정 1 성공, V5 규칙 변환·업로드 확인. 앱 실제 게시와 운영 출처는 미검증. |
 | AIF-20261119-W01-D1 | CC-SNS-01 | done / production_off_ready_public_smoke_passed | AI Influencer D1 스위치 OFF 운영 배포 | D1 OFF 운영·DB·저장소 v1.27 일치. 담당자 로그인 무료 확인 및 배포와 공유 소스 3경로 차이 기록 완료. D2 사전 검토 58a2c9672 접수. 운영 shadow 전 정리·쿼터의 격리 검증 범위 요청, D3 대기. |
 | AIF-20261119-PLAN6 | CC-SNS-01 | reviewing / six_requirement_v2_scope_accepted_test_role_pending | AI Influencer 직접 요구 6건 개발 플랜 보완 | 4ac03c967 v2 전환 기준 보완. 일반 회원 Vercel 대기 0건이면 전환, 남으면 처리 결정 선행. 시험 계정 권한 식별 방식 확정 전 예약 구현 보류. |
-| AIF-20261119-R1-SCHEDULER | CC-SNS-01 | waiting_human / r1_v6_corrected_production_sql_approval_pending | AI Influencer 회원 예약 기본값과 관리자 허용 설계 | 670c4f6b3 검수 수락. 함수 7개 포함 새 운영 SQL 승인 요청 856c382d 대기. 기존 c4190462 종료. 운영 SQL 미적용. |
+| AIF-20261119-R1-SCHEDULER | CC-SNS-01 | waiting_human / r1_v6_corrected_production_sql_approval_pending | AI Influencer 회원 예약 기본값과 관리자 허용 설계 | 670c4f6b3 검수 수락. 담당자 운영 SQL 승인 수신 보고(856c382d). 마이그레이션 명명·적용 순번·사전 점검 대기. 운영 SQL 미적용. |
 | AIF-20261119-D2-READINESS | CC-SNS-01 | waiting_human / d2_runbook_ready_sql_scope_decision_pending | AI Influencer D2 실행 범위와 푸시 분리 검토 | c1c5c92e5 기준 적용·권한·복구 준비표 회수. 주인님 한도 SQL·shadow 범위 결정 후 재개. 전체 master 푸시 보류, 앱 전용 ref는 미생성. |
 | AIF-20261119-D2-IT | CC-SNS-01 | done / d2_local_sql_mac_rollback_review_accepted_undeployed | AI Influencer D2 정리·쿼터 격리 통합 시험 | c1c5c92e5 맥미니 원복 본문·서명·표식 검수 완료. d1626e492에 적용·원복 직전 속성/권한 및 실응답 대조 명시. 운영 미적용. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
