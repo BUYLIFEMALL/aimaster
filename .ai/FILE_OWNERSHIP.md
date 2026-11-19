@@ -433,3 +433,5 @@ WS-IMPORT-PANEL-DOM-REGRESSION 점유 해제 CC-WORKSPACE-01: 시험 1파일+문
 MOV-SVS-RELEVANCE-FILTER-INTEGRATION CC-MOVIE-01: Master msg_3a32f423910f(A1/P9/1, 기준 b40b18f37). 공용 등록 두 파일의 youtube-relevance-filter 한 항목만(docs/SHARED_MODULES.md·scripts/check-shared-modules.mjs, --module youtube-relevance-filter만 동기화) + shorts-viral-studio/ 안 관련성 필터 연결: 새 사본 src/lib/youtube/relevanceFilter.ts(sync 생성)·src/lib/youtube/api.ts searchShorts·src/lib/actions/svs.ts·검색 화면 토글/제외 수·tests 국소 시험·docs. 다른 사본·즐겨찾기 정책·새 외부 호출/의존성·빌드·배포·push 0. 검수 CX-QA-01.
 
 MOV-SVS-RELEVANCE-FILTER-INTEGRATION 점유 해제 CC-MOVIE-01: 929ff67bb(SVS 연결·사본·시험·등록 스크립트 9파일)+089ca9e02(SHARED_MODULES 1줄). relevance.test 6/6, npm test 17/17, tsc 0, check-shared-modules 전부 OK. 미검증: npm run build·실화면·실 YouTube. 결과 .ai/results/MOV-SVS-RELEVANCE-FILTER-INTEGRATION-CC-MOVIE-01.md.
+
+MOV-SVS-RELEVANCE-UI-CLARITY CC-MOVIE-01: Master msg_12d2a01d3966(A1/P9/1, 기준 929ff67bb). shorts-viral-studio/src/components/studio/SearchStep.tsx 문구·빈 결과 표시, src/lib/youtube/shortsSearch.ts 화면용 순수 함수, tests/relevance.test.mjs, docs/IMPROVEMENTS.md만. 검색 호출 수·외부 요청·빌드·배포 0.
