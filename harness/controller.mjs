@@ -42,7 +42,11 @@ const inside = (dir, candidate) => {
 
 function getDb() {
   let parent = root;
-  while (!existsSync(parent)) parent = path.dirname(parent);
+  while (!existsSync(parent)) {
+    const next = path.dirname(parent);
+    if (next === parent) throw Error('CONTROL_ROOT drive is unavailable.');
+    parent = next;
+  }
   const effective = path.resolve(realpathSync(parent), path.relative(parent, root));
   if (inside(repo, effective) || /^[/\\]{2}/.test(effective)) throw Error('CONTROL_ROOT must be external and local.');
   mkdirSync(root, { recursive: true });
@@ -106,11 +110,13 @@ function record(db, rev) {
   const cmd = db.prepare("SELECT * FROM events WHERE id=? AND actor='Admin'").get(second);
   if (!cmd || (cmd.task !== 'ALL' && cmd.task !== task)) throw Error('Unknown command or wrong task.');
   const latest = db.prepare("SELECT MAX(rev) AS rev FROM events WHERE actor='Admin' AND task=?").get(task);
-  const priorAssignment = db.prepare("SELECT cmd,assignment,attempt FROM events WHERE task=? AND stage='assigned' AND stale=0 ORDER BY seq DESC LIMIT 1").get(task);
+  if (stage === 'assigned') throw Error('Use claim to reserve an assignment.');
+  const priorAssignment = db.prepare("SELECT actor,cmd,assignment,attempt FROM events WHERE task=? AND stage='assigned' AND stale=0 ORDER BY seq DESC LIMIT 1").get(task);
   const n = assign === null ? null : Number(assign);
   const assignmentEvent = n !== null || ['delivered','accepted','review','verified','failed','integrated'].includes(stage);
   const stale = cmd.rev < (latest.rev ?? 0) || (assignmentEvent &&
-    (!priorAssignment || n !== priorAssignment.assignment || attempt !== priorAssignment.attempt || second !== priorAssignment.cmd));
+    (!priorAssignment || n !== priorAssignment.assignment || attempt !== priorAssignment.attempt || second !== priorAssignment.cmd ||
+      (['accepted','delivered'].includes(stage) && fourth !== priorAssignment.actor)));
   return append(db, { id, actor: fourth, task, cmd: second, stage, note: publicText(note), rev: cmd.rev, stale,
     attempt, assignment: n });
 }
@@ -152,8 +158,10 @@ function publish(db) {
   const board = JSON.parse(db.prepare('SELECT data FROM snapshot WHERE id=1').get()?.data ?? '{"tasks":[],"roles":[],"human":[]}');
   const all = db.prepare('SELECT * FROM events ORDER BY seq').all();
   const latest = all.at(-1);
-  const active = board.tasks.filter(t => !['done','superseded','cancelled','waiting_human'].includes(t.status));
+  const eligible = board.tasks.filter(t => !['done','superseded','cancelled','waiting_human'].includes(t.status));
+  const suspended = eligible.filter(t => held(db, t.id));
   const paused = held(db, 'ALL');
+  const active = paused ? [] : eligible.filter(t => !held(db, t.id));
   const runState = paused ? 'PAUSED_BY_ADMIN' : !board.checkedAt ? 'NOT_SYNCED' :
     active.length ? (board.human.length ? 'RUNNING_WITH_HUMAN_PENDING' : 'RUNNING') :
     board.human.length || board.tasks.some(t=>t.status==='waiting_human') ? 'WAITING_HUMAN' : 'MONITORING';
@@ -188,6 +196,7 @@ function publish(db) {
     '', '## 기존 지휘표의 작업 집계', '', ...Object.entries(counts).map(([k,v])=>'- ' + k + ' ' + v),
     '', '## 실행·검수 후보 (실제 배정은 Master 확인)', '',
     ...active.map(t=>'- ' + [t.id,t.owner,t.status,t.title].join(' · ')),
+    '', '## 개별 중지', '', ...suspended.map(t=>'- ' + [t.id,t.owner,t.title].join(' · ')),
     '', '## 관리자 요청 원장 (현재 필요 여부는 Master 확인)', '',
     ...board.human.map(row=>'- ' + row.join(' · ')), ''].join('\n'));
   replace('REPORT.md', ['# 운영 회차 보고', '', '사건 순번 ' + summary.lastSequence,
