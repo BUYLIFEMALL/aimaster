@@ -391,7 +391,7 @@ AI Influencer D1 후속 수락, D2 사전 검토 접수. 음악 7개 대조를 �
 | WS-20261118-08 | CC-WORKSPACE-01 | done / collapsed_widget_spacing_static_mac_review_accepted_undeployed | 좌측 하단 저장공간 위젯과 푸터 겹침 | 미배포. 기본 위젯 겹침 국소 정적 검수 완료, 확장/좁은 폭·실화면은 별도. |
 | WS-20261119-01 | CC-WORKSPACE-01 | done / saved_notion_html_recursive_fix_independent_review_accepted | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | v1.61 배포 완료, 기존 가져온 본문 읽기 확인. 운영에서 노션 저장 HTML 다시 가져오기 시험은 미실행. |
 | WS-20261119-REL | CC-WORKSPACE-01 | done / production_v161_live_verified_catalog_version_synced | Workspace v1.61 기존 중단 빌드 로그 진단 | 운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음. |
-| WS-20261119-02 | CC-WORKSPACE-01 | running / large_zip_stamp_race_candidate_mac_recheck_sent | Workspace 대용량 ZIP | 809f52f7e 정리 DELETE가 기준 시각을 재비교. 담당 시험 1,020건·Mac 재검수 전달. 이번 경합의 별도 PG 연결·실 Storage 미검증, 미배포. |
+| WS-20261119-02 | CC-WORKSPACE-01 | done / large_zip_mac_local_review_passed_undeployed | Workspace 대용량 ZIP | 809f52f7e Mac 갱신·삭제 경합 3분기 통과, 로컬 검수 수락. 점유 정리 요청. 이번 별도 PG 연결과 실제 Storage·브라우저 전체 동작 미검증, 미배포. |
 | MUSIC-20261119-IMG-COMPAT | CC-MUSIC-01 | done / five_music_flows_read_only_accepted | 무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토 | 고정 2131089b7 음악 5경로·146/146 검토 수락. 새 범위 미사용 시 파일 미생성 정정. 실제 엔진은 미검증. |
 | MUSIC-20261119-BACKLOG-SWEEP | CC-MUSIC-01 | done / music_backlog_review_accepted_followup_dispatched | 음악 7개 프로그램 다음 작업 후보 대조 | 음악 7개 웹의 미배포 코드 0. L5·U3를 우선 로컬 착수, 리믹스→플레이리스트 및 유료 영상 실검증은 별도 조건 대기. |
 | MUSIC-20261119-LYRIC-L5-U3 | CC-MUSIC-01 | done / lyric_l5_u3_mac_review_passed_undeployed | 가사 영상 미리보기 재생 실패와 모바일 안내 | 8f1eae339 Mac 독립 44/44 및 격리 브라우저 재생·390/767/768 통과. Safari 실동작·후보 URL·휴대폰 검증 대기, 다음 묶음 미배포. |
