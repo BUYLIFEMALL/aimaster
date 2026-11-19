@@ -10003,11 +10003,11 @@
       "reviewer": "CX-MASTER-01",
       "title": "메이커 M3 제안 적용·서버 바이트 검증 설계",
       "status": "reviewing",
-      "delivery": "p3_fixes_returned_mac_final_review_requested",
+      "delivery": "local_data_layer_review_passed_server_approval_pending",
       "sha": "f0eaf784c",
-      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1·msg_09c13f44d34f·8be47a12f·msg_2639b1f89d07·msg_f4130843a9ef·320a5909a·msg_f714f535ba3b·msg_8a99ab301d34·msg_64cd4fd01392·2d4dd53d0·msg_617ae29305b4·a23ffa1f3·msg_8c842614e79b·1c7b50762·msg_513a7e7b6ebc·msg_371737216f81·msg_6ceff50f19aa·msg_d0efc0d596af·msg_f596e2e53ec0·5499b725d·msg_f6638de84aba·cbe48e7d9·msg_4126c4fb6ddb·msg_c906bef9d317·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_8aaff84db217·msg_57b72d91de11·f0eaf784c·msg_6b031e653440",
-      "next": "P3 잠금 순서 회귀 3건·업로드 전 URL 검증 보완. 작성자 격리 42/42·전체 544/544·tsc 통과. Mac 최종 독립 검수 요청, Storage·Lab·운영 미검증.",
-      "lastReviewedAt": "2026-11-19T00:48:30.030Z"
+      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1·msg_09c13f44d34f·8be47a12f·msg_2639b1f89d07·msg_f4130843a9ef·320a5909a·msg_f714f535ba3b·msg_8a99ab301d34·msg_64cd4fd01392·2d4dd53d0·msg_617ae29305b4·a23ffa1f3·msg_8c842614e79b·1c7b50762·msg_513a7e7b6ebc·msg_371737216f81·msg_6ceff50f19aa·msg_d0efc0d596af·msg_f596e2e53ec0·5499b725d·msg_f6638de84aba·cbe48e7d9·msg_4126c4fb6ddb·msg_c906bef9d317·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_8aaff84db217·msg_57b72d91de11·f0eaf784c·msg_6b031e653440·msg_691fa1940926·.ai/results/B2B-20261119-M2-CX-QA-01.md",
+      "next": "Mac 독립 Node 7/7, 정상 서명 호환·포트 경계 통과, 잠금 순서 시험 구조 대조 완료. 로컬 데이터 계층 검수 종료. 점 경로 원문 검증은 서버 후속에 포함. 서버 경로 별도 승인, 실제 SQL 독립 실행·Storage·Lab·운영 검증 대기.",
+      "lastReviewedAt": "2026-11-19T00:50:05.417Z"
     }
   ]
 }
