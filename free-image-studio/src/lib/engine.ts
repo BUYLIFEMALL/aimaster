@@ -172,6 +172,16 @@ export function checkArtInput(input: SubmitInput): string | null {
   return null;
 }
 
+/**
+ * 접수 기록에서 읽은 줄을 엔진에 (다시) 보내도 되는가 — 첫 접수 때와 **같은 값 검사**를 보내기 직전에 한 번 더 한다.
+ * 줄 구조 검사(isSubmissionRow)는 형식만 본다. 형식은 맞지만 범위가 틀린 값(음수 시드, 없는 크기 등)은 여기서 걸러 요청을 내보내지 않는다.
+ * 문제가 없으면 null, 있으면 사용자에게 보일 이유.
+ */
+export function checkStoredEntry(entry: Pick<Submission, "requestId" | "trackId" | "title" | "task">): string | null {
+  if (!REQUEST_ID.test(entry.requestId) || !JOB_ID.test(entry.trackId)) return "접수 번호가 올바르지 않습니다.";
+  return checkArtInput({ title: entry.title, ...entry.task });
+}
+
 export type EngineClientOptions = {
   /** 로그인한 회원 번호. 토큰과 접수 기록을 이 번호별로 나눠 둔다 */
   memberId: string;
@@ -592,6 +602,9 @@ export function createEngineClient(opts: EngineClientOptions) {
       const session = readSession();
       if (!session || entry.link !== session.link) throw unsent(new EngineError("invalid", "엔진 연결이 바뀌어 이 접수는 다시 보낼 수 없습니다. 새로 접수해 주세요."));
       if (!entry.errorKind || !RETRYABLE.includes(entry.errorKind)) throw new EngineError("invalid", "이 접수는 다시 보낼 수 없습니다. 내용을 고쳐 새로 접수해 주세요.");
+      // 보관된 내용을 첫 접수와 같은 기준으로 다시 검사한다. 어긋나면 상태를 바꾸지 않고 엔진에 보내지 않는다(기록은 그대로 보인다).
+      const problem = checkStoredEntry(entry);
+      if (problem) throw unsent(new EngineError("invalid", `보관된 접수 내용이 올바르지 않아 다시 보낼 수 없습니다. 새로 접수해 주세요. (${problem})`));
       // 잠금을 기다리기 **전에** 「처리 중」 표시를 세운다 — 기다리는 사이 같은 접수의 확인·다시 보내기가 끼어들지 않게.
       busy.add(requestId);
       let ready = false;
@@ -607,7 +620,7 @@ export function createEngineClient(opts: EngineClientOptions) {
     /** 이 접수를 resend()로 다시 보낼 수 있는가 */
     canResend(requestId: string): boolean {
       const entry = readLedger().find((s) => s.requestId === requestId);
-      return !!entry && !busy.has(requestId) && entry.state === "rejected" && !!entry.errorKind && RETRYABLE.includes(entry.errorKind) && !!readLink() && entry.link === readLink();
+      return !!entry && !busy.has(requestId) && entry.state === "rejected" && !!entry.errorKind && RETRYABLE.includes(entry.errorKind) && !!readLink() && entry.link === readLink() && checkStoredEntry(entry) === null;
     },
 
     /** 접수 기록(이 회원 것만) */
