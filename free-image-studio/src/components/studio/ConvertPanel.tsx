@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CONVERT_PROVIDER_LABEL, costHint, findConvertModel, type ConvertProvider } from "@/lib/convert/models";
-import { ConvertRequestError, applyConverted, canConvert, fetchConvertStatus, linesToConvert, loadConvertSettings, requestConversion, saveConvertSettings, type ApplyResult, type ConvertSettings, type ConvertStatus } from "@/lib/convert/client";
+import { ConvertRequestError, applyConverted, canConvert, fetchConvertStatus, linesToConvert, loadConvertSettings, requestConversion, saveConvertSettings, singleFlight, type ApplyResult, type ConvertSettings, type ConvertStatus } from "@/lib/convert/client";
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://www.buylife.xyz";
 const button = "rounded-xl bg-[var(--accent)] px-4 py-2.5 text-sm font-bold text-black disabled:opacity-40";
@@ -26,6 +26,8 @@ export function ConvertPanel({ memberId, text, onText, disabled }: { memberId: s
   const [done, setDone] = useState<ApplyResult | null>(null);
   const latest = useRef(text);
   latest.current = text;
+  // 빠르게 두 번 눌러도 요청은 한 번만(버튼 비활성은 다음 그리기에야 반영되므로 그보다 먼저 막는다). 이 화면(탭) 안에서만 유효하다.
+  const gate = useRef(singleFlight()).current;
 
   // 회원별 설정을 되돌린다(회원이 바뀌면 그 회원 것으로).
   useEffect(() => {
@@ -76,27 +78,29 @@ export function ConvertPanel({ memberId, text, onText, disabled }: { memberId: s
     }
   };
 
-  const convert = async () => {
-    if (busy || disabled || !model) return;
-    setError(null);
-    setDone(null);
-    const { items, problem } = linesToConvert(text);
-    if (problem) return setError({ message: problem, needKey: false });
-    if (!items.length) return;
-    setBusy(true);
-    try {
-      const results = await requestConversion(fetch, model.id, items); // 한 번만. 실패해도 다시 부르지 않는다
-      const applied = applyConverted(latest.current, items, results);
-      onText(applied.text);
-      setDone(applied);
-    } catch (e) {
-      // 실패하면 설명 칸의 글은 건드리지 않는다.
-      const needKey = e instanceof ConvertRequestError && (e.code === "needKey" || e.code === "auth");
-      setError({ message: e instanceof Error ? e.message : "변환하지 못했습니다. 설명은 그대로 두었습니다.", needKey });
-    } finally {
-      setBusy(false);
-    }
-  };
+  const convert = () =>
+    gate.run(async () => {
+      // 동의하고 켠 상태에서만 요청한다(버튼 조건과 같은 검사를 누르는 순간 한 번 더).
+      if (disabled || !model || !canConvert(settings, status, pending)) return;
+      setError(null);
+      setDone(null);
+      const { items, problem } = linesToConvert(text);
+      if (problem) return setError({ message: problem, needKey: false });
+      if (!items.length) return;
+      setBusy(true);
+      try {
+        const results = await requestConversion(fetch, model.id, items); // 한 번만. 실패해도 다시 부르지 않는다
+        const applied = applyConverted(latest.current, items, results);
+        onText(applied.text);
+        setDone(applied);
+      } catch (e) {
+        // 실패하면 설명 칸의 글은 건드리지 않는다.
+        const needKey = e instanceof ConvertRequestError && (e.code === "needKey" || e.code === "auth");
+        setError({ message: e instanceof Error ? e.message : "변환하지 못했습니다. 설명은 그대로 두었습니다.", needKey });
+      } finally {
+        setBusy(false);
+      }
+    });
 
   const keyLink = (
     <a href={`${MAIN_SITE_URL}/api-settings`} target="_blank" rel="noreferrer" className="underline">

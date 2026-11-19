@@ -310,7 +310,7 @@ test("화면 — 요청은 한 번, 실패하면 예외만(다시 부르지 않�
   assert.equal(ok.calls.length, 1);
   assert.equal(ok.calls[0].url, "/api/convert");
   assert.equal(ok.calls[0].init.method, "POST");
-  assert.deepEqual(JSON.parse(ok.calls[0].init.body), { model: "claude-haiku-5-5", items: [{ id: "cccccc01", ko: "식탁 위의 빨간 사과" }] }, "줄 번호(lineIndex)·키는 보내지 않는다");
+  assert.deepEqual(JSON.parse(ok.calls[0].init.body), { consent: true, model: "claude-haiku-5-5", items: [{ id: "cccccc01", ko: "식탁 위의 빨간 사과" }] }, "줄 번호(lineIndex)·키는 보내지 않는다");
   const cases = [
     [mk(400, { error: "Claude (Anthropic) 본인 API 키가 등록돼 있지 않습니다.", code: "needKey" }), "needKey", 400],
     [mk(429, { error: "한도", code: "busy" }), "busy", 429],
@@ -409,8 +409,12 @@ test("변환과 그림 맡기기는 분리돼 있다 — 변환은 엔진에 아
   // 경로: 권한 판정·같은 사이트 요청만·캐시 금지·본인 키 조회
   const route = await read("../src/app/api/convert/route.ts");
   assert.ok(route.includes('export const dynamic = "force-dynamic"') && route.includes('export const fetchCache = "force-no-store"'));
-  assert.equal(route.split("checkProgramAccessApi()").length - 1, 2, "GET·POST 모두 권한 판정");
-  assert.ok(route.includes("getUserApiKey(userId, provider)") && route.includes('"origin"'));
+  // GET·POST 모두 같은 권한 판정(checkAccess → checkProgramAccessApi)을 거친다. POST의 순서는 handler가 맡는다(convertGuard 시험).
+  assert.equal(route.split("checkProgramAccessApi()").length - 1, 1);
+  assert.ok(route.includes("const access = await checkAccess();") && route.includes("handleConvertPost(request, { checkAccess, getKey: getUserApiKey })"));
+  const handlerFile = await read("../src/lib/convert/handler.ts");
+  const handler = handlerFile.slice(handlerFile.indexOf("export async function handleConvertPost"));
+  assert.ok(handler.indexOf("await deps.checkAccess()") < handler.indexOf("sameOrigin(request.headers") && handler.indexOf("sameOrigin(request.headers") < handler.indexOf("readLimitedText(request") && handler.indexOf("readLimitedText(request") < handler.indexOf("deps.getKey(userId, provider)"), "권한 → 출처 → 본문 → 키 순서");
   assert.ok(!/process\.env\.[A-Z_]*(OPENAI|ANTHROPIC|GEMINI|GOOGLE)/.test(route + (await read("../src/lib/apiKeys.ts")) + (await read("../src/lib/convert/llm.ts")) + (await read("../src/lib/convert/service.ts"))), "운영자 환경변수 키를 쓰지 않는다");
   const keys = await read("../src/lib/apiKeys.ts");
   assert.ok(keys.includes('.eq("user_id", userId).eq("provider", provider)'), "회원·플랫폼을 함께 조건으로");

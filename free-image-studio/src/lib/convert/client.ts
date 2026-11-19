@@ -3,7 +3,7 @@
 // 자동 호출·자동 재시도가 없다 — 사용자가 「변환」을 누를 때 한 번만 요청한다.
 import { parseEntries, parseLines } from "../studio/batch.ts";
 import type { KeyValueStore } from "../engine.ts";
-import { ITEM_ID, CONVERT_MAX_ITEMS, KO_LIMIT, type ConvertItem, type ConvertedItem } from "./protocol.ts";
+import { ITEM_ID, CONVERT_MAX_ITEMS, KO_LIMIT, endsLikeCopiesMark, type ConvertItem, type ConvertedItem } from "./protocol.ts";
 import { findConvertModel } from "./models.ts";
 
 const HAS_NON_ASCII = /[^\x20-\x7e]/;
@@ -48,7 +48,9 @@ export type ApplyResult = {
 /**
  * 변환 결과를 설명 칸의 글에 반영한다. 짝은 **항목 ID**로 맺는다.
  * 결과의 ID 집합이 보낸 것과 정확히 같지 않으면 한 줄도 바꾸지 않고 예외를 던진다(서버 검사에 더한 화면 쪽 방어).
- * 요청을 보낸 뒤 사용자가 고친 줄(지금 내용이 보낸 원문과 다름)은 건드리지 않는다. 장수 표시(x2)는 그대로 둔다.
+ * 요청을 보낸 뒤 사용자가 고친 줄(지금 내용이 보낸 원문과 다름)은 건드리지 않는다.
+ * **장수는 변환 전과 같아야 한다**: 바꾼 줄을 실제 묶음 파서로 다시 읽어 설명이 변환된 영문 그대로이고 장수(1장·2장·잘못된 장수 표시)가
+ * 변환 전과 같은지 확인한다. 한 줄이라도 다르면 한 줄도 바꾸지 않고 예외를 던진다.
  */
 export function applyConverted(text: string, sent: PendingLine[], results: ConvertedItem[]): ApplyResult {
   if (!Array.isArray(results) || results.length !== sent.length) throw new Error("변환 결과가 보낸 줄과 맞지 않아 쓰지 않았습니다.");
@@ -57,6 +59,7 @@ export function applyConverted(text: string, sent: PendingLine[], results: Conve
     if (!r || typeof r.id !== "string" || typeof r.en !== "string" || byId.has(r.id)) throw new Error("변환 결과가 보낸 줄과 맞지 않아 쓰지 않았습니다.");
     const en = r.en.replace(/\s+/g, " ").trim();
     if (!en || HAS_NON_ASCII.test(en)) throw new Error("변환 결과에 영문이 아닌 글자가 있어 쓰지 않았습니다.");
+    if (endsLikeCopiesMark(en)) throw new Error("변환 결과가 장수 표시(x2)처럼 끝나 쓰지 않았습니다. 그 줄은 영문으로 직접 적어 주세요.");
     byId.set(r.id, en);
   }
   if (sent.some((s) => !byId.has(s.id))) throw new Error("변환 결과가 보낸 줄과 맞지 않아 쓰지 않았습니다.");
@@ -75,8 +78,12 @@ export function applyConverted(text: string, sent: PendingLine[], results: Conve
       const en = byId.get(target.id)!;
       const line = parseLines(raw)[0] ?? "";
       const mark = line.length > entry.source.length ? ` x${entry.badCopies ?? entry.copies}` : "";
+      const next = `${en}${mark}`;
+      // 바꾼 줄을 실제 파서로 다시 읽어, 설명과 장수가 의도한 그대로인지 확인한다.
+      const after = parseEntries(next)[0];
+      if (!after || after.source !== en || after.copies !== entry.copies || after.badCopies !== entry.badCopies) throw new Error("변환 결과를 넣으면 그 줄의 장수가 달라져 쓰지 않았습니다. 그 줄은 영문으로 직접 적어 주세요.");
       applied.push({ lineIndex: seen, ko: target.ko, en });
-      return `${en}${mark}`;
+      return next;
     })
     .join("\n");
   // 바꾸지 않은 줄 = 그사이 고쳤거나 지워진 줄
@@ -101,7 +108,8 @@ export async function requestConversion(fetcher: typeof fetch, model: string, it
     res = await fetcher("/api/convert", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model, items: items.map(({ id, ko }) => ({ id, ko })) }),
+      // consent: 화면이 비용 안내 동의를 받은 뒤에만 이 함수를 부른다(서버도 이 표시가 없으면 거절한다).
+      body: JSON.stringify({ consent: true, model, items: items.map(({ id, ko }) => ({ id, ko })) }),
       cache: "no-store",
       signal,
     });
@@ -117,6 +125,29 @@ export async function requestConversion(fetcher: typeof fetch, model: string, it
   if (!res.ok) throw new ConvertRequestError(typeof data?.error === "string" && data.error ? data.error : "변환하지 못했습니다. 설명은 그대로 두었습니다.", typeof data?.code === "string" ? data.code : "error", res.status);
   if (!data || !Array.isArray(data.items)) throw new ConvertRequestError("변환 결과를 읽지 못했습니다. 설명은 그대로 두었습니다.", "mismatch", res.status);
   return data.items as ConvertedItem[];
+}
+
+/**
+ * 한 번에 하나만 실행하게 하는 문. 실행 중에 다시 부르면 실행하지 않고 null을 돌려준다(기다렸다가 다시 실행하지도 않는다).
+ * 변환 버튼을 빠르게 두 번 눌러도 요청이 한 번만 나가게 하는 데 쓴다 — 화면의 버튼 비활성(다음 그리기에 반영)보다 먼저 막는다.
+ * 범위: **이 문을 쓰는 화면 하나(탭 하나)** 안에서만. 탭을 두 개 열어 각각 누르면 두 번 나간다(서버는 중복을 걸러 내지 않는다).
+ */
+export function singleFlight() {
+  let running = false;
+  return {
+    get running() {
+      return running;
+    },
+    async run<T>(fn: () => Promise<T>): Promise<T | null> {
+      if (running) return null;
+      running = true;
+      try {
+        return await fn();
+      } finally {
+        running = false;
+      }
+    },
+  };
 }
 
 export type ConvertStatus = { keys: Record<string, boolean>; defaultModel: string | null; models: { id: string; provider: string; tier: string; label: string }[] };
