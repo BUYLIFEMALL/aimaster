@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-19T00:00:50.401Z",
+  "checkedAt": "2026-11-19T00:18:33.369Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9985,11 +9985,11 @@
       "reviewer": "CX-MASTER-01",
       "title": "메이커 M3 제안 적용·서버 바이트 검증 설계",
       "status": "reviewing",
-      "delivery": "visibility_comparison_returned_nonprivileged_variant_queued",
-      "sha": "8be47a12f",
-      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1·msg_09c13f44d34f·8be47a12f·msg_2639b1f89d07",
-      "next": "불변 공개/비공개 중계 방식 비교. 적용 행에만 RLS 읽기를 허용하는 비특권 서명 대안 대조 요청은 담당 입력 대기로 전달 보류. 구현 없음.",
-      "lastReviewedAt": "2026-11-18T20:10:27.968Z"
+      "delivery": "owner_publication_choice_accepted_server_upload_boundary_requested",
+      "sha": "320a5909a",
+      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1·msg_09c13f44d34f·8be47a12f·msg_2639b1f89d07·msg_f4130843a9ef·320a5909a·msg_f714f535ba3b",
+      "next": "변경 불가 공개 버킷·서버 디코드/재인코딩·직원 강제 적용·주간 점검 확정. 원본이 서버 검사 전에 공개되지 않도록 업로드 권한 설계 보완. 키 환경변수 설정 별도.",
+      "lastReviewedAt": "2026-11-19T00:18:33.369Z"
     }
   ]
 }
