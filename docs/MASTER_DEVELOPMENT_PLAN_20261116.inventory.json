@@ -10261,10 +10261,10 @@
       "reviewer": "CX-QA-01",
       "title": "AI Influencer D2 정리·쿼터 격리 통합 시험",
       "status": "running",
-      "delivery": "d2_mac_guard_p2_passed_local_quota_candidate_running",
-      "sha": "67126ab93",
-      "next": "67126ab93 Mac 가드 11/11, 원격 선접속 문제 해소. 자동 공개 포트·CLI 미설치 보완 및 로컬 정책 구분 마이그레이션 진행. 운영 적용 보류.",
-      "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e·msg_01908be553ce·msg_3c0ea9d67886·fec7fe017·msg_3bdadb79cff0·msg_ba14d996ab74·msg_0e498ff524d1·msg_af7821e3d106·.ai/results/AIF-20261119-D2-IT-CX-QA-01.md·msg_ec07da32b153·b9ae5bcc4·msg_5a8997695e52·msg_4a1e08e7b950·msg_7c74159e5200·msg_f4dfb65f9b8f·msg_6a0776eac06b·67126ab93·msg_da122886dca1·msg_db2b0fb8b3fd·msg_5f5880568d1b·msg_2fffffb23bff"
+      "delivery": "d2_local_quota_candidate_mac_review_sent",
+      "sha": "ec52dfef4",
+      "next": "ec52dfef4 정책 구분 SQL과 원복 격리 검증(담당 11/15/8). Mac 독립 검토 전달. 후보는 배포 마이그레이션 밖, 운영 적용 보류.",
+      "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e·msg_01908be553ce·msg_3c0ea9d67886·fec7fe017·msg_3bdadb79cff0·msg_ba14d996ab74·msg_0e498ff524d1·msg_af7821e3d106·.ai/results/AIF-20261119-D2-IT-CX-QA-01.md·msg_ec07da32b153·b9ae5bcc4·msg_5a8997695e52·msg_4a1e08e7b950·msg_7c74159e5200·msg_f4dfb65f9b8f·msg_6a0776eac06b·67126ab93·msg_da122886dca1·msg_db2b0fb8b3fd·msg_5f5880568d1b·msg_2fffffb23bff·msg_f26fdb86801a·ec52dfef4·msg_a7dd4d193c29"
     },
     {
       "task_id": "AIF-20261119-PLAN6",
