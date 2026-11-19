@@ -122,7 +122,22 @@ export function shouldSwitchToResponses(status: number, body: string): boolean {
     new RegExp(`\\bplease use ${RESP}${TAIL}`, 'gi'),
     new RegExp(`\\buse ${RESP}(?: endpoint)? (?:instead|for this model)\\b`, 'gi'),
   ]
-  const negated = (index: number) => /\b(?:not|never|cannot|no longer)\b|n't\b/i.test(message.slice(Math.max(0, index - 25), index))
+  // 부정어는 같은 문장 안에서만 본다(앞 문장의 not은 영향 없음, 같은 문장이면 거리와 관계없이 부정) — Master msg_4c9ffbff9787.
+  // 문장 경계: 마침표·느낌표·물음표·쌍반점 뒤에 공백/끝(「gpt-6.2」 같은 모델 이름의 점은 경계 아님).
+  const sentencePrefix = (index: number) => {
+    const before = message.slice(0, index)
+    let cut = 0
+    for (const m of before.matchAll(/[.!?;](?=\s|$)/g)) cut = (m.index ?? 0) + 1
+    return before.slice(cut)
+  }
+  const negated = (index: number) => /\b(?:not|never|cannot|no longer)\b|n't\b/i.test(sentencePrefix(index))
+  // 모순 검사: 같은 경로(Responses)를 「쓰라/거기서만 된다」는 표현이 하나라도 부정돼 있으면 지시가 모순이라 다시 보내지 않는다.
+  const responsesMentions = [
+    new RegExp(`\\buse ${RESP}`, 'gi'),
+    new RegExp(`\\b(?:supported|available) (?:in|on|via|through|with) ${RESP}`, 'gi'),
+  ]
+  const contradicted = responsesMentions.some((re) => Array.from(message.matchAll(re)).some((m) => negated(m.index ?? 0)))
+  if (contradicted) return false
   const directSwitch = switchPatterns.some((re) => Array.from(message.matchAll(re)).some((m) => !negated(m.index ?? 0)))
   return pathIncompatible || directSwitch
 }

@@ -213,3 +213,37 @@ test('확실한 경로 지시는 2요청이고, 대체 요청이 503이면 세 �
   await assert.rejects(generateContentJson({ provider: 'openai', apiKey: 'k', model: 'gpt-6.2-sol', system: 's', user: 'u' }));
   assert.deepEqual(calls, ['https://api.openai.com/v1/chat/completions', 'https://api.openai.com/v1/responses']);
 });
+
+// ── Master msg_4c9ffbff9787: 부정어는 같은 문장 안에서만, 긴 부정·모순 지시는 1요청 ──
+test('앞 문장의 독립 not은 뒤 문장의 유효한 전환 안내를 막지 않음(2요청)', async () => {
+  for (const msg of [
+    'This request is not valid for chat. Please use the Responses API for this model.',
+    'Streaming is not enabled. This model is only supported in v1/responses and not in v1/chat/completions.',
+  ]) {
+    const r = await countCalls(400, JSON.stringify({ error: { message: msg, param: null, code: null } }));
+    assert.equal(r.calls.length, 2, msg);
+  }
+});
+
+test('같은 문장의 긴 부정 수식은 거리와 관계없이 전환 안 함(1요청)', async () => {
+  const msg = 'You should not, under any circumstances and for any reason related to this request, use the Responses API instead.';
+  const r = await countCalls(400, JSON.stringify({ error: { message: msg, param: null, code: null } }));
+  assert.equal(r.calls.length, 1);
+});
+
+test('같은 경로를 쓰라/쓰지 말라는 모순 지시는 1요청으로 실패', async () => {
+  for (const msg of [
+    'Use the Responses API instead. Do not use the Responses API for this model.',
+    'This model is only supported in v1/responses. It is not supported in v1/responses for your organization.',
+  ]) {
+    const r = await countCalls(400, JSON.stringify({ error: { message: msg, param: null, code: null } }));
+    assert.equal(r.ok, false, msg);
+    assert.equal(r.calls.length, 1, msg);
+  }
+});
+
+test('모델 이름의 점(gpt-6.2)은 문장 경계로 보지 않음', async () => {
+  const msg = 'Model gpt-6.2-sol is not available here, please use the Responses API instead.';
+  const r = await countCalls(400, JSON.stringify({ error: { message: msg, param: null, code: null } }));
+  assert.equal(r.calls.length, 1, '같은 문장에 not이 있으므로 전환 안 함');
+});
