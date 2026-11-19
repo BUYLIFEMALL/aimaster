@@ -286,7 +286,7 @@ AI Influencer D1 OFF 운영 v1.27의 공개 화면·접근 제한을 확인했�
 | QA-20261117-001 | CC-ECOM-01 | done / integrated | 주인님 직접시험상품1개 운영 저장응답왕복 검수 | resultId왕복/동일설정재전송방지확인·대표사진원복, 실기기/낭독별도·추가실행없음 |
 | REL-20261117-005 | CC-ECOM-01 | done / integrated | 주인님 직접승인 쇼핑제휴v1.89 운영배포 | qkncpet55 Ready·ext/zip/DB1.89·실설치/네이버수집등록/쿠팡미검수 |
 | FRONT-20261117-01 | CC-B2B-FRONT-01 | done / integrated | 갤러리 로빙키보드·필터선택 및fallback 정합성 | 코드완료·7609748ad Lab반영, 실고객/낭독은QA037 별도 |
-| MUS-20261117-01 | CC-MUSIC-01 | done / lyric_v117_ready_cancel_and_mp4_live_checks_pending | 가사영상 회원취소 일반안내 보완 | 가사 영상 v1.17 Ready, DB·메뉴 v1.17 및 담당 36/36. 취소·MP4 실물과 QA002 저장시험 B 미확인. 푸시 없음. |
+| MUS-20261117-01 | CC-MUSIC-01 | done / lyric_v117_author_live_cancel_and_mp4_passed | 가사영상 회원취소 일반안내 보완 | 가사 영상 v1.17 READY. 담당 운영 시험에서 취소 안내·재시도 MP4 생성 확인. Mac 독립 실검수와 QA002 저장시험 B 대기. |
 | BLOG-20261117-01 | CC-BLOG-01 | done / integrated | 수집기 운영메타·블로그 미배포 누락 정정 | 문서정정완료·tistory타인ZIP삭제diff보존·T12미정별도 |
 | RE-20261117-03 | CC-REALTY-01 | done / integrated | 읽기전용 뉴스측정·안정페이징 도구 | 동률2500루프모의검증수락·실PostgREST1000+미검수·recall판정불가/운영recent상한차이명시 |
 | WS-20261117-07 | CC-WORKSPACE-01 | done / integrated | 뉴스측정기 독립읽기/안정페이징 후속검토 | 지적보완수락·DB/API0·실페이지경계누락실측아님 |
@@ -393,7 +393,7 @@ AI Influencer D1 OFF 운영 v1.27의 공개 화면·접근 제한을 확인했�
 | WS-20261119-REL | CC-WORKSPACE-01 | done / production_v161_live_verified_catalog_version_synced | Workspace v1.61 기존 중단 빌드 로그 진단 | 운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음. |
 | WS-20261119-02 | CC-WORKSPACE-01 | running / large_zip_late_put_pass_expiry_boundary_followup_sent | Workspace 대용량 ZIP | f221885b4 Mac 기존 늦은 PUT 반례 통과. 3시간 직전 확인·직후 응답에서 객체만 남는 경계 재현, 보완 전달. 실제 Storage 미검증·미배포. |
 | MUSIC-20261119-IMG-COMPAT | CC-MUSIC-01 | done / five_music_flows_read_only_accepted | 무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토 | 고정 2131089b7 음악 5경로·146/146 검토 수락. 새 범위 미사용 시 파일 미생성 정정. 실제 엔진은 미검증. |
-| MUSIC-20261119-BACKLOG-SWEEP | CC-MUSIC-01 | running / music_read_only_backlog_review_dispatched | 음악 6개 프로그램 다음 작업 후보 대조 | 최근 배포와 개선 사항을 대조해 다음 후보 최대 3개·선행조건·Mac 검수 근거 반환. 가사 v1.17 기배포와 QA002 B는 중복 실행하지 않음. |
+| MUSIC-20261119-BACKLOG-SWEEP | CC-MUSIC-01 | running / music_read_only_backlog_review_started | 음악 6개 프로그램 다음 작업 후보 대조 | 최근 배포와 개선 사항을 대조해 다음 후보 최대 3개·선행조건·Mac 검수 근거 반환. 가사 v1.17 기배포와 QA002 B는 중복 실행하지 않음. |
 | QA-20261118-043 | CX-QA-01 | done / production_v161_mobile_keyboard_verified_read_only | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | Workspace 운영 v1.61 독립 읽기. 375/390px 요일 7칩 두 줄·넘침 0·Tab 3px 포커스. OS 다크 선호 확인, 앱 테마·저장 중 상태 미검증. |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
 | OPS-20261118-01 | CX-MASTER-01 | done / integrated | 전체개발플랜·카테고리·누락개선/인수인계 정합성 대조 | 미확인68프로그램 현담당근거후속연결·제품전체검증과구분, 신규후속ID별진행 |
@@ -547,7 +547,7 @@ AI Influencer D1 OFF 운영 v1.27의 공개 화면·접근 제한을 확인했�
 | AI 영상렌더 스튜디오 | CC-MOVIE-01 | v1.33 | 운영 Ready·독립 코드QA PASS / 실제왕복 미검수 | 2ae34fbdc·11+4독립조건PASS·38pox5t03 Ready·DB/ext/ZIP1.33일치 보고 | 시험상품 범위 확정 후 GIF/WebP 각1 실수신 검수. 추가빌드 없음 |
 | AI 상세페이지 자동화 | CC-ECOM-01 | v1.47 | 운영Ready·시험상품 실저장왕복 확인 | 0e418bab9·6esxwz43i Ready·DB1.47·products/위젯 담당확인 | 시험상품1개 운영실저장왕복/동일설정재전송방지/대표사진원복 확인보고수락, 실기기/낭독등별도 |
 | AI 쇼츠 원스톱 제작 자동화 | CC-MOVIE-01 | v1.59 | 운영·특정시험대기 | 낱말시각B안 코드·배포 | 약1원시험·시험계정 조건 및 공용인코더 다음배포 |
-| AI 가사영상 자동화 | CC-MUSIC-01 | v1.17 | 운영 v1.17 · 취소 안내와 MP4 인코더 개선 | 담당 Ready·DB·메뉴 v1.17 및 시험 36/36 | 운영 실제 취소·MP4 저장과 Mac QA002 B 대기. |
+| AI 가사영상 자동화 | CC-MUSIC-01 | v1.17 | 운영 v1.17 · 취소 안내와 MP4 인코더 개선 | 담당 Ready·DB·메뉴 v1.17 및 시험 36/36 | 담당 운영 취소·MP4 생성 확인. 파일 저장 및 Mac 독립 실검수·QA002 B 대기. |
 | AI 음악 스튜디오 | CC-MUSIC-01 | v1.16 | 운영·Ready 보고 | 공통 로그아웃/UA/위젯 배포 | 명시 잔여 없음·운영전체무결함 의미아님 |
 | AI 영상 스튜디오 | CC-MOVIE-01 | v1.36 | 운영버전 담당기록·유료생성 조건대기 | version/기존배포기록대조 | 주인님 후속지시 전 실유료생성0 |
 | AI 업무 워크스페이스 자동화 | CC-WORKSPACE-01 | v1.60 | v1.60 운영·캘린더 스타일 확인 | 36af44608·dpl_DC9Bifer8U1oZ67QFRJNkaAQ1Pj6 READY·로컬 build 1회 담당 통과 | 시험 현황판 주소 미존재로 폭/메뉴 미확인. DB 목록 v1.58 보고·미변경. WS08 미배포. |
@@ -685,7 +685,7 @@ AI Influencer D1 OFF 운영 v1.27의 공개 화면·접근 제한을 확인했�
 | 82 | INSTA Cardnews 자동화 / cardnews-studio | 인스타 | v1.32 / **병합됨 → auto-instagram-posting(2026-10-20), 노출 중지** | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 83 | AI 쇼츠 원스톱 제작 자동화 / shorts-onestop-studio | 유튜브 | v1.59 / 공개(new) | v1.59 | CC-MOVIE-01 · 운영·특정시험대기 | 약1원시험·시험계정 조건 및 공용인코더 다음배포 |
 | 84 | AI 문서 챗봇 자동화 / ai-doc-chatbot | 업무자동화 | v1.10 / 공개(new) | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
-| 85 | AI 가사영상 자동화 / lyric-video-studio | 음악 | v1.17 / 공개(new) | v1.17 | CC-MUSIC-01 · 운영 v1.17 · 취소 안내와 MP4 인코더 개선 | 운영 실제 취소·MP4 저장과 Mac QA002 B 대기. |
+| 85 | AI 가사영상 자동화 / lyric-video-studio | 음악 | v1.17 / 공개(new) | v1.17 | CC-MUSIC-01 · 운영 v1.17 · 취소 안내와 MP4 인코더 개선 | 담당 운영 취소·MP4 생성 확인. 파일 저장 및 Mac 독립 실검수·QA002 B 대기. |
 | 86 | AI 댓글·DM 통합 받은편지함 / comment-inbox | 마케팅(홍보) | v1.10 / 운영(2026-10-21 신규) | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 87 | AI 음악 스튜디오 / ai-music-studio | 음악 | v1.16 / 공개(new, 2026-10-23 신규) | v1.16 | CC-MUSIC-01 · 운영·Ready 보고 | 명시 잔여 없음·운영전체무결함 의미아님 |
 | 88 | AI 영상 스튜디오 / ai-video-studio | 영상 | v1.36 / 공개(new, 2026-10-23 신규) | v1.36 | CC-MOVIE-01 · 운영버전 담당기록·유료생성 조건대기 | 주인님 후속지시 전 실유료생성0 |

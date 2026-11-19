@@ -1738,11 +1738,11 @@
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "owner": "CC-MUSIC-01",
       "status": "done",
-      "delivery": "lyric_v117_ready_cancel_and_mp4_live_checks_pending",
+      "delivery": "lyric_v117_author_live_cancel_and_mp4_passed",
       "title": "가사영상 회원취소 일반안내 보완",
       "sha": "4e022046e",
-      "evidence": "msg_763380c9d6ae / msg_335445120957·msg_1dd089269b73·31c987069·525282e1d·e566d4264",
-      "next": "가사 영상 v1.17 Ready, DB·메뉴 v1.17 및 담당 36/36. 취소·MP4 실물과 QA002 저장시험 B 미확인. 푸시 없음.",
+      "evidence": "msg_763380c9d6ae / msg_335445120957·msg_1dd089269b73·31c987069·525282e1d·e566d4264·d0f6ad89d·msg_d0c2f6951b10",
+      "next": "가사 영상 v1.17 READY. 담당 운영 시험에서 취소 안내·재시도 MP4 생성 확인. Mac 독립 실검수와 QA002 저장시험 B 대기.",
       "lastReviewedAt": "2026-11-19T06:52:52.390Z"
     },
     {
@@ -6199,9 +6199,9 @@
       "reviewer": "CX-MASTER-01",
       "title": "음악 6개 프로그램 다음 작업 후보 대조",
       "status": "running",
-      "delivery": "music_read_only_backlog_review_dispatched",
+      "delivery": "music_read_only_backlog_review_started",
       "next": "최근 배포와 개선 사항을 대조해 다음 후보 최대 3개·선행조건·Mac 검수 근거 반환. 가사 v1.17 기배포와 QA002 B는 중복 실행하지 않음.",
-      "evidence": "msg_cd83d6dbf3f4·msg_622b79f37160"
+      "evidence": "msg_cd83d6dbf3f4·msg_622b79f37160·msg_d0c2f6951b10"
     },
     {
       "task_id": "MUSIC-20261119-IMG-COMPAT",
@@ -6379,7 +6379,7 @@
       "reportedVersion": "v1.17",
       "stage": "운영 v1.17 · 취소 안내와 MP4 인코더 개선",
       "completed": "담당 Ready·DB·메뉴 v1.17 및 시험 36/36",
-      "next": "운영 실제 취소·MP4 저장과 Mac QA002 B 대기.",
+      "next": "담당 운영 취소·MP4 생성 확인. 파일 저장 및 Mac 독립 실검수·QA002 B 대기.",
       "evidence": "a8333ca84·MOV17-07B·QA032·docs/roles/music.md·4e022046e·31c987069·msg_1dd089269b73",
       "evidenceLevel": "담당 운영 확인 및 코드 기록 대조"
     },
