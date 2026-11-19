@@ -347,6 +347,7 @@ test('verifyExtensionToken reads is_admin from the profile and treats anything b
       if (name === 'node:crypto') return { ...require('node:crypto'), default: require('node:crypto') };
       if (name.endsWith('/supabase/admin')) return { createAdminClient: makeClient };
       if (name.endsWith('/checkProgramAccess')) return { checkProgramAccess: async () => ({ allowed: true }) };
+      if (name === '@/lib/deployment') return { IS_STANDALONE: false }; // 운영 모드(키트 19dc34459가 넣은 분기는 독립 운영에서만)
       throw Error(`Unexpected import: ${name}`);
     });
   };
