@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
+import { createSaveNotice } from './saveNotice'
 import { saveApiKeyAction, deleteApiKeyAction, type SaveApiKeyState } from './actions'
 import type { ApiKeyProvider } from '@/utils/apiKeys'
 import {
@@ -30,9 +31,12 @@ function ModelPreference({ provider }: { provider: ContentProvider }) {
   }, [provider])
 
   // 브라우저 저장이 막혀 있으면(시크릿 창 설정·저장 차단) 성공이라고 하지 않고 실패를 그대로 알린다.
+  // 이전 성공 타이머가 최신 실패 안내를 지우지 않게, 새 결과가 오면 이전 타이머를 취소한다(saveNotice.ts).
+  const noticeRef = useRef<ReturnType<typeof createSaveNotice> | null>(null)
+  useEffect(() => () => noticeRef.current?.dispose(), [])
   function report(result: PreferenceSaveResult) {
-    setNotice(result)
-    if (result === 'saved') window.setTimeout(() => setNotice(null), 1500)
+    noticeRef.current ??= createSaveNotice(setNotice)
+    noticeRef.current.report(result)
   }
 
   if (!contentModel) return null
