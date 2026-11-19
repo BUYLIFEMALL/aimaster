@@ -186,3 +186,30 @@ test('지정 공식 문구만 정확히 2호출(대체 1회 제한)', async () =
     assert.equal(r.calls.length, 2, msg);
   }
 });
+
+// ── Master msg_74806cac0298: 문서 목적어·부정 극성은 1요청, 확실한 경로 지시는 최대 2회 ──
+test('문서를 가리키는 말·부정문은 전환하지 않음(1요청)', async () => {
+  for (const msg of [
+    'Please use the Responses API reference to find valid field types.',
+    'Do not use the Responses API for this model.',
+    "Don't use v1/responses instead; fix the messages field.",
+    'This model is not only supported in v1/responses; check your parameters.',
+    'Please use the Responses API documentation for details.',
+  ]) {
+    const r = await countCalls(400, JSON.stringify({ error: { message: msg, param: null, code: null } }));
+    assert.equal(r.calls.length, 1, msg);
+  }
+});
+
+test('확실한 경로 지시는 2요청이고, 대체 요청이 503이면 세 번째 요청 없이 실패', async () => {
+  const calls = [];
+  const { generateContentJson } = loadContentJson(async (url) => {
+    calls.push(url);
+    if (url.endsWith('/chat/completions')) {
+      return { ok: false, status: 400, json: async () => ({}), text: async () => JSON.stringify({ error: { message: 'This model is only supported in v1/responses and not in v1/chat/completions.', param: null, code: null } }) };
+    }
+    return { ok: false, status: 503, json: async () => ({}), text: async () => JSON.stringify({ error: { message: 'Service unavailable. Please use v1/responses again later.' } }) };
+  });
+  await assert.rejects(generateContentJson({ provider: 'openai', apiKey: 'k', model: 'gpt-6.2-sol', system: 's', user: 'u' }));
+  assert.deepEqual(calls, ['https://api.openai.com/v1/chat/completions', 'https://api.openai.com/v1/responses']);
+});

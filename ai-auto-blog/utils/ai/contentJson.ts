@@ -114,10 +114,16 @@ export function shouldSwitchToResponses(status: number, body: string): boolean {
   const RESP = '(?:/?v1/responses|(?:the )?responses api)'
   const pathIncompatible =
     /\b(?:this model|this is not a chat model)\b[^.]{0,80}\b(?:not supported|does not support|unsupported)\b[^.]{0,30}\b(?:v1\/)?chat\/completions\b/i.test(message)
-  const directSwitch =
-    new RegExp(`\\bonly (?:supported|available) (?:in|on|via|through|with) ${RESP}\\b`, 'i').test(message) ||
-    new RegExp(`\\bplease use ${RESP}\\b`, 'i').test(message) ||
-    new RegExp(`\\buse ${RESP}(?: endpoint)? (?:instead|for this model)\\b`, 'i').test(message)
+  // 전환 권고 문구는 엔드포인트가 목적어로 끝나야 한다(문장 끝·「instead」·「for this model」·「and not …」) —
+  // 「Responses API reference」처럼 문서를 가리키는 말은 제외. 앞에 부정어(not·never·cannot·n't)가 있으면 제외(Master msg_74806cac0298).
+  const TAIL = '(?: endpoint)?(?=\\s*(?:[.!;]|$|\\binstead\\b|\\bfor this model\\b|\\band not\\b))'
+  const switchPatterns = [
+    new RegExp(`\\bonly (?:supported|available) (?:in|on|via|through|with) ${RESP}${TAIL}`, 'gi'),
+    new RegExp(`\\bplease use ${RESP}${TAIL}`, 'gi'),
+    new RegExp(`\\buse ${RESP}(?: endpoint)? (?:instead|for this model)\\b`, 'gi'),
+  ]
+  const negated = (index: number) => /\b(?:not|never|cannot|no longer)\b|n't\b/i.test(message.slice(Math.max(0, index - 25), index))
+  const directSwitch = switchPatterns.some((re) => Array.from(message.matchAll(re)).some((m) => !negated(m.index ?? 0)))
   return pathIncompatible || directSwitch
 }
 
