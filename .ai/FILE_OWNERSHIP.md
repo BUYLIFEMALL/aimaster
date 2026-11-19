@@ -397,3 +397,6 @@ IMG-20261119-P1-WEB-5-5 CC-ECOM-01: Master msg_6b898587d578. free-image-studio/ 
 IMG-20261119-P1-WEB 점유 정리 CC-ECOM-01: Master msg_fce560a2b50e(5-5 코드·모의 수락, 고정판 ffa312773). IMG-20261119-P1-WEB-5-1·5-4·5-5의 편집 점유를 끝낸다 — free-image-studio/ 는 설치·로컬 빌드 승인 대기(편집 중 아님), scripts/check-shared-modules.mjs·docs/SHARED_MODULES.md 등록은 7ad6d560f로 끝. 다음 편집은 새 배정 때 다시 등록한다.
 
 IMG-20261119-P1-WEB-LINT CC-ECOM-01: Master msg_ee7b28acb9b7. free-image-studio/ 안에서 lint 오류 11건만(회원별 저장·복원과 렌더 경계: components/studio/{useEngine,useDismiss,ConvertPanel,CreateScreen,JobsScreen,LedgerNotice,SettingsScreen,StartScreen} + 새 순수 모듈·시험). 경고·기타 기능 정리 없음. .env·등록·실 엔진/AI·운영·배포·새 빌드 0.
+
+
+WS-20261119-03 응답 바이트 CC-WORKSPACE-01: Master msg_652436d7b405(importFiles 응답 3MB 바이트 예산 로컬 후보). ai-work-workspace/src/litpage/server/api/modules/import.ts(응답 구성 한 곳: 전체/partial/포인터 pending 3단, 실제 직렬화 바이트 상한)·src/litpage/web/features/import/ImportPanel.tsx(pending 추가 로드 한 번·저장 성공과 화면 추가 로드 실패 구분 안내)·새 web/features/import/importPending.ts·web/features/shell/i18n.ko-KR.json(문구)·tests/integration/importResponseSize.test.ts·본인 문서. collabPoll·LSN·fetchRecords 서버 변경 없음. 전용 fixture만, 운영·공유 DB·Storage·빌드·배포·push 없음.
