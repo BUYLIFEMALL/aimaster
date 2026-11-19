@@ -29,10 +29,12 @@ type Store = Pick<SupabaseClient["storage"], "from" | "getBucket" | "createBucke
 let storeImpl: () => Store = () => (createAdminClient() as unknown as SupabaseClient).storage;
 let quotaImpl: (userId: string, bytes: number) => Promise<{ allowed: boolean; message: string | null; upgradeUrl: string }> = (userId, bytes) =>
   checkStorageQuota(createAdminClient() as unknown as Parameters<typeof checkStorageQuota>[0], userId, bytes);
+let fetchImpl: (url: string) => Promise<Response> = (url) => fetch(url);
 /** 시험에서 바꿔 끼움 */
-export function setFileStorageForTests(o: { store?: () => Store; quota?: typeof quotaImpl }) {
+export function setFileStorageForTests(o: { store?: () => Store; quota?: typeof quotaImpl; fetch?: typeof fetchImpl }) {
   if (o.store) storeImpl = o.store;
   if (o.quota) quotaImpl = o.quota;
+  if (o.fetch) fetchImpl = o.fetch;
 }
 
 let bucketReady = false;
@@ -111,6 +113,45 @@ export async function finishLargeUpload(member: Member, q: { id?: unknown; block
 export async function storageDownloadUrl(path: string, name: string, download: boolean): Promise<string | null> {
   const { data } = await storeImpl().from(WORKSPACE_BUCKET).createSignedUrl(path, 300, download ? { download: name } : undefined);
   return data?.signedUrl ?? null;
+}
+
+/**
+ * 가져오기 전용(2026-11-19 WS-20261119-02): Storage에 둔 올린 파일 하나를 읽는다. 버킷은 서버 고정(WORKSPACE_BUCKET).
+ * · 경로 첫 칸이 그 회원 번호가 아니면 읽지 않는다(부르는 쪽 import.ts도 소유·완료·경로를 먼저 확인한다 — 이중 확인).
+ * · 실제로 받은 바이트를 세며 읽고 maxBytes를 넘는 순간 끊는다(머리글의 크기를 믿지 않음).
+ * · 결과는 부른 요청에만 돌려준다. 어디에도 보관하지 않는다.
+ */
+export async function readImportUpload(userId: string, storagePath: string, maxBytes: number): Promise<Buffer | null> {
+  const parts = storagePath.split("/");
+  if (parts.length !== 3 || parts[0] !== userId || parts.some((p) => !p || p === "." || p === "..")) return null;
+  if (!Number.isFinite(maxBytes) || maxBytes <= 0 || maxBytes > MAX_LARGE_FILE_BYTES) return null;
+  try {
+    const { data } = await storeImpl().from(WORKSPACE_BUCKET).createSignedUrl(storagePath, 60);
+    if (!data?.signedUrl) return null;
+    const res = await fetchImpl(data.signedUrl);
+    if (!res.ok || !res.body) return null;
+    const declared = Number(res.headers.get("content-length") ?? 0);
+    const reader = res.body.getReader();
+    if (declared > maxBytes) {
+      await reader.cancel().catch(() => {});
+      return null;
+    }
+    const chunks: Uint8Array[] = [];
+    let total = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > maxBytes) {
+        await reader.cancel().catch(() => {});
+        return null;
+      }
+      chunks.push(value);
+    }
+    return Buffer.concat(chunks, total);
+  } catch {
+    return null;
+  }
 }
 
 /** 지운 파일 줄의 Storage 내용도 지운다(정리 작업 뒤) */

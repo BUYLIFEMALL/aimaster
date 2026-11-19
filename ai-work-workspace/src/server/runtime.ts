@@ -175,6 +175,7 @@ export interface RpcResult {
 
 /** 원본 /api/rpc/:name 과 같은 응답 모양({errorId, name, message})으로 처리한다. */
 const PAGE_READ_RPCS = new Set(['getSite', 'getPublishedPage', 'loadPage', 'loadPageCached']); // publicPages.ts PUBLIC_RPCS와 같게
+const IMPORT_RPCS = new Set(['importFiles', 'previewCsv', 'mergeCsv']); // 올린 파일을 읽는 가져오기 명령(import.ts uploadOf)
 
 export async function runRpc(name: string, body: unknown, member: Member, clientId?: string): Promise<RpcResult> {
   init();
@@ -209,6 +210,11 @@ export async function runRpc(name: string, body: unknown, member: Member, client
         if (problem) throw new ApiError(problem, 403);
       }
       const ctx: Ctx = { userId: member.id, clientId: clientId?.slice(0, 100), secure: true, setCookie: () => {} };
+      // 2026-11-19 WS-20261119-02: 가져오기 세 명령만 Storage에 둔 올린 파일을 읽을 수 있다(연결만 — 확인·호출은 import.ts)
+      if (IMPORT_RPCS.has(name)) {
+        const uid = member.id;
+        ctx.loadStoredUpload = async (file, maxBytes) => (await import('./fileStorage')).readImportUpload(uid, file.storagePath, maxBytes);
+      }
       return handler(ctx, input);
     });
     return { status: 200, body: result ?? {} };

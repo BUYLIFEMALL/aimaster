@@ -44,6 +44,12 @@ export interface Ctx {
   userAgent?: string;
   /** Origin header (same-origin checked by app.ts): the page's origin for passkeys (WebAuthn RP ID) */
   origin?: string;
+  /**
+   * 이식판 2026-11-19(WS-20261119-02): 가져오기 세 명령(importFiles·previewCsv·mergeCsv) 전용.
+   * 4MiB를 넘어 Storage에 둔 올린 파일의 내용을 읽는다(받은 바이트가 maxBytes를 넘거나 실패하면 null).
+   * 부르는 쪽(import.ts)이 소유·완료·경로를 먼저 확인한다. 이 칸이 없으면 그런 파일은 읽지 못한다(예전과 같음).
+   */
+  loadStoredUpload?: (file: { id: string; storagePath: string }, maxBytes: number) => Promise<Buffer | null>;
 }
 
 export class ApiError extends Error {

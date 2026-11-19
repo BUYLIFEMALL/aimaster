@@ -23,7 +23,7 @@ import { parseMarkdown } from '../../content/markdown.ts';
 import { parseHtml } from '../../content/html.ts';
 import { CSV_COLUMN_TYPES, csvToDb, inferColumnType, parseCsv, parseDateCell, rowsToDb } from '../../content/csv.ts';
 import { readZip, type ZipEntry } from '../../content/zip.ts';
-import { readStoredFile, storeFile, mimeFor } from '../../content/files.ts';
+import { fileIdFromUrl, fileRow, readStoredFile, storeFile, mimeFor } from '../../content/files.ts';
 import { docxToSpecs } from '../../content/docx.ts';
 import { pdfToSpecs } from '../../content/pdf.ts';
 import { opmlToSpecs, tsvToRows, xlsxToRows } from '../../content/sheets.ts';
@@ -270,13 +270,43 @@ function spaceOrThrow(spaceId: unknown, uid: string): SpaceRecord {
   return space;
 }
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/** ZIP은 요금제별 파일 한도에서 빠지지만(예전 그대로) Storage에 둘 수 있는 크기까지만 읽는다 */
+const STORED_ZIP_MAX = 50 * MB;
+
+/**
+ * 이식판 2026-11-19(WS-20261119-02): 4MiB를 넘어 Storage에 둔 올린 파일(files.storage_path, 내용은 DB에 없음)을 읽는다.
+ * 예전에는 이런 파일을 읽지 못해 가져오기가 "Upload not found"로 끝났다. 부르는 명령이 워크스페이스·대상 권한·횟수 확인을 마친 뒤에만 부른다.
+ * 확인: 파일 줄이 있고 · 올린 사람 본인 · 올리기를 끝냄(pending 0) · 경로가 `<본인>/<파일 id>/<이름>` 모양 · 기록된 크기가 한도 이하.
+ * 내용은 요청 의존성(ctx.loadStoredUpload)으로만 읽고 어디에도 보관하지 않는다. 한 요청에서 같은 파일을 두 번 읽지 않는다.
+ * 소유·완료·경로가 맞지 않으면 null(부르는 쪽이 예전과 같은 404를 낸다 — 남의 파일이 있는지 알려 주지 않는다).
+ */
+async function storedUpload(ref: string, name: string, uid: string, max: number, ctx: Ctx, seen: Set<string>): Promise<{ name: string; mime: string; data: Buffer } | null> {
+  const id = fileIdFromUrl(ref) ?? (UUID.test(ref) ? ref : null);
+  const row = id ? fileRow(id) : undefined;
+  if (!row || !row.storage_path || row.pending || row.user_id !== uid) return null;
+  const parts = row.storage_path.split('/');
+  if (parts.length !== 3 || parts[0] !== uid || parts[1] !== row.id || !parts[2] || parts[2] === '.' || parts[2] === '..') return null;
+  if (seen.has(row.id)) throw new ApiError(`${name}: the same file was added twice`, 400);
+  seen.add(row.id);
+  if (!(row.size > 0) || row.size > max) throw new ApiError(`${name} is larger than ${Math.round(max / MB)} MB`, 413);
+  if (!ctx.loadStoredUpload) return null;
+  if (!hit(`import-stored:${uid}`, 60, 10 * 60_000)) throw new RateLimitError('You’ve imported a lot of files recently. Try again in a few hours.');
+  // 받는 바이트는 기록된 크기까지만(그보다 많이 오면 로더가 끊는다)
+  const data = await ctx.loadStoredUpload({ id: row.id, storagePath: row.storage_path }, row.size);
+  if (!data || data.length !== row.size) throw new ApiError(`${name}: 올린 파일을 읽지 못했습니다. 잠시 후 다시 시도하거나 파일을 다시 올려 주세요.`, 409);
+  return { name: row.name, mime: row.mime, data };
+}
+
 /** The uploaded file a request names (only the uploader can import it). */
-function uploadOf(f: any, uid: string, space: SpaceRecord) {
+async function uploadOf(f: any, uid: string, space: SpaceRecord, ctx: Ctx, seen: Set<string> = new Set()) {
   const name = String(f?.name ?? 'Untitled').slice(0, 255);
-  const file = readStoredFile(String(f?.url ?? f?.id ?? ''), uid);
-  if (!file) throw new ApiError(`Upload not found: ${name}`, 404);
+  const ref = String(f?.url ?? f?.id ?? '');
   const max = maxBytesFor(space, name);
-  if (file.data.length > max && !/\.zip$/i.test(name)) throw new ApiError(`${name} is larger than ${Math.round(max / MB)} MB`, 413);
+  const isZip = /\.zip$/i.test(name);
+  const file = readStoredFile(ref, uid) ?? (await storedUpload(ref, name, uid, isZip ? STORED_ZIP_MAX : max, ctx, seen));
+  if (!file) throw new ApiError(`Upload not found: ${name}`, 404);
+  if (file.data.length > max && !isZip) throw new ApiError(`${name} is larger than ${Math.round(max / MB)} MB`, 413);
   return { name, file };
 }
 
@@ -307,7 +337,7 @@ function csvRowsOf(name: string, data: Buffer): string[][] {
 const MERGEABLE: PropertyType[] = ['title', 'text', 'number', 'select', 'multi_select', 'status', 'date', 'checkbox', 'url', 'email', 'phone_number'];
 
 export const handlers: Record<string, Handler> = {
-  importFiles(ctx, { spaceId, parent, files, csvTypes }) {
+  async importFiles(ctx, { spaceId, parent, files, csvTypes }) {
     const uid = requireUser(ctx);
     const space = spaceOrThrow(spaceId, uid);
     const list = (Array.isArray(files) ? files : []).slice(0, MAX_FILES);
@@ -326,8 +356,10 @@ export const handlers: Record<string, Handler> = {
       for (const [k, v] of Object.entries(csvTypes)) if (/^\d{1,3}$/.test(k) && (v === 'skip' || CSV_COLUMN_TYPES.includes(v as PropertyType))) types[Number(k)] = v as PropertyType | 'skip';
     }
     const specs: Spec[] = [];
+    // Storage에 둔 큰 파일은 하나씩 읽어 바로 변환한다(여러 개를 한꺼번에 메모리에 올리지 않는다)
+    const seen = new Set<string>();
     for (const f of list) {
-      const { name, file } = uploadOf(f, uid, space);
+      const { name, file } = await uploadOf(f, uid, space, ctx, seen);
       if (/\.zip$/i.test(name) || file.mime === 'application/zip') specs.push(...zipSpecs(file.data, uid, space.id, name));
       else if (IMPORT_EXT.test(name)) specs.push(pageFromFile(name, file.data, uid, space.id, {}, types));
       else throw new ApiError(`${name}: this file type can’t be imported`, 400);
@@ -363,10 +395,12 @@ export const handlers: Record<string, Handler> = {
   },
 
   /** CSV import step 2 (column mapping): header, inferred types and sample values; with blockId, the database to merge into. */
-  previewCsv(ctx, { spaceId, url, name, blockId }) {
+  async previewCsv(ctx, { spaceId, url, name, blockId }) {
     const uid = requireUser(ctx);
     const space = spaceOrThrow(spaceId, uid);
-    const { file } = uploadOf({ url, name }, uid, space);
+    // 합칠 대상의 편집 권한을 파일을 읽기 전에 확인한다(2026-11-19: 큰 파일은 Storage에서 읽어 오므로 순서를 앞당김)
+    const mergeInto = blockId ? databaseOrThrow(blockId, uid) : undefined;
+    const { file } = await uploadOf({ url, name }, uid, space, ctx);
     let rows: string[][];
     try {
       rows = csvRowsOf(String(name ?? 'file.csv'), file.data);
@@ -380,20 +414,20 @@ export const handlers: Record<string, Handler> = {
       samples: body.slice(0, 3).map((r) => (r[i] ?? '').slice(0, 80)),
     }));
     let target: { blockId: string; name: string; properties: { id: string; name: string; type: string }[] } | undefined;
-    if (blockId) {
-      const { block, col } = databaseOrThrow(blockId, uid);
+    if (mergeInto) {
+      const { block, col } = mergeInto;
       target = { blockId: block.id, name: (col.name ?? []).map((d) => d[0]).join(''), properties: Object.entries(col.schema).filter(([, p]) => MERGEABLE.includes(p.type)).map(([id, p]) => ({ id, name: p.name, type: p.type })) };
     }
     return { columns, rows: body.length, types: CSV_COLUMN_TYPES, target };
   },
 
   /** "Merge with CSV": append the CSV's rows to an existing database (no updates of existing rows, as expected). */
-  mergeCsv(ctx, { blockId, url, name, mapping }) {
+  async mergeCsv(ctx, { blockId, url, name, mapping }) {
     const uid = requireUser(ctx);
     const { block, col } = databaseOrThrow(blockId, uid);
     const space = spaceOrThrow(block.space_id, uid);
     importRateLimit(uid, 1);
-    const { file } = uploadOf({ url, name }, uid, space);
+    const { file } = await uploadOf({ url, name }, uid, space, ctx);
     let rows: string[][];
     try {
       rows = csvRowsOf(String(name ?? 'file.csv'), file.data);
