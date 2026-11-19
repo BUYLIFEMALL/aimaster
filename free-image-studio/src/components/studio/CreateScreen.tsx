@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { BATCH_MAX, COPIES_MAX, adoptDraft, buildPlan, clearDraft, confirmUncertain, discardUncertain, draftStatus, loadCompose, parseEntries, saveCompose, saveDraft, setLineCopies, submitRemaining, type DraftStatus, type RunResult } from "@/lib/studio/batch";
 import { PRESETS, SIZE_CHOICES, findPreset, findSize, pickVariantId, type ModelState, type PresetId } from "@/lib/studio/presets";
+import { createTextCell } from "@/lib/convert/client";
 import { ConvertPanel } from "./ConvertPanel";
 import { LedgerNotice } from "./LedgerNotice";
 import { useDismiss } from "./useDismiss";
@@ -35,7 +36,11 @@ function CreateBody({ memberId }: { memberId: string }) {
   const [initial] = useState(() => loadCompose(window.localStorage, memberId));
   const [presetId, setPresetId] = useState<PresetId>(() => (initial && findPreset(initial.presetId) ? (initial.presetId as PresetId) : "photo"));
   const [sizeId, setSizeId] = useState<(typeof SIZE_CHOICES)[number]["id"]>(() => (initial ? findSize(initial.sizeId) : null)?.id ?? "wide");
-  const [text, setText] = useState(() => initial?.text ?? "");
+  const [text, setTextState] = useState(() => initial?.text ?? "");
+  // 설명 칸의 글을 고치는 길은 setText 하나다. 「지금 이 순간의 글」(textCell)과 화면의 글을 함께 바꾼다 —
+  // 늦게 도착한 변환 응답이 그 순간의 글에 반영되도록(기다리는 동안 고친 것을 덮지 않게).
+  const [textCell] = useState(() => createTextCell(initial?.text ?? ""));
+  const setText = useCallback((next: string | ((current: string) => string)) => setTextState(textCell.set(next)), [textCell]);
   const [family, setFamily] = useState<FamilyChoice>("auto");
   const [seedText, setSeedText] = useState("");
   const [models, setModels] = useState<ModelState | null>(null);
@@ -289,7 +294,7 @@ function CreateBody({ memberId }: { memberId: string }) {
           className="mt-3 w-full rounded-xl border border-[var(--line)] bg-transparent p-3 text-sm leading-relaxed"
         />
         <p className="mt-2 text-xs text-[var(--muted)]">내 PC 그림 모델은 영어만 읽습니다. 고른 용도에 맞는 표현(조명·구도·글자 없음 등)은 자동으로 덧붙습니다.</p>
-        <ConvertPanel key={memberId} memberId={memberId} text={text} onText={setText} disabled={running} />
+        <ConvertPanel key={memberId} memberId={memberId} text={text} getText={textCell.get} onText={setText} disabled={running} />
         <p className="mt-2 text-xs text-[var(--muted)]">
           한 줄에 한 장을 그립니다. 같은 설명으로 두 장이 필요하면 아래에서 그 줄을 {COPIES_MAX}장으로 바꾸거나, 줄 끝에 <code>x2</code>를 적어 주세요.
         </p>

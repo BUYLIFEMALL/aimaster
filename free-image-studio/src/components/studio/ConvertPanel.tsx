@@ -16,7 +16,7 @@ const ghost = "rounded-xl border border-[var(--line)] px-4 py-2.5 text-sm disabl
  * - 변환은 설명 칸의 글만 바꾼다. 그림을 엔진에 맡기는 것은 아래 「일괄 시작」으로 따로 한다.
  * - 실패하면 설명 칸의 글은 그대로다.
  */
-export function ConvertPanel({ memberId, text, onText, disabled }: { memberId: string; text: string; onText: (next: string) => void; disabled: boolean }) {
+export function ConvertPanel({ memberId, text, getText, onText, disabled }: { memberId: string; text: string; /** 지금 이 순간의 글(그릴 때의 값이 아니라) */ getText: () => string; onText: (next: string) => void; disabled: boolean }) {
   // 회원별 설정은 화면을 만들 때 한 번 읽는다. 회원이 바뀌면 부르는 쪽이 key로 이 칸을 새로 만든다 —
   // 앞 회원의 설정·결과가 다음 회원 화면에 남지 않고, 다른 회원 칸에 저장되지도 않는다.
   const [settings, setSettings] = useState<ConvertSettings>(() => loadConvertSettings(window.localStorage, memberId));
@@ -28,11 +28,14 @@ export function ConvertPanel({ memberId, text, onText, disabled }: { memberId: s
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ message: string; needKey: boolean } | null>(null);
   const [done, setDone] = useState<ApplyResult | null>(null);
-  // 변환 응답이 돌아왔을 때의 최신 글(그리는 도중이 아니라 그린 뒤에 바꿔 둔다)
-  const latest = useRef(text);
+  // 이 칸이 화면에서 사라진 뒤(회원이 바뀌거나 화면을 떠남)에 도착한 변환 응답은 쓰지 않는다.
+  const alive = useRef(true);
   useEffect(() => {
-    latest.current = text;
-  }, [text]);
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
   // 빠르게 두 번 눌러도 요청은 한 번만(버튼 비활성은 다음 그리기에야 반영되므로 그보다 먼저 막는다). 이 화면(탭) 안에서만 유효하다.
   const gate = useRef(singleFlight()).current;
 
@@ -102,7 +105,10 @@ export function ConvertPanel({ memberId, text, onText, disabled }: { memberId: s
       setBusy(true);
       try {
         const results = await requestConversion(fetch, model.id, items); // 한 번만. 실패해도 다시 부르지 않는다
-        const applied = applyConverted(latest.current, items, results);
+        if (!alive.current) return; // 떠난 화면의 응답
+        // 응답이 도착한 **지금 이 순간의 글**에 반영한다 — 기다리는 동안 고친 줄·지운 줄·바꾼 장수를 옛 글로 덮지 않는다.
+        // 읽기와 쓰기를 한 번에 이어서 한다(그 사이에 다른 편집이 끼어들 수 없다).
+        const applied = applyConverted(getText(), items, results);
         onText(applied.text);
         setDone(applied);
       } catch (e) {

@@ -90,6 +90,24 @@ export function applyConverted(text: string, sent: PendingLine[], results: Conve
   return { text: out, applied, skipped: sent.length - applied.length };
 }
 
+/**
+ * 설명 칸의 글을 「지금 이 순간의 값」으로 들고 있는 칸. 화면의 상태(그릴 때의 값)와 달리, 고치는 즉시 바뀐다.
+ * 사용자가 글을 고치는 모든 길(직접 입력·장수 버튼·비우기)이 이 칸을 거치게 해 두면, 변환 응답이 늦게 도착해도
+ * **도착한 그 순간의 글**에 반영할 수 있다 — 기다리는 동안 고친 줄·지운 줄·바꾼 장수를 옛 글로 덮지 않는다.
+ */
+export function createTextCell(initial: string) {
+  let value = String(initial ?? "");
+  return {
+    get: (): string => value,
+    /** 새 글을 넣거나, 지금 글에서 새 글을 만드는 함수를 넣는다. 넣은 뒤의 글을 돌려준다 */
+    set(next: string | ((current: string) => string)): string {
+      value = String(typeof next === "function" ? next(value) : next);
+      return value;
+    },
+  };
+}
+export type TextCell = ReturnType<typeof createTextCell>;
+
 export class ConvertRequestError extends Error {
   code: string;
   status: number;

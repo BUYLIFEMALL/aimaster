@@ -197,7 +197,7 @@ test("만들기 화면: 줄마다 장수 버튼이 글의 표시를 고치고, �
   // 회원마다 화면을 새로 만들고(key), 만들 때 그 회원의 적던 내용을 한 번 읽는다. 보관은 그 회원 칸에만(tests/boundary.test.mjs).
   assert.match(s, /return <CreateBody key=\{memberId\} memberId=\{memberId\} \/>;/);
   assert.match(s, /const \[initial\] = useState\(\(\) => loadCompose\(window\.localStorage, memberId\)\);/);
-  assert.match(s, /const \[text, setText\] = useState\(\(\) => initial\?\.text \?\? ""\);/);
+  assert.match(s, /const \[text, setTextState\] = useState\(\(\) => initial\?\.text \?\? ""\);/);
   assert.match(s, /saveCompose\(window\.localStorage, memberId, \{ text, presetId, sizeId \}\);/);
   assert.ok(!/restoredFor/.test(s), "되돌린 회원을 따로 기억하는 상태가 필요 없다");
 });

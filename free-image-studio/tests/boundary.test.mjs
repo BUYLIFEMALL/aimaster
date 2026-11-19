@@ -162,7 +162,7 @@ test("그리는 경계 — 브라우저 저장소는 화면이 붙은 뒤, 회�
   // 그리는 도중 ref에 값을 쓰지 않는다(그린 뒤 효과에서 바꾼다)
   const dismiss = await read("components/studio/useDismiss.ts");
   assert.match(dismiss, /useEffect\(\(\) => \{\s*closeRef\.current = close;\s*\}\);/);
-  assert.match(panel, /useEffect\(\(\) => \{\s*latest\.current = text;\s*\}, \[text\]\);/);
+  assert.ok(!/latest\.current/.test(panel), "그릴 때의 글을 따로 기억해 두지 않는다 — 응답 때 지금 글을 읽는다(tests/lateConvert.test.mjs)");
   for (const file of ["useDismiss.ts", "ConvertPanel.tsx"]) {
     const src = await read(`components/studio/${file}`);
     assert.ok(!/^\s{2}[a-zA-Z]+\.current = [^;]+;\s*$/m.test(src), `${file}: 컴포넌트 본문 바로 아래에서 ref에 쓰지 않는다`);
