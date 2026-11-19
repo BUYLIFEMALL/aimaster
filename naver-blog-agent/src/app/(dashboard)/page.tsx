@@ -63,6 +63,7 @@ import {
   ENGINES,
   DEFAULT_ENGINE,
   defaultModelOf,
+  restoreEngine,
   IMAGE_PLATFORMS,
   IMAGE_MODELS,
   DEFAULT_IMAGE_MODELS,
@@ -260,13 +261,10 @@ export default function MainPage() {
         const preferences = data?.preferences;
         if (!preferences) return;
 
-        const savedEngine = ENGINES.find(
-          (item) =>
-            item.provider === preferences.textProvider &&
-            item.models.some((model) => model.value === preferences.textModel)
-        );
+        // 저장된 플랫폼 보존 — 목록에서 뺀 모델이면 같은 플랫폼 기본 추천으로(restoreEngine, 빠른 작성과 같은 규칙)
+        const savedEngine = restoreEngine(preferences.textProvider, preferences.textModel);
         if (savedEngine) {
-          setEngine({ provider: savedEngine.provider, model: preferences.textModel });
+          setEngine(savedEngine);
         }
 
         const savedImage = findImageModel(preferences.imageModel);
@@ -279,6 +277,7 @@ export default function MainPage() {
           });
         }
         if (savedEngine && savedImage) {
+          // 비교 기준은 DB에 실제로 저장된 값 — 옛 모델이 복원으로 바뀌었으면 「저장 필요」가 사실대로 보인다
           setSavedPreferences(JSON.stringify({
             textProvider: savedEngine.provider,
             textModel: preferences.textModel,

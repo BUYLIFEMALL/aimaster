@@ -7,7 +7,7 @@ import { BLOG_PERSONAS } from "@/types/persona";
 import { QUICK_CUSTOM_PERSONA_ID, QUICK_POST_MODE, quickKeywords, type QuickSuggestion } from "@/lib/quickMode";
 import { PostSaveClient } from "@/lib/postSaveClient";
 import { mergeDraftImage, pendingDraftImages, type DraftImage } from "@/lib/draftImages";
-import { DEFAULT_IMAGE_MODELS, DEFAULT_IMAGE_PLATFORM, findImageModel } from "@/lib/ai/contentModels";
+import { DEFAULT_IMAGE_MODELS, DEFAULT_IMAGE_PLATFORM, findImageModel, restoreEngine } from "@/lib/ai/contentModels";
 import QuickResult, { type QuickPost } from "@/components/quick/QuickResult";
 
 // E-3 간편 모드: 주제 → 키워드·화자 추천 → 에이전트 생성 API(기획·작성·윤문) → 이미지 → 저장 → 간편 결과 화면(E-4). 새 생성 엔진 없음.
@@ -40,7 +40,9 @@ export default function QuickModePage() {
     fetch("/api/generation-preferences", { cache: "no-store" }).then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         const p = d?.preferences;
-        if (p?.textProvider && p?.textModel) setEngine({ provider: p.textProvider, model: p.textModel });
+        // 대시보드와 같은 복원 규칙 — 목록에서 뺀 모델을 그대로 서버로 보내지 않고, 플랫폼은 보존
+        const restored = restoreEngine(p?.textProvider, p?.textModel);
+        if (restored) setEngine(restored);
         if (p?.imageCount) setImageCount(Math.min(5, Math.max(1, Number(p.imageCount) || 2)));
         if (p?.imageModel && findImageModel(p.imageModel)) setImage({ model: findImageModel(p.imageModel)!.value, ratio: p.imageRatio || "1:1" });
       }).catch(() => {});

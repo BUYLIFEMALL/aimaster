@@ -71,6 +71,18 @@ export function defaultModelOf(engine: EngineInfo): string {
   return (engine.models.find((m) => m.default) ?? engine.models[0]).value;
 }
 
+/**
+ * 저장된 글 엔진 복원(2026-11-19, Master msg_841a78cd076a) — 화면(대시보드·빠른 작성)이 같은 규칙을 쓴다.
+ * 저장된 플랫폼이 있으면 그 플랫폼을 유지하고, 모델이 목록에 없으면(종료·교체로 뺀 모델) 그 플랫폼의 기본 추천 모델로 고른다.
+ * 플랫폼을 알 수 없으면 null(전역 기본값으로 시작). 모델 이름을 몰래 다른 플랫폼 모델로 바꾸지 않는다.
+ */
+export function restoreEngine(provider: unknown, model: unknown): { provider: EngineProvider; model: string } | null {
+  const engine = ENGINES.find((e) => e.provider === provider);
+  if (!engine) return null;
+  const kept = typeof model === "string" && engine.models.some((m) => m.value === model);
+  return { provider: engine.provider, model: kept ? (model as string) : defaultModelOf(engine) };
+}
+
 export function isKnownEngine(provider: string, model: string): provider is EngineProvider {
   return ENGINES.some((e) => e.provider === provider && e.models.some((m) => m.value === model));
 }

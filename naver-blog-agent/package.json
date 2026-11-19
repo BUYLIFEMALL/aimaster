@@ -22,6 +22,7 @@
     "test:shared-input": "node --test scripts/test-shared-input-rules.cjs",
     "test:publishing": "node scripts/test-naver-publishing.cjs",
     "test:models": "node scripts/test-model-selection.cjs",
+    "test:engine-restore": "node scripts/test-engine-restore.cjs",
     "test:years": "node scripts/test-year-policy.cjs",
     "test:member-data": "node scripts/test-member-data.cjs",
     "test:edit-save": "node scripts/test-edited-post-save.cjs",
