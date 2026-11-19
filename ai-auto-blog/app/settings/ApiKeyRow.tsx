@@ -21,16 +21,17 @@ import {
 function ModelPreference({ provider }: { provider: ContentProvider }) {
   const [contentModel, setContentModel] = useState('')
   const [imageModel, setImageModel] = useState('')
-  const [saved, setSaved] = useState(false)
+  const [notice, setNotice] = useState<'saved' | 'failed' | null>(null)
 
   useEffect(() => {
     setContentModel(readPreferredContentModel(provider)) // eslint-disable-line react-hooks/set-state-in-effect -- 브라우저 저장값은 마운트 뒤에만 읽을 수 있음
     if (provider === 'gemini') setImageModel(readPreferredImageModel())
   }, [provider])
 
-  function flash() {
-    setSaved(true)
-    window.setTimeout(() => setSaved(false), 1500)
+  // 브라우저 저장이 막혀 있으면(시크릿 창 설정·저장 차단) 성공이라고 하지 않고 실패를 그대로 알린다.
+  function report(ok: boolean) {
+    setNotice(ok ? 'saved' : 'failed')
+    if (ok) window.setTimeout(() => setNotice(null), 1500)
   }
 
   if (!contentModel) return null
@@ -45,8 +46,7 @@ function ModelPreference({ provider }: { provider: ContentProvider }) {
           value={contentModel}
           onChange={(e) => {
             setContentModel(e.target.value)
-            savePreferredContentModel(provider, e.target.value)
-            flash()
+            report(savePreferredContentModel(provider, e.target.value))
           }}
           className={selectClass}
         >
@@ -64,8 +64,7 @@ function ModelPreference({ provider }: { provider: ContentProvider }) {
             value={imageModel}
             onChange={(e) => {
               setImageModel(e.target.value)
-              savePreferredImageModel(e.target.value)
-              flash()
+              report(savePreferredImageModel(e.target.value))
             }}
             className={selectClass}
           >
@@ -78,7 +77,13 @@ function ModelPreference({ provider }: { provider: ContentProvider }) {
         </label>
       )}
       <p className="text-[11px] text-zinc-500">
-        {saved ? '✓ 저장했습니다. ' : ''}AI 글쓰기 화면에서 이 플랫폼을 고르면 이 모델이 기본으로 선택됩니다(글쓰기 화면에서도 바꿀 수 있습니다).
+        {notice === 'saved' && <span className="font-semibold text-emerald-700">✓ 저장했습니다. </span>}
+        {notice === 'failed' && (
+          <span className="font-semibold text-rose-600">
+            ⚠️ 이 브라우저에 저장하지 못했습니다(브라우저 저장 차단·시크릿 창). 이번 화면에서만 적용되고 AI 글쓰기 화면에는 이어지지 않습니다.{' '}
+          </span>
+        )}
+        AI 글쓰기 화면에서 이 플랫폼을 고르면 이 모델이 기본으로 선택됩니다(글쓰기 화면에서도 바꿀 수 있습니다).
       </p>
     </div>
   )

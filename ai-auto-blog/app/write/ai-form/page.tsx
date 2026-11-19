@@ -47,10 +47,9 @@ import {
   getContentModels,
   imageModelLabel,
   getDefaultContentModel,
-  isContentProvider,
   MODEL_SELECTION_STORAGE_KEY,
   readPreferredContentModel,
-  resolveContentModel,
+  readPreferredContentProvider,
   savePreferredContentModel,
   resolveImageCount,
   resolveImageModel,
@@ -172,10 +171,10 @@ function AiFormPageInner() {
   useEffect(() => {
     try {
       const saved = JSON.parse(window.localStorage.getItem(MODEL_STORAGE_KEY) ?? 'null')
-      if (saved && isContentProvider(saved.contentProvider)) {
-        setContentProvider(saved.contentProvider)
-        setContentModel(resolveContentModel(saved.contentProvider, saved.contentModel))
-      }
+      // 첫 진입도 플랫폼 전환과 같은 규칙(readPreferredContentModel) — 설정 화면에서 고른 모델이 바로 쓰인다.
+      const provider = readPreferredContentProvider()
+      setContentProvider(provider)
+      setContentModel(readPreferredContentModel(provider))
       if (saved?.imageModel) setImageModel(resolveImageModel(saved.imageModel))
       if (saved?.imageCount) setImageCount(resolveImageCount(saved.imageCount))
     } catch {}

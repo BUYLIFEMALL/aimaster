@@ -98,32 +98,61 @@ function readJson(key: string): Record<string, unknown> | null {
   }
 }
 
-/** 이 플랫폼에서 회원이 마지막으로 고른 본문 모델(없으면 기본 모델) */
-export function readPreferredContentModel(provider: ContentProvider): string {
-  return resolveContentModel(provider, readJson(MODEL_BY_PROVIDER_STORAGE_KEY)?.[provider])
+/** 저장에 실패하면(브라우저 저장 차단·용량 초과) false — 화면은 성공이라고 안내하지 않는다. */
+function writeJson(key: string, value: unknown): boolean {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value))
+    return true
+  } catch {
+    return false
+  }
 }
 
-/** 플랫폼별 모델을 기억하고, 지금 AI 글쓰기에서 쓰는 플랫폼이면 그 선택도 함께 바꾼다. */
-export function savePreferredContentModel(provider: ContentProvider, model: string) {
-  try {
-    const byProvider = readJson(MODEL_BY_PROVIDER_STORAGE_KEY) ?? {}
-    window.localStorage.setItem(MODEL_BY_PROVIDER_STORAGE_KEY, JSON.stringify({ ...byProvider, [provider]: model }))
-    const selection = readJson(MODEL_SELECTION_STORAGE_KEY)
-    if (selection && selection.contentProvider === provider) {
-      window.localStorage.setItem(MODEL_SELECTION_STORAGE_KEY, JSON.stringify({ ...selection, contentModel: model }))
-    }
-  } catch {}
+/**
+ * 플랫폼별 기억 목록. 예전(이 기능 전)에는 마지막 선택 하나(`model-selection`)만 저장했으므로,
+ * 그 플랫폼 칸이 비어 있으면 예전 값을 채워 넣어 보존한다(플랫폼을 바꿨다 돌아와도 사라지지 않게).
+ */
+function readModelsByProvider(): Record<string, unknown> {
+  const byProvider = { ...(readJson(MODEL_BY_PROVIDER_STORAGE_KEY) ?? {}) }
+  const selection = readJson(MODEL_SELECTION_STORAGE_KEY)
+  const legacyProvider = selection?.contentProvider
+  if (isContentProvider(legacyProvider) && byProvider[legacyProvider] === undefined && selection?.contentModel !== undefined) {
+    byProvider[legacyProvider] = selection.contentModel
+    writeJson(MODEL_BY_PROVIDER_STORAGE_KEY, byProvider)
+  }
+  return byProvider
+}
+
+/** 이 플랫폼의 유효 모델 — 첫 진입과 플랫폼 전환이 모두 이 한 규칙을 쓴다(없거나 목록에 없으면 기본 모델). */
+export function readPreferredContentModel(provider: ContentProvider): string {
+  return resolveContentModel(provider, readModelsByProvider()[provider])
+}
+
+/** 첫 진입 때 쓸 플랫폼: 마지막으로 쓴 플랫폼, 없으면 기본 플랫폼. */
+export function readPreferredContentProvider(): ContentProvider {
+  const provider = readJson(MODEL_SELECTION_STORAGE_KEY)?.contentProvider
+  return isContentProvider(provider) ? provider : DEFAULT_CONTENT_PROVIDER
+}
+
+/** 플랫폼별 모델을 기억하고, 지금 AI 글쓰기에서 쓰는 플랫폼이면 그 선택도 함께 바꾼다. 저장 실패면 false. */
+export function savePreferredContentModel(provider: ContentProvider, model: string): boolean {
+  const byProvider = readModelsByProvider()
+  if (!writeJson(MODEL_BY_PROVIDER_STORAGE_KEY, { ...byProvider, [provider]: model })) return false
+  const selection = readJson(MODEL_SELECTION_STORAGE_KEY)
+  if (selection && selection.contentProvider === provider) {
+    return writeJson(MODEL_SELECTION_STORAGE_KEY, { ...selection, contentModel: model })
+  }
+  return true
 }
 
 export function readPreferredImageModel(): string {
   return resolveImageModel(readJson(MODEL_SELECTION_STORAGE_KEY)?.imageModel)
 }
 
-export function savePreferredImageModel(model: string) {
-  try {
-    const selection = readJson(MODEL_SELECTION_STORAGE_KEY) ?? {}
-    window.localStorage.setItem(MODEL_SELECTION_STORAGE_KEY, JSON.stringify({ ...selection, imageModel: model }))
-  } catch {}
+/** 저장 실패면 false. */
+export function savePreferredImageModel(model: string): boolean {
+  const selection = readJson(MODEL_SELECTION_STORAGE_KEY) ?? {}
+  return writeJson(MODEL_SELECTION_STORAGE_KEY, { ...selection, imageModel: model })
 }
 
 // 종료·자동 연결되는 모델(2026-11-03, docs/PLAN_20261103_MODEL_MIGRATION_DEC.md): 브라우저·예약 작업에 저장된 옛 이름을 공식 대체 모델로 바꿔 호출한다.
