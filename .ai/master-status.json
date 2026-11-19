@@ -6077,11 +6077,11 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-MASTER-01",
       "title": "메이커 M3 제안 적용·서버 바이트 검증 설계",
-      "status": "running",
-      "delivery": "local_apply_route_candidate_dispatched_to_sub",
+      "status": "reviewing",
+      "delivery": "local_apply_core_candidate_mac_recheck_sent",
       "sha": "f0eaf784c",
-      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1·msg_09c13f44d34f·8be47a12f·msg_2639b1f89d07·msg_f4130843a9ef·320a5909a·msg_f714f535ba3b·msg_8a99ab301d34·msg_64cd4fd01392·2d4dd53d0·msg_617ae29305b4·a23ffa1f3·msg_8c842614e79b·1c7b50762·msg_513a7e7b6ebc·msg_371737216f81·msg_6ceff50f19aa·msg_d0efc0d596af·msg_f596e2e53ec0·5499b725d·msg_f6638de84aba·cbe48e7d9·msg_4126c4fb6ddb·msg_c906bef9d317·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_8aaff84db217·msg_57b72d91de11·f0eaf784c·msg_6b031e653440·msg_691fa1940926·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_83bf2407051c·msg_8b559a0763cd·msg_0b58a4c9b94b·59a033c3b·msg_ad9b12510067·msg_467b9e9cdd54·msg_1984d921b251",
-      "next": "0107 데이터 계층 Mac 수락. Sub에 재인코딩·서명·정제 바이트 재확인 서버 후보 배정. sharp 설치·키·Lab SQL·UI·운영은 별도 단계.",
+      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1·msg_09c13f44d34f·8be47a12f·msg_2639b1f89d07·msg_f4130843a9ef·320a5909a·msg_f714f535ba3b·msg_8a99ab301d34·msg_64cd4fd01392·2d4dd53d0·msg_617ae29305b4·a23ffa1f3·msg_8c842614e79b·1c7b50762·msg_513a7e7b6ebc·msg_371737216f81·msg_6ceff50f19aa·msg_d0efc0d596af·msg_f596e2e53ec0·5499b725d·msg_f6638de84aba·cbe48e7d9·msg_4126c4fb6ddb·msg_c906bef9d317·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_8aaff84db217·msg_57b72d91de11·f0eaf784c·msg_6b031e653440·msg_691fa1940926·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_83bf2407051c·msg_8b559a0763cd·msg_0b58a4c9b94b·59a033c3b·msg_ad9b12510067·msg_467b9e9cdd54·msg_1984d921b251·msg_d89a73e549d7·e38a4b40b·d82ea576c·msg_ae2ba38ca487",
+      "next": "Sub e38a4b40b 정제·서명·되읽기 서버 함수 후보와 모의 시험 작성. 실행 Mac 배정. 실제 라우트·디코더·Lab SQL·키 미적용.",
       "lastReviewedAt": "2026-11-19T03:22:43.063Z"
     },
     {
@@ -6188,9 +6188,9 @@
       "reviewer": "CX-MASTER-01",
       "title": "Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단",
       "status": "reviewing",
-      "delivery": "zip_snapshot_candidate_mac_recheck_sent",
-      "next": "ad9f6e443 담당 격리 1,053개. 201쪽 DB 호출 51,273→22,997(누적). 스냅숏 쪽 단위·롤백 Mac 검수 전달. 운영 대량 미검증.",
-      "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a·4f801102a·msg_188d5f946fe6·msg_d48ab4279b48·msg_6a8c40f8d884·.ai/results/WS-20261119-03-CX-QA-01.md·080d30733·5900bdee4·msg_81e5f70393f6·9b6cf6f43·862a3f744·msg_18677013088e·msg_e3da08ce301c·msg_81884a8c4c54·ad9f6e443·73e846195·msg_9cfa5b749036"
+      "delivery": "zip_v163_approved_pending_snapshot_mac_qa",
+      "next": "ad9f6e443 담당 1,053개·201쪽 DB 호출 51,273→22,997. 주인님 v1.63 1회 승인 접수, Mac D 검수 수락 전 배포 보류.",
+      "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a·4f801102a·msg_188d5f946fe6·msg_d48ab4279b48·msg_6a8c40f8d884·.ai/results/WS-20261119-03-CX-QA-01.md·080d30733·5900bdee4·msg_81e5f70393f6·9b6cf6f43·862a3f744·msg_18677013088e·msg_e3da08ce301c·msg_81884a8c4c54·ad9f6e443·73e846195·msg_9cfa5b749036·msg_e77dc726848f·v1.63 1회 승인 보고·담당 배포 전 변경 경로 대조"
     },
     {
       "task_id": "WS-20261119-02",
