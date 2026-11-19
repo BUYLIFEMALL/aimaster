@@ -257,7 +257,7 @@ test("좁은 화면·키보드 — 위쪽 접는 메뉴, 초점 표시, 눌림·
   assert.ok(sidebar.includes("const menuButton = useDismiss(open, () => setOpen(false));") && sidebar.includes("ref={menuButton}"), "Esc로 메뉴를 닫고 메뉴 버튼으로 초점이 돌아간다");
   // 반례 P3 — 닫힌 뒤 초점 복귀: 공용 훅 하나가 Esc 닫기와 「연 버튼으로 되돌리기」를 맡고, 확인 창·동의 창·접는 메뉴가 모두 그것을 쓴다
   const hook = await read("components/studio/useDismiss.ts");
-  assert.ok(hook.includes('if (e.key === "Escape") close();'));
+  assert.ok(hook.includes("dismissStack.escape()"), "Esc는 열린 것들 가운데 맨 위 하나만 닫는다(tests/dismiss.test.mjs)");
   assert.ok(/if \(!open\) \{\s*if \(wasOpen\.current\) \{\s*wasOpen\.current = false;\s*opener\.current\?\.focus\(\);/.test(hook), "열려 있다가 닫힌 때에만 연 버튼에 초점");
   assert.ok(hook.includes('window.removeEventListener("keydown", onKey)'));
   const createSrc = await read("components/studio/CreateScreen.tsx");
@@ -266,9 +266,9 @@ test("좁은 화면·키보드 — 위쪽 접는 메뉴, 초점 표시, 눌림·
   const panelSrc = await read("components/studio/ConvertPanel.tsx");
   assert.ok(panelSrc.includes("const turnOnButton = useDismiss(asking, () => setAsking(false));") && panelSrc.includes("ref={turnOnButton}"));
   // 확인 창을 여는 state마다 훅이 붙어 있다(훅 없는 확인 창이 없다)
-  for (const [file, n] of [["CreateScreen", 2], ["ConvertPanel", 1], ["LedgerNotice", 1]]) {
+  for (const [file, n] of [["CreateScreen", 2], ["ConvertPanel", 1], ["LedgerNotice", 1], ["JobsScreen", 1]]) {
     const src = await read(`components/studio/${file}.tsx`);
-    assert.equal((src.match(/role="alertdialog"/g) ?? []).length >= n && (src.match(/useDismiss\(/g) ?? []).length, n, file);
+    assert.equal((src.match(/role="alertdialog"/g) ?? []).length >= n && (src.match(/useDismiss(<[^>]+>)?\(/g) ?? []).length, n, file);
   }
   assert.ok(sidebar.includes("max-h-[calc(100vh-3.5rem)] overflow-y-auto"), "메뉴가 길어도 화면 안에서 굴린다");
   assert.ok(sidebar.includes("h-10 w-10"), "메뉴 버튼 40px");

@@ -1,16 +1,34 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { dismissStack, type DismissEntry } from "@/lib/studio/dismissStack";
+
+// Esc를 듣는 곳은 화면 전체에서 하나다. 열린 것이 여럿이어도 Esc 한 번에 맨 위 하나만 닫힌다.
+let listening = false;
+function onKey(e: KeyboardEvent) {
+  if (e.key !== "Escape") return;
+  if (dismissStack.escape()) e.stopPropagation();
+}
+function sync() {
+  const want = dismissStack.size > 0;
+  if (want === listening) return;
+  listening = want;
+  if (want) window.addEventListener("keydown", onKey);
+  else window.removeEventListener("keydown", onKey);
+}
 
 /**
  * 확인 창·접는 메뉴의 키보드 처리.
- *  - 열려 있는 동안 Esc를 누르면 닫는다.
- *  - 닫히면(취소·Esc·닫기 어느 쪽이든) **연 버튼으로 초점을 되돌린다** — 키보드 사용자가 화면 맨 위로 튕겨 나가지 않게.
+ *  - 열려 있는 동안 Esc를 누르면 닫는다. **여러 개가 겹쳐 열려 있으면 가장 나중에 연 것 하나만** 닫는다.
+ *  - 닫히면(취소·Esc·닫기 어느 쪽이든) **그것을 연 버튼으로만** 초점을 되돌린다 — 한 번 닫힐 때 한 번.
  * 돌려주는 ref를 여는 버튼에 단다. 닫힐 때 그 버튼이 화면에 없으면(작업이 끝나 안내가 사라진 경우 등) 아무것도 하지 않는다.
  */
 export function useDismiss<T extends HTMLElement = HTMLButtonElement>(open: boolean, close: () => void) {
   const opener = useRef<T>(null);
   const wasOpen = useRef(false);
+  const closeRef = useRef(close);
+  closeRef.current = close;
+  const entry = useRef<DismissEntry>({ close: () => closeRef.current() }).current;
   useEffect(() => {
     if (!open) {
       if (wasOpen.current) {
@@ -20,11 +38,12 @@ export function useDismiss<T extends HTMLElement = HTMLButtonElement>(open: bool
       return;
     }
     wasOpen.current = true;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
+    dismissStack.push(entry);
+    sync();
+    return () => {
+      dismissStack.remove(entry);
+      sync();
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
   return opener;
 }

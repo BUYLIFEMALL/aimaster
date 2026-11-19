@@ -7,6 +7,7 @@ import { dropFromDraft } from "@/lib/studio/batch";
 import { PHASE_LABEL, again, buildRows, cancelAll, cancelRow, dismissRow, replace, restart, sendMessage, summarize, type Action, type Row } from "@/lib/studio/jobsView";
 import { createSaveStore, hasCrossTabLock, type SavedInfo, type Writer } from "@/lib/studio/saveStore";
 import { LedgerNotice } from "./LedgerNotice";
+import { useDismiss } from "./useDismiss";
 import { isKind, messageOf, useEngine } from "./useEngine";
 
 const card = "rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4";
@@ -44,7 +45,6 @@ export function JobsScreen({ memberId }: { memberId: string }) {
   const [crossTab, setCrossTab] = useState(true);
   useEffect(() => setCrossTab(hasCrossTabLock()), []);
   const cancelButton = useRef<HTMLButtonElement | null>(null);
-  const opener = useRef<HTMLElement | null>(null);
   const loading = useRef(false);
   const thumbLoading = useRef(new Set<string>());
   const urls = useRef<string[]>([]);
@@ -198,19 +198,11 @@ export function JobsScreen({ memberId }: { memberId: string }) {
     });
   };
 
-  // 확인 창이 열리면 「그만두기」로 포커스를 옮기고, 닫히면 창을 연 버튼으로 돌려준다. Esc로 닫는다.
+  // 확인 창이 열리면 「그만두기」로 포커스를 옮긴다. Esc로 닫고, 닫히면 창을 연 버튼으로 돌려준다(공용 훅 —
+  // 다른 창·메뉴와 겹쳐 열려 있어도 Esc 한 번에 맨 위 하나만 닫힌다). 연 버튼은 줄마다 달라 누르는 순간 기억한다.
+  const opener = useDismiss<HTMLElement>(!!confirmReplace, () => setConfirmReplace(null));
   useEffect(() => {
-    if (!confirmReplace) return;
-    cancelButton.current?.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setConfirmReplace(null);
-    };
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      opener.current?.focus();
-      opener.current = null;
-    };
+    if (confirmReplace) cancelButton.current?.focus();
   }, [confirmReplace]);
 
   const doReplace = (id: string) => {

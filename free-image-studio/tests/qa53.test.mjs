@@ -466,9 +466,11 @@ test("반례 P3(접근성) — 준비 전에는 링크가 아니라 꺼진 버�
   const jobs = await readFile(new URL("../src/components/studio/JobsScreen.tsx", import.meta.url), "utf8");
   assert.match(jobs, /opener\.current = document\.activeElement instanceof HTMLElement \? document\.activeElement : null;/, "창을 연 버튼을 기억");
   assert.match(jobs, /cancelButton\.current\?\.focus\(\);/, "열리면 「그만두기」로 포커스");
-  assert.match(jobs, /if \(e\.key === "Escape"\) setConfirmReplace\(null\);/);
-  assert.match(jobs, /opener\.current\?\.focus\(\);/, "닫히면 연 버튼으로 포커스 복귀");
-  assert.match(jobs, /document\.removeEventListener\("keydown", onKey\);/);
+  // Esc 닫기와 「닫히면 연 버튼으로」는 공용 훅(useDismiss)이 맡는다 — 겹쳐 열려도 맨 위 하나만 닫힌다(tests/dismiss.test.mjs).
+  assert.ok(jobs.includes("const opener = useDismiss<HTMLElement>(!!confirmReplace, () => setConfirmReplace(null));"), "Esc로 닫고 닫히면 연 버튼으로 포커스 복귀");
+  const dismissHook = await readFile(new URL("../src/components/studio/useDismiss.ts", import.meta.url), "utf8");
+  assert.match(dismissHook, /opener\.current\?\.focus\(\);/);
+  assert.match(dismissHook, /window\.removeEventListener\("keydown", onKey\);/, "닫히면 Esc 듣기를 뗀다(훅)");
   assert.match(jobs, /role="alertdialog" aria-modal="false" aria-labelledby="replace-title" aria-describedby="replace-desc"/);
   assert.match(jobs, /<button type="button" ref=\{cancelButton\}/);
   assert.match(jobs, /\}, \[confirmReplace\]\);/);
