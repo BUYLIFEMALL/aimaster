@@ -6102,11 +6102,11 @@
       "reviewer": "CX-QA-01",
       "title": "AI 무료 이미지 자동화 개발 플랜",
       "status": "running",
-      "delivery": "mac_fifty_pass_required_scoped_fields_fix_dispatched",
-      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기·msg_4423e8b13051·msg_6d81c947bd00·d6f1d0287·00158b7a3·msg_e49f861919f9·msg_25a67c9094a4·msg_11158461bd15·msg_680de25b9e15·98f8dd8bc·68efe5399·msg_fd207f8be38a·msg_5074f8e947cf·msg_254300c4a578·msg_cd4c7a612051·3fbd4b200·Arc CSV 2행 직접 대조·995a92ac-01f9-45e2-a3a4-91a3862df9e3·msg_025a7125b66c·msg_5c32df5c7178·msg_287b5412841b·msg_7492634e4c5a·msg_68e97e7d4656·msg_d36a6a75b50c·msg_9a3bd624f2e1·msg_309652177f5b·중복 msg_5a0e1dee6395 정정 보고·11:44 KST Admin Codex 터미널 본시험 진행 확인·11:50 KST Admin Codex 터미널 FLUX 48/48 중간 보고·msg_f2aba7390f58·msg_32e9ef68cd67·444034a1e·msg_45ce6d2b5731·msg_952e1148ece6·msg_9c55abed11da·msg_05eeafdb243c·Master CSV/PNG 해시 일치·msg_60514833d426·msg_8c5418f1b1f8·msg_2c1454bc23a0·msg_320b474b9a14·msg_1dc750048e02·f988aaab8·msg_377218bf1613·msg_1e45bac91599·73d53045e·msg_ca0dc8f285f1·Master PNG 96개/CSV 해시 확인·msg_c7d8c25b2b0f·msg_d0aa30c8fbca·HTML SHA/PNG 96개 직접 확인·msg_69266b1b62fc·d3babd8e4·Master 48/46 재집계·msg_1cfdd780b8d4·msg_ea053258743e·f6c6e049e·msg_9b9f6d69af92·msg_56cc9598b6b0·msg_27716f68082f·msg_05239b8dff9b·msg_7d5b73a67c25·af7d039f7·msg_49edda0b038d·정비율 5파일 Master 해시/헤더 대조·msg_f3af85c28f8e·msg_7d7a54aacc65·msg_48e9535f7335·6b382e836·msg_e2f54750fd3a·Master Q4 CSV/PNG 대조·msg_56bb8df81705·msg_ecd2ab927730·49bec95a8·Master eval-2 HTML SHA/PNG 32개 확인·msg_dc45aef4223e·Master Q4/Q8 16쌍 재집계·msg_7f3e70cc5834·msg_c439f0684ff1·fe37bf575·45a8bb41d·msg_66af7917a7f5·msg_0962d9630d0e·msg_dacd098aff64·msg_a6e29be3b1c5·0f22e067a·msg_ed08ca7c8bff·msg_1c30d67ce7d8·3383cec03·msg_b82fb12c2134·msg_f87668d3599b·msg_a2d69f45e9f5·msg_765e8cfce48d·msg_75dbfaa8b077·msg_87cf8e11ba69·aa04066c8·msg_f7a7a5d44dd0·msg_ad82d911c849·msg_edef1e834612·msg_bc241410bf7f·msg_5f1eca22975d·msg_8ebe37a39e59·63307bdba·2c11df0e7·msg_09fa29bfc0d8·msg_7f7c856b33c4·0515d1da5·Admin 터미널 전달 문구 확인·msg_bb468c75ad9b·msg_0837cb4d1553·msg_3201946d1453·msg_4345f94e7ec9·.ai/results/IMG-P1-PRA-CX-QA-01.md·msg_4ed9a47eca51·msg_7ef7aa6f10ac·msg_c0ffccd778ed·msg_5027f01ec567",
-      "next": "맥미니 50/50·건너뜀 0. 기존 손상·실행 중첩은 해소. 새 범위 출처·작업 필수 필드 누락으로 인한 실행을 차단하도록 보완 배정. Admin Q8 결과 대기.",
-      "lastReviewedAt": "2026-11-19T04:58:38.746Z",
-      "sha": "2131089b7"
+      "delivery": "pra_mac_source_accepted_waiting_admin_quality_and_runtime",
+      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기·msg_4423e8b13051·msg_6d81c947bd00·d6f1d0287·00158b7a3·msg_e49f861919f9·msg_25a67c9094a4·msg_11158461bd15·msg_680de25b9e15·98f8dd8bc·68efe5399·msg_fd207f8be38a·msg_5074f8e947cf·msg_254300c4a578·msg_cd4c7a612051·3fbd4b200·Arc CSV 2행 직접 대조·995a92ac-01f9-45e2-a3a4-91a3862df9e3·msg_025a7125b66c·msg_5c32df5c7178·msg_287b5412841b·msg_7492634e4c5a·msg_68e97e7d4656·msg_d36a6a75b50c·msg_9a3bd624f2e1·msg_309652177f5b·중복 msg_5a0e1dee6395 정정 보고·11:44 KST Admin Codex 터미널 본시험 진행 확인·11:50 KST Admin Codex 터미널 FLUX 48/48 중간 보고·msg_f2aba7390f58·msg_32e9ef68cd67·444034a1e·msg_45ce6d2b5731·msg_952e1148ece6·msg_9c55abed11da·msg_05eeafdb243c·Master CSV/PNG 해시 일치·msg_60514833d426·msg_8c5418f1b1f8·msg_2c1454bc23a0·msg_320b474b9a14·msg_1dc750048e02·f988aaab8·msg_377218bf1613·msg_1e45bac91599·73d53045e·msg_ca0dc8f285f1·Master PNG 96개/CSV 해시 확인·msg_c7d8c25b2b0f·msg_d0aa30c8fbca·HTML SHA/PNG 96개 직접 확인·msg_69266b1b62fc·d3babd8e4·Master 48/46 재집계·msg_1cfdd780b8d4·msg_ea053258743e·f6c6e049e·msg_9b9f6d69af92·msg_56cc9598b6b0·msg_27716f68082f·msg_05239b8dff9b·msg_7d5b73a67c25·af7d039f7·msg_49edda0b038d·정비율 5파일 Master 해시/헤더 대조·msg_f3af85c28f8e·msg_7d7a54aacc65·msg_48e9535f7335·6b382e836·msg_e2f54750fd3a·Master Q4 CSV/PNG 대조·msg_56bb8df81705·msg_ecd2ab927730·49bec95a8·Master eval-2 HTML SHA/PNG 32개 확인·msg_dc45aef4223e·Master Q4/Q8 16쌍 재집계·msg_7f3e70cc5834·msg_c439f0684ff1·fe37bf575·45a8bb41d·msg_66af7917a7f5·msg_0962d9630d0e·msg_dacd098aff64·msg_a6e29be3b1c5·0f22e067a·msg_ed08ca7c8bff·msg_1c30d67ce7d8·3383cec03·msg_b82fb12c2134·msg_f87668d3599b·msg_a2d69f45e9f5·msg_765e8cfce48d·msg_75dbfaa8b077·msg_87cf8e11ba69·aa04066c8·msg_f7a7a5d44dd0·msg_ad82d911c849·msg_edef1e834612·msg_bc241410bf7f·msg_5f1eca22975d·msg_8ebe37a39e59·63307bdba·2c11df0e7·msg_09fa29bfc0d8·msg_7f7c856b33c4·0515d1da5·Admin 터미널 전달 문구 확인·msg_bb468c75ad9b·msg_0837cb4d1553·msg_3201946d1453·msg_4345f94e7ec9·.ai/results/IMG-P1-PRA-CX-QA-01.md·msg_4ed9a47eca51·msg_7ef7aa6f10ac·msg_c0ffccd778ed·msg_5027f01ec567·msg_cf3359d3afa9·msg_58ba31f07abf·msg_35226db46992·msg_62f3c8ec1e56·msg_c470487dd114",
+      "next": "PR-A 담당 149/149·Mac 53/53로 저장본 검증 예외 해소. Q8 48장 품질과 실제 엔진은 Admin 결과 대기. 설치·웹·출시 별도.",
+      "lastReviewedAt": "2026-11-19T05:04:40.877Z",
+      "sha": "e8e52b505"
     },
     {
       "task_id": "ECOM-20261119-EMOTION-QA",
@@ -6135,12 +6135,12 @@
       "owner": "CC-BLOG-01",
       "reviewer": "CX-QA-01",
       "title": "블로그 설정 플랫폼별 AI 모델 선택",
-      "status": "reviewing",
-      "delivery": "mac_47_pass_exact_object_negation_case_returned",
-      "sha": "ef7194383",
-      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e·msg_ae0e6dba4e84·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_e75e68c7f151·msg_d6f2385e1c72·7012fe1bf·msg_c5d009c34a43·msg_9d70d930ca5b·msg_2888acb4d0d4·msg_e7fae7770278·a7df2611f·msg_d19c65d4a1e5·msg_063718bdf213·msg_963f5dc087ca·msg_a5e256873a03·msg_a9f294314f32·msg_2497dcc19f0a·msg_7990e00f7c3e·msg_5171eb3488de·f8f4520f9·e0f02d424·OpenAI 2026-11-17 릴리스 노트·msg_77eaa7b278fe·msg_0421763e1697·c213647a4·755d7c529·msg_87a196aedfda·msg_ec472c6d6552·msg_bd0707fc7039·msg_a6e246778395·d88fb7bfd·msg_13db44e2976a·msg_15f047c8dab7·msg_6dc6aac4ca1b·msg_5494b960f873·msg_cbc581b94817·4a337ead6·545c8d847·5b6b0cc1e·msg_6f83d440d872·msg_c76c2a8c8c6f·msg_74806cac0298·msg_315729c5325e·msg_3d778c8f05b9·msg_7c202f1b47e9·msg_4c9ffbff9787·msg_b2aaf4ff67f5·msg_c30139f733b6·msg_d296af3d6921·msg_028c0d100a48·msg_361853613bf1·msg_edbcace27005·msg_4411929d5bcd·msg_60b1d6dbc9d2",
-      "next": "맥미니 47/47. Chat 부정 해소 및 2요청 상한 확인. Responses 목적어의 명시적 부정 한 건 수정 요청. 승인 실호출 9건 소진.",
-      "lastReviewedAt": "2026-11-19T04:58:38.746Z"
+      "status": "done",
+      "delivery": "strict_switch_independent_accepted_undeployed",
+      "sha": "720efa08c",
+      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e·msg_ae0e6dba4e84·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_e75e68c7f151·msg_d6f2385e1c72·7012fe1bf·msg_c5d009c34a43·msg_9d70d930ca5b·msg_2888acb4d0d4·msg_e7fae7770278·a7df2611f·msg_d19c65d4a1e5·msg_063718bdf213·msg_963f5dc087ca·msg_a5e256873a03·msg_a9f294314f32·msg_2497dcc19f0a·msg_7990e00f7c3e·msg_5171eb3488de·f8f4520f9·e0f02d424·OpenAI 2026-11-17 릴리스 노트·msg_77eaa7b278fe·msg_0421763e1697·c213647a4·755d7c529·msg_87a196aedfda·msg_ec472c6d6552·msg_bd0707fc7039·msg_a6e246778395·d88fb7bfd·msg_13db44e2976a·msg_15f047c8dab7·msg_6dc6aac4ca1b·msg_5494b960f873·msg_cbc581b94817·4a337ead6·545c8d847·5b6b0cc1e·msg_6f83d440d872·msg_c76c2a8c8c6f·msg_74806cac0298·msg_315729c5325e·msg_3d778c8f05b9·msg_7c202f1b47e9·msg_4c9ffbff9787·msg_b2aaf4ff67f5·msg_c30139f733b6·msg_d296af3d6921·msg_028c0d100a48·msg_361853613bf1·msg_edbcace27005·msg_4411929d5bcd·msg_60b1d6dbc9d2·msg_c5dae1e8ab09·msg_106176b2e1ec·msg_7ea306898b6f",
+      "next": "Mac 49/49와 원문 1회·정상 전환과 503 상한 2회 수락. 승인 실호출 9/9는 앞선 버전의 담당 결과. 미배포.",
+      "lastReviewedAt": "2026-11-19T05:04:40.877Z"
     },
     {
       "task_id": "RE-20261119-DESK-U1A",
@@ -6162,11 +6162,11 @@
       "reviewer": "CX-MASTER-01",
       "title": "부동산 고객관리 v1.11 푸시·배포 후보",
       "status": "done",
-      "delivery": "v111_live_isolated_push_candidate_comparison_assigned",
+      "delivery": "live_and_isolated_versioned_source_tree_recorded",
       "sha": "86955ace6",
-      "evidence": "msg_ae423b8e833a·msg_5fa629831747·msg_8d0c2a217ded·msg_a232c84b415a·Master 원격 기준/HEAD 차이 698·msg_cf0bfc4ec2ff·msg_06b9f52c9145·Master 원격 기준 후보 diff 13파일·ae7111ded 폴더 일치·msg_9fa3253b9cc6·ae294b88·msg_02d7fc0c4ab1·83144f895·ccf8a3014·msg_a6a16f9a087d·msg_9c7c8af361be",
-      "next": "운영 v1.11 배포 완료. 공유 master 일괄 푸시 보류, 원격 기준 폴더 한정 동등성 대조 및 매물 알림 백로그 첫 후보 제안 배정.",
-      "lastReviewedAt": "2026-11-19T04:58:38.746Z"
+      "evidence": "msg_ae423b8e833a·msg_5fa629831747·msg_8d0c2a217ded·msg_a232c84b415a·Master 원격 기준/HEAD 차이 698·msg_cf0bfc4ec2ff·msg_06b9f52c9145·Master 원격 기준 후보 diff 13파일·ae7111ded 폴더 일치·msg_9fa3253b9cc6·ae294b88·msg_02d7fc0c4ab1·83144f895·ccf8a3014·msg_a6a16f9a087d·msg_9c7c8af361be·msg_83d6da586112·msg_ae9585329102",
+      "next": "운영 v1.11. 원격 af36bb467 기준 폴더 한정 후보 751bd8dfe, 기존 후보와 버전 한 줄 차이. 푸시 대기.",
+      "lastReviewedAt": "2026-11-19T05:04:40.877Z"
     },
     {
       "task_id": "FRONT-20261119-QUICKBAR",
@@ -6174,33 +6174,55 @@
       "reviewer": "CX-QA-01",
       "title": "B2B몰 모바일 빠른 메뉴 상품 카드 가림",
       "status": "running",
-      "delivery": "mac_overlap_and_initial_aria_fix_dispatched",
-      "evidence": "msg_78506b5ddc3d·msg_278664a6630a·quick-bar.tsx 점유 및 미커밋 없음·mall-builder 저작권 고지 확인·msg_fd2c66d274ba·12639ca39·msg_590b6e338b14·msg_f275fbf8c801·msg_88f918632539",
-      "next": "맥미니 13/13·Tab/Enter/Space 통과. 격리 화면에서 손잡이의 링크 가림과 첫 표시 접근성 불일치가 재현돼 보완 배정. 미배포.",
-      "lastReviewedAt": "2026-11-19T04:58:38.746Z",
-      "sha": "794c5fd01"
+      "delivery": "overlap_fixed_fixture_touch_target_alternative_requested",
+      "evidence": "msg_78506b5ddc3d·msg_278664a6630a·quick-bar.tsx 점유 및 미커밋 없음·mall-builder 저작권 고지 확인·msg_fd2c66d274ba·12639ca39·msg_590b6e338b14·msg_f275fbf8c801·msg_88f918632539·msg_b3c8f5d4f553·4cc3a284c·msg_6cc03b5c2086",
+      "next": "격리 모형의 링크 가림·초기 접근성 일치 개선. 640 미만 16px로 남아 24px 이상과 비가림을 모두 만족할 배치 비교 요청.",
+      "lastReviewedAt": "2026-11-19T05:04:40.877Z",
+      "sha": "1766fe92e"
     },
     {
       "task_id": "WS-20261119-02",
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace ZIP 50MB 안내와 대용량 가져오기 설계",
       "status": "waiting_human",
-      "delivery": "limit_copy_verified_large_zip_design_decisions_pending",
+      "delivery": "decisions_six_to_eight_approved_one_to_five_pending",
       "sha": "be06a1541",
-      "next": "50MB 안내 수정 39ca388da 미배포. 대용량 ZIP 업로드 소유권·정리·풀기 제한 플랜 보강. 전체 상한·낱개 초과 처리·DB 변경 결정 대기.",
-      "lastReviewedAt": "2026-11-19T04:58:38.746Z",
-      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018"
+      "next": "최신 정정으로 결정 6~8만 승인. 결정 1~5의 사용자 답변 전 제품 코드를 쓰지 않음. 점유 확장 429f5b813, 50MB 문구 미배포.",
+      "lastReviewedAt": "2026-11-19T05:04:40.877Z",
+      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813"
     },
     {
       "task_id": "MUSIC-20261119-IMG-COMPAT",
       "owner": "CC-MUSIC-01",
       "title": "무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토",
-      "status": "running",
-      "delivery": "legacy_music_read_only_review_dispatched",
-      "sha": "2131089b7",
-      "next": "앨범 그림·기존 토큰/대기열·ACE-Step·모델 이동·YuE2 재개 호환 읽기 검토 배정. 엔진 편집 점유는 이미지 담당.",
-      "lastReviewedAt": "2026-11-19T04:58:38.746Z",
-      "evidence": "msg_a9a582d98b44·msg_7cc08f553bce·msg_74befa8a2aa1·2c11df0e7"
+      "status": "done",
+      "delivery": "five_music_flows_read_only_accepted",
+      "sha": "b5bd23d75",
+      "next": "고정 2131089b7 음악 5경로·146/146 검토 수락. 새 범위 미사용 시 파일 미생성 정정. 실제 엔진은 미검증.",
+      "lastReviewedAt": "2026-11-19T05:04:40.877Z",
+      "evidence": "msg_a9a582d98b44·msg_7cc08f553bce·msg_74befa8a2aa1·2c11df0e7·msg_38ad9ae1f1f0·eadc3dc57·msg_f4c8af8d6131·msg_7db1f87d0103"
+    },
+    {
+      "task_id": "RE-20261119-PARTIAL",
+      "owner": "CC-REALTY-01",
+      "title": "상가·건물·토지 알림 부분 조회 결과 보존",
+      "status": "waiting_human",
+      "delivery": "partial_result_retention_plan_ready_decisions_pending",
+      "sha": "184143779",
+      "next": "id 기준 이전 결과 보존 설계. 7일, 차단·오류 때도 보존할지, 배포 시점 결정 대기. 제품·확장·운영 변경 없음.",
+      "lastReviewedAt": "2026-11-19T05:04:40.877Z",
+      "evidence": "msg_ae9585329102·msg_c8d7eaa4e162"
+    },
+    {
+      "task_id": "BLOG-20261119-MODELS-3",
+      "owner": "CC-BLOG-01",
+      "title": "블로그 3개 프로그램 모델 목록 동기화",
+      "status": "reviewing",
+      "delivery": "three_program_catalog_updates_mac_review_dispatched",
+      "sha": "d7f383fcd",
+      "next": "티스토리 a8ba8a9bb·SEO 980eb5303·에이전트 d7f383fcd. 모델 기본값·저장 호환 및 사진 리뷰 선택지 축소 맥미니 검수 요청. 미배포.",
+      "lastReviewedAt": "2026-11-19T05:04:40.877Z",
+      "evidence": "msg_dbaba45b8f38·msg_8743dd97fb18"
     }
   ],
   "programOverrides": [
@@ -6719,21 +6741,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T04:33:14.078Z",
+      "at": "2026-11-19T05:04:40.877Z",
       "timezone": "Asia/Seoul",
-      "trigger": "13:30 예약 점검 메시지 msg_bc0ee9820552 수신",
-      "scope": "13:01:14 KST 이후 증분. 103개 프로그램·19개 분류, 미완료 26건(진행 3·검수 5·순번 5·사용자 단계 13). Git·점유·사용자 지시·결과/인수인계 대조.",
+      "trigger": "14:00 정기 메시지 msg_8179e940fc51 기존 Master 수신 후 실제 증분 점검",
+      "scope": "13:33:14 KST 이후. 103개 프로그램·19개 분류, 미완료 30건(진행 5·검수 6·순번 5·사용자 14). Git, 담당별 상태/점유, 우선순위·미배포·사람 단계와 수정 결과/인수인계 대조.",
       "evidence": [
-        "13:30:01 예약 실행 성공, 13:30:05 전송 msg_bc0ee9820552, 기존 Master 수신.",
-        "IMG Q4/Q8 16쌍 직접 재집계, P1 3383cec03 및 음악 검토 msg_f87668d3599b. 엔진 로컬 PR-A 배정 msg_a2d69f45e9f5.",
-        "RE 1f55c38f2 독립 11/11, AIF e3421c7a9 독립 18/18, BLOG 772d8c78c 타이머 수락 및 새 모델 API 정정 c213647a4/755d7c529 독립 검수 전송. 결과 기록 3건 최신분 대조.",
-        "B2B PID 43784 사설 바인딩, 사용자 제어 대기 동일. Master 대기 요청 0, 원격 master af36bb4675d 유지, HANDOFF 이전 AIF 9줄."
+        "원격 기준 af36bb467, 정기 메시지 수신 별도 확인. Master 요청 대기 0. 최근 공용 HANDOFF·활성 작업·파일 점유와 변경 결과 8파일 확인.",
+        "IMG 766febe46 검수 52/52에서 재현한 저장본 예외가 e8e52b505로 해소되어 Mac 53/53. Music 5경로 146/146 및 문구 정정 b5bd23d75.",
+        "BLOG 720efa08c Mac 49/49와 원문 1·전환 2·503 상한 2 확인. Workspace 429f5b813 점유와 결정 6~8만 승인 정정.",
+        "B2B 관리자 승인 4경로 Lab READY 담당 확인, 고객관리 v1.11 운영/DB 담당 확인. 공유 푸시 없이 격리 원격 후보 751bd8dfe 보관."
       ],
-      "judgment": "부동산 문자 안내·AIF 격리 실행기 검수 수락. 블로그 최신 모델과 이미지 엔진 로컬 구현 진행. 신규 운영 배포·DB·키·유료 호출 승인 없음.",
-      "nextAction": "IMG 음악 담당 엔진 로컬 소스만, 새 출처 운영 등록·설치판 별도. Blog 최신 목록 Mac 검수. B2B 공간39 로그인/제어 반환 뒤 관리자 검수·공간29 순차.",
+      "judgment": "이미지 PR-A 소스 및 블로그 엄격 전환 검수 수락. Workspace 구현 보류. B2B 상품 손잡이의 24px 터치 확보는 소스 변경 전 배치 검토. 기존 직접 지시 범위의 배포/시험과 정기 점검 권한 구분.",
+      "nextAction": "Mac에 블로그 3개 모델 목록 검수 전송. B2B 프런트에 터치 영역 대안 검토 배정. Workspace 1~5 사용자 결정 및 부동산 보존 정책 결정 대기. 기존 AIF 순차 시험과 Admin Q8 회신 대기.",
       "unverified": [
-        "IMG 엔진 실제 구현·저사양 장비 지원·출시 기준, Blog 실제 계정 호출 및 빌드, B2B 로그인 뒤 화면, AIF Windows 후속 실기동",
-        "운영 전수 실측 및 오래된 미추적 파일 재검증 미실행"
+        "B2B 로그인 뒤 실제 화면/제어 반환, Admin Q8 품질·실엔진, AIF 격리 시험 결과, 고객관리 운영 문자 미리보기.",
+        "오래된 미추적 파일·103개 운영 실화면은 이번 증분 대상 밖. 이전 예약 전송 실행 이력은 이번에 별도 대조하지 않음."
       ]
     },
     "notifications": [
