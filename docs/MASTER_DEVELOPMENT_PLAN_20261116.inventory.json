@@ -10272,10 +10272,10 @@
       "reviewer": "CX-QA-01",
       "title": "AI Influencer D2 정리·쿼터 격리 통합 시험",
       "status": "running",
-      "delivery": "d2_mac_preflight_review_pass_rollback_version_followup_sent",
-      "sha": "dbe2f869e",
-      "next": "dbe2f869e Mac 지정 정적 재검수 완료. 원복 전 호출부·helper 버전 대조 보완 요청. 적용 전 스키마/하위 권한은 별도 확인, 운영 미적용.",
-      "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e·msg_01908be553ce·msg_3c0ea9d67886·fec7fe017·msg_3bdadb79cff0·msg_ba14d996ab74·msg_0e498ff524d1·msg_af7821e3d106·.ai/results/AIF-20261119-D2-IT-CX-QA-01.md·msg_ec07da32b153·b9ae5bcc4·msg_5a8997695e52·msg_4a1e08e7b950·msg_7c74159e5200·msg_f4dfb65f9b8f·msg_6a0776eac06b·67126ab93·msg_da122886dca1·msg_db2b0fb8b3fd·msg_5f5880568d1b·msg_2fffffb23bff·msg_f26fdb86801a·ec52dfef4·msg_a7dd4d193c29·msg_b53ce5676423·msg_a2780b9d504b·msg_35e2d9d7aef7·dbe2f869e·msg_5df2106491c8·msg_c34456bb36a1·msg_5ae0be775cd9"
+      "delivery": "d2_rollback_version_candidate_mac_recheck_sent",
+      "sha": "c1c5c92e5",
+      "next": "c1c5c92e5 원복 전 함수 4개 지문 대조 추가, 변경·누락 시 중단. 담당 34건 통과·Mac 재검수 전달. 운영 미적용.",
+      "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e·msg_01908be553ce·msg_3c0ea9d67886·fec7fe017·msg_3bdadb79cff0·msg_ba14d996ab74·msg_0e498ff524d1·msg_af7821e3d106·.ai/results/AIF-20261119-D2-IT-CX-QA-01.md·msg_ec07da32b153·b9ae5bcc4·msg_5a8997695e52·msg_4a1e08e7b950·msg_7c74159e5200·msg_f4dfb65f9b8f·msg_6a0776eac06b·67126ab93·msg_da122886dca1·msg_db2b0fb8b3fd·msg_5f5880568d1b·msg_2fffffb23bff·msg_f26fdb86801a·ec52dfef4·msg_a7dd4d193c29·msg_b53ce5676423·msg_a2780b9d504b·msg_35e2d9d7aef7·dbe2f869e·msg_5df2106491c8·msg_c34456bb36a1·msg_5ae0be775cd9·msg_e2f800e5fc72·c1c5c92e5·msg_8ee8671e6001"
     },
     {
       "task_id": "AIF-20261119-PLAN6",
