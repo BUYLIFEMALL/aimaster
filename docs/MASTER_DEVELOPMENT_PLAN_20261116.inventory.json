@@ -9801,10 +9801,10 @@
       "reviewer": "CX-MASTER-01",
       "title": "AI Influencer 대표 생성 및 보정 검증",
       "status": "waiting_human",
-      "delivery": "key_docs_review_completed_waiting_console_diagnosis",
-      "evidence": "msg_adecea24720e·msg_6450ddaf24a6·9f1e3697e·msg_640d108b3984·msg_2516c8d780b2·345eb10f8·msg_43f23b594003·msg_b3def667492a·msg_98a00503835e·msg_51f88e4ea1b2·msg_b0363e5b9ba3·msg_fd234e802a57·msg_00d7dcc5a167·msg_f5f7a430a7b1·e5a6dc890·msg_a347af4f72e8·msg_26f84745cf68·msg_21f343488a1b·f73f98778·msg_6d485fa3d150·msg_d678e74285db·a18c18f45",
-      "next": "공식 문서와 요청 코드 대조로 INVALID_KEY 원인 미확정. 사용자 AI Studio 키/프로젝트 제한 확인, 추가 호출 0.",
-      "lastReviewedAt": "2026-11-18T19:43:18.324Z",
+      "delivery": "owner_confirmed_key_changed_registration_pending",
+      "evidence": "msg_adecea24720e·msg_6450ddaf24a6·9f1e3697e·msg_640d108b3984·msg_2516c8d780b2·345eb10f8·msg_43f23b594003·msg_b3def667492a·msg_98a00503835e·msg_51f88e4ea1b2·msg_b0363e5b9ba3·msg_fd234e802a57·msg_00d7dcc5a167·msg_f5f7a430a7b1·e5a6dc890·msg_a347af4f72e8·msg_26f84745cf68·msg_21f343488a1b·f73f98778·msg_6d485fa3d150·msg_d678e74285db·a18c18f45·msg_867fcf9c1712·msg_f01e55b27237",
+      "next": "주인님이 Gemini 키 변경을 원인으로 확인. 새 키를 직접 등록한 뒤 CC-SNS-01이 등록 여부만 확인. 생성 재시험은 기존 한도 소진으로 새 승인 대기.",
+      "lastReviewedAt": "2026-11-19T02:39:36.982Z",
       "validation": {
         "result": "두 번째도 INVALID_KEY. 누적 이미지 시도 2회, 결과 0, 참고 업로드 2회, 캡션 0. 과금 미확인.",
         "limitation": "생성/저장 성공, 캡션, 보정 및 히스토리 검증 미완료. 업로드 시험 자산 보존."
