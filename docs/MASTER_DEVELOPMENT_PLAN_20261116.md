@@ -1,16 +1,16 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 10:31:35 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 11:01:06 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-19 10:31:35 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-19 11:01:06 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 10:02:10 KST 이후 증분. 프로그램 103개·19개 분류의 총괄표, 열린 작업 24개, 담당·점유·승인·미배포 순서와 Git·미추적 결과/인수인계 대조. B2B 관리자 UI 소스 수락, 동작 검증은 같은 SHA 화면 대기. S70은 Lab 승인·시험 자료, M3는 서버 경로 승인, 이커머스는 메인 자동 빌드 순번, U-1은 담당 결과 대기. 추가 배포·운영 DB·유료 호출 0.
+점검 범위: 10:31:35 KST 이후 증분. 103개 프로그램·19개 분류, 열린 작업 26개, 담당·점유·순번·승인 및 Git·검수 기록 2건 대조. B2B 관리자 검수는 Mac 인증 대기, 감성 글귀 원본 전달 완료, 무료 이미지 Arc P0 진행 중. S70 Lab·M3 서버 범위·ECOM 빌드 순번의 기존 조건 유지.
 
-후속 배정: 중복 배정 0. B2B 메인 PC Lab 담당이 ad046c1eb과 같은 화면 주소를 확인하면 CX-QA-01이 375px·키보드를 이어서 검수. 무료 이미지 P0는 실행 범위·실기 담당 확정 뒤 배정.
+후속 배정: 현재 구간에 재배정 필요 없음. Mac 동일 Tailnet 로그인 뒤 Backend와 실화면 검수 재개. Arc SHA·Vulkan 1장 결과 회수 뒤 RTX 기존 설치 확인 및 실행 순번 확정. 감성 글귀 실제 앱 합성 화면 확보 시 한글 배치 검증.
 
-미확인: 동일 SHA의 375px·키보드·배포, 타 세션 직접 지시의 추가 유무, 무료 이미지 P0 실기·실행 승인 · 운영 URL 신규 실측 및 오래된 미추적 결과 전수 재검증 미실행
+미확인: Mac 연결·앱 로그인·375px, 감성 글귀 앱 합성 가독성, Arc 파일 완료/실측, RTX 설치·실측, 부동산 U-1 결과 · 운영 URL 전수 실측 및 오래된 미추적 인수인계 전수 재검증 미실행
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -440,7 +440,7 @@ Master 마지막 실제 점검: 2026-11-19 10:31:35 KST · 실행 중 점검 주
 | RE-20261118-07 | CC-REALTY-01 | done / evaluation_deliverable_accepted_no_effectiveness_pass | 후보C 새기간40건 사전라벨 고정 평가 | 정상운영 새기간에서 목표소음이 포함된 검증조건 충족 시에만 별도배정·동일40건 규칙조정/재시험0 |
 | ECOM-20261118-06 | CC-ECOM-01 | done / specified_mock_server_source_accepted_off_unreleased | Cloudflare 본인 공용키 무료 이미지 경로 검증·연결 계획 | 실키유효/잔여사람단계·AGY UI 연결계획·OFF미배포 보존 |
 | ECOM-20261119-CFREL | CC-ECOM-01 | queued / role_docs_candidate_prepared_release_queued | 메인 API 설정 Cloudflare 카드 배포 선행 확인 | 원격 기준 역할 문서 단독 후보 1e5f23917(+6/-3) 준비. 푸시 전 Master가 비교 기준과 메인 빌드 영향 확인. Cloudflare 카드 빌드 1회는 별도 승인 대기. |
-| ECOM-20261119-EMOTION-QA | CX-QA-01 | reviewing / source_images_checked_composite_session_missing | 감성 글귀 합성 기존 결과 맥미니 화면 검수 | Mac 운영 초기 화면과 보관 원본 전후 2장 검증. 기존 앱 합성 탭·링크 부재로 한글 배치·가독성 보류. 동일 합성 화면 확보 시 재개. |
+| ECOM-20261119-EMOTION-QA | CX-QA-01 | reviewing / source_comparison_delivered_composite_session_missing | 감성 글귀 합성 기존 결과 맥미니 화면 검수 | Mac 보관 원본 2장 검증 및 담당자 주인님 채팅 전달 완료. 기존 앱 합성 탭·링크 부재로 한글 배치·가독성 보류. |
 | DES-20261118-07 | AG-UI-01 | done / emotion_cloudflare_status_card_source_review_accepted_unreleased | Cloudflare 공용키 설정 UI 연결 경로 계획 | 본인문서/점유정리·중앙82/e34와통합후보·메인선행/감성배포예산·실키검증별도 |
 | AIF-20261118-W00 | CC-SNS-01 | done / static_contract_review_accepted_implementation_unverified | AI Influencer W00 기준·격차/공통계약 독립검수 | W01a별도검수·PLAN/권한선행병합전자산코드/DDL0·후속경합/RLS실검증별도 |
 | CRM-20261118-07 | CC-B2B-BACK-01 | done / receipt_single_attempt_mock_source_review_accepted_unreleased | SOLAPI SDK 재시도 없는 공식 대안·최소 변경 계획 | 접수전용소스미배포보존·팔로우업동일위험은CRM18-08로이관·DDL/배포/실문자별도 |

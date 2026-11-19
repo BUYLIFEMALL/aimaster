@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-19T01:31:35.649Z",
+  "checkedAt": "2026-11-19T02:01:06.707Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T01:31:35.649Z",
+      "at": "2026-11-19T02:01:06.707Z",
       "timezone": "Asia/Seoul",
-      "trigger": "10:30 예약 점검 메시지 msg_07e24366e4fa 수신",
-      "scope": "10:02:10 KST 이후 증분. 프로그램 103개·19개 분류의 총괄표, 열린 작업 24개, 담당·점유·승인·미배포 순서와 Git·미추적 결과/인수인계 대조.",
+      "trigger": "11:00 예약 점검 메시지 msg_ce930dda8aae 수신",
+      "scope": "10:31:35 KST 이후 증분. 103개 프로그램·19개 분류, 열린 작업 26개, 담당·점유·순번·승인 및 Git·검수 기록 2건 대조.",
       "evidence": [
-        "10:30:01 KST 예약 실행 성공, 10:30:03 전송 msg_07e24366e4fa, 기존 Master 터미널의 수신 확인.",
-        "B2B 관리자 UI c17cca668·ad046c1eb 및 Mac 결과 msg_3c961902ac23: 독립 10/10, 상한 경계와 상태 탭 소스 통과, 작업 blob 16a876637656 일치.",
-        "기존 HANDOFF 9줄은 AI Influencer 플랜으로 증분 없음. Master 역할 문서에 새 무료 이미지 플랜·모델 조사 2건 발견, 문서 단계 등록.",
-        "Master 관리자 대기 요청 0. 원격 master af36bb4675d 유지, 점유표 신규 커밋 없음, Windows 3210 리스너 미발견."
+        "11:00:01 예약 성공, 11:00:03 전송 msg_ce930dda8aae, 현재 Master 수신 후 점검.",
+        "B2B 전용 Lab Windows login 200 뒤 Mac Tailnet NeedsLogin, 담당 종료 msg_92bbb1de93f5 및 3210 리스너 0 확인. 바인딩 교정 기록 076b98a56.",
+        "감성 글귀 Mac 원본 비교 및 사용자 전달 완료 msg_ebd58e6459ea.",
+        "무료 이미지 d6f1d0287 점유, 00158b7a3 P0 문서, Arc 다운로드 직접 승인 보고 msg_25a67c9094a4와 RTX 장비 가용 보고 msg_11158461bd15. ECOM 문서 후보 1e5f23917, 원격 기준 af36bb4675d 유지.",
+        "Master 대기 관리자 요청 0. 기존 AIF HANDOFF 증분 없음."
       ],
-      "judgment": "B2B 관리자 UI 소스 수락, 동작 검증은 같은 SHA 화면 대기. S70은 Lab 승인·시험 자료, M3는 서버 경로 승인, 이커머스는 메인 자동 빌드 순번, U-1은 담당 결과 대기. 추가 배포·운영 DB·유료 호출 0.",
-      "nextAction": "중복 배정 0. B2B 메인 PC Lab 담당이 ad046c1eb과 같은 화면 주소를 확인하면 CX-QA-01이 375px·키보드를 이어서 검수. 무료 이미지 P0는 실행 범위·실기 담당 확정 뒤 배정.",
+      "judgment": "B2B 관리자 검수는 Mac 인증 대기, 감성 글귀 원본 전달 완료, 무료 이미지 Arc P0 진행 중. S70 Lab·M3 서버 범위·ECOM 빌드 순번의 기존 조건 유지.",
+      "nextAction": "현재 구간에 재배정 필요 없음. Mac 동일 Tailnet 로그인 뒤 Backend와 실화면 검수 재개. Arc SHA·Vulkan 1장 결과 회수 뒤 RTX 기존 설치 확인 및 실행 순번 확정. 감성 글귀 실제 앱 합성 화면 확보 시 한글 배치 검증.",
       "unverified": [
-        "동일 SHA의 375px·키보드·배포, 타 세션 직접 지시의 추가 유무, 무료 이미지 P0 실기·실행 승인",
-        "운영 URL 신규 실측 및 오래된 미추적 결과 전수 재검증 미실행"
+        "Mac 연결·앱 로그인·375px, 감성 글귀 앱 합성 가독성, Arc 파일 완료/실측, RTX 설치·실측, 부동산 U-1 결과",
+        "운영 URL 전수 실측 및 오래된 미추적 인수인계 전수 재검증 미실행"
       ]
     },
     "notifications": [
@@ -10040,10 +10041,10 @@
       "reviewer": "CX-MASTER-01",
       "title": "감성 글귀 합성 기존 결과 맥미니 화면 검수",
       "status": "reviewing",
-      "delivery": "source_images_checked_composite_session_missing",
-      "evidence": "msg_34a8d9c8b06f·msg_de03e2b05eec·msg_785b9a796c77·.ai/results/ECOM-20261119-EMOTION-CX-QA-01.md·msg_6d81c947bd00·msg_1e7109e277d5·msg_b3169f589c96·aa9847f1f",
-      "next": "Mac 운영 초기 화면과 보관 원본 전후 2장 검증. 기존 앱 합성 탭·링크 부재로 한글 배치·가독성 보류. 동일 합성 화면 확보 시 재개.",
-      "lastReviewedAt": "2026-11-19T01:53:42.222Z"
+      "delivery": "source_comparison_delivered_composite_session_missing",
+      "evidence": "msg_34a8d9c8b06f·msg_de03e2b05eec·msg_785b9a796c77·.ai/results/ECOM-20261119-EMOTION-CX-QA-01.md·msg_6d81c947bd00·msg_1e7109e277d5·msg_b3169f589c96·aa9847f1f·msg_c7d52f074786·msg_ebd58e6459ea",
+      "next": "Mac 보관 원본 2장 검증 및 담당자 주인님 채팅 전달 완료. 기존 앱 합성 탭·링크 부재로 한글 배치·가독성 보류.",
+      "lastReviewedAt": "2026-11-19T02:01:06.707Z"
     }
   ]
 }
