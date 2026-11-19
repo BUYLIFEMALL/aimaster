@@ -4,14 +4,14 @@
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-19 22:02:05 KST · 22:00 예약 메시지 수신 및 증분 대조 완료.
-플레이리스트 수신 운영 검증 종결, 음악 발신 링크 별도. Workspace v1.63 운영 배포 완료·실제 ZIP 대기. 이미지 5-3 로컬 수락, B2B·AIF 후보 보완 진행.
+Master 마지막 실제 점검: 2026-11-19 22:32:19 KST · 22:30 예약 메시지 수신 및 증분 대조 완료.
+한영 변환 로컬 수락, 무료 이미지 안내·장부 복구 보완. AIF 권한 DB 후보 정적 수락 후 정책 대기. 공용 사본 검사의 기준 경로만 바로잡도록 배정.
 
-점검 범위: 21:32 KST 이후 증분. 376건 중 미완료 30건(진행 5·검수 7·순번 4·주인님 결정 14). 기존 103개·19분류, 11개 담당 기록 및 점유·미배포·사람 단계 대조.
+점검 범위: 22:02 KST 이후 증분. 377건 중 미완료 31건(진행 4·검수 7·순번 5·주인님 확인/결정 15). 기존 103개·19분류, 11개 담당 기록 및 점유·미배포·사람 단계 대조.
 
-후속 배정: 이미지 5-4 msg_1c2378ff1933, B2B 라우트 msg_c9d732150309, AIF DB msg_2d25cdee75db. 팀 배포 두 건 1회씩 종료, 승인 없는 추가 빌드·운영 쓰기 없음. Workspace DB 버전과 전체 푸시는 별도 대기.
+후속 배정: 이미지 장부·포커스 msg_40d1d6ba4204, safe-fetch 기준 msg_9f1547aee90d(점유 해소 뒤). QA037 로그인·Return 후 읽기, 승인 없는 추가 배포·운영 DB·유료 호출 없음.
 
-미확인: Workspace 운영 다문서 ZIP·버전 기록·DB 버전 동기화, 음악 발신 링크·타회원 실데이터, 무료 이미지 실제 브라우저·엔진, B2B Lab·실 Storage·태블릿, AIF 실제 DB·cron·빌드. 운영 전수·오래된 미추적 파일 전체는 증분 범위 밖.
+미확인: 실제 무료 이미지 화면/팝업·탭·AI·엔진, Workspace 운영 다문서 ZIP·버전 기록, B2B Lab·실 Storage, AIF 실제 관리자 세션·운영 DB. 운영 전수와 이전 미추적 파일 전체는 증분 범위 밖.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -436,7 +436,7 @@ Master 마지막 실제 점검: 2026-11-19 22:02:05 KST · 22:00 예약 메시�
 | B2B-20261119-BACKEND-HANDOFF | CC-B2B-BACK-01 | done / sub_handoff_accepted_prerequisites_reconciled | B2B 백엔드 Sub PC 인수인계 | Sub 인수 완료·0101~0105/M3 승인 조건 대조. QA037 로그인·0105 Lab 적용/자료·M3 후속 승인 대기. 3210과 합성 DB는 메인 유지. |
 | B2B-20261119-FRONT-HANDOFF | CC-B2B-FRONT-01 | done / sub_handoff_and_release_scope_verified | B2B 프런트 Sub PC 인수인계 | Sub 인수 및 Chrome 지정. Lab 9커밋·14경로, 운영 기준 18커밋·19경로 대조 완료. S70은 0105 묶음, 실화면·배포 승인 대기. |
 | B2B-20261119-FRONT-REL | AG-UI-01 | done / frontend_production_public_screen_independent_accepted | B2B 프런트 단독 운영 배포 | 운영 READY·v1.16 및 맥미니 공개 화면 통과. 배포 폴더 대조 19개 프런트/시험 경로와 버전 파일, 백엔드·DB 차이 0. 관리자 별도. |
-| IMG-20261119-PLAN | CC-ECOM-01 | reviewing / web_ui_5_5_docs_and_recovery_mac_recheck_sent | AI 무료 이미지 자동화 개발 플랜 | 1b64c61b4 담당 135/135, 안내·메뉴·장부 복구 Mac 검수 전달. 공용 사본 7ad6d560f 등록, 실제 화면·등록·엔진 미검증. |
+| IMG-20261119-PLAN | CC-ECOM-01 | running / web_ui_5_5_mac_archive_and_focus_followup_sent | AI 무료 이미지 자동화 개발 플랜 | 1b64c61b4 Mac 133통과·2제외. 장부 원본/기존 보관본 보존·동시 변경 차단·포커스 복귀 보완 배정. 실제 화면·엔진 미검증. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
@@ -532,6 +532,7 @@ Master 마지막 실제 점검: 2026-11-19 22:02:05 KST · 22:00 예약 메시�
 | BLOG-20261119-PHOTO-MODELS | CC-BLOG-01 | done / agent_photo_models_authenticated_dom_owner_confirmed | 네이버 에이전트 사진 리뷰 모델 확대 | Mac 70/70. 배포된 에이전트 2.29 사진 후기 모델 목록·엔진 연동 담당 로그인 DOM 확인. 실제 생성·캡처 없음. |
 | FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | done / mobile_quickbar_and_preview_mac_accepted_undeployed | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 고정 51d4b2207 Mac 28/28. 모바일 버튼·포커스 및 미리보기 빈 줄 제거 수락. 미배포 묶음 대기, 고정판 실제 편집기 미확인. |
 | FRONT-20261119-QUICKBAR-TABLET | CC-B2B-FRONT-01 | done / mac_resize_accepted_scoped_candidate_pending_execution | B2B몰 태블릿 폭 빠른 메뉴 상품 가림 | 4fb95eaba Mac 30/30·12폭 기존 수락. 제품 2파일·시험 1파일 후보 고정. 실제 후보 URL·태블릿 및 관리자 검수는 실행 범위 확정 후. |
+| BLOG-20261119-SAFE-FETCH-SOURCE | CC-BLOG-01 | queued / canonical_reference_repoint_sent_pending_ownership | 공용 safe-fetch 검사 기준 경로 복구 | 삭제 전 기준과 현 사본 4개 동일. 공용 파일 점유 해소 후 검사기·문서 경로만 조정. 원본 코드·sync·배포 없음. |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
