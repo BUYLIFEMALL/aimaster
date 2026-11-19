@@ -413,3 +413,5 @@ WS-20261119-03-TSC-CLOSURE CC-WORKSPACE-01: Master msg_c4e4c27fb558(밀린 기�
 B2B-ADMINUI-FILTER-CURRENT AG-UI-01: Master msg_5726aea825db(A1/P9, 기준 ad046c1eb). mall-builder/src/app/s/[store]/admin/orders/page.tsx·mall-builder/src/app/s/[store]/admin/products/page.tsx 2개만(필터 링크 nav aria-label 및 활성 1개 aria-current='page' 제공, 기존 링크·필터·터치·포커스 보존). 고객/리셀러·공용 CSS·운영·빌드·배포 0.
 
 WS-20261119-03-TSC-CLOSURE 점유 해제 CC-WORKSPACE-01: 문서 정리 2ca1af22d(docs/roles/workspace.md·ai-work-workspace/AGENTS.md, 17줄 추가). tsc 3d446effa 종료코드 0. 공용 HANDOFF·PENDING_DEPLOYS·비교표는 편집 없이 변경점만 Master께 제안. 보존: WS-20261119-03 기존 기록, 미배포 대기 3d446effa.
+
+WS-RELEASE-RECORD-SYNC CC-WORKSPACE-01: Master msg_97510ae00131. docs/PENDING_DEPLOYS.md 중 ai-work-workspace 기록만(내보낸 기록 v1.59~v1.63 다섯 줄 + 대기 중 3d446effa 한 줄 추가). 다른 프로그램 줄·HANDOFF·PROGRAM_CAPABILITY_MAP 편집 없음. 문서만, 운영·빌드·배포·push 없음.
