@@ -10125,11 +10125,11 @@
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace ZIP 50MB 안내와 대용량 가져오기 설계",
       "status": "running",
-      "delivery": "csv_storage_read_local_accepted_large_zip_implementation_continues",
-      "sha": "cdb121ab7",
-      "next": "cdb121ab7 Mac 모의 수락·담당 PostgreSQL 34/34. 대용량 ZIP 브라우저·서버 통합 검증은 진행 중. 운영 미반영.",
-      "lastReviewedAt": "2026-11-19T07:31:15.945Z",
-      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85·cfd124ba3·c2816bf0f·13e9af05d·msg_b6590eaaaee8·7298b1dbf·msg_25fa9e68b50a·msg_2694e685c83c·msg_b5baddc12f26·c81384d50·504891ed2 부모 분리·msg_64c64ec0e1da·msg_a38d3ff84dbc·msg_021d1ad75f3a·msg_74f8e5339487·368acd3b7·msg_d4a19e25bc14·msg_a7c6ecc7758f·msg_2710ce16b617·cdb121ab7·msg_a558ec9d6241·msg_9f4a49f9353c·.ai/results/WS-20261119-02-CX-QA-01.md",
+      "delivery": "large_zip_candidate_mac_review_and_job_race_fix_dispatched",
+      "sha": "04807f920",
+      "next": "04807f920 대용량 ZIP 로컬 구현 27건·관련 81건. Mac 독립 검수와 작업 시작/취소/완료 경합 보완 배정. 운영 미반영.",
+      "lastReviewedAt": "2026-11-19T07:34:18.665Z",
+      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85·cfd124ba3·c2816bf0f·13e9af05d·msg_b6590eaaaee8·7298b1dbf·msg_25fa9e68b50a·msg_2694e685c83c·msg_b5baddc12f26·c81384d50·504891ed2 부모 분리·msg_64c64ec0e1da·msg_a38d3ff84dbc·msg_021d1ad75f3a·msg_74f8e5339487·368acd3b7·msg_d4a19e25bc14·msg_a7c6ecc7758f·msg_2710ce16b617·cdb121ab7·msg_a558ec9d6241·msg_9f4a49f9353c·.ai/results/WS-20261119-02-CX-QA-01.md·04807f920·msg_7fd9735761c5·msg_2e22cd4b41c3",
       "reviewer": "CX-QA-01"
     },
     {
@@ -10245,6 +10245,19 @@
       "next": "v1.26 기준 격리 후보 선택. Next 16.4.6 로컬 OFF 빌드 1회·정상 흐름 모의 점검 배정. 일부 기존 사진 입력 영향 확인 중, 원격 미시작.",
       "evidence": "msg_99f48ec1072f·msg_56627921dadb·msg_ab5b76ba2021·msg_fe0626fbf3a1·msg_ff8bfd3c4215·7da7961ec·msg_6fe64489deea",
       "lastReviewedAt": "2026-11-19T07:29:09.739Z"
+    },
+    {
+      "task_id": "FRONT-20261119-QUICKBAR-TABLET",
+      "parent_task_id": "FRONT-20261119-QUICKBAR",
+      "owner": "CC-B2B-FRONT-01",
+      "reviewer": "CX-QA-01",
+      "title": "B2B몰 태블릿 폭 빠른 메뉴 상품 가림",
+      "status": "running",
+      "delivery": "read_only_reproduction_and_narrow_fix_dispatched",
+      "sha": "51d4b2207",
+      "next": "768/820/1024/1280px 읽기 재현 후 필요한 폭만 국소 보완. 기존 모바일·편집기 보존. 미배포.",
+      "evidence": "msg_0597bc4779e7·msg_b34462da0d3d",
+      "lastReviewedAt": "2026-11-19T07:34:18.665Z"
     }
   ]
 }
