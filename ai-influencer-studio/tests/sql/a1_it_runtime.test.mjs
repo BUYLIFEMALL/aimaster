@@ -11,7 +11,8 @@
 // 격리: 새 DB qa_aif_it_20261119만 만들고(이미 있으면 중단) 끝나면 그 DB만(oid 일치 확인) 지운다. 역할을 만들거나 바꾸지 않는다.
 //       접속하는 DB는 둘이다: 이 시험 DB, 그리고 관리용 postgres DB(역할·DB 목록 조회와 create/drop database만). 다른 작업의 DB는 읽지도 쓰지도 않는다.
 //       장애 시험 하나는 **없는 DB 이름**(qa_aif_it_no_such_db)으로 일부러 접속을 시도해 실패를 받는다(만들지 않는다).
-//       실행 대상은 _fixtureGuard.mjs가 먼저 확인한다(로컬 도커 접속 지점·postgres 17·PC 안 포트). 어긋나면 DB 명령 0으로 멈춘다.
+//       실행 대상은 _fixtureGuard.mjs가 먼저 확인한다(로컬 도커 접속 지점 확정 → 컨테이너 지문·ID → 안쪽 소켓). 어긋나면 DB 명령 0으로 멈춘다.
+//       aww-pg-test는 **다른 작업과 함께 쓰는** PostgreSQL 컨테이너다. 가드는 「승인된 그 컨테이너인가」를 보고, DB 분리는 고유 이름·기존 DB 거부·oid 대조가 맡는다(두 단계).
 //       운영·공유 DB 접속 0. 실제 저장소·실제 공급자 호출 0.
 // ★ 한계 — 이 통과가 뜻하지 않는 것
 //   * 저장소(storage)는 대역이다: 올리기·지우기는 대역 표 storage.objects의 행을 넣고 지워 흉내 낸다. 실제 Supabase 저장소 호출은 없다.
@@ -25,17 +26,16 @@
 //   * 복구 시험의 시간은 「즉시」와 「2시간 뒤로 만든 것」 두 시점뿐이다. 1시간 경계의 앞뒤는 보지 않는다.
 import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
-import { spawn, spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { register } from "node:module";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { requireLocalFixtureTarget } from "./_fixtureGuard.mjs";
+import { requireLocalFixtureTarget, EXPECTED } from "./_fixtureGuard.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SRC_DIR = join(HERE, "..", "..", "src");
 const SRC = new URL("../../src/", import.meta.url).href;
-const CONTAINER = "aww-pg-test";
+const CONTAINER = EXPECTED.container;   // 글에 쓰는 이름일 뿐이다 — 명령은 가드가 확인한 ID로 간다
 const DB = "qa_aif_it_20261119";
 const BUCKET = "aif-assets";
 const FIXTURE = readFileSync(join(HERE, "a1_fixture.sql"), "utf8");
@@ -72,9 +72,10 @@ const P = await import("../../src/lib/assets/paths.ts");
 const X = await import("../../src/lib/retentionExempt.ts");
 
 // ── psql ──
-const psqlArgs = (db) => ["exec", "-i", CONTAINER, "psql", "-U", "postgres", "-d", db, "-v", "ON_ERROR_STOP=1", "-X", "-q", "-At", "-f", "-"];
+// 모든 DB 명령은 가드가 확정한 접속 지점·확인한 컨테이너 ID·컨테이너 안 소켓에 고정된 호출로만 보낸다(직접 docker를 부르지 않는다)
+const psqlArgs = (db) => TARGET.docker.psqlArgs(db);
 function run(sql, db = DB) {
-  const r = spawnSync("docker", psqlArgs(db), { input: sql, encoding: "utf8" });
+  const r = TARGET.docker.runSync(psqlArgs(db), { input: sql });
   return { ok: r.status === 0, out: (r.stdout ?? "").trim(), err: (r.stderr ?? "").trim() };
 }
 function q(sql, db = DB) {
@@ -84,7 +85,7 @@ function q(sql, db = DB) {
 }
 function pg(sql, db = DB) {
   return new Promise((resolve) => {
-    const p = spawn("docker", psqlArgs(db));
+    const p = TARGET.docker.spawn(psqlArgs(db));
     let out = "", err = "";
     p.stdout.on("data", (d) => (out += d));
     p.stderr.on("data", (d) => (err += d));

@@ -5,7 +5,9 @@
 // 하는 일
 //   (가) 실제 정의가 네 경우에 무엇을 돌려주는지: 프로필 없음 / 수동 열외(관리자·시험 계정) / free 요금제 행을 읽지 못함 / 유한한 정상 정책
 //   (나) 지금의 AIF SQL·생성 경로가 그 네 경우에 무엇을 하는지(현재 동작의 기록)
-//   (다) **수정 후보**(이 시험 DB 안에서만 적용 — 제품 SQL·운영에는 적용하지 않았다)를 얹었을 때의 회귀 기대
+//   (다) **수정 후보**(이 시험 DB 안에서만 적용 — 제품 SQL·운영에는 적용하지 않았다)를 얹었을 때의 회귀 기대.
+//       후보는 정책을 **한 번만** 읽어 판정하고, 사전 검사와 예약(참고 사진·생성 결과 공통)이 그 같은 판정을 쓴다.
+//       응답 계약: 한도를 모르면 503(확인 불가), 한도를 알고 모자라면 507(저장공간 부족). 명시 열외·구독·등급·관리자 지정은 지금과 같다.
 // 실행: node --test tests/sql/a1_it_policy.test.mjs   (npm test에는 포함되지 않는다)
 // 격리: 로컬 Docker 컨테이너 aww-pg-test에 새 DB qa_aif_policy_20261119만 만들고(이미 있으면 중단) 끝나면 그 DB만(oid 일치 확인) 지운다.
 //       운영·공유 DB 접속 0. 중앙 함수 파일 수정 0. 실제 저장소·공급자 호출 0.
@@ -15,9 +17,12 @@
 //   * 운영에 적용된 함수가 저장소 0068의 글자와 같은지는 이 시험에서 확인하지 않았다(운영 조회 0).
 //   * 함수 호출은 PostgREST를 거치지 않는다(a1_it_runtime과 같은 옮김 규칙). 저장소·공급자는 대역·가짜다.
 //   * (다)의 수정 후보는 제안이다. 통과는 「이 후보가 이 네 경우를 가른다」는 뜻이지 채택·적용됐다는 뜻이 아니다.
+//   * 후보의 SQL은 프로젝트 SQL 원문의 세 함수(사용량 추정·사전 검사·예약)를 **글자 치환으로** 고쳐 만든다 — 원문이 바뀌어 치환 자리를 못 찾으면 시험이 시작되지 않는다.
+//   * 「정책을 한 번만 읽는다」는 후보 SQL의 구조(조회 문 하나)로 보장하고 정적으로 확인한다. 두 접속을 겹쳐 도중에 정책이 바뀌는 상황을 실제로 만들어 보지는 않았다.
+//   * 「정책 행이 2개」는 중앙 정의로는 만들 수 없어, 그 시험에서만 2행을 돌려주는 대역 함수로 잠시 바꿨다가 원문으로 되돌린다.
+//   * 생성 경로·올리기 경로의 권한 판정은 가짜다(회원 번호만 넣는다). 프로필 없는 요청이 실제 진입점까지 오는지는 이 시험의 범위가 아니다.
 import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
-import { spawn, spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { register } from "node:module";
 import { fileURLToPath } from "node:url";
@@ -26,7 +31,6 @@ import { requireLocalFixtureTarget } from "./_fixtureGuard.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SRC = new URL("../../src/", import.meta.url).href;
-const CONTAINER = "aww-pg-test";
 const DB = "qa_aif_policy_20261119";
 const BUCKET = "aif-assets";
 const MIG = join(HERE, "..", "..", "supabase", "migrations");
@@ -70,34 +74,54 @@ alter default privileges for role postgres in schema public grant all on tables 
 grant select on public.profiles to service_role;`;
 
 // ── 수정 후보(이 시험 DB 안에서만) ──
-// 뜻: 「한도를 안다(유한)」 「명시적으로 무제한이다」 「모른다」를 가른다. 모르면 사전 검사는 allowed를 비워 돌려준다
-//     → 호출부(store.ts precheckGenerated)는 지금도 「참/거짓이 아닌 allowed」를 확인 불가로 읽어 503을 낸다(호출부 코드 변경 0).
-//     명시적 무제한 = 정책 행이 정확히 1개이고, 한도가 비어 있고, 출처가 'exempt'(수동 열외)인 경우뿐.
-//     근거: 중앙 정의에서 한도가 비는 길은 ① 수동 열외 ② free 요금제 행을 읽지 못함 두 가지다(요금제 표의 한도는 not null, 관리자 지정은 coalesce).
-const CANDIDATE = `
-create or replace function public.aif_asset_quota_state(p_user uuid) returns text
-language plpgsql stable security definer set search_path = '' as $$
-declare n integer; v_quota bigint; v_source text;
-begin
-  select count(*), max(pol.quota_bytes), max(pol.source) into n, v_quota, v_source from public.member_storage_policy(p_user) pol;
-  if n <> 1 then return 'unknown'; end if;
-  if v_quota is not null then return 'finite'; end if;
-  if v_source = 'exempt' then return 'unlimited'; end if;
-  return 'unknown';
-end $$;
-revoke all on function public.aif_asset_quota_state(uuid) from public, anon, authenticated;
-grant execute on function public.aif_asset_quota_state(uuid) to service_role;
-create or replace function public.aif_asset_precheck(p_user uuid, p_est_bytes bigint)
-returns table (allowed boolean, used_bytes bigint, quota_bytes bigint)
-language plpgsql security definer set search_path = '' as $$
-declare r record; v_state text;
-begin
-  if p_est_bytes is null or p_est_bytes <= 0 then raise exception 'INVALID' using errcode = '22023'; end if;
-  perform pg_advisory_xact_lock(hashtext('aif_user:' || p_user::text));
-  v_state := public.aif_asset_quota_state(p_user);
-  select * into r from public.aif_asset_usage_estimate(p_user);
-  return query select case v_state when 'unlimited' then true when 'finite' then (r.used_bytes + p_est_bytes <= r.quota_bytes) else null end, r.used_bytes, r.quota_bytes;
-end $$;`;
+// 뜻: 「한도를 안다(finite)」 「명시적으로 무제한이다(unlimited)」 「모른다(unknown)」를 가른다.
+//   * 정책은 사용량 추정 함수 안에서 **조회 문 하나로 한 번만** 읽는다(행 수·한도·출처를 같은 스냅샷에서). 판정도 거기서 낸다.
+//     사전 검사와 예약은 정책을 다시 읽지 않고 추정 함수가 준 판정(quota_state)만 쓴다 → 둘이 같은 규칙을 공유한다.
+//   * unlimited = 정책 행이 정확히 1개 · 한도가 비어 있음 · 출처가 'exempt'(수동 열외). 보관 무기한 칸(unlimited_retention)은 **쓰지 않는다**(그건 보관 기간이다).
+//     근거: 중앙 정의에서 한도가 비는 길은 수동 열외와 「free 요금제 행을 읽지 못함」 두 가지다(요금제 표의 한도는 not null, 관리자 지정은 있던 값에 덮어쓰기).
+//   * unknown일 때 — 사전 검사: allowed를 비워 돌려준다 → 호출부(store.ts)는 지금도 참/거짓이 아닌 값을 확인 불가로 읽어 503.
+//                    예약: 'QUOTA_UNKNOWN' 오류 → 호출부는 STORAGE_LIMIT이 아닌 예약 실패를 지금도 「저장 안 됨 확정·업로드 0」으로 다룬다(올리기 경로 503).
+//   * 호출부(TS) 변경 0. 반환 칸은 추정 함수에 quota_state 하나가 늘 뿐이다(추정 함수를 부르는 곳은 사전 검사·예약 둘뿐).
+const A1 = MIGRATIONS[0].replace(/\r\n/g, "\n");
+function sliceFn(name, grantSig) {
+  const start = `create or replace function public.${name}(`, end = `grant execute on function public.${name}(${grantSig}) to service_role;`;
+  const a = A1.indexOf(start), b = A1.indexOf(end, a);
+  if (a < 0 || b < 0 || A1.indexOf(start, a + 1) >= 0) throw new Error(`프로젝트 SQL에서 ${name} 정의를 하나로 찾지 못했습니다 — 시험을 시작하지 않습니다.`);
+  return A1.slice(a, b + end.length);
+}
+function swap(text, from, to) {
+  if (text.split(from).length !== 2) throw new Error("후보를 만들 치환 자리를 하나로 찾지 못했습니다: " + from.slice(0, 70));
+  return text.replace(from, () => to);
+}
+let estimate = sliceFn("aif_asset_usage_estimate", "uuid");
+estimate = swap(estimate, "returns table (used_bytes bigint, quota_bytes bigint, measured_at timestamptz)", "returns table (used_bytes bigint, quota_bytes bigint, measured_at timestamptz, quota_state text)");
+estimate = swap(estimate, "v_measured timestamptz; v_central bigint; v_ours bigint; v_quota bigint;", "v_measured timestamptz; v_central bigint; v_ours bigint; v_quota bigint; v_n integer; v_source text; v_state text;");
+estimate = swap(estimate, "  select pol.quota_bytes into v_quota from public.member_storage_policy(p_user) pol;",
+`  -- 정책은 여기서 한 번만 읽는다(행 수·한도·출처를 같은 조회 문에서)
+  select count(*), max(pol.quota_bytes), max(pol.source) into v_n, v_quota, v_source from public.member_storage_policy(p_user) pol;
+  v_state := case when v_n <> 1 then 'unknown' when v_quota is not null then 'finite' when v_source = 'exempt' then 'unlimited' else 'unknown' end;
+  if v_state <> 'finite' then v_quota := null; end if;`);
+estimate = swap(estimate, "  return query select (v_central + v_ours)::bigint, v_quota, v_measured;", "  return query select (v_central + v_ours)::bigint, v_quota, v_measured, v_state;");
+let precheckFn = sliceFn("aif_asset_precheck", "uuid, bigint");
+precheckFn = swap(precheckFn, "  return query select (r.quota_bytes is null or r.used_bytes + p_est_bytes <= r.quota_bytes), r.used_bytes, r.quota_bytes;",
+  "  return query select case r.quota_state when 'unlimited' then true when 'finite' then (r.used_bytes + p_est_bytes <= r.quota_bytes) else null end, r.used_bytes, r.quota_bytes;");
+let reserveFn = sliceFn("aif_asset_reserve", "uuid, text, text, text, bigint, text");
+reserveFn = swap(reserveFn, `  if r.quota_bytes is not null and r.used_bytes + p_bytes > r.quota_bytes then
+    raise exception 'STORAGE_LIMIT' using errcode = 'P0001';
+  end if;`,
+`  if r.quota_state is null or r.quota_state not in ('finite', 'unlimited') then
+    raise exception 'QUOTA_UNKNOWN' using errcode = 'P0001';
+  end if;
+  if r.quota_state = 'finite' and r.used_bytes + p_bytes > r.quota_bytes then
+    raise exception 'STORAGE_LIMIT' using errcode = 'P0001';
+  end if;`);
+const CANDIDATE = `drop function public.aif_asset_usage_estimate(uuid);
+${estimate.replace("create or replace function", "create function")}
+revoke all on function public.aif_asset_usage_estimate(uuid) from public, anon, authenticated;
+${precheckFn}
+${reserveFn}`;
+// 정적 확인용: 후보 전체에서 중앙 정책을 읽는 곳은 한 군데뿐이어야 한다
+const POLICY_READS_IN_CANDIDATE = CANDIDATE.split("public.member_storage_policy(").length - 1;
 
 const stub = (code) => "data:text/javascript," + encodeURIComponent(code);
 register(stub(`
@@ -107,17 +131,19 @@ export async function resolve(s, c, n) {
   try { return await n(s, c); } catch (e) { if (s.startsWith(".") && !/\\.[a-z]+$/.test(s)) return n(s + ".ts", c); throw e; }
 }`));
 const G = await import("../../src/lib/assets/generation.ts");
+const Up = await import("../../src/lib/assets/upload.ts");
 const P = await import("../../src/lib/assets/paths.ts");
 
-const psqlArgs = (db) => ["exec", "-i", CONTAINER, "psql", "-U", "postgres", "-d", db, "-v", "ON_ERROR_STOP=1", "-X", "-q", "-At", "-f", "-"];
+// 모든 DB 명령은 가드가 확정한 접속 지점·확인한 컨테이너 ID·컨테이너 안 소켓에 고정된 호출로만 보낸다(직접 docker를 부르지 않는다)
+const psqlArgs = (db) => TARGET.docker.psqlArgs(db);
 function run(sql, db = DB) {
-  const r = spawnSync("docker", psqlArgs(db), { input: sql, encoding: "utf8" });
+  const r = TARGET.docker.runSync(psqlArgs(db), { input: sql });
   return { ok: r.status === 0, out: (r.stdout ?? "").trim(), err: (r.stderr ?? "").trim() };
 }
 function q(sql, db = DB) { const r = run(sql, db); assert.equal(r.ok, true, `SQL 실패: ${r.err}\n${sql.slice(0, 300)}`); return r.out; }
 function pg(sql) {
   return new Promise((resolve) => {
-    const p = spawn("docker", psqlArgs(DB)); let out = "", err = "";
+    const p = TARGET.docker.spawn(psqlArgs(DB)); let out = "", err = "";
     p.stdout.on("data", (d) => (out += d)); p.stderr.on("data", (d) => (err += d));
     p.on("close", (code) => resolve({ ok: code === 0, out: out.trim(), err: err.trim() }));
     p.stdin.end(sql);
@@ -145,8 +171,10 @@ function makeRpc() {
   rpc.calls = calls;
   return rpc;
 }
-const storage = () => ({
+const storage = (log = { n: 0 }) => ({
+  log,
   upload: async (path, body, opts) => {
+    log.n++;
     const r = await pg(`insert into storage.objects(bucket_id, name, metadata) values ('${BUCKET}', ${lit(path, "text")}, ${lit(JSON.stringify({ size: body.length, mimetype: opts.contentType }), "jsonb")}) returning id;`);
     return r.ok ? { data: { id: r.out.split("\n")[0], path }, error: null } : { data: null, error: { message: r.err.split("\n")[0] } };
   },
@@ -161,6 +189,15 @@ async function generate(user) {
     { mode: "shadow", checkAccess: async () => ({ allowed: true, user: { id: user } }), getApiKey: async () => "FAKE_KEY", generate: async () => { n++; return IMAGE; }, getAssetDeps: () => ({ rpc, storage: storage() }) });
   return `${r.status}${r.body.code ? ":" + r.body.code : ""}|생성 ${n}|${rpc.calls.join("→")}`;
 }
+/** 참고 사진 올리기 경로(실제 처리기)를 shadow로 부른다 — 사전 검사 없이 예약으로 바로 가는 길 */
+async function upload(user) {
+  const rpc = makeRpc(); const st = storage();
+  const r = await Up.handlePostAsset(
+    new Request("http://local/api/aif/assets", { method: "POST", body: JSON.stringify({ kind: "ref_face", image: IMAGE }), headers: { "content-type": "application/json" } }),
+    { mode: "shadow", checkAccess: async () => ({ allowed: true, user: { id: user } }), getAssetDeps: () => ({ rpc, storage: st }) });
+  const body = r.body ?? {};
+  return `${r.status}:${body.code ?? "저장 " + body.assetSaved}|올리기 ${st.log.n}|${rpc.calls.join("→")}`;
+}
 /** 중앙 정책 함수가 돌려주는 것: 행 수 | 한도 | 출처 | 보관 무기한 */
 const policy = (u) => q(`set role service_role; select count(*) || '|' || coalesce(max(quota_bytes)::text, 'null') || '|' || coalesce(max(source), '-') || '|' || coalesce(bool_or(unlimited_retention)::text, '-') from public.member_storage_policy('${u}');`);
 const precheck = (u) => q(`set role service_role; select coalesce(allowed::text, 'null') || '|' || coalesce(quota_bytes::text, 'null') from public.aif_asset_precheck('${u}', ${EST_1K});`);
@@ -173,7 +210,20 @@ const U = {
   full: "00000000-0000-4000-8000-0000000000a4",       // 일반 회원, 한도까지 1K 한 장이 1바이트 모자람
   sub: "00000000-0000-4000-8000-0000000000a5",        // 저장 구독(라이트 1GB)
   admin: "00000000-0000-4000-8000-0000000000a6",      // 관리자 지정 한도
+  brim: "00000000-0000-4000-8000-0000000000a7",       // 일반 회원, 남은 용량 10바이트(작은 참고 사진도 넘친다)
+  grade: "00000000-0000-4000-8000-0000000000a8",      // 등급에 붙은 요금제(라이트 1GB)
+  adminRet: "00000000-0000-4000-8000-0000000000a9",   // 관리자 지정이 보관 기간뿐(한도 지정 없음)
 };
+const GRADE = "00000000-0000-4000-8000-0000000000c1";
+const TWO_ROW_STUB = `drop function public.member_storage_policy(uuid);
+create function public.member_storage_policy(uid uuid)
+returns table (quota_bytes bigint, retention_days integer, unlimited_retention boolean, source text, plan_slug text, plan_name text, plan_expires_at timestamptz, override_until timestamptz, posted_retention_days integer, posted_unlimited boolean)
+language sql stable security definer set search_path = '' as $$
+  select q, 30, false, 'free'::text, 'free'::text, 'x'::text, null::timestamptz, null::timestamptz, 30, false from (values (524288000::bigint), (1073741824::bigint)) v(q)
+$$;
+revoke all on function public.member_storage_policy(uuid) from public, anon, authenticated;
+grant execute on function public.member_storage_policy(uuid) to service_role;`;
+const RESTORE_CENTRAL = `drop function public.member_storage_policy(uuid);\n${CENTRAL_POLICY}`;
 const withoutFree = async (fn) => {
   // free 요금제 행을 읽지 못하는 경우를 만든다: 행 이름을 잠시 바꿨다가 되돌린다(이 시험 DB 안에서만)
   q(`update public.storage_plans set slug = 'free_hidden' where slug = 'free';`);
@@ -201,7 +251,11 @@ before(() => {
   q(`insert into public.storage_plans(slug, name, quota_bytes, retention_days, posted_retention_days) values ('free', '일반', ${FREE}, 30, 30), ('lite', '라이트', 1073741824, 30, 90);
      insert into public.pricing_plans(id, storage_plan_slug) values ('00000000-0000-4000-8000-0000000000b1', 'lite');
      insert into public.profiles(id, retention_exempt, retention_exempt_manual) values ('${U.exempt}', true, true);
-     insert into public.profiles(id) values ('${U.plain}'), ('${U.full}'), ('${U.sub}');
+     insert into public.profiles(id) values ('${U.plain}'), ('${U.full}'), ('${U.sub}'), ('${U.brim}');
+     insert into public.member_grades(id, slug, storage_plan_slug) values ('${GRADE}', 'gold', 'lite');
+     insert into public.profiles(id, grade_id) values ('${U.grade}', '${GRADE}');
+     insert into public.profiles(id, storage_retention_override_days) values ('${U.adminRet}', 90);
+     insert into public.member_storage_usage(user_id, bytes) values ('${U.brim}', ${FREE - 10});
      insert into public.profiles(id, storage_quota_override_bytes) values ('${U.admin}', 2147483648);
      insert into public.subscriptions(user_id, pricing_plan_id, status, expires_at) values ('${U.sub}', '00000000-0000-4000-8000-0000000000b1', 'active', now() + interval '10 days');
      insert into public.member_storage_usage(user_id, bytes) values ('${U.full}', ${FREE - EST_1K + 1});`);
@@ -228,11 +282,15 @@ test("(가) 중앙 정책 함수의 실제 정의가 돌려주는 것 — 한도
   assert.equal(policy(U.plain), `1|${FREE}|free|false`, "일반 회원 → 500MB");
   assert.equal(policy(U.sub), "1|1073741824|subscription|false", "저장 구독 → 1GB");
   assert.equal(policy(U.admin), "1|2147483648|admin|false", "관리자 지정 → 지정 한도");
+  assert.equal(policy(U.grade), "1|1073741824|grade|false", "등급 요금제 → 1GB");
+  assert.equal(policy(U.adminRet), `1|${FREE}|admin|false`, "관리자 지정이 보관 기간뿐 → 한도는 free 것, 출처는 admin");
   await withoutFree(async () => {
     assert.equal(policy(U.plain), "1|null|free|true", "free 행을 읽지 못하면 → 1행인데 한도가 비고, 출처는 free, 보관은 무기한으로 나온다");
     assert.equal(policy(U.sub), "1|1073741824|subscription|false", "구독이 있으면 구독 한도");
     assert.equal(policy(U.admin), "1|2147483648|admin|true", "관리자 지정 한도는 그대로 — 다만 보관 기간은 free 행에서 오므로 이 회원도 보관 무기한으로 나온다");
     assert.equal(policy(U.exempt), "1|null|exempt|true");
+    assert.equal(policy(U.adminRet), "1|null|admin|false", "한도가 비는데 출처가 admin인 경우도 생긴다(보관 기간만 지정한 회원 + free 행 미조회)");
+    assert.equal(policy(U.grade), "1|null|free|true", "등급 요금제 회원도 free 행을 읽지 못하면 한도가 빈다(중앙 정의의 비교가 빈 값과의 비교라 등급 한도를 채택하지 않는다)");
   });
 });
 
@@ -255,53 +313,104 @@ test("(나) 지금의 동작(기록): 한도를 모르는 두 경우가 「무�
   q(`delete from public.aif_asset_deletions; delete from public.aif_assets; delete from storage.objects;`);
 });
 
-test("(다) 수정 후보를 얹은 뒤의 회귀 기대: 모르면 503·생성 0, 명시 무제한과 유한 정책은 지금과 같다", SKIP, async (ctx) => {
-  q(CANDIDATE);
-  const state = (u) => q(`set role service_role; select public.aif_asset_quota_state('${u}');`);
-  assert.deepEqual([state(U.none), state(U.exempt), state(U.plain), state(U.sub), state(U.admin)], ["unknown", "unlimited", "finite", "finite", "finite"]);
-  // 회원 역할은 새 함수도 부르지 못한다
-  assert.match(run(`set role authenticated; select public.aif_asset_quota_state('${U.plain}');`).err, /permission denied/);
+test("(나-2) 지금의 동작(기록): 참고 사진 올리기는 사전 검사 없이 예약으로 가며, 한도를 모르는 회원도 예약·저장된다", SKIP, async (ctx) => {
   const seen = {};
-  seen["프로필 없음"] = [precheck(U.none), await generate(U.none)];
-  seen["수동 열외"] = [precheck(U.exempt), await generate(U.exempt)];
-  seen["일반(여유)"] = [precheck(U.plain), await generate(U.plain)];
-  seen["일반(1바이트 부족)"] = [precheck(U.full), await generate(U.full)];
-  seen["저장 구독"] = [precheck(U.sub), await generate(U.sub)];
-  seen["관리자 지정"] = [precheck(U.admin), await generate(U.admin)];
+  seen["프로필 없음"] = await upload(U.none);
+  seen["일반(여유)"] = await upload(U.plain);
+  seen["일반(남은 10바이트)"] = await upload(U.brim);
   await withoutFree(async () => {
-    assert.equal(state(U.plain), "unknown");
-    seen["free 행 못 읽음"] = [precheck(U.plain), await generate(U.plain)];
-    seen["free 행 못 읽음·구독 회원"] = [precheck(U.sub), await generate(U.sub)];
-    seen["free 행 못 읽음·수동 열외"] = [precheck(U.exempt), await generate(U.exempt)];
+    seen["free 행 못 읽음"] = await upload(U.plain);
+    const direct = run("set role service_role; select count(*) from public.aif_asset_reserve('" + U.plain + "', 'ref_face', 'image/png', 'png', 10, '" + "b".repeat(64) + "');");
+    assert.equal(direct.ok, true);
+    assert.equal(direct.out, "1", "예약 직접 호출: 행 1개가 만들어진다");
+  });
+  for (const [k, v] of Object.entries(seen)) ctx.diagnostic(`${k}: ${v}`);
+  assert.equal(seen["프로필 없음"], "503:ASSET_UNAVAILABLE|올리기 0|reserve", "프로필 없음은 자산 표의 외래 키가 예약을 막는다");
+  assert.equal(seen["일반(여유)"], "200:저장 true|올리기 1|reserve→finalize");
+  assert.equal(seen["일반(남은 10바이트)"], "507:STORAGE_LIMIT|올리기 0|reserve");
+  assert.equal(seen["free 행 못 읽음"], "200:저장 true|올리기 1|reserve→finalize", "한도를 모르는 채 저장된다");
+  q(`delete from public.aif_asset_deletions; delete from public.aif_assets; delete from storage.objects;`);
+});
+
+test("(다) 수정 후보: 정책을 읽는 곳은 한 군데뿐이고, 판정은 정의의 모든 갈래를 가른다", SKIP, async () => {
+  assert.equal(POLICY_READS_IN_CANDIDATE, 1, "후보의 세 함수 전체에서 중앙 정책을 읽는 조회 문은 하나(추정 함수 안)");
+  assert.equal(/unlimited_retention/.test(CANDIDATE), false, "보관 무기한 칸으로 용량 무제한을 판정하지 않는다");
+  q(CANDIDATE);
+  const state = (u) => q(`set role service_role; select quota_state || '|' || coalesce(quota_bytes::text, 'null') from public.aif_asset_usage_estimate('${u}');`);
+  assert.equal(state(U.none), "unknown|null", "0행");
+  assert.equal(state(U.exempt), "unlimited|null", "한도 비어 있음 + 출처 exempt");
+  assert.equal(state(U.plain), `finite|${FREE}`);
+  assert.equal(state(U.sub), "finite|1073741824");
+  assert.equal(state(U.grade), "finite|1073741824");
+  assert.equal(state(U.admin), "finite|2147483648");
+  assert.equal(state(U.adminRet), `finite|${FREE}`);
+  await withoutFree(async () => {
+    assert.equal(state(U.plain), "unknown|null", "한도 비어 있음 + 출처 free");
+    assert.equal(state(U.adminRet), "unknown|null", "한도 비어 있음 + 출처 admin(exempt가 아닌 다른 출처)");
+    assert.equal(state(U.grade), "unknown|null");
+    assert.equal(state(U.exempt), "unlimited|null", "수동 열외는 free 행과 무관");
+    assert.equal(state(U.sub), "finite|1073741824", "free 행을 읽지 못해도 구독 한도를 아는 회원");
+    assert.equal(state(U.admin), "finite|2147483648", "free 행을 읽지 못해도 관리자 지정 한도를 아는 회원");
+  });
+  // 정책 행이 2개(중앙 정의로는 생기지 않는다 — 대역으로 잠시 바꿔 판정만 본다)
+  q(TWO_ROW_STUB);
+  try {
+    assert.equal(state(U.plain), "unknown|null", "행이 2개면 어느 한도도 믿지 않는다");
+    assert.equal(precheck(U.plain), "null|null");
+  } finally { q(RESTORE_CENTRAL); }
+  assert.equal(state(U.plain), `finite|${FREE}`, "원문으로 되돌린 뒤 정상");
+  // 권한: 회원 역할은 추정 함수를 부르지 못한다(다시 만든 함수에도 같은 권한)
+  for (const role of ["authenticated", "anon"]) assert.match(run(`set role ${role}; select * from public.aif_asset_usage_estimate('${U.plain}');`).err, /permission denied/, role);
+  assert.equal(q(`select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname in ('aif_asset_usage_estimate','aif_asset_precheck','aif_asset_reserve');`), "3", "같은 이름의 함수가 겹쳐 생기지 않았다");
+});
+
+test("(다) 생성 경로의 회귀 기대: 모르면 503·생성 0, 모자라면 507·생성 0, 열외·구독·등급·관리자 지정은 지금과 같다", SKIP, async (ctx) => {
+  const seen = {};
+  for (const [k, u] of [["프로필 없음", U.none], ["수동 열외", U.exempt], ["일반(여유)", U.plain], ["일반(1바이트 부족)", U.full], ["저장 구독", U.sub], ["등급 요금제", U.grade], ["관리자 지정 한도", U.admin], ["관리자 지정(보관 기간만)", U.adminRet]]) {
+    seen[k] = [precheck(u), await generate(u)];
+  }
+  await withoutFree(async () => {
+    for (const [k, u] of [["free 못 읽음·일반", U.plain], ["free 못 읽음·보관 기간만 지정", U.adminRet], ["free 못 읽음·구독", U.sub], ["free 못 읽음·관리자 지정 한도", U.admin], ["free 못 읽음·수동 열외", U.exempt]]) {
+      seen[k] = [precheck(u), await generate(u)];
+    }
   });
   for (const [k, v] of Object.entries(seen)) ctx.diagnostic(`${k}: 사전 검사 ${v[0]} · 경로 ${v[1]}`);
   const OK = /^200\|생성 1\|precheck→reserve→finalize$/;
   const UNKNOWN = "503:ASSET_PRECHECK_UNAVAILABLE|생성 0|precheck";
-  assert.equal(seen["프로필 없음"][0], "null|null");
-  assert.equal(seen["프로필 없음"][1], UNKNOWN, "바뀌는 곳 1: 프로필 없음 → 확인 불가");
-  assert.equal(seen["free 행 못 읽음"][0], "null|null");
-  assert.equal(seen["free 행 못 읽음"][1], UNKNOWN, "바뀌는 곳 2: 한도를 읽지 못함 → 확인 불가");
+  // 바뀌는 곳(지금은 생성이 시작된다)
+  for (const k of ["프로필 없음", "free 못 읽음·일반", "free 못 읽음·보관 기간만 지정"]) {
+    assert.equal(seen[k][0], "null|null", k);
+    assert.equal(seen[k][1], UNKNOWN, `바뀜: ${k} → 확인 불가 503·생성 0`);
+  }
+  // 그대로
   assert.equal(seen["수동 열외"][0], "true|null");
-  assert.match(seen["수동 열외"][1], OK, "그대로: 명시 무제한");
-  assert.match(seen["free 행 못 읽음·수동 열외"][1], OK, "그대로: 수동 열외는 free 행과 무관");
-  assert.match(seen["일반(여유)"][1], OK, "그대로: 유한 정책 허용");
-  assert.equal(seen["일반(1바이트 부족)"][1], "507:STORAGE_LIMIT|생성 0|precheck", "그대로: 유한 정책 부족");
-  assert.match(seen["저장 구독"][1], OK);
-  assert.match(seen["관리자 지정"][1], OK);
-  assert.match(seen["free 행 못 읽음·구독 회원"][1], OK, "그대로: 구독 한도를 아는 회원");
+  for (const k of ["수동 열외", "일반(여유)", "저장 구독", "등급 요금제", "관리자 지정 한도", "관리자 지정(보관 기간만)", "free 못 읽음·구독", "free 못 읽음·관리자 지정 한도", "free 못 읽음·수동 열외"]) assert.match(seen[k][1], OK, `그대로: ${k}`);
+  assert.equal(seen["일반(1바이트 부족)"][1], "507:STORAGE_LIMIT|생성 0|precheck", "그대로: 한도를 알고 모자라면 507");
+  q(`delete from public.aif_asset_deletions; delete from public.aif_assets; delete from storage.objects;`);
 });
 
-test("(다-한계) 후보가 닫지 않는 곳: 예약 함수(aif_asset_reserve)는 사전 검사 없이도 불리며 지금 규칙 그대로다", SKIP, async (ctx) => {
-  // 참고 사진 올리기는 사전 검사 없이 예약으로 바로 간다. 후보는 사전 검사만 바꿨으므로 여기는 여전히 열린다 — 기록만 한다.
-  const r = run(`set role service_role; select count(*) from public.aif_asset_reserve('${U.none}', 'ref_face', 'image/png', 'png', 10, '${"a".repeat(64)}');`);
-  ctx.diagnostic(`프로필 없는 회원의 예약 직접 호출 → ${r.ok ? "행 " + r.out : "오류 " + r.err.replace(/^[\s\S]*?ERROR:\s*/, "").split("\n")[0]}`);
-  // 프로필 없음은 자산 표의 외래 키가 막는다(예약 실패). 즉 지금 코드에서 이 경우는 「유료 생성은 시작되고 저장만 실패」다.
-  assert.equal(r.ok, false);
-  assert.match(r.err, /aif_assets_user_id_fkey/);
-  // free 행을 읽지 못하는 경우는 프로필이 있으므로 예약도 통과한다 — 후보(사전 검사만 바꿈)가 닫지 않는 길
+test("(다) 예약도 같은 판정을 쓴다 — 참고 사진 올리기: 모르면 503·올리기 0, 모자라면 507·올리기 0, 아는 회원은 지금과 같다", SKIP, async (ctx) => {
+  const seen = {};
+  for (const [k, u] of [["프로필 없음", U.none], ["수동 열외", U.exempt], ["일반(여유)", U.plain], ["일반(남은 10바이트)", U.brim], ["저장 구독", U.sub], ["등급 요금제", U.grade], ["관리자 지정 한도", U.admin]]) seen[k] = await upload(u);
+  let directUnknown = null, directOver = null;
   await withoutFree(async () => {
-    const open = run("set role service_role; select count(*) from public.aif_asset_reserve('" + U.plain + "', 'ref_face', 'image/png', 'png', 10, '" + "b".repeat(64) + "');");
-    ctx.diagnostic("free 행을 읽지 못할 때 일반 회원의 예약 직접 호출 → " + (open.ok ? "예약됨(행 " + open.out + ")" : "오류"));
-    assert.equal(open.ok, true, "한도를 모르는 채 예약이 된다(참고 사진 올리기 길)");
+    for (const [k, u] of [["free 못 읽음·일반", U.plain], ["free 못 읽음·보관 기간만 지정", U.adminRet], ["free 못 읽음·구독", U.sub], ["free 못 읽음·수동 열외", U.exempt]]) seen[k] = await upload(u);
+    directUnknown = run("set role service_role; select count(*) from public.aif_asset_reserve('" + U.plain + "', 'generated', 'image/png', 'png', 10, '" + "c".repeat(64) + "');");
   });
+  directOver = run("set role service_role; select count(*) from public.aif_asset_reserve('" + U.brim + "', 'generated', 'image/png', 'png', 11, '" + "d".repeat(64) + "');");
+  for (const [k, v] of Object.entries(seen)) ctx.diagnostic(`${k}: ${v}`);
+  const OK = "200:저장 true|올리기 1|reserve→finalize";
+  const UNKNOWN = "503:ASSET_UNAVAILABLE|올리기 0|reserve";
+  assert.equal(seen["프로필 없음"], UNKNOWN, "그대로 503(지금은 외래 키, 후보에서는 판정이 먼저 막는다)");
+  for (const k of ["free 못 읽음·일반", "free 못 읽음·보관 기간만 지정"]) assert.equal(seen[k], UNKNOWN, `바뀜: ${k} → 503·올리기 0`);
+  assert.equal(seen["일반(남은 10바이트)"], "507:STORAGE_LIMIT|올리기 0|reserve", "그대로: 한도를 알고 모자라면 507");
+  for (const k of ["수동 열외", "일반(여유)", "저장 구독", "등급 요금제", "관리자 지정 한도", "free 못 읽음·구독", "free 못 읽음·수동 열외"]) assert.equal(seen[k], OK, `그대로: ${k}`);
+  // 생성 결과 예약(kind generated)도 같은 함수다 — 오류 글로 두 경우가 갈린다
+  assert.equal(directUnknown.ok, false);
+  assert.match(directUnknown.err, /QUOTA_UNKNOWN/);
+  assert.equal(/STORAGE_LIMIT/.test(directUnknown.err), false, "확인 불가는 저장공간 부족으로 읽히지 않는다");
+  assert.equal(directOver.ok, false);
+  assert.match(directOver.err, /STORAGE_LIMIT/);
+  // 막힌 요청은 자산 행을 남기지 않는다
+  assert.equal(q(`select count(*) from public.aif_assets where user_id in ('${U.none}', '${U.brim}', '${U.adminRet}');`), "0");
 });
