@@ -5,7 +5,7 @@
 - 카테고리: 음악
 - 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-11-18 Claud(Music) `claude-win-20261024-music` (맥 실물 MP4 시험 A 판정·가속 단정 정정)
+- 마지막 갱신: 2026-11-19 Claud(Music) `claude-win-20261024-music` (가사 영상 v1.17 배포·IMG-P1 음악 호환 검토)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -15,7 +15,6 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `lyric-video-studio` | 미배포 2건: 회원 취소를 일반 안내로 `fe402b1df`(MUS-20261117-01, MOV17-05 독립 PASS) + 공용 인코더 사본 「대체 성공 뒤 그 탭은 기본 방식부터」 `2b9a06c9c`(영상 담당 MOV17-07, QA032 PASS — 음악 담당은 공용 파일 편집 안 함) | 다음 가사 영상 배포 때 함께(v1.4 작은 수정 묶음) | `lyric-video-studio/docs/IMPROVEMENTS.md` 맨 위 |
 | `free-music-studio` | B-6 LeVo 2 v2-medium | 공식 코드 `tencent-ailab/SongGeneration` 공개(아직 404) — **공개되면 바로 진행**(2026-11-10 주인님 「이건 나오면 진행」, 공개 확인 시 플랜부터) | 백로그 「보관」 B-6 |
 | `ai-music-studio` | ⏸ Mureka 켜기(코드 준비됨·숨김) | 주인님이 필요해 충전하실 때(10-23 지시) | `ai-music-studio/docs/IMPROVEMENT_BACKLOG.md` |
 | `free-music-studio` | D-2 앨범 그림 모델 이름 따라 바꾸기 | `ai-image-studio` 모델이 바뀔 때만(상시 점검) | 백로그 D-2 |
@@ -29,6 +28,8 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 11-19 | 가사 영상 v1.17 배포 | 취소 안내 `fe402b1df` + 공용 인코더 탭 단위 멈춤 기억 사본 `2b9a06c9c` — 버전 `4e022046e`, 배포 `lyric-video-studio-eiliu83hu` Ready·DB v1.17, 운영 ego 메뉴 v1.17(취소 1회·MP4 1회 실물은 남음), 주인님 승인 빌드 1회 |
+| 11-19 | MUSIC-20261119-IMG-COMPAT | IMG-P1 PR-A 엔진(`bc946e04c→2131089b7`) 음악 기존 5흐름 읽기 호환 검토 — 146/146, 회귀 없음(취소 직후 「작업 중」만 안전 방향 소폭 변경), 결과 `eadc3dc57`·정정 `b5bd23d75`, Master 수락. PR-A 중간 인계 `63307bdba` |
 | 11-18 | 가사 영상 v1.16 맥 실물 | QA002 시험 A(메모리 방식) **PASS** — `D:/PDS/mus-mac/mac-memory.mp4` h264 1920×1080 30fps 600프레임·aac 2ch·20초, 전체 디코드 오류 0, 유음. Intel 맥(Chrome 156) 12.0초 완료·진행 정지 없음·「기본 방식으로 다시 만드는 중」 없음. **실제 가속 인코더 사용 여부는 미확인**(진단의 「그래픽 가속 가능」은 사전 점검값일 뿐 — Master 정정 반영). 시험 B(파일로 바로 저장)는 저장 창 단계 미완료로 미판정, Apple Silicon은 장비 준비 뒤 | 해당 없음 |
 | 11-14 | 음악 자동화 v1.57 | 기존 프리셋 461개에 Suno 공식 장르 연결 — Style 조합 22→161, 기본값 pop 113→10, 카드 「🔗 공식 장르」 배지 | ✅ `music-h7adu4ta4` |
 | 11-14 | 플레이리스트 | 첫 30일 자동 정리 예약 실행 확인 — 11-14 04:20:34 `GET /api/cron/cleanup` 응답 200(지울 자료가 없으면 `usage_logs` 기록 없음이 정상) | 해당 없음 |
@@ -68,7 +69,7 @@
 더 앞의 이력은 각 프로그램 `AGENTS.md` 버전 기록에 있다(`free-music-studio/AGENTS.md` §4 등).
 
 ## 다음 첫 단계
-1. 미배포는 가사 영상 2건(`fe402b1df` 취소 안내·`2b9a06c9c` 공용 인코더 사본) — 다음 음악 기능 배포 때 함께 내보내고 운영에서 취소 1회 확인. 맥(Intel) 실물 MP4는 맥미니 요청서로 사람 클릭·저장 위치 선택 대기(MacQA002). Apple Silicon 확인은 장비 준비 뒤로 미룸(「나중에 할 일」, 주인님 11-18 결정)
+1. 미배포 없음(가사 영상 v1.17 11-19 배포). 운영에서 MP4 만들기 → 「■ 취소」 1회 화면 확인이 남음. 맥(Intel) 실물 MP4는 맥미니 요청서로 사람 클릭·저장 위치 선택 대기(MacQA002). Apple Silicon 확인은 장비 준비 뒤로 미룸(「나중에 할 일」, 주인님 11-18 결정)
 2. **음악 표 칸 이름을 바꿀 때 주의(2026-11-11)**: `free_music_tracks`·`ams_generations`·`music_track_variants`는 메인 「내 자료함」 트리거(`member_assets_sync_fms/ams/suno`, 마이그레이션 0059)가 읽는다 — 칸 이름·저장 경로를 바꾸면 트리거도 함께 고친다(트리거 오류 = 원본 저장 실패)
 3. 새 작업이 오면: `node scripts/dev-requests.mjs list --role music` → 백로그 확인 → 플랜 → 구현. 화면을 크게 바꾼 뒤에는 배포 전에 `next dev`로 「Maximum update depth」 경고를 확인한다(2026-11-09 교훈)
 
