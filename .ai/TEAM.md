@@ -14,7 +14,7 @@
 | Claude(Music) | CC-MUSIC-01 | music | claude-win-20261024-music · GT1_Mega | 현재기록정정완료·점유0·기존icon변경보존 | lyric2건다음묶음·Mac실MP4사람선택 |
 | Claude(ecommerce) | CC-ECOM-01 | ecommerce-image | claude-win-sdp · GT1_Mega | 재배포선택질문대기·후속메시지전달보류·운영1.29 | 追加빌드1예산결정전0·안전후보59cb고정·실3회기승인잔여 |
 | Claude(B2BFront) | CC-B2B-FRONT-01 | mall-design-builder | codex-sub-20261119-mall-design · Sub | 인수 확인 msg_1cc34028b4d9 | 미배포 묶음 읽기 사전 대조 msg_46d9e2cb9bb4 |
-| Claude(B2BBackend) | CC-B2B-BACK-01 | mall-builder | claude-win-20261025-workspace · GT1_Mega | Sub PC 이관 문서 33d6cd55f · 메인 전달만 | 새 세션 핸들·인수 확인 대기. 메인 3210 검수 유지 |
+| Claude(B2BBackend) | CC-B2B-BACK-01 | mall-builder | claude-sub-20261119-b2bbackend · Sub | 인수 직접 확인 msg_de84ea91930f | 0101~0105/M3 조건 대조 msg_21bea4cf8521 · 메인 3210 검수 유지 |
 | Claude(RealEstate) | CC-REALTY-01 | realty | claude-win-20261024-realty · aimaster-73 · GT1_Mega | 문서정정완료·점유0 | 독립자료미확보차단·정상회차이외새수집0 |
 | Claude(Workspace) | CC-WORKSPACE-01 | workspace | aimaster-46 · session dea6e4f6-37c0-4be8-ad50-8746e0f1c517 · GT1_Mega | Gmail공개방식/빌드선택질문대기·GCP완료신호반영 | 주인님결정→ClientID일치/실행순번확정·SQL/스위치0 |
 | Claude(Blog) | CC-BLOG-01 | blog | claude-win-blog · aimaster-92 · GT1_Mega | 현재요약정정완료·점유0 | 다음묶음/사람계정조건·T12문서조정, 새생성0 |
@@ -47,7 +47,7 @@ Orca run: `run_6e348395e1fe` · runtime `4c4b684f-d0e9-4878-97d5-ce1880c55b7d` �
 | AG-UI-01 | term_17973ba1-32c4-40c7-bee4-dd62d857de9e | PING-20261116-001 ACK msg_e468ba595b0a |
 | CC-MUSIC-01 | term_311ae122-f106-40cf-b104-1223985df3cd | REQ-STATUS-MUSIC-01 msg_4e3ab50d38a4 |
 | CC-ECOM-01 | term_fadcde70-c7d5-4e43-bab2-2f9411f46b35 | REQ-STATUS-ECOM-01 msg_f0e627e018fd |
-| CC-B2B-BACK-01 | term_46946865-f9aa-4e38-a14f-daa1f320dd41 | msg_d7e7aa4baac6 / 정정 msg_d88e19f5c1ef |
+| CC-B2B-BACK-01 | **--on Sub** · term_79280560-c956-4d17-8fdd-a69b3a75d164 | 인수 msg_de84ea91930f / 수락 msg_254291ca1988 / 회신 msg_21bea4cf8521 |
 | CC-REALTY-01 | term_cd6b250d-2cdd-46f0-afe4-9377727d845d | REQ-STATUS-REALTY-01 msg_8f653629169e |
 | CC-MOVIE-01 | term_822b9d91-9a25-4d57-9c29-d69fc6de3d88 | IDENT msg_d5f24f5538d7 / 결과 msg_86b54902fdf7 |
 | CC-B2B-FRONT-01 | **--on Sub** · term_b394f9a9-06c6-4706-b4b3-610f648453ff | 인수 msg_1cc34028b4d9 / 전달 msg_46d9e2cb9bb4 |

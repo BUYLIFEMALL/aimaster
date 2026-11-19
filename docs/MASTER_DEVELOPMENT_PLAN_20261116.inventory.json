@@ -10182,12 +10182,12 @@
       "task_id": "B2B-20261119-BACKEND-HANDOFF",
       "owner": "CC-B2B-BACK-01",
       "title": "B2B 백엔드 Sub PC 인수인계",
-      "status": "queued",
-      "delivery": "old_session_ack_new_handle_and_acceptance_pending",
+      "status": "done",
+      "delivery": "sub_handoff_accepted_prerequisites_reconciled",
       "sha": "33d6cd55f",
-      "next": "Sub 프런트 수신자는 백엔드가 아님을 확인. 백엔드 별도 인수자 확인 대기, 메인 전달만·3210 검수 유지·합성 DB 메인 로컬.",
-      "evidence": "msg_1475d5b05efa·msg_e258f03355fd·msg_8841e498a5a6·Master PID 43784/3210 읽기 대조·msg_1cc34028b4d9 역할 정정",
-      "lastReviewedAt": "2026-11-19T06:26:03.391Z"
+      "next": "Sub 인수 완료·0101~0105/M3 승인 조건 대조. QA037 로그인·0105 Lab 적용/자료·M3 후속 승인 대기. 3210과 합성 DB는 메인 유지.",
+      "evidence": "msg_1475d5b05efa·msg_e258f03355fd·msg_8841e498a5a6·Master PID 43784/3210 읽기 대조·msg_1cc34028b4d9 역할 정정·msg_cf762df6a211·msg_f5c4c81ed6b8·msg_6bcab6209deb·msg_de84ea91930f·msg_254291ca1988·msg_21bea4cf8521",
+      "lastReviewedAt": "2026-11-19T06:29:51.946Z"
     },
     {
       "task_id": "B2B-20261119-FRONT-HANDOFF",
