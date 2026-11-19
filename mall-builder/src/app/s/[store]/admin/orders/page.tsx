@@ -38,17 +38,37 @@ export default async function AdminOrdersPage({
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/orders">
-      <nav className="flex flex-wrap gap-1 text-sm" data-order-tabs>
-        <Link href={orderListHref(base, f, { status: undefined, page: 1 })} className={`rounded px-3 py-1.5 ${!filter ? "bg-gray-900 text-white" : "bg-gray-100"}`}>전체 {total}</Link>
+      {/* 직관적 주문 KPI 4종 */}
+      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-500"><span>전체 주문</span><span>📋</span></div>
+          <p className="mt-1.5 text-2xl font-black text-slate-900">{total}건</p>
+        </div>
+        <div className="rounded-2xl border border-amber-200/80 bg-amber-50/40 p-4 shadow-xs">
+          <div className="flex items-center justify-between text-xs font-bold text-amber-700"><span>입금 대기</span><span>⏳</span></div>
+          <p className="mt-1.5 text-2xl font-black text-amber-700">{counts.pending_payment ?? 0}건</p>
+        </div>
+        <div className="rounded-2xl border border-blue-200/80 bg-blue-50/40 p-4 shadow-xs">
+          <div className="flex items-center justify-between text-xs font-bold text-blue-700"><span>결제완료·준비중</span><span>📦</span></div>
+          <p className="mt-1.5 text-2xl font-black text-blue-700">{(counts.paid ?? 0) + (counts.preparing ?? 0)}건</p>
+        </div>
+        <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50/40 p-4 shadow-xs">
+          <div className="flex items-center justify-between text-xs font-bold text-emerald-700"><span>구매 확정</span><span>✅</span></div>
+          <p className="mt-1.5 text-2xl font-black text-emerald-700">{counts.confirmed ?? 0}건</p>
+        </div>
+      </div>
+
+      <nav className="flex flex-wrap gap-1.5 text-sm" data-order-tabs>
+        <Link href={orderListHref(base, f, { status: undefined, page: 1 })} className={`rounded-xl px-3.5 py-1.5 font-semibold transition ${!filter ? "bg-slate-900 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"}`}>전체 {total}</Link>
         {TABS.filter((s) => counts[s]).map((s) => (
-          <Link key={s} href={orderListHref(base, f, { status: s, page: 1 })} className={`rounded px-3 py-1.5 ${filter === s ? "bg-gray-900 text-white" : "bg-gray-100"}`}>
+          <Link key={s} href={orderListHref(base, f, { status: s, page: 1 })} className={`rounded-xl px-3.5 py-1.5 font-semibold transition ${filter === s ? "bg-slate-900 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"}`}>
             {ORDER_STATUS_LABEL[s]} {counts[s]}
           </Link>
         ))}
       </nav>
 
       {/* M2-1 검색·기간·송장 없음 — 상태 탭은 그대로 유지 */}
-      <form method="get" action={base} className="mt-3 flex flex-wrap items-end gap-2 text-sm" data-order-search>
+      <form method="get" action={base} className="mt-4 flex flex-wrap items-end gap-2.5 rounded-2xl border border-slate-200/80 bg-white p-4 text-sm shadow-xs" data-order-search>
         {f.status && <input type="hidden" name="status" value={f.status} />}
         <label className="flex min-w-48 flex-1 flex-col">
           <span className="text-xs text-gray-500">검색</span>

@@ -57,31 +57,51 @@ export default async function ProductsPage({
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/products">
+      {/* 직관적 상단 KPI 4종 */}
+      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-500"><span>전체 상품</span><span>📦</span></div>
+          <p className="mt-1.5 text-2xl font-black text-slate-900">{counts.all}개</p>
+        </div>
+        <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50/40 p-4 shadow-xs">
+          <div className="flex items-center justify-between text-xs font-bold text-emerald-700"><span>판매 중</span><span>🟢</span></div>
+          <p className="mt-1.5 text-2xl font-black text-emerald-700">{counts.status.on_sale ?? 0}개</p>
+        </div>
+        <div className="rounded-2xl border border-amber-200/80 bg-amber-50/40 p-4 shadow-xs">
+          <div className="flex items-center justify-between text-xs font-bold text-amber-700"><span>품절</span><span>🟠</span></div>
+          <p className="mt-1.5 text-2xl font-black text-amber-700">{counts.status.sold_out ?? 0}개</p>
+        </div>
+        <div className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4 shadow-xs">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-500"><span>숨김·임시</span><span>⚪</span></div>
+          <p className="mt-1.5 text-2xl font-black text-slate-700">{(counts.status.hidden ?? 0) + (counts.status.draft ?? 0)}개</p>
+        </div>
+      </div>
+
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <nav className="flex flex-wrap gap-1 text-sm" data-product-tabs>
-          <Link href={productListHref(base, f, { status: undefined, page: 1 })} className={`rounded px-3 py-1.5 ${!f.status ? "bg-gray-900 text-white" : "bg-gray-100"}`}>전체 {counts.all}</Link>
+        <nav className="flex flex-wrap gap-1.5 text-sm" data-product-tabs>
+          <Link href={productListHref(base, f, { status: undefined, page: 1 })} className={`rounded-xl px-3.5 py-1.5 font-semibold transition ${!f.status ? "bg-slate-900 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"}`}>전체 {counts.all}</Link>
           {PRODUCT_STATUSES.map((st) =>
             counts.status[st] ? (
-              <Link key={st} href={productListHref(base, f, { status: st, page: 1 })} className={`rounded px-3 py-1.5 ${f.status === st ? "bg-gray-900 text-white" : "bg-gray-100"}`}>
+              <Link key={st} href={productListHref(base, f, { status: st, page: 1 })} className={`rounded-xl px-3.5 py-1.5 font-semibold transition ${f.status === st ? "bg-slate-900 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"}`}>
                 {PRODUCT_STATUS[st]} {counts.status[st]}
               </Link>
             ) : null,
           )}
         </nav>
         <div className="flex gap-2">
-          <Link href={`${base}/price-check`} className="min-h-11 rounded border px-4 py-2.5 text-sm hover:bg-gray-50" data-price-check-link>
+          <Link href={`${base}/price-check`} className="min-h-10 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" data-price-check-link>
             ⚠ 마진 점검
           </Link>
-          <Link href={`${base}/excel`} className="min-h-11 rounded border px-4 py-2.5 text-sm hover:bg-gray-50" data-excel-link>
-            엑셀로 등록·수정
+          <Link href={`${base}/excel`} className="min-h-10 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" data-excel-link>
+            📥 엑셀로 등록·수정
           </Link>
-          <Link href={`${base}/new`} className="min-h-11 rounded bg-gray-900 px-4 py-2.5 text-sm text-white">
+          <Link href={`${base}/new`} className="min-h-10 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white shadow-xs hover:bg-slate-800">
             + 새 상품
           </Link>
         </div>
       </div>
 
-      <form method="get" action={base} className="mt-3 flex flex-wrap items-end gap-2 text-sm" data-product-search>
+      <form method="get" action={base} className="mt-4 flex flex-wrap items-end gap-2.5 rounded-2xl border border-slate-200/80 bg-white p-4 text-sm shadow-xs" data-product-search>
         {f.status && <input type="hidden" name="status" value={f.status} />}
         <label className="flex flex-col">
           <span className="text-xs text-gray-500">검색</span>

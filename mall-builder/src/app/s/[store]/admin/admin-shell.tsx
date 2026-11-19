@@ -18,81 +18,81 @@ import { APP_VERSION } from "@/lib/version";
 const DASHBOARD = { href: "", label: "대시보드" } as const;
 const MENU_GROUPS = [
   {
-    title: "상품",
-    tone: "border-amber-200 bg-amber-50/70 text-amber-700",
+    title: "📦 상품",
+    tone: "border-amber-200/80 bg-amber-50/60 text-amber-800",
     items: [
-      { href: "/products", label: "상품" },
-      { href: "/categories", label: "카테고리" },
-      { href: "/shipping", label: "배송비" },
+      { href: "/products", label: "상품", icon: "🛍️" },
+      { href: "/categories", label: "카테고리", icon: "🗂️" },
+      { href: "/shipping", label: "배송비", icon: "🚚" },
     ],
   },
   {
-    title: "주문",
-    tone: "border-blue-200 bg-blue-50/70 text-blue-700",
+    title: "🧾 주문",
+    tone: "border-blue-200/80 bg-blue-50/60 text-blue-800",
     items: [
-      { href: "/orders", label: "주문" },
-      { href: "/quotes", label: "견적" },
-      { href: "/recurring", label: "정기 주문" },
-      { href: "/group-buys", label: "공동구매" },
+      { href: "/orders", label: "주문", icon: "📋" },
+      { href: "/quotes", label: "견적", icon: "📄" },
+      { href: "/recurring", label: "정기 주문", icon: "🔄" },
+      { href: "/group-buys", label: "공동구매", icon: "🤝" },
     ],
   },
   {
-    title: "유저",
-    tone: "border-emerald-200 bg-emerald-50/70 text-emerald-700",
+    title: "👥 유저",
+    tone: "border-emerald-200/80 bg-emerald-50/60 text-emerald-800",
     items: [
-      { href: "/customers", label: "유저" },
-      { href: "/grades", label: "등급·할인" },
-      { href: "/coupons", label: "쿠폰·포인트" },
-      { href: "/resellers", label: "리셀러" },
-      { href: "/inquiries", label: "문의" },
-      { href: "/reviews", label: "후기" },
-      { href: "/restock", label: "재입고 알림" },
+      { href: "/customers", label: "유저", icon: "👤" },
+      { href: "/grades", label: "등급·할인", icon: "🏅" },
+      { href: "/coupons", label: "쿠폰·포인트", icon: "🎟️" },
+      { href: "/resellers", label: "리셀러", icon: "💼" },
+      { href: "/inquiries", label: "문의", icon: "💬" },
+      { href: "/reviews", label: "후기", icon: "⭐" },
+      { href: "/restock", label: "재입고 알림", icon: "🔔" },
     ],
   },
   {
-    title: "마케팅",
-    tone: "border-fuchsia-200 bg-fuchsia-50/70 text-fuchsia-700",
+    title: "📣 마케팅",
+    tone: "border-fuchsia-200/80 bg-fuchsia-50/60 text-fuchsia-800",
     items: [
-      { href: "/messages", label: "메시지 보내기" },
-      { href: "/messages/log", label: "발송 내역" },
-      { href: "/messages/settings", label: "메시지 설정" },
+      { href: "/messages", label: "메시지 보내기", icon: "✉️" },
+      { href: "/messages/log", label: "발송 내역", icon: "📜" },
+      { href: "/messages/settings", label: "메시지 설정", icon: "⚙️" },
     ],
   },
   {
-    title: "공급사 정산",
-    tone: "border-rose-200 bg-rose-50/70 text-rose-700",
+    title: "🏭 공급사 정산",
+    tone: "border-rose-200/80 bg-rose-50/60 text-rose-800",
     items: [
-      { href: "/suppliers", label: "공급사" },
-      { href: "/supplier-settlements", label: "공급사 정산" },
+      { href: "/suppliers", label: "공급사", icon: "🏢" },
+      { href: "/supplier-settlements", label: "공급사 정산", icon: "💳" },
     ],
   },
   {
-    title: "몰 꾸미기",
-    tone: "border-violet-200 bg-violet-50/70 text-violet-700",
+    title: "🎨 몰 꾸미기",
+    tone: "border-violet-200/80 bg-violet-50/60 text-violet-800",
     items: [
-      { href: "/settings", label: "쇼핑몰 정보" },
-      { href: "/design", label: "디자인 편집" },
-      { href: "/home", label: "첫 화면" },
-      { href: "/notices", label: "공지" },
-      { href: "/faq", label: "FAQ" },
-      { href: "/photos", label: "사진 정리" },
+      { href: "/settings", label: "쇼핑몰 정보", icon: "🏪" },
+      { href: "/design", label: "디자인 편집", icon: "🖌️" },
+      { href: "/home", label: "첫 화면", icon: "✨" },
+      { href: "/notices", label: "공지", icon: "📢" },
+      { href: "/faq", label: "FAQ", icon: "❓" },
+      { href: "/photos", label: "사진 정리", icon: "🖼️" },
     ],
   },
   {
-    title: "운영",
-    tone: "border-slate-300 bg-slate-100/80 text-slate-600",
+    title: "⚙️ 운영",
+    tone: "border-slate-300/80 bg-slate-100/80 text-slate-700",
     items: [
-      { href: "/resale", label: "분양" },
-      { href: "/stats", label: "통계" },
-      { href: "/staff", label: "직원" },
+      { href: "/resale", label: "분양", icon: "🏬" },
+      { href: "/stats", label: "통계", icon: "📊" },
+      { href: "/staff", label: "직원", icon: "🛡️" },
     ],
   },
 ] as const;
 
 /** 메뉴 전체(순서대로) — 시험·다른 화면에서 쓰는 평평한 목록 */
-export const MENU: { href: string; label: string }[] = [DASHBOARD, ...MENU_GROUPS.flatMap((g): { href: string; label: string }[] => [...g.items])];
+export const MENU: { href: string; label: string }[] = [DASHBOARD, ...MENU_GROUPS.flatMap((g) => g.items.map(({ href, label }) => ({ href, label })))];
 
-type Group = { title: string; tone: string; items: readonly { href: string; label: string }[] };
+type Group = { title: string; tone: string; items: readonly { href: string; label: string; icon: string }[] };
 
 function SideMenu({ slug, active, groups, email, dashboard }: { slug: string; active: string; groups: Group[]; email: string | undefined; dashboard: boolean }) {
   return (
@@ -116,11 +116,12 @@ function SideMenu({ slug, active, groups, email, dashboard }: { slug: string; ac
                   <Link
                     href={`/s/${slug}/admin${m.href}`}
                     aria-current={active === m.href ? "page" : undefined}
-                    className={`block rounded-lg px-3 py-1 text-sm ${
-                      active === m.href ? "bg-gray-900 font-semibold text-white" : "text-gray-700 hover:bg-white/80"
+                    className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[13px] transition-colors ${
+                      active === m.href ? "bg-gray-900 font-semibold text-white shadow-xs" : "text-gray-700 hover:bg-white/90 hover:text-gray-950"
                     }`}
                   >
-                    {m.label}
+                    <span className="text-sm leading-none" aria-hidden>{m.icon}</span>
+                    <span>{m.label}</span>
                   </Link>
                 </li>
               ))}
@@ -170,7 +171,7 @@ export async function AdminShell({ slug, storeName, active, children }: { slug: 
   return (
     <div className="min-h-screen md:flex" data-admin-shell>
       {/* 넓은 화면: 왼쪽 메뉴 막대 */}
-      <aside className="hidden md:flex md:min-h-screen md:w-56 md:shrink-0 md:flex-col md:border-r md:bg-white md:px-3 md:pb-20 md:pt-5" data-admin-sidebar>
+      <aside className="hidden md:flex md:min-h-screen md:w-60 md:shrink-0 md:flex-col md:border-r md:bg-slate-50/60 md:px-3 md:pb-20 md:pt-5" data-admin-sidebar>
         <div className="shrink-0 space-y-3 px-1 pb-4">
           {heading}
           {switcher}
@@ -195,8 +196,8 @@ export async function AdminShell({ slug, storeName, active, children }: { slug: 
         </div>
       </details>
 
-      <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">
-        <div className="mx-auto max-w-4xl">
+      <main className="min-w-0 flex-1 bg-slate-50/30 px-4 py-6 md:px-8 md:py-8">
+        <div className="mx-auto max-w-5xl">
           {me && me.role !== "owner" && <p className="mb-4 text-xs text-gray-500" data-staff-badge>직원 계정으로 보고 있습니다 · 보이는 메뉴만 쓸 수 있습니다</p>}
           {allowed ? (
             children

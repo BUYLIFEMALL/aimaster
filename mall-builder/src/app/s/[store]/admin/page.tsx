@@ -49,34 +49,34 @@ export default async function StoreAdminPage({ params, searchParams }: { params:
         </div>
       )}
       {todayStats && (
-        <Link href={`${base}/stats`} className="mb-4 flex flex-wrap items-baseline gap-x-6 gap-y-1 rounded-lg border bg-gray-50 p-4 hover:bg-gray-100" data-today>
-          <span className="text-sm font-semibold">오늘</span>
-          <span className="text-sm text-gray-600">매출 <b className="text-lg text-gray-900">{formatWon(todayStats.summary.sales)}</b></span>
-          <span className="text-sm text-gray-600">주문 <b className="text-gray-900">{todayStats.summary.orders}건</b></span>
-          <span className="text-sm text-gray-600">새 유저 <b className="text-gray-900">{todayStats.summary.new_customers}명</b></span>
-          <span className="ml-auto text-xs text-blue-700">통계 보기 ›</span>
+        <Link href={`${base}/stats`} className="mb-5 flex flex-wrap items-center gap-x-8 gap-y-2 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-slate-300" data-today>
+          <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-2.5 py-1 text-xs font-bold text-white">📊 오늘 현황</span>
+          <span className="text-sm text-slate-500">매출 <b className="ml-1 text-xl font-black text-slate-900">{formatWon(todayStats.summary.sales)}</b></span>
+          <span className="text-sm text-slate-500">주문 <b className="ml-1 text-lg font-extrabold text-blue-600">{todayStats.summary.orders}건</b></span>
+          <span className="text-sm text-slate-500">새 유저 <b className="ml-1 text-lg font-extrabold text-emerald-600">{todayStats.summary.new_customers}명</b></span>
+          <span className="ml-auto text-xs font-bold text-blue-600">통계 자세히 보기 ›</span>
         </Link>
       )}
       {groups.map((g) => (
-        <section key={g.title} className="mb-4 rounded-lg border p-4" data-todo-group={g.title}>
-          <h2 className="mb-2 text-sm font-semibold">{g.title}</h2>
-          <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <section key={g.title} className="mb-5 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs" data-todo-group={g.title}>
+          <h2 className="mb-3 text-sm font-extrabold text-slate-900">{g.title}</h2>
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {g.items.map((it) => (
               <li key={it.key}>
                 <Link
                   href={it.href}
                   data-todo={it.key}
-                  className={`flex h-full flex-col rounded border px-3 py-2 hover:bg-gray-50 ${it.count > 0 && it.tone === "urgent" ? "border-red-200 bg-red-50/60" : ""}`}
+                  className={`flex h-full flex-col justify-between rounded-xl border px-4 py-3 transition hover:shadow-xs ${it.count > 0 && it.tone === "urgent" ? "border-rose-200 bg-rose-50/70 hover:bg-rose-50" : "border-slate-200/80 bg-slate-50/50 hover:bg-white"}`}
                 >
-                  <span className="text-xs text-gray-600">{it.label}</span>
-                  <b className={`text-xl ${it.count > 0 && it.tone === "urgent" ? "text-red-700" : it.count > 0 ? "text-gray-900" : "text-gray-300"}`}>{it.count.toLocaleString("ko-KR")}</b>
+                  <span className="text-xs font-semibold text-slate-600">{it.label}</span>
+                  <b className={`mt-1.5 text-2xl font-black ${it.count > 0 && it.tone === "urgent" ? "text-rose-600" : it.count > 0 ? "text-slate-900" : "text-slate-300"}`}>{it.count.toLocaleString("ko-KR")}</b>
                 </Link>
               </li>
             ))}
           </ul>
         </section>
       ))}
-      <dl className="grid grid-cols-[7rem_1fr] gap-y-2 rounded-lg border p-4 text-sm">
+      <dl className="grid grid-cols-[7rem_1fr] gap-y-2 rounded-2xl border border-slate-200/80 bg-white p-5 text-sm shadow-xs">
         <dt className="text-gray-500">몰 주소</dt>
         <dd>
           <Link href={`/s/${store.slug}`} className="text-blue-700 underline">/s/{store.slug}</Link>
