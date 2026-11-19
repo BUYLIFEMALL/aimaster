@@ -6216,6 +6216,17 @@
       "evidence": "1df2c94ae·msg_68526ae14db0·5b0ed996a·8f1eae339·msg_da7c45210270·msg_14d2efabc2c2·msg_4e2bc736c66d·.ai/results/MUSIC-20261119-LYRIC-L5-U3-CX-QA-01.md"
     },
     {
+      "task_id": "MUSIC-20261119-REMIX-PLAYLIST-RECEIVER",
+      "parent_task_id": "MUSIC-20261119-REMIX-PLAYLIST-REVIEW",
+      "owner": "CC-MUSIC-01",
+      "reviewer": "CX-QA-01",
+      "title": "리믹스 → 플레이리스트 수신 로컬 구현",
+      "status": "running",
+      "delivery": "owner_scope_approved_receiver_started",
+      "next": "플레이리스트 회원 소유 리믹스 수신·미리 선택과 기존 Suno 다곡 회귀. 음악 링크·운영 배포·실 호출은 별도.",
+      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1"
+    },
+    {
       "task_id": "MUSIC-20261119-REMIX-PLAYLIST-REVIEW",
       "parent_task_id": "MUSIC-20261119-BACKLOG-SWEEP",
       "owner": "CC-MUSIC-01",
