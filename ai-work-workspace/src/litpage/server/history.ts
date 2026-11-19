@@ -2,7 +2,7 @@
 import type { Transaction } from '#shared/ops.ts';
 import type { BlockRecord, CollectionRecord, CollectionViewRecord } from '#shared/records.ts';
 import { newId } from '#shared/ids.ts';
-import { childrenOf, db, getRecord } from './db.ts';
+import { childrenOf, db, getRecord, onTxRollback } from './db.ts';
 import { pageIdOf } from './search.ts';
 import type { AppliedChange } from './records.ts';
 import { childBlocks } from './tree.ts';
@@ -111,11 +111,59 @@ export function snapshotBlocks(pageId: string, blocks: unknown): BlockRecord[] {
   return out;
 }
 
+/** The page a block's version history belongs to: the nearest stored ancestor that is a page, a full-page database
+ * or a database record (its own page). null when the chain can't be confirmed — an ancestor isn't stored, or the
+ * top isn't a page. (pageIdOf answers with the block's own id in that case, which is right for search but must never
+ * become a snapshots.page_id.) */
+function versionPageOf(block: BlockRecord | undefined): string | null {
+  let cur = block;
+  const seen = new Set<string>();
+  while (cur && !seen.has(cur.id)) {
+    seen.add(cur.id);
+    if (cur.type === 'page' || cur.type === 'collection_view_page' || cur.parent_table === 'collection') return cur.id;
+    if (cur.parent_table !== 'block') return null;
+    cur = getRecord<BlockRecord>('block', cur.parent_id);
+  }
+  return null;
+}
+
+/**
+ * 2026-11-19(WS-20261119-03 D): 한 번의 쓰기(applyTransactions)로 바뀐 블록들의 버전 기록 처리. 바뀐 레코드를 **모두 저장한 뒤**
+ * 한 번 부른다. 예전에는 블록을 저장할 때마다 불러서, 부모가 아직 저장되지 않은 블록(자식부터 쓰는 가져오기·붙여넣기)은
+ * 자기 id가 「쪽」으로 잡혀 snapshots에 일반 블록 id 줄이 생겼고(쓰이지 않는 줄), 같은 쪽을 블록 수만큼 다시 조회했다.
+ * 지금은 실제 쪽(페이지·전체 페이지 데이터베이스·데이터베이스 행)과 그 데이터베이스를 보여 주는 쪽만, 쪽마다 한 번 처리한다.
+ * 10분 간격·작성자 모으기 규칙은 그대로다. 이 쓰기가 되돌려지면 메모리의 대기 작성자도 쓰기 전으로 돌린다.
+ */
+export function snapshotChanged(blocks: BlockRecord[], userId: string, now: number) {
+  const pages = new Set<string>();
+  for (const block of blocks) {
+    // database records also count for the page showing their database
+    if (block.parent_table === 'collection') {
+      const hostId = historyPageOf('block', block);
+      const host = hostId ? versionPageOf(getRecord<BlockRecord>('block', hostId)) : null;
+      if (host && host !== block.id) pages.add(host);
+    }
+    const own = versionPageOf(block);
+    if (own) pages.add(own);
+  }
+  if (!pages.size) return;
+  const before = new Map<string, { authors: Set<string>; since: number } | undefined>();
+  for (const id of pages) {
+    const p = pendingPages.get(id);
+    before.set(id, p ? { authors: new Set(p.authors), since: p.since } : undefined);
+  }
+  onTxRollback(() => {
+    for (const [id, p] of before) {
+      if (p) pendingPages.set(id, p);
+      else pendingPages.delete(id);
+    }
+  });
+  for (const id of pages) notePending(id, userId, now);
+}
+
+/** One block (kept for callers outside applyTransactions): same rules as snapshotChanged. */
 export function maybeSnapshot(block: BlockRecord, userId: string, now: number) {
-  // database records also count for the page showing their database
-  const host = block.parent_table === 'collection' ? historyPageOf('block', block) : null;
-  if (host && host !== block.id) notePending(host, userId, now);
-  notePending(pageIdOf(block), userId, now);
+  snapshotChanged([block], userId, now);
 }
 
 function notePending(pageId: string, userId: string, now: number) {

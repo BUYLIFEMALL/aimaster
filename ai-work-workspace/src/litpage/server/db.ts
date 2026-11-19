@@ -339,6 +339,13 @@ export function recordsInSpace<T extends BaseRecord = BaseRecord>(table: Table, 
 }
 
 let txDepth = 0;
+// 2026-11-19(WS-20261119-03 D): 트랜잭션이 되돌려질 때 부를 함수들. DB 밖(프로세스 메모리)에 해 둔 변경을 함께 되돌리는 데 쓴다
+// (예: 버전 기록의 대기 작성자). 가장 바깥 트랜잭션이 커밋되면 버리고, 되돌려지면 등록의 역순으로 부른 뒤 버린다.
+let rollbackFns: (() => void)[] = [];
+/** 지금 트랜잭션이 되돌려지면 `fn`을 부른다. 트랜잭션 밖에서는 아무것도 하지 않는다(되돌릴 일이 없다). */
+export function onTxRollback(fn: () => void): void {
+  if (txDepth > 0) rollbackFns.push(fn);
+}
 export function tx<T>(fn: () => T): T {
   // 원본은 중첩 트랜잭션을 쓰지 않지만, 안쪽 호출은 바깥 트랜잭션에 합친다
   if (txDepth > 0) return fn();
@@ -348,6 +355,7 @@ export function tx<T>(fn: () => T): T {
     const out = fn();
     txDepth--;
     execSync('COMMIT');
+    rollbackFns = [];
     return out;
   } catch (e) {
     txDepth--;
@@ -356,6 +364,15 @@ export function tx<T>(fn: () => T): T {
     } finally {
       // 되돌린 값이 캐시에 남지 않게 비운다
       cacheClear();
+      const undo = rollbackFns.reverse();
+      rollbackFns = [];
+      for (const f of undo) {
+        try {
+          f();
+        } catch (err) {
+          console.error('[tx rollback hook] failed', err);
+        }
+      }
     }
     throw e;
   }

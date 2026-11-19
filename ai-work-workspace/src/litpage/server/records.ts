@@ -7,7 +7,7 @@ import type {
 import { db, getRecord, lockRecords, putRecord, tx } from './db.ts';
 import { indexBlock } from './search.ts';
 import { realtime } from './realtime.ts';
-import { recordActivity, maybeSnapshot } from './history.ts';
+import { recordActivity, snapshotChanged } from './history.ts';
 import { TxGuard, prepareOp } from './authz.ts';
 import { collectionRole, propertyThreadVisible, redactDatabaseRecord } from './propaccess.ts';
 import { agentRecordRole, agentRoleFor } from '#shared/agents.ts';
@@ -289,6 +289,7 @@ export function applyTransactions(userId: string, transactions: Transaction[], o
     const now = Date.now();
     for (const t of transactions) if (t.id) txMark.run(t.id, now);
     if (now - lastPrune > 3600_000) { lastPrune = now; txPrune.run(now - 2 * 86400_000); }
+    const savedBlocks: BlockRecord[] = [];
     for (const [key, ch] of changed) {
       const prev = getRecord(ch.table, ch.record.id);
       prevs.set(key, prev);
@@ -298,9 +299,11 @@ export function applyTransactions(userId: string, transactions: Transaction[], o
       putRecord(ch.table, ch.record);
       if (ch.table === 'block') {
         indexBlock(ch.record as BlockRecord);
-        maybeSnapshot(ch.record as BlockRecord, userId, now);
+        savedBlocks.push(ch.record as BlockRecord);
       }
     }
+    // 버전 기록은 모든 레코드를 저장한 뒤 쪽마다 한 번(자식부터 쓰는 쓰기에서도 부모를 찾을 수 있다) — history.ts snapshotChanged
+    snapshotChanged(savedBlocks, userId, now);
     return [...changed.values()];
   });
   recordActivity(userId, out, transactions);
