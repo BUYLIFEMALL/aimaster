@@ -5623,7 +5623,7 @@
       "completion": "저장 HTML의 본문을 분리하고 콜아웃·목록·할일·코드·북마크·영상·목차 구조 보존. 일반 HTML/ZIP·기존 URL 허용/정제 경계 회귀 확인.",
       "constraints": "import.ts·DB·API·권한 변경과 운영 쓰기·빌드·배포·push 없음.",
       "evidence": "주인님 전달 착수 보고 · ee73ff8eb 파일 점유·112ada09d·2f1e70268·msg_ae2068e3e9b1·msg_7dc2611a8abf·msg_63a46ac8b66c·8225ca66b·msg_fa4c83b077f0·msg_3c1580a00f03·msg_1ce4182d8db2·msg_da5761aceccd·2c7f6945d·msg_7b2287b746f4·msg_f561bbcfa676·msg_ead1f07719be·30bcfdee1·cbfe4b86e·25ab6bba8·dpl_CLGZ7CA84iyodmiSEjoPccxMMyBp",
-      "next": "v1.61 배포 완료, 기존 가져온 본문 읽기 확인. 운영에서 노션 저장 HTML 다시 가져오기 시험은 미실행. v1.61 완료분 점유 해제 요청.",
+      "next": "v1.61 배포 완료, 기존 가져온 본문 읽기 확인. 운영에서 노션 저장 HTML 다시 가져오기 시험은 미실행. v1.61 완료분 점유 해제(5b2f56408).",
       "lastReviewedAt": "2026-11-18T19:43:18.324Z",
       "sha": "2c7f6945d",
       "validation": {
@@ -5755,7 +5755,7 @@
       "sha": "cea50d189",
       "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef·dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o·msg_0a595caceefd·주인님 전달 진단·msg_afbf609d8871·msg_8512331d6d20·담당 msg_8512331d6d20 결과·msg_7489b02d1a30·f330050c3·담당 msg_7489b02d1a30 결과·msg_4a10308bf15c·f26ab0e58·담당 msg_4a10308bf15c 회신·msg_6f6e00bdcc31·d3d2d531f·담당 msg_6f6e00bdcc31 회신·msg_748c12b7d46d·5efdefd22·a63e7e26a·76fd2c9b9·담당 msg_748c12b7d46d 결과·msg_61b93dfbb0d1·7c283738f·b081eed5b·담당 msg_61b93dfbb0d1 결과·msg_4e206a030d6b·msg_1b80513953df·msg_3f61f6f5a0·cea50d189·7f0757d61·담당 msg_3f61f6f5b5a0 결과·msg_c7b20d50ff1d·msg_8004451fdf3f·msg_e0973ea0b19d·주인님 직접 배포 지시·담당 시작 보고·msg_b97a8c78bcbe·dpl_CLGZ7CA84iyodmiSEjoPccxMMyBp·Vercel 빌드 이벤트·공식 도메인 로그인 200·25ab6bba8·담당 msg_b97a8c78bcbe 운영 결과·msg_a8f523227f16",
       "constraints": "기존 근거 읽기만. 재빌드·배포·push·운영 설정/DB 변경 0.",
-      "next": "운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음. 완료분 점유 해제 요청.",
+      "next": "운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음. 완료분 점유 해제(5b2f56408).",
       "lastReviewedAt": "2026-11-18T19:43:18.324Z",
       "validation": {
         "author": "컴파일·타입 통과 후 Collecting 약 11분 무출력. 성공판 같은 단계 35.4초. 시작 시 동시 빌드 0, 이후 11번가 약 8분 대기 보고.",
