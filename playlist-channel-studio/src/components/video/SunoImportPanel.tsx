@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ExternalLink, Loader2, Music2, RefreshCw } from "lucide-react";
 import type { Track } from "@/types/playlist";
 import type { LyricLine } from "@/lib/lyrics";
-import { mergeIncoming, parseIdParam } from "@/lib/remixTracks";
+import { incomingStatus, mergeIncoming, parseIdParam } from "@/lib/remixTracks";
 
 // v1.19 음악(SUNO) 자동화에서 만든 내 곡 여러 개를 골라 플레이리스트 곡 목록에 한 번에 추가한다.
 // 음악은 비공개 저장소의 1시간 서명 주소로 받고(서버에 새로 올리지 않음), 「시간 가사도 받기」를 켜면
@@ -72,7 +72,7 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
   const [list, setList] = useState<SunoTrack[] | null>(null), [listError, setListError] = useState("");
   const [picked, setPicked] = useState<string[]>([]), [withTime, setWithTime] = useState(true), [coverAsBg, setCoverAsBg] = useState(true);
   const [busy, setBusy] = useState(""), [report, setReport] = useState<{ text: string; ok: boolean; needKey?: boolean } | null>(null);
-  const [incoming, setIncoming] = useState(0);
+  const [incoming, setIncoming] = useState<string[]>([]); // 주소로 받은 곡 번호(?suno=·?remix=)
   const [bgStyle, setBgStyle] = useState<"blur" | "album">("blur"), [heading, setHeading] = useState(""), [channel, setChannel] = useState("");
   const albumText = (title: string): AlbumText => (bgStyle === "album" ? { heading: heading.trim() || title, channel } : null);
 
@@ -88,11 +88,18 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
     const q = new URLSearchParams(window.location.search);
     const uniq = mergeIncoming(parseIdParam(q.get("suno")), parseIdParam(q.get("remix")), MAX_PICK);
     if (!uniq.length) return;
-    setPicked(uniq); setIncoming(uniq.length); setOpen(true);
+    setPicked(uniq); setIncoming(uniq); setOpen(true);
     window.history.replaceState(null, "", window.location.pathname);
   }, []);
 
   const all = (list ?? []).flatMap((t) => t.variants.map((v, i) => ({ t, v, i })));
+  const arrived = incomingStatus(incoming, list ? all.map((a) => a.v.id) : null);
+  // 목록을 받으면 주소로 받은 번호 중 목록에 없는 것은 선택에서 뺀다 — 선택 수·20곡 한도가 실제 곡 수와 같아지게
+  useEffect(() => {
+    if (!list || !incoming.length) return;
+    const have = new Set(list.flatMap((t) => t.variants.map((v) => v.id)));
+    setPicked((p) => p.filter((id) => have.has(id) || !incoming.includes(id)));
+  }, [list, incoming]);
   const toggle = (id: string) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : p.length >= MAX_PICK ? p : [...p, id]));
   const pickWhere = (fn: (t: SunoTrack) => boolean) => setPicked(all.filter((a) => fn(a.t)).map((a) => a.v.id).slice(0, MAX_PICK));
   const pickedHere = all.filter((a) => picked.includes(a.v.id));
@@ -156,7 +163,7 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
       try { setBgMedia(await coverBackdrop(firstCover.url, firstCover.title, albumText(firstCover.title))); bgDone = ` 배경은 「${firstCover.title}」 커버로 만들었습니다.`; }
       catch (e) { problems.push(`배경: ${e instanceof Error ? e.message : "만들지 못함"}`); }
     }
-    setBusy(""); setPicked([]); setIncoming(0);
+    setBusy(""); setPicked([]); setIncoming([]);
     setReport({ ok: problems.length === 0, needKey, text: `곡 ${added.length}개를 목록 끝에 추가했습니다${timedCount ? ` (시간 가사 ${timedCount}곡)` : ""}.${bgDone}${problems.length ? ` 확인할 것: ${problems.join(" / ")}` : ""}` });
   }
 
@@ -170,7 +177,11 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
       <p className="text-[11px] text-[#aaa] leading-relaxed">음악(SUNO) 자동화에서 만든 곡을 여러 개 골라 한 번에 추가합니다. 「시간 가사도 받기」를 켜면 보컬 곡마다 <strong className="text-white">본인 Suno API 키로 1번씩</strong> 시간 가사를 받아 영상 가사 층에 바로 연결합니다(이번 접속에서 받은 곡은 다시 부르지 않음). 곡 커버로 배경도 만들 수 있습니다.</p>
       {open && (
         <div className="space-y-3">
-          {incoming > 0 && <div className="text-xs rounded-xl px-3 py-2 bg-[#1d2a3a] text-sky-200">음악(SUNO) 자동화에서 고른 곡 {incoming}개를 선택해 두었습니다. 확인한 뒤 「선택한 곡 추가」를 눌러 주세요.</div>}
+          {incoming.length > 0 && <div className="text-xs rounded-xl px-3 py-2 bg-[#1d2a3a] text-sky-200">{!arrived
+            ? `음악(SUNO) 자동화에서 고른 곡 ${incoming.length}개를 내 곡 목록에서 찾는 중입니다…`
+            : arrived.missing === 0
+              ? `음악(SUNO) 자동화에서 고른 곡 ${arrived.found}개를 선택해 두었습니다. 확인한 뒤 「선택한 곡 추가」를 눌러 주세요.`
+              : `음악(SUNO) 자동화에서 고른 곡 ${incoming.length}개 중 ${arrived.found}개를 선택해 두었습니다. ${arrived.missing}개는 내 곡 목록(일반 곡 최근 40곡·리믹스 최근 20개, 완성된 내 곡만)에 없어 선택하지 못했습니다.`}</div>}
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             <label className="flex items-center gap-2 text-xs text-[#ddd]"><input type="checkbox" checked={withTime} onChange={(e) => setWithTime(e.target.checked)} />Suno 시간 가사도 받기<span className="text-[#888]">— 끄면 음악만 추가</span></label>
             <label className="flex items-center gap-2 text-xs text-[#ddd]"><input type="checkbox" checked={coverAsBg} onChange={(e) => setCoverAsBg(e.target.checked)} />배경이 없으면 첫 곡 커버를 배경으로</label>

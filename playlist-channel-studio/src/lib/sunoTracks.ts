@@ -1,7 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { linesFromAlignedWords, type SunoWord, type TimedLine } from "@/lib/sunoAlign";
-import { lookupRemixVariant, remixTrack, type RemixDb, type RemixRow, type RemixVariantRow } from "@/lib/remixTracks";
+import { lookupRemixVariant, remixTrack, signRemixAssets, type RemixDb, type RemixRow, type RemixVariantRow } from "@/lib/remixTracks";
 
 // v1.19 음악(SUNO) 자동화(music/, slug music-automation)에서 회원 본인이 만든 곡을 가져온다(가사영상 v1.05 `src/lib/suno.ts`와 같은 규칙).
 // 공용 DB의 music_tracks·music_track_variants를 읽기만 하고, 모든 조회를 회원 user_id로 거른다.
@@ -26,11 +26,15 @@ function storagePath(url: string | null): string | null {
   return decodeURIComponent(url.slice(prefix.length).split("?")[0]) || null;
 }
 
+async function signPath(path: string): Promise<string | null> {
+  const { data } = await createAdminClient().storage.from(BUCKET).createSignedUrl(path, 60 * 60);
+  return data?.signedUrl ?? null;
+}
+
 async function signed(url: string | null): Promise<string | null> {
   const path = storagePath(url);
   if (!path) return url && /^https:\/\//.test(url) ? url : null;
-  const { data } = await createAdminClient().storage.from(BUCKET).createSignedUrl(path, 60 * 60);
-  return data?.signedUrl ?? null;
+  return signPath(path);
 }
 
 type VRow = { id: string; suno_audio_id: string | null; duration_seconds: number | null; created_at: string };
@@ -77,7 +81,7 @@ async function listSongTracks(userId: string): Promise<SunoTrack[]> {
   }).filter((t) => t.variants.length > 0);
 }
 
-type VariantRow = { id: string; suno_audio_id: string | null; audio_url: string; image_url: string | null; music_tracks: { title: string; task_id: string | null; mode: string } | null };
+type VariantRow = { id: string; suno_audio_id: string | null; audio_url: string; image_url: string | null; music_tracks: { title: string; task_id: string | null; mode: string } | null; remix?: true };
 
 async function ownVariant(userId: string, variantId: string): Promise<VariantRow> {
   const { data, error } = await createAdminClient()
@@ -95,6 +99,11 @@ async function ownVariant(userId: string, variantId: string): Promise<VariantRow
 /** 변주 하나의 음악·커버 서명 주소(v1.20 커버 추가 — 플레이리스트 배경 만들기) */
 export async function getSunoVariant(userId: string, variantId: string) {
   const v = await ownVariant(userId, variantId);
+  if (v.remix) { // 리믹스: 회원 본인 폴더 경로만 서명(외부 주소·다른 회원 경로는 서명하지 않음). 일반 곡은 아래 기존 그대로
+    const { audioUrl, coverUrl } = await signRemixAssets(v, userId, process.env.NEXT_PUBLIC_SUPABASE_URL ?? "", BUCKET, signPath);
+    if (!audioUrl) throw new SunoError(410, "이 곡의 음악 파일을 찾지 못했습니다. 보관 기간이 지나 지워졌을 수 있습니다.");
+    return { id: v.id, title: v.music_tracks?.title ?? "", audioUrl, coverUrl };
+  }
   const audioUrl = await signed(v.audio_url);
   if (!audioUrl) throw new SunoError(410, "이 곡의 음악 파일을 찾지 못했습니다. 보관 기간이 지나 지워졌을 수 있습니다.");
   return { id: v.id, title: v.music_tracks?.title ?? "", audioUrl, coverUrl: await signed(v.image_url) };

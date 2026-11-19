@@ -130,3 +130,74 @@ test("서버 순서: 곡 받기·시간 가사 모두 ownVariant(404 판정)가 
   assert.ok(timed.indexOf("await ownVariant(") >= 0 && timed.indexOf("await ownVariant(") < timed.indexOf("user_api_keys") && timed.indexOf("user_api_keys") < timed.indexOf("fetch("));
   assert.match(src, /if \(remix\) return remix;\s*\n\s*throw new SunoError\(404/);
 });
+
+// ── 리믹스 파일 서명은 회원 본인 폴더 경로만 (Master msg_6bc9c6ee0c57) ──
+import { incomingStatus, ownStoragePath, signRemixAssets } from "../src/lib/remixTracks.ts";
+
+const BASE = "https://proj.supabase.co", BUCKET = "music-audio";
+const pub = (path, bucket = BUCKET) => `${BASE}/storage/v1/object/public/${bucket}/${path}`;
+/** 서명 호출을 세는 가짜 sign — 실제로는 관리자 키 createSignedUrl */
+function counter(fail = false) { const calls = []; return { calls, sign: async (p) => { calls.push(p); return fail ? null : `signed:${p}`; } }; }
+
+test("회원 폴더 판정: 본인 `<user>/remix/…`만 경로, 다른 회원·외부·다른 저장소·우회 조각은 null", () => {
+  assert.equal(ownStoragePath(pub(`${ME}/remix/rm1/0.mp3`), BASE, BUCKET, ME), `${ME}/remix/rm1/0.mp3`);
+  assert.equal(ownStoragePath(pub(`${ME}/remix/rm1/0.mp3`) + "?t=1", BASE + "/", BUCKET, ME), `${ME}/remix/rm1/0.mp3`, "주소 꼬리·base 끝 / 무관");
+  assert.equal(ownStoragePath(pub(`${OTHER}/remix/rm1/0.mp3`), BASE, BUCKET, ME), null, "다른 회원 폴더");
+  assert.equal(ownStoragePath("https://cdn1.suno.ai/abc.mp3", BASE, BUCKET, ME), null, "외부 주소(Suno 임시 주소 포함)");
+  assert.equal(ownStoragePath(pub(`${ME}/a.mp3`, "other-bucket"), BASE, BUCKET, ME), null, "다른 저장소");
+  assert.equal(ownStoragePath(pub(`${ME}/../${OTHER}/a.mp3`), BASE, BUCKET, ME), null, "상위 폴더 우회");
+  assert.equal(ownStoragePath(pub(`${ME}/%2e%2e/${OTHER}/a.mp3`), BASE, BUCKET, ME), null, "인코딩한 우회");
+  assert.equal(ownStoragePath(pub(`${ME}`), BASE, BUCKET, ME), null, "폴더만 있고 파일 없음");
+  assert.equal(ownStoragePath(pub(`${ME}//a.mp3`), BASE, BUCKET, ME), null, "빈 조각");
+  assert.equal(ownStoragePath(pub(`${ME}/a%ZZ.mp3`), BASE, BUCKET, ME), null, "깨진 인코딩");
+  assert.equal(ownStoragePath(null, BASE, BUCKET, ME), null);
+  assert.equal(ownStoragePath(pub(`${ME}/a.mp3`), "", BUCKET, ME), null, "base가 비면 서명 안 함");
+});
+
+test("서명 호출 수: 본인 음악+커버 2번, 커버 없으면 1번", async () => {
+  const c = counter();
+  const r = await signRemixAssets({ audio_url: pub(`${ME}/remix/r/0.mp3`), image_url: pub(`${ME}/remix/r/0.jpg`) }, ME, BASE, BUCKET, c.sign);
+  assert.deepEqual(c.calls, [`${ME}/remix/r/0.mp3`, `${ME}/remix/r/0.jpg`]);
+  assert.equal(r.audioUrl, `signed:${ME}/remix/r/0.mp3`);
+  const c2 = counter();
+  assert.equal((await signRemixAssets({ audio_url: pub(`${ME}/remix/r/0.mp3`), image_url: null }, ME, BASE, BUCKET, c2.sign)).coverUrl, null);
+  assert.equal(c2.calls.length, 1);
+});
+
+test("서명 호출 0번: 다른 회원 음악 경로·외부 음악 주소 — 커버가 본인 것이어도 서명하지 않는다", async () => {
+  for (const audio of [pub(`${OTHER}/remix/r/0.mp3`), "https://cdn1.suno.ai/abc.mp3", pub(`${ME}/../${OTHER}/0.mp3`)]) {
+    const c = counter();
+    const r = await signRemixAssets({ audio_url: audio, image_url: pub(`${ME}/remix/r/0.jpg`) }, ME, BASE, BUCKET, c.sign);
+    assert.deepEqual(r, { audioUrl: null, coverUrl: null });
+    assert.equal(c.calls.length, 0, audio);
+  }
+});
+
+test("음악은 본인·커버만 다른 회원/외부 → 음악만 서명(1번), 커버는 비움", async () => {
+  for (const cover of [pub(`${OTHER}/remix/r/0.jpg`), "https://evil.example/x.jpg"]) {
+    const c = counter();
+    const r = await signRemixAssets({ audio_url: pub(`${ME}/remix/r/0.mp3`), image_url: cover }, ME, BASE, BUCKET, c.sign);
+    assert.equal(c.calls.length, 1);
+    assert.equal(r.coverUrl, null);
+  }
+});
+
+test("음악 서명이 실패하면 커버는 서명하지 않는다(부르는 쪽 410)", async () => {
+  const c = counter(true);
+  assert.deepEqual(await signRemixAssets({ audio_url: pub(`${ME}/remix/r/0.mp3`), image_url: pub(`${ME}/remix/r/0.jpg`) }, ME, BASE, BUCKET, c.sign), { audioUrl: null, coverUrl: null });
+  assert.equal(c.calls.length, 1);
+});
+
+test("미리 선택 안내: 목록 전에는 null, 받은 수 중 목록에 있는 수·없는 수", () => {
+  assert.equal(incomingStatus([A, B], null), null);
+  assert.deepEqual(incomingStatus([A, B, C], [A, C, "x"]), { found: 2, missing: 1 });
+  assert.deepEqual(incomingStatus([A], [A]), { found: 1, missing: 0 });
+  assert.deepEqual(incomingStatus([], [A]), { found: 0, missing: 0 });
+});
+
+test("서버: 리믹스만 회원 폴더 서명, 일반 SUNO 곡 경로(signed)는 그대로", () => {
+  const src = readFileSync(new URL("../src/lib/sunoTracks.ts", import.meta.url), "utf8");
+  const get = src.slice(src.indexOf("export async function getSunoVariant("), src.indexOf("\n}\n", src.indexOf("export async function getSunoVariant(")));
+  assert.match(get, /if \(v\.remix\) \{[\s\S]*signRemixAssets\(v, userId,[\s\S]*signPath\)[\s\S]*return \{ id: v\.id[^\n]*\n\s*\}\n\s*const audioUrl = await signed\(v\.audio_url\);/);
+  assert.match(get, /coverUrl: await signed\(v\.image_url\) \};$/m, "일반 곡 커버 서명 그대로");
+});

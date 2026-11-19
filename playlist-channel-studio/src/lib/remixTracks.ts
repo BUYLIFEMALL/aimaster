@@ -48,6 +48,8 @@ export type RemixDb = { from(table: string): { select(columns: string): Query } 
 export type RemixVariant = {
   id: string; suno_audio_id: string | null; audio_url: string; image_url: string | null;
   music_tracks: { title: string; task_id: string | null; mode: "vocal" | "instrumental" };
+  /** 리믹스 경로 표시 — 파일 주소는 signRemixAssets(회원 폴더 확인)로만 발급한다 */
+  remix: true;
 };
 
 /**
@@ -72,5 +74,43 @@ export async function lookupRemixVariant(db: RemixDb, userId: string, variantId:
   return {
     id: v.id, suno_audio_id: vocal ? v.suno_audio_id : null, audio_url: v.audio_url, image_url: v.image_url,
     music_tracks: { title: remixTitle(r), task_id: vocal ? r.task_id : null, mode: vocal ? "vocal" : "instrumental" },
+    remix: true,
   };
+}
+
+/**
+ * 저장소 공개 주소 형식(`<base>/storage/v1/object/public/<bucket>/<path>`)이고 그 경로가 회원 본인 폴더(`<userId>/…`)일 때만 경로를 돌려준다.
+ * 외부 주소·다른 저장소·다른 회원 폴더·빈 칸이나 `.`·`..` 조각이 있으면 null(관리자 서명을 하지 않는다).
+ * 음악(SUNO) 리믹스 결과는 `<user>/remix/…`에 저장된다(운영 6개 모두 확인 2026-11-19).
+ */
+export function ownStoragePath(url: string | null, base: string, bucket: string, userId: string): string | null {
+  if (!url || !base || !userId) return null;
+  const prefix = `${base.replace(/\/$/, "")}/storage/v1/object/public/${bucket}/`;
+  if (!url.startsWith(prefix)) return null;
+  let path: string;
+  try { path = decodeURIComponent(url.slice(prefix.length).split(/[?#]/)[0]); } catch { return null; }
+  const seg = path.split("/");
+  if (seg.length < 2 || seg[0] !== userId || seg.some((s) => !s || s === "." || s === "..")) return null;
+  return path;
+}
+
+/** 리믹스 음악·커버 서명 — 회원 폴더 경로만 sign을 부른다. 음악이 회원 폴더가 아니면 커버도 서명하지 않는다 */
+export async function signRemixAssets(
+  v: { audio_url: string | null; image_url: string | null }, userId: string, base: string, bucket: string,
+  sign: (path: string) => Promise<string | null>,
+): Promise<{ audioUrl: string | null; coverUrl: string | null }> {
+  const audioPath = ownStoragePath(v.audio_url, base, bucket, userId);
+  if (!audioPath) return { audioUrl: null, coverUrl: null };
+  const audioUrl = await sign(audioPath);
+  if (!audioUrl) return { audioUrl: null, coverUrl: null };
+  const coverPath = ownStoragePath(v.image_url, base, bucket, userId);
+  return { audioUrl, coverUrl: coverPath ? await sign(coverPath) : null };
+}
+
+/** 주소로 받은 곡 번호 중 실제 내 곡 목록에 있는 수 — 목록을 아직 못 받았으면 null */
+export function incomingStatus(incomingIds: string[], availableIds: string[] | null): { found: number; missing: number } | null {
+  if (!availableIds) return null;
+  const have = new Set(availableIds);
+  const found = incomingIds.filter((id) => have.has(id)).length;
+  return { found, missing: incomingIds.length - found };
 }
