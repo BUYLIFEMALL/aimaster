@@ -247,3 +247,42 @@ test('모델 이름의 점(gpt-6.2)은 문장 경계로 보지 않음', async ()
   const r = await countCalls(400, JSON.stringify({ error: { message: msg, param: null, code: null } }));
   assert.equal(r.calls.length, 1, '같은 문장에 not이 있으므로 전환 안 함');
 });
+
+// ── Master msg_028c0d100a48: 부정 대상(Chat vs Responses) 구별, 능동형 Responses 부정은 1요청 ──
+test('부정 대상이 Chat Completions이면 같은 문장의 Responses 전환 안내는 유효(2요청)', async () => {
+  for (const msg of [
+    'This model is not supported in v1/chat/completions, use the Responses API instead.',
+    'Chat Completions does not support this model, please use v1/responses instead.',
+  ]) {
+    const r = await countCalls(400, JSON.stringify({ error: { message: msg, param: null, code: null } }));
+    assert.equal(r.calls.length, 2, msg);
+  }
+});
+
+test('Responses를 능동형으로 부정하는 모순은 1요청으로 마감', async () => {
+  for (const msg of [
+    'The Responses API does not support this model. Use the Responses API instead.',
+    'Use v1/responses instead. v1/responses is not available for this model.',
+    'Please use the Responses API for this model; the Responses API cannot serve this request.',
+  ]) {
+    const r = await countCalls(400, JSON.stringify({ error: { message: msg, param: null, code: null } }));
+    assert.equal(r.ok, false, msg);
+    assert.equal(r.calls.length, 1, msg);
+  }
+});
+
+test('공식 문구의 「and not in v1/chat/completions」는 Chat 부정이라 그대로 2요청', async () => {
+  const r = await countCalls(400, JSON.stringify({ error: { message: 'This model is only supported in v1/responses and not in v1/chat/completions.', param: null, code: null } }));
+  assert.equal(r.calls.length, 2);
+});
+
+test('절 구분은 단어 경계만 — standard·button 안의 and·but으로 자르지 않음', async () => {
+  // 「not」 절이 standard/button에서 잘리면 Chat이 같은 절에 남아 잘못 전환됨 → 경계가 맞으면 1요청
+  // standard 안의 and에서 잘리면 「ard does not support…」만 남아 Chat이 빠지고 잘못 1요청이 됨
+  const msg = 'chat/completions standard does not support this model, please use the Responses API instead.';
+  const r = await countCalls(400, JSON.stringify({ error: { message: msg, param: null, code: null } }));
+  assert.equal(r.calls.length, 2, 'Chat이 주어인 같은 절의 부정 → 전환 유효');
+  const msg2 = 'The Responses API standard does not support this model. Use the Responses API instead.';
+  const r2 = await countCalls(400, JSON.stringify({ error: { message: msg2, param: null, code: null } }));
+  assert.equal(r2.calls.length, 1);
+});

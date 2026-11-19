@@ -130,13 +130,40 @@ export function shouldSwitchToResponses(status: number, body: string): boolean {
     for (const m of before.matchAll(/[.!?;](?=\s|$)/g)) cut = (m.index ?? 0) + 1
     return before.slice(cut)
   }
-  const negated = (index: number) => /\b(?:not|never|cannot|no longer)\b|n't\b/i.test(sentencePrefix(index))
+  const sentenceSuffix = (index: number) => {
+    const after = message.slice(index)
+    const end = after.search(/[.!?;](?=\s|$)/)
+    return end < 0 ? after : after.slice(0, end)
+  }
+  // 부정의 대상 구별(Master msg_028c0d100a48): 부정어가 속한 절에 Chat Completions가 나오면 그 부정은 Chat을 향한 것이라
+  // Responses 부정으로 보지 않는다. 그 밖의 부정은 Responses(또는 모호)를 향한 것으로 보고 전환하지 않는다(모호하면 1회 마감).
+  const NEGATION = /\b(?:not|never|cannot|no longer)\b|n't\b/gi
+  const CHAT = /chat\/completions|chat completions/i
+  // 절(쉼표·쌍점·and·but으로 나뉜 구간) 단위로 본다 — 「Chat Completions does not support…」처럼 Chat이 주어인 경우도 Chat 부정.
+  const clauseAround = (text: string, pos: number) => {
+    let start = 0
+    let end = text.length
+    for (const m of text.matchAll(/,|:|\band\b|\bbut\b/gi)) {
+      const i = m.index ?? 0
+      if (i < pos) start = i + m[0].length
+      else { end = i; break }
+    }
+    return text.slice(start, end)
+  }
+  const negatesResponses = (text: string) =>
+    Array.from(text.matchAll(NEGATION)).some((m) => !CHAT.test(clauseAround(text, m.index ?? 0)))
+  const negated = (index: number) => negatesResponses(sentencePrefix(index))
   // 모순 검사: 같은 경로(Responses)를 「쓰라/거기서만 된다」는 표현이 하나라도 부정돼 있으면 지시가 모순이라 다시 보내지 않는다.
   const responsesMentions = [
     new RegExp(`\\buse ${RESP}`, 'gi'),
     new RegExp(`\\b(?:supported|available) (?:in|on|via|through|with) ${RESP}`, 'gi'),
   ]
-  const contradicted = responsesMentions.some((re) => Array.from(message.matchAll(re)).some((m) => negated(m.index ?? 0)))
+  // 능동형 모순: 「Responses API does not support this model」처럼 Responses가 주어이고 뒤에서 부정되는 경우도 모순으로 본다.
+  const activelyNegated = Array.from(message.matchAll(new RegExp(RESP, 'gi'))).some((m) =>
+    negatesResponses(sentenceSuffix((m.index ?? 0) + m[0].length)),
+  )
+  const contradicted =
+    activelyNegated || responsesMentions.some((re) => Array.from(message.matchAll(re)).some((m) => negated(m.index ?? 0)))
   if (contradicted) return false
   const directSwitch = switchPatterns.some((re) => Array.from(message.matchAll(re)).some((m) => !negated(m.index ?? 0)))
   return pathIncompatible || directSwitch
