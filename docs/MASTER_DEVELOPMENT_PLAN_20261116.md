@@ -423,7 +423,7 @@ Master 마지막 실제 점검: 2026-11-19 13:01:14 KST · 실행 중 점검 주
 | B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | reviewing / local_data_layer_review_passed_server_approval_pending | 메이커 M3 제안 적용·서버 바이트 검증 설계 | f0eaf784c Mac 로컬 데이터 계층 독립 검수 수락을 Backend에 회신. 점 경로 검증, 서버 구현·키·UI·Lab은 별도 승인 대기. |
 | B2B-20261119-ADMINUI | AG-UI-01 | waiting_human / private_lab_ready_waiting_owner_admin_login | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | 사설 Lab ad046c1eb, Mac 공간39 시험 관리자 로그인/제어 반환 대기. 이후 aimaster-b2b 375px·키보드 읽기 검수. |
 | B2B-20261119-MALL-STORAGE | CX-MASTER-01 | queued / central_accounting_scope_registered_retention_excluded | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 메인 집계에서 몰별 경로를 몰 주인에게 귀속하고 중복 방지·구매 안내 범위를 설계. 30일 삭제 요청 취소·등록 상품 최소 1년 보관 유지. 운영 적용 별도. |
-| IMG-20261119-PLAN | CC-ECOM-01 | running / rtx_q4_trial_verified_comparison_view_dispatched | AI 무료 이미지 자동화 개발 플랜 | RTX Q4 16/16 확인. 동일 8장 중앙값 FLUX Q4/Q8 5.95/8.50초, Z 10.30/14.00초. ECOM 16쌍 비교 화면·보고서 반영 배정, 품질 판단 대기. |
+| IMG-20261119-PLAN | CC-ECOM-01 | waiting_human / quantization_blind_view_ready_owner_evaluation_pending | AI 무료 이미지 자동화 개발 플랜 | Q4 16/16 결과 문서 49bec95a8. Q4/Q8 16쌍 로컬 비교 화면 완료, HTML 해시·PNG 32개 확인. 기존 Q8 노출 한계와 8GB 이하 미검증, 주인님 품질 평가 대기. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
