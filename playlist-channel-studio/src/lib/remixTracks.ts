@@ -158,6 +158,14 @@ export function reconcilePicks(picked: string[], held: string[], view: ListView,
 }
 const same = (a: string[], b: string[]) => a.length === b.length && a.every((id, i) => id === b[i]);
 
+/**
+ * 회원의 「선택 해제」 — 활성 선택·일시 보류·아직 처리하지 않은 받은 곡 번호를 모두 지우고 미리 선택도 끝난 것으로 표시한다.
+ * 해제 뒤 도착한 정상 응답·반복 부분 실패에서도 아무것도 다시 선택되지 않는다(버튼 이름 그대로 「전부 해제」).
+ */
+export function clearSelection(): { picked: string[]; held: string[]; incoming: Incoming; done: { suno: boolean; remix: boolean } } {
+  return { picked: [], held: [], incoming: { suno: [], remix: [] }, done: { suno: true, remix: true } };
+}
+
 /** 보류를 따로 두지 않는 쪽(시험·단순 호출)용 — 활성 선택 뒤에 남은 자리만큼 보류를 붙인 한 줄 */
 export function prunePicked(picked: string[], view: ListView, knownRemix: ReadonlySet<string>, max: number): string[] {
   const r = reconcilePicks(picked, [], view, knownRemix, max);

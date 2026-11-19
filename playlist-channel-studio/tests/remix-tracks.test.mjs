@@ -483,3 +483,58 @@ test("수동 해제·상한: 해제한 지금 곡은 되살리지 않고, 복구
   assert.equal(reconcilePicks(many, [], ok(many, true), new Set(), 20).picked.length, 20);
   assert.deepEqual(reconcilePicks([A], [C], { state: "loading" }, known, 20), { picked: [A], held: [C] }, "대기 중엔 그대로");
 });
+
+// ── 「선택 해제」 뒤 보류 복원 방지 (Master msg_0757c1fe635b, Mac msg_b8734f097704) — 화면 효과와 같은 순서(reconcile → seedStep) ──
+import { clearSelection } from "../src/lib/remixTracks.ts";
+
+/** 화면 효과 한 번 — 정상 목록 응답을 받았을 때 */
+function onList(st, view) {
+  const r = reconcilePicks(st.picked, st.held, view, st.known, 20);
+  const next = seedStep(st.incoming, st.done, view, r.picked, 20);
+  return { ...st, picked: next.picked, held: r.held, done: next.done };
+}
+const cleared = (st) => ({ ...st, ...clearSelection() });
+
+test("부분 실패 중 활성 5 + 보류 15에서 「선택 해제」 → 해제 뒤 도착한 정상 응답에서도 되살리지 않음", () => {
+  const R = ids("aaaa", 15), G = ids("bbbb", 5), known = new Set(R);
+  let st = { picked: [...R, ...G], held: [], incoming: { suno: [], remix: [] }, done: { suno: true, remix: true }, known };
+  st = onList(st, ok(G, false));                                      // 부분 실패: 리믹스 15는 보류
+  assert.deepEqual([st.picked, st.held], [G, R]);
+  st = cleared(st);                                                     // 회원이 「선택 해제」
+  assert.deepEqual([st.picked, st.held], [[], []]);
+  st = onList(st, ok([...R, ...G], true));                              // 해제 전에 보낸 새로고침의 정상 응답이 뒤늦게 도착
+  assert.deepEqual([st.picked, st.held], [[], []], "리믹스 15 되살림 없음");
+});
+
+test("처리 전 받은 리믹스 번호도 해제 — 부분 실패 반복 뒤 정상 복구돼도 미리 선택하지 않음", () => {
+  let st = { picked: [], held: [], incoming: { suno: [A], remix: [C] }, done: NONE, known: new Set() };
+  st = onList(st, ok([A, B], false));                                   // 일반 곡 A만 선택, 리믹스 C 보류(받은 번호)
+  assert.deepEqual(st.picked, [A]);
+  assert.equal(st.done.remix, false);
+  st = cleared(st);
+  assert.deepEqual(st.incoming, { suno: [], remix: [] });
+  st = onList(st, ok([A, B], false));                                   // 부분 실패 반복
+  st = onList(st, ok([A, B, C], true));                                 // 정상 복구
+  assert.deepEqual(st.picked, [], "A·C 모두 되살리지 않음");
+  assert.equal(incomingNotice(st.incoming, ok([A, B, C], true), st.picked), null, "받은 곡 안내도 사라짐");
+});
+
+test("일반 곡(?suno=)만 쓰는 흐름 회귀: 해제 뒤 응답이 와도 그대로 비어 있고, 다시 손으로 고르면 정상 선택", () => {
+  let st = { picked: [], held: [], incoming: { suno: [A, B], remix: [] }, done: NONE, known: new Set() };
+  st = onList(st, ok([A, B]));
+  assert.deepEqual(st.picked, [A, B]);
+  st = cleared(st);
+  st = onList(st, ok([A, B]));
+  assert.deepEqual(st.picked, []);
+  assert.equal(canPickMore(st.picked, [A, B], 20), true);
+  st = onList({ ...st, picked: [B] }, ok([A, B]));
+  assert.deepEqual(st.picked, [B], "해제 뒤 손으로 고른 곡은 유지");
+});
+
+test("화면 연결: 「선택 해제」는 clearAll(활성·보류·받은 곡·완료 표시) — 보류나 받은 곡만 남아도 누를 수 있음", () => {
+  const ui = readFileSync(new URL("../src/components/video/SunoImportPanel.tsx", import.meta.url), "utf8");
+  assert.match(ui, /const clearAll = \(\) => \{ const c = clearSelection\(\); setPicked\(c\.picked\); heldRef\.current = c\.held; setIncoming\(c\.incoming\); setSeedDone\(c\.done\); \};/);
+  assert.match(ui, /onClick=\{clearAll\}>선택 해제<\/button>/);
+  assert.doesNotMatch(ui, /onClick=\{\(\) => setPicked\(\[\]\)\}/);
+  assert.match(ui, /disabled=\{!!busy \|\| \(!picked\.length && !heldRef\.current\.length && !incoming\.suno\.length && !incoming\.remix\.length\)\} onClick=\{clearAll\}/);
+});
