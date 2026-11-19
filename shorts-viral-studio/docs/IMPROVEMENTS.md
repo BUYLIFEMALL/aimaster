@@ -6,6 +6,9 @@
 
 ---
 
+> **⏳ 미배포 대기 (2026-11-20, 영상 담당 `claude-win-video`, MOV-SVS-RELEVANCE-FILTER-INTEGRATION)** — 쇼츠 검색 결과 관련성·언어·종교 거르기. 공용 기준 코드 `youtube-relevance-filter`(기준 `youtube-viral-studio/src/lib/youtube/relevanceFilter.ts`) 사본 `src/lib/youtube/relevanceFilter.ts`(직접 고치지 말 것, `--sync`). 검색 순서를 순수 함수 `src/lib/youtube/shortsSearch.ts` `runShortsSearch`로 옮겨(`api.ts` `searchShorts`는 호출만) 영상 상세를 받은 직후 거르고 남은 영상의 채널만 조회 — YouTube 호출 수·검색 조건 그대로(search 1·videos 1·channels 1, 다 걸러지면 channels 0). 결과는 `{videos, excluded}`(사유별: 도배·다른 언어·검색어 무관·종교). 화면 `SearchStep.tsx`: 「종교 영상 제외」 토글(기본 켬, 검색어가 종교 단어면 자동으로 남김, 프로젝트 `search.includeReligion`에 저장), 결과 머리에 「제외 N건(…)」, 다 걸러지면 「조건에 맞는 쇼츠가 없습니다 — 제외 N건…」 안내. 시험 `node --test tests/relevance.test.mjs` 6/6, 기존 `npm test` 17/17, `tsc` 통과. **다음 SVS 배포 때 함께**(버전 v2.01→v2.02, 그때 빌드 승인) → 배포 뒤 시험 계정 본인 YouTube 키로 검색 1회(약 102유닛)·제외 줄 확인.
+
+
 ## 1. 2026-10-18 디자인 리뉴얼 작업 완료 내역
 - **플로우 위저드 스타일 (다크 차콜)** 전면 일관 적용 (`#0d1117` 배경, `#161b22` 카드, `#30363d` 보더, `#ef4444` 쇼츠 레드 포인트).
 - 375px 모바일 전용 56px 고정 상단 헤더 및 오버레이 슬라이드 드로어 메뉴 구축 완료.

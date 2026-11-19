@@ -615,6 +615,12 @@ const MODULES = [
     copies: ["shorts-viral-studio/tests/youtubeData.test.mjs"],
   },
   {
+    // 2026-11-20 MOV-SVS-RELEVANCE-FILTER-INTEGRATION: 검색 결과 관련성·언어·종교 거르기(네트워크 없음, boks-youtube-finder MIT 이식)
+    id: "youtube-relevance-filter",
+    source: "youtube-viral-studio/src/lib/youtube/relevanceFilter.ts",
+    copies: ["shorts-viral-studio/src/lib/youtube/relevanceFilter.ts"],
+  },
+  {
     // 이미지 생성 호출(엔드포인트·대기·이미지 받아오기). 프롬프트·모델·화질·온도는 각 프로그램 값 그대로(2026-10-17)
     id: "gemini-image-client",
     source: "ai-image-studio/lib/providers/geminiImage.ts",

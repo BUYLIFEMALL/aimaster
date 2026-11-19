@@ -20,6 +20,7 @@ import type {
   Scene,
   ScriptConfig,
   SearchParams,
+  SearchShortsResult,
   ShortVideo,
   VisualStyle,
 } from "@/types/svs";
@@ -64,7 +65,7 @@ function fail(err: unknown, fallback: string): ActionResult<never> {
 }
 
 /** 1단계: 유튜브 쇼츠 검색 (조회수·구독자 실측값 + 떡상 지표 계산) */
-export async function searchShortsAction(params: SearchParams): Promise<ActionResult<ShortVideo[]>> {
+export async function searchShortsAction(params: SearchParams): Promise<ActionResult<SearchShortsResult>> {
   try {
     const user = await requireProgramAccess();
     const query = params.query?.trim();
@@ -84,8 +85,10 @@ export async function searchShortsAction(params: SearchParams): Promise<ActionRe
       };
     }
 
-    const videos = await searchShorts({ ...params, query }, apiKey);
-    return { success: true, data: videos };
+    // 2026-11-20: 종교 영상 포함 여부는 true일 때만 켬(그 밖의 값은 기본 = 제외)
+    const includeReligion = params.includeReligion === true;
+    const result = await searchShorts({ query, dateFrom: params.dateFrom, dateTo: params.dateTo, order: params.order, includeReligion }, apiKey);
+    return { success: true, data: result };
   } catch (err) {
     if (err instanceof YouTubeApiError) {
       return {

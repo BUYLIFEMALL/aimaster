@@ -35,6 +35,21 @@ export interface SearchParams {
   dateFrom?: string; // YYYY-MM-DD
   dateTo?: string;
   order: SearchOrder;
+  /** 2026-11-20: true면 종교 영상도 남김(기본 false = 제외). 검색어가 종교 단어면 자동으로 남김 */
+  includeReligion?: boolean;
+}
+
+/** 2026-11-20: 관련성·언어·종교 거르기로 뺀 영상 수(사유별) — 공용 youtube-relevance-filter */
+export interface SearchExcluded {
+  spam: number;
+  language: number;
+  offtopic: number;
+  religion: number;
+}
+
+export interface SearchShortsResult {
+  videos: ShortVideo[];
+  excluded: SearchExcluded;
 }
 
 export interface SearchFilters {
@@ -149,7 +164,7 @@ export interface PromptsResult {
 
 /** 프로젝트 전체 상태 (svs_projects.data 에 그대로 저장) */
 export interface ProjectData {
-  search: { query: string; dateFrom: string; dateTo: string; order: SearchOrder };
+  search: { query: string; dateFrom: string; dateTo: string; order: SearchOrder; includeReligion?: boolean };
   filters: { maxDuration: string; minViews: string; maxSubs: string };
   videos: ShortVideo[];
   selectedIds: string[];

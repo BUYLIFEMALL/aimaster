@@ -1,6 +1,6 @@
 import "server-only";
-import { buildShortVideo } from "@/lib/youtube/metrics";
-import type { SearchParams, ShortVideo } from "@/types/svs";
+import { runShortsSearch } from "@/lib/youtube/shortsSearch";
+import type { SearchParams, SearchShortsResult } from "@/types/svs";
 import { YouTubeDataError, youtubeRequest } from "@/lib/youtube/youtubeData";
 
 export class YouTubeApiError extends Error {
@@ -28,54 +28,9 @@ async function ytFetch<T>(path: string, params: Record<string, string>, apiKey: 
   }
 }
 
-interface SearchResponse {
-  items?: { id?: { videoId?: string } }[];
-}
-interface VideosResponse {
-  items?: Parameters<typeof buildShortVideo>[0][];
-}
-interface ChannelsResponse {
-  items?: (Parameters<typeof buildShortVideo>[1] & { id: string })[];
-}
-
-/** 검색 → 영상 상세 → 채널 상세 순으로 조회하고 지표를 계산합니다. (검색 1회 = 약 102유닛) */
-export async function searchShorts(params: SearchParams, apiKey: string): Promise<ShortVideo[]> {
-  const q: Record<string, string> = {
-    part: "snippet",
-    type: "video",
-    q: params.query,
-    maxResults: "50",
-    order: params.order,
-    videoDuration: "short",
-    regionCode: "KR",
-    relevanceLanguage: "ko",
-  };
-  if (params.dateFrom) q.publishedAfter = new Date(`${params.dateFrom}T00:00:00Z`).toISOString();
-  if (params.dateTo) q.publishedBefore = new Date(`${params.dateTo}T23:59:59Z`).toISOString();
-
-  const search = await ytFetch<SearchResponse>("search", q, apiKey);
-  const ids = (search.items ?? []).map((i) => i.id?.videoId).filter((v): v is string => Boolean(v));
-  if (ids.length === 0) return [];
-
-  const videos = await ytFetch<VideosResponse>(
-    "videos",
-    { part: "snippet,statistics,contentDetails", id: ids.join(",") },
-    apiKey,
-  );
-  const items = videos.items ?? [];
-  const channelIds = [...new Set(items.map((v) => v.snippet.channelId))];
-
-  const channels = channelIds.length
-    ? await ytFetch<ChannelsResponse>(
-        "channels",
-        { part: "snippet,statistics", id: channelIds.join(",") },
-        apiKey,
-      )
-    : { items: [] };
-  const channelMap = new Map((channels.items ?? []).map((c) => [c.id, c]));
-
-  const now = new Date();
-  return items.map((v) => buildShortVideo(v, channelMap.get(v.snippet.channelId), now));
+/** 검색 → 영상 상세 → 관련성·언어·종교 거르기 → 채널 상세. 순서·호출 수는 shortsSearch.ts(순수 함수) 참고. (검색 1회 = 약 102유닛) */
+export async function searchShorts(params: SearchParams, apiKey: string): Promise<SearchShortsResult> {
+  return runShortsSearch(params, (path, query) => ytFetch(path, query, apiKey));
 }
 
 /** 영상별 상위 댓글 (실패하면 빈 배열 — 댓글이 막힌 영상이 많음) */

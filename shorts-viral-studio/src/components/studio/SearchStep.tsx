@@ -6,7 +6,8 @@ import { searchShortsAction } from "@/lib/actions/svs";
 import { GRADE_STYLE, formatDuration, formatNumber } from "@/lib/youtube/metrics";
 import { useStudio } from "@/components/studio/StudioProvider";
 import { Card, ErrorBanner, GhostButton, PrimaryButton, StepHeader } from "@/components/studio/ui";
-import type { SearchOrder, ShortVideo } from "@/types/svs";
+import { describeExcluded } from "@/lib/youtube/shortsSearch";
+import type { SearchExcluded, SearchOrder, ShortVideo } from "@/types/svs";
 
 const MAX_SELECT = 3;
 
@@ -58,6 +59,9 @@ export function SearchStep() {
   const { search, filters, videos, selectedIds } = data;
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // 2026-11-20: 마지막 검색에서 거른 영상 수(저장하지 않음 — 새로 불러오면 사라짐)
+  const [excluded, setExcluded] = useState<SearchExcluded | null>(null);
+  const excludeReligion = search.includeReligion !== true;
 
   // 기본 게시 기간: 최근 30일
   useEffect(() => {
@@ -124,6 +128,7 @@ export function SearchStep() {
       dateFrom: search.dateFrom || undefined,
       dateTo: search.dateTo || undefined,
       order: search.order,
+      includeReligion: !excludeReligion,
     });
     setSearching(false);
     if (!res.success || !res.data) {
@@ -132,8 +137,9 @@ export function SearchStep() {
       return;
     }
     // 새 검색이면 이전 분석 결과와 선택은 초기화합니다.
+    setExcluded(res.data.excluded);
     update({
-      videos: res.data,
+      videos: res.data.videos,
       selectedIds: [],
       analysis: null,
       ideas: [],
@@ -141,7 +147,10 @@ export function SearchStep() {
       scenes: [],
       promptsResult: null,
     });
-    if (res.data.length === 0) setError("검색 결과가 없습니다. 검색어나 기간을 바꿔 보세요.");
+    if (res.data.videos.length === 0) {
+      const ex = describeExcluded(res.data.excluded);
+      setError(ex ? `조건에 맞는 쇼츠가 없습니다 — ${ex}. 검색어를 바꾸거나 「종교 영상 제외」를 꺼 보세요.` : "검색 결과가 없습니다. 검색어나 기간을 바꿔 보세요.");
+    }
   }
 
   function toggle(id: string) {
@@ -230,7 +239,11 @@ export function SearchStep() {
         </div>
 
         <p className="mt-3 text-[11px] leading-relaxed text-slate-500">
-          💡 검색 1회는 YouTube 할당량 약 100유닛을 사용합니다(기본 하루 1만유닛 ≈ 100회). 필터는 이미 가져온 결과에 바로 적용되며 추가 할당량을 쓰지 않습니다.
+          <label className="mr-3 inline-flex items-center gap-1.5 font-semibold text-slate-600">
+            <input type="checkbox" checked={excludeReligion} onChange={(e) => update({ search: { ...search, includeReligion: !e.target.checked } })} />
+            종교 영상 제외
+          </label>
+          💡 검색 1회는 YouTube 할당량 약 100유닛을 사용합니다(기본 하루 1만유닛 ≈ 100회). 필터는 이미 가져온 결과에 바로 적용되며 추가 할당량을 쓰지 않습니다. 해시태그만 도배한 영상·다른 언어 영상·검색어와 무관한 영상은 자동으로 거르며(할당량 0), 검색어가 종교 단어면 종교 영상도 남깁니다.
         </p>
       </Card>
 
@@ -240,6 +253,7 @@ export function SearchStep() {
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-base font-black text-slate-900">
             검색 결과 <span className="text-xs font-medium text-slate-500">({filtered.length}개 / 전체 {videos.length}개)</span>
+            {describeExcluded(excluded) && <span className="ml-2 text-xs font-medium text-slate-400">· {describeExcluded(excluded)}</span>}
           </h2>
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-bold text-slate-500">선택 {selectedIds.length}/{MAX_SELECT}</span>
