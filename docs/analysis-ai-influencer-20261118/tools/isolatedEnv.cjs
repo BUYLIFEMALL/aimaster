@@ -58,4 +58,39 @@ function assertChildEnv(env) {
   return true;
 }
 
-module.exports = { SYSTEM_ALLOW, APP_ALLOW, buildChildEnv, assertChildEnv, isAllowedName };
+// Next가 스스로 읽는 환경 파일 후보(설치본 next 16.4.2의 @next/env: `.env.<모드>.local` → `.env.local` → `.env.<모드>` → `.env`).
+// 개발 서버는 development 모드지만, 모드가 바뀌어도 새지 않도록 세 모드를 모두 막는다. `.env.vault`는 내장 dotenv가 아는 이름이라 함께 막는다.
+// 2026-11-19 Mac 독립 확인(msg_7949975ef65b)에서 이전 가드가 `.env`·`.env.local`만 본다는 지적을 받아 넓혔다.
+const ENV_FILE_CANDIDATES = [
+  ".env", ".env.local",
+  ".env.development", ".env.development.local",
+  ".env.production", ".env.production.local",
+  ".env.test", ".env.test.local",
+  ".env.vault",
+];
+const ENV_FILE_SET = new Set(ENV_FILE_CANDIDATES);
+
+// 폴더의 「이름 목록」만 본다 — 파일을 열지 않는다. 대소문자를 무시한다(윈도우·맥 기본 파일 시스템은 `.ENV.local`도 같은 파일로 읽는다).
+// 폴더·깨진 링크처럼 Next가 읽지 못할 것도 이름이 같으면 막는다(안전한 쪽으로).
+function findEnvFiles(dir, readdir = require("fs").readdirSync) {
+  return readdir(dir).filter((name) => ENV_FILE_SET.has(String(name).toLowerCase())).sort();
+}
+
+function assertNoEnvFiles(dir, readdir) {
+  const found = findEnvFiles(dir, readdir);
+  if (found.length) {
+    const err = new Error(`격리 사본에 환경 파일 ${found.length}개: ${found.join(", ")} — 서버를 띄우지 않습니다`);
+    err.code = "ISOLATED_ENVFILE_PRESENT";
+    throw err;
+  }
+  return true;
+}
+
+// 실행기가 쓰는 한 묶음: 환경 파일 차단 → 환경 조립(검사 포함) → 띄우기. 앞 단계가 던지면 spawnFn은 불리지 않는다.
+function launchGuarded({ copyDir, ambient, picked, spawnFn, readdir }) {
+  assertNoEnvFiles(copyDir, readdir);
+  const { env, dropped } = buildChildEnv(ambient, picked);
+  return { child: spawnFn(env), env, dropped };
+}
+
+module.exports = { SYSTEM_ALLOW, APP_ALLOW, ENV_FILE_CANDIDATES, buildChildEnv, assertChildEnv, isAllowedName, findEnvFiles, assertNoEnvFiles, launchGuarded };
