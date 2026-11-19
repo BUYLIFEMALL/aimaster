@@ -6121,15 +6121,15 @@
     },
     {
       "task_id": "B2B-20261119-MALL-STORAGE",
-      "owner": "CX-MASTER-01",
+      "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
       "title": "쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내",
-      "status": "waiting_human",
-      "delivery": "private_retention_0076_verified_waiting_production_approval",
-      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md·msg_f995f8db2740·msg_b03bc930a0b2·0073 및 삭제 호출 소스 대조·msg_42a884229750·56ff56a5c·cc25a7cc1·0073/0076 함수 본문 대조·msg_c7919fb9f259·msg_81907d673c17·msg_f5b822c01b10·.ai/results/B2B-20261119-MALL-STORAGE-CX-QA-01.md·63b858413·Master 문서 대조 및 SQL·합성 시험 동일 확인",
-      "next": "0076 cc25a7cc1 합성 15건·Mac 정적 통과. 문서 63b858413에서 LIMIT 검증 보완 확인. 운영 반영 승인 대기. 실제 영향·집계 정책 결정 별도.",
-      "lastReviewedAt": "2026-11-19T05:46:10.988Z",
-      "sha": "cc25a7cc1"
+      "status": "running",
+      "delivery": "mall_accounting_decisions_accepted_local_implementation_dispatched",
+      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md·msg_f995f8db2740·msg_b03bc930a0b2·0073 및 삭제 호출 소스 대조·msg_42a884229750·56ff56a5c·cc25a7cc1·0073/0076 함수 본문 대조·msg_c7919fb9f259·msg_81907d673c17·msg_f5b822c01b10·.ai/results/B2B-20261119-MALL-STORAGE-CX-QA-01.md·63b858413·Master 문서 대조 및 SQL·합성 시험 동일 확인·msg_3ed0e1d3e2de·705316994·msg_b549fb254462",
+      "next": "4개 집계 결정 승인. 백엔드에 몰 대표 귀속·위젯 라벨 로컬 구현 배정. 0076 cc25a7cc1 운영 적용 및 정리 범위 변경은 별도 승인 대기.",
+      "lastReviewedAt": "2026-11-19T05:55:32.913Z",
+      "sha": "705316994"
     },
     {
       "task_id": "BLOG-20261119-MODELS",
@@ -6207,12 +6207,13 @@
       "task_id": "RE-20261119-PARTIAL",
       "owner": "CC-REALTY-01",
       "title": "상가·건물·토지 알림 부분 조회 결과 보존",
-      "status": "waiting_human",
-      "delivery": "partial_result_retention_plan_ready_decisions_pending",
+      "status": "running",
+      "delivery": "owner_retention_decisions_accepted_local_implementation_started",
       "sha": "184143779",
-      "next": "id 기준 이전 결과 보존 설계. 7일, 차단·오류 때도 보존할지, 배포 시점 결정 대기. 제품·확장·운영 변경 없음.",
-      "lastReviewedAt": "2026-11-19T05:04:40.877Z",
-      "evidence": "msg_ae9585329102·msg_c8d7eaa4e162"
+      "next": "7일 보존·차단/오류 포함·v1.35 묶음 승인. 매물 알림 부분 조회 결과 로컬 구현 착수. 운영 배포와 빌드는 별도.",
+      "lastReviewedAt": "2026-11-19T05:55:32.913Z",
+      "evidence": "msg_ae9585329102·msg_c8d7eaa4e162·msg_c9df626fb287·msg_cfd73d85c01e",
+      "reviewer": "CX-QA-01"
     },
     {
       "task_id": "BLOG-20261119-MODELS-3",

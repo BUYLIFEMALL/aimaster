@@ -427,7 +427,7 @@ Master 마지막 실제 점검: 2026-11-19 14:31:50 KST · 실행 중 5분 · �
 | B2B-20261119-MAKER-M2-UI | CC-B2B-BACK-01 | done / m2_ui_independent_accepted_test_assertions_verified_undeployed | 메이커 M2 사진 제안 화면·저장 응답 연결 | 독립 제품 수락, 단언 5개 도달성 수정 후 Master 시험 18/18 통과. 실제 Storage·Lab 미검증, 미배포. |
 | B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | reviewing / local_data_layer_review_passed_server_approval_pending | 메이커 M3 제안 적용·서버 바이트 검증 설계 | f0eaf784c Mac 로컬 데이터 계층 독립 검수 수락을 Backend에 회신. 점 경로 검증, 서버 구현·키·UI·Lab은 별도 승인 대기. |
 | B2B-20261119-ADMINUI | AG-UI-01 | reviewing / lab_ready_authenticated_screen_pending | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | 승인 4경로 사설 Lab 1회 READY. 상점 200·관리 상품/주문 307. 로그인 후 실화면·키보드는 사용자 제어 반환 뒤. 필터 aria-current 보완 후보 기록. |
-| B2B-20261119-MALL-STORAGE | CX-MASTER-01 | waiting_human / private_retention_0076_verified_waiting_production_approval | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 0076 cc25a7cc1 합성 15건·Mac 정적 통과. 문서 63b858413에서 LIMIT 검증 보완 확인. 운영 반영 승인 대기. 실제 영향·집계 정책 결정 별도. |
+| B2B-20261119-MALL-STORAGE | CC-B2B-BACK-01 | running / mall_accounting_decisions_accepted_local_implementation_dispatched | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 4개 집계 결정 승인. 백엔드에 몰 대표 귀속·위젯 라벨 로컬 구현 배정. 0076 cc25a7cc1 운영 적용 및 정리 범위 변경은 별도 승인 대기. |
 | IMG-20261119-PLAN | CC-ECOM-01 | waiting_human / q8_review_screen_verified_user_quality_rating_pending | AI 무료 이미지 자동화 개발 플랜 | 내부 검토 화면 HTML 지문·이미지 48장 확인. 사용자 품질 기준 39/48 판정 대기. 실제 엔진 실기는 미검증. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
@@ -513,7 +513,7 @@ Master 마지막 실제 점검: 2026-11-19 14:31:50 KST · 실행 중 5분 · �
 | AIF-20261118-W03 | 미배정 | queued / sequenced_after_w01_and_w02_by_owner_instruction | 회원용 인물 라이브러리·시트·버전 | 주인님 지시대로 W01·W02 이후 시작. 인물 라이브러리·일괄 이미지·영상 미착수. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 | BLOG-20261119-MODELS | CC-BLOG-01 | done / strict_switch_independent_accepted_undeployed | 블로그 설정 플랫폼별 AI 모델 선택 | Mac 49/49와 원문 1회·정상 전환과 503 상한 2회 수락. 승인 실호출 9/9는 앞선 버전의 담당 결과. 미배포. |
-| RE-20261119-PARTIAL | CC-REALTY-01 | waiting_human / partial_result_retention_plan_ready_decisions_pending | 상가·건물·토지 알림 부분 조회 결과 보존 | id 기준 이전 결과 보존 설계. 7일, 차단·오류 때도 보존할지, 배포 시점 결정 대기. 제품·확장·운영 변경 없음. |
+| RE-20261119-PARTIAL | CC-REALTY-01 | running / owner_retention_decisions_accepted_local_implementation_started | 상가·건물·토지 알림 부분 조회 결과 보존 | 7일 보존·차단/오류 포함·v1.35 묶음 승인. 매물 알림 부분 조회 결과 로컬 구현 착수. 운영 배포와 빌드는 별도. |
 | BLOG-20261119-MODELS-3 | CC-BLOG-01 | done / saved_provider_mac_review_accepted_undeployed | 블로그 3개 프로그램 모델 목록 동기화 | SEO 22/22·에이전트 복원/요청 일치 맥미니 수락. 사진 후기 선택지 및 기존 빠른 작성 응답 지연은 별도. 미배포. |
 | FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | done / mobile_quickbar_and_preview_mac_accepted_undeployed | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 고정 51d4b2207 Mac 28/28. 모바일 버튼·포커스 및 미리보기 빈 줄 제거 수락. 미배포 묶음 대기, 고정판 실제 편집기 미확인. |
 
