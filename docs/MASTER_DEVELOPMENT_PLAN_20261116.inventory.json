@@ -10234,6 +10234,17 @@
       "lastReviewedAt": "2026-11-19T07:05:56.802Z"
     },
     {
+      "task_id": "AIF-20261119-PLAN6",
+      "parent_task_id": "AIF-20261119-W01-D1",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "AI Influencer 직접 요구 6건 개발 플랜 보완",
+      "status": "running",
+      "delivery": "six_requirement_plan_addendum_dispatched",
+      "next": "D2 읽기 사전 검토 우선. 기존 숏츠·릴스·유튜브 계획과 회원 cron·글/이미지 모델 선택·Threads 게시를 대조해 보완 초안 작성. 구현 전.",
+      "evidence": "msg_2aef054f4218·msg_cab465419261"
+    },
+    {
       "task_id": "AIF-20261119-W01-D1",
       "parent_task_id": "AIF-20261119-W01-RETOUCH",
       "owner": "CC-SNS-01",
