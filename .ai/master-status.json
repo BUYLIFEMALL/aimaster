@@ -6301,10 +6301,10 @@
       "owner": "CC-SNS-01",
       "title": "AI Influencer D1 스위치 OFF 배포 사전 확인",
       "status": "running",
-      "delivery": "reference_preserved_d1_one_build_dispatched",
-      "sha": "5a2c61ddd",
-      "next": "5a2c61ddd 이미지 보존·전송 전 안내 수정. 격리 빌드·344/344·OFF 31/31. 기존 승인 범위 D1 운영 빌드 1회 조건부 배정, 시작·결과 대기. 로그인 실제 화면 미검증.",
-      "evidence": "msg_99f48ec1072f·msg_56627921dadb·msg_ab5b76ba2021·msg_fe0626fbf3a1·msg_ff8bfd3c4215·7da7961ec·msg_6fe64489deea·msg_edce1bb04114·7cbff8753·msg_d1564fa89a51·msg_5ece488b490e·6122fbb04·bc6ff956b·bed9d1dad·msg_4ddfcc074cc6·msg_78377ef70db9·ff746dff6·d4298bd76·5a2c61ddd·msg_dd4eb4c22e70",
+      "delivery": "d1_off_production_build_start_reported",
+      "sha": "aaac91bb6",
+      "next": "aaac91bb6 격리 후보(v1.27 표시만 추가)로 D1 OFF 운영 빌드 1회 시작 보고. 배포 ID·READY 대기. DB 버전 v1.26, 로그인 실제 화면 미검증.",
+      "evidence": "msg_99f48ec1072f·msg_56627921dadb·msg_ab5b76ba2021·msg_fe0626fbf3a1·msg_ff8bfd3c4215·7da7961ec·msg_6fe64489deea·msg_edce1bb04114·7cbff8753·msg_d1564fa89a51·msg_5ece488b490e·6122fbb04·bc6ff956b·bed9d1dad·msg_4ddfcc074cc6·msg_78377ef70db9·ff746dff6·d4298bd76·5a2c61ddd·msg_dd4eb4c22e70·msg_800912dbc127·aaac91bb6",
       "lastReviewedAt": "2026-11-19T07:37:40.966Z"
     },
     {

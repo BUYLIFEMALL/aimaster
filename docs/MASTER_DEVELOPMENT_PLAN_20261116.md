@@ -510,7 +510,7 @@ Master 마지막 실제 점검: 2026-11-19 16:31:15 KST · 실행 중 5분 · �
 | AIF-20261119-W01-V4 | CC-SNS-01 | done / finite_member_real_storage_verified_isolated_origin | 일반 회원 한도와 운영 다운로드 선행 검증 | 지정 일반 회원 실제 이용·합성 JPEG 1회 업로드·본인 조회·서명 다운로드 200. 일반 한도 초과·정리·운영 출처는 미검증. |
 | AIF-20261119-W01-V3 | CC-SNS-01 | done / v3_success_and_isolation_guard_independent_accepted | AI Influencer 대표 생성 및 보정 검증 | 승인 이미지/캡션 성공 및 e3421c7a9 Mac 모의 18/18 수락. 추가 Windows 실기동·공급자 호출·운영 검증 없음. |
 | AIF-20261119-W01-RETOUCH | CC-SNS-01 | done / test_generation_and_retouch_pass_v5_upload_without_publish | AI Influencer 히스토리 재표시·일반 회원 생성·보정 | 지정 일반 회원 경로 보류. 시험 계정 생성 1·보정 1 성공, V5 규칙 변환·업로드 확인. 앱 실제 게시와 운영 출처는 미검증. |
-| AIF-20261119-W01-D1 | CC-SNS-01 | running / reference_preserved_d1_one_build_dispatched | AI Influencer D1 스위치 OFF 배포 사전 확인 | 5a2c61ddd 이미지 보존·전송 전 안내 수정. 격리 빌드·344/344·OFF 31/31. 기존 승인 범위 D1 운영 빌드 1회 조건부 배정, 시작·결과 대기. 로그인 실제 화면 미검증. |
+| AIF-20261119-W01-D1 | CC-SNS-01 | running / d1_off_production_build_start_reported | AI Influencer D1 스위치 OFF 배포 사전 확인 | aaac91bb6 격리 후보(v1.27 표시만 추가)로 D1 OFF 운영 빌드 1회 시작 보고. 배포 ID·READY 대기. DB 버전 v1.26, 로그인 실제 화면 미검증. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |
