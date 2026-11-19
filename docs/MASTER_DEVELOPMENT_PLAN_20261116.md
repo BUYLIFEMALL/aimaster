@@ -522,7 +522,7 @@ Master 마지막 실제 점검: 2026-11-19 16:31:15 KST · 실행 중 5분 · �
 | BLOG-20261119-MODELS-3 | CC-BLOG-01 | done / saved_provider_mac_review_accepted_undeployed | 블로그 3개 프로그램 모델 목록 동기화 | SEO 22/22·에이전트 복원/요청 일치 맥미니 수락. 사진 후기 선택지 및 기존 빠른 작성 응답 지연은 별도. 미배포. |
 | BLOG-20261119-PHOTO-MODELS | CC-BLOG-01 | done / second_photo_model_update_mac_accepted_undeployed | 네이버 에이전트 사진 리뷰 모델 확대 | Mac 70/70, 새 선택지·종료 모델 차단·저장 결과 호환 수락. 담당 실호출 7/7은 별도. 미배포. |
 | FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | done / mobile_quickbar_and_preview_mac_accepted_undeployed | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 고정 51d4b2207 Mac 28/28. 모바일 버튼·포커스 및 미리보기 빈 줄 제거 수락. 미배포 묶음 대기, 고정판 실제 편집기 미확인. |
-| FRONT-20261119-QUICKBAR-TABLET | CC-B2B-FRONT-01 | running / read_only_reproduction_and_narrow_fix_dispatched | B2B몰 태블릿 폭 빠른 메뉴 상품 가림 | 768/820/1024/1280px 읽기 재현 후 필요한 폭만 국소 보완. 기존 모바일·편집기 보존. 미배포. |
+| FRONT-20261119-QUICKBAR-TABLET | CC-B2B-FRONT-01 | running / local_fix_pass_mac_independent_review_sent | B2B몰 태블릿 폭 빠른 메뉴 상품 가림 | f79554d95 로컬 시험 28/28. MacMini 독립 검수 전달, 수락과 실제 후보 화면 확인 대기. 미배포. |
 
 ## 현재 담당 회신이 확보된 프로젝트
 

@@ -10253,10 +10253,10 @@
       "reviewer": "CX-QA-01",
       "title": "B2B몰 태블릿 폭 빠른 메뉴 상품 가림",
       "status": "running",
-      "delivery": "read_only_reproduction_and_narrow_fix_dispatched",
-      "sha": "51d4b2207",
-      "next": "768/820/1024/1280px 읽기 재현 후 필요한 폭만 국소 보완. 기존 모바일·편집기 보존. 미배포.",
-      "evidence": "msg_0597bc4779e7·msg_b34462da0d3d",
+      "delivery": "local_fix_pass_mac_independent_review_sent",
+      "sha": "f79554d95",
+      "next": "f79554d95 로컬 시험 28/28. MacMini 독립 검수 전달, 수락과 실제 후보 화면 확인 대기. 미배포.",
+      "evidence": "msg_0597bc4779e7·msg_b34462da0d3d·msg_c5498076ef76·msg_e3bcf97a34e6",
       "lastReviewedAt": "2026-11-19T07:34:18.665Z"
     }
   ]
