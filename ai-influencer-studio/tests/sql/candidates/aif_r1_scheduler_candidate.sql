@@ -36,10 +36,12 @@
 --   public·auth의 표와 함수는 전부 스키마 이름을 붙여 부른다(같은 이름의 임시 표나 다른 스키마의 객체가 끼어들 수 없다 — 격리 시험으로 확인).
 --   소유자가 두 표와 profiles·auth.users(번호만)를 읽을 수 있어야 한다(배포 전 점검).
 --
--- 정책 결정이 필요한 것(이 후보가 정하지 않는다)
---   * 이력의 보관 기간: 지금은 기한 없이 쌓인다.
---   * 이력에 남는 관리자·회원 번호(UUID)의 익명화 여부와 시점(계정이 지워진 뒤에도 번호는 남는다).
---   * 메모(note): 관리자가 자유롭게 적는 글이라 개인 정보가 들어갈 수 있다 — 적을 수 있는 내용의 범위, 보관 기간, 지우는 절차.
+-- 보관 정책(주인님 결정 2026-11-19 채팅 「권장안대로 진행해」)
+--   * 보관 기간 1년: 이력은 적힌 지 1년이 지나면 지운다. 철회된 허용 행도 철회한 지 1년이 지나면 지운다(그 회원의 지난 지정 기록이 더는 필요 없다).
+--                    지금 허용 중인 행은 지우지 않는다(지금의 상태다 — 메모도 그 행과 함께 남는다).
+--                    지우는 길: aif_platform_scheduler_purge_history() — 서비스 역할만 실행(이 앱의 운영 정리 작업이 부른다). 기간은 함수 안에 1년으로 고정이라 부르는 쪽이 바꿀 수 없다.
+--   * 번호(UUID): 계정이 지워진 뒤에도 이력에 그대로 둔다(번호만으로는 누구인지 알 수 없다). 위 1년 정리로 함께 사라진다.
+--   * 메모(note): 칸을 유지한다. 200자까지. 관리자 화면에 「개인 정보를 적지 마세요」를 표시한다(화면 쪽 몫). 보관은 그 행·그 이력 줄과 같다.
 --   관리자 화면의 호출: 메인 사이트 관리자 서버가 기존 로그인 세션·관리자 확인 흐름을 그대로 쓰고, 이 관리용 함수도 **같은 관리자 본인의 세션**으로 부른다.
 --                       관리자 번호를 요청 본문이나 서비스 역할의 대리 인자로 받지 않는다(Master 판정 2026-11-19).
 
@@ -99,7 +101,8 @@ create table public.aif_platform_scheduler_allowlist (
   revoked_at timestamptz,
   revoked_by uuid,
   note text,
-  constraint aif_platform_scheduler_allowlist_revoke_pair check ((revoked_at is null) = (revoked_by is null))
+  constraint aif_platform_scheduler_allowlist_revoke_pair check ((revoked_at is null) = (revoked_by is null)),
+  constraint aif_platform_scheduler_allowlist_note_len check (note is null or char_length(note) <= 200)
 );
 comment on table public.aif_platform_scheduler_allowlist is 'R1: AI 인플루언서에서 사이트(Vercel) 예약을 고를 자격(관리자 지정). 허용 = 행이 있고 revoked_at이 비어 있음. API 역할에게 직접 열지 않는다 — 함수로만 드나든다.';
 
@@ -108,10 +111,11 @@ create table public.aif_platform_scheduler_allowlist_events (
   user_id uuid not null,
   action text not null check (action in ('granted', 'regranted', 'revoked')),
   actor_id uuid not null,
-  note text,
+  note text check (note is null or char_length(note) <= 200),
   at timestamptz not null default now()
 );
 create index aif_platform_scheduler_allowlist_events_user_idx on public.aif_platform_scheduler_allowlist_events (user_id, id);
+create index aif_platform_scheduler_allowlist_events_at_idx on public.aif_platform_scheduler_allowlist_events (at);
 comment on table public.aif_platform_scheduler_allowlist_events is 'R1: 허용 지정·철회 이력(덧붙이기만). 대상·한 사람의 번호만 참조 없이 남긴다(이메일 등은 적지 않는다) — 계정이 지워져도 이력은 남고, 계정 삭제를 막지도 않는다.';
 
 alter table public.aif_platform_scheduler_allowlist enable row level security;
@@ -155,6 +159,9 @@ declare
 begin
   if p_user is null or p_allow is null then
     raise exception 'AIF_ALLOWLIST_BAD_REQUEST: target member and allow flag are required' using errcode = 'P0001';
+  end if;
+  if p_note is not null and char_length(p_note) > 200 then
+    raise exception 'AIF_ALLOWLIST_BAD_REQUEST: note is longer than 200 characters' using errcode = 'P0001';
   end if;
   if not exists (select 1 from auth.users u where u.id = p_user) then
     raise exception 'AIF_ALLOWLIST_TARGET_NOT_FOUND: no such member' using errcode = 'P0001';
@@ -214,6 +221,21 @@ begin
     from public.aif_platform_scheduler_allowlist_events e where e.user_id = p_user order by e.id;
 end $$;
 
+-- 5. 보관 기간 정리 — 1년이 지난 이력과, 철회한 지 1년이 지난 허용 행을 지운다. 지금 허용 중인 행은 건드리지 않는다. 기간은 여기 고정이다.
+create function public.aif_platform_scheduler_purge_history() returns table (events_deleted bigint, rows_deleted bigint)
+language plpgsql security definer set search_path = pg_catalog, pg_temp
+as $$
+declare v_cutoff timestamptz := now() - interval '1 year'; v_events bigint; v_rows bigint;
+begin
+  delete from public.aif_platform_scheduler_allowlist_events e where e.at < v_cutoff;
+  get diagnostics v_events = row_count;
+  delete from public.aif_platform_scheduler_allowlist a where a.revoked_at is not null and a.revoked_at < v_cutoff;
+  get diagnostics v_rows = row_count;
+  return query select v_events, v_rows;
+end $$;
+
+revoke all on function public.aif_platform_scheduler_purge_history() from public, anon, authenticated, service_role;
+grant execute on function public.aif_platform_scheduler_purge_history() to service_role;
 revoke all on function public.aif_platform_scheduler_is_allowed(uuid) from public, anon, authenticated, service_role;
 revoke all on function public.aif_platform_scheduler_allowed_users() from public, anon, authenticated, service_role;
 revoke all on function public.aif_platform_scheduler_admin_actor() from public, anon, authenticated, service_role;
@@ -226,7 +248,7 @@ grant execute on function public.aif_platform_scheduler_admin_set(uuid, boolean,
 grant execute on function public.aif_platform_scheduler_admin_list() to authenticated;
 grant execute on function public.aif_platform_scheduler_admin_history(uuid) to authenticated;
 
--- 5. 적용 끝 확인
+-- 6. 적용 끝 확인
 do $$
 declare v_bad integer;
 begin
@@ -259,7 +281,8 @@ begin
     ('public.aif_platform_scheduler_admin_actor()', false, false, false),
     ('public.aif_platform_scheduler_admin_set(uuid, boolean, text)', false, true, false),
     ('public.aif_platform_scheduler_admin_list()', false, true, false),
-    ('public.aif_platform_scheduler_admin_history(uuid)', false, true, false)
+    ('public.aif_platform_scheduler_admin_history(uuid)', false, true, false),
+    ('public.aif_platform_scheduler_purge_history()', false, false, true)
   ) as want(fn, w_anon, w_auth, w_service)
   where has_function_privilege('anon', want.fn, 'execute') <> want.w_anon
      or has_function_privilege('authenticated', want.fn, 'execute') <> want.w_auth

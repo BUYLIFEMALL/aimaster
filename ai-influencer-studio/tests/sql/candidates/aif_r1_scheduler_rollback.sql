@@ -1,4 +1,4 @@
--- R1 후보 2판의 원복(미적용): aif_r1_scheduler_candidate.sql이 더한 두 칸·허용 표 2개·함수 6개를 없앤다. 한 벌이다 — 적용 파일을 고치면 이 파일도 함께 고친다.
+-- R1 후보 2판의 원복(미적용): aif_r1_scheduler_candidate.sql이 더한 두 칸·허용 표 2개·함수 7개를 없앤다. 한 벌이다 — 적용 파일을 고치면 이 파일도 함께 고친다.
 -- ★ 순서: 먼저 프로그램 코드를 「이 칸·표·함수를 쓰지 않는 판」으로 되돌린 뒤 이 파일을 실행한다.
 --    쓰는 코드가 남은 채 지우면 그 프로그램의 행 조회·허용 조회가 실패한다(그 프로그램은 실패를 「Vercel 차단」으로 처리하지만 예약 방식 화면도 함께 실패한다).
 --    판 번호의 철회: mode_rev를 지우면 프로그램은 값 비교로 저절로 돌아가지 않는다 — 코드의 연결점 설정에서 판 번호 칸을 빼는 것이 먼저다.
@@ -31,7 +31,7 @@ begin
       where table_schema = 'public' and table_name = 'aif_member_scheduler' and column_name in ('platform_chosen_at', 'mode_rev')) <> 2
      or (select count(*) from pg_catalog.pg_proc p join pg_catalog.pg_namespace n on n.oid = p.pronamespace
          where n.nspname = 'public' and p.proname in ('aif_platform_scheduler_is_allowed', 'aif_platform_scheduler_allowed_users', 'aif_platform_scheduler_admin_actor',
-           'aif_platform_scheduler_admin_set', 'aif_platform_scheduler_admin_list', 'aif_platform_scheduler_admin_history')) <> 6 then
+           'aif_platform_scheduler_admin_set', 'aif_platform_scheduler_admin_list', 'aif_platform_scheduler_admin_history', 'aif_platform_scheduler_purge_history')) <> 7 then
     raise exception 'AIF_R1_ROLLBACK_REFUSED: the candidate is not fully applied here (columns or functions missing) — nothing changed' using errcode = 'P0001';
   end if;
   select count(*) into v_chosen from public.aif_member_scheduler where platform_chosen_at is not null;
@@ -42,6 +42,7 @@ begin
   end if;
 end $$;
 
+drop function public.aif_platform_scheduler_purge_history();
 drop function public.aif_platform_scheduler_admin_history(uuid);
 drop function public.aif_platform_scheduler_admin_list();
 drop function public.aif_platform_scheduler_admin_set(uuid, boolean, text);

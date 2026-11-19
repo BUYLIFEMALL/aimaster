@@ -1,4 +1,4 @@
-// R1 DB 후보 2판(두 칸 + 허용 저장소: 표 2개·함수 6개)의 적용·권한·관리자 신원·동시성·원복 격리 시험
+// R1 DB 후보(두 칸 + 허용 저장소: 표 2개·함수 7개)의 적용·권한·관리자 신원·동시성·원복 격리 시험
 // (2026-11-19, CC-SNS-01, Master msg_d5a93c1e9c7d · msg_2d25cdee75db — Mac 정적 검수 P2 반영).
 // ★ 실행 이력·결과는 이 파일에 적지 않는다 — ai-influencer-studio/docs/PLAN_20261119_R1_SCHEDULER_DEFAULT.md §13·§14에 적는다.
 // 실행: node --test tests/sql/r1_scheduler.test.mjs   (npm test에는 포함되지 않는다. 잠금 시간 초과 시험 때문에 20초쯤 걸린다)
@@ -205,7 +205,7 @@ test("함수 실행 권한: 허용 여부 2개는 서비스 역할만, 관리자
   assert.equal(q(`select string_agg(p.proname || ':' || has_function_privilege('anon', p.oid, 'execute')::text || has_function_privilege('authenticated', p.oid, 'execute')::text || has_function_privilege('service_role', p.oid, 'execute')::text
       || ':' || p.prosecdef::text || ':' || coalesce(array_to_string(p.proconfig, ','), '-'), E'\\n' order by p.proname)
     from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname like 'aif\\_platform\\_scheduler\\_%';`),
-    ["admin_actor:falsefalsefalse", "admin_history:falsetruefalse", "admin_list:falsetruefalse", "admin_set:falsetruefalse", "allowed_users:falsefalsetrue", "is_allowed:falsefalsetrue"]
+    ["admin_actor:falsefalsefalse", "admin_history:falsetruefalse", "admin_list:falsetruefalse", "admin_set:falsetruefalse", "allowed_users:falsefalsetrue", "is_allowed:falsefalsetrue", "purge_history:falsefalsetrue"]
       .map((x) => `aif_platform_scheduler_${x}:true:search_path=pg_catalog, pg_temp`).join("\n"));
   // 함수 본문은 public·auth의 객체를 전부 스키마 이름을 붙여 부른다(이름만 적은 표·함수 호출이 없다)
   const bodies = q(`select string_agg(p.prosrc, E'\\n') from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname like 'aif\\_platform\\_scheduler\\_%';`);
@@ -298,6 +298,47 @@ test("허용과 선택은 따로다: 허용만 있어도, 선택만 있어도 �
   assert.equal(both(U.m3), "f:false");
 });
 
+// ── 보관 정책(1년) ──
+test("보관 1년: 1년이 지난 이력과 철회한 지 1년이 지난 허용 행만 지운다 — 지금 허용 중인 행과 1년 안의 기록은 그대로다. 서비스 역할만 부를 수 있다", SKIP, () => {
+  const before = state();
+  const oldUser = "00000000-0000-4000-8000-0000000000e1", oldActive = "00000000-0000-4000-8000-0000000000e2", edge = "00000000-0000-4000-8000-0000000000e3";
+  q(`insert into auth.users (id, email) values ('${oldUser}', 'e1@example.test'), ('${oldActive}', 'e2@example.test'), ('${edge}', 'e3@example.test');
+     insert into public.profiles (id) values ('${oldUser}'), ('${oldActive}'), ('${edge}');
+     -- 철회한 지 13개월 된 행 / 13개월 전에 지정돼 지금도 허용 중인 행 / 철회한 지 11개월 된 행
+     insert into public.aif_platform_scheduler_allowlist (user_id, granted_at, granted_by, revoked_at, revoked_by, note) values
+       ('${oldUser}', now() - interval '14 months', '${U.admin}', now() - interval '13 months', '${U.admin}', '오래된 철회'),
+       ('${oldActive}', now() - interval '13 months', '${U.admin}', null, null, '오래됐지만 허용 중'),
+       ('${edge}', now() - interval '12 months', '${U.admin}', now() - interval '11 months', '${U.admin}', '11개월 전 철회');
+     -- 13개월 전 이력 2줄 / 11개월 전 이력 1줄
+     insert into public.aif_platform_scheduler_allowlist_events (user_id, action, actor_id, note, at) values
+       ('${oldUser}', 'granted', '${U.admin}', '오래된 지정', now() - interval '14 months'),
+       ('${oldUser}', 'revoked', '${U.admin}', '오래된 철회', now() - interval '13 months'),
+       ('${edge}', 'revoked', '${U.admin}', '11개월 전 철회', now() - interval '11 months');`);
+  for (const [role, sub] of [["anon", null], ["authenticated", U.m1], ["authenticated", U.admin]]) {
+    const r = run(as(role, sub, `select * from ${FN}purge_history();`));
+    assert.equal(r.ok, false, role); assert.match(errOf(r), /permission denied/, "관리자 회원도 직접 부르지 못한다");
+  }
+  assert.equal(lastLine(q(as("service_role", null, `select events_deleted || ':' || rows_deleted from ${FN}purge_history();`))), "2:1");
+  assert.equal(q(`select string_agg(user_id::text || ':' || (revoked_at is null)::text, ',' order by user_id) from public.aif_platform_scheduler_allowlist where user_id in ('${oldUser}', '${oldActive}', '${edge}');`),
+    `${oldActive}:true,${edge}:false`, "철회한 지 1년 넘은 행만 사라졌다");
+  assert.equal(isAllowed(oldActive), "t", "오래 전에 지정됐어도 허용 중이면 그대로 허용");
+  assert.equal(q(`select count(*) || ':' || min(note) from public.aif_platform_scheduler_allowlist_events where user_id in ('${oldUser}', '${edge}');`), "1:11개월 전 철회");
+  assert.equal(lastLine(q(as("service_role", null, `select events_deleted || ':' || rows_deleted from ${FN}purge_history();`))), "0:0", "다시 불러도 더 지우지 않는다");
+  // 뒷정리(이 시험이 넣은 것만) — 뒤 시험의 건수에 영향을 주지 않게
+  q(`delete from public.aif_platform_scheduler_allowlist_events where user_id = '${edge}'; delete from auth.users where id in ('${oldUser}', '${oldActive}', '${edge}');`);
+  assert.equal(state(), before);
+});
+
+test("메모는 200자까지: 넘으면 지정이 거절되고(상태·이력 변화 0), 표에 직접 넣어도 제약이 막는다", SKIP, () => {
+  const before = state(), long = "가".repeat(201);
+  const r = run(adminSet(U.admin, U.m3, true, long));
+  assert.equal(r.ok, false); assert.match(errOf(r), /AIF_ALLOWLIST_BAD_REQUEST: note is longer than 200 characters/);
+  assert.equal(state(), before);
+  assert.match(errOf(run(`insert into public.aif_platform_scheduler_allowlist_events (user_id, action, actor_id, note) values ('${U.m3}', 'granted', '${U.admin}', '${long}');`)), /violates check constraint/);
+  assert.match(errOf(run(`update public.aif_platform_scheduler_allowlist set note = '${long}' where user_id = '${U.m1}';`)), /aif_platform_scheduler_allowlist_note_len/);
+  assert.equal(state(), before);
+});
+
 // ── 동시성 ──
 test("동시 지정: 두 관리자가 같은 회원을 같은 순간 지정해도 한 번만 지정되고 이력도 한 줄이다", SKIP, async () => {
   const target = "00000000-0000-4000-8000-0000000000d1";
@@ -379,7 +420,7 @@ test("원복 동시성: 10초 안에 잠그지 못하면 아무것도 바꾸지 
   assert.equal(shape(), s);
 });
 
-test("원복: 자료를 비운 뒤에는 두 칸·허용 표 2개·함수 6개가 사라지고, 실행 방식 표는 적용 전 겉모양으로 돌아온다(다시 적용·다시 원복 가능)", SKIP, () => {
+test("원복: 자료를 비운 뒤에는 두 칸·허용 표 2개·함수 7개가 사라지고, 실행 방식 표는 적용 전 겉모양으로 돌아온다(다시 적용·다시 원복 가능)", SKIP, () => {
   assert.equal(q(`select (count(*) filter (where mode_rev <> 0) > 0)::text from public.aif_member_scheduler;`), "true", "판 번호가 0이 아닌 행이 있어도 원복을 막지 않는다");
   q(ROLLBACK);
   assert.equal(shape(), BEFORE_SHAPE, "칸·정책·권한·제약·트리거·스키마 객체 수가 적용 전과 같다");
