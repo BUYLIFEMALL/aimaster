@@ -6221,10 +6221,10 @@
       "owner": "CC-MUSIC-01",
       "reviewer": "CX-QA-01",
       "title": "리믹스 → 플레이리스트 수신 로컬 구현",
-      "status": "reviewing",
-      "delivery": "receiver_clear_selection_fix_mac_recheck_sent",
-      "next": "edc5c9a61 담당 85/85·tsc. 전체 선택 해제 뒤 곡 자동 재선택 방지 Mac 재검수 전달. 실제 화면 미확인, 미배포.",
-      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1·msg_fd4dcdac6208·7b76ae4eb·msg_cf3cd8832343·msg_5118e37c0e3b·msg_ef79431525cb·e728f10cf·msg_53afdbd8013c·msg_6bc9c6ee0c57·ded8cece2·msg_545ceab47299·msg_12156cc001ce·msg_bf5018c5c214·msg_0659fb81e981·msg_0bbb39a1a896·f13c339f4·msg_683a6f310963·msg_31e6f7c353b0·msg_e5ae913fe5a9·msg_8aa6c8258677·04ea0054c·msg_b0ecc3b9e5f2·msg_4abb0464a25e·msg_33c8502d9f0d·msg_909570744d33·6fe27dd09·msg_1502b2775852·msg_872460738b64·msg_e1651a3e0a80·msg_bb967414fafe·e5f51c05d·msg_b9cb4062fc95·msg_93f223261221·msg_783c284fa78c·msg_2856a2d13f6a·182e70222·msg_4a78babb68e0·msg_a2744854458f·msg_dd4afb1206a0·msg_673858c807fb·ee2e7e445·msg_c74451bc98f7·msg_b8734f097704·msg_0757c1fe635b·msg_6c714bd1a4a8·edc5c9a61·msg_a3e5f9e3422d"
+      "status": "running",
+      "delivery": "receiver_mac_clear_pass_empty_list_control_followup",
+      "next": "edc5c9a61 Mac 85/85, 해제 뒤 자동 재선택 없음. 표시 목록이 비어도 보류 선택을 지우도록 버튼 노출 보완 배정. 미배포.",
+      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1·msg_fd4dcdac6208·7b76ae4eb·msg_cf3cd8832343·msg_5118e37c0e3b·msg_ef79431525cb·e728f10cf·msg_53afdbd8013c·msg_6bc9c6ee0c57·ded8cece2·msg_545ceab47299·msg_12156cc001ce·msg_bf5018c5c214·msg_0659fb81e981·msg_0bbb39a1a896·f13c339f4·msg_683a6f310963·msg_31e6f7c353b0·msg_e5ae913fe5a9·msg_8aa6c8258677·04ea0054c·msg_b0ecc3b9e5f2·msg_4abb0464a25e·msg_33c8502d9f0d·msg_909570744d33·6fe27dd09·msg_1502b2775852·msg_872460738b64·msg_e1651a3e0a80·msg_bb967414fafe·e5f51c05d·msg_b9cb4062fc95·msg_93f223261221·msg_783c284fa78c·msg_2856a2d13f6a·182e70222·msg_4a78babb68e0·msg_a2744854458f·msg_dd4afb1206a0·msg_673858c807fb·ee2e7e445·msg_c74451bc98f7·msg_b8734f097704·msg_0757c1fe635b·msg_6c714bd1a4a8·edc5c9a61·msg_a3e5f9e3422d·msg_4030f5a5e806·msg_58972fc68fa7"
     },
     {
       "task_id": "MUSIC-20261119-REMIX-PLAYLIST-REVIEW",
