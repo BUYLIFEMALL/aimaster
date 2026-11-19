@@ -4730,12 +4730,12 @@
       "task_id": "BLOG-20261118-05",
       "owner": "CC-BLOG-01",
       "title": "구형 안내앱 Next 보안 업데이트 후속",
-      "status": "queued",
-      "delivery": "existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet",
+      "status": "running",
+      "delivery": "security_bundle_first_ready_shared_push_held",
       "scopeRef": "ghost-scraper next16.4.2 기존dependency·향후최소보안patch/lock회귀범위",
-      "evidence": "T08 localcompile후SecurityFatalError msg_2c96641e6325·삭제commit와독립",
+      "evidence": "T08 localcompile후SecurityFatalError msg_2c96641e6325·삭제commit와독립·msg_9f3355841112·msg_e6e1c72003b3·msg_5ce173e3d2c8·8ff046005",
       "constraints": "현재반복build/설치/lock/원격배포0·실운영공격가능성단정0",
-      "next": "다음정당한범위/묶음승인때최소patch·현재T03플랜우선",
+      "next": "에이전트 v2.30 보안·위젯 담당 READY 보고. 나머지 3종 순차, 공유 master 전체 푸시 보류.",
       "lastReviewedAt": "2026-11-18T08:20:37.447Z"
     },
     {
@@ -6101,10 +6101,10 @@
       "owner": "CC-ECOM-01",
       "reviewer": "CX-QA-01",
       "title": "AI 무료 이미지 자동화 개발 플랜",
-      "status": "waiting_human",
-      "delivery": "web_ui_5_5_mac_accepted_local_install_approval_pending",
-      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기·msg_4423e8b13051·msg_6d81c947bd00·d6f1d0287·00158b7a3·msg_e49f861919f9·msg_25a67c9094a4·msg_11158461bd15·msg_680de25b9e15·98f8dd8bc·68efe5399·msg_fd207f8be38a·msg_5074f8e947cf·msg_254300c4a578·msg_cd4c7a612051·3fbd4b200·Arc CSV 2행 직접 대조·995a92ac-01f9-45e2-a3a4-91a3862df9e3·msg_025a7125b66c·msg_5c32df5c7178·msg_287b5412841b·msg_7492634e4c5a·msg_68e97e7d4656·msg_d36a6a75b50c·msg_9a3bd624f2e1·msg_309652177f5b·중복 msg_5a0e1dee6395 정정 보고·11:44 KST Admin Codex 터미널 본시험 진행 확인·11:50 KST Admin Codex 터미널 FLUX 48/48 중간 보고·msg_f2aba7390f58·msg_32e9ef68cd67·444034a1e·msg_45ce6d2b5731·msg_952e1148ece6·msg_9c55abed11da·msg_05eeafdb243c·Master CSV/PNG 해시 일치·msg_60514833d426·msg_8c5418f1b1f8·msg_2c1454bc23a0·msg_320b474b9a14·msg_1dc750048e02·f988aaab8·msg_377218bf1613·msg_1e45bac91599·73d53045e·msg_ca0dc8f285f1·Master PNG 96개/CSV 해시 확인·msg_c7d8c25b2b0f·msg_d0aa30c8fbca·HTML SHA/PNG 96개 직접 확인·msg_69266b1b62fc·d3babd8e4·Master 48/46 재집계·msg_1cfdd780b8d4·msg_ea053258743e·f6c6e049e·msg_9b9f6d69af92·msg_56cc9598b6b0·msg_27716f68082f·msg_05239b8dff9b·msg_7d5b73a67c25·af7d039f7·msg_49edda0b038d·정비율 5파일 Master 해시/헤더 대조·msg_f3af85c28f8e·msg_7d7a54aacc65·msg_48e9535f7335·6b382e836·msg_e2f54750fd3a·Master Q4 CSV/PNG 대조·msg_56bb8df81705·msg_ecd2ab927730·49bec95a8·Master eval-2 HTML SHA/PNG 32개 확인·msg_dc45aef4223e·Master Q4/Q8 16쌍 재집계·msg_7f3e70cc5834·msg_c439f0684ff1·fe37bf575·45a8bb41d·msg_66af7917a7f5·msg_0962d9630d0e·msg_dacd098aff64·msg_a6e29be3b1c5·0f22e067a·msg_ed08ca7c8bff·msg_1c30d67ce7d8·3383cec03·msg_b82fb12c2134·msg_f87668d3599b·msg_a2d69f45e9f5·msg_765e8cfce48d·msg_75dbfaa8b077·msg_87cf8e11ba69·aa04066c8·msg_f7a7a5d44dd0·msg_ad82d911c849·msg_edef1e834612·msg_bc241410bf7f·msg_5f1eca22975d·msg_8ebe37a39e59·63307bdba·2c11df0e7·msg_09fa29bfc0d8·msg_7f7c856b33c4·0515d1da5·Admin 터미널 전달 문구 확인·msg_bb468c75ad9b·msg_0837cb4d1553·msg_3201946d1453·msg_4345f94e7ec9·.ai/results/IMG-P1-PRA-CX-QA-01.md·msg_4ed9a47eca51·msg_7ef7aa6f10ac·msg_c0ffccd778ed·msg_5027f01ec567·msg_cf3359d3afa9·msg_58ba31f07abf·msg_35226db46992·msg_62f3c8ec1e56·msg_c470487dd114·msg_9d7dd4e24107·Master CSV 두 개 및 PNG 48장 SHA/IHDR 일치·msg_4b569962fa32·msg_56789e2b8d00·49dbcc755·Master HTML SHA 및 PNG 48장 확인·msg_1eee37daa382·msg_7fff9943541d·msg_a1f10c00a128·733b93582·msg_a03c01bc7326·msg_774b0b37c6c4·msg_cba2e6bf6be7·msg_fef21cb23d92·msg_2ad102d3a8be·msg_79b31d5f5d5f·msg_a1c58e32ddfb·msg_ef247472e770·msg_a845dcfc48ab·msg_45b1da7d4464·ac1abcc20·Master 평가 파일 SHA-256 및 43/4/1 대조·msg_d321e6321b46·msg_6b369646985d·Master PNG SHA-256과 exit 0/0 대조·msg_bc469d4dc851·msg_a7bf0c3368d8·msg_b82c3d0afc9f·msg_021cc25b02c9·msg_b1743b158b90·msg_a432222bc9ca·Master 공유 CUDA SHA 2/2·msg_96badd9ea0e2·msg_ab1a5635accf·msg_912752ac9bf1·msg_df9259678db4·msg_0892ca387839·msg_5e50964a4d6f·Master Sub SHA-256 6/6·msg_8279f47c9ecd·msg_e371b484efb3·3648ae375·msg_83d4248155d7·msg_fd5bb7a64e2f·15416f6e5·msg_45b3fbbdfcde·msg_b44799bfc4f0·cdd65176f·b0fbdbaec·msg_462f7b08d37d·msg_b44aba7ec6d3·msg_9711e8d69642·msg_963780656d4c·753df0c2f·msg_ffaaa6f920bd·msg_5ac1e15335bb·msg_bd55ecd61eb1·msg_e3a11536e81e·bbfc5bf4a·msg_e74d94a7a921·msg_9ddcdf264903·msg_b5267b017f16·msg_94fea14a6bc2·1ae8b7f5f·msg_99ebb68cdcff·msg_b7574ea614f3·b44c9eb30·msg_2852868c289d·msg_23644f486504·msg_05cb029b0d5c·msg_24630c7e2676·e53bb2daa·msg_4446e40b0338·msg_dd89a041b67d·msg_b1c3fa9674cf·a81bd0134·msg_bc412a69dc8b·msg_3b76b41f7a6f·msg_ded0ccd52d9a·msg_9526fc66e09f·msg_49d8cc97bc73·msg_88ec9c3c904f·7ab9be1f0·9e430336b·msg_91f45bb2d683·msg_4726bdc9abcc·msg_b1ebd2e50a67·msg_f5d4e22f430f·44a14fc42·msg_8f1eb2e1d600·msg_4ddf705bbbb5·msg_88a3072d4618·msg_ce03fe4d5a5f·4f677ea97·msg_954d9e38894f·msg_3b31a237a6a3·msg_4dd510def534·msg_73c60af4b939·706b1d53d·fb275e29a·msg_fd8ea23bac09·msg_f47dd8f14898·msg_53bc78b08b1d·msg_4d55237dfc09·64f9d8305·msg_ac07d40b865d·msg_9e2ad77b9471·msg_a1438a986cb2·msg_9e6c29a69c43·8922c3cc·msg_ca70c529bc74·msg_fa9351a99bd4·msg_9c530cf7a89c·msg_0dd4c3798124·223b52472·msg_f7e6abcfaeeb·msg_02503dc48751·msg_1c2378ff1933·.ai/results/FREE-IMAGE-20261119-RESEND-CX-QA-01.md·msg_6fcd23e29230·686b9773f·ddfb6f9cf·msg_fe3386704cef·msg_fbf83babdfb5·msg_b53c4ed4f133·msg_2df161185ec9·8d0dc2013·msg_f58085f4dce6·msg_0b1f3a7a73da·msg_6b898587d578·msg_40353d79b794·1b64c61b4·7ad6d560f·msg_9c56d948d477·msg_b6255b12168e·msg_40d1d6ba4204·msg_80db854df538·bdba7c282·msg_55163194bb5f·msg_0d07eedc2055·msg_e19f26ae31f2·msg_a733d6df5eb9·msg_a48927c50813·b30bb3914·msg_d2133b2b72f0·msg_d4f070121b56·msg_0e7e2a8a17aa·msg_6975f4743835·ffa312773·msg_d7a59a206c5d·msg_023779f24582·msg_fce560a2b50e·msg_556273664859·abbb38e2d·29d9de3ea",
-      "next": "ffa312773 Mac 지정 12/12, 코드·모의 수락 및 점유 해제 29d9de3ea. 메인 PC 설치·로컬 빌드 승인 대기. 실제 화면·엔진·AI·등록 전.",
+      "status": "running",
+      "delivery": "web_local_build_pass_lint_followup",
+      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기·msg_4423e8b13051·msg_6d81c947bd00·d6f1d0287·00158b7a3·msg_e49f861919f9·msg_25a67c9094a4·msg_11158461bd15·msg_680de25b9e15·98f8dd8bc·68efe5399·msg_fd207f8be38a·msg_5074f8e947cf·msg_254300c4a578·msg_cd4c7a612051·3fbd4b200·Arc CSV 2행 직접 대조·995a92ac-01f9-45e2-a3a4-91a3862df9e3·msg_025a7125b66c·msg_5c32df5c7178·msg_287b5412841b·msg_7492634e4c5a·msg_68e97e7d4656·msg_d36a6a75b50c·msg_9a3bd624f2e1·msg_309652177f5b·중복 msg_5a0e1dee6395 정정 보고·11:44 KST Admin Codex 터미널 본시험 진행 확인·11:50 KST Admin Codex 터미널 FLUX 48/48 중간 보고·msg_f2aba7390f58·msg_32e9ef68cd67·444034a1e·msg_45ce6d2b5731·msg_952e1148ece6·msg_9c55abed11da·msg_05eeafdb243c·Master CSV/PNG 해시 일치·msg_60514833d426·msg_8c5418f1b1f8·msg_2c1454bc23a0·msg_320b474b9a14·msg_1dc750048e02·f988aaab8·msg_377218bf1613·msg_1e45bac91599·73d53045e·msg_ca0dc8f285f1·Master PNG 96개/CSV 해시 확인·msg_c7d8c25b2b0f·msg_d0aa30c8fbca·HTML SHA/PNG 96개 직접 확인·msg_69266b1b62fc·d3babd8e4·Master 48/46 재집계·msg_1cfdd780b8d4·msg_ea053258743e·f6c6e049e·msg_9b9f6d69af92·msg_56cc9598b6b0·msg_27716f68082f·msg_05239b8dff9b·msg_7d5b73a67c25·af7d039f7·msg_49edda0b038d·정비율 5파일 Master 해시/헤더 대조·msg_f3af85c28f8e·msg_7d7a54aacc65·msg_48e9535f7335·6b382e836·msg_e2f54750fd3a·Master Q4 CSV/PNG 대조·msg_56bb8df81705·msg_ecd2ab927730·49bec95a8·Master eval-2 HTML SHA/PNG 32개 확인·msg_dc45aef4223e·Master Q4/Q8 16쌍 재집계·msg_7f3e70cc5834·msg_c439f0684ff1·fe37bf575·45a8bb41d·msg_66af7917a7f5·msg_0962d9630d0e·msg_dacd098aff64·msg_a6e29be3b1c5·0f22e067a·msg_ed08ca7c8bff·msg_1c30d67ce7d8·3383cec03·msg_b82fb12c2134·msg_f87668d3599b·msg_a2d69f45e9f5·msg_765e8cfce48d·msg_75dbfaa8b077·msg_87cf8e11ba69·aa04066c8·msg_f7a7a5d44dd0·msg_ad82d911c849·msg_edef1e834612·msg_bc241410bf7f·msg_5f1eca22975d·msg_8ebe37a39e59·63307bdba·2c11df0e7·msg_09fa29bfc0d8·msg_7f7c856b33c4·0515d1da5·Admin 터미널 전달 문구 확인·msg_bb468c75ad9b·msg_0837cb4d1553·msg_3201946d1453·msg_4345f94e7ec9·.ai/results/IMG-P1-PRA-CX-QA-01.md·msg_4ed9a47eca51·msg_7ef7aa6f10ac·msg_c0ffccd778ed·msg_5027f01ec567·msg_cf3359d3afa9·msg_58ba31f07abf·msg_35226db46992·msg_62f3c8ec1e56·msg_c470487dd114·msg_9d7dd4e24107·Master CSV 두 개 및 PNG 48장 SHA/IHDR 일치·msg_4b569962fa32·msg_56789e2b8d00·49dbcc755·Master HTML SHA 및 PNG 48장 확인·msg_1eee37daa382·msg_7fff9943541d·msg_a1f10c00a128·733b93582·msg_a03c01bc7326·msg_774b0b37c6c4·msg_cba2e6bf6be7·msg_fef21cb23d92·msg_2ad102d3a8be·msg_79b31d5f5d5f·msg_a1c58e32ddfb·msg_ef247472e770·msg_a845dcfc48ab·msg_45b1da7d4464·ac1abcc20·Master 평가 파일 SHA-256 및 43/4/1 대조·msg_d321e6321b46·msg_6b369646985d·Master PNG SHA-256과 exit 0/0 대조·msg_bc469d4dc851·msg_a7bf0c3368d8·msg_b82c3d0afc9f·msg_021cc25b02c9·msg_b1743b158b90·msg_a432222bc9ca·Master 공유 CUDA SHA 2/2·msg_96badd9ea0e2·msg_ab1a5635accf·msg_912752ac9bf1·msg_df9259678db4·msg_0892ca387839·msg_5e50964a4d6f·Master Sub SHA-256 6/6·msg_8279f47c9ecd·msg_e371b484efb3·3648ae375·msg_83d4248155d7·msg_fd5bb7a64e2f·15416f6e5·msg_45b3fbbdfcde·msg_b44799bfc4f0·cdd65176f·b0fbdbaec·msg_462f7b08d37d·msg_b44aba7ec6d3·msg_9711e8d69642·msg_963780656d4c·753df0c2f·msg_ffaaa6f920bd·msg_5ac1e15335bb·msg_bd55ecd61eb1·msg_e3a11536e81e·bbfc5bf4a·msg_e74d94a7a921·msg_9ddcdf264903·msg_b5267b017f16·msg_94fea14a6bc2·1ae8b7f5f·msg_99ebb68cdcff·msg_b7574ea614f3·b44c9eb30·msg_2852868c289d·msg_23644f486504·msg_05cb029b0d5c·msg_24630c7e2676·e53bb2daa·msg_4446e40b0338·msg_dd89a041b67d·msg_b1c3fa9674cf·a81bd0134·msg_bc412a69dc8b·msg_3b76b41f7a6f·msg_ded0ccd52d9a·msg_9526fc66e09f·msg_49d8cc97bc73·msg_88ec9c3c904f·7ab9be1f0·9e430336b·msg_91f45bb2d683·msg_4726bdc9abcc·msg_b1ebd2e50a67·msg_f5d4e22f430f·44a14fc42·msg_8f1eb2e1d600·msg_4ddf705bbbb5·msg_88a3072d4618·msg_ce03fe4d5a5f·4f677ea97·msg_954d9e38894f·msg_3b31a237a6a3·msg_4dd510def534·msg_73c60af4b939·706b1d53d·fb275e29a·msg_fd8ea23bac09·msg_f47dd8f14898·msg_53bc78b08b1d·msg_4d55237dfc09·64f9d8305·msg_ac07d40b865d·msg_9e2ad77b9471·msg_a1438a986cb2·msg_9e6c29a69c43·8922c3cc·msg_ca70c529bc74·msg_fa9351a99bd4·msg_9c530cf7a89c·msg_0dd4c3798124·223b52472·msg_f7e6abcfaeeb·msg_02503dc48751·msg_1c2378ff1933·.ai/results/FREE-IMAGE-20261119-RESEND-CX-QA-01.md·msg_6fcd23e29230·686b9773f·ddfb6f9cf·msg_fe3386704cef·msg_fbf83babdfb5·msg_b53c4ed4f133·msg_2df161185ec9·8d0dc2013·msg_f58085f4dce6·msg_0b1f3a7a73da·msg_6b898587d578·msg_40353d79b794·1b64c61b4·7ad6d560f·msg_9c56d948d477·msg_b6255b12168e·msg_40d1d6ba4204·msg_80db854df538·bdba7c282·msg_55163194bb5f·msg_0d07eedc2055·msg_e19f26ae31f2·msg_a733d6df5eb9·msg_a48927c50813·b30bb3914·msg_d2133b2b72f0·msg_d4f070121b56·msg_0e7e2a8a17aa·msg_6975f4743835·ffa312773·msg_d7a59a206c5d·msg_023779f24582·msg_fce560a2b50e·msg_556273664859·abbb38e2d·29d9de3ea·msg_ea7e3f9cb0b7·msg_ee7b28acb9b7",
+      "next": "1a46425bd 설치·타입·141/141·로컬 빌드 통과, lint 오류 11개 보완 배정. 실제 화면은 환경 설정·등록 필요.",
       "lastReviewedAt": "2026-11-19T07:05:56.802Z",
       "sha": "733b93582"
     },
@@ -6187,10 +6187,10 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단",
-      "status": "reviewing",
-      "delivery": "zip_v163_ready_zip_live_check_pending",
-      "next": "v1.63 dpl_CxEYSzDhnScbAL5zdmiToQy3HB4n READY, 공개 읽기·로그인 응답 확인. 실제 다문서 ZIP·화면·버전 기록 미검증, DB 버전·푸시 대기.",
-      "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a·4f801102a·msg_188d5f946fe6·msg_d48ab4279b48·msg_6a8c40f8d884·.ai/results/WS-20261119-03-CX-QA-01.md·080d30733·5900bdee4·msg_81e5f70393f6·9b6cf6f43·862a3f744·msg_18677013088e·msg_e3da08ce301c·msg_81884a8c4c54·ad9f6e443·73e846195·msg_9cfa5b749036·msg_e77dc726848f·v1.63 1회 승인 보고·담당 배포 전 변경 경로 대조·msg_80ea9fa320d8·msg_e62063905385·de8326242·845d62331·msg_0bcf3ac363cd·msg_61592856a873·msg_6a32a57772c5·addc48085·주인님 보완판 커밋·푸시·배포 직접 지시 보고·6de15de60·dpl_CxEYSzDhnScbAL5zdmiToQy3HB4n"
+      "status": "running",
+      "delivery": "zip_response_byte_candidate_dispatched",
+      "next": "v1.63 실제 570쪽 대기. 운영 WebSocket 미사용 대조, 응답 3MB·부분 로드 로컬 보완 배정.",
+      "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a·4f801102a·msg_188d5f946fe6·msg_d48ab4279b48·msg_6a8c40f8d884·.ai/results/WS-20261119-03-CX-QA-01.md·080d30733·5900bdee4·msg_81e5f70393f6·9b6cf6f43·862a3f744·msg_18677013088e·msg_e3da08ce301c·msg_81884a8c4c54·ad9f6e443·73e846195·msg_9cfa5b749036·msg_e77dc726848f·v1.63 1회 승인 보고·담당 배포 전 변경 경로 대조·msg_80ea9fa320d8·msg_e62063905385·de8326242·845d62331·msg_0bcf3ac363cd·msg_61592856a873·msg_6a32a57772c5·addc48085·주인님 보완판 커밋·푸시·배포 직접 지시 보고·6de15de60·dpl_CxEYSzDhnScbAL5zdmiToQy3HB4n·msg_dbdc16360cb8·msg_652436d7b405"
     },
     {
       "task_id": "WS-20261119-02",
@@ -6367,10 +6367,10 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "AI Influencer 회원 예약 기본값과 관리자 허용 설계",
-      "status": "waiting_human",
-      "delivery": "shared_hook_db_v3_mac_accepted_retention_policy_pending",
-      "next": "d8b38b204 Mac 정적 통과. 검색 경로·이메일 제외 수락. 이력 기간·UUID 처리·메모 정책과 운영 적용 대기.",
-      "evidence": "6425b1ec4·45e164bf1·msg_c9d7969183e0·msg_81623dd95517·msg_fb0814229b74·a5eebe012·msg_e22a2892cbd5·msg_72fcafaead67·msg_c50c2385c455·bf01913ca·msg_73e81c2e0a4e·msg_bd4f92a9c91d·8c008d1f2·msg_9798da905907·msg_4ab0bb9725fc·msg_d060c2adc362·msg_14be39e4d98c·.ai/results/AI-INFLUENCER-R1-20261119-CX-QA-01.md·msg_28535461e744·msg_c9c73cf62365·8e04faee8·msg_fdaedad88a9d·msg_7857772eff03·msg_d5a93c1e9c7d·msg_3c745fd8d0a3·msg_4669cc0adbf7·msg_2639e26effdc·msg_aab1a546a863·06653c25f·msg_de63d878490a·msg_6a61990da58e·msg_2d25cdee75db·msg_40d34547f8d2·25e25859e·msg_7903b97f1d3e·msg_9ef535f845ab·msg_29efe44c95cf·msg_88b91b62244a·msg_59b7a2e0b487·msg_7c5fad05572a·d8b38b204·msg_ff474b75b61a·msg_fd112966c24f·msg_b4daff1ee8a7·msg_ddb2a7cfa4d9"
+      "status": "running",
+      "delivery": "retention_cleanup_lock_followup",
+      "next": "1년 보관·UUID 유지·메모 정책 확정. 18986c0f5 격리 23/23·Mac 정적, 정리·원복 순서 보완. 운영 SQL 미적용.",
+      "evidence": "6425b1ec4·45e164bf1·msg_c9d7969183e0·msg_81623dd95517·msg_fb0814229b74·a5eebe012·msg_e22a2892cbd5·msg_72fcafaead67·msg_c50c2385c455·bf01913ca·msg_73e81c2e0a4e·msg_bd4f92a9c91d·8c008d1f2·msg_9798da905907·msg_4ab0bb9725fc·msg_d060c2adc362·msg_14be39e4d98c·.ai/results/AI-INFLUENCER-R1-20261119-CX-QA-01.md·msg_28535461e744·msg_c9c73cf62365·8e04faee8·msg_fdaedad88a9d·msg_7857772eff03·msg_d5a93c1e9c7d·msg_3c745fd8d0a3·msg_4669cc0adbf7·msg_2639e26effdc·msg_aab1a546a863·06653c25f·msg_de63d878490a·msg_6a61990da58e·msg_2d25cdee75db·msg_40d34547f8d2·25e25859e·msg_7903b97f1d3e·msg_9ef535f845ab·msg_29efe44c95cf·msg_88b91b62244a·msg_59b7a2e0b487·msg_7c5fad05572a·d8b38b204·msg_ff474b75b61a·msg_fd112966c24f·msg_b4daff1ee8a7·msg_ddb2a7cfa4d9·msg_06b2d22f56bc·msg_797fd5bb3cc4·msg_74298e9d0652"
     },
     {
       "task_id": "AIF-20261119-D2-READINESS",
@@ -6412,11 +6412,11 @@
       "owner": "CC-B2B-FRONT-01",
       "reviewer": "CX-QA-01",
       "title": "B2B몰 태블릿 폭 빠른 메뉴 상품 가림",
-      "status": "done",
-      "delivery": "mac_resize_accepted_scoped_candidate_pending_execution",
+      "status": "running",
+      "delivery": "master_isolated_candidate_runtime_pending",
       "sha": "4fb95eaba",
-      "next": "4fb95eaba Mac 30/30·12폭 기존 수락. 제품 2파일·시험 1파일 후보 고정. 실제 후보 URL·태블릿 및 관리자 검수는 실행 범위 확정 후.",
-      "evidence": "msg_0597bc4779e7·msg_b34462da0d3d·msg_c5498076ef76·msg_e3bcf97a34e6·msg_4ec4b5380205·msg_03e422ed0613·msg_f077e01c19e9·msg_95a50f2bc24e·msg_fe8f26d97817·.ai/results/FRONT-20261119-QUICKBAR-CX-QA-01.md·msg_4ad0a080ef9b·msg_6053d81ba70c",
+      "next": "Master가 기준 51d4b2207에 지정 3파일만 격리 복원·지문 확인. 로컬 시험용 데이터 준비 뒤 실제 후보 URL 및 Front/Mac 검수.",
+      "evidence": "msg_0597bc4779e7·msg_b34462da0d3d·msg_c5498076ef76·msg_e3bcf97a34e6·msg_4ec4b5380205·msg_03e422ed0613·msg_f077e01c19e9·msg_95a50f2bc24e·msg_fe8f26d97817·.ai/results/FRONT-20261119-QUICKBAR-CX-QA-01.md·msg_4ad0a080ef9b·msg_6053d81ba70c·msg_51b732881e82·msg_160c1fc11d31",
       "lastReviewedAt": "2026-11-19T07:34:18.665Z"
     },
     {
@@ -6436,10 +6436,20 @@
       "owner": "CC-MUSIC-01",
       "reviewer": "CX-QA-01",
       "title": "음악 리믹스 → 플레이리스트 발신 링크",
-      "status": "running",
-      "delivery": "local_link_implementation_dispatched",
-      "next": "수신 v1.43 운영 확인 후 RemixCard.tsx 로컬 링크 구현 배정. Mac 검수 뒤 별도 배포 승인, 유료 호출 없음.",
-      "evidence": "d6df77af9·msg_f175780a2b66·msg_129d96b11946·msg_65425ac205e0"
+      "status": "reviewing",
+      "delivery": "sender_normalization_mac_review",
+      "next": "56211df73 담당 77/77, 유효 UUID 표준화 Mac 재검수. 음악 발신 링크 미배포.",
+      "evidence": "d6df77af9·msg_f175780a2b66·msg_129d96b11946·msg_65425ac205e0·msg_ce83069d59cf·msg_18059f9141ae·msg_596e2590a14b·msg_2d1033203682"
+    },
+    {
+      "task_id": "MOV-20261119-01",
+      "owner": "CC-MOVIE-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "원스톱 상품 영상 주소 반환 연동",
+      "status": "reviewing",
+      "delivery": "video_return_receiver_contract_pending",
+      "next": "3feb2bd85 정적 검토. 수신 저장·상품 소유 계약 협의 후 구현, 로컬 MP4 별도.",
+      "evidence": "msg_36ecbd5149be·msg_63a17737a768·3feb2bd85·msg_e19e56da16c0"
     }
   ],
   "programOverrides": [
@@ -6803,57 +6813,57 @@
   "commandBoard": [
     {
       "order": "1 · ESM",
-      "owner": "Ecom + Mac Tester",
-      "stage": "ESM1.02실검수대기·감성승인배포범위사고복구",
-      "next": "emotion1.29별칭복구·1build소진/실AI0·정확후속manifest/검수"
+      "owner": "이커머스 + Mac Tester",
+      "stage": "무료 이미지 로컬 빌드 통과, ESM 로그인 검수 대기",
+      "next": "무료 이미지 lint 보완, ESM 공간19 Return 뒤 재개."
     },
     {
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
-      "stage": "v1.57운영·E3/GmailOFF/WS23/요일칩 소스수락·미배포",
-      "next": "GCP완료신호수신·ClientID/시험사용자/공개방식·빌드질문대기, MasterSQL/배포0"
+      "stage": "v1.63 운영, 대형 ZIP 실사용 미확인",
+      "next": "응답 바이트 상한 로컬 후보. Gmail·실제 ZIP 사용자 신호 대기."
     },
     {
       "order": "3 · B2B",
       "owner": "Backend + Master + Mac Tester",
-      "stage": "Lab0104/앱반영·운영준비지정검수완료·시험waiting1건",
-      "next": "주인님main243시험키결제1회(실카드0)→Backend읽기,Mac29 QA037은읽기만"
+      "stage": "M3 서버 라우트 보완 진행",
+      "next": "QA037 로그인·Return, S70 0105 시험 전제 대기. 결제 최종 단계."
     },
     {
       "order": "4 · B2BFront",
-      "owner": "B2BFront + Mac Tester",
-      "stage": "FRONT03/04 소스독립PASS·7609748ad B2B Lab신규배포에포함",
-      "next": "77c50f27c QA045소스수락/미배포·QA037고객실화면별도"
+      "owner": "B2BFront + Master + Mac Tester",
+      "stage": "태블릿 후보 지정 3파일 격리 복원",
+      "next": "Master 후보 환경 준비, Front·Mac 검수."
     },
     {
       "order": "5 · 블로그",
       "owner": "Blog",
-      "stage": "T05 robots/DNS·T07공용폴러 소스독립PASS·미배포",
-      "next": "다음web-crawler묶음에통합·외부/빌드0"
+      "stage": "에이전트 v2.30 보안·위젯 배포 보고",
+      "next": "다른 3종 순차, 공유 master 푸시 범위 분리."
     },
     {
       "order": "6 · 영상",
       "owner": "Movie",
-      "stage": "YVS1단계 실검색/AI1회 담당운영검수완료",
-      "next": "동일검색/AI재호출0·공용encoder다음묶음·추가기능별도"
+      "stage": "상품 영상 반환 정적 검토 제출",
+      "next": "상세페이지 수신·상품 소유 계약 협의."
     },
     {
       "order": "7 · 음악",
-      "owner": "Music",
-      "stage": "운영6프로그램 보고확보·가사취소안내1건미배포",
-      "next": "공용encoder사본소스PASS/미배포·가사문구와다음묶음·실MP4사람대기"
+      "owner": "Music + Mac Tester",
+      "stage": "플레이리스트 수신 운영, 발신 링크 로컬",
+      "next": "UUID 표준화 독립 검수. 링크 공개와 유료 시험 별도."
     },
     {
       "order": "8 · 부동산",
       "owner": "Realty",
-      "stage": "알림v1.46 운영보고·자연회차18:16 ok811/10:37 ok110 담당읽기, 기기/확장상태는미확인",
-      "next": "RE07독립자료없음·개발표본반복0·자연회차근거만"
+      "stage": "상가 v1.35·고객관리 v1.11 배포 기록 대조",
+      "next": "실화면·문자 검증 전제 유지."
     },
     {
       "order": "9 · 디자인",
       "owner": "AGY",
-      "stage": "이미지코드동결·PORT19문서매핑배정",
-      "next": "19프로그램담당/잔여근거수락대기·제품수정/새시안/외부호출0"
+      "stage": "PORT19 기존 결과 회수 전송",
+      "next": "수신·기존 근거 대조 뒤 잔여 판정."
     },
     {
       "order": "전담 · 키트",
@@ -7572,91 +7582,99 @@
   "sessionReviews": [
     {
       "owner": "CC-WORKSPACE-01",
-      "state": "v1.58 Gmail ON 배포, GCP 콜백 저장 및 Client ID 일치 보고 수신",
-      "next": "기존 시험 계정에서 주인님 동의 후 §11-3 단일 검증",
-      "evidence": "Workspace 직접 보고 / msg_ac60ef28f478",
-      "reviewedAt": "2026-11-18T09:30:00.437Z",
-      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+      "state": "v1.63 운영·대형 ZIP 실사용 대기",
+      "next": "3MB 응답 상한 로컬 후보",
+      "evidence": "msg_652436d7b405",
+      "reviewedAt": "2026-11-19T14:19:23.242Z",
+      "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
       "owner": "CC-B2B-BACK-01",
-      "state": "운영준비QA047문구마감·Lab시험교환1건준비",
-      "next": "샘플몰 작업 후 Lab0101 읽기 대조·운영 준비 문서 국소 정정. 시험 키 결제는 최종 단계.",
-      "evidence": "9668a2a6c/7a0800203·msg_bdbf073001ca",
-      "reviewedAt": "2026-11-17T16:58:50.290Z",
-      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+      "state": "M3 사진 적용 라우트 입력 보완",
+      "next": "고정판 후 Mac 재검수, S70·Lab 별도",
+      "evidence": "msg_c9d732150309",
+      "reviewedAt": "2026-11-19T14:19:23.242Z",
+      "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
       "owner": "CC-B2B-FRONT-01",
-      "state": "hover77c50f27c QA045소스수락·미배포",
-      "next": "다음묶음/QA037대기",
-      "evidence": "c6931bfbe / 55368bd4c",
-      "reviewedAt": "2026-11-17T16:58:50.290Z",
-      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+      "state": "태블릿 지정 3파일 격리 후보",
+      "next": "Master URL 확인 후 Front·Mac 실제 화면",
+      "evidence": "msg_160c1fc11d31",
+      "reviewedAt": "2026-11-19T14:19:23.242Z",
+      "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
       "owner": "CC-ECOM-01",
-      "state": "재배포선택질문대기·후속메시지전달보류·운영1.29",
-      "next": "追加빌드1예산결정전0·안전후보59cb고정·실3회기승인잔여",
-      "evidence": "26e1353c5 / msg_c6e462ca244b·msg_b8292d9e0030/ACTIVE_WORK",
-      "reviewedAt": "2026-11-17T16:58:50.290Z",
-      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+      "state": "무료 이미지 설치·로컬 빌드 통과",
+      "next": "lint 보완, 실제 화면은 등록·환경 대기",
+      "evidence": "msg_ee7b28acb9b7",
+      "reviewedAt": "2026-11-19T14:19:23.242Z",
+      "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
       "owner": "CC-BLOG-01",
-      "state": "현재요약정정완료·점유0",
-      "next": "다음묶음/사람계정조건·T12문서조정, 새생성0",
-      "evidence": "2f15cafc9 / msg_de0bdb33dbeb",
-      "reviewedAt": "2026-11-17T16:58:50.290Z",
-      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+      "state": "보안·위젯 에이전트 v2.30 READY 보고",
+      "next": "나머지 3종 순차, 공유 푸시 보류",
+      "evidence": "msg_5ce173e3d2c8",
+      "reviewedAt": "2026-11-19T14:19:23.242Z",
+      "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
       "owner": "CC-MOVIE-01",
-      "state": "YVS실검색/AI기획안1회 담당운영완료·점유0",
-      "next": "재호출0·새배정대기",
-      "evidence": "a3f39764b/00a2c9efa·별도실청구미확정",
-      "reviewedAt": "2026-11-17T16:58:50.290Z",
-      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+      "state": "원스톱 상품 영상 반환 정적 검토",
+      "next": "수신 계약 합의 후 구현",
+      "evidence": "3feb2bd85·msg_e19e56da16c0",
+      "reviewedAt": "2026-11-19T14:19:23.242Z",
+      "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
       "owner": "CC-MUSIC-01",
-      "state": "현재기록정정완료·점유0·기존icon변경보존",
-      "next": "lyric2건다음묶음·Mac실MP4사람선택",
-      "evidence": "a8333ca84/a5a96ab42 / msg_c4bd9b21150b",
-      "reviewedAt": "2026-11-17T16:58:50.290Z",
-      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+      "state": "수신 운영 확인·발신 링크 로컬",
+      "next": "UUID 재검수와 공개 승인 대기",
+      "evidence": "msg_2d1033203682",
+      "reviewedAt": "2026-11-19T14:19:23.242Z",
+      "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
       "owner": "CC-REALTY-01",
-      "state": "문서정정완료·점유0",
-      "next": "독립자료미확보차단·정상회차이외새수집0",
-      "evidence": "18b206cbe / msg_7c94f8433b21",
-      "reviewedAt": "2026-11-17T16:58:50.290Z",
-      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+      "state": "상가 v1.35·고객관리 v1.11 배포 기록 대조",
+      "next": "실화면·문자 확인 전제 유지",
+      "evidence": "5b5b8a2a4·83144f895",
+      "reviewedAt": "2026-11-19T14:19:23.242Z",
+      "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
       "owner": "AG-UI-01",
-      "state": "emotion제품동결유지·PORT19문서매핑배정 전송/수락미확인",
-      "next": "문서JSON19건반환→Master근거판정·다른프로그램코드변경0",
-      "evidence": "f4063ae82 / msg_cc05e5f53915·msg_bd9dfa2f47ed",
-      "reviewedAt": "2026-11-17T16:58:50.290Z",
-      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+      "state": "PORT19 결과 회수 요청 대기열",
+      "next": "기존 자료와 미확정 담당만 대조",
+      "evidence": "msg_ea2d9a27dd1b",
+      "reviewedAt": "2026-11-19T14:19:23.242Z",
+      "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
       "owner": "CX-QA-01",
-      "state": "QA049画像provider/응답/URL 반례확인중",
-      "next": "최종고정SHA보고·QA037읽기단일연결·추가테스트결제0",
-      "evidence": "msg_637d0a9f128b/msg_edc3ed674d46/msg_9a4e8d3e50c8",
-      "reviewedAt": "2026-11-17T16:58:50.290Z",
-      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+      "state": "음악 발신·AI Influencer 정적 검수",
+      "next": "보완 고정판 및 Lab 로그인 뒤 QA037",
+      "evidence": "msg_797fd5bb3cc4·msg_2d1033203682",
+      "reviewedAt": "2026-11-19T14:19:23.242Z",
+      "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
       "owner": "CC-SUPPORT-01",
-      "state": "주인님직접키트작업전담·이번상태미조회",
-      "next": "Master다른작업배정제외·완료신호만취합",
-      "evidence": "주인님전담지시·SUP05",
-      "reviewedAt": "2026-11-17T16:58:50.290Z",
-      "evidenceLevel": "담당회신/기존기록대조·운영상시확인아님"
+      "state": "주인님 직접 키트 작업 전담",
+      "next": "기존 전담 완료 신호만 회수",
+      "evidence": "SUP-20261116-05",
+      "reviewedAt": "2026-11-19T14:19:23.242Z",
+      "evidenceLevel": "담당 회신·Git·기존 기록 대조"
+    },
+    {
+      "owner": "CC-SNS-01",
+      "state": "AI Influencer 감사 이력 정책 확정",
+      "next": "정리·원복 순서 보완 후 Mac, 운영 SQL 별도",
+      "evidence": "msg_74298e9d0652",
+      "reviewedAt": "2026-11-19T14:19:23.242Z",
+      "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     }
   ],
   "categoryReviews": [
