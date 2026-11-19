@@ -172,7 +172,7 @@ Master 마지막 실제 점검: 2026-11-19 13:01:14 KST · 실행 중 점검 주
 | RE-20261116-01 | CC-REALTY-01 | done / integrated | L-6 기술안·뉴스미배포정정·17시험 | 대안1 채택, 구현은RE-02로 분리 |
 | RE-20261119-EXT | CC-REALTY-01 | running / three_program_linkage_independent_accepted_crm_plan_routed | 부동산 추가 개선 순차 진행 | 매물 알림 8 blob·독립 3/3, 관심 지역 3프로그램 연계 로컬 수락. 실 화면·DB 권한 검증 및 배포 대기. 고객관리 플랜 이동. |
 | RE-20261119-DESK | CC-REALTY-01 | done / u1_independent_review_accepted_undeployed | 부동산 고객관리 화면 개선 | U-1 1c52f4e37 Mac 독립 수락. 중립 배지·합성 3종 본문/발송 연결·광고 규칙 6/6 확인. 기존 90자 안내는 별도 개선, 미배포. |
-| RE-20261119-DESK-U1A | CC-REALTY-01 | reviewing / sms_estimate_review_pass_simplification_requested | 부동산 고객관리 미리보기 문자 바이트 안내 | Mac 독립 11/11, 기존 90/91·이모지 추정 통과. 본문 자리표시 치환과 비지원 문자 단정 제거 보완 요청, 실발송·미배포. |
+| RE-20261119-DESK-U1A | CC-REALTY-01 | reviewing / sms_estimate_simplified_mac_recheck_dispatched | 부동산 고객관리 미리보기 문자 바이트 안내 | 16자 예시 토큰과 항상 추정 안내로 단순화, 전체 문자열 치환 제거. 작성자 40/40·tsc, Mac 재검수 요청, 미배포. |
 | RE-20261116-02 | CC-REALTY-01 | done / integrated | 카톡실패상태·끊긴토큰재발송방지·local로그아웃/UA | 사용자 직접 승인 배포 v1.45/v1.61. 카카오 실물·08:00 뉴스 대조 별도 |
 | BLOG-20261116-01 | CC-BLOG-01 | done / integrated | 티스토리 소제목##·이웃 전경거절 진단 보완 | 코드검증범위 완료, 이웃재시험/배포/실제소통은별도대기 |
 | QA-20261116-01 | CX-QA-01 | cancelled / integrated | 종합 QA를 영상/Workspace로 분리 | 중복 배정 종료, 검증 완료 의미 아님 |
@@ -424,7 +424,7 @@ Master 마지막 실제 점검: 2026-11-19 13:01:14 KST · 실행 중 점검 주
 | B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | reviewing / local_data_layer_review_passed_server_approval_pending | 메이커 M3 제안 적용·서버 바이트 검증 설계 | f0eaf784c Mac 로컬 데이터 계층 독립 검수 수락을 Backend에 회신. 점 경로 검증, 서버 구현·키·UI·Lab은 별도 승인 대기. |
 | B2B-20261119-ADMINUI | AG-UI-01 | waiting_human / private_lab_ready_waiting_owner_admin_login | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | 메모리 부족 후 사용자 지시로 사설 Lab 재시작, PID 43784·ad046c1eb·login 200 확인. Mac 공간39 사용자 제어 유지, 반환 후 읽기 검수. |
 | B2B-20261119-MALL-STORAGE | CX-MASTER-01 | queued / central_accounting_scope_registered_retention_excluded | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 메인 집계에서 몰별 경로를 몰 주인에게 귀속하고 중복 방지·구매 안내 범위를 설계. 30일 삭제 요청 취소·등록 상품 최소 1년 보관 유지. 운영 적용 별도. |
-| IMG-20261119-PLAN | CC-ECOM-01 | running / p1_proposal_returned_shared_engine_review_dispatched | AI 무료 이미지 자동화 개발 플랜 | P1 제안 fe37bf575 반환. 공용 엔진 3파일 호환·권한·큐·롤백을 음악 담당에 읽기 검토 배정. 구현·출시 기준 결정 전. |
+| IMG-20261119-PLAN | CC-ECOM-01 | running / p1_shared_engine_review_returned_plan_revision_dispatched | AI 무료 이미지 자동화 개발 플랜 | 음악 담당 엔진 호환·권한 및 큐 검토 반환. 작업 소유·접수 중복 방지를 반영한 P1 문서 보완 배정. 엔진·웹 구현 전. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
@@ -501,7 +501,7 @@ Master 마지막 실제 점검: 2026-11-19 13:01:14 KST · 실행 중 점검 주
 | AIF-20261119-W01-READY | CC-SNS-01 | done / v2_storage_signed_browser_read_and_ownership_verified | W01 운영 전 검증 계획과 V2 저장·다운로드 검증 | V2 서명 다운로드·권한 확인 완료. V3 유료 범위 별도, V4 시험 계정 지정 수신 및 실행 조건 미확정. |
 | AIF-20261119-W01-NEXT | CC-SNS-01 | done / dependency_patch_verified_locally_undeployed | AI Influencer Next.js 보안 패치 | 16.4.6 파일 지문과 잠금 범위 대조 완료. 담당 시험 320/320·타입 통과·audit 0. 번들 및 운영 응답 확인은 배포 단계. |
 | AIF-20261119-W01-V4 | CC-SNS-01 | done / finite_member_real_storage_verified_isolated_origin | 일반 회원 한도와 운영 다운로드 선행 검증 | 지정 일반 회원 실제 이용·합성 JPEG 1회 업로드·본인 조회·서명 다운로드 200. 일반 한도 초과·정리·운영 출처는 미검증. |
-| AIF-20261119-W01-V3 | CC-SNS-01 | running / launcher_allowlist_pass_next_env_file_guard_fix_dispatched | AI Influencer 대표 생성 및 보정 검증 | Mac 환경 허용 목록 4/4 통과. Next dev 추가 환경파일 차단을 담당에 배정. 파일 존재·운영·추가 유료 호출 미실행. |
+| AIF-20261119-W01-V3 | CC-SNS-01 | running / next_env_file_guard_returned_mac_recheck_dispatched | AI Influencer 대표 생성 및 보정 검증 | 환경 파일 이름 9종 기동 전 차단 보완, 작성자 모의 18/18. Mac 독립 재검수 요청, Windows 실기동·유료 호출 없음. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |
