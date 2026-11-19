@@ -6078,11 +6078,11 @@
       "reviewer": "CX-QA-01",
       "title": "B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계",
       "status": "reviewing",
-      "delivery": "mac_review_found_kpi_and_touch_regressions_fix_requested",
-      "sha": "b6b3ee7f5",
-      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8·msg_9f9b2521f4a8·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_621b8cb49fa9",
-      "next": "Mac Node 20/20 및 메뉴·권한·조회 정적 통과. 주문 KPI 5000행 상한 표기와 상품 상단 3링크 44px 복원은 AG-UI-01 보완 요청. 해당 SHA 실화면 미검증·미배포.",
-      "lastReviewedAt": "2026-11-19T01:05:26.695Z"
+      "delivery": "kpi_touch_fixes_returned_mac_recheck_dispatched",
+      "sha": "c17cca668",
+      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8·msg_9f9b2521f4a8·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_621b8cb49fa9·msg_aa1479ca4c17·c17cca668·msg_e5e7af9da7fe",
+      "next": "c17cca668 주문 KPI 5,000행 상한 안내 및 상품 상단 3링크 최소 44px 복원. 작성자 tsc 통과. Mac 독립 재검수 요청, 실화면 미검증·미배포.",
+      "lastReviewedAt": "2026-11-19T01:07:34.531Z"
     }
   ],
   "programOverrides": [
