@@ -22,9 +22,16 @@ const localLock: Lock = (name, fn) => {
   });
   return run;
 };
+const webLocks = () => (globalThis as { navigator?: { locks?: { request<T>(n: string, f: () => Promise<T>): Promise<T> } } }).navigator?.locks;
+/**
+ * 이 브라우저에 탭 사이 잠금(Web Locks)이 있는가. 없으면 **다른 탭에서 동시에** 같은 그림을 저장할 때 두 번 쓰일 수 있다
+ * (같은 탭 안에서는 막힌다. 폴더 저장은 같은 이름이라 한 파일로 덮어쓰이지만, 내려받기는 파일이 둘 생길 수 있다).
+ * 화면은 이 값이 false면 그 제약을 알린다.
+ */
+export const hasCrossTabLock = (): boolean => !!webLocks();
 /** 탭 사이에 공유되는 잠금이 있으면 그것을, 없으면 같은 화면 안의 잠금을 쓴다 */
 export const defaultLock: Lock = (name, fn) => {
-  const locks = (globalThis as { navigator?: { locks?: { request<T>(n: string, f: () => Promise<T>): Promise<T> } } }).navigator?.locks;
+  const locks = webLocks();
   return locks ? locks.request(name, fn) : localLock(name, fn);
 };
 

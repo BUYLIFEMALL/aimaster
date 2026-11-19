@@ -146,53 +146,42 @@ export function loadCompose(storage: KeyValueStore, memberId: string): Compose |
 }
 
 // ── 맡기는 중인 묶음(브라우저 보관, 회원별) — 새로고침 뒤 남은 장을 이어서 맡길 수 있게 ──
-// 묶음마다 고유 번호와 「시작할 때 이미 있던 접수 번호 목록」을 두고, 항목을 엔진에 맡기면 그 **접수 번호를 항목에 적는다**.
-// 「이미 맡긴 항목」은 이 묶음에 적힌 접수 번호로 판단한다 — 예전 묶음에 내용(설명·크기·시드)이 같은 접수가 있어도
-// 새 묶음의 항목은 따로 맡긴다(사용자가 새로 시작한 묶음이다).
+// 묶음을 만들 때 **모든 장에 접수 번호를 미리 정해 적어 둔다**. 엔진에는 그 번호로 맡긴다.
+// 「이 장을 이미 맡겼는가」는 한 가지로만 정한다: 그 접수 번호가 접수 기록에 있는가.
+// 내용(설명·크기·시드)이 같은 다른 접수를 이 장의 것으로 여기거나 지우지 않는다.
+// 묶음은 만든 때의 연결 범위에 묶인다. 연결이 바뀌면 남은 장을 그대로 둔 채 멈춘다.
 const draftKey = (memberId: string) => `fis.draft.v1:${memberId}`;
-const ledgerKeyOf = (memberId: string) => `fis.submissions.v1:${memberId}`;
+const sessionKeyOf = (memberId: string) => `fis.engineToken.v1:${memberId}`;
 const REQUEST_ID = /^[A-Za-z0-9-]{8,64}$/;
 
 export type DraftItem = PlanItem & {
-  /** 묶음 안에서 이 항목을 가리키는 번호 */
+  /** 묶음 안에서 이 장을 가리키는 번호 */
   key: string;
-  /** 이 항목을 엔진에 맡길 때 받은 접수 번호(맡기기 전에는 없음) */
-  requestId?: string;
+  /** 이 장을 엔진에 맡길 때 쓰는 접수 번호 — 묶음을 만들 때 정해 적는다 */
+  requestId: string;
 };
 export type Draft = {
-  v: 2;
+  v: 3;
   batchId: string;
+  /** 이 묶음을 만든 때의 연결 범위 표시. 지금 범위와 다르면 남은 장을 맡기지 않는다 */
+  link: string;
   startedAt: number;
-  /**
-   * 이 묶음을 시작할 때 접수 기록에 이미 있던 접수 번호. 이 묶음의 항목은 여기에 있는 접수와 짝짓지 않는다.
-   * (시각으로 가르면 같은 밀리초에 이어진 접수에서 어긋난다 — 번호로 가른다.) null은 예전 형식: 모든 접수와 짝지을 수 있다.
-   */
-  before: string[] | null;
   items: DraftItem[];
 };
 
 const newId = (): string => globalThis.crypto.randomUUID();
+const validItem = (it: unknown): it is PlanItem => !!it && typeof it === "object" && checkArtInput(it as PlanItem) === null && Number.isInteger((it as PlanItem).seed);
 
-/** 이 회원의 접수 기록에 지금 있는 접수 번호들 */
-function existingRequestIds(storage: KeyValueStore, memberId: string): string[] {
+/** 이 회원의 연결 기록에서 지금 연결 범위 표시를 읽는다(연결돼 있지 않으면 null). engine.ts의 연결 기록과 같은 모양 */
+function currentLink(storage: KeyValueStore, memberId: string): string | null {
   try {
-    const list: unknown = JSON.parse(storage.getItem(ledgerKeyOf(memberId)) ?? "[]");
-    return Array.isArray(list) ? list.map((s) => (s && typeof s === "object" ? (s as Submission).requestId : null)).filter((id): id is string => typeof id === "string") : [];
+    const d = JSON.parse(storage.getItem(sessionKeyOf(memberId)) ?? "null") as { v?: unknown; token?: unknown; link?: unknown } | null;
+    return d && typeof d === "object" && d.v === 2 && typeof d.token === "string" && d.token && typeof d.link === "string" && d.link ? d.link : null;
   } catch {
-    return [];
+    return null;
   }
 }
 
-/**
- * 새 묶음을 보관한다(앞의 묶음을 덮어쓴다 — 화면은 남은 장이 있으면 새 묶음을 시작하지 못하게 막는다).
- * 지금 접수 기록에 있는 접수 번호를 함께 적어 둔다: 접수 번호가 아직 적히지 않은 항목은 「그 목록에 없는 접수」하고만 짝을 맞춘다.
- */
-export function saveDraft(storage: KeyValueStore, memberId: string, items: PlanItem[], opts: { now?: () => number; uuid?: () => string } = {}): Draft {
-  const uuid = opts.uuid ?? newId;
-  const draft: Draft = { v: 2, batchId: uuid(), startedAt: (opts.now ?? Date.now)(), before: existingRequestIds(storage, memberId), items: items.map((it) => ({ ...it, key: uuid() })) };
-  writeDraft(storage, memberId, draft);
-  return draft;
-}
 function writeDraft(storage: KeyValueStore, memberId: string, draft: Draft): void {
   try {
     storage.setItem(draftKey(memberId), JSON.stringify(draft));
@@ -201,29 +190,54 @@ function writeDraft(storage: KeyValueStore, memberId: string, draft: Draft): voi
   }
 }
 
-/** 보관한 묶음. 손상된 내용은 없는 것으로 본다(엔진에 보내지 않는다). 예전 형식(v1, 묶음 번호 없음)도 읽는다 */
-export function readDraft(storage: KeyValueStore, memberId: string): Draft | null {
+/**
+ * 새 묶음을 보관한다(앞의 묶음을 덮어쓴다 — 화면은 남은 장이 있으면 새 묶음을 시작하지 못하게 막는다).
+ * 장마다 접수 번호를 정해 함께 적는다. 엔진과 연결돼 있지 않으면 만들지 않는다(어느 연결의 묶음인지 적을 수 없다).
+ */
+export function saveDraft(storage: KeyValueStore, memberId: string, items: PlanItem[], opts: { now?: () => number; uuid?: () => string } = {}): Draft {
+  const link = currentLink(storage, memberId);
+  if (!link) throw new EngineError("needPair", "엔진과 연결한 뒤에 맡길 수 있습니다. 「시작하기」에서 연결해 주세요.", 401);
+  const uuid = opts.uuid ?? newId;
+  const draft: Draft = { v: 3, batchId: uuid(), link, startedAt: (opts.now ?? Date.now)(), items: items.map((it) => ({ ...it, key: uuid(), requestId: uuid() })) };
+  if (!draft.items.every((it) => REQUEST_ID.test(it.requestId)) || new Set(draft.items.map((it) => it.requestId)).size !== draft.items.length) throw new EngineError("invalid", "접수 번호를 만들지 못했습니다.");
+  writeDraft(storage, memberId, draft);
+  return draft;
+}
+
+type Stored = { v?: unknown; batchId?: unknown; link?: unknown; startedAt?: unknown; items?: unknown };
+function readStored(storage: KeyValueStore, memberId: string): Stored | null {
   try {
-    const data = JSON.parse(storage.getItem(draftKey(memberId)) ?? "null") as { v?: unknown; batchId?: unknown; startedAt?: unknown; before?: unknown; items?: unknown } | null;
-    if (!data || typeof data !== "object" || !Array.isArray(data.items)) return null;
-    const raw = data.items as DraftItem[];
-    if (raw.length > BATCH_MAX || !raw.every((it) => it && typeof it === "object" && checkArtInput(it) === null && Number.isInteger(it.seed) && (it.requestId === undefined || (typeof it.requestId === "string" && REQUEST_ID.test(it.requestId))))) return null;
-    if (data.v === 2) {
-      if (typeof data.batchId !== "string" || !data.batchId || !Number.isFinite(data.startedAt) || !raw.every((it) => typeof it.key === "string" && it.key)) return null;
-      if (new Set(raw.map((it) => it.key)).size !== raw.length) return null;
-      // before가 null이면 예전 형식에서 옮겨 온 묶음이다(이어 맡기는 동안 접수 번호를 적으며 새 형식으로 다시 적힌다).
-      if (data.before !== null && (!Array.isArray(data.before) || !data.before.every((id) => typeof id === "string"))) return null;
-      return { v: 2, batchId: data.batchId, startedAt: data.startedAt as number, before: data.before as string[] | null, items: raw };
-    }
-    // v1: 묶음 번호·시작 시각이 없던 형식 — 그때의 규칙(내용이 같은 접수가 있으면 맡긴 것으로 봄)대로 읽는다
-    if (data.v === 1) return { v: 2, batchId: "legacy", startedAt: 0, before: null, items: raw.map((it, i) => ({ ...it, key: `legacy-${i}` })) };
-    return null;
+    const data = JSON.parse(storage.getItem(draftKey(memberId)) ?? "null") as Stored | null;
+    return data && typeof data === "object" && Array.isArray(data.items) && data.items.length <= BATCH_MAX ? data : null;
   } catch {
     return null;
   }
 }
-/** 보관한 묶음의 항목(없으면 빈 목록) */
+
+/** 보관한 묶음(지금 형식만). 손상됐거나 예전 형식이면 null — 엔진에 보내지 않는다 */
+export function readDraft(storage: KeyValueStore, memberId: string): Draft | null {
+  const data = readStored(storage, memberId);
+  if (!data || data.v !== 3) return null;
+  const raw = data.items as DraftItem[];
+  if (typeof data.batchId !== "string" || !data.batchId || typeof data.link !== "string" || !data.link || !Number.isFinite(data.startedAt)) return null;
+  if (!raw.every((it) => validItem(it) && typeof it.key === "string" && !!it.key && typeof it.requestId === "string" && REQUEST_ID.test(it.requestId))) return null;
+  if (new Set(raw.map((it) => it.key)).size !== raw.length || new Set(raw.map((it) => it.requestId)).size !== raw.length) return null;
+  return { v: 3, batchId: data.batchId, link: data.link, startedAt: data.startedAt as number, items: raw };
+}
+/** 보관한 묶음의 장들(없으면 빈 목록) */
 export const loadDraft = (storage: KeyValueStore, memberId: string): DraftItem[] => readDraft(storage, memberId)?.items ?? [];
+
+/**
+ * 예전 형식(v1·v2)으로 보관된 묶음의 장들. 그 형식은 장마다 접수 번호를 미리 적지 않아,
+ * 어느 장이 이미 맡겨졌는지 **근거가 없다**. 그래서 자동으로 이어 맡기지 않고 「확인이 필요한 장」으로만 보여 준다.
+ * 사용자가 중복 가능성을 알고 고르면 adoptLegacyDraft()로 새 묶음으로 옮긴다.
+ */
+export function legacyDraftItems(storage: KeyValueStore, memberId: string): PlanItem[] {
+  const data = readStored(storage, memberId);
+  if (!data || (data.v !== 1 && data.v !== 2)) return [];
+  const raw = data.items as PlanItem[];
+  return raw.every(validItem) ? raw.map(({ line, copy, source, title, prompt, width, height, seed, variantId }) => ({ line, copy, source, title, prompt, width, height, seed, ...(variantId ? { variantId } : {}) })) : [];
+}
 
 export function clearDraft(storage: KeyValueStore, memberId: string): void {
   try {
@@ -231,61 +245,58 @@ export function clearDraft(storage: KeyValueStore, memberId: string): void {
   } catch {}
 }
 
-/** 접수 기록의 한 건이 이 계획 항목과 내용이 같은가 — 제목·설명·크기·시드·구성 */
-const sameContent = (s: Submission, item: PlanItem): boolean =>
-  s.title === item.title.trim() && s.task.prompt === item.prompt.trim() && s.task.seed === item.seed && s.task.width === item.width && s.task.height === item.height && (s.task.variantId ?? null) === (item.variantId ?? null);
+/** 묶음에서 아직 맡기지 않은 장 — 그 장의 접수 번호가 접수 기록에 없는 것 */
+function unsent(draft: Draft, subs: Submission[]): DraftItem[] {
+  const have = new Set(subs.map((s) => s.requestId));
+  return draft.items.filter((it) => !have.has(it.requestId));
+}
+export function remainingItems(client: Pick<EngineClient, "submissions" | "memberId">, storage: KeyValueStore): DraftItem[] {
+  const draft = readDraft(storage, client.memberId);
+  return draft ? unsent(draft, client.submissions()) : [];
+}
 
-/** 내용이 같은 접수 찾기(묶음을 가리지 않는다 — 묶음 안의 판단에는 resolveDraft를 쓴다) */
-export function findSubmission(subs: Submission[], item: PlanItem): Submission | null {
-  return subs.find((s) => sameContent(s, item)) ?? null;
+export type DraftStatus = {
+  /** 지금 연결에서 이어 맡길 수 있는 남은 장 */
+  remaining: number;
+  /** 묶음을 만든 뒤 엔진 연결이 바뀌어 그대로는 맡길 수 없는 남은 장 */
+  otherScope: number;
+  /** 예전 형식으로 보관돼 맡겼는지 알 수 없는 장 */
+  legacy: number;
+};
+export function draftStatus(client: Pick<EngineClient, "submissions" | "memberId" | "scopeId">, storage: KeyValueStore): DraftStatus {
+  const legacy = legacyDraftItems(storage, client.memberId).length;
+  const draft = readDraft(storage, client.memberId);
+  if (!draft) return { remaining: 0, otherScope: 0, legacy };
+  const left = unsent(draft, client.submissions()).length;
+  return draft.link === client.scopeId() ? { remaining: left, otherScope: 0, legacy } : { remaining: 0, otherScope: left, legacy };
 }
 
 /**
- * 묶음의 항목마다 「이미 맡겼는가」를 정한다. 돌려주는 값은 항목 key → 접수 번호(맡긴 항목만).
- * - 접수 번호가 적힌 항목은 맡긴 것이다(그 접수가 받았는지 모르는 상태여도 다시 맡기지 않는다).
- * - 접수 번호가 없는 항목은, 맡기는 도중 화면이 닫혀 번호를 못 적었을 수 있다. **이 묶음을 시작할 때 없던** 접수 가운데
- *   내용이 같고 아직 다른 항목과 짝짓지 않은 것이 있으면 그것이 이 항목의 접수다. 시작할 때 이미 있던 접수와는 짝짓지 않는다.
+ * 접수 기록을 지우거나 새로 맡길 때, 보관한 묶음에서 **그 접수 번호의 장**을 뺀다.
+ * 접수 번호가 같은 장만 뺀다 — 내용이 같은 다른 장은 건드리지 않는다.
  */
-export function resolveDraft(draft: Draft, subs: Submission[]): Map<string, string> {
-  const out = new Map<string, string>();
-  const claimed = new Set<string>(draft.before ?? []);
-  for (const it of draft.items) {
-    if (it.requestId) {
-      out.set(it.key, it.requestId);
-      claimed.add(it.requestId);
-    }
-  }
-  for (const it of draft.items) {
-    if (it.requestId) continue;
-    const hit = subs.find((s) => !claimed.has(s.requestId) && sameContent(s, it));
-    if (hit) {
-      out.set(it.key, hit.requestId);
-      claimed.add(hit.requestId);
-    }
-  }
-  return out;
-}
-
-/**
- * 접수 기록을 지우거나 새로 맡길 때, 보관한 묶음에서도 그 항목을 뺀다.
- * 빼지 않으면 기록에서 지운 그림이 「남은 장」으로 되살아나 「이어서 맡기기」에 딸려 간다.
- */
-export function dropFromDraft(storage: KeyValueStore, memberId: string, sub: Submission): void {
+export function dropFromDraft(storage: KeyValueStore, memberId: string, requestId: string): void {
   const draft = readDraft(storage, memberId);
   if (!draft) return;
-  const resolved = resolveDraft(draft, [sub]);
-  const kept = draft.items.filter((it) => resolved.get(it.key) !== sub.requestId);
+  const kept = draft.items.filter((it) => it.requestId !== requestId);
   if (kept.length === draft.items.length) return;
   if (kept.length) writeDraft(storage, memberId, { ...draft, items: kept });
   else clearDraft(storage, memberId);
 }
 
-/** 보관한 묶음에서 아직 맡기지 않은 항목 */
-export function remainingItems(client: Pick<EngineClient, "submissions" | "memberId">, storage: KeyValueStore): DraftItem[] {
-  const draft = readDraft(storage, client.memberId);
-  if (!draft) return [];
-  const resolved = resolveDraft(draft, client.submissions());
-  return draft.items.filter((it) => !resolved.has(it.key));
+/**
+ * 사용자가 고른 경우에만: 지금 연결에서 맡길 수 없는 남은 장을 **새 묶음**(새 접수 번호, 지금 연결 범위)으로 옮긴다.
+ *  - 연결이 바뀐 묶음: 아직 접수 기록이 없는 장만 옮긴다(접수 기록이 없으면 엔진에 보낸 적이 없다 — 기록을 먼저 적고 보내기 때문).
+ *  - 예전 형식 묶음: 어느 장이 맡겨졌는지 알 수 없으므로 전부 옮긴다. 이미 그린 장이 있으면 같은 그림이 한 번 더 나온다(화면이 먼저 알린다).
+ */
+export function adoptDraft(client: Pick<EngineClient, "submissions" | "memberId" | "scopeId">, storage: KeyValueStore, acknowledged: boolean): Draft | null {
+  if (!acknowledged) throw new EngineError("invalid", "남은 장을 새 묶음으로 맡기려면 먼저 확인해 주세요.");
+  const memberId = client.memberId;
+  const draft = readDraft(storage, memberId);
+  const strip = ({ line, copy, source, title, prompt, width, height, seed, variantId }: PlanItem): PlanItem => ({ line, copy, source, title, prompt, width, height, seed, ...(variantId ? { variantId } : {}) });
+  const items = draft ? (draft.link === client.scopeId() ? [] : unsent(draft, client.submissions()).map(strip)) : legacyDraftItems(storage, memberId);
+  if (!items.length) return null;
+  return saveDraft(storage, memberId, items);
 }
 
 export type RunResult = {
@@ -300,10 +311,11 @@ export type RunResult = {
 };
 
 /**
- * 보관해 둔 묶음에서 아직 맡기지 않은 항목만 하나씩 맡긴다.
- * - 이 묶음에서 이미 맡긴 항목은 상태가 무엇이든(받았는지 모름 포함) 다시 보내지 않는다.
- * - 맡길 때마다 받은 접수 번호를 묶음의 그 항목에 적는다.
- * - 엔진이 꺼졌거나 연결이 필요하거나 엔진이 이 사이트의 작업을 닫았으면 거기서 멈춘다(남은 항목은 보관).
+ * 보관해 둔 묶음에서 아직 맡기지 않은 장만 하나씩 맡긴다.
+ * - 장마다 미리 정해 둔 접수 번호로 맡긴다. 그 번호가 접수 기록에 있으면(상태가 무엇이든) 다시 보내지 않는다.
+ * - 장을 보내기 직전마다 엔진 연결 범위가 묶음을 만든 때와 같은지 본다. 다르면 남은 장을 그대로 두고 멈춘다.
+ * - 엔진이 꺼졌거나 연결이 필요하거나 엔진이 이 사이트의 작업을 닫았으면 거기서 멈춘다(남은 장은 보관).
+ * - 예전 형식 묶음은 맡기지 않는다(확인이 필요한 장으로 남는다).
  * - 모두 맡기면 보관한 묶음을 지운다.
  */
 export async function submitRemaining(client: EngineClient, storage: KeyValueStore, opts: { onProgress?: (done: number, total: number) => void; shouldStop?: () => boolean } = {}): Promise<RunResult> {
@@ -320,44 +332,44 @@ export async function submitRemaining(client: EngineClient, storage: KeyValueSto
       stopped = { kind: "user", message: "맡기기를 멈췄습니다." };
       break;
     }
-    // 매번 다시 읽는다 — 다른 탭이 이 묶음을 이어 맡겼거나, 기록을 지워 항목이 빠졌거나, 새 묶음으로 바뀌었을 수 있다.
+    // 매번 다시 읽는다 — 다른 탭이 이 묶음을 이어 맡겼거나, 기록을 지워 장이 빠졌거나, 새 묶음으로 바뀌었을 수 있다.
     const draft = readDraft(storage, memberId);
     if (!draft || draft.batchId !== batchId) {
       stopped = { kind: "changed", message: "맡길 목록이 다른 화면에서 바뀌어 멈췄습니다." };
       break;
     }
     const item = draft.items.find((it) => it.key === key);
-    if (!item) continue; // 그사이 기록에서 지운 항목
-    if (resolveDraft(draft, client.submissions()).has(key)) {
+    if (!item) continue; // 그사이 기록에서 지운 장
+    if (client.submissions().some((s) => s.requestId === item.requestId)) {
       skipped += 1;
-    } else {
-      try {
-        const { line: _line, copy: _copy, source: _source, key: _key, requestId: _requestId, ...input } = item;
-        const res = await client.submit(input);
-        sent += 1;
-        // 받은 접수 번호를 이 항목에 적는다(적지 못해도, 묶음 시작 뒤에 생긴 같은 내용 접수로 다시 짝이 맞는다).
-        const fresh = readDraft(storage, memberId);
-        if (fresh && fresh.batchId === batchId) {
-          try {
-            writeDraft(storage, memberId, { ...fresh, items: fresh.items.map((it) => (it.key === key ? { ...it, requestId: res.requestId } : it)) });
-          } catch {}
-        }
-        if (res.state !== "accepted" && ["offline", "needPair", "closed", "forbidden"].includes(res.error.kind)) {
-          stopped = { kind: res.error.kind, message: res.error.message };
-          opts.onProgress?.(sent + skipped, total);
-          break;
-        }
-      } catch (e) {
-        // 기록을 적지 못했거나 연결이 없어 보내지 않은 경우 — 이 항목은 맡기지 않은 것이다.
-        const err = e instanceof EngineError ? e : new EngineError("error", "맡기지 못했습니다.");
-        stopped = { kind: err.kind, message: err.message };
+      opts.onProgress?.(sent + skipped, total);
+      continue;
+    }
+    // 보내기 직전: 연결 범위가 묶음을 만든 때와 같은가. 한 묶음의 그림이 두 연결 범위에 나뉘어 들어가지 않게 한다.
+    if (client.scopeId() !== draft.link) {
+      stopped = { kind: "scope", message: "엔진 연결이 바뀌어 남은 장을 맡기지 않았습니다. 남은 장은 그대로 두었습니다." };
+      break;
+    }
+    try {
+      const { line: _line, copy: _copy, source: _source, key: _key, requestId, ...input } = item;
+      const res = await client.submit(input, { requestId, tag: `batch:${batchId}:${key}` });
+      sent += 1;
+      if (res.state !== "accepted" && ["offline", "needPair", "closed", "forbidden"].includes(res.error.kind)) {
+        stopped = { kind: res.error.kind, message: res.error.message };
+        opts.onProgress?.(sent + skipped, total);
         break;
       }
+    } catch (e) {
+      // 접수 기록을 적지 못했거나 연결이 없어 보내지 않은 경우 — 이 장은 맡기지 않은 것이다.
+      const err = e instanceof EngineError ? e : new EngineError("error", "맡기지 못했습니다.");
+      stopped = { kind: err.kind, message: err.message };
+      break;
     }
     opts.onProgress?.(sent + skipped, total);
   }
   const after = readDraft(storage, memberId);
-  const remaining = after && after.batchId === batchId ? remainingItems(client, storage).length : 0;
-  if (!remaining && after && after.batchId === batchId) clearDraft(storage, memberId);
+  const same = !!after && after.batchId === batchId;
+  const remaining = same ? unsent(after, client.submissions()).length : 0;
+  if (same && !remaining) clearDraft(storage, memberId);
   return { sent, skipped, remaining, ...(stopped ? { stopped } : {}) };
 }

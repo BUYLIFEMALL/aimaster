@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { EngineJob, Submission } from "@/lib/engine";
 import { dropFromDraft } from "@/lib/studio/batch";
 import { PHASE_LABEL, again, buildRows, cancelAll, cancelRow, dismissRow, replace, restart, sendMessage, summarize, type Action, type Row } from "@/lib/studio/jobsView";
-import { createSaveStore, type SavedInfo, type Writer } from "@/lib/studio/saveStore";
+import { createSaveStore, hasCrossTabLock, type SavedInfo, type Writer } from "@/lib/studio/saveStore";
 import { isKind, messageOf, useEngine } from "./useEngine";
 
 const card = "rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4";
@@ -39,6 +39,9 @@ export function JobsScreen({ memberId }: { memberId: string }) {
   const [thumbs, setThumbs] = useState<Record<string, string>>({});
   const [dir, setDir] = useState<DirHandle | null>(null);
   const [confirmReplace, setConfirmReplace] = useState<string | null>(null);
+  // 탭 사이 잠금을 쓸 수 있는 브라우저인가(화면이 뜬 뒤에 본다 — 서버에서 그릴 때는 알 수 없다)
+  const [crossTab, setCrossTab] = useState(true);
+  useEffect(() => setCrossTab(hasCrossTabLock()), []);
   const cancelButton = useRef<HTMLButtonElement | null>(null);
   const opener = useRef<HTMLElement | null>(null);
   const loading = useRef(false);
@@ -185,11 +188,10 @@ export function JobsScreen({ memberId }: { memberId: string }) {
           }
         }
         // 받았는지 모르는 접수는 사용자가 「기록에서 지우기」를 고른 것이므로 지운다(엔진이 그렸다면 엔진 창에 남는다).
-        const sub = engine.submissions().find((x) => x.requestId === id);
         if (engine.forget(id, { force: true })) {
           saves.forget(id);
-          // 맡기다 만 묶음에 같은 그림이 남아 있으면 함께 뺀다(지운 그림이 「이어서 맡기기」로 되살아나지 않게).
-          if (sub) dropFromDraft(window.localStorage, memberId, sub);
+          // 맡기다 만 묶음에서 이 접수 번호의 장을 뺀다(지운 그림이 「이어서 맡기기」로 되살아나지 않게). 내용이 같은 다른 장은 그대로다.
+          dropFromDraft(window.localStorage, memberId, id);
         }
       }
     });
@@ -214,11 +216,10 @@ export function JobsScreen({ memberId }: { memberId: string }) {
     if (!engine || !saves) return;
     setConfirmReplace(null);
     void withRow(id, async () => {
-      const sub = engine.submissions().find((x) => x.requestId === id);
       const r = await replace(engine, id, true);
       saves.forget(id);
-      // 새 기록이 같은 내용이라 묶음과 다시 짝이 맞지만, 새로 맡기기가 기록을 못 남긴 경우를 대비해 묶음에서도 뺀다.
-      if (sub) dropFromDraft(window.localStorage, memberId, sub);
+      // 옛 접수 번호의 장을 묶음에서 뺀다(새로 맡긴 그림은 새 접수 번호라 묶음과 무관하다).
+      dropFromDraft(window.localStorage, memberId, id);
       return sendMessage(r, "새로 맡겨");
     });
   };
@@ -342,6 +343,11 @@ export function JobsScreen({ memberId }: { memberId: string }) {
         </ul>
       )}
 
+      {!crossTab && (
+        <p className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-100">
+          이 브라우저는 여러 탭이 동시에 저장하는 것을 막지 못합니다. 이 화면을 탭 두 개에 띄워 같은 그림을 동시에 저장하면 두 번 저장될 수 있으니, 저장은 한 탭에서만 해 주세요.
+        </p>
+      )}
       <p className="text-xs text-[var(--muted)]">그림과 설명은 회원님 PC와 이 브라우저에만 있습니다. 이 화면의 기록은 이 브라우저에 보관되며, 엔진은 그린 그림 파일을 하루 동안 보관합니다. 필요한 그림은 저장해 두세요.</p>
     </div>
   );

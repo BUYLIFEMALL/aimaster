@@ -102,6 +102,8 @@ export type Submission = {
   jobId?: string;
   error?: string;
   errorKind?: EngineErrorKind;
+  /** 이 접수를 만든 곳의 표시(예: 어느 묶음의 어느 항목). 엔진에는 보내지 않는다 */
+  tag?: string;
   at: number;
 };
 
@@ -401,14 +403,20 @@ export function createEngineClient(opts: EngineClientOptions) {
      * 그림 한 장 접수. 접수 번호를 만들어 **기록에 먼저 적은 뒤** 보낸다.
      * 응답을 받지 못하면 state "unknown"으로 돌아온다 — 새 번호로 다시 넣지 말고 confirm()으로 확인한다.
      */
-    async submit(input: SubmitInput) {
+    /**
+     * opts.requestId: 부르는 쪽이 **미리 정해 자기 기록에 적어 둔** 접수 번호를 쓴다(묶음의 항목과 접수를 보내기 전에 잇기 위해).
+     *   이미 접수 기록에 있는 번호면 보내지 않고 거절한다 — 같은 번호로 두 번 접수하지 않는다.
+     * opts.tag: 이 접수를 만든 곳의 표시. 접수 기록에만 남는다.
+     */
+    async submit(input: SubmitInput, opts: { requestId?: string; tag?: string } = {}) {
       const problem = checkArtInput(input);
       if (problem) throw new EngineError("invalid", problem);
       // 연결돼 있지 않으면 접수 기록도 만들지 않는다(어느 범위의 접수인지 적을 수 없다).
       const session = readSession();
       if (!session) throw new EngineError("needPair", DEFAULT_MESSAGE[401], 401);
       const link = session.link;
-      const requestId = uuid();
+      if (opts.requestId !== undefined && (typeof opts.requestId !== "string" || !REQUEST_ID.test(opts.requestId))) throw new EngineError("invalid", "접수 번호가 올바르지 않습니다.");
+      const requestId = opts.requestId ?? uuid();
       const trackId = uuid();
       if (!REQUEST_ID.test(requestId) || !JOB_ID.test(trackId)) throw new EngineError("invalid", "접수 번호를 만들지 못했습니다.");
       const task: ArtTask = { prompt: input.prompt.trim() };
@@ -416,8 +424,9 @@ export function createEngineClient(opts: EngineClientOptions) {
       if (input.width !== undefined) (task.width = input.width), (task.height = input.height);
       if (input.seed !== undefined) task.seed = input.seed;
       const entry: Submission = { requestId, trackId, link, title: input.title.trim(), task, state: "pending", at: now() };
+      if (typeof opts.tag === "string" && opts.tag) entry.tag = opts.tag.slice(0, 120);
       const list = readLedger();
-      if (list.some((s) => s.requestId === requestId)) throw new EngineError("invalid", "접수 번호가 겹쳤습니다. 다시 시도해 주세요.");
+      if (list.some((s) => s.requestId === requestId)) throw new EngineError("invalid", opts.requestId ? "이미 접수 기록에 있는 접수 번호입니다." : "접수 번호가 겹쳤습니다. 다시 시도해 주세요.");
       writeLedger([...list, entry]); // 적지 못하면 여기서 멈추고 엔진에 보내지 않는다
       return send(entry);
     },
@@ -485,6 +494,9 @@ export function createEngineClient(opts: EngineClientOptions) {
 
     /** 접수 기록(이 회원 것만) */
     submissions: (): Submission[] => readLedger(),
+
+    /** 지금 연결 범위의 표시(연결돼 있지 않으면 null). 다시 연결해 범위를 이어받는 동안 같은 값이다 */
+    scopeId: (): string | null => readLink(),
 
     /** 지금 연결 범위에서 확인·다시 보내기를 할 수 있는 접수인가(범위가 바뀐 과거 접수는 false) */
     inCurrentScope(requestId: string): boolean {

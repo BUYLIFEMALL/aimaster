@@ -75,11 +75,14 @@ export function buildRows(subs: Submission[], jobs: EngineJob[] | null, ctx: { i
       if (s.state === "rejected") return { ...base, phase: "rejected" as const, error: s.error, actions: (ctx.canResend(s.requestId) ? ["resend", "discard"] : ["discard"]) as Action[] };
       // accepted
       if (!inScope) return { ...base, phase: "gone" as const, jobId: s.jobId, error: "엔진 연결이 바뀌어 이 작업은 더 볼 수 없습니다. 엔진 창에서 확인해 주세요.", actions: ["discard"] as Action[] };
+      // 작업 번호가 적히지 않은 접수됨: 목록에 접수 번호만 같은 줄이 있어도 그 줄을 이 그림으로 채택하지 않는다.
+      // 사용자가 「엔진에 확인」으로 같은 범위에서 작업 번호를 되찾은 뒤에만 저장·조작을 연다.
+      if (!s.jobId) return { ...base, phase: "unknown" as const, error: "접수는 됐지만 작업 번호를 확인하지 못했습니다. 「엔진에 확인」을 눌러 주세요.", actions: ["confirm", "discard"] as Action[] };
       if (!jobs) return { ...base, phase: "waiting" as const, jobId: s.jobId, actions: [] };
       const job = byRequest.get(s.requestId);
       if (!job) return { ...base, phase: "gone" as const, jobId: s.jobId, actions: ["discard"] as Action[] };
       // 접수 번호가 같아도 작업 번호가 접수 기록과 다르면 그 줄의 상태·버튼을 쓰지 않는다(다른 범위의 목록이거나 어긋난 응답).
-      if (s.jobId && job.id !== s.jobId) return { ...base, phase: "waiting" as const, jobId: s.jobId, error: "엔진 목록과 접수 기록의 작업 번호가 다릅니다. 잠시 뒤 다시 확인해 주세요.", actions: [] };
+      if (job.id !== s.jobId) return { ...base, phase: "waiting" as const, jobId: s.jobId, error: "엔진 목록과 접수 기록의 작업 번호가 다릅니다. 잠시 뒤 다시 확인해 주세요.", actions: [] };
       const common = { ...base, jobId: job.id, stage: job.stage, error: job.error, result: job.result };
       if (job.status === "queued" || job.status === "running") return { ...common, phase: job.status, actions: ["cancel"] as Action[] };
       if (job.status === "done") return { ...common, phase: "done" as const, actions: ["save", "again", "dismiss"] as Action[] };

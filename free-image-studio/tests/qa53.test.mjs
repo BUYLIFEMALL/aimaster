@@ -4,9 +4,9 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { EngineError, createEngineClient } from "../src/lib/engine.ts";
 import { findPreset } from "../src/lib/studio/presets.ts";
-import { buildPlan, loadDraft, readDraft, remainingItems, resolveDraft, saveDraft, submitRemaining } from "../src/lib/studio/batch.ts";
+import { adoptDraft, buildPlan, draftStatus, dropFromDraft, legacyDraftItems, loadDraft, readDraft, remainingItems, saveDraft, submitRemaining } from "../src/lib/studio/batch.ts";
 import { again, buildRows, cancelAll, cancelRow, dismissRow, restart, sendMessage } from "../src/lib/studio/jobsView.ts";
-import { createSaveStore } from "../src/lib/studio/saveStore.ts";
+import { createSaveStore, hasCrossTabLock } from "../src/lib/studio/saveStore.ts";
 import { createMockEngine, memoryStorage } from "./mockEngine.mjs";
 
 const A = "aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa";
@@ -29,112 +29,189 @@ test("반례 P2-1 — 새 묶음은 예전 접수와 내용·시드가 같아도
   const same = () => plan("a red apple on a wooden table", { fixedSeed: 5 }).items;
   saveDraft(storage, A, same());
   assert.deepEqual(await submitRemaining(c, storage), { sent: 1, skipped: 0, remaining: 0 });
-  // 같은 연결에서 같은 설명·크기·시드로 새 묶음을 시작
-  const d2 = saveDraft(storage, A, same());
+  // 같은 연결에서 같은 설명·크기·고정 시드로 새 묶음을 시작
+  saveDraft(storage, A, same());
   assert.equal(remainingItems(c, storage).length, 1, "예전 접수 때문에 건너뛰지 않는다");
   assert.deepEqual(await submitRemaining(c, storage), { sent: 1, skipped: 0, remaining: 0 });
   assert.equal(posts(engine).length, 2);
   assert.equal(engine.st.jobs.length, 2);
   assert.equal(new Set(posts(engine).map((x) => x.body.clientRequestId)).size, 2, "새 접수 번호");
   assert.deepEqual(posts(engine)[0].body.task, posts(engine)[1].body.task, "내용은 같다");
-  assert.deepEqual(d2.before, [c.submissions()[0].requestId], "새 묶음은 시작할 때 이미 있던 접수 번호를 적어 둔다");
   // 연결을 끊고 새 범위로 연결한 뒤에도 마찬가지
   c.disconnect();
   await c.pair(engine.st.codes[0]);
   saveDraft(storage, A, same());
   assert.deepEqual(await submitRemaining(c, storage), { sent: 1, skipped: 0, remaining: 0 });
   assert.equal(posts(engine).length, 3);
-  assert.equal(engine.st.jobs.length, 3);
-  // 묶음마다 번호가 다르고, 항목마다 번호가 다르다
+  // 묶음마다·장마다 번호가 다르다
   const a = saveDraft(storage, A, plan("a red apple on a table x2").items);
   const b = saveDraft(storage, A, plan("a red apple on a table x2").items);
   assert.notEqual(a.batchId, b.batchId);
   assert.equal(new Set([...a.items, ...b.items].map((i) => i.key)).size, 4);
+  assert.equal(new Set([...a.items, ...b.items].map((i) => i.requestId)).size, 4);
 });
 
-test("묶음에 실제 접수 번호를 적는다 — 이어서 맡기기는 그 묶음의 항목만 본다", async () => {
+test("접수 번호를 첫 전송 전에 묶음에 적는다 — 엔진에는 그 번호로 가고, 접수 기록에는 묶음·장 표시가 남는다", async () => {
   const engine = createMockEngine();
   const { c, storage } = await paired(engine);
-  saveDraft(storage, A, plan("a red apple on a table\na blue bird on a branch\na green hill at dawn", { fixedSeed: 1 }).items);
-  let n = 0;
-  await submitRemaining(c, storage, { shouldStop: () => n++ >= 2 });
-  const draft = readDraft(storage, A);
-  const subs = c.submissions();
-  assert.deepEqual(draft.items.map((i) => typeof i.requestId), ["string", "string", "undefined"]);
-  assert.deepEqual(draft.items.slice(0, 2).map((i) => i.requestId).sort(), subs.map((s) => s.requestId).sort());
-  assert.deepEqual([...resolveDraft(draft, subs).values()].sort(), subs.map((s) => s.requestId).sort());
-  assert.deepEqual(remainingItems(c, storage).map((i) => i.line), [3]);
-  // 받았는지 모르는 접수도 이 묶음에 번호가 적히면 다시 맡기지 않는다
-  engine.st.loseResponse = isPost;
-  const out = await submitRemaining(c, storage);
-  engine.st.loseResponse = null;
-  assert.equal(out.stopped.kind, "offline");
-  assert.deepEqual([out.sent, out.remaining], [1, 0], "보낸 장은 받았는지 몰라도 이 묶음에서 맡긴 것이다");
-  assert.equal(c.submissions().find((s) => s.state === "unknown").requestId, posts(engine).at(-1).body.clientRequestId);
-  assert.equal(readDraft(storage, A), null, "세 장 모두 접수 번호가 생겨 묶음을 비웠다");
-  assert.deepEqual(await submitRemaining(c, storage), { sent: 0, skipped: 0, remaining: 0 });
-  assert.equal(posts(engine).length, 3, "unknown 항목을 다시 보내지 않았다");
-  assert.equal(engine.st.jobs.length, 3);
-});
-
-test("맡기는 도중 접수 번호를 적지 못하고 닫혀도: 묶음 시작 뒤의 같은 내용 접수와 짝지어 다시 보내지 않고, 시작 전 접수와는 짝짓지 않는다", async () => {
-  const engine = createMockEngine();
-  const { c, storage } = await paired(engine);
-  const text = "a red apple on a table\na blue bird on a branch";
-  // 예전 묶음: 같은 내용·같은 시드가 이미 접수돼 있다
-  saveDraft(storage, A, plan(text, { fixedSeed: 9 }).items);
-  await submitRemaining(c, storage);
-  assert.equal(posts(engine).length, 2);
-  // 새 묶음: 첫 장을 맡긴 직후 묶음에 접수 번호를 적지 못함(저장 실패) + 화면이 닫힘
-  saveDraft(storage, A, plan(text, { fixedSeed: 9 }).items);
-  let n = 0;
-  storage.failSet = (k) => k === DRAFT;
-  await submitRemaining(c, storage, { shouldStop: () => n++ >= 1 });
-  storage.failSet = null;
+  const draft = saveDraft(storage, A, plan("a red apple on a table\na blue bird on a branch x2", { fixedSeed: 1 }).items);
+  const planned = draft.items.map((i) => i.requestId);
+  assert.equal(posts(engine).length, 0);
+  // 전송 순간에 묶음을 읽어 보면 그 장의 접수 번호가 이미 적혀 있다
+  const seenAtSend = [];
+  const spying = createEngineClient({ memberId: A, storage, fetch: (url, init) => (init?.method === "POST" && String(url).endsWith("/queue") && seenAtSend.push([JSON.parse(init.body).clientRequestId, loadDraft(storage, A).map((i) => i.requestId)]), engine.fetch(url, init)) });
+  assert.deepEqual(await submitRemaining(spying, storage), { sent: 3, skipped: 0, remaining: 0 });
+  assert.deepEqual(seenAtSend.map(([id]) => id), planned, "미리 정한 번호 그대로, 순서대로");
+  assert.ok(seenAtSend.every(([id, inDraft]) => inDraft.includes(id)), "보내기 전에 이미 묶음에 적혀 있었다");
+  assert.deepEqual(engine.st.jobs.map((j) => j.clientRequestId), planned);
+  assert.deepEqual(c.submissions().map((s) => s.requestId), planned);
+  assert.deepEqual(c.submissions().map((s) => s.tag), draft.items.map((i) => `batch:${draft.batchId}:${i.key}`), "접수 기록에서 어느 묶음의 어느 장인지 알 수 있다");
+  assert.ok(c.submissions().every((s) => s.link === draft.link));
+  assert.ok(engine.st.calls.filter(isPost).every((x) => !("tag" in x.body)), "묶음 표시는 엔진에 보내지 않는다");
+  // 같은 접수 번호로 두 번 접수하지 않는다(연결 계층이 거절)
+  await assert.rejects(c.submit({ title: "t", prompt: "a red apple on a table" }, { requestId: planned[0] }), kind("invalid"));
+  for (const bad of ["short", "a b c d e f g h", "", 7]) await assert.rejects(c.submit({ title: "t", prompt: "a red apple on a table" }, { requestId: bad }), kind("invalid"));
   assert.equal(posts(engine).length, 3);
-  assert.deepEqual(loadDraft(storage, A).map((i) => i.requestId), [undefined, undefined], "번호를 적지 못했다");
-  // 다시 열어 이어서 맡기기: 첫 장은 이 묶음에서 이미 맡긴 것(시작 뒤의 접수)으로 보고 둘째 장만 보낸다
-  const c2 = createEngineClient({ memberId: A, storage, fetch: engine.fetch });
-  assert.deepEqual(remainingItems(c2, storage).map((i) => i.line), [2]);
-  assert.deepEqual(await submitRemaining(c2, storage), { sent: 1, skipped: 1, remaining: 0 });
-  assert.equal(posts(engine).length, 4, "예전 2 + 새 묶음 2 — 새 묶음의 첫 장을 두 번 보내지 않았다");
-  assert.equal(new Set(posts(engine).map((x) => x.body.clientRequestId)).size, 4);
-  // 한 접수가 두 항목과 짝지어지지 않는다(같은 내용의 항목이 둘이어도)
-  const draft = { v: 2, batchId: "b", startedAt: 0, before: [], items: [{ key: "k1", title: "t", prompt: "a b c", seed: 1 }, { key: "k2", title: "t", prompt: "a b c", seed: 1 }] };
-  const one = [{ requestId: "req-00000001", title: "t", task: { prompt: "a b c", seed: 1 }, at: 5, state: "accepted" }];
-  assert.deepEqual([...resolveDraft(draft, one)], [["k1", "req-00000001"]]);
-  // 시작할 때 이미 있던 접수는 시각이 같거나 더 늦게 적혀 있어도 짝짓지 않는다(같은 밀리초에 이어진 접수)
-  assert.deepEqual([...resolveDraft({ ...draft, before: ["req-00000001"] }, one)], []);
-  assert.deepEqual([...resolveDraft({ ...draft, startedAt: 999, before: [] }, one)], [["k1", "req-00000001"]], "시각이 아니라 번호로 가른다");
 });
 
-test("예전 형식의 맡기다 만 묶음(v1)도 읽는다 — 그때의 규칙대로 내용이 같은 접수가 있으면 맡긴 것으로 본다", async () => {
+test("반례(재검수) P2-1 — 묶음을 보관한 뒤 다른 조작이 같은 내용·시드의 접수를 만들어도, 묶음의 장은 그 접수로 여기지 않고 따로 맡긴다. 그 접수를 지워도 묶음의 장은 남는다", async () => {
+  const engine = createMockEngine();
+  const { c, storage } = await paired(engine);
+  const items = plan("a red apple on a wooden table\na blue bird on a branch", { fixedSeed: 5 }).items;
+  const draft = saveDraft(storage, A, items);
+  // 묶음을 보관한 **뒤에**, 다른 조작(다른 화면의 다시 만들기 등)이 첫 장과 똑같은 내용·시드로 접수를 만든다
+  const { line, copy, source, ...sameInput } = items[0];
+  const other = await c.submit(sameInput);
+  assert.equal(other.state, "accepted");
+  assert.notEqual(other.requestId, draft.items[0].requestId);
+  // 묶음의 첫 장은 여전히 「맡기지 않음」이다
+  assert.deepEqual(remainingItems(c, storage).map((i) => i.line), [1, 2]);
+  assert.deepEqual(draftStatus(c, storage), { remaining: 2, otherScope: 0, legacy: 0 });
+  // 그 다른 접수를 정리해도(기록에서 지우기) 묶음의 장은 지워지지 않는다
+  dropFromDraft(storage, A, other.requestId);
+  assert.deepEqual(loadDraft(storage, A).map((i) => i.requestId), draft.items.map((i) => i.requestId), "내용이 같다는 이유로 묶음의 장을 빼지 않는다");
+  // 이어서 맡기면 두 장 모두 자기 접수 번호로 나간다
+  assert.deepEqual(await submitRemaining(c, storage), { sent: 2, skipped: 0, remaining: 0 });
+  assert.deepEqual(posts(engine).map((x) => x.body.clientRequestId), [other.requestId, ...draft.items.map((i) => i.requestId)]);
+  assert.equal(engine.st.jobs.length, 3);
+  // 반대로, 묶음의 장을 맡긴 뒤 내용이 같은 다른 접수를 지워도 묶음 쪽 기록은 그대로다
+  assert.equal(c.forget(other.requestId), true);
+  assert.deepEqual(c.submissions().map((s) => s.requestId), draft.items.map((i) => i.requestId));
+});
+
+test("반례(재검수) P2-2 — 묶음을 맡기는 도중 연결이 새 범위로 바뀌면 남은 장을 그대로 두고 멈춘다. 한 묶음이 두 범위에 나뉘지 않는다", async () => {
+  const engine = createMockEngine();
+  const { c, storage } = await paired(engine);
+  const draft = saveDraft(storage, A, plan("a red apple on a table\na blue bird on a branch\na green hill at dawn").items);
+  assert.deepEqual(await submitRemaining(c, storage), { sent: 3, skipped: 0, remaining: 0 }, "연결이 그대로면 끝까지 맡긴다(대조)");
+  assert.equal(new Set(engine.st.jobs.map((j) => j.scope)).size, 1);
+
+  // 실제 반례: 첫 장을 맡긴 뒤 연결 교체
+  const e2 = createMockEngine();
+  const p2 = await paired(e2);
+  const d2 = saveDraft(p2.storage, A, plan("a red apple on a table\na blue bird on a branch\na green hill at dawn").items);
+  const other = createEngineClient({ memberId: A, storage: p2.storage, fetch: e2.fetch });
+  let open;
+  const gate = new Promise((res) => (open = res));
+  let held = 0;
+  e2.st.hold = (call) => (isPost(call) && held++ === 0 ? gate : null);
+  const pending = submitRemaining(p2.c, p2.storage);
+  await new Promise((res) => setTimeout(res, 5));
+  other.disconnect();
+  e2.st.hold = null;
+  await other.pair(e2.st.codes[0]); // 새 범위
+  open();
+  const out = await pending;
+  assert.equal(out.sent, 1);
+  assert.ok(out.stopped, "멈춘 이유가 있다");
+  assert.equal(posts(e2).length, 1, "둘째 장을 새 범위로 보내지 않았다");
+  assert.equal(new Set(e2.st.jobs.map((j) => j.scope)).size, 1, "한 묶음의 작업 범위는 하나");
+  assert.deepEqual(loadDraft(p2.storage, A).map((i) => i.requestId), d2.items.map((i) => i.requestId), "남은 장을 그대로 두었다");
+  // 새 범위의 화면에서 「이어서 맡기기」를 눌러도 보내지 않는다
+  const fresh = createEngineClient({ memberId: A, storage: p2.storage, fetch: e2.fetch });
+  assert.notEqual(fresh.scopeId(), d2.link);
+  const again2 = await submitRemaining(fresh, p2.storage);
+  assert.equal(again2.stopped.kind, "scope");
+  assert.equal(again2.sent, 0);
+  assert.equal(posts(e2).length, 1);
+  assert.deepEqual(draftStatus(fresh, p2.storage), { remaining: 0, otherScope: 2, legacy: 0 }, "보내지 않은 두 장만 남은 장이다");
+  // 첫 장은 옛 연결에서 접수됐다(접수 기록 있음) — 다시 보내지 않고, 새 연결에서는 더 볼 수 없는 줄로 보인다
+  const firstSub = fresh.submissions().find((s) => s.requestId === d2.items[0].requestId);
+  assert.equal(firstSub.state, "accepted");
+  assert.equal(firstSub.link, d2.link);
+  assert.equal(fresh.inCurrentScope(firstSub.requestId), false);
+  const row = buildRows(fresh.submissions(), await fresh.listJobs(), ctxOf(fresh))[0];
+  assert.equal(row.phase, "gone");
+  assert.deepEqual(row.actions, ["discard"]);
+  assert.equal(remainingItems(fresh, p2.storage).length, 2);
+});
+
+test("연결이 바뀐 묶음의 남은 장: 사용자가 확인했을 때만 새 묶음(새 접수 번호, 지금 범위)으로 옮긴다 — 접수 기록이 있는 장은 옮기지 않는다", async () => {
+  const engine = createMockEngine();
+  const { c, storage } = await paired(engine);
+  const d1 = saveDraft(storage, A, plan("a red apple on a table\na blue bird on a branch\na green hill at dawn").items);
+  let n = 0;
+  await submitRemaining(c, storage, { shouldStop: () => n++ >= 1 }); // 첫 장만 맡김(접수 기록 있음)
+  c.disconnect();
+  await c.pair(engine.st.codes[0]);
+  assert.deepEqual(draftStatus(c, storage), { remaining: 0, otherScope: 2, legacy: 0 });
+  assert.equal((await submitRemaining(c, storage)).stopped.kind, "scope");
+  assert.throws(() => adoptDraft(c, storage, false), kind("invalid"));
+  assert.equal(readDraft(storage, A).batchId, d1.batchId, "확인 없이는 묶음이 그대로");
+  const d2 = adoptDraft(c, storage, true);
+  assert.notEqual(d2.batchId, d1.batchId);
+  assert.equal(d2.link, c.scopeId());
+  assert.deepEqual(d2.items.map((i) => i.source), ["a blue bird on a branch", "a green hill at dawn"], "이미 접수 기록이 있는 첫 장은 옮기지 않는다");
+  assert.ok(d2.items.every((i) => !d1.items.some((o) => o.requestId === i.requestId)), "새 접수 번호");
+  assert.deepEqual(await submitRemaining(c, storage), { sent: 2, skipped: 0, remaining: 0 });
+  assert.equal(posts(engine).length, 3);
+  assert.equal(new Set(posts(engine).map((x) => x.body.clientRequestId)).size, 3);
+  // 같은 범위의 묶음은 옮길 것이 없다
+  saveDraft(storage, A, plan("a small boat on a river").items);
+  assert.equal(adoptDraft(c, storage, true), null);
+});
+
+test("접수 번호가 없는 예전 형식 묶음(v1·v2): 맡겼는지 근거가 없어 자동으로 이어 맡기지 않고 확인 대기로 남긴다", async () => {
   const engine = createMockEngine();
   const { c, storage } = await paired(engine);
   const items = plan("a red apple on a table\na blue bird on a branch", { fixedSeed: 3 }).items;
-  await c.submit((({ line, copy, source, ...rest }) => rest)(items[0]));
-  storage.map.set(DRAFT, JSON.stringify({ v: 1, items }));
-  assert.equal(readDraft(storage, A).batchId, "legacy");
-  assert.deepEqual(remainingItems(c, storage).map((i) => i.line), [2]);
-  // 이어 맡기다 멈춰도(접수 번호를 적으며 새 형식으로 다시 적힌 뒤에도) 남은 장을 잃지 않는다
-  let stopAt = 0;
-  storage.map.set(DRAFT, JSON.stringify({ v: 1, items: [...items, ...plan(["a green hill at dawn", "a small boat on a river"].join("\n"), { fixedSeed: 50 }).items] }));
-  const part = await submitRemaining(c, storage, { shouldStop: () => stopAt++ >= 2 });
-  assert.deepEqual([part.sent, part.skipped, part.remaining], [1, 1, 2]);
-  assert.equal(readDraft(storage, A).before, null, "예전 형식에서 온 묶음이라는 표시가 유지된다");
-  assert.equal(readDraft(storage, A).items.filter((i) => i.requestId).length, 1);
-  assert.deepEqual(await submitRemaining(c, storage), { sent: 2, skipped: 2, remaining: 0 });
-  assert.equal(posts(engine).length, 4);
-  assert.equal(new Set(posts(engine).map((p) => p.body.clientRequestId)).size, 4);
-  assert.equal(storage.map.has(DRAFT), false);
-  // 형식이 어긋난 v2는 읽지 않는다
-  for (const bad of [{ v: 2, items }, { v: 2, batchId: "b", startedAt: 1, before: [], items }, { v: 2, batchId: "b", startedAt: "x", before: [], items: items.map((i, k) => ({ ...i, key: `k${k}` })) }, { v: 2, batchId: "b", startedAt: 1, before: [], items: items.map((i) => ({ ...i, key: "same" })) }, { v: 2, batchId: "b", startedAt: 1, before: [], items: [{ ...items[0], key: "k", requestId: "bad id" }] }, { v: 2, batchId: "b", startedAt: 1, items: items.map((i, k) => ({ ...i, key: `k${k}` })) }, { v: 2, batchId: "b", startedAt: 1, before: [1], items: items.map((i, k) => ({ ...i, key: `k${k}` })) }, { v: 3, batchId: "b", startedAt: 1, items }]) {
+  // 예전 묶음의 첫 장과 내용이 같은 접수가 이미 있다(예전 규칙이라면 「맡긴 것」으로 짝지었을 상황)
+  const { line, copy, source, ...first } = items[0];
+  await c.submit(first);
+  const olds = [
+    { v: 1, items },
+    { v: 2, batchId: "b", startedAt: 1, before: [], items: items.map((it, k) => ({ ...it, key: `k${k}` })) },
+    { v: 2, batchId: "b", startedAt: 1, before: null, items: items.map((it, k) => ({ ...it, key: `k${k}`, ...(k === 0 ? { requestId: "old-request-0001" } : {}) })) },
+  ];
+  for (const old of olds) {
+    storage.map.set(DRAFT, JSON.stringify(old));
+    assert.equal(readDraft(storage, A), null, "지금 형식의 묶음이 아니다");
+    assert.equal(legacyDraftItems(storage, A).length, 2);
+    assert.deepEqual(draftStatus(c, storage), { remaining: 0, otherScope: 0, legacy: 2 });
+    assert.deepEqual(remainingItems(c, storage), []);
+    // 자동으로 이어 맡기지 않는다 — 내용이 같은 접수가 있든 없든
+    assert.deepEqual(await submitRemaining(c, storage), { sent: 0, skipped: 0, remaining: 0 });
+    assert.equal(posts(engine).length, 1, `v${old.v}: 보내지 않았다`);
+    assert.ok(storage.map.has(DRAFT), "확인 대기로 보존한다(지우지 않는다)");
+    // 다른 접수를 정리해도 예전 묶음의 장은 지워지지 않는다
+    dropFromDraft(storage, A, c.submissions()[0].requestId);
+    assert.equal(legacyDraftItems(storage, A).length, 2);
+  }
+  // 사용자가 중복 가능성을 확인한 경우에만 새 묶음으로 옮겨 맡긴다(전부 — 어느 장이 맡겨졌는지 모른다)
+  assert.throws(() => adoptDraft(c, storage, false), kind("invalid"));
+  const d = adoptDraft(c, storage, true);
+  assert.equal(d.items.length, 2);
+  assert.ok(d.items.every((i) => /^[A-Za-z0-9-]{8,64}$/.test(i.requestId) && i.requestId !== "old-request-0001"));
+  assert.deepEqual(await submitRemaining(c, storage), { sent: 2, skipped: 0, remaining: 0 });
+  assert.equal(posts(engine).length, 3);
+  // 손상된 예전 묶음은 장으로 세지 않는다
+  for (const bad of [{ v: 1, items: [{ title: "t", prompt: "한글 설명입니다 요", seed: 1 }] }, { v: 2, items: "x" }, { v: 1, items: Array.from({ length: 25 }, () => items[0]) }]) {
     storage.map.set(DRAFT, JSON.stringify(bad));
-    assert.equal(readDraft(storage, A), null, JSON.stringify(bad).slice(0, 50));
+    assert.equal(legacyDraftItems(storage, A).length, 0);
   }
 });
 
-test("다른 화면이 맡길 목록을 바꾸면 이어 맡기기를 멈춘다(새 묶음의 항목을 옛 묶음 번호로 보내지 않는다)", async () => {
+test("다른 화면이 맡길 목록을 바꾸면 이어 맡기기를 멈춘다(새 묶음의 장을 옛 묶음 번호로 보내지 않는다)", async () => {
   const engine = createMockEngine();
   const { c, storage } = await paired(engine);
   saveDraft(storage, A, plan("a red apple on a table\na blue bird on a branch\na green hill at dawn").items);
@@ -149,6 +226,69 @@ test("다른 화면이 맡길 목록을 바꾸면 이어 맡기기를 멈춘다(
   assert.equal(posts(engine).length, 1);
   assert.equal(loadDraft(storage, A).length, 1, "새 묶음은 그대로 남아 있다");
   assert.equal(loadDraft(storage, A)[0].source, "a small boat on a river");
+});
+
+test("반례(재검수) P3 — 작업 번호가 없는 접수됨은 목록에 접수 번호가 같은 줄이 있어도 채택하지 않는다. 「엔진에 확인」으로 되찾은 뒤에만 저장·조작이 열린다", async () => {
+  const engine = createMockEngine();
+  const { c, storage } = await paired(engine);
+  const r = await c.submit({ title: "t", prompt: "a red apple on a table", seed: 1 });
+  engine.finish(r.job.id);
+  // 접수 기록에서 작업 번호만 빠진 상태(예전 기록·손상)
+  const key = `fis.submissions.v1:${A}`;
+  storage.map.set(key, JSON.stringify(JSON.parse(storage.map.get(key)).map(({ jobId, ...rest }) => rest)));
+  assert.equal(c.submissions()[0].state, "accepted");
+  assert.equal(c.submissions()[0].jobId, undefined);
+  const jobs = await c.listJobs();
+  assert.equal(jobs[0].clientRequestId, r.requestId, "목록에는 접수 번호가 같은 완료 작업이 있다");
+  let row = buildRows(c.submissions(), jobs, ctxOf(c))[0];
+  assert.equal(row.phase, "unknown");
+  assert.equal(row.jobId, undefined, "목록의 작업 번호를 채택하지 않았다");
+  assert.deepEqual(row.actions, ["confirm", "discard"], "저장·다시 만들기·지우기 버튼이 없다");
+  assert.deepEqual(buildRows(c.submissions(), null, ctxOf(c))[0].actions, ["confirm", "discard"], "목록을 못 읽어도 같다");
+  // 실행 함수도 거절한다(버튼을 우회해도)
+  const before = engine.st.calls.length;
+  for (const act of [() => again(c, r.requestId), () => restart(c, r.requestId), () => cancelRow(c, r.requestId), () => dismissRow(c, r.requestId)]) await assert.rejects(act(), kind("invalid"));
+  assert.equal(engine.st.calls.length, before);
+  // 명시적 확인 → 같은 범위에서 작업 번호를 되찾음 → 그제야 열린다
+  const ok = await c.confirm(r.requestId);
+  assert.equal(ok.state, "accepted");
+  assert.equal(c.submissions()[0].jobId, r.job.id);
+  row = buildRows(c.submissions(), await c.listJobs(), ctxOf(c))[0];
+  assert.equal(row.phase, "done");
+  assert.deepEqual(row.actions, ["save", "again", "dismiss"]);
+  // 범위가 바뀐 뒤라면 확인으로도 되찾지 못한다
+  storage.map.set(key, JSON.stringify(JSON.parse(storage.map.get(key)).map(({ jobId, ...rest }) => rest)));
+  c.disconnect();
+  await c.pair(engine.st.codes[0]);
+  assert.deepEqual(buildRows(c.submissions(), await c.listJobs(), ctxOf(c))[0].actions, ["discard"]);
+});
+
+test("탭 사이 잠금이 없는 브라우저의 제약을 알린다(화면과 문서)", async () => {
+  assert.equal(typeof hasCrossTabLock(), "boolean");
+  const src = await readFile(new URL("../src/lib/studio/saveStore.ts", import.meta.url), "utf8");
+  assert.ok(src.includes("export const hasCrossTabLock = (): boolean => !!webLocks();"));
+  const jobs = await readFile(new URL("../src/components/studio/JobsScreen.tsx", import.meta.url), "utf8");
+  assert.ok(jobs.includes("useEffect(() => setCrossTab(hasCrossTabLock()), []);"));
+  assert.ok(jobs.includes("{!crossTab && ("));
+  assert.match(jobs, /여러 탭이 동시에 저장하는 것을 막지 못합니다.*두 번 저장될 수 있으니, 저장은 한 탭에서만/);
+  // 잠금이 없는 환경을 흉내 내면(화면마다 따로 잠금) 두 화면의 동시 저장은 실제로 두 번 쓴다 — 그래서 알림이 필요하다
+  const storage = memoryStorage();
+  const solo = () => createSaveStore(storage, A, { lock: (_n, fn) => fn() });
+  let open;
+  const gate = new Promise((res) => (open = res));
+  let writes = 0;
+  const write = async () => {
+    writes++;
+    await gate;
+  };
+  const row = { requestId: "req-00000001", title: "그림" };
+  const both = Promise.all([solo().saveOnce(row, async () => new Blob(["x"]), write), solo().saveOnce(row, async () => new Blob(["x"]), write)]);
+  await new Promise((res) => setTimeout(res, 10));
+  open();
+  await both;
+  assert.equal(writes, 2, "탭 사이 잠금이 없으면 막지 못한다(알려진 제약)");
+  const doc = await readFile(new URL("../docs/PLAN_20261119_P1_WEB.md", import.meta.url), "utf8");
+  assert.match(doc, /Web Locks.{0,80}없는 브라우저/);
 });
 
 test("반례 P2-2a — 접수 번호가 같아도 작업 번호가 접수 기록과 다른 목록 줄은 상태·버튼으로 쓰지 않는다", async () => {

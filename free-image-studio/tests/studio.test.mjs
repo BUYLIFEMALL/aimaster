@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { EngineError, IMAGE_SIZES, createEngineClient } from "../src/lib/engine.ts";
 import { PRESETS, SIZE_CHOICES, buildPrompt, findPreset, pickVariantId, withKoreanDefault } from "../src/lib/studio/presets.ts";
-import { BATCH_MAX, buildPlan, clearDraft, dropFromDraft, findSubmission, loadDraft, parseLines, remainingItems, saveDraft, submitRemaining } from "../src/lib/studio/batch.ts";
+import { BATCH_MAX, buildPlan, clearDraft, dropFromDraft, loadDraft, parseLines, remainingItems, saveDraft, submitRemaining } from "../src/lib/studio/batch.ts";
 import { PHASE_LABEL, again, buildRows, cancelAll, replace, restart, summarize } from "../src/lib/studio/jobsView.ts";
 import { createSaveStore, fileNameFor } from "../src/lib/studio/saveStore.ts";
 import { createMockEngine, memoryStorage } from "./mockEngine.mjs";
@@ -192,7 +192,7 @@ test("미확정 자동 재접수 0: 받았는지 모르는 줄은 이어 맡기�
   assert.equal(engine.st.jobs.length, 4);
 });
 
-test("받았는지 모르는 줄을 기록에서 지우면 맡기다 만 묶음에서도 빠진다 — 이어서 맡기기로 되살아나지 않는다", async () => {
+test("받았는지 모르는 줄을 기록에서 지우면 맡기다 만 묶음에서도 그 접수 번호의 장이 빠진다 — 이어서 맡기기로 되살아나지 않는다", async () => {
   const engine = createMockEngine();
   const { c, storage } = await paired(engine);
   saveDraft(storage, A, plan(lines(3)).items);
@@ -204,21 +204,21 @@ test("받았는지 모르는 줄을 기록에서 지우면 맡기다 만 묶음�
   assert.deepEqual([run.sent, run.remaining], [1, 2]);
   const unknown = c.submissions()[0];
   assert.equal(unknown.state, "unknown");
+  assert.equal(loadDraft(storage, A)[0].requestId, unknown.requestId, "묶음의 첫 장에 적어 둔 접수 번호로 맡겼다");
   // 사용자가 그 줄을 기록에서 지운다(화면의 「기록에서 지우기」와 같은 순서)
   assert.equal(c.forget(unknown.requestId, { force: true }), true);
-  assert.equal(loadDraft(storage, A).find((it) => it.requestId === unknown.requestId)?.line, 1, "맡긴 항목에는 접수 번호가 적혀 있다");
-  assert.equal(remainingItems(c, storage).length, 2, "접수 번호가 적힌 항목은 기록을 지워도 남은 장으로 되살아나지 않는다");
-  dropFromDraft(storage, A, unknown);
-  assert.equal(loadDraft(storage, A).length, 2, "지운 그림은 묶음에서도 빠진다");
+  assert.equal(remainingItems(c, storage).length, 3, "묶음에서 빼지 않으면 지운 그림이 남은 장으로 되살아난다");
+  dropFromDraft(storage, A, unknown.requestId);
+  assert.deepEqual(loadDraft(storage, A).map((it) => it.line), [2, 3]);
   assert.deepEqual(await submitRemaining(c, storage), { sent: 2, skipped: 0, remaining: 0 });
-  assert.equal(posts(engine).filter((x) => x.body.task.seed === unknown.task.seed).length, 1, "지운 그림을 다시 보내지 않았다");
+  assert.equal(posts(engine).filter((x) => x.body.clientRequestId === unknown.requestId).length, 1, "지운 그림을 다시 보내지 않았다");
   assert.equal(engine.st.jobs.length, 3);
-  // 묶음에 없는 접수를 지워도 묶음은 그대로, 마지막 항목을 빼면 묶음이 비워진다
+  // 묶음에 없는 접수 번호를 넘기면 묶음은 그대로, 마지막 장을 빼면 묶음이 비워진다
   saveDraft(storage, A, plan("a lone tree on a hill").items);
-  dropFromDraft(storage, A, unknown);
+  dropFromDraft(storage, A, unknown.requestId);
+  dropFromDraft(storage, A, "no-such-request");
   assert.equal(loadDraft(storage, A).length, 1);
-  const only = loadDraft(storage, A)[0];
-  dropFromDraft(storage, A, { requestId: "x", trackId: "t", link: "l", title: only.title, task: { prompt: only.prompt, width: only.width, height: only.height, seed: only.seed }, state: "unknown", at: 0 });
+  dropFromDraft(storage, A, loadDraft(storage, A)[0].requestId);
   assert.equal(storage.map.has(`fis.draft.v1:${A}`), false);
 });
 
@@ -452,45 +452,49 @@ test("결과 중복 저장 방어: 같은 그림은 한 번만 쓰고, 동시에
   assert.throws(() => createSaveStore(memoryStorage(), ""), kind("invalid"));
 });
 
-test("맡길 묶음 보관: 회원별, 손상된 내용은 엔진에 보내지 않는다", async () => {
-  const storage = memoryStorage();
-  const p = plan(lines(3));
-  saveDraft(storage, A, p.items);
-  assert.deepEqual(loadDraft(storage, A).map(({ key, ...rest }) => rest), p.items);
-  assert.equal(new Set(loadDraft(storage, A).map((it) => it.key)).size, 3, "항목마다 고유 번호");
-  assert.deepEqual(loadDraft(storage, B), []);
-  for (const bad of ["{broken", "null", JSON.stringify({ v: 2, items: p.items }), JSON.stringify({ v: 1, items: "x" }), JSON.stringify({ v: 1, items: [{ title: "t", prompt: "한글 설명입니다 요", seed: 1 }] }), JSON.stringify({ v: 1, items: [{ ...p.items[0], width: 999 }] }), JSON.stringify({ v: 1, items: [{ ...p.items[0], seed: "1" }] }), JSON.stringify({ v: 1, items: Array.from({ length: 25 }, () => p.items[0]) })]) {
-    storage.map.set(`fis.draft.v1:${A}`, bad);
-    assert.deepEqual(loadDraft(storage, A), [], bad.slice(0, 40));
-  }
+test("맡길 묶음 보관: 회원별, 장마다 접수 번호를 미리 적고, 손상된 내용은 엔진에 보내지 않는다", async () => {
   const engine = createMockEngine();
-  const { c } = await paired(engine, storage);
-  assert.deepEqual(await submitRemaining(c, storage), { sent: 0, skipped: 0, remaining: 0 });
+  const { c, storage } = await paired(engine);
+  const p = plan(lines(3));
+  const draft = saveDraft(storage, A, p.items);
+  assert.deepEqual(loadDraft(storage, A).map(({ key, requestId, ...rest }) => rest), p.items);
+  assert.equal(new Set(draft.items.map((it) => it.key)).size, 3, "장마다 고유 번호");
+  assert.equal(new Set(draft.items.map((it) => it.requestId)).size, 3, "장마다 접수 번호를 미리 정한다");
+  assert.ok(draft.items.every((it) => /^[A-Za-z0-9-]{8,64}$/.test(it.requestId)));
+  assert.equal(draft.link, c.scopeId(), "묶음은 만든 때의 연결 범위에 묶인다");
+  assert.equal(posts(engine).length, 0, "묶음을 보관하는 것만으로는 엔진에 보내지 않는다");
+  assert.deepEqual(loadDraft(storage, B), []);
+  const key = `fis.draft.v1:${A}`;
+  const good = JSON.parse(storage.map.get(key));
+  const item = good.items[0];
+  for (const bad of ["{broken", "null", { ...good, v: 4 }, { ...good, items: "x" }, { ...good, batchId: "" }, { ...good, link: "" }, { ...good, link: undefined }, { ...good, startedAt: "x" }, { ...good, items: [{ ...item, prompt: "한글 설명입니다 요" }] }, { ...good, items: [{ ...item, width: 999 }] }, { ...good, items: [{ ...item, seed: "1" }] }, { ...good, items: [{ ...item, requestId: undefined }] }, { ...good, items: [{ ...item, requestId: "bad id" }] }, { ...good, items: [item, { ...good.items[1], requestId: item.requestId }] }, { ...good, items: [item, { ...good.items[1], key: item.key }] }, { ...good, items: Array.from({ length: 25 }, (_, k) => ({ ...item, key: `k${k}`, requestId: `req-${String(k).padStart(8, "0")}` })) }]) {
+    storage.map.set(key, typeof bad === "string" ? bad : JSON.stringify(bad));
+    assert.deepEqual(loadDraft(storage, A), [], JSON.stringify(bad).slice(0, 60));
+    assert.deepEqual(await submitRemaining(c, storage), { sent: 0, skipped: 0, remaining: 0 });
+  }
   assert.equal(posts(engine).length, 0);
   clearDraft(storage, A);
-  storage.failSet = () => true;
+  storage.failSet = (k) => k === key;
   assert.throws(() => saveDraft(storage, A, p.items), kind("storage"));
-  // 같은 내용·같은 시드의 항목은 접수 기록과 짝이 맞는다(시드가 다르면 다른 항목)
-  storage.failSet = null;
-  const r = await c.submit((({ line, copy, source, ...rest }) => rest)(p.items[0]));
-  assert.equal(findSubmission(c.submissions(), p.items[0]).requestId, r.requestId);
-  assert.equal(findSubmission(c.submissions(), { ...p.items[0], seed: p.items[0].seed ^ 1 }), null);
-  assert.equal(findSubmission(c.submissions(), p.items[1]), null);
 });
 
 test("연결이 필요하거나 엔진이 닫혔으면 묶음을 멈추고 남은 장을 보관한다(다음에 이어서)", async () => {
-  // 연결 안 됨: 한 장도 보내지 않고 접수 기록도 만들지 않는다
+  // 연결 안 됨: 묶음 자체를 만들지 않는다(어느 연결의 묶음인지 적을 수 없다)
   let engine = createMockEngine();
   let storage = memoryStorage();
   let c = createEngineClient({ memberId: A, storage, fetch: engine.fetch });
+  assert.throws(() => saveDraft(storage, A, plan(lines(3)).items), kind("needPair"));
+  assert.equal(storage.map.size, 0);
+  assert.equal(engine.st.calls.length, 0);
+  await c.pair(engine.st.codes[0]);
   saveDraft(storage, A, plan(lines(3)).items);
+  // 맡기는 도중 엔진이 토큰을 무효로 함(401): 그 장은 「접수 안 됨」, 나머지는 보내지 않는다
+  engine.st.tokens = [];
   let run = await submitRemaining(c, storage);
   assert.equal(run.stopped.kind, "needPair");
-  assert.deepEqual([run.sent, run.remaining], [0, 3]);
-  assert.equal(engine.st.calls.length, 0);
-  assert.deepEqual(c.submissions(), []);
-  await c.pair(engine.st.codes[0]);
-  assert.deepEqual(await submitRemaining(c, storage), { sent: 3, skipped: 0, remaining: 0 });
+  assert.deepEqual([run.sent, run.remaining], [1, 2]);
+  assert.equal(posts(engine).length, 1);
+  assert.equal(c.isPaired(), false);
   // 중간에 엔진이 닫힘(503): 그 장은 「접수 안 됨」으로 남고 나머지는 보내지 않는다
   engine = createMockEngine();
   ({ c, storage } = await paired(engine));

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { BATCH_MAX, COPIES_MAX, buildPlan, clearDraft, loadCompose, parseEntries, remainingItems, saveCompose, saveDraft, setLineCopies, submitRemaining, type RunResult } from "@/lib/studio/batch";
+import { BATCH_MAX, COPIES_MAX, adoptDraft, buildPlan, clearDraft, draftStatus, loadCompose, parseEntries, saveCompose, saveDraft, setLineCopies, submitRemaining, type DraftStatus, type RunResult } from "@/lib/studio/batch";
 import { PRESETS, SIZE_CHOICES, findPreset, findSize, pickVariantId, type ModelState, type PresetId } from "@/lib/studio/presets";
 import { messageOf, useEngine } from "./useEngine";
 
@@ -23,7 +23,11 @@ export function CreateScreen({ memberId }: { memberId: string }) {
   const [family, setFamily] = useState<FamilyChoice>("auto");
   const [seedText, setSeedText] = useState("");
   const [models, setModels] = useState<ModelState | null>(null);
-  const [left, setLeft] = useState(0);
+  // 맡기다 만 묶음의 상태 — 이어 맡길 수 있는 장 / 연결이 바뀐 장 / 예전 형식이라 맡겼는지 알 수 없는 장
+  const [pending, setPending] = useState<DraftStatus>({ remaining: 0, otherScope: 0, legacy: 0 });
+  const [adoptAsk, setAdoptAsk] = useState(false);
+  const left = pending.remaining;
+  const stuck = pending.otherScope + pending.legacy;
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState<[number, number] | null>(null);
   const [result, setResult] = useState<RunResult | null>(null);
@@ -41,7 +45,7 @@ export function CreateScreen({ memberId }: { memberId: string }) {
 
   const readLeft = useCallback(() => {
     if (!engine) return;
-    setLeft(remainingItems(engine, window.localStorage).length);
+    setPending(draftStatus(engine, window.localStorage));
   }, [engine, memberId]);
 
   // 적던 내용(줄·줄마다 장수·용도·비율)을 회원별로 보관했다가 되돌린다.
@@ -98,7 +102,21 @@ export function CreateScreen({ memberId }: { memberId: string }) {
 
   const lineErrors = plan.errors.filter((e) => e.line > 0);
   const topErrors = plan.errors.filter((e) => e.line === 0 && text.trim() !== "");
-  const canStart = !!engine && !running && left === 0 && plan.items.length > 0;
+  // 사용자가 확인한 경우에만: 지금 연결에서 맡길 수 없던 남은 장을 새 묶음(새 접수 번호)으로 옮겨 맡긴다.
+  const adopt = () => {
+    if (!engine) return;
+    setAdoptAsk(false);
+    setError(null);
+    try {
+      adoptDraft(engine, window.localStorage, true);
+      readLeft();
+      void run(false);
+    } catch (e) {
+      setError(messageOf(e, "남은 장을 옮기지 못했습니다."));
+    }
+  };
+
+  const canStart = !!engine && !running && left === 0 && stuck === 0 && plan.items.length > 0;
 
   return (
     <div className="mx-auto max-w-3xl space-y-4">
@@ -106,6 +124,43 @@ export function CreateScreen({ memberId }: { memberId: string }) {
         <h1 className="text-xl font-bold">🎨 만들기</h1>
         <p className="mt-1 text-sm text-[var(--muted)]">용도를 고르고 그림 설명을 한 줄에 하나씩 적으면, 내 PC가 차례로 그립니다. 한 번에 {BATCH_MAX}장까지 맡길 수 있습니다.</p>
       </header>
+
+      {stuck > 0 && (
+        <section className={`${card} border-amber-500/60`}>
+          <p className="text-sm">
+            {pending.legacy > 0
+              ? `예전 방식으로 보관된 그림 ${pending.legacy}장이 있습니다. 이 가운데 어느 그림이 이미 엔진에 맡겨졌는지 알 수 없어 자동으로 이어 맡기지 않습니다.`
+              : `앞서 맡기다 만 그림 ${pending.otherScope}장이 있는데, 그 뒤 엔진 연결이 바뀌었습니다. 연결이 달라진 채로는 이어 맡기지 않습니다.`}
+          </p>
+          {adoptAsk ? (
+            <div role="alertdialog" aria-labelledby="adopt-title" aria-describedby="adopt-desc" className="mt-3 rounded-xl border border-amber-500/40 p-3">
+              <h2 id="adopt-title" className="text-sm font-bold">
+                {pending.legacy > 0 ? "같은 그림이 두 번 나올 수 있습니다" : "지금 연결에서 새로 맡길까요?"}
+              </h2>
+              <p id="adopt-desc" className="mt-1 text-sm text-[var(--muted)]">
+                {pending.legacy > 0 ? "이미 엔진이 그린 그림이 섞여 있다면, 새로 맡기면 그 그림을 한 번 더 그립니다." : "아직 엔진에 보내지 않은 장만 지금 연결에서 새로 맡깁니다. 앞 연결에서 이미 맡긴 그림은 엔진 창에서 볼 수 있습니다."}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button type="button" onClick={adopt} className={button}>
+                  새로 맡기기
+                </button>
+                <button type="button" autoFocus onClick={() => setAdoptAsk(false)} className={ghost}>
+                  그만두기
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button type="button" onClick={() => setAdoptAsk(true)} disabled={running} className={ghost}>
+                남은 {stuck}장 새로 맡기기…
+              </button>
+              <button type="button" onClick={discardLeft} disabled={running} className={ghost}>
+                남은 장 버리기
+              </button>
+            </div>
+          )}
+        </section>
+      )}
 
       {left > 0 && (
         <section className={`${card} border-[var(--accent)]`}>

@@ -42,7 +42,11 @@ test("좌측 메뉴: 세 화면 + 다른 프로그램 보기 고정 주소, 데�
 
 test("만들기: 계획에 문제가 있거나 맡기다 만 장이 있으면 일괄 시작을 막는다", async () => {
   const s = await read("components/studio/CreateScreen.tsx");
-  assert.match(s, /const canStart = !!engine && !running && left === 0 && plan\.items\.length > 0;/);
+  assert.ok(s.includes("const canStart = !!engine && !running && left === 0 && stuck === 0 && plan.items.length > 0;"), "이어 맡길 장이나 확인이 필요한 장이 남아 있으면 새 묶음을 시작하지 못한다");
+  // 연결이 바뀐 장·예전 형식의 장은 확인 창을 거쳐야만 새로 맡긴다
+  assert.ok(s.includes("adoptDraft(engine, window.localStorage, true);"));
+  assert.equal(s.split("adoptDraft(").length - 1, 1);
+  assert.ok(s.indexOf("const adopt = () =>") < s.indexOf("adoptDraft(engine") && s.includes("onClick={() => setAdoptAsk(true)}") && s.includes('<button type="button" onClick={adopt}'), "버튼 → 확인 창 → 확인했을 때만");
   assert.match(s, /disabled=\{!canStart\}/);
   assert.match(s, /if \(plan\.errors\.length \|\| !plan\.items\.length\) return;/, "버튼을 우회해도 문제 있는 계획은 맡기지 않는다");
   assert.match(s, /saveDraft\(window\.localStorage, memberId, plan\.items\);/);
@@ -74,7 +78,7 @@ test("작업 기록: 목록 갱신은 읽기만, 새 접수가 생기는 동작�
   assert.ok(s.includes("await restart(engine, id)") && s.includes("await again(engine, id)") && s.includes("await cancelRow(engine, id)") && s.includes("await dismissRow(engine, id)") && s.includes("await cancelAll(engine)"), "화면이 갖고 있던 목록·작업 번호를 넘기지 않는다(실행 직전에 새로 읽는다)");
   assert.ok(!/engine\.cancel\(|engine\.dismiss\(/.test(s), "화면이 작업 번호로 직접 취소·지우기를 부르지 않는다");
   // 기록을 지우거나 새로 맡길 때 맡기다 만 묶음에서도 뺀다
-  assert.equal(s.split("dropFromDraft(window.localStorage, memberId, sub)").length - 1, 2);
+  assert.equal(s.split("dropFromDraft(window.localStorage, memberId, id)").length - 1, 2, "접수 번호로만 뺀다(내용으로 찾지 않는다)");
   // 처리 중인 줄은 버튼을 막는다
   assert.match(s, /disabled=\{working\.has\(r\.requestId\)\}/);
 });
