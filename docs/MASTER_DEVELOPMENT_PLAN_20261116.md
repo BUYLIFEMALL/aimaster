@@ -4,14 +4,14 @@
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-19 17:02:41 KST · 17:00 예약 메시지 수신 및 기존 Master에서 증분 대조 완료.
-AI Influencer D1 OFF 운영 v1.27의 공개 화면·접근 제한을 확인했다. Workspace 대용량 ZIP cron 보완본은 Mac 재검수로 전달했다. B2B 퀵바 독립 검수는 완료돼 배포를 기다린다.
+Master 마지막 실제 점검: 2026-11-19 17:31:19 KST · 17:30 예약 메시지 수신 및 기존 Master에서 증분 대조 완료.
+AI Influencer D1 후속 수락, D2 사전 검토 접수. 음악 7개 대조를 마치고 가사 L5·U3를 배정했다. Workspace의 3시간 정리 경계는 보완 중이다.
 
-점검 범위: 16:31 KST 이후 증분. 작업표 367건, 미완료 27건(진행 3·검수 6·순번 4·사용자 14), 103개 프로그램·19개 분류, 담당 검토 11개 기록 및 Git·점유·인수인계·미배포·사람 단계 대조.
+점검 범위: 17:02 KST 이후 증분. 370건 중 미완료 29건(진행 5·검수 6·순번 4·사용자 14), 103개 프로그램·19개 분류, 담당 기록 11개와 우선순위·점유·미배포·변경 인수인계 대조.
 
-후속 배정: Workspace 658155927 검수 CX-QA-01 전달 msg_aac8a5bb28c4. AIF 인증 화면은 주인님 로그인 이후 Tester 읽기, DB 버전·유료 생성·D2/D3은 기존 승인 경계에 따라 보류. QA037/관리자·ESM은 각 기록의 로그인과 제어 반환 뒤 재개.
+후속 배정: CC-MUSIC-01 가사 L5·U3 작업 msg_68526ae14db0, Mac 검수. Workspace 경계 고정판 재검수 예정. 이미지 평가 뒤 Admin→Sub, QA002 B·QA037·ESM은 기존 사람 단계 뒤 재개.
 
-미확인: AIF 인증 운영 화면과 기존 생성·보정, Workspace 실제 Storage 및 cron 독립 결과, B2B 태블릿 실기기·후보 URL 및 S70 Mac 실행, 감성 글귀 합성 화면, 이미지 모델 실기. 103개 운영 전수·이전 미추적 문서 전체 재검증은 이번 증분 범위 밖.
+미확인: Workspace 실 Storage, AIF 실제 생성/보정과 D2 격리 결과, Mac 가사 저장 B, 무료 이미지 품질·실기, 운영 전수 및 이전 미추적 전체.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -393,7 +393,8 @@ AI Influencer D1 OFF 운영 v1.27의 공개 화면·접근 제한을 확인했�
 | WS-20261119-REL | CC-WORKSPACE-01 | done / production_v161_live_verified_catalog_version_synced | Workspace v1.61 기존 중단 빌드 로그 진단 | 운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음. |
 | WS-20261119-02 | CC-WORKSPACE-01 | running / large_zip_late_put_pass_expiry_boundary_followup_sent | Workspace 대용량 ZIP | f221885b4 Mac 기존 늦은 PUT 반례 통과. 3시간 직전 확인·직후 응답에서 객체만 남는 경계 재현, 보완 전달. 실제 Storage 미검증·미배포. |
 | MUSIC-20261119-IMG-COMPAT | CC-MUSIC-01 | done / five_music_flows_read_only_accepted | 무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토 | 고정 2131089b7 음악 5경로·146/146 검토 수락. 새 범위 미사용 시 파일 미생성 정정. 실제 엔진은 미검증. |
-| MUSIC-20261119-BACKLOG-SWEEP | CC-MUSIC-01 | running / music_read_only_backlog_review_started | 음악 6개 프로그램 다음 작업 후보 대조 | 최근 배포와 개선 사항을 대조해 다음 후보 최대 3개·선행조건·Mac 검수 근거 반환. 가사 v1.17 기배포와 QA002 B는 중복 실행하지 않음. |
+| MUSIC-20261119-BACKLOG-SWEEP | CC-MUSIC-01 | done / music_backlog_review_accepted_followup_dispatched | 음악 7개 프로그램 다음 작업 후보 대조 | 음악 7개 웹의 미배포 코드 0. L5·U3를 우선 로컬 착수, 리믹스→플레이리스트 및 유료 영상 실검증은 별도 조건 대기. |
+| MUSIC-20261119-LYRIC-L5-U3 | CC-MUSIC-01 | running / lyric_l5_u3_local_fix_dispatched | 가사 영상 미리보기 재생 실패와 모바일 안내 | 미리보기 재생 실패 status 안내 및 767px 이하 PC 권장 안내. Mac Safari/390px 독립 검수. 미배포. |
 | QA-20261118-043 | CX-QA-01 | done / production_v161_mobile_keyboard_verified_read_only | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | Workspace 운영 v1.61 독립 읽기. 375/390px 요일 7칩 두 줄·넘침 0·Tab 3px 포커스. OS 다크 선호 확인, 앱 테마·저장 중 상태 미검증. |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
 | OPS-20261118-01 | CX-MASTER-01 | done / integrated | 전체개발플랜·카테고리·누락개선/인수인계 정합성 대조 | 미확인68프로그램 현담당근거후속연결·제품전체검증과구분, 신규후속ID별진행 |
@@ -432,7 +433,7 @@ AI Influencer D1 OFF 운영 v1.27의 공개 화면·접근 제한을 확인했�
 | B2B-20261119-BACKEND-HANDOFF | CC-B2B-BACK-01 | done / sub_handoff_accepted_prerequisites_reconciled | B2B 백엔드 Sub PC 인수인계 | Sub 인수 완료·0101~0105/M3 승인 조건 대조. QA037 로그인·0105 Lab 적용/자료·M3 후속 승인 대기. 3210과 합성 DB는 메인 유지. |
 | B2B-20261119-FRONT-HANDOFF | CC-B2B-FRONT-01 | done / sub_handoff_and_release_scope_verified | B2B 프런트 Sub PC 인수인계 | Sub 인수 및 Chrome 지정. Lab 9커밋·14경로, 운영 기준 18커밋·19경로 대조 완료. S70은 0105 묶음, 실화면·배포 승인 대기. |
 | B2B-20261119-FRONT-REL | AG-UI-01 | done / frontend_production_public_screen_independent_accepted | B2B 프런트 단독 운영 배포 | 운영 READY·v1.16 및 맥미니 공개 화면 통과. 배포 폴더 대조 19개 프런트/시험 경로와 버전 파일, 백엔드·DB 차이 0. 관리자 별도. |
-| IMG-20261119-PLAN | CC-ECOM-01 | waiting_human / hardware_candidates_verified_pending_owner_quality | AI 무료 이미지 자동화 개발 플랜 | 품질 판정 파일 대기. 이후 Admin GPU 실기 → Sub RTX 2080 SUPER 8GB → 신규 웹 플랜. 기존 한글→영문 변환 재사용 위치만 읽기 조사. |
+| IMG-20261119-PLAN | CC-ECOM-01 | waiting_human / hardware_candidates_verified_pending_owner_quality | AI 무료 이미지 자동화 개발 플랜 | 품질 판정 파일 대기. 이후 Admin GPU → Sub 8GB → 신규 웹 플랜. 3사 호출·선택과 영문 변환 문구의 재사용 후보 조사 완료. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
