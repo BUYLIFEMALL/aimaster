@@ -6979,19 +6979,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T23:00:52.868Z",
+      "at": "2026-11-19T23:31:50.604Z",
       "timezone": "Asia/Seoul",
-      "trigger": "08:00 Orca 수신 msg_8abc9059bf16",
-      "scope": "07:30 이후 전체 작업표·담당 12명 체크포인트·Master 요청함·공유 문서·Git·결과/인수인계 증분 대조",
+      "trigger": "08:30 Orca 수신 msg_b0e039195fbb",
+      "scope": "08:00 이후 담당 12명 체크포인트·전체 작업표·Master 요청함·점유·미배포·Git·인수인계와 Orca 로컬/Sub 연결 대조",
       "evidence": [
-        "08:00 예약 전송 수락 및 Master 터미널 직접 수신 확인.",
-        "d38a8fcbf 이후 새 커밋 및 최근 31분 내 결과/인수인계 변경 없음. HANDOFF·점유표·미배포표에 회차 내 수정 없음. Master 요청함 0건.",
-        "전체 380건 중 진행 4·검수 8·순번 6·사람 대기 15. 체크포인트의 기존 전달 6개 역할에 신규 수락이나 착수 근거 없음."
+        "08:30 예약 전송 수락과 Master 터미널 직접 수신 확인. 17f9346d6 이후 신규 커밋·결과·인수인계·관리자 요청 없음.",
+        "로컬 Orca에서 Workspace·ECOM·SNS 등록 터미널 연결 확인. 작업 수락·착수 증거는 없음.",
+        "Sub Orca 상태 조회 실패(remote_runtime_unavailable, 종료 1). B2B Front·Backend 실제 터미널 상태 미확인.",
+        "전체 380건 중 진행 4·검수 8·순번 6·사람 대기 15."
       ],
-      "judgment": "기존 선행 조건 및 배정 유지. 신규 배정 0.",
-      "nextAction": "Master가 기존 담당 수락/결과를 회수하면 후속 판정. B2B Sub는 등록 연결 확인 뒤 기존 배정 재개, 0076은 적용 도구 권한 확인 뒤 진행. Workspace v1.64는 배포 승인, 운영 570쪽은 주인님 시험 신호가 재개 조건.",
+      "judgment": "신규 결과와 승인 근거가 없어 기존 작업·배정 유지. Sub의 무응답을 담당 종료로 판정하지 않음.",
+      "nextAction": "Master가 Sub 응답 복구와 등록 핸들을 확인한 뒤 기존 배정의 수락·작업 상태 확인. 0076은 적용 도구 권한 확인, Workspace v1.64는 배포 승인, 570쪽 ZIP은 주인님 시험 신호 뒤 재개.",
       "unverified": [
-        "담당의 실제 착수 및 Sub 연결, 운영 SQL, 승인 대기 배포 및 실화면."
+        "Sub에서 실행 중인 작업과 수락, 로컬 담당의 실제 착수, MacMini QA의 기존 배정 수락, 운영 SQL·배포·실화면."
       ]
     },
     "notifications": [
