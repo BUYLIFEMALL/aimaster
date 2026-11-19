@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { checkProgramAccess, evaluateProgramAccess } from "../src/lib/programAccess.ts";
-import { THIS_PROGRAM_SLUG, accessApiError, accessRedirect, safeInternalPath } from "../src/lib/accessDecision.ts";
+import { THIS_PROGRAM_SLUG, accessApiError, accessRedirect } from "../src/lib/accessDecision.ts";
 import { cookieDomainForHost } from "../src/lib/supabase/cookieDomain.ts";
 
 const base = { isAdmin: false, isSuspended: false, hasPhone: true, isFree: false, requiredGradeId: "g-normal", hasActiveSubscription: false, hasIndividualGrant: false, individualGrantExpiresAt: null, userGradeSortOrder: 1, requiredGradeSortOrder: 1 };
@@ -74,11 +74,6 @@ test("등록된 뒤의 대표 경우 — 정지·핸드폰 없음·권한 없음
 
   const noProfile = await ask({ profiles: null });
   assert.equal(noProfile.allowed, false, "회원 정보가 없으면 차단");
-});
-
-test("로그인 뒤 돌아갈 곳은 내부 경로만", () => {
-  assert.equal(safeInternalPath("/jobs?x=1"), "/jobs?x=1");
-  for (const bad of [null, undefined, "", "https://evil.example", "//evil.example", "/\\evil.example", "jobs"]) assert.equal(safeInternalPath(bad), "/");
 });
 
 test("로그인 쿠키 도메인은 buylife.xyz 계열에서만", () => {

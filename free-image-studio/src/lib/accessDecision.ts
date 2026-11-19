@@ -23,9 +23,3 @@ export function accessApiError(access: Pick<ProgramAccessResult, "allowed" | "re
   if (!access.allowed) return { error: "이 프로그램의 이용 권한이 없습니다. 메인 사이트에서 이용 권한을 확인해주세요.", status: 403 };
   return null;
 }
-
-/** 로그인 뒤 돌아갈 곳 — 「/」로 시작하는 내부 경로만 */
-export function safeInternalPath(path: string | null | undefined): string {
-  if (!path || !path.startsWith("/") || path.startsWith("//") || path.includes("\\")) return "/";
-  return path;
-}
