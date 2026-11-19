@@ -533,6 +533,7 @@ Master 마지막 실제 점검: 2026-11-19 23:01:08 KST · 23:00 예약 메시�
 | FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | done / mobile_quickbar_and_preview_mac_accepted_undeployed | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 고정 51d4b2207 Mac 28/28. 모바일 버튼·포커스 및 미리보기 빈 줄 제거 수락. 미배포 묶음 대기, 고정판 실제 편집기 미확인. |
 | FRONT-20261119-QUICKBAR-TABLET | CC-B2B-FRONT-01 | done / mac_resize_accepted_scoped_candidate_pending_execution | B2B몰 태블릿 폭 빠른 메뉴 상품 가림 | 4fb95eaba Mac 30/30·12폭 기존 수락. 제품 2파일·시험 1파일 후보 고정. 실제 후보 URL·태블릿 및 관리자 검수는 실행 범위 확정 후. |
 | BLOG-20261119-SAFE-FETCH-SOURCE | CC-BLOG-01 | done / canonical_reference_repointed_read_check_passed | 공용 safe-fetch 검사 기준 경로 복구 | fa125184f·6b7c31b14 기준을 티스토리 경로로 변경. Master 전체 읽기 점검 종료 0·사본 3개 일치, 제품 코드·sync·배포 0. |
+| MUSIC-20261119-REMIX-PLAYLIST-SENDER | CC-MUSIC-01 | running / local_link_implementation_dispatched | 음악 리믹스 → 플레이리스트 발신 링크 | 수신 v1.43 운영 확인 후 RemixCard.tsx 로컬 링크 구현 배정. Mac 검수 뒤 별도 배포 승인, 유료 호출 없음. |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
