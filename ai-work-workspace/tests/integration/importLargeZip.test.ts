@@ -26,13 +26,15 @@ const sp = (m: M) => spaces.get(m.id)!;
 
 const objects = new Map<string, Buffer>();
 const removedPaths: string[] = [];
-const sw: { quotaFull: boolean; removeFails: boolean; putFails: boolean; onRemove: null | ((paths: string[]) => Promise<void>) } = { quotaFull: false, removeFails: false, putFails: false, onRemove: null };
+const sw: { quotaFull: boolean; removeFails: boolean; listFails: boolean; putFails: boolean; onRemove: null | ((paths: string[]) => Promise<void>) } = { quotaFull: false, removeFails: false, listFails: false, putFails: false, onRemove: null };
 const fakeStore = () => ({
   getBucket: async () => ({ data: { id: 'workspace-files' }, error: null }),
   createBucket: async () => ({ data: null, error: null }),
   from: () => ({
     createSignedUploadUrl: async (path: string) => ({ data: { signedUrl: `https://store.test/upload/${path}`, token: 't', path }, error: null }),
-    list: async (dir: string, o: { search: string }) => ({ data: [...objects.entries()].filter(([p]) => p === `${dir}/${o.search}`).map(([p, b]) => ({ name: p.split('/').pop(), metadata: { size: b.length } })), error: null }),
+    list: async (dir: string, o: { search: string }) => (sw.listFails
+      ? { data: null, error: { message: 'storage down' } }
+      : { data: [...objects.entries()].filter(([p]) => p === `${dir}/${o.search}`).map(([p, b]) => ({ name: p.split('/').pop(), metadata: { size: b.length } })), error: null }),
     createSignedUrl: async (path: string) => ({ data: { signedUrl: `https://store.test/get/${path}` }, error: null }),
     remove: async (paths: string[]) => {
       // Storage 삭제를 기다리는 사이에 끼워 넣을 일(한 번만)
@@ -42,9 +44,11 @@ const fakeStore = () => ({
         await run(paths);
       }
       if (sw.removeFails) return { data: null, error: { message: 'storage down' } };
-      for (const p of paths) objects.delete(p);
-      removedPaths.push(...paths);
-      return { data: paths.map((name) => ({ name })), error: null };
+      // 실제 Storage처럼: 있던 것만 「지웠다」고 답한다(없던 경로는 답에 없다)
+      const had = paths.filter((p) => objects.has(p));
+      for (const p of had) objects.delete(p);
+      removedPaths.push(...had);
+      return { data: had.map((name) => ({ name })), error: null };
     },
   }),
 });
@@ -74,7 +78,7 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
-  Object.assign(sw, { quotaFull: false, removeFails: false, putFails: false, onRemove: null });
+  Object.assign(sw, { quotaFull: false, removeFails: false, listFails: false, putFails: false, onRemove: null });
   removedPaths.length = 0;
   for (const m of [ann, bob]) for (const k of [`import-job:user:${m.id}`, `import:${m.id}`, `import-stored:${m.id}`, `upload-large:user:${m.id}`]) ratelimit.reset(k);
 });
@@ -1009,4 +1013,104 @@ describe('다른 DB 연결과의 경합: 완료·취소·새 시작·만료', ()
       await other.end();
     }
   }, 60_000);
+});
+
+// 2026-11-19 Mac 재검수 P2(Master msg_547f81d99092): 주기 정리(cron이 부르는 cleanupPendingUploads) 한 회차 안에서
+// 작업 정리의 Storage 삭제가 실패하면, 뒤이은 일반 「대기 파일 정리」가 그 줄을 지워 버리지 않아야 한다.
+describe('주기 정리: Storage 삭제가 실패한 회차에는 줄을 남기고 다음 회차에 지운다', () => {
+  const OLD = () => Date.now() - 25 * 3_600_000;
+  const age = (sql: string, ...p: unknown[]) => db.withRequestCache(() => db.db.prepare(sql).run(OLD(), ...p));
+  /** 작업 밖에서 올리기 주소만 받고 끝내지 않은 일반 대기 파일 */
+  async function genericPending(m: M, name: string, upload: boolean) {
+    const signed = await fs_.signLargeUpload(m, { name, type: 'application/octet-stream', size: 5 * MB, spaceId: sp(m) });
+    const path = String(signed.body.uploadUrl).replace('https://store.test/upload/', '');
+    if (upload) objects.set(path, Buffer.alloc(16, 5));
+    return { id: String(signed.body.id), path };
+  }
+  const fileExists = (id: string) => q('SELECT id FROM files WHERE id = ?', id).length === 1;
+
+  it('작업 파일은 작업 정리만 지우고, 실패한 회차에는 작업 파일·일반 대기 파일 모두 남는다 → 다음 회차에 객체와 줄이 함께 정리된다', async () => {
+    // 하루 넘은 열린 작업: 올리기를 끝낸 그림 1 + 끝내지 않은(대기) 그림 1(객체는 올라가 있음) + 글 묶음
+    const b = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 3, bytes: 5000 });
+    const jobId = String(b.body.jobId);
+    const s = await step(ann, { step: 'import-sign', jobId, items: [{ name: 'done.png', size: 12 }, { name: 'pending.png', size: 12 }] });
+    const items = s.body.items as { id: string; uploadUrl: string }[];
+    const paths = items.map((i) => i.uploadUrl.replace('https://store.test/upload/', ''));
+    paths.forEach((p, k) => objects.set(p, PNG(90 + k)));
+    await step(ann, { step: 'import-done', jobId, ids: [items[0].id] });
+    const pages = await jobPages(ann, jobId, DEFAULT_PAGES);
+    age('UPDATE import_jobs SET created_time = ? WHERE id = ?', jobId);
+    age('UPDATE files SET created_time = ? WHERE import_job_id = ?', jobId);
+    // 일반 대기 파일(작업 밖): 하루 넘은 것 둘(객체 있음·없음), 그리고 살아 있는 것들
+    const oldWith = await genericPending(ann, 'old-with.bin', true);
+    const oldWithout = await genericPending(ann, 'old-without.bin', false);
+    age('UPDATE files SET created_time = ? WHERE id IN (?, ?)', oldWith.id, oldWithout.id);
+    const freshGeneric = await genericPending(bob, 'fresh.bin', true); // 다른 회원의 최근 대기 파일
+    const liveJob = await rawJob(bob, [{ name: 'live.png', data: PNG(95) }]); // 다른 회원의 진행 중 작업
+    const jobPaths = jobAll(jobId).map((f) => f.storage_path);
+    expect(jobPaths).toHaveLength(3);
+
+    // --- 회차 1: Storage 삭제가 실패한다
+    sw.removeFails = true;
+    expect(await fs_.cleanupPendingUploads()).toBe(0);
+    expect(jobRow(jobId).state).toBe('cancelled'); // 작업은 만료로 취소됐지만
+    expect(jobAll(jobId)).toHaveLength(3); // 줄은 그대로다(대기 줄 pending.png 포함 — 일반 정리가 지우지 않았다)
+    expect(jobPaths.every((p) => objects.has(p))).toBe(true);
+    expect(fileExists(oldWith.id)).toBe(true); // 일반 대기 파일도 삭제가 확인되지 않아 남는다
+    expect(objects.has(oldWith.path)).toBe(true);
+    expect(fileExists(oldWithout.id)).toBe(true); // 삭제 호출 자체가 실패한 회차라 부재 확인도 하지 않는다
+
+    // --- 회차 1-2: 삭제는 되지만 「없음」 확인(목록 조회)이 실패한다 → 지워진 것만 정리, 애초에 없던 것은 남는다
+    sw.removeFails = false;
+    sw.listFails = true;
+    expect(await fs_.cleanupPendingUploads()).toBe(1); // old-with.bin(삭제 확인)
+    expect(jobAll(jobId)).toHaveLength(0); // 작업 파일 3개는 모두 객체가 있었으므로 삭제 확인
+    expect(jobPaths.some((p) => objects.has(p))).toBe(false);
+    expect(fileExists(oldWith.id)).toBe(false);
+    expect(objects.has(oldWith.path)).toBe(false);
+    expect(fileExists(oldWithout.id)).toBe(true); // 없다는 확인을 못 했다
+
+    // --- 회차 2: 정상
+    sw.listFails = false;
+    expect(await fs_.cleanupPendingUploads()).toBe(1); // old-without.bin(부재 확인)
+    expect(fileExists(oldWithout.id)).toBe(false);
+
+    // 살아 있는 것들은 그대로
+    expect(fileExists(freshGeneric.id)).toBe(true);
+    expect(objects.has(freshGeneric.path)).toBe(true);
+    expect(jobRow(liveJob.jobId).state).toBe('open');
+    expect(jobAll(liveJob.jobId)).toHaveLength(2);
+    expect(jobAll(liveJob.jobId).every((f) => objects.has(f.storage_path))).toBe(true);
+    void pages;
+    await step(bob, { step: 'import-cancel', jobId: liveJob.jobId });
+    await fs_.finishLargeUpload(bob, { id: freshGeneric.id });
+  });
+
+  it('하루 넘은 작업의 대기 파일은 일반 정리 대상이 아니다(작업이 살아 있으면 건드리지 않는다)', async () => {
+    // 작업은 최근에 열렸지만 파일 줄의 시각만 오래된 경우(시계 차이 등) — 일반 정리가 작업 파일을 지우면 안 된다
+    const j = await rawJob(ann, [{ name: 'slow.png', data: PNG(96) }], { finish: false });
+    age('UPDATE files SET created_time = ? WHERE import_job_id = ?', j.jobId);
+    expect(await fs_.cleanupPendingUploads()).toBe(0);
+    expect(jobRow(j.jobId).state).toBe('open');
+    expect(jobAll(j.jobId)).toHaveLength(2);
+    expect(removedPaths).toEqual([]);
+    // 이어서 끝 알림을 하면 정상으로 쓸 수 있다
+    expect((await step(ann, { step: 'import-done', jobId: j.jobId, ids: j.ids })).body.done).toEqual(j.ids);
+    expect((await importWith(ann, j.pages, { id: j.jobId, assets: { 'a.png': j.ids[0] } })).status).toBe(200);
+    await step(ann, { step: 'import-finish', jobId: j.jobId });
+  });
+
+  it('올리지 못해 Storage에 없는 작업 파일도 「없음」이 확인되면 줄을 지운다', async () => {
+    const b = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 2, bytes: 100 });
+    const jobId = String(b.body.jobId);
+    const s = await step(ann, { step: 'import-sign', jobId, items: [{ name: 'never.png', size: 12 }, { name: 'there.png', size: 12 }] });
+    const items = s.body.items as { id: string; uploadUrl: string }[];
+    objects.set(items[1].uploadUrl.replace('https://store.test/upload/', ''), PNG(97)); // 하나만 올라갔다
+    sw.listFails = true;
+    expect((await step(ann, { step: 'import-cancel', jobId })).body.removed).toBe(1); // 지워진 것만
+    expect(jobAll(jobId).map((f) => f.name)).toEqual(['never.png']);
+    sw.listFails = false;
+    expect((await step(ann, { step: 'import-cancel', jobId })).body.removed).toBe(1); // 없음 확인 → 줄 정리
+    expect(jobAll(jobId)).toHaveLength(0);
+  });
 });

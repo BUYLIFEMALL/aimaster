@@ -167,17 +167,49 @@ export async function removeStorageObjects(paths: string[]): Promise<number> {
   return n;
 }
 
+/**
+ * Storage에서 지우고, **없어진 것이 확인된 경로**만 돌려준다(2026-11-19 Master msg_547f81d99092).
+ * · 지웠다는 답이 온 경로, 또는 · 답에 없어 다시 찾아봤더니 실제로 없는 경로(올리기를 끝내지 못해 애초에 없던 것).
+ * 삭제나 확인이 실패한 경로는 넣지 않는다 — 부르는 쪽은 여기 든 경로의 파일 줄만 지워, 줄만 사라지고 Storage에 남는 일이 없게 한다.
+ */
+async function removeConfirmed(paths: string[]): Promise<Set<string>> {
+  const gone = new Set<string>();
+  const list = [...new Set(paths.filter(Boolean))];
+  const bucket = storeImpl().from(WORKSPACE_BUCKET);
+  for (let i = 0; i < list.length; i += 100) {
+    const chunk = list.slice(i, i + 100);
+    const rm = await bucket.remove(chunk).catch(() => ({ data: null, error: { message: "failed" } }));
+    if (rm.error) continue;
+    for (const o of rm.data ?? []) gone.add(o.name);
+    for (const p of chunk) {
+      if (gone.has(p)) continue;
+      const cut = p.lastIndexOf("/");
+      const found = await bucket.list(p.slice(0, cut), { limit: 5, search: p.slice(cut + 1) }).catch(() => ({ data: null, error: { message: "failed" } }));
+      if (!found.error && !(found.data ?? []).some((o) => o.name === p.slice(cut + 1))) gone.add(p);
+    }
+  }
+  return gone;
+}
+
 /** 하루 넘게 「대기」인 줄(올리기를 끝내지 않음)과 그 Storage 내용을 지운다 */
 export async function cleanupPendingUploads(now = Date.now()): Promise<number> {
   // 2026-11-19: 하루 넘은 큰 ZIP 가져오기 작업도 같은 주기에 정리한다(그 작업이 올린 파일만)
   await cleanupStaleImportJobs(now).catch(() => 0);
-  const rows = withRequestCache(() => db.prepare("SELECT id, storage_path FROM files WHERE pending = 1 AND created_time < ? LIMIT 500").all(now - PENDING_TTL_MS) as { id: string; storage_path: string | null }[]);
+  // 큰 ZIP 가져오기 작업의 파일(import_job_id 있음)은 여기서 다루지 않는다 — 작업 정리만 책임진다
+  // (작업 정리에서 Storage 삭제가 실패했을 때 이쪽이 줄을 지워 버리면 Storage에 남은 파일을 다시 지울 길이 없어진다).
+  const rows = withRequestCache(() => db.prepare("SELECT id, storage_path FROM files WHERE pending = 1 AND import_job_id IS NULL AND created_time < ? LIMIT 500").all(now - PENDING_TTL_MS) as { id: string; storage_path: string | null }[]);
   if (!rows.length) return 0;
-  await removeStorageObjects(rows.map((r) => r.storage_path ?? ""));
+  // Storage에서 없어진 것이 확인된 줄만 지운다(실패한 줄은 남겨 다음 회차가 다시 한다)
+  const gone = await removeConfirmed(rows.map((r) => r.storage_path ?? ""));
+  let n = 0;
   withRequestCache(() => {
-    for (const r of rows) db.prepare("DELETE FROM files WHERE id = ? AND pending = 1").run(r.id);
+    for (const r of rows) {
+      if (r.storage_path && !gone.has(r.storage_path)) continue;
+      db.prepare("DELETE FROM files WHERE id = ? AND pending = 1 AND import_job_id IS NULL").run(r.id);
+      n++;
+    }
   });
-  return rows.length;
+  return n;
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -218,22 +250,14 @@ async function removeJobFiles(jobId: string, userId: string, keep: Set<string> =
   const rows = withRequestCache(() => db.prepare("SELECT id, storage_path FROM files WHERE import_job_id = ? AND user_id = ?").all(jobId, userId) as { id: string; storage_path: string | null }[])
     .filter((r) => !keep.has(r.id));
   let removed = 0;
-  for (let i = 0; i < rows.length; i += 100) {
-    const chunk = rows.slice(i, i + 100);
-    const paths = chunk.map((r) => r.storage_path ?? "").filter(Boolean);
-    const gone = new Set<string>();
-    if (paths.length) {
-      const { data, error } = await storeImpl().from(WORKSPACE_BUCKET).remove(paths);
-      if (!error) for (const o of data ?? []) gone.add(o.name);
+  const gone = await removeConfirmed(rows.map((r) => r.storage_path ?? ""));
+  withRequestCache(() => {
+    for (const r of rows) {
+      if (r.storage_path && !gone.has(r.storage_path)) continue;
+      db.prepare("DELETE FROM files WHERE id = ? AND import_job_id = ? AND user_id = ?").run(r.id, jobId, userId);
+      removed++;
     }
-    withRequestCache(() => {
-      for (const r of chunk) {
-        if (r.storage_path && !gone.has(r.storage_path)) continue;
-        db.prepare("DELETE FROM files WHERE id = ? AND import_job_id = ? AND user_id = ?").run(r.id, jobId, userId);
-        removed++;
-      }
-    });
-  }
+  });
   return removed;
 }
 
@@ -412,8 +436,7 @@ export async function importJobStep(member: Member, q: Record<string, unknown>):
       // 주소를 받을 때 알린 크기보다 크게 올라왔으면 지우고 실패로 둔다(합계 한도를 돌아가지 못하게)
       if (!(size > 0) || size > Number(row.size) || size > MAX_LARGE_FILE_BYTES) {
         // Storage에서 지워진 것이 확인됐을 때만 줄을 지운다. 실패하면 대기 줄로 남아 작업 정리(취소·마무리·만료)가 다시 지운다
-        const rm = await store.from(WORKSPACE_BUCKET).remove([row.storage_path]).catch(() => ({ data: null, error: { message: "failed" } }));
-        if (!rm.error && (rm.data ?? []).some((o) => o.name === row.storage_path)) {
+        if ((await removeConfirmed([row.storage_path])).has(row.storage_path)) {
           withRequestCache(() => db.prepare("DELETE FROM files WHERE id = ? AND import_job_id = ? AND user_id = ? AND pending = 1").run(row.id, job.id, userId));
         }
         failed.push(id);
