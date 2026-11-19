@@ -436,7 +436,7 @@ Workspace 캐시 로컬 수락, 스냅숏 후보 진행. 이미지와 플레이�
 | B2B-20261119-BACKEND-HANDOFF | CC-B2B-BACK-01 | done / sub_handoff_accepted_prerequisites_reconciled | B2B 백엔드 Sub PC 인수인계 | Sub 인수 완료·0101~0105/M3 승인 조건 대조. QA037 로그인·0105 Lab 적용/자료·M3 후속 승인 대기. 3210과 합성 DB는 메인 유지. |
 | B2B-20261119-FRONT-HANDOFF | CC-B2B-FRONT-01 | done / sub_handoff_and_release_scope_verified | B2B 프런트 Sub PC 인수인계 | Sub 인수 및 Chrome 지정. Lab 9커밋·14경로, 운영 기준 18커밋·19경로 대조 완료. S70은 0105 묶음, 실화면·배포 승인 대기. |
 | B2B-20261119-FRONT-REL | AG-UI-01 | done / frontend_production_public_screen_independent_accepted | B2B 프런트 단독 운영 배포 | 운영 READY·v1.16 및 맥미니 공개 화면 통과. 배포 폴더 대조 19개 프런트/시험 경로와 버전 파일, 백엔드·DB 차이 0. 관리자 별도. |
-| IMG-20261119-PLAN | CC-ECOM-01 | reviewing / web_ui_submission_row_shape_mac_recheck_sent | AI 무료 이미지 자동화 개발 플랜 | 8922c3cc 담당 109/109, 장부 행 구조와 과거 형식 보완 Mac 재검수 전달. 실제 브라우저·엔진 미확인. |
+| IMG-20261119-PLAN | CC-ECOM-01 | running / web_ui_mac_ledger_shape_pass_resend_value_followup | AI 무료 이미지 자동화 개발 플랜 | 8922c3cc Mac 109/109, 손상 구조 차단·실제 구버전 통과. 재전송 값 검증 보완 배정. 실제 브라우저·엔진 미확인. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
@@ -528,8 +528,8 @@ Workspace 캐시 로컬 수락, 스냅숏 후보 진행. 이미지와 플레이�
 | BLOG-20261119-MODELS | CC-BLOG-01 | done / strict_switch_independent_accepted_undeployed | 블로그 설정 플랫폼별 AI 모델 선택 | Mac 49/49와 원문 1회·정상 전환과 503 상한 2회 수락. 승인 실호출 9/9는 앞선 버전의 담당 결과. 미배포. |
 | RE-20261119-PARTIAL | CC-REALTY-01 | done / partial_results_and_stats_mac_accepted_undeployed | 상가·건물·토지 알림 부분 조회 결과 보존 | f52882db9 Mac 84/84. 부분·0곳 보존, 지역 ID, 통계 호환까지 로컬 검수 수락. 상가 v1.35 묶음 빌드·배포 승인 대기. |
 | RE-20261119-PARTIAL-REL | CC-REALTY-01 | done / commercial_v135_live_extension_guide_update_undeployed | 상가·건물·토지 알림 v1.35 배포 | 운영 v1.35 유지. 확장 업데이트 3단계와 이전 결과 FAQ 0adae1d2a 안내 추가, 로컬 검증 84/84 및 미배포. 관리자 화면 미확인. |
-| BLOG-20261119-MODELS-3 | CC-BLOG-01 | done / bundle_deployed_owner_reported_mac_public_smoke_partial | 블로그 3개 프로그램 모델 목록 동기화 | Mac 공개 검수에서 AI 자동 블로그 1.88·티스토리 1.99와 4개 최신 ZIP 주소 확인. 에이전트·SEO 가이드와 4개 설정은 로그인 뒤 확인 대기. |
-| BLOG-20261119-PHOTO-MODELS | CC-BLOG-01 | done / agent_deployed_owner_reported_mac_authenticated_screen_pending | 네이버 에이전트 사진 리뷰 모델 확대 | Mac 70/70 및 담당 네이버 에이전트 2.29 배포 보고. Mac 공개 ZIP 주소 응답 확인, 가이드·설정은 로그인 뒤 확인 대기. |
+| BLOG-20261119-MODELS-3 | CC-BLOG-01 | done / bundle_deployed_authenticated_dom_owner_confirmed | 블로그 3개 프로그램 모델 목록 동기화 | 운영 4종 2.29·1.88·2.27·1.99 담당 로그인 DOM 확인. 생성·저장·유료 호출 없음, 화면 캡처 미확보. 푸시 대기. |
+| BLOG-20261119-PHOTO-MODELS | CC-BLOG-01 | done / agent_photo_models_authenticated_dom_owner_confirmed | 네이버 에이전트 사진 리뷰 모델 확대 | Mac 70/70. 배포된 에이전트 2.29 사진 후기 모델 목록·엔진 연동 담당 로그인 DOM 확인. 실제 생성·캡처 없음. |
 | FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | done / mobile_quickbar_and_preview_mac_accepted_undeployed | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 고정 51d4b2207 Mac 28/28. 모바일 버튼·포커스 및 미리보기 빈 줄 제거 수락. 미배포 묶음 대기, 고정판 실제 편집기 미확인. |
 | FRONT-20261119-QUICKBAR-TABLET | CC-B2B-FRONT-01 | done / mac_resize_accepted_scoped_candidate_pending_execution | B2B몰 태블릿 폭 빠른 메뉴 상품 가림 | 4fb95eaba Mac 30/30·12폭 기존 수락. 제품 2파일·시험 1파일 후보 고정. 실제 후보 URL·태블릿 및 관리자 검수는 실행 범위 확정 후. |
 
