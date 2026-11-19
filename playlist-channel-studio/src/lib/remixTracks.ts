@@ -143,8 +143,11 @@ export const canPickMore = (picked: string[], selectable: string[], max: number)
 export function prunePicked(picked: string[], view: ListView, knownRemix: ReadonlySet<string>, max: number): string[] {
   if (view.state !== "ok") return picked;
   const ok = new Set(view.selectable);
-  const kept = picked.filter((id) => ok.has(id) || (!view.remixOk && knownRemix.has(id)));
-  const out = kept.slice(0, max);
+  // 지금 화면에서 고를 수 있는 선택이 먼저(회원이 보고 고른 곡을 20 한도에서 우선 보존)
+  const visible = picked.filter((id) => ok.has(id)).slice(0, max);
+  // 리믹스만 못 읽어 숨은 옛 리믹스 선택은 남은 자리에서만 보류 — 보이는 선택을 밀어내지 않는다
+  const hidden = view.remixOk ? [] : picked.filter((id) => !ok.has(id) && knownRemix.has(id)).slice(0, max - visible.length);
+  const out = [...visible, ...hidden];
   return out.length === picked.length && out.every((id, i) => id === picked[i]) ? picked : out;
 }
 

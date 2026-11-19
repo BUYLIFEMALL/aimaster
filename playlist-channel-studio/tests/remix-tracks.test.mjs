@@ -413,3 +413,32 @@ test("추가 대상 고정과 회귀: 클릭 때 최대 20개만 처리, 수동 
   assert.match(ui, /if \(t\.remix\) for \(const v of t\.variants\) knownRemixRef\.current\.add\(v\.id\);/);
   assert.doesNotMatch(ui, /setBusy\(""\); setPicked\(\[\]\)/, "추가 끝에 선택 전체를 비우지 않음(「선택 해제」 버튼의 전체 해제는 회원 조작이라 별개)");
 });
+
+// ── 부분 실패 때 보이는 선택 우선 (Master msg_783c284fa78c, Mac msg_93f223261221) ──
+test("숨은 리믹스 20 + 보이는 일반 곡 20: 반복 부분 실패·정상 복구에도 화면에서 고른 20개를 지우지 않는다", () => {
+  const R = ids("3333", 20), S = ids("4444", 20), known = new Set(R);
+  let picked = [...R];                                                   // 리믹스 20개 선택(정상 목록)
+  picked = prunePicked(picked, ok([...R, ...S], true), known, 20);
+  assert.deepEqual(picked, R);
+  picked = prunePicked(picked, ok(S, false), known, 20);                 // 부분 실패: 리믹스가 숨음 → 보류로 유지
+  assert.deepEqual(picked, R);
+  assert.equal(canPickMore(picked, S, 20), true, "숨은 선택은 수동 선택 칸을 차지하지 않음");
+  picked = [...picked, ...S];                                            // 보이는 일반 곡 20개 직접 선택
+  assert.equal(pickedInList(picked, S).length, 20);
+  picked = prunePicked(picked, ok(S, false), known, 20);                 // 같은 부분 실패가 한 번 더
+  assert.deepEqual(picked, S, "보이는 20개 우선, 숨은 리믹스는 남은 자리(0)만큼만");
+  picked = prunePicked(picked, ok(S, false), known, 20);                 // 반복
+  assert.deepEqual(picked, S);
+  picked = prunePicked(picked, ok([...R, ...S], true), known, 20);       // 정상 복구
+  assert.deepEqual(picked, S, "복구돼도 화면 선택 유지, 리믹스는 되살아나지 않음");
+  assert.equal(pickedInList(picked, [...R, ...S]).length, 20, "실제 추가 대상 20 이하");
+});
+
+test("보이는 선택이 20보다 적으면 숨은 리믹스는 남은 자리에서만 보류", () => {
+  const R = ids("5555", 20), known = new Set(R);
+  const out = prunePicked([...R, A, B], ok([A, B], false), known, 20);
+  assert.deepEqual(out.slice(0, 2), [A, B], "보이는 선택이 앞");
+  assert.equal(out.length, 20);
+  assert.deepEqual(out.slice(2), R.slice(0, 18), "숨은 리믹스는 18자리만");
+  assert.deepEqual(prunePicked([...R, A, B], ok([A, B], true), known, 20), [A, B], "리믹스를 정상으로 읽었는데 없으면 정리");
+});
