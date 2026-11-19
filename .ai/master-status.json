@@ -6186,11 +6186,11 @@
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace ZIP 50MB 안내와 대용량 가져오기 설계",
       "status": "running",
-      "delivery": "all_eight_recommendations_approved_local_implementation_started",
-      "sha": "be06a1541",
-      "next": "결정 1~8 권장안 확정. §12 작은 ZIP 동작 고정 시험부터 전용 fixture 로컬 구현 착수. 운영 SQL·빌드·배포·푸시 없음.",
-      "lastReviewedAt": "2026-11-19T06:49:00.834Z",
-      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85",
+      "delivery": "zip_baseline_and_path_refactor_storage_read_fix_dispatched",
+      "sha": "13e9af05d",
+      "next": "작은 ZIP 회귀 16건 고정·경로 정규화 공용화. 4MiB 초과 Storage 입력 읽기 결함 재현 c2816bf0f. 가져오기 전용 보완 배정, 운영 미검증.",
+      "lastReviewedAt": "2026-11-19T06:56:09.628Z",
+      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85·cfd124ba3·c2816bf0f·13e9af05d·msg_b6590eaaaee8",
       "reviewer": "CX-QA-01"
     },
     {
