@@ -6186,11 +6186,11 @@
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace ZIP 50MB 안내와 대용량 가져오기 설계",
       "status": "running",
-      "delivery": "stored_upload_read_fixed_mac_review_large_zip_continues",
+      "delivery": "merge_csv_concurrent_schema_p2_fix_dispatched",
       "sha": "7298b1dbf",
-      "next": "4MiB 초과 입력 읽기 로컬 수정 16건 및 회귀 114건. 맥미니 검수 요청, 브라우저 대용량 ZIP 분할 구현 진행. 운영 미검증.",
-      "lastReviewedAt": "2026-11-19T07:05:56.802Z",
-      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85·cfd124ba3·c2816bf0f·13e9af05d·msg_b6590eaaaee8·7298b1dbf·msg_25fa9e68b50a",
+      "next": "Mac 로더 경계·모의 스트림 통과. 같은 컬렉션 동시 CSV 병합 시 열 유실 재현, 보완 배정. 운영 미검증.",
+      "lastReviewedAt": "2026-11-19T07:09:53.883Z",
+      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85·cfd124ba3·c2816bf0f·13e9af05d·msg_b6590eaaaee8·7298b1dbf·msg_25fa9e68b50a·msg_2694e685c83c·msg_b5baddc12f26",
       "reviewer": "CX-QA-01"
     },
     {
@@ -6233,12 +6233,12 @@
       "owner": "CC-BLOG-01",
       "reviewer": "CX-QA-01",
       "title": "네이버 에이전트 사진 리뷰 모델 확대",
-      "status": "reviewing",
-      "delivery": "photo_models_second_update_mac_review_dispatched",
+      "status": "done",
+      "delivery": "second_photo_model_update_mac_accepted_undeployed",
       "sha": "f76d55eea",
-      "next": "종료 모델 제거·새 사진 모델 7종 담당 실호출 통과. 기존 저장 결과 유지 및 독립 검수 요청. 미배포.",
-      "evidence": "msg_0ac38f25541f·8669e5117·msg_480f9da3729e·msg_42d76c3b880f·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_0180b3576853·msg_25fa9e68b50a",
-      "lastReviewedAt": "2026-11-19T07:05:56.802Z"
+      "next": "Mac 70/70, 새 선택지·종료 모델 차단·저장 결과 호환 수락. 담당 실호출 7/7은 별도. 미배포.",
+      "evidence": "msg_0ac38f25541f·8669e5117·msg_480f9da3729e·msg_42d76c3b880f·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_0180b3576853·msg_25fa9e68b50a·msg_f905a0cddb8f",
+      "lastReviewedAt": "2026-11-19T07:09:53.883Z"
     },
     {
       "task_id": "B2B-20261119-BACKEND-HANDOFF",
