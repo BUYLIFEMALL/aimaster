@@ -375,3 +375,5 @@ WS-20261119-02 점유 해제 CC-WORKSPACE-01: 고정판 809f52f7e 로컬 구현�
 WS-20261119-01·WS-20261119-REL 점유 해제 CC-WORKSPACE-01: Master msg_df60d5e2ede4. 두 범위 모두 v1.61 배포 완료(dpl_CLGZ7CA84iyodmiSEjoPccxMMyBp, 2026-11-19) 기록과 대조됨. 해제: WS-20261119-01 = ai-work-workspace/src/litpage/server/content/html.ts·tests/integration/notionSavedHtml.test.ts / WS-20261119-REL = src/litpage/server/db.ts·한 줄 감싸기 9곳(automations/engine.ts·agents/triggers.ts·api/modules/pages.ts·dbstruct.ts·workspace.ts·digests.ts·meetings/audio.ts·retention.ts·publicApi/webhooks.ts)·tests/integration/startupBoundary.test.ts·tests/setup-local-db.mjs·docs. 보존: 기존 기록, 미검증 항목(운영에서 노션 저장 HTML 실제 재가져오기·cron 실제 호출 뒤 주기 작업·웹훅 경로·에이전트 일정 재등록), B2B-20261119-MALL-STORAGE 0076 점유.
 
 IMG-20261119-P1-WEBPLAN CC-ECOM-01: Master msg_0892ca387839. 새 문서 docs/analysis-free-image-automation-20261119/P1_WEB_PLAN.md 만 작성(새 웹 개발 플랜). 제품 폴더 생성·코드·설치·외부 API 호출·빌드·배포 0, 기존 문서·엔진·다른 프로그램은 읽기만. 검수 Master.
+
+IMG-20261119-P1-WEB-5-1 CC-ECOM-01: Master msg_45b3fbbdfcde. 새 폴더 free-image-studio/ 전체(최소 앱 뼈대·접근 판정·고지·문서). 엔진·공용 코드·다른 프로그램·DB·사이트 등록·실 AI 호출·설치·빌드·배포·push 0. 지원 문구·유료 모델 기본값·FREE/요금은 코드·설정에 넣지 않음. 검수 CX-QA-01(Mac).
