@@ -28,3 +28,16 @@
 ## 3. 미확정
 - 실제 화면 모양(토글 옆 글이 좁은 화면에서 줄바꿈되는 모습) — 빌드·배포 전이라 미확인.
 - 앞 작업의 빌드 상태는 그대로: SVS `npm run build` 종료코드 1(Next 16.4.2 보안 정지), YVS 미실행 — 이번 수정으로 바뀌지 않음.
+
+---
+
+## A2 (배정 2, 기준 c31b91095, 결과 SHA `9b3d91af5`) — 맥미니 잔여 P2(msg_88a6abd7abc2) — ready_review
+| 지적 | 고친 내용 |
+|---|---|
+| 「바로 적용·할당량 0」이 종교 옵션까지 포함하는 것처럼 읽힘 | 검색 조건 아래 안내를 `SEARCH_HELP_LINES` 4문장으로 분리: 검색 할당량 / **영상 길이·최소 조회수·최대 구독자 필터 = 지금 결과에 바로·할당량 0** / 도배·다른 언어·무관 = 검색할 때 자동 제외(추가 할당량 없음) / **「종교 영상 제외」 = 지금 결과에는 적용되지 않고 다음 검색부터**. 토글 옆 안내(`RELIGION_TOGGLE_NOTE`)는 그대로 |
+| 전부 제외 때 이유 요약이 머리글과 본문에 두 번 | `headerExcludedSummary(excluded, videos.length)`: 남은 쇼츠가 있을 때만 머리글에 요약, 0개면 숨기고 본문 `emptyResultMessage` 한 곳에만 |
+
+- 파일: `src/lib/youtube/shortsSearch.ts`(상수·함수 추가), `src/components/studio/SearchStep.tsx`(안내 1줄·머리글 1줄 교체), `tests/relevance.test.mjs`(새 2), `docs/IMPROVEMENTS.md`.
+- 검증: `node --test tests/relevance.test.mjs` 10/10 · 0, `npm test` 17/17 · 0, `npx tsc --noEmit -p .` · 0.
+- 범위 밖 0: 설치·Next 업그레이드·빌드·운영·검색 호출 변경.
+- 미확정: 실제 화면(좁은 폭에서 4문장 줄바꿈) — 빌드·배포 전.
