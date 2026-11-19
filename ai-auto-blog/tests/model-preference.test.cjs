@@ -166,7 +166,7 @@ test('다른 플랫폼 모델은 한 플랫폼을 저장해도 그대로 유지�
 test('플랫폼마다 최신 모델이 맨 위에 오고, 기본 모델은 모델 선택표의 중가 균형 모델이다', () => {
   const m = load(makeStorage());
   const first = (p) => Array.from(m.getContentModels(p), (x) => x.value); // 다른 실행 환경 배열이라 이쪽 배열로 복사
-  assert.deepEqual(first('openai').slice(0, 2), ['gpt-6.1-terra', 'gpt-6.1-sol']);
+  assert.deepEqual(first('openai').slice(0, 4), ['gpt-6.2-astra', 'gpt-6.2-sol', 'gpt-6.1-terra', 'gpt-6.1-sol']);
   assert.deepEqual(first('anthropic').slice(0, 4), ['claude-fable-5-2', 'claude-opus-5-5', 'claude-sonnet-5-5', 'claude-haiku-5-5']);
   assert.deepEqual(first('gemini').slice(0, 4), ['gemini-4-carbon', 'gemini-4-neon', 'gemini-4-argon', 'gemini-4-hydrogen']);
   assert.equal(m.getDefaultContentModel('openai'), 'gpt-6.1-terra');

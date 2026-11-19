@@ -34,11 +34,15 @@ export const CONTENT_MODEL_OPTIONS: ContentModelOption[] = [
   // 플랫폼마다 최신 모델이 위에 오도록 정렬했다. 근거: 공식 모델 문서(OpenAI 모델 발표·Anthropic Models overview·
   // Google AI Studio models, 2026-11-19 확인)와 docs/AI_MODEL_CATALOG.md. 종료 예정·자동 연결 모델(gpt-4.1·gpt-4o·
   // gpt-4o-mini·claude-haiku-4-5·gemini-3.5-flash·gemini-3.7-flash)은 뺐고, 저장돼 있던 값은 아래 RETIRED_CONTENT_MODEL이
-  // 대체 모델로 바꿔 읽는다. GPT-6.2는 아직 ChatGPT·Codex 미리보기라(API 미확인) 넣지 않았다.
+  // 대체 모델로 바꿔 읽는다. GPT-6.2 Astra·Sol은 OpenAI 공식 모델 문서(developers.openai.com/api/docs/models)에
+  // Chat Completions·Responses 지원으로 올라 있어 맨 위에 넣었다(Master msg_77eaa7b278fe 정정 — 처음엔 미리보기로 잘못 판단해 뺐음).
+  // 기본값은 바꾸지 않는다(GPT-6.1 Terra). 회원 계정 실제 호출 확인은 아직이다.
 
   // OpenAI — GPT-6 계열은 Chat Completions에서 거절되면 Responses API로 다시 보낸다(utils/ai/contentJson.ts).
-  { provider: 'openai', value: 'gpt-6.1-terra', name: 'GPT-6.1 Terra', purpose: '최신 · 블로그 원문 균형형 (기본)', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
-  { provider: 'openai', value: 'gpt-6.1-sol', name: 'GPT-6.1 Sol', purpose: '최신 · 한 단계 높은 품질', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
+  { provider: 'openai', value: 'gpt-6.2-astra', name: 'GPT-6.2 Astra', purpose: '최신 · 최상위 품질 (느림·비쌈)', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
+  { provider: 'openai', value: 'gpt-6.2-sol', name: 'GPT-6.2 Sol', purpose: '최신 · 일상 작업 고품질', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
+  { provider: 'openai', value: 'gpt-6.1-terra', name: 'GPT-6.1 Terra', purpose: '블로그 원문 균형형 (기본)', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
+  { provider: 'openai', value: 'gpt-6.1-sol', name: 'GPT-6.1 Sol', purpose: '한 단계 높은 품질', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
   { provider: 'openai', value: 'gpt-6-astra', name: 'GPT-6 Astra', purpose: '최상위 품질이 필요한 글 (느림)', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
   { provider: 'openai', value: 'gpt-6-luna', name: 'GPT-6 Luna', purpose: '짧은 글·가벼운 작업', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
   { provider: 'openai', value: 'gpt-5.6-sol', name: 'GPT-5.6 Sol', purpose: '이전 세대 · 복잡한 주제', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
