@@ -186,6 +186,7 @@ export async function cleanupPendingUploads(now = Date.now()): Promise<number> {
 // 그 올리기를 「가져오기 작업」 하나로 묶어, 그 작업에서 그 회원이 올린 파일만 쓰이고 지워지게 한다.
 //   import-begin  { spaceId, files, bytes }                → { jobId }                        작업 열기(신고한 개수·합계, 용량 확인). 열린 작업이 있으면 409 { code: IMPORT_JOB_OPEN, jobId }
 //   import-sign   { jobId, items: [{ name, type, size }] } → { items: [{ id, uploadUrl }] }   한 번에 50개까지
+//   import-pages  { jobId, name, size }                    → { id, uploadUrl }                글 파일 묶음(ZIP) 올리기 주소 — 작업당 하나, 이 작업의 「글 묶음」으로 표시
 //   import-done   { jobId, ids }                           → { done, failed }                 실제로 올라갔는지·크기 확인
 //   import-finish { jobId }                                → { removed }                      가져오기 뒤 쓰이지 않은 파일 지우기
 //   import-cancel { jobId }                                → { removed }                      실패·취소: 이 작업이 올린 파일만 지우기
@@ -362,6 +363,27 @@ export async function importJobStep(member: Member, q: Record<string, unknown>):
     return { status: 200, body: { items: out } };
   }
 
+  if (step === "import-pages") {
+    // 글 파일 묶음도 이 작업의 파일로 올린다(작업당 하나). 가져오기는 여기 적힌 파일 id만 글 묶음으로 받는다
+    const size = intIn(q.size, 1, MAX_LARGE_FILE_BYTES);
+    if (size === null) return bad(413, "파일은 50MB까지 올릴 수 있습니다.");
+    const id = newId();
+    const name = cleanFileName(q.name ?? "pages.zip");
+    const path = pathFor(userId, id, name);
+    const { data, error } = await storeImpl().from(WORKSPACE_BUCKET).createSignedUploadUrl(path);
+    if (error || !data?.signedUrl) return bad(502, "올리기 주소를 받지 못했습니다. 잠시 후 다시 시도해 주세요.");
+    const ok = withRequestCache(() => {
+      const r = db.prepare("UPDATE import_jobs SET pages_file_id = ?, files = files + 1, bytes = bytes + ? WHERE id = ? AND user_id = ? AND state = 'open' AND pages_file_id IS NULL AND files + 1 <= declared_files AND bytes + ? <= declared_bytes")
+        .run(id, size, job.id, userId, size);
+      if (!r.changes) return false;
+      db.prepare("INSERT INTO files (id, space_id, user_id, name, mime, size, path, created_time, private, render, content, storage_path, pending, import_job_id) VALUES (?, ?, ?, ?, 'application/zip', ?, ?, ?, 0, 0, NULL, ?, 1, ?)")
+        .run(id, job.space_id, userId, name, size, path, Date.now(), path, job.id);
+      return true;
+    });
+    if (!ok) return bad(409, "이 가져오기의 글 묶음은 이미 올렸거나 처음에 알린 크기를 넘습니다.");
+    return { status: 200, body: { id, uploadUrl: data.signedUrl } };
+  }
+
   if (step === "import-done") {
     const ids = (Array.isArray(q.ids) ? q.ids : []).filter((x): x is string => typeof x === "string");
     if (!ids.length || ids.length > SIGN_URL_BATCH) return bad(400, `한 번에 ${SIGN_URL_BATCH}개까지 요청할 수 있습니다.`);
@@ -389,8 +411,11 @@ export async function importJobStep(member: Member, q: Record<string, unknown>):
       }
       // 주소를 받을 때 알린 크기보다 크게 올라왔으면 지우고 실패로 둔다(합계 한도를 돌아가지 못하게)
       if (!(size > 0) || size > Number(row.size) || size > MAX_LARGE_FILE_BYTES) {
-        await store.from(WORKSPACE_BUCKET).remove([row.storage_path]).catch(() => {});
-        withRequestCache(() => db.prepare("DELETE FROM files WHERE id = ? AND import_job_id = ? AND user_id = ? AND pending = 1").run(row.id, job.id, userId));
+        // Storage에서 지워진 것이 확인됐을 때만 줄을 지운다. 실패하면 대기 줄로 남아 작업 정리(취소·마무리·만료)가 다시 지운다
+        const rm = await store.from(WORKSPACE_BUCKET).remove([row.storage_path]).catch(() => ({ data: null, error: { message: "failed" } }));
+        if (!rm.error && (rm.data ?? []).some((o) => o.name === row.storage_path)) {
+          withRequestCache(() => db.prepare("DELETE FROM files WHERE id = ? AND import_job_id = ? AND user_id = ? AND pending = 1").run(row.id, job.id, userId));
+        }
         failed.push(id);
         continue;
       }

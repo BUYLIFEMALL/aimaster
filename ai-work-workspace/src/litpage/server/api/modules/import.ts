@@ -60,6 +60,12 @@ try {
   /* column exists */
 }
 db.exec('CREATE INDEX IF NOT EXISTS files_import_job ON files (import_job_id)');
+// 글 파일 묶음(ZIP)도 그 작업에서 올린 파일 하나로 묶는다 — 가져오기는 이 id만 글 묶음으로 받는다
+try {
+  db.exec('ALTER TABLE import_jobs ADD COLUMN pages_file_id TEXT');
+} catch {
+  /* column exists */
+}
 const JOB_TTL_MS = 24 * 3_600_000;
 
 const MAX_FILES = 20;
@@ -359,19 +365,32 @@ async function uploadOf(f: any, uid: string, space: SpaceRecord, ctx: Ctx, seen:
   return { name, file };
 }
 
-type ImportJob = { id: string; state: string; result: string | null };
+type ImportJob = { id: string; state: string; result: string | null; pagesFileId: string | null };
 /** 같은 작업을 다른 요청이 먼저 끝냈음(이 요청이 만든 것은 트랜잭션과 함께 되돌린다) */
 class JobTaken extends Error {}
 
 /** 그 회원이 그 워크스페이스로 연 작업(남의 작업·없는 작업은 똑같이 404 — 있는지 알려 주지 않는다) */
 function jobOrThrow(jobId: unknown, uid: string, spaceId: string): ImportJob {
   const row = typeof jobId === 'string' && UUID.test(jobId)
-    ? (db.prepare('SELECT id, user_id, space_id, state, created_time, result FROM import_jobs WHERE id = ?').get(jobId) as { id: string; user_id: string; space_id: string; state: string; created_time: number; result: string | null } | undefined)
+    ? (db.prepare('SELECT id, user_id, space_id, state, created_time, result, pages_file_id FROM import_jobs WHERE id = ?').get(jobId) as { id: string; user_id: string; space_id: string; state: string; created_time: number; result: string | null; pages_file_id: string | null } | undefined)
     : undefined;
   if (!row || row.user_id !== uid || row.space_id !== spaceId) throw new ApiError('Import job not found', 404);
   if (row.state === 'open' && Number(row.created_time) < Date.now() - JOB_TTL_MS) throw new ApiError('가져오기 작업이 만료됐습니다. 처음부터 다시 시작해 주세요.', 410);
   if (row.state !== 'open' && row.state !== 'done' && row.state !== 'closed') throw new ApiError('이미 취소된 가져오기 작업입니다.', 409);
-  return { id: row.id, state: row.state, result: row.result };
+  return { id: row.id, state: row.state, result: row.result, pagesFileId: row.pages_file_id };
+}
+
+/**
+ * 큰 ZIP 작업의 글 파일 묶음: 요청이 가리키는 파일이 **이 작업에 글 묶음으로 등록된 그 파일**이어야 한다(플랜 §9-5).
+ * 같은 회원의 다른 ZIP·다른 작업의 묶음·작업 밖에서 올린 파일을 이 작업에 붙일 수 없다. 워크스페이스도 작업과 같아야 한다.
+ */
+function assertJobPages(ref: unknown, job: ImportJob, uid: string, spaceId: string, zipName: string) {
+  const s = String(ref ?? '');
+  const id = fileIdFromUrl(s) ?? (UUID.test(s) ? s : null);
+  const row = id ? (db.prepare('SELECT id, user_id, space_id, pending, import_job_id FROM files WHERE id = ?').get(id) as { id: string; user_id: string; space_id: string | null; pending: number; import_job_id: string | null } | undefined) : undefined;
+  if (!id || !job.pagesFileId || id !== job.pagesFileId || !row || row.user_id !== uid || row.import_job_id !== job.id || row.space_id !== spaceId || Number(row.pending)) {
+    throw new ApiError(`${zipName}: the pages file doesn’t belong to this import`, 400);
+  }
 }
 
 /**
@@ -385,7 +404,8 @@ function jobAssets(raw: unknown, job: ImportJob, uid: string, spaceId: string, z
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return [];
   const pairs = Object.entries(raw as Record<string, unknown>);
   if (pairs.length > ZIP_IMPORT_LIMITS.entries) throw new ApiError(`${zipName}: Too many files in archive`, 400);
-  const owned = Number((db.prepare('SELECT COUNT(*) AS n FROM files WHERE import_job_id = ? AND user_id = ? AND pending = 0').get(job.id, uid) as { n: number }).n);
+  // 이 작업에서 올리기를 끝낸 그림 수(글 묶음은 뺀다)
+  const owned = Number((db.prepare('SELECT COUNT(*) AS n FROM files WHERE import_job_id = ? AND user_id = ? AND pending = 0 AND id <> ?').get(job.id, uid, job.pagesFileId ?? '') as { n: number }).n);
   if (pairs.length > owned) throw new ApiError(`${zipName}: the image list doesn’t match this import`, 400);
   const out: AssetEntry[] = [];
   const paths = new Set<string>();
@@ -400,7 +420,7 @@ function jobAssets(raw: unknown, job: ImportJob, uid: string, spaceId: string, z
     const id = typeof v === 'string' && UUID.test(v) ? v : '';
     const row = id ? (one.get(id) as { id: string; user_id: string; space_id: string | null; name: string; storage_path: string | null; pending: number; import_job_id: string | null } | undefined) : undefined;
     const parts = (row?.storage_path ?? '').split('/');
-    if (!row || row.user_id !== uid || row.import_job_id !== job.id || Number(row.pending) || row.space_id !== spaceId || parts.length !== 3 || parts[0] !== uid || parts[1] !== row.id) {
+    if (!row || row.id === job.pagesFileId || row.user_id !== uid || row.import_job_id !== job.id || Number(row.pending) || row.space_id !== spaceId || parts.length !== 3 || parts[0] !== uid || parts[1] !== row.id) {
       throw new ApiError(`${zipName}: the image list doesn’t match this import`, 400);
     }
     if (ids.has(row.id)) throw new ApiError(`${zipName}: the same image was listed twice`, 400);
@@ -471,6 +491,8 @@ export const handlers: Record<string, Handler> = {
     // Storage에 둔 큰 파일은 하나씩 읽어 바로 변환한다(여러 개를 한꺼번에 메모리에 올리지 않는다)
     const seen = new Set<string>();
     for (const f of list) {
+      // 큰 ZIP 작업이면 글 묶음이 이 작업에 등록된 파일인지부터 확인한다(읽어 오기 전에)
+      if (job) assertJobPages(f?.url ?? f?.id, job, uid, space.id, String(f?.name ?? 'Untitled').slice(0, 255));
       const { name, file } = await uploadOf(f, uid, space, ctx, seen);
       if (job && !/\.zip$/i.test(name)) throw new ApiError('A large ZIP is imported on its own', 400);
       if (/\.zip$/i.test(name) || file.mime === 'application/zip') specs.push(...zipSpecs(file.data, uid, space.id, name, job ? jobAssets(jobRef.assets, job, uid, space.id, name) : [], usedAssets));

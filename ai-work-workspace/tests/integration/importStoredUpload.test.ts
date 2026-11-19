@@ -633,7 +633,7 @@ describe('Storage를 기다리는 사이의 동시 변경', () => {
 // (앱 쪽 질의가 잠금을 기다리는 동안에는 이 프로세스의 이벤트 루프가 멈추므로, 커밋까지 DB 서버 안에서 끝나도록 한 묶음으로 보낸다.)
 describe('다른 DB 연결이 잡은 행 잠금', () => {
   const rec = <T = any>(table: string, id: string) => db.withRequestCache(() => db.getRecord(table as never, id) as T);
-  const HOLD_SEC = 2;
+  const HOLD_SEC = 3;
 
   it('mergeCsv는 다른 연결의 잠금이 풀릴 때까지 기다린 뒤 그 연결이 더한 열·옵션 위에 합친다', async () => {
     const seed = db.withRequestCache(() => files.storeFile('Lock.csv', Buffer.from('Name,Status\nOne,Open\n'), kim.id, sp(kim), 'text/csv'));
@@ -668,12 +668,14 @@ describe('다른 DB 연결이 잡은 행 잠금', () => {
           SELECT pg_sleep(${HOLD_SEC});
           COMMIT;
         `).simple().execute(); // execute(): 기다리지 않아도 지금 바로 보낸다
-        // 문장 묶음이 서버에 도착해 잠금을 잡을 시간을 준다
-        await new Promise((r) => setTimeout(r, 400));
-        // 다른 연결이 정말 잠금을 쥐고 있는지 세 번째 연결로 확인(커밋 전이라 새 열은 아직 보이지 않는다)
+        // 다른 연결이 정말 잠금을 쥘 때까지 세 번째 연결로 확인한다(고정 시간 대기는 부하에 따라 흔들린다). 커밋 전이라 새 열은 아직 보이지 않는다
         const probe = postgres(process.env.AWW_DATABASE_URL!, { max: 1, onnotice: () => {} });
         try {
-          const locked = await probe.unsafe(`SELECT id FROM records WHERE tbl = 'collection' AND id = '${colId}' FOR UPDATE SKIP LOCKED`);
+          let locked = [{}] as unknown[];
+          for (let i = 0; i < 100 && locked.length; i++) {
+            locked = await probe.unsafe(`SELECT id FROM records WHERE tbl = 'collection' AND id = '${colId}' FOR UPDATE SKIP LOCKED`);
+            if (locked.length) await new Promise((r) => setTimeout(r, 30));
+          }
           expect(locked.length).toBe(0); // 건너뜀 = 누군가 잠금 보유
           const visible = await probe.unsafe(`SELECT data FROM records WHERE tbl = 'collection' AND id = '${colId}'`);
           expect(String(visible[0].data)).not.toContain('ColB');
@@ -688,7 +690,7 @@ describe('다른 DB 연결이 잡은 행 잠금', () => {
       await otherDone;
       expect({ status: r.status, message: (r.body as any)?.message }).toEqual({ status: 200, message: undefined });
       // 실제로 기다렸다: 잠금을 확인한 시점부터 다른 연결이 쉬는 시간의 대부분이 지나서야 끝났다
-      expect(waitedMs).toBeGreaterThanOrEqual((HOLD_SEC - 0.6) * 1000);
+      expect(waitedMs).toBeGreaterThanOrEqual((HOLD_SEC - 1.5) * 1000);
       // 다른 연결이 더한 열·옵션이 남아 있고, 우리 것이 그 위에 합쳐졌다
       const after = rec('collection', colId);
       const names = Object.values(after.schema as Record<string, any>).map((p) => p.name).sort();

@@ -1710,6 +1710,7 @@
   "The diagram has errors": "다이어그램에 오류가 있습니다",
   "Import ZIP files over 50 MB one at a time": "50MB가 넘는 ZIP은 다른 파일과 함께 넣지 말고 하나씩 가져와 주세요.",
   "Uploading images": "그림 올리는 중",
+  "Couldn’t upload the pages of this ZIP — try again": "ZIP 안의 글 파일을 올리지 못했습니다. 다시 시도해 주세요.",
   "Another large import hasn’t finished. Cancel it and start this one?": "끝나지 않은 큰 가져오기가 있습니다. 그 가져오기를 취소하고 이 파일을 새로 가져올까요?",
   "Some files in the ZIP couldn’t be imported": "ZIP 안의 일부 파일을 가져오지 못했습니다",
   "ZIP is larger than 1 GB": "ZIP 파일은 1GB까지 가져올 수 있습니다.",

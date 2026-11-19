@@ -13,7 +13,7 @@ export interface LargeZipDeps {
   job(body: Record<string, unknown>): Promise<any>;
   /** 서명된 주소로 올리기. 성공 여부만 */
   put(uploadUrl: string, data: Blob, type: string): Promise<boolean>;
-  /** 글 파일 묶음을 예전 경로(파일 올리기)로 올린다 */
+  /** 그림이 없는 ZIP일 때만: 글 파일 묶음을 예전 경로(파일 올리기)로 올린다 */
   uploadPages(zip: Blob, name: string): Promise<{ url: string }>;
   /** 끝나지 않은 큰 가져오기가 이미 있을 때 그것을 취소하고 새로 시작할지 회원에게 묻는다(없으면 취소하지 않는다) */
   confirmReplace?(): Promise<boolean> | boolean;
@@ -71,7 +71,8 @@ export async function prepareLargeZip(file: Blob, name: string, spaceId: string,
   });
   if (!images.length) return { name, url: (await deps.uploadPages(pagesZip, name)).url, skipped, images: 0 };
 
-  const beginBody = { step: 'import-begin', spaceId, files: images.length, bytes: images.reduce((a, e) => a + e.size, 0) };
+  // 글 묶음도 이 작업의 파일로 올리므로 개수·합계에 넣어 알린다
+  const beginBody = { step: 'import-begin', spaceId, files: images.length + 1, bytes: images.reduce((a, e) => a + e.size, 0) + pagesZip.size };
   let begun: { jobId: string };
   try {
     begun = await deps.job(beginBody);
@@ -117,8 +118,12 @@ export async function prepareLargeZip(file: Blob, name: string, spaceId: string,
         else skipped.push({ name: u.entry.name, reason: 'upload_failed' });
       }
     }
-    const { url } = await deps.uploadPages(pagesZip, name);
-    return { name, url, job: { id: jobId, assets }, skipped, images: Object.keys(assets).length };
+    // 글 파일 묶음: 이 작업의 「글 묶음」으로 올린다(서버는 여기서 받은 id만 이 작업의 글 묶음으로 인정한다)
+    const pages = (await deps.job({ step: 'import-pages', jobId, name, size: pagesZip.size })) as { id: string; uploadUrl: string };
+    if (!(await deps.put(pages.uploadUrl, pagesZip, 'application/zip'))) throw new ZipReadError('Couldn’t upload the pages of this ZIP — try again');
+    const sent = (await deps.job({ step: 'import-done', jobId, ids: [pages.id] })) as { done: string[] };
+    if (!sent.done.includes(pages.id)) throw new ZipReadError('Couldn’t upload the pages of this ZIP — try again');
+    return { name, url: pages.id, job: { id: jobId, assets }, skipped, images: Object.keys(assets).length };
   } catch (e) {
     // 여기까지는 페이지를 만들기 전이다 — 이 작업이 올린 그림만 지운다(서버가 작업 id와 회원으로 가려낸다)
     await deps.job({ step: 'import-cancel', jobId }).catch(() => {});
@@ -127,7 +132,7 @@ export async function prepareLargeZip(file: Blob, name: string, spaceId: string,
 }
 
 /**
- * 6단계. `error`가 없으면 성공 마무리. 서버가 분명히 거절한 오류(status 있음)면 취소·정리.
+ * 6단계. `error`가 없으면 성공 마무리. 서버가 분명히 거절한 오류(4xx)면 취소·정리.
  * 응답을 받지 못한 오류면 상태를 한 번 조회해, 이미 끝났으면 그 결과를 돌려주고(페이지가 두 번 생기지 않게 다시 부르지 않는다)
  * 아직이면 아무것도 지우지 않고 그대로 둔다(하루 뒤 서버가 정리한다).
  */
@@ -136,7 +141,11 @@ export async function settleLargeZip(jobId: string, deps: LargeZipDeps, error?: 
     await deps.job({ step: 'import-finish', jobId }).catch(() => {});
     return null;
   }
-  if (typeof (error as { status?: unknown })?.status === 'number') {
+  // 서버가 요청을 분명히 거절한 경우(4xx)만 바로 취소한다. 응답을 못 받았거나 게이트웨이·서버 오류(5xx, 408, 429)는
+  // 처리 결과가 불확실하므로(이미 끝났거나 아직 처리 중일 수 있다) 먼저 상태를 한 번 조회한다.
+  const status = (error as { status?: unknown })?.status;
+  const rejected = typeof status === 'number' && status >= 400 && status < 500 && status !== 408 && status !== 429;
+  if (rejected) {
     await deps.job({ step: 'import-cancel', jobId }).catch(() => {});
     return null;
   }
@@ -145,5 +154,6 @@ export async function settleLargeZip(jobId: string, deps: LargeZipDeps, error?: 
     await deps.job({ step: 'import-finish', jobId }).catch(() => {});
     return st.result;
   }
+  // 아직 끝나지 않았거나 알 수 없음: 지우지도 다시 보내지도 않는다(하루 뒤 서버가 정리하고, 회원은 「완료됨」에서 확인하거나 새로 시작한다)
   return null;
 }
