@@ -15,7 +15,7 @@ import { useCategories } from "@/components/categories/useCategories";
 import { DEFAULT_SEO_PERSONA_ID, SEO_PERSONAS } from "@/lib/ai/personas";
 import { DEFAULT_GEMINI_IMAGE_MODEL, type GeminiImageModel } from "@/lib/ai/geminiModels";
 import { DEFAULT_OPENAI_CONTENT_MODEL } from "@/lib/ai/openaiModels";
-import { CONTENT_MODEL_OPTIONS, getContentModels, type ContentProvider } from "@/lib/ai/contentModels";
+import { CONTENT_MODEL_OPTIONS, getContentModels, getDefaultContentModel, type ContentProvider } from "@/lib/ai/contentModels";
 import { parseSavedModel, SAVED_MODEL_KEY } from "@/lib/savedModel";
 import { placeNodeBlock, reflowBlocks, removeNodeBlock, splitParagraphBlocks, upsertNode } from "@/lib/imageNodes";
 import { handoffIdFromHash, titleSeed, type KeywordEvidence } from "@/lib/keywordEvidence";
@@ -72,7 +72,7 @@ export function useStudio() {
   useEffect(() => {
     const restoreModel = () => {
       let saved = null;
-      try { saved = parseSavedModel(localStorage.getItem(SAVED_MODEL_KEY), CONTENT_MODEL_OPTIONS); } catch {}
+      try { saved = parseSavedModel(localStorage.getItem(SAVED_MODEL_KEY), CONTENT_MODEL_OPTIONS, getDefaultContentModel); } catch {}
       if (saved) { setContentProvider(saved.provider); setContentModel(saved.model); }
       modelLoadedRef.current = true;
     };

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
-import { CONTENT_MODEL_OPTIONS, isContentModelForProvider, isContentProvider } from "@/lib/ai/contentModels";
+import { CONTENT_MODEL_OPTIONS, getDefaultContentModel, isContentModelForProvider, isContentProvider } from "@/lib/ai/contentModels";
 import { getUserOpenAIContentModel, isOpenAIContentModel } from "@/lib/ai/openaiModels";
 import { isGeminiImageModel } from "@/lib/ai/geminiModels";
 import { accountContentModel, ACCOUNT_MODEL_KEY } from "@/lib/savedModel";
@@ -14,7 +14,7 @@ export async function GET() {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
   const meta = access.user.user_metadata;
-  return NextResponse.json({ content: accountContentModel(meta, CONTENT_MODEL_OPTIONS), openaiFeature: getUserOpenAIContentModel(meta) });
+  return NextResponse.json({ content: accountContentModel(meta, CONTENT_MODEL_OPTIONS, getDefaultContentModel), openaiFeature: getUserOpenAIContentModel(meta) });
 }
 
 export async function POST(request: Request) {

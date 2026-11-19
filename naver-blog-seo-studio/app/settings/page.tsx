@@ -5,7 +5,7 @@ import ExtensionTokenManager from "./ExtensionTokenManager";
 import ExtensionConnectButton from "./ExtensionConnectButton";
 import ExtensionDownloadCard from "./ExtensionDownloadCard";
 import AiModelSettings from "./AiModelSettings";
-import { CONTENT_MODEL_OPTIONS } from "@/lib/ai/contentModels";
+import { CONTENT_MODEL_OPTIONS, getDefaultContentModel } from "@/lib/ai/contentModels";
 import { resolveOpenAIContentModel } from "@/lib/ai/openaiModels";
 import { accountContentModel } from "@/lib/savedModel";
 import { StudioSidebar } from "@/components/studio/StudioSidebar";
@@ -31,7 +31,7 @@ export default async function SettingsPage() {
         <ApiKeySettings initialProviders={initialProviders} maskedKeys={maskedKeys} />
         <div className="settings-divider" />
         <h2>AI 모델</h2>
-        <AiModelSettings initialContent={accountContentModel(user.user_metadata, CONTENT_MODEL_OPTIONS)} initialOpenAI={resolveOpenAIContentModel(user.user_metadata?.naver_blog_seo_openai_model)} />
+        <AiModelSettings initialContent={accountContentModel(user.user_metadata, CONTENT_MODEL_OPTIONS, getDefaultContentModel)} initialOpenAI={resolveOpenAIContentModel(user.user_metadata?.naver_blog_seo_openai_model)} />
         <div className="settings-divider" />
         <h2>Chrome 확장 연동 토큰</h2>
         <p className="lede">확장을 설치한 이 브라우저에서 아래 버튼을 누르면 연결 코드가 자동으로 만들어져 확장에 바로 연결됩니다(확장 사이드패널의 「자동 연결」 버튼도 같습니다). 다른 자동화 프로그램의 토큰과 별도로 관리됩니다.</p>

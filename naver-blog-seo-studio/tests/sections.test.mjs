@@ -80,7 +80,8 @@ test("v1.96: parseSavedModel keeps only a provider+model pair that is still in t
   const { parseSavedModel } = await import("../lib/savedModel.ts");
   const options = [{ value: "gpt-4o-mini", label: "a", provider: "openai" }, { value: "claude-haiku-4-5", label: "b", provider: "anthropic" }];
   assert.deepEqual(parseSavedModel(JSON.stringify({ provider: "openai", model: "gpt-4o-mini" }), options), { provider: "openai", model: "gpt-4o-mini" });
-  assert.equal(parseSavedModel(JSON.stringify({ provider: "openai", model: "retired-model" }), options), null);
+  // 2026-11-19: 목록에 없는 모델이라도 저장된 플랫폼은 보존(기본값 함수가 없으면 그 플랫폼 첫 항목)
+  assert.deepEqual(parseSavedModel(JSON.stringify({ provider: "openai", model: "retired-model" }), options), { provider: "openai", model: "gpt-4o-mini" });
   assert.equal(parseSavedModel(JSON.stringify({ provider: "gemini", model: "claude-haiku-4-5" }), options), null);
   assert.equal(parseSavedModel("{깨진", options), null);
   assert.equal(parseSavedModel(null, options), null);
@@ -92,7 +93,7 @@ test("v1.97: account model wins, legacy OpenAI setting is inherited, OpenAI-only
   const options = [{ value: "gpt-4o-mini", label: "a", provider: "openai" }, { value: "gpt-4.1", label: "b", provider: "openai" }, { value: "claude-haiku-4-5", label: "c", provider: "anthropic" }];
   assert.deepEqual(accountContentModel({ naver_blog_seo_content_model: { provider: "anthropic", model: "claude-haiku-4-5" }, naver_blog_seo_openai_model: "gpt-4.1" }, options), { provider: "anthropic", model: "claude-haiku-4-5" });
   assert.deepEqual(accountContentModel({ naver_blog_seo_openai_model: "gpt-4.1" }, options), { provider: "openai", model: "gpt-4.1" });
-  assert.equal(accountContentModel({ naver_blog_seo_content_model: { provider: "openai", model: "retired" } }, options), null);
+  assert.deepEqual(accountContentModel({ naver_blog_seo_content_model: { provider: "openai", model: "retired" } }, options), { provider: "openai", model: "gpt-4o-mini" }); // 2026-11-19: 플랫폼 보존
   assert.equal(accountContentModel(undefined, options), null);
   assert.equal(getUserOpenAIContentModel({ naver_blog_seo_content_model: { provider: "openai", model: "gpt-6-luna" }, naver_blog_seo_openai_model: "gpt-6.1-terra" }), "gpt-6-luna");
   assert.equal(getUserOpenAIContentModel({ naver_blog_seo_content_model: { provider: "anthropic", model: "claude-haiku-4-5" }, naver_blog_seo_openai_model: "gpt-5" }), "gpt-5.6-sol"); // 2026-11-03: 종료 모델 gpt-5 저장값은 대체 모델로 이어받음
@@ -107,4 +108,48 @@ test("v1.98: the OpenAI model sent by the screen wins over the account value; un
   assert.equal(getUserOpenAIContentModel(meta, "not-a-model"), "gpt-6-luna");
   assert.equal(getUserOpenAIContentModel(meta, undefined), "gpt-6-luna");
   assert.equal(getUserOpenAIContentModel({}, 123), "gpt-6.1-terra");
+});
+
+// ── 2026-11-19 (Master msg_841a78cd076a): 저장된 플랫폼 보존 — 목록에서 뺀 모델은 대체/같은 플랫폼 기본값 ──
+const OPTS = [
+  ...["gpt-6.2-astra", "gpt-6.1-terra", "gpt-6-luna"].map((value) => ({ value, label: value, provider: "openai" })),
+  ...["claude-fable-5-2", "claude-sonnet-5-5", "claude-haiku-5-5"].map((value) => ({ value, label: value, provider: "anthropic" })),
+  ...["gemini-4-carbon", "gemini-3.8-flash", "gemini-3.6-flash"].map((value) => ({ value, label: value, provider: "gemini" })),
+];
+const DEF = (p) => ({ openai: "gpt-6.1-terra", anthropic: "claude-sonnet-5-5", gemini: "gemini-3.8-flash" })[p];
+
+test("2026-11-19: 로컬 저장값의 폐기 모델은 같은 플랫폼(대체 모델 또는 기본값)으로 복구", async () => {
+  const { parseSavedModel } = await import("../lib/savedModel.ts");
+  const p = (provider, model) => parseSavedModel(JSON.stringify({ provider, model }), OPTS, DEF);
+  assert.deepEqual(p("openai", "gpt-4.1"), { provider: "openai", model: "gpt-6.1-terra" });
+  assert.deepEqual(p("openai", "gpt-4o-mini"), { provider: "openai", model: "gpt-6-luna" });
+  assert.deepEqual(p("anthropic", "claude-haiku-4-5"), { provider: "anthropic", model: "claude-haiku-5-5" });
+  assert.deepEqual(p("anthropic", "claude-fable-5"), { provider: "anthropic", model: "claude-fable-5-2" });
+  assert.deepEqual(p("gemini", "gemini-3.7-flash"), { provider: "gemini", model: "gemini-3.8-flash" });
+  assert.deepEqual(p("gemini", "gemini-3.5-flash"), { provider: "gemini", model: "gemini-3.6-flash" });
+  // 대체표에도 없는 모델 → 같은 플랫폼 기본값(다른 플랫폼으로 바뀌지 않음)
+  assert.deepEqual(p("anthropic", "claude-unknown-9"), { provider: "anthropic", model: "claude-sonnet-5-5" });
+  assert.deepEqual(p("gemini", "gemini-2.0-flash"), { provider: "gemini", model: "gemini-3.8-flash" });
+  // 정상 저장값은 그대로
+  assert.deepEqual(p("anthropic", "claude-fable-5-2"), { provider: "anthropic", model: "claude-fable-5-2" });
+  // 미지정·깨진 값·모르는 플랫폼은 null(기본 시작)
+  assert.equal(parseSavedModel(null, OPTS, DEF), null);
+  assert.equal(parseSavedModel("{broken", OPTS, DEF), null);
+  assert.equal(p("mistral", "x"), null);
+  assert.equal(p("openai", ""), null);
+  // 기본값 함수를 안 넘기면 그 플랫폼 첫 항목
+  assert.deepEqual(parseSavedModel(JSON.stringify({ provider: "anthropic", model: "claude-unknown-9" }), OPTS), { provider: "anthropic", model: "claude-fable-5-2" });
+});
+
+test("2026-11-19: 계정 저장값 — Claude/Gemini 폐기 모델이 있어도 옛 OpenAI 설정으로 플랫폼이 바뀌지 않음", async () => {
+  const { accountContentModel } = await import("../lib/savedModel.ts");
+  const meta = (provider, model, legacy) => ({ naver_blog_seo_content_model: provider ? { provider, model } : undefined, naver_blog_seo_openai_model: legacy });
+  assert.deepEqual(accountContentModel(meta("anthropic", "claude-haiku-4-5", "gpt-4.1"), OPTS, DEF), { provider: "anthropic", model: "claude-haiku-5-5" });
+  assert.deepEqual(accountContentModel(meta("gemini", "gemini-3.7-flash", "gpt-4o"), OPTS, DEF), { provider: "gemini", model: "gemini-3.8-flash" });
+  assert.deepEqual(accountContentModel(meta("anthropic", "claude-unknown-9", "gpt-4.1"), OPTS, DEF), { provider: "anthropic", model: "claude-sonnet-5-5" });
+  // 새 값이 없으면 옛 OpenAI 설정을 이어받음(폐기 이름은 대체)
+  assert.deepEqual(accountContentModel(meta(undefined, undefined, "gpt-4o"), OPTS, DEF), { provider: "openai", model: "gpt-6.1-terra" });
+  assert.equal(accountContentModel({}, OPTS, DEF), null);
+  // 정상 값 유지
+  assert.deepEqual(accountContentModel(meta("gemini", "gemini-4-carbon", "gpt-4.1"), OPTS, DEF), { provider: "gemini", model: "gemini-4-carbon" });
 });
