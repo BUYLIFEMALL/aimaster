@@ -514,7 +514,7 @@ Workspace 대용량 ZIP과 가사 영상 안내는 독립 검수를 마쳐 배�
 | AIF-20261119-W01-RETOUCH | CC-SNS-01 | done / test_generation_and_retouch_pass_v5_upload_without_publish | AI Influencer 히스토리 재표시·일반 회원 생성·보정 | 지정 일반 회원 경로 보류. 시험 계정 생성 1·보정 1 성공, V5 규칙 변환·업로드 확인. 앱 실제 게시와 운영 출처는 미검증. |
 | AIF-20261119-W01-D1 | CC-SNS-01 | done / production_off_ready_public_smoke_passed | AI Influencer D1 스위치 OFF 운영 배포 | D1 OFF 운영·DB·저장소 v1.27 일치. 담당자 로그인 무료 확인 및 배포와 공유 소스 3경로 차이 기록 완료. D2 사전 검토 58a2c9672 접수. 운영 shadow 전 정리·쿼터의 격리 검증 범위 요청, D3 대기. |
 | AIF-20261119-PLAN6 | CC-SNS-01 | reviewing / six_requirement_v2_scope_accepted_test_role_pending | AI Influencer 직접 요구 6건 개발 플랜 보완 | 4ac03c967 v2 전환 기준 보완. 일반 회원 Vercel 대기 0건이면 전환, 남으면 처리 결정 선행. 시험 계정 권한 식별 방식 확정 전 예약 구현 보류. |
-| AIF-20261119-D2-IT | CC-SNS-01 | running / d2_mac_guard_gap_reproduced_followup_sent | AI Influencer D2 정리·쿼터 격리 통합 시험 | b9ae5bcc4 Mac 순수 5/5, 원격 컨텍스트 사전 inspect 재현. 접속 전에 차단하고 검증한 컨테이너/DB 경로 고정 보완. 정책 단일 조회안 및 운영 shadow·실 cron 대기. |
+| AIF-20261119-D2-IT | CC-SNS-01 | running / d2_guard_candidate_mac_and_quota_migration_local_dispatched | AI Influencer D2 정리·쿼터 격리 통합 시험 | 67126ab93 엔진·컨테이너·소켓 고정 가드 보완, 담당 11/15/6 통과·Mac 재검수 요청. 사전 검사와 예약의 정책 구분 마이그레이션 로컬 후보 배정. 운영 적용 보류. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |
