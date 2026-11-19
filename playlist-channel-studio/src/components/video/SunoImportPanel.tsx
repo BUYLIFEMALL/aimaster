@@ -4,15 +4,16 @@ import { useEffect, useState } from "react";
 import { ExternalLink, Loader2, Music2, RefreshCw } from "lucide-react";
 import type { Track } from "@/types/playlist";
 import type { LyricLine } from "@/lib/lyrics";
+import { mergeIncoming, parseIdParam } from "@/lib/remixTracks";
 
 // v1.19 음악(SUNO) 자동화에서 만든 내 곡 여러 개를 골라 플레이리스트 곡 목록에 한 번에 추가한다.
 // 음악은 비공개 저장소의 1시간 서명 주소로 받고(서버에 새로 올리지 않음), 「시간 가사도 받기」를 켜면
 // 보컬 곡마다 회원 본인 Suno 키로 1번씩 시간 가사를 받아 그 곡의 가사 층(v1.17)에 바로 연결한다.
 // v1.22 「앨범 커버」 배경 모양 — 커버 아래에 제목·채널명 글자
 // v1.20 곡 커버로 배경 만들기(흐린 확대 커버 + 가운데 원본, 1920×1080) · 전체/보컬만/해제 · /video?suno=id1,id2 미리 선택
+// 리믹스 결과는 /video?remix=id(음악(SUNO) 리믹스 카드) — 일반 곡과 섞어 써도 되고, 합쳐서 최대 20곡을 미리 선택만 한다
 const MUSIC_APP_URL = "https://music-automation.buylife.xyz";
 const MAX_PICK = 20;
-const UUID = /^[0-9a-f-]{36}$/i;
 type Variant = { id: string; duration: number | null; canTime: boolean };
 type SunoTrack = { id: string; title: string; mode: "vocal" | "instrumental"; createdAt: string; variants: Variant[] };
 type VariantInfo = { audioUrl: string; coverUrl: string | null };
@@ -82,11 +83,11 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
   }
   useEffect(() => { if (open && list === null) void load(); }, [open, list]);
 
-  // 음악(SUNO) 자동화 「플레이리스트 영상 만들기 →」로 들어온 경우 — 곡을 미리 선택만 한다(Suno 조회 비용이 생길 수 있어 자동 추가하지 않음)
+  // 음악(SUNO) 자동화 「플레이리스트 영상 만들기 →」(?suno=)·리믹스 카드(?remix=)로 들어온 경우 — 곡을 미리 선택만 한다(Suno 조회 비용이 생길 수 있어 자동 추가하지 않음)
   useEffect(() => {
-    const ids = (new URLSearchParams(window.location.search).get("suno") ?? "").split(",").map((x) => x.trim()).filter((x) => UUID.test(x));
-    if (!ids.length) return;
-    const uniq = Array.from(new Set(ids)).slice(0, MAX_PICK);
+    const q = new URLSearchParams(window.location.search);
+    const uniq = mergeIncoming(parseIdParam(q.get("suno")), parseIdParam(q.get("remix")), MAX_PICK);
+    if (!uniq.length) return;
     setPicked(uniq); setIncoming(uniq.length); setOpen(true);
     window.history.replaceState(null, "", window.location.pathname);
   }, []);

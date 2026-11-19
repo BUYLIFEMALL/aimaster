@@ -1,10 +1,12 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { linesFromAlignedWords, type SunoWord, type TimedLine } from "@/lib/sunoAlign";
+import { remixIsVocal, remixTitle, remixTrack, type RemixRow, type RemixVariantRow } from "@/lib/remixTracks";
 
 // v1.19 음악(SUNO) 자동화(music/, slug music-automation)에서 회원 본인이 만든 곡을 가져온다(가사영상 v1.05 `src/lib/suno.ts`와 같은 규칙).
 // 공용 DB의 music_tracks·music_track_variants를 읽기만 하고, 모든 조회를 회원 user_id로 거른다.
 // 저장소 music-audio는 비공개라 음악은 1시간짜리 서명 주소로만 넘긴다.
+// 리믹스 결과(music_track_remixes·music_track_remix_variants)도 같은 규칙으로 함께 — 두 표 모두 회원 user_id로 거른다(가사 영상 suno.ts와 같음).
 // 시간 가사는 회원 본인 Suno 키(user_api_keys provider "suno")로만 받는다 — 운영자·다른 회원 키로 폴백하지 않는다.
 const SUNO_BASE = "https://api.sunoapi.org";
 const BUCKET = "music-audio";
@@ -33,8 +35,31 @@ async function signed(url: string | null): Promise<string | null> {
 
 type VRow = { id: string; suno_audio_id: string | null; duration_seconds: number | null; created_at: string };
 
-/** 회원 본인의 완성된 곡(보컬·인스트루멘탈, 최근 40곡) */
+const REMIX_LIMIT = 20;
+
+/** 회원 본인의 완료된 리믹스(최근 20개) — 읽기에 실패하면 일반 곡 목록은 그대로 두고 리믹스만 빠진다 */
+async function listRemixTracks(userId: string): Promise<SunoTrack[]> {
+  const { data, error } = await createAdminClient()
+    .from("music_track_remixes")
+    .select("id, mode, instrumental, source_title, task_id, created_at, music_track_remix_variants(id, user_id, suno_audio_id, duration_seconds, created_at)")
+    .eq("user_id", userId).eq("status", "completed")
+    .order("created_at", { ascending: false }).limit(REMIX_LIMIT);
+  if (error) { console.error("[playlist suno remixes]", error.code ?? "unknown"); return []; }
+  return (data ?? []).flatMap((r) => {
+    const row = r as Record<string, unknown>;
+    const variants = ((row.music_track_remix_variants ?? []) as (RemixVariantRow & { user_id: string })[]).filter((v) => v.user_id === userId);
+    const track = remixTrack({ ...(row as unknown as RemixRow), variants });
+    return track ? [track] : [];
+  });
+}
+
+/** 회원 본인의 완성된 곡(보컬·인스트루멘탈, 최근 40곡) + 완료된 리믹스(최근 20개), 만든 순서 최신 먼저 */
 export async function listSunoTracks(userId: string): Promise<SunoTrack[]> {
+  const [songs, remixes] = await Promise.all([listSongTracks(userId), listRemixTracks(userId)]);
+  return [...songs, ...remixes].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+async function listSongTracks(userId: string): Promise<SunoTrack[]> {
   const { data, error } = await createAdminClient()
     .from("music_tracks")
     .select(`id, title, mode, created_at, task_id, ${VARIANTS}(id, suno_audio_id, duration_seconds, created_at)`)
@@ -60,8 +85,27 @@ async function ownVariant(userId: string, variantId: string): Promise<VariantRow
     .select("id, suno_audio_id, audio_url, image_url, music_tracks!music_track_variants_track_id_fkey(title, task_id, mode)")
     .eq("id", variantId).eq("user_id", userId).maybeSingle();
   if (error) throw new Error(error.message);
-  if (!data) throw new SunoError(404, "곡을 찾지 못했습니다. 음악(SUNO) 자동화에서 내가 만든 곡만 가져올 수 있습니다.");
-  return data as unknown as VariantRow;
+  if (data) return data as unknown as VariantRow;
+  // 리믹스 결과(?remix=) — 회원 본인 것만. 반주 추가·연주곡은 연주곡으로 보아 시간 가사를 받지 않는다
+  const db = createAdminClient();
+  const { data: rv, error: rvErr } = await db
+    .from("music_track_remix_variants").select("id, remix_id, suno_audio_id, audio_url, image_url")
+    .eq("id", variantId).eq("user_id", userId).maybeSingle();
+  if (rvErr) throw new Error(rvErr.message);
+  if (rv) {
+    const { data: rm, error: rmErr } = await db
+      .from("music_track_remixes").select("task_id, mode, source_title, instrumental")
+      .eq("id", rv.remix_id).eq("user_id", userId).maybeSingle();
+    if (rmErr) throw new Error(rmErr.message);
+    if (rm) {
+      const vocal = remixIsVocal(rm);
+      return {
+        id: rv.id, suno_audio_id: vocal ? rv.suno_audio_id : null, audio_url: rv.audio_url, image_url: rv.image_url,
+        music_tracks: { title: remixTitle(rm), task_id: vocal ? rm.task_id : null, mode: vocal ? "vocal" : "instrumental" },
+      };
+    }
+  }
+  throw new SunoError(404, "곡을 찾지 못했습니다. 음악(SUNO) 자동화에서 내가 만든 곡만 가져올 수 있습니다.");
 }
 
 /** 변주 하나의 음악·커버 서명 주소(v1.20 커버 추가 — 플레이리스트 배경 만들기) */
