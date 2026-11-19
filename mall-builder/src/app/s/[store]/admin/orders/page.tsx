@@ -32,7 +32,7 @@ export default async function AdminOrdersPage({
   const [{ rows: orders, total: found }, counts] = await Promise.all([getStoreOrders(store.id, f), getOrderCounts(store.id)]);
   const total = Object.values(counts).reduce((s, n) => s + n, 0);
   const capped = total >= 5000;
-  const visibleTabs = capped ? TABS : TABS.filter((s) => counts[s]);
+  const visibleTabs = capped ? TABS : TABS.filter((s) => counts[s] || s === filter);
   const formatKpi = (n: number) => (capped ? (n > 0 ? `${n.toLocaleString("ko-KR")}건+` : "표본 미관측") : `${n.toLocaleString("ko-KR")}건`);
   const base = `/s/${store.slug}/admin/orders`;
   const pages = pageCount(found);

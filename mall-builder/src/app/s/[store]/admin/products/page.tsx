@@ -81,9 +81,9 @@ export default async function ProductsPage({
         <nav aria-label="상품 상태 필터" className="flex flex-wrap gap-1.5 text-sm" data-product-tabs>
           <Link href={productListHref(base, f, { status: undefined, page: 1 })} aria-current={!f.status ? "page" : undefined} className={`rounded-xl px-3.5 py-1.5 font-semibold transition ${!f.status ? "bg-slate-900 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"}`}>전체 {counts.all}</Link>
           {PRODUCT_STATUSES.map((st) =>
-            counts.status[st] ? (
+            counts.status[st] || f.status === st ? (
               <Link key={st} href={productListHref(base, f, { status: st, page: 1 })} aria-current={f.status === st ? "page" : undefined} className={`rounded-xl px-3.5 py-1.5 font-semibold transition ${f.status === st ? "bg-slate-900 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"}`}>
-                {PRODUCT_STATUS[st]} {counts.status[st]}
+                {PRODUCT_STATUS[st]} {counts.status[st] ?? 0}
               </Link>
             ) : null,
           )}
