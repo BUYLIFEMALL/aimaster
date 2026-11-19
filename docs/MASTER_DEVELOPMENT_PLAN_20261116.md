@@ -1,12 +1,12 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 09:00:50 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 09:30:56 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-19 09:00:50 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-19 09:30:56 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 08:30 이후 증분. 신규 제품 코드·검수 결과 없음. M3·고객관리 회신 및 기존 승인/로그인 재개 조건 확인.
+점검 범위: 09:00 이후 증분. M3 공개/검증 방식 결정과 로컬 데이터 계층 점유 확인. 다른 제품 코드·검수 결과 없음.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -416,7 +416,7 @@ Master 마지막 실제 점검: 2026-11-19 09:00:50 KST · 실행 중 점검 주
 | B2B-20261119-MAKER | CC-B2B-BACK-01 | done / m1_stale_window_fix_independent_pass_undeployed | B2B 메이커 연계 M1~M3 선행 범위 대조 | Mac 12/12. 늦은 완료·실패 뒤 이전 창 작업 차단 및 공용 계약 보존. 실제 운영 창 미검증, M1 단독 배포 없음. |
 | B2B-20261119-MAKER-M2 | CC-B2B-BACK-01 | done / data_layer_independent_accepted_undeployed_ui_design_dispatched | 메이커 M2 사진 제안 저장 범위 설계 | 0106 데이터 계층 Mac 독립 수락. UI 연결 계획 배정. 실제 Storage·Lab·운영 및 M3 미적용. |
 | B2B-20261119-MAKER-M2-UI | CC-B2B-BACK-01 | done / m2_ui_independent_accepted_test_assertions_verified_undeployed | 메이커 M2 사진 제안 화면·저장 응답 연결 | 독립 제품 수락, 단언 5개 도달성 수정 후 Master 시험 18/18 통과. 실제 Storage·Lab 미검증, 미배포. |
-| B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | queued / server_signed_publication_local_data_layer_dispatched | 메이커 M3 제안 적용·서버 바이트 검증 설계 | 공개 주소 유지, 서버 서명 경로로 원본의 직접 게시 방지. 적용 권한·불변 저장소의 로컬 데이터 계층 및 격리 시험 배정. 실제 키·라우트·Lab 미착수. |
+| B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | running / server_signed_publication_local_occupancy_verified | 메이커 M3 제안 적용·서버 바이트 검증 설계 | M3 데이터 계층 파일 점유 등록 확인. 서명 경로·적용 슬롯의 로컬 격리 구현 결과 대기. 실제 키·Lab·운영 없음. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
