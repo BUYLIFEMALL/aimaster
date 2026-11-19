@@ -852,8 +852,10 @@ test("화면 소스 형태(실행이 아니라 글자 확인): 기존 경로 호
   assert.match(studio, /if \(done\.historyImage\) saveHistoryJpeg\(/);
   // 계정·모드 교체: 앞 결과·로딩·다시 불러오기 상태와 참고 사진을 지운다(첫 마운트 제외)
   assert.match(studio, /if \(hadSessionRef\.current\) \{\s*setResult\(\{ imageUrl: null, captions: \[\], loading: false, error: null \}\);\s*setIsReloadingAsset\(false\);\s*setConfig\(\(prev\) => \(\{ \.\.\.prev, personImage: undefined, placeImage: undefined, productImages: \[\], lastResultImage: undefined, feedback: undefined \}\)\);/);
-  // 비동기 경계의 동일성 확인: 보정(기존 경로) 4곳 + 새 흐름·다시 받기의 세션 교체 확인
-  assert.equal(studio.split("if (!stillMine()) return;").length - 1, 4);
+  // 비동기 경계의 동일성 확인: 기존 경로 5곳(W01-FIT 2026-11-19: 보내기 직전 맞추기를 기다린 뒤의 확인 1곳이 늘어 4 → 5) + 새 흐름·다시 받기의 세션 교체 확인
+  assert.equal(studio.split("if (!stillMine()) return;").length - 1, 5);
+  assert.match(studio, /const fitted = await fitReferencesForSend\([^)]*\);\s*if \(!stillMine\(\)\) return;/, "맞추기를 기다린 바로 뒤에 같은 작업인지 확인한다");
+  assert.match(studio, /if \(!assetFlow \|\| isRefining\) \{\s*const fitted = await fitReferencesForSend\(/, "맞추기는 기존 경로(새 흐름의 새 생성 제외)에서만");
   assert.match(studio, /const stillMine = \(\) => alive\(\) && \(!assetFlow \|\| \(!!startSession && sessionRef\.current === startSession && startSession\.isCurrent\(startStamp\)\)\);/, "살아 있는 인스턴스에서 꺼져 있으면 참 — 한 계정의 기존 흐름 불변");
   assert.match(studio, /if \(sessionRef\.current !== session \|\| !alive\(\)\) return;/);
   assert.match(studio, /if \(sessionRef\.current !== session\) return;/);

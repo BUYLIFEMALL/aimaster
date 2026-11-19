@@ -244,7 +244,10 @@ export const HISTORY_REFINE_MESSAGE = "히스토리에서 불러온 결과는 �
 const CONVERT_FAIL_MESSAGE = "사진을 1MB 이하로 줄이지 못했습니다. 더 작은 사진으로 다시 올려 주세요.";
 const MAX_EDGE = 2048;
 
-async function drawToJpeg(src: Blob | string): Promise<Blob | null> {
+async function drawToJpeg(src: Blob | string, opts?: { maxEdge?: number; qualities?: number[]; maxBytes?: number }): Promise<Blob | null> {
+  const maxEdge = opts?.maxEdge ?? MAX_EDGE;
+  const qualities = opts?.qualities ?? [0.9, 0.8];
+  const maxBytes = opts?.maxBytes ?? PER_IMAGE_MAX_BYTES;
   let width = 0, height = 0;
   let source: CanvasImageSource | null = null;
   if (typeof src !== "string" && typeof createImageBitmap === "function") {
@@ -261,16 +264,16 @@ async function drawToJpeg(src: Blob | string): Promise<Blob | null> {
     }
   }
   if (!width || !height) return null;
-  const scale = Math.min(1, MAX_EDGE / Math.max(width, height));
+  const scale = Math.min(1, maxEdge / Math.max(width, height));
   const canvas = document.createElement("canvas");
   canvas.width = Math.round(width * scale);
   canvas.height = Math.round(height * scale);
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
   ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
-  for (const q of [0.9, 0.8]) {
+  for (const q of qualities) {
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", q));
-    if (blob && blob.size <= PER_IMAGE_MAX_BYTES) return blob;
+    if (blob && blob.size <= maxBytes) return blob;
   }
   return null;
 }
@@ -297,4 +300,104 @@ export async function prepareLastResultForRefine(src: string | null | undefined)
   if (!jpeg) return { ok: false, message: CONVERT_FAIL_MESSAGE };
   const dataUrl = await blobToDataUrl(jpeg).catch(() => "");
   return parseImageDataUrl(dataUrl).ok ? { ok: true, dataUrl } : { ok: false, message: CONVERT_FAIL_MESSAGE };
+}
+
+// ── 보내기 직전 맞추기 (W01-FIT, 2026-11-19, CC-SNS-01, Master msg_d1564fa89a51) ──
+// 올릴 때는 사진을 「장당」 1MB 이하로만 줄인다. 그래서 사진 3장 이상(인물 + 장소 + 상품, 인물 + 장소 + 보정의 직전 결과)이면
+// 합계 2MiB·본문 3MiB를 넘어 서버가 거절할 수 있었다(운영 v1.26에는 이 검사가 없어 통과하던 요청). 여기서 보내기 직전에 맞춘다.
+//  · 이미 한도 안이면 받은 설정을 그대로 돌려준다(같은 객체, 변환 0).
+//  · 사진을 빼지 않는다 — 큰 사진부터 더 작게 다시 만든다. 화면에 보이는 원본 설정은 바꾸지 않고 「보내는 사본」만 바꾼다.
+//  · 끝까지 줄여도 안 되면 보내지 않고 안내한다(유료 호출 없음).
+//  · 형식·장당 상한 같은 다른 문제는 건드리지 않는다 — 기존 검사(collectReferences)가 그대로 안내한다. 서버 상한은 바꾸지 않았다.
+export const FIT_FAIL_MESSAGE = "참고 사진 전체를 2MB 이하로 줄이지 못했습니다. 사진 수를 줄이거나 더 작은 사진으로 바꿔 주세요.";
+/** 줄이는 단계(긴 변·JPEG 화질). 단계마다 「원본」에서 다시 만든다 — 줄인 것을 또 줄여 화질이 겹쳐 떨어지지 않게 */
+export const FIT_LADDER: readonly { edge: number; quality: number }[] = [
+  { edge: 2048, quality: 0.8 },
+  { edge: 1600, quality: 0.8 },
+  { edge: 1280, quality: 0.8 },
+  { edge: 1024, quality: 0.75 },
+  { edge: 800, quality: 0.7 },
+];
+export type ShrinkFn = (dataUrl: string, maxEdge: number, quality: number) => Promise<string | null>;
+
+/** 브라우저 기본 축소기 — 올릴 때 쓰는 변환(drawToJpeg)을 그대로 쓴다. 실패·미지원이면 null */
+export async function shrinkDataUrlToJpeg(dataUrl: string, maxEdge: number, quality: number): Promise<string | null> {
+  const jpeg = await drawToJpeg(dataUrl, { maxEdge, qualities: [quality] });
+  if (!jpeg) return null;
+  const out = await blobToDataUrl(jpeg).catch(() => "");
+  return parseImageDataUrl(out).ok ? out : null;
+}
+
+/** 보내는 본문(JSON)의 UTF-8 바이트 수 — 서버의 3MiB 상한과 같은 기준 */
+export function serializedBytes(value: unknown): number {
+  return new TextEncoder().encode(JSON.stringify(value)).length;
+}
+
+export async function fitReferencesForSend<T extends RefConfig>(
+  config: T,
+  opts?: { shrink?: ShrinkFn },
+): Promise<{ ok: true; config: T; changed: boolean } | { ok: false; message: string }> {
+  type Slot = { field: RefField; index?: number; original: string; value: string; bytes: number };
+  const slots: Slot[] = [];
+  const same = { ok: true as const, config, changed: false };
+  const absent = (v: unknown) => v === undefined || v === null || v === "";
+  const add = (field: RefField, v: unknown, index?: number): boolean => {
+    const r = parseImageDataUrl(v);
+    if (!r.ok) return false;
+    slots.push({ field, ...(index !== undefined ? { index } : {}), original: v as string, value: v as string, bytes: r.image.bytes });
+    return true;
+  };
+  // collectReferences와 같은 조건·순서로 「실제로 보내지는」 사진만 모은다. 하나라도 형식이 이상하면 손대지 않는다.
+  if (!absent(config.personImage) && !add("personImage", config.personImage)) return same;
+  if (!absent(config.placeImage) && !add("placeImage", config.placeImage)) return same;
+  if (config.isAdMode && !absent(config.productImages)) {
+    if (!Array.isArray(config.productImages) || config.productImages.length > MAX_PRODUCT_IMAGES) return same;
+    for (let i = 0; i < config.productImages.length; i++) if (!add("productImages", config.productImages[i], i)) return same;
+  }
+  if (config.feedback && !absent(config.lastResultImage) && !add("lastResultImage", config.lastResultImage)) return same;
+
+  // 생성에 쓰이지 않는 칸(서버도 무시한다): 광고 모드가 아닐 때의 상품 사진, 보정 요청이 없을 때의 직전 결과.
+  // 값이 남아 있으면 본문에 그대로 실려 3MiB를 넘길 수 있다 — 넘을 때에 한해 「보내는 사본」에서만 뺀다(쓰이는 사진은 빼지 않는다).
+  const unused: ("productImages" | "lastResultImage")[] = [];
+  if (!config.isAdMode && !absent(config.productImages)) unused.push("productImages");
+  if (!config.feedback && !absent(config.lastResultImage)) unused.push("lastResultImage");
+  let omitUnused = false;
+  if (!slots.length && !unused.length) return same;
+
+  const build = (): T => {
+    const next: Record<string, unknown> = { ...(config as Record<string, unknown>) };
+    if (omitUnused) for (const k of unused) delete next[k];
+    let products: unknown[] | null = null;
+    for (const s of slots) {
+      if (s.value === s.original) continue;
+      if (s.field === "productImages") {
+        if (!products) products = [...(config.productImages as unknown[])];
+        products[s.index as number] = s.value;
+      } else next[s.field] = s.value;
+    }
+    if (products) next.productImages = products;
+    return next as T;
+  };
+  const fits = () => slots.reduce((sum, s) => sum + s.bytes, 0) <= TOTAL_MAX_BYTES && serializedBytes(build()) <= JSON_BODY_MAX_BYTES;
+  if (fits()) return same;
+  if (unused.length) {
+    omitUnused = true;
+    if (fits()) return { ok: true, config: build(), changed: true };
+  }
+  if (!slots.length) return same;   // 사진과 무관하게 본문이 큰 경우 — 손대지 않는다(서버가 413으로 안내)
+
+  const shrink = opts?.shrink ?? shrinkDataUrlToJpeg;
+  for (const step of FIT_LADDER) {
+    // 큰 사진부터. 맞는 순간 멈춘다 — 작은 사진은 가능한 한 그대로 둔다
+    for (const s of [...slots].sort((a, b) => b.bytes - a.bytes)) {
+      if (fits()) break;
+      let out: string | null = null;
+      try { out = await shrink(s.original, step.edge, step.quality); } catch { out = null; }
+      if (!out) continue;
+      const r = parseImageDataUrl(out);
+      if (r.ok && r.image.bytes < s.bytes) { s.value = out; s.bytes = r.image.bytes; }
+    }
+    if (fits()) return { ok: true, config: build(), changed: true };
+  }
+  return { ok: false, message: FIT_FAIL_MESSAGE };
 }

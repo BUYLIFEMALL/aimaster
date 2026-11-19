@@ -10,7 +10,7 @@ import { HistoryDrawer } from "@/components/HistoryDrawer";
 import type { InfluencerConfig, GenerationResult, HistoryItem } from "@/types/influencer";
 import { assetSaveNotice } from "@/lib/assets/saveNotice";
 import { readGenerateResponse } from "@/lib/assets/generateResponse";
-import { collectReferences, prepareLastResultForRefine, referenceErrorMessage } from "@/lib/referenceImage";
+import { collectReferences, fitReferencesForSend, prepareLastResultForRefine, referenceErrorMessage } from "@/lib/referenceImage";
 import { AccountScope, AssetFlowSession, CLIENT_MESSAGES, SESSION_MESSAGES, bootstrapHistory, keepPhotosIfLocked, runViewGeneration, stripPhotoFields } from "@/lib/assets/clientFlow";
 
 interface InfluencerStudioProps {
@@ -329,11 +329,24 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
       lastResultImage = prepared.dataUrl;
     }
 
-    const configToSubmit: InfluencerConfig = {
+    let configToSubmit: InfluencerConfig = {
       ...config,
       feedback: refinementFeedback,
       lastResultImage,
     };
+
+    // W01-FIT(2026-11-19): 기존 경로(사진을 요청 본문에 실어 보내는 생성·보정)는 보내기 직전에 참고 사진 합계 2MB·본문 3MiB에 맞춘다.
+    // 이미 맞으면 그대로, 사진을 빼지 않고 큰 것부터 더 작게. 줄여도 안 되면 보내지 않고 안내(유료 호출 없음). 화면의 설정(config)은 바꾸지 않는다.
+    // 자산 번호 흐름의 새 생성은 사진을 번호로 보내므로 대상이 아니다.
+    if (!assetFlow || isRefining) {
+      const fitted = await fitReferencesForSend(configToSubmit as unknown as Record<string, unknown>);
+      if (!stillMine()) return;
+      if (!fitted.ok) {
+        setResult((prev) => ({ ...prev, loading: false, error: fitted.message }));
+        return;
+      }
+      configToSubmit = fitted.config as unknown as InfluencerConfig;
+    }
 
     // 서버와 같은 형식·크기 검사를 보내기 전에 한 번 — 걸리면 요청하지 않는다(유료 호출 없음, 서버도 다시 검사)
     const refCheck = collectReferences(configToSubmit as unknown as Record<string, unknown>);
