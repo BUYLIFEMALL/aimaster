@@ -6323,10 +6323,10 @@
       "reviewer": "CX-QA-01",
       "title": "AI Influencer D2 정리·쿼터 격리 통합 시험",
       "status": "running",
-      "delivery": "d2_integration_15_pass_policy_fixture_started",
+      "delivery": "d2_mac_pg_contract_accepted_fixture_guards_dispatched",
       "sha": "409a339af",
-      "next": "fec7fe017 격리 15/15, Mac 독립 검토 대기. 정책 0행·명시 무제한·기본 정책 누락·유한 정상 대조 착수. 운영 shadow·실 cron 보류.",
-      "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e·msg_01908be553ce·msg_3c0ea9d67886·fec7fe017·msg_3bdadb79cff0·msg_ba14d996ab74"
+      "next": "fec7fe017 작성자 격리 15/15. Mac PostgreSQL 계약 읽기 수용, 실행기 로컬 엔진·전용 DB 가드 보완 배정. 정책 4갈래 확인 진행, 운영 shadow·실 cron 보류.",
+      "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e·msg_01908be553ce·msg_3c0ea9d67886·fec7fe017·msg_3bdadb79cff0·msg_ba14d996ab74·msg_0e498ff524d1·msg_af7821e3d106·.ai/results/AIF-20261119-D2-IT-CX-QA-01.md"
     },
     {
       "task_id": "AIF-20261119-PLAN6",
