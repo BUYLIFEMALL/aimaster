@@ -38,3 +38,15 @@
 - 실행: `node --test mall-builder/tests/quick-bar-narrow.test.mjs mall-builder/tests/quick-bar.test.mjs mall-builder/tests/dark-header.test.mjs mall-builder/tests/my-sections.test.mjs` **30/30**. 폭 전환 2개 회귀를 추가했습니다.
 - 격리 Chrome에서 실제 두 React 컴포넌트를 로컬 HTML에 렌더하고 제품 Tailwind의 경계 숨김 규칙을 적용했습니다. `f79554d95`는 1440px에서 접기→펼치기 뒤 820px로 줄이면 패널이 열린 채 포커스가 BODY로 가 빠른 메뉴 헤더 버튼의 기대값을 위반했습니다. 후보는 820px에서 패널 닫힘·헤더 포커스, 좁은 패널을 연 뒤 1440px로 바꾸면 손잡이 포커스, 넓은 화면의 접힘 복원, 보이는 공유 패널 링크·외부 상품 링크 포커스 유지, 좁은 모드 Esc 닫기·헤더 복귀를 모두 통과했습니다.
 - Mac 독립 검수에서 제품 기준으로 같은 1440↔820px 순서를 확인할 수 있습니다. 서버·빌드·배포·운영 DB·푸시는 수행하지 않았습니다.
+
+## 격리 배포 후보 확정
+
+주인님의 순차 진행 지시를 Master에 전달(`msg_4ad0a080ef9b`)했고, Master가 후보와 검수 범위를 수신 확인했습니다(`msg_6053d81ba70c`). 운영 기준은 공개 v1.16 프런트 `dpl_64nEf2KbmKTWspA6fx8RtVLSo5kj`이며, 후보 범위는 모바일 빠른 메뉴 `51d4b2207`에 `f79554d95` → `4fb95eaba`를 적용한 아래 세 파일입니다. `git diff --check` 통과 및 작업 트리 수정 표시 없음.
+
+| 경로 (`mall-builder/` 기준) | 기준 Git blob | 후보 Git blob |
+| --- | --- | --- |
+| `src/app/s/[store]/(shop)/quick-bar.tsx` | `a7a603930951d4b1a8b9d8a8aee4ee66e36d4f7d` | `5e68eb9a15eed105d40b64dcf7417e2b5930f4a8` |
+| `src/app/s/[store]/(shop)/shop-frame.tsx` | `33f153809bd406045905be32f7d31ab387e723c6` | `6e1675a3458e1e278752e6fec6084178383e4615` |
+| `tests/quick-bar-narrow.test.mjs` | `a2914636f0180e9a53e319652047680e90593c44` | `af267a799aa03773127ac5ec4546809e04e3c525` |
+
+맥미니 독립 검수 30/30과 격리 브라우저 12개 폭 결과를 재사용합니다. 실제 후보 URL이 준비되면 768·820·1024·1280·1366px에서 첫 상품 클릭, 1379/1380px 경계, 1440↔820px 포커스 전환, 390px Esc와 포커스 복귀를 확인합니다. 로그인 가능한 편집기에서는 빠른 메뉴 버튼과 빈 줄이 없는지 확인합니다. 후보 빌드는 메인 PC의 플레이리스트·Workspace 순번과 실행 범위 확정 뒤입니다. QA037은 Lab 로그인과 제어 반환, S70은 백엔드 0105 격리 적용과 시험 자료를 기다립니다.

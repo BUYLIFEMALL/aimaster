@@ -10,12 +10,12 @@
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `mall-builder` | Sub PC 인수 완료. 프런트 단독 후보 범위 대조, S70은 백엔드 0105와 별도 묶음 | 2026-11-19 | 후보 경로·선행 커밋 확인. Mac 실화면과 배포 승인 대기 |
+| `mall-builder` | 태블릿 빠른 메뉴 격리 후보 `4fb95eaba` | 2026-11-19 | 제품 2파일·시험 1파일의 Git 지문과 실제 화면 검수 기준 고정. Master 수신 `msg_6053d81ba70c`. 메인 PC 빌드 순번 및 후보 URL 대기 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `mall-builder` | FRONT-20261119-QUICKBAR 휴대폰 빠른 메뉴(`794c5fd01`→`1766fe92e`→최종안 A `c8a134486`→미리보기 `51d4b2207`) | 로컬 완료(Mac 28/28·Master 수락 `4de6db0af`) — 배포 묶음·실제 편집기 확인만 | `.ai/results/FRONT-20261119-QUICKBAR.md` |
+| `mall-builder` | FRONT-20261119-QUICKBAR 휴대폰 빠른 메뉴와 편집기 미리보기 | 공개 샘플몰 v1.16에서 Mac 모바일 동작 통과. 실제 편집기 화면은 Lab 로그인 후 확인 | `.ai/results/FRONT-20261119-QUICKBAR-CX-QA-01.md` |
 | `mall-builder` | HOMETABS `489c888e6`+`9f6b1c131`, S70 현금영수증 `50d3e6162`+`ee35d6eb1` | HOMETABS Mac 모의 검수 완료·다크/VoiceOver 대기. S70은 0105와 Lab 접수 검증 및 동시 배포 | `.ai/results/` |
 | `mall-builder` | 다음 배포 묶음: `77c50f27c`·`90248e5b1`(+`7c8ee3a81`·`e4ba29947`)·`86e5ad1bf`·HOMETABS·QUICKBAR | Master 배포 순서 | 인수인계 문서 §4-2 |
 | `mall-builder` | Lab 반영된 프론트 묶음(템플릿 4차·어두운 머리글·갤러리 키보드·파란 단추 대비·3색 단추 전용 색·어두운 단추 올림, 출처 `7609748ad`) — 운영 몰 배포는 별도 | 실고객 UI QA037(로그인 대기) | `.ai/results/FRONT-20261117-03-CC-B2B-FRONT-01.md` |
