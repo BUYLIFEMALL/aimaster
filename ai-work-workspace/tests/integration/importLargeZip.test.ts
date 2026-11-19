@@ -1424,6 +1424,87 @@ describe('취소 뒤 늦게 도착한 올리기 — 올리기 주소가 살아 �
       await fs_.cleanupPendingUploads();
       expect(jobAll(jobId)).toHaveLength(0);
     });
+
+    // Mac 재검수 조건부 P3(Master msg_9bb5ace698fd): 정리가 줄을 「오래됨」으로 읽은 뒤 주소 발급 쪽이 기준 시각을 새로 적는 경합.
+    // 주소 발급 쪽이 적는 문장(stampIssued)과 같은 모양으로 기준 시각을 지금으로 바꾼다
+    const stampNow = (jobId: string, id: string) => db.withRequestCache(() => db.db.prepare('UPDATE files SET created_time = ? WHERE id = ? AND import_job_id = ? AND user_id = ? AND pending = 1').run(Date.now(), id, jobId, ann.id).changes);
+
+    it('갱신이 이긴다(작업 정리): 정리가 오래된 줄로 읽은 뒤 기준 시각이 새로 적히면 그 줄은 지우지 않는다', async () => {
+      const b = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 1, bytes: 100 });
+      const jobId = String(b.body.jobId);
+      const s1 = await step(ann, { step: 'import-sign', jobId, items: [{ name: 'restamp.png', size: 12 }] });
+      const it0 = (s1.body.items as { id: string; uploadUrl: string }[])[0];
+      const path = pathOf(it0.uploadUrl);
+      await step(ann, { step: 'import-cancel', jobId });
+      ageFiles(jobId, 4 * HOUR); // 정리가 읽을 때는 3시간이 지난 줄이다(지울 수 있는 후보)
+      // 정리가 줄을 읽고 Storage를 확인하는 사이: 기준 시각이 새로 적히고(주소가 방금 나감) 그 주소로 올리기가 도착한다
+      sw.afterList = () => {
+        expect(stampNow(jobId, it0.id)).toBe(1);
+        objects.set(path, PNG(120));
+      };
+      await fs_.cleanupPendingUploads();
+      expect(jobAll(jobId).map((f) => f.id)).toEqual([it0.id]); // 읽어 둔 판단으로 지우지 않았다
+      expect(objects.has(path)).toBe(true);
+      expect(newOrphans()).toEqual([]);
+      // 새 기준 시각에서 3시간이 지나면 다음 정리가 객체와 줄을 지운다
+      ageFiles(jobId, 4 * HOUR);
+      await fs_.cleanupPendingUploads();
+      expect(objects.has(path)).toBe(false);
+      expect(jobAll(jobId)).toHaveLength(0);
+      expect(newOrphans()).toEqual([]);
+    });
+
+    it('갱신이 이긴다(크기 초과 삭제): 삭제를 확인하는 사이 기준 시각이 새로 적히면 그 줄은 지우지 않는다', async () => {
+      const b = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 1, bytes: 100 });
+      const jobId = String(b.body.jobId);
+      const s1 = await step(ann, { step: 'import-sign', jobId, items: [{ name: 'restamp2.png', size: 12 }] });
+      const it0 = (s1.body.items as { id: string; uploadUrl: string }[])[0];
+      const path = pathOf(it0.uploadUrl);
+      objects.set(path, Buffer.alloc(500, 3)); // 알린 크기보다 큼
+      ageFiles(jobId, 4 * HOUR);
+      sw.afterRemove = () => {
+        expect(stampNow(jobId, it0.id)).toBe(1);
+        objects.set(path, PNG(121));
+      };
+      expect((await step(ann, { step: 'import-done', jobId, ids: [it0.id] })).body).toEqual({ done: [], failed: [it0.id] });
+      expect(jobAll(jobId).map((f) => `${f.id}:${Number(f.pending)}`)).toEqual([`${it0.id}:1`]);
+      expect(objects.has(path)).toBe(true);
+      expect(newOrphans()).toEqual([]);
+      await step(ann, { step: 'import-cancel', jobId });
+      ageFiles(jobId, 4 * HOUR);
+      await fs_.cleanupPendingUploads();
+      expect(objects.has(path)).toBe(false);
+      expect(jobAll(jobId)).toHaveLength(0);
+    });
+
+    it('삭제가 이긴다: 주소를 만드는 사이 줄이 정리되면 기준 시각을 적지 못하고, 그 주소는 돌려주지 않는다', async () => {
+      const b = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 2, bytes: 100 });
+      const jobId = String(b.body.jobId);
+      // 서버가 주소를 만드는 사이(줄은 이미 있음): 3시간이 넘게 흐르고, 다른 탭의 취소가 그 줄을 「오래됨·없음」으로 정리한다
+      let cancelled: { status: number; body: Record<string, unknown> } | undefined;
+      sw.onSign = async () => {
+        skew += 3 * HOUR + 60_000;
+        cancelled = await step(ann, { step: 'import-cancel', jobId });
+      };
+      const s1 = await step(ann, { step: 'import-sign', jobId, items: [{ name: 'lost.png', size: 12 }, { name: 'lost2.png', size: 12 }] });
+      expect(cancelled).toMatchObject({ status: 200, body: { removed: 2 } }); // 삭제가 먼저 끝났다
+      expect(s1.status).toBe(502); // 기준 시각을 적지 못했으므로
+      expect(s1.body.items).toBeUndefined(); // 주소를 돌려주지 않는다(돌려주지 않은 주소는 쓰일 수 없다)
+      expect(JSON.stringify(s1.body)).not.toContain('store.test/upload');
+      expect(jobAll(jobId)).toHaveLength(0);
+      expect(newOrphans()).toEqual([]);
+      // 글 묶음 주소도 같다
+      const b2 = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 1, bytes: 100 });
+      const job2 = String(b2.body.jobId);
+      sw.onSign = async () => {
+        skew += 3 * HOUR + 60_000;
+        await step(ann, { step: 'import-cancel', jobId: job2 });
+      };
+      const pg = await step(ann, { step: 'import-pages', jobId: job2, name: 'p.zip', size: 50 });
+      expect(pg.status).toBe(502);
+      expect(pg.body.uploadUrl).toBeUndefined();
+      expect(jobAll(job2)).toHaveLength(0);
+    });
   });
 
   it('회귀: 일반 대기 파일(작업 밖)은 예전처럼 하루 기준이고 이 여유 시간과 무관하다', async () => {

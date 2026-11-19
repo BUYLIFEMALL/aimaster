@@ -283,8 +283,9 @@ async function removeJobFiles(jobId: string, userId: string, keep: Set<string> =
     for (const r of rows) {
       if (r.storage_path && !gone.has(r.storage_path)) continue;
       if (!droppable.has(r.id)) continue; // 그 주소로 올리기가 아직 도착할 수 있다 — 줄(경로 표식)을 남긴다
-      db.prepare("DELETE FROM files WHERE id = ? AND import_job_id = ? AND user_id = ?").run(r.id, jobId, userId);
-      removed++;
+      // 읽어 둔 기준 시각과 **지금도 같을 때만** 지운다(2026-11-19 Master msg_9bb5ace698fd). 읽은 뒤 주소 발급 쪽(stampIssued)이
+      // 기준 시각을 새로 적었으면 0줄 — 그 줄은 방금 주소가 나간 것이므로 남긴다. 반대로 이 삭제가 먼저면 stampIssued가 0줄이라 주소를 돌려주지 않는다.
+      removed += db.prepare("DELETE FROM files WHERE id = ? AND import_job_id = ? AND user_id = ? AND created_time = ?").run(r.id, jobId, userId, r.created_time).changes;
     }
   });
   return removed;
@@ -493,7 +494,8 @@ export async function importJobStep(member: Member, q: Record<string, unknown>):
         // 그 주소로 다시 올라올 수 있는 동안에는 줄을 남긴다(대기 줄이라 가져오기에는 쓰이지 않고, 작업 정리가 지운다)
         const droppable = pastUploadGrace(row.created_time, Date.now()); // 삭제를 시작하기 전 시각으로 정한다
         if ((await removeConfirmed([row.storage_path])).has(row.storage_path) && droppable) {
-          withRequestCache(() => db.prepare("DELETE FROM files WHERE id = ? AND import_job_id = ? AND user_id = ? AND pending = 1").run(row.id, job.id, userId));
+          // 읽어 둔 기준 시각과 같을 때만(위 removeJobFiles와 같은 이유)
+          withRequestCache(() => db.prepare("DELETE FROM files WHERE id = ? AND import_job_id = ? AND user_id = ? AND pending = 1 AND created_time = ?").run(row.id, job.id, userId, row.created_time));
         }
         failed.push(id);
         continue;
