@@ -1,16 +1,16 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 12:31:07 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 13:01:14 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-19 12:31:07 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-19 13:01:14 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 12:00:59 KST 이후 증분. 프로그램 103개·19개 분류, 미완료 26건(진행 3·검수 4·순번 5·사용자 단계 14), Git·점유·인수인계·승인 대조. 무료 이미지 속도 검수 완료·품질 평가 대기. B2B 네트워크 복구·시험 로그인 대기. AIF 승인 1회 범위 진행 중. 추가 운영 배포·DB 승인 없음.
+점검 범위: 12:31:07 KST 이후 증분. 프로그램 103개·19개 분류, 미완료 26건(진행 4·검수 4·순번 5·사용자 단계 13), Git·점유·인수인계·배정과 승인 대조. 무료 이미지 Q4 성능 소량 비교 완료, 품질 평가 진행 준비. B2B 사용자 로그인과 AIF 승인 재시험 결과 대기. 추가 배포·운영 DB 변경 승인 없음.
 
-후속 배정: 기존 담당 유지. 품질 결과 파일 회수 후 ECOM 비교, B2B 공간39 로그인 후 Mac 검수·이후 공간29, AIF 제한 재시험 결과 수신. 사진 사용량 설계는 Master 범위, 운영 적용 별도.
+후속 배정: CC-ECOM-01의 16쌍 비교 화면·결과표 반환 후 확인. Mac 공간39 로그인 후 관리자 검수, 다음 공간29 교환비 읽기. AIF 제한 재시험 증거 수신.
 
-미확인: 무료 이미지 48쌍 품질·정비율·동일 장비 Q4, B2B 로그인 뒤 실화면, AIF 응답·차감 · 이전 미추적 자료와 운영 전수 실측 미실행
+미확인: Q4 대 Q8 품질·저사양 카드 지원·출시 기준, B2B 로그인 뒤 실제 UI, AIF 응답/비용 · 이전 미추적 자료 및 운영 전수 실측 미실행
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -423,7 +423,7 @@ Master 마지막 실제 점검: 2026-11-19 12:31:07 KST · 실행 중 점검 주
 | B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | reviewing / local_data_layer_review_passed_server_approval_pending | 메이커 M3 제안 적용·서버 바이트 검증 설계 | f0eaf784c Mac 로컬 데이터 계층 독립 검수 수락을 Backend에 회신. 점 경로 검증, 서버 구현·키·UI·Lab은 별도 승인 대기. |
 | B2B-20261119-ADMINUI | AG-UI-01 | waiting_human / private_lab_ready_waiting_owner_admin_login | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | 사설 Lab ad046c1eb, Mac 공간39 시험 관리자 로그인/제어 반환 대기. 이후 aimaster-b2b 375px·키보드 읽기 검수. |
 | B2B-20261119-MALL-STORAGE | CX-MASTER-01 | queued / central_accounting_scope_registered_retention_excluded | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 메인 집계에서 몰별 경로를 몰 주인에게 귀속하고 중복 방지·구매 안내 범위를 설계. 30일 삭제 요청 취소·등록 상품 최소 1년 보관 유지. 운영 적용 별도. |
-| IMG-20261119-PLAN | CC-ECOM-01 | running / exact_ratio_artifacts_verified_rtx_q4_trial_dispatched | AI 무료 이미지 자동화 개발 플랜 | RTX Q8 정비율 CSV/PNG 5개 해시·4장 IHDR 직접 대조. AdminPC에 사설 공유 Q4 기존 파일 재사용 조건으로 16장 비교 배정, 인터넷 다운로드 없음. 출시 기준 미확정. |
+| IMG-20261119-PLAN | CC-ECOM-01 | running / rtx_q4_trial_verified_comparison_view_dispatched | AI 무료 이미지 자동화 개발 플랜 | RTX Q4 16/16 확인. 동일 8장 중앙값 FLUX Q4/Q8 5.95/8.50초, Z 10.30/14.00초. ECOM 16쌍 비교 화면·보고서 반영 배정, 품질 판단 대기. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
