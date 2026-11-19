@@ -12,21 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T05:31:50.360Z",
+      "at": "2026-11-19T06:01:27.489Z",
       "timezone": "Asia/Seoul",
-      "trigger": "14:30 예약 실행·전송 msg_7d9acaba6144·기존 Master 수신 후 점검",
-      "scope": "14:04:40 KST 이후 증분. 103개 프로그램·19분류, 미완료 28건(진행 4·검수 5·순번 4·사용자 15). 담당 보고/요청·카테고리별 우선순위·선행조건·미배포·점유·변경 인수인계 대조.",
+      "trigger": "15:00 정기 실행·전송 msg_cfd09684c3c9·기존 Master 수신",
+      "scope": "14:31:50 KST 이후 증분. 103개 프로그램·19분류 및 미완료 28건(진행 3·검수 7·순번 4·사용자 14). 담당·점유·우선순위·선행조건·미배포·인수인계 대조.",
       "evidence": [
-        "Windows 예약 실행 14:30:01 결과 0, 전송 14:30:05 message_accepted, 기존 Master 수신 확인. Master 요청 대기 0.",
-        "증분 커밋 및 변경 결과 3편과 루트 HANDOFF/RESOURCE_QUEUE 기존 미커밋 대조. 공유 원격 기준 af36bb467, 푸시 없음.",
-        "B2B QUICKBAR 51d4b2207 Mac 28/28. BLOG eeacf4c1b/e23a045f5 각 6파일 대조와 Mac SEO 22/22·에이전트 복원 검수.",
-        "IMG Admin Q8 48장 증거, 두 CSV 및 원본 SHA/IHDR 직접 일치, 검토 화면 HTML SHA·48장 확인. Workspace 점유표의 결정 1~8 문구를 최신 사용자 범위(6~8)로 정정."
+        "예약 15:00:01 실행 결과 0, 15:00:03 전송 수락. 기존 Master 수신. Master 별도 관리자 요청 0.",
+        "원격 기준 af36bb467 유지, 변경 검수 기록 2편과 공용 HANDOFF/RESOURCE_QUEUE 기존 미커밋 대조.",
+        "0076 cc25a7cc1 정적 검수 및 문서 63b858413. 0077 214fc6514 3파일·담당 합성 30건, 별도 점유 0076/0077 확인.",
+        "사진 리뷰 8669e5117 담당 실호출 5/5·Mac 57/57. 매물 알림 f4d1e5fc0 담당 76/76·검수 요청."
       ],
-      "judgment": "B2B 빠른 메뉴·블로그 모델 복원 로컬 수락, 미배포. Q8 기술 기준 통과·39/48 품질 판정 대기. Workspace 결정 1~5 대기. 사용자 제어 세션·다른 세션 미커밋 보존.",
-      "nextAction": "B2B 백엔드에 몰 사진 사용량 중앙 집계의 기존 코드/문서 기반 설계 검토 배정 msg_f995f8db2740. 기존 S70/M3와 겹치지 않게 제품 편집 없이 결과를 반환하면 Master 검토. AIF·부동산·Workspace 기존 흐름 대기.",
+      "judgment": "사진 리뷰 모델 검수 수락, 미배포. 0076 로컬 검수 완료·운영 반영 대기. 0077은 운영 반영 전 독립 확인·합성 성능 대조 필요. 매물 알림은 0곳 조회 조건 포함 QA 대기.",
+      "nextAction": "0077 Mac 독립 대조와 백엔드 로컬 성능·캐시 확인 배정. 기존 Mac 매물 알림 검수 순차. Workspace ZIP 결정, AIF 실검증, Q8 사용자 품질 판정 대기.",
       "unverified": [
-        "AIF 다음 실검증 결과, 새 이미지 엔진 실기, 사용자 이미지 품질 판정, B2B Lab 로그인 뒤 및 미배포 실제 편집기.",
-        "오래된 인수인계·미추적 전체와 103개 운영 전수 검증은 이번 증분 범위 밖."
+        "0077 실제 운영 규모의 비용 및 오래된 캐시, 0076 운영 영향·반영, 상가 알림 고정판 독립 검수, B2B 로그인 뒤 Lab 화면, AIF/IMG 실기.",
+        "103개 운영 전수 및 오래된 미추적 전체는 증분 점검 범위 밖."
       ]
     },
     "notifications": [
@@ -10063,12 +10063,12 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
       "title": "쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내",
-      "status": "running",
-      "delivery": "mall_accounting_decisions_accepted_local_implementation_dispatched",
-      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md·msg_f995f8db2740·msg_b03bc930a0b2·0073 및 삭제 호출 소스 대조·msg_42a884229750·56ff56a5c·cc25a7cc1·0073/0076 함수 본문 대조·msg_c7919fb9f259·msg_81907d673c17·msg_f5b822c01b10·.ai/results/B2B-20261119-MALL-STORAGE-CX-QA-01.md·63b858413·Master 문서 대조 및 SQL·합성 시험 동일 확인·msg_3ed0e1d3e2de·705316994·msg_b549fb254462",
-      "next": "4개 집계 결정 승인. 백엔드에 몰 대표 귀속·위젯 라벨 로컬 구현 배정. 0076 cc25a7cc1 운영 적용 및 정리 범위 변경은 별도 승인 대기.",
-      "lastReviewedAt": "2026-11-19T05:55:32.913Z",
-      "sha": "705316994"
+      "status": "reviewing",
+      "delivery": "mall_measure_0077_local_pass_mac_and_perf_review",
+      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md·msg_f995f8db2740·msg_b03bc930a0b2·0073 및 삭제 호출 소스 대조·msg_42a884229750·56ff56a5c·cc25a7cc1·0073/0076 함수 본문 대조·msg_c7919fb9f259·msg_81907d673c17·msg_f5b822c01b10·.ai/results/B2B-20261119-MALL-STORAGE-CX-QA-01.md·63b858413·Master 문서 대조 및 SQL·합성 시험 동일 확인·msg_3ed0e1d3e2de·705316994·msg_b549fb254462·msg_acab1bb8aef3·d96833385·msg_6963287c7e03·msg_adcf99e721c6",
+      "next": "0077 담당 합성 30건. 맥미니 독립 검수 및 0066 대비 합성 성능·이전 캐시 확인 요청. 0076/0077 운영 적용 별도.",
+      "lastReviewedAt": "2026-11-19T06:01:27.489Z",
+      "sha": "214fc6514"
     },
     {
       "task_id": "BLOG-20261119-MODELS",
@@ -10171,12 +10171,12 @@
       "owner": "CC-BLOG-01",
       "reviewer": "CX-QA-01",
       "title": "네이버 에이전트 사진 리뷰 모델 확대",
-      "status": "reviewing",
-      "delivery": "authorized_five_image_checks_pass_mac_review_dispatched",
+      "status": "done",
+      "delivery": "photo_models_independent_accepted_undeployed",
       "sha": "8669e5117",
-      "next": "승인 실이미지 호출 5/5 담당 통과. 새 모델 5종과 옛 초안 호환을 맥미니 합성 검수 요청. 미배포.",
-      "evidence": "msg_0ac38f25541f·8669e5117·msg_480f9da3729e",
-      "lastReviewedAt": "2026-11-19T05:58:20.413Z"
+      "next": "맥미니 57/57. 사진 리뷰 7개 표시·기본 3개·옛 초안·비공개 경계 수락. 담당 실호출 5/5 별도, 미배포.",
+      "evidence": "msg_0ac38f25541f·8669e5117·msg_480f9da3729e·msg_42d76c3b880f·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md",
+      "lastReviewedAt": "2026-11-19T06:01:27.489Z"
     }
   ]
 }

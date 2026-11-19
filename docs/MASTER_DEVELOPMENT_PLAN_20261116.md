@@ -4,8 +4,8 @@
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-19 14:31:50 KST · 실행 중 5분 · 턴 밖 30분 메시지 · 103개 프로그램/19분류 증분 및 미완료 28건 점검.
-이번 점검에서 B2B 빠른 메뉴와 블로그 모델 복원의 로컬 검수를 수락했고, Q8 이미지 품질 화면을 확인했다. 몰 사진 용량 집계 설계는 백엔드 읽기 검토를 배정했다.
+Master 마지막 실제 점검: 2026-11-19 15:01:27 KST · 실행 중 5분 · 턴 밖 30분 메시지 · 103개 프로그램/19분류 증분 및 미완료 28건 점검.
+이번 점검에서 사진 리뷰 모델 검수를 수락했다. B2B 몰 용량 집계 0077의 독립 및 합성 성능 검증을 배정했고, 0076 운영 반영과 매물 알림 최종 검수는 대기다.
 
 점검 범위: 13:01:14 KST 이후 증분. 103개 프로그램·19개 분류, 미완료 26건(진행 3·검수 5·순번 5·사용자 단계 13). Git·점유·사용자 지시·결과/인수인계 대조. 부동산 문자 안내·AIF 격리 실행기 검수 수락. 블로그 최신 모델과 이미지 엔진 로컬 구현 진행. 신규 운영 배포·DB·키·유료 호출 승인 없음.
 
@@ -427,7 +427,7 @@ Master 마지막 실제 점검: 2026-11-19 14:31:50 KST · 실행 중 5분 · �
 | B2B-20261119-MAKER-M2-UI | CC-B2B-BACK-01 | done / m2_ui_independent_accepted_test_assertions_verified_undeployed | 메이커 M2 사진 제안 화면·저장 응답 연결 | 독립 제품 수락, 단언 5개 도달성 수정 후 Master 시험 18/18 통과. 실제 Storage·Lab 미검증, 미배포. |
 | B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | reviewing / local_data_layer_review_passed_server_approval_pending | 메이커 M3 제안 적용·서버 바이트 검증 설계 | f0eaf784c Mac 로컬 데이터 계층 독립 검수 수락을 Backend에 회신. 점 경로 검증, 서버 구현·키·UI·Lab은 별도 승인 대기. |
 | B2B-20261119-ADMINUI | AG-UI-01 | reviewing / lab_ready_authenticated_screen_pending | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | 승인 4경로 사설 Lab 1회 READY. 상점 200·관리 상품/주문 307. 로그인 후 실화면·키보드는 사용자 제어 반환 뒤. 필터 aria-current 보완 후보 기록. |
-| B2B-20261119-MALL-STORAGE | CC-B2B-BACK-01 | running / mall_accounting_decisions_accepted_local_implementation_dispatched | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 4개 집계 결정 승인. 백엔드에 몰 대표 귀속·위젯 라벨 로컬 구현 배정. 0076 cc25a7cc1 운영 적용 및 정리 범위 변경은 별도 승인 대기. |
+| B2B-20261119-MALL-STORAGE | CC-B2B-BACK-01 | reviewing / mall_measure_0077_local_pass_mac_and_perf_review | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 0077 담당 합성 30건. 맥미니 독립 검수 및 0066 대비 합성 성능·이전 캐시 확인 요청. 0076/0077 운영 적용 별도. |
 | IMG-20261119-PLAN | CC-ECOM-01 | waiting_human / q8_review_screen_verified_user_quality_rating_pending | AI 무료 이미지 자동화 개발 플랜 | 내부 검토 화면 HTML 지문·이미지 48장 확인. 사용자 품질 기준 39/48 판정 대기. 실제 엔진 실기는 미검증. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
@@ -515,7 +515,7 @@ Master 마지막 실제 점검: 2026-11-19 14:31:50 KST · 실행 중 5분 · �
 | BLOG-20261119-MODELS | CC-BLOG-01 | done / strict_switch_independent_accepted_undeployed | 블로그 설정 플랫폼별 AI 모델 선택 | Mac 49/49와 원문 1회·정상 전환과 503 상한 2회 수락. 승인 실호출 9/9는 앞선 버전의 담당 결과. 미배포. |
 | RE-20261119-PARTIAL | CC-REALTY-01 | reviewing / partial_result_merge_ready_mac_review_dispatched | 상가·건물·토지 알림 부분 조회 결과 보존 | 고정 f4d1e5fc0 로컬 76/76·타입 통과. 7일·ID/URL·실행 경로와 0곳 조회 예외를 맥미니 독립 검수 요청. 미배포. |
 | BLOG-20261119-MODELS-3 | CC-BLOG-01 | done / saved_provider_mac_review_accepted_undeployed | 블로그 3개 프로그램 모델 목록 동기화 | SEO 22/22·에이전트 복원/요청 일치 맥미니 수락. 사진 후기 선택지 및 기존 빠른 작성 응답 지연은 별도. 미배포. |
-| BLOG-20261119-PHOTO-MODELS | CC-BLOG-01 | reviewing / authorized_five_image_checks_pass_mac_review_dispatched | 네이버 에이전트 사진 리뷰 모델 확대 | 승인 실이미지 호출 5/5 담당 통과. 새 모델 5종과 옛 초안 호환을 맥미니 합성 검수 요청. 미배포. |
+| BLOG-20261119-PHOTO-MODELS | CC-BLOG-01 | done / photo_models_independent_accepted_undeployed | 네이버 에이전트 사진 리뷰 모델 확대 | 맥미니 57/57. 사진 리뷰 7개 표시·기본 3개·옛 초안·비공개 경계 수락. 담당 실호출 5/5 별도, 미배포. |
 | FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | done / mobile_quickbar_and_preview_mac_accepted_undeployed | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 고정 51d4b2207 Mac 28/28. 모바일 버튼·포커스 및 미리보기 빈 줄 제거 수락. 미배포 묶음 대기, 고정판 실제 편집기 미확인. |
 
 ## 현재 담당 회신이 확보된 프로젝트
