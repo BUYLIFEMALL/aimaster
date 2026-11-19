@@ -15,7 +15,7 @@ import { compactId, newId } from '#shared/ids.ts';
 import type { Operation } from '#shared/ops.ts';
 import { roleAtLeast } from '#shared/permissions.ts';
 import type { BlockRecord, CollectionRecord, PropertyType, SpaceRecord, SpaceViewRecord, UserRootRecord } from '#shared/records.ts';
-import { getRecord } from '../../db.ts';
+import { db, getRecord } from '../../db.ts';
 import { ApiError, type Ctx } from '../handlers.ts';
 import { RecordMapBuilder, applyTransactions, blockRole } from '../../records.ts';
 import { OpsBuilder, encodeRowValue, shortPropId, type Spec } from '../../content/spec.ts';
@@ -29,8 +29,36 @@ import { pdfToSpecs } from '../../content/pdf.ts';
 import { opmlToSpecs, tsvToRows, xlsxToRows } from '../../content/sheets.ts';
 import { enexToDb, trelloToDb } from '../../content/apps.ts';
 import { hit, RateLimitError } from '../../ratelimit.ts';
+import { ZIP_IMPORT_LIMITS, normalizeZipName, slashZipName, zipNameHidden, zipNameSkipped, zipPathTooLong } from '#shared/zipPath.ts';
 
 type Handler = (ctx: Ctx, body: any) => any;
+
+// 이식판 2026-11-19(WS-20261119-02): 큰 ZIP 가져오기 작업(플랜 docs/PLAN_20261119_LARGE_ZIP_IMPORT.md §9).
+// 50MiB를 넘는 ZIP은 브라우저가 그림을 하나씩 Storage로 올리고(src/server/fileStorage.ts importJobStep), 여기에는
+// 글 파일 묶음(작은 ZIP)과 「ZIP 안 경로 → 올린 파일 id」 표만 온다. 작업 줄과 files.import_job_id로
+// 「이 작업에서 이 회원이 올린 파일」만 쓰이게 한다. state: open → done → closed, 또는 cancelled.
+db.exec(`
+CREATE TABLE IF NOT EXISTS import_jobs (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  space_id TEXT NOT NULL,
+  state TEXT NOT NULL,
+  declared_files INTEGER NOT NULL,
+  declared_bytes INTEGER NOT NULL,
+  files INTEGER NOT NULL DEFAULT 0,
+  bytes INTEGER NOT NULL DEFAULT 0,
+  created_time INTEGER NOT NULL,
+  result TEXT
+);
+CREATE INDEX IF NOT EXISTS import_jobs_user ON import_jobs (user_id, state);
+`);
+try {
+  db.exec('ALTER TABLE files ADD COLUMN import_job_id TEXT');
+} catch {
+  /* column exists */
+}
+db.exec('CREATE INDEX IF NOT EXISTS files_import_job ON files (import_job_id)');
+const JOB_TTL_MS = 24 * 3_600_000;
 
 const MAX_FILES = 20;
 const MAX_BLOCKS = 20_000;
@@ -116,8 +144,16 @@ function maxBytesFor(space: SpaceRecord, name: string): number {
 
 // ---------------- ZIP (the export layout)
 
+/** 큰 ZIP 작업에서 이미 Storage에 올라간 그림: ZIP 항목 자리에 내용 없이 주소만 들어간다 */
+interface AssetEntry extends ZipEntry {
+  url?: string;
+  fileId?: string;
+}
+
 interface ZipCtx {
-  entries: Map<string, ZipEntry>;
+  entries: Map<string, AssetEntry>;
+  /** 실제로 본문에 쓰인 올린 그림(파일 id) — 작업을 마무리할 때 쓰이지 않은 것만 지운다 */
+  usedAssets: Set<string>;
   ids: Map<string, string>;
   consumed: Set<string>;
   uid: string;
@@ -161,6 +197,10 @@ function zipPageSpec(path: string, z: ZipCtx): Spec {
       if (!p) return /^https?:/i.test(src) ? src : null;
       const e = z.entries.get(p);
       if (!e || !IMAGE_EXT.test(p)) return null;
+      if (e.url) {
+        if (e.fileId) z.usedAssets.add(e.fileId);
+        return e.url;
+      }
       if (!z.storedImages.has(p)) z.storedImages.set(p, storeFile(p.split('/').pop()!, e.data, z.uid, z.spaceId, mimeFor(p)).url);
       return z.storedImages.get(p)!;
     },
@@ -209,10 +249,10 @@ function zipPageSpec(path: string, z: ZipCtx): Spec {
   return spec;
 }
 
-function zipSpecs(buf: Buffer, uid: string, spaceId: string, zipName: string): Spec[] {
+function zipSpecs(buf: Buffer, uid: string, spaceId: string, zipName: string, assets: AssetEntry[] = [], usedAssets: Set<string> = new Set()): Spec[] {
   // one decompression budget for the archive and the archives nested in it (zip bombs)
   const budget = { bytes: 256 * 1024 * 1024, entries: 5000 };
-  let entries: ZipEntry[];
+  let entries: AssetEntry[];
   try {
     entries = readZip(buf, { budget }).filter((e) => !/(^|\/)\./.test(e.name));
     // nested zips (exports wrap "Export-….zip" inside) — unpack one level
@@ -221,13 +261,20 @@ function zipSpecs(buf: Buffer, uid: string, spaceId: string, zipName: string): S
   } catch (e) {
     throw new ApiError(`${zipName}: ${(e as Error).message}`, 400);
   }
+  // 큰 ZIP 작업: 따로 올라간 그림을 원래 자리의 항목으로 끼워 넣는다(공통 폴더 판단·경로 풀이가 통째로 올렸을 때와 같아지도록).
+  if (assets.length) {
+    const names = new Set(entries.map((e) => e.name));
+    for (const a of assets) if (names.has(a.name)) throw new ApiError(`${zipName}: ${a.name} is listed twice`, 400);
+    if (entries.length + assets.length > ZIP_IMPORT_LIMITS.entries) throw new ApiError(`${zipName}: Too many files in archive`, 400);
+    entries = [...entries, ...assets];
+  }
   // strip a single shared top folder
   const tops = new Set(entries.map((e) => e.name.split('/')[0]));
   if (tops.size === 1 && entries.every((e) => e.name.includes('/'))) {
     const top = [...tops][0] + '/';
     entries = entries.map((e) => ({ ...e, name: e.name.slice(top.length) }));
   }
-  const z: ZipCtx = { entries: new Map(entries.map((e) => [e.name, e])), ids: new Map(), consumed: new Set(), uid, spaceId, storedImages: new Map() };
+  const z: ZipCtx = { entries: new Map(entries.map((e) => [e.name, e])), usedAssets, ids: new Map(), consumed: new Set(), uid, spaceId, storedImages: new Map() };
   for (const k of z.entries.keys()) if (PAGE_EXT.test(k)) z.ids.set(k, newId());
   const specs: Spec[] = [];
   const roots = [...z.entries.keys()].filter((k) => PAGE_EXT.test(k) && dirOf(k) === '').sort();
@@ -310,6 +357,55 @@ async function uploadOf(f: any, uid: string, space: SpaceRecord, ctx: Ctx, seen:
   return { name, file };
 }
 
+type ImportJob = { id: string; state: string; result: string | null };
+
+/** 그 회원이 그 워크스페이스로 연 작업(남의 작업·없는 작업은 똑같이 404 — 있는지 알려 주지 않는다) */
+function jobOrThrow(jobId: unknown, uid: string, spaceId: string): ImportJob {
+  const row = typeof jobId === 'string' && UUID.test(jobId)
+    ? (db.prepare('SELECT id, user_id, space_id, state, created_time, result FROM import_jobs WHERE id = ?').get(jobId) as { id: string; user_id: string; space_id: string; state: string; created_time: number; result: string | null } | undefined)
+    : undefined;
+  if (!row || row.user_id !== uid || row.space_id !== spaceId) throw new ApiError('Import job not found', 404);
+  if (row.state === 'open' && Number(row.created_time) < Date.now() - JOB_TTL_MS) throw new ApiError('가져오기 작업이 만료됐습니다. 처음부터 다시 시작해 주세요.', 410);
+  if (row.state !== 'open' && row.state !== 'done' && row.state !== 'closed') throw new ApiError('이미 취소된 가져오기 작업입니다.', 409);
+  return { id: row.id, state: row.state, result: row.result };
+}
+
+/**
+ * 「ZIP 안 경로 → 올린 파일 id」 표 검증(플랜 §9). 하나라도 어긋나면 전체 거절하고 페이지를 만들지 않는다.
+ * · 값은 파일 id만 받는다(주소는 받지 않고 여기서 만든다).
+ * · 파일마다: 줄이 있고 · 올린 사람 본인 · **이 작업**에서 올림 · 올리기를 끝냄 · 같은 워크스페이스 · Storage 경로가 `<본인>/<파일 id>/…`.
+ * · 경로는 서버가 다시 정규화한다. 정규화 뒤 같은 경로가 둘이면 거절, 같은 파일을 두 경로에 쓰는 것도 거절.
+ * · 그림만 받는다(가져오기가 ZIP에서 꺼내 쓰는 것은 그림뿐 — 통째로 올렸을 때와 같게).
+ */
+function jobAssets(raw: unknown, job: ImportJob, uid: string, spaceId: string, zipName: string): AssetEntry[] {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return [];
+  const pairs = Object.entries(raw as Record<string, unknown>);
+  if (pairs.length > ZIP_IMPORT_LIMITS.entries) throw new ApiError(`${zipName}: Too many files in archive`, 400);
+  const owned = Number((db.prepare('SELECT COUNT(*) AS n FROM files WHERE import_job_id = ? AND user_id = ? AND pending = 0').get(job.id, uid) as { n: number }).n);
+  if (pairs.length > owned) throw new ApiError(`${zipName}: the image list doesn’t match this import`, 400);
+  const out: AssetEntry[] = [];
+  const paths = new Set<string>();
+  const ids = new Set<string>();
+  const one = db.prepare('SELECT id, user_id, space_id, name, storage_path, pending, import_job_id FROM files WHERE id = ?');
+  for (const [k, v] of pairs) {
+    const slashed = slashZipName(k);
+    const name = normalizeZipName(slashed);
+    if (!name || zipNameSkipped(slashed) || zipNameHidden(name) || zipPathTooLong(name) || !IMAGE_EXT.test(name)) throw new ApiError(`${zipName}: ${k.slice(0, 80)} can’t be used as an image path`, 400);
+    if (paths.has(name)) throw new ApiError(`${zipName}: ${name} is listed twice`, 400);
+    paths.add(name);
+    const id = typeof v === 'string' && UUID.test(v) ? v : '';
+    const row = id ? (one.get(id) as { id: string; user_id: string; space_id: string | null; name: string; storage_path: string | null; pending: number; import_job_id: string | null } | undefined) : undefined;
+    const parts = (row?.storage_path ?? '').split('/');
+    if (!row || row.user_id !== uid || row.import_job_id !== job.id || Number(row.pending) || row.space_id !== spaceId || parts.length !== 3 || parts[0] !== uid || parts[1] !== row.id) {
+      throw new ApiError(`${zipName}: the image list doesn’t match this import`, 400);
+    }
+    if (ids.has(row.id)) throw new ApiError(`${zipName}: the same image was listed twice`, 400);
+    ids.add(row.id);
+    out.push({ name, data: Buffer.alloc(0), url: `/files/${row.id}/${encodeURIComponent(row.name)}`, fileId: row.id });
+  }
+  return out;
+}
+
 /** : about 120 files per 12 hours per user. */
 function importRateLimit(uid: string, files: number) {
   for (let i = 0; i < files; i++) {
@@ -342,6 +438,17 @@ export const handlers: Record<string, Handler> = {
     const space = spaceOrThrow(spaceId, uid);
     const list = (Array.isArray(files) ? files : []).slice(0, MAX_FILES);
     if (!list.length) throw new ApiError('No files to import', 400);
+    // 큰 ZIP 작업(2026-11-19): 글 파일 묶음 하나 + 그 작업에서 올린 그림 표. 이미 끝난 작업을 다시 부르면 새로 만들지 않고 처음 결과를 돌려준다
+    const jobRef = list.find((f: any) => f?.job)?.job;
+    let job: ImportJob | undefined;
+    if (jobRef) {
+      if (list.length !== 1) throw new ApiError('A large ZIP is imported on its own', 400);
+      job = jobOrThrow(jobRef.id, uid, space.id);
+      if (job.state !== 'open') {
+        const done = JSON.parse(job.result ?? '{}') as { pageIds?: string[]; pages?: number; databases?: number };
+        return { pageIds: done.pageIds ?? [], pages: done.pages ?? 0, databases: done.databases ?? 0, recordMap: { __version__: 3 }, repeated: true };
+      }
+    }
     importRateLimit(uid, list.length);
     let target: { id: string; table: 'space' | 'block' } = { id: space.id, table: 'space' };
     let afterBlockId: string | undefined;
@@ -356,11 +463,13 @@ export const handlers: Record<string, Handler> = {
       for (const [k, v] of Object.entries(csvTypes)) if (/^\d{1,3}$/.test(k) && (v === 'skip' || CSV_COLUMN_TYPES.includes(v as PropertyType))) types[Number(k)] = v as PropertyType | 'skip';
     }
     const specs: Spec[] = [];
+    const usedAssets = new Set<string>();
     // Storage에 둔 큰 파일은 하나씩 읽어 바로 변환한다(여러 개를 한꺼번에 메모리에 올리지 않는다)
     const seen = new Set<string>();
     for (const f of list) {
       const { name, file } = await uploadOf(f, uid, space, ctx, seen);
-      if (/\.zip$/i.test(name) || file.mime === 'application/zip') specs.push(...zipSpecs(file.data, uid, space.id, name));
+      if (job && !/\.zip$/i.test(name)) throw new ApiError('A large ZIP is imported on its own', 400);
+      if (/\.zip$/i.test(name) || file.mime === 'application/zip') specs.push(...zipSpecs(file.data, uid, space.id, name, job ? jobAssets(jobRef.assets, job, uid, space.id, name) : [], usedAssets));
       else if (IMPORT_EXT.test(name)) specs.push(pageFromFile(name, file.data, uid, space.id, {}, types));
       else throw new ApiError(`${name}: this file type can’t be imported`, 400);
     }
@@ -391,7 +500,10 @@ export const handlers: Record<string, Handler> = {
     const changes = applyTransactions(uid, [{ id: newId(), spaceId: space.id, debug: { userAction: 'importFiles' }, operations: ops }], ctx.clientId);
     const rm = new RecordMapBuilder(uid);
     for (const ch of changes) rm.add(ch.table, ch.record);
-    return { pageIds: rootIds, ...countPages(specs), recordMap: rm.map };
+    const counts = countPages(specs);
+    // 작업을 끝냄으로 표시하고 결과와 실제로 쓰인 그림을 적어 둔다(마무리 단계가 쓰이지 않은 그림만 지운다)
+    if (job) db.prepare("UPDATE import_jobs SET state = 'done', result = ? WHERE id = ? AND user_id = ? AND state = 'open'").run(JSON.stringify({ pageIds: rootIds, ...counts, used: [...usedAssets] }), job.id, uid);
+    return { pageIds: rootIds, ...counts, recordMap: rm.map };
   },
 
   /** CSV import step 2 (column mapping): header, inferred types and sample values; with blockId, the database to merge into. */
