@@ -2,7 +2,7 @@
 // 브라우저용 코드(web/features/import/zipReader.ts·largeZipImport.ts)를 그대로 불러 서버 함수에 연결해 확인한다.
 // · 통째로 올린 것과 결과가 같다(§12-6)  · 「이 작업에서 이 회원이 올린 그림」만 쓰이고 지워진다(§9·§10)  · 한도(§11)
 // 가짜 Storage(실제 업로드 없음), 로컬 Postgres 전용 fixture만 쓴다.
-import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import postgres from 'postgres';
 import { setupLocalDb } from '../setup-local-db.mjs';
 import { ZIP_IMPORT_LIMITS } from '../../src/litpage/shared/zipPath.ts';
@@ -26,12 +26,22 @@ const sp = (m: M) => spaces.get(m.id)!;
 
 const objects = new Map<string, Buffer>();
 const removedPaths: string[] = [];
-const sw: { quotaFull: boolean; removeFails: boolean; listFails: boolean; putFails: boolean; onRemove: null | ((paths: string[]) => Promise<void>) } = { quotaFull: false, removeFails: false, listFails: false, putFails: false, onRemove: null };
+const signedPaths: string[] = []; // 올리기 주소를 내준 경로(순서대로)
+const sw: { quotaFull: boolean; removeFails: boolean; listFails: boolean; putFails: boolean; onSign: null | ((path: string) => Promise<void>); onRemove: null | ((paths: string[]) => Promise<void>) } = { quotaFull: false, removeFails: false, listFails: false, putFails: false, onSign: null, onRemove: null };
 const fakeStore = () => ({
   getBucket: async () => ({ data: { id: 'workspace-files' }, error: null }),
   createBucket: async () => ({ data: null, error: null }),
   from: () => ({
-    createSignedUploadUrl: async (path: string) => ({ data: { signedUrl: `https://store.test/upload/${path}`, token: 't', path }, error: null }),
+    createSignedUploadUrl: async (path: string) => {
+      // 주소를 만드는 동안(서버가 Storage를 기다리는 사이) 끼워 넣을 일(한 번만)
+      if (sw.onSign) {
+        const run = sw.onSign;
+        sw.onSign = null;
+        await run(path);
+      }
+      signedPaths.push(path);
+      return { data: { signedUrl: `https://store.test/upload/${path}`, token: 't', path }, error: null };
+    },
     list: async (dir: string, o: { search: string }) => (sw.listFails
       ? { data: null, error: { message: 'storage down' } }
       : { data: [...objects.entries()].filter(([p]) => p === `${dir}/${o.search}`).map(([p, b]) => ({ name: p.split('/').pop(), metadata: { size: b.length } })), error: null }),
@@ -63,6 +73,9 @@ beforeAll(async () => {
   fs_.setFileStorageForTests({
     store: fakeStore as never,
     quota: async () => ({ allowed: !sw.quotaFull, message: sw.quotaFull ? '저장공간이 가득 찼습니다.' : null, upgradeUrl: 'https://www.buylife.xyz/storage' }),
+    // 이 파일의 사례 대부분은 「올리기 주소가 살아 있는 동안 줄을 남기는 시간」을 0으로 두고 본다(줄이 바로 지워지는 쪽의 동작).
+    // 실제 값(3시간)으로 도는 사례는 맨 아래 「취소 뒤 늦게 도착한 올리기」 묶음에 있다.
+    uploadGraceMs: 0,
     // 글 묶음은 Storage에 있으므로 가져오기가 전용 로더로 읽는다
     fetch: async (url: string) => {
       const b = objects.get(url.replace('https://store.test/get/', ''));
@@ -78,7 +91,8 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
-  Object.assign(sw, { quotaFull: false, removeFails: false, listFails: false, putFails: false, onRemove: null });
+  Object.assign(sw, { quotaFull: false, removeFails: false, listFails: false, putFails: false, onSign: null, onRemove: null });
+  signedPaths.length = 0;
   removedPaths.length = 0;
   for (const m of [ann, bob]) for (const k of [`import-job:user:${m.id}`, `import:${m.id}`, `import-stored:${m.id}`, `upload-large:user:${m.id}`]) ratelimit.reset(k);
 });
@@ -1112,5 +1126,197 @@ describe('주기 정리: Storage 삭제가 실패한 회차에는 줄을 남기�
     sw.listFails = false;
     expect((await step(ann, { step: 'import-cancel', jobId })).body.removed).toBe(1); // 없음 확인 → 줄 정리
     expect(jobAll(jobId)).toHaveLength(0);
+  });
+});
+
+// 2026-11-19 Mac 재검수(Master msg_41ae6dc0d449): 취소로 정리한 뒤, 먼저 받아 둔 올리기 주소로 파일이 뒤늦게 올라오는 경우.
+// 여기는 실제 여유 시간(주소 유효 2시간 + 진행 중 요청 가정 1시간)으로 돈다.
+describe('취소 뒤 늦게 도착한 올리기 — 올리기 주소가 살아 있는 동안 줄(경로 표식)을 남긴다', () => {
+  beforeAll(() => fs_.setFileStorageForTests({ uploadGraceMs: fs_.IMPORT_UPLOAD_GRACE_MS }));
+  afterAll(() => fs_.setFileStorageForTests({ uploadGraceMs: 0 }));
+  const HOUR = 3_600_000;
+  const ageFiles = (jobId: string, ms: number) => db.withRequestCache(() => db.db.prepare('UPDATE files SET created_time = ? WHERE import_job_id = ?').run(Date.now() - ms, jobId));
+  const pathOf = (uploadUrl: string) => uploadUrl.replace('https://store.test/upload/', '');
+  /** 줄이 없는데 Storage에 남은 그 회원의 파일(다시 지울 길이 없는 것) */
+  const orphans = (m: M) => {
+    const known = new Set(q<{ storage_path: string }>('SELECT storage_path FROM files WHERE user_id = ? AND storage_path IS NOT NULL', m.id).map((r) => r.storage_path));
+    return [...objects.keys()].filter((p) => p.startsWith(`${m.id}/`) && !known.has(p));
+  };
+  let orphansBefore: string[] = [];
+  beforeEach(() => { orphansBefore = orphans(ann); });
+  const newOrphans = () => orphans(ann).filter((p) => !orphansBefore.includes(p));
+
+  it('여유 시간은 주소 유효 2시간 + 진행 중 요청 1시간(가정) = 3시간', () => {
+    expect(fs_.SIGNED_UPLOAD_VALID_MS).toBe(2 * HOUR);
+    expect(fs_.UPLOAD_IN_FLIGHT_MARGIN_MS).toBe(HOUR);
+    expect(fs_.IMPORT_UPLOAD_GRACE_MS).toBe(3 * HOUR);
+  });
+
+  it('취소 → 늦은 올리기 → 뒤이은 정리: 줄이 남아 있어 뒤늦게 올라온 파일을 지울 수 있다', async () => {
+    const b = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 1, bytes: 100 });
+    const jobId = String(b.body.jobId);
+    const s1 = await step(ann, { step: 'import-sign', jobId, items: [{ name: 'late.png', size: 12 }] });
+    const path = pathOf((s1.body.items as { uploadUrl: string }[])[0].uploadUrl); // 주소만 받고 아직 올리지 않았다(다른 탭에서 진행 중)
+    // 취소: Storage에는 아직 없지만(없음 확인) 주소가 살아 있으므로 줄을 지우지 않는다
+    expect(await step(ann, { step: 'import-cancel', jobId })).toMatchObject({ status: 200, body: { removed: 0 } });
+    expect(jobRow(jobId).state).toBe('cancelled');
+    expect(jobAll(jobId).map((f) => `${f.name}:${Number(f.pending)}`)).toEqual(['late.png:1']);
+    // 늦은 올리기가 도착한다
+    objects.set(path, PNG(100));
+    expect(newOrphans()).toEqual([]); // 줄이 있으므로 주인 없는 파일이 아니다
+    // 뒤이은 정리(여유 시간 안): Storage 쪽은 지우고 줄은 여전히 남긴다
+    expect(await fs_.cleanupPendingUploads()).toBe(0);
+    expect(objects.has(path)).toBe(false);
+    expect(jobAll(jobId)).toHaveLength(1);
+    // 같은 주소로 또 올라와도(재전송) 다음 정리가 지운다
+    objects.set(path, PNG(101));
+    ageFiles(jobId, 2 * HOUR + 59 * 60_000); // 2시간 59분: 아직 여유 시간 안
+    await fs_.cleanupPendingUploads();
+    expect(objects.has(path)).toBe(false);
+    expect(jobAll(jobId)).toHaveLength(1);
+    // 여유 시간이 지나면 줄까지 정리된다
+    objects.set(path, PNG(102));
+    ageFiles(jobId, 3 * HOUR + 60_000);
+    await fs_.cleanupPendingUploads();
+    expect(objects.has(path)).toBe(false);
+    expect(jobAll(jobId)).toHaveLength(0);
+    expect(newOrphans()).toEqual([]);
+  });
+
+  it('지운 것이 확인된 파일도 같은 주소로 다시 올라올 수 있으므로 줄을 남긴다', async () => {
+    const j = await rawJob(ann, [{ name: 'again.png', data: PNG(103) }]);
+    const all = jobAll(j.jobId);
+    expect((await step(ann, { step: 'import-cancel', jobId: j.jobId })).body.removed).toBe(0);
+    expect(all.every((f) => !objects.has(f.storage_path))).toBe(true); // Storage는 바로 비운다(용량 회수)
+    expect(jobAll(j.jobId)).toHaveLength(2); // 그림·글 묶음 줄은 표식으로 남는다
+    objects.set(all[0].storage_path, PNG(104)); // 같은 주소로 다시 올라옴
+    expect(newOrphans()).toEqual([]);
+    ageFiles(j.jobId, 4 * HOUR);
+    await fs_.cleanupPendingUploads();
+    expect(objects.has(all[0].storage_path)).toBe(false);
+    expect(jobAll(j.jobId)).toHaveLength(0);
+    expect(newOrphans()).toEqual([]);
+  });
+
+  it('마무리: 쓰이지 않은 그림은 Storage에서 바로 지우고 줄은 여유 시간 뒤에 지운다. 쓰인 그림은 끝까지 남는다', async () => {
+    const prep = await prepareLargeZip(new Blob([new Uint8Array(zip.writeZip(notionExport()))]), 'grace.zip', sp(ann), depsFor(ann));
+    expect((await importWith(ann, prep.url, prep.job)).status).toBe(200);
+    const id = prep.job!.id;
+    const before = jobAll(id);
+    const used = before.filter((f) => f.name === 'cover.png' || f.name === 'deep.png');
+    const unused = before.filter((f) => !used.includes(f));
+    expect((await step(ann, { step: 'import-finish', jobId: id })).body.removed).toBe(0);
+    expect(jobRow(id).state).toBe('done'); // 줄이 남아 있는 동안은 닫지 않는다
+    expect(unused.every((f) => !objects.has(f.storage_path))).toBe(true);
+    expect(used.every((f) => objects.has(f.storage_path))).toBe(true);
+    expect(jobAll(id)).toHaveLength(4);
+    // 하루 뒤의 주기 정리가 남은 줄을 지우고 작업을 닫는다
+    db.withRequestCache(() => db.db.prepare('UPDATE import_jobs SET created_time = ? WHERE id = ?').run(Date.now() - 25 * HOUR, id));
+    ageFiles(id, 25 * HOUR);
+    await fs_.cleanupPendingUploads();
+    expect(jobRow(id).state).toBe('closed');
+    expect(jobAll(id).map((f) => f.name)).toEqual(['cover.png', 'deep.png']);
+    expect(used.every((f) => objects.has(f.storage_path))).toBe(true);
+  });
+
+  it('크기 초과로 지운 파일도 줄을 남겼다가 여유 시간 뒤에 지운다', async () => {
+    const b = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 1, bytes: 100 });
+    const jobId = String(b.body.jobId);
+    const s1 = await step(ann, { step: 'import-sign', jobId, items: [{ name: 'grown.png', size: 12 }] });
+    const it0 = (s1.body.items as { id: string; uploadUrl: string }[])[0];
+    objects.set(pathOf(it0.uploadUrl), Buffer.alloc(500, 3));
+    expect((await step(ann, { step: 'import-done', jobId, ids: [it0.id] })).body).toEqual({ done: [], failed: [it0.id] });
+    expect(objects.has(pathOf(it0.uploadUrl))).toBe(false);
+    expect(jobAll(jobId).map((f) => `${f.name}:${Number(f.pending)}`)).toEqual(['grown.png:1']);
+    await step(ann, { step: 'import-cancel', jobId });
+    ageFiles(jobId, 4 * HOUR);
+    await fs_.cleanupPendingUploads();
+    expect(jobAll(jobId)).toHaveLength(0);
+  });
+
+  it('주소 발급과 취소가 겹쳐도 내준 주소에는 반드시 줄이 있다(줄을 먼저 만들고 주소를 내준다)', async () => {
+    const b = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 2, bytes: 100 });
+    const jobId = String(b.body.jobId);
+    // 서버가 주소를 만드는 사이에 다른 탭이 취소한다
+    let cancelled: { status: number; body: Record<string, unknown> } | undefined;
+    sw.onSign = async () => {
+      cancelled = await step(ann, { step: 'import-cancel', jobId });
+    };
+    const s1 = await step(ann, { step: 'import-sign', jobId, items: [{ name: 'x.png', size: 12 }, { name: 'y.png', size: 12 }] });
+    expect(cancelled?.status).toBe(200);
+    expect(jobRow(jobId).state).toBe('cancelled');
+    // 내준 주소마다 줄이 있다 → 그 주소로 올라와도 정리가 찾을 수 있다
+    const rows = new Set(jobAll(jobId).map((f) => f.storage_path));
+    expect(signedPaths.length).toBe(2);
+    expect(signedPaths.every((p) => rows.has(p))).toBe(true);
+    for (const it0 of (s1.body.items as { uploadUrl: string }[] | undefined) ?? []) objects.set(pathOf(it0.uploadUrl), PNG(105));
+    signedPaths.forEach((p) => objects.set(p, PNG(106)));
+    expect(newOrphans()).toEqual([]);
+    ageFiles(jobId, 4 * HOUR);
+    await fs_.cleanupPendingUploads();
+    expect(signedPaths.some((p) => objects.has(p))).toBe(false);
+    expect(jobAll(jobId)).toHaveLength(0);
+    expect(newOrphans()).toEqual([]);
+    // 취소가 먼저 끝난 뒤의 발급 요청은 줄도 주소도 만들지 않는다
+    signedPaths.length = 0;
+    expect((await step(ann, { step: 'import-sign', jobId, items: [{ name: 'z.png', size: 12 }] })).status).toBe(409);
+    expect((await step(ann, { step: 'import-pages', jobId, name: 'p.zip', size: 12 })).status).toBe(409);
+    expect(signedPaths).toEqual([]);
+    expect(jobAll(jobId)).toHaveLength(0);
+  });
+
+  it('다른 DB 연결이 주소 발급(줄 추가)을 커밋하는 중이면 취소는 기다렸다가 그 줄까지 본다', async () => {
+    const b = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 2, bytes: 100 });
+    const jobId = String(b.body.jobId);
+    const fileId = '66666666-6666-4666-8666-6666666666bb';
+    const path = `${ann.id}/${fileId}/other-tab.png`;
+    const other = postgres(process.env.AWW_DATABASE_URL!, { max: 1, onnotice: () => {} });
+    const probe = postgres(process.env.AWW_DATABASE_URL!, { max: 1, onnotice: () => {} });
+    try {
+      // 다른 서버 인스턴스의 import-sign: 작업 줄을 잠그고 셈을 올린 뒤 파일 줄을 넣고, 2초 뒤 커밋
+      const signing = other.unsafe(`BEGIN;
+        UPDATE import_jobs SET files = files + 1, bytes = bytes + 12 WHERE id = '${jobId}' AND state = 'open';
+        INSERT INTO files (id, space_id, user_id, name, mime, size, path, created_time, private, render, content, storage_path, pending, import_job_id)
+          VALUES ('${fileId}', '${sp(ann)}', '${ann.id}', 'other-tab.png', 'image/png', 12, '${path}', ${Date.now()}, 0, 0, NULL, '${path}', 1, '${jobId}');
+        SELECT pg_sleep(2); COMMIT;`).simple().execute();
+      let held = false;
+      for (let i = 0; i < 100 && !held; i++) {
+        held = (await probe.unsafe(`SELECT id FROM import_jobs WHERE id = '${jobId}' FOR UPDATE SKIP LOCKED`)).length === 0;
+        if (!held) await new Promise((r) => setTimeout(r, 30));
+      }
+      expect(held).toBe(true);
+      const t = Date.now();
+      const r = await step(ann, { step: 'import-cancel', jobId });
+      expect(Date.now() - t).toBeGreaterThanOrEqual(1000);
+      await signing;
+      expect(r.status).toBe(200);
+      expect(jobRow(jobId).state).toBe('cancelled');
+      // 다른 연결이 넣은 줄이 남아 있다 → 그 주소로 올라와도 정리가 찾는다
+      expect(jobAll(jobId).map((f) => f.id)).toEqual([fileId]);
+      objects.set(path, PNG(107));
+      expect(newOrphans()).toEqual([]);
+      ageFiles(jobId, 4 * HOUR);
+      await fs_.cleanupPendingUploads();
+      expect(objects.has(path)).toBe(false);
+      expect(jobAll(jobId)).toHaveLength(0);
+    } finally {
+      await probe.end();
+      await other.end();
+    }
+  }, 60_000);
+
+  it('회귀: 일반 대기 파일(작업 밖)은 예전처럼 하루 기준이고 이 여유 시간과 무관하다', async () => {
+    const signed = await fs_.signLargeUpload(ann, { name: 'plain.bin', type: 'application/octet-stream', size: 5 * MB, spaceId: sp(ann) });
+    const path = pathOf(String(signed.body.uploadUrl));
+    objects.set(path, Buffer.alloc(8, 1));
+    const exists = () => q('SELECT id FROM files WHERE id = ?', String(signed.body.id)).length === 1;
+    db.withRequestCache(() => db.db.prepare('UPDATE files SET created_time = ? WHERE id = ?').run(Date.now() - 23 * HOUR, String(signed.body.id)));
+    await fs_.cleanupPendingUploads();
+    expect(exists()).toBe(true); // 하루가 안 됐다
+    expect(objects.has(path)).toBe(true);
+    db.withRequestCache(() => db.db.prepare('UPDATE files SET created_time = ? WHERE id = ?').run(Date.now() - 25 * HOUR, String(signed.body.id)));
+    expect(await fs_.cleanupPendingUploads()).toBe(1);
+    expect(exists()).toBe(false);
+    expect(objects.has(path)).toBe(false);
   });
 });

@@ -11,7 +11,7 @@ import { isSpaceMember, roleAtLeast } from "#shared/permissions.ts";
 import type { BlockRecord, SpaceRecord } from "#shared/records.ts";
 import { toPlainText } from "#shared/richtext.ts";
 import { ZIP_IMPORT_LIMITS } from "#shared/zipPath.ts";
-import { db, getRecord, withRequestCache } from "@/litpage/server/db.ts";
+import { db, getRecord, tx, withRequestCache } from "@/litpage/server/db.ts";
 import { cleanFileName, cleanMime, fileRow } from "@/litpage/server/content/files.ts";
 import { blockRole } from "@/litpage/server/records.ts";
 import { pageIdOf } from "@/litpage/server/search.ts";
@@ -31,11 +31,27 @@ let storeImpl: () => Store = () => (createAdminClient() as unknown as SupabaseCl
 let quotaImpl: (userId: string, bytes: number) => Promise<{ allowed: boolean; message: string | null; upgradeUrl: string }> = (userId, bytes) =>
   checkStorageQuota(createAdminClient() as unknown as Parameters<typeof checkStorageQuota>[0], userId, bytes);
 let fetchImpl: (url: string) => Promise<Response> = (url) => fetch(url);
+/**
+ * 큰 ZIP 가져오기 작업의 파일 줄을 지워도 되는 때(2026-11-19 Master msg_41ae6dc0d449).
+ * 서명된 올리기 주소를 내준 뒤에는 그 주소로 올리기(PUT)가 **나중에라도** 도착할 수 있다(다른 탭에서 진행 중, 취소 뒤 도착 등).
+ * 파일 줄은 그 Storage 경로를 아는 유일한 표식이라, 줄을 먼저 지우면 뒤늦게 올라온 파일을 다시 지울 길이 없어진다.
+ * 그래서 줄은 「주소를 내준 시각 + 아래 시간」이 지난 뒤에만 지운다. 그 전에는 Storage 쪽만 지우고 줄은 남겨 다음 정리가 다시 본다.
+ * · 주소 유효 시간 2시간: 설치된 @supabase/storage-js 2.117.3 `createSignedUploadUrl` 설명 「They are valid for 2 hours.」
+ * · 진행 중 요청 여유 1시간: **가정**. 유효 시간이 끝나기 직전에 시작된 올리기가 얼마나 오래 걸릴 수 있는지는 보장된 값을
+ *   확인하지 못했다(파일당 50MiB 이하 기준으로 넉넉히 잡은 값). 이 가정이 깨지면 그 뒤에 도착한 파일은 남을 수 있다.
+ */
+export const SIGNED_UPLOAD_VALID_MS = 2 * 3_600_000;
+export const UPLOAD_IN_FLIGHT_MARGIN_MS = 3_600_000;
+export const IMPORT_UPLOAD_GRACE_MS = SIGNED_UPLOAD_VALID_MS + UPLOAD_IN_FLIGHT_MARGIN_MS;
+let uploadGraceMs = IMPORT_UPLOAD_GRACE_MS;
+/** 주소를 내준 지 충분히 지나 더는 올리기가 도착하지 않는 줄인가 */
+const pastUploadGrace = (createdTime: unknown, now = Date.now()) => Number(createdTime) <= now - uploadGraceMs;
 /** 시험에서 바꿔 끼움 */
-export function setFileStorageForTests(o: { store?: () => Store; quota?: typeof quotaImpl; fetch?: typeof fetchImpl }) {
+export function setFileStorageForTests(o: { store?: () => Store; quota?: typeof quotaImpl; fetch?: typeof fetchImpl; uploadGraceMs?: number }) {
   if (o.store) storeImpl = o.store;
   if (o.quota) quotaImpl = o.quota;
   if (o.fetch) fetchImpl = o.fetch;
+  if (typeof o.uploadGraceMs === "number") uploadGraceMs = o.uploadGraceMs;
 }
 
 let bucketReady = false;
@@ -244,16 +260,20 @@ function ownJob(jobId: unknown, userId: string): JobRow | undefined {
 
 /**
  * 이 작업이 올린 파일만 지운다 — 조건은 항상 「작업 id + 회원 id」 둘 다. `keep`에 든 파일은 남긴다.
- * Storage에서 지워진 것이 확인된 줄만 지운다(줄만 사라지고 Storage에 파일이 남는 일을 막는다. 남은 줄은 다음 정리가 다시 시도).
+ * Storage 쪽은 지금 지우고, 파일 줄은 ① Storage에서 없어진 것이 확인됐고 ② 올리기 주소를 내준 지 충분히 지났을 때만 지운다
+ * (IMPORT_UPLOAD_GRACE_MS 설명). 남은 줄은 다음 정리가 다시 본다 — 그사이 뒤늦게 올라온 파일이 있으면 그때 지워진다.
+ * 돌려주는 값은 지운 줄 수.
  */
 async function removeJobFiles(jobId: string, userId: string, keep: Set<string> = new Set()): Promise<number> {
-  const rows = withRequestCache(() => db.prepare("SELECT id, storage_path FROM files WHERE import_job_id = ? AND user_id = ?").all(jobId, userId) as { id: string; storage_path: string | null }[])
+  const rows = withRequestCache(() => db.prepare("SELECT id, storage_path, created_time FROM files WHERE import_job_id = ? AND user_id = ?").all(jobId, userId) as { id: string; storage_path: string | null; created_time: number }[])
     .filter((r) => !keep.has(r.id));
   let removed = 0;
   const gone = await removeConfirmed(rows.map((r) => r.storage_path ?? ""));
+  const now = Date.now();
   withRequestCache(() => {
     for (const r of rows) {
       if (r.storage_path && !gone.has(r.storage_path)) continue;
+      if (!pastUploadGrace(r.created_time, now)) continue; // 그 주소로 올리기가 아직 도착할 수 있다 — 줄(경로 표식)을 남긴다
       db.prepare("DELETE FROM files WHERE id = ? AND import_job_id = ? AND user_id = ?").run(r.id, jobId, userId);
       removed++;
     }
@@ -361,29 +381,32 @@ export async function importJobStep(member: Member, q: Record<string, unknown>):
     const sum = sizes.reduce((a, b) => a + b, 0);
     // 신고한 개수·합계를 넘겨 받지 않는다(브라우저 값은 믿지 않고 서버가 다시 센다)
     if (job.files + items.length > job.declared_files || job.bytes + sum > job.declared_bytes) return bad(413, "처음에 알린 개수·크기보다 많이 올릴 수 없습니다.");
-    const store = storeImpl();
-    const out: { id: string; uploadUrl: string }[] = [];
-    const made: { id: string; name: string; mime: string; size: number; path: string }[] = [];
-    for (let i = 0; i < items.length; i++) {
-      const it = (items[i] ?? {}) as { name?: unknown; type?: unknown };
+    const made = items.map((raw, i) => {
+      const it = (raw ?? {}) as { name?: unknown; type?: unknown };
       const id = newId();
       const name = cleanFileName(it.name ?? "file");
-      const path = pathFor(userId, id, name);
-      const { data, error } = await store.from(WORKSPACE_BUCKET).createSignedUploadUrl(path);
-      if (error || !data?.signedUrl) return bad(502, "올리기 주소를 받지 못했습니다. 잠시 후 다시 시도해 주세요.");
-      out.push({ id, uploadUrl: data.signedUrl });
-      made.push({ id, name, mime: cleanMime(it.type), size: sizes[i], path });
-    }
-    const ok = withRequestCache(() => {
-      // 다른 탭이 같은 작업으로 동시에 받아 가는 경우까지 셈이 맞도록 조건을 걸어 더한다
+      return { id, name, mime: cleanMime(it.type), size: sizes[i], path: pathFor(userId, id, name) };
+    });
+    // 파일 줄을 **먼저** 만들고 그다음에 주소를 내준다 — 내준 주소에는 반드시 줄(경로 표식)이 있다.
+    // 셈 올리기와 줄 넣기는 한 트랜잭션이다: 작업 줄을 잠그므로 그사이의 취소는 기다렸다가 이 줄들을 보고 정리한다
+    // (취소가 먼저면 state가 open이 아니라 여기서 0줄 — 줄도 주소도 만들지 않는다).
+    const ok = withRequestCache(() => tx(() => {
       const r = db.prepare("UPDATE import_jobs SET files = files + ?, bytes = bytes + ? WHERE id = ? AND user_id = ? AND state = 'open' AND files + ? <= declared_files AND bytes + ? <= declared_bytes")
-        .run(made.length, sum, job.id, userId, made.length, sum) as { changes?: number };
+        .run(made.length, sum, job.id, userId, made.length, sum);
       if (!r.changes) return false;
       const ins = db.prepare("INSERT INTO files (id, space_id, user_id, name, mime, size, path, created_time, private, render, content, storage_path, pending, import_job_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 0, NULL, ?, 1, ?)");
       for (const m of made) ins.run(m.id, job.space_id, userId, m.name, m.mime, m.size, m.path, Date.now(), m.path, job.id);
       return true;
-    });
-    if (!ok) return bad(413, "처음에 알린 개수·크기보다 많이 올릴 수 없습니다.");
+    }));
+    if (!ok) return bad(409, "가져오기 작업이 이미 끝났거나, 처음에 알린 개수·크기보다 많이 올릴 수 없습니다.");
+    const store = storeImpl();
+    const out: { id: string; uploadUrl: string }[] = [];
+    for (const m of made) {
+      const { data, error } = await store.from(WORKSPACE_BUCKET).createSignedUploadUrl(m.path);
+      // 주소를 못 받았으면 이미 만든 대기 줄은 그대로 두고 알린다(작업 정리가 지운다)
+      if (error || !data?.signedUrl) return bad(502, "올리기 주소를 받지 못했습니다. 잠시 후 다시 시도해 주세요.");
+      out.push({ id: m.id, uploadUrl: data.signedUrl });
+    }
     return { status: 200, body: { items: out } };
   }
 
@@ -394,17 +417,18 @@ export async function importJobStep(member: Member, q: Record<string, unknown>):
     const id = newId();
     const name = cleanFileName(q.name ?? "pages.zip");
     const path = pathFor(userId, id, name);
-    const { data, error } = await storeImpl().from(WORKSPACE_BUCKET).createSignedUploadUrl(path);
-    if (error || !data?.signedUrl) return bad(502, "올리기 주소를 받지 못했습니다. 잠시 후 다시 시도해 주세요.");
-    const ok = withRequestCache(() => {
+    // 줄을 먼저(작업 줄 잠금 + 한 트랜잭션), 주소는 그다음 — import-sign과 같은 이유
+    const ok = withRequestCache(() => tx(() => {
       const r = db.prepare("UPDATE import_jobs SET pages_file_id = ?, files = files + 1, bytes = bytes + ? WHERE id = ? AND user_id = ? AND state = 'open' AND pages_file_id IS NULL AND files + 1 <= declared_files AND bytes + ? <= declared_bytes")
         .run(id, size, job.id, userId, size);
       if (!r.changes) return false;
       db.prepare("INSERT INTO files (id, space_id, user_id, name, mime, size, path, created_time, private, render, content, storage_path, pending, import_job_id) VALUES (?, ?, ?, ?, 'application/zip', ?, ?, ?, 0, 0, NULL, ?, 1, ?)")
         .run(id, job.space_id, userId, name, size, path, Date.now(), path, job.id);
       return true;
-    });
+    }));
     if (!ok) return bad(409, "이 가져오기의 글 묶음은 이미 올렸거나 처음에 알린 크기를 넘습니다.");
+    const { data, error } = await storeImpl().from(WORKSPACE_BUCKET).createSignedUploadUrl(path);
+    if (error || !data?.signedUrl) return bad(502, "올리기 주소를 받지 못했습니다. 잠시 후 다시 시도해 주세요.");
     return { status: 200, body: { id, uploadUrl: data.signedUrl } };
   }
 
@@ -415,7 +439,7 @@ export async function importJobStep(member: Member, q: Record<string, unknown>):
     const done: string[] = [];
     const failed: string[] = [];
     for (const id of new Set(ids)) {
-      const row = withRequestCache(() => db.prepare("SELECT id, user_id, size, storage_path, pending, import_job_id FROM files WHERE id = ?").get(id) as { id: string; user_id: string; size: number; storage_path: string | null; pending: number; import_job_id: string | null } | undefined);
+      const row = withRequestCache(() => db.prepare("SELECT id, user_id, size, storage_path, pending, import_job_id, created_time FROM files WHERE id = ?").get(id) as { id: string; user_id: string; size: number; storage_path: string | null; pending: number; import_job_id: string | null; created_time: number } | undefined);
       if (!row || row.user_id !== userId || row.import_job_id !== job.id || !row.storage_path) {
         failed.push(id);
         continue;
@@ -436,7 +460,8 @@ export async function importJobStep(member: Member, q: Record<string, unknown>):
       // 주소를 받을 때 알린 크기보다 크게 올라왔으면 지우고 실패로 둔다(합계 한도를 돌아가지 못하게)
       if (!(size > 0) || size > Number(row.size) || size > MAX_LARGE_FILE_BYTES) {
         // Storage에서 지워진 것이 확인됐을 때만 줄을 지운다. 실패하면 대기 줄로 남아 작업 정리(취소·마무리·만료)가 다시 지운다
-        if ((await removeConfirmed([row.storage_path])).has(row.storage_path)) {
+        // 그 주소로 다시 올라올 수 있는 동안에는 줄을 남긴다(대기 줄이라 가져오기에는 쓰이지 않고, 작업 정리가 지운다)
+        if ((await removeConfirmed([row.storage_path])).has(row.storage_path) && pastUploadGrace(row.created_time)) {
           withRequestCache(() => db.prepare("DELETE FROM files WHERE id = ? AND import_job_id = ? AND user_id = ? AND pending = 1").run(row.id, job.id, userId));
         }
         failed.push(id);
