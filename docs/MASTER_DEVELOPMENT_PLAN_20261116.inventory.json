@@ -10063,11 +10063,11 @@
       "reviewer": "CX-QA-01",
       "title": "블로그 설정 플랫폼별 AI 모델 선택",
       "status": "reviewing",
-      "delivery": "model_choice_source_returned_mac_review_dispatched_build_blocked",
+      "delivery": "model_preference_regressions_found_fix_requested",
       "sha": "fb31bb189",
-      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e",
-      "next": "설정 모델 선택·글쓰기 기본값 연결. 작성자 tsc/generation/security 통과, Next 16.4.2 로컬 빌드 exit 1. Mac 독립 검수 요청, 미배포.",
-      "lastReviewedAt": "2026-11-19T04:04:39.305Z"
+      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e·msg_ae0e6dba4e84·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_e75e68c7f151",
+      "next": "Mac 독립 47/47, 플랫폼 목록 확인. 첫 진입 설정 무시·기존 수동 선택 유실·저장 실패 성공 알림 보완 요청. 로컬 빌드 exit 1·미배포.",
+      "lastReviewedAt": "2026-11-19T04:06:54.275Z"
     }
   ]
 }
