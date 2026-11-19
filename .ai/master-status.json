@@ -6187,10 +6187,10 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단",
-      "status": "reviewing",
-      "delivery": "zip_v163_approved_pending_snapshot_mac_qa",
-      "next": "ad9f6e443 담당 1,053개·201쪽 DB 호출 51,273→22,997. 주인님 v1.63 1회 승인 접수, Mac D 검수 수락 전 배포 보류.",
-      "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a·4f801102a·msg_188d5f946fe6·msg_d48ab4279b48·msg_6a8c40f8d884·.ai/results/WS-20261119-03-CX-QA-01.md·080d30733·5900bdee4·msg_81e5f70393f6·9b6cf6f43·862a3f744·msg_18677013088e·msg_e3da08ce301c·msg_81884a8c4c54·ad9f6e443·73e846195·msg_9cfa5b749036·msg_e77dc726848f·v1.63 1회 승인 보고·담당 배포 전 변경 경로 대조"
+      "status": "running",
+      "delivery": "zip_v163_deploy_held_commit_failure_fix_dispatched",
+      "next": "v1.63 배포 보류. Mac D 정상 경계 통과, COMMIT 실패 후 다음 롤백의 대기 작성자 누출 재현. 최소 깊이 복구·회귀 보완 배정.",
+      "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a·4f801102a·msg_188d5f946fe6·msg_d48ab4279b48·msg_6a8c40f8d884·.ai/results/WS-20261119-03-CX-QA-01.md·080d30733·5900bdee4·msg_81e5f70393f6·9b6cf6f43·862a3f744·msg_18677013088e·msg_e3da08ce301c·msg_81884a8c4c54·ad9f6e443·73e846195·msg_9cfa5b749036·msg_e77dc726848f·v1.63 1회 승인 보고·담당 배포 전 변경 경로 대조·msg_80ea9fa320d8·msg_e62063905385"
     },
     {
       "task_id": "WS-20261119-02",
