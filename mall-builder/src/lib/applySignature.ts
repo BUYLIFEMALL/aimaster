@@ -55,7 +55,16 @@ export function appliedPath(keyB64: string, f: ApplyFields): string {
 }
 /** 서버 설정의 출처(예: Supabase 프로젝트 주소)와 게시 경로로 정규화한 전체 공개 주소. 출처는 소문자·끝 / 제거, https만 */
 export function appliedPublicUrl(origin: string, path: string): string {
-  const o = String(origin).trim().toLowerCase().replace(/\/+$/, "");
+  // 표준 URL 파서로 검증(Master msg_8aaff84db217): https만, 사용자·비밀번호·경로·질의·조각 없음, 포트는 1~65535(99999 같은 값은 파서가 거절).
+  // 파서가 조용히 떼어 내는 값(사용자 정보·?·#)도 원문에서 직접 거절. 끝의 / 는 허용(설정값 관례), 기본 포트 :443은 표준 출처로 빠짐.
+  const raw = String(origin).trim().replace(/\/+$/, "");
+  let parsed: URL;
+  try { parsed = new URL(raw); } catch { throw new Error("origin 형식"); }
+  if (parsed.protocol !== "https:" || parsed.username || parsed.password || parsed.search || parsed.hash || raw.includes("?") || raw.includes("#") || raw.includes("@")
+      || (parsed.pathname !== "/" && parsed.pathname !== "") || (parsed.port !== "" && (Number(parsed.port) < 1 || Number(parsed.port) > 65535))) {
+    throw new Error("origin 형식");
+  }
+  const o = parsed.origin;
   if (!ORIGIN.test(o)) throw new Error("origin 형식");
   const u = `${o}/storage/v1/object/public/${APPLIED_BUCKET}/${path}`;
   if (!PUBLIC_URL_RE.test(u)) throw new Error("path 형식");

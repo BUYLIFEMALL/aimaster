@@ -72,6 +72,11 @@ test("서명 모듈은 브라우저 화면 파일에서 불러오지 않는다",
 test("공개 주소 출처는 서버 설정에서 정규화(소문자·끝 / 제거, https만)", () => {
   const p = appliedPath(KEY, F);
   assert.equal(appliedPublicUrl("HTTPS://QA.Supabase.Test//", p), `https://qa.supabase.test/storage/v1/object/public/mall-builder-applied/${p}`);
-  for (const o of ["http://qa.supabase.test", "https://qa.supabase.test/path", "https://qa", "https://a|b.test", "javascript:x"]) assert.throws(() => appliedPublicUrl(o, p), undefined, o);
+  for (const o of ["http://qa.supabase.test", "https://qa.supabase.test/path", "https://qa", "https://a|b.test", "javascript:x",
+    "https://qa.supabase.test:99999", "https://qa.supabase.test:0", "https://qa.supabase.test:65536", "https://user:pw@qa.supabase.test",
+    "https://qa.supabase.test/?x=1", "https://qa.supabase.test/#a", "https://qa.supabase.test?x", "", "not a url"]) assert.throws(() => appliedPublicUrl(o, p), undefined, o);
+  // 정상 값 호환: 포트 명시·기본 포트·끝 / 여러 개
+  assert.equal(appliedPublicUrl("https://qa.supabase.test:8443/", p), `https://qa.supabase.test:8443/storage/v1/object/public/mall-builder-applied/${p}`);
+  assert.equal(appliedPublicUrl("https://qa.supabase.test:443", p), appliedPublicUrl("https://qa.supabase.test", p));
   assert.throws(() => appliedPublicUrl("https://qa.supabase.test", "../" + p));
 });

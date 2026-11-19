@@ -3,7 +3,7 @@
 // 안전(0106 실행기와 같음): 로컬 Docker 엔진(npipe/unix)·컨테이너 aww-pg-test(postgres 이미지)일 때만, 시험 DB qa_m3_*는 없을 때만 만들고
 //   OID·소유자·실행 표식을 기록해 그 DB만 지운다. 서명 열쇠는 합성 시험 값만(시나리오 안에서 만들고 DB와 함께 사라짐).
 // 검증: 1) 0107 적용 전후 기존 저장소 정책 글자 그대로(R1), 새 버킷은 올리기 정책 하나뿐(R2), 버킷 조건 없는 고치기·지우기 정책 0(R3)
-//       2) scenario-0107(A01~A30) 3) TS 서명 형식 ↔ SQL 원문·HMAC 같은 값(X1) 4) 두 세션 경합 L1 같은 제안 동시 슬롯 / L2 같은 슬롯 동시 확정
+//       2) scenario-0107(A01~A30) 3) TS 서명 형식 ↔ SQL 원문·HMAC 같은 값(X1) 4) 두 세션 경합 L1~L5 + 잠금 순서 판별 L6~L8(상대가 제안만 잡은 동안 대기 → 상품·슬롯 이어 잠금, 교착 0)
 //       5) 0107 원문에 외부 호출(http) 0(E1).
 import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -178,6 +178,23 @@ const ready = (size) => { // 새 제안·슬롯·업로드·서명 준비(관리
   const ra = await a;
   check("L5", ra.out.includes('"done"') && b.code === 0 && b.ms >= 1500 && b.out.includes('"reverted"') && !/deadlock/.test(b.err + ra.err), `되돌리기 대기 ${b.ms}ms, 응답 ${b.out.includes('"reverted"') ? "reverted" : "?"}`);
 }
+
+// L6~L8 잠금 순서 판별(Master msg_8aaff84db217): 상대 세션이 「제안만」 잡은 동안 호출이 기다리는지 확인한 뒤,
+//   상대가 이어서 상품 → 슬롯을 잠근다. 호출 쪽이 슬롯·상품을 먼저 잡는 순서였다면 여기서 교착(deadlock)이 나거나 대기가 없다.
+const holdProposalThen = (pid) => `begin;\nselect 1 from mall_builder_photo_proposals where id = '${pid}' for update;\nselect pg_sleep(3);\n` +
+  `select 1 from mall_builder_products where id = '${P1}' for update;\nselect 1 from mall_builder_photo_apply_slots where proposal_id = '${pid}' for update;\ncommit;`;
+const lockOrder = async (key, pid, callSql, want) => {
+  const a = runAsync(D, sp + holdProposalThen(pid));
+  await sleep(1000);
+  const b = await runAsync(D, sp + as(S3) + callSql);
+  const ra = await a;
+  const dead = /deadlock/i.test(ra.err + b.err);
+  check(key, ra.code === 0 && b.code === 0 && !dead && b.ms >= 1500 && b.out.includes(want),
+    `제안만 잠근 동안 대기 ${b.ms}ms, 응답 ${b.out.includes(want) ? want : "?"}, 교착 ${dead ? "있음" : "없음"}`);
+};
+{ const k = ready(2400); await lockOrder("L6-commit", k.pid, k.call, '"done"'); }
+{ const k = ready(2500); q(as(S3) + k.call); await lockOrder("L7-revert", k.pid, `select mall_builder_photo_apply_revert('${k.pid}');`, '"reverted"'); }
+{ const k = ready(2600); await lockOrder("L8-begin", k.pid, `select mall_builder_photo_apply_begin('${k.pid}');`, '"resumed": true'); }
 
 // 5) 외부 호출 0
 check("E1", !/extensions\.http|http_(get|post)|net\.http/.test(read(`supabase/migrations/${M107}`)), "0107 원문에 http·pg_net 호출 없음");
