@@ -66,12 +66,12 @@ export default async function AdminOrdersPage({
         </p>
       </div>
 
-      <nav className="flex flex-wrap gap-1.5 text-sm" data-order-tabs>
-        <Link href={orderListHref(base, f, { status: undefined, page: 1 })} className={`rounded-xl px-3.5 py-1.5 font-semibold transition ${!filter ? "bg-slate-900 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"}`}>
+      <nav aria-label="주문 상태 필터" className="flex flex-wrap gap-1.5 text-sm" data-order-tabs>
+        <Link href={orderListHref(base, f, { status: undefined, page: 1 })} aria-current={!filter ? "page" : undefined} className={`rounded-xl px-3.5 py-1.5 font-semibold transition ${!filter ? "bg-slate-900 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"}`}>
           {capped ? "전체 (5,000+)" : `전체 ${total}`}
         </Link>
         {visibleTabs.map((s) => (
-          <Link key={s} href={orderListHref(base, f, { status: s, page: 1 })} className={`rounded-xl px-3.5 py-1.5 font-semibold transition ${filter === s ? "bg-slate-900 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"}`}>
+          <Link key={s} href={orderListHref(base, f, { status: s, page: 1 })} aria-current={filter === s ? "page" : undefined} className={`rounded-xl px-3.5 py-1.5 font-semibold transition ${filter === s ? "bg-slate-900 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"}`}>
             {ORDER_STATUS_LABEL[s]}
             {capped ? (counts[s] ? ` ${counts[s]}+` : "") : ` ${counts[s]}`}
           </Link>

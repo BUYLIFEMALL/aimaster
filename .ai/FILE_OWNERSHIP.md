@@ -410,5 +410,6 @@ MOV-20261119-01-ECOM-RECEIVER-IMPLEMENT CC-ECOM-01: Master msg_267c8cbef515(A1/P
 
 WS-20261119-03-TSC-CLOSURE CC-WORKSPACE-01: Master msg_c4e4c27fb558(밀린 기록 정리, 문서만). docs/roles/workspace.md(현 상태·최근 완료·다음 첫 단계)·ai-work-workspace/AGENTS.md(4절 버전 이력 v1.59~v1.63 행 추가)만. 제품 코드·시험·공용 HANDOFF·PENDING_DEPLOYS·비교표 편집 없음(변경점은 Master께 제안만). 로컬 서버·운영·빌드·배포·push 없음.
 
+B2B-ADMINUI-FILTER-CURRENT AG-UI-01: Master msg_5726aea825db(A1/P9, 기준 ad046c1eb). mall-builder/src/app/s/[store]/admin/orders/page.tsx·mall-builder/src/app/s/[store]/admin/products/page.tsx 2개만(필터 링크 nav aria-label 및 활성 1개 aria-current='page' 제공, 기존 링크·필터·터치·포커스 보존). 고객/리셀러·공용 CSS·운영·빌드·배포 0.
 
 WS-20261119-03-TSC-CLOSURE 점유 해제 CC-WORKSPACE-01: 문서 정리 2ca1af22d(docs/roles/workspace.md·ai-work-workspace/AGENTS.md, 17줄 추가). tsc 3d446effa 종료코드 0. 공용 HANDOFF·PENDING_DEPLOYS·비교표는 편집 없이 변경점만 Master께 제안. 보존: WS-20261119-03 기존 기록, 미배포 대기 3d446effa.
