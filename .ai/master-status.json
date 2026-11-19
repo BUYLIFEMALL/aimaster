@@ -6185,12 +6185,12 @@
       "task_id": "WS-20261119-02",
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace ZIP 50MB 안내와 대용량 가져오기 설계",
-      "status": "done",
-      "delivery": "large_zip_mac_local_review_passed_undeployed",
+      "status": "running",
+      "delivery": "workspace_v162_owner_approved_preflight_reported",
       "sha": "809f52f7e",
-      "next": "809f52f7e 로컬 검수 수락·점유 해제(0b43bae44)·전용 fixture 정리. 실제 Storage·브라우저·100MB대 ZIP·해당 별도 PG 연결 미검증, 미배포.",
+      "next": "주인님 v1.62 운영 1회 승인. 809f52f7e 범위와 v1.61 기준 비교·빌드 대기열 확인 중, 배포 시작/결과 대기.",
       "lastReviewedAt": "2026-11-19T07:34:18.665Z",
-      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85·cfd124ba3·c2816bf0f·13e9af05d·msg_b6590eaaaee8·7298b1dbf·msg_25fa9e68b50a·msg_2694e685c83c·msg_b5baddc12f26·c81384d50·504891ed2 부모 분리·msg_64c64ec0e1da·msg_a38d3ff84dbc·msg_021d1ad75f3a·msg_74f8e5339487·368acd3b7·msg_d4a19e25bc14·msg_a7c6ecc7758f·msg_2710ce16b617·cdb121ab7·msg_a558ec9d6241·msg_9f4a49f9353c·.ai/results/WS-20261119-02-CX-QA-01.md·04807f920·msg_7fd9735761c5·msg_2e22cd4b41c3·msg_7a026b63d2e7·msg_a91f3a9fe702·072d74005·msg_c781a457252f·msg_d4f3a908acbe·msg_547f81d99092·658155927·msg_aac8a5bb28c4·msg_983703ac38b1·msg_41ae6dc0d449·f221885b4·msg_0896b4b5dfd8·msg_00783db43a13·msg_c866fe16a1d9·23190f14d·msg_8a7a8558b586·msg_1335ade47014·msg_9bb5ace698fd·809f52f7e·msg_ad73fc9a7e55·msg_80ad84215073·msg_f2e689100f9b·0b43bae44·abc3270c6",
+      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85·cfd124ba3·c2816bf0f·13e9af05d·msg_b6590eaaaee8·7298b1dbf·msg_25fa9e68b50a·msg_2694e685c83c·msg_b5baddc12f26·c81384d50·504891ed2 부모 분리·msg_64c64ec0e1da·msg_a38d3ff84dbc·msg_021d1ad75f3a·msg_74f8e5339487·368acd3b7·msg_d4a19e25bc14·msg_a7c6ecc7758f·msg_2710ce16b617·cdb121ab7·msg_a558ec9d6241·msg_9f4a49f9353c·.ai/results/WS-20261119-02-CX-QA-01.md·04807f920·msg_7fd9735761c5·msg_2e22cd4b41c3·msg_7a026b63d2e7·msg_a91f3a9fe702·072d74005·msg_c781a457252f·msg_d4f3a908acbe·msg_547f81d99092·658155927·msg_aac8a5bb28c4·msg_983703ac38b1·msg_41ae6dc0d449·f221885b4·msg_0896b4b5dfd8·msg_00783db43a13·msg_c866fe16a1d9·23190f14d·msg_8a7a8558b586·msg_1335ade47014·msg_9bb5ace698fd·809f52f7e·msg_ad73fc9a7e55·msg_80ad84215073·msg_f2e689100f9b·0b43bae44·abc3270c6·주인님 직접 배포 승인 전달·msg_f8a9bb6310de",
       "reviewer": "CX-QA-01"
     },
     {
@@ -6203,6 +6203,17 @@
       "delivery": "lyric_l5_u3_mac_review_passed_undeployed",
       "next": "8f1eae339 Mac 독립 44/44 및 격리 브라우저 재생·390/767/768 통과. Safari 실동작·후보 URL·휴대폰 검증 대기, 다음 묶음 미배포.",
       "evidence": "1df2c94ae·msg_68526ae14db0·5b0ed996a·8f1eae339·msg_da7c45210270·msg_14d2efabc2c2·msg_4e2bc736c66d·.ai/results/MUSIC-20261119-LYRIC-L5-U3-CX-QA-01.md"
+    },
+    {
+      "task_id": "MUSIC-20261119-REMIX-PLAYLIST-REVIEW",
+      "parent_task_id": "MUSIC-20261119-BACKLOG-SWEEP",
+      "owner": "CC-MUSIC-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "리믹스에서 플레이리스트 연계 사전 검토",
+      "status": "running",
+      "delivery": "remix_playlist_read_only_contract_review_dispatched",
+      "next": "곡 소유권·전달 계약·기존 가사 연결 호환과 후보 검수 기준을 읽기 대조. 구현·빌드 전.",
+      "evidence": "msg_ab6eae1e6429·msg_ac69db543405"
     },
     {
       "task_id": "MUSIC-20261119-BACKLOG-SWEEP",
@@ -6323,10 +6334,10 @@
       "reviewer": "CX-QA-01",
       "title": "AI Influencer D2 정리·쿼터 격리 통합 시험",
       "status": "running",
-      "delivery": "d2_sql_preflight_candidate_mac_recheck_sent",
+      "delivery": "d2_mac_preflight_review_pass_rollback_version_followup_sent",
       "sha": "dbe2f869e",
-      "next": "dbe2f869e 후보의 함수 충돌·실행 권한·원복 표식 검사 보완. 작성자 11/15/8 통과, Mac 재검수 전달. 운영 적용 보류.",
-      "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e·msg_01908be553ce·msg_3c0ea9d67886·fec7fe017·msg_3bdadb79cff0·msg_ba14d996ab74·msg_0e498ff524d1·msg_af7821e3d106·.ai/results/AIF-20261119-D2-IT-CX-QA-01.md·msg_ec07da32b153·b9ae5bcc4·msg_5a8997695e52·msg_4a1e08e7b950·msg_7c74159e5200·msg_f4dfb65f9b8f·msg_6a0776eac06b·67126ab93·msg_da122886dca1·msg_db2b0fb8b3fd·msg_5f5880568d1b·msg_2fffffb23bff·msg_f26fdb86801a·ec52dfef4·msg_a7dd4d193c29·msg_b53ce5676423·msg_a2780b9d504b·msg_35e2d9d7aef7·dbe2f869e·msg_5df2106491c8"
+      "next": "dbe2f869e Mac 지정 정적 재검수 완료. 원복 전 호출부·helper 버전 대조 보완 요청. 적용 전 스키마/하위 권한은 별도 확인, 운영 미적용.",
+      "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e·msg_01908be553ce·msg_3c0ea9d67886·fec7fe017·msg_3bdadb79cff0·msg_ba14d996ab74·msg_0e498ff524d1·msg_af7821e3d106·.ai/results/AIF-20261119-D2-IT-CX-QA-01.md·msg_ec07da32b153·b9ae5bcc4·msg_5a8997695e52·msg_4a1e08e7b950·msg_7c74159e5200·msg_f4dfb65f9b8f·msg_6a0776eac06b·67126ab93·msg_da122886dca1·msg_db2b0fb8b3fd·msg_5f5880568d1b·msg_2fffffb23bff·msg_f26fdb86801a·ec52dfef4·msg_a7dd4d193c29·msg_b53ce5676423·msg_a2780b9d504b·msg_35e2d9d7aef7·dbe2f869e·msg_5df2106491c8·msg_c34456bb36a1·msg_5ae0be775cd9"
     },
     {
       "task_id": "AIF-20261119-PLAN6",
