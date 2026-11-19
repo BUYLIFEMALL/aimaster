@@ -6187,10 +6187,10 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단",
-      "status": "running",
-      "delivery": "zip_response_missing_pointer_fix_assigned",
-      "next": "7053d5879 맥미니 바이트 상한 확인. 조회 200 빈 맵이면 안내 누락되는 P3 재현, Workspace 보완 배정. 운영 ZIP 미확인.",
-      "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a·4f801102a·msg_188d5f946fe6·msg_d48ab4279b48·msg_6a8c40f8d884·.ai/results/WS-20261119-03-CX-QA-01.md·080d30733·5900bdee4·msg_81e5f70393f6·9b6cf6f43·862a3f744·msg_18677013088e·msg_e3da08ce301c·msg_81884a8c4c54·ad9f6e443·73e846195·msg_9cfa5b749036·msg_e77dc726848f·v1.63 1회 승인 보고·담당 배포 전 변경 경로 대조·msg_80ea9fa320d8·msg_e62063905385·de8326242·845d62331·msg_0bcf3ac363cd·msg_61592856a873·msg_6a32a57772c5·addc48085·주인님 보완판 커밋·푸시·배포 직접 지시 보고·6de15de60·dpl_CxEYSzDhnScbAL5zdmiToQy3HB4n·msg_dbdc16360cb8·msg_652436d7b405·7053d5879·msg_cc823e8bdd96·msg_0094fd736d91·msg_b9c03dffb58d"
+      "status": "reviewing",
+      "delivery": "zip_response_pointer_fix_mac_review_requested",
+      "next": "3d446effa 빈 응답 안내 보완, 지정 시험 17/17·tsc 통과 보고. 맥미니 재검수 요청 전달. 보완판 전체 시험·실제 브라우저 미확인.",
+      "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a·4f801102a·msg_188d5f946fe6·msg_d48ab4279b48·msg_6a8c40f8d884·.ai/results/WS-20261119-03-CX-QA-01.md·080d30733·5900bdee4·msg_81e5f70393f6·9b6cf6f43·862a3f744·msg_18677013088e·msg_e3da08ce301c·msg_81884a8c4c54·ad9f6e443·73e846195·msg_9cfa5b749036·msg_e77dc726848f·v1.63 1회 승인 보고·담당 배포 전 변경 경로 대조·msg_80ea9fa320d8·msg_e62063905385·de8326242·845d62331·msg_0bcf3ac363cd·msg_61592856a873·msg_6a32a57772c5·addc48085·주인님 보완판 커밋·푸시·배포 직접 지시 보고·6de15de60·dpl_CxEYSzDhnScbAL5zdmiToQy3HB4n·msg_dbdc16360cb8·msg_652436d7b405·7053d5879·msg_cc823e8bdd96·msg_0094fd736d91·msg_b9c03dffb58d·3d446effa·msg_66f223d06e95"
     },
     {
       "task_id": "WS-20261119-02",
@@ -6832,7 +6832,7 @@
       "order": "2 · Workspace",
       "owner": "Workspace + Master",
       "stage": "v1.63 운영, 3MB 응답 후보 제출",
-      "next": "빈 맵 P3 보완 배정. Gmail·실제 ZIP 사용자 신호 대기."
+      "next": "빈 맵 P3 보완판 Mac 재검수 요청. Gmail·실제 ZIP 사용자 신호 대기."
     },
     {
       "order": "3 · B2B",
@@ -7593,10 +7593,10 @@
   "sessionReviews": [
     {
       "owner": "CC-WORKSPACE-01",
-      "state": "7053d5879 맥미니 바이트 한도 검수",
-      "next": "빈 맵 안내 보완 배정·운영 ZIP 대기",
-      "evidence": "7053d5879·msg_cc823e8bdd96·msg_0094fd736d91·msg_b9c03dffb58d",
-      "reviewedAt": "2026-11-19T14:35:52.922Z",
+      "state": "3d446effa P3 보완 제출",
+      "next": "맥미니 재검수 요청·운영 ZIP 대기",
+      "evidence": "7053d5879·msg_cc823e8bdd96·msg_0094fd736d91·msg_b9c03dffb58d·3d446effa·msg_66f223d06e95",
+      "reviewedAt": "2026-11-19T14:38:27.728Z",
       "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
