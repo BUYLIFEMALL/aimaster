@@ -1,0 +1,223 @@
+diff --git a/insta_auto_poster/src/lib/cardnews/instagram/memberScheduler.ts b/insta_auto_poster/src/lib/cardnews/instagram/memberScheduler.ts
+index 109697e..54ed2f3 100644
+--- a/insta_auto_poster/src/lib/cardnews/instagram/memberScheduler.ts
++++ b/insta_auto_poster/src/lib/cardnews/instagram/memberScheduler.ts
+@@ -3,6 +3,7 @@ import { createHash, randomBytes } from "crypto";
+ import type { SupabaseClient } from "@supabase/supabase-js";
+ import { deleteDispatchJob, setDispatchJobEnabled, upsertDispatchJob } from "./cronJobOrg";
+ import { MEMBER_DISPATCH_PATH, PLATFORM_SCHEDULER_ENV, SCHEDULER_IS_STANDALONE, SCHEDULER_SITE_ORIGIN, SCHEDULER_TABLE, SCHEDULER_TOKEN_PREFIX, countRemainingWork } from "./schedulerConfig";
++import * as schedulerConfigModule from "./schedulerConfig";
+ 
+ // 회원별 예약 실행 방식 — 회원이 실행 방식을 고른다(2026-10-19 주인님 지시). 지침: 루트 docs/SCHEDULER_POLICY.md
+ // 공용 기준 코드 「member-scheduler」(2026-10-20 15개로 확대, 구 insta-member-scheduler): 기준 = cardnews-studio/src/lib/instagram/memberScheduler.ts,
+@@ -23,8 +24,43 @@ export { SCHEDULER_TABLE };
+ export const CRONJOB_PROVIDER = "cronjob_org_api_key";
+ 
+ export type SchedulerMode = "vercel" | "cronjob";
+-/** 기본 실행 방식: AIMaster 운영은 Vercel, 설치 키트(배포판)는 cron-job.org(주인님 지시 2026-10-19 — 수강생은 대부분 Vercel 무료로 시작) */
+-export const DEFAULT_SCHEDULER_MODE: SchedulerMode = SCHEDULER_IS_STANDALONE ? "cronjob" : "vercel";
++
++/**
++ * (선택 연결점, R1 2026-11-19) 프로그램이 같은 폴더 schedulerConfig.ts에서 `platformSchedulerPolicy`를 내보낼 때만 켜진다.
++ * 내보내지 않는 프로그램은 아래 모든 함수의 동작과 응답 모양이 예전 그대로다(POLICY === null 갈래).
++ * 켜진 프로그램: 사이트(Vercel) 예약은 allowed 회원이 명시로 고른 경우에만 쓰고, 판정이 실패하면 막는다(차단 쪽으로).
++ */
++export type PlatformSchedulerPolicy = {
++  /** 행이 없는 회원의 기본 방식 */
++  defaultMode: SchedulerMode;
++  /** 이 회원이 사이트(Vercel) 예약을 써도 되는가(관리자·관리자가 지정한 회원) */
++  allowed: (service: SupabaseClient, userId: string) => Promise<boolean>;
++  /** (선택) 행의 vercel이 회원의 명시 선택으로 확인됐는가 — 없으면 행의 값을 그대로 믿는다 */
++  confirmed?: (service: SupabaseClient, userId: string) => Promise<boolean>;
++  /** (선택) 회원이 vercel을 명시로 골랐을 때 남기는 기록 */
++  markConfirmed?: (service: SupabaseClient, userId: string) => Promise<void>;
++  /** 사이트 예약 실행이 처리해도 되는 회원 목록(권한 기준) */
++  listAllowedUserIds: (service: SupabaseClient) => Promise<string[]>;
++};
++// 없는 내보내기를 정적으로 가리키지 않도록 이름으로 읽는다(연결점이 없는 프로그램의 빌드 경고 방지).
++const POLICY: PlatformSchedulerPolicy | null = (Reflect.get(schedulerConfigModule, "platformSchedulerPolicy") as PlatformSchedulerPolicy | undefined) ?? null;
++
++/** 기본 실행 방식: AIMaster 운영은 Vercel, 설치 키트(배포판)는 cron-job.org(주인님 지시 2026-10-19 — 수강생은 대부분 Vercel 무료로 시작). 연결점이 있으면 그 프로그램의 값 */
++export const DEFAULT_SCHEDULER_MODE: SchedulerMode = POLICY?.defaultMode ?? (SCHEDULER_IS_STANDALONE ? "cronjob" : "vercel");
++
++/** 이 회원이 사이트(Vercel) 예약을 써도 되는가. 연결점이 없으면 항상 참. 판정이 실패하면 거짓. */
++export async function memberPlatformAllowed(service: SupabaseClient, userId: string): Promise<boolean> {
++  if (!POLICY) return true;
++  try { return (await POLICY.allowed(service, userId)) === true; } catch { return false; }
++}
++
++/** 권한 + (연결점이 요구하면) 명시 선택 확인. 연결점이 없으면 항상 참. */
++async function platformChoiceEffective(service: SupabaseClient, userId: string): Promise<boolean> {
++  if (!POLICY) return true;
++  if (!(await memberPlatformAllowed(service, userId))) return false;
++  if (!POLICY.confirmed) return true;
++  try { return (await POLICY.confirmed(service, userId)) === true; } catch { return false; }
++}
+ type SchedulerRow = { user_id: string; mode: SchedulerMode; active: boolean; paused: boolean };
+ 
+ /** 사이트의 Vercel 예약 호출로 회원 예약을 처리할 수 있는가 */
+@@ -61,7 +97,10 @@ async function schedulerRow(service: SupabaseClient, userId: string): Promise<Sc
+ 
+ /** 회원이 고른 실행 방식(행이 없으면 기본값 vercel) */
+ export async function memberSchedulerMode(service: SupabaseClient, userId: string): Promise<SchedulerMode> {
+-  return (await schedulerRow(service, userId))?.mode ?? DEFAULT_SCHEDULER_MODE;
++  const mode = (await schedulerRow(service, userId))?.mode ?? DEFAULT_SCHEDULER_MODE;
++  // 연결점이 있는 프로그램: 행이 vercel이어도 권한·명시 선택이 확인되지 않으면 유효 방식은 cronjob(행은 고치지 않는다)
++  if (POLICY && mode === "vercel" && !(await platformChoiceEffective(service, userId))) return "cronjob";
++  return mode;
+ }
+ 
+ /** 이 회원의 남은 일(예약형: 남은 예약 글 / 정기형: 켜진 규칙 등) — 0이면 회원 cron-job.org 작업을 끈다. 세는 방법은 schedulerConfig.ts */
+@@ -82,6 +121,30 @@ export async function membersExcludedFromPlatform(service: SupabaseClient): Prom
+   return (data ?? []).map((row) => row.user_id as string);
+ }
+ 
++/** 사이트(Vercel) 예약 실행의 대상 범위. 연결점이 없으면 예전과 같은 「제외 목록」, 있으면 「허용 목록 + 처리 직전 재확인」 */
++export type PlatformDispatchScope =
++  | { excludeUserIds: string[] }
++  | { onlyUserIds: string[]; allowUser: (userId: string) => Promise<boolean> };
++
++export async function platformDispatchScope(service: SupabaseClient): Promise<PlatformDispatchScope> {
++  if (!POLICY) return { excludeUserIds: await membersExcludedFromPlatform(service) };
++  const none: PlatformDispatchScope = { onlyUserIds: [], allowUser: async () => false };
++  let allowedIds: string[];
++  try { allowedIds = await POLICY.listAllowedUserIds(service); } catch { return none; }
++  if (!allowedIds.length) return none;
++  const { data, error } = await service.from(SCHEDULER_TABLE).select("user_id").eq("mode", "vercel").eq("paused", false).in("user_id", allowedIds);
++  if (error) return none;
++  return {
++    onlyUserIds: (data ?? []).map((row) => row.user_id as string),
++    // 글을 잡기 직전에 다시 본다: 그사이 권한이 철회됐거나 방식·일시정지가 바뀌었거나 조회가 실패하면 처리하지 않는다(글은 대기 상태 그대로)
++    allowUser: async (userId: string) => {
++      const row = await schedulerRow(service, userId);
++      if (!row || row.mode !== "vercel" || row.paused) return false;
++      return platformChoiceEffective(service, userId);
++    },
++  };
++}
++
+ export async function memberIdForToken(service: SupabaseClient, token: string): Promise<string | null> {
+   if (!new RegExp(`^${SCHEDULER_TOKEN_PREFIX}_[0-9a-f]{64}$`).test(token)) return null;
+   const { data } = await service.from(SCHEDULER_TABLE).select("user_id, mode").eq("token_hash", hashMemberToken(token)).maybeSingle();
+@@ -105,7 +168,8 @@ export async function ensureMemberSchedulerRunning(service: SupabaseClient, user
+   if (row?.paused) return { paused: true };
+   const url = memberDispatchUrl();
+   if (row && (await memberIdTokenReady(service, userId)) && (await setDispatchJobEnabled(apiKey, url, true))) {
+-    await service.from(SCHEDULER_TABLE).update({ active: true, updated_at: now() }).eq("user_id", userId);
++    // 연결점이 있는 프로그램: 행이 옛 vercel인 채 유효 방식만 cronjob인 회원도 여기로 온다 — 행을 cronjob으로 맞춰야 회원 실행 주소(memberIdForToken)가 받아 준다
++    await service.from(SCHEDULER_TABLE).update(POLICY ? { mode: "cronjob", active: true, updated_at: now() } : { active: true, updated_at: now() }).eq("user_id", userId);
+     return { paused: false };
+   }
+   // 처음 연결이거나 회원이 cron-job.org에서 작업을 지운 경우: 새 토큰으로 작업을 만든다. 토큰을 먼저 저장해야 첫 호출이 401이 되지 않는다.
+@@ -161,6 +225,11 @@ export async function setMemberSchedulerMode(service: SupabaseClient, userId: st
+   if (!platformSchedulerEnabled()) throw new Error(SCHEDULER_IS_STANDALONE
+     ? "이 사이트는 Vercel 예약 호출이 꺼져 있어 cron-job.org 방식만 쓸 수 있습니다(설치 키트: Vercel 유료(Pro)라면 KIT/enable-vercel-cron 실행)."
+     : "이 사이트는 Vercel 예약 호출이 꺼져 있어 「내 cron-job.org」 방식만 쓸 수 있습니다.");
++  if (POLICY) {
++    if (!(await memberPlatformAllowed(service, userId))) throw new Error("이 계정은 사이트(Vercel) 예약을 쓸 수 없습니다. 「내 cron-job.org」 방식을 사용해 주세요.");
++    // 명시 선택 기록을 먼저 남긴다 — 기록에 실패하면 방식도 바꾸지 않는다
++    if (POLICY.markConfirmed) await POLICY.markConfirmed(service, userId);
++  }
+   if (key) { try { await setDispatchJobEnabled(key, memberDispatchUrl(), false); } catch { /* 키가 무효여도 방식 변경은 진행 */ } }
+   await service.from(SCHEDULER_TABLE).update({ mode: "vercel", active: false, updated_at: now() }).eq("user_id", userId);
+ }
+@@ -216,7 +285,8 @@ export async function removeMemberScheduler(service: SupabaseClient, userId: str
+   if (!row) return;
+   await service.from(SCHEDULER_TABLE).update({
+     token_hash: `unset-${userId}`, cronjob_job_id: null, active: false,
+-    mode: !options.keepMode && platformSchedulerEnabled() ? "vercel" : row.mode, updated_at: now(),
++    // 연결점이 있는 프로그램은 키를 지워도 vercel로 되돌리지 않는다(자동으로 Vercel 선택이 생기지 않게)
++    mode: !options.keepMode && !POLICY && platformSchedulerEnabled() ? "vercel" : row.mode, updated_at: now(),
+   }).eq("user_id", userId);
+ }
+ 
+@@ -227,14 +297,26 @@ export type MemberSchedulerState = {
+   hasKey: boolean;
+   state: "platform" | "platform-off" | "no-key" | "paused" | "running" | "idle";
+   scheduled: number;
++  /** 연결점이 있는 프로그램에서만 들어간다: 이 회원이 사이트(Vercel) 예약을 고를 수 있는가 */
++  platformAllowed?: boolean;
++  /** 연결점이 있는 프로그램에서만 들어간다: 행은 vercel인데 명시 선택이 확인되지 않아 다시 골라야 하는가 */
++  platformReselectNeeded?: boolean;
+ };
+ 
+ /** 화면 표시용(cron-job.org를 부르지 않고 DB만 본다) */
+ export async function memberSchedulerState(service: SupabaseClient, userId: string): Promise<MemberSchedulerState> {
+   const [key, row, scheduled] = await Promise.all([memberCronjobKey(service, userId), schedulerRow(service, userId), remainingScheduled(service, userId)]);
+-  const mode: SchedulerMode = row?.mode ?? DEFAULT_SCHEDULER_MODE;
+-  const platformAvailable = platformSchedulerEnabled();
+-  const base = { mode, defaultMode: DEFAULT_SCHEDULER_MODE, platformAvailable, hasKey: Boolean(key), scheduled };
++  const rowMode: SchedulerMode = row?.mode ?? DEFAULT_SCHEDULER_MODE;
++  let mode = rowMode;
++  let platformAvailable = platformSchedulerEnabled();
++  let extra: { platformAllowed?: boolean; platformReselectNeeded?: boolean } = {};
++  if (POLICY) {
++    const allowed = await memberPlatformAllowed(service, userId);
++    if (rowMode === "vercel" && !(allowed && (await platformChoiceEffective(service, userId)))) mode = "cronjob";
++    platformAvailable = platformAvailable && allowed;
++    extra = { platformAllowed: allowed, platformReselectNeeded: allowed && rowMode === "vercel" && mode === "cronjob" };
++  }
++  const base = { mode, defaultMode: DEFAULT_SCHEDULER_MODE, platformAvailable, hasKey: Boolean(key), scheduled, ...extra };
+   if (row?.paused) return { ...base, state: "paused" };
+   if (mode === "vercel") return { ...base, state: platformAvailable ? "platform" : "platform-off" };
+   if (!key) return { ...base, state: "no-key" };
+diff --git a/ai-webtoon-studio/src/lib/instagram/posting.ts b/ai-webtoon-studio/src/lib/instagram/posting.ts
+index c9fd0e8..9a9feea 100644
+--- a/ai-webtoon-studio/src/lib/instagram/posting.ts
++++ b/ai-webtoon-studio/src/lib/instagram/posting.ts
+@@ -84,10 +84,15 @@ export interface DispatchOptions {
+   excludeUserIds?: string[];
+   /** Vercel 방식이 꺼진 사이트에서 운영자 실행이 Vercel 회원 글을 만나면 게시하지 않고 이 안내로 실패 처리 */
+   failWithMessage?: string;
++  /** (선택, R1) 이 회원들의 글만 — 사이트 예약을 허용 목록으로 돌리는 프로그램용. 빈 목록이면 아무것도 처리하지 않는다 */
++  onlyUserIds?: string[];
++  /** (선택, R1) 글을 잡기 직전 회원별 재확인. 거짓이거나 실패하면 그 글은 건드리지 않는다(대기 상태 그대로) */
++  allowUser?: (userId: string) => Promise<boolean>;
+ }
+ 
+ /** 예약 시각이 지난 글을 한 건씩 잠그고(scheduled→publishing) 게시한다. 같은 글이 두 번 올라가지 않게 조건부로 잠근다. */
+ export async function dispatchDuePosts(limit = 10, options: DispatchOptions = {}): Promise<{ id: string; status: string }[]> {
++  if (options.onlyUserIds && !options.onlyUserIds.length) return [];
+   const admin = createAdminClient();
+   let query = admin
+     .from(POSTS_TABLE)
+@@ -95,10 +100,16 @@ export async function dispatchDuePosts(limit = 10, options: DispatchOptions = {}
+     .eq("status", "scheduled")
+     .lte("scheduled_at", new Date().toISOString());
+   if (options.userId) query = query.eq("user_id", options.userId);
++  if (options.onlyUserIds) query = query.in("user_id", options.onlyUserIds);
+   if (options.excludeUserIds?.length) query = query.not("user_id", "in", `(${options.excludeUserIds.join(",")})`);
+   const { data: due } = await query.order("scheduled_at", { ascending: true }).limit(limit);
+   const results: { id: string; status: string }[] = [];
+   for (const post of due ?? []) {
++    if (options.allowUser) {
++      let allowedNow = false;
++      try { allowedNow = (await options.allowUser(post.user_id)) === true; } catch { allowedNow = false; }
++      if (!allowedNow) { results.push({ id: post.id, status: "skipped" }); continue; }
++    }
+     const { data: claimed } = await admin
+       .from(POSTS_TABLE)
+       .update({ status: "publishing", updated_at: new Date().toISOString() })
+diff --git a/ai-webtoon-studio/src/app/api/instagram/dispatch/route.ts b/ai-webtoon-studio/src/app/api/instagram/dispatch/route.ts
+index efb2beb..c42b627 100644
+--- a/ai-webtoon-studio/src/app/api/instagram/dispatch/route.ts
++++ b/ai-webtoon-studio/src/app/api/instagram/dispatch/route.ts
+@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
+ import type { SupabaseClient } from "@supabase/supabase-js";
+ import { cleanupOldPosts, dispatchDuePosts } from "@/lib/instagram/posting";
+ import { createAdminClient } from "@/lib/supabase/admin";
+-import { membersExcludedFromPlatform, platformSchedulerEnabled } from "@/lib/instagram/memberScheduler";
++import { platformDispatchScope, platformSchedulerEnabled } from "@/lib/instagram/memberScheduler";
+ 
+ export const dynamic = "force-dynamic";
+ export const fetchCache = "force-no-store";
+@@ -19,7 +19,8 @@ async function handle(request: NextRequest) {
+     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+   }
+   const results = await dispatchDuePosts(10, {
+-    excludeUserIds: await membersExcludedFromPlatform(createAdminClient() as unknown as SupabaseClient),
++    // 대상 범위: 보통은 「cron-job.org 회원·일시정지 회원 제외」, 사이트 예약을 지정 회원에게만 여는 프로그램은 「허용 목록 + 처리 직전 재확인」(memberScheduler.platformDispatchScope)
++    ...(await platformDispatchScope(createAdminClient() as unknown as SupabaseClient)),
+     failWithMessage: platformSchedulerEnabled() ? undefined : "이 사이트는 Vercel 예약 호출이 꺼져 있어 올리지 않았습니다. 🔑 API키등록·플랫폼연동 → ⏰ 예약 발행에서 「내 cron-job.org」를 선택하고 키를 등록한 뒤 다시 예약해 주세요.",
+   });
+   const cleaned = await cleanupOldPosts();

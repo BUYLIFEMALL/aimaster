@@ -199,3 +199,41 @@
 
 - 사본 영향 프로그램: `ai-influencer-studio` · `ai-webtoon-studio` · `four-cut-comics` · `threads-content-ops` · `threads` · `insta_auto_poster`(기준 + 사본) · `threads-affiliate-poster` · `booking-reminder` · `crm-google-form` · `kakao_auto_poster` · `naver-cafe-poster` · `stepmail` · `trending-product-finder` · `youtube-auto-reply` · `threads-comment-reply` · `instagram-comment-reply` · `realty-client-desk` · `ai-work-workspace`. 다른 역할 담당 프로그램이 많다 — `--sync` 전에 각 폴더의 미커밋 변경과 점유를 확인해야 한다.
 - 점검 기준선(2026-11-19): `check-shared-modules.mjs` 일치 458줄, 예약 관련 22줄 모두 OK. 무관한 문제 1건(`safe-fetch` 기준 파일 없음)은 내 범위 밖이라 Master에 알림.
+
+## 10. 격리 후보 결과 — 공용 연결점(§9-6의 1·2) (2026-11-19, Master `msg_e22a2892cbd5`)
+
+- 범위: 저장소 밖 격리 사본에서만 기준 3파일을 고치고 모의 시험. **공용 실제 파일·사본·`--sync`·DB·제품 코드·운영·실제 게시·빌드·배포 0.** 후보 보관: `docs/analysis-ai-influencer-20261118/candidates/r1/`(패치 + 시험 + 다시 돌리는 법).
+- 결과: 모의 시험 **16/16**, 변형 검사 **21개 중 빨강 21개**. 새 빈 폴더에서 안내대로 다시 만들어 같은 결과.
+- 패치 크기: `memberScheduler.ts` +90 −8 · `posting.ts` +11 · 사이트 예약 실행 경로 +3 −2.
+
+**§9 설계에서 바뀐 것(Master 조건 반영)**
+
+| 항목 | §9 초안 | 후보 |
+|---|---|---|
+| 연결점 수 | 내보내기 3개 | **하나**: `platformSchedulerPolicy` 객체(`defaultMode`·`allowed`·`confirmed?`·`markConfirmed?`·`listAllowedUserIds`) |
+| 연결점 없는 앱의 응답 | 칸 `platformAllowed: true` 추가 | **추가하지 않음**(응답 키가 원본과 같음을 시험으로 고정) |
+| 옛 `vercel` 행 | 유효 방식 `vercel`로 해석 | 프로그램이 `confirmed`를 주면 **명시 선택이 확인된 경우만** `vercel`. 확인 안 된 지정 회원은 유효 방식 `cronjob` + 상태에 `platformReselectNeeded: true`(다시 고르기 안내용) |
+| 키 삭제 | 허용일 때만 `vercel`로 되돌림 | 연결점이 있으면 **되돌리지 않음**(행의 방식 유지) |
+| 처리 직전 재확인 | 없음 | `dispatchDuePosts`의 선택 인자 `allowUser` — 글을 잡기 전에 행(방식·일시정지)·권한·명시 확인을 다시 보고, 거짓이거나 실패하면 그 글은 **건드리지 않음**(대기 그대로, 결과에 `skipped`) |
+| 예약 때 행 맞춤 | 없음 | 연결점이 있으면 `ensureMemberSchedulerRunning`이 행을 `cronjob`으로 맞춤 — 안 맞추면 옛 `vercel` 행 회원의 cron-job.org 호출을 회원 실행 주소가 401로 거절한다(작성 중 발견) |
+
+**시험이 본 것**
+
+| 묶음 | 내용 |
+|---|---|
+| 연결점 없음 — 원본과 나란히 대조 | 함수 12개 × 상태 6 × 키 유무 × 남은 일 0/2 × 사이트 스위치 기본/off × cron 실패 유무 = **1,152조합**에서 반환값·오류 문구·DB 호출 순서와 내용·cron 호출이 원본과 같음. 게시 처리 4갈래, 사이트 예약 경로 4갈래(인증 실패 포함)도 원본과 같음. 상태 응답 키 6개 그대로 |
+| 연결점 있음 | 기본 `cronjob`(관리자·지정도 행 없으면 `cronjob`) · 판정표 6갈래(행 쓰기 0) · 다시 고르기 안내 · 권한/확인 조회 실패 → 차단 · Vercel로 바꾸기(거절·허용+명시 기록·기록 실패 시 미변경·사이트 스위치 off) · 키 삭제 · 예약 때 행 맞춤 · 실행 범위(허용 ∩ `vercel` ∩ 일시정지 아님, 목록/DB 실패 → 0명) · 처리 직전 철회·일시정지·방식 변경·조회 실패 · 경로 통합(지정+명시 글만 게시, 나머지 대기) |
+
+**확인하지 못한 것(모의로는 볼 수 없음)**
+
+- 타입 검사(`tsc`)와 실제 빌드: 격리 사본에 의존성이 없어 돌리지 않았다. 특히 「없는 내보내기를 이름으로 읽는 줄」(`Reflect.get(…, "platformSchedulerPolicy")`)이 연결점 없는 프로그램의 Next 빌드에서 경고·오류 없이 통과하는지는 **실제 빌드로 봐야 한다**.
+- 실제 Supabase 질의(특히 `.in("user_id", …)`에 회원이 아주 많을 때의 주소 길이) — 지정 회원은 소수라는 전제.
+- 이 앱의 `schedulerConfig.ts` 연결점 구현(권한 저장소·명시 기록 저장소)과 화면 — 저장 계약이 정해진 뒤.
+- 정기형 프로그램(예약 글이 아니라 규칙을 돌리는 사본들)의 자체 실행 경로: `membersExcludedFromPlatform`을 그대로 두어 영향이 없도록 했고 대조 시험에 넣었지만, 그 프로그램들의 기존 시험은 돌리지 않았다.
+- 사본 프로그램의 화면·시험이 상태 응답을 엄격히 검사하는지 — 응답 모양을 바꾸지 않아 해당 없음으로 본다(직접 확인은 안 함).
+
+**Master 판정이 필요한 것**
+
+1. 「명시 선택」 기록을 어디에 둘지(`confirmed`·`markConfirmed`의 저장소) — 권한 표에 칸으로 둘지, 실행 방식 표에 칸을 더할지. 후보는 저장 방식과 무관하게 동작한다.
+2. 재확인으로 건너뛴 글의 결과 표기 `skipped`를 사이트 예약 응답의 `processed` 수에 넣을지(지금은 들어간다 — 연결점이 있는 앱에서만).
+3. 실제 빌드 확인을 어느 프로그램으로 할지(연결점 없는 사본 1개 + 이 앱) — 로컬 `npm run build`는 무료지만 격리 사본에 의존성 설치가 필요하다.
