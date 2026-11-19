@@ -19,12 +19,12 @@ M3 후보와 이미지 모의 재검수 수락. Workspace 응답 후보 독립 �
 
 ## 지금 내린 지휘와 우선순위
 
-최근 담당표 갱신 2026-11-19 23:38 KST · 미완료 33건(진행 4·검수 9·순번 3·주인님 확인/결정 17).
+최근 담당표 갱신 2026-11-19 23:39 KST · 미완료 33건(진행 5·검수 8·순번 3·주인님 확인/결정 17).
 
 | 순서 | 담당 | 진행 단계 | 다음 작업·통과 기준 |
 | --- | --- | --- | --- |
 | 1 · ESM | 이커머스 + Mac Tester | 무료 이미지 편집 보존 모의 재검수 수락 | 지연 모의 격리 주소 확보 뒤 React 검수, ESM 공간19 Return 대기. |
-| 2 · Workspace | Workspace + Master | v1.63 운영, 3MB 응답 후보 제출 | 빈 맵 P3 보완판 Mac 재검수 요청. Gmail·실제 ZIP 사용자 신호 대기. |
+| 2 · Workspace | Workspace + Master | v1.63 운영, 3MB 응답 후보 제출 | 빈 맵 P3 재검수 수락, 미배포 정리 요청. Gmail·실제 ZIP 사용자 신호 대기. |
 | 3 · B2B | Backend + Master + Mac Tester | M3 라우트 후보 맥미니 64/64 수락 | 연결 범위 대조, QA037 로그인·Return 및 S70 Lab 전제 대기. |
 | 4 · B2BFront | B2BFront + Master + Mac Tester | 태블릿 후보 3파일 격리 복원 | 허용된 격리 실행 수단 확보 뒤 URL 검수. |
 | 5 · 블로그 | Blog | 보안·위젯 4종 배포 보고, T03 준비표 수락 | T03 전환 승인 대기, 공유 master 푸시 범위 분리. |
@@ -98,7 +98,7 @@ M3 후보와 이미지 모의 재검수 수락. Workspace 응답 후보 독립 �
 
 | 담당 | 현재 작업·점유 | 완료/대기·다음 행동 | 확인 근거 |
 | --- | --- | --- | --- |
-| CC-WORKSPACE-01 | 3d446effa P3 보완 제출 | 맥미니 재검수 요청·운영 ZIP 대기 | 3d446effa·msg_66f223d06e95 |
+| CC-WORKSPACE-01 | 3d446effa P3 재검수 수락 | 미배포 기록·점유 정리 요청, 운영 ZIP 대기 | 3d446effa·msg_0726003c8bcb·msg_3b04b47cad53 |
 | CC-B2B-BACK-01 | 052441c03 M3 후보 Mac 64/64 | 실제 라우트 연결 범위 대조 배정 | msg_b9497c0ed51e·msg_a53e39f08f83 |
 | CC-B2B-FRONT-01 | 태블릿 지정 3파일 격리 후보 | Master URL 확인 후 Front·Mac 실제 화면 | msg_160c1fc11d31 |
 | CC-ECOM-01 | af10c9cd8 Mac 모의 13/13 | 가짜 변환 지연 격리 주소 필요 | msg_601bdb74bd5d·msg_6adfff8a518c |
@@ -395,7 +395,7 @@ M3 후보와 이미지 모의 재검수 수락. Workspace 응답 후보 독립 �
 | WS-20261119-01 | CC-WORKSPACE-01 | done / saved_notion_html_recursive_fix_independent_review_accepted | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | v1.61 배포 완료, 기존 가져온 본문 읽기 확인. 운영에서 노션 저장 HTML 다시 가져오기 시험은 미실행. v1.61 완료분 점유 해제(5b2f56408). |
 | WS-20261119-REL | CC-WORKSPACE-01 | done / production_v161_live_verified_catalog_version_synced | Workspace v1.61 기존 중단 빌드 로그 진단 | 운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음. 완료분 점유 해제(5b2f56408). |
 | WS-20261119-02 | CC-WORKSPACE-01 | done / workspace_v162_production_ready_live_import_pending | Workspace 대용량 ZIP | dfcee1584 운영 v1.62 READY·공식 alias 확인, 빌드 1회. 첫 요청 DDL 확인(담당). DB 표시 v1.61, 재로그인·실제 ZIP/Storage 검증 대기. |
-| WS-20261119-ZIP-504 | CC-WORKSPACE-01 | reviewing / zip_response_pointer_fix_mac_review_requested | Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단 | 3d446effa 빈 응답 안내 보완, 지정 시험 17/17·tsc 통과 보고. 맥미니 재검수 요청 전달. 보완판 전체 시험·실제 브라우저 미확인. |
+| WS-20261119-ZIP-504 | CC-WORKSPACE-01 | running / zip_response_pointer_fix_mac_accepted_closeout_requested | Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단 | 3d446effa 담당 17/17·맥미니 모의 10/10 수락. 미배포 기록과 점유 정리 배정. 운영 ZIP·실제 브라우저 미확인. |
 | MUSIC-20261119-IMG-COMPAT | CC-MUSIC-01 | done / five_music_flows_read_only_accepted | 무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토 | 고정 2131089b7 음악 5경로·146/146 검토 수락. 새 범위 미사용 시 파일 미생성 정정. 실제 엔진은 미검증. |
 | MUSIC-20261119-BACKLOG-SWEEP | CC-MUSIC-01 | done / music_backlog_review_accepted_followup_dispatched | 음악 7개 프로그램 다음 작업 후보 대조 | 음악 7개 웹의 미배포 코드 0. L5·U3를 우선 로컬 착수, 리믹스→플레이리스트 및 유료 영상 실검증은 별도 조건 대기. |
 | MUSIC-20261119-REMIX-PLAYLIST-REVIEW | CC-MUSIC-01 | done / remix_playlist_review_accepted_implementation_scope_pending | 리믹스에서 플레이리스트 연계 사전 검토 | d6df77af9 사전 검토 수락. 두 테이블 모두 회원 범위 확인, 플레이리스트 수신 기능을 먼저 배포한 뒤 음악 링크를 공개해야 함. 구현 범위·배포 승인 대기. |
