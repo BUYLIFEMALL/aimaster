@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ExternalLink, Loader2, Music2, RefreshCw } from "lucide-react";
 import type { Track } from "@/types/playlist";
 import type { LyricLine } from "@/lib/lyrics";
-import { acceptResponse, canPickMore, clearSelection, finishAdd, incomingNotice, parseIdParam, reconcilePicks, seedStep, splitIncoming, type Incoming, type ListView } from "@/lib/remixTracks";
+import { acceptResponse, canPickMore, clearButtonState, clearSelection, finishAdd, incomingNotice, parseIdParam, reconcilePicks, seedStep, splitIncoming, type Incoming, type ListView } from "@/lib/remixTracks";
 
 // v1.19 음악(SUNO) 자동화에서 만든 내 곡 여러 개를 골라 플레이리스트 곡 목록에 한 번에 추가한다.
 // 음악은 비공개 저장소의 1시간 서명 주소로 받고(서버에 새로 올리지 않음), 「시간 가사도 받기」를 켜면
@@ -126,6 +126,7 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
   const pickedHere = selectable.filter((a) => picked.includes(a.v.id));
   // 「선택 해제」: 보이는 선택뿐 아니라 리믹스 보류·처리 전 받은 곡까지 — 해제 뒤 응답이 와도 되살리지 않음
   const clearAll = () => { const c = clearSelection(); setPicked(c.picked); heldRef.current = c.held; setIncoming(c.incoming); setSeedDone(c.done); };
+  const clearBtn = clearButtonState(list?.length ?? 0, picked, heldRef.current, incoming, !!busy); // 표시·활성은 목록 길이가 아니라 해제할 것이 있는지로
   const timeCalls = withTime ? pickedHere.filter((a) => a.v.canTime && !timedCache.has(a.v.id)).length : 0;
 
   async function useCover(t: SunoTrack) {
@@ -224,6 +225,12 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
           )}
           {listError && <div className="text-xs text-red-400">{listError}</div>}
           {list === null && <div className="text-xs text-[#aaa] flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" />곡 목록을 불러오는 중…</div>}
+          {clearBtn.placement === "standalone" && ( // 목록이 비어도(빈 목록·대기·실패·리믹스만 숨은 부분 실패) 보류·받은 곡을 해제할 수 있게
+            <div className="flex flex-wrap items-center gap-2 text-[11px] text-[#aaa]">
+              <button type="button" className={chip} disabled={!clearBtn.enabled} onClick={clearAll}>선택 해제</button>
+              <span>지금 목록에 보이지 않는 선택·받은 곡이 남아 있습니다. 필요 없으면 해제하세요.</span>
+            </div>
+          )}
           {list && !list.length && !listError && (
             <div className="text-xs text-[#aaa]">아직 가져올 곡이 없습니다. <a className="underline text-white inline-flex items-center gap-1" href={`${MUSIC_APP_URL}/plannings`} target="_blank" rel="noreferrer">음악(SUNO) 자동화에서 곡 만들기 <ExternalLink className="w-3 h-3" /></a></div>
           )}
@@ -233,7 +240,7 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
                 <button type="button" className={chip} disabled={!!busy} onClick={() => pickWhere(() => true)}>전체 선택</button>
                 <button type="button" className={chip} disabled={!!busy} onClick={() => pickWhere((t) => t.mode === "vocal")}>보컬만</button>
                 <button type="button" className={chip} disabled={!!busy} onClick={() => pickWhere((t) => t.mode === "instrumental")}>연주곡만</button>
-                <button type="button" className={chip} disabled={!!busy || (!picked.length && !heldRef.current.length && !incoming.suno.length && !incoming.remix.length)} onClick={clearAll}>선택 해제</button>
+                {clearBtn.placement === "toolbar" && <button type="button" className={chip} disabled={!clearBtn.enabled} onClick={clearAll}>선택 해제</button>}
                 <span className="text-[11px] text-[#888] self-center">최대 {MAX_PICK}곡</span>
               </div>
               <div className="max-h-64 overflow-y-auto space-y-1.5 pr-1">

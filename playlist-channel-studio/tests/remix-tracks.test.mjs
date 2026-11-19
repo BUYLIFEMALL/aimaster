@@ -536,5 +536,46 @@ test("화면 연결: 「선택 해제」는 clearAll(활성·보류·받은 곡�
   assert.match(ui, /const clearAll = \(\) => \{ const c = clearSelection\(\); setPicked\(c\.picked\); heldRef\.current = c\.held; setIncoming\(c\.incoming\); setSeedDone\(c\.done\); \};/);
   assert.match(ui, /onClick=\{clearAll\}>선택 해제<\/button>/);
   assert.doesNotMatch(ui, /onClick=\{\(\) => setPicked\(\[\]\)\}/);
-  assert.match(ui, /disabled=\{!!busy \|\| \(!picked\.length && !heldRef\.current\.length && !incoming\.suno\.length && !incoming\.remix\.length\)\} onClick=\{clearAll\}/);
+  assert.match(ui, /disabled=\{!clearBtn\.enabled\} onClick=\{clearAll\}/, "활성 조건은 clearButtonState(보류·받은 곡 포함)");
+});
+
+// ── 빈 표시 목록에서도 「선택 해제」 노출 (Master msg_58972fc68fa7, Mac msg_4030f5a5e806) ──
+import { clearButtonState } from "../src/lib/remixTracks.ts";
+
+const EMPTY_INC = { suno: [], remix: [] };
+test("버튼 표시·활성: 목록 길이가 아니라 해제할 것이 있는지로", () => {
+  // 빈 정상 목록 · 해제할 것 없음 → 숨김
+  assert.deepEqual(clearButtonState(0, [], [], EMPTY_INC, false), { placement: "none", enabled: false });
+  // 대기·실패로 목록이 비었지만 받은 곡이 남음 → 단독 표시·클릭 가능
+  assert.deepEqual(clearButtonState(0, [], [], { suno: [A], remix: [] }, false), { placement: "standalone", enabled: true });
+  // 리믹스만 고른 회원이 부분 실패 → 목록 0개, 보류만 남음 → 단독 표시·클릭 가능
+  assert.deepEqual(clearButtonState(0, [], [C], EMPTY_INC, false), { placement: "standalone", enabled: true });
+  // 받은 리믹스 번호만 남음(수신 예정)
+  assert.deepEqual(clearButtonState(0, [], [], { suno: [], remix: [C] }, false), { placement: "standalone", enabled: true });
+  // 일반 목록: 항상 선택 버튼 줄에, 해제할 것이 있을 때만 활성
+  assert.deepEqual(clearButtonState(3, [A], [], EMPTY_INC, false), { placement: "toolbar", enabled: true });
+  assert.deepEqual(clearButtonState(3, [], [], EMPTY_INC, false), { placement: "toolbar", enabled: false });
+  // 추가 작업 중에는 어디서든 비활성
+  assert.deepEqual(clearButtonState(0, [], [C], EMPTY_INC, true), { placement: "standalone", enabled: false });
+});
+
+test("보류만 남은 빈 목록에서 해제 → 버튼이 사라지고, 늦은 정상 응답에서도 되살리지 않음", () => {
+  const known = new Set([C]);
+  let st = { picked: [C], held: [], incoming: EMPTY_INC, done: { suno: true, remix: true }, known };
+  st = onList(st, ok([], false));                                     // 리믹스만 고른 회원, 부분 실패로 목록 0개
+  assert.deepEqual([st.picked, st.held], [[], [C]]);
+  assert.equal(clearButtonState(0, st.picked, st.held, st.incoming, false).placement, "standalone");
+  st = cleared(st);
+  assert.equal(clearButtonState(0, st.picked, st.held, st.incoming, false).placement, "none", "해제 뒤 단독 버튼 사라짐");
+  st = onList(st, ok([C], true));
+  assert.deepEqual(st.picked, []);
+});
+
+test("화면 연결: 단독 버튼은 목록 블록 밖, 툴바 버튼은 목록 블록 안 — 둘 다 clearButtonState로만 표시", () => {
+  const ui = readFileSync(new URL("../src/components/video/SunoImportPanel.tsx", import.meta.url), "utf8");
+  assert.match(ui, /const clearBtn = clearButtonState\(list\?\.length \?\? 0, picked, heldRef\.current, incoming, !!busy\);/);
+  const standalone = ui.indexOf('{clearBtn.placement === "standalone" && ('), listBlock = ui.indexOf("{!!list?.length && (");
+  assert.ok(standalone > 0 && standalone < listBlock, "단독 버튼은 목록 블록(!!list?.length) 밖");
+  assert.match(ui, /\{clearBtn\.placement === "toolbar" && <button type="button" className=\{chip\} disabled=\{!clearBtn\.enabled\} onClick=\{clearAll\}>선택 해제<\/button>\}/);
+  assert.equal((ui.match(/>선택 해제<\/button>/g) ?? []).length, 2);
 });

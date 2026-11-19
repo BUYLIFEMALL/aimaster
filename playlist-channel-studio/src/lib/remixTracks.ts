@@ -166,6 +166,16 @@ export function clearSelection(): { picked: string[]; held: string[]; incoming: 
   return { picked: [], held: [], incoming: { suno: [], remix: [] }, done: { suno: true, remix: true } };
 }
 
+/**
+ * 「선택 해제」 버튼 — 목록 길이와 상관없이 해제할 것(활성 선택·보류·처리 전 받은 곡)이 있으면 보인다.
+ * 목록이 있으면 선택 버튼 줄(toolbar)에, 목록이 비었으면(빈 정상 목록·대기·실패·리믹스만 숨은 부분 실패) 단독(standalone)으로.
+ */
+export function clearButtonState(listLength: number, picked: string[], held: string[], inc: Incoming, busy: boolean): { placement: "toolbar" | "standalone" | "none"; enabled: boolean } {
+  const clearable = picked.length > 0 || held.length > 0 || inc.suno.length > 0 || inc.remix.length > 0;
+  const placement = listLength > 0 ? "toolbar" : clearable ? "standalone" : "none";
+  return { placement, enabled: !busy && clearable };
+}
+
 /** 보류를 따로 두지 않는 쪽(시험·단순 호출)용 — 활성 선택 뒤에 남은 자리만큼 보류를 붙인 한 줄 */
 export function prunePicked(picked: string[], view: ListView, knownRemix: ReadonlySet<string>, max: number): string[] {
   const r = reconcilePicks(picked, [], view, knownRemix, max);
