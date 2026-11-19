@@ -128,13 +128,21 @@ test("편집기 미리보기(quickBar=false): 패널이 없으니 단추 없음 
   assert.match(layout, /\{showShop && <QuickBar /, "상점은 패널도 같은 조건(showShop)으로 그려짐");
 });
 
-async function mountBoth() {
+async function mountBoth(initialWide = false) {
   const { Window } = req("happy-dom");
   const win = new Window({ url: "http://localhost/" });
   for (const k of ["window", "document", "navigator", "HTMLElement", "Node", "Event", "MouseEvent", "KeyboardEvent", "CustomEvent"]) Object.defineProperty(globalThis, k, { value: k === "window" ? win : win[k], configurable: true, writable: true });
-  // 숨김 CSS가 없는 happy-dom에서 「보이는 요소」 판정: min-[86.25rem]:hidden(1379px 이하만 보임)은 보임, max-[86.25rem]:hidden은 숨김으로 흉내(휴대폰 폭)
+  let wide = initialWide;
+  const media = new win.EventTarget();
+  Object.defineProperty(media, "matches", { get: () => wide });
+  win.matchMedia = (query) => {
+    assert.equal(query, "(min-width: 86.25rem)");
+    return media;
+  };
+  // happy-dom에는 반응형 CSS가 없으므로 전환 시 요소와 부모의 숨김을 흉내 낸다.
   win.HTMLElement.prototype.getClientRects = function () {
-    for (let e = this; e; e = e.parentElement) if (e.getAttribute?.("class")?.split(/\s+/).includes("max-[86.25rem]:hidden")) return [];
+    const hiddenClass = wide ? "min-[86.25rem]:hidden" : "max-[86.25rem]:hidden";
+    for (let e = this; e; e = e.parentElement) if (e.classList.contains(hiddenClass)) return [];
     return [{ width: 1, height: 1 }];
   };
   globalThis.IS_REACT_ACT_ENVIRONMENT = true;
@@ -150,7 +158,13 @@ async function mountBoth() {
     React.createElement(qb.default, { slug: "s", base: "/s/s", cartCount: 0 }))));
   const act = (fn) => React.act(async () => fn());
   const $ = (q) => host.querySelector(q);
-  return { win, host, act, $, close: () => win.happyDOM.close() };
+  const resize = (nextWide) => act(() => {
+    wide = nextWide;
+    const active = document.activeElement;
+    if (active && !active.getClientRects().length) active.blur();
+    media.dispatchEvent(new win.Event("change"));
+  });
+  return { win, host, act, $, resize, close: () => win.happyDOM.close() };
 }
 
 test("헤더 빠른 메뉴 흐름: 단추 → 열림(단추 닫기/true, 패널 보임, 포커스 패널 닫기) → 패널 닫기 → 닫힘·포커스 단추 복귀 → 다시 열고 Esc → 닫힘·포커스 단추", async () => {
@@ -186,7 +200,7 @@ test("헤더 빠른 메뉴 흐름: 단추 → 열림(단추 닫기/true, 패널 
 });
 
 test("PC 흐름 그대로: 손잡이(접기) → 기존 미니 바, 다시 펼치기 → 펼친 패널", async () => {
-  const h = await mountBoth();
+  const h = await mountBoth(true);
   const t = () => h.$('[data-quickbar="toggle"]');
   await h.act(() => t().click());
   assert.equal(t().getAttribute("aria-label"), "퀵바 펼치기");
@@ -198,8 +212,54 @@ test("PC 흐름 그대로: 손잡이(접기) → 기존 미니 바, 다시 펼�
   await h.close();
 });
 
+test("폭 전환: 넓은 화면의 펼침이 좁은 화면에 전파되지 않고 사라진 손잡이의 포커스만 옮김", async () => {
+  const h = await mountBoth(true);
+  const toggle = h.$('[data-quickbar="toggle"]');
+  const opener = h.$('[data-quickbar="opener"]');
+  toggle.focus();
+  await h.act(() => toggle.click());
+  await h.act(() => toggle.click());
+  await h.resize(false);
+  assert.equal(opener.getAttribute("aria-expanded"), "false");
+  assert.equal(h.$('[data-quickbar="expanded"]').getClientRects().length, 0);
+  assert.equal(document.activeElement, opener);
+  await h.resize(true);
+  assert.equal(toggle.getAttribute("aria-expanded"), "true");
+  assert.equal(document.activeElement, toggle);
+  await h.close();
+});
+
+test("폭 전환: 모드별 선택과 공유 패널의 보이는 포커스 및 외부 포커스를 유지", async () => {
+  const h = await mountBoth(true);
+  const toggle = h.$('[data-quickbar="toggle"]');
+  const opener = h.$('[data-quickbar="opener"]');
+  const product = h.$("main a");
+  toggle.focus();
+  await h.act(() => toggle.click());
+  await h.resize(false);
+  await h.act(() => opener.click());
+  assert.equal(document.activeElement, h.$('[data-quickbar="panel-close"]'));
+  await h.resize(true);
+  assert.equal(toggle.getAttribute("aria-expanded"), "false");
+  assert.equal(h.$('[data-quickbar="expanded"]').getClientRects().length, 0);
+  assert.equal(document.activeElement, toggle);
+  product.focus();
+  await h.resize(false);
+  assert.equal(opener.getAttribute("aria-expanded"), "true");
+  assert.equal(document.activeElement, product);
+  await h.resize(true);
+  await h.act(() => toggle.click());
+  const cart = h.$('[data-quickbar="expanded"] a');
+  cart.focus();
+  await h.resize(false);
+  assert.equal(document.activeElement, cart);
+  cart.blur();
+  await h.resize(true);
+  assert.equal(document.activeElement, document.body);
+  await h.close();
+});
+
 test("단추는 진짜 button(키보드 Tab·Enter·Space 기본 동작), 정보 손실 없음", () => {
   assert.equal((qbSrc.match(/<button\s+type="button"/g) || []).length >= 4, true);
   assert.ok(qbSrc.includes("장바구니") && qbSrc.includes("최근본상품") && qbSrc.includes("TOP") && qbSrc.includes("DOWN"));
-  assert.ok(!/matchMedia/.test(qbSrc), "화면 폭을 JS로 읽지 않음(서버·하이드레이션 같은 HTML)");
 });
