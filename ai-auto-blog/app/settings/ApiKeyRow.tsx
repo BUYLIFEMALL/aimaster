@@ -1,14 +1,93 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { saveApiKeyAction, deleteApiKeyAction, type SaveApiKeyState } from './actions'
 import type { ApiKeyProvider } from '@/utils/apiKeys'
-import { IS_STANDALONE } from '@/lib/deployment'
+import {
+  IMAGE_MODEL_OPTIONS,
+  contentModelLabel,
+  getContentModels,
+  imageModelLabel,
+  isContentProvider,
+  readPreferredContentModel,
+  readPreferredImageModel,
+  savePreferredContentModel,
+  savePreferredImageModel,
+  type ContentProvider,
+} from '@/blog/utils/ai/contentModels'
+
+// 2026-11-19 주인님 지시: 플랫폼 카드마다 쓸 모델을 고른다. 고른 값은 이 브라우저에 기억되고
+// AI 글쓰기 화면에서 그 플랫폼을 고르면 이 모델이 먼저 선택된다(글쓰기 화면에서 바꿔도 같이 기억).
+function ModelPreference({ provider }: { provider: ContentProvider }) {
+  const [contentModel, setContentModel] = useState('')
+  const [imageModel, setImageModel] = useState('')
+  const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    setContentModel(readPreferredContentModel(provider)) // eslint-disable-line react-hooks/set-state-in-effect -- 브라우저 저장값은 마운트 뒤에만 읽을 수 있음
+    if (provider === 'gemini') setImageModel(readPreferredImageModel())
+  }, [provider])
+
+  function flash() {
+    setSaved(true)
+    window.setTimeout(() => setSaved(false), 1500)
+  }
+
+  if (!contentModel) return null
+  const selectClass =
+    'min-w-0 flex-1 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs font-semibold text-zinc-800 focus:outline-none focus:border-blue-500'
+
+  return (
+    <div className="flex flex-col gap-2 pt-2 border-t border-zinc-100">
+      <label className="flex flex-wrap items-center gap-2">
+        <span className="w-24 shrink-0 text-xs font-bold text-zinc-600">본문 생성 모델</span>
+        <select
+          value={contentModel}
+          onChange={(e) => {
+            setContentModel(e.target.value)
+            savePreferredContentModel(provider, e.target.value)
+            flash()
+          }}
+          className={selectClass}
+        >
+          {getContentModels(provider).map((m) => (
+            <option key={m.value} value={m.value}>
+              {contentModelLabel(m)}
+            </option>
+          ))}
+        </select>
+      </label>
+      {provider === 'gemini' && imageModel && (
+        <label className="flex flex-wrap items-center gap-2">
+          <span className="w-24 shrink-0 text-xs font-bold text-zinc-600">이미지 생성 모델</span>
+          <select
+            value={imageModel}
+            onChange={(e) => {
+              setImageModel(e.target.value)
+              savePreferredImageModel(e.target.value)
+              flash()
+            }}
+            className={selectClass}
+          >
+            {IMAGE_MODEL_OPTIONS.map((m) => (
+              <option key={m.value} value={m.value}>
+                {imageModelLabel(m)}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+      <p className="text-[11px] text-zinc-500">
+        {saved ? '✓ 저장했습니다. ' : ''}AI 글쓰기 화면에서 이 플랫폼을 고르면 이 모델이 기본으로 선택됩니다(글쓰기 화면에서도 바꿀 수 있습니다).
+      </p>
+    </div>
+  )
+}
 
 const PLATFORM_LINKS: Record<string, { icon: string; name: string; createUrl: string; signupUrl: string; note: string }> = {
   openai: {
     icon: '🤖',
-    name: IS_STANDALONE ? 'OpenAI' : 'OpenAI (GPT-4o)',
+    name: 'OpenAI',
     createUrl: 'https://platform.openai.com/api-keys',
     signupUrl: 'https://platform.openai.com/signup',
     note: '고품질 블로그 원고 및 본문 작성에 사용됩니다.',
@@ -174,6 +253,8 @@ export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
             )}
           </form>
         )}
+
+        {isContentProvider(provider) && <ModelPreference provider={provider} />}
 
         {state.error && <p className="mt-1 text-xs font-medium text-rose-600">⚠️ {state.error}</p>}
       </div>

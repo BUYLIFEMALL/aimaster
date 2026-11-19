@@ -48,7 +48,10 @@ import {
   imageModelLabel,
   getDefaultContentModel,
   isContentProvider,
+  MODEL_SELECTION_STORAGE_KEY,
+  readPreferredContentModel,
   resolveContentModel,
+  savePreferredContentModel,
   resolveImageCount,
   resolveImageModel,
   type ContentProvider,
@@ -90,7 +93,7 @@ const SUGGESTED_TOPICS = [
 
 const TONE_OPTIONS = ['전문적', '친근함', '설득력있는', '격식있는', '위트있는']
 
-const MODEL_STORAGE_KEY = 'ai-auto-blog:model-selection'
+const MODEL_STORAGE_KEY = MODEL_SELECTION_STORAGE_KEY
 
 function normalizeUrl(value: string): string {
   const v = value.trim()
@@ -941,7 +944,7 @@ function AiFormPageInner() {
                     onChange={(e) => {
                       const p = e.target.value as ContentProvider
                       setContentProvider(p)
-                      setContentModel(getDefaultContentModel(p))
+                      setContentModel(readPreferredContentModel(p))
                     }}
                     className="p-2.5 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800 focus:outline-none"
                   >
@@ -953,7 +956,10 @@ function AiFormPageInner() {
                   </select>
                   <select
                     value={contentModel}
-                    onChange={(e) => setContentModel(e.target.value)}
+                    onChange={(e) => {
+                      setContentModel(e.target.value)
+                      savePreferredContentModel(contentProvider, e.target.value)
+                    }}
                     className="p-2.5 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800 focus:outline-none"
                   >
                     {getContentModels(contentProvider).map((m) => (

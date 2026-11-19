@@ -82,7 +82,7 @@ export default function SettingsPage() {
           <div className="mb-4">
             <h2 className="text-sm font-bold text-zinc-900">🤖 AI 모델 API 키</h2>
             <p className="text-xs text-zinc-500">
-              본문 생성에는 AI 글쓰기 화면에서 고른 플랫폼(OpenAI·Anthropic·Gemini)의 키가, 이미지
+              플랫폼 카드마다 쓸 모델을 고를 수 있습니다. 본문 생성에는 AI 글쓰기 화면에서 고른 플랫폼(OpenAI·Anthropic·Gemini)의 키와 모델이, 이미지
               생성에는 Gemini 키가, "글감 수집"에는 Perplexity 키가 쓰입니다. 등록해야 해당 기능이
               동작합니다.
             </p>
