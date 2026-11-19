@@ -173,7 +173,7 @@ Master 마지막 실제 점검: 2026-11-19 13:33:14 KST · 실행 중 점검 주
 | RE-20261119-EXT | CC-REALTY-01 | running / three_program_linkage_independent_accepted_crm_plan_routed | 부동산 추가 개선 순차 진행 | 매물 알림 8 blob·독립 3/3, 관심 지역 3프로그램 연계 로컬 수락. 실 화면·DB 권한 검증 및 배포 대기. 고객관리 플랜 이동. |
 | RE-20261119-DESK | CC-REALTY-01 | done / u1_independent_review_accepted_undeployed | 부동산 고객관리 화면 개선 | U-1 1c52f4e37 Mac 독립 수락. 중립 배지·합성 3종 본문/발송 연결·광고 규칙 6/6 확인. 기존 90자 안내는 별도 개선, 미배포. |
 | RE-20261119-DESK-U1A | CC-REALTY-01 | done / sms_estimate_mac_review_accepted_undeployed | 부동산 고객관리 미리보기 문자 바이트 안내 | 1f55c38f2 Mac 독립 11/11, 16자 예시·90/91·본문 비치환·상시 추정·발송 경로 유지 확인. 미배포. |
-| RE-20261119-DESK-REL | CC-REALTY-01 | done / v111_release_ready_db_and_screen_reported_push_pending | 부동산 고객관리 v1.11 푸시·배포 후보 | 담당 보고로 운영 Ready·DB 및 메뉴 v1.11·위젯 확인. 운영 문자 미리보기는 시험 계정 매물 없어 미확인. 푸시 순번 대기. |
+| RE-20261119-DESK-REL | CC-REALTY-01 | done / v111_live_isolated_push_candidate_comparison_assigned | 부동산 고객관리 v1.11 푸시·배포 후보 | 운영 v1.11 배포 완료. 공유 master 일괄 푸시 보류, 원격 기준 폴더 한정 동등성 대조 및 매물 알림 백로그 첫 후보 제안 배정. |
 | RE-20261116-02 | CC-REALTY-01 | done / integrated | 카톡실패상태·끊긴토큰재발송방지·local로그아웃/UA | 사용자 직접 승인 배포 v1.45/v1.61. 카카오 실물·08:00 뉴스 대조 별도 |
 | BLOG-20261116-01 | CC-BLOG-01 | done / integrated | 티스토리 소제목##·이웃 전경거절 진단 보완 | 코드검증범위 완료, 이웃재시험/배포/실제소통은별도대기 |
 | QA-20261116-01 | CX-QA-01 | cancelled / integrated | 종합 QA를 영상/Workspace로 분리 | 중복 배정 종료, 검증 완료 의미 아님 |
@@ -390,6 +390,8 @@ Master 마지막 실제 점검: 2026-11-19 13:33:14 KST · 실행 중 점검 주
 | WS-20261118-08 | CC-WORKSPACE-01 | done / collapsed_widget_spacing_static_mac_review_accepted_undeployed | 좌측 하단 저장공간 위젯과 푸터 겹침 | 미배포. 기본 위젯 겹침 국소 정적 검수 완료, 확장/좁은 폭·실화면은 별도. |
 | WS-20261119-01 | CC-WORKSPACE-01 | done / saved_notion_html_recursive_fix_independent_review_accepted | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | v1.61 배포 완료, 기존 가져온 본문 읽기 확인. 운영에서 노션 저장 HTML 다시 가져오기 시험은 미실행. |
 | WS-20261119-REL | CC-WORKSPACE-01 | done / production_v161_live_verified_catalog_version_synced | Workspace v1.61 기존 중단 빌드 로그 진단 | 운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음. |
+| WS-20261119-02 | CC-WORKSPACE-01 | waiting_human / limit_copy_verified_large_zip_design_decisions_pending | Workspace ZIP 50MB 안내와 대용량 가져오기 설계 | 50MB 안내 수정 39ca388da 미배포. 대용량 ZIP 업로드 소유권·정리·풀기 제한 플랜 보강. 전체 상한·낱개 초과 처리·DB 변경 결정 대기. |
+| MUSIC-20261119-IMG-COMPAT | CC-MUSIC-01 | running / legacy_music_read_only_review_dispatched | 무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토 | 앨범 그림·기존 토큰/대기열·ACE-Step·모델 이동·YuE2 재개 호환 읽기 검토 배정. 엔진 편집 점유는 이미지 담당. |
 | QA-20261118-043 | CX-QA-01 | done / production_v161_mobile_keyboard_verified_read_only | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | Workspace 운영 v1.61 독립 읽기. 375/390px 요일 7칩 두 줄·넘침 0·Tab 3px 포커스. OS 다크 선호 확인, 앱 테마·저장 중 상태 미검증. |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
 | OPS-20261118-01 | CX-MASTER-01 | done / integrated | 전체개발플랜·카테고리·누락개선/인수인계 정합성 대조 | 미확인68프로그램 현담당근거후속연결·제품전체검증과구분, 신규후속ID별진행 |
@@ -423,9 +425,9 @@ Master 마지막 실제 점검: 2026-11-19 13:33:14 KST · 실행 중 점검 주
 | B2B-20261119-MAKER-M2 | CC-B2B-BACK-01 | done / data_layer_independent_accepted_undeployed_ui_design_dispatched | 메이커 M2 사진 제안 저장 범위 설계 | 0106 데이터 계층 Mac 독립 수락. UI 연결 계획 배정. 실제 Storage·Lab·운영 및 M3 미적용. |
 | B2B-20261119-MAKER-M2-UI | CC-B2B-BACK-01 | done / m2_ui_independent_accepted_test_assertions_verified_undeployed | 메이커 M2 사진 제안 화면·저장 응답 연결 | 독립 제품 수락, 단언 5개 도달성 수정 후 Master 시험 18/18 통과. 실제 Storage·Lab 미검증, 미배포. |
 | B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | reviewing / local_data_layer_review_passed_server_approval_pending | 메이커 M3 제안 적용·서버 바이트 검증 설계 | f0eaf784c Mac 로컬 데이터 계층 독립 검수 수락을 Backend에 회신. 점 경로 검증, 서버 구현·키·UI·Lab은 별도 승인 대기. |
-| B2B-20261119-ADMINUI | AG-UI-01 | waiting_human / private_lab_ready_waiting_owner_admin_login | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | 메모리 부족 후 사용자 지시로 사설 Lab 재시작, PID 43784·ad046c1eb·login 200 확인. Mac 공간39 사용자 제어 유지, 반환 후 읽기 검수. |
+| B2B-20261119-ADMINUI | AG-UI-01 | reviewing / lab_ready_authenticated_screen_pending | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | 승인 4경로 사설 Lab 1회 READY. 상점 200·관리 상품/주문 307. 로그인 후 실화면·키보드는 사용자 제어 반환 뒤. 필터 aria-current 보완 후보 기록. |
 | B2B-20261119-MALL-STORAGE | CX-MASTER-01 | queued / central_accounting_scope_registered_retention_excluded | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 메인 집계에서 몰별 경로를 몰 주인에게 귀속하고 중복 방지·구매 안내 범위를 설계. 30일 삭제 요청 취소·등록 상품 최소 1년 보관 유지. 운영 적용 별도. |
-| IMG-20261119-PLAN | CC-ECOM-01 | running / mac_review_two_engine_defects_fix_dispatched | AI 무료 이미지 자동화 개발 플랜 | 맥미니 47/47 및 기존 0.8.5 호환 확인. 손상 배열의 엔진 기동 중단과 취소 뒤 실행 중첩을 재현해 보완 배정. Admin Q8 품질 판정 대기. |
+| IMG-20261119-PLAN | CC-ECOM-01 | running / mac_fifty_pass_required_scoped_fields_fix_dispatched | AI 무료 이미지 자동화 개발 플랜 | 맥미니 50/50·건너뜀 0. 기존 손상·실행 중첩은 해소. 새 범위 출처·작업 필수 필드 누락으로 인한 실행을 차단하도록 보완 배정. Admin Q8 결과 대기. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
@@ -509,8 +511,8 @@ Master 마지막 실제 점검: 2026-11-19 13:33:14 KST · 실행 중 점검 주
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |
 | AIF-20261118-W03 | 미배정 | queued / sequenced_after_w01_and_w02_by_owner_instruction | 회원용 인물 라이브러리·시트·버전 | 주인님 지시대로 W01·W02 이후 시작. 인물 라이브러리·일괄 이미지·영상 미착수. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
-| BLOG-20261119-MODELS | CC-BLOG-01 | reviewing / mac_43_pass_two_endpoint_negation_cases_returned | 블로그 설정 플랫폼별 AI 모델 선택 | 맥미니 43/43 및 추가 모델별 합성 7건. 부정 대상 혼동·능동형 모순 두 사례 최소 보완 요청. 승인 실호출 9건 소진. |
-| FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | reviewing / fixed_mobile_panel_mac_keyboard_and_overlap_review_dispatched | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 담당 시험 13/13·타입 통과. 모바일 패널 겹침은 해소, 손잡이 약 18px 겹침과 초기 접근성 이름 남음. 맥미니 키보드·접근성 검수 요청. 미배포. |
+| BLOG-20261119-MODELS | CC-BLOG-01 | reviewing / mac_47_pass_exact_object_negation_case_returned | 블로그 설정 플랫폼별 AI 모델 선택 | 맥미니 47/47. Chat 부정 해소 및 2요청 상한 확인. Responses 목적어의 명시적 부정 한 건 수정 요청. 승인 실호출 9건 소진. |
+| FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | running / mac_overlap_and_initial_aria_fix_dispatched | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 맥미니 13/13·Tab/Enter/Space 통과. 격리 화면에서 손잡이의 링크 가림과 첫 표시 접근성 불일치가 재현돼 보완 배정. 미배포. |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
