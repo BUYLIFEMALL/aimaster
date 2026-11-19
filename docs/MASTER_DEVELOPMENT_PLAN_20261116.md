@@ -133,6 +133,7 @@ Master 마지막 실제 점검: 2026-11-20 04:02:30 KST · 04:00 정기 점검�
 
 | 구분 | 묶음 | 요청과 완료 신호 |
 |---|---|---|
+| 실행 승인 | Workspace v1.64 | 가져오기 응답 크기 보완 후보 배포 빌드 1회 승인 여부를 알려주십시오. 배포 후 Edge에서 실제 응답·화면·570쪽 수행 시간을 확인합니다. |
 | 직접 시험 | Workspace | v1.63에서 570쪽 ZIP 재시도 후 결과를 알려주십시오. Gmail은 시험 계정 동의 창이 열렸을 때 한 번 동의해 주십시오. |
 | 직접 조작 | 맥미니·상품 등록 | B2B Lab ego 29와 ESM+ ego 19, 11번가 ego 33의 지정 시험 계정에 로그인하고 제어를 반환해 주십시오. 음악 ego 20에 기존 저장 창이 열려 있으면 MP4를 저장하고 제어를 반환해 주십시오. |
 | 직접 조작 | 블로그·CRM | 기존 블로그 확장 회차에서 지정 A/B 조작을 각 1회 진행하고 제어를 반환해 주십시오. 기존 CRM 폼의 알림 설정·시트 v2 조건을 맞춘 뒤 응답을 1회 제출하고 알려주십시오. |
@@ -426,7 +427,7 @@ Master 마지막 실제 점검: 2026-11-20 04:02:30 KST · 04:00 정기 점검�
 | WS-20261119-01 | CC-WORKSPACE-01 | done / saved_notion_html_recursive_fix_independent_review_accepted | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | v1.61 배포 완료, 기존 가져온 본문 읽기 확인. 운영에서 노션 저장 HTML 다시 가져오기 시험은 미실행. v1.61 완료분 점유 해제(5b2f56408). |
 | WS-20261119-REL | CC-WORKSPACE-01 | done / production_v161_live_verified_catalog_version_synced | Workspace v1.61 기존 중단 빌드 로그 진단 | 운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음. 완료분 점유 해제(5b2f56408). |
 | WS-20261119-02 | CC-WORKSPACE-01 | done / workspace_v162_production_ready_live_import_pending | Workspace 대용량 ZIP | dfcee1584 운영 v1.62 READY·공식 alias 확인, 빌드 1회. 첫 요청 DDL 확인(담당). DB 표시 v1.61, 재로그인·실제 ZIP/Storage 검증 대기. |
-| WS-20261119-ZIP-504 | CC-WORKSPACE-01 | waiting_human / zip_response_candidate_closed_pending_live_retry_and_release | Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단 | 미배포 후보 3d446effa의 격리 전체 회귀 1,078 통과·1 제외. 운영 v1.63에서 570쪽 실제 ZIP은 사용자 재시도 뒤 확인. 후보 배포는 별도 승인. |
+| WS-20261119-ZIP-504 | CC-WORKSPACE-01 | waiting_human / zip_response_candidate_closed_pending_live_retry_and_release | Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단 | 54183605c 전체 격리 1,084 통과·진단 1 제외, Windows 독립 DOM 6/6. v1.64 배포 빌드 1회 승인 대기. 실제 브라우저·570쪽 운영 처리 시간 미확인. |
 | MUSIC-20261119-IMG-COMPAT | CC-MUSIC-01 | done / five_music_flows_read_only_accepted | 무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토 | 고정 2131089b7 음악 5경로·146/146 검토 수락. 새 범위 미사용 시 파일 미생성 정정. 실제 엔진은 미검증. |
 | MUSIC-20261119-BACKLOG-SWEEP | CC-MUSIC-01 | done / music_backlog_review_accepted_followup_dispatched | 음악 7개 프로그램 다음 작업 후보 대조 | 음악 7개 웹의 미배포 코드 0. L5·U3를 우선 로컬 착수, 리믹스→플레이리스트 및 유료 영상 실검증은 별도 조건 대기. |
 | MUSIC-20261119-REMIX-PLAYLIST-REVIEW | CC-MUSIC-01 | done / remix_playlist_review_accepted_implementation_scope_pending | 리믹스에서 플레이리스트 연계 사전 검토 | d6df77af9 사전 검토 수락. 두 테이블 모두 회원 범위 확인, 플레이리스트 수신 기능을 먼저 배포한 뒤 음악 링크를 공개해야 함. 구현 범위·배포 승인 대기. |

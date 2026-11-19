@@ -6189,7 +6189,7 @@
       "title": "Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단",
       "status": "waiting_human",
       "delivery": "zip_response_candidate_closed_pending_live_retry_and_release",
-      "next": "미배포 후보 3d446effa의 격리 전체 회귀 1,078 통과·1 제외. 운영 v1.63에서 570쪽 실제 ZIP은 사용자 재시도 뒤 확인. 후보 배포는 별도 승인.",
+      "next": "54183605c 전체 격리 1,084 통과·진단 1 제외, Windows 독립 DOM 6/6. v1.64 배포 빌드 1회 승인 대기. 실제 브라우저·570쪽 운영 처리 시간 미확인.",
       "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a·4f801102a·msg_188d5f946fe6·msg_d48ab4279b48·msg_6a8c40f8d884·.ai/results/WS-20261119-03-CX-QA-01.md·080d30733·5900bdee4·msg_81e5f70393f6·9b6cf6f43·862a3f744·msg_18677013088e·msg_e3da08ce301c·msg_81884a8c4c54·ad9f6e443·73e846195·msg_9cfa5b749036·msg_e77dc726848f·v1.63 1회 승인 보고·담당 배포 전 변경 경로 대조·msg_80ea9fa320d8·msg_e62063905385·de8326242·845d62331·msg_0bcf3ac363cd·msg_61592856a873·msg_6a32a57772c5·addc48085·주인님 보완판 커밋·푸시·배포 직접 지시 보고·6de15de60·dpl_CxEYSzDhnScbAL5zdmiToQy3HB4n·msg_dbdc16360cb8·msg_652436d7b405·7053d5879·msg_cc823e8bdd96·msg_0094fd736d91·msg_b9c03dffb58d·3d446effa·msg_66f223d06e95·msg_0726003c8bcb·msg_3b04b47cad53·bc814dc28·feb1587a0"
     },
     {
