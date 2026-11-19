@@ -4,14 +4,14 @@
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-20 00:01:23 KST · 00:00 예약 메시지 수신 및 증분 대조 완료.
-Workspace 보완 후보의 로컬 마감 확인. B2B M3 연결 범위는 기존 배정 진행 중. 새 범위의 중복 배정이나 운영 실행 없음.
+Master 마지막 실제 점검: 2026-11-20 00:31:10 KST · 00:30 예약 메시지 수신 및 증분 대조 완료.
+Cloudflare 선행 문서 후보의 원격 기준 확인. 직전 성공 배포와 빌드 설정 확인 전 푸시 보류. 기존 담당 배정 및 재개 조건 유지.
 
-점검 범위: 11월 19일 23:34 KST 이후 증분. 380건 중 미완료 33건(진행 4·검수 8·순번 3·주인님 확인/결정 18). 19개 카테고리·12개 세션 기록 및 변경된 Git·근거·점유·배포 대기 대조.
+점검 범위: 00:01 KST 이후 증분. 380건 중 미완료 33건(진행 4·검수 8·순번 3·주인님 확인/결정 18). 19개 카테고리·12개 세션의 작업표와 Git·점유·인수인계 변경 대조.
 
-후속 배정: Workspace는 주인님 운영 ZIP 재시도 신호 뒤 담당자가 로그 확인. 무료 이미지는 지연 모의 격리 주소 확보 뒤 맥미니 재개. M3는 담당 범위 회신 대기. Cloudflare 문서 후보는 Master가 실제 원격 기준과 빌드 트리거 확인 뒤 판단.
+후속 배정: Master가 메인 배포의 Git 기준과 빌드 설정을 확인한 뒤 역할 문서 푸시 판단. Workspace는 실 ZIP 재시도 신호, M3는 Backend 회신, 무료 이미지는 격리 주소 확보 뒤 재개.
 
-미확인: Workspace 실제 ZIP·브라우저·Gmail, B2B 실제 연결·Lab, 무료 이미지 React/AI, Cloudflare 실제 원격 푸시 효과, 전체 운영 전수.
+미확인: 메인 사이트 직전 성공 배포 SHA와 현재 빌드 설정, Workspace 운영 ZIP·Gmail, M3 실제 연결·Lab, 무료 이미지 실제 React·AI, 기타 운영 실동작 전수.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -456,7 +456,7 @@ Workspace 보완 후보의 로컬 마감 확인. B2B M3 연결 범위는 기존 
 | QA-20261118-BLOG-01 | CX-QA-01 | waiting_human / b1_v122_mac_retest_dispatched_human_clicks_required | website-scraper 읽기·B1 사람 포커스 재시험 준비 | v1.22 재검수 전달. 확장 버전·활성 상태 수동 확인과 A/B 사용자 클릭 각각 1회 후 Mac lastProbe 기록. |
 | RE-20261118-07 | CC-REALTY-01 | done / evaluation_deliverable_accepted_no_effectiveness_pass | 후보C 새기간40건 사전라벨 고정 평가 | 정상운영 새기간에서 목표소음이 포함된 검증조건 충족 시에만 별도배정·동일40건 규칙조정/재시험0 |
 | ECOM-20261118-06 | CC-ECOM-01 | done / specified_mock_server_source_accepted_off_unreleased | Cloudflare 본인 공용키 무료 이미지 경로 검증·연결 계획 | 실키유효/잔여사람단계·AGY UI 연결계획·OFF미배포 보존 |
-| ECOM-20261119-CFREL | CC-ECOM-01 | queued / role_docs_candidate_prepared_release_queued | 메인 API 설정 Cloudflare 카드 배포 선행 확인 | 1e5f23917은 로컬 origin/master af36bb467 직계·역할 문서 1개로 대조. 실제 원격 HEAD와 푸시 시 빌드 여부 확인 뒤 Master가 푸시 판단. Cloudflare 카드 빌드는 별도 승인. |
+| ECOM-20261119-CFREL | CC-ECOM-01 | queued / role_docs_candidate_prepared_release_queued | 메인 API 설정 Cloudflare 카드 배포 선행 확인 | 1e5f23917은 실제 원격 master af36bb467 직계·역할 문서 1개. 메인 빌드 생략은 직전 성공 배포 SHA와 배포 설정에 의존. Master 확인 전 푸시 보류. |
 | ECOM-20261119-EMOTION-QA | CX-QA-01 | reviewing / source_comparison_delivered_composite_session_missing | 감성 글귀 합성 기존 결과 맥미니 화면 검수 | Mac 보관 원본 2장 검증 및 담당자 주인님 채팅 전달 완료. 기존 앱 합성 탭·링크 부재로 한글 배치·가독성 보류. |
 | DES-20261118-07 | AG-UI-01 | done / emotion_cloudflare_status_card_source_review_accepted_unreleased | Cloudflare 공용키 설정 UI 연결 경로 계획 | 본인문서/점유정리·중앙82/e34와통합후보·메인선행/감성배포예산·실키검증별도 |
 | AIF-20261118-W00 | CC-SNS-01 | done / static_contract_review_accepted_implementation_unverified | AI Influencer W00 기준·격차/공통계약 독립검수 | W01a별도검수·PLAN/권한선행병합전자산코드/DDL0·후속경합/RLS실검증별도 |

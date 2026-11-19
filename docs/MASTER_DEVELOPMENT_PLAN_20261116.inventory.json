@@ -12,19 +12,18 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T15:01:23.519Z",
+      "at": "2026-11-19T15:31:10.703Z",
       "timezone": "Asia/Seoul",
-      "trigger": "00:00 정기 점검 메시지 msg_c2fe3b0bc897 수신·실행",
-      "scope": "11월 19일 23:34 KST 이후 증분. 380건 중 미완료 33건(진행 4·검수 8·순번 3·주인님 확인/결정 18). 19개 카테고리·12개 세션 기록 및 변경된 Git·근거·점유·배포 대기 대조.",
+      "trigger": "00:30 정기 점검 메시지 msg_cec886b376e1 수신·실행",
+      "scope": "00:01 KST 이후 증분. 380건 중 미완료 33건(진행 4·검수 8·순번 3·주인님 확인/결정 18). 19개 카테고리·12개 세션의 작업표와 Git·점유·인수인계 변경 대조.",
       "evidence": [
-        "Master 요청함 대기 0. 업데이트된 Workspace·무료 이미지 결과 2개와 23:34 이후 Git 대조. 공용 HANDOFF의 기존 AIF 미커밋 항목은 보존.",
-        "Workspace 3d446effa 담당 17/17·독립 모의 10/10, bc814dc28 기록과 feb1587a0 응답 범위 점유 해제 확인. 후보는 미배포. 무료 이미지 지연 모의 브라우저 주소 부재 확인.",
-        "Cloudflare 선행 역할 문서 후보 1e5f23917은 로컬 origin/master af36bb467 직계이며 문서 1개만 변경. 실제 원격 HEAD와 배포 트리거 미확인."
+        "Master 요청함 대기 0. 00:01 점검 기록 9a5ccabfa 이후 제품·점유·신규 결과 증분 없음. 기존 HANDOFF 변경은 보존.",
+        "실제 원격 master는 af36bb467로 1e5f23917의 직계 부모. 후보 변경은 역할 문서 하나. 후보의 루트 vercel.json 및 vercel-ignore-build.sh에서 비교 기준에 따라 빌드를 건너뛰는 조건 확인."
       ],
-      "judgment": "Workspace 보완 후보의 로컬 마감 확인. B2B M3 연결 범위는 기존 배정 진행 중. 새 범위의 중복 배정이나 운영 실행 없음.",
-      "nextAction": "Workspace는 주인님 운영 ZIP 재시도 신호 뒤 담당자가 로그 확인. 무료 이미지는 지연 모의 격리 주소 확보 뒤 맥미니 재개. M3는 담당 범위 회신 대기. Cloudflare 문서 후보는 Master가 실제 원격 기준과 빌드 트리거 확인 뒤 판단.",
+      "judgment": "Cloudflare 선행 문서 후보의 원격 기준 확인. 직전 성공 배포와 빌드 설정 확인 전 푸시 보류. 기존 담당 배정 및 재개 조건 유지.",
+      "nextAction": "Master가 메인 배포의 Git 기준과 빌드 설정을 확인한 뒤 역할 문서 푸시 판단. Workspace는 실 ZIP 재시도 신호, M3는 Backend 회신, 무료 이미지는 격리 주소 확보 뒤 재개.",
       "unverified": [
-        "Workspace 실제 ZIP·브라우저·Gmail, B2B 실제 연결·Lab, 무료 이미지 React/AI, Cloudflare 실제 원격 푸시 효과, 전체 운영 전수."
+        "메인 사이트 직전 성공 배포 SHA와 현재 빌드 설정, Workspace 운영 ZIP·Gmail, M3 실제 연결·Lab, 무료 이미지 실제 React·AI, 기타 운영 실동작 전수."
       ]
     },
     "notifications": [
@@ -9872,7 +9871,7 @@
       "status": "queued",
       "delivery": "role_docs_candidate_prepared_release_queued",
       "evidence": "msg_cb7803617a97·msg_ecc69c203761·msg_323c6d0c4fe1·msg_2fd7489c7154·msg_7b773773d43c·임시 Git 인덱스 대조·msg_6e8e826c45fd·Master 임시 인덱스 적용 확인 1파일 +6/-3·msg_34a8d9c8b06f·1e5f2391786fb71577527badc6499fb35dbb14a1",
-      "next": "1e5f23917은 로컬 origin/master af36bb467 직계·역할 문서 1개로 대조. 실제 원격 HEAD와 푸시 시 빌드 여부 확인 뒤 Master가 푸시 판단. Cloudflare 카드 빌드는 별도 승인.",
+      "next": "1e5f23917은 실제 원격 master af36bb467 직계·역할 문서 1개. 메인 빌드 생략은 직전 성공 배포 SHA와 배포 설정에 의존. Master 확인 전 푸시 보류.",
       "lastReviewedAt": "2026-11-19T01:49:28.990Z",
       "validation": {
         "remoteDivergence": "origin/master 0, HEAD 586",
