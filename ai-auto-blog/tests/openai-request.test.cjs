@@ -133,3 +133,26 @@ test('엔드포인트 전환 안내가 명시된 400/404는 Responses로 1번만
     assert.deepEqual(r.calls, ['https://api.openai.com/v1/chat/completions', 'https://api.openai.com/v1/responses'], msg);
   }
 });
+
+// ── Master msg_15f047c8dab7: Responses API 이름의 단순 언급과 명시 전환 권고 구분 ──
+test('Responses API 이름이 단순히 언급된 400(옵션·코드 없음)은 대체 호출 없음', async () => {
+  for (const msg of [
+    'The Responses API offers more features. Invalid value for messages[0].role.',
+    'Invalid request: see the Responses API reference for field names.',
+    'Requests to v1/responses are logged separately. Your input was too long.',
+  ]) {
+    const r = await countCalls(400, JSON.stringify({ error: { message: msg, type: 'invalid_request_error', param: null, code: null } }));
+    assert.equal(r.calls.length, 1, msg);
+  }
+});
+
+test('명시 전환 권고 문구는 다양한 표현에서도 1회 전환', async () => {
+  for (const msg of [
+    'Use the Responses API for this model.',
+    'This model is only available through the Responses API.',
+    'Please call v1/responses instead.',
+  ]) {
+    const r = await countCalls(400, JSON.stringify({ error: { message: msg, param: null, code: null } }));
+    assert.equal(r.calls.length, 2, msg);
+  }
+});

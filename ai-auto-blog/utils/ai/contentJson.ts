@@ -108,7 +108,13 @@ export function shouldSwitchToResponses(status: number, body: string): boolean {
   } catch {
     // JSON이 아니면 원문 그대로 검사
   }
-  const mentionsResponses = /\bv1\/responses\b|responses api|\/v1\/responses/i.test(message)
+  // 이름이 단순히 언급된 것(예: 「Responses API는 기능이 더 많습니다」)은 제외하고, 전환을 권고하거나
+  // 그 엔드포인트에서만 된다고 명시한 문구만 인정한다(Master msg_15f047c8dab7).
+  const ENDPOINT = '(?:/?v1/responses|(?:the )?responses api)'
+  const mentionsResponses =
+    new RegExp(`\\b(?:use|switch to|try|call|send (?:it|this|requests?) to)\\b[^.]{0,30}${ENDPOINT}`, 'i').test(message) ||
+    new RegExp(`\\bonly (?:supported|available)\\b[^.]{0,20}\\b(?:in|via|with|through|on)\\b[^.]{0,6}${ENDPOINT}`, 'i').test(message) ||
+    new RegExp(`${ENDPOINT}[^.]{0,20}\\b(?:instead|only)\\b`, 'i').test(message)
   const chatUnsupported =
     /(chat\/completions|chat completions)[^.]{0,60}\b(not supported|unsupported|does not support)\b/i.test(message) ||
     /\b(not supported|unsupported)\b[^.]{0,60}(chat\/completions|chat completions)/i.test(message)
