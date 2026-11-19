@@ -59,10 +59,12 @@ assert.ok(!/setEngine\(\{ provider: p\.textProvider, model: p\.textModel \}\)/.t
 const photoSrc = fs.readFileSync(path.join(root, "src/lib/photoReview.ts"), "utf8");
 const allow = Object.fromEntries([...photoSrc.matchAll(/^\s+(openai|anthropic|gemini): \[([^\]]*)\]/gm)].map((m) => [m[1], [...m[2].matchAll(/"([^"]+)"/g)].map((v) => v[1])]));
 const shown = Object.fromEntries(ENGINES.map((e) => [e.provider, e.models.map((m) => m.value).filter((v) => (allow[e.provider] || []).includes(v))]));
-assert.deepEqual(shown.openai, ["gpt-6.2-sol", "gpt-6.1-terra", "gpt-6-astra"], "OpenAI 사진 선택지");
-assert.deepEqual(shown.anthropic, ["claude-sonnet-5-5", "claude-haiku-5-5"], "Claude 사진 선택지(이전 0개)");
-assert.deepEqual(shown.gemini, ["gemini-3.8-flash", "gemini-3.1-pro-preview"], "Gemini 사진 선택지");
+assert.deepEqual(shown.openai, ["gpt-6.2-astra", "gpt-6.2-sol", "gpt-6.1-terra", "gpt-6-astra"], "OpenAI 사진 선택지");
+assert.deepEqual(shown.anthropic, ["claude-fable-5-2", "claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"], "Claude 사진 선택지(이전 0개)");
+assert.deepEqual(shown.gemini, ["gemini-4-carbon", "gemini-4-neon", "gemini-4-argon", "gemini-4-hydrogen", "gemini-3.8-flash", "gemini-3.1-pro-preview"], "Gemini 사진 선택지");
 for (const p of ["openai", "anthropic", "gemini"]) assert.ok(shown[p].includes(def(p)), p + " 기본 추천 모델로 사진 리뷰 가능");
-n += 4;
+// 종료 예정 모델은 허용 목록 자체에서 삭제(화면에 안 보이는 것만으로 두지 않음)
+for (const retired of ["gpt-4.1", "gpt-4o", "gpt-4o-mini", "claude-haiku-4-5"]) assert.ok(!Object.values(allow).flat().includes(retired), retired + " 삭제");
+n += 5;
 
 console.log(`engine restore ok: ${n} cases`);

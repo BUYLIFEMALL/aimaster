@@ -9,7 +9,7 @@ const OTHER = '00000000-0000-4000-8000-000000000002';
 const DAY = 86400000;
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j2ioAAAAASUVORK5CYII=', 'base64');
 const id = n => `10000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
-const input = (count = 1) => ({ engine: { provider: 'openai', model: 'gpt-4o-mini' }, place: '시험 장소', visitNotes: '직접 컵을 놓아 보았다.', preferredTone: '해요체', targetLength: 500,
+const input = (count = 1) => ({ engine: { provider: 'openai', model: 'gpt-6.1-terra' }, place: '시험 장소', visitNotes: '직접 컵을 놓아 보았다.', preferredTone: '해요체', targetLength: 500,
   coverId: id(1), photos: Array.from({ length: count }, (_, index) => ({ id: id(index + 1), storagePath: `${OWNER}/${id(index + 1)}.png`, caption: `회원 설명 ${index + 1}` })) });
 const observations = data => ({ observations: data.photos.map(photo => ({ id: photo.id, visible: `사진 ${photo.id}의 붉은 면`, uncertain: ['가격과 맛은 알 수 없음'] })) });
 const draft = data => ({ title: '기록한 장면', paragraphs: [{ text: '사진에는 붉은 면이 보여요.', evidence: data.photos.map(photo => photo.id) }], confirm: ['가격은 입력하지 않았으므로 확인 필요'] });
@@ -61,7 +61,7 @@ test('actual owner path, original expiry, bytes and selected member model produc
   assert.equal(h.state.calls.length, 2); assert.equal(h.state.downloads.length, 6);
   assert.deepEqual(h.state.keyReads, [{ owner: OWNER, provider: 'openai' }]);
   assert.deepEqual(response.body.result.photos.map(photo => photo.id), input(6).photos.map(photo => photo.id));
-  for (const call of h.state.calls) { assert.equal(call.body.model, 'gpt-4o-mini'); assert.equal(call.cache, 'no-store'); assert.ok(call.signal); }
+  for (const call of h.state.calls) { assert.equal(call.body.model, 'gpt-6.1-terra'); assert.equal(call.cache, 'no-store'); assert.ok(call.signal); }
   assert.equal(h.state.calls[0].body.messages[1].content.filter(item => item.type === 'image_url').length, 6);
   assert.equal(h.state.calls[1].body.messages[1].content.filter(item => item.type === 'image_url').length, 0);
   assert.equal(JSON.stringify(response.body).includes('base64'), false);
@@ -125,7 +125,7 @@ test('evidence rules separate raw observation from member notes and keep first p
 });
 test('three providers send inline images only to selected model without browser credentials', async () => {
   const h = harness(); const { callPhotoReviewModel } = h.load('lib/ai/photoReviewModel.ts');
-  for (const [provider, model] of [['openai', 'gpt-4o-mini'], ['anthropic', 'claude-haiku-4-5'], ['gemini', 'gemini-3.1-pro-preview']]) {
+  for (const [provider, model] of [['openai', 'gpt-6.1-terra'], ['anthropic', 'claude-haiku-5-5'], ['gemini', 'gemini-3.1-pro-preview']]) {
     const calls = [];
     await callPhotoReviewModel({ engine: { provider, model }, apiKey: 'fake', system: 's', user: 'u', images: [{ mimeType: 'image/png', base64: 'AA==' }], signal: new AbortController().signal }, async (url, init) => {
       calls.push({ url, ...init, body: JSON.parse(init.body) });

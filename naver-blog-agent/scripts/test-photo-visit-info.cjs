@@ -14,7 +14,7 @@ const rules = load('privatePhotoRules.ts');
 const pr = load('photoReview.ts', { './privatePhotoRules': rules });
 const pipe = load('ai/photoReviewPipeline.ts', { 'server-only': {}, '../photoReview': pr, './photoReviewModel': { callPhotoReviewModel: async () => { throw Error('real call'); } } });
 const P = '11111111-1111-4111-8111-111111111111';
-const base = { engine: { provider: 'openai', model: 'gpt-4o-mini' }, place: '성수 카페', visitNotes: '', preferredTone: '해요체', targetLength: 800, coverId: P, photos: [{ id: P, storagePath: 'u/p.png', caption: '' }] };
+const base = { engine: { provider: 'openai', model: 'gpt-6.1-terra' }, place: '성수 카페', visitNotes: '', preferredTone: '해요체', targetLength: 800, coverId: P, photos: [{ id: P, storagePath: 'u/p.png', caption: '' }] };
 
 test('visit info: empty fields dropped, limits and date format enforced', () => {
   assert.equal(pr.cleanVisitInfo({ kind: '', region: ' ', visitDate: '', companion: '', oneLine: '' }), undefined);

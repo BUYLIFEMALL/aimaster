@@ -4,11 +4,13 @@ import { MAX_REVIEW_PHOTOS } from "./privatePhotoRules";
 // 공식 사진 입력 지원을 확인한 기존 선택 항목만 연다. 다른 모델로 자동 교체하지 않는다.
 // 2026-11-19 주인님 지시 「사진 리뷰는 새 모델 확인해서 추가해」: 실제 사진 후기 호출 코드(photoReviewModel.ts)로
 // 빨간 정사각형 PNG를 보내 색을 맞히는지 확인한 모델만 추가(5회, 모두 200·정답) — gpt-6.1-terra·gpt-6.2-sol·claude-sonnet-5-5·claude-haiku-5-5·gemini-3.8-flash.
-// gpt-4.1·gpt-4o·gpt-4o-mini·claude-haiku-4-5는 글 엔진 목록에서 빠져 화면에 보이지 않지만(2027-01-14까지 API 동작) 저장된 초안 호환을 위해 남겨 둔다.
+// 같은 날 2차 주인님 지시 「기존 모델중 중지된 모델은 삭제하고 새로 추가된 모델을 선택지로 추가」: 종료 예정 gpt-4.1·gpt-4o·gpt-4o-mini(2027-01-14)·
+// claude-haiku-4-5 삭제(저장된 결과는 결과 형식 검사에서 이 목록을 보지 않아 그대로 열림), 같은 방법으로 확인한 7개 추가(7회, 모두 200·정답) —
+// gpt-6.2-astra·claude-fable-5-2·claude-opus-5-5·gemini-4-carbon·gemini-4-neon·gemini-4-argon·gemini-4-hydrogen. 순서는 글 엔진 목록(최신순)과 같다.
 export const PHOTO_REVIEW_MODELS: Record<string, readonly string[]> = {
-  openai: ["gpt-6.2-sol", "gpt-6.1-terra", "gpt-6-astra", "gpt-4.1", "gpt-4o", "gpt-4o-mini"],
-  anthropic: ["claude-sonnet-5-5", "claude-haiku-5-5", "claude-haiku-4-5"],
-  gemini: ["gemini-3.8-flash", "gemini-3.1-pro-preview"],
+  openai: ["gpt-6.2-astra", "gpt-6.2-sol", "gpt-6.1-terra", "gpt-6-astra"],
+  anthropic: ["claude-fable-5-2", "claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"],
+  gemini: ["gemini-4-carbon", "gemini-4-neon", "gemini-4-argon", "gemini-4-hydrogen", "gemini-3.8-flash", "gemini-3.1-pro-preview"],
 };
 export const MAX_REVIEW_TOTAL_BYTES = 12 * 1024 * 1024;
 export const PHOTO_REVIEW_WARNING = "사진 관찰은 AI 해석이며 사실 확인이 아닙니다. 맛·가격·방문일·직접 경험은 본인 메모와 원본을 대조해 검수해 주세요.";
