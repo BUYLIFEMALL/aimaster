@@ -4,12 +4,15 @@
 - 맡은 폴더: `ai-work-workspace/`, `ai-task-planner/`(2026-10-26 주인님 결정으로 추가)
 - 카테고리: 업무자동화
 - 주력 업무: 새 프로그램 「AI 업무 워크스페이스 자동화」 단계별 개발(로드맵 U1~U14, `ai-work-workspace/docs/PLAN_20261024_EXPANSION_ROADMAP.md`). 디자인(U5)은 디자인 역할(agy)이 맡음
-- 마지막 갱신: 2026-11-18 [역할: workspace] WS27 Gmail 활성 추진 준비(확인표 §11, 실행 0) / 이전: 2026-11-18 [역할: workspace] PLAN-REVIEW-20261118 문서 정합성(v1.57 활성 완료 줄 이동·E3 검수 근거 반영, 운영 v1.57 · 다음 묶음 v1.58 = E3+WS23+Gmail 꺼진 코드 미배포 · Gmail 활성 별도 승인) / 이전: 2026-11-17 [역할: workspace] E4 Gmail 꺼진 상태 소스 준비 완료(QA041까지 PASS, 서버 `3c820f2b6`+화면 `8069f60df` 함께 배포 필수, 운영 SQL·활성 0) / 이전: 2026-11-17 [역할: workspace] WS23 첫 생성 경합 소스 수정 d7895f6d4 QA028 통과·미배포 다음 묶음 / 이전: 2026-11-17 [역할: workspace] v1.57 예약 링크 운영 활성화(Master 배포 dpl_HrBf8mQHD7hqTw62Mgs2WuowS7Px, 실검증 1건·구글 일정 정리 1개·QA 1행 released로 칸 점유 해제 완료, 첫 생성 경합 P2 열림) / 이전: 2026-11-17 [역할: workspace] 예약 링크 묶음 소스 완료·OFF·미배포(통합 tsc 0·vitest 49/457) / 이전: 2026-11-17 [역할: workspace] Claude(Workspace) · Claude Code(윈도우, 엣지) — **운영 v1.56 배포**(`ai-work-workspace-qnc5ykmtx`, `dpl_GUNMN7RG3XoQVdZmbihJC3qCTJSC`, 주인님 「진행하고 MASTER에 보고 해」): 146 묶음 + 영수증 워크스페이스 안·계정 보호 + 키 화면 캘린더 상태 + Next 16.4.6 보안 패치. 후속 QA021은 Mac. 로컬 3457은 중지 유지.
+- 마지막 갱신: 2026-11-20 [역할: workspace] 운영 v1.63(2026-11-19 `dpl_CxEYSzDhnScbAL5zdmiToQy3HB4n`) · 미배포 대기 = 가져오기 응답 바이트 예산 `3d446effa`(전체 시험 1,078/1,079·tsc 0, WS-20261119-03-TSC-CLOSURE) · 운영 570쪽 ZIP 재시도는 주인님 신호 대기 · v1.58~v1.63 기록 정리 / 이전: 2026-11-18 [역할: workspace] WS27 Gmail 활성 추진 준비(확인표 §11, 실행 0) / 이전: 2026-11-18 [역할: workspace] PLAN-REVIEW-20261118 문서 정합성(v1.57 활성 완료 줄 이동·E3 검수 근거 반영, 운영 v1.57 · 다음 묶음 v1.58 = E3+WS23+Gmail 꺼진 코드 미배포 · Gmail 활성 별도 승인) / 이전: 2026-11-17 [역할: workspace] E4 Gmail 꺼진 상태 소스 준비 완료(QA041까지 PASS, 서버 `3c820f2b6`+화면 `8069f60df` 함께 배포 필수, 운영 SQL·활성 0) / 이전: 2026-11-17 [역할: workspace] WS23 첫 생성 경합 소스 수정 d7895f6d4 QA028 통과·미배포 다음 묶음 / 이전: 2026-11-17 [역할: workspace] v1.57 예약 링크 운영 활성화(Master 배포 dpl_HrBf8mQHD7hqTw62Mgs2WuowS7Px, 실검증 1건·구글 일정 정리 1개·QA 1행 released로 칸 점유 해제 완료, 첫 생성 경합 P2 열림) / 이전: 2026-11-17 [역할: workspace] 예약 링크 묶음 소스 완료·OFF·미배포(통합 tsc 0·vitest 49/457) / 이전: 2026-11-17 [역할: workspace] Claude(Workspace) · Claude Code(윈도우, 엣지) — **운영 v1.56 배포**(`ai-work-workspace-qnc5ykmtx`, `dpl_GUNMN7RG3XoQVdZmbihJC3qCTJSC`, 주인님 「진행하고 MASTER에 보고 해」): 146 묶음 + 영수증 워크스페이스 안·계정 보호 + 키 화면 캘린더 상태 + Next 16.4.6 보안 패치. 후속 QA021은 Mac. 로컬 3457은 중지 유지.
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
+- **(미배포 대기 2026-11-19~20, WS-20261119-03 응답 바이트)** `importFiles` 응답 3,000,000바이트 예산·`pending` 포인터, 최종 `3d446effa`(Master 수락 `msg_3b04b47cad53`, 담당 17/17·맥미니 독립 10/10, 2026-11-20 전체 시험 73/74파일·1,078/1,079개 통과·tsc 종료코드 0). 배포는 주인님 승인 뒤(빌드 1회). 미검증: 실제 브라우저(완료 화면 안내 문구 포함), 운영. 근거 `ai-work-workspace/docs/IMPROVEMENTS.md` 미배포 대기, `ai-work-workspace/docs/PLAN_20261119_LARGE_ZIP_IMPORT.md` 15-6절.
+- **(주인님 신호 대기)** 운영 v1.63에서 약 570쪽 노션 ZIP 다시 넣기 — 「넣었어」라고 하시면 서버 기록·DB 읽기로 통과 여부와 걸린 시간 확인(요청함 `9b63cdd2-d9b2-46fa-9665-0d6b0859cb40`).
+- **(Master 몫 대기)** v1.63 `programs.version` 갱신과 push.
 - **(WS27 활성 추진 준비 2026-11-18 — 주인님 채팅 「Gmail 켜기 진행」, 실행 0: 주인님 GCP 설정 대기 → Master 회수 → 메인 Master 운영 SQL·배포, 체크리스트 확인표 §11)** (이전: 소스 준비 완료·활성 승인 대기 2026-11-17) E4 Gmail(WS-20261117-25) **꺼진 상태 소스 준비 완료**(Master 수락 `msg_c64a15cf9531`): 지정 검수 QA036·QA038·QA039·QA040·QA041 PASS(실제 PostgREST 작성자·실제 모듈 모의·브라우저는 미검수, 범위 구분). 최종 서버 `3c820f2b6`·화면 `8069f60df`(**두 커밋 함께 배포 필수**), 그 밖 경로·지문은 `ai-work-workspace/docs/RELEASE_CHECKLIST_20261117_E4_GMAIL.md` §1. 운영 0074·0075 미적용·`GMAIL_ENABLED=false`·미배포, 꺼진 채 배포면 Gmail SQL 불필요(0074만 적용하면 메인 연동 목록에 Gmail 노출 — 켜기와 한 묶음). 끊기는 구글 계정 단위 조건이며 연결 생성 세대 보장 아님. 실계정 OAuth·실 Google·운영 PostgREST·실브라우저 미검수, 활성 승인 없음. 다음 승인 시 확인표 §9 순서(0074→0075 적용 → 실계정 확인 → 스위치 켜기·빌드)로 단일 담당 실행. v1.58 일반 묶음(E3·WS23) 배포와 Gmail 활성은 별개(Master 취합).
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
@@ -19,6 +22,12 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-19 | `ai-work-workspace` v1.63 | 문서 많은 ZIP 가져오기 성능 묶음(응답 축소·`putRecord` 캐시 비움 축소·쪽 단위 스냅숏·`tx` 깊이). 계기: 운영 570쪽 ZIP 504. 운영 실제 ZIP 재시도는 미확인 | `dpl_CxEYSzDhnScbAL5zdmiToQy3HB4n` 빌드 1회 |
+| 2026-11-19 | `ai-work-workspace` v1.62 | 큰 파일 가져오기(4MiB 초과 Storage 읽기·50MB 초과 ZIP 작업 단위 올리기·CSV 합치기 동시 실행·문구). 운영 실제 큰 파일은 미확인 | `dpl_7jQpBZotPMrMxbYT7XzSCfXBHbqT` 빌드 1회 |
+| 2026-11-19 | `ai-work-workspace` v1.61 | 노션 저장 HTML 가져오기 보완·좌측 하단 겹침·빌드 평가의 DB 부작용 제거(빌드 멈춤 해소) | `dpl_CLGZ7CA84iyodmiSEjoPccxMMyBp` 성공 1회(앞선 2회 취소) |
+| 2026-11-18 | `ai-work-workspace` v1.60 | 달력 노션식 정리·업무 현황판 전체 너비 | `dpl_DC9Bifer8U1oZ67QFRJNkaAQ1Pj6` 빌드 1회 |
+| 2026-11-18 | `ai-work-workspace` v1.59 | 좌측 메뉴 정리·받은 업무 등 네 화면을 워크스페이스 안 화면으로 | `dpl_3TyMVfb6WGcXbxVgtYZ38699Upfr` 빌드 1회 |
+| 2026-11-18 | `ai-work-workspace` v1.58 | Gmail 가져오기 켬(WS27) + E3 결재·예약 표 첫 생성 직렬화·요일 칩 묶음(상세 `ai-work-workspace/AGENTS.md` 4절) | 버전 커밋 `9ea979de9` |
 | 2026-11-17 | `ai-work-workspace` v1.57 | 예약 링크(E2 7-2) 운영 활성화: 스위치 3개 ON `3faafa33a`, 운영 실검증 1건·구글 일정 정리 1개·QA 1행 칸 점유 해제(근거 `.ai/results/WS-20261117-22-CC-WORKSPACE-01.md`). Mac 배포 후 읽기 검수 결과는 이 역할에 미수신. (PLAN-REVIEW-20261118 정리: 예전 「대기 중」 줄의 「기능 OFF·미배포」는 v1.57 이전 상태라 내림) | Master 배포 `dpl_HrBf8mQHD7hqTw62Mgs2WuowS7Px` |
 | 2026-11-17 | `ai-work-workspace` v1.56 | 146 Professional Studio 묶음(32커밋) + Next 16.4.3→16.4.6(GHSA-mfr8-8qww-v76h). tsc 0·시험 370·로컬 build, 운영 화면 확인(v1.56·관제 대시보드·영수증) | 빌드 1회 `dpl_GUNMN7RG3XoQVdZmbihJC3qCTJSC` |
 | 2026-11-17 | `ai-work-workspace` | WS-20261117-17 영수증·세금계산서를 워크스페이스 안(`/<domain>/receipts`, 왼쪽 메인 메뉴 표시, 주인님 지시) + QA017 계정 전환 보호(서버 기대 계정 409·초안 계정 묶음·빈 id 요청 전 실패) — `9d6875e4b`·`792be25a9`·`7485791ec`·`c35c0bb18`, Mac 소스 검수 마감. 실화면·모바일·인쇄 미검수 | 미배포 묶음 |
@@ -82,6 +91,8 @@
 | 2026-10-24 | `ai-work-workspace` v1.07 | 로그인·회원가입 화면을 공식 표준 2탭으로 교체 + 회원가입 버튼 404 수정(`/signup` → `/register`) | 배포 |
 
 ## 다음 첫 단계
+- **(2026-11-20 기준 맨 먼저)** 주인님이 570쪽 ZIP을 다시 넣었다고 하시면 운영 기록으로 결과 확인 → 응답 바이트 후보 `3d446effa` 배포 승인 여부 여쭘(빌드 1회) → 배포 뒤 엣지에서 완료 화면 확인.
+- **(작업 지시 요청 규칙, 2026-11-20 주인님 지시)** 맡은 작업이 끝나 대기가 되면 멈추지 않고 같은 턴에 Master께 다음 작업 지시를 요청한다 — 다음 후보를 직접 찾아 우선순위·비용·경로와 함께 적어 배정을 받고, 배정 전에는 담당 범위의 무비용 읽기·점검만 한다.
 0. (완료) U11 v1.23 배포·운영 확인
 1. (완료 2026-11-13) 홈택스 엑셀 실제 업로드 — 오류 없이 1건 변환 확인
 2. 유튜브 발행 기록: 2026-11-12 구현 끝(미배포) — `shots`는 라우트·버튼 컴포넌트만(영상 담당이 `PostingSection`에 붙여 v1.49로 배포), 원스톱은 버튼까지(영상 담당 v1.50 배포 때). 배포 뒤 시험 계정으로 보내기 → 받은 업무 → 캘린더 확인. `playlist-channel-studio`는 기록 저장이 없어 제외
