@@ -6080,7 +6080,7 @@
       "status": "reviewing",
       "delivery": "local_data_layer_review_passed_server_approval_pending",
       "sha": "f0eaf784c",
-      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1·msg_09c13f44d34f·8be47a12f·msg_2639b1f89d07·msg_f4130843a9ef·320a5909a·msg_f714f535ba3b·msg_8a99ab301d34·msg_64cd4fd01392·2d4dd53d0·msg_617ae29305b4·a23ffa1f3·msg_8c842614e79b·1c7b50762·msg_513a7e7b6ebc·msg_371737216f81·msg_6ceff50f19aa·msg_d0efc0d596af·msg_f596e2e53ec0·5499b725d·msg_f6638de84aba·cbe48e7d9·msg_4126c4fb6ddb·msg_c906bef9d317·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_8aaff84db217·msg_57b72d91de11·f0eaf784c·msg_6b031e653440·msg_691fa1940926·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_83bf2407051c·msg_8b559a0763cd",
+      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1·msg_09c13f44d34f·8be47a12f·msg_2639b1f89d07·msg_f4130843a9ef·320a5909a·msg_f714f535ba3b·msg_8a99ab301d34·msg_64cd4fd01392·2d4dd53d0·msg_617ae29305b4·a23ffa1f3·msg_8c842614e79b·1c7b50762·msg_513a7e7b6ebc·msg_371737216f81·msg_6ceff50f19aa·msg_d0efc0d596af·msg_f596e2e53ec0·5499b725d·msg_f6638de84aba·cbe48e7d9·msg_4126c4fb6ddb·msg_c906bef9d317·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_8aaff84db217·msg_57b72d91de11·f0eaf784c·msg_6b031e653440·msg_691fa1940926·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_83bf2407051c·msg_8b559a0763cd·msg_0b58a4c9b94b·59a033c3b·msg_ad9b12510067",
       "next": "f0eaf784c Mac 로컬 데이터 계층 독립 검수 수락을 Backend에 회신. 점 경로 검증, 서버 구현·키·UI·Lab은 별도 승인 대기.",
       "lastReviewedAt": "2026-11-19T03:22:43.063Z"
     },
@@ -6180,6 +6180,17 @@
       "next": "고정 51d4b2207 Mac 28/28. 모바일 버튼·포커스 및 미리보기 빈 줄 제거 수락. 미배포 묶음 대기, 고정판 실제 편집기 미확인.",
       "lastReviewedAt": "2026-11-19T05:17:21.267Z",
       "sha": "51d4b2207"
+    },
+    {
+      "task_id": "WS-20261119-ZIP-504",
+      "parent_task_id": "WS-20261119-02",
+      "owner": "CC-WORKSPACE-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단",
+      "status": "running",
+      "delivery": "synthetic_local_performance_diagnostic_dispatched",
+      "next": "v1.62 운영 510KB 일반 ZIP 약 570쪽·CSV 10개에서 504. 담당 롤백 확인. 합성 fixture로 v1.61/v1.62 시간·호출 수 대조. 운영 재시도 없음.",
+      "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e"
     },
     {
       "task_id": "WS-20261119-02",
