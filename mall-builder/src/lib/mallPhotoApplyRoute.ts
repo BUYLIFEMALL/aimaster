@@ -5,6 +5,7 @@
 //  - 버킷 이름은 고정 상수(요청이 정할 수 없음). 서버 설정(열쇠·kid·출처)은 환경변수에서만 오고 요청 본문에서 받지 않는다.
 //  - 내려받기는 스트림으로 읽으며 상한을 넘는 순간 중단한다(Content-Length를 믿지 않음).
 //  - 응답은 고정 문구·코드뿐: 서명 경로·열쇠·원문 오류를 내보내지 않는다. 결과를 모르면 unknown, 자동 재시도 0.
+//  - 출처는 서버가 신뢰하는 앱 출처 목록과 Origin의 정확 일치로만 판정(Host·포워딩 머리글 미사용). Content-Type은 정확히 application/json.
 //  - 「그래도 적용」(force)은 불리언으로만 전달하고 직원 여부는 DB(0107 begin)가 판정한다(공급사는 forbidden).
 import { applyProposal, APPLY_MAX_BYTES, APPLY_TEXT, validKey, type ApplyCode, type ApplyDeps, type DecodedImage } from "./mallPhotoApply.ts";
 import { APPLIED_BUCKET, appliedPublicUrl } from "./applySignature.ts";
@@ -98,6 +99,8 @@ const json = (code: ApplyCode, status = APPLY_HTTP[code]) =>
   new Response(JSON.stringify({ ok: code === "done", code, message: APPLY_TEXT[code] }), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
 
 export interface RouteDeps {
+  /** 서버가 신뢰하는 앱 출처 목록(서버 설정·그 몰의 등록 도메인) — 요청 머리글에서 만들지 않는다 */
+  trustedOrigins(): readonly unknown[];
   /** 서버 설정(없으면 null) */
   config(): ApplyConfig | null;
   /** 로그인한 회원 id(없으면 null) — 기존 createClient().auth.getUser() */
@@ -106,15 +109,35 @@ export interface RouteDeps {
   deps(cfg: ApplyConfig): ApplyDeps;
 }
 
-/** 같은 출처 요청인가: Origin 머리글이 있고 그 host가 요청 host와 같으며, sec-fetch-site가 있으면 same-origin */
-export function sameOrigin(h: { get(n: string): string | null }): boolean {
-  const origin = h.get("origin"); const host = h.get("x-forwarded-host") ?? h.get("host");
-  if (!origin || !host) return false;
-  let o: URL; try { o = new URL(origin); } catch { return false; }
-  if (o.protocol !== "https:" && o.hostname !== "localhost" && o.hostname !== "127.0.0.1") return false;
-  if (o.host.toLowerCase() !== host.toLowerCase()) return false;
+/** 신뢰 출처 한 건의 정규형: https://host[:port](경로·질의·사용자 정보 없음, 소문자, 끝 / 없음). 개발용 http는 localhost·127.0.0.1만. 아니면 null */
+export function normalizeTrustedOrigin(v: unknown): string | null {
+  if (typeof v !== "string" || v.length === 0 || v.length > 300) return null;
+  let u: URL; try { u = new URL(v); } catch { return null; }
+  const local = u.hostname === "localhost" || u.hostname === "127.0.0.1";
+  if (u.protocol !== "https:" && !(u.protocol === "http:" && local)) return null;
+  if (u.origin === "null" || u.origin !== v) return null; // 정규형으로 적힌 값만(대문자·기본 포트 표기·경로·질의·사용자 정보·공백 불가)
+  return u.origin;
+}
+
+/**
+ * 출처 판정 — 서버가 신뢰하는 앱 출처 목록(서버 설정·그 몰의 등록 도메인에서 온 값)과 Origin 머리글의 정확 일치로만.
+ * Host·X-Forwarded-Host 같은 요청 입력은 읽지 않는다(요청이 허용 범위를 넓힐 수 없음).
+ * 목록이 비었거나 한 건이라도 형식이 틀리면(잘못된 설정) 전부 차단. sec-fetch-site가 있으면 same-origin만.
+ */
+export function originAllowed(h: { get(n: string): string | null }, trusted: readonly unknown[]): boolean {
+  if (!Array.isArray(trusted) || trusted.length === 0 || trusted.length > 50) return false;
+  const list: string[] = [];
+  for (const t of trusted) { const n = normalizeTrustedOrigin(t); if (!n) return false; list.push(n); }
+  const origin = h.get("origin");
+  if (!origin || normalizeTrustedOrigin(origin) !== origin) return false; // Origin 머리글도 정규형 그대로여야 함
+  if (!list.includes(origin)) return false;
   const site = h.get("sec-fetch-site");
   return site === null || site === "same-origin";
+}
+
+/** Content-Type: 정확히 application/json, 매개변수는 charset=utf-8 하나만 허용(유사 타입·다른 매개변수 거절) */
+export function isJsonContentType(v: string | null): boolean {
+  return typeof v === "string" && /^application\/json(?:[ \t]*;[ \t]*charset=(?:utf-8|"utf-8"))?$/i.test(v);
 }
 
 /** 본문 파싱: 정확히 {proposalId: uuid, force?: boolean}만. 그 밖의 칸(경로·버킷·kid·열쇠 등)이 있으면 거절 */
@@ -133,8 +156,8 @@ export function parseApplyBody(text: string): { proposalId: string; force: boole
 export async function handleApplyPost(req: Request, d: RouteDeps): Promise<Response> {
   try {
     if (req.method !== "POST") return json("failed", 405);
-    if (!sameOrigin(req.headers)) return json("forbidden");
-    if (!/^application\/json\b/i.test(req.headers.get("content-type") ?? "")) return json("failed", 415);
+    if (!originAllowed(req.headers, d.trustedOrigins())) return json("forbidden");
+    if (!isJsonContentType(req.headers.get("content-type"))) return json("failed", 415);
     const declared = req.headers.get("content-length");
     if (declared !== null && (!/^[0-9]+$/.test(declared) || Number(declared) > APPLY_BODY_MAX)) return json("failed", 413);
     const raw = req.body ? await readCapped({ ok: true, body: req.body, headers: { get: () => null } }, APPLY_BODY_MAX) : null;

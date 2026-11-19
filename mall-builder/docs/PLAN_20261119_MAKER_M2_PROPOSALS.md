@@ -464,3 +464,9 @@
 - 디코더 후보: `limitInputPixels` 3,600만·`failOn: error`·움직이는 이미지 거절, 머리 정보(형식 jpeg/png/webp·변 1~6000·1장)는 「디코드해도 되는가」 판정에만 쓰고 **반드시 픽셀을 풀어 방향 반영·흰 배경·JPEG 재인코딩**(품질 90 → 80 → 70)한 바이트만 반환. 입력 바이트를 그대로 돌려주는 가지 없음, 메타데이터 보존 호출 없음.
 - 실 디코더 확인 전 남은 조건(다음 단위): ① `sharp` 직접 의존성 추가·잠금 파일·Vercel 리눅스 바이너리 빌드 확인 ② S1 실측(정상 JPG·PNG·잘린 파일·6001px·압축 폭탄·메모리·시간, 재인코딩 결정성) ③ 실 Storage에서 서명 경로 정책 403/200·409 응답 모양(Lab) ④ 열쇠 등록(환경변수·DB 표, 주인님) ⑤ 활성 `route.ts` 껍데기(`runtime = "nodejs"`·`maxDuration`)와 화면 버튼 ⑥ 공개 주소 되읽기의 CDN 지연·캐시 영향 확인.
 - 시험은 맥미니 위임(이 PC 실행 0).
+
+### 19-1. 보완(Master msg_c9d732150309, Mac msg_65b351227dd3 — 62/63)
+- 시험 fixture: 대문자 UUID 거절 사례가 숫자뿐인 UUID라 대문자로 바꿔도 같은 글자였음(시험 오류) → 영문 hex가 들어간 UUID로 교체하고, 거절 사례 묶음은 한 건이 틀려도 나머지를 모두 확인하도록 모아서 단언.
+- 출처 판정: `sameOrigin`(Origin host = 요청 Host/X-Forwarded-Host) 삭제 → `originAllowed(headers, trustedOrigins)`. **서버가 신뢰하는 앱 출처 목록**(서버 설정·그 몰의 등록 도메인, 호출 쪽 route가 제공)과 Origin 머리글의 정확 일치로만 허용. Host·포워딩 머리글은 읽지 않음. 목록이 비었거나 한 건이라도 정규형(`https://host[:port]`, 개발용 http는 localhost·127.0.0.1만)이 아니면 전부 차단. sec-fetch-site는 없거나 same-origin만.
+- Content-Type: 정확히 `application/json`, 매개변수는 `charset=utf-8` 하나만. `application/json-seq`·`jsonp`·`ld+json`·다른 매개변수·앞뒤 공백 거절(415).
+- 남은 조건에 추가: ⑦ 활성 route가 신뢰 출처 목록을 어디서 만들지(플랫폼 기본 도메인 + 그 몰의 확인된 사용자 도메인 — `lib/host.ts`·`custom-domain.ts` 기준) 확정.

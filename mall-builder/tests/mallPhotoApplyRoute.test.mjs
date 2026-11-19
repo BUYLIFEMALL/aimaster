@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import {
-  APPLY_BODY_MAX, APPLY_HTTP, handleApplyPost, makeApplyDeps, parseApplyBody, readApplyConfig, readCapped, sameOrigin,
+  APPLY_BODY_MAX, APPLY_HTTP, handleApplyPost, makeApplyDeps, isJsonContentType, normalizeTrustedOrigin, originAllowed, parseApplyBody, readApplyConfig, readCapped,
 } from "../src/lib/mallPhotoApplyRoute.ts";
 import { APPLY_MAX_BYTES, APPLY_TEXT } from "../src/lib/mallPhotoApply.ts";
 import { DECODE_MAX_BYTES, DECODE_MAX_PIXELS, makeSharpDecoder } from "../src/lib/mallPhotoDecode.ts";
@@ -21,6 +21,8 @@ const sha = (b) => createHash("sha256").update(b).digest("hex");
 const jpeg = (n = 100, fill = 7) => { const b = new Uint8Array(n).fill(fill); b[0] = 0xff; b[1] = 0xd8; b[2] = 0xff; b[n - 2] = 0xff; b[n - 1] = 0xd9; return b; };
 const ORIGINAL = new Uint8Array([9, 9, 9, 9, 9, 9]);
 const CLEAN = jpeg(200, 5);
+const HEX_UUID = "abcdef12-3456-4abc-8def-0123456789ab"; // 영문 hex가 들어간 UUID(대문자 거절 사례가 실제로 다른 글자가 되도록)
+const TRUSTED = ["https://shop.test"];
 const CFG = { kid: "k1", keyB64: KEY, origin: ORIGIN };
 
 const streamOf = (chunks) => new ReadableStream({ start(c) { for (const x of chunks) c.enqueue(x); c.close(); } });
@@ -45,25 +47,60 @@ test("readCapped: 상한 이하는 그대로, 넘는 순간 too_large(거짓 Con
 test("parseApplyBody: {proposalId, force?}만 — 경로·버킷·kid·열쇠 같은 다른 칸은 거절", () => {
   assert.deepEqual(parseApplyBody(JSON.stringify({ proposalId: PROPOSAL })), { proposalId: PROPOSAL, force: false });
   assert.deepEqual(parseApplyBody(JSON.stringify({ proposalId: PROPOSAL, force: true })), { proposalId: PROPOSAL, force: true });
+  assert.deepEqual(parseApplyBody(JSON.stringify({ proposalId: HEX_UUID })), { proposalId: HEX_UUID, force: false });
+  assert.notEqual(HEX_UUID, HEX_UUID.toUpperCase()); // 대문자 사례가 실제로 다른 글자인지(fixture 자체 확인)
+  const wrong = [];
   for (const bad of [
-    "", "x", "[]", "null", JSON.stringify({}), JSON.stringify({ proposalId: "abc" }), JSON.stringify({ proposalId: PROPOSAL.toUpperCase() }),
+    "", "x", "[]", "null", JSON.stringify({}), JSON.stringify({ proposalId: "abc" }), JSON.stringify({ proposalId: HEX_UUID.toUpperCase() }), JSON.stringify({ proposalId: HEX_UUID + "0" }), JSON.stringify({ proposalId: ` ${HEX_UUID}` }),
     JSON.stringify({ proposalId: PROPOSAL, force: "true" }), JSON.stringify({ proposalId: PROPOSAL, force: 1 }),
     JSON.stringify({ proposalId: PROPOSAL, path: "x" }), JSON.stringify({ proposalId: PROPOSAL, bucket: "mall-builder-public" }),
     JSON.stringify({ proposalId: PROPOSAL, kid: "k2" }), JSON.stringify({ proposalId: PROPOSAL, keyB64: KEY }), JSON.stringify({ proposalId: PROPOSAL, origin: "https://evil.test" }),
     JSON.stringify({ proposalId: PROPOSAL, pad: "x".repeat(APPLY_BODY_MAX) }),
-  ]) assert.equal(parseApplyBody(bad), null, bad.slice(0, 60));
+  ]) if (parseApplyBody(bad) !== null) wrong.push(bad.slice(0, 80));
+  assert.deepEqual(wrong, []); // 한 건이 틀려도 나머지 거절 사례를 모두 확인
 });
 
-test("sameOrigin: Origin host = 요청 host, sec-fetch-site는 없거나 same-origin만", () => {
+test("originAllowed: 서버 신뢰 목록과 Origin의 정확 일치만 — Host·X-Forwarded-Host로 허용이 넓어지지 않는다", () => {
   const h = (o) => ({ get: (n) => o[n] ?? null });
-  assert.ok(sameOrigin(h({ origin: "https://shop.test", host: "shop.test" })));
-  assert.ok(sameOrigin(h({ origin: "https://shop.test", host: "internal", "x-forwarded-host": "shop.test", "sec-fetch-site": "same-origin" })));
-  assert.ok(sameOrigin(h({ origin: "http://localhost:3210", host: "localhost:3210" })));
-  for (const bad of [
-    { host: "shop.test" }, { origin: "https://evil.test", host: "shop.test" }, { origin: "http://shop.test", host: "shop.test" },
-    { origin: "https://shop.test", host: "shop.test", "sec-fetch-site": "cross-site" }, { origin: "https://shop.test", host: "shop.test", "sec-fetch-site": "same-site" },
-    { origin: "null", host: "shop.test" }, { origin: "https://shop.test" },
-  ]) assert.ok(!sameOrigin(h(bad)), JSON.stringify(bad));
+  assert.ok(originAllowed(h({ origin: "https://shop.test" }), TRUSTED));
+  assert.ok(originAllowed(h({ origin: "https://shop.test", "sec-fetch-site": "same-origin" }), TRUSTED));
+  assert.ok(originAllowed(h({ origin: "https://b.shop.test:8443" }), ["https://shop.test", "https://b.shop.test:8443"]));
+  assert.ok(originAllowed(h({ origin: "http://localhost:3210" }), ["http://localhost:3210"]));
+  const wrong = [];
+  const bads = [
+    [{ origin: "https://evil.test" }, TRUSTED],
+    [{ origin: "https://evil.test", host: "evil.test", "x-forwarded-host": "evil.test" }, TRUSTED], // 요청이 Host를 꾸며도 허용 안 됨
+    [{ origin: "https://evil.test", host: "shop.test", "x-forwarded-host": "shop.test" }, TRUSTED],
+    [{ host: "shop.test", "x-forwarded-host": "shop.test" }, TRUSTED], // Origin 없음
+    [{ origin: "null" }, TRUSTED], [{ origin: "http://shop.test" }, TRUSTED], [{ origin: "https://SHOP.test" }, TRUSTED],
+    [{ origin: "https://shop.test/" }, TRUSTED], [{ origin: "https://shop.test:443" }, TRUSTED], [{ origin: "https://shop.test.evil.test" }, TRUSTED],
+    [{ origin: "https://sub.shop.test" }, TRUSTED], [{ origin: "https://shop.test:8443" }, TRUSTED], [{ origin: " https://shop.test" }, TRUSTED],
+    [{ origin: "https://shop.test", "sec-fetch-site": "cross-site" }, TRUSTED], [{ origin: "https://shop.test", "sec-fetch-site": "same-site" }, TRUSTED],
+    [{ origin: "https://shop.test", "sec-fetch-site": "none" }, TRUSTED],
+    // 잘못된 설정은 전부 차단(맞는 출처가 섞여 있어도)
+    [{ origin: "https://shop.test" }, []], [{ origin: "https://shop.test" }, null], [{ origin: "https://shop.test" }, "https://shop.test"],
+    [{ origin: "https://shop.test" }, ["https://shop.test", "*"]], [{ origin: "https://shop.test" }, ["https://shop.test", "https://shop.test/path"]],
+    [{ origin: "https://shop.test" }, ["https://shop.test", "http://other.test"]], [{ origin: "https://shop.test" }, ["https://shop.test", ""]],
+    [{ origin: "https://shop.test" }, ["https://shop.test", 5]], [{ origin: "https://shop.test" }, ["https://Shop.test"]],
+    [{ origin: "https://shop.test" }, ["https://user@shop.test"]], [{ origin: "https://shop.test" }, ["shop.test"]],
+    [{ origin: "http://localhost:3210" }, TRUSTED], [{ origin: "http://shop.test" }, ["http://shop.test"]],
+  ];
+  for (const [headers, list] of bads) if (originAllowed(h(headers), list)) wrong.push(JSON.stringify([headers, list]));
+  assert.deepEqual(wrong, []);
+  assert.equal(normalizeTrustedOrigin("https://shop.test"), "https://shop.test");
+  assert.equal(normalizeTrustedOrigin("https://shop.test?x=1"), null);
+  assert.equal(normalizeTrustedOrigin("https://shop.test#a"), null);
+});
+
+test("isJsonContentType: 정확히 application/json(+ charset=utf-8만) — 유사 타입·다른 매개변수 거절", () => {
+  for (const ok of ["application/json", "Application/JSON", "application/json; charset=utf-8", "application/json;charset=UTF-8", 'application/json; charset="utf-8"'])
+    assert.ok(isJsonContentType(ok), ok);
+  const wrong = [];
+  for (const bad of [null, "", "application/json-seq", "application/jsonp", "application/json5", "application/jsonl", "application/ld+json", "application/x-json",
+    "text/json", "text/plain", "application/json; charset=euc-kr", "application/json; boundary=x", "application/json; charset=utf-8; x=1", "application/json;",
+    "application/json, text/plain", " application/json", "application/json ", "application/json\n", "xapplication/json", "multipart/form-data; boundary=application/json"])
+    if (isJsonContentType(bad)) wrong.push(String(bad));
+  assert.deepEqual(wrong, []);
 });
 
 test("readApplyConfig: 환경변수만 — 열쇠 없음·형식 틀림·출처 없음 = null", () => {
@@ -115,9 +152,9 @@ function fakeBackend(script = {}) {
 }
 const req = (body, headers = {}) => new Request("https://shop.test/s/x/admin/products/proposals/apply", {
   method: "POST", body: typeof body === "string" ? body : JSON.stringify(body),
-  headers: { "content-type": "application/json", origin: "https://shop.test", "x-forwarded-host": "shop.test", ...headers },
+  headers: { "content-type": "application/json", origin: "https://shop.test", ...headers },
 });
-const route = (b, o = {}) => ({ config: () => (o.config !== undefined ? o.config : CFG), userId: async () => (o.uid !== undefined ? o.uid : UID), deps: () => b.deps });
+const route = (b, o = {}) => ({ trustedOrigins: () => (o.trusted !== undefined ? o.trusted : TRUSTED), config: () => (o.config !== undefined ? o.config : CFG), userId: async () => (o.uid !== undefined ? o.uid : UID), deps: () => b.deps });
 const out = async (res) => ({ status: res.status, body: await res.json(), cache: res.headers.get("cache-control") });
 
 test("정상 요청: 고정 버킷에서만 읽고 쓰며, 정제 바이트가 서명 경로에 게시되고 commit 1회", async () => {
@@ -158,13 +195,20 @@ test("요청 거절: 다른 출처·로그인 없음·본문 이상·형식 — 
     [req("{bad json"), {}, 400],
     [req({ proposalId: PROPOSAL }, { "content-type": "text/plain" }), {}, 415],
     [req(JSON.stringify({ proposalId: PROPOSAL }) + " ".repeat(APPLY_BODY_MAX)), {}, 413],
-    [new Request("https://shop.test/x", { method: "GET", headers: { origin: "https://shop.test", "x-forwarded-host": "shop.test" } }), {}, 405],
+    [new Request("https://shop.test/x", { method: "GET", headers: { origin: "https://shop.test" } }), {}, 405],
+    [req({ proposalId: PROPOSAL }, { origin: "https://evil.test", "x-forwarded-host": "evil.test" }), {}, 403], // 포워딩 머리글로 허용 확대 불가
+    [req({ proposalId: PROPOSAL }), { trusted: [] }, 403], [req({ proposalId: PROPOSAL }), { trusted: ["https://shop.test", "*"] }, 403], // 잘못된 설정 차단
+    [req({ proposalId: PROPOSAL }, { "content-type": "application/json-seq" }), {}, 415],
+    [req({ proposalId: PROPOSAL }, { "content-type": "application/json; boundary=x" }), {}, 415],
+    [req({ proposalId: HEX_UUID.toUpperCase() }), {}, 400],
   ];
-  for (const [request, o, status] of cases) {
+  const wrong = [];
+  for (const [i, [request, o, status]] of cases.entries()) {
     const b = fakeBackend();
     const r = await out(await handleApplyPost(request, route(b, o)));
-    assert.equal(r.status, status); assert.equal(r.body.ok, false); assert.equal(b.log.length, 0);
+    if (r.status !== status || r.body.ok !== false || b.log.length !== 0) wrong.push([i, r.status, status, b.log.length]);
   }
+  assert.deepEqual(wrong, []); // 한 건이 틀려도 나머지 거절 사례를 모두 확인
 });
 
 test("서버 설정 없음 = 503 config, DB·Storage 호출 0", async () => {
@@ -215,7 +259,7 @@ test("응답에는 고정 문구·코드뿐 — 서명 경로·열쇠·원문 �
     assert.equal(o.message, APPLY_TEXT[o.code]); assert.equal(res.status, APPLY_HTTP[o.code]);
     assert.ok(!text.includes(KEY) && !text.includes("mall-builder-applied") && !text.includes("secret") && !/[0-9a-f]{32}/.test(text) && !text.includes(sha(CLEAN)));
   }
-  const thrower = { config: () => CFG, userId: async () => { throw new Error("db password=hunter2"); }, deps: () => { throw new Error("x"); } };
+  const thrower = { trustedOrigins: () => TRUSTED, config: () => CFG, userId: async () => { throw new Error("db password=hunter2"); }, deps: () => { throw new Error("x"); } };
   const t = await (await handleApplyPost(req({ proposalId: PROPOSAL }), thrower)).text();
   assert.ok(!t.includes("hunter2")); assert.equal(JSON.parse(t).code, "unknown");
 });
