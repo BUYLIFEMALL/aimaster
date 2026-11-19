@@ -93,12 +93,14 @@ test("뼈대 계약 — 작업 화면 레이아웃은 권한 판정·캐시 금�
   assert.ok(!/OPENAI|ANTHROPIC|GEMINI/i.test(access), "운영자 AI 키를 읽지 않는다");
 });
 
-test("결정 전 항목이 코드에 들어가지 않았다 — AI 모델 이름·지원 사양 문구·요금", async () => {
+test("결정 전 항목이 코드에 들어가지 않았다 — 지원 사양 문구·요금. 글 모델 이름은 변환 모듈 한 곳에만 있다", async () => {
   const { readdir } = await import("node:fs/promises");
   const walk = async (dir) => (await Promise.all((await readdir(dir, { withFileTypes: true })).map((e) => (e.isDirectory() ? walk(new URL(`${e.name}/`, dir)) : [new URL(e.name, dir)])))).flat();
   for (const file of await walk(new URL("../src/", import.meta.url))) {
     const text = await readFile(file, "utf8");
     // 「무료 배지」라는 말 자체는 공용 판정 사본의 규칙 설명에 있어 검사하지 않는다(배지를 켜는 것은 DB에서 주인님이 한다).
-    assert.ok(!/gpt-|claude-|gemini-|\b(8|10|12|16)\s?GB\b|월 \d|원\/월|badges:\s*\[/.test(text), `${file.pathname}에 결정 전 값이 있다`);
+    assert.ok(!/\b(8|10|12|16)\s?GB\b|월 \d|원\/월|badges:\s*\[/.test(text), `${file.pathname}에 결정 전 값이 있다`);
+    // 글 모델 이름(2026-11-19 주인님 결정으로 5-4에서 도입)은 src/lib/convert/ 안에만 둔다 — 화면·경로·다른 모듈에 흩어 적지 않는다.
+    if (!file.pathname.includes("/src/lib/convert/")) assert.ok(!/gpt-|claude-|gemini-/.test(text), `${file.pathname}에 글 모델 이름이 있다`);
   }
 });

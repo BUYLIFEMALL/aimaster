@@ -87,12 +87,17 @@ test("작업 기록: 목록 갱신은 읽기만, 새 접수가 생기는 동작�
   assert.match(s, /disabled=\{working\.has\(r\.requestId\)\}/);
 });
 
-test("화면 문구: 결정 전 항목이 없다 — 사양 지원 문구·글 모델 이름·요금·한글 변환", async () => {
+test("화면 문구: 결정 전 항목이 없다 — 사양 지원 문구·요금. 한글 변환·AI 키 문구는 변환 칸과 변환 경로에만 있다", async () => {
   for (const file of [...(await walk(new URL("../src/components/", import.meta.url))), ...(await walk(new URL("../src/lib/studio/", import.meta.url))), ...(await walk(new URL("../src/app/", import.meta.url)))]) {
     const text = await readFile(file, "utf8");
     assert.ok(!/\b\d+\s?GB\b|그래픽 메모리 \d|권장 사양|최소 사양/.test(text.replace(/수 GB/g, "")), `${file.pathname}: 사양 지원 문구`);
-    assert.ok(!/gpt-|claude-|gemini-|OpenAI|Anthropic|한글.{0,6}변환|번역/.test(text), `${file.pathname}: 글 모델·한글 변환`);
+    // 한글 변환(5-4)은 변환 칸(ConvertPanel)과 변환 경로(api/convert)에만 둔다. 그 밖의 화면·로직에는 여전히 없어야 한다.
+    const convertFile = /\/components\/studio\/ConvertPanel\.tsx$|\/app\/api\/convert\//.test(file.pathname);
+    assert.ok(!/gpt-|claude-|gemini-/.test(text), `${file.pathname}: 글 모델 이름`);
+    if (!convertFile) assert.ok(!/OpenAI|Anthropic|한글.{0,6}변환|번역/.test(text), `${file.pathname}: 한글 변환`);
     assert.ok(!/무료 배지|요금|결제|구독/.test(text), `${file.pathname}: 요금`);
-    assert.ok(!/user_api_keys|API 키/.test(text), `${file.pathname}: 키 입력`);
+    if (!convertFile) assert.ok(!/user_api_keys|API 키/.test(text), `${file.pathname}: 키 입력`);
+    // 이 프로그램에는 키를 적는 칸을 만들지 않는다(등록은 메인 사이트 한 곳).
+    assert.ok(!/name="api_?key"|id="api_?key"|placeholder="sk-/i.test(text), `${file.pathname}: 키 입력 칸`);
   }
 });

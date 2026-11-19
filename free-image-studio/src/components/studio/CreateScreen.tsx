@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { BATCH_MAX, COPIES_MAX, adoptDraft, buildPlan, clearDraft, confirmUncertain, discardUncertain, draftStatus, loadCompose, parseEntries, saveCompose, saveDraft, setLineCopies, submitRemaining, type DraftStatus, type RunResult } from "@/lib/studio/batch";
 import { PRESETS, SIZE_CHOICES, findPreset, findSize, pickVariantId, type ModelState, type PresetId } from "@/lib/studio/presets";
+import { ConvertPanel } from "./ConvertPanel";
 import { messageOf, useEngine } from "./useEngine";
 
 const card = "rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5";
@@ -280,6 +281,7 @@ export function CreateScreen({ memberId }: { memberId: string }) {
           className="mt-3 w-full rounded-xl border border-[var(--line)] bg-transparent p-3 text-sm leading-relaxed"
         />
         <p className="mt-2 text-xs text-[var(--muted)]">내 PC 그림 모델은 영어만 읽습니다. 고른 용도에 맞는 표현(조명·구도·글자 없음 등)은 자동으로 덧붙습니다.</p>
+        <ConvertPanel memberId={memberId} text={text} onText={setText} disabled={running} />
         <p className="mt-2 text-xs text-[var(--muted)]">
           한 줄에 한 장을 그립니다. 같은 설명으로 두 장이 필요하면 아래에서 그 줄을 {COPIES_MAX}장으로 바꾸거나, 줄 끝에 <code>x2</code>를 적어 주세요.
         </p>
