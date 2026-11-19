@@ -4,12 +4,19 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령) · 실제로 함께 맡아 온 폴더: `shorts-onestop-studio/`(v1.59) · `shots/`(v1.51) · `music-video-studio/`(v1.31, 음악 담당과 겹침) · `video-to-gif/`(v1.33) · `youtube-viral-studio/`(v1.30) — 버전은 2026-11-18 코드 `version.ts`·이 파일 배포 기록 기준
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-17 `claude-win-video` (공용 MP4 인코더 탭 단위 가속 멈춤 기억 — 소스 완료·QA032 PASS·미배포, 떡상 분석 DB 2표 운영 적용)
+- 마지막 갱신: 2026-11-20 `claude-win-video` (작업지시 요청 지침 등록, MOV-20261119-01 계약 A3 `8af27a171` 제출)
+
+## 작업지시 요청 지침 (2026-11-20 주인님 지시: 「왜 쉬고 있지 작업이 끝났으면 master에게 다음 작업지시 요청을 해서 작업을 할당 받거나 너가 해야될 다음 작업을 찾아서 master에게 작업지시 해달라고 요청해 작업지시 요청 지침으로 등록하고 앞으로 지키도록 해」)
+- **작업 결과를 Master에게 보고(ready_review)한 같은 턴 안에서 바로 다음 작업지시를 요청한다. 보고만 하고 대기 상태로 멈추지 않는다.**
+- 요청 방법: 첫째, Master 배정 대기열에 이미 잡힌 다음 작업이 있으면 그 작업 배정을 요청한다. 둘째, 없으면 이 파일 「대기 중」·「다음 첫 단계」, 담당 프로그램 `docs/IMPROVEMENTS.md`·`IMPROVEMENT_BACKLOG.md`, `docs/PENDING_DEPLOYS.md`에서 **지금 승인 범위 안에서 바로 할 수 있는 다음 작업 후보 2~3개**를 골라(근거 파일·예상 범위·비용 유무·선행조건 포함) 추천 순서와 함께 「작업지시 해 달라」고 요청한다.
+- 요청은 `orca orchestration reply`(보고 메시지와 같은 회신 또는 바로 이어서)로 보내고, 채팅 보고에도 「다음 작업 요청: ○○」를 적는다.
+- 주인님 손이 필요한 일(로그인·녹화·결제·승인)만 남아 있어도 그것만 기다리지 않고, 그와 독립적인 다음 작업을 함께 요청한다.
+- 배정을 받으면 기존 하네스 규칙(작업 ID·허용 경로·점유 확인)대로 시작한다. 비용·운영 쓰기·새 사업 기능은 여전히 사전 승인.
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| — | 지금 맡은 작업 없음(메이커 후속 세 가지 끝, 다음 지시 대기) | — | — |
+| `shorts-onestop-studio`↔`shop-detail-page` | MOV-20261119-01 상품영상 연결 계약 A3(`8af27a171`) | 2026-11-20 | ready_review — Master 확정 대기, 다음 작업 요청함 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 - 2026-11-16 유튜브 떡상 분석 v1.30 — 배포 끝, DB 2표 SQL 운영 적용·읽기 확인 끝(11-17, 요청함 1c7b6dda 승인완료). 실제 검색·AI 기획안 운영 확인 끝(11-18, 아래 최근 완료). 1단계 검수 완료, 2·3단계는 별도 배정.
@@ -22,7 +29,7 @@
 | `shorts-onestop-studio`·`shots`·`lyric-video-studio`·`video-to-gif` | 공용 `browser-mp4-encoder` 탭 단위 가속 멈춤 기억(`2b9a06c9c`, MOV-20261117-07) — **소스 완료·맥 QA032 소스 PASS, 미배포**. 실제 하드웨어·Apple Silicon MP4 미검수 | 다음 실제 기능 배포 묶음 | `.ai/results/MOV-20261117-07B-CC-MOVIE-01.md`, `docs/SHARED_MODULES.md` |
 | `shots` | v1.51 배포됨(11-14) — 「모든 장면 영상으로」 실제 유료 실행은 회원 첫 사용 때 오류가 나면 시험 | — | `shots/docs/IMPROVEMENTS.md` |
 | 영상 프로그램 6개 | 서버 지역 서울(`icn1`) 설정 완료 — 각 프로그램 다음 배포 때 반영, 배포 뒤 `x-vercel-id` 확인 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
-| `shorts-onestop-studio` | v1.59 배포됨(11-15). 남은 것: Gemini 낱말 시각 1원 시험(시험 계정 로그인 대기), 영상 주소를 상품 쪽으로 반환(상품 번호는 uuid — `product-id`, 받는 쪽 화면은 상품 담당과 협의) | 주인님 로그인 · 상품 담당 | `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md` |
+| `shorts-onestop-studio` | v1.59 배포됨(11-15). 남은 것: Gemini 낱말 시각 1원 시험은 PASS(결과를 원스톱 백로그에 옮겨 적는 일만 남음), 영상 주소를 상품 쪽으로 반환은 계약 A3(`8af27a171`, `.ai/results/MOV-20261119-01-RECEIVER-CONTRACT-CC-MOVIE-01.md`) Master 확정 대기 | Master 확정 · 상품 담당 수신 구현 | `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md` |
 
 ## 최근 완료 (최근 10개)
 - 2026-11-18 유튜브 떡상 분석 v1.30 AI 기획안 운영 1회(주인님 승인 「진행해」): 시험 계정·같은 「자취요리」 재검색(채널 68개 중 67개 캐시 재사용, 약 408유닛) → 시험 계정 본인 Claude 키·가장 저렴한 Claude Haiku 4.5로 1회, 60초, 결론·시청자 각도·제목 공식·썸네일 패턴·쇼츠/롱폼 전략·영상 기획안 표시, 오류 0. 비용 약 $0.03(추정, 회원 키).
