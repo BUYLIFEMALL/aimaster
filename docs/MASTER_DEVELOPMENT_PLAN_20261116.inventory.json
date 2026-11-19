@@ -12,19 +12,19 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T11:31:04.938Z",
+      "at": "2026-11-19T12:03:02.941Z",
       "timezone": "Asia/Seoul",
-      "trigger": "20:30 정기 점검 메시지 msg_d99ce3589344 수신·실행",
-      "scope": "20:01 KST 이후 증분. 372건 중 미완료 27건(진행 3·검수 7·순번 4·사용자 13). 기존 목록 103개·19분류, 담당 기록 11개와 점유·미배포·사용자 단계 대조. 신규 무료 이미지 앱은 아직 사이트 미등록.",
+      "trigger": "21:00 정기 점검 메시지 msg_703754903f52 수신·실행",
+      "scope": "20:31 KST 이후 증분. 376건 중 미완료 31건(진행 5·검수 8·순번 4·주인님 결정 14). 기존 103개·19분류와 11개 담당 기록, 점유·미배포·주인님 단계 대조.",
       "evidence": [
-        "Master 요청 0. Git 증분 및 새/갱신 결과 IMG-P1-5-1·5-2 2편을 대조. 무료 이미지 폴더 점유 b0fbdbaec, 기존 세션의 HANDOFF/manifest 미커밋 확인.",
-        "무료 이미지 플랜 15416f6e5 수락, 5-1 753df0c2f Mac 14/14로 인증 P2 해소. 5-2 bbfc5bf4a Mac 31/31 및 접수 복구 반례 msg_9ddcdf264903."
+        "Master 요청함 대기 0, Git 및 결과 3편(IMG 5-2/5-3·MUSIC), 새 handoff 파일 없음. Workspace·무료 이미지 진행 중 변경과 공유 HANDOFF 미커밋 확인.",
+        "무료 이미지 a81bd0134 Mac 62/62와 P2·P3 반례, 리믹스 ded8cece2 담당 59/59, Workspace 4f801102a C 로컬 561쪽 2,072B·229초, B2B 0106/0107 문서만.",
+        "AIF msg_72fcafaead67 담당 푸시 범위·D2 실행 준비, R1 a5eebe012; 블로그 버전/ZIP Git 937e2f05e·bfd56fcd1·0dd8f34cc는 운영 확인 전."
       ],
-      "judgment": "5-1 로컬 완료. 5-2 기본 시험 통과에도 중복 생성 가능 조건이 있어 보완을 배정. 실제 엔진·운영 없이 5-3은 수정 검수 이후. Workspace와 AIF D2 운영 조건, 기타 사용자 조치 변화 없음.",
-      "nextAction": "CC-ECOM-01 5-2 네 재현 보완 msg_b5267b017f16 및 Mac 재검수. Workspace 재로그인, AIF 운영 적용 및 리믹스 후속은 기존 결정 대기. 중복 실행 없음.",
+      "judgment": "이미지 5-3 보완 후 재검수. 리믹스 최신판 및 Workspace C 독립 검수. AIF R1 격리 후보 진행, D2 운영 변경과 전체 master 푸시 보류.",
+      "nextAction": "이미지 담당 보완 msg_49d8cc97bc73·msg_ded0ccd52d9a, Mac 리믹스 msg_12156cc001ce와 Workspace C msg_188d5f946fe6, Workspace A 후보 msg_d48ab4279b48. AIF D2 주인님 결정 후에만 운영, B2B Lab 승인 대기.",
       "unverified": [
-        "무료 이미지 실제 브라우저/인증·엔진 연결·8GB 반복 작업. Workspace 실제 ZIP/Storage, AIF 운영 정책/정리, QA002 B·QA037·ESM 사용자 단계.",
-        "운영 전수 및 이전 미추적 파일 전체는 증분 범위 밖."
+        "실제 무료 이미지 브라우저/연결·엔진·탭 저장, 리믹스 실서명·화면, Workspace 실제 Storage/화면·realtime, 블로그 운영 배포 및 AIF SQL/정리. 운영 전수와 이전 미추적 파일 전체는 점검 범위 밖."
       ]
     },
     "notifications": [
@@ -10039,9 +10039,9 @@
       "reviewer": "CX-QA-01",
       "title": "AI 무료 이미지 자동화 개발 플랜",
       "status": "running",
-      "delivery": "web_mock_engine_mac_accepted_ui_dispatched",
-      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기·msg_4423e8b13051·msg_6d81c947bd00·d6f1d0287·00158b7a3·msg_e49f861919f9·msg_25a67c9094a4·msg_11158461bd15·msg_680de25b9e15·98f8dd8bc·68efe5399·msg_fd207f8be38a·msg_5074f8e947cf·msg_254300c4a578·msg_cd4c7a612051·3fbd4b200·Arc CSV 2행 직접 대조·995a92ac-01f9-45e2-a3a4-91a3862df9e3·msg_025a7125b66c·msg_5c32df5c7178·msg_287b5412841b·msg_7492634e4c5a·msg_68e97e7d4656·msg_d36a6a75b50c·msg_9a3bd624f2e1·msg_309652177f5b·중복 msg_5a0e1dee6395 정정 보고·11:44 KST Admin Codex 터미널 본시험 진행 확인·11:50 KST Admin Codex 터미널 FLUX 48/48 중간 보고·msg_f2aba7390f58·msg_32e9ef68cd67·444034a1e·msg_45ce6d2b5731·msg_952e1148ece6·msg_9c55abed11da·msg_05eeafdb243c·Master CSV/PNG 해시 일치·msg_60514833d426·msg_8c5418f1b1f8·msg_2c1454bc23a0·msg_320b474b9a14·msg_1dc750048e02·f988aaab8·msg_377218bf1613·msg_1e45bac91599·73d53045e·msg_ca0dc8f285f1·Master PNG 96개/CSV 해시 확인·msg_c7d8c25b2b0f·msg_d0aa30c8fbca·HTML SHA/PNG 96개 직접 확인·msg_69266b1b62fc·d3babd8e4·Master 48/46 재집계·msg_1cfdd780b8d4·msg_ea053258743e·f6c6e049e·msg_9b9f6d69af92·msg_56cc9598b6b0·msg_27716f68082f·msg_05239b8dff9b·msg_7d5b73a67c25·af7d039f7·msg_49edda0b038d·정비율 5파일 Master 해시/헤더 대조·msg_f3af85c28f8e·msg_7d7a54aacc65·msg_48e9535f7335·6b382e836·msg_e2f54750fd3a·Master Q4 CSV/PNG 대조·msg_56bb8df81705·msg_ecd2ab927730·49bec95a8·Master eval-2 HTML SHA/PNG 32개 확인·msg_dc45aef4223e·Master Q4/Q8 16쌍 재집계·msg_7f3e70cc5834·msg_c439f0684ff1·fe37bf575·45a8bb41d·msg_66af7917a7f5·msg_0962d9630d0e·msg_dacd098aff64·msg_a6e29be3b1c5·0f22e067a·msg_ed08ca7c8bff·msg_1c30d67ce7d8·3383cec03·msg_b82fb12c2134·msg_f87668d3599b·msg_a2d69f45e9f5·msg_765e8cfce48d·msg_75dbfaa8b077·msg_87cf8e11ba69·aa04066c8·msg_f7a7a5d44dd0·msg_ad82d911c849·msg_edef1e834612·msg_bc241410bf7f·msg_5f1eca22975d·msg_8ebe37a39e59·63307bdba·2c11df0e7·msg_09fa29bfc0d8·msg_7f7c856b33c4·0515d1da5·Admin 터미널 전달 문구 확인·msg_bb468c75ad9b·msg_0837cb4d1553·msg_3201946d1453·msg_4345f94e7ec9·.ai/results/IMG-P1-PRA-CX-QA-01.md·msg_4ed9a47eca51·msg_7ef7aa6f10ac·msg_c0ffccd778ed·msg_5027f01ec567·msg_cf3359d3afa9·msg_58ba31f07abf·msg_35226db46992·msg_62f3c8ec1e56·msg_c470487dd114·msg_9d7dd4e24107·Master CSV 두 개 및 PNG 48장 SHA/IHDR 일치·msg_4b569962fa32·msg_56789e2b8d00·49dbcc755·Master HTML SHA 및 PNG 48장 확인·msg_1eee37daa382·msg_7fff9943541d·msg_a1f10c00a128·733b93582·msg_a03c01bc7326·msg_774b0b37c6c4·msg_cba2e6bf6be7·msg_fef21cb23d92·msg_2ad102d3a8be·msg_79b31d5f5d5f·msg_a1c58e32ddfb·msg_ef247472e770·msg_a845dcfc48ab·msg_45b1da7d4464·ac1abcc20·Master 평가 파일 SHA-256 및 43/4/1 대조·msg_d321e6321b46·msg_6b369646985d·Master PNG SHA-256과 exit 0/0 대조·msg_bc469d4dc851·msg_a7bf0c3368d8·msg_b82c3d0afc9f·msg_021cc25b02c9·msg_b1743b158b90·msg_a432222bc9ca·Master 공유 CUDA SHA 2/2·msg_96badd9ea0e2·msg_ab1a5635accf·msg_912752ac9bf1·msg_df9259678db4·msg_0892ca387839·msg_5e50964a4d6f·Master Sub SHA-256 6/6·msg_8279f47c9ecd·msg_e371b484efb3·3648ae375·msg_83d4248155d7·msg_fd5bb7a64e2f·15416f6e5·msg_45b3fbbdfcde·msg_b44799bfc4f0·cdd65176f·b0fbdbaec·msg_462f7b08d37d·msg_b44aba7ec6d3·msg_9711e8d69642·msg_963780656d4c·753df0c2f·msg_ffaaa6f920bd·msg_5ac1e15335bb·msg_bd55ecd61eb1·msg_e3a11536e81e·bbfc5bf4a·msg_e74d94a7a921·msg_9ddcdf264903·msg_b5267b017f16·msg_94fea14a6bc2·1ae8b7f5f·msg_99ebb68cdcff·msg_b7574ea614f3·b44c9eb30·msg_2852868c289d·msg_23644f486504·msg_05cb029b0d5c·msg_24630c7e2676·e53bb2daa·msg_4446e40b0338·msg_dd89a041b67d·msg_b1c3fa9674cf",
-      "next": "e53bb2daa 5-2 Mac 40/40 및 3건 해소. 5-3 시작하기·만들기·작업 기록의 모의 화면 배정. 실엔진/브라우저 검증 전.",
+      "delivery": "web_ui_mac_findings_returned",
+      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기·msg_4423e8b13051·msg_6d81c947bd00·d6f1d0287·00158b7a3·msg_e49f861919f9·msg_25a67c9094a4·msg_11158461bd15·msg_680de25b9e15·98f8dd8bc·68efe5399·msg_fd207f8be38a·msg_5074f8e947cf·msg_254300c4a578·msg_cd4c7a612051·3fbd4b200·Arc CSV 2행 직접 대조·995a92ac-01f9-45e2-a3a4-91a3862df9e3·msg_025a7125b66c·msg_5c32df5c7178·msg_287b5412841b·msg_7492634e4c5a·msg_68e97e7d4656·msg_d36a6a75b50c·msg_9a3bd624f2e1·msg_309652177f5b·중복 msg_5a0e1dee6395 정정 보고·11:44 KST Admin Codex 터미널 본시험 진행 확인·11:50 KST Admin Codex 터미널 FLUX 48/48 중간 보고·msg_f2aba7390f58·msg_32e9ef68cd67·444034a1e·msg_45ce6d2b5731·msg_952e1148ece6·msg_9c55abed11da·msg_05eeafdb243c·Master CSV/PNG 해시 일치·msg_60514833d426·msg_8c5418f1b1f8·msg_2c1454bc23a0·msg_320b474b9a14·msg_1dc750048e02·f988aaab8·msg_377218bf1613·msg_1e45bac91599·73d53045e·msg_ca0dc8f285f1·Master PNG 96개/CSV 해시 확인·msg_c7d8c25b2b0f·msg_d0aa30c8fbca·HTML SHA/PNG 96개 직접 확인·msg_69266b1b62fc·d3babd8e4·Master 48/46 재집계·msg_1cfdd780b8d4·msg_ea053258743e·f6c6e049e·msg_9b9f6d69af92·msg_56cc9598b6b0·msg_27716f68082f·msg_05239b8dff9b·msg_7d5b73a67c25·af7d039f7·msg_49edda0b038d·정비율 5파일 Master 해시/헤더 대조·msg_f3af85c28f8e·msg_7d7a54aacc65·msg_48e9535f7335·6b382e836·msg_e2f54750fd3a·Master Q4 CSV/PNG 대조·msg_56bb8df81705·msg_ecd2ab927730·49bec95a8·Master eval-2 HTML SHA/PNG 32개 확인·msg_dc45aef4223e·Master Q4/Q8 16쌍 재집계·msg_7f3e70cc5834·msg_c439f0684ff1·fe37bf575·45a8bb41d·msg_66af7917a7f5·msg_0962d9630d0e·msg_dacd098aff64·msg_a6e29be3b1c5·0f22e067a·msg_ed08ca7c8bff·msg_1c30d67ce7d8·3383cec03·msg_b82fb12c2134·msg_f87668d3599b·msg_a2d69f45e9f5·msg_765e8cfce48d·msg_75dbfaa8b077·msg_87cf8e11ba69·aa04066c8·msg_f7a7a5d44dd0·msg_ad82d911c849·msg_edef1e834612·msg_bc241410bf7f·msg_5f1eca22975d·msg_8ebe37a39e59·63307bdba·2c11df0e7·msg_09fa29bfc0d8·msg_7f7c856b33c4·0515d1da5·Admin 터미널 전달 문구 확인·msg_bb468c75ad9b·msg_0837cb4d1553·msg_3201946d1453·msg_4345f94e7ec9·.ai/results/IMG-P1-PRA-CX-QA-01.md·msg_4ed9a47eca51·msg_7ef7aa6f10ac·msg_c0ffccd778ed·msg_5027f01ec567·msg_cf3359d3afa9·msg_58ba31f07abf·msg_35226db46992·msg_62f3c8ec1e56·msg_c470487dd114·msg_9d7dd4e24107·Master CSV 두 개 및 PNG 48장 SHA/IHDR 일치·msg_4b569962fa32·msg_56789e2b8d00·49dbcc755·Master HTML SHA 및 PNG 48장 확인·msg_1eee37daa382·msg_7fff9943541d·msg_a1f10c00a128·733b93582·msg_a03c01bc7326·msg_774b0b37c6c4·msg_cba2e6bf6be7·msg_fef21cb23d92·msg_2ad102d3a8be·msg_79b31d5f5d5f·msg_a1c58e32ddfb·msg_ef247472e770·msg_a845dcfc48ab·msg_45b1da7d4464·ac1abcc20·Master 평가 파일 SHA-256 및 43/4/1 대조·msg_d321e6321b46·msg_6b369646985d·Master PNG SHA-256과 exit 0/0 대조·msg_bc469d4dc851·msg_a7bf0c3368d8·msg_b82c3d0afc9f·msg_021cc25b02c9·msg_b1743b158b90·msg_a432222bc9ca·Master 공유 CUDA SHA 2/2·msg_96badd9ea0e2·msg_ab1a5635accf·msg_912752ac9bf1·msg_df9259678db4·msg_0892ca387839·msg_5e50964a4d6f·Master Sub SHA-256 6/6·msg_8279f47c9ecd·msg_e371b484efb3·3648ae375·msg_83d4248155d7·msg_fd5bb7a64e2f·15416f6e5·msg_45b3fbbdfcde·msg_b44799bfc4f0·cdd65176f·b0fbdbaec·msg_462f7b08d37d·msg_b44aba7ec6d3·msg_9711e8d69642·msg_963780656d4c·753df0c2f·msg_ffaaa6f920bd·msg_5ac1e15335bb·msg_bd55ecd61eb1·msg_e3a11536e81e·bbfc5bf4a·msg_e74d94a7a921·msg_9ddcdf264903·msg_b5267b017f16·msg_94fea14a6bc2·1ae8b7f5f·msg_99ebb68cdcff·msg_b7574ea614f3·b44c9eb30·msg_2852868c289d·msg_23644f486504·msg_05cb029b0d5c·msg_24630c7e2676·e53bb2daa·msg_4446e40b0338·msg_dd89a041b67d·msg_b1c3fa9674cf·a81bd0134·msg_bc412a69dc8b·msg_3b76b41f7a6f·msg_ded0ccd52d9a·msg_9526fc66e09f·msg_49d8cc97bc73",
+      "next": "a81bd0134 Mac 62/62, P2 3건·P3 저장/접근성. 줄별 장수와 함께 담당 보완 전달. 실제 화면·엔진 미검증.",
       "lastReviewedAt": "2026-11-19T07:05:56.802Z",
       "sha": "733b93582"
     },
@@ -10125,9 +10125,9 @@
       "reviewer": "CX-MASTER-01",
       "title": "Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단",
       "status": "running",
-      "delivery": "zip_perf_db_roundtrips_measured_response_contract_followup_sent",
-      "next": "db3af264c 합성 201쪽 59.6초·DB 51,273회·응답 3.58MB. 61쪽 v1.61/v1.62 호출 거의 동일. 응답 축소 계약·DB 개선 계획 배정, 운영 재시도 없음.",
-      "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a"
+      "delivery": "zip_response_candidate_mac_review_db_cache_candidate_dispatched",
+      "next": "4f801102a C 로컬 561쪽 응답 2,072B, 229초. Mac 검수와 A 캐시 격리 후보를 각각 전달, 운영 재시도 없음.",
+      "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a·4f801102a·msg_188d5f946fe6·msg_d48ab4279b48"
     },
     {
       "task_id": "WS-20261119-02",
@@ -10158,10 +10158,10 @@
       "owner": "CC-MUSIC-01",
       "reviewer": "CX-QA-01",
       "title": "리믹스 → 플레이리스트 수신 로컬 구현",
-      "status": "running",
-      "delivery": "receiver_completed_filter_passed_storage_guard_followup",
-      "next": "e728f10cf 직접 완료 상태 필터·담당 52/52. Mac 원판 추가 지적에 리믹스 저장소 서명 경로 및 선택 수 보완 배정. 미배포.",
-      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1·msg_fd4dcdac6208·7b76ae4eb·msg_cf3cd8832343·msg_5118e37c0e3b·msg_ef79431525cb·e728f10cf·msg_53afdbd8013c·msg_6bc9c6ee0c57"
+      "status": "reviewing",
+      "delivery": "receiver_storage_guard_fixed_mac_recheck_sent",
+      "next": "ded8cece2 본인 경로 서명과 선택 수 보완, 담당 59/59. Mac 독립 재검수 전달, 실서명·화면·배포 미확인.",
+      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1·msg_fd4dcdac6208·7b76ae4eb·msg_cf3cd8832343·msg_5118e37c0e3b·msg_ef79431525cb·e728f10cf·msg_53afdbd8013c·msg_6bc9c6ee0c57·ded8cece2·msg_545ceab47299·msg_12156cc001ce"
     },
     {
       "task_id": "MUSIC-20261119-REMIX-PLAYLIST-REVIEW",
@@ -10305,9 +10305,9 @@
       "reviewer": "CX-MASTER-01",
       "title": "AI Influencer 회원 예약 기본값과 관리자 허용 설계",
       "status": "running",
-      "delivery": "owner_sequence_approved_shared_contract_design_dispatched",
-      "next": "cron-job.org 기본, Vercel 관리자/지정 계정 명시 선택. 공용 연결점과 관리자 권한 계약 검토, 운영 DB 승인 대기.",
-      "evidence": "6425b1ec4·45e164bf1·msg_c9d7969183e0·msg_81623dd95517"
+      "delivery": "shared_hook_isolated_candidate_and_mock_tests_dispatched",
+      "next": "a5eebe012 설계 수락, SNS 격리 후보·모의 시험 착수 수신. cron-job.org 기본 및 명시 허용, 공유 동기화와 운영 적용 제외.",
+      "evidence": "6425b1ec4·45e164bf1·msg_c9d7969183e0·msg_81623dd95517·msg_fb0814229b74·a5eebe012·msg_e22a2892cbd5·msg_72fcafaead67"
     },
     {
       "task_id": "AIF-20261119-D2-READINESS",
@@ -10315,10 +10315,10 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "AI Influencer D2 실행 범위와 푸시 분리 검토",
-      "status": "running",
-      "delivery": "d2_readiness_and_scoped_push_review_dispatched",
-      "next": "D2 운영 적용 후보·원복·실행 경계 문서 대조. 전체 master 푸시 보류, 담당 경로와 배포 영향 분리. 운영 변경 전.",
-      "evidence": "msg_1e98223b879f·msg_1f1ed1c413e5·Master origin/master 0/990 확인"
+      "status": "waiting_human",
+      "delivery": "d2_runbook_ready_sql_scope_decision_pending",
+      "next": "c1c5c92e5 기준 적용·권한·복구 준비표 회수. 주인님 한도 SQL·shadow 범위 결정 후 재개. 전체 master 푸시 보류, 앱 전용 ref는 미생성.",
+      "evidence": "msg_1e98223b879f·msg_1f1ed1c413e5·Master origin/master 0/990 확인·msg_72fcafaead67·c1c5c92e5"
     },
     {
       "task_id": "AIF-20261119-PLAN6",
