@@ -4,14 +4,14 @@
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-19 16:31:15 KST · 실행 중 5분 · 턴 밖 30분 메시지 · 103개 프로그램/19분류 증분 및 미완료 27건 점검.
-이번 점검에서 Workspace CSV 로컬 검수를 수락하고 B2B 운영 배포의 프런트 범위를 대조했다. 대용량 ZIP 구현과 AI Influencer OFF 로컬 검증은 진행 중이다.
+Master 마지막 실제 점검: 2026-11-19 17:02:41 KST · 17:00 예약 메시지 수신 및 기존 Master에서 증분 대조 완료.
+AI Influencer D1 OFF 운영 v1.27의 공개 화면·접근 제한을 확인했다. Workspace 대용량 ZIP cron 보완본은 Mac 재검수로 전달했다. B2B 퀵바 독립 검수는 완료돼 배포를 기다린다.
 
-점검 범위: 13:01:14 KST 이후 증분. 103개 프로그램·19개 분류, 미완료 26건(진행 3·검수 5·순번 5·사용자 단계 13). Git·점유·사용자 지시·결과/인수인계 대조. 부동산 문자 안내·AIF 격리 실행기 검수 수락. 블로그 최신 모델과 이미지 엔진 로컬 구현 진행. 신규 운영 배포·DB·키·유료 호출 승인 없음.
+점검 범위: 16:31 KST 이후 증분. 작업표 367건, 미완료 27건(진행 3·검수 6·순번 4·사용자 14), 103개 프로그램·19개 분류, 담당 검토 11개 기록 및 Git·점유·인수인계·미배포·사람 단계 대조.
 
-후속 배정: IMG 음악 담당 엔진 로컬 소스만, 새 출처 운영 등록·설치판 별도. Blog 최신 목록 Mac 검수. B2B 공간39 로그인/제어 반환 뒤 관리자 검수·공간29 순차.
+후속 배정: Workspace 658155927 검수 CX-QA-01 전달 msg_aac8a5bb28c4. AIF 인증 화면은 주인님 로그인 이후 Tester 읽기, DB 버전·유료 생성·D2/D3은 기존 승인 경계에 따라 보류. QA037/관리자·ESM은 각 기록의 로그인과 제어 반환 뒤 재개.
 
-미확인: IMG 엔진 실제 구현·저사양 장비 지원·출시 기준, Blog 실제 계정 호출 및 빌드, B2B 로그인 뒤 화면, AIF Windows 후속 실기동 · 운영 전수 실측 및 오래된 미추적 파일 재검증 미실행
+미확인: AIF 인증 운영 화면과 기존 생성·보정, Workspace 실제 Storage 및 cron 독립 결과, B2B 태블릿 실기기·후보 URL 및 S70 Mac 실행, 감성 글귀 합성 화면, 이미지 모델 실기. 103개 운영 전수·이전 미추적 문서 전체 재검증은 이번 증분 범위 밖.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -391,7 +391,7 @@ Master 마지막 실제 점검: 2026-11-19 16:31:15 KST · 실행 중 5분 · �
 | WS-20261118-08 | CC-WORKSPACE-01 | done / collapsed_widget_spacing_static_mac_review_accepted_undeployed | 좌측 하단 저장공간 위젯과 푸터 겹침 | 미배포. 기본 위젯 겹침 국소 정적 검수 완료, 확장/좁은 폭·실화면은 별도. |
 | WS-20261119-01 | CC-WORKSPACE-01 | done / saved_notion_html_recursive_fix_independent_review_accepted | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | v1.61 배포 완료, 기존 가져온 본문 읽기 확인. 운영에서 노션 저장 HTML 다시 가져오기 시험은 미실행. |
 | WS-20261119-REL | CC-WORKSPACE-01 | done / production_v161_live_verified_catalog_version_synced | Workspace v1.61 기존 중단 빌드 로그 진단 | 운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음. |
-| WS-20261119-02 | CC-WORKSPACE-01 | running / large_zip_mac_p1_pass_cron_cleanup_followup_sent | Workspace ZIP 50MB 안내와 대용량 가져오기 설계 | 072d74005 Mac P1 해소 및 브라우저 모의 통과. cron Storage 실패 뒤 파일 행 삭제 P2 보완 배정. 실 Storage·운영 미반영. |
+| WS-20261119-02 | CC-WORKSPACE-01 | running / large_zip_cron_fix_mac_recheck_sent | Workspace 대용량 ZIP | 658155927 cron P2 수정. 작성자 전용 시험 1,005건 통과, Mac 독립 재검수 전달. 실제 Storage 미검증·미배포. |
 | MUSIC-20261119-IMG-COMPAT | CC-MUSIC-01 | done / five_music_flows_read_only_accepted | 무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토 | 고정 2131089b7 음악 5경로·146/146 검토 수락. 새 범위 미사용 시 파일 미생성 정정. 실제 엔진은 미검증. |
 | QA-20261118-043 | CX-QA-01 | done / production_v161_mobile_keyboard_verified_read_only | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | Workspace 운영 v1.61 독립 읽기. 375/390px 요일 7칩 두 줄·넘침 0·Tab 3px 포커스. OS 다크 선호 확인, 앱 테마·저장 중 상태 미검증. |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
@@ -510,7 +510,7 @@ Master 마지막 실제 점검: 2026-11-19 16:31:15 KST · 실행 중 5분 · �
 | AIF-20261119-W01-V4 | CC-SNS-01 | done / finite_member_real_storage_verified_isolated_origin | 일반 회원 한도와 운영 다운로드 선행 검증 | 지정 일반 회원 실제 이용·합성 JPEG 1회 업로드·본인 조회·서명 다운로드 200. 일반 한도 초과·정리·운영 출처는 미검증. |
 | AIF-20261119-W01-V3 | CC-SNS-01 | done / v3_success_and_isolation_guard_independent_accepted | AI Influencer 대표 생성 및 보정 검증 | 승인 이미지/캡션 성공 및 e3421c7a9 Mac 모의 18/18 수락. 추가 Windows 실기동·공급자 호출·운영 검증 없음. |
 | AIF-20261119-W01-RETOUCH | CC-SNS-01 | done / test_generation_and_retouch_pass_v5_upload_without_publish | AI Influencer 히스토리 재표시·일반 회원 생성·보정 | 지정 일반 회원 경로 보류. 시험 계정 생성 1·보정 1 성공, V5 규칙 변환·업로드 확인. 앱 실제 게시와 운영 출처는 미검증. |
-| AIF-20261119-W01-D1 | CC-SNS-01 | running / d1_off_production_build_start_reported | AI Influencer D1 스위치 OFF 배포 사전 확인 | aaac91bb6 격리 후보(v1.27 표시만 추가)로 D1 OFF 운영 빌드 1회 시작 보고. 배포 ID·READY 대기. DB 버전 v1.26, 로그인 실제 화면 미검증. |
+| AIF-20261119-W01-D1 | CC-SNS-01 | done / production_off_ready_public_smoke_passed | AI Influencer D1 스위치 OFF 운영 배포 | aaac91bb6 D1 OFF 운영 READY, 빌드 1회. 공개 v1.27 및 비로그인 401 확인. DB와 공유 소스 버전 v1.26, 인증 화면은 검증 대기. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |

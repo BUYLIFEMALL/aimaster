@@ -6186,11 +6186,11 @@
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace ZIP 50MB 안내와 대용량 가져오기 설계",
       "status": "running",
-      "delivery": "large_zip_mac_p1_pass_cron_cleanup_followup_sent",
-      "sha": "072d74005",
-      "next": "072d74005 Mac P1 해소 및 브라우저 모의 통과. cron Storage 실패 뒤 파일 행 삭제 P2 보완 배정. 실 Storage·운영 미반영.",
+      "delivery": "large_zip_cron_fix_mac_recheck_sent",
+      "sha": "658155927",
+      "next": "658155927 cron P2 수정. 작성자 전용 시험 1,005건 통과, Mac 독립 재검수 전달. 실제 Storage 미검증·미배포.",
       "lastReviewedAt": "2026-11-19T07:34:18.665Z",
-      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85·cfd124ba3·c2816bf0f·13e9af05d·msg_b6590eaaaee8·7298b1dbf·msg_25fa9e68b50a·msg_2694e685c83c·msg_b5baddc12f26·c81384d50·504891ed2 부모 분리·msg_64c64ec0e1da·msg_a38d3ff84dbc·msg_021d1ad75f3a·msg_74f8e5339487·368acd3b7·msg_d4a19e25bc14·msg_a7c6ecc7758f·msg_2710ce16b617·cdb121ab7·msg_a558ec9d6241·msg_9f4a49f9353c·.ai/results/WS-20261119-02-CX-QA-01.md·04807f920·msg_7fd9735761c5·msg_2e22cd4b41c3·msg_7a026b63d2e7·msg_a91f3a9fe702·072d74005·msg_c781a457252f·msg_d4f3a908acbe·msg_547f81d99092",
+      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85·cfd124ba3·c2816bf0f·13e9af05d·msg_b6590eaaaee8·7298b1dbf·msg_25fa9e68b50a·msg_2694e685c83c·msg_b5baddc12f26·c81384d50·504891ed2 부모 분리·msg_64c64ec0e1da·msg_a38d3ff84dbc·msg_021d1ad75f3a·msg_74f8e5339487·368acd3b7·msg_d4a19e25bc14·msg_a7c6ecc7758f·msg_2710ce16b617·cdb121ab7·msg_a558ec9d6241·msg_9f4a49f9353c·.ai/results/WS-20261119-02-CX-QA-01.md·04807f920·msg_7fd9735761c5·msg_2e22cd4b41c3·msg_7a026b63d2e7·msg_a91f3a9fe702·072d74005·msg_c781a457252f·msg_d4f3a908acbe·msg_547f81d99092·658155927·msg_aac8a5bb28c4",
       "reviewer": "CX-QA-01"
     },
     {
@@ -6300,11 +6300,11 @@
       "parent_task_id": "AIF-20261119-W01-RETOUCH",
       "owner": "CC-SNS-01",
       "title": "AI Influencer D1 스위치 OFF 배포 사전 확인",
-      "status": "running",
-      "delivery": "d1_off_production_build_start_reported",
+      "status": "done",
+      "delivery": "production_off_ready_public_smoke_passed",
       "sha": "aaac91bb6",
-      "next": "aaac91bb6 격리 후보(v1.27 표시만 추가)로 D1 OFF 운영 빌드 1회 시작 보고. 배포 ID·READY 대기. DB 버전 v1.26, 로그인 실제 화면 미검증.",
-      "evidence": "msg_99f48ec1072f·msg_56627921dadb·msg_ab5b76ba2021·msg_fe0626fbf3a1·msg_ff8bfd3c4215·7da7961ec·msg_6fe64489deea·msg_edce1bb04114·7cbff8753·msg_d1564fa89a51·msg_5ece488b490e·6122fbb04·bc6ff956b·bed9d1dad·msg_4ddfcc074cc6·msg_78377ef70db9·ff746dff6·d4298bd76·5a2c61ddd·msg_dd4eb4c22e70·msg_800912dbc127·aaac91bb6",
+      "next": "aaac91bb6 D1 OFF 운영 READY, 빌드 1회. 공개 v1.27 및 비로그인 401 확인. DB와 공유 소스 버전 v1.26, 인증 화면은 검증 대기.",
+      "evidence": "msg_99f48ec1072f·msg_56627921dadb·msg_ab5b76ba2021·msg_fe0626fbf3a1·msg_ff8bfd3c4215·7da7961ec·msg_6fe64489deea·msg_edce1bb04114·7cbff8753·msg_d1564fa89a51·msg_5ece488b490e·6122fbb04·bc6ff956b·bed9d1dad·msg_4ddfcc074cc6·msg_78377ef70db9·ff746dff6·d4298bd76·5a2c61ddd·msg_dd4eb4c22e70·msg_800912dbc127·aaac91bb6·msg_e4088df39d63·80e64f676·dpl_5dRNbNxU68whqTVpGDLYWpfBYEja",
       "lastReviewedAt": "2026-11-19T07:37:40.966Z"
     },
     {
@@ -6837,21 +6837,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T07:31:15.945Z",
+      "at": "2026-11-19T08:02:41.907Z",
       "timezone": "Asia/Seoul",
-      "trigger": "16:30 예약 실행·전송 msg_aafe168d05e5·기존 Master 수신",
-      "scope": "16:04:12 KST 이후 증분. 103개 프로그램·19분류 및 미완료 27건(진행 4·검수 5·순번 4·사용자 14). 보고/요청·담당/점유·우선순위·사람단계·미배포·변경 인수인계 대조.",
+      "trigger": "17:00 정기 점검 메시지 msg_0e683574442b 수신, 기존 Master 터미널에서 실행",
+      "scope": "16:31 KST 이후 증분. 작업표 367건, 미완료 27건(진행 3·검수 6·순번 4·사용자 14), 103개 프로그램·19개 분류, 담당 검토 11개 기록 및 Git·점유·인수인계·미배포·사람 단계 대조.",
       "evidence": [
-        "예약 16:30:01 결과 0, 전송 16:30:04 수락 및 수신, Master 요청 0. 원격 af36bb467. 변경 결과 3편·기존 공용 미커밋·Workspace 브라우저 진행 파일 대조.",
-        "Workspace cdb121ab7 및 368acd3b7, Mac 고정 모의·담당 PostgreSQL 34/34·별도 연결 실제 잠금, 대용량 서버 504891ed2 별도.",
-        "B2B 운영 배포 폴더 1aea8ec0f 대조 19경로·버전 파일, 백엔드/DB 0. 블로그 f76d55eea Mac 70/70.",
-        "SNS 새 연락 주소 e877a00aa. D1 격리 6ff8bd158/7da7961ec·320/320 담당. Sub 8GB 장비 후보, Intel 맥미니 ARM 대상 제외."
+        "Master 요청 0. Git 제품·결과·점유 증분과 새 결과 5편, 루트 AIF 확장 인수인계는 기존 W01/W02/W03와 대조. Sub B2B 프런트 점유 해제 879533c78, 공용 인덱스 동기화 확인. Backend 시험은 Mac 기본.",
+        "AIF aaac91bb6, dpl_5dRNbNxU68whqTVpGDLYWpfBYEja, 80e64f676. 운영 공개 로그인 HTTP 200·v1.27·배포 표식, 비로그인 history/asset GET 401·MISS를 Master 재확인.",
+        "Workspace 072d74005 Mac에서 P1 통과와 cron 잔여 P2 재현, 658155927 작성자 1,005건 통과. B2B 퀵바 4fb95eaba Mac 30/30 및 격리 브라우저 12지점, S70 Mac 정적 통과·Docker 실행 불가."
       ],
-      "judgment": "Workspace CSV 로컬 검수 수락, 대용량 ZIP 구현 계속. AIF는 격리 OFF 로컬 빌드·모의 검증 진행 중이며 원격 미시작. 운영 변경 추가 없음.",
-      "nextAction": "CC-SNS-01 격리 OFF 로컬 승인 범위 msg_6fe64489deea 진행. Workspace 대용량 고정 통합 후보 뒤 Mac 검수. B2B 기존 사람 로그인 단계 및 IMG 품질 파일 대기. 추가 중복 배정 없음.",
+      "judgment": "D1 OFF 운영 배포 범위 완료. Workspace cron 보완 Mac 재검수 진행. 퀵바 로컬 독립 검수 수락·미배포. QA037은 공간29 로그인/제어 반환 대기, 결제 최종 단계.",
+      "nextAction": "Workspace 658155927 검수 CX-QA-01 전달 msg_aac8a5bb28c4. AIF 인증 화면은 주인님 로그인 이후 Tester 읽기, DB 버전·유료 생성·D2/D3은 기존 승인 경계에 따라 보류. QA037/관리자·ESM은 각 기록의 로그인과 제어 반환 뒤 재개.",
       "unverified": [
-        "AIF OFF 실제 로컬 빌드/스모크 결과, 대용량 ZIP 브라우저/서버 통합, IMG 품질 및 8GB 실기, B2B 관리자/S70.",
-        "103개 운영 전수 및 오래된 미추적 전체는 이번 증분 범위 밖."
+        "AIF 인증 운영 화면과 기존 생성·보정, Workspace 실제 Storage 및 cron 독립 결과, B2B 태블릿 실기기·후보 URL 및 S70 Mac 실행, 감성 글귀 합성 화면, 이미지 모델 실기.",
+        "103개 운영 전수·이전 미추적 문서 전체 재검증은 이번 증분 범위 밖."
       ]
     },
     "notifications": [
