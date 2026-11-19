@@ -509,7 +509,7 @@ Master 마지막 실제 점검: 2026-11-19 15:34:34 KST · 실행 중 5분 · �
 | AIF-20261119-W01-NEXT | CC-SNS-01 | done / dependency_patch_verified_locally_undeployed | AI Influencer Next.js 보안 패치 | 16.4.6 파일 지문과 잠금 범위 대조 완료. 담당 시험 320/320·타입 통과·audit 0. 번들 및 운영 응답 확인은 배포 단계. |
 | AIF-20261119-W01-V4 | CC-SNS-01 | done / finite_member_real_storage_verified_isolated_origin | 일반 회원 한도와 운영 다운로드 선행 검증 | 지정 일반 회원 실제 이용·합성 JPEG 1회 업로드·본인 조회·서명 다운로드 200. 일반 한도 초과·정리·운영 출처는 미검증. |
 | AIF-20261119-W01-V3 | CC-SNS-01 | done / v3_success_and_isolation_guard_independent_accepted | AI Influencer 대표 생성 및 보정 검증 | 승인 이미지/캡션 성공 및 e3421c7a9 Mac 모의 18/18 수락. 추가 Windows 실기동·공급자 호출·운영 검증 없음. |
-| AIF-20261119-W01-RETOUCH | CC-SNS-01 | running / direct_user_approved_sequential_isolated_validation | AI Influencer 히스토리 재표시·일반 회원 생성·보정 | 격리 서버에서 무료 히스토리 재표시 → 일반 회원 생성 → 같은 결과 보정 1회 → V5 변환. 공개 게시 범위 별도 확인. D1~D3은 앞 단계 통과 후 순차 진행과 빌드 조정. |
+| AIF-20261119-W01-RETOUCH | CC-SNS-01 | waiting_human / history_replay_pass_member_key_and_account_decision_pending | AI Influencer 히스토리 재표시·일반 회원 생성·보정 | 히스토리 재표시·중복 0 통과. 지정 일반 회원 로그인 불일치·본인 Gemini 키 미등록으로 생성/보정 미착수. 계정 결정 및 세션 재연결 대기. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |
@@ -517,6 +517,7 @@ Master 마지막 실제 점검: 2026-11-19 15:34:34 KST · 실행 중 5분 · �
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 | BLOG-20261119-MODELS | CC-BLOG-01 | done / strict_switch_independent_accepted_undeployed | 블로그 설정 플랫폼별 AI 모델 선택 | Mac 49/49와 원문 1회·정상 전환과 503 상한 2회 수락. 승인 실호출 9/9는 앞선 버전의 담당 결과. 미배포. |
 | RE-20261119-PARTIAL | CC-REALTY-01 | done / partial_results_and_stats_mac_accepted_undeployed | 상가·건물·토지 알림 부분 조회 결과 보존 | f52882db9 Mac 84/84. 부분·0곳 보존, 지역 ID, 통계 호환까지 로컬 검수 수락. 상가 v1.35 묶음 빌드·배포 승인 대기. |
+| RE-20261119-PARTIAL-REL | CC-REALTY-01 | running / owner_approved_single_build_started | 상가·건물·토지 알림 v1.35 배포 | 담당이 승인 빌드 1회 시작 보고. Ready, 화면 및 웹/확장 버전 확인 대기. 푸시 없음. |
 | BLOG-20261119-MODELS-3 | CC-BLOG-01 | done / saved_provider_mac_review_accepted_undeployed | 블로그 3개 프로그램 모델 목록 동기화 | SEO 22/22·에이전트 복원/요청 일치 맥미니 수락. 사진 후기 선택지 및 기존 빠른 작성 응답 지연은 별도. 미배포. |
 | BLOG-20261119-PHOTO-MODELS | CC-BLOG-01 | done / photo_models_independent_accepted_undeployed | 네이버 에이전트 사진 리뷰 모델 확대 | 맥미니 57/57. 사진 리뷰 7개 표시·기본 3개·옛 초안·비공개 경계 수락. 담당 실호출 5/5 별도, 미배포. |
 | FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | done / mobile_quickbar_and_preview_mac_accepted_undeployed | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 고정 51d4b2207 Mac 28/28. 모바일 버튼·포커스 및 미리보기 빈 줄 제거 수락. 미배포 묶음 대기, 고정판 실제 편집기 미확인. |

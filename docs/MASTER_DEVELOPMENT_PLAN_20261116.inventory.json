@@ -9821,12 +9821,12 @@
       "parent_task_id": "AIF-20261119-W01-V3",
       "owner": "CC-SNS-01",
       "title": "AI Influencer 히스토리 재표시·일반 회원 생성·보정",
-      "status": "running",
-      "delivery": "direct_user_approved_sequential_isolated_validation",
+      "status": "waiting_human",
+      "delivery": "history_replay_pass_member_key_and_account_decision_pending",
       "sha": "e3421c7a9",
-      "evidence": "msg_59bf148b2010·msg_c8bc8252a406·msg_1fc45b4dcd4c·msg_fff18b1e2dfd·msg_16c5cd2e1b75",
-      "next": "격리 서버에서 무료 히스토리 재표시 → 일반 회원 생성 → 같은 결과 보정 1회 → V5 변환. 공개 게시 범위 별도 확인. D1~D3은 앞 단계 통과 후 순차 진행과 빌드 조정.",
-      "lastReviewedAt": "2026-11-19T04:47:19.989Z"
+      "evidence": "msg_59bf148b2010·msg_c8bc8252a406·msg_1fc45b4dcd4c·msg_fff18b1e2dfd·msg_16c5cd2e1b75·msg_537264d5ae14·28c061106·기존 SNS 터미널 회신 불가",
+      "next": "히스토리 재표시·중복 0 통과. 지정 일반 회원 로그인 불일치·본인 Gemini 키 미등록으로 생성/보정 미착수. 계정 결정 및 세션 재연결 대기.",
+      "lastReviewedAt": "2026-11-19T06:50:01.372Z"
     },
     {
       "task_id": "ECOM-20261119-BANANA-QA",
@@ -10221,6 +10221,18 @@
         "scope": "36bdb31dd",
         "builds": 1
       }
+    },
+    {
+      "task_id": "RE-20261119-PARTIAL-REL",
+      "parent_task_id": "RE-20261119-PARTIAL",
+      "owner": "CC-REALTY-01",
+      "title": "상가·건물·토지 알림 v1.35 배포",
+      "status": "running",
+      "delivery": "owner_approved_single_build_started",
+      "sha": "c894f6fe1",
+      "evidence": "msg_ea84e83e8300·c894f6fe1·f52882db9 Mac 84/84",
+      "next": "담당이 승인 빌드 1회 시작 보고. Ready, 화면 및 웹/확장 버전 확인 대기. 푸시 없음.",
+      "lastReviewedAt": "2026-11-19T06:50:01.372Z"
     }
   ]
 }
