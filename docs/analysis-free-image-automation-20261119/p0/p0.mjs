@@ -1,6 +1,7 @@
 // IMG-20261119-P0 실측 도구 — 저장소 코드와 무관한 시험 전용. 유료 호출·업로드·키 0.
 // 사용:
-//   node p0.mjs download <arc|rtx|rtx-q4> --models <ImageModels 폴더> --work <작업 폴더>
+//   node p0.mjs download <arc|rtx|rtx-q4|mac|mac-q8> --models <ImageModels 폴더> --work <작업 폴더>
+//   (arc·rtx·rtx-q4 는 윈도우, mac·mac-q8 은 애플 실리콘 맥. rtx-q4·mac-q8 은 실행 파일 없이 모델만 추가로 받는다)
 //   node p0.mjs run <z|flux> <q4|q8> <번호 예 1 또는 1-24> <시드 예 1001,2002> --models <…> --work <…> [--engine vulkan|cuda] [--square] [--size 1280x720] [--dry-run]
 //   node p0.mjs pngsize <PNG 파일> --models <…> --work <…>   (PNG 머리의 실제 가로x세로 출력)
 // --size: 표의 비율 대신 지정 크기(16의 배수)로 그린다. 결과는 logs/results-size.csv, 파일 이름에 크기가 붙고 같은 이름이 있으면 덮어쓰지 않고 멈춘다. 저장된 PNG 머리 크기가 요청과 다르면 0이 아닌 값으로 끝난다.
@@ -26,14 +27,16 @@ const WORK = opt("work");
 if (!MODELS_DIR || !WORK) { console.error("--models 와 --work 가 필요합니다."); process.exit(2); }
 
 // Git에 딸린 tar·curl이 먼저 잡히면 드라이브 문자 경로를 못 읽으므로 윈도우 기본 도구를 직접 쓴다
+const WIN = process.platform === "win32";
 const SYS = path.join(process.env.SystemRoot || "C:/Windows", "System32");
-const CURL = path.join(SYS, "curl.exe");
-const TAR = path.join(SYS, "tar.exe");
+const CURL = WIN ? path.join(SYS, "curl.exe") : "curl"; // 맥은 PATH의 curl·tar(bsdtar는 zip도 푼다)
+const TAR = WIN ? path.join(SYS, "tar.exe") : "tar";
 const HF = "https://huggingface.co";
 const GH = "https://github.com/leejet/stable-diffusion.cpp/releases/download/master-956-1b0ba10";
 const F = {
   vulkan: [`${GH}/sd-master-1b0ba10-bin-win-vulkan-x64.zip`, "engine/sd-vulkan.zip", "9e8b9baff514fe5dfb77e51bf08d85f11e6f10128eac14d4474c87f563309725", "work"],
   cuda: [`${GH}/sd-master-1b0ba10-bin-win-cuda12-x64.zip`, "engine/sd-cuda12.zip", "144b9631bf2eeb9bf6bf7f148cf40aaf05739ce7c49d3ac0ec2ddf6b65765d69", "work"],
+  metal: [`${GH}/sd-master-1b0ba10-bin-Darwin-macOS-26.6.2-arm64.zip`, "engine/sd-metal.zip", "72c18ca1ba4177ca77cd288a9cb1e0f78d63ad3bde4b91fd7c84f3f4187b5761", "work"],
   cudart: [`${GH}/cudart-sd-bin-win-cu12-x64.zip`, "engine/cudart-cu12.zip", "fe20366827d357c00797eebb58244dddab7fd9a348d70090c3871004c320f38d", "work"],
   zvae: [`${HF}/Comfy-Org/z_image_turbo/resolve/main/split_files/vae/ae.safetensors`, "z-image-turbo/ae.safetensors", "afc8e28272cd15db3919bacdb6918ce9c1ed22e96cb12c4d5ed0fba823529e38"],
   fvae: [`${HF}/Comfy-Org/flux2-klein-4B/resolve/main/split_files/vae/flux2-vae.safetensors`, "flux2-klein-4b/flux2-vae.safetensors", "868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3"],
@@ -48,10 +51,19 @@ const SETS = {
   arc: ["vulkan", "zvae", "fvae", "encq4", "fq4", "zq4"],
   rtx: ["cuda", "cudart", "zvae", "fvae", "encq8", "fq8", "zq8"],
   "rtx-q4": ["encq4", "fq4", "zq4"],
+  mac: ["metal", "zvae", "fvae", "encq4", "fq4", "zq4"],
+  "mac-q8": ["encq8", "fq8", "zq8"],
 };
 // 모의 시험 전용: 파일 표·구성 바꿔치기(실제 시험에서는 쓰지 않는다)
 if (process.env.P0_FILES_JSON) { const t = JSON.parse(fs.readFileSync(process.env.P0_FILES_JSON, "utf8")); Object.assign(F, t.files); Object.assign(SETS, t.sets); }
-const ENGINE_KEYS = { vulkan: ["vulkan"], cuda: ["cuda", "cudart"] };
+const ENGINE_KEYS = { vulkan: ["vulkan"], cuda: ["cuda", "cudart"], metal: ["metal"] };
+/** 풀어 놓은 폴더에서 실행 파일 찾기 — 바로 아래 또는 한 단계 아래(맥 묶음은 폴더가 한 겹 있을 수 있다) */
+function findExe(bin) {
+  const names = ["sd-cli.exe", "sd.exe", "sd-cli", "sd"];
+  const dirs = [bin, ...fs.readdirSync(bin, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => path.join(bin, d.name))];
+  for (const d of dirs) for (const n of names) { const p = path.join(d, n); if (fs.existsSync(p) && fs.statSync(p).isFile()) return p; }
+  return null;
+}
 const isWork = (k) => F[k][3] === "work";
 const shared = (k) => path.join(isWork(k) ? WORK : MODELS_DIR, F[k][1]);
 const alt = (k) => path.join(WORK, "models-alt", F[k][1]);
@@ -108,8 +120,9 @@ async function download(set) {
       const r = spawnSync(TAR, ["-xf", m.files[k].path, "-C", bin], { stdio: "inherit" });
       if (r.status !== 0) { console.error(`중단: 압축 해제 실패 ${m.files[k].path} (${r.status})`); process.exit(1); }
     }
-    const exe = ["sd-cli.exe", "sd.exe"].map((n) => path.join(bin, n)).find((f) => fs.existsSync(f));
+    const exe = findExe(bin);
     if (!exe) { console.error(`중단: ${bin} 에 실행 파일 없음`); process.exit(1); }
+    if (!WIN) fs.chmodSync(exe, 0o755);
     m.engines[build] = { ...stamp(exe), sha256: await sha(exe), from: ek.map((k) => F[k][2]) };
     writeManifest(m);
     console.log(`실행 파일 준비 ${build}: ${exe}`);
@@ -180,6 +193,9 @@ function loadPromptSet() {
   return { label, items: set.items, sha256: createHash("sha256").update(raw).digest("hex") };
 }
 
+// 맥·리눅스용 측정 — 실행 프로그램의 최대 메모리(RSS)만 잰다. 애플 실리콘은 그래픽 메모리가 시스템 메모리와 하나라 따로 값이 없다(0으로 적음)
+const SAMPLER_SH = `p=0; while true; do r=$(ps -axo rss=,comm= | awk '$2 ~ /sd-cli$|\\/sd$/ { if ($1 > m) m = $1 } END { print m + 0 }'); if [ "$r" -gt "$p" ]; then p=$r; fi; echo "$((p / 1024)),0,0,0" > "$P0_SAMPLE"; sleep 1; done`;
+
 async function run(mk, quant, range = "1", seedArg = "1001") {
   const fam = { z: { key: `z${quant}`, vae: "zvae", steps: 8, name: "z-image-turbo" }, flux: { key: `f${quant}`, vae: "fvae", steps: 4, name: "flux2-klein-4b" } }[mk];
   if (!fam || !F[fam.key]) throw new Error("모델은 z|flux, 양자화는 q4|q8");
@@ -225,7 +241,7 @@ async function run(mk, quant, range = "1", seedArg = "1001") {
     if (dry) { console.log(`[dry-run] ${tag} #${no} ${w}x${h} seed ${seed} -> ${out}\n  ${exe} ${args.join(" ")}`); continue; }
     const sampleFile = path.join(logs, "sample.tmp");
     fs.writeFileSync(sampleFile, "0,0,0,0");
-    const sampler = spawn("powershell", ["-NoProfile", "-Command", SAMPLER], { env: { ...process.env, P0_SAMPLE: sampleFile }, stdio: "ignore" });
+    const sampler = WIN ? spawn("powershell", ["-NoProfile", "-Command", SAMPLER], { env: { ...process.env, P0_SAMPLE: sampleFile }, stdio: "ignore" }) : spawn("sh", ["-c", SAMPLER_SH], { env: { ...process.env, P0_SAMPLE: sampleFile }, stdio: "ignore" });
     const t0 = Date.now();
     const r = spawnSync(exe, args, { encoding: "utf8", maxBuffer: 64 * 1024 * 1024, timeout: 30 * 60 * 1000 });
     const sec = ((Date.now() - t0) / 1000).toFixed(1);
