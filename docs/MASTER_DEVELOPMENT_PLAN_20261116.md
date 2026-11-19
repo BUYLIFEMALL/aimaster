@@ -396,7 +396,7 @@ Master 마지막 실제 점검: 2026-11-19 21:03:02 KST · 21:00 예약 메시�
 | MUSIC-20261119-IMG-COMPAT | CC-MUSIC-01 | done / five_music_flows_read_only_accepted | 무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토 | 고정 2131089b7 음악 5경로·146/146 검토 수락. 새 범위 미사용 시 파일 미생성 정정. 실제 엔진은 미검증. |
 | MUSIC-20261119-BACKLOG-SWEEP | CC-MUSIC-01 | done / music_backlog_review_accepted_followup_dispatched | 음악 7개 프로그램 다음 작업 후보 대조 | 음악 7개 웹의 미배포 코드 0. L5·U3를 우선 로컬 착수, 리믹스→플레이리스트 및 유료 영상 실검증은 별도 조건 대기. |
 | MUSIC-20261119-REMIX-PLAYLIST-REVIEW | CC-MUSIC-01 | done / remix_playlist_review_accepted_implementation_scope_pending | 리믹스에서 플레이리스트 연계 사전 검토 | d6df77af9 사전 검토 수락. 두 테이블 모두 회원 범위 확인, 플레이리스트 수신 기능을 먼저 배포한 뒤 음악 링크를 공개해야 함. 구현 범위·배포 승인 대기. |
-| MUSIC-20261119-REMIX-PLAYLIST-RECEIVER | CC-MUSIC-01 | reviewing / receiver_storage_guard_fixed_mac_recheck_sent | 리믹스 → 플레이리스트 수신 로컬 구현 | ded8cece2 본인 경로 서명과 선택 수 보완, 담당 59/59. Mac 독립 재검수 전달, 실서명·화면·배포 미확인. |
+| MUSIC-20261119-REMIX-PLAYLIST-RECEIVER | CC-MUSIC-01 | running / receiver_mac_recheck_pending_path_and_selection_fixes | 리믹스 → 플레이리스트 수신 로컬 구현 | ded8cece2 Mac 59/59. 서명 경로 필터·선택 복구·수신 불가 표시 잔여 보완 전달. 실서명·화면·배포 미확인. |
 | MUSIC-20261119-LYRIC-L5-U3 | CC-MUSIC-01 | done / lyric_l5_u3_mac_review_passed_undeployed | 가사 영상 미리보기 재생 실패와 모바일 안내 | 8f1eae339 Mac 독립 44/44 및 격리 브라우저 재생·390/767/768 통과. Safari 실동작·후보 URL·휴대폰 검증 대기, 다음 묶음 미배포. |
 | QA-20261118-043 | CX-QA-01 | done / production_v161_mobile_keyboard_verified_read_only | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | Workspace 운영 v1.61 독립 읽기. 375/390px 요일 7칩 두 줄·넘침 0·Tab 3px 포커스. OS 다크 선호 확인, 앱 테마·저장 중 상태 미검증. |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
@@ -528,8 +528,8 @@ Master 마지막 실제 점검: 2026-11-19 21:03:02 KST · 21:00 예약 메시�
 | BLOG-20261119-MODELS | CC-BLOG-01 | done / strict_switch_independent_accepted_undeployed | 블로그 설정 플랫폼별 AI 모델 선택 | Mac 49/49와 원문 1회·정상 전환과 503 상한 2회 수락. 승인 실호출 9/9는 앞선 버전의 담당 결과. 미배포. |
 | RE-20261119-PARTIAL | CC-REALTY-01 | done / partial_results_and_stats_mac_accepted_undeployed | 상가·건물·토지 알림 부분 조회 결과 보존 | f52882db9 Mac 84/84. 부분·0곳 보존, 지역 ID, 통계 호환까지 로컬 검수 수락. 상가 v1.35 묶음 빌드·배포 승인 대기. |
 | RE-20261119-PARTIAL-REL | CC-REALTY-01 | done / commercial_v135_live_extension_guide_update_undeployed | 상가·건물·토지 알림 v1.35 배포 | 운영 v1.35 유지. 확장 업데이트 3단계와 이전 결과 FAQ 0adae1d2a 안내 추가, 로컬 검증 84/84 및 미배포. 관리자 화면 미확인. |
-| BLOG-20261119-MODELS-3 | CC-BLOG-01 | done / saved_provider_mac_review_accepted_undeployed | 블로그 3개 프로그램 모델 목록 동기화 | SEO 22/22·에이전트 복원/요청 일치 맥미니 수락. 사진 후기 선택지 및 기존 빠른 작성 응답 지연은 별도. 미배포. |
-| BLOG-20261119-PHOTO-MODELS | CC-BLOG-01 | done / second_photo_model_update_mac_accepted_undeployed | 네이버 에이전트 사진 리뷰 모델 확대 | Mac 70/70, 새 선택지·종료 모델 차단·저장 결과 호환 수락. 담당 실호출 7/7은 별도. 미배포. |
+| BLOG-20261119-MODELS-3 | CC-BLOG-01 | done / saved_provider_mac_accepted_bundle_deployed_owner_reported | 블로그 3개 프로그램 모델 목록 동기화 | 담당 배포 READY 보고 및 Git 대조. 네이버 에이전트 2.29·AI 자동 블로그 1.88·SEO 2.27·티스토리 1.99. Mac 읽기 화면 검수 대기열, 푸시 미실행. |
+| BLOG-20261119-PHOTO-MODELS | CC-BLOG-01 | done / photo_model_update_mac_accepted_agent_deployed_owner_reported | 네이버 에이전트 사진 리뷰 모델 확대 | Mac 70/70 및 담당 네이버 에이전트 2.29 배포 보고. 운영 화면 표본 검수는 블로그 묶음 대기열. |
 | FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | done / mobile_quickbar_and_preview_mac_accepted_undeployed | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 고정 51d4b2207 Mac 28/28. 모바일 버튼·포커스 및 미리보기 빈 줄 제거 수락. 미배포 묶음 대기, 고정판 실제 편집기 미확인. |
 | FRONT-20261119-QUICKBAR-TABLET | CC-B2B-FRONT-01 | done / mac_resize_recheck_passed_undeployed | B2B몰 태블릿 폭 빠른 메뉴 상품 가림 | 4fb95eaba Mac 독립 30/30 및 격리 브라우저 12지점 통과. 소스 검수 완료. 실제 후보 서버와 태블릿 실기기 미검증·미배포. |
 

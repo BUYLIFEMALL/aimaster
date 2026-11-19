@@ -10158,10 +10158,10 @@
       "owner": "CC-MUSIC-01",
       "reviewer": "CX-QA-01",
       "title": "리믹스 → 플레이리스트 수신 로컬 구현",
-      "status": "reviewing",
-      "delivery": "receiver_storage_guard_fixed_mac_recheck_sent",
-      "next": "ded8cece2 본인 경로 서명과 선택 수 보완, 담당 59/59. Mac 독립 재검수 전달, 실서명·화면·배포 미확인.",
-      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1·msg_fd4dcdac6208·7b76ae4eb·msg_cf3cd8832343·msg_5118e37c0e3b·msg_ef79431525cb·e728f10cf·msg_53afdbd8013c·msg_6bc9c6ee0c57·ded8cece2·msg_545ceab47299·msg_12156cc001ce"
+      "status": "running",
+      "delivery": "receiver_mac_recheck_pending_path_and_selection_fixes",
+      "next": "ded8cece2 Mac 59/59. 서명 경로 필터·선택 복구·수신 불가 표시 잔여 보완 전달. 실서명·화면·배포 미확인.",
+      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1·msg_fd4dcdac6208·7b76ae4eb·msg_cf3cd8832343·msg_5118e37c0e3b·msg_ef79431525cb·e728f10cf·msg_53afdbd8013c·msg_6bc9c6ee0c57·ded8cece2·msg_545ceab47299·msg_12156cc001ce·msg_bf5018c5c214·msg_0659fb81e981"
     },
     {
       "task_id": "MUSIC-20261119-REMIX-PLAYLIST-REVIEW",
@@ -10212,11 +10212,11 @@
       "owner": "CC-BLOG-01",
       "title": "블로그 3개 프로그램 모델 목록 동기화",
       "status": "done",
-      "delivery": "saved_provider_mac_review_accepted_undeployed",
+      "delivery": "saved_provider_mac_accepted_bundle_deployed_owner_reported",
       "sha": "e23a045f5",
-      "next": "SEO 22/22·에이전트 복원/요청 일치 맥미니 수락. 사진 후기 선택지 및 기존 빠른 작성 응답 지연은 별도. 미배포.",
+      "next": "담당 배포 READY 보고 및 Git 대조. 네이버 에이전트 2.29·AI 자동 블로그 1.88·SEO 2.27·티스토리 1.99. Mac 읽기 화면 검수 대기열, 푸시 미실행.",
       "lastReviewedAt": "2026-11-19T05:12:50.084Z",
-      "evidence": "msg_dbaba45b8f38·msg_8743dd97fb18·msg_11611a79f400·msg_841a78cd076a·msg_09a847269441·msg_b0b5ef463bd8·msg_6c92dfb6b04c"
+      "evidence": "msg_dbaba45b8f38·msg_8743dd97fb18·msg_11611a79f400·msg_841a78cd076a·msg_09a847269441·msg_b0b5ef463bd8·msg_6c92dfb6b04c·msg_5146b48fa082·937e2f05e·bfd56fcd1·0dd8f34cc·71b4dcff1·3ad22a615·msg_c48b4d00a613"
     },
     {
       "task_id": "BLOG-20261119-PHOTO-MODELS",
@@ -10225,10 +10225,10 @@
       "reviewer": "CX-QA-01",
       "title": "네이버 에이전트 사진 리뷰 모델 확대",
       "status": "done",
-      "delivery": "second_photo_model_update_mac_accepted_undeployed",
+      "delivery": "photo_model_update_mac_accepted_agent_deployed_owner_reported",
       "sha": "f76d55eea",
-      "next": "Mac 70/70, 새 선택지·종료 모델 차단·저장 결과 호환 수락. 담당 실호출 7/7은 별도. 미배포.",
-      "evidence": "msg_0ac38f25541f·8669e5117·msg_480f9da3729e·msg_42d76c3b880f·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_0180b3576853·msg_25fa9e68b50a·msg_f905a0cddb8f",
+      "next": "Mac 70/70 및 담당 네이버 에이전트 2.29 배포 보고. 운영 화면 표본 검수는 블로그 묶음 대기열.",
+      "evidence": "msg_0ac38f25541f·8669e5117·msg_480f9da3729e·msg_42d76c3b880f·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_0180b3576853·msg_25fa9e68b50a·msg_f905a0cddb8f·msg_5146b48fa082·937e2f05e·msg_c48b4d00a613",
       "lastReviewedAt": "2026-11-19T07:09:53.883Z"
     },
     {
