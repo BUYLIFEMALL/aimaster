@@ -73,7 +73,7 @@ export default async function AdminOrdersPage({
         {visibleTabs.map((s) => (
           <Link key={s} href={orderListHref(base, f, { status: s, page: 1 })} aria-current={filter === s ? "page" : undefined} className={`rounded-xl px-3.5 py-1.5 font-semibold transition ${filter === s ? "bg-slate-900 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"}`}>
             {ORDER_STATUS_LABEL[s]}
-            {capped ? (counts[s] ? ` ${counts[s]}+` : "") : ` ${counts[s]}`}
+            {capped ? (counts[s] ? ` ${counts[s]}+` : "") : ` ${counts[s] ?? 0}`}
           </Link>
         ))}
       </nav>
