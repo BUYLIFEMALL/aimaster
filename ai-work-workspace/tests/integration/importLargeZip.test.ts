@@ -25,7 +25,7 @@ const sp = (m: M) => spaces.get(m.id)!;
 
 const objects = new Map<string, Buffer>();
 const removedPaths: string[] = [];
-const sw = { quotaFull: false, removeFails: false, putFails: false };
+const sw: { quotaFull: boolean; removeFails: boolean; putFails: boolean; onRemove: null | ((paths: string[]) => Promise<void>) } = { quotaFull: false, removeFails: false, putFails: false, onRemove: null };
 const fakeStore = () => ({
   getBucket: async () => ({ data: { id: 'workspace-files' }, error: null }),
   createBucket: async () => ({ data: null, error: null }),
@@ -34,6 +34,12 @@ const fakeStore = () => ({
     list: async (dir: string, o: { search: string }) => ({ data: [...objects.entries()].filter(([p]) => p === `${dir}/${o.search}`).map(([p, b]) => ({ name: p.split('/').pop(), metadata: { size: b.length } })), error: null }),
     createSignedUrl: async (path: string) => ({ data: { signedUrl: `https://store.test/get/${path}` }, error: null }),
     remove: async (paths: string[]) => {
+      // Storage 삭제를 기다리는 사이에 끼워 넣을 일(한 번만)
+      if (sw.onRemove) {
+        const run = sw.onRemove;
+        sw.onRemove = null;
+        await run(paths);
+      }
       if (sw.removeFails) return { data: null, error: { message: 'storage down' } };
       for (const p of paths) objects.delete(p);
       removedPaths.push(...paths);
@@ -59,7 +65,7 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
-  Object.assign(sw, { quotaFull: false, removeFails: false, putFails: false });
+  Object.assign(sw, { quotaFull: false, removeFails: false, putFails: false, onRemove: null });
   removedPaths.length = 0;
   for (const m of [ann, bob]) for (const k of [`import-job:user:${m.id}`, `import:${m.id}`, `import-stored:${m.id}`, `upload-large:user:${m.id}`]) ratelimit.reset(k);
 });
@@ -312,14 +318,18 @@ describe('「ZIP 안 경로 → 파일 id」 표 검증(§9) — 하나라도 �
     await expectRejected(() => importWith(ann, url, { id: mine.jobId, assets: { 'a.png': small.id } }), 400);
     // 주소(URL)는 받지 않는다 — 파일 id만
     await expectRejected(() => importWith(ann, url, { id: mine.jobId, assets: { 'a.png': `/files/${mine.ids[0]}/a.png` } }), 400);
-    // 같은 회원의 **다른 작업** 파일(새 작업을 열면 앞 작업은 취소·정리되므로 앞 작업 id가 남의 것이 된다)
+    // 같은 회원의 **다른 작업** 파일: 앞 작업을 끝낸 뒤(그 그림은 본문에 쓰여 남아 있다) 새 작업에서 그 파일 id를 쓰려 한다
+    expect((await importWith(ann, url, { id: mine.jobId, assets: { 'a.png': mine.ids[0] } })).status).toBe(200);
+    await step(ann, { step: 'import-finish', jobId: mine.jobId });
+    expect(jobFiles(mine.jobId)).toHaveLength(1);
     const other = await rawJob(ann, [{ name: 'a.png', data: PNG(13) }], { finish: false });
-    expect(jobRow(mine.jobId).state).toBe('cancelled');
+    await expectRejected(() => importWith(ann, url, { id: other.jobId, assets: { 'a.png': mine.ids[0] } }), 400);
     // 끝내지 않은(대기) 파일
     await expectRejected(() => importWith(ann, url, { id: other.jobId, assets: { 'a.png': other.ids[0] } }), 400);
     // 취소된 작업
-    expect(brief(await expectRejected(() => importWith(ann, url, { id: mine.jobId, assets: {} }), 409)).message).toContain('취소된');
     await step(ann, { step: 'import-cancel', jobId: other.jobId });
+    expect(brief(await expectRejected(() => importWith(ann, url, { id: other.jobId, assets: {} }), 409)).message).toContain('취소된');
+    expect(jobFiles(mine.jobId)).toHaveLength(1); // 앞 작업의 쓰인 그림은 그대로
     await step(bob, { step: 'import-cancel', jobId: theirs.jobId });
   });
 
@@ -381,22 +391,39 @@ describe('정리 범위(§10) — 그 작업이 올린 것만', () => {
     expect(q('SELECT id FROM files WHERE id IN (?, ?)', keepSmall.id, String(signed.body.id))).toHaveLength(2);
     expect(objects.has(bigPath)).toBe(true);
     expect(jobFiles(theirs.jobId)).toHaveLength(1);
-    // 다시 취소·마무리해도 달라지지 않는다
-    expect((await step(ann, { step: 'import-cancel', jobId: mine.jobId })).status).toBe(409);
+    // 다시 취소해도 달라지지 않는다(이미 취소됨 — 남은 것이 없으면 0)
+    expect(await step(ann, { step: 'import-cancel', jobId: mine.jobId })).toMatchObject({ status: 200, body: { removed: 0 } });
+    expect(removedPaths).toHaveLength(2);
     await step(bob, { step: 'import-cancel', jobId: theirs.jobId });
   });
 
-  it('Storage 삭제가 실패하면 파일 줄을 남겨 두었다가 다음 정리에서 지운다', async () => {
-    const j = await rawJob(ann, [{ name: 'stuck.png', data: PNG(24) }]);
+  it('취소 뒤 Storage 삭제가 실패하면 파일 줄을 남겨 두고, 다음 정리(또는 다시 취소)가 지운다', async () => {
+    const j = await rawJob(ann, [{ name: 'stuck.png', data: PNG(24) }, { name: 'stuck2.png', data: PNG(27) }]);
     sw.removeFails = true;
     expect((await step(ann, { step: 'import-cancel', jobId: j.jobId })).body.removed).toBe(0);
-    expect(jobFiles(j.jobId)).toHaveLength(1); // 줄만 사라지고 Storage에 남는 일이 없다
+    expect(jobRow(j.jobId).state).toBe('cancelled');
+    expect(jobFiles(j.jobId)).toHaveLength(2); // 줄만 사라지고 Storage에 남는 일이 없다
+    expect(await fs_.cleanupStaleImportJobs()).toBe(0); // 여전히 실패하면 그대로 남는다
+    expect(jobFiles(j.jobId)).toHaveLength(2);
     sw.removeFails = false;
-    // 하루 뒤의 정리(취소된 작업은 대상이 아니므로 열린 상태였던 것처럼 되돌려 확인)
-    db.withRequestCache(() => db.db.prepare("UPDATE import_jobs SET state = 'open', created_time = ? WHERE id = ?").run(Date.now() - 25 * 3_600_000, j.jobId));
-    expect(await fs_.cleanupStaleImportJobs()).toBe(1);
+    // 정리 작업이 취소된 작업의 남은 파일을 다시 지운다(작업이 오래됐는지와 무관)
+    expect(await fs_.cleanupStaleImportJobs()).toBe(2);
     expect(jobFiles(j.jobId)).toHaveLength(0);
     expect(jobRow(j.jobId).state).toBe('cancelled');
+  });
+
+  it('마무리에서 Storage 삭제가 실패하면 끝남(done)으로 남겨 두고, 다시 마무리하면 지우고 닫는다. 쓰인 그림은 항상 남는다', async () => {
+    const prep = await prepareLargeZip(new Blob([new Uint8Array(zip.writeZip(notionExport()))]), 'retry.zip', sp(ann), depsFor(ann));
+    expect((await importWith(ann, prep.url, prep.job)).status).toBe(200);
+    sw.removeFails = true;
+    expect((await step(ann, { step: 'import-finish', jobId: prep.job!.id })).body.removed).toBe(0);
+    expect(jobRow(prep.job!.id).state).toBe('done');
+    expect(jobFiles(prep.job!.id)).toHaveLength(3);
+    sw.removeFails = false;
+    expect((await step(ann, { step: 'import-finish', jobId: prep.job!.id })).body.removed).toBe(1);
+    expect(jobRow(prep.job!.id).state).toBe('closed');
+    expect(jobFiles(prep.job!.id).map((f) => f.name)).toEqual(['cover.png', 'deep.png']);
+    expect((await step(ann, { step: 'import-finish', jobId: prep.job!.id })).body.removed).toBe(0);
   });
 
   it('하루 넘은 작업: 열린 것은 전부, 끝났지만 마무리 안 된 것은 쓰이지 않은 것만 지운다. 새 작업은 건드리지 않는다', async () => {
@@ -431,6 +458,102 @@ describe('정리 범위(§10) — 그 작업이 올린 것만', () => {
   });
 });
 
+// 2026-11-19 Master msg_2e22cd4b41c3: 상태 전환에 성공했을 때만 지운다 — 시작·취소·만료·완료가 겹쳐도 쓰인 그림은 남는다
+describe('시작·취소·만료·완료의 경합', () => {
+  const pages: E[] = [{ name: 'P.md', data: '# P\n\n![a](a.png)\n' }];
+  const usedImageIntact = (jobId: string, id: string) => {
+    const left = jobFiles(jobId);
+    expect(left.map((f) => f.id)).toEqual([id]);
+    expect(objects.has(left[0].storage_path)).toBe(true);
+  };
+
+  it('가져오기가 먼저 끝난 작업은 취소할 수 없고 쓰인 그림이 남는다', async () => {
+    const j = await rawJob(ann, [{ name: 'a.png', data: PNG(60) }]);
+    expect((await importWith(ann, storePages(ann, 'p.zip', pages).url, { id: j.jobId, assets: { 'a.png': j.ids[0] } })).status).toBe(200);
+    expect(brief(await step(ann, { step: 'import-cancel', jobId: j.jobId }))).toMatchObject({ status: 409 });
+    expect(jobRow(j.jobId).state).toBe('done');
+    usedImageIntact(j.jobId, j.ids[0]);
+    expect(removedPaths).toEqual([]);
+    await step(ann, { step: 'import-finish', jobId: j.jobId });
+    expect(brief(await step(ann, { step: 'import-cancel', jobId: j.jobId }))).toMatchObject({ status: 409 }); // 닫힌 뒤에도
+    usedImageIntact(j.jobId, j.ids[0]);
+  });
+
+  it('만료 정리가 목록을 읽은 뒤 그사이 가져오기가 끝난 작업은 건너뛴다(쓰인 그림 보존)', async () => {
+    const a = await rawJob(ann, [{ name: 'a.png', data: PNG(61) }]);
+    const b = await rawJob(bob, [{ name: 'a.png', data: PNG(62) }]);
+    const urlA = storePages(ann, 'p.zip', pages).url;
+    const urlB = storePages(bob, 'p.zip', pages).url;
+    let finished: 'ann' | 'bob' | null = null;
+    // 정리가 한 작업의 파일을 지우려고 Storage를 기다리는 사이, **다른 쪽** 작업의 가져오기가 끝난다
+    sw.onRemove = async (paths) => {
+      const removingAnn = paths[0].startsWith(`${ann.id}/`);
+      finished = removingAnn ? 'bob' : 'ann';
+      const r = removingAnn ? await importWith(bob, urlB, { id: b.jobId, assets: { 'a.png': b.ids[0] } }) : await importWith(ann, urlA, { id: a.jobId, assets: { 'a.png': a.ids[0] } });
+      expect(r.status).toBe(200);
+    };
+    // 두 작업이 모두 「하루 넘음」으로 보이는 시각으로 정리를 돌린다(가져오기 쪽은 실제 시각이라 아직 유효)
+    const removed = await fs_.cleanupStaleImportJobs(Date.now() + 25 * 3_600_000);
+    expect(finished).not.toBeNull();
+    const [won, lost] = finished === 'bob' ? [b, a] : [a, b];
+    expect(removed).toBe(1); // 먼저 잡힌 한 작업의 그림만
+    expect(jobRow(lost.jobId).state).toBe('cancelled');
+    expect(jobFiles(lost.jobId)).toHaveLength(0);
+    // 그사이 끝난 작업: 취소로 바뀌지 않았고 쓰인 그림이 줄·Storage 모두에 남아 있다
+    expect(jobRow(won.jobId).state).toBe('done');
+    usedImageIntact(won.jobId, won.ids[0]);
+    await step(finished === 'bob' ? bob : ann, { step: 'import-finish', jobId: won.jobId });
+    usedImageIntact(won.jobId, won.ids[0]);
+  });
+
+  it('취소가 먼저면 같은 작업의 가져오기는 페이지를 만들지 않는다', async () => {
+    const j = await rawJob(ann, [{ name: 'a.png', data: PNG(63) }]);
+    const url = storePages(ann, 'p.zip', pages).url;
+    const n = blockCount(ann);
+    // 취소가 파일을 지우려고 Storage를 기다리는 사이(상태는 이미 취소) 가져오기가 들어온다
+    let late: { status: number; body: unknown } | undefined;
+    sw.onRemove = async () => {
+      late = await importWith(ann, url, { id: j.jobId, assets: { 'a.png': j.ids[0] } });
+    };
+    expect((await step(ann, { step: 'import-cancel', jobId: j.jobId })).body.removed).toBe(1);
+    expect(late?.status).toBe(409);
+    expect(blockCount(ann)).toBe(n);
+    expect(jobFiles(j.jobId)).toHaveLength(0);
+  });
+
+  it('같은 작업으로 가져오기가 두 번 동시에 와도 페이지는 한 번만 만들어진다', async () => {
+    const j = await rawJob(ann, [{ name: 'a.png', data: PNG(64) }]);
+    const url = storePages(ann, 'p.zip', pages).url;
+    const n = blockCount(ann);
+    const [x, y] = await Promise.all([
+      importWith(ann, url, { id: j.jobId, assets: { 'a.png': j.ids[0] } }),
+      importWith(ann, url, { id: j.jobId, assets: { 'a.png': j.ids[0] } }),
+    ]);
+    expect([x.status, y.status]).toEqual([200, 200]);
+    expect((y.body as any).pageIds).toEqual((x.body as any).pageIds);
+    expect([(x.body as any).repeated, (y.body as any).repeated].filter(Boolean)).toHaveLength(1);
+    expect(blockCount(ann) - n).toBe(2); // 페이지 1 + 그림 블록 1
+    await step(ann, { step: 'import-finish', jobId: j.jobId });
+  });
+
+  it('브라우저: 열린 작업이 있으면 회원이 동의했을 때만 그것을 취소하고 새로 시작한다', async () => {
+    const old = await rawJob(ann, [{ name: 'old.png', data: PNG(65) }]);
+    const blob = () => new Blob([new Uint8Array(zip.writeZip(korean()))]);
+    // 동의하지 않음(또는 물어볼 수단이 없음): 409 그대로, 앞 작업은 그대로
+    await expect(prepareLargeZip(blob(), 'busy.zip', sp(ann), depsFor(ann))).rejects.toMatchObject({ status: 409 });
+    await expect(prepareLargeZip(blob(), 'busy.zip', sp(ann), { ...depsFor(ann), confirmReplace: () => false })).rejects.toMatchObject({ status: 409 });
+    expect(jobRow(old.jobId).state).toBe('open');
+    expect(jobFiles(old.jobId)).toHaveLength(1);
+    // 동의: 앞 작업을 취소(그 작업의 파일만 지움)하고 새 작업으로 진행
+    const prep = await prepareLargeZip(blob(), 'busy.zip', sp(ann), { ...depsFor(ann), confirmReplace: () => true });
+    expect(jobRow(old.jobId).state).toBe('cancelled');
+    expect(jobFiles(old.jobId)).toHaveLength(0);
+    expect(prep.job!.id).not.toBe(old.jobId);
+    expect((await importWith(ann, prep.url, prep.job)).status).toBe(200);
+    await settleLargeZip(prep.job!.id, depsFor(ann));
+  });
+});
+
 describe('서버가 다시 세는 한도(§11)', () => {
   it('작업 열기: 구성원·개수·합계·저장 용량·한 회원에 열린 작업 하나', async () => {
     expect((await step(ann, { step: 'import-begin', spaceId: sp(bob), files: 1, bytes: 10 })).status).toBe(403);
@@ -442,13 +565,50 @@ describe('서버가 다시 세는 한도(§11)', () => {
     const full = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 1, bytes: 10 });
     expect(full).toMatchObject({ status: 403, body: { code: 'STORAGE_FULL' } });
     sw.quotaFull = false;
+    // 열린 작업이 있으면 새로 열지 않고 409로 알린다. 앞 작업과 그 파일은 그대로다(서버가 대신 지우지 않는다)
     const first = await rawJob(ann, [{ name: 'f.png', data: PNG(30) }]);
     const second = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 1, bytes: 10 });
-    expect(second.status).toBe(200);
-    expect(jobRow(first.jobId).state).toBe('cancelled'); // 앞 작업은 정리된다
-    expect(jobFiles(first.jobId)).toHaveLength(0);
-    expect(q("SELECT id FROM import_jobs WHERE user_id = ? AND state = 'open'", ann.id)).toHaveLength(1);
-    await step(ann, { step: 'import-cancel', jobId: second.body.jobId });
+    expect(second).toMatchObject({ status: 409, body: { code: 'IMPORT_JOB_OPEN', jobId: first.jobId } });
+    expect(jobRow(first.jobId).state).toBe('open');
+    expect(jobFiles(first.jobId)).toHaveLength(1);
+    expect(removedPaths).toEqual([]);
+    // 다른 회원은 영향을 받지 않는다
+    const others = await step(bob, { step: 'import-begin', spaceId: sp(bob), files: 1, bytes: 10 });
+    expect(others.status).toBe(200);
+    await step(bob, { step: 'import-cancel', jobId: others.body.jobId });
+    // 직접 취소한 뒤에는 열 수 있다
+    expect((await step(ann, { step: 'import-cancel', jobId: first.jobId })).body.removed).toBe(1);
+    const third = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 1, bytes: 10 });
+    expect(third.status).toBe(200);
+    await step(ann, { step: 'import-cancel', jobId: third.body.jobId });
+  });
+
+  it('같은 회원이 동시에 두 번 시작해도 하나만 열린다(DB 고유 색인)', async () => {
+    const [a, b] = await Promise.all([
+      step(ann, { step: 'import-begin', spaceId: sp(ann), files: 1, bytes: 10 }),
+      step(ann, { step: 'import-begin', spaceId: sp(ann), files: 1, bytes: 10 }),
+    ]);
+    expect([a.status, b.status].sort()).toEqual([200, 409]);
+    const open = q<{ id: string }>("SELECT id FROM import_jobs WHERE user_id = ? AND state = 'open'", ann.id);
+    expect(open).toHaveLength(1);
+    const loser = a.status === 409 ? a : b;
+    expect(loser.body).toMatchObject({ code: 'IMPORT_JOB_OPEN', jobId: open[0].id });
+    // 코드의 사전 확인을 거치지 않고 줄을 직접 넣어도 DB가 막는다(다른 서버 인스턴스가 동시에 넣는 경우)
+    expect(() => db.withRequestCache(() => db.db.prepare("INSERT INTO import_jobs (id, user_id, space_id, state, declared_files, declared_bytes, files, bytes, created_time, result) VALUES (?, ?, ?, 'open', 1, 1, 0, 0, ?, NULL)")
+      .run('99999999-9999-4999-8999-999999999999', ann.id, sp(ann), Date.now()))).toThrow();
+    // 끝난·취소된 작업은 여러 개여도 된다
+    expect(q("SELECT id FROM import_jobs WHERE user_id = ? AND state <> 'open'", ann.id).length).toBeGreaterThan(1);
+    await step(ann, { step: 'import-cancel', jobId: open[0].id });
+  });
+
+  it('하루 넘게 열려 있던 작업은 새로 시작할 때 만료로 정리하고 새 작업을 연다', async () => {
+    const stale = await rawJob(ann, [{ name: 'stale.png', data: PNG(32) }]);
+    db.withRequestCache(() => db.db.prepare('UPDATE import_jobs SET created_time = ? WHERE id = ?').run(Date.now() - 25 * 3_600_000, stale.jobId));
+    const next = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 1, bytes: 10 });
+    expect(next.status).toBe(200);
+    expect(jobRow(stale.jobId).state).toBe('cancelled');
+    expect(jobFiles(stale.jobId)).toHaveLength(0);
+    await step(ann, { step: 'import-cancel', jobId: next.body.jobId });
   });
 
   it('주소 받기: 알린 개수·합계를 넘기지 못하고, 파일 하나는 50MiB까지, 한 번에 50개까지', async () => {

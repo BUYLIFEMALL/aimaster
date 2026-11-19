@@ -110,6 +110,7 @@ function largeZipDeps(spaceId: string): LargeZipDeps {
       }
     },
     uploadPages: (zip, name) => uploadFile(zip, name, spaceId),
+    confirmReplace: () => window.confirm(tx('Another large import hasn’t finished. Cancel it and start this one?')),
   };
 }
 

@@ -52,6 +52,8 @@ CREATE TABLE IF NOT EXISTS import_jobs (
 );
 CREATE INDEX IF NOT EXISTS import_jobs_user ON import_jobs (user_id, state);
 `);
+// 한 회원에 열린(open) 작업은 하나 — 동시에 두 번 시작해도 DB가 두 번째를 막는다(부분 고유 색인)
+db.exec("CREATE UNIQUE INDEX IF NOT EXISTS import_jobs_one_open ON import_jobs (user_id) WHERE state = 'open'");
 try {
   db.exec('ALTER TABLE files ADD COLUMN import_job_id TEXT');
 } catch {
@@ -358,6 +360,8 @@ async function uploadOf(f: any, uid: string, space: SpaceRecord, ctx: Ctx, seen:
 }
 
 type ImportJob = { id: string; state: string; result: string | null };
+/** 같은 작업을 다른 요청이 먼저 끝냈음(이 요청이 만든 것은 트랜잭션과 함께 되돌린다) */
+class JobTaken extends Error {}
 
 /** 그 회원이 그 워크스페이스로 연 작업(남의 작업·없는 작업은 똑같이 404 — 있는지 알려 주지 않는다) */
 function jobOrThrow(jobId: unknown, uid: string, spaceId: string): ImportJob {
@@ -475,6 +479,7 @@ export const handlers: Record<string, Handler> = {
     }
     // 2026-11-19(WS-20261119-02): 파일을 읽는 동안(Storage 대기) 권한·대상이 바뀌었을 수 있다. 네트워크 대기는 여기까지이고,
     // 이 아래는 한 트랜잭션에서 대상을 잠근 뒤(잠그면 요청 캐시가 비워져 최신 값) 다시 확인하고 적용한다.
+    try {
     return tx(() => {
     lockRecords([target.table === 'block' ? { table: 'block', id: target.id } : { table: 'space', id: space.id }]);
     spaceOrThrow(space.id, uid);
@@ -515,10 +520,16 @@ export const handlers: Record<string, Handler> = {
     if (job) {
       // 같은 작업으로 두 번 동시에 불렸으면 한쪽만 끝낸다(다른 쪽은 되돌려 페이지가 두 번 생기지 않게)
       const r = db.prepare("UPDATE import_jobs SET state = 'done', result = ? WHERE id = ? AND user_id = ? AND state = 'open'").run(JSON.stringify({ pageIds: rootIds, ...counts, used: [...usedAssets] }), job.id, uid);
-      if (!r.changes) throw new ApiError('이 가져오기는 이미 처리됐습니다.', 409);
+      if (!r.changes) throw new JobTaken();
     }
     return { pageIds: rootIds, ...counts, recordMap: rm.map };
     });
+    } catch (e) {
+      // 같은 작업이 그사이 다른 요청으로 끝났다(여기서 만든 것은 되돌려졌다) → 그 결과를 돌려준다. 취소된 작업이면 jobOrThrow가 409
+      if (!(e instanceof JobTaken) || !job) throw e;
+      const done = JSON.parse(jobOrThrow(job.id, uid, space.id).result ?? '{}') as { pageIds?: string[]; pages?: number; databases?: number };
+      return { pageIds: done.pageIds ?? [], pages: done.pages ?? 0, databases: done.databases ?? 0, recordMap: { __version__: 3 }, repeated: true };
+    }
   },
 
   /** CSV import step 2 (column mapping): header, inferred types and sample values; with blockId, the database to merge into. */

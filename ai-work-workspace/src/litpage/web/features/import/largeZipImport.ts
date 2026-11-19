@@ -15,6 +15,8 @@ export interface LargeZipDeps {
   put(uploadUrl: string, data: Blob, type: string): Promise<boolean>;
   /** 글 파일 묶음을 예전 경로(파일 올리기)로 올린다 */
   uploadPages(zip: Blob, name: string): Promise<{ url: string }>;
+  /** 끝나지 않은 큰 가져오기가 이미 있을 때 그것을 취소하고 새로 시작할지 회원에게 묻는다(없으면 취소하지 않는다) */
+  confirmReplace?(): Promise<boolean> | boolean;
 }
 
 export interface PreparedLargeZip {
@@ -69,7 +71,18 @@ export async function prepareLargeZip(file: Blob, name: string, spaceId: string,
   });
   if (!images.length) return { name, url: (await deps.uploadPages(pagesZip, name)).url, skipped, images: 0 };
 
-  const { jobId } = await deps.job({ step: 'import-begin', spaceId, files: images.length, bytes: images.reduce((a, e) => a + e.size, 0) });
+  const beginBody = { step: 'import-begin', spaceId, files: images.length, bytes: images.reduce((a, e) => a + e.size, 0) };
+  let begun: { jobId: string };
+  try {
+    begun = await deps.job(beginBody);
+  } catch (e) {
+    // 열린 작업이 이미 있으면 서버는 지우지 않고 409로 알린다. 회원이 취소에 동의했을 때만 그 작업을 취소하고 한 번 다시 시작한다
+    const open = (e as { status?: number; data?: { code?: string; jobId?: string } }) ?? {};
+    if (open.status !== 409 || open.data?.code !== 'IMPORT_JOB_OPEN' || !open.data.jobId || !(await deps.confirmReplace?.())) throw e;
+    await deps.job({ step: 'import-cancel', jobId: open.data.jobId });
+    begun = await deps.job(beginBody);
+  }
+  const { jobId } = begun;
   const assets: Record<string, string> = {};
   let finished = 0;
   try {

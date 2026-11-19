@@ -184,7 +184,7 @@ export async function cleanupPendingUploads(now = Date.now()): Promise<number> {
 // 큰 ZIP 가져오기 작업(2026-11-19 WS-20261119-02, 플랜 docs/PLAN_20261119_LARGE_ZIP_IMPORT.md §9·§10)
 // 50MiB를 넘는 ZIP은 브라우저가 안의 그림을 하나씩 Storage로 올리고, 서버에는 글 파일 묶음과 「ZIP 안 경로 → 파일 id」 표만 보낸다.
 // 그 올리기를 「가져오기 작업」 하나로 묶어, 그 작업에서 그 회원이 올린 파일만 쓰이고 지워지게 한다.
-//   import-begin  { spaceId, files, bytes }                → { jobId }                        작업 열기(신고한 개수·합계, 용량 확인)
+//   import-begin  { spaceId, files, bytes }                → { jobId }                        작업 열기(신고한 개수·합계, 용량 확인). 열린 작업이 있으면 409 { code: IMPORT_JOB_OPEN, jobId }
 //   import-sign   { jobId, items: [{ name, type, size }] } → { items: [{ id, uploadUrl }] }   한 번에 50개까지
 //   import-done   { jobId, ids }                           → { done, failed }                 실제로 올라갔는지·크기 확인
 //   import-finish { jobId }                                → { removed }                      가져오기 뒤 쓰이지 않은 파일 지우기
@@ -236,6 +236,29 @@ async function removeJobFiles(jobId: string, userId: string, keep: Set<string> =
   return removed;
 }
 
+/**
+ * 열린 작업을 취소로 바꾸고, **바꾸는 데 성공했을 때만** 그 작업의 파일을 지운다(2026-11-19 Master msg_2e22cd4b41c3).
+ * 같은 작업의 가져오기(importFiles)가 먼저 끝났으면 상태가 이미 done이라 전환이 0줄이고, 그때는 아무것도 지우지 않는다
+ * (본문이 쓰는 그림을 지우지 않게). 전환하지 못했으면 null.
+ */
+async function cancelOpenJob(jobId: string, userId: string): Promise<number | null> {
+  const r = withRequestCache(() => db.prepare("UPDATE import_jobs SET state = 'cancelled' WHERE id = ? AND user_id = ? AND state = 'open'").run(jobId, userId));
+  if (!r.changes) return null;
+  return removeJobFiles(jobId, userId);
+}
+
+/**
+ * 끝난 작업(done)의 쓰이지 않은 그림을 지운다. done은 「무엇이 쓰였는지」가 굳은 상태라 여러 번 해도 결과가 같다.
+ * 쓰이지 않은 것이 하나도 남지 않았을 때만 closed로 바꾼다(Storage 삭제가 실패해 남았으면 done으로 두어 다음 정리가 다시 한다).
+ */
+async function sweepDoneJob(jobId: string, userId: string, result: string | null): Promise<number> {
+  const used = new Set<string>((JSON.parse(result ?? "{}") as { used?: string[] }).used ?? []);
+  const removed = await removeJobFiles(jobId, userId, used);
+  const left = withRequestCache(() => db.prepare("SELECT id FROM files WHERE import_job_id = ? AND user_id = ?").all(jobId, userId) as { id: string }[]).filter((f) => !used.has(f.id)).length;
+  if (!left) withRequestCache(() => db.prepare("UPDATE import_jobs SET state = 'closed' WHERE id = ? AND user_id = ? AND state = 'done'").run(jobId, userId));
+  return removed;
+}
+
 export async function importJobStep(member: Member, q: Record<string, unknown>): Promise<Res> {
   const userId = member.id;
   const step = q.step;
@@ -254,16 +277,25 @@ export async function importJobStep(member: Member, q: Record<string, unknown>):
     if (!hit(`import-job:user:${userId}`, 10, 60 * 60_000)) return bad(429, "큰 가져오기를 너무 자주 시작했습니다. 잠시 후 다시 시도해 주세요.");
     const quota = await quotaImpl(userId, bytes);
     if (!quota.allowed) return bad(403, quota.message ?? "저장공간이 가득 찼습니다.", { code: "STORAGE_FULL", upgradeUrl: quota.upgradeUrl });
-    // 끝내지 못한 예전 작업은 새로 시작할 때 정리한다(탭이 닫혀 남은 것 — 한 회원에 열린 작업은 하나)
-    const old = withRequestCache(() => db.prepare("SELECT id FROM import_jobs WHERE user_id = ? AND state = 'open'").all(userId) as { id: string }[]);
-    for (const o of old) {
-      withRequestCache(() => db.prepare("UPDATE import_jobs SET state = 'cancelled' WHERE id = ? AND user_id = ? AND state = 'open'").run(o.id, userId));
-      await removeJobFiles(o.id, userId);
+    // 한 회원에 열린 작업은 하나다. 열린 작업이 있으면 여기서 지우지 않고 409로 알린다(회원이 직접 취소하거나 끝낸 뒤 다시 시작).
+    // 하루 넘게 열려 있던 것(탭이 닫혀 남은 것)만 만료로 보고 정리한 뒤 새로 연다.
+    const openBusy = (jobId: string) => bad(409, "아직 끝나지 않은 큰 가져오기가 있습니다. 끝난 뒤 다시 시도하거나 그 가져오기를 취소해 주세요.", { code: "IMPORT_JOB_OPEN", jobId });
+    const openNow = () => withRequestCache(() => db.prepare("SELECT id, created_time FROM import_jobs WHERE user_id = ? AND state = 'open'").all(userId) as { id: string; created_time: number }[]);
+    for (const o of openNow()) {
+      if (Number(o.created_time) >= Date.now() - JOB_TTL_MS) return openBusy(o.id);
+      await cancelOpenJob(o.id, userId);
     }
     await ensureBucket(storeImpl());
     const id = newId();
-    withRequestCache(() => db.prepare("INSERT INTO import_jobs (id, user_id, space_id, state, declared_files, declared_bytes, files, bytes, created_time, result) VALUES (?, ?, ?, 'open', ?, ?, 0, 0, ?, NULL)")
-      .run(id, userId, sid, files, bytes, Date.now()));
+    try {
+      // 동시에 두 번 시작해도 하나만 열린다 — 부분 고유 색인 import_jobs_one_open(회원당 open 하나)이 두 번째 줄을 막는다
+      withRequestCache(() => db.prepare("INSERT INTO import_jobs (id, user_id, space_id, state, declared_files, declared_bytes, files, bytes, created_time, result) VALUES (?, ?, ?, 'open', ?, ?, 0, 0, ?, NULL)")
+        .run(id, userId, sid, files, bytes, Date.now()));
+    } catch (e) {
+      const other = openNow()[0];
+      if (other) return openBusy(other.id);
+      throw e;
+    }
     return { status: 200, body: { jobId: id } };
   }
 
@@ -275,17 +307,18 @@ export async function importJobStep(member: Member, q: Record<string, unknown>):
     return { status: 200, body: { state: job.state, result: result ? { pageIds: result.pageIds, pages: result.pages, databases: result.databases } : null } };
   }
   if (step === "import-cancel") {
+    // 이미 취소된 작업: 지난번에 Storage 삭제가 실패해 남은 것이 있으면 다시 지운다(취소된 작업의 파일은 어디에도 쓰이지 않는다)
+    if (job.state === "cancelled") return { status: 200, body: { removed: await removeJobFiles(job.id, userId) } };
     if (job.state !== "open") return bad(409, "이미 끝난 가져오기 작업입니다.");
-    withRequestCache(() => db.prepare("UPDATE import_jobs SET state = 'cancelled' WHERE id = ? AND user_id = ? AND state = 'open'").run(job.id, userId));
-    return { status: 200, body: { removed: await removeJobFiles(job.id, userId) } };
+    const removed = await cancelOpenJob(job.id, userId);
+    // 읽은 뒤 그사이 가져오기가 끝났으면(전환 0줄) 지우지 않는다
+    if (removed === null) return bad(409, "이미 끝난 가져오기 작업입니다.");
+    return { status: 200, body: { removed } };
   }
   if (step === "import-finish") {
     if (job.state === "closed") return { status: 200, body: { removed: 0 } };
     if (job.state !== "done") return bad(409, "가져오기가 끝나지 않았습니다.");
-    const used = new Set<string>((JSON.parse(job.result ?? "{}") as { used?: string[] }).used ?? []);
-    const removed = await removeJobFiles(job.id, userId, used);
-    withRequestCache(() => db.prepare("UPDATE import_jobs SET state = 'closed' WHERE id = ? AND user_id = ? AND state = 'done'").run(job.id, userId));
-    return { status: 200, body: { removed } };
+    return { status: 200, body: { removed: await sweepDoneJob(job.id, userId, job.result) } };
   }
 
   if (job.state !== "open") return bad(409, "이미 끝난 가져오기 작업입니다.");
@@ -374,9 +407,12 @@ export async function cleanupStaleImportJobs(now = Date.now()): Promise<number> 
   const rows = withRequestCache(() => db.prepare("SELECT id, user_id, state, result FROM import_jobs WHERE state IN ('open', 'done') AND created_time < ? LIMIT 50").all(now - JOB_TTL_MS) as { id: string; user_id: string; state: string; result: string | null }[]);
   let n = 0;
   for (const j of rows) {
-    const keep = j.state === "done" ? new Set<string>((JSON.parse(j.result ?? "{}") as { used?: string[] }).used ?? []) : new Set<string>();
-    withRequestCache(() => db.prepare("UPDATE import_jobs SET state = ? WHERE id = ? AND state = ?").run(j.state === "done" ? "closed" : "cancelled", j.id, j.state));
-    n += await removeJobFiles(j.id, j.user_id, keep);
+    // 열린 작업: 취소로 바꾸는 데 성공했을 때만 지운다(그사이 가져오기가 끝났으면 건너뛰고, 다음 정리에서 done으로 다룬다)
+    if (j.state === "open") n += (await cancelOpenJob(j.id, j.user_id)) ?? 0;
+    else n += await sweepDoneJob(j.id, j.user_id, j.result);
   }
+  // 취소됐지만 Storage 삭제가 실패해 파일 줄이 남은 작업은 다시 지운다(취소된 작업의 파일은 쓰이는 곳이 없다)
+  const leftover = withRequestCache(() => db.prepare("SELECT j.id, j.user_id FROM import_jobs j WHERE j.state = 'cancelled' AND EXISTS (SELECT 1 FROM files f WHERE f.import_job_id = j.id) LIMIT 50").all() as { id: string; user_id: string }[]);
+  for (const j of leftover) n += await removeJobFiles(j.id, j.user_id);
   return n;
 }
