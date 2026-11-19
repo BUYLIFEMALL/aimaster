@@ -6188,9 +6188,9 @@
       "reviewer": "CX-MASTER-01",
       "title": "Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단",
       "status": "running",
-      "delivery": "zip_response_mac_accepted_db_cache_candidate_dispatched",
-      "next": "4f801102a Mac 분기·지연 로드·작은 ZIP 검수 통과. 응답 감소 확인, 처리 시간·realtime은 별개. A 격리 후보 진행, 운영 재시도 없음.",
-      "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a·4f801102a·msg_188d5f946fe6·msg_d48ab4279b48·msg_6a8c40f8d884·.ai/results/WS-20261119-03-CX-QA-01.md"
+      "delivery": "zip_cache_candidate_measured_test_followup_sent",
+      "next": "080d30733 A 후보 201쪽 DB 호출 46,684→32,197. 전체 1,033/1,034, 잠금 시험 안정화·훅 검증 배정. C Mac 검수 통과, 운영 재시도 없음.",
+      "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a·4f801102a·msg_188d5f946fe6·msg_d48ab4279b48·msg_6a8c40f8d884·.ai/results/WS-20261119-03-CX-QA-01.md·080d30733·5900bdee4·msg_81e5f70393f6"
     },
     {
       "task_id": "WS-20261119-02",
