@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-19T02:30:56.138Z",
+  "checkedAt": "2026-11-19T03:00:59.217Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -12,21 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T02:30:56.138Z",
+      "at": "2026-11-19T03:00:59.217Z",
       "timezone": "Asia/Seoul",
-      "trigger": "11:30 예약 점검 메시지 msg_bb6d8b1ca40d 수신",
-      "scope": "11:01:06 KST 이후 증분. 프로그램 103개·19개 분류와 열린 작업 26개, 팀 지침·점유·검수·승인·미배포 및 인수인계 대조.",
+      "trigger": "12:00 예약 점검 메시지 msg_9a187ae6ae0a 수신",
+      "scope": "11:30:56 KST 이후 증분. 프로그램 103개·19개 분류, 미완료 25건(진행 3·검수 4·순번 4·사용자 단계 14), Git·점유·인수인계·대기 승인 대조.",
       "evidence": [
-        "11:30:01 예약 실행 성공, 11:30:03 전송 msg_bb6d8b1ca40d, 현재 Master 수신 확인.",
-        "P0 3fbd4b200 고정 blob e577d03ef9ae 일치. Arc 2장 CSV 직접 확인. AdminPC RTX Q8 첫 장 2개 성공 보고 msg_7492634e4c5a, 24프롬프트×2시드·3비율 본시험 배정 msg_68e97e7d4656, 결과 분석 CC-ECOM-01 수락 msg_309652177f5b. 중복 요청 정정 보고.",
-        "팀 원칙 4f0e6b355, MacMini 수신 msg_4c8027206903, 팀 기록 e0196205b. Mac 역할 지침 두 파일 담당 변경분 확인. 새 결과/인수인계 파일 0, 기존 HANDOFF의 AIF 기록 유지.",
-        "Master 관리자 대기 요청 0, 원격 master af36bb4675d 유지."
+        "12:00:01 예약 성공, 12:00:03 전송 msg_9a187ae6ae0a, 현재 Master 터미널 수신.",
+        "부동산 U-1 1c52f4e37, Mac 재검수 msg_e0695c219660 및 RE-20261119-DESK-CX-QA-01.md 갱신 파일 대조, 독립 6/6.",
+        "AdminPC 12:00 터미널 중간 보고 Q8 74/96 통과(FLUX 48/48, Z 26/48에 해당), P0 초안 444034a1e, 확정 CSV 미수신.",
+        "AI Influencer msg_52b203d7fe0b 키 등록 표시 확인. 원격 master af36bb4675d 동일, Master 관리자 대기 요청 0. 현재 구간 미등록 새 결과 파일 없음, 기존 HANDOFF 수정은 이전 AIF 기록."
       ],
-      "judgment": "MacMini 프로그램 기본 검수, AdminPC 무거운 로컬 모델 전담 확정. RTX Q8 본시험 결과 대기. B2B 관리자 Lab은 Mac 연결, S70·M3는 각 승인, 이커머스는 메인 자동 빌드 순번 대기.",
-      "nextAction": "동일 본시험 재배정 없음. AdminPC 결과 회수 후 기존 담당 CC-ECOM-01이 분석. Mac 동일 Tailnet 로그인 뒤 B2B 담당이 검수용 Lab 재개.",
+      "judgment": "부동산 U-1 독립 검수 완료·미배포. RTX 본시험 계속, AIF 유료 재시험 및 B2B 실화면·S70·M3 기존 조건 대기. 추가 배포·운영 DB·공급자 호출 없음.",
+      "nextAction": "새 배정 없음. RTX 최종 CSV 회수 뒤 CC-ECOM-01 결과표와 모델 비교. B2B 관리자 실화면은 Mac Tailnet 연결 확인 뒤 Backend가 사설 Lab 재개. AIF 새 비용 승인 시만 V3 재시험.",
       "unverified": [
-        "RTX Q8 본시험 최종 CSV·품질과 후속 Q4, Mac 연결·실화면, 부동산 U-1 및 기존 사용자 단계",
-        "운영 실측 및 이전 미추적 문서 전수 재검증 미실행"
+        "RTX 전체 CSV·품질 최종, AIF 키 저장 시각·유효성, B2B Mac 연결·실화면, 기존 사용자 단계",
+        "운영 전수 실측 및 오래된 미추적 자료의 전수 재검증 미실행"
       ]
     },
     "notifications": [
