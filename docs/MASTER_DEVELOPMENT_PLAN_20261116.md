@@ -171,7 +171,7 @@ Master 마지막 실제 점검: 2026-11-19 11:30:56 KST · 실행 중 점검 주
 | FRONT-20261116-02 | CC-B2B-FRONT-01 | done / integrated | E3 Lab검수→식품/키즈/뷰티 각6종 템플릿 | 6종구현/420시험/E3·갤러리Lab확인·Master카탈로그등록 완료. v1.16배포는별도대기 |
 | RE-20261116-01 | CC-REALTY-01 | done / integrated | L-6 기술안·뉴스미배포정정·17시험 | 대안1 채택, 구현은RE-02로 분리 |
 | RE-20261119-EXT | CC-REALTY-01 | running / three_program_linkage_independent_accepted_crm_plan_routed | 부동산 추가 개선 순차 진행 | 매물 알림 8 blob·독립 3/3, 관심 지역 3프로그램 연계 로컬 수락. 실 화면·DB 권한 검증 및 배포 대기. 고객관리 플랜 이동. |
-| RE-20261119-DESK | CC-REALTY-01 | running / l1_l2_independent_accepted_u1_pending | 부동산 고객관리 화면 개선 | L-1/L-2 Mac 독립 11/11 수락, 미배포. U-1 화면 미리보기 후속. 실제 DB·고객 문자 검증 없음. |
+| RE-20261119-DESK | CC-REALTY-01 | running / u1_preview_continuation_requested | 부동산 고객관리 화면 개선 | L-1/L-2 05902858a 독립 수락. U-1 휴대폰 문자 미리보기 범위 확정·기존 담당에 계속 진행 요청. 고정 SHA 반환 후 Mac 독립 검수. |
 | RE-20261116-02 | CC-REALTY-01 | done / integrated | 카톡실패상태·끊긴토큰재발송방지·local로그아웃/UA | 사용자 직접 승인 배포 v1.45/v1.61. 카카오 실물·08:00 뉴스 대조 별도 |
 | BLOG-20261116-01 | CC-BLOG-01 | done / integrated | 티스토리 소제목##·이웃 전경거절 진단 보완 | 코드검증범위 완료, 이웃재시험/배포/실제소통은별도대기 |
 | QA-20261116-01 | CX-QA-01 | cancelled / integrated | 종합 QA를 영상/Workspace로 분리 | 중복 배정 종료, 검증 완료 의미 아님 |
@@ -422,7 +422,7 @@ Master 마지막 실제 점검: 2026-11-19 11:30:56 KST · 실행 중 점검 주
 | B2B-20261119-MAKER-M2-UI | CC-B2B-BACK-01 | done / m2_ui_independent_accepted_test_assertions_verified_undeployed | 메이커 M2 사진 제안 화면·저장 응답 연결 | 독립 제품 수락, 단언 5개 도달성 수정 후 Master 시험 18/18 통과. 실제 Storage·Lab 미검증, 미배포. |
 | B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | reviewing / local_data_layer_review_passed_server_approval_pending | 메이커 M3 제안 적용·서버 바이트 검증 설계 | Mac 독립 Node 7/7, 정상 서명 호환·포트 경계 통과, 잠금 순서 시험 구조 대조 완료. 로컬 데이터 계층 검수 종료. 점 경로 원문 검증은 서버 후속에 포함. 서버 경로 별도 승인, 실제 SQL 독립 실행·Storage·Lab·운영 검증 대기. |
 | B2B-20261119-ADMINUI | AG-UI-01 | waiting_human / mac_tailnet_login_required_lab_server_stopped | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | Mac Tailscale NeedsLogin·TCP 타임아웃. 사설 Lab 담당 인스턴스 종료·Master 3210 리스너 0 확인. Mac 동일 Tailnet 로그인 확인 뒤 서버 재개와 375px·키보드 검수. |
-| IMG-20261119-PLAN | CC-ECOM-01 | running / admin_rtx_q8_full_benchmark_reported_running | AI 무료 이미지 자동화 개발 플랜 | AdminPC RTX 5080 Q8 첫 장 성공: FLUX 26.1초·Z-Image 18.3초. Codex(Tester) Q8 본시험 진행 확인, 완료 CSV 대기. CC-ECOM-01 결과 비교·모델 선택 정리 수락. |
+| IMG-20261119-PLAN | CC-ECOM-01 | running / admin_flux_q8_benchmark_pass_z_running_report_started | AI 무료 이미지 자동화 개발 플랜 | AdminPC 중간 보고 FLUX Q8 48/48·생성 p50 8.3초·p95 8.8초, Z-Image 진행. CC-ECOM-01에 P0 결과표 선행 정리 요청. 최종 CSV 대기. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
