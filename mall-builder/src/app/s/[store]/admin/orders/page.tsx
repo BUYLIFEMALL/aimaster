@@ -31,6 +31,9 @@ export default async function AdminOrdersPage({
   const filter = f.status as OrderStatus | undefined;
   const [{ rows: orders, total: found }, counts] = await Promise.all([getStoreOrders(store.id, f), getOrderCounts(store.id)]);
   const total = Object.values(counts).reduce((s, n) => s + n, 0);
+  const capped = total >= 5000;
+  const visibleTabs = capped ? TABS : TABS.filter((s) => counts[s]);
+  const formatKpi = (n: number) => (capped ? (n > 0 ? `${n.toLocaleString("ko-KR")}건+` : "표본 미관측") : `${n.toLocaleString("ko-KR")}건`);
   const base = `/s/${store.slug}/admin/orders`;
   const pages = pageCount(found);
   const narrowed = Boolean(f.q || f.from || f.to || f.noTracking || f.refundPending);
@@ -42,32 +45,35 @@ export default async function AdminOrdersPage({
       <div className="mb-5 space-y-1.5">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs">
-            <div className="flex items-center justify-between text-xs font-bold text-slate-500"><span>집계 주문</span><span>📋</span></div>
-            <p className="mt-1.5 text-2xl font-black text-slate-900">{total >= 5000 ? "5,000건+" : `${total.toLocaleString("ko-KR")}건`}</p>
+            <div className="flex items-center justify-between text-xs font-bold text-slate-500"><span>집계 주문{capped ? " (표본)" : ""}</span><span>📋</span></div>
+            <p className="mt-1.5 text-2xl font-black text-slate-900">{capped ? "5,000건+" : `${total.toLocaleString("ko-KR")}건`}</p>
           </div>
           <div className="rounded-2xl border border-amber-200/80 bg-amber-50/40 p-4 shadow-xs">
-            <div className="flex items-center justify-between text-xs font-bold text-amber-700"><span>입금 대기</span><span>⏳</span></div>
-            <p className="mt-1.5 text-2xl font-black text-amber-700">{(counts.pending_payment ?? 0).toLocaleString("ko-KR")}건</p>
+            <div className="flex items-center justify-between text-xs font-bold text-amber-700"><span>입금 대기{capped ? " (표본)" : ""}</span><span>⏳</span></div>
+            <p className="mt-1.5 text-2xl font-black text-amber-700">{formatKpi(counts.pending_payment ?? 0)}</p>
           </div>
           <div className="rounded-2xl border border-blue-200/80 bg-blue-50/40 p-4 shadow-xs">
-            <div className="flex items-center justify-between text-xs font-bold text-blue-700"><span>결제완료·준비중</span><span>📦</span></div>
-            <p className="mt-1.5 text-2xl font-black text-blue-700">{((counts.paid ?? 0) + (counts.preparing ?? 0)).toLocaleString("ko-KR")}건</p>
+            <div className="flex items-center justify-between text-xs font-bold text-blue-700"><span>결제완료·준비중{capped ? " (표본)" : ""}</span><span>📦</span></div>
+            <p className="mt-1.5 text-2xl font-black text-blue-700">{formatKpi((counts.paid ?? 0) + (counts.preparing ?? 0))}</p>
           </div>
           <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50/40 p-4 shadow-xs">
-            <div className="flex items-center justify-between text-xs font-bold text-emerald-700"><span>구매 확정</span><span>✅</span></div>
-            <p className="mt-1.5 text-2xl font-black text-emerald-700">{(counts.confirmed ?? 0).toLocaleString("ko-KR")}건</p>
+            <div className="flex items-center justify-between text-xs font-bold text-emerald-700"><span>구매 확정{capped ? " (표본)" : ""}</span><span>✅</span></div>
+            <p className="mt-1.5 text-2xl font-black text-emerald-700">{formatKpi(counts.confirmed ?? 0)}</p>
           </div>
         </div>
         <p className="text-[11px] text-slate-500" data-order-kpi-scope>
-          * 상태별 건수는 최대 5,000건 집계 상한 기준입니다{total >= 5000 ? " (현재 상한 5,000건 도달 — 전체 주문은 검색·필터로 확인하세요)" : ""}.
+          * 상태별 건수는 최대 5,000건 집계 상한 기준입니다{capped ? " (현재 상한 5,000건 도달 — 부분 집계이며 모든 상태 탭에서 전체 주문을 조회할 수 있습니다)" : ""}.
         </p>
       </div>
 
       <nav className="flex flex-wrap gap-1.5 text-sm" data-order-tabs>
-        <Link href={orderListHref(base, f, { status: undefined, page: 1 })} className={`rounded-xl px-3.5 py-1.5 font-semibold transition ${!filter ? "bg-slate-900 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"}`}>전체 {total}</Link>
-        {TABS.filter((s) => counts[s]).map((s) => (
+        <Link href={orderListHref(base, f, { status: undefined, page: 1 })} className={`rounded-xl px-3.5 py-1.5 font-semibold transition ${!filter ? "bg-slate-900 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"}`}>
+          {capped ? "전체 (5,000+)" : `전체 ${total}`}
+        </Link>
+        {visibleTabs.map((s) => (
           <Link key={s} href={orderListHref(base, f, { status: s, page: 1 })} className={`rounded-xl px-3.5 py-1.5 font-semibold transition ${filter === s ? "bg-slate-900 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"}`}>
-            {ORDER_STATUS_LABEL[s]} {counts[s]}
+            {ORDER_STATUS_LABEL[s]}
+            {capped ? (counts[s] ? ` ${counts[s]}+` : "") : ` ${counts[s]}`}
           </Link>
         ))}
       </nav>
