@@ -12,7 +12,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { createGateway } from "../src/gateway.mjs";
 import { createQueue, sharedTurn } from "../src/queue.mjs";
 import { createScopedTokens, SCOPED_SITE_ORIGINS } from "../src/security.mjs";
-import { IMAGE_SIZES, imageRenderSize, isImageSize } from "../src/imageArt.mjs";
+import { IMAGE_SIZES, imageRenderSize, isImageSize, isScopedArtJob } from "../src/imageArt.mjs";
 
 const MUSIC = "https://free-music-studio.buylife.xyz";
 const STUDIO = "https://ai-image-studio.buylife.xyz";
@@ -55,6 +55,7 @@ async function engine(dir, { gate = null, origins = [NEW, NEW2], block = { legac
   scopedQueue = createQueue({
     file: files.queueScoped,
     failClosed: true,
+    validate: isScopedArtJob,
     run,
     canRun: (job) => sharedTurn(job, queue),
     onFinished: () => void queue.pump(),
@@ -478,7 +479,7 @@ test("새 범위를 쓰지 않으면 새 범위 파일을 만들지 않는다(�
 
 test("검수 P1: 새 범위 대기열 파일의 작업 항목이 깨져 있으면 예외 없이 그 범위만 닫고 파일·기존 대기열은 그대로다", async () => {
   const now = new Date().toISOString();
-  const good = { id: randomUUID(), kind: "art", status: "done", createdAt: now, finishedAt: now };
+  const good = { id: randomUUID(), kind: "art", engine: "art", license: "commercial", title: "시험 그림", track: { id: randomUUID() }, task: { prompt: "a red apple on a wooden table" }, site: NEW, scope: randomUUID(), clientRequestId: `req-${randomUUID()}`, digest: "a".repeat(64), status: "done", stage: "완료", createdAt: now, finishedAt: now, recorded: false };
   const cases = {
     "null 항목": { jobs: [null] },
     "숫자 항목": { jobs: [good, 7] },
@@ -579,6 +580,111 @@ test("대기 중인 맨 앞 작업을 취소하면 그 뒤에서 기다리던 �
     assert.equal((await e.call("POST", `/queue/${l1.id}/cancel`, { origin: MUSIC, token: legacy })).status, 200);
     assert.ok(await until(() => e.scopedQueue.get(s1.id)?.status === "done"), "앞 작업이 빠지면 뒤 작업이 돌아야 함");
     assert.deepEqual(e.stat.ran, [s1.id]);
+  } finally {
+    await e.close();
+    await rm(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
+  }
+});
+
+test("검수 잔여: 출처·범위·그림 내용이 빠진 저장 기록은 실행하지 않고 새 대기열만 닫는다(정상 저장본은 그대로 읽는다)", async () => {
+  // 1) 엔진이 실제로 저장한 파일을 기준 표본으로 쓴다
+  const seedDir = await tmp();
+  let saved;
+  {
+    const gate = Promise.withResolvers();
+    const e = await engine(seedDir, { gate });
+    try {
+      const token = (await e.pair(NEW)).body.token;
+      await e.call("POST", "/queue", { origin: NEW, token, body: artBody({}, { width: 1280, height: 720, seed: 11 }) });
+      await e.call("POST", "/queue", { origin: NEW, token, body: artBody() });
+      await sleep(40);
+      saved = JSON.parse(await readFile(e.files.queueScoped, "utf8"));
+      assert.equal(saved.jobs.length, 2);
+      assert.ok(saved.jobs.every(isScopedArtJob), "엔진이 저장한 기록은 검증을 통과해야 함");
+    } finally {
+      gate.resolve();
+      await until(() => e.stat.active === 0 && !e.scopedQueue.list().some((j) => j.status === "queued" || j.status === "running"));
+      await sleep(30);
+      await e.close();
+      await rm(seedDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
+    }
+  }
+  const queued = { ...saved.jobs.find((j) => j.task.width === 1280), status: "queued", stage: "대기 중" };
+  delete queued.startedAt;
+  delete queued.finishedAt;
+  delete queued.result;
+  const without = (k) => { const c = structuredClone(queued); delete c[k]; return c; };
+  const withTask = (task) => ({ ...structuredClone(queued), task });
+  const cases = {
+    "site 없음": without("site"),
+    "scope 없음": without("scope"),
+    "task 없음": without("task"),
+    "접수 번호 없음": without("clientRequestId"),
+    "내용 요약 없음": without("digest"),
+    "track 없음": without("track"),
+    "제목 없음": without("title"),
+    "site가 주소가 아님": { ...structuredClone(queued), site: "아무 글자" },
+    "scope가 숫자": { ...structuredClone(queued), scope: 5 },
+    "그림 작업이 아님": { ...structuredClone(queued), kind: "text2music" },
+    "설명 없음": withTask({ width: 1280, height: 720 }),
+    "허용 밖 크기": withTask({ prompt: "a red apple on a wooden table", width: 1344, height: 768 }),
+    "크기 한쪽만": withTask({ prompt: "a red apple on a wooden table", width: 1280 }),
+    "시드가 글자": withTask({ prompt: "a red apple on a wooden table", seed: "7" }),
+    "모르는 모델 판": withTask({ prompt: "a red apple on a wooden table", variantId: "no-such:q9" }),
+  };
+  for (const [name, job] of Object.entries(cases)) {
+    assert.equal(isScopedArtJob(job), false, `${name}: 검증이 걸러야 함`);
+    const dir = await tmp();
+    const bytes = Buffer.from(JSON.stringify({ jobs: [job] }, null, 2));
+    await writeFile(path.join(dir, "queue-scoped.json"), bytes);
+    const e = await engine(dir);
+    try {
+      assert.ok(e.scopedQueue.broken, `${name}: 닫혀야 함`);
+      const legacy = (await e.pair(MUSIC)).body.token;
+      const lj = (await e.call("POST", "/queue", { origin: MUSIC, token: legacy, body: legacyArt() })).body.job;
+      assert.ok(await until(() => e.queue.get(lj.id)?.status === "done"), `${name}: 기존 대기열은 돌아야 함`);
+      await sleep(40);
+      assert.deepEqual(e.stat.ran, [lj.id], `${name}: 손상 기록이 실행됨`);
+      assert.ok(bytes.equals(await readFile(e.files.queueScoped)), `${name}: 파일이 바뀜`);
+    } finally {
+      await e.close();
+      await rm(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
+    }
+  }
+  // 2) 정상 저장본(대기 1 + 끝난 것 1)은 닫히지 않고 대기 작업이 이어서 돈다
+  const dir = await tmp();
+  const done = { ...structuredClone(queued), id: randomUUID(), clientRequestId: `req-${randomUUID()}`, status: "done", stage: "완료", finishedAt: new Date().toISOString() };
+  await writeFile(path.join(dir, "queue-scoped.json"), JSON.stringify({ jobs: [done, queued] }, null, 2));
+  const e = await engine(dir);
+  try {
+    assert.equal(e.scopedQueue.broken, "");
+    assert.equal(e.scopedQueue.list().length, 2);
+    await e.scopedQueue.pump();
+    assert.ok(await until(() => e.scopedQueue.get(queued.id)?.status === "done"));
+    assert.deepEqual(e.stat.ran, [queued.id]);
+  } finally {
+    await e.close();
+    await rm(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
+  }
+});
+
+test("기존 대기열 호환: 예전 형식(출처·범위·접수 번호 없음)의 queue.json은 그대로 읽고 이어서 돈다", async () => {
+  const dir = await tmp();
+  const now = new Date().toISOString();
+  const old = [
+    { id: randomUUID(), kind: "art", engine: "art", license: "commercial", title: "예전 그림", track: { id: randomUUID() }, task: { prompt: "a blue cup on a white desk" }, status: "queued", stage: "대기 중", createdAt: now, recorded: false },
+    { id: randomUUID(), kind: "text2music", engine: "acestep", license: "commercial", title: "예전 곡", track: { id: randomUUID() }, task: { caption: "piano" }, status: "running", stage: "만드는 중", createdAt: now, recorded: false },
+    { id: randomUUID(), kind: "art", engine: "art", license: "commercial", title: "끝난 그림", track: { id: randomUUID() }, status: "done", stage: "완료", createdAt: now, finishedAt: now, recorded: true },
+  ];
+  await writeFile(path.join(dir, "queue.json"), JSON.stringify({ jobs: old }, null, 2));
+  const e = await engine(dir);
+  try {
+    assert.equal(e.queue.broken, "", "기존 대기열은 닫히는 일이 없다");
+    assert.deepEqual(e.queue.list().map((j) => j.status), ["queued", "interrupted", "done"], "진행 중이던 작업만 중단됨으로");
+    await e.queue.pump();
+    assert.ok(await until(() => e.queue.get(old[0].id)?.status === "done"));
+    assert.deepEqual(e.stat.ran, [old[0].id], "대기 작업만 돌고 중단된 작업은 다시 돌지 않는다");
+    assert.equal(await readOrNull(e.files.queueScoped), null);
   } finally {
     await e.close();
     await rm(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });

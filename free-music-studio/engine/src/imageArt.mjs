@@ -214,6 +214,27 @@ export function imageRenderSize(task) {
   return Number.isInteger(w) && Number.isInteger(h) && isImageSize(w, h) ? { width: w, height: h } : { width: 1024, height: 1024 };
 }
 
+const SCOPED_REQUEST_ID = /^[A-Za-z0-9-]{8,64}$/;
+/**
+ * 새 그림 사이트 범위 대기열(queue-scoped.json)에 저장된 작업 항목의 형식(IMG-P1 PR-A) — 연결 문이 접수할 때 만드는 모양 그대로.
+ * 출처(site)·범위(scope)·접수 번호·내용 요약·그림 작업 내용(task)이 빠지거나 틀린 기록은 실행하면 안 된다
+ * (범위 없는 작업은 누구 것도 아니게 되고, task 없는 작업은 실행에서 실패한다). 대기열을 읽을 때 validate로 넘긴다.
+ */
+export function isScopedArtJob(j) {
+  const str = (v) => typeof v === "string" && v.length > 0;
+  if (!j || j.kind !== "art" || !str(j.title) || !str(j.site) || !str(j.scope)) return false;
+  if (!/^https?:\/\/[^/\s]+$/.test(j.site)) return false;
+  if (!str(j.clientRequestId) || !SCOPED_REQUEST_ID.test(j.clientRequestId) || !/^[0-9a-f]{64}$/.test(j.digest ?? "")) return false;
+  if (!j.track || typeof j.track !== "object" || !str(j.track.id)) return false;
+  const t = j.task;
+  if (!t || typeof t !== "object" || Array.isArray(t) || !str(t.prompt)) return false;
+  if (t.variantId !== undefined && !findImageVariant(t.variantId)) return false;
+  const sized = t.width !== undefined || t.height !== undefined;
+  if (sized && !(Number.isInteger(t.width) && Number.isInteger(t.height) && isImageSize(t.width, t.height))) return false;
+  if (t.seed !== undefined && !(Number.isInteger(t.seed) && t.seed >= 0 && t.seed <= 2147483647)) return false;
+  return true;
+}
+
 /** PNG 머리·크기 확인(원본 validatePng 대신 간단히) */
 export function checkPng(buf) {
   const sig = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];

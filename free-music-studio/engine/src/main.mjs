@@ -21,7 +21,7 @@ import { masterFile } from "./mastering.mjs";
 import { FADE_SECONDS, smoothEnding } from "./ending.mjs";
 import { createVideoStudio } from "./video.mjs";
 import { createStems, stemDevice } from "./stems.mjs";
-import { createImageArt, defaultImageDir, settleImageDir } from "./imageArt.mjs";
+import { createImageArt, defaultImageDir, isScopedArtJob, settleImageDir } from "./imageArt.mjs";
 import { createLyricAligner } from "./lyricAlign.mjs";
 import { createScopedTokens, newToken, SCOPED_SITE_ORIGINS } from "./security.mjs";
 import { ensureTools, useTools } from "./tools.mjs";
@@ -450,6 +450,7 @@ const queue = createQueue({
 const scopedQueue = createQueue({
   file: path.join(dataDir, "queue-scoped.json"),
   failClosed: true,
+  validate: isScopedArtJob, // 출처·범위·접수 번호·그림 내용이 빠진 기록은 실행하지 않고 이 대기열만 닫는다
   run: (job, signal, stage) => artRun(job, signal, stage),
   canRun: (job) => sharedTurn(job, queue) && !restarting && !aceStarting,
   onFinished: (job) => {

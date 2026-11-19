@@ -49,8 +49,9 @@ export function sharedTurn(job, other) {
  *           failClosed?: boolean }} opts
  * failClosed(IMG-P1 PR-A, 새 그림 사이트 범위 전용): 파일이 있는데 읽지 못하면 원본을 덮어쓰지 않고 이 대기열을 닫는다
  * (목록·넣기·실행 모두 거절). 없으면 빈 대기열. 기존 queue.json은 이 옵션 없이 예전 동작 그대로.
+ * validate(failClosed와 함께): 저장돼 있던 작업 항목이 이 대기열의 저장 형식에 맞는지 — 하나라도 false면 닫는다.
  */
-export function createQueue({ file, run, canRun = () => true, onFinished = () => {}, onDrop = () => {}, log = () => {}, now = Date.now, failClosed = false, onQueuedCancel = () => {} }) {
+export function createQueue({ file, run, canRun = () => true, onFinished = () => {}, onDrop = () => {}, log = () => {}, now = Date.now, failClosed = false, onQueuedCancel = () => {}, validate = () => true }) {
   let jobs = [];
   let working = false;
   let executing = false; // 실행 함수가 도는 중(취소로 표시 상태가 바뀌어도 실제로 끝날 때까지 true)
@@ -115,7 +116,7 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
       }
       // 새 그림 사이트 범위(failClosed): 배열 안 항목까지 본다 — 항목이 깨졌는데 그대로 쓰면 아래 정리에서 예외가 나
       // 엔진 기동(최상위 await)까지 막을 수 있다. 하나라도 올바르지 않으면 이 대기열만 닫고 파일은 그대로 둔다.
-      if (failClosed && !broken && !jobs.every(validJob)) {
+      if (failClosed && !broken && !jobs.every((j) => validJob(j) && validate(j) === true)) {
         jobs = [];
         broken = "작업 항목이 올바르지 않음";
       }
