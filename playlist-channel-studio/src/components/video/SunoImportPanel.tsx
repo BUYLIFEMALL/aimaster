@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ExternalLink, Loader2, Music2, RefreshCw } from "lucide-react";
 import type { Track } from "@/types/playlist";
 import type { LyricLine } from "@/lib/lyrics";
-import { acceptResponse, canPickMore, finishAdd, incomingNotice, parseIdParam, prunePicked, seedStep, splitIncoming, type Incoming, type ListView } from "@/lib/remixTracks";
+import { acceptResponse, canPickMore, finishAdd, incomingNotice, parseIdParam, reconcilePicks, seedStep, splitIncoming, type Incoming, type ListView } from "@/lib/remixTracks";
 
 // v1.19 음악(SUNO) 자동화에서 만든 내 곡 여러 개를 골라 플레이리스트 곡 목록에 한 번에 추가한다.
 // 음악은 비공개 저장소의 1시간 서명 주소로 받고(서버에 새로 올리지 않음), 「시간 가사도 받기」를 켜면
@@ -77,6 +77,7 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
   const [loadState, setLoadState] = useState<"idle" | "loading" | "ok" | "error">("idle"), [remixOk, setRemixOk] = useState(true);
   const reqRef = useRef(0); // 마지막 목록 요청 번호 — 늦게 온 옛 응답은 버린다
   const knownRemixRef = useRef(new Set<string>()); // 한 번이라도 목록에서 본 리믹스 변주 — 리믹스만 못 읽은 응답에서 「진짜 없음」과 구분
+  const heldRef = useRef<string[]>([]); // 일시 보류: 리믹스 부분 실패로 숨은 옛 리믹스 선택(활성 선택과 따로, 정상 복구 때 남은 자리에서만 되돌림)
   const [bgStyle, setBgStyle] = useState<"blur" | "album">("blur"), [heading, setHeading] = useState(""), [channel, setChannel] = useState("");
   const albumText = (title: string): AlbumText => (bgStyle === "album" ? { heading: heading.trim() || title, channel } : null);
 
@@ -108,12 +109,14 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
   const selectable = all.filter((a) => !a.v.blocked);
   const view: ListView = loadState === "ok" ? { state: "ok", selectable: selectable.map((a) => a.v.id), remixOk } : loadState === "error" ? { state: "error" } : { state: loadState };
   const selectableKey = view.state === "ok" ? view.selectable.join(",") : "";
-  // 정상 목록이 올 때마다: 사라진 선택 정리(20 이하) → 받은 곡 미리 선택. 선택은 함수형 갱신이라 추가 작업과 겹쳐도 최신 선택 위에서 계산
+  // 정상 목록이 올 때마다: 활성 선택 정리(20 이하)·숨은 리믹스는 보류로 → 받은 곡 미리 선택. 이 렌더의 최신 선택 위에서 계산하고, 추가 작업 끝은 함수형 갱신(finishAdd)이라 겹쳐도 클릭 대상만 빠진다
   useEffect(() => {
     if (view.state !== "ok") return;
-    setPicked((p) => seedStep(incoming, seedDone, view, prunePicked(p, view, knownRemixRef.current, MAX_PICK), MAX_PICK).picked);
-    const done = seedStep(incoming, seedDone, view, [], MAX_PICK).done; // 완료 표시는 선택과 무관
-    if (done.suno !== seedDone.suno || done.remix !== seedDone.remix) setSeedDone(done);
+    const r = reconcilePicks(picked, heldRef.current, view, knownRemixRef.current, MAX_PICK); // 활성 선택 정리 + 보류 갱신(최신 선택 우선)
+    heldRef.current = r.held;
+    const next = seedStep(incoming, seedDone, view, r.picked, MAX_PICK);
+    if (next.picked.length !== picked.length || next.picked.some((id, i) => id !== picked[i])) setPicked(next.picked);
+    if (next.done.suno !== seedDone.suno || next.done.remix !== seedDone.remix) setSeedDone(next.done);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- 응답(상태·고를 수 있는 곡)이 바뀔 때만 한 단계, 선택 변화로는 다시 돌지 않음
   }, [loadState, selectableKey, remixOk, incoming, seedDone]);
   const notice = incomingNotice(incoming, view, picked);

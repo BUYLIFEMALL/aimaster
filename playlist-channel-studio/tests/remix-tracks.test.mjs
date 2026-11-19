@@ -301,7 +301,7 @@ test("서버·화면 연결: 부분 실패 신호, 요청 번호, 실제 성공�
   assert.match(ui, /const id = \+\+reqRef\.current;[\s\S]*if \(!acceptResponse\(id, reqRef\.current\)\) return;[\s\S]*if \(!acceptResponse\(id, reqRef\.current\)\) return;/, "성공·실패 응답 모두 요청 번호 확인");
   assert.match(ui, /setLoadState\("loading"\);/);
   assert.doesNotMatch(ui, /setListError\(""\);\s*\n\s*try/, "대기 시작 때 오류만 지워 빈 목록을 성공처럼 보이게 하지 않음");
-  assert.match(ui, /if \(view\.state !== "ok"\) return;\s*\n\s*setPicked\(\(p\) => seedStep\(incoming, seedDone, view, prunePicked\(p, view, knownRemixRef\.current, MAX_PICK\), MAX_PICK\)\.picked\);/, "성공 응답에서만 정리·미리 선택");
+  assert.match(ui, /if \(view\.state !== "ok"\) return;\s*\n\s*const r = reconcilePicks\(picked, heldRef\.current, view, knownRemixRef\.current, MAX_PICK\);[^\n]*\n\s*heldRef\.current = r\.held;\s*\n\s*const next = seedStep\(incoming, seedDone, view, r\.picked, MAX_PICK\);/, "성공 응답에서만 정리(활성·보류 분리)·미리 선택");
   assert.doesNotMatch(ui, /setPicked\(uniq\)/);
   assert.match(ui, /disabled=\{!!busy \|\| !!v\.blocked\}/);
   assert.match(ui, /const pickedHere = selectable\.filter/);
@@ -441,4 +441,45 @@ test("보이는 선택이 20보다 적으면 숨은 리믹스는 남은 자리�
   assert.equal(out.length, 20);
   assert.deepEqual(out.slice(2), R.slice(0, 18), "숨은 리믹스는 18자리만");
   assert.deepEqual(prunePicked([...R, A, B], ok([A, B], true), known, 20), [A, B], "리믹스를 정상으로 읽었는데 없으면 정리");
+});
+
+// ── 정상 복구 때 최신 선택 보존 (Master msg_dd4afb1206a0, Mac msg_a2744854458f) — 활성 선택과 일시 보류 분리 ──
+import { reconcilePicks } from "../src/lib/remixTracks.ts";
+
+test("즉시 복구 순서: 숨은 옛 리믹스 20 → 지금 곡 20 선택 → 다음 응답 정상 복구 — 지금 선택 20 우선, 옛 리믹스는 남은 자리(0)만", () => {
+  const R = ids("6666", 20), S = ids("7777", 20), known = new Set(R);
+  let st = reconcilePicks(R, [], ok([...R, ...S], true), known, 20);          // 리믹스 20 선택(정상)
+  assert.deepEqual(st, { picked: R, held: [] });
+  st = reconcilePicks(st.picked, st.held, ok(S, false), known, 20);            // 부분 실패: 활성에서 빼고 보류로
+  assert.deepEqual(st, { picked: [], held: R });
+  st = { picked: [...st.picked, ...S], held: st.held };                        // 회원이 지금 곡 20 선택
+  st = reconcilePicks(st.picked, st.held, ok([...R, ...S], true), known, 20);  // 곧바로 정상 복구
+  assert.deepEqual(st, { picked: S, held: [] }, "지금 선택 유지, 옛 리믹스 되돌릴 자리 없음 → 보류도 비움");
+});
+
+test("반복 부분 실패 → 정상 복구: 보류는 남은 자리만큼만, 복구 때 남은 자리에서만 되돌린다", () => {
+  const R = ids("8888", 20), known = new Set(R);
+  let st = reconcilePicks(R, [], ok([A, B], false), known, 20);
+  assert.deepEqual(st, { picked: [], held: R });
+  st = reconcilePicks([A, B], st.held, ok([A, B], false), known, 20);          // 지금 곡 2개 선택 뒤 다시 부분 실패
+  assert.deepEqual(st.picked, [A, B]);
+  assert.deepEqual(st.held, R.slice(0, 18), "보류는 남은 18자리만");
+  st = reconcilePicks(st.picked, st.held, ok([A, B], false), known, 20);       // 또 부분 실패
+  assert.deepEqual(st, { picked: [A, B], held: R.slice(0, 18) });
+  st = reconcilePicks(st.picked, st.held, ok([A, B, ...R], true), known, 20);  // 정상 복구
+  assert.deepEqual(st, { picked: [A, B, ...R.slice(0, 18)], held: [] });
+  assert.ok(st.picked.length <= 20);
+});
+
+test("수동 해제·상한: 해제한 지금 곡은 되살리지 않고, 복구된 보류가 목록에 없으면 버리며, 활성은 항상 20 이하", () => {
+  const known = new Set([C, D]);
+  let st = reconcilePicks([A, C], [], ok([A, B], false), known, 20);
+  assert.deepEqual(st, { picked: [A], held: [C] });
+  st = reconcilePicks([], st.held, ok([A, B], false), known, 20);              // 회원이 A 해제
+  assert.deepEqual(st, { picked: [], held: [C] });
+  st = reconcilePicks(st.picked, st.held, ok([A, B, D], true), known, 20);     // 복구됐지만 C는 이제 목록에 없음
+  assert.deepEqual(st, { picked: [], held: [] }, "A 되살림 없음, 없는 C는 버림");
+  const many = ids("9999", 30);
+  assert.equal(reconcilePicks(many, [], ok(many, true), new Set(), 20).picked.length, 20);
+  assert.deepEqual(reconcilePicks([A], [C], { state: "loading" }, known, 20), { picked: [A], held: [C] }, "대기 중엔 그대로");
 });

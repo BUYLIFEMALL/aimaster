@@ -136,19 +136,33 @@ export function pickedInList(picked: string[], selectable: string[]): string[] {
 export const canPickMore = (picked: string[], selectable: string[], max: number): boolean => pickedInList(picked, selectable).length < max;
 
 /**
- * 정상 목록이 올 때마다 선택 정리 — 지금 목록에서 고를 수 있는 곡만 남기고 최대 max(활성 선택은 항상 20 이하).
- * 사라진 선택은 지워서 나중에 다시 나타나도 되살아나지 않는다. 단 리믹스를 못 읽은 부분 실패(remixOk=false)에서는
- * 이미 본 적 있는 리믹스 선택(knownRemix)을 「진짜 없음」으로 보지 않고 남긴다.
+ * 정상 목록이 올 때마다 선택 정리 — 「활성 선택(picked)」과 「일시 보류(held)」를 나눠 다룬다. 활성 선택은 항상 max 이하.
+ * - 활성 선택: 지금 목록에서 고를 수 있는 곡만(기존 순서) 남긴다. 사라진 일반 곡은 지워져 다시 나타나도 되살아나지 않는다.
+ * - 리믹스만 못 읽은 부분 성공(remixOk=false): 본 적 있는 리믹스 선택(knownRemix)은 「진짜 없음」이 아니므로 보류(held)로 옮긴다.
+ *   보류는 남은 자리만큼만 기억한다(지금 화면에서 고른 곡을 밀어내지 않음).
+ * - 정상 응답(remixOk=true): 보류분은 지금 활성 선택 뒤 남은 자리에서만 되돌리고 보류를 비운다(최신 선택이 우선).
  */
-export function prunePicked(picked: string[], view: ListView, knownRemix: ReadonlySet<string>, max: number): string[] {
-  if (view.state !== "ok") return picked;
+export function reconcilePicks(picked: string[], held: string[], view: ListView, knownRemix: ReadonlySet<string>, max: number): { picked: string[]; held: string[] } {
+  if (view.state !== "ok") return { picked, held };
   const ok = new Set(view.selectable);
-  // 지금 화면에서 고를 수 있는 선택이 먼저(회원이 보고 고른 곡을 20 한도에서 우선 보존)
   const visible = picked.filter((id) => ok.has(id)).slice(0, max);
-  // 리믹스만 못 읽어 숨은 옛 리믹스 선택은 남은 자리에서만 보류 — 보이는 선택을 밀어내지 않는다
-  const hidden = view.remixOk ? [] : picked.filter((id) => !ok.has(id) && knownRemix.has(id)).slice(0, max - visible.length);
-  const out = [...visible, ...hidden];
-  return out.length === picked.length && out.every((id, i) => id === picked[i]) ? picked : out;
+  const room = max - visible.length, inVisible = new Set(visible);
+  if (!view.remixOk) {
+    const hidden = picked.filter((id) => !ok.has(id) && knownRemix.has(id));
+    const nextHeld = Array.from(new Set([...held, ...hidden])).filter((id) => !inVisible.has(id)).slice(0, room);
+    return { picked: same(visible, picked) ? picked : visible, held: nextHeld };
+  }
+  const restore = held.filter((id) => ok.has(id) && !inVisible.has(id)).slice(0, room);
+  const out = [...visible, ...restore];
+  return { picked: same(out, picked) ? picked : out, held: [] };
+}
+const same = (a: string[], b: string[]) => a.length === b.length && a.every((id, i) => id === b[i]);
+
+/** 보류를 따로 두지 않는 쪽(시험·단순 호출)용 — 활성 선택 뒤에 남은 자리만큼 보류를 붙인 한 줄 */
+export function prunePicked(picked: string[], view: ListView, knownRemix: ReadonlySet<string>, max: number): string[] {
+  const r = reconcilePicks(picked, [], view, knownRemix, max);
+  const out = [...r.picked, ...r.held];
+  return same(out, picked) ? picked : out;
 }
 
 /**
