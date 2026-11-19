@@ -10146,12 +10146,12 @@
       "task_id": "RE-20261119-PARTIAL",
       "owner": "CC-REALTY-01",
       "title": "상가·건물·토지 알림 부분 조회 결과 보존",
-      "status": "reviewing",
-      "delivery": "partial_result_merge_ready_mac_review_dispatched",
+      "status": "running",
+      "delivery": "zero_collection_and_duplicate_name_fixes_dispatched",
       "sha": "f4d1e5fc0",
-      "next": "고정 f4d1e5fc0 로컬 76/76·타입 통과. 7일·ID/URL·실행 경로와 0곳 조회 예외를 맥미니 독립 검수 요청. 미배포.",
-      "lastReviewedAt": "2026-11-19T05:58:20.413Z",
-      "evidence": "msg_ae9585329102·msg_c8d7eaa4e162·msg_c9df626fb287·msg_cfd73d85c01e·msg_a73428cccd5c·f4d1e5fc0·msg_c2c6fb60a65b",
+      "next": "Mac 76/76 및 부분 실패 알림·기록 분리 확인. 0곳 조회 보존 만료와 동명 화면의 지역 매핑 두 예외 보완 배정. 미배포.",
+      "lastReviewedAt": "2026-11-19T06:02:26.794Z",
+      "evidence": "msg_ae9585329102·msg_c8d7eaa4e162·msg_c9df626fb287·msg_cfd73d85c01e·msg_a73428cccd5c·f4d1e5fc0·msg_c2c6fb60a65b·msg_d69a8d258e98·.ai/results/RE-20261119-PARTIAL-RESULT-CX-QA-01.md·msg_6527dfa5a192",
       "reviewer": "CX-QA-01"
     },
     {
