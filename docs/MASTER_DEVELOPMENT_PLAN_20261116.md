@@ -171,7 +171,7 @@ Master 마지막 실제 점검: 2026-11-19 11:30:56 KST · 실행 중 점검 주
 | FRONT-20261116-02 | CC-B2B-FRONT-01 | done / integrated | E3 Lab검수→식품/키즈/뷰티 각6종 템플릿 | 6종구현/420시험/E3·갤러리Lab확인·Master카탈로그등록 완료. v1.16배포는별도대기 |
 | RE-20261116-01 | CC-REALTY-01 | done / integrated | L-6 기술안·뉴스미배포정정·17시험 | 대안1 채택, 구현은RE-02로 분리 |
 | RE-20261119-EXT | CC-REALTY-01 | running / three_program_linkage_independent_accepted_crm_plan_routed | 부동산 추가 개선 순차 진행 | 매물 알림 8 blob·독립 3/3, 관심 지역 3프로그램 연계 로컬 수락. 실 화면·DB 권한 검증 및 배포 대기. 고객관리 플랜 이동. |
-| RE-20261119-DESK | CC-REALTY-01 | reviewing / u1_layout_pass_message_type_badge_fix_requested | 부동산 고객관리 화면 개선 | Mac 독립 U-1 합성 5건·375/1308 레이아웃 및 기존 발송 연결 통과. P2 SMS/LMS 배지 분류 오인을 발견해 중립 문구 보완 요청. 미배포. |
+| RE-20261119-DESK | CC-REALTY-01 | reviewing / u1_neutral_badge_returned_mac_recheck | 부동산 고객관리 화면 개선 | 1c52f4e37 휴대폰 SMS/LMS 배지를 중립 미리보기로 보완. 작성자 타입·35시험·합성 3건 통과. Mac 재검수 요청, 기존 90자 안내 미수정·미배포. |
 | RE-20261116-02 | CC-REALTY-01 | done / integrated | 카톡실패상태·끊긴토큰재발송방지·local로그아웃/UA | 사용자 직접 승인 배포 v1.45/v1.61. 카카오 실물·08:00 뉴스 대조 별도 |
 | BLOG-20261116-01 | CC-BLOG-01 | done / integrated | 티스토리 소제목##·이웃 전경거절 진단 보완 | 코드검증범위 완료, 이웃재시험/배포/실제소통은별도대기 |
 | QA-20261116-01 | CX-QA-01 | cancelled / integrated | 종합 QA를 영상/Workspace로 분리 | 중복 배정 종료, 검증 완료 의미 아님 |
