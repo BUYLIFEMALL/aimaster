@@ -3,7 +3,8 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { deleteClientAction, updateClientAction } from "@/lib/actions/desk";
 import { ALL_SIDES, CLIENT_STATUSES, DEAL_TYPES } from "@/lib/desk/consent";
-import { adEligibility } from "@/lib/desk/adRules";
+import { adEligibility, matchReasons, type MatchListing } from "@/lib/desk/adRules";
+import { clientMatchLabel, isSeekingClient, matchListingsForClient, type ClientMatchListing } from "@/lib/desk/clientMatches";
 import { AddClientForm } from "@/components/desk/AddClientForm";
 import { PageHero } from "@/components/ui/PageHero";
 
@@ -31,6 +32,16 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
   if (sp.status && (CLIENT_STATUSES as readonly string[]).includes(sp.status)) q = q.eq("status", sp.status);
   const { data } = await q;
   const clients = (data ?? []) as Client[];
+  // 고객 → 맞는 내 매물(2026-11-20): 본인 「광고 중」 매물 최근 200건만 읽어 화면에서 센다. 조회 오류면 줄 전체를 숨긴다.
+  const LISTING_LIMIT = 200;
+  type DeskListing = ClientMatchListing & MatchListing;
+  let myListings: DeskListing[] | null = null;
+  if (clients.length > 0) {
+    const res = await db.from("realty_desk_listings").select("id, status, deal_type, property_type, address, price, monthly, area_m2")
+      .eq("user_id", user.id).eq("status", "광고 중").order("created_at", { ascending: false }).limit(LISTING_LIMIT);
+    myListings = res.error ? null : ((res.data ?? []) as DeskListing[]);
+  }
+  const listingsLimited = myListings !== null && myListings.length >= LISTING_LIMIT;
   const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
   const chip = (key: "deal" | "side" | "status", v?: string) => {
     const params = new URLSearchParams();
@@ -75,6 +86,15 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
                     {c.move_in ? ` · 입주 ${c.move_in}` : ""}
                   </p>
                   {c.memo && <p className="mt-1 whitespace-pre-wrap text-mx-muted">{c.memo}</p>}
+                  {myListings !== null && isSeekingClient(c) && (() => {
+                    const m = matchListingsForClient(c, myListings, matchReasons);
+                    return (
+                      <p className="mt-1 text-mx-text">
+                        {clientMatchLabel(m, myListings.length, listingsLimited)}
+                        {m.firstId && <Link href={`/listings/${encodeURIComponent(m.firstId)}`} className="ml-2 text-mx-link underline">가장 최근 매물 보기</Link>}
+                      </p>
+                    );
+                  })()}
                   <p className="mt-1 text-xs text-mx-muted">
                     {SOURCE[c.source] ?? c.source} · 수집 동의 {day(c.consent_at)}({c.consent_method}) · 광고 문자{" "}
                     {c.ad_optout_at ? `수신거부(${day(c.ad_optout_at)})` : c.ad_consent_at ? `동의(${day(c.ad_consent_at)})` : "미동의"}
