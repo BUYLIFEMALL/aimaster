@@ -8,7 +8,10 @@
 // 실행: node --test tests/sql/a1_it_runtime.test.mjs   (npm test에는 포함되지 않는다 — tests/*.test.mjs 밖)
 // 조건: 로컬 Docker 컨테이너 aww-pg-test(postgres 17)가 떠 있어야 한다. 없으면 전체를 건너뛴다(설치·재시작하지 않음).
 // 대상 SQL(무수정, 운영에 적용한 순서): 20261118120000_aif_assets_a1.sql · …130000_p2_missing.sql · …140000_p3_summary.sql · 20261119100000_aif_assets_grants_fix.sql
-// 격리: 새 DB qa_aif_it_20261119만 만들고(이미 있으면 중단) 끝나면 그 DB만(oid 일치 확인) 지운다. 다른 DB에는 접속하지 않는다. 역할을 만들거나 바꾸지 않는다.
+// 격리: 새 DB qa_aif_it_20261119만 만들고(이미 있으면 중단) 끝나면 그 DB만(oid 일치 확인) 지운다. 역할을 만들거나 바꾸지 않는다.
+//       접속하는 DB는 둘이다: 이 시험 DB, 그리고 관리용 postgres DB(역할·DB 목록 조회와 create/drop database만). 다른 작업의 DB는 읽지도 쓰지도 않는다.
+//       장애 시험 하나는 **없는 DB 이름**(qa_aif_it_no_such_db)으로 일부러 접속을 시도해 실패를 받는다(만들지 않는다).
+//       실행 대상은 _fixtureGuard.mjs가 먼저 확인한다(로컬 도커 접속 지점·postgres 17·PC 안 포트). 어긋나면 DB 명령 0으로 멈춘다.
 //       운영·공유 DB 접속 0. 실제 저장소·실제 공급자 호출 0.
 // ★ 한계 — 이 통과가 뜻하지 않는 것
 //   * 저장소(storage)는 대역이다: 올리기·지우기는 대역 표 storage.objects의 행을 넣고 지워 흉내 낸다. 실제 Supabase 저장소 호출은 없다.
@@ -17,6 +20,9 @@
 //     raise exception의 글은 error.message)을 **내가 옮겨 적은 것**이다. 옮긴 규칙이 실제와 다르면 여기서의 통과는 운영을 보증하지 않는다.
 //   * 목록 조회 세 개(삭제 예약·ready)는 라우트의 조회 조건을 SQL로 옮겨 적었다 — 라우트 파일의 조회 문 자체를 실행한 것이 아니다.
 //   * 공급자(유료 생성)는 가짜 함수다. 「유료 호출 0」은 그 가짜가 불린 횟수로 센다.
+//   * 계약 대조는 소스에 **글자로 적힌** 호출(「"함수 이름", { 인자 }」 모양과 ...mine 펼침)만 본다. 실행 중에 조립되는 호출·실제 전달 값은 보지 않는다.
+//   * 「오류」 사례의 일부는 DB가 낸 오류가 아니라 **응답 자리에 오류 객체를 넣은 것**이다(시험 이름에 「주입」이라고 적었다). 실제 statement timeout·커밋 뒤 응답 유실은 재현하지 않았다.
+//   * 복구 시험의 시간은 「즉시」와 「2시간 뒤로 만든 것」 두 시점뿐이다. 1시간 경계의 앞뒤는 보지 않는다.
 import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
@@ -24,6 +30,7 @@ import { readFileSync } from "node:fs";
 import { register } from "node:module";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { requireLocalFixtureTarget } from "./_fixtureGuard.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SRC_DIR = join(HERE, "..", "..", "src");
@@ -210,8 +217,9 @@ const wipe = () => q(`delete from public.aif_asset_deletions; delete from public
 const fnsOf = (rpc) => rpc.calls.map((c) => c.fn.replace("aif_asset_", "").replace("member_storage_", ""));
 
 // ── 준비·정리 ──
-const dockerUp = spawnSync("docker", ["inspect", "-f", "{{.State.Running}}", CONTAINER], { encoding: "utf8" });
-const AVAILABLE = dockerUp.status === 0 && dockerUp.stdout.trim() === "true";
+// 실행 대상 가드: 로컬 도커 접속 지점·postgres 17 컨테이너·PC 안 포트·서버 버전을 확인한다. 어긋나면 여기서 오류로 멈춘다(DB 명령 0).
+const TARGET = requireLocalFixtureTarget();
+const AVAILABLE = TARGET.available;
 let createdOid = null;
 let dbCreated = false;
 let rolePreflight = "";
@@ -256,11 +264,11 @@ after(() => {
   if (!left.ok || left.out !== "0") throw new Error(`${DB} 삭제를 확인하지 못했습니다(잔존 가능): ${left.err || left.out}`);
 });
 
-const SKIP = AVAILABLE ? {} : { skip: `Docker 컨테이너 ${CONTAINER}가 떠 있지 않음` };
+const SKIP = AVAILABLE ? {} : { skip: TARGET.reason };
 
 // ═════════ (1) 정리 실행자 ↔ 실제 SQL 함수 ═════════
 
-test("(1) 계약 대조: 소스가 부르는 모든 함수가 그 이름·그 인자로 DB에 있고, 실행자가 기대하는 형식으로 돌려준다", SKIP, async (ctx) => {
+test("(1) 계약 대조: 소스에 글자로 적힌 호출 모양들이 그 이름·그 인자로 DB에 있고, 실행자가 기대하는 형식으로 돌려준다", SKIP, async (ctx) => {
   ctx.diagnostic(`역할 사전 확인 ${rolePreflight.replace(/\n/g, " ")} · 시험 DB ${DB} oid=${createdOid}`);
   // 소스에서 「"함수 이름", { 인자… }」를 그대로 읽는다 — 소스가 바뀌면 이 대조도 따라 바뀐다
   const files = ["lib/assets/retention.ts", "lib/assets/store.ts", "app/api/aif/assets/cleanup/route.ts"];
@@ -296,7 +304,7 @@ test("(1) 계약 대조: 소스가 부르는 모든 함수가 그 이름·그 �
   ctx.diagnostic(`대조한 호출 ${seen.length}개: ${seen.sort().join(" · ")}`);
 });
 
-test("(1) 권한: 같은 호출을 회원 역할(authenticated·anon)로 보내면 함수가 거절한다 — 실행자는 서비스 역할로만 돈다", SKIP, async () => {
+test("(1) 권한(표본 3개 함수): 만료 판정·사전 검사·훑기를 회원 역할(authenticated·anon)로 보내면 함수가 거절한다", SKIP, async () => {
   const u = mkUser();
   const a = mkReady(u);
   for (const role of ["authenticated", "anon"]) {
@@ -377,7 +385,7 @@ test("(1) 지우기 응답을 믿지 않는다: 「성공」이라 답했는데 
   wipe();
 });
 
-test("(1) 실패 뒤 복구 — deleting 표시가 오류로 끝난 회차: 지우기 0, 예약은 남고, 1시간 안에는 다른 회차가 건드리지 않으며, 그 뒤에는 이어서 끝낸다", SKIP, async (ctx) => {
+test("(1) 실패 뒤 복구 — deleting 표시 응답에 오류를 주입한 회차(DB에는 닿지 않음): 지우기 0·예약 유지, 바로 다음 회차는 건드리지 않고, 2시간 뒤로 만든 회차는 이어서 끝낸다", SKIP, async (ctx) => {
   const u = mkUser({ days: 30 });
   const a = mkReady(u, { ageDays: 40 });
   const broken = makeRpc({ intercept: (fn, args) => (fn === "aif_asset_delete_mark" && args.p_state === "deleting" ? { data: null, error: { message: "connection reset" } } : undefined) });
@@ -406,7 +414,7 @@ test("(1) 실패 뒤 복구 — deleting 표시가 오류로 끝난 회차: 지�
   wipe();
 });
 
-test("(1) 중단 뒤 복구 — 삭제 확인 응답이 오지 않는 회차: 대기를 그만두고 멈추며, 다음 회차가 확인만으로 끝낸다(다시 지우지 않는다)", SKIP, async (ctx) => {
+test("(1) 중단 뒤 복구 — 삭제 확인 요청을 막아 응답이 오지 않는 회차(요청은 DB에 닿지 않음): 대기를 그만두고 멈추며, 다음 회차가 그 건을 다시 지우지 않고 확인만으로 끝낸다", SKIP, async (ctx) => {
   const u = mkUser({ days: 30 });
   const a = mkReady(u, { ageDays: 40 });
   const b = mkReady(u, { ageDays: 41 });
@@ -417,14 +425,21 @@ test("(1) 중단 뒤 복구 — 삭제 확인 응답이 오지 않는 회차: �
   assert.equal(r1.stopCode, "IO_TIMEOUT");
   assert.equal(r1.counts.removeCalls, 1, "응답이 오지 않은 뒤에는 다음 원본의 삭제를 시작하지 않는다");
   assert.equal(r1.counts.deleted, 0);
-  const states = [delState(a), delState(b)].sort();
-  assert.deepEqual(states, ["deleting", "없음"], "지우기를 보낸 건은 deleting으로 남고, 다른 건은 손대지 않았다");
+  // 회차 집계와 DB 상태는 다른 관측값이다: 집계 deleteUnknown은 「이 회차에 삭제 결과를 확인하지 못한 건수」, DB의 예약 상태는 deleting으로 남는다
+  assert.equal(r1.counts.deleteUnknown, 1, "회차 집계: 확인하지 못한 1건");
+  assert.equal(r1.counts.timeouts, 1);
+  assert.equal(first.storage.log.remove.length, 1);
+  const sentPath = first.storage.log.remove[0][0];
+  const [sent, other] = sentPath === a.path ? [a, b] : [b, a];
+  assert.equal(delState(sent), "deleting", "DB 상태: 지우기를 보낸 건의 예약은 deleting(delete_unknown이 아니다)");
+  assert.equal(delState(other), "없음", "다른 건은 손대지 않았다");
   // 다음 회차(정상): 확인만으로 deleted, 그리고 남은 원본을 이어서 지운다
   const next = makeDeps();
   const r2 = await R.runRetentionCleanup(next.deps);
   ctx.diagnostic(`다음 회차 ${JSON.stringify(r2.counts)}`);
   assert.equal(r2.counts.deleted, 2);
-  assert.equal(r2.counts.removeCalls, 1, "deleting으로 남았던 건은 다시 지우지 않는다 — 새 지우기는 남은 한 건뿐");
+  assert.equal(r2.counts.removeCalls, 1, "새 지우기는 한 건뿐");
+  assert.deepEqual(next.storage.log.remove, [[other.path]], "다음 회차가 지운 경로는 남아 있던 다른 원본뿐 — deleting으로 남았던 건의 경로는 다시 보내지 않는다");
   assert.deepEqual([delState(a), delState(b)], ["deleted", "deleted"]);
   wipe();
 });
@@ -560,10 +575,10 @@ test("(2) 장애 503: 사전 검사를 확인할 수 없으면 어느 경우에�
   const cases = [
     ["DB에 닿지 않음(없는 DB)", { rpc: makeRpc({ db: "qa_aif_it_no_such_db" }) }],
     ["권한 없는 역할로 호출", { rpc: makeRpc({ role: "authenticated" }) }],
-    ["함수가 오류를 던짐", { rpc: makeRpc({ intercept: (fn) => (fn === "aif_asset_precheck" ? { data: null, error: { message: "canceling statement due to statement timeout" } } : undefined) }) }],
-    ["응답이 오지 않음(상한 0.5초)", { rpc: makeRpc({ intercept: (fn) => (fn === "aif_asset_precheck" ? never() : undefined) }), timeouts: { precheckMs: 500 } }],
-    ["응답 모양이 다름(행 2개)", { rpc: makeRpc({ intercept: (fn) => (fn === "aif_asset_precheck" ? { data: [{ allowed: true }, { allowed: true }], error: null } : undefined) }) }],
-    ["응답이 글자 'true'", { rpc: makeRpc({ intercept: (fn) => (fn === "aif_asset_precheck" ? { data: [{ allowed: "true" }], error: null } : undefined) }) }],
+    ["오류 응답 주입(DB가 낸 오류 아님)", { rpc: makeRpc({ intercept: (fn) => (fn === "aif_asset_precheck" ? { data: null, error: { message: "canceling statement due to statement timeout" } } : undefined) }) }],
+    ["응답 없음 주입(요청은 DB에 닿지 않음, 상한 0.5초)", { rpc: makeRpc({ intercept: (fn) => (fn === "aif_asset_precheck" ? never() : undefined) }), timeouts: { precheckMs: 500 } }],
+    ["응답 주입: 행 2개", { rpc: makeRpc({ intercept: (fn) => (fn === "aif_asset_precheck" ? { data: [{ allowed: true }, { allowed: true }], error: null } : undefined) }) }],
+    ["응답 주입: 글자 'true'", { rpc: makeRpc({ intercept: (fn) => (fn === "aif_asset_precheck" ? { data: [{ allowed: "true" }], error: null } : undefined) }) }],
     ["의존성을 만들지 못함", { depsThrows: true }],
   ];
   const seen = [];
@@ -593,16 +608,19 @@ test("(2) 정책 행이 없는 회원: 실제 함수가 돌려주는 대로 — 
   wipe();
 });
 
-test("(2) 저장이 실패해도 생성 결과는 그대로다: 올리기 오류 → 200·이미지 유지·저장 불명, 생성은 1회뿐이고 행은 ready가 아니다", SKIP, async (ctx) => {
+test("(2) 저장이 실패해도 생성 결과는 그대로다: 올리기 오류(대역) → 200·이미지 유지·assetSaved unknown·UPLOAD_UNKNOWN, 생성 1회·올리기 1회·지우기 0, 행은 정확히 unknown 하나", SKIP, async (ctx) => {
   const u = mkUser({ quota: null });
   const r = await generate(u, { storage: makeStorage({ uploadMode: "error" }) });
   ctx.diagnostic(`응답 ${JSON.stringify({ status: r.status, assetSaved: r.body.assetSaved, assetCode: r.body.assetCode })} · 호출 ${fnsOf(r.rpc).join(" → ")} · 행 ${assetRows(u)}`);
   assert.equal(r.status, 200);
   assert.equal(r.body.imageUrl, IMAGE);
   assert.equal(r.n.generate, 1, "다시 생성하지 않는다");
-  assert.notEqual(r.body.assetSaved, true);
+  assert.equal(r.body.assetSaved, "unknown");
+  assert.equal(r.body.assetCode, "UPLOAD_UNKNOWN");
   assert.equal(r.storage.log.upload.length, 1, "다시 올리지 않는다");
-  assert.notEqual(assetRows(u), "ready");
+  assert.equal(r.storage.log.remove.length, 0, "실패했다고 지우지 않는다");
+  assert.equal(assetRows(u), "unknown", "자산 행은 정확히 1개이고 상태는 unknown");
+  assert.equal(q("select count(*) from storage.objects;"), "0", "대역 저장소에 객체 0");
   assert.deepEqual(fnsOf(r.rpc), ["precheck", "reserve", "reconcile"], "객체 id를 얻지 못하면 확정 대신 대조 1회");
   wipe();
 });
