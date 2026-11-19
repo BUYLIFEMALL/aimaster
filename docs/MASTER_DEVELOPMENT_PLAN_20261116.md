@@ -27,7 +27,7 @@ Master 마지막 실제 점검: 2026-11-19 23:01:08 KST · 23:00 예약 메시�
 | 2 · Workspace | Workspace + Master | v1.63 운영, 대형 ZIP 실사용 미확인 | 응답 바이트 상한 로컬 후보. Gmail·실제 ZIP 사용자 신호 대기. |
 | 3 · B2B | Backend + Master + Mac Tester | M3 서버 라우트 보완 진행 | QA037 로그인·Return, S70 0105 시험 전제 대기. 결제 최종 단계. |
 | 4 · B2BFront | B2BFront + Master + Mac Tester | 태블릿 후보 지정 3파일 격리 복원 | Master 후보 환경 준비, Front·Mac 검수. |
-| 5 · 블로그 | Blog | 에이전트 v2.30 보안·위젯 배포 보고 | 다른 3종 순차, 공유 master 푸시 범위 분리. |
+| 5 · 블로그 | Blog | 보안·위젯 4종 운영 배포 담당 보고 | T03 전환 검증 준비, 공유 master 푸시 범위 분리. |
 | 6 · 영상 | Movie | 상품 영상 반환 정적 검토 제출 | 상세페이지 수신·상품 소유 계약 협의. |
 | 7 · 음악 | Music + Mac Tester | 플레이리스트 수신 운영, 발신 링크 로컬 | UUID 표준화 독립 검수. 링크 공개와 유료 시험 별도. |
 | 8 · 부동산 | Realty | 상가 v1.35·고객관리 v1.11 배포 기록 대조 | 실화면·문자 검증 전제 유지. |
@@ -102,7 +102,7 @@ Master 마지막 실제 점검: 2026-11-19 23:01:08 KST · 23:00 예약 메시�
 | CC-B2B-BACK-01 | M3 사진 적용 라우트 입력 보완 | 고정판 후 Mac 재검수, S70·Lab 별도 | msg_c9d732150309 |
 | CC-B2B-FRONT-01 | 태블릿 지정 3파일 격리 후보 | Master URL 확인 후 Front·Mac 실제 화면 | msg_160c1fc11d31 |
 | CC-ECOM-01 | 무료 이미지 lint 오류 0·로컬 후보 완료 | Mac 독립 검수, 환경·프로그램 등록 대기 | 18d595a68·msg_da385d5ec675 |
-| CC-BLOG-01 | 보안·위젯 에이전트 v2.30 READY 보고 | 나머지 3종 순차, 공유 푸시 보류 | msg_5ce173e3d2c8 |
+| CC-BLOG-01 | 보안·위젯 4종 운영 READY 담당 보고 | T03 전환 검증 준비, 전체 푸시 보류 | e8f835d27·msg_9d34ce475710·msg_d2eee3033b4f |
 | CC-MOVIE-01 | 원스톱 상품 영상 반환 정적 검토 | 수신 계약 합의 후 구현 | 3feb2bd85·msg_e19e56da16c0 |
 | CC-MUSIC-01 | 플레이리스트 발신 Mac 수락 | 공개 배포 승인 대기 | 56211df73·msg_c6a117a2c57a |
 | CC-REALTY-01 | 상가 v1.35·고객관리 v1.11 배포 기록 대조 | 실화면·문자 확인 전제 유지 | 5b5b8a2a4·83144f895 |
@@ -527,7 +527,7 @@ Master 마지막 실제 점검: 2026-11-19 23:01:08 KST · 23:00 예약 메시�
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |
 | AIF-20261118-W03 | 미배정 | queued / sequenced_after_w01_and_w02_by_owner_instruction | 회원용 인물 라이브러리·시트·버전 | 주인님 지시대로 W01·W02 이후 시작. 인물 라이브러리·일괄 이미지·영상 미착수. |
-| BLOG-20261118-05 | CC-BLOG-01 | running / security_bundle_first_ready_shared_push_held | 구형 안내앱 Next 보안 업데이트 후속 | 에이전트 v2.30 보안·위젯 담당 READY 보고. 나머지 3종 순차, 공유 master 전체 푸시 보류. |
+| BLOG-20261118-05 | CC-BLOG-01 | done / security_widget_bundle_four_ready_owner_reported | 구형 안내앱 Next 보안 업데이트 후속 | 4종 운영 READY 보고: 에이전트 2.30·AI 자동 블로그 1.89·SEO 2.28·티스토리 2.00. 공유 master 전체 푸시 보류. |
 | BLOG-20261119-MODELS | CC-BLOG-01 | done / strict_switch_independent_accepted_undeployed | 블로그 설정 플랫폼별 AI 모델 선택 | Mac 49/49와 원문 1회·정상 전환과 503 상한 2회 수락. 승인 실호출 9/9는 앞선 버전의 담당 결과. 미배포. |
 | RE-20261119-PARTIAL | CC-REALTY-01 | done / partial_results_and_stats_mac_accepted_undeployed | 상가·건물·토지 알림 부분 조회 결과 보존 | f52882db9 Mac 84/84. 부분·0곳 보존, 지역 ID, 통계 호환까지 로컬 검수 수락. 상가 v1.35 묶음 빌드·배포 승인 대기. |
 | RE-20261119-PARTIAL-REL | CC-REALTY-01 | done / commercial_v135_live_extension_guide_update_undeployed | 상가·건물·토지 알림 v1.35 배포 | 운영 v1.35 유지. 확장 업데이트 3단계와 이전 결과 FAQ 0adae1d2a 안내 추가, 로컬 검증 84/84 및 미배포. 관리자 화면 미확인. |
@@ -538,6 +538,7 @@ Master 마지막 실제 점검: 2026-11-19 23:01:08 KST · 23:00 예약 메시�
 | BLOG-20261119-SAFE-FETCH-SOURCE | CC-BLOG-01 | done / canonical_reference_repointed_read_check_passed | 공용 safe-fetch 검사 기준 경로 복구 | fa125184f·6b7c31b14 기준을 티스토리 경로로 변경. Master 전체 읽기 점검 종료 0·사본 3개 일치, 제품 코드·sync·배포 0. |
 | MUSIC-20261119-REMIX-PLAYLIST-SENDER | CC-MUSIC-01 | waiting_human / sender_normalization_mac_accepted_deploy_approval_pending | 음악 리믹스 → 플레이리스트 발신 링크 | 56211df73 Mac 6/6 및 발신→수신 ID 일치 모의 수락. 실제 브라우저·계정 검증과 링크 공개 승인 대기. |
 | MOV-20261119-01 | CC-MOVIE-01 | reviewing / video_return_receiver_contract_pending | 원스톱 상품 영상 주소 반환 연동 | 3feb2bd85 정적 검토. 수신 저장·상품 소유 계약 협의 후 구현, 로컬 MP4 별도. |
+| BLOG-20261119-T03-CUTOVER-PREP | CC-BLOG-01 | running / cutover_validation_contract_dispatched | T03 회원별 캐시 전환 검증 준비 | Render 기존 인스턴스/진행 요청 배출 신호, 전환 전후 확인·원복 조건 대조. 원격 실행·SQL은 별도. |
 
 ## 현재 담당 회신이 확보된 프로젝트
 

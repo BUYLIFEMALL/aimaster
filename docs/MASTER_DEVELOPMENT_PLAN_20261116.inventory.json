@@ -8667,12 +8667,12 @@
       "task_id": "BLOG-20261118-05",
       "owner": "CC-BLOG-01",
       "title": "구형 안내앱 Next 보안 업데이트 후속",
-      "status": "running",
-      "delivery": "security_bundle_first_ready_shared_push_held",
+      "status": "done",
+      "delivery": "security_widget_bundle_four_ready_owner_reported",
       "scopeRef": "ghost-scraper next16.4.2 기존dependency·향후최소보안patch/lock회귀범위",
-      "evidence": "T08 localcompile후SecurityFatalError msg_2c96641e6325·삭제commit와독립·msg_9f3355841112·msg_e6e1c72003b3·msg_5ce173e3d2c8·8ff046005",
+      "evidence": "T08 localcompile후SecurityFatalError msg_2c96641e6325·삭제commit와독립·msg_9f3355841112·msg_e6e1c72003b3·msg_5ce173e3d2c8·8ff046005·msg_9d34ce475710·8ff046005·787c837b2·767f48d52·f334bd4d9·e8f835d27",
       "constraints": "현재반복build/설치/lock/원격배포0·실운영공격가능성단정0",
-      "next": "에이전트 v2.30 보안·위젯 담당 READY 보고. 나머지 3종 순차, 공유 master 전체 푸시 보류.",
+      "next": "4종 운영 READY 보고: 에이전트 2.30·AI 자동 블로그 1.89·SEO 2.28·티스토리 2.00. 공유 master 전체 푸시 보류.",
       "lastReviewedAt": "2026-11-18T08:20:37.447Z"
     },
     {
@@ -10387,6 +10387,17 @@
       "delivery": "video_return_receiver_contract_pending",
       "next": "3feb2bd85 정적 검토. 수신 저장·상품 소유 계약 협의 후 구현, 로컬 MP4 별도.",
       "evidence": "msg_36ecbd5149be·msg_63a17737a768·3feb2bd85·msg_e19e56da16c0"
+    },
+    {
+      "task_id": "BLOG-20261119-T03-CUTOVER-PREP",
+      "parent_task_id": "BLOG-20261118-06",
+      "owner": "CC-BLOG-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "T03 회원별 캐시 전환 검증 준비",
+      "status": "running",
+      "delivery": "cutover_validation_contract_dispatched",
+      "next": "Render 기존 인스턴스/진행 요청 배출 신호, 전환 전후 확인·원복 조건 대조. 원격 실행·SQL은 별도.",
+      "evidence": "msg_d2eee3033b4f"
     }
   ]
 }
