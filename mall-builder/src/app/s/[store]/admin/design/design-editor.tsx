@@ -433,7 +433,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
           return (
             <div className="relative flex min-h-screen flex-col bg-[var(--mall-bg,var(--color-slate-50))] font-sans text-slate-900 antialiased" style={themeStyle(readTheme(theme)) as CSSProperties} data-mall-mode={readTheme(theme).mode === "dark" ? "dark" : undefined}>
               <ShopBand band={h.band} />
-              <ShopHeader base={base} storeName={storeName} header={h} categories={topCategories} showShop right={<span className="whitespace-nowrap rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white">가입</span>} />
+              <ShopHeader base={base} storeName={storeName} header={h} categories={topCategories} showShop quickBar={false} right={<span className="whitespace-nowrap rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white">가입</span>} />
               <div className="flex-1 py-6"><div className="mx-auto max-w-6xl space-y-8">{children}</div></div>
               <ShopFooter storeName={storeName} info={businessInfo} footer={readFooter(footer)} logo={h.logo_footer} />
               <HomePopup slug={slug} popup={readPopup(popup)} preview />

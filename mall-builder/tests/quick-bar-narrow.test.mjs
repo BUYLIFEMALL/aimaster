@@ -98,6 +98,36 @@ test("머리글: 카테고리 줄 오른쪽 끝에 단추(767px 이하, 40×40, 
   await h.close();
 });
 
+test("편집기 미리보기(quickBar=false): 패널이 없으니 단추 없음 — 카테고리 줄은 그대로(여백 원래대로), 카테고리 없는 상점은 빈 단추 줄 없음. 상점(기본값)은 단추 있음", async () => {
+  const React = req("react");
+  const { frame } = await load();
+  const base = { base: "/s/s", storeName: "몰", header: header(), categories: [{ id: "c1", name: "가전" }], showShop: true, right: null };
+  // 미리보기 + 카테고리 있음
+  let h = await ssr(React.createElement(frame.ShopHeader, { ...base, quickBar: false }));
+  assert.equal(h.host.querySelector('[data-quickbar="opener"]'), null, "미리보기엔 단추 없음");
+  const nav = h.host.querySelector("[data-shop-menu]");
+  assert.ok(nav && nav.textContent.includes("가전"), "카테고리 줄은 정상");
+  assert.ok(!cls(nav).includes("max-md:pr-2"), "단추 없을 땐 줄 오른쪽 여백 원래대로(px-4)");
+  assert.ok(cls(nav).includes("px-4") && cls(nav).includes("sm:px-6"));
+  await h.close();
+  // 미리보기 + 카테고리·메뉴 없음 → 두 번째 줄 자체가 없음
+  h = await ssr(React.createElement(frame.ShopHeader, { ...base, quickBar: false, categories: [], header: header({ show_categories: false }) }));
+  const head = h.host.querySelector("header");
+  assert.equal(head.children.length, 1, "빈 단추 줄 없음(머리글 윗줄만)");
+  assert.equal(h.host.querySelector('[data-quickbar="opener"]'), null);
+  await h.close();
+  // 상점(값 생략 = 기본 true)
+  h = await ssr(React.createElement(frame.ShopHeader, base));
+  assert.equal(h.host.querySelectorAll('[data-quickbar="opener"]').length, 1, "상점은 기본으로 단추 있음");
+  await h.close();
+  // 실제 호출부: 편집기 미리보기 한 곳만 false, 상점 레이아웃은 기본값
+  const editor = readFileSync(new URL("../src/app/s/[store]/admin/design/design-editor.tsx", import.meta.url), "utf8");
+  const layout = readFileSync(new URL("layout.tsx", SHOP), "utf8");
+  assert.equal((editor.match(/<ShopHeader[^>]*quickBar=\{false\}/g) || []).length, 1, "미리보기 호출에 quickBar={false}");
+  assert.ok(!/quickBar=\{false\}/.test(layout), "상점 레이아웃은 끄지 않음");
+  assert.match(layout, /\{showShop && <QuickBar /, "상점은 패널도 같은 조건(showShop)으로 그려짐");
+});
+
 async function mountBoth() {
   const { Window } = req("happy-dom");
   const win = new Window({ url: "http://localhost/" });
