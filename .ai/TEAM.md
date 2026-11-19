@@ -13,7 +13,7 @@
 | Claude(Movie) | CC-MOVIE-01 | video | claude-win-video · aimaster-57 · GT1_Mega | YVS실검색/AI기획안1회 담당운영완료·점유0 | 재호출0·새배정대기 |
 | Claude(Music) | CC-MUSIC-01 | music | claude-win-20261024-music · GT1_Mega | 현재기록정정완료·점유0·기존icon변경보존 | lyric2건다음묶음·Mac실MP4사람선택 |
 | Claude(ecommerce) | CC-ECOM-01 | ecommerce-image | claude-win-sdp · GT1_Mega | 재배포선택질문대기·후속메시지전달보류·운영1.29 | 追加빌드1예산결정전0·안전후보59cb고정·실3회기승인잔여 |
-| Claude(B2BFront) | CC-B2B-FRONT-01 | mall-design-builder | codex-sub-20261119-mall-design · Sub | 인수 확인 msg_1cc34028b4d9 | 미배포 묶음 읽기 사전 대조 msg_46d9e2cb9bb4 |
+| Claude(B2BFront) | CC-B2B-FRONT-01 | mall-design-builder | codex-sub-20261119-mall-design · Sub | 인수 확인 msg_1cc34028b4d9 · Chrome | 미배포 묶음 범위 대조 완료 36bdb31dd · Mac 실화면 대기 |
 | Claude(B2BBackend) | CC-B2B-BACK-01 | mall-builder | claude-sub-20261119-b2bbackend · Sub | 인수 직접 확인 msg_de84ea91930f | 0101~0105/M3 조건 대조 msg_21bea4cf8521 · 메인 3210 검수 유지 |
 | Claude(RealEstate) | CC-REALTY-01 | realty | claude-win-20261024-realty · aimaster-73 · GT1_Mega | 문서정정완료·점유0 | 독립자료미확보차단·정상회차이외새수집0 |
 | Claude(Workspace) | CC-WORKSPACE-01 | workspace | aimaster-46 · session dea6e4f6-37c0-4be8-ad50-8746e0f1c517 · GT1_Mega | Gmail공개방식/빌드선택질문대기·GCP완료신호반영 | 주인님결정→ClientID일치/실행순번확정·SQL/스위치0 |

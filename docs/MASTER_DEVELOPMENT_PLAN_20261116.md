@@ -4,8 +4,8 @@
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-19 15:01:27 KST · 실행 중 5분 · 턴 밖 30분 메시지 · 103개 프로그램/19분류 증분 및 미완료 28건 점검.
-이번 점검에서 사진 리뷰 모델 검수를 수락했다. B2B 몰 용량 집계 0077의 독립 및 합성 성능 검증을 배정했고, 0076 운영 반영과 매물 알림 최종 검수는 대기다.
+Master 마지막 실제 점검: 2026-11-19 15:34:34 KST · 실행 중 5분 · 턴 밖 30분 메시지 · 103개 프로그램/19분류 증분 및 미완료 27건 점검.
+이번 점검에서 B2B 프런트·백엔드 Sub PC 인수와 등록을 완료했다. 프런트 후보 범위는 대조를 마쳤고, 백엔드 운영·Lab 승인과 기존 Mac 실화면 검수가 남았다.
 
 점검 범위: 13:01:14 KST 이후 증분. 103개 프로그램·19개 분류, 미완료 26건(진행 3·검수 5·순번 5·사용자 단계 13). Git·점유·사용자 지시·결과/인수인계 대조. 부동산 문자 안내·AIF 격리 실행기 검수 수락. 블로그 최신 모델과 이미지 엔진 로컬 구현 진행. 신규 운영 배포·DB·키·유료 호출 승인 없음.
 
@@ -429,7 +429,7 @@ Master 마지막 실제 점검: 2026-11-19 15:01:27 KST · 실행 중 5분 · �
 | B2B-20261119-ADMINUI | AG-UI-01 | reviewing / lab_ready_authenticated_screen_pending | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | 승인 4경로 사설 Lab 1회 READY. 상점 200·관리 상품/주문 307. 로그인 후 실화면·키보드는 사용자 제어 반환 뒤. 필터 aria-current 보완 후보 기록. |
 | B2B-20261119-MALL-STORAGE | CC-B2B-BACK-01 | waiting_human / mall_measure_and_private_retention_waiting_production_approvals | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 0077 592b7484a 합성·정적 검수 수락, 운영 절차 055b38a7c 대조. 0076 cc25a7cc1과 0077은 운영 반영 각각 승인 대기. 위젯 라벨은 다음 메인 배포. |
 | B2B-20261119-BACKEND-HANDOFF | CC-B2B-BACK-01 | done / sub_handoff_accepted_prerequisites_reconciled | B2B 백엔드 Sub PC 인수인계 | Sub 인수 완료·0101~0105/M3 승인 조건 대조. QA037 로그인·0105 Lab 적용/자료·M3 후속 승인 대기. 3210과 합성 DB는 메인 유지. |
-| B2B-20261119-FRONT-HANDOFF | CC-B2B-FRONT-01 | done / sub_handoff_accepted_and_read_only_preflight_dispatched | B2B 프런트 Sub PC 인수인계 | Sub 인수 확인·연락 대상 전환 완료. 프런트 묶음 범위 사전 대조 배정. HOMETABS·QUICKBAR 로컬 수락, 실화면·미배포 별도. |
+| B2B-20261119-FRONT-HANDOFF | CC-B2B-FRONT-01 | done / sub_handoff_and_release_scope_verified | B2B 프런트 Sub PC 인수인계 | Sub 인수 및 Chrome 지정. Lab 9커밋·14경로, 운영 기준 18커밋·19경로 대조 완료. S70은 0105 묶음, 실화면·배포 승인 대기. |
 | IMG-20261119-PLAN | CC-ECOM-01 | waiting_human / q8_review_screen_verified_user_quality_rating_pending | AI 무료 이미지 자동화 개발 플랜 | 내부 검토 화면 HTML 지문·이미지 48장 확인. 사용자 품질 기준 39/48 판정 대기. 실제 엔진 실기는 미검증. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |

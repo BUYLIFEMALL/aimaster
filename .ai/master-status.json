@@ -6255,11 +6255,11 @@
       "owner": "CC-B2B-FRONT-01",
       "title": "B2B 프런트 Sub PC 인수인계",
       "status": "done",
-      "delivery": "sub_handoff_accepted_and_read_only_preflight_dispatched",
+      "delivery": "sub_handoff_and_release_scope_verified",
       "sha": "653a3c1f2",
-      "next": "Sub 인수 확인·연락 대상 전환 완료. 프런트 묶음 범위 사전 대조 배정. HOMETABS·QUICKBAR 로컬 수락, 실화면·미배포 별도.",
-      "evidence": "msg_81686d2c83b8·653a3c1f2·msg_f36cdbefab57·4de6db0af·msg_1cc34028b4d9·msg_46d9e2cb9bb4",
-      "lastReviewedAt": "2026-11-19T06:26:03.391Z"
+      "next": "Sub 인수 및 Chrome 지정. Lab 9커밋·14경로, 운영 기준 18커밋·19경로 대조 완료. S70은 0105 묶음, 실화면·배포 승인 대기.",
+      "evidence": "msg_81686d2c83b8·653a3c1f2·msg_f36cdbefab57·4de6db0af·msg_1cc34028b4d9·msg_46d9e2cb9bb4·msg_32d0888adbba·36bdb31dd·msg_7367e92fc8d3·msg_307bddf526bc·fd01d2236",
+      "lastReviewedAt": "2026-11-19T06:34:34.752Z"
     }
   ],
   "programOverrides": [
@@ -6778,21 +6778,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T06:01:27.489Z",
+      "at": "2026-11-19T06:34:34.752Z",
       "timezone": "Asia/Seoul",
-      "trigger": "15:00 정기 실행·전송 msg_cfd09684c3c9·기존 Master 수신",
-      "scope": "14:31:50 KST 이후 증분. 103개 프로그램·19분류 및 미완료 28건(진행 3·검수 7·순번 4·사용자 14). 담당·점유·우선순위·선행조건·미배포·인수인계 대조.",
+      "trigger": "15:30 예약 실행·전송 msg_c4d36de8f67a·기존 Master 수신",
+      "scope": "15:01:27 KST 이후 증분. 103개 프로그램·19분류 및 미완료 27건(진행 3·검수 5·순번 4·사용자 15). 보고·요청·우선순위·선행조건·미배포·담당 변경·점유 및 새 인수인계 대조.",
       "evidence": [
-        "예약 15:00:01 실행 결과 0, 15:00:03 전송 수락. 기존 Master 수신. Master 별도 관리자 요청 0.",
-        "원격 기준 af36bb467 유지, 변경 검수 기록 2편과 공용 HANDOFF/RESOURCE_QUEUE 기존 미커밋 대조.",
-        "0076 cc25a7cc1 정적 검수 및 문서 63b858413. 0077 214fc6514 3파일·담당 합성 30건, 별도 점유 0076/0077 확인.",
-        "사진 리뷰 8669e5117 담당 실호출 5/5·Mac 57/57. 매물 알림 f4d1e5fc0 담당 76/76·검수 요청."
+        "예약 15:30:01 결과 0, 전송 15:30:04 수락, 기존 Master 수신. 관리자 대기 요청 0.",
+        "원격 af36bb467 기준, 새 결과 문서 3편, 인수인계 33d6cd55f·653a3c1f2·bd053adc8 및 기존 공용 미커밋 문서 대조.",
+        "Sub 프런트/백엔드 직접 인수 msg_1cc34028b4d9·msg_de84ea91930f, 등록 aa42dd1a5·6f5c497b9, M2/M3 점유 02b67356b, 역할 문서 fd01d2236.",
+        "프런트 자료 36bdb31dd 파일과 인덱스 해시 일치. 백엔드 msg_21bea4cf8521 승인 조건 대조. 0077 592b7484a·055b38a7c 및 매물 알림 f52882db9 Mac 84/84 확인."
       ],
-      "judgment": "사진 리뷰 모델 검수 수락, 미배포. 0076 로컬 검수 완료·운영 반영 대기. 0077은 운영 반영 전 독립 확인·합성 성능 대조 필요. 매물 알림은 0곳 조회 조건 포함 QA 대기.",
-      "nextAction": "0077 Mac 독립 대조와 백엔드 로컬 성능·캐시 확인 배정. 기존 Mac 매물 알림 검수 순차. Workspace ZIP 결정, AIF 실검증, Q8 사용자 품질 판정 대기.",
+      "judgment": "B2B 프런트·백엔드 Sub 인수 완료. 3210 메인 PID 확인, 사용자 제어 검수 보존. 프런트 후보 범위 정합성 자료 수락, 적용/배포는 대기. 0076/0077과 매물 알림 로컬 완료·운영 미반영.",
+      "nextAction": "두 역할 새 주소로 배정·회수. Mac QA037 사람 로그인과 제어 반환 뒤 읽기 검수. S70 별도 Lab 0105, M3 후속 각각 승인 대기. 운영 적용·빌드는 기존 메인 승인 순서.",
       "unverified": [
-        "0077 실제 운영 규모의 비용 및 오래된 캐시, 0076 운영 영향·반영, 상가 알림 고정판 독립 검수, B2B 로그인 뒤 Lab 화면, AIF/IMG 실기.",
-        "103개 운영 전수 및 오래된 미추적 전체는 증분 점검 범위 밖."
+        "미배포 프런트 Lab 실화면·VoiceOver, S70 실접수, AIF 후속·이미지 품질, 0076/0077 실제 운영 영향.",
+        "103개 운영 전수 및 오래된 미추적 전체는 이번 증분 범위 밖."
       ]
     },
     "notifications": [
