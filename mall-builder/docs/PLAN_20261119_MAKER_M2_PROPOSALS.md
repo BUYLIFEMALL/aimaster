@@ -399,3 +399,37 @@
 - `sharp`: 0.34.5가 Next 16.2.11의 선택 의존성으로만 설치(이 PC는 `@img/sharp-win32-x64`만). 직접 의존성으로 추가하면 Vercel 빌드 때 리눅스용 바이너리 설치 — 추가는 패키지 변경이라 착수 때 별도 확인.
 - 실행 제약: `vercel.json`·`next.config`에 함수 메모리·시간 설정 없음(기본값). 6000×6000 RGBA 디코드 ≈ 144MB, 재인코딩 CPU 수백 ms 수준 예상 — 적용 1건당 1회라 기본값으로 충분할 것으로 보이나 S1 시험으로 측정.
 - 파일 점유: 이 문서만 수정, 0번 고지 고칠 곳 0.
+
+## 18. M3 1차 데이터 계층 결과(2026-11-19, Master msg_617ae29305b4 — 로컬 격리만)
+### 18-1. 만든 것
+| 파일 | 내용 |
+|---|---|
+| `supabase/migrations/0107_photo_apply.sql` | 변경 불가 공개 버킷 `mall-builder-applied`(5MB·JPEG, 올리기 정책 하나만), DB 전용 서명 열쇠 표 `mall_builder_private.apply_signing_keys`(값은 넣지 않음, 회원 권한 0), 적용 슬롯 표 `mall_builder_photo_apply_slots`(회원 직접 접근 0, 제안당 살아 있는 슬롯 1개), 함수 `mall_builder_photo_apply_begin`(슬롯·묵은 판정·강제는 직원만)·`_commit`(최종 서명·게시 객체 확인 뒤 첫 장만 교체, 공급사 적용은 자동 승인 꺼짐이면 승인 대기)·`_revert`(직원만, 첫 장이 그대로일 때만) |
+| `src/lib/applySignature.ts` | 서버 전용 서명 형식. `v1|upload-path|kid|몰|상품|제안|apply_id|uid|역할|sha256`(게시 이름에 HMAC 앞 32자), `v1|apply-final|…|sha256|크기|만료`(최종 적용 HMAC 64자). 모든 필드를 엄격한 형식으로 먼저 검사해 `|`가 끼어들 수 없음, 열쇠 32바이트만 |
+| `scripts/scenario-0107-photo-apply.sql`·`scripts/check-0107-local.mjs` | 격리 Docker 시험(합성 열쇠만) |
+| `tests/applySignature.test.mjs` | 형식·목적 분리·열쇠 길이·정책 정규식 일치·client 파일 import 0 |
+
+- 경로 비공개 조건 고정: `begin` 응답에는 `apply_id`·역할만 있고 경로 없음(A05가 확인). 경로는 서버가 재인코딩 바이트의 sha와 열쇠로 직접 계산하며, 회원은 열쇠·슬롯 표를 읽을 수 없어(A02·A06) 맞는 이름을 만들 수 없다.
+- 기존 공개·비공개·제안 버킷 정책 20개는 적용 전후 글자 그대로(R1), 버킷 조건 없는 고치기·지우기 정책 0(R3).
+
+### 18-2. 시험 결과(고정: 0107 sha256 앞 16자 `68d12107d62db9bb`)
+- `node scripts/check-0107-local.mjs` → **29/29 통과**(R1~R3, A01~A22, X1, L1·L2, E1), 시험 DB 모두 삭제.
+  - U1~U5: 임의 서명·형식 아닌 이름·다른 sha 서명·꺼진 열쇠·다른 사람 uid 서명·다른 몰 폴더·다른 직원·비로그인 올리기 거절, 서버 맞는 이름 허용·재업로드 이미 있음, 고치기·지우기 0, 기한 지난 슬롯 올리기 거절.
+  - U6·U9: 서명 틀림·꺼진 kid·만료 1초 다름·주소 다름·sha 형식·지난 만료·너무 먼 만료(10분 초과)·크기 다름·파일 없음·다른 사람 확정 거절, 정상 확정·재호출 멱등·다른 sha 충돌.
+  - 묵은 제안: 기본 거절, 직원 강제 허용, 공급사 강제 거절, 슬롯 뒤 상품 변경 시 확정 거절. 역할 회수 뒤 올리기·확정 거절. 되돌리기 직원만·첫 장 바뀌면 충돌.
+  - X1: TS와 SQL의 원문 2종·HMAC 2종이 같은 값. L1 같은 제안 동시 슬롯 → 뒤 요청 대기 뒤 busy. L2 같은 슬롯 동시 확정 → 둘 다 done, 첫 장 교체 1회.
+- 돌연변이 확인: 올리기 정책의 HMAC 비교를 `return true`로 바꾼 사본에서 A07·A08 실패(시험이 결함을 잡음) → 원본 복구, 지문 일치.
+- `node --test tests/` 543/543, `tsc --noEmit` 0.
+
+### 18-3. 되돌리기(아직 어디에도 적용 안 함 — 적용 뒤 필요할 때만, 순서대로)
+`drop policy if exists mall_builder_applied_insert on storage.objects;` → 세 함수·`applied_object_ok`·`apply_hmac`·`apply_*_msg` drop → `mall_builder_photo_apply_slots` drop → `apply_signing_keys` drop → 버킷은 **객체가 0개일 때만** 삭제(적용된 사진이 있으면 버킷을 남겨 상품 사진 주소가 깨지지 않게 함). 적용된 상품의 이전 사진은 `mall_builder_photo_proposals.prev_images`에 남아 있다.
+
+### 18-4. 1차와 후속 구분
+- **1차(이번)**: 위 데이터 계층·서명 형식·격리 시험만. 실제 Storage·공용 Lab·운영 DB·sharp 설치·라우트·화면·빌드·배포·push 0. 열쇠 값 등록 0.
+- **후속(각각 별도 승인)**:
+  1. 서버 적용 경로(라우트): 제안 파일 내려받기 → `sharp` 디코드·재인코딩 → sha → 서명 경로 업로드 → 다시 내려받아 sha 확인 → `commit`. 경로를 업로드 완료 전 브라우저·로그·응답에 내보내지 않음. 같은 경로 「이미 있음」이면 **사용자가 명시적으로 이어 하기를 눌렀을 때만** 바이트를 다시 받아 sha를 확인하고 이어 감. 결과 모를 응답은 자동 재호출·삭제·최종 적용 0.
+  2. `sharp` 직접 의존성 추가(패키지 변경)와 S1 측정(메모리·시간·해상도 폭탄).
+  3. 열쇠 등록: 서버 환경변수 `MALL_APPLY_SIGNING_KEY`(+ kid)와 DB `apply_signing_keys` 같은 값 — 주인님 입력.
+  4. 화면: 제안 목록의 적용·강제 적용(직원만)·되돌리기 버튼.
+  5. 실패 적용 파일 관리자 주 1회 점검 목록(슬롯 expired인데 게시 객체가 남은 것).
+  6. Lab 실측 1회: 실제 Supabase Storage에서 이름이 틀리면 403, 맞으면 200.
