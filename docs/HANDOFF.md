@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-19 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 상가·건물·토지 매물 알림 v1.35 배포
+- 내보낸 것: 일부만 읽은 회차에도 못 읽은 감시 화면 이전 결과 보존(확장, id 기준·7일·막힘/오류 포함, 0곳 회차 같은 규칙, 행정동 경계 id 연결, 통계 대체 분기는 옛 결과만), 관심 지역 연계 2단계, 로그인 정책 2건. 맥미니 독립 검수 3회 통과(최종 84/84).
+- 커밋: 구현 f4d1e5fc0·4e5fce042·f52882db9, 버전 c894f6fe1(manifest 1.35.0·ZIP), 문서 5b5b8a2a4. 배포 `commercial-land-trade-alert-ppv7ouudz`(Ready, 빌드 1회 — 주인님 채팅 승인). 운영 DB version·extension_version v1.35, `check-extension-release` OK. 푸시 안 함(Master 순번 대기).
+- 운영 확인: 비로그인 → /login 정상. ego 시험 계정은 이 프로그램 권한이 없어 소개 페이지로 이동(권한 미변경) — 소개 페이지 v1.35·위젯 표시, 프로그램 화면은 관리자 로그인으로 확인 필요.
+- 회원 안내 필요: 확장 ZIP 다시 받기 → 기존 폴더 덮어쓰기 → chrome://extensions 새로고침.
+- 링크: https://commercial-land-trade-alert.buylife.xyz
+
 ## 2026-11-19 ✅ [역할: music] Claude Code(윈도우) · 세션 `claude-win-20261024-music` — 가사 영상 v1.17 배포
 - 내보낸 것: 취소 안내(`fe402b1df`, MUS-20261117-01 — 「■ 취소」 때 오류 상자 대신 일반 안내) + 공용 `browser-mp4-encoder` 탭 단위 가속 멈춤 기억 사본(`2b9a06c9c`, MOV-20261117-07)
 - 버전 커밋 `4e022046e`, 배포 `lyric-video-studio-eiliu83hu`(Ready, 빌드 1회 — 주인님 채팅 승인 「진행해」), 운영 DB `programs.version` v1.17
