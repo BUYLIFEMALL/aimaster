@@ -121,7 +121,7 @@ Master 마지막 실제 점검: 2026-11-20 03:32:09 KST · 03:30 예약, 영상�
 | CC-B2B-FRONT-01 | 태블릿 지정 3파일 격리 후보 | Master URL 확인 후 Front·Mac 실제 화면 | msg_160c1fc11d31 |
 | CC-ECOM-01 | 상품영상 수신측 로컬 구현 전달 | 소유권·중복·팝업·예약 공개 전 노출의 격리 검증 제출 | msg_267c8cbef515 |
 | CC-BLOG-01 | T03 전환 준비표 4d616adae 수락 | 전환 실행 승인·공유 push 범위 대기 | 4d616adae·msg_ad7e9afb5a0a |
-| CC-MOVIE-01 | 상품영상 계약 후보 cfd969004 제출, 수신 보완 A2 전달 | 이커머스와 송수신 계약 고정 후 구현 범위 연결. GIF V4는 녹화 확인 대기 | msg_61f2f4de2d4e |
+| CC-MOVIE-01 | 맥미니 검수에서 COOP 창 참조 단절 및 권한 범위 차이 발견 | A2 종료 후 A3 계약 수정 전달. 헤더 유지, opener 비의존 설계 | msg_207bb5002259 |
 | CC-MUSIC-01 | 플레이리스트 링크 맥미니 6/6 수락. 공개 배포 준비 읽기 작업 전달 | 배포 대상 변경 범위·실제 클릭 확인 절차 회신 후 공개 배포 승인 판단. | msg_3e1f401e70ae·msg_31dbe2245180 |
 | CC-REALTY-01 | 상가 v1.35·고객관리 v1.11 배포 기록 대조 | 실화면·문자 확인 전제 유지 | 5b5b8a2a4·83144f895 |
 | AG-UI-01 | PORT19 인용 69/69 담당 회신. 조사 19개 중 2개 담당·상태 변경, 17개 담당 미확정 | Master가 기존 등록부와 17개 잔여 범위 대조 | msg_9a598192dadd |
@@ -136,9 +136,9 @@ Master 마지막 실제 점검: 2026-11-20 03:32:09 KST · 03:30 예약, 영상�
 | 직접 시험 | Workspace | v1.63에서 570쪽 ZIP 재시도 후 결과를 알려주십시오. Gmail은 시험 계정 동의 창이 열렸을 때 한 번 동의해 주십시오. |
 | 직접 조작 | 맥미니·상품 등록 | B2B Lab ego 29와 ESM+ ego 19, 11번가 ego 33의 지정 시험 계정에 로그인하고 제어를 반환해 주십시오. 음악 ego 20에 기존 저장 창이 열려 있으면 MP4를 저장하고 제어를 반환해 주십시오. |
 | 직접 조작 | 블로그·CRM | 기존 블로그 확장 회차에서 지정 A/B 조작을 각 1회 진행하고 제어를 반환해 주십시오. 기존 CRM 폼의 알림 설정·시트 v2 조건을 맞춘 뒤 응답을 1회 제출하고 알려주십시오. |
-| 결정 | Workspace 행사 데이터 | 화면만 정리할지 데이터를 포함할지, 포함 시 일회 가져오기와 지속 동기화 중 어느 범위인지 결정해 주십시오. |
+| 결정 | Workspace 우측 캘린더 | 업무 현황판 오른쪽 캘린더의 화면과 동작만 맞출지, 노션 강의 일정도 가져올지 결정해 주십시오. 일정을 포함하면 일회 가져오기 또는 지속 동기화를 정해 주십시오. |
 | 결정 | 블로그 전환 | T08 백업 태그 1개 업로드 승인 여부와 T03 전환 시 신규 접수를 차단할지 각각 알려주십시오. |
-| 결정 | B2B·SNS | B2B 보관 SQL 0076·0077의 각 운영 적용 여부, S70 격리 적용·빌드 범위, SNS D2 한도 SQL 및 shadow 범위 결정이 남아 있습니다. |
+| 승인 수신 | B2B·SNS | 0076·0077 운영 적용, S70 격리 적용·빌드, D2 한도 SQL과 shadow 승인. 운영 SQL은 B2B 적용 검증 뒤 SNS 순번. |
 
 음악 공개 배포는 사전 점검 결과가 돌아오면 승인 묶음에 넣는다. B2B 테스트 결제는 Lab 읽기 검수 뒤 요청한다. SNS R1 운영 SQL과 상품영상 수신용 표 추가는 승인 수신이 보고되어 다음 실행 조건을 Master가 확인한다.
 
@@ -458,7 +458,7 @@ Master 마지막 실제 점검: 2026-11-20 03:32:09 KST · 03:30 예약, 영상�
 | B2B-20261119-FRONTREL | CC-B2B-FRONT-01 | done / production_base_proven_ui_bundle_queued | B2B몰 UI 배포 범위와 순번 준비 | 운영 v1.16 READY. 가격 두 소스는 단독 적용 가능, 갤러리 90248e5b1은 7c8ee3a81·e4ba29947 동반 필요. 기존 다음 배포 묶음에 대기. |
 | B2B-20261119-S70 | CC-B2B-BACK-01 | done / guard_rollback_independent_accepted_undeployed | 주문서 무통장 현금영수증 접수와 입금 확인 경합 처리 | 작성자 격리 21/21, Mac 정적 통과·Docker 미확인으로 실행 미재현. 0105와 UI 배포 전 Lab 실검증 승인 대기. |
 | B2B-20261119-S70-FRONT | CC-B2B-FRONT-01 | done / checkout_rpc_exception_independent_recheck_passed_undeployed | 주문서 UI에 무통장 현금영수증 접수 연결 | Mac 재검수 기존 6/6·별도 결제수단 3/3. 예외 때 완료 주문 상세 이동 및 기존 결제 경로 확인. 0105 롤백 보완과 Lab 검증 대기, 미배포. |
-| B2B-20261119-S70-LAB | CC-B2B-BACK-01 | waiting_human / lab_readiness_verified_approval_pending | S70 Lab 적용 준비와 주문서 실화면·접수 검수 | Lab 0105 및 주문서 코드 미반영. Mac에서 Windows 로컬 3210 접근 불가. 격리 적용·빌드 승인과 양수 무통장·승인 사업자·설정 ON 시험 자료 필요. |
+| B2B-20261119-S70-LAB | CC-B2B-BACK-01 | queued / approval_delivered_isolated_lab_preflight_pending | S70 Lab 적용 준비와 주문서 실화면·접수 검수 | 승인 CMD-20261120-008. S70 전용 0105·주문서 코드 격리 Lab 적용과 빌드 1회 전달 msg_4d4b29aff406. 시험 자료와 실제 실행 확인 대기. |
 | B2B-20261119-SAMPLE-S1 | CC-B2B-BACK-01 | done / owner_direct_sample_content_update_reported | 운영 샘플몰 상품 사진과 설명 보완 | 담당 보고 기준 상품 16개 보완, 전체 상품 사진 25/25, 화면 이미지 33개 중 오류 0. |
 | B2B-20261119-SAMPLE-QA | CX-QA-01 | done / public_sample_layout_verified_read_only | 운영 B2B 샘플몰 공개 화면 독립 검수 | Mac 1280/375에서 홈·5개 카테고리·상세 2개 확인. 깨짐·가로 넘침 0. Master 무쿠키 홈 HTTP 200·상품 링크 33개 확인. |
 | B2B-20261119-MAKER | CC-B2B-BACK-01 | done / m1_stale_window_fix_independent_pass_undeployed | B2B 메이커 연계 M1~M3 선행 범위 대조 | Mac 12/12. 늦은 완료·실패 뒤 이전 창 작업 차단 및 공용 계약 보존. 실제 운영 창 미검증, M1 단독 배포 없음. |
@@ -466,7 +466,7 @@ Master 마지막 실제 점검: 2026-11-20 03:32:09 KST · 03:30 예약, 영상�
 | B2B-20261119-MAKER-M2-UI | CC-B2B-BACK-01 | done / m2_ui_independent_accepted_test_assertions_verified_undeployed | 메이커 M2 사진 제안 화면·저장 응답 연결 | 독립 제품 수락, 단언 5개 도달성 수정 후 Master 시험 18/18 통과. 실제 Storage·Lab 미검증, 미배포. |
 | B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | running / m3_mac_accepted_route_integration_scope_requested | 메이커 M3 제안 적용·서버 바이트 검증 설계 | 052441c03 맥미니 64/64 수락. Backend에 라우트·신뢰 설정·디코더 연결 범위 대조 배정. 실제 연결·Lab 미적용. |
 | B2B-20261119-ADMINUI | AG-UI-01 | reviewing / lab_ready_authenticated_screen_pending | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | 승인 4경로 사설 Lab 1회 READY. 상점 200·관리 상품/주문 307. 로그인 후 실화면·키보드는 사용자 제어 반환 뒤. 필터 aria-current 보완 후보 기록. |
-| B2B-20261119-MALL-STORAGE | CC-B2B-BACK-01 | waiting_human / mall_measure_and_private_retention_waiting_production_approvals | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 0077 592b7484a 합성·정적 검수 수락, 운영 절차 055b38a7c 대조. 0076 cc25a7cc1과 0077은 운영 반영 각각 승인 대기. 위젯 라벨은 다음 메인 배포. |
+| B2B-20261119-MALL-STORAGE | CC-B2B-BACK-01 | queued / approval_delivered_production_preflight_pending | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 승인 CMD-20261120-008. 0076·0077 운영 순차 적용 전달 msg_4d4b29aff406. 사전 점검 및 실제 적용 회신 대기. |
 | B2B-20261119-BACKEND-HANDOFF | CC-B2B-BACK-01 | done / sub_handoff_accepted_prerequisites_reconciled | B2B 백엔드 Sub PC 인수인계 | Sub 인수 완료·0101~0105/M3 승인 조건 대조. QA037 로그인·0105 Lab 적용/자료·M3 후속 승인 대기. 3210과 합성 DB는 메인 유지. |
 | B2B-20261119-FRONT-HANDOFF | CC-B2B-FRONT-01 | done / sub_handoff_and_release_scope_verified | B2B 프런트 Sub PC 인수인계 | Sub 인수 및 Chrome 지정. Lab 9커밋·14경로, 운영 기준 18커밋·19경로 대조 완료. S70은 0105 묶음, 실화면·배포 승인 대기. |
 | B2B-20261119-FRONT-REL | AG-UI-01 | done / frontend_production_public_screen_independent_accepted | B2B 프런트 단독 운영 배포 | 운영 READY·v1.16 및 맥미니 공개 화면 통과. 배포 폴더 대조 19개 프런트/시험 경로와 버전 파일, 백엔드·DB 차이 0. 관리자 별도. |
@@ -552,7 +552,7 @@ Master 마지막 실제 점검: 2026-11-20 03:32:09 KST · 03:30 예약, 영상�
 | AIF-20261119-W01-D1 | CC-SNS-01 | done / production_off_ready_public_smoke_passed | AI Influencer D1 스위치 OFF 운영 배포 | D1 OFF 운영·DB·저장소 v1.27 일치. 담당자 로그인 무료 확인 및 배포와 공유 소스 3경로 차이 기록 완료. D2 사전 검토 58a2c9672 접수. 운영 shadow 전 정리·쿼터의 격리 검증 범위 요청, D3 대기. |
 | AIF-20261119-PLAN6 | CC-SNS-01 | reviewing / six_requirement_v2_scope_accepted_test_role_pending | AI Influencer 직접 요구 6건 개발 플랜 보완 | 4ac03c967 v2 전환 기준 보완. 일반 회원 Vercel 대기 0건이면 전환, 남으면 처리 결정 선행. 시험 계정 권한 식별 방식 확정 전 예약 구현 보류. |
 | AIF-20261119-R1-SCHEDULER | CC-SNS-01 | waiting_human / r1_v6_corrected_production_sql_approval_pending | AI Influencer 회원 예약 기본값과 관리자 허용 설계 | 670c4f6b3 검수 수락. 담당자 운영 SQL 승인 수신 보고(856c382d). 마이그레이션 명명·적용 순번·사전 점검 대기. 운영 SQL 미적용. |
-| AIF-20261119-D2-READINESS | CC-SNS-01 | waiting_human / d2_runbook_ready_sql_scope_decision_pending | AI Influencer D2 실행 범위와 푸시 분리 검토 | c1c5c92e5 기준 적용·권한·복구 준비표 회수. 주인님 한도 SQL·shadow 범위 결정 후 재개. 전체 master 푸시 보류, 앱 전용 ref는 미생성. |
+| AIF-20261119-D2-READINESS | CC-SNS-01 | queued / approval_delivered_waiting_shared_db_sequence | AI Influencer D2 실행 범위와 푸시 분리 검토 | 승인 CMD-20261120-008. D2 한도 SQL 사전 대조와 격리 shadow 전달 msg_b21117fbc6a6. 운영 SQL은 B2B 검증 뒤 순차 진행. |
 | AIF-20261119-D2-IT | CC-SNS-01 | done / d2_local_sql_mac_rollback_review_accepted_undeployed | AI Influencer D2 정리·쿼터 격리 통합 시험 | c1c5c92e5 맥미니 원복 본문·서명·표식 검수 완료. d1626e492에 적용·원복 직전 속성/권한 및 실응답 대조 명시. 운영 미적용. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
