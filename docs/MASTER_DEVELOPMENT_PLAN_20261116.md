@@ -133,6 +133,7 @@ Master 마지막 실제 점검: 2026-11-20 05:01:22 KST · 05:00 예약 수신�
 
 | 구분 | 묶음 | 요청과 완료 신호 |
 |---|---|---|
+| 실행 도구 허용 | B2B 운영 SQL 0076 | 메인 이커머스 세션의 기존 승인된 apply_migration 호출 1건이 자동 검토에서 차단돼 미적용입니다. 해당 호출만 허용되면 전제를 재확인한 뒤 적용할 수 있습니다. |
 | 실행 승인 | Workspace v1.64 | 가져오기 응답 크기 보완 후보 배포 빌드 1회 승인 여부를 알려주십시오. 배포 후 Edge에서 실제 응답·화면·570쪽 수행 시간을 확인합니다. |
 | 실행 승인 | 음악 플레이리스트 링크 | 고정 패치 3파일의 공개 배포 빌드 1회 승인 여부. 수신 플레이리스트 운영 확인과 맥미니 국소 검수는 완료. |
 | 범위 결정 | 쇼츠 분석·떡상 분석 의존성 정비 | SVS는 설치된 Next 보안 검사에서 빌드 종료 1, YVS는 미실행. 두 앱부터 의존성·잠금 파일 정비와 로컬 빌드 확인을 진행할지 결정해 주십시오. |
@@ -469,7 +470,7 @@ Master 마지막 실제 점검: 2026-11-20 05:01:22 KST · 05:00 예약 수신�
 | B2B-20261119-MAKER-M2-UI | CC-B2B-BACK-01 | done / m2_ui_independent_accepted_test_assertions_verified_undeployed | 메이커 M2 사진 제안 화면·저장 응답 연결 | 독립 제품 수락, 단언 5개 도달성 수정 후 Master 시험 18/18 통과. 실제 Storage·Lab 미검증, 미배포. |
 | B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | running / m3_mac_accepted_route_integration_scope_requested | 메이커 M3 제안 적용·서버 바이트 검증 설계 | 052441c03 맥미니 64/64 수락. Backend에 라우트·신뢰 설정·디코더 연결 범위 대조 배정. 실제 연결·Lab 미적용. |
 | B2B-20261119-ADMINUI | AG-UI-01 | reviewing / lab_ready_authenticated_screen_pending | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | 승인 4경로 사설 Lab 1회 READY. 상점 200·관리 상품/주문 307. 로그인 후 실화면·키보드는 사용자 제어 반환 뒤. 필터 aria-current 보완 후보 기록. |
-| B2B-20261119-MALL-STORAGE | CC-B2B-BACK-01 | queued / approval_delivered_production_preflight_pending | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 승인 CMD-20261120-008. 0076·0077 운영 순차 적용 전달 msg_4d4b29aff406. 사전 점검 및 실제 적용 회신 대기. |
+| B2B-20261119-MALL-STORAGE | CC-B2B-BACK-01 | queued / approval_delivered_production_preflight_pending | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | CMD-20261120-008 승인 수신. 0076 메인 적용 호출은 세션 자동 권한 검토에서 거부, 전후 함수·권한·이력 동일로 미적용 확인(msg_ee90452b662c). 해당 호출 허용 대기. 0077·SNS D2 운영 쓰기는 후속 순번. |
 | B2B-20261119-BACKEND-HANDOFF | CC-B2B-BACK-01 | done / sub_handoff_accepted_prerequisites_reconciled | B2B 백엔드 Sub PC 인수인계 | Sub 인수 완료·0101~0105/M3 승인 조건 대조. QA037 로그인·0105 Lab 적용/자료·M3 후속 승인 대기. 3210과 합성 DB는 메인 유지. |
 | B2B-20261119-FRONT-HANDOFF | CC-B2B-FRONT-01 | done / sub_handoff_and_release_scope_verified | B2B 프런트 Sub PC 인수인계 | Sub 인수 및 Chrome 지정. Lab 9커밋·14경로, 운영 기준 18커밋·19경로 대조 완료. S70은 0105 묶음, 실화면·배포 승인 대기. |
 | B2B-20261119-FRONT-REL | AG-UI-01 | done / frontend_production_public_screen_independent_accepted | B2B 프런트 단독 운영 배포 | 운영 READY·v1.16 및 맥미니 공개 화면 통과. 배포 폴더 대조 19개 프런트/시험 경로와 버전 파일, 백엔드·DB 차이 0. 관리자 별도. |
