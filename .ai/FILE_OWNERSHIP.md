@@ -405,3 +405,5 @@ WS-20261119-03 응답 바이트 점유 해제 CC-WORKSPACE-01: Master msg_3b04b4
 
 - OPS-20261120-HARNESS — CX-MASTER-01: harness/, scripts/master-half-hour-wake.ps1, AI_TEAM_RULES.md 하네스 연결과 격리 검증.
 - OPS-20261120-HARNESS · CX-MASTER-01 · .ai/master-status.json과 docs/MASTER_DEVELOPMENT_PLAN_20261116.md에 이번 회차 점검·실제 전달 결과 반영.
+
+MOV-20261119-01-ECOM-RECEIVER-IMPLEMENT CC-ECOM-01: Master msg_267c8cbef515(A1/P7, 기준 cfd969004). shop-detail-page/ 안에서 상품영상 수신 로컬 후보 — 새 supabase/migrations/20261120_product_videos.sql(SELECT·INSERT 정책만, 운영 미적용), lib/productVideoInbox.ts, lib/actions/productVideos.ts, app/(dashboard)/products/video-inbox/page.tsx, components/products/{VideoInbox,ProductVideos}.tsx, tests/productVideo*.test.mjs, 상품 화면 연결 한 줄(app/(dashboard)/products/[id]/page.tsx), 문서. shop_products·export·copy·cleanup·ShortsHandoffCard 변경 없음. 공용 wire 사본·SHARED_MODULES·검사 스크립트는 Master 조율(A2 이후). 운영 DB·빌드·배포·push 0.
