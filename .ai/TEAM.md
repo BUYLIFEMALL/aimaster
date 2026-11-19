@@ -1,14 +1,14 @@
 # AI 협업팀 등록부
 
-최종 갱신: 2026-11-19 KST(AdminPC 및 MacMini Tester 역할 반영; 기존 행의 최신 작업 상태는 총괄 플랜 기준). 총괄 `CX-MASTER-01`만 공식 배정·연결 상태를 갱신한다. 프로그램별 상세 현황은 기존 `docs/roles/`와 [총괄 플랜](../docs/MASTER_DEVELOPMENT_PLAN_20261116.md)을 사용한다.
+최종 갱신: 2026-11-19 KST(macOS·Windows 검수 배정 원칙 반영; 기존 행의 최신 작업 상태는 총괄 플랜 기준). 총괄 `CX-MASTER-01`만 공식 배정·연결 상태를 갱신한다. 프로그램별 상세 현황은 기존 `docs/roles/`와 [총괄 플랜](../docs/MASTER_DEVELOPMENT_PLAN_20261116.md)을 사용한다.
 
 ## 사용자 확정 조직과 실제 연결
 
 | 사용자 호칭 | 팀 ID | 기존 역할 ID | 실제 세션·장비 | 연결 상태 | 현재 작업 |
 |---|---|---|---|---|---|
 | Codex(Master) | CX-MASTER-01 | codex-master | codex-win-20261116-auto-team · GT1_Mega | busy · 공식상태/파일범위 통합 | 146 구현·ESM 매뉴얼·결제예외/실행패키지 지휘 |
-| MacMini Codex(Tester) | CX-QA-01 | mac-mini | codex-mac-20261116-tester-role · 대화01a1c5a4-68b7-7c51-b919-9bc56cd17af5 · MacMini | 역할 확인 msg_5ce52c6c09a1 | macOS 프로그램 테스트·디버깅·기능 개선 제안 |
-| Codex(Tester) | AdminPC Tester | AdminPC | Windows 11 · NVIDIA RTX 5080 · RAM 64GB | RTX 첫 장 배정 수락, 고정 파일 검증 담당 보고 | 고부하 테스트·디버깅·기능 개선 제안 |
+| MacMini Codex(Tester) | CX-QA-01 | mac-mini | codex-mac-20261116-tester-role · 대화01a1c5a4-68b7-7c51-b919-9bc56cd17af5 · MacMini | 역할 확인 msg_5ce52c6c09a1 | macOS·Windows용 프로그램의 기본 검수·디버깅·개선 제안 |
+| Codex(Tester) | AdminPC Tester | AdminPC | Windows 11 · NVIDIA RTX 5080 · RAM 64GB | RTX 첫 장 배정 수락, 고정 파일 검증 담당 보고 | 무거운 로컬 모델 실측과 해당 시험의 디버깅·개선 제안만 |
 | Antigravity | AG-UI-01 | design | agy-win-design · GT1_Mega (이전 등록 agy-win-hero-copy) | emotion제품동결유지·PORT19문서매핑배정 전송/수락미확인 | 문서JSON19건반환→Master근거판정·다른프로그램코드변경0 |
 | Claude(Movie) | CC-MOVIE-01 | video | claude-win-video · aimaster-57 · GT1_Mega | YVS실검색/AI기획안1회 담당운영완료·점유0 | 재호출0·새배정대기 |
 | Claude(Music) | CC-MUSIC-01 | music | claude-win-20261024-music · GT1_Mega | 현재기록정정완료·점유0·기존icon변경보존 | lyric2건다음묶음·Mac실MP4사람선택 |
