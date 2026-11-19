@@ -6136,12 +6136,12 @@
       "owner": "CC-REALTY-01",
       "reviewer": "CX-QA-01",
       "title": "부동산 고객관리 미리보기 문자 바이트 안내",
-      "status": "reviewing",
-      "delivery": "sms_estimate_simplified_mac_recheck_dispatched",
+      "status": "done",
+      "delivery": "sms_estimate_mac_review_accepted_undeployed",
       "sha": "1f55c38f2",
-      "evidence": "msg_5af114ba8ca6·84bfa1d05·msg_d19c65d4a1e5·msg_38b3531b63d6·msg_f529c65ef361·msg_546dc29152ff·msg_e5f0969f1ea1·msg_772e239404df·msg_6036ab5dfd3a·msg_a57316748c9b·1f55c38f2·msg_07661b6b5480",
-      "next": "16자 예시 토큰과 항상 추정 안내로 단순화, 전체 문자열 치환 제거. 작성자 40/40·tsc, Mac 재검수 요청, 미배포.",
-      "lastReviewedAt": "2026-11-19T04:26:42.954Z"
+      "evidence": "msg_5af114ba8ca6·84bfa1d05·msg_d19c65d4a1e5·msg_38b3531b63d6·msg_f529c65ef361·msg_546dc29152ff·msg_e5f0969f1ea1·msg_772e239404df·msg_6036ab5dfd3a·msg_a57316748c9b·1f55c38f2·msg_07661b6b5480·msg_a232c84b415a·.ai/results/RE-20261119-DESK-CX-QA-01.md",
+      "next": "1f55c38f2 Mac 독립 11/11, 16자 예시·90/91·본문 비치환·상시 추정·발송 경로 유지 확인. 미배포.",
+      "lastReviewedAt": "2026-11-19T04:27:37.267Z"
     }
   ],
   "programOverrides": [
