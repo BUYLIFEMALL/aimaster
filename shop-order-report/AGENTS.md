@@ -43,3 +43,8 @@ Next.js 16 + Tailwind 4 + 공용 Supabase(권한 판정·회원 키 조회만). 
 - **상품 묶기**: 설정 화면 「🔗 상품 묶기」 — 주문에 나온 상품·옵션(마켓 표시)마다 「묶음 이름」(입력 도움 목록). `ReportSettings.productGroups`, `reportKey`·`costOf`(`src/lib/report/aggregate.ts`): 리포트 상품별 표·원가 표·원가 미입력 수·재고 예측(`forecastStock` 새 인자 `keyOf`)이 묶음 이름으로 합침. 원가는 묶음 값 → 없으면 예전 상품별 값이라 기존 설정 그대로 동작. 설정 파일 불러오기도 묶음을 합침.
 - **정산 파일**: 올리기 화면 「💰 정산 파일로 실제 정산액 채우기」(`src/lib/orders/settlement.ts`): 마켓·열(주문번호·상품주문번호·정산금액, 별칭 자동·개인정보 열 제외) → 상품주문번호가 맞으면 그 줄, 아니면 같은 주문번호 줄들에 판매금액 비율로 나눔(같은 번호 여러 줄·차감 줄은 더함). 채운 줄은 `settlementFromFile` — 정산 칸이 없는 주문 파일을 다시 올려도 지우지 않음(`mergeLines`).
 - 검사: `npm test` 25개(새 3개)·tsc·build 통과. 서버·DB 변경 없음(모두 이 PC 브라우저). **화면 확인 전** — 다음 배포(버전 +0.01) 뒤 ego에서 예시 파일로 묶기·정산 파일 확인. 실제 마켓 정산 파일 열 이름은 주인님 실제 파일로 보정 필요(요청함 대기 항목과 같음).
+
+## 2026-11-20 (미배포 대기) — 공통 3건 적용 ([역할: ecommerce-image] `claude-win-sdp`, Master `msg_3d2580a63591` ECOM-ORDER-REPORT-COMMON-RELEASE-PREP)
+- `pending-check`가 알리던 공통 3건을 기준 구현(`smartstore-register`, 같은 뼈대)과 같은 형태로 넣음: 저장공간 위젯 한 줄(`src/app/layout.tsx`), 로그아웃 범위 `signOut({ scope: "local" })` 2곳(`src/app/api/auth/logout/route.ts`·`src/lib/actions/auth.ts` — 이 브라우저만 로그아웃), 서버 로그인 기기 정보 `global.headers["User-Agent"]`(`src/lib/supabase/server.ts`).
+- 바꾸지 않은 것: 쿠키·권한 판정(`src/lib/auth.ts`·`src/proxy.ts`)·DB·의존성·버전(v1.06 그대로, 버전은 배포 때 한 번).
+- 검수: tsc 0 · 시험 25/25 · `pending-check` 공통 줄 0 · `server.ts`는 기준 구현과 글자 단위 동일. 린트는 이 폴더에 ESLint 설정이 없어 실행 못 함. 빌드·실제 로그인/로그아웃·위젯 표시는 미실행 — 다음 배포 뒤 ego에서 확인(로그아웃해도 다른 프로그램 로그인 유지, 💾 위젯 표시).
