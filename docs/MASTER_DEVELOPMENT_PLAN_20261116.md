@@ -394,7 +394,7 @@ AI Influencer D1 후속 수락, D2 사전 검토 접수. 음악 7개 대조를 �
 | WS-20261119-02 | CC-WORKSPACE-01 | running / large_zip_expiry_boundary_candidate_mac_recheck_sent | Workspace 대용량 ZIP | 23190f14d 정리 판정은 Storage 확인 전 시각, 유예 기준은 주소 발급 완료. 담당 1,017건 통과·Mac 재검수 전달. 실제 Storage 미검증·미배포. |
 | MUSIC-20261119-IMG-COMPAT | CC-MUSIC-01 | done / five_music_flows_read_only_accepted | 무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토 | 고정 2131089b7 음악 5경로·146/146 검토 수락. 새 범위 미사용 시 파일 미생성 정정. 실제 엔진은 미검증. |
 | MUSIC-20261119-BACKLOG-SWEEP | CC-MUSIC-01 | done / music_backlog_review_accepted_followup_dispatched | 음악 7개 프로그램 다음 작업 후보 대조 | 음악 7개 웹의 미배포 코드 0. L5·U3를 우선 로컬 착수, 리믹스→플레이리스트 및 유료 영상 실검증은 별도 조건 대기. |
-| MUSIC-20261119-LYRIC-L5-U3 | CC-MUSIC-01 | running / lyric_l5_u3_local_fix_dispatched | 가사 영상 미리보기 재생 실패와 모바일 안내 | 미리보기 재생 실패 status 안내 및 767px 이하 PC 권장 안내. Mac Safari/390px 독립 검수. 미배포. |
+| MUSIC-20261119-LYRIC-L5-U3 | CC-MUSIC-01 | running / lyric_l5_u3_local_pass_mac_review_sent | 가사 영상 미리보기 재생 실패와 모바일 안내 | 8f1eae339 담당 시험 44/44·타입 통과. Mac Safari/390px 및 경계 재검수 요청. 미배포. |
 | QA-20261118-043 | CX-QA-01 | done / production_v161_mobile_keyboard_verified_read_only | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | Workspace 운영 v1.61 독립 읽기. 375/390px 요일 7칩 두 줄·넘침 0·Tab 3px 포커스. OS 다크 선호 확인, 앱 테마·저장 중 상태 미검증. |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
 | OPS-20261118-01 | CX-MASTER-01 | done / integrated | 전체개발플랜·카테고리·누락개선/인수인계 정합성 대조 | 미확인68프로그램 현담당근거후속연결·제품전체검증과구분, 신규후속ID별진행 |
@@ -514,6 +514,7 @@ AI Influencer D1 후속 수락, D2 사전 검토 접수. 음악 7개 대조를 �
 | AIF-20261119-W01-RETOUCH | CC-SNS-01 | done / test_generation_and_retouch_pass_v5_upload_without_publish | AI Influencer 히스토리 재표시·일반 회원 생성·보정 | 지정 일반 회원 경로 보류. 시험 계정 생성 1·보정 1 성공, V5 규칙 변환·업로드 확인. 앱 실제 게시와 운영 출처는 미검증. |
 | AIF-20261119-W01-D1 | CC-SNS-01 | done / production_off_ready_public_smoke_passed | AI Influencer D1 스위치 OFF 운영 배포 | D1 OFF 운영·DB·저장소 v1.27 일치. 담당자 로그인 무료 확인 및 배포와 공유 소스 3경로 차이 기록 완료. D2 사전 검토 58a2c9672 접수. 운영 shadow 전 정리·쿼터의 격리 검증 범위 요청, D3 대기. |
 | AIF-20261119-PLAN6 | CC-SNS-01 | running / six_requirement_plan_addendum_dispatched | AI Influencer 직접 요구 6건 개발 플랜 보완 | 회원 예약 기본은 개인 cron-job.org, Vercel은 관리자·시험 계정만 선택하도록 확정. 모델 선택·숏츠·채널별 게시와 함께 보완 초안 작성 중. 구현 전. |
+| AIF-20261119-D2-IT | CC-SNS-01 | running / d2_isolated_sql_contract_integration_tests_dispatched | AI Influencer D2 정리·쿼터 격리 통합 시험 | 실제 프로젝트 SQL과 정리 실행자·기존 생성 사전 검사를 전용 시험 DB에서 연결. 운영 shadow·실 cron 보류. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |

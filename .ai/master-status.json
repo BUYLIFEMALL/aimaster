@@ -6200,9 +6200,9 @@
       "reviewer": "CX-QA-01",
       "title": "가사 영상 미리보기 재생 실패와 모바일 안내",
       "status": "running",
-      "delivery": "lyric_l5_u3_local_fix_dispatched",
-      "next": "미리보기 재생 실패 status 안내 및 767px 이하 PC 권장 안내. Mac Safari/390px 독립 검수. 미배포.",
-      "evidence": "1df2c94ae·msg_68526ae14db0·5b0ed996a"
+      "delivery": "lyric_l5_u3_local_pass_mac_review_sent",
+      "next": "8f1eae339 담당 시험 44/44·타입 통과. Mac Safari/390px 및 경계 재검수 요청. 미배포.",
+      "evidence": "1df2c94ae·msg_68526ae14db0·5b0ed996a·8f1eae339·msg_da7c45210270·msg_14d2efabc2c2"
     },
     {
       "task_id": "MUSIC-20261119-BACKLOG-SWEEP",
@@ -6315,6 +6315,18 @@
       "evidence": "msg_ea84e83e8300·c894f6fe1·f52882db9 Mac 84/84·msg_77669c3927b0·5b5b8a2a4·d3d74468e·msg_b0757a444812·msg_2e8a7f868e5a·popup.js/manifest v1.35 및 저장소 ZIP 경로 대조·msg_f3db6ce1e7c8·0adae1d2a",
       "next": "운영 v1.35 유지. 확장 업데이트 3단계와 이전 결과 FAQ 0adae1d2a 안내 추가, 로컬 검증 84/84 및 미배포. 관리자 화면 미확인.",
       "lastReviewedAt": "2026-11-19T07:05:56.802Z"
+    },
+    {
+      "task_id": "AIF-20261119-D2-IT",
+      "parent_task_id": "AIF-20261119-W01-D1",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-QA-01",
+      "title": "AI Influencer D2 정리·쿼터 격리 통합 시험",
+      "status": "running",
+      "delivery": "d2_isolated_sql_contract_integration_tests_dispatched",
+      "sha": "409a339af",
+      "next": "실제 프로젝트 SQL과 정리 실행자·기존 생성 사전 검사를 전용 시험 DB에서 연결. 운영 shadow·실 cron 보류.",
+      "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178"
     },
     {
       "task_id": "AIF-20261119-PLAN6",
