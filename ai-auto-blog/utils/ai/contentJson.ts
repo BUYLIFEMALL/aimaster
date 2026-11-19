@@ -108,17 +108,17 @@ export function shouldSwitchToResponses(status: number, body: string): boolean {
   } catch {
     // JSON이 아니면 원문 그대로 검사
   }
-  // 이름이 단순히 언급된 것(예: 「Responses API는 기능이 더 많습니다」)은 제외하고, 전환을 권고하거나
-  // 그 엔드포인트에서만 된다고 명시한 문구만 인정한다(Master msg_15f047c8dab7).
-  const ENDPOINT = '(?:/?v1/responses|(?:the )?responses api)'
-  const mentionsResponses =
-    new RegExp(`\\b(?:use|switch to|try|call|send (?:it|this|requests?) to)\\b[^.]{0,30}${ENDPOINT}`, 'i').test(message) ||
-    new RegExp(`\\bonly (?:supported|available)\\b[^.]{0,20}\\b(?:in|via|with|through|on)\\b[^.]{0,6}${ENDPOINT}`, 'i').test(message) ||
-    new RegExp(`${ENDPOINT}[^.]{0,20}\\b(?:instead|only)\\b`, 'i').test(message)
-  const chatUnsupported =
-    /(chat\/completions|chat completions)[^.]{0,60}\b(not supported|unsupported|does not support)\b/i.test(message) ||
-    /\b(not supported|unsupported)\b[^.]{0,60}(chat\/completions|chat completions)/i.test(message)
-  return mentionsResponses || chatUnsupported
+  // 엄격 판정(Master msg_5494b960f873): 이름 언급·참고 주소·권한·JSON 형식 오류는 전환하지 않는다.
+  // 허용 1 — 현재 경로 비호환 명시: 「This is not a chat model and thus not supported in the v1/chat/completions endpoint」 류
+  // 허용 2 — 직접 전환 권고: 「only supported in v1/responses」·「please use (the) Responses API」·「use … instead」·「use … for this model」
+  const RESP = '(?:/?v1/responses|(?:the )?responses api)'
+  const pathIncompatible =
+    /\b(?:this model|this is not a chat model)\b[^.]{0,80}\b(?:not supported|does not support|unsupported)\b[^.]{0,30}\b(?:v1\/)?chat\/completions\b/i.test(message)
+  const directSwitch =
+    new RegExp(`\\bonly (?:supported|available) (?:in|on|via|through|with) ${RESP}\\b`, 'i').test(message) ||
+    new RegExp(`\\bplease use ${RESP}\\b`, 'i').test(message) ||
+    new RegExp(`\\buse ${RESP}(?: endpoint)? (?:instead|for this model)\\b`, 'i').test(message)
+  return pathIncompatible || directSwitch
 }
 
 async function generateOpenAIResponsesJson(params: { apiKey: string; model: string; system: string; user: string }) {

@@ -150,9 +150,39 @@ test('명시 전환 권고 문구는 다양한 표현에서도 1회 전환', asy
   for (const msg of [
     'Use the Responses API for this model.',
     'This model is only available through the Responses API.',
-    'Please call v1/responses instead.',
+    'Please use v1/responses instead.',
   ]) {
     const r = await countCalls(400, JSON.stringify({ error: { message: msg, param: null, code: null } }));
+    assert.equal(r.calls.length, 2, msg);
+  }
+});
+
+// ── Master msg_5494b960f873: 엄격 판정 — 애매한 오류는 1호출, 지정 공식 문구만 2호출 ──
+test('참고 주소·권한·JSON 형식 오류·이름 언급은 모두 1호출', async () => {
+  const cases = [
+    [400, 'Invalid request. See https://platform.openai.com/docs/api-reference/responses for details.'],
+    [400, "'messages' must contain the word 'json' in some form, to use 'response_format' of type 'json_object'."],
+    [400, 'You can use the Responses API reference to check field names. Invalid type for messages.'],
+    [400, 'Responses API only features are not available here; invalid value for n.'],
+    [404, 'The model gpt-x does not exist or you do not have access to it.'],
+    [403, 'This model is only supported in v1/responses.'],
+  ];
+  for (const [status, msg] of cases) {
+    const r = await countCalls(status, JSON.stringify({ error: { message: msg, type: 'invalid_request_error', param: null, code: null } }));
+    assert.equal(r.calls.length, 1, msg);
+  }
+});
+
+test('지정 공식 문구만 정확히 2호출(대체 1회 제한)', async () => {
+  const cases = [
+    [400, 'This model is only supported in v1/responses and not in v1/chat/completions.'],
+    [404, 'This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?'],
+    [400, 'Please use the Responses API for this model.'],
+    [400, 'Use the Responses API for this model.'],
+    [400, 'This model is only available through the Responses API.'],
+  ];
+  for (const [status, msg] of cases) {
+    const r = await countCalls(status, JSON.stringify({ error: { message: msg, param: null, code: null } }));
     assert.equal(r.calls.length, 2, msg);
   }
 });
