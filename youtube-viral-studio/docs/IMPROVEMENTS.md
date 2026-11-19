@@ -77,6 +77,11 @@
 - 함께 해결: 쇼츠 길이 기준 60·90·180초 혼재 → 통일 여부 결정. 위 #8(검색 결과 임시 저장)·#9(정렬 토글)와 겹침.
 - 인수인계: [`HANDOFF_20261116_BOKS_FINDER_PORT.md`](HANDOFF_20261116_BOKS_FINDER_PORT.md) · 분석: [`ANALYSIS_20261116_BOKS_YOUTUBE_FINDER.md`](ANALYSIS_20261116_BOKS_YOUTUBE_FINDER.md)
 
+### 2026-11-20 미배포 대기 — 2단계 2-1 첫 단위: 관련성·언어·종교 거르기 기준 모듈 분리 (영상 담당 `claude-win-video`, MOV-VIDEO-VIRAL-PHASE2-SCOPE A2)
+- `src/lib/youtube/boks/core.ts`의 `relevanceIssue`·`languageMismatch`·`isReligious`·`isReligiousQuery`와 보조 함수를 **그대로** 새 파일 `src/lib/youtube/relevanceFilter.ts`로 옮기고, core.ts는 같은 이름으로 다시 내보냄 → 동작·YouTube 호출 수 변화 0. 입력 타입 `RelevanceInput`만 `RawFinderVideo`에서 뽑던 것을 같은 필드의 독립 정의로.
+- 시험: `tests/relevanceFilter.test.mjs` 새 5개 + 기존 `boks.test.mjs` 11개(시험에서만 확장자 없는 경로를 `.ts`로 찾게 `registerHooks` — creatorFinder 시험과 같은 방식) 통과, `tsc --noEmit` 통과. 전체 71 중 67 통과·실패 4는 기존 `favorites.test.mjs`(11-16 기록, 정책 담당 몫).
+- 배포: 동작 변화가 없어 다음 YVS 배포 때 함께(버전은 그때 +0.01). 공용 등록·SVS 연결은 별도 배정.
+
 ### 2026-11-16 처리 결과 (영상 담당 `video`, 세션 `claude-win-video`) — **미배포 대기(v1.30 예정)**
 - 주인님 결정(채팅 선택): 1단계만 · 평소 대비 중앙값을 기본 배수로 · 쇼츠 180초 통일 · 종교 기본 제외 · DB 표 2개 승인 · AI 기획안은 별도 버튼. 플랜: [`PLAN_20261116_BOKS_FINDER_PORT.md`](PLAN_20261116_BOKS_FINDER_PORT.md)
 - 새 메뉴 「떡상 시장 탐색」(`/viral-finder`): 키워드 검색(형식별 버킷·보충) / 인기 차트 프리셋 6종(검색 횟수 0), 평소 대비 판정, 관련성·언어·종교 거르기와 제외 사유, 기회 지수, 제목 키워드 TOP(누르면 목록 거름), 산점도(SVG), 자동 결론, 요일·시간대·길이·채널 규모·제목 패턴 차트, 태그 TOP 복사, 목록 필터·정렬, 회원 본인 Claude 키 AI 기획안(JSON 검증).

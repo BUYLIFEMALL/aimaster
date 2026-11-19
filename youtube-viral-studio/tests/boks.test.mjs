@@ -2,10 +2,23 @@
 // 원본에는 시험이 없어 이식하면서 새로 쓴다. 네트워크 없음. 실행: node --test tests/boks.test.mjs
 import test from "node:test";
 import assert from "node:assert/strict";
-import {
+import { registerHooks } from "node:module";
+
+// 2026-11-20: core.ts가 ../relevanceFilter(확장자 없는 Next 방식 경로)를 다시 내보내므로, 시험에서만 `./x` → `./x.ts`로 찾게 한다(creatorFinder.test.mjs와 같은 방식)
+registerHooks({
+  resolve(specifier, context, next) {
+    try {
+      return next(specifier, context);
+    } catch (err) {
+      if (specifier.startsWith(".") && !/\.[a-z]+$/i.test(specifier)) return next(`${specifier}.ts`, context);
+      throw err;
+    }
+  },
+});
+const {
   buildFinderVideo, calculatePublishedRange, computeChannelBaseline, computeMarketAnalytics, extractTitleKeywords,
   isReligious, isReligiousQuery, mapVideoItem, parseIsoDuration, relevanceIssue, formatMultiplier, formatNumber,
-} from "../src/lib/youtube/boks/core.ts";
+} = await import("../src/lib/youtube/boks/core.ts");
 import { computeTrends } from "../src/lib/youtube/boks/trends.ts";
 import { nextResetMs, quotaDay, remainingSearch } from "../src/lib/youtube/boks/quota.ts";
 import { buildPlanPrompt, extractJsonObject, normalizeReport, pickPromptVideos } from "../src/lib/youtube/boks/plan.ts";
