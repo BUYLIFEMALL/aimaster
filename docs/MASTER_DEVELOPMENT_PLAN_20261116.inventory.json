@@ -10017,11 +10017,11 @@
       "reviewer": "CX-QA-01",
       "title": "B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계",
       "status": "reviewing",
-      "delivery": "status_tabs_fix_returned_mac_recheck_dispatched",
+      "delivery": "order_status_tabs_independent_source_pass_browser_pending",
       "sha": "ad046c1eb",
-      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8·msg_9f9b2521f4a8·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_621b8cb49fa9·msg_aa1479ca4c17·c17cca668·msg_e5e7af9da7fe·msg_c15db5ced233·msg_b17ccd22bc09·msg_d96d3bf2fcdb·ad046c1eb·msg_07fb8a6c148a",
-      "next": "ad046c1eb 5,000행 상한에서 모든 주문 상태 탭 유지·부분 집계 표시. 작성자 경계 4999/5000/5001·tsc 통과. Mac 독립 재검수 요청, 실화면 미검증·미배포.",
-      "lastReviewedAt": "2026-11-19T01:11:26.278Z"
+      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8·msg_9f9b2521f4a8·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_621b8cb49fa9·msg_aa1479ca4c17·c17cca668·msg_e5e7af9da7fe·msg_c15db5ced233·msg_b17ccd22bc09·msg_d96d3bf2fcdb·ad046c1eb·msg_07fb8a6c148a·msg_3c961902ac23·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md",
+      "next": "Mac 독립 Node 10/10, 4999/5000/5001 경계·상태 탭/검색/권한 보존 확인. 소스 검수 수락. 동일 SHA 렌더 확보 후 CX-QA-01 375px·키보드 실화면 확인, 미배포.",
+      "lastReviewedAt": "2026-11-19T01:13:32.190Z"
     }
   ]
 }
