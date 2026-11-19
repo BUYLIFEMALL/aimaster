@@ -433,7 +433,7 @@ Master 마지막 실제 점검: 2026-11-19 09:30:56 KST · 실행 중 점검 주
 | QA-20261118-BLOG-01 | CX-QA-01 | waiting_human / b1_v122_mac_retest_dispatched_human_clicks_required | website-scraper 읽기·B1 사람 포커스 재시험 준비 | v1.22 재검수 전달. 확장 버전·활성 상태 수동 확인과 A/B 사용자 클릭 각각 1회 후 Mac lastProbe 기록. |
 | RE-20261118-07 | CC-REALTY-01 | done / evaluation_deliverable_accepted_no_effectiveness_pass | 후보C 새기간40건 사전라벨 고정 평가 | 정상운영 새기간에서 목표소음이 포함된 검증조건 충족 시에만 별도배정·동일40건 규칙조정/재시험0 |
 | ECOM-20261118-06 | CC-ECOM-01 | done / specified_mock_server_source_accepted_off_unreleased | Cloudflare 본인 공용키 무료 이미지 경로 검증·연결 계획 | 실키유효/잔여사람단계·AGY UI 연결계획·OFF미배포 보존 |
-| ECOM-20261119-CFREL | CC-ECOM-01 | queued / source_and_dependencies_checked_release_queued | 메인 API 설정 Cloudflare 카드 배포 선행 확인 | 세 SHA·기존 DB 제약·시험 11/11 보고 수락. 운영 기준 격리 배포 순번 대기, 공유 master push 없음. |
+| ECOM-20261119-CFREL | CC-ECOM-01 | queued / isolated_remote_base_clean_role_docs_need_port_release_queued | 메인 API 설정 Cloudflare 카드 배포 선행 확인 | 원격 기준 Cloudflare 3개·WebP 문서 2개 적용 가능, 역할 문서 2개 줄 충돌. 메인 자동 빌드 순번과 역할 문서 이식 확인 대기. 공유 master 미푸시. |
 | DES-20261118-07 | AG-UI-01 | done / emotion_cloudflare_status_card_source_review_accepted_unreleased | Cloudflare 공용키 설정 UI 연결 경로 계획 | 본인문서/점유정리·중앙82/e34와통합후보·메인선행/감성배포예산·실키검증별도 |
 | AIF-20261118-W00 | CC-SNS-01 | done / static_contract_review_accepted_implementation_unverified | AI Influencer W00 기준·격차/공통계약 독립검수 | W01a별도검수·PLAN/권한선행병합전자산코드/DDL0·후속경합/RLS실검증별도 |
 | CRM-20261118-07 | CC-B2B-BACK-01 | done / receipt_single_attempt_mock_source_review_accepted_unreleased | SOLAPI SDK 재시도 없는 공식 대안·최소 변경 계획 | 접수전용소스미배포보존·팔로우업동일위험은CRM18-08로이관·DDL/배포/실문자별도 |
