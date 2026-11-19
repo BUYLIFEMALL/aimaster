@@ -192,14 +192,80 @@ try {
     check('새 규칙 함수: SECURITY DEFINER·STABLE·search_path 비움·service_role만 실행',
       o1.prosecdef && o1.provolatile === 's' && o1.cfg === m1.cfg && o1.cfg.includes('search_path=') && /service_role=X/.test(o1.acl) && !/(^|[{,])(anon|authenticated)?=X/.test(o1.acl), JSON.stringify(o1));
 
-    // 6) 되돌리기: 0066 정의 재실행 + 규칙 함수 삭제
+    // 6) 마지막 몰 양도 반례(Mac P2): 다른 파일 없는 대표 Z가 유일한 몰을 Y에게 넘기고, 한 명 측정 없이 1분 안에 전체 측정만
+    const Z = '77777777-0000-4000-8000-000000000008', S4 = '11111111-0000-4000-8000-0000000000a4';
+    await sql`insert into public.profiles values (${Z})`;
+    await sql`insert into public.mall_builder_stores values (${S4}, ${Z})`;
+    await sql`insert into storage.objects (bucket_id, name, metadata) values ('mall-builder-public', ${S4 + '/products/z.jpg'}, ${sql.json({ size: '500', mimetype: 'image/jpeg' })})`;
+    await sql`select public.member_storage_measure()`;
+    const zBefore = Number((await rows())[Z]?.bytes ?? 0), fBefore = Number((await rows())[F]?.bytes ?? 0);
+    await sql`update public.mall_builder_stores set owner_id = ${F} where id = ${S4}`;
+    await sql`select public.member_storage_measure()`;
+    const zt = await rows();
+    check('마지막 몰 양도 직후(1분 안) 전체 측정만: 옛 대표 Z 0', zBefore === 500 && Number(zt[Z]?.bytes) === 0, `전 ${zBefore} 뒤 ${zt[Z]?.bytes}`);
+    check('마지막 몰 양도 직후 전체 측정: 새 대표 F +500(겹침 없음)', Number(zt[F]?.bytes) === fBefore + 500, `전 ${fBefore} 뒤 ${zt[F]?.bytes}`);
+    await sql`update public.mall_builder_stores set owner_id = ${Z} where id = ${S4}`;
+    await sql`delete from storage.objects where name = ${S4 + '/products/z.jpg'}`;
+    await sql`delete from public.mall_builder_stores where id = ${S4}`;
+    await sql`delete from public.member_storage_usage where user_id = ${Z}`;
+    await sql`delete from public.profiles where id = ${Z}`;
+
+    // 7) 두 세션 경합 — 이번 전체 측정(먼저 시작)보다 늦게 시작한 한 명 측정의 새 값을 잃지 않는다
+    const s1 = postgres({ ...opt, database: NAME }), s2 = postgres({ ...opt, database: NAME });
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    const waiting = async () => Number((await sql`select count(*)::int n from pg_stat_activity where datname = ${NAME} and wait_event_type = 'Lock'`)[0].n);
+    const race = async (label, prep, single, expectFn) => {
+      await prep();
+      await s1.unsafe('begin'); await s1.unsafe('select now()');            // 전체 측정 트랜잭션 먼저 시작(now 고정)
+      await sleep(30);
+      await s2.unsafe('begin');                                             // 늦게 시작한 한 명 측정
+      await single(s2);                                                      // 새 파일 + 한 명 측정(행 잠금 보유)
+      const full = s1.unsafe('select public.member_storage_measure()').execute(); // 바로 보냄(postgres.js는 await 전엔 안 보냄): 스냅샷엔 새 파일 없음 → 잠금 대기
+      let blocked = 0; for (let i = 0; i < 50 && !blocked; i++) { await sleep(40); blocked = await waiting(); }
+      await s2.unsafe('commit'); await full; await s1.unsafe('commit');
+      const r = (await rows());
+      check(label, blocked > 0 && expectFn(r), `대기 ${blocked} / ${JSON.stringify(Object.fromEntries(Object.entries(r).map(([k, v]) => [k.slice(0, 8), Number(v.bytes)])))}`);
+    };
+    // 7-1 소유자 행 덮어쓰기: F가 새 파일 700을 올리고 한 명 측정 → 먼저 시작한 전체 측정이 옛 값으로 덮어쓰면 안 됨
+    let fNow = 0;
+    await race('경합 1: 전체 측정이 늦게 시작한 한 명 측정의 새 값(F +700)을 옛 스냅샷으로 덮어쓰지 않는다',
+      async () => { await sql`select public.member_storage_measure()`; fNow = Number((await rows())[F].bytes); },
+      async (s) => { await s`insert into storage.objects (bucket_id, name, metadata) values ('blog-images', ${F + '/race-new.png'}, ${s.json({ size: '700', mimetype: 'image/png' })})`;
+                     await s`select public.member_storage_measure(${F}::uuid)`; },
+      (r) => Number(r[F].bytes) === fNow + 700);
+    // 7-2 0 처리: 전체 측정 스냅샷에선 파일이 없는 B가 늦게 시작한 한 명 측정으로 300을 기록 → 0으로 지우면 안 됨
+    await race('경합 2: 전체 측정 끝의 0 처리가 늦게 시작한 한 명 측정 값(B 300)을 지우지 않는다',
+      async () => { await sql`select public.member_storage_measure(${B}::uuid)`; },
+      async (s) => { await s`insert into storage.objects (bucket_id, name, metadata) values ('blog-images', ${B + '/race-b.png'}, ${s.json({ size: '300', mimetype: 'image/png' })})`;
+                     await s`select public.member_storage_measure(${B}::uuid)`; },
+      (r) => Number(r[B].bytes) === 300);
+    await sql`select public.member_storage_measure()`;
+    const settled = await rows();
+    check('경합 뒤 다음 전체 측정이 실제 값과 같다(F·B)', Number(settled[F].bytes) === fNow + 700 && Number(settled[B].bytes) === 300);
+    await sql`delete from storage.objects where name in (${F + '/race-new.png'}, ${B + '/race-b.png'})`;
+    await sql`select public.member_storage_measure()`;
+    await s1.end(); await s2.end();
+
+    // 8) 되돌리기 1단계: 0066의 정의·권한만(파일 끝 전체 측정 제외) + 규칙 함수 삭제 → 사용량 표는 그대로
+    const m66 = mig('0066_member_storage_by_kind.sql');
+    const defOnly = m66.slice(m66.indexOf('create or replace function public.member_storage_measure'),
+      m66.indexOf('grant execute on function public.member_storage_measure(uuid) to service_role;') + 'grant execute on function public.member_storage_measure(uuid) to service_role;'.length);
+    const usageBeforeRollback = JSON.stringify(await rows());
     await sql.unsafe(`drop function public.member_storage_object_owner(text, text);`).simple();
-    await sql.unsafe(mig('0066_member_storage_by_kind.sql')).simple();
+    await sql.unsafe(defOnly).simple();
+    check('되돌리기 1단계(정의·권한만)는 사용량 표를 바꾸지 않는다(재측정 분리)', JSON.stringify(await rows()) === usageBeforeRollback);
     await sql`update public.mall_builder_stores set owner_id = ${A} where id = ${S1}`;
     const defBack = (await sql`select pg_get_functiondef('public.member_storage_measure(uuid)'::regprocedure) as d`)[0].d;
     const m2 = await meta('member_storage_measure');
     check('되돌리기(0066 재실행 + 규칙 함수 삭제) 뒤 함수 정의·권한이 0077 전과 같다', defBack === def0 && m2.acl === measureMeta0.acl);
     check('되돌리기 뒤 규칙 함수 없음', (await sql`select to_regprocedure('public.member_storage_object_owner(text,text)') as r`)[0].r === null);
+    await sql`select public.member_storage_measure()`;
+    const reBase = await rows();
+    check('되돌리기 2단계(재측정 따로) 뒤 0066 규칙 값으로 돌아간다(C 1,260)', Number(reBase[C]?.bytes) === 1260, norm(reBase[C]));
+    check('참고: 0066 「1분」 조건 그대로라 1분 안 재측정에선 A의 0077 값(400)이 남는다 — 이번에 고친 문제의 0066 재현',
+      Number(reBase[A]?.bytes) === 400, norm(reBase[A]));
+    await sql`select public.member_storage_measure(${A}::uuid)`;
+    check('되돌리기 뒤 A 한 명 측정은 0066 규칙대로 0', Number((await rows())[A]?.bytes ?? 0) === 0);
   } finally { await sql.end(); }
 } finally {
   if (oid !== null) {
