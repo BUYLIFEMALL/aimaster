@@ -427,3 +427,5 @@ WS-RELEASE-RECORD-SYNC A3 CC-WORKSPACE-01: Master msg_d1ffca87f700. v1.58 배포
 WS-RELEASE-RECORD-SYNC A3 점유 해제 CC-WORKSPACE-01: v1.58 배포 기록 d13895091(PENDING_DEPLOYS 한 줄) · 548ea00ac(AGENTS 4절 한 곳). 워크스페이스 내보낸 기록 v1.52~v1.63 연속.
 
 WS-IMPORT-PANEL-DOM-REGRESSION CC-WORKSPACE-01: Master msg_7b8ed4363ea5. 새 ai-work-workspace/tests/integration/importPanelDom.test.ts 한 파일(jsdom, 가져오기 완료 화면의 안내·조회 횟수 회귀)과 본인 문서 기록만. 제품 코드·의존성·설정 변경 없음, 서버 기동·운영 조회·빌드·배포·push 없음.
+
+WS-IMPORT-PANEL-DOM-REGRESSION 점유 해제 CC-WORKSPACE-01: 시험 1파일+문서 54183605c(importPanelDom.test.ts 6개, tsc 0, 변이 2종 실패 확인). 제품 코드 3d446effa 그대로. 미검증: 실제 브라우저·운영.
