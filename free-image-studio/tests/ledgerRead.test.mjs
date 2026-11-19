@@ -1,7 +1,8 @@
 // 맥미니 706b1d53d 재검수: 접수 기록을 「읽지 못함」과 「없음」의 구분, 되찾기 결과와 접수 기록의 일치.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { EngineError, createEngineClient } from "../src/lib/engine.ts";
+import { EngineError, createEngineClient, isSubmissionRow } from "../src/lib/engine.ts";
+import { buildRows } from "../src/lib/studio/jobsView.ts";
 import { findPreset } from "../src/lib/studio/presets.ts";
 import { buildPlan, confirmUncertain, draftStatus, loadDraft, saveDraft, submitRemaining } from "../src/lib/studio/batch.ts";
 import { createMockEngine, memoryStorage } from "./mockEngine.mjs";
@@ -13,6 +14,8 @@ const isPost = (call) => call.method === "POST" && call.path === "/queue";
 const posts = (engine) => engine.st.calls.filter(isPost);
 const plan = (text) => buildPlan({ text, preset: findPreset("photo"), width: 1280, height: 720 }).items;
 const OK = { title: "t", prompt: "a red apple on a table" };
+const ROW = (requestId, over = {}) => ({ requestId, trackId: "t", link: "some-link", title: "줄", task: { prompt: "a b c" }, state: "accepted", jobId: "00000000-0000-4000-8000-000000000000", at: 1, ...over });
+const BUILD = (c, subs) => buildRows(subs, [], { inScope: (id) => c.inCurrentScope(id), canResend: (id) => c.canResend(id) });
 const caught = (p) => p.then(() => null, (e) => e);
 /** 접수 기록 칸의 읽기를 실패시킬 수 있는 저장소. failGet: 남은 실패 횟수(Infinity면 계속) */
 function flaky() {
@@ -70,7 +73,7 @@ test("반례 P2 — 접수 기록 읽기가 한 번 실패해도 빈 기록으�
 });
 
 test("손상된 접수 기록은 쓰지도 보내지도 않는다 — 「없음」(빈 칸)만 빈 기록이다", async () => {
-  const broken = ["{not json", "{}", '"text"', "[1]", "[null]", '[{"title":"번호 없음"}]', '[["a"]]', JSON.stringify([{ requestId: "dup-request-0001", state: "accepted" }, { requestId: "dup-request-0001", state: "unknown" }])];
+  const broken = ["{not json", "{}", '"text"', "[1]", "[null]", '[{"title":"번호 없음"}]', '[["a"]]', JSON.stringify([ROW("dup-request-0001"), ROW("dup-request-0001")])];
   for (const raw of broken) {
     const engine = createMockEngine();
     const storage = memoryStorage();
@@ -106,7 +109,8 @@ test("기존 접수 기록 호환 — 예전에 적힌 줄(추가 칸이 없거�
   const c = await paired(engine, storage);
   const old = [
     { requestId: "old-request-00001", trackId: "t", link: "old-link", title: "옛 기록", task: { prompt: "a b c" }, state: "accepted", jobId: "00000000-0000-4000-8000-000000000000", at: 1 },
-    { requestId: "old-request-00002", state: "unknown", extra: { kept: true } },
+    // 처음 판(5-2 첫 커밋)이 적던 모양: link 칸이 없고 상태가 notReceived, 여기에 모르는 추가 칸
+    { requestId: "old-request-00002", trackId: "t2", title: "처음 판", task: { prompt: "d e f", seed: 7 }, state: "notReceived", error: "받지 않음", at: 2, extra: { kept: true } },
   ];
   storage.map.set(LEDGER, JSON.stringify(old));
   const r = await c.submit(OK);
@@ -182,4 +186,84 @@ test("반례 P3 — 되찾기 경쟁: 접수 기록에 다른 범위의 같은 �
   assert.equal(draftStatus(c, storage).remaining, 0);
   assert.deepEqual(await submitRemaining(c, storage).then((r) => r.sent), 0);
   assert.equal(posts(engine).length, n, "확인은 새 작업을 만들지 않는다");
+});
+
+test("반례 P2 — 번호는 정상인데 내용이 손상된 줄: 쓰기·전송에서는 기존 기록 유지·전송 0, 화면 읽기는 그 줄을 빼고 오류 없이", async () => {
+  const good = ROW("good-request-0001");
+  const bad = {
+    "task가 null": { task: null },
+    "task가 배열": { task: ["a"] },
+    "task가 글자": { task: "a b c" },
+    "task 없음": { task: undefined },
+    "prompt가 숫자": { task: { prompt: 5 } },
+    "prompt 없음": { task: {} },
+    "seed가 글자": { task: { prompt: "a b c", seed: "7" } },
+    "width가 글자": { task: { prompt: "a b c", width: "1024", height: 1024 } },
+    "variantId가 숫자": { task: { prompt: "a b c", variantId: 3 } },
+    "보관 번호 없음": { trackId: undefined },
+    "제목이 숫자": { title: 3 },
+    "시각이 글자": { at: "어제" },
+    "시각 없음": { at: undefined },
+    "상태 없음": { state: undefined },
+    "모르는 상태": { state: "done" },
+    "link가 숫자": { link: 5 },
+    "jobId가 객체": { jobId: {} },
+    "error가 숫자": { error: 1 },
+    "tag가 숫자": { tag: 1 },
+    "접수 번호가 빈 글자": { requestId: "" },
+  };
+  for (const [name, over] of Object.entries(bad)) {
+    const row = JSON.parse(JSON.stringify(ROW("bad-request-00001", over)));
+    assert.equal(isSubmissionRow(row), false, name);
+    const engine = createMockEngine();
+    const storage = memoryStorage();
+    const c = await paired(engine, storage);
+    const raw = JSON.stringify([good, row]);
+    storage.map.set(LEDGER, raw);
+    // 쓰기·전송 경계: 새 접수, 묶음 접수 모두 거절 — 기록 불변, 전송 0
+    const e = await caught(c.submit(OK));
+    assert.ok(e instanceof EngineError && e.kind === "storage" && e.beforeSend === true, name);
+    saveDraft(storage, A, plan("a red apple on a table"));
+    assert.equal((await submitRemaining(c, storage)).sent, 0, name);
+    assert.equal(storage.map.get(LEDGER), raw, name);
+    assert.equal(posts(engine).length, 0, name);
+    assert.equal(c.ledgerBroken(), true, name);
+    // 화면 경계: 같은 기준으로 손상된 줄만 빠지고, 줄 목록을 만드는 데 오류가 없다
+    const subs = c.submissions();
+    assert.deepEqual(subs.map((x) => x.requestId), ["good-request-0001"], name);
+    assert.doesNotThrow(() => BUILD(c, subs), name);
+    assert.doesNotThrow(() => draftStatus(c, storage), name);
+  }
+});
+
+test("줄 검증 기준 — 정상 줄, 선택 칸이 빠진 줄, 처음 판의 줄(link 없음·notReceived), 모르는 추가 칸은 통과한다", async () => {
+  const ok = [
+    ROW("ok-request-000001"),
+    ROW("ok-request-000002", { link: undefined, jobId: undefined, state: "pending" }),
+    ROW("ok-request-000003", { link: undefined, state: "notReceived", error: "받지 않음", jobId: undefined }),
+    ROW("ok-request-000004", { state: "rejected", error: "잠시 뒤", errorKind: "busy", tag: "batch:x:1", jobId: undefined }),
+    ROW("ok-request-000005", { task: { prompt: "a b c", variantId: "flux2-klein-4b-q8", width: 1280, height: 720, seed: 4004 }, future: { any: 1 } }),
+    ROW("ok-request-000006", { state: "unknown", title: "" }),
+  ].map((r) => JSON.parse(JSON.stringify(r)));
+  for (const r of ok) assert.equal(isSubmissionRow(r), true, r.requestId);
+  for (const v of [null, undefined, 1, "x", [], {}]) assert.equal(isSubmissionRow(v), false);
+  // 실제로 지금 코드가 적는 줄도 이 기준을 통과한다(정상·거절·결과 모름)
+  const engine = createMockEngine();
+  const storage = memoryStorage();
+  const c = await paired(engine, storage);
+  storage.map.set(LEDGER, JSON.stringify(ok));
+  assert.equal(c.ledgerBroken(), false);
+  await c.submit(OK);
+  engine.st.override = (call) => (isPost(call) ? new Response(JSON.stringify({ error: "잠시 뒤 다시 시도해 주세요." }), { status: 429 }) : null);
+  await c.submit({ title: "t2", prompt: "a blue bird on a branch", seed: 2 });
+  engine.st.override = null;
+  engine.st.loseResponse = isPost;
+  await c.submit({ title: "t3", prompt: "a green hill at dawn", width: 1024, height: 1024 }, { tag: "x" });
+  engine.st.loseResponse = null;
+  const written = JSON.parse(storage.map.get(LEDGER));
+  assert.equal(written.length, 9);
+  assert.deepEqual(written.slice(0, 6), ok, "옛 줄은 고쳐 쓴 뒤에도 그대로");
+  assert.ok(written.every(isSubmissionRow));
+  assert.equal(c.submissions().length, 9);
+  assert.doesNotThrow(() => BUILD(c, c.submissions()));
 });

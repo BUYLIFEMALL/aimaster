@@ -69,6 +69,30 @@ export class EngineError extends Error {
   }
 }
 
+/** 접수 기록 한 줄에 올 수 있는 상태. notReceived는 처음 판(5-2 첫 커밋)이 적던 값이라 읽기만 허용한다 */
+const ROW_STATES = ["pending", "accepted", "unknown", "rejected", "notReceived"];
+const optional = (v: unknown, type: "string" | "number") => v === undefined || (type === "number" ? typeof v === "number" && Number.isFinite(v) : typeof v === type);
+/**
+ * 접수 기록 한 줄이 쓸 수 있는 모양인가 — **화면 읽기와 쓰기·전송 판단이 함께 쓰는 하나의 기준**.
+ * 화면과 전송이 실제로 읽는 칸을 모두 본다: 접수 번호·보관 번호·제목·시각·상태, 그리고 작업 내용(task는 객체, prompt는 글자,
+ * variantId·width·height·seed는 있으면 형식이 맞아야 함). link는 처음 판에 없던 칸이라 없어도 되고, 있으면 글자여야 한다.
+ * jobId·error·errorKind·tag도 있으면 글자. 모르는 추가 칸은 허용한다.
+ */
+export function isSubmissionRow(v: unknown): v is Submission {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return false;
+  const r = v as Record<string, unknown>;
+  if (typeof r.requestId !== "string" || !r.requestId) return false;
+  if (typeof r.trackId !== "string" || typeof r.title !== "string") return false;
+  if (typeof r.at !== "number" || !Number.isFinite(r.at)) return false;
+  if (typeof r.state !== "string" || !ROW_STATES.includes(r.state)) return false;
+  const t = r.task;
+  if (!t || typeof t !== "object" || Array.isArray(t)) return false;
+  const task = t as Record<string, unknown>;
+  if (typeof task.prompt !== "string") return false;
+  if (!optional(task.variantId, "string") || !optional(task.width, "number") || !optional(task.height, "number") || !optional(task.seed, "number")) return false;
+  return optional(r.link, "string") && optional(r.jobId, "string") && optional(r.error, "string") && optional(r.errorKind, "string") && optional(r.tag, "string");
+}
+
 /** 요청을 시작하기 전에 난 오류로 표시한다 */
 const unsent = (e: EngineError): EngineError => {
   e.beforeSend = true;
@@ -254,7 +278,7 @@ export function createEngineClient(opts: EngineClientOptions) {
   // ── 접수 기록 ──
   /**
    * 고쳐 쓰거나 전송을 정하기 위한 **엄격한** 읽기. 「기록이 없다」(칸이 비어 있음 → 빈 목록)와
-   * 「읽지 못했다」(저장소 예외·JSON 깨짐·배열 아님·모양이 다른 줄·같은 접수 번호가 두 번)를 구분한다.
+   * 「읽지 못했다」(저장소 예외·JSON 깨짐·배열 아님·isSubmissionRow에 맞지 않는 줄·같은 접수 번호가 두 번)를 구분한다.
    * 읽지 못했으면 예외 — 부르는 쪽은 접수 기록을 쓰지도, 엔진에 보내지도 않는다(빈 목록으로 여겨 덮어쓰지 않는다).
    */
   function readLedgerStrict(): Submission[] {
@@ -275,17 +299,20 @@ export function createEngineClient(opts: EngineClientOptions) {
     if (!Array.isArray(data)) throw fail();
     const seen = new Set<string>();
     for (const s of data) {
-      if (!s || typeof s !== "object" || Array.isArray(s) || typeof (s as Submission).requestId !== "string") throw fail();
-      if (seen.has((s as Submission).requestId)) throw fail();
-      seen.add((s as Submission).requestId);
+      if (!isSubmissionRow(s)) throw fail(); // 번호는 멀쩡해도 작업 내용 등 필수 칸이 깨진 줄은 손상으로 본다
+      if (seen.has(s.requestId)) throw fail();
+      seen.add(s.requestId);
     }
     return data as Submission[];
   }
-  /** 화면 표시용 **너그러운** 읽기 — 읽지 못하면 빈 목록. 이 결과로 접수 기록을 고쳐 쓰거나 전송을 정하지 않는다. */
+  /**
+   * 화면 표시용 **너그러운** 읽기 — 읽지 못하면 빈 목록, 손상된 줄은 빼고 돌려준다(같은 기준 isSubmissionRow).
+   * 그래서 화면 쪽 코드는 돌려받은 줄의 칸을 그대로 읽어도 된다. 이 결과로 접수 기록을 고쳐 쓰거나 전송을 정하지 않는다.
+   */
   function readLedger(): Submission[] {
     try {
       const data: unknown = JSON.parse(storage.getItem(ledgerKey) ?? "[]");
-      return Array.isArray(data) ? (data.filter((s) => s && typeof s === "object" && typeof (s as Submission).requestId === "string") as Submission[]) : [];
+      return Array.isArray(data) ? data.filter(isSubmissionRow) : [];
     } catch {
       return [];
     }
@@ -585,6 +612,15 @@ export function createEngineClient(opts: EngineClientOptions) {
 
     /** 접수 기록(이 회원 것만) */
     submissions: (): Submission[] => readLedger(),
+    /** 접수 기록이 손상됐거나 읽을 수 없는가(화면이 안내를 띄울 때 쓴다). 손상된 동안에는 새 접수·고쳐 쓰기가 모두 거절된다. */
+    ledgerBroken(): boolean {
+      try {
+        readLedgerStrict();
+        return false;
+      } catch {
+        return true;
+      }
+    },
 
     /** 지금 연결 범위의 표시(연결돼 있지 않으면 null). 다시 연결해 범위를 이어받는 동안 같은 값이다 */
     scopeId: (): string | null => readLink(),
