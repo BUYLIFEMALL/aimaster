@@ -171,7 +171,7 @@ Master 마지막 실제 점검: 2026-11-19 11:30:56 KST · 실행 중 점검 주
 | FRONT-20261116-02 | CC-B2B-FRONT-01 | done / integrated | E3 Lab검수→식품/키즈/뷰티 각6종 템플릿 | 6종구현/420시험/E3·갤러리Lab확인·Master카탈로그등록 완료. v1.16배포는별도대기 |
 | RE-20261116-01 | CC-REALTY-01 | done / integrated | L-6 기술안·뉴스미배포정정·17시험 | 대안1 채택, 구현은RE-02로 분리 |
 | RE-20261119-EXT | CC-REALTY-01 | running / three_program_linkage_independent_accepted_crm_plan_routed | 부동산 추가 개선 순차 진행 | 매물 알림 8 blob·독립 3/3, 관심 지역 3프로그램 연계 로컬 수락. 실 화면·DB 권한 검증 및 배포 대기. 고객관리 플랜 이동. |
-| RE-20261119-DESK | CC-REALTY-01 | running / u1_preview_continuation_requested | 부동산 고객관리 화면 개선 | L-1/L-2 05902858a 독립 수락. U-1 휴대폰 문자 미리보기 범위 확정·기존 담당에 계속 진행 요청. 고정 SHA 반환 후 Mac 독립 검수. |
+| RE-20261119-DESK | CC-REALTY-01 | reviewing / u1_author_verified_mac_review_dispatched | 부동산 고객관리 화면 개선 | U-1 92913afdd 휴대폰 말풍선 미리보기 구현. 작성자 tsc·35시험·375px 합성 3종 통과. Mac 독립 검수 전송, 미배포. |
 | RE-20261116-02 | CC-REALTY-01 | done / integrated | 카톡실패상태·끊긴토큰재발송방지·local로그아웃/UA | 사용자 직접 승인 배포 v1.45/v1.61. 카카오 실물·08:00 뉴스 대조 별도 |
 | BLOG-20261116-01 | CC-BLOG-01 | done / integrated | 티스토리 소제목##·이웃 전경거절 진단 보완 | 코드검증범위 완료, 이웃재시험/배포/실제소통은별도대기 |
 | QA-20261116-01 | CX-QA-01 | cancelled / integrated | 종합 QA를 영상/Workspace로 분리 | 중복 배정 종료, 검증 완료 의미 아님 |
