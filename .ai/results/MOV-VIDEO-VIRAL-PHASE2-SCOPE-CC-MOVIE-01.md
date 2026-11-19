@@ -81,3 +81,38 @@
 
 - 실행: 파일 읽기·`git grep`·`git log -1 -- <경로>`(종료코드 0). 운영·AI·빌드·배포 0, 비용 0.
 - 다음 역할: CX-MASTER-01이 2-1 배정(공용 등록 파일 점유 포함) → CC-MOVIE-01 구현·로컬 시험 → CX-QA-01 정적 검수 → SVS 배포 승인.
+
+---
+
+## A2 구현 결과 (배정 2, 기준 5666d0bd9, 시험한 SHA `b40b18f37`) — ready_review
+| 항목 | 값 |
+|---|---|
+| 범위 | 2-1 중 YVS 안에서만: 기준 모듈 분리 + boks 재내보내기 + 국소 모의 시험. 공용 등록·SVS 연결·새 의존성·빌드·운영 조회·배포 0 |
+| 바꾼 파일 | `youtube-viral-studio/src/lib/youtube/relevanceFilter.ts`(새, 148줄) · `src/lib/youtube/boks/core.ts`(202~331줄 130줄 삭제 → 다시 내보내기 4줄) · `tests/boks.test.mjs`(불러오기 보정) · `tests/relevanceFilter.test.mjs`(새) · `docs/IMPROVEMENTS.md`(미배포 대기 기록) |
+
+### 고정판(5666d0bd9) 대비 근거
+- 옮긴 130줄을 원본(`git show HEAD:…/core.ts` 202~331줄)과 `diff`로 대조 → 다른 곳은 입력 타입 한 줄뿐: `Pick<RawFinderVideo, 6필드>` → 같은 6필드(모두 `string`, `tags: string[]`)의 독립 `interface RelevanceInput`. 함수 본문·정규식·단어 목록은 글자 그대로.
+- 보조 함수(`compact`·`stripHashtags`·`HANGUL_RE`·`HASHTAG_RE`·`hangulCount`·`scriptCount`·`LANG_SCRIPT`·`religionHits`)는 core.ts 나머지 부분에서 쓰지 않음을 `grep`으로 확인 → 통째로 이동.
+- 호출하는 쪽 `boks/search.ts`(13·14·17줄 import, 353·461·524줄 사용)는 core.ts 재내보내기로 그대로 → 수정 0. YouTube 호출 수·순서 변화 0(거르기 함수는 네트워크 없음).
+- 새 의존성 0(`node:module` `registerHooks`는 Node 기본, 기존 `tests/creatorFinder.test.mjs`와 같은 방식).
+
+### 검증
+| 명령(폴더 `youtube-viral-studio`) | 결과 | 종료코드 |
+|---|---|---|
+| 변경 전 `node --test tests/boks.test.mjs` | 11/11 | 0 |
+| 변경 뒤 `node --test tests/boks.test.mjs tests/relevanceFilter.test.mjs` | 16/16(기존 11 + 새 5: 재내보내기 동일 함수, 도배, 언어, 키워드, 종교) | 0 |
+| `npx tsc --noEmit -p .` | 오류 0 | 0 |
+| `node --test tests/*.test.mjs` | 71 중 67 통과, 실패 4 = `favorites.test.mjs`만(2026-11-16 기록된 기존 실패, 정책 담당 몫 — 이번 변경 전에도 같음) | 1 |
+- SQL·외부 호출·운영 조회·빌드·배포 0, 비용 0.
+
+### 미확인
+- `npm run build`(Next 번들에서 재내보내기 확인) — 배정상 빌드 제외. `tsc`가 같은 경로 해석(`moduleResolution: bundler`)으로 통과해 위험은 낮음, 다음 YVS 배포 전 로컬 build로 확인.
+- 운영 화면 동작(떡상 시장 탐색 거르기) — 배포 전이라 미확인, 동작 변화 0 설계.
+
+### 판정
+| 인수 조건 | 판정 |
+|---|---|
+| 기존 고정판 대비 해당 범위 근거 | PASS |
+| 검증(시험·tsc) | PASS |
+| 미확인 명시 | PASS(위 2건) |
+| 배포·공용 등록·SVS 연결 | NOT_RUN(범위 밖) |
