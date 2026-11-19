@@ -391,7 +391,7 @@ Workspace v1.62의 버전 커밋을 확인했다. AI Influencer D2 SQL 원복 �
 | WS-20261118-08 | CC-WORKSPACE-01 | done / collapsed_widget_spacing_static_mac_review_accepted_undeployed | 좌측 하단 저장공간 위젯과 푸터 겹침 | 미배포. 기본 위젯 겹침 국소 정적 검수 완료, 확장/좁은 폭·실화면은 별도. |
 | WS-20261119-01 | CC-WORKSPACE-01 | done / saved_notion_html_recursive_fix_independent_review_accepted | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | v1.61 배포 완료, 기존 가져온 본문 읽기 확인. 운영에서 노션 저장 HTML 다시 가져오기 시험은 미실행. v1.61 완료분 점유 해제(5b2f56408). |
 | WS-20261119-REL | CC-WORKSPACE-01 | done / production_v161_live_verified_catalog_version_synced | Workspace v1.61 기존 중단 빌드 로그 진단 | 운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음. 완료분 점유 해제(5b2f56408). |
-| WS-20261119-02 | CC-WORKSPACE-01 | running / workspace_v162_owner_approved_preflight_reported | Workspace 대용량 ZIP | 주인님 v1.62 운영 1회 승인. 809f52f7e 위 버전 표시 커밋 dfcee1584 확인. 배포 ID·READY 대기. |
+| WS-20261119-02 | CC-WORKSPACE-01 | done / workspace_v162_production_ready_live_import_pending | Workspace 대용량 ZIP | dfcee1584 운영 v1.62 READY·공식 alias 확인, 빌드 1회. 첫 요청 DDL 확인(담당). DB 표시 v1.61, 재로그인·실제 ZIP/Storage 검증 대기. |
 | MUSIC-20261119-IMG-COMPAT | CC-MUSIC-01 | done / five_music_flows_read_only_accepted | 무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토 | 고정 2131089b7 음악 5경로·146/146 검토 수락. 새 범위 미사용 시 파일 미생성 정정. 실제 엔진은 미검증. |
 | MUSIC-20261119-BACKLOG-SWEEP | CC-MUSIC-01 | done / music_backlog_review_accepted_followup_dispatched | 음악 7개 프로그램 다음 작업 후보 대조 | 음악 7개 웹의 미배포 코드 0. L5·U3를 우선 로컬 착수, 리믹스→플레이리스트 및 유료 영상 실검증은 별도 조건 대기. |
 | MUSIC-20261119-REMIX-PLAYLIST-REVIEW | CC-MUSIC-01 | done / remix_playlist_review_accepted_implementation_scope_pending | 리믹스에서 플레이리스트 연계 사전 검토 | d6df77af9 사전 검토 수락. 두 테이블 모두 회원 범위 확인, 플레이리스트 수신 기능을 먼저 배포한 뒤 음악 링크를 공개해야 함. 구현 범위·배포 승인 대기. |
@@ -515,7 +515,7 @@ Workspace v1.62의 버전 커밋을 확인했다. AI Influencer D2 SQL 원복 �
 | AIF-20261119-W01-RETOUCH | CC-SNS-01 | done / test_generation_and_retouch_pass_v5_upload_without_publish | AI Influencer 히스토리 재표시·일반 회원 생성·보정 | 지정 일반 회원 경로 보류. 시험 계정 생성 1·보정 1 성공, V5 규칙 변환·업로드 확인. 앱 실제 게시와 운영 출처는 미검증. |
 | AIF-20261119-W01-D1 | CC-SNS-01 | done / production_off_ready_public_smoke_passed | AI Influencer D1 스위치 OFF 운영 배포 | D1 OFF 운영·DB·저장소 v1.27 일치. 담당자 로그인 무료 확인 및 배포와 공유 소스 3경로 차이 기록 완료. D2 사전 검토 58a2c9672 접수. 운영 shadow 전 정리·쿼터의 격리 검증 범위 요청, D3 대기. |
 | AIF-20261119-PLAN6 | CC-SNS-01 | reviewing / six_requirement_v2_scope_accepted_test_role_pending | AI Influencer 직접 요구 6건 개발 플랜 보완 | 4ac03c967 v2 전환 기준 보완. 일반 회원 Vercel 대기 0건이면 전환, 남으면 처리 결정 선행. 시험 계정 권한 식별 방식 확정 전 예약 구현 보류. |
-| AIF-20261119-D2-IT | CC-SNS-01 | running / d2_rollback_version_candidate_mac_recheck_sent | AI Influencer D2 정리·쿼터 격리 통합 시험 | c1c5c92e5 원복 전 함수 4개 지문 대조 추가, 변경·누락 시 중단. 담당 34건 통과·Mac 재검수 전달. 운영 미적용. |
+| AIF-20261119-D2-IT | CC-SNS-01 | done / d2_local_sql_mac_rollback_review_accepted_undeployed | AI Influencer D2 정리·쿼터 격리 통합 시험 | c1c5c92e5 맥미니 원복 본문·서명·표식 보호 확인. 로컬 SQL 후보 검수 완료, 적용·원복 전 속성/권한 대조 문서 정정 요청. 운영 미적용. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |
@@ -553,7 +553,7 @@ Workspace v1.62의 버전 커밋을 확인했다. AI Influencer D2 SQL 원복 �
 | AI 가사영상 자동화 | CC-MUSIC-01 | v1.17 | 운영 v1.17 · 취소 안내와 MP4 인코더 개선 | 담당 Ready·DB·메뉴 v1.17 및 시험 36/36 | 담당 운영 취소·MP4 생성 확인. 파일 저장 및 Mac 독립 실검수·QA002 B 대기. |
 | AI 음악 스튜디오 | CC-MUSIC-01 | v1.16 | 운영·Ready 보고 | 공통 로그아웃/UA/위젯 배포 | 명시 잔여 없음·운영전체무결함 의미아님 |
 | AI 영상 스튜디오 | CC-MOVIE-01 | v1.36 | 운영버전 담당기록·유료생성 조건대기 | version/기존배포기록대조 | 주인님 후속지시 전 실유료생성0 |
-| AI 업무 워크스페이스 자동화 | CC-WORKSPACE-01 | v1.60 | v1.60 운영·캘린더 스타일 확인 | 36af44608·dpl_DC9Bifer8U1oZ67QFRJNkaAQ1Pj6 READY·로컬 build 1회 담당 통과 | 시험 현황판 주소 미존재로 폭/메뉴 미확인. DB 목록 v1.58 보고·미변경. WS08 미배포. |
+| AI 업무 워크스페이스 자동화 | CC-WORKSPACE-01 | v1.62 | v1.62 운영·대용량 ZIP 및 CSV 병합 개선 | dfcee1584·dpl_7jQpBZotPMrMxbYT7XzSCfXBHbqT READY·원격 빌드 1회 | DB 목록 v1.61. 운영 재로그인 뒤 가져오기 UI·실제 Storage/ZIP 검증 대기. |
 | 셀러 라벨·QR·서류 자동화 | CC-ECOM-01 | v1.04 | 운영·인쇄자료/소규모미배포 | 마켓단계48b67dd5c 구현 | 다음배포묶음·실인쇄여백자료대기 |
 | AI 쇼핑몰 주문·매출 리포트 자동화 | CC-ECOM-01 | v1.06 | 운영·자료대기 | 코드/기존검증은개별기록 | 개인정보지운실제주문파일 필요 |
 | AI 스마트스토어 상품 자동등록기 | CC-ECOM-01 | v1.28 | 운영배포기록·발행표시 수정반영 | 6a17c6123 markPosted v1.28 mxv57n8mv 포함 | 같은변경 재배포0·실제마켓쓰기 별도지시 |
@@ -692,7 +692,7 @@ Workspace v1.62의 버전 커밋을 확인했다. AI Influencer D2 SQL 원복 �
 | 86 | AI 댓글·DM 통합 받은편지함 / comment-inbox | 마케팅(홍보) | v1.10 / 운영(2026-10-21 신규) | — | 기존 담당 확인 대기 · 비교표 기록·담당 재확인 | 기존 담당·최신 기록 대조 후 배정 |
 | 87 | AI 음악 스튜디오 / ai-music-studio | 음악 | v1.16 / 공개(new, 2026-10-23 신규) | v1.16 | CC-MUSIC-01 · 운영·Ready 보고 | 명시 잔여 없음·운영전체무결함 의미아님 |
 | 88 | AI 영상 스튜디오 / ai-video-studio | 영상 | v1.36 / 공개(new, 2026-10-23 신규) | v1.36 | CC-MOVIE-01 · 운영버전 담당기록·유료생성 조건대기 | 주인님 후속지시 전 실유료생성0 |
-| 89 | AI 업무 워크스페이스 자동화 / ai-work-workspace | 업무자동화 | v1.57 / 공개(기초 목록 기록) | v1.60 | CC-WORKSPACE-01 · v1.60 운영·캘린더 스타일 확인 | 시험 현황판 주소 미존재로 폭/메뉴 미확인. DB 목록 v1.58 보고·미변경. WS08 미배포. |
+| 89 | AI 업무 워크스페이스 자동화 / ai-work-workspace | 업무자동화 | v1.57 / 공개(기초 목록 기록) | v1.62 | CC-WORKSPACE-01 · v1.62 운영·대용량 ZIP 및 CSV 병합 개선 | DB 목록 v1.61. 운영 재로그인 뒤 가져오기 UI·실제 Storage/ZIP 검증 대기. |
 | 90 | 셀러 라벨·QR·서류 자동화 / seller-label-docs | 이커머스 | v1.04 / 공개(new, 2026-10-25 신규) | — | CC-ECOM-01 · 운영·인쇄자료/소규모미배포 | 다음배포묶음·실인쇄여백자료대기 |
 | 91 | AI 쇼핑몰 주문·매출 리포트 자동화 / shop-order-report | 이커머스 | v1.06 / 공개(new, 2026-10-25 신규) | — | CC-ECOM-01 · 운영·자료대기 | 개인정보지운실제주문파일 필요 |
 | 92 | AI 스마트스토어 상품 자동등록기 / smartstore-register | 이커머스 | v1.28 / 공개(new, 2026-10-26 신규 · 「바로 등록」 실제 등록 성공 2026-10-27) | v1.28 | CC-ECOM-01 · 운영배포기록·발행표시 수정반영 | 같은변경 재배포0·실제마켓쓰기 별도지시 |

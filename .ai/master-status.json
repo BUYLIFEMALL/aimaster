@@ -6185,12 +6185,12 @@
       "task_id": "WS-20261119-02",
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace ZIP 50MB 안내와 대용량 가져오기 설계",
-      "status": "running",
-      "delivery": "workspace_v162_owner_approved_preflight_reported",
-      "sha": "809f52f7e",
-      "next": "주인님 v1.62 운영 1회 승인. 809f52f7e 위 버전 표시 커밋 dfcee1584 확인. 배포 ID·READY 대기.",
+      "status": "done",
+      "delivery": "workspace_v162_production_ready_live_import_pending",
+      "sha": "dfcee1584",
+      "next": "dfcee1584 운영 v1.62 READY·공식 alias 확인, 빌드 1회. 첫 요청 DDL 확인(담당). DB 표시 v1.61, 재로그인·실제 ZIP/Storage 검증 대기.",
       "lastReviewedAt": "2026-11-19T07:34:18.665Z",
-      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85·cfd124ba3·c2816bf0f·13e9af05d·msg_b6590eaaaee8·7298b1dbf·msg_25fa9e68b50a·msg_2694e685c83c·msg_b5baddc12f26·c81384d50·504891ed2 부모 분리·msg_64c64ec0e1da·msg_a38d3ff84dbc·msg_021d1ad75f3a·msg_74f8e5339487·368acd3b7·msg_d4a19e25bc14·msg_a7c6ecc7758f·msg_2710ce16b617·cdb121ab7·msg_a558ec9d6241·msg_9f4a49f9353c·.ai/results/WS-20261119-02-CX-QA-01.md·04807f920·msg_7fd9735761c5·msg_2e22cd4b41c3·msg_7a026b63d2e7·msg_a91f3a9fe702·072d74005·msg_c781a457252f·msg_d4f3a908acbe·msg_547f81d99092·658155927·msg_aac8a5bb28c4·msg_983703ac38b1·msg_41ae6dc0d449·f221885b4·msg_0896b4b5dfd8·msg_00783db43a13·msg_c866fe16a1d9·23190f14d·msg_8a7a8558b586·msg_1335ade47014·msg_9bb5ace698fd·809f52f7e·msg_ad73fc9a7e55·msg_80ad84215073·msg_f2e689100f9b·0b43bae44·abc3270c6·주인님 직접 배포 승인 전달·msg_f8a9bb6310de·dfcee1584",
+      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85·cfd124ba3·c2816bf0f·13e9af05d·msg_b6590eaaaee8·7298b1dbf·msg_25fa9e68b50a·msg_2694e685c83c·msg_b5baddc12f26·c81384d50·504891ed2 부모 분리·msg_64c64ec0e1da·msg_a38d3ff84dbc·msg_021d1ad75f3a·msg_74f8e5339487·368acd3b7·msg_d4a19e25bc14·msg_a7c6ecc7758f·msg_2710ce16b617·cdb121ab7·msg_a558ec9d6241·msg_9f4a49f9353c·.ai/results/WS-20261119-02-CX-QA-01.md·04807f920·msg_7fd9735761c5·msg_2e22cd4b41c3·msg_7a026b63d2e7·msg_a91f3a9fe702·072d74005·msg_c781a457252f·msg_d4f3a908acbe·msg_547f81d99092·658155927·msg_aac8a5bb28c4·msg_983703ac38b1·msg_41ae6dc0d449·f221885b4·msg_0896b4b5dfd8·msg_00783db43a13·msg_c866fe16a1d9·23190f14d·msg_8a7a8558b586·msg_1335ade47014·msg_9bb5ace698fd·809f52f7e·msg_ad73fc9a7e55·msg_80ad84215073·msg_f2e689100f9b·0b43bae44·abc3270c6·주인님 직접 배포 승인 전달·msg_f8a9bb6310de·dfcee1584·msg_f8a9bb6310de 회신·837b3eb95·dpl_7jQpBZotPMrMxbYT7XzSCfXBHbqT",
       "reviewer": "CX-QA-01"
     },
     {
@@ -6333,11 +6333,11 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-QA-01",
       "title": "AI Influencer D2 정리·쿼터 격리 통합 시험",
-      "status": "running",
-      "delivery": "d2_rollback_version_candidate_mac_recheck_sent",
+      "status": "done",
+      "delivery": "d2_local_sql_mac_rollback_review_accepted_undeployed",
       "sha": "c1c5c92e5",
-      "next": "c1c5c92e5 원복 전 함수 4개 지문 대조 추가, 변경·누락 시 중단. 담당 34건 통과·Mac 재검수 전달. 운영 미적용.",
-      "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e·msg_01908be553ce·msg_3c0ea9d67886·fec7fe017·msg_3bdadb79cff0·msg_ba14d996ab74·msg_0e498ff524d1·msg_af7821e3d106·.ai/results/AIF-20261119-D2-IT-CX-QA-01.md·msg_ec07da32b153·b9ae5bcc4·msg_5a8997695e52·msg_4a1e08e7b950·msg_7c74159e5200·msg_f4dfb65f9b8f·msg_6a0776eac06b·67126ab93·msg_da122886dca1·msg_db2b0fb8b3fd·msg_5f5880568d1b·msg_2fffffb23bff·msg_f26fdb86801a·ec52dfef4·msg_a7dd4d193c29·msg_b53ce5676423·msg_a2780b9d504b·msg_35e2d9d7aef7·dbe2f869e·msg_5df2106491c8·msg_c34456bb36a1·msg_5ae0be775cd9·msg_e2f800e5fc72·c1c5c92e5·msg_8ee8671e6001"
+      "next": "c1c5c92e5 맥미니 원복 본문·서명·표식 보호 확인. 로컬 SQL 후보 검수 완료, 적용·원복 전 속성/권한 대조 문서 정정 요청. 운영 미적용.",
+      "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e·msg_01908be553ce·msg_3c0ea9d67886·fec7fe017·msg_3bdadb79cff0·msg_ba14d996ab74·msg_0e498ff524d1·msg_af7821e3d106·.ai/results/AIF-20261119-D2-IT-CX-QA-01.md·msg_ec07da32b153·b9ae5bcc4·msg_5a8997695e52·msg_4a1e08e7b950·msg_7c74159e5200·msg_f4dfb65f9b8f·msg_6a0776eac06b·67126ab93·msg_da122886dca1·msg_db2b0fb8b3fd·msg_5f5880568d1b·msg_2fffffb23bff·msg_f26fdb86801a·ec52dfef4·msg_a7dd4d193c29·msg_b53ce5676423·msg_a2780b9d504b·msg_35e2d9d7aef7·dbe2f869e·msg_5df2106491c8·msg_c34456bb36a1·msg_5ae0be775cd9·msg_e2f800e5fc72·c1c5c92e5·msg_8ee8671e6001·msg_7997238305e3·msg_e26da4eba102"
     },
     {
       "task_id": "AIF-20261119-PLAN6",
@@ -6560,12 +6560,12 @@
     {
       "slug": "ai-work-workspace",
       "owner": "CC-WORKSPACE-01",
-      "reportedVersion": "v1.60",
-      "stage": "v1.60 운영·캘린더 스타일 확인",
-      "completed": "36af44608·dpl_DC9Bifer8U1oZ67QFRJNkaAQ1Pj6 READY·로컬 build 1회 담당 통과",
-      "next": "시험 현황판 주소 미존재로 폭/메뉴 미확인. DB 목록 v1.58 보고·미변경. WS08 미배포.",
-      "evidence": "Workspace 직접 화면/배포 보고·b0911ac94, Master Vercel alias",
-      "evidenceLevel": "운영 별칭 직접 확인, 화면/DB 표시 버전은 담당 보고"
+      "reportedVersion": "v1.62",
+      "stage": "v1.62 운영·대용량 ZIP 및 CSV 병합 개선",
+      "completed": "dfcee1584·dpl_7jQpBZotPMrMxbYT7XzSCfXBHbqT READY·원격 빌드 1회",
+      "next": "DB 목록 v1.61. 운영 재로그인 뒤 가져오기 UI·실제 Storage/ZIP 검증 대기.",
+      "evidence": "837b3eb95·Workspace 담당 배포 및 DDL 보고·Master Vercel inspect",
+      "evidenceLevel": "Vercel 운영 별칭 Master 확인, 초기 DB DDL 및 브라우저 세션은 담당 보고"
     },
     {
       "slug": "ai-task-planner",
