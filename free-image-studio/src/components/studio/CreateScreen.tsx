@@ -1,0 +1,232 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { BATCH_MAX, buildPlan, clearDraft, loadDraft, remainingItems, saveDraft, submitRemaining, type RunResult } from "@/lib/studio/batch";
+import { PRESETS, SIZE_CHOICES, findPreset, findSize, pickVariantId, type ModelState, type PresetId } from "@/lib/studio/presets";
+import { messageOf, useEngine } from "./useEngine";
+
+const card = "rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5";
+const button = "rounded-xl bg-[var(--accent)] px-4 py-3 text-sm font-bold text-black disabled:opacity-40";
+const ghost = "rounded-xl border border-[var(--line)] px-4 py-2.5 text-sm disabled:opacity-40";
+const chip = (on: boolean) => `rounded-xl border px-3 py-2.5 text-sm ${on ? "border-[var(--accent)] bg-[var(--accent)]/15 font-bold" : "border-[var(--line)]"}`;
+
+type FamilyChoice = "auto" | "z-image-turbo" | "flux2-klein-4b";
+
+export function CreateScreen({ memberId }: { memberId: string }) {
+  const engine = useEngine(memberId);
+  const [presetId, setPresetId] = useState<PresetId>("photo");
+  const [sizeId, setSizeId] = useState<(typeof SIZE_CHOICES)[number]["id"]>("wide");
+  const [text, setText] = useState("");
+  const [copies, setCopies] = useState(1);
+  const [family, setFamily] = useState<FamilyChoice>("auto");
+  const [seedText, setSeedText] = useState("");
+  const [models, setModels] = useState<ModelState | null>(null);
+  const [left, setLeft] = useState(0);
+  const [running, setRunning] = useState(false);
+  const [progress, setProgress] = useState<[number, number] | null>(null);
+  const [result, setResult] = useState<RunResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const stop = useRef(false);
+
+  const preset = findPreset(presetId)!;
+  const size = findSize(sizeId)!;
+  const familyId = family === "auto" ? preset.family : family;
+  const variantId = useMemo(() => pickVariantId(models, familyId), [models, familyId]);
+  const fixedSeed = seedText.trim() === "" ? null : Number(seedText);
+  const plan = useMemo(() => buildPlan({ text, preset, width: size.width, height: size.height, copies, variantId, fixedSeed }), [text, preset, size, copies, variantId, fixedSeed]);
+
+  const readLeft = useCallback(() => {
+    if (!engine) return;
+    setLeft(remainingItems(engine, loadDraft(window.localStorage, memberId)).length);
+  }, [engine, memberId]);
+
+  useEffect(() => {
+    if (!engine) return;
+    readLeft();
+    engine
+      .getImageModels()
+      .then((m) => setModels(m as ModelState))
+      .catch(() => setModels(null)); // 못 읽으면 구성 이름을 보내지 않고 엔진이 정하게 한다
+  }, [engine, readLeft]);
+
+  const run = async (fresh: boolean) => {
+    if (!engine || running) return;
+    setError(null);
+    setResult(null);
+    stop.current = false;
+    setRunning(true);
+    try {
+      if (fresh) {
+        if (plan.errors.length || !plan.items.length) return;
+        saveDraft(window.localStorage, memberId, plan.items);
+      }
+      const out = await submitRemaining(engine, window.localStorage, { onProgress: (d, t) => setProgress([d, t]), shouldStop: () => stop.current });
+      setResult(out);
+      if (fresh && !out.stopped) setText("");
+    } catch (e) {
+      setError(messageOf(e, "맡기지 못했습니다."));
+    } finally {
+      setRunning(false);
+      setProgress(null);
+      readLeft();
+    }
+  };
+  const discardLeft = () => {
+    clearDraft(window.localStorage, memberId);
+    readLeft();
+    setResult(null);
+  };
+
+  const lineErrors = plan.errors.filter((e) => e.line > 0);
+  const topErrors = plan.errors.filter((e) => e.line === 0 && text.trim() !== "");
+  const canStart = !!engine && !running && left === 0 && plan.items.length > 0;
+
+  return (
+    <div className="mx-auto max-w-3xl space-y-4">
+      <header>
+        <h1 className="text-xl font-bold">🎨 만들기</h1>
+        <p className="mt-1 text-sm text-[var(--muted)]">용도를 고르고 그림 설명을 한 줄에 하나씩 적으면, 내 PC가 차례로 그립니다. 한 번에 {BATCH_MAX}장까지 맡길 수 있습니다.</p>
+      </header>
+
+      {left > 0 && (
+        <section className={`${card} border-[var(--accent)]`}>
+          <p className="text-sm">
+            앞서 맡기다 만 그림이 <b>{left}장</b> 남아 있습니다. 이어서 맡기거나 버린 뒤에 새 묶음을 시작할 수 있습니다.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button type="button" onClick={() => void run(false)} disabled={running} className={button}>
+              남은 {left}장 이어서 맡기기
+            </button>
+            <button type="button" onClick={discardLeft} disabled={running} className={ghost}>
+              남은 장 버리기
+            </button>
+          </div>
+        </section>
+      )}
+
+      <section className={card}>
+        <h2 className="text-sm font-bold">1. 용도</h2>
+        <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4">
+          {PRESETS.map((p) => (
+            <button key={p.id} type="button" aria-pressed={p.id === presetId} onClick={() => setPresetId(p.id)} className={`${chip(p.id === presetId)} text-left`}>
+              <span className="block text-lg">{p.emoji}</span>
+              <span className="block">{p.label}</span>
+              <span className="mt-1 block text-xs font-normal text-[var(--muted)]">{p.hint}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className={card}>
+        <h2 className="text-sm font-bold">2. 비율</h2>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {SIZE_CHOICES.map((s) => (
+            <button key={s.id} type="button" aria-pressed={s.id === sizeId} onClick={() => setSizeId(s.id)} className={chip(s.id === sizeId)}>
+              {s.label} <span className="text-xs text-[var(--muted)]">{s.width}×{s.height}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className={card}>
+        <label htmlFor="lines" className="text-sm font-bold">
+          3. 그림 설명 — 한 줄에 그림 하나(영문)
+        </label>
+        <textarea
+          id="lines"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          rows={8}
+          disabled={running}
+          placeholder={`${preset.example}\n(한 줄 더 적으면 그림이 하나 더 만들어집니다)`}
+          className="mt-3 w-full rounded-xl border border-[var(--line)] bg-transparent p-3 text-sm leading-relaxed"
+        />
+        <p className="mt-2 text-xs text-[var(--muted)]">내 PC 그림 모델은 영어만 읽습니다. 고른 용도에 맞는 표현(조명·구도·글자 없음 등)은 자동으로 덧붙습니다.</p>
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+          <span>줄마다</span>
+          {[1, 2].map((n) => (
+            <button key={n} type="button" aria-pressed={copies === n} onClick={() => setCopies(n)} className={chip(copies === n)}>
+              {n}장
+            </button>
+          ))}
+          <span className={`ml-auto font-bold ${plan.total > BATCH_MAX ? "text-red-300" : ""}`}>
+            지금 {plan.total}장 · {BATCH_MAX}장까지
+          </span>
+        </div>
+        {(topErrors.length > 0 || lineErrors.length > 0) && (
+          <ul role="alert" className="mt-3 space-y-1 rounded-xl border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-200">
+            {topErrors.map((e) => (
+              <li key={e.message}>{e.message}</li>
+            ))}
+            {lineErrors.map((e) => (
+              <li key={e.line}>
+                {e.line}번째 줄: {e.message}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <details className={card}>
+        <summary className="cursor-pointer text-sm font-bold">고급 설정</summary>
+        <div className="mt-3 space-y-4 text-sm">
+          <div>
+            <p className="font-bold">그림 모델</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {(
+                [
+                  ["auto", "용도에 맞게(권장)"],
+                  ["z-image-turbo", "Z-Image Turbo"],
+                  ["flux2-klein-4b", "FLUX.2 klein 4B"],
+                ] as const
+              ).map(([id, label]) => (
+                <button key={id} type="button" aria-pressed={family === id} onClick={() => setFamily(id)} className={chip(family === id)}>
+                  {label}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-[var(--muted)]">{variantId ? `쓸 구성: ${variantId} (이 PC에 맞는 구성을 엔진이 골랐습니다)` : "구성은 엔진이 정합니다."}</p>
+          </div>
+          <div>
+            <label htmlFor="seed" className="font-bold">
+              시드(비워 두면 그림마다 무작위)
+            </label>
+            <input id="seed" inputMode="numeric" value={seedText} onChange={(e) => setSeedText(e.target.value.replace(/\D/g, "").slice(0, 10))} className="mt-2 block w-40 rounded-xl border border-[var(--line)] bg-transparent px-3 py-2" />
+          </div>
+        </div>
+      </details>
+
+      {error && (
+        <p role="alert" className="rounded-xl border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-200">
+          {error}
+        </p>
+      )}
+
+      {running ? (
+        <div className={card}>
+          <p className="text-sm">엔진에 맡기는 중입니다{progress ? ` (${progress[0]} / ${progress[1]})` : "…"}</p>
+          <button type="button" onClick={() => (stop.current = true)} className={`${ghost} mt-3`}>
+            그만 맡기기
+          </button>
+        </div>
+      ) : (
+        <button type="button" onClick={() => void run(true)} disabled={!canStart} className={`${button} w-full text-base`}>
+          {plan.items.length > 0 ? `▶ ${plan.items.length}장 일괄 시작` : "▶ 일괄 시작"}
+        </button>
+      )}
+
+      {result && (
+        <section className={card} aria-live="polite">
+          <p className="text-sm">
+            {result.sent}장을 엔진에 맡겼습니다.{result.stopped ? ` 중간에 멈췄습니다 — ${result.stopped.message}` : " 이제 화면을 닫아도 엔진이 켜져 있으면 계속 그립니다."}
+            {result.remaining > 0 && ` 남은 ${result.remaining}장은 위에서 이어서 맡길 수 있습니다.`}
+          </p>
+          <Link href="/jobs" className={`${button} mt-3 inline-block`}>
+            📋 작업 기록 보기
+          </Link>
+        </section>
+      )}
+    </div>
+  );
+}

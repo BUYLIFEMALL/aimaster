@@ -7,7 +7,11 @@ import { APP_NAME, APP_VERSION } from "@/lib/version";
 import { signOutAction } from "@/lib/actions/auth";
 
 // 메뉴는 화면이 생길 때마다 여기에 한 줄씩 넣는다(데스크톱과 위쪽 접는 메뉴가 같은 목록을 쓴다).
-const MENU = [{ href: "/", label: "🏠 홈" }];
+const MENU = [
+  { href: "/start", label: "🚀 시작하기" },
+  { href: "/create", label: "🎨 만들기" },
+  { href: "/jobs", label: "📋 작업 기록" },
+];
 
 export function Sidebar({ email }: { email: string }) {
   const [open, setOpen] = useState(false);
@@ -16,7 +20,7 @@ export function Sidebar({ email }: { email: string }) {
   const nav = (
     <div className="flex h-full flex-col overflow-y-auto p-4">
       <div className="border-b border-[var(--line)] pb-3">
-        <Link href="/" onClick={() => setOpen(false)} className="block text-sm font-bold">
+        <Link href="/start" onClick={() => setOpen(false)} className="block text-sm font-bold">
           🎨 {APP_NAME}
         </Link>
         <div className="mt-0.5 text-[11px] text-[var(--muted)]">{APP_VERSION}</div>
@@ -58,7 +62,7 @@ export function Sidebar({ email }: { email: string }) {
 
       <div className="sticky top-0 z-40 border-b border-[var(--line)] bg-[var(--surface)] md:hidden">
         <div className="flex h-14 items-center justify-between px-4">
-          <Link href="/" className="text-sm font-bold">
+          <Link href="/start" className="text-sm font-bold">
             🎨 {APP_NAME}
           </Link>
           <button type="button" aria-label={open ? "메뉴 닫기" : "메뉴 열기"} aria-expanded={open} onClick={() => setOpen((v) => !v)} className="h-10 w-10 rounded-lg text-xl">
