@@ -50,9 +50,10 @@ export function sharedTurn(job, other) {
  * failClosed(IMG-P1 PR-A, 새 그림 사이트 범위 전용): 파일이 있는데 읽지 못하면 원본을 덮어쓰지 않고 이 대기열을 닫는다
  * (목록·넣기·실행 모두 거절). 없으면 빈 대기열. 기존 queue.json은 이 옵션 없이 예전 동작 그대로.
  */
-export function createQueue({ file, run, canRun = () => true, onFinished = () => {}, onDrop = () => {}, log = () => {}, now = Date.now, failClosed = false }) {
+export function createQueue({ file, run, canRun = () => true, onFinished = () => {}, onDrop = () => {}, log = () => {}, now = Date.now, failClosed = false, onQueuedCancel = () => {} }) {
   let jobs = [];
   let working = false;
+  let executing = false; // 실행 함수가 도는 중(취소로 표시 상태가 바뀌어도 실제로 끝날 때까지 true)
   let controller = null;
   let broken = "";
 
@@ -69,6 +70,19 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
   const assertOpen = () => {
     if (broken) throw new QueueClosedError(broken);
   };
+  /** 저장돼 있던 작업 항목이 쓸 수 있는 모양인지(failClosed 대기열을 읽을 때) — 번호·종류·상태·접수 시각, 끝난 시각이 있으면 그것도 */
+  const validJob = (j) =>
+    !!j &&
+    typeof j === "object" &&
+    !Array.isArray(j) &&
+    typeof j.id === "string" &&
+    !!j.id &&
+    typeof j.kind === "string" &&
+    typeof j.status === "string" &&
+    Object.hasOwn(STATUS_LABEL, j.status) &&
+    typeof j.createdAt === "string" &&
+    Number.isFinite(Date.parse(j.createdAt)) &&
+    (j.finishedAt === undefined || (typeof j.finishedAt === "string" && Number.isFinite(Date.parse(j.finishedAt))));
 
   // 끝난 작업은 100개까지, 그리고 끝난 지 30일 지난 기록은 지운다(0.6.9, 원본 boks-music `store.mjs pruneJobs` 규칙, MIT).
   // 사이트에 아직 기록하지 않은 완성 작업은 남긴다. 지운 작업의 원곡 사본은 onDrop으로 부르는 쪽이 지운다.
@@ -98,6 +112,12 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
       } catch {
         jobs = [];
         if (failClosed) broken = broken || "내용이 올바르지 않음";
+      }
+      // 새 그림 사이트 범위(failClosed): 배열 안 항목까지 본다 — 항목이 깨졌는데 그대로 쓰면 아래 정리에서 예외가 나
+      // 엔진 기동(최상위 await)까지 막을 수 있다. 하나라도 올바르지 않으면 이 대기열만 닫고 파일은 그대로 둔다.
+      if (failClosed && !broken && !jobs.every(validJob)) {
+        jobs = [];
+        broken = "작업 항목이 올바르지 않음";
       }
       if (broken) {
         log(new QueueClosedError(broken));
@@ -129,9 +149,13 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
       return jobs.find((j) => j.id === id) ?? null;
     },
 
-    /** 만드는 중인 작업이 있는지(두 대기열을 합쳐 한 번에 하나만 돌릴 때 상대가 본다) */
+    /**
+     * 만드는 중인 작업이 있는지(두 대기열을 합쳐 한 번에 하나만 돌릴 때 상대가 본다).
+     * 표시 상태만 보지 않는다 — 만드는 중에 취소하면 상태는 바로 「취소됨」이 되지만 실행 함수는 아직 끝나지 않았을 수 있다.
+     * 실행 함수와 끝난 뒤 정리(저장)까지 마쳐야 false가 된다(executing).
+     */
     running() {
-      return jobs.some((j) => j.status === "running");
+      return executing || jobs.some((j) => j.status === "running");
     },
 
     /** 맨 앞 대기 작업의 접수 시각(ms), 없으면 Infinity — 두 대기열의 차례(접수 시각 순) */
@@ -185,9 +209,18 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
     async cancel(id) {
       const job = q.get(id);
       if (!job || !(job.status === "queued" || job.status === "running")) return false;
+      const wasQueued = job.status === "queued";
       if (job.status === "running") controller?.abort();
       Object.assign(job, { status: "cancelled", stage: STATUS_LABEL.cancelled, finishedAt: new Date().toISOString() });
       await save();
+      // 대기 중이던 작업을 빼면 맨 앞 대기 작업이 바뀐다 — 두 대기열을 합쳐 돌릴 때 상대가 차례를 다시 보게 알린다(IMG-P1 PR-A)
+      if (wasQueued) {
+        try {
+          onQueuedCancel(job);
+        } catch (e) {
+          log(e);
+        }
+      }
       return true;
     },
 
@@ -232,6 +265,7 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
         // 차례는 넣은 순서 그대로 — 맨 앞 작업을 지금 만들 수 없으면(예: 음악 엔진 준비 중) 기다린다
         for (let job; (job = jobs.find((j) => j.status === "queued")) && canRun(job); ) {
           controller = new AbortController();
+          executing = true; // 「확인 → 표시」 사이에 await 없음. 실행 함수가 끝나고 정리를 마칠 때까지 유지한다
           Object.assign(job, { status: "running", stage: "작업 준비 중", startedAt: new Date().toISOString() });
           await save();
           try {
@@ -254,7 +288,11 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
             controller = null;
           }
           trim(now());
-          await save();
+          try {
+            await save();
+          } finally {
+            executing = false; // 상대 대기열을 깨우는 onFinished보다 먼저 푼다
+          }
           try {
             await onFinished(job);
           } catch (e) {
@@ -262,6 +300,7 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
           }
         }
       } finally {
+        executing = false;
         working = false;
       }
     },

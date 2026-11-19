@@ -27,7 +27,7 @@ const until = async (fn, ms = 4000) => {
 const readOrNull = (f) => readFile(f).catch(() => null);
 
 /** 엔진 한 벌(자료 폴더 dir) — 기존 대기열·새 범위 대기열·연결 문. gate를 주면 실행이 그 약속을 기다린다 */
-async function engine(dir, { gate = null, origins = [NEW, NEW2] } = {}) {
+async function engine(dir, { gate = null, origins = [NEW, NEW2], block = { legacy: false } } = {}) {
   const files = { paired: path.join(dir, "paired.json"), pairedScoped: path.join(dir, "paired-scoped.json"), queue: path.join(dir, "queue.json"), queueScoped: path.join(dir, "queue-scoped.json") };
   let tokens = new Set();
   try {
@@ -51,10 +51,20 @@ async function engine(dir, { gate = null, origins = [NEW, NEW2] } = {}) {
     }
   };
   let scopedQueue;
-  const queue = createQueue({ file: files.queue, run, canRun: (job) => sharedTurn(job, scopedQueue), onFinished: () => void scopedQueue.pump() });
-  scopedQueue = createQueue({ file: files.queueScoped, failClosed: true, run, canRun: (job) => sharedTurn(job, queue), onFinished: () => void queue.pump() });
+  const queue = createQueue({ file: files.queue, run, canRun: (job) => sharedTurn(job, scopedQueue) && !block.legacy, onFinished: () => void scopedQueue.pump(), onQueuedCancel: () => void scopedQueue.pump() });
+  scopedQueue = createQueue({
+    file: files.queueScoped,
+    failClosed: true,
+    run,
+    canRun: (job) => sharedTurn(job, queue),
+    onFinished: () => void queue.pump(),
+    onQueuedCancel: () => {
+      void queue.pump();
+      void scopedQueue.pump();
+    },
+  });
   await queue.load();
-  await scopedQueue.load();
+  await scopedQueue.load(); // 깨진 파일이어도 예외 없이 닫혀야 한다(본체는 여기서 예외가 나면 기동이 막힌다)
   const scopedTokens = createScopedTokens({ file: files.pairedScoped });
   await scopedTokens.load();
   let code = "";
@@ -136,7 +146,9 @@ test("V2: 같은 자료 폴더를 0.8.5 코드로 열면 새 범위가 보이지
   const old = await tmp();
   try {
     const tar = execFileSync("git", ["-C", repo, "archive", "--format=tar", "bc946e04c", "free-music-studio/engine/src"], { maxBuffer: 64 * 1024 * 1024 });
-    execFileSync(path.join(process.env.SystemRoot || "C:/Windows", "System32", "tar.exe"), ["-x", "-C", old], { input: tar });
+    // 윈도우는 기본 tar(Git에 딸린 tar는 드라이브 문자 경로를 못 읽음), 그 밖은 PATH의 tar
+    const tarBin = process.platform === "win32" ? path.join(process.env.SystemRoot || "C:/Windows", "System32", "tar.exe") : "tar";
+    execFileSync(tarBin, ["-x", "-C", old], { input: tar });
   } catch (e) {
     await rm(old, { recursive: true, force: true });
     return t.skip(`0.8.5 코드를 꺼내지 못함: ${e.message}`);
@@ -458,6 +470,115 @@ test("새 범위를 쓰지 않으면 새 범위 파일을 만들지 않는다(�
     assert.ok(await readOrNull(e.files.queue), "queue.json은 있어야 함");
     assert.equal(await readOrNull(e.files.queueScoped), null, "queue-scoped.json이 생기면 안 됨");
     assert.equal(await readOrNull(e.files.pairedScoped), null, "paired-scoped.json이 생기면 안 됨");
+  } finally {
+    await e.close();
+    await rm(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
+  }
+});
+
+test("검수 P1: 새 범위 대기열 파일의 작업 항목이 깨져 있으면 예외 없이 그 범위만 닫고 파일·기존 대기열은 그대로다", async () => {
+  const now = new Date().toISOString();
+  const good = { id: randomUUID(), kind: "art", status: "done", createdAt: now, finishedAt: now };
+  const cases = {
+    "null 항목": { jobs: [null] },
+    "숫자 항목": { jobs: [good, 7] },
+    "배열 항목": { jobs: [[]] },
+    "상태 없음": { jobs: [{ id: randomUUID(), kind: "art", createdAt: now }] },
+    "모르는 상태": { jobs: [{ ...good, status: "weird" }] },
+    "접수 시각 깨짐": { jobs: [{ ...good, createdAt: "어제" }] },
+    "접수 시각 없음": { jobs: [{ id: randomUUID(), kind: "art", status: "queued" }] },
+    "끝난 시각 깨짐": { jobs: [{ ...good, finishedAt: 12 }] },
+    "번호 없음": { jobs: [{ kind: "art", status: "queued", createdAt: now }] },
+  };
+  for (const [name, data] of Object.entries(cases)) {
+    const dir = await tmp();
+    const bytes = Buffer.from(JSON.stringify(data));
+    await writeFile(path.join(dir, "queue-scoped.json"), bytes);
+    let e;
+    try {
+      e = await engine(dir); // 예외가 나면 여기서 시험이 실패한다(= 엔진 기동이 막히는 경우)
+      assert.ok(e.scopedQueue.broken, `${name}: 닫혀야 함`);
+      assert.deepEqual(e.scopedQueue.list(), []);
+      const legacy = (await e.pair(MUSIC)).body.token;
+      const scopedToken = (await e.pair(NEW)).body.token;
+      assert.equal((await e.call("GET", "/queue", { origin: NEW, token: scopedToken })).status, 503, name);
+      assert.equal((await e.call("POST", "/queue", { origin: NEW, token: scopedToken, body: artBody() })).status, 503, name);
+      const lj = (await e.call("POST", "/queue", { origin: MUSIC, token: legacy, body: legacyArt() })).body.job;
+      assert.ok(await until(() => e.queue.get(lj.id)?.status === "done"), `${name}: 기존 대기열은 돌아야 함`);
+      await sleep(30);
+      assert.ok(bytes.equals(await readFile(e.files.queueScoped)), `${name}: 파일이 바뀜`);
+    } finally {
+      await e?.close();
+      await rm(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
+    }
+  }
+  // 올바른 항목만 있으면 닫히지 않는다
+  const dir = await tmp();
+  await writeFile(path.join(dir, "queue-scoped.json"), JSON.stringify({ jobs: [good, { ...good, id: randomUUID(), status: "running", finishedAt: undefined }] }));
+  const e = await engine(dir);
+  try {
+    assert.equal(e.scopedQueue.broken, "");
+    assert.deepEqual(e.scopedQueue.list().map((j) => j.status).sort(), ["done", "interrupted"]);
+  } finally {
+    await e.close();
+    await rm(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
+  }
+});
+
+test("검수 P2: 만드는 중 취소해도 실제 실행이 끝나기 전에는 어느 대기열도 다음 작업을 시작하지 않는다(양방향)", async () => {
+  for (const first of ["scoped", "legacy"]) {
+    const dir = await tmp();
+    const gate = Promise.withResolvers(); // 실행 함수는 취소 신호를 받아도 이 약속이 풀릴 때까지 끝나지 않는다(느린 종료)
+    const e = await engine(dir, { gate });
+    try {
+      const legacy = (await e.pair(MUSIC)).body.token;
+      const scopedToken = (await e.pair(NEW)).body.token;
+      const addScoped = async () => (await e.call("POST", "/queue", { origin: NEW, token: scopedToken, body: artBody() })).body.job;
+      const addLegacy = async () => (await e.call("POST", "/queue", { origin: MUSIC, token: legacy, body: legacyArt() })).body.job;
+      const a = first === "scoped" ? await addScoped() : await addLegacy();
+      const qa = first === "scoped" ? e.scopedQueue : e.queue;
+      assert.ok(await until(() => qa.get(a.id)?.status === "running"));
+      await sleep(5);
+      const b = first === "scoped" ? await addLegacy() : await addScoped(); // 상대 대기열
+      const c = first === "scoped" ? await addScoped() : await addLegacy(); // 같은 대기열의 다음 작업
+      const cancelled = await e.call("POST", `/queue/${a.id}/cancel`, first === "scoped" ? { origin: NEW, token: scopedToken } : { origin: MUSIC, token: legacy });
+      assert.equal(cancelled.status, 200);
+      assert.equal(qa.get(a.id).status, "cancelled", "표시는 바로 취소됨");
+      await sleep(120);
+      assert.deepEqual(e.stat.ran, [a.id], `${first}: 실행이 끝나기 전에 다른 작업이 시작됨`);
+      assert.equal(e.stat.active, 1);
+      assert.equal(qa.running(), true, "실행이 끝날 때까지 만드는 중으로 본다");
+      gate.resolve();
+      assert.ok(await until(() => e.stat.ran.length === 3 && e.stat.active === 0), "실행이 끝나면 나머지가 차례로 돈다");
+      assert.equal(e.stat.max, 1, "한 번에 한 작업");
+      assert.deepEqual(e.stat.ran.slice(1), [b.id, c.id], "접수 순서대로");
+      assert.equal(qa.get(a.id).status, "cancelled", "취소한 작업은 취소로 남는다");
+      assert.ok(await until(() => !qa.running()), "정리까지 끝나면 만드는 중이 풀린다");
+    } finally {
+      gate.resolve();
+      await until(() => e.stat.active === 0 && !e.queue.list().concat(e.scopedQueue.list()).some((j) => j.status === "queued" || j.status === "running"));
+      await sleep(30);
+      await e.close();
+      await rm(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
+    }
+  }
+});
+
+test("대기 중인 맨 앞 작업을 취소하면 그 뒤에서 기다리던 상대 대기열 작업이 이어서 돈다", async () => {
+  const dir = await tmp();
+  const block = { legacy: true }; // 기존 대기열 맨 앞 작업이 아직 만들 수 없는 상태(예: 음악 엔진 준비 중)
+  const e = await engine(dir, { block });
+  try {
+    const legacy = (await e.pair(MUSIC)).body.token;
+    const scopedToken = (await e.pair(NEW)).body.token;
+    const l1 = (await e.call("POST", "/queue", { origin: MUSIC, token: legacy, body: legacyArt() })).body.job;
+    await sleep(5);
+    const s1 = (await e.call("POST", "/queue", { origin: NEW, token: scopedToken, body: artBody() })).body.job;
+    await sleep(80);
+    assert.deepEqual(e.stat.ran, [], "먼저 접수된 기존 작업이 기다리는 동안 뒤 작업도 기다린다(접수 순)");
+    assert.equal((await e.call("POST", `/queue/${l1.id}/cancel`, { origin: MUSIC, token: legacy })).status, 200);
+    assert.ok(await until(() => e.scopedQueue.get(s1.id)?.status === "done"), "앞 작업이 빠지면 뒤 작업이 돌아야 함");
+    assert.deepEqual(e.stat.ran, [s1.id]);
   } finally {
     await e.close();
     await rm(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });

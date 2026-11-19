@@ -444,6 +444,7 @@ const queue = createQueue({
   // 오래돼 정리한 작업(0.6.9: 30일·100개)의 원곡 사본도 지운다
   onDrop: (job) => (job.source?.file ? rm(path.join(queueSourceDir, path.basename(job.source.file)), { force: true }) : undefined),
   log: (e) => logLine(`⚠ 대기열 오류: ${e instanceof Error ? e.message : e}`),
+  onQueuedCancel: () => void scopedQueue.pump(), // 대기 작업이 빠져 맨 앞이 바뀌면 새 그림 사이트 대기열이 차례를 다시 본다
 });
 // IMG-P1 PR-A: 새 그림 사이트 범위 대기열 — 기존 queue.json과 따로(queue-scoped.json), 그림 작업만, 파일이 깨졌으면 닫는다
 const scopedQueue = createQueue({
@@ -456,9 +457,14 @@ const scopedQueue = createQueue({
     void queue.pump(); // 기다리던 기존 대기열 작업 차례
   },
   log: (e) => logLine(`⚠ 그림 대기열 오류: ${e instanceof Error ? e.message : e}`),
+  onQueuedCancel: () => {
+    void queue.pump();
+    void scopedQueue.pump();
+  },
 });
 await queue.load();
-await scopedQueue.load();
+// 새 범위 대기열 읽기는 어떤 경우에도 엔진 기동을 막지 않는다(읽다 예외가 나면 그 범위만 쓰지 못하고 기존 엔진은 켜진다)
+await scopedQueue.load().catch((e) => logLine(`⚠ 새 그림 사이트 작업 기록(queue-scoped.json)을 읽다 오류가 나 그 작업을 쓰지 않습니다: ${e instanceof Error ? e.message : e}`));
 if (scopedTokens.broken) logLine(`⚠ 새 그림 사이트 연결 기록(paired-scoped.json)을 읽지 못해 그 사이트 연결을 멈췄습니다(${scopedTokens.broken}). 파일은 그대로 두었습니다.`);
 if (scopedQueue.broken) logLine(`⚠ 새 그림 사이트 작업 기록(queue-scoped.json)을 읽지 못해 그 작업을 멈췄습니다(${scopedQueue.broken}). 파일은 그대로 두었습니다.`);
 // 플레이리스트 영상(0.6.9) — 화면이 그린 H.264 조각을 받아 ffmpeg로 담는다(그래픽카드 음악 작업과 따로)
