@@ -396,7 +396,7 @@ Master 마지막 실제 점검: 2026-11-19 21:03:02 KST · 21:00 예약 메시�
 | MUSIC-20261119-IMG-COMPAT | CC-MUSIC-01 | done / five_music_flows_read_only_accepted | 무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토 | 고정 2131089b7 음악 5경로·146/146 검토 수락. 새 범위 미사용 시 파일 미생성 정정. 실제 엔진은 미검증. |
 | MUSIC-20261119-BACKLOG-SWEEP | CC-MUSIC-01 | done / music_backlog_review_accepted_followup_dispatched | 음악 7개 프로그램 다음 작업 후보 대조 | 음악 7개 웹의 미배포 코드 0. L5·U3를 우선 로컬 착수, 리믹스→플레이리스트 및 유료 영상 실검증은 별도 조건 대기. |
 | MUSIC-20261119-REMIX-PLAYLIST-REVIEW | CC-MUSIC-01 | done / remix_playlist_review_accepted_implementation_scope_pending | 리믹스에서 플레이리스트 연계 사전 검토 | d6df77af9 사전 검토 수락. 두 테이블 모두 회원 범위 확인, 플레이리스트 수신 기능을 먼저 배포한 뒤 음악 링크를 공개해야 함. 구현 범위·배포 승인 대기. |
-| MUSIC-20261119-REMIX-PLAYLIST-RECEIVER | CC-MUSIC-01 | running / receiver_mac_pending_pass_selection_race_followup_sent | 리믹스 → 플레이리스트 수신 로컬 구현 | 6fe27dd09 Mac 72/72. 목록 재등장 시 20곡 상한 위반·곡 추가 중 재조회로 선택 유실 보완 배정. 실제 화면·서명 미확인, 미배포. |
+| MUSIC-20261119-REMIX-PLAYLIST-RECEIVER | CC-MUSIC-01 | reviewing / receiver_selection_cap_and_async_add_fixed_mac_recheck_sent | 리믹스 → 플레이리스트 수신 로컬 구현 | e5f51c05d 담당 76/76·tsc. 20곡 상한과 추가 도중 복구된 선택 보존을 Mac 재검수에 전달. 실제 화면·서명 미확인, 미배포. |
 | MUSIC-20261119-LYRIC-L5-U3 | CC-MUSIC-01 | done / lyric_l5_u3_mac_review_passed_undeployed | 가사 영상 미리보기 재생 실패와 모바일 안내 | 8f1eae339 Mac 독립 44/44 및 격리 브라우저 재생·390/767/768 통과. Safari 실동작·후보 URL·휴대폰 검증 대기, 다음 묶음 미배포. |
 | QA-20261118-043 | CX-QA-01 | done / production_v161_mobile_keyboard_verified_read_only | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | Workspace 운영 v1.61 독립 읽기. 375/390px 요일 7칩 두 줄·넘침 0·Tab 3px 포커스. OS 다크 선호 확인, 앱 테마·저장 중 상태 미검증. |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
