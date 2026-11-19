@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PageHero } from "@/components/ui/PageHero";
+import { APP_VERSION } from "@/lib/version";
 
 const STEPS = [
   { icon: "🔔", title: "매물 감시 등록", href: "/watch", body: "왼쪽 메뉴 「⬇ 확장 프로그램 받기」로 크롬 확장을 받아 설치하고 네이버 지도에서 지역과 필터를 맞춘 뒤 「이 화면 감시」를 누릅니다. 새 매물과 가격 변동을 알려 드립니다." },
@@ -10,7 +11,16 @@ const STEPS = [
   { icon: "🎯", title: "조건 정하기", href: "/conditions", body: "상가·건물과 토지, 용도·지목, 금액·면적을 고릅니다. 비워 두면 제한 없이 받습니다." },
 ];
 
+// 2026-11-19(v1.35) 주인님 지시: 확장 새 버전 받기(설치된 확장은 자동으로 바뀌지 않음)를 매뉴얼에 보기 쉽게
+const UPDATE_STEPS = [
+  { icon: "⬇️", title: "새 버전 받아 덮어쓰기", body: "왼쪽 메뉴 맨 아래 「⬇ 확장 프로그램 받기」나 아래 버튼으로 ZIP을 받고, 압축을 풀어 지금 쓰는 확장 폴더에 덮어씁니다(같은 이름 파일은 모두 바꾸기)." },
+  { icon: "🔄", title: "크롬에서 새로고침", body: "크롬 주소창에 chrome://extensions 를 열고 「상가·건물·토지 매물 알림」 카드의 새로고침(↻) 버튼을 누릅니다." },
+  { icon: "✅", title: "버전 확인", body: "확장 아이콘을 눌러 팝업 위쪽 버전이 왼쪽 메뉴 버튼의 버전과 같으면 끝입니다." },
+];
+
 const FAQ = [
+  { q: "확장 새 버전은 어떻게 알 수 있나요?", a: "설치된 확장은 자동으로 바뀌지 않습니다. 확장 팝업 위쪽 버전과 이 화면 왼쪽 메뉴 「⬇ 확장 프로그램 받기 (버전)」의 버전을 비교해, 다르면 위 「🔄 확장 새 버전 받기」 3단계로 바꿔 주세요. 같은 폴더에 덮어쓰면 연결·설정·통계는 그대로입니다." },
+  { q: "결과 화면에 「⏸ 이전 회차 결과」가 보여요.", a: "하루 수집 한도에 닿았거나 네이버가 잠시 막았거나 읽기 오류가 나서 그 감시 화면을 이번에 읽지 못했다는 뜻입니다. 결과가 사라지지 않도록 직전에 읽은 결과(최대 7일)를 시각과 함께 보여 줍니다. 알림과 통계에는 이번에 새로 읽은 매물만 들어가고, 다음 수집에서 다시 읽으면 표시가 사라집니다. 지우거나 끈 화면, 네이버 주소를 바꾼 화면의 예전 결과는 남기지 않습니다." },
   { q: "데이터를 제가 수집해야 하나요?", a: "실거래는 서버가 하루 1회 자동으로 받습니다. 네이버 매물은 내 PC의 크롬 확장이 예약 시각에 자동으로 살펴봅니다. 크롬만 켜 두면 됩니다." },
   { q: "매물 정보가 서버에 저장되나요?", a: "아니요. 매물은 내 PC에만 저장하고, 서버에는 수집 건수 같은 숫자 상태만 보냅니다." },
   { q: "후보 점수는 어떻게 매기나요?", a: "시세보다 5·10·20% 낮으면 15·35·50점, 가격을 내릴 때마다 15점(최대 30점), 30일 이상 10점, 90일 이상 15점입니다. 40점 이상이면 후보로 표시합니다. 급매를 뜻하지는 않습니다." },
@@ -45,6 +55,22 @@ export default function GuidePage() {
           </Link>
         ))}
       </div>
+      <section className="mt-6" aria-labelledby="ext-update">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 id="ext-update" className="mx-section-title">🔄 확장 새 버전 받기 <small className="text-sm font-normal text-mx-muted">지금 최신 {APP_VERSION}</small></h2>
+          <a href="/downloads/commercial-land-trade-alert-extension-latest.zip" className="mx-btn-primary inline-flex min-h-[44px] items-center px-4 text-sm">⬇ 확장 {APP_VERSION} 받기</a>
+        </div>
+        <ol className="mt-3 grid gap-3 md:grid-cols-3">
+          {UPDATE_STEPS.map((s, i) => (
+            <li key={s.title} className="mx-card p-5">
+              <p className="text-xs font-semibold text-mx-muted">{i + 1}단계</p>
+              <p className="mt-1 text-base font-bold text-mx-text">{s.icon} {s.title}</p>
+              <p className="mt-2 text-sm text-mx-muted [overflow-wrap:anywhere]">{s.body}</p>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-3 rounded-lg border-l-4 border-l-mx-primary bg-[#0E1420] p-3 text-sm text-mx-text">💡 같은 폴더에 덮어쓰면 연결·설정·통계는 그대로라 다시 연결하지 않아도 됩니다. 다른 폴더로 새로 불러왔다면 「API키등록·플랫폼연동」에서 「🔗 바로 연결」을 한 번 눌러 주세요.</p>
+      </section>
       <section className="mx-card mt-6 border-l-4 border-l-mx-primary">
         <p className="text-sm text-mx-text">💡 도로·구거 같은 지목과 숙박은 건수가 많아 기본으로 꺼 두었습니다. 찾으시면 조건에서 켜 주세요.</p>
       </section>
