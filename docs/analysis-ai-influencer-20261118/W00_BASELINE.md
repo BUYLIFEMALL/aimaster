@@ -3133,3 +3133,63 @@ DB: 해당 없음(읽기만) · 배포: 해당 없음
 - 합성 그림 기준이라 실제 사진의 크기 분포·품질 영향은 재지 않았다. 새 흐름 새 생성(`on`)의 합계 검사는 그대로다(D3 전 재검토).
 - 쓰이지 않는 칸 때문에 막히는 경우, 회원은 그 사진을 직접 지워야 한다 — 어떤 사진이 원인인지 화면이 짚어 주지는 않는다(문구로만 안내).
 
+### 14-AV. D1 — 스위치 OFF 상태로 운영 배포 (2026-11-19, 주인님 채팅 「D1 실행」(빌드 1회), Master `msg_dd4eb4c22e70`)
+
+- 범위(Master 지시): 격리 후보만, 원격 빌드 **1회**, 실패해도 재시도 없음. OFF 상수 유지. DB(`programs.version` 포함) 쓰기·설정·cron·push·D2/D3·유료 생성 0. 계정·키 조작 0.
+
+**① 배포한 것**
+
+| 항목 | 값 |
+|---|---|
+| 배포 후보 | `aaac91bb6db8e97c206ef54c57c7841fccece2c1`(`refs/aif/d1-deploy`, push 대상 아님), 폴더 트리 `a390b04ea05612217755e38a9ab67fa0ab400921` |
+| 구성 | 후보 3(`5a2c61ddd`, §14-AU) + `src/lib/version.ts` 한 줄(v1.26 → v1.27, 표시용)뿐 |
+| master(`ff746dff6` 기준 폴더)와의 차이 | 4파일 — 히스토리 경로(v1.26판), `ControlPanel`·`ImageDisplay`(W01a 문구 되돌림), `version.ts` |
+| 운영 v1.26(`5e27cb269`)에 더해진 것 | §14-AR ②·⑤의 목록에서 W01a·W01b 경로 수정을 뺀 것 + W01-FIT(§14-AT·AU) |
+| 올린 곳 | 격리 폴더 `D:\AIMaster-qa\aif-d1-20261119\ai-influencer-studio`(공유 폴더가 아니다). 프로젝트 연결 정보(`.vercel/project.json`)만 공유 폴더에서 복사 |
+
+**② 직전 확인(전부 일치)**
+
+- 격리 소스: 후보 파일 138개 전부 지문 일치, 후보 밖 파일은 연결 정보 1개뿐, 접속 설정 파일 0.
+- 스위치 `off` · cron 기존 1개(`instagram/dispatch`) · 저장공간 위젯 한 줄 있음 · 0번 규칙 고지 고칠 곳 0(격리 폴더에 고지 파일 3/3) · `pending-check` 「대기 없음」.
+- 대상: 팀 `buylife` · 프로젝트 `ai-influencer-studio`(`prj_QhwjNog…`) · 루트 폴더 설정 없음 · 동시 빌드 추가 꺼짐 · git 미연결.
+- 운영: `dpl_HVenAJdk1W8o7CCpqJabSKWeWz5e` READY v1.26. 팀 BUILDING 0·QUEUED 0·INITIALIZING 0.
+
+**③ 실행 — 원격 빌드 1회**
+
+- 명령: 격리 폴더에서 `vercel deploy --prod --yes --scope buylife` 1회. 종료 코드 0.
+- 배포 `dpl_5dRNbNxU68whqTVpGDLYWpfBYEja` · `https://ai-influencer-studio-ll2gwkz2t-buylife.vercel.app` · production · **READY** · 원격 빌드 18초 · 생성 2026-11-19 16:57(한국 시각).
+- 별칭 3개가 새 배포로 연결됨: `ai-influencer.buylife.xyz`, `ai-influencer-studio-sage.vercel.app`, `ai-influencer-studio-buylife.vercel.app`.
+
+**④ 배포 뒤 확인(비로그인, 유료 호출 0)**
+
+| 요청 | 결과 |
+|---|---|
+| `/login` | 200, **v1.27** 표기, 오류 화면 0, 본문의 배포 표식이 새 배포 |
+| `/` | 307 → `/login?redirect=%2F` |
+| `GET /api/history`·`/api/user-key`·`/api/aif/assets/<번호>` | 401 「로그인이 필요합니다.」 |
+| `GET /api/aif/assets/cleanup`·`/api/instagram/dispatch` | 401 `unauthorized` |
+| `POST /api/generate-image`·`/api/aif/assets`·`/api/aif/generations`(빈 본문) | 401 — 인증 없이는 생성·저장에 닿지 않는다 |
+| `/robots.txt`·`/ai.txt` | 200 |
+| 캐시 머리글 | 위 전부 `MISS` |
+
+- 팀 대기열: 배포 뒤에도 0·0·0.
+
+**⑤ 하지 않은 것·어긋난 것**
+
+- **DB의 프로그램 버전은 v1.26 그대로다**(쓰기 금지 범위). 지금 운영 화면은 v1.27, 메인 사이트 목록은 v1.26으로 보인다 — 규칙(화면과 DB를 함께 올림)과 어긋난 상태이며 Master께 쓰기 1건을 요청했다.
+- **master의 `version.ts`도 v1.26 그대로다.** 배포본과 master가 4파일 다르다. 다음에 공유 폴더에서 그대로 배포하면 W01a(문구)·W01b(히스토리 경로)가 함께 나가고 버전 줄은 다시 맞춰야 한다 — 그때의 변경 목록에 적어야 한다.
+- 프로그램 폴더의 문서(`AGENTS.md`·`README.md` 버전 이력), 프로그램 비교표, 루트 인수인계는 아직 갱신하지 않았다(Master 지시 범위 밖 — 다음 지시에서).
+
+**⑥ 미실측(별도 검증)**
+
+- **인증 실화면 전부**: 로그인 뒤 작업 화면·히스토리 서랍·키 창이 예전처럼 열리는지, 단추 문구, 기존 생성·보정의 실제 동작(유료), 보내기 직전 맞추기와 두 안내 문구, 새 흐름 요청이 화면에서 나가지 않는지, 운영 출처에서 저장소 서명 주소의 교차 출처 읽기.
+- 즉 지금 확인된 것은 「배포가 올라갔고, 공개 화면이 뜨고, 인증 없는 요청이 막힌다」까지다. **로그인한 회원에게 기존 기능이 그대로 되는지는 운영에서 아직 보지 않았다.**
+
+**⑦ 원복**
+
+- 직전 배포 `dpl_HVenAJdk1W8o7CCpqJabSKWeWz5e`(v1.26, READY로 남아 있다)를 운영으로 다시 올리면 된다(새 빌드 없음). DB·저장소·cron·환경변수는 D1에서 바꾸지 않았다. 실제로 해 보지는 않았다.
+
+**⑧ 비용**
+
+- Vercel 원격 빌드 **1회**(주인님 승인 범위 안, 재시도 0). 유료 AI 0. 로컬 빌드·시험은 무료.
+
