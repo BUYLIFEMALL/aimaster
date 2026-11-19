@@ -14,7 +14,7 @@
 import { compactId, newId } from '#shared/ids.ts';
 import type { Operation } from '#shared/ops.ts';
 import { roleAtLeast } from '#shared/permissions.ts';
-import type { BlockRecord, CollectionRecord, PropertyType, SpaceRecord, SpaceViewRecord, UserRootRecord } from '#shared/records.ts';
+import type { BaseRecord, BlockRecord, CollectionRecord, PropertyType, RecordMap, SpaceRecord, SpaceViewRecord, Table, UserRootRecord } from '#shared/records.ts';
 import { db, getRecord, lockRecords, tx, withoutRequestCache } from '../../db.ts';
 import { ApiError, type Ctx } from '../handlers.ts';
 import { RecordMapBuilder, applyTransactions, blockRole } from '../../records.ts';
@@ -73,6 +73,85 @@ const MAX_BLOCKS = 20_000;
 /** 2026-11-19(WS-20261119-03): importFiles 응답에 바뀐 레코드를 모두 싣는 상한. 이보다 많이 바뀌면 뿌리 페이지 범위만 싣는다.
  *  (문서가 많은 ZIP에서 응답이 수 MB가 되어 서버리스 응답 한도를 넘는다 — 201쪽·약 4,800블록에서 3.6MB 측정) */
 const FULL_RECORD_MAP_MAX = 1000;
+/** 2026-11-19(WS-20261119-03 응답 바이트): importFiles 응답 본문(UTF-8 JSON 전체 — 봉투·포인터 목록 포함)의 상한.
+ *  서버리스 응답 한도는 4.5MB다. 개수 기준(FULL_RECORD_MAP_MAX)만으로는 레코드가 큰 가져오기를 막지 못한다. */
+export const IMPORT_RESPONSE_BUDGET = 3_000_000;
+const jsonBytes = (v: unknown) => Buffer.byteLength(JSON.stringify(v));
+
+type ImportChange = { table: Table; record: BaseRecord };
+export type ImportPointer = { table: string; id: string };
+
+/**
+ * importFiles 응답 본문을 만든다. 저장은 이미 끝난 뒤이며, 여기서는 화면에 무엇을 실어 보낼지만 정한다(어느 단계든 DB에는 전부 있다).
+ *  1) 전체: 바뀐 레코드가 FULL_RECORD_MAP_MAX 이하이고 본문이 예산 이하 — 예전 그대로 모두 싣는다.
+ *  2) partial: 화면이 바로 쓰는 것만 — 블록이 아닌 레코드(사이드바 목록 등), 넣은 자리의 부모, 뿌리 페이지, 뿌리의 컬렉션·보기.
+ *     나머지 본문은 화면이 페이지를 열 때 loadPage·getSidebarChildren으로 읽는다.
+ *  3) partial도 예산을 넘으면: 위 순서대로 들어가는 것만 싣고, 못 실은 레코드는 버리지 않고 `pending` 포인터로 돌려준다
+ *     (화면이 fetchRecords로 따로 받는다). 불변식: partial 집합의 레코드는 recordMap 또는 pending 중 정확히 한 곳에 있다.
+ *     포인터 목록조차 예산을 넘으면 들어가는 만큼만 싣고 남은 수를 `pendingOmitted`로 알린다(화면은 새로 고침을 안내).
+ * 크기는 어림(실제 직렬화보다 작지 않게 잡은 상한)으로 쌓아 가므로 본문은 예산을 넘지 않는다. 같은 입력이면 결과가 같다.
+ */
+export function buildImportResponse<B extends { pageIds: string[] }>(uid: string, base: B, changes: ImportChange[], target: { table: string; id: string }, budget = IMPORT_RESPONSE_BUDGET) {
+  if (changes.length <= FULL_RECORD_MAP_MAX) {
+    const rm = new RecordMapBuilder(uid);
+    for (const ch of changes) rm.add(ch.table, ch.record);
+    const body = { ...base, recordMap: rm.map };
+    if (jsonBytes(body) <= budget) return body;
+  }
+  const rootAt = new Map(base.pageIds.map((id, i) => [id, i] as const));
+  const collections = new Set<string>();
+  const views = new Set<string>();
+  for (const ch of changes) {
+    if (ch.table !== 'block' || !rootAt.has(ch.record.id)) continue;
+    const b = ch.record as BlockRecord;
+    if (b.collection_id) collections.add(b.collection_id);
+    for (const v of b.view_ids ?? []) views.add(v);
+  }
+  // 순위: 0 블록이 아닌 레코드 → 1 넣은 자리의 부모 → 2 뿌리(가져온 순서) → 3 뿌리의 컬렉션 → 4 그 보기. -1은 싣지 않는 본문
+  const rank = (ch: ImportChange) => {
+    if (ch.table === 'block') return target.table === 'block' && ch.record.id === target.id ? 1 : rootAt.has(ch.record.id) ? 2 : -1;
+    if (ch.table === 'collection') return collections.has(ch.record.id) ? 3 : -1;
+    if (ch.table === 'collection_view') return views.has(ch.record.id) ? 4 : -1;
+    return 0;
+  };
+  const all = new RecordMapBuilder(uid);
+  const items: { table: Table; id: string; entry: unknown; record: number; pointer: number }[] = [];
+  changes
+    .map((ch, i) => ({ ch, i, r: rank(ch) }))
+    .filter((x) => x.r >= 0)
+    .sort((a, b) => a.r - b.r || (a.r === 2 ? rootAt.get(a.ch.record.id)! - rootAt.get(b.ch.record.id)! : a.i - b.i))
+    .forEach(({ ch }) => {
+      all.add(ch.table, ch.record);
+      const entry = (all.map as any)[ch.table]?.[ch.record.id];
+      if (!entry) return; // 이 사용자가 볼 수 없는 레코드는 예전에도 싣지 않았다
+      items.push({ table: ch.table, id: ch.record.id, entry, record: jsonBytes(ch.record.id) + jsonBytes(entry) + 2, pointer: jsonBytes({ table: ch.table, id: ch.record.id }) + 1 });
+    });
+  const map: RecordMap = { __version__: 3 };
+  const pending: ImportPointer[] = [];
+  // 고정 비용: 모든 선택 칸이 다 붙은 빈 본문 + 표 이름 칸
+  let used = jsonBytes({ ...base, recordMap: map, partial: true, pending: [], pendingOmitted: 2 ** 31 });
+  for (const t of new Set(items.map((x) => x.table))) used += jsonBytes(t) + 4;
+  const pointers = items.reduce((n, x) => n + x.pointer, 0);
+  if (used + pointers > budget) {
+    // 포인터 목록만으로도 넘는다: 들어가는 만큼만(순서대로) 싣고 나머지는 수만 알린다
+    let omitted = 0;
+    for (const x of items) {
+      if (!omitted && used + x.pointer <= budget) {
+        pending.push({ table: x.table, id: x.id });
+        used += x.pointer;
+      } else omitted++;
+    }
+    return { ...base, recordMap: map, partial: true as const, pending, pendingOmitted: omitted };
+  }
+  used += pointers;
+  for (const x of items) {
+    if (used - x.pointer + x.record <= budget) {
+      ((map as any)[x.table] ??= {})[x.id] = x.entry;
+      used += x.record - x.pointer;
+    } else pending.push({ table: x.table, id: x.id });
+  }
+  return { ...base, recordMap: map, partial: true as const, ...(pending.length ? { pending } : {}) };
+}
 const PAGE_EXT = ZIP_PAGE_EXT;
 /** File types importFiles accepts directly (ZIP aside): + Evernote .enex and Trello board .json exports. */
 export const IMPORT_EXT = /\.(md|markdown|txt|csv|tsv|html?|docx|pdf|xlsx|opml|enex|json)$/i;
@@ -538,26 +617,6 @@ export const handlers: Record<string, Handler> = {
       }
     }
     const changes = applyTransactions(uid, [{ id: newId(), spaceId: space.id, debug: { userAction: 'importFiles' }, operations: ops }], ctx.clientId);
-    const rm = new RecordMapBuilder(uid);
-    // 바뀐 레코드가 많으면 화면이 바로 쓰는 것만 싣는다: 뿌리 페이지(와 그 데이터베이스·보기), 넣은 자리의 부모, 블록이 아닌 레코드
-    // (사이드바 목록 등). 나머지 본문은 화면이 페이지를 열 때 loadPage·getSidebarChildren으로 읽는다. 적은 가져오기는 예전 그대로 모두 싣는다.
-    const partial = changes.length > FULL_RECORD_MAP_MAX;
-    if (!partial) {
-      for (const ch of changes) rm.add(ch.table, ch.record);
-    } else {
-      const keep = new Set<string>(rootIds.map((id) => `block:${id}`));
-      if (target.table === 'block') keep.add(`block:${target.id}`);
-      for (const ch of changes) {
-        if (ch.table !== 'block' || !rootIds.includes(ch.record.id)) continue;
-        const b = ch.record as BlockRecord;
-        if (b.collection_id) keep.add(`collection:${b.collection_id}`);
-        for (const v of b.view_ids ?? []) keep.add(`collection_view:${v}`);
-      }
-      for (const ch of changes) {
-        const tree = ch.table === 'block' || ch.table === 'collection' || ch.table === 'collection_view';
-        if (!tree || keep.has(`${ch.table}:${ch.record.id}`)) rm.add(ch.table, ch.record);
-      }
-    }
     const counts = countPages(specs);
     // 작업을 끝냄으로 표시하고 결과와 실제로 쓰인 그림을 적어 둔다(마무리 단계가 쓰이지 않은 그림만 지운다)
     if (job) {
@@ -565,7 +624,8 @@ export const handlers: Record<string, Handler> = {
       const r = db.prepare("UPDATE import_jobs SET state = 'done', result = ? WHERE id = ? AND user_id = ? AND state = 'open'").run(JSON.stringify({ pageIds: rootIds, ...counts, used: [...usedAssets] }), job.id, uid);
       if (!r.changes) throw new JobTaken();
     }
-    return { pageIds: rootIds, ...counts, recordMap: rm.map, ...(partial ? { partial: true } : {}) };
+    // 화면에 실어 보낼 범위는 개수와 바이트 예산으로 정한다(buildImportResponse) — 저장 결과와는 무관하다
+    return buildImportResponse(uid, { pageIds: rootIds, ...counts }, changes, target);
     });
     } catch (e) {
       // 같은 작업이 그사이 다른 요청으로 끝났다(여기서 만든 것은 되돌려졌다) → 그 결과를 돌려준다. 취소된 작업이면 jobOrThrow가 409

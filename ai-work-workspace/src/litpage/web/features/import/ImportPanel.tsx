@@ -8,6 +8,8 @@ import { Icon } from '../../components/Icon.tsx';
 import { api, uploadFile, ApiError } from '../../lib/api.ts';
 import { isLargeZip, prepareLargeZip, settleLargeZip, type LargeZipDeps } from './largeZipImport.ts';
 import { ZipReadError } from './zipReader.ts';
+import { loadImportPending, type ImportDeferred } from './importPending.ts';
+import { syncRecords } from '../../lib/store/sync.ts';
 import { records } from '../../lib/store/records.ts';
 import { useSession } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
@@ -61,6 +63,8 @@ interface HistoryEntry {
   pages: number;
   databases: number;
   spaceId: string;
+  /** 저장은 끝났지만 일부 레코드를 이 화면에 불러오지 못했다(새로 고치면 보인다) */
+  viewIncomplete?: boolean;
 }
 
 function readHistory(): HistoryEntry[] {
@@ -153,7 +157,7 @@ export async function uploadImportFiles(files: File[], onProgress?: (label: stri
 /** Convert uploaded files into pages / databases under the target (Private section by default). */
 export async function importUploaded(uploaded: Uploaded[], target: ImportTarget = {}, csvTypes?: Record<number, string>): Promise<HistoryEntry> {
   const spaceId = useSession.getState().spaceId ?? '';
-  type ImportResult = { pageIds: string[]; pages: number; databases: number; recordMap: any };
+  type ImportResult = { pageIds: string[]; pages: number; databases: number; recordMap: any } & ImportDeferred;
   const jobId = uploaded.find((u) => u.job)?.job?.id;
   let res: ImportResult;
   try {
@@ -173,7 +177,9 @@ export async function importUploaded(uploaded: Uploaded[], target: ImportTarget 
     res = { ...recovered, recordMap: { __version__: 3 } };
   }
   records.mergeRecordMap(res.recordMap);
-  const entry: HistoryEntry = { time: Date.now(), files: uploaded.map((f) => f.name), pageIds: res.pageIds, pages: res.pages, databases: res.databases, spaceId };
+  // 응답이 바이트 예산 때문에 싣지 못한 레코드는 따로 받는다. 여기서 실패해도 가져오기는 이미 저장됐다 — 다시 보내지 않고 안내만 구분한다
+  const loaded = await loadImportPending(res, syncRecords);
+  const entry: HistoryEntry = { time: Date.now(), files: uploaded.map((f) => f.name), pageIds: res.pageIds, pages: res.pages, databases: res.databases, spaceId, ...(loaded ? {} : { viewIncomplete: true }) };
   pushHistory(entry);
   return entry;
 }
@@ -331,6 +337,9 @@ export function ImportPanel({ onDone, parentPageId, afterBlockId, initialKind }:
                 <>
                   <Icon name="circleCheck" size={24} style={{ color: 'var(--lp-green-icon-accent)' }} />
                   <div className="nc-import-drop-title">{t('lp.import.import_complete', 'Import complete')}</div>
+                  {status.entry.viewIncomplete && (
+                    <div className="nc-import-drop-note">{t('lp.import.saved_but_view_incomplete', 'Everything was saved. Some of it could not be loaded into this screen — refresh the page to see it.')}</div>
+                  )}
                   <div className="nc-import-results">
                     {status.entry.pageIds.map((id) => (
                       <div
