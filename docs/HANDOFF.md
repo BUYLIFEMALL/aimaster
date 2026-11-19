@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-20 [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 상세페이지 「상품에 붙인 쇼츠」 저장 쪽 로컬 후보(미배포·운영 DB 미적용, 검수 대기)
+
+- **배경**: 원스톱에서 유튜브에 올린 쇼츠를 상세페이지 상품에 되돌려 붙이는 연결(MOV-20261119-01, 영상 담당 계약 `.ai/results/MOV-20261119-01-RECEIVER-CONTRACT-CC-MOVIE-01.md`). 주인님 승인 2026-11-20 「DB 표 추가 승인할게 진행해」(새 표 1개).
+- **한 일**: `shop-detail-page` 고정판 `6da8e5d8e`(10파일, 미푸시) — 새 표 SQL `supabase/migrations/20261120_product_videos.sql`(읽기·본인 상품일 때만 넣기 정책 2개, 중복 한 줄, 상품 삭제 시 함께 삭제), 규칙 `lib/productVideo.ts`, 서버 동작 `lib/actions/productVideos.ts`, 상품 화면 목록. 시험 25개(격리 DB 6개는 저장소 밖 PGlite 위치를 줄 때만), tsc·eslint 통과. 점유 `087b3d8f7`.
+- **보류**: 영상이 들어오는 길(원스톱이 여는 받는 창)과 공개 상태 표시 — 원스톱의 창 연결 차단 헤더, 원스톱 기록이 유튜브 소유·공개의 증거가 아니라는 맥미니 판정으로 계약 수정 중. 받는 창 화면은 저장소에 넣지 않음.
+- **하지 않은 것**: 운영 DB 적용·빌드·배포·푸시·버전 상향·AI 호출. 비용 없음.
+- **다음 첫 단계**: Master의 계약 수정판·표시 문구 지시 → 들어오는 길 구현 → 운영 DB 적용 순번 → 배포. 상세 `shop-detail-page/AGENTS.md` 맨 아래.
+- 프로그램 링크(운영은 v1.47 그대로): https://shop-detail-page.buylife.xyz
+
+
+
 ## 2026-11-19 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — AI 무료 이미지 자동화(`free-image-studio`) 새 웹 5-1~5-5 코드·모의 완료(미배포·미등록)
 
 - **한 일**: 새 폴더 `free-image-studio/`(v1.01 후보). 회원 PC 엔진이 그리는 무료 이미지를 일괄로 맡기는 웹 — 접근 판정·로그인, 엔진 연결 계층(접수 번호 사전 지정·접수 기록·범위 고정·탭 사이 잠금), 화면 5개(시작하기·만들기·작업 기록·API키등록·플랫폼연동·사용 매뉴얼), 한글→영문 변환(선택, 회원 본인 `user_api_keys` 키만, 버튼 누를 때 1회·재시도 0). Master(Codex) 지휘로 단계마다 맥미니 독립 검수를 거쳐 수락.
