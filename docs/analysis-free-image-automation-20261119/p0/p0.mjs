@@ -5,6 +5,8 @@
 //   node p0.mjs pngsize <PNG 파일> --models <…> --work <…>   (PNG 머리의 실제 가로x세로 출력)
 // --size: 표의 비율 대신 지정 크기(16의 배수)로 그린다. 결과는 logs/results-size.csv, 파일 이름에 크기가 붙고 같은 이름이 있으면 덮어쓰지 않고 멈춘다. 저장된 PNG 머리 크기가 요청과 다르면 0이 아닌 값으로 끝난다.
 // --dry-run: 실행 파일을 띄우지 않고 쓸 인자만 출력한다(파일 기록 0).
+// --prompts <묶음.json> --label <이름>: 내장 24개 대신 묶음 파일의 프롬프트·크기로 그린다. 결과는 logs/results-<이름>.csv, 그림은 out/<이름>/ 아래에 따로 두고
+//   같은 이름이 있으면 덮어쓰지 않으며 PNG 머리 크기를 대조한다. 번호는 묶음 파일의 순서(1부터)다.
 // 필수 파일 하나라도 받기·해시가 실패하면 0이 아닌 값으로 끝나고 압축 해제·실행을 하지 않는다.
 // run은 <작업 폴더>/verified.json에 기록된 검증 파일(모델·실행 파일)만 쓰고, 실행 직전에 해시를 다시 대조한다.
 // 모델 폴더 구조는 엔진 ImageModels(z-image-turbo·flux2-klein-4b·text-encoders)와 같다. 이미 있고 해시가 맞는 파일은 받지 않는다.
@@ -162,6 +164,22 @@ const P = [
 // 1초마다 프로세스 최대 메모리·그래픽 메모리(성능 카운터, NVIDIA는 nvidia-smi도)를 재서 파일에 최댓값을 남긴다
 const SAMPLER = `$p=0;$s=0;$d=0;$n=0;while($true){try{$c=(Get-Counter '\\GPU Adapter Memory(*)\\Shared Usage','\\GPU Adapter Memory(*)\\Dedicated Usage' -ErrorAction Stop).CounterSamples;$x=($c|?{$_.Path -like '*shared*'}|measure CookedValue -Maximum).Maximum;$y=($c|?{$_.Path -like '*dedicated*'}|measure CookedValue -Maximum).Maximum;if($x -gt $s){$s=$x};if($y -gt $d){$d=$y}}catch{};try{$v=[int]((& nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits 2>$null)|select -First 1);if($v -gt $n){$n=$v}}catch{};$q=Get-Process sd-cli,sd -ErrorAction SilentlyContinue|measure PeakWorkingSet64 -Maximum;if($q.Maximum -gt $p){$p=$q.Maximum};"$([int]($p/1MB)),$([int]($s/1MB)),$([int]($d/1MB)),$n"|Set-Content -Path $env:P0_SAMPLE;Start-Sleep -Milliseconds 1000}`;
 
+/** --prompts 묶음 파일 읽기 — 크기는 16의 배수만 */
+function loadPromptSet() {
+  const file = opt("prompts", "");
+  if (!file) return null;
+  const label = opt("label", "");
+  if (!/^[a-z0-9-]{1,20}$/.test(label)) throw new Error("--prompts 에는 --label <영문 소문자·숫자·- 20자 이내> 가 필요합니다.");
+  const raw = fs.readFileSync(file);
+  const set = JSON.parse(raw.toString("utf8"));
+  if (!Array.isArray(set.items) || !set.items.length) throw new Error("묶음 파일에 items 가 없습니다.");
+  for (const [i, it] of set.items.entries()) {
+    if (typeof it.text !== "string" || !it.text || /[^\x20-\x7e]/.test(it.text)) throw new Error(`묶음 ${i + 1}번 프롬프트가 비었거나 ASCII 가 아닙니다.`);
+    if (![it.w, it.h].every((n) => Number.isInteger(n) && n >= 256 && n <= 2048 && n % 16 === 0)) throw new Error(`묶음 ${i + 1}번 크기가 16의 배수가 아닙니다.`);
+  }
+  return { label, items: set.items, sha256: createHash("sha256").update(raw).digest("hex") };
+}
+
 async function run(mk, quant, range = "1", seedArg = "1001") {
   const fam = { z: { key: `z${quant}`, vae: "zvae", steps: 8, name: "z-image-turbo" }, flux: { key: `f${quant}`, vae: "fvae", steps: 4, name: "flux2-klein-4b" } }[mk];
   if (!fam || !F[fam.key]) throw new Error("모델은 z|flux, 양자화는 q4|q8");
@@ -176,27 +194,33 @@ async function run(mk, quant, range = "1", seedArg = "1001") {
   const tag = `${fam.name}-${quant}-${build}`;
   const [a, b] = range.split("-").map(Number);
   const nums = Array.from({ length: (b || a) - a + 1 }, (_, i) => a + i);
-  const outDir = path.join(WORK, "out", tag);
+  const pset = loadPromptSet();
+  if (pset) console.log(`묶음 ${pset.label} ${pset.items.length}개 sha256 ${pset.sha256}`);
+  const outDir = pset ? path.join(WORK, "out", pset.label, tag) : path.join(WORK, "out", tag);
   const logs = path.join(WORK, "logs");
   const sizeOpt = opt("size", "");
   const fixed = sizeOpt ? sizeOpt.split("x").map(Number) : null;
   if (fixed && !(fixed.length === 2 && fixed.every((n) => Number.isInteger(n) && n >= 256 && n <= 2048 && n % 16 === 0))) throw new Error("--size 는 16의 배수 가로x세로 (예: 1280x720)");
   const dry = flag("dry-run");
-  const csv = path.join(logs, fixed ? "results-size.csv" : "results-v2.csv");
+  if (fixed && pset) throw new Error("--size 와 --prompts 는 함께 쓰지 않습니다(묶음 파일의 크기를 씁니다).");
+  const sized = !!(fixed || pset); // 크기 대조·덮어쓰기 금지 대상
+  const csv = path.join(logs, pset ? `results-${pset.label}.csv` : fixed ? "results-size.csv" : "results-v2.csv");
   if (!dry) {
     fs.mkdirSync(outDir, { recursive: true });
     fs.mkdirSync(logs, { recursive: true });
-    if (!fs.existsSync(csv)) fs.writeFileSync(csv, `time,model,no,ratio,w,h,seed,exit,seconds,bytes,peakRamMB,gpuSharedPeakMB,gpuDedicatedPeakMB,nvidiaUsedPeakMB,note${fixed ? ",pngW,pngH,sizeCheck" : ""}\n`);
+    if (!fs.existsSync(csv)) fs.writeFileSync(csv, `time,model,no,ratio,w,h,seed,exit,seconds,bytes,peakRamMB,gpuSharedPeakMB,gpuDedicatedPeakMB,nvidiaUsedPeakMB,note${sized ? ",pngW,pngH,sizeCheck" : ""}\n`);
   }
   const sq = flag("square");
   let mismatch = 0;
   for (const no of nums) for (const seed of seedArg.split(",").map(Number)) {
-    const [tableRatio, text] = P[no - 1];
-    const [w, h] = fixed ?? (sq ? SIZE["1:1"] : SIZE[tableRatio]);
-    const ratio = fixed ? `${w}x${h}` : tableRatio;
+    const item = pset ? pset.items[no - 1] : null;
+    if (pset && !item) throw new Error(`묶음에 ${no}번이 없습니다(1~${pset.items.length}).`);
+    const [tableRatio, text] = item ? ["", item.text] : P[no - 1];
+    const [w, h] = fixed ?? (item ? [item.w, item.h] : sq ? SIZE["1:1"] : SIZE[tableRatio]);
+    const ratio = sized ? `${w}x${h}` : tableRatio;
     const name = `${String(no).padStart(2, "0")}-${seed}${sq ? "-sq" : ""}${fixed ? `-${w}x${h}` : ""}.png`;
     const out = path.join(outDir, name);
-    if (fixed && fs.existsSync(out)) throw new Error(`이미 있는 산출물은 덮어쓰지 않음: ${out}`);
+    if (sized && fs.existsSync(out)) throw new Error(`이미 있는 산출물은 덮어쓰지 않음: ${out}`);
     const args = ["--diffusion-model", diffusion, "--vae", vae, "--llm", llm, "-p", text + TAIL, "--cfg-scale", "1", "--steps", String(fam.steps), "-W", String(w), "-H", String(h), "--offload-to-cpu", "--diffusion-fa", "-s", String(seed), "-o", out];
     if (dry) { console.log(`[dry-run] ${tag} #${no} ${w}x${h} seed ${seed} -> ${out}\n  ${exe} ${args.join(" ")}`); continue; }
     const sampleFile = path.join(logs, "sample.tmp");
@@ -211,7 +235,7 @@ async function run(mk, quant, range = "1", seedArg = "1001") {
     const s = fs.readFileSync(sampleFile, "utf8").trim();
     const note = r.error ? String(r.error.code || r.error.message) : bytes ? "" : (r.stderr || r.stdout || "").trim().split(/\r?\n/).slice(-1)[0].slice(0, 160).replace(/,/g, ";");
     let sizeCols = "";
-    if (fixed) {
+    if (sized) {
       let pw = 0, ph = 0;
       try { if (bytes) [pw, ph] = pngSize(out); } catch {}
       const ok = pw === w && ph === h;

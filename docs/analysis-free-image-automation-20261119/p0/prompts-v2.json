@@ -1,0 +1,30 @@
+{
+  "label": "v2",
+  "note": "IMG-20261119 통과 판정용 새 묶음. P0의 24개와 겹치지 않는 새 프롬프트, 새 시드(3003, 4004). 1~6 실사·블로그는 Z-Image Turbo, 7~24는 FLUX.2 klein 4B로 그린다(용도별 잠정 기본 모델). 크기는 P1 허용 3종.",
+  "items": [
+    { "cat": "실사·블로그", "w": 1280, "h": 720, "text": "a Korean grandmother and granddaughter making kimchi together in a bright kitchen, warm natural light, documentary photo" },
+    { "cat": "실사·블로그", "w": 1024, "h": 1024, "text": "a Korean office worker in his 30s drinking coffee on a rooftop at sunset, city skyline behind, candid photo" },
+    { "cat": "실사·블로그", "w": 1280, "h": 720, "text": "a traditional Korean hanok courtyard after rain, wet stone path, soft morning light, travel photo" },
+    { "cat": "실사·블로그", "w": 720, "h": 1280, "text": "a Korean woman in her 20s doing yoga on a mat in a sunlit living room, full body, wellness photo" },
+    { "cat": "실사·블로그", "w": 1024, "h": 1024, "text": "freshly baked bread loaves on a wooden board in a small bakery, close-up, warm light, food photography" },
+    { "cat": "실사·블로그", "w": 720, "h": 1280, "text": "a Korean father teaching his young son to ride a bicycle in a park, autumn leaves, lifestyle photo" },
+    { "cat": "상품 배경", "w": 1024, "h": 1024, "text": "an empty light gray concrete shelf against a white wall with soft window shadow, minimal product backdrop" },
+    { "cat": "상품 배경", "w": 1024, "h": 1024, "text": "a round wooden tray on white linen fabric with dried flowers at the edge, empty center for product" },
+    { "cat": "상품 배경", "w": 1280, "h": 720, "text": "a bathroom marble counter with folded white towels at the side, soft daylight, empty foreground space" },
+    { "cat": "상품 배경", "w": 720, "h": 1280, "text": "a deep green velvet fabric backdrop with soft folds and a spotlight in the center, empty stage for jewelry" },
+    { "cat": "상품 배경", "w": 1024, "h": 1024, "text": "a wet black stone surface with green leaves at the corners and mist, empty center, skincare product backdrop" },
+    { "cat": "상품 배경", "w": 1280, "h": 720, "text": "a picnic blanket on green grass with a blurred basket behind, empty center, outdoor product backdrop" },
+    { "cat": "썸네일 구도", "w": 1280, "h": 720, "text": "a Korean woman in her 30s holding her head in shock, plain red background, large empty space on the left" },
+    { "cat": "썸네일 구도", "w": 1280, "h": 720, "text": "a Korean man in his 40s giving a thumbs up and smiling, plain green background, empty space on the right" },
+    { "cat": "썸네일 구도", "w": 1280, "h": 720, "text": "a broken piggy bank with coins scattered on a dark table, dramatic light, empty top area" },
+    { "cat": "썸네일 구도", "w": 720, "h": 1280, "text": "a Korean student pointing upward with a surprised face, plain white background, empty space at the top" },
+    { "cat": "썸네일 구도", "w": 1024, "h": 1024, "text": "a split composition of a rainy city on the left and a sunny beach on the right, clear center dividing line" },
+    { "cat": "썸네일 구도", "w": 720, "h": 1280, "text": "a smartphone lying on a dark desk with a glowing blank screen, empty dark area at the top" },
+    { "cat": "일러스트", "w": 1024, "h": 1024, "text": "flat vector illustration of a delivery rider on a scooter in a Korean city street, pastel colors" },
+    { "cat": "일러스트", "w": 1280, "h": 720, "text": "isometric illustration of a small cafe interior with a barista and customers, soft colors" },
+    { "cat": "일러스트", "w": 720, "h": 1280, "text": "watercolor illustration of autumn maple trees beside a quiet lake, warm orange tones" },
+    { "cat": "일러스트", "w": 1024, "h": 1024, "text": "cute 3D render of a smiling shopping bag character waving, soft studio lighting, pastel background" },
+    { "cat": "일러스트", "w": 1280, "h": 720, "text": "minimal line art illustration of a city skyline at night, two colors only" },
+    { "cat": "일러스트", "w": 720, "h": 1280, "text": "children book style illustration of a Korean boy and a puppy running on a beach, bright colors" }
+  ]
+}
