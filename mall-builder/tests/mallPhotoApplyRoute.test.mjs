@@ -344,6 +344,8 @@ test("소스 계약: 활성 라우트 없음·sharp 정적 import 0·버킷은 �
   assert.ok(!/withMetadata|keepMetadata|keepExif|keepIccProfile/.test(decSrc.replace(/\/\/.*$/gm, "")));
   assert.ok(/storage\.from\(PROPOSAL_BUCKET\)/.test(routeSrc) && /storage\.from\(APPLIED_BUCKET\)/.test(routeSrc));
   assert.equal((routeSrc.match(/storage\.from\(/g) ?? []).length, 2); // 버킷 두 곳 모두 고정 상수
+  assert.ok(!/x-forwarded|["']host["']/i.test(routeSrc.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, ""))); // 출처 판정에 Host·포워딩 머리글을 읽지 않는다
+  assert.ok(/originAllowed\(req\.headers, d\.trustedOrigins\(\)\)/.test(routeSrc));
   assert.ok(!/process\.env/.test(routeSrc)); // 환경변수는 호출 쪽이 readApplyConfig(process.env)로 넘김
   // 활성 라우트(src/app 아래)에서 아직 이 모듈들을 쓰지 않는다
   const walk = (dir) => readdirSync(dir).flatMap((n) => { const p = join(dir, n); return statSync(p).isDirectory() ? walk(p) : [p]; });
