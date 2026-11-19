@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { BATCH_MAX, buildPlan, clearDraft, loadDraft, remainingItems, saveDraft, submitRemaining, type RunResult } from "@/lib/studio/batch";
+import { BATCH_MAX, COPIES_MAX, buildPlan, clearDraft, loadCompose, loadDraft, parseEntries, remainingItems, saveCompose, saveDraft, setLineCopies, submitRemaining, type RunResult } from "@/lib/studio/batch";
 import { PRESETS, SIZE_CHOICES, findPreset, findSize, pickVariantId, type ModelState, type PresetId } from "@/lib/studio/presets";
 import { messageOf, useEngine } from "./useEngine";
 
@@ -18,7 +18,8 @@ export function CreateScreen({ memberId }: { memberId: string }) {
   const [presetId, setPresetId] = useState<PresetId>("photo");
   const [sizeId, setSizeId] = useState<(typeof SIZE_CHOICES)[number]["id"]>("wide");
   const [text, setText] = useState("");
-  const [copies, setCopies] = useState(1);
+  /** 적던 내용을 어느 회원 것으로 되돌렸는지 — 그 회원일 때만 다시 보관한다 */
+  const [restoredFor, setRestoredFor] = useState<string | null>(null);
   const [family, setFamily] = useState<FamilyChoice>("auto");
   const [seedText, setSeedText] = useState("");
   const [models, setModels] = useState<ModelState | null>(null);
@@ -34,12 +35,29 @@ export function CreateScreen({ memberId }: { memberId: string }) {
   const familyId = family === "auto" ? preset.family : family;
   const variantId = useMemo(() => pickVariantId(models, familyId), [models, familyId]);
   const fixedSeed = seedText.trim() === "" ? null : Number(seedText);
-  const plan = useMemo(() => buildPlan({ text, preset, width: size.width, height: size.height, copies, variantId, fixedSeed }), [text, preset, size, copies, variantId, fixedSeed]);
+  // 장수는 줄마다 정한다(줄 끝 「x2」, 표시가 없으면 1장). 아래 줄 목록의 버튼이 그 표시를 고쳐 준다.
+  const entries = useMemo(() => parseEntries(text), [text]);
+  const plan = useMemo(() => buildPlan({ text, preset, width: size.width, height: size.height, variantId, fixedSeed }), [text, preset, size, variantId, fixedSeed]);
 
   const readLeft = useCallback(() => {
     if (!engine) return;
     setLeft(remainingItems(engine, loadDraft(window.localStorage, memberId)).length);
   }, [engine, memberId]);
+
+  // 적던 내용(줄·줄마다 장수·용도·비율)을 회원별로 보관했다가 되돌린다.
+  // 회원이 바뀌면 그 회원 것으로 통째로 바꾸고(없으면 비운다), 되돌린 회원과 지금 회원이 같을 때만 보관한다 —
+  // 앞 회원이 적던 글이 다음 회원 칸에 적히지 않는다.
+  useEffect(() => {
+    const c = loadCompose(window.localStorage, memberId);
+    setText(c?.text ?? "");
+    if (c && findPreset(c.presetId)) setPresetId(c.presetId as PresetId);
+    const sz = c ? findSize(c.sizeId) : null;
+    if (sz) setSizeId(sz.id);
+    setRestoredFor(memberId);
+  }, [memberId]);
+  useEffect(() => {
+    if (restoredFor === memberId) saveCompose(window.localStorage, memberId, { text, presetId, sizeId });
+  }, [restoredFor, memberId, text, presetId, sizeId]);
 
   useEffect(() => {
     if (!engine) return;
@@ -143,17 +161,31 @@ export function CreateScreen({ memberId }: { memberId: string }) {
           className="mt-3 w-full rounded-xl border border-[var(--line)] bg-transparent p-3 text-sm leading-relaxed"
         />
         <p className="mt-2 text-xs text-[var(--muted)]">내 PC 그림 모델은 영어만 읽습니다. 고른 용도에 맞는 표현(조명·구도·글자 없음 등)은 자동으로 덧붙습니다.</p>
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-          <span>줄마다</span>
-          {[1, 2].map((n) => (
-            <button key={n} type="button" aria-pressed={copies === n} onClick={() => setCopies(n)} className={chip(copies === n)}>
-              {n}장
-            </button>
-          ))}
-          <span className={`ml-auto font-bold ${plan.total > BATCH_MAX ? "text-red-300" : ""}`}>
-            지금 {plan.total}장 · {BATCH_MAX}장까지
-          </span>
-        </div>
+        <p className="mt-2 text-xs text-[var(--muted)]">
+          한 줄에 한 장을 그립니다. 같은 설명으로 두 장이 필요하면 아래에서 그 줄을 {COPIES_MAX}장으로 바꾸거나, 줄 끝에 <code>x2</code>를 적어 주세요.
+        </p>
+        {entries.length > 0 && (
+          <ol className="mt-3 space-y-1.5" aria-label="줄마다 그릴 장수">
+            {entries.map((e, i) => (
+              <li key={i} className="flex items-center gap-2 text-sm">
+                <span className="w-7 shrink-0 text-right text-xs text-[var(--muted)]">{i + 1}</span>
+                <span className="min-w-0 flex-1 truncate" title={e.source}>
+                  {e.source || "(설명 없음)"}
+                </span>
+                <span role="group" aria-label={`${i + 1}번째 줄 장수`} className="flex shrink-0 gap-1">
+                  {Array.from({ length: COPIES_MAX }, (_, k) => k + 1).map((n) => (
+                    <button key={n} type="button" disabled={running} aria-pressed={e.badCopies === undefined && e.copies === n} onClick={() => setText((t) => setLineCopies(t, i, n))} className={`${chip(e.badCopies === undefined && e.copies === n)} px-2.5 py-1.5 text-xs`}>
+                      {n}장
+                    </button>
+                  ))}
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
+        <p className={`mt-3 text-right text-sm font-bold ${plan.total > BATCH_MAX ? "text-red-300" : ""}`} aria-live="polite">
+          지금 {plan.total}장 · {BATCH_MAX}장까지
+        </p>
         {(topErrors.length > 0 || lineErrors.length > 0) && (
           <ul role="alert" className="mt-3 space-y-1 rounded-xl border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-200">
             {topErrors.map((e) => (
