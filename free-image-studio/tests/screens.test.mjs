@@ -42,7 +42,11 @@ test("좌측 메뉴: 세 화면 + 다른 프로그램 보기 고정 주소, 데�
 
 test("만들기: 계획에 문제가 있거나 맡기다 만 장이 있으면 일괄 시작을 막는다", async () => {
   const s = await read("components/studio/CreateScreen.tsx");
-  assert.ok(s.includes("const canStart = !!engine && !running && left === 0 && stuck === 0 && plan.items.length > 0;"), "이어 맡길 장이나 확인이 필요한 장이 남아 있으면 새 묶음을 시작하지 못한다");
+  assert.ok(s.includes("const canStart = !!engine && !running && left === 0 && stuck === 0 && pending.uncertain === 0 && plan.items.length > 0;"), "이어 맡길 장·확인이 필요한 장·받았는지 모르는 장이 남아 있으면 새 묶음을 시작하지 못한다");
+  // 받았는지 모르는 장은 확인 창을 거쳐야만 목록에서 지운다
+  assert.ok(s.includes("discardUncertain(engine, window.localStorage, true);") && s.split("discardUncertain(").length - 1 === 1 && s.includes("onClick={() => setDropAsk(true)}") && s.includes('<button type="button" onClick={dropUncertain}'));
+  // 멈춘 이유(잠금 수단 없음 포함)를 화면에 보여 준다
+  assert.ok(s.includes("중간에 멈췄습니다 — ${result.stopped.message}"));
   // 연결이 바뀐 장·예전 형식의 장은 확인 창을 거쳐야만 새로 맡긴다
   assert.ok(s.includes("adoptDraft(engine, window.localStorage, true);"));
   assert.equal(s.split("adoptDraft(").length - 1, 1);

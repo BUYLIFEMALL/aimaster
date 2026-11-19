@@ -179,11 +179,12 @@ export function createEngineClient(opts: EngineClientOptions) {
 
   const readToken = (): string | null => readSession()?.token ?? null;
 
-  async function request(path: string, init: { method?: string; body?: unknown; auth?: boolean; timeoutMs?: number } = {}): Promise<Response> {
+  /** init.token: 부르는 쪽이 이미 읽어 검증한 연결의 토큰. 주면 저장소를 다시 읽지 않고 그 토큰으로 보낸다 */
+  async function request(path: string, init: { method?: string; body?: unknown; auth?: boolean; timeoutMs?: number; token?: string } = {}): Promise<Response> {
     if (disposed) throw new EngineError("stale", "연결이 바뀌어 요청을 보내지 않았습니다.");
     if (!PATH.test(path) || path.includes("//")) throw new EngineError("invalid", "엔진 주소가 올바르지 않습니다.");
     const e0 = epoch;
-    const token = init.auth === false ? null : readToken();
+    const token = init.auth === false ? null : (init.token ?? readToken());
     const headers: Record<string, string> = {};
     if (token) headers.Authorization = `Bearer ${token}`;
     if (init.body !== undefined) headers["Content-Type"] = "application/json";
@@ -297,12 +298,14 @@ export function createEngineClient(opts: EngineClientOptions) {
     if (current?.state === "accepted") return { requestId, state: "accepted", job: null };
     return { requestId, state: current?.state === "rejected" ? "rejected" : "unknown", error };
   }
-  async function send(entry: Submission): Promise<SendResult> {
+  /** token: 이 접수의 연결 범위를 확인할 때 **함께 읽은** 토큰. 확인과 전송 사이에 다른 탭이 연결을 바꿔도 이 토큰(이 범위)으로 보낸다 */
+  async function send(entry: Submission, token: string): Promise<SendResult> {
     if (busy.has(entry.requestId)) throw new EngineError("invalid", "이 접수는 지금 처리하는 중입니다.");
     busy.add(entry.requestId);
     try {
       const data = await requestJson("/queue", {
         method: "POST",
+        token,
         body: {
           kind: "art",
           title: entry.title,
@@ -407,14 +410,17 @@ export function createEngineClient(opts: EngineClientOptions) {
      * opts.requestId: 부르는 쪽이 **미리 정해 자기 기록에 적어 둔** 접수 번호를 쓴다(묶음의 항목과 접수를 보내기 전에 잇기 위해).
      *   이미 접수 기록에 있는 번호면 보내지 않고 거절한다 — 같은 번호로 두 번 접수하지 않는다.
      * opts.tag: 이 접수를 만든 곳의 표시. 접수 기록에만 남는다.
+     * opts.expectLink: 부르는 쪽이 기대하는 연결 범위 표시. 연결 기록을 **한 번만** 읽어 이 값과 견주고,
+     *   그때 읽은 토큰으로 접수 기록을 적고 요청까지 보낸다. 다르면 아무것도 적지도 보내지도 않는다(stale).
      */
-    async submit(input: SubmitInput, opts: { requestId?: string; tag?: string } = {}) {
+    async submit(input: SubmitInput, opts: { requestId?: string; tag?: string; expectLink?: string } = {}) {
       const problem = checkArtInput(input);
       if (problem) throw new EngineError("invalid", problem);
       // 연결돼 있지 않으면 접수 기록도 만들지 않는다(어느 범위의 접수인지 적을 수 없다).
       const session = readSession();
       if (!session) throw new EngineError("needPair", DEFAULT_MESSAGE[401], 401);
       const link = session.link;
+      if (opts.expectLink !== undefined && opts.expectLink !== link) throw new EngineError("stale", "엔진 연결이 바뀌어 맡기지 않았습니다.");
       if (opts.requestId !== undefined && (typeof opts.requestId !== "string" || !REQUEST_ID.test(opts.requestId))) throw new EngineError("invalid", "접수 번호가 올바르지 않습니다.");
       const requestId = opts.requestId ?? uuid();
       const trackId = uuid();
@@ -428,7 +434,7 @@ export function createEngineClient(opts: EngineClientOptions) {
       const list = readLedger();
       if (list.some((s) => s.requestId === requestId)) throw new EngineError("invalid", opts.requestId ? "이미 접수 기록에 있는 접수 번호입니다." : "접수 번호가 겹쳤습니다. 다시 시도해 주세요.");
       writeLedger([...list, entry]); // 적지 못하면 여기서 멈추고 엔진에 보내지 않는다
-      return send(entry);
+      return send(entry, session.token);
     },
 
     /**
@@ -480,10 +486,12 @@ export function createEngineClient(opts: EngineClientOptions) {
       if (busy.has(requestId)) throw new EngineError("invalid", "이 접수는 지금 처리하는 중입니다.");
       if (entry.state === "accepted") throw new EngineError("invalid", "이미 접수된 작업입니다.");
       if (entry.state !== "rejected") throw new EngineError("invalid", "엔진이 받았는지 알 수 없는 접수는 다시 보내지 않습니다.");
-      if (!readLink() || entry.link !== readLink()) throw new EngineError("invalid", "엔진 연결이 바뀌어 이 접수는 다시 보낼 수 없습니다. 새로 접수해 주세요.");
+      // 연결 기록을 한 번만 읽어 범위를 견주고, 그때 읽은 토큰으로 보낸다.
+      const session = readSession();
+      if (!session || entry.link !== session.link) throw new EngineError("invalid", "엔진 연결이 바뀌어 이 접수는 다시 보낼 수 없습니다. 새로 접수해 주세요.");
       if (!entry.errorKind || !RETRYABLE.includes(entry.errorKind)) throw new EngineError("invalid", "이 접수는 다시 보낼 수 없습니다. 내용을 고쳐 새로 접수해 주세요.");
       if (!patch(requestId, { state: "pending" }, ["rejected"])) throw new EngineError("invalid", "접수 상태가 바뀌었습니다. 다시 확인해 주세요.");
-      return send({ ...entry, state: "pending" });
+      return send({ ...entry, state: "pending" }, session.token);
     },
 
     /** 이 접수를 resend()로 다시 보낼 수 있는가 */

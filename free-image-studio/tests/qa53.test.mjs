@@ -86,7 +86,7 @@ test("반례(재검수) P2-1 — 묶음을 보관한 뒤 다른 조작이 같은
   assert.notEqual(other.requestId, draft.items[0].requestId);
   // 묶음의 첫 장은 여전히 「맡기지 않음」이다
   assert.deepEqual(remainingItems(c, storage).map((i) => i.line), [1, 2]);
-  assert.deepEqual(draftStatus(c, storage), { remaining: 2, otherScope: 0, legacy: 0 });
+  assert.deepEqual(draftStatus(c, storage), { remaining: 2, otherScope: 0, legacy: 0, uncertain: 0 });
   // 그 다른 접수를 정리해도(기록에서 지우기) 묶음의 장은 지워지지 않는다
   dropFromDraft(storage, A, other.requestId);
   assert.deepEqual(loadDraft(storage, A).map((i) => i.requestId), draft.items.map((i) => i.requestId), "내용이 같다는 이유로 묶음의 장을 빼지 않는다");
@@ -134,7 +134,7 @@ test("반례(재검수) P2-2 — 묶음을 맡기는 도중 연결이 새 범위
   assert.equal(again2.stopped.kind, "scope");
   assert.equal(again2.sent, 0);
   assert.equal(posts(e2).length, 1);
-  assert.deepEqual(draftStatus(fresh, p2.storage), { remaining: 0, otherScope: 2, legacy: 0 }, "보내지 않은 두 장만 남은 장이다");
+  assert.deepEqual(draftStatus(fresh, p2.storage), { remaining: 0, otherScope: 2, legacy: 0, uncertain: 0 }, "보내지 않은 두 장만 남은 장이다");
   // 첫 장은 옛 연결에서 접수됐다(접수 기록 있음) — 다시 보내지 않고, 새 연결에서는 더 볼 수 없는 줄로 보인다
   const firstSub = fresh.submissions().find((s) => s.requestId === d2.items[0].requestId);
   assert.equal(firstSub.state, "accepted");
@@ -154,7 +154,7 @@ test("연결이 바뀐 묶음의 남은 장: 사용자가 확인했을 때만 �
   await submitRemaining(c, storage, { shouldStop: () => n++ >= 1 }); // 첫 장만 맡김(접수 기록 있음)
   c.disconnect();
   await c.pair(engine.st.codes[0]);
-  assert.deepEqual(draftStatus(c, storage), { remaining: 0, otherScope: 2, legacy: 0 });
+  assert.deepEqual(draftStatus(c, storage), { remaining: 0, otherScope: 2, legacy: 0, uncertain: 0 });
   assert.equal((await submitRemaining(c, storage)).stopped.kind, "scope");
   assert.throws(() => adoptDraft(c, storage, false), kind("invalid"));
   assert.equal(readDraft(storage, A).batchId, d1.batchId, "확인 없이는 묶음이 그대로");
@@ -187,7 +187,7 @@ test("접수 번호가 없는 예전 형식 묶음(v1·v2): 맡겼는지 근거�
     storage.map.set(DRAFT, JSON.stringify(old));
     assert.equal(readDraft(storage, A), null, "지금 형식의 묶음이 아니다");
     assert.equal(legacyDraftItems(storage, A).length, 2);
-    assert.deepEqual(draftStatus(c, storage), { remaining: 0, otherScope: 0, legacy: 2 });
+    assert.deepEqual(draftStatus(c, storage), { remaining: 0, otherScope: 0, legacy: 2, uncertain: 0 });
     assert.deepEqual(remainingItems(c, storage), []);
     // 자동으로 이어 맡기지 않는다 — 내용이 같은 접수가 있든 없든
     assert.deepEqual(await submitRemaining(c, storage), { sent: 0, skipped: 0, remaining: 0 });
@@ -265,7 +265,7 @@ test("반례(재검수) P3 — 작업 번호가 없는 접수됨은 목록에 �
 
 test("탭 사이 잠금이 없는 브라우저의 제약을 알린다(화면과 문서)", async () => {
   assert.equal(typeof hasCrossTabLock(), "boolean");
-  const src = await readFile(new URL("../src/lib/studio/saveStore.ts", import.meta.url), "utf8");
+  const src = await readFile(new URL("../src/lib/studio/lock.ts", import.meta.url), "utf8");
   assert.ok(src.includes("export const hasCrossTabLock = (): boolean => !!webLocks();"));
   const jobs = await readFile(new URL("../src/components/studio/JobsScreen.tsx", import.meta.url), "utf8");
   assert.ok(jobs.includes("useEffect(() => setCrossTab(hasCrossTabLock()), []);"));
@@ -447,9 +447,10 @@ test("반례 P3 — 화면(저장 기록 객체)이 둘이어도 같은 그림�
   const custom = createSaveStore(memoryStorage(), A, { lock: async (name, fn) => (names.push(name), fn()) });
   await custom.saveOnce(row, async () => new Blob(["x"]), async () => {});
   assert.deepEqual(names, [`fis.save:${A}:${r.requestId}`]);
-  const src = await readFile(new URL("../src/lib/studio/saveStore.ts", import.meta.url), "utf8");
+  const src = await readFile(new URL("../src/lib/studio/lock.ts", import.meta.url), "utf8");
   assert.match(src, /navigator\?\.locks/);
-  assert.match(src, /locks \? locks\.request\(name, fn\) : localLock\(name, fn\)/);
+  assert.ok(src.includes("if (locks) return (name, fn) => locks.request(name, fn);"));
+  assert.ok((await readFile(new URL("../src/lib/studio/saveStore.ts", import.meta.url), "utf8")).includes('import { defaultLock, type Lock } from "./lock.ts";'), "저장도 같은 잠금 모듈을 쓴다");
 });
 
 test("반례 P3(접근성) — 준비 전에는 링크가 아니라 꺼진 버튼, 확인 창은 포커스를 옮기고 돌려준다", async () => {

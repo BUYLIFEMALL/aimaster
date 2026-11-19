@@ -1,39 +1,15 @@
 // 그림 저장 기록(브라우저 보관, 회원별) — 같은 그림을 두 번 저장하지 않게 한다. 그림 자체는 서버에 올리지 않는다.
 import { EngineError, type KeyValueStore } from "../engine.ts";
+import { defaultLock, type Lock } from "./lock.ts";
+
+// 탭 사이 잠금이 없는 브라우저에서는 **다른 탭에서 동시에** 같은 그림을 저장하면 두 번 쓰일 수 있다
+// (같은 탭 안에서는 막힌다. 폴더 저장은 같은 이름이라 한 파일로 덮어쓰이지만, 내려받기는 파일이 둘 생길 수 있다).
+// 화면은 hasCrossTabLock()이 false면 그 제약을 알린다.
+export { hasCrossTabLock, type Lock } from "./lock.ts";
 
 export type SavedInfo = { name: string; at: number };
 /** 받은 그림을 실제로 쓰는 함수(폴더에 쓰기 또는 내려받기). 화면이 넣어 준다 */
 export type Writer = (name: string, blob: Blob) => Promise<void>;
-
-/** 이름마다 한 번에 하나만 실행하는 잠금. 브라우저에서는 탭 사이에 듣는 Web Locks를 쓴다 */
-export type Lock = <T>(name: string, fn: () => Promise<T>) => Promise<T>;
-
-// Web Locks가 없는 환경용 — 같은 화면(같은 스크립트) 안의 저장 기록 객체들끼리만 줄을 세운다.
-const chains = new Map<string, Promise<unknown>>();
-const localLock: Lock = (name, fn) => {
-  const run = (chains.get(name) ?? Promise.resolve()).then(fn, fn);
-  const tail = run.then(
-    () => undefined,
-    () => undefined,
-  );
-  chains.set(name, tail);
-  void tail.then(() => {
-    if (chains.get(name) === tail) chains.delete(name);
-  });
-  return run;
-};
-const webLocks = () => (globalThis as { navigator?: { locks?: { request<T>(n: string, f: () => Promise<T>): Promise<T> } } }).navigator?.locks;
-/**
- * 이 브라우저에 탭 사이 잠금(Web Locks)이 있는가. 없으면 **다른 탭에서 동시에** 같은 그림을 저장할 때 두 번 쓰일 수 있다
- * (같은 탭 안에서는 막힌다. 폴더 저장은 같은 이름이라 한 파일로 덮어쓰이지만, 내려받기는 파일이 둘 생길 수 있다).
- * 화면은 이 값이 false면 그 제약을 알린다.
- */
-export const hasCrossTabLock = (): boolean => !!webLocks();
-/** 탭 사이에 공유되는 잠금이 있으면 그것을, 없으면 같은 화면 안의 잠금을 쓴다 */
-export const defaultLock: Lock = (name, fn) => {
-  const locks = webLocks();
-  return locks ? locks.request(name, fn) : localLock(name, fn);
-};
 
 const key = (memberId: string) => `fis.saved.v1:${memberId}`;
 const SAVED_MAX = 500;

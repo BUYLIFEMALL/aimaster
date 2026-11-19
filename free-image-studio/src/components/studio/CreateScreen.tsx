@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { BATCH_MAX, COPIES_MAX, adoptDraft, buildPlan, clearDraft, draftStatus, loadCompose, parseEntries, saveCompose, saveDraft, setLineCopies, submitRemaining, type DraftStatus, type RunResult } from "@/lib/studio/batch";
+import { BATCH_MAX, COPIES_MAX, adoptDraft, buildPlan, clearDraft, discardUncertain, draftStatus, loadCompose, parseEntries, saveCompose, saveDraft, setLineCopies, submitRemaining, type DraftStatus, type RunResult } from "@/lib/studio/batch";
 import { PRESETS, SIZE_CHOICES, findPreset, findSize, pickVariantId, type ModelState, type PresetId } from "@/lib/studio/presets";
 import { messageOf, useEngine } from "./useEngine";
 
@@ -24,7 +24,8 @@ export function CreateScreen({ memberId }: { memberId: string }) {
   const [seedText, setSeedText] = useState("");
   const [models, setModels] = useState<ModelState | null>(null);
   // 맡기다 만 묶음의 상태 — 이어 맡길 수 있는 장 / 연결이 바뀐 장 / 예전 형식이라 맡겼는지 알 수 없는 장
-  const [pending, setPending] = useState<DraftStatus>({ remaining: 0, otherScope: 0, legacy: 0 });
+  const [pending, setPending] = useState<DraftStatus>({ remaining: 0, otherScope: 0, legacy: 0, uncertain: 0 });
+  const [dropAsk, setDropAsk] = useState(false);
   const [adoptAsk, setAdoptAsk] = useState(false);
   const left = pending.remaining;
   const stuck = pending.otherScope + pending.legacy;
@@ -116,7 +117,19 @@ export function CreateScreen({ memberId }: { memberId: string }) {
     }
   };
 
-  const canStart = !!engine && !running && left === 0 && stuck === 0 && plan.items.length > 0;
+  // 사용자가 확인한 경우에만: 엔진이 받았는지 알 수 없는 장을 묶음에서 지운다.
+  const dropUncertain = () => {
+    if (!engine) return;
+    setDropAsk(false);
+    try {
+      discardUncertain(engine, window.localStorage, true);
+    } catch (e) {
+      setError(messageOf(e, "지우지 못했습니다."));
+    }
+    readLeft();
+  };
+
+  const canStart = !!engine && !running && left === 0 && stuck === 0 && pending.uncertain === 0 && plan.items.length > 0;
 
   return (
     <div className="mx-auto max-w-3xl space-y-4">
@@ -124,6 +137,36 @@ export function CreateScreen({ memberId }: { memberId: string }) {
         <h1 className="text-xl font-bold">🎨 만들기</h1>
         <p className="mt-1 text-sm text-[var(--muted)]">용도를 고르고 그림 설명을 한 줄에 하나씩 적으면, 내 PC가 차례로 그립니다. 한 번에 {BATCH_MAX}장까지 맡길 수 있습니다.</p>
       </header>
+
+      {pending.uncertain > 0 && (
+        <section className={`${card} border-amber-500/60`}>
+          <p className="text-sm">
+            맡기던 도중 끊겨, 엔진이 받았는지 알 수 없는 그림이 <b>{pending.uncertain}장</b> 있습니다. 이 그림은 자동으로 다시 맡기지 않습니다. 엔진 창에서 그려졌는지 확인한 뒤 아래에서 지워 주세요.
+          </p>
+          {dropAsk ? (
+            <div role="alertdialog" aria-labelledby="drop-title" aria-describedby="drop-desc" className="mt-3 rounded-xl border border-amber-500/40 p-3">
+              <h2 id="drop-title" className="text-sm font-bold">
+                이 {pending.uncertain}장을 맡길 목록에서 지울까요?
+              </h2>
+              <p id="drop-desc" className="mt-1 text-sm text-[var(--muted)]">
+                엔진이 이미 그렸다면 그 그림은 엔진 창에 남아 있습니다. 필요하면 지운 뒤 설명을 다시 적어 맡겨 주세요(이미 그려졌다면 같은 그림이 한 번 더 나옵니다).
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button type="button" onClick={dropUncertain} className={button}>
+                  목록에서 지우기
+                </button>
+                <button type="button" autoFocus onClick={() => setDropAsk(false)} className={ghost}>
+                  그만두기
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button type="button" onClick={() => setDropAsk(true)} disabled={running} className={`${ghost} mt-3`}>
+              이 {pending.uncertain}장 정리하기…
+            </button>
+          )}
+        </section>
+      )}
 
       {stuck > 0 && (
         <section className={`${card} border-amber-500/60`}>

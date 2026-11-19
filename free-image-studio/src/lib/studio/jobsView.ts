@@ -1,5 +1,9 @@
 // 작업 기록 화면에 보일 줄을 만든다 — 브라우저의 접수 기록과 엔진의 작업 목록을 합친다. 화면과 분리한 판단 로직.
 import { EngineError, SEED_MAX, type EngineClient, type EngineJob, type Submission } from "../engine.ts";
+import { defaultLock, submitLockName } from "./lock.ts";
+
+/** 새 접수를 만드는 동작은 회원별 접수 잠금 안에서 한다 — 다른 탭의 묶음 맡기기·다른 조작과 접수 기록 쓰기가 겹치지 않게 */
+const locked = <T>(client: EngineClient, fn: () => Promise<T>): Promise<T> => defaultLock(submitLockName(client.memberId), fn);
 
 export type Phase =
   | "sending" // 보내는 중(또는 보내다 화면이 닫힘)
@@ -140,11 +144,12 @@ async function currentJob(client: EngineClient, requestId: string, allowed: Engi
  */
 export async function again(client: EngineClient, requestId: string) {
   const { sub } = await currentJob(client, requestId, ["done"]);
-  return client.submit(inputOf(sub, newSeed(sub.task.seed)));
+  return locked(client, () => client.submit(inputOf(sub, newSeed(sub.task.seed)), { expectLink: sub.link }));
 }
 export async function restart(client: EngineClient, requestId: string) {
   const { sub } = await currentJob(client, requestId, ["failed", "interrupted", "cancelled"]);
-  return client.submit(inputOf(sub));
+  // 확인한 범위를 연결 계층에 넘긴다 — 확인과 전송 사이에 연결이 바뀌면 보내지 않는다.
+  return locked(client, () => client.submit(inputOf(sub), { expectLink: sub.link }));
 }
 /** 한 줄 취소 — 지금 범위에서 대기·그리는 중으로 확인된 작업만 */
 export async function cancelRow(client: EngineClient, requestId: string): Promise<void> {
@@ -160,7 +165,7 @@ export async function replace(client: EngineClient, requestId: string, acknowled
   const s = need(client, requestId);
   if (!acknowledged) throw new EngineError("invalid", "같은 그림이 두 번 나올 수 있음을 확인해 주세요.");
   if (s.state !== "unknown" && s.state !== "pending") throw new EngineError("invalid", "받았는지 모르는 접수만 새로 맡길 수 있습니다.");
-  const res = await client.submit(inputOf(s));
+  const res = await locked(client, () => client.submit(inputOf(s)));
   // 새 접수 기록이 생긴 뒤에만 옛 기록을 지운다(새로 맡기기가 기록도 못 남기고 실패하면 옛 기록을 잃지 않는다).
   client.forget(requestId, { force: true });
   return res;
