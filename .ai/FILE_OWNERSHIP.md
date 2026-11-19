@@ -379,3 +379,5 @@ IMG-20261119-P1-WEBPLAN CC-ECOM-01: Master msg_0892ca387839. 새 문서 docs/ana
 IMG-20261119-P1-WEB-5-1 CC-ECOM-01: Master msg_45b3fbbdfcde. 새 폴더 free-image-studio/ 전체(최소 앱 뼈대·접근 판정·고지·문서). 엔진·공용 코드·다른 프로그램·DB·사이트 등록·실 AI 호출·설치·빌드·배포·push 0. 지원 문구·유료 모델 기본값·FREE/요금은 코드·설정에 넣지 않음. 검수 CX-QA-01(Mac).
 
 WS-20261119-03 CC-WORKSPACE-01: Master msg_aa669ac3568e(일반 ZIP 가져오기 504 로컬 성능 진단). 새 ai-work-workspace/tests/integration/importPerfDiag.test.ts(합성 Markdown+CSV ZIP, DB 호출 수·단계 시간 측정 전용) 한 파일과 본인 문서 기록만. 제품 코드 편집 없음(필요하면 경로·범위 먼저 보고). 전용 로컬 fixture aww_zip1119_wf만, 주인님 ZIP·회원 자료·운영/공유 DB·Storage·빌드·배포·push 없음.
+
+WS-20261119-03 범위 추가 CC-WORKSPACE-01: Master msg_8465c125b33a(C 우선 — 다문서 가져오기 응답 축소 로컬 후보). ai-work-workspace/src/litpage/server/api/modules/import.ts(importFiles 응답 recordMap 구성 한 곳: 바뀐 레코드가 기준 수를 넘을 때만 뿌리 페이지 범위로 줄임, 그 이하는 지금과 동일)·새 tests/integration/importResponseSize.test.ts·tests/integration/importPerfDiag.test.ts(측정 칸 추가)·본인 문서. records.ts·db.ts·history.ts·search.ts 등 공용 쓰기 경로와 화면 코드는 편집 없음. 전용 fixture만, 운영·공유 DB·Storage·빌드·배포·push 없음.
