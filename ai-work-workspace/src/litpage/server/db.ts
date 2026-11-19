@@ -317,10 +317,14 @@ export function getRecords<T extends BaseRecord = BaseRecord>(table: Table, ids:
 /** Persist a full record value (version must already be bumped by caller). Returns the change lsn. */
 export function putRecord(table: Table, value: BaseRecord): number {
   const v = value as any;
-  stmt.put.run(
+  // 2026-11-19(WS-20261119-03 A): 이 문장은 (tbl, id) 한 줄만 바꾸고 바로 아래에서 그 키를 새 값으로 넣으므로, 요청 캐시를
+  // 통째로 비우지 않는다(Statement.run을 거치면 쓰기마다 전체가 비워져, 문서 많은 가져오기에서 같은 부모·컬렉션을 블록마다
+  // 다시 읽었다 — 전체 DB 호출의 약 45%). records 표에는 다른 줄을 바꾸는 트리거가 없다.
+  // 일반 SQL로 records를 쓰는 문장(Statement.run·db.exec), 트랜잭션 되돌리기, lockRecords의 캐시 비움은 그대로다.
+  querySync(stmt.put.text, normalize([
     table, v.id, v.version ?? 0, v.space_id ?? (table === 'space' ? v.id : null), v.parent_id ?? null, v.parent_table ?? null,
     v.alive === false ? 0 : 1, v.last_edited_time ?? Date.now(), JSON.stringify(value),
-  );
+  ]));
   cacheSet(`${table}:${v.id}`, JSON.parse(JSON.stringify(value)));
   const res = querySync(stmt.change, [table, v.id, v.space_id ?? (table === 'space' ? v.id : null), v.version ?? 0, Date.now()]);
   return Number(res.rows[0]?.lsn ?? 0);
