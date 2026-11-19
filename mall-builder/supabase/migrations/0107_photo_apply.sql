@@ -76,7 +76,7 @@ begin
   m := regexp_match(coalesce(p_name, ''), '^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.([a-z0-9]{1,16})\.([0-9a-f]{64})\.([0-9a-f]{32})\.jpg$');
   if m is null then return false; end if;
   select * into s from public.mall_builder_photo_apply_slots where id = m[2]::uuid;
-  if s.id is null or s.status <> 'applying' or s.until <= now() or s.created_by <> auth.uid() or s.store_id::text <> m[1] then return false; end if;
+  if s.id is null or s.status <> 'applying' or s.until <= clock_timestamp() or s.created_by <> auth.uid() or s.store_id::text <> m[1] then return false; end if;
   select * into pr from public.mall_builder_photo_proposals where id = s.proposal_id;
   if pr.id is null or not mall_builder_private.photo_proposal_row_ok(pr)
      or mall_builder_private.photo_proposal_actor(s.store_id, s.product_id) is distinct from s.role then return false; end if;
@@ -90,7 +90,7 @@ create policy mall_builder_applied_insert on storage.objects for insert to authe
   with check (bucket_id = 'mall-builder-applied' and mall_builder_private.applied_object_ok(name));
 -- 읽기는 공개 버킷 공개 주소로. 고치기·지우기 정책 없음 = 변경 불가
 
--- 1단계: 적용 슬롯(제안 → 상품 순서로 잠금). 그사이 상품이 바뀌었으면 기본 거절, 직원만 강제(forced)
+-- 1단계: 적용 슬롯(제안 → 상품 → 슬롯 순서로 잠금, 만료는 실제 시각). 그사이 상품이 바뀌었으면 기본 거절, 직원만 강제(forced)
 create or replace function public.mall_builder_photo_apply_begin(p_proposal uuid, p_force boolean default false)
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
@@ -112,7 +112,7 @@ begin
   begin v_stale := pr.base_revision::timestamptz is distinct from p.updated_at; exception when others then v_stale := true; end;
   if v_stale and not coalesce(p_force, false) then return jsonb_build_object('ok', false, 'reason', 'stale'); end if;
   update public.mall_builder_photo_apply_slots set status = 'expired', decided_at = now()
-   where proposal_id = pr.id and status = 'applying' and until <= now();
+   where proposal_id = pr.id and status = 'applying' and until <= clock_timestamp();
   select * into s from public.mall_builder_photo_apply_slots where proposal_id = pr.id and status = 'applying' for update;
   if s.id is not null then
     if s.created_by = auth.uid() and s.role = a then
@@ -122,18 +122,22 @@ begin
   end if;
   v_id := gen_random_uuid();
   insert into public.mall_builder_photo_apply_slots (id, proposal_id, store_id, product_id, created_by, role, product_rev, forced, until)
-  values (v_id, pr.id, pr.store_id, pr.product_id, auth.uid(), a, p.updated_at, coalesce(p_force, false), now() + interval '5 minutes');
+  values (v_id, pr.id, pr.store_id, pr.product_id, auth.uid(), a, p.updated_at, coalesce(p_force, false), clock_timestamp() + interval '5 minutes');
   return jsonb_build_object('ok', true, 'state', 'applying', 'apply_id', v_id, 'role', a, 'resumed', false);
 end;
 $$;
 
 -- 2단계: 최종 서명·게시 객체 확인 뒤 상품 대표사진 교체(나머지 사진 보존). 같은 슬롯 재호출은 멱등.
+-- 빈 값·형식이 틀리면 잠그기 전에 거절(fail-closed). 잠금 순서는 begin·revert와 같은 제안 → 상품 → 슬롯
+-- (슬롯은 잠그기 전에 제안 번호만 식별하고, 잠근 뒤 다시 읽어 같은 제안인지 확인). 만료는 잠금 대기 뒤 실제 시각으로 판정.
 create or replace function public.mall_builder_photo_apply_commit(p_apply uuid, p_kid text, p_sha text, p_size bigint, p_exp bigint, p_sig text, p_public_url text)
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
   s public.mall_builder_photo_apply_slots%rowtype;
   pr public.mall_builder_photo_proposals%rowtype;
   p public.mall_builder_products%rowtype;
+  v_pid uuid;
+  v_now bigint;
   v_path text;
   v_up text;
   v_fin text;
@@ -143,44 +147,52 @@ declare
   v_auto boolean;
 begin
   if auth.uid() is null then raise exception '로그인이 필요합니다.'; end if;
-  select * into s from public.mall_builder_photo_apply_slots where id = p_apply for update;
-  if s.id is null or s.created_by <> auth.uid() then return jsonb_build_object('ok', false, 'reason', 'forbidden'); end if;
-  if s.status = 'applied' then
-    return case when s.sha256 = p_sha then jsonb_build_object('ok', true, 'state', 'done') else jsonb_build_object('ok', false, 'reason', 'conflict') end;
-  end if;
-  if s.status <> 'applying' then return jsonb_build_object('ok', false, 'reason', 'gone'); end if;
-  if s.until <= now() then
-    update public.mall_builder_photo_apply_slots set status = 'expired', decided_at = now() where id = s.id;
-    return jsonb_build_object('ok', false, 'reason', 'gone');
-  end if;
-  -- 형식(모호함 차단)
-  if p_kid !~ '^[a-z0-9]{1,16}$' or p_sha !~ '^[0-9a-f]{64}$' or p_sig !~ '^[0-9a-f]{64}$'
-     or p_size is null or p_size < 1 or p_size > 5242880
-     or p_exp is null or p_exp < extract(epoch from now())::bigint or p_exp > extract(epoch from now())::bigint + 600
-     or p_public_url is null or char_length(p_public_url) > 400 or p_public_url !~ '^https://[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+(:[0-9]{1,5})?/storage/v1/object/public/mall-builder-applied/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z0-9]{1,16}\.[0-9a-f]{64}\.[0-9a-f]{32}\.jpg$' then
+  if p_apply is null or p_kid is null or p_sha is null or p_size is null or p_exp is null or p_sig is null or p_public_url is null
+     or p_kid !~ '^[a-z0-9]{1,16}$' or p_sha !~ '^[0-9a-f]{64}$' or p_sig !~ '^[0-9a-f]{64}$'
+     or p_size < 1 or p_size > 5242880 or p_exp < 1
+     or char_length(p_public_url) > 400 or p_public_url !~ '^https://[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+(:[0-9]{1,5})?/storage/v1/object/public/mall-builder-applied/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z0-9]{1,16}\.[0-9a-f]{64}\.[0-9a-f]{32}\.jpg$' then
     return jsonb_build_object('ok', false, 'reason', 'invalid');
   end if;
-  select * into pr from public.mall_builder_photo_proposals where id = s.proposal_id for update;
-  select * into p from public.mall_builder_products where id = s.product_id for update;
-  if pr.id is null or p.id is null or not mall_builder_private.photo_proposal_row_ok(pr)
+  select sl.proposal_id into v_pid from public.mall_builder_photo_apply_slots sl where sl.id = p_apply;
+  if v_pid is null then return jsonb_build_object('ok', false, 'reason', 'forbidden'); end if;
+  select * into pr from public.mall_builder_photo_proposals where id = v_pid for update;
+  select * into p from public.mall_builder_products where id = pr.product_id for update;
+  select * into s from public.mall_builder_photo_apply_slots where id = p_apply for update;
+  if s.id is null or pr.id is null or p.id is null or s.proposal_id is distinct from pr.id or s.product_id is distinct from p.id
+     or s.created_by is distinct from auth.uid()
+     or not mall_builder_private.photo_proposal_row_ok(pr)
      or mall_builder_private.photo_proposal_actor(s.store_id, s.product_id) is distinct from s.role then
     return jsonb_build_object('ok', false, 'reason', 'forbidden');
   end if;
-  if pr.status <> 'proposed' then return jsonb_build_object('ok', false, 'reason', 'gone'); end if;
+  -- 이미 끝난 슬롯: 지금도 권한이 있고(위), 제안이 applied·같은 경로·같은 sha일 때만 done
+  if s.status = 'applied' then
+    if pr.status is distinct from 'applied' or pr.applied_path is distinct from s.path then return jsonb_build_object('ok', false, 'reason', 'gone'); end if;
+    if s.sha256 is distinct from p_sha then return jsonb_build_object('ok', false, 'reason', 'conflict'); end if;
+    return jsonb_build_object('ok', true, 'state', 'done');
+  end if;
+  if s.status is distinct from 'applying' then return jsonb_build_object('ok', false, 'reason', 'gone'); end if;
+  if s.until <= clock_timestamp() then
+    update public.mall_builder_photo_apply_slots set status = 'expired', decided_at = clock_timestamp() where id = s.id;
+    return jsonb_build_object('ok', false, 'reason', 'gone');
+  end if;
+  v_now := extract(epoch from clock_timestamp())::bigint;
+  if p_exp < v_now or p_exp > v_now + 600 then return jsonb_build_object('ok', false, 'reason', 'invalid'); end if;
+  if pr.status is distinct from 'proposed' then return jsonb_build_object('ok', false, 'reason', 'gone'); end if;
   if p.updated_at is distinct from s.product_rev then return jsonb_build_object('ok', false, 'reason', 'stale'); end if;
-  -- 최종 서명(목적 apply-final)
+  -- 최종 서명(목적 apply-final) — 열쇠 없음(null)도 불일치
   v_fin := mall_builder_private.apply_hmac(p_kid, mall_builder_private.apply_final_msg(p_kid, s.store_id, s.product_id, s.proposal_id, s.id, auth.uid(), s.role, p_sha, p_size, p_exp, p_public_url));
-  if v_fin is null or v_fin <> p_sig then return jsonb_build_object('ok', false, 'reason', 'bad_sig'); end if;
+  if v_fin is null or v_fin is distinct from p_sig then return jsonb_build_object('ok', false, 'reason', 'bad_sig'); end if;
   -- 게시 경로(목적 upload-path)와 객체
   v_up := mall_builder_private.apply_hmac(p_kid, mall_builder_private.apply_upload_msg(p_kid, s.store_id, s.product_id, s.proposal_id, s.id, auth.uid(), s.role, p_sha));
+  if v_up is null then return jsonb_build_object('ok', false, 'reason', 'bad_sig'); end if;
   v_path := s.store_id::text || '/' || s.id::text || '.' || p_kid || '.' || p_sha || '.' || left(v_up, 32) || '.jpg';
-  if right(p_public_url, char_length('/storage/v1/object/public/mall-builder-applied/' || v_path)) <> '/storage/v1/object/public/mall-builder-applied/' || v_path then
+  if right(p_public_url, char_length('/storage/v1/object/public/mall-builder-applied/' || v_path)) is distinct from '/storage/v1/object/public/mall-builder-applied/' || v_path then
     return jsonb_build_object('ok', false, 'reason', 'invalid');
   end if;
   select ob.owner_id, ob.metadata ->> 'size' as size, ob.metadata ->> 'mimetype' as mime into o
     from storage.objects ob where ob.bucket_id = 'mall-builder-applied' and ob.name = v_path;
   if not found or o.owner_id is distinct from auth.uid()::text or o.mime is distinct from 'image/jpeg'
-     or o.size is null or o.size !~ '^[0-9]{1,8}$' or o.size::bigint <> p_size then
+     or o.size is null or o.size !~ '^[0-9]{1,8}$' or o.size::bigint is distinct from p_size then
     return jsonb_build_object('ok', false, 'reason', 'no_file');
   end if;
   -- 적용: 첫 장만 교체, 나머지 보존(최대 5장)
@@ -202,22 +214,33 @@ begin
 end;
 $$;
 
--- 되돌리기(직원만, 1차): 적용 뒤 대표사진이 그대로일 때만 이전 사진 목록으로. 게시 파일은 상품 사진 1년 정책으로 보존.
+-- 되돌리기(직원만): 대표사진이 적용한 그 사진일 때만, 첫 장만 이전 대표사진으로 되돌리고 그 뒤 고친 보조 사진(2~5장)은 지금 것 그대로 둔다
+-- (이전 대표사진이 없었으면 첫 장만 빼냄). 잠금 순서 제안 → 상품 → 슬롯. 게시 파일은 상품 사진 1년 정책으로 보존.
 create or replace function public.mall_builder_photo_apply_revert(p_proposal uuid)
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
   pr public.mall_builder_photo_proposals%rowtype;
   p public.mall_builder_products%rowtype;
+  v_cur jsonb;
+  v_new jsonb;
 begin
   if auth.uid() is null then raise exception '로그인이 필요합니다.'; end if;
+  if p_proposal is null then return jsonb_build_object('ok', false, 'reason', 'forbidden'); end if;
   select * into pr from public.mall_builder_photo_proposals where id = p_proposal for update;
   if pr.id is null or mall_builder_private.photo_proposal_actor(pr.store_id, pr.product_id) is distinct from 'operator' then
     return jsonb_build_object('ok', false, 'reason', 'forbidden');
   end if;
-  if pr.status <> 'applied' then return jsonb_build_object('ok', false, 'reason', 'not_applied'); end if;
+  if pr.status is distinct from 'applied' then return jsonb_build_object('ok', false, 'reason', 'not_applied'); end if;
   select * into p from public.mall_builder_products where id = pr.product_id for update;
-  if (p.images -> 0 ->> 'path') is distinct from pr.applied_path then return jsonb_build_object('ok', false, 'reason', 'conflict'); end if;
-  update public.mall_builder_products set images = coalesce(pr.prev_images, '[]'::jsonb) where id = p.id;
+  perform 1 from public.mall_builder_photo_apply_slots where proposal_id = pr.id for update;
+  if p.id is null or pr.applied_path is null or (p.images -> 0 ->> 'path') is distinct from pr.applied_path then
+    return jsonb_build_object('ok', false, 'reason', 'conflict');
+  end if;
+  v_cur := coalesce(p.images, '[]'::jsonb);
+  select case when jsonb_typeof(pr.prev_images -> 0) = 'object' then jsonb_build_array(pr.prev_images -> 0) else '[]'::jsonb end
+         || coalesce(jsonb_agg(e.value order by e.ord), '[]'::jsonb)
+    into v_new from jsonb_array_elements(v_cur) with ordinality e(value, ord) where e.ord between 2 and 5;
+  update public.mall_builder_products set images = v_new where id = p.id;
   update public.mall_builder_photo_proposals set status = 'reverted', decided_by = auth.uid(), decided_at = now() where id = pr.id;
   return jsonb_build_object('ok', true, 'state', 'reverted');
 end;

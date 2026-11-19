@@ -413,13 +413,22 @@
 - 기존 공개·비공개·제안 버킷 정책 20개는 적용 전후 글자 그대로(R1), 버킷 조건 없는 고치기·지우기 정책 0(R3).
 
 ### 18-2. 시험 결과(고정: 0107 sha256 앞 16자 `68d12107d62db9bb`)
-- `node scripts/check-0107-local.mjs` → **29/29 통과**(R1~R3, A01~A22, X1, L1·L2, E1), 시험 DB 모두 삭제.
+- (1차 원본) `node scripts/check-0107-local.mjs` → 29/29 통과(R1~R3, A01~A22, X1, L1·L2, E1) — 보완 뒤 결과는 18-2b.
   - U1~U5: 임의 서명·형식 아닌 이름·다른 sha 서명·꺼진 열쇠·다른 사람 uid 서명·다른 몰 폴더·다른 직원·비로그인 올리기 거절, 서버 맞는 이름 허용·재업로드 이미 있음, 고치기·지우기 0, 기한 지난 슬롯 올리기 거절.
   - U6·U9: 서명 틀림·꺼진 kid·만료 1초 다름·주소 다름·sha 형식·지난 만료·너무 먼 만료(10분 초과)·크기 다름·파일 없음·다른 사람 확정 거절, 정상 확정·재호출 멱등·다른 sha 충돌.
   - 묵은 제안: 기본 거절, 직원 강제 허용, 공급사 강제 거절, 슬롯 뒤 상품 변경 시 확정 거절. 역할 회수 뒤 올리기·확정 거절. 되돌리기 직원만·첫 장 바뀌면 충돌.
   - X1: TS와 SQL의 원문 2종·HMAC 2종이 같은 값. L1 같은 제안 동시 슬롯 → 뒤 요청 대기 뒤 busy. L2 같은 슬롯 동시 확정 → 둘 다 done, 첫 장 교체 1회.
 - 돌연변이 확인: 올리기 정책의 HMAC 비교를 `return true`로 바꾼 사본에서 A07·A08 실패(시험이 결함을 잡음) → 원본 복구, 지문 일치.
 - `node --test tests/` 543/543, `tsc --noEmit` 0.
+
+### 18-2b. 보완(Master msg_371737216f81·msg_d0efc0d596af, Mac 독립 검수 P1·P2)
+- 최종 서명에 **정규화한 전체 공개 주소**를 묶음: 출처는 서버 설정에서만 오고 `appliedPublicUrl`이 소문자·끝 `/` 제거·https만으로 정규화. DB는 엄격한 주소 정규식으로 먼저 거르고 서명 비교. 같은 서명을 다른 출처로 쓰면 bad_sig, 대문자 출처·`//`·http는 invalid.
+- **빈 값 fail-closed**: commit은 7개 인자 중 하나라도 null이면 잠그기 전에 invalid. 서명·경로 비교는 `is distinct from`, 열쇠 없음(null HMAC)도 불일치. begin(null)·revert(null) forbidden, 올리기 판정(null·빈 이름) false. 모든 null 경우 슬롯·상품 그대로(A27).
+- **잠금 순서 통일 제안 → 상품 → 슬롯**: commit은 잠그기 전에 슬롯의 제안 번호만 읽고, 제안·상품을 잠근 뒤 슬롯을 잠가 다시 읽어 같은 제안·상품인지 확인. revert도 제안 → 상품 → 슬롯.
+- **이미 끝난 응답도 재확인**: done은 지금 권한이 있고 제안이 applied·같은 경로·같은 sha일 때만. 권한 회수 뒤 forbidden(A25), 되돌린 뒤 gone(A26).
+- **잠금 대기 뒤 실제 시각**: 슬롯 기한·서명 만료를 `clock_timestamp()`로 판정(begin의 만료 정리·올리기 판정 포함).
+- **되돌리기는 나중에 고친 보조 사진 보존**: 첫 장만 이전 대표사진으로(없었으면 첫 장만 빼냄), 2~5장은 지금 것 그대로(A29·A30).
+- 시험: check-0107-local **39/39**(A01~A30, L1~L5 — L3 begin이 잡은 동안 확정 대기 뒤 done·교착 없음, L4 대기 중 기한이 지나면 gone·상품 그대로, L5 확정이 잡은 동안 되돌리기 대기 뒤 reverted). 돌연변이: 주소를 서명에서 뺀 사본 → A12·A14·A23·X1 실패, 만료를 `now()`로 → L4 실패, 되돌리기를 이전 목록 전체로 → A29·A30 실패(모두 복구·지문 일치). 단위 시험 544/544, tsc 0.
 
 ### 18-3. 되돌리기(아직 어디에도 적용 안 함 — 적용 뒤 필요할 때만, 순서대로)
 `drop policy if exists mall_builder_applied_insert on storage.objects;` → 세 함수·`applied_object_ok`·`apply_hmac`·`apply_*_msg` drop → `mall_builder_photo_apply_slots` drop → `apply_signing_keys` drop → 버킷은 **객체가 0개일 때만** 삭제(적용된 사진이 있으면 버킷을 남겨 상품 사진 주소가 깨지지 않게 함). 적용된 상품의 이전 사진은 `mall_builder_photo_proposals.prev_images`에 남아 있다.

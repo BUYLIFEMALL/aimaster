@@ -80,7 +80,8 @@ declare
   SHA text := repeat('a1', 32); SHA2 text := repeat('b2', 32);
   BASE text := 'https://qa.supabase.test/storage/v1/object/public/mall-builder-applied/';
   OTHER text := 'https://evil.supabase.test/storage/v1/object/public/mall-builder-applied/';
-  pa uuid; pb uuid; pc uuid; pd uuid; pe uuid; pm uuid;
+  pa uuid; pb uuid; pc uuid; pd uuid; pe uuid; pm uuid; pf uuid; pg uuid; ph uuid; P6 uuid := '00000000-0000-0000-0000-0000000000f6';
+  xf uuid; xg uuid; xh uuid; nmf text; nmg text; nmh text; before_slot jsonb; before_img jsonb;
   r jsonb; x uuid; xb uuid; xd uuid; xe uuid; nm text; nmb text; nmd text; nme text; ex bigint; ok boolean; n int; e text;
 begin
   -- A01 버킷
@@ -245,6 +246,12 @@ begin
   r := mall_builder_photo_apply_commit(x, 'k1', SHA, 4000, ex, e, OTHER || nm); reset role;
   insert into qa_r select 'A23-reuse-other-origin', r = '{"ok": true, "state": "done"}'::jsonb and images -> 0 ->> 'url' = BASE || nm
     and (select count(*) = 1 from mall_builder_photo_apply_slots where proposal_id = pa) from mall_builder_products where id = P1;
+  -- A25 이미 끝난 슬롯이라도 지금 권한이 없으면 done이 아니라 forbidden
+  update mall_builder_store_staff set perms = '{}' where store_id = S and user_id = S3;
+  perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated;
+  r := mall_builder_photo_apply_commit(x, 'k1', SHA, 4000, ex, e, BASE || nm); reset role;
+  update mall_builder_store_staff set perms = '{"products": true}' where store_id = S and user_id = S3;
+  insert into qa_r values ('A25-done-needs-role', r ->> 'reason' = 'forbidden');
 
   -- ── 묵은 제안(stale)·강제(직원만)
   pc := qa_prop(P5, 'operator', S3);
@@ -321,7 +328,73 @@ begin
   update mall_builder_products set images = jsonb_set(images, '{0}', '{"url": "https://x.test/manual.jpg"}') where id = P2;
   perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated;
   r := mall_builder_photo_apply_revert(pe); reset role;
+  -- A26 되돌린 제안의 슬롯에 같은 확정 재호출 → done이 아니라 gone(제안이 applied가 아님)
+  e := qa_fsig(x, 'k1', SHA, 4000, ex, S3, BASE || nm);
+  perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated;
+  before_slot := mall_builder_photo_apply_commit(x, 'k1', SHA, 4000, ex, e, BASE || nm); reset role;
+  insert into qa_r select 'A26-done-after-revert', before_slot ->> 'reason' = 'gone' and images -> 0 ->> 'url' = 'https://x.test/old1.jpg' from mall_builder_products where id = P1;
   insert into qa_r select 'A22-revert-conflict', r ->> 'reason' = 'conflict' and images -> 0 ->> 'url' = 'https://x.test/manual.jpg' from mall_builder_products where id = P2;
+
+  -- ── A27 빈 값(null) 벡터: 모든 경로에서 fail-closed, 슬롯·상품 그대로
+  pf := qa_prop(P5, 'operator', S3);
+  perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated;
+  r := mall_builder_photo_apply_begin(pf); reset role;
+  xf := (r ->> 'apply_id')::uuid; nmf := qa_name(xf, 'k1', SHA, S3);
+  perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated; perform qa_put(nmf, 1000); reset role;
+  e := qa_fsig(xf, 'k1', SHA, 1000, ex, S3, BASE || nmf);
+  select to_jsonb(sl) into before_slot from mall_builder_photo_apply_slots sl where id = xf;
+  select images into before_img from mall_builder_products where id = P5;
+  perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated;
+  ok := mall_builder_photo_apply_commit(null, 'k1', SHA, 1000, ex, e, BASE || nmf) ->> 'reason' = 'invalid'
+    and mall_builder_photo_apply_commit(xf, null, SHA, 1000, ex, e, BASE || nmf) ->> 'reason' = 'invalid'
+    and mall_builder_photo_apply_commit(xf, 'k1', null, 1000, ex, e, BASE || nmf) ->> 'reason' = 'invalid'
+    and mall_builder_photo_apply_commit(xf, 'k1', SHA, null, ex, e, BASE || nmf) ->> 'reason' = 'invalid'
+    and mall_builder_photo_apply_commit(xf, 'k1', SHA, 1000, null, e, BASE || nmf) ->> 'reason' = 'invalid'
+    and mall_builder_photo_apply_commit(xf, 'k1', SHA, 1000, ex, null, BASE || nmf) ->> 'reason' = 'invalid'
+    and mall_builder_photo_apply_commit(xf, 'k1', SHA, 1000, ex, e, null) ->> 'reason' = 'invalid'
+    and mall_builder_photo_apply_commit(xf, 'zz', SHA, 1000, ex, e, BASE || nmf) ->> 'reason' = 'bad_sig'
+    and mall_builder_photo_apply_begin(null) ->> 'reason' = 'forbidden'
+    and mall_builder_photo_apply_revert(null) ->> 'reason' = 'forbidden'
+    and not mall_builder_private.applied_object_ok(null)
+    and not mall_builder_private.applied_object_ok('')
+    and mall_builder_photo_apply_begin(pf, null) ->> 'resumed' = 'true';
+  reset role;
+  insert into qa_r select 'A27-null', ok and to_jsonb(sl) = before_slot and (select images = before_img from mall_builder_products where id = P5)
+    and mall_builder_private.apply_hmac(null, 'x') is null and mall_builder_private.apply_hmac('k1', null) is null
+    from mall_builder_photo_apply_slots sl where id = xf;
+  -- 정상 경로 회귀: 같은 슬롯을 바른 값으로 확정 → done
+  perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated;
+  r := mall_builder_photo_apply_commit(xf, 'k1', SHA, 1000, ex, e, BASE || nmf); reset role;
+  insert into qa_r select 'A28-normal-after-null', r = '{"ok": true, "state": "done"}'::jsonb and images -> 0 ->> 'path' = nmf from mall_builder_products where id = P5;
+
+  -- ── A29 되돌리기는 그 뒤 고친 보조 사진을 보존(첫 장만 이전 대표사진으로)
+  pg := qa_prop(P1, 'operator', S3);
+  perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated;
+  r := mall_builder_photo_apply_begin(pg); reset role;
+  xg := (r ->> 'apply_id')::uuid; nmg := qa_name(xg, 'k1', SHA2, S3);
+  perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated; perform qa_put(nmg, 1500); reset role;
+  e := qa_fsig(xg, 'k1', SHA2, 1500, ex, S3, BASE || nmg);
+  perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated;
+  ok := mall_builder_photo_apply_commit(xg, 'k1', SHA2, 1500, ex, e, BASE || nmg) ->> 'state' = 'done'; reset role;
+  update mall_builder_products set images = jsonb_build_array(images -> 0, '{"url": "https://x.test/edited2.jpg"}'::jsonb, '{"url": "https://x.test/added3.jpg"}'::jsonb) where id = P1;
+  perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated;
+  r := mall_builder_photo_apply_revert(pg); reset role;
+  insert into qa_r select 'A29-revert-keeps-secondary', ok and r ->> 'state' = 'reverted'
+    and images = '[{"url": "https://x.test/old1.jpg"}, {"url": "https://x.test/edited2.jpg"}, {"url": "https://x.test/added3.jpg"}]'::jsonb from mall_builder_products where id = P1;
+  -- A30 이전 대표사진이 없던 상품: 되돌리면 첫 장만 빠지고 보조 사진은 그대로
+  insert into mall_builder_products (id, store_id, name, base_price, images) values (P6, S, '사진 없던 상품', 1000, '[]');
+  ph := qa_prop(P6, 'operator', S3);
+  perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated;
+  r := mall_builder_photo_apply_begin(ph); reset role;
+  xh := (r ->> 'apply_id')::uuid; nmh := qa_name(xh, 'k1', SHA, S3);
+  perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated; perform qa_put(nmh, 1200); reset role;
+  e := qa_fsig(xh, 'k1', SHA, 1200, ex, S3, BASE || nmh);
+  perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated;
+  ok := mall_builder_photo_apply_commit(xh, 'k1', SHA, 1200, ex, e, BASE || nmh) ->> 'state' = 'done'; reset role;
+  update mall_builder_products set images = images || '[{"url": "https://x.test/s2.jpg"}]'::jsonb where id = P6;
+  perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated;
+  r := mall_builder_photo_apply_revert(ph); reset role;
+  insert into qa_r select 'A30-revert-no-prev-main', ok and r ->> 'state' = 'reverted' and images = '[{"url": "https://x.test/s2.jpg"}]'::jsonb from mall_builder_products where id = P6;
 end $$;
 
 select k || E'\t' || case when ok then 't' when not ok then 'f' else 'n' end from public.qa_r order by k;

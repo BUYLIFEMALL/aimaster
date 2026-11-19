@@ -3,7 +3,7 @@
 // 안전(0106 실행기와 같음): 로컬 Docker 엔진(npipe/unix)·컨테이너 aww-pg-test(postgres 이미지)일 때만, 시험 DB qa_m3_*는 없을 때만 만들고
 //   OID·소유자·실행 표식을 기록해 그 DB만 지운다. 서명 열쇠는 합성 시험 값만(시나리오 안에서 만들고 DB와 함께 사라짐).
 // 검증: 1) 0107 적용 전후 기존 저장소 정책 글자 그대로(R1), 새 버킷은 올리기 정책 하나뿐(R2), 버킷 조건 없는 고치기·지우기 정책 0(R3)
-//       2) scenario-0107(A01~A23) 3) TS 서명 형식 ↔ SQL 원문·HMAC 같은 값(X1) 4) 두 세션 경합 L1 같은 제안 동시 슬롯 / L2 같은 슬롯 동시 확정
+//       2) scenario-0107(A01~A30) 3) TS 서명 형식 ↔ SQL 원문·HMAC 같은 값(X1) 4) 두 세션 경합 L1 같은 제안 동시 슬롯 / L2 같은 슬롯 동시 확정
 //       5) 0107 원문에 외부 호출(http) 0(E1).
 import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -137,6 +137,46 @@ const prop = () => q(`select qa_prop('${P1}', 'operator', '${S3}');`).split("\n"
   const second = q(`select coalesce(images -> 1 ->> 'path', '') from mall_builder_products where id = '${P1}';`);
   check("L2", ra.code === 0 && b.code === 0 && b.ms >= 1500 && ra.out.includes('"done"') && b.out.includes('"done"') && first === nm && second !== nm,
     `뒤 확정 대기 ${b.ms}ms, 두 응답 ${ra.out.includes('"done"') && b.out.includes('"done"') ? "done" : "?"}, 첫 장 교체 1회`);
+}
+
+// L3~L5: 잠금 순서(제안 → 상품 → 슬롯)·잠금 대기 뒤 실제 시각 만료
+const ready = (size) => { // 새 제안·슬롯·업로드·서명 준비(관리자 계산)
+  const pid = prop();
+  const x = q(as(S3) + `select r ->> 'apply_id' from (select mall_builder_photo_apply_begin('${pid}') r) t;`).split("\n").pop();
+  const sha = "ef".repeat(32), ex = Math.floor(Date.now() / 1000) + 300;
+  const nm = q(`select qa_name('${x}', 'k1', '${sha}', '${S3}');`).split("\n").pop();
+  q(as(S3) + `select qa_put('${nm}', ${size});`);
+  const url = `https://qa.supabase.test/storage/v1/object/public/mall-builder-applied/${nm}`;
+  const sig = q(`select qa_fsig('${x}', 'k1', '${sha}', ${size}, ${ex}, '${S3}', '${url}');`).split("\n").pop();
+  return { pid, x, nm, call: `select mall_builder_photo_apply_commit('${x}', 'k1', '${sha}', ${size}, ${ex}, '${sig}', '${url}');` };
+};
+{ // L3 begin(재개)이 제안·상품·슬롯을 잡은 동안 확정 → 기다린 뒤 done(교착 없음)
+  const k = ready(2100);
+  const a = runAsync(D, sp + as(S3) + `begin;\nselect mall_builder_photo_apply_begin('${k.pid}');\nselect pg_sleep(3);\ncommit;`);
+  await sleep(1000);
+  const b = await runAsync(D, sp + as(S3) + k.call);
+  const ra = await a;
+  check("L3", ra.code === 0 && b.code === 0 && b.ms >= 1500 && b.out.includes('"done"') && !/deadlock/.test(b.err + ra.err), `확정 대기 ${b.ms}ms, 응답 ${b.out.includes('"done"') ? "done" : "?"}`);
+}
+{ // L4 잠금을 기다리는 사이 슬롯 기한이 지나면 실제 시각으로 gone, 상품 그대로
+  const k = ready(2200);
+  q(`update mall_builder_photo_apply_slots set until = clock_timestamp() + interval '2 seconds' where id = '${k.x}';`);
+  const img = q(`select images::text from mall_builder_products where id = '${P1}';`);
+  const a = runAsync(D, sp + as(S3) + `begin;\nselect mall_builder_photo_apply_begin('${k.pid}');\nselect pg_sleep(3);\ncommit;`);
+  await sleep(1000);
+  const b = await runAsync(D, sp + as(S3) + k.call);
+  await a;
+  const st = q(`select status from mall_builder_photo_apply_slots where id = '${k.x}';`);
+  const img2 = q(`select images::text from mall_builder_products where id = '${P1}';`);
+  check("L4", b.code === 0 && b.ms >= 1500 && b.out.includes('"gone"') && st === "expired" && img === img2, `대기 ${b.ms}ms 뒤 응답 ${b.out.includes('"gone"') ? "gone" : "?"}, 슬롯 ${st}, 상품 사진 ${img === img2 ? "그대로" : "바뀜"}`);
+}
+{ // L5 확정이 잠근 동안 되돌리기 → 기다린 뒤 reverted(교착 없음)
+  const k = ready(2300);
+  const a = runAsync(D, sp + as(S3) + `begin;\n${k.call}\nselect pg_sleep(3);\ncommit;`);
+  await sleep(1000);
+  const b = await runAsync(D, sp + as(S3) + `select mall_builder_photo_apply_revert('${k.pid}');`);
+  const ra = await a;
+  check("L5", ra.out.includes('"done"') && b.code === 0 && b.ms >= 1500 && b.out.includes('"reverted"') && !/deadlock/.test(b.err + ra.err), `되돌리기 대기 ${b.ms}ms, 응답 ${b.out.includes('"reverted"') ? "reverted" : "?"}`);
 }
 
 // 5) 외부 호출 0
