@@ -41,7 +41,7 @@
 ### 4-1. 검수 대기
 | 작업 | 커밋 | 결과 파일 | 상태 |
 |---|---|---|---|
-| FRONT-20261119-QUICKBAR 휴대폰 빠른 메뉴 | `794c5fd01` → `1766fe92e` → 최종안 A `c8a134486` → 미리보기 보완 `51d4b2207` | `.ai/results/FRONT-20261119-QUICKBAR.md`, Mac 검수 `FRONT-20261119-QUICKBAR-CX-QA-01.md` | `c8a134486` Mac 독립 12/12·40×40·비가림·키보드 통과, 잔여 P3(미리보기 단추)를 `51d4b2207`로 보완 → **Mac 최종 확인 대기**(Master msg_d3e7e1ef9235로 회신함) |
+| FRONT-20261119-QUICKBAR 휴대폰 빠른 메뉴 | `794c5fd01` → `1766fe92e` → 최종안 A `c8a134486` → 미리보기 보완 `51d4b2207` | `.ai/results/FRONT-20261119-QUICKBAR.md`, Mac 검수 `FRONT-20261119-QUICKBAR-CX-QA-01.md` | **로컬 완료** — Mac 독립 28/28, Master 수락 `4de6db0af`(msg_f36cdbefab57). 남은 것: 미배포(다음 묶음)·실제 편집기 화면 확인만. 중복 시험 하지 않음 |
 | HOMETABS 홈 상품 탭 블록 대비·키보드 | `489c888e6` + P3 `9f6b1c131` | `.ai/results/` HOMETABS 관련 | 검토 대기 |
 | S70 주문서 현금영수증 칸 | `50d3e6162` + `ee35d6eb1` | `.ai/results/` S70 관련 | 맥미니 재검토 대기. **백엔드 DB 함수 0105와 같은 묶음으로만 배포**(0105는 Lab·운영 미적용) |
 
@@ -77,5 +77,6 @@
 ## 7. 다음 첫 단계
 1. 이 문서와 역할 파일을 읽고, `orca orchestration check`로 Master 메시지 확인.
 2. Master께 「SubPC 새 세션이 CC-B2B-FRONT-01 인수, 새 터미널 주소 ○○」 보고(주인님 직접 지시 보고 형식).
-3. Mac의 QUICKBAR `51d4b2207` 최종 확인 결과가 오면 Master 판단에 따라 마무리 또는 보완.
+3. QUICKBAR는 Master 수락 `4de6db0af`로 로컬 완료 — 다시 시험하지 않는다. 남은 것은 배포 묶음 포함과 실제 편집기 화면 확인뿐(Master 지시 때).
+5. Master 기록(msg_f36cdbefab57): CC-B2B-FRONT-01 역할·범위 유지, 새 장비 별칭·세션명·터미널 주소와 인수 확인을 받으면 Master가 등록·전달 대상을 바꾼다. 메인 PC의 기존 검수 서버·Mac 독립 검수·빌드 승인 범위는 그대로. **이관이 끝나기 전에는 새 제품 작업을 시작하지 않는다.**
 4. 이후 배정은 Master 지시로만. 새 코드는 배정받은 뒤에만.

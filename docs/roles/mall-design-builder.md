@@ -10,12 +10,12 @@
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `mall-builder` | **SubPC 새 세션으로 인수인계 중**(2026-11-19 주인님 지시) — 제품 파일 점유 없음 | 2026-11-19 | QUICKBAR `51d4b2207` Mac 최종 확인 대기, [인수인계 문서](../../mall-builder/docs/HANDOFF_20261119_MALL_DESIGN_FRONT_SUBPC.md) §4 |
+| `mall-builder` | **SubPC 새 세션으로 인수인계 중**(2026-11-19 주인님 지시) — 제품 파일 점유 없음 | 2026-11-19 | QUICKBAR 로컬 완료(Master 수락 `4de6db0af`, 미배포·실제 편집기 확인만 남음), [인수인계 문서](../../mall-builder/docs/HANDOFF_20261119_MALL_DESIGN_FRONT_SUBPC.md) §4 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `mall-builder` | FRONT-20261119-QUICKBAR 휴대폰 빠른 메뉴(`794c5fd01`→`1766fe92e`→최종안 A `c8a134486`→미리보기 `51d4b2207`) | Mac 최종 확인 → Master | `.ai/results/FRONT-20261119-QUICKBAR.md` |
+| `mall-builder` | FRONT-20261119-QUICKBAR 휴대폰 빠른 메뉴(`794c5fd01`→`1766fe92e`→최종안 A `c8a134486`→미리보기 `51d4b2207`) | 로컬 완료(Mac 28/28·Master 수락 `4de6db0af`) — 배포 묶음·실제 편집기 확인만 | `.ai/results/FRONT-20261119-QUICKBAR.md` |
 | `mall-builder` | HOMETABS `489c888e6`+`9f6b1c131`, S70 현금영수증 `50d3e6162`+`ee35d6eb1`(0105와 같은 묶음) | 검토·Mac 재검토, 0105 적용 | `.ai/results/` |
 | `mall-builder` | 다음 배포 묶음: `77c50f27c`·`90248e5b1`(+`7c8ee3a81`·`e4ba29947`)·`86e5ad1bf`·HOMETABS·QUICKBAR | Master 배포 순서 | 인수인계 문서 §4-2 |
 | `mall-builder` | Lab 반영된 프론트 묶음(템플릿 4차·어두운 머리글·갤러리 키보드·파란 단추 대비·3색 단추 전용 색·어두운 단추 올림, 출처 `7609748ad`) — 운영 몰 배포는 별도 | 실고객 UI QA037(로그인 대기) | `.ai/results/FRONT-20261117-03-CC-B2B-FRONT-01.md` |
@@ -39,7 +39,7 @@
 ## 다음 첫 단계
 0. **[SubPC 인수인계 문서](../../mall-builder/docs/HANDOFF_20261119_MALL_DESIGN_FRONT_SUBPC.md)를 먼저 읽는다** — 규칙·현재 상태·검증 방법·함정 정리.
 1. [작업 플랜표](../../mall-builder/docs/DESIGN_BUILDER_TRACKER.md)·[상호 인수인계](../../mall-builder/docs/HANDOFF_DESIGN_BUILDER_BACKEND_SYNC.md) 확인, 작업 전 `docs/ACTIVE_WORK.md` 내 줄에 점유.
-2. Master께 새 세션·새 터미널 주소 보고 후 QUICKBAR Mac 최종 확인 결과에 따라 마무리.
+2. Master께 새 장비 별칭·세션명·새 터미널 주소와 인수 확인을 보고. 이관 끝나기 전 새 제품 작업 착수 금지. QUICKBAR는 로컬 완료라 다시 시험하지 않음.
 3. 새 코드는 Master 배정 뒤에만. 커밋 도우미 출력 맨 끝 ⚠ 줄(공용 스테이징 맞추기 보류)을 반드시 읽는다.
 
 ## 주인님께 여쭐 것
