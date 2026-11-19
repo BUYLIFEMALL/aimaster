@@ -6221,10 +6221,10 @@
       "owner": "CC-MUSIC-01",
       "reviewer": "CX-QA-01",
       "title": "리믹스 → 플레이리스트 수신 로컬 구현",
-      "status": "running",
-      "delivery": "receiver_mac_cap_pass_visible_selection_followup_sent",
-      "next": "e5f51c05d Mac 76/76, 상한·추가 경합 통과. 반복 부분 실패가 보이는 선택을 지우는 잔여 보완 배정. 실제 화면·서명 미확인, 미배포.",
-      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1·msg_fd4dcdac6208·7b76ae4eb·msg_cf3cd8832343·msg_5118e37c0e3b·msg_ef79431525cb·e728f10cf·msg_53afdbd8013c·msg_6bc9c6ee0c57·ded8cece2·msg_545ceab47299·msg_12156cc001ce·msg_bf5018c5c214·msg_0659fb81e981·msg_0bbb39a1a896·f13c339f4·msg_683a6f310963·msg_31e6f7c353b0·msg_e5ae913fe5a9·msg_8aa6c8258677·04ea0054c·msg_b0ecc3b9e5f2·msg_4abb0464a25e·msg_33c8502d9f0d·msg_909570744d33·6fe27dd09·msg_1502b2775852·msg_872460738b64·msg_e1651a3e0a80·msg_bb967414fafe·e5f51c05d·msg_b9cb4062fc95·msg_93f223261221·msg_783c284fa78c"
+      "status": "reviewing",
+      "delivery": "receiver_visible_selection_fix_mac_recheck_sent",
+      "next": "182e70222 담당 78/78·tsc. 부분 실패가 반복돼도 현재 선택 우선 보존, Mac 재검수 전달. 실제 화면 미확인, 미배포.",
+      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1·msg_fd4dcdac6208·7b76ae4eb·msg_cf3cd8832343·msg_5118e37c0e3b·msg_ef79431525cb·e728f10cf·msg_53afdbd8013c·msg_6bc9c6ee0c57·ded8cece2·msg_545ceab47299·msg_12156cc001ce·msg_bf5018c5c214·msg_0659fb81e981·msg_0bbb39a1a896·f13c339f4·msg_683a6f310963·msg_31e6f7c353b0·msg_e5ae913fe5a9·msg_8aa6c8258677·04ea0054c·msg_b0ecc3b9e5f2·msg_4abb0464a25e·msg_33c8502d9f0d·msg_909570744d33·6fe27dd09·msg_1502b2775852·msg_872460738b64·msg_e1651a3e0a80·msg_bb967414fafe·e5f51c05d·msg_b9cb4062fc95·msg_93f223261221·msg_783c284fa78c·msg_2856a2d13f6a·182e70222·msg_4a78babb68e0"
     },
     {
       "task_id": "MUSIC-20261119-REMIX-PLAYLIST-REVIEW",
