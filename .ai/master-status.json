@@ -6077,11 +6077,11 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-MASTER-01",
       "title": "메이커 M3 제안 적용·서버 바이트 검증 설계",
-      "status": "running",
-      "delivery": "local_apply_core_mac_accepted_route_patch_dispatched",
+      "status": "reviewing",
+      "delivery": "local_apply_route_decoder_candidate_mac_recheck_sent",
       "sha": "f0eaf784c",
-      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1·msg_09c13f44d34f·8be47a12f·msg_2639b1f89d07·msg_f4130843a9ef·320a5909a·msg_f714f535ba3b·msg_8a99ab301d34·msg_64cd4fd01392·2d4dd53d0·msg_617ae29305b4·a23ffa1f3·msg_8c842614e79b·1c7b50762·msg_513a7e7b6ebc·msg_371737216f81·msg_6ceff50f19aa·msg_d0efc0d596af·msg_f596e2e53ec0·5499b725d·msg_f6638de84aba·cbe48e7d9·msg_4126c4fb6ddb·msg_c906bef9d317·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_8aaff84db217·msg_57b72d91de11·f0eaf784c·msg_6b031e653440·msg_691fa1940926·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_83bf2407051c·msg_8b559a0763cd·msg_0b58a4c9b94b·59a033c3b·msg_ad9b12510067·msg_467b9e9cdd54·msg_1984d921b251·msg_d89a73e549d7·e38a4b40b·d82ea576c·msg_ae2ba38ca487·msg_adcdbff63988·msg_cebd1020adc8·.ai/results/B2B-20261119-M3-APPLY-CX-QA-01.md·msg_8ff51218bfc6·e331d961a·msg_9b743788e56c·msg_8978736bab02·msg_c33cf9f00099",
-      "next": "e331d961a Mac 46/46, 사진 적용 함수 로컬 수락. Sub에 격리 POST 라우트·디코더 연결 후보 배정. 실제 디코더·Lab SQL·키·운영 미적용.",
+      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1·msg_09c13f44d34f·8be47a12f·msg_2639b1f89d07·msg_f4130843a9ef·320a5909a·msg_f714f535ba3b·msg_8a99ab301d34·msg_64cd4fd01392·2d4dd53d0·msg_617ae29305b4·a23ffa1f3·msg_8c842614e79b·1c7b50762·msg_513a7e7b6ebc·msg_371737216f81·msg_6ceff50f19aa·msg_d0efc0d596af·msg_f596e2e53ec0·5499b725d·msg_f6638de84aba·cbe48e7d9·msg_4126c4fb6ddb·msg_c906bef9d317·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_8aaff84db217·msg_57b72d91de11·f0eaf784c·msg_6b031e653440·msg_691fa1940926·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_83bf2407051c·msg_8b559a0763cd·msg_0b58a4c9b94b·59a033c3b·msg_ad9b12510067·msg_467b9e9cdd54·msg_1984d921b251·msg_d89a73e549d7·e38a4b40b·d82ea576c·msg_ae2ba38ca487·msg_adcdbff63988·msg_cebd1020adc8·.ai/results/B2B-20261119-M3-APPLY-CX-QA-01.md·msg_8ff51218bfc6·e331d961a·msg_9b743788e56c·msg_8978736bab02·msg_c33cf9f00099·msg_e51f22b857c6·516cff73f·msg_f984251f726f",
+      "next": "Sub 516cff73f 비활성 라우트·디코더 후보, Mac 모의 검수 배정. 실제 sharp·라우트 활성화·Lab SQL·키 미적용.",
       "lastReviewedAt": "2026-11-19T03:22:43.063Z"
     },
     {
@@ -6187,10 +6187,10 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단",
-      "status": "running",
-      "delivery": "zip_v163_mac_accepted_deploy_started",
-      "next": "de8326242 Mac 잔여 P2 통과. 플레이리스트 READY·팀 대기열 0 뒤 v1.63 addc48085 승인 1회 착수. 결과 대기, 전체 푸시 보류.",
-      "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a·4f801102a·msg_188d5f946fe6·msg_d48ab4279b48·msg_6a8c40f8d884·.ai/results/WS-20261119-03-CX-QA-01.md·080d30733·5900bdee4·msg_81e5f70393f6·9b6cf6f43·862a3f744·msg_18677013088e·msg_e3da08ce301c·msg_81884a8c4c54·ad9f6e443·73e846195·msg_9cfa5b749036·msg_e77dc726848f·v1.63 1회 승인 보고·담당 배포 전 변경 경로 대조·msg_80ea9fa320d8·msg_e62063905385·de8326242·845d62331·msg_0bcf3ac363cd·msg_61592856a873·msg_6a32a57772c5·addc48085·주인님 보완판 커밋·푸시·배포 직접 지시 보고"
+      "status": "reviewing",
+      "delivery": "zip_v163_ready_zip_live_check_pending",
+      "next": "v1.63 dpl_CxEYSzDhnScbAL5zdmiToQy3HB4n READY, 공개 읽기·로그인 응답 확인. 실제 다문서 ZIP·화면·버전 기록 미검증, DB 버전·푸시 대기.",
+      "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a·4f801102a·msg_188d5f946fe6·msg_d48ab4279b48·msg_6a8c40f8d884·.ai/results/WS-20261119-03-CX-QA-01.md·080d30733·5900bdee4·msg_81e5f70393f6·9b6cf6f43·862a3f744·msg_18677013088e·msg_e3da08ce301c·msg_81884a8c4c54·ad9f6e443·73e846195·msg_9cfa5b749036·msg_e77dc726848f·v1.63 1회 승인 보고·담당 배포 전 변경 경로 대조·msg_80ea9fa320d8·msg_e62063905385·de8326242·845d62331·msg_0bcf3ac363cd·msg_61592856a873·msg_6a32a57772c5·addc48085·주인님 보완판 커밋·푸시·배포 직접 지시 보고·6de15de60·dpl_CxEYSzDhnScbAL5zdmiToQy3HB4n"
     },
     {
       "task_id": "WS-20261119-02",
@@ -6221,10 +6221,10 @@
       "owner": "CC-MUSIC-01",
       "reviewer": "CX-QA-01",
       "title": "리믹스 → 플레이리스트 수신 로컬 구현",
-      "status": "reviewing",
-      "delivery": "receiver_v143_ready_live_smoke_pending",
-      "next": "v1.43 ca1a4a8ac 담당 READY·DB v1.43 보고. 운영 시험 계정 읽기 확인 중. 음악 발신 링크 후속 별도.",
-      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1·msg_fd4dcdac6208·7b76ae4eb·msg_cf3cd8832343·msg_5118e37c0e3b·msg_ef79431525cb·e728f10cf·msg_53afdbd8013c·msg_6bc9c6ee0c57·ded8cece2·msg_545ceab47299·msg_12156cc001ce·msg_bf5018c5c214·msg_0659fb81e981·msg_0bbb39a1a896·f13c339f4·msg_683a6f310963·msg_31e6f7c353b0·msg_e5ae913fe5a9·msg_8aa6c8258677·04ea0054c·msg_b0ecc3b9e5f2·msg_4abb0464a25e·msg_33c8502d9f0d·msg_909570744d33·6fe27dd09·msg_1502b2775852·msg_872460738b64·msg_e1651a3e0a80·msg_bb967414fafe·e5f51c05d·msg_b9cb4062fc95·msg_93f223261221·msg_783c284fa78c·msg_2856a2d13f6a·182e70222·msg_4a78babb68e0·msg_a2744854458f·msg_dd4afb1206a0·msg_673858c807fb·ee2e7e445·msg_c74451bc98f7·msg_b8734f097704·msg_0757c1fe635b·msg_6c714bd1a4a8·edc5c9a61·msg_a3e5f9e3422d·msg_4030f5a5e806·msg_58972fc68fa7·msg_68e7a8245dba·6fba5fca2·msg_f8db49e37830·msg_74eb81dbc93a·msg_b17866360c74·msg_8ce7e8beff06·msg_cf01121fb454·msg_e3cfd9be1783·msg_d2a8fba13c20·ca1a4a8ac"
+      "status": "done",
+      "delivery": "receiver_v143_ready_owner_live_test_pass",
+      "next": "v1.43 READY. 시험 계정 리믹스 2곡 자동 선택·음원/커버 추가 확인, 유료 가사 0. 음악 발신 링크 별도 승인.",
+      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1·msg_fd4dcdac6208·7b76ae4eb·msg_cf3cd8832343·msg_5118e37c0e3b·msg_ef79431525cb·e728f10cf·msg_53afdbd8013c·msg_6bc9c6ee0c57·ded8cece2·msg_545ceab47299·msg_12156cc001ce·msg_bf5018c5c214·msg_0659fb81e981·msg_0bbb39a1a896·f13c339f4·msg_683a6f310963·msg_31e6f7c353b0·msg_e5ae913fe5a9·msg_8aa6c8258677·04ea0054c·msg_b0ecc3b9e5f2·msg_4abb0464a25e·msg_33c8502d9f0d·msg_909570744d33·6fe27dd09·msg_1502b2775852·msg_872460738b64·msg_e1651a3e0a80·msg_bb967414fafe·e5f51c05d·msg_b9cb4062fc95·msg_93f223261221·msg_783c284fa78c·msg_2856a2d13f6a·182e70222·msg_4a78babb68e0·msg_a2744854458f·msg_dd4afb1206a0·msg_673858c807fb·ee2e7e445·msg_c74451bc98f7·msg_b8734f097704·msg_0757c1fe635b·msg_6c714bd1a4a8·edc5c9a61·msg_a3e5f9e3422d·msg_4030f5a5e806·msg_58972fc68fa7·msg_68e7a8245dba·6fba5fca2·msg_f8db49e37830·msg_74eb81dbc93a·msg_b17866360c74·msg_8ce7e8beff06·msg_cf01121fb454·msg_e3cfd9be1783·msg_d2a8fba13c20·ca1a4a8ac·msg_f175780a2b66·01e2d6b6e·39cabf95b"
     },
     {
       "task_id": "MUSIC-20261119-REMIX-PLAYLIST-REVIEW",
@@ -6367,10 +6367,10 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "AI Influencer 회원 예약 기본값과 관리자 허용 설계",
-      "status": "running",
-      "delivery": "shared_hook_v3_mac_accepted_db_candidate_in_progress",
-      "next": "8e04faee8 Mac 30/30·격리 타입 통과, 판 번호 수락. 전용 fixture DB 후보·복구 검증 진행. 실제 적용·공용 동기화 미실행.",
-      "evidence": "6425b1ec4·45e164bf1·msg_c9d7969183e0·msg_81623dd95517·msg_fb0814229b74·a5eebe012·msg_e22a2892cbd5·msg_72fcafaead67·msg_c50c2385c455·bf01913ca·msg_73e81c2e0a4e·msg_bd4f92a9c91d·8c008d1f2·msg_9798da905907·msg_4ab0bb9725fc·msg_d060c2adc362·msg_14be39e4d98c·.ai/results/AI-INFLUENCER-R1-20261119-CX-QA-01.md·msg_28535461e744·msg_c9c73cf62365·8e04faee8·msg_fdaedad88a9d·msg_7857772eff03·msg_d5a93c1e9c7d·msg_3c745fd8d0a3·msg_4669cc0adbf7"
+      "status": "reviewing",
+      "delivery": "shared_hook_v3_accepted_db_candidate_mac_recheck_sent",
+      "next": "06653c25f 담당 격리 DB 13/13. 명시 선택·판 번호·허용 표 및 원복 후보 Mac 검수 전달. 운영 적용·공용 동기화 전.",
+      "evidence": "6425b1ec4·45e164bf1·msg_c9d7969183e0·msg_81623dd95517·msg_fb0814229b74·a5eebe012·msg_e22a2892cbd5·msg_72fcafaead67·msg_c50c2385c455·bf01913ca·msg_73e81c2e0a4e·msg_bd4f92a9c91d·8c008d1f2·msg_9798da905907·msg_4ab0bb9725fc·msg_d060c2adc362·msg_14be39e4d98c·.ai/results/AI-INFLUENCER-R1-20261119-CX-QA-01.md·msg_28535461e744·msg_c9c73cf62365·8e04faee8·msg_fdaedad88a9d·msg_7857772eff03·msg_d5a93c1e9c7d·msg_3c745fd8d0a3·msg_4669cc0adbf7·msg_2639e26effdc·msg_aab1a546a863·06653c25f·msg_de63d878490a"
     },
     {
       "task_id": "AIF-20261119-D2-READINESS",
