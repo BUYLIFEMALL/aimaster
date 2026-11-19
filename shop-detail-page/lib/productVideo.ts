@@ -1,8 +1,9 @@
-// 상품에 붙이는 쇼츠(유튜브) — 받는 쪽(상세페이지)의 검사·저장 순서·표시 규칙. MOV-20261119-01 (2026-11-20).
-// 브라우저·DB에 기대지 않는 순수 함수만 둔다(tests/productVideo.test.mjs).
+// 상품에 붙이는 쇼츠(유튜브) 참조 — 받는 쪽(상세페이지)의 검사와 저장 순서. MOV-20261119-01 (2026-11-20).
+// 브라우저·DB에 기대지 않는 순수 함수만 둔다(tests/productVideo.test.mjs). DB 연결은 lib/productVideoStore.ts(서버 전용).
 //
-// 영상 정보가 어떤 길로 들어오는지(창 사이 메시지·서버 호출)는 여기서 정하지 않는다 — 송수신 계약 수정판을 기다리는 중이다
-// (2026-11-20 맥미니 검수: 원스톱의 Cross-Origin-Opener-Policy same-origin 때문에 원스톱이 연 창과의 연결이 끊긴다).
+// 여기서 다루는 값은 **회원이 자기 상품에 적어 두는 영상 참조**다. 그 영상이 그 회원의 것인지, 지금 공개 상태인지는
+// 보증하지 않는다(보내는 쪽 기록은 회원이 고칠 수 있다 — 2026-11-20 맥미니 검수). 그래서 상품 화면 표시와,
+// 영상 정보가 들어오는 길(화면·공개 서버 동작)은 아직 만들지 않았다. 송수신 계약이 확정되면 그때 붙인다.
 // 어떤 길이든 서버는 attachVideo 한 곳을 지나고, 거기서 다시 검사하고 본인 상품인지 확인한 뒤에만 저장한다.
 
 export const VIDEO_TITLE_MAX = 100;
@@ -26,9 +27,6 @@ function isoOrNull(v: unknown): string | null | undefined {
   const t = Date.parse(v);
   return Number.isFinite(t) ? new Date(t).toISOString() : undefined;
 }
-
-/** 영상 주소는 받은 값을 쓰지 않고 영상 번호로 여기서 만든다(다른 주소가 끼어들 수 없게) */
-export const shortsUrl = (videoId: string) => `https://www.youtube.com/shorts/${videoId}`;
 
 // ── 받은 영상 정보 검사 ────────────────────────────────────────────────────────
 export interface VideoInput {
@@ -54,6 +52,9 @@ export function checkVideoInput(raw: unknown): { input: VideoInput } | { error: 
   const publishAt = isoOrNull(video.publishAt);
   const uploadedAt = isoOrNull(video.uploadedAt);
   if (publishAt === undefined || uploadedAt === undefined) return { error: "시각 형식이 올바르지 않습니다." };
+  // 예약 시각은 비공개(예약 공개)일 때만 뜻이 있다. 공개·일부 공개인데 예약 시각이 붙은 값은 앞뒤가 맞지 않아 받지 않는다
+  // (시각이 과거든 미래든 같다 — DB 제약 shop_product_videos_schedule_needs_private 와 같은 규칙).
+  if (video.privacy !== "private" && publishAt) return { error: "공개 범위와 예약 시각이 맞지 않습니다. 예약 시각은 예약 공개(비공개) 영상에만 붙습니다." };
   if (video.privacy === "private" && !publishAt) return { error: "비공개 영상은 상품 화면에 붙일 수 없습니다. 예약 공개를 걸었거나 공개·일부 공개인 영상만 붙일 수 있습니다." };
   return {
     input: {
@@ -93,24 +94,4 @@ export async function attachVideo(store: VideoStore, userId: string, raw: unknow
   if (saved === "denied") return fail(NOT_OWN_PRODUCT);
   if (typeof saved === "object") return fail("저장하지 못했습니다. 잠시 뒤 다시 보내 주세요.");
   return { ok: true, duplicate: saved === "duplicate", error: "", productLabel: label };
-}
-
-// ── 상품 화면 표시 규칙 ────────────────────────────────────────────────────────
-export interface StoredVideo { video_id: string; title: string; privacy: string; publish_at: string | null; uploaded_at: string | null }
-
-const KST = new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", month: "long", day: "numeric", hour: "numeric", minute: "2-digit", hour12: false });
-
-/**
- * 상품 화면에 어떻게 보일지.
- * - 예약 공개 전: 「공개 예정」 글만, 주소는 걸지 않는다.
- * - 예약 시각이 지남: 상세페이지는 유튜브의 실제 상태를 모른다 — 「공개됨」이라고 단정하지 않는다.
- */
-export function videoStatus(v: StoredVideo, now: number): { kind: "public" | "unlisted" | "scheduled" | "check"; label: string; url: string | null } {
-  const url = isVideoId(v.video_id) ? shortsUrl(v.video_id) : null;
-  const at = v.publish_at ? Date.parse(v.publish_at) : NaN;
-  if (v.privacy === "private") {
-    if (Number.isFinite(at) && at > now) return { kind: "scheduled", label: `${KST.format(at)} 공개 예정`, url: null };
-    return { kind: "check", label: "예약 시각 지남 — 유튜브에서 공개 여부를 확인해 주세요", url };
-  }
-  return v.privacy === "unlisted" ? { kind: "unlisted", label: "일부 공개(주소를 아는 사람만)", url } : { kind: "public", label: "공개", url };
 }

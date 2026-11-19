@@ -13,7 +13,6 @@ import { LAYOUT_PRESETS, toLayoutPreset } from "@/lib/layoutPresets";
 import { applySectionSequence } from "@/lib/sectionOrder";
 import { MarketRegisterPanel } from "@/components/products/MarketRegisterPanel";
 import { ShortsHandoffCard } from "@/components/products/ShortsHandoffCard";
-import { ProductVideos } from "@/components/products/ProductVideos";
 import { MARKETS, pickCoupangResult, pickElevenstResult, pickMarketResult, type MarketResult } from "@/lib/markets";
 
 export const dynamic = "force-dynamic";
@@ -63,14 +62,6 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
     .select("section_key, image_url, image_urls")
     .eq("product_id", product.id)
     .eq("language", product.language);
-
-  // 이 상품에 붙인 쇼츠(회원 본인 행만, RLS). 표가 아직 없는 DB에서는 빈 목록으로 본다
-  const { data: videos } = await supabase
-    .from("shop_product_videos")
-    .select("video_id, title, privacy, publish_at, uploaded_at")
-    .eq("product_id", product.id)
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
 
   // 마켓 등록 결과(회원 본인 작업 기록만, RLS)
   const marketResults: MarketResult[] = [];
@@ -261,7 +252,6 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
 
         {/* 상품 → AI 쇼츠 원스톱 넘기기 */}
         <ShortsHandoffCard product={product} />
-        <ProductVideos videos={videos ?? []} now={Date.now()} />
       </div>
 
     </div>

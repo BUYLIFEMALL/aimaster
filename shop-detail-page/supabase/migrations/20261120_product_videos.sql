@@ -1,9 +1,13 @@
 -- 상품에 붙인 쇼츠(유튜브) 기록 — MOV-20261119-01. 주인님 승인 2026-11-20 「DB 표 추가 승인할게 진행해」.
--- ⚠ 2026-11-20 현재 운영 DB 미적용(로컬 후보). 적용 순번은 Master가 정한다. 적용 전에도 상품 화면은 정상 동작한다(목록이 비어 보일 뿐).
+-- ⚠ 2026-11-20 현재 운영 DB 미적용(로컬 후보). 적용 순번은 Master가 정한다. 지금은 이 표를 읽거나 쓰는 화면이 없다.
 --
--- AI 쇼츠 원스톱에서 회원 본인이 자기 상품에 붙인 영상만 저장한다(들어오는 길은 송수신 계약 수정판에서 정한다). 파일은 없고 글자 정보뿐이다.
+-- 이 표가 담는 것은 **회원이 자기 상품에 적어 둔 영상 참조**(유튜브 영상 번호와 그때 적은 제목·공개 범위·예약 시각)뿐이다.
+-- 그 영상이 그 회원의 것인지, 지금 공개 상태인지는 이 표가 보증하지 않는다(외부 소유·공개 보증 없음 —
+-- 보내는 쪽 기록은 회원이 고칠 수 있다). privacy·publish_at 은 「적을 때의 값」이지 현재 상태가 아니다.
+-- 그래서 이 값을 화면에 「공개됨」「내 영상」처럼 단정해 보여 주면 안 된다. 들어오는 길과 표시는 송수신 계약에서 따로 정한다.
+-- 이 표가 보장하는 것은 「본인 행·본인 상품에만 저장」「같은 상품에 같은 영상은 한 줄」 두 가지다. 파일은 없고 글자 정보뿐이다.
 -- 상품 표(shop_products)에 칸을 붙이지 않는 이유: 마켓 등록 프로그램들과 AI 문구 작성이 상품 표를 통째로 읽어,
--- 공개 전 영상 정보가 그 경로로 딸려 갈 수 있다. 별도 표는 이 프로그램의 상품 화면만 읽는다.
+-- 영상 참조가 그 경로로 딸려 갈 수 있다.
 
 create table public.shop_product_videos (
   id uuid primary key default gen_random_uuid(),
@@ -19,6 +23,9 @@ create table public.shop_product_videos (
   created_at timestamptz not null default now(),
   -- 예약 없는 비공개 영상은 붙이지 않는다
   constraint shop_product_videos_private_needs_schedule check (privacy <> 'private' or publish_at is not null),
+  -- 예약 시각은 비공개(예약 공개)일 때만. 공개·일부 공개인데 예약 시각이 붙은 값은 앞뒤가 맞지 않아 거절한다
+  -- (시각이 과거든 미래든 같다 — 제약에 현재 시각을 쓰지 않는다. 서버 검사 lib/productVideo.ts 와 같은 규칙)
+  constraint shop_product_videos_schedule_needs_private check (publish_at is null or privacy = 'private'),
   -- 같은 상품에 같은 영상은 한 줄만(연타·창 두 개가 동시에 와도 DB가 한 줄만 남긴다)
   constraint shop_product_videos_once unique (user_id, product_id, video_id)
 );

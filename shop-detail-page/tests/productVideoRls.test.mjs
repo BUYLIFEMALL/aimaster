@@ -99,6 +99,14 @@ test("형식 제약 — 예약 없는 비공개·틀린 영상 번호·틀린 �
   const { as } = await freshDb();
   await assert.rejects(put(as, A, A, PA, VID, "private", null), /shop_product_videos_private_needs_schedule/);
   assert.equal((await put(as, A, A, PA, VID, "private", "2026-12-01T00:00:00Z")).rows.length, 1, "예약 공개는 저장");
+  // 공개·일부 공개에 예약 시각이 붙으면 과거·미래 모두 거절(서버 검사와 같은 규칙), 비공개+지난 예약은 저장
+  for (const privacy of ["public", "unlisted"]) {
+    for (const at of ["2099-01-01T00:00:00Z", "2020-01-01T00:00:00Z"]) {
+      await assert.rejects(put(as, A, A, PA, VID2, privacy, at), /shop_product_videos_schedule_needs_private/, `${privacy} + ${at}`);
+    }
+  }
+  assert.equal((await put(as, A, A, PA, VID2, "private", "2020-01-01T00:00:00Z")).rows.length, 1);
+  assert.equal((await put(as, A, A, PA, "ZZZZZZZZZZZ", "unlisted", null)).rows.length, 1);
   await assert.rejects(put(as, A, A, PA, "short"), /check/);
   await assert.rejects(put(as, A, A, PA, "dQw4w9WgXc/"), /check/);
   await assert.rejects(put(as, A, A, PA, VID2, "secret"), /check/);
