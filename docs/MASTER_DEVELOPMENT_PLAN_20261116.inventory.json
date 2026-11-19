@@ -10240,10 +10240,10 @@
       "owner": "CC-SNS-01",
       "title": "AI Influencer D1 스위치 OFF 배포 사전 확인",
       "status": "running",
-      "delivery": "isolated_build_off_mock_pass_reference_budget_fix_dispatched",
-      "sha": "6ff8bd158",
-      "next": "격리 Next 로컬 빌드·OFF 모의 31/31 통과. 다중 참조/보정 합계 한도 회귀 보완 배정. 로그인 후 실제 화면 미검증·원격 미시작.",
-      "evidence": "msg_99f48ec1072f·msg_56627921dadb·msg_ab5b76ba2021·msg_fe0626fbf3a1·msg_ff8bfd3c4215·7da7961ec·msg_6fe64489deea·msg_edce1bb04114·7cbff8753·msg_d1564fa89a51",
+      "delivery": "reference_fit_reproductions_passed_payload_preservation_followup_sent",
+      "sha": "bed9d1dad",
+      "next": "6122fbb04로 다중 참조·보정 3개 재현 해소. 격리 후보 bed9d1dad 빌드·342/342·OFF 31/31. 비활성 이미지 무통보 제외 제거 배정. 로그인 실화면 미검증·원격 보류.",
+      "evidence": "msg_99f48ec1072f·msg_56627921dadb·msg_ab5b76ba2021·msg_fe0626fbf3a1·msg_ff8bfd3c4215·7da7961ec·msg_6fe64489deea·msg_edce1bb04114·7cbff8753·msg_d1564fa89a51·msg_5ece488b490e·6122fbb04·bc6ff956b·bed9d1dad·msg_4ddfcc074cc6",
       "lastReviewedAt": "2026-11-19T07:37:40.966Z"
     },
     {
