@@ -57,8 +57,10 @@ export function StartScreen({ memberId }: { memberId: string }) {
     }
   }, [engine]);
 
+  // 화면이 열리면(또는 엔진 연결 계층이 바뀌면) 엔진 상태를 확인한다. 떠난 화면의 확인은 시작하지 않는다.
   useEffect(() => {
-    void refresh();
+    const t = window.setTimeout(() => void refresh(), 0);
+    return () => window.clearTimeout(t);
   }, [refresh]);
 
   const pair = async () => {

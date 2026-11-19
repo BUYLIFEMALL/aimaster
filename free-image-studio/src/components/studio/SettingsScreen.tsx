@@ -42,8 +42,25 @@ export function SettingsScreen() {
       setLoading(false);
     }
   };
+  // 화면이 열리면 등록 상태를 한 번 읽는다(AI 호출이 아니다). 화면이 닫힌 뒤에 온 응답은 버린다.
   useEffect(() => {
-    void read();
+    let gone = false;
+    fetchConvertStatus(fetch).then(
+      (s) => {
+        if (gone) return;
+        setStatus(s);
+        setLoading(false);
+      },
+      (e) => {
+        if (gone) return;
+        setStatus(null);
+        setError(e instanceof Error ? e.message : "등록된 키를 확인하지 못했습니다.");
+        setLoading(false);
+      },
+    );
+    return () => {
+      gone = true;
+    };
   }, []);
 
   return (

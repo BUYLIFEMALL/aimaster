@@ -27,8 +27,11 @@ test("화면은 엔진 주소를 직접 부르지 않고, 회원 전환 때 연�
   }
   const hook = await read("components/studio/useEngine.ts");
   assert.match(hook, /createEngineClient\(\{ memberId, storage: window\.localStorage \}\)/);
-  assert.match(hook, /c\.dispose\(\);/);
-  assert.match(hook, /\}, \[memberId\]\);/, "회원 번호가 바뀌면 새로 만든다");
+  // 회원별 등록부가 만들고 정리한다 — 회원 번호가 바뀌면 앞 것을 놓고(dispose) 새것을 잡는다(tests/boundary.test.mjs).
+  assert.match(hook, /const subscribe = useCallback\(\(\) => engines\.subscribe\(memberId\), \[memberId\]\);/, "회원 번호가 바뀌면 새로 만든다");
+  assert.match(hook, /\(\) => engines\.get\(memberId\),\s*\(\) => null,/);
+  const registry = await read("lib/studio/clientRegistry.ts");
+  assert.match(registry, /mine\.value\.dispose\(\);/);
 });
 
 test("좌측 메뉴: 다섯 화면 + 다른 프로그램 보기 고정 주소, 데스크톱·모바일이 같은 목록", async () => {

@@ -268,7 +268,8 @@ test("탭 사이 잠금이 없는 브라우저의 제약을 알린다(화면과 
   const src = await readFile(new URL("../src/lib/studio/lock.ts", import.meta.url), "utf8");
   assert.ok(src.includes("export const hasCrossTabLock = (): boolean => !!webLocks();"));
   const jobs = await readFile(new URL("../src/components/studio/JobsScreen.tsx", import.meta.url), "utf8");
-  assert.ok(jobs.includes("useEffect(() => setCrossTab(hasCrossTabLock()), []);"));
+  // 서버에서 그릴 때는 「있다」로 두고, 브라우저에 붙으면 실제 값을 읽는다(효과에서 상태를 바꾸지 않는다).
+  assert.match(jobs, /const crossTab = useSyncExternalStore\(\s*noSubscribe,\s*\(\) => hasCrossTabLock\(\),\s*\(\) => true,\s*\);/);
   assert.ok(jobs.includes("{!crossTab && ("));
   assert.match(jobs, /여러 탭이 동시에 저장하는 것을 막지 못합니다.*두 번 저장될 수 있으니, 저장은 한 탭에서만/);
   // 잠금이 없는 환경을 흉내 내면(화면마다 따로 잠금) 두 화면의 동시 저장은 실제로 두 번 쓴다 — 그래서 알림이 필요하다

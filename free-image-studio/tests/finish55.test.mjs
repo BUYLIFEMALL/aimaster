@@ -194,7 +194,7 @@ test("접수 기록 손상 안내 화면 — 만들기·작업 기록에 붙고,
   assert.ok(!/submitRemaining|\.submit\(|\.resend\(|fetch\(/.test(notice), "안내 화면은 엔진·AI를 부르지 않는다");
   for (const screen of ["CreateScreen", "JobsScreen"]) {
     const s = await read(`components/studio/${screen}.tsx`);
-    assert.ok(s.includes('import { LedgerNotice } from "./LedgerNotice";') && s.includes("<LedgerNotice engine={engine}"), screen);
+    assert.ok(s.includes('import { LedgerNotice } from "./LedgerNotice";') && s.includes("<LedgerNotice key={memberId} engine={engine}"), screen);
   }
 });
 

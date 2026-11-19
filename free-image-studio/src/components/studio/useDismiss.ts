@@ -27,7 +27,10 @@ export function useDismiss<T extends HTMLElement = HTMLButtonElement>(open: bool
   const opener = useRef<T>(null);
   const wasOpen = useRef(false);
   const closeRef = useRef(close);
-  closeRef.current = close;
+  // 닫는 함수는 늘 최신 것을 부른다. 그리는 도중이 아니라 그린 뒤에 바꿔 둔다.
+  useEffect(() => {
+    closeRef.current = close;
+  });
   const entry = useRef<DismissEntry>({ close: () => closeRef.current() }).current;
   useEffect(() => {
     if (!open) {

@@ -7,7 +7,7 @@ import { PRESETS, SIZE_CHOICES, findPreset, findSize, pickVariantId, type ModelS
 import { ConvertPanel } from "./ConvertPanel";
 import { LedgerNotice } from "./LedgerNotice";
 import { useDismiss } from "./useDismiss";
-import { messageOf, useEngine } from "./useEngine";
+import { messageOf, useEngine, useHydrated } from "./useEngine";
 
 const card = "rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5";
 const button = "rounded-xl bg-[var(--accent)] px-4 py-3 text-sm font-bold text-black disabled:opacity-40";
@@ -16,18 +16,33 @@ const chip = (on: boolean) => `rounded-xl border px-3 py-2.5 text-sm ${on ? "bor
 
 type FamilyChoice = "auto" | "z-image-turbo" | "flux2-klein-4b";
 
+const NOTHING_LEFT: DraftStatus = { remaining: 0, otherScope: 0, legacy: 0, uncertain: 0 };
+
+/**
+ * 만들기 화면. 브라우저에 붙은 뒤에, **회원마다 따로**(key) 만든다.
+ * 그래서 적던 내용·변환 설정·확인 창이 그 회원의 것으로만 시작하고, 회원이 바뀌면 통째로 새로 만들어진다 —
+ * 앞 회원이 적던 글이 다음 회원 화면에 보이거나 다음 회원 칸에 저장되지 않는다.
+ */
 export function CreateScreen({ memberId }: { memberId: string }) {
+  const hydrated = useHydrated();
+  if (!hydrated) return <p className="mx-auto max-w-3xl text-sm text-[var(--muted)]">화면을 준비하는 중입니다…</p>;
+  return <CreateBody key={memberId} memberId={memberId} />;
+}
+
+function CreateBody({ memberId }: { memberId: string }) {
   const engine = useEngine(memberId);
-  const [presetId, setPresetId] = useState<PresetId>("photo");
-  const [sizeId, setSizeId] = useState<(typeof SIZE_CHOICES)[number]["id"]>("wide");
-  const [text, setText] = useState("");
-  /** 적던 내용을 어느 회원 것으로 되돌렸는지 — 그 회원일 때만 다시 보관한다 */
-  const [restoredFor, setRestoredFor] = useState<string | null>(null);
+  // 적던 내용(줄·줄마다 장수·용도·비율)은 화면을 만들 때 이 회원 것을 한 번 읽는다.
+  const [initial] = useState(() => loadCompose(window.localStorage, memberId));
+  const [presetId, setPresetId] = useState<PresetId>(() => (initial && findPreset(initial.presetId) ? (initial.presetId as PresetId) : "photo"));
+  const [sizeId, setSizeId] = useState<(typeof SIZE_CHOICES)[number]["id"]>(() => (initial ? findSize(initial.sizeId) : null)?.id ?? "wide");
+  const [text, setText] = useState(() => initial?.text ?? "");
   const [family, setFamily] = useState<FamilyChoice>("auto");
   const [seedText, setSeedText] = useState("");
   const [models, setModels] = useState<ModelState | null>(null);
-  // 맡기다 만 묶음의 상태 — 이어 맡길 수 있는 장 / 연결이 바뀐 장 / 예전 형식이라 맡겼는지 알 수 없는 장
-  const [pending, setPending] = useState<DraftStatus>({ remaining: 0, otherScope: 0, legacy: 0, uncertain: 0 });
+  // 맡기다 만 묶음의 상태 — 이어 맡길 수 있는 장 / 연결이 바뀐 장 / 예전 형식이라 맡겼는지 알 수 없는 장.
+  // 브라우저에 보관한 묶음과 접수 기록에서 그때그때 읽는다. leftTick은 「다시 읽으라」는 표시일 뿐이다.
+  const [leftTick, setLeftTick] = useState(0);
+  const pending = useMemo<DraftStatus>(() => (leftTick >= 0 && engine ? draftStatus(engine, window.localStorage) : NOTHING_LEFT), [engine, leftTick]);
   const [dropAsk, setDropAsk] = useState(false);
   const [adoptAsk, setAdoptAsk] = useState(false);
   // 확인 창: Esc로 닫고, 닫히면 연 버튼으로 초점이 돌아간다.
@@ -50,34 +65,20 @@ export function CreateScreen({ memberId }: { memberId: string }) {
   const entries = useMemo(() => parseEntries(text), [text]);
   const plan = useMemo(() => buildPlan({ text, preset, width: size.width, height: size.height, variantId, fixedSeed }), [text, preset, size, variantId, fixedSeed]);
 
-  const readLeft = useCallback(() => {
-    if (!engine) return;
-    setPending(draftStatus(engine, window.localStorage));
-  }, [engine, memberId]);
+  const readLeft = useCallback(() => setLeftTick((n) => n + 1), []);
 
-  // 적던 내용(줄·줄마다 장수·용도·비율)을 회원별로 보관했다가 되돌린다.
-  // 회원이 바뀌면 그 회원 것으로 통째로 바꾸고(없으면 비운다), 되돌린 회원과 지금 회원이 같을 때만 보관한다 —
-  // 앞 회원이 적던 글이 다음 회원 칸에 적히지 않는다.
+  // 적는 대로 이 회원 칸에 보관한다(이 화면은 이 회원의 것으로만 만들어졌다).
   useEffect(() => {
-    const c = loadCompose(window.localStorage, memberId);
-    setText(c?.text ?? "");
-    if (c && findPreset(c.presetId)) setPresetId(c.presetId as PresetId);
-    const sz = c ? findSize(c.sizeId) : null;
-    if (sz) setSizeId(sz.id);
-    setRestoredFor(memberId);
-  }, [memberId]);
-  useEffect(() => {
-    if (restoredFor === memberId) saveCompose(window.localStorage, memberId, { text, presetId, sizeId });
-  }, [restoredFor, memberId, text, presetId, sizeId]);
+    saveCompose(window.localStorage, memberId, { text, presetId, sizeId });
+  }, [memberId, text, presetId, sizeId]);
 
   useEffect(() => {
     if (!engine) return;
-    readLeft();
     engine
       .getImageModels()
       .then((m) => setModels(m as ModelState))
       .catch(() => setModels(null)); // 못 읽으면 구성 이름을 보내지 않고 엔진이 정하게 한다
-  }, [engine, readLeft]);
+  }, [engine]);
 
   const run = async (fresh: boolean) => {
     if (!engine || running) return;
@@ -160,7 +161,7 @@ export function CreateScreen({ memberId }: { memberId: string }) {
         <p className="mt-1 text-sm text-[var(--muted)]">용도를 고르고 그림 설명을 한 줄에 하나씩 적으면, 내 PC가 차례로 그립니다. 한 번에 {BATCH_MAX}장까지 맡길 수 있습니다.</p>
       </header>
 
-      <LedgerNotice engine={engine} onChange={readLeft} />
+      <LedgerNotice key={memberId} engine={engine} onChange={readLeft} />
 
       {pending.uncertain > 0 && (
         <section className={`${card} border-amber-500/60`}>
@@ -288,7 +289,7 @@ export function CreateScreen({ memberId }: { memberId: string }) {
           className="mt-3 w-full rounded-xl border border-[var(--line)] bg-transparent p-3 text-sm leading-relaxed"
         />
         <p className="mt-2 text-xs text-[var(--muted)]">내 PC 그림 모델은 영어만 읽습니다. 고른 용도에 맞는 표현(조명·구도·글자 없음 등)은 자동으로 덧붙습니다.</p>
-        <ConvertPanel memberId={memberId} text={text} onText={setText} disabled={running} />
+        <ConvertPanel key={memberId} memberId={memberId} text={text} onText={setText} disabled={running} />
         <p className="mt-2 text-xs text-[var(--muted)]">
           한 줄에 한 장을 그립니다. 같은 설명으로 두 장이 필요하면 아래에서 그 줄을 {COPIES_MAX}장으로 바꾸거나, 줄 끝에 <code>x2</code>를 적어 주세요.
         </p>

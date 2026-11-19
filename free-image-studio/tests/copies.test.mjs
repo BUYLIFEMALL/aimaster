@@ -194,8 +194,10 @@ test("만들기 화면: 줄마다 장수 버튼이 글의 표시를 고치고, �
   assert.match(s, /buildPlan\(\{ text, preset, width: size\.width, height: size\.height, variantId, fixedSeed \}\)/, "묶음 전체 장수를 따로 두지 않는다(기본 1장)");
   assert.ok(!/\bsetCopies\b|useState\(1\)/.test(s), "묶음 전체 장수 상태가 남아 있지 않다");
   assert.match(s, /지금 \{plan\.total\}장 · \{BATCH_MAX\}장까지/);
-  // 회원이 바뀌면 그 회원 것으로 통째로 바꾸고, 되돌린 회원과 같을 때만 보관
-  assert.match(s, /setText\(c\?\.text \?\? ""\);/);
-  assert.match(s, /setRestoredFor\(memberId\);/);
-  assert.match(s, /if \(restoredFor === memberId\) saveCompose\(window\.localStorage, memberId, \{ text, presetId, sizeId \}\);/);
+  // 회원마다 화면을 새로 만들고(key), 만들 때 그 회원의 적던 내용을 한 번 읽는다. 보관은 그 회원 칸에만(tests/boundary.test.mjs).
+  assert.match(s, /return <CreateBody key=\{memberId\} memberId=\{memberId\} \/>;/);
+  assert.match(s, /const \[initial\] = useState\(\(\) => loadCompose\(window\.localStorage, memberId\)\);/);
+  assert.match(s, /const \[text, setText\] = useState\(\(\) => initial\?\.text \?\? ""\);/);
+  assert.match(s, /saveCompose\(window\.localStorage, memberId, \{ text, presetId, sizeId \}\);/);
+  assert.ok(!/restoredFor/.test(s), "되돌린 회원을 따로 기억하는 상태가 필요 없다");
 });

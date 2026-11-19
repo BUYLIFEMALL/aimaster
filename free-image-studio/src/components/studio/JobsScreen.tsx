@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import type { EngineJob, Submission } from "@/lib/engine";
 import { dropFromDraft } from "@/lib/studio/batch";
@@ -10,6 +10,7 @@ import { LedgerNotice } from "./LedgerNotice";
 import { useDismiss } from "./useDismiss";
 import { isKind, messageOf, useEngine } from "./useEngine";
 
+const noSubscribe = () => () => {};
 const card = "rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4";
 const button = "rounded-lg bg-[var(--accent)] px-3 py-2 text-xs font-bold text-black disabled:opacity-40";
 const ghost = "rounded-lg border border-[var(--line)] px-3 py-2 text-xs disabled:opacity-40";
@@ -42,8 +43,11 @@ export function JobsScreen({ memberId }: { memberId: string }) {
   const [dir, setDir] = useState<DirHandle | null>(null);
   const [confirmReplace, setConfirmReplace] = useState<string | null>(null);
   // 탭 사이 잠금을 쓸 수 있는 브라우저인가(화면이 뜬 뒤에 본다 — 서버에서 그릴 때는 알 수 없다)
-  const [crossTab, setCrossTab] = useState(true);
-  useEffect(() => setCrossTab(hasCrossTabLock()), []);
+  const crossTab = useSyncExternalStore(
+    noSubscribe,
+    () => hasCrossTabLock(),
+    () => true,
+  );
   const cancelButton = useRef<HTMLButtonElement | null>(null);
   const loading = useRef(false);
   const thumbLoading = useRef(new Set<string>());
@@ -229,7 +233,7 @@ export function JobsScreen({ memberId }: { memberId: string }) {
 
   return (
     <div className="mx-auto max-w-4xl space-y-4">
-      <LedgerNotice engine={engine} onChange={() => void refresh()} />
+      <LedgerNotice key={memberId} engine={engine} onChange={() => void refresh()} />
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold">📋 작업 기록</h1>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { EngineClient } from "@/lib/engine";
 import { LEDGER_BROKEN } from "@/lib/studio/notices";
 import { useDismiss } from "./useDismiss";
@@ -15,21 +15,16 @@ const ghost = "rounded-xl border border-[var(--line)] px-4 py-2.5 text-sm disabl
  * 새로 시작은 확인 창을 거친 뒤에만 한다. 엔진에는 아무것도 보내지 않는다.
  */
 export function LedgerNotice({ engine, onChange }: { engine: EngineClient | null; onChange?: () => void }) {
-  const [broken, setBroken] = useState(false);
+  // 손상 여부는 엔진(접수 기록)에 물어 정한다. tick은 「다시 물어보라」는 표시일 뿐이다.
+  // 회원이 바뀌면 부르는 쪽이 key로 이 안내를 새로 만든다 — 앞 회원의 확인 창·안내 문구가 남지 않는다.
+  const [tick, setTick] = useState(0);
+  const broken = useMemo(() => (tick >= 0 && engine ? engine.ledgerBroken() : false), [engine, tick]);
   const [asking, setAsking] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
 
-  const check = () => {
-    if (!engine) return setBroken(false);
-    setBroken(engine.ledgerBroken());
-  };
-  useEffect(() => {
-    setAsking(false);
-    setMessage(null);
-    check();
-  }, [engine]); // eslint-disable-line react-hooks/exhaustive-deps
+  const check = () => setTick((n) => n + 1);
 
   // 확인 창: 열리면 「그만두기」에 초점을 둔다(실수로 새로 시작을 누르지 않게). Esc로 닫고, 닫히면 연 버튼으로 초점이 돌아간다.
   const openerRef = useDismiss(asking, () => setAsking(false));

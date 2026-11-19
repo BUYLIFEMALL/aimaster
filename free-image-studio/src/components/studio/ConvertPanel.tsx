@@ -17,8 +17,9 @@ const ghost = "rounded-xl border border-[var(--line)] px-4 py-2.5 text-sm disabl
  * - 실패하면 설명 칸의 글은 그대로다.
  */
 export function ConvertPanel({ memberId, text, onText, disabled }: { memberId: string; text: string; onText: (next: string) => void; disabled: boolean }) {
-  const [settings, setSettings] = useState<ConvertSettings>({ enabled: false, consent: false, model: null });
-  const [loadedFor, setLoadedFor] = useState<string | null>(null);
+  // 회원별 설정은 화면을 만들 때 한 번 읽는다. 회원이 바뀌면 부르는 쪽이 key로 이 칸을 새로 만든다 —
+  // 앞 회원의 설정·결과가 다음 회원 화면에 남지 않고, 다른 회원 칸에 저장되지도 않는다.
+  const [settings, setSettings] = useState<ConvertSettings>(() => loadConvertSettings(window.localStorage, memberId));
   const [status, setStatus] = useState<ConvertStatus | null>(null);
   const [statusError, setStatusError] = useState<string | null>(null);
   const [asking, setAsking] = useState(false);
@@ -27,25 +28,17 @@ export function ConvertPanel({ memberId, text, onText, disabled }: { memberId: s
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ message: string; needKey: boolean } | null>(null);
   const [done, setDone] = useState<ApplyResult | null>(null);
+  // 변환 응답이 돌아왔을 때의 최신 글(그리는 도중이 아니라 그린 뒤에 바꿔 둔다)
   const latest = useRef(text);
-  latest.current = text;
+  useEffect(() => {
+    latest.current = text;
+  }, [text]);
   // 빠르게 두 번 눌러도 요청은 한 번만(버튼 비활성은 다음 그리기에야 반영되므로 그보다 먼저 막는다). 이 화면(탭) 안에서만 유효하다.
   const gate = useRef(singleFlight()).current;
 
-  // 회원별 설정을 되돌린다(회원이 바뀌면 그 회원 것으로).
-  useEffect(() => {
-    setSettings(loadConvertSettings(window.localStorage, memberId));
-    setLoadedFor(memberId);
-    setStatus(null);
-    setStatusError(null);
-    setAsking(false);
-    setError(null);
-    setDone(null);
-  }, [memberId]);
-
   const update = (next: ConvertSettings) => {
     setSettings(next);
-    if (loadedFor === memberId) saveConvertSettings(window.localStorage, memberId, next);
+    saveConvertSettings(window.localStorage, memberId, next);
   };
 
   // 등록된 키와 고를 수 있는 모델을 읽는다(AI 호출이 아니다). 사용자가 켜려고 할 때만 읽는다.
@@ -61,9 +54,25 @@ export function ConvertPanel({ memberId, text, onText, disabled }: { memberId: s
       return null;
     }
   };
+  // 켜져 있는 채로 화면이 열리면 등록 상태를 한 번 읽는다(AI 호출이 아니다). 화면이 닫힌 뒤에 온 응답은 버린다.
+  const enabled = settings.enabled;
   useEffect(() => {
-    if (loadedFor === memberId && settings.enabled && !status && !statusError) void readStatus();
-  }, [loadedFor, memberId, settings.enabled]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!enabled || status) return; // 이미 읽었으면 다시 읽지 않는다
+    let gone = false;
+    fetchConvertStatus(fetch).then(
+      (s) => {
+        if (!gone) setStatus(s);
+      },
+      (e) => {
+        if (gone) return;
+        setStatus(null);
+        setStatusError(e instanceof Error ? e.message : "등록된 키를 확인하지 못했습니다.");
+      },
+    );
+    return () => {
+      gone = true;
+    };
+  }, [enabled, status]);
 
   const pending = useMemo(() => linesToConvert(text, () => "preview0"), [text]).items.length;
   const model = findConvertModel(settings.model);
