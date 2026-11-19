@@ -9,7 +9,7 @@ export async function resolve(spec, ctx, next) {
   if (spec === "server-only") return m("empty.mjs");
   if (spec === "next/server") return m("next-server.mjs");
   if (spec === "./cronJobOrg") return m("cronJobOrg.mjs");
-  if (spec === "./schedulerConfig") return m(cfg === "policy" ? "config-policy.mjs" : cfg === "nocol" ? "config-policy-nocol.mjs" : "config-none.mjs");
+  if (spec === "./schedulerConfig") return m(cfg === "policy" ? "config-policy.mjs" : cfg === "nocol" ? "config-policy-nocol.mjs" : cfg === "cas" ? "config-policy-cas.mjs" : "config-none.mjs");
   if (spec === "@/lib/supabase/admin") return m("admin.mjs");
   if (spec === "@/lib/programAccess") return m("programAccess.mjs");
   if (spec === "./memberAccount" || spec === "./publish") return m("publish.mjs");

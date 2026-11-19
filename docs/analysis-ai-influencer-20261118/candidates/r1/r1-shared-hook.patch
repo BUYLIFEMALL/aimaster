@@ -1,5 +1,5 @@
 diff --git a/insta_auto_poster/src/lib/cardnews/instagram/memberScheduler.ts b/insta_auto_poster/src/lib/cardnews/instagram/memberScheduler.ts
-index 109697e..771ce6c 100644
+index 109697e..ffcb386 100644
 --- a/insta_auto_poster/src/lib/cardnews/instagram/memberScheduler.ts
 +++ b/insta_auto_poster/src/lib/cardnews/instagram/memberScheduler.ts
 @@ -3,6 +3,7 @@ import { createHash, randomBytes } from "crypto";
@@ -10,7 +10,7 @@ index 109697e..771ce6c 100644
  
  // 회원별 예약 실행 방식 — 회원이 실행 방식을 고른다(2026-10-19 주인님 지시). 지침: 루트 docs/SCHEDULER_POLICY.md
  // 공용 기준 코드 「member-scheduler」(2026-10-20 15개로 확대, 구 insta-member-scheduler): 기준 = cardnews-studio/src/lib/instagram/memberScheduler.ts,
-@@ -23,8 +24,56 @@ export { SCHEDULER_TABLE };
+@@ -23,10 +24,69 @@ export { SCHEDULER_TABLE };
  export const CRONJOB_PROVIDER = "cronjob_org_api_key";
  
  export type SchedulerMode = "vercel" | "cronjob";
@@ -19,7 +19,7 @@ index 109697e..771ce6c 100644
 +
 +/**
 + * (선택 연결점, R1 2026-11-19) 프로그램이 같은 폴더 schedulerConfig.ts에서 `platformSchedulerPolicy`를 내보낼 때만 켜진다.
-+ * 내보내지 않는 프로그램은 아래 모든 함수의 동작과 응답 모양이 예전 그대로다(POLICY === null 갈래).
++ * 내보내지 않는 프로그램은 아래 모든 함수의 동작과 응답 모양이 예전 그대로다(POLICY === null — 원래 코드 길을 그대로 탄다).
 + * 켜진 프로그램: 사이트(Vercel) 예약은 「관리자 허용(allowed)」과 「회원의 명시 선택(choiceColumn)」이 둘 다 있을 때만 유효하다.
 + * 둘은 서로 다른 것이다 — 허용은 고를 자격이고, 선택은 회원이 직접 고른 사실이다. 판정이 실패하거나 기록이 없으면 막는다(차단 쪽으로).
 + */
@@ -33,6 +33,11 @@ index 109697e..771ce6c 100644
 +   * 방식(mode)과 같은 행·같은 갱신으로만 쓴다. 이름이 비어 있으면 Vercel은 누구에게도 유효하지 않다.
 +   */
 +  choiceColumn: string;
++  /**
++   * (권장) 실행 방식 표의 「판 번호」 칸 이름(정수, 기본 0). 있으면 방식을 쓰는 모든 갱신이 「내가 읽은 판 번호일 때만」 성공하고 번호를 1 올린다.
++   * 없으면 방식·선택 값이 내가 읽은 것과 같은지만 비교한다 — 값이 같은 다른 요청의 쓰기를 구분하지 못한다(같은 방식을 고른 두 요청이 겹칠 때).
++   */
++  revisionColumn?: string;
 +  /** 사이트 예약 실행이 처리해도 되는 회원 목록(권한 기준) */
 +  listAllowedUserIds: (service: SupabaseClient) => Promise<string[]>;
 +};
@@ -41,7 +46,8 @@ index 109697e..771ce6c 100644
 +
 +/** 기본 실행 방식: AIMaster 운영은 Vercel, 설치 키트(배포판)는 cron-job.org(주인님 지시 2026-10-19 — 수강생은 대부분 Vercel 무료로 시작). 연결점이 있으면 그 프로그램의 값 */
 +export const DEFAULT_SCHEDULER_MODE: SchedulerMode = POLICY?.defaultMode ?? (SCHEDULER_IS_STANDALONE ? "cronjob" : "vercel");
-+
+ type SchedulerRow = { user_id: string; mode: SchedulerMode; active: boolean; paused: boolean };
+ 
 +/** 이 회원이 사이트(Vercel) 예약을 써도 되는가. 연결점이 없으면 항상 참. 판정이 실패하면 거짓. */
 +export async function memberPlatformAllowed(service: SupabaseClient, userId: string): Promise<boolean> {
 +  if (!POLICY) return true;
@@ -49,27 +55,34 @@ index 109697e..771ce6c 100644
 +}
 +
 +/** 행 조회 칸 — 연결점이 있는 프로그램만 선택 칸을 함께 읽는다(없는 프로그램은 예전 글자 그대로) */
-+const ROW_COLUMNS = POLICY?.choiceColumn ? `user_id, mode, active, paused, ${POLICY.choiceColumn}` : "user_id, mode, active, paused";
++const ROW_COLUMNS = ["user_id, mode, active, paused", POLICY?.choiceColumn, POLICY?.revisionColumn].filter(Boolean).join(", ");
 +
-+/** 이 행에 회원의 Vercel 명시 선택이 적혀 있는가. 칸 이름이 없거나 값이 비어 있으면 거짓 */
-+function rowChosePlatform(row: SchedulerRow | null): boolean {
-+  if (!POLICY?.choiceColumn || !row) return false;
-+  return (row as unknown as Record<string, unknown>)[POLICY.choiceColumn] != null;
++/** 행의 판 번호(칸이 없거나 비어 있으면 0) */
++function rowRevision(row: SchedulerRow): number {
++  if (!POLICY?.revisionColumn) return 0;
++  return Number((row as unknown as Record<string, unknown>)[POLICY.revisionColumn] ?? 0) || 0;
++}
++
++/** 행에 적힌 「회원이 Vercel을 직접 고른 시각」(없으면 null) */
++function rowChoice(row: SchedulerRow | null): string | null {
++  if (!POLICY?.choiceColumn || !row) return null;
++  return ((row as unknown as Record<string, unknown>)[POLICY.choiceColumn] as string | null | undefined) ?? null;
 +}
 +
 +/** 유효한 Vercel인가 = 행이 vercel + 회원의 명시 선택 + 관리자 허용. 연결점이 없으면 항상 참(행의 값 그대로). */
 +async function platformEffective(service: SupabaseClient, userId: string, row: SchedulerRow | null): Promise<boolean> {
 +  if (!POLICY) return true;
-+  if (!row || row.mode !== "vercel" || !rowChosePlatform(row)) return false;
++  if (!row || row.mode !== "vercel" || rowChoice(row) === null) return false;
 +  return memberPlatformAllowed(service, userId);
 +}
 +
-+/** 연결점이 있는 프로그램에서 방식을 cronjob으로 쓸 때 선택 기록을 같은 갱신으로 지운다(없는 프로그램은 빈 객체) */
-+const clearChoice = (): Record<string, null> => (POLICY?.choiceColumn ? { [POLICY.choiceColumn]: null } : {});
- type SchedulerRow = { user_id: string; mode: SchedulerMode; active: boolean; paused: boolean };
- 
++/** 선택 칸에 쓸 값(칸 이름이 없으면 빈 객체) */
++const choiceField = (value: string | null): Record<string, string | null> => (POLICY?.choiceColumn ? { [POLICY.choiceColumn]: value } : {});
++
  /** 사이트의 Vercel 예약 호출로 회원 예약을 처리할 수 있는가 */
-@@ -55,13 +104,17 @@ export async function memberCronjobKey(service: SupabaseClient, userId: string):
+ export function platformSchedulerEnabled(): boolean {
+   const flag = process.env[PLATFORM_SCHEDULER_ENV]?.trim().toLowerCase();
+@@ -55,13 +115,17 @@ export async function memberCronjobKey(service: SupabaseClient, userId: string):
  }
  
  async function schedulerRow(service: SupabaseClient, userId: string): Promise<SchedulerRow | null> {
@@ -89,7 +102,7 @@ index 109697e..771ce6c 100644
  }
  
  /** 이 회원의 남은 일(예약형: 남은 예약 글 / 정기형: 켜진 규칙 등) — 0이면 회원 cron-job.org 작업을 끈다. 세는 방법은 schedulerConfig.ts */
-@@ -82,6 +135,32 @@ export async function membersExcludedFromPlatform(service: SupabaseClient): Prom
+@@ -82,6 +146,71 @@ export async function membersExcludedFromPlatform(service: SupabaseClient): Prom
    return (data ?? []).map((row) => row.user_id as string);
  }
  
@@ -110,7 +123,7 @@ index 109697e..771ce6c 100644
 +  if (error) return none;
 +  return {
 +    onlyUserIds: (data ?? []).map((row) => row.user_id as string),
-+    // 글을 잡기 직전에 다시 본다: 그사이 권한이 철회됐거나 방식·일시정지가 바뀌었거나 조회가 실패하면 처리하지 않는다(글은 대기 상태 그대로)
++    // 글을 잡기 직전에 다시 본다: 그사이 권한이 철회됐거나 방식·선택·일시정지가 바뀌었거나 조회가 실패하면 처리하지 않는다(글은 대기 상태 그대로)
 +    allowUser: async (userId: string) => {
 +      const row = await schedulerRow(service, userId);
 +      if (!row || row.paused || !platformSchedulerEnabled()) return false;
@@ -119,91 +132,196 @@ index 109697e..771ce6c 100644
 +  };
 +}
 +
++/**
++ * (연결점) 내가 읽은 행 그대로일 때만 갱신한다. 그사이 다른 요청이 썼으면 아무것도 쓰지 않고 null, 썼으면 쓴 뒤의 행을 돌려준다.
++ * 판 번호 칸이 있으면 번호로 비교하고 1 올린다. 없으면 방식·선택 값으로만 비교한다(값이 같은 다른 쓰기는 구분하지 못한다).
++ */
++async function updateIfUnchanged(service: SupabaseClient, userId: string, seen: SchedulerRow, fields: Record<string, unknown>): Promise<SchedulerRow | null> {
++  const payload: Record<string, unknown> = { ...fields, updated_at: now() };
++  let query;
++  if (POLICY?.revisionColumn) {
++    payload[POLICY.revisionColumn] = rowRevision(seen) + 1;
++    query = service.from(SCHEDULER_TABLE).update(payload).eq("user_id", userId).eq(POLICY.revisionColumn, rowRevision(seen));
++  } else {
++    query = service.from(SCHEDULER_TABLE).update(payload).eq("user_id", userId).eq("mode", seen.mode);
++    if (POLICY?.choiceColumn) {
++      const seenChoice = rowChoice(seen);
++      query = seenChoice === null ? query.is(POLICY.choiceColumn, null) : query.eq(POLICY.choiceColumn, seenChoice);
++    }
++  }
++  const { data, error } = await query.select("user_id");
++  if (error || !data?.length) return null;
++  return { ...seen, ...payload } as SchedulerRow;
++}
++
++/** 한 요청이 마지막으로 직접 쓴 행 — 실패해서 되돌릴 때 「아직 내 쓰기 그대로인가」를 가리는 기준 */
++type OwnWrite = { row: SchedulerRow | null };
++
++/**
++ * (연결점) 행을 cronjob으로 맞춘다(선택 기록은 같은 갱신에서 지움). 결과는 셋 중 하나:
++ * "ok" 썼다 · "superseded" 회원이 직접 골라 유효한 Vercel이라 덮지 않았다(또는 행이 없다) · "busy" 다른 요청과 계속 겹쳐 쓰지 못했다(그 요청이 같은 일을 하고 있다)
++ */
++async function claimCronjobRow(service: SupabaseClient, userId: string, fields: Record<string, unknown>, own?: OwnWrite): Promise<"ok" | "superseded" | "busy"> {
++  for (let attempt = 0; attempt < 3; attempt += 1) {
++    const row = await schedulerRow(service, userId);
++    if (!row || (await platformEffective(service, userId, row))) return "superseded";
++    const written = await updateIfUnchanged(service, userId, row, { mode: "cronjob", ...choiceField(null), ...fields });
++    if (written) { if (own) own.row = written; return "ok"; }
++  }
++  return "busy";
++}
++
  export async function memberIdForToken(service: SupabaseClient, token: string): Promise<string | null> {
    if (!new RegExp(`^${SCHEDULER_TOKEN_PREFIX}_[0-9a-f]{64}$`).test(token)) return null;
    const { data } = await service.from(SCHEDULER_TABLE).select("user_id, mode").eq("token_hash", hashMemberToken(token)).maybeSingle();
-@@ -105,14 +184,22 @@ export async function ensureMemberSchedulerRunning(service: SupabaseClient, user
+@@ -100,7 +229,8 @@ export async function memberIdForToken(service: SupabaseClient, token: string):
+  * cronjob 회원의 예약 직후 호출: 회원 cron-job.org 작업이 실제로 켜져 있게 만든다(예약 1건당 cron-job.org 호출 1~2회).
+  * DB에 켜짐으로 적혀 있어도 cron-job.org가 실패 25회 뒤 작업을 자동으로 껐을 수 있어 매번 실제 상태를 확인한다. 일시정지 중이면 켜지 않는다.
+  */
+-export async function ensureMemberSchedulerRunning(service: SupabaseClient, userId: string, apiKey: string): Promise<{ paused: boolean }> {
++export async function ensureMemberSchedulerRunning(service: SupabaseClient, userId: string, apiKey: string): Promise<{ paused: boolean; superseded?: boolean }> {
++  if (POLICY) return ensureRunningWithPolicy(service, userId, apiKey);
+   const row = await schedulerRow(service, userId);
    if (row?.paused) return { paused: true };
    const url = memberDispatchUrl();
-   if (row && (await memberIdTokenReady(service, userId)) && (await setDispatchJobEnabled(apiKey, url, true))) {
--    await service.from(SCHEDULER_TABLE).update({ active: true, updated_at: now() }).eq("user_id", userId);
-+    // 연결점이 있는 프로그램: 행이 옛 vercel인 채 유효 방식만 cronjob인 회원도 여기로 온다 — 행을 cronjob으로 맞춰야 회원 실행 주소(memberIdForToken)가 받아 준다
-+    await service.from(SCHEDULER_TABLE).update(POLICY ? { mode: "cronjob", ...clearChoice(), active: true, updated_at: now() } : { active: true, updated_at: now() }).eq("user_id", userId);
-     return { paused: false };
-   }
-   // 처음 연결이거나 회원이 cron-job.org에서 작업을 지운 경우: 새 토큰으로 작업을 만든다. 토큰을 먼저 저장해야 첫 호출이 401이 되지 않는다.
-   const { token, hash } = newMemberToken();
--  const { error } = await service.from(SCHEDULER_TABLE).upsert({ user_id: userId, token_hash: hash, mode: "cronjob", active: false, paused: false, updated_at: now() }, { onConflict: "user_id" });
-+  const { error } = await service.from(SCHEDULER_TABLE).upsert({ user_id: userId, token_hash: hash, mode: "cronjob", ...clearChoice(), active: false, paused: false, updated_at: now() }, { onConflict: "user_id" });
-   if (error) throw new Error("예약 실행 연결 정보를 저장하지 못했습니다.");
-   const jobId = await upsertDispatchJob(apiKey, url, token);
-+  if (POLICY) {
-+    // 작업을 만드는 사이 회원이 Vercel을 직접 골랐을 수 있다(그쪽의 「작업 끄기」는 작업이 생기기 전이라 헛돌았다).
-+    // 행이 아직 cronjob일 때만 켜짐으로 적고, 아니면 방금 만든 작업을 꺼서 Vercel 행에 옛 회원 작업이 도는 상태를 남기지 않는다.
-+    const { data: still } = await service.from(SCHEDULER_TABLE).update({ cronjob_job_id: jobId, active: true, updated_at: now() }).eq("user_id", userId).eq("mode", "cronjob").select("user_id");
-+    if (!still?.length) await setDispatchJobEnabled(apiKey, url, false).catch(() => undefined);
-+    return { paused: false };
-+  }
-   await service.from(SCHEDULER_TABLE).update({ cronjob_job_id: jobId, active: true, updated_at: now() }).eq("user_id", userId);
+@@ -117,6 +247,43 @@ export async function ensureMemberSchedulerRunning(service: SupabaseClient, user
    return { paused: false };
  }
-@@ -145,14 +232,21 @@ export async function setMemberSchedulerMode(service: SupabaseClient, userId: st
+ 
++/**
++ * (연결점) 예약 직후 회원 cron-job.org 작업 켜기. 원래 함수와 하는 일은 같고, 행을 쓰는 자리마다 「그사이 회원이 Vercel을 직접 골랐는가」를 본다.
++ * 골랐으면 회원 작업을 켜지 않고(켰으면 다시 끄고) superseded를 돌려준다 — 그 글은 사이트 예약이 처리한다.
++ */
++async function ensureRunningWithPolicy(service: SupabaseClient, userId: string, apiKey: string, own?: OwnWrite): Promise<{ paused: boolean; superseded?: boolean }> {
++  const row = await schedulerRow(service, userId);
++  if (row?.paused) return { paused: true };
++  if (row && (await platformEffective(service, userId, row))) return { paused: false, superseded: true };
++  const url = memberDispatchUrl();
++  // 회원이 Vercel을 직접 골랐을 때만 작업을 끄고 물러난다. 다른 cronjob 쪽 요청과 겹쳐 밀린 것("busy")이면 그 요청이 켠 작업을 끄지 않는다.
++  const after = async (claimed: "ok" | "superseded" | "busy"): Promise<{ paused: boolean; superseded?: boolean }> => {
++    if (claimed !== "superseded") return { paused: false };
++    await setDispatchJobEnabled(apiKey, url, false).catch(() => undefined);
++    return { paused: false, superseded: true };
++  };
++  if (row && (await memberIdTokenReady(service, userId)) && (await setDispatchJobEnabled(apiKey, url, true))) {
++    return after(await claimCronjobRow(service, userId, { active: true }, own));
++  }
++  const { token, hash } = newMemberToken();
++  // 작업을 만들기 전에 토큰부터 저장한다(첫 호출이 401이 되지 않게). 저장하지 못했으면 이 토큰으로 작업을 만들지 않는다.
++  let stored: "ok" | "superseded" | "busy" = "ok";
++  if (row) {
++    stored = await claimCronjobRow(service, userId, { token_hash: hash, active: false }, own);
++  } else {
++    const { error } = await service.from(SCHEDULER_TABLE).insert({ user_id: userId, token_hash: hash, mode: "cronjob", active: false, paused: false });
++    if (error) {
++      // 그사이 다른 요청이 행을 먼저 만들었을 수 있다 — 있는 행에 토큰을 얹어 본다.
++      if (!(await schedulerRow(service, userId))) throw new Error("예약 실행 연결 정보를 저장하지 못했습니다.");
++      stored = await claimCronjobRow(service, userId, { token_hash: hash, active: false }, own);
++    }
++  }
++  if (stored === "superseded") return { paused: false, superseded: true };
++  if (stored === "busy") return { paused: false };
++  const jobId = await upsertDispatchJob(apiKey, url, token);
++  return after(await claimCronjobRow(service, userId, { cronjob_job_id: jobId, active: true }, own));
++}
++
+ /** 진짜 토큰(자리표시가 아닌 해시)이 저장돼 있는가 — 없으면 작업이 있어도 401이므로 새로 만든다 */
+ async function memberIdTokenReady(service: SupabaseClient, userId: string): Promise<boolean> {
+   const { data } = await service.from(SCHEDULER_TABLE).select("token_hash").eq("user_id", userId).maybeSingle();
+@@ -141,6 +308,7 @@ export async function stopMemberSchedulerIfIdle(service: SupabaseClient, userId:
+ 
+ /** 실행 방식 바꾸기. cronjob으로 바꾸면 키가 있어야 하고 남은 예약이 있으면 작업을 켠다. vercel로 바꾸면 회원 작업을 끈다. */
+ export async function setMemberSchedulerMode(service: SupabaseClient, userId: string, mode: SchedulerMode): Promise<void> {
++  if (POLICY) return setModeWithPolicy(service, userId, mode);
+   await ensureRow(service, userId);
    const key = await memberCronjobKey(service, userId);
    if (mode === "cronjob") {
-     if (!key) throw new Error("cron-job.org로 실행하려면 아래 칸에 본인 cron-job.org API 키를 먼저 저장해 주세요.");
-+    const previousRow = POLICY ? await schedulerRow(service, userId) : null;
-     const previousMode = await memberSchedulerMode(service, userId);
--    await service.from(SCHEDULER_TABLE).update({ mode: "cronjob", updated_at: now() }).eq("user_id", userId);
-+    await service.from(SCHEDULER_TABLE).update({ mode: "cronjob", ...clearChoice(), updated_at: now() }).eq("user_id", userId);
-     if ((await remainingScheduled(service, userId)) > 0) {
-       try {
-         await ensureMemberSchedulerRunning(service, userId, key);
-       } catch (error) {
-         // 2026-10-20: cron-job.org 작업을 켜지 못하면 이전 방식으로 되돌린다 — cronjob으로 남으면 운영자 실행에서도 빠져 예약이 멈춘다.
--        await service.from(SCHEDULER_TABLE).update({ mode: previousMode, active: false, updated_at: now() }).eq("user_id", userId);
-+        if (POLICY?.choiceColumn) {
-+          // 예전 행(방식 + 선택 기록)을 그대로 되돌린다. 내가 쓴 cronjob 상태일 때만 — 그사이 회원이 다른 방식을 골랐으면 그 선택을 덮지 않는다.
-+          const previousChoice = previousRow ? (previousRow as unknown as Record<string, unknown>)[POLICY.choiceColumn] ?? null : null;
-+          await service.from(SCHEDULER_TABLE).update({ mode: previousRow?.mode ?? DEFAULT_SCHEDULER_MODE, [POLICY.choiceColumn]: previousChoice, active: false, updated_at: now() }).eq("user_id", userId).eq("mode", "cronjob");
-+        } else {
-+          await service.from(SCHEDULER_TABLE).update({ mode: previousMode, active: false, updated_at: now() }).eq("user_id", userId);
-+        }
-         throw error;
-       }
-     }
-@@ -161,6 +255,15 @@ export async function setMemberSchedulerMode(service: SupabaseClient, userId: st
-   if (!platformSchedulerEnabled()) throw new Error(SCHEDULER_IS_STANDALONE
-     ? "이 사이트는 Vercel 예약 호출이 꺼져 있어 cron-job.org 방식만 쓸 수 있습니다(설치 키트: Vercel 유료(Pro)라면 KIT/enable-vercel-cron 실행)."
-     : "이 사이트는 Vercel 예약 호출이 꺼져 있어 「내 cron-job.org」 방식만 쓸 수 있습니다.");
-+  if (POLICY) {
-+    if (!POLICY.choiceColumn || !(await memberPlatformAllowed(service, userId))) throw new Error("이 계정은 사이트(Vercel) 예약을 쓸 수 없습니다. 「내 cron-job.org」 방식을 사용해 주세요.");
-+    // 방식과 「회원이 직접 골랐다」는 기록을 한 번의 갱신으로 쓴다(둘이 어긋난 상태가 생기지 않는다).
-+    // 저장이 확인되지 않으면 성공으로 돌려주지 않고, cron-job.org 작업도 건드리지 않는다(저장 → 작업 끄기 순서).
-+    const { data: saved, error } = await service.from(SCHEDULER_TABLE).update({ mode: "vercel", active: false, [POLICY.choiceColumn]: now(), updated_at: now() }).eq("user_id", userId).select("user_id");
-+    if (error || !saved?.length) throw new Error("실행 방식을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
-+    if (key) { try { await setDispatchJobEnabled(key, memberDispatchUrl(), false); } catch { /* 남은 호출은 회원 실행 주소가 거절하고 작업을 끈다(memberIdForToken) */ } }
-+    return;
-+  }
-   if (key) { try { await setDispatchJobEnabled(key, memberDispatchUrl(), false); } catch { /* 키가 무효여도 방식 변경은 진행 */ } }
+@@ -165,6 +333,59 @@ export async function setMemberSchedulerMode(service: SupabaseClient, userId: st
    await service.from(SCHEDULER_TABLE).update({ mode: "vercel", active: false, updated_at: now() }).eq("user_id", userId);
  }
-@@ -216,7 +319,8 @@ export async function removeMemberScheduler(service: SupabaseClient, userId: str
+ 
++/** (연결점) 저장이 확인되지 않았을 때 / 그사이 다른 요청이 방식을 바꿨을 때의 안내 — 어느 쪽도 성공으로 돌려주지 않는다 */
++const SAVE_FAILED_MESSAGE = "실행 방식을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.";
++const MODE_CONFLICT_MESSAGE = "그사이 실행 방식이 바뀌었습니다. 화면을 새로 고친 뒤 다시 선택해 주세요.";
++
++/** (연결점) 실행 방식 바꾸기 — 모든 방식 쓰기가 「내가 읽은 행 그대로일 때만」 또는 「저장이 확인됐을 때만」 성공한다. */
++async function setModeWithPolicy(service: SupabaseClient, userId: string, mode: SchedulerMode): Promise<void> {
++  if (!POLICY) return;
++  await ensureRow(service, userId);
++  const key = await memberCronjobKey(service, userId);
++  if (mode === "cronjob") {
++    if (!key) throw new Error("cron-job.org로 실행하려면 아래 칸에 본인 cron-job.org API 키를 먼저 저장해 주세요.");
++    const seen = await schedulerRow(service, userId);
++    if (!seen) throw new Error(SAVE_FAILED_MESSAGE);
++    // 내가 읽은 행 그대로일 때만 cronjob으로 쓴다 — 그사이 다른 요청이 고른 방식을 덮지 않는다(선택 기록은 같은 갱신에서 지움)
++    const own: OwnWrite = { row: await updateIfUnchanged(service, userId, seen, { mode: "cronjob", ...choiceField(null) }) };
++    if (!own.row) throw new Error(MODE_CONFLICT_MESSAGE);
++    if ((await remainingScheduled(service, userId)) > 0) {
++      let started: { paused: boolean; superseded?: boolean };
++      try {
++        started = await ensureRunningWithPolicy(service, userId, key, own);
++      } catch (error) {
++        // 작업을 켜지 못했다: 행이 아직 「이 요청이 마지막으로 쓴 그대로」일 때만 예전 행(방식 + 선택)으로 되돌린다.
++        // 그사이 다른 요청이 썼으면(같은 방식을 고른 요청 포함) 그 결과가 남고, 이 요청은 오류로 끝난다.
++        if (own.row) await updateIfUnchanged(service, userId, own.row, { mode: seen.mode, ...choiceField(rowChoice(seen)), active: false });
++        throw error;
++      }
++      if (started.superseded) throw new Error(MODE_CONFLICT_MESSAGE);
++    }
++    return;
++  }
++  if (!platformSchedulerEnabled()) throw new Error("이 사이트는 Vercel 예약 호출이 꺼져 있어 「내 cron-job.org」 방식만 쓸 수 있습니다.");
++  if (!POLICY.choiceColumn || !(await memberPlatformAllowed(service, userId))) throw new Error("이 계정은 사이트(Vercel) 예약을 쓸 수 없습니다. 「내 cron-job.org」 방식을 사용해 주세요.");
++  // 방식과 「회원이 직접 골랐다」는 기록을 한 번의 갱신으로 쓴다(둘이 어긋난 상태가 생기지 않는다).
++  // 저장이 확인되지 않으면 성공으로 돌려주지 않고, cron-job.org 작업도 건드리지 않는다(저장 → 작업 끄기 순서).
++  let saved: SchedulerRow | null = null;
++  for (let attempt = 0; attempt < 2 && !saved; attempt += 1) {
++    const seen = await schedulerRow(service, userId);
++    if (!seen) break;
++    saved = await updateIfUnchanged(service, userId, seen, { mode: "vercel", active: false, ...choiceField(now()) });
++  }
++  if (!saved) throw new Error(SAVE_FAILED_MESSAGE);
++  if (key && POLICY.revisionColumn) {
++    // 작업 끄기는 DB 저장과 한 묶음이 아니다. 끈 뒤에 행을 다시 보고, 그사이 다른 요청이 cronjob으로 바꿨으면(내 끄기가 그 요청의 켜기보다 늦게 도착했을 수 있다) 작업을 다시 켠다.
++    try { await setDispatchJobEnabled(key, memberDispatchUrl(), false); } catch { /* 남은 호출은 회원 실행 주소가 거절하고 작업을 끈다(memberIdForToken) */ }
++    const after = await schedulerRow(service, userId);
++    if (after && rowRevision(after) !== rowRevision(saved) && after.mode === "cronjob" && !after.paused) {
++      await setDispatchJobEnabled(key, memberDispatchUrl(), true).catch(() => undefined);
++    }
++    return;
++  }
++  if (key) { try { await setDispatchJobEnabled(key, memberDispatchUrl(), false); } catch { /* 남은 호출은 회원 실행 주소가 거절하고 작업을 끈다(memberIdForToken) */ } }
++}
++
+ export async function pauseMemberScheduler(service: SupabaseClient, userId: string): Promise<{ jobStopped: boolean }> {
+   await ensureRow(service, userId);
+   // 2026-10-20: 일시정지를 먼저 저장한다 — cron-job.org 끄기가 실패해도(하루 한도 등) 회원 실행 주소가 일시정지 회원을 건너뛰므로(skipPausedMember) 발송되지 않는다.
+@@ -214,6 +435,18 @@ export async function removeMemberScheduler(service: SupabaseClient, userId: str
+   }
+   const row = await schedulerRow(service, userId);
    if (!row) return;
++  if (POLICY) {
++    // 연결점이 있는 프로그램은 방식을 쓰지 않는다 — 자동으로 Vercel 선택이 생기지 않고, 앞서 읽은 옛 방식으로 덮어쓰지도 않는다.
++    // 판 번호가 있으면 올려서, 겹쳐 진행 중이던 「작업 켜기」가 지워진 작업을 켜짐으로 적지 못하게 한다.
++    const cleared = { token_hash: `unset-${userId}`, cronjob_job_id: null, active: false };
++    for (let attempt = 0; attempt < 2; attempt += 1) {
++      const fresh = attempt === 0 ? row : await schedulerRow(service, userId);
++      if (!fresh) return;
++      if (await updateIfUnchanged(service, userId, fresh, cleared)) return;
++    }
++    await service.from(SCHEDULER_TABLE).update({ ...cleared, updated_at: now() }).eq("user_id", userId);
++    return;
++  }
    await service.from(SCHEDULER_TABLE).update({
      token_hash: `unset-${userId}`, cronjob_job_id: null, active: false,
--    mode: !options.keepMode && platformSchedulerEnabled() ? "vercel" : row.mode, updated_at: now(),
-+    // 연결점이 있는 프로그램은 방식을 쓰지 않는다 — 자동으로 Vercel 선택이 생기지 않고, 앞서 읽은 옛 방식으로 덮어쓰지도 않는다
-+    ...(POLICY ? {} : { mode: !options.keepMode && platformSchedulerEnabled() ? "vercel" : row.mode }), updated_at: now(),
-   }).eq("user_id", userId);
- }
- 
-@@ -227,14 +331,27 @@ export type MemberSchedulerState = {
+     mode: !options.keepMode && platformSchedulerEnabled() ? "vercel" : row.mode, updated_at: now(),
+@@ -227,14 +460,27 @@ export type MemberSchedulerState = {
    hasKey: boolean;
    state: "platform" | "platform-off" | "no-key" | "paused" | "running" | "idle";
    scheduled: number;
 +  /** 연결점이 있는 프로그램에서만 들어간다: 이 회원이 사이트(Vercel) 예약을 고를 수 있는가 */
 +  platformAllowed?: boolean;
-+  /** 연결점이 있는 프로그램에서만 들어간다: 행은 vercel인데 명시 선택이 확인되지 않아 다시 골라야 하는가 */
++  /** 연결점이 있는 프로그램에서만 들어간다: 행은 vercel인데 회원의 명시 선택 기록이 없어 다시 골라야 하는가 */
 +  platformReselectNeeded?: boolean;
  };
  
@@ -219,7 +337,7 @@ index 109697e..771ce6c 100644
 +  let extra: { platformAllowed?: boolean; platformReselectNeeded?: boolean } = {};
 +  if (POLICY) {
 +    const allowed = await memberPlatformAllowed(service, userId);
-+    const chosen = rowChosePlatform(row);
++    const chosen = rowChoice(row) !== null;
 +    if (rowMode === "vercel" && !(allowed && chosen)) mode = "cronjob";
 +    platformAvailable = platformAvailable && allowed;
 +    extra = { platformAllowed: allowed, platformReselectNeeded: allowed && rowMode === "vercel" && !chosen };

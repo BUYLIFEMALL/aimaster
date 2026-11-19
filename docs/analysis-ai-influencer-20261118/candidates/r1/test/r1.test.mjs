@@ -4,6 +4,7 @@
 // 다) 실패·경합: 저장 실패, 방식 바꾸기·키 삭제·예약 시작이 겹칠 때 허위 선택과 옛 작업 재활성화가 없다.
 import test from "node:test";
 import assert from "node:assert/strict";
+import { AsyncLocalStorage } from "node:async_hooks";
 
 const SCHED = "insta_auto_poster/src/lib/cardnews/instagram/memberScheduler.ts";
 const POSTING = "ai-webtoon-studio/src/lib/instagram/posting.ts";
@@ -14,6 +15,7 @@ const orig = await load("orig/", SCHED, "none");
 const patched = await load("", SCHED, "none");
 const policy = await load("", SCHED, "policy");
 const nocol = await load("", SCHED, "nocol");
+const casOnly = await load("", SCHED, "cas"); // 비교용: 판 번호 없이 방식·선택 값만 비교
 const origPosting = await load("orig/", POSTING, "none");
 const patchedPosting = await load("", POSTING, "none");
 const origRoute = await load("orig/", ROUTE, "none");
@@ -27,6 +29,7 @@ class Q {
   note(name, ...args) { this.trace.push([name, ...args]); return this; }
   select(cols) { this.returning = true; return this.note("select", cols); }
   eq(k, v) { this.filters.push((r) => r[k] === v); return this.note("eq", k, v); }
+  is(k, v) { this.filters.push((r) => (r[k] ?? null) === v); return this.note("is", k, v); }
   in(k, vs) { this.filters.push((r) => vs.includes(r[k])); return this.note("in", k, [...vs]); }
   not(k, op, v) {
     if (op === "is") this.filters.push((r) => r[k] != null);
@@ -53,10 +56,13 @@ class Q {
     if (forced) return forced === true ? { data: null, error: { message: "DB 실패" } } : forced;
     const rows = (T.tables[this.table] ??= []);
     const hit = () => rows.filter((r) => this.filters.every((f) => f(r)));
-    if (this.op === "insert") { rows.push({ ...this.payload }); return { data: [{ ...this.payload }], error: null }; }
+    if (this.op === "insert") {
+      if (this.table === "sched" && rows.some((r) => r.user_id === this.payload.user_id)) return { data: null, error: { message: "중복 행" } };
+      rows.push(this.table === "sched" ? { mode_rev: 0, ...this.payload } : { ...this.payload }); return { data: [{ ...this.payload }], error: null };
+    }
     if (this.op === "upsert") {
       const cur = rows.find((r) => r.user_id === this.payload.user_id);
-      if (cur) Object.assign(cur, this.payload); else rows.push({ ...this.payload });
+      if (cur) Object.assign(cur, this.payload); else rows.push(this.table === "sched" ? { mode_rev: 0, ...this.payload } : { ...this.payload });
       return { data: [], error: null };
     }
     if (this.op === "update") { const h = hit(); h.forEach((r) => Object.assign(r, this.payload)); return { data: this.returning ? h.map((r) => ({ ...r })) : null, error: null }; }
@@ -77,7 +83,7 @@ function reset(init = {}) {
     dbLog: [], dbFail: null, published: [], adminCreated: 0,
     policy: { allowed: new Set(init.allowed ?? []), allowedThrows: false, listThrows: false },
   };
-  for (const r of init.rows ?? []) T.tables.sched.push({ token_hash: `unset-${r.user_id}`, active: false, paused: false, ...r });
+  for (const r of init.rows ?? []) T.tables.sched.push({ token_hash: `unset-${r.user_id}`, active: false, paused: false, mode_rev: 0, ...r });
   for (const u of init.keys ?? []) T.tables.user_api_keys.push({ user_id: u, provider: "cronjob_org_api_key", api_key: "key-" + u });
   Object.assign(T.remaining, init.remaining ?? {});
   for (const p of init.posts ?? []) T.tables.posts.push({ status: "scheduled", scheduled_at: PAST, image_paths: ["a.png"], caption: "글 " + p.id, error_message: null, ...p });
@@ -416,7 +422,7 @@ test("실패: cronjob 선택이 작업 켜기에 실패하는 바로 그때 회�
   const s = reset({ rows: [{ user_id: "u1", mode: "cronjob", token_hash: "9".repeat(64) }], allowed: ["u1"], keys: ["u1"], remaining: { u1: 1 } });
   globalThis.T.cronFailOn = true;
   // 작업을 켜려는 순간(곧 실패한다) 다른 요청이 방식과 선택을 한 번에 적어 넣은 상황
-  globalThis.T.onCron = (entry) => { if (entry[0] === "enable" && entry[2] === true) Object.assign(row0(), chosen()); };
+  globalThis.T.onCron = (entry) => { if (entry[0] === "enable" && entry[2] === true) Object.assign(row0(), chosen(), { mode_rev: row0().mode_rev + 1 }); };
   await assert.rejects(() => policy.setMemberSchedulerMode(s, "u1", "cronjob"), /cron 실패/);
   assert.equal(row0().mode, "vercel"); assert.notEqual(row0()[COL] ?? null, null);
   assert.equal(await policy.memberSchedulerMode(s, "u1"), "vercel");
@@ -478,11 +484,143 @@ test("경합: cronjob 선택이 작업 켜기에 실패하는 동안 Vercel을 �
     const hadChoice = start.rows[0]?.[COL] != null;
     const [v, c] = await interleave(seed, [setV(s), setC(s)]);
     const row = row0(), where = `${startName} · 씨앗 ${seed}`;
-    assert.equal(globalThis.T.job.enabled, false, where + " — 켜기에 실패했는데 작업이 켜짐");
+    if (globalThis.T.job.enabled) { assert.equal(row.mode, "cronjob", where + " — 작업이 켜졌는데 행이 cronjob이 아님"); assert.equal(start.job.enabled, true, where + " — 켜기에 실패했는데 새로 켜짐"); }
     if (row[COL] != null) { assert.equal(row.mode, "vercel", where); assert.equal(hadChoice || v.ok, true, where + " — 근거 없는 Vercel 선택"); }
     if (row.mode === "vercel" && row[COL] != null && v.ok) keptExplicit += 1;
     runs += 1;
   }
   assert.equal(runs, STARTS.length * SEEDS);
   assert.equal(keptExplicit > 0, true, "회원이 고른 Vercel이 실패한 되돌리기에 덮이지 않은 순서가 있다");
+});
+
+// ── 라) 두 방식 비교: 판 번호(권장 구성) ↔ 같은 행 값 비교(비교용 구성) ──
+const als = new AsyncLocalStorage();
+// 정해 둔 차례대로 풀어 주는 실행기: plan = [[요청 이름, 멈출 조건]] — 조건이 참이 되거나 그 요청이 끝나면 다음 줄로 간다
+async function scripted(tasks, plan) {
+  const T = globalThis.T, pending = [], done = {}, results = {};
+  T.gate = () => new Promise((r) => pending.push({ tag: als.getStore(), r }));
+  for (const [tag, fn] of Object.entries(tasks)) als.run(tag, () => fn().then(() => { results[tag] = { ok: true }; }, (e) => { results[tag] = { ok: false, error: e.message }; }).finally(() => { done[tag] = true; }));
+  const tick = () => new Promise((r) => setImmediate(r));
+  for (const [tag, stop] of plan) {
+    while (!done[tag] && !stop()) { await tick(); const i = pending.findIndex((p) => p.tag === tag); if (i >= 0 && !stop()) pending.splice(i, 1)[0].r(); }
+  }
+  T.gate = null;
+  while (!Object.keys(tasks).every((t) => done[t])) { while (pending.length) pending.shift().r(); await tick(); }
+  return results;
+}
+const MAC_START = { rows: [{ user_id: "u1", ...chosen(), token_hash: "f".repeat(64) }], job: { exists: true, enabled: false } };
+// Mac 독립 검수의 순서(.ai/results/AI-INFLUENCER-R1-20261119-CX-QA-01.md): A가 cronjob을 고르고 작업 켜기에 실패 → 되돌리기 직전에 멈춤
+// → B가 같은 cronjob을 고르고 켜기에 성공 → A가 다시 움직여 되돌리기를 시도
+async function macOrder(mod) {
+  const s = reset({ ...structuredClone(MAC_START), allowed: ["u1"], keys: ["u1"], remaining: { u1: 1 } });
+  let aFailed = false;
+  globalThis.T.onCron = (entry) => { if (als.getStore() === "A" && entry[0] === "enable" && entry[2] === true) { aFailed = true; throw new Error("cron 실패"); } };
+  const run = () => mod.setMemberSchedulerMode(s, "u1", "cronjob");
+  const results = await scripted({ A: run, B: run }, [["A", () => aFailed], ["B", () => false], ["A", () => false]]);
+  return { results, row: structuredClone(row0()), job: { ...globalThis.T.job } };
+}
+
+test("Mac 반례(판 번호 구성): 멈춰 있던 되돌리기가 다른 요청의 성공한 cronjob 선택을 예전 Vercel로 되돌리지 않는다 — 행·작업이 함께 맞는다", async () => {
+  const { results, row, job } = await macOrder(policy);
+  assert.equal(results.A.ok, false); assert.match(results.A.error, /cron 실패/);
+  assert.equal(results.B.ok, true);
+  assert.equal(row.mode, "cronjob"); assert.equal(row[COL], null); assert.equal(row.active, true);
+  assert.equal(job.enabled, true, "B가 켠 작업이 켜져 있고 행도 cronjob");
+});
+
+test("Mac 반례(값 비교 구성): 같은 행 값 비교만으로는 이 순서를 막지 못한다 — 행은 예전 Vercel로 돌아가고 작업은 켜진 채 남는다(비교 기록)", async () => {
+  const { results, row, job } = await macOrder(casOnly);
+  assert.equal(results.B.ok, true);
+  assert.equal(row.mode, "vercel", "B가 성공했는데 A의 되돌리기가 B의 쓰기를 자기 것으로 보고 덮었다");
+  assert.notEqual(row[COL], null);
+  assert.equal(job.enabled, true, "외부 작업은 켜진 채 — 행과 어긋난다");
+});
+
+// 차례 실행과 같은 결과인가: 겹쳐 돈 결과(끝 상태 + 각 요청의 성공 여부)가, 「충돌로 물러난 요청을 뺀 나머지」를 어떤 차례로 하나씩 돌린 결과와 같아야 한다
+const ABORTED = /그사이 실행 방식이 바뀌었습니다|실행 방식을 저장하지 못했습니다/;
+const NAMED = {
+  setV: (mod) => (s) => () => mod.setMemberSchedulerMode(s, "u1", "vercel"),
+  setC: (mod) => (s) => () => mod.setMemberSchedulerMode(s, "u1", "cronjob"),
+  ensure: (mod) => (s) => () => mod.ensureMemberSchedulerRunning(s, "u1", "key-u1"),
+  remove: (mod) => (s) => () => mod.removeMemberScheduler(s, "u1"),
+};
+const ORACLE_PAIRS = [["setV", "setC"], ["setV", "ensure"], ["setC", "ensure"], ["setC", "setC"], ["setV", "setV"], ["setV", "remove"], ["setC", "remove"]];
+const sig = () => { const r = row0(); return JSON.stringify({ mode: r?.mode ?? null, chosen: r ? r[COL] != null : false, active: r?.active ?? false, job: globalThis.T.job.enabled }); };
+async function settle(fn) { try { await fn(); return { ok: true }; } catch (e) { return { ok: false, error: e.message }; } }
+async function serialOutcomes(mod, start, names, cronFailOn) {
+  const outs = new Set();
+  const orders = names.length === 2 ? [[0, 1], [1, 0]] : [names.map((_, i) => i)];
+  for (const order of orders) {
+    const s = reset({ ...structuredClone(start), allowed: ["u1"], keys: ["u1"], remaining: { u1: 1 } }); globalThis.T.cronFailOn = cronFailOn;
+    const res = [];
+    for (const i of order) res[i] = (await settle(NAMED[names[i]](mod)(s))).ok;
+    outs.add(JSON.stringify({ res, sig: sig() }));
+  }
+  return outs;
+}
+async function countAnomalies(mod, seeds) {
+  let runs = 0, leftover = 0; const bad = [];
+  for (const cronFailOn of [false, true]) for (const [n1, n2] of ORACLE_PAIRS) for (const [startName, start] of STARTS) for (let seed = 1; seed <= seeds; seed += 1) {
+    const s = reset({ ...structuredClone(start), allowed: ["u1"], keys: ["u1"], remaining: { u1: 1 } }); globalThis.T.cronFailOn = cronFailOn;
+    const got = await interleave(seed, [NAMED[n1](mod)(s), NAMED[n2](mod)(s)]);
+    const finalSig = sig();
+    const names = [n1, n2], keep = got.map((g) => g.ok || !ABORTED.test(g.error));
+    const kept = names.filter((_, i) => keep[i]), res = got.map((g) => g.ok).filter((_, i) => keep[i]);
+    const allowed = await serialOutcomes(mod, start, kept, cronFailOn);
+    runs += 1;
+    if (!start.job.exists && globalThis.T.job.exists && !globalThis.T.job.enabled) leftover += 1;
+    if (!allowed.has(JSON.stringify({ res, sig: finalSig }))) bad.push(`${n1}↔${n2} · ${startName} · 켜기 실패 ${cronFailOn} · 씨앗 ${seed} → ${JSON.stringify(got.map((g) => (g.ok ? "성공" : g.error)))} ${finalSig}`);
+  }
+  const kinds = new Map();
+  for (const line of bad) { const k = line.replace(/ · 씨앗 \d+/, "").replace(/ · (cronjob 실행 중|명시 vercel|옛 vercel\(선택 기록 없음\)|행 없음·작업 없음)/, ""); kinds.set(k, (kinds.get(k) ?? 0) + 1); }
+  const vercelPairBad = bad.filter((line) => line.startsWith("setV↔"));
+  return { runs, bad, leftover, vercelPairBad, kinds: [...kinds].map(([k, n]) => `${n}회 ${k}`) };
+}
+
+test("차례 실행과 같은 결과(판 번호 구성): Vercel 선택이 낀 요청 겹침은 어떤 순서에서도 차례 실행의 결과와 같다 — 나머지 겹침은 횟수 기록(짝 7 × 시작 4 × 켜기 실패 2 × 순서 150)", async (t) => {
+  const { runs, bad, leftover, kinds, vercelPairBad } = await countAnomalies(policy, 150);
+  t.diagnostic(`판 번호 구성: ${runs}회 중 차례 실행과 다른 결과 ${bad.length}회 · 꺼진 채 남은 새 작업 ${leftover}회`);
+  for (const line of kinds.slice(0, 12)) t.diagnostic("[판 번호] " + line);
+  assert.equal(runs, 7 * 4 * 2 * 150);
+  t.diagnostic(`판 번호 구성: Vercel 선택이 낀 짝(4종)에서 어긋난 결과 ${vercelPairBad.length}회 · cron-job.org 쪽 요청끼리(3종) ${bad.length - vercelPairBad.length}회`);
+  assert.deepEqual(vercelPairBad.slice(0, 5), [], "Vercel 선택이 낀 짝은 어떤 순서에서도 차례 실행과 같아야 한다");
+});
+
+test("차례 실행과 같은 결과(값 비교 구성, 비교 기록): 같은 조건에서 어긋나는 횟수를 센다", async (t) => {
+  const { runs, bad, leftover, kinds } = await countAnomalies(casOnly, 150);
+  t.diagnostic(`값 비교 구성: ${runs}회 중 차례 실행과 다른 결과 ${bad.length}회 · 꺼진 채 남은 새 작업 ${leftover}회`);
+  assert.equal(bad.length > 0, true, "값 비교만으로는 어긋나는 순서가 남는다(판 번호 구성과의 차이)");
+  for (const line of kinds.slice(0, 12)) t.diagnostic("[값 비교] " + line);
+  assert.equal(runs, 7 * 4 * 2 * 150);
+});
+
+// ── 마) 예약 시작의 세 갈림 ──
+test("예약 시작: 회원이 직접 골라 유효한 Vercel이면 회원 cron 작업을 건드리지 않고 물러난다", async () => {
+  const s = reset({ rows: [{ user_id: "u1", ...chosen(), token_hash: "a".repeat(64) }], allowed: ["u1"], keys: ["u1"], remaining: { u1: 1 }, job: { exists: true, enabled: false } });
+  const before = structuredClone(row0());
+  assert.deepEqual(await policy.ensureMemberSchedulerRunning(s, "u1", "key-u1"), { paused: false, superseded: true });
+  assert.deepEqual(globalThis.T.cronLog, [], "cron 호출 0");
+  assert.deepEqual(row0(), before); assert.equal(globalThis.T.job.enabled, false);
+});
+
+test("예약 시작: 다른 cronjob 쪽 요청과 겹쳐 행을 쓰지 못했을 때, 그 요청이 켠 작업을 끄지 않는다", async () => {
+  const s = reset({ rows: [{ user_id: "u1", mode: "cronjob", token_hash: "a".repeat(64) }], keys: ["u1"], remaining: { u1: 1 }, job: { exists: true, enabled: false } });
+  // 갱신이 번번이 「0행」으로 끝나는 상황(다른 요청이 계속 먼저 쓴다) — 행은 계속 cronjob
+  globalThis.T.dbFail = (q) => (q.op === "update" ? { data: [], error: null } : null);
+  const out = await policy.ensureMemberSchedulerRunning(s, "u1", "key-u1");
+  assert.deepEqual(out, { paused: false }, "Vercel에 밀린 것이 아니므로 superseded가 아니다");
+  assert.deepEqual(globalThis.T.cronLog, [["enable", "key-u1", true]], "켜기만 하고 끄지 않는다");
+  assert.equal(globalThis.T.job.enabled, true);
+});
+
+test("예약 시작: 토큰을 저장하기 전에 회원의 Vercel이 유효해지면 새 cron 작업을 만들지 않는다", async () => {
+  const s = reset({ rows: [{ user_id: "u1", ...chosen() }], keys: ["u1"], remaining: { u1: 1 }, job: { exists: false, enabled: false } });
+  // 처음 볼 때는 지정이 아니었고(그래서 진행), 토큰을 쓰려는 순간에는 관리자가 지정을 마친 상황
+  let asked = 0;
+  P().allowed = { has: () => (asked += 1) > 1, [Symbol.iterator]: function* () { yield "u1"; } };
+  const before = structuredClone(row0());
+  assert.deepEqual(await policy.ensureMemberSchedulerRunning(s, "u1", "key-u1"), { paused: false, superseded: true });
+  assert.equal(globalThis.T.cronLog.some((c) => c[0] === "upsert"), false, "작업을 만들지 않는다");
+  assert.equal(globalThis.T.job.exists, false);
+  assert.deepEqual(row0(), before, "행(토큰·방식·선택)도 그대로");
 });
