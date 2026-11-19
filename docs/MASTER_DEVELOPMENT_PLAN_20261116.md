@@ -172,6 +172,7 @@ Master 마지막 실제 점검: 2026-11-19 13:01:14 KST · 실행 중 점검 주
 | RE-20261116-01 | CC-REALTY-01 | done / integrated | L-6 기술안·뉴스미배포정정·17시험 | 대안1 채택, 구현은RE-02로 분리 |
 | RE-20261119-EXT | CC-REALTY-01 | running / three_program_linkage_independent_accepted_crm_plan_routed | 부동산 추가 개선 순차 진행 | 매물 알림 8 blob·독립 3/3, 관심 지역 3프로그램 연계 로컬 수락. 실 화면·DB 권한 검증 및 배포 대기. 고객관리 플랜 이동. |
 | RE-20261119-DESK | CC-REALTY-01 | done / u1_independent_review_accepted_undeployed | 부동산 고객관리 화면 개선 | U-1 1c52f4e37 Mac 독립 수락. 중립 배지·합성 3종 본문/발송 연결·광고 규칙 6/6 확인. 기존 90자 안내는 별도 개선, 미배포. |
+| RE-20261119-DESK-U1A | CC-REALTY-01 | reviewing / sms_byte_hint_source_returned_mac_review_dispatched | 부동산 고객관리 미리보기 문자 바이트 안내 | 미리보기 문자 수 대신 바이트 추정 안내. 작성자 타입·37시험 통과. Mac 독립 검수 요청, 실제 발송·배포 없음. |
 | RE-20261116-02 | CC-REALTY-01 | done / integrated | 카톡실패상태·끊긴토큰재발송방지·local로그아웃/UA | 사용자 직접 승인 배포 v1.45/v1.61. 카카오 실물·08:00 뉴스 대조 별도 |
 | BLOG-20261116-01 | CC-BLOG-01 | done / integrated | 티스토리 소제목##·이웃 전경거절 진단 보완 | 코드검증범위 완료, 이웃재시험/배포/실제소통은별도대기 |
 | QA-20261116-01 | CX-QA-01 | cancelled / integrated | 종합 QA를 영상/Workspace로 분리 | 중복 배정 종료, 검증 완료 의미 아님 |
@@ -421,7 +422,7 @@ Master 마지막 실제 점검: 2026-11-19 13:01:14 KST · 실행 중 점검 주
 | B2B-20261119-MAKER-M2 | CC-B2B-BACK-01 | done / data_layer_independent_accepted_undeployed_ui_design_dispatched | 메이커 M2 사진 제안 저장 범위 설계 | 0106 데이터 계층 Mac 독립 수락. UI 연결 계획 배정. 실제 Storage·Lab·운영 및 M3 미적용. |
 | B2B-20261119-MAKER-M2-UI | CC-B2B-BACK-01 | done / m2_ui_independent_accepted_test_assertions_verified_undeployed | 메이커 M2 사진 제안 화면·저장 응답 연결 | 독립 제품 수락, 단언 5개 도달성 수정 후 Master 시험 18/18 통과. 실제 Storage·Lab 미검증, 미배포. |
 | B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | reviewing / local_data_layer_review_passed_server_approval_pending | 메이커 M3 제안 적용·서버 바이트 검증 설계 | f0eaf784c Mac 로컬 데이터 계층 독립 검수 수락을 Backend에 회신. 점 경로 검증, 서버 구현·키·UI·Lab은 별도 승인 대기. |
-| B2B-20261119-ADMINUI | AG-UI-01 | waiting_human / private_lab_ready_waiting_owner_admin_login | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | 사설 Lab ad046c1eb, Mac 공간39 시험 관리자 로그인/제어 반환 대기. 이후 aimaster-b2b 375px·키보드 읽기 검수. |
+| B2B-20261119-ADMINUI | AG-UI-01 | waiting_human / private_lab_ready_waiting_owner_admin_login | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | 메모리 부족 후 사용자 지시로 사설 Lab 재시작, PID 43784·ad046c1eb·login 200 확인. Mac 공간39 사용자 제어 유지, 반환 후 읽기 검수. |
 | B2B-20261119-MALL-STORAGE | CX-MASTER-01 | queued / central_accounting_scope_registered_retention_excluded | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 메인 집계에서 몰별 경로를 몰 주인에게 귀속하고 중복 방지·구매 안내 범위를 설계. 30일 삭제 요청 취소·등록 상품 최소 1년 보관 유지. 운영 적용 별도. |
 | IMG-20261119-PLAN | CC-ECOM-01 | waiting_human / quantization_blind_view_ready_owner_evaluation_pending | AI 무료 이미지 자동화 개발 플랜 | Q4 16/16 결과 문서 49bec95a8. Q4/Q8 16쌍 로컬 비교 화면 완료, HTML 해시·PNG 32개 확인. 기존 Q8 노출 한계와 8GB 이하 미검증, 주인님 품질 평가 대기. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
@@ -506,7 +507,7 @@ Master 마지막 실제 점검: 2026-11-19 13:01:14 KST · 실행 중 점검 주
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |
 | AIF-20261118-W03 | 미배정 | queued / sequenced_after_w01_and_w02_by_owner_instruction | 회원용 인물 라이브러리·시트·버전 | 주인님 지시대로 W01·W02 이후 시작. 인물 라이브러리·일괄 이미지·영상 미착수. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
-| BLOG-20261119-MODELS | CC-BLOG-01 | reviewing / original_model_cases_pass_storage_edge_fixes_requested | 블로그 설정 플랫폼별 AI 모델 선택 | Mac 독립 모델 6/6, 이전 3반례 해소. 전역 JSON 손상 시 선호 누락 및 일부 저장 성공 안내 불일치 보완 배정. 미배포. |
+| BLOG-20261119-MODELS | CC-BLOG-01 | reviewing / model_storage_edge_fixes_returned_mac_recheck_dispatched | 블로그 설정 플랫폼별 AI 모델 선택 | 손상된 저장값 복구·부분 성공 안내 보완. 작성자 모델 12/12, tsc 통과. Mac 재검수 전송, 확장 API 기존 시험 실패·빌드 차단 별도. |
 
 ## 현재 담당 회신이 확보된 프로젝트
 

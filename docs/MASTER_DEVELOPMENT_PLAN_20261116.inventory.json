@@ -10019,9 +10019,9 @@
       "status": "waiting_human",
       "delivery": "private_lab_ready_waiting_owner_admin_login",
       "sha": "ad046c1eb",
-      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8·msg_9f9b2521f4a8·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_621b8cb49fa9·msg_aa1479ca4c17·c17cca668·msg_e5e7af9da7fe·msg_c15db5ced233·msg_b17ccd22bc09·msg_d96d3bf2fcdb·ad046c1eb·msg_07fb8a6c148a·msg_3c961902ac23·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_92995c9f1a9f·msg_1c61b1683760·msg_a52a36de3fcf·msg_9e0f5f913c2f·Master PID 46608 Tailscale 3210 login200·msg_ef8f4bba5a4e·msg_17dcab7ad585·msg_2422fec5a82d·msg_92bbb1de93f5·076b98a56·msg_7646ed272f65·msg_0f45dc5a9386·msg_6878dfe046a5·msg_502daaa1e03e·msg_b7332c640a14·msg_96ec8eb2731d·msg_00fe6b6f4415·msg_ac1221ecd028",
-      "next": "사설 Lab ad046c1eb, Mac 공간39 시험 관리자 로그인/제어 반환 대기. 이후 aimaster-b2b 375px·키보드 읽기 검수.",
-      "lastReviewedAt": "2026-11-19T03:25:51.788Z"
+      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8·msg_9f9b2521f4a8·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_621b8cb49fa9·msg_aa1479ca4c17·c17cca668·msg_e5e7af9da7fe·msg_c15db5ced233·msg_b17ccd22bc09·msg_d96d3bf2fcdb·ad046c1eb·msg_07fb8a6c148a·msg_3c961902ac23·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_92995c9f1a9f·msg_1c61b1683760·msg_a52a36de3fcf·msg_9e0f5f913c2f·Master PID 46608 Tailscale 3210 login200·msg_ef8f4bba5a4e·msg_17dcab7ad585·msg_2422fec5a82d·msg_92bbb1de93f5·076b98a56·msg_7646ed272f65·msg_0f45dc5a9386·msg_6878dfe046a5·msg_502daaa1e03e·msg_b7332c640a14·msg_96ec8eb2731d·msg_00fe6b6f4415·msg_ac1221ecd028·msg_959de217f06a·msg_d85407110972·msg_92ae4eee9f76",
+      "next": "메모리 부족 후 사용자 지시로 사설 Lab 재시작, PID 43784·ad046c1eb·login 200 확인. Mac 공간39 사용자 제어 유지, 반환 후 읽기 검수.",
+      "lastReviewedAt": "2026-11-19T04:15:28.898Z"
     },
     {
       "task_id": "IMG-20261119-PLAN",
@@ -10063,11 +10063,24 @@
       "reviewer": "CX-QA-01",
       "title": "블로그 설정 플랫폼별 AI 모델 선택",
       "status": "reviewing",
-      "delivery": "original_model_cases_pass_storage_edge_fixes_requested",
-      "sha": "7012fe1bf",
-      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e·msg_ae0e6dba4e84·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_e75e68c7f151·msg_d6f2385e1c72·7012fe1bf·msg_c5d009c34a43·msg_9d70d930ca5b·msg_2888acb4d0d4",
-      "next": "Mac 독립 모델 6/6, 이전 3반례 해소. 전역 JSON 손상 시 선호 누락 및 일부 저장 성공 안내 불일치 보완 배정. 미배포.",
-      "lastReviewedAt": "2026-11-19T04:12:15.644Z"
+      "delivery": "model_storage_edge_fixes_returned_mac_recheck_dispatched",
+      "sha": "a7df2611f",
+      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e·msg_ae0e6dba4e84·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_e75e68c7f151·msg_d6f2385e1c72·7012fe1bf·msg_c5d009c34a43·msg_9d70d930ca5b·msg_2888acb4d0d4·msg_e7fae7770278·a7df2611f·msg_d19c65d4a1e5",
+      "next": "손상된 저장값 복구·부분 성공 안내 보완. 작성자 모델 12/12, tsc 통과. Mac 재검수 전송, 확장 API 기존 시험 실패·빌드 차단 별도.",
+      "lastReviewedAt": "2026-11-19T04:15:28.898Z"
+    },
+    {
+      "task_id": "RE-20261119-DESK-U1A",
+      "parent_task_id": "RE-20261119-DESK",
+      "owner": "CC-REALTY-01",
+      "reviewer": "CX-QA-01",
+      "title": "부동산 고객관리 미리보기 문자 바이트 안내",
+      "status": "reviewing",
+      "delivery": "sms_byte_hint_source_returned_mac_review_dispatched",
+      "sha": "84bfa1d05",
+      "evidence": "msg_5af114ba8ca6·84bfa1d05·msg_d19c65d4a1e5",
+      "next": "미리보기 문자 수 대신 바이트 추정 안내. 작성자 타입·37시험 통과. Mac 독립 검수 요청, 실제 발송·배포 없음.",
+      "lastReviewedAt": "2026-11-19T04:15:28.898Z"
     }
   ]
 }
