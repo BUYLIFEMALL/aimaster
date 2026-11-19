@@ -10063,12 +10063,12 @@
       "owner": "CX-MASTER-01",
       "reviewer": "CX-QA-01",
       "title": "쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내",
-      "status": "running",
-      "delivery": "design_reviewed_local_private_retention_candidate_dispatched",
-      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md·msg_f995f8db2740·msg_b03bc930a0b2·0073 및 삭제 호출 소스 대조·msg_42a884229750",
-      "next": "중앙 집계 설계 34a5df474 검토. 비공개 몰 서류 삭제 후보 제외 로컬 준비 배정. 실제 운영 영향 미확인, 운영 SQL과 집계 정책 4건 결정 별도.",
-      "lastReviewedAt": "2026-11-19T05:35:45.381Z",
-      "sha": "34a5df474"
+      "status": "reviewing",
+      "delivery": "private_retention_0076_local_pass_mac_review_dispatched",
+      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md·msg_f995f8db2740·msg_b03bc930a0b2·0073 및 삭제 호출 소스 대조·msg_42a884229750·56ff56a5c·cc25a7cc1·0073/0076 함수 본문 대조·msg_c7919fb9f259",
+      "next": "0076 cc25a7cc1 비공개 서류만 제외. 담당 합성 15개 통과, 맥미니 독립 검수 요청. 운영 영향·적용과 집계 정책 결정 별도.",
+      "lastReviewedAt": "2026-11-19T05:43:20.482Z",
+      "sha": "cc25a7cc1"
     },
     {
       "task_id": "BLOG-20261119-MODELS",
