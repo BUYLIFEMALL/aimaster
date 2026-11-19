@@ -19,7 +19,7 @@ Master 마지막 실제 점검: 2026-11-19 23:01:08 KST · 23:00 예약 메시�
 
 ## 지금 내린 지휘와 우선순위
 
-최근 담당표 갱신 2026-11-19 23:23 KST · 미완료 33건(진행 8·검수 7·순번 3·주인님 확인/결정 15).
+최근 담당표 갱신 2026-11-19 23:28 KST · 미완료 33건(진행 8·검수 7·순번 3·주인님 확인/결정 15).
 
 | 순서 | 담당 | 진행 단계 | 다음 작업·통과 기준 |
 | --- | --- | --- | --- |
@@ -520,7 +520,7 @@ Master 마지막 실제 점검: 2026-11-19 23:01:08 KST · 23:00 예약 메시�
 | AIF-20261119-W01-RETOUCH | CC-SNS-01 | done / test_generation_and_retouch_pass_v5_upload_without_publish | AI Influencer 히스토리 재표시·일반 회원 생성·보정 | 지정 일반 회원 경로 보류. 시험 계정 생성 1·보정 1 성공, V5 규칙 변환·업로드 확인. 앱 실제 게시와 운영 출처는 미검증. |
 | AIF-20261119-W01-D1 | CC-SNS-01 | done / production_off_ready_public_smoke_passed | AI Influencer D1 스위치 OFF 운영 배포 | D1 OFF 운영·DB·저장소 v1.27 일치. 담당자 로그인 무료 확인 및 배포와 공유 소스 3경로 차이 기록 완료. D2 사전 검토 58a2c9672 접수. 운영 shadow 전 정리·쿼터의 격리 검증 범위 요청, D3 대기. |
 | AIF-20261119-PLAN6 | CC-SNS-01 | reviewing / six_requirement_v2_scope_accepted_test_role_pending | AI Influencer 직접 요구 6건 개발 플랜 보완 | 4ac03c967 v2 전환 기준 보완. 일반 회원 Vercel 대기 0건이면 전환, 남으면 처리 결정 선행. 시험 계정 권한 식별 방식 확정 전 예약 구현 보류. |
-| AIF-20261119-R1-SCHEDULER | CC-SNS-01 | running / retention_lock_mac_pass_regrant_boundary_followup | AI Influencer 회원 예약 기본값과 관리자 허용 설계 | 3e1ca67f7 Mac 정적 잠금 순서 통과. 정리와 재허용이 겹칠 때 반환 상태 검증 배정. 운영 SQL 미적용. |
+| AIF-20261119-R1-SCHEDULER | CC-SNS-01 | running / retention_regrant_v6_mac_accepted_approval_scope_check | AI Influencer 회원 예약 기본값과 관리자 허용 설계 | 670c4f6b3 격리 시험 28/28·맥미니 정적 재검수 수락. BUSY 실행 미검증. 기존 운영 승인 요청 범위 대조 배정, 운영 SQL 미적용. |
 | AIF-20261119-D2-READINESS | CC-SNS-01 | waiting_human / d2_runbook_ready_sql_scope_decision_pending | AI Influencer D2 실행 범위와 푸시 분리 검토 | c1c5c92e5 기준 적용·권한·복구 준비표 회수. 주인님 한도 SQL·shadow 범위 결정 후 재개. 전체 master 푸시 보류, 앱 전용 ref는 미생성. |
 | AIF-20261119-D2-IT | CC-SNS-01 | done / d2_local_sql_mac_rollback_review_accepted_undeployed | AI Influencer D2 정리·쿼터 격리 통합 시험 | c1c5c92e5 맥미니 원복 본문·서명·표식 검수 완료. d1626e492에 적용·원복 직전 속성/권한 및 실응답 대조 명시. 운영 미적용. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
