@@ -6124,11 +6124,11 @@
       "owner": "CX-MASTER-01",
       "reviewer": "CX-QA-01",
       "title": "쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내",
-      "status": "reviewing",
-      "delivery": "private_retention_static_accepted_runbook_limit_fix_dispatched",
-      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md·msg_f995f8db2740·msg_b03bc930a0b2·0073 및 삭제 호출 소스 대조·msg_42a884229750·56ff56a5c·cc25a7cc1·0073/0076 함수 본문 대조·msg_c7919fb9f259·msg_81907d673c17·msg_f5b822c01b10·.ai/results/B2B-20261119-MALL-STORAGE-CX-QA-01.md",
-      "next": "Mac 0076 정적 통과, 별도 SQL 실행 없음. 담당 합성 15건. LIMIT 도달 시 확인 기준 문서 보완 요청. 운영 영향 미확인·적용 대기.",
-      "lastReviewedAt": "2026-11-19T05:45:13.785Z",
+      "status": "waiting_human",
+      "delivery": "private_retention_0076_verified_waiting_production_approval",
+      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md·msg_f995f8db2740·msg_b03bc930a0b2·0073 및 삭제 호출 소스 대조·msg_42a884229750·56ff56a5c·cc25a7cc1·0073/0076 함수 본문 대조·msg_c7919fb9f259·msg_81907d673c17·msg_f5b822c01b10·.ai/results/B2B-20261119-MALL-STORAGE-CX-QA-01.md·63b858413·Master 문서 대조 및 SQL·합성 시험 동일 확인",
+      "next": "0076 cc25a7cc1 합성 15건·Mac 정적 통과. 문서 63b858413에서 LIMIT 검증 보완 확인. 운영 반영 승인 대기. 실제 영향·집계 정책 결정 별도.",
+      "lastReviewedAt": "2026-11-19T05:46:10.988Z",
       "sha": "cc25a7cc1"
     },
     {
