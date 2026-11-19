@@ -391,3 +391,5 @@ WS-20261119-03 D-스냅숏 CC-WORKSPACE-01: Master msg_81884a8c4c54(스냅숏 �
 WS-20261119-03 tx 깊이 CC-WORKSPACE-01: Master msg_e62063905385(D 검수 P2 보완). ai-work-workspace/src/litpage/server/db.ts(tx 한 함수: 깊이를 모든 경로에서 정확히 한 번만 되돌림 — COMMIT 실패 때 두 번 내려가던 것. 재시도·문장 순서 변경 없음)·새 tests/integration/txDepth.test.ts(모의 COMMIT·ROLLBACK 실패 주입)·본인 문서. 전용 fixture·모의만, 운영·버전·빌드·배포·push 없음.
 
 IMG-20261119-P1-WEB-5-4 CC-ECOM-01: Master msg_1c2378ff1933. free-image-studio/ 안에서 한글→영문 변환 후보(새 src/lib/convert/*, src/app/api/convert/route.ts, src/lib/apiKeys.ts, 만들기 화면 연결, tests/convert*.test.mjs, 문서). 회원 본인 user_api_keys 키만·서버 처리, 자동 호출·재시도 0, 합성 대역 시험만. 실제 AI·엔진 호출·설치·빌드·운영 DB·배포·push 0. 8GB 안내·장부 경고 문구는 5-5. 검수 CX-QA-01(Mac).
+
+IMG-20261119-P1-WEB-5-5 CC-ECOM-01: Master msg_6b898587d578. free-image-studio/ 안에서 마무리(연동 메뉴·사용 매뉴얼, 확정 8GB 안내, 접수 기록 손상 안내, 좁은 화면·키보드 상태 — 코드·모의만) + 공용 사본 목록 한 줄(scripts/check-shared-modules.mjs·docs/SHARED_MODULES.md, --sync 금지). 제품 등록·실 AI/엔진·설치·빌드·운영·배포·push 0. 검수 CX-QA-01(Mac).
