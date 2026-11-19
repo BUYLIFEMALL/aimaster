@@ -55,4 +55,14 @@ assert.ok(/restoreEngine\(preferences\.textProvider, preferences\.textModel\)/.t
 assert.ok(/restoreEngine\(p\?\.textProvider, p\?\.textModel\)/.test(quick), '빠른 작성이 restoreEngine 사용');
 assert.ok(!/setEngine\(\{ provider: p\.textProvider, model: p\.textModel \}\)/.test(quick), '빠른 작성이 저장값을 그대로 보내지 않음');
 
+// 사진 리뷰 선택지(2026-11-19 실제 사진 입력 확인 후 추가) — 화면 선택지 = 엔진 목록 ∩ 허용 목록
+const photoSrc = fs.readFileSync(path.join(root, "src/lib/photoReview.ts"), "utf8");
+const allow = Object.fromEntries([...photoSrc.matchAll(/^\s+(openai|anthropic|gemini): \[([^\]]*)\]/gm)].map((m) => [m[1], [...m[2].matchAll(/"([^"]+)"/g)].map((v) => v[1])]));
+const shown = Object.fromEntries(ENGINES.map((e) => [e.provider, e.models.map((m) => m.value).filter((v) => (allow[e.provider] || []).includes(v))]));
+assert.deepEqual(shown.openai, ["gpt-6.2-sol", "gpt-6.1-terra", "gpt-6-astra"], "OpenAI 사진 선택지");
+assert.deepEqual(shown.anthropic, ["claude-sonnet-5-5", "claude-haiku-5-5"], "Claude 사진 선택지(이전 0개)");
+assert.deepEqual(shown.gemini, ["gemini-3.8-flash", "gemini-3.1-pro-preview"], "Gemini 사진 선택지");
+for (const p of ["openai", "anthropic", "gemini"]) assert.ok(shown[p].includes(def(p)), p + " 기본 추천 모델로 사진 리뷰 가능");
+n += 4;
+
 console.log(`engine restore ok: ${n} cases`);
