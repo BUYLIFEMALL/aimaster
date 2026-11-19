@@ -421,3 +421,5 @@ WS-RELEASE-RECORD-SYNC 점유 해제 CC-WORKSPACE-01: docs/PENDING_DEPLOYS.md �
 WS-RELEASE-RECORD-SYNC A2 CC-WORKSPACE-01: Master msg_d53c944d1c12. docs/PENDING_DEPLOYS.md 내보낸 기록에 ai-work-workspace v1.52~v1.57 줄만 추가(배포 ID 근거가 저장소에 있는 버전). v1.58은 배포 ID 근거가 없어 추가하지 않음. 다른 프로그램 줄·HANDOFF·비교표 편집 없음, 운영 조회·빌드·배포·push 없음.
 
 WS-RELEASE-RECORD-SYNC A2 점유 해제 CC-WORKSPACE-01: docs/PENDING_DEPLOYS.md 워크스페이스 v1.52~v1.57 여섯 줄 62662217d. 미반영: v1.58(배포 ID 기록 없음, Master 회신).
+
+WS-RELEASE-RECORD-SYNC A3 CC-WORKSPACE-01: Master msg_d1ffca87f700. v1.58 배포 기록 마무리 — docs/PENDING_DEPLOYS.md 내보낸 기록에 ai-work-workspace v1.58 한 줄, ai-work-workspace/AGENTS.md 4절 v1.58 줄 끝 문구 한 곳. 근거 .ai/results/QA-20261118-049-CX-QA-01.md·MASTER_DEVELOPMENT_PLAN_20261116.csv(9ea979de9 = dpl_8GoargZugPSSqT5atpJ5PZqWbDyd). 다른 줄 편집 없음, Vercel 조회·빌드·배포·push 없음.
