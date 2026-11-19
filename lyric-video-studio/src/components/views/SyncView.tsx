@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useStudio } from "@/components/studio/StudioContext";
 import { StudioBar, Transport, usePlayhead } from "@/components/studio/parts";
 import { Waveform } from "@/components/studio/Waveform";
+import { tryPlay } from "@/lib/playback";
 import { useConfirm } from "@/components/ui/Confirm";
 import { clearFrom, endLine, formatTime, isSynced, lineAt, newId, parseTime, shiftAll, stampLine, timeline, toSrt, type LyricLine } from "@/lib/lyrics";
 
@@ -46,7 +47,7 @@ export function SyncView() {
     if (!s.player || !s.audio) return;
     if (s.lines.some(isSynced) && !(await ask("맞춰 둔 시간을 모두 지우고 처음부터 다시 맞출까요?", { ok: "처음부터", danger: true }))) return;
     s.setLines((prev) => clearFrom(prev, 0)); setCursor(0);
-    s.player.currentTime = 0; s.player.play().catch(() => undefined);
+    s.player.currentTime = 0; void tryPlay(s.player);
   }
 
   // 스페이스바 = 지금 줄 시작, 엔터 = 지금 줄 끝, 백스페이스 = 한 줄 되돌리기 (글자 입력 칸에서는 동작하지 않음)
@@ -86,7 +87,7 @@ export function SyncView() {
   };
   const insertAfter = (i: number) => s.setLines((prev) => [...prev.slice(0, i + 1), { id: newId(), start: -1, end: -1, text: "새 줄" }, ...prev.slice(i + 1)]);
   const remove = (i: number) => { s.setLines((prev) => prev.filter((_, k) => k !== i)); if (cursor > i) setCursor((c) => c - 1); };
-  const seekTo = (l: LyricLine) => { if (s.player && isSynced(l)) { s.player.currentTime = Math.max(0, l.start - 0.5); s.player.play().catch(() => undefined); } };
+  const seekTo = (l: LyricLine) => { if (s.player && isSynced(l)) { s.player.currentTime = Math.max(0, l.start - 0.5); void tryPlay(s.player); } };
   function downloadSrt() {
     const blob = new Blob([toSrt(s.lines)], { type: "text/plain;charset=utf-8" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${s.title || "lyrics"}.srt`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);

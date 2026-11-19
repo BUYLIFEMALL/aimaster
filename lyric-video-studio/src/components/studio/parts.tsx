@@ -7,6 +7,7 @@ import { sizeFor } from "@/lib/design";
 import { formatTime } from "@/lib/lyrics";
 import { toMsg, type Msg } from "@/components/ui/api";
 import { Message } from "@/components/ui/Message";
+import { PLAY_FAIL_EVENT, tryPlay } from "@/lib/playback";
 
 /** 재생 위치를 매 화면마다 읽어 온다(재생 중일 때만 빠르게) */
 export function usePlayhead() {
@@ -26,18 +27,36 @@ export function usePlayhead() {
   return { t, playing };
 }
 
+/** 재생 실패 안내(L5) — 실패 사건이 오면 띄우고, 재생에 성공하거나 음악 파일이 바뀌면 지운다 */
+function usePlayFailNotice(player: HTMLAudioElement | null | undefined) {
+  const [notice, setNotice] = useState<string | null>(null);
+  useEffect(() => {
+    setNotice(null);
+    if (!player) return;
+    const fail = (e: Event) => setNotice((e as CustomEvent<string>).detail || null);
+    const clear = () => setNotice(null);
+    player.addEventListener(PLAY_FAIL_EVENT, fail); player.addEventListener("playing", clear); player.addEventListener("emptied", clear);
+    return () => { player.removeEventListener(PLAY_FAIL_EVENT, fail); player.removeEventListener("playing", clear); player.removeEventListener("emptied", clear); };
+  }, [player]);
+  return notice;
+}
+
 export function Transport() {
   const { player, audio } = useStudio();
   const { t, playing } = usePlayhead();
+  const notice = usePlayFailNotice(player);
   const dur = audio?.buffer.duration ?? 0;
   if (!audio || !player) return <p className="muted" style={{ fontSize: 12 }}>음악 파일을 넣으면 재생할 수 있습니다.</p>;
   return (
+    <>
     <div className="player">
       <button type="button" aria-label="처음으로" onClick={() => { player.currentTime = 0; }}><SkipBack size={15} /></button>
-      <button type="button" className="primary" aria-label={playing ? "일시정지" : "재생"} onClick={() => (playing ? player.pause() : player.play().catch(() => undefined))}>{playing ? <Pause size={15} /> : <Play size={15} />}</button>
+      <button type="button" className="primary" aria-label={playing ? "일시정지" : "재생"} onClick={() => (playing ? player.pause() : void tryPlay(player))}>{playing ? <Pause size={15} /> : <Play size={15} />}</button>
       <input type="range" min={0} max={dur || 1} step={0.05} value={Math.min(t, dur)} aria-label="재생 위치" onChange={(e) => { player.currentTime = Number(e.target.value); }} />
       <span className="mono">{formatTime(t)} / {formatTime(dur, false)}</span>
     </div>
+    {notice && <div className="notice warning" role="status">⚠️ {notice}</div>}
+    </>
   );
 }
 

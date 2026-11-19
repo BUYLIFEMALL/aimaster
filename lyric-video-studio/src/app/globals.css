@@ -82,6 +82,7 @@ h1,h2,h3,p{margin:0}h1{font-size:25px;line-height:1.35;font-weight:750;letter-sp
 .diagram .node .emoji{font-size:28px}.diagram .node:not(:last-child)::after{content:"➔";position:absolute;right:-13px;top:50%;transform:translateY(-50%);color:var(--brand);font-weight:800}
 
 @media(max-width:1100px){.grid2,.grid-side{grid-template-columns:1fr}.workspace-content{padding:24px 22px}.field-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.mobile-pc-notice{display:none;margin:0 0 12px;padding:10px 12px;border-radius:12px;border:1px solid color-mix(in srgb,var(--warn) 35%,transparent);background:var(--warn-soft);font-size:12px;line-height:1.5}
 @media(max-width:767px){
   .app-shell{display:block}.desktop-sidebar{display:none}
   .mobile-sidebar{display:block;position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
@@ -90,6 +91,7 @@ h1,h2,h3,p{margin:0}h1{font-size:25px;line-height:1.35;font-weight:750;letter-sp
   .workspace-content{padding:18px 14px}.hero{padding:20px;flex-direction:column;align-items:flex-start}.hero-icon{display:none}.hero h1,.page-heading h1{font-size:21px}
   .card{padding:16px}.field-grid,.stat-grid,.diagram{grid-template-columns:1fr}.diagram .node:not(:last-child)::after{content:"⬇";right:50%;top:auto;bottom:-14px;transform:translateX(50%)}
   .notice{overflow-wrap:anywhere}button,.button{min-height:40px}
+  .mobile-pc-notice{display:block}
 }
 
 /* ── 장면 편집(크리에이티브 아틀리에) ── */
