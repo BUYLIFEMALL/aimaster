@@ -11,6 +11,7 @@ import { SendAdForm, type Candidate } from "@/components/desk/SendAdForm";
 import { PageHero } from "@/components/ui/PageHero";
 import { resolveAddressRegion, toTradeHint, type TradeHint, type TradeRow } from "@/lib/desk/tradeHint";
 import { DISTRICTS } from "@/lib/desk/districts";
+import { OPTOUT_PLACEHOLDER } from "@/lib/desk/smsBytes";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -82,7 +83,7 @@ export default async function ListingMatchPage({ params }: { params: Promise<{ i
           listingId={listing.id}
           draft={draftBody(listing)}
           header={adHeader(o)}
-          footer={adFooter(o, "https://realty-client-desk.buylife.xyz/u/(고객마다 다름)")}
+          footer={adFooter(o, `https://realty-client-desk.buylife.xyz/u/${OPTOUT_PLACEHOLDER}`)}
           candidates={candidates}
           night={isNightKst()}
           ready={ready}
