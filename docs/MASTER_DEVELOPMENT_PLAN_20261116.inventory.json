@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-19T00:32:49.589Z",
+  "checkedAt": "2026-11-19T00:35:11.856Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "monitoring": {
     "policyVersion": "2.0",
@@ -9985,11 +9985,11 @@
       "reviewer": "CX-MASTER-01",
       "title": "메이커 M3 제안 적용·서버 바이트 검증 설계",
       "status": "reviewing",
-      "delivery": "data_layer_returned_independent_review_and_canonical_url_fix_dispatched",
+      "delivery": "independent_review_found_signature_and_lock_fixes_dispatched",
       "sha": "1c7b50762",
-      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1·msg_09c13f44d34f·8be47a12f·msg_2639b1f89d07·msg_f4130843a9ef·320a5909a·msg_f714f535ba3b·msg_8a99ab301d34·msg_64cd4fd01392·2d4dd53d0·msg_617ae29305b4·a23ffa1f3·msg_8c842614e79b·1c7b50762·msg_513a7e7b6ebc·msg_371737216f81",
-      "next": "로컬 격리 29/29·전체 543/543. Mac 독립 검수 및 최종 이미지 주소의 출처 검증 보완 배정. 실제 키·업로드·Lab·배포 미착수.",
-      "lastReviewedAt": "2026-11-19T00:32:49.589Z"
+      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1·msg_09c13f44d34f·8be47a12f·msg_2639b1f89d07·msg_f4130843a9ef·320a5909a·msg_f714f535ba3b·msg_8a99ab301d34·msg_64cd4fd01392·2d4dd53d0·msg_617ae29305b4·a23ffa1f3·msg_8c842614e79b·1c7b50762·msg_513a7e7b6ebc·msg_371737216f81·msg_6ceff50f19aa·msg_d0efc0d596af",
+      "next": "Mac 순수 6/6. NULL 서명 차단, URL 출처, 잠금 순서, 되돌리기 후 보조사진 보존, 완료 권한·만료 보완 배정. 배포 없음.",
+      "lastReviewedAt": "2026-11-19T00:35:11.856Z"
     }
   ]
 }
