@@ -39,13 +39,20 @@ let fetchImpl: (url: string) => Promise<Response> = (url) => fetch(url);
  * · 주소 유효 시간 2시간: 설치된 @supabase/storage-js 2.117.3 `createSignedUploadUrl` 설명 「They are valid for 2 hours.」
  * · 진행 중 요청 여유 1시간: **가정**. 유효 시간이 끝나기 직전에 시작된 올리기가 얼마나 오래 걸릴 수 있는지는 보장된 값을
  *   확인하지 못했다(파일당 50MiB 이하 기준으로 넉넉히 잡은 값). 이 가정이 깨지면 그 뒤에 도착한 파일은 남을 수 있다.
+ * 기준 시각과 판단 시점(2026-11-19 Master msg_c866fe16a1d9):
+ * · 기준 시각은 줄의 created_time이고, 주소를 **다 만든 뒤** 그 시각으로 다시 적은 다음에야 주소를 돌려준다(import-sign·import-pages).
+ *   주소의 유효 시간은 Storage가 주소를 만든 순간부터이므로, 그보다 늦은 시각을 기준으로 삼으면 여유가 줄지 않는다.
+ * · 「지났는가」는 Storage 확인(삭제·목록 조회)을 **시작하기 전** 시각으로 정한다. 확인이 오래 걸려 그사이 3시간을 넘겨도,
+ *   그 확인은 3시간 전의 관측일 수 있으므로(관측 뒤에 올리기가 끝났을 수 있다) 줄을 지우지 않고 다음 회차로 넘긴다.
+ * 적용 범위: 큰 ZIP 가져오기 작업의 파일(import_job_id 있음)만. 일반 올리기의 대기 줄은 예전처럼 하루 기준이다.
+ * 보장하지 않는 것: 서버와 Storage의 시계 차이, 3시간 뒤에도 끝나지 않은 올리기.
  */
 export const SIGNED_UPLOAD_VALID_MS = 2 * 3_600_000;
 export const UPLOAD_IN_FLIGHT_MARGIN_MS = 3_600_000;
 export const IMPORT_UPLOAD_GRACE_MS = SIGNED_UPLOAD_VALID_MS + UPLOAD_IN_FLIGHT_MARGIN_MS;
 let uploadGraceMs = IMPORT_UPLOAD_GRACE_MS;
-/** 주소를 내준 지 충분히 지나 더는 올리기가 도착하지 않는 줄인가 */
-const pastUploadGrace = (createdTime: unknown, now = Date.now()) => Number(createdTime) <= now - uploadGraceMs;
+/** 주소를 내준 지 충분히 지나 더는 올리기가 도착하지 않는 줄인가 — `at`은 Storage 확인을 시작하기 전에 잰 시각이어야 한다 */
+const pastUploadGrace = (createdTime: unknown, at: number) => Number(createdTime) <= at - uploadGraceMs;
 /** 시험에서 바꿔 끼움 */
 export function setFileStorageForTests(o: { store?: () => Store; quota?: typeof quotaImpl; fetch?: typeof fetchImpl; uploadGraceMs?: number }) {
   if (o.store) storeImpl = o.store;
@@ -268,12 +275,14 @@ async function removeJobFiles(jobId: string, userId: string, keep: Set<string> =
   const rows = withRequestCache(() => db.prepare("SELECT id, storage_path, created_time FROM files WHERE import_job_id = ? AND user_id = ?").all(jobId, userId) as { id: string; storage_path: string | null; created_time: number }[])
     .filter((r) => !keep.has(r.id));
   let removed = 0;
+  // 지워도 되는 줄인지는 Storage 확인을 시작하기 **전** 시각으로 정해 둔다(확인이 끝난 뒤의 시각으로 판단하지 않는다)
+  const startedAt = Date.now();
+  const droppable = new Set(rows.filter((r) => pastUploadGrace(r.created_time, startedAt)).map((r) => r.id));
   const gone = await removeConfirmed(rows.map((r) => r.storage_path ?? ""));
-  const now = Date.now();
   withRequestCache(() => {
     for (const r of rows) {
       if (r.storage_path && !gone.has(r.storage_path)) continue;
-      if (!pastUploadGrace(r.created_time, now)) continue; // 그 주소로 올리기가 아직 도착할 수 있다 — 줄(경로 표식)을 남긴다
+      if (!droppable.has(r.id)) continue; // 그 주소로 올리기가 아직 도착할 수 있다 — 줄(경로 표식)을 남긴다
       db.prepare("DELETE FROM files WHERE id = ? AND import_job_id = ? AND user_id = ?").run(r.id, jobId, userId);
       removed++;
     }
@@ -302,6 +311,24 @@ async function sweepDoneJob(jobId: string, userId: string, result: string | null
   const left = withRequestCache(() => db.prepare("SELECT id FROM files WHERE import_job_id = ? AND user_id = ?").all(jobId, userId) as { id: string }[]).filter((f) => !used.has(f.id)).length;
   if (!left) withRequestCache(() => db.prepare("UPDATE import_jobs SET state = 'closed' WHERE id = ? AND user_id = ? AND state = 'done'").run(jobId, userId));
   return removed;
+}
+
+/**
+ * 방금 주소를 만든 파일 줄의 기준 시각(created_time)을 **주소를 다 만든 뒤의 지금**으로 적는다.
+ * 실패하면 false — 부르는 쪽은 주소를 돌려주지 않는다(돌려주지 않은 주소는 쓰일 수 없으므로 예전 기준 시각으로도 안전하다).
+ */
+function stampIssued(jobId: string, userId: string, ids: string[]): boolean {
+  try {
+    const at = Date.now();
+    return withRequestCache(() => {
+      const st = db.prepare("UPDATE files SET created_time = ? WHERE id = ? AND import_job_id = ? AND user_id = ? AND pending = 1");
+      let n = 0;
+      for (const id of ids) n += st.run(at, id, jobId, userId).changes;
+      return n === ids.length;
+    });
+  } catch {
+    return false;
+  }
 }
 
 export async function importJobStep(member: Member, q: Record<string, unknown>): Promise<Res> {
@@ -407,6 +434,8 @@ export async function importJobStep(member: Member, q: Record<string, unknown>):
       if (error || !data?.signedUrl) return bad(502, "올리기 주소를 받지 못했습니다. 잠시 후 다시 시도해 주세요.");
       out.push({ id: m.id, uploadUrl: data.signedUrl });
     }
+    // 주소를 다 만든 지금 시각을 줄의 기준 시각으로 다시 적은 뒤에야 주소를 돌려준다(주소를 만드느라 기다린 시간이 여유를 깎지 않게)
+    if (!stampIssued(job.id, userId, made.map((m) => m.id))) return bad(502, "올리기 주소를 받지 못했습니다. 잠시 후 다시 시도해 주세요.");
     return { status: 200, body: { items: out } };
   }
 
@@ -429,6 +458,7 @@ export async function importJobStep(member: Member, q: Record<string, unknown>):
     if (!ok) return bad(409, "이 가져오기의 글 묶음은 이미 올렸거나 처음에 알린 크기를 넘습니다.");
     const { data, error } = await storeImpl().from(WORKSPACE_BUCKET).createSignedUploadUrl(path);
     if (error || !data?.signedUrl) return bad(502, "올리기 주소를 받지 못했습니다. 잠시 후 다시 시도해 주세요.");
+    if (!stampIssued(job.id, userId, [id])) return bad(502, "올리기 주소를 받지 못했습니다. 잠시 후 다시 시도해 주세요.");
     return { status: 200, body: { id, uploadUrl: data.signedUrl } };
   }
 
@@ -461,7 +491,8 @@ export async function importJobStep(member: Member, q: Record<string, unknown>):
       if (!(size > 0) || size > Number(row.size) || size > MAX_LARGE_FILE_BYTES) {
         // Storage에서 지워진 것이 확인됐을 때만 줄을 지운다. 실패하면 대기 줄로 남아 작업 정리(취소·마무리·만료)가 다시 지운다
         // 그 주소로 다시 올라올 수 있는 동안에는 줄을 남긴다(대기 줄이라 가져오기에는 쓰이지 않고, 작업 정리가 지운다)
-        if ((await removeConfirmed([row.storage_path])).has(row.storage_path) && pastUploadGrace(row.created_time)) {
+        const droppable = pastUploadGrace(row.created_time, Date.now()); // 삭제를 시작하기 전 시각으로 정한다
+        if ((await removeConfirmed([row.storage_path])).has(row.storage_path) && droppable) {
           withRequestCache(() => db.prepare("DELETE FROM files WHERE id = ? AND import_job_id = ? AND user_id = ? AND pending = 1").run(row.id, job.id, userId));
         }
         failed.push(id);

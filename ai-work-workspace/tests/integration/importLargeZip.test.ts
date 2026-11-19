@@ -2,7 +2,7 @@
 // 브라우저용 코드(web/features/import/zipReader.ts·largeZipImport.ts)를 그대로 불러 서버 함수에 연결해 확인한다.
 // · 통째로 올린 것과 결과가 같다(§12-6)  · 「이 작업에서 이 회원이 올린 그림」만 쓰이고 지워진다(§9·§10)  · 한도(§11)
 // 가짜 Storage(실제 업로드 없음), 로컬 Postgres 전용 fixture만 쓴다.
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import postgres from 'postgres';
 import { setupLocalDb } from '../setup-local-db.mjs';
 import { ZIP_IMPORT_LIMITS } from '../../src/litpage/shared/zipPath.ts';
@@ -27,7 +27,7 @@ const sp = (m: M) => spaces.get(m.id)!;
 const objects = new Map<string, Buffer>();
 const removedPaths: string[] = [];
 const signedPaths: string[] = []; // 올리기 주소를 내준 경로(순서대로)
-const sw: { quotaFull: boolean; removeFails: boolean; listFails: boolean; putFails: boolean; onSign: null | ((path: string) => Promise<void>); onRemove: null | ((paths: string[]) => Promise<void>) } = { quotaFull: false, removeFails: false, listFails: false, putFails: false, onSign: null, onRemove: null };
+const sw: { quotaFull: boolean; removeFails: boolean; listFails: boolean; putFails: boolean; onSign: null | ((path: string) => Promise<void>); afterList: null | (() => void); afterRemove: null | ((paths: string[]) => void); onRemove: null | ((paths: string[]) => Promise<void>) } = { quotaFull: false, removeFails: false, listFails: false, putFails: false, onSign: null, afterList: null, afterRemove: null, onRemove: null };
 const fakeStore = () => ({
   getBucket: async () => ({ data: { id: 'workspace-files' }, error: null }),
   createBucket: async () => ({ data: null, error: null }),
@@ -42,9 +42,17 @@ const fakeStore = () => ({
       signedPaths.push(path);
       return { data: { signedUrl: `https://store.test/upload/${path}`, token: 't', path }, error: null };
     },
-    list: async (dir: string, o: { search: string }) => (sw.listFails
-      ? { data: null, error: { message: 'storage down' } }
-      : { data: [...objects.entries()].filter(([p]) => p === `${dir}/${o.search}`).map(([p, b]) => ({ name: p.split('/').pop(), metadata: { size: b.length } })), error: null }),
+    list: async (dir: string, o: { search: string }) => {
+      if (sw.listFails) return { data: null, error: { message: 'storage down' } };
+      const seen = { data: [...objects.entries()].filter(([p]) => p === `${dir}/${o.search}`).map(([p, b]) => ({ name: p.split('/').pop(), metadata: { size: b.length } })), error: null };
+      // 관측(목록 조회)은 끝났고 응답이 돌아가기 전에 일어나는 일(한 번만) — 예: 그 직후 올리기가 끝남, 시간이 흐름
+      if (sw.afterList) {
+        const run = sw.afterList;
+        sw.afterList = null;
+        run();
+      }
+      return seen;
+    },
     createSignedUrl: async (path: string) => ({ data: { signedUrl: `https://store.test/get/${path}` }, error: null }),
     remove: async (paths: string[]) => {
       // Storage 삭제를 기다리는 사이에 끼워 넣을 일(한 번만)
@@ -58,6 +66,12 @@ const fakeStore = () => ({
       const had = paths.filter((p) => objects.has(p));
       for (const p of had) objects.delete(p);
       removedPaths.push(...had);
+      // 삭제는 끝났고 응답이 돌아가기 전에 일어나는 일(한 번만)
+      if (sw.afterRemove) {
+        const run = sw.afterRemove;
+        sw.afterRemove = null;
+        run(had);
+      }
       return { data: had.map((name) => ({ name })), error: null };
     },
   }),
@@ -91,7 +105,7 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
-  Object.assign(sw, { quotaFull: false, removeFails: false, listFails: false, putFails: false, onSign: null, onRemove: null });
+  Object.assign(sw, { quotaFull: false, removeFails: false, listFails: false, putFails: false, onSign: null, afterList: null, afterRemove: null, onRemove: null });
   signedPaths.length = 0;
   removedPaths.length = 0;
   for (const m of [ann, bob]) for (const k of [`import-job:user:${m.id}`, `import:${m.id}`, `import-stored:${m.id}`, `upload-large:user:${m.id}`]) ratelimit.reset(k);
@@ -1304,6 +1318,113 @@ describe('취소 뒤 늦게 도착한 올리기 — 올리기 주소가 살아 �
       await other.end();
     }
   }, 60_000);
+
+  // 2026-11-19 Mac 재검수 반례(Master msg_c866fe16a1d9): 3시간 경계에서의 판단 시점과 기준 시각
+  describe('3시간 경계', () => {
+    let skew = 0; // 시험이 앞당기는 시간(ms)
+    const realNow = Date.now.bind(Date);
+    beforeEach(() => {
+      skew = 0;
+      vi.spyOn(Date, 'now').mockImplementation(() => realNow() + skew);
+    });
+    afterEach(() => vi.restoreAllMocks());
+    const JUST_BEFORE = () => 3 * HOUR - 1000; // 3시간이 되기 1초 전
+
+    it('3시간 직전에 「없음」을 본 뒤 올리기가 끝나고 응답이 3시간 뒤에 돌아오면 줄을 남긴다 → 다음 회차에 지운다', async () => {
+      const b = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 1, bytes: 100 });
+      const jobId = String(b.body.jobId);
+      const s1 = await step(ann, { step: 'import-sign', jobId, items: [{ name: 'edge.png', size: 12 }] });
+      const path = pathOf((s1.body.items as { uploadUrl: string }[])[0].uploadUrl);
+      await step(ann, { step: 'import-cancel', jobId });
+      ageFiles(jobId, JUST_BEFORE());
+      // 정리가 「없음」을 관측한 직후: 그 주소로 올리기가 끝나고(아직 3시간 전), 느린 응답은 3시간을 넘겨 돌아온다
+      sw.afterList = () => {
+        objects.set(path, PNG(110));
+        skew += 5000;
+      };
+      expect(await fs_.cleanupPendingUploads()).toBe(0);
+      expect(jobAll(jobId).map((f) => f.name)).toEqual(['edge.png']); // 관측이 3시간 전의 것이므로 줄을 지우지 않는다
+      expect(objects.has(path)).toBe(true);
+      expect(newOrphans()).toEqual([]);
+      // 다음 회차: 시작할 때 이미 3시간이 지났다 → 올라온 파일을 지우고 줄도 정리한다
+      // (cleanupPendingUploads가 돌려주는 수는 일반 대기 파일 건수라 여기서는 상태로 확인한다)
+      await fs_.cleanupPendingUploads();
+      expect(objects.has(path)).toBe(false);
+      expect(jobAll(jobId)).toHaveLength(0);
+      expect(newOrphans()).toEqual([]);
+    });
+
+    it('3시간 직전에 지운 것이 확인된 파일도, 응답이 3시간 뒤에 돌아오면 줄을 남긴다(같은 주소로 다시 올라왔을 수 있다)', async () => {
+      const j = await rawJob(ann, [{ name: 'edge2.png', data: PNG(111) }], { pages: null });
+      const path = jobAll(j.jobId)[0].storage_path;
+      await step(ann, { step: 'import-cancel', jobId: j.jobId }); // 객체는 지금 지워지고 줄은 남는다
+      objects.set(path, PNG(112)); // 다시 올라옴
+      ageFiles(j.jobId, JUST_BEFORE());
+      sw.afterRemove = () => {
+        objects.set(path, PNG(113)); // 지운 직후 같은 주소로 또 올라오고
+        skew += 5000; // 응답은 3시간을 넘겨 돌아온다
+      };
+      expect(await fs_.cleanupPendingUploads()).toBe(0);
+      expect(jobAll(j.jobId)).toHaveLength(1);
+      expect(objects.has(path)).toBe(true);
+      expect(newOrphans()).toEqual([]);
+      await fs_.cleanupPendingUploads();
+      expect(objects.has(path)).toBe(false);
+      expect(jobAll(j.jobId)).toHaveLength(0);
+    });
+
+    it('크기 초과 삭제도 같다: 삭제를 시작할 때 3시간 전이었으면 응답이 늦어도 줄을 남긴다', async () => {
+      const b = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 1, bytes: 100 });
+      const jobId = String(b.body.jobId);
+      const s1 = await step(ann, { step: 'import-sign', jobId, items: [{ name: 'edge3.png', size: 12 }] });
+      const it0 = (s1.body.items as { id: string; uploadUrl: string }[])[0];
+      const path = pathOf(it0.uploadUrl);
+      objects.set(path, Buffer.alloc(500, 3)); // 알린 크기보다 큼
+      ageFiles(jobId, JUST_BEFORE());
+      sw.afterRemove = () => {
+        objects.set(path, PNG(114));
+        skew += 5000;
+      };
+      expect((await step(ann, { step: 'import-done', jobId, ids: [it0.id] })).body).toEqual({ done: [], failed: [it0.id] });
+      expect(jobAll(jobId).map((f) => `${f.name}:${Number(f.pending)}`)).toEqual(['edge3.png:1']);
+      expect(objects.has(path)).toBe(true);
+      expect(newOrphans()).toEqual([]);
+      // 줄이 남아 있으므로 다시 올라온 파일(이번에는 알린 크기 이하)을 그대로 이어서 다룰 수 있다
+      expect((await step(ann, { step: 'import-done', jobId, ids: [it0.id] })).body).toEqual({ done: [it0.id], failed: [] });
+      expect(newOrphans()).toEqual([]);
+      await step(ann, { step: 'import-cancel', jobId });
+      await fs_.cleanupPendingUploads();
+      expect(objects.has(path)).toBe(false);
+      expect(jobAll(jobId)).toHaveLength(0);
+    });
+
+    it('기준 시각은 주소를 다 만든 뒤의 시각이다(주소를 만드느라 기다린 시간이 여유를 깎지 않는다)', async () => {
+      const b = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 2, bytes: 5000 });
+      const jobId = String(b.body.jobId);
+      const t0 = Date.now();
+      const WAIT = 10 * 60_000;
+      sw.onSign = async () => { skew += WAIT; }; // Storage가 주소를 만드는 데 10분 걸렸다고 치자
+      const s1 = await step(ann, { step: 'import-sign', jobId, items: [{ name: 'slow-sign.png', size: 12 }] });
+      expect(s1.status).toBe(200);
+      const created = (id: string) => Number(q<{ created_time: number }>('SELECT created_time FROM files WHERE id = ?', id)[0].created_time);
+      const imageId = (s1.body.items as { id: string }[])[0].id;
+      expect(created(imageId)).toBeGreaterThanOrEqual(t0 + WAIT); // 줄을 만든 시각(t0 무렵)이 아니라 주소를 다 만든 뒤
+      const t1 = Date.now();
+      sw.onSign = async () => { skew += WAIT; };
+      const pg = await step(ann, { step: 'import-pages', jobId, name: 'p.zip', size: 100 });
+      expect(pg.status).toBe(200);
+      expect(created(String(pg.body.id))).toBeGreaterThanOrEqual(t1 + WAIT);
+      // 그래서 「주소를 만든 뒤 3시간」이 지나기 전에는 지워지지 않는다: 줄을 만든 시각 기준으로는 3시간이 지났어도
+      await step(ann, { step: 'import-cancel', jobId });
+      skew += 3 * HOUR - WAIT - 60_000; // 맨 처음(t0)부터는 3시간 9분, 그림 주소를 만든 뒤로는 2시간 59분, 글 묶음 주소 뒤로는 2시간 49분
+      expect(Date.now() - t0).toBeGreaterThan(3 * HOUR);
+      await fs_.cleanupPendingUploads();
+      expect(jobAll(jobId).map((f) => f.name).sort()).toEqual(['p.zip', 'slow-sign.png']);
+      skew += WAIT + 2 * 60_000; // 이제 둘 다 3시간이 지났다
+      await fs_.cleanupPendingUploads();
+      expect(jobAll(jobId)).toHaveLength(0);
+    });
+  });
 
   it('회귀: 일반 대기 파일(작업 밖)은 예전처럼 하루 기준이고 이 여유 시간과 무관하다', async () => {
     const signed = await fs_.signLargeUpload(ann, { name: 'plain.bin', type: 'application/octet-stream', size: 5 * MB, spaceId: sp(ann) });
