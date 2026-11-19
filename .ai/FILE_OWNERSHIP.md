@@ -357,3 +357,5 @@ IMG-20261119-P0 추가 CC-ECOM-01: 주인님 「마스터 PC에서도 테스트 
 IMG-20261119-P1-PROPOSAL CC-ECOM-01: Master msg_7f3e70cc5834. 새 문서 docs/analysis-free-image-automation-20261119/P1_PROPOSAL.md 만 작성(P0 종합·P1 제안). free-music-studio/engine·ai-image-studio 읽기만, 코드 구현·엔진 변경·설치·실기·배포 0.
 
 IMG-20261119-PASS CC-ECOM-01: 주인님 「그렇게 진행하고 테스트는 admin pc쪽으로 요청해」. docs/analysis-free-image-automation-20261119/p0/prompts-v2.json(새 파일)·p0/p0.mjs(--prompts 옵션)·P1_PROPOSAL.md 8절. 실행은 Admin PC, 저장소 밖 산출물.
+
+IMG-20261119-P1-PRA CC-ECOM-01: 주인님 담당 변경 msg_f7a7a5d44dd0, 음악 작업 종료 및 인계 63307bdba/msg_8ebe37a39e59, 5파일 현재 diff SHA-256 9c153d77… 검증. free-music-studio/engine/src/{queue,gateway,security,imageArt,main}.mjs 및 국소 engine/tests P1 모의 검증만 ECOM 단독 편집. 음악 담당 기존 호환 읽기, MacMini 독립 검수. 기존 아이콘·공용 인덱스·운영 출처·설치판·빌드·배포 변경 없음.
