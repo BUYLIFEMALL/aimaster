@@ -10124,12 +10124,13 @@
       "task_id": "WS-20261119-02",
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace ZIP 50MB 안내와 대용량 가져오기 설계",
-      "status": "waiting_human",
-      "delivery": "decisions_six_to_eight_approved_one_to_five_pending",
+      "status": "running",
+      "delivery": "all_eight_recommendations_approved_local_implementation_started",
       "sha": "be06a1541",
-      "next": "최신 정정으로 결정 6~8만 승인. 결정 1~5의 사용자 답변 전 제품 코드를 쓰지 않음. 점유 확장 429f5b813, 50MB 문구 미배포.",
-      "lastReviewedAt": "2026-11-19T05:04:40.877Z",
-      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813"
+      "next": "결정 1~8 권장안 확정. §12 작은 ZIP 동작 고정 시험부터 전용 fixture 로컬 구현 착수. 운영 SQL·빌드·배포·푸시 없음.",
+      "lastReviewedAt": "2026-11-19T06:49:00.834Z",
+      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85",
+      "reviewer": "CX-QA-01"
     },
     {
       "task_id": "MUSIC-20261119-IMG-COMPAT",
