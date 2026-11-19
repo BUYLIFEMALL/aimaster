@@ -1,6 +1,6 @@
 # 플랜 — 50MB 넘는 ZIP 가져오기 (2026-11-19)
 
-- 상태: **로컬 구현·독립 검수 수락, 미배포**(2026-11-19~20, 고정판 `809f52f7e` — Master `msg_f2e689100f9b`, Mac 독립 검수 통과). 주인님 결정 1~8 권장안 확정(채팅 「진행해」·「1~5 권장안대로」). 운영에는 아무것도 나가지 않았다(빌드·배포·운영 SQL 0). 구현 중 발견·보완은 14절. **검증하지 못한 것**: 실제 브라우저 화면 전체 동작, 실제 Storage로의 올리기·삭제·주소 유효 시간, 운영 환경, 100MB대 실제 노션 ZIP, 14-7 경합의 별도 DB 연결 실행(한 프로세스 삽입으로만 재현). 배포 때 서버가 만드는 DB 변경: 표 `import_jobs`, 색인 `import_jobs_user`·`import_jobs_one_open`(부분 고유)·`files_import_job`, 열 `files.import_job_id`·`import_jobs.pages_file_id`.
+- 상태: **v1.62로 운영 배포됨**(2026-11-19 18:29 KST `dpl_7jQpBZotPMrMxbYT7XzSCfXBHbqT`, 표·열·색인 생성 확인, 실제 가져오기와 로그인 뒤 화면은 미확인 — 상세 `docs/IMPROVEMENTS.md`). 배포 전 상태: 로컬 구현·독립 검수 수락(2026-11-19~20, 고정판 `809f52f7e` — Master `msg_f2e689100f9b`, Mac 독립 검수 통과). 주인님 결정 1~8 권장안 확정(채팅 「진행해」·「1~5 권장안대로」). 운영에는 아무것도 나가지 않았다(빌드·배포·운영 SQL 0). 구현 중 발견·보완은 14절. **검증하지 못한 것**: 실제 브라우저 화면 전체 동작, 실제 Storage로의 올리기·삭제·주소 유효 시간, 운영 환경, 100MB대 실제 노션 ZIP, 14-7 경합의 별도 DB 연결 실행(한 프로세스 삽입으로만 재현). 배포 때 서버가 만드는 DB 변경: 표 `import_jobs`, 색인 `import_jobs_user`·`import_jobs_one_open`(부분 고유)·`files_import_job`, 열 `files.import_job_id`·`import_jobs.pages_file_id`.
 - 작업 번호: WS-20261119-02 · [역할: workspace] · 세션 `claude-win-20261025-workspace`
 - 계기: 주인님 「노션에서 페이지 내보내기한 파일을 가져왔는데 100메가가 넘어 어떻게 해야하지?」 → 「큰 ZIP 받게 플랜 세워」
 - 함께 한 작은 수정: 가져오기 화면의 잘못된 「ZIP 5GB」 안내를 실제 한도 50MB로 고침(`39ca388da`, 미배포 대기)
