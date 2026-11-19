@@ -56,13 +56,13 @@ begin
   h := mall_builder_private.apply_hmac(coalesce(p_sigkid, p_kid), mall_builder_private.apply_upload_msg(p_kid, s.store_id, s.product_id, s.proposal_id, s.id, p_uid, s.role, p_sha));
   return s.store_id::text || '/' || s.id::text || '.' || p_kid || '.' || p_sha || '.' || left(coalesce(h, repeat('0', 32)), 32) || '.jpg';
 end $$;
-create function public.qa_fsig(p_apply uuid, p_kid text, p_sha text, p_size bigint, p_exp bigint, p_uid uuid) returns text language plpgsql as $$
+create function public.qa_fsig(p_apply uuid, p_kid text, p_sha text, p_size bigint, p_exp bigint, p_uid uuid, p_url text) returns text language plpgsql as $$
 declare s public.mall_builder_photo_apply_slots%rowtype;
 begin
   select * into s from public.mall_builder_photo_apply_slots where id = p_apply;
-  return coalesce(mall_builder_private.apply_hmac(p_kid, mall_builder_private.apply_final_msg(p_kid, s.store_id, s.product_id, s.proposal_id, s.id, p_uid, s.role, p_sha, p_size, p_exp)), repeat('0', 64));
+  return coalesce(mall_builder_private.apply_hmac(p_kid, mall_builder_private.apply_final_msg(p_kid, s.store_id, s.product_id, s.proposal_id, s.id, p_uid, s.role, p_sha, p_size, p_exp, p_url)), repeat('0', 64));
 end $$;
-revoke all on function public.qa_name(uuid, text, text, uuid, text), public.qa_fsig(uuid, text, text, bigint, bigint, uuid) from public, anon, authenticated;
+revoke all on function public.qa_name(uuid, text, text, uuid, text), public.qa_fsig(uuid, text, text, bigint, bigint, uuid, text) from public, anon, authenticated;
 -- 저장소 흉내(회원 권한으로 실행 — 정책이 거름)
 create function public.qa_put(p_name text, p_size bigint, p_bucket text default 'mall-builder-applied') returns void language sql as $$
   insert into storage.objects (bucket_id, name, owner_id, metadata) values (p_bucket, p_name, auth.uid()::text,
@@ -79,6 +79,7 @@ declare
   S3 uuid := qa_id('S3'); A1 uuid := qa_id('A1'); U4 uuid := qa_id('U4');
   SHA text := repeat('a1', 32); SHA2 text := repeat('b2', 32);
   BASE text := 'https://qa.supabase.test/storage/v1/object/public/mall-builder-applied/';
+  OTHER text := 'https://evil.supabase.test/storage/v1/object/public/mall-builder-applied/';
   pa uuid; pb uuid; pc uuid; pd uuid; pe uuid; pm uuid;
   r jsonb; x uuid; xb uuid; xd uuid; xe uuid; nm text; nmb text; nmd text; nme text; ex bigint; ok boolean; n int; e text;
 begin
@@ -196,24 +197,29 @@ begin
   ex := extract(epoch from now())::bigint + 300;
   perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated;
   -- 서명 틀림 / 꺼진 kid / 크기 다름(서명은 그 크기로 맞게) / 만료 / 너무 먼 만료 / 주소 다름 / sha 형식 틀림
-  reset role; e := qa_fsig(x, 'k1', SHA, 4000, ex, S3); set role authenticated;
+  reset role; e := qa_fsig(x, 'k1', SHA, 4000, ex, S3, BASE || nm); set role authenticated;
   ok := mall_builder_photo_apply_commit(x, 'k1', SHA, 4000, ex, repeat('0', 64), BASE || nm) ->> 'reason' = 'bad_sig';
   ok := ok and mall_builder_photo_apply_commit(x, 'k0', SHA, 4000, ex, e, BASE || nm) ->> 'reason' = 'bad_sig';
   ok := ok and mall_builder_photo_apply_commit(x, 'k1', SHA, 4000, ex + 1, e, BASE || nm) ->> 'reason' = 'bad_sig';
   ok := ok and mall_builder_photo_apply_commit(x, 'k1', SHA, 4000, ex, e, 'https://evil.test/x.jpg') ->> 'reason' = 'invalid';
+  -- 같은 서명을 다른 출처·같은 경로로(정상 객체 주소 형식) → 서명에 출처가 묶여 bad_sig / 출처 대문자·끝 / 섞기 → invalid
+  ok := ok and mall_builder_photo_apply_commit(x, 'k1', SHA, 4000, ex, e, OTHER || nm) ->> 'reason' = 'bad_sig';
+  ok := ok and mall_builder_photo_apply_commit(x, 'k1', SHA, 4000, ex, e, replace(BASE, 'https://qa.', 'https://QA.') || nm) ->> 'reason' = 'invalid';
+  ok := ok and mall_builder_photo_apply_commit(x, 'k1', SHA, 4000, ex, e, replace(BASE, '.test/', '.test//') || nm) ->> 'reason' = 'invalid';
+  ok := ok and mall_builder_photo_apply_commit(x, 'k1', SHA, 4000, ex, e, 'http://' || substr(BASE, 9) || nm) ->> 'reason' = 'invalid';
   ok := ok and mall_builder_photo_apply_commit(x, 'k1', upper(SHA), 4000, ex, e, BASE || nm) ->> 'reason' = 'invalid';
   ok := ok and mall_builder_photo_apply_commit(x, 'k1', SHA, 4000, extract(epoch from now())::bigint - 1, e, BASE || nm) ->> 'reason' = 'invalid';
   ok := ok and mall_builder_photo_apply_commit(x, 'k1', SHA, 4000, extract(epoch from now())::bigint + 3600, e, BASE || nm) ->> 'reason' = 'invalid';
-  reset role; e := qa_fsig(x, 'k1', SHA, 3999, ex, S3); set role authenticated;
+  reset role; e := qa_fsig(x, 'k1', SHA, 3999, ex, S3, BASE || nm); set role authenticated;
   ok := ok and mall_builder_photo_apply_commit(x, 'k1', SHA, 3999, ex, e, BASE || nm) ->> 'reason' = 'no_file';
   -- 서명·주소는 맞지만 그 sha의 파일이 없음 → no_file
-  reset role; e := qa_fsig(x, 'k1', SHA2, 4000, ex, S3); nmb := qa_name(x, 'k1', SHA2, S3); set role authenticated;
+  reset role; nmb := qa_name(x, 'k1', SHA2, S3); e := qa_fsig(x, 'k1', SHA2, 4000, ex, S3, BASE || nmb); set role authenticated;
   ok := ok and mall_builder_photo_apply_commit(x, 'k1', SHA2, 4000, ex, e, BASE || nmb) ->> 'reason' = 'no_file';
   reset role;
   insert into qa_r values ('A12-U6', ok and (select images -> 0 ->> 'url' = 'https://x.test/old1.jpg' from mall_builder_products where id = P1)
     and (select status = 'proposed' from mall_builder_photo_proposals where id = pa));
   -- 다른 사람이 남의 슬롯 확정 → forbidden
-  e := qa_fsig(x, 'k1', SHA, 4000, ex, S3);
+  e := qa_fsig(x, 'k1', SHA, 4000, ex, S3, BASE || nm);
   perform set_config('request.jwt.claim.sub', A1::text, false); set role authenticated;
   r := mall_builder_photo_apply_commit(x, 'k1', SHA, 4000, ex, e, BASE || nm); reset role;
   insert into qa_r values ('A13-other', r ->> 'reason' = 'forbidden');
@@ -234,6 +240,11 @@ begin
   ok := ok and mall_builder_photo_apply_begin(pa) ->> 'reason' = 'not_proposed';
   reset role;
   insert into qa_r values ('A15-idem', ok);
+  -- 이미 쓴 서명을 다른 출처로 재호출: 상태 변경 없이 done(멱등)이고 상품 주소는 원래 출처 그대로
+  perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated;
+  r := mall_builder_photo_apply_commit(x, 'k1', SHA, 4000, ex, e, OTHER || nm); reset role;
+  insert into qa_r select 'A23-reuse-other-origin', r = '{"ok": true, "state": "done"}'::jsonb and images -> 0 ->> 'url' = BASE || nm
+    and (select count(*) = 1 from mall_builder_photo_apply_slots where proposal_id = pa) from mall_builder_products where id = P1;
 
   -- ── 묵은 제안(stale)·강제(직원만)
   pc := qa_prop(P5, 'operator', S3);
@@ -254,7 +265,7 @@ begin
   -- 시나리오 전체가 한 거래라 같은 거래 안의 두 번째 수정은 updated_at(= 거래 시작 시각)이 그대로 → 슬롯 기준을 1초 앞당겨 「슬롯 뒤 상품 변경」을 만든다
   update mall_builder_products set name = '자체 상품2 또 수정' where id = P5;
   update mall_builder_photo_apply_slots set product_rev = product_rev - interval '1 second' where id = xd;
-  e := qa_fsig(xd, 'k1', SHA, 5000, ex, S3);
+  e := qa_fsig(xd, 'k1', SHA, 5000, ex, S3, BASE || nmd);
   perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated;
   r := mall_builder_photo_apply_commit(xd, 'k1', SHA, 5000, ex, e, BASE || nmd); reset role;
   insert into qa_r select 'A17-stale-commit', r ->> 'reason' = 'stale' and images -> 0 ->> 'url' = 'https://x.test/p5.jpg' from mall_builder_products where id = P5;
@@ -265,7 +276,7 @@ begin
   r := mall_builder_photo_apply_begin(pe); reset role;
   xb := (r ->> 'apply_id')::uuid; nmb := qa_name(xb, 'k1', SHA2, U4);
   perform set_config('request.jwt.claim.sub', U4::text, false); set role authenticated; perform qa_put(nmb, 2000); reset role;
-  e := qa_fsig(xb, 'k1', SHA2, 2000, ex, U4);
+  e := qa_fsig(xb, 'k1', SHA2, 2000, ex, U4, BASE || nmb);
   perform set_config('request.jwt.claim.sub', U4::text, false); set role authenticated;
   r := mall_builder_photo_apply_commit(xb, 'k1', SHA2, 2000, ex, e, BASE || nmb); reset role;
   insert into qa_r select 'A18-supplier', r ->> 'state' = 'done' and r ->> 'role' is null and approval = 'pending' and images -> 0 ->> 'path' = nmb
@@ -281,7 +292,7 @@ begin
   perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated;
   begin perform qa_put(nme, 1000); ok := false; exception when insufficient_privilege then null; end;
   reset role;
-  e := qa_fsig(xe, 'k1', SHA, 1000, ex, S3);
+  e := qa_fsig(xe, 'k1', SHA, 1000, ex, S3, BASE || nme);
   perform set_config('request.jwt.claim.sub', S3::text, false); set role authenticated;
   ok := ok and mall_builder_photo_apply_commit(xe, 'k1', SHA, 1000, ex, e, BASE || nme) ->> 'reason' = 'forbidden';
   reset role;

@@ -5,7 +5,8 @@
 -- 바꾸지 않는 것: 기존 공개 버킷 mall-builder-public·비공개 버킷·제안 버킷과 그 정책, 가격·공급가·옵션·배송·카테고리.
 -- 서명(형식은 src/lib/applySignature.ts와 같음, 목적 글자로 분리):
 --   upload-path  = v1|upload-path|kid|store|product|proposal|apply_id|uid|role|sha256          → HMAC 앞 32자가 게시 경로 이름에 들어감
---   apply-final  = v1|apply-final|kid|store|product|proposal|apply_id|uid|role|sha256|size|exp  → commit 인자
+--   apply-final  = v1|apply-final|kid|store|product|proposal|apply_id|uid|role|sha256|size|exp|public_url  → commit 인자
+--     (public_url = 서버 설정의 고정 출처 + 게시 경로를 정규화한 전체 주소 — 서명에 묶여 호출자가 출처를 바꿀 수 없음, Master msg_371737216f81)
 --   열쇠는 서버 환경변수와 이 DB 전용 표 두 곳(등록은 주인님 — 이 파일은 표만 만들고 값은 넣지 않음).
 -- 회원(브라우저)은 열쇠가 없어 맞는 경로·서명을 만들 수 없다. 서버는 경로를 업로드가 끝나기 전에 브라우저에 내보내지 않는다.
 -- 게시 버킷에는 회원 고치기·지우기 정책이 없다(변경 불가). 실패 객체는 관리자 점검(주 1회)으로 정리.
@@ -51,9 +52,9 @@ create or replace function mall_builder_private.apply_upload_msg(p_kid text, p_s
 returns text language sql immutable set search_path = '' as $$
   select 'v1|upload-path|' || p_kid || '|' || p_store || '|' || p_product || '|' || p_proposal || '|' || p_apply || '|' || p_uid || '|' || p_role || '|' || p_sha
 $$;
-create or replace function mall_builder_private.apply_final_msg(p_kid text, p_store uuid, p_product uuid, p_proposal uuid, p_apply uuid, p_uid uuid, p_role text, p_sha text, p_size bigint, p_exp bigint)
+create or replace function mall_builder_private.apply_final_msg(p_kid text, p_store uuid, p_product uuid, p_proposal uuid, p_apply uuid, p_uid uuid, p_role text, p_sha text, p_size bigint, p_exp bigint, p_url text)
 returns text language sql immutable set search_path = '' as $$
-  select 'v1|apply-final|' || p_kid || '|' || p_store || '|' || p_product || '|' || p_proposal || '|' || p_apply || '|' || p_uid || '|' || p_role || '|' || p_sha || '|' || p_size || '|' || p_exp
+  select 'v1|apply-final|' || p_kid || '|' || p_store || '|' || p_product || '|' || p_proposal || '|' || p_apply || '|' || p_uid || '|' || p_role || '|' || p_sha || '|' || p_size || '|' || p_exp || '|' || p_url
 $$;
 -- HMAC-SHA256 hex(활성 열쇠만, 없으면 null). 회원 실행 권한 0
 create or replace function mall_builder_private.apply_hmac(p_kid text, p_msg text)
@@ -155,7 +156,8 @@ begin
   -- 형식(모호함 차단)
   if p_kid !~ '^[a-z0-9]{1,16}$' or p_sha !~ '^[0-9a-f]{64}$' or p_sig !~ '^[0-9a-f]{64}$'
      or p_size is null or p_size < 1 or p_size > 5242880
-     or p_exp is null or p_exp < extract(epoch from now())::bigint or p_exp > extract(epoch from now())::bigint + 600 then
+     or p_exp is null or p_exp < extract(epoch from now())::bigint or p_exp > extract(epoch from now())::bigint + 600
+     or p_public_url is null or char_length(p_public_url) > 400 or p_public_url !~ '^https://[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+(:[0-9]{1,5})?/storage/v1/object/public/mall-builder-applied/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z0-9]{1,16}\.[0-9a-f]{64}\.[0-9a-f]{32}\.jpg$' then
     return jsonb_build_object('ok', false, 'reason', 'invalid');
   end if;
   select * into pr from public.mall_builder_photo_proposals where id = s.proposal_id for update;
@@ -167,12 +169,12 @@ begin
   if pr.status <> 'proposed' then return jsonb_build_object('ok', false, 'reason', 'gone'); end if;
   if p.updated_at is distinct from s.product_rev then return jsonb_build_object('ok', false, 'reason', 'stale'); end if;
   -- 최종 서명(목적 apply-final)
-  v_fin := mall_builder_private.apply_hmac(p_kid, mall_builder_private.apply_final_msg(p_kid, s.store_id, s.product_id, s.proposal_id, s.id, auth.uid(), s.role, p_sha, p_size, p_exp));
+  v_fin := mall_builder_private.apply_hmac(p_kid, mall_builder_private.apply_final_msg(p_kid, s.store_id, s.product_id, s.proposal_id, s.id, auth.uid(), s.role, p_sha, p_size, p_exp, p_public_url));
   if v_fin is null or v_fin <> p_sig then return jsonb_build_object('ok', false, 'reason', 'bad_sig'); end if;
   -- 게시 경로(목적 upload-path)와 객체
   v_up := mall_builder_private.apply_hmac(p_kid, mall_builder_private.apply_upload_msg(p_kid, s.store_id, s.product_id, s.proposal_id, s.id, auth.uid(), s.role, p_sha));
   v_path := s.store_id::text || '/' || s.id::text || '.' || p_kid || '.' || p_sha || '.' || left(v_up, 32) || '.jpg';
-  if p_public_url is null or p_public_url !~ '^https://' or right(p_public_url, char_length('/storage/v1/object/public/mall-builder-applied/' || v_path)) <> '/storage/v1/object/public/mall-builder-applied/' || v_path then
+  if right(p_public_url, char_length('/storage/v1/object/public/mall-builder-applied/' || v_path)) <> '/storage/v1/object/public/mall-builder-applied/' || v_path then
     return jsonb_build_object('ok', false, 'reason', 'invalid');
   end if;
   select ob.owner_id, ob.metadata ->> 'size' as size, ob.metadata ->> 'mimetype' as mime into o
@@ -222,7 +224,7 @@ end;
 $$;
 
 revoke all on function mall_builder_private.apply_upload_msg(text, uuid, uuid, uuid, uuid, uuid, text, text) from public, anon, authenticated;
-revoke all on function mall_builder_private.apply_final_msg(text, uuid, uuid, uuid, uuid, uuid, text, text, bigint, bigint) from public, anon, authenticated;
+revoke all on function mall_builder_private.apply_final_msg(text, uuid, uuid, uuid, uuid, uuid, text, text, bigint, bigint, text) from public, anon, authenticated;
 revoke all on function mall_builder_private.apply_hmac(text, text) from public, anon, authenticated;
 revoke all on function mall_builder_private.applied_object_ok(text) from public, anon;
 grant execute on function mall_builder_private.applied_object_ok(text) to authenticated;

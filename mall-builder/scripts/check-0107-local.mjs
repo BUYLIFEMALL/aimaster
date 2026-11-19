@@ -3,7 +3,7 @@
 // 안전(0106 실행기와 같음): 로컬 Docker 엔진(npipe/unix)·컨테이너 aww-pg-test(postgres 이미지)일 때만, 시험 DB qa_m3_*는 없을 때만 만들고
 //   OID·소유자·실행 표식을 기록해 그 DB만 지운다. 서명 열쇠는 합성 시험 값만(시나리오 안에서 만들고 DB와 함께 사라짐).
 // 검증: 1) 0107 적용 전후 기존 저장소 정책 글자 그대로(R1), 새 버킷은 올리기 정책 하나뿐(R2), 버킷 조건 없는 고치기·지우기 정책 0(R3)
-//       2) scenario-0107(A01~A22) 3) TS 서명 형식 ↔ SQL 원문·HMAC 같은 값(X1) 4) 두 세션 경합 L1 같은 제안 동시 슬롯 / L2 같은 슬롯 동시 확정
+//       2) scenario-0107(A01~A23) 3) TS 서명 형식 ↔ SQL 원문·HMAC 같은 값(X1) 4) 두 세션 경합 L1 같은 제안 동시 슬롯 / L2 같은 슬롯 동시 확정
 //       5) 0107 원문에 외부 호출(http) 0(E1).
 import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -91,19 +91,20 @@ if (sc.status) stop(`[시나리오] 실패 ${errs(sc)}`);
 for (const line of sc.stdout.split("\n").filter((l) => /^A\d/.test(l))) { const [k, v] = line.split("\t"); check(k, v === "t"); }
 
 // 3) TS 서명 형식 ↔ SQL(같은 합성 열쇠 — 시나리오가 넣은 k1)
-const { uploadPathMessage, applyFinalMessage, appliedPath, applyFinalSignature } = await import("../src/lib/applySignature.ts");
+const { uploadPathMessage, applyFinalMessage, appliedPath, applyFinalSignature, appliedPublicUrl } = await import("../src/lib/applySignature.ts");
 const q = (sql) => run(D, sp + sql).stdout.trim();
 const KEY = q(`select encode(key, 'base64') from mall_builder_private.apply_signing_keys where kid = 'k1';`);
 const F = { kid: "k1", storeId: "00000000-0000-0000-0000-00000000005a", productId: "00000000-0000-0000-0000-0000000000f1", proposalId: "00000000-0000-4000-8000-0000000000c1",
   applyId: "00000000-0000-4000-8000-0000000000d1", uid: "00000000-0000-0000-0000-0000000000b3", role: "operator", sha256: "ab".repeat(32) };
-const FF = { ...F, size: 4000, exp: 1900000000 };
+const FF = { ...F, size: 4000, exp: 1900000000, publicUrl: appliedPublicUrl("HTTPS://QA.Supabase.Test/", appliedPath(KEY, F)) };
 const sqlUp = q(`select mall_builder_private.apply_upload_msg('k1', '${F.storeId}', '${F.productId}', '${F.proposalId}', '${F.applyId}', '${F.uid}', 'operator', '${F.sha256}');`);
-const sqlFin = q(`select mall_builder_private.apply_final_msg('k1', '${F.storeId}', '${F.productId}', '${F.proposalId}', '${F.applyId}', '${F.uid}', 'operator', '${F.sha256}', 4000, 1900000000);`);
+const sqlFin = q(`select mall_builder_private.apply_final_msg('k1', '${F.storeId}', '${F.productId}', '${F.proposalId}', '${F.applyId}', '${F.uid}', 'operator', '${F.sha256}', 4000, 1900000000, '${FF.publicUrl}');`);
 const sqlUpH = q(`select left(mall_builder_private.apply_hmac('k1', '${sqlUp}'), 32);`);
 const sqlFinH = q(`select mall_builder_private.apply_hmac('k1', '${sqlFin}');`);
 const path = appliedPath(KEY, F);
+const urlOk = FF.publicUrl === `https://qa.supabase.test/storage/v1/object/public/mall-builder-applied/${path}`;
 check("X1", KEY.length > 0 && sqlUp === uploadPathMessage(F) && sqlFin === applyFinalMessage(FF) && path.split(".")[3] === sqlUpH && applyFinalSignature(KEY, FF) === sqlFinH
-  && path === `${F.storeId}/${F.applyId}.k1.${F.sha256}.${sqlUpH}.jpg`, "원문 2종·HMAC 2종이 TS와 SQL에서 같음");
+  && path === `${F.storeId}/${F.applyId}.k1.${F.sha256}.${sqlUpH}.jpg` && urlOk, "원문 2종·HMAC 2종이 TS와 SQL에서 같음, 출처 정규화(소문자·끝 / 제거)");
 
 // 4) 두 세션 경합(잠금 3초 유지, 1초 뒤 상대 시작)
 const S3 = "00000000-0000-0000-0000-0000000000b3", A1 = "00000000-0000-0000-0000-0000000000a1", P1 = "00000000-0000-0000-0000-0000000000f1";
@@ -125,8 +126,8 @@ const prop = () => q(`select qa_prop('${P1}', 'operator', '${S3}');`).split("\n"
   const sha = "cd".repeat(32), ex = Math.floor(Date.now() / 1000) + 300;
   const nm = q(`select qa_name('${x}', 'k1', '${sha}', '${S3}');`).split("\n").pop();
   q(as(S3) + `select qa_put('${nm}', 3000);`);
-  const sig = q(`select qa_fsig('${x}', 'k1', '${sha}', 3000, ${ex}, '${S3}');`).split("\n").pop();
   const url = `https://qa.supabase.test/storage/v1/object/public/mall-builder-applied/${nm}`;
+  const sig = q(`select qa_fsig('${x}', 'k1', '${sha}', 3000, ${ex}, '${S3}', '${url}');`).split("\n").pop();
   const call = `select mall_builder_photo_apply_commit('${x}', 'k1', '${sha}', 3000, ${ex}, '${sig}', '${url}');`;
   const a = runAsync(D, sp + as(S3) + `begin;\n${call}\nselect pg_sleep(3);\ncommit;`);
   await sleep(1000);
