@@ -286,3 +286,28 @@ test('절 구분은 단어 경계만 — standard·button 안의 and·but으로 
   const r2 = await countCalls(400, JSON.stringify({ error: { message: msg2, param: null, code: null } }));
   assert.equal(r2.calls.length, 1);
 });
+
+// ── Master msg_60b1d6dbc9d2: 목적어 부정 원문 재현 ──
+test('원문 재현: 「This model does not support the Responses API」 목적어 부정은 1요청', async () => {
+  for (const msg of [
+    'Use the Responses API instead. This model does not support the Responses API.',
+    'This model does not support the Responses API. Use the Responses API instead.',
+    'Please use v1/responses instead. The model cannot be used with v1/responses.',
+  ]) {
+    const r = await countCalls(400, JSON.stringify({ error: { message: msg, param: null, code: null } }));
+    assert.equal(r.ok, false, msg);
+    assert.equal(r.calls.length, 1, msg);
+  }
+});
+
+test('회귀: 긍정 권고·Chat 부정은 2요청, 대체 요청 실패 시에도 최대 2요청', async () => {
+  for (const msg of [
+    'Use the Responses API for this model.',
+    'This model is not supported in v1/chat/completions, use the Responses API instead.',
+    'Chat Completions does not support this model, please use v1/responses instead.',
+    'This model is only supported in v1/responses and not in v1/chat/completions.',
+  ]) {
+    const r = await countCalls(400, JSON.stringify({ error: { message: msg, param: null, code: null } }));
+    assert.equal(r.calls.length, 2, msg);
+  }
+});

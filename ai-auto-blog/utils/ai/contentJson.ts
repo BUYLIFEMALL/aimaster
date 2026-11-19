@@ -159,8 +159,10 @@ export function shouldSwitchToResponses(status: number, body: string): boolean {
     new RegExp(`\\b(?:supported|available) (?:in|on|via|through|with) ${RESP}`, 'gi'),
   ]
   // 능동형 모순: 「Responses API does not support this model」처럼 Responses가 주어이고 뒤에서 부정되는 경우도 모순으로 본다.
-  const activelyNegated = Array.from(message.matchAll(new RegExp(RESP, 'gi'))).some((m) =>
-    negatesResponses(sentenceSuffix((m.index ?? 0) + m[0].length)),
+  // 목적어 부정(Master msg_60b1d6dbc9d2): 「This model does not support the Responses API」처럼 Responses 앞 같은 절에서
+  // Chat이 아닌 대상을 부정하면 역시 모순이다(같은 negated 판정 재사용 — Chat 부정 절은 제외됨).
+  const activelyNegated = Array.from(message.matchAll(new RegExp(RESP, 'gi'))).some(
+    (m) => negatesResponses(sentenceSuffix((m.index ?? 0) + m[0].length)) || negated(m.index ?? 0),
   )
   const contradicted =
     activelyNegated || responsesMentions.some((re) => Array.from(message.matchAll(re)).some((m) => negated(m.index ?? 0)))
