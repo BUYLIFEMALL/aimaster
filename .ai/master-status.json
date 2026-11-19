@@ -6979,19 +6979,19 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T19:30:52.910Z",
+      "at": "2026-11-19T20:01:22.267Z",
       "timezone": "Asia/Seoul",
-      "trigger": "04:30 예약 msg_57d46409fbf3",
-      "scope": "04:00 이후 담당별 다음 작업·최근 결과 파일·전체 대기와 배포 승인 조건을 증분 대조",
+      "trigger": "05:00 예약 msg_c235d56b355b",
+      "scope": "직전 점검 이후 담당별 점검 표시, 미배포, 공용 운영 순번, Git 및 새 결과 파일 대조",
       "evidence": [
-        "WS 전체 1,084 통과 및 독립 6/6 수락. 타이머 오류 진단 msg_5159f3c42ab8 전달.",
-        "YVS 전후 동일 실패 및 SVS 국소 완료 회신 대조. SVS 문구 A2 msg_5103595a2f83 전달. 기존 Next 설치 범위 조사 0bd1b9b2c.",
-        "맥미니 인덱스 경고: 메인 Windows status 0, 인덱스 읽기 17,558개, 잠금 없음."
+        "Workspace 오류 분류 53add833c: Mac 고정 입력 28건 및 Windows 독립 21/21. 역할 문서 b4813f8b6 확인.",
+        "SVS 9b3d91af5 Mac 국소 10/10 수락. 빌드·운영 검증은 별도 대기.",
+        "B2B 메인 적용 사전 점검 msg_a2691e4522b2 및 부동산 다음 단위 msg_308bbd981efe 전송."
       ],
-      "judgment": "독립 진단·문구 수정 진행. 운영 DB 공용 순번, Blog 전환, 음악·Workspace 배포, 영상 의존성 변경은 대기 조건 분리.",
-      "nextAction": "목표 SHA 수신 후 맥미니 국소 재검수. 운영 SQL 메인 실행 조건 확인. 주인님 결정은 일괄 요청.",
+      "judgment": "두 국소 검수 수락. 공용 DB 작업은 메인 사전 점검, B2B 적용 검증 다음 SNS 순서 유지.",
+      "nextAction": "B2B 적용 전 조건 회수, 부동산 준비 작업 확정, Workspace 별도 미배포 기록 회신 검토.",
       "unverified": [
-        "운영 SQL 적용·S70 Lab 실제 실행, SVS 보안 검사 이후 완료 빌드, 맥 SMB 인덱스 오류 원인, 운영 브라우저 시험."
+        "B2B/SNS SQL 실제 적용, S70 격리 빌드, SVS 전체 빌드/실화면, Workspace 실제 오류 분류."
       ]
     },
     "notifications": [
