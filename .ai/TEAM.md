@@ -1,13 +1,13 @@
 # AI 협업팀 등록부
 
-최종 갱신: 2026-11-19 KST(AdminPC Tester 추가; 기존 행의 최신 작업 상태는 총괄 플랜 기준). 총괄 `CX-MASTER-01`만 공식 배정·연결 상태를 갱신한다. 프로그램별 상세 현황은 기존 `docs/roles/`와 [총괄 플랜](../docs/MASTER_DEVELOPMENT_PLAN_20261116.md)을 사용한다.
+최종 갱신: 2026-11-19 KST(AdminPC 및 MacMini Tester 역할 반영; 기존 행의 최신 작업 상태는 총괄 플랜 기준). 총괄 `CX-MASTER-01`만 공식 배정·연결 상태를 갱신한다. 프로그램별 상세 현황은 기존 `docs/roles/`와 [총괄 플랜](../docs/MASTER_DEVELOPMENT_PLAN_20261116.md)을 사용한다.
 
 ## 사용자 확정 조직과 실제 연결
 
 | 사용자 호칭 | 팀 ID | 기존 역할 ID | 실제 세션·장비 | 연결 상태 | 현재 작업 |
 |---|---|---|---|---|---|
 | Codex(Master) | CX-MASTER-01 | codex-master | codex-win-20261116-auto-team · GT1_Mega | busy · 공식상태/파일범위 통합 | 146 구현·ESM 매뉴얼·결제예외/실행패키지 지휘 |
-| Codex(Tester) | CX-QA-01 | mac-mini | codex-mac-20261116-tester-role · 대화01a1c5a4-68b7-7c51-b919-9bc56cd17af5 · MacMini | QA049画像provider/응답/URL 반례확인중 | 최종고정SHA보고·QA037읽기단일연결·추가테스트결제0 |
+| MacMini Codex(Tester) | CX-QA-01 | mac-mini | codex-mac-20261116-tester-role · 대화01a1c5a4-68b7-7c51-b919-9bc56cd17af5 · MacMini | 역할 확인 msg_5ce52c6c09a1 | macOS 프로그램 테스트·디버깅·기능 개선 제안 |
 | Codex(Tester) | AdminPC Tester | AdminPC | Windows 11 · NVIDIA RTX 5080 · RAM 64GB | RTX 첫 장 배정 수락, 고정 파일 검증 담당 보고 | 고부하 테스트·디버깅·기능 개선 제안 |
 | Antigravity | AG-UI-01 | design | agy-win-design · GT1_Mega (이전 등록 agy-win-hero-copy) | emotion제품동결유지·PORT19문서매핑배정 전송/수락미확인 | 문서JSON19건반환→Master근거판정·다른프로그램코드변경0 |
 | Claude(Movie) | CC-MOVIE-01 | video | claude-win-video · aimaster-57 · GT1_Mega | YVS실검색/AI기획안1회 담당운영완료·점유0 | 재호출0·새배정대기 |
@@ -55,7 +55,7 @@ Orca run: `run_6e348395e1fe` · runtime `4c4b684f-d0e9-4878-97d5-ce1880c55b7d` �
 | CC-BLOG-01 | term_78415ab7-52b8-49a9-adbf-c6450509ec54 | IDENT msg_196120a86386 / 결과 msg_b64aa460031c |
 | CC-SNS-01 | term_a56ba842-a009-4b3b-926c-f02f9cb65153 | 직접지시 보고 msg_0ea177827182·Master 인수 msg_262b806a9152 |
 | 기존 policy | term_e4de9dda-0a1d-472f-87a5-e8b6e51faa14 | IDENT msg_1f604361cecb / 보류확인 msg_15c5dbecaf5e |
-| CX-QA-01 | **--on MacMini** · term_e1676007-3108-49cf-90f9-4518da3dfb27 | 요청 msg_43eca2fda35d / 원격 ACK msg_61fc7276a960 |
+| CX-QA-01 | **--on MacMini** · term_e1676007-3108-49cf-90f9-4518da3dfb27 | 요청 msg_43eca2fda35d / 원격 ACK msg_61fc7276a960 / 역할 확인 msg_5ce52c6c09a1 |
 | AdminPC Tester | **--on Admin** · term_83dc0547-9a71-45fd-bdf8-f4e10a6ff26b | 역할 수락 msg_5c32df5c7178 / 배정 기준 msg_287b5412841b |
 
 터미널 주소는 세션 종료 후 영속성을 보장하지 않는다. 전송 직전 현재 연결·실행환경·수신자를 다시 확인한다. 주소 발견과 수신 수락은 구분한다.
