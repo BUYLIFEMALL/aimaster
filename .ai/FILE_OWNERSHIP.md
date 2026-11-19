@@ -445,3 +445,5 @@ MOV-SVS-RELEVANCE-UI-CLARITY A2 점유 해제 CC-MOVIE-01: 9b3d91af5(안내 분�
 WS-TIMER-ERROR-BUCKETS CC-WORKSPACE-01: Master msg_f768111041fc. ai-work-workspace/src/litpage/server/db.ts(새 내보내기 timerErrorBucket 한 함수와 고정 표, 기존 errorKind·startup 기록 무변경)·api/modules/pages.ts(유휴 스냅숏 catch 한 줄)·agents/triggers.ts(일정 재등록 catch 한 줄)·tests/integration/startupBoundary.test.ts(회귀 추가)·본인 문서. v1.64 후보(3d446effa·54183605c)와 별도 SHA. 운영 조회·쓰기·cron·빌드·배포·push 없음.
 
 WS-TIMER-ERROR-BUCKETS 점유 해제 CC-WORKSPACE-01: 로컬 후보 53add833c(db.ts timerErrorBucket·pages.ts·agents/triggers.ts catch 각 한 줄·startupBoundary.test.ts 21개·문서). 전체 1,088/1,089·tsc 0. 미배포, v1.64 후보와 별도. 독립 검수 CX-QA-01 대기.
+
+ECOM-ORDER-REPORT-COMMON-RELEASE-PREP CC-ECOM-01: Master msg_3d2580a63591(A1/P9, 기준 87b29baa7). shop-order-report 공통 3건 국소 보완 — src/app/layout.tsx(저장공간 위젯 한 줄)·src/app/api/auth/logout/route.ts·src/lib/actions/auth.ts(signOut scope local 각 한 줄)·src/lib/supabase/server.ts(global.headers User-Agent 한 줄)·AGENTS.md(기록). 기준 구현 smartstore-register 동일 형태 재사용. 쿠키·권한·DB·의존성·버전·빌드·배포 없음. scratch/ 는 타 세션 미추적이라 손대지 않음.
