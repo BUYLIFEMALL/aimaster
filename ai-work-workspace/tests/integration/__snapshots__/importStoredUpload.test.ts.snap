@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`4MiB 넘는 가져오기 파일(Storage 보관) > 6MiB ZIP: Storage로 올라간 뒤 가져오기 결과 1`] = `
+{
+  "message": "Upload not found: big.zip",
+  "pages": undefined,
+  "status": 404,
+}
+`;
