@@ -10056,6 +10056,18 @@
       "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md",
       "next": "메인 집계에서 몰별 경로를 몰 주인에게 귀속하고 중복 방지·구매 안내 범위를 설계. 30일 삭제 요청 취소·등록 상품 최소 1년 보관 유지. 운영 적용 별도.",
       "lastReviewedAt": "2026-11-19T03:25:51.788Z"
+    },
+    {
+      "task_id": "BLOG-20261119-MODELS",
+      "owner": "CC-BLOG-01",
+      "reviewer": "CX-QA-01",
+      "title": "블로그 설정 플랫폼별 AI 모델 선택",
+      "status": "reviewing",
+      "delivery": "model_choice_source_returned_mac_review_dispatched_build_blocked",
+      "sha": "fb31bb189",
+      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e",
+      "next": "설정 모델 선택·글쓰기 기본값 연결. 작성자 tsc/generation/security 통과, Next 16.4.2 로컬 빌드 exit 1. Mac 독립 검수 요청, 미배포.",
+      "lastReviewedAt": "2026-11-19T04:04:39.305Z"
     }
   ]
 }
