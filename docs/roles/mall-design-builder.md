@@ -1,22 +1,22 @@
 # 쇼핑몰 디자인 UI 빌더(프론트)
 
-- 담당: **Claude(B2BFront)** — Claude Code(윈도우) `claude-win-20261114-mall-design`, 쇼핑몰 프론트 작업 담당(2026-11-16 주인님 지정 이름)
+- 담당: **Claude(B2BFront)** `CC-B2B-FRONT-01` — Sub PC `codex-sub-20261119-mall-design`, 쇼핑몰 프런트 디자인 빌더. 이전 메인 세션 `claude-win-20261114-mall-design`에서 인수.
 - 맡은 폴더: `mall-builder/`의 디자인 빌더 범위(`src/lib/builder/**`·`src/lib/theme.ts`·`src/lib/blocks.ts`·`src/app/s/[store]/admin/design/**`·`admin/home/**`·`home-blocks.tsx`, `(shop)/layout.tsx` 테마 주입부)
 - 카테고리: 이커머스
 - 주력 업무: **프로셀에서 구현한 쇼핑몰 프론트단 디자인 UI 빌더(위지위그) 개발 전담**(2026-11-14 주인님 지정). B2B+리셀러몰·분양몰·독립몰 세 몰 공통 코어, 백엔드 담당(`mall-builder` 역할)과 계속 조율
 - 담당 아님: 주문·결제·가격·정산·분양·공급사 등 운영 기능(백엔드 담당 `mall-builder`), 쿠팡 등 마켓 연동
-- 마지막 갱신: 2026-11-19 주인님 지시로 SubPC 새 세션에 인수인계 — [인수인계 문서](../../mall-builder/docs/HANDOFF_20261119_MALL_DESIGN_FRONT_SUBPC.md) (Claude(B2BFront) 윈도우 메인 세션 마지막 기록)
+- 마지막 갱신: 2026-11-19 Sub PC 인수 확인 및 [팀 등록부](../../.ai/TEAM.md) 갱신. 미배포 후보의 [경로·선행 변경 대조](../../.ai/results/FRONT-20261119-RELEASE-SCOPE-CC-B2B-FRONT-01.md) 제출 완료.
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `mall-builder` | **SubPC 새 세션으로 인수인계 중**(2026-11-19 주인님 지시) — 제품 파일 점유 없음 | 2026-11-19 | QUICKBAR 로컬 완료(Master 수락 `4de6db0af`, 미배포·실제 편집기 확인만 남음), [인수인계 문서](../../mall-builder/docs/HANDOFF_20261119_MALL_DESIGN_FRONT_SUBPC.md) §4 |
+| `mall-builder` | Sub PC 인수 완료. 프런트 단독 후보 범위 대조, S70은 백엔드 0105와 별도 묶음 | 2026-11-19 | 후보 경로·선행 커밋 확인. Mac 실화면과 배포 승인 대기 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `mall-builder` | FRONT-20261119-QUICKBAR 휴대폰 빠른 메뉴(`794c5fd01`→`1766fe92e`→최종안 A `c8a134486`→미리보기 `51d4b2207`) | 로컬 완료(Mac 28/28·Master 수락 `4de6db0af`) — 배포 묶음·실제 편집기 확인만 | `.ai/results/FRONT-20261119-QUICKBAR.md` |
-| `mall-builder` | HOMETABS `489c888e6`+`9f6b1c131`, S70 현금영수증 `50d3e6162`+`ee35d6eb1`(0105와 같은 묶음) | 검토·Mac 재검토, 0105 적용 | `.ai/results/` |
+| `mall-builder` | HOMETABS `489c888e6`+`9f6b1c131`, S70 현금영수증 `50d3e6162`+`ee35d6eb1` | HOMETABS Mac 모의 검수 완료·다크/VoiceOver 대기. S70은 0105와 Lab 접수 검증 및 동시 배포 | `.ai/results/` |
 | `mall-builder` | 다음 배포 묶음: `77c50f27c`·`90248e5b1`(+`7c8ee3a81`·`e4ba29947`)·`86e5ad1bf`·HOMETABS·QUICKBAR | Master 배포 순서 | 인수인계 문서 §4-2 |
 | `mall-builder` | Lab 반영된 프론트 묶음(템플릿 4차·어두운 머리글·갤러리 키보드·파란 단추 대비·3색 단추 전용 색·어두운 단추 올림, 출처 `7609748ad`) — 운영 몰 배포는 별도 | 실고객 UI QA037(로그인 대기) | `.ai/results/FRONT-20261117-03-CC-B2B-FRONT-01.md` |
 | `mall-builder` | 실화면 검수: 실제 Tab·키보드 눌림·터치·운영 상점, 어두운 테마 평면 단추 올림(FRONT-04로 해결, 실화면 미검수) | Lab Ready 뒤 Mac QA | 같은 결과 파일 |

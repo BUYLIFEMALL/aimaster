@@ -1,11 +1,11 @@
 # AI 쇼핑몰 빌더
 
-- 담당: **Claude(B2BBackend)** — Claude Code(윈도우) `claude-win-20261025-workspace`, 쇼핑몰 백엔드 작업 담당(2026-11-16 주인님 지정 이름, Codex(Master) 작업 지휘를 받음) (2026-11-12 주인님 지시 「지금부터 넌 현재 개발중인 쇼핑몰 담당」으로 인계받음, 이전 `claude-win-20261110-mall-builder`·`claude-win-20261103-mall-builder`)
+- 담당: **Claude(B2BBackend)** `CC-B2B-BACK-01` — Sub PC `claude-sub-20261119-b2bbackend`, 쇼핑몰 백엔드. 이전 메인 세션 `claude-win-20261025-workspace`에서 인수.
 - 맡은 폴더: `mall-builder/`(2026-11-12 `labs/`에서 옮김), `docs/mall/`
 - 카테고리: 이커머스
 - 주력 업무: **AI 쇼핑몰 빌더 전담**(2026-11-03 주인님 지정·정정: 「넌 지금 진행하는 AI 쇼핑몰 빌더 전담이야」) — 회원마다 자기 몰을 개설하는 프로셀형 빌더, 블록 첫 화면 편집, 사업자 등급가·견적·외상 같은 B2B 기능
 - 담당 아님: 쿠팡 등 마켓 연동 작업(`coupang-ops` 등)은 별도 담당자가 있으므로 분리한다(같은 날 주인님: 「쿠팡쪽 작업하는 담당자가 있으니 분리하도록 하자」). 다른 이커머스 프로그램도 이 역할 범위가 아니다.
-- 마지막 갱신: 2026-11-17 교환비 카드 결제(M2-12b b3) 2026-11-17 Lab 0104 DB 적용(18:11 KST, 기록 20261117091118, verify 20/20, 함수 7 본문 지문 일치) + Lab 빌드 1/1(Master, dpl_CFgB5fC5NLdrye4K7esG1tWRktXQ READY, 별칭 dev-mall-builder.vercel.app, 제품 소스 7609748ad) — 실제 화면·권한 검수는 Mac QA037 대기 (Claude(B2BBackend), Codex(Master) 지휘 B2B-20261117-09)
+- 마지막 갱신: 2026-11-19 Sub PC 인수 확인. 0101~0105와 M3 검수·승인 조건 대조 완료. [인수인계](../../mall-builder/docs/HANDOFF_20261119_B2BBACKEND_TO_SUBPC.md) · [팀 등록부](../../.ai/TEAM.md).
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -17,8 +17,8 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `mall-builder` | 샘플몰 시험 데이터 정리(S5) — 사진·설명 보강(S1)은 2026-11-19 완료 | 주인님 판단(지울지) | [후속 플랜](../../mall-builder/docs/PLAN_20261113_NEXT_SAMPLE_RESALE_INDEPENDENT.md) |
-| `mall-builder` | 쇼핑몰 사진 30일 실제 삭제·사용량 집계 | 메인 사이트 저장공간 담당 | [요청](../../mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md) |
-| `mall-builder` | 메이커 연계 M1~M3 — **진행 지시**(2026-11-19 주인님), Master: 몰쪽 M1 최소 범위 먼저 회신 | Master 회신 후 착수 | [검토 결과](../../mall-builder/docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md) |
+| `mall-builder` | 쇼핑몰 보관·중앙 용량 집계 0076·0077 로컬 검수 완료. 등록 상품 사진 최소 1년 보관, 30일 삭제 요청 취소 | 운영 반영 각각 승인 대기 | [설계·운영 인수인계](../../mall-builder/docs/DESIGN_20261119_MALL_STORAGE_CENTRAL_USAGE.md) |
+| `mall-builder` | 메이커 M2 데이터 계층·M3 0107 로컬 검수 완료 | M3 서버 연결·의존성·키 등록·UI·정리 목록·Lab 시험 승인 대기 | [인수인계](../../mall-builder/docs/HANDOFF_20261119_B2BBACKEND_TO_SUBPC.md) |
 | `mall-builder` | ~~독립몰 H3(프로셀 회원 이전)~~ **하지 않음**(2026-11-19 주인님 「안해도 되」) | — | [V-H 플랜](../../mall-builder/docs/PLAN_20261111_VH_OWN_MALL.md) |
 | `mall-builder` | 토스·볼타 **라이브 키 전환 없음** — 시험 키로 기능 시험만, 실제 결제 시험은 최종 완성 단계(2026-11-19 주인님) | 최종 완성 단계 | [T0 플랜](../../mall-builder/docs/PLAN_20261112_T0_PROD_MIGRATION.md) |
 
