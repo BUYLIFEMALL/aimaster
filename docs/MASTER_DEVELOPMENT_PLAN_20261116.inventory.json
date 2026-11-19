@@ -10063,11 +10063,11 @@
       "reviewer": "CX-QA-01",
       "title": "블로그 설정 플랫폼별 AI 모델 선택",
       "status": "reviewing",
-      "delivery": "official_model_list_correction_returned_mac_review_dispatched",
+      "delivery": "model_catalog_mac_pass_fallback_narrowing_dispatched",
       "sha": "c213647a4",
-      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e·msg_ae0e6dba4e84·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_e75e68c7f151·msg_d6f2385e1c72·7012fe1bf·msg_c5d009c34a43·msg_9d70d930ca5b·msg_2888acb4d0d4·msg_e7fae7770278·a7df2611f·msg_d19c65d4a1e5·msg_063718bdf213·msg_963f5dc087ca·msg_a5e256873a03·msg_a9f294314f32·msg_2497dcc19f0a·msg_7990e00f7c3e·msg_5171eb3488de·f8f4520f9·e0f02d424·OpenAI 2026-11-17 릴리스 노트·msg_77eaa7b278fe·msg_0421763e1697·c213647a4·755d7c529·msg_87a196aedfda",
-      "next": "GPT-6.2 Astra/Sol 선택 추가, Terra 기본값 유지. 작성자 24/24, Mac 독립 모델·요청 검수 배정. 실제 호출·빌드·배포 전.",
-      "lastReviewedAt": "2026-11-19T04:33:14.078Z"
+      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e·msg_ae0e6dba4e84·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_e75e68c7f151·msg_d6f2385e1c72·7012fe1bf·msg_c5d009c34a43·msg_9d70d930ca5b·msg_2888acb4d0d4·msg_e7fae7770278·a7df2611f·msg_d19c65d4a1e5·msg_063718bdf213·msg_963f5dc087ca·msg_a5e256873a03·msg_a9f294314f32·msg_2497dcc19f0a·msg_7990e00f7c3e·msg_5171eb3488de·f8f4520f9·e0f02d424·OpenAI 2026-11-17 릴리스 노트·msg_77eaa7b278fe·msg_0421763e1697·c213647a4·755d7c529·msg_87a196aedfda·msg_ec472c6d6552·msg_bd0707fc7039",
+      "next": "Mac 공식 API ID·목록·기본값과 모의 19/19 확인. 무관한 파라미터 400의 대체 호출 제한 보완 배정. 실키·빌드·미배포.",
+      "lastReviewedAt": "2026-11-19T04:34:27.126Z"
     },
     {
       "task_id": "RE-20261119-DESK-U1A",
