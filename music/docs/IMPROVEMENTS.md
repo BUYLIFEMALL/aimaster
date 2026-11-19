@@ -101,7 +101,7 @@
 - [x] (v1.40 처리) D-68-03 완성 곡 제작 묶음 — 기획 목록에서 고른 곡의 CSV·영상 설명용 목차 내보내기.
 - [x] (v1.42 처리) D-68-03 후속: 기획 상세·리믹스 결과에도 같은 내보내기(공용 컴포넌트 `components/SongListExport.tsx`).
 - [x] (v1.43 처리) D-68-03 후속: 기획 상세에서 곡마다 넣을 버전(#1·#2·빼기)을 골라 플레이리스트·목차·CSV로.
-- [ ] 리믹스 카드에 「가사 영상 만들기·플레이리스트」 바로가기 — **대기(주인님 지시 2026-10-22: 세 프로그램 중 하나를 다음에 다른 작업으로 빌드할 때 함께 빌드·시험)**. 플랜 [PLAN_20261022_REMIX_SHORTCUTS.md](PLAN_20261022_REMIX_SHORTCUTS.md). 음악 쪽 링크는 가사 영상·플레이리스트 배포 뒤에 켠다.
+- [x] 리믹스 카드 바로가기 — 가사 영상 ✅ v1.50(`?remix=`), **플레이리스트 ⏳ 구현·미배포 대기(2026-11-19, [역할: music] Claud(Music), Master msg_65425ac205e0)**: `lib/remixShortcuts.ts` `playlistRemixUrl(status, variantId)` — 완료 + 올바른 변주 번호일 때만 `https://playlist-channel-studio.buylife.xyz/video?remix=<번호>`(받는 쪽 v1.43 운영 확인 끝), 시험 `tests/remixShortcuts.test.mjs`. 배포는 별도 승인(빌드 1회). 원래 항목: 리믹스 카드에 「가사 영상 만들기·플레이리스트」 바로가기 — **대기(주인님 지시 2026-10-22: 세 프로그램 중 하나를 다음에 다른 작업으로 빌드할 때 함께 빌드·시험)**. 플랜 [PLAN_20261022_REMIX_SHORTCUTS.md](PLAN_20261022_REMIX_SHORTCUTS.md). 음악 쪽 링크는 가사 영상·플레이리스트 배포 뒤에 켠다.
 
 ## 2026-10-23 ✅ 배포됨(v1.44, 정리 기록) — Claude Code(윈도우), 커밋 `4cafe5eb3`
 - 곡 30일 정리(`/api/cron/cleanup`, 2026-10-28까지 유예)가 회원별 `usage_logs` `cleanup_expired`(tracks=지운 곡 수) 기록. 메인 관리자 「🛠️ 운영 상태」의 「30일 정리 기록」 진행률(23곳 중)에 들어가고, 정리 결과가 「30일 자동 정리」 표에 회원 수·지운 개수로 나온다. 기록 실패해도 정리는 계속(오류 로그만).

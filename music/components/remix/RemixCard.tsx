@@ -8,6 +8,7 @@ import type { RemixMode, RemixStatus } from "@/types/database.types";
 import { RetentionBadge } from "@/components/RetentionBadge";
 import { REMIX_MODE_OPTIONS } from "@/components/remix/RemixForm";
 import { TemporaryStorageNotice } from "@/components/StorageNotice";
+import { playlistRemixUrl } from "@/lib/remixShortcuts";
 
 export interface RemixVariant {
   id: string;
@@ -195,6 +196,21 @@ export function RemixCard({ remix }: { remix: RemixCardData }) {
                   <span>🎬</span>
                   <span>가사 영상 만들기 →</span>
                 </a>
+                {/* 리믹스 → 플레이리스트 영상(받는 쪽 playlist-channel-studio v1.43 `/video?remix=`) — 받는 쪽이 완료된 리믹스만 받으므로 완료 + 올바른 번호일 때만 */}
+                {(() => {
+                  const href = playlistRemixUrl(remix.status, variant.id);
+                  return href ? (
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="ml-1.5 inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold border border-sky-500/40 bg-sky-950/40 text-sky-200 hover:text-white hover:border-sky-400/60 transition-all"
+                    >
+                      <span>🎞️</span>
+                      <span>플레이리스트 영상 만들기 →</span>
+                    </a>
+                  ) : null;
+                })()}
                 <TemporaryStorageNotice kind="remix_variant" id={variant.id} urls={[variant.audio_url, variant.image_url]} />
               </div>
             ))}
