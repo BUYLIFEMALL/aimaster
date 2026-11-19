@@ -320,7 +320,8 @@ export async function confirmUncertain(client: EngineClient, storage: KeyValueSt
     const { line: _line, copy: _copy, source: _source, key, requestId, tried: _tried, ...input } = item;
     const res = await client.recover(requestId, input, { expectLink: draft.link, tag: `batch:${draft.batchId}:${key}` });
     if (res.state === "accepted") recovered += 1;
-    else if (res.reason === "otherScope") return { checked: uncertain.length, recovered, reason: "otherScope" };
+    // 연결이 실제로 바뀌었을 때만 멈춘다. 접수 기록에 다른 범위의 같은 번호가 있어 적지 못한 장은 미확정으로 두고 다음 장을 본다.
+    else if (res.reason === "otherScope" && client.scopeId() !== draft.link) return { checked: uncertain.length, recovered, reason: "otherScope" };
   }
   const after = readDraft(storage, memberId);
   if (after && after.batchId === draft.batchId) {

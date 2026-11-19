@@ -252,6 +252,36 @@ export function createEngineClient(opts: EngineClientOptions) {
   }
 
   // ── 접수 기록 ──
+  /**
+   * 고쳐 쓰거나 전송을 정하기 위한 **엄격한** 읽기. 「기록이 없다」(칸이 비어 있음 → 빈 목록)와
+   * 「읽지 못했다」(저장소 예외·JSON 깨짐·배열 아님·모양이 다른 줄·같은 접수 번호가 두 번)를 구분한다.
+   * 읽지 못했으면 예외 — 부르는 쪽은 접수 기록을 쓰지도, 엔진에 보내지도 않는다(빈 목록으로 여겨 덮어쓰지 않는다).
+   */
+  function readLedgerStrict(): Submission[] {
+    const fail = () => new EngineError("storage", "브라우저의 접수 기록을 읽지 못했습니다. 기록을 그대로 두고 아무것도 보내지 않았습니다. 잠시 뒤 다시 시도해 주세요.");
+    let raw: string | null;
+    try {
+      raw = storage.getItem(ledgerKey);
+    } catch {
+      throw fail();
+    }
+    if (raw === null || raw === undefined) return [];
+    let data: unknown;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      throw fail();
+    }
+    if (!Array.isArray(data)) throw fail();
+    const seen = new Set<string>();
+    for (const s of data) {
+      if (!s || typeof s !== "object" || Array.isArray(s) || typeof (s as Submission).requestId !== "string") throw fail();
+      if (seen.has((s as Submission).requestId)) throw fail();
+      seen.add((s as Submission).requestId);
+    }
+    return data as Submission[];
+  }
+  /** 화면 표시용 **너그러운** 읽기 — 읽지 못하면 빈 목록. 이 결과로 접수 기록을 고쳐 쓰거나 전송을 정하지 않는다. */
   function readLedger(): Submission[] {
     try {
       const data: unknown = JSON.parse(storage.getItem(ledgerKey) ?? "[]");
@@ -284,7 +314,7 @@ export function createEngineClient(opts: EngineClientOptions) {
   const ledgerLockName = `fis.ledger:${memberId}`;
   function mutate<T>(fn: (list: Submission[]) => { list?: Submission[]; value: T }): Promise<T> {
     return ledgerLock(ledgerLockName, async () => {
-      const out = fn(readLedger());
+      const out = fn(readLedgerStrict()); // 읽지 못하면 여기서 예외 — 쓰지 않는다
       if (out.list) writeLedger(out.list);
       return out.value;
     });
@@ -485,7 +515,7 @@ export function createEngineClient(opts: EngineClientOptions) {
      * 목록 응답이 온전하지 않으면(jobs가 배열이 아니거나 작업 모양이 아닌 줄이 있음) 예외를 던지고 상태를 그대로 둔다.
      */
     async confirm(requestId: string): Promise<{ state: "accepted"; job: EngineJob | null } | { state: "unknown"; reason: "otherScope" | "notListed" }> {
-      const entry = readLedger().find((s) => s.requestId === requestId);
+      const entry = readLedgerStrict().find((s) => s.requestId === requestId);
       if (!entry) throw new EngineError("invalid", "접수 기록이 없습니다.");
       if (busy.has(requestId)) throw new EngineError("invalid", "이 접수는 지금 처리하는 중입니다.");
       const link = readLink();
@@ -521,8 +551,13 @@ export function createEngineClient(opts: EngineClientOptions) {
      * 연결 범위가 바뀐 접수도 다시 보내지 않는다.
      */
     async resend(requestId: string) {
-      const entry = readLedger().find((s) => s.requestId === requestId);
-      if (!entry) throw new EngineError("invalid", "접수 기록이 없습니다.");
+      let entry: Submission | undefined;
+      try {
+        entry = readLedgerStrict().find((s) => s.requestId === requestId);
+      } catch (e) {
+        throw unsent(e as EngineError);
+      }
+      if (!entry) throw unsent(new EngineError("invalid", "접수 기록이 없습니다."));
       if (busy.has(requestId)) throw new EngineError("invalid", "이 접수는 지금 처리하는 중입니다.");
       if (entry.state === "accepted") throw new EngineError("invalid", "이미 접수된 작업입니다.");
       if (entry.state !== "rejected") throw new EngineError("invalid", "엔진이 받았는지 알 수 없는 접수는 다시 보내지 않습니다.");
@@ -599,18 +634,20 @@ export function createEngineClient(opts: EngineClientOptions) {
       if (input.variantId !== undefined) task.variantId = input.variantId;
       if (input.width !== undefined) (task.width = input.width), (task.height = input.height);
       if (input.seed !== undefined) task.seed = input.seed;
-      await mutate((list) => {
+      // 접수됨이라고 답하는 것은 접수 기록에 실제로 적었을 때뿐이다. 적지 못하면(저장 실패) 예외, 다른 범위의 같은 번호가 있으면 그 기록을 건드리지 않고 미확정으로 답한다.
+      const saved = await mutate((list) => {
         const i = list.findIndex((s) => s.requestId === requestId);
         if (i >= 0) {
           // 이미 기록이 있으면 같은 범위의 기록일 때만 작업 번호를 채운다
-          if (list[i].link !== session.link) return { value: undefined };
+          if (list[i].link !== session.link) return { value: false };
           list[i] = { ...list[i], state: "accepted", jobId: job.id, error: undefined, errorKind: undefined };
-          return { list, value: undefined };
+          return { list, value: true };
         }
         const entry: Submission = { requestId, trackId: uuid(), link: session.link, title: input.title.trim(), task, state: "accepted", jobId: job.id, at: now() };
         if (typeof opts.tag === "string" && opts.tag) entry.tag = opts.tag.slice(0, 120);
-        return { list: [...list, entry], value: undefined };
+        return { list: [...list, entry], value: true };
       });
+      if (!saved) return { state: "unknown", reason: "otherScope" };
       return { state: "accepted", job };
     },
 
