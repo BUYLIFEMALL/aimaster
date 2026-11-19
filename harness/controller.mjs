@@ -184,10 +184,11 @@ function publish(db) {
       claim.actor === owner && !claim.task.startsWith('OPS-HARNESS-') && !held(db, claim.task));
     const work = ownerAssignments.filter(({ last }) => ['assigned','delivered','accepted'].includes(last.stage));
     const assigned = work.sort((a,b) => b.last.seq - a.last.seq)[0];
-    const legacy = active.filter(t => t.owner === owner);
+    const currentAssignments = new Set(ownerAssignments.map(({claim}) => claim.task));
+    const legacy = active.filter(t => t.owner === owner && !currentAssignments.has(t.id));
     const followup = ownerAssignments.filter(({ last }) => ['review','verified','failed'].includes(last.stage))
       .sort((a,b) => b.last.seq - a.last.seq)[0];
-    const waiting = board.tasks.filter(t => t.owner === owner && t.status === 'waiting_human');
+    const waiting = board.tasks.filter(t => t.owner === owner && t.status === 'waiting_human' && !held(db, t.id));
     if (paused) return { owner, state: '전체 중지', refs: [] };
     if (owner === 'CC-SUPPORT-01') return { owner, state: '주인님 직접 지시 전담', refs: [] };
     if (assigned) {
