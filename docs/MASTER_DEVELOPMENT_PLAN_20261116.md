@@ -4,14 +4,14 @@
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-19 19:30:57 KST · 19:30 예약 메시지 수신 및 기존 Master에서 증분 대조 완료.
-직전 점검 이후 새 결과나 승인 변경이 없었다. Workspace v1.62 READY와 AIF D2 로컬 검수 완료는 기존 근거를 유지한다.
+Master 마지막 실제 점검: 2026-11-19 20:01:34 KST · 20:00 예약 메시지 수신 및 증분 대조 완료.
+무료 이미지 품질·Admin·Sub 실기를 완료하고, 신규 웹 플랜의 근거를 담당에게 전달했다.
 
-점검 범위: 19:01 KST 이후 증분. 372건 중 미완료 27건(진행 2·검수 7·순번 4·사용자 14), 프로그램 103개·분류 19개·담당 기록 11개 및 점유·미배포·사용자 단계 대조.
+점검 범위: 19:30 KST 이후 증분. 372건 중 미완료 27건(진행 3·검수 7·순번 4·사용자 13). 프로그램 103개·분류 19개·담당 기록 11개 및 작업표·점유·미배포·사용자 단계 대조.
 
-후속 배정: Workspace는 재로그인 뒤 UI 읽기, AIF D2 운영 적용과 리믹스 구현은 범위 확정 뒤, 무료 이미지는 평가 결과 뒤 Admin→Sub. 새 배정 없음.
+후속 배정: CC-ECOM-01 신규 웹 플랜 문서 msg_0892ca387839, 공유 근거 msg_8279f47c9ecd. Workspace 재로그인과 실제 가져오기, AIF D2 운영 범위, 리믹스 다음 승인 묶음은 기존 대기. 중복 실행 없음.
 
-미확인: Workspace 로그인 후 전체 가져오기와 Storage, 목록 DB의 화면 버전 동기화, AIF 운영 정책/정리, 리믹스 실 가사, 이미지 실기. 기존 사용자 단계는 미해소. 운영 전수·이전 미추적 파일 전체는 증분 범위 밖.
+미확인: 8GB 장비 일반 및 다양한 입력·동시 실행, Q4 대량 품질·실제품 기동. Workspace 실제 ZIP/Storage, AIF 운영 정책/정리, QA002 B·QA037·ESM 사용자 단계. 운영 전수·이전 미추적 파일 전체는 증분 범위 밖.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -434,7 +434,7 @@ Master 마지막 실제 점검: 2026-11-19 19:30:57 KST · 19:30 예약 메시�
 | B2B-20261119-BACKEND-HANDOFF | CC-B2B-BACK-01 | done / sub_handoff_accepted_prerequisites_reconciled | B2B 백엔드 Sub PC 인수인계 | Sub 인수 완료·0101~0105/M3 승인 조건 대조. QA037 로그인·0105 Lab 적용/자료·M3 후속 승인 대기. 3210과 합성 DB는 메인 유지. |
 | B2B-20261119-FRONT-HANDOFF | CC-B2B-FRONT-01 | done / sub_handoff_and_release_scope_verified | B2B 프런트 Sub PC 인수인계 | Sub 인수 및 Chrome 지정. Lab 9커밋·14경로, 운영 기준 18커밋·19경로 대조 완료. S70은 0105 묶음, 실화면·배포 승인 대기. |
 | B2B-20261119-FRONT-REL | AG-UI-01 | done / frontend_production_public_screen_independent_accepted | B2B 프런트 단독 운영 배포 | 운영 READY·v1.16 및 맥미니 공개 화면 통과. 배포 폴더 대조 19개 프런트/시험 경로와 버전 파일, 백엔드·DB 차이 0. 관리자 별도. |
-| IMG-20261119-PLAN | CC-ECOM-01 | running / sub_q4_two_images_complete_web_plan_dispatched | AI 무료 이미지 자동화 개발 플랜 | 품질 43/48·Admin Q8 2/2·Sub Q4 2/2. Z는 VAE tiling 재시도로 완료, FLUX 피크 7711 MiB. 공유 근거 요청 후 신규 웹 플랜 문서 배정. |
+| IMG-20261119-PLAN | CC-ECOM-01 | running / sub_q4_two_images_complete_web_plan_dispatched | AI 무료 이미지 자동화 개발 플랜 | 품질 43/48·Admin Q8 2/2·Sub Q4 2/2. Sub 결과 6파일 SHA 확인. Z VAE 타일 재시도·FLUX 피크 7711 MiB를 반영해 신규 웹 플랜 문서 작성 중. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
