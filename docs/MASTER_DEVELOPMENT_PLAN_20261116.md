@@ -517,7 +517,7 @@ Master 마지막 실제 점검: 2026-11-19 15:34:34 KST · 실행 중 5분 · �
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 | BLOG-20261119-MODELS | CC-BLOG-01 | done / strict_switch_independent_accepted_undeployed | 블로그 설정 플랫폼별 AI 모델 선택 | Mac 49/49와 원문 1회·정상 전환과 503 상한 2회 수락. 승인 실호출 9/9는 앞선 버전의 담당 결과. 미배포. |
 | RE-20261119-PARTIAL | CC-REALTY-01 | done / partial_results_and_stats_mac_accepted_undeployed | 상가·건물·토지 알림 부분 조회 결과 보존 | f52882db9 Mac 84/84. 부분·0곳 보존, 지역 ID, 통계 호환까지 로컬 검수 수락. 상가 v1.35 묶음 빌드·배포 승인 대기. |
-| RE-20261119-PARTIAL-REL | CC-REALTY-01 | done / commercial_v135_ready_version_zip_and_public_screen_reported | 상가·건물·토지 알림 v1.35 배포 | 운영 Ready, DB/확장/ZIP v1.35 일치 및 소개 화면 확인. 관리자 프로그램 화면·회원 확장 재설치 안내 남음. 푸시 없음. |
+| RE-20261119-PARTIAL-REL | CC-REALTY-01 | done / commercial_v135_live_reinstall_draft_ready | 상가·건물·토지 알림 v1.35 배포 | 운영 Ready·DB/확장/ZIP v1.35. 확장 재설치 안내 문안 준비·미발송. 관리자 프로그램 실화면 확인 대기. |
 | BLOG-20261119-MODELS-3 | CC-BLOG-01 | done / saved_provider_mac_review_accepted_undeployed | 블로그 3개 프로그램 모델 목록 동기화 | SEO 22/22·에이전트 복원/요청 일치 맥미니 수락. 사진 후기 선택지 및 기존 빠른 작성 응답 지연은 별도. 미배포. |
 | BLOG-20261119-PHOTO-MODELS | CC-BLOG-01 | done / photo_models_independent_accepted_undeployed | 네이버 에이전트 사진 리뷰 모델 확대 | 맥미니 57/57. 사진 리뷰 7개 표시·기본 3개·옛 초안·비공개 경계 수락. 담당 실호출 5/5 별도, 미배포. |
 | FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | done / mobile_quickbar_and_preview_mac_accepted_undeployed | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 고정 51d4b2207 Mac 28/28. 모바일 버튼·포커스 및 미리보기 빈 줄 제거 수락. 미배포 묶음 대기, 고정판 실제 편집기 미확인. |

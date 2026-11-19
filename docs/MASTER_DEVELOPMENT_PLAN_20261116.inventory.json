@@ -10228,11 +10228,11 @@
       "owner": "CC-REALTY-01",
       "title": "상가·건물·토지 알림 v1.35 배포",
       "status": "done",
-      "delivery": "commercial_v135_ready_version_zip_and_public_screen_reported",
+      "delivery": "commercial_v135_live_reinstall_draft_ready",
       "sha": "c894f6fe1",
-      "evidence": "msg_ea84e83e8300·c894f6fe1·f52882db9 Mac 84/84·msg_77669c3927b0·5b5b8a2a4·d3d74468e·msg_b0757a444812",
-      "next": "운영 Ready, DB/확장/ZIP v1.35 일치 및 소개 화면 확인. 관리자 프로그램 화면·회원 확장 재설치 안내 남음. 푸시 없음.",
-      "lastReviewedAt": "2026-11-19T06:52:52.390Z"
+      "evidence": "msg_ea84e83e8300·c894f6fe1·f52882db9 Mac 84/84·msg_77669c3927b0·5b5b8a2a4·d3d74468e·msg_b0757a444812·msg_2e8a7f868e5a·popup.js/manifest v1.35 및 저장소 ZIP 경로 대조",
+      "next": "운영 Ready·DB/확장/ZIP v1.35. 확장 재설치 안내 문안 준비·미발송. 관리자 프로그램 실화면 확인 대기.",
+      "lastReviewedAt": "2026-11-19T06:53:44.880Z"
     }
   ]
 }
