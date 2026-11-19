@@ -174,9 +174,21 @@ export function StartScreen({ memberId }: { memberId: string }) {
         </p>
       )}
 
-      <Link href="/create" aria-disabled={!ready} className={`${button} block text-center ${ready ? "" : "pointer-events-none opacity-40"}`}>
-        🎨 그림 만들러 가기
-      </Link>
+      {/* 준비가 안 됐을 때는 링크가 아니라 꺼진 버튼으로 둔다(키보드로도 넘어가지 못하게) */}
+      {ready ? (
+        <Link href="/create" className={`${button} block text-center`}>
+          🎨 그림 만들러 가기
+        </Link>
+      ) : (
+        <button type="button" disabled aria-describedby="not-ready" className={`${button} block w-full`}>
+          🎨 그림 만들러 가기
+        </button>
+      )}
+      {!ready && (
+        <p id="not-ready" className="text-center text-xs text-[var(--muted)]">
+          위 세 단계가 끝나면 누를 수 있습니다.
+        </p>
+      )}
     </div>
   );
 }

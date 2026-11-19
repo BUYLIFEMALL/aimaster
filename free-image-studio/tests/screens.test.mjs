@@ -60,7 +60,9 @@ test("작업 기록: 목록 갱신은 읽기만, 새 접수가 생기는 동작�
   assert.ok(!/submit|resend|replace\(|restart\(|again\(|engine\.confirm|cancel/.test(effects), "화면이 스스로 다시 맡기거나 취소하지 않는다");
   assert.match(effects, /engine\s*\.fetchArt\(r\.jobId\)/, "미리보기는 완료된 그림을 읽기만");
   // 새로 맡기기: 버튼 → 확인 창 → 확인했을 때만 replace(…, true)
-  assert.match(s, /if \(action === "replace"\) return setConfirmReplace\(id\);/);
+  const replaceBranch = s.slice(s.indexOf('if (action === "replace") {'), s.indexOf("void withRow(id, async () => {"));
+  assert.match(replaceBranch, /return setConfirmReplace\(id\);/, "새로 맡기기 버튼은 확인 창만 연다");
+  assert.ok(!/replace\(engine|submit/.test(replaceBranch), "버튼을 누른 것만으로는 맡기지 않는다");
   assert.equal((s.match(/replace\(engine, id, true\)/g) ?? []).length, 1);
   assert.match(s, /const doReplace = /);
   assert.match(s, /role="alertdialog"/);
@@ -69,7 +71,8 @@ test("작업 기록: 목록 갱신은 읽기만, 새 접수가 생기는 동작�
   assert.match(s, /saves\.saveOnce\(row, \(\) => engine\.fetchArt\(jobId\), write, \{ force \}\)/);
   assert.ok(!/a\.download[^;]*;[^]*saveOnce/.test(s.slice(s.indexOf("const act"))), "저장 버튼이 중복 방지를 건너뛰지 않는다");
   // 다시 시작은 목록에서 확인된 작업만(목록을 넘겨 준다)
-  assert.match(s, /restart\(engine, id, jobs \?\? \[\]\)/);
+  assert.ok(s.includes("await restart(engine, id)") && s.includes("await again(engine, id)") && s.includes("await cancelRow(engine, id)") && s.includes("await dismissRow(engine, id)") && s.includes("await cancelAll(engine)"), "화면이 갖고 있던 목록·작업 번호를 넘기지 않는다(실행 직전에 새로 읽는다)");
+  assert.ok(!/engine\.cancel\(|engine\.dismiss\(/.test(s), "화면이 작업 번호로 직접 취소·지우기를 부르지 않는다");
   // 기록을 지우거나 새로 맡길 때 맡기다 만 묶음에서도 뺀다
   assert.equal(s.split("dropFromDraft(window.localStorage, memberId, sub)").length - 1, 2);
   // 처리 중인 줄은 버튼을 막는다

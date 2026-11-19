@@ -145,7 +145,7 @@ test("복원: 혼합 묶음을 맡기다 화면이 닫혀도, 다시 열면 남�
   await submitRemaining(c, storage, { shouldStop: () => n++ >= 1 }); // 첫 줄의 첫 장만 맡기고 닫힘
   c.dispose();
   const c2 = createEngineClient({ memberId: A, storage, fetch: engine.fetch });
-  const left = remainingItems(c2, loadDraft(storage, A));
+  const left = remainingItems(c2, storage);
   assert.deepEqual(left.map((i) => [i.line, i.copy]), [[1, 2], [2, 1], [3, 1], [3, 2]], "첫 줄은 둘째 장만 남았다");
   assert.deepEqual(await submitRemaining(c2, storage), { sent: 4, skipped: 1, remaining: 0 });
   const sent = engine.st.calls.filter(isPost).map((x) => x.body);

@@ -78,6 +78,8 @@ export function buildRows(subs: Submission[], jobs: EngineJob[] | null, ctx: { i
       if (!jobs) return { ...base, phase: "waiting" as const, jobId: s.jobId, actions: [] };
       const job = byRequest.get(s.requestId);
       if (!job) return { ...base, phase: "gone" as const, jobId: s.jobId, actions: ["discard"] as Action[] };
+      // 접수 번호가 같아도 작업 번호가 접수 기록과 다르면 그 줄의 상태·버튼을 쓰지 않는다(다른 범위의 목록이거나 어긋난 응답).
+      if (s.jobId && job.id !== s.jobId) return { ...base, phase: "waiting" as const, jobId: s.jobId, error: "엔진 목록과 접수 기록의 작업 번호가 다릅니다. 잠시 뒤 다시 확인해 주세요.", actions: [] };
       const common = { ...base, jobId: job.id, stage: job.stage, error: job.error, result: job.result };
       if (job.status === "queued" || job.status === "running") return { ...common, phase: job.status, actions: ["cancel"] as Action[] };
       if (job.status === "done") return { ...common, phase: "done" as const, actions: ["save", "again", "dismiss"] as Action[] };
@@ -107,21 +109,49 @@ const need = (client: EngineClient, requestId: string): Submission => {
   return s;
 };
 
+const STALE = "엔진 연결이나 작업 상태가 바뀌었습니다. 목록을 새로 읽은 뒤 다시 눌러 주세요.";
+
 /**
- * 사용자가 고른 동작. 모두 새 접수 번호를 만드는 동작은 사용자가 눌렀을 때만 일어난다.
+ * 동작을 실행하기 **직전에** 다시 확인한다 — 화면에 보이던 줄은 예전 목록·예전 연결의 것일 수 있다.
+ *  1) 이 접수가 지금 연결 범위의 것인가
+ *  2) 지금 범위의 목록을 새로 읽어, 접수 번호와 작업 번호가 **둘 다** 접수 기록과 같은 작업이 있는가
+ *  3) 그 작업의 상태가 이 동작을 할 수 있는 상태인가
+ * 하나라도 아니면 아무것도 보내지 않고 「목록을 새로 읽어 주세요」로 돌려준다.
+ */
+async function currentJob(client: EngineClient, requestId: string, allowed: EngineJob["status"][]): Promise<{ sub: Submission; job: EngineJob }> {
+  const sub = need(client, requestId);
+  if (sub.state !== "accepted" || !sub.jobId || !client.inCurrentScope(requestId)) throw new EngineError("invalid", STALE);
+  const jobs = await client.listJobs();
+  if (!client.inCurrentScope(requestId)) throw new EngineError("invalid", STALE); // 목록을 읽는 사이 연결이 바뀜
+  const now = need(client, requestId);
+  const job = jobs.find((j) => j.clientRequestId === requestId && j.id === now.jobId);
+  if (now.state !== "accepted" || !job || !allowed.includes(job.status)) throw new EngineError("invalid", STALE);
+  return { sub: now, job };
+}
+
+/**
+ * 사용자가 고른 동작. 새 접수 번호를 만드는 동작은 모두 사용자가 눌렀을 때만 일어나고, 실행 직전에 지금 범위·지금 목록으로 다시 확인한다.
  *  - again   완료된 그림을 시드만 바꿔 새로(원래 작업은 그대로)
- *  - restart 실패·중단·취소가 **엔진 목록에서 확인된** 작업을 같은 내용으로 새로(원래 작업은 그대로 둔다 — 지우기는 따로)
+ *  - restart 실패·중단·취소가 **지금 엔진 목록에서 확인된** 작업을 같은 내용으로 새로(원래 작업은 그대로 둔다 — 지우기는 따로)
  *  - replace 받았는지 모르는 접수를 새로 맡기고 옛 기록을 지운다. 엔진이 이미 그렸다면 같은 그림이 두 번 나온다(화면이 먼저 알린다)
  */
 export async function again(client: EngineClient, requestId: string) {
-  const s = need(client, requestId);
-  return client.submit(inputOf(s, newSeed(s.task.seed)));
+  const { sub } = await currentJob(client, requestId, ["done"]);
+  return client.submit(inputOf(sub, newSeed(sub.task.seed)));
 }
-export async function restart(client: EngineClient, requestId: string, jobs: EngineJob[]) {
-  const s = need(client, requestId);
-  const job = jobs.find((j) => j.clientRequestId === requestId);
-  if (s.state !== "accepted" || !job || !["failed", "interrupted", "cancelled"].includes(job.status)) throw new EngineError("invalid", "실패·중단·취소가 확인된 작업만 다시 시작할 수 있습니다.");
-  return client.submit(inputOf(s));
+export async function restart(client: EngineClient, requestId: string) {
+  const { sub } = await currentJob(client, requestId, ["failed", "interrupted", "cancelled"]);
+  return client.submit(inputOf(sub));
+}
+/** 한 줄 취소 — 지금 범위에서 대기·그리는 중으로 확인된 작업만 */
+export async function cancelRow(client: EngineClient, requestId: string): Promise<void> {
+  const { job } = await currentJob(client, requestId, ["queued", "running"]);
+  await client.cancel(job.id);
+}
+/** 끝난 작업을 엔진 목록에서 지우기 — 지금 범위에서 끝난 것으로 확인된 작업만 */
+export async function dismissRow(client: EngineClient, requestId: string): Promise<void> {
+  const { job } = await currentJob(client, requestId, ["done", "failed", "interrupted", "cancelled"]);
+  await client.dismiss(job.id);
 }
 export async function replace(client: EngineClient, requestId: string, acknowledged: boolean) {
   const s = need(client, requestId);
@@ -133,8 +163,12 @@ export async function replace(client: EngineClient, requestId: string, acknowled
   return res;
 }
 
-/** 「모두 멈추기」 — 엔진에 일시정지가 없어, 자기 범위의 대기·그리는 중 작업을 하나씩 취소한다. 접수 기록은 건드리지 않는다 */
-export async function cancelAll(client: EngineClient, jobs: EngineJob[]): Promise<{ cancelled: number; failed: number }> {
+/**
+ * 「모두 멈추기」 — 엔진에 일시정지가 없어, 자기 범위의 대기·그리는 중 작업을 하나씩 취소한다. 접수 기록은 건드리지 않는다.
+ * 화면이 갖고 있던 목록이 아니라 **지금 연결 범위의 목록을 새로 읽어** 취소한다.
+ */
+export async function cancelAll(client: EngineClient): Promise<{ cancelled: number; failed: number }> {
+  const jobs = await client.listJobs();
   let cancelled = 0;
   let failed = 0;
   for (const job of jobs) {
@@ -148,4 +182,11 @@ export async function cancelAll(client: EngineClient, jobs: EngineJob[]): Promis
     }
   }
   return { cancelled, failed };
+}
+
+/** 「다시 보내기」·새 접수 뒤 화면에 보일 문장. 받았는지 모르는 결과를 「접수되지 않았다」고 말하지 않는다 */
+export function sendMessage(res: { state: "accepted" | "unknown" | "rejected"; error?: { message?: string } }, verb = "다시 보내"): string {
+  if (res.state === "accepted") return `${verb} 접수됐습니다.`;
+  if (res.state === "unknown") return "엔진이 받았는지 확인하지 못했습니다. 이미 받았을 수 있으니 「엔진에 확인」을 눌러 주세요.";
+  return `접수되지 않았습니다${res.error?.message ? ` — ${res.error.message}` : ""}`;
 }

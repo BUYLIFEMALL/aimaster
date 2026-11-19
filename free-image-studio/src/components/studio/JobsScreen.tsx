@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { EngineJob, Submission } from "@/lib/engine";
 import { dropFromDraft } from "@/lib/studio/batch";
-import { PHASE_LABEL, again, buildRows, cancelAll, replace, restart, summarize, type Action, type Row } from "@/lib/studio/jobsView";
+import { PHASE_LABEL, again, buildRows, cancelAll, cancelRow, dismissRow, replace, restart, sendMessage, summarize, type Action, type Row } from "@/lib/studio/jobsView";
 import { createSaveStore, type SavedInfo, type Writer } from "@/lib/studio/saveStore";
 import { isKind, messageOf, useEngine } from "./useEngine";
 
@@ -39,6 +39,8 @@ export function JobsScreen({ memberId }: { memberId: string }) {
   const [thumbs, setThumbs] = useState<Record<string, string>>({});
   const [dir, setDir] = useState<DirHandle | null>(null);
   const [confirmReplace, setConfirmReplace] = useState<string | null>(null);
+  const cancelButton = useRef<HTMLButtonElement | null>(null);
+  const opener = useRef<HTMLElement | null>(null);
   const loading = useRef(false);
   const thumbLoading = useRef(new Set<string>());
   const urls = useRef<string[]>([]);
@@ -152,7 +154,10 @@ export function JobsScreen({ memberId }: { memberId: string }) {
   const act = (row: Row, action: Action, force = false) => {
     if (!engine || !saves) return;
     const id = row.requestId;
-    if (action === "replace") return setConfirmReplace(id);
+    if (action === "replace") {
+      opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      return setConfirmReplace(id);
+    }
     void withRow(id, async () => {
       if (action === "confirm") {
         const r = await engine.confirm(id);
@@ -160,23 +165,23 @@ export function JobsScreen({ memberId }: { memberId: string }) {
         return r.reason === "otherScope" ? "엔진 연결이 바뀌어 이 접수는 확인할 수 없습니다." : "엔진 목록에 없습니다. 받지 않았을 수도 있고, 이미 그린 뒤 목록에서 지워졌을 수도 있습니다.";
       }
       if (action === "resend") {
-        const r = await engine.resend(id);
-        return r.state === "accepted" ? "다시 보내 접수됐습니다." : "아직 접수되지 않았습니다.";
+        return sendMessage(await engine.resend(id));
       }
-      if (action === "cancel" && row.jobId) return void (await engine.cancel(row.jobId));
-      if (action === "again") return void (await again(engine, id));
-      if (action === "restart") return void (await restart(engine, id, jobs ?? []));
+      // 아래 동작은 실행 직전에 지금 연결 범위·지금 목록으로 다시 확인한다(화면에 보이던 줄이 예전 것일 수 있다).
+      if (action === "cancel") return void (await cancelRow(engine, id));
+      if (action === "again") return sendMessage(await again(engine, id), "새로 맡겨");
+      if (action === "restart") return sendMessage(await restart(engine, id), "다시 맡겨");
       if (action === "save" && row.jobId) {
         const jobId = row.jobId;
         const r = await saves.saveOnce(row, () => engine.fetchArt(jobId), write, { force });
         return r.saved ? `저장했습니다: ${r.info.name}` : `이미 저장한 그림입니다: ${r.info.name}`;
       }
       if (action === "dismiss" || action === "discard") {
-        if (action === "dismiss" && row.jobId) {
+        if (action === "dismiss") {
           try {
-            await engine.dismiss(row.jobId);
+            await dismissRow(engine, id);
           } catch (e) {
-            if (!isKind(e, "notFound")) throw e; // 엔진에서 이미 사라진 작업이면 기록만 지운다
+            if (!isKind(e, "notFound")) throw e; // 엔진에서 이미 사라진 작업이면 기록만 지운다(연결·상태가 바뀐 경우는 멈춘다)
           }
         }
         // 받았는지 모르는 접수는 사용자가 「기록에서 지우기」를 고른 것이므로 지운다(엔진이 그렸다면 엔진 창에 남는다).
@@ -190,6 +195,21 @@ export function JobsScreen({ memberId }: { memberId: string }) {
     });
   };
 
+  // 확인 창이 열리면 「그만두기」로 포커스를 옮기고, 닫히면 창을 연 버튼으로 돌려준다. Esc로 닫는다.
+  useEffect(() => {
+    if (!confirmReplace) return;
+    cancelButton.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setConfirmReplace(null);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      opener.current?.focus();
+      opener.current = null;
+    };
+  }, [confirmReplace]);
+
   const doReplace = (id: string) => {
     if (!engine || !saves) return;
     setConfirmReplace(null);
@@ -199,14 +219,14 @@ export function JobsScreen({ memberId }: { memberId: string }) {
       saves.forget(id);
       // 새 기록이 같은 내용이라 묶음과 다시 짝이 맞지만, 새로 맡기기가 기록을 못 남긴 경우를 대비해 묶음에서도 뺀다.
       if (sub) dropFromDraft(window.localStorage, memberId, sub);
-      return r.state === "accepted" ? "새로 맡겼습니다." : "새로 맡겼지만 엔진이 받았는지 확인하지 못했습니다.";
+      return sendMessage(r, "새로 맡겨");
     });
   };
 
   const stopAll = () => {
     if (!engine || !jobs) return;
     void withRow("__all__", async () => {
-      const r = await cancelAll(engine, jobs);
+      const r = await cancelAll(engine);
       return `${r.cancelled}개를 멈췄습니다${r.failed ? ` (${r.failed}개는 멈추지 못했습니다)` : ""}. 다시 그리려면 줄마다 「다시 시작」을 눌러 주세요.`;
     });
   };
@@ -254,16 +274,16 @@ export function JobsScreen({ memberId }: { memberId: string }) {
       )}
 
       {confirmReplace && (
-        <section role="alertdialog" aria-labelledby="replace-title" className={`${card} border-amber-500/60`}>
+        <section role="alertdialog" aria-modal="false" aria-labelledby="replace-title" aria-describedby="replace-desc" className={`${card} border-amber-500/60`}>
           <h2 id="replace-title" className="text-sm font-bold">
             같은 그림이 두 번 나올 수 있습니다
           </h2>
-          <p className="mt-2 text-sm text-[var(--muted)]">엔진이 이 그림을 받았는지 확인하지 못했습니다. 이미 받아서 그렸다면, 새로 맡기면 같은 그림을 한 번 더 그립니다. 그래도 새로 맡길까요?</p>
+          <p id="replace-desc" className="mt-2 text-sm text-[var(--muted)]">엔진이 이 그림을 받았는지 확인하지 못했습니다. 이미 받아서 그렸다면, 새로 맡기면 같은 그림을 한 번 더 그립니다. 그래도 새로 맡길까요?</p>
           <div className="mt-3 flex gap-2">
             <button type="button" onClick={() => doReplace(confirmReplace)} className={button}>
               새로 맡기기
             </button>
-            <button type="button" onClick={() => setConfirmReplace(null)} className={ghost}>
+            <button type="button" ref={cancelButton} onClick={() => setConfirmReplace(null)} className={ghost}>
               그만두기
             </button>
           </div>

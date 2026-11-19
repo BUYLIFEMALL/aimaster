@@ -146,7 +146,7 @@ test("새로고침 뒤 같은 범위 복원: 새 화면(같은 저장소)에서 
   const before = await rowsOf(c2);
   assert.deepEqual(before.map((r) => r.title).sort(), ["실사·블로그 1번", "실사·블로그 2번", "실사·블로그 3번"]);
   assert.ok(before.every((r) => r.phase === "queued" && r.inScope));
-  assert.equal(remainingItems(c2, loadDraft(storage, A)).length, 3);
+  assert.equal(remainingItems(c2, storage).length, 3);
   const second = await submitRemaining(c2, storage);
   assert.deepEqual(second, { sent: 3, skipped: 3, remaining: 0 });
   assert.equal(engine.st.jobs.length, 6, "이미 맡긴 세 장을 다시 보내지 않았다");
@@ -206,9 +206,10 @@ test("받았는지 모르는 줄을 기록에서 지우면 맡기다 만 묶음�
   assert.equal(unknown.state, "unknown");
   // 사용자가 그 줄을 기록에서 지운다(화면의 「기록에서 지우기」와 같은 순서)
   assert.equal(c.forget(unknown.requestId, { force: true }), true);
-  assert.equal(remainingItems(c, loadDraft(storage, A)).length, 3, "묶음에서 빼지 않으면 지운 그림이 남은 장으로 되살아난다");
+  assert.equal(loadDraft(storage, A).find((it) => it.requestId === unknown.requestId)?.line, 1, "맡긴 항목에는 접수 번호가 적혀 있다");
+  assert.equal(remainingItems(c, storage).length, 2, "접수 번호가 적힌 항목은 기록을 지워도 남은 장으로 되살아나지 않는다");
   dropFromDraft(storage, A, unknown);
-  assert.equal(loadDraft(storage, A).length, 2);
+  assert.equal(loadDraft(storage, A).length, 2, "지운 그림은 묶음에서도 빠진다");
   assert.deepEqual(await submitRemaining(c, storage), { sent: 2, skipped: 0, remaining: 0 });
   assert.equal(posts(engine).filter((x) => x.body.task.seed === unknown.task.seed).length, 1, "지운 그림을 다시 보내지 않았다");
   assert.equal(engine.st.jobs.length, 3);
@@ -266,7 +267,7 @@ test("사용자가 요청한 취소: 한 줄 취소와 「모두 멈추기」 �
   const other = await paired(engine, memoryStorage(), B);
   const theirs = await other.c.submit({ title: "남의 그림", prompt: "a blue bird on a branch" });
   // 모두 멈추기
-  const out = await cancelAll(c, await c.listJobs());
+  const out = await cancelAll(c);
   assert.deepEqual(out, { cancelled: 3, failed: 0 }, "대기 2 + 그리는 중 1");
   rows = await rowsOf(c);
   assert.deepEqual(rows.map((r) => r.phase).sort(), ["cancelled", "cancelled", "cancelled", "cancelled", "done"]);
@@ -279,7 +280,7 @@ test("사용자가 요청한 취소: 한 줄 취소와 「모두 멈추기」 �
   await start(e2, p2.c, p2.storage, lines(3));
   let k = 0;
   e2.st.override = (call) => (call.path.endsWith("/cancel") && ++k === 2 ? new Response(JSON.stringify({ error: "그 작업을 찾지 못했습니다." }), { status: 404 }) : null);
-  assert.deepEqual(await cancelAll(p2.c, await p2.c.listJobs()), { cancelled: 2, failed: 1 });
+  assert.deepEqual(await cancelAll(p2.c), { cancelled: 2, failed: 1 });
 });
 
 test("확정 실패 재시작: 엔진 목록에서 실패·중단·취소가 확인된 줄만, 사용자가 눌렀을 때 새 접수 번호로", async () => {
@@ -299,21 +300,24 @@ test("확정 실패 재시작: 엔진 목록에서 실패·중단·취소가 확
   assert.deepEqual(row(j4).actions, ["cancel"]);
   // 목록을 만들기만 해서는 다시 시작하지 않는다
   assert.equal(posts(engine).length, 4);
-  const r1 = await restart(c, row(j1).requestId, jobs);
+  const r1 = await restart(c, row(j1).requestId);
   assert.equal(r1.state, "accepted");
   assert.notEqual(r1.requestId, row(j1).requestId);
   assert.deepEqual(posts(engine).at(-1).body.task, j1.task, "같은 내용(같은 시드)");
   assert.equal(engine.st.jobs.length, 5);
   // 실패가 확인되지 않은 줄은 다시 시작할 수 없다: 완료·대기 중·받았는지 모름·목록에 없음
-  await assert.rejects(restart(c, row(j3).requestId, jobs), kind("invalid"));
-  await assert.rejects(restart(c, row(j4).requestId, jobs), kind("invalid"));
-  await assert.rejects(restart(c, row(j2).requestId, []), kind("invalid"), "목록에서 확인되지 않으면 안 된다");
+  await assert.rejects(restart(c, row(j3).requestId), kind("invalid"));
+  await assert.rejects(restart(c, row(j4).requestId), kind("invalid"));
+  const kept = engine.st.jobs;
+  engine.st.jobs = kept.filter((j) => j.id !== j2.id);
+  await assert.rejects(restart(c, row(j2).requestId), kind("invalid"), "지금 엔진 목록에서 확인되지 않으면 안 된다");
+  engine.st.jobs = kept;
   engine.st.loseResponse = isPost;
   const lost = await c.submit({ title: "유실", prompt: "a small boat on a river", seed: 7 });
   engine.st.loseResponse = null;
   jobs = await c.listJobs();
-  await assert.rejects(restart(c, lost.requestId, jobs), kind("invalid"), "받았는지 모르는 접수는 다시 시작이 아니라 확인부터");
-  await assert.rejects(restart(c, "no-such-request", jobs), kind("invalid"));
+  await assert.rejects(restart(c, lost.requestId), kind("invalid"), "받았는지 모르는 접수는 다시 시작이 아니라 확인부터");
+  await assert.rejects(restart(c, "no-such-request"), kind("invalid"));
   assert.equal(posts(engine).length, 6);
   // 완료된 그림 「다시 만들기」는 시드만 바꾼다
   const a = await again(c, row(j3).requestId);
@@ -380,12 +384,12 @@ test("회원 변경: 앞 회원의 줄·맡길 묶음·저장 기록·엔진 작
   assert.deepEqual(await b.listJobs(), []);
   assert.equal(engine.st.jobs.length, 2);
   await assert.rejects(b.fetchArt(rowA.jobId), kind("notFound"));
-  await assert.rejects(restart(b, rowA.requestId, []), kind("invalid"));
+  await assert.rejects(restart(b, rowA.requestId), kind("invalid"));
   // A가 돌아오면 자기 것이 그대로
   const a2 = createEngineClient({ memberId: A, storage, fetch: engine.fetch });
   assert.equal((await rowsOf(a2)).length, 2);
   assert.equal(loadDraft(storage, A).length, 3);
-  assert.equal(remainingItems(a2, loadDraft(storage, A)).length, 1);
+  assert.equal(remainingItems(a2, storage).length, 1);
   assert.ok(saveA.savedInfo(rowA.requestId));
   // 앞 회원의 화면이 남긴 늦은 응답은 버려진다
   await assert.rejects(a.c.listJobs(), kind("stale"));
@@ -416,8 +420,9 @@ test("결과 중복 저장 방어: 같은 그림은 한 번만 쓰고, 동시에
   assert.equal(written.length, 1, "두 번째에는 쓰지 않는다");
   assert.equal(fetches(), n, "그림을 다시 받지도 않는다");
   // 동시에 두 번
-  const both = await Promise.allSettled([store.saveOnce(r2, load(r2), write), store.saveOnce(r2, load(r2), write)]);
-  assert.deepEqual(both.map((x) => x.status).sort(), ["fulfilled", "rejected"]);
+  const both = await Promise.all([store.saveOnce(r2, load(r2), write), store.saveOnce(r2, load(r2), write)]);
+  assert.deepEqual(both.map((x) => x.saved).sort(), [false, true], "둘째는 첫째가 끝난 뒤 기록을 보고 쓰지 않는다");
+  assert.equal(both[0].info.name, both[1].info.name);
   assert.equal(written.length, 2);
   // 새로고침 뒤(새 저장 기록 객체)에도 기억한다
   const store2 = createSaveStore(storage, A);
@@ -451,7 +456,8 @@ test("맡길 묶음 보관: 회원별, 손상된 내용은 엔진에 보내지 �
   const storage = memoryStorage();
   const p = plan(lines(3));
   saveDraft(storage, A, p.items);
-  assert.deepEqual(loadDraft(storage, A), p.items);
+  assert.deepEqual(loadDraft(storage, A).map(({ key, ...rest }) => rest), p.items);
+  assert.equal(new Set(loadDraft(storage, A).map((it) => it.key)).size, 3, "항목마다 고유 번호");
   assert.deepEqual(loadDraft(storage, B), []);
   for (const bad of ["{broken", "null", JSON.stringify({ v: 2, items: p.items }), JSON.stringify({ v: 1, items: "x" }), JSON.stringify({ v: 1, items: [{ title: "t", prompt: "한글 설명입니다 요", seed: 1 }] }), JSON.stringify({ v: 1, items: [{ ...p.items[0], width: 999 }] }), JSON.stringify({ v: 1, items: [{ ...p.items[0], seed: "1" }] }), JSON.stringify({ v: 1, items: Array.from({ length: 25 }, () => p.items[0]) })]) {
     storage.map.set(`fis.draft.v1:${A}`, bad);

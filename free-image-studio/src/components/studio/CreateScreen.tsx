@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { BATCH_MAX, COPIES_MAX, buildPlan, clearDraft, loadCompose, loadDraft, parseEntries, remainingItems, saveCompose, saveDraft, setLineCopies, submitRemaining, type RunResult } from "@/lib/studio/batch";
+import { BATCH_MAX, COPIES_MAX, buildPlan, clearDraft, loadCompose, parseEntries, remainingItems, saveCompose, saveDraft, setLineCopies, submitRemaining, type RunResult } from "@/lib/studio/batch";
 import { PRESETS, SIZE_CHOICES, findPreset, findSize, pickVariantId, type ModelState, type PresetId } from "@/lib/studio/presets";
 import { messageOf, useEngine } from "./useEngine";
 
@@ -41,7 +41,7 @@ export function CreateScreen({ memberId }: { memberId: string }) {
 
   const readLeft = useCallback(() => {
     if (!engine) return;
-    setLeft(remainingItems(engine, loadDraft(window.localStorage, memberId)).length);
+    setLeft(remainingItems(engine, window.localStorage).length);
   }, [engine, memberId]);
 
   // 적던 내용(줄·줄마다 장수·용도·비율)을 회원별로 보관했다가 되돌린다.
