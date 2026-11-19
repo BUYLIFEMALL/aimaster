@@ -510,7 +510,7 @@ Master 마지막 실제 점검: 2026-11-19 13:33:14 KST · 실행 중 점검 주
 | AIF-20261118-W03 | 미배정 | queued / sequenced_after_w01_and_w02_by_owner_instruction | 회원용 인물 라이브러리·시트·버전 | 주인님 지시대로 W01·W02 이후 시작. 인물 라이브러리·일괄 이미지·영상 미착수. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 | BLOG-20261119-MODELS | CC-BLOG-01 | reviewing / mac_43_pass_two_endpoint_negation_cases_returned | 블로그 설정 플랫폼별 AI 모델 선택 | 맥미니 43/43 및 추가 모델별 합성 7건. 부정 대상 혼동·능동형 모순 두 사례 최소 보완 요청. 승인 실호출 9건 소진. |
-| FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | running / mobile_overlap_confirmed_local_fix_assigned | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 767px 이하 첫 표시를 접힌 상태로 개선하고 375/390/768px 및 키보드 확인. 고정 SHA 반환 뒤 맥미니 독립 검수. 별도 빌드·운영 저장·배포 없음. |
+| FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | reviewing / fixed_mobile_panel_mac_keyboard_and_overlap_review_dispatched | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 담당 시험 13/13·타입 통과. 모바일 패널 겹침은 해소, 손잡이 약 18px 겹침과 초기 접근성 이름 남음. 맥미니 키보드·접근성 검수 요청. 미배포. |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
