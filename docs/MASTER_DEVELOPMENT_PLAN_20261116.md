@@ -1,16 +1,16 @@
 # AIMaster 총괄 개발 플랜·작업 지휘표
 
-기준: 2026-11-19 13:01:14 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
+기준: 2026-11-19 13:33:14 KST · 총괄: Codex(Master), CX-MASTER-01 · 최종 결정권자: 주인님
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-19 13:01:14 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
+Master 마지막 실제 점검: 2026-11-19 13:33:14 KST · 실행 중 점검 주기: 5분 · 턴 밖 자동 점검: 30분 메시지 예약 활성화 · 현재 Master 터미널에서 점검
 
-점검 범위: 12:31:07 KST 이후 증분. 프로그램 103개·19개 분류, 미완료 26건(진행 4·검수 4·순번 5·사용자 단계 13), Git·점유·인수인계·배정과 승인 대조. 무료 이미지 Q4 성능 소량 비교 완료, 품질 평가 진행 준비. B2B 사용자 로그인과 AIF 승인 재시험 결과 대기. 추가 배포·운영 DB 변경 승인 없음.
+점검 범위: 13:01:14 KST 이후 증분. 103개 프로그램·19개 분류, 미완료 26건(진행 3·검수 5·순번 5·사용자 단계 13). Git·점유·사용자 지시·결과/인수인계 대조. 부동산 문자 안내·AIF 격리 실행기 검수 수락. 블로그 최신 모델과 이미지 엔진 로컬 구현 진행. 신규 운영 배포·DB·키·유료 호출 승인 없음.
 
-후속 배정: CC-ECOM-01의 16쌍 비교 화면·결과표 반환 후 확인. Mac 공간39 로그인 후 관리자 검수, 다음 공간29 교환비 읽기. AIF 제한 재시험 증거 수신.
+후속 배정: IMG 음악 담당 엔진 로컬 소스만, 새 출처 운영 등록·설치판 별도. Blog 최신 목록 Mac 검수. B2B 공간39 로그인/제어 반환 뒤 관리자 검수·공간29 순차.
 
-미확인: Q4 대 Q8 품질·저사양 카드 지원·출시 기준, B2B 로그인 뒤 실제 UI, AIF 응답/비용 · 이전 미추적 자료 및 운영 전수 실측 미실행
+미확인: IMG 엔진 실제 구현·저사양 장비 지원·출시 기준, Blog 실제 계정 호출 및 빌드, B2B 로그인 뒤 화면, AIF Windows 후속 실기동 · 운영 전수 실측 및 오래된 미추적 파일 재검증 미실행
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -424,7 +424,7 @@ Master 마지막 실제 점검: 2026-11-19 13:01:14 KST · 실행 중 점검 주
 | B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | reviewing / local_data_layer_review_passed_server_approval_pending | 메이커 M3 제안 적용·서버 바이트 검증 설계 | f0eaf784c Mac 로컬 데이터 계층 독립 검수 수락을 Backend에 회신. 점 경로 검증, 서버 구현·키·UI·Lab은 별도 승인 대기. |
 | B2B-20261119-ADMINUI | AG-UI-01 | waiting_human / private_lab_ready_waiting_owner_admin_login | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | 메모리 부족 후 사용자 지시로 사설 Lab 재시작, PID 43784·ad046c1eb·login 200 확인. Mac 공간39 사용자 제어 유지, 반환 후 읽기 검수. |
 | B2B-20261119-MALL-STORAGE | CX-MASTER-01 | queued / central_accounting_scope_registered_retention_excluded | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 메인 집계에서 몰별 경로를 몰 주인에게 귀속하고 중복 방지·구매 안내 범위를 설계. 30일 삭제 요청 취소·등록 상품 최소 1년 보관 유지. 운영 적용 별도. |
-| IMG-20261119-PLAN | CC-ECOM-01 | running / p1_isolation_design_returned_rollback_contract_refinement_requested | AI 무료 이미지 자동화 개발 플랜 | P1 소유 범위·재연결·접수 ID 보완안 반환. 이전 설치판 복귀 시 토큰/작업 분리, 기록 손상과 동시 접수 조건 정교화 요청. 구현 전. |
+| IMG-20261119-PLAN | CC-ECOM-01 | running / p1_engine_isolation_local_implementation_dispatched | AI 무료 이미지 자동화 개발 플랜 | 토큰·큐·그림 저장 분리 설계 수락. 엔진 로컬 PR-A 음악 담당에 배정, 운영 출처·웹·설치판·빌드 제외. 반환 후 Mac 독립 검수. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
@@ -507,7 +507,7 @@ Master 마지막 실제 점검: 2026-11-19 13:01:14 KST · 실행 중 점검 주
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |
 | AIF-20261118-W03 | 미배정 | queued / sequenced_after_w01_and_w02_by_owner_instruction | 회원용 인물 라이브러리·시트·버전 | 주인님 지시대로 W01·W02 이후 시작. 인물 라이브러리·일괄 이미지·영상 미착수. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
-| BLOG-20261119-MODELS | CC-BLOG-01 | reviewing / latest_model_list_returned_official_release_correction_requested | 블로그 설정 플랫폼별 AI 모델 선택 | 주인님 지시 최신 모델 목록 반환. GPT-6.2 Astra/Sol 공식 API 출시 확인해 누락 목록·카탈로그 정정 배정. 계정 실호출·빌드·배포 미실행. |
+| BLOG-20261119-MODELS | CC-BLOG-01 | reviewing / official_model_list_correction_returned_mac_review_dispatched | 블로그 설정 플랫폼별 AI 모델 선택 | GPT-6.2 Astra/Sol 선택 추가, Terra 기본값 유지. 작성자 24/24, Mac 독립 모델·요청 검수 배정. 실제 호출·빌드·배포 전. |
 
 ## 현재 담당 회신이 확보된 프로젝트
 

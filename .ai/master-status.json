@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-19T04:01:14.202Z",
+  "checkedAt": "2026-11-19T04:33:14.078Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -6090,11 +6090,11 @@
       "reviewer": "CX-QA-01",
       "title": "AI 무료 이미지 자동화 개발 플랜",
       "status": "running",
-      "delivery": "p1_isolation_design_returned_rollback_contract_refinement_requested",
-      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기·msg_4423e8b13051·msg_6d81c947bd00·d6f1d0287·00158b7a3·msg_e49f861919f9·msg_25a67c9094a4·msg_11158461bd15·msg_680de25b9e15·98f8dd8bc·68efe5399·msg_fd207f8be38a·msg_5074f8e947cf·msg_254300c4a578·msg_cd4c7a612051·3fbd4b200·Arc CSV 2행 직접 대조·995a92ac-01f9-45e2-a3a4-91a3862df9e3·msg_025a7125b66c·msg_5c32df5c7178·msg_287b5412841b·msg_7492634e4c5a·msg_68e97e7d4656·msg_d36a6a75b50c·msg_9a3bd624f2e1·msg_309652177f5b·중복 msg_5a0e1dee6395 정정 보고·11:44 KST Admin Codex 터미널 본시험 진행 확인·11:50 KST Admin Codex 터미널 FLUX 48/48 중간 보고·msg_f2aba7390f58·msg_32e9ef68cd67·444034a1e·msg_45ce6d2b5731·msg_952e1148ece6·msg_9c55abed11da·msg_05eeafdb243c·Master CSV/PNG 해시 일치·msg_60514833d426·msg_8c5418f1b1f8·msg_2c1454bc23a0·msg_320b474b9a14·msg_1dc750048e02·f988aaab8·msg_377218bf1613·msg_1e45bac91599·73d53045e·msg_ca0dc8f285f1·Master PNG 96개/CSV 해시 확인·msg_c7d8c25b2b0f·msg_d0aa30c8fbca·HTML SHA/PNG 96개 직접 확인·msg_69266b1b62fc·d3babd8e4·Master 48/46 재집계·msg_1cfdd780b8d4·msg_ea053258743e·f6c6e049e·msg_9b9f6d69af92·msg_56cc9598b6b0·msg_27716f68082f·msg_05239b8dff9b·msg_7d5b73a67c25·af7d039f7·msg_49edda0b038d·정비율 5파일 Master 해시/헤더 대조·msg_f3af85c28f8e·msg_7d7a54aacc65·msg_48e9535f7335·6b382e836·msg_e2f54750fd3a·Master Q4 CSV/PNG 대조·msg_56bb8df81705·msg_ecd2ab927730·49bec95a8·Master eval-2 HTML SHA/PNG 32개 확인·msg_dc45aef4223e·Master Q4/Q8 16쌍 재집계·msg_7f3e70cc5834·msg_c439f0684ff1·fe37bf575·45a8bb41d·msg_66af7917a7f5·msg_0962d9630d0e·msg_dacd098aff64·msg_a6e29be3b1c5·0f22e067a·msg_ed08ca7c8bff",
-      "next": "P1 소유 범위·재연결·접수 ID 보완안 반환. 이전 설치판 복귀 시 토큰/작업 분리, 기록 손상과 동시 접수 조건 정교화 요청. 구현 전.",
-      "lastReviewedAt": "2026-11-19T04:29:48.068Z",
-      "sha": "0f22e067a"
+      "delivery": "p1_engine_isolation_local_implementation_dispatched",
+      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기·msg_4423e8b13051·msg_6d81c947bd00·d6f1d0287·00158b7a3·msg_e49f861919f9·msg_25a67c9094a4·msg_11158461bd15·msg_680de25b9e15·98f8dd8bc·68efe5399·msg_fd207f8be38a·msg_5074f8e947cf·msg_254300c4a578·msg_cd4c7a612051·3fbd4b200·Arc CSV 2행 직접 대조·995a92ac-01f9-45e2-a3a4-91a3862df9e3·msg_025a7125b66c·msg_5c32df5c7178·msg_287b5412841b·msg_7492634e4c5a·msg_68e97e7d4656·msg_d36a6a75b50c·msg_9a3bd624f2e1·msg_309652177f5b·중복 msg_5a0e1dee6395 정정 보고·11:44 KST Admin Codex 터미널 본시험 진행 확인·11:50 KST Admin Codex 터미널 FLUX 48/48 중간 보고·msg_f2aba7390f58·msg_32e9ef68cd67·444034a1e·msg_45ce6d2b5731·msg_952e1148ece6·msg_9c55abed11da·msg_05eeafdb243c·Master CSV/PNG 해시 일치·msg_60514833d426·msg_8c5418f1b1f8·msg_2c1454bc23a0·msg_320b474b9a14·msg_1dc750048e02·f988aaab8·msg_377218bf1613·msg_1e45bac91599·73d53045e·msg_ca0dc8f285f1·Master PNG 96개/CSV 해시 확인·msg_c7d8c25b2b0f·msg_d0aa30c8fbca·HTML SHA/PNG 96개 직접 확인·msg_69266b1b62fc·d3babd8e4·Master 48/46 재집계·msg_1cfdd780b8d4·msg_ea053258743e·f6c6e049e·msg_9b9f6d69af92·msg_56cc9598b6b0·msg_27716f68082f·msg_05239b8dff9b·msg_7d5b73a67c25·af7d039f7·msg_49edda0b038d·정비율 5파일 Master 해시/헤더 대조·msg_f3af85c28f8e·msg_7d7a54aacc65·msg_48e9535f7335·6b382e836·msg_e2f54750fd3a·Master Q4 CSV/PNG 대조·msg_56bb8df81705·msg_ecd2ab927730·49bec95a8·Master eval-2 HTML SHA/PNG 32개 확인·msg_dc45aef4223e·Master Q4/Q8 16쌍 재집계·msg_7f3e70cc5834·msg_c439f0684ff1·fe37bf575·45a8bb41d·msg_66af7917a7f5·msg_0962d9630d0e·msg_dacd098aff64·msg_a6e29be3b1c5·0f22e067a·msg_ed08ca7c8bff·msg_1c30d67ce7d8·3383cec03·msg_b82fb12c2134·msg_f87668d3599b·msg_a2d69f45e9f5",
+      "next": "토큰·큐·그림 저장 분리 설계 수락. 엔진 로컬 PR-A 음악 담당에 배정, 운영 출처·웹·설치판·빌드 제외. 반환 후 Mac 독립 검수.",
+      "lastReviewedAt": "2026-11-19T04:33:14.078Z",
+      "sha": "3383cec03"
     },
     {
       "task_id": "ECOM-20261119-EMOTION-QA",
@@ -6124,11 +6124,11 @@
       "reviewer": "CX-QA-01",
       "title": "블로그 설정 플랫폼별 AI 모델 선택",
       "status": "reviewing",
-      "delivery": "latest_model_list_returned_official_release_correction_requested",
-      "sha": "f8f4520f9",
-      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e·msg_ae0e6dba4e84·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_e75e68c7f151·msg_d6f2385e1c72·7012fe1bf·msg_c5d009c34a43·msg_9d70d930ca5b·msg_2888acb4d0d4·msg_e7fae7770278·a7df2611f·msg_d19c65d4a1e5·msg_063718bdf213·msg_963f5dc087ca·msg_a5e256873a03·msg_a9f294314f32·msg_2497dcc19f0a·msg_7990e00f7c3e·msg_5171eb3488de·f8f4520f9·e0f02d424·OpenAI 2026-11-17 릴리스 노트·msg_77eaa7b278fe",
-      "next": "주인님 지시 최신 모델 목록 반환. GPT-6.2 Astra/Sol 공식 API 출시 확인해 누락 목록·카탈로그 정정 배정. 계정 실호출·빌드·배포 미실행.",
-      "lastReviewedAt": "2026-11-19T04:29:48.068Z"
+      "delivery": "official_model_list_correction_returned_mac_review_dispatched",
+      "sha": "c213647a4",
+      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e·msg_ae0e6dba4e84·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_e75e68c7f151·msg_d6f2385e1c72·7012fe1bf·msg_c5d009c34a43·msg_9d70d930ca5b·msg_2888acb4d0d4·msg_e7fae7770278·a7df2611f·msg_d19c65d4a1e5·msg_063718bdf213·msg_963f5dc087ca·msg_a5e256873a03·msg_a9f294314f32·msg_2497dcc19f0a·msg_7990e00f7c3e·msg_5171eb3488de·f8f4520f9·e0f02d424·OpenAI 2026-11-17 릴리스 노트·msg_77eaa7b278fe·msg_0421763e1697·c213647a4·755d7c529·msg_87a196aedfda",
+      "next": "GPT-6.2 Astra/Sol 선택 추가, Terra 기본값 유지. 작성자 24/24, Mac 독립 모델·요청 검수 배정. 실제 호출·빌드·배포 전.",
+      "lastReviewedAt": "2026-11-19T04:33:14.078Z"
     },
     {
       "task_id": "RE-20261119-DESK-U1A",
@@ -6660,21 +6660,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T04:01:14.202Z",
+      "at": "2026-11-19T04:33:14.078Z",
       "timezone": "Asia/Seoul",
-      "trigger": "13:00 예약 점검 메시지 msg_aa534aacb68b 수신",
-      "scope": "12:31:07 KST 이후 증분. 프로그램 103개·19개 분류, 미완료 26건(진행 4·검수 4·순번 5·사용자 단계 13), Git·점유·인수인계·배정과 승인 대조.",
+      "trigger": "13:30 예약 점검 메시지 msg_bc0ee9820552 수신",
+      "scope": "13:01:14 KST 이후 증분. 103개 프로그램·19개 분류, 미완료 26건(진행 3·검수 5·순번 5·사용자 단계 13). Git·점유·사용자 지시·결과/인수인계 대조.",
       "evidence": [
-        "13:00:01 예약 성공, 13:00:03 전송 msg_aa534aacb68b, 기존 Master 수신.",
-        "주인님 품질 48쌍/가림 유지 46쌍 직접 재집계 및 d3babd8e. 정비율 Q8 4장 해시·IHDR 대조, 보고서 6b382e836.",
-        "RTX Q4 16/16 완료 msg_e2f54750fd3a, CSV 두 개 직접 해시 확인·중앙값/VRAM 재계산·PNG 16개. 16쌍 품질 비교 화면 요청 msg_56bb8df81705.",
-        "B2B Tailscale 한정 PID 41608 확인, Mac 로그인 사용자 단계 시점 유지. Master 관리자 대기 요청 0, 원격 master af36bb4675d 유지, 최근 새 인수인계 0, HANDOFF 기존 AIF 9줄 유지."
+        "13:30:01 예약 실행 성공, 13:30:05 전송 msg_bc0ee9820552, 기존 Master 수신.",
+        "IMG Q4/Q8 16쌍 직접 재집계, P1 3383cec03 및 음악 검토 msg_f87668d3599b. 엔진 로컬 PR-A 배정 msg_a2d69f45e9f5.",
+        "RE 1f55c38f2 독립 11/11, AIF e3421c7a9 독립 18/18, BLOG 772d8c78c 타이머 수락 및 새 모델 API 정정 c213647a4/755d7c529 독립 검수 전송. 결과 기록 3건 최신분 대조.",
+        "B2B PID 43784 사설 바인딩, 사용자 제어 대기 동일. Master 대기 요청 0, 원격 master af36bb4675d 유지, HANDOFF 이전 AIF 9줄."
       ],
-      "judgment": "무료 이미지 Q4 성능 소량 비교 완료, 품질 평가 진행 준비. B2B 사용자 로그인과 AIF 승인 재시험 결과 대기. 추가 배포·운영 DB 변경 승인 없음.",
-      "nextAction": "CC-ECOM-01의 16쌍 비교 화면·결과표 반환 후 확인. Mac 공간39 로그인 후 관리자 검수, 다음 공간29 교환비 읽기. AIF 제한 재시험 증거 수신.",
+      "judgment": "부동산 문자 안내·AIF 격리 실행기 검수 수락. 블로그 최신 모델과 이미지 엔진 로컬 구현 진행. 신규 운영 배포·DB·키·유료 호출 승인 없음.",
+      "nextAction": "IMG 음악 담당 엔진 로컬 소스만, 새 출처 운영 등록·설치판 별도. Blog 최신 목록 Mac 검수. B2B 공간39 로그인/제어 반환 뒤 관리자 검수·공간29 순차.",
       "unverified": [
-        "Q4 대 Q8 품질·저사양 카드 지원·출시 기준, B2B 로그인 뒤 실제 UI, AIF 응답/비용",
-        "이전 미추적 자료 및 운영 전수 실측 미실행"
+        "IMG 엔진 실제 구현·저사양 장비 지원·출시 기준, Blog 실제 계정 호출 및 빌드, B2B 로그인 뒤 화면, AIF Windows 후속 실기동",
+        "운영 전수 실측 및 오래된 미추적 파일 재검증 미실행"
       ]
     },
     "notifications": [
