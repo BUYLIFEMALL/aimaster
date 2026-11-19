@@ -6,6 +6,7 @@ import type { EngineJob, Submission } from "@/lib/engine";
 import { dropFromDraft } from "@/lib/studio/batch";
 import { PHASE_LABEL, again, buildRows, cancelAll, cancelRow, dismissRow, replace, restart, sendMessage, summarize, type Action, type Row } from "@/lib/studio/jobsView";
 import { createSaveStore, hasCrossTabLock, type SavedInfo, type Writer } from "@/lib/studio/saveStore";
+import { LedgerNotice } from "./LedgerNotice";
 import { isKind, messageOf, useEngine } from "./useEngine";
 
 const card = "rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4";
@@ -236,6 +237,7 @@ export function JobsScreen({ memberId }: { memberId: string }) {
 
   return (
     <div className="mx-auto max-w-4xl space-y-4">
+      <LedgerNotice engine={engine} onChange={() => void refresh()} />
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold">📋 작업 기록</h1>

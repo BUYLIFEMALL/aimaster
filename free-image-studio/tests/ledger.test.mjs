@@ -195,11 +195,13 @@ test("접수 기록 갱신의 조정 경계 — 한 화면이 접수 기록을 �
 test("접수 기록을 고쳐 쓰는 길은 하나 — 잠금 안에서 다시 읽고 쓴다. 다시 들어가지 않는다(멈춤 없음)", async () => {
   const src = await readFile(new URL("../src/lib/engine.ts", import.meta.url), "utf8");
   // 저장소에 접수 기록을 쓰는 곳은 writeLedger 한 곳, writeLedger를 부르는 곳은 mutate 한 곳
-  assert.equal(src.split("storage.setItem(ledgerKey,").length - 1, 1);
+  // 쓰는 곳은 둘: 평소의 writeLedger, 그리고 손상된 기록을 옮기고 빈 기록으로 다시 시작하는 setAsideBrokenLedger(손상됐을 때만, 사용자 확인 뒤).
+  assert.equal(src.split("storage.setItem(ledgerKey,").length - 1, 2);
+  assert.ok(src.includes('storage.setItem(ledgerKey, "[]");'));
   assert.equal(src.split("writeLedger(").length - 1, 2, "정의 1 + mutate 안의 호출 1");
   assert.ok(src.includes("if (out.list) writeLedger(out.list);"));
   assert.ok(src.includes("return ledgerLock(ledgerLockName, async () => {"));
-  assert.equal(src.split("ledgerLock(ledgerLockName").length - 1, 1, "잠금을 잡는 곳도 한 곳");
+  assert.equal(src.split("ledgerLock(ledgerLockName").length - 1, 2, "잠금을 잡는 곳은 mutate와 손상 기록 옮기기 둘뿐");
   // mutate에 넘기는 계산 안에서는 접수 기록을 고치는 함수(mutate·patch·settle)나 await를 쓰지 않는다
   const bodies = [...src.matchAll(/mutate\(\(list\) => \{([\s\S]*?)\n {6,8}\}\);/g)].map((m) => m[1]);
   assert.ok(bodies.length >= 4, `mutate 사용처 ${bodies.length}곳`);

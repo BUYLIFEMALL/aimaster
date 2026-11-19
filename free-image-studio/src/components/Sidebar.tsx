@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { APP_NAME, APP_VERSION } from "@/lib/version";
@@ -11,11 +11,22 @@ const MENU = [
   { href: "/start", label: "🚀 시작하기" },
   { href: "/create", label: "🎨 만들기" },
   { href: "/jobs", label: "📋 작업 기록" },
+  { href: "/settings", label: "⚙ API키등록·플랫폼연동" },
+  { href: "/guide", label: "📖 연동 & 사용 매뉴얼" },
 ];
 
 export function Sidebar({ email }: { email: string }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  // 위쪽 접는 메뉴: Esc로 닫는다(키보드만으로 여닫을 수 있게).
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
   const nav = (
     <div className="flex h-full flex-col overflow-y-auto p-4">
@@ -36,6 +47,7 @@ export function Sidebar({ email }: { email: string }) {
             key={m.href}
             href={m.href}
             onClick={() => setOpen(false)}
+            aria-current={pathname === m.href ? "page" : undefined}
             className={`block rounded-lg px-3 py-2 text-sm ${pathname === m.href ? "bg-[var(--line)] font-bold" : "text-[var(--muted)] hover:bg-[var(--line)]"}`}
           >
             {m.label}
@@ -65,11 +77,15 @@ export function Sidebar({ email }: { email: string }) {
           <Link href="/start" className="text-sm font-bold">
             🎨 {APP_NAME}
           </Link>
-          <button type="button" aria-label={open ? "메뉴 닫기" : "메뉴 열기"} aria-expanded={open} onClick={() => setOpen((v) => !v)} className="h-10 w-10 rounded-lg text-xl">
+          <button type="button" aria-label={open ? "메뉴 닫기" : "메뉴 열기"} aria-expanded={open} aria-controls="top-menu" onClick={() => setOpen((v) => !v)} className="h-10 w-10 rounded-lg text-xl">
             {open ? "✕" : "☰"}
           </button>
         </div>
-        {open && <div className="border-t border-[var(--line)]">{nav}</div>}
+        {open && (
+          <div id="top-menu" className="max-h-[calc(100vh-3.5rem)] overflow-y-auto border-t border-[var(--line)]">
+            {nav}
+          </div>
+        )}
       </div>
     </>
   );

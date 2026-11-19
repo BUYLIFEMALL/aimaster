@@ -5,6 +5,7 @@ import Link from "next/link";
 import { BATCH_MAX, COPIES_MAX, adoptDraft, buildPlan, clearDraft, confirmUncertain, discardUncertain, draftStatus, loadCompose, parseEntries, saveCompose, saveDraft, setLineCopies, submitRemaining, type DraftStatus, type RunResult } from "@/lib/studio/batch";
 import { PRESETS, SIZE_CHOICES, findPreset, findSize, pickVariantId, type ModelState, type PresetId } from "@/lib/studio/presets";
 import { ConvertPanel } from "./ConvertPanel";
+import { LedgerNotice } from "./LedgerNotice";
 import { messageOf, useEngine } from "./useEngine";
 
 const card = "rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5";
@@ -154,6 +155,8 @@ export function CreateScreen({ memberId }: { memberId: string }) {
         <h1 className="text-xl font-bold">🎨 만들기</h1>
         <p className="mt-1 text-sm text-[var(--muted)]">용도를 고르고 그림 설명을 한 줄에 하나씩 적으면, 내 PC가 차례로 그립니다. 한 번에 {BATCH_MAX}장까지 맡길 수 있습니다.</p>
       </header>
+
+      <LedgerNotice engine={engine} onChange={readLeft} />
 
       {pending.uncertain > 0 && (
         <section className={`${card} border-amber-500/60`}>

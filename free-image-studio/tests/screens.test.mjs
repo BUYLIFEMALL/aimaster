@@ -31,9 +31,9 @@ test("화면은 엔진 주소를 직접 부르지 않고, 회원 전환 때 연�
   assert.match(hook, /\}, \[memberId\]\);/, "회원 번호가 바뀌면 새로 만든다");
 });
 
-test("좌측 메뉴: 세 화면 + 다른 프로그램 보기 고정 주소, 데스크톱·모바일이 같은 목록", async () => {
+test("좌측 메뉴: 다섯 화면 + 다른 프로그램 보기 고정 주소, 데스크톱·모바일이 같은 목록", async () => {
   const sidebar = await read("components/Sidebar.tsx");
-  assert.deepEqual([...sidebar.matchAll(/\{ href: "(\/[a-z]+)", label: "([^"]+)" \}/g)].map((m) => [m[1], m[2]]), [["/start", "🚀 시작하기"], ["/create", "🎨 만들기"], ["/jobs", "📋 작업 기록"]]);
+  assert.deepEqual([...sidebar.matchAll(/\{ href: "(\/[a-z]+)", label: "([^"]+)" \}/g)].map((m) => [m[1], m[2]]), [["/start", "🚀 시작하기"], ["/create", "🎨 만들기"], ["/jobs", "📋 작업 기록"], ["/settings", "⚙ API키등록·플랫폼연동"], ["/guide", "📖 연동 & 사용 매뉴얼"]]);
   assert.match(sidebar, /href="https:\/\/www\.buylife\.xyz\/programs"/);
   assert.match(sidebar, /hidden h-screen[^"]*md:flex/);
   assert.match(sidebar, /md:hidden/);
@@ -90,9 +90,11 @@ test("작업 기록: 목록 갱신은 읽기만, 새 접수가 생기는 동작�
 test("화면 문구: 결정 전 항목이 없다 — 사양 지원 문구·요금. 한글 변환·AI 키 문구는 변환 칸과 변환 경로에만 있다", async () => {
   for (const file of [...(await walk(new URL("../src/components/", import.meta.url))), ...(await walk(new URL("../src/lib/studio/", import.meta.url))), ...(await walk(new URL("../src/app/", import.meta.url)))]) {
     const text = await readFile(file, "utf8");
-    assert.ok(!/\b\d+\s?GB\b|그래픽 메모리 \d|권장 사양|최소 사양/.test(text.replace(/수 GB/g, "")), `${file.pathname}: 사양 지원 문구`);
+    // 확정된 8GB 안내는 문구 모음(notices.ts)에만 있다. 화면 파일은 그 값을 가져다 쓸 뿐 숫자를 직접 적지 않는다.
+    const noticeFile = /\/lib\/studio\/notices\.ts$/.test(file.pathname);
+    assert.ok(!/\b\d+\s?GB\b|그래픽 메모리 \d|권장 사양|최소 사양/.test(text.replace(/수 GB/g, "").replace(noticeFile ? /\b8GB\b/g : /$^/, "")), `${file.pathname}: 사양 지원 문구`);
     // 한글 변환(5-4)은 변환 칸(ConvertPanel)과 변환 경로(api/convert)에만 둔다. 그 밖의 화면·로직에는 여전히 없어야 한다.
-    const convertFile = /\/components\/studio\/ConvertPanel\.tsx$|\/app\/api\/convert\//.test(file.pathname);
+    const convertFile = noticeFile || /\/components\/studio\/ConvertPanel\.tsx$|\/app\/api\/convert\//.test(file.pathname);
     assert.ok(!/gpt-|claude-|gemini-/.test(text), `${file.pathname}: 글 모델 이름`);
     if (!convertFile) assert.ok(!/OpenAI|Anthropic|한글.{0,6}변환|번역/.test(text), `${file.pathname}: 한글 변환`);
     assert.ok(!/무료 배지|요금|결제|구독/.test(text), `${file.pathname}: 요금`);

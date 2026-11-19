@@ -635,6 +635,36 @@ export function createEngineClient(opts: EngineClientOptions) {
       }
     },
 
+    /**
+     * 사용자가 확인한 경우에만: 손상된 접수 기록을 옆 칸(fis.submissions.broken.v1:<회원>)으로 옮기고 빈 기록으로 다시 시작한다.
+     * 접수 기록이 멀쩡하면 아무것도 하지 않는다(멀쩡한 기록을 지우는 길이 되지 않게). 옮기지 못하면 원래 칸을 건드리지 않는다.
+     * 엔진에는 아무것도 보내지 않는다 — 엔진이 그리던 그림은 그대로다.
+     */
+    async setAsideBrokenLedger(ack: boolean): Promise<boolean> {
+      if (ack !== true) throw new EngineError("invalid", "접수 기록을 새로 시작하려면 확인이 필요합니다.");
+      return ledgerLock(ledgerLockName, async () => {
+        try {
+          readLedgerStrict();
+          return false; // 멀쩡하다
+        } catch {
+          // 손상됨 — 아래에서 옮긴다
+        }
+        let raw: string | null;
+        try {
+          raw = storage.getItem(ledgerKey);
+        } catch {
+          throw new EngineError("storage", "브라우저 저장소를 읽지 못해 접수 기록을 새로 시작하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+        }
+        try {
+          if (raw !== null) storage.setItem(`fis.submissions.broken.v1:${memberId}`, JSON.stringify({ at: now(), raw: String(raw).slice(0, 200_000) }));
+          storage.setItem(ledgerKey, "[]");
+        } catch {
+          throw new EngineError("storage", "브라우저에 적지 못해 접수 기록을 새로 시작하지 못했습니다. 저장 공간을 확인해 주세요.");
+        }
+        return true;
+      });
+    },
+
     /** 지금 연결 범위의 표시(연결돼 있지 않으면 null). 다시 연결해 범위를 이어받는 동안 같은 값이다 */
     scopeId: (): string | null => readLink(),
 

@@ -99,7 +99,9 @@ test("결정 전 항목이 코드에 들어가지 않았다 — 지원 사양 �
   for (const file of await walk(new URL("../src/", import.meta.url))) {
     const text = await readFile(file, "utf8");
     // 「무료 배지」라는 말 자체는 공용 판정 사본의 규칙 설명에 있어 검사하지 않는다(배지를 켜는 것은 DB에서 주인님이 한다).
-    assert.ok(!/\b(8|10|12|16)\s?GB\b|월 \d|원\/월|badges:\s*\[/.test(text), `${file.pathname}에 결정 전 값이 있다`);
+    assert.ok(!/\b(10|12|16|24)\s?GB\b|월 \d|원\/월|badges:\s*\[/.test(text), `${file.pathname}에 결정 전 값이 있다`);
+    // 8GB 안내 문구(2026-11-19 주인님 확정, 5-5에서 도입)는 문구 모음 한 곳에만 둔다.
+    if (!file.pathname.endsWith("/src/lib/studio/notices.ts")) assert.ok(!/\b8\s?GB\b/.test(text), `${file.pathname}에 사양 문구가 흩어져 있다`);
     // 글 모델 이름(2026-11-19 주인님 결정으로 5-4에서 도입)은 src/lib/convert/ 안에만 둔다 — 화면·경로·다른 모듈에 흩어 적지 않는다.
     if (!file.pathname.includes("/src/lib/convert/")) assert.ok(!/gpt-|claude-|gemini-/.test(text), `${file.pathname}에 글 모델 이름이 있다`);
   }

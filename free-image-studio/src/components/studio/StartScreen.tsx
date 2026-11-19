@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { ModelState } from "@/lib/studio/presets";
+import { SPEC_NOTICE_8GB } from "@/lib/studio/notices";
 import { ENGINE_DOWNLOAD_URL, isKind, messageOf, useEngine } from "./useEngine";
 
 type Status = { version?: string; features?: string[] } | null;
@@ -166,6 +167,7 @@ export function StartScreen({ memberId }: { memberId: string }) {
             <p>모델 파일이 아직 없으면 첫 그림을 맡길 때 엔진이 알아서 받습니다(수 GB, 받는 동안 진행 상황이 작업 기록에 보입니다).</p>
           </>
         )}
+        <p className="rounded-xl border border-[var(--line)] p-3 text-xs">ℹ️ {SPEC_NOTICE_8GB}</p>
       </Step>
 
       {error && (
