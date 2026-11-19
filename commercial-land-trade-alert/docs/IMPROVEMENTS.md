@@ -1,5 +1,10 @@
 # 개선사항 기록 — 상업용지·토지 실거래가 레이더 (`commercial-land-trade-alert`)
 
+## 2026-11-19 [역할: realty] Claude(RealEstate) — 일부만 읽은 회차에도 못 읽은 감시 화면의 이전 결과 보존 (**미배포 대기 v1.35**, 주인님 결정: 7일·막힘/오류도 보존·v1.35 묶음)
+- 문제: 하루 상한·네이버 막힘·오류로 일부 화면만 읽으면 `lastResult`를 그 회차 결과로 통째 교체해 못 읽은 화면 매물이 결과 화면에서 사라짐(백로그 66줄, 실제 19:47 5곳 중 1곳). 알림 판정(`states`)은 원래 정상.
+- 구현: 순수 함수 `extension/lib/keepResult.js` `mergeLastResult` — 줄별 감시 화면 id(`rowTargetIds`)로만 묶음(이름 겹침 대비), 지운·끈·주소 바뀐 화면 제외, 이름만 바뀐 화면은 새 이름, 화면별 `at`(처음 읽은 시각 유지)·`stale`·사유, 7일 넘으면 버림, 옛 모양 결과는 통째 교체, 2000줄 자르기는 이번 회차 우선. `background.js`는 저장 직전 1회만 합치고 알림·통계·수익률·상태 보고는 이번 회차만. 결과 화면 `ResultsClient.tsx`에 「⏸ 이전 회차(시각) 결과 — 사유」.
+- 시험 `tests/keepResult.test.mjs` 8개(`npm test` 76/76), tsc 0. 플랜 `docs/PLAN_20261119_PARTIAL_RESULT_KEEP.md`. 확장 코드 변경 → v1.35 배포 때 manifest·ZIP·DB `extension_version` 함께, 회원 확장 재설치 안내.
+
 ## 2026-11-19 [역할: realty] Claude(RealEstate) — 관심 지역 연계 2단계: 다른 부동산 프로그램 지역 제안 (**미배포 대기**, 주인님 「순서대로 진행해」)
 - 실거래 지역 추가 화면(`src/app/(dashboard)/districts/page.tsx`)에 「🔗 다른 부동산 프로그램에 등록한 지역」: 실거래 `real_estate_watch_districts`(is_active)·매물 알림 `realty_alert_targets`(region+enabled, `cortar_no` 앞 5자리)를 회원 세션으로 읽어, 상가에 없는 시군구를 기존 켜기 버튼(`toggleDistrictAction`, 이용 권한 확인)으로 제안. 자동 등록·다른 표 쓰기·DB 변경 없음.
 - 순수 함수 `src/lib/crossWatch.ts`, 시험 `tests/crossWatch.test.mjs` 3개(`npm test` 68/68), tsc 0. 플랜: `real_estate_sales/docs/PLAN_20261119_CROSS_WATCH.md`. 다음 상가 배포(v1.35) 때 함께.

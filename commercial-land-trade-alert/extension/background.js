@@ -5,6 +5,7 @@ import { countByKindTrade, isWatchableUrl, matchesTarget, normalizeArticle, coor
 import { compareTarget, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, shouldRunScheduled } from "./lib/guard.js";
 import { COLUMNS, toTable, toXlsx } from "./lib/sheet.js";
+import { mergeLastResult } from "./lib/keepResult.js";
 import { buildingPeerGap, daysSince, gapText, marketGap, scoreListing, applyYields } from "./lib/score.js";
 import { chosenDongs, filterEventsByDong } from "./lib/dong.js";
 import { buildAiInput, normalizeChoice, summarize } from "./lib/ai.js";
@@ -126,6 +127,8 @@ async function runCollection(trigger) {
     let limitHit = false;
     const sggByWatch = {};
     const places = {};
+    const unread = new Map(); // 이번에 못 읽은 감시 화면 id → 사유(결과 화면에 이전 회차 결과를 남길 때만 씀)
+    const markUnread = (from, reason) => { for (const x of targets.slice(from)) if (x?.id && !unread.has(x.id)) unread.set(x.id, reason); };
 
     for (let i = 0; i < targets.length; i++) {
       const t = targets[i];
@@ -133,6 +136,7 @@ async function runCollection(trigger) {
       if (i > 0) await sleep(rand(...RULES.betweenTargetsMs));
       if ((await pagesToday()) >= RULES.maxPagesPerDay) {
         limitHit = true;
+        markUnread(i, "limit");
         await addLog(`오늘 수집 한도(${RULES.maxPagesPerDay}페이지)에 닿아 나머지는 쉬어요`);
         break;
       }
@@ -141,11 +145,13 @@ async function runCollection(trigger) {
       if (r.status === "blocked") {
         result = "blocked";
         errMsg = r.error;
+        markUnread(i, "blocked");
         await set({ stoppedDate: kstDate() });
         break;
       }
       if (r.status !== "ok") {
         if (result === "ok") { result = r.status; errMsg = r.error; }
+        if (t.id) unread.set(t.id, "error");
         await addLog(`${t.name}: ${r.error}`);
         continue;
       }
@@ -181,13 +187,13 @@ async function runCollection(trigger) {
       const statusOf = new Map(cmp.events.map((e) => [e.item.no, e]));
       for (const it of items) {
         const e = statusOf.get(it.no);
-        const row = { item: { ...it, targetName: t.name }, status: e ? e.type : "same", prevPriceText: e?.prevPriceText, firstSeen: cmp.state.items[it.no]?.firstSeen };
+        const row = { item: { ...it, targetName: t.name }, status: e ? e.type : "same", prevPriceText: e?.prevPriceText, firstSeen: cmp.state.items[it.no]?.firstSeen, targetId: t.id };
         fileRows.push(row);
         yieldRows.push({ item: row.item, area: cortarNo || t.id });
       }
       for (const e of cmp.events.filter((x) => x.type === "gone")) {
         if (e.place) places[e.item.no] = e.place; // 사라진 매물은 이번 응답에 좌표가 없어 저장해 둔 값을 쓴다
-        fileRows.push({ item: { ...e.item, targetName: t.name }, status: "gone", prevPriceText: e.prevPriceText, firstSeen: e.firstSeen });
+        fileRows.push({ item: { ...e.item, targetName: t.name }, status: "gone", prevPriceText: e.prevPriceText, firstSeen: e.firstSeen, targetId: t.id });
       }
       let events = filterEvents(cmp.events, settings.delivery);
       const chosen = chosenDongs(t.admin_dongs);
@@ -197,7 +203,7 @@ async function runCollection(trigger) {
         events = filterEventsByDong(events, chosen, await boundariesFor(Object.keys(chosen)), (no) => targetPlaces[no] || goneAt.get(no));
         await addLog(`${t.name}: 알림 받을 행정동(${Object.values(chosen).flatMap((s) => [...s]).join("·")})만 → 알림 ${before}건 중 ${events.length}건`);
       }
-      perTarget.push({ name: t.name, total: items.length, events, firstRun: cmp.firstRun, complete: r.complete, pagesRead: r.pagesRead, filterChanged, filterText: r.filter?.text ?? null, coords });
+      perTarget.push({ id: t.id, url: t.url, at: startedAt, name: t.name, total: items.length, events, firstRun: cmp.firstRun, complete: r.complete, pagesRead: r.pagesRead, filterChanged, filterText: r.filter?.text ?? null, coords });
       total += items.length;
       await addLog(`${t.name}: ${r.pagesRead}페이지 · 조건 맞는 매물 ${items.length}건${r.complete ? "" : " · 범위가 넓어 앞부분만 읽음"}`);
     }
@@ -214,11 +220,19 @@ async function runCollection(trigger) {
     applyYields(yieldRows);
     const table = toTable(fileRows);
     const iv = settings.schedule?.intervalMinutes || 360;
+    // 결과 화면 보관용만: 못 읽은 화면은 직전 결과를 남긴다(7일 이내·같은 id·같은 주소). 아래 알림·기록에는 이번 table·perTarget만 쓴다.
+    const { lastResult: prevResult } = await get("lastResult");
+    const lastResult = mergeLastResult(
+      prevResult,
+      { at: startedAt, trigger, result, error: errMsg, columns: COLUMNS, table, rowTargetIds: fileRows.map((r) => r.targetId), places, sggByWatch, perTarget: perTarget.map((p) => ({ id: p.id, url: p.url, at: p.at, name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun, complete: p.complete, pagesRead: p.pagesRead, filterChanged: p.filterChanged, filterText: p.filterText, coords: p.coords })) },
+      { targets, unread },
+    );
+    if (lastResult.partial) await addLog(`못 읽은 감시 화면 ${lastResult.perTarget.filter((p) => p.stale).length}곳은 결과 화면에 이전 회차 결과를 남겨요`);
     await set({
       states,
       lastRunAt: startedAt,
       nextDueAt: computeNextDue(new Date(startedAt).getTime(), iv, RULES.scheduleJitter),
-      lastResult: { at: startedAt, trigger, result, error: errMsg, columns: COLUMNS, table: table.slice(0, 2000), places, sggByWatch, perTarget: perTarget.map((p) => ({ name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun, complete: p.complete, pagesRead: p.pagesRead, filterChanged: p.filterChanged, filterText: p.filterText, coords: p.coords })) },
+      lastResult,
     });
     if (table.length) {
       const { history = [], eventLog = [] } = await get(["history", "eventLog"]);

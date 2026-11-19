@@ -8,7 +8,9 @@ import { groupSameRows } from "@/lib/resultRows";
 import { shortWatch, StatsDashboard } from "./StatsDashboard";
 
 // 매물은 서버에 없다. 이 브라우저의 확장에 직접 물어 같은 화면에만 보여 준다(확장 연결 계정 = 로그인 계정일 때만).
-type Result = { at: string; columns: string[]; table: (string | number)[][]; places?: Record<string, [number, number]>; sggByWatch?: Record<string, string>; perTarget: { name: string; total: number; complete: boolean; pagesRead?: number; filterChanged?: boolean; filterText?: string | null; coords?: { total: number; withCoord: number; places: number } }[] };
+// 2026-11-19: 일부만 읽은 회차는 못 읽은 화면의 이전 결과를 확장이 남긴다(extension/lib/keepResult.js) — 그 화면에 「이전 회차」 표시.
+const STALE_REASON: Record<"limit" | "blocked" | "error", string> = { limit: "오늘 수집 한도에 닿음", blocked: "네이버가 잠시 막음", error: "읽기 오류" };
+type Result = { at: string; columns: string[]; table: (string | number)[][]; places?: Record<string, [number, number]>; sggByWatch?: Record<string, string>; partial?: boolean; perTarget: { id?: string; at?: string; stale?: boolean; reason?: "limit" | "blocked" | "error"; name: string; total: number; complete: boolean; pagesRead?: number; filterChanged?: boolean; filterText?: string | null; coords?: { total: number; withCoord: number; places: number } }[] };
 
 const LINK = "네이버 매물 주소";
 const EVENT_VIEW: Record<string, string> = { new: "🆕 신규", priceDown: "📉 가격 내림", priceUp: "📈 가격 오름", gone: "👋 사라짐" };
@@ -176,9 +178,14 @@ export function ResultsClient({ email }: { email: string }) {
       {res.perTarget?.length > 0 && (
         <div className="mx-card mt-6 space-y-1 p-4 text-sm">
           <p className="font-bold">🔎 이번 회차에 읽은 범위</p>
-          {res.perTarget.map((t) => (
-            <p key={t.name} className="text-mx-muted">
+          {res.perTarget.map((t, i) => (
+            <p key={t.id ?? `${t.name}-${i}`} className="text-mx-muted">
               <b>{t.name}</b> · {t.total.toLocaleString("ko-KR")}건
+              {t.stale && (
+                <b className="text-amber-700">
+                  {" "}· ⏸ 이번에 못 읽어 이전 회차({t.at ? new Date(t.at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "시각 모름"}) 결과를 보여 줘요 — {STALE_REASON[t.reason ?? "error"]}
+                </b>
+              )}
               {t.filterText !== undefined && t.filterText !== null && <> · 네이버 조건: {t.filterText || "없음"}</>}
               {t.filterChanged && <> · 필터가 바뀌어 알림 없이 기준을 다시 저장</>}
               {!t.complete && <b className="text-amber-700"> · ⚠ 앞 {t.pagesRead ?? ""}페이지까지만 읽음. 네이버 화면에서 거래방식이나 면적을 좁히면 빠짐없이 읽습니다.</b>}
@@ -189,7 +196,7 @@ export function ResultsClient({ email }: { email: string }) {
       )}
       <div id="result-rows" className="mx-card mt-6 flex flex-wrap items-center gap-2 p-4">
         <span className="text-sm text-mx-muted">
-          {new Date(res.at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })} 수집 · {rows.length.toLocaleString("ko-KR")}건
+          {new Date(res.at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })} 수집{res.partial && " (일부 화면은 이전 회차)"} · {rows.length.toLocaleString("ko-KR")}건
           {groups.length < rows.length && <> · 같은 조건을 묶어 {groups.length.toLocaleString("ko-KR")}줄</>}
         </span>
         <select value={watchFilter} onChange={(e) => setWatchFilter(e.target.value)} aria-label="감시 화면" className="mx-input min-h-[40px] w-auto py-2 text-sm">
