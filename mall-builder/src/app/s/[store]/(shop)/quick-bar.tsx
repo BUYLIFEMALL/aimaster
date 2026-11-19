@@ -97,9 +97,16 @@ interface QuickBarProps {
   cartCount: number;
 }
 
+// globals.css·Tailwind md(48rem=768px)와 같은 경계: 767px 이하 = 휴대폰 폭
+export const NARROW_QUERY = "(max-width: 767px)";
+
 export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
   const [items, setItems] = useState<RecentProduct[]>([]);
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  // FRONT-20261119-QUICKBAR: null = 아직 안 누름 → 화면 폭으로 CSS가 결정(767px 이하 접힘 = 손잡이만, 그 위 펼침 — 서버 첫 화면부터, 깜박임 없음).
+  // 단추를 누르면 그때부터 누른 상태(true/false)를 따른다. narrow는 단추 이름·아이콘용(화면 폭 기준 현재 모양)
+  const [collapsedPref, setCollapsedPref] = useState<boolean | null>(null);
+  const [narrow, setNarrow] = useState(false);
+  const isCollapsed = collapsedPref ?? narrow;
   const [showTopBtn, setShowTopBtn] = useState(false);
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 3;
@@ -129,7 +136,13 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
 
+    const mq = window.matchMedia(NARROW_QUERY);
+    const handleNarrow = () => setNarrow(mq.matches);
+    handleNarrow();
+    mq.addEventListener("change", handleNarrow);
+
     return () => {
+      mq.removeEventListener("change", handleNarrow);
       window.removeEventListener("mb_recent_updated", handleUpdate);
       window.removeEventListener("storage", loadRecent);
       window.removeEventListener("scroll", handleScroll);
@@ -157,16 +170,18 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
         {/* 접기/펼치기 토글 단추 */}
         <button
           type="button"
-          onClick={() => setIsCollapsed(!isCollapsed)}
+          onClick={() => setCollapsedPref(!isCollapsed)}
           aria-label={isCollapsed ? "퀵바 펼치기" : "퀵바 접기"}
-          className="absolute -left-5 top-1/2 -translate-y-1/2 z-10 flex h-10 w-5 items-center justify-center rounded-l-lg border-y border-l border-slate-300 bg-white/95 text-slate-500 shadow-md backdrop-blur-md hover:bg-slate-50 hover:text-blue-600 transition [data-mall-mode='dark']_:bg-slate-800 [data-mall-mode='dark']_:border-slate-700 [data-mall-mode='dark']_:text-slate-300"
+          aria-expanded={!isCollapsed}
+          data-quickbar="toggle"
+          className="absolute -left-5 top-1/2 -translate-y-1/2 z-10 flex h-10 w-5 max-md:-left-6 max-md:h-11 max-md:w-6 items-center justify-center rounded-l-lg border-y border-l border-slate-300 bg-white/95 text-slate-500 shadow-md backdrop-blur-md hover:bg-slate-50 hover:text-blue-600 transition [data-mall-mode='dark']_:bg-slate-800 [data-mall-mode='dark']_:border-slate-700 [data-mall-mode='dark']_:text-slate-300"
         >
           {isCollapsed ? <IconChevronLeft size={14} /> : <IconChevronRight size={14} />}
         </button>
 
-        {isCollapsed ? (
-          /* 접힘 상태: 콤팩트 미니 바 */
-          <div className="flex flex-col items-center gap-2 rounded-2xl border border-slate-200/90 bg-white/95 p-2 shadow-xl backdrop-blur-md [data-mall-mode='dark']_:bg-slate-900/95 [data-mall-mode='dark']_:border-slate-700">
+        {collapsedPref === true && (
+          /* 접힘 상태: 콤팩트 미니 바 — 768px 이상만. 767px 이하 접힘은 손잡이 단추만(미니 바도 폭 약 58px라 상품 카드를 가림) */
+          <div data-quickbar="collapsed" className="flex flex-col items-center gap-2 rounded-2xl border border-slate-200/90 bg-white/95 p-2 shadow-xl backdrop-blur-md [data-mall-mode='dark']_:bg-slate-900/95 [data-mall-mode='dark']_:border-slate-700 max-md:hidden">
             {/* 장바구니 미니 버튼 */}
             <Link
               href={`${base}/cart`}
@@ -184,7 +199,7 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
             {/* 최근 본 상품 미니 뱃지 */}
             <button
               type="button"
-              onClick={() => setIsCollapsed(false)}
+              onClick={() => setCollapsedPref(false)}
               title="최근 본 상품 열기"
               className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition [data-mall-mode='dark']_:bg-slate-800 [data-mall-mode='dark']_:text-slate-200"
             >
@@ -208,9 +223,10 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
               <IconChevronUp size={18} />
             </button>
           </div>
-        ) : (
-          /* 펼침 상태: 정규 퀵바 패널 */
-          <div className="w-[100px] flex flex-col items-center rounded-2xl border border-slate-200/90 bg-white/95 p-2 shadow-2xl backdrop-blur-md [data-mall-mode='dark']_:bg-slate-900/95 [data-mall-mode='dark']_:border-slate-700">
+        )}
+        {collapsedPref !== true && (
+          /* 펼침 상태: 정규 퀵바 패널 (안 누른 상태면 768px 이상에서만 보임 — 데스크톱 기본값 그대로) */
+          <div data-quickbar="expanded" className={`w-[100px] flex flex-col items-center rounded-2xl border border-slate-200/90 bg-white/95 p-2 shadow-2xl backdrop-blur-md [data-mall-mode='dark']_:bg-slate-900/95 [data-mall-mode='dark']_:border-slate-700${collapsedPref === null ? " max-md:hidden" : ""}`}>
             {/* 1. 장바구니 퀵 링크 */}
             <Link
               href={`${base}/cart`}
