@@ -5,7 +5,9 @@
 // third-party tiles take supported provider export files; account-based migration isn't available.
 import { useEffect, useRef, useState } from 'react';
 import { Icon } from '../../components/Icon.tsx';
-import { api, uploadFile } from '../../lib/api.ts';
+import { api, uploadFile, ApiError } from '../../lib/api.ts';
+import { isLargeZip, prepareLargeZip, settleLargeZip, type LargeZipDeps } from './largeZipImport.ts';
+import { ZipReadError } from './zipReader.ts';
 import { records } from '../../lib/store/records.ts';
 import { useSession } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
@@ -87,6 +89,28 @@ type Status =
 export interface Uploaded {
   name: string;
   url: string;
+  /** 2026-11-19: 50MB 넘는 ZIP — 그림은 따로 올렸고 이 표로 본문에 다시 연결된다(largeZipImport.ts) */
+  job?: { id: string; assets: Record<string, string> };
+}
+
+/** 큰 ZIP 가져오기가 서버와 주고받는 통로(브라우저) */
+function largeZipDeps(spaceId: string): LargeZipDeps {
+  return {
+    async job(body) {
+      const res = await fetch('/api/upload/large', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), credentials: 'same-origin' });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new ApiError(res.status, 'UploadError', json?.message ?? tx('Upload failed'), json);
+      return json;
+    },
+    async put(uploadUrl, data, type) {
+      try {
+        return (await fetch(uploadUrl, { method: 'PUT', headers: { 'content-type': type, 'x-upsert': 'false' }, body: data })).ok;
+      } catch {
+        return false;
+      }
+    },
+    uploadPages: (zip, name) => uploadFile(zip, name, spaceId),
+  };
 }
 
 export interface ImportTarget {
@@ -102,8 +126,23 @@ export async function uploadImportFiles(files: File[], onProgress?: (label: stri
   const skipped = files.filter((f) => !SUPPORTED.test(f.name)).map((f) => f.name);
   if (!ok.length) throw new Error(t('lp.import.this_file_type_can_t_be', 'This file type can’t be imported. Try Markdown, CSV, Excel, HTML, Word, PDF or ZIP.'));
   const uploaded: Uploaded[] = [];
+  // 2026-11-19: 50MB 넘는 ZIP은 통째로 올리지 못하므로 안의 그림을 하나씩 올린다. 다른 파일과 섞지 않고 하나씩만
+  if (ok.some(isLargeZip) && ok.length > 1) throw new Error(tx('Import ZIP files over 50 MB one at a time'));
   for (let i = 0; i < ok.length; i++) {
     onProgress?.(`${t('lp.import.importing', 'Importing…')} ${ok[i].name}`, (i / (ok.length + 1)) * 0.8);
+    if (isLargeZip(ok[i])) {
+      let p;
+      try {
+        p = await prepareLargeZip(ok[i], ok[i].name, spaceId, largeZipDeps(spaceId), (done, total) => onProgress?.(`${tx('Uploading images')} ${done} / ${total}`, 0.05 + (done / Math.max(1, total)) * 0.75));
+      } catch (e) {
+        throw e instanceof ZipReadError ? new Error(tx(e.message)) : e;
+      }
+      // 가져오기가 쓰지 않는 파일(동영상·첨부)은 예전에도 빠졌다 — 그림·글 파일을 못 넣은 경우만 알린다
+      const missed = p.skipped.filter((x) => x.reason !== 'unsupported' && x.reason !== 'hidden' && x.reason !== 'nested_zip');
+      if (missed.length) useUI.getState().toast(`${tx('Some files in the ZIP couldn’t be imported')} (${missed.length}): ${missed.slice(0, 3).map((x) => x.name.split('/').pop()).join(', ')}${missed.length > 3 ? ' …' : ''}`);
+      uploaded.push({ name: p.name, url: p.url, job: p.job });
+      continue;
+    }
     const u = await uploadFile(ok[i], ok[i].name, spaceId);
     uploaded.push({ name: ok[i].name, url: u.url });
   }
@@ -113,12 +152,25 @@ export async function uploadImportFiles(files: File[], onProgress?: (label: stri
 /** Convert uploaded files into pages / databases under the target (Private section by default). */
 export async function importUploaded(uploaded: Uploaded[], target: ImportTarget = {}, csvTypes?: Record<number, string>): Promise<HistoryEntry> {
   const spaceId = useSession.getState().spaceId ?? '';
-  const res = await api<{ pageIds: string[]; pages: number; databases: number; recordMap: any }>('importFiles', {
-    spaceId,
-    parent: target.parentPageId ? { kind: 'page', pageId: target.parentPageId, afterBlockId: target.afterBlockId } : { kind: 'private' },
-    files: uploaded,
-    ...(csvTypes ? { csvTypes } : {}),
-  });
+  type ImportResult = { pageIds: string[]; pages: number; databases: number; recordMap: any };
+  const jobId = uploaded.find((u) => u.job)?.job?.id;
+  let res: ImportResult;
+  try {
+    res = await api<ImportResult>('importFiles', {
+      spaceId,
+      parent: target.parentPageId ? { kind: 'page', pageId: target.parentPageId, afterBlockId: target.afterBlockId } : { kind: 'private' },
+      files: uploaded,
+      ...(csvTypes ? { csvTypes } : {}),
+    });
+    // 큰 ZIP: 본문에 쓰이지 않은 그림은 지운다
+    if (jobId) await settleLargeZip(jobId, largeZipDeps(spaceId));
+  } catch (e) {
+    if (!jobId) throw e;
+    // 서버가 거절했으면 이 가져오기가 올린 그림만 지운다. 응답을 못 받았으면 지우지 않고 이미 끝났는지만 확인한다(다시 보내지 않음)
+    const recovered = await settleLargeZip(jobId, largeZipDeps(spaceId), e);
+    if (!recovered) throw e;
+    res = { ...recovered, recordMap: { __version__: 3 } };
+  }
   records.mergeRecordMap(res.recordMap);
   const entry: HistoryEntry = { time: Date.now(), files: uploaded.map((f) => f.name), pageIds: res.pageIds, pages: res.pages, databases: res.databases, spaceId };
   pushHistory(entry);
@@ -304,7 +356,7 @@ export function ImportPanel({ onDone, parentPageId, afterBlockId, initialKind }:
                     <span>{t('lp.import.drop_html_markdown_text_pdf_csv', 'Drop HTML, markdown, text, PDF, CSV, or ZIP files here, or')}</span>
                     <span role="button" className="nc-import-choose" onClick={() => pick()}>{t('lp.import.select_a_file', 'select a file')}</span>
                   </div>
-                  <div className="nc-import-drop-note">{t('lp.import.zip_files_must_be_5gb_or', 'ZIP files must be 50MB or smaller')}</div>
+                  <div className="nc-import-drop-note">{t('lp.import.zip_files_must_be_5gb_or', 'ZIP files up to 1 GB — each image inside up to 50 MB')}</div>
                   {status.state === 'error' && (
                     <div className="nc-import-error"><Icon name="circleAlert" size={14} />{status.message}</div>
                   )}

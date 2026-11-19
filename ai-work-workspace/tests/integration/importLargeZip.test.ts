@@ -1,0 +1,579 @@
+// 큰 ZIP(50MiB 초과) 가져오기 — WS-20261119-02, 플랜 docs/PLAN_20261119_LARGE_ZIP_IMPORT.md §9~§12.
+// 브라우저용 코드(web/features/import/zipReader.ts·largeZipImport.ts)를 그대로 불러 서버 함수에 연결해 확인한다.
+// · 통째로 올린 것과 결과가 같다(§12-6)  · 「이 작업에서 이 회원이 올린 그림」만 쓰이고 지워진다(§9·§10)  · 한도(§11)
+// 가짜 Storage(실제 업로드 없음), 로컬 Postgres 전용 fixture만 쓴다.
+import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { setupLocalDb } from '../setup-local-db.mjs';
+import { ZIP_IMPORT_LIMITS } from '../../src/litpage/shared/zipPath.ts';
+import { ZipReadError, buildStoredZip, planLargeZip, readZipEntry, readZipIndex } from '../../src/litpage/web/features/import/zipReader.ts';
+import { isLargeZip, prepareLargeZip, settleLargeZip, type LargeZipDeps } from '../../src/litpage/web/features/import/largeZipImport.ts';
+
+process.env.AWW_DATABASE_URL = await setupLocalDb({ reset: true });
+
+let runtime: typeof import('../../src/server/runtime');
+let fs_: typeof import('../../src/server/fileStorage.ts');
+let db: typeof import('../../src/litpage/server/db.ts');
+let files: typeof import('../../src/litpage/server/content/files.ts');
+let zip: typeof import('../../src/litpage/server/content/zip.ts');
+let ratelimit: typeof import('../../src/litpage/server/ratelimit.ts');
+const ann = { id: 'a1a1a1a1-a1a1-4a1a-8a1a-a1a1a1a1a1a1', email: 'lz-ann@example.com', name: '앤' };
+const bob = { id: 'b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2', email: 'lz-bob@example.com', name: '밥' };
+type M = typeof ann;
+const MB = 1024 * 1024;
+const spaces = new Map<string, string>();
+const sp = (m: M) => spaces.get(m.id)!;
+
+const objects = new Map<string, Buffer>();
+const removedPaths: string[] = [];
+const sw = { quotaFull: false, removeFails: false, putFails: false };
+const fakeStore = () => ({
+  getBucket: async () => ({ data: { id: 'workspace-files' }, error: null }),
+  createBucket: async () => ({ data: null, error: null }),
+  from: () => ({
+    createSignedUploadUrl: async (path: string) => ({ data: { signedUrl: `https://store.test/upload/${path}`, token: 't', path }, error: null }),
+    list: async (dir: string, o: { search: string }) => ({ data: [...objects.entries()].filter(([p]) => p === `${dir}/${o.search}`).map(([p, b]) => ({ name: p.split('/').pop(), metadata: { size: b.length } })), error: null }),
+    createSignedUrl: async (path: string) => ({ data: { signedUrl: `https://store.test/get/${path}` }, error: null }),
+    remove: async (paths: string[]) => {
+      if (sw.removeFails) return { data: null, error: { message: 'storage down' } };
+      for (const p of paths) objects.delete(p);
+      removedPaths.push(...paths);
+      return { data: paths.map((name) => ({ name })), error: null };
+    },
+  }),
+});
+
+beforeAll(async () => {
+  runtime = await import('../../src/server/runtime');
+  fs_ = await import('../../src/server/fileStorage.ts');
+  db = await import('../../src/litpage/server/db.ts');
+  files = await import('../../src/litpage/server/content/files.ts');
+  zip = await import('../../src/litpage/server/content/zip.ts');
+  ratelimit = await import('../../src/litpage/server/ratelimit.ts');
+  fs_.setFileStorageForTests({ store: fakeStore as never, quota: async () => ({ allowed: !sw.quotaFull, message: sw.quotaFull ? '저장공간이 가득 찼습니다.' : null, upgradeUrl: 'https://www.buylife.xyz/storage' }) });
+  for (const m of [ann, bob]) {
+    await runtime.runRpc('loadAccountData', {}, m);
+    const r = await runtime.runRpc('createWorkspace', { name: `${m.name} 큰 ZIP 시험` }, m);
+    spaces.set(m.id, (r.body as any).spaceId ?? (r.body as any).space?.id ?? (r.body as any).id);
+    expect(sp(m)).toBeTruthy();
+  }
+});
+
+beforeEach(() => {
+  Object.assign(sw, { quotaFull: false, removeFails: false, putFails: false });
+  removedPaths.length = 0;
+  for (const m of [ann, bob]) for (const k of [`import-job:user:${m.id}`, `import:${m.id}`, `import-stored:${m.id}`, `upload-large:user:${m.id}`]) ratelimit.reset(k);
+});
+
+// ---------------------------------------------------------------- 도우미
+const PNG = (n = 0) => Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3, n]);
+const H1 = '0123456789abcdef0123456789abcdef';
+const H2 = 'fedcba9876543210fedcba9876543210';
+const enc = (s: string) => encodeURIComponent(s);
+const html = (title: string, body: string) => `<html><head><meta charset="utf-8"><title>${title}</title></head><body><article><header><h1 class="page-title">${title}</h1></header><div class="page-body">${body}</div></article></body></html>`;
+type E = { name: string; data: Buffer | string };
+
+const notionExport = (): E[] => [
+  { name: `Project ${H1}.html`, data: html('Project', `<p>본문</p><figure class="image"><img src="${enc(`Project ${H1}`)}/cover.png"/></figure><p><a href="${enc(`Project ${H1}`)}/${enc(`Sub ${H2}`)}.html">하위 문서</a></p>`) },
+  { name: `Project ${H1}/cover.png`, data: PNG(1) },
+  { name: `Project ${H1}/unused.png`, data: PNG(2) },
+  { name: `Project ${H1}/Sub ${H2}.html`, data: html('Sub', `<h2>소제목</h2><figure class="image"><img src="${enc(`Sub ${H2}`)}/deep.png"/></figure>`) },
+  { name: `Project ${H1}/Sub ${H2}/deep.png`, data: PNG(3) },
+  { name: `Project ${H1}/video.mp4`, data: Buffer.from('not really a video') },
+];
+const markdownCsv = (): E[] => [
+  { name: 'Notes.md', data: '# Notes\n\n첫 문단 ![그림](img/a.png)\n\n[표](Tasks.csv)\n' },
+  { name: 'img/a.png', data: PNG(4) },
+  { name: 'Tasks.csv', data: 'Name,Status\nAlpha,Done\nBeta,Todo\n' },
+  { name: `Tasks/Alpha ${H1}.md`, data: '# Alpha\n\n알파 본문 ![x](../img/a.png)\n' },
+];
+const korean = (): E[] => [
+  { name: `회의록 ${H1}.html`, data: html('회의록', `<p>안건</p><figure class="image"><img src="${enc(`회의록 ${H1}`)}/${enc('화면 캡처.png')}"/></figure>`) },
+  { name: `회의록 ${H1}/화면 캡처.png`, data: PNG(5) },
+];
+const messy = (): E[] => [
+  { name: 'Top/.hidden.md', data: '# Hidden\n' },
+  { name: '__MACOSX/Top/._Page.md', data: 'junk' },
+  { name: 'Top/.DS_Store', data: 'junk' },
+  { name: 'Top/Page.md', data: '# Page\n\n본문 ![x](assets/a.png) [문서](Folder/Inner.md)\n' },
+  { name: 'Top/assets/a.png', data: PNG(6) },
+  { name: 'Top/Folder/Inner.md', data: '# Inner\n\n안쪽 ![y](../assets/a.png)\n' },
+  { name: 'Top/Folder/Second.txt', data: '첫 줄\n\n다음 문단\n' },
+  { name: 'Top\\Back\\Slash.md', data: '# Slash\n' },
+];
+
+/** 결과 recordMap → id·시각 없는 트리(importZipBaseline.test.ts와 같은 방식) */
+function treeOf(body: any) {
+  const table = (t: string) => Object.fromEntries(Object.entries(body.recordMap?.[t] ?? {}).map(([id, v]: [string, any]) => [id, v?.value?.value ?? v?.value ?? v]));
+  const blocks = table('block') as Record<string, any>;
+  const cols = table('collection') as Record<string, any>;
+  const scrub = (v: unknown) => v === undefined ? undefined : JSON.parse(JSON.stringify(v)
+    .replace(/\/files\/[0-9a-f-]{36}\//g, '/files/*/')
+    .replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g, '<id>')
+    .replace(/\/[0-9a-f]{32}\b/g, '/<page>'));
+  const images: string[] = [];
+  const node = (id: string): unknown => {
+    const b = blocks[id];
+    if (!b) return { missing: true };
+    const props = scrub(b.properties);
+    const src = JSON.stringify(props ?? {}).match(/\/files\/\*\/[^"\\]+/g);
+    if (src) images.push(...src);
+    const out: Record<string, unknown> = { type: b.type };
+    if (props) out.properties = props;
+    if (b.format && Object.keys(b.format).length) out.format = scrub(b.format);
+    if (b.collection_id) {
+      const c = cols[b.collection_id];
+      const rows = Object.values(blocks).filter((r: any) => r.parent_table === 'collection' && r.parent_id === b.collection_id);
+      out.collection = {
+        name: scrub(c?.name),
+        schema: Object.values(c?.schema ?? {}).map((p: any) => `${p.name}:${p.type}`).sort(),
+        rows: rows.map((r: any) => ({ title: (r.properties?.title ?? []).map((d: any) => d[0]).join(''), children: (r.content ?? []).map(node) })).sort((a, z) => a.title.localeCompare(z.title)),
+      };
+    }
+    if (b.content?.length) out.children = b.content.map(node);
+    return out;
+  };
+  return { pages: body.pages, databases: body.databases, roots: (body.pageIds as string[]).map(node), images: images.sort() };
+}
+
+const q = <T = any>(sql: string, ...p: unknown[]) => db.withRequestCache(() => db.db.prepare(sql).all(...p) as T[]);
+const blockCount = (m: M) => Number(q<{ n: number }>("SELECT COUNT(*) AS n FROM records WHERE tbl = 'block' AND space_id = ?", sp(m))[0].n);
+const jobRow = (id: string) => q<any>('SELECT * FROM import_jobs WHERE id = ?', id)[0];
+const jobFiles = (id: string) => q<{ id: string; name: string; pending: number; storage_path: string }>('SELECT id, name, pending, storage_path FROM files WHERE import_job_id = ? ORDER BY name', id);
+const step = (m: M, body: Record<string, unknown>) => fs_.importJobStep(m, body);
+const storePages = (m: M, name: string, entries: E[]) => db.withRequestCache(() => files.storeFile(name, zip.writeZip(entries), m.id, sp(m), 'application/zip'));
+
+function depsFor(m: M): LargeZipDeps {
+  return {
+    async job(body) {
+      const r = await step(m, body);
+      if (r.status !== 200) throw Object.assign(new Error(String(r.body.message)), { status: r.status, data: r.body });
+      return r.body;
+    },
+    async put(uploadUrl, data) {
+      if (sw.putFails) return false;
+      objects.set(uploadUrl.replace('https://store.test/upload/', ''), Buffer.from(await data.arrayBuffer()));
+      return true;
+    },
+    async uploadPages(pages, name) {
+      const buf = Buffer.from(await pages.arrayBuffer());
+      return db.withRequestCache(() => files.storeFile(name, buf, m.id, sp(m), 'application/zip'));
+    },
+  };
+}
+
+/** 통째로 올리는 예전 경로 */
+async function viaWhole(m: M, entries: E[]) {
+  const up = storePages(m, 'sample.zip', entries);
+  return runtime.runRpc('importFiles', { spaceId: sp(m), parent: { kind: 'private' }, files: [{ name: 'sample.zip', url: up.url }] }, m);
+}
+/** 큰 ZIP 경로(브라우저 코드 그대로) */
+async function viaLarge(m: M, zipBytes: Buffer | Blob, name = 'sample.zip') {
+  const blob = zipBytes instanceof Blob ? zipBytes : new Blob([new Uint8Array(zipBytes)]);
+  const prep = await prepareLargeZip(blob, name, sp(m), depsFor(m));
+  const r = await runtime.runRpc('importFiles', { spaceId: sp(m), parent: { kind: 'private' }, files: [{ name: prep.name, url: prep.url, job: prep.job }] }, m);
+  if (prep.job) await settleLargeZip(prep.job.id, depsFor(m), r.status === 200 ? undefined : Object.assign(new Error('rejected'), { status: r.status }));
+  return { r, prep };
+}
+/** 단계별로 직접: 작업을 열고 그림을 올려 파일 id를 얻는다 */
+async function rawJob(m: M, images: { name: string; data: Buffer }[], opts: { finish?: boolean } = {}) {
+  const b = await step(m, { step: 'import-begin', spaceId: sp(m), files: images.length, bytes: images.reduce((a, i) => a + i.data.length, 0) });
+  expect(b.status).toBe(200);
+  const jobId = String(b.body.jobId);
+  const s = await step(m, { step: 'import-sign', jobId, items: images.map((i) => ({ name: i.name, type: 'image/png', size: i.data.length })) });
+  expect(s.status).toBe(200);
+  const items = s.body.items as { id: string; uploadUrl: string }[];
+  items.forEach((it, k) => objects.set(it.uploadUrl.replace('https://store.test/upload/', ''), images[k].data));
+  if (opts.finish !== false) expect((await step(m, { step: 'import-done', jobId, ids: items.map((i) => i.id) })).body.failed).toEqual([]);
+  return { jobId, ids: items.map((i) => i.id) };
+}
+const importWith = (m: M, url: string, job: unknown, extra: { name: string; url: string }[] = []) =>
+  runtime.runRpc('importFiles', { spaceId: sp(m), parent: { kind: 'private' }, files: [{ name: 'p.zip', url, job }, ...extra] }, m);
+const brief = (r: { status: number; body: unknown }) => ({ status: r.status, message: (r.body as any)?.message });
+
+// ---------------------------------------------------------------- 시험
+describe('통째로 올린 것과 결과가 같다(§12-6)', () => {
+  const cases: [string, () => E[]][] = [['노션 페이지 내보내기', notionExport], ['Markdown + CSV', markdownCsv], ['한글 파일명', korean], ['숨김 파일·공통 폴더·역슬래시', messy]];
+  for (const [label, make] of cases) {
+    it(label, async () => {
+      const whole = await viaWhole(ann, make());
+      const { r, prep } = await viaLarge(ann, zip.writeZip(make()));
+      expect(whole.status).toBe(200);
+      expect(r.status).toBe(200);
+      expect(prep.job).toBeTruthy();
+      expect(treeOf(r.body)).toEqual(treeOf(whole.body));
+    });
+  }
+
+  it('Export-….zip이 한 번 겹친 ZIP(압축된 안쪽·압축 없는 안쪽 모두)', async () => {
+    const inner = zip.writeZip(notionExport());
+    const whole = await viaWhole(ann, notionExport());
+    const deflated = await viaLarge(ann, zip.writeZip([{ name: 'Export-1.zip', data: inner }]));
+    const stored = await viaLarge(ann, buildStoredZip([{ name: 'Export-1.zip', data: new Uint8Array(inner) }]));
+    expect(treeOf(deflated.r.body)).toEqual(treeOf(whole.body));
+    expect(treeOf(stored.r.body)).toEqual(treeOf(whole.body));
+  });
+
+  it('그림이 없는 ZIP은 작업을 열지 않고 예전처럼 가져온다', async () => {
+    const jobsBefore = q('SELECT id FROM import_jobs').length;
+    const { r, prep } = await viaLarge(ann, zip.writeZip([{ name: 'Only.md', data: '# Only\n\n글만\n' }, { name: 'clip.mp4', data: 'x' }]));
+    expect(r.status).toBe(200);
+    expect(prep.job).toBeUndefined();
+    expect(q('SELECT id FROM import_jobs').length).toBe(jobsBefore);
+  });
+
+  it('알려 둔 차이: 같은 이름이 둘이면 큰 ZIP 경로는 첫 항목을 쓰고 건너뛴 목록에 적는다(통째 경로는 뒤 항목)', async () => {
+    const dup: E[] = [{ name: 'Dup.md', data: '# First\n' }, { name: 'Dup.md', data: '# Second\n' }, { name: 'a.png', data: PNG(7) }, { name: 'Use.md', data: '# Use\n\n![a](a.png)\n' }];
+    const whole = await viaWhole(ann, dup);
+    const { r, prep } = await viaLarge(ann, zip.writeZip(dup));
+    const titles = (b: any) => (b.pageIds as string[]).map((id) => (b.recordMap.block[id].value.value.properties?.title ?? []).map((d: any) => d[0]).join('')).sort();
+    expect(titles(whole.body)).toEqual(['Second', 'Use']);
+    expect(titles(r.body)).toEqual(['First', 'Use']);
+    expect(prep.skipped).toContainEqual({ name: 'Dup.md', reason: 'duplicate' });
+  });
+});
+
+describe('작업 단위: 올린 것·쓰인 것·지워지는 것(§9·§10)', () => {
+  it('그림은 Storage에 작업 표시와 함께 올라가고, 본문에 쓰인 것만 남는다. 동영상은 올리지 않는다', async () => {
+    const { r, prep } = await viaLarge(ann, zip.writeZip(notionExport()));
+    expect(r.status).toBe(200);
+    const job = jobRow(prep.job!.id);
+    expect(job).toMatchObject({ user_id: ann.id, space_id: sp(ann), state: 'closed' });
+    expect(Number(job.declared_files)).toBe(3); // cover·unused·deep (video.mp4 제외)
+    // 마무리 뒤: 쓰인 두 장만 남고 unused.png는 줄과 Storage 모두에서 지워졌다
+    const left = jobFiles(prep.job!.id);
+    expect(left.map((f) => f.name)).toEqual(['cover.png', 'deep.png']);
+    expect(left.every((f) => Number(f.pending) === 0 && f.storage_path.startsWith(`${ann.id}/${f.id}/`))).toBe(true);
+    expect(removedPaths).toHaveLength(1);
+    expect(removedPaths[0]).toContain('unused.png');
+    expect([...objects.keys()].some((p) => p.includes('video.mp4'))).toBe(false);
+    expect(left.every((f) => objects.has(f.storage_path))).toBe(true);
+    // 본문의 그림 주소는 남은 파일을 가리킨다
+    const urls = JSON.stringify(r.body).match(/\/files\/[0-9a-f-]{36}\//g) ?? [];
+    expect(new Set(urls.map((u) => u.slice(7, 43)))).toEqual(new Set(left.map((f) => f.id)));
+  });
+
+  it('끝난 작업으로 다시 부르면 새로 만들지 않고 처음 결과를 돌려준다', async () => {
+    const blob = new Blob([new Uint8Array(zip.writeZip(korean()))]);
+    const prep = await prepareLargeZip(blob, 'again.zip', sp(ann), depsFor(ann));
+    const first = await importWith(ann, prep.url, prep.job);
+    expect(first.status).toBe(200);
+    const n = blockCount(ann);
+    const second = await importWith(ann, prep.url, prep.job);
+    expect(second.status).toBe(200);
+    expect((second.body as any).repeated).toBe(true);
+    expect((second.body as any).pageIds).toEqual((first.body as any).pageIds);
+    expect(blockCount(ann)).toBe(n);
+    await settleLargeZip(prep.job!.id, depsFor(ann));
+    const third = await importWith(ann, prep.url, prep.job); // 마무리(closed) 뒤에도 같다
+    expect((third.body as any).repeated).toBe(true);
+    expect(blockCount(ann)).toBe(n);
+  });
+
+  it('응답을 받지 못했을 때: 이미 끝났으면 그 결과를 쓰고, 아니면 아무것도 지우지 않는다', async () => {
+    const blob = new Blob([new Uint8Array(zip.writeZip(korean()))]);
+    const done = await prepareLargeZip(blob, 'lost.zip', sp(ann), depsFor(ann));
+    const r = await importWith(ann, done.url, done.job);
+    const got = await settleLargeZip(done.job!.id, depsFor(ann), new TypeError('Failed to fetch'));
+    expect(got).toEqual({ pageIds: (r.body as any).pageIds, pages: 1, databases: 0 });
+    const open = await prepareLargeZip(blob, 'lost2.zip', sp(ann), depsFor(ann));
+    expect(await settleLargeZip(open.job!.id, depsFor(ann), new TypeError('Failed to fetch'))).toBeNull();
+    expect(jobRow(open.job!.id).state).toBe('open');
+    expect(jobFiles(open.job!.id)).toHaveLength(1);
+    // 서버가 분명히 거절한 경우에는 이 작업의 파일을 지운다
+    await settleLargeZip(open.job!.id, depsFor(ann), Object.assign(new Error('bad'), { status: 400 }));
+    expect(jobRow(open.job!.id).state).toBe('cancelled');
+    expect(jobFiles(open.job!.id)).toHaveLength(0);
+  });
+});
+
+describe('「ZIP 안 경로 → 파일 id」 표 검증(§9) — 하나라도 어긋나면 페이지를 만들지 않는다', () => {
+  const pages: E[] = [{ name: 'P.md', data: '# P\n\n![a](a.png)\n' }];
+  const expectRejected = async (run: () => Promise<{ status: number; body: unknown }>, status: number) => {
+    const n = blockCount(ann);
+    const r = await run();
+    expect(r.status).toBe(status);
+    expect(blockCount(ann)).toBe(n);
+    return r;
+  };
+
+  it('다른 회원이 올린 파일·다른 작업의 파일·작업 밖 파일·끝내지 않은 파일은 쓸 수 없다', async () => {
+    const mine = await rawJob(ann, [{ name: 'a.png', data: PNG(10) }]);
+    const url = storePages(ann, 'p.zip', pages).url;
+    // 다른 회원의 작업 파일
+    const theirs = await rawJob(bob, [{ name: 'a.png', data: PNG(11) }]);
+    await expectRejected(() => importWith(ann, url, { id: mine.jobId, assets: { 'a.png': theirs.ids[0] } }), 400);
+    // 작업 밖에서 올린 내 Storage 파일
+    const signed = await fs_.signLargeUpload(ann, { name: 'big.png', type: 'image/png', size: 5 * MB, spaceId: sp(ann) });
+    objects.set(String(signed.body.uploadUrl).replace('https://store.test/upload/', ''), Buffer.alloc(5 * MB, 1));
+    await fs_.finishLargeUpload(ann, { id: signed.body.id });
+    await expectRejected(() => importWith(ann, url, { id: mine.jobId, assets: { 'a.png': String(signed.body.id) } }), 400);
+    // DB에 든 내 작은 파일
+    const small = db.withRequestCache(() => files.storeFile('s.png', PNG(12), ann.id, sp(ann), 'image/png'));
+    await expectRejected(() => importWith(ann, url, { id: mine.jobId, assets: { 'a.png': small.id } }), 400);
+    // 주소(URL)는 받지 않는다 — 파일 id만
+    await expectRejected(() => importWith(ann, url, { id: mine.jobId, assets: { 'a.png': `/files/${mine.ids[0]}/a.png` } }), 400);
+    // 같은 회원의 **다른 작업** 파일(새 작업을 열면 앞 작업은 취소·정리되므로 앞 작업 id가 남의 것이 된다)
+    const other = await rawJob(ann, [{ name: 'a.png', data: PNG(13) }], { finish: false });
+    expect(jobRow(mine.jobId).state).toBe('cancelled');
+    // 끝내지 않은(대기) 파일
+    await expectRejected(() => importWith(ann, url, { id: other.jobId, assets: { 'a.png': other.ids[0] } }), 400);
+    // 취소된 작업
+    expect(brief(await expectRejected(() => importWith(ann, url, { id: mine.jobId, assets: {} }), 409)).message).toContain('취소된');
+    await step(ann, { step: 'import-cancel', jobId: other.jobId });
+    await step(bob, { step: 'import-cancel', jobId: theirs.jobId });
+  });
+
+  it('남의 작업·다른 워크스페이스의 작업·없는 작업은 똑같이 404', async () => {
+    const theirs = await rawJob(bob, [{ name: 'a.png', data: PNG(14) }]);
+    const url = storePages(ann, 'p.zip', pages).url;
+    for (const id of [theirs.jobId, '00000000-0000-4000-8000-000000000000', 'not-a-uuid']) {
+      expect(brief(await expectRejected(() => importWith(ann, url, { id, assets: {} }), 404))).toMatchObject({ message: 'Import job not found' });
+    }
+    // 단계 호출도 남의 작업은 찾지 못한다
+    for (const s of ['import-sign', 'import-done', 'import-finish', 'import-cancel', 'import-status']) expect((await step(ann, { step: s, jobId: theirs.jobId, items: [{ name: 'x.png', size: 1 }], ids: theirs.ids })).status).toBe(404);
+    expect(jobFiles(theirs.jobId)).toHaveLength(1);
+    await step(bob, { step: 'import-cancel', jobId: theirs.jobId });
+  });
+
+  it('경로: 정규화 뒤 중복·같은 파일 두 번·그림이 아닌 경로·숨김·글 묶음과 겹침·개수 초과를 거절한다', async () => {
+    const j = await rawJob(ann, [{ name: 'a.png', data: PNG(15) }, { name: 'b.png', data: PNG(16) }]);
+    const url = storePages(ann, 'p.zip', [...pages, { name: 'taken.png', data: PNG(17) }]).url;
+    const bad: Record<string, string>[] = [
+      { 'a.png': j.ids[0], './a.png': j.ids[1] }, // 정규화하면 같은 경로
+      { 'x\\a.png': j.ids[0], 'x/a.png': j.ids[1] },
+      { 'a.png': j.ids[0], 'b.png': j.ids[0] }, // 같은 파일 두 번
+      { 'notes.md': j.ids[0] }, // 그림이 아님
+      { 'clip.mp4': j.ids[0] },
+      { '.secret/a.png': j.ids[0] }, // 숨김
+      { '__MACOSX/a.png': j.ids[0] },
+      { 'dir/': j.ids[0] },
+      { [`${'d/'.repeat(40)}a.png`]: j.ids[0] }, // 너무 깊음
+      { 'taken.png': j.ids[0] }, // 글 묶음 안의 항목과 같은 이름
+      { 'a.png': j.ids[0], 'b.png': j.ids[1], 'c.png': '11111111-1111-4111-8111-111111111111' }, // 올린 것보다 많음
+    ];
+    for (const assets of bad) await expectRejected(() => importWith(ann, url, { id: j.jobId, assets }), 400);
+    // 큰 ZIP은 다른 파일과 함께 넣을 수 없고, ZIP이 아닌 파일에 작업을 붙일 수 없다
+    const md = db.withRequestCache(() => files.storeFile('x.md', '# x\n', ann.id, sp(ann), 'text/markdown'));
+    await expectRejected(() => importWith(ann, url, { id: j.jobId, assets: { 'a.png': j.ids[0] } }, [{ name: 'x.md', url: md.url }]), 400);
+    await expectRejected(() => runtime.runRpc('importFiles', { spaceId: sp(ann), parent: { kind: 'private' }, files: [{ name: 'x.md', url: md.url, job: { id: j.jobId, assets: {} } }] }, ann), 400);
+    // 거절 뒤에도 작업은 열려 있고(다시 시도 가능) 바르게 보내면 된다
+    expect(jobRow(j.jobId).state).toBe('open');
+    const ok = await importWith(ann, storePages(ann, 'p.zip', pages).url, { id: j.jobId, assets: { 'a.png': j.ids[0], 'b.png': j.ids[1] } });
+    expect(ok.status).toBe(200);
+    expect((await step(ann, { step: 'import-finish', jobId: j.jobId })).body.removed).toBe(1); // b.png는 쓰이지 않음
+  });
+});
+
+describe('정리 범위(§10) — 그 작업이 올린 것만', () => {
+  it('취소는 그 작업의 파일만 지운다(같은 회원의 다른 파일·다른 회원 파일은 그대로)', async () => {
+    const keepSmall = db.withRequestCache(() => files.storeFile('keep.png', PNG(20), ann.id, sp(ann), 'image/png'));
+    const signed = await fs_.signLargeUpload(ann, { name: 'keep-big.bin', type: 'application/octet-stream', size: 5 * MB, spaceId: sp(ann) });
+    const bigPath = String(signed.body.uploadUrl).replace('https://store.test/upload/', '');
+    objects.set(bigPath, Buffer.alloc(5 * MB, 2));
+    await fs_.finishLargeUpload(ann, { id: signed.body.id });
+    const theirs = await rawJob(bob, [{ name: 'bob.png', data: PNG(21) }]);
+    const mine = await rawJob(ann, [{ name: 'one.png', data: PNG(22) }, { name: 'two.png', data: PNG(23) }]);
+    const paths = jobFiles(mine.jobId).map((f) => f.storage_path);
+    const c = await step(ann, { step: 'import-cancel', jobId: mine.jobId });
+    expect(c.body.removed).toBe(2);
+    expect([...removedPaths].sort()).toEqual([...paths].sort());
+    expect(jobFiles(mine.jobId)).toHaveLength(0);
+    expect(q('SELECT id FROM files WHERE id IN (?, ?)', keepSmall.id, String(signed.body.id))).toHaveLength(2);
+    expect(objects.has(bigPath)).toBe(true);
+    expect(jobFiles(theirs.jobId)).toHaveLength(1);
+    // 다시 취소·마무리해도 달라지지 않는다
+    expect((await step(ann, { step: 'import-cancel', jobId: mine.jobId })).status).toBe(409);
+    await step(bob, { step: 'import-cancel', jobId: theirs.jobId });
+  });
+
+  it('Storage 삭제가 실패하면 파일 줄을 남겨 두었다가 다음 정리에서 지운다', async () => {
+    const j = await rawJob(ann, [{ name: 'stuck.png', data: PNG(24) }]);
+    sw.removeFails = true;
+    expect((await step(ann, { step: 'import-cancel', jobId: j.jobId })).body.removed).toBe(0);
+    expect(jobFiles(j.jobId)).toHaveLength(1); // 줄만 사라지고 Storage에 남는 일이 없다
+    sw.removeFails = false;
+    // 하루 뒤의 정리(취소된 작업은 대상이 아니므로 열린 상태였던 것처럼 되돌려 확인)
+    db.withRequestCache(() => db.db.prepare("UPDATE import_jobs SET state = 'open', created_time = ? WHERE id = ?").run(Date.now() - 25 * 3_600_000, j.jobId));
+    expect(await fs_.cleanupStaleImportJobs()).toBe(1);
+    expect(jobFiles(j.jobId)).toHaveLength(0);
+    expect(jobRow(j.jobId).state).toBe('cancelled');
+  });
+
+  it('하루 넘은 작업: 열린 것은 전부, 끝났지만 마무리 안 된 것은 쓰이지 않은 것만 지운다. 새 작업은 건드리지 않는다', async () => {
+    const blob = new Blob([new Uint8Array(zip.writeZip(notionExport()))]);
+    const doneJob = await prepareLargeZip(blob, 'old-done.zip', sp(ann), depsFor(ann));
+    expect((await importWith(ann, doneJob.url, doneJob.job)).status).toBe(200); // 마무리(import-finish)는 부르지 않음
+    const fresh = await rawJob(bob, [{ name: 'fresh.png', data: PNG(25) }]);
+    const oldOpen = await rawJob(ann, [{ name: 'old.png', data: PNG(26) }]);
+    const old = Date.now() - 25 * 3_600_000;
+    db.withRequestCache(() => db.db.prepare('UPDATE import_jobs SET created_time = ? WHERE id IN (?, ?)').run(old, doneJob.job!.id, oldOpen.jobId));
+    // 만료된 열린 작업은 단계 호출·가져오기 모두 거절
+    expect((await step(ann, { step: 'import-sign', jobId: oldOpen.jobId, items: [{ name: 'x.png', size: 1 }] })).status).toBe(410);
+    expect((await importWith(ann, storePages(ann, 'p.zip', [{ name: 'P.md', data: '# P\n' }]).url, { id: oldOpen.jobId, assets: {} })).status).toBe(410);
+    expect(await fs_.cleanupStaleImportJobs()).toBe(2); // old.png + unused.png
+    expect(jobRow(oldOpen.jobId).state).toBe('cancelled');
+    expect(jobFiles(oldOpen.jobId)).toHaveLength(0);
+    expect(jobRow(doneJob.job!.id).state).toBe('closed');
+    expect(jobFiles(doneJob.job!.id).map((f) => f.name)).toEqual(['cover.png', 'deep.png']);
+    expect(jobRow(fresh.jobId).state).toBe('open');
+    expect(jobFiles(fresh.jobId)).toHaveLength(1);
+    await step(bob, { step: 'import-cancel', jobId: fresh.jobId });
+  });
+
+  it('올리는 도중 실패하면 준비 단계가 그 작업을 취소·정리한다', async () => {
+    const before = q('SELECT id FROM files WHERE user_id = ?', ann.id).length;
+    const failing: LargeZipDeps = { ...depsFor(ann), uploadPages: async () => { throw Object.assign(new Error('upload failed'), { status: 502 }); } };
+    await expect(prepareLargeZip(new Blob([new Uint8Array(zip.writeZip(korean()))]), 'fail.zip', sp(ann), failing)).rejects.toThrow('upload failed');
+    const last = q<any>('SELECT id, state FROM import_jobs WHERE user_id = ? ORDER BY created_time DESC LIMIT 1', ann.id)[0];
+    expect(last.state).toBe('cancelled');
+    expect(jobFiles(last.id)).toHaveLength(0);
+    expect(q('SELECT id FROM files WHERE user_id = ?', ann.id).length).toBe(before);
+  });
+});
+
+describe('서버가 다시 세는 한도(§11)', () => {
+  it('작업 열기: 구성원·개수·합계·저장 용량·한 회원에 열린 작업 하나', async () => {
+    expect((await step(ann, { step: 'import-begin', spaceId: sp(bob), files: 1, bytes: 10 })).status).toBe(403);
+    expect((await step(ann, { step: 'import-begin', spaceId: sp(ann), files: ZIP_IMPORT_LIMITS.entries + 1, bytes: 10 })).status).toBe(400);
+    expect((await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 0, bytes: 10 })).status).toBe(400);
+    expect((await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 1, bytes: ZIP_IMPORT_LIMITS.zipBytes + 1 })).status).toBe(413);
+    expect((await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 1.5, bytes: 10 })).status).toBe(400);
+    sw.quotaFull = true;
+    const full = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 1, bytes: 10 });
+    expect(full).toMatchObject({ status: 403, body: { code: 'STORAGE_FULL' } });
+    sw.quotaFull = false;
+    const first = await rawJob(ann, [{ name: 'f.png', data: PNG(30) }]);
+    const second = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 1, bytes: 10 });
+    expect(second.status).toBe(200);
+    expect(jobRow(first.jobId).state).toBe('cancelled'); // 앞 작업은 정리된다
+    expect(jobFiles(first.jobId)).toHaveLength(0);
+    expect(q("SELECT id FROM import_jobs WHERE user_id = ? AND state = 'open'", ann.id)).toHaveLength(1);
+    await step(ann, { step: 'import-cancel', jobId: second.body.jobId });
+  });
+
+  it('주소 받기: 알린 개수·합계를 넘기지 못하고, 파일 하나는 50MiB까지, 한 번에 50개까지', async () => {
+    const b = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 2, bytes: 100 });
+    const jobId = b.body.jobId;
+    const sign = (items: unknown[]) => step(ann, { step: 'import-sign', jobId, items });
+    expect((await sign([{ name: 'a.png', size: 60 }, { name: 'b.png', size: 41 }])).status).toBe(413); // 합계 초과
+    expect((await sign([{ name: 'a.png', size: 1 }, { name: 'b.png', size: 1 }, { name: 'c.png', size: 1 }])).status).toBe(413); // 개수 초과
+    expect((await sign([{ name: 'a.png', size: ZIP_IMPORT_LIMITS.fileBytes + 1 }])).status).toBe(413);
+    expect((await sign([{ name: 'a.png', size: 0 }])).status).toBe(413);
+    expect((await sign([])).status).toBe(400);
+    expect((await sign(Array.from({ length: 51 }, () => ({ name: 'a.png', size: 1 })))).status).toBe(400);
+    expect(jobFiles(jobId)).toHaveLength(0); // 거절된 요청은 줄을 만들지 않는다
+    expect((await sign([{ name: 'a.png', size: 60 }])).status).toBe(200);
+    expect((await sign([{ name: 'b.png', size: 41 }])).status).toBe(413); // 누적 합계 초과
+    expect((await sign([{ name: 'b.png', size: 40 }])).status).toBe(200);
+    expect((await sign([{ name: 'c.png', size: 1 }])).status).toBe(413); // 누적 개수 초과
+    expect(jobRow(jobId)).toMatchObject({ files: 2, bytes: 100 });
+    await step(ann, { step: 'import-cancel', jobId });
+  });
+
+  it('끝 알림: 알린 크기보다 크게 올라온 파일은 지우고 실패로 둔다. 올라오지 않은 파일도 실패', async () => {
+    const b = await step(ann, { step: 'import-begin', spaceId: sp(ann), files: 3, bytes: 300 });
+    const jobId = b.body.jobId;
+    const s = await step(ann, { step: 'import-sign', jobId, items: [{ name: 'ok.png', size: 12 }, { name: 'grown.png', size: 12 }, { name: 'missing.png', size: 12 }] });
+    const items = s.body.items as { id: string; uploadUrl: string }[];
+    const path = (i: number) => items[i].uploadUrl.replace('https://store.test/upload/', '');
+    objects.set(path(0), PNG(31));
+    objects.set(path(1), Buffer.alloc(500, 3)); // 알린 12바이트보다 큼
+    const d = await step(ann, { step: 'import-done', jobId, ids: items.map((i) => i.id) });
+    expect(d.body.done).toEqual([items[0].id]);
+    expect([...(d.body.failed as string[])].sort()).toEqual([items[1].id, items[2].id].sort());
+    expect(objects.has(path(1))).toBe(false);
+    expect(jobFiles(jobId).map((f) => `${f.name}:${Number(f.pending)}`)).toEqual(['missing.png:1', 'ok.png:0']);
+    await step(ann, { step: 'import-cancel', jobId });
+  });
+});
+
+describe('브라우저 쪽 ZIP 읽기(§11)', () => {
+  const blobOf = (b: Buffer) => new Blob([new Uint8Array(b)]);
+  /** 목록의 한 항목 머리글을 직접 고친다(크기 거짓말·암호 표시 등) */
+  function patchCentral(buf: Buffer, name: string, edit: (b: Buffer, off: number) => void): Buffer {
+    const out = Buffer.from(buf);
+    for (let i = 0; i + 46 < out.length; i++) {
+      if (out.readUInt32LE(i) !== 0x02014b50) continue;
+      const n = out.readUInt16LE(i + 28);
+      if (out.subarray(i + 46, i + 46 + n).toString('utf8') === name) edit(out, i);
+    }
+    return out;
+  }
+
+  it('경계: 52,428,800바이트까지는 예전 경로, 1바이트라도 넘으면 큰 ZIP 경로', () => {
+    expect(ZIP_IMPORT_LIMITS.wholeUploadBytes).toBe(52_428_800);
+    expect(isLargeZip({ name: 'a.zip', size: 52_428_800 })).toBe(false);
+    expect(isLargeZip({ name: 'a.zip', size: 52_428_801 })).toBe(true);
+    expect(isLargeZip({ name: 'A.ZIP', size: 60 * MB })).toBe(true);
+    expect(isLargeZip({ name: 'a.pdf', size: 60 * MB })).toBe(false); // ZIP이 아닌 큰 파일은 예전 그대로(올리기 한도에 걸림)
+  });
+
+  it('이름 규칙이 서버 readZip과 같다', async () => {
+    const names = ['a\\b\\c.md', 'x//y.md', './z.md', 'p/../q.md', '../../r.md', 'dir/', '__MACOSX/a.md', 'd/.DS_Store', 'sub/__MACOSX/keep.md', '.hidden', '한글/파일.md'];
+    const z = zip.writeZip(names.map((name) => ({ name, data: 'x' })));
+    expect((await readZipIndex(blobOf(z))).map((e) => e.name)).toEqual(zip.readZip(z).map((e) => e.name));
+  });
+
+  it('브라우저가 만든 글 파일 묶음을 서버 readZip이 그대로 읽는다', async () => {
+    const built = buildStoredZip([{ name: '한글/문서.md', data: new TextEncoder().encode('# 문서\n') }, { name: 'a.csv', data: new TextEncoder().encode('A,B\n1,2\n') }, { name: 'empty.txt', data: new Uint8Array() }]);
+    const read = zip.readZip(Buffer.from(await built.arrayBuffer()));
+    expect(read.map((e) => [e.name, e.data.toString('utf8')])).toEqual([['한글/문서.md', '# 문서\n'], ['a.csv', 'A,B\n1,2\n'], ['empty.txt', '']]);
+  });
+
+  it('푸는 동안 바이트를 세어 한도를 넘으면 멈춘다(목록의 크기를 믿지 않는다)', async () => {
+    const z = zip.writeZip([{ name: 'big.txt', data: Buffer.alloc(3 * MB, 0x41) }, { name: 'raw.bin', data: Buffer.from([1, 2, 3, 4, 5]) }]);
+    const [big, raw] = await readZipIndex(blobOf(z));
+    expect(big.method).toBe(8);
+    expect(await readZipEntry(big, 1 * MB)).toBeNull();
+    expect((await readZipEntry(big, 3 * MB))?.length).toBe(3 * MB);
+    expect(await readZipEntry(raw, 4)).toBeNull();
+    // 목록에 1바이트라고 적혀 있어도 실제로 푼 크기로 판단한다
+    const lied = await readZipIndex(blobOf(patchCentral(z, 'big.txt', (b, off) => b.writeUInt32LE(1, off + 24))));
+    expect(lied[0].size).toBe(1);
+    expect(await readZipEntry(lied[0], lied[0].size)).toBeNull();
+  });
+
+  it('나누기: 글 파일·그림·건너뛴 것(지원 안 함·중복·숨김·암호·압축 방식·경로·50MiB 초과)', async () => {
+    const base = zip.writeZip([
+      { name: 'P.md', data: '# P\n' }, { name: 'a.png', data: PNG(40) }, { name: 'a.png', data: PNG(41) }, { name: 'clip.mp4', data: 'v' },
+      { name: '.git/x.png', data: PNG(42) }, { name: 'locked.png', data: PNG(43) }, { name: 'odd.png', data: PNG(44) }, { name: 'huge.png', data: PNG(45) },
+      { name: `${'d/'.repeat(40)}deep.png`, data: PNG(46) }, { name: 'inner.zip', data: zip.writeZip([{ name: 'x.md', data: 'x' }]) },
+    ]);
+    let z = patchCentral(base, 'locked.png', (b, off) => b.writeUInt16LE(b.readUInt16LE(off + 8) | 1, off + 8));
+    z = patchCentral(z, 'odd.png', (b, off) => b.writeUInt16LE(12, off + 10));
+    z = patchCentral(z, 'huge.png', (b, off) => b.writeUInt32LE(ZIP_IMPORT_LIMITS.fileBytes + 1, off + 24));
+    const plan = await planLargeZip(blobOf(z));
+    expect(plan.pages.map((e) => e.name)).toEqual(['P.md']);
+    expect(plan.images.map((e) => e.name)).toEqual(['a.png']);
+    const why = Object.fromEntries(plan.skipped.map((s) => [s.name.split('/').pop(), s.reason]));
+    expect(why).toEqual({ 'a.png': 'duplicate', 'clip.mp4': 'unsupported', 'x.png': 'hidden', 'locked.png': 'encrypted', 'odd.png': 'bad_method', 'huge.png': 'too_large', 'deep.png': 'path', 'inner.zip': 'nested_zip' });
+  });
+
+  it('읽지 않는 형식: ZIP이 아님·항목 5,000개 초과·ZIP64 표시·1GiB 초과', async () => {
+    await expect(readZipIndex(new Blob(['this is not a zip archive at all']))).rejects.toThrow('Not a zip archive');
+    const many = zip.writeZip(Array.from({ length: 5001 }, (_, i) => ({ name: `n/${i}.txt`, data: '' })));
+    await expect(planLargeZip(blobOf(many))).rejects.toThrow('Too many files in archive');
+    const small = zip.writeZip([{ name: 'a.md', data: 'a' }]);
+    const z64 = Buffer.from(small);
+    z64.writeUInt16LE(0xffff, z64.length - 22 + 10);
+    await expect(readZipIndex(blobOf(z64))).rejects.toThrow(ZipReadError);
+    const tooBig = { size: ZIP_IMPORT_LIMITS.zipBytes + 1, slice: () => new Blob() } as unknown as Blob;
+    await expect(planLargeZip(tooBig)).rejects.toThrow('ZIP is larger than 1 GB');
+    // 겹친 ZIP의 항목도 같은 5,000개 예산에서 센다
+    const nested = zip.writeZip([{ name: 'Export-a.zip', data: zip.writeZip(Array.from({ length: 3000 }, (_, i) => ({ name: `a${i}.md`, data: '' }))) }, { name: 'Export-b.zip', data: zip.writeZip(Array.from({ length: 3000 }, (_, i) => ({ name: `b${i}.md`, data: '' }))) }]);
+    await expect(planLargeZip(blobOf(nested))).rejects.toThrow('Too many files in archive');
+  });
+
+  it('준비 단계: 글 파일이 없으면 통째 경로와 같은 문구, 올리기에 실패한 그림은 건너뛴 목록으로', async () => {
+    await expect(prepareLargeZip(blobOf(zip.writeZip([{ name: 'a.png', data: PNG(50) }])), 'images.zip', sp(ann), depsFor(ann))).rejects.toThrow('No Markdown, HTML or CSV files found in images.zip');
+    sw.putFails = true;
+    const prep = await prepareLargeZip(blobOf(zip.writeZip(korean())), 'putfail.zip', sp(ann), depsFor(ann));
+    expect(prep.images).toBe(0);
+    expect(prep.skipped).toContainEqual({ name: `회의록 ${H1}/화면 캡처.png`, reason: 'upload_failed' });
+    sw.putFails = false;
+    const r = await importWith(ann, prep.url, prep.job);
+    expect(r.status).toBe(200); // 그림 없이 글은 들어온다
+    await settleLargeZip(prep.job!.id, depsFor(ann));
+    expect(jobFiles(prep.job!.id)).toHaveLength(0); // 올리지 못한 대기 줄도 마무리에서 정리된다
+  });
+});
