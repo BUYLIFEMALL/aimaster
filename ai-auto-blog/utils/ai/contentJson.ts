@@ -76,10 +76,10 @@ export async function generateContentJson(params: {
     const body = await response.text().catch(() => '')
     // 최신 모델 중 Chat Completions를 지원하지 않는 모델은 Responses API로 한 번 더 보낸다
     // (docs/AI_MODEL_INTEGRATION_STANDARD.md 3번 — 공식 지원 엔드포인트가 다를 수 있음).
-    if (response.status === 400 || response.status === 404) {
-      if (/v1\/responses|responses api|not supported|unsupported/i.test(body)) {
-        return generateOpenAIResponsesJson({ apiKey, model, system, user })
-      }
+    // 2026-11-19 (Master msg_bd0707fc7039): 모델·엔드포인트 전환 안내가 명시된 오류에서만 다시 보낸다.
+    // 일반 옵션 오류(unsupported_parameter 등)·401/403/429/500에는 별도 호출 없이 실패로 둔다(이중 과금 방지).
+    if (shouldSwitchToResponses(response.status, body)) {
+      return generateOpenAIResponsesJson({ apiKey, model, system, user })
     }
     throw safeError('OpenAI', response.status, body)
   }
@@ -87,6 +87,32 @@ export async function generateContentJson(params: {
   const text = data.choices?.[0]?.message?.content?.trim()
   if (!text) throw new Error('OpenAI가 본문 결과를 반환하지 않았습니다.')
   return extractJson(text)
+}
+
+/**
+ * Chat Completions 거절을 Responses로 다시 보낼지 판단한다(순수 함수, 시험 대상).
+ * 허용: 400/404이면서, 옵션 오류가 아니고(error.code unsupported_parameter/unsupported_value·error.param 없음),
+ * 오류 문구가 Responses 엔드포인트를 쓰라고 하거나 이 모델이 Chat Completions를 지원하지 않는다고 명시한 경우.
+ */
+export function shouldSwitchToResponses(status: number, body: string): boolean {
+  if (status !== 400 && status !== 404) return false
+  let message = body
+  try {
+    const parsed = JSON.parse(body) as { error?: { message?: unknown; code?: unknown; param?: unknown } }
+    const err = parsed?.error
+    if (err) {
+      if (err.code === 'unsupported_parameter' || err.code === 'unsupported_value') return false
+      if (typeof err.param === 'string' && err.param) return false
+      if (typeof err.message === 'string') message = err.message
+    }
+  } catch {
+    // JSON이 아니면 원문 그대로 검사
+  }
+  const mentionsResponses = /\bv1\/responses\b|responses api|\/v1\/responses/i.test(message)
+  const chatUnsupported =
+    /(chat\/completions|chat completions)[^.]{0,60}\b(not supported|unsupported|does not support)\b/i.test(message) ||
+    /\b(not supported|unsupported)\b[^.]{0,60}(chat\/completions|chat completions)/i.test(message)
+  return mentionsResponses || chatUnsupported
 }
 
 async function generateOpenAIResponsesJson(params: { apiKey: string; model: string; system: string; user: string }) {

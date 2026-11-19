@@ -81,3 +81,55 @@ test('기본 모델 GPT-6.1 Terra도 같은 규칙(온도 없음)으로 요청�
   assert.equal(body.model, 'gpt-6.1-terra');
   assert.equal(body.temperature, undefined);
 });
+
+// ── Master msg_bd0707fc7039: 대체 호출은 엔드포인트 전환 안내가 명시된 오류에서만 ──
+function countCalls(chatStatus, chatBody) {
+  const calls = [];
+  const { generateContentJson } = loadContentJson(async (url, init) => {
+    calls.push(url);
+    if (url.endsWith('/chat/completions')) return { ok: false, status: chatStatus, json: async () => ({}), text: async () => chatBody };
+    return reply(200, { output_text: '{"title":"r"}' });
+  });
+  return generateContentJson({ provider: 'openai', apiKey: 'k', model: 'gpt-6.2-sol', system: 's', user: 'u' })
+    .then(() => ({ ok: true, calls }), () => ({ ok: false, calls }));
+}
+
+test('일반 옵션 오류(unsupported_parameter 400)는 Responses를 부르지 않고 1호출로 실패', async () => {
+  const body = JSON.stringify({ error: { message: "Unsupported parameter: 'response_format' is not supported with this model.", type: 'invalid_request_error', param: 'response_format', code: 'unsupported_parameter' } });
+  const r = await countCalls(400, body);
+  assert.equal(r.ok, false);
+  assert.deepEqual(r.calls, ['https://api.openai.com/v1/chat/completions']);
+});
+
+test('옵션 이름(param)이 붙은 400은 문구에 unsupported가 있어도 대체 호출 없음', async () => {
+  const body = JSON.stringify({ error: { message: "Unsupported value: 'temperature' does not support 0.65", param: 'temperature', code: null } });
+  const r = await countCalls(400, body);
+  assert.equal(r.calls.length, 1);
+});
+
+for (const status of [401, 403, 429, 500, 503]) {
+  test(`${status} 오류는 문구와 관계없이 대체 호출 없음`, async () => {
+    const r = await countCalls(status, JSON.stringify({ error: { message: 'Please use v1/responses' } }));
+    assert.equal(r.ok, false);
+    assert.equal(r.calls.length, 1);
+  });
+}
+
+test('통신 오류(fetch 예외)는 다시 보내지 않고 실패', async () => {
+  let n = 0;
+  const { generateContentJson } = loadContentJson(async () => { n += 1; throw new Error('network'); });
+  await assert.rejects(generateContentJson({ provider: 'openai', apiKey: 'k', model: 'gpt-6.2-sol', system: 's', user: 'u' }));
+  assert.equal(n, 1);
+});
+
+test('엔드포인트 전환 안내가 명시된 400/404는 Responses로 1번만 다시 보냄', async () => {
+  for (const [status, msg] of [
+    [400, 'This model is only supported in v1/responses and not in v1/chat/completions.'],
+    [404, 'This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?'],
+    [400, 'Please use the Responses API for this model.'],
+  ]) {
+    const r = await countCalls(status, JSON.stringify({ error: { message: msg, type: 'invalid_request_error', param: null, code: null } }));
+    assert.equal(r.ok, true, msg);
+    assert.deepEqual(r.calls, ['https://api.openai.com/v1/chat/completions', 'https://api.openai.com/v1/responses'], msg);
+  }
+});
