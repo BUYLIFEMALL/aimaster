@@ -84,3 +84,30 @@ import Script from "next/script";
 - 요청: 함수의 `where`에 `and o.bucket_id <> 'workspace-files'` 한 줄을 더해 주세요(운영 DB 변경이라 주인님 승인 뒤). 워크스페이스 배포 전후 어느 쪽이든 괜찮습니다 — 일반 회원(30일)은 영향이 없고 보관 연장 회원만 해당됩니다.
 - 처리하시면 이 칸에 「반영함(날짜·커밋)」을 적어 주세요.
 - **반영함(2026-11-15, 주인님 「너가 해」로 workspace 세션이 직접 처리)**: 마이그레이션 `supabase/migrations/0073_storage_expired_skip_workspace_files.sql` 운영 적용(cand에 `where o.bucket_id <> 'workspace-files'` 한 줄). 확인: 함수 정의에 제외 줄 있음, 실행 결과 workspace-files 0건. 용량 계산(`member_storage_measure`)은 그대로.
+
+## 쇼핑몰 비공개 서류 버킷 제외 — 로컬 후보 (2026-11-19, [역할: workspace] `claude-win-20261025-workspace`, Master `msg_42a884229750` · B2B-20261119-MALL-STORAGE 보완)
+- 상태: **로컬 후보·합성 시험만. 운영 미적용**(운영 조회·SQL·cron 실행·빌드·배포 없음). 운영 적용은 Master 승인·실행.
+- 후보: `supabase/migrations/0076_storage_expired_skip_mall_private.sql` — 0073 정의 그대로에 `cand`의 `where` 한 줄 `and o.bucket_id <> 'mall-builder-private'`만 추가. 함수 서명·`SECURITY DEFINER`·`search_path`·권한 문장 없음(`CREATE OR REPLACE`라 기존 권한 유지).
+- 문제: `mall-builder-private` 경로는 `<몰 id>/<회원 id>/business-cert-…`·`reseller-apply-…`·`supplier-apply-…`라 회원 id가 이름에 있다. 그 회원이 보관 연장 회원이면 후보가 되고, 이 버킷은 포스팅 추적 버킷이 아니어서 포스팅 보관 기간이 지나면 정리 cron(`app/api/cron/storage-retention/route.ts`, 매일 19:30 UTC = 04:30 KST)이 **실제로 지운다.**
+- 다른 쇼핑몰 버킷까지 뺄 필요가 있는가(코드 대조):
+
+  | 버킷 | 경로 | 이름에 회원 id | 지금 후보가 되는가 |
+  |---|---|---|---|
+  | `mall-builder-private` | `<몰>/<회원 id>/…` | 있음 | **된다 → 0076으로 제외** |
+  | `mall-builder-public` | `<몰>/products/<무작위>`, `<몰>/supplier/<공급사 행 번호>/<무작위>`, `<몰>/banners/…`, `<몰>/logo/…` | 없음(공급사 폴더는 `mall_builder_suppliers.id`이고 `user_id`가 아님 — 저장소 규칙 `0054d`가 `x.id::text`로 대조) | 안 된다 |
+  | `mall-builder-proposals` | `<몰>/<제안 id>.jpg` | 없음 | 안 된다 |
+  | `mall-builder-applied` | `<몰>/<apply id>.<kid>.<sha256>.<서명>.jpg` | 없음 | 안 된다 |
+
+  결론: **지금 코드 기준으로는 `private` 하나면 충분하다.** 다만 후보 판정이 「이름 어디에든 회원 id가 있으면」이라, 나중에 다른 몰 버킷 경로에 회원 id가 들어가면 0076으로는 막히지 않는다(합성 시험의 가정 사례로 확인). 「등록 상품 사진 최소 1년·30일 삭제 요청 취소」 지시를 경로 규칙이 아니라 함수에서 보장하려면 네 버킷을 모두 빼는 넓은 안(`not in (…4개)`)이 필요하다 — Master 결정. 운영에 예전 경로 규칙으로 올라간 객체가 있는지는 조회하지 않아 모른다.
+- 합성 시험: `supabase/tests/storage_expired_skip_mall_private.check.mjs`(전용 로컬 fixture `aimaster_storage_fx_0076`를 직접 만들고 OID·이름·표식 대조 뒤 삭제, 127.0.0.1만). 2026-11-19 실행 **15개 통과**(oid 2741913, 삭제 뒤 잔여 0, 새로 만든 역할 0):
+  기준(0073)에서 private 서류 4건이 후보로 재현 → 0076에서 private 0건 · 빠진 것은 그 4건뿐 · 새 후보 없음 · 다른 버킷 후보 동일 · `workspace-files` 제외 유지 · 회원 id 없는 몰 버킷은 앞뒤 모두 비후보 · 함수 속성·실행 권한(service_role만) 동일 · `max_rows` 동작 · 객체 수 불변 · 0073 재실행으로 기준 복귀.
+  합성 대역이므로 운영의 실제 `member_storage_policy`·실제 객체로 확인한 것은 아니다.
+- 바뀌지 않는 것: 용량 측정(`member_storage_measure`)·권한·`workspace-files` 제외·다른 버킷의 정리. 쇼핑몰 코드 변경 없음.
+- **운영 반영 전 확인 절차(Master, 읽기만)**:
+  1. 운영의 현재 정의가 0073과 같은지: `select pg_get_functiondef('public.member_storage_expired_files(integer)'::regprocedure);` — `workspace-files` 한 줄만 있고 다른 차이가 없어야 한다. 다르면 중단.
+  2. 지금 걸려 있는 후보 수: `select bucket_id, count(*) from public.member_storage_expired_files(100000) group by 1 order by 1;` — `mall-builder-private` 건수를 적어 둔다(0이어도 적용 가치는 같다).
+  3. 넓은 안이 필요한지: `select o.bucket_id, count(*) from storage.objects o join public.profiles p on o.name like '%' || p.id::text || '%' where o.bucket_id like 'mall-builder-%' group by 1;` — `private` 말고도 나오면 넓은 안으로 바꾼다.
+  4. 이미 지워진 것이 있는지: 정리 cron의 최근 응답(`removed`)·Vercel 로그. 지워진 파일은 이 변경으로 되살아나지 않는다(별도 판단).
+  5. 적용 시각: 다음 cron(04:30 KST) 전에 적용.
+- **적용 뒤 확인**: 정의에 새 한 줄이 있는지(1번 재실행) · 2번 재실행에서 `mall-builder-private` 0건이고 다른 버킷 건수는 적용 전과 같은지 · `select proacl from pg_proc where oid = 'public.member_storage_expired_files(integer)'::regprocedure;`가 적용 전과 같은지.
+- **되돌리기**: `0073_storage_expired_skip_workspace_files.sql`의 함수 정의를 다시 실행(자료 변경 없음, 합성 시험에서 복귀 확인).
