@@ -417,3 +417,5 @@ WS-20261119-03-TSC-CLOSURE 점유 해제 CC-WORKSPACE-01: 문서 정리 2ca1af22
 WS-RELEASE-RECORD-SYNC CC-WORKSPACE-01: Master msg_97510ae00131. docs/PENDING_DEPLOYS.md 중 ai-work-workspace 기록만(내보낸 기록 v1.59~v1.63 다섯 줄 + 대기 중 3d446effa 한 줄 추가). 다른 프로그램 줄·HANDOFF·PROGRAM_CAPABILITY_MAP 편집 없음. 문서만, 운영·빌드·배포·push 없음.
 
 WS-RELEASE-RECORD-SYNC 점유 해제 CC-WORKSPACE-01: docs/PENDING_DEPLOYS.md 워크스페이스 기록 반영 ce13a442f(추가 6줄). 미반영: v1.52~v1.58 내보낸 기록(배정 범위 밖), HANDOFF·PROGRAM_CAPABILITY_MAP(남의 미커밋 변경으로 제외).
+
+WS-RELEASE-RECORD-SYNC A2 CC-WORKSPACE-01: Master msg_d53c944d1c12. docs/PENDING_DEPLOYS.md 내보낸 기록에 ai-work-workspace v1.52~v1.57 줄만 추가(배포 ID 근거가 저장소에 있는 버전). v1.58은 배포 ID 근거가 없어 추가하지 않음. 다른 프로그램 줄·HANDOFF·비교표 편집 없음, 운영 조회·빌드·배포·push 없음.
