@@ -286,7 +286,7 @@ Master 마지막 실제 점검: 2026-11-19 15:34:34 KST · 실행 중 5분 · �
 | QA-20261117-001 | CC-ECOM-01 | done / integrated | 주인님 직접시험상품1개 운영 저장응답왕복 검수 | resultId왕복/동일설정재전송방지확인·대표사진원복, 실기기/낭독별도·추가실행없음 |
 | REL-20261117-005 | CC-ECOM-01 | done / integrated | 주인님 직접승인 쇼핑제휴v1.89 운영배포 | qkncpet55 Ready·ext/zip/DB1.89·실설치/네이버수집등록/쿠팡미검수 |
 | FRONT-20261117-01 | CC-B2B-FRONT-01 | done / integrated | 갤러리 로빙키보드·필터선택 및fallback 정합성 | 코드완료·7609748ad Lab반영, 실고객/낭독은QA037 별도 |
-| MUS-20261117-01 | CC-MUSIC-01 | done / integrated | 가사영상 회원취소 일반안내 보완 | 작성자36검사/독립실원본취소·실패분리PASS·미배포묶음, ACTIVE공용타인삭제충돌보존 |
+| MUS-20261117-01 | CC-MUSIC-01 | done / lyric_v117_ready_cancel_and_mp4_live_checks_pending | 가사영상 회원취소 일반안내 보완 | 가사 영상 v1.17 Ready, DB·메뉴 v1.17 및 담당 36/36. 취소·MP4 실물과 QA002 저장시험 B 미확인. 푸시 없음. |
 | BLOG-20261117-01 | CC-BLOG-01 | done / integrated | 수집기 운영메타·블로그 미배포 누락 정정 | 문서정정완료·tistory타인ZIP삭제diff보존·T12미정별도 |
 | RE-20261117-03 | CC-REALTY-01 | done / integrated | 읽기전용 뉴스측정·안정페이징 도구 | 동률2500루프모의검증수락·실PostgREST1000+미검수·recall판정불가/운영recent상한차이명시 |
 | WS-20261117-07 | CC-WORKSPACE-01 | done / integrated | 뉴스측정기 독립읽기/안정페이징 후속검토 | 지적보완수락·DB/API0·실페이지경계누락실측아님 |
@@ -517,7 +517,7 @@ Master 마지막 실제 점검: 2026-11-19 15:34:34 KST · 실행 중 5분 · �
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 | BLOG-20261119-MODELS | CC-BLOG-01 | done / strict_switch_independent_accepted_undeployed | 블로그 설정 플랫폼별 AI 모델 선택 | Mac 49/49와 원문 1회·정상 전환과 503 상한 2회 수락. 승인 실호출 9/9는 앞선 버전의 담당 결과. 미배포. |
 | RE-20261119-PARTIAL | CC-REALTY-01 | done / partial_results_and_stats_mac_accepted_undeployed | 상가·건물·토지 알림 부분 조회 결과 보존 | f52882db9 Mac 84/84. 부분·0곳 보존, 지역 ID, 통계 호환까지 로컬 검수 수락. 상가 v1.35 묶음 빌드·배포 승인 대기. |
-| RE-20261119-PARTIAL-REL | CC-REALTY-01 | running / owner_approved_single_build_started | 상가·건물·토지 알림 v1.35 배포 | 담당이 승인 빌드 1회 시작 보고. Ready, 화면 및 웹/확장 버전 확인 대기. 푸시 없음. |
+| RE-20261119-PARTIAL-REL | CC-REALTY-01 | done / commercial_v135_ready_version_zip_and_public_screen_reported | 상가·건물·토지 알림 v1.35 배포 | 운영 Ready, DB/확장/ZIP v1.35 일치 및 소개 화면 확인. 관리자 프로그램 화면·회원 확장 재설치 안내 남음. 푸시 없음. |
 | BLOG-20261119-MODELS-3 | CC-BLOG-01 | done / saved_provider_mac_review_accepted_undeployed | 블로그 3개 프로그램 모델 목록 동기화 | SEO 22/22·에이전트 복원/요청 일치 맥미니 수락. 사진 후기 선택지 및 기존 빠른 작성 응답 지연은 별도. 미배포. |
 | BLOG-20261119-PHOTO-MODELS | CC-BLOG-01 | done / photo_models_independent_accepted_undeployed | 네이버 에이전트 사진 리뷰 모델 확대 | 맥미니 57/57. 사진 리뷰 7개 표시·기본 3개·옛 초안·비공개 경계 수락. 담당 실호출 5/5 별도, 미배포. |
 | FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | done / mobile_quickbar_and_preview_mac_accepted_undeployed | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 고정 51d4b2207 Mac 28/28. 모바일 버튼·포커스 및 미리보기 빈 줄 제거 수락. 미배포 묶음 대기, 고정판 실제 편집기 미확인. |

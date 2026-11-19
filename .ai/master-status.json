@@ -1738,12 +1738,12 @@
       "scopeRef": ".ai/FILE_OWNERSHIP.md",
       "owner": "CC-MUSIC-01",
       "status": "done",
-      "delivery": "integrated",
+      "delivery": "lyric_v117_ready_cancel_and_mp4_live_checks_pending",
       "title": "가사영상 회원취소 일반안내 보완",
-      "sha": "fe402b1df",
-      "evidence": "msg_763380c9d6ae / msg_335445120957",
-      "next": "작성자36검사/독립실원본취소·실패분리PASS·미배포묶음, ACTIVE공용타인삭제충돌보존",
-      "lastReviewedAt": "2026-11-16T16:41:48.543594+00:00"
+      "sha": "4e022046e",
+      "evidence": "msg_763380c9d6ae / msg_335445120957·msg_1dd089269b73·31c987069·525282e1d·e566d4264",
+      "next": "가사 영상 v1.17 Ready, DB·메뉴 v1.17 및 담당 36/36. 취소·MP4 실물과 QA002 저장시험 B 미확인. 푸시 없음.",
+      "lastReviewedAt": "2026-11-19T06:52:52.390Z"
     },
     {
       "task_id": "BLOG-20261117-01",
@@ -6288,12 +6288,12 @@
       "parent_task_id": "RE-20261119-PARTIAL",
       "owner": "CC-REALTY-01",
       "title": "상가·건물·토지 알림 v1.35 배포",
-      "status": "running",
-      "delivery": "owner_approved_single_build_started",
+      "status": "done",
+      "delivery": "commercial_v135_ready_version_zip_and_public_screen_reported",
       "sha": "c894f6fe1",
-      "evidence": "msg_ea84e83e8300·c894f6fe1·f52882db9 Mac 84/84",
-      "next": "담당이 승인 빌드 1회 시작 보고. Ready, 화면 및 웹/확장 버전 확인 대기. 푸시 없음.",
-      "lastReviewedAt": "2026-11-19T06:50:01.372Z"
+      "evidence": "msg_ea84e83e8300·c894f6fe1·f52882db9 Mac 84/84·msg_77669c3927b0·5b5b8a2a4·d3d74468e·msg_b0757a444812",
+      "next": "운영 Ready, DB/확장/ZIP v1.35 일치 및 소개 화면 확인. 관리자 프로그램 화면·회원 확장 재설치 안내 남음. 푸시 없음.",
+      "lastReviewedAt": "2026-11-19T06:52:52.390Z"
     }
   ],
   "programOverrides": [
