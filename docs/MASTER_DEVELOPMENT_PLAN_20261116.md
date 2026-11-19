@@ -172,7 +172,7 @@ Master 마지막 실제 점검: 2026-11-19 13:01:14 KST · 실행 중 점검 주
 | RE-20261116-01 | CC-REALTY-01 | done / integrated | L-6 기술안·뉴스미배포정정·17시험 | 대안1 채택, 구현은RE-02로 분리 |
 | RE-20261119-EXT | CC-REALTY-01 | running / three_program_linkage_independent_accepted_crm_plan_routed | 부동산 추가 개선 순차 진행 | 매물 알림 8 blob·독립 3/3, 관심 지역 3프로그램 연계 로컬 수락. 실 화면·DB 권한 검증 및 배포 대기. 고객관리 플랜 이동. |
 | RE-20261119-DESK | CC-REALTY-01 | done / u1_independent_review_accepted_undeployed | 부동산 고객관리 화면 개선 | U-1 1c52f4e37 Mac 독립 수락. 중립 배지·합성 3종 본문/발송 연결·광고 규칙 6/6 확인. 기존 90자 안내는 별도 개선, 미배포. |
-| RE-20261119-DESK-U1A | CC-REALTY-01 | reviewing / sms_byte_hint_source_returned_mac_review_dispatched | 부동산 고객관리 미리보기 문자 바이트 안내 | 미리보기 문자 수 대신 바이트 추정 안내. 작성자 타입·37시험 통과. Mac 독립 검수 요청, 실제 발송·배포 없음. |
+| RE-20261119-DESK-U1A | CC-REALTY-01 | reviewing / sms_byte_hint_mixed_content_pass_edge_notice_fix_dispatched | 부동산 고객관리 미리보기 문자 바이트 안내 | Mac 독립 8/8, 일반 90/91 경계 통과. 예시 수신거부 토큰 길이와 이모지 등 바이트 추정 안내 보완 요청, 발송·배포 없음. |
 | RE-20261116-02 | CC-REALTY-01 | done / integrated | 카톡실패상태·끊긴토큰재발송방지·local로그아웃/UA | 사용자 직접 승인 배포 v1.45/v1.61. 카카오 실물·08:00 뉴스 대조 별도 |
 | BLOG-20261116-01 | CC-BLOG-01 | done / integrated | 티스토리 소제목##·이웃 전경거절 진단 보완 | 코드검증범위 완료, 이웃재시험/배포/실제소통은별도대기 |
 | QA-20261116-01 | CX-QA-01 | cancelled / integrated | 종합 QA를 영상/Workspace로 분리 | 중복 배정 종료, 검증 완료 의미 아님 |
@@ -501,13 +501,13 @@ Master 마지막 실제 점검: 2026-11-19 13:01:14 KST · 실행 중 점검 주
 | AIF-20261119-W01-READY | CC-SNS-01 | done / v2_storage_signed_browser_read_and_ownership_verified | W01 운영 전 검증 계획과 V2 저장·다운로드 검증 | V2 서명 다운로드·권한 확인 완료. V3 유료 범위 별도, V4 시험 계정 지정 수신 및 실행 조건 미확정. |
 | AIF-20261119-W01-NEXT | CC-SNS-01 | done / dependency_patch_verified_locally_undeployed | AI Influencer Next.js 보안 패치 | 16.4.6 파일 지문과 잠금 범위 대조 완료. 담당 시험 320/320·타입 통과·audit 0. 번들 및 운영 응답 확인은 배포 단계. |
 | AIF-20261119-W01-V4 | CC-SNS-01 | done / finite_member_real_storage_verified_isolated_origin | 일반 회원 한도와 운영 다운로드 선행 검증 | 지정 일반 회원 실제 이용·합성 JPEG 1회 업로드·본인 조회·서명 다운로드 200. 일반 한도 초과·정리·운영 출처는 미검증. |
-| AIF-20261119-W01-V3 | CC-SNS-01 | running / owner_approved_bounded_paid_retest_started | AI Influencer 대표 생성 및 보정 검증 | 주인님 새 비용 승인 담당 보고, 이미지 1회와 캡션 1회 한도로 격리 재시험 착수. 실제 결과·차감 대기, 자동 재시도 없음. |
+| AIF-20261119-W01-V3 | CC-SNS-01 | running / paid_retry_succeeded_launcher_env_fix_dispatched | AI Influencer 대표 생성 및 보정 검증 | 승인 이미지 1회·캡션 1회 성공. 격리 실행기가 셸 공급자 키 이름을 상속한 문제 발견, 허용 목록 보완 배정. 실제 청구 키·보정·운영 미확인. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |
 | AIF-20261118-W03 | 미배정 | queued / sequenced_after_w01_and_w02_by_owner_instruction | 회원용 인물 라이브러리·시트·버전 | 주인님 지시대로 W01·W02 이후 시작. 인물 라이브러리·일괄 이미지·영상 미착수. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
-| BLOG-20261119-MODELS | CC-BLOG-01 | reviewing / model_storage_edge_fixes_returned_mac_recheck_dispatched | 블로그 설정 플랫폼별 AI 모델 선택 | 손상된 저장값 복구·부분 성공 안내 보완. 작성자 모델 12/12, tsc 통과. Mac 재검수 전송, 확장 API 기존 시험 실패·빌드 차단 별도. |
+| BLOG-20261119-MODELS | CC-BLOG-01 | reviewing / model_storage_cases_pass_notice_timer_fix_dispatched | 블로그 설정 플랫폼별 AI 모델 선택 | Mac 모델 시험 12/12 및 저장값 복구·안내 통과. 이전 성공 타이머가 최신 실패 안내를 지우는 문제 보완 배정. 실화면 미검증·미배포. |
 
 ## 현재 담당 회신이 확보된 프로젝트
 

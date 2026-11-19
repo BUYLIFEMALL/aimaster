@@ -5862,10 +5862,10 @@
       "reviewer": "CX-MASTER-01",
       "title": "AI Influencer 대표 생성 및 보정 검증",
       "status": "running",
-      "delivery": "owner_approved_bounded_paid_retest_started",
-      "evidence": "msg_adecea24720e·msg_6450ddaf24a6·9f1e3697e·msg_640d108b3984·msg_2516c8d780b2·345eb10f8·msg_43f23b594003·msg_b3def667492a·msg_98a00503835e·msg_51f88e4ea1b2·msg_b0363e5b9ba3·msg_fd234e802a57·msg_00d7dcc5a167·msg_f5f7a430a7b1·e5a6dc890·msg_a347af4f72e8·msg_26f84745cf68·msg_21f343488a1b·f73f98778·msg_6d485fa3d150·msg_d678e74285db·a18c18f45·msg_867fcf9c1712·msg_f01e55b27237·msg_52b203d7fe0b·msg_6ad1a695d97a",
-      "next": "주인님 새 비용 승인 담당 보고, 이미지 1회와 캡션 1회 한도로 격리 재시험 착수. 실제 결과·차감 대기, 자동 재시도 없음.",
-      "lastReviewedAt": "2026-11-19T03:25:51.788Z",
+      "delivery": "paid_retry_succeeded_launcher_env_fix_dispatched",
+      "evidence": "msg_adecea24720e·msg_6450ddaf24a6·9f1e3697e·msg_640d108b3984·msg_2516c8d780b2·345eb10f8·msg_43f23b594003·msg_b3def667492a·msg_98a00503835e·msg_51f88e4ea1b2·msg_b0363e5b9ba3·msg_fd234e802a57·msg_00d7dcc5a167·msg_f5f7a430a7b1·e5a6dc890·msg_a347af4f72e8·msg_26f84745cf68·msg_21f343488a1b·f73f98778·msg_6d485fa3d150·msg_d678e74285db·a18c18f45·msg_867fcf9c1712·msg_f01e55b27237·msg_52b203d7fe0b·msg_6ad1a695d97a·msg_68e9e9935cf1·41635d1e6·msg_6112dd02d94a",
+      "next": "승인 이미지 1회·캡션 1회 성공. 격리 실행기가 셸 공급자 키 이름을 상속한 문제 발견, 허용 목록 보완 배정. 실제 청구 키·보정·운영 미확인.",
+      "lastReviewedAt": "2026-11-19T04:18:16.561Z",
       "validation": {
         "result": "두 번째도 INVALID_KEY. 누적 이미지 시도 2회, 결과 0, 참고 업로드 2회, 캡션 0. 과금 미확인.",
         "limitation": "생성/저장 성공, 캡션, 보정 및 히스토리 검증 미완료. 업로드 시험 자산 보존."
@@ -6124,11 +6124,11 @@
       "reviewer": "CX-QA-01",
       "title": "블로그 설정 플랫폼별 AI 모델 선택",
       "status": "reviewing",
-      "delivery": "model_storage_edge_fixes_returned_mac_recheck_dispatched",
+      "delivery": "model_storage_cases_pass_notice_timer_fix_dispatched",
       "sha": "a7df2611f",
-      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e·msg_ae0e6dba4e84·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_e75e68c7f151·msg_d6f2385e1c72·7012fe1bf·msg_c5d009c34a43·msg_9d70d930ca5b·msg_2888acb4d0d4·msg_e7fae7770278·a7df2611f·msg_d19c65d4a1e5",
-      "next": "손상된 저장값 복구·부분 성공 안내 보완. 작성자 모델 12/12, tsc 통과. Mac 재검수 전송, 확장 API 기존 시험 실패·빌드 차단 별도.",
-      "lastReviewedAt": "2026-11-19T04:15:28.898Z"
+      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e·msg_ae0e6dba4e84·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_e75e68c7f151·msg_d6f2385e1c72·7012fe1bf·msg_c5d009c34a43·msg_9d70d930ca5b·msg_2888acb4d0d4·msg_e7fae7770278·a7df2611f·msg_d19c65d4a1e5·msg_063718bdf213·msg_963f5dc087ca·msg_a5e256873a03",
+      "next": "Mac 모델 시험 12/12 및 저장값 복구·안내 통과. 이전 성공 타이머가 최신 실패 안내를 지우는 문제 보완 배정. 실화면 미검증·미배포.",
+      "lastReviewedAt": "2026-11-19T04:18:16.561Z"
     },
     {
       "task_id": "RE-20261119-DESK-U1A",
@@ -6137,11 +6137,11 @@
       "reviewer": "CX-QA-01",
       "title": "부동산 고객관리 미리보기 문자 바이트 안내",
       "status": "reviewing",
-      "delivery": "sms_byte_hint_source_returned_mac_review_dispatched",
+      "delivery": "sms_byte_hint_mixed_content_pass_edge_notice_fix_dispatched",
       "sha": "84bfa1d05",
-      "evidence": "msg_5af114ba8ca6·84bfa1d05·msg_d19c65d4a1e5",
-      "next": "미리보기 문자 수 대신 바이트 추정 안내. 작성자 타입·37시험 통과. Mac 독립 검수 요청, 실제 발송·배포 없음.",
-      "lastReviewedAt": "2026-11-19T04:15:28.898Z"
+      "evidence": "msg_5af114ba8ca6·84bfa1d05·msg_d19c65d4a1e5·msg_38b3531b63d6·msg_f529c65ef361",
+      "next": "Mac 독립 8/8, 일반 90/91 경계 통과. 예시 수신거부 토큰 길이와 이모지 등 바이트 추정 안내 보완 요청, 발송·배포 없음.",
+      "lastReviewedAt": "2026-11-19T04:18:16.561Z"
     }
   ],
   "programOverrides": [
