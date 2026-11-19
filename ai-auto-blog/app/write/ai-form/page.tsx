@@ -49,10 +49,8 @@ import {
   getDefaultContentModel,
   MODEL_SELECTION_STORAGE_KEY,
   readPreferredContentModel,
-  readPreferredContentProvider,
+  readInitialModelSelection,
   savePreferredContentModel,
-  resolveImageCount,
-  resolveImageModel,
   type ContentProvider,
 } from '@/blog/utils/ai/contentModels'
 import { ImageStorageNotice } from '@/blog/components/settings/ImageStorageNotice'
@@ -169,15 +167,12 @@ function AiFormPageInner() {
 
   // 로컬 스토리지 모델 기억
   useEffect(() => {
-    try {
-      const saved = JSON.parse(window.localStorage.getItem(MODEL_STORAGE_KEY) ?? 'null')
-      // 첫 진입도 플랫폼 전환과 같은 규칙(readPreferredContentModel) — 설정 화면에서 고른 모델이 바로 쓰인다.
-      const provider = readPreferredContentProvider()
-      setContentProvider(provider)
-      setContentModel(readPreferredContentModel(provider))
-      if (saved?.imageModel) setImageModel(resolveImageModel(saved.imageModel))
-      if (saved?.imageCount) setImageCount(resolveImageCount(saved.imageCount))
-    } catch {}
+    // 첫 진입도 플랫폼 전환과 같은 규칙 — 설정 화면에서 고른 모델이 바로 쓰이고, 저장값 하나가 손상돼도 나머지는 그대로 읽는다.
+    const initial = readInitialModelSelection()
+    setContentProvider(initial.contentProvider)
+    setContentModel(initial.contentModel)
+    setImageModel(initial.imageModel)
+    setImageCount(initial.imageCount)
   }, [])
   useEffect(() => {
     try {

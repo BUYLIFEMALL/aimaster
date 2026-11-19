@@ -134,25 +134,47 @@ export function readPreferredContentProvider(): ContentProvider {
   return isContentProvider(provider) ? provider : DEFAULT_CONTENT_PROVIDER
 }
 
-/** 플랫폼별 모델을 기억하고, 지금 AI 글쓰기에서 쓰는 플랫폼이면 그 선택도 함께 바꾼다. 저장 실패면 false. */
-export function savePreferredContentModel(provider: ContentProvider, model: string): boolean {
+/**
+ * 저장 결과 — saved: 모두 저장 / partial: 플랫폼별 기억은 저장(글쓰기 화면이 이 값을 씀)했지만 마지막 선택 기록은 갱신 못 함
+ * / failed: 플랫폼별 기억 저장 실패(글쓰기 화면에 이어지지 않음).
+ */
+export type PreferenceSaveResult = 'saved' | 'partial' | 'failed'
+
+/** 플랫폼별 모델을 기억하고, 지금 AI 글쓰기에서 쓰는 플랫폼이면 그 선택도 함께 바꾼다. */
+export function savePreferredContentModel(provider: ContentProvider, model: string): PreferenceSaveResult {
   const byProvider = readModelsByProvider()
-  if (!writeJson(MODEL_BY_PROVIDER_STORAGE_KEY, { ...byProvider, [provider]: model })) return false
+  // 글쓰기 화면은 플랫폼별 기억을 먼저 본다 — 이것이 실패하면 마지막 선택만 바꿔 두 값이 어긋나지 않게 아무것도 더 쓰지 않는다.
+  if (!writeJson(MODEL_BY_PROVIDER_STORAGE_KEY, { ...byProvider, [provider]: model })) return 'failed'
   const selection = readJson(MODEL_SELECTION_STORAGE_KEY)
   if (selection && selection.contentProvider === provider) {
-    return writeJson(MODEL_SELECTION_STORAGE_KEY, { ...selection, contentModel: model })
+    return writeJson(MODEL_SELECTION_STORAGE_KEY, { ...selection, contentModel: model }) ? 'saved' : 'partial'
   }
-  return true
+  return 'saved'
 }
 
 export function readPreferredImageModel(): string {
   return resolveImageModel(readJson(MODEL_SELECTION_STORAGE_KEY)?.imageModel)
 }
 
-/** 저장 실패면 false. */
-export function savePreferredImageModel(model: string): boolean {
+/** 이미지 모델은 마지막 선택 기록 한 곳에만 저장한다(저장 결과는 saved 또는 failed). */
+export function savePreferredImageModel(model: string): PreferenceSaveResult {
   const selection = readJson(MODEL_SELECTION_STORAGE_KEY) ?? {}
-  return writeJson(MODEL_SELECTION_STORAGE_KEY, { ...selection, imageModel: model })
+  return writeJson(MODEL_SELECTION_STORAGE_KEY, { ...selection, imageModel: model }) ? 'saved' : 'failed'
+}
+
+/**
+ * AI 글쓰기 첫 진입 값. 플랫폼·모델·이미지 모델·장수를 서로 독립적으로 읽는다 —
+ * 마지막 선택 기록이 손상돼도 플랫폼별 기억과 기본값으로 계속 동작한다(하나가 깨져도 나머지를 버리지 않음).
+ */
+export function readInitialModelSelection() {
+  const provider = readPreferredContentProvider()
+  const selection = readJson(MODEL_SELECTION_STORAGE_KEY)
+  return {
+    contentProvider: provider,
+    contentModel: readPreferredContentModel(provider),
+    imageModel: resolveImageModel(selection?.imageModel),
+    imageCount: resolveImageCount(selection?.imageCount),
+  }
 }
 
 // 종료·자동 연결되는 모델(2026-11-03, docs/PLAN_20261103_MODEL_MIGRATION_DEC.md): 브라우저·예약 작업에 저장된 옛 이름을 공식 대체 모델로 바꿔 호출한다.

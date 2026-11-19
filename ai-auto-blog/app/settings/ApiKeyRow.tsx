@@ -14,6 +14,7 @@ import {
   savePreferredContentModel,
   savePreferredImageModel,
   type ContentProvider,
+  type PreferenceSaveResult,
 } from '@/blog/utils/ai/contentModels'
 
 // 2026-11-19 주인님 지시: 플랫폼 카드마다 쓸 모델을 고른다. 고른 값은 이 브라우저에 기억되고
@@ -21,7 +22,7 @@ import {
 function ModelPreference({ provider }: { provider: ContentProvider }) {
   const [contentModel, setContentModel] = useState('')
   const [imageModel, setImageModel] = useState('')
-  const [notice, setNotice] = useState<'saved' | 'failed' | null>(null)
+  const [notice, setNotice] = useState<PreferenceSaveResult | null>(null)
 
   useEffect(() => {
     setContentModel(readPreferredContentModel(provider)) // eslint-disable-line react-hooks/set-state-in-effect -- 브라우저 저장값은 마운트 뒤에만 읽을 수 있음
@@ -29,9 +30,9 @@ function ModelPreference({ provider }: { provider: ContentProvider }) {
   }, [provider])
 
   // 브라우저 저장이 막혀 있으면(시크릿 창 설정·저장 차단) 성공이라고 하지 않고 실패를 그대로 알린다.
-  function report(ok: boolean) {
-    setNotice(ok ? 'saved' : 'failed')
-    if (ok) window.setTimeout(() => setNotice(null), 1500)
+  function report(result: PreferenceSaveResult) {
+    setNotice(result)
+    if (result === 'saved') window.setTimeout(() => setNotice(null), 1500)
   }
 
   if (!contentModel) return null
@@ -78,6 +79,11 @@ function ModelPreference({ provider }: { provider: ContentProvider }) {
       )}
       <p className="text-[11px] text-zinc-500">
         {notice === 'saved' && <span className="font-semibold text-emerald-700">✓ 저장했습니다. </span>}
+        {notice === 'partial' && (
+          <span className="font-semibold text-amber-700">
+            ✓ 저장했습니다. AI 글쓰기 화면에서 이 모델이 쓰입니다(다만 글쓰기 화면의 마지막 선택 기록은 브라우저 저장 문제로 갱신하지 못했습니다).{' '}
+          </span>
+        )}
         {notice === 'failed' && (
           <span className="font-semibold text-rose-600">
             ⚠️ 이 브라우저에 저장하지 못했습니다(브라우저 저장 차단·시크릿 창). 이번 화면에서만 적용되고 AI 글쓰기 화면에는 이어지지 않습니다.{' '}
