@@ -10015,11 +10015,11 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-MASTER-01",
       "title": "메이커 M3 제안 적용·서버 바이트 검증 설계",
-      "status": "reviewing",
-      "delivery": "local_apply_core_input_validation_mac_recheck_sent",
+      "status": "running",
+      "delivery": "local_apply_core_mac_accepted_route_patch_dispatched",
       "sha": "f0eaf784c",
-      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1·msg_09c13f44d34f·8be47a12f·msg_2639b1f89d07·msg_f4130843a9ef·320a5909a·msg_f714f535ba3b·msg_8a99ab301d34·msg_64cd4fd01392·2d4dd53d0·msg_617ae29305b4·a23ffa1f3·msg_8c842614e79b·1c7b50762·msg_513a7e7b6ebc·msg_371737216f81·msg_6ceff50f19aa·msg_d0efc0d596af·msg_f596e2e53ec0·5499b725d·msg_f6638de84aba·cbe48e7d9·msg_4126c4fb6ddb·msg_c906bef9d317·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_8aaff84db217·msg_57b72d91de11·f0eaf784c·msg_6b031e653440·msg_691fa1940926·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_83bf2407051c·msg_8b559a0763cd·msg_0b58a4c9b94b·59a033c3b·msg_ad9b12510067·msg_467b9e9cdd54·msg_1984d921b251·msg_d89a73e549d7·e38a4b40b·d82ea576c·msg_ae2ba38ca487·msg_adcdbff63988·msg_cebd1020adc8·.ai/results/B2B-20261119-M3-APPLY-CX-QA-01.md·msg_8ff51218bfc6·e331d961a·msg_9b743788e56c",
-      "next": "Sub e331d961a 실제 원본 크기·제안 경로·서명 키 형식 보완. Mac 재검수 전달. 실제 라우트·디코더·Lab SQL·키 미적용.",
+      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1·msg_09c13f44d34f·8be47a12f·msg_2639b1f89d07·msg_f4130843a9ef·320a5909a·msg_f714f535ba3b·msg_8a99ab301d34·msg_64cd4fd01392·2d4dd53d0·msg_617ae29305b4·a23ffa1f3·msg_8c842614e79b·1c7b50762·msg_513a7e7b6ebc·msg_371737216f81·msg_6ceff50f19aa·msg_d0efc0d596af·msg_f596e2e53ec0·5499b725d·msg_f6638de84aba·cbe48e7d9·msg_4126c4fb6ddb·msg_c906bef9d317·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_8aaff84db217·msg_57b72d91de11·f0eaf784c·msg_6b031e653440·msg_691fa1940926·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_83bf2407051c·msg_8b559a0763cd·msg_0b58a4c9b94b·59a033c3b·msg_ad9b12510067·msg_467b9e9cdd54·msg_1984d921b251·msg_d89a73e549d7·e38a4b40b·d82ea576c·msg_ae2ba38ca487·msg_adcdbff63988·msg_cebd1020adc8·.ai/results/B2B-20261119-M3-APPLY-CX-QA-01.md·msg_8ff51218bfc6·e331d961a·msg_9b743788e56c·msg_8978736bab02·msg_c33cf9f00099",
+      "next": "e331d961a Mac 46/46, 사진 적용 함수 로컬 수락. Sub에 격리 POST 라우트·디코더 연결 후보 배정. 실제 디코더·Lab SQL·키·운영 미적용.",
       "lastReviewedAt": "2026-11-19T03:22:43.063Z"
     },
     {
