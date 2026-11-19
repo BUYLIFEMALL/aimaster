@@ -10007,9 +10007,9 @@
       "status": "reviewing",
       "delivery": "local_data_layer_review_passed_server_approval_pending",
       "sha": "f0eaf784c",
-      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1·msg_09c13f44d34f·8be47a12f·msg_2639b1f89d07·msg_f4130843a9ef·320a5909a·msg_f714f535ba3b·msg_8a99ab301d34·msg_64cd4fd01392·2d4dd53d0·msg_617ae29305b4·a23ffa1f3·msg_8c842614e79b·1c7b50762·msg_513a7e7b6ebc·msg_371737216f81·msg_6ceff50f19aa·msg_d0efc0d596af·msg_f596e2e53ec0·5499b725d·msg_f6638de84aba·cbe48e7d9·msg_4126c4fb6ddb·msg_c906bef9d317·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_8aaff84db217·msg_57b72d91de11·f0eaf784c·msg_6b031e653440·msg_691fa1940926·.ai/results/B2B-20261119-M2-CX-QA-01.md",
-      "next": "Mac 독립 Node 7/7, 정상 서명 호환·포트 경계 통과, 잠금 순서 시험 구조 대조 완료. 로컬 데이터 계층 검수 종료. 점 경로 원문 검증은 서버 후속에 포함. 서버 경로 별도 승인, 실제 SQL 독립 실행·Storage·Lab·운영 검증 대기.",
-      "lastReviewedAt": "2026-11-19T00:50:05.417Z"
+      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1·msg_09c13f44d34f·8be47a12f·msg_2639b1f89d07·msg_f4130843a9ef·320a5909a·msg_f714f535ba3b·msg_8a99ab301d34·msg_64cd4fd01392·2d4dd53d0·msg_617ae29305b4·a23ffa1f3·msg_8c842614e79b·1c7b50762·msg_513a7e7b6ebc·msg_371737216f81·msg_6ceff50f19aa·msg_d0efc0d596af·msg_f596e2e53ec0·5499b725d·msg_f6638de84aba·cbe48e7d9·msg_4126c4fb6ddb·msg_c906bef9d317·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_8aaff84db217·msg_57b72d91de11·f0eaf784c·msg_6b031e653440·msg_691fa1940926·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_83bf2407051c·msg_8b559a0763cd",
+      "next": "f0eaf784c Mac 로컬 데이터 계층 독립 검수 수락을 Backend에 회신. 점 경로 검증, 서버 구현·키·UI·Lab은 별도 승인 대기.",
+      "lastReviewedAt": "2026-11-19T03:22:43.063Z"
     },
     {
       "task_id": "B2B-20261119-ADMINUI",
@@ -10017,11 +10017,11 @@
       "reviewer": "CX-QA-01",
       "title": "B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계",
       "status": "waiting_human",
-      "delivery": "mac_tailnet_login_required_lab_server_stopped",
+      "delivery": "mac_tailnet_restored_lab_login_verified_waiting_test_login",
       "sha": "ad046c1eb",
-      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8·msg_9f9b2521f4a8·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_621b8cb49fa9·msg_aa1479ca4c17·c17cca668·msg_e5e7af9da7fe·msg_c15db5ced233·msg_b17ccd22bc09·msg_d96d3bf2fcdb·ad046c1eb·msg_07fb8a6c148a·msg_3c961902ac23·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_92995c9f1a9f·msg_1c61b1683760·msg_a52a36de3fcf·msg_9e0f5f913c2f·Master PID 46608 Tailscale 3210 login200·msg_ef8f4bba5a4e·msg_17dcab7ad585·msg_2422fec5a82d·msg_92bbb1de93f5·076b98a56",
-      "next": "Mac Tailscale NeedsLogin·TCP 타임아웃. 사설 Lab 담당 인스턴스 종료·Master 3210 리스너 0 확인. Mac 동일 Tailnet 로그인 확인 뒤 서버 재개와 375px·키보드 검수.",
-      "lastReviewedAt": "2026-11-19T01:56:13.684Z"
+      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8·msg_9f9b2521f4a8·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_621b8cb49fa9·msg_aa1479ca4c17·c17cca668·msg_e5e7af9da7fe·msg_c15db5ced233·msg_b17ccd22bc09·msg_d96d3bf2fcdb·ad046c1eb·msg_07fb8a6c148a·msg_3c961902ac23·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_92995c9f1a9f·msg_1c61b1683760·msg_a52a36de3fcf·msg_9e0f5f913c2f·Master PID 46608 Tailscale 3210 login200·msg_ef8f4bba5a4e·msg_17dcab7ad585·msg_2422fec5a82d·msg_92bbb1de93f5·076b98a56·msg_7646ed272f65·msg_0f45dc5a9386·msg_6878dfe046a5·msg_502daaa1e03e·msg_b7332c640a14·msg_96ec8eb2731d",
+      "next": "맥미니 Tailscale 연결 복구, ad046c1eb 사설 Lab 재개·양쪽 login 200. 주인님 시험 관리자 로그인 후 CX-QA-01이 aimaster-b2b 375px·키보드 검수.",
+      "lastReviewedAt": "2026-11-19T03:22:43.063Z"
     },
     {
       "task_id": "IMG-20261119-PLAN",
@@ -10029,10 +10029,10 @@
       "reviewer": "CX-QA-01",
       "title": "AI 무료 이미지 자동화 개발 플랜",
       "status": "running",
-      "delivery": "p0_results_verified_blind_review_artifacts_requested",
-      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기·msg_4423e8b13051·msg_6d81c947bd00·d6f1d0287·00158b7a3·msg_e49f861919f9·msg_25a67c9094a4·msg_11158461bd15·msg_680de25b9e15·98f8dd8bc·68efe5399·msg_fd207f8be38a·msg_5074f8e947cf·msg_254300c4a578·msg_cd4c7a612051·3fbd4b200·Arc CSV 2행 직접 대조·995a92ac-01f9-45e2-a3a4-91a3862df9e3·msg_025a7125b66c·msg_5c32df5c7178·msg_287b5412841b·msg_7492634e4c5a·msg_68e97e7d4656·msg_d36a6a75b50c·msg_9a3bd624f2e1·msg_309652177f5b·중복 msg_5a0e1dee6395 정정 보고·11:44 KST Admin Codex 터미널 본시험 진행 확인·11:50 KST Admin Codex 터미널 FLUX 48/48 중간 보고·msg_f2aba7390f58·msg_32e9ef68cd67·444034a1e·msg_45ce6d2b5731·msg_952e1148ece6·msg_9c55abed11da·msg_05eeafdb243c·Master CSV/PNG 해시 일치·msg_60514833d426·msg_8c5418f1b1f8·msg_2c1454bc23a0·msg_320b474b9a14·msg_1dc750048e02·f988aaab8·msg_377218bf1613·msg_1e45bac91599·73d53045e",
-      "next": "Q8 96/96 결과표 73d53045 확정, 독립 검수 반영. 7:4·4:7과 p95 계산 방식 명시. 사용자 가림 평가용 기존 96장 인계 요청, 품질·같은 장비 Q4·정비율 실측 미완.",
-      "lastReviewedAt": "2026-11-19T03:19:23.351Z",
+      "delivery": "p0_full_artifacts_verified_blind_view_requested",
+      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기·msg_4423e8b13051·msg_6d81c947bd00·d6f1d0287·00158b7a3·msg_e49f861919f9·msg_25a67c9094a4·msg_11158461bd15·msg_680de25b9e15·98f8dd8bc·68efe5399·msg_fd207f8be38a·msg_5074f8e947cf·msg_254300c4a578·msg_cd4c7a612051·3fbd4b200·Arc CSV 2행 직접 대조·995a92ac-01f9-45e2-a3a4-91a3862df9e3·msg_025a7125b66c·msg_5c32df5c7178·msg_287b5412841b·msg_7492634e4c5a·msg_68e97e7d4656·msg_d36a6a75b50c·msg_9a3bd624f2e1·msg_309652177f5b·중복 msg_5a0e1dee6395 정정 보고·11:44 KST Admin Codex 터미널 본시험 진행 확인·11:50 KST Admin Codex 터미널 FLUX 48/48 중간 보고·msg_f2aba7390f58·msg_32e9ef68cd67·444034a1e·msg_45ce6d2b5731·msg_952e1148ece6·msg_9c55abed11da·msg_05eeafdb243c·Master CSV/PNG 해시 일치·msg_60514833d426·msg_8c5418f1b1f8·msg_2c1454bc23a0·msg_320b474b9a14·msg_1dc750048e02·f988aaab8·msg_377218bf1613·msg_1e45bac91599·73d53045e·msg_ca0dc8f285f1·Master PNG 96개/CSV 해시 확인·msg_c7d8c25b2b0f",
+      "next": "Q8 96장 공유 인계, 개수·목록 해시 확인. 평가용 48쌍 모델명 가림 화면 준비 배정, 품질 및 정비율·Q4 실측 미완.",
+      "lastReviewedAt": "2026-11-19T03:22:43.063Z",
       "sha": "73d53045e"
     },
     {
