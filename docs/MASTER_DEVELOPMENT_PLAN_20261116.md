@@ -506,7 +506,7 @@ Master 마지막 실제 점검: 2026-11-19 13:01:14 KST · 실행 중 점검 주
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |
 | AIF-20261118-W03 | 미배정 | queued / sequenced_after_w01_and_w02_by_owner_instruction | 회원용 인물 라이브러리·시트·버전 | 주인님 지시대로 W01·W02 이후 시작. 인물 라이브러리·일괄 이미지·영상 미착수. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
-| BLOG-20261119-MODELS | CC-BLOG-01 | reviewing / model_preference_fixes_returned_mac_recheck_dispatched | 블로그 설정 플랫폼별 AI 모델 선택 | 7012fe1bf 첫 진입·공급자 왕복 선택 보존과 저장 실패 안내 보완. 작성자 모델 시험 6/6·tsc 통과, 별개 확장 API 시험 1건 실패. Mac 재검수 요청, 미배포. |
+| BLOG-20261119-MODELS | CC-BLOG-01 | reviewing / original_model_cases_pass_storage_edge_fixes_requested | 블로그 설정 플랫폼별 AI 모델 선택 | Mac 독립 모델 6/6, 이전 3반례 해소. 전역 JSON 손상 시 선호 누락 및 일부 저장 성공 안내 불일치 보완 배정. 미배포. |
 
 ## 현재 담당 회신이 확보된 프로젝트
 

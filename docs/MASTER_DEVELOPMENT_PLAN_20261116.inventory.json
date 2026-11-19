@@ -10063,11 +10063,11 @@
       "reviewer": "CX-QA-01",
       "title": "블로그 설정 플랫폼별 AI 모델 선택",
       "status": "reviewing",
-      "delivery": "model_preference_fixes_returned_mac_recheck_dispatched",
+      "delivery": "original_model_cases_pass_storage_edge_fixes_requested",
       "sha": "7012fe1bf",
-      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e·msg_ae0e6dba4e84·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_e75e68c7f151·msg_d6f2385e1c72·7012fe1bf·msg_c5d009c34a43",
-      "next": "7012fe1bf 첫 진입·공급자 왕복 선택 보존과 저장 실패 안내 보완. 작성자 모델 시험 6/6·tsc 통과, 별개 확장 API 시험 1건 실패. Mac 재검수 요청, 미배포.",
-      "lastReviewedAt": "2026-11-19T04:10:31.056Z"
+      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e·msg_ae0e6dba4e84·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_e75e68c7f151·msg_d6f2385e1c72·7012fe1bf·msg_c5d009c34a43·msg_9d70d930ca5b·msg_2888acb4d0d4",
+      "next": "Mac 독립 모델 6/6, 이전 3반례 해소. 전역 JSON 손상 시 선호 누락 및 일부 저장 성공 안내 불일치 보완 배정. 미배포.",
+      "lastReviewedAt": "2026-11-19T04:12:15.644Z"
     }
   ]
 }
