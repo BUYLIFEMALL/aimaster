@@ -4,14 +4,14 @@
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-19 18:01:06 KST · 18:00 예약 메시지 수신 및 기존 Master에서 증분 대조 완료.
-Workspace 대용량 ZIP과 가사 영상 안내는 독립 검수를 마쳐 배포를 기다린다. AI Influencer D2는 정책 구분과 시험 실행기 경계를 보완 중이다.
+Master 마지막 실제 점검: 2026-11-19 18:31:30 KST · 18:30 예약 메시지 수신 및 기존 Master에서 증분 대조 완료.
+Workspace v1.62의 버전 커밋을 확인했다. AI Influencer D2 SQL 원복 보호 보완, 리믹스 연계 사전 검토 수락.
 
-점검 범위: 17:31 KST 이후 증분. 371건 중 미완료 28건(진행 3·검수 7·순번 4·사용자 14), 103개 프로그램·19개 분류, 담당 기록 11개·점유·미배포·사람 단계·인수인계 대조.
+점검 범위: 18:01 KST 이후 증분. 372건 중 미완료 29건(진행 4·검수 7·순번 4·사용자 14), 103개 프로그램·19개 분류, 담당 기록 11개·점유·미배포·사용자 단계·인수인계 대조.
 
-후속 배정: AIF 정책 수정안과 시험 엔진 경계는 CC-SNS-01 msg_4a1e08e7b950, Mac 재검수 msg_5a8997695e52. Workspace ZIP·가사는 다음 승인 배포와 실제 화면 검증에서 재개. 이미지 품질 결과 뒤 Admin→Sub, QA002 B·QA037·ESM은 기존 사용자 단계 뒤 재개.
+후속 배정: Workspace CC-WORKSPACE-01의 배포 ID·READY·읽기 스모크 확인. AIF 원복 버전 방어 후보 대기. 음악 구현은 승인 뒤 수신 쪽부터. 기존 이미지 품질·QA002 B·QA037·ESM 사용자 단계 유지.
 
-미확인: Workspace 실제 Storage·100MB대 ZIP·브라우저 종단, 가사 Safari/휴대폰·QA002 B, AIF PostgREST·실 Storage·운영 cron/shadow, 시험 계정 공식 식별, 이미지 품질·실기. 103개 운영 전수와 이전 미추적 전체는 증분 범위 밖.
+미확인: Workspace v1.62 운영 ID, 실제 ZIP/Storage, AIF 실제 PostgREST/운영 cron과 권한, 리믹스 서명 오디오와 시간 가사 실제 응답, 이미지 실기. 운영 전수·이전 미추적 전체는 이전 점검과 동일하게 증분 범위 밖.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -391,10 +391,10 @@ Workspace 대용량 ZIP과 가사 영상 안내는 독립 검수를 마쳐 배�
 | WS-20261118-08 | CC-WORKSPACE-01 | done / collapsed_widget_spacing_static_mac_review_accepted_undeployed | 좌측 하단 저장공간 위젯과 푸터 겹침 | 미배포. 기본 위젯 겹침 국소 정적 검수 완료, 확장/좁은 폭·실화면은 별도. |
 | WS-20261119-01 | CC-WORKSPACE-01 | done / saved_notion_html_recursive_fix_independent_review_accepted | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | v1.61 배포 완료, 기존 가져온 본문 읽기 확인. 운영에서 노션 저장 HTML 다시 가져오기 시험은 미실행. v1.61 완료분 점유 해제(5b2f56408). |
 | WS-20261119-REL | CC-WORKSPACE-01 | done / production_v161_live_verified_catalog_version_synced | Workspace v1.61 기존 중단 빌드 로그 진단 | 운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음. 완료분 점유 해제(5b2f56408). |
-| WS-20261119-02 | CC-WORKSPACE-01 | running / workspace_v162_owner_approved_preflight_reported | Workspace 대용량 ZIP | 주인님 v1.62 운영 1회 승인. 809f52f7e 범위와 v1.61 기준 비교·빌드 대기열 확인 중, 배포 시작/결과 대기. |
+| WS-20261119-02 | CC-WORKSPACE-01 | running / workspace_v162_owner_approved_preflight_reported | Workspace 대용량 ZIP | 주인님 v1.62 운영 1회 승인. 809f52f7e 위 버전 표시 커밋 dfcee1584 확인. 배포 ID·READY 대기. |
 | MUSIC-20261119-IMG-COMPAT | CC-MUSIC-01 | done / five_music_flows_read_only_accepted | 무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토 | 고정 2131089b7 음악 5경로·146/146 검토 수락. 새 범위 미사용 시 파일 미생성 정정. 실제 엔진은 미검증. |
 | MUSIC-20261119-BACKLOG-SWEEP | CC-MUSIC-01 | done / music_backlog_review_accepted_followup_dispatched | 음악 7개 프로그램 다음 작업 후보 대조 | 음악 7개 웹의 미배포 코드 0. L5·U3를 우선 로컬 착수, 리믹스→플레이리스트 및 유료 영상 실검증은 별도 조건 대기. |
-| MUSIC-20261119-REMIX-PLAYLIST-REVIEW | CC-MUSIC-01 | running / remix_playlist_read_only_contract_review_dispatched | 리믹스에서 플레이리스트 연계 사전 검토 | 곡 소유권·전달 계약·기존 가사 연결 호환과 후보 검수 기준을 읽기 대조. 구현·빌드 전. |
+| MUSIC-20261119-REMIX-PLAYLIST-REVIEW | CC-MUSIC-01 | done / remix_playlist_review_accepted_implementation_scope_pending | 리믹스에서 플레이리스트 연계 사전 검토 | d6df77af9 사전 검토 수락. 두 테이블 모두 회원 범위 확인, 플레이리스트 수신 기능을 먼저 배포한 뒤 음악 링크를 공개해야 함. 구현 범위·배포 승인 대기. |
 | MUSIC-20261119-LYRIC-L5-U3 | CC-MUSIC-01 | done / lyric_l5_u3_mac_review_passed_undeployed | 가사 영상 미리보기 재생 실패와 모바일 안내 | 8f1eae339 Mac 독립 44/44 및 격리 브라우저 재생·390/767/768 통과. Safari 실동작·후보 URL·휴대폰 검증 대기, 다음 묶음 미배포. |
 | QA-20261118-043 | CX-QA-01 | done / production_v161_mobile_keyboard_verified_read_only | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | Workspace 운영 v1.61 독립 읽기. 375/390px 요일 7칩 두 줄·넘침 0·Tab 3px 포커스. OS 다크 선호 확인, 앱 테마·저장 중 상태 미검증. |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |

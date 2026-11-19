@@ -12,20 +12,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T09:01:06.808Z",
+      "at": "2026-11-19T09:31:30.846Z",
       "timezone": "Asia/Seoul",
-      "trigger": "18:00 정기 점검 메시지 msg_6df304603e07 수신·실행",
-      "scope": "17:31 KST 이후 증분. 371건 중 미완료 28건(진행 3·검수 7·순번 4·사용자 14), 103개 프로그램·19개 분류, 담당 기록 11개·점유·미배포·사람 단계·인수인계 대조.",
+      "trigger": "18:30 정기 점검 메시지 msg_d1118a71c9ae 수신·실행",
+      "scope": "18:01 KST 이후 증분. 372건 중 미완료 29건(진행 4·검수 7·순번 4·사용자 14), 103개 프로그램·19개 분류, 담당 기록 11개·점유·미배포·사용자 단계·인수인계 대조.",
       "evidence": [
-        "Master 요청 0. Git 변경과 새/갱신 결과 세 편(AIF D2-IT, 가사 L5/U3, Workspace ZIP), 공용 HANDOFF 및 점유표 대조. 기존 HANDOFF와 dev-docs manifest의 타 세션 미커밋 확인.",
-        "Workspace 809f52f7e Mac 경합 3분기 통과, abc3270c6 기록, 0b43bae44·5b2f56408 점유 해제. 가사 8f1eae339 Mac 44/44·격리 390/767/768 확인, 76ff2e7ed 점유 해제.",
-        "AI Influencer PLAN6 v2 4ac03c967, D2 격리 fec7fe017 15/15 및 b9ae5bcc4 가드 5/통합 15/정책 4 작성자 통과. Mac은 최초 계약 읽기 검토, 신규 가드 추가 재검수 전달."
+        "Master 요청 0. Git 변경과 새/갱신 결과 2편(AIF D2-IT·리믹스 연계), 공용 HANDOFF 및 점유표 대조. 기존 타 세션 HANDOFF/manifest 미커밋을 확인하고 그대로 둠.",
+        "AIF D2 Mac 가드 11/11, 후보 ec52dfef4·사전 점검 dbe2f869e, 정적 재검수와 원복 버전 보완 msg_5ae0be775cd9.",
+        "Workspace 사용자 승인 v1.62 · 809f52f7e 및 표시 커밋 dfcee1584. 공개 로그인 200이나 응답 본문에서 버전 식별 불가. 음악 d6df77af9의 기존 수신 경로 미지원과 순차 출시 근거 수락."
       ],
-      "judgment": "Workspace ZIP·가사 L5/U3는 로컬 독립 검수 완료·미배포. AIF D2는 정책 미확인과 명시 무제한을 구분하는 사전 검사·예약 계약 설계 및 시험 도커 경계 보완 중. PLAN6는 시험 계정 식별 방식 확정 전 예약 구현 보류.",
-      "nextAction": "AIF 정책 수정안과 시험 엔진 경계는 CC-SNS-01 msg_4a1e08e7b950, Mac 재검수 msg_5a8997695e52. Workspace ZIP·가사는 다음 승인 배포와 실제 화면 검증에서 재개. 이미지 품질 결과 뒤 Admin→Sub, QA002 B·QA037·ESM은 기존 사용자 단계 뒤 재개.",
+      "judgment": "Workspace v1.62 승인된 배포 전후 보고 대기, 운영 완료 미판정. AIF 정책 SQL은 버전 보호 보완. 음악 사전 검토는 완료, 두 프로그램 구현은 범위 승인 대기.",
+      "nextAction": "Workspace CC-WORKSPACE-01의 배포 ID·READY·읽기 스모크 확인. AIF 원복 버전 방어 후보 대기. 음악 구현은 승인 뒤 수신 쪽부터. 기존 이미지 품질·QA002 B·QA037·ESM 사용자 단계 유지.",
       "unverified": [
-        "Workspace 실제 Storage·100MB대 ZIP·브라우저 종단, 가사 Safari/휴대폰·QA002 B, AIF PostgREST·실 Storage·운영 cron/shadow, 시험 계정 공식 식별, 이미지 품질·실기.",
-        "103개 운영 전수와 이전 미추적 전체는 증분 범위 밖."
+        "Workspace v1.62 운영 ID, 실제 ZIP/Storage, AIF 실제 PostgREST/운영 cron과 권한, 리믹스 서명 오디오와 시간 가사 실제 응답, 이미지 실기.",
+        "운영 전수·이전 미추적 전체는 이전 점검과 동일하게 증분 범위 밖."
       ]
     },
     "notifications": [
@@ -10126,9 +10126,9 @@
       "status": "running",
       "delivery": "workspace_v162_owner_approved_preflight_reported",
       "sha": "809f52f7e",
-      "next": "주인님 v1.62 운영 1회 승인. 809f52f7e 범위와 v1.61 기준 비교·빌드 대기열 확인 중, 배포 시작/결과 대기.",
+      "next": "주인님 v1.62 운영 1회 승인. 809f52f7e 위 버전 표시 커밋 dfcee1584 확인. 배포 ID·READY 대기.",
       "lastReviewedAt": "2026-11-19T07:34:18.665Z",
-      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85·cfd124ba3·c2816bf0f·13e9af05d·msg_b6590eaaaee8·7298b1dbf·msg_25fa9e68b50a·msg_2694e685c83c·msg_b5baddc12f26·c81384d50·504891ed2 부모 분리·msg_64c64ec0e1da·msg_a38d3ff84dbc·msg_021d1ad75f3a·msg_74f8e5339487·368acd3b7·msg_d4a19e25bc14·msg_a7c6ecc7758f·msg_2710ce16b617·cdb121ab7·msg_a558ec9d6241·msg_9f4a49f9353c·.ai/results/WS-20261119-02-CX-QA-01.md·04807f920·msg_7fd9735761c5·msg_2e22cd4b41c3·msg_7a026b63d2e7·msg_a91f3a9fe702·072d74005·msg_c781a457252f·msg_d4f3a908acbe·msg_547f81d99092·658155927·msg_aac8a5bb28c4·msg_983703ac38b1·msg_41ae6dc0d449·f221885b4·msg_0896b4b5dfd8·msg_00783db43a13·msg_c866fe16a1d9·23190f14d·msg_8a7a8558b586·msg_1335ade47014·msg_9bb5ace698fd·809f52f7e·msg_ad73fc9a7e55·msg_80ad84215073·msg_f2e689100f9b·0b43bae44·abc3270c6·주인님 직접 배포 승인 전달·msg_f8a9bb6310de",
+      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85·cfd124ba3·c2816bf0f·13e9af05d·msg_b6590eaaaee8·7298b1dbf·msg_25fa9e68b50a·msg_2694e685c83c·msg_b5baddc12f26·c81384d50·504891ed2 부모 분리·msg_64c64ec0e1da·msg_a38d3ff84dbc·msg_021d1ad75f3a·msg_74f8e5339487·368acd3b7·msg_d4a19e25bc14·msg_a7c6ecc7758f·msg_2710ce16b617·cdb121ab7·msg_a558ec9d6241·msg_9f4a49f9353c·.ai/results/WS-20261119-02-CX-QA-01.md·04807f920·msg_7fd9735761c5·msg_2e22cd4b41c3·msg_7a026b63d2e7·msg_a91f3a9fe702·072d74005·msg_c781a457252f·msg_d4f3a908acbe·msg_547f81d99092·658155927·msg_aac8a5bb28c4·msg_983703ac38b1·msg_41ae6dc0d449·f221885b4·msg_0896b4b5dfd8·msg_00783db43a13·msg_c866fe16a1d9·23190f14d·msg_8a7a8558b586·msg_1335ade47014·msg_9bb5ace698fd·809f52f7e·msg_ad73fc9a7e55·msg_80ad84215073·msg_f2e689100f9b·0b43bae44·abc3270c6·주인님 직접 배포 승인 전달·msg_f8a9bb6310de·dfcee1584",
       "reviewer": "CX-QA-01"
     },
     {
@@ -10148,10 +10148,10 @@
       "owner": "CC-MUSIC-01",
       "reviewer": "CX-MASTER-01",
       "title": "리믹스에서 플레이리스트 연계 사전 검토",
-      "status": "running",
-      "delivery": "remix_playlist_read_only_contract_review_dispatched",
-      "next": "곡 소유권·전달 계약·기존 가사 연결 호환과 후보 검수 기준을 읽기 대조. 구현·빌드 전.",
-      "evidence": "msg_ab6eae1e6429·msg_ac69db543405"
+      "status": "done",
+      "delivery": "remix_playlist_review_accepted_implementation_scope_pending",
+      "next": "d6df77af9 사전 검토 수락. 두 테이블 모두 회원 범위 확인, 플레이리스트 수신 기능을 먼저 배포한 뒤 음악 링크를 공개해야 함. 구현 범위·배포 승인 대기.",
+      "evidence": "msg_ab6eae1e6429·msg_ac69db543405·msg_8ec113230d5a·d6df77af9"
     },
     {
       "task_id": "MUSIC-20261119-BACKLOG-SWEEP",
