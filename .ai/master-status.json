@@ -6222,9 +6222,9 @@
       "reviewer": "CX-QA-01",
       "title": "리믹스 → 플레이리스트 수신 로컬 구현",
       "status": "running",
-      "delivery": "owner_scope_approved_receiver_started",
-      "next": "플레이리스트 회원 소유 리믹스 수신·미리 선택과 기존 Suno 다곡 회귀. 음악 링크·운영 배포·실 호출은 별도.",
-      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1"
+      "delivery": "receiver_candidate_mac_review_and_completed_guard_followup",
+      "next": "7b76ae4eb 담당 43/43·Mac 검수 전달. 직접 ID 조회의 완료 상태 누락 보완 요청. 음악 링크·운영 배포·실 호출 없음.",
+      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1·msg_fd4dcdac6208·7b76ae4eb·msg_cf3cd8832343·msg_5118e37c0e3b"
     },
     {
       "task_id": "MUSIC-20261119-REMIX-PLAYLIST-REVIEW",
