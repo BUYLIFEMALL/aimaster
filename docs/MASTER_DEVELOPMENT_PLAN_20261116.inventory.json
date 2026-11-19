@@ -10063,11 +10063,11 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
       "title": "쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내",
-      "status": "reviewing",
-      "delivery": "mall_measure_0077_static_accepted_runbook_followup",
-      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md·msg_f995f8db2740·msg_b03bc930a0b2·0073 및 삭제 호출 소스 대조·msg_42a884229750·56ff56a5c·cc25a7cc1·0073/0076 함수 본문 대조·msg_c7919fb9f259·msg_81907d673c17·msg_f5b822c01b10·.ai/results/B2B-20261119-MALL-STORAGE-CX-QA-01.md·63b858413·Master 문서 대조 및 SQL·합성 시험 동일 확인·msg_3ed0e1d3e2de·705316994·msg_b549fb254462·msg_acab1bb8aef3·d96833385·msg_6963287c7e03·msg_adcf99e721c6·msg_166e6742290d·msg_eda2a13b267a·msg_5a61b112ea91·msg_e129da023cda·msg_3451b6e4345d·msg_928c0432c619·592b7484a·msg_d1a67c523d5c·msg_2adc74d93607·Master 호출 경로 대조·msg_c2a22bc17a99",
-      "next": "592b7484a 현 호출 방식 Mac 정적 수락. 동일 TX 반복·구/신형 경합 한계와 롤백 순서 문서 보완 요청. 0076/0077 운영 미적용.",
-      "lastReviewedAt": "2026-11-19T06:17:20.854Z",
+      "status": "waiting_human",
+      "delivery": "mall_measure_and_private_retention_waiting_production_approvals",
+      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md·msg_f995f8db2740·msg_b03bc930a0b2·0073 및 삭제 호출 소스 대조·msg_42a884229750·56ff56a5c·cc25a7cc1·0073/0076 함수 본문 대조·msg_c7919fb9f259·msg_81907d673c17·msg_f5b822c01b10·.ai/results/B2B-20261119-MALL-STORAGE-CX-QA-01.md·63b858413·Master 문서 대조 및 SQL·합성 시험 동일 확인·msg_3ed0e1d3e2de·705316994·msg_b549fb254462·msg_acab1bb8aef3·d96833385·msg_6963287c7e03·msg_adcf99e721c6·msg_166e6742290d·msg_eda2a13b267a·msg_5a61b112ea91·msg_e129da023cda·msg_3451b6e4345d·msg_928c0432c619·592b7484a·msg_d1a67c523d5c·msg_2adc74d93607·Master 호출 경로 대조·msg_c2a22bc17a99·msg_c41e662cebfa·055b38a7c·SQL/시험 변경 0 대조",
+      "next": "0077 592b7484a 합성·정적 검수 수락, 운영 절차 055b38a7c 대조. 0076 cc25a7cc1과 0077은 운영 반영 각각 승인 대기. 위젯 라벨은 다음 메인 배포.",
+      "lastReviewedAt": "2026-11-19T06:18:28.673Z",
       "sha": "592b7484a"
     },
     {

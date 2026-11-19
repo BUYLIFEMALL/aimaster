@@ -427,7 +427,7 @@ Master 마지막 실제 점검: 2026-11-19 15:01:27 KST · 실행 중 5분 · �
 | B2B-20261119-MAKER-M2-UI | CC-B2B-BACK-01 | done / m2_ui_independent_accepted_test_assertions_verified_undeployed | 메이커 M2 사진 제안 화면·저장 응답 연결 | 독립 제품 수락, 단언 5개 도달성 수정 후 Master 시험 18/18 통과. 실제 Storage·Lab 미검증, 미배포. |
 | B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | reviewing / local_data_layer_review_passed_server_approval_pending | 메이커 M3 제안 적용·서버 바이트 검증 설계 | f0eaf784c Mac 로컬 데이터 계층 독립 검수 수락을 Backend에 회신. 점 경로 검증, 서버 구현·키·UI·Lab은 별도 승인 대기. |
 | B2B-20261119-ADMINUI | AG-UI-01 | reviewing / lab_ready_authenticated_screen_pending | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | 승인 4경로 사설 Lab 1회 READY. 상점 200·관리 상품/주문 307. 로그인 후 실화면·키보드는 사용자 제어 반환 뒤. 필터 aria-current 보완 후보 기록. |
-| B2B-20261119-MALL-STORAGE | CC-B2B-BACK-01 | reviewing / mall_measure_0077_static_accepted_runbook_followup | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 592b7484a 현 호출 방식 Mac 정적 수락. 동일 TX 반복·구/신형 경합 한계와 롤백 순서 문서 보완 요청. 0076/0077 운영 미적용. |
+| B2B-20261119-MALL-STORAGE | CC-B2B-BACK-01 | waiting_human / mall_measure_and_private_retention_waiting_production_approvals | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 0077 592b7484a 합성·정적 검수 수락, 운영 절차 055b38a7c 대조. 0076 cc25a7cc1과 0077은 운영 반영 각각 승인 대기. 위젯 라벨은 다음 메인 배포. |
 | IMG-20261119-PLAN | CC-ECOM-01 | waiting_human / q8_review_screen_verified_user_quality_rating_pending | AI 무료 이미지 자동화 개발 플랜 | 내부 검토 화면 HTML 지문·이미지 48장 확인. 사용자 품질 기준 39/48 판정 대기. 실제 엔진 실기는 미검증. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
