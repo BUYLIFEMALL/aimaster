@@ -6053,10 +6053,10 @@
       "reviewer": "CX-MASTER-01",
       "title": "부동산 고객관리 화면 개선",
       "status": "reviewing",
-      "delivery": "u1_author_verified_mac_review_dispatched",
-      "evidence": "msg_689770148f5e·ac4d4bf59·msg_1d502a93ca22·msg_c1583351e267·c8d479cb9·msg_d05ff0a510fa·msg_dab6052e5c7b·d6786b9db·16d982cec·msg_7a575e8308b1·msg_c0c512ee2651·msg_1884123d9d90·msg_42cf6aa807dc·05902858a·msg_231ce7581816·msg_a6f4aeabc535·msg_0208c11b3956·msg_59e86f754438·92913afdd·msg_42558127a679",
-      "next": "U-1 92913afdd 휴대폰 말풍선 미리보기 구현. 작성자 tsc·35시험·375px 합성 3종 통과. Mac 독립 검수 전송, 미배포.",
-      "lastReviewedAt": "2026-11-19T02:53:55.179Z",
+      "delivery": "u1_layout_pass_message_type_badge_fix_requested",
+      "evidence": "msg_689770148f5e·ac4d4bf59·msg_1d502a93ca22·msg_c1583351e267·c8d479cb9·msg_d05ff0a510fa·msg_dab6052e5c7b·d6786b9db·16d982cec·msg_7a575e8308b1·msg_c0c512ee2651·msg_1884123d9d90·msg_42cf6aa807dc·05902858a·msg_231ce7581816·msg_a6f4aeabc535·msg_0208c11b3956·msg_59e86f754438·92913afdd·msg_42558127a679·msg_ba790b6a680f·.ai/results/RE-20261119-DESK-CX-QA-01.md·msg_35ee60d64d1e",
+      "next": "Mac 독립 U-1 합성 5건·375/1308 레이아웃 및 기존 발송 연결 통과. P2 SMS/LMS 배지 분류 오인을 발견해 중립 문구 보완 요청. 미배포.",
+      "lastReviewedAt": "2026-11-19T02:56:52.426Z",
       "sha": "92913afdd"
     },
     {
