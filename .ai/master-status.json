@@ -6979,18 +6979,19 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T19:02:30.907Z",
+      "at": "2026-11-19T19:30:52.910Z",
       "timezone": "Asia/Seoul",
-      "trigger": "04:00 정기 점검 및 다음 작업 지시 요청",
-      "scope": "직전 회차 이후 신규 회신·15개 대기 항목·세션별 점유 및 준비된 다음 작업 대조",
+      "trigger": "04:30 예약 msg_57d46409fbf3",
+      "scope": "04:00 이후 담당별 다음 작업·최근 결과 파일·전체 대기와 배포 승인 조건을 증분 대조",
       "evidence": [
-        "작업별 Orca 영수증과 검토 회신을 하네스에 기록.",
-        "담당별 다음 작업 점검 fc6c080d2 적용, 현황판 HTTP 200 확인."
+        "WS 전체 1,084 통과 및 독립 6/6 수락. 타이머 오류 진단 msg_5159f3c42ab8 전달.",
+        "YVS 전후 동일 실패 및 SVS 국소 완료 회신 대조. SVS 문구 A2 msg_5103595a2f83 전달. 기존 Next 설치 범위 조사 0bd1b9b2c.",
+        "맥미니 인덱스 경고: 메인 Windows status 0, 인덱스 읽기 17,558개, 잠금 없음."
       ],
-      "judgment": "준비된 설계·구현·검수를 배정. 사람 단계나 실행 환경 대기는 사유를 기록.",
-      "nextAction": "담당별 수락·결과 확인 후 독립 검수 또는 다음 일 배정. 공용 운영 작업 실행 담당·순번 대기.",
+      "judgment": "독립 진단·문구 수정 진행. 운영 DB 공용 순번, Blog 전환, 음악·Workspace 배포, 영상 의존성 변경은 대기 조건 분리.",
+      "nextAction": "목표 SHA 수신 후 맥미니 국소 재검수. 운영 SQL 메인 실행 조건 확인. 주인님 결정은 일괄 요청.",
       "unverified": [
-        "전달 뒤 착수, 운영 SQL 반영, Windows 재부팅 후 동작."
+        "운영 SQL 적용·S70 Lab 실제 실행, SVS 보안 검사 이후 완료 빌드, 맥 SMB 인덱스 오류 원인, 운영 브라우저 시험."
       ]
     },
     "notifications": [
@@ -7592,10 +7593,10 @@
   "sessionReviews": [
     {
       "owner": "CC-WORKSPACE-01",
-      "state": "3d446effa 타입 검사 종료 0",
-      "next": "담당 역할·버전 이력 갱신 진행",
-      "evidence": "7053d5879·msg_cc823e8bdd96·msg_0094fd736d91·msg_b9c03dffb58d·3d446effa·msg_66f223d06e95·msg_0726003c8bcb·msg_3b04b47cad53·bc814dc28·feb1587a0 · msg_fa9bb24bf695 · WS-20261119-03-RESPONSE-FINAL A1 · 3d446effa · full_3d446.log(담당 세션)·msg_c4e4c27fb558",
-      "reviewedAt": "2026-11-19T19:02:30.907Z",
+      "state": "전체 회귀 1,084 수락·현재 타이머 오류 진단 전달",
+      "next": "고정판 비교 및 격리 재현 회신, v1.64 배포 승인 대기",
+      "evidence": "7053d5879·msg_cc823e8bdd96·msg_0094fd736d91·msg_b9c03dffb58d·3d446effa·msg_66f223d06e95·msg_0726003c8bcb·msg_3b04b47cad53·bc814dc28·feb1587a0 · msg_fa9bb24bf695 · WS-20261119-03-RESPONSE-FINAL A1 · 3d446effa · full_3d446.log(담당 세션)·msg_c4e4c27fb558·msg_5159f3c42ab8",
+      "reviewedAt": "2026-11-19T19:30:52.910Z",
       "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
@@ -7632,10 +7633,10 @@
     },
     {
       "owner": "CC-MOVIE-01",
-      "state": "영상 출처 검토 제출 뒤 떡상 분석 2단계 준비 전달",
-      "next": "영상을 증명하는 별도 검증 필요. 2단계 첫 독립 작업 선정",
-      "evidence": "3feb2bd85·msg_e19e56da16c0 · msg_39488c8f7357·msg_61f2f4de2d4e·msg_a174c04035b1",
-      "reviewedAt": "2026-11-19T19:02:30.907Z",
+      "state": "SVS 문구 A2 수정 전달, Next 범위 조사 완료",
+      "next": "수정 SHA를 Mac 재검수. Next 의존성 정비 순번·범위 결정",
+      "evidence": "3feb2bd85·msg_e19e56da16c0 · msg_39488c8f7357·msg_61f2f4de2d4e·msg_a174c04035b1·msg_5103595a2f83·0bd1b9b2c",
+      "reviewedAt": "2026-11-19T19:30:52.910Z",
       "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
@@ -7664,10 +7665,10 @@
     },
     {
       "owner": "CX-QA-01",
-      "state": "하네스 담당별 다음 작업 점검 독립 검수 전달",
-      "next": "격리 환경에서 전달·수락·중지·후속 확인",
-      "evidence": "msg_797fd5bb3cc4·msg_2d1033203682 · msg_0be20c445fd3·msg_b50ff6e291da·msg_0fb0196030f5",
-      "reviewedAt": "2026-11-19T19:02:30.907Z",
+      "state": "SVS 조사에서 안내 충돌 발견. B2B 주문 국소 수정 수락",
+      "next": "SVS A2 고정 제출 후 국소 재검수",
+      "evidence": "msg_797fd5bb3cc4·msg_2d1033203682 · msg_0be20c445fd3·msg_b50ff6e291da·msg_0fb0196030f5·msg_88a6abd7abc2·msg_070b8ce23613",
+      "reviewedAt": "2026-11-19T19:30:52.910Z",
       "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
