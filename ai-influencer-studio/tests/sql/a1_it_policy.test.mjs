@@ -85,6 +85,12 @@ const CAND_DIR = join(HERE, "candidates");
 const CANDIDATE = readFileSync(join(CAND_DIR, "aif_quota_state_candidate.sql"), "utf8").replace(/\r\n/g, "\n");
 const ROLLBACK = readFileSync(join(CAND_DIR, "aif_quota_state_rollback.sql"), "utf8").replace(/\r\n/g, "\n");
 const sqlOnly = (t) => t.split("\n").filter((l) => !l.trimStart().startsWith("--")).join("\n");
+// 원복 파일에서 세 함수 정의만(사전 확인·helper 삭제 제외) — CRLF 시험 뒤 본문을 LF 원문으로 되돌릴 때만 쓴다
+const ROLLBACK_BODIES_LF = (() => {
+  const a = ROLLBACK.indexOf("create or replace function public.aif_asset_precheck("), b = ROLLBACK.indexOf("drop function public.aif_asset_quota_snapshot(uuid);");
+  if (a < 0 || b < a) throw new Error("원복 파일에서 세 함수 정의 구간을 찾지 못했습니다");
+  return ROLLBACK.slice(a, b);
+})();
 // 정적 확인용: 후보의 실행 문에서 중앙 정책을 읽는 곳은 한 군데뿐이어야 한다
 const POLICY_READS_IN_CANDIDATE = sqlOnly(CANDIDATE).split("public.member_storage_policy(").length - 1;
 const FNS = ["aif_asset_usage_estimate", "aif_asset_precheck", "aif_asset_reserve"];
@@ -547,6 +553,67 @@ test("(라) 원복: 세 함수의 본문이 적용 전과 글자까지 같아지
   q(ROLLBACK);
   assert.equal(bodies(), BEFORE.bodies);
   assert.equal(snapshotExists(), "0");
+  // ── 원복 전 지문 확인: 「이 후보를 적용한 바로 그 상태」가 아니면 아무것도 바꾸지 않는다 ──
+  const all4 = [...FNS, "aif_asset_quota_snapshot"];
+  const refuses = (name) => {
+    const state = bodies(all4) + "#" + catalog(all4);
+    const r = run(ROLLBACK);
+    assert.equal(r.ok, false, name);
+    assert.match(r.err, /AIF_QUOTA_ROLLBACK_REFUSED/, name);
+    assert.equal(bodies(all4) + "#" + catalog(all4), state, `${name}: 네 함수의 본문·겉모양·고유번호가 그대로다(덮어쓰지도 지우지도 다시 만들지도 않았다)`);
+  };
+  const defOf = (sig) => q(`select pg_get_functiondef('${sig}'::regprocedure);`);
+  q(CANDIDATE);
+  const applied = bodies(all4);
+  // 가) 같은 표식이 붙어 있지만 본문이 다른 helper(표식을 복사한 변조)
+  const snapDef = defOf("public.aif_asset_quota_snapshot(uuid)");
+  q(snapDef.replace("when v_source = 'exempt' then 'unlimited'", "when v_source = 'exempt' or true then 'unlimited'"));
+  assert.equal(q(`select obj_description('public.aif_asset_quota_snapshot(uuid)'::regprocedure, 'pg_proc');`), "AIF quota-state candidate v1 (aif_asset_quota_snapshot)", "표식은 그대로 붙어 있다");
+  assert.notEqual(bodies(all4), applied);
+  refuses("같은 표식의 변조된 helper");
+  q(snapDef);
+  assert.equal(bodies(all4), applied, "되돌린 뒤 후보 상태");
+  // 나) 적용 뒤 다른 작업이 호출부 하나를 고쳤다(세 함수 각각)
+  for (const sig of ["public.aif_asset_precheck(uuid, bigint)", "public.aif_asset_reserve(uuid, text, text, text, bigint, text)", "public.aif_asset_usage_estimate(uuid)"]) {
+    const def = defOf(sig);
+    q(def.replace(/\nbegin\n/, "\nbegin\n  -- changed by someone else after the candidate was applied\n"));
+    assert.notEqual(bodies(all4), applied, sig);
+    refuses(`적용 뒤 변경된 ${sig.slice(7, 30)}`);
+    q(def);
+    assert.equal(bodies(all4), applied);
+  }
+  // 다) 호출부 하나가 없다(이름이 바뀜 = 그 이름으로는 누락) — 원복이 다시 만들지 않는다
+  q(`alter function public.aif_asset_reserve(uuid, text, text, text, bigint, text) rename to aif_asset_reserve_gone;`);
+  try {
+    const r = run(ROLLBACK);
+    assert.equal(r.ok, false);
+    assert.match(r.err, /AIF_QUOTA_ROLLBACK_REFUSED/);
+    assert.equal(q(`select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname = 'aif_asset_reserve';`), "0", "없는 함수를 다시 만들지 않았다");
+    assert.equal(snapshotExists(), "1");
+  } finally { q(`alter function public.aif_asset_reserve_gone(uuid, text, text, text, bigint, text) rename to aif_asset_reserve;`); }
+  assert.equal(bodies(all4), applied);
+  // 라) 같은 이름의 함수가 하나 더 생겼다(인자가 다른 것)
+  q(`create function public.aif_asset_precheck(p_user uuid) returns boolean language sql as $f$ select true $f$;`);
+  try { refuses("겹친 이름의 사전 검사 함수"); } finally { q(`drop function public.aif_asset_precheck(uuid);`); }
+  // 마) helper가 같은 이름으로 둘(인자가 다른 것 추가)
+  q(`create function public.aif_asset_quota_snapshot(p_name text) returns integer language sql as $f$ select 1 $f$;`);
+  try { refuses("겹친 이름의 helper"); } finally { q(`drop function public.aif_asset_quota_snapshot(text);`); }
+  assert.equal(bodies(all4), applied);
+  // 바) 정상 상태로 돌아오면 원복된다
+  q(ROLLBACK);
+  assert.equal(bodies(), BEFORE.bodies);
+  assert.equal(catalog(), BEFORE.catalog);
+  assert.equal(snapshotExists(), "0");
+  // 사) 줄 끝이 CRLF인 파일로 적용해도(윈도우 체크아웃) 원복의 지문 확인이 통과한다 — 지문은 CR을 빼고 잰다
+  q(CANDIDATE.replace(/\n/g, "\r\n"));
+  assert.notEqual(bodies(all4), applied, "카탈로그의 본문 글자는 CR이 들어가 다르다");
+  assert.equal(precheck(U.none), "null|null");
+  q(ROLLBACK.replace(/\n/g, "\r\n"));
+  assert.equal(snapshotExists(), "0");
+  assert.equal(precheck(U.none), "true|null", "원문 동작으로 돌아왔다");
+  assert.equal(catalog(), BEFORE.catalog);
+  q(ROLLBACK_BODIES_LF);   // 다음 단언들이 본문 지문을 LF 기준으로 견주므로, 세 함수를 LF 원문으로 다시 놓는다(시험 DB 안에서만)
+  assert.equal(bodies(), BEFORE.bodies);
   // 적용 → 원복 → 다시 적용도 된다
   q(CANDIDATE);
   assert.equal(snapshotExists(), "1");

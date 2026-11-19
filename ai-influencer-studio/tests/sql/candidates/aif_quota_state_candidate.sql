@@ -15,6 +15,7 @@ begin;
 
 -- 0. 적용 전 확인 — 같은 이름의 함수가 이미 있으면, 이 후보가 만든 것(표식이 붙은 것)일 때만 계속한다.
 --    남의 함수(표식 없음·인자가 다른 같은 이름)를 덮어쓰지 않는다. 멈추면 이 트랜잭션 전체가 취소된다(아무것도 바뀌지 않는다).
+--    ※ 바꿀 세 함수의 **본문**이 저장소 원문과 같은지는 여기서 보지 않는다 — 배포 전 점검 항목이다(문서 참조).
 do $$
 declare v_other integer; v_missing integer;
 begin
@@ -118,11 +119,12 @@ end $$;
 revoke all on function public.aif_asset_reserve(uuid, text, text, text, bigint, text) from public, anon, authenticated;
 grant execute on function public.aif_asset_reserve(uuid, text, text, text, bigint, text) to service_role;
 
--- 5. 표식 — 이 후보가 만든 함수임을 적어 둔다(다시 적용할 때와 원복할 때 이 글을 확인한다)
+-- 5. 표식 — 이 후보가 만든 함수임을 적어 둔다(다시 적용할 때 이 글을, 원복할 때 이 글과 본문 지문을 확인한다. 글만으로는 증명이 아니다)
 comment on function public.aif_asset_quota_snapshot(uuid) is 'AIF quota-state candidate v1 (aif_asset_quota_snapshot)';
 
 -- 6. 적용 끝 확인 — 새 함수를 부르는 세 함수는 소유자 권한으로 돈다(security definer).
 --    그 소유자 가운데 하나라도 새 함수를 실행할 수 없으면 적용하지 않는다(전부 취소). 회원 역할·공개 실행 권한이 붙어 있어도 취소한다.
+--    ※ 여기서 보는 것은 「함수 실행 권한」뿐이다. 소유자의 스키마 사용 권한, 새 함수가 읽는 표·중앙 함수에 대한 권한, 행 단위 보안의 영향은 배포 전 점검 항목이다(문서 참조).
 do $$
 declare v_bad integer;
 begin

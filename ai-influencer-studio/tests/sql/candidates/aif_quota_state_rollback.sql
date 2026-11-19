@@ -6,19 +6,33 @@
 
 begin;
 
--- 0. 원복 전 확인 — 지울 함수가 「이 후보가 만든 것」일 때만 진행한다.
---    함수가 없거나, 표식이 없는 같은 이름의 함수(남의 것)면 멈춘다. 멈추면 이 트랜잭션 전체가 취소된다(세 함수도 그대로 둔다).
+-- 0. 원복 전 확인 — 「이 후보를 적용한 바로 그 상태」일 때만 진행한다. 멈추면 이 트랜잭션 전체가 취소된다(네 함수 모두 그대로 둔다).
+--    가) 지울 함수가 정확히 하나 있고, 기대한 인자이고, 이 후보의 표식이 붙어 있고, **본문이 이 후보의 것**이다.
+--        (표식은 권한 있는 사람이 복사할 수 있다 — 같은 표식이 붙은 다른 본문은 이 후보의 것으로 보지 않는다.)
+--    나) 되돌릴 세 함수가 이름마다 정확히 하나씩, 기대한 인자·반환 칸으로 있고, **본문이 이 후보의 것**이다.
+--        적용 뒤에 다른 작업이 그 함수를 바꿨거나 지웠으면 덮어쓰지도 다시 만들지도 않고 멈춘다.
+--    본문 지문 = 함수 본문에서 줄 끝 문자(CR)를 뺀 글자의 md5. 이 파일과 짝인 적용 파일의 본문에서 계산해 적어 넣은 값이다.
 do $$
-declare v_mine integer; v_any integer;
+declare v_bad integer;
 begin
-  select count(*) filter (where pg_catalog.pg_get_function_identity_arguments(p.oid) = 'p_user uuid'
-                            and pg_catalog.obj_description(p.oid, 'pg_proc') = 'AIF quota-state candidate v1 (aif_asset_quota_snapshot)'),
-         count(*)
-    into v_mine, v_any
-  from pg_catalog.pg_proc p join pg_catalog.pg_namespace n on n.oid = p.pronamespace
-  where n.nspname = 'public' and p.proname = 'aif_asset_quota_snapshot';
-  if v_mine <> 1 or v_any <> 1 then
-    raise exception 'AIF_QUOTA_ROLLBACK_REFUSED: public.aif_asset_quota_snapshot is absent or is not this candidate''s function (nothing changed)' using errcode = 'P0001';
+  select count(*) into v_bad
+  from (values
+    ('aif_asset_quota_snapshot', 'p_user uuid', 'TABLE(used_bytes bigint, quota_bytes bigint, measured_at timestamp with time zone, quota_state text)', '6c3ca6a7d2a563c57f566bb98541a70a', true),
+    ('aif_asset_usage_estimate', 'p_user uuid', 'TABLE(used_bytes bigint, quota_bytes bigint, measured_at timestamp with time zone)', 'ad7128ffce8378ad32e950cf09808233', false),
+    ('aif_asset_precheck', 'p_user uuid, p_est_bytes bigint', 'TABLE(allowed boolean, used_bytes bigint, quota_bytes bigint)', '5b30ef9ae925a2b1ed9e875c2fa74384', false),
+    ('aif_asset_reserve', 'p_user uuid, p_kind text, p_mime text, p_ext text, p_bytes bigint, p_sha256 text', 'TABLE(asset_id uuid, path text)', '9755cf74aa50398a3981aeed66fcd63b', false)
+  ) as want(fn, args, result, h_cand, need_mark)
+  where (select count(*) from pg_catalog.pg_proc p join pg_catalog.pg_namespace n on n.oid = p.pronamespace
+         where n.nspname = 'public' and p.proname = want.fn) <> 1
+     or not exists (
+         select 1 from pg_catalog.pg_proc p join pg_catalog.pg_namespace n on n.oid = p.pronamespace
+         where n.nspname = 'public' and p.proname = want.fn and p.prokind = 'f'
+           and pg_catalog.pg_get_function_identity_arguments(p.oid) = want.args
+           and pg_catalog.pg_get_function_result(p.oid) = want.result
+           and pg_catalog.md5(pg_catalog.replace(p.prosrc, E'\r', '')) = want.h_cand
+           and (not want.need_mark or pg_catalog.obj_description(p.oid, 'pg_proc') = 'AIF quota-state candidate v1 (aif_asset_quota_snapshot)'));
+  if v_bad <> 0 then
+    raise exception 'AIF_QUOTA_ROLLBACK_REFUSED: the four functions are not exactly in this candidate''s applied state (missing, changed, or not this candidate''s) — nothing changed' using errcode = 'P0001';
   end if;
 end $$;
 
