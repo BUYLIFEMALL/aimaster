@@ -6303,8 +6303,8 @@
       "status": "done",
       "delivery": "production_off_ready_public_smoke_passed",
       "sha": "aaac91bb6",
-      "next": "aaac91bb6 D1 OFF 운영 READY. 주인님 후속 순서: DB 표시 버전 동기화 결과 대기 → 로그인 읽기 → 공유 소스·배포 차이 기록 → D2 → D3.",
-      "evidence": "msg_99f48ec1072f·msg_56627921dadb·msg_ab5b76ba2021·msg_fe0626fbf3a1·msg_ff8bfd3c4215·7da7961ec·msg_6fe64489deea·msg_edce1bb04114·7cbff8753·msg_d1564fa89a51·msg_5ece488b490e·6122fbb04·bc6ff956b·bed9d1dad·msg_4ddfcc074cc6·msg_78377ef70db9·ff746dff6·d4298bd76·5a2c61ddd·msg_dd4eb4c22e70·msg_800912dbc127·aaac91bb6·msg_e4088df39d63·80e64f676·dpl_5dRNbNxU68whqTVpGDLYWpfBYEja·msg_79f7794dc439·msg_a44f165f2dae",
+      "next": "D1 OFF 운영·DB·저장소 v1.27 일치. 담당자 로그인 무료 확인 및 배포와 공유 소스 3경로 차이 기록 완료. D2 사전 검토 진행, D3 대기. 생성·보정 실동작 미검증.",
+      "evidence": "msg_99f48ec1072f·msg_56627921dadb·msg_ab5b76ba2021·msg_fe0626fbf3a1·msg_ff8bfd3c4215·7da7961ec·msg_6fe64489deea·msg_edce1bb04114·7cbff8753·msg_d1564fa89a51·msg_5ece488b490e·6122fbb04·bc6ff956b·bed9d1dad·msg_4ddfcc074cc6·msg_78377ef70db9·ff746dff6·d4298bd76·5a2c61ddd·msg_dd4eb4c22e70·msg_800912dbc127·aaac91bb6·msg_e4088df39d63·80e64f676·dpl_5dRNbNxU68whqTVpGDLYWpfBYEja·msg_79f7794dc439·msg_a44f165f2dae·msg_4907538f8b1f·409a339af·bcc5cedf6·msg_19f3a539e9f5",
       "lastReviewedAt": "2026-11-19T07:37:40.966Z"
     },
     {
