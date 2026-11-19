@@ -6270,9 +6270,9 @@
       "status": "done",
       "delivery": "frontend_production_public_screen_independent_accepted",
       "sha": "36bdb31dd",
-      "next": "운영 READY·홈/로그인 200 담당 확인, v1.16. Mac 공개 모바일 빠른 메뉴·키 조작·홈 탭·밝은 가격 대비 통과. 관리자/편집기는 기존 로그인 대기.",
-      "evidence": "msg_1f176110ae91·36bdb31dd·msg_c6e28b9bfddd·msg_d679664bf4e3·msg_169ceba45a12·기존 dpl_HWiyEpQcRQUbhH6pXoUrE6HguM6u·task-5465·msg_dcf53f370fd2·msg_854ef956a8e3·msg_bb94c01a3247·msg_2ad2224091f1·msg_d36ac2b07d8e·.ai/results/FRONT-20261119-QUICKBAR-CX-QA-01.md",
-      "lastReviewedAt": "2026-11-19T06:50:44.793Z",
+      "next": "운영 READY·v1.16 및 맥미니 공개 화면 통과. 배포 폴더 대조 19개 프런트/시험 경로와 버전 파일, 백엔드·DB 차이 0. 관리자 별도.",
+      "evidence": "msg_1f176110ae91·36bdb31dd·msg_c6e28b9bfddd·msg_d679664bf4e3·msg_169ceba45a12·기존 dpl_HWiyEpQcRQUbhH6pXoUrE6HguM6u·task-5465·msg_dcf53f370fd2·msg_854ef956a8e3·msg_bb94c01a3247·msg_2ad2224091f1·msg_d36ac2b07d8e·.ai/results/FRONT-20261119-QUICKBAR-CX-QA-01.md·msg_01979456e577·Master 실제 배포 폴더와 1aea8ec0f 바이트 대조·msg_4a0df80f5b53",
+      "lastReviewedAt": "2026-11-19T07:27:18.606Z",
       "release": {
         "id": "dpl_64nEf2KbmKTWspA6fx8RtVLSo5kj",
         "alias": "aimaster-b2b.buylife.xyz",
