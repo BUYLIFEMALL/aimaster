@@ -441,3 +441,5 @@ MOV-SVS-RELEVANCE-UI-CLARITY 점유 해제 CC-MOVIE-01: c31b91095(SearchStep·sh
 MOV-SVS-RELEVANCE-UI-CLARITY A2 CC-MOVIE-01: Master msg_5103595a2f83(기준 c31b91095). shorts-viral-studio/src/components/studio/SearchStep.tsx 필터 안내·제외 이유 중복 표시 + 필요 시 src/lib/youtube/shortsSearch.ts 문구 함수·tests/relevance.test.mjs·docs/IMPROVEMENTS.md만. 설치·Next 업그레이드·빌드·운영 0.
 
 MOV-SVS-RELEVANCE-UI-CLARITY A2 점유 해제 CC-MOVIE-01: 9b3d91af5(안내 분리·제외 요약 단일 표시, relevance 10/10, npm test 17/17, tsc 0).
+
+WS-TIMER-ERROR-BUCKETS CC-WORKSPACE-01: Master msg_f768111041fc. ai-work-workspace/src/litpage/server/db.ts(새 내보내기 timerErrorBucket 한 함수와 고정 표, 기존 errorKind·startup 기록 무변경)·api/modules/pages.ts(유휴 스냅숏 catch 한 줄)·agents/triggers.ts(일정 재등록 catch 한 줄)·tests/integration/startupBoundary.test.ts(회귀 추가)·본인 문서. v1.64 후보(3d446effa·54183605c)와 별도 SHA. 운영 조회·쓰기·cron·빌드·배포·push 없음.
