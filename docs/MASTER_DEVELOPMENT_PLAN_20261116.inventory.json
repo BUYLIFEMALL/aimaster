@@ -10205,12 +10205,12 @@
       "parent_task_id": "B2B-20261119-FRONT-HANDOFF",
       "owner": "AG-UI-01",
       "title": "B2B 프런트 단독 운영 배포",
-      "status": "queued",
-      "delivery": "owner_approved_single_production_build_preflight_dispatched",
+      "status": "running",
+      "delivery": "main_owner_accepted_isolated_candidate_checks_running",
       "sha": "36bdb31dd",
-      "next": "메인 PC 격리 후보·운영 기준·빌드 순번 대조 뒤 승인 범위 1회. S70·백엔드·운영 DB 제외. 접수/실행 대기.",
-      "evidence": "msg_1f176110ae91·36bdb31dd·msg_c6e28b9bfddd",
-      "lastReviewedAt": "2026-11-19T06:35:48.751Z"
+      "next": "메인 담당 수락. 운영 v1.16 기준·프로젝트·대기열 확인 당시 0. 격리 후보 19경로 타입/프런트 시험 중, 원격 빌드 미시작.",
+      "evidence": "msg_1f176110ae91·36bdb31dd·msg_c6e28b9bfddd·msg_d679664bf4e3·msg_169ceba45a12·기존 dpl_HWiyEpQcRQUbhH6pXoUrE6HguM6u·task-5465",
+      "lastReviewedAt": "2026-11-19T06:44:15.651Z"
     }
   ]
 }
