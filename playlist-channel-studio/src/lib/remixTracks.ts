@@ -8,7 +8,7 @@ export type RemixMeta = { mode: string | null; instrumental: boolean | null; sou
 export type RemixVariantRow = { id: string; suno_audio_id: string | null; duration_seconds: number | null; created_at: string; audio_url?: string | null };
 export type RemixRow = RemixMeta & { id: string; created_at: string; variants: RemixVariantRow[] };
 export type RemixTrack = {
-  id: string; title: string; mode: "vocal" | "instrumental"; createdAt: string;
+  id: string; title: string; mode: "vocal" | "instrumental"; createdAt: string; remix: true;
   variants: { id: string; duration: number | null; canTime: boolean; blocked?: string }[];
 };
 
@@ -27,7 +27,7 @@ export function remixTrack(r: RemixRow, stored?: (v: RemixVariantRow) => boolean
   if (!r.variants.length) return null;
   const vocal = remixIsVocal(r);
   return {
-    id: r.id, title: remixTitle(r), mode: vocal ? "vocal" : "instrumental", createdAt: r.created_at,
+    id: r.id, title: remixTitle(r), mode: vocal ? "vocal" : "instrumental", createdAt: r.created_at, remix: true,
     variants: [...r.variants].sort((a, b) => a.created_at.localeCompare(b.created_at))
       .map((v) => {
         const blocked = stored && !stored(v);
@@ -134,6 +134,27 @@ export function pickedInList(picked: string[], selectable: string[]): string[] {
   return picked.filter((id) => ok.has(id));
 }
 export const canPickMore = (picked: string[], selectable: string[], max: number): boolean => pickedInList(picked, selectable).length < max;
+
+/**
+ * 정상 목록이 올 때마다 선택 정리 — 지금 목록에서 고를 수 있는 곡만 남기고 최대 max(활성 선택은 항상 20 이하).
+ * 사라진 선택은 지워서 나중에 다시 나타나도 되살아나지 않는다. 단 리믹스를 못 읽은 부분 실패(remixOk=false)에서는
+ * 이미 본 적 있는 리믹스 선택(knownRemix)을 「진짜 없음」으로 보지 않고 남긴다.
+ */
+export function prunePicked(picked: string[], view: ListView, knownRemix: ReadonlySet<string>, max: number): string[] {
+  if (view.state !== "ok") return picked;
+  const ok = new Set(view.selectable);
+  const kept = picked.filter((id) => ok.has(id) || (!view.remixOk && knownRemix.has(id)));
+  const out = kept.slice(0, max);
+  return out.length === picked.length && out.every((id, i) => id === picked[i]) ? picked : out;
+}
+
+/**
+ * 「선택한 곡 추가」가 끝났을 때 — 클릭 때 고정한 대상(targetIds)만 선택에서 빼고, 받은 곡 번호는 클릭 때의 처리 상태(doneAtStart) 기준으로만 정리.
+ * 추가하는 동안 새로고침으로 복구돼 새로 선택된 리믹스·남은 리믹스 번호는 그대로 둔다.
+ */
+export function finishAdd(picked: string[], inc: Incoming, targetIds: ReadonlySet<string>, doneAtStart: { suno: boolean; remix: boolean }): { picked: string[]; incoming: Incoming } {
+  return { picked: picked.filter((id) => !targetIds.has(id)), incoming: afterAdd(inc, doneAtStart) };
+}
 
 /** 「선택한 곡 추가」를 마친 뒤 받은 곡 번호 — 이미 미리 선택까지 처리한 출처만 비우고, 리믹스 부분 실패로 보류 중인 출처는 남긴다 */
 export const afterAdd = (inc: Incoming, done: { suno: boolean; remix: boolean }): Incoming => ({ suno: done.suno ? [] : inc.suno, remix: done.remix ? [] : inc.remix });

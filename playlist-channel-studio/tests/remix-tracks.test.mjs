@@ -301,7 +301,7 @@ test("서버·화면 연결: 부분 실패 신호, 요청 번호, 실제 성공�
   assert.match(ui, /const id = \+\+reqRef\.current;[\s\S]*if \(!acceptResponse\(id, reqRef\.current\)\) return;[\s\S]*if \(!acceptResponse\(id, reqRef\.current\)\) return;/, "성공·실패 응답 모두 요청 번호 확인");
   assert.match(ui, /setLoadState\("loading"\);/);
   assert.doesNotMatch(ui, /setListError\(""\);\s*\n\s*try/, "대기 시작 때 오류만 지워 빈 목록을 성공처럼 보이게 하지 않음");
-  assert.match(ui, /if \(view\.state !== "ok" \|\| \(!incoming\.suno\.length && !incoming\.remix\.length\)\) return;\s*\n\s*const step = seedStep\(/);
+  assert.match(ui, /if \(view\.state !== "ok"\) return;\s*\n\s*setPicked\(\(p\) => seedStep\(incoming, seedDone, view, prunePicked\(p, view, knownRemixRef\.current, MAX_PICK\), MAX_PICK\)\.picked\);/, "성공 응답에서만 정리·미리 선택");
   assert.doesNotMatch(ui, /setPicked\(uniq\)/);
   assert.match(ui, /disabled=\{!!busy \|\| !!v\.blocked\}/);
   assert.match(ui, /const pickedHere = selectable\.filter/);
@@ -347,8 +347,69 @@ test("목록에서 사라진 곡은 실제 추가·20곡 한도 계산에서 빠
 
 test("화면 연결: 추가 뒤 afterAdd, 수동 선택 한도는 canPickMore(지금 목록 기준)", () => {
   const ui = readFileSync(new URL("../src/components/video/SunoImportPanel.tsx", import.meta.url), "utf8");
-  assert.match(ui, /setIncoming\(afterAdd\(incoming, seedDone\)\)/);
+  assert.match(ui, /setIncoming\(\(inc\) => finishAdd\(\[\], inc, targetIds, doneAtStart\)\.incoming\)/);
   assert.doesNotMatch(ui, /setIncoming\(\{ suno: \[\], remix: \[\] \}\)/);
   assert.match(ui, /!canPickMore\(p, selectableIds, MAX_PICK\)/);
   assert.match(ui, /const pickedHere = selectable\.filter/, "실제 추가는 지금 목록에 있는 선택만");
+});
+
+// ── 선택 상한·추가 중 경합 (Master msg_e1651a3e0a80, Mac msg_872460738b64) ──
+import { finishAdd, prunePicked } from "../src/lib/remixTracks.ts";
+
+const ids = (tag, n) => Array.from({ length: n }, (_, i) => `${String(i).padStart(8, "0")}-${tag}-${tag}-${tag}-${tag}${tag}${tag}`);
+
+test("사라진 선택은 정상 목록에서 정리돼, 다시 나타나도 되살아나지 않는다 — 활성 선택은 항상 20 이하", () => {
+  const X = ids("1111", 20), Y = ids("2222", 20), none = new Set();
+  let picked = [...X];                                        // 20개 선택
+  picked = prunePicked(picked, ok(Y), none, 20);              // X가 사라진 목록 → 정리
+  assert.deepEqual(picked, []);
+  picked = [...Y];                                            // 다른 20개 선택
+  picked = prunePicked(picked, ok([...X, ...Y]), none, 20);   // 두 묶음이 다 보이는 목록
+  assert.equal(picked.length, 20);
+  assert.deepEqual(picked, Y, "X는 되살아나지 않음");
+  assert.equal(prunePicked([...X, ...Y], ok([...X, ...Y]), none, 20).length, 20, "어떤 경로로 40개가 돼도 20으로 자름");
+});
+
+test("부분 실패(리믹스 못 읽음)는 진짜 부재와 구분 — 본 적 있는 리믹스 선택은 남기고, 사라진 일반 곡은 정리", () => {
+  const known = new Set([C]);
+  assert.deepEqual(prunePicked([A, C, B], ok([A], false), known, 20), [A, C], "C는 리믹스라 보류 상태로 유지, B(일반 곡)는 정리");
+  assert.deepEqual(prunePicked([A, C], ok([A], true), known, 20), [A], "리믹스까지 정상으로 읽었는데 없으면 정리");
+  const same = [A];
+  assert.equal(prunePicked(same, ok([A]), known, 20), same, "바뀐 게 없으면 같은 배열(불필요한 갱신 없음)");
+  assert.deepEqual(prunePicked([A], { state: "loading" }, known, 20), [A], "대기·실패 중에는 손대지 않음");
+  assert.deepEqual(prunePicked([A], { state: "error" }, known, 20), [A]);
+});
+
+test("추가 중 경합(순서 바꾼 모의): 새로고침 응답이 추가 도중 도착해 리믹스가 복구·선택돼도 추가 끝에 지워지지 않는다", () => {
+  const inc0 = { suno: [A], remix: [C] };
+  // 1) 부분 실패 응답 → 일반 곡만 선택
+  let s = seedStep(inc0, NONE, ok([A, B], false), [], 20);
+  let picked = s.picked, done = s.done, inc = inc0;
+  // 2) 「선택한 곡 추가」 클릭: 대상 고정
+  const targetIds = new Set(picked), doneAtStart = done;
+  // 3) 추가 도중 새로고침 응답 도착(리믹스 복구) → 화면 효과와 같은 순서로 정리·미리 선택
+  const view = ok([A, B, C], true);
+  picked = seedStep(inc, done, view, prunePicked(picked, view, new Set(), 20), 20).picked;
+  done = seedStep(inc, done, view, [], 20).done;
+  assert.deepEqual(picked, [A, C]);
+  // 4) 추가 완료: 클릭 때 대상만 빼고, 받은 번호는 클릭 때 처리 상태 기준
+  const end = finishAdd(picked, inc, targetIds, doneAtStart);
+  assert.deepEqual(end.picked, [C], "추가 중 복구된 리믹스 선택 유지");
+  assert.deepEqual(end.incoming, { suno: [], remix: [C] }, "리믹스 번호도 유지(안내 계속)");
+  // 5) 이후 재조회해도 같은 리믹스를 두 번 고르지 않고, 리믹스까지 추가하면 모두 정리
+  assert.deepEqual(seedStep(end.incoming, done, view, end.picked, 20).picked, [C]);
+  assert.deepEqual(finishAdd(end.picked, end.incoming, new Set([C]), done), { picked: [], incoming: { suno: [], remix: [] } });
+});
+
+test("추가 대상 고정과 회귀: 클릭 때 최대 20개만 처리, 수동 해제·정상 빈 목록 그대로", () => {
+  assert.deepEqual(finishAdd([A, B], { suno: [], remix: [] }, new Set([A]), { suno: true, remix: true }).picked, [B], "대상이 아닌 선택(클릭 뒤 고른 곡)은 남김");
+  const view = ok([A, B]);
+  assert.deepEqual(seedStep({ suno: [A, B], remix: [] }, { suno: true, remix: true }, view, prunePicked([B], view, new Set(), 20), 20).picked, [B], "손으로 해제한 A는 되살리지 않음");
+  assert.deepEqual(prunePicked([A], ok([]), new Set(), 20), [], "정상 빈 목록이면 선택도 비움");
+  const ui = readFileSync(new URL("../src/components/video/SunoImportPanel.tsx", import.meta.url), "utf8");
+  assert.match(ui, /const targets = pickedHere\.slice\(0, MAX_PICK\);/);
+  assert.match(ui, /for \(const \[n, \{ t, v, i \}\] of targets\.entries\(\)\)/);
+  assert.match(ui, /setPicked\(\(p\) => finishAdd\(p, incoming, targetIds, doneAtStart\)\.picked\)/);
+  assert.match(ui, /if \(t\.remix\) for \(const v of t\.variants\) knownRemixRef\.current\.add\(v\.id\);/);
+  assert.doesNotMatch(ui, /setBusy\(""\); setPicked\(\[\]\)/, "추가 끝에 선택 전체를 비우지 않음(「선택 해제」 버튼의 전체 해제는 회원 조작이라 별개)");
 });

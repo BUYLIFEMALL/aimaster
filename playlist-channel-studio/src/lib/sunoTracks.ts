@@ -17,7 +17,7 @@ export class SunoError extends Error {
 }
 
 export interface SunoVariant { id: string; duration: number | null; canTime: boolean; blocked?: string }
-export interface SunoTrack { id: string; title: string; mode: "vocal" | "instrumental"; createdAt: string; variants: SunoVariant[] }
+export interface SunoTrack { id: string; title: string; mode: "vocal" | "instrumental"; createdAt: string; variants: SunoVariant[]; remix?: true }
 
 function storagePath(url: string | null): string | null {
   if (!url) return null;
