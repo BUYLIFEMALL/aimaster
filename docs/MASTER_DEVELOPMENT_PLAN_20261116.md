@@ -99,7 +99,7 @@ Master 마지막 실제 점검: 2026-11-20 02:31:30 KST · 02:30 예약 수신�
 
 | 담당 | 현재 작업·점유 | 완료/대기·다음 행동 | 확인 근거 |
 | --- | --- | --- | --- |
-| CC-WORKSPACE-01 | 운영 v1.63. 응답 크기 보완판 3d446effa 미배포 | 최종판 전체 격리 회귀 근거 회수. 570쪽 실제 ZIP은 사용자 재시도 뒤 확인 | msg_fa9bb24bf695 |
+| CC-WORKSPACE-01 | 운영 v1.63. 미배포 후보 3d446effa 격리 전체 회귀 1,078 통과·1 제외 수락 | 570쪽 실제 ZIP은 사용자 재시도 뒤 확인. 후보 배포는 별도 승인. | WS-20261119-03-RESPONSE-FINAL A1 · 3d446effa · full_3d446.log(담당 세션) |
 | CC-B2B-BACK-01 | 052441c03 M3 후보 Mac 64/64 | 실제 라우트 연결 범위 대조 배정 | msg_b9497c0ed51e·msg_a53e39f08f83 |
 | CC-B2B-FRONT-01 | 태블릿 지정 3파일 격리 후보 | Master URL 확인 후 Front·Mac 실제 화면 | msg_160c1fc11d31 |
 | CC-ECOM-01 | 상품영상 수신 계약 대조 제출. 상세페이지 영상 수신 경로·저장 칸 부재 보고 | Master 계약 검토 뒤 영상 담당과 인계. 무료 이미지 격리 화면도 별도 대기 | msg_22edc6ba9f09 |
@@ -396,7 +396,7 @@ Master 마지막 실제 점검: 2026-11-20 02:31:30 KST · 02:30 예약 수신�
 | WS-20261119-01 | CC-WORKSPACE-01 | done / saved_notion_html_recursive_fix_independent_review_accepted | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | v1.61 배포 완료, 기존 가져온 본문 읽기 확인. 운영에서 노션 저장 HTML 다시 가져오기 시험은 미실행. v1.61 완료분 점유 해제(5b2f56408). |
 | WS-20261119-REL | CC-WORKSPACE-01 | done / production_v161_live_verified_catalog_version_synced | Workspace v1.61 기존 중단 빌드 로그 진단 | 운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음. 완료분 점유 해제(5b2f56408). |
 | WS-20261119-02 | CC-WORKSPACE-01 | done / workspace_v162_production_ready_live_import_pending | Workspace 대용량 ZIP | dfcee1584 운영 v1.62 READY·공식 alias 확인, 빌드 1회. 첫 요청 DDL 확인(담당). DB 표시 v1.61, 재로그인·실제 ZIP/Storage 검증 대기. |
-| WS-20261119-ZIP-504 | CC-WORKSPACE-01 | waiting_human / zip_response_candidate_closed_pending_live_retry_and_release | Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단 | 3d446effa 미배포 기록·점유 해제 완료. 운영 v1.63에서 570쪽 ZIP 재시도 신호 대기. 후보 배포는 별도 승인. |
+| WS-20261119-ZIP-504 | CC-WORKSPACE-01 | waiting_human / zip_response_candidate_closed_pending_live_retry_and_release | Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단 | 미배포 후보 3d446effa의 격리 전체 회귀 1,078 통과·1 제외. 운영 v1.63에서 570쪽 실제 ZIP은 사용자 재시도 뒤 확인. 후보 배포는 별도 승인. |
 | MUSIC-20261119-IMG-COMPAT | CC-MUSIC-01 | done / five_music_flows_read_only_accepted | 무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토 | 고정 2131089b7 음악 5경로·146/146 검토 수락. 새 범위 미사용 시 파일 미생성 정정. 실제 엔진은 미검증. |
 | MUSIC-20261119-BACKLOG-SWEEP | CC-MUSIC-01 | done / music_backlog_review_accepted_followup_dispatched | 음악 7개 프로그램 다음 작업 후보 대조 | 음악 7개 웹의 미배포 코드 0. L5·U3를 우선 로컬 착수, 리믹스→플레이리스트 및 유료 영상 실검증은 별도 조건 대기. |
 | MUSIC-20261119-REMIX-PLAYLIST-REVIEW | CC-MUSIC-01 | done / remix_playlist_review_accepted_implementation_scope_pending | 리믹스에서 플레이리스트 연계 사전 검토 | d6df77af9 사전 검토 수락. 두 테이블 모두 회원 범위 확인, 플레이리스트 수신 기능을 먼저 배포한 뒤 음악 링크를 공개해야 함. 구현 범위·배포 승인 대기. |
