@@ -10017,11 +10017,11 @@
       "reviewer": "CX-QA-01",
       "title": "B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계",
       "status": "reviewing",
-      "delivery": "kpi_touch_fixes_returned_mac_recheck_dispatched",
+      "delivery": "touch_passed_order_status_tabs_fix_requested",
       "sha": "c17cca668",
-      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8·msg_9f9b2521f4a8·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_621b8cb49fa9·msg_aa1479ca4c17·c17cca668·msg_e5e7af9da7fe",
-      "next": "c17cca668 주문 KPI 5,000행 상한 안내 및 상품 상단 3링크 최소 44px 복원. 작성자 tsc 통과. Mac 독립 재검수 요청, 실화면 미검증·미배포.",
-      "lastReviewedAt": "2026-11-19T01:07:34.531Z"
+      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8·msg_9f9b2521f4a8·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_621b8cb49fa9·msg_aa1479ca4c17·c17cca668·msg_e5e7af9da7fe·msg_c15db5ced233·msg_b17ccd22bc09",
+      "next": "Mac 독립 Node 20/20, 상단 링크 44px 소스·KPI 상한 표기 통과. 상한으로 숨는 주문 상태 탭과 부분 집계 표시 보완 요청. 동일 SHA 실화면 미검증, 미배포.",
+      "lastReviewedAt": "2026-11-19T01:09:16.738Z"
     }
   ]
 }
