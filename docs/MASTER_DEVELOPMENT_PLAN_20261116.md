@@ -4,14 +4,14 @@
 
 이 문서는 비교표 전체와 실제 담당 보고를 함께 정리한 작업판이다. 완료율은 산출하지 않는다. 담당 보고·Git·문서 확인과 Master의 제품 실동작 재시험을 구분한다. 실시간 화면이 아니라 아래 명령으로 갱신하는 스냅샷이다.
 
-Master 마지막 실제 점검: 2026-11-19 21:32:05 KST · 21:30 예약 메시지 수신 및 증분 대조 완료.
-Workspace 캐시 로컬 수락, 스냅숏 후보 진행. 이미지와 플레이리스트 최신판 독립 검수. B2B M3은 정제 기반 서버 후보 착수. AI Influencer 예약 경합 보완 진행.
+Master 마지막 실제 점검: 2026-11-19 22:02:05 KST · 22:00 예약 메시지 수신 및 증분 대조 완료.
+플레이리스트 수신 운영 검증 종결, 음악 발신 링크 별도. Workspace v1.63 운영 배포 완료·실제 ZIP 대기. 이미지 5-3 로컬 수락, B2B·AIF 후보 보완 진행.
 
-점검 범위: 21:03 KST 이후 증분. 376건 중 미완료 31건(진행 5·검수 8·순번 4·주인님 결정 14). 기존 103개·19분류, 11개 담당 기록 및 점유·미배포·사람 단계 대조.
+점검 범위: 21:32 KST 이후 증분. 376건 중 미완료 30건(진행 5·검수 7·순번 4·주인님 결정 14). 기존 103개·19분류, 11개 담당 기록 및 점유·미배포·사람 단계 대조.
 
-후속 배정: Mac 이미지 msg_954d9e38894f·플레이리스트 msg_c74451bc98f7, Workspace D msg_81884a8c4c54, B2B Sub msg_1984d921b251, AIF 경합 msg_4ab0bb9725fc. B2B Lab·CRM·AIF D2 운영은 앞선 주인님 조건 충족 뒤 재개.
+후속 배정: 이미지 5-4 msg_1c2378ff1933, B2B 라우트 msg_c9d732150309, AIF DB msg_2d25cdee75db. 팀 배포 두 건 1회씩 종료, 승인 없는 추가 빌드·운영 쓰기 없음. Workspace DB 버전과 전체 푸시는 별도 대기.
 
-미확인: 무료 이미지 실제 탭·엔진·파일, 플레이리스트 실제 화면·서명, Workspace Mac DB·운영 대량, AIF 실제 cron/빌드, 블로그 로그인 뒤 화면, B2B 실 Storage·Lab. 운영 전수와 이전 미추적 파일 전체는 증분 범위 밖.
+미확인: Workspace 운영 다문서 ZIP·버전 기록·DB 버전 동기화, 음악 발신 링크·타회원 실데이터, 무료 이미지 실제 브라우저·엔진, B2B Lab·실 Storage·태블릿, AIF 실제 DB·cron·빌드. 운영 전수·오래된 미추적 파일 전체는 증분 범위 밖.
 
 범위: 비교표 102개 + 신규 ESM 1개 = 103개. 병합·폐지·비공개 기록도 누락 없이 포함한다. 메인 사이트·공통 보안/저장 정책은 별도 공통 업무다. 비교표의 '운영'은 지금 모든 기능이 검수 완료됐다는 의미가 아니다.
 
@@ -430,13 +430,13 @@ Workspace 캐시 로컬 수락, 스냅숏 후보 진행. 이미지와 플레이�
 | B2B-20261119-MAKER | CC-B2B-BACK-01 | done / m1_stale_window_fix_independent_pass_undeployed | B2B 메이커 연계 M1~M3 선행 범위 대조 | Mac 12/12. 늦은 완료·실패 뒤 이전 창 작업 차단 및 공용 계약 보존. 실제 운영 창 미검증, M1 단독 배포 없음. |
 | B2B-20261119-MAKER-M2 | CC-B2B-BACK-01 | done / data_layer_independent_accepted_undeployed_ui_design_dispatched | 메이커 M2 사진 제안 저장 범위 설계 | 0106 데이터 계층 Mac 독립 수락. UI 연결 계획 배정. 실제 Storage·Lab·운영 및 M3 미적용. |
 | B2B-20261119-MAKER-M2-UI | CC-B2B-BACK-01 | done / m2_ui_independent_accepted_test_assertions_verified_undeployed | 메이커 M2 사진 제안 화면·저장 응답 연결 | 독립 제품 수락, 단언 5개 도달성 수정 후 Master 시험 18/18 통과. 실제 Storage·Lab 미검증, 미배포. |
-| B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | reviewing / local_apply_route_decoder_candidate_mac_recheck_sent | 메이커 M3 제안 적용·서버 바이트 검증 설계 | Sub 516cff73f 비활성 라우트·디코더 후보, Mac 모의 검수 배정. 실제 sharp·라우트 활성화·Lab SQL·키 미적용. |
+| B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | running / local_apply_route_mac_origin_and_fixture_followup_sent | 메이커 M3 제안 적용·서버 바이트 검증 설계 | 516cff73f Mac 62/63. UUID 시험 입력 수정과 신뢰 출처·JSON 검사 보완 배정. 실제 라우트·디코더·Lab 미적용. |
 | B2B-20261119-ADMINUI | AG-UI-01 | reviewing / lab_ready_authenticated_screen_pending | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | 승인 4경로 사설 Lab 1회 READY. 상점 200·관리 상품/주문 307. 로그인 후 실화면·키보드는 사용자 제어 반환 뒤. 필터 aria-current 보완 후보 기록. |
 | B2B-20261119-MALL-STORAGE | CC-B2B-BACK-01 | waiting_human / mall_measure_and_private_retention_waiting_production_approvals | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 0077 592b7484a 합성·정적 검수 수락, 운영 절차 055b38a7c 대조. 0076 cc25a7cc1과 0077은 운영 반영 각각 승인 대기. 위젯 라벨은 다음 메인 배포. |
 | B2B-20261119-BACKEND-HANDOFF | CC-B2B-BACK-01 | done / sub_handoff_accepted_prerequisites_reconciled | B2B 백엔드 Sub PC 인수인계 | Sub 인수 완료·0101~0105/M3 승인 조건 대조. QA037 로그인·0105 Lab 적용/자료·M3 후속 승인 대기. 3210과 합성 DB는 메인 유지. |
 | B2B-20261119-FRONT-HANDOFF | CC-B2B-FRONT-01 | done / sub_handoff_and_release_scope_verified | B2B 프런트 Sub PC 인수인계 | Sub 인수 및 Chrome 지정. Lab 9커밋·14경로, 운영 기준 18커밋·19경로 대조 완료. S70은 0105 묶음, 실화면·배포 승인 대기. |
 | B2B-20261119-FRONT-REL | AG-UI-01 | done / frontend_production_public_screen_independent_accepted | B2B 프런트 단독 운영 배포 | 운영 READY·v1.16 및 맥미니 공개 화면 통과. 배포 폴더 대조 19개 프런트/시험 경로와 버전 파일, 백엔드·DB 차이 0. 관리자 별도. |
-| IMG-20261119-PLAN | CC-ECOM-01 | reviewing / web_ui_resend_value_fix_mac_recheck_sent | AI 무료 이미지 자동화 개발 플랜 | 223b52472 담당 112/112. 재전송 입력 검증과 기존 장부 보존 Mac 재검수 전달. 실제 브라우저·엔진 미확인. |
+| IMG-20261119-PLAN | CC-ECOM-01 | running / web_ui_5_3_mac_accepted_translation_candidate_dispatched | AI 무료 이미지 자동화 개발 플랜 | 223b52472 Mac 110통과·2제외. 5-3 소스·모의 수락, 5-4 한영 변환 후보 배정. 실제 브라우저·엔진·AI 미검증. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
@@ -517,7 +517,7 @@ Workspace 캐시 로컬 수락, 스냅숏 후보 진행. 이미지와 플레이�
 | AIF-20261119-W01-RETOUCH | CC-SNS-01 | done / test_generation_and_retouch_pass_v5_upload_without_publish | AI Influencer 히스토리 재표시·일반 회원 생성·보정 | 지정 일반 회원 경로 보류. 시험 계정 생성 1·보정 1 성공, V5 규칙 변환·업로드 확인. 앱 실제 게시와 운영 출처는 미검증. |
 | AIF-20261119-W01-D1 | CC-SNS-01 | done / production_off_ready_public_smoke_passed | AI Influencer D1 스위치 OFF 운영 배포 | D1 OFF 운영·DB·저장소 v1.27 일치. 담당자 로그인 무료 확인 및 배포와 공유 소스 3경로 차이 기록 완료. D2 사전 검토 58a2c9672 접수. 운영 shadow 전 정리·쿼터의 격리 검증 범위 요청, D3 대기. |
 | AIF-20261119-PLAN6 | CC-SNS-01 | reviewing / six_requirement_v2_scope_accepted_test_role_pending | AI Influencer 직접 요구 6건 개발 플랜 보완 | 4ac03c967 v2 전환 기준 보완. 일반 회원 Vercel 대기 0건이면 전환, 남으면 처리 결정 선행. 시험 계정 권한 식별 방식 확정 전 예약 구현 보류. |
-| AIF-20261119-R1-SCHEDULER | CC-SNS-01 | reviewing / shared_hook_v3_accepted_db_candidate_mac_recheck_sent | AI Influencer 회원 예약 기본값과 관리자 허용 설계 | 06653c25f 담당 격리 DB 13/13. 명시 선택·판 번호·허용 표 및 원복 후보 Mac 검수 전달. 운영 적용·공용 동기화 전. |
+| AIF-20261119-R1-SCHEDULER | CC-SNS-01 | running / shared_hook_db_mac_acl_and_rollback_followup_sent | AI Influencer 회원 예약 기본값과 관리자 허용 설계 | 06653c25f Mac 정적 검수 후 읽기 범위·관리자 권한 전이·원복 잠금 보완 배정. 전용 DB 검증·운영 적용 전. |
 | AIF-20261119-D2-READINESS | CC-SNS-01 | waiting_human / d2_runbook_ready_sql_scope_decision_pending | AI Influencer D2 실행 범위와 푸시 분리 검토 | c1c5c92e5 기준 적용·권한·복구 준비표 회수. 주인님 한도 SQL·shadow 범위 결정 후 재개. 전체 master 푸시 보류, 앱 전용 ref는 미생성. |
 | AIF-20261119-D2-IT | CC-SNS-01 | done / d2_local_sql_mac_rollback_review_accepted_undeployed | AI Influencer D2 정리·쿼터 격리 통합 시험 | c1c5c92e5 맥미니 원복 본문·서명·표식 검수 완료. d1626e492에 적용·원복 직전 속성/권한 및 실응답 대조 명시. 운영 미적용. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
