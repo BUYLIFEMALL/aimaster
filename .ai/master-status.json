@@ -6323,10 +6323,10 @@
       "reviewer": "CX-QA-01",
       "title": "AI Influencer D2 정리·쿼터 격리 통합 시험",
       "status": "running",
-      "delivery": "d2_guard_candidate_mac_and_quota_migration_local_dispatched",
+      "delivery": "d2_mac_guard_p2_passed_local_quota_candidate_running",
       "sha": "67126ab93",
-      "next": "67126ab93 엔진·컨테이너·소켓 고정 가드 보완, 담당 11/15/6 통과·Mac 재검수 요청. 사전 검사와 예약의 정책 구분 마이그레이션 로컬 후보 배정. 운영 적용 보류.",
-      "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e·msg_01908be553ce·msg_3c0ea9d67886·fec7fe017·msg_3bdadb79cff0·msg_ba14d996ab74·msg_0e498ff524d1·msg_af7821e3d106·.ai/results/AIF-20261119-D2-IT-CX-QA-01.md·msg_ec07da32b153·b9ae5bcc4·msg_5a8997695e52·msg_4a1e08e7b950·msg_7c74159e5200·msg_f4dfb65f9b8f·msg_6a0776eac06b·67126ab93·msg_da122886dca1·msg_db2b0fb8b3fd"
+      "next": "67126ab93 Mac 가드 11/11, 원격 선접속 문제 해소. 자동 공개 포트·CLI 미설치 보완 및 로컬 정책 구분 마이그레이션 진행. 운영 적용 보류.",
+      "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e·msg_01908be553ce·msg_3c0ea9d67886·fec7fe017·msg_3bdadb79cff0·msg_ba14d996ab74·msg_0e498ff524d1·msg_af7821e3d106·.ai/results/AIF-20261119-D2-IT-CX-QA-01.md·msg_ec07da32b153·b9ae5bcc4·msg_5a8997695e52·msg_4a1e08e7b950·msg_7c74159e5200·msg_f4dfb65f9b8f·msg_6a0776eac06b·67126ab93·msg_da122886dca1·msg_db2b0fb8b3fd·msg_5f5880568d1b·msg_2fffffb23bff"
     },
     {
       "task_id": "AIF-20261119-PLAN6",
