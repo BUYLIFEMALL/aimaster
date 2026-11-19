@@ -167,33 +167,47 @@ begin
     raise exception 'AIF_ALLOWLIST_TARGET_NOT_FOUND: no such member' using errcode = 'P0001';
   end if;
 
-  if p_allow then
-    -- 처음 지정: 넣어 본다. 다른 관리자가 같은 순간 먼저 넣었으면 0행 — 아래에서 그 행을 잠그고 이어 간다.
-    insert into public.aif_platform_scheduler_allowlist (user_id, granted_at, granted_by, note)
-      values (p_user, now(), v_actor, p_note) on conflict (user_id) do nothing;
-    get diagnostics v_inserted = row_count;
-    if v_inserted = 1 then
-      v_action := 'granted';
+  -- 「넣기가 기존 행과 부딪힘」과 「그 행을 잠그고 읽기」 사이에 보관 정리가 그 행을 지울 수 있다(부딪힌 넣기는 그 행을 잠그지 않는다).
+  -- 그래서 읽었는데 행이 없으면 「이미 허용」이 아니라 「행이 사라졌다」로 보고 넣기부터 다시 한다. 잠근 뒤에는 그 행을 누구도 지우지 못한다.
+  for v_attempt in 1..3 loop
+    if p_allow then
+      -- 처음 지정: 넣어 본다. 다른 관리자가 같은 순간 먼저 넣었으면 0행 — 아래에서 그 행을 잠그고 이어 간다.
+      insert into public.aif_platform_scheduler_allowlist (user_id, granted_at, granted_by, note)
+        values (p_user, now(), v_actor, p_note) on conflict (user_id) do nothing;
+      get diagnostics v_inserted = row_count;
+      if v_inserted = 1 then
+        v_action := 'granted';
+        exit;
+      end if;
     end if;
-  end if;
 
-  if v_action is null then
     select * into v_row from public.aif_platform_scheduler_allowlist a where a.user_id = p_user for update;
+    if not found then
+      if p_allow then
+        continue;             -- 부딪혔던 행이 그사이 지워졌다 → 넣기부터 다시
+      end if;
+      return 'unchanged';     -- 철회할 행이 없다 = 이미 허용이 아니다
+    end if;
     if p_allow then
       if v_row.revoked_at is null then
-        return 'unchanged';
+        return 'unchanged';   -- 잠근 행이 허용 중이다(확인된 사실)
       end if;
       update public.aif_platform_scheduler_allowlist
         set granted_at = now(), granted_by = v_actor, revoked_at = null, revoked_by = null, note = p_note where user_id = p_user;
       v_action := 'regranted';
     else
-      if not found or v_row.revoked_at is not null then
+      if v_row.revoked_at is not null then
         return 'unchanged';
       end if;
       update public.aif_platform_scheduler_allowlist
         set revoked_at = now(), revoked_by = v_actor, note = coalesce(p_note, note) where user_id = p_user;
       v_action := 'revoked';
     end if;
+    exit;
+  end loop;
+  if v_action is null then
+    -- 세 번 모두 「부딪혔는데 읽으니 없음」이었다(계속 겹침). 거짓으로 답하지 않고 다시 시도하게 한다. 이 트랜잭션은 취소되므로 상태·이력 변화가 없다.
+    raise exception 'AIF_ALLOWLIST_BUSY: could not settle the allowlist row, try again' using errcode = 'P0001';
   end if;
 
   insert into public.aif_platform_scheduler_allowlist_events (user_id, action, actor_id, note)

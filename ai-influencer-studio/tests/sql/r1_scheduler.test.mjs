@@ -384,6 +384,32 @@ test("정리와 관리자 지정이 겹칠 때(정리가 먼저): 지정은 기�
   assert.equal(state(), before);
 });
 
+test("지정 도중 정리가 끼어들 때: 넣기가 기존 철회 행과 부딪힌 직후 정리가 그 행을 지워도, 「변화 없음」이라고 거짓으로 답하지 않는다 — 실제로 허용되고 이력은 한 줄이다", SKIP, async () => {
+  const before = state(), u = "00000000-0000-4000-8000-0000000000f3";
+  q(`insert into auth.users (id) values ('${u}'); insert into public.profiles (id) values ('${u}');
+     insert into public.aif_platform_scheduler_allowlist (user_id, granted_at, granted_by, revoked_at, revoked_by) values ('${u}', now() - interval '14 months', '${U.admin}', now() - interval '13 months', '${U.admin}');`);
+  // 그 틈을 벌리는 시험 전용 장치: 허용 표에 「넣기 문장이 끝난 직후」 1.5초 쉬는 문장 단위 트리거(0행을 넣은 문장에도 돈다). 시험이 끝나면 지운다.
+  q(`create function public.qa_pause_after_insert() returns trigger language plpgsql as $$ begin perform pg_sleep(1.5); return null; end $$;
+     create trigger qa_pause_after_insert after insert on public.aif_platform_scheduler_allowlist for each statement execute function public.qa_pause_after_insert();`);
+  let grant, purge;
+  try {
+    const granting = session(adminSet(U.admin, u, true, "틈 사이 지정"));
+    await wait(600);   // 지정이 넣기(부딪힘)를 끝내고 쉬는 동안
+    purge = await session(as("service_role", null, `select events_deleted || ':' || rows_deleted from ${FN}purge_history();`));
+    grant = await granting;
+  } finally {
+    q(`drop trigger qa_pause_after_insert on public.aif_platform_scheduler_allowlist; drop function public.qa_pause_after_insert();`);
+  }
+  assert.equal(purge.ok, true, purge.err); assert.equal(lastLine(purge.out), "0:1", "정리가 그 틈에 오래된 철회 행을 지웠다(틈이 실제로 벌어졌다)");
+  assert.equal(purge.ms < 1200, true, `정리는 기다리지 않고 지나갔다(${purge.ms}ms)`);
+  assert.equal(grant.ok, true, grant.err);
+  const answer = lastLine(grant.out), allowedNow = isAllowed(u);
+  const events = q(`select count(*) from public.aif_platform_scheduler_allowlist_events where user_id = '${u}';`);
+  assert.equal(`${answer} / 허용 ${allowedNow} / 이력 ${events}`, "granted / 허용 t / 이력 1", "답·실제 상태·이력이 서로 맞아야 한다");
+  q(`delete from auth.users where id = '${u}'; delete from public.aif_platform_scheduler_allowlist_events where user_id = '${u}';`);
+  assert.equal(state(), before);
+});
+
 // ── 동시성 ──
 test("동시 지정: 두 관리자가 같은 회원을 같은 순간 지정해도 한 번만 지정되고 이력도 한 줄이다", SKIP, async () => {
   const target = "00000000-0000-4000-8000-0000000000d1";
