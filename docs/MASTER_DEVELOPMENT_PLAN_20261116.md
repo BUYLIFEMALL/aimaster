@@ -430,7 +430,7 @@ Master 마지막 실제 점검: 2026-11-19 15:34:34 KST · 실행 중 5분 · �
 | B2B-20261119-MALL-STORAGE | CC-B2B-BACK-01 | waiting_human / mall_measure_and_private_retention_waiting_production_approvals | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 0077 592b7484a 합성·정적 검수 수락, 운영 절차 055b38a7c 대조. 0076 cc25a7cc1과 0077은 운영 반영 각각 승인 대기. 위젯 라벨은 다음 메인 배포. |
 | B2B-20261119-BACKEND-HANDOFF | CC-B2B-BACK-01 | done / sub_handoff_accepted_prerequisites_reconciled | B2B 백엔드 Sub PC 인수인계 | Sub 인수 완료·0101~0105/M3 승인 조건 대조. QA037 로그인·0105 Lab 적용/자료·M3 후속 승인 대기. 3210과 합성 DB는 메인 유지. |
 | B2B-20261119-FRONT-HANDOFF | CC-B2B-FRONT-01 | done / sub_handoff_and_release_scope_verified | B2B 프런트 Sub PC 인수인계 | Sub 인수 및 Chrome 지정. Lab 9커밋·14경로, 운영 기준 18커밋·19경로 대조 완료. S70은 0105 묶음, 실화면·배포 승인 대기. |
-| B2B-20261119-FRONT-REL | AG-UI-01 | running / main_owner_accepted_isolated_candidate_checks_running | B2B 프런트 단독 운영 배포 | 메인 담당 수락. 운영 v1.16 기준·프로젝트·대기열 확인 당시 0. 격리 후보 19경로 타입/프런트 시험 중, 원격 빌드 미시작. |
+| B2B-20261119-FRONT-REL | AG-UI-01 | done / frontend_production_ready_public_read_qa_dispatched | B2B 프런트 단독 운영 배포 | 운영 READY·별칭·홈/로그인 200 담당 확인, 표시 v1.16. 원격 1회·53/53. Mac 공개 화면 읽기 검수 요청. S70/DB/푸시 제외. |
 | IMG-20261119-PLAN | CC-ECOM-01 | waiting_human / q8_review_screen_verified_user_quality_rating_pending | AI 무료 이미지 자동화 개발 플랜 | 내부 검토 화면 HTML 지문·이미지 48장 확인. 사용자 품질 기준 39/48 판정 대기. 실제 엔진 실기는 미검증. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
