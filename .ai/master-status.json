@@ -6199,10 +6199,10 @@
       "owner": "CC-MUSIC-01",
       "reviewer": "CX-QA-01",
       "title": "가사 영상 미리보기 재생 실패와 모바일 안내",
-      "status": "running",
-      "delivery": "lyric_l5_u3_local_pass_mac_review_sent",
-      "next": "8f1eae339 담당 시험 44/44·타입 통과. Mac Safari/390px 및 경계 재검수 요청. 미배포.",
-      "evidence": "1df2c94ae·msg_68526ae14db0·5b0ed996a·8f1eae339·msg_da7c45210270·msg_14d2efabc2c2"
+      "status": "done",
+      "delivery": "lyric_l5_u3_mac_review_passed_undeployed",
+      "next": "8f1eae339 Mac 독립 44/44 및 격리 브라우저 재생·390/767/768 통과. Safari 실동작·후보 URL·휴대폰 검증 대기, 다음 묶음 미배포.",
+      "evidence": "1df2c94ae·msg_68526ae14db0·5b0ed996a·8f1eae339·msg_da7c45210270·msg_14d2efabc2c2·msg_4e2bc736c66d·.ai/results/MUSIC-20261119-LYRIC-L5-U3-CX-QA-01.md"
     },
     {
       "task_id": "MUSIC-20261119-BACKLOG-SWEEP",
