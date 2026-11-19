@@ -19,10 +19,10 @@
 | Gemini | `gemini-4-carbon` | 정식(배지 없음) | 확인 필요 | Gemini 4 최상위 — 가장 어려운 장기 작업 |
 | Gemini | `gemini-4-neon` | 정식(배지 없음), 2026-11-18 발표 | $3 / $15 | 깊이·효율 균형. 유료 등급 기준 안내(무료 등급 미확인) |
 | Gemini | `gemini-4-hydrogen` | 정식(배지 없음) | 확인 필요 | 빠른 일상 작업. 구글은 `gemini-2.5-flash-lite` 새 대체로 Hydrogen 또는 3.5 Flash-Lite 권장 |
-| OpenAI | GPT-6.2 Astra·Sol | ChatGPT Work·Codex 미리보기(2026-11-17) | — | **API 모델 미확인** → 회원 선택지에 넣지 않음. API 최신 확인은 `gpt-6.1-terra` |
+| OpenAI | `gpt-6.2-astra` · `gpt-6.2-sol` | API 제공(Chat Completions·Responses·Batch), 2026-11-17 | Astra $8 / $40 · Sol $2 / $10 | **정정(같은 날)**: 처음엔 「API 미확인」으로 적었으나 공식 모델 문서에 ID·엔드포인트가 있음. 추론 강도 `none`은 거절(지정하지 않으면 됨). OpenAI 모델 문서는 Astra를 기본 권장으로 둠 — 우리 기본값은 1절 그대로 |
 - Google 모델 문서에 `gemini-3.5-flash`·`gemini-3.7-flash`는 더 이상 없다(5절 「자동 연결되는 이전 모델」 그대로 — 선택지에서 뺀다).
 - 첫 적용: `ai-auto-blog` 본문 모델 선택(최신순 정렬, 미배포 대기).
-- 출처: Anthropic Models overview(platform.claude.com/docs/en/models/overview), Google AI Studio models(aistudio.google.com/docs/models)·Gemini 4 Neon 발표 글, OpenAI GPT-6.1 Terra 발표 글·모델 릴리스 노트. **모델 목록 API로 실제 호출 확인은 아직 하지 않았다**(회원 키 필요) — 처음 쓰는 프로그램이 짧은 호출 1회로 확인한다.
+- 출처: OpenAI 모델 문서(developers.openai.com/api/docs/models·/models/gpt-6.2-astra·/gpt-6.2-sol), Anthropic Models overview(platform.claude.com/docs/en/models/overview), Google AI Studio models(aistudio.google.com/docs/models)·Gemini 4 Neon 발표 글, OpenAI GPT-6.1 Terra 발표 글·모델 릴리스 노트. **모델 목록 API로 실제 호출 확인은 아직 하지 않았다**(회원 키 필요) — 처음 쓰는 프로그램이 짧은 호출 1회로 확인한다.
 
 ## 1. 글·추론 모델 — 등급별 추천 (가격: 100만 토큰당 입력 / 출력, 미국 달러, 표준 등급)
 
@@ -115,7 +115,7 @@ Gemini 이미지 모델은 모두 **무료 등급 없음**(회원 결제 연결 
 - 아주 비싼 pro 계열(`gpt-5.5-pro`·`gpt-5.4-pro` $30/$180)은 회원 선택지에 넣지 않는다.
 
 ## 6. 변경 이력
-- 2026-11-19: 0-1절 추가 — Claude Fable 5.2, Gemini 4 Carbon·Neon·Hydrogen, GPT-6.2(API 미확인) 기록, 마지막 확인 날짜 갱신(CC-BLOG-01).
+- 2026-11-19: 0-1절 추가 — Claude Fable 5.2, Gemini 4 Carbon·Neon·Hydrogen 기록. 같은 날 GPT-6.2 Astra·Sol을 「API 미확인」→「API 제공」으로 정정(Master `msg_77eaa7b278fe`, developers.openai.com/api/docs/models), 마지막 확인 날짜 갱신(CC-BLOG-01).
 - 2026-11-03: 처음 작성(세 회사 공식 문서 확인, 저장소 사용 현황 집계).
 - 2026-11-03 오후: 4절 다시 집계(따옴표 이름·변환표 제외) — 음성·이미지·o3-mini/o1 교체 반영, 남은 사용처 목록화.
 - 2026-11-03 저녁: 12월 묶음(2.5·`gpt-5`·`o3`) 코드 교체 완료 반영 — 다시 집계 결과 실제 사용은 `blog-neighbor-care`의 2.5만 남음, 나머지는 배포 대기.
