@@ -5882,12 +5882,12 @@
       "parent_task_id": "AIF-20261119-W01-V3",
       "owner": "CC-SNS-01",
       "title": "AI Influencer 히스토리 재표시·일반 회원 생성·보정",
-      "status": "waiting_human",
-      "delivery": "history_replay_pass_member_key_and_account_decision_pending",
-      "sha": "e3421c7a9",
-      "evidence": "msg_59bf148b2010·msg_c8bc8252a406·msg_1fc45b4dcd4c·msg_fff18b1e2dfd·msg_16c5cd2e1b75·msg_537264d5ae14·28c061106·기존 SNS 터미널 회신 불가",
-      "next": "히스토리 재표시·중복 0 통과. 지정 일반 회원 로그인 불일치·본인 Gemini 키 미등록으로 생성/보정 미착수. 계정 결정 및 세션 재연결 대기.",
-      "lastReviewedAt": "2026-11-19T06:50:01.372Z"
+      "status": "done",
+      "delivery": "test_generation_and_retouch_pass_v5_upload_without_publish",
+      "sha": "e677cf9a3",
+      "evidence": "msg_59bf148b2010·msg_c8bc8252a406·msg_1fc45b4dcd4c·msg_fff18b1e2dfd·msg_16c5cd2e1b75·msg_537264d5ae14·28c061106·기존 SNS 터미널 회신 불가·msg_99f48ec1072f·e677cf9a3",
+      "next": "지정 일반 회원 경로 보류. 시험 계정 생성 1·보정 1 성공, V5 규칙 변환·업로드 확인. 앱 실제 게시와 운영 출처는 미검증.",
+      "lastReviewedAt": "2026-11-19T07:22:04.212Z"
     },
     {
       "task_id": "ECOM-20261119-BANANA-QA",
@@ -6294,6 +6294,18 @@
       "evidence": "msg_ea84e83e8300·c894f6fe1·f52882db9 Mac 84/84·msg_77669c3927b0·5b5b8a2a4·d3d74468e·msg_b0757a444812·msg_2e8a7f868e5a·popup.js/manifest v1.35 및 저장소 ZIP 경로 대조·msg_f3db6ce1e7c8·0adae1d2a",
       "next": "운영 v1.35 유지. 확장 업데이트 3단계와 이전 결과 FAQ 0adae1d2a 안내 추가, 로컬 검증 84/84 및 미배포. 관리자 화면 미확인.",
       "lastReviewedAt": "2026-11-19T07:05:56.802Z"
+    },
+    {
+      "task_id": "AIF-20261119-W01-D1",
+      "parent_task_id": "AIF-20261119-W01-RETOUCH",
+      "owner": "CC-SNS-01",
+      "title": "AI Influencer D1 스위치 OFF 배포 사전 확인",
+      "status": "running",
+      "delivery": "previously_approved_off_release_preflight_requested",
+      "sha": "e677cf9a3",
+      "next": "D1 읽기 사전 점검 배정. 운영 기준/후보·OFF·팀 빌드 확인 결과와 새 세션 확인 대기. 빌드 미시작.",
+      "evidence": "msg_99f48ec1072f·msg_56627921dadb",
+      "lastReviewedAt": "2026-11-19T07:22:04.212Z"
     }
   ],
   "programOverrides": [

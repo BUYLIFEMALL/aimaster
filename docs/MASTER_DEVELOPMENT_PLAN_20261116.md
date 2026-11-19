@@ -509,7 +509,8 @@ Master 마지막 실제 점검: 2026-11-19 16:04:12 KST · 실행 중 5분 · �
 | AIF-20261119-W01-NEXT | CC-SNS-01 | done / dependency_patch_verified_locally_undeployed | AI Influencer Next.js 보안 패치 | 16.4.6 파일 지문과 잠금 범위 대조 완료. 담당 시험 320/320·타입 통과·audit 0. 번들 및 운영 응답 확인은 배포 단계. |
 | AIF-20261119-W01-V4 | CC-SNS-01 | done / finite_member_real_storage_verified_isolated_origin | 일반 회원 한도와 운영 다운로드 선행 검증 | 지정 일반 회원 실제 이용·합성 JPEG 1회 업로드·본인 조회·서명 다운로드 200. 일반 한도 초과·정리·운영 출처는 미검증. |
 | AIF-20261119-W01-V3 | CC-SNS-01 | done / v3_success_and_isolation_guard_independent_accepted | AI Influencer 대표 생성 및 보정 검증 | 승인 이미지/캡션 성공 및 e3421c7a9 Mac 모의 18/18 수락. 추가 Windows 실기동·공급자 호출·운영 검증 없음. |
-| AIF-20261119-W01-RETOUCH | CC-SNS-01 | waiting_human / history_replay_pass_member_key_and_account_decision_pending | AI Influencer 히스토리 재표시·일반 회원 생성·보정 | 히스토리 재표시·중복 0 통과. 지정 일반 회원 로그인 불일치·본인 Gemini 키 미등록으로 생성/보정 미착수. 계정 결정 및 세션 재연결 대기. |
+| AIF-20261119-W01-RETOUCH | CC-SNS-01 | done / test_generation_and_retouch_pass_v5_upload_without_publish | AI Influencer 히스토리 재표시·일반 회원 생성·보정 | 지정 일반 회원 경로 보류. 시험 계정 생성 1·보정 1 성공, V5 규칙 변환·업로드 확인. 앱 실제 게시와 운영 출처는 미검증. |
+| AIF-20261119-W01-D1 | CC-SNS-01 | running / previously_approved_off_release_preflight_requested | AI Influencer D1 스위치 OFF 배포 사전 확인 | D1 읽기 사전 점검 배정. 운영 기준/후보·OFF·팀 빌드 확인 결과와 새 세션 확인 대기. 빌드 미시작. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |
