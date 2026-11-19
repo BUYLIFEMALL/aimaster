@@ -97,16 +97,12 @@ interface QuickBarProps {
   cartCount: number;
 }
 
-// globals.css·Tailwind md(48rem=768px)와 같은 경계: 767px 이하 = 휴대폰 폭
-export const NARROW_QUERY = "(max-width: 767px)";
-
 export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
   const [items, setItems] = useState<RecentProduct[]>([]);
-  // FRONT-20261119-QUICKBAR: null = 아직 안 누름 → 화면 폭으로 CSS가 결정(767px 이하 접힘 = 손잡이만, 그 위 펼침 — 서버 첫 화면부터, 깜박임 없음).
-  // 단추를 누르면 그때부터 누른 상태(true/false)를 따른다. narrow는 단추 이름·아이콘용(화면 폭 기준 현재 모양)
+  // FRONT-20261119-QUICKBAR: null = 아직 안 누름 → 화면 폭으로 CSS(md=768px)가 결정(767px 이하 접힘 = 손잡이만, 그 위 펼침 — 서버 첫 화면부터, 깜박임 없음).
+  // 누르면 그때부터 누른 상태(true/false). 안 누른 동안은 폭별 손잡이 두 개를 그려 숨은 쪽은 display:none —
+  // 첫 화면부터 보이는 모양과 이름·aria-expanded가 일치(QA P3, 하이드레이션 전후 차이 없음)
   const [collapsedPref, setCollapsedPref] = useState<boolean | null>(null);
-  const [narrow, setNarrow] = useState(false);
-  const isCollapsed = collapsedPref ?? narrow;
   const [showTopBtn, setShowTopBtn] = useState(false);
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 3;
@@ -136,13 +132,7 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
 
-    const mq = window.matchMedia(NARROW_QUERY);
-    const handleNarrow = () => setNarrow(mq.matches);
-    handleNarrow();
-    mq.addEventListener("change", handleNarrow);
-
     return () => {
-      mq.removeEventListener("change", handleNarrow);
       window.removeEventListener("mb_recent_updated", handleUpdate);
       window.removeEventListener("storage", loadRecent);
       window.removeEventListener("scroll", handleScroll);
@@ -161,23 +151,35 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
     window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
   };
 
+  // 접기/펼치기 손잡이. 767px 이하는 화면 오른쪽 끝 본문 여백 안(640px 미만 16px·이상 24px = 상점 본문 px-4/sm:px-6)에만 놓여
+  // 상품 링크·배지를 덮지 않는다(QA P2). 높이 56px. 768px 이상은 기존 20×40px 그대로
+  const toggle = (collapsed: boolean, only: string) => (
+    <button
+      type="button"
+      onClick={() => setCollapsedPref(!collapsed)}
+      aria-label={collapsed ? "퀵바 펼치기" : "퀵바 접기"}
+      aria-expanded={!collapsed}
+      data-quickbar="toggle"
+      className={`absolute -left-5 top-1/2 -translate-y-1/2 z-10 flex h-10 w-5 max-md:-left-4 max-md:h-14 max-md:w-4 sm:max-md:-left-6 sm:max-md:w-6 items-center justify-center rounded-l-lg border-y border-l border-slate-300 bg-white/95 text-slate-500 shadow-md backdrop-blur-md hover:bg-slate-50 hover:text-blue-600 transition [data-mall-mode='dark']_:bg-slate-800 [data-mall-mode='dark']_:border-slate-700 [data-mall-mode='dark']_:text-slate-300${only}`}
+    >
+      {collapsed ? <IconChevronLeft size={14} /> : <IconChevronRight size={14} />}
+    </button>
+  );
+
   return (
     <aside
       aria-label="쇼핑 편의 퀵바"
-      className="fixed right-2.5 top-1/2 -translate-y-1/2 z-40 select-none transition-all duration-300 ease-in-out"
+      className="fixed right-2.5 max-md:right-0 top-1/2 -translate-y-1/2 z-40 select-none transition-all duration-300 ease-in-out"
     >
       <div className="relative flex items-center">
-        {/* 접기/펼치기 토글 단추 */}
-        <button
-          type="button"
-          onClick={() => setCollapsedPref(!isCollapsed)}
-          aria-label={isCollapsed ? "퀵바 펼치기" : "퀵바 접기"}
-          aria-expanded={!isCollapsed}
-          data-quickbar="toggle"
-          className="absolute -left-5 top-1/2 -translate-y-1/2 z-10 flex h-10 w-5 max-md:-left-6 max-md:h-11 max-md:w-6 items-center justify-center rounded-l-lg border-y border-l border-slate-300 bg-white/95 text-slate-500 shadow-md backdrop-blur-md hover:bg-slate-50 hover:text-blue-600 transition [data-mall-mode='dark']_:bg-slate-800 [data-mall-mode='dark']_:border-slate-700 [data-mall-mode='dark']_:text-slate-300"
-        >
-          {isCollapsed ? <IconChevronLeft size={14} /> : <IconChevronRight size={14} />}
-        </button>
+        {collapsedPref === null ? (
+          <>
+            {toggle(true, " md:hidden")}
+            {toggle(false, " max-md:hidden")}
+          </>
+        ) : (
+          toggle(collapsedPref, "")
+        )}
 
         {collapsedPref === true && (
           /* 접힘 상태: 콤팩트 미니 바 — 768px 이상만. 767px 이하 접힘은 손잡이 단추만(미니 바도 폭 약 58px라 상품 카드를 가림) */
