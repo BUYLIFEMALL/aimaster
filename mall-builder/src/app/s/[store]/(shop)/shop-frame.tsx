@@ -41,7 +41,7 @@ function NavLink({ item, className }: { item: MenuLink; className: string }) {
 /** 헤더 — right: 로그인·장바구니·마이페이지 단추(유저 상태에 따라 틀이 넣는다) */
 export function ShopHeader({ base, storeName, header, categories, showShop, right, quickBar = true }: {
   base: string; storeName: string; header: HeaderDesign; categories: { id: string; name: string }[]; showShop: boolean; right: ReactNode;
-  /** 767px 이하 빠른 메뉴 단추 — 실제 빠른 메뉴 패널(QuickBar)이 함께 그려지는 상점만 true. 편집기 미리보기는 패널이 없어 false */
+  /** 1379px 이하 빠른 메뉴 단추 — 실제 빠른 메뉴 패널(QuickBar)이 함께 그려지는 상점만 true. 편집기 미리보기는 패널이 없어 false */
   quickBar?: boolean;
 }) {
   const cats = header.show_categories ? categories : [];
@@ -92,8 +92,8 @@ export function ShopHeader({ base, storeName, header, categories, showShop, righ
       </div>
 
       {/* 카테고리 + 운영사 메뉴(2단까지 — 큰 화면은 마우스를 올리면 아래 메뉴, 휴대폰은 윗 메뉴만).
-          767px 이하는 줄 오른쪽 끝에 빠른 메뉴 단추(FRONT-20261119-QUICKBAR — 떠 있는 손잡이가 상품을 가려서 머리글 자리로).
-          카테고리·메뉴가 없는 상점은 767px 이하에서만 단추 한 개짜리 줄 */}
+          1379px 이하는 줄 오른쪽 끝의 빠른 메뉴 단추로 연다.
+          카테고리·메뉴가 없는 상점은 1379px 이하에서만 단추 한 개짜리 줄 */}
       {showShop && (cats.length > 0 || header.menu.length > 0) ? (
         <div className="flex items-center border-t border-slate-100 bg-white">
           <nav className={`mx-auto flex min-w-0 max-w-6xl flex-1 items-center gap-1 overflow-x-auto px-4 py-1.5 text-sm font-medium text-slate-600 scrollbar-none md:overflow-visible sm:px-6${quickBar ? " max-md:pr-2" : ""}`} data-shop-menu>
@@ -128,7 +128,7 @@ export function ShopHeader({ base, storeName, header, categories, showShop, righ
         </div>
       ) : (
         showShop && quickBar && (
-          <div className="flex justify-end border-t border-slate-100 bg-white md:hidden">
+          <div className="flex justify-end border-t border-slate-100 bg-white min-[86.25rem]:hidden">
             <QuickBarOpener />
           </div>
         )
