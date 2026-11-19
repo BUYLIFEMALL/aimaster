@@ -2,7 +2,7 @@
 // 계약 기준: 엔진 e8e52b505의 「새 그림 사이트 범위」(gateway.mjs handleScopedQueue·handleScopedArt, security.mjs createScopedTokens).
 // fetch·저장소·난수를 받아 쓰므로 설치 없이 시험한다(tests/engine.test.mjs, 모의 엔진 tests/mockEngine.mjs).
 
-import { defaultLock, type Lock } from "./studio/lock.ts";
+import { crossTabLock, defaultLock, type Lock } from "./studio/lock.ts";
 
 /** 엔진 주소는 이 PC의 루프백으로 고정한다. 설정·환경변수·사용자 입력으로 바꾸지 않는다. */
 export const ENGINE_URL = "http://127.0.0.1:47821";
@@ -189,8 +189,11 @@ export type EngineClientOptions = {
   fetch?: typeof globalThis.fetch;
   uuid?: () => string;
   now?: () => number;
-  /** 접수 기록을 읽고 고쳐 쓰는 동안 잡는 잠금(기본: 탭 사이 잠금이 있으면 그것) */
-  lock?: Lock;
+  /**
+   * 접수 기록을 읽고 고쳐 쓰는 동안 잡는 잠금(기본: 탭 사이 잠금이 있으면 그것).
+   * null은 「탭 사이 잠금이 없는 브라우저」를 뜻한다 — 평소 갱신은 같은 화면 안의 잠금으로 하고, 되돌릴 수 없는 초기화(setAsideBrokenLedger)는 하지 않는다.
+   */
+  lock?: Lock | null;
 };
 
 export function createEngineClient(opts: EngineClientOptions) {
@@ -291,29 +294,35 @@ export function createEngineClient(opts: EngineClientOptions) {
    * 「읽지 못했다」(저장소 예외·JSON 깨짐·배열 아님·isSubmissionRow에 맞지 않는 줄·같은 접수 번호가 두 번)를 구분한다.
    * 읽지 못했으면 예외 — 부르는 쪽은 접수 기록을 쓰지도, 엔진에 보내지도 않는다(빈 목록으로 여겨 덮어쓰지 않는다).
    */
-  function readLedgerStrict(): Submission[] {
-    const fail = () => new EngineError("storage", "브라우저의 접수 기록을 읽지 못했습니다. 기록을 그대로 두고 아무것도 보내지 않았습니다. 잠시 뒤 다시 시도해 주세요.");
-    let raw: string | null;
-    try {
-      raw = storage.getItem(ledgerKey);
-    } catch {
-      throw fail();
-    }
+  const ledgerReadError = () => new EngineError("storage", "브라우저의 접수 기록을 읽지 못했습니다. 기록을 그대로 두고 아무것도 보내지 않았습니다. 잠시 뒤 다시 시도해 주세요.");
+  /** 접수 기록 칸의 원문 하나를 판정한다. 온전하면 목록, 손상이면 null(칸이 비어 있으면 빈 목록) */
+  function parseLedgerRaw(raw: string | null | undefined): Submission[] | null {
     if (raw === null || raw === undefined) return [];
     let data: unknown;
     try {
       data = JSON.parse(raw);
     } catch {
-      throw fail();
+      return null;
     }
-    if (!Array.isArray(data)) throw fail();
+    if (!Array.isArray(data)) return null;
     const seen = new Set<string>();
-    for (const s of data) {
-      if (!isSubmissionRow(s)) throw fail(); // 번호는 멀쩡해도 작업 내용 등 필수 칸이 깨진 줄은 손상으로 본다
-      if (seen.has(s.requestId)) throw fail();
-      seen.add(s.requestId);
+    for (const row of data) {
+      if (!isSubmissionRow(row)) return null; // 번호는 멀쩡해도 작업 내용 등 필수 칸이 깨진 줄은 손상으로 본다
+      if (seen.has(row.requestId)) return null;
+      seen.add(row.requestId);
     }
     return data as Submission[];
+  }
+  function readLedgerStrict(): Submission[] {
+    let raw: string | null;
+    try {
+      raw = storage.getItem(ledgerKey);
+    } catch {
+      throw ledgerReadError();
+    }
+    const list = parseLedgerRaw(raw);
+    if (!list) throw ledgerReadError();
+    return list;
   }
   /**
    * 화면 표시용 **너그러운** 읽기 — 읽지 못하면 빈 목록, 손상된 줄은 빼고 돌려준다(같은 기준 isSubmissionRow).
@@ -348,6 +357,9 @@ export function createEngineClient(opts: EngineClientOptions) {
    * 이 잠금은 요청을 보내는 동안에는 잡지 않는다(짧게 읽고 쓰는 동안만).
    */
   const ledgerLock = opts.lock ?? defaultLock;
+  /** 되돌릴 수 없는 초기화에 쓰는 잠금 — 탭 사이에서도 듣는 잠금만. 없으면 null(초기화하지 않는다) */
+  const resetLock: Lock | null = opts.lock === undefined ? crossTabLock() : opts.lock;
+  const asideKey = (stamp: string) => `fis.submissions.broken.v1:${memberId}:${stamp}`;
   const ledgerLockName = `fis.ledger:${memberId}`;
   function mutate<T>(fn: (list: Submission[]) => { list?: Submission[]; value: T }): Promise<T> {
     return ledgerLock(ledgerLockName, async () => {
@@ -635,31 +647,62 @@ export function createEngineClient(opts: EngineClientOptions) {
       }
     },
 
+    /** 이 브라우저에서 접수 기록을 새로 시작할 수 있는가 — 탭 사이 잠금이 있어야 한다 */
+    canResetLedger: (): boolean => resetLock !== null,
+
     /**
-     * 사용자가 확인한 경우에만: 손상된 접수 기록을 옆 칸(fis.submissions.broken.v1:<회원>)으로 옮기고 빈 기록으로 다시 시작한다.
-     * 접수 기록이 멀쩡하면 아무것도 하지 않는다(멀쩡한 기록을 지우는 길이 되지 않게). 옮기지 못하면 원래 칸을 건드리지 않는다.
-     * 엔진에는 아무것도 보내지 않는다 — 엔진이 그리던 그림은 그대로다.
+     * 사용자가 확인한 경우에만: 손상된 접수 기록을 옆 칸으로 옮기고 빈 기록으로 다시 시작한다. 엔진에는 아무것도 보내지 않는다.
+     * 지키는 것:
+     *  - 탭 사이 잠금 안에서만 한다. 그런 잠금이 없는 브라우저에서는 하지 않는다(다른 탭이 그사이 쓴 정상 기록을 지울 수 있다).
+     *  - **한 번 읽은 원문 하나**를 판정하고, 그 원문을 그대로 보관한다(판정한 것과 옮기는 것이 다르지 않게). 멀쩡하면 아무것도 하지 않는다.
+     *  - 보관 칸은 매번 새 이름(fis.submissions.broken.v1:<회원>:<시각>-<번호>) — 앞서 보관한 것을 덮어쓰지 않는다. 원문은 자르지 않는다.
+     *  - 보관이 온전히 됐는지 다시 읽어 확인한 뒤에만 비운다. 보관하지 못하면(공간 부족 등) 접수 기록과 앞선 보관본을 그대로 둔다.
+     *  - 비우기 직전에 접수 기록을 다시 읽어, 판정한 원문과 달라졌으면 비우지 않는다.
      */
     async setAsideBrokenLedger(ack: boolean): Promise<boolean> {
       if (ack !== true) throw new EngineError("invalid", "접수 기록을 새로 시작하려면 확인이 필요합니다.");
-      return ledgerLock(ledgerLockName, async () => {
-        try {
-          readLedgerStrict();
-          return false; // 멀쩡하다
-        } catch {
-          // 손상됨 — 아래에서 옮긴다
-        }
+      if (!resetLock) throw new EngineError("invalid", "이 브라우저는 여러 탭이 동시에 기록을 고치는 것을 막을 수 없어, 접수 기록을 새로 시작하지 않습니다. 최신 크롬·엣지·웨일에서 열어 주세요.");
+      const readFail = () => new EngineError("storage", "브라우저 저장소를 읽지 못해 접수 기록을 새로 시작하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+      return resetLock(ledgerLockName, async () => {
         let raw: string | null;
         try {
-          raw = storage.getItem(ledgerKey);
+          raw = storage.getItem(ledgerKey); // 한 번만 읽는다 — 아래의 판정·보관·비교는 모두 이 값으로 한다
         } catch {
-          throw new EngineError("storage", "브라우저 저장소를 읽지 못해 접수 기록을 새로 시작하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+          throw readFail();
         }
+        if (parseLedgerRaw(raw) !== null) return false; // 멀쩡하다(또는 비어 있다)
+        const snapshot = String(raw);
+        const key = asideKey(`${now()}-${uuid().slice(0, 8)}`);
+        const want = JSON.stringify({ at: now(), raw: snapshot });
+        let free = false; // 이 이름이 비어 있는 것을 확인했는가(확인한 뒤에만 그 칸을 치울 수 있다)
         try {
-          if (raw !== null) storage.setItem(`fis.submissions.broken.v1:${memberId}`, JSON.stringify({ at: now(), raw: String(raw).slice(0, 200_000) }));
+          if (storage.getItem(key) !== null) throw new Error("taken"); // 같은 이름이 이미 있으면 덮어쓰지 않는다
+          free = true;
+          storage.setItem(key, want);
+          if (storage.getItem(key) !== want) throw new Error("partial"); // 적으려던 값 그대로 들어갔는지 통째로 견준다
+        } catch {
+          // 온전히 보관하지 못했다 — 접수 기록과 앞선 보관본은 그대로다. 방금 만든 반쪽 보관만 치운다.
+          if (free) {
+            try {
+              const left = storage.getItem(key);
+              if (left !== null && left !== want) storage.removeItem(key);
+            } catch {
+              // 치우지 못해도 접수 기록에는 영향이 없다
+            }
+          }
+          throw new EngineError("storage", "손상된 기록을 따로 보관하지 못해 접수 기록을 새로 시작하지 않았습니다. 브라우저 저장 공간을 확인해 주세요.");
+        }
+        let current: string | null;
+        try {
+          current = storage.getItem(ledgerKey);
+        } catch {
+          throw readFail();
+        }
+        if (current !== raw) throw new EngineError("storage", "그사이 접수 기록이 바뀌어 새로 시작하지 않았습니다. 「다시 읽기」로 상태를 확인해 주세요.");
+        try {
           storage.setItem(ledgerKey, "[]");
         } catch {
-          throw new EngineError("storage", "브라우저에 적지 못해 접수 기록을 새로 시작하지 못했습니다. 저장 공간을 확인해 주세요.");
+          throw new EngineError("storage", "브라우저에 적지 못해 접수 기록을 새로 시작하지 못했습니다. 접수 기록은 그대로입니다.");
         }
         return true;
       });

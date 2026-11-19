@@ -201,7 +201,8 @@ test("접수 기록을 고쳐 쓰는 길은 하나 — 잠금 안에서 다시 �
   assert.equal(src.split("writeLedger(").length - 1, 2, "정의 1 + mutate 안의 호출 1");
   assert.ok(src.includes("if (out.list) writeLedger(out.list);"));
   assert.ok(src.includes("return ledgerLock(ledgerLockName, async () => {"));
-  assert.equal(src.split("ledgerLock(ledgerLockName").length - 1, 2, "잠금을 잡는 곳은 mutate와 손상 기록 옮기기 둘뿐");
+  assert.equal(src.split("ledgerLock(ledgerLockName").length - 1, 1, "평소 갱신이 잠금을 잡는 곳은 mutate 한 곳");
+  assert.equal(src.split("resetLock(ledgerLockName").length - 1, 1, "손상 기록 옮기기는 같은 이름의 탭 사이 잠금으로");
   // mutate에 넘기는 계산 안에서는 접수 기록을 고치는 함수(mutate·patch·settle)나 await를 쓰지 않는다
   const bodies = [...src.matchAll(/mutate\(\(list\) => \{([\s\S]*?)\n {6,8}\}\);/g)].map((m) => m[1]);
   assert.ok(bodies.length >= 4, `mutate 사용처 ${bodies.length}곳`);

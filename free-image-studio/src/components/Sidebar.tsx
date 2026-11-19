@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { APP_NAME, APP_VERSION } from "@/lib/version";
 import { signOutAction } from "@/lib/actions/auth";
+import { useDismiss } from "@/components/studio/useDismiss";
 
 // 메뉴는 화면이 생길 때마다 여기에 한 줄씩 넣는다(데스크톱과 위쪽 접는 메뉴가 같은 목록을 쓴다).
 const MENU = [
@@ -18,15 +19,8 @@ const MENU = [
 export function Sidebar({ email }: { email: string }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  // 위쪽 접는 메뉴: Esc로 닫는다(키보드만으로 여닫을 수 있게).
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
+  // 위쪽 접는 메뉴: Esc로 닫고, 닫히면 메뉴 버튼으로 초점이 돌아간다(키보드만으로 여닫을 수 있게).
+  const menuButton = useDismiss(open, () => setOpen(false));
 
   const nav = (
     <div className="flex h-full flex-col overflow-y-auto p-4">
@@ -77,7 +71,7 @@ export function Sidebar({ email }: { email: string }) {
           <Link href="/start" className="text-sm font-bold">
             🎨 {APP_NAME}
           </Link>
-          <button type="button" aria-label={open ? "메뉴 닫기" : "메뉴 열기"} aria-expanded={open} aria-controls="top-menu" onClick={() => setOpen((v) => !v)} className="h-10 w-10 rounded-lg text-xl">
+          <button type="button" ref={menuButton} aria-label={open ? "메뉴 닫기" : "메뉴 열기"} aria-expanded={open} aria-controls="top-menu" onClick={() => setOpen((v) => !v)} className="h-10 w-10 rounded-lg text-xl">
             {open ? "✕" : "☰"}
           </button>
         </div>

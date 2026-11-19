@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { EngineClient } from "@/lib/engine";
 import { LEDGER_BROKEN } from "@/lib/studio/notices";
+import { useDismiss } from "./useDismiss";
 
 const card = "rounded-2xl border border-amber-500/60 bg-[var(--surface)] p-5";
 const button = "rounded-xl bg-[var(--accent)] px-4 py-2.5 text-sm font-bold text-black disabled:opacity-40";
@@ -30,16 +31,12 @@ export function LedgerNotice({ engine, onChange }: { engine: EngineClient | null
     check();
   }, [engine]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // 확인 창: Esc로 닫고, 열리면 「그만두기」에 초점을 둔다(실수로 새로 시작을 누르지 않게).
+  // 확인 창: 열리면 「그만두기」에 초점을 둔다(실수로 새로 시작을 누르지 않게). Esc로 닫고, 닫히면 연 버튼으로 초점이 돌아간다.
+  const openerRef = useDismiss(asking, () => setAsking(false));
   useEffect(() => {
-    if (!asking) return;
-    cancelRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setAsking(false);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    if (asking) cancelRef.current?.focus();
   }, [asking]);
+  const canReset = !!engine && engine.canResetLedger();
 
   const reset = async () => {
     if (!engine || busy) return;
@@ -72,6 +69,7 @@ export function LedgerNotice({ engine, onChange }: { engine: EngineClient | null
       </h2>
       <p className="mt-1 text-sm text-[var(--muted)]">{LEDGER_BROKEN.body}</p>
       {message && <p className="mt-2 text-sm text-red-200">{message}</p>}
+      {!canReset && <p className="mt-2 text-sm text-[var(--muted)]">{LEDGER_BROKEN.noReset}</p>}
       {asking ? (
         <div role="alertdialog" aria-labelledby="ledger-ask-title" aria-describedby="ledger-ask-desc" className="mt-3 rounded-xl border border-amber-500/40 p-3">
           <h3 id="ledger-ask-title" className="text-sm font-bold">
@@ -101,9 +99,11 @@ export function LedgerNotice({ engine, onChange }: { engine: EngineClient | null
           >
             {LEDGER_BROKEN.retry}
           </button>
-          <button type="button" onClick={() => setAsking(true)} className={ghost}>
-            {LEDGER_BROKEN.reset}
-          </button>
+          {canReset && (
+            <button type="button" ref={openerRef} onClick={() => setAsking(true)} className={ghost}>
+              {LEDGER_BROKEN.reset}
+            </button>
+          )}
         </div>
       )}
     </section>

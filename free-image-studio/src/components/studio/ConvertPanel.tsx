@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CONVERT_PROVIDER_LABEL, costHint, findConvertModel, type ConvertProvider } from "@/lib/convert/models";
+import { useDismiss } from "./useDismiss";
 import { ConvertRequestError, applyConverted, canConvert, fetchConvertStatus, linesToConvert, loadConvertSettings, requestConversion, saveConvertSettings, singleFlight, type ApplyResult, type ConvertSettings, type ConvertStatus } from "@/lib/convert/client";
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://www.buylife.xyz";
@@ -21,6 +22,8 @@ export function ConvertPanel({ memberId, text, onText, disabled }: { memberId: s
   const [status, setStatus] = useState<ConvertStatus | null>(null);
   const [statusError, setStatusError] = useState<string | null>(null);
   const [asking, setAsking] = useState(false);
+  // 동의 창: Esc로 닫고, 닫히면 「켜기」 버튼으로 초점이 돌아간다.
+  const turnOnButton = useDismiss(asking, () => setAsking(false));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ message: string; needKey: boolean } | null>(null);
   const [done, setDone] = useState<ApplyResult | null>(null);
@@ -117,7 +120,7 @@ export function ConvertPanel({ memberId, text, onText, disabled }: { memberId: s
             끄기
           </button>
         ) : (
-          <button type="button" onClick={() => void turnOn()} disabled={busy || asking} className={ghost}>
+          <button type="button" ref={turnOnButton} onClick={() => void turnOn()} disabled={busy || asking} className={ghost}>
             켜기
           </button>
         )}

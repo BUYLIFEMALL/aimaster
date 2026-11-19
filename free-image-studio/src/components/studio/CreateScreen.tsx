@@ -6,6 +6,7 @@ import { BATCH_MAX, COPIES_MAX, adoptDraft, buildPlan, clearDraft, confirmUncert
 import { PRESETS, SIZE_CHOICES, findPreset, findSize, pickVariantId, type ModelState, type PresetId } from "@/lib/studio/presets";
 import { ConvertPanel } from "./ConvertPanel";
 import { LedgerNotice } from "./LedgerNotice";
+import { useDismiss } from "./useDismiss";
 import { messageOf, useEngine } from "./useEngine";
 
 const card = "rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5";
@@ -29,6 +30,9 @@ export function CreateScreen({ memberId }: { memberId: string }) {
   const [pending, setPending] = useState<DraftStatus>({ remaining: 0, otherScope: 0, legacy: 0, uncertain: 0 });
   const [dropAsk, setDropAsk] = useState(false);
   const [adoptAsk, setAdoptAsk] = useState(false);
+  // 확인 창: Esc로 닫고, 닫히면 연 버튼으로 초점이 돌아간다.
+  const dropOpener = useDismiss(dropAsk, () => setDropAsk(false));
+  const adoptOpener = useDismiss(adoptAsk, () => setAdoptAsk(false));
   const left = pending.remaining;
   const stuck = pending.otherScope + pending.legacy;
   const [running, setRunning] = useState(false);
@@ -185,7 +189,7 @@ export function CreateScreen({ memberId }: { memberId: string }) {
               <button type="button" onClick={() => void askUncertain()} disabled={running} className={button}>
                 엔진에 확인
               </button>
-              <button type="button" onClick={() => setDropAsk(true)} disabled={running} className={ghost}>
+              <button type="button" ref={dropOpener} onClick={() => setDropAsk(true)} disabled={running} className={ghost}>
                 이 {pending.uncertain}장 정리하기…
               </button>
             </div>
@@ -219,7 +223,7 @@ export function CreateScreen({ memberId }: { memberId: string }) {
             </div>
           ) : (
             <div className="mt-3 flex flex-wrap gap-2">
-              <button type="button" onClick={() => setAdoptAsk(true)} disabled={running} className={ghost}>
+              <button type="button" ref={adoptOpener} onClick={() => setAdoptAsk(true)} disabled={running} className={ghost}>
                 남은 {stuck}장 새로 맡기기…
               </button>
               <button type="button" onClick={discardLeft} disabled={running} className={ghost}>
