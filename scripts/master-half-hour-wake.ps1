@@ -12,6 +12,34 @@ function Quote-NativeArgument([string]$Value) {
     return ([string][char]34) + $Value + ([string][char]34)
 }
 
+function Sync-HarnessState {
+    $controller = Join-Path $taskRoot 'harness/controller.mjs'
+    if (-not (Test-Path -LiteralPath $controller -PathType Leaf)) { return 'controller_missing' }
+    $process = New-Object System.Diagnostics.Process
+    try {
+        $process.StartInfo.FileName = (Get-Command node.exe -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source
+        $process.StartInfo.Arguments = (Quote-NativeArgument $controller) + ' sync'
+        $process.StartInfo.WorkingDirectory = $taskRoot
+        $process.StartInfo.UseShellExecute = $false
+        $process.StartInfo.CreateNoWindow = $true
+        $process.StartInfo.RedirectStandardOutput = $true
+        $process.StartInfo.RedirectStandardError = $true
+        [void]$process.Start()
+        $stdout = $process.StandardOutput.ReadToEndAsync()
+        $stderr = $process.StandardError.ReadToEndAsync()
+        if (-not $process.WaitForExit(15000)) {
+            $process.Kill()
+            return 'timeout'
+        }
+        if ($process.ExitCode -eq 0) { return 'synced' }
+        return 'sync_failed'
+    } catch {
+        return 'sync_unconfirmed'
+    } finally {
+        $process.Dispose()
+    }
+}
+
 $wakeMutex = New-Object System.Threading.Mutex($false, 'Local\AIMaster-Master-30Min-Wake')
 $hasMutex = $false
 $wakeProcess = $null
@@ -19,7 +47,8 @@ $receipt = [ordered]@{
     attemptedAt = [DateTimeOffset]::UtcNow.ToString('o')
     targetRunId = $config.targetRunId
     targetTerminal = $config.targetTerminal
-    action = 'orchestration_send_only'
+    action = 'harness_sync_and_orchestration_send'
+    harnessSync = 'not_run'
     status = 'not_sent'
     messageId = $null
     newAgentCreated = $false
@@ -27,11 +56,13 @@ $receipt = [ordered]@{
 try {
     $hasMutex = $wakeMutex.WaitOne(0)
     if (-not $hasMutex) { exit 0 }
+    $receipt.harnessSync = Sync-HarnessState
     if (-not (Test-Path -LiteralPath $config.orcaExe -PathType Leaf)) {
         throw 'orca_executable_missing'
     }
+    $body = $config.body + ' Harness sync=' + $receipt.harnessSync + '. Read the harness status and checkpoint, reconcile new instructions and Orca receipts with the approved plan. Honor an administrator stop before any dispatch. If sync failed, reconcile with the existing Master records before acting. Record evidence, route independent review, and deliver the next eligible assignment once.'
     $wakeArgs = @('orchestration', 'send', '--from', $config.targetTerminal, '--to', ('run:' + $config.targetRunId),
-        '--subject', $config.subject, '--type', 'status', '--body', $config.body, '--json')
+        '--subject', $config.subject, '--type', 'status', '--body', $body, '--json')
     $startInfo = New-Object System.Diagnostics.ProcessStartInfo
     $startInfo.FileName = $config.orcaExe
     $startInfo.Arguments = ($wakeArgs | ForEach-Object { Quote-NativeArgument $_ }) -join ' '
@@ -60,8 +91,6 @@ try {
     } else {
         $receipt.status = 'send_not_confirmed'
         $receipt.cliExitCode = $wakeProcess.ExitCode
-        $receipt.cliOutput = $outputTask.Result.Substring(0, [Math]::Min(1200, $outputTask.Result.Length))
-        $receipt.cliError = $errorTask.Result.Substring(0, [Math]::Min(800, $errorTask.Result.Length))
         throw 'wake_send_not_confirmed_no_retry'
     }
 } catch {

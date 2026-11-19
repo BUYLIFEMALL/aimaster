@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "template_only": true,
+  "task_id": "T-001",
+  "attempt_id": "RUN-001",
+  "plan_revision": 1,
+  "assignment_revision": 1,
+  "role_id": "Claude-SNS",
+  "proposed_status": "REVIEW",
+  "result_commit": null,
+  "changed_files": [],
+  "acceptance_results": [],
+  "checks": [
+    {
+      "name": "실제 검증명",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "target_commit": null,
+      "evidence_ref": null,
+      "reason": "템플릿: 미실행"
+    }
+  ],
+  "integration_mode": "NOT_CONNECTED",
+  "human_request_candidates": [],
+  "findings": [],
+  "limitations": [],
+  "next_action": "독립 검수"
+}

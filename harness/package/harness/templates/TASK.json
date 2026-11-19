@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "template_only": true,
+  "task_id": "T-001",
+  "title": "실제 작업명",
+  "task_type": "IMPLEMENTATION",
+  "status": "READY",
+  "attempt_id": "RUN-001",
+  "plan_revision": 1,
+  "assignment_revision": 1,
+  "role_id": "Claude-SNS",
+  "workspace": "실제 전용 작업공간",
+  "base_commit": null,
+  "access_mode": "WRITE_ASSIGNED_PATHS",
+  "allowed_paths": [
+    "실제 배정 경로"
+  ],
+  "dependencies": [],
+  "acceptance_criteria": [
+    {
+      "id": "AC-1",
+      "description": "검증 가능한 실제 조건",
+      "required": true
+    }
+  ],
+  "required_checks": [],
+  "reviewer": "Codex-Tester",
+  "output_location": "실제 실행별 결과 위치",
+  "authorization_refs": [],
+  "source_command_ids": [],
+  "blocked_reason": null,
+  "resume_condition": null
+}

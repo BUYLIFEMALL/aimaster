@@ -1,0 +1,23 @@
+{
+  "template_only": true,
+  "note": "설계 예시이며 이 파일을 읽는 실행기는 별도로 구현해야 합니다.",
+  "mode": "CONTINUOUS",
+  "timezone": "Asia/Seoul",
+  "control_root": "실제 실행 PC의 중앙 경로",
+  "max_concurrent_workers": 4,
+  "retry_budget_per_task": 3,
+  "status_interval_seconds": 300,
+  "heartbeat_interval_seconds": 30,
+  "controller_single_writer": true,
+  "require_independent_review": true,
+  "require_final_commit_verification": true,
+  "additional_paid_usage": "REQUIRES_EXISTING_EXPLICIT_SCOPE",
+  "human_batch_triggers": [
+    "MILESTONE",
+    "CRITICAL_PATH_BLOCKED_AND_REVIEWABLE",
+    "NO_INDEPENDENT_READY_TASK"
+  ],
+  "no_ready_work_behavior": "MONITORING",
+  "runner_installed": false,
+  "capabilities_verified": false
+}
