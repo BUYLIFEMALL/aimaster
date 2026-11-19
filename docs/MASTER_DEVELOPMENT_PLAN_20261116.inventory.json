@@ -12,21 +12,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T05:04:40.877Z",
+      "at": "2026-11-19T05:31:50.360Z",
       "timezone": "Asia/Seoul",
-      "trigger": "14:00 정기 메시지 msg_8179e940fc51 기존 Master 수신 후 실제 증분 점검",
-      "scope": "13:33:14 KST 이후. 103개 프로그램·19개 분류, 미완료 30건(진행 5·검수 6·순번 5·사용자 14). Git, 담당별 상태/점유, 우선순위·미배포·사람 단계와 수정 결과/인수인계 대조.",
+      "trigger": "14:30 예약 실행·전송 msg_7d9acaba6144·기존 Master 수신 후 점검",
+      "scope": "14:04:40 KST 이후 증분. 103개 프로그램·19분류, 미완료 28건(진행 4·검수 5·순번 4·사용자 15). 담당 보고/요청·카테고리별 우선순위·선행조건·미배포·점유·변경 인수인계 대조.",
       "evidence": [
-        "원격 기준 af36bb467, 정기 메시지 수신 별도 확인. Master 요청 대기 0. 최근 공용 HANDOFF·활성 작업·파일 점유와 변경 결과 8파일 확인.",
-        "IMG 766febe46 검수 52/52에서 재현한 저장본 예외가 e8e52b505로 해소되어 Mac 53/53. Music 5경로 146/146 및 문구 정정 b5bd23d75.",
-        "BLOG 720efa08c Mac 49/49와 원문 1·전환 2·503 상한 2 확인. Workspace 429f5b813 점유와 결정 6~8만 승인 정정.",
-        "B2B 관리자 승인 4경로 Lab READY 담당 확인, 고객관리 v1.11 운영/DB 담당 확인. 공유 푸시 없이 격리 원격 후보 751bd8dfe 보관."
+        "Windows 예약 실행 14:30:01 결과 0, 전송 14:30:05 message_accepted, 기존 Master 수신 확인. Master 요청 대기 0.",
+        "증분 커밋 및 변경 결과 3편과 루트 HANDOFF/RESOURCE_QUEUE 기존 미커밋 대조. 공유 원격 기준 af36bb467, 푸시 없음.",
+        "B2B QUICKBAR 51d4b2207 Mac 28/28. BLOG eeacf4c1b/e23a045f5 각 6파일 대조와 Mac SEO 22/22·에이전트 복원 검수.",
+        "IMG Admin Q8 48장 증거, 두 CSV 및 원본 SHA/IHDR 직접 일치, 검토 화면 HTML SHA·48장 확인. Workspace 점유표의 결정 1~8 문구를 최신 사용자 범위(6~8)로 정정."
       ],
-      "judgment": "이미지 PR-A 소스 및 블로그 엄격 전환 검수 수락. Workspace 구현 보류. B2B 상품 손잡이의 24px 터치 확보는 소스 변경 전 배치 검토. 기존 직접 지시 범위의 배포/시험과 정기 점검 권한 구분.",
-      "nextAction": "Mac에 블로그 3개 모델 목록 검수 전송. B2B 프런트에 터치 영역 대안 검토 배정. Workspace 1~5 사용자 결정 및 부동산 보존 정책 결정 대기. 기존 AIF 순차 시험과 Admin Q8 회신 대기.",
+      "judgment": "B2B 빠른 메뉴·블로그 모델 복원 로컬 수락, 미배포. Q8 기술 기준 통과·39/48 품질 판정 대기. Workspace 결정 1~5 대기. 사용자 제어 세션·다른 세션 미커밋 보존.",
+      "nextAction": "B2B 백엔드에 몰 사진 사용량 중앙 집계의 기존 코드/문서 기반 설계 검토 배정 msg_f995f8db2740. 기존 S70/M3와 겹치지 않게 제품 편집 없이 결과를 반환하면 Master 검토. AIF·부동산·Workspace 기존 흐름 대기.",
       "unverified": [
-        "B2B 로그인 뒤 실제 화면/제어 반환, Admin Q8 품질·실엔진, AIF 격리 시험 결과, 고객관리 운영 문자 미리보기.",
-        "오래된 미추적 파일·103개 운영 실화면은 이번 증분 대상 밖. 이전 예약 전송 실행 이력은 이번에 별도 대조하지 않음."
+        "AIF 다음 실검증 결과, 새 이미지 엔진 실기, 사용자 이미지 품질 판정, B2B Lab 로그인 뒤 및 미배포 실제 편집기.",
+        "오래된 인수인계·미추적 전체와 103개 운영 전수 검증은 이번 증분 범위 밖."
       ]
     },
     "notifications": [
@@ -10063,11 +10063,11 @@
       "owner": "CX-MASTER-01",
       "reviewer": "CX-QA-01",
       "title": "쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내",
-      "status": "queued",
-      "delivery": "central_accounting_scope_registered_retention_excluded",
-      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md",
-      "next": "메인 집계에서 몰별 경로를 몰 주인에게 귀속하고 중복 방지·구매 안내 범위를 설계. 30일 삭제 요청 취소·등록 상품 최소 1년 보관 유지. 운영 적용 별도.",
-      "lastReviewedAt": "2026-11-19T03:25:51.788Z"
+      "status": "running",
+      "delivery": "backend_read_only_accounting_design_dispatched",
+      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md·msg_f995f8db2740",
+      "next": "백엔드에 저장 경로·몰 소유자 귀속·중복 방지·용량 위젯 연결 설계 근거 요청. 등록 상품 1년 보관과 30일 삭제 취소 유지. 구현·운영 별도.",
+      "lastReviewedAt": "2026-11-19T05:31:50.360Z"
     },
     {
       "task_id": "BLOG-20261119-MODELS",
