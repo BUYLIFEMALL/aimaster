@@ -588,12 +588,14 @@ export const handlers: Record<string, Handler> = {
     header.forEach((h, i) => {
       const m = mapping && typeof mapping === 'object' ? (mapping as Record<string, string>)[String(i)] : undefined;
       if (m === 'skip') return void target.push(null);
-      if (m && m !== 'new' && schema[m] && MERGEABLE.includes(schema[m].type)) return void target.push(m);
-      // 2026-11-19(Mac 검수 P2): 사용자가 직접 고른 열이 파일을 읽는 동안 사라졌거나 넣을 수 없는 종류로 바뀌었으면,
-      // 같은 이름의 새 열을 만들어 넣지 않는다(고른 목적지가 없어진 것이므로 멈추고 알린다 — 줄·열 변화 없음).
-      if (m && m !== 'new' && pre.col.schema[m] && MERGEABLE.includes(pre.col.schema[m].type)) {
+      // 2026-11-19(Mac 검수 P2): 사용자가 직접 고른 열이 파일을 읽는 동안 사라졌거나 **종류가 달라졌으면** 멈추고 알린다
+      // (줄·열 변화 없음). 같은 이름의 새 열을 만들어 넣지 않고, 글자 → 숫자처럼 넣을 수 있는 종류끼리 바뀐 경우에도 넣지 않는다
+      // (고를 때 본 종류로 값을 해석하면 「00723」이 723이 되는 식으로 값이 달라진다). 처음부터 없던 id는 예전 동작 그대로.
+      const was = m && m !== 'new' ? pre.col.schema[m] : undefined;
+      if (was && (!schema[m!] || schema[m!].type !== was.type)) {
         throw new ApiError('가져오는 동안 선택한 열이 바뀌었습니다. 열 연결을 다시 확인해 주세요.', 409);
       }
+      if (m && m !== 'new' && schema[m] && MERGEABLE.includes(schema[m].type)) return void target.push(m);
       if (!m && i === 0 && !byName.has(h.toLowerCase())) return void target.push('title');
       const existing = byName.get(h.toLowerCase());
       if (!m && existing && MERGEABLE.includes(schema[existing].type)) return void target.push(existing);

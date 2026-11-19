@@ -524,6 +524,61 @@ describe('Storage를 기다리는 사이의 동시 변경', () => {
     expect(rowCount(t.colId)).toBe(2);
   });
 
+  // Master msg_2710ce16b617: 넣을 수 있는 종류끼리 바뀐 경우(글자 → 숫자)
+  const cellOf = (colId: string, title: string, prop: string) => db.withRequestCache(() => {
+    const rows = db.db.prepare("SELECT data FROM records WHERE tbl = 'block' AND parent_id = ? AND alive = 1").all(colId) as { data: string }[];
+    const row = rows.map((r) => JSON.parse(r.data)).find((b) => (b.properties?.title ?? []).map((d: any) => d[0]).join('') === title);
+    return row ? (row.properties?.[prop] ?? []).map((d: any) => d[0]).join('') : undefined;
+  });
+
+  it('직접 고른 열이 기다리는 사이 글자 → 숫자로 바뀌면 409로 멈춘다(「00723」을 723으로 넣지 않는다)', async () => {
+    const t = await tableWithColX('TextToNumber');
+    const a = await uploadLarge(kim, 'codes.csv', storedCsv('Name,Status,Code', ['FromA,Alpha,00723']), 'text/csv');
+    net.during = async () => patchRecord('collection', t.colId, (r) => { r.schema[t.colX].type = 'number'; });
+    const r = await runtime.runRpc('mergeCsv', { blockId: t.blockId, url: a.url, name: 'codes.csv', mapping: { 2: t.colX, 3: 'skip' } }, kim);
+    expect(brief(r)).toMatchObject({ status: 409 });
+    expect((r.body as any).message).toContain('선택한 열이 바뀌었습니다');
+    // 쓰기 0: 줄·옵션·열 이름 그대로(종류는 다른 쪽이 바꾼 number)
+    expect(rowCount(t.colId)).toBe(2);
+    expect(statusOptions(t.colId)).toEqual(['Open']);
+    expect(schemaNames(t.colId)).toEqual(['ColX', 'Name', 'Status']);
+    expect(cellOf(t.colId, 'FromA', t.colX)).toBeUndefined();
+  });
+
+  it('직접 고른 열이 숫자 → 글자로 바뀌어도 409로 멈춘다', async () => {
+    const t = await tableWithColX('NumberToText');
+    patchRecord('collection', t.colId, (r) => { r.schema[t.colX].type = 'number'; });
+    const a = await uploadLarge(kim, 'nums.csv', storedCsv('Name,Status,Qty', ['FromA,Alpha,"1,200"']), 'text/csv');
+    net.during = async () => patchRecord('collection', t.colId, (r) => { r.schema[t.colX].type = 'text'; });
+    const r = await runtime.runRpc('mergeCsv', { blockId: t.blockId, url: a.url, name: 'nums.csv', mapping: { 2: t.colX, 3: 'skip' } }, kim);
+    expect(brief(r)).toMatchObject({ status: 409 });
+    expect(rowCount(t.colId)).toBe(2);
+    expect(statusOptions(t.colId)).toEqual(['Open']);
+  });
+
+  it('회귀: 직접 고른 글자 열이 그대로면 「00723」을 글자 그대로 넣는다(이름·옵션만 바뀐 것은 종류 변경이 아니다)', async () => {
+    const t = await tableWithColX('SameType');
+    const a = await uploadLarge(kim, 'same.csv', storedCsv('Name,Status,Code', ['FromA,Alpha,00723']), 'text/csv');
+    // 기다리는 사이 열 이름만 바뀐다(종류는 그대로 text)
+    net.during = async () => patchRecord('collection', t.colId, (r) => { r.schema[t.colX].name = 'ColX renamed'; });
+    const r = await runtime.runRpc('mergeCsv', { blockId: t.blockId, url: a.url, name: 'same.csv', mapping: { 2: t.colX, 3: 'skip' } }, kim);
+    expect(r.status).toBe(200);
+    expect((r.body as any).newProperties).toEqual([]);
+    expect(cellOf(t.colId, 'FromA', t.colX)).toBe('00723');
+    expect(schemaNames(t.colId)).toEqual(['ColX renamed', 'Name', 'Status']);
+    expect(rowCount(t.colId)).toBe(3);
+  });
+
+  it('회귀: 자동 연결(지정 없음)은 대기 중 종류가 바뀌어도 예전처럼 최신 종류로 넣는다', async () => {
+    const t = await tableWithColX('AutoMap');
+    const a = await uploadLarge(kim, 'auto.csv', storedCsv('Name,ColX', ['FromA,00723']), 'text/csv');
+    net.during = async () => patchRecord('collection', t.colId, (r) => { r.schema[t.colX].type = 'number'; });
+    const r = await runtime.runRpc('mergeCsv', { blockId: t.blockId, url: a.url, name: 'auto.csv' }, kim);
+    expect(r.status).toBe(200);
+    expect(rowCount(t.colId)).toBe(3);
+    expect(cellOf(t.colId, 'FromA', t.colX)).toBe('723');
+  });
+
   it('회귀: 직접 고른 열이 그대로 있으면 그 열에 넣는다(머리글 이름의 새 열 없음)', async () => {
     const t = await tableWithColX('Kept');
     const a = await uploadLarge(kim, 'kept.csv', storedCsv('Name,Status,Whatever', ['FromA,Alpha,v1']), 'text/csv');
