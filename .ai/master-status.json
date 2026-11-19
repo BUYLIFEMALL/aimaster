@@ -6222,9 +6222,9 @@
       "reviewer": "CX-QA-01",
       "title": "리믹스 → 플레이리스트 수신 로컬 구현",
       "status": "running",
-      "delivery": "receiver_candidate_mac_review_and_completed_guard_followup",
-      "next": "7b76ae4eb 담당 43/43·Mac 검수 전달. 직접 ID 조회의 완료 상태 누락 보완 요청. 음악 링크·운영 배포·실 호출 없음.",
-      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1·msg_fd4dcdac6208·7b76ae4eb·msg_cf3cd8832343·msg_5118e37c0e3b"
+      "delivery": "receiver_completed_filter_passed_storage_guard_followup",
+      "next": "e728f10cf 직접 완료 상태 필터·담당 52/52. Mac 원판 추가 지적에 리믹스 저장소 서명 경로 및 선택 수 보완 배정. 미배포.",
+      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1·msg_fd4dcdac6208·7b76ae4eb·msg_cf3cd8832343·msg_5118e37c0e3b·msg_ef79431525cb·e728f10cf·msg_53afdbd8013c·msg_6bc9c6ee0c57"
     },
     {
       "task_id": "MUSIC-20261119-REMIX-PLAYLIST-REVIEW",
@@ -6360,6 +6360,28 @@
       "sha": "c1c5c92e5",
       "next": "c1c5c92e5 맥미니 원복 본문·서명·표식 검수 완료. d1626e492에 적용·원복 직전 속성/권한 및 실응답 대조 명시. 운영 미적용.",
       "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e·msg_01908be553ce·msg_3c0ea9d67886·fec7fe017·msg_3bdadb79cff0·msg_ba14d996ab74·msg_0e498ff524d1·msg_af7821e3d106·.ai/results/AIF-20261119-D2-IT-CX-QA-01.md·msg_ec07da32b153·b9ae5bcc4·msg_5a8997695e52·msg_4a1e08e7b950·msg_7c74159e5200·msg_f4dfb65f9b8f·msg_6a0776eac06b·67126ab93·msg_da122886dca1·msg_db2b0fb8b3fd·msg_5f5880568d1b·msg_2fffffb23bff·msg_f26fdb86801a·ec52dfef4·msg_a7dd4d193c29·msg_b53ce5676423·msg_a2780b9d504b·msg_35e2d9d7aef7·dbe2f869e·msg_5df2106491c8·msg_c34456bb36a1·msg_5ae0be775cd9·msg_e2f800e5fc72·c1c5c92e5·msg_8ee8671e6001·msg_7997238305e3·msg_e26da4eba102·msg_b7ec315e3c6a·d1626e492"
+    },
+    {
+      "task_id": "AIF-20261119-R1-SCHEDULER",
+      "parent_task_id": "AIF-20261119-PLAN6",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "AI Influencer 회원 예약 기본값과 관리자 허용 설계",
+      "status": "running",
+      "delivery": "owner_sequence_approved_shared_contract_design_dispatched",
+      "next": "cron-job.org 기본, Vercel 관리자/지정 계정 명시 선택. 공용 연결점과 관리자 권한 계약 검토, 운영 DB 승인 대기.",
+      "evidence": "6425b1ec4·45e164bf1·msg_c9d7969183e0·msg_81623dd95517"
+    },
+    {
+      "task_id": "AIF-20261119-D2-READINESS",
+      "parent_task_id": "AIF-20261119-D2-IT",
+      "owner": "CC-SNS-01",
+      "reviewer": "CX-MASTER-01",
+      "title": "AI Influencer D2 실행 범위와 푸시 분리 검토",
+      "status": "running",
+      "delivery": "d2_readiness_and_scoped_push_review_dispatched",
+      "next": "D2 운영 적용 후보·원복·실행 경계 문서 대조. 전체 master 푸시 보류, 담당 경로와 배포 영향 분리. 운영 변경 전.",
+      "evidence": "msg_1e98223b879f·msg_1f1ed1c413e5·Master origin/master 0/990 확인"
     },
     {
       "task_id": "AIF-20261119-PLAN6",

@@ -396,7 +396,7 @@ Master 마지막 실제 점검: 2026-11-19 20:31:04 KST · 20:30 예약 메시�
 | MUSIC-20261119-IMG-COMPAT | CC-MUSIC-01 | done / five_music_flows_read_only_accepted | 무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토 | 고정 2131089b7 음악 5경로·146/146 검토 수락. 새 범위 미사용 시 파일 미생성 정정. 실제 엔진은 미검증. |
 | MUSIC-20261119-BACKLOG-SWEEP | CC-MUSIC-01 | done / music_backlog_review_accepted_followup_dispatched | 음악 7개 프로그램 다음 작업 후보 대조 | 음악 7개 웹의 미배포 코드 0. L5·U3를 우선 로컬 착수, 리믹스→플레이리스트 및 유료 영상 실검증은 별도 조건 대기. |
 | MUSIC-20261119-REMIX-PLAYLIST-REVIEW | CC-MUSIC-01 | done / remix_playlist_review_accepted_implementation_scope_pending | 리믹스에서 플레이리스트 연계 사전 검토 | d6df77af9 사전 검토 수락. 두 테이블 모두 회원 범위 확인, 플레이리스트 수신 기능을 먼저 배포한 뒤 음악 링크를 공개해야 함. 구현 범위·배포 승인 대기. |
-| MUSIC-20261119-REMIX-PLAYLIST-RECEIVER | CC-MUSIC-01 | running / receiver_candidate_mac_review_and_completed_guard_followup | 리믹스 → 플레이리스트 수신 로컬 구현 | 7b76ae4eb 담당 43/43·Mac 검수 전달. 직접 ID 조회의 완료 상태 누락 보완 요청. 음악 링크·운영 배포·실 호출 없음. |
+| MUSIC-20261119-REMIX-PLAYLIST-RECEIVER | CC-MUSIC-01 | running / receiver_completed_filter_passed_storage_guard_followup | 리믹스 → 플레이리스트 수신 로컬 구현 | e728f10cf 직접 완료 상태 필터·담당 52/52. Mac 원판 추가 지적에 리믹스 저장소 서명 경로 및 선택 수 보완 배정. 미배포. |
 | MUSIC-20261119-LYRIC-L5-U3 | CC-MUSIC-01 | done / lyric_l5_u3_mac_review_passed_undeployed | 가사 영상 미리보기 재생 실패와 모바일 안내 | 8f1eae339 Mac 독립 44/44 및 격리 브라우저 재생·390/767/768 통과. Safari 실동작·후보 URL·휴대폰 검증 대기, 다음 묶음 미배포. |
 | QA-20261118-043 | CX-QA-01 | done / production_v161_mobile_keyboard_verified_read_only | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | Workspace 운영 v1.61 독립 읽기. 375/390px 요일 7칩 두 줄·넘침 0·Tab 3px 포커스. OS 다크 선호 확인, 앱 테마·저장 중 상태 미검증. |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
@@ -517,6 +517,8 @@ Master 마지막 실제 점검: 2026-11-19 20:31:04 KST · 20:30 예약 메시�
 | AIF-20261119-W01-RETOUCH | CC-SNS-01 | done / test_generation_and_retouch_pass_v5_upload_without_publish | AI Influencer 히스토리 재표시·일반 회원 생성·보정 | 지정 일반 회원 경로 보류. 시험 계정 생성 1·보정 1 성공, V5 규칙 변환·업로드 확인. 앱 실제 게시와 운영 출처는 미검증. |
 | AIF-20261119-W01-D1 | CC-SNS-01 | done / production_off_ready_public_smoke_passed | AI Influencer D1 스위치 OFF 운영 배포 | D1 OFF 운영·DB·저장소 v1.27 일치. 담당자 로그인 무료 확인 및 배포와 공유 소스 3경로 차이 기록 완료. D2 사전 검토 58a2c9672 접수. 운영 shadow 전 정리·쿼터의 격리 검증 범위 요청, D3 대기. |
 | AIF-20261119-PLAN6 | CC-SNS-01 | reviewing / six_requirement_v2_scope_accepted_test_role_pending | AI Influencer 직접 요구 6건 개발 플랜 보완 | 4ac03c967 v2 전환 기준 보완. 일반 회원 Vercel 대기 0건이면 전환, 남으면 처리 결정 선행. 시험 계정 권한 식별 방식 확정 전 예약 구현 보류. |
+| AIF-20261119-R1-SCHEDULER | CC-SNS-01 | running / owner_sequence_approved_shared_contract_design_dispatched | AI Influencer 회원 예약 기본값과 관리자 허용 설계 | cron-job.org 기본, Vercel 관리자/지정 계정 명시 선택. 공용 연결점과 관리자 권한 계약 검토, 운영 DB 승인 대기. |
+| AIF-20261119-D2-READINESS | CC-SNS-01 | running / d2_readiness_and_scoped_push_review_dispatched | AI Influencer D2 실행 범위와 푸시 분리 검토 | D2 운영 적용 후보·원복·실행 경계 문서 대조. 전체 master 푸시 보류, 담당 경로와 배포 영향 분리. 운영 변경 전. |
 | AIF-20261119-D2-IT | CC-SNS-01 | done / d2_local_sql_mac_rollback_review_accepted_undeployed | AI Influencer D2 정리·쿼터 격리 통합 시험 | c1c5c92e5 맥미니 원복 본문·서명·표식 검수 완료. d1626e492에 적용·원복 직전 속성/권한 및 실응답 대조 명시. 운영 미적용. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
