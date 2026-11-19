@@ -116,3 +116,25 @@
 | 검증(시험·tsc) | PASS |
 | 미확인 명시 | PASS(위 2건) |
 | 배포·공용 등록·SVS 연결 | NOT_RUN(범위 밖) |
+
+---
+
+## A3 보관함 시험 기준판/변경판 비교 (배정 3, 기준 b40b18f37) — ready_review
+- 이유: 맥미니는 `esbuild` 플랫폼 불일치로 `tests/favorites.test.mjs`를 못 돌림(msg_a12178e36965) → 메인 Windows 기존 설치로 비교.
+- 방법(공유 작업 폴더·체크아웃·의존성 변경 0): `git archive <SHA> youtube-viral-studio`를 세션 임시 폴더 `…/scratchpad/fav-compare/{base,head}`에 각각 풀고, 두 곳 모두 `node_modules`를 기존 `D:\AIMaster\youtube-viral-studio\node_modules`(Windows용 `@esbuild/win32-x64`)로 연결(junction, 읽기만)한 뒤 같은 Node `v26.13.0`으로 `node --test tests/favorites.test.mjs`. 설치·네트워크·빌드·배포 0.
+- 두 SHA 사이 YVS 바뀐 파일은 5개(`relevanceFilter.ts`·`boks/core.ts`·`boks.test.mjs`·`relevanceFilter.test.mjs`·`docs/IMPROVEMENTS.md`)이고, 보관함 시험이 묶는 `src/app/api/favorites/route.ts`·`src/lib/favorites.ts`와 그 의존은 바뀌지 않음.
+
+| 항목 | 기준판 `5666d0bd9` | 변경판 `b40b18f37` |
+|---|---|---|
+| 종료코드 | 1 | 1 |
+| 시험 수 / 통과 / 실패 | 8 / 4 / 4 | 8 / 4 / 4 |
+| 실패 1 | `server derives owner; duplicate save preserves creation and payload` | 같음 |
+| 실패 2 | `GET and DELETE remain owner-scoped, GET excludes exact 30-day boundary` | 같음 |
+| 실패 3 | `invalid origin/payload rejected and database failures reported` | 같음 |
+| 실패 4 | `proxy-normalized URL still accepts actual destination Host, not a foreign origin` | 같음 |
+| 기대 / 실제(4건 모두) | `expected: 'yvs_favorites'` / `actual: 'profiles'` (가짜 DB `query`, `favorites.test.mjs:7:30`) | 같음 |
+| 로그 전체 차이 | — | 실행 시간(`duration_ms`)과 임시 폴더 이름(`base`/`head`)뿐, 나머지 줄 동일 |
+
+- **판정: 기존 실패(회귀 아님).** 원인은 11-16 기록과 같음 — 보관함 API가 `isRetentionExempt`로 `profiles`를 먼저 조회하는데 시험의 가짜 DB가 `yvs_favorites`만 기대(정책 담당 커밋 `0a91cba19`). 이번 거르기 분리와 무관.
+- 로그 위치(세션 임시 폴더, 저장소 밖): `C:\Users\Administrator\AppData\Local\Temp\claude\79d92c8f8cffe9a2\c8458bcb-60cb-41ba-a2f9-3de295da338e\scratchpad\fav-compare\base.log`·`head.log`(원문), `base.summary.txt`·`head.summary.txt`(요약). 같은 폴더의 `base\`·`head\` 압축 해제본과 `node_modules` 연결은 남겨 둠(지우지 않음 — 연결 삭제 시 원본 손상 위험 피함).
+- 미확인: 맥미니(macOS) 실행 — 플랜 차단 그대로, 이번 비교는 Windows 같은 도구 기준.
