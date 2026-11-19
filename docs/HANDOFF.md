@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-19 ✅ [역할: 미지정] Claude Code(클라우드) · 세션 claude-cloud-20261119-plugin — Claude Code 플러그인 `aimaster-dev` 신설 (미설치·미배포 대상 아님)
+
+- **한 일**: 루트 `CLAUDE.md`의 반복 절차를 Claude Code 플러그인으로 묶음. 위치 `claude-plugins/aimaster-dev/`, 설치 목록 `.claude-plugin/marketplace.json`(마켓플레이스 이름 `buylife`).
+  - 스킬 4개: `work-start`(작업 전 점검)·`safe-commit`(커밋 도우미 절차)·`pre-deploy`(배포 전 점검, 직접 호출 전용)·`work-finish`(마무리 보고). 규칙 본문은 복사하지 않고 기존 `scripts/`·`docs/`를 부름.
+  - 훅 1개: `PreToolUse` → `scripts/guard.js` — `git add -A`·경로 없는 커밋·`--no-verify`·`reset --hard`·`stash`·`checkout .`·`.env*` 덮어쓰기 차단, force-push·`.env*` 수정은 확인 요청.
+  - 에이전트 2개(읽기 전용): `access-auditor`(권한·본인 키·격리 감사), `program-comparison-analyst`(비교 분석 매뉴얼 §8).
+  - MCP 2개: 운영 Supabase 읽기 전용, Vercel.
+- **검수**: `node --test claude-plugins/aimaster-dev/scripts/guard.test.js` 5묶음 통과, `claude plugin validate` 플러그인·마켓플레이스 통과(Claude Code 2.1.328). **못 한 것**: 실제 설치 후 세션에서 스킬·훅·에이전트 동작, MCP 로그인 연결(클라우드 세션은 저장소 플러그인을 불러오지 않음).
+- **브랜치**: `claude/relaxed-fermi-13pbeg`(세션 지정 브랜치, master 미병합). 배포·버전·DB 변경 없음. 비용 없음.
+- **남은 일·다음 첫 단계**: 메인 윈도우 PC에서 병합 뒤 `claude plugin marketplace add .` → `claude plugin install aimaster-dev@buylife --scope user` → 재시작 후 `git add -A`가 막히는지 확인. 결정 필요: 한국어 종료 검사 훅을 플러그인으로 옮길지, `.claude/settings.json`에 `enabledPlugins`를 넣어 모든 세션에 켤지, 기존 claude.ai 커넥터와 MCP가 겹치면 `.mcp.json`에서 뺄지.
+- 문서: `claude-plugins/aimaster-dev/README.md`
+
 ## 2026-11-18 ✅ [역할: design] Antigravity CLI(AGY) · 세션 `agy-win-design` — 감성 글귀 이미지 (emotion-writer) 2단계 이미지 생성 방식 OpenAI·나노바나나·무료모델(FLUX) 3대 엔진 개편 (미배포 대기)
 - **주인님 직접 지시**: "Pexels 삭세하고 OpenAI / Nanobanana / 무료모델 정도로 바꿔 무료모델은 구현가능한 무료이미지 모델로 바꾸도록 하자"
 - **조치 내역**:
