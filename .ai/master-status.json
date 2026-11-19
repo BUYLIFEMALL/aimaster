@@ -3155,13 +3155,13 @@
       "reviewer": "CX-MASTER-01",
       "title": "B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수",
       "status": "waiting_human",
-      "delivery": "waiting_customer_staff_login_read_only_scope_confirmed",
+      "delivery": "queued_after_adminui_waiting_test_role_login",
       "sha": "7609748ad",
-      "evidence": "msg_d9ff650f722a: Mac ego공간29 Lab로그인폼/375확인·기존세션없음. Backend 89a489a12/9256b3782·msg_7918bcbb8f5c 합성경로/역할확정; msg_5e5b219f6d11 23:47 Mac공간29 제어반환미완료 재확인·로그인내용미확인 / B2B18-03 waiting교환420bfb91…·msg_d4ef7792280b·msg_f8b6c7802a93·msg_7b2287b746f4·msg_8336bb2a2684·.ai/results/B2B-20261119-LAB-CX-QA-01.md·84113aede·msg_f926bb943410·msg_02ed96144fc4·msg_9d09da552ba0·7acb0f2e",
+      "evidence": "msg_d9ff650f722a: Mac ego공간29 Lab로그인폼/375확인·기존세션없음. Backend 89a489a12/9256b3782·msg_7918bcbb8f5c 합성경로/역할확정; msg_5e5b219f6d11 23:47 Mac공간29 제어반환미완료 재확인·로그인내용미확인 / B2B18-03 waiting교환420bfb91…·msg_d4ef7792280b·msg_f8b6c7802a93·msg_7b2287b746f4·msg_8336bb2a2684·.ai/results/B2B-20261119-LAB-CX-QA-01.md·84113aede·msg_f926bb943410·msg_02ed96144fc4·msg_9d09da552ba0·7acb0f2e·msg_cc8479621f27·msg_6ff23a7de0fc·msg_bfe91346e8ba·msg_98f16d65b7d9·msg_ac1221ecd028",
       "scopeRef": "Mac 기존시험세션·Lab실화면읽기, 결제/RPC상태변경/발송/키/운영/build0",
       "completion": "Lab 로그인/고객교환비UI/권한차단/375·darkhover 확인, 실결제미검수분리",
-      "next": "Windows 로그인 뒤 일부 화면 작성자 확인. Mac ego29 별도 고객·직원 역할 읽기 검수 대기. 결제 입력·결과 최종 단계.",
-      "lastReviewedAt": "2026-11-18T19:31:21.307Z"
+      "next": "Mac 공간39 관리자 검수 뒤 기존 공간29 고객·직원 로그인/제어 반환 대기. 교환비 안내·권한·375px 읽기, 실제 결제는 최종 단계.",
+      "lastReviewedAt": "2026-11-19T03:25:51.788Z"
     },
     {
       "task_id": "QA-20261117-038",
@@ -3363,13 +3363,13 @@
       "reviewer": "CX-MASTER-01",
       "title": "예약요일 칩 지정소스/DOM·실브라우저 단계별검수",
       "status": "done",
-      "delivery": "integrated",
+      "delivery": "production_v161_mobile_keyboard_verified_read_only",
       "sha": "a41a1e31e",
-      "evidence": ".ai/results/QA-20261118-043-CX-QA-01.md / msg_97ed2e3647bf",
+      "evidence": ".ai/results/QA-20261118-043-CX-QA-01.md / msg_97ed2e3647bf·msg_ced9f747ae25",
       "scopeRef": "정확3파일·기존mock/JSdom·서버/실Google/새창0",
       "completion": "소스/DOM/계정/busy/대비 지정PASS수락·실375/390/키보드/다크미검수",
-      "next": "실브라우저375/390은v1.58배포후허용된기존시험세션에서·추가dev/build0",
-      "lastReviewedAt": "2026-11-17T17:10:02.624Z"
+      "next": "Workspace 운영 v1.61 독립 읽기. 375/390px 요일 7칩 두 줄·넘침 0·Tab 3px 포커스. OS 다크 선호 확인, 앱 테마·저장 중 상태 미검증.",
+      "lastReviewedAt": "2026-11-19T03:25:51.788Z"
     },
     {
       "task_id": "FRONT-20261118-01",
@@ -5861,11 +5861,11 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "AI Influencer 대표 생성 및 보정 검증",
-      "status": "waiting_human",
-      "delivery": "key_registration_visible_paid_retest_approval_pending",
-      "evidence": "msg_adecea24720e·msg_6450ddaf24a6·9f1e3697e·msg_640d108b3984·msg_2516c8d780b2·345eb10f8·msg_43f23b594003·msg_b3def667492a·msg_98a00503835e·msg_51f88e4ea1b2·msg_b0363e5b9ba3·msg_fd234e802a57·msg_00d7dcc5a167·msg_f5f7a430a7b1·e5a6dc890·msg_a347af4f72e8·msg_26f84745cf68·msg_21f343488a1b·f73f98778·msg_6d485fa3d150·msg_d678e74285db·a18c18f45·msg_867fcf9c1712·msg_f01e55b27237·msg_52b203d7fe0b",
-      "next": "시험 계정 Gemini 키 마스킹 등록 표시 확인. 새 키 저장 시각·유효성 미확인. V3 생성 재시험은 비용 승인 대기, 공급자 호출 없음.",
-      "lastReviewedAt": "2026-11-19T02:44:34.905Z",
+      "status": "running",
+      "delivery": "owner_approved_bounded_paid_retest_started",
+      "evidence": "msg_adecea24720e·msg_6450ddaf24a6·9f1e3697e·msg_640d108b3984·msg_2516c8d780b2·345eb10f8·msg_43f23b594003·msg_b3def667492a·msg_98a00503835e·msg_51f88e4ea1b2·msg_b0363e5b9ba3·msg_fd234e802a57·msg_00d7dcc5a167·msg_f5f7a430a7b1·e5a6dc890·msg_a347af4f72e8·msg_26f84745cf68·msg_21f343488a1b·f73f98778·msg_6d485fa3d150·msg_d678e74285db·a18c18f45·msg_867fcf9c1712·msg_f01e55b27237·msg_52b203d7fe0b·msg_6ad1a695d97a",
+      "next": "주인님 새 비용 승인 담당 보고, 이미지 1회와 캡션 1회 한도로 격리 재시험 착수. 실제 결과·차감 대기, 자동 재시도 없음.",
+      "lastReviewedAt": "2026-11-19T03:25:51.788Z",
       "validation": {
         "result": "두 번째도 INVALID_KEY. 누적 이미지 시도 2회, 결과 0, 참고 업로드 2회, 캡션 0. 과금 미확인.",
         "limitation": "생성/저장 성공, 캡션, 보정 및 히스토리 검증 미완료. 업로드 시험 자산 보존."
@@ -6078,22 +6078,22 @@
       "reviewer": "CX-QA-01",
       "title": "B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계",
       "status": "waiting_human",
-      "delivery": "mac_tailnet_restored_lab_login_verified_waiting_test_login",
+      "delivery": "private_lab_ready_waiting_owner_admin_login",
       "sha": "ad046c1eb",
-      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8·msg_9f9b2521f4a8·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_621b8cb49fa9·msg_aa1479ca4c17·c17cca668·msg_e5e7af9da7fe·msg_c15db5ced233·msg_b17ccd22bc09·msg_d96d3bf2fcdb·ad046c1eb·msg_07fb8a6c148a·msg_3c961902ac23·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_92995c9f1a9f·msg_1c61b1683760·msg_a52a36de3fcf·msg_9e0f5f913c2f·Master PID 46608 Tailscale 3210 login200·msg_ef8f4bba5a4e·msg_17dcab7ad585·msg_2422fec5a82d·msg_92bbb1de93f5·076b98a56·msg_7646ed272f65·msg_0f45dc5a9386·msg_6878dfe046a5·msg_502daaa1e03e·msg_b7332c640a14·msg_96ec8eb2731d",
-      "next": "맥미니 Tailscale 연결 복구, ad046c1eb 사설 Lab 재개·양쪽 login 200. 주인님 시험 관리자 로그인 후 CX-QA-01이 aimaster-b2b 375px·키보드 검수.",
-      "lastReviewedAt": "2026-11-19T03:22:43.063Z"
+      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8·msg_9f9b2521f4a8·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_621b8cb49fa9·msg_aa1479ca4c17·c17cca668·msg_e5e7af9da7fe·msg_c15db5ced233·msg_b17ccd22bc09·msg_d96d3bf2fcdb·ad046c1eb·msg_07fb8a6c148a·msg_3c961902ac23·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_92995c9f1a9f·msg_1c61b1683760·msg_a52a36de3fcf·msg_9e0f5f913c2f·Master PID 46608 Tailscale 3210 login200·msg_ef8f4bba5a4e·msg_17dcab7ad585·msg_2422fec5a82d·msg_92bbb1de93f5·076b98a56·msg_7646ed272f65·msg_0f45dc5a9386·msg_6878dfe046a5·msg_502daaa1e03e·msg_b7332c640a14·msg_96ec8eb2731d·msg_00fe6b6f4415·msg_ac1221ecd028",
+      "next": "사설 Lab ad046c1eb, Mac 공간39 시험 관리자 로그인/제어 반환 대기. 이후 aimaster-b2b 375px·키보드 읽기 검수.",
+      "lastReviewedAt": "2026-11-19T03:25:51.788Z"
     },
     {
       "task_id": "IMG-20261119-PLAN",
       "owner": "CC-ECOM-01",
       "reviewer": "CX-QA-01",
       "title": "AI 무료 이미지 자동화 개발 플랜",
-      "status": "running",
-      "delivery": "p0_full_artifacts_verified_blind_view_requested",
-      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기·msg_4423e8b13051·msg_6d81c947bd00·d6f1d0287·00158b7a3·msg_e49f861919f9·msg_25a67c9094a4·msg_11158461bd15·msg_680de25b9e15·98f8dd8bc·68efe5399·msg_fd207f8be38a·msg_5074f8e947cf·msg_254300c4a578·msg_cd4c7a612051·3fbd4b200·Arc CSV 2행 직접 대조·995a92ac-01f9-45e2-a3a4-91a3862df9e3·msg_025a7125b66c·msg_5c32df5c7178·msg_287b5412841b·msg_7492634e4c5a·msg_68e97e7d4656·msg_d36a6a75b50c·msg_9a3bd624f2e1·msg_309652177f5b·중복 msg_5a0e1dee6395 정정 보고·11:44 KST Admin Codex 터미널 본시험 진행 확인·11:50 KST Admin Codex 터미널 FLUX 48/48 중간 보고·msg_f2aba7390f58·msg_32e9ef68cd67·444034a1e·msg_45ce6d2b5731·msg_952e1148ece6·msg_9c55abed11da·msg_05eeafdb243c·Master CSV/PNG 해시 일치·msg_60514833d426·msg_8c5418f1b1f8·msg_2c1454bc23a0·msg_320b474b9a14·msg_1dc750048e02·f988aaab8·msg_377218bf1613·msg_1e45bac91599·73d53045e·msg_ca0dc8f285f1·Master PNG 96개/CSV 해시 확인·msg_c7d8c25b2b0f",
-      "next": "Q8 96장 공유 인계, 개수·목록 해시 확인. 평가용 48쌍 모델명 가림 화면 준비 배정, 품질 및 정비율·Q4 실측 미완.",
-      "lastReviewedAt": "2026-11-19T03:22:43.063Z",
+      "status": "waiting_human",
+      "delivery": "blind_review_ui_ready_user_evaluation_pending",
+      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기·msg_4423e8b13051·msg_6d81c947bd00·d6f1d0287·00158b7a3·msg_e49f861919f9·msg_25a67c9094a4·msg_11158461bd15·msg_680de25b9e15·98f8dd8bc·68efe5399·msg_fd207f8be38a·msg_5074f8e947cf·msg_254300c4a578·msg_cd4c7a612051·3fbd4b200·Arc CSV 2행 직접 대조·995a92ac-01f9-45e2-a3a4-91a3862df9e3·msg_025a7125b66c·msg_5c32df5c7178·msg_287b5412841b·msg_7492634e4c5a·msg_68e97e7d4656·msg_d36a6a75b50c·msg_9a3bd624f2e1·msg_309652177f5b·중복 msg_5a0e1dee6395 정정 보고·11:44 KST Admin Codex 터미널 본시험 진행 확인·11:50 KST Admin Codex 터미널 FLUX 48/48 중간 보고·msg_f2aba7390f58·msg_32e9ef68cd67·444034a1e·msg_45ce6d2b5731·msg_952e1148ece6·msg_9c55abed11da·msg_05eeafdb243c·Master CSV/PNG 해시 일치·msg_60514833d426·msg_8c5418f1b1f8·msg_2c1454bc23a0·msg_320b474b9a14·msg_1dc750048e02·f988aaab8·msg_377218bf1613·msg_1e45bac91599·73d53045e·msg_ca0dc8f285f1·Master PNG 96개/CSV 해시 확인·msg_c7d8c25b2b0f·msg_d0aa30c8fbca·HTML SHA/PNG 96개 직접 확인",
+      "next": "로컬 가림 평가 화면 48쌍 준비. 담당 브라우저 96장·저장 검증, Master 파일 확인. 기노출 2쌍 제외 46쌍과 전체 48쌍 구분 집계, 주인님 평가 대기.",
+      "lastReviewedAt": "2026-11-19T03:25:51.788Z",
       "sha": "73d53045e"
     },
     {
@@ -6106,6 +6106,17 @@
       "evidence": "msg_34a8d9c8b06f·msg_de03e2b05eec·msg_785b9a796c77·.ai/results/ECOM-20261119-EMOTION-CX-QA-01.md·msg_6d81c947bd00·msg_1e7109e277d5·msg_b3169f589c96·aa9847f1f·msg_c7d52f074786·msg_ebd58e6459ea",
       "next": "Mac 보관 원본 2장 검증 및 담당자 주인님 채팅 전달 완료. 기존 앱 합성 탭·링크 부재로 한글 배치·가독성 보류.",
       "lastReviewedAt": "2026-11-19T02:01:06.707Z"
+    },
+    {
+      "task_id": "B2B-20261119-MALL-STORAGE",
+      "owner": "CX-MASTER-01",
+      "reviewer": "CX-QA-01",
+      "title": "쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내",
+      "status": "queued",
+      "delivery": "central_accounting_scope_registered_retention_excluded",
+      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md",
+      "next": "메인 집계에서 몰별 경로를 몰 주인에게 귀속하고 중복 방지·구매 안내 범위를 설계. 30일 삭제 요청 취소·등록 상품 최소 1년 보관 유지. 운영 적용 별도.",
+      "lastReviewedAt": "2026-11-19T03:25:51.788Z"
     }
   ],
   "programOverrides": [

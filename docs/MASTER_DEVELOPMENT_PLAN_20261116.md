@@ -369,7 +369,7 @@ Master 마지막 실제 점검: 2026-11-19 12:00:59 KST · 실행 중 점검 주
 | WS-20261117-25 | CC-WORKSPACE-01 | done / integrated | E4 Gmail함 기존기능/권한 대조와 최소범위 조사 | 소스동결·릴리스표QA041지정PASS갱신, 운영활성화WS27 별도승인/실검증 |
 | WS-20261117-26 | CX-MASTER-01 | done / v158_released_runtime_checks_partial | E3+WS23 v1.58 묶음 배포/운영 실검수 | E3/요일칩 실화면·실AI별도 미검수경계유지 |
 | QA-20261117-036 | CX-QA-01 | done / integrated | Gmail A1 OFF 서버 OAuth 독립 검수 | 0074소스준비수락·운영미적용/OFF, A2후속은별도검수 |
-| QA-20261117-037 | CX-QA-01 | waiting_human / waiting_customer_staff_login_read_only_scope_confirmed | B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수 | Windows 로그인 뒤 일부 화면 작성자 확인. Mac ego29 별도 고객·직원 역할 읽기 검수 대기. 결제 입력·결과 최종 단계. |
+| QA-20261117-037 | CX-QA-01 | waiting_human / queued_after_adminui_waiting_test_role_login | B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수 | Mac 공간39 관리자 검수 뒤 기존 공간29 고객·직원 로그인/제어 반환 대기. 교환비 안내·권한·375px 읽기, 실제 결제는 최종 단계. |
 | QA-20261117-038 | CX-QA-01 | done / integrated | Gmail A2 원자 받은업무 전달 서버·SQL 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
 | QA-20261117-039 | CX-QA-01 | done / integrated | Gmail OFF 패널 실제 TSX 모의 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
 | QA-20261117-040 | CX-QA-01 | done / integrated | Gmail OFF 배선·실제 RPC 입구·어댑터·화면 통합 독립검수 | 배선소스수락·동결, 패널disconnect unknown후속별도 |
@@ -388,7 +388,7 @@ Master 마지막 실제 점검: 2026-11-19 12:00:59 KST · 실행 중 점검 주
 | WS-20261118-08 | CC-WORKSPACE-01 | done / collapsed_widget_spacing_static_mac_review_accepted_undeployed | 좌측 하단 저장공간 위젯과 푸터 겹침 | 미배포. 기본 위젯 겹침 국소 정적 검수 완료, 확장/좁은 폭·실화면은 별도. |
 | WS-20261119-01 | CC-WORKSPACE-01 | done / saved_notion_html_recursive_fix_independent_review_accepted | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | v1.61 배포 완료, 기존 가져온 본문 읽기 확인. 운영에서 노션 저장 HTML 다시 가져오기 시험은 미실행. |
 | WS-20261119-REL | CC-WORKSPACE-01 | done / production_v161_live_verified_catalog_version_synced | Workspace v1.61 기존 중단 빌드 로그 진단 | 운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음. |
-| QA-20261118-043 | CX-QA-01 | done / integrated | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | 실브라우저375/390은v1.58배포후허용된기존시험세션에서·추가dev/build0 |
+| QA-20261118-043 | CX-QA-01 | done / production_v161_mobile_keyboard_verified_read_only | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | Workspace 운영 v1.61 독립 읽기. 375/390px 요일 7칩 두 줄·넘침 0·Tab 3px 포커스. OS 다크 선호 확인, 앱 테마·저장 중 상태 미검증. |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
 | OPS-20261118-01 | CX-MASTER-01 | done / integrated | 전체개발플랜·카테고리·누락개선/인수인계 정합성 대조 | 미확인68프로그램 현담당근거후속연결·제품전체검증과구분, 신규후속ID별진행 |
 | DES-20261118-03 | AG-UI-01 | done / accepted_pending_batch_deploy | 주인님 직접 Pexels 사용자선택/가이드 제거 | DES02와다음emotion-writer묶음·ECOM18-01 소스공유조정·운영1.29미반영 |
@@ -421,8 +421,9 @@ Master 마지막 실제 점검: 2026-11-19 12:00:59 KST · 실행 중 점검 주
 | B2B-20261119-MAKER-M2 | CC-B2B-BACK-01 | done / data_layer_independent_accepted_undeployed_ui_design_dispatched | 메이커 M2 사진 제안 저장 범위 설계 | 0106 데이터 계층 Mac 독립 수락. UI 연결 계획 배정. 실제 Storage·Lab·운영 및 M3 미적용. |
 | B2B-20261119-MAKER-M2-UI | CC-B2B-BACK-01 | done / m2_ui_independent_accepted_test_assertions_verified_undeployed | 메이커 M2 사진 제안 화면·저장 응답 연결 | 독립 제품 수락, 단언 5개 도달성 수정 후 Master 시험 18/18 통과. 실제 Storage·Lab 미검증, 미배포. |
 | B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | reviewing / local_data_layer_review_passed_server_approval_pending | 메이커 M3 제안 적용·서버 바이트 검증 설계 | f0eaf784c Mac 로컬 데이터 계층 독립 검수 수락을 Backend에 회신. 점 경로 검증, 서버 구현·키·UI·Lab은 별도 승인 대기. |
-| B2B-20261119-ADMINUI | AG-UI-01 | waiting_human / mac_tailnet_restored_lab_login_verified_waiting_test_login | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | 맥미니 Tailscale 연결 복구, ad046c1eb 사설 Lab 재개·양쪽 login 200. 주인님 시험 관리자 로그인 후 CX-QA-01이 aimaster-b2b 375px·키보드 검수. |
-| IMG-20261119-PLAN | CC-ECOM-01 | running / p0_full_artifacts_verified_blind_view_requested | AI 무료 이미지 자동화 개발 플랜 | Q8 96장 공유 인계, 개수·목록 해시 확인. 평가용 48쌍 모델명 가림 화면 준비 배정, 품질 및 정비율·Q4 실측 미완. |
+| B2B-20261119-ADMINUI | AG-UI-01 | waiting_human / private_lab_ready_waiting_owner_admin_login | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | 사설 Lab ad046c1eb, Mac 공간39 시험 관리자 로그인/제어 반환 대기. 이후 aimaster-b2b 375px·키보드 읽기 검수. |
+| B2B-20261119-MALL-STORAGE | CX-MASTER-01 | queued / central_accounting_scope_registered_retention_excluded | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 메인 집계에서 몰별 경로를 몰 주인에게 귀속하고 중복 방지·구매 안내 범위를 설계. 30일 삭제 요청 취소·등록 상품 최소 1년 보관 유지. 운영 적용 별도. |
+| IMG-20261119-PLAN | CC-ECOM-01 | waiting_human / blind_review_ui_ready_user_evaluation_pending | AI 무료 이미지 자동화 개발 플랜 | 로컬 가림 평가 화면 48쌍 준비. 담당 브라우저 96장·저장 검증, Master 파일 확인. 기노출 2쌍 제외 46쌍과 전체 48쌍 구분 집계, 주인님 평가 대기. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
@@ -499,7 +500,7 @@ Master 마지막 실제 점검: 2026-11-19 12:00:59 KST · 실행 중 점검 주
 | AIF-20261119-W01-READY | CC-SNS-01 | done / v2_storage_signed_browser_read_and_ownership_verified | W01 운영 전 검증 계획과 V2 저장·다운로드 검증 | V2 서명 다운로드·권한 확인 완료. V3 유료 범위 별도, V4 시험 계정 지정 수신 및 실행 조건 미확정. |
 | AIF-20261119-W01-NEXT | CC-SNS-01 | done / dependency_patch_verified_locally_undeployed | AI Influencer Next.js 보안 패치 | 16.4.6 파일 지문과 잠금 범위 대조 완료. 담당 시험 320/320·타입 통과·audit 0. 번들 및 운영 응답 확인은 배포 단계. |
 | AIF-20261119-W01-V4 | CC-SNS-01 | done / finite_member_real_storage_verified_isolated_origin | 일반 회원 한도와 운영 다운로드 선행 검증 | 지정 일반 회원 실제 이용·합성 JPEG 1회 업로드·본인 조회·서명 다운로드 200. 일반 한도 초과·정리·운영 출처는 미검증. |
-| AIF-20261119-W01-V3 | CC-SNS-01 | waiting_human / key_registration_visible_paid_retest_approval_pending | AI Influencer 대표 생성 및 보정 검증 | 시험 계정 Gemini 키 마스킹 등록 표시 확인. 새 키 저장 시각·유효성 미확인. V3 생성 재시험은 비용 승인 대기, 공급자 호출 없음. |
+| AIF-20261119-W01-V3 | CC-SNS-01 | running / owner_approved_bounded_paid_retest_started | AI Influencer 대표 생성 및 보정 검증 | 주인님 새 비용 승인 담당 보고, 이미지 1회와 캡션 1회 한도로 격리 재시험 착수. 실제 결과·차감 대기, 자동 재시도 없음. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |
