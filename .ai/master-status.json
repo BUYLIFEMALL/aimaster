@@ -6186,11 +6186,11 @@
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace ZIP 50MB 안내와 대용량 가져오기 설계",
       "status": "running",
-      "delivery": "csv_concurrency_candidate_mac_recheck_and_lock_test_dispatched",
+      "delivery": "csv_snapshot_fix_passed_mapping_and_preview_followup_dispatched",
       "sha": "c81384d50",
-      "next": "c81384d50 가져오기 대상·권한 재확인 및 최신 스키마 병합. 담당 23/23·회귀 157건. 맥미니 재검수·별도 연결 잠금 시험 요청. 대용량 서버 진행분 별도.",
-      "lastReviewedAt": "2026-11-19T07:15:17.241Z",
-      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85·cfd124ba3·c2816bf0f·13e9af05d·msg_b6590eaaaee8·7298b1dbf·msg_25fa9e68b50a·msg_2694e685c83c·msg_b5baddc12f26·c81384d50·504891ed2 부모 분리·msg_64c64ec0e1da·msg_a38d3ff84dbc",
+      "next": "Mac 모의에서 최신 열 보존 확인. 대기 중 삭제된 명시 매핑과 표 미지정 미리보기 권한 재확인 보완 배정. 독립 실제 DB 잠금 미실행.",
+      "lastReviewedAt": "2026-11-19T07:18:35.806Z",
+      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85·cfd124ba3·c2816bf0f·13e9af05d·msg_b6590eaaaee8·7298b1dbf·msg_25fa9e68b50a·msg_2694e685c83c·msg_b5baddc12f26·c81384d50·504891ed2 부모 분리·msg_64c64ec0e1da·msg_a38d3ff84dbc·msg_021d1ad75f3a·msg_74f8e5339487",
       "reviewer": "CX-QA-01"
     },
     {
