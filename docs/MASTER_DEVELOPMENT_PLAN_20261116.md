@@ -417,7 +417,7 @@ Master 마지막 실제 점검: 2026-11-19 16:31:15 KST · 실행 중 5분 · �
 | B2B-20261119-HOMETABS | CC-B2B-FRONT-01 | done / tab_panel_independent_recheck_passed_undeployed | 홈 상품 탭 대비와 키보드 접근성 보완 | Mac 독립 모의 4/4. 일대일 ARIA·로빙·비활성 본문 미렌더 확인. Lab 다크 실화면·VoiceOver 검수 대기, 미배포. |
 | B2B-20261119-FRONTP3 | CC-B2B-FRONT-01 | done / storefront_button_and_price_independent_review_accepted_undeployed | B2B몰 버튼 터치 영역과 원래 가격 대비 보완 | 두 변경 독립 15/15 수락. 미배포이며 Lab 7609748ad에 미포함. 주문서 S70은 별도 진행. |
 | B2B-20261119-FRONTREL | CC-B2B-FRONT-01 | done / production_base_proven_ui_bundle_queued | B2B몰 UI 배포 범위와 순번 준비 | 운영 v1.16 READY. 가격 두 소스는 단독 적용 가능, 갤러리 90248e5b1은 7c8ee3a81·e4ba29947 동반 필요. 기존 다음 배포 묶음에 대기. |
-| B2B-20261119-S70 | CC-B2B-BACK-01 | done / guard_rollback_independent_accepted_undeployed | 주문서 무통장 현금영수증 접수와 입금 확인 경합 처리 | 격리 21/21, Mac 롤백 정적 통과. 0105와 UI 배포 전 Lab 실검증 승인 대기. |
+| B2B-20261119-S70 | CC-B2B-BACK-01 | done / guard_rollback_independent_accepted_undeployed | 주문서 무통장 현금영수증 접수와 입금 확인 경합 처리 | 작성자 격리 21/21, Mac 정적 통과·Docker 미확인으로 실행 미재현. 0105와 UI 배포 전 Lab 실검증 승인 대기. |
 | B2B-20261119-S70-FRONT | CC-B2B-FRONT-01 | done / checkout_rpc_exception_independent_recheck_passed_undeployed | 주문서 UI에 무통장 현금영수증 접수 연결 | Mac 재검수 기존 6/6·별도 결제수단 3/3. 예외 때 완료 주문 상세 이동 및 기존 결제 경로 확인. 0105 롤백 보완과 Lab 검증 대기, 미배포. |
 | B2B-20261119-S70-LAB | CC-B2B-BACK-01 | waiting_human / lab_readiness_verified_approval_pending | S70 Lab 적용 준비와 주문서 실화면·접수 검수 | Lab 0105 및 주문서 코드 미반영. Mac에서 Windows 로컬 3210 접근 불가. 격리 적용·빌드 승인과 양수 무통장·승인 사업자·설정 ON 시험 자료 필요. |
 | B2B-20261119-SAMPLE-S1 | CC-B2B-BACK-01 | done / owner_direct_sample_content_update_reported | 운영 샘플몰 상품 사진과 설명 보완 | 담당 보고 기준 상품 16개 보완, 전체 상품 사진 25/25, 화면 이미지 33개 중 오류 0. |
@@ -522,7 +522,7 @@ Master 마지막 실제 점검: 2026-11-19 16:31:15 KST · 실행 중 5분 · �
 | BLOG-20261119-MODELS-3 | CC-BLOG-01 | done / saved_provider_mac_review_accepted_undeployed | 블로그 3개 프로그램 모델 목록 동기화 | SEO 22/22·에이전트 복원/요청 일치 맥미니 수락. 사진 후기 선택지 및 기존 빠른 작성 응답 지연은 별도. 미배포. |
 | BLOG-20261119-PHOTO-MODELS | CC-BLOG-01 | done / second_photo_model_update_mac_accepted_undeployed | 네이버 에이전트 사진 리뷰 모델 확대 | Mac 70/70, 새 선택지·종료 모델 차단·저장 결과 호환 수락. 담당 실호출 7/7은 별도. 미배포. |
 | FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | done / mobile_quickbar_and_preview_mac_accepted_undeployed | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 고정 51d4b2207 Mac 28/28. 모바일 버튼·포커스 및 미리보기 빈 줄 제거 수락. 미배포 묶음 대기, 고정판 실제 편집기 미확인. |
-| FRONT-20261119-QUICKBAR-TABLET | CC-B2B-FRONT-01 | running / local_fix_pass_mac_independent_review_sent | B2B몰 태블릿 폭 빠른 메뉴 상품 가림 | f79554d95 로컬 시험 28/28. MacMini 독립 검수 전달, 수락과 실제 후보 화면 확인 대기. 미배포. |
+| FRONT-20261119-QUICKBAR-TABLET | CC-B2B-FRONT-01 | running / mac_first_display_pass_resize_followup_sent | B2B몰 태블릿 폭 빠른 메뉴 상품 가림 | f79554d95 Mac 28/28 및 최초 표시 모의 통과. 폭 전환 시 패널 상태·포커스 보완 배정. 실제 후보 화면 미검증, 미배포. |
 
 ## 현재 담당 회신이 확보된 프로젝트
 

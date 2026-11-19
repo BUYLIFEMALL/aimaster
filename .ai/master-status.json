@@ -5712,8 +5712,8 @@
       "scopeRef": "새 0105 로컬 마이그레이션과 격리 시험",
       "completion": "주문 행 잠금 안에서 본인·입금대기·금액·중복·상호배제 검증과 접수. 두 경합 순서 및 기존 주문 상세 회귀 확인.",
       "constraints": "외부 발급·결제, 공용 Lab·운영 적용, 빌드·배포·push 0.",
-      "evidence": "5f7ea2519·e8fbd8816·msg_3c12a55255d2·msg_d8108566a5f9·msg_65e2a554b0f9·msg_2cd4b73dc162·msg_64e586875016·msg_8dba92300cba·d5afddea4·msg_dc645833416d·msg_216386e36b04·msg_6790a65a124a·ab87ecabc·msg_92187e9a692d",
-      "next": "격리 21/21, Mac 롤백 정적 통과. 0105와 UI 배포 전 Lab 실검증 승인 대기.",
+      "evidence": "5f7ea2519·e8fbd8816·msg_3c12a55255d2·msg_d8108566a5f9·msg_65e2a554b0f9·msg_2cd4b73dc162·msg_64e586875016·msg_8dba92300cba·d5afddea4·msg_dc645833416d·msg_216386e36b04·msg_6790a65a124a·ab87ecabc·msg_92187e9a692d·msg_7d02f1eef085·msg_69a532b42c85",
+      "next": "작성자 격리 21/21, Mac 정적 통과·Docker 미확인으로 실행 미재현. 0105와 UI 배포 전 Lab 실검증 승인 대기.",
       "lastReviewedAt": "2026-11-18T18:53:25.285Z",
       "sha": "195f9ba43"
     },
@@ -6314,10 +6314,10 @@
       "reviewer": "CX-QA-01",
       "title": "B2B몰 태블릿 폭 빠른 메뉴 상품 가림",
       "status": "running",
-      "delivery": "local_fix_pass_mac_independent_review_sent",
+      "delivery": "mac_first_display_pass_resize_followup_sent",
       "sha": "f79554d95",
-      "next": "f79554d95 로컬 시험 28/28. MacMini 독립 검수 전달, 수락과 실제 후보 화면 확인 대기. 미배포.",
-      "evidence": "msg_0597bc4779e7·msg_b34462da0d3d·msg_c5498076ef76·msg_e3bcf97a34e6",
+      "next": "f79554d95 Mac 28/28 및 최초 표시 모의 통과. 폭 전환 시 패널 상태·포커스 보완 배정. 실제 후보 화면 미검증, 미배포.",
+      "evidence": "msg_0597bc4779e7·msg_b34462da0d3d·msg_c5498076ef76·msg_e3bcf97a34e6·msg_4ec4b5380205·msg_03e422ed0613",
       "lastReviewedAt": "2026-11-19T07:34:18.665Z"
     }
   ],
