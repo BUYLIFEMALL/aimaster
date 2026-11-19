@@ -10063,11 +10063,11 @@
       "owner": "CC-B2B-BACK-01",
       "reviewer": "CX-QA-01",
       "title": "쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내",
-      "status": "reviewing",
-      "delivery": "mall_measure_0077_mac_static_cache_case_pending",
-      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md·msg_f995f8db2740·msg_b03bc930a0b2·0073 및 삭제 호출 소스 대조·msg_42a884229750·56ff56a5c·cc25a7cc1·0073/0076 함수 본문 대조·msg_c7919fb9f259·msg_81907d673c17·msg_f5b822c01b10·.ai/results/B2B-20261119-MALL-STORAGE-CX-QA-01.md·63b858413·Master 문서 대조 및 SQL·합성 시험 동일 확인·msg_3ed0e1d3e2de·705316994·msg_b549fb254462·msg_acab1bb8aef3·d96833385·msg_6963287c7e03·msg_adcf99e721c6·msg_166e6742290d·msg_eda2a13b267a",
-      "next": "0077 담당 합성 30건·Mac 정적 검수. 마지막 몰 이전 직후 이전 대표 캐시의 중복 표시 재현 요청, 합성 성능과 함께 확인 중. 0076/0077 운영 미적용.",
-      "lastReviewedAt": "2026-11-19T06:03:43.802Z",
+      "status": "running",
+      "delivery": "mall_measure_0077_perf_and_cache_fixes_dispatched",
+      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md·msg_f995f8db2740·msg_b03bc930a0b2·0073 및 삭제 호출 소스 대조·msg_42a884229750·56ff56a5c·cc25a7cc1·0073/0076 함수 본문 대조·msg_c7919fb9f259·msg_81907d673c17·msg_f5b822c01b10·.ai/results/B2B-20261119-MALL-STORAGE-CX-QA-01.md·63b858413·Master 문서 대조 및 SQL·합성 시험 동일 확인·msg_3ed0e1d3e2de·705316994·msg_b549fb254462·msg_acab1bb8aef3·d96833385·msg_6963287c7e03·msg_adcf99e721c6·msg_166e6742290d·msg_eda2a13b267a·msg_5a61b112ea91·msg_e129da023cda·msg_3451b6e4345d",
+      "next": "합성 5.5만 파일: 전체 5.0→15.0초, 몰 대표 단일 12→160ms. 마지막 몰 양도 캐시 중복 재현. 성능·동시 갱신·롤백 보완 배정, 운영 미적용.",
+      "lastReviewedAt": "2026-11-19T06:07:21.803Z",
       "sha": "214fc6514"
     },
     {
