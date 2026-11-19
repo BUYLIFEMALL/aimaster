@@ -422,7 +422,7 @@ Master 마지막 실제 점검: 2026-11-19 11:30:56 KST · 실행 중 점검 주
 | B2B-20261119-MAKER-M2-UI | CC-B2B-BACK-01 | done / m2_ui_independent_accepted_test_assertions_verified_undeployed | 메이커 M2 사진 제안 화면·저장 응답 연결 | 독립 제품 수락, 단언 5개 도달성 수정 후 Master 시험 18/18 통과. 실제 Storage·Lab 미검증, 미배포. |
 | B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | reviewing / local_data_layer_review_passed_server_approval_pending | 메이커 M3 제안 적용·서버 바이트 검증 설계 | Mac 독립 Node 7/7, 정상 서명 호환·포트 경계 통과, 잠금 순서 시험 구조 대조 완료. 로컬 데이터 계층 검수 종료. 점 경로 원문 검증은 서버 후속에 포함. 서버 경로 별도 승인, 실제 SQL 독립 실행·Storage·Lab·운영 검증 대기. |
 | B2B-20261119-ADMINUI | AG-UI-01 | waiting_human / mac_tailnet_login_required_lab_server_stopped | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | Mac Tailscale NeedsLogin·TCP 타임아웃. 사설 Lab 담당 인스턴스 종료·Master 3210 리스너 0 확인. Mac 동일 Tailnet 로그인 확인 뒤 서버 재개와 375px·키보드 검수. |
-| IMG-20261119-PLAN | CC-ECOM-01 | running / admin_rtx_q8_smoke_pass_full_benchmark_dispatched | AI 무료 이미지 자동화 개발 플랜 | AdminPC RTX 5080 Q8 첫 장 성공: FLUX 26.1초·Z-Image 18.3초. Codex(Tester) 본시험 결과 대기, 중복 요청은 담당자 정정 보고. CC-ECOM-01 결과 비교·모델 선택 의견 정리 수락. |
+| IMG-20261119-PLAN | CC-ECOM-01 | running / admin_rtx_q8_full_benchmark_reported_running | AI 무료 이미지 자동화 개발 플랜 | AdminPC RTX 5080 Q8 첫 장 성공: FLUX 26.1초·Z-Image 18.3초. Codex(Tester) Q8 본시험 진행 확인, 완료 CSV 대기. CC-ECOM-01 결과 비교·모델 선택 정리 수락. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
@@ -499,7 +499,7 @@ Master 마지막 실제 점검: 2026-11-19 11:30:56 KST · 실행 중 점검 주
 | AIF-20261119-W01-READY | CC-SNS-01 | done / v2_storage_signed_browser_read_and_ownership_verified | W01 운영 전 검증 계획과 V2 저장·다운로드 검증 | V2 서명 다운로드·권한 확인 완료. V3 유료 범위 별도, V4 시험 계정 지정 수신 및 실행 조건 미확정. |
 | AIF-20261119-W01-NEXT | CC-SNS-01 | done / dependency_patch_verified_locally_undeployed | AI Influencer Next.js 보안 패치 | 16.4.6 파일 지문과 잠금 범위 대조 완료. 담당 시험 320/320·타입 통과·audit 0. 번들 및 운영 응답 확인은 배포 단계. |
 | AIF-20261119-W01-V4 | CC-SNS-01 | done / finite_member_real_storage_verified_isolated_origin | 일반 회원 한도와 운영 다운로드 선행 검증 | 지정 일반 회원 실제 이용·합성 JPEG 1회 업로드·본인 조회·서명 다운로드 200. 일반 한도 초과·정리·운영 출처는 미검증. |
-| AIF-20261119-W01-V3 | CC-SNS-01 | waiting_human / owner_confirmed_key_changed_registration_pending | AI Influencer 대표 생성 및 보정 검증 | 주인님이 Gemini 키 변경을 원인으로 확인. 새 키를 직접 등록한 뒤 CC-SNS-01이 등록 여부만 확인. 생성 재시험은 기존 한도 소진으로 새 승인 대기. |
+| AIF-20261119-W01-V3 | CC-SNS-01 | waiting_human / key_registration_visible_paid_retest_approval_pending | AI Influencer 대표 생성 및 보정 검증 | 시험 계정 Gemini 키 마스킹 등록 표시 확인. 새 키 저장 시각·유효성 미확인. V3 생성 재시험은 비용 승인 대기, 공급자 호출 없음. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |

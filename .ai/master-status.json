@@ -5862,10 +5862,10 @@
       "reviewer": "CX-MASTER-01",
       "title": "AI Influencer 대표 생성 및 보정 검증",
       "status": "waiting_human",
-      "delivery": "owner_confirmed_key_changed_registration_pending",
-      "evidence": "msg_adecea24720e·msg_6450ddaf24a6·9f1e3697e·msg_640d108b3984·msg_2516c8d780b2·345eb10f8·msg_43f23b594003·msg_b3def667492a·msg_98a00503835e·msg_51f88e4ea1b2·msg_b0363e5b9ba3·msg_fd234e802a57·msg_00d7dcc5a167·msg_f5f7a430a7b1·e5a6dc890·msg_a347af4f72e8·msg_26f84745cf68·msg_21f343488a1b·f73f98778·msg_6d485fa3d150·msg_d678e74285db·a18c18f45·msg_867fcf9c1712·msg_f01e55b27237",
-      "next": "주인님이 Gemini 키 변경을 원인으로 확인. 새 키를 직접 등록한 뒤 CC-SNS-01이 등록 여부만 확인. 생성 재시험은 기존 한도 소진으로 새 승인 대기.",
-      "lastReviewedAt": "2026-11-19T02:39:36.982Z",
+      "delivery": "key_registration_visible_paid_retest_approval_pending",
+      "evidence": "msg_adecea24720e·msg_6450ddaf24a6·9f1e3697e·msg_640d108b3984·msg_2516c8d780b2·345eb10f8·msg_43f23b594003·msg_b3def667492a·msg_98a00503835e·msg_51f88e4ea1b2·msg_b0363e5b9ba3·msg_fd234e802a57·msg_00d7dcc5a167·msg_f5f7a430a7b1·e5a6dc890·msg_a347af4f72e8·msg_26f84745cf68·msg_21f343488a1b·f73f98778·msg_6d485fa3d150·msg_d678e74285db·a18c18f45·msg_867fcf9c1712·msg_f01e55b27237·msg_52b203d7fe0b",
+      "next": "시험 계정 Gemini 키 마스킹 등록 표시 확인. 새 키 저장 시각·유효성 미확인. V3 생성 재시험은 비용 승인 대기, 공급자 호출 없음.",
+      "lastReviewedAt": "2026-11-19T02:44:34.905Z",
       "validation": {
         "result": "두 번째도 INVALID_KEY. 누적 이미지 시도 2회, 결과 0, 참고 업로드 2회, 캡션 0. 과금 미확인.",
         "limitation": "생성/저장 성공, 캡션, 보정 및 히스토리 검증 미완료. 업로드 시험 자산 보존."
@@ -6090,10 +6090,10 @@
       "reviewer": "CX-QA-01",
       "title": "AI 무료 이미지 자동화 개발 플랜",
       "status": "running",
-      "delivery": "admin_rtx_q8_smoke_pass_full_benchmark_dispatched",
-      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기·msg_4423e8b13051·msg_6d81c947bd00·d6f1d0287·00158b7a3·msg_e49f861919f9·msg_25a67c9094a4·msg_11158461bd15·msg_680de25b9e15·98f8dd8bc·68efe5399·msg_fd207f8be38a·msg_5074f8e947cf·msg_254300c4a578·msg_cd4c7a612051·3fbd4b200·Arc CSV 2행 직접 대조·995a92ac-01f9-45e2-a3a4-91a3862df9e3·msg_025a7125b66c·msg_5c32df5c7178·msg_287b5412841b·msg_7492634e4c5a·msg_68e97e7d4656·msg_d36a6a75b50c·msg_9a3bd624f2e1·msg_309652177f5b·중복 msg_5a0e1dee6395 정정 보고",
-      "next": "AdminPC RTX 5080 Q8 첫 장 성공: FLUX 26.1초·Z-Image 18.3초. Codex(Tester) 본시험 결과 대기, 중복 요청은 담당자 정정 보고. CC-ECOM-01 결과 비교·모델 선택 의견 정리 수락.",
-      "lastReviewedAt": "2026-11-19T02:28:57.317Z"
+      "delivery": "admin_rtx_q8_full_benchmark_reported_running",
+      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기·msg_4423e8b13051·msg_6d81c947bd00·d6f1d0287·00158b7a3·msg_e49f861919f9·msg_25a67c9094a4·msg_11158461bd15·msg_680de25b9e15·98f8dd8bc·68efe5399·msg_fd207f8be38a·msg_5074f8e947cf·msg_254300c4a578·msg_cd4c7a612051·3fbd4b200·Arc CSV 2행 직접 대조·995a92ac-01f9-45e2-a3a4-91a3862df9e3·msg_025a7125b66c·msg_5c32df5c7178·msg_287b5412841b·msg_7492634e4c5a·msg_68e97e7d4656·msg_d36a6a75b50c·msg_9a3bd624f2e1·msg_309652177f5b·중복 msg_5a0e1dee6395 정정 보고·11:44 KST Admin Codex 터미널 본시험 진행 확인",
+      "next": "AdminPC RTX 5080 Q8 첫 장 성공: FLUX 26.1초·Z-Image 18.3초. Codex(Tester) Q8 본시험 진행 확인, 완료 CSV 대기. CC-ECOM-01 결과 비교·모델 선택 정리 수락.",
+      "lastReviewedAt": "2026-11-19T02:44:34.905Z"
     },
     {
       "task_id": "ECOM-20261119-EMOTION-QA",
