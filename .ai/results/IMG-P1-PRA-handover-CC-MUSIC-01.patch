@@ -1,0 +1,644 @@
+diff --git a/free-music-studio/engine/src/gateway.mjs b/free-music-studio/engine/src/gateway.mjs
+index fe06e562d..03a580012 100644
+--- a/free-music-studio/engine/src/gateway.mjs
++++ b/free-music-studio/engine/src/gateway.mjs
+@@ -8,7 +8,8 @@ import { browseDir, browseRoots, makeDir } from "./folderBrowse.mjs";
+ import { audioWaveform } from "./waveform.mjs";
+ import { validateMasteringOptions } from "./mastering.mjs";
+ import { EXTEND_SECONDS, prepareExtendSource } from "./ending.mjs";
+-import { cleanArtPrompt, findImageVariant } from "./imageArt.mjs";
++import { cleanArtPrompt, findImageVariant, isImageSize } from "./imageArt.mjs";
++import { createHash } from "node:crypto";
+ import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
+ import { createReadStream } from "node:fs";
+ import { spawn } from "node:child_process";
+@@ -82,20 +83,25 @@ export function createGateway(ctx) {
+   let failures = 0;
+   let lockedUntil = 0;
+   ctx.onPairCode?.(pairCode);
++  // IMG-P1 PR-A: 새 그림 사이트 범위 — ctx.scoped { origins, tokens(createScopedTokens), queue(failClosed 대기열) }가 있을 때만.
++  // 운영 main.mjs는 origins를 비워 두므로(PR-B 전) 이 갈래는 시험에서만 열린다.
++  const scopedOrigins = ctx.scoped?.origins ?? [];
++  const isScopedOrigin = (o) => !!o && scopedOrigins.includes(o);
+ 
+   const json = (res, status, body, origin) => {
+-    res.writeHead(status, { "Content-Type": "application/json; charset=utf-8", ...corsHeaders(origin) });
++    res.writeHead(status, { "Content-Type": "application/json; charset=utf-8", ...corsHeaders(origin, scopedOrigins) });
+     res.end(JSON.stringify(body));
+   };
+ 
+   return http.createServer(async (req, res) => {
+     const origin = req.headers.origin;
+     // 다른 사이트에서 온 요청은 막는다(브라우저 밖 도구는 Origin이 없음 — 상태 확인만 허용).
+-    if (origin && !isAllowedOrigin(origin)) return json(res, 403, { error: "허용되지 않은 사이트입니다." });
++    if (origin && !isAllowedOrigin(origin, scopedOrigins)) return json(res, 403, { error: "허용되지 않은 사이트입니다." });
+     if (req.method === "OPTIONS") {
+-      res.writeHead(204, corsHeaders(origin));
++      res.writeHead(204, corsHeaders(origin, scopedOrigins));
+       return res.end();
+     }
++    const scopedSite = isScopedOrigin(origin);
+ 
+     const url = new URL(req.url ?? "/", "http://127.0.0.1");
+     const key = `${req.method} ${url.pathname}`;
+@@ -118,6 +124,19 @@ export function createGateway(ctx) {
+         return json(res, 401, { error: "연결 코드가 맞지 않습니다. 엔진 창의 6자리 숫자를 확인해 주세요." }, origin);
+       }
+       failures = 0;
++      // 새 그림 사이트: 별도 파일(paired-scoped.json)에 발급 출처·범위와 함께. 같은 출처의 유효한 이전 토큰(prevToken)을
++      // 함께 보내면 범위를 이어받고 이전 토큰은 같은 저장에서 폐기(코드 확인은 위에서 이미 끝남 — 이전 토큰만으로는 못 받음)
++      if (scopedSite) {
++        let issued;
++        try {
++          issued = await ctx.scoped.tokens.issue({ origin, prevToken: typeof body?.prevToken === "string" ? body.prevToken : undefined });
++        } catch (e) {
++          return json(res, e?.status ?? 500, { error: e instanceof Error ? e.message : "연결하지 못했습니다." }, origin);
++        }
++        pairCode = newPairCode();
++        ctx.onPairCode?.(pairCode);
++        return json(res, 200, { token: issued.token, inherited: issued.inherited }, origin);
++      }
+       const token = newToken();
+       ctx.tokens.add(token);
+       await ctx.saveTokens();
+@@ -138,6 +157,16 @@ export function createGateway(ctx) {
+     // 영상 재생(<video>)은 머리글을 못 붙여 주소의 t=토큰도 받는다(GET 파일만, 0.6.9)
+     const fileView = req.method === "GET" && /^\/videos\/[0-9a-f-]{36}\/file$/.test(url.pathname);
+     const token = bearer(req.headers.authorization) ?? (fileView ? url.searchParams.get("t") : null);
++    // 새 그림 사이트는 자기 출처에서 발급한 새 범위 토큰만(기존 토큰은 안 됨, 기록 파일이 깨졌으면 모두 「연결 필요」)
++    if (scopedSite) {
++      const scope = token ? ctx.scoped.tokens.scopeOf(token, origin) : null;
++      if (!scope) return json(res, 401, { error: "PC 연결이 필요합니다.", needPair: true }, origin);
++      if (!imageSiteAllows(req.method, url.pathname)) return json(res, 403, { error: "이 사이트에서는 내 PC 그림 기능만 쓸 수 있습니다." }, origin);
++      if (isImage && url.pathname.startsWith("/image-art/")) return handleScopedArt(req, res, url, origin, ctx, json, scope);
++      if (isImage) return handleImage(req, res, url, origin, ctx, json);
++      if (isQueue) return handleScopedQueue(req, res, url, origin, ctx, json, scope);
++      return json(res, 404, { error: "없는 주소입니다." }, origin);
++    }
+     if (!token || ![...ctx.tokens].some((t) => sameSecret(t, token))) {
+       return json(res, 401, { error: "PC 연결이 필요합니다.", needPair: true }, origin);
+     }
+@@ -547,6 +576,74 @@ const QUEUE_KINDS = new Set(["text2music", "cover", "repaint", "master", "stems"
+  *  GET    /image-art/<작업 번호>        → 그린 PNG(하루 보관)
+  *  POST   /image-models/folder        { path, mode: "move"|"fresh" } → 그림 모델만 다른 폴더로(0.7.1, 뒤에서 옮김 — GET의 moving)
+  */
++// ── IMG-P1 PR-A 새 그림 사이트 범위 ─────────────────────────────
++const CLIENT_REQUEST_ID = /^[A-Za-z0-9-]{8,64}$/;
++/** 이 범위의 작업인지 — 남의 범위·기존 범위 작업은 「없는 작업」으로 답해 있는지도 알리지 않는다 */
++const ownedBy = (origin, scope) => (j) => !!j && j.site === origin && j.scope === scope;
++
++/** GET /image-art/<번호> — 자기 범위 작업의 결과만, results-scoped 폴더에서 */
++async function handleScopedArt(req, res, url, origin, ctx, json, scope) {
++  const id = decodeURIComponent(url.pathname.split("/").filter(Boolean)[1] || "");
++  if (req.method !== "GET" || !/^[0-9a-f-]{36}$/.test(id)) return json(res, 404, { error: "없는 주소입니다." }, origin);
++  if (!ownedBy(origin, scope)(ctx.scoped.queue.get(id))) return json(res, 404, { error: "그린 그림이 없습니다." }, origin);
++  const buf = await readFile(ctx.imageArt.resultFile(id, true)).catch(() => null);
++  if (!buf) return json(res, 404, { error: "그린 그림이 없습니다(하루 지나면 지워집니다)." }, origin);
++  res.writeHead(200, { ...corsHeaders(origin, ctx.scoped.origins), "content-type": "image/png", "content-length": buf.length, "cache-control": "no-store" });
++  return res.end(buf);
++}
++
++/**
++ * 새 그림 사이트의 대기열(별도 파일 queue-scoped.json)
++ *  GET    /queue                → 자기 범위 작업만
++ *  POST   /queue                { kind:"art", title, track, clientRequestId, task:{ prompt, variantId?, width?, height?, seed? } }
++ *                                 → 같은 범위·같은 접수 번호·같은 내용이면 기존 작업, 내용이 다르면 409
++ *  POST   /queue/<번호>/cancel   · DELETE /queue/<번호> → 자기 범위 작업만, 아니면 404
++ */
++async function handleScopedQueue(req, res, url, origin, ctx, json, scope) {
++  const q = ctx.scoped.queue;
++  if (q.broken) return json(res, 503, { error: `작업 기록 파일을 읽지 못해 이 사이트의 작업을 멈췄습니다(${q.broken}). 엔진 창을 확인해 주세요.` }, origin);
++  const own = ownedBy(origin, scope);
++  const parts = url.pathname.split("/").filter(Boolean);
++  try {
++    if (req.method === "GET" && parts.length === 1) return json(res, 200, { jobs: q.list(own) }, origin);
++    if (req.method === "POST" && parts.length === 1) {
++      const body = await readSmall(req, 256 * 1024).catch(() => null);
++      const meta = parseQueueMeta(body);
++      if (!meta || meta.kind !== "art" || !body.task || typeof body.task !== "object") return json(res, 400, { error: "그림 작업 내용이 올바르지 않습니다." }, origin);
++      if (!ctx.imageArt) return json(res, 501, { error: "이 엔진은 내 PC 그림을 그릴 수 없습니다." }, origin);
++      const clientRequestId = body.clientRequestId;
++      if (typeof clientRequestId !== "string" || !CLIENT_REQUEST_ID.test(clientRequestId)) return json(res, 400, { error: "접수 번호가 올바르지 않습니다." }, origin);
++      let prompt;
++      try {
++        prompt = cleanArtPrompt(body.task.prompt);
++      } catch (e) {
++        return json(res, 400, { error: e.message }, origin);
++      }
++      const variantId = typeof body.task.variantId === "string" && findImageVariant(body.task.variantId) ? body.task.variantId : undefined;
++      const { width, height, seed } = body.task;
++      const sized = width !== undefined || height !== undefined;
++      if (sized && !(Number.isInteger(width) && Number.isInteger(height) && isImageSize(width, height))) return json(res, 400, { error: "그릴 수 없는 크기입니다(1024×1024 · 1280×720 · 720×1280)." }, origin);
++      if (seed !== undefined && !(Number.isInteger(seed) && seed >= 0 && seed <= 2147483647)) return json(res, 400, { error: "시드 값이 올바르지 않습니다." }, origin);
++      const task = { prompt, variantId, ...(sized ? { width, height } : {}), ...(seed !== undefined ? { seed } : {}) };
++      // 같은 접수 번호가 다른 내용으로 오면 막기 위한 요약(모델 판·설명·크기·시드)
++      const digest = createHash("sha256").update(JSON.stringify([variantId ?? null, prompt, width ?? null, height ?? null, seed ?? null])).digest("hex");
++      return json(res, 200, { job: await q.add({ ...meta, task, engine: "art", license: "commercial", site: origin, scope, clientRequestId, digest }) }, origin);
++    }
++    const job = parts[1] ? q.get(parts[1]) : null;
++    if (!own(job)) return json(res, 404, { error: "그 작업을 찾지 못했습니다." }, origin);
++    if (req.method === "POST" && parts[2] === "cancel" && parts.length === 3) {
++      await q.cancel(job.id);
++      return json(res, 200, { ok: true }, origin);
++    }
++    if (req.method === "DELETE" && parts.length === 2) {
++      return (await q.dismiss(job.id)) ? json(res, 200, { ok: true }, origin) : json(res, 400, { error: "끝난 작업만 지울 수 있습니다." }, origin);
++    }
++    return json(res, 404, { error: "없는 주소입니다." }, origin);
++  } catch (e) {
++    return json(res, e?.status ?? 400, { error: e instanceof Error ? e.message : "작업 요청을 처리하지 못했습니다." }, origin);
++  }
++}
++
+ async function handleImage(req, res, url, origin, ctx, json) {
+   const parts = url.pathname.split("/").filter(Boolean);
+   const id = decodeURIComponent(parts[1] || "");
+@@ -569,7 +666,8 @@ async function handleImage(req, res, url, origin, ctx, json) {
+         return json(res, 200, { ok: true }, origin);
+       }
+       if (req.method === "DELETE" && parts.length === 2) {
+-        if (ctx.queue?.list().some((j) => j.kind === "art" && (j.status === "queued" || j.status === "running"))) return json(res, 409, { error: "그림 작업이 끝난 뒤에 지울 수 있습니다." }, origin);
++        const artBusy = (q) => !!q?.list().some((j) => j.kind === "art" && (j.status === "queued" || j.status === "running"));
++        if (artBusy(ctx.queue) || artBusy(ctx.scoped?.queue)) return json(res, 409, { error: "그림 작업이 끝난 뒤에 지울 수 있습니다." }, origin);
+         return (await ctx.imageArt.remove(id)) ? json(res, 200, { ok: true }, origin) : json(res, 404, { error: "없는 그림 모델입니다." }, origin);
+       }
+     }
+diff --git a/free-music-studio/engine/src/imageArt.mjs b/free-music-studio/engine/src/imageArt.mjs
+index f199212b5..712be9ade 100644
+--- a/free-music-studio/engine/src/imageArt.mjs
++++ b/free-music-studio/engine/src/imageArt.mjs
+@@ -199,6 +199,21 @@ export function imageFailMessage(code, tail, quant = "") {
+   return `그림 엔진이 실패했습니다(코드 ${code}). ${tail.split(/\r?\n/).filter(Boolean).slice(-2).join(" ")}`.trim();
+ }
+ 
++/** 그릴 수 있는 크기(IMG-P1 PR-A) — 이 목록 밖은 접수에서 거절한다. 첫 값이 기본(기존 앨범 그림·이미지 자동화) */
++export const IMAGE_SIZES = Object.freeze([
++  Object.freeze({ width: 1024, height: 1024 }),
++  Object.freeze({ width: 1280, height: 720 }),
++  Object.freeze({ width: 720, height: 1280 }),
++]);
++/** 허용 크기인지 */
++export const isImageSize = (width, height) => IMAGE_SIZES.some((s) => s.width === width && s.height === height);
++/** 실행에 쓸 크기 — task에 허용 크기가 있으면 그 값, 없거나 목록 밖이면 기본 1024×1024(값을 안 보내는 기존 호출은 예전과 같은 인자) */
++export function imageRenderSize(task) {
++  const w = task?.width;
++  const h = task?.height;
++  return Number.isInteger(w) && Number.isInteger(h) && isImageSize(w, h) ? { width: w, height: h } : { width: 1024, height: 1024 };
++}
++
+ /** PNG 머리·크기 확인(원본 validatePng 대신 간단히) */
+ export function checkPng(buf) {
+   const sig = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+@@ -289,7 +304,8 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
+   const defaultRoot = () => path.join(dataDir(), "engines", "image-sdcpp");
+   const paths = () => {
+     const root = getCustomDir() || defaultRoot();
+-    return { root, runtime: path.join(root, "runtime"), receipt: path.join(root, "install-state.json"), models: path.join(root, "models"), downloads: path.join(root, "downloads"), results: path.join(root, "results") };
++    // resultsScoped(IMG-P1 PR-A): 새 그림 사이트 범위의 결과는 기존 results와 나눠 둔다(이전 엔진·기존 사이트가 보지 않게)
++    return { root, runtime: path.join(root, "runtime"), receipt: path.join(root, "install-state.json"), models: path.join(root, "models"), downloads: path.join(root, "downloads"), results: path.join(root, "results"), resultsScoped: path.join(root, "results-scoped") };
+   };
+   const modelFile = (f) => path.join(paths().models, f.folder, f.filename);
+   const readReceipt = async () => {
+@@ -436,8 +452,7 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
+   }
+ 
+   /** 하루 지난 결과 그림 정리 */
+-  async function sweep() {
+-    const dir = paths().results;
++  async function sweep(dir = paths().results) {
+     for (const n of await readdir(dir).catch(() => [])) {
+       const f = path.join(dir, n);
+       const s = await stat(f).catch(() => null);
+@@ -445,7 +460,8 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
+     }
+   }
+ 
+-  const resultFile = (jobId) => path.join(paths().results, `${String(jobId).replace(/[^0-9a-f-]/gi, "")}.png`);
++  /** 결과 PNG 경로 — scoped(새 그림 사이트 범위)면 results-scoped 폴더 */
++  const resultFile = (jobId, scoped = false) => path.join(scoped ? paths().resultsScoped : paths().results, `${String(jobId).replace(/[^0-9a-f-]/gi, "")}.png`);
+ 
+   /**
+    * 대기열 작업 실행 — job.task { prompt(영어), variantId? }. 처음이면 엔진·모델을 받는다. 결과는 results/<작업 번호>.png
+@@ -497,10 +513,12 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
+     await mkdir(scratch, { recursive: true });
+     const [diffusion, vae, llm] = v.files.map((f) => `${f.folder}/${f.filename}`);
+     const seed = Number.isInteger(job.task?.seed) ? job.task.seed : Math.floor(Math.random() * 2147483647);
+-    const args = ["--diffusion-model", diffusion, "--vae", vae, "--llm", llm, "-p", prompt, "--cfg-scale", String(v.cfgScale), "--steps", String(v.steps), "-W", "1024", "-H", "1024", "--offload-to-cpu", "--diffusion-fa", "-s", String(seed), "-o", `.render/${name}`];
++    const size = imageRenderSize(job.task);
++    const scoped = !!job.site; // 새 그림 사이트 범위 작업이면 결과를 results-scoped에
++    const args = ["--diffusion-model", diffusion, "--vae", vae, "--llm", llm, "-p", prompt, "--cfg-scale", String(v.cfgScale), "--steps", String(v.steps), "-W", String(size.width), "-H", String(size.height), "--offload-to-cpu", "--diffusion-fa", "-s", String(seed), "-o", `.render/${name}`];
+     const quietMs = cpu ? 30 * 60000 : 5 * 60000; // 멈춘 실행이 그래픽카드를 붙잡지 않게(CPU는 단계가 느림)
+     const started = Date.now();
+-    log(`🖼 내 PC 그림: ${v.familyName} ${v.quant} 1024×1024`);
++    log(`🖼 내 PC 그림: ${v.familyName} ${v.quant} ${size.width}×${size.height}`);
+     stage("그림 모델 불러오는 중");
+     // 그래픽 메모리 최대 사용량(B-3) — NVIDIA 그래픽카드로 그릴 때만
+     const vram = !cpu && String((await readReceipt()).engine?.build ?? "").includes("cuda") ? watchVram(execFileImpl) : null;
+@@ -553,9 +571,10 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
+     try {
+       const buf = await readFile(rendered);
+       const { width } = checkPng(buf);
+-      await mkdir(p.results, { recursive: true });
+-      await sweep();
+-      await writeFile(resultFile(job.id), buf);
++      const outDir = scoped ? p.resultsScoped : p.results;
++      await mkdir(outDir, { recursive: true });
++      await sweep(outDir);
++      await writeFile(resultFile(job.id, scoped), buf);
+       const seconds = Math.round((Date.now() - started) / 100) / 10;
+       const vramPeakGb = vram ? await vram.stop() : null;
+       log(`🖼 내 PC 그림 완료: ${seconds}초 (${width}px)${vramPeakGb != null ? ` · 그래픽 메모리 최대 ${vramPeakGb}GB` : ""}`);
+diff --git a/free-music-studio/engine/src/main.mjs b/free-music-studio/engine/src/main.mjs
+index 2bcc2d0ba..571705867 100644
+--- a/free-music-studio/engine/src/main.mjs
++++ b/free-music-studio/engine/src/main.mjs
+@@ -15,7 +15,7 @@ import { checkItems, chooseDevice, qualityOptions, qualityProfile } from "./devi
+ import { inspectSystem, listInstalledModels } from "./system.mjs";
+ import { createGateway, GATEWAY_PORT } from "./gateway.mjs";
+ import { createLibrary } from "./library.mjs";
+-import { createQueue } from "./queue.mjs";
++import { createQueue, sharedTurn } from "./queue.mjs";
+ import { createRunner } from "./runner.mjs";
+ import { masterFile } from "./mastering.mjs";
+ import { FADE_SECONDS, smoothEnding } from "./ending.mjs";
+@@ -23,7 +23,7 @@ import { createVideoStudio } from "./video.mjs";
+ import { createStems, stemDevice } from "./stems.mjs";
+ import { createImageArt, defaultImageDir, settleImageDir } from "./imageArt.mjs";
+ import { createLyricAligner } from "./lyricAlign.mjs";
+-import { newToken } from "./security.mjs";
++import { createScopedTokens, newToken, SCOPED_SITE_ORIGINS } from "./security.mjs";
+ import { ensureTools, useTools } from "./tools.mjs";
+ import { runYue2, yue2Installed, yue2MissingBytes, yue2Paths, yue2Support, YUE2_LICENSE } from "./yue2.mjs";
+ import { pyCatalog, pyEngine, pyErrorCause, pyInstalled, pyMissingGb, pyPaths, pySupport, removePyEngine, runPyEngine } from "./pyengines.mjs";
+@@ -128,6 +128,9 @@ try {
+   tokens = new Set(JSON.parse(await readFile(tokensFile, "utf8")).tokens ?? []);
+ } catch {}
+ const saveTokens = () => writeFile(tokensFile, JSON.stringify({ tokens: [...tokens] }, null, 2));
++// IMG-P1 PR-A: 새 그림 사이트 범위 토큰은 paired.json과 따로(paired-scoped.json). 깨졌으면 그 범위만 닫는다(기존 연결은 그대로)
++const scopedTokens = createScopedTokens({ file: path.join(dataDir, "paired-scoped.json") });
++await scopedTokens.load();
+ 
+ const acestepKey = newToken(); // 실행할 때마다 새로 — 연결 문만 안다
+ const library = createLibrary(dataDir);
+@@ -198,7 +201,7 @@ async function exclusiveRun(name, logFile, label, stage, fn) {
+   } finally {
+     log.end();
+     yue2Running = false;
+-    const next = queue.list().find((j) => j.status === "queued");
++    const next = allJobs().filter((j) => j.status === "queued").sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))[0];
+     if (!next || next.engine === "acestep") resumeAce();
+   }
+ }
+@@ -214,8 +217,10 @@ function resumeAce() {
+ }
+ 
+ // ── 저장 공간(0.5.0) ─────────────────────────────────────
+-const activeJobs = () => queue.list().filter((j) => j.status === "queued" || j.status === "running");
+-const isWorking = () => moving || restarting || aceStarting || yue2Running || queue.list().some((j) => j.status === "running");
++// IMG-P1 PR-A: 「작업 중」 판단은 기존 대기열과 새 그림 사이트 대기열을 합쳐서(그래픽카드·폴더는 하나)
++const allJobs = () => [...queue.list(), ...scopedQueue.list()];
++const activeJobs = () => allJobs().filter((j) => j.status === "queued" || j.status === "running");
++const isWorking = () => moving || restarting || aceStarting || yue2Running || queue.running() || scopedQueue.running();
+ 
+ /** 항목 목록(크기 포함) — GET /storage */
+ async function storageItemsNow() {
+@@ -283,7 +288,7 @@ async function removeStorageItem(id) {
+ async function moveModels(target, mode) {
+   if (moving) return { ok: false, status: 409, error: "이미 옮기는 중입니다." };
+   if (restarting || aceStarting) return { ok: false, status: 409, error: "엔진을 켜거나 구성을 바꾸는 중입니다. 잠시 뒤 다시 시도해 주세요." };
+-  if (yue2Running || queue.list().some((j) => j.status === "running")) return { ok: false, status: 409, error: "곡을 만드는 중입니다. 끝난 뒤 바꿔 주세요." };
++  if (yue2Running || queue.running() || scopedQueue.running()) return { ok: false, status: 409, error: "곡을 만드는 중입니다. 끝난 뒤 바꿔 주세요." };
+   if (mode !== "move" && mode !== "fresh") return { ok: false, status: 400, error: "옮기기 방식이 올바르지 않습니다." };
+   if (process.env.FMS_ACESTEP_DIR) return { ok: false, status: 400, error: "시험용 설정(FMS_ACESTEP_DIR)으로 켠 엔진은 모델 폴더를 바꿀 수 없습니다." };
+   const t = checkTarget(target, { current: heavyDir });
+@@ -409,7 +414,7 @@ const moveImageModels = (target, mode) =>
+       await saveEngineSettings({ imageDir: dir });
+       imageDir = dir;
+     },
+-    busy: () => queue.list().some((j) => j.kind === "art" && (j.status === "queued" || j.status === "running")),
++    busy: () => allJobs().some((j) => j.kind === "art" && (j.status === "queued" || j.status === "running")),
+     forbid: HEAVY_ENTRIES.filter((e) => e !== "engines").map((e) => path.join(heavyDir, e)).concat(path.join(heavyDir, "engines")),
+   });
+ async function artRun(job, signal, stage) {
+@@ -424,6 +429,7 @@ const queue = createQueue({
+     job.kind === "art" ? artRun(job, signal, stage) : job.kind === "stems" || job.kind === "align" ? stemsRun(job, signal, stage) : job.kind === "master" ? masterRun(job, signal, stage) : job.engine === "yue2" ? yue2Run(job, signal, stage) : job.engine === "acestep" || !job.engine ? aceRun(job, signal, stage) : pyRun(job, signal, stage),
+   // ACE-Step 작업은 ACE-Step이 준비돼야, 다른 엔진 작업은 ACE-Step을 켜거나 구성을 바꾸는 중이 아니면 된다
+   canRun: (job) => {
++    if (!sharedTurn(job, scopedQueue)) return false; // IMG-P1 PR-A: 새 그림 사이트 대기열과 합쳐 접수 순 한 번에 하나
+     if (job.engine && job.engine !== "acestep") return !restarting && !aceStarting;
+     if (yue2Pausing) resumeAce(); // 뒤에 있던 YuE2 작업이 취소돼 ACE-Step이 멈춘 채 남은 경우
+     return state.ready && !restarting && !yue2Pausing;
+@@ -433,12 +439,28 @@ const queue = createQueue({
+     if (job.status === "cancelled" && job.source) await rm(path.join(queueSourceDir, job.source.file), { force: true });
+     logLine(`🎵 대기열: ${job.title} — ${job.stage}${job.error ? ` (${job.error})` : ""}`);
+     if (job.status === "failed") logLine(`   자세한 이유는 음악 엔진 기록 파일에 있습니다: ${aceLogFile}`);
++    void scopedQueue.pump(); // 기다리던 새 그림 사이트 작업 차례
+   },
+   // 오래돼 정리한 작업(0.6.9: 30일·100개)의 원곡 사본도 지운다
+   onDrop: (job) => (job.source?.file ? rm(path.join(queueSourceDir, path.basename(job.source.file)), { force: true }) : undefined),
+   log: (e) => logLine(`⚠ 대기열 오류: ${e instanceof Error ? e.message : e}`),
+ });
++// IMG-P1 PR-A: 새 그림 사이트 범위 대기열 — 기존 queue.json과 따로(queue-scoped.json), 그림 작업만, 파일이 깨졌으면 닫는다
++const scopedQueue = createQueue({
++  file: path.join(dataDir, "queue-scoped.json"),
++  failClosed: true,
++  run: (job, signal, stage) => artRun(job, signal, stage),
++  canRun: (job) => sharedTurn(job, queue) && !restarting && !aceStarting,
++  onFinished: (job) => {
++    logLine(`🖼 그림 대기열: ${job.title} — ${job.stage}${job.error ? ` (${job.error})` : ""}`);
++    void queue.pump(); // 기다리던 기존 대기열 작업 차례
++  },
++  log: (e) => logLine(`⚠ 그림 대기열 오류: ${e instanceof Error ? e.message : e}`),
++});
+ await queue.load();
++await scopedQueue.load();
++if (scopedTokens.broken) logLine(`⚠ 새 그림 사이트 연결 기록(paired-scoped.json)을 읽지 못해 그 사이트 연결을 멈췄습니다(${scopedTokens.broken}). 파일은 그대로 두었습니다.`);
++if (scopedQueue.broken) logLine(`⚠ 새 그림 사이트 작업 기록(queue-scoped.json)을 읽지 못해 그 작업을 멈췄습니다(${scopedQueue.broken}). 파일은 그대로 두었습니다.`);
+ // 플레이리스트 영상(0.6.9) — 화면이 그린 H.264 조각을 받아 ffmpeg로 담는다(그래픽카드 음악 작업과 따로)
+ const video = createVideoStudio({ dataDir, library, getFfmpeg: () => ffmpeg, log: logLine });
+ let gatewayOpen = false;
+@@ -477,6 +499,8 @@ const gateway = createGateway({
+   storage: { report: storageReport, remove: removeStorageItem, move: moveModels },
+   tokens,
+   saveTokens,
++  // IMG-P1 PR-A: 새 그림 사이트 범위 — 운영 출처 목록(SCOPED_SITE_ORIGINS)은 PR-B 전까지 비어 있어 이 갈래는 열리지 않는다
++  scoped: { origins: SCOPED_SITE_ORIGINS, tokens: scopedTokens, queue: scopedQueue },
+   acestepPort: ACESTEP_PORT,
+   acestepKey,
+   // 연결 문이 열린 뒤에만 코드를 보인다(이미 켜진 엔진이 있어 실패하면 쓸 수 없는 코드가 먼저 찍혀 헷갈렸음 — 2026-11-04 마스터PC)
+@@ -540,6 +564,7 @@ async function startMusicEngine() {
+   } finally {
+     aceStarting = false;
+     void queue.pump(); // 기다리던 작업이 있으면 이어서 만든다(실패했어도 YuE2 작업은 돌 수 있다)
++    void scopedQueue.pump();
+   }
+ }
+ 
+diff --git a/free-music-studio/engine/src/queue.mjs b/free-music-studio/engine/src/queue.mjs
+index 6680e9252..64008045a 100644
+--- a/free-music-studio/engine/src/queue.mjs
++++ b/free-music-studio/engine/src/queue.mjs
+@@ -19,24 +19,56 @@ export function publicJob(j) {
+   return rest;
+ }
+ 
++/** 같은 범위·같은 접수 ID인데 요청 내용이 다를 때(IMG-P1 PR-A) — 연결 문이 409로 답한다 */
++export class QueueConflictError extends Error {
++  constructor() {
++    super("같은 접수 번호로 다른 내용을 보냈습니다. 새 접수 번호로 다시 보내 주세요.");
++    this.status = 409;
++  }
++}
++/** 대기열 파일이 깨져 이 대기열을 닫았을 때(failClosed) */
++export class QueueClosedError extends Error {
++  constructor(reason) {
++    super(`작업 기록 파일을 읽지 못해 이 작업 목록을 멈췄습니다(${reason}). 파일은 그대로 두었습니다.`);
++    this.status = 503;
++  }
++}
++
++/**
++ * 두 대기열을 합쳐 한 번에 한 작업만(IMG-P1 PR-A) — 상대 대기열이 만드는 중이 아니고, 이 작업이 상대 맨 앞 대기 작업보다
++ * 먼저 접수됐을 때만 차례다(접수 시각 순). canRun 안에서 부르고, 각 대기열의 onFinished에서 상대 pump()를 다시 부른다.
++ * pump는 「확인 → running 표시」 사이에 await가 없어 두 대기열이 동시에 시작하지 않는다.
++ */
++export function sharedTurn(job, other) {
++  return !other.running() && Date.parse(job.createdAt) <= other.headQueuedAt();
++}
++
+ /**
+  * @param {{ file: string, run: (job: object, signal: AbortSignal, stage: (s: string) => void) => Promise<object>,
+- *           canRun?: (job: object) => boolean, onFinished?: (job: object) => Promise<void> | void, log?: (e: unknown) => void }} opts
++ *           canRun?: (job: object) => boolean, onFinished?: (job: object) => Promise<void> | void, log?: (e: unknown) => void,
++ *           failClosed?: boolean }} opts
++ * failClosed(IMG-P1 PR-A, 새 그림 사이트 범위 전용): 파일이 있는데 읽지 못하면 원본을 덮어쓰지 않고 이 대기열을 닫는다
++ * (목록·넣기·실행 모두 거절). 없으면 빈 대기열. 기존 queue.json은 이 옵션 없이 예전 동작 그대로.
+  */
+-export function createQueue({ file, run, canRun = () => true, onFinished = () => {}, onDrop = () => {}, log = () => {}, now = Date.now }) {
++export function createQueue({ file, run, canRun = () => true, onFinished = () => {}, onDrop = () => {}, log = () => {}, now = Date.now, failClosed = false }) {
+   let jobs = [];
+   let working = false;
+   let controller = null;
++  let broken = "";
+ 
+   // 저장은 한 번에 하나씩 — 넣기와 처리가 같은 임시 파일에 동시에 쓰면 윈도우에서 이름 바꾸기가 부딪혀 실패했다(2026-11-04 시험에서 가끔 재현)
+   let saving = Promise.resolve();
+   const saveNow = async () => {
++    if (broken) return; // 닫힌 대기열은 깨진 원본을 덮어쓰지 않는다
+     await mkdir(path.dirname(file), { recursive: true });
+     const tmp = `${file}.tmp`;
+     await writeFile(tmp, JSON.stringify({ jobs }, null, 2));
+     await rename(tmp, file);
+   };
+   const save = () => (saving = saving.catch(() => {}).then(saveNow));
++  const assertOpen = () => {
++    if (broken) throw new QueueClosedError(broken);
++  };
+ 
+   // 끝난 작업은 100개까지, 그리고 끝난 지 30일 지난 기록은 지운다(0.6.9, 원본 boks-music `store.mjs pruneJobs` 규칙, MIT).
+   // 사이트에 아직 기록하지 않은 완성 작업은 남긴다. 지운 작업의 원곡 사본은 onDrop으로 부르는 쪽이 지운다.
+@@ -52,11 +84,24 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
+   const q = {
+     /** 저장된 대기열 읽기 — 진행 중이던 작업은 엔진이 꺼져 끊긴 것이므로 「중단됨」 */
+     async load() {
++      let text = null;
++      try {
++        text = await readFile(file, "utf8");
++      } catch (e) {
++        // 파일이 없으면 빈 대기열. 그 밖의 읽기 실패는 failClosed일 때 닫는다
++        if (failClosed && e?.code !== "ENOENT") broken = "읽기 실패";
++      }
+       try {
+-        const data = JSON.parse(await readFile(file, "utf8"));
+-        jobs = Array.isArray(data?.jobs) ? data.jobs : [];
++        const data = text == null ? { jobs: [] } : JSON.parse(text);
++        if (!Array.isArray(data?.jobs)) throw new Error("jobs 없음");
++        jobs = data.jobs;
+       } catch {
+         jobs = [];
++        if (failClosed) broken = broken || "내용이 올바르지 않음";
++      }
++      if (broken) {
++        log(new QueueClosedError(broken));
++        return;
+       }
+       for (const j of jobs) {
+         if (j.status === "running") Object.assign(j, { status: "interrupted", stage: STATUS_LABEL.interrupted, finishedAt: new Date().toISOString() });
+@@ -65,16 +110,47 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
+       await save();
+     },
+ 
+-    list() {
+-      return jobs.map(publicJob);
++    /** 이 대기열이 닫혔으면 그 이유(failClosed), 아니면 "" */
++    get broken() {
++      return broken;
++    },
++
++    /** 목록 — keep을 주면 그 조건에 맞는 작업만(새 그림 사이트 범위 거르기). 닫힌 대기열은 빈 목록 */
++    list(keep) {
++      if (broken) return [];
++      return (keep ? jobs.filter(keep) : jobs).map(publicJob);
+     },
+ 
+     get(id) {
++      if (broken) return null;
+       return jobs.find((j) => j.id === id) ?? null;
+     },
+ 
++    /** 만드는 중인 작업이 있는지(두 대기열을 합쳐 한 번에 하나만 돌릴 때 상대가 본다) */
++    running() {
++      return jobs.some((j) => j.status === "running");
++    },
++
++    /** 맨 앞 대기 작업의 접수 시각(ms), 없으면 Infinity — 두 대기열의 차례(접수 시각 순) */
++    headQueuedAt() {
++      if (broken) return Infinity;
++      const j = jobs.find((x) => x.status === "queued");
++      return j ? Date.parse(j.createdAt) : Infinity;
++    },
++
+     /** 작업 하나 넣기. request: { kind, title, track, task?(JSON 본문) | fields?+source?(커버·부분 수정) } */
++    // IMG-P1 PR-A(새 그림 사이트만): site·scope·clientRequestId·digest가 오면 작업에 적고, 같은 site·scope·접수 ID가
++    // 기록에 남아 있으면 새로 넣지 않는다 — 내용 요약(digest)이 같으면 그 작업을, 다르면 QueueConflictError(409).
++    // 확인부터 jobs.push까지 await가 없어 동시에 여러 번 와도 작업은 하나만 생긴다.
+     async add(request) {
++      assertOpen();
++      if (request.clientRequestId) {
++        const same = jobs.find((j) => j.clientRequestId === request.clientRequestId && j.site === request.site && j.scope === request.scope);
++        if (same) {
++          if (same.digest !== request.digest) throw new QueueConflictError();
++          return publicJob(same);
++        }
++      }
+       if (jobs.filter((j) => j.status === "queued" || j.status === "running").length >= MAX_QUEUED) {
+         throw new Error(`대기열에는 ${MAX_QUEUED}개까지 넣을 수 있습니다. 앞의 작업이 끝난 뒤 넣어 주세요.`);
+       }
+@@ -89,6 +165,8 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
+         ...(request.task ? { task: request.task } : {}),
+         ...(request.fields ? { fields: request.fields } : {}),
+         ...(request.source ? { source: request.source } : {}),
++        ...(request.site ? { site: request.site, scope: request.scope } : {}),
++        ...(request.clientRequestId ? { clientRequestId: request.clientRequestId, digest: request.digest } : {}),
+         status: "queued",
+         stage: STATUS_LABEL.queued,
+         createdAt: new Date().toISOString(),
+@@ -145,7 +223,7 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
+ 
+     /** 대기 중인 작업을 차례로 처리한다. 음악 엔진이 준비되지 않았으면 기다린다(준비되면 다시 부른다). */
+     async pump() {
+-      if (working) return;
++      if (working || broken) return;
+       working = true;
+       try {
+         // 차례는 넣은 순서 그대로 — 맨 앞 작업을 지금 만들 수 없으면(예: 음악 엔진 준비 중) 기다린다
+diff --git a/free-music-studio/engine/src/security.mjs b/free-music-studio/engine/src/security.mjs
+index 2f8886120..52bae8cb2 100644
+--- a/free-music-studio/engine/src/security.mjs
++++ b/free-music-studio/engine/src/security.mjs
+@@ -1,9 +1,14 @@
+ // 연결 문 보안 — 우리 사이트에서 온 요청만 받고, 짝짓기로 받은 토큰이 있어야 생성을 맡긴다.
+-import { randomBytes, randomInt, timingSafeEqual } from "node:crypto";
++import { randomBytes, randomInt, randomUUID, timingSafeEqual } from "node:crypto";
++import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
++import path from "node:path";
+ 
+ // 엔진 0.8.1(D-3, 2026-11-09 주인님 「1안으로 진행해」): 이미지 자동화도 같은 엔진의 내 PC 그림을 쓴다 — 그림 주소만(imageSiteAllows)
+ export const IMAGE_SITE = "https://ai-image-studio.buylife.xyz";
+ export const SITE_ORIGINS = ["https://free-music-studio.buylife.xyz", IMAGE_SITE];
++// IMG-P1 PR-A(2026-11-19): 새 그림 사이트 범위(토큰·대기열·결과를 기존과 나눠 저장)의 출처. 운영 등록은 PR-B에서 —
++// 지금은 비워 두고 시험에서만 연결 문에 출처를 넣어 확인한다(새 출처를 단독으로 먼저 열지 않는다).
++export const SCOPED_SITE_ORIGINS = Object.freeze([]);
+ 
+ const ART = /^\/image-art\/[0-9a-f-]{36}$/;
+ const CANCEL = /^\/queue\/[0-9a-f-]{36}\/cancel$/;
+@@ -19,13 +24,14 @@ export function imageSiteAllows(method, pathname) {
+ // 개발 중 내 PC에서 띄운 웹(next dev)도 허용
+ const DEV_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1):\d{2,5}$/;
+ 
+-export function isAllowedOrigin(origin) {
++/** extra: 새 그림 사이트 범위 출처(연결 문이 넘김) — 기존 두 사이트·개발 주소 판정은 그대로 */
++export function isAllowedOrigin(origin, extra = SCOPED_SITE_ORIGINS) {
+   if (!origin) return false;
+-  return SITE_ORIGINS.includes(origin) || DEV_ORIGIN.test(origin);
++  return SITE_ORIGINS.includes(origin) || DEV_ORIGIN.test(origin) || extra.includes(origin);
+ }
+ 
+-export function corsHeaders(origin) {
+-  if (!isAllowedOrigin(origin)) return {};
++export function corsHeaders(origin, extra = SCOPED_SITE_ORIGINS) {
++  if (!isAllowedOrigin(origin, extra)) return {};
+   return {
+     "Access-Control-Allow-Origin": origin,
+     "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+@@ -53,3 +59,70 @@ export function bearer(header) {
+   const m = /^Bearer\s+(\S+)$/i.exec(header ?? "");
+   return m ? m[1] : null;
+ }
++
++/**
++ * 새 그림 사이트 범위 토큰(IMG-P1 PR-A) — 기존 paired.json과 따로 둔 파일(paired-scoped.json)에만 저장.
++ * 토큰마다 발급 출처(origin)와 범위 번호(scope)를 적고, 발급 출처에서만 통한다. 이전 엔진은 이 파일을 읽지 않는다.
++ * 파일이 있는데 읽지 못하면 닫힌다(broken): 어떤 토큰도 통하지 않고 새로 발급하지 않으며 원본을 덮어쓰지 않는다.
++ */
++export function createScopedTokens({ file, readFileImpl = readFile, writeFileImpl = writeFile, renameImpl = rename, mkdirImpl = mkdir } = {}) {
++  let entries = [];
++  let broken = "";
++  let saving = Promise.resolve();
++  const saveNow = async (list) => {
++    await mkdirImpl(path.dirname(file), { recursive: true });
++    const tmp = `${file}.tmp`;
++    await writeFileImpl(tmp, JSON.stringify({ version: 1, tokens: list }, null, 2));
++    await renameImpl(tmp, file); // 새 토큰 기록과 이전 토큰 폐기를 한 번에(이름 바꾸기 한 번)
++  };
++  const find = (token, origin) => (typeof token === "string" && origin ? entries.find((e) => e.origin === origin && sameSecret(e.token, token)) ?? null : null);
++  return {
++    async load() {
++      let text = null;
++      try {
++        text = await readFileImpl(file, "utf8");
++      } catch (e) {
++        if (e?.code !== "ENOENT") broken = "읽기 실패";
++      }
++      if (broken || text == null) return;
++      try {
++        const data = JSON.parse(text);
++        if (!Array.isArray(data?.tokens) || !data.tokens.every((t) => t && typeof t.token === "string" && typeof t.origin === "string" && typeof t.scope === "string")) throw new Error("형식");
++        entries = data.tokens;
++      } catch {
++        entries = [];
++        broken = "내용이 올바르지 않음";
++      }
++    },
++    get broken() {
++      return broken;
++    },
++    /** 이 출처에서 쓴 토큰의 범위 번호, 없거나 닫혔으면 null */
++    scopeOf(token, origin) {
++      if (broken) return null;
++      return find(token, origin)?.scope ?? null;
++    },
++    get size() {
++      return broken ? 0 : entries.length;
++    },
++    /**
++     * 짝짓기로 새 토큰 발급(코드 확인은 부르는 쪽). prevToken이 같은 출처의 유효한 토큰이면 그 범위를 이어받고 이전 토큰은 폐기,
++     * 아니면 새 범위. 닫혔으면 예외.
++     */
++    async issue({ origin, prevToken } = {}) {
++      if (broken) throw Object.assign(new Error(`연결 기록 파일을 읽지 못해 새 연결을 만들 수 없습니다(${broken}). 파일은 그대로 두었습니다.`), { status: 503 });
++      // 이전 토큰 찾기·목록 계산·저장을 한 줄로 세워(동시 짝짓기가 서로의 결과를 덮어쓰지 않게) 차례로 한다
++      const run = saving.catch(() => {}).then(async () => {
++        const prev = prevToken ? find(prevToken, origin) : null;
++        const scope = prev ? prev.scope : randomUUID();
++        const entry = { token: newToken(), origin, scope, createdAt: new Date().toISOString() };
++        const next = [...entries.filter((e) => e !== prev), entry];
++        await saveNow(next);
++        entries = next;
++        return { token: entry.token, scope, inherited: !!prev };
++      });
++      saving = run;
++      return run;
++    },
++  };
++}
