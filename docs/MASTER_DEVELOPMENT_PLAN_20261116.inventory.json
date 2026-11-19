@@ -10112,11 +10112,11 @@
       "owner": "CC-B2B-FRONT-01",
       "reviewer": "CX-QA-01",
       "title": "B2B몰 모바일 빠른 메뉴 상품 카드 가림",
-      "status": "reviewing",
-      "delivery": "mobile_header_button_fixed_mac_review_dispatched",
-      "evidence": "msg_78506b5ddc3d·msg_278664a6630a·quick-bar.tsx 점유 및 미커밋 없음·mall-builder 저작권 고지 확인·msg_fd2c66d274ba·12639ca39·msg_590b6e338b14·msg_f275fbf8c801·msg_88f918632539·msg_b3c8f5d4f553·4cc3a284c·msg_6cc03b5c2086·msg_1c49c293aa17·msg_bb4d8df47672·msg_2a3a36227adb·edf36bf4f·msg_ed1e4687c624",
-      "next": "모바일 40×40 헤더 버튼으로 변경. 자체 격리 화면의 상품 링크 가림 0. 맥미니 실제 키·열림·포커스·미리보기 검수 요청. 미배포.",
-      "lastReviewedAt": "2026-11-19T05:11:40.200Z",
+      "status": "running",
+      "delivery": "mac_mobile_pass_preview_opener_fix_dispatched",
+      "evidence": "msg_78506b5ddc3d·msg_278664a6630a·quick-bar.tsx 점유 및 미커밋 없음·mall-builder 저작권 고지 확인·msg_fd2c66d274ba·12639ca39·msg_590b6e338b14·msg_f275fbf8c801·msg_88f918632539·msg_b3c8f5d4f553·4cc3a284c·msg_6cc03b5c2086·msg_1c49c293aa17·msg_bb4d8df47672·msg_2a3a36227adb·edf36bf4f·msg_ed1e4687c624·msg_fc2e1ad22f68·msg_ffe5ce8f2a4a",
+      "next": "Mac 12/12·375~767px 비가림·키보드/포커스 통과. 편집기 미리보기의 동작 없는 단추 P3 보완 배정. 실제 고정 화면 미확인·미배포.",
+      "lastReviewedAt": "2026-11-19T05:14:25.250Z",
       "sha": "c8a134486"
     },
     {
