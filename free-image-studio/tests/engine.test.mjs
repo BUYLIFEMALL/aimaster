@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { CONFIRM_WINDOW_MS, ENGINE_URL, EngineError, IMAGE_SIZES, PROMPT_LIMIT, SEED_MAX, TITLE_LIMIT, checkArtInput, createEngineClient } from "../src/lib/engine.ts";
+import { ENGINE_URL, EngineError, IMAGE_SIZES, PROMPT_LIMIT, SEED_MAX, TITLE_LIMIT, checkArtInput, createEngineClient } from "../src/lib/engine.ts";
 import { ENGINE, createMockEngine, memoryStorage } from "./mockEngine.mjs";
 
 const A = "aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa";
@@ -13,6 +13,9 @@ const client = (engine, storage, memberId = A, extra = {}) => createEngineClient
 const kind = (k) => (e) => e instanceof EngineError && e.kind === k;
 const lostPost = (call) => call.method === "POST" && call.path === "/queue";
 const keys = (m) => [`fis.engineLink.v1:${m}`, `fis.engineToken.v1:${m}`];
+const busy429 = (call) => (lostPost(call) ? new Response(JSON.stringify({ error: "잠시 뒤 다시 시도해 주세요." }), { status: 429 }) : null);
+const idJobs = (engine, id) => engine.st.jobs.filter((j) => j.clientRequestId === id);
+const stateOf = (c, id) => c.submissions().find((x) => x.requestId === id)?.state;
 const posts = (engine) => engine.st.calls.filter((c) => c.method === "POST" && c.path === "/queue");
 async function paired(engine, storage = memoryStorage(), memberId = A) {
   const c = client(engine, storage, memberId);
@@ -240,7 +243,8 @@ test("응답 유실(엔진은 받음): unknown으로 남고 자동으로 다시 
   assert.equal(c.submissions()[0].state, "unknown");
   // 결과를 모르는 접수는 다시 보내기·지우기를 막는다(먼저 확인)
   await assert.rejects(c.resend(r.requestId), kind("invalid"));
-  assert.equal(c.forget(r.requestId), false);
+  assert.equal(c.canResend(r.requestId), false);
+  assert.equal(c.forget(r.requestId), false, "결과를 모르는 접수는 그냥 지우지 못한다");
   assert.equal(posts(engine).length, 1);
   const confirmed = await c.confirm(r.requestId);
   assert.equal(confirmed.state, "accepted");
@@ -252,57 +256,93 @@ test("응답 유실(엔진은 받음): unknown으로 남고 자동으로 다시 
   assert.equal(engine.st.jobs.length, 1, "중복 제출 0");
 });
 
-test("응답 유실(엔진은 못 받음): 같은 범위에 앞선 작업이 남아 있으면 notReceived → 같은 번호·같은 내용으로 다시 보내 작업은 하나", async () => {
+test("응답 유실(엔진은 못 받음): 목록에 없어도 미접수로 확정하지 않는다 — unknown 유지, 같은 번호 재전송 없음", async () => {
+  // 앞선 작업이 남아 있는 같은 범위 / 빈 목록(범위의 첫 접수) 둘 다
+  for (const withEarlier of [true, false]) {
+    const engine = createMockEngine();
+    const { c } = await paired(engine);
+    if (withEarlier) await c.submit({ ...ART, seed: 1 });
+    engine.st.unreachable = lostPost;
+    const r = await c.submit(ART);
+    assert.equal(r.state, "unknown");
+    // 확인 요청 자체가 실패하면 상태를 바꾸지 않는다
+    engine.st.unreachable = () => true;
+    await assert.rejects(c.confirm(r.requestId), kind("offline"));
+    assert.equal(stateOf(c, r.requestId), "unknown");
+    engine.st.unreachable = null;
+    assert.deepEqual(await c.confirm(r.requestId), { state: "unknown", reason: "notListed" });
+    assert.deepEqual(await c.confirm(r.requestId), { state: "unknown", reason: "notListed" }, "여러 번 물어도 같다");
+    assert.equal(stateOf(c, r.requestId), "unknown");
+    assert.equal(c.canResend(r.requestId), false);
+    await assert.rejects(c.resend(r.requestId), kind("invalid"));
+    assert.equal(posts(engine).filter((p) => p.body.clientRequestId === r.requestId).length, 1, "같은 번호를 다시 보내지 않았다");
+    assert.equal(idJobs(engine, r.requestId).length, 0);
+    // 사용자가 알고 고른 경우에만 기록을 지운다(그 뒤 새로 접수하는 것은 화면·사용자의 선택)
+    assert.equal(c.forget(r.requestId), false);
+    assert.equal(c.forget(r.requestId, { force: true }), true);
+    assert.equal(stateOf(c, r.requestId), undefined);
+  }
+});
+
+test("반례(Master) — 앞선 작업은 남아 있고 대상 작업만 지워진 목록: 미접수가 아니라 unknown, 다시 그리지 않는다", async () => {
   const engine = createMockEngine();
   const { c } = await paired(engine);
-  const anchor = await c.submit({ ...ART, seed: 1 }); // 이 접수보다 먼저 만든 작업 = 기록이 보존됐다는 근거
-  engine.st.unreachable = lostPost;
-  const r = await c.submit(ART);
+  const earlier = await c.submit({ ...ART, seed: 1 });
+  engine.st.loseResponse = lostPost;
+  const r = await c.submit(ART); // 엔진은 받았고 응답만 잃음
+  engine.st.loseResponse = null;
+  const later = await c.submit({ ...ART, seed: 2 });
   assert.equal(r.state, "unknown");
-  assert.equal(engine.st.jobs.length, 1);
-  // 확인 요청 자체가 실패하면 상태를 바꾸지 않는다
-  engine.st.unreachable = () => true;
-  await assert.rejects(c.confirm(r.requestId), kind("offline"));
-  assert.equal(c.submissions().find((x) => x.requestId === r.requestId).state, "unknown");
-  engine.st.unreachable = null;
-  assert.deepEqual(await c.confirm(r.requestId), { state: "notReceived" });
-  const again = await c.resend(r.requestId);
+  const target = idJobs(engine, r.requestId)[0];
+  // 엔진이 그 그림을 다 그렸고, 그 작업 하나만 목록에서 사라졌다(엔진 창에서 지움·끝난 작업 정리)
+  engine.finish(target.id);
+  engine.st.jobs = engine.st.jobs.filter((j) => j !== target);
+  assert.deepEqual((await c.listJobs()).map((j) => j.clientRequestId), [earlier.requestId, later.requestId], "앞뒤 작업은 그대로 보인다");
+  assert.deepEqual(await c.confirm(r.requestId), { state: "unknown", reason: "notListed" });
+  assert.equal(stateOf(c, r.requestId), "unknown");
+  assert.equal(c.canResend(r.requestId), false);
+  await assert.rejects(c.resend(r.requestId), kind("invalid"));
+  assert.equal(posts(engine).filter((p) => p.body.clientRequestId === r.requestId).length, 1);
+  assert.equal(idJobs(engine, r.requestId).length, 0, "이미 그린 그림을 같은 번호로 다시 그리게 하지 않았다");
+  assert.equal(engine.st.jobs.length, 2);
+});
+
+test("다시 보내기는 넣기 전 거절이 확실하고 다시 해 볼 만한 접수만 — 같은 번호·같은 내용, 동시에 두 번 보내지 않는다", async () => {
+  const engine = createMockEngine();
+  const { c } = await paired(engine);
+  engine.st.override = busy429;
+  const r = await c.submit(ART);
+  engine.st.override = null;
+  assert.equal(r.state, "rejected");
+  assert.equal(c.canResend(r.requestId), true);
+  assert.equal(engine.st.jobs.length, 0);
+  let open;
+  const gate = new Promise((res) => (open = res));
+  engine.st.hold = (call) => (lostPost(call) ? gate : null);
+  const first = c.resend(r.requestId);
+  assert.equal(c.canResend(r.requestId), false);
+  await assert.rejects(c.resend(r.requestId), kind("invalid"));
+  await assert.rejects(c.confirm(r.requestId), kind("invalid"));
+  open();
+  engine.st.hold = null;
+  const again = await first;
   assert.equal(again.state, "accepted");
   assert.equal(again.requestId, r.requestId);
-  const [first, second] = posts(engine).filter((p) => p.body.clientRequestId === r.requestId).map((p) => p.body);
-  assert.deepEqual(second, first, "같은 번호·같은 내용(트랙 번호까지) 그대로");
-  assert.equal(engine.st.jobs.length, 2);
-  // 다시 보낸 응답도 잃어버린 경우: 확인 → 접수됨, 그래도 그 번호의 작업은 하나
-  engine.st.unreachable = lostPost;
+  const sent = posts(engine).filter((p) => p.body.clientRequestId === r.requestId).map((p) => p.body);
+  assert.equal(sent.length, 2, "처음 1번 + 다시 보내기 1번뿐");
+  assert.deepEqual(sent[1], sent[0], "같은 번호·같은 내용(트랙 번호까지) 그대로");
+  assert.equal(idJobs(engine, r.requestId).length, 1);
+  await assert.rejects(c.resend(r.requestId), kind("invalid"), "접수된 뒤에는 다시 보내지 않는다");
+  // 다시 보낸 응답을 잃으면 unknown이 되고 더는 보내지 않는다. 목록에서 찾으면 접수됨
+  engine.st.override = busy429;
   const r2 = await c.submit({ ...ART, seed: 4004 });
-  engine.st.unreachable = null;
-  assert.deepEqual(await c.confirm(r2.requestId), { state: "notReceived" });
+  engine.st.override = null;
   engine.st.loseResponse = lostPost;
   assert.equal((await c.resend(r2.requestId)).state, "unknown");
   engine.st.loseResponse = null;
+  await assert.rejects(c.resend(r2.requestId), kind("invalid"));
   assert.equal((await c.confirm(r2.requestId)).state, "accepted");
-  assert.equal(engine.st.jobs.filter((j) => j.clientRequestId === r2.requestId).length, 1);
-  assert.equal(engine.st.jobs.length, 3);
-  assert.equal(c.submissions().find((x) => x.requestId === anchor.requestId).state, "accepted");
-});
-
-test("같은 접수를 동시에 두 번 보내지 않는다", async () => {
-  const engine = createMockEngine();
-  const { c } = await paired(engine);
-  await c.submit({ ...ART, seed: 1 });
-  engine.st.unreachable = lostPost;
-  const r = await c.submit(ART);
-  engine.st.unreachable = null;
-  assert.deepEqual(await c.confirm(r.requestId), { state: "notReceived" });
-  let open;
-  const gate = new Promise((res) => (open = res));
-  engine.st.hold = (call) => (call.method === "POST" && call.path === "/queue" ? gate : null);
-  const first = c.resend(r.requestId);
-  await assert.rejects(c.resend(r.requestId), kind("invalid"));
-  open();
-  assert.equal((await first).state, "accepted");
-  assert.equal(posts(engine).filter((p) => p.body.clientRequestId === r.requestId).length, 2, "처음 1번 + 다시 보내기 1번뿐");
-  assert.equal(engine.st.jobs.filter((j) => j.clientRequestId === r.requestId).length, 1);
+  assert.equal(idJobs(engine, r2.requestId).length, 1);
 });
 
 test("거절 응답: 409·503·400·429·401·403은 rejected(엔진에 작업 없음), 500은 unknown", async () => {
@@ -368,7 +408,7 @@ test("실제 계약 흐름의 오류: 엔진이 닫힘(503)·남의 작업(404)�
   await c.cancel(r.job.id);
   const key = `fis.submissions.v1:${A}`;
   const ledger = JSON.parse(storage.map.get(key));
-  ledger[0] = { ...ledger[0], state: "notReceived", task: { ...ledger[0].task, seed: 9 } };
+  ledger[0] = { ...ledger[0], state: "rejected", errorKind: "busy", task: { ...ledger[0].task, seed: 9 } };
   storage.map.set(key, JSON.stringify(ledger));
   const conflict = await c.resend(r.requestId);
   assert.equal(conflict.state, "rejected");
@@ -510,7 +550,7 @@ test("반례 1 — 범위가 끊긴 과거 접수는 확인도 다시 보내기�
   await mustStayUnknown(engine, c, r);
 });
 
-test("정상 — 같은 범위를 이어받은 다시 연결 뒤에는 유실 접수를 복구한다", async () => {
+test("정상 — 같은 범위를 이어받은 다시 연결 뒤: 엔진이 받은 유실 접수는 찾아서 접수됨, 거절됐던 접수는 같은 번호로 다시 보냄", async () => {
   const engine = createMockEngine();
   const { c, storage } = await paired(engine);
   const link = storage.map.get(`fis.engineLink.v1:${A}`);
@@ -521,27 +561,30 @@ test("정상 — 같은 범위를 이어받은 다시 연결 뒤에는 유실 �
   engine.st.unreachable = lostPost;
   const missed = await c.submit({ ...ART, seed: 5 }); // 엔진은 못 받음
   engine.st.unreachable = null;
+  engine.st.override = busy429;
+  const refused = await c.submit({ ...ART, seed: 6 }); // 넣기 전 거절
+  engine.st.override = null;
   assert.deepEqual(await c.pair(engine.st.codes[0]), { inherited: true });
   assert.equal(storage.map.get(`fis.engineLink.v1:${A}`), link, "이어받은 연결은 범위 표시가 그대로");
   assert.equal(c.inCurrentScope(got.requestId), true);
   const a = await c.confirm(got.requestId);
   assert.equal(a.state, "accepted");
   assert.equal(a.job.clientRequestId, got.requestId);
-  assert.deepEqual(await c.confirm(missed.requestId), { state: "notReceived" });
-  assert.equal((await c.resend(missed.requestId)).state, "accepted");
+  assert.deepEqual(await c.confirm(missed.requestId), { state: "unknown", reason: "notListed" });
+  await assert.rejects(c.resend(missed.requestId), kind("invalid"));
+  assert.equal((await c.resend(refused.requestId)).state, "accepted");
   assert.equal(engine.st.jobs.length, 3);
-  for (const id of [got.requestId, missed.requestId]) assert.equal(engine.st.jobs.filter((j) => j.clientRequestId === id).length, 1);
+  assert.equal(idJobs(engine, got.requestId).length, 1);
+  assert.equal(idJobs(engine, missed.requestId).length, 0);
+  assert.equal(idJobs(engine, refused.requestId).length, 1);
 });
 
-test("반례 2 — 온전하지 않은 목록·빈 목록·근거 없는 부재는 미접수로 확정하지 않는다", async () => {
-  const setup = async (extra = {}) => {
+test("반례 2 — 온전하지 않은 목록은 예외(상태 유지), 온전한 목록의 부재는 어떤 모양이든 unknown", async () => {
+  const setup = async () => {
     const engine = createMockEngine();
-    const storage = memoryStorage();
-    const c = client(engine, storage, A, extra);
-    await c.pair(engine.st.codes[0]);
-    return { engine, c, storage };
+    const { c } = await paired(engine);
+    return { engine, c };
   };
-  const state = (c, id) => c.submissions().find((x) => x.requestId === id).state;
   // 가) 엔진에 작업이 있는데 목록 응답 모양이 이상함 → 예외, 상태 그대로
   for (const body of [{ jobs: null }, { jobs: {} }, { jobs: "none" }, {}, { jobs: [null] }, { jobs: [{ id: 1 }] }, { jobs: [{ id: "x" }] }, []]) {
     const { engine, c } = await setup();
@@ -551,56 +594,37 @@ test("반례 2 — 온전하지 않은 목록·빈 목록·근거 없는 부재�
     engine.st.loseResponse = null;
     engine.st.override = (call) => (call.method === "GET" && call.path === "/queue" ? new Response(JSON.stringify(body), { status: 200 }) : null);
     await assert.rejects(c.confirm(r.requestId), kind("error"), JSON.stringify(body));
-    assert.equal(state(c, r.requestId), "unknown", JSON.stringify(body));
+    assert.equal(stateOf(c, r.requestId), "unknown", JSON.stringify(body));
     await assert.rejects(c.resend(r.requestId), kind("invalid"));
     engine.st.override = null;
     assert.equal((await c.confirm(r.requestId)).state, "accepted", "온전한 목록이 오면 그때 확인된다");
-    assert.equal(engine.st.jobs.filter((j) => j.clientRequestId === r.requestId).length, 1);
+    assert.equal(idJobs(engine, r.requestId).length, 1);
   }
-  // 나) 빈 목록(처음 접수가 유실됐거나 기록이 지워졌거나 — 구별 불가)
-  {
-    const { engine, c } = await setup();
-    engine.st.loseResponse = lostPost;
-    const r = await c.submit(ART); // 엔진은 받음
-    engine.st.loseResponse = null;
-    engine.st.jobs = []; // 엔진 기록이 사라진 상황(파일 초기화 등)
-    assert.deepEqual(await c.confirm(r.requestId), { state: "unknown", reason: "noEvidence" });
-    assert.equal(state(c, r.requestId), "unknown");
-    await assert.rejects(c.resend(r.requestId), kind("invalid"));
-    assert.equal(posts(engine).length, 1);
+  // 나) 엔진 기록이 통째로 사라짐(빈 목록) / 나중 작업만 남음 / 앞선 작업만 남음 — 모두 unknown
+  const { engine, c } = await setup();
+  await c.submit({ ...ART, seed: 1 });
+  engine.st.loseResponse = lostPost;
+  const r = await c.submit(ART); // 엔진은 받음
+  engine.st.loseResponse = null;
+  await c.submit({ ...ART, seed: 2 });
+  const all = engine.st.jobs;
+  const i = all.findIndex((j) => j.clientRequestId === r.requestId);
+  for (const [name, jobs] of [["빈 목록", []], ["나중 작업만", all.slice(i + 1)], ["앞선 작업만", all.slice(0, i)], ["앞뒤만", all.filter((_, k) => k !== i)]]) {
+    engine.st.jobs = jobs;
+    assert.deepEqual(await c.confirm(r.requestId), { state: "unknown", reason: "notListed" }, name);
+    assert.equal(stateOf(c, r.requestId), "unknown", name);
+    await assert.rejects(c.resend(r.requestId), kind("invalid"), name);
   }
-  // 다) 나중에 만든 작업만 남아 있음 → 근거 아님. 먼저 만든 작업이 남아 있음 → 근거
-  {
-    const { engine, c } = await setup();
-    const before = await c.submit({ ...ART, seed: 1 });
-    engine.st.unreachable = lostPost;
-    const r = await c.submit(ART);
-    engine.st.unreachable = null;
-    await new Promise((res) => setTimeout(res, 5));
-    await c.submit({ ...ART, seed: 2 }); // 나중 작업
-    const keep = engine.st.jobs;
-    engine.st.jobs = keep.filter((j) => j.clientRequestId !== before.requestId);
-    assert.deepEqual(await c.confirm(r.requestId), { state: "unknown", reason: "noEvidence" });
-    // 만든 시각을 읽을 수 없는 줄도 근거가 아니다
-    engine.st.jobs = keep.map((j) => ({ ...j, createdAt: "언젠가" }));
-    assert.deepEqual(await c.confirm(r.requestId), { state: "unknown", reason: "noEvidence" });
-    engine.st.jobs = keep;
-    assert.deepEqual(await c.confirm(r.requestId), { state: "notReceived" });
-  }
-  // 라) 오래된 접수(엔진이 끝난 기록을 정리했을 수 있음)와 시계가 거꾸로 간 경우
-  for (const jump of [CONFIRM_WINDOW_MS + 1, -60_000]) {
-    let shift = 0;
-    const { engine, c } = await setup({ now: () => Date.now() + shift });
-    await c.submit({ ...ART, seed: 1 });
-    engine.st.unreachable = lostPost;
-    const r = await c.submit(ART);
-    engine.st.unreachable = null;
-    shift = jump;
-    assert.deepEqual(await c.confirm(r.requestId), { state: "unknown", reason: "tooOld" });
-    await assert.rejects(c.resend(r.requestId), kind("invalid"));
-    shift = 0;
-    assert.deepEqual(await c.confirm(r.requestId), { state: "notReceived" });
-  }
+  assert.equal(posts(engine).filter((p) => p.body.clientRequestId === r.requestId).length, 1);
+  engine.st.jobs = all;
+  assert.equal((await c.confirm(r.requestId)).state, "accepted");
+  // 다) 거절이 확실한 접수를 확인해도(목록에 없음) 거절 상태를 지우지 않는다
+  engine.st.override = busy429;
+  const refused = await c.submit({ ...ART, seed: 3 });
+  engine.st.override = null;
+  assert.deepEqual(await c.confirm(refused.requestId), { state: "unknown", reason: "notListed" });
+  assert.equal(stateOf(c, refused.requestId), "rejected");
+  assert.equal(c.canResend(refused.requestId), true);
 });
 
 test("반례 3 — 넣은 뒤 실패일 수 있는 400은 받았는지 모름(unknown), 사전 거절이 확실한 400만 rejected", async () => {
@@ -648,39 +672,44 @@ test("반례 3 — 넣은 뒤 실패일 수 있는 400은 받았는지 모름(un
   assert.equal(e4.st.jobs.length, 1);
 });
 
-test("반례 4 — 늦게 온 확인 결과가 접수됨을 미접수로 되돌리지 않는다", async () => {
-  // 가) 같은 화면: 확인 중에는 그 접수의 다른 확인·다시 보내기를 받지 않는다
+test("반례 4 — 늦게 온 확인 결과가 접수됨을 되돌리지 않는다", async () => {
   const engine = createMockEngine();
   const { c, storage } = await paired(engine);
   await c.submit({ ...ART, seed: 1 });
-  engine.st.unreachable = lostPost;
-  const r = await c.submit(ART);
-  engine.st.unreachable = null;
+  engine.st.loseResponse = lostPost;
+  const r = await c.submit(ART); // 엔진은 받음
+  engine.st.loseResponse = null;
+  const real = idJobs(engine, r.requestId)[0];
+  // 처음 확인은 그 작업이 빠진 옛 목록을 받아 둔 채 응답이 늦어진다
   let open;
-  let held = 0;
+  let seen = 0;
   const gate = new Promise((res) => (open = res));
-  engine.st.hold = (call) => (call.method === "GET" && call.path === "/queue" && held++ === 0 ? gate : null);
-  const first = c.confirm(r.requestId); // 목록(작업 없음)을 받아 둔 채 응답이 늦어진다
+  const isList = (call) => call.method === "GET" && call.path === "/queue";
+  engine.st.override = (call) => (isList(call) && seen === 0 ? new Response(JSON.stringify({ jobs: engine.st.jobs.filter((j) => j !== real).map(({ task: _t, ...rest }) => rest) }), { status: 200 }) : null);
+  engine.st.hold = (call) => (isList(call) && seen++ === 0 ? gate : null);
+  const first = c.confirm(r.requestId);
+  // 같은 화면: 확인 중에는 그 접수의 다른 확인·다시 보내기·지우기를 받지 않는다
   await assert.rejects(c.confirm(r.requestId), kind("invalid"));
   await assert.rejects(c.resend(r.requestId), kind("invalid"));
-  assert.equal(c.forget(r.requestId), false);
-  // 나) 다른 탭(같은 저장소, 다른 화면)이 그사이 확인하고 다시 보내 접수됨으로 만든다
+  assert.equal(c.forget(r.requestId, { force: true }), false);
+  // 다른 탭(같은 저장소, 다른 화면)이 그사이 온전한 목록으로 접수됨을 확인한다
   const tab2 = client(engine, storage);
-  assert.deepEqual(await tab2.confirm(r.requestId), { state: "notReceived" });
-  assert.equal((await tab2.resend(r.requestId)).state, "accepted");
-  const jobId = tab2.submissions().find((x) => x.requestId === r.requestId).jobId;
-  open(); // 처음 확인의 옛 목록(작업 없음)이 이제 도착
+  const fresh = await tab2.confirm(r.requestId);
+  assert.equal(fresh.state, "accepted");
+  assert.equal(fresh.job.id, real.id);
+  open(); // 처음 확인의 옛 목록이 이제 도착
   assert.deepEqual(await first, { state: "accepted", job: null });
   const after = c.submissions().find((x) => x.requestId === r.requestId);
   assert.equal(after.state, "accepted", "옛 응답이 접수됨을 덮지 않았다");
-  assert.equal(after.jobId, jobId);
-  await assert.rejects(c.resend(r.requestId), kind("invalid"), "불필요한 재전송이 나가지 않는다");
-  assert.equal(posts(engine).filter((p) => p.body.clientRequestId === r.requestId).length, 2);
-  assert.equal(engine.st.jobs.filter((j) => j.clientRequestId === r.requestId).length, 1);
-  // 다) 접수됨으로 적힌 작업이 목록에서 사라져도(끝난 작업 지움·정리) 미접수로 되돌리지 않는다
-  engine.st.jobs = engine.st.jobs.filter((j) => j.clientRequestId !== r.requestId);
+  assert.equal(after.jobId, real.id);
+  await assert.rejects(c.resend(r.requestId), kind("invalid"));
+  assert.equal(posts(engine).filter((p) => p.body.clientRequestId === r.requestId).length, 1, "추가 전송 없음");
+  assert.equal(idJobs(engine, r.requestId).length, 1);
+  // 접수됨으로 적힌 작업이 목록에서 사라져도(끝난 작업 지움·정리) 되돌리지 않는다
+  engine.st.override = null;
+  engine.st.jobs = engine.st.jobs.filter((j) => j !== real);
   assert.deepEqual(await c.confirm(r.requestId), { state: "accepted", job: null });
-  assert.equal(c.submissions().find((x) => x.requestId === r.requestId).state, "accepted");
+  assert.equal(stateOf(c, r.requestId), "accepted");
 });
 
 test("계약 대조: 모의 엔진이 흉내 낸 규칙이 엔진 소스(e8e52b505 기준)에 그대로 있다", async (t) => {

@@ -17,9 +17,6 @@ const REQUEST_ID = /^[A-Za-z0-9-]{8,64}$/;
 const JOB_ID = /^[0-9a-f-]{36}$/;
 const PATH = /^\/[A-Za-z0-9/-]*$/;
 const LEDGER_MAX = 300;
-/** 이 시간 안에 접수한 것만 「엔진에 없음」을 미접수로 확정할 수 있다(오래되면 엔진이 끝난 기록을 정리했을 수 있다). */
-export const CONFIRM_WINDOW_MS = 24 * 60 * 60 * 1000;
-
 // 엔진이 작업을 목록에 넣기 **전에** 돌려주는 400(e8e52b505 gateway.mjs handleScopedQueue · queue.mjs add).
 // 엔진은 목록에 넣은 뒤 파일 저장을 기다리므로, 이 문구가 아닌 400은 「받았는지 모름」으로 본다.
 const PRE_ADD_400 = [
@@ -29,6 +26,8 @@ const PRE_ADD_400 = [
   "시드 값이 올바르지 않습니다.",
   "그림 설명을 영어로 3단어 이상 적어 주세요(내 PC 그림 모델은 영어만 읽습니다).",
 ];
+/** 넣기 전 거절 가운데 같은 번호로 다시 보내도 되는 종류(내용 문제·허용 안 됨·내용 충돌은 제외) */
+const RETRYABLE: EngineErrorKind[] = ["busy", "closed", "needPair"];
 const QUEUE_FULL_400 = /^대기열에는 \d+개까지 넣을 수 있습니다\./;
 /** 엔진이 이 접수를 받지 않은 것이 확실한 응답인가 */
 function certainlyNotAccepted(error: EngineError): boolean {
@@ -82,9 +81,11 @@ export type SubmitInput = ArtTask & { title: string };
  * 접수 기록(브라우저 보관). 엔진에 보내기 **전에** 적는다.
  *  pending     보내는 중
  *  accepted    엔진이 받음(jobId 있음)
- *  unknown     엔진이 받았는지 모름(응답 유실·서버 오류·넣은 뒤 실패일 수 있는 400). confirm()으로 같은 접수 번호를 물어본다
- *  notReceived confirm()이 **같은 연결 범위에서 근거를 갖고** 엔진에 없음을 확인 — resend()로 같은 번호·같은 내용을 다시 보낼 수 있다
- *  rejected    엔진이 넣기 전에 거절한 것이 확실함(401·403·409·429·503, 사전 검사 400). error에 사유
+ *  unknown     엔진이 받았는지 모름(응답 유실·서버 오류·넣은 뒤 실패일 수 있는 400). confirm()이 목록에서 같은 접수 번호를
+ *              찾으면 accepted가 된다. **목록에 없다는 것은 미접수의 근거가 아니다** — 지금 엔진에는 「받지 않았다」를 알려 주는
+ *              응답이 없고, 끝난 작업은 정리·삭제될 수 있다. 그래서 unknown은 다시 보내지 않는다
+ *  rejected    엔진이 넣기 전에 거절한 것이 확실함(401·403·409·429·503, 사전 검사 400). error에 사유.
+ *              이 가운데 다시 해 볼 만한 것(대기열 가득 참·잠시 뒤·닫힘·연결 필요)만 resend()가 같은 번호·같은 내용으로 보낸다
  * link는 접수 당시의 연결 범위 표시다. 연결이 끊겨 새 범위가 되면 이전 범위의 접수는 확인도 다시 보내기도 하지 않는다
  * (엔진의 중복 방지는 범위 안에서만 듣는다 — 새 범위로 다시 보내면 같은 그림이 두 번 그려진다).
  */
@@ -95,7 +96,7 @@ export type Submission = {
   link: string;
   title: string;
   task: ArtTask;
-  state: "pending" | "accepted" | "unknown" | "notReceived" | "rejected";
+  state: "pending" | "accepted" | "unknown" | "rejected";
   jobId?: string;
   error?: string;
   errorKind?: EngineErrorKind;
@@ -241,7 +242,7 @@ export function createEngineClient(opts: EngineClientOptions) {
     }
   }
   function writeLedger(list: Submission[]) {
-    // 끝난 기록부터 덜어 내고, 결과를 모르는 기록(unknown·pending·notReceived)은 지우지 않는다.
+    // 끝난 기록부터 덜어 내고, 결과를 모르는 기록(unknown·pending)은 지우지 않는다.
     let out = list;
     if (out.length > LEDGER_MAX) {
       const settled = out.filter((s) => s.state === "accepted" || s.state === "rejected").sort((a, b) => a.at - b.at);
@@ -404,15 +405,12 @@ export function createEngineClient(opts: EngineClientOptions) {
 
     /**
      * 결과를 모르는 접수를 같은 접수 번호로 물어본다. 엔진에 새 작업을 만들지 않는다.
-     * 「엔진에 없음」을 미접수(notReceived)로 확정하는 조건 — 하나라도 아니면 unknown으로 둔다:
-     *  1) 접수 당시와 같은 연결 범위다(otherScope가 아님)
-     *  2) 목록 응답이 온전하다(jobs가 배열이고 모든 줄이 작업 모양)
-     *  3) 접수한 지 CONFIRM_WINDOW_MS 안이다(tooOld가 아님)
-     *  4) 이 접수보다 먼저 만든 작업이 목록에 남아 있다 — 그 사이 기록이 보존됐다는 근거(noEvidence가 아님).
-     *     빈 목록, 나중 작업만 있는 목록은 「기록이 지워졌을 수 있음」과 구별되지 않는다.
-     * 엔진 창에서 그 작업 하나만 손으로 지운 경우는 이 조건으로도 가려내지 못한다(문서의 한계).
+     * 목록에서 같은 접수 번호를 찾았을 때만 accepted로 확정한다. 찾지 못하면 unknown 그대로다:
+     *  - otherScope  접수 당시와 연결 범위가 다르다(엔진에 묻지 않는다)
+     *  - notListed   같은 범위의 온전한 목록에 없다 — 받지 않았을 수도, 받은 뒤 정리·삭제됐을 수도 있다
+     * 목록 응답이 온전하지 않으면(jobs가 배열이 아니거나 작업 모양이 아닌 줄이 있음) 예외를 던지고 상태를 그대로 둔다.
      */
-    async confirm(requestId: string): Promise<{ state: "accepted"; job: EngineJob | null } | { state: "notReceived" } | { state: "unknown"; reason: "otherScope" | "tooOld" | "noEvidence" }> {
+    async confirm(requestId: string): Promise<{ state: "accepted"; job: EngineJob | null } | { state: "unknown"; reason: "otherScope" | "notListed" }> {
       const entry = readLedger().find((s) => s.requestId === requestId);
       if (!entry) throw new EngineError("invalid", "접수 기록이 없습니다.");
       if (busy.has(requestId)) throw new EngineError("invalid", "이 접수는 지금 처리하는 중입니다.");
@@ -427,46 +425,43 @@ export function createEngineClient(opts: EngineClientOptions) {
         const rows = Array.isArray(data.jobs) ? data.jobs.map(asJob) : null;
         if (!rows || rows.some((j) => !j)) throw new EngineError("error", "엔진의 작업 목록을 읽지 못했습니다. 접수 상태는 그대로 두었습니다.");
         if (readLink() !== link) return { state: "unknown", reason: "otherScope" };
-        const jobs = rows as EngineJob[];
-        const job = jobs.find((j) => j.clientRequestId === requestId) ?? null;
+        const job = (rows as EngineJob[]).find((j) => j.clientRequestId === requestId) ?? null;
         if (job) {
           patch(requestId, { state: "accepted", jobId: job.id, error: undefined, errorKind: undefined });
           return { state: "accepted", job };
         }
         // 이미 받은 것으로 적힌 접수는 목록에 없다고 되돌리지 않는다(끝난 작업을 지웠거나 정리됐을 수 있다).
         if (readLedger().find((s) => s.requestId === requestId)?.state === "accepted") return { state: "accepted", job: null };
-        const settle = (reason: "tooOld" | "noEvidence") => {
-          patch(requestId, { state: "unknown" }, ["pending"]);
-          return { state: "unknown" as const, reason };
-        };
-        if (!(now() - entry.at >= 0 && now() - entry.at <= CONFIRM_WINDOW_MS)) return settle("tooOld");
-        const kept = jobs.some((j) => {
-          const t = Date.parse(j.createdAt ?? "");
-          return Number.isFinite(t) && t <= entry.at;
-        });
-        if (!kept) return settle("noEvidence");
-        // 그사이 다른 처리가 상태를 바꿨으면(예: accepted) 덮지 않는다.
-        if (!patch(requestId, { state: "notReceived" }, ["unknown", "pending", "notReceived"])) return { state: "accepted", job: null };
-        return { state: "notReceived" };
+        // 보내는 중에 멈춘 기록(pending)만 unknown으로 정리한다. 거절이 확실한 기록(rejected)은 그대로 둔다.
+        patch(requestId, { state: "unknown" }, ["pending"]);
+        return { state: "unknown", reason: "notListed" };
       } finally {
         busy.delete(requestId);
       }
     },
 
     /**
-     * 엔진이 받지 않은 것이 확인된 접수를 **같은 번호·같은 내용**으로 다시 보낸다.
-     * 결과를 모르는 접수는 confirm()부터, 연결 범위가 바뀐 접수는 다시 보내지 않는다(새로 접수해야 한다).
+     * 엔진이 **넣기 전에 거절한 것이 확실하고 다시 해 볼 만한** 접수만 같은 번호·같은 내용으로 다시 보낸다
+     * (대기열 가득 참·잠시 뒤·엔진이 닫힘·연결 필요). 결과를 모르는 접수(unknown)는 다시 보내지 않는다 —
+     * 엔진이 받았을 수 있고, 받았다면 같은 그림이 두 번 그려질 수 있어 화면이 사용자에게 알리고 새 접수를 고르게 한다.
+     * 연결 범위가 바뀐 접수도 다시 보내지 않는다.
      */
     async resend(requestId: string) {
       const entry = readLedger().find((s) => s.requestId === requestId);
       if (!entry) throw new EngineError("invalid", "접수 기록이 없습니다.");
       if (busy.has(requestId)) throw new EngineError("invalid", "이 접수는 지금 처리하는 중입니다.");
-      if (entry.state === "unknown" || entry.state === "pending") throw new EngineError("invalid", "엔진이 받았는지 먼저 확인해 주세요.");
       if (entry.state === "accepted") throw new EngineError("invalid", "이미 접수된 작업입니다.");
+      if (entry.state !== "rejected") throw new EngineError("invalid", "엔진이 받았는지 알 수 없는 접수는 다시 보내지 않습니다.");
       if (!readLink() || entry.link !== readLink()) throw new EngineError("invalid", "엔진 연결이 바뀌어 이 접수는 다시 보낼 수 없습니다. 새로 접수해 주세요.");
-      if (entry.errorKind === "conflict" || entry.errorKind === "invalid") throw new EngineError("invalid", "이 접수는 다시 보낼 수 없습니다. 내용을 고쳐 새로 접수해 주세요.");
-      if (!patch(requestId, { state: "pending" }, ["notReceived", "rejected"])) throw new EngineError("invalid", "접수 상태가 바뀌었습니다. 다시 확인해 주세요.");
+      if (!entry.errorKind || !RETRYABLE.includes(entry.errorKind)) throw new EngineError("invalid", "이 접수는 다시 보낼 수 없습니다. 내용을 고쳐 새로 접수해 주세요.");
+      if (!patch(requestId, { state: "pending" }, ["rejected"])) throw new EngineError("invalid", "접수 상태가 바뀌었습니다. 다시 확인해 주세요.");
       return send({ ...entry, state: "pending" });
+    },
+
+    /** 이 접수를 resend()로 다시 보낼 수 있는가 */
+    canResend(requestId: string): boolean {
+      const entry = readLedger().find((s) => s.requestId === requestId);
+      return !!entry && !busy.has(requestId) && entry.state === "rejected" && !!entry.errorKind && RETRYABLE.includes(entry.errorKind) && !!readLink() && entry.link === readLink();
     },
 
     /** 접수 기록(이 회원 것만) */
@@ -479,15 +474,17 @@ export function createEngineClient(opts: EngineClientOptions) {
     },
 
     /**
-     * 접수 기록에서 지우기. 지금 범위에서 결과를 모르는 접수는 지우지 않는다(지우면 확인할 길이 없어진다).
-     * 범위가 바뀌어 더는 확인할 수 없는 과거 접수는 지울 수 있다.
+     * 접수 기록에서 지우기. 보내는 중(pending)인 접수는 지우지 않는다.
+     * 결과를 모르는 접수(unknown)는 force일 때만 지운다 — 화면이 「엔진이 이미 그렸을 수 있음」을 알린 뒤 사용자가 고른 경우.
+     * 범위가 바뀌어 더는 확인할 수 없는 과거 접수는 그냥 지울 수 있다.
      */
-    forget(requestId: string): boolean {
+    forget(requestId: string, opts: { force?: boolean } = {}): boolean {
       const list = readLedger();
       const entry = list.find((s) => s.requestId === requestId);
       if (!entry || busy.has(requestId)) return false;
-      const open = entry.state === "unknown" || entry.state === "pending";
-      if (open && entry.link === readLink()) return false;
+      const sameScope = entry.link === readLink();
+      if (entry.state === "pending" && sameScope) return false;
+      if (entry.state === "unknown" && sameScope && !opts.force) return false;
       writeLedger(list.filter((s) => s.requestId !== requestId));
       return true;
     },
