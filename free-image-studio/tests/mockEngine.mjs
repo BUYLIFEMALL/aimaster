@@ -24,8 +24,10 @@ export function createMockEngine({ codes = ["123456", "654321", "111222", "33344
     unreachable: null,
     /** (call) => Promise 면 응답을 그 약속이 풀릴 때까지 붙잡는다 */
     hold: null,
-    /** (call) => Response 면 그 응답으로 대신한다 */
+    /** (call) => Response 면 그 응답으로 대신한다(엔진은 요청을 처리하지 않음) */
     override: null,
+    /** (call, res) => Response 면 엔진이 **처리한 뒤** 응답만 그것으로 바꾼다(예: 목록에 넣은 뒤 저장 실패) */
+    after: null,
   };
   const scopeOf = (token) => (st.tokensBroken ? null : st.tokens.find((t) => t.token === token)?.scope ?? null);
   const pub = ({ task: _task, ...rest }) => rest;
@@ -98,7 +100,8 @@ export function createMockEngine({ codes = ["123456", "654321", "111222", "33344
     st.calls.push(call);
     if (u.origin !== ENGINE) throw new TypeError("모의 엔진: 루프백이 아닌 주소");
     if (st.unreachable?.(call)) throw new TypeError("fetch failed");
-    const res = st.override?.(call) ?? (await handle(call));
+    const handled = st.override?.(call) ?? (await handle(call));
+    const res = st.after?.(call, handled) ?? handled;
     if (st.loseResponse?.(call)) throw new TypeError("fetch failed");
     const gate = st.hold?.(call);
     if (gate) await gate;
