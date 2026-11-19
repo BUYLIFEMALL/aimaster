@@ -10304,10 +10304,10 @@
       "owner": "CC-SNS-01",
       "reviewer": "CX-MASTER-01",
       "title": "AI Influencer 회원 예약 기본값과 관리자 허용 설계",
-      "status": "reviewing",
-      "delivery": "shared_hook_db_v2_mac_recheck_and_admin_contract_sent",
-      "next": "25e25859e 담당 격리 DB 20/20, Mac 정적 재검수. 관리자 본인 세션·UUID 중심 감사 설계 전달, 실제 토큰·운영 적용 미확인.",
-      "evidence": "6425b1ec4·45e164bf1·msg_c9d7969183e0·msg_81623dd95517·msg_fb0814229b74·a5eebe012·msg_e22a2892cbd5·msg_72fcafaead67·msg_c50c2385c455·bf01913ca·msg_73e81c2e0a4e·msg_bd4f92a9c91d·8c008d1f2·msg_9798da905907·msg_4ab0bb9725fc·msg_d060c2adc362·msg_14be39e4d98c·.ai/results/AI-INFLUENCER-R1-20261119-CX-QA-01.md·msg_28535461e744·msg_c9c73cf62365·8e04faee8·msg_fdaedad88a9d·msg_7857772eff03·msg_d5a93c1e9c7d·msg_3c745fd8d0a3·msg_4669cc0adbf7·msg_2639e26effdc·msg_aab1a546a863·06653c25f·msg_de63d878490a·msg_6a61990da58e·msg_2d25cdee75db·msg_40d34547f8d2·25e25859e·msg_7903b97f1d3e·msg_9ef535f845ab"
+      "status": "running",
+      "delivery": "shared_hook_db_v2_mac_p2_pass_search_path_followup",
+      "next": "25e25859e Mac 정적 검수 기존 P2 통과. 함수 검색 경로·감사 기록 최소화 보완 배정. 실제 세션·운영 DB 미적용.",
+      "evidence": "6425b1ec4·45e164bf1·msg_c9d7969183e0·msg_81623dd95517·msg_fb0814229b74·a5eebe012·msg_e22a2892cbd5·msg_72fcafaead67·msg_c50c2385c455·bf01913ca·msg_73e81c2e0a4e·msg_bd4f92a9c91d·8c008d1f2·msg_9798da905907·msg_4ab0bb9725fc·msg_d060c2adc362·msg_14be39e4d98c·.ai/results/AI-INFLUENCER-R1-20261119-CX-QA-01.md·msg_28535461e744·msg_c9c73cf62365·8e04faee8·msg_fdaedad88a9d·msg_7857772eff03·msg_d5a93c1e9c7d·msg_3c745fd8d0a3·msg_4669cc0adbf7·msg_2639e26effdc·msg_aab1a546a863·06653c25f·msg_de63d878490a·msg_6a61990da58e·msg_2d25cdee75db·msg_40d34547f8d2·25e25859e·msg_7903b97f1d3e·msg_9ef535f845ab·msg_29efe44c95cf·msg_88b91b62244a"
     },
     {
       "task_id": "AIF-20261119-D2-READINESS",
