@@ -193,3 +193,69 @@ test("소스 계약: 서버 전용·sharp import 0·원본 바이트를 업로�
   const clients = ["src/app/s/[store]/admin/products/banana-send.tsx"].map((p) => { try { return readFileSync(new URL("../" + p, import.meta.url), "utf8"); } catch { return ""; } });
   for (const c of clients) assert.ok(!c.includes("mallPhotoApply"));
 });
+
+// ---- Master msg_cebd1020adc8 보완: 읽은 바이트 수 독립 확인 · 제안 경로 식별자 일치 · 열쇠 정규 Base64 ----
+test("읽은 바이트 수: 상한 초과는 decode 전에 too_large, 정확히 상한은 통과, 0·바이트 아님은 failed", async () => {
+  const over = new Uint8Array(APPLY_MAX_BYTES + 1);
+  let m = mock({ dlp: over });
+  assert.equal(await applyProposal(input(), m.d), "too_large");
+  assert.equal(m.called("decode").length + m.called("upload").length + m.called("commit").length, 0);
+  m = mock({ dlp: new Uint8Array(APPLY_MAX_BYTES) });
+  assert.equal(await applyProposal(input(), m.d), "done");
+  assert.equal(m.called("decode")[0][1], APPLY_MAX_BYTES);
+  for (const bad of [new Uint8Array(0), "text", [1, 2, 3], {}]) {
+    m = mock({ dlp: bad });
+    assert.equal(await applyProposal(input(), m.d), "failed");
+    assert.equal(m.called("decode").length + m.called("upload").length + m.called("commit").length, 0);
+  }
+});
+
+test("제안 경로: <몰>/<제안 id>.jpg와 정확히 같을 때만 읽는다 — 다른 몰·다른 제안·확장자·경로 조작·대문자는 begin·읽기·decode·쓰기·commit 0", async () => {
+  const good = `${STORE}/${PROPOSAL}.jpg`;
+  const bads = [
+    `${U(99)}/${PROPOSAL}.jpg`, `${STORE}/${U(98)}.jpg`, `${STORE}/${PROPOSAL}.png`, `${STORE}/${PROPOSAL}.jpg.bak`,
+    `../${good}`, `${STORE}/../${U(1)}/${PROPOSAL}.jpg`, `${STORE}//${PROPOSAL}.jpg`, `/${good}`, `${good}/`, good.toUpperCase(),
+    `${STORE}/sub/${PROPOSAL}.jpg`, "", `${STORE}/${PROPOSAL}.jpg\n`,
+  ];
+  for (const filePath of bads) {
+    const m = mock({ load: { storeId: STORE, productId: PRODUCT, filePath } });
+    assert.equal(await applyProposal(input(), m.d), "failed", JSON.stringify(filePath));
+    assert.equal(m.called("begin").length + m.called("dlp").length + m.called("decode").length + m.called("upload").length + m.called("commit").length, 0);
+  }
+  for (const row of [{ storeId: "x", productId: PRODUCT, filePath: good }, { storeId: STORE, productId: "x", filePath: good }, { storeId: STORE, productId: PRODUCT, filePath: 5 }]) {
+    const m = mock({ load: row });
+    assert.equal(await applyProposal(input(), m.d), "failed");
+    assert.equal(m.called("begin").length, 0);
+  }
+  const ok = mock(); assert.equal(await applyProposal(input(), ok.d), "done");
+  assert.equal(ok.called("dlp")[0][1], good);
+});
+
+test("열쇠: 정규 Base64(32바이트·44자·끝 = 하나)만 — 아닌 값은 config이고 DB·Storage 호출 0, 값은 출력되지 않음", async () => {
+  const raw = createHash("sha256").update("qa-m3-server-synthetic-key").digest();
+  const bads = [
+    KEY.replace(/\+/g, "-").replace(/\//g, "_") + "x", // 길이 다름
+    KEY.slice(0, 43), // 패딩 없음
+    KEY + "=", KEY.replace("=", ""), ` ${KEY}`, `${KEY}\n`, KEY.slice(0, 20) + " " + KEY.slice(21),
+    Buffer.concat([raw, Buffer.from([1])]).toString("base64"), // 33바이트
+    raw.subarray(0, 31).toString("base64"), // 31바이트
+    "A".repeat(43) + "B", // 끝 비트가 정규가 아님(다시 인코딩하면 달라짐)
+    "!".repeat(44), 12345, null, undefined, {},
+  ];
+  // 정규 형식의 url-safe 변형: +,/ 가 들어 있는 열쇠라면 -,_ 로 바꾼 값은 거절
+  const urlSafe = Buffer.from(raw).toString("base64").replace(/\+/g, "-").replace(/\//g, "_");
+  if (urlSafe !== KEY) bads.push(urlSafe);
+  for (const keyB64 of bads) {
+    const m = mock();
+    assert.equal(await applyProposal(input({ keyB64 }), m.d), "config", String(keyB64).length + "");
+    assert.equal(m.log.length, 0);
+  }
+  const ok = mock(); assert.equal(await applyProposal(input(), ok.d), "done");
+});
+
+test("소스 계약: 열쇠·경로 값을 반환·로그로 내보내지 않는다", () => {
+  const src = readFileSync(new URL("../src/lib/mallPhotoApply.ts", import.meta.url), "utf8");
+  assert.ok(!/throw new Error\([^)]*keyB64/.test(src));
+  assert.ok(/validKey\(input\.keyB64\)/.test(src));
+  assert.ok(/got\.length > APPLY_MAX_BYTES/.test(src));
+});

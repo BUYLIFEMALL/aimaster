@@ -64,6 +64,12 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 export function looksLikeJpeg(b: Uint8Array): boolean {
   return b.length >= 4 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff && b[b.length - 2] === 0xff && b[b.length - 1] === 0xd9;
 }
+/** 열쇠: 정규 Base64(표준 알파벳, 32바이트 = 44자 + 끝 「=」 하나, 다시 인코딩하면 같은 글자). 값은 어디에도 출력하지 않는다 */
+export function validKey(k: unknown): boolean {
+  if (typeof k !== "string" || !/^[A-Za-z0-9+/]{43}=$/.test(k)) return false;
+  const b = Buffer.from(k, "base64");
+  return b.length === 32 && b.toString("base64") === k;
+}
 const same = (a: Uint8Array, b: Uint8Array) => a.length === b.length && a.every((v, i) => v === b[i]);
 
 function mapBeginReason(reason: unknown): ApplyCode {
@@ -91,12 +97,15 @@ export async function applyProposal(input: ApplyInput, d: ApplyDeps): Promise<Ap
   if (!UUID.test(input.proposalId) || !UUID.test(input.uid)) return "failed";
   if (!input.keyB64 || !input.kid || !input.origin) return "config";
   try { appliedPublicUrl(input.origin, `${"0".repeat(8)}-0000-0000-0000-${"0".repeat(12)}/${"0".repeat(8)}-0000-0000-0000-${"0".repeat(12)}.k1.${"0".repeat(64)}.${"0".repeat(32)}.jpg`); } catch { return "config"; }
-  if (Buffer.from(input.keyB64, "base64").length !== 32 || !/^[a-z0-9]{1,16}$/.test(input.kid)) return "config";
+  if (!validKey(input.keyB64) || !/^[a-z0-9]{1,16}$/.test(input.kid)) return "config";
 
   // 1. 제안 읽기(권한 없음 = forbidden, 내용 노출 0)
   let proposal: Awaited<ReturnType<ApplyDeps["loadProposal"]>>;
   try { proposal = await d.loadProposal(input.proposalId); } catch { return "unknown"; }
   if (!proposal) return "forbidden";
+  // 제안 경로는 0106 begin이 만든 모양(<몰>/<제안 id>.jpg)이고 몰·제안 식별자와 일치할 때만 읽는다(다른 몰·다른 제안 파일 읽기 0, begin 전에 거절)
+  if (typeof proposal.storeId !== "string" || typeof proposal.productId !== "string" || typeof proposal.filePath !== "string"
+      || !UUID.test(proposal.storeId) || !UUID.test(proposal.productId) || proposal.filePath !== `${proposal.storeId}/${input.proposalId}.jpg`) return "failed";
 
   // 2. 1단계: 슬롯
   let slot: { apply: string; role: string };
@@ -115,7 +124,9 @@ export async function applyProposal(input: ApplyInput, d: ApplyDeps): Promise<Ap
   try {
     const got = await d.downloadProposal(proposal.filePath, APPLY_MAX_BYTES);
     if (got === "too_large") return "too_large";
-    if (!got || got.length === 0) return "failed";
+    // 내려받은 실제 바이트 수를 decode 직전에 독립 확인(주입 함수의 상한 준수를 믿지 않음): 0 = 실패, 상한 초과 = too_large
+    if (!(got instanceof Uint8Array) || got.length === 0) return "failed";
+    if (got.length > APPLY_MAX_BYTES) return "too_large";
     original = got;
   } catch { return "failed"; }
 
