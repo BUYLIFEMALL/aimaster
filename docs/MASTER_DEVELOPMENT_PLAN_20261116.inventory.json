@@ -10017,11 +10017,11 @@
       "reviewer": "CX-QA-01",
       "title": "B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계",
       "status": "reviewing",
-      "delivery": "author_handoff_received_mac_review_dispatched",
+      "delivery": "mac_review_found_kpi_and_touch_regressions_fix_requested",
       "sha": "b6b3ee7f5",
-      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8",
-      "next": "시안 154 직접 승인·tsc/build 통과·미배포 담당 보고. 별도 B2Btest HTTP 25와 고정 SHA UI 렌더 구분. Mac 독립 검수 전송, 수락 대기.",
-      "lastReviewedAt": "2026-11-19T01:02:57.692Z"
+      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8·msg_9f9b2521f4a8·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_621b8cb49fa9",
+      "next": "Mac Node 20/20 및 메뉴·권한·조회 정적 통과. 주문 KPI 5000행 상한 표기와 상품 상단 3링크 44px 복원은 AG-UI-01 보완 요청. 해당 SHA 실화면 미검증·미배포.",
+      "lastReviewedAt": "2026-11-19T01:05:26.701Z"
     }
   ]
 }
