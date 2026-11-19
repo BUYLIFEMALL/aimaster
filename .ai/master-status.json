@@ -6947,20 +6947,19 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T13:32:19.977Z",
+      "at": "2026-11-19T14:01:08.311Z",
       "timezone": "Asia/Seoul",
-      "trigger": "22:30 정기 점검 메시지 msg_ed83bb4779fb 수신·실행",
-      "scope": "22:02 KST 이후 증분. 377건 중 미완료 31건(진행 4·검수 7·순번 5·주인님 확인/결정 15). 기존 103개·19분류, 11개 담당 기록 및 점유·미배포·사람 단계 대조.",
+      "trigger": "23:00 정기 점검 메시지 msg_16e42101d7b1 수신·실행",
+      "scope": "22:32 KST 이후 증분. 377건 중 미완료 30건(진행 3·검수 7·순번 4·주인님 확인/결정 16). 기존 103개·19분류, 11개 담당 기록 및 점유·미배포·사람 단계 대조.",
       "evidence": [
-        "Master 요청함 대기 0, Git 증분·Mac 결과(IMG 5-4/5-5·AIF R1·QA037) 대조. 공용 HANDOFF의 기존 AIF 플랜 미커밋 보존.",
-        "IMG 8d0dc2013 Mac 127통과·2제외 수락, 1b64c61b4 Mac 133통과·2제외와 장부/포커스 반례. 7ad6d560f OpenAI 사본 14개 읽기 점검 OK.",
-        "AIF d8b38b204 담당 21/21·Mac 정적 통과, 보관/UUID/메모 주인님 결정 대기. QA037 공간 29 로그인·Return 전.",
-        "전체 사본 검사 safe-fetch 기준 파일은 T-08 e038f405e에서 삭제; 기존 기준과 유지 사본 4개 Git blob 동일. Workspace v1.63 실제 ZIP 및 B2B M3 라우트 보완 후속 보고 전."
+        "Master 요청함 대기 0, Git 증분과 갱신 결과 IMG-P1-5-5 1편 대조. 29d9de3ea 인수인계·점유 종료, 공용 HANDOFF의 기존 AIF 플랜 미커밋 보존.",
+        "무료 이미지 ffa312773 Mac 지정 12/12, 이전 장부 보존 검수 및 모의 키 동작 확인, 실제 설정/화면·엔진 없음. 설치/빌드 승인 대기 abbb38e2d.",
+        "safe-fetch 기준 경로 변경 fa125184f·6b7c31b14, 전체 읽기 점검 종료 0. B2B M3·QA037, AIF R1 및 Workspace 실 ZIP의 새 완료 근거 없음."
       ],
-      "judgment": "한영 변환 로컬 수락, 무료 이미지 안내·장부 복구 보완. AIF 권한 DB 후보 정적 수락 후 정책 대기. 공용 사본 검사의 기준 경로만 바로잡도록 배정.",
-      "nextAction": "이미지 장부·포커스 msg_40d1d6ba4204, safe-fetch 기준 msg_9f1547aee90d(점유 해소 뒤). QA037 로그인·Return 후 읽기, 승인 없는 추가 배포·운영 DB·유료 호출 없음.",
+      "judgment": "무료 이미지 코드·모의 검수와 파일 인수인계 마감. 공용 검사 기준 경로 작업 종료. 새 승인 없으며 기존 배정·대기 조건 유지.",
+      "nextAction": "무료 이미지는 주인님 승인 뒤 메인 PC 설치·로컬 빌드. B2B M3는 담당 보완 고정판 뒤 Mac 재검수; QA037은 지정 계정 로그인·Return 뒤 재개. AIF 감사 정책 및 Workspace 실 ZIP 결과 대기. 새 중복 배정 없음.",
       "unverified": [
-        "실제 무료 이미지 화면/팝업·탭·AI·엔진, Workspace 운영 다문서 ZIP·버전 기록, B2B Lab·실 Storage, AIF 실제 관리자 세션·운영 DB. 운영 전수와 이전 미추적 파일 전체는 증분 범위 밖."
+        "무료 이미지 실제 브라우저·탭·엔진·AI, Workspace 운영 다문서 ZIP·버전 메타데이터, B2B Lab·실 Storage, AIF 실제 관리자 세션·운영 DB. 운영 전수 및 이전 미추적 파일 전체는 증분 범위 밖."
       ]
     },
     "notifications": [
