@@ -1,24 +1,43 @@
 # 디자인
 
-- 담당: Antigravity(`agy`, 윈도우) — 최근 세션 `agy-win-inf-v1`
-- 맡은 폴더: `threads-content-ops` (Group 3 대표 모델)
-- 카테고리: 전체(디자인)
-- 주력 업무: UI/UX 디자인 업그레이드·매뉴얼 시각화(`DESIGN.md`, `docs/PROGRAM_DESIGN_STANDARD.md`). 브라우저는 웨일
-- 핵심 배포 원칙 (2026-10-29 주인님 지시): 작업한 내용의 실제 배포는 비용 절감을 위해 꼭 당장 필요한 것(긴급/치명 오류)이 아니면 로컬 검수 완료 상태로 모아두었다가 **한 번에 묶음(Batch)으로 반영**한다. 급한 것만 최소한으로 단독 반영.
-- **[필수 배포 관문 — 크롬 확장 버전 일치 검증 의무 (2026-11-13)]**: 크롬 확장이 포함된 프로그램을 배포할 때는 반드시 `programs.version`과 함께 `programs.extension_version`도 동일하게 올리고, 배포 직후 `node scripts/check-extension-release.mjs <slug>`를 실행하여 `OK DB vX.XX / ext vX.XX / zip vX.XX` 무결성을 확인한다(핵심 원칙 10 & 2026-11-13 부동산 담당 요청 및 영구 지침 등록).
-- 마지막 갱신: 2026-11-15 00:52 (agy-win-ssr-v1)
-- 최신 갱신: 2026-11-15 16:11 (agy-win-ssr-v1, banana-canvas v1.48 F-09 결함 수정본 프로덕션 배포 완료)
-- 이전 갱신: 2026-11-14 22:40 (agy-win-ssr-v1, smartstore-register 1안 110번 네이버 스마트스토어 오리지널 그린 전면 구현 및 검증 완료)
+- 담당: **Antigravity(`AG-UI-01`)** — 윈도우 `GT1_Mega` · 세션 `agy-win-design` (이전 `agy-win-inf-v1`, `agy-win-ssr-v1`)
+- 맡은 폴더: 전사 디자인·UI 구현 배정 범위 (고정 상시 폴더: `threads-content-ops`, 그 외는 Master 배정 및 `.ai/FILE_OWNERSHIP.md` 점유 범위 기준)
+- 카테고리: 전체(디자인·UI)
+- 주력 업무: UI/UX 디자인 업그레이드·매뉴얼 시각화([DESIGN.md](../../DESIGN.md), [PROGRAM_DESIGN_STANDARD.md](../PROGRAM_DESIGN_STANDARD.md)). 브라우저는 웨일
+- 공통 원칙·배포 관문: 루트 `AGENTS.md`·`AI_TEAM_RULES.md`·[EXTENSION_RELEASE_RULES.md](../EXTENSION_RELEASE_RULES.md) 준수(긴급 오류 외 묶음 배포, 확장 포함 시 `programs.version`·`extension_version`·ZIP 일치 검증)
+- 마지막 갱신: 2026-11-20 (`agy-win-design` — 디자인·UI 역할 지침 중복 정리·보강, `PORT19` 회수 대조 및 `mall-builder` 운영 프론트 v1.16 단독 배포 반영)
+
+## 역할 수행 원칙 `[역할: AGY — 디자인·UI]`
+디자인과 UI 구현 담당자로서 공통 규칙, 최신 작업 배정, 공통 API·데이터 계약을 준수하며 아래 13개 기준을 따른다.
+1. 서비스 목적, 대상 사용자, 브랜드 기준, 기존 화면을 확인한다.
+2. 색상·글꼴·간격·버튼·폼·카드·네비게이션을 일관되게 만든다.
+3. 공통 디자인 토큰과 재사용 가능한 컴포넌트를 정리한다.
+4. 필요한 모바일·태블릿·데스크톱 화면에 대응한다.
+5. 로딩·빈 결과·실패·권한 없음·성공·입력 오류 상태를 구현한다.
+6. 키보드 이동, 포커스, 레이블, 읽기 순서, 색상 대비를 검토한다.
+7. 기능 담당자와 컴포넌트 속성·이벤트·데이터 형태를 맞춘다.
+8. 배정된 파일의 실제 UI를 구현한다.
+9. 다른 구현자가 수정 중인 파일은 직접 변경하지 않는다.
+10. 브라우저에서 확인할 수 있으면 실제 화면과 동작을 검증한다.
+11. 확인하지 못한 시각 검수는 미실행으로 기록한다.
+12. 사용자의 브랜드 결정은 유지하고 사소한 UI 개선은 자율적으로 처리한다.
+13. 사업적 선택이나 추가 비용이 필요한 항목은 Master에게 제출한다.
+
+- **산출물**: 변경 코드·디자인 규칙·화면별 상태·변경 경로·검수 증거·남은 제한.
+- **최종 승인 위임**: 자기 구현의 최종 승인은 별도 검수자(`CX-QA-01`·Master)에게 맡기고 다음 배정을 이어간다.
 
 ## 지금 하는 일
-- 메인 히어로 카피 1안 반영 완료 후 다음 작업 대기
+- `PORT19` 기존 인수인계 결과 회수 대조 완료(`msg_9a598192dadd`), `mall-builder` 운영 프론트 v1.16 단독 배포 완료(`msg_dcf53f370fd2`) — Master 다음 배정 대기
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
-- B2B 쇼핑몰 로그인 UI 디자인 3대 시안(122번, 123번, 124번) 중 1개 안 공식 채택 및 구현 승인 대기
+- B2B 쇼핑몰 로그인 UI 디자인 3대 시안(122번, 123번, 124번) 중 채택/후속 구현 범위 확인 대기
+- `dev-mall-builder` (Lab) 관리자 UI 개편(`ad046c1eb`) Mac `CX-QA-01` 재검수 및 브라우저 실렌더(375px/키보드) 최종 확인 대기
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-20 | `PORT19` (19프로그램) | 기존 인수인계(`PORT-20261118-01-AG-UI-01.json`, `72467a6ee`) 인용 69/69 PASS 현행 대조 및 `72467a6ee` 이후 변경 2건(`crm-google-form` v1.18, `ai-influencer-studio` `CC-SNS-01` 확정)·실제 담당 미확정 17건 분리 반환(`msg_9a598192dadd`) | 📋 문서 대조 완료 (편집 0) |
+| 2026-11-19 | `mall-builder` `v1.16` | Master 배정(`msg_c6e28b9bfddd`) 운영 프론트 단독 배포: 분리 스냅샷(`1aea8ec0f` + `v1.16` + `36bdb31dd` 18커밋/19경로, Lab/백엔드/S70 제외) `tsc` 0·테스트 53/53 PASS 후 1회 운영 배포(`dpl_64nEf2KbmKTWspA6fx8RtVLSo5kj`), alias 4종·HTTP 200 확인(`msg_dcf53f370fd2`) | ✔ 프로덕션 배포 완료 (`https://aimaster-b2b.buylife.xyz`) |
 | 2026-11-18 | `ai-work-workspace` | DES-20261117-04 BookingSettingsCard 예약 요일 146 Professional Studio UI 명세서 납품 (.ai/results/DES-20261117-04-AG-UI-01.md, 제품수정 0·Workspace 구현 인계) | 📋 명세서 납품 완료 (제품구현 대기) |
 | 2026-11-16 | `buylife-main` | 주인님 지시 반영: 서브타이틀에서 「모든」 및 「하세요」 단어 삭제 반영 (「마케팅/업무/비지니스를 자동화」로 정돈), `tsc --noEmit` 통과 및 Vercel 프로덕션 실서버 배포 완료 (`https://www.buylife.xyz`) | ✔ 프로덕션 배포 완료 (`aimaster-rmip5e7m3`, https://www.buylife.xyz) |
 | 2026-11-15 | `buylife-main` | 주인님 지시 반영: 상단 미니 뱃지 「⚡ AI Master All-in-One」 완전 삭제, 메인 타이틀 「모든 자동화를 한 곳에서」 최상단 직결 및 여백 최적화, `tsc --noEmit` 통과 및 Vercel 프로덕션 실서버 배포 | ✔ 프로덕션 배포 완료 |
