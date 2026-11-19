@@ -6368,9 +6368,9 @@
       "reviewer": "CX-MASTER-01",
       "title": "AI Influencer 회원 예약 기본값과 관리자 허용 설계",
       "status": "running",
-      "delivery": "shared_hook_v2_mac_review_race_and_typecheck_dispatched",
-      "next": "8c008d1f2 담당 모의 23/23·변형 41/41. Mac 독립 검수, 이전 요청이 선택을 덮는 경합 보완·격리 타입 검사 배정. 운영 적용·빌드 전.",
-      "evidence": "6425b1ec4·45e164bf1·msg_c9d7969183e0·msg_81623dd95517·msg_fb0814229b74·a5eebe012·msg_e22a2892cbd5·msg_72fcafaead67·msg_c50c2385c455·bf01913ca·msg_73e81c2e0a4e·msg_bd4f92a9c91d·8c008d1f2·msg_9798da905907·msg_4ab0bb9725fc"
+      "delivery": "shared_hook_v2_mac_confirmed_same_mode_rollback_race",
+      "next": "8c008d1f2 Mac 모의 23/23. 이전 실패 요청이 같은 방식의 최신 성공을 덮는 경합 별도 재현, 담당 보완에 전달. 운영 적용·빌드 전.",
+      "evidence": "6425b1ec4·45e164bf1·msg_c9d7969183e0·msg_81623dd95517·msg_fb0814229b74·a5eebe012·msg_e22a2892cbd5·msg_72fcafaead67·msg_c50c2385c455·bf01913ca·msg_73e81c2e0a4e·msg_bd4f92a9c91d·8c008d1f2·msg_9798da905907·msg_4ab0bb9725fc·msg_d060c2adc362·msg_14be39e4d98c·.ai/results/AI-INFLUENCER-R1-20261119-CX-QA-01.md"
     },
     {
       "task_id": "AIF-20261119-D2-READINESS",
