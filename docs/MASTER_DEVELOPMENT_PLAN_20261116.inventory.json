@@ -10199,6 +10199,18 @@
       "next": "Sub 인수 및 Chrome 지정. Lab 9커밋·14경로, 운영 기준 18커밋·19경로 대조 완료. S70은 0105 묶음, 실화면·배포 승인 대기.",
       "evidence": "msg_81686d2c83b8·653a3c1f2·msg_f36cdbefab57·4de6db0af·msg_1cc34028b4d9·msg_46d9e2cb9bb4·msg_32d0888adbba·36bdb31dd·msg_7367e92fc8d3·msg_307bddf526bc·fd01d2236",
       "lastReviewedAt": "2026-11-19T06:34:34.752Z"
+    },
+    {
+      "task_id": "B2B-20261119-FRONT-REL",
+      "parent_task_id": "B2B-20261119-FRONT-HANDOFF",
+      "owner": "AG-UI-01",
+      "title": "B2B 프런트 단독 운영 배포",
+      "status": "queued",
+      "delivery": "owner_approved_single_production_build_preflight_dispatched",
+      "sha": "36bdb31dd",
+      "next": "메인 PC 격리 후보·운영 기준·빌드 순번 대조 뒤 승인 범위 1회. S70·백엔드·운영 DB 제외. 접수/실행 대기.",
+      "evidence": "msg_1f176110ae91·36bdb31dd·msg_c6e28b9bfddd",
+      "lastReviewedAt": "2026-11-19T06:35:48.751Z"
     }
   ]
 }
