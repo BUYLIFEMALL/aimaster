@@ -38,24 +38,29 @@ export default async function AdminOrdersPage({
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/orders">
-      {/* 직관적 주문 KPI 4종 */}
-      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs">
-          <div className="flex items-center justify-between text-xs font-bold text-slate-500"><span>전체 주문</span><span>📋</span></div>
-          <p className="mt-1.5 text-2xl font-black text-slate-900">{total}건</p>
+      {/* 직관적 주문 KPI 4종 (getOrderCounts 5,000건 상한 집계 범위 명시) */}
+      <div className="mb-5 space-y-1.5">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-500"><span>집계 주문</span><span>📋</span></div>
+            <p className="mt-1.5 text-2xl font-black text-slate-900">{total >= 5000 ? "5,000건+" : `${total.toLocaleString("ko-KR")}건`}</p>
+          </div>
+          <div className="rounded-2xl border border-amber-200/80 bg-amber-50/40 p-4 shadow-xs">
+            <div className="flex items-center justify-between text-xs font-bold text-amber-700"><span>입금 대기</span><span>⏳</span></div>
+            <p className="mt-1.5 text-2xl font-black text-amber-700">{(counts.pending_payment ?? 0).toLocaleString("ko-KR")}건</p>
+          </div>
+          <div className="rounded-2xl border border-blue-200/80 bg-blue-50/40 p-4 shadow-xs">
+            <div className="flex items-center justify-between text-xs font-bold text-blue-700"><span>결제완료·준비중</span><span>📦</span></div>
+            <p className="mt-1.5 text-2xl font-black text-blue-700">{((counts.paid ?? 0) + (counts.preparing ?? 0)).toLocaleString("ko-KR")}건</p>
+          </div>
+          <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50/40 p-4 shadow-xs">
+            <div className="flex items-center justify-between text-xs font-bold text-emerald-700"><span>구매 확정</span><span>✅</span></div>
+            <p className="mt-1.5 text-2xl font-black text-emerald-700">{(counts.confirmed ?? 0).toLocaleString("ko-KR")}건</p>
+          </div>
         </div>
-        <div className="rounded-2xl border border-amber-200/80 bg-amber-50/40 p-4 shadow-xs">
-          <div className="flex items-center justify-between text-xs font-bold text-amber-700"><span>입금 대기</span><span>⏳</span></div>
-          <p className="mt-1.5 text-2xl font-black text-amber-700">{counts.pending_payment ?? 0}건</p>
-        </div>
-        <div className="rounded-2xl border border-blue-200/80 bg-blue-50/40 p-4 shadow-xs">
-          <div className="flex items-center justify-between text-xs font-bold text-blue-700"><span>결제완료·준비중</span><span>📦</span></div>
-          <p className="mt-1.5 text-2xl font-black text-blue-700">{(counts.paid ?? 0) + (counts.preparing ?? 0)}건</p>
-        </div>
-        <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50/40 p-4 shadow-xs">
-          <div className="flex items-center justify-between text-xs font-bold text-emerald-700"><span>구매 확정</span><span>✅</span></div>
-          <p className="mt-1.5 text-2xl font-black text-emerald-700">{counts.confirmed ?? 0}건</p>
-        </div>
+        <p className="text-[11px] text-slate-500" data-order-kpi-scope>
+          * 상태별 건수는 최대 5,000건 집계 상한 기준입니다{total >= 5000 ? " (현재 상한 5,000건 도달 — 전체 주문은 검색·필터로 확인하세요)" : ""}.
+        </p>
       </div>
 
       <nav className="flex flex-wrap gap-1.5 text-sm" data-order-tabs>

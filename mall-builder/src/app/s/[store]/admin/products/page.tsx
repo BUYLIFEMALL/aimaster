@@ -89,13 +89,13 @@ export default async function ProductsPage({
           )}
         </nav>
         <div className="flex gap-2">
-          <Link href={`${base}/price-check`} className="min-h-10 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" data-price-check-link>
+          <Link href={`${base}/price-check`} className="inline-flex min-h-11 items-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50" data-price-check-link>
             ⚠ 마진 점검
           </Link>
-          <Link href={`${base}/excel`} className="min-h-10 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" data-excel-link>
+          <Link href={`${base}/excel`} className="inline-flex min-h-11 items-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50" data-excel-link>
             📥 엑셀로 등록·수정
           </Link>
-          <Link href={`${base}/new`} className="min-h-10 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white shadow-xs hover:bg-slate-800">
+          <Link href={`${base}/new`} className="inline-flex min-h-11 items-center rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white shadow-xs hover:bg-slate-800">
             + 새 상품
           </Link>
         </div>
