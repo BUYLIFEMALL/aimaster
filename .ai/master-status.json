@@ -6979,18 +6979,18 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T18:32:09.797Z",
+      "at": "2026-11-19T19:02:30.907Z",
       "timezone": "Asia/Seoul",
-      "trigger": "03:30 예약 msg_b10cc5f1ba56 및 주인님 요청 일괄 취합",
-      "scope": "기존 작업표·남은 일·담당·선행조건·새 회신과 결과 파일을 03:00 이후 증분 대조",
+      "trigger": "04:00 정기 점검 및 다음 작업 지시 요청",
+      "scope": "직전 회차 이후 신규 회신·15개 대기 항목·세션별 점유 및 준비된 다음 작업 대조",
       "evidence": [
-        "송신 A2 msg_61f2f4de2d4e·수신 구현 msg_267c8cbef515 실제 전달.",
-        "Workspace 독립 검수 msg_1df854cc1b4b 전달·msg_b50ff6e291da 기존 실화면 증거 회수 및 판정."
+        "작업별 Orca 영수증과 검토 회신을 하네스에 기록.",
+        "담당별 다음 작업 점검 fc6c080d2 적용, 현황판 HTTP 200 확인."
       ],
-      "judgment": "세션별 다음 일을 조건으로 배정. 사람 조치와 결정은 총괄표 요청 절로 취합.",
-      "nextAction": "송수신 계약·수신 구현 회수 뒤 독립 검수. 사람 단계가 완료된 항목만 재개.",
+      "judgment": "준비된 설계·구현·검수를 배정. 사람 단계나 실행 환경 대기는 사유를 기록.",
+      "nextAction": "담당별 수락·결과 확인 후 독립 검수 또는 다음 일 배정. 공용 운영 작업 실행 담당·순번 대기.",
       "unverified": [
-        "배정 착수 여부, 상품영상 운영 DB·왕복, Workspace 앱 다크·실 busy/저장, 결제·Lab 로그인 이후 검증."
+        "전달 뒤 착수, 운영 SQL 반영, Windows 재부팅 후 동작."
       ]
     },
     "notifications": [
@@ -7592,34 +7592,34 @@
   "sessionReviews": [
     {
       "owner": "CC-WORKSPACE-01",
-      "state": "운영 v1.63. 미배포 후보 3d446effa 격리 전체 회귀 1,078 통과·1 제외 수락",
-      "next": "570쪽 실제 ZIP은 사용자 재시도 뒤 확인. 후보 배포는 별도 승인.",
-      "evidence": "7053d5879·msg_cc823e8bdd96·msg_0094fd736d91·msg_b9c03dffb58d·3d446effa·msg_66f223d06e95·msg_0726003c8bcb·msg_3b04b47cad53·bc814dc28·feb1587a0 · msg_fa9bb24bf695 · WS-20261119-03-RESPONSE-FINAL A1 · 3d446effa · full_3d446.log(담당 세션)",
-      "reviewedAt": "2026-11-19T17:31:30.721Z",
+      "state": "3d446effa 타입 검사 종료 0",
+      "next": "담당 역할·버전 이력 갱신 진행",
+      "evidence": "7053d5879·msg_cc823e8bdd96·msg_0094fd736d91·msg_b9c03dffb58d·3d446effa·msg_66f223d06e95·msg_0726003c8bcb·msg_3b04b47cad53·bc814dc28·feb1587a0 · msg_fa9bb24bf695 · WS-20261119-03-RESPONSE-FINAL A1 · 3d446effa · full_3d446.log(담당 세션)·msg_c4e4c27fb558",
+      "reviewedAt": "2026-11-19T19:02:30.907Z",
       "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
       "owner": "CC-B2B-BACK-01",
-      "state": "052441c03 M3 후보 Mac 64/64",
-      "next": "실제 라우트 연결 범위 대조 배정",
-      "evidence": "msg_b9497c0ed51e·msg_a53e39f08f83",
-      "reviewedAt": "2026-11-19T14:34:31.204Z",
+      "state": "Sub에서 M3 R1 국소 구현 전달",
+      "next": "0076·0077과 S70 운영 실행은 메인 환경 인계",
+      "evidence": "msg_b9497c0ed51e·msg_a53e39f08f83·msg_235604de02db",
+      "reviewedAt": "2026-11-19T19:02:30.907Z",
       "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
       "owner": "CC-B2B-FRONT-01",
-      "state": "태블릿 지정 3파일 격리 후보",
-      "next": "Master URL 확인 후 Front·Mac 실제 화면",
-      "evidence": "msg_160c1fc11d31",
-      "reviewedAt": "2026-11-19T14:19:23.242Z",
+      "state": "모바일 커스텀 하위 메뉴 읽기 검토 전달",
+      "next": "현 경로·키보드·터치·편집기 제약 회수",
+      "evidence": "msg_160c1fc11d31·msg_d0366ff4ed8b",
+      "reviewedAt": "2026-11-19T19:02:30.907Z",
       "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
       "owner": "CC-ECOM-01",
-      "state": "상품영상 수신 로컬 구현 전달",
-      "next": "격리 검증과 고정 SHA 회수",
-      "evidence": "msg_601bdb74bd5d·msg_d59c68b08830·msg_6adfff8a518c · msg_22edc6ba9f09·msg_267c8cbef515",
-      "reviewedAt": "2026-11-19T18:32:09.797Z",
+      "state": "8개 담당 프로그램 배포 묶음 조사 회신",
+      "next": "증거 대조 후 다음 묶음 결정. 상품영상 A2 운영 미적용",
+      "evidence": "msg_601bdb74bd5d·msg_d59c68b08830·msg_6adfff8a518c · msg_22edc6ba9f09·msg_267c8cbef515·msg_abceca1effec",
+      "reviewedAt": "2026-11-19T19:02:30.907Z",
       "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
@@ -7632,18 +7632,18 @@
     },
     {
       "owner": "CC-MOVIE-01",
-      "state": "cfd969004 계약 후보 제출 후 A2 보완 전달",
-      "next": "이커머스와 송수신 계약 확정",
-      "evidence": "3feb2bd85·msg_e19e56da16c0 · msg_39488c8f7357·msg_61f2f4de2d4e",
-      "reviewedAt": "2026-11-19T18:32:09.797Z",
+      "state": "영상 출처 검토 제출 뒤 떡상 분석 2단계 준비 전달",
+      "next": "영상을 증명하는 별도 검증 필요. 2단계 첫 독립 작업 선정",
+      "evidence": "3feb2bd85·msg_e19e56da16c0 · msg_39488c8f7357·msg_61f2f4de2d4e·msg_a174c04035b1",
+      "reviewedAt": "2026-11-19T19:02:30.907Z",
       "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
       "owner": "CC-MUSIC-01",
-      "state": "플레이리스트 링크 맥미니 6/6 수락. 공개 배포 준비 읽기 작업 전달",
-      "next": "배포 대상 변경 범위·실제 클릭 확인 절차 회신 후 공개 배포 승인 판단.",
-      "evidence": "56211df73·msg_c6a117a2c57a·msg_3e1f401e70ae·msg_31dbe2245180",
-      "reviewedAt": "2026-11-19T18:01:20.640Z",
+      "state": "플레이리스트 링크 3파일 단독 배포 준비 회신",
+      "next": "공개 배포 빌드 1회 승인 대기. 반복 검수 방지",
+      "evidence": "56211df73·msg_c6a117a2c57a·msg_3e1f401e70ae·msg_31dbe2245180·msg_baa93934b1ac",
+      "reviewedAt": "2026-11-19T19:02:30.907Z",
       "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
@@ -7656,18 +7656,18 @@
     },
     {
       "owner": "AG-UI-01",
-      "state": "PORT19 인용 69/69 담당 회신. 조사 19개 중 2개 담당·상태 변경, 17개 담당 미확정",
-      "next": "Master가 기존 등록부와 17개 잔여 범위 대조",
-      "evidence": "msg_ea2d9a27dd1b · msg_9a598192dadd",
-      "reviewedAt": "2026-11-19T17:31:30.721Z",
+      "state": "B2B 관리자 주문·상품 필터 접근성 구현 전달",
+      "next": "두 경로 변경·기존 조작 보존 근거 회수",
+      "evidence": "msg_ea2d9a27dd1b · msg_9a598192dadd·msg_5726aea825db",
+      "reviewedAt": "2026-11-19T19:02:30.907Z",
       "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
       "owner": "CX-QA-01",
-      "state": "Workspace 예약 요일 375/390px·Tab·OS 다크 선호 기존 실화면 근거 수락",
-      "next": "앱 자체 다크·실 busy/저장은 미검증, Lab QA037은 로그인 뒤 진행",
-      "evidence": "msg_797fd5bb3cc4·msg_2d1033203682 · msg_0be20c445fd3·msg_b50ff6e291da",
-      "reviewedAt": "2026-11-19T18:32:09.797Z",
+      "state": "하네스 담당별 다음 작업 점검 독립 검수 전달",
+      "next": "격리 환경에서 전달·수락·중지·후속 확인",
+      "evidence": "msg_797fd5bb3cc4·msg_2d1033203682 · msg_0be20c445fd3·msg_b50ff6e291da·msg_0fb0196030f5",
+      "reviewedAt": "2026-11-19T19:02:30.907Z",
       "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
