@@ -8,7 +8,8 @@ export interface EngineInfo {
   label: string;
   sub: string;
   icon: string;
-  models: { value: string; label: string }[];
+  /** default: 그 플랫폼을 고를 때 처음 선택되는 모델(목록이 최신순이라 첫 항목이 기본이 아님) */
+  models: { value: string; label: string; default?: true }[];
 }
 
 export const ENGINES: EngineInfo[] = [
@@ -17,16 +18,18 @@ export const ENGINES: EngineInfo[] = [
     label: "GPT",
     sub: "OpenAI",
     icon: "🤖",
+    // 2026-11-19 주인님 지시(최신 모델순·같은 기준): 플랫폼마다 최신 모델을 위로, 종료 예정·자동 연결 모델은 빼고 저장값은 대체 모델로 읽는다. 근거: 공식 모델 문서 + 실제 호출 확인(docs/AI_MODEL_CATALOG.md 0-1절).
     models: [
-      { value: "gpt-4.1", label: "🚀 GPT-4.1 (최신 세대 스마트 모델 · 기본 추천)" },
-      { value: "gpt-6-luna", label: "⚡ GPT-6 Luna (최신 세대 · 가성비 초고속)" },
-      { value: "gpt-6-sol", label: "🎯 GPT-6 Sol (최신 세대 · 균형형)" },
-      { value: "gpt-6-astra", label: "💎 GPT-6 Astra (최신 세대 · 최고 품질 플래그십)" },
-      { value: "gpt-5.6-luna", label: "⚡ GPT-5.6 Luna (가성비 초고속)" },
-      { value: "gpt-5.6-terra", label: "🎯 GPT-5.6 Terra (균형형 자연스러운 어조)" },
-      { value: "gpt-5.6-sol", label: "💎 GPT-5.6 Sol (최고 품질 플래그십)" },
-      { value: "gpt-4o", label: "⚙️ GPT-4o (범용 표준 모델)" },
-      { value: "gpt-4o-mini", label: "⚡ GPT-4o-mini (빠르고 저렴)" },
+      { value: "gpt-6.2-astra", label: "💎 GPT-6.2 Astra (최신 · 최상위 품질)" },
+      { value: "gpt-6.2-sol", label: "🎯 GPT-6.2 Sol (최신 · 일상 작업 고품질)" },
+      { value: "gpt-6.1-terra", label: "🚀 GPT-6.1 Terra (균형형 · 기본 추천)", default: true },
+      { value: "gpt-6.1-sol", label: "🎯 GPT-6.1 Sol (한 단계 높은 품질)" },
+      { value: "gpt-6-astra", label: "💎 GPT-6 Astra (최상위 품질)" },
+      { value: "gpt-6-sol", label: "🎯 GPT-6 Sol (균형형)" },
+      { value: "gpt-6-luna", label: "⚡ GPT-6 Luna (가성비 초고속)" },
+      { value: "gpt-5.6-sol", label: "💎 GPT-5.6 Sol (이전 세대 · 고품질)" },
+      { value: "gpt-5.6-terra", label: "🎯 GPT-5.6 Terra (이전 세대 · 균형형)" },
+      { value: "gpt-5.6-luna", label: "⚡ GPT-5.6 Luna (이전 세대 · 가성비)" },
     ],
   },
   {
@@ -35,9 +38,12 @@ export const ENGINES: EngineInfo[] = [
     sub: "Anthropic",
     icon: "🧠",
     models: [
-      { value: "claude-sonnet-5", label: "🎯 Claude Sonnet 5 (최신 세대 · 자연스러운 문체 · 기본 추천)" },
-      { value: "claude-opus-5", label: "💎 Claude Opus 5 (고급형 복잡한 맥락 이해)" },
-      { value: "claude-haiku-4-5", label: "⚡ Claude Haiku 4.5 (가성비 초고속)" },
+      { value: "claude-fable-5-2", label: "💎 Claude Fable 5.2 (최신 · 최상위 품질 · 느림)" },
+      { value: "claude-opus-5-5", label: "💎 Claude Opus 5.5 (최신 · 복잡한 맥락 이해)" },
+      { value: "claude-sonnet-5-5", label: "🎯 Claude Sonnet 5.5 (최신 · 자연스러운 문체 · 기본 추천)", default: true },
+      { value: "claude-haiku-5-5", label: "⚡ Claude Haiku 5.5 (최신 · 가성비 초고속)" },
+      { value: "claude-opus-5", label: "💎 Claude Opus 5 (이전 세대 · 고급형)" },
+      { value: "claude-sonnet-5", label: "🎯 Claude Sonnet 5 (이전 세대 · 자연스러운 문체)" },
     ],
   },
   {
@@ -46,16 +52,24 @@ export const ENGINES: EngineInfo[] = [
     sub: "Google",
     icon: "✨",
     models: [
-      { value: "gemini-3.7-flash", label: "⚡ Gemini 3.7 Flash (속도와 품질 균형 · 기본 추천)" },
-      { value: "gemini-3.8-flash", label: "🚀 Gemini 3.8 Flash (최신 세대 · 최고 성능 Flash)" },
+      { value: "gemini-4-carbon", label: "💎 Gemini 4 Carbon (최신 · 가장 어려운 장문·분석)" },
+      { value: "gemini-4-neon", label: "🎯 Gemini 4 Neon (최신 · 깊이와 효율 균형)" },
+      { value: "gemini-4-argon", label: "🚀 Gemini 4 Argon (최신 · 빠른 추론형 분석)" },
+      { value: "gemini-4-hydrogen", label: "⚡ Gemini 4 Hydrogen (최신 · 빠른 일상 작업)" },
+      { value: "gemini-3.8-flash", label: "🚀 Gemini 3.8 Flash (속도와 품질 균형 · 기본 추천)", default: true },
+      { value: "gemini-3.6-flash", label: "⚡ Gemini 3.6 Flash (이전 세대 · 균형형)" },
       { value: "gemini-3.5-flash-lite", label: "⚡ Gemini 3.5 Flash Lite (가장 빠르고 저렴)" },
-      { value: "gemini-3.1-pro-preview", label: "💎 Gemini 3.1 Pro Preview (Google 최상위 플래그십)" },
-      { value: "gemini-2.0-flash", label: "⚙️ Gemini 2.0 Flash (안정형)" },
+      { value: "gemini-3.1-pro-preview", label: "💎 Gemini 3.1 Pro 미리보기 (분석형 장문)" },
     ],
   },
 ];
 
-export const DEFAULT_ENGINE = { provider: "openai" as EngineProvider, model: "gpt-4.1" };
+export const DEFAULT_ENGINE = { provider: "openai" as EngineProvider, model: "gpt-6.1-terra" };
+
+/** 그 플랫폼을 고를 때 처음 선택할 모델(default 표시, 없으면 첫 항목) */
+export function defaultModelOf(engine: EngineInfo): string {
+  return (engine.models.find((m) => m.default) ?? engine.models[0]).value;
+}
 
 export function isKnownEngine(provider: string, model: string): provider is EngineProvider {
   return ENGINES.some((e) => e.provider === provider && e.models.some((m) => m.value === model));

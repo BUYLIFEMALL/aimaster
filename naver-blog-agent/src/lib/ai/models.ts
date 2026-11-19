@@ -35,9 +35,10 @@ export function parseJsonSafe<T>(raw: string, fallback: T): T {
 // 화면(contentModels.ts)에서 고른 모델 ID를 그대로 호출한다. 몰래 다른 모델로 바꾸지 않는다.
 // 모델이 없을 때만 기본값을 쓰고, 잘못된 ID는 공급사 API 오류로 그대로 드러나게 한다.
 export const DEFAULT_MODELS: Record<AIProvider, string> = {
-  gemini: "gemini-3.7-flash",
-  anthropic: "claude-sonnet-5",
-  openai: "gpt-4.1",
+  // 2026-11-19 화면 기본 추천(contentModels.ts default 표시)과 같게 맞춤
+  gemini: "gemini-3.8-flash",
+  anthropic: "claude-sonnet-5-5",
+  openai: "gpt-6.1-terra",
 };
 
 export function resolveModel(provider: AIProvider, model?: string): string {

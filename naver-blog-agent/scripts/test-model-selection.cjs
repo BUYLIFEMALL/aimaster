@@ -35,7 +35,14 @@ function load() {
   sent.length = 0;
   for (const p of ['openai', 'anthropic', 'gemini']) await callAI({ provider: p, apiKey: 'x' }, 's', 'u');
   const defaults = Object.fromEntries(sent);
-  const first = (p) => listed.find(([q]) => q === p)[1];
-  for (const p of ['openai', 'anthropic', 'gemini']) assert.equal(defaults[p], first(p), `${p} 기본 모델이 화면 기본 추천과 다릅니다`);
+  // 목록이 최신순이라 기본 추천은 첫 항목이 아니라 default 표시 항목(2026-11-19)
+  const recommended = Object.fromEntries([...engines.matchAll(/provider: "(openai|anthropic|gemini)"[\s\S]*?models: \[([\s\S]*?)\n    \],/g)]
+    .map((m) => [m[1], (m[2].match(/value: "([^"]+)"[^\n]*default: true/) || [])[1]]));
+  for (const p of ['openai', 'anthropic', 'gemini']) {
+    assert.ok(recommended[p], `${p} 기본 추천(default: true) 표시가 없습니다`);
+    assert.equal(defaults[p], recommended[p], `${p} 기본 모델이 화면 기본 추천과 다릅니다`);
+  }
+  const defaultEngine = engines.match(/DEFAULT_ENGINE = \{ provider: "openai" as EngineProvider, model: "([^"]+)" \}/)[1];
+  assert.equal(defaultEngine, recommended.openai, '첫 화면 기본 엔진이 OpenAI 기본 추천과 다릅니다');
   console.log(`model selection ok: ${listed.length} models passed through, defaults match`);
 })().catch((e) => { console.error(e); process.exit(1); });

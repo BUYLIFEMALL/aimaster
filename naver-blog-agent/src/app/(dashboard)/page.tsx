@@ -62,6 +62,7 @@ import { openAIModelBadge, openAIModelTierHint, openAIModelNotice } from "@/lib/
 import {
   ENGINES,
   DEFAULT_ENGINE,
+  defaultModelOf,
   IMAGE_PLATFORMS,
   IMAGE_MODELS,
   DEFAULT_IMAGE_MODELS,
@@ -1673,7 +1674,7 @@ export default function MainPage() {
                         <button
                           key={item.provider}
                           type="button"
-                          onClick={() => setEngine({ provider: item.provider, model: item.models[0].value })}
+                          onClick={() => setEngine({ provider: item.provider, model: defaultModelOf(item) })}
                           aria-pressed={isPicked}
                           className={`flex flex-col items-center justify-center gap-0.5 rounded-xl border p-2.5 text-center font-bold transition-all ${
                             isPicked ? "border-emerald-600 bg-emerald-600 text-white shadow-xs" : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50"
