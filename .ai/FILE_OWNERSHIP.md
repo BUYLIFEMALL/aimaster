@@ -425,3 +425,5 @@ WS-RELEASE-RECORD-SYNC A2 점유 해제 CC-WORKSPACE-01: docs/PENDING_DEPLOYS.md
 WS-RELEASE-RECORD-SYNC A3 CC-WORKSPACE-01: Master msg_d1ffca87f700. v1.58 배포 기록 마무리 — docs/PENDING_DEPLOYS.md 내보낸 기록에 ai-work-workspace v1.58 한 줄, ai-work-workspace/AGENTS.md 4절 v1.58 줄 끝 문구 한 곳. 근거 .ai/results/QA-20261118-049-CX-QA-01.md·MASTER_DEVELOPMENT_PLAN_20261116.csv(9ea979de9 = dpl_8GoargZugPSSqT5atpJ5PZqWbDyd). 다른 줄 편집 없음, Vercel 조회·빌드·배포·push 없음.
 
 WS-RELEASE-RECORD-SYNC A3 점유 해제 CC-WORKSPACE-01: v1.58 배포 기록 d13895091(PENDING_DEPLOYS 한 줄) · 548ea00ac(AGENTS 4절 한 곳). 워크스페이스 내보낸 기록 v1.52~v1.63 연속.
+
+WS-IMPORT-PANEL-DOM-REGRESSION CC-WORKSPACE-01: Master msg_7b8ed4363ea5. 새 ai-work-workspace/tests/integration/importPanelDom.test.ts 한 파일(jsdom, 가져오기 완료 화면의 안내·조회 횟수 회귀)과 본인 문서 기록만. 제품 코드·의존성·설정 변경 없음, 서버 기동·운영 조회·빌드·배포·push 없음.
