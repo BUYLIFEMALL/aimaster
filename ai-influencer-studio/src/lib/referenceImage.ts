@@ -310,6 +310,7 @@ export async function prepareLastResultForRefine(src: string | null | undefined)
 //  · 끝까지 줄여도 안 되면 보내지 않고 안내한다(유료 호출 없음).
 //  · 형식·장당 상한 같은 다른 문제는 건드리지 않는다 — 기존 검사(collectReferences)가 그대로 안내한다. 서버 상한은 바꾸지 않았다.
 export const FIT_FAIL_MESSAGE = "참고 사진 전체를 2MB 이하로 줄이지 못했습니다. 사진 수를 줄이거나 더 작은 사진으로 바꿔 주세요.";
+export const FIT_BODY_MESSAGE = "보낼 내용이 3MB를 넘어 보내지 않았습니다. 지금 쓰지 않는 사진(광고 모드를 끈 상태로 남아 있는 상품 사진 등)을 지우거나 사진 수를 줄인 뒤 다시 시도해 주세요.";
 /** 줄이는 단계(긴 변·JPEG 화질). 단계마다 「원본」에서 다시 만든다 — 줄인 것을 또 줄여 화질이 겹쳐 떨어지지 않게 */
 export const FIT_LADDER: readonly { edge: number; quality: number }[] = [
   { edge: 2048, quality: 0.8 },
@@ -356,17 +357,12 @@ export async function fitReferencesForSend<T extends RefConfig>(
   }
   if (config.feedback && !absent(config.lastResultImage) && !add("lastResultImage", config.lastResultImage)) return same;
 
-  // 생성에 쓰이지 않는 칸(서버도 무시한다): 광고 모드가 아닐 때의 상품 사진, 보정 요청이 없을 때의 직전 결과.
-  // 값이 남아 있으면 본문에 그대로 실려 3MiB를 넘길 수 있다 — 넘을 때에 한해 「보내는 사본」에서만 뺀다(쓰이는 사진은 빼지 않는다).
-  const unused: ("productImages" | "lastResultImage")[] = [];
-  if (!config.isAdMode && !absent(config.productImages)) unused.push("productImages");
-  if (!config.feedback && !absent(config.lastResultImage)) unused.push("lastResultImage");
-  let omitUnused = false;
-  if (!slots.length && !unused.length) return same;
+  // 생성에 쓰이지 않는 칸(광고 모드가 아닐 때의 상품 사진, 보정 요청이 없을 때의 직전 결과)도 본문에는 그대로 실린다.
+  // 그 칸은 빼지도 줄이지도 않는다(Master msg_4ddfcc074cc6: 고른 사진을 알리지 않고 빼지 않는다 — 쓰이지 않는 칸도 같다).
+  // 그래서 쓰이는 사진을 다 줄여도 본문이 3MiB를 넘으면, 보내지 않고 본문 한도를 안내한다(쓰이는 사진이 없는 경우 포함).
 
   const build = (): T => {
     const next: Record<string, unknown> = { ...(config as Record<string, unknown>) };
-    if (omitUnused) for (const k of unused) delete next[k];
     let products: unknown[] | null = null;
     for (const s of slots) {
       if (s.value === s.original) continue;
@@ -378,13 +374,10 @@ export async function fitReferencesForSend<T extends RefConfig>(
     if (products) next.productImages = products;
     return next as T;
   };
-  const fits = () => slots.reduce((sum, s) => sum + s.bytes, 0) <= TOTAL_MAX_BYTES && serializedBytes(build()) <= JSON_BODY_MAX_BYTES;
+  const totalFits = () => slots.reduce((sum, s) => sum + s.bytes, 0) <= TOTAL_MAX_BYTES;
+  const fits = () => totalFits() && serializedBytes(build()) <= JSON_BODY_MAX_BYTES;
   if (fits()) return same;
-  if (unused.length) {
-    omitUnused = true;
-    if (fits()) return { ok: true, config: build(), changed: true };
-  }
-  if (!slots.length) return same;   // 사진과 무관하게 본문이 큰 경우 — 손대지 않는다(서버가 413으로 안내)
+  if (!slots.length) return { ok: false, message: FIT_BODY_MESSAGE };   // 줄일 사진이 없다 — 본문이 넘는 채로 보내지 않는다
 
   const shrink = opts?.shrink ?? shrinkDataUrlToJpeg;
   for (const step of FIT_LADDER) {
@@ -399,5 +392,6 @@ export async function fitReferencesForSend<T extends RefConfig>(
     }
     if (fits()) return { ok: true, config: build(), changed: true };
   }
-  return { ok: false, message: FIT_FAIL_MESSAGE };
+  // 합계는 맞췄는데 본문만 넘는다 = 쓰이지 않는 칸의 사진이나 긴 글자 설정 때문이다 → 본문 한도 안내. 그 밖에는 합계 안내.
+  return { ok: false, message: totalFits() ? FIT_BODY_MESSAGE : FIT_FAIL_MESSAGE };
 }

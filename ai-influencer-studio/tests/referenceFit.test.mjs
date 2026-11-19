@@ -11,6 +11,7 @@ import {
   serializedBytes,
   FIT_LADDER,
   FIT_FAIL_MESSAGE,
+  FIT_BODY_MESSAGE,
   PER_IMAGE_MAX_BYTES,
   TOTAL_MAX_BYTES,
   JSON_BODY_MAX_BYTES,
@@ -120,42 +121,57 @@ test("쓰이지 않는 칸(작음) — 본문이 한도 안이면 세지도 바�
   assert.deepEqual(await server(r.config), { status: 200, generate: 1 });
 });
 
-test("쓰이지 않는 칸(큼) — 광고 모드를 껐는데 남은 상품 사진·보정 요청 없는 직전 결과가 본문을 넘기면, 그 칸만 보내는 사본에서 빼고 쓰이는 사진은 그대로", async () => {
-  const person = fake("jpeg", 900 * KB), place = fake("jpeg", 900 * KB, 0x43);
-  const config = { personImage: person, placeImage: place, isAdMode: false, productImages: [fake("jpeg", 900 * KB, 0x44), fake("jpeg", 900 * KB, 0x45)], lastResultImage: fake("jpeg", 900 * KB, 0x47) };
-  assert.equal((await server(config)).status, 413, "빼기 전에는 본문 상한에 걸린다(생성에 쓰이지도 않는 사진 때문에)");
+// ── 쓰이지 않는 칸(Master msg_4ddfcc074cc6): 빼지도 줄이지도 않는다. 그 칸 때문에 본문이 넘으면 보내지 않고 안내한다 ──
+test("반례 — 광고 모드를 껐는데 남은 큰 상품 사진·보정 요청 없는 직전 결과가 넘침의 원인: 보내지 않고 본문 한도 안내, 고른 사진은 모두 그대로", async () => {
+  const config = { personImage: fake("jpeg", 900 * KB), placeImage: fake("jpeg", 900 * KB, 0x43), isAdMode: false, productImages: [fake("jpeg", 900 * KB, 0x44), fake("jpeg", 900 * KB, 0x45)], lastResultImage: fake("jpeg", 900 * KB, 0x47) };
+  assert.equal((await server(config)).status, 413, "그대로 보내면 서버 본문 상한에 걸리는 입력이어야 한다");
   const snapshot = JSON.stringify(config);
+  const shrink = shrinker();
+  const r = await fitReferencesForSend(config, { shrink });
+  assert.deepEqual(r, { ok: false, message: FIT_BODY_MESSAGE }, "보낼 사본을 돌려주지 않는다 = 보내지 않는다");
+  assert.equal(JSON.stringify(config), snapshot, "고른 사진(쓰이는 것·쓰이지 않는 것 모두)이 설정에 그대로 남는다");
+  assert.equal(config.productImages.length, 2);
+  assert.ok(config.lastResultImage);
+  assert.ok(shrink.calls.every((c) => c.bytes === 900 * KB));
+});
+
+test("반례 — 쓰이는 사진이 하나도 없고 쓰이지 않는 칸만 큰 경우: 축소 0, 보내지 않고 본문 한도 안내", async () => {
+  const config = { gender: "여성", isAdMode: false, productImages: [fake("jpeg", 900 * KB, 0x44), fake("jpeg", 900 * KB, 0x45), fake("jpeg", 900 * KB, 0x46)] };
+  assert.equal((await server(config)).status, 413);
+  const snapshot = JSON.stringify(config);
+  const shrink = shrinker();
+  const r = await fitReferencesForSend(config, { shrink });
+  assert.deepEqual(r, { ok: false, message: FIT_BODY_MESSAGE });
+  assert.equal(shrink.calls.length, 0);
+  assert.equal(JSON.stringify(config), snapshot);
+});
+
+test("쓰이지 않는 칸이 있어도 쓰이는 사진을 줄여 본문이 맞으면 보낸다 — 쓰이지 않는 칸은 사본에 그대로 실린다(빼지 않는다)", async () => {
+  const unusedProduct = fake("jpeg", 600 * KB, 0x44);
+  const config = { personImage: fake("jpeg", 900 * KB), placeImage: fake("jpeg", 900 * KB, 0x43), isAdMode: false, productImages: [unusedProduct] };
+  assert.equal((await server(config)).status, 413);
   const shrink = shrinker();
   const r = await fitReferencesForSend(config, { shrink });
   assert.equal(r.ok, true);
   assert.equal(r.changed, true);
-  assert.equal(shrink.calls.length, 0, "쓰이는 사진은 줄이지 않았다");
-  assert.equal(r.config.personImage, person);
-  assert.equal(r.config.placeImage, place);
-  assert.equal("productImages" in r.config, false);
-  assert.equal("lastResultImage" in r.config, false);
-  assert.equal(JSON.stringify(config), snapshot, "화면의 원본 설정은 그대로(상품 사진이 남아 있다)");
+  assert.deepEqual(r.config.productImages, [unusedProduct], "쓰이지 않는 상품 사진은 빼지도 줄이지도 않는다");
+  assert.equal(refsOf(r.config).length, 2);
+  assert.ok(serializedBytes(r.config) <= JSON_BODY_MAX_BYTES);
   assert.deepEqual(await server(r.config), { status: 200, generate: 1 });
 });
 
-test("쓰이지 않는 칸을 빼도 넘으면 — 이어서 쓰이는 사진을 줄여 맞춘다", async () => {
-  const config = { personImage: fake("jpeg", 900 * KB), placeImage: fake("jpeg", 900 * KB, 0x43), feedback: "톤 보정", lastResultImage: fake("jpeg", 900 * KB, 0x47), isAdMode: false, productImages: [fake("jpeg", 900 * KB, 0x44)] };
-  const shrink = shrinker();
-  const r = await fitReferencesForSend(config, { shrink });
-  assert.equal(r.ok, true);
-  assert.equal("productImages" in r.config, false);
-  assert.equal(refsOf(r.config).length, 3, "쓰이는 사진 3장(인물·장소·직전 결과)은 모두 남는다");
-  assert.ok(shrink.calls.length >= 1);
-  assert.deepEqual(await server(r.config), { status: 200, generate: 1 });
-});
-
-test("사진과 무관하게 본문이 큰 경우 — 손대지 않는다(서버가 413으로 안내)", async () => {
+test("사진과 무관하게 글자 설정만으로 본문이 넘는 경우 — 보내지 않고 본문 한도 안내", async () => {
   const config = { gender: "여성", note: "x".repeat(JSON_BODY_MAX_BYTES + 10) };
   const shrink = shrinker();
   const r = await fitReferencesForSend(config, { shrink });
-  assert.equal(r.config, config);
+  assert.deepEqual(r, { ok: false, message: FIT_BODY_MESSAGE });
   assert.equal(shrink.calls.length, 0);
-  assert.equal((await server(config)).status, 413);
+});
+
+test("합계가 원인이면 합계 안내, 본문만 원인이면 본문 안내 — 두 문구를 구분한다", async () => {
+  const total = await fitReferencesForSend({ personImage: fake("jpeg", 900 * KB), placeImage: fake("jpeg", 900 * KB, 0x43), isAdMode: true, productImages: [fake("jpeg", 900 * KB, 0x44)] }, { shrink: shrinker({ fail: true }) });
+  assert.deepEqual(total, { ok: false, message: FIT_FAIL_MESSAGE });
+  assert.notEqual(FIT_BODY_MESSAGE, FIT_FAIL_MESSAGE);
 });
 
 // ── 줄일 수 없을 때: 보내지 않고 안내. 사진을 빼서 통과시키지 않는다 ──
