@@ -3,6 +3,7 @@
 // 지금: 가져오기 세 명령(importFiles·previewCsv·mergeCsv)이 권한·횟수 확인 뒤 가져오기 전용 로더로 하나씩 읽는다.
 // 가짜 Storage·가짜 내려받기로 확인한다(실제 업로드·실제 네트워크 없음). 로컬 Postgres 전용 fixture만 쓴다.
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import postgres from 'postgres';
 import { setupLocalDb } from '../setup-local-db.mjs';
 
 process.env.AWW_DATABASE_URL = await setupLocalDb({ reset: true });
@@ -12,6 +13,7 @@ let fs_: typeof import('../../src/server/fileStorage.ts');
 let db: typeof import('../../src/litpage/server/db.ts');
 let files: typeof import('../../src/litpage/server/content/files.ts');
 let zip: typeof import('../../src/litpage/server/content/zip.ts');
+let ratelimit: typeof import('../../src/litpage/server/ratelimit.ts');
 const kim = { id: '12121212-1212-4212-8212-121212121212', email: 'stored-kim@example.com', name: '킴' };
 const lee = { id: '34343434-3434-4434-8434-343434343434', email: 'stored-lee@example.com', name: '리' };
 type M = typeof kim;
@@ -23,6 +25,7 @@ const fetched: string[] = []; // 내려받은 경로(순서대로)
 let inFlight = 0;
 let maxInFlight = 0;
 let pulled = 0; // 실제로 흘려보낸 바이트
+let duringError: unknown = null;
 /** 내려받기 동작을 바꿔 끼우는 손잡이 */
 const net: { status: number; extra: number; lieLength: number | null; delayMs: number; during: null | (() => Promise<void>) } = { status: 200, extra: 0, lieLength: null, delayMs: 0, during: null };
 
@@ -47,7 +50,12 @@ const fakeFetch = async (url: string): Promise<Response> => {
   if (net.during) {
     const run = net.during;
     net.during = null;
-    await run();
+    try {
+      await run();
+    } catch (e) {
+      duringError = e; // 끼워 넣은 일의 실패는 시험이 따로 확인한다(내려받기 실패로 뭉개지지 않게)
+      throw e;
+    }
   }
   const body = objects.get(path);
   if (net.status !== 200 || !body) return new Response('nope', { status: net.status !== 200 ? net.status : 404 });
@@ -79,6 +87,7 @@ beforeAll(async () => {
   db = await import('../../src/litpage/server/db.ts');
   files = await import('../../src/litpage/server/content/files.ts');
   zip = await import('../../src/litpage/server/content/zip.ts');
+  ratelimit = await import('../../src/litpage/server/ratelimit.ts');
   fs_.setFileStorageForTests({ store: fakeStore as never, quota: async () => ({ allowed: true, message: null, upgradeUrl: '' }), fetch: fakeFetch });
   for (const m of [kim, lee]) {
     await runtime.runRpc('loadAccountData', {}, m);
@@ -95,6 +104,9 @@ beforeEach(() => {
   maxInFlight = 0;
   pulled = 0;
   Object.assign(net, { status: 200, extra: 0, lieLength: null, delayMs: 0, during: null });
+  duringError = null;
+  // 이 파일은 한 회원으로 큰 파일을 여러 번 올린다 — 사례끼리 횟수 제한이 이어지지 않게 비운다(제한 자체는 fileStorage.test.ts가 확인)
+  for (const m of [kim, lee]) for (const k of [`upload-large:user:${m.id}`, `import-stored:${m.id}`, `import:${m.id}`]) ratelimit.reset(k);
 });
 
 const sp = (m: M) => spaces.get(m.id)!;
@@ -477,4 +489,161 @@ describe('Storage를 기다리는 사이의 동시 변경', () => {
     expect(pv.status).toBe(200);
     expect(((pv.body as any).target.properties as { name: string }[]).map((p) => p.name)).toContain('Later');
   });
+
+  // 2026-11-19 Mac 검수 후속(Master msg_74f8e5339487)
+  const propId = (colId: string, name: string) => Object.entries(rec('collection', colId).schema as Record<string, any>).find(([, p]) => p.name === name)?.[0];
+  /** Name·Status에 글자 열 ColX를 하나 더한 표 */
+  async function tableWithColX(title: string) {
+    const t = await makeTable(title);
+    const add = put(`${title}-x.csv`, 'Name,ColX\nTwo,x0\n');
+    expect((await runtime.runRpc('mergeCsv', { blockId: t.blockId, url: add.url, name: 'x.csv' }, kim)).status).toBe(200);
+    return { ...t, colX: propId(t.colId, 'ColX')! };
+  }
+
+  it('직접 고른 열이 기다리는 사이 사라지면 같은 이름의 새 열을 만들지 않고 409로 멈춘다', async () => {
+    const t = await tableWithColX('Mapped');
+    const a = await uploadLarge(kim, 'mapped.csv', storedCsv('Name,Status,Whatever', ['FromA,Alpha,v1']), 'text/csv');
+    net.during = async () => patchRecord('collection', t.colId, (r) => { delete r.schema[t.colX]; });
+    const r = await runtime.runRpc('mergeCsv', { blockId: t.blockId, url: a.url, name: 'mapped.csv', mapping: { 2: t.colX } }, kim);
+    expect(brief(r)).toMatchObject({ status: 409 });
+    expect((r.body as any).message).toContain('선택한 열이 바뀌었습니다');
+    // 열: 다른 쪽이 지운 그대로이고 Whatever·Pad 같은 새 열이 생기지 않았다. 옵션(Alpha)도 줄도 그대로
+    expect(schemaNames(t.colId)).toEqual(['Name', 'Status']);
+    expect(statusOptions(t.colId)).toEqual(['Open']);
+    expect(rowCount(t.colId)).toBe(2);
+  });
+
+  it('직접 고른 열이 기다리는 사이 넣을 수 없는 종류로 바뀌어도 409로 멈춘다', async () => {
+    const t = await tableWithColX('Retyped');
+    const a = await uploadLarge(kim, 'retyped.csv', storedCsv('Name,Status,Whatever', ['FromA,Alpha,v1']), 'text/csv');
+    net.during = async () => patchRecord('collection', t.colId, (r) => { r.schema[t.colX].type = 'formula'; });
+    const r = await runtime.runRpc('mergeCsv', { blockId: t.blockId, url: a.url, name: 'retyped.csv', mapping: { 2: t.colX } }, kim);
+    expect(brief(r)).toMatchObject({ status: 409 });
+    expect(schemaNames(t.colId)).toEqual(['ColX', 'Name', 'Status']);
+    expect(statusOptions(t.colId)).toEqual(['Open']);
+    expect(rowCount(t.colId)).toBe(2);
+  });
+
+  it('회귀: 직접 고른 열이 그대로 있으면 그 열에 넣는다(머리글 이름의 새 열 없음)', async () => {
+    const t = await tableWithColX('Kept');
+    const a = await uploadLarge(kim, 'kept.csv', storedCsv('Name,Status,Whatever', ['FromA,Alpha,v1']), 'text/csv');
+    const r = await runtime.runRpc('mergeCsv', { blockId: t.blockId, url: a.url, name: 'kept.csv', mapping: { 2: t.colX, 3: 'skip' } }, kim);
+    expect(r.status).toBe(200);
+    expect((r.body as any).newProperties).toEqual([]);
+    expect(schemaNames(t.colId)).toEqual(['ColX', 'Name', 'Status']);
+    expect(statusOptions(t.colId)).toEqual(['Alpha', 'Open']);
+    expect(rowCount(t.colId)).toBe(3);
+  });
+
+  it('회귀: 건너뛰기·새 열·자동 연결은 예전 그대로', async () => {
+    const t = await tableWithColX('Modes');
+    // 열: 0 Name(자동·제목) 1 Status(자동·있는 열) 2 Keep(자동·없는 열 → 새 글자 열) 3 Drop(건너뜀) 4 ColX(「새 열」 지정 → 같은 이름이 있어도 새로) 5 Pad(자동)
+    const a = await uploadLarge(kim, 'modes.csv', storedCsv('Name,Status,Keep,Drop,ColX', ['FromA,Zed,k1,d1,n1']), 'text/csv');
+    const r = await runtime.runRpc('mergeCsv', { blockId: t.blockId, url: a.url, name: 'modes.csv', mapping: { 3: 'skip', 4: 'new' } }, kim);
+    expect(r.status).toBe(200);
+    expect(((r.body as any).newProperties as string[]).sort()).toEqual(['ColX', 'Keep', 'Pad']);
+    expect(schemaNames(t.colId)).toEqual(['ColX', 'ColX', 'Keep', 'Name', 'Pad', 'Status']);
+    expect(statusOptions(t.colId)).toEqual(['Open', 'Zed']);
+    expect(rowCount(t.colId)).toBe(3);
+  });
+
+  it('회귀: 처음부터 없던 열 id를 지정한 경우는 예전 그대로(머리글 이름의 새 열)', async () => {
+    const t = await tableWithColX('Unknown');
+    const a = await uploadLarge(kim, 'unknown.csv', storedCsv('Name,Status,Whatever', ['FromA,Open,v1']), 'text/csv');
+    const r = await runtime.runRpc('mergeCsv', { blockId: t.blockId, url: a.url, name: 'unknown.csv', mapping: { 2: 'nope', 3: 'skip' } }, kim);
+    expect(r.status).toBe(200);
+    expect((r.body as any).newProperties).toEqual(['Whatever']);
+  });
+
+  it('표를 지정하지 않은 previewCsv도 기다리는 사이 워크스페이스에서 빠지면 내용을 돌려주지 않는다', async () => {
+    const a = await uploadLarge(kim, 'secret.csv', storedCsv('Name,Secret', ['x,비밀값']), 'text/csv');
+    const spaceId = sp(kim);
+    const before = rec('space', spaceId).permissions;
+    net.during = async () => patchRecord('space', spaceId, (r) => { r.permissions = (r.permissions ?? []).filter((p: any) => p.user_id !== kim.id); });
+    const r = await runtime.runRpc('previewCsv', { spaceId, url: a.url, name: 'secret.csv' }, kim);
+    patchRecord('space', spaceId, (x) => { x.permissions = before; });
+    expect(brief(r)).toMatchObject({ status: 403, message: 'Not a member of this workspace' });
+    expect(JSON.stringify(r.body)).not.toContain('비밀값');
+    expect((r.body as any).columns).toBeUndefined();
+    // 권한이 그대로면 예전처럼 돌려준다
+    const ok = await runtime.runRpc('previewCsv', { spaceId, url: a.url, name: 'secret.csv' }, kim);
+    expect(ok.status).toBe(200);
+    expect(((ok.body as any).columns as { name: string }[]).map((c) => c.name)).toEqual(['Name', 'Secret', 'Pad']);
+  });
+});
+
+// 2026-11-19 Master msg_a38d3ff84dbc: 서로 다른 DB 연결 사이의 실제 행 잠금 대기.
+// 앱은 동기 DB 다리(연결 하나)를 쓰므로, 시험이 두 번째 연결을 따로 열어 「다른 서버 인스턴스」 역할을 시킨다.
+// 두 번째 연결은 한 번에 보낸 문장 묶음으로 컬렉션 줄을 잠그고(FOR UPDATE) 열·옵션을 더한 뒤 2초 쉬었다가 커밋한다.
+// (앱 쪽 질의가 잠금을 기다리는 동안에는 이 프로세스의 이벤트 루프가 멈추므로, 커밋까지 DB 서버 안에서 끝나도록 한 묶음으로 보낸다.)
+describe('다른 DB 연결이 잡은 행 잠금', () => {
+  const rec = <T = any>(table: string, id: string) => db.withRequestCache(() => db.getRecord(table as never, id) as T);
+  const HOLD_SEC = 2;
+
+  it('mergeCsv는 다른 연결의 잠금이 풀릴 때까지 기다린 뒤 그 연결이 더한 열·옵션 위에 합친다', async () => {
+    const seed = db.withRequestCache(() => files.storeFile('Lock.csv', Buffer.from('Name,Status\nOne,Open\n'), kim.id, sp(kim), 'text/csv'));
+    const made = await runtime.runRpc('importFiles', { spaceId: sp(kim), parent: { kind: 'private' }, files: [{ name: 'Lock.csv', url: seed.url }], csvTypes: { 1: 'select' } }, kim);
+    expect(made.status).toBe(200);
+    const blockId = (made.body as any).pageIds[0] as string;
+    const colId = rec('block', blockId).collection_id as string;
+
+    // 다른 연결이 써넣을 값: 지금 스키마 + 새 열 ColB + Status의 새 옵션 Beta
+    const col = rec('collection', colId);
+    const statusId = Object.entries(col.schema as Record<string, any>).find(([, p]) => p.name === 'Status')![0];
+    const next = structuredClone(col);
+    next.version = (col.version ?? 0) + 1; // 실제 쓰기처럼 레코드 안의 판 번호도 함께 올린다
+    next.last_edited_time = Date.now();
+    next.schema.zzcolb = { name: 'ColB', type: 'text' };
+    next.schema[statusId].options = [...next.schema[statusId].options, { id: '00000000-0000-4000-8000-0000000be7a0', value: 'Beta', color: 'blue' }];
+    const tag = '$lockjson$';
+    expect(JSON.stringify(next)).not.toContain(tag);
+
+    const other = postgres(process.env.AWW_DATABASE_URL!, { max: 1, onnotice: () => {} });
+    const stored = Buffer.from(`Name,Status,ColA,Pad\nFromA,Alpha,a1,${'p'.repeat(5 * MB)}\n`);
+    const up = await uploadLarge(kim, 'lock.csv', stored, 'text/csv');
+    let otherDone: Promise<unknown> | undefined;
+    let lockTakenAt = 0;
+    try {
+      // A가 Storage를 기다리는 사이(이미 예전 스키마를 읽어 둔 상태) 다른 연결이 잠금을 잡는다
+      net.during = async () => {
+        otherDone = other.unsafe(`
+          BEGIN;
+          SELECT id FROM records WHERE tbl = 'collection' AND id = '${colId}' FOR UPDATE;
+          UPDATE records SET data = ${tag}${JSON.stringify(next)}${tag}, version = ${next.version}, last_edited_time = ${next.last_edited_time} WHERE tbl = 'collection' AND id = '${colId}';
+          SELECT pg_sleep(${HOLD_SEC});
+          COMMIT;
+        `).simple().execute(); // execute(): 기다리지 않아도 지금 바로 보낸다
+        // 문장 묶음이 서버에 도착해 잠금을 잡을 시간을 준다
+        await new Promise((r) => setTimeout(r, 400));
+        // 다른 연결이 정말 잠금을 쥐고 있는지 세 번째 연결로 확인(커밋 전이라 새 열은 아직 보이지 않는다)
+        const probe = postgres(process.env.AWW_DATABASE_URL!, { max: 1, onnotice: () => {} });
+        try {
+          const locked = await probe.unsafe(`SELECT id FROM records WHERE tbl = 'collection' AND id = '${colId}' FOR UPDATE SKIP LOCKED`);
+          expect(locked.length).toBe(0); // 건너뜀 = 누군가 잠금 보유
+          const visible = await probe.unsafe(`SELECT data FROM records WHERE tbl = 'collection' AND id = '${colId}'`);
+          expect(String(visible[0].data)).not.toContain('ColB');
+        } finally {
+          await probe.end();
+        }
+        lockTakenAt = Date.now();
+      };
+      const r = await runtime.runRpc('mergeCsv', { blockId, url: up.url, name: 'lock.csv' }, kim);
+      const waitedMs = Date.now() - lockTakenAt;
+      if (duringError) throw duringError;
+      await otherDone;
+      expect({ status: r.status, message: (r.body as any)?.message }).toEqual({ status: 200, message: undefined });
+      // 실제로 기다렸다: 잠금을 확인한 시점부터 다른 연결이 쉬는 시간의 대부분이 지나서야 끝났다
+      expect(waitedMs).toBeGreaterThanOrEqual((HOLD_SEC - 0.6) * 1000);
+      // 다른 연결이 더한 열·옵션이 남아 있고, 우리 것이 그 위에 합쳐졌다
+      const after = rec('collection', colId);
+      const names = Object.values(after.schema as Record<string, any>).map((p) => p.name).sort();
+      expect(names).toEqual(['ColA', 'ColB', 'Name', 'Pad', 'Status']);
+      expect((after.schema[statusId].options as { value: string }[]).map((o) => o.value).sort()).toEqual(['Alpha', 'Beta', 'Open']);
+      expect((r.body as any).newProperties.sort()).toEqual(['ColA', 'Pad']);
+      expect((r.body as any).added).toBe(1);
+    } finally {
+      await otherDone?.catch(() => {});
+      await other.end();
+    }
+  }, 60_000);
 });

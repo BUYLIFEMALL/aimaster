@@ -29,7 +29,7 @@ import { pdfToSpecs } from '../../content/pdf.ts';
 import { opmlToSpecs, tsvToRows, xlsxToRows } from '../../content/sheets.ts';
 import { enexToDb, trelloToDb } from '../../content/apps.ts';
 import { hit, RateLimitError } from '../../ratelimit.ts';
-import { ZIP_IMPORT_LIMITS, normalizeZipName, slashZipName, zipNameHidden, zipNameSkipped, zipPathTooLong } from '#shared/zipPath.ts';
+import { ZIP_IMAGE_EXT, ZIP_IMPORT_LIMITS, ZIP_PAGE_EXT, normalizeZipName, slashZipName, zipNameHidden, zipNameSkipped, zipPathTooLong } from '#shared/zipPath.ts';
 
 type Handler = (ctx: Ctx, body: any) => any;
 
@@ -62,11 +62,11 @@ const JOB_TTL_MS = 24 * 3_600_000;
 
 const MAX_FILES = 20;
 const MAX_BLOCKS = 20_000;
-const PAGE_EXT = /\.(md|markdown|txt|html?|csv|tsv|docx|pdf|xlsx|opml|enex)$/i;
+const PAGE_EXT = ZIP_PAGE_EXT;
 /** File types importFiles accepts directly (ZIP aside): + Evernote .enex and Trello board .json exports. */
 export const IMPORT_EXT = /\.(md|markdown|txt|csv|tsv|html?|docx|pdf|xlsx|opml|enex|json)$/i;
 const MB = 1024 * 1024;
-const IMAGE_EXT = /\.(png|jpe?g|gif|webp|svg|bmp|avif)$/i;
+const IMAGE_EXT = ZIP_IMAGE_EXT;
 
 function requireUser(ctx: Ctx): string {
   if (!ctx.userId) throw new ApiError('Unauthorized', 401);
@@ -528,6 +528,8 @@ export const handlers: Record<string, Handler> = {
     // 합칠 대상의 편집 권한을 파일을 읽기 전에 확인한다(2026-11-19: 큰 파일은 Storage에서 읽어 오므로 순서를 앞당김)
     const mergeInto = blockId ? databaseOrThrow(blockId, uid) : undefined;
     const { file } = await uploadOf({ url, name }, uid, space, ctx);
+    // 2026-11-19(Mac 검수 P3): 파일을 읽는 동안 워크스페이스에서 빠졌으면 내용을 돌려주지 않는다(캐시를 거치지 않고 다시 확인)
+    withoutRequestCache(() => spaceOrThrow(spaceId, uid));
     let rows: string[][];
     try {
       rows = csvRowsOf(String(name ?? 'file.csv'), file.data);
@@ -587,6 +589,11 @@ export const handlers: Record<string, Handler> = {
       const m = mapping && typeof mapping === 'object' ? (mapping as Record<string, string>)[String(i)] : undefined;
       if (m === 'skip') return void target.push(null);
       if (m && m !== 'new' && schema[m] && MERGEABLE.includes(schema[m].type)) return void target.push(m);
+      // 2026-11-19(Mac 검수 P2): 사용자가 직접 고른 열이 파일을 읽는 동안 사라졌거나 넣을 수 없는 종류로 바뀌었으면,
+      // 같은 이름의 새 열을 만들어 넣지 않는다(고른 목적지가 없어진 것이므로 멈추고 알린다 — 줄·열 변화 없음).
+      if (m && m !== 'new' && pre.col.schema[m] && MERGEABLE.includes(pre.col.schema[m].type)) {
+        throw new ApiError('가져오는 동안 선택한 열이 바뀌었습니다. 열 연결을 다시 확인해 주세요.', 409);
+      }
       if (!m && i === 0 && !byName.has(h.toLowerCase())) return void target.push('title');
       const existing = byName.get(h.toLowerCase());
       if (!m && existing && MERGEABLE.includes(schema[existing].type)) return void target.push(existing);

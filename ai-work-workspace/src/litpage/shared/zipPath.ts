@@ -42,3 +42,8 @@ export function zipPathTooLong(name: string): boolean {
   // UTF-8 바이트 수(TextEncoder는 브라우저·Node 공통)
   return new TextEncoder().encode(name).length > ZIP_IMPORT_LIMITS.pathBytes;
 }
+
+/** ZIP 안에서 페이지·데이터베이스가 되는 파일(가져오기 import.ts의 PAGE_EXT) */
+export const ZIP_PAGE_EXT = /\.(md|markdown|txt|html?|csv|tsv|docx|pdf|xlsx|opml|enex)$/i;
+/** ZIP 안에서 본문 그림으로 꺼내 쓰는 파일(import.ts의 IMAGE_EXT). 그 밖의 파일(동영상·첨부)은 가져오기가 쓰지 않는다 */
+export const ZIP_IMAGE_EXT = /\.(png|jpe?g|gif|webp|svg|bmp|avif)$/i;
