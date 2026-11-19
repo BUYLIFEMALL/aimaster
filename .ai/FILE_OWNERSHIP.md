@@ -429,3 +429,5 @@ WS-RELEASE-RECORD-SYNC A3 점유 해제 CC-WORKSPACE-01: v1.58 배포 기록 d13
 WS-IMPORT-PANEL-DOM-REGRESSION CC-WORKSPACE-01: Master msg_7b8ed4363ea5. 새 ai-work-workspace/tests/integration/importPanelDom.test.ts 한 파일(jsdom, 가져오기 완료 화면의 안내·조회 횟수 회귀)과 본인 문서 기록만. 제품 코드·의존성·설정 변경 없음, 서버 기동·운영 조회·빌드·배포·push 없음.
 
 WS-IMPORT-PANEL-DOM-REGRESSION 점유 해제 CC-WORKSPACE-01: 시험 1파일+문서 54183605c(importPanelDom.test.ts 6개, tsc 0, 변이 2종 실패 확인). 제품 코드 3d446effa 그대로. 미검증: 실제 브라우저·운영.
+
+MOV-SVS-RELEVANCE-FILTER-INTEGRATION CC-MOVIE-01: Master msg_3a32f423910f(A1/P9/1, 기준 b40b18f37). 공용 등록 두 파일의 youtube-relevance-filter 한 항목만(docs/SHARED_MODULES.md·scripts/check-shared-modules.mjs, --module youtube-relevance-filter만 동기화) + shorts-viral-studio/ 안 관련성 필터 연결: 새 사본 src/lib/youtube/relevanceFilter.ts(sync 생성)·src/lib/youtube/api.ts searchShorts·src/lib/actions/svs.ts·검색 화면 토글/제외 수·tests 국소 시험·docs. 다른 사본·즐겨찾기 정책·새 외부 호출/의존성·빌드·배포·push 0. 검수 CX-QA-01.
