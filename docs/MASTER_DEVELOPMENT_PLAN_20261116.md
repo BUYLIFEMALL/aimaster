@@ -515,7 +515,7 @@ Master 마지막 실제 점검: 2026-11-19 14:04:40 KST · 실행 중 5분 · �
 | BLOG-20261119-MODELS | CC-BLOG-01 | done / strict_switch_independent_accepted_undeployed | 블로그 설정 플랫폼별 AI 모델 선택 | Mac 49/49와 원문 1회·정상 전환과 503 상한 2회 수락. 승인 실호출 9/9는 앞선 버전의 담당 결과. 미배포. |
 | RE-20261119-PARTIAL | CC-REALTY-01 | waiting_human / partial_result_retention_plan_ready_decisions_pending | 상가·건물·토지 알림 부분 조회 결과 보존 | id 기준 이전 결과 보존 설계. 7일, 차단·오류 때도 보존할지, 배포 시점 결정 대기. 제품·확장·운영 변경 없음. |
 | BLOG-20261119-MODELS-3 | CC-BLOG-01 | done / saved_provider_mac_review_accepted_undeployed | 블로그 3개 프로그램 모델 목록 동기화 | SEO 22/22·에이전트 복원/요청 일치 맥미니 수락. 사진 후기 선택지 및 기존 빠른 작성 응답 지연은 별도. 미배포. |
-| FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | reviewing / preview_opener_fix_mac_final_recheck_dispatched | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 미리보기만 빠른 메뉴 버튼과 빈 줄을 숨김. 담당 28/28·타입 통과. 일반 상점 동작 포함 맥미니 최종 재검수 요청. 미배포. |
+| FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | done / mobile_quickbar_and_preview_mac_accepted_undeployed | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 고정 51d4b2207 Mac 28/28. 모바일 버튼·포커스 및 미리보기 빈 줄 제거 수락. 미배포 묶음 대기, 고정판 실제 편집기 미확인. |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
