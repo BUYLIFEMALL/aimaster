@@ -5,6 +5,7 @@ import { sendListingAdAction, type SendState } from "@/lib/actions/listings";
 import { draftListingAction, type DraftState } from "@/lib/actions/aiDraft";
 import { AI_ENGINES, aiEngine, aiModelName, resolveAiModel, toAiProvider, type AiProvider } from "@/lib/ai/engines";
 import { skipSummary } from "@/lib/desk/skipSummary";
+import { PhonePreview } from "@/components/desk/PhonePreview";
 
 const AI_CHOICE_KEY = "desk-ai-choice"; // 이 브라우저에 마지막으로 고른 엔진·모델(편의 기능 — 못 읽어도 기본값으로 동작)
 
@@ -149,7 +150,7 @@ export function SendAdForm({ listingId, draft, header, footer, candidates, night
         <textarea name="body" value={body} onChange={(e) => setBody(e.target.value)} rows={6} maxLength={600} className="mx-input" />
         <div>
           <p className="mb-1 text-xs font-semibold text-mx-muted">고객이 받는 모양 (맨 앞·맨 끝은 법에 따라 자동으로 붙고 고칠 수 없어요 · {len}자{len > 90 ? ", 장문 문자(LMS)" : ""})</p>
-          <pre className="whitespace-pre-wrap rounded-xl border border-mx-border bg-[#f7f9fb] p-3 text-sm text-mx-text">{preview}</pre>
+          <PhonePreview text={preview} kind={len > 90 ? "LMS" : "SMS"} /> {/* U-1(2026-11-19): 휴대폰 말풍선 틀 — 표시만 */}
           <p className="mt-1 text-xs text-mx-muted">수신거부 링크는 고객마다 다른 주소로 바뀌어 들어가요.</p>
         </div>
         {night && <p className="rounded-lg bg-[#fff4e5] p-3 text-sm text-[#8a5300]">🌙 지금은 밤 9시~아침 8시라 광고 문자를 보낼 수 없어요(정보통신망법). 아침 8시 이후에 보내 주세요.</p>}
