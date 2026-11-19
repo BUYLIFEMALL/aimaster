@@ -425,7 +425,7 @@ Master 마지막 실제 점검: 2026-11-19 13:33:14 KST · 실행 중 점검 주
 | B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | reviewing / local_data_layer_review_passed_server_approval_pending | 메이커 M3 제안 적용·서버 바이트 검증 설계 | f0eaf784c Mac 로컬 데이터 계층 독립 검수 수락을 Backend에 회신. 점 경로 검증, 서버 구현·키·UI·Lab은 별도 승인 대기. |
 | B2B-20261119-ADMINUI | AG-UI-01 | waiting_human / private_lab_ready_waiting_owner_admin_login | B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계 | 메모리 부족 후 사용자 지시로 사설 Lab 재시작, PID 43784·ad046c1eb·login 200 확인. Mac 공간39 사용자 제어 유지, 반환 후 읽기 검수. |
 | B2B-20261119-MALL-STORAGE | CX-MASTER-01 | queued / central_accounting_scope_registered_retention_excluded | 쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내 | 메인 집계에서 몰별 경로를 몰 주인에게 귀속하고 중복 방지·구매 안내 범위를 설계. 30일 삭제 요청 취소·등록 상품 최소 1년 보관 유지. 운영 적용 별도. |
-| IMG-20261119-PLAN | CC-ECOM-01 | running / owner_reassigned_engine_to_ecom_music_handoff_pending | AI 무료 이미지 자동화 개발 플랜 | 주인님 설계 1~4 및 이미지 담당 엔진 구현 확정. 기존 음악 담당 5파일 변경 보존·인계 요청. 인계 확인과 점유 이전 뒤 ECOM 편집, 설치판·웹 별도. |
+| IMG-20261119-PLAN | CC-ECOM-01 | running / engine_ownership_transferred_and_admin_q8_validation_dispatched | AI 무료 이미지 자동화 개발 플랜 | 음악 담당 5파일 인계·패치 지문 대조 및 점유 이전 완료. 이미지 담당 P1 엔진 구현. Admin Codex(Tester)에 새 Q8 48장 전달 확인, 바로 사용 가능 39장 이상과 규격 48/48 판정 대기. 설치판·웹은 별도. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
@@ -503,12 +503,14 @@ Master 마지막 실제 점검: 2026-11-19 13:33:14 KST · 실행 중 점검 주
 | AIF-20261119-W01-NEXT | CC-SNS-01 | done / dependency_patch_verified_locally_undeployed | AI Influencer Next.js 보안 패치 | 16.4.6 파일 지문과 잠금 범위 대조 완료. 담당 시험 320/320·타입 통과·audit 0. 번들 및 운영 응답 확인은 배포 단계. |
 | AIF-20261119-W01-V4 | CC-SNS-01 | done / finite_member_real_storage_verified_isolated_origin | 일반 회원 한도와 운영 다운로드 선행 검증 | 지정 일반 회원 실제 이용·합성 JPEG 1회 업로드·본인 조회·서명 다운로드 200. 일반 한도 초과·정리·운영 출처는 미검증. |
 | AIF-20261119-W01-V3 | CC-SNS-01 | done / v3_success_and_isolation_guard_independent_accepted | AI Influencer 대표 생성 및 보정 검증 | 승인 이미지/캡션 성공 및 e3421c7a9 Mac 모의 18/18 수락. 추가 Windows 실기동·공급자 호출·운영 검증 없음. |
+| AIF-20261119-W01-RETOUCH | CC-SNS-01 | running / direct_user_approved_sequential_isolated_validation | AI Influencer 히스토리 재표시·일반 회원 생성·보정 | 격리 서버에서 무료 히스토리 재표시 → 일반 회원 생성 → 같은 결과 보정 1회 → V5 변환. 공개 게시 범위 별도 확인. D1~D3은 앞 단계 통과 후 순차 진행과 빌드 조정. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
 | DES-20261119-HERO-FOLLOWUP | AG-UI-01 | done / hero_followup_production_live_verified | 메인 히어로 하단 지표·버튼 제거 운영 배포 | 216c5e071, 공식 운영 지표 3·CTA 제거/이미지 확인. 1회 빌드, push 0. |
 | DES-20261119-HERO-TRIM | AG-UI-01 | done / hero_trim_production_live_verified | 메인 히어로 표시 요소 4곳 정리 운영 배포 | 0b2835c07 공식 도메인·4곳 제거·이미지 확인. 1회 빌드, push 0. |
 | AIF-20261118-W03 | 미배정 | queued / sequenced_after_w01_and_w02_by_owner_instruction | 회원용 인물 라이브러리·시트·버전 | 주인님 지시대로 W01·W02 이후 시작. 인물 라이브러리·일괄 이미지·영상 미착수. |
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
-| BLOG-20261119-MODELS | CC-BLOG-01 | reviewing / fallback_primary_cases_pass_strict_endpoint_instruction_fix_requested | 블로그 설정 플랫폼별 AI 모델 선택 | Mac 독립 14/14, 일반 오류 1요청·명시 경로 오류 최대 2 검증. 문서 링크·권한 메시지의 오탐 제거 보완 요청. 승인된 실호출 결과 대기·미배포. |
+| BLOG-20261119-MODELS | CC-BLOG-01 | reviewing / p3_correction_mac_recheck_dispatched_author_live_nine_pass | 블로그 설정 플랫폼별 AI 모델 선택 | 담당 보고 기준 승인 실호출 9/9 성공·대체 0. Mac 18/18 뒤 문서·부정문 반례 P3 보완 39/39, 최종 SHA 독립 재검수 요청. 추가 실호출·배포 없음. |
+| FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | running / mobile_overlap_confirmed_local_fix_assigned | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 767px 이하 첫 표시를 접힌 상태로 개선하고 375/390/768px 및 키보드 확인. 고정 SHA 반환 뒤 맥미니 독립 검수. 별도 빌드·운영 저장·배포 없음. |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
