@@ -5,6 +5,7 @@ import { sendListingAdAction, type SendState } from "@/lib/actions/listings";
 import { draftListingAction, type DraftState } from "@/lib/actions/aiDraft";
 import { AI_ENGINES, aiEngine, aiModelName, resolveAiModel, toAiProvider, type AiProvider } from "@/lib/ai/engines";
 import { skipSummary } from "@/lib/desk/skipSummary";
+import { smsBytes, SMS_MAX_BYTES } from "@/lib/desk/smsBytes";
 import { PhonePreview } from "@/components/desk/PhonePreview";
 
 const AI_CHOICE_KEY = "desk-ai-choice"; // 이 브라우저에 마지막으로 고른 엔진·모델(편의 기능 — 못 읽어도 기본값으로 동작)
@@ -50,7 +51,7 @@ export function SendAdForm({ listingId, draft, header, footer, candidates, night
   const selectable = candidates.filter((c) => c.ok && !c.sent);
   const skipped = useMemo(() => skipSummary(candidates), [candidates]); // L-2(2026-11-19): 보낼 수 없는 사람 사유별 합계(화면 계산만)
   const preview = useMemo(() => `${header}\n${body.trim()}\n${footer}`, [header, body, footer]);
-  const len = [...preview].length;
+  const bytes = smsBytes(preview); // 실제 발송(SOLAPI)과 같은 바이트 기준 — 한글 2·영문 1
   const blocked = night || Boolean(ready);
 
   return (
@@ -149,7 +150,7 @@ export function SendAdForm({ listingId, draft, header, footer, candidates, night
         <h2 className="text-base font-bold text-mx-text">✉️ 보낼 내용</h2>
         <textarea name="body" value={body} onChange={(e) => setBody(e.target.value)} rows={6} maxLength={600} className="mx-input" />
         <div>
-          <p className="mb-1 text-xs font-semibold text-mx-muted">고객이 받는 모양 (맨 앞·맨 끝은 법에 따라 자동으로 붙고 고칠 수 없어요 · {len}자{len > 90 ? ", 장문 문자(LMS)" : ""})</p>
+          <p className="mb-1 text-xs font-semibold text-mx-muted">고객이 받는 모양 (맨 앞·맨 끝은 법에 따라 자동으로 붙고 고칠 수 없어요 · 약 {bytes}바이트 — {bytes > SMS_MAX_BYTES ? "90바이트가 넘어 장문(LMS) 요금으로 발송돼요" : "단문(SMS) 범위예요"}, 최종 구분은 문자 회사가 정해요)</p>
           <PhonePreview text={preview} /> {/* U-1(2026-11-19): 휴대폰 말풍선 틀 — 표시만 */}
           <p className="mt-1 text-xs text-mx-muted">수신거부 링크는 고객마다 다른 주소로 바뀌어 들어가요.</p>
         </div>
