@@ -28,5 +28,20 @@ export function createDismissStack() {
   };
 }
 
+export type DismissStack = ReturnType<typeof createDismissStack>;
+
+/**
+ * 키 누름 하나를 어떻게 처리할지 정한다.
+ *  - "pass"   우리 일이 아니다(Esc가 아니거나, 열린 것이 없다) — 키의 기본 흐름을 건드리지 않는다
+ *  - "held"   Esc를 누른 채 유지해서 생긴 자동 반복 — 아무것도 닫지 않는다(한 번 누름에 하나만 닫는다)
+ *  - "closed" 새로 누른 Esc — 맨 위 하나를 닫았다
+ */
+export function handleEscapeKey(stack: DismissStack, e: { key: string; repeat?: boolean }): "pass" | "held" | "closed" {
+  if (e.key !== "Escape" || stack.size === 0) return "pass";
+  if (e.repeat === true) return "held";
+  stack.escape();
+  return "closed";
+}
+
 /** 화면 전체가 함께 쓰는 더미 하나 */
 export const dismissStack = createDismissStack();

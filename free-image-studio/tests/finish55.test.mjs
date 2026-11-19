@@ -257,7 +257,7 @@ test("좁은 화면·키보드 — 위쪽 접는 메뉴, 초점 표시, 눌림·
   assert.ok(sidebar.includes("const menuButton = useDismiss(open, () => setOpen(false));") && sidebar.includes("ref={menuButton}"), "Esc로 메뉴를 닫고 메뉴 버튼으로 초점이 돌아간다");
   // 반례 P3 — 닫힌 뒤 초점 복귀: 공용 훅 하나가 Esc 닫기와 「연 버튼으로 되돌리기」를 맡고, 확인 창·동의 창·접는 메뉴가 모두 그것을 쓴다
   const hook = await read("components/studio/useDismiss.ts");
-  assert.ok(hook.includes("dismissStack.escape()"), "Esc는 열린 것들 가운데 맨 위 하나만 닫는다(tests/dismiss.test.mjs)");
+  assert.ok(hook.includes("handleEscapeKey(dismissStack, e)"),"Esc는 열린 것들 가운데 맨 위 하나만 닫는다(tests/dismiss.test.mjs)");
   assert.ok(/if \(!open\) \{\s*if \(wasOpen\.current\) \{\s*wasOpen\.current = false;\s*opener\.current\?\.focus\(\);/.test(hook), "열려 있다가 닫힌 때에만 연 버튼에 초점");
   assert.ok(hook.includes('window.removeEventListener("keydown", onKey)'));
   const createSrc = await read("components/studio/CreateScreen.tsx");

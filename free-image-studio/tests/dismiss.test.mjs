@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { createDismissStack, dismissStack } from "../src/lib/studio/dismissStack.ts";
+import { createDismissStack, dismissStack, handleEscapeKey } from "../src/lib/studio/dismissStack.ts";
 
 /**
  * 훅(useDismiss)이 하는 일을 그대로 흉내 낸 대역: 열리면 더미에 넣고, 닫히면 빼면서 연 버튼에 초점을 한 번 준다.
@@ -116,7 +116,7 @@ test("역순으로 열어도 나중에 연 것이 먼저 닫힌다. 단독·버�
 test("훅은 Esc를 한 곳에서만 듣고 맨 위 하나만 닫는다 — 닫힐 때 그 훅의 연 버튼에만 초점", async () => {
   const hook = await readFile(new URL("../src/components/studio/useDismiss.ts", import.meta.url), "utf8");
   assert.equal(hook.split('window.addEventListener("keydown", onKey)').length - 1, 1, "듣는 곳은 하나");
-  assert.ok(hook.includes("if (dismissStack.escape()) e.stopPropagation();"), "Esc 한 번에 더미의 맨 위 하나만");
+  assert.ok(hook.includes('if (handleEscapeKey(dismissStack, e) !== "pass") e.stopPropagation();'), "Esc 한 번에 더미의 맨 위 하나만, 우리 일이 아니면 손대지 않는다");
   assert.ok(!/close\(\);\s*\}\s*;\s*window\.addEventListener/.test(hook) && !hook.includes('if (e.key === "Escape") close();'), "훅마다 따로 Esc를 듣던 예전 방식이 없다");
   assert.ok(hook.includes("dismissStack.push(entry);") && hook.includes("dismissStack.remove(entry);"));
   assert.ok(/if \(!open\) \{\s*if \(wasOpen\.current\) \{\s*wasOpen\.current = false;\s*opener\.current\?\.focus\(\);/.test(hook), "열렸다가 닫힌 때에만, 자기 연 버튼에 한 번");
@@ -128,4 +128,36 @@ test("훅은 Esc를 한 곳에서만 듣고 맨 위 하나만 닫는다 — 닫�
     const src = await readFile(new URL(`../src/${rel}`, import.meta.url), "utf8");
     assert.ok(!/"Escape"|addEventListener\("keydown"/.test(src), `${rel}: Esc를 따로 듣지 않는다`);
   }
+});
+
+test("반례 P3 — Esc를 누른 채 유지한 자동 반복은 아래 것을 더 닫지 않는다. 새로 누른 Esc는 정상으로 닫고, 열린 것이 없으면 키를 건드리지 않는다", () => {
+  const { stack, focus, make } = harness();
+  const menu = make("메뉴 버튼");
+  const dialog = make("새로 시작 버튼");
+  menu.show();
+  dialog.show();
+  // 첫 누름: 확인 창만 닫힌다
+  assert.equal(handleEscapeKey(stack, { key: "Escape", repeat: false }), "closed");
+  assert.deepEqual([menu.open, dialog.open], [true, false]);
+  // 누른 채 유지 — 자동 반복이 몇 번 와도 메뉴는 닫히지 않고 초점 요청도 없다
+  for (let i = 0; i < 5; i++) assert.equal(handleEscapeKey(stack, { key: "Escape", repeat: true }), "held");
+  assert.deepEqual([menu.open, dialog.open], [true, false]);
+  assert.deepEqual(focus, ["새로 시작 버튼"]);
+  // 손을 뗐다가 새로 누른 Esc: 메뉴가 닫힌다
+  assert.equal(handleEscapeKey(stack, { key: "Escape" }), "closed");
+  assert.deepEqual([menu.open, dialog.open], [false, false]);
+  assert.deepEqual(focus, ["새로 시작 버튼", "메뉴 버튼"]);
+  // 열린 것이 없을 때: Esc든 반복이든 다른 키든 기본 흐름 그대로
+  assert.equal(handleEscapeKey(stack, { key: "Escape" }), "pass");
+  assert.equal(handleEscapeKey(stack, { key: "Escape", repeat: true }), "pass");
+  assert.equal(focus.length, 2);
+  // 다른 키는 열린 것이 있어도 건드리지 않는다
+  menu.show();
+  for (const key of ["Enter", "Tab", " ", "a", "Esc"]) assert.equal(handleEscapeKey(stack, { key }), "pass", key);
+  assert.equal(menu.open, true);
+  // 처음부터 누른 채로 들어온 반복(첫 이벤트가 repeat)도 닫지 않는다
+  assert.equal(handleEscapeKey(stack, { key: "Escape", repeat: true }), "held");
+  assert.equal(menu.open, true);
+  assert.equal(handleEscapeKey(stack, { key: "Escape", repeat: false }), "closed");
+  assert.equal(menu.open, false);
 });

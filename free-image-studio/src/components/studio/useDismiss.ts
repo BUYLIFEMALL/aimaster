@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { dismissStack, type DismissEntry } from "@/lib/studio/dismissStack";
+import { dismissStack, handleEscapeKey, type DismissEntry } from "@/lib/studio/dismissStack";
 
 // Esc를 듣는 곳은 화면 전체에서 하나다. 열린 것이 여럿이어도 Esc 한 번에 맨 위 하나만 닫힌다.
 let listening = false;
 function onKey(e: KeyboardEvent) {
-  if (e.key !== "Escape") return;
-  if (dismissStack.escape()) e.stopPropagation();
+  // 열린 것이 없거나 Esc가 아니면 손대지 않는다. 누른 채 유지한 자동 반복은 삼키기만 하고 닫지 않는다.
+  if (handleEscapeKey(dismissStack, e) !== "pass") e.stopPropagation();
 }
 function sync() {
   const want = dismissStack.size > 0;
