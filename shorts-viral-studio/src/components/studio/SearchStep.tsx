@@ -6,7 +6,7 @@ import { searchShortsAction } from "@/lib/actions/svs";
 import { GRADE_STYLE, formatDuration, formatNumber } from "@/lib/youtube/metrics";
 import { useStudio } from "@/components/studio/StudioProvider";
 import { Card, ErrorBanner, GhostButton, PrimaryButton, StepHeader } from "@/components/studio/ui";
-import { describeExcluded } from "@/lib/youtube/shortsSearch";
+import { RELIGION_TOGGLE_NOTE, describeExcluded, emptyResultMessage } from "@/lib/youtube/shortsSearch";
 import type { SearchExcluded, SearchOrder, ShortVideo } from "@/types/svs";
 
 const MAX_SELECT = 3;
@@ -147,10 +147,7 @@ export function SearchStep() {
       scenes: [],
       promptsResult: null,
     });
-    if (res.data.videos.length === 0) {
-      const ex = describeExcluded(res.data.excluded);
-      setError(ex ? `조건에 맞는 쇼츠가 없습니다 — ${ex}. 검색어를 바꾸거나 「종교 영상 제외」를 꺼 보세요.` : "검색 결과가 없습니다. 검색어나 기간을 바꿔 보세요.");
-    }
+    // 결과가 0개인 안내는 아래 결과 카드 한 곳에서만 보여 준다(emptyResultMessage) — 위 오류 띠에 같은 말을 또 띄우지 않음
   }
 
   function toggle(id: string) {
@@ -242,6 +239,7 @@ export function SearchStep() {
           <label className="mr-3 inline-flex items-center gap-1.5 font-semibold text-slate-600">
             <input type="checkbox" checked={excludeReligion} onChange={(e) => update({ search: { ...search, includeReligion: !e.target.checked } })} />
             종교 영상 제외
+            <span className="font-normal text-slate-400">({RELIGION_TOGGLE_NOTE})</span>
           </label>
           💡 검색 1회는 YouTube 할당량 약 100유닛을 사용합니다(기본 하루 1만유닛 ≈ 100회). 필터는 이미 가져온 결과에 바로 적용되며 추가 할당량을 쓰지 않습니다. 해시태그만 도배한 영상·다른 언어 영상·검색어와 무관한 영상은 자동으로 거르며(할당량 0), 검색어가 종교 단어면 종교 영상도 남깁니다.
         </p>
@@ -266,7 +264,11 @@ export function SearchStep() {
 
         {filtered.length === 0 ? (
           <p className="py-10 text-center text-sm text-slate-400">
-            {videos.length === 0 ? "아직 검색 결과가 없습니다. 키워드를 입력해 검색해 보세요." : "조건에 맞는 영상이 없습니다. 필터를 조정해 보세요."}
+            {videos.length === 0
+              ? excluded
+                ? emptyResultMessage(excluded) // 이번 세션에서 검색을 마쳤는데 남은 쇼츠가 0개
+                : "아직 검색 결과가 없습니다. 키워드를 입력해 검색해 보세요."
+              : "조건에 맞는 영상이 없습니다. 필터를 조정해 보세요."}
           </p>
         ) : (
           <div className="overflow-x-auto">

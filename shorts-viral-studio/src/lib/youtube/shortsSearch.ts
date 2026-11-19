@@ -33,6 +33,22 @@ export function describeExcluded(e: SearchExcluded | null | undefined): string {
   return `제외 ${total}건(${parts.join(" · ")})`;
 }
 
+/** 「종교 영상 제외」 토글 옆 안내 — 이미 받은 결과를 다시 거르지 않고, 다음 검색 때 적용되며 그 검색이 할당량을 쓴다 */
+export const RELIGION_TOGGLE_NOTE = "다음 검색부터 적용 · 다시 검색하면 할당량 약 102유닛 사용";
+
+/**
+ * 검색이 끝났는데 남은 쇼츠가 0개일 때 화면에 한 번만 보이는 안내.
+ * 종교로 뺀 영상이 있을 때만 토글 조언을 붙인다(0건이면 토글을 꺼도 결과가 같으므로 숨김).
+ */
+export function emptyResultMessage(e: SearchExcluded | null | undefined): string {
+  const ex = describeExcluded(e);
+  if (!ex) return "검색 결과가 없습니다. 검색어나 기간을 바꿔 보세요.";
+  const tip = e && e.religion > 0
+    ? "「종교 영상 제외」를 끄고 다시 검색하면 종교 영상도 볼 수 있습니다(검색 할당량 사용)."
+    : "검색어나 기간을 바꿔 보세요.";
+  return `조건에 맞는 쇼츠가 없습니다 — ${ex}. ${tip}`;
+}
+
 /** 받은 영상 상세 목록을 거른다. 종교 영상은 includeReligion이 아니고 검색어가 종교 단어도 아닐 때만 뺀다. */
 export function filterShortsItems<T extends VideoItem>(items: T[], query: string, includeReligion = false): { kept: T[]; excluded: SearchExcluded } {
   const excluded = emptyExcluded();

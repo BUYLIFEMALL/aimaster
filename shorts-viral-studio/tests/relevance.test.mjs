@@ -16,7 +16,7 @@ registerHooks({
     }
   },
 });
-const { runShortsSearch, filterShortsItems, describeExcluded, excludedTotal } = await import("../src/lib/youtube/shortsSearch.ts");
+const { runShortsSearch, filterShortsItems, describeExcluded, excludedTotal, emptyResultMessage, RELIGION_TOGGLE_NOTE } = await import("../src/lib/youtube/shortsSearch.ts");
 
 const NOW = new Date("2026-11-20T00:00:00Z");
 const vid = (id, title, extra = {}) => ({
@@ -96,4 +96,19 @@ test("검색 결과가 0개면 제외 0, videos·channels 호출 없음", async 
   assert.deepEqual(r, { videos: [], excluded: { spam: 0, language: 0, offtopic: 0, religion: 0 } });
   assert.deepEqual(calls.map((c) => c.path), ["search"]);
   assert.equal(describeExcluded(r.excluded), "");
+});
+
+test("빈 결과 안내: 종교 제외가 있을 때만 토글 조언, 제외 0이면 일반 안내 한 가지", () => {
+  assert.equal(emptyResultMessage({ spam: 1, language: 0, offtopic: 0, religion: 1 }),
+    "조건에 맞는 쇼츠가 없습니다 — 제외 2건(해시태그 도배 1 · 종교 1). 「종교 영상 제외」를 끄고 다시 검색하면 종교 영상도 볼 수 있습니다(검색 할당량 사용).");
+  const noReligion = emptyResultMessage({ spam: 2, language: 1, offtopic: 0, religion: 0 });
+  assert.equal(noReligion, "조건에 맞는 쇼츠가 없습니다 — 제외 3건(해시태그 도배 2 · 다른 언어 1). 검색어나 기간을 바꿔 보세요.");
+  assert.ok(!noReligion.includes("종교 영상 제외"));
+  assert.equal(emptyResultMessage({ spam: 0, language: 0, offtopic: 0, religion: 0 }), "검색 결과가 없습니다. 검색어나 기간을 바꿔 보세요.");
+  assert.equal(emptyResultMessage(null), "검색 결과가 없습니다. 검색어나 기간을 바꿔 보세요.");
+});
+
+test("토글 안내는 다음 검색부터 적용·할당량 사용을 밝힌다", () => {
+  assert.match(RELIGION_TOGGLE_NOTE, /다음 검색부터 적용/);
+  assert.match(RELIGION_TOGGLE_NOTE, /할당량/);
 });
