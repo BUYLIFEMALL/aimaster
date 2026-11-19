@@ -5,7 +5,7 @@ import { countByKindTrade, isWatchableUrl, matchesTarget, normalizeArticle, coor
 import { compareTarget, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, shouldRunScheduled } from "./lib/guard.js";
 import { COLUMNS, toTable, toXlsx } from "./lib/sheet.js";
-import { mergeLastResult } from "./lib/keepResult.js";
+import { mergeLastResult, pruneLastResult } from "./lib/keepResult.js";
 import { buildingPeerGap, daysSince, gapText, marketGap, scoreListing, applyYields } from "./lib/score.js";
 import { chosenDongs, filterEventsByDong } from "./lib/dong.js";
 import { buildAiInput, normalizeChoice, summarize } from "./lib/ai.js";
@@ -114,7 +114,9 @@ async function runCollection(trigger) {
     const targets = settings.targets || [];
     await addLog(`${trigger === "manual" ? "지금 수집" : "예약 수집"} 시작 · 감시 화면 ${targets.length}곳`);
     if (!targets.length) {
-      await set({ lastRunAt: startedAt });
+      // 켜진 화면이 없으면 결과 화면에 남길 것도 없다(지우거나 끈 화면의 이전 결과 정리). 수집·알림·기록은 하지 않는다.
+      const { lastResult: prevResult } = await get("lastResult");
+      await set({ lastRunAt: startedAt, ...(prevResult ? { lastResult: pruneLastResult(prevResult, { at: startedAt, targets }) } : {}) });
       return { ok: false, error: "켜진 감시 화면이 없어요. 네이버 부동산에서 「이 화면 감시」를 눌러 주세요." };
     }
     const { states = {} } = await get("states");
@@ -125,7 +127,8 @@ async function runCollection(trigger) {
     let result = "ok";
     let errMsg = null;
     let limitHit = false;
-    const sggByWatch = {};
+    const sggByWatch = {}; // 이름별(통계·옛 웹 호환)
+    const sggById = {}; // 감시 화면 id별 — 결과 화면 행정동 경계는 이것으로(같은 이름 화면이 섞이지 않게)
     const places = {};
     const unread = new Map(); // 이번에 못 읽은 감시 화면 id → 사유(결과 화면에 이전 회차 결과를 남길 때만 씀)
     const markUnread = (from, reason) => { for (const x of targets.slice(from)) if (x?.id && !unread.has(x.id)) unread.set(x.id, reason); };
@@ -174,7 +177,7 @@ async function runCollection(trigger) {
       const { cortarByTarget = {} } = await get("cortarByTarget");
       const cortarNo = r.cortarNo || cortarByTarget[t.id] || null;
       if (r.cortarNo && r.cortarNo !== cortarByTarget[t.id]) await set({ cortarByTarget: { ...cortarByTarget, [t.id]: r.cortarNo } });
-      if (cortarNo) sggByWatch[t.name] = cortarNo.slice(0, 5);
+      if (cortarNo) { sggByWatch[t.name] = cortarNo.slice(0, 5); if (t.id) sggById[t.id] = cortarNo.slice(0, 5); }
       const market = await marketFor(cortarNo);
       if (market?.name) await addLog(`${t.name}: 시세 기준 ${market.name}`);
       if (!market?.samples) await addLog(`${t.name}: 시세 자료를 받지 못해 비교를 건너뛰었어요(동 코드 ${cortarNo || "없음"})`);
@@ -211,7 +214,9 @@ async function runCollection(trigger) {
     if (limitHit) await set({ limitDate: kstDate() });
     // 한도 때문에 한 곳도 읽지 못한 회차는 직전 결과를 빈 결과로 덮어쓰지 않는다(2026-11-02 결과 화면이 비었던 일)
     if (limitHit && !perTarget.length) {
-      await set({ lastRunAt: startedAt });
+      // 직전 결과는 남기되 같은 보존 규칙(7일·켜진 화면·같은 id·같은 주소)으로 추린다. 수집·알림·기록은 지금처럼 0.
+      const { lastResult: prevResult } = await get("lastResult");
+      await set({ lastRunAt: startedAt, ...(prevResult ? { lastResult: pruneLastResult(prevResult, { at: startedAt, targets, unread }) } : {}) });
       await deliver({ settings, perTarget, table: [], result, errMsg, trigger: "schedule", limitHit });
       await reportStatus("limit", 0, null);
       await addLog("수집 끝 · 오늘 한도에 닿아 한 곳도 읽지 않았어요 · 직전 결과는 그대로 둬요");
@@ -224,7 +229,7 @@ async function runCollection(trigger) {
     const { lastResult: prevResult } = await get("lastResult");
     const lastResult = mergeLastResult(
       prevResult,
-      { at: startedAt, trigger, result, error: errMsg, columns: COLUMNS, table, rowTargetIds: fileRows.map((r) => r.targetId), places, sggByWatch, perTarget: perTarget.map((p) => ({ id: p.id, url: p.url, at: p.at, name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun, complete: p.complete, pagesRead: p.pagesRead, filterChanged: p.filterChanged, filterText: p.filterText, coords: p.coords })) },
+      { at: startedAt, trigger, result, error: errMsg, columns: COLUMNS, table, rowTargetIds: fileRows.map((r) => r.targetId), places, sggByWatch, sggById, perTarget: perTarget.map((p) => ({ id: p.id, url: p.url, at: p.at, name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun, complete: p.complete, pagesRead: p.pagesRead, filterChanged: p.filterChanged, filterText: p.filterText, coords: p.coords })) },
       { targets, unread },
     );
     if (lastResult.partial) await addLog(`못 읽은 감시 화면 ${lastResult.perTarget.filter((p) => p.stale).length}곳은 결과 화면에 이전 회차 결과를 남겨요`);

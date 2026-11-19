@@ -23,11 +23,14 @@ function articleNoOf(url) {
  * targets: 이번 회차에 켜져 있는 감시 화면 [{ id, name, url }]
  * unread: Map(id → "limit" | "blocked" | "error") 이번에 못 읽은 화면과 사유
  */
+/** 줄별 감시 화면 id가 있는 새 모양 결과인가(옛 모양은 이름으로 추측하지 않는다) */
+export function isIdResult(prev) {
+  return !!prev && Array.isArray(prev.table) && Array.isArray(prev.rowTargetIds) && prev.rowTargetIds.length === prev.table.length && Array.isArray(prev.perTarget) && Array.isArray(prev.columns);
+}
+
 export function mergeLastResult(prev, next, { targets = [], unread = new Map(), now = Date.now(), maxAgeMs = KEEP_MAX_AGE_MS } = {}) {
-  const out = { ...next, table: [...(next.table || [])], rowTargetIds: [...(next.rowTargetIds || [])], places: { ...(next.places || {}) }, sggByWatch: { ...(next.sggByWatch || {}) }, perTarget: [...(next.perTarget || [])] };
-  const usable =
-    prev && Array.isArray(prev.table) && Array.isArray(prev.rowTargetIds) && prev.rowTargetIds.length === prev.table.length && Array.isArray(prev.perTarget) && Array.isArray(prev.columns);
-  if (usable) {
+  const out = { ...next, table: [...(next.table || [])], rowTargetIds: [...(next.rowTargetIds || [])], places: { ...(next.places || {}) }, sggByWatch: { ...(next.sggByWatch || {}) }, sggById: { ...(next.sggById || {}) }, perTarget: [...(next.perTarget || [])] };
+  if (isIdResult(prev)) {
     const watchCol = prev.columns.indexOf(WATCH_COL);
     const urlCol = prev.columns.indexOf(URL_COL);
     const readIds = new Set(out.perTarget.map((p) => p.id));
@@ -48,7 +51,9 @@ export function mergeLastResult(prev, next, { targets = [], unread = new Map(), 
         const no = urlCol >= 0 ? articleNoOf(row[urlCol]) : null;
         if (no && prev.places?.[no] && !out.places[no]) out.places[no] = prev.places[no];
       });
-      const sgg = prev.sggByWatch?.[pp.name];
+      // 행정동 경계는 id로 연결한다(같은 이름의 다른 지역 화면과 섞이지 않게). 옛 결과에 id 칸이 없을 때만 이름 값을 쓴다.
+      const sgg = prev.sggById ? prev.sggById[t.id] : prev.sggByWatch?.[pp.name];
+      if (sgg) out.sggById[t.id] = sgg;
       if (sgg && !out.sggByWatch[t.name]) out.sggByWatch[t.name] = sgg;
       out.perTarget.push({ ...pp, name: t.name, stale: true, reason: unread.get(t.id), rows });
     }
@@ -57,4 +62,16 @@ export function mergeLastResult(prev, next, { targets = [], unread = new Map(), 
   out.rowTargetIds = out.rowTargetIds.slice(0, MAX_TABLE_ROWS);
   out.partial = out.perTarget.some((p) => p.stale);
   return out;
+}
+
+/**
+ * 한 곳도 읽지 않은 회차(상한 0곳·켜진 화면 0곳)의 결과 화면 정리 — 수집·알림·기록은 하지 않고 보존 규칙만 적용한다.
+ * 켜진 화면이 0곳이면 남길 것이 없으니 빈 결과. 옛 모양 결과는 id가 없어 추릴 수 없으므로 지금처럼 그대로 둔다(켜진 화면 0곳일 때만 비움).
+ */
+export function pruneLastResult(prev, { at, targets = [], unread = new Map(), now = Date.now(), maxAgeMs = KEEP_MAX_AGE_MS } = {}) {
+  if (!prev) return prev;
+  const empty = { at, trigger: prev.trigger, result: prev.result, error: prev.error ?? null, columns: prev.columns, table: [], rowTargetIds: [], places: {}, sggByWatch: {}, sggById: {}, perTarget: [] };
+  if (!targets.length) return { ...empty, partial: false };
+  if (!isIdResult(prev)) return prev;
+  return mergeLastResult(prev, empty, { targets, unread, now, maxAgeMs });
 }

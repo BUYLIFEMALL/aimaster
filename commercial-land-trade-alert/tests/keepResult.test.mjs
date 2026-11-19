@@ -115,3 +115,69 @@ test("8. 알림·기록 분리: background.js는 알림·통계·수익률에 �
   assert.ok(run.indexOf("applyYields(yieldRows)") < merged, "수익률은 합치기 전 이번 회차 줄로만");
   assert.doesNotMatch(after, /deliver\([^)]*lastResult/);
 });
+
+// ── 맥미니 검수 보완(.ai/results/RE-20261119-PARTIAL-RESULT-CX-QA-01.md) ──
+import { pruneLastResult } from "../extension/lib/keepResult.js";
+import { rowSgg, targetSgg, sggList } from "../src/lib/rowSgg.ts";
+
+test("9. [P2 재현] 상한 0곳 회차도 같은 규칙: 8일 전·지운/끈·주소 바뀐 화면 줄 제거, 남는 화면만 이전 결과", () => {
+  const a = tgt("a", "8일전"), b = tgt("b", "지움"), c = tgt("c", "주소바뀜"), d = tgt("d", "정상");
+  const prev = prevOf([a, b, c, d]);
+  prev.perTarget[0].at = new Date(NOW - 8 * 24 * 3600_000).toISOString();
+  const cMoved = { ...c, url: "https://new.land.naver.com/offices?ms=moved" };
+  const active = [a, cMoved, d]; // b는 지웠거나 끔
+  const unread = new Map(active.map((t) => [t.id, "limit"]));
+  const out = pruneLastResult(prev, { at: T1, targets: active, unread, now: NOW });
+  assert.deepEqual(out.rowTargetIds, ["d"]);
+  assert.deepEqual(out.perTarget.map((p) => [p.id, p.stale, p.reason]), [["d", true, "limit"]]);
+  assert.equal(out.at, T1);
+  assert.deepEqual(Object.keys(out.places), ["301"]);
+});
+
+test("10. [P2 재현] 켜진 화면 0곳이면 결과 화면 비움, 옛 모양 결과는 상한 0곳에서 그대로", () => {
+  const a = tgt("a", "A");
+  const empty = pruneLastResult(prevOf([a]), { at: T1, targets: [], now: NOW });
+  assert.deepEqual([empty.table.length, empty.perTarget.length, empty.partial], [0, 0, false]);
+  const legacy = { at: T0, columns: COLUMNS, table: [row("A", "1", a.url)], perTarget: [{ name: "A", total: 1, complete: true }] };
+  assert.equal(pruneLastResult(legacy, { at: T1, targets: [a], unread: new Map([["a", "limit"]]), now: NOW }), legacy, "id 없는 옛 결과는 추측하지 않고 그대로");
+  assert.equal(pruneLastResult(legacy, { at: T1, targets: [], now: NOW }).table.length, 0);
+  assert.equal(pruneLastResult(undefined, { at: T1, targets: [a] }), undefined);
+});
+
+test("11. [P2] background.js: 켜진 화면 0곳·상한 0곳 분기가 pruneLastResult를 거치고 수집·알림·기록은 늘지 않음", () => {
+  const src = readFileSync(new URL("../extension/background.js", import.meta.url), "utf8");
+  const run = src.slice(src.indexOf("async function runCollection"), src.indexOf("async function deliver"));
+  const zero = run.slice(run.indexOf("if (!targets.length)"), run.indexOf("const { states"));
+  assert.match(zero, /pruneLastResult\(prevResult, \{ at: startedAt, targets \}\)/);
+  assert.doesNotMatch(zero, /deliver\(|pushHistory|collectView/);
+  const lim = run.slice(run.indexOf("if (limitHit && !perTarget.length)"), run.indexOf("applyYields(yieldRows)"));
+  assert.match(lim, /pruneLastResult\(prevResult, \{ at: startedAt, targets, unread \}\)/);
+  assert.match(lim, /deliver\(\{ settings, perTarget, table: \[\]/, "알림은 지금처럼 빈 결과로만");
+  assert.doesNotMatch(lim, /pushHistory|pickEvents/);
+});
+
+test("12. [P3 재현] 같은 이름 다른 지역 A/B: 행정동 경계를 id로 연결해 B의 이전 줄이 A 지역을 쓰지 않음", () => {
+  const a = { id: "a", name: "상가", url: "https://new.land.naver.com/offices?ms=gangnam" };
+  const b = { id: "b", name: "상가", url: "https://new.land.naver.com/offices?ms=ilsan" };
+  const prev = prevOf([a, b]);
+  prev.sggById = { a: "11680", b: "41285" };
+  prev.sggByWatch = { 상가: "11680" };
+  const next = nextOf([a]);
+  next.sggById = { a: "11680" };
+  next.sggByWatch = { 상가: "11680" };
+  const out = mergeLastResult(prev, next, { targets: [a, b], unread: new Map([["b", "error"]]), now: NOW });
+  assert.deepEqual(out.sggById, { a: "11680", b: "41285" });
+  const bRow = out.rowTargetIds.indexOf("b");
+  assert.equal(rowSgg(out, bRow, "상가"), "41285", "B 줄은 B(일산) 경계");
+  assert.equal(rowSgg(out, 0, "상가"), "11680", "A 줄은 A(강남) 경계");
+  assert.equal(targetSgg(out, "b", "상가"), "41285");
+  assert.deepEqual(sggList(out).sort(), ["11680", "41285"]);
+});
+
+test("13. [P3] 옛 결과(sggById 없음)는 이름으로 찾음 — 호환", () => {
+  const legacy = { sggByWatch: { 역삼: "11680" } };
+  assert.equal(rowSgg(legacy, 0, "역삼"), "11680");
+  assert.equal(targetSgg(legacy, "x", "역삼"), "11680");
+  assert.equal(targetSgg(null, "x", "역삼"), null);
+  assert.equal(targetSgg({ sggById: {}, sggByWatch: { 역삼: "11680" } }, "x", "역삼"), null, "id 칸이 있으면 이름으로 추측하지 않음");
+});

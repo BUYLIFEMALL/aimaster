@@ -4,6 +4,7 @@ import { useActionState, useEffect, useState } from "react";
 import { askExtension } from "@/lib/extensionBridge";
 import { addTargetAction, deleteTargetAction, saveScheduleAction, updateTargetAction, type WatchState } from "@/lib/actions/watchTargets";
 import { kindsText } from "@/lib/watchTargets";
+import { targetSgg, type SggSource } from "@/lib/rowSgg";
 
 const initial: WatchState = {};
 const input = "mx-input min-h-[40px] py-2 text-sm";
@@ -48,23 +49,24 @@ export interface TargetRow {
   admin_dongs?: string[];
 }
 
-// 감시 화면의 시·군·구는 확장이 마지막 수집에서 기억한 값(sggByWatch, 감시 화면 이름별)을 쓴다. 네이버 주소의 지도 가운데 값은 암호화돼 있어 읽지 않는다.
+// 감시 화면의 시·군·구는 확장이 마지막 수집에서 기억한 값을 쓴다 — 감시 화면 id별(sggById)을 먼저, 옛 결과만 이름별(sggByWatch). 같은 이름 화면이 섞이지 않게(2026-11-19).
+// 네이버 주소의 지도 가운데 값은 암호화돼 있어 읽지 않는다.
 export function TargetCards({ rows, email }: { rows: TargetRow[]; email: string }) {
-  const [sggByWatch, setSggByWatch] = useState<Record<string, string> | null>(null);
+  const [sggSrc, setSggSrc] = useState<SggSource | null>(null);
   const [noExtension, setNoExtension] = useState(false);
   useEffect(() => {
     let alive = true;
-    void askExtension<{ ok?: boolean; lastResult?: { sggByWatch?: Record<string, string> } }>("lastResult", 5000, { email }).then((r) => {
+    void askExtension<{ ok?: boolean; lastResult?: SggSource }>("lastResult", 5000, { email }).then((r) => {
       if (!alive) return;
       setNoExtension(!r); // 확장을 새로고침하기 전부터 열려 있던 탭은 응답이 없다(2026-11-02 실제 사례)
-      setSggByWatch(r?.lastResult?.sggByWatch ?? {});
+      setSggSrc({ sggByWatch: r?.lastResult?.sggByWatch ?? {}, sggById: r?.lastResult?.sggById });
     });
     return () => { alive = false; };
   }, [email]);
   return (
     <div className="space-y-3">
       {rows.map((t) => (
-        <TargetCard key={t.id} t={t} sgg={sggByWatch?.[t.name] ?? null} loading={sggByWatch === null} noExtension={noExtension} />
+        <TargetCard key={t.id} t={t} sgg={targetSgg(sggSrc, t.id, t.name)} loading={sggSrc === null} noExtension={noExtension} />
       ))}
     </div>
   );

@@ -5,12 +5,13 @@ import { articleNoOf, type DongBoundary, locateDong, UNKNOWN_DONG } from "@/lib/
 import { AI_ENGINES, aiModelName, toAiProvider, type AiProvider } from "@/lib/aiEngines";
 import { askExtension } from "@/lib/extensionBridge";
 import { groupSameRows } from "@/lib/resultRows";
+import { rowSgg, sggList } from "@/lib/rowSgg";
 import { shortWatch, StatsDashboard } from "./StatsDashboard";
 
 // 매물은 서버에 없다. 이 브라우저의 확장에 직접 물어 같은 화면에만 보여 준다(확장 연결 계정 = 로그인 계정일 때만).
 // 2026-11-19: 일부만 읽은 회차는 못 읽은 화면의 이전 결과를 확장이 남긴다(extension/lib/keepResult.js) — 그 화면에 「이전 회차」 표시.
 const STALE_REASON: Record<"limit" | "blocked" | "error", string> = { limit: "오늘 수집 한도에 닿음", blocked: "네이버가 잠시 막음", error: "읽기 오류" };
-type Result = { at: string; columns: string[]; table: (string | number)[][]; places?: Record<string, [number, number]>; sggByWatch?: Record<string, string>; partial?: boolean; perTarget: { id?: string; at?: string; stale?: boolean; reason?: "limit" | "blocked" | "error"; name: string; total: number; complete: boolean; pagesRead?: number; filterChanged?: boolean; filterText?: string | null; coords?: { total: number; withCoord: number; places: number } }[] };
+type Result = { at: string; columns: string[]; table: (string | number)[][]; places?: Record<string, [number, number]>; sggByWatch?: Record<string, string>; sggById?: Record<string, string>; rowTargetIds?: (string | null)[]; partial?: boolean; perTarget: { id?: string; at?: string; stale?: boolean; reason?: "limit" | "blocked" | "error"; name: string; total: number; complete: boolean; pagesRead?: number; filterChanged?: boolean; filterText?: string | null; coords?: { total: number; withCoord: number; places: number } }[] };
 
 const LINK = "네이버 매물 주소";
 const EVENT_VIEW: Record<string, string> = { new: "🆕 신규", priceDown: "📉 가격 내림", priceUp: "📈 가격 오름", gone: "👋 사라짐" };
@@ -104,7 +105,7 @@ export function ResultsClient({ email }: { email: string }) {
   useEffect(() => {
     if (!res?.places) return;
     let alive = true;
-    for (const sgg of new Set(Object.values(res.sggByWatch ?? {}))) {
+    for (const sgg of sggList(res)) {
       fetch(`/dong-boundaries/${sgg}.json`).then((r) => (r.ok ? r.json() : [])).then((d: DongBoundary[]) => alive && setBoundaries((b) => ({ ...b, [sgg]: d }))).catch(() => {});
     }
     return () => { alive = false; };
@@ -115,11 +116,11 @@ export function ResultsClient({ email }: { email: string }) {
     const memo = new Map<(string | number)[], string>();
     if (!res?.places) return memo;
     const at = (n: string) => res.columns.indexOf(n);
-    for (const r of res.table) {
-      const place = res.places[articleNoOf(r[at(LINK)])];
-      const list = boundaries[res.sggByWatch?.[String(r[at("감시 화면")])] ?? ""];
+    res.table.forEach((r, i) => {
+      const place = res.places?.[articleNoOf(r[at(LINK)])];
+      const list = boundaries[rowSgg(res, i, String(r[at("감시 화면")]))]; // 줄별 감시 화면 id로(같은 이름 화면이 섞이지 않게)
       memo.set(r, place && list ? locateDong(list, place[0], place[1]) : UNKNOWN_DONG);
-    }
+    });
     return memo;
   }, [res, boundaries]);
   const dongCounts = useMemo(() => {
