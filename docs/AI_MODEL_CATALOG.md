@@ -1,6 +1,6 @@
 # AI 모델 선택표 — OpenAI · Claude · Gemini (등급별 사용 가능 모델·성능/가격 평가)
 
-> **마지막 확인: 2026-11-03** · 작성 Claude Code(맥미니) `claude-mac-20261101-blog` [역할: mac-mini] · 주인님 지시(2026-11-03): 「실행가능한 모델들로 저가 가성비 / 중가 밸런스 / 최상급 성능 군으로 나누고 … 플랫폼별 사용가능 모델 리스트와 성능/가격 평가표를 인수인계 문서로 남기고, 지침으로 프로그램 개발·수정 시 모델 선택지로 참고」
+> **마지막 확인: 2026-11-19(새 모델 추가 — 아래 0-1절)** · 이전 확인 2026-11-03 · 작성 Claude Code(맥미니) `claude-mac-20261101-blog` [역할: mac-mini] · 주인님 지시(2026-11-03): 「실행가능한 모델들로 저가 가성비 / 중가 밸런스 / 최상급 성능 군으로 나누고 … 플랫폼별 사용가능 모델 리스트와 성능/가격 평가표를 인수인계 문서로 남기고, 지침으로 프로그램 개발·수정 시 모델 선택지로 참고」
 > 근거(공식 문서만): Gemini `aistudio.google.com/docs/models`·`/deprecations`·`/pricing` · OpenAI `developers.openai.com/api/docs/models/all`·`/deprecations`·`/pricing` · Claude `platform.claude.com/docs/en/about-claude/model-deprecations` + `claude-api` 스킬 모델 표.
 > 연동 규칙(회원 본인 키·미리보기 기본값 금지·옛 저장값 변환 등)은 [`AI_MODEL_INTEGRATION_STANDARD.md`](AI_MODEL_INTEGRATION_STANDARD.md)가 기준이다. 이 문서는 **어떤 모델을 고를지**의 기준이다. 이미지 모델의 호출 방식 기준은 그대로 `ai-image-studio`(루트 `CLAUDE.md` 이미지 레퍼런스 규칙).
 
@@ -10,6 +10,19 @@
 3. 화면 표시는 등급 이름 + 모델 이름으로 통일한다. 예: `가성비 · Gemini 3.5 Flash-Lite`, `균형(추천) · Claude Sonnet 5.5`, `최고 품질 · GPT-6 Astra`. 무료 등급이 없는 모델은 「결제 연결 키 필요」를 붙인다.
 4. 이 표는 날짜가 지나면 틀린다. **새로 모델 칸을 만들 때 마지막 확인 날짜가 30일 넘었으면 공식 문서를 다시 확인하고 이 문서를 고친 뒤** 작업한다(바꾼 줄과 날짜를 맨 아래 변경 이력에).
 5. 최상위 규칙 그대로: 회원 기능은 회원 본인 키, 관리자 화면·개발 시험은 Claude 크레딧 우선(루트 `CLAUDE.md`).
+
+## 0-1. 2026-11-19 새로 나온 모델 (공식 문서 확인, CC-BLOG-01 · 주인님 지시 「플랫폼별로 모델이 업그레이드 되었으니 먼저 조사」)
+아래 1절 등급표는 11-03 기준이다. 그 뒤 나온 모델은 이 표를 먼저 본다(등급표 전면 재작성은 다음 확인 때).
+| 플랫폼 | 모델 ID | 상태 | 가격(입력/출력, 100만 토큰) | 비고 |
+|---|---|---|---|---|
+| Claude | `claude-fable-5-2` | 정식 | $8 / $40 | Fable 5.1 후속, 모두에게 열린 최상위. `claude-mythos-5-2`는 인증 조직 전용이라 회원 선택지에 넣지 않음 |
+| Gemini | `gemini-4-carbon` | 정식(배지 없음) | 확인 필요 | Gemini 4 최상위 — 가장 어려운 장기 작업 |
+| Gemini | `gemini-4-neon` | 정식(배지 없음), 2026-11-18 발표 | $3 / $15 | 깊이·효율 균형. 유료 등급 기준 안내(무료 등급 미확인) |
+| Gemini | `gemini-4-hydrogen` | 정식(배지 없음) | 확인 필요 | 빠른 일상 작업. 구글은 `gemini-2.5-flash-lite` 새 대체로 Hydrogen 또는 3.5 Flash-Lite 권장 |
+| OpenAI | GPT-6.2 Astra·Sol | ChatGPT Work·Codex 미리보기(2026-11-17) | — | **API 모델 미확인** → 회원 선택지에 넣지 않음. API 최신 확인은 `gpt-6.1-terra` |
+- Google 모델 문서에 `gemini-3.5-flash`·`gemini-3.7-flash`는 더 이상 없다(5절 「자동 연결되는 이전 모델」 그대로 — 선택지에서 뺀다).
+- 첫 적용: `ai-auto-blog` 본문 모델 선택(최신순 정렬, 미배포 대기).
+- 출처: Anthropic Models overview(platform.claude.com/docs/en/models/overview), Google AI Studio models(aistudio.google.com/docs/models)·Gemini 4 Neon 발표 글, OpenAI GPT-6.1 Terra 발표 글·모델 릴리스 노트. **모델 목록 API로 실제 호출 확인은 아직 하지 않았다**(회원 키 필요) — 처음 쓰는 프로그램이 짧은 호출 1회로 확인한다.
 
 ## 1. 글·추론 모델 — 등급별 추천 (가격: 100만 토큰당 입력 / 출력, 미국 달러, 표준 등급)
 
@@ -102,6 +115,7 @@ Gemini 이미지 모델은 모두 **무료 등급 없음**(회원 결제 연결 
 - 아주 비싼 pro 계열(`gpt-5.5-pro`·`gpt-5.4-pro` $30/$180)은 회원 선택지에 넣지 않는다.
 
 ## 6. 변경 이력
+- 2026-11-19: 0-1절 추가 — Claude Fable 5.2, Gemini 4 Carbon·Neon·Hydrogen, GPT-6.2(API 미확인) 기록, 마지막 확인 날짜 갱신(CC-BLOG-01).
 - 2026-11-03: 처음 작성(세 회사 공식 문서 확인, 저장소 사용 현황 집계).
 - 2026-11-03 오후: 4절 다시 집계(따옴표 이름·변환표 제외) — 음성·이미지·o3-mini/o1 교체 반영, 남은 사용처 목록화.
 - 2026-11-03 저녁: 12월 묶음(2.5·`gpt-5`·`o3`) 코드 교체 완료 반영 — 다시 집계 결과 실제 사용은 `blog-neighbor-care`의 2.5만 남음, 나머지는 배포 대기.
