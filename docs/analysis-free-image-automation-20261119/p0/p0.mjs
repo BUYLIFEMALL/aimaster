@@ -1,8 +1,11 @@
 // IMG-20261119-P0 실측 도구 — 저장소 코드와 무관한 시험 전용. 유료 호출·업로드·키 0.
 // 사용:
 //   node p0.mjs download <arc|rtx|rtx-q4> --models <ImageModels 폴더> --work <작업 폴더>
-//   node p0.mjs run <z|flux> <q4|q8> <번호 예 1 또는 1-24> <시드 예 1001,2002> --models <…> --work <…> [--square]
+//   node p0.mjs run <z|flux> <q4|q8> <번호 예 1 또는 1-24> <시드 예 1001,2002> --models <…> --work <…> [--engine vulkan|cuda] [--square]
+// 필수 파일 하나라도 받기·해시가 실패하면 0이 아닌 값으로 끝나고 압축 해제·실행을 하지 않는다.
+// run은 <작업 폴더>/verified.json에 기록된 검증 파일(모델·실행 파일)만 쓰고, 실행 직전에 해시를 다시 대조한다.
 // 모델 폴더 구조는 엔진 ImageModels(z-image-turbo·flux2-klein-4b·text-encoders)와 같다. 이미 있고 해시가 맞는 파일은 받지 않는다.
+// 공용 모델 폴더에 같은 이름·다른 해시 파일이 있으면 그 파일은 건드리지 않고 <작업 폴더>/models-alt 에 따로 받는다.
 // 파일 크기·SHA-256은 free-music-studio/engine/src/imageArt.mjs 고정값(릴리스 master-956-1b0ba10).
 import { spawn, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -12,11 +15,15 @@ import path from "node:path";
 const argv = process.argv.slice(2);
 const opt = (name, def) => { const i = argv.indexOf(`--${name}`); return i < 0 ? def : argv[i + 1]; };
 const flag = (name) => argv.includes(`--${name}`);
-const pos = argv.filter((a, i) => !a.startsWith("--") && !(i > 0 && argv[i - 1].startsWith("--") && !["--square"].includes(argv[i - 1])));
+const pos = argv.filter((a, i) => !a.startsWith("--") && !(i > 0 && argv[i - 1].startsWith("--") && argv[i - 1] !== "--square"));
 const MODELS_DIR = opt("models");
 const WORK = opt("work");
 if (!MODELS_DIR || !WORK) { console.error("--models 와 --work 가 필요합니다."); process.exit(2); }
 
+// Git에 딸린 tar·curl이 먼저 잡히면 드라이브 문자 경로를 못 읽으므로 윈도우 기본 도구를 직접 쓴다
+const SYS = path.join(process.env.SystemRoot || "C:/Windows", "System32");
+const CURL = path.join(SYS, "curl.exe");
+const TAR = path.join(SYS, "tar.exe");
 const HF = "https://huggingface.co";
 const GH = "https://github.com/leejet/stable-diffusion.cpp/releases/download/master-956-1b0ba10";
 const F = {
@@ -37,25 +44,80 @@ const SETS = {
   rtx: ["cuda", "cudart", "zvae", "fvae", "encq8", "fq8", "zq8"],
   "rtx-q4": ["encq4", "fq4", "zq4"],
 };
-const dest = (k) => path.join(F[k][3] === "work" ? WORK : MODELS_DIR, F[k][1]);
+// 모의 시험 전용: 파일 표·구성 바꿔치기(실제 시험에서는 쓰지 않는다)
+if (process.env.P0_FILES_JSON) { const t = JSON.parse(fs.readFileSync(process.env.P0_FILES_JSON, "utf8")); Object.assign(F, t.files); Object.assign(SETS, t.sets); }
+const ENGINE_KEYS = { vulkan: ["vulkan"], cuda: ["cuda", "cudart"] };
+const isWork = (k) => F[k][3] === "work";
+const shared = (k) => path.join(isWork(k) ? WORK : MODELS_DIR, F[k][1]);
+const alt = (k) => path.join(WORK, "models-alt", F[k][1]);
+const MANIFEST = path.join(WORK, "verified.json");
+const readManifest = () => (fs.existsSync(MANIFEST) ? JSON.parse(fs.readFileSync(MANIFEST, "utf8")) : { files: {}, engines: {} });
+const writeManifest = (m) => { fs.mkdirSync(WORK, { recursive: true }); fs.writeFileSync(MANIFEST, JSON.stringify(m, null, 2)); };
 const sha = (file) => new Promise((res, rej) => { const h = createHash("sha256"); fs.createReadStream(file).on("data", (d) => h.update(d)).on("end", () => res(h.digest("hex"))).on("error", rej); });
+const stamp = (file) => { const st = fs.statSync(file); return { path: file, bytes: st.size, mtimeMs: st.mtimeMs }; };
+
+/** 한 파일 확보 — 성공하면 검증한 경로, 실패하면 null. 해시가 다른 기존 공용 모델 파일은 건드리지 않고 별도 경로에 받는다. */
+async function fetchOne(k) {
+  const want = F[k][2];
+  let f = shared(k);
+  if (fs.existsSync(f)) {
+    if ((await sha(f)) === want) { console.log(`OK(있음) ${f}`); return f; }
+    if (!isWork(k)) {
+      console.log(`불일치(공용 파일 그대로 둠) ${f} → 별도 경로 사용`);
+      f = alt(k);
+      if (fs.existsSync(f) && (await sha(f)) === want) { console.log(`OK(있음) ${f}`); return f; }
+    }
+  }
+  fs.mkdirSync(path.dirname(f), { recursive: true });
+  const r = spawnSync(CURL, ["-L", "--fail", "--retry", "5", "--retry-delay", "5", "-C", "-", "-sS", "-o", f, F[k][0]], { stdio: "inherit" });
+  if (r.status !== 0) { console.log(`FAIL(받기 ${r.status}) ${f}`); return null; }
+  const h = await sha(f);
+  if (h !== want) { console.log(`FAIL(해시) ${f} ${h}`); return null; }
+  console.log(`OK ${f} ${fs.statSync(f).size}`);
+  return f;
+}
 
 async function download(set) {
-  for (const k of SETS[set] || []) {
-    const f = dest(k);
-    fs.mkdirSync(path.dirname(f), { recursive: true });
-    if (fs.existsSync(f) && (await sha(f)) === F[k][2]) { console.log(`OK(있음) ${f}`); continue; }
-    const r = spawnSync("curl.exe", ["-L", "--fail", "--retry", "5", "--retry-delay", "5", "-C", "-", "-sS", "-o", f, F[k][0]], { stdio: "inherit" });
-    if (r.status !== 0) { console.log(`FAIL(받기 ${r.status}) ${f}`); continue; }
-    const h = await sha(f);
-    console.log(h === F[k][2] ? `OK ${f} ${fs.statSync(f).size}` : `FAIL(해시) ${f} ${h}`);
+  const keys = SETS[set];
+  if (!keys) { console.error(`구성 없음: ${set}`); process.exit(2); }
+  const m = readManifest();
+  const failed = [];
+  for (const k of keys) {
+    const f = await fetchOne(k);
+    if (f) m.files[k] = { ...stamp(f), sha256: F[k][2] };
+    else { delete m.files[k]; failed.push(k); }
   }
-  const bin = path.join(WORK, "engine", "bin");
-  for (const z of ["sd-vulkan.zip", "sd-cuda12.zip", "cudart-cu12.zip"]) {
-    const zf = path.join(WORK, "engine", z);
-    if (fs.existsSync(zf)) { fs.mkdirSync(bin, { recursive: true }); spawnSync("tar.exe", ["-xf", zf, "-C", bin], { stdio: "inherit" }); }
+  // 실패가 있으면 이 구성의 실행 파일 기록도 지워 run이 막히게 한다
+  if (failed.length) for (const [build, ek] of Object.entries(ENGINE_KEYS)) if (ek.some((k) => failed.includes(k))) delete m.engines[build];
+  writeManifest(m);
+  if (failed.length) { console.error(`중단: 필수 파일 실패 ${failed.join(", ")} — 압축 해제·실행 안 함`); process.exit(1); }
+  // 이 구성에 들어 있고 방금 검증한 실행 파일 묶음만, 묶음마다 따로 푼다
+  for (const [build, ek] of Object.entries(ENGINE_KEYS)) {
+    if (!ek.every((k) => keys.includes(k))) continue;
+    const bin = path.join(WORK, "engine", `bin-${build}`);
+    delete m.engines[build];
+    writeManifest(m);
+    fs.rmSync(bin, { recursive: true, force: true });
+    fs.mkdirSync(bin, { recursive: true });
+    for (const k of ek) {
+      const r = spawnSync(TAR, ["-xf", m.files[k].path, "-C", bin], { stdio: "inherit" });
+      if (r.status !== 0) { console.error(`중단: 압축 해제 실패 ${m.files[k].path} (${r.status})`); process.exit(1); }
+    }
+    const exe = ["sd-cli.exe", "sd.exe"].map((n) => path.join(bin, n)).find((f) => fs.existsSync(f));
+    if (!exe) { console.error(`중단: ${bin} 에 실행 파일 없음`); process.exit(1); }
+    m.engines[build] = { ...stamp(exe), sha256: await sha(exe), from: ek.map((k) => F[k][2]) };
+    writeManifest(m);
+    console.log(`실행 파일 준비 ${build}: ${exe}`);
   }
-  console.log("DONE", fs.existsSync(bin) ? fs.readdirSync(bin).filter((n) => /\.exe$/.test(n)).join(" ") : "");
+  console.log("DONE");
+}
+
+/** run 전에 — 검증 기록에 있고, 크기·시각이 같고, 해시가 다시 맞는 파일만 쓴다 */
+async function verified(entry, label) {
+  if (!entry || !fs.existsSync(entry.path)) throw new Error(`검증 기록 없음: ${label} — 먼저 download`);
+  const st = fs.statSync(entry.path);
+  if (st.size !== entry.bytes || st.mtimeMs !== entry.mtimeMs || (await sha(entry.path)) !== entry.sha256) throw new Error(`검증 뒤 바뀐 파일: ${entry.path} — 다시 download`);
+  return entry.path;
 }
 
 const SIZE = { "1:1": [1024, 1024], "16:9": [1344, 768], "9:16": [768, 1344] };
@@ -90,21 +152,25 @@ const P = [
 // 1초마다 프로세스 최대 메모리·그래픽 메모리(성능 카운터, NVIDIA는 nvidia-smi도)를 재서 파일에 최댓값을 남긴다
 const SAMPLER = `$p=0;$s=0;$d=0;$n=0;while($true){try{$c=(Get-Counter '\\GPU Adapter Memory(*)\\Shared Usage','\\GPU Adapter Memory(*)\\Dedicated Usage' -ErrorAction Stop).CounterSamples;$x=($c|?{$_.Path -like '*shared*'}|measure CookedValue -Maximum).Maximum;$y=($c|?{$_.Path -like '*dedicated*'}|measure CookedValue -Maximum).Maximum;if($x -gt $s){$s=$x};if($y -gt $d){$d=$y}}catch{};try{$v=[int]((& nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits 2>$null)|select -First 1);if($v -gt $n){$n=$v}}catch{};$q=Get-Process sd-cli,sd -ErrorAction SilentlyContinue|measure PeakWorkingSet64 -Maximum;if($q.Maximum -gt $p){$p=$q.Maximum};"$([int]($p/1MB)),$([int]($s/1MB)),$([int]($d/1MB)),$n"|Set-Content -Path $env:P0_SAMPLE;Start-Sleep -Milliseconds 1000}`;
 
-function run(mk, quant, range = "1", seedArg = "1001") {
+async function run(mk, quant, range = "1", seedArg = "1001") {
   const fam = { z: { key: `z${quant}`, vae: "zvae", steps: 8, name: "z-image-turbo" }, flux: { key: `f${quant}`, vae: "fvae", steps: 4, name: "flux2-klein-4b" } }[mk];
   if (!fam || !F[fam.key]) throw new Error("모델은 z|flux, 양자화는 q4|q8");
-  const tag = `${fam.name}-${quant}`;
-  const llm = dest(`enc${quant}`);
-  const bin = path.join(WORK, "engine", "bin");
-  const exe = ["sd-cli.exe", "sd.exe"].map((n) => path.join(bin, n)).find((f) => fs.existsSync(f));
-  if (!exe) throw new Error("실행 파일 없음 — 먼저 download");
+  const m = readManifest();
+  const builds = Object.keys(m.engines);
+  const build = opt("engine", builds.length === 1 ? builds[0] : "");
+  if (!m.engines[build]) throw new Error(`실행 파일 지정 필요: --engine ${Object.keys(ENGINE_KEYS).join("|")} (검증된 것: ${builds.join(", ") || "없음"})`);
+  const exe = await verified(m.engines[build], `실행 파일 ${build}`);
+  const diffusion = await verified(m.files[fam.key], fam.key);
+  const vae = await verified(m.files[fam.vae], fam.vae);
+  const llm = await verified(m.files[`enc${quant}`], `enc${quant}`);
+  const tag = `${fam.name}-${quant}-${build}`;
   const [a, b] = range.split("-").map(Number);
   const nums = Array.from({ length: (b || a) - a + 1 }, (_, i) => a + i);
   const outDir = path.join(WORK, "out", tag);
   const logs = path.join(WORK, "logs");
   fs.mkdirSync(outDir, { recursive: true });
   fs.mkdirSync(logs, { recursive: true });
-  const csv = path.join(logs, "results.csv");
+  const csv = path.join(logs, "results-v2.csv");
   if (!fs.existsSync(csv)) fs.writeFileSync(csv, "time,model,no,ratio,w,h,seed,exit,seconds,bytes,peakRamMB,gpuSharedPeakMB,gpuDedicatedPeakMB,nvidiaUsedPeakMB,note\n");
   const sq = flag("square");
   for (const no of nums) for (const seed of seedArg.split(",").map(Number)) {
@@ -115,7 +181,7 @@ function run(mk, quant, range = "1", seedArg = "1001") {
     const sampleFile = path.join(logs, "sample.tmp");
     fs.writeFileSync(sampleFile, "0,0,0,0");
     const sampler = spawn("powershell", ["-NoProfile", "-Command", SAMPLER], { env: { ...process.env, P0_SAMPLE: sampleFile }, stdio: "ignore" });
-    const args = ["--diffusion-model", dest(fam.key), "--vae", dest(fam.vae), "--llm", llm, "-p", text + TAIL, "--cfg-scale", "1", "--steps", String(fam.steps), "-W", String(w), "-H", String(h), "--offload-to-cpu", "--diffusion-fa", "-s", String(seed), "-o", out];
+    const args = ["--diffusion-model", diffusion, "--vae", vae, "--llm", llm, "-p", text + TAIL, "--cfg-scale", "1", "--steps", String(fam.steps), "-W", String(w), "-H", String(h), "--offload-to-cpu", "--diffusion-fa", "-s", String(seed), "-o", out];
     const t0 = Date.now();
     const r = spawnSync(exe, args, { encoding: "utf8", maxBuffer: 64 * 1024 * 1024, timeout: 30 * 60 * 1000 });
     const sec = ((Date.now() - t0) / 1000).toFixed(1);
@@ -130,5 +196,5 @@ function run(mk, quant, range = "1", seedArg = "1001") {
 }
 
 if (pos[0] === "download") await download(pos[1]);
-else if (pos[0] === "run") run(pos[1], pos[2], pos[3], pos[4]);
-else console.error("download 또는 run");
+else if (pos[0] === "run") await run(pos[1], pos[2], pos[3], pos[4]).catch((e) => { console.error(`중단: ${e.message}`); process.exit(1); });
+else { console.error("download 또는 run"); process.exit(2); }
