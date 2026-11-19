@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-19 ✅ [역할: music] Claude Code(윈도우) · 세션 `claude-win-20261024-music` — 플레이리스트 v1.43 리믹스 받기 배포
+- 내보낸 것: 음악(SUNO) 리믹스 결과를 `?remix=`로 받기(Mac 독립 검수 고정판 `6fba5fca2` 88/88). 버전 커밋 `ca1a4a8ac`, 배포 `playlist-channel-studio-hnmaikj36` Ready(빌드 1회 — 주인님 「배포해」), DB v1.43
+- 확인: 운영 ego(시험 계정·본인 곡만): 화면 v1.43, `?remix=` 보컬 추가·반주 추가 2곡 → 「보낸 곡 2개 중 2개를 찾아 미리 선택」·리믹스 3줄(반주 추가는 연주곡)·「선택한 곡 추가 (2)」 → Suno 시간 가사 끄고 추가 → 「곡 2개를 목록 끝에 추가했습니다」·리믹스 커버로 배경 생성(실서명 정상), 없는 번호 404, 목록 remixError false·blocked 0. Suno 유료 호출 0
+- 링크: https://playlist-maker.buylife.xyz
+- 다음 첫 단계: 음악 리믹스 카드에 「플레이리스트」 링크(`music/components/remix/RemixCard.tsx`, 빌드 1회 별도 승인). 푸시는 Master 순번
+
 ## 2026-11-19 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 상가·건물·토지 매물 알림 v1.35 배포
 - 내보낸 것: 일부만 읽은 회차에도 못 읽은 감시 화면 이전 결과 보존(확장, id 기준·7일·막힘/오류 포함, 0곳 회차 같은 규칙, 행정동 경계 id 연결, 통계 대체 분기는 옛 결과만), 관심 지역 연계 2단계, 로그인 정책 2건. 맥미니 독립 검수 3회 통과(최종 84/84).
 - 커밋: 구현 f4d1e5fc0·4e5fce042·f52882db9, 버전 c894f6fe1(manifest 1.35.0·ZIP), 문서 5b5b8a2a4. 배포 `commercial-land-trade-alert-ppv7ouudz`(Ready, 빌드 1회 — 주인님 채팅 승인). 운영 DB version·extension_version v1.35, `check-extension-release` OK. 푸시 안 함(Master 순번 대기).
