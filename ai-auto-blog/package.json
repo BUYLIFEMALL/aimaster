@@ -37,7 +37,7 @@
     "@tiptap/starter-kit": "^3.31.3",
     "cheerio": "^1.2.0",
     "lucide-react": "^0.563.0",
-    "next": "16.4.2",
+    "next": "16.4.6",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
@@ -48,7 +48,7 @@
     "@types/react-dom": "^19",
     "archiver": "^7.0.1",
     "eslint": "^9",
-    "eslint-config-next": "16.4.2",
+    "eslint-config-next": "16.4.6",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

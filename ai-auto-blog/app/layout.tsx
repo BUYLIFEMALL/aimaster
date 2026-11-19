@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
+import Script from 'next/script'
 import './globals.css'
 import BlogShell from './_components/BlogShell'
 
@@ -25,6 +26,8 @@ export default function RootLayout({
     <html lang="ko">
       <body className={`${sans.variable} ${sans.className}`}>
         <BlogShell>{children}</BlogShell>
+        {/* 저장공간 위젯(메인 사이트 회원 저장 용량) — 수강생 독립 사이트에는 넣지 않음 */}
+        {!IS_STANDALONE && <Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />}
       </body>
     </html>
   )
