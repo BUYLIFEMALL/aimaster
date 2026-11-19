@@ -15,6 +15,8 @@ export const TITLE_LIMIT = 80;
 
 const REQUEST_ID = /^[A-Za-z0-9-]{8,64}$/;
 const JOB_ID = /^[0-9a-f-]{36}$/;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const JOB_STATUS = ["queued", "running", "done", "failed", "cancelled", "interrupted"];
 const PATH = /^\/[A-Za-z0-9/-]*$/;
 const LEDGER_MAX = 300;
 // 엔진이 작업을 목록에 넣기 **전에** 돌려주는 400(e8e52b505 gateway.mjs handleScopedQueue · queue.mjs add).
@@ -147,34 +149,33 @@ export function createEngineClient(opts: EngineClientOptions) {
   const uuid = opts.uuid ?? (() => globalThis.crypto.randomUUID());
   const now = opts.now ?? Date.now;
   const storage = opts.storage;
+  // 연결 기록 한 칸에 토큰과 연결 범위 표시를 **함께** 적는다({ v: 2, token, link }). 둘이 따로 저장돼 어긋나는 일이 없다.
+  // 범위 표시는 엔진이 「이전 범위를 이어받았다」고 답한 짝짓기에서만 유지하고 그 밖에는 새로 만든다.
+  // 이 모양이 아닌 값(이전 저장 형식의 토큰 문자열 등)은 연결로 치지 않는다 — 어느 범위인지 알 수 없어 새 범위와 잇지 않는다.
   const tokenKey = `fis.engineToken.v1:${memberId}`;
   const ledgerKey = `fis.submissions.v1:${memberId}`;
-  // 연결 범위 표시: 엔진이 「이전 범위를 이어받았다」고 답한 짝짓기에서만 유지하고, 그 밖에는 새로 만든다.
-  const linkKey = `fis.engineLink.v1:${memberId}`;
+  const legacyLinkKey = `fis.engineLink.v1:${memberId}`; // 예전에 따로 두던 칸 — 읽지 않고, 연결을 바꿀 때 지우기만 한다
 
   // 회원 전환(dispose)·연결 해제·다시 연결이 일어나면 그 전에 보낸 요청의 응답은 버린다.
   let epoch = 0;
   let disposed = false;
   /** 접수 번호별로 보내기·확인을 한 번에 하나만(겹친 응답이 서로의 결과를 덮지 않게) */
   const busy = new Set<string>();
-  const readLink = (): string | null => {
+  const readSession = (): { token: string; link: string } | null => {
     try {
-      return storage.getItem(linkKey) || null;
+      const data: unknown = JSON.parse(storage.getItem(tokenKey) ?? "null");
+      const d = data as { v?: unknown; token?: unknown; link?: unknown } | null;
+      return d && typeof d === "object" && d.v === 2 && typeof d.token === "string" && d.token.length >= 16 && typeof d.link === "string" && JOB_ID.test(d.link) ? { token: d.token, link: d.link } : null;
     } catch {
       return null;
     }
   };
+  const readLink = (): string | null => readSession()?.link ?? null;
   const alive = (e0: number) => {
     if (disposed || e0 !== epoch) throw new EngineError("stale", "연결이 바뀌어 이 응답은 쓰지 않습니다.");
   };
 
-  const readToken = (): string | null => {
-    try {
-      return storage.getItem(tokenKey) || null;
-    } catch {
-      return null;
-    }
-  };
+  const readToken = (): string | null => readSession()?.token ?? null;
 
   async function request(path: string, init: { method?: string; body?: unknown; auth?: boolean; timeoutMs?: number } = {}): Promise<Response> {
     if (disposed) throw new EngineError("stale", "연결이 바뀌어 요청을 보내지 않았습니다.");
@@ -211,7 +212,7 @@ export function createEngineClient(opts: EngineClientOptions) {
     if (res.status === 401) {
       // 이 요청에 쓴 토큰이 아직 그대로일 때만 지운다(그사이 새로 연결했다면 새 토큰을 지우지 않는다).
       try {
-        if (token && storage.getItem(tokenKey) === token) storage.removeItem(tokenKey);
+        if (token && readToken() === token) storage.removeItem(tokenKey);
       } catch {}
     }
     throw new EngineError(KIND_OF[res.status] ?? "error", message || DEFAULT_MESSAGE[res.status] || `엔진 오류(${res.status})`, res.status);
@@ -268,10 +269,33 @@ export function createEngineClient(opts: EngineClientOptions) {
       return false;
     }
   }
-  const asJob = (v: unknown): EngineJob | null => (v && typeof v === "object" && typeof (v as EngineJob).id === "string" && typeof (v as EngineJob).status === "string" ? (v as EngineJob) : null);
+  /**
+   * 엔진이 돌려준 작업 한 줄이 계약대로인지(e8e52b505 queue.mjs add·publicJob, gateway handleScopedQueue):
+   * 번호는 UUID, 종류는 그림, 상태는 여섯 가지 가운데 하나, 접수 번호는 접수 번호 형식. 하나라도 아니면 null.
+   */
+  const asJob = (v: unknown): EngineJob | null => {
+    if (!v || typeof v !== "object" || Array.isArray(v)) return null;
+    const j = v as Record<string, unknown>;
+    if (typeof j.id !== "string" || !UUID.test(j.id)) return null;
+    if (j.kind !== "art") return null;
+    if (typeof j.status !== "string" || !JOB_STATUS.includes(j.status)) return null;
+    if (typeof j.clientRequestId !== "string" || !REQUEST_ID.test(j.clientRequestId)) return null;
+    return v as EngineJob;
+  };
 
   /** 기록에 있는 접수를 엔진에 보낸다. 같은 접수 번호·같은 내용만 보낸다. */
-  async function send(entry: Submission): Promise<{ requestId: string; state: "accepted"; job: EngineJob } | { requestId: string; state: "unknown" | "rejected"; error: EngineError }> {
+  type SendResult = { requestId: string; state: "accepted"; job: EngineJob | null } | { requestId: string; state: "unknown" | "rejected"; error: EngineError };
+  /**
+   * 전송이 실패·불명으로 끝났을 때 기록에 적는다. 기록이 아직 「보내는 중」일 때만 고친다 —
+   * 그사이 다른 화면이 이 접수를 접수됨으로 확인했다면 그 결과를 따른다(늦은 실패가 접수됨을 덮지 않는다).
+   */
+  function settle(requestId: string, state: "unknown" | "rejected", error: EngineError, errorKind: EngineErrorKind): SendResult {
+    if (patch(requestId, { state, error: error.message, errorKind }, ["pending"])) return { requestId, state, error };
+    const current = readLedger().find((x) => x.requestId === requestId);
+    if (current?.state === "accepted") return { requestId, state: "accepted", job: null };
+    return { requestId, state: current?.state === "rejected" ? "rejected" : "unknown", error };
+  }
+  async function send(entry: Submission): Promise<SendResult> {
     if (busy.has(entry.requestId)) throw new EngineError("invalid", "이 접수는 지금 처리하는 중입니다.");
     busy.add(entry.requestId);
     try {
@@ -286,11 +310,10 @@ export function createEngineClient(opts: EngineClientOptions) {
         },
       });
       const job = asJob(data.job);
-      // 엔진이 돌려준 작업이 이 접수 번호의 것이 아니면 받은 것으로 치지 않는다.
+      // 엔진이 돌려준 작업이 계약 모양이 아니거나 이 접수 번호의 것이 아니면 받은 것으로 치지 않는다(작업 번호를 적지 않는다).
       if (!job || job.clientRequestId !== entry.requestId) {
         const error = new EngineError("error", "엔진 응답에서 접수 결과를 확인하지 못했습니다.");
-        patch(entry.requestId, { state: "unknown", error: error.message, errorKind: error.kind });
-        return { requestId: entry.requestId, state: "unknown", error };
+        return settle(entry.requestId, "unknown", error, error.kind);
       }
       patch(entry.requestId, { state: "accepted", jobId: job.id, error: undefined, errorKind: undefined });
       return { requestId: entry.requestId, state: "accepted", job };
@@ -300,9 +323,9 @@ export function createEngineClient(opts: EngineClientOptions) {
       const state = certainlyNotAccepted(error) ? "rejected" : "unknown";
       // 대기열이 가득 찬 400은 내용 문제가 아니라 잠시 뒤 같은 번호로 다시 보낼 수 있다.
       const errorKind = error.status === 400 && QUEUE_FULL_400.test(error.message) ? "busy" : error.kind;
-      patch(entry.requestId, { state, error: error.message, errorKind });
+      const result = settle(entry.requestId, state, error, errorKind);
       if (error.kind === "stale") throw error;
-      return { requestId: entry.requestId, state, error };
+      return result;
     } finally {
       busy.delete(entry.requestId);
     }
@@ -328,24 +351,24 @@ export function createEngineClient(opts: EngineClientOptions) {
     async pair(code: string): Promise<{ inherited: boolean }> {
       const clean = typeof code === "string" ? code.trim() : "";
       if (!/^\d{6}$/.test(clean)) throw new EngineError("invalid", "연결 코드는 숫자 6자리입니다.");
-      const prev = readToken();
-      const data = await requestJson("/pair", { method: "POST", auth: false, body: prev ? { code: clean, prevToken: prev } : { code: clean } });
-      if (typeof data.token !== "string" || !data.token) throw new EngineError("error", "연결하지 못했습니다. 다시 시도해 주세요.");
+      const prev = readSession();
+      const data = await requestJson("/pair", { method: "POST", auth: false, body: prev ? { code: clean, prevToken: prev.token } : { code: clean } });
+      if (typeof data.token !== "string" || data.token.length < 16) throw new EngineError("error", "연결하지 못했습니다. 다시 시도해 주세요.");
+      const inherited = data.inherited === true;
+      // 엔진이 이전 범위를 이어받았다고 답했고 그 이전 연결 기록이 **지금도 그대로**일 때만 범위 표시를 유지한다. 아니면 새 범위다.
+      const now0 = readSession();
+      const link = inherited && prev && now0 && now0.token === prev.token ? prev.link : uuid();
+      if (!JOB_ID.test(link)) throw new EngineError("error", "연결하지 못했습니다. 다시 시도해 주세요.");
       try {
-        storage.setItem(tokenKey, data.token);
+        storage.setItem(tokenKey, JSON.stringify({ v: 2, token: data.token, link })); // 토큰과 범위 표시를 한 번에
       } catch {
+        // 적지 못했으면 앞 연결 기록(토큰·범위 표시)이 통째로 그대로다. 새 토큰과 옛 범위가 섞인 상태는 생기지 않는다.
         throw new EngineError("storage", "브라우저에 연결 정보를 적지 못했습니다.");
       }
       epoch += 1; // 이전 토큰으로 보낸 요청의 응답은 버린다
-      const inherited = data.inherited === true;
-      // 엔진이 이전 범위를 이어받았다고 답했고 이 브라우저에 그 범위 표시가 있을 때만 유지한다. 아니면 새 범위다.
-      if (!(inherited && prev && readLink())) {
-        try {
-          storage.setItem(linkKey, uuid());
-        } catch {
-          throw new EngineError("storage", "브라우저에 연결 정보를 적지 못했습니다.");
-        }
-      }
+      try {
+        storage.removeItem(legacyLinkKey);
+      } catch {}
       return { inherited };
     },
 
@@ -353,8 +376,8 @@ export function createEngineClient(opts: EngineClientOptions) {
     disconnect() {
       epoch += 1;
       try {
-        storage.removeItem(tokenKey);
-        storage.removeItem(linkKey); // 다음 연결은 새 범위다
+        storage.removeItem(tokenKey); // 토큰과 범위 표시가 함께 사라진다 — 다음 연결은 새 범위다
+        storage.removeItem(legacyLinkKey);
       } catch {}
     },
 
@@ -368,7 +391,10 @@ export function createEngineClient(opts: EngineClientOptions) {
     /** 자기 범위의 작업 목록 */
     async listJobs(): Promise<EngineJob[]> {
       const data = await requestJson("/queue");
-      return Array.isArray(data.jobs) ? (data.jobs.map(asJob).filter(Boolean) as EngineJob[]) : [];
+      const rows = Array.isArray(data.jobs) ? data.jobs.map(asJob) : null;
+      // 모양이 다른 줄을 조용히 빼면 「작업이 없다」로 보이므로, 온전하지 않은 목록은 통째로 오류로 돌린다.
+      if (!rows || rows.some((j) => !j)) throw new EngineError("error", "엔진의 작업 목록을 읽지 못했습니다.");
+      return rows as EngineJob[];
     },
 
     /**
@@ -379,16 +405,9 @@ export function createEngineClient(opts: EngineClientOptions) {
       const problem = checkArtInput(input);
       if (problem) throw new EngineError("invalid", problem);
       // 연결돼 있지 않으면 접수 기록도 만들지 않는다(어느 범위의 접수인지 적을 수 없다).
-      if (!readToken()) throw new EngineError("needPair", DEFAULT_MESSAGE[401], 401);
-      let link = readLink();
-      if (!link) {
-        link = uuid(); // 토큰만 있고 범위 표시가 없으면(저장소 일부가 지워짐) 이전 접수와 잇지 않는다
-        try {
-          storage.setItem(linkKey, link);
-        } catch {
-          throw new EngineError("storage", "브라우저에 연결 정보를 적지 못했습니다.");
-        }
-      }
+      const session = readSession();
+      if (!session) throw new EngineError("needPair", DEFAULT_MESSAGE[401], 401);
+      const link = session.link;
       const requestId = uuid();
       const trackId = uuid();
       if (!REQUEST_ID.test(requestId) || !JOB_ID.test(trackId)) throw new EngineError("invalid", "접수 번호를 만들지 못했습니다.");
