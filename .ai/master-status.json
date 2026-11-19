@@ -6078,11 +6078,11 @@
       "reviewer": "CX-QA-01",
       "title": "B2B몰 관리자 사이드바·대시보드·상품·주문 UI 인수인계",
       "status": "reviewing",
-      "delivery": "private_lab_dev_start_authorized",
+      "delivery": "private_lab_ready_mac_browser_review_dispatched",
       "sha": "ad046c1eb",
-      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8·msg_9f9b2521f4a8·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_621b8cb49fa9·msg_aa1479ca4c17·c17cca668·msg_e5e7af9da7fe·msg_c15db5ced233·msg_b17ccd22bc09·msg_d96d3bf2fcdb·ad046c1eb·msg_07fb8a6c148a·msg_3c961902ac23·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_92995c9f1a9f·msg_1c61b1683760·msg_a52a36de3fcf",
-      "next": "3210 리스너 없음·원격 Lab SHA 미확인. Backend에 동일 SHA ad046c1eb 검수용 사설 dev 1회 재개 지시. 주소/PID/SHA 확인 후 Mac 실화면 검수.",
-      "lastReviewedAt": "2026-11-19T01:51:40.258Z"
+      "evidence": "b6b3ee7f5·msg_a57d427aa295·msg_e340a8a89bde·msg_90ebf53020b8·msg_9f9b2521f4a8·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_621b8cb49fa9·msg_aa1479ca4c17·c17cca668·msg_e5e7af9da7fe·msg_c15db5ced233·msg_b17ccd22bc09·msg_d96d3bf2fcdb·ad046c1eb·msg_07fb8a6c148a·msg_3c961902ac23·.ai/results/B2B-20261119-ADMINUI-CX-QA-01.md·msg_92995c9f1a9f·msg_1c61b1683760·msg_a52a36de3fcf·msg_9e0f5f913c2f·Master PID 46608 Tailscale 3210 login200·msg_ef8f4bba5a4e",
+      "next": "ad046c1eb 사설 3210 Lab 및 login 200 직접 확인. Mac 375px·키보드 검수 전송. 초기 전체 인터페이스 바인딩은 종료됨, 당시 접근 여부 미확인. 검수 후 담당 서버 종료.",
+      "lastReviewedAt": "2026-11-19T01:53:42.222Z"
     },
     {
       "task_id": "IMG-20261119-PLAN",
@@ -6101,10 +6101,10 @@
       "reviewer": "CX-MASTER-01",
       "title": "감성 글귀 합성 기존 결과 맥미니 화면 검수",
       "status": "reviewing",
-      "delivery": "initial_layout_verified_composite_evidence_requested",
-      "evidence": "msg_34a8d9c8b06f·msg_de03e2b05eec·msg_785b9a796c77·.ai/results/ECOM-20261119-EMOTION-CX-QA-01.md·msg_6d81c947bd00",
-      "next": "Mac 운영 v1.37 로그인 및 1308/375 초기 화면 가로 넘침 없음. 합성 결과 미확인, 기존 탭·동일 결과 전달을 CC-ECOM-01에 요청.",
-      "lastReviewedAt": "2026-11-19T01:51:40.258Z"
+      "delivery": "source_images_checked_composite_session_missing",
+      "evidence": "msg_34a8d9c8b06f·msg_de03e2b05eec·msg_785b9a796c77·.ai/results/ECOM-20261119-EMOTION-CX-QA-01.md·msg_6d81c947bd00·msg_1e7109e277d5·msg_b3169f589c96·aa9847f1f",
+      "next": "Mac 운영 초기 화면과 보관 원본 전후 2장 검증. 기존 앱 합성 탭·링크 부재로 한글 배치·가독성 보류. 동일 합성 화면 확보 시 재개.",
+      "lastReviewedAt": "2026-11-19T01:53:42.222Z"
     }
   ],
   "programOverrides": [
