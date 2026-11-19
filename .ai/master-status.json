@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "checkedAt": "2026-11-19T03:00:59.217Z",
+  "checkedAt": "2026-11-19T03:31:07.291Z",
   "method": "103개비교목록·19개분류·265개프로그램문서상태표식 수집 + 담당8개정합성회신/현재Git·지정검수대조. 전체기능코드/운영재검증아님.",
   "tasks": [
     {
@@ -6635,21 +6635,22 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T03:00:59.217Z",
+      "at": "2026-11-19T03:31:07.291Z",
       "timezone": "Asia/Seoul",
-      "trigger": "12:00 예약 점검 메시지 msg_9a187ae6ae0a 수신",
-      "scope": "11:30:56 KST 이후 증분. 프로그램 103개·19개 분류, 미완료 25건(진행 3·검수 4·순번 4·사용자 단계 14), Git·점유·인수인계·대기 승인 대조.",
+      "trigger": "12:30 예약 점검 메시지 msg_ca21fc07cf3c 수신",
+      "scope": "12:00:59 KST 이후 증분. 프로그램 103개·19개 분류, 미완료 26건(진행 3·검수 4·순번 5·사용자 단계 14), Git·점유·인수인계·승인 대조.",
       "evidence": [
-        "12:00:01 예약 성공, 12:00:03 전송 msg_9a187ae6ae0a, 현재 Master 터미널 수신.",
-        "부동산 U-1 1c52f4e37, Mac 재검수 msg_e0695c219660 및 RE-20261119-DESK-CX-QA-01.md 갱신 파일 대조, 독립 6/6.",
-        "AdminPC 12:00 터미널 중간 보고 Q8 74/96 통과(FLUX 48/48, Z 26/48에 해당), P0 초안 444034a1e, 확정 CSV 미수신.",
-        "AI Influencer msg_52b203d7fe0b 키 등록 표시 확인. 원격 master af36bb4675d 동일, Master 관리자 대기 요청 0. 현재 구간 미등록 새 결과 파일 없음, 기존 HANDOFF 수정은 이전 AIF 기록."
+        "12:30:01 예약 성공, 12:30:03 전송 msg_ca21fc07cf3c, 현재 Master 수신 확인.",
+        "RTX Q8 96/96, 독립 msg_2c1454bc23a0, 결과표 73d53045e. 기존 96장으로 평가 48쌍 준비 msg_d0aa30c8fbca·공유 파일 확인. 공개 2쌍 별도.",
+        "B2B 사설 PID 41608·Mac login 200 및 공간39 제어 인계는 ADMINUI 최신 검수 기록과 일치. 공간29 QA037는 뒤 순번. 사진 집계 신규 등록, 30일 삭제 취소 재확인.",
+        "Workspace QA043 운영 v1.61 실제 375/390·Tab 보고 msg_ced9f747ae25 및 결과 기록 대조. AIF 직접 제한 승인으로 재시험 착수 msg_6ad1a695d97a, 결과 미수신.",
+        "Master 대기 요청 0, 원격 master af36bb4675d 유지, 기존 HANDOFF 변경 9줄은 이전 AIF 기록."
       ],
-      "judgment": "부동산 U-1 독립 검수 완료·미배포. RTX 본시험 계속, AIF 유료 재시험 및 B2B 실화면·S70·M3 기존 조건 대기. 추가 배포·운영 DB·공급자 호출 없음.",
-      "nextAction": "새 배정 없음. RTX 최종 CSV 회수 뒤 CC-ECOM-01 결과표와 모델 비교. B2B 관리자 실화면은 Mac Tailnet 연결 확인 뒤 Backend가 사설 Lab 재개. AIF 새 비용 승인 시만 V3 재시험.",
+      "judgment": "무료 이미지 속도 검수 완료·품질 평가 대기. B2B 네트워크 복구·시험 로그인 대기. AIF 승인 1회 범위 진행 중. 추가 운영 배포·DB 승인 없음.",
+      "nextAction": "기존 담당 유지. 품질 결과 파일 회수 후 ECOM 비교, B2B 공간39 로그인 후 Mac 검수·이후 공간29, AIF 제한 재시험 결과 수신. 사진 사용량 설계는 Master 범위, 운영 적용 별도.",
       "unverified": [
-        "RTX 전체 CSV·품질 최종, AIF 키 저장 시각·유효성, B2B Mac 연결·실화면, 기존 사용자 단계",
-        "운영 전수 실측 및 오래된 미추적 자료의 전수 재검증 미실행"
+        "무료 이미지 48쌍 품질·정비율·동일 장비 Q4, B2B 로그인 뒤 실화면, AIF 응답·차감",
+        "이전 미추적 자료와 운영 전수 실측 미실행"
       ]
     },
     "notifications": [
