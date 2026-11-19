@@ -392,11 +392,11 @@ Workspace 캐시 로컬 수락, 스냅숏 후보 진행. 이미지와 플레이�
 | WS-20261119-01 | CC-WORKSPACE-01 | done / saved_notion_html_recursive_fix_independent_review_accepted | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | v1.61 배포 완료, 기존 가져온 본문 읽기 확인. 운영에서 노션 저장 HTML 다시 가져오기 시험은 미실행. v1.61 완료분 점유 해제(5b2f56408). |
 | WS-20261119-REL | CC-WORKSPACE-01 | done / production_v161_live_verified_catalog_version_synced | Workspace v1.61 기존 중단 빌드 로그 진단 | 운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음. 완료분 점유 해제(5b2f56408). |
 | WS-20261119-02 | CC-WORKSPACE-01 | done / workspace_v162_production_ready_live_import_pending | Workspace 대용량 ZIP | dfcee1584 운영 v1.62 READY·공식 alias 확인, 빌드 1회. 첫 요청 DDL 확인(담당). DB 표시 v1.61, 재로그인·실제 ZIP/Storage 검증 대기. |
-| WS-20261119-ZIP-504 | CC-WORKSPACE-01 | running / zip_cache_mac_accepted_snapshot_candidate_dispatched | Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단 | A 080d30733·9b6cf6f43 담당 격리 1,039개 및 Mac 소스·모의 수락. 스냅숏 쪽별 처리 후보 배정. Mac DB 및 운영 대량 미검증. |
+| WS-20261119-ZIP-504 | CC-WORKSPACE-01 | reviewing / zip_snapshot_candidate_mac_recheck_sent | Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단 | ad9f6e443 담당 격리 1,053개. 201쪽 DB 호출 51,273→22,997(누적). 스냅숏 쪽 단위·롤백 Mac 검수 전달. 운영 대량 미검증. |
 | MUSIC-20261119-IMG-COMPAT | CC-MUSIC-01 | done / five_music_flows_read_only_accepted | 무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토 | 고정 2131089b7 음악 5경로·146/146 검토 수락. 새 범위 미사용 시 파일 미생성 정정. 실제 엔진은 미검증. |
 | MUSIC-20261119-BACKLOG-SWEEP | CC-MUSIC-01 | done / music_backlog_review_accepted_followup_dispatched | 음악 7개 프로그램 다음 작업 후보 대조 | 음악 7개 웹의 미배포 코드 0. L5·U3를 우선 로컬 착수, 리믹스→플레이리스트 및 유료 영상 실검증은 별도 조건 대기. |
 | MUSIC-20261119-REMIX-PLAYLIST-REVIEW | CC-MUSIC-01 | done / remix_playlist_review_accepted_implementation_scope_pending | 리믹스에서 플레이리스트 연계 사전 검토 | d6df77af9 사전 검토 수락. 두 테이블 모두 회원 범위 확인, 플레이리스트 수신 기능을 먼저 배포한 뒤 음악 링크를 공개해야 함. 구현 범위·배포 승인 대기. |
-| MUSIC-20261119-REMIX-PLAYLIST-RECEIVER | CC-MUSIC-01 | reviewing / receiver_empty_list_clear_control_mac_recheck_sent | 리믹스 → 플레이리스트 수신 로컬 구현 | 6fba5fca2 담당 88/88·tsc. 표시 목록이 비어도 보류/수신 선택 해제 버튼 노출, Mac 재검수 전달. 실제 화면 미확인, 미배포. |
+| MUSIC-20261119-REMIX-PLAYLIST-RECEIVER | CC-MUSIC-01 | waiting_human / receiver_mac_accepted_release_approval_pending | 리믹스 → 플레이리스트 수신 로컬 구현 | 6fba5fca2 Mac 88/88, 지정 범위 통과. 수신 로컬 완료 수락, 배포 승인 대기. 선배포 확인 후 음악 발신 링크. 실제 화면·서명 미확인. |
 | MUSIC-20261119-LYRIC-L5-U3 | CC-MUSIC-01 | done / lyric_l5_u3_mac_review_passed_undeployed | 가사 영상 미리보기 재생 실패와 모바일 안내 | 8f1eae339 Mac 독립 44/44 및 격리 브라우저 재생·390/767/768 통과. Safari 실동작·후보 URL·휴대폰 검증 대기, 다음 묶음 미배포. |
 | QA-20261118-043 | CX-QA-01 | done / production_v161_mobile_keyboard_verified_read_only | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | Workspace 운영 v1.61 독립 읽기. 375/390px 요일 7칩 두 줄·넘침 0·Tab 3px 포커스. OS 다크 선호 확인, 앱 테마·저장 중 상태 미검증. |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
@@ -436,7 +436,7 @@ Workspace 캐시 로컬 수락, 스냅숏 후보 진행. 이미지와 플레이�
 | B2B-20261119-BACKEND-HANDOFF | CC-B2B-BACK-01 | done / sub_handoff_accepted_prerequisites_reconciled | B2B 백엔드 Sub PC 인수인계 | Sub 인수 완료·0101~0105/M3 승인 조건 대조. QA037 로그인·0105 Lab 적용/자료·M3 후속 승인 대기. 3210과 합성 DB는 메인 유지. |
 | B2B-20261119-FRONT-HANDOFF | CC-B2B-FRONT-01 | done / sub_handoff_and_release_scope_verified | B2B 프런트 Sub PC 인수인계 | Sub 인수 및 Chrome 지정. Lab 9커밋·14경로, 운영 기준 18커밋·19경로 대조 완료. S70은 0105 묶음, 실화면·배포 승인 대기. |
 | B2B-20261119-FRONT-REL | AG-UI-01 | done / frontend_production_public_screen_independent_accepted | B2B 프런트 단독 운영 배포 | 운영 READY·v1.16 및 맥미니 공개 화면 통과. 배포 폴더 대조 19개 프런트/시험 경로와 버전 파일, 백엔드·DB 차이 0. 관리자 별도. |
-| IMG-20261119-PLAN | CC-ECOM-01 | running / web_ui_mac_submit_pass_post_dispatch_ledger_race_followup | AI 무료 이미지 자동화 개발 플랜 | 4f677ea97 Mac 97/97. 앞선 접수 경합 통과, 전송 후 화면 종료와 장부 유실로 중복 접수되는 잔여 보완 배정. 실제 탭·엔진 미확인. |
+| IMG-20261119-PLAN | CC-ECOM-01 | reviewing / web_ui_ledger_serialization_mac_recheck_sent | AI 무료 이미지 자동화 개발 플랜 | 706b1d53d 담당 모의 102/102. 장부 직렬화·전송 뒤 미확정 유지·재확인 Mac 검수 전달. 실제 브라우저·엔진 미확인. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
