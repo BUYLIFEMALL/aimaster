@@ -105,9 +105,16 @@ import Script from "next/script";
 - 바뀌지 않는 것: 용량 측정(`member_storage_measure`)·권한·`workspace-files` 제외·다른 버킷의 정리. 쇼핑몰 코드 변경 없음.
 - **운영 반영 전 확인 절차(Master, 읽기만)**:
   1. 운영의 현재 정의가 0073과 같은지: `select pg_get_functiondef('public.member_storage_expired_files(integer)'::regprocedure);` — `workspace-files` 한 줄만 있고 다른 차이가 없어야 한다. 다르면 중단.
-  2. 지금 걸려 있는 후보 수: `select bucket_id, count(*) from public.member_storage_expired_files(100000) group by 1 order by 1;` — `mall-builder-private` 건수를 적어 둔다(0이어도 적용 가치는 같다).
+  2. 지금 걸려 있는 후보 수: `select bucket_id, count(*) from public.member_storage_expired_files(100000) group by 1 order by 1;` — 버킷별 건수와 **전체 합계**를 적어 둔다(`mall-builder-private`가 0이어도 적용 가치는 같다). 이 함수는 정렬 없이 `limit max_rows`만 걸므로 **합계가 넘긴 상한(여기서는 100000)과 같으면 「상한 도달」**이고, 그때 버킷별 건수는 전체가 아니라 임의의 일부다 — 합계가 상한보다 작을 때만 전체 집합이다. 상한 도달 여부를 함께 적는다.
   3. 넓은 안이 필요한지: `select o.bucket_id, count(*) from storage.objects o join public.profiles p on o.name like '%' || p.id::text || '%' where o.bucket_id like 'mall-builder-%' group by 1;` — `private` 말고도 나오면 넓은 안으로 바꾼다.
   4. 이미 지워진 것이 있는지: 정리 cron의 최근 응답(`removed`)·Vercel 로그. 지워진 파일은 이 변경으로 되살아나지 않는다(별도 판단).
   5. 적용 시각: 다음 cron(04:30 KST) 전에 적용.
-- **적용 뒤 확인**: 정의에 새 한 줄이 있는지(1번 재실행) · 2번 재실행에서 `mall-builder-private` 0건이고 다른 버킷 건수는 적용 전과 같은지 · `select proacl from pg_proc where oid = 'public.member_storage_expired_files(integer)'::regprocedure;`가 적용 전과 같은지.
+- **적용 뒤 확인**(2026-11-19 Master `msg_f5b822c01b10`로 상한 조건 보완):
+  1. 정의에 새 한 줄이 있는지(반영 전 1번 재실행).
+  2. 반영 전 2번을 같은 상한으로 다시 실행 — **항상 확인**: `mall-builder-private` 0건.
+  3. 다른 버킷 건수 비교는 **적용 전·후 두 실행 모두 합계가 상한보다 작을 때(둘 다 상한 미도달)만** 적용한다: 그때는 다른 버킷의 버킷별 건수가 적용 전과 같아야 하고, 합계는 적용 전에서 `mall-builder-private` 건수만큼 줄어야 한다(그사이 새로 기간이 지난 파일·cron이 지운 파일로 생긴 차이는 시각을 적어 구분).
+  4. **어느 한쪽이라도 상한에 닿았으면 건수 비교를 하지 않는다.** 정렬이 없어 돌려주는 부분 집합이 달라지고, private가 빠진 자리를 다른 버킷 후보가 채우므로 **반환 건수·버킷별 건수의 차이만으로 실패로 판정하지 않는다.** 대신 두 가지를 따로 확인한다.
+     - private 0: 위 2번(상한과 무관하게 성립해야 한다).
+     - 비공개 외 버킷의 적격 조건 보존: 정의 대조로 확인한다 — 적용 뒤 `pg_get_functiondef` 결과가 적용 전 결과와 **`and o.bucket_id <> 'mall-builder-private'` 한 줄(주석 포함) 말고는 글자 그대로 같아야** 한다(`ext`·`cand`의 기간 계산·`workspace-files` 제외·마지막 `where`·`limit` 불변). 추가로 표본 확인: 적용 뒤 반환된 행 중 임의 몇 건이 `bucket_id`가 `workspace-files`·`mall-builder-private`가 아니고 `created_at`이 그 회원의 보관 기간보다 오래됐는지 본다(적격이 아닌 행이 섞이지 않았는지). 상한을 넉넉히 올려 미도달로 만들 수 있으면 올려서 3번으로 확인해도 된다.
+  5. `select proacl from pg_proc where oid = 'public.member_storage_expired_files(integer)'::regprocedure;`가 적용 전과 같은지.
 - **되돌리기**: `0073_storage_expired_skip_workspace_files.sql`의 함수 정의를 다시 실행(자료 변경 없음, 합성 시험에서 복귀 확인).
