@@ -10261,10 +10261,10 @@
       "reviewer": "CX-QA-01",
       "title": "AI Influencer D2 정리·쿼터 격리 통합 시험",
       "status": "running",
-      "delivery": "d2_mac_sql_contract_accepted_preflight_guards_dispatched",
-      "sha": "ec52dfef4",
-      "next": "ec52dfef4 Mac 가드 11/11·후보/원복 정적 수용. helper 이름 충돌·기존 소유자의 실행 권한·원복 보호 보완 배정. 운영 적용 보류.",
-      "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e·msg_01908be553ce·msg_3c0ea9d67886·fec7fe017·msg_3bdadb79cff0·msg_ba14d996ab74·msg_0e498ff524d1·msg_af7821e3d106·.ai/results/AIF-20261119-D2-IT-CX-QA-01.md·msg_ec07da32b153·b9ae5bcc4·msg_5a8997695e52·msg_4a1e08e7b950·msg_7c74159e5200·msg_f4dfb65f9b8f·msg_6a0776eac06b·67126ab93·msg_da122886dca1·msg_db2b0fb8b3fd·msg_5f5880568d1b·msg_2fffffb23bff·msg_f26fdb86801a·ec52dfef4·msg_a7dd4d193c29·msg_b53ce5676423·msg_a2780b9d504b"
+      "delivery": "d2_sql_preflight_candidate_mac_recheck_sent",
+      "sha": "dbe2f869e",
+      "next": "dbe2f869e 후보의 함수 충돌·실행 권한·원복 표식 검사 보완. 작성자 11/15/8 통과, Mac 재검수 전달. 운영 적용 보류.",
+      "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e·msg_01908be553ce·msg_3c0ea9d67886·fec7fe017·msg_3bdadb79cff0·msg_ba14d996ab74·msg_0e498ff524d1·msg_af7821e3d106·.ai/results/AIF-20261119-D2-IT-CX-QA-01.md·msg_ec07da32b153·b9ae5bcc4·msg_5a8997695e52·msg_4a1e08e7b950·msg_7c74159e5200·msg_f4dfb65f9b8f·msg_6a0776eac06b·67126ab93·msg_da122886dca1·msg_db2b0fb8b3fd·msg_5f5880568d1b·msg_2fffffb23bff·msg_f26fdb86801a·ec52dfef4·msg_a7dd4d193c29·msg_b53ce5676423·msg_a2780b9d504b·msg_35e2d9d7aef7·dbe2f869e·msg_5df2106491c8"
     },
     {
       "task_id": "AIF-20261119-PLAN6",
