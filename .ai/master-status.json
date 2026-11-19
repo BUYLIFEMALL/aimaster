@@ -6238,6 +6238,17 @@
       "next": "맥미니 57/57. 사진 리뷰 7개 표시·기본 3개·옛 초안·비공개 경계 수락. 담당 실호출 5/5 별도, 미배포.",
       "evidence": "msg_0ac38f25541f·8669e5117·msg_480f9da3729e·msg_42d76c3b880f·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md",
       "lastReviewedAt": "2026-11-19T06:01:27.489Z"
+    },
+    {
+      "task_id": "B2B-20261119-BACKEND-HANDOFF",
+      "owner": "CC-B2B-BACK-01",
+      "title": "B2B 백엔드 Sub PC 인수인계",
+      "status": "queued",
+      "delivery": "old_session_ack_new_handle_and_acceptance_pending",
+      "sha": "33d6cd55f",
+      "next": "메인 세션은 전달만. Sub PC 세션 핸들과 인수 확인 뒤 전달 대상·점유 갱신. Mac 검수 종료까지 메인 3210 유지, 합성 DB는 메인 로컬만.",
+      "evidence": "msg_1475d5b05efa·msg_e258f03355fd·msg_8841e498a5a6·Master PID 43784/3210 읽기 대조",
+      "lastReviewedAt": "2026-11-19T06:21:18.896Z"
     }
   ],
   "programOverrides": [

@@ -14,7 +14,7 @@
 | Claude(Music) | CC-MUSIC-01 | music | claude-win-20261024-music · GT1_Mega | 현재기록정정완료·점유0·기존icon변경보존 | lyric2건다음묶음·Mac실MP4사람선택 |
 | Claude(ecommerce) | CC-ECOM-01 | ecommerce-image | claude-win-sdp · GT1_Mega | 재배포선택질문대기·후속메시지전달보류·운영1.29 | 追加빌드1예산결정전0·안전후보59cb고정·실3회기승인잔여 |
 | Claude(B2BFront) | CC-B2B-FRONT-01 | mall-design-builder | claude-win-20261114-mall-design · aimaster-64 · GT1_Mega | hover77c50f27c QA045소스수락·미배포 | 다음묶음/QA037대기 |
-| Claude(B2BBackend) | CC-B2B-BACK-01 | mall-builder | claude-win-20261025-workspace · GT1_Mega | 운영준비QA047문구마감·Lab시험교환1건준비 | 주인님메인243시험결제→기록/상태읽기·추가RPC/fixture0 |
+| Claude(B2BBackend) | CC-B2B-BACK-01 | mall-builder | claude-win-20261025-workspace · GT1_Mega | Sub PC 이관 문서 33d6cd55f · 메인 전달만 | 새 세션 핸들·인수 확인 대기. 메인 3210 검수 유지 |
 | Claude(RealEstate) | CC-REALTY-01 | realty | claude-win-20261024-realty · aimaster-73 · GT1_Mega | 문서정정완료·점유0 | 독립자료미확보차단·정상회차이외새수집0 |
 | Claude(Workspace) | CC-WORKSPACE-01 | workspace | aimaster-46 · session dea6e4f6-37c0-4be8-ad50-8746e0f1c517 · GT1_Mega | Gmail공개방식/빌드선택질문대기·GCP완료신호반영 | 주인님결정→ClientID일치/실행순번확정·SQL/스위치0 |
 | Claude(Blog) | CC-BLOG-01 | blog | claude-win-blog · aimaster-92 · GT1_Mega | 현재요약정정완료·점유0 | 다음묶음/사람계정조건·T12문서조정, 새생성0 |
