@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, realpathSync, renameSync, rmSync, 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
+import { renderDashboard } from './render-dashboard.mjs';
 
 const repo = realpathSync(fileURLToPath(new URL('../', import.meta.url)));
 const root = path.resolve(process.env.AIMASTER_CONTROL_ROOT || 'D:/AIMaster-Control/AIMaster');
@@ -202,6 +203,7 @@ function publish(db) {
   replace('REPORT.md', ['# 운영 회차 보고', '', '사건 순번 ' + summary.lastSequence,
     '', ...lines.slice(-40), '', '다음 행동 ' + next, ''].join('\n'));
   replace('CHECKPOINT.json', JSON.stringify(summary, null, 2) + '\n');
+  renderDashboard(root);
   return summary;
 }
 
