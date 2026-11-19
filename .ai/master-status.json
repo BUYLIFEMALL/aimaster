@@ -6275,11 +6275,11 @@
       "owner": "CC-BLOG-01",
       "title": "블로그 3개 프로그램 모델 목록 동기화",
       "status": "done",
-      "delivery": "saved_provider_mac_accepted_bundle_deployed_owner_reported",
+      "delivery": "bundle_deployed_owner_reported_mac_public_smoke_partial",
       "sha": "e23a045f5",
-      "next": "담당 배포 READY 보고 및 Git 대조. 네이버 에이전트 2.29·AI 자동 블로그 1.88·SEO 2.27·티스토리 1.99. Mac 읽기 화면 검수 대기열, 푸시 미실행.",
+      "next": "Mac 공개 검수에서 AI 자동 블로그 1.88·티스토리 1.99와 4개 최신 ZIP 주소 확인. 에이전트·SEO 가이드와 4개 설정은 로그인 뒤 확인 대기.",
       "lastReviewedAt": "2026-11-19T05:12:50.084Z",
-      "evidence": "msg_dbaba45b8f38·msg_8743dd97fb18·msg_11611a79f400·msg_841a78cd076a·msg_09a847269441·msg_b0b5ef463bd8·msg_6c92dfb6b04c·msg_5146b48fa082·937e2f05e·bfd56fcd1·0dd8f34cc·71b4dcff1·3ad22a615·msg_c48b4d00a613"
+      "evidence": "msg_dbaba45b8f38·msg_8743dd97fb18·msg_11611a79f400·msg_841a78cd076a·msg_09a847269441·msg_b0b5ef463bd8·msg_6c92dfb6b04c·msg_5146b48fa082·937e2f05e·bfd56fcd1·0dd8f34cc·71b4dcff1·3ad22a615·msg_c48b4d00a613·msg_147552a292cd·.ai/results/BLOG-20261119-DEPLOY-SMOKE-CX-QA-01.md"
     },
     {
       "task_id": "BLOG-20261119-PHOTO-MODELS",
@@ -6288,10 +6288,10 @@
       "reviewer": "CX-QA-01",
       "title": "네이버 에이전트 사진 리뷰 모델 확대",
       "status": "done",
-      "delivery": "photo_model_update_mac_accepted_agent_deployed_owner_reported",
+      "delivery": "agent_deployed_owner_reported_mac_authenticated_screen_pending",
       "sha": "f76d55eea",
-      "next": "Mac 70/70 및 담당 네이버 에이전트 2.29 배포 보고. 운영 화면 표본 검수는 블로그 묶음 대기열.",
-      "evidence": "msg_0ac38f25541f·8669e5117·msg_480f9da3729e·msg_42d76c3b880f·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_0180b3576853·msg_25fa9e68b50a·msg_f905a0cddb8f·msg_5146b48fa082·937e2f05e·msg_c48b4d00a613",
+      "next": "Mac 70/70 및 담당 네이버 에이전트 2.29 배포 보고. Mac 공개 ZIP 주소 응답 확인, 가이드·설정은 로그인 뒤 확인 대기.",
+      "evidence": "msg_0ac38f25541f·8669e5117·msg_480f9da3729e·msg_42d76c3b880f·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_0180b3576853·msg_25fa9e68b50a·msg_f905a0cddb8f·msg_5146b48fa082·937e2f05e·msg_c48b4d00a613·msg_147552a292cd",
       "lastReviewedAt": "2026-11-19T07:09:53.883Z"
     },
     {
@@ -6368,9 +6368,9 @@
       "reviewer": "CX-MASTER-01",
       "title": "AI Influencer 회원 예약 기본값과 관리자 허용 설계",
       "status": "running",
-      "delivery": "shared_hook_isolated_candidate_and_mock_tests_dispatched",
-      "next": "a5eebe012 설계 수락, SNS 격리 후보·모의 시험 착수 수신. cron-job.org 기본 및 명시 허용, 공유 동기화와 운영 적용 제외.",
-      "evidence": "6425b1ec4·45e164bf1·msg_c9d7969183e0·msg_81623dd95517·msg_fb0814229b74·a5eebe012·msg_e22a2892cbd5·msg_72fcafaead67"
+      "delivery": "shared_hook_mock_candidate_atomic_choice_followup",
+      "next": "bf01913ca 격리 후보 모의 16/16·변형 21/21 담당 보고. 명시 선택 원자성·예약 경합·집계 보완 배정. 타입·실제 빌드·운영 미확인.",
+      "evidence": "6425b1ec4·45e164bf1·msg_c9d7969183e0·msg_81623dd95517·msg_fb0814229b74·a5eebe012·msg_e22a2892cbd5·msg_72fcafaead67·msg_c50c2385c455·bf01913ca·msg_73e81c2e0a4e"
     },
     {
       "task_id": "AIF-20261119-D2-READINESS",

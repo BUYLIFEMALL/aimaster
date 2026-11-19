@@ -517,7 +517,7 @@ Master 마지막 실제 점검: 2026-11-19 21:03:02 KST · 21:00 예약 메시�
 | AIF-20261119-W01-RETOUCH | CC-SNS-01 | done / test_generation_and_retouch_pass_v5_upload_without_publish | AI Influencer 히스토리 재표시·일반 회원 생성·보정 | 지정 일반 회원 경로 보류. 시험 계정 생성 1·보정 1 성공, V5 규칙 변환·업로드 확인. 앱 실제 게시와 운영 출처는 미검증. |
 | AIF-20261119-W01-D1 | CC-SNS-01 | done / production_off_ready_public_smoke_passed | AI Influencer D1 스위치 OFF 운영 배포 | D1 OFF 운영·DB·저장소 v1.27 일치. 담당자 로그인 무료 확인 및 배포와 공유 소스 3경로 차이 기록 완료. D2 사전 검토 58a2c9672 접수. 운영 shadow 전 정리·쿼터의 격리 검증 범위 요청, D3 대기. |
 | AIF-20261119-PLAN6 | CC-SNS-01 | reviewing / six_requirement_v2_scope_accepted_test_role_pending | AI Influencer 직접 요구 6건 개발 플랜 보완 | 4ac03c967 v2 전환 기준 보완. 일반 회원 Vercel 대기 0건이면 전환, 남으면 처리 결정 선행. 시험 계정 권한 식별 방식 확정 전 예약 구현 보류. |
-| AIF-20261119-R1-SCHEDULER | CC-SNS-01 | running / shared_hook_isolated_candidate_and_mock_tests_dispatched | AI Influencer 회원 예약 기본값과 관리자 허용 설계 | a5eebe012 설계 수락, SNS 격리 후보·모의 시험 착수 수신. cron-job.org 기본 및 명시 허용, 공유 동기화와 운영 적용 제외. |
+| AIF-20261119-R1-SCHEDULER | CC-SNS-01 | running / shared_hook_mock_candidate_atomic_choice_followup | AI Influencer 회원 예약 기본값과 관리자 허용 설계 | bf01913ca 격리 후보 모의 16/16·변형 21/21 담당 보고. 명시 선택 원자성·예약 경합·집계 보완 배정. 타입·실제 빌드·운영 미확인. |
 | AIF-20261119-D2-READINESS | CC-SNS-01 | waiting_human / d2_runbook_ready_sql_scope_decision_pending | AI Influencer D2 실행 범위와 푸시 분리 검토 | c1c5c92e5 기준 적용·권한·복구 준비표 회수. 주인님 한도 SQL·shadow 범위 결정 후 재개. 전체 master 푸시 보류, 앱 전용 ref는 미생성. |
 | AIF-20261119-D2-IT | CC-SNS-01 | done / d2_local_sql_mac_rollback_review_accepted_undeployed | AI Influencer D2 정리·쿼터 격리 통합 시험 | c1c5c92e5 맥미니 원복 본문·서명·표식 검수 완료. d1626e492에 적용·원복 직전 속성/권한 및 실응답 대조 명시. 운영 미적용. |
 | DES-20261119-HERO | AG-UI-01 | done / isolated_production_release_live_verified | 메인 히어로 1차-3안 운영 배포 | 승인 두 경로 1회 빌드→promote. dpl_4L4gGdg2Y8af4ZmxTZPdbwbPrr1N 공식 도메인·이미지 확인. push 0. |
@@ -528,8 +528,8 @@ Master 마지막 실제 점검: 2026-11-19 21:03:02 KST · 21:00 예약 메시�
 | BLOG-20261119-MODELS | CC-BLOG-01 | done / strict_switch_independent_accepted_undeployed | 블로그 설정 플랫폼별 AI 모델 선택 | Mac 49/49와 원문 1회·정상 전환과 503 상한 2회 수락. 승인 실호출 9/9는 앞선 버전의 담당 결과. 미배포. |
 | RE-20261119-PARTIAL | CC-REALTY-01 | done / partial_results_and_stats_mac_accepted_undeployed | 상가·건물·토지 알림 부분 조회 결과 보존 | f52882db9 Mac 84/84. 부분·0곳 보존, 지역 ID, 통계 호환까지 로컬 검수 수락. 상가 v1.35 묶음 빌드·배포 승인 대기. |
 | RE-20261119-PARTIAL-REL | CC-REALTY-01 | done / commercial_v135_live_extension_guide_update_undeployed | 상가·건물·토지 알림 v1.35 배포 | 운영 v1.35 유지. 확장 업데이트 3단계와 이전 결과 FAQ 0adae1d2a 안내 추가, 로컬 검증 84/84 및 미배포. 관리자 화면 미확인. |
-| BLOG-20261119-MODELS-3 | CC-BLOG-01 | done / saved_provider_mac_accepted_bundle_deployed_owner_reported | 블로그 3개 프로그램 모델 목록 동기화 | 담당 배포 READY 보고 및 Git 대조. 네이버 에이전트 2.29·AI 자동 블로그 1.88·SEO 2.27·티스토리 1.99. Mac 읽기 화면 검수 대기열, 푸시 미실행. |
-| BLOG-20261119-PHOTO-MODELS | CC-BLOG-01 | done / photo_model_update_mac_accepted_agent_deployed_owner_reported | 네이버 에이전트 사진 리뷰 모델 확대 | Mac 70/70 및 담당 네이버 에이전트 2.29 배포 보고. 운영 화면 표본 검수는 블로그 묶음 대기열. |
+| BLOG-20261119-MODELS-3 | CC-BLOG-01 | done / bundle_deployed_owner_reported_mac_public_smoke_partial | 블로그 3개 프로그램 모델 목록 동기화 | Mac 공개 검수에서 AI 자동 블로그 1.88·티스토리 1.99와 4개 최신 ZIP 주소 확인. 에이전트·SEO 가이드와 4개 설정은 로그인 뒤 확인 대기. |
+| BLOG-20261119-PHOTO-MODELS | CC-BLOG-01 | done / agent_deployed_owner_reported_mac_authenticated_screen_pending | 네이버 에이전트 사진 리뷰 모델 확대 | Mac 70/70 및 담당 네이버 에이전트 2.29 배포 보고. Mac 공개 ZIP 주소 응답 확인, 가이드·설정은 로그인 뒤 확인 대기. |
 | FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | done / mobile_quickbar_and_preview_mac_accepted_undeployed | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 고정 51d4b2207 Mac 28/28. 모바일 버튼·포커스 및 미리보기 빈 줄 제거 수락. 미배포 묶음 대기, 고정판 실제 편집기 미확인. |
 | FRONT-20261119-QUICKBAR-TABLET | CC-B2B-FRONT-01 | done / mac_resize_recheck_passed_undeployed | B2B몰 태블릿 폭 빠른 메뉴 상품 가림 | 4fb95eaba Mac 독립 30/30 및 격리 브라우저 12지점 통과. 소스 검수 완료. 실제 후보 서버와 태블릿 실기기 미검증·미배포. |
 
