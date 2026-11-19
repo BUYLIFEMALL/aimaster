@@ -5623,7 +5623,7 @@
       "completion": "저장 HTML의 본문을 분리하고 콜아웃·목록·할일·코드·북마크·영상·목차 구조 보존. 일반 HTML/ZIP·기존 URL 허용/정제 경계 회귀 확인.",
       "constraints": "import.ts·DB·API·권한 변경과 운영 쓰기·빌드·배포·push 없음.",
       "evidence": "주인님 전달 착수 보고 · ee73ff8eb 파일 점유·112ada09d·2f1e70268·msg_ae2068e3e9b1·msg_7dc2611a8abf·msg_63a46ac8b66c·8225ca66b·msg_fa4c83b077f0·msg_3c1580a00f03·msg_1ce4182d8db2·msg_da5761aceccd·2c7f6945d·msg_7b2287b746f4·msg_f561bbcfa676·msg_ead1f07719be·30bcfdee1·cbfe4b86e·25ab6bba8·dpl_CLGZ7CA84iyodmiSEjoPccxMMyBp",
-      "next": "v1.61 배포 완료, 기존 가져온 본문 읽기 확인. 운영에서 노션 저장 HTML 다시 가져오기 시험은 미실행.",
+      "next": "v1.61 배포 완료, 기존 가져온 본문 읽기 확인. 운영에서 노션 저장 HTML 다시 가져오기 시험은 미실행. v1.61 완료분 점유 해제 요청.",
       "lastReviewedAt": "2026-11-18T19:43:18.324Z",
       "sha": "2c7f6945d",
       "validation": {
@@ -5755,7 +5755,7 @@
       "sha": "cea50d189",
       "evidence": "cbfe4b86e·msg_4c3fbd7968b1·주인님 표 다음 작업 진행 지시·msg_74746c5e37ef·dpl_GqQfYTykjjqvVG3P9i7DMuXXYN8o·msg_0a595caceefd·주인님 전달 진단·msg_afbf609d8871·msg_8512331d6d20·담당 msg_8512331d6d20 결과·msg_7489b02d1a30·f330050c3·담당 msg_7489b02d1a30 결과·msg_4a10308bf15c·f26ab0e58·담당 msg_4a10308bf15c 회신·msg_6f6e00bdcc31·d3d2d531f·담당 msg_6f6e00bdcc31 회신·msg_748c12b7d46d·5efdefd22·a63e7e26a·76fd2c9b9·담당 msg_748c12b7d46d 결과·msg_61b93dfbb0d1·7c283738f·b081eed5b·담당 msg_61b93dfbb0d1 결과·msg_4e206a030d6b·msg_1b80513953df·msg_3f61f6f5a0·cea50d189·7f0757d61·담당 msg_3f61f6f5b5a0 결과·msg_c7b20d50ff1d·msg_8004451fdf3f·msg_e0973ea0b19d·주인님 직접 배포 지시·담당 시작 보고·msg_b97a8c78bcbe·dpl_CLGZ7CA84iyodmiSEjoPccxMMyBp·Vercel 빌드 이벤트·공식 도메인 로그인 200·25ab6bba8·담당 msg_b97a8c78bcbe 운영 결과·msg_a8f523227f16",
       "constraints": "기존 근거 읽기만. 재빌드·배포·push·운영 설정/DB 변경 0.",
-      "next": "운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음.",
+      "next": "운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음. 완료분 점유 해제 요청.",
       "lastReviewedAt": "2026-11-18T19:43:18.324Z",
       "validation": {
         "author": "컴파일·타입 통과 후 Collecting 약 11분 무출력. 성공판 같은 단계 35.4초. 시작 시 동시 빌드 0, 이후 11번가 약 8분 대기 보고.",
@@ -6188,9 +6188,9 @@
       "status": "done",
       "delivery": "large_zip_mac_local_review_passed_undeployed",
       "sha": "809f52f7e",
-      "next": "809f52f7e Mac 갱신·삭제 경합 3분기 통과, 로컬 검수 수락. 점유 정리 요청. 이번 별도 PG 연결과 실제 Storage·브라우저 전체 동작 미검증, 미배포.",
+      "next": "809f52f7e 로컬 검수 수락·점유 해제(0b43bae44)·전용 fixture 정리. 실제 Storage·브라우저·100MB대 ZIP·해당 별도 PG 연결 미검증, 미배포.",
       "lastReviewedAt": "2026-11-19T07:34:18.665Z",
-      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85·cfd124ba3·c2816bf0f·13e9af05d·msg_b6590eaaaee8·7298b1dbf·msg_25fa9e68b50a·msg_2694e685c83c·msg_b5baddc12f26·c81384d50·504891ed2 부모 분리·msg_64c64ec0e1da·msg_a38d3ff84dbc·msg_021d1ad75f3a·msg_74f8e5339487·368acd3b7·msg_d4a19e25bc14·msg_a7c6ecc7758f·msg_2710ce16b617·cdb121ab7·msg_a558ec9d6241·msg_9f4a49f9353c·.ai/results/WS-20261119-02-CX-QA-01.md·04807f920·msg_7fd9735761c5·msg_2e22cd4b41c3·msg_7a026b63d2e7·msg_a91f3a9fe702·072d74005·msg_c781a457252f·msg_d4f3a908acbe·msg_547f81d99092·658155927·msg_aac8a5bb28c4·msg_983703ac38b1·msg_41ae6dc0d449·f221885b4·msg_0896b4b5dfd8·msg_00783db43a13·msg_c866fe16a1d9·23190f14d·msg_8a7a8558b586·msg_1335ade47014·msg_9bb5ace698fd·809f52f7e·msg_ad73fc9a7e55·msg_80ad84215073·msg_f2e689100f9b",
+      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85·cfd124ba3·c2816bf0f·13e9af05d·msg_b6590eaaaee8·7298b1dbf·msg_25fa9e68b50a·msg_2694e685c83c·msg_b5baddc12f26·c81384d50·504891ed2 부모 분리·msg_64c64ec0e1da·msg_a38d3ff84dbc·msg_021d1ad75f3a·msg_74f8e5339487·368acd3b7·msg_d4a19e25bc14·msg_a7c6ecc7758f·msg_2710ce16b617·cdb121ab7·msg_a558ec9d6241·msg_9f4a49f9353c·.ai/results/WS-20261119-02-CX-QA-01.md·04807f920·msg_7fd9735761c5·msg_2e22cd4b41c3·msg_7a026b63d2e7·msg_a91f3a9fe702·072d74005·msg_c781a457252f·msg_d4f3a908acbe·msg_547f81d99092·658155927·msg_aac8a5bb28c4·msg_983703ac38b1·msg_41ae6dc0d449·f221885b4·msg_0896b4b5dfd8·msg_00783db43a13·msg_c866fe16a1d9·23190f14d·msg_8a7a8558b586·msg_1335ade47014·msg_9bb5ace698fd·809f52f7e·msg_ad73fc9a7e55·msg_80ad84215073·msg_f2e689100f9b·0b43bae44·abc3270c6",
       "reviewer": "CX-QA-01"
     },
     {
