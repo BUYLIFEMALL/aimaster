@@ -6313,11 +6313,11 @@
       "owner": "CC-B2B-FRONT-01",
       "reviewer": "CX-QA-01",
       "title": "B2B몰 태블릿 폭 빠른 메뉴 상품 가림",
-      "status": "running",
-      "delivery": "resize_fix_local_pass_mac_recheck_sent",
+      "status": "done",
+      "delivery": "mac_resize_recheck_passed_undeployed",
       "sha": "4fb95eaba",
-      "next": "4fb95eaba 폭 전환 상태·포커스 수정. 담당 시험 30/30·격리 Chrome 통과. Mac 재검수 요청, 실제 후보 서버 미검증·미배포.",
-      "evidence": "msg_0597bc4779e7·msg_b34462da0d3d·msg_c5498076ef76·msg_e3bcf97a34e6·msg_4ec4b5380205·msg_03e422ed0613·msg_f077e01c19e9·msg_95a50f2bc24e",
+      "next": "4fb95eaba Mac 독립 30/30 및 격리 브라우저 12지점 통과. 소스 검수 완료. 실제 후보 서버와 태블릿 실기기 미검증·미배포.",
+      "evidence": "msg_0597bc4779e7·msg_b34462da0d3d·msg_c5498076ef76·msg_e3bcf97a34e6·msg_4ec4b5380205·msg_03e422ed0613·msg_f077e01c19e9·msg_95a50f2bc24e·msg_fe8f26d97817·.ai/results/FRONT-20261119-QUICKBAR-CX-QA-01.md",
       "lastReviewedAt": "2026-11-19T07:34:18.665Z"
     }
   ],
