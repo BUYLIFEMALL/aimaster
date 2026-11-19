@@ -455,3 +455,12 @@
 - 고정 문구만 반환(경로·열쇠·원문 오류 없음). 「그래도 적용」은 `force` 인자로 begin에만 전달(직원 판정은 DB).
 - 알려 둔 한계: begin 뒤 읽기·디코드 실패 시 슬롯은 5분 뒤 만료(해제 함수 없음). 재인코딩이 결정적이지 않으면 재시도가 다른 SHA·다른 경로가 되어 앞선 객체가 고아가 됨(관리자 점검 주 1회).
 - 시험은 맥미니 요청서로 위임(이 PC에서 실행 0).
+
+## 19. 구현 기록 — M3 적용 POST 라우트 연결 후보·디코더 후보(Master msg_c33cf9f00099, 가짜 Supabase·fetch·sharp만)
+- 순수 함수 `applyProposal`은 Mac 46/46으로 수락(`e331d961a`). 이번 단위는 그 위의 연결 후보이며 **활성 라우트(`src/app/**/route.ts`)는 아직 만들지 않았다**(디코더 의존성 통과 뒤).
+- 파일: `src/lib/mallPhotoApplyRoute.ts`(`handleApplyPost`·`makeApplyDeps`·`readCapped`·`readApplyConfig`·`sameOrigin`·`parseApplyBody`), `src/lib/mallPhotoDecode.ts`(`makeSharpDecoder` — sharp를 주입받음, 정적 import 0), `tests/mallPhotoApplyRoute.test.mjs`.
+- 라우트 처리기: POST만, 같은 출처(Origin host = 요청 host, sec-fetch-site는 없거나 same-origin), JSON 본문 512바이트 상한, 본문은 `{proposalId, force?}`만(경로·버킷·kid·열쇠·출처 칸이 있으면 400), 기존 회원 인증(`auth.getUser`) 없으면 401, 서버 설정은 환경변수만(`MALL_APPLY_SIGNING_KEY`·선택 `MALL_APPLY_KID` 기본 k1·`NEXT_PUBLIC_SUPABASE_URL`) 없으면 503. `force`는 불리언으로 0107 begin에만 전달(직원 판정은 DB). 응답은 `{ok, code, message}` 고정 문구·`no-store`뿐(서명 경로·열쇠·원문 오류 미반환), 예외·결과 모름은 unknown 502, 한 요청에 적용 1회(재시도 0).
+- 연결 deps: 버킷은 고정 상수(`mall-builder-proposals` 읽기·`mall-builder-applied` 쓰기), 제안 파일은 회원 세션 서명 주소(60초) → **스트림으로 읽으며 5MB를 넘는 순간 중단**(Content-Length 불신), 게시 뒤 공개 주소 되읽기도 같은 상한, fetch는 `no-store`·리다이렉트 거절, 업로드 `upsert false`·`image/jpeg`.
+- 디코더 후보: `limitInputPixels` 3,600만·`failOn: error`·움직이는 이미지 거절, 머리 정보(형식 jpeg/png/webp·변 1~6000·1장)는 「디코드해도 되는가」 판정에만 쓰고 **반드시 픽셀을 풀어 방향 반영·흰 배경·JPEG 재인코딩**(품질 90 → 80 → 70)한 바이트만 반환. 입력 바이트를 그대로 돌려주는 가지 없음, 메타데이터 보존 호출 없음.
+- 실 디코더 확인 전 남은 조건(다음 단위): ① `sharp` 직접 의존성 추가·잠금 파일·Vercel 리눅스 바이너리 빌드 확인 ② S1 실측(정상 JPG·PNG·잘린 파일·6001px·압축 폭탄·메모리·시간, 재인코딩 결정성) ③ 실 Storage에서 서명 경로 정책 403/200·409 응답 모양(Lab) ④ 열쇠 등록(환경변수·DB 표, 주인님) ⑤ 활성 `route.ts` 껍데기(`runtime = "nodejs"`·`maxDuration`)와 화면 버튼 ⑥ 공개 주소 되읽기의 CDN 지연·캐시 영향 확인.
+- 시험은 맥미니 위임(이 PC 실행 0).
