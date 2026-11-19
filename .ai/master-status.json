@@ -6102,11 +6102,11 @@
       "reviewer": "CX-QA-01",
       "title": "AI 무료 이미지 자동화 개발 플랜",
       "status": "waiting_human",
-      "delivery": "ordered_steps_q8_quality_pending_hardware_precheck_dispatched",
-      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기·msg_4423e8b13051·msg_6d81c947bd00·d6f1d0287·00158b7a3·msg_e49f861919f9·msg_25a67c9094a4·msg_11158461bd15·msg_680de25b9e15·98f8dd8bc·68efe5399·msg_fd207f8be38a·msg_5074f8e947cf·msg_254300c4a578·msg_cd4c7a612051·3fbd4b200·Arc CSV 2행 직접 대조·995a92ac-01f9-45e2-a3a4-91a3862df9e3·msg_025a7125b66c·msg_5c32df5c7178·msg_287b5412841b·msg_7492634e4c5a·msg_68e97e7d4656·msg_d36a6a75b50c·msg_9a3bd624f2e1·msg_309652177f5b·중복 msg_5a0e1dee6395 정정 보고·11:44 KST Admin Codex 터미널 본시험 진행 확인·11:50 KST Admin Codex 터미널 FLUX 48/48 중간 보고·msg_f2aba7390f58·msg_32e9ef68cd67·444034a1e·msg_45ce6d2b5731·msg_952e1148ece6·msg_9c55abed11da·msg_05eeafdb243c·Master CSV/PNG 해시 일치·msg_60514833d426·msg_8c5418f1b1f8·msg_2c1454bc23a0·msg_320b474b9a14·msg_1dc750048e02·f988aaab8·msg_377218bf1613·msg_1e45bac91599·73d53045e·msg_ca0dc8f285f1·Master PNG 96개/CSV 해시 확인·msg_c7d8c25b2b0f·msg_d0aa30c8fbca·HTML SHA/PNG 96개 직접 확인·msg_69266b1b62fc·d3babd8e4·Master 48/46 재집계·msg_1cfdd780b8d4·msg_ea053258743e·f6c6e049e·msg_9b9f6d69af92·msg_56cc9598b6b0·msg_27716f68082f·msg_05239b8dff9b·msg_7d5b73a67c25·af7d039f7·msg_49edda0b038d·정비율 5파일 Master 해시/헤더 대조·msg_f3af85c28f8e·msg_7d7a54aacc65·msg_48e9535f7335·6b382e836·msg_e2f54750fd3a·Master Q4 CSV/PNG 대조·msg_56bb8df81705·msg_ecd2ab927730·49bec95a8·Master eval-2 HTML SHA/PNG 32개 확인·msg_dc45aef4223e·Master Q4/Q8 16쌍 재집계·msg_7f3e70cc5834·msg_c439f0684ff1·fe37bf575·45a8bb41d·msg_66af7917a7f5·msg_0962d9630d0e·msg_dacd098aff64·msg_a6e29be3b1c5·0f22e067a·msg_ed08ca7c8bff·msg_1c30d67ce7d8·3383cec03·msg_b82fb12c2134·msg_f87668d3599b·msg_a2d69f45e9f5·msg_765e8cfce48d·msg_75dbfaa8b077·msg_87cf8e11ba69·aa04066c8·msg_f7a7a5d44dd0·msg_ad82d911c849·msg_edef1e834612·msg_bc241410bf7f·msg_5f1eca22975d·msg_8ebe37a39e59·63307bdba·2c11df0e7·msg_09fa29bfc0d8·msg_7f7c856b33c4·0515d1da5·Admin 터미널 전달 문구 확인·msg_bb468c75ad9b·msg_0837cb4d1553·msg_3201946d1453·msg_4345f94e7ec9·.ai/results/IMG-P1-PRA-CX-QA-01.md·msg_4ed9a47eca51·msg_7ef7aa6f10ac·msg_c0ffccd778ed·msg_5027f01ec567·msg_cf3359d3afa9·msg_58ba31f07abf·msg_35226db46992·msg_62f3c8ec1e56·msg_c470487dd114·msg_9d7dd4e24107·Master CSV 두 개 및 PNG 48장 SHA/IHDR 일치·msg_4b569962fa32·msg_56789e2b8d00·49dbcc755·Master HTML SHA 및 PNG 48장 확인·msg_1eee37daa382·msg_7fff9943541d·msg_a1f10c00a128·733b93582·msg_a03c01bc7326·msg_774b0b37c6c4·msg_cba2e6bf6be7",
-      "next": "48장 품질 저장 대기. Sub/Mac 메모리·캐시 읽기 사전 확인 요청. 한글 AI 변환은 로컬 웹 선택 기능, MiniMax 보류.",
-      "lastReviewedAt": "2026-11-19T07:04:12.329Z",
-      "sha": "e8e52b505"
+      "delivery": "hardware_candidates_verified_pending_owner_quality",
+      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기·msg_4423e8b13051·msg_6d81c947bd00·d6f1d0287·00158b7a3·msg_e49f861919f9·msg_25a67c9094a4·msg_11158461bd15·msg_680de25b9e15·98f8dd8bc·68efe5399·msg_fd207f8be38a·msg_5074f8e947cf·msg_254300c4a578·msg_cd4c7a612051·3fbd4b200·Arc CSV 2행 직접 대조·995a92ac-01f9-45e2-a3a4-91a3862df9e3·msg_025a7125b66c·msg_5c32df5c7178·msg_287b5412841b·msg_7492634e4c5a·msg_68e97e7d4656·msg_d36a6a75b50c·msg_9a3bd624f2e1·msg_309652177f5b·중복 msg_5a0e1dee6395 정정 보고·11:44 KST Admin Codex 터미널 본시험 진행 확인·11:50 KST Admin Codex 터미널 FLUX 48/48 중간 보고·msg_f2aba7390f58·msg_32e9ef68cd67·444034a1e·msg_45ce6d2b5731·msg_952e1148ece6·msg_9c55abed11da·msg_05eeafdb243c·Master CSV/PNG 해시 일치·msg_60514833d426·msg_8c5418f1b1f8·msg_2c1454bc23a0·msg_320b474b9a14·msg_1dc750048e02·f988aaab8·msg_377218bf1613·msg_1e45bac91599·73d53045e·msg_ca0dc8f285f1·Master PNG 96개/CSV 해시 확인·msg_c7d8c25b2b0f·msg_d0aa30c8fbca·HTML SHA/PNG 96개 직접 확인·msg_69266b1b62fc·d3babd8e4·Master 48/46 재집계·msg_1cfdd780b8d4·msg_ea053258743e·f6c6e049e·msg_9b9f6d69af92·msg_56cc9598b6b0·msg_27716f68082f·msg_05239b8dff9b·msg_7d5b73a67c25·af7d039f7·msg_49edda0b038d·정비율 5파일 Master 해시/헤더 대조·msg_f3af85c28f8e·msg_7d7a54aacc65·msg_48e9535f7335·6b382e836·msg_e2f54750fd3a·Master Q4 CSV/PNG 대조·msg_56bb8df81705·msg_ecd2ab927730·49bec95a8·Master eval-2 HTML SHA/PNG 32개 확인·msg_dc45aef4223e·Master Q4/Q8 16쌍 재집계·msg_7f3e70cc5834·msg_c439f0684ff1·fe37bf575·45a8bb41d·msg_66af7917a7f5·msg_0962d9630d0e·msg_dacd098aff64·msg_a6e29be3b1c5·0f22e067a·msg_ed08ca7c8bff·msg_1c30d67ce7d8·3383cec03·msg_b82fb12c2134·msg_f87668d3599b·msg_a2d69f45e9f5·msg_765e8cfce48d·msg_75dbfaa8b077·msg_87cf8e11ba69·aa04066c8·msg_f7a7a5d44dd0·msg_ad82d911c849·msg_edef1e834612·msg_bc241410bf7f·msg_5f1eca22975d·msg_8ebe37a39e59·63307bdba·2c11df0e7·msg_09fa29bfc0d8·msg_7f7c856b33c4·0515d1da5·Admin 터미널 전달 문구 확인·msg_bb468c75ad9b·msg_0837cb4d1553·msg_3201946d1453·msg_4345f94e7ec9·.ai/results/IMG-P1-PRA-CX-QA-01.md·msg_4ed9a47eca51·msg_7ef7aa6f10ac·msg_c0ffccd778ed·msg_5027f01ec567·msg_cf3359d3afa9·msg_58ba31f07abf·msg_35226db46992·msg_62f3c8ec1e56·msg_c470487dd114·msg_9d7dd4e24107·Master CSV 두 개 및 PNG 48장 SHA/IHDR 일치·msg_4b569962fa32·msg_56789e2b8d00·49dbcc755·Master HTML SHA 및 PNG 48장 확인·msg_1eee37daa382·msg_7fff9943541d·msg_a1f10c00a128·733b93582·msg_a03c01bc7326·msg_774b0b37c6c4·msg_cba2e6bf6be7·msg_fef21cb23d92·msg_2ad102d3a8be·msg_79b31d5f5d5f",
+      "next": "Sub RTX 2080 SUPER 8GB 확인. Intel 맥미니는 현 ARM Metal 대상 제외, 12GB 장비 미확인. 48장 품질 판정 뒤 실기.",
+      "lastReviewedAt": "2026-11-19T07:05:56.802Z",
+      "sha": "733b93582"
     },
     {
       "task_id": "ECOM-20261119-EMOTION-QA",
@@ -6186,11 +6186,11 @@
       "owner": "CC-WORKSPACE-01",
       "title": "Workspace ZIP 50MB 안내와 대용량 가져오기 설계",
       "status": "running",
-      "delivery": "zip_baseline_and_path_refactor_storage_read_fix_dispatched",
-      "sha": "13e9af05d",
-      "next": "작은 ZIP 회귀 16건 고정·경로 정규화 공용화. 4MiB 초과 Storage 입력 읽기 결함 재현 c2816bf0f. 가져오기 전용 보완 배정, 운영 미검증.",
-      "lastReviewedAt": "2026-11-19T06:56:09.628Z",
-      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85·cfd124ba3·c2816bf0f·13e9af05d·msg_b6590eaaaee8",
+      "delivery": "stored_upload_read_fixed_mac_review_large_zip_continues",
+      "sha": "7298b1dbf",
+      "next": "4MiB 초과 입력 읽기 로컬 수정 16건 및 회귀 114건. 맥미니 검수 요청, 브라우저 대용량 ZIP 분할 구현 진행. 운영 미검증.",
+      "lastReviewedAt": "2026-11-19T07:05:56.802Z",
+      "evidence": "39ca388da·f08615b2b·be06a1541·msg_295bfc50f018·Workspace 담당 직접 정정·429f5b813·결정 1~5 권장안 수신 및 Workspace 착수 보고·msg_dbbf4bf42d85·cfd124ba3·c2816bf0f·13e9af05d·msg_b6590eaaaee8·7298b1dbf·msg_25fa9e68b50a",
       "reviewer": "CX-QA-01"
     },
     {
@@ -6233,12 +6233,12 @@
       "owner": "CC-BLOG-01",
       "reviewer": "CX-QA-01",
       "title": "네이버 에이전트 사진 리뷰 모델 확대",
-      "status": "done",
-      "delivery": "photo_models_independent_accepted_undeployed",
-      "sha": "8669e5117",
-      "next": "맥미니 57/57. 사진 리뷰 7개 표시·기본 3개·옛 초안·비공개 경계 수락. 담당 실호출 5/5 별도, 미배포.",
-      "evidence": "msg_0ac38f25541f·8669e5117·msg_480f9da3729e·msg_42d76c3b880f·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md",
-      "lastReviewedAt": "2026-11-19T06:01:27.489Z"
+      "status": "reviewing",
+      "delivery": "photo_models_second_update_mac_review_dispatched",
+      "sha": "f76d55eea",
+      "next": "종료 모델 제거·새 사진 모델 7종 담당 실호출 통과. 기존 저장 결과 유지 및 독립 검수 요청. 미배포.",
+      "evidence": "msg_0ac38f25541f·8669e5117·msg_480f9da3729e·msg_42d76c3b880f·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_0180b3576853·msg_25fa9e68b50a",
+      "lastReviewedAt": "2026-11-19T07:05:56.802Z"
     },
     {
       "task_id": "B2B-20261119-BACKEND-HANDOFF",
@@ -6289,11 +6289,11 @@
       "owner": "CC-REALTY-01",
       "title": "상가·건물·토지 알림 v1.35 배포",
       "status": "done",
-      "delivery": "commercial_v135_live_reinstall_draft_ready",
+      "delivery": "commercial_v135_live_extension_guide_update_undeployed",
       "sha": "c894f6fe1",
-      "evidence": "msg_ea84e83e8300·c894f6fe1·f52882db9 Mac 84/84·msg_77669c3927b0·5b5b8a2a4·d3d74468e·msg_b0757a444812·msg_2e8a7f868e5a·popup.js/manifest v1.35 및 저장소 ZIP 경로 대조",
-      "next": "운영 Ready·DB/확장/ZIP v1.35. 확장 재설치 안내 문안 준비·미발송. 관리자 프로그램 실화면 확인 대기.",
-      "lastReviewedAt": "2026-11-19T06:53:44.880Z"
+      "evidence": "msg_ea84e83e8300·c894f6fe1·f52882db9 Mac 84/84·msg_77669c3927b0·5b5b8a2a4·d3d74468e·msg_b0757a444812·msg_2e8a7f868e5a·popup.js/manifest v1.35 및 저장소 ZIP 경로 대조·msg_f3db6ce1e7c8·0adae1d2a",
+      "next": "운영 v1.35 유지. 확장 업데이트 3단계와 이전 결과 FAQ 0adae1d2a 안내 추가, 로컬 검증 84/84 및 미배포. 관리자 화면 미확인.",
+      "lastReviewedAt": "2026-11-19T07:05:56.802Z"
     }
   ],
   "programOverrides": [

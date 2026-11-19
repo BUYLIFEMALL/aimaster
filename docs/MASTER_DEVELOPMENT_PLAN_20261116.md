@@ -391,7 +391,7 @@ Master 마지막 실제 점검: 2026-11-19 16:04:12 KST · 실행 중 5분 · �
 | WS-20261118-08 | CC-WORKSPACE-01 | done / collapsed_widget_spacing_static_mac_review_accepted_undeployed | 좌측 하단 저장공간 위젯과 푸터 겹침 | 미배포. 기본 위젯 겹침 국소 정적 검수 완료, 확장/좁은 폭·실화면은 별도. |
 | WS-20261119-01 | CC-WORKSPACE-01 | done / saved_notion_html_recursive_fix_independent_review_accepted | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | v1.61 배포 완료, 기존 가져온 본문 읽기 확인. 운영에서 노션 저장 HTML 다시 가져오기 시험은 미실행. |
 | WS-20261119-REL | CC-WORKSPACE-01 | done / production_v161_live_verified_catalog_version_synced | Workspace v1.61 기존 중단 빌드 로그 진단 | 운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음. |
-| WS-20261119-02 | CC-WORKSPACE-01 | running / zip_baseline_and_path_refactor_storage_read_fix_dispatched | Workspace ZIP 50MB 안내와 대용량 가져오기 설계 | 작은 ZIP 회귀 16건 고정·경로 정규화 공용화. 4MiB 초과 Storage 입력 읽기 결함 재현 c2816bf0f. 가져오기 전용 보완 배정, 운영 미검증. |
+| WS-20261119-02 | CC-WORKSPACE-01 | running / stored_upload_read_fixed_mac_review_large_zip_continues | Workspace ZIP 50MB 안내와 대용량 가져오기 설계 | 4MiB 초과 입력 읽기 로컬 수정 16건 및 회귀 114건. 맥미니 검수 요청, 브라우저 대용량 ZIP 분할 구현 진행. 운영 미검증. |
 | MUSIC-20261119-IMG-COMPAT | CC-MUSIC-01 | done / five_music_flows_read_only_accepted | 무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토 | 고정 2131089b7 음악 5경로·146/146 검토 수락. 새 범위 미사용 시 파일 미생성 정정. 실제 엔진은 미검증. |
 | QA-20261118-043 | CX-QA-01 | done / production_v161_mobile_keyboard_verified_read_only | 예약요일 칩 지정소스/DOM·실브라우저 단계별검수 | Workspace 운영 v1.61 독립 읽기. 375/390px 요일 7칩 두 줄·넘침 0·Tab 3px 포커스. OS 다크 선호 확인, 앱 테마·저장 중 상태 미검증. |
 | FRONT-20261118-01 | CC-B2B-FRONT-01 | done / integrated | 143 탭 대비 과거지적 대조 | 신규hover7색미달은제안/독립확인대기로기록·무근거143수정0 |
@@ -431,7 +431,7 @@ Master 마지막 실제 점검: 2026-11-19 16:04:12 KST · 실행 중 5분 · �
 | B2B-20261119-BACKEND-HANDOFF | CC-B2B-BACK-01 | done / sub_handoff_accepted_prerequisites_reconciled | B2B 백엔드 Sub PC 인수인계 | Sub 인수 완료·0101~0105/M3 승인 조건 대조. QA037 로그인·0105 Lab 적용/자료·M3 후속 승인 대기. 3210과 합성 DB는 메인 유지. |
 | B2B-20261119-FRONT-HANDOFF | CC-B2B-FRONT-01 | done / sub_handoff_and_release_scope_verified | B2B 프런트 Sub PC 인수인계 | Sub 인수 및 Chrome 지정. Lab 9커밋·14경로, 운영 기준 18커밋·19경로 대조 완료. S70은 0105 묶음, 실화면·배포 승인 대기. |
 | B2B-20261119-FRONT-REL | AG-UI-01 | done / frontend_production_public_screen_independent_accepted | B2B 프런트 단독 운영 배포 | 운영 READY·홈/로그인 200 담당 확인, v1.16. Mac 공개 모바일 빠른 메뉴·키 조작·홈 탭·밝은 가격 대비 통과. 관리자/편집기는 기존 로그인 대기. |
-| IMG-20261119-PLAN | CC-ECOM-01 | waiting_human / ordered_steps_q8_quality_pending_hardware_precheck_dispatched | AI 무료 이미지 자동화 개발 플랜 | 48장 품질 저장 대기. Sub/Mac 메모리·캐시 읽기 사전 확인 요청. 한글 AI 변환은 로컬 웹 선택 기능, MiniMax 보류. |
+| IMG-20261119-PLAN | CC-ECOM-01 | waiting_human / hardware_candidates_verified_pending_owner_quality | AI 무료 이미지 자동화 개발 플랜 | Sub RTX 2080 SUPER 8GB 확인. Intel 맥미니는 현 ARM Metal 대상 제외, 12GB 장비 미확인. 48장 품질 판정 뒤 실기. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
@@ -517,9 +517,9 @@ Master 마지막 실제 점검: 2026-11-19 16:04:12 KST · 실행 중 5분 · �
 | BLOG-20261118-05 | CC-BLOG-01 | queued / existing_dependency_security_stop_recorded_no_patch_or_deploy_authorized_yet | 구형 안내앱 Next 보안 업데이트 후속 | 다음정당한범위/묶음승인때최소patch·현재T03플랜우선 |
 | BLOG-20261119-MODELS | CC-BLOG-01 | done / strict_switch_independent_accepted_undeployed | 블로그 설정 플랫폼별 AI 모델 선택 | Mac 49/49와 원문 1회·정상 전환과 503 상한 2회 수락. 승인 실호출 9/9는 앞선 버전의 담당 결과. 미배포. |
 | RE-20261119-PARTIAL | CC-REALTY-01 | done / partial_results_and_stats_mac_accepted_undeployed | 상가·건물·토지 알림 부분 조회 결과 보존 | f52882db9 Mac 84/84. 부분·0곳 보존, 지역 ID, 통계 호환까지 로컬 검수 수락. 상가 v1.35 묶음 빌드·배포 승인 대기. |
-| RE-20261119-PARTIAL-REL | CC-REALTY-01 | done / commercial_v135_live_reinstall_draft_ready | 상가·건물·토지 알림 v1.35 배포 | 운영 Ready·DB/확장/ZIP v1.35. 확장 재설치 안내 문안 준비·미발송. 관리자 프로그램 실화면 확인 대기. |
+| RE-20261119-PARTIAL-REL | CC-REALTY-01 | done / commercial_v135_live_extension_guide_update_undeployed | 상가·건물·토지 알림 v1.35 배포 | 운영 v1.35 유지. 확장 업데이트 3단계와 이전 결과 FAQ 0adae1d2a 안내 추가, 로컬 검증 84/84 및 미배포. 관리자 화면 미확인. |
 | BLOG-20261119-MODELS-3 | CC-BLOG-01 | done / saved_provider_mac_review_accepted_undeployed | 블로그 3개 프로그램 모델 목록 동기화 | SEO 22/22·에이전트 복원/요청 일치 맥미니 수락. 사진 후기 선택지 및 기존 빠른 작성 응답 지연은 별도. 미배포. |
-| BLOG-20261119-PHOTO-MODELS | CC-BLOG-01 | done / photo_models_independent_accepted_undeployed | 네이버 에이전트 사진 리뷰 모델 확대 | 맥미니 57/57. 사진 리뷰 7개 표시·기본 3개·옛 초안·비공개 경계 수락. 담당 실호출 5/5 별도, 미배포. |
+| BLOG-20261119-PHOTO-MODELS | CC-BLOG-01 | reviewing / photo_models_second_update_mac_review_dispatched | 네이버 에이전트 사진 리뷰 모델 확대 | 종료 모델 제거·새 사진 모델 7종 담당 실호출 통과. 기존 저장 결과 유지 및 독립 검수 요청. 미배포. |
 | FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | done / mobile_quickbar_and_preview_mac_accepted_undeployed | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 고정 51d4b2207 Mac 28/28. 모바일 버튼·포커스 및 미리보기 빈 줄 제거 수락. 미배포 묶음 대기, 고정판 실제 편집기 미확인. |
 
 ## 현재 담당 회신이 확보된 프로젝트
