@@ -15,7 +15,7 @@ import { compactId, newId } from '#shared/ids.ts';
 import type { Operation } from '#shared/ops.ts';
 import { roleAtLeast } from '#shared/permissions.ts';
 import type { BlockRecord, CollectionRecord, PropertyType, SpaceRecord, SpaceViewRecord, UserRootRecord } from '#shared/records.ts';
-import { db, getRecord } from '../../db.ts';
+import { db, getRecord, lockRecords, tx, withoutRequestCache } from '../../db.ts';
 import { ApiError, type Ctx } from '../handlers.ts';
 import { RecordMapBuilder, applyTransactions, blockRole } from '../../records.ts';
 import { OpsBuilder, encodeRowValue, shortPropId, type Spec } from '../../content/spec.ts';
@@ -473,6 +473,16 @@ export const handlers: Record<string, Handler> = {
       else if (IMPORT_EXT.test(name)) specs.push(pageFromFile(name, file.data, uid, space.id, {}, types));
       else throw new ApiError(`${name}: this file type can’t be imported`, 400);
     }
+    // 2026-11-19(WS-20261119-02): 파일을 읽는 동안(Storage 대기) 권한·대상이 바뀌었을 수 있다. 네트워크 대기는 여기까지이고,
+    // 이 아래는 한 트랜잭션에서 대상을 잠근 뒤(잠그면 요청 캐시가 비워져 최신 값) 다시 확인하고 적용한다.
+    return tx(() => {
+    lockRecords([target.table === 'block' ? { table: 'block', id: target.id } : { table: 'space', id: space.id }]);
+    spaceOrThrow(space.id, uid);
+    if (target.table === 'block') {
+      const p = getRecord<BlockRecord>('block', target.id);
+      if (!p || p.alive === false || p.space_id !== space.id || !roleAtLeast(blockRole(p.id, uid), 'read_and_write')) throw new ApiError('You can’t import into this page', 403);
+      if (afterBlockId && !p.content?.includes(afterBlockId)) afterBlockId = undefined;
+    }
     const builder = new OpsBuilder(space.id, uid);
     const rootIds: string[] = [];
     for (const s of specs) {
@@ -502,8 +512,13 @@ export const handlers: Record<string, Handler> = {
     for (const ch of changes) rm.add(ch.table, ch.record);
     const counts = countPages(specs);
     // 작업을 끝냄으로 표시하고 결과와 실제로 쓰인 그림을 적어 둔다(마무리 단계가 쓰이지 않은 그림만 지운다)
-    if (job) db.prepare("UPDATE import_jobs SET state = 'done', result = ? WHERE id = ? AND user_id = ? AND state = 'open'").run(JSON.stringify({ pageIds: rootIds, ...counts, used: [...usedAssets] }), job.id, uid);
+    if (job) {
+      // 같은 작업으로 두 번 동시에 불렸으면 한쪽만 끝낸다(다른 쪽은 되돌려 페이지가 두 번 생기지 않게)
+      const r = db.prepare("UPDATE import_jobs SET state = 'done', result = ? WHERE id = ? AND user_id = ? AND state = 'open'").run(JSON.stringify({ pageIds: rootIds, ...counts, used: [...usedAssets] }), job.id, uid);
+      if (!r.changes) throw new ApiError('이 가져오기는 이미 처리됐습니다.', 409);
+    }
     return { pageIds: rootIds, ...counts, recordMap: rm.map };
+    });
   },
 
   /** CSV import step 2 (column mapping): header, inferred types and sample values; with blockId, the database to merge into. */
@@ -527,7 +542,8 @@ export const handlers: Record<string, Handler> = {
     }));
     let target: { blockId: string; name: string; properties: { id: string; name: string; type: string }[] } | undefined;
     if (mergeInto) {
-      const { block, col } = mergeInto;
+      // 파일을 읽는 동안 표가 바뀌었을 수 있다 → 캐시를 거치지 않고 권한과 열 목록을 다시 읽는다
+      const { block, col } = withoutRequestCache(() => databaseOrThrow(blockId, uid));
       target = { blockId: block.id, name: (col.name ?? []).map((d) => d[0]).join(''), properties: Object.entries(col.schema).filter(([, p]) => MERGEABLE.includes(p.type)).map(([id, p]) => ({ id, name: p.name, type: p.type })) };
     }
     return { columns, rows: body.length, types: CSV_COLUMN_TYPES, target };
@@ -536,8 +552,8 @@ export const handlers: Record<string, Handler> = {
   /** "Merge with CSV": append the CSV's rows to an existing database (no updates of existing rows, as expected). */
   async mergeCsv(ctx, { blockId, url, name, mapping }) {
     const uid = requireUser(ctx);
-    const { block, col } = databaseOrThrow(blockId, uid);
-    const space = spaceOrThrow(block.space_id, uid);
+    const pre = databaseOrThrow(blockId, uid);
+    const space = spaceOrThrow(pre.block.space_id, uid);
     importRateLimit(uid, 1);
     const { file } = await uploadOf({ url, name }, uid, space, ctx);
     let rows: string[][];
@@ -548,6 +564,20 @@ export const handlers: Record<string, Handler> = {
     }
     if (rows.length < 2) throw new ApiError('The CSV has no rows', 400);
     if (rows.length > 10_001) throw new ApiError('Merge up to 10,000 rows at a time', 413);
+    // 2026-11-19(WS-20261119-02, Mac 검수 P2): 파일을 읽는 동안(Storage 대기) 다른 요청이 같은 표에 열·옵션을 더했을 수 있다.
+    // 아래는 열 목록 전체(schema)를 통째로 써넣으므로, 대기 전에 읽어 둔 값으로 만들면 그사이 생긴 열이 사라진다.
+    // → 네트워크 대기는 여기까지. 한 트랜잭션에서 표·컬렉션·보기를 잠그고(잠그면 요청 캐시가 비워져 최신 값),
+    //   권한·대상을 다시 확인한 뒤 **최신 스키마**에 합친다. 같은 표의 두 요청은 잠금 순서대로 차례로 처리된다.
+    return tx(() => {
+    const preViews = pre.block.view_ids ?? [];
+    lockRecords([{ table: 'block', id: pre.block.id }, { table: 'collection', id: pre.col.id }, ...preViews.map((id) => ({ table: 'collection_view', id }))]);
+    const { block, col } = databaseOrThrow(blockId, uid);
+    spaceOrThrow(block.space_id, uid);
+    const nowViews = block.view_ids ?? [];
+    // 잠근 대상과 지금 표가 가리키는 대상이 다르면(컬렉션이 바뀜·보기가 늘거나 줄어듦) 잠그지 않은 것을 고치게 되므로 멈춘다
+    if (col.id !== pre.col.id || block.space_id !== pre.block.space_id || nowViews.length !== preViews.length || nowViews.some((v) => !preViews.includes(v))) {
+      throw new ApiError('가져오는 동안 표가 바뀌었습니다. 다시 시도해 주세요.', 409);
+    }
     const header = rows[0].map((h) => h.trim());
     const schema = { ...col.schema };
     const byName = new Map(Object.entries(schema).map(([id, p]) => [p.name.trim().toLowerCase(), id]));
@@ -632,5 +662,6 @@ export const handlers: Record<string, Handler> = {
     const rm = new RecordMapBuilder(uid);
     for (const ch of changes) rm.add(ch.table, ch.record);
     return { added: rowIds.length, newProperties: Object.values(newProps).map((p) => p.name), recordMap: rm.map };
+    });
   },
 };

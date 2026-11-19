@@ -24,7 +24,7 @@ let inFlight = 0;
 let maxInFlight = 0;
 let pulled = 0; // 실제로 흘려보낸 바이트
 /** 내려받기 동작을 바꿔 끼우는 손잡이 */
-const net: { status: number; extra: number; lieLength: number | null; delayMs: number } = { status: 200, extra: 0, lieLength: null, delayMs: 0 };
+const net: { status: number; extra: number; lieLength: number | null; delayMs: number; during: null | (() => Promise<void>) } = { status: 200, extra: 0, lieLength: null, delayMs: 0, during: null };
 
 const fakeStore = () => ({
   getBucket: async () => ({ data: { id: 'workspace-files' }, error: null }),
@@ -43,6 +43,12 @@ const fakeFetch = async (url: string): Promise<Response> => {
   const [, bucket, path] = m;
   fetched.push(`${bucket}:${path}`);
   if (net.delayMs) await new Promise((r) => setTimeout(r, net.delayMs));
+  // 내려받는 동안(가져오기 명령이 Storage를 기다리는 사이)에 끼워 넣을 일
+  if (net.during) {
+    const run = net.during;
+    net.during = null;
+    await run();
+  }
   const body = objects.get(path);
   if (net.status !== 200 || !body) return new Response('nope', { status: net.status !== 200 ? net.status : 404 });
   const data = net.extra ? Buffer.concat([body, Buffer.alloc(net.extra, 1)]) : body;
@@ -88,7 +94,7 @@ beforeEach(() => {
   inFlight = 0;
   maxInFlight = 0;
   pulled = 0;
-  Object.assign(net, { status: 200, extra: 0, lieLength: null, delayMs: 0 });
+  Object.assign(net, { status: 200, extra: 0, lieLength: null, delayMs: 0, during: null });
 });
 
 const sp = (m: M) => spaces.get(m.id)!;
@@ -341,5 +347,134 @@ describe('DB에 든 작은 파일은 예전 그대로(내려받기 없음)', () 
     const pv = await runtime.runRpc('previewCsv', { spaceId: sp(kim), url: list[2].url, name: 'small.csv' }, kim);
     expect((pv.body as any).rows).toBe(2);
     expect(fetched).toEqual([]);
+  });
+});
+
+// 2026-11-19 Mac 검수 P2(Master msg_b5baddc12f26): Storage를 기다리는 사이에 같은 표가 바뀌어도 변경이 사라지지 않아야 한다.
+describe('Storage를 기다리는 사이의 동시 변경', () => {
+  const rec = <T = any>(table: string, id: string) => db.withRequestCache(() => db.getRecord(table as never, id) as T);
+  const patchRecord = (table: string, id: string, change: (r: any) => void) => db.withRequestCache(() => {
+    const r = JSON.parse((db.db.prepare('SELECT data FROM records WHERE tbl = ? AND id = ?').get(table, id) as { data: string }).data);
+    change(r);
+    db.db.prepare('UPDATE records SET data = ? WHERE tbl = ? AND id = ?').run(JSON.stringify(r), table, id);
+  });
+  const rowCount = (colId: string) => db.withRequestCache(() => Number((db.db.prepare("SELECT COUNT(*) AS n FROM records WHERE tbl = 'block' AND parent_id = ? AND alive = 1").get(colId) as { n: number }).n));
+  const put = (name: string, text: string) => db.withRequestCache(() => files.storeFile(name, Buffer.from(text), kim.id, sp(kim), 'text/csv'));
+  /** 4MiB를 넘기는 채움 열(무시되는 열)을 붙인 CSV — Storage로 올라가게 한다 */
+  const storedCsv = (head: string, lines: string[]) => Buffer.from(`${head},Pad\n${lines.map((l, i) => `${l},${i === 0 ? 'p'.repeat(5 * MB) : ''}`).join('\n')}\n`);
+  async function makeTable(title: string) {
+    const f = put(`${title}.csv`, 'Name,Status\nOne,Open\n');
+    const r = await runtime.runRpc('importFiles', { spaceId: sp(kim), parent: { kind: 'private' }, files: [{ name: `${title}.csv`, url: f.url }], csvTypes: { 1: 'select' } }, kim);
+    expect(r.status).toBe(200);
+    const blockId = (r.body as any).pageIds[0] as string;
+    const colId = rec('block', blockId).collection_id as string;
+    return { blockId, colId };
+  }
+  const schemaNames = (colId: string) => Object.values(rec('collection', colId).schema as Record<string, any>).map((p) => p.name).sort();
+  const statusOptions = (colId: string) => (Object.values(rec('collection', colId).schema as Record<string, any>).find((p) => p.name === 'Status')!.options as { value: string }[]).map((o) => o.value).sort();
+
+  it('같은 표에 두 요청: 한쪽이 Storage를 기다리는 사이 다른 쪽이 더한 열·옵션이 사라지지 않는다', async () => {
+    const t = await makeTable('Race');
+    const a = await uploadLarge(kim, 'a.csv', storedCsv('Name,Status,ColA', ['FromA,Alpha,a1', 'FromA2,Open,a2']), 'text/csv');
+    const small = put('b.csv', 'Name,Status,ColB\nFromB,Beta,b1\n');
+    let bResult: { status: number; body: unknown } | undefined;
+    net.during = async () => {
+      // A가 파일을 받는 동안 B가 끝까지 처리된다(새 열 ColB, 새 옵션 Beta)
+      bResult = await runtime.runRpc('mergeCsv', { blockId: t.blockId, url: small.url, name: 'b.csv' }, kim);
+    };
+    const aResult = await runtime.runRpc('mergeCsv', { blockId: t.blockId, url: a.url, name: 'a.csv' }, kim);
+    expect(bResult?.status).toBe(200);
+    expect((bResult!.body as any).newProperties).toEqual(['ColB']);
+    expect(aResult.status).toBe(200);
+    expect((aResult.body as any).newProperties.sort()).toEqual(['ColA', 'Pad']);
+    // 열 유실 0: 두 요청이 더한 열이 모두 남아 있다
+    expect(schemaNames(t.colId)).toEqual(['ColA', 'ColB', 'Name', 'Pad', 'Status']);
+    // 옵션 유실 0
+    expect(statusOptions(t.colId)).toEqual(['Alpha', 'Beta', 'Open']);
+    // 줄: 처음 1 + B 1 + A 2
+    expect(rowCount(t.colId)).toBe(4);
+    // 표 보기의 열 목록에도 둘 다 들어 있다
+    const block = rec('block', t.blockId);
+    const view = rec('collection_view', block.view_ids[0]);
+    const schema = rec('collection', t.colId).schema as Record<string, any>;
+    const shown = (view.format.table_properties as { property: string }[]).map((p) => schema[p.property]?.name).filter(Boolean);
+    expect(shown).toEqual(expect.arrayContaining(['ColA', 'ColB']));
+  });
+
+  it('순서가 반대여도 같다: Storage 요청이 먼저 끝나고 작은 요청이 뒤에 와도 열이 모두 남는다', async () => {
+    const t = await makeTable('Order');
+    const a = await uploadLarge(kim, 'a2.csv', storedCsv('Name,Status,ColA', ['FromA,Alpha,a1']), 'text/csv');
+    const small = put('b2.csv', 'Name,Status,ColB\nFromB,Beta,b1\n');
+    const [ra, rb] = await Promise.all([
+      runtime.runRpc('mergeCsv', { blockId: t.blockId, url: a.url, name: 'a2.csv' }, kim),
+      runtime.runRpc('mergeCsv', { blockId: t.blockId, url: small.url, name: 'b2.csv' }, kim),
+    ]);
+    expect([ra.status, rb.status]).toEqual([200, 200]);
+    expect(schemaNames(t.colId)).toEqual(['ColA', 'ColB', 'Name', 'Pad', 'Status']);
+    expect(statusOptions(t.colId)).toEqual(['Alpha', 'Beta', 'Open']);
+    expect(rowCount(t.colId)).toBe(3);
+  });
+
+  it('기다리는 사이 권한을 잃으면 합치지 않는다(mergeCsv)', async () => {
+    const t = await makeTable('Perm');
+    const a = await uploadLarge(kim, 'perm.csv', storedCsv('Name,Status,ColA', ['FromA,Alpha,a1']), 'text/csv');
+    const spaceId = sp(kim);
+    const before = rec('space', spaceId).permissions;
+    net.during = async () => patchRecord('space', spaceId, (r) => { r.permissions = (r.permissions ?? []).filter((p: any) => p.user_id !== kim.id); });
+    const r = await runtime.runRpc('mergeCsv', { blockId: t.blockId, url: a.url, name: 'perm.csv' }, kim);
+    patchRecord('space', spaceId, (x) => { x.permissions = before; });
+    expect([403, 404]).toContain(r.status);
+    expect(schemaNames(t.colId)).toEqual(['Name', 'Status']);
+    expect(rowCount(t.colId)).toBe(1);
+  });
+
+  it('기다리는 사이 표의 보기가 바뀌면 충돌로 멈춘다(잠그지 않은 것을 고치지 않는다)', async () => {
+    const t = await makeTable('Views');
+    const a = await uploadLarge(kim, 'views.csv', storedCsv('Name,Status,ColA', ['FromA,Alpha,a1']), 'text/csv');
+    const orig = rec('block', t.blockId).view_ids as string[];
+    net.during = async () => patchRecord('block', t.blockId, (r) => { r.view_ids = [...r.view_ids, '00000000-0000-4000-8000-00000000abcd']; });
+    const r = await runtime.runRpc('mergeCsv', { blockId: t.blockId, url: a.url, name: 'views.csv' }, kim);
+    patchRecord('block', t.blockId, (x) => { x.view_ids = orig; });
+    expect(brief(r)).toMatchObject({ status: 409 });
+    expect((r.body as any).message).toContain('표가 바뀌었습니다');
+    expect(schemaNames(t.colId)).toEqual(['Name', 'Status']);
+    expect(rowCount(t.colId)).toBe(1);
+  });
+
+  it('기다리는 사이 권한을 잃으면 페이지를 만들지 않는다(importFiles)', async () => {
+    const up = await uploadLarge(kim, 'gone.zip', bigZip('Gone', 21), 'application/zip');
+    const spaceId = sp(kim);
+    const before = rec('space', spaceId).permissions;
+    const pagesBefore = db.withRequestCache(() => Number((db.db.prepare("SELECT COUNT(*) AS n FROM records WHERE tbl = 'block' AND space_id = ?").get(spaceId) as { n: number }).n));
+    net.during = async () => patchRecord('space', spaceId, (r) => { r.permissions = (r.permissions ?? []).filter((p: any) => p.user_id !== kim.id); });
+    const r = await importFiles(kim, [{ name: 'gone.zip', url: up.url }]);
+    patchRecord('space', spaceId, (x) => { x.permissions = before; });
+    expect(brief(r)).toMatchObject({ status: 403, message: 'Not a member of this workspace' });
+    const pagesAfter = db.withRequestCache(() => Number((db.db.prepare("SELECT COUNT(*) AS n FROM records WHERE tbl = 'block' AND space_id = ?").get(spaceId) as { n: number }).n));
+    expect(pagesAfter).toBe(pagesBefore);
+  });
+
+  it('기다리는 사이 대상 페이지가 지워지면 그 페이지에 넣지 않는다(importFiles)', async () => {
+    const host = put('Host.csv', 'Name\nx\n');
+    const made = await runtime.runRpc('importFiles', { spaceId: sp(kim), parent: { kind: 'private' }, files: [{ name: 'Host.md', url: db.withRequestCache(() => files.storeFile('Host.md', '# Host\n', kim.id, sp(kim), 'text/markdown')).url }] }, kim);
+    void host;
+    const pageId = (made.body as any).pageIds[0] as string;
+    const up = await uploadLarge(kim, 'into.zip', bigZip('Into', 22), 'application/zip');
+    net.during = async () => patchRecord('block', pageId, (r) => { r.alive = false; });
+    const r = await runtime.runRpc('importFiles', { spaceId: sp(kim), parent: { kind: 'page', pageId }, files: [{ name: 'into.zip', url: up.url }] }, kim);
+    expect(brief(r)).toMatchObject({ status: 403, message: 'You can’t import into this page' });
+    expect(rec('block', pageId).content ?? []).toEqual([]);
+  });
+
+  it('previewCsv는 기다린 뒤의 열 목록을 보여 준다', async () => {
+    const t = await makeTable('Preview');
+    const a = await uploadLarge(kim, 'pv.csv', storedCsv('Name,Status', ['x,Open']), 'text/csv');
+    const small = put('add.csv', 'Name,Later\ny,1\n');
+    net.during = async () => {
+      expect((await runtime.runRpc('mergeCsv', { blockId: t.blockId, url: small.url, name: 'add.csv' }, kim)).status).toBe(200);
+    };
+    const pv = await runtime.runRpc('previewCsv', { spaceId: sp(kim), url: a.url, name: 'pv.csv', blockId: t.blockId }, kim);
+    expect(pv.status).toBe(200);
+    expect(((pv.body as any).target.properties as { name: string }[]).map((p) => p.name)).toContain('Later');
   });
 });
