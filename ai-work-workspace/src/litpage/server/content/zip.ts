@@ -1,6 +1,7 @@
 // Minimal ZIP reader/writer (PKWARE APPNOTE): stored + deflate entries, UTF-8 names, no ZIP64.
 // Used by Import (the export-style .zip of Markdown/CSV) and Export (.zip of pages/databases).
 import { deflateRawSync, inflateRawSync } from 'node:zlib';
+import { normalizeZipName, slashZipName, zipNameSkipped } from '#shared/zipPath.ts';
 
 export interface ZipEntry {
   name: string;
@@ -63,9 +64,9 @@ export function readZip(buf: Buffer, opts?: { maxEntries?: number; maxTotalBytes
     const commentLen = buf.readUInt16LE(off + 32);
     const localOff = buf.readUInt32LE(off + 42);
     const rawName = buf.subarray(off + 46, off + 46 + nameLen);
-    const name = (flags & 0x800 ? rawName.toString('utf8') : rawName.toString('utf8')).replace(/\\/g, '/');
+    const name = slashZipName(flags & 0x800 ? rawName.toString('utf8') : rawName.toString('utf8'));
     off += 46 + nameLen + extraLen + commentLen;
-    if (name.endsWith('/') || name.startsWith('__MACOSX/') || /(^|\/)\.DS_Store$/.test(name)) continue;
+    if (zipNameSkipped(name)) continue;
     if (localOff + 30 > buf.length || buf.readUInt32LE(localOff) !== 0x04034b50) throw new Error('Corrupt zip local header');
     const lNameLen = buf.readUInt16LE(localOff + 26);
     const lExtraLen = buf.readUInt16LE(localOff + 28);
@@ -86,7 +87,7 @@ export function readZip(buf: Buffer, opts?: { maxEntries?: number; maxTotalBytes
     budget.bytes -= data.length;
     if (budget.bytes < 0) throw new Error('Archive too large');
     // entry names are data only (never used as file system paths); normalize "../" anyway
-    out.push({ name: name.split('/').filter((p) => p && p !== '.' && p !== '..').join('/'), data });
+    out.push({ name: normalizeZipName(name), data });
   }
   return out;
 }
