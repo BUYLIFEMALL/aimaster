@@ -435,3 +435,5 @@ MOV-SVS-RELEVANCE-FILTER-INTEGRATION CC-MOVIE-01: Master msg_3a32f423910f(A1/P9/
 MOV-SVS-RELEVANCE-FILTER-INTEGRATION 점유 해제 CC-MOVIE-01: 929ff67bb(SVS 연결·사본·시험·등록 스크립트 9파일)+089ca9e02(SHARED_MODULES 1줄). relevance.test 6/6, npm test 17/17, tsc 0, check-shared-modules 전부 OK. 미검증: npm run build·실화면·실 YouTube. 결과 .ai/results/MOV-SVS-RELEVANCE-FILTER-INTEGRATION-CC-MOVIE-01.md.
 
 MOV-SVS-RELEVANCE-UI-CLARITY CC-MOVIE-01: Master msg_12d2a01d3966(A1/P9/1, 기준 929ff67bb). shorts-viral-studio/src/components/studio/SearchStep.tsx 문구·빈 결과 표시, src/lib/youtube/shortsSearch.ts 화면용 순수 함수, tests/relevance.test.mjs, docs/IMPROVEMENTS.md만. 검색 호출 수·외부 요청·빌드·배포 0.
+
+MOV-SVS-RELEVANCE-UI-CLARITY 점유 해제 CC-MOVIE-01: c31b91095(SearchStep·shortsSearch·relevance.test·IMPROVEMENTS). relevance 8/8, npm test 17/17, tsc 0. 미확인: 실화면. 결과 .ai/results/MOV-SVS-RELEVANCE-UI-CLARITY-CC-MOVIE-01.md.
