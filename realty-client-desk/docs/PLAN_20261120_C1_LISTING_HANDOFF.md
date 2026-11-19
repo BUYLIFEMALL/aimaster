@@ -42,46 +42,39 @@
 | ④ 클립보드 복사·붙여넣기 | 안 남음 | — | 안 남음 | 클립보드는 다른 앱이 읽을 수 있음, 회원 조작 늘어남 | 쓰지 않음 |
 | ⑤ 서버 임시 토큰(DB) | 서버에 매물값 저장 | — | 안 남음 | DB 변경·보관 규칙 | 쓰지 않음 |
 
-③ 주고받기 계약(A3 보완, Master msg_aebd5ff080bc — 구현 때 그대로 지킬 것)
+③ 주고받기 계약 — **정본(A6, 이 절 하나만 기준. 아래 「로그인 복귀」「COOP」는 이 정본의 전제·예외만 다룸)**
 
-상수: `LISTING_ORIGINS = ["https://realty-listing-alert.buylife.xyz", "https://realty-listing-alert.vercel.app"]`, `DESK_ORIGIN = "https://realty-client-desk.buylife.xyz"`(받는 쪽 주소는 하나로 고정, 옛 vercel.app 주소로는 보내지 않음). 메시지 `v: 1`, 모르는 `type`·`v`는 무시.
+상수: `LISTING_ORIGINS = ["https://realty-listing-alert.buylife.xyz", "https://realty-listing-alert.vercel.app"]`, `DESK_ORIGIN = "https://realty-client-desk.buylife.xyz"`(받는 쪽 주소는 하나로 고정). 모든 메시지 `v: 1`, 모르는 `type`·`v`는 무시. 기한 `T = 15초`.
 
-| 순서 | 보내는 쪽(매물 알림 `/results`) | 받는 쪽(고객관리 `/listings`) |
-|---|---|---|
-| 0 준비 | 버튼 클릭(사용자 동작) 안에서만 시작. `requestId = crypto.randomUUID()`를 만들고 **메시지 리스너를 먼저 등록한 뒤** 창을 연다 | 페이지가 뜨면 **메시지 리스너를 먼저 등록한 뒤** READY를 보낸다(READY 전후 어느 때 와도 놓치지 않게) |
-| 1 창 열기 | `w = window.open(DESK_ORIGIN + "/listings?from=listing-alert", "_blank")` — 이름 있는 창을 쓰지 않아 **이미 열린 고객관리 탭을 재사용하지 않음**. `noopener`·`noreferrer` 쓰지 않음. `w`가 null(팝업 차단)이면 즉시 실패 안내 | — |
-| 2 READY | — | `window.opener`가 없으면 아무것도 하지 않음(일반 방문). 있으면 `readyId = crypto.randomUUID()`를 만들고 `window.opener.postMessage({v:1,type:"desk-ready",readyId}, origin)`을 **`LISTING_ORIGINS` 각각에 지정해서** 보냄(`"*"` 금지 — 브라우저가 실제 opener origin과 다른 지정은 버림) |
-| 3 후보 전송 | READY는 `event.origin === DESK_ORIGIN` **그리고** `event.source === w`(내가 연 그 창)일 때만 받음. 같은 `w`에서 READY는 **처음 1번만** 처리, 그 뒤 리스너 해제. `w.postMessage({v:1,type:"desk-candidate",requestId,readyId,fields}, DESK_ORIGIN)` 1회 | — |
-| 4 수신 | — | `event.origin ∈ LISTING_ORIGINS` **그리고** `event.source === window.opener` **그리고** `readyId` 일치일 때만. 처음 1건만 처리하고 리스너 해제·`window.opener = null`. `requestId`는 화면 표시용으로만 기억(같은 탭에서 두 번째 후보는 받지 않음) |
-| 5 검증·표시 | — | §3 재검증(허용 값·길이·숫자) 통과 시 미저장 후보로 폼 채움. 실패 시 폼은 비운 채 「받은 값이 올바르지 않아 채우지 않았어요(저장된 것 없음)」 |
+**메시지 3종**
 
-계정 동일성(A4 보완, Mac 검수 `RE-CRM-C1-DESIGN-INDEPENDENT-QA-CX-QA-01` P2-1):
-- 원본 `sameOwner`(`extension/web-bridge.js`)는 **확장 연결 계정 = 확장 기록 소유 계정 = 매물 알림 웹 로그인 계정**까지만 맞춘다. **고객관리 웹 로그인 계정은 그 조건에 들어 있지 않다.** origin·source·readyId도 계정 근거가 아니다.
-- 정책: **같은 계정만 허용, 다른 계정으로는 넘기지 않는다**(다른 고객관리 계정으로 보내는 옵션 없음).
-- 방법: 두 프로그램은 같은 AIMaster 인증(같은 Supabase 프로젝트의 `auth.users.id`)을 쓴다 — 구현 전 사전 확인 조건. 각 쪽은 **버튼 클릭/READY 직전에** 자기 서버 액션(예: `getHandoffAcct()`, 로그인 세션 `user.id`의 SHA-256 앞 16자)을 호출해 `acct`를 받는다. 서버 컴포넌트 prop으로 넘기지 않는다(prop은 페이지 HTML·RSC 페이로드에 남음). 원문 id·이메일은 메시지에 넣지 않음.
-  - 받는 쪽 READY에 `acct`를 싣는다. 보내는 쪽은 자기 `acct`와 다르면 **값을 보내지 않고** 「고객관리에 다른 계정으로 로그인돼 있어요. 같은 계정으로 로그인한 뒤 다시 눌러 주세요(저장된 것 없음)」.
-  - 보내는 후보 메시지에도 보내는 쪽 `acct`를 싣고, 받는 쪽은 자기 `acct`와 다르면 버린다(이중 확인).
-  - 어느 쪽이든 `acct`를 만들 수 없으면(로그인 정보 없음·해시 실패·`crypto.subtle` 없음) **미전송/미수신**.
-- 한계: `acct` 비교는 「실수로 다른 계정에 넣는 것」을 막는 장치다. 저장은 어차피 받는 쪽 서버 세션 `user_id`로만 되므로 다른 회원 자료에 쓰는 경로는 원래 없다.
-- 비교값 보존 금지(A5): `acct`는 핸들러 클로저 변수로만 두고 `localStorage`·`sessionStorage`·쿠키·URL·DOM 속성·React 상태 표시·`console`/서버 로그에 남기지 않는다. 비교가 끝나거나 단계가 종료(성공·실패·만료·이탈)되면 변수를 비운다(`acct = null`). 서버 액션도 `acct`를 로그로 찍지 않는다.
+| 메시지 | 보내는 창 → 받는 창 | 담는 값 | 보낼 때 targetOrigin | 받는 쪽 검사(모두 만족해야 처리) |
+|---|---|---|---|---|
+| `desk-ready` | 고객관리 → 매물 알림(opener) | `readyId`(고객관리가 만든 randomUUID), `acct`(고객관리 계정) | `LISTING_ORIGINS` 각각 지정(`"*"` 금지) | `event.origin === DESK_ORIGIN`, `event.source === w`, 단계 `waitReady`, 기한 안, `acct` = 매물 알림 `acct` |
+| `desk-candidate` | 매물 알림 → 고객관리(`w`) | `requestId`(매물 알림이 만든 randomUUID), `readyId`(받은 값), `acct`(매물 알림 계정), `fields`(§2 화이트리스트) | `DESK_ORIGIN` | `event.origin ∈ LISTING_ORIGINS`, `event.source === window.opener`, 단계 `waitCandidate`, 기한 안, `readyId` = 내가 보낸 값, `acct` = 고객관리 `acct` |
+| `desk-filled`(ACK) | 고객관리 → 매물 알림(opener) | `readyId`, `requestId`(받은 값 그대로), `ok`(true/false) — `acct`·`fields` 없음 | 받은 후보의 `event.origin` | `event.origin === DESK_ORIGIN`, `event.source === w`, 단계 `waitAck`, 기한 안, `readyId`·`requestId` **둘 다** 일치 |
 
-타임아웃·실패(모두 **명시적 미저장 실패** — 값 재시도·자동 대체 없음):
-- 보내는 쪽: 창을 연 뒤 **15초** 안에 조건에 맞는 READY가 없으면 리스너 해제, 「고객관리로 후보를 보내지 못했어요. 저장된 것은 없어요. 고객관리에 로그인돼 있는지 확인한 뒤 다시 눌러 주세요.」 표시. 열린 창은 닫지 않음(회원 화면).
-- 받는 쪽: READY 뒤 **15초** 안에 후보가 없으면 리스너 해제, 일반 등록 화면 그대로(안내 없음).
-- 팝업 차단(`w === null`): 「팝업이 막혀 고객관리를 열지 못했어요(저장된 것 없음)」.
+**보내는 쪽(매물 알림, `RecentResults` 버튼 핸들러)**
+1. 클릭(사용자 동작) 안에서 `requestId` 생성, `acct` 서버 액션으로 받기(못 받으면 즉시 미전송 안내·끝). **리스너를 먼저 등록**한 뒤 `w = window.open(DESK_ORIGIN + "/listings?from=listing-alert", "_blank")`(이름 있는 창·`noopener`·`noreferrer` 쓰지 않음 → 이미 열린 탭 재사용 없음). `w === null`이면 「팝업이 막혀 고객관리를 열지 못했어요(저장된 것 없음)」·끝. 단계 `waitReady`, 타이머 A(T).
+2. `waitReady`에서 검사를 통과한 `desk-ready` 1건: 즉시 단계 `waitAck`로 바꾸고 **타이머 A 해제** → `acct` 다르면 단계 `done`, 「고객관리에 다른 계정으로 로그인돼 있어요. 같은 계정으로 로그인한 뒤 다시 눌러 주세요(저장된 것 없음)」·끝 → 같으면 `desk-candidate` 1회 전송, 타이머 B(T). **리스너는 해제하지 않고 ACK를 기다린다.**
+3. `waitAck`에서 검사를 통과한 `desk-filled` 1건: 단계 `done`, 타이머 B 해제. `ok:true` 「고객관리 탭에 채워졌어요. 그 탭에서 확인하고 등록해 주세요(아직 저장 안 됨)」, `ok:false` 「받는 쪽에서 값이 맞지 않아 채우지 않았어요(저장된 것 없음)」.
+4. 타이머 A 만료: 단계 `done`, 「고객관리로 후보를 보내지 못했어요. 저장된 것은 없어요. 고객관리에 로그인돼 있는지 확인한 뒤 다시 눌러 주세요.」 / 타이머 B 만료: 단계 `done`, 「보냈지만 채워졌는지 확인하지 못했어요. 고객관리 탭을 확인해 주세요(저장된 것 없음)」 — 성공 표시 안 함. 열린 창은 닫지 않음.
 
-핸들러 기한·1회 소비·정리(A4 보완, Mac P3):
-- 단계 상태(A5 보완 — 단일 `consumed` 대신): 각 메시지 종류를 **단계별로 한 번만** 받는다.
-  - 보내는 쪽 `phase`: `waitReady` → `waitAck` → `done`. 받는 쪽 `phase`: `waitCandidate` → `done`.
-  - 모든 핸들러 첫 줄: `if (Date.now() > deadline) return` 그리고 **메시지 종류가 지금 단계에 맞을 때만** 처리(`waitReady`에서는 `desk-ready`만, `waitAck`에서는 `desk-filled`만, `waitCandidate`에서는 `desk-candidate`만). 단계가 바뀌는 즉시(첫 줄 검사 통과 직후, 비동기 작업 전) 다음 단계로 넘겨 같은 메시지 두 번째 도착을 차단.
-  - 결과: READY 뒤 올바른 ACK는 받을 수 있고, 두 번째 READY(재 READY)·두 번째 후보(재 JOB)·`done` 뒤 모든 메시지는 무시.
-- 보내는 쪽 READY 처리(`waitReady`): `event.origin === DESK_ORIGIN` && `event.source === w` && `v===1` && `acct` 일치 → `readyId` 기억, `phase = waitAck`, 후보 1회 전송(`requestId`·`readyId` 포함), ACK 기한 15초를 새로 둔다. `acct` 불일치면 `phase = done` + 「다른 계정」 안내(값 미전송).
-- 보내는 쪽 ACK 처리(`waitAck`): `event.origin === DESK_ORIGIN` && `event.source === w` && `type === "desk-filled"` && `readyId`·`requestId` **둘 다** 일치할 때만 → `phase = done`, 타이머·리스너 회수.
-  - `ok:true` → 「고객관리 탭에 채워졌어요. 그 탭에서 확인하고 등록해 주세요(아직 저장 안 됨)」.
-  - `ok:false`(검증 실패) → 「받는 쪽에서 값이 맞지 않아 채우지 않았어요(저장된 것 없음)」.
-  - 기한 안에 맞는 ACK 없음 → `phase = done`, 「보냈지만 채워졌는지 확인하지 못했어요. 고객관리 탭을 확인해 주세요(저장된 것 없음)」 — **전송 성공으로 표시하지 않는다**.
-- 받는 쪽 후보 처리(`waitCandidate`): origin ∈ `LISTING_ORIGINS` && `event.source === window.opener` && `readyId` 일치 && `acct` 일치 → `phase = done` → 검증·폼 채움 → `desk-filled {readyId, requestId(받은 값 그대로), ok}`를 `window.opener`에 **받은 메시지의 `event.origin`을 지정**해 1회 전송 → 그다음 타이머·리스너 회수, `window.opener = null`.
-- 정리: 성공·실패·기한 만료·페이지 이탈(`useEffect` 정리 함수) 어느 경우든 타이머와 리스너를 모두 해제한다. 메모리의 후보 값은 등록 성공·「후보 비우기」·탭 닫기 때 버린다.
+**받는 쪽(고객관리 `/listings`, 받는 클라이언트 컴포넌트)**
+1. `window.opener`가 없으면 아무것도 하지 않음(일반 방문). 있으면 `acct` 서버 액션으로 받기(못 받으면 끝, READY 안 보냄) → `readyId` 생성 → **리스너를 먼저 등록** → 단계 `waitCandidate`, 타이머 C(T) → `desk-ready` 전송.
+2. `waitCandidate`에서 검사를 통과한 `desk-candidate` 1건: 즉시 단계 `done`, **타이머 C 해제** → §3 재검증 → 통과면 미저장 후보로 폼 채움, 실패면 폼 비운 채 「받은 값이 올바르지 않아 채우지 않았어요(저장된 것 없음)」 → `desk-filled` 1회 전송. **`window.opener`는 이 ACK 전송 뒤에 `null`로** 한다(그 전에는 유지).
+3. 타이머 C 만료: 단계 `done`, 일반 등록 화면 그대로(안내 없음), `window.opener = null`.
+
+**공통 규칙**
+- 모든 핸들러 첫 줄: 단계가 `done`이거나 기한이 지났거나 메시지 종류가 지금 단계와 다르면 즉시 무시. 단계 전환은 검사 통과 직후(비동기 작업 전) — 같은 종류 두 번째 도착(재 READY·재 후보·중복 ACK)은 자동 차단.
+- 단계를 바꿀 때 직전 타이머를 반드시 해제하고, 새 기다림이 있으면 새 타이머를 둔다(타이머 A→B, C→없음).
+- 단계 `done`이 되는 모든 경우(성공·검증 실패·계정 불일치·만료·페이지 이탈 `useEffect` 정리): 남은 타이머·`message` 리스너 해제, `acct`·`readyId`·`requestId`를 `null`로 버림. 보내는 쪽은 `fields`도 버림. 받는 쪽의 폼에 채운 후보 값은 등록 성공·「후보 비우기」·탭 닫기 때 버린다.
+
+**계정 동일성**(Mac 검수 `RE-CRM-C1-DESIGN-INDEPENDENT-QA-CX-QA-01` P2-1)
+- 원본 `sameOwner`(`extension/web-bridge.js`)는 **확장 연결 계정 = 확장 기록 소유 계정 = 매물 알림 웹 로그인 계정**까지만 맞춘다. **고객관리 웹 로그인 계정은 그 조건에 들어 있지 않다.** origin·source·readyId·requestId도 계정 근거가 아니다 → 위 표의 `acct` 비교(READY와 후보 양방향)로 **같은 계정만** 허용, 다른 계정으로는 넘기지 않는다.
+- `acct` = 로그인 세션 `user.id`의 SHA-256 앞 16자. 두 프로그램이 같은 AIMaster 인증(같은 Supabase `auth.users.id`)을 쓰는 것은 구현 전 사전 확인 조건. 각 쪽은 버튼 클릭/READY 직전에 자기 서버 액션(예: `getHandoffAcct()`)으로 받는다 — 서버 컴포넌트 prop으로 넘기지 않음(HTML·RSC 페이로드에 남음). 원문 id·이메일은 메시지에 없음. 만들 수 없으면 미전송/미수신.
+- `acct`는 핸들러 클로저 변수로만 두고 `localStorage`·`sessionStorage`·쿠키·URL·DOM 속성·화면 표시·`console`/서버 로그에 남기지 않으며, 위 「단계 `done`」 때 버린다.
+- 한계: `acct` 비교는 실수로 다른 계정에 넣는 것을 막는 장치다. 저장은 어차피 받는 쪽 서버 세션 `user_id`로만 된다.
 
 로그인 복귀: 고객관리에 로그인돼 있지 않으면 `/listings` → `/login`으로 이동한다. 같은 탭 이동이라 `window.opener`는 보통 유지되지만, 로그인에 시간이 걸리면 보내는 쪽 15초가 먼저 끝나 후보는 **보내지 않는다**(로그인 뒤 READY가 와도 보내는 쪽 리스너는 이미 해제 — 늦게 온 READY는 무시). 회원은 로그인 뒤 매물 알림에서 버튼을 다시 누른다. 로그인 화면은 READY를 보내지 않음(`/listings`에서만). 로그인 전 화면에 값이 들어가는 경로 없음.
 
