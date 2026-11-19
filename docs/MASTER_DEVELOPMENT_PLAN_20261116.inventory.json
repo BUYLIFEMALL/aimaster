@@ -10040,11 +10040,11 @@
       "owner": "CC-ECOM-01",
       "reviewer": "CX-QA-01",
       "title": "AI 무료 이미지 자동화 개발 플랜",
-      "status": "reviewing",
-      "delivery": "pra_source_returned_mac_review_dispatched",
-      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기·msg_4423e8b13051·msg_6d81c947bd00·d6f1d0287·00158b7a3·msg_e49f861919f9·msg_25a67c9094a4·msg_11158461bd15·msg_680de25b9e15·98f8dd8bc·68efe5399·msg_fd207f8be38a·msg_5074f8e947cf·msg_254300c4a578·msg_cd4c7a612051·3fbd4b200·Arc CSV 2행 직접 대조·995a92ac-01f9-45e2-a3a4-91a3862df9e3·msg_025a7125b66c·msg_5c32df5c7178·msg_287b5412841b·msg_7492634e4c5a·msg_68e97e7d4656·msg_d36a6a75b50c·msg_9a3bd624f2e1·msg_309652177f5b·중복 msg_5a0e1dee6395 정정 보고·11:44 KST Admin Codex 터미널 본시험 진행 확인·11:50 KST Admin Codex 터미널 FLUX 48/48 중간 보고·msg_f2aba7390f58·msg_32e9ef68cd67·444034a1e·msg_45ce6d2b5731·msg_952e1148ece6·msg_9c55abed11da·msg_05eeafdb243c·Master CSV/PNG 해시 일치·msg_60514833d426·msg_8c5418f1b1f8·msg_2c1454bc23a0·msg_320b474b9a14·msg_1dc750048e02·f988aaab8·msg_377218bf1613·msg_1e45bac91599·73d53045e·msg_ca0dc8f285f1·Master PNG 96개/CSV 해시 확인·msg_c7d8c25b2b0f·msg_d0aa30c8fbca·HTML SHA/PNG 96개 직접 확인·msg_69266b1b62fc·d3babd8e4·Master 48/46 재집계·msg_1cfdd780b8d4·msg_ea053258743e·f6c6e049e·msg_9b9f6d69af92·msg_56cc9598b6b0·msg_27716f68082f·msg_05239b8dff9b·msg_7d5b73a67c25·af7d039f7·msg_49edda0b038d·정비율 5파일 Master 해시/헤더 대조·msg_f3af85c28f8e·msg_7d7a54aacc65·msg_48e9535f7335·6b382e836·msg_e2f54750fd3a·Master Q4 CSV/PNG 대조·msg_56bb8df81705·msg_ecd2ab927730·49bec95a8·Master eval-2 HTML SHA/PNG 32개 확인·msg_dc45aef4223e·Master Q4/Q8 16쌍 재집계·msg_7f3e70cc5834·msg_c439f0684ff1·fe37bf575·45a8bb41d·msg_66af7917a7f5·msg_0962d9630d0e·msg_dacd098aff64·msg_a6e29be3b1c5·0f22e067a·msg_ed08ca7c8bff·msg_1c30d67ce7d8·3383cec03·msg_b82fb12c2134·msg_f87668d3599b·msg_a2d69f45e9f5·msg_765e8cfce48d·msg_75dbfaa8b077·msg_87cf8e11ba69·aa04066c8·msg_f7a7a5d44dd0·msg_ad82d911c849·msg_edef1e834612·msg_bc241410bf7f·msg_5f1eca22975d·msg_8ebe37a39e59·63307bdba·2c11df0e7·msg_09fa29bfc0d8·msg_7f7c856b33c4·0515d1da5·Admin 터미널 전달 문구 확인·msg_bb468c75ad9b·msg_0837cb4d1553",
-      "next": "엔진 PR-A 구현 반환, 담당 143/143 통과. 맥미니 격리·호환 독립 검수 요청. Admin Q8 48장 품질 판정 대기.",
-      "lastReviewedAt": "2026-11-19T04:49:13.643Z",
+      "status": "running",
+      "delivery": "mac_review_two_engine_defects_fix_dispatched",
+      "evidence": "docs/roles/codex-master.md·docs/analysis-free-image-automation-20261119/PLAN.md·docs/analysis-free-image-automation-20261119/MODEL_RESEARCH.md·docs/analysis-free-image-automation-20261119/HANDOFF.md·Windows Intel Arc 32.0.101.9150 장비 읽기·msg_4423e8b13051·msg_6d81c947bd00·d6f1d0287·00158b7a3·msg_e49f861919f9·msg_25a67c9094a4·msg_11158461bd15·msg_680de25b9e15·98f8dd8bc·68efe5399·msg_fd207f8be38a·msg_5074f8e947cf·msg_254300c4a578·msg_cd4c7a612051·3fbd4b200·Arc CSV 2행 직접 대조·995a92ac-01f9-45e2-a3a4-91a3862df9e3·msg_025a7125b66c·msg_5c32df5c7178·msg_287b5412841b·msg_7492634e4c5a·msg_68e97e7d4656·msg_d36a6a75b50c·msg_9a3bd624f2e1·msg_309652177f5b·중복 msg_5a0e1dee6395 정정 보고·11:44 KST Admin Codex 터미널 본시험 진행 확인·11:50 KST Admin Codex 터미널 FLUX 48/48 중간 보고·msg_f2aba7390f58·msg_32e9ef68cd67·444034a1e·msg_45ce6d2b5731·msg_952e1148ece6·msg_9c55abed11da·msg_05eeafdb243c·Master CSV/PNG 해시 일치·msg_60514833d426·msg_8c5418f1b1f8·msg_2c1454bc23a0·msg_320b474b9a14·msg_1dc750048e02·f988aaab8·msg_377218bf1613·msg_1e45bac91599·73d53045e·msg_ca0dc8f285f1·Master PNG 96개/CSV 해시 확인·msg_c7d8c25b2b0f·msg_d0aa30c8fbca·HTML SHA/PNG 96개 직접 확인·msg_69266b1b62fc·d3babd8e4·Master 48/46 재집계·msg_1cfdd780b8d4·msg_ea053258743e·f6c6e049e·msg_9b9f6d69af92·msg_56cc9598b6b0·msg_27716f68082f·msg_05239b8dff9b·msg_7d5b73a67c25·af7d039f7·msg_49edda0b038d·정비율 5파일 Master 해시/헤더 대조·msg_f3af85c28f8e·msg_7d7a54aacc65·msg_48e9535f7335·6b382e836·msg_e2f54750fd3a·Master Q4 CSV/PNG 대조·msg_56bb8df81705·msg_ecd2ab927730·49bec95a8·Master eval-2 HTML SHA/PNG 32개 확인·msg_dc45aef4223e·Master Q4/Q8 16쌍 재집계·msg_7f3e70cc5834·msg_c439f0684ff1·fe37bf575·45a8bb41d·msg_66af7917a7f5·msg_0962d9630d0e·msg_dacd098aff64·msg_a6e29be3b1c5·0f22e067a·msg_ed08ca7c8bff·msg_1c30d67ce7d8·3383cec03·msg_b82fb12c2134·msg_f87668d3599b·msg_a2d69f45e9f5·msg_765e8cfce48d·msg_75dbfaa8b077·msg_87cf8e11ba69·aa04066c8·msg_f7a7a5d44dd0·msg_ad82d911c849·msg_edef1e834612·msg_bc241410bf7f·msg_5f1eca22975d·msg_8ebe37a39e59·63307bdba·2c11df0e7·msg_09fa29bfc0d8·msg_7f7c856b33c4·0515d1da5·Admin 터미널 전달 문구 확인·msg_bb468c75ad9b·msg_0837cb4d1553·msg_3201946d1453·msg_4345f94e7ec9·.ai/results/IMG-P1-PRA-CX-QA-01.md",
+      "next": "맥미니 47/47 및 기존 0.8.5 호환 확인. 손상 배열의 엔진 기동 중단과 취소 뒤 실행 중첩을 재현해 보완 배정. Admin Q8 품질 판정 대기.",
+      "lastReviewedAt": "2026-11-19T04:52:26.835Z",
       "sha": "f247a4c83"
     },
     {
@@ -10075,11 +10075,11 @@
       "reviewer": "CX-QA-01",
       "title": "블로그 설정 플랫폼별 AI 모델 선택",
       "status": "reviewing",
-      "delivery": "mac_twenty_pass_three_phrase_cases_returned",
-      "sha": "11bfbcd96",
-      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e·msg_ae0e6dba4e84·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_e75e68c7f151·msg_d6f2385e1c72·7012fe1bf·msg_c5d009c34a43·msg_9d70d930ca5b·msg_2888acb4d0d4·msg_e7fae7770278·a7df2611f·msg_d19c65d4a1e5·msg_063718bdf213·msg_963f5dc087ca·msg_a5e256873a03·msg_a9f294314f32·msg_2497dcc19f0a·msg_7990e00f7c3e·msg_5171eb3488de·f8f4520f9·e0f02d424·OpenAI 2026-11-17 릴리스 노트·msg_77eaa7b278fe·msg_0421763e1697·c213647a4·755d7c529·msg_87a196aedfda·msg_ec472c6d6552·msg_bd0707fc7039·msg_a6e246778395·d88fb7bfd·msg_13db44e2976a·msg_15f047c8dab7·msg_6dc6aac4ca1b·msg_5494b960f873·msg_cbc581b94817·4a337ead6·545c8d847·5b6b0cc1e·msg_6f83d440d872·msg_c76c2a8c8c6f·msg_74806cac0298·msg_315729c5325e·msg_3d778c8f05b9·msg_7c202f1b47e9·msg_4c9ffbff9787",
-      "next": "Mac 독립 20/20. 문장 경계·긴 부정·모순 지시 3개 반례를 합성으로 보완 요청. 승인 실호출 9건은 모두 사용.",
-      "lastReviewedAt": "2026-11-19T04:49:13.643Z"
+      "delivery": "mac_43_pass_two_endpoint_negation_cases_returned",
+      "sha": "974d05636",
+      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e·msg_ae0e6dba4e84·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_e75e68c7f151·msg_d6f2385e1c72·7012fe1bf·msg_c5d009c34a43·msg_9d70d930ca5b·msg_2888acb4d0d4·msg_e7fae7770278·a7df2611f·msg_d19c65d4a1e5·msg_063718bdf213·msg_963f5dc087ca·msg_a5e256873a03·msg_a9f294314f32·msg_2497dcc19f0a·msg_7990e00f7c3e·msg_5171eb3488de·f8f4520f9·e0f02d424·OpenAI 2026-11-17 릴리스 노트·msg_77eaa7b278fe·msg_0421763e1697·c213647a4·755d7c529·msg_87a196aedfda·msg_ec472c6d6552·msg_bd0707fc7039·msg_a6e246778395·d88fb7bfd·msg_13db44e2976a·msg_15f047c8dab7·msg_6dc6aac4ca1b·msg_5494b960f873·msg_cbc581b94817·4a337ead6·545c8d847·5b6b0cc1e·msg_6f83d440d872·msg_c76c2a8c8c6f·msg_74806cac0298·msg_315729c5325e·msg_3d778c8f05b9·msg_7c202f1b47e9·msg_4c9ffbff9787·msg_b2aaf4ff67f5·msg_c30139f733b6·msg_d296af3d6921·msg_028c0d100a48",
+      "next": "맥미니 43/43 및 추가 모델별 합성 7건. 부정 대상 혼동·능동형 모순 두 사례 최소 보완 요청. 승인 실호출 9건 소진.",
+      "lastReviewedAt": "2026-11-19T04:52:26.835Z"
     },
     {
       "task_id": "RE-20261119-DESK-U1A",
@@ -10100,12 +10100,12 @@
       "owner": "CC-REALTY-01",
       "reviewer": "CX-MASTER-01",
       "title": "부동산 고객관리 v1.11 푸시·배포 후보",
-      "status": "running",
-      "delivery": "owner_approved_single_build_started",
+      "status": "done",
+      "delivery": "v111_release_ready_db_and_screen_reported_push_pending",
       "sha": "86955ace6",
-      "evidence": "msg_ae423b8e833a·msg_5fa629831747·msg_8d0c2a217ded·msg_a232c84b415a·Master 원격 기준/HEAD 차이 698·msg_cf0bfc4ec2ff·msg_06b9f52c9145·Master 원격 기준 후보 diff 13파일·ae7111ded 폴더 일치·msg_9fa3253b9cc6·ae294b88",
-      "next": "사용자 승인으로 담당이 v1.11 배포 빌드 1회 착수 보고. READY·DB 버전·운영 화면 확인 결과 대기. 푸시 없음.",
-      "lastReviewedAt": "2026-11-19T04:49:13.643Z"
+      "evidence": "msg_ae423b8e833a·msg_5fa629831747·msg_8d0c2a217ded·msg_a232c84b415a·Master 원격 기준/HEAD 차이 698·msg_cf0bfc4ec2ff·msg_06b9f52c9145·Master 원격 기준 후보 diff 13파일·ae7111ded 폴더 일치·msg_9fa3253b9cc6·ae294b88·msg_02d7fc0c4ab1·83144f895·ccf8a3014",
+      "next": "담당 보고로 운영 Ready·DB 및 메뉴 v1.11·위젯 확인. 운영 문자 미리보기는 시험 계정 매물 없어 미확인. 푸시 순번 대기.",
+      "lastReviewedAt": "2026-11-19T04:52:26.835Z"
     },
     {
       "task_id": "FRONT-20261119-QUICKBAR",
