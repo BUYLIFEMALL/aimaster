@@ -26,6 +26,11 @@ const BUCKET_LABELS: Record<string, string> = {
   "ai-image-generations": "AI 이미지",
   "ai-video-studio": "AI 영상",
   "shorts-onestop-studio": "쇼츠 원스톱",
+  // 쇼핑몰(mall-builder) — 몰 대표 용량으로 셈(0077)
+  "mall-builder-public": "쇼핑몰 사진",
+  "mall-builder-private": "쇼핑몰 서류",
+  "mall-builder-proposals": "쇼핑몰 사진 제안",
+  "mall-builder-applied": "쇼핑몰 적용 사진",
 };
 export function bucketLabel(bucket: string): string {
   return BUCKET_LABELS[bucket] ?? bucket;
