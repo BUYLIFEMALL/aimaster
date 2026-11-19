@@ -54,7 +54,10 @@ const closed = new Set(['done','cancelled','superseded']);
 const taskRows = board.tasks.map(t=>`<tr data-status="${html(t.status)}" data-open="${!closed.has(t.status)}"><td><b>${html(t.title)}</b><small>${html(t.task_id)}</small></td><td>${html(roleNames[t.owner]||t.owner)}</td><td>${html(label[t.status]||t.status)}</td><td>${html(t.next||'—')}</td></tr>`).join('');
 const roles = roleRows.map(r=>{
   const entry = latestFor(r.owner);
-  return `<tr><td><b>${html(roleNames[r.owner]||r.owner)}</b><small>${html(r.owner)}</small></td><td>${html(r.state)}</td><td>${html(r.next)}</td><td>${entry?html(phases[entry.last.stage]||entry.last.stage):'기록 없음'}</td></tr>`;
+  const coverage = checkpoint.ownerCoverage?.find(row => row.owner === r.owner);
+  const current = coverage ? html(coverage.state) + (coverage.checkDue ? '<small>점검 필요</small>' : '') :
+    entry ? html(phases[entry.last.stage]||entry.last.stage) : '기록 없음';
+  return `<tr><td><b>${html(roleNames[r.owner]||r.owner)}</b><small>${html(r.owner)}</small></td><td>${html(r.state)}</td><td>${html(r.next)}</td><td>${current}</td></tr>`;
 }).join('');
 const actionRows = board.humanActions.map(h=>`<tr><td><b>${html(h.condition)}</b></td><td>${html(h.action)}</td><td>${html(h.recommendation)}</td></tr>`).join('');
 const page = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AIMaster 운영 현황</title>

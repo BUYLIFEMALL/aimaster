@@ -179,10 +179,32 @@ function publish(db) {
   }
   const lastCommand = commands.at(-1);
   const lastStage = lastCommand && all.findLast(e => e.cmd === lastCommand.id && !e.stale);
+  const ownerCoverage = board.roles.map(owner => {
+    const ownerAssignments = [...assignments.values()].filter(({ claim }) =>
+      claim.actor === owner && !claim.task.startsWith('OPS-HARNESS-') && !held(db, claim.task));
+    const work = ownerAssignments.filter(({ last }) => ['assigned','delivered','accepted'].includes(last.stage));
+    const assigned = work.sort((a,b) => b.last.seq - a.last.seq)[0];
+    const legacy = active.filter(t => t.owner === owner);
+    const followup = ownerAssignments.filter(({ last }) => ['review','verified','failed'].includes(last.stage))
+      .sort((a,b) => b.last.seq - a.last.seq)[0];
+    const waiting = board.tasks.filter(t => t.owner === owner && t.status === 'waiting_human');
+    if (paused) return { owner, state: '전체 중지', refs: [] };
+    if (owner === 'CC-SUPPORT-01') return { owner, state: '주인님 직접 지시 전담', refs: [] };
+    if (assigned) {
+      const age = Date.now() - Date.parse(assigned.last.stamp);
+      const state = assigned.last.stage === 'accepted' ? '수락 기록' :
+        assigned.last.stage === 'delivered' ? '전달 확인 · 수락 미확인' : '발송 결과 확인';
+      return { owner, state, refs: [assigned.claim.task], checkDue: age >= 30 * 60000 };
+    }
+    if (legacy.some(t => t.status === 'running')) return { owner, state: '기존 진행 기록 · 최신 상태 확인', refs: legacy.filter(t => t.status === 'running').map(t => t.id), checkDue: true };
+    if (followup) return { owner, state: '검수·판정 또는 후속 배정', refs: [followup.claim.task], checkDue: true };
+    if (legacy.length) return { owner, state: '준비 조건 확인 후 배정', refs: legacy.map(t => t.id), checkDue: true };
+    return { owner, state: waiting.length ? '사람 단계 대기 · 독립 작업 탐색' : '다음 작업 확인', refs: waiting.map(t => t.id), checkDue: true };
+  });
   const summary = { root, state: runState, revision: db.prepare('SELECT rev FROM meta').get().rev,
     lastSequence: latest?.seq ?? 0, lastEvent: latest?.id ?? null, lastCommand: lastCommand?.id ?? null,
     lastCommandStage: lastStage?.stage ?? null, sourceCheckedAt: board.checkedAt ?? null,
-    counts, roles: board.roles.length, humanEntries: board.human.length, trackedAssignments: assignments.size };
+    counts, roles: board.roles.length, humanEntries: board.human.length, trackedAssignments: assignments.size, ownerCoverage };
   const next = paused ? '관리자 재개 지시 대기' : 'Orca 수신과 점유·선행 조건을 확인하고 배정 또는 독립 검수';
   const lines = all.map(e => '[' + e.stamp + '][' + e.actor + '][' + e.task + '][' + e.stage + '] ' +
     (e.stale ? '[이전 배정 · 격리] ' : '') + e.note + ' | ' + e.id);
@@ -191,6 +213,8 @@ function publish(db) {
   replace('STATUS.md', ['# Master 운영 상태', '', '상태 ' + runState,
     '기존 지휘표 기준 시각 ' + (board.checkedAt || '미수집'), '다음 행동 ' + next,
     '마지막 지시 ' + (lastCommand?.id ?? '없음') + ' / ' + (lastStage?.stage ?? '없음'),
+    '', '## 담당별 다음 작업 점검', '',
+    ...ownerCoverage.map(({owner,state,refs,checkDue}) => '- ' + [owner,state,...refs,checkDue && '점검 필요'].filter(Boolean).join(' · ')),
     '', '## 하네스 배정 최신 기록', '',
     ...[...assignments.values()].map(({ claim, last })=>'- ' + [claim.task,claim.actor,claim.attempt,
       '배정 ' + claim.assignment,last.stage,last.note].join(' · ')),

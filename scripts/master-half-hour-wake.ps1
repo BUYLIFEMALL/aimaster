@@ -60,7 +60,7 @@ try {
     if (-not (Test-Path -LiteralPath $config.orcaExe -PathType Leaf)) {
         throw 'orca_executable_missing'
     }
-    $body = $config.body + ' Harness sync=' + $receipt.harnessSync + '. Read the harness status and checkpoint, reconcile new instructions and Orca receipts with the approved plan. Honor an administrator stop before any dispatch. If sync failed, reconcile with the existing Master records before acting. Record evidence, route independent review, and deliver the next eligible assignment once.'
+    $body = $config.body + ' Harness sync=' + $receipt.harnessSync + '. Read the harness status and checkpoint, including ownerCoverage. For every role flagged for review, reconcile the latest report with the master plan, then assign the next ready work once or record the blocker and restart condition. Check delivery, acceptance and actual activity separately. Honor administrator stops and preserve existing role/resource boundaries.'
     $wakeArgs = @('orchestration', 'send', '--from', $config.targetTerminal, '--to', ('run:' + $config.targetRunId),
         '--subject', $config.subject, '--type', 'status', '--body', $body, '--json')
     $startInfo = New-Object System.Diagnostics.ProcessStartInfo
