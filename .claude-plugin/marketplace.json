@@ -1,0 +1,14 @@
+{
+  "name": "buylife",
+  "description": "BUYLIFE AIMaster 저장소 전용 Claude Code 플러그인 목록",
+  "owner": {
+    "name": "BUYLIFE"
+  },
+  "plugins": [
+    {
+      "name": "aimaster-dev",
+      "source": "./claude-plugins/aimaster-dev",
+      "description": "AIMaster 개발 지침 자동화 — 작업 시작 점검·안전 커밋·배포 전 점검·마무리 보고 스킬과 금지 명령 차단 훅"
+    }
+  ]
+}

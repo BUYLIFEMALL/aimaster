@@ -1,0 +1,7 @@
+{
+  "name": "aimaster-dev",
+  "version": "0.1.0",
+  "description": "AIMaster 개발 지침 자동화 — 작업 시작 점검·안전 커밋·배포 전 점검·마무리 보고 스킬, 금지 git 명령과 .env 덮어쓰기 차단 훅, 감사·비교 분석 에이전트",
+  "author": { "name": "BUYLIFE" },
+  "license": "UNLICENSED"
+}
