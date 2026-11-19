@@ -18,7 +18,7 @@
 | Claude(RealEstate) | CC-REALTY-01 | realty | claude-win-20261024-realty · aimaster-73 · GT1_Mega | 문서정정완료·점유0 | 독립자료미확보차단·정상회차이외새수집0 |
 | Claude(Workspace) | CC-WORKSPACE-01 | workspace | aimaster-46 · session dea6e4f6-37c0-4be8-ad50-8746e0f1c517 · GT1_Mega | Gmail공개방식/빌드선택질문대기·GCP완료신호반영 | 주인님결정→ClientID일치/실행순번확정·SQL/스위치0 |
 | Claude(Blog) | CC-BLOG-01 | blog | claude-win-blog · aimaster-92 · GT1_Mega | 현재요약정정완료·점유0 | 다음묶음/사람계정조건·T12문서조정, 새생성0 |
-| Claude(SNS) | CC-SNS-01 | sns | claude-win-20261118-sns · GT1_Mega | 주인님 직접 지정·W00 ab9bd10da 소스근거 검수 대기 | W01 정확계획 준비·공용모듈 변경 별도·P0 유료 미승인 |
+| Claude(SNS) | CC-SNS-01 | sns | claude-win-20261118-sns · GT1_Mega | D1 OFF 후보 대조, 활성 터미널 변경 확인 | v1.26 운영 기준 격리 및 승인 원격 1회, 빌드 미시작 |
 | Claude(Support) | CC-SUPPORT-01 | support · policy | claude-win-20261112-policy · term_e4de9dda · GT1_Mega | 주인님직접키트작업전담·이번상태미조회 | Master다른작업배정제외·완료신호만취합 |
 
 `CC-ENG-01`은 Claude 공통 역할 지침의 예시 ID이며 모든 Claude 세션을 합치는 ID가 아니다. 위 세부 팀 ID가 실제 배정 단위다. 호칭 표기의 Claud/Claude 차이는 같은 사용자 지정 호칭의 표기 차이이며 별도 세션으로 세지 않는다.
@@ -53,7 +53,7 @@ Orca run: `run_6e348395e1fe` · runtime `4c4b684f-d0e9-4878-97d5-ce1880c55b7d` �
 | CC-B2B-FRONT-01 | **--on Sub** · term_b394f9a9-06c6-4706-b4b3-610f648453ff | 인수 msg_1cc34028b4d9 / 전달 msg_46d9e2cb9bb4 |
 | CC-WORKSPACE-01 | term_d62d586f-e201-4b83-8d7b-8bace6a06049 | IDENT msg_ee909437f911 / 구현 msg_31beb6fd1c34 |
 | CC-BLOG-01 | term_78415ab7-52b8-49a9-adbf-c6450509ec54 | IDENT msg_196120a86386 / 결과 msg_b64aa460031c |
-| CC-SNS-01 | term_a56ba842-a009-4b3b-926c-f02f9cb65153 | 직접지시 보고 msg_0ea177827182·Master 인수 msg_262b806a9152 |
+| CC-SNS-01 | term_46946865-f9aa-4e38-a14f-daa1f320dd41 | 새 주소 확인 msg_ab5b76ba2021 / D1 후보 범위 msg_fe0626fbf3a1 |
 | 기존 policy | term_e4de9dda-0a1d-472f-87a5-e8b6e51faa14 | IDENT msg_1f604361cecb / 보류확인 msg_15c5dbecaf5e |
 | CX-QA-01 | **--on MacMini** · term_e1676007-3108-49cf-90f9-4518da3dfb27 | 요청 msg_43eca2fda35d / 원격 ACK msg_61fc7276a960 / 역할 확인 msg_5ce52c6c09a1 |
 | AdminPC Tester | **--on Admin** · term_83dc0547-9a71-45fd-bdf8-f4e10a6ff26b | 역할 수락 msg_5c32df5c7178 / 배정 기준 msg_287b5412841b |
