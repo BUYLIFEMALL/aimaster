@@ -343,6 +343,90 @@ describe('실패 처리 — 필수 DDL은 안전 실패, 시작 작업은 한 �
     expect(JSON.stringify(logged)).not.toMatch(/SECRET-WF|SECRET-ACT/);
   }, 120_000);
 
+  // 2026-11-20 WS-TIMER-ERROR-BUCKETS: 두 타이머만 고정 분류 낱말 일곱 개로 나눠 기록한다(운영에서 'db'만으로는 원인을 가릴 수 없었다)
+  it('타이머 오류 분류: 적어 둔 코드만 고정 낱말로, 그 밖의 코드·이상한 값은 db, PgError가 아니면 error', async () => {
+    const { timerErrorBucket, errorKind } = await import(SERVER + 'db.ts');
+    const { PgError } = await import(SERVER + 'pg/bridge.ts');
+    const pg = (code: unknown) => new PgError('failed near SECRET-MSG postgres://u:SECRET-PW@h/db', code as any);
+    const known: Record<string, string> = {
+      TIMEOUT: 'db-timeout', NO_REPLY: 'db-no-reply', '25P02': 'db-tx-aborted', '57014': 'db-query-canceled',
+      CONNECTION_CLOSED: 'db-connection', CONNECTION_ENDED: 'db-connection', CONNECTION_DESTROYED: 'db-connection', CONNECT_TIMEOUT: 'db-connection',
+      ECONNRESET: 'db-connection', EPIPE: 'db-connection', ETIMEDOUT: 'db-connection',
+    };
+    for (const [code, bucket] of Object.entries(known)) expect(timerErrorBucket(pg(code)), code).toBe(bucket);
+    // 표에 없는 코드·대소문자 다른 것·문자열이 아닌 것·없는 것은 모두 'db'
+    for (const code of ['08006', '42P01', 'timeout', ' TIMEOUT', 'SECRET_CODE_VALUE', 'x'.repeat(5000), '', null, undefined, 57014, {}, ['TIMEOUT'], Symbol('TIMEOUT')]) expect(timerErrorBucket(pg(code)), String(code).slice(0, 20)).toBe('db');
+    // PgError가 아닌 것은 code가 표에 있어도 'error'
+    for (const e of [Object.assign(new Error('y'), { code: 'TIMEOUT' }), { code: 'TIMEOUT' }, null, undefined, 'TIMEOUT', 42, Symbol('s')]) expect(timerErrorBucket(e)).toBe('error');
+    // 돌려주는 값은 일곱 낱말뿐
+    const all = new Set(['db-timeout', 'db-no-reply', 'db-tx-aborted', 'db-connection', 'db-query-canceled', 'db', 'error']);
+    for (const e of [...Object.keys(known).map(pg), pg('zzz'), pg(null), new Error('z'), null]) expect(all.has(timerErrorBucket(e))).toBe(true);
+    // 기존 시작 작업 분류는 그대로 두 낱말
+    expect(errorKind(pg('TIMEOUT'))).toBe('db');
+    expect(errorKind(new Error('z'))).toBe('error');
+  });
+
+  it('타이머 오류 분류: getter를 실행하지 않고, 프록시·던지는 객체에도 다시 던지지 않는다', async () => {
+    const { timerErrorBucket } = await import(SERVER + 'db.ts');
+    const { PgError } = await import(SERVER + 'pg/bridge.ts');
+    const ran = vi.fn(() => 'TIMEOUT');
+    // code가 직접 가진 getter: 실행하지 않고 'db'
+    const ownGetter = new PgError('m', null);
+    Object.defineProperty(ownGetter, 'code', { get: ran, configurable: true });
+    expect(timerErrorBucket(ownGetter)).toBe('db');
+    // code가 프로토타입에만 있는 경우(값·getter): 직접 가진 값이 아니므로 'db'
+    const protoValue = Object.create(PgError.prototype, {});
+    Object.setPrototypeOf(protoValue, Object.create(PgError.prototype, { code: { value: 'TIMEOUT' } }));
+    expect(timerErrorBucket(protoValue)).toBe('db');
+    const protoGetter = Object.create(Object.create(PgError.prototype, { code: { get: ran } }));
+    expect(timerErrorBucket(protoGetter)).toBe('db');
+    expect(ran).not.toHaveBeenCalled();
+    // 무엇을 읽어도 던지는 객체들
+    const trap = () => {
+      throw new Error('trap exploded SECRET-TRAP');
+    };
+    const hostile = Object.defineProperties(new PgError('m', 'TIMEOUT'), { name: { get: trap }, message: { get: trap }, stack: { get: trap }, toString: { get: trap } });
+    expect(timerErrorBucket(hostile)).toBe('db-timeout'); // 직접 가진 값 code만 본다 — 다른 속성은 건드리지 않는다
+    const allTraps = new Proxy({}, { get: trap, has: trap, getPrototypeOf: trap, ownKeys: trap, getOwnPropertyDescriptor: trap });
+    expect(timerErrorBucket(allTraps)).toBe('error'); // PgError 판정에서 던짐
+    const descTrap = new Proxy(new PgError('m', 'TIMEOUT'), { getOwnPropertyDescriptor: trap, get: trap });
+    expect(timerErrorBucket(descTrap)).toBe('db'); // PgError이지만 code를 볼 수 없음
+    const lyingDesc = new Proxy(new PgError('m', 'TIMEOUT'), { getOwnPropertyDescriptor: () => ({ get: ran, configurable: true }) as any });
+    expect(['db', 'error']).toContain(timerErrorBucket(lyingDesc));
+    expect(ran).not.toHaveBeenCalled();
+  });
+
+  it('두 타이머의 기록: 분류 낱말만 남고 오류 문구·코드 값·임의 코드는 나가지 않으며, 이후 질의는 계속된다', async () => {
+    const logged = spyErrors();
+    const { PgError } = await import(SERVER + 'pg/bridge.ts');
+    h.onQuery = (text) => {
+      if (/FROM records WHERE tbl = 'workflow'/.test(text)) throw new PgError('write CONNECTION_CLOSED SECRET-WF host=SECRET-HOST', 'CONNECTION_CLOSED');
+      if (/FROM activity WHERE created_time/.test(text)) throw new PgError('DB 응답 시간이 초과되었습니다. SECRET-ACT', 'TIMEOUT');
+      return undefined;
+    };
+    const { db } = await loadEverything();
+    db.prepare('SELECT 1 AS x').get();
+    await vi.advanceTimersByTimeAsync(17_000);
+    expect(db.prepare('SELECT 2 AS y').get()).toBeUndefined();
+    expect(logged).toEqual([['[agents] schedule sync failed', 'db-connection'], ['[pages] idle snapshot failed', 'db-timeout']]);
+    expect(JSON.stringify(logged)).not.toMatch(/SECRET|CONNECTION_CLOSED|TIMEOUT|초과/);
+  }, 120_000);
+
+  it('두 타이머의 기록: 표에 없는 코드와 PgError가 아닌 오류는 db·error로만 남는다', async () => {
+    const logged = spyErrors();
+    const { PgError } = await import(SERVER + 'pg/bridge.ts');
+    h.onQuery = (text) => {
+      if (/FROM records WHERE tbl = 'workflow'/.test(text)) throw new PgError('boom SECRET-WF', 'SECRET_CODE_VALUE');
+      if (/FROM activity WHERE created_time/.test(text)) throw Object.assign(new Error('boom SECRET-ACT'), { code: 'TIMEOUT' });
+      return undefined;
+    };
+    const { db } = await loadEverything();
+    db.prepare('SELECT 1 AS x').get();
+    await vi.advanceTimersByTimeAsync(17_000);
+    expect(logged).toEqual([['[agents] schedule sync failed', 'db'], ['[pages] idle snapshot failed', 'error']]);
+    expect(JSON.stringify(logged)).not.toMatch(/SECRET|TIMEOUT/);
+  }, 120_000);
+
   it('웹훅 비밀값 이관 실패: 요청은 계속되고, 기록에는 작업 이름과 오류 종류만 남는다(값·오류 문구 미출력), 다시 돌지 않는다', async () => {
     const logged = spyErrors();
     const { PgError } = await import(SERVER + 'pg/bridge.ts');

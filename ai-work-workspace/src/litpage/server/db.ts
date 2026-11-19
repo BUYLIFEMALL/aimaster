@@ -86,6 +86,46 @@ export function errorKind(e: unknown): 'db' | 'error' {
   }
 }
 
+/** 요청 밖 타이머(유휴 스냅숏·에이전트 일정 재등록)의 실패 기록에 남기는 분류 — 아래 일곱 낱말뿐이다 */
+export type TimerErrorBucket = 'db-timeout' | 'db-no-reply' | 'db-tx-aborted' | 'db-connection' | 'db-query-canceled' | 'db' | 'error';
+// 2026-11-20(WS-TIMER-ERROR-BUCKETS): 운영에서 두 타이머가 'db'로만 기록돼 시간 초과·무응답·연결 끊김을 가릴 수 없었다.
+// 브리지가 붙인 코드 가운데 여기 적어 둔 것만 고정 낱말로 바꾼다. 그 밖의 코드는 모두 'db'다(코드 값 자체는 기록하지 않는다).
+const TIMER_ERROR_BUCKETS: ReadonlyMap<string, TimerErrorBucket> = new Map<string, TimerErrorBucket>([
+  ['TIMEOUT', 'db-timeout'], // 브리지: 30초 안에 응답 없음
+  ['NO_REPLY', 'db-no-reply'], // 브리지: 깨어났지만 응답 없음
+  ['25P02', 'db-tx-aborted'], // 중단된 트랜잭션 안의 질의
+  ['57014', 'db-query-canceled'], // 질의 취소(문 시간 제한·일반 취소 포함)
+  ['CONNECTION_CLOSED', 'db-connection'],
+  ['CONNECTION_ENDED', 'db-connection'],
+  ['CONNECTION_DESTROYED', 'db-connection'],
+  ['CONNECT_TIMEOUT', 'db-connection'],
+  ['ECONNRESET', 'db-connection'],
+  ['EPIPE', 'db-connection'],
+  ['ETIMEDOUT', 'db-connection'],
+]);
+
+/**
+ * 두 타이머 전용 오류 분류. PgError가 아니면 'error', PgError면 그 객체가 직접 가진 값 속성 code만 본다
+ * (getter·프로토타입의 값은 실행하지도 읽지도 않는다). code가 문자열이고 위 표에 있으면 그 낱말, 아니면 'db'.
+ * 문구·코드 값은 어디에도 내보내지 않는다. 판정이 던지면(프록시 등) 안전한 쪽으로 떨어진다.
+ */
+export function timerErrorBucket(e: unknown): TimerErrorBucket {
+  let pg = false;
+  try {
+    pg = e instanceof PgError;
+  } catch {
+    return 'error';
+  }
+  if (!pg) return 'error';
+  try {
+    const own = Object.getOwnPropertyDescriptor(e as object, 'code');
+    if (!own || !Object.prototype.hasOwnProperty.call(own, 'value') || typeof own.value !== 'string') return 'db';
+    return TIMER_ERROR_BUCKETS.get(own.value) ?? 'db';
+  } catch {
+    return 'db';
+  }
+}
+
 function runStartupTask(task: { name: string; run: () => void }) {
   try {
     task.run();
