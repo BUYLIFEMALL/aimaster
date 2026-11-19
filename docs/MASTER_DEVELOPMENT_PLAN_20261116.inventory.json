@@ -10125,9 +10125,9 @@
       "reviewer": "CX-MASTER-01",
       "title": "Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단",
       "status": "running",
-      "delivery": "zip_cache_lock_and_hooks_pass_mac_recheck_sent",
-      "next": "9b6cf6f43 잠금 신호·훅 시험 보완, 담당 격리 1,039개 통과. A Mac 검수 전달. D 스냅숏은 재현·설계, 운영 재시도 없음.",
-      "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a·4f801102a·msg_188d5f946fe6·msg_d48ab4279b48·msg_6a8c40f8d884·.ai/results/WS-20261119-03-CX-QA-01.md·080d30733·5900bdee4·msg_81e5f70393f6·9b6cf6f43·862a3f744·msg_18677013088e"
+      "delivery": "zip_cache_mac_accepted_snapshot_candidate_dispatched",
+      "next": "A 080d30733·9b6cf6f43 담당 격리 1,039개 및 Mac 소스·모의 수락. 스냅숏 쪽별 처리 후보 배정. Mac DB 및 운영 대량 미검증.",
+      "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a·4f801102a·msg_188d5f946fe6·msg_d48ab4279b48·msg_6a8c40f8d884·.ai/results/WS-20261119-03-CX-QA-01.md·080d30733·5900bdee4·msg_81e5f70393f6·9b6cf6f43·862a3f744·msg_18677013088e·msg_e3da08ce301c·msg_81884a8c4c54"
     },
     {
       "task_id": "WS-20261119-02",
@@ -10158,10 +10158,10 @@
       "owner": "CC-MUSIC-01",
       "reviewer": "CX-QA-01",
       "title": "리믹스 → 플레이리스트 수신 로컬 구현",
-      "status": "reviewing",
-      "delivery": "receiver_visible_selection_fix_mac_recheck_sent",
-      "next": "182e70222 담당 78/78·tsc. 부분 실패가 반복돼도 현재 선택 우선 보존, Mac 재검수 전달. 실제 화면 미확인, 미배포.",
-      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1·msg_fd4dcdac6208·7b76ae4eb·msg_cf3cd8832343·msg_5118e37c0e3b·msg_ef79431525cb·e728f10cf·msg_53afdbd8013c·msg_6bc9c6ee0c57·ded8cece2·msg_545ceab47299·msg_12156cc001ce·msg_bf5018c5c214·msg_0659fb81e981·msg_0bbb39a1a896·f13c339f4·msg_683a6f310963·msg_31e6f7c353b0·msg_e5ae913fe5a9·msg_8aa6c8258677·04ea0054c·msg_b0ecc3b9e5f2·msg_4abb0464a25e·msg_33c8502d9f0d·msg_909570744d33·6fe27dd09·msg_1502b2775852·msg_872460738b64·msg_e1651a3e0a80·msg_bb967414fafe·e5f51c05d·msg_b9cb4062fc95·msg_93f223261221·msg_783c284fa78c·msg_2856a2d13f6a·182e70222·msg_4a78babb68e0"
+      "status": "running",
+      "delivery": "receiver_mac_repeated_partial_pass_immediate_recovery_followup",
+      "next": "182e70222 Mac 78/78. 반복 부분 실패 통과. 곧바로 정상 복구할 때 최신 선택 유지 보완 배정. 실제 화면·서명 미확인, 미배포.",
+      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1·msg_fd4dcdac6208·7b76ae4eb·msg_cf3cd8832343·msg_5118e37c0e3b·msg_ef79431525cb·e728f10cf·msg_53afdbd8013c·msg_6bc9c6ee0c57·ded8cece2·msg_545ceab47299·msg_12156cc001ce·msg_bf5018c5c214·msg_0659fb81e981·msg_0bbb39a1a896·f13c339f4·msg_683a6f310963·msg_31e6f7c353b0·msg_e5ae913fe5a9·msg_8aa6c8258677·04ea0054c·msg_b0ecc3b9e5f2·msg_4abb0464a25e·msg_33c8502d9f0d·msg_909570744d33·6fe27dd09·msg_1502b2775852·msg_872460738b64·msg_e1651a3e0a80·msg_bb967414fafe·e5f51c05d·msg_b9cb4062fc95·msg_93f223261221·msg_783c284fa78c·msg_2856a2d13f6a·182e70222·msg_4a78babb68e0·msg_a2744854458f·msg_dd4afb1206a0"
     },
     {
       "task_id": "MUSIC-20261119-REMIX-PLAYLIST-REVIEW",
