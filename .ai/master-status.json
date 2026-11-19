@@ -6323,10 +6323,10 @@
       "reviewer": "CX-QA-01",
       "title": "AI Influencer D2 정리·쿼터 격리 통합 시험",
       "status": "running",
-      "delivery": "d2_integration_15_pass_policy_gap_recheck_sent",
+      "delivery": "d2_integration_15_pass_policy_fixture_started",
       "sha": "409a339af",
-      "next": "fec7fe017 격리 15/15. 정책 0행과 명시 무제한 구분 확인 요청, Mac 독립 검토 대기. 운영 shadow·실 cron 보류.",
-      "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e·msg_01908be553ce·msg_3c0ea9d67886·fec7fe017·msg_3bdadb79cff0"
+      "next": "fec7fe017 격리 15/15, Mac 독립 검토 대기. 정책 0행·명시 무제한·기본 정책 누락·유한 정상 대조 착수. 운영 shadow·실 cron 보류.",
+      "evidence": "msg_76bf5d5da0d4·17c2d60f5·msg_2b1eb03a7178·msg_76f88069966e·msg_01908be553ce·msg_3c0ea9d67886·fec7fe017·msg_3bdadb79cff0·msg_ba14d996ab74"
     },
     {
       "task_id": "AIF-20261119-PLAN6",
@@ -6335,9 +6335,9 @@
       "reviewer": "CX-MASTER-01",
       "title": "AI Influencer 직접 요구 6건 개발 플랜 보완",
       "status": "reviewing",
-      "delivery": "six_requirement_draft_received_transition_revision_requested",
-      "next": "833adcd62 요구 6건 초안 수신. 일반 회원 기존 Vercel 예약 전환 조건·시험계정 판정 보완 요청. D2 격리 시험 우선, 구현 전.",
-      "evidence": "msg_2aef054f4218·msg_cab465419261·msg_e64517943f54·msg_8fc3f54229e4·msg_142bb5f1bb17·833adcd62·msg_37800f3378aa·msg_01908be553ce"
+      "delivery": "six_requirement_v2_scope_accepted_test_role_pending",
+      "next": "4ac03c967 v2 전환 기준 보완. 일반 회원 Vercel 대기 0건이면 전환, 남으면 처리 결정 선행. 시험 계정 권한 식별 방식 확정 전 예약 구현 보류.",
+      "evidence": "msg_2aef054f4218·msg_cab465419261·msg_e64517943f54·msg_8fc3f54229e4·msg_142bb5f1bb17·833adcd62·msg_37800f3378aa·msg_01908be553ce·msg_ba14d996ab74·4ac03c967"
     },
     {
       "task_id": "AIF-20261119-W01-D1",
