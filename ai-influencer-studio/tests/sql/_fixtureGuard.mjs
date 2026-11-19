@@ -7,7 +7,8 @@
 //      컨텍스트 조회는 도커 CLI의 설정 읽기이고, 이 단계까지는 엔진에 어떤 명령도 보내지 않는다. 이 PC의 것이 아니면 거부.
 //   2) 그 뒤의 **모든** 도커 명령은 \`--host <확정한 접속 지점>\`을 붙이고, 자식 환경에서 DOCKER_HOST·DOCKER_CONTEXT를 지운 채로 보낸다.
 //      → 시험이 도는 중에 누가 컨텍스트를 바꾸거나 환경 변수가 달라도 같은 엔진으로만 간다.
-//   3) 고정된 접속 지점으로 컨테이너를 확인한다: 이름·이미지 postgres 17 계열·실행 중·연 포트가 전부 127.0.0.1/::1·호스트 네트워크를 쓰지 않음.
+//   3) 고정된 접속 지점으로 컨테이너를 확인한다: 이름·이미지 postgres 17 계열·실행 중·호스트 네트워크를 쓰지 않음·
+//      포트는 설정에 적힌 것(PortBindings)과 **지금 실제로 열린 것**(NetworkSettings.Ports) 모두 127.0.0.1/::1뿐·모든 포트 자동 게시 꺼짐.
 //      이때 받은 **컨테이너 ID**(64자)를 기억하고, 그 뒤의 명령은 이름이 아니라 그 ID로 보낸다(도중에 같은 이름의 다른 컨테이너로 바뀌어도 가지 않는다).
 //   4) 여기까지 통과한 뒤에만 컨테이너 안에서 명령을 실행한다. psql은 컨테이너 **안의 소켓**(/var/run/postgresql, 포트 5432)에 고정하고,
 //      `env -i`로 컨테이너의 환경 변수(PGHOST·PGHOSTADDR·PGPORT·PGSERVICE·PGDATABASE 등)를 비운 채 실행한다. 첫 명령에서 서버 버전 17·유닉스 소켓 접속·포트 5432를 확인한다.
@@ -49,7 +50,18 @@ export function resolveContextEndpoint(contextHost) {
   return { ok: true, endpoint: h, reasons: [] };
 }
 
-/** 3단계 — 컨테이너 정보 판정. inspect = { id, name, image, running, portBindings, networkMode } */
+/** 3단계 — 컨테이너 정보 판정. inspect = { id, name, image, running, portBindings, networkMode, publishAllPorts, publishedPorts }
+ *  portBindings = 설정에 적힌 포트 묶음, publishedPorts = 지금 실제로 열려 있는 포트(NetworkSettings.Ports). 둘 다 이 PC 안 주소여야 한다. */
+const portsLocal = (pb) => {
+  if (pb === null || pb === undefined) return "ok";
+  if (typeof pb !== "object" || Array.isArray(pb)) return "shape";
+  for (const list of Object.values(pb)) {
+    if (list === null) continue;
+    if (!Array.isArray(list)) return "shape";
+    if (list.some((b) => !b || !LOCAL_IPS.has(b.HostIp))) return "open";
+  }
+  return "ok";
+};
 export function evaluateContainer(inspect, expected = EXPECTED) {
   const reasons = [];
   const i = inspect && typeof inspect === "object" ? inspect : null;
@@ -59,12 +71,16 @@ export function evaluateContainer(inspect, expected = EXPECTED) {
   if (i.running !== true) reasons.push("컨테이너가 실행 중이 아님");
   if (typeof i.id !== "string" || !CONTAINER_ID.test(i.id)) reasons.push("컨테이너 ID를 읽지 못함");
   if (typeof i.networkMode !== "string" || i.networkMode === "" || i.networkMode === "host" || i.networkMode.startsWith("container:")) reasons.push("컨테이너 네트워크 방식이 예상과 다름");
-  const pb = i.portBindings;
-  if (pb !== null && pb !== undefined && (typeof pb !== "object" || Array.isArray(pb))) reasons.push("포트 정보 모양이 예상과 다름");
-  else for (const list of Object.values(pb ?? {})) {
-    if (list === null) continue;
-    if (!Array.isArray(list)) { reasons.push("포트 정보 모양이 예상과 다름"); break; }
-    if (list.some((b) => !b || !LOCAL_IPS.has(b.HostIp))) { reasons.push("컨테이너 포트가 이 PC 밖으로 열려 있음"); break; }
+  const conf = portsLocal(i.portBindings);
+  if (conf === "shape") reasons.push("포트 정보 모양이 예상과 다름");
+  if (conf === "open") reasons.push("컨테이너 포트가 이 PC 밖으로 열려 있음");
+  // 설정에는 없지만 실제로 열린 포트(자동 게시 등)도 본다
+  if (i.publishAllPorts !== false) reasons.push("모든 포트 자동 게시가 켜져 있음(또는 읽지 못함)");
+  if (!("publishedPorts" in i)) reasons.push("실제로 열린 포트 정보를 읽지 못함");
+  else {
+    const live = portsLocal(i.publishedPorts);
+    if (live === "shape") reasons.push("실제로 열린 포트 정보 모양이 예상과 다름");
+    if (live === "open") reasons.push("실제로 열린 포트가 이 PC 밖으로 열려 있음");
   }
   return { ok: reasons.length === 0, reasons };
 }
@@ -108,7 +124,9 @@ export function pinnedEnv(env) {
 }
 export const pinnedArgs = (endpoint, args) => ["--host", endpoint, ...args];
 
-const STOP = (reasons) => new Error(`[격리 시험 중단] 실행 대상이 기대한 로컬 시험용 PostgreSQL이 아닙니다 — DB에 아무 명령도 보내지 않았습니다: ${reasons.join(" / ")}`);
+// tail: 어디까지 보냈는지를 정확히 적는다. 4단계(서버 확인 조회)에서 멈춘 경우에는 그 읽기 전용 조회 한 번은 이미 보낸 뒤다.
+const STOP = (reasons, tail = "DB에 아무 명령도 보내지 않았습니다") => new Error(`[격리 시험 중단] 실행 대상이 기대한 로컬 시험용 PostgreSQL이 아닙니다 — ${tail}: ${reasons.join(" / ")}`);
+const isMissingCli = (r) => !!(r && r.error && r.error.code === "ENOENT");
 
 /** 시험 파일이 쓰는 입구.
  *  { available:false, reason } = 도커 미설치·컨테이너 없음·멈춤으로 건너뜀 / { available:true, endpoint, containerId, docker } = 통과 / 그 밖 = 오류로 멈춤
@@ -121,7 +139,7 @@ export function requireLocalFixtureTarget({ expected = EXPECTED, env = process.e
   let endpoint = pre.endpoint;
   if (pre.needContext) {
     const r = spawnSyncFn("docker", ["context", "inspect", ...(pre.contextName ? [pre.contextName] : []), "--format", "{{.Endpoints.docker.Host}}"], { encoding: "utf8", env });
-    if (r && r.error && r.error.code === "ENOENT") return { available: false, reason: "도커 CLI가 설치되어 있지 않음" };
+    if (isMissingCli(r)) return { available: false, reason: "도커 CLI가 설치되어 있지 않음" };
     if (!r || r.status !== 0) throw STOP(["도커 컨텍스트를 읽지 못함(원인 불명 — 건너뛰지 않는다)"]);
     const ep = resolveContextEndpoint(r.stdout);
     if (!ep.ok) throw STOP(ep.reasons);
@@ -134,7 +152,11 @@ export function requireLocalFixtureTarget({ expected = EXPECTED, env = process.e
     spawn: (args, opts = {}) => spawnFn("docker", pinnedArgs(endpoint, args), { ...opts, env: childEnv }),
   };
   // 3) 컨테이너 확인(고정된 접속 지점으로)
-  const ins = docker.runSync(["inspect", "--type", "container", "-f", "{{json .Id}}|{{json .Name}}|{{json .Config.Image}}|{{json .State.Running}}|{{json .HostConfig.NetworkMode}}|{{json .HostConfig.PortBindings}}", expected.container]);
+  // 한 줄에 값 하나씩(JSON) 받는다 — 값 안에 구분 글자가 있어도 섞이지 않는다
+  const FIELDS = [".Id", ".Name", ".Config.Image", ".State.Running", ".HostConfig.NetworkMode", ".HostConfig.PublishAllPorts", ".HostConfig.PortBindings", ".NetworkSettings.Ports"];
+  const ins = docker.runSync(["inspect", "--type", "container", "-f", FIELDS.map((f) => `{{json ${f}}}`).join("{{println}}"), expected.container]);
+  // 도커 CLI가 없으면(접속 지점을 환경 변수로 준 경우에는 여기서 처음 드러난다) 컨텍스트 경로와 똑같이 건너뛴다
+  if (isMissingCli(ins)) return { available: false, reason: "도커 CLI가 설치되어 있지 않음" };
   if (!ins || ins.status !== 0) {
     // 「그 컨테이너가 없다」고 엔진이 답한 경우만 건너뛴다. 엔진에 닿지 못함·권한 오류 등은 멈춘다
     if (ins && !ins.error && /no such (object|container)/i.test(String(ins.stderr ?? ""))) return { available: false, reason: `컨테이너 ${expected.container}가 없음` };
@@ -142,8 +164,10 @@ export function requireLocalFixtureTarget({ expected = EXPECTED, env = process.e
   }
   let inspect = null;
   try {
-    const [id, name, image, running, networkMode, ...rest] = String(ins.stdout ?? "").trim().split("|");
-    inspect = { id: JSON.parse(id), name: JSON.parse(name), image: JSON.parse(image), running: JSON.parse(running), networkMode: JSON.parse(networkMode), portBindings: JSON.parse(rest.join("|")) };
+    const lines = String(ins.stdout ?? "").trim().split("\n").map((l) => JSON.parse(l));
+    if (lines.length !== FIELDS.length) throw new Error("shape");
+    const [id, name, image, running, networkMode, publishAllPorts, portBindings, publishedPorts] = lines;
+    inspect = { id, name, image, running, networkMode, publishAllPorts, portBindings, publishedPorts };
   } catch { inspect = null; }
   if (inspect && inspect.running === false && evaluateContainer({ ...inspect, running: true }, expected).ok) return { available: false, reason: `컨테이너 ${expected.container}가 떠 있지 않음` };
   const c = evaluateContainer(inspect, expected);
@@ -153,6 +177,6 @@ export function requireLocalFixtureTarget({ expected = EXPECTED, env = process.e
   docker.psqlArgs = (db, extra) => psqlExecArgs(containerId, db, extra);
   const ver = docker.runSync(docker.psqlArgs("postgres", ["-c", "select current_setting('server_version') || '|' || coalesce(inet_server_addr()::text, 'unix') || '|' || current_setting('port')"]));
   const v = evaluateServerVersion(ver && ver.status === 0 ? String(ver.stdout ?? "") : null, expected);
-  if (!v.ok) throw STOP(v.reasons);
+  if (!v.ok) throw STOP(v.reasons, "서버 확인용 읽기 조회 한 번만 보냈고 시험 SQL은 실행하지 않았습니다(DB를 만들거나 바꾸지 않음)");
   return { available: true, reason: "", endpoint, containerId, docker };
 }

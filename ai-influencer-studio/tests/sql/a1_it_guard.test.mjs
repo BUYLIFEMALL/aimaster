@@ -13,19 +13,20 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 // 2026-11-19 이 PC에서 실제로 읽은 모양(접속 지점 종류·이미지 이름·포트 묶음)
 const EP = "npipe:////./pipe/dockerDesktopLinuxEngine";
 const ID = "5b".repeat(32);
-const GOOD_INSPECT = Object.freeze({ id: ID, networkMode: "bridge", name: "/aww-pg-test", image: "postgres:17-alpine", running: true, portBindings: { "5432/tcp": [{ HostIp: "127.0.0.1", HostPort: "55432" }] } });
+const LIVE = Object.freeze({ "5432/tcp": [{ HostIp: "127.0.0.1", HostPort: "55432" }] });
+const GOOD_INSPECT = Object.freeze({ id: ID, networkMode: "bridge", publishAllPorts: false, publishedPorts: LIVE, name: "/aww-pg-test", image: "postgres:17-alpine", running: true, portBindings: { "5432/tcp": [{ HostIp: "127.0.0.1", HostPort: "55432" }] } });
 const GOOD = Object.freeze({ env: {}, contextHost: EP, inspect: GOOD_INSPECT, serverVersion: "17.11|unix|5432" });
 const ins = (patch) => ({ ...GOOD_INSPECT, ...patch });
-const inspectLine = (i) => `${JSON.stringify(i.id)}|${JSON.stringify(i.name)}|${JSON.stringify(i.image)}|${JSON.stringify(i.running)}|${JSON.stringify(i.networkMode)}|${JSON.stringify(i.portBindings)}\n`;
+const inspectLine = (i) => [i.id, i.name, i.image, i.running, i.networkMode, i.publishAllPorts, i.portBindings ?? null, i.publishedPorts ?? null].map((v) => JSON.stringify(v ?? null)).join("\n") + "\n";
 
 /** 가짜 실행 함수: 부른 명령을 전부 적고, 종류별로 정해 둔 답을 준다 */
-function fakeDocker({ contextHost = EP, contextStatus = 0, contextError = null, inspect = GOOD_INSPECT, inspectStatus = 0, inspectStderr = "", version = "17.11|unix|5432", versionStatus = 0 } = {}) {
+function fakeDocker({ contextHost = EP, contextStatus = 0, contextError = null, inspectError = null, inspect = GOOD_INSPECT, inspectStatus = 0, inspectStderr = "", version = "17.11|unix|5432", versionStatus = 0 } = {}) {
   const calls = [];
   const spawnSyncFn = (cmd, args, opts) => {
     calls.push({ cmd, args: args.slice(), env: opts?.env ?? null });
     const rest = args[0] === "--host" ? args.slice(2) : args;
     if (rest[0] === "context") return contextError ? { status: null, error: contextError, stdout: "", stderr: "" } : { status: contextStatus, stdout: contextHost + "\n", stderr: "" };
-    if (rest[0] === "inspect") return { status: inspectStatus, stdout: inspect ? inspectLine(inspect) : "", stderr: inspectStderr };
+    if (rest[0] === "inspect") return inspectError ? { status: null, error: inspectError, stdout: "", stderr: "" } : { status: inspectStatus, stdout: inspect ? inspectLine(inspect) : "", stderr: inspectStderr };
     if (rest[0] === "exec") return { status: versionStatus, stdout: version + "\n", stderr: "" };
     return { status: 1, stdout: "", stderr: "unexpected" };
   };
@@ -40,6 +41,9 @@ test("받는 것: 이 PC의 접속 지점 + postgres 17 + 포트가 PC 안에만
   assert.equal(evaluateFixtureTarget({ ...GOOD, env: { DOCKER_HOST: "unix:///Users/x/.docker/run/docker.sock" }, contextHost: "" }).endpoint, "unix:///Users/x/.docker/run/docker.sock", "DOCKER_HOST가 있으면 컨텍스트를 보지 않고 그것으로 확정");
   for (const image of ["postgres:17", "postgres:17.11-alpine"]) assert.equal(evaluateContainer(ins({ image })).ok, true, image);
   for (const portBindings of [{}, null, undefined, { "5432/tcp": [{ HostIp: "::1", HostPort: "5432" }] }, { "5432/tcp": null }]) assert.equal(evaluateContainer(ins({ portBindings })).ok, true);
+  for (const publishedPorts of [{}, null, { "5432/tcp": null }, { "5432/tcp": [{ HostIp: "::1", HostPort: "5432" }] }]) assert.equal(evaluateContainer(ins({ publishedPorts })).ok, true, "실제로 열린 포트가 없거나 PC 안에만");
+  const noLive = { ...GOOD_INSPECT }; delete noLive.publishedPorts;
+  assert.equal(evaluateContainer(noLive).ok, false, "실제 포트 정보를 아예 받지 못하면 통과시키지 않는다");
 });
 
 test("거부(0단계 — 환경 변수만): 원격 DOCKER_HOST, 두 변수 충돌, 이상한 컨텍스트 이름", () => {
@@ -72,7 +76,11 @@ test("거부(3·4단계): 정체가 다른 컨테이너·서버", () => {
     ["여러 묶음 중 하나가 밖으로", ins({ portBindings: { "5432/tcp": [{ HostIp: "127.0.0.1", HostPort: "1" }, { HostIp: "192.168.0.7", HostPort: "2" }] } })],
     ["포트 정보가 배열", ins({ portBindings: [] })], ["컨테이너 정보 없음", null],
     ["ID 없음", ins({ id: null })], ["짧은 ID", ins({ id: "5b3272f2e063" })], ["ID 자리에 이름", ins({ id: "aww-pg-test" })],
-    ["호스트 네트워크", ins({ networkMode: "host" })], ["다른 컨테이너의 네트워크", ins({ networkMode: "container:abc" })], ["네트워크 방식 없음", ins({ networkMode: "" })],
+    ["호스트 네트워크", ins({ networkMode: "host" })],
+    ["모든 포트 자동 게시 켜짐", ins({ publishAllPorts: true })], ["자동 게시 여부를 읽지 못함", ins({ publishAllPorts: null })],
+    ["설정은 비었는데 실제로는 모든 주소로 열림", ins({ portBindings: {}, publishedPorts: { "5432/tcp": [{ HostIp: "0.0.0.0", HostPort: "32768" }] } })],
+    ["설정은 로컬인데 실제로는 IPv6 전체로도 열림", ins({ publishedPorts: { "5432/tcp": [{ HostIp: "127.0.0.1", HostPort: "55432" }, { HostIp: "::", HostPort: "55432" }] } })],
+    ["실제 포트 정보가 배열", ins({ publishedPorts: [] })], ["다른 컨테이너의 네트워크", ins({ networkMode: "container:abc" })], ["네트워크 방식 없음", ins({ networkMode: "" })],
   ];
   for (const [name, i] of bad) assert.equal(evaluateContainer(i).ok, false, name);
   for (const v of ["16.4|unix|5432", "170.1|unix|5432", "17.11|172.17.0.2|5432", "17.11|unix|6543", "17.11", "17.11|unix", "", null, undefined, 17]) assert.equal(evaluateServerVersion(v).ok, false, String(v));
@@ -120,6 +128,17 @@ test("순서: 컨테이너가 기대와 다르면 컨테이너 **안에서는** 
   assert.throws(() => requireLocalFixtureTarget({ env: {}, spawnSyncFn: v.spawnSyncFn, spawnFn: v.spawnFn }), /서버 버전/);
   const tcp = fakeDocker({ version: "17.11|10.0.0.9|5432" });
   assert.throws(() => requireLocalFixtureTarget({ env: {}, spawnSyncFn: tcp.spawnSyncFn, spawnFn: tcp.spawnFn }), /소켓이 아닌 길/);
+  // 문구: 서버 확인 조회를 이미 보낸 뒤의 중단은 「아무 명령도 보내지 않았다」고 쓰지 않는다
+  let late = null, early = null;
+  try { const x = fakeDocker({ version: "16.4|unix|5432" }); requireLocalFixtureTarget({ env: {}, spawnSyncFn: x.spawnSyncFn, spawnFn: x.spawnFn }); } catch (e) { late = e.message; }
+  try { const x = fakeDocker({ inspect: ins({ image: "mysql:8" }) }); requireLocalFixtureTarget({ env: {}, spawnSyncFn: x.spawnSyncFn, spawnFn: x.spawnFn }); } catch (e) { early = e.message; }
+  assert.match(late, /시험 SQL은 실행하지 않았습니다/);
+  assert.equal(/아무 명령도 보내지 않았습니다/.test(late), false);
+  assert.match(early, /DB에 아무 명령도 보내지 않았습니다/);
+  // 실제로 열린 포트가 밖으로 나가 있으면 컨테이너 안 명령 0
+  const pub = fakeDocker({ inspect: ins({ portBindings: {}, publishedPorts: { "5432/tcp": [{ HostIp: "0.0.0.0", HostPort: "32768" }] } }) });
+  assert.throws(() => requireLocalFixtureTarget({ env: {}, spawnSyncFn: pub.spawnSyncFn, spawnFn: pub.spawnFn }), /실제로 열린 포트/);
+  assert.deepEqual(kinds(pub.calls), ["미고정:context", "고정:inspect"]);
 });
 
 test("고정: 통과 뒤의 모든 명령은 확정한 접속 지점으로만 가고, 자식 환경에 접속 대상을 바꾸는 변수가 없다", () => {
@@ -157,6 +176,16 @@ test("건너뜀은 세 가지뿐: 도커 미설치·그 컨테이너 없음·기
   assert.equal(requireLocalFixtureTarget({ env: {}, spawnSyncFn: a.spawnSyncFn, spawnFn: a.spawnFn }).available, false);
   const b = fakeDocker({ inspectStatus: 1, inspectStderr: "error: no such object: aww-pg-test" });
   assert.equal(requireLocalFixtureTarget({ env: {}, spawnSyncFn: b.spawnSyncFn, spawnFn: b.spawnFn }).available, false);
+  // 접속 지점을 DOCKER_HOST(로컬)로 준 경우: 도커 CLI가 없다는 것은 첫 컨테이너 조회에서 드러난다 — 컨텍스트 경우와 똑같이 건너뛴다
+  const enoent = Object.assign(new Error("spawn docker ENOENT"), { code: "ENOENT" });
+  const h = fakeDocker({ inspectError: enoent });
+  assert.deepEqual(requireLocalFixtureTarget({ env: { DOCKER_HOST: EP }, spawnSyncFn: h.spawnSyncFn, spawnFn: h.spawnFn }), { available: false, reason: "도커 CLI가 설치되어 있지 않음" });
+  assert.deepEqual(kinds(h.calls), ["고정:inspect"], "컨텍스트 조회 없이 바로 고정 호출");
+  // 같은 입구에서도 접근 실패는 건너뜀이 아니다
+  const h2 = fakeDocker({ inspectStatus: 1, inspectStderr: "failed to connect to the docker API" });
+  assert.throws(() => requireLocalFixtureTarget({ env: { DOCKER_HOST: EP }, spawnSyncFn: h2.spawnSyncFn, spawnFn: h2.spawnFn }), /접근 실패/);
+  const eacces = fakeDocker({ inspectError: Object.assign(new Error("spawn docker EACCES"), { code: "EACCES" }) });
+  assert.throws(() => requireLocalFixtureTarget({ env: { DOCKER_HOST: EP }, spawnSyncFn: eacces.spawnSyncFn, spawnFn: eacces.spawnFn }), /접근 실패/, "실행 권한 오류는 미설치가 아니다");
   // 접근 실패는 건너뜀이 아니다
   const a2 = fakeDocker({ contextStatus: 1 });
   assert.throws(() => requireLocalFixtureTarget({ env: {}, spawnSyncFn: a2.spawnSyncFn, spawnFn: a2.spawnFn }), /컨텍스트를 읽지 못함/);
