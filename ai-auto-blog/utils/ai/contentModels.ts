@@ -30,30 +30,38 @@ export type ContentModelOption = {
 }
 
 export const CONTENT_MODEL_OPTIONS: ContentModelOption[] = [
+  // 2026-11-19 주인님 지시 「최신 모델순으로 선택」「플랫폼별로 모델이 업그레이드 되었으니 먼저 조사하고 작업」:
+  // 플랫폼마다 최신 모델이 위에 오도록 정렬했다. 근거: 공식 모델 문서(OpenAI 모델 발표·Anthropic Models overview·
+  // Google AI Studio models, 2026-11-19 확인)와 docs/AI_MODEL_CATALOG.md. 종료 예정·자동 연결 모델(gpt-4.1·gpt-4o·
+  // gpt-4o-mini·claude-haiku-4-5·gemini-3.5-flash·gemini-3.7-flash)은 뺐고, 저장돼 있던 값은 아래 RETIRED_CONTENT_MODEL이
+  // 대체 모델로 바꿔 읽는다. GPT-6.2는 아직 ChatGPT·Codex 미리보기라(API 미확인) 넣지 않았다.
+
   // OpenAI — GPT-6 계열은 Chat Completions에서 거절되면 Responses API로 다시 보낸다(utils/ai/contentJson.ts).
-  { provider: 'openai', value: 'gpt-4.1', name: 'GPT-4.1', purpose: '긴 지시사항을 따르는 블로그 원문 (기본)', category: 'text', lifecycle: 'stable', endpoint: 'chat-completions' },
-  { provider: 'openai', value: 'gpt-4o-mini', name: 'GPT-4o mini', purpose: '짧은 글·가벼운 작업', category: 'text', lifecycle: 'stable', endpoint: 'chat-completions' },
-  { provider: 'openai', value: 'gpt-4o', name: 'GPT-4o', purpose: '일반 블로그 글', category: 'text', lifecycle: 'stable', endpoint: 'chat-completions' },
-  { provider: 'openai', value: 'gpt-5.6-luna', name: 'GPT-5.6 Luna', purpose: '추론형 · 가벼운 작업', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
-  { provider: 'openai', value: 'gpt-5.6-terra', name: 'GPT-5.6 Terra', purpose: '추론형 · 일반 장문', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
-  { provider: 'openai', value: 'gpt-5.6-sol', name: 'GPT-5.6 Sol', purpose: '추론형 · 복잡한 주제', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
-  { provider: 'openai', value: 'gpt-6-luna', name: 'GPT-6 Luna', purpose: '추론형 · 가벼운 작업', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
-  { provider: 'openai', value: 'gpt-6.1-sol', name: 'GPT-6.1 Sol', purpose: '추론형 · 복잡한 주제', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
-  { provider: 'openai', value: 'gpt-6-astra', name: 'GPT-6 Astra', purpose: '추론형 · 최상위 품질이 필요한 글', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
+  { provider: 'openai', value: 'gpt-6.1-terra', name: 'GPT-6.1 Terra', purpose: '최신 · 블로그 원문 균형형 (기본)', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
+  { provider: 'openai', value: 'gpt-6.1-sol', name: 'GPT-6.1 Sol', purpose: '최신 · 한 단계 높은 품질', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
+  { provider: 'openai', value: 'gpt-6-astra', name: 'GPT-6 Astra', purpose: '최상위 품질이 필요한 글 (느림)', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
+  { provider: 'openai', value: 'gpt-6-luna', name: 'GPT-6 Luna', purpose: '짧은 글·가벼운 작업', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
+  { provider: 'openai', value: 'gpt-5.6-sol', name: 'GPT-5.6 Sol', purpose: '이전 세대 · 복잡한 주제', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
+  { provider: 'openai', value: 'gpt-5.6-terra', name: 'GPT-5.6 Terra', purpose: '이전 세대 · 일반 장문', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
+  { provider: 'openai', value: 'gpt-5.6-luna', name: 'GPT-5.6 Luna', purpose: '이전 세대 · 가벼운 작업', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
 
-  // Anthropic Claude — Haiku 4.5는 모델 목록에 날짜가 붙은 정확한 ID로만 나와서 그 ID를 쓴다.
-  { provider: 'anthropic', value: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5', purpose: '짧은 글·가벼운 작업 (기본)', category: 'text', lifecycle: 'stable', endpoint: 'messages' },
-  { provider: 'anthropic', value: 'claude-sonnet-5', name: 'Claude Sonnet 5', purpose: '자연스러운 장문', category: 'text', lifecycle: 'stable', endpoint: 'messages' },
-  { provider: 'anthropic', value: 'claude-opus-5', name: 'Claude Opus 5', purpose: '복잡한 맥락의 장문', category: 'reasoning', lifecycle: 'stable', endpoint: 'messages' },
-  { provider: 'anthropic', value: 'claude-fable-5', name: 'Claude Fable 5', purpose: '최상위 품질이 필요한 장문', category: 'reasoning', lifecycle: 'stable', endpoint: 'messages' },
+  // Anthropic Claude
+  { provider: 'anthropic', value: 'claude-fable-5-2', name: 'Claude Fable 5.2', purpose: '최신 · 최상위 품질 장문 (느림·비쌈)', category: 'reasoning', lifecycle: 'stable', endpoint: 'messages' },
+  { provider: 'anthropic', value: 'claude-opus-5-5', name: 'Claude Opus 5.5', purpose: '최신 · 복잡한 맥락의 장문', category: 'reasoning', lifecycle: 'stable', endpoint: 'messages' },
+  { provider: 'anthropic', value: 'claude-sonnet-5-5', name: 'Claude Sonnet 5.5', purpose: '최신 · 자연스러운 장문 (기본)', category: 'text', lifecycle: 'stable', endpoint: 'messages' },
+  { provider: 'anthropic', value: 'claude-haiku-5-5', name: 'Claude Haiku 5.5', purpose: '최신 · 짧은 글·가벼운 작업', category: 'text', lifecycle: 'stable', endpoint: 'messages' },
+  { provider: 'anthropic', value: 'claude-opus-5', name: 'Claude Opus 5', purpose: '이전 세대 · 복잡한 맥락', category: 'reasoning', lifecycle: 'stable', endpoint: 'messages' },
+  { provider: 'anthropic', value: 'claude-sonnet-5', name: 'Claude Sonnet 5', purpose: '이전 세대 · 자연스러운 장문', category: 'text', lifecycle: 'stable', endpoint: 'messages' },
 
-  // Google Gemini
-  { provider: 'gemini', value: 'gemini-3.5-flash', name: 'Gemini 3.5 Flash', purpose: '일반 블로그 글 (기본)', category: 'text', lifecycle: 'stable', endpoint: 'generate-content' },
+  // Google Gemini — Gemini 4 계열은 유료 등급 기준으로 안내됨(무료 등급 여부는 회원 계정에서 확인).
+  { provider: 'gemini', value: 'gemini-4-carbon', name: 'Gemini 4 Carbon', purpose: '최신 · 가장 어려운 장문·분석', category: 'reasoning', lifecycle: 'stable', endpoint: 'generate-content' },
+  { provider: 'gemini', value: 'gemini-4-neon', name: 'Gemini 4 Neon', purpose: '최신 · 깊이와 효율 균형', category: 'reasoning', lifecycle: 'stable', endpoint: 'generate-content' },
+  { provider: 'gemini', value: 'gemini-4-argon', name: 'Gemini 4 Argon', purpose: '최신 · 빠른 추론형 분석', category: 'reasoning', lifecycle: 'stable', endpoint: 'generate-content' },
+  { provider: 'gemini', value: 'gemini-4-hydrogen', name: 'Gemini 4 Hydrogen', purpose: '최신 · 빠른 일상 작업', category: 'text', lifecycle: 'stable', endpoint: 'generate-content' },
+  { provider: 'gemini', value: 'gemini-3.8-flash', name: 'Gemini 3.8 Flash', purpose: '일반 블로그 글 · 무료 등급 가능 (기본)', category: 'text', lifecycle: 'stable', endpoint: 'generate-content' },
+  { provider: 'gemini', value: 'gemini-3.6-flash', name: 'Gemini 3.6 Flash', purpose: '이전 세대 · 일반 블로그 글', category: 'text', lifecycle: 'stable', endpoint: 'generate-content' },
   { provider: 'gemini', value: 'gemini-3.5-flash-lite', name: 'Gemini 3.5 Flash-Lite', purpose: '짧은 글·가벼운 작업', category: 'text', lifecycle: 'stable', endpoint: 'generate-content' },
-  { provider: 'gemini', value: 'gemini-3.6-flash', name: 'Gemini 3.6 Flash', purpose: '일반 블로그 글', category: 'text', lifecycle: 'stable', endpoint: 'generate-content' },
-  { provider: 'gemini', value: 'gemini-3.7-flash', name: 'Gemini 3.7 Flash', purpose: '일반 블로그 글', category: 'text', lifecycle: 'stable', endpoint: 'generate-content' },
-  { provider: 'gemini', value: 'gemini-3.8-flash', name: 'Gemini 3.8 Flash', purpose: '일반 블로그 글 · 최신 Flash', category: 'text', lifecycle: 'stable', endpoint: 'generate-content' },
-  { provider: 'gemini', value: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro Preview', purpose: '분석형 장문 · 미리보기 모델', category: 'reasoning', lifecycle: 'preview', endpoint: 'generate-content' },
+  { provider: 'gemini', value: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro 미리보기', purpose: '분석형 장문 · 미리보기 모델', category: 'reasoning', lifecycle: 'preview', endpoint: 'generate-content' },
 ]
 
 /** 선택 목록에 보이는 문구: "모델 이름 · 용도" */
@@ -61,15 +69,15 @@ export function contentModelLabel(model: ContentModelOption) {
   return `${model.name} · ${model.purpose}`
 }
 
-/** 처음 화면을 열면 OpenAI GPT-4.1이 선택된다(2026-10-01 주인님 지시). 회원이 고른 값은 브라우저에 기억돼 다음에도 그대로 쓴다. */
+/** 처음 화면은 OpenAI 기본 모델(GPT-6.1 Terra, 2026-11-19 — 이전 GPT-4.1은 2027-01-14 종료 예정이라 대체)로 시작한다. 회원이 고른 값은 브라우저에 기억돼 다음에도 그대로 쓴다. */
 // 독립 운영(수강생 설치 키트)은 Gemini 키 하나로 글과 이미지를 모두 만들 수 있게 Gemini를 기본으로 한다(2026-10-30).
 export const DEFAULT_CONTENT_PROVIDER: ContentProvider = IS_STANDALONE ? 'gemini' : 'openai'
 
 /** 플랫폼을 바꾸면 그 플랫폼의 이 모델로 즉시 바뀐다(Preview 모델은 기본값으로 쓰지 않는다). */
 const DEFAULT_MODEL_BY_PROVIDER: Record<ContentProvider, string> = {
-  openai: 'gpt-4.1',
-  anthropic: 'claude-haiku-4-5-20251001',
-  gemini: 'gemini-3.5-flash',
+  openai: 'gpt-6.1-terra',
+  anthropic: 'claude-sonnet-5-5',
+  gemini: 'gemini-3.8-flash',
 }
 
 export function isContentProvider(value: unknown): value is ContentProvider {
@@ -180,6 +188,15 @@ export function readInitialModelSelection() {
 // 종료·자동 연결되는 모델(2026-11-03, docs/PLAN_20261103_MODEL_MIGRATION_DEC.md): 브라우저·예약 작업에 저장된 옛 이름을 공식 대체 모델로 바꿔 호출한다.
 // gpt-5는 2026-12-11 종료, gemini-2.5는 2026-12-01부터 새 모델로 자동 연결.
 const RETIRED_CONTENT_MODEL: Record<string, string> = {
+  // 2026-11-19 목록에서 뺀 모델 → 대체(docs/AI_MODEL_CATALOG.md 4절·Google 자동 연결 안내)
+  'gpt-4.1': 'gpt-6.1-terra',
+  'gpt-4o': 'gpt-6.1-terra',
+  'gpt-4o-mini': 'gpt-6-luna',
+  'claude-haiku-4-5-20251001': 'claude-haiku-5-5',
+  'claude-haiku-4-5': 'claude-haiku-5-5',
+  'claude-fable-5': 'claude-fable-5-2',
+  'gemini-3.5-flash': 'gemini-3.6-flash',
+  'gemini-3.7-flash': 'gemini-3.8-flash',
   'gpt-5': 'gpt-5.6-sol',
   'gemini-2.5-flash': 'gemini-3.8-flash',
   'gemini-2.5-pro': 'gemini-3.8-flash',
