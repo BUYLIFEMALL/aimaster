@@ -10064,10 +10064,11 @@
       "reviewer": "CX-QA-01",
       "title": "쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내",
       "status": "running",
-      "delivery": "backend_read_only_accounting_design_dispatched",
-      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md·msg_f995f8db2740",
-      "next": "백엔드에 저장 경로·몰 소유자 귀속·중복 방지·용량 위젯 연결 설계 근거 요청. 등록 상품 1년 보관과 30일 삭제 취소 유지. 구현·운영 별도.",
-      "lastReviewedAt": "2026-11-19T05:31:50.360Z"
+      "delivery": "design_reviewed_local_private_retention_candidate_dispatched",
+      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md·msg_f995f8db2740·msg_b03bc930a0b2·0073 및 삭제 호출 소스 대조·msg_42a884229750",
+      "next": "중앙 집계 설계 34a5df474 검토. 비공개 몰 서류 삭제 후보 제외 로컬 준비 배정. 실제 운영 영향 미확인, 운영 SQL과 집계 정책 4건 결정 별도.",
+      "lastReviewedAt": "2026-11-19T05:35:45.381Z",
+      "sha": "34a5df474"
     },
     {
       "task_id": "BLOG-20261119-MODELS",
