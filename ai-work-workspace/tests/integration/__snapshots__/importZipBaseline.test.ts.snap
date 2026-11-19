@@ -1,0 +1,843 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`readZip — 지금 동작 고정 > 이름 정규화: 역슬래시·빈 조각·점·점점·폴더·맥 찌꺼기 1`] = `
+[
+  "a/b/c.md",
+  "x/y.md",
+  "z.md",
+  "p/q.md",
+  "r.md",
+  "sub/__MACOSX/keep.md",
+  ".hidden",
+  "한글/파일.md",
+]
+`;
+
+exports[`작은 ZIP 가져오기 — 지금 동작 고정 > Export-….zip이 한 번 겹친 ZIP 1`] = `
+{
+  "databases": 0,
+  "images": [
+    "/files/*/cover.png",
+    "/files/*/deep.png",
+  ],
+  "pages": 3,
+  "roots": [
+    {
+      "children": [
+        {
+          "properties": {
+            "title": [
+              [
+                "본문 ",
+              ],
+              [
+                "굵게",
+                [
+                  [
+                    "b",
+                  ],
+                ],
+              ],
+              [
+                " ",
+              ],
+              [
+                "바깥 링크",
+                [
+                  [
+                    "a",
+                    "https://example.com/x",
+                  ],
+                ],
+              ],
+            ],
+          },
+          "type": "text",
+        },
+        {
+          "format": {
+            "display_source": "/files/*/cover.png",
+          },
+          "properties": {
+            "source": [
+              [
+                "/files/*/cover.png",
+              ],
+            ],
+          },
+          "type": "image",
+        },
+        {
+          "properties": {
+            "title": [
+              [
+                "하위 문서",
+                [
+                  [
+                    "a",
+                    "Project%200123456789abcdef0123456789abcdef/Sub%20fedcba9876543210fedcba9876543210.html",
+                  ],
+                ],
+              ],
+            ],
+          },
+          "type": "text",
+        },
+        {
+          "properties": {
+            "title": [
+              [
+                "목록 하나",
+              ],
+            ],
+          },
+          "type": "bulleted_list",
+        },
+        {
+          "properties": {
+            "title": [
+              [
+                "목록 둘",
+              ],
+            ],
+          },
+          "type": "bulleted_list",
+        },
+        {
+          "children": [
+            {
+              "properties": {
+                "title": [
+                  [
+                    "링크되지 않은 하위 문서",
+                  ],
+                ],
+              },
+              "type": "text",
+            },
+          ],
+          "properties": {
+            "title": [
+              [
+                "Loose",
+              ],
+            ],
+          },
+          "type": "page",
+        },
+        {
+          "children": [
+            {
+              "properties": {
+                "title": [
+                  [
+                    "소제목",
+                  ],
+                ],
+              },
+              "type": "sub_header",
+            },
+            {
+              "properties": {
+                "title": [
+                  [
+                    "하위 본문",
+                  ],
+                ],
+              },
+              "type": "text",
+            },
+            {
+              "format": {
+                "display_source": "/files/*/deep.png",
+              },
+              "properties": {
+                "source": [
+                  [
+                    "/files/*/deep.png",
+                  ],
+                ],
+              },
+              "type": "image",
+            },
+          ],
+          "properties": {
+            "title": [
+              [
+                "Sub",
+              ],
+            ],
+          },
+          "type": "page",
+        },
+      ],
+      "properties": {
+        "title": [
+          [
+            "Project",
+          ],
+        ],
+      },
+      "type": "page",
+    },
+  ],
+}
+`;
+
+exports[`작은 ZIP 가져오기 — 지금 동작 고정 > Markdown + CSV 데이터베이스 1`] = `
+{
+  "databases": 1,
+  "images": [],
+  "pages": 1,
+  "roots": [
+    {
+      "children": [
+        {
+          "properties": {
+            "title": [
+              [
+                "첫 문단",
+              ],
+            ],
+          },
+          "type": "text",
+        },
+        {
+          "properties": {
+            "checked": [
+              [
+                "No",
+              ],
+            ],
+            "title": [
+              [
+                "할 일",
+              ],
+            ],
+          },
+          "type": "to_do",
+        },
+        {
+          "properties": {
+            "checked": [
+              [
+                "Yes",
+              ],
+            ],
+            "title": [
+              [
+                "한 일",
+              ],
+            ],
+          },
+          "type": "to_do",
+        },
+        {
+          "properties": {
+            "language": [
+              [
+                "JavaScript",
+              ],
+            ],
+            "title": [
+              [
+                "const a = 1;",
+              ],
+            ],
+          },
+          "type": "code",
+        },
+        {
+          "properties": {
+            "title": [
+              [
+                "표",
+                [
+                  [
+                    "a",
+                    "/<page>",
+                  ],
+                ],
+              ],
+            ],
+          },
+          "type": "text",
+        },
+      ],
+      "properties": {
+        "title": [
+          [
+            "Notes",
+          ],
+        ],
+      },
+      "type": "page",
+    },
+    {
+      "collection": {
+        "name": [
+          [
+            "Tasks",
+          ],
+        ],
+        "rows": [
+          {
+            "children": [
+              {
+                "properties": {
+                  "title": [
+                    [
+                      "알파 본문",
+                    ],
+                  ],
+                },
+                "type": "text",
+              },
+            ],
+            "title": "Alpha",
+          },
+          {
+            "children": [],
+            "title": "Beta",
+          },
+        ],
+        "schema": [
+          "Due:date",
+          "Name:title",
+          "Status:select",
+        ],
+      },
+      "type": "collection_view_page",
+    },
+  ],
+}
+`;
+
+exports[`작은 ZIP 가져오기 — 지금 동작 고정 > 같은 이름 중복 1`] = `
+{
+  "databases": 0,
+  "images": [
+    "/files/*/pic.png",
+  ],
+  "pages": 2,
+  "roots": [
+    {
+      "children": [
+        {
+          "properties": {
+            "title": [
+              [
+                "두 번째 내용",
+              ],
+            ],
+          },
+          "type": "text",
+        },
+      ],
+      "properties": {
+        "title": [
+          [
+            "Second",
+          ],
+        ],
+      },
+      "type": "page",
+    },
+    {
+      "children": [
+        {
+          "format": {
+            "display_source": "/files/*/pic.png",
+          },
+          "properties": {
+            "caption": [
+              [
+                "a",
+              ],
+            ],
+            "source": [
+              [
+                "/files/*/pic.png",
+              ],
+            ],
+          },
+          "type": "image",
+        },
+      ],
+      "properties": {
+        "title": [
+          [
+            "Other",
+          ],
+        ],
+      },
+      "type": "page",
+    },
+  ],
+}
+`;
+
+exports[`작은 ZIP 가져오기 — 지금 동작 고정 > 그림은 쓰인 것만 저장되고 그림이 아닌 첨부는 저장되지 않는다 1`] = `
+[
+  "count.zip|application/zip|1928",
+  "cover.png|image/png|12",
+  "deep.png|image/png|12",
+]
+`;
+
+exports[`작은 ZIP 가져오기 — 지금 동작 고정 > 노션 페이지 내보내기(그림·하위 페이지) 1`] = `
+{
+  "databases": 0,
+  "images": [
+    "/files/*/cover.png",
+    "/files/*/deep.png",
+  ],
+  "pages": 3,
+  "roots": [
+    {
+      "children": [
+        {
+          "properties": {
+            "title": [
+              [
+                "본문 ",
+              ],
+              [
+                "굵게",
+                [
+                  [
+                    "b",
+                  ],
+                ],
+              ],
+              [
+                " ",
+              ],
+              [
+                "바깥 링크",
+                [
+                  [
+                    "a",
+                    "https://example.com/x",
+                  ],
+                ],
+              ],
+            ],
+          },
+          "type": "text",
+        },
+        {
+          "format": {
+            "display_source": "/files/*/cover.png",
+          },
+          "properties": {
+            "source": [
+              [
+                "/files/*/cover.png",
+              ],
+            ],
+          },
+          "type": "image",
+        },
+        {
+          "properties": {
+            "title": [
+              [
+                "하위 문서",
+                [
+                  [
+                    "a",
+                    "Project%200123456789abcdef0123456789abcdef/Sub%20fedcba9876543210fedcba9876543210.html",
+                  ],
+                ],
+              ],
+            ],
+          },
+          "type": "text",
+        },
+        {
+          "properties": {
+            "title": [
+              [
+                "목록 하나",
+              ],
+            ],
+          },
+          "type": "bulleted_list",
+        },
+        {
+          "properties": {
+            "title": [
+              [
+                "목록 둘",
+              ],
+            ],
+          },
+          "type": "bulleted_list",
+        },
+        {
+          "children": [
+            {
+              "properties": {
+                "title": [
+                  [
+                    "링크되지 않은 하위 문서",
+                  ],
+                ],
+              },
+              "type": "text",
+            },
+          ],
+          "properties": {
+            "title": [
+              [
+                "Loose",
+              ],
+            ],
+          },
+          "type": "page",
+        },
+        {
+          "children": [
+            {
+              "properties": {
+                "title": [
+                  [
+                    "소제목",
+                  ],
+                ],
+              },
+              "type": "sub_header",
+            },
+            {
+              "properties": {
+                "title": [
+                  [
+                    "하위 본문",
+                  ],
+                ],
+              },
+              "type": "text",
+            },
+            {
+              "format": {
+                "display_source": "/files/*/deep.png",
+              },
+              "properties": {
+                "source": [
+                  [
+                    "/files/*/deep.png",
+                  ],
+                ],
+              },
+              "type": "image",
+            },
+          ],
+          "properties": {
+            "title": [
+              [
+                "Sub",
+              ],
+            ],
+          },
+          "type": "page",
+        },
+      ],
+      "properties": {
+        "title": [
+          [
+            "Project",
+          ],
+        ],
+      },
+      "type": "page",
+    },
+  ],
+}
+`;
+
+exports[`작은 ZIP 가져오기 — 지금 동작 고정 > 숨김 파일·빈 폴더·공통 폴더 1`] = `
+{
+  "databases": 0,
+  "images": [],
+  "pages": 8,
+  "roots": [
+    {
+      "children": [
+        {
+          "properties": {
+            "title": [
+              [
+                "본문 x ",
+              ],
+              [
+                "문서",
+                [
+                  [
+                    "a",
+                    "/<page>",
+                  ],
+                ],
+              ],
+            ],
+          },
+          "type": "text",
+        },
+      ],
+      "properties": {
+        "title": [
+          [
+            "Page",
+          ],
+        ],
+      },
+      "type": "page",
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "properties": {
+                "title": [
+                  [
+                    "안쪽",
+                  ],
+                ],
+              },
+              "type": "text",
+            },
+          ],
+          "properties": {
+            "title": [
+              [
+                "Inner",
+              ],
+            ],
+          },
+          "type": "page",
+        },
+        {
+          "children": [
+            {
+              "properties": {
+                "title": [
+                  [
+                    "첫 줄
+둘째 줄",
+                  ],
+                ],
+              },
+              "type": "text",
+            },
+            {
+              "properties": {
+                "title": [
+                  [
+                    "다음 문단",
+                  ],
+                ],
+              },
+              "type": "text",
+            },
+          ],
+          "properties": {
+            "title": [
+              [
+                "Second",
+              ],
+            ],
+          },
+          "type": "page",
+        },
+      ],
+      "properties": {
+        "title": [
+          [
+            "Folder",
+          ],
+        ],
+      },
+      "type": "page",
+    },
+    {
+      "children": [
+        {
+          "properties": {
+            "title": [
+              [
+                "Slash",
+              ],
+            ],
+          },
+          "type": "page",
+        },
+      ],
+      "properties": {
+        "title": [
+          [
+            "Back",
+          ],
+        ],
+      },
+      "type": "page",
+    },
+    {
+      "children": [
+        {
+          "properties": {
+            "title": [
+              [
+                "Dots",
+              ],
+            ],
+          },
+          "type": "page",
+        },
+      ],
+      "properties": {
+        "title": [
+          [
+            "a",
+          ],
+        ],
+      },
+      "type": "page",
+    },
+  ],
+}
+`;
+
+exports[`작은 ZIP 가져오기 — 지금 동작 고정 > 오류 문구 > ZIP이 아닌 파일 1`] = `
+{
+  "message": "broken.zip: Not a zip archive",
+  "status": 400,
+}
+`;
+
+exports[`작은 ZIP 가져오기 — 지금 동작 고정 > 오류 문구 > 구성원이 아닌 워크스페이스로는 가져올 수 없다 1`] = `
+{
+  "message": "Not a member of this workspace",
+  "status": 403,
+}
+`;
+
+exports[`작은 ZIP 가져오기 — 지금 동작 고정 > 오류 문구 > 다른 회원이 올린 ZIP은 가져올 수 없다 1`] = `
+{
+  "message": "Upload not found: theirs.zip",
+  "status": 404,
+}
+`;
+
+exports[`작은 ZIP 가져오기 — 지금 동작 고정 > 오류 문구 > 파일 없이 부름 1`] = `
+{
+  "message": "No files to import",
+  "status": 400,
+}
+`;
+
+exports[`작은 ZIP 가져오기 — 지금 동작 고정 > 오류 문구 > 페이지로 만들 파일이 없음 1`] = `
+{
+  "message": "No Markdown, HTML or CSV files found in images.zip",
+  "status": 400,
+}
+`;
+
+exports[`작은 ZIP 가져오기 — 지금 동작 고정 > 오류 문구 > 풀린 크기 256MiB 초과 1`] = `
+{
+  "message": "bomb.zip: Archive too large",
+  "status": 400,
+}
+`;
+
+exports[`작은 ZIP 가져오기 — 지금 동작 고정 > 오류 문구 > 항목 5,000개 초과 1`] = `
+{
+  "message": "many.zip: Too many files in archive",
+  "status": 400,
+}
+`;
+
+exports[`작은 ZIP 가져오기 — 지금 동작 고정 > 한글 파일명 1`] = `
+{
+  "databases": 0,
+  "images": [
+    "/files/*/%ED%99%94%EB%A9%B4%20%EC%BA%A1%EC%B2%98.png",
+  ],
+  "pages": 2,
+  "roots": [
+    {
+      "children": [
+        {
+          "properties": {
+            "title": [
+              [
+                "안건",
+              ],
+            ],
+          },
+          "type": "text",
+        },
+        {
+          "format": {
+            "display_source": "/files/*/%ED%99%94%EB%A9%B4%20%EC%BA%A1%EC%B2%98.png",
+          },
+          "properties": {
+            "source": [
+              [
+                "/files/*/%ED%99%94%EB%A9%B4%20%EC%BA%A1%EC%B2%98.png",
+              ],
+            ],
+          },
+          "type": "image",
+        },
+        {
+          "properties": {
+            "title": [
+              [
+                "결정 사항",
+                [
+                  [
+                    "a",
+                    "%ED%9A%8C%EC%9D%98%EB%A1%9D%200123456789abcdef0123456789abcdef/%EA%B2%B0%EC%A0%95%20%EC%82%AC%ED%95%AD%20fedcba9876543210fedcba9876543210.html",
+                  ],
+                ],
+              ],
+            ],
+          },
+          "type": "text",
+        },
+        {
+          "children": [
+            {
+              "properties": {
+                "title": [
+                  [
+                    "확정",
+                  ],
+                ],
+              },
+              "type": "text",
+            },
+          ],
+          "properties": {
+            "title": [
+              [
+                "결정 사항",
+              ],
+            ],
+          },
+          "type": "page",
+        },
+      ],
+      "properties": {
+        "title": [
+          [
+            "회의록",
+          ],
+        ],
+      },
+      "type": "page",
+    },
+  ],
+}
+`;
