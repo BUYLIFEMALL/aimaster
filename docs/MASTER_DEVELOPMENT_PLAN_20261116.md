@@ -416,7 +416,7 @@ Master 마지막 실제 점검: 2026-11-19 09:30:56 KST · 실행 중 점검 주
 | B2B-20261119-MAKER | CC-B2B-BACK-01 | done / m1_stale_window_fix_independent_pass_undeployed | B2B 메이커 연계 M1~M3 선행 범위 대조 | Mac 12/12. 늦은 완료·실패 뒤 이전 창 작업 차단 및 공용 계약 보존. 실제 운영 창 미검증, M1 단독 배포 없음. |
 | B2B-20261119-MAKER-M2 | CC-B2B-BACK-01 | done / data_layer_independent_accepted_undeployed_ui_design_dispatched | 메이커 M2 사진 제안 저장 범위 설계 | 0106 데이터 계층 Mac 독립 수락. UI 연결 계획 배정. 실제 Storage·Lab·운영 및 M3 미적용. |
 | B2B-20261119-MAKER-M2-UI | CC-B2B-BACK-01 | done / m2_ui_independent_accepted_test_assertions_verified_undeployed | 메이커 M2 사진 제안 화면·저장 응답 연결 | 독립 제품 수락, 단언 5개 도달성 수정 후 Master 시험 18/18 통과. 실제 Storage·Lab 미검증, 미배포. |
-| B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | reviewing / signature_lock_revert_hardening_returned_recheck_dispatched | 메이커 M3 제안 적용·서버 바이트 검증 설계 | 최종 URL 서명, NULL 차단, 잠금·만료·보조사진 보존 보완. 격리 39/39·전체 544/544 작성자, Mac 독립 재검수. Lab/운영 미적용. |
+| B2B-20261119-MAKER-M3 | CC-B2B-BACK-01 | reviewing / data_layer_review_passed_p3_followup_dispatched | 메이커 M3 제안 적용·서버 바이트 검증 설계 | Mac 독립 Node 7/7·서명 벡터 2건 일치, 기존 P1/P2 해소. P3 잠금 순서 회귀와 URL 설정 검증 보완 배정. 실제 SQL 독립 실행·Storage·Lab·운영 확인은 별도. |
 | ECOM-20261118-03 | CC-ECOM-01 | done / source_qa_pass_unreleased | 이미지3엔진 QA049 안전경계 보완 구현 | 미배포묶음보존·실모델/정책결정별도·Gemini반환검증 ECOM18-04 분리 |
 | PORT-20261118-01 | AG-UI-01 | done / quote_registry_accepted_semantics_filtered | 미확인5카테고리19프로그램 담당/잔여근거 매핑 | 현재담당미확정유지·인용근거만수락·CRM F007 현행검증PORT18-02 별도 |
 | ECOM-20261118-04 | CC-ECOM-01 | done / source_qa_pass_unreleased | Gemini 이미지 반환값 엄격검사 국소보완 | 1a1f64dba 다음승인묶음까지동결·Gemini전체JSON/완전디코드/실생성미검수 |
@@ -433,7 +433,7 @@ Master 마지막 실제 점검: 2026-11-19 09:30:56 KST · 실행 중 점검 주
 | QA-20261118-BLOG-01 | CX-QA-01 | waiting_human / b1_v122_mac_retest_dispatched_human_clicks_required | website-scraper 읽기·B1 사람 포커스 재시험 준비 | v1.22 재검수 전달. 확장 버전·활성 상태 수동 확인과 A/B 사용자 클릭 각각 1회 후 Mac lastProbe 기록. |
 | RE-20261118-07 | CC-REALTY-01 | done / evaluation_deliverable_accepted_no_effectiveness_pass | 후보C 새기간40건 사전라벨 고정 평가 | 정상운영 새기간에서 목표소음이 포함된 검증조건 충족 시에만 별도배정·동일40건 규칙조정/재시험0 |
 | ECOM-20261118-06 | CC-ECOM-01 | done / specified_mock_server_source_accepted_off_unreleased | Cloudflare 본인 공용키 무료 이미지 경로 검증·연결 계획 | 실키유효/잔여사람단계·AGY UI 연결계획·OFF미배포 보존 |
-| ECOM-20261119-CFREL | CC-ECOM-01 | queued / isolated_remote_base_clean_role_docs_need_port_release_queued | 메인 API 설정 Cloudflare 카드 배포 선행 확인 | 원격 기준 Cloudflare 3개·WebP 문서 2개 적용 가능, 역할 문서 2개 줄 충돌. 메인 자동 빌드 순번과 역할 문서 이식 확인 대기. 공유 master 미푸시. |
+| ECOM-20261119-CFREL | CC-ECOM-01 | queued / remote_base_role_patch_verified_release_queued | 메인 API 설정 Cloudflare 카드 배포 선행 확인 | 원격 기준 Cloudflare 3개·WebP 문서 2개 적용 가능. 역할 문서 커밋 2개는 최소 패치 1개로 대체 가능(원격 기준 임시 인덱스 확인). 메인 자동 빌드 순번 대기, 공유 master 미푸시. |
 | DES-20261118-07 | AG-UI-01 | done / emotion_cloudflare_status_card_source_review_accepted_unreleased | Cloudflare 공용키 설정 UI 연결 경로 계획 | 본인문서/점유정리·중앙82/e34와통합후보·메인선행/감성배포예산·실키검증별도 |
 | AIF-20261118-W00 | CC-SNS-01 | done / static_contract_review_accepted_implementation_unverified | AI Influencer W00 기준·격차/공통계약 독립검수 | W01a별도검수·PLAN/권한선행병합전자산코드/DDL0·후속경합/RLS실검증별도 |
 | CRM-20261118-07 | CC-B2B-BACK-01 | done / receipt_single_attempt_mock_source_review_accepted_unreleased | SOLAPI SDK 재시도 없는 공식 대안·최소 변경 계획 | 접수전용소스미배포보존·팔로우업동일위험은CRM18-08로이관·DDL/배포/실문자별도 |

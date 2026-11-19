@@ -9858,10 +9858,10 @@
       "reviewer": "CX-MASTER-01",
       "title": "메인 API 설정 Cloudflare 카드 배포 선행 확인",
       "status": "queued",
-      "delivery": "isolated_remote_base_clean_role_docs_need_port_release_queued",
-      "evidence": "msg_cb7803617a97·msg_ecc69c203761·msg_323c6d0c4fe1·msg_2fd7489c7154·msg_7b773773d43c·임시 Git 인덱스 대조",
-      "next": "원격 기준 Cloudflare 3개·WebP 문서 2개 적용 가능, 역할 문서 2개 줄 충돌. 메인 자동 빌드 순번과 역할 문서 이식 확인 대기. 공유 master 미푸시.",
-      "lastReviewedAt": "2026-11-19T00:40:36.593Z",
+      "delivery": "remote_base_role_patch_verified_release_queued",
+      "evidence": "msg_cb7803617a97·msg_ecc69c203761·msg_323c6d0c4fe1·msg_2fd7489c7154·msg_7b773773d43c·임시 Git 인덱스 대조·msg_6e8e826c45fd·Master 임시 인덱스 적용 확인 1파일 +6/-3",
+      "next": "원격 기준 Cloudflare 3개·WebP 문서 2개 적용 가능. 역할 문서 커밋 2개는 최소 패치 1개로 대체 가능(원격 기준 임시 인덱스 확인). 메인 자동 빌드 순번 대기, 공유 master 미푸시.",
+      "lastReviewedAt": "2026-11-19T00:44:47.879Z",
       "validation": {
         "remoteDivergence": "origin/master 0, HEAD 586",
         "dryRun": {
@@ -10003,11 +10003,11 @@
       "reviewer": "CX-MASTER-01",
       "title": "메이커 M3 제안 적용·서버 바이트 검증 설계",
       "status": "reviewing",
-      "delivery": "signature_lock_revert_hardening_returned_recheck_dispatched",
+      "delivery": "data_layer_review_passed_p3_followup_dispatched",
       "sha": "cbe48e7d9",
-      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1·msg_09c13f44d34f·8be47a12f·msg_2639b1f89d07·msg_f4130843a9ef·320a5909a·msg_f714f535ba3b·msg_8a99ab301d34·msg_64cd4fd01392·2d4dd53d0·msg_617ae29305b4·a23ffa1f3·msg_8c842614e79b·1c7b50762·msg_513a7e7b6ebc·msg_371737216f81·msg_6ceff50f19aa·msg_d0efc0d596af·msg_f596e2e53ec0·5499b725d·msg_f6638de84aba·cbe48e7d9·msg_4126c4fb6ddb",
-      "next": "최종 URL 서명, NULL 차단, 잠금·만료·보조사진 보존 보완. 격리 39/39·전체 544/544 작성자, Mac 독립 재검수. Lab/운영 미적용.",
-      "lastReviewedAt": "2026-11-19T00:42:01.416Z"
+      "evidence": "msg_2ed0766d5c88·d94187aee·msg_c08f4ab9f7d6·msg_89ef7a4f7708·b3026067e·msg_47bf87bc35e1·msg_09c13f44d34f·8be47a12f·msg_2639b1f89d07·msg_f4130843a9ef·320a5909a·msg_f714f535ba3b·msg_8a99ab301d34·msg_64cd4fd01392·2d4dd53d0·msg_617ae29305b4·a23ffa1f3·msg_8c842614e79b·1c7b50762·msg_513a7e7b6ebc·msg_371737216f81·msg_6ceff50f19aa·msg_d0efc0d596af·msg_f596e2e53ec0·5499b725d·msg_f6638de84aba·cbe48e7d9·msg_4126c4fb6ddb·msg_c906bef9d317·.ai/results/B2B-20261119-M2-CX-QA-01.md·msg_8aaff84db217",
+      "next": "Mac 독립 Node 7/7·서명 벡터 2건 일치, 기존 P1/P2 해소. P3 잠금 순서 회귀와 URL 설정 검증 보완 배정. 실제 SQL 독립 실행·Storage·Lab·운영 확인은 별도.",
+      "lastReviewedAt": "2026-11-19T00:44:47.879Z"
     }
   ]
 }
