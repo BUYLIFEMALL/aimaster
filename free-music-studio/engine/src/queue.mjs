@@ -19,24 +19,56 @@ export function publicJob(j) {
   return rest;
 }
 
+/** 같은 범위·같은 접수 ID인데 요청 내용이 다를 때(IMG-P1 PR-A) — 연결 문이 409로 답한다 */
+export class QueueConflictError extends Error {
+  constructor() {
+    super("같은 접수 번호로 다른 내용을 보냈습니다. 새 접수 번호로 다시 보내 주세요.");
+    this.status = 409;
+  }
+}
+/** 대기열 파일이 깨져 이 대기열을 닫았을 때(failClosed) */
+export class QueueClosedError extends Error {
+  constructor(reason) {
+    super(`작업 기록 파일을 읽지 못해 이 작업 목록을 멈췄습니다(${reason}). 파일은 그대로 두었습니다.`);
+    this.status = 503;
+  }
+}
+
+/**
+ * 두 대기열을 합쳐 한 번에 한 작업만(IMG-P1 PR-A) — 상대 대기열이 만드는 중이 아니고, 이 작업이 상대 맨 앞 대기 작업보다
+ * 먼저 접수됐을 때만 차례다(접수 시각 순). canRun 안에서 부르고, 각 대기열의 onFinished에서 상대 pump()를 다시 부른다.
+ * pump는 「확인 → running 표시」 사이에 await가 없어 두 대기열이 동시에 시작하지 않는다.
+ */
+export function sharedTurn(job, other) {
+  return !other.running() && Date.parse(job.createdAt) <= other.headQueuedAt();
+}
+
 /**
  * @param {{ file: string, run: (job: object, signal: AbortSignal, stage: (s: string) => void) => Promise<object>,
- *           canRun?: (job: object) => boolean, onFinished?: (job: object) => Promise<void> | void, log?: (e: unknown) => void }} opts
+ *           canRun?: (job: object) => boolean, onFinished?: (job: object) => Promise<void> | void, log?: (e: unknown) => void,
+ *           failClosed?: boolean }} opts
+ * failClosed(IMG-P1 PR-A, 새 그림 사이트 범위 전용): 파일이 있는데 읽지 못하면 원본을 덮어쓰지 않고 이 대기열을 닫는다
+ * (목록·넣기·실행 모두 거절). 없으면 빈 대기열. 기존 queue.json은 이 옵션 없이 예전 동작 그대로.
  */
-export function createQueue({ file, run, canRun = () => true, onFinished = () => {}, onDrop = () => {}, log = () => {}, now = Date.now }) {
+export function createQueue({ file, run, canRun = () => true, onFinished = () => {}, onDrop = () => {}, log = () => {}, now = Date.now, failClosed = false }) {
   let jobs = [];
   let working = false;
   let controller = null;
+  let broken = "";
 
   // 저장은 한 번에 하나씩 — 넣기와 처리가 같은 임시 파일에 동시에 쓰면 윈도우에서 이름 바꾸기가 부딪혀 실패했다(2026-11-04 시험에서 가끔 재현)
   let saving = Promise.resolve();
   const saveNow = async () => {
+    if (broken) return; // 닫힌 대기열은 깨진 원본을 덮어쓰지 않는다
     await mkdir(path.dirname(file), { recursive: true });
     const tmp = `${file}.tmp`;
     await writeFile(tmp, JSON.stringify({ jobs }, null, 2));
     await rename(tmp, file);
   };
   const save = () => (saving = saving.catch(() => {}).then(saveNow));
+  const assertOpen = () => {
+    if (broken) throw new QueueClosedError(broken);
+  };
 
   // 끝난 작업은 100개까지, 그리고 끝난 지 30일 지난 기록은 지운다(0.6.9, 원본 boks-music `store.mjs pruneJobs` 규칙, MIT).
   // 사이트에 아직 기록하지 않은 완성 작업은 남긴다. 지운 작업의 원곡 사본은 onDrop으로 부르는 쪽이 지운다.
@@ -52,29 +84,76 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
   const q = {
     /** 저장된 대기열 읽기 — 진행 중이던 작업은 엔진이 꺼져 끊긴 것이므로 「중단됨」 */
     async load() {
+      let text = null;
       try {
-        const data = JSON.parse(await readFile(file, "utf8"));
-        jobs = Array.isArray(data?.jobs) ? data.jobs : [];
+        text = await readFile(file, "utf8");
+      } catch (e) {
+        // 파일이 없으면 빈 대기열. 그 밖의 읽기 실패는 failClosed일 때 닫는다
+        if (failClosed && e?.code !== "ENOENT") broken = "읽기 실패";
+      }
+      try {
+        const data = text == null ? { jobs: [] } : JSON.parse(text);
+        if (!Array.isArray(data?.jobs)) throw new Error("jobs 없음");
+        jobs = data.jobs;
       } catch {
         jobs = [];
+        if (failClosed) broken = broken || "내용이 올바르지 않음";
+      }
+      if (broken) {
+        log(new QueueClosedError(broken));
+        return;
       }
       for (const j of jobs) {
         if (j.status === "running") Object.assign(j, { status: "interrupted", stage: STATUS_LABEL.interrupted, finishedAt: new Date().toISOString() });
       }
       trim(now()); // 엔진을 켤 때 30일 지난 기록 정리
+      // 새 그림 사이트 범위(failClosed): 파일이 없고 작업도 없으면 만들지 않는다 — 그 사이트를 쓰지 않는 PC에 빈 파일을 남기지 않게.
+      // 기존 queue.json은 예전처럼 켤 때마다 저장한다.
+      if (failClosed && text == null && !jobs.length) return;
       await save();
     },
 
-    list() {
-      return jobs.map(publicJob);
+    /** 이 대기열이 닫혔으면 그 이유(failClosed), 아니면 "" */
+    get broken() {
+      return broken;
+    },
+
+    /** 목록 — keep을 주면 그 조건에 맞는 작업만(새 그림 사이트 범위 거르기). 닫힌 대기열은 빈 목록 */
+    list(keep) {
+      if (broken) return [];
+      return (keep ? jobs.filter(keep) : jobs).map(publicJob);
     },
 
     get(id) {
+      if (broken) return null;
       return jobs.find((j) => j.id === id) ?? null;
     },
 
+    /** 만드는 중인 작업이 있는지(두 대기열을 합쳐 한 번에 하나만 돌릴 때 상대가 본다) */
+    running() {
+      return jobs.some((j) => j.status === "running");
+    },
+
+    /** 맨 앞 대기 작업의 접수 시각(ms), 없으면 Infinity — 두 대기열의 차례(접수 시각 순) */
+    headQueuedAt() {
+      if (broken) return Infinity;
+      const j = jobs.find((x) => x.status === "queued");
+      return j ? Date.parse(j.createdAt) : Infinity;
+    },
+
     /** 작업 하나 넣기. request: { kind, title, track, task?(JSON 본문) | fields?+source?(커버·부분 수정) } */
+    // IMG-P1 PR-A(새 그림 사이트만): site·scope·clientRequestId·digest가 오면 작업에 적고, 같은 site·scope·접수 ID가
+    // 기록에 남아 있으면 새로 넣지 않는다 — 내용 요약(digest)이 같으면 그 작업을, 다르면 QueueConflictError(409).
+    // 확인부터 jobs.push까지 await가 없어 동시에 여러 번 와도 작업은 하나만 생긴다.
     async add(request) {
+      assertOpen();
+      if (request.clientRequestId) {
+        const same = jobs.find((j) => j.clientRequestId === request.clientRequestId && j.site === request.site && j.scope === request.scope);
+        if (same) {
+          if (same.digest !== request.digest) throw new QueueConflictError();
+          return publicJob(same);
+        }
+      }
       if (jobs.filter((j) => j.status === "queued" || j.status === "running").length >= MAX_QUEUED) {
         throw new Error(`대기열에는 ${MAX_QUEUED}개까지 넣을 수 있습니다. 앞의 작업이 끝난 뒤 넣어 주세요.`);
       }
@@ -89,6 +168,8 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
         ...(request.task ? { task: request.task } : {}),
         ...(request.fields ? { fields: request.fields } : {}),
         ...(request.source ? { source: request.source } : {}),
+        ...(request.site ? { site: request.site, scope: request.scope } : {}),
+        ...(request.clientRequestId ? { clientRequestId: request.clientRequestId, digest: request.digest } : {}),
         status: "queued",
         stage: STATUS_LABEL.queued,
         createdAt: new Date().toISOString(),
@@ -145,7 +226,7 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
 
     /** 대기 중인 작업을 차례로 처리한다. 음악 엔진이 준비되지 않았으면 기다린다(준비되면 다시 부른다). */
     async pump() {
-      if (working) return;
+      if (working || broken) return;
       working = true;
       try {
         // 차례는 넣은 순서 그대로 — 맨 앞 작업을 지금 만들 수 없으면(예: 음악 엔진 준비 중) 기다린다

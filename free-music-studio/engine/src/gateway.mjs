@@ -8,7 +8,8 @@ import { browseDir, browseRoots, makeDir } from "./folderBrowse.mjs";
 import { audioWaveform } from "./waveform.mjs";
 import { validateMasteringOptions } from "./mastering.mjs";
 import { EXTEND_SECONDS, prepareExtendSource } from "./ending.mjs";
-import { cleanArtPrompt, findImageVariant } from "./imageArt.mjs";
+import { cleanArtPrompt, findImageVariant, isImageSize } from "./imageArt.mjs";
+import { createHash } from "node:crypto";
 import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import { createReadStream } from "node:fs";
 import { spawn } from "node:child_process";
@@ -82,20 +83,25 @@ export function createGateway(ctx) {
   let failures = 0;
   let lockedUntil = 0;
   ctx.onPairCode?.(pairCode);
+  // IMG-P1 PR-A: 새 그림 사이트 범위 — ctx.scoped { origins, tokens(createScopedTokens), queue(failClosed 대기열) }가 있을 때만.
+  // 운영 main.mjs는 origins를 비워 두므로(PR-B 전) 이 갈래는 시험에서만 열린다.
+  const scopedOrigins = ctx.scoped?.origins ?? [];
+  const isScopedOrigin = (o) => !!o && scopedOrigins.includes(o);
 
   const json = (res, status, body, origin) => {
-    res.writeHead(status, { "Content-Type": "application/json; charset=utf-8", ...corsHeaders(origin) });
+    res.writeHead(status, { "Content-Type": "application/json; charset=utf-8", ...corsHeaders(origin, scopedOrigins) });
     res.end(JSON.stringify(body));
   };
 
   return http.createServer(async (req, res) => {
     const origin = req.headers.origin;
     // 다른 사이트에서 온 요청은 막는다(브라우저 밖 도구는 Origin이 없음 — 상태 확인만 허용).
-    if (origin && !isAllowedOrigin(origin)) return json(res, 403, { error: "허용되지 않은 사이트입니다." });
+    if (origin && !isAllowedOrigin(origin, scopedOrigins)) return json(res, 403, { error: "허용되지 않은 사이트입니다." });
     if (req.method === "OPTIONS") {
-      res.writeHead(204, corsHeaders(origin));
+      res.writeHead(204, corsHeaders(origin, scopedOrigins));
       return res.end();
     }
+    const scopedSite = isScopedOrigin(origin);
 
     const url = new URL(req.url ?? "/", "http://127.0.0.1");
     const key = `${req.method} ${url.pathname}`;
@@ -118,6 +124,19 @@ export function createGateway(ctx) {
         return json(res, 401, { error: "연결 코드가 맞지 않습니다. 엔진 창의 6자리 숫자를 확인해 주세요." }, origin);
       }
       failures = 0;
+      // 새 그림 사이트: 별도 파일(paired-scoped.json)에 발급 출처·범위와 함께. 같은 출처의 유효한 이전 토큰(prevToken)을
+      // 함께 보내면 범위를 이어받고 이전 토큰은 같은 저장에서 폐기(코드 확인은 위에서 이미 끝남 — 이전 토큰만으로는 못 받음)
+      if (scopedSite) {
+        let issued;
+        try {
+          issued = await ctx.scoped.tokens.issue({ origin, prevToken: typeof body?.prevToken === "string" ? body.prevToken : undefined });
+        } catch (e) {
+          return json(res, e?.status ?? 500, { error: e instanceof Error ? e.message : "연결하지 못했습니다." }, origin);
+        }
+        pairCode = newPairCode();
+        ctx.onPairCode?.(pairCode);
+        return json(res, 200, { token: issued.token, inherited: issued.inherited }, origin);
+      }
       const token = newToken();
       ctx.tokens.add(token);
       await ctx.saveTokens();
@@ -138,6 +157,16 @@ export function createGateway(ctx) {
     // 영상 재생(<video>)은 머리글을 못 붙여 주소의 t=토큰도 받는다(GET 파일만, 0.6.9)
     const fileView = req.method === "GET" && /^\/videos\/[0-9a-f-]{36}\/file$/.test(url.pathname);
     const token = bearer(req.headers.authorization) ?? (fileView ? url.searchParams.get("t") : null);
+    // 새 그림 사이트는 자기 출처에서 발급한 새 범위 토큰만(기존 토큰은 안 됨, 기록 파일이 깨졌으면 모두 「연결 필요」)
+    if (scopedSite) {
+      const scope = token ? ctx.scoped.tokens.scopeOf(token, origin) : null;
+      if (!scope) return json(res, 401, { error: "PC 연결이 필요합니다.", needPair: true }, origin);
+      if (!imageSiteAllows(req.method, url.pathname)) return json(res, 403, { error: "이 사이트에서는 내 PC 그림 기능만 쓸 수 있습니다." }, origin);
+      if (isImage && url.pathname.startsWith("/image-art/")) return handleScopedArt(req, res, url, origin, ctx, json, scope);
+      if (isImage) return handleImage(req, res, url, origin, ctx, json);
+      if (isQueue) return handleScopedQueue(req, res, url, origin, ctx, json, scope);
+      return json(res, 404, { error: "없는 주소입니다." }, origin);
+    }
     if (!token || ![...ctx.tokens].some((t) => sameSecret(t, token))) {
       return json(res, 401, { error: "PC 연결이 필요합니다.", needPair: true }, origin);
     }
@@ -547,6 +576,74 @@ const QUEUE_KINDS = new Set(["text2music", "cover", "repaint", "master", "stems"
  *  GET    /image-art/<작업 번호>        → 그린 PNG(하루 보관)
  *  POST   /image-models/folder        { path, mode: "move"|"fresh" } → 그림 모델만 다른 폴더로(0.7.1, 뒤에서 옮김 — GET의 moving)
  */
+// ── IMG-P1 PR-A 새 그림 사이트 범위 ─────────────────────────────
+const CLIENT_REQUEST_ID = /^[A-Za-z0-9-]{8,64}$/;
+/** 이 범위의 작업인지 — 남의 범위·기존 범위 작업은 「없는 작업」으로 답해 있는지도 알리지 않는다 */
+const ownedBy = (origin, scope) => (j) => !!j && j.site === origin && j.scope === scope;
+
+/** GET /image-art/<번호> — 자기 범위 작업의 결과만, results-scoped 폴더에서 */
+async function handleScopedArt(req, res, url, origin, ctx, json, scope) {
+  const id = decodeURIComponent(url.pathname.split("/").filter(Boolean)[1] || "");
+  if (req.method !== "GET" || !/^[0-9a-f-]{36}$/.test(id)) return json(res, 404, { error: "없는 주소입니다." }, origin);
+  if (!ownedBy(origin, scope)(ctx.scoped.queue.get(id))) return json(res, 404, { error: "그린 그림이 없습니다." }, origin);
+  const buf = await readFile(ctx.imageArt.resultFile(id, true)).catch(() => null);
+  if (!buf) return json(res, 404, { error: "그린 그림이 없습니다(하루 지나면 지워집니다)." }, origin);
+  res.writeHead(200, { ...corsHeaders(origin, ctx.scoped.origins), "content-type": "image/png", "content-length": buf.length, "cache-control": "no-store" });
+  return res.end(buf);
+}
+
+/**
+ * 새 그림 사이트의 대기열(별도 파일 queue-scoped.json)
+ *  GET    /queue                → 자기 범위 작업만
+ *  POST   /queue                { kind:"art", title, track, clientRequestId, task:{ prompt, variantId?, width?, height?, seed? } }
+ *                                 → 같은 범위·같은 접수 번호·같은 내용이면 기존 작업, 내용이 다르면 409
+ *  POST   /queue/<번호>/cancel   · DELETE /queue/<번호> → 자기 범위 작업만, 아니면 404
+ */
+async function handleScopedQueue(req, res, url, origin, ctx, json, scope) {
+  const q = ctx.scoped.queue;
+  if (q.broken) return json(res, 503, { error: `작업 기록 파일을 읽지 못해 이 사이트의 작업을 멈췄습니다(${q.broken}). 엔진 창을 확인해 주세요.` }, origin);
+  const own = ownedBy(origin, scope);
+  const parts = url.pathname.split("/").filter(Boolean);
+  try {
+    if (req.method === "GET" && parts.length === 1) return json(res, 200, { jobs: q.list(own) }, origin);
+    if (req.method === "POST" && parts.length === 1) {
+      const body = await readSmall(req, 256 * 1024).catch(() => null);
+      const meta = parseQueueMeta(body);
+      if (!meta || meta.kind !== "art" || !body.task || typeof body.task !== "object") return json(res, 400, { error: "그림 작업 내용이 올바르지 않습니다." }, origin);
+      if (!ctx.imageArt) return json(res, 501, { error: "이 엔진은 내 PC 그림을 그릴 수 없습니다." }, origin);
+      const clientRequestId = body.clientRequestId;
+      if (typeof clientRequestId !== "string" || !CLIENT_REQUEST_ID.test(clientRequestId)) return json(res, 400, { error: "접수 번호가 올바르지 않습니다." }, origin);
+      let prompt;
+      try {
+        prompt = cleanArtPrompt(body.task.prompt);
+      } catch (e) {
+        return json(res, 400, { error: e.message }, origin);
+      }
+      const variantId = typeof body.task.variantId === "string" && findImageVariant(body.task.variantId) ? body.task.variantId : undefined;
+      const { width, height, seed } = body.task;
+      const sized = width !== undefined || height !== undefined;
+      if (sized && !(Number.isInteger(width) && Number.isInteger(height) && isImageSize(width, height))) return json(res, 400, { error: "그릴 수 없는 크기입니다(1024×1024 · 1280×720 · 720×1280)." }, origin);
+      if (seed !== undefined && !(Number.isInteger(seed) && seed >= 0 && seed <= 2147483647)) return json(res, 400, { error: "시드 값이 올바르지 않습니다." }, origin);
+      const task = { prompt, variantId, ...(sized ? { width, height } : {}), ...(seed !== undefined ? { seed } : {}) };
+      // 같은 접수 번호가 다른 내용으로 오면 막기 위한 요약(모델 판·설명·크기·시드)
+      const digest = createHash("sha256").update(JSON.stringify([variantId ?? null, prompt, width ?? null, height ?? null, seed ?? null])).digest("hex");
+      return json(res, 200, { job: await q.add({ ...meta, task, engine: "art", license: "commercial", site: origin, scope, clientRequestId, digest }) }, origin);
+    }
+    const job = parts[1] ? q.get(parts[1]) : null;
+    if (!own(job)) return json(res, 404, { error: "그 작업을 찾지 못했습니다." }, origin);
+    if (req.method === "POST" && parts[2] === "cancel" && parts.length === 3) {
+      await q.cancel(job.id);
+      return json(res, 200, { ok: true }, origin);
+    }
+    if (req.method === "DELETE" && parts.length === 2) {
+      return (await q.dismiss(job.id)) ? json(res, 200, { ok: true }, origin) : json(res, 400, { error: "끝난 작업만 지울 수 있습니다." }, origin);
+    }
+    return json(res, 404, { error: "없는 주소입니다." }, origin);
+  } catch (e) {
+    return json(res, e?.status ?? 400, { error: e instanceof Error ? e.message : "작업 요청을 처리하지 못했습니다." }, origin);
+  }
+}
+
 async function handleImage(req, res, url, origin, ctx, json) {
   const parts = url.pathname.split("/").filter(Boolean);
   const id = decodeURIComponent(parts[1] || "");
@@ -569,7 +666,8 @@ async function handleImage(req, res, url, origin, ctx, json) {
         return json(res, 200, { ok: true }, origin);
       }
       if (req.method === "DELETE" && parts.length === 2) {
-        if (ctx.queue?.list().some((j) => j.kind === "art" && (j.status === "queued" || j.status === "running"))) return json(res, 409, { error: "그림 작업이 끝난 뒤에 지울 수 있습니다." }, origin);
+        const artBusy = (q) => !!q?.list().some((j) => j.kind === "art" && (j.status === "queued" || j.status === "running"));
+        if (artBusy(ctx.queue) || artBusy(ctx.scoped?.queue)) return json(res, 409, { error: "그림 작업이 끝난 뒤에 지울 수 있습니다." }, origin);
         return (await ctx.imageArt.remove(id)) ? json(res, 200, { ok: true }, origin) : json(res, 404, { error: "없는 그림 모델입니다." }, origin);
       }
     }

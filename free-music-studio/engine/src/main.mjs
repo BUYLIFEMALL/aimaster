@@ -15,7 +15,7 @@ import { checkItems, chooseDevice, qualityOptions, qualityProfile } from "./devi
 import { inspectSystem, listInstalledModels } from "./system.mjs";
 import { createGateway, GATEWAY_PORT } from "./gateway.mjs";
 import { createLibrary } from "./library.mjs";
-import { createQueue } from "./queue.mjs";
+import { createQueue, sharedTurn } from "./queue.mjs";
 import { createRunner } from "./runner.mjs";
 import { masterFile } from "./mastering.mjs";
 import { FADE_SECONDS, smoothEnding } from "./ending.mjs";
@@ -23,7 +23,7 @@ import { createVideoStudio } from "./video.mjs";
 import { createStems, stemDevice } from "./stems.mjs";
 import { createImageArt, defaultImageDir, settleImageDir } from "./imageArt.mjs";
 import { createLyricAligner } from "./lyricAlign.mjs";
-import { newToken } from "./security.mjs";
+import { createScopedTokens, newToken, SCOPED_SITE_ORIGINS } from "./security.mjs";
 import { ensureTools, useTools } from "./tools.mjs";
 import { runYue2, yue2Installed, yue2MissingBytes, yue2Paths, yue2Support, YUE2_LICENSE } from "./yue2.mjs";
 import { pyCatalog, pyEngine, pyErrorCause, pyInstalled, pyMissingGb, pyPaths, pySupport, removePyEngine, runPyEngine } from "./pyengines.mjs";
@@ -128,6 +128,9 @@ try {
   tokens = new Set(JSON.parse(await readFile(tokensFile, "utf8")).tokens ?? []);
 } catch {}
 const saveTokens = () => writeFile(tokensFile, JSON.stringify({ tokens: [...tokens] }, null, 2));
+// IMG-P1 PR-A: 새 그림 사이트 범위 토큰은 paired.json과 따로(paired-scoped.json). 깨졌으면 그 범위만 닫는다(기존 연결은 그대로)
+const scopedTokens = createScopedTokens({ file: path.join(dataDir, "paired-scoped.json") });
+await scopedTokens.load();
 
 const acestepKey = newToken(); // 실행할 때마다 새로 — 연결 문만 안다
 const library = createLibrary(dataDir);
@@ -198,7 +201,7 @@ async function exclusiveRun(name, logFile, label, stage, fn) {
   } finally {
     log.end();
     yue2Running = false;
-    const next = queue.list().find((j) => j.status === "queued");
+    const next = allJobs().filter((j) => j.status === "queued").sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))[0];
     if (!next || next.engine === "acestep") resumeAce();
   }
 }
@@ -214,8 +217,10 @@ function resumeAce() {
 }
 
 // ── 저장 공간(0.5.0) ─────────────────────────────────────
-const activeJobs = () => queue.list().filter((j) => j.status === "queued" || j.status === "running");
-const isWorking = () => moving || restarting || aceStarting || yue2Running || queue.list().some((j) => j.status === "running");
+// IMG-P1 PR-A: 「작업 중」 판단은 기존 대기열과 새 그림 사이트 대기열을 합쳐서(그래픽카드·폴더는 하나)
+const allJobs = () => [...queue.list(), ...scopedQueue.list()];
+const activeJobs = () => allJobs().filter((j) => j.status === "queued" || j.status === "running");
+const isWorking = () => moving || restarting || aceStarting || yue2Running || queue.running() || scopedQueue.running();
 
 /** 항목 목록(크기 포함) — GET /storage */
 async function storageItemsNow() {
@@ -283,7 +288,7 @@ async function removeStorageItem(id) {
 async function moveModels(target, mode) {
   if (moving) return { ok: false, status: 409, error: "이미 옮기는 중입니다." };
   if (restarting || aceStarting) return { ok: false, status: 409, error: "엔진을 켜거나 구성을 바꾸는 중입니다. 잠시 뒤 다시 시도해 주세요." };
-  if (yue2Running || queue.list().some((j) => j.status === "running")) return { ok: false, status: 409, error: "곡을 만드는 중입니다. 끝난 뒤 바꿔 주세요." };
+  if (yue2Running || queue.running() || scopedQueue.running()) return { ok: false, status: 409, error: "곡을 만드는 중입니다. 끝난 뒤 바꿔 주세요." };
   if (mode !== "move" && mode !== "fresh") return { ok: false, status: 400, error: "옮기기 방식이 올바르지 않습니다." };
   if (process.env.FMS_ACESTEP_DIR) return { ok: false, status: 400, error: "시험용 설정(FMS_ACESTEP_DIR)으로 켠 엔진은 모델 폴더를 바꿀 수 없습니다." };
   const t = checkTarget(target, { current: heavyDir });
@@ -409,7 +414,7 @@ const moveImageModels = (target, mode) =>
       await saveEngineSettings({ imageDir: dir });
       imageDir = dir;
     },
-    busy: () => queue.list().some((j) => j.kind === "art" && (j.status === "queued" || j.status === "running")),
+    busy: () => allJobs().some((j) => j.kind === "art" && (j.status === "queued" || j.status === "running")),
     forbid: HEAVY_ENTRIES.filter((e) => e !== "engines").map((e) => path.join(heavyDir, e)).concat(path.join(heavyDir, "engines")),
   });
 async function artRun(job, signal, stage) {
@@ -424,6 +429,7 @@ const queue = createQueue({
     job.kind === "art" ? artRun(job, signal, stage) : job.kind === "stems" || job.kind === "align" ? stemsRun(job, signal, stage) : job.kind === "master" ? masterRun(job, signal, stage) : job.engine === "yue2" ? yue2Run(job, signal, stage) : job.engine === "acestep" || !job.engine ? aceRun(job, signal, stage) : pyRun(job, signal, stage),
   // ACE-Step 작업은 ACE-Step이 준비돼야, 다른 엔진 작업은 ACE-Step을 켜거나 구성을 바꾸는 중이 아니면 된다
   canRun: (job) => {
+    if (!sharedTurn(job, scopedQueue)) return false; // IMG-P1 PR-A: 새 그림 사이트 대기열과 합쳐 접수 순 한 번에 하나
     if (job.engine && job.engine !== "acestep") return !restarting && !aceStarting;
     if (yue2Pausing) resumeAce(); // 뒤에 있던 YuE2 작업이 취소돼 ACE-Step이 멈춘 채 남은 경우
     return state.ready && !restarting && !yue2Pausing;
@@ -433,12 +439,28 @@ const queue = createQueue({
     if (job.status === "cancelled" && job.source) await rm(path.join(queueSourceDir, job.source.file), { force: true });
     logLine(`🎵 대기열: ${job.title} — ${job.stage}${job.error ? ` (${job.error})` : ""}`);
     if (job.status === "failed") logLine(`   자세한 이유는 음악 엔진 기록 파일에 있습니다: ${aceLogFile}`);
+    void scopedQueue.pump(); // 기다리던 새 그림 사이트 작업 차례
   },
   // 오래돼 정리한 작업(0.6.9: 30일·100개)의 원곡 사본도 지운다
   onDrop: (job) => (job.source?.file ? rm(path.join(queueSourceDir, path.basename(job.source.file)), { force: true }) : undefined),
   log: (e) => logLine(`⚠ 대기열 오류: ${e instanceof Error ? e.message : e}`),
 });
+// IMG-P1 PR-A: 새 그림 사이트 범위 대기열 — 기존 queue.json과 따로(queue-scoped.json), 그림 작업만, 파일이 깨졌으면 닫는다
+const scopedQueue = createQueue({
+  file: path.join(dataDir, "queue-scoped.json"),
+  failClosed: true,
+  run: (job, signal, stage) => artRun(job, signal, stage),
+  canRun: (job) => sharedTurn(job, queue) && !restarting && !aceStarting,
+  onFinished: (job) => {
+    logLine(`🖼 그림 대기열: ${job.title} — ${job.stage}${job.error ? ` (${job.error})` : ""}`);
+    void queue.pump(); // 기다리던 기존 대기열 작업 차례
+  },
+  log: (e) => logLine(`⚠ 그림 대기열 오류: ${e instanceof Error ? e.message : e}`),
+});
 await queue.load();
+await scopedQueue.load();
+if (scopedTokens.broken) logLine(`⚠ 새 그림 사이트 연결 기록(paired-scoped.json)을 읽지 못해 그 사이트 연결을 멈췄습니다(${scopedTokens.broken}). 파일은 그대로 두었습니다.`);
+if (scopedQueue.broken) logLine(`⚠ 새 그림 사이트 작업 기록(queue-scoped.json)을 읽지 못해 그 작업을 멈췄습니다(${scopedQueue.broken}). 파일은 그대로 두었습니다.`);
 // 플레이리스트 영상(0.6.9) — 화면이 그린 H.264 조각을 받아 ffmpeg로 담는다(그래픽카드 음악 작업과 따로)
 const video = createVideoStudio({ dataDir, library, getFfmpeg: () => ffmpeg, log: logLine });
 let gatewayOpen = false;
@@ -477,6 +499,8 @@ const gateway = createGateway({
   storage: { report: storageReport, remove: removeStorageItem, move: moveModels },
   tokens,
   saveTokens,
+  // IMG-P1 PR-A: 새 그림 사이트 범위 — 운영 출처 목록(SCOPED_SITE_ORIGINS)은 PR-B 전까지 비어 있어 이 갈래는 열리지 않는다
+  scoped: { origins: SCOPED_SITE_ORIGINS, tokens: scopedTokens, queue: scopedQueue },
   acestepPort: ACESTEP_PORT,
   acestepKey,
   // 연결 문이 열린 뒤에만 코드를 보인다(이미 켜진 엔진이 있어 실패하면 쓸 수 없는 코드가 먼저 찍혀 헷갈렸음 — 2026-11-04 마스터PC)
@@ -540,6 +564,7 @@ async function startMusicEngine() {
   } finally {
     aceStarting = false;
     void queue.pump(); // 기다리던 작업이 있으면 이어서 만든다(실패했어도 YuE2 작업은 돌 수 있다)
+    void scopedQueue.pump();
   }
 }
 

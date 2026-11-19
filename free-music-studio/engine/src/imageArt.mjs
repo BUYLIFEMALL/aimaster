@@ -199,6 +199,21 @@ export function imageFailMessage(code, tail, quant = "") {
   return `그림 엔진이 실패했습니다(코드 ${code}). ${tail.split(/\r?\n/).filter(Boolean).slice(-2).join(" ")}`.trim();
 }
 
+/** 그릴 수 있는 크기(IMG-P1 PR-A) — 이 목록 밖은 접수에서 거절한다. 첫 값이 기본(기존 앨범 그림·이미지 자동화) */
+export const IMAGE_SIZES = Object.freeze([
+  Object.freeze({ width: 1024, height: 1024 }),
+  Object.freeze({ width: 1280, height: 720 }),
+  Object.freeze({ width: 720, height: 1280 }),
+]);
+/** 허용 크기인지 */
+export const isImageSize = (width, height) => IMAGE_SIZES.some((s) => s.width === width && s.height === height);
+/** 실행에 쓸 크기 — task에 허용 크기가 있으면 그 값, 없거나 목록 밖이면 기본 1024×1024(값을 안 보내는 기존 호출은 예전과 같은 인자) */
+export function imageRenderSize(task) {
+  const w = task?.width;
+  const h = task?.height;
+  return Number.isInteger(w) && Number.isInteger(h) && isImageSize(w, h) ? { width: w, height: h } : { width: 1024, height: 1024 };
+}
+
 /** PNG 머리·크기 확인(원본 validatePng 대신 간단히) */
 export function checkPng(buf) {
   const sig = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
@@ -289,7 +304,8 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
   const defaultRoot = () => path.join(dataDir(), "engines", "image-sdcpp");
   const paths = () => {
     const root = getCustomDir() || defaultRoot();
-    return { root, runtime: path.join(root, "runtime"), receipt: path.join(root, "install-state.json"), models: path.join(root, "models"), downloads: path.join(root, "downloads"), results: path.join(root, "results") };
+    // resultsScoped(IMG-P1 PR-A): 새 그림 사이트 범위의 결과는 기존 results와 나눠 둔다(이전 엔진·기존 사이트가 보지 않게)
+    return { root, runtime: path.join(root, "runtime"), receipt: path.join(root, "install-state.json"), models: path.join(root, "models"), downloads: path.join(root, "downloads"), results: path.join(root, "results"), resultsScoped: path.join(root, "results-scoped") };
   };
   const modelFile = (f) => path.join(paths().models, f.folder, f.filename);
   const readReceipt = async () => {
@@ -436,8 +452,7 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
   }
 
   /** 하루 지난 결과 그림 정리 */
-  async function sweep() {
-    const dir = paths().results;
+  async function sweep(dir = paths().results) {
     for (const n of await readdir(dir).catch(() => [])) {
       const f = path.join(dir, n);
       const s = await stat(f).catch(() => null);
@@ -445,7 +460,8 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
     }
   }
 
-  const resultFile = (jobId) => path.join(paths().results, `${String(jobId).replace(/[^0-9a-f-]/gi, "")}.png`);
+  /** 결과 PNG 경로 — scoped(새 그림 사이트 범위)면 results-scoped 폴더 */
+  const resultFile = (jobId, scoped = false) => path.join(scoped ? paths().resultsScoped : paths().results, `${String(jobId).replace(/[^0-9a-f-]/gi, "")}.png`);
 
   /**
    * 대기열 작업 실행 — job.task { prompt(영어), variantId? }. 처음이면 엔진·모델을 받는다. 결과는 results/<작업 번호>.png
@@ -497,10 +513,12 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
     await mkdir(scratch, { recursive: true });
     const [diffusion, vae, llm] = v.files.map((f) => `${f.folder}/${f.filename}`);
     const seed = Number.isInteger(job.task?.seed) ? job.task.seed : Math.floor(Math.random() * 2147483647);
-    const args = ["--diffusion-model", diffusion, "--vae", vae, "--llm", llm, "-p", prompt, "--cfg-scale", String(v.cfgScale), "--steps", String(v.steps), "-W", "1024", "-H", "1024", "--offload-to-cpu", "--diffusion-fa", "-s", String(seed), "-o", `.render/${name}`];
+    const size = imageRenderSize(job.task);
+    const scoped = !!job.site; // 새 그림 사이트 범위 작업이면 결과를 results-scoped에
+    const args = ["--diffusion-model", diffusion, "--vae", vae, "--llm", llm, "-p", prompt, "--cfg-scale", String(v.cfgScale), "--steps", String(v.steps), "-W", String(size.width), "-H", String(size.height), "--offload-to-cpu", "--diffusion-fa", "-s", String(seed), "-o", `.render/${name}`];
     const quietMs = cpu ? 30 * 60000 : 5 * 60000; // 멈춘 실행이 그래픽카드를 붙잡지 않게(CPU는 단계가 느림)
     const started = Date.now();
-    log(`🖼 내 PC 그림: ${v.familyName} ${v.quant} 1024×1024`);
+    log(`🖼 내 PC 그림: ${v.familyName} ${v.quant} ${size.width}×${size.height}`);
     stage("그림 모델 불러오는 중");
     // 그래픽 메모리 최대 사용량(B-3) — NVIDIA 그래픽카드로 그릴 때만
     const vram = !cpu && String((await readReceipt()).engine?.build ?? "").includes("cuda") ? watchVram(execFileImpl) : null;
@@ -553,9 +571,10 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
     try {
       const buf = await readFile(rendered);
       const { width } = checkPng(buf);
-      await mkdir(p.results, { recursive: true });
-      await sweep();
-      await writeFile(resultFile(job.id), buf);
+      const outDir = scoped ? p.resultsScoped : p.results;
+      await mkdir(outDir, { recursive: true });
+      await sweep(outDir);
+      await writeFile(resultFile(job.id, scoped), buf);
       const seconds = Math.round((Date.now() - started) / 100) / 10;
       const vramPeakGb = vram ? await vram.stop() : null;
       log(`🖼 내 PC 그림 완료: ${seconds}초 (${width}px)${vramPeakGb != null ? ` · 그래픽 메모리 최대 ${vramPeakGb}GB` : ""}`);
