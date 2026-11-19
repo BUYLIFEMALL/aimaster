@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   getRecentProducts,
@@ -97,12 +97,81 @@ interface QuickBarProps {
   cartCount: number;
 }
 
+// FRONT-20261119-QUICKBAR 최종안 A: 767px 이하는 떠 있는 손잡이 없이 머리글 카테고리 줄 오른쪽 끝 단추(QuickBarOpener)로 연다.
+// 단추(머리글, shop-frame)와 빠른 메뉴(layout 맨 끝)는 서로 다른 곳에 그려지므로 창 이벤트로 잇는다.
+export const QUICKBAR_TOGGLE_EVENT = "mb_quickbar_toggle";
+export const QUICKBAR_STATE_EVENT = "mb_quickbar_state";
+export const QUICKBAR_PANEL_ID = "mb-quickbar-panel";
+
+/** 767px 이하 전용 빠른 메뉴 단추 — 머리글 자리라 상품 링크·배지를 덮지 않는다. 40×40px */
+export function QuickBarOpener() {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const onState = (e: Event) => setOpen(Boolean((e as CustomEvent<{ open?: boolean }>).detail?.open));
+    window.addEventListener(QUICKBAR_STATE_EVENT, onState);
+    return () => window.removeEventListener(QUICKBAR_STATE_EVENT, onState);
+  }, []);
+  return (
+    <button
+      type="button"
+      data-quickbar="opener"
+      aria-label={open ? "빠른 메뉴 닫기" : "빠른 메뉴 열기"}
+      aria-expanded={open}
+      aria-controls={QUICKBAR_PANEL_ID}
+      onClick={() => window.dispatchEvent(new CustomEvent(QUICKBAR_TOGGLE_EVENT))}
+      className={`mr-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border text-slate-700 transition md:hidden ${
+        open ? "border-blue-300 bg-blue-50 text-blue-700" : "border-slate-200 bg-white hover:bg-slate-50"
+      }`}
+    >
+      <IconShoppingBag size={18} />
+    </button>
+  );
+}
+
 export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
   const [items, setItems] = useState<RecentProduct[]>([]);
-  // FRONT-20261119-QUICKBAR: null = 아직 안 누름 → 화면 폭으로 CSS(md=768px)가 결정(767px 이하 접힘 = 손잡이만, 그 위 펼침 — 서버 첫 화면부터, 깜박임 없음).
-  // 누르면 그때부터 누른 상태(true/false). 안 누른 동안은 폭별 손잡이 두 개를 그려 숨은 쪽은 display:none —
-  // 첫 화면부터 보이는 모양과 이름·aria-expanded가 일치(QA P3, 하이드레이션 전후 차이 없음)
+  // null = 아직 안 누름 → 화면 폭으로 CSS(md=768px)가 결정: 767px 이하 = 닫힘(머리글 단추만), 768px 이상 = 기존처럼 펼침.
+  // 누르면 그때부터 누른 상태(true = 접힘, false = 펼침). 767px 이하에서 열림 = false
   const [collapsedPref, setCollapsedPref] = useState<boolean | null>(null);
+  // 열고 닫은 뒤 포커스 이동: 머리글 단추로 열면 패널 첫 단추로, 패널에서 닫으면 머리글 단추로(Tab 순서상 패널이 문서 맨 끝이라)
+  const [focusTo, setFocusTo] = useState<"panel" | "opener" | null>(null);
+  const panelCloseRef = useRef<HTMLButtonElement>(null);
+  const asideRef = useRef<HTMLElement>(null);
+
+  const prefRef = useRef(collapsedPref);
+  useEffect(() => {
+    prefRef.current = collapsedPref;
+    window.dispatchEvent(new CustomEvent(QUICKBAR_STATE_EVENT, { detail: { open: collapsedPref === false } }));
+  }, [collapsedPref]);
+
+  useEffect(() => {
+    // 머리글 단추: 열림(false)이면 닫고(null = 767px 이하 닫힘), 아니면 열고 패널로 포커스
+    const onToggle = () => {
+      const opening = prefRef.current !== false;
+      setCollapsedPref(opening ? false : null);
+      setFocusTo(opening ? "panel" : null);
+    };
+    window.addEventListener(QUICKBAR_TOGGLE_EVENT, onToggle);
+    return () => window.removeEventListener(QUICKBAR_TOGGLE_EVENT, onToggle);
+  }, []);
+
+  useEffect(() => {
+    if (!focusTo) return;
+    const visible = (el: Element | null): el is HTMLElement => !!el && (el as HTMLElement).getClientRects().length > 0;
+    if (focusTo === "panel") {
+      if (visible(panelCloseRef.current)) panelCloseRef.current.focus();
+    } else {
+      const opener = [...document.querySelectorAll('[data-quickbar="opener"]')].find(visible);
+      const fallback = [...(asideRef.current?.querySelectorAll('[data-quickbar="toggle"]') ?? [])].find(visible);
+      (opener ?? fallback)?.focus();
+    }
+    setFocusTo(null);
+  }, [focusTo, collapsedPref]);
+
+  const closeFromPanel = () => {
+    setCollapsedPref(null);
+    setFocusTo("opener");
+  };
   const [showTopBtn, setShowTopBtn] = useState(false);
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 3;
@@ -151,38 +220,32 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
     window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
   };
 
-  // 접기/펼치기 손잡이. 767px 이하는 화면 오른쪽 끝 본문 여백 안(640px 미만 16px·이상 24px = 상점 본문 px-4/sm:px-6)에만 놓여
-  // 상품 링크·배지를 덮지 않는다(QA P2). 높이 56px. 768px 이상은 기존 20×40px 그대로
-  const toggle = (collapsed: boolean, only: string) => (
-    <button
-      type="button"
-      onClick={() => setCollapsedPref(!collapsed)}
-      aria-label={collapsed ? "퀵바 펼치기" : "퀵바 접기"}
-      aria-expanded={!collapsed}
-      data-quickbar="toggle"
-      className={`absolute -left-5 top-1/2 -translate-y-1/2 z-10 flex h-10 w-5 max-md:-left-4 max-md:h-14 max-md:w-4 sm:max-md:-left-6 sm:max-md:w-6 items-center justify-center rounded-l-lg border-y border-l border-slate-300 bg-white/95 text-slate-500 shadow-md backdrop-blur-md hover:bg-slate-50 hover:text-blue-600 transition [data-mall-mode='dark']_:bg-slate-800 [data-mall-mode='dark']_:border-slate-700 [data-mall-mode='dark']_:text-slate-300${only}`}
-    >
-      {collapsed ? <IconChevronLeft size={14} /> : <IconChevronRight size={14} />}
-    </button>
-  );
+  // 접기/펼치기 손잡이 — 768px 이상만(기존 20×40px 그대로). 767px 이하는 머리글 단추(QuickBarOpener)가 대신한다
+  const collapsedWide = collapsedPref ?? false;
 
   return (
     <aside
+      ref={asideRef}
       aria-label="쇼핑 편의 퀵바"
-      className="fixed right-2.5 max-md:right-0 top-1/2 -translate-y-1/2 z-40 select-none transition-all duration-300 ease-in-out"
+      className="fixed right-2.5 top-1/2 -translate-y-1/2 z-40 select-none transition-all duration-300 ease-in-out"
+      onKeyDown={(e) => {
+        if (e.key === "Escape" && collapsedPref === false) closeFromPanel();
+      }}
     >
       <div className="relative flex items-center">
-        {collapsedPref === null ? (
-          <>
-            {toggle(true, " md:hidden")}
-            {toggle(false, " max-md:hidden")}
-          </>
-        ) : (
-          toggle(collapsedPref, "")
-        )}
+        <button
+          type="button"
+          onClick={() => setCollapsedPref(!collapsedWide)}
+          aria-label={collapsedWide ? "퀵바 펼치기" : "퀵바 접기"}
+          aria-expanded={!collapsedWide}
+          data-quickbar="toggle"
+          className="absolute -left-5 top-1/2 -translate-y-1/2 z-10 flex h-10 w-5 max-md:hidden items-center justify-center rounded-l-lg border-y border-l border-slate-300 bg-white/95 text-slate-500 shadow-md backdrop-blur-md hover:bg-slate-50 hover:text-blue-600 transition [data-mall-mode='dark']_:bg-slate-800 [data-mall-mode='dark']_:border-slate-700 [data-mall-mode='dark']_:text-slate-300"
+        >
+          {collapsedWide ? <IconChevronLeft size={14} /> : <IconChevronRight size={14} />}
+        </button>
 
         {collapsedPref === true && (
-          /* 접힘 상태: 콤팩트 미니 바 — 768px 이상만. 767px 이하 접힘은 손잡이 단추만(미니 바도 폭 약 58px라 상품 카드를 가림) */
+          /* 접힘 상태: 콤팩트 미니 바 — 768px 이상만(767px 이하는 미니 바도 폭 약 58px라 상품 카드를 가려서 머리글 단추만) */
           <div data-quickbar="collapsed" className="flex flex-col items-center gap-2 rounded-2xl border border-slate-200/90 bg-white/95 p-2 shadow-xl backdrop-blur-md [data-mall-mode='dark']_:bg-slate-900/95 [data-mall-mode='dark']_:border-slate-700 max-md:hidden">
             {/* 장바구니 미니 버튼 */}
             <Link
@@ -228,7 +291,19 @@ export default function QuickBar({ slug, base, cartCount }: QuickBarProps) {
         )}
         {collapsedPref !== true && (
           /* 펼침 상태: 정규 퀵바 패널 (안 누른 상태면 768px 이상에서만 보임 — 데스크톱 기본값 그대로) */
-          <div data-quickbar="expanded" className={`w-[100px] flex flex-col items-center rounded-2xl border border-slate-200/90 bg-white/95 p-2 shadow-2xl backdrop-blur-md [data-mall-mode='dark']_:bg-slate-900/95 [data-mall-mode='dark']_:border-slate-700${collapsedPref === null ? " max-md:hidden" : ""}`}>
+          <div id={QUICKBAR_PANEL_ID} data-quickbar="expanded" className={`w-[100px] flex flex-col items-center rounded-2xl border border-slate-200/90 bg-white/95 p-2 shadow-2xl backdrop-blur-md [data-mall-mode='dark']_:bg-slate-900/95 [data-mall-mode='dark']_:border-slate-700${collapsedPref === null ? " max-md:hidden" : ""}`}>
+            {/* 767px 이하 닫기(손잡이가 없으므로) — 닫으면 머리글 단추로 포커스 복귀 */}
+            <button
+              ref={panelCloseRef}
+              type="button"
+              onClick={closeFromPanel}
+              data-quickbar="panel-close"
+              aria-label="빠른 메뉴 닫기"
+              className="mb-2 flex h-10 w-full items-center justify-center gap-1 rounded-xl border border-slate-200 bg-white text-[11px] font-bold text-slate-600 hover:bg-slate-50 md:hidden [data-mall-mode='dark']_:bg-slate-800 [data-mall-mode='dark']_:border-slate-700 [data-mall-mode='dark']_:text-slate-300"
+            >
+              <IconX size={12} /> 닫기
+            </button>
+
             {/* 1. 장바구니 퀵 링크 */}
             <Link
               href={`${base}/cart`}

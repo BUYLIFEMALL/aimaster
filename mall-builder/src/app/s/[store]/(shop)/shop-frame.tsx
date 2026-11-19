@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import type { BusinessInfo } from "@/lib/businessInfo";
 import type { FooterDesign, HeaderDesign, MenuLink } from "@/lib/builder/frame";
+import { QuickBarOpener } from "./quick-bar";
 
 // 1안 106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 유저 화면 틀(띠·헤더·바닥글)
 // 데이터만 받아 그린다 — 유저 화면 틀(layout.tsx)과 디자인 편집기 미리보기가 같이 쓴다(디자인 빌더 D3).
@@ -88,10 +89,12 @@ export function ShopHeader({ base, storeName, header, categories, showShop, righ
         </nav>
       </div>
 
-      {/* 카테고리 + 운영사 메뉴(2단까지 — 큰 화면은 마우스를 올리면 아래 메뉴, 휴대폰은 윗 메뉴만) */}
-      {showShop && (cats.length > 0 || header.menu.length > 0) && (
-        <div className="border-t border-slate-100 bg-white">
-          <nav className="mx-auto flex max-w-6xl items-center gap-1 overflow-x-auto px-4 py-1.5 text-sm font-medium text-slate-600 scrollbar-none md:overflow-visible sm:px-6" data-shop-menu>
+      {/* 카테고리 + 운영사 메뉴(2단까지 — 큰 화면은 마우스를 올리면 아래 메뉴, 휴대폰은 윗 메뉴만).
+          767px 이하는 줄 오른쪽 끝에 빠른 메뉴 단추(FRONT-20261119-QUICKBAR — 떠 있는 손잡이가 상품을 가려서 머리글 자리로).
+          카테고리·메뉴가 없는 상점은 767px 이하에서만 단추 한 개짜리 줄 */}
+      {showShop && (cats.length > 0 || header.menu.length > 0) ? (
+        <div className="flex items-center border-t border-slate-100 bg-white">
+          <nav className="mx-auto flex min-w-0 max-w-6xl flex-1 items-center gap-1 overflow-x-auto px-4 py-1.5 text-sm font-medium text-slate-600 scrollbar-none max-md:pr-2 md:overflow-visible sm:px-6" data-shop-menu>
             {header.show_categories && (
               <Link href={base} className="shrink-0 rounded-md px-3 py-1.5 text-slate-800 hover:bg-slate-100 hover:text-blue-600 transition-colors">
                 전체
@@ -119,7 +122,14 @@ export function ShopHeader({ base, storeName, header, categories, showShop, righ
               ),
             )}
           </nav>
+          <QuickBarOpener />
         </div>
+      ) : (
+        showShop && (
+          <div className="flex justify-end border-t border-slate-100 bg-white md:hidden">
+            <QuickBarOpener />
+          </div>
+        )
       )}
     </header>
   );
