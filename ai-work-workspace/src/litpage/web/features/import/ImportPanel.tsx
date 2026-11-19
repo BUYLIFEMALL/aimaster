@@ -304,7 +304,7 @@ export function ImportPanel({ onDone, parentPageId, afterBlockId, initialKind }:
                     <span>{t('lp.import.drop_html_markdown_text_pdf_csv', 'Drop HTML, markdown, text, PDF, CSV, or ZIP files here, or')}</span>
                     <span role="button" className="nc-import-choose" onClick={() => pick()}>{t('lp.import.select_a_file', 'select a file')}</span>
                   </div>
-                  <div className="nc-import-drop-note">{t('lp.import.zip_files_must_be_5gb_or', 'ZIP files must be 5GB or smaller')}</div>
+                  <div className="nc-import-drop-note">{t('lp.import.zip_files_must_be_5gb_or', 'ZIP files must be 50MB or smaller')}</div>
                   {status.state === 'error' && (
                     <div className="nc-import-error"><Icon name="circleAlert" size={14} />{status.message}</div>
                   )}

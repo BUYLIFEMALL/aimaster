@@ -1075,7 +1075,7 @@
   "lp.import.turn_epub_html_markdown_text_pdf": "EPUB, HTML, Markdown, 텍스트, PDF, CSV, DOCX 파일을 페이지로 변환",
   "lp.import.untitled": "제목 없음",
   "lp.import.word": "Word",
-  "lp.import.zip_files_must_be_5gb_or": "ZIP 파일은 5GB 이하여야 합니다",
+  "lp.import.zip_files_must_be_5gb_or": "ZIP 파일은 50MB 이하여야 합니다",
   "lp.meetings.actions": "작업",
   "lp.meetings.add_to_my_instruction_list": "내 지침 목록에 추가",
   "lp.meetings.add_your_own_instructions": "나만의 지침 추가",
