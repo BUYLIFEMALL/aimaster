@@ -119,3 +119,83 @@
 - `docs/SCHEDULER_POLICY.md` 개정(별도 작업, Master 판정).
 - 다른 프로그램의 기본값 변경.
 - 원본 사진 정리 예약(`/api/aif/assets/cleanup`) — 운영 정리 작업이라 사이트 예약 그대로.
+
+## 9. A안 설계 — 공용 기준의 「선택 연결점」 (2026-11-19, Master `msg_81623dd95517`)
+
+- 상태: **설계 표만**. 기준·사본 편집 0, `--sync` 0, DB·제품 편집 0, 실제 게시·배포·유료 호출 0.
+- Master 조건(그대로 반영): 이 앱은 관리자·지정 회원도 행이 없으면 cron-job.org가 기본이고 Vercel은 **명시 선택만** · 권한 조회 오류와 철회는 Vercel **차단** · 오래된 `vercel` 행은 일괄 수정 없이 **유효 방식으로 해석** · 대기 게시 처리는 D13 선행 · 회원 cron 1분과 운영 Vercel 5분은 별개이고 이번에 주기 변경 없음 · 관리자 화면·권한 저장 계약·마이그레이션 번호는 Master 조정(§3-1의 표 이름·칸은 내 제안일 뿐이다).
+- §3-3 정정: 「허용 계정은 행이 없으면 `vercel`」이라고 적었던 것은 Master 조건에 따라 **행이 없으면 누구나 `cronjob`**으로 바꾼다.
+
+### 9-1. 연결점(프로그램 고유 `schedulerConfig.ts`가 **내보낼 때만** 켜진다)
+
+| 선택 내보내기 | 뜻 | 없을 때(다른 프로그램 전부) |
+|---|---|---|
+| `SCHEDULER_DEFAULT_MODE` | 행이 없는 회원의 기본 방식 | 지금 식 그대로(`SCHEDULER_IS_STANDALONE ? "cronjob" : "vercel"`) |
+| `platformSchedulerAllowed(service, userId)` | 이 회원이 사이트(Vercel) 예약을 써도 되는가 | 전원 허용(지금과 같음) |
+| `listPlatformAllowedUserIds(service)` | 사이트 예약 실행이 처리해도 되는 회원 목록 | 「제외 목록」 방식 그대로 |
+
+- 읽는 방법: 기준이 `import * as cfg from "./schedulerConfig"`로 읽고 있으면 쓰고 없으면 건너뛴다 → **다른 프로그램의 `schedulerConfig.ts`는 한 줄도 바뀌지 않는다.**
+- 판정 함수가 오류를 내면 「허용 아님」으로 본다(연결점이 있는 프로그램에서만).
+
+### 9-2. 기준 파일별 패치 범위
+
+| 공용 id | 기준 파일 | 사본 수 | 바꿀 것 | 이 앱 밖 동작 |
+|---|---|---|---|---|
+| `member-scheduler` | `insta_auto_poster/src/lib/cardnews/instagram/memberScheduler.ts` | 18 | 기본 방식을 선택 값에서 읽기 · 새 내부 함수 「회원별 허용」 · `memberSchedulerMode`가 **유효 방식**을 돌려줌(행이 `vercel`인데 허용이 아니면 `cronjob`) · `setMemberSchedulerMode("vercel")`은 허용 아니면 거절 · `removeMemberScheduler`는 허용일 때만 `vercel`로 되돌림 · `memberSchedulerState`에 `platformAllowed` 추가(방식은 유효 방식) · 새 함수 `platformDispatchScope(service)`(제외 목록 또는 허용 목록) | 불변(§9-4) |
+| `insta-posting` | `ai-webtoon-studio/src/lib/instagram/posting.ts` | 2 | `dispatchDuePosts` 선택 인자 `onlyUserIds`(주면 그 회원 글만, 빈 목록이면 0건) | 인자를 안 주면 불변 |
+| `insta-dispatch-route` | `ai-webtoon-studio/src/app/api/instagram/dispatch/route.ts` | 2 | `membersExcludedFromPlatform` 대신 `platformDispatchScope` 결과를 넘김 | 연결점이 없으면 같은 제외 목록 |
+| `insta-scheduler-route` · `insta-posts-route` · `insta-dispatch-member-route` · `insta-cronjob-org` | — | — | **변경 없음**(유효 방식·거절이 `member-scheduler` 안에서 처리됨) | — |
+
+- `membersExcludedFromPlatform`은 지우지 않고 그대로 둔다(정기형 프로그램의 자체 실행 경로가 부른다).
+- 허용 목록 방식이 필요한 이유: 지금은 행이 없는 회원도 예약할 수 있어 「행 없는 회원의 대기 글」이 생길 수 있다. 제외 목록으로는 행이 없는 회원을 적을 수 없다.
+- 사이트 예약이 처리하는 대상(이 앱) = 허용 목록 ∩ 행의 방식이 `vercel` ∩ 일시정지 아님.
+
+### 9-3. 이 앱만 바뀌는 파일(프로그램 고유)
+
+| 파일 | 바꿀 것 |
+|---|---|
+| `src/lib/instagram/schedulerConfig.ts` | `SCHEDULER_DEFAULT_MODE = "cronjob"` · 판정 2개(관리자이거나 권한 저장소에 있음 — 저장 계약은 Master 확정 뒤) |
+| `src/components/ScheduleSettings.tsx` | `platformAllowed`가 아니면 Vercel 선택지를 그리지 않음 · 키 등록 안내를 위로 · 「기본은 Vercel」 문구 삭제 · 키 삭제 안내 문구 |
+| 예약 누르는 화면(`SchedulePublishingControl.tsx` 등 고유 화면) | 키가 없을 때 등록 안내와 설정 열기 |
+
+### 9-4. 기본 동작 회귀 표 — 연결점을 내보내지 않는 프로그램(사본 17 + 2 + 2)
+
+| 함수·경로 | 지금 | 패치 뒤(연결점 없음) | 같음을 볼 시험 |
+|---|---|---|---|
+| `DEFAULT_SCHEDULER_MODE` | 운영 `vercel` / 키트 `cronjob` | 같음 | 값 단언 2갈래 |
+| `memberSchedulerMode` | 행의 방식, 없으면 기본 | 같음(허용 = 항상 참) | 행 없음·`vercel`·`cronjob` |
+| `setMemberSchedulerMode("vercel")` | 사이트 예약이 켜져 있으면 저장 | 같음 | 켜짐·꺼짐 |
+| `setMemberSchedulerMode("cronjob")` | 키 필요·실패 시 되돌림 | 같음(손대지 않음) | 기존 시험 |
+| `removeMemberScheduler` | 켜져 있으면 `vercel`로 되돌림 | 같음 | keepMode 유무 |
+| `memberSchedulerState` | 6가지 상태 | 같음 + 칸 `platformAllowed: true` 하나 추가 | 상태 6가지 |
+| `membersExcludedFromPlatform` | 제외 목록 | 같음(손대지 않음) | — |
+| `platformDispatchScope`(새) | — | `{ excludeUserIds: 위와 같은 목록 }` | 목록 동일 단언 |
+| `dispatchDuePosts` | 제외 목록 적용 | 같음(`onlyUserIds` 없음) | 조회 조건 동일 |
+| 사이트 예약 실행 경로 | 제외 목록으로 게시 | 같음 | 모의 실행 |
+
+- 덧붙는 응답 칸(`platformAllowed`)을 엄격히 검사하는 기존 화면·시험이 있는지는 패치 때 사본 프로그램별로 찾아본다(지금은 미확인).
+
+### 9-5. 이 앱의 판정표(연결점 있음)
+
+| 회원 | 행 | 유효 방식 | Vercel로 바꾸기 | 사이트 예약이 게시 |
+|---|---|---|---|---|
+| 일반 | 없음 | `cronjob` | 거절 | 아니오 |
+| 일반 | `vercel`(옛 기본) | `cronjob` | 거절 | 아니오 |
+| 일반 | `cronjob` | `cronjob` | 거절 | 아니오 |
+| 관리자·지정 | 없음 | `cronjob` | 허용 | 아니오(고르기 전) |
+| 관리자·지정 | `vercel` | `vercel` | — | 예 |
+| 지정 철회됨 | `vercel` | `cronjob` | 거절 | 아니오 |
+| 판정 조회 오류 | 무엇이든 | `cronjob` | 거절 | 아니오 |
+
+- 「옛 `vercel` 행이 명시 선택인지 기본으로 들어간 것인지」는 행만으로 구분할 수 없다(지금 코드는 행을 만들 때 기본값을 적는다). 관리자·지정 계정의 옛 `vercel` 행은 유효 방식 `vercel`로 해석된다 — Master 조건 「유효 방식으로 해석」과 맞지만, 「명시 선택만」을 엄격히 하려면 그 계정들이 한 번 다시 골라야 한다. 판정 필요(운영 행은 2026-11-19 읽기 기준 1건).
+- 유효 방식이 `cronjob`인데 키가 없는 회원의 **이미 대기 중인 글**은 아무도 게시하지 않는다 → D13(배포 직전 건수 확인, 1건 이상이면 배포 보류)이 선행인 이유다.
+
+### 9-6. 로컬 패치 경로(승인 뒤 순서)
+
+1. 격리 사본(저장소 밖 `git archive`)에서 기준 3파일을 고치고 시험 작성 — 공유 작업 폴더의 기준·사본은 그대로.
+2. 회귀 시험: §9-4(연결점 없음) + §9-5(연결점 있음) + 각 사본 프로그램의 기존 예약 시험.
+3. Master 수락 뒤 기준 3파일 커밋 → `node scripts/check-shared-modules.mjs --sync` → 사본 22개가 바뀜(18 + 2 + 2). 사본 프로그램은 저장소 반영만(급하지 않은 등급, 각 프로그램 「미배포 대기」 기록), 배포는 이 앱만.
+4. 이 앱 고유 파일(§9-3) → `tsc`·`npm test` → D13 확인 → 배포(빌드 승인 뒤).
+
+- 사본 영향 프로그램: `ai-influencer-studio` · `ai-webtoon-studio` · `four-cut-comics` · `threads-content-ops` · `threads` · `insta_auto_poster`(기준 + 사본) · `threads-affiliate-poster` · `booking-reminder` · `crm-google-form` · `kakao_auto_poster` · `naver-cafe-poster` · `stepmail` · `trending-product-finder` · `youtube-auto-reply` · `threads-comment-reply` · `instagram-comment-reply` · `realty-client-desk` · `ai-work-workspace`. 다른 역할 담당 프로그램이 많다 — `--sync` 전에 각 폴더의 미커밋 변경과 점유를 확인해야 한다.
+- 점검 기준선(2026-11-19): `check-shared-modules.mjs` 일치 458줄, 예약 관련 22줄 모두 OK. 무관한 문제 1건(`safe-fetch` 기준 파일 없음)은 내 범위 밖이라 Master에 알림.
