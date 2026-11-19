@@ -6301,11 +6301,11 @@
       "owner": "CC-SNS-01",
       "title": "AI Influencer D1 스위치 OFF 배포 사전 확인",
       "status": "running",
-      "delivery": "isolated_off_candidate_selected_local_smoke_dispatched",
+      "delivery": "isolated_build_off_mock_pass_reference_budget_fix_dispatched",
       "sha": "6ff8bd158",
-      "next": "v1.26 기준 격리 후보 선택. Next 16.4.6 로컬 OFF 빌드 1회·정상 흐름 모의 점검 배정. 일부 기존 사진 입력 영향 확인 중, 원격 미시작.",
-      "evidence": "msg_99f48ec1072f·msg_56627921dadb·msg_ab5b76ba2021·msg_fe0626fbf3a1·msg_ff8bfd3c4215·7da7961ec·msg_6fe64489deea",
-      "lastReviewedAt": "2026-11-19T07:29:09.739Z"
+      "next": "격리 Next 로컬 빌드·OFF 모의 31/31 통과. 다중 참조/보정 합계 한도 회귀 보완 배정. 로그인 후 실제 화면 미검증·원격 미시작.",
+      "evidence": "msg_99f48ec1072f·msg_56627921dadb·msg_ab5b76ba2021·msg_fe0626fbf3a1·msg_ff8bfd3c4215·7da7961ec·msg_6fe64489deea·msg_edce1bb04114·7cbff8753·msg_d1564fa89a51",
+      "lastReviewedAt": "2026-11-19T07:37:40.966Z"
     },
     {
       "task_id": "FRONT-20261119-QUICKBAR-TABLET",
