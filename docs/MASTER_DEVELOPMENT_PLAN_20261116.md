@@ -372,7 +372,7 @@ Master 마지막 실제 점검: 2026-11-19 22:02:05 KST · 22:00 예약 메시�
 | WS-20261117-25 | CC-WORKSPACE-01 | done / integrated | E4 Gmail함 기존기능/권한 대조와 최소범위 조사 | 소스동결·릴리스표QA041지정PASS갱신, 운영활성화WS27 별도승인/실검증 |
 | WS-20261117-26 | CX-MASTER-01 | done / v158_released_runtime_checks_partial | E3+WS23 v1.58 묶음 배포/운영 실검수 | E3/요일칩 실화면·실AI별도 미검수경계유지 |
 | QA-20261117-036 | CX-QA-01 | done / integrated | Gmail A1 OFF 서버 OAuth 독립 검수 | 0074소스준비수락·운영미적용/OFF, A2후속은별도검수 |
-| QA-20261117-037 | CX-QA-01 | waiting_human / queued_after_adminui_waiting_test_role_login | B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수 | Mac 공간39 관리자 검수 뒤 기존 공간29 고객·직원 로그인/제어 반환 대기. 교환비 안내·권한·375px 읽기, 실제 결제는 최종 단계. |
+| QA-20261117-037 | CX-QA-01 | waiting_human / qa037_user_control_lab_login_and_return_pending | B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수 | Mac ego lite 공간 29 사용자 제어 상태. Lab 지정 시험 계정 로그인·Return 뒤 교환비 안내·권한·375px 읽기부터 재개. 실제 결제는 최종 단계. |
 | QA-20261117-038 | CX-QA-01 | done / integrated | Gmail A2 원자 받은업무 전달 서버·SQL 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
 | QA-20261117-039 | CX-QA-01 | done / integrated | Gmail OFF 패널 실제 TSX 모의 독립검수 | 소스수락·고정, OFF배선통합은후속독립검수 |
 | QA-20261117-040 | CX-QA-01 | done / integrated | Gmail OFF 배선·실제 RPC 입구·어댑터·화면 통합 독립검수 | 배선소스수락·동결, 패널disconnect unknown후속별도 |

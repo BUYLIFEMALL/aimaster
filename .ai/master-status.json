@@ -3155,12 +3155,12 @@
       "reviewer": "CX-MASTER-01",
       "title": "B2B Lab 신규 배포 실제 화면·접근권한 읽기 검수",
       "status": "waiting_human",
-      "delivery": "queued_after_adminui_waiting_test_role_login",
+      "delivery": "qa037_user_control_lab_login_and_return_pending",
       "sha": "7609748ad",
-      "evidence": "msg_d9ff650f722a: Mac ego공간29 Lab로그인폼/375확인·기존세션없음. Backend 89a489a12/9256b3782·msg_7918bcbb8f5c 합성경로/역할확정; msg_5e5b219f6d11 23:47 Mac공간29 제어반환미완료 재확인·로그인내용미확인 / B2B18-03 waiting교환420bfb91…·msg_d4ef7792280b·msg_f8b6c7802a93·msg_7b2287b746f4·msg_8336bb2a2684·.ai/results/B2B-20261119-LAB-CX-QA-01.md·84113aede·msg_f926bb943410·msg_02ed96144fc4·msg_9d09da552ba0·7acb0f2e·msg_cc8479621f27·msg_6ff23a7de0fc·msg_bfe91346e8ba·msg_98f16d65b7d9·msg_ac1221ecd028",
+      "evidence": "msg_d9ff650f722a: Mac ego공간29 Lab로그인폼/375확인·기존세션없음. Backend 89a489a12/9256b3782·msg_7918bcbb8f5c 합성경로/역할확정; msg_5e5b219f6d11 23:47 Mac공간29 제어반환미완료 재확인·로그인내용미확인 / B2B18-03 waiting교환420bfb91…·msg_d4ef7792280b·msg_f8b6c7802a93·msg_7b2287b746f4·msg_8336bb2a2684·.ai/results/B2B-20261119-LAB-CX-QA-01.md·84113aede·msg_f926bb943410·msg_02ed96144fc4·msg_9d09da552ba0·7acb0f2e·msg_cc8479621f27·msg_6ff23a7de0fc·msg_bfe91346e8ba·msg_98f16d65b7d9·msg_ac1221ecd028·msg_c9aa435ece5f",
       "scopeRef": "Mac 기존시험세션·Lab실화면읽기, 결제/RPC상태변경/발송/키/운영/build0",
       "completion": "Lab 로그인/고객교환비UI/권한차단/375·darkhover 확인, 실결제미검수분리",
-      "next": "Mac 공간39 관리자 검수 뒤 기존 공간29 고객·직원 로그인/제어 반환 대기. 교환비 안내·권한·375px 읽기, 실제 결제는 최종 단계.",
+      "next": "Mac ego lite 공간 29 사용자 제어 상태. Lab 지정 시험 계정 로그인·Return 뒤 교환비 안내·권한·375px 읽기부터 재개. 실제 결제는 최종 단계.",
       "lastReviewedAt": "2026-11-19T03:25:51.788Z"
     },
     {
