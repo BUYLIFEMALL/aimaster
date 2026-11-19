@@ -6979,18 +6979,18 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-19T18:01:20.640Z",
+      "at": "2026-11-19T18:32:09.797Z",
       "timezone": "Asia/Seoul",
-      "trigger": "03:00 정기 점검 msg_268b66ce9194",
-      "scope": "직전 회차 뒤 작업표·담당 보고·인수인계/결과 경로·점유·실행 자원 대조",
+      "trigger": "03:30 예약 msg_b10cc5f1ba56 및 주인님 요청 일괄 취합",
+      "scope": "기존 작업표·남은 일·담당·선행조건·새 회신과 결과 파일을 03:00 이후 증분 대조",
       "evidence": [
-        "Workspace 3d446effa 회귀 수락 d83a6cf23. 신규 결과·인수인계는 최근 파일 시각 대조.",
-        "SNS msg_6da0372c9622, 음악 msg_3e1f401e70ae, 음악 배포 준비 실제 전송 msg_31dbe2245180."
+        "송신 A2 msg_61f2f4de2d4e·수신 구현 msg_267c8cbef515 실제 전달.",
+        "Workspace 독립 검수 msg_1df854cc1b4b 전달·msg_b50ff6e291da 기존 실화면 증거 회수 및 판정."
       ],
-      "judgment": "SNS 운영 SQL 승인 수신 보고를 반영. 운영 적용 여부는 미적용 보고 기준. 음악 공개 배포는 승인 대기.",
-      "nextAction": "SNS 마이그레이션 명명 및 운영 적용 순번 판단. 음악 배포 묶음과 실화면 확인 절차 회수.",
+      "judgment": "세션별 다음 일을 조건으로 배정. 사람 조치와 결정은 총괄표 요청 절로 취합.",
+      "nextAction": "송수신 계약·수신 구현 회수 뒤 독립 검수. 사람 단계가 완료된 항목만 재개.",
       "unverified": [
-        "SNS 운영 사전 점검 및 SQL 적용, 음악 실제 화면/운영 배포, 다른 카테고리 운영 실동작."
+        "배정 착수 여부, 상품영상 운영 DB·왕복, Workspace 앱 다크·실 busy/저장, 결제·Lab 로그인 이후 검증."
       ]
     },
     "notifications": [
@@ -7616,10 +7616,10 @@
     },
     {
       "owner": "CC-ECOM-01",
-      "state": "상품영상 수신 계약 대조 제출. 상세페이지 영상 수신 경로·저장 칸 부재 보고",
-      "next": "Master 계약 검토 뒤 영상 담당과 인계. 무료 이미지 격리 화면도 별도 대기",
-      "evidence": "msg_601bdb74bd5d·msg_d59c68b08830·msg_6adfff8a518c · msg_22edc6ba9f09",
-      "reviewedAt": "2026-11-19T17:31:30.721Z",
+      "state": "상품영상 수신 로컬 구현 전달",
+      "next": "격리 검증과 고정 SHA 회수",
+      "evidence": "msg_601bdb74bd5d·msg_d59c68b08830·msg_6adfff8a518c · msg_22edc6ba9f09·msg_267c8cbef515",
+      "reviewedAt": "2026-11-19T18:32:09.797Z",
       "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
@@ -7632,10 +7632,10 @@
     },
     {
       "owner": "CC-MOVIE-01",
-      "state": "상품영상 송수신 계약 후보 정리 전달 msg_ce708436f72d",
-      "next": "상품 소유·ID·성공/실패·중복 요청 계약 후보를 회수해 이커머스에 검토 연결. GIF V4는 녹화 확인 대기",
-      "evidence": "3feb2bd85·msg_e19e56da16c0 · msg_39488c8f7357",
-      "reviewedAt": "2026-11-19T17:31:30.721Z",
+      "state": "cfd969004 계약 후보 제출 후 A2 보완 전달",
+      "next": "이커머스와 송수신 계약 확정",
+      "evidence": "3feb2bd85·msg_e19e56da16c0 · msg_39488c8f7357·msg_61f2f4de2d4e",
+      "reviewedAt": "2026-11-19T18:32:09.797Z",
       "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
@@ -7664,10 +7664,10 @@
     },
     {
       "owner": "CX-QA-01",
-      "state": "하네스 중지 후보 표시 보완판 08bd1c06f 재검수 3/3 수락",
-      "next": "Lab 로그인 뒤 QA037 등 기존 검수 순번",
-      "evidence": "msg_797fd5bb3cc4·msg_2d1033203682 · msg_0be20c445fd3",
-      "reviewedAt": "2026-11-19T17:31:30.721Z",
+      "state": "Workspace 예약 요일 375/390px·Tab·OS 다크 선호 기존 실화면 근거 수락",
+      "next": "앱 자체 다크·실 busy/저장은 미검증, Lab QA037은 로그인 뒤 진행",
+      "evidence": "msg_797fd5bb3cc4·msg_2d1033203682 · msg_0be20c445fd3·msg_b50ff6e291da",
+      "reviewedAt": "2026-11-19T18:32:09.797Z",
       "evidenceLevel": "담당 회신·Git·기존 기록 대조"
     },
     {
