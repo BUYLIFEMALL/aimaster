@@ -201,3 +201,128 @@ describe('putRecord와 요청 캐시', () => {
     expect(inDb(pageId).content).toEqual(expect.arrayContaining(ids));
   });
 });
+
+// 2026-11-19 Master msg_81e5f70393f6: 저장 직전 훅(onBeforePersist)·커밋 뒤 훅(onCommit)과 캐시의 경계.
+// 훅은 한 번 등록하면 지울 수 없으므로, 스위치(hook.*)가 켜진 동안에만 움직이는 시험용 훅을 하나씩 등록한다.
+describe('연쇄 훅과 요청 캐시', () => {
+  let records: typeof import('../../src/litpage/server/records.ts');
+  const hook: { persist: null | ((changed: Map<string, any>) => void); commit: null | ((info: any) => void) } = { persist: null, commit: null };
+  let pageId = '';
+
+  beforeAll(async () => {
+    records = await import('../../src/litpage/server/records.ts');
+    records.onBeforePersist((changed) => hook.persist?.(changed));
+    records.onCommit((info) => hook.commit?.(info));
+    pageId = uid();
+    d.putRecord('block', { id: pageId, version: 1, type: 'page', space_id: spaceId, parent_id: spaceId, parent_table: 'space', alive: true, content: [], properties: { title: [['훅 시험']] }, permissions: [{ type: 'user_permission', role: 'editor', user_id: kim.id }] } as any);
+  });
+
+  const child = (id: string, title: string) => ({ id, version: 1, type: 'text', space_id: spaceId, parent_id: pageId, parent_table: 'block', alive: true, properties: { title: [[title]] } }) as any;
+  const setTitle = (id: string, title: string) => ({ pointer: { table: 'block', id, spaceId }, path: ['properties', 'title'], command: 'set', args: [[title]] });
+  const apply = (ops: unknown[]) => records.applyTransactions(kim.id, [{ id: uid(), spaceId, operations: ops as any }]);
+  const off = () => { hook.persist = null; hook.commit = null; };
+
+  it('저장 직전 훅이 같은 키를 고치면 그 값이 저장되고, 같은 요청의 다음 읽기도 그 값이다', () => {
+    const a = uid();
+    d.putRecord('block', child(a, '처음'));
+    try {
+      d.withRequestCache(() => {
+        expect(titleOf(d.getRecord('block', a))).toBe('처음');
+        hook.persist = (changed) => { changed.get(`block:${a}`).record.properties.title = [['훅이 고침']]; };
+        apply([setTitle(a, '요청 값')]);
+        const now = d.getRecord('block', a) as any;
+        expect(titleOf(now)).toBe('훅이 고침');
+        expect(now.version).toBe(2);
+      });
+    } finally { off(); }
+    expect(titleOf(inDb(a))).toBe('훅이 고침');
+    expect(inDb(a).version).toBe(2);
+  });
+
+  it('저장 직전 훅은 잠금 뒤의 최신 값을 읽고, 훅이 쓴 다른 키도 같은 요청에서 바로 보인다', () => {
+    const [a, x, y] = [uid(), uid(), uid()];
+    for (const [id, t] of [[a, 'A'], [x, 'X'], [y, 'Y']] as const) d.putRecord('block', child(id, t));
+    let hookSawY = '';
+    try {
+      d.withRequestCache(() => {
+        d.getRecord('block', x);
+        expect(titleOf(d.getRecord('block', y))).toBe('Y'); // 요청 캐시에 예전 값
+        other(y, '남이 바꿈', 2); // 다른 서버의 쓰기
+        hook.persist = () => {
+          hookSawY = titleOf(d.getRecord('block', y)); // 잠금(캐시 비움) 뒤라 최신 값이어야 한다
+          d.putRecord('block', { ...child(x, '훅이 쓴 다른 줄'), version: 2 });
+        };
+        apply([setTitle(a, 'A2')]);
+        expect(titleOf(d.getRecord('block', x))).toBe('훅이 쓴 다른 줄');
+        expect(titleOf(d.getRecord('block', a))).toBe('A2');
+      });
+    } finally { off(); }
+    expect(hookSawY).toBe('남이 바꿈');
+    expect(titleOf(inDb(x))).toBe('훅이 쓴 다른 줄');
+    expect(titleOf(inDb(a))).toBe('A2');
+  });
+
+  it('저장 직전 훅이 실패하면 요청한 쓰기도, 훅이 먼저 쓴 다른 키도 되돌려지고 캐시에 남지 않는다', () => {
+    const [a, x] = [uid(), uid()];
+    d.putRecord('block', child(a, 'A'));
+    d.putRecord('block', child(x, 'X'));
+    try {
+      d.withRequestCache(() => {
+        d.getRecord('block', a);
+        d.getRecord('block', x);
+        hook.persist = () => {
+          d.putRecord('block', { ...child(x, '되돌려질 값'), version: 2 });
+          expect(titleOf(d.getRecord('block', x))).toBe('되돌려질 값');
+          throw new Error('훅 실패 주입');
+        };
+        expect(() => apply([setTitle(a, 'A2')])).toThrow('훅 실패 주입');
+        expect(titleOf(d.getRecord('block', x))).toBe('X');
+        expect(titleOf(d.getRecord('block', a))).toBe('A');
+        expect((d.getRecord('block', a) as any).version).toBe(1);
+      });
+    } finally { off(); }
+    expect(titleOf(inDb(x))).toBe('X');
+    expect(titleOf(inDb(a))).toBe('A');
+  });
+
+  it('커밋 뒤 훅은 저장된 값을 보고, 훅 안의 연쇄 쓰기(다른 키)도 저장된다. 훅이 실패해도 쓰기는 남는다', () => {
+    const [a, z] = [uid(), uid()];
+    d.putRecord('block', child(a, 'A'));
+    d.putRecord('block', child(z, 'Z'));
+    const got: { title?: string; version?: number; prev?: string } = {};
+    let depth = 0;
+    try {
+      d.withRequestCache(() => {
+        d.getRecord('block', z);
+        hook.commit = (info) => {
+          if (depth++) return; // 연쇄 쓰기가 다시 부른 훅은 건너뛴다
+          const now = d.getRecord('block', a) as any;
+          got.title = titleOf(now);
+          got.version = now.version;
+          got.prev = titleOf(info.prev.get(`block:${a}`));
+          apply([setTitle(z, '연쇄로 쓴 값')]);
+          throw new Error('커밋 뒤 훅 실패 주입');
+        };
+        const out = apply([setTitle(a, 'A2')]); // 훅 실패는 삼켜진다
+        expect(out.length).toBe(1);
+        expect(titleOf(d.getRecord('block', z))).toBe('연쇄로 쓴 값');
+        expect((d.getRecord('block', z) as any).version).toBe(2);
+      });
+    } finally { off(); }
+    expect(got).toEqual({ title: 'A2', version: 2, prev: 'A' });
+    expect(titleOf(inDb(a))).toBe('A2');
+    expect(titleOf(inDb(z))).toBe('연쇄로 쓴 값');
+  });
+
+  it('같은 요청에서 같은 키를 연달아 쓰면 판 번호가 하나씩 오른다(캐시의 직전 값 기준)', () => {
+    const a = uid();
+    d.putRecord('block', child(a, 'v1'));
+    d.withRequestCache(() => {
+      for (const t of ['v2', 'v3', 'v4']) apply([setTitle(a, t)]);
+      expect((d.getRecord('block', a) as any).version).toBe(4);
+    });
+    expect(inDb(a).version).toBe(4);
+    expect(titleOf(inDb(a))).toBe('v4');
+    expect(Number(raw("SELECT version FROM records WHERE tbl = 'block' AND id = $1", [a]).rows[0].version)).toBe(4);
+  });
+});

@@ -124,3 +124,44 @@ describe.skipIf(!SIZES.length)('일반 ZIP 가져오기 성능 진단', () => {
     }, LIMIT_MS + 60_000);
   }
 });
+
+// 2026-11-19 Master msg_81e5f70393f6: 버전 기록(스냅숏)이 쪽이 아닌 블록 id로 저장되는 현상의 재현(측정만, 제품 수정 없음).
+// IMPORT_PERF_SNAP=1 일 때만 실행. 같은 내용(페이지 아래 토글 1 + 그 안의 문단 3)을 쓰는 순서만 바꿔 스냅숏이 어느 id로 생기는지 본다.
+describe.skipIf(!process.env.IMPORT_PERF_SNAP)('스냅숏이 블록 id로 저장되는 조건', () => {
+  const snapshotsByType = () => Object.fromEntries((db.db.prepare(
+    `SELECT COALESCE(aww_type.t, '(없음)') AS t, count(*) AS n FROM snapshots s
+     LEFT JOIN LATERAL (SELECT (r.data::jsonb->>'type') AS t FROM records r WHERE r.tbl = 'block' AND r.id = s.page_id) aww_type ON true
+     GROUP BY 1 ORDER BY 1`,
+  ).all() as { t: string; n: number }[]).map((r) => [r.t, Number(r.n)]));
+  const diff = (after: Record<string, number>, before: Record<string, number>) => Object.fromEntries(Object.keys(after).map((k) => [k, after[k] - (before[k] ?? 0)]).filter(([, n]) => n));
+  let seq = 0;
+  const id = () => `00000000-0000-4000-9000-${String(++seq).padStart(12, '0')}`;
+
+  const scenario = async (label: string, order: 'parent-first' | 'child-first') => {
+    const records = await import('../../src/litpage/server/records.ts');
+    const made = await runtime.runRpc('importFiles', { spaceId, parent: { kind: 'private' }, files: [{ name: `${label}.md`, url: db.withRequestCache(() => files.storeFile(`${label}.md`, `# ${label}\n\n본문\n`, pat.id, spaceId, 'text/markdown')).url }] }, pat);
+    const pageId = (made.body as any).pageIds[0] as string;
+    // 방금 만든 페이지의 스냅숏 간격(10분)에 걸리지 않게, 이 페이지의 기존 스냅숏 시각을 과거로 옮긴다(시험 DB 안에서만)
+    db.db.prepare('UPDATE snapshots SET created_time = created_time - 3600000 WHERE page_id = ?').run(pageId);
+    const toggle = id();
+    const kids = [id(), id(), id()];
+    const set = (bid: string, parent: string, type: string, content?: string[]) => ({ pointer: { table: 'block', id: bid, spaceId }, path: [], command: 'set', args: { id: bid, type, space_id: spaceId, parent_id: parent, parent_table: 'block', alive: true, properties: { title: [[`${type} ${bid.slice(-3)}`]] }, ...(content ? { content } : {}) } });
+    const parentOps = [set(toggle, pageId, 'toggle', kids), { pointer: { table: 'block', id: pageId, spaceId }, path: ['content'], command: 'listAfter', args: { id: toggle } }];
+    const childOps = kids.map((k) => set(k, toggle, 'text'));
+    const before = snapshotsByType();
+    const calls0 = stat.calls;
+    stat.on = true;
+    db.withRequestCache(() => records.applyTransactions(pat.id, [{ id: id(), spaceId, operations: (order === 'parent-first' ? [...parentOps, ...childOps] : [...childOps, ...parentOps]) as any }]));
+    stat.on = false;
+    return { 순서: order, 새스냅숏: diff(snapshotsByType(), before), DB호출: stat.calls - calls0 };
+  };
+
+  it('부모를 먼저 쓰면 쪽 단위, 자식을 먼저 쓰면 블록마다 스냅숏이 생긴다', async () => {
+    const a = await scenario('SnapParentFirst', 'parent-first');
+    const b = await scenario('SnapChildFirst', 'child-first');
+    const line = JSON.stringify({ 스냅숏재현: [a, b] });
+    console.log(line);
+    if (process.env.IMPORT_PERF_OUT) appendFileSync(process.env.IMPORT_PERF_OUT, `${line}\n`);
+    expect(Object.keys(a.새스냅숏).length + Object.keys(b.새스냅숏).length).toBeGreaterThan(0);
+  }, 60_000);
+});

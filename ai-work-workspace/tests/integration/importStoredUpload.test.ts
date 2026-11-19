@@ -629,11 +629,13 @@ describe('Storage를 기다리는 사이의 동시 변경', () => {
 
 // 2026-11-19 Master msg_a38d3ff84dbc: 서로 다른 DB 연결 사이의 실제 행 잠금 대기.
 // 앱은 동기 DB 다리(연결 하나)를 쓰므로, 시험이 두 번째 연결을 따로 열어 「다른 서버 인스턴스」 역할을 시킨다.
-// 두 번째 연결은 한 번에 보낸 문장 묶음으로 컬렉션 줄을 잠그고(FOR UPDATE) 열·옵션을 더한 뒤 2초 쉬었다가 커밋한다.
-// (앱 쪽 질의가 잠금을 기다리는 동안에는 이 프로세스의 이벤트 루프가 멈추므로, 커밋까지 DB 서버 안에서 끝나도록 한 묶음으로 보낸다.)
+// 두 번째 연결은 한 번에 보낸 문장 묶음으로 컬렉션 줄을 잠그고(FOR UPDATE) 열·옵션을 더한 뒤,
+// 「내 잠금에 막혀 기다리는 다른 연결」이 DB에 나타날 때까지 쥐고 있다가 커밋한다(pg_blocking_pids — 2026-11-19 Master msg_81e5f70393f6).
+// 기다린 시간으로 판정하지 않는다: 부하에 따라 흔들리고(전체 묶음에서 1,447ms로 한 번 실패), 대기 사실 자체를 증명하지도 못한다.
+// (앱 쪽 질의가 잠금을 기다리는 동안에는 이 프로세스의 이벤트 루프가 멈추므로, 확인과 커밋까지 DB 서버 안에서 끝나도록 한 묶음으로 보낸다.)
 describe('다른 DB 연결이 잡은 행 잠금', () => {
   const rec = <T = any>(table: string, id: string) => db.withRequestCache(() => db.getRecord(table as never, id) as T);
-  const HOLD_SEC = 3;
+  const HOLD_MAX_SEC = 30; // 막힌 연결이 끝내 나타나지 않으면 이만큼 뒤 풀고, 시험은 신호가 없어 실패한다
 
   it('mergeCsv는 다른 연결의 잠금이 풀릴 때까지 기다린 뒤 그 연결이 더한 열·옵션 위에 합친다', async () => {
     const seed = db.withRequestCache(() => files.storeFile('Lock.csv', Buffer.from('Name,Status\nOne,Open\n'), kim.id, sp(kim), 'text/csv'));
@@ -657,16 +659,28 @@ describe('다른 DB 연결이 잡은 행 잠금', () => {
     const stored = Buffer.from(`Name,Status,ColA,Pad\nFromA,Alpha,a1,${'p'.repeat(5 * MB)}\n`);
     const up = await uploadLarge(kim, 'lock.csv', stored, 'text/csv');
     let otherDone: Promise<unknown> | undefined;
-    let lockTakenAt = 0;
     try {
       // A가 Storage를 기다리는 사이(이미 예전 스키마를 읽어 둔 상태) 다른 연결이 잠금을 잡는다
       net.during = async () => {
         otherDone = other.unsafe(`
+          CREATE TEMP TABLE lock_signal (seen boolean, polls int, wait_type text, wait_event text, blocked int) ON COMMIT PRESERVE ROWS;
           BEGIN;
           SELECT id FROM records WHERE tbl = 'collection' AND id = '${colId}' FOR UPDATE;
           UPDATE records SET data = ${tag}${JSON.stringify(next)}${tag}, version = ${next.version}, last_edited_time = ${next.last_edited_time} WHERE tbl = 'collection' AND id = '${colId}';
-          SELECT pg_sleep(${HOLD_SEC});
+          DO $wait$
+          DECLARE i int := 0; w record;
+          BEGIN
+            LOOP
+              SELECT a.pid, a.wait_event_type, a.wait_event INTO w FROM pg_stat_activity a WHERE pg_backend_pid() = ANY(pg_blocking_pids(a.pid)) LIMIT 1;
+              EXIT WHEN w.pid IS NOT NULL OR i >= ${HOLD_MAX_SEC * 20};
+              PERFORM pg_sleep(0.05);
+              i := i + 1;
+            END LOOP;
+            INSERT INTO lock_signal VALUES (w.pid IS NOT NULL, i, w.wait_event_type, w.wait_event, (SELECT count(*) FROM pg_stat_activity a WHERE pg_backend_pid() = ANY(pg_blocking_pids(a.pid))));
+          END
+          $wait$;
           COMMIT;
+          SELECT seen, polls, wait_type, wait_event, blocked FROM lock_signal;
         `).simple().execute(); // execute(): 기다리지 않아도 지금 바로 보낸다
         // 다른 연결이 정말 잠금을 쥘 때까지 세 번째 연결로 확인한다(고정 시간 대기는 부하에 따라 흔들린다). 커밋 전이라 새 열은 아직 보이지 않는다
         const probe = postgres(process.env.AWW_DATABASE_URL!, { max: 1, onnotice: () => {} });
@@ -682,15 +696,18 @@ describe('다른 DB 연결이 잡은 행 잠금', () => {
         } finally {
           await probe.end();
         }
-        lockTakenAt = Date.now();
       };
       const r = await runtime.runRpc('mergeCsv', { blockId, url: up.url, name: 'lock.csv' }, kim);
-      const waitedMs = Date.now() - lockTakenAt;
       if (duringError) throw duringError;
-      await otherDone;
+      // 문장 묶음의 마지막 결과(lock_signal): 잠금을 쥔 연결이 DB에서 직접 본 것
+      const sets = (await otherDone) as unknown as Record<string, unknown>[][];
+      const signal = sets[sets.length - 1][0] as { seen: boolean; polls: number; wait_type: string | null; wait_event: string | null; blocked: number };
       expect({ status: r.status, message: (r.body as any)?.message }).toEqual({ status: 200, message: undefined });
-      // 실제로 기다렸다: 잠금을 확인한 시점부터 다른 연결이 쉬는 시간의 대부분이 지나서야 끝났다
-      expect(waitedMs).toBeGreaterThanOrEqual((HOLD_SEC - 1.5) * 1000);
+      // 실제로 기다렸다: 커밋 전에 「이 연결의 잠금에 막혀 잠금 대기 중인 연결」이 DB에 하나 있었다(앱의 DB 연결 — 확인용 연결은 이미 닫았다).
+      // (pg_stat_activity의 질의 문장 칸은 이 DB 다리에서 직전 문장이 보여 판정에 쓰지 않는다 — 대기 상태 칸으로 본다)
+      expect({ seen: signal.seen, wait_type: signal.wait_type, blocked: Number(signal.blocked) }).toEqual({ seen: true, wait_type: 'Lock', blocked: 1 });
+      expect(['transactionid', 'tuple']).toContain(signal.wait_event);
+      expect(signal.polls).toBeLessThan(HOLD_MAX_SEC * 20);
       // 다른 연결이 더한 열·옵션이 남아 있고, 우리 것이 그 위에 합쳐졌다
       const after = rec('collection', colId);
       const names = Object.values(after.schema as Record<string, any>).map((p) => p.name).sort();
