@@ -10063,11 +10063,11 @@
       "reviewer": "CX-QA-01",
       "title": "블로그 설정 플랫폼별 AI 모델 선택",
       "status": "reviewing",
-      "delivery": "model_catalog_mac_pass_fallback_narrowing_dispatched",
-      "sha": "c213647a4",
-      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e·msg_ae0e6dba4e84·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_e75e68c7f151·msg_d6f2385e1c72·7012fe1bf·msg_c5d009c34a43·msg_9d70d930ca5b·msg_2888acb4d0d4·msg_e7fae7770278·a7df2611f·msg_d19c65d4a1e5·msg_063718bdf213·msg_963f5dc087ca·msg_a5e256873a03·msg_a9f294314f32·msg_2497dcc19f0a·msg_7990e00f7c3e·msg_5171eb3488de·f8f4520f9·e0f02d424·OpenAI 2026-11-17 릴리스 노트·msg_77eaa7b278fe·msg_0421763e1697·c213647a4·755d7c529·msg_87a196aedfda·msg_ec472c6d6552·msg_bd0707fc7039",
-      "next": "Mac 공식 API ID·목록·기본값과 모의 19/19 확인. 무관한 파라미터 400의 대체 호출 제한 보완 배정. 실키·빌드·미배포.",
-      "lastReviewedAt": "2026-11-19T04:34:27.126Z"
+      "delivery": "fallback_narrowing_returned_mac_recheck_and_live_budget_noted",
+      "sha": "d88fb7bfd",
+      "evidence": "msg_17269f471438·fb31bb189·msg_fe9847e22f4e·msg_ae0e6dba4e84·.ai/results/BLOG-20261119-MODELS-CX-QA-01.md·msg_e75e68c7f151·msg_d6f2385e1c72·7012fe1bf·msg_c5d009c34a43·msg_9d70d930ca5b·msg_2888acb4d0d4·msg_e7fae7770278·a7df2611f·msg_d19c65d4a1e5·msg_063718bdf213·msg_963f5dc087ca·msg_a5e256873a03·msg_a9f294314f32·msg_2497dcc19f0a·msg_7990e00f7c3e·msg_5171eb3488de·f8f4520f9·e0f02d424·OpenAI 2026-11-17 릴리스 노트·msg_77eaa7b278fe·msg_0421763e1697·c213647a4·755d7c529·msg_87a196aedfda·msg_ec472c6d6552·msg_bd0707fc7039·msg_a6e246778395·d88fb7bfd·msg_13db44e2976a·msg_15f047c8dab7",
+      "next": "d88fb7bfd 파라미터·상태별 대체 호출 제한, 작성자 33/33. Mac 재검수 요청. 주인님 짧은 생성 승인 보고(총 9요청)·실행 결과 대기, 미배포.",
+      "lastReviewedAt": "2026-11-19T04:37:01.488Z"
     },
     {
       "task_id": "RE-20261119-DESK-U1A",
