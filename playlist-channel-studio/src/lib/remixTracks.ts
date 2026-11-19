@@ -5,11 +5,11 @@
 export const REMIX_MODE_LABEL: Record<string, string> = { cover: "커버", add_vocals: "보컬 추가", add_instrumental: "반주 추가", mashup: "매시업" };
 
 export type RemixMeta = { mode: string | null; instrumental: boolean | null; source_title: string | null; task_id: string | null };
-export type RemixVariantRow = { id: string; suno_audio_id: string | null; duration_seconds: number | null; created_at: string };
+export type RemixVariantRow = { id: string; suno_audio_id: string | null; duration_seconds: number | null; created_at: string; audio_url?: string | null };
 export type RemixRow = RemixMeta & { id: string; created_at: string; variants: RemixVariantRow[] };
 export type RemixTrack = {
   id: string; title: string; mode: "vocal" | "instrumental"; createdAt: string;
-  variants: { id: string; duration: number | null; canTime: boolean }[];
+  variants: { id: string; duration: number | null; canTime: boolean; blocked?: string }[];
 };
 
 /** 노래(가사)가 있는 리믹스인가 — 반주 추가·연주곡이면 아니다 */
@@ -19,14 +19,20 @@ export const remixIsVocal = (r: Pick<RemixMeta, "mode" | "instrumental">): boole
 export const remixTitle = (r: Pick<RemixMeta, "mode" | "source_title">): string =>
   `${(r.source_title ?? "").trim() || "제목 없음"} (${REMIX_MODE_LABEL[r.mode ?? ""] ?? "리믹스"})`;
 
-/** 리믹스 한 건 → 곡 목록 한 줄(변주는 만든 순서). 변주가 없으면 null */
-export function remixTrack(r: RemixRow): RemixTrack | null {
+/** 음원이 회원 폴더에 저장되지 않은 변주(음악 쪽 저장 실패로 외부 주소가 남은 것 등)에 붙는 안내 — 목록에서 선택할 수 없다 */
+export const REMIX_NOT_STORED = "음원이 내 보관함에 저장되지 않아 가져올 수 없습니다. 음악(SUNO) 자동화에서 「내 보관함에 다시 저장」 뒤 다시 시도해 주세요.";
+
+/** 리믹스 한 건 → 곡 목록 한 줄(변주는 만든 순서). 변주가 없으면 null. stored가 주어지면 false인 변주는 blocked */
+export function remixTrack(r: RemixRow, stored?: (v: RemixVariantRow) => boolean): RemixTrack | null {
   if (!r.variants.length) return null;
   const vocal = remixIsVocal(r);
   return {
     id: r.id, title: remixTitle(r), mode: vocal ? "vocal" : "instrumental", createdAt: r.created_at,
     variants: [...r.variants].sort((a, b) => a.created_at.localeCompare(b.created_at))
-      .map((v) => ({ id: v.id, duration: v.duration_seconds, canTime: vocal && !!(r.task_id && v.suno_audio_id) })),
+      .map((v) => {
+        const blocked = stored && !stored(v);
+        return { id: v.id, duration: v.duration_seconds, canTime: !blocked && vocal && !!(r.task_id && v.suno_audio_id), ...(blocked ? { blocked: REMIX_NOT_STORED } : {}) };
+      }),
   };
 }
 
@@ -80,17 +86,20 @@ export async function lookupRemixVariant(db: RemixDb, userId: string, variantId:
 
 /**
  * 저장소 공개 주소 형식(`<base>/storage/v1/object/public/<bucket>/<path>`)이고 그 경로가 회원 본인 폴더(`<userId>/…`)일 때만 경로를 돌려준다.
- * 외부 주소·다른 저장소·다른 회원 폴더·빈 칸이나 `.`·`..` 조각이 있으면 null(관리자 서명을 하지 않는다).
+ * 외부 주소·다른 저장소·다른 회원 폴더·허용 형식(영문·숫자·_ - . — % 인코딩 없음)이 아닌 조각이 있으면 null(관리자 서명을 하지 않는다).
  * 음악(SUNO) 리믹스 결과는 `<user>/remix/…`에 저장된다(운영 6개 모두 확인 2026-11-19).
  */
+const SAFE_SEGMENT = /^[A-Za-z0-9_-][A-Za-z0-9._-]*$/;
+
 export function ownStoragePath(url: string | null, base: string, bucket: string, userId: string): string | null {
   if (!url || !base || !userId) return null;
   const prefix = `${base.replace(/\/$/, "")}/storage/v1/object/public/${bucket}/`;
   if (!url.startsWith(prefix)) return null;
-  let path: string;
-  try { path = decodeURIComponent(url.slice(prefix.length).split(/[?#]/)[0]); } catch { return null; }
+  // 디코딩하지 않는다 — 검사한 문자열이 그대로 서명 요청 경로가 되게(%2F 같은 인코딩으로 조각이 바뀌는 일이 없게). 공식 저장 키에는 % 자체가 없다
+  const path = url.slice(prefix.length).split(/[?#]/)[0];
   const seg = path.split("/");
-  if (seg.length < 2 || seg[0] !== userId || seg.some((s) => !s || s === "." || s === "..")) return null;
+  // 조각마다 공식 저장 키 형식만(영문·숫자·_ - 로 시작, 그 뒤 . 허용) — 역슬래시·%·공백·물음표 등 주소 뜻을 바꿀 수 있는 글자와 . .. 빈 조각은 거절
+  if (seg.length < 2 || seg[0] !== userId || !seg.every((s) => SAFE_SEGMENT.test(s))) return null;
   return path;
 }
 
@@ -107,10 +116,26 @@ export async function signRemixAssets(
   return { audioUrl, coverUrl: coverPath ? await sign(coverPath) : null };
 }
 
-/** 주소로 받은 곡 번호 중 실제 내 곡 목록에 있는 수 — 목록을 아직 못 받았으면 null */
-export function incomingStatus(incomingIds: string[], availableIds: string[] | null): { found: number; missing: number } | null {
-  if (!availableIds) return null;
-  const have = new Set(availableIds);
-  const found = incomingIds.filter((id) => have.has(id)).length;
-  return { found, missing: incomingIds.length - found };
+/** 처음 정상으로 받은 목록에서 미리 선택할 곡 — 받은 순서 그대로, 목록에서 고를 수 있는(blocked 아닌) 곡만, 최대 max */
+export function seedSelection(incomingIds: string[], selectableIds: string[], max: number): string[] {
+  const ok = new Set(selectableIds);
+  return incomingIds.filter((id) => ok.has(id)).slice(0, max);
 }
+
+/**
+ * 주소로 받은 곡 안내 — list: null(아직 못 받음) · {ok:false}(오류, 선택하지 않음) · {ok:true, selectable}(고를 수 있는 곡 번호).
+ * 숫자는 「보낸 수 · 목록에서 찾은 수 · 그중 지금 선택된 수」로, 다시 불러오거나 손으로 해제해도 지금 상태와 맞는다.
+ */
+export function incomingNotice(incomingIds: string[], list: { ok: false } | { ok: true; selectable: string[] } | null, pickedIds: string[]): string | null {
+  const n = incomingIds.length;
+  if (!n) return null;
+  if (!list) return `음악(SUNO) 자동화에서 보낸 곡 ${n}개를 내 곡 목록에서 찾는 중입니다…`;
+  if (!list.ok) return `곡 목록을 불러오지 못해 보낸 곡 ${n}개를 아직 선택하지 못했습니다. 아래 「새로고침」을 눌러 다시 불러와 주세요.`;
+  const ok = new Set(list.selectable), picked = new Set(pickedIds);
+  const found = incomingIds.filter((id) => ok.has(id));
+  const now = found.filter((id) => picked.has(id)).length, missing = n - found.length;
+  return `음악(SUNO) 자동화에서 보낸 곡 ${n}개 중 ${found.length}개를 내 곡 목록에서 찾아 미리 선택했습니다(그중 지금 선택 ${now}개).`
+    + (missing ? ` ${missing}개는 목록에 없거나 음원이 저장되지 않아 선택하지 못했습니다(일반 곡 최근 40곡·리믹스 최근 20개, 완성된 내 곡만).` : "")
+    + " 확인한 뒤 「선택한 곡 추가」를 눌러 주세요.";
+}
+

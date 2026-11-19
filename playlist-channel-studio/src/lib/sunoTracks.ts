@@ -1,7 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { linesFromAlignedWords, type SunoWord, type TimedLine } from "@/lib/sunoAlign";
-import { lookupRemixVariant, remixTrack, signRemixAssets, type RemixDb, type RemixRow, type RemixVariantRow } from "@/lib/remixTracks";
+import { lookupRemixVariant, ownStoragePath, remixTrack, signRemixAssets, type RemixDb, type RemixRow, type RemixVariantRow } from "@/lib/remixTracks";
 
 // v1.19 음악(SUNO) 자동화(music/, slug music-automation)에서 회원 본인이 만든 곡을 가져온다(가사영상 v1.05 `src/lib/suno.ts`와 같은 규칙).
 // 공용 DB의 music_tracks·music_track_variants를 읽기만 하고, 모든 조회를 회원 user_id로 거른다.
@@ -16,7 +16,7 @@ export class SunoError extends Error {
   constructor(public status: number, message: string, public needSunoKey = false) { super(message); }
 }
 
-export interface SunoVariant { id: string; duration: number | null; canTime: boolean }
+export interface SunoVariant { id: string; duration: number | null; canTime: boolean; blocked?: string }
 export interface SunoTrack { id: string; title: string; mode: "vocal" | "instrumental"; createdAt: string; variants: SunoVariant[] }
 
 function storagePath(url: string | null): string | null {
@@ -45,14 +45,16 @@ const REMIX_LIMIT = 20;
 async function listRemixTracks(userId: string): Promise<SunoTrack[]> {
   const { data, error } = await createAdminClient()
     .from("music_track_remixes")
-    .select("id, mode, instrumental, source_title, task_id, created_at, music_track_remix_variants(id, user_id, suno_audio_id, duration_seconds, created_at)")
+    .select("id, mode, instrumental, source_title, task_id, created_at, music_track_remix_variants(id, user_id, suno_audio_id, duration_seconds, created_at, audio_url)")
     .eq("user_id", userId).eq("status", "completed")
     .order("created_at", { ascending: false }).limit(REMIX_LIMIT);
   if (error) { console.error("[playlist suno remixes]", error.code ?? "unknown"); return []; }
   return (data ?? []).flatMap((r) => {
     const row = r as Record<string, unknown>;
     const variants = ((row.music_track_remix_variants ?? []) as (RemixVariantRow & { user_id: string })[]).filter((v) => v.user_id === userId);
-    const track = remixTrack({ ...(row as unknown as RemixRow), variants });
+    // 음원이 회원 폴더에 저장되지 않은 변주(외부 주소 등)는 「받을 수 없음」으로 — 받기에서 410이 날 곡을 미리 고르지 못하게
+    const base = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+    const track = remixTrack({ ...(row as unknown as RemixRow), variants }, (v) => !!ownStoragePath(v.audio_url ?? null, base, BUCKET, userId));
     return track ? [track] : [];
   });
 }

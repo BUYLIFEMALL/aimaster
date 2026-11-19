@@ -132,7 +132,7 @@ test("서버 순서: 곡 받기·시간 가사 모두 ownVariant(404 판정)가 
 });
 
 // ── 리믹스 파일 서명은 회원 본인 폴더 경로만 (Master msg_6bc9c6ee0c57) ──
-import { incomingStatus, ownStoragePath, signRemixAssets } from "../src/lib/remixTracks.ts";
+import { ownStoragePath, signRemixAssets } from "../src/lib/remixTracks.ts";
 
 const BASE = "https://proj.supabase.co", BUCKET = "music-audio";
 const pub = (path, bucket = BUCKET) => `${BASE}/storage/v1/object/public/${bucket}/${path}`;
@@ -188,16 +188,62 @@ test("음악 서명이 실패하면 커버는 서명하지 않는다(부르는 �
   assert.equal(c.calls.length, 1);
 });
 
-test("미리 선택 안내: 목록 전에는 null, 받은 수 중 목록에 있는 수·없는 수", () => {
-  assert.equal(incomingStatus([A, B], null), null);
-  assert.deepEqual(incomingStatus([A, B, C], [A, C, "x"]), { found: 2, missing: 1 });
-  assert.deepEqual(incomingStatus([A], [A]), { found: 1, missing: 0 });
-  assert.deepEqual(incomingStatus([], [A]), { found: 0, missing: 0 });
-});
 
 test("서버: 리믹스만 회원 폴더 서명, 일반 SUNO 곡 경로(signed)는 그대로", () => {
   const src = readFileSync(new URL("../src/lib/sunoTracks.ts", import.meta.url), "utf8");
   const get = src.slice(src.indexOf("export async function getSunoVariant("), src.indexOf("\n}\n", src.indexOf("export async function getSunoVariant(")));
   assert.match(get, /if \(v\.remix\) \{[\s\S]*signRemixAssets\(v, userId,[\s\S]*signPath\)[\s\S]*return \{ id: v\.id[^\n]*\n\s*\}\n\s*const audioUrl = await signed\(v\.audio_url\);/);
   assert.match(get, /coverUrl: await signed\(v\.image_url\) \};$/m, "일반 곡 커버 서명 그대로");
+});
+
+// ── Mac 재검수 잔여 보완 (Master msg_0659fb81e981, Mac msg_bf5018c5c214) ──
+import { REMIX_NOT_STORED, incomingNotice, seedSelection } from "../src/lib/remixTracks.ts";
+
+test("경로 조각은 공식 저장 키 형식만 — 역슬래시·%·물음표·공백·점으로 시작하는 조각은 서명 전에 거절", async () => {
+  for (const bad of [`${ME}/remix/a\b.mp3`, `${ME}/remix/a%5Cb.mp3`, `${ME}/remix/a%3Fx.mp3`, `${ME}/remix/a%20b.mp3`, `${ME}/remix/.hidden.mp3`, `${ME}/remix/a%252e.mp3`, `${ME}/remix/a%2Fb.mp3`]) {
+    assert.equal(ownStoragePath(pub(bad), BASE, BUCKET, ME), null, bad);
+    const c = counter();
+    assert.deepEqual(await signRemixAssets({ audio_url: pub(bad), image_url: null }, ME, BASE, BUCKET, c.sign), { audioUrl: null, coverUrl: null });
+    assert.equal(c.calls.length, 0, `서명 0번: ${bad}`);
+  }
+  for (const good of [`${ME}/remix/rm1/0.mp3`, `${ME}/remix/rm1/cover-1_a.jpg`, `${ME}/remix/${A}/1.MP3`]) assert.equal(ownStoragePath(pub(good), BASE, BUCKET, ME), good);
+});
+
+test("저장되지 않은 리믹스 변주는 목록에서 「받을 수 없음」 — 시간 가사도 꺼짐, 저장된 변주는 그대로", () => {
+  const t = remixTrack({ id: "r", mode: "add_vocals", instrumental: false, source_title: "곡", task_id: "task", created_at: "2026-11-01T00:00:00Z",
+    variants: [{ ...v(A, "2026-11-01T00:00:01Z"), audio_url: "https://cdn1.suno.ai/a.mp3" }, { ...v(B, "2026-11-01T00:00:02Z"), audio_url: pub(`${ME}/remix/r/1.mp3`) }] },
+    (x) => !!ownStoragePath(x.audio_url ?? null, BASE, BUCKET, ME));
+  assert.deepEqual(t.variants.map((x) => [x.id, x.blocked ?? null, x.canTime]), [[A, REMIX_NOT_STORED, false], [B, null, true]]);
+  const noCheck = remixTrack({ id: "r", mode: "add_vocals", instrumental: false, source_title: "곡", task_id: "task", created_at: "2026-11-01T00:00:00Z", variants: [v(A, "2026-11-01T00:00:01Z")] });
+  assert.equal(noCheck.variants[0].blocked, undefined, "판정 함수가 없으면 표시 없음");
+});
+
+test("미리 선택: 받은 순서·고를 수 있는 곡만·최대 개수", () => {
+  assert.deepEqual(seedSelection([C, A, B], [A, C], 20), [C, A], "B(목록에 없거나 받을 수 없음)는 빠짐");
+  assert.deepEqual(seedSelection([A, B, C], [A, B, C], 2), [A, B]);
+  assert.deepEqual(seedSelection([A], [], 20), []);
+});
+
+test("받은 곡 안내: 찾는 중 → 오류(선택 안 함) → 정상(찾은 수·지금 선택 수) — 손으로 해제·다시 불러오기 뒤에도 지금 상태와 일치", () => {
+  assert.equal(incomingNotice([], null, []), null);
+  assert.match(incomingNotice([A, B], null, []), /2개를 내 곡 목록에서 찾는 중/);
+  assert.match(incomingNotice([A, B], { ok: false }, []), /불러오지 못해 보낸 곡 2개를 아직 선택하지 못했습니다/);
+  const all = incomingNotice([A, B], { ok: true, selectable: [A, B, C] }, [A, B]);
+  assert.match(all, /보낸 곡 2개 중 2개를 .*지금 선택 2개/);
+  assert.doesNotMatch(all, /선택하지 못했습니다/);
+  assert.match(incomingNotice([A, B], { ok: true, selectable: [A, B] }, [A]), /2개 중 2개를 .*지금 선택 1개/, "손으로 하나 해제");
+  const miss = incomingNotice([A, B, C], { ok: true, selectable: [A] }, [A]);
+  assert.match(miss, /3개 중 1개를 .*지금 선택 1개.* 2개는 목록에 없거나 음원이 저장되지 않아/);
+  assert.match(incomingNotice([A, B, C], { ok: true, selectable: [A, B, C] }, [A]), /3개 중 3개를 .*지금 선택 1개/, "다시 불러와 더 찾으면 찾은 수는 늘고 선택 수는 실제대로");
+});
+
+test("서버·화면 연결: 리믹스 목록은 음원 저장 여부로 blocked, 화면은 처음 정상 로드 때만 미리 선택·blocked는 체크 불가", () => {
+  const server = readFileSync(new URL("../src/lib/sunoTracks.ts", import.meta.url), "utf8");
+  assert.match(server, /music_track_remix_variants\(id, user_id, suno_audio_id, duration_seconds, created_at, audio_url\)/);
+  assert.match(server, /remixTrack\(\{[^\n]*\}, \(v\) => !!ownStoragePath\(v\.audio_url \?\? null, base, BUCKET, userId\)\)/);
+  const ui = readFileSync(new URL("../src/components/video/SunoImportPanel.tsx", import.meta.url), "utf8");
+  assert.match(ui, /if \(seeded \|\| !incoming\.length \|\| !list \|\| listError\) return;/, "오류·미로드·이미 선택했으면 미리 선택 안 함");
+  assert.doesNotMatch(ui, /setPicked\(uniq\)/, "주소를 읽자마자 선택하지 않음");
+  assert.match(ui, /disabled=\{!!busy \|\| !!v\.blocked\}/);
+  assert.match(ui, /const pickedHere = selectable\.filter/, "추가 대상에서도 blocked 제외");
 });
