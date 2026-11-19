@@ -10158,10 +10158,10 @@
       "owner": "CC-MUSIC-01",
       "reviewer": "CX-QA-01",
       "title": "리믹스 → 플레이리스트 수신 로컬 구현",
-      "status": "reviewing",
-      "delivery": "receiver_path_and_selection_fixed_mac_recheck_sent",
-      "next": "f13c339f4 담당 모의 63/63·tsc 통과. 경로 검사·선택 복구·미저장 음원 차단 Mac 재검수 전달. 실제 화면·서명 미확인, 미배포.",
-      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1·msg_fd4dcdac6208·7b76ae4eb·msg_cf3cd8832343·msg_5118e37c0e3b·msg_ef79431525cb·e728f10cf·msg_53afdbd8013c·msg_6bc9c6ee0c57·ded8cece2·msg_545ceab47299·msg_12156cc001ce·msg_bf5018c5c214·msg_0659fb81e981·msg_0bbb39a1a896·f13c339f4·msg_683a6f310963"
+      "status": "running",
+      "delivery": "receiver_mac_path_pass_reload_followup_sent",
+      "next": "f13c339f4 Mac 63/63. 경로·외부 음원 선택 차단 통과. 재조회·부분 실패·배경 버튼 보완 배정. 실제 화면·서명 미확인, 미배포.",
+      "evidence": "d6df77af9·msg_fdb8084598ff·msg_004bc1ed71f1·msg_fd4dcdac6208·7b76ae4eb·msg_cf3cd8832343·msg_5118e37c0e3b·msg_ef79431525cb·e728f10cf·msg_53afdbd8013c·msg_6bc9c6ee0c57·ded8cece2·msg_545ceab47299·msg_12156cc001ce·msg_bf5018c5c214·msg_0659fb81e981·msg_0bbb39a1a896·f13c339f4·msg_683a6f310963·msg_31e6f7c353b0·msg_e5ae913fe5a9"
     },
     {
       "task_id": "MUSIC-20261119-REMIX-PLAYLIST-REVIEW",
