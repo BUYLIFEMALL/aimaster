@@ -158,7 +158,9 @@ async function inspect(tabId) {
   if(url.protocol!=='https:' || !['blog.naver.com','nid.naver.com'].includes(url.hostname))return {status:'unknown',reason:'대상 블로그 글쓰기 화면으로 이동해 주세요.'};
   if (url.hostname === 'blog.naver.com' && !(url.pathname === `/${connection.blogId}/postwrite` || url.searchParams.get('blogId') === connection.blogId || (url.pathname === `/${connection.blogId}` && url.searchParams.get('Redirect')?.toLowerCase()==='write'))) return {status:'unknown',reason:'대상 블로그 글쓰기 화면으로 이동해 주세요.'};
   const results = await frameResults(tabId,'inspect',{blogId:connection.blogId});
-  return results.find(r=>['security_check','expired','account_mismatch'].includes(r.status)) || results.find(r=>r.status==='valid') || results.find(r=>r.diagnostics?.componentCount) || results[0] || {status:'unknown',reason:'편집기 응답을 확인하지 못했습니다. 글쓰기 화면을 확인해 주세요.'};
+  // 2026-11-20 BLC-INS-05 보완: 보안·로그인·주소 기준 계정 불일치는 어느 프레임이든 먼저 멈춘다. 본문 문구만 근거인 「없는 블로그」(pageSignal)는
+  // 정상 편집기 프레임이 하나도 없을 때만 쓴다 — 하위 프레임의 안내 문구가 정상 편집기를 막지 않게.
+  return results.find(r=>['security_check','expired','account_mismatch'].includes(r.status) && !r.pageSignal) || results.find(r=>r.status==='valid') || results.find(r=>r.status==='account_mismatch' && r.pageSignal) || results.find(r=>r.diagnostics?.componentCount) || results[0] || {status:'unknown',reason:'편집기 응답을 확인하지 못했습니다. 글쓰기 화면을 확인해 주세요.'};
 }
 async function editorTab(interactive = false,task) {
   const current=await stored();

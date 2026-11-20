@@ -252,7 +252,8 @@ async function editorCommand(command, args = {}) {
     if (location.hostname === 'nid.naver.com') return { status: 'expired', reason: '열린 Chrome에서 로그인하세요. 완료되면 자동으로 이어집니다.' };
     // 2026-11-20 BLC-INS-05: 없는 블로그 주소의 글쓰기로 열리면 네이버가 「삭제되었거나 존재하지 않는 게시물」을 보여 준다.
     // 다른 ID로 바꾸지 않고(타인 계정 오인 방지) 입력 전에 멈춰 블로그 ID 확인을 안내한다.
-    if (!title && /삭제되었거나 존재하지 않는|존재하지 않는 블로그|존재하지 않는 게시물/.test(text)) return { status: 'account_mismatch', reason: '이 주소의 네이버 블로그 글쓰기 화면을 찾지 못했습니다(「삭제되었거나 존재하지 않는 게시물」). 설정의 블로그 ID가 실제 블로그 주소(blog.naver.com/아이디)와 같은지 확인해 주세요.' };
+    // 문구만 근거인 판정이라 pageSignal 표시를 붙인다 — background.js는 정상 편집기 프레임이 하나도 없을 때만 이 결과로 멈춘다(하위 프레임 문구 오탐 방지).
+    if (!title && /삭제되었거나 존재하지 않는|존재하지 않는 블로그|존재하지 않는 게시물/.test(text)) return { status: 'account_mismatch', pageSignal: 'missing_blog', reason: '이 주소의 네이버 블로그 글쓰기 화면을 찾지 못했습니다(「삭제되었거나 존재하지 않는 게시물」). 설정의 블로그 ID가 실제 블로그 주소(blog.naver.com/아이디)와 같은지 확인해 주세요.' };
     if (!title && /권한이 없|접근이 제한|잘못된 접근|본인의 블로그/.test(text)) return { status: 'account_mismatch', reason: '이 블로그의 계정으로 로그인해 주세요.' };
     const components=[...document.querySelectorAll('.se-component')].filter(el=>visible(el) && !el.matches('.se-documentTitle') && !el.closest('.se-documentTitle'));
     const titleQuoteOnly=!bodyText() && components.length===1 && components[0].matches('.se-quotation.se-l-default') && normalize(readText(components[0].querySelector('.se-text-paragraph')))===normalize(readText(title));
