@@ -9,9 +9,29 @@ export function normalizeTitle(title: string): string {
   return (title ?? '').normalize('NFC').replace(/\s+/g, ' ').trim();
 }
 
+/**
+ * 비교용 시각 — 유효한 `H:mm`·`HH:mm`이면 `HH:mm`으로 맞춘다(표의 기존 행에 `9:00`처럼 자릿수를 채우지 않은 값이 있을 수 있다).
+ * 시각이 없으면 빈 글자열, 유효한 시각이 아니면 null. 비교에만 쓰고 원본 값은 고치지 않는다.
+ */
+export function comparableTime(time: string | undefined | null): string | null {
+  if (time === undefined || time === null || time === '') return '';
+  const m = /^(\d{1,2}):(\d{2})$/.exec(time);
+  if (!m || Number(m[1]) > 23 || Number(m[2]) > 59) return null;
+  return `${m[1].padStart(2, '0')}:${m[2]}`;
+}
+
 /** 중복 키. 하루 종일 일정은 시작 시각이 빈 값이라 같은 날 같은 제목의 일시 일정과 키가 다르다 */
 export function dedupeKey(title: string, value: Pick<DateValue, 'start_date' | 'start_time'>): string {
-  return `${normalizeTitle(title)}\u0000${value.start_date}\u0000${value.start_time ?? ''}`;
+  return `${normalizeTitle(title)}\u0000${value.start_date}\u0000${comparableTime(value.start_time) ?? value.start_time ?? ''}`;
+}
+
+/** 중복의 근거가 될 수 있는 행인가 — 제목이 있고 날짜·시각 값이 유효한 행만(깨진 기존 행은 비교에서 뺀다) */
+export function isComparable(title: string, value: DateValue | undefined | null): value is DateValue {
+  if (!value || !normalizeTitle(title)) return false;
+  const day = /^\d{4}-\d{2}-\d{2}$/;
+  if (typeof value.start_date !== 'string' || !day.test(value.start_date)) return false;
+  if (value.end_date !== undefined && (typeof value.end_date !== 'string' || !day.test(value.end_date))) return false;
+  return comparableTime(value.start_time) !== null && comparableTime(value.end_time) !== null;
 }
 
 export interface ImportRow {
@@ -41,7 +61,7 @@ export interface DedupeVerdict {
 
 /** 종료(날짜·시각)가 같은가 — 범위가 아닌 값은 종료가 없는 것으로 본다 */
 function sameEnd(a: DateValue, b: DateValue): boolean {
-  return (a.end_date ?? '') === (b.end_date ?? '') && (a.end_time ?? '') === (b.end_time ?? '');
+  return (a.end_date ?? '') === (b.end_date ?? '') && comparableTime(a.end_time) === comparableTime(b.end_time);
 }
 
 const dayKey = (title: string, v: DateValue) => `${normalizeTitle(title)}\u0000${v.start_date}`;
@@ -51,11 +71,15 @@ const dayKey = (title: string, v: DateValue) => `${normalizeTitle(title)}\u0000$
  * - 표의 기존 행과 키가 같으면 `dup_table`, 그중 종료가 다르면 `dup_table_end_differs`(근거를 보여 주기 위함, 덮어쓰지 않는다).
  * - 표에는 없고 파일의 앞 줄과 키가 같으면 `dup_file`.
  * - 이름이 다르면 같은 시각이어도 다른 일정이다.
+ * - 근거가 되는 것은 실제로 저장돼 있는 유효한 행뿐이다: 제목이 비었거나 날짜·시각이 깨진 기존 행은 비교에서 뺀다.
+ *   `rows`에는 앞 단계(구조·해석·시간대)를 통과한 줄만 넘긴다 — 실패·보류된 줄은 중복의 근거도 대상도 아니다.
+ * - 기존 행의 `9:00`은 비교에서만 `09:00`으로 맞춘다. 입력 객체는 바꾸지 않는다.
  */
 export function judgeDuplicates(rows: ImportRow[], existing: ExistingRow[]): DedupeVerdict[] {
   const inTable = new Map<string, ExistingRow>();
   const allDayOrTimedInTable = new Map<string, Set<boolean>>(); // 제목+날짜 → 그날 시각 유무
   for (const e of existing) {
+    if (!isComparable(e.title, e.value)) continue;
     const k = dedupeKey(e.title, e.value);
     if (!inTable.has(k)) inTable.set(k, e); // 표에 이미 같은 키가 여럿이면 첫 행을 근거로 든다
     const d = dayKey(e.title, e.value);

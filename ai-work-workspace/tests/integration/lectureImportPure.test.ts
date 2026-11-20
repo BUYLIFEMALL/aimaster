@@ -3,8 +3,8 @@
 // 이 모듈들은 아직 어디에서도 부르지 않는다(API·화면 연결은 다음 단위).
 import { describe, expect, it } from 'vitest';
 import { readStrictCsv, STRICT_CSV_MAX_ROWS } from '../../src/litpage/server/content/lectureImport/strictCsv.ts';
-import { isKnownTimeZone, parseLectureDate, resolveLectureDate, wallClockOffsets } from '../../src/litpage/server/content/lectureImport/lectureDates.ts';
-import { dedupeKey, judgeDuplicates, normalizeTitle } from '../../src/litpage/server/content/lectureImport/dedupe.ts';
+import { isKnownTimeZone, MAX_MARK_OFFSET_MINUTES, parseLectureDate, resolveLectureDate, wallClockOffsets } from '../../src/litpage/server/content/lectureImport/lectureDates.ts';
+import { comparableTime, dedupeKey, isComparable, judgeDuplicates, normalizeTitle } from '../../src/litpage/server/content/lectureImport/dedupe.ts';
 
 const ok = <T extends { ok: boolean }>(r: T) => {
   expect(r.ok).toBe(true);
@@ -92,7 +92,7 @@ describe('날짜 칸 읽기(§4-1)', () => {
       ['November 20, 2026', { start: { date: '2026-11-20' } }],
       ['2026년 11월 20일', { start: { date: '2026-11-20' } }],
       ['2026-11-20 10:00', { start: { date: '2026-11-20', time: '10:00' } }],
-      ['2026-11-20T09:05:59', { start: { date: '2026-11-20', time: '09:05' } }], // 초는 버린다
+      ['2026-11-20T09:05', { start: { date: '2026-11-20', time: '09:05' } }],
       ['November 20, 2026 10:00 AM', { start: { date: '2026-11-20', time: '10:00' } }],
       ['November 20, 2026 12:00 AM', { start: { date: '2026-11-20', time: '00:00' } }],
       ['November 20, 2026 12:30 PM', { start: { date: '2026-11-20', time: '12:30' } }],
@@ -123,6 +123,12 @@ describe('날짜 칸 읽기(§4-1)', () => {
     expect(ok(parseLectureDate('2026-11-20 10:00 (UTC+0900)')).start.zone).toEqual({ offsetMinutes: 540, named: false });
     expect(ok(parseLectureDate('2026-11-20 10:00 (KST)')).start.zone).toEqual({ offsetMinutes: 540, named: true });
     for (const z of ['UTC', 'GMT', 'utc']) expect(ok(parseLectureDate(`2026-11-20 10:00 (${z})`)).start.zone).toEqual({ offsetMinutes: 0, named: true });
+    // 절댓값 14:00까지: 경계는 통과, 1분만 넘어도 거절
+    expect(MAX_MARK_OFFSET_MINUTES).toBe(840);
+    for (const [z, want] of [['GMT+14', 840], ['GMT+14:00', 840], ['UTC+1400', 840], ['GMT-14', -840], ['GMT-14:00', -840], ['GMT+13:59', 839], ['GMT-12', -720], ['GMT+0', 0], ['GMT-0:00', 0]] as const) {
+      expect(ok(parseLectureDate(`2026-11-20 10:00 (${z})`)).start.zone, z).toEqual({ offsetMinutes: want === 0 ? 0 : want, named: false });
+    }
+    for (const z of ['GMT+14:01', 'GMT-14:01', 'GMT+14:30', 'GMT-14:59', 'GMT+15', 'GMT-15', 'GMT+23:59', 'GMT+99', 'GMT+14:60']) expect(parseLectureDate(`2026-11-20 10:00 (${z})`), z).toEqual({ ok: false, code: 'zone_unsupported' });
     // 뜻이 여럿인 약어·범위 밖 오프셋은 받지 않는다
     for (const z of ['EST', 'CST', 'PDT', 'Asia/Seoul', 'GMT+15', 'GMT+9:75', '+9']) expect(parseLectureDate(`2026-11-20 10:00 (${z})`), z).toEqual({ ok: false, code: 'zone_unsupported' });
   });
@@ -143,6 +149,14 @@ describe('날짜 칸 읽기(§4-1)', () => {
       ['2026-11-20 0:30 AM', 'invalid_time'],
       ['2026년 11월 20일 오후 13:00', 'invalid_time'],
       ['2026-11-20 10:00 → 2026-11-20 25:00', 'invalid_time'], // 종료 쪽
+      // 초가 적힌 시각은 받지 않는다(분 정밀도 계약) — 00초여도, 어느 표기여도, 종료 쪽이어도
+      ['2026-11-20T09:05:59', 'seconds_unsupported'],
+      ['2026-11-20 10:00:00', 'seconds_unsupported'],
+      ['November 20, 2026 10:00:30 AM', 'seconds_unsupported'],
+      ['2026년 11월 20일 오전 10:00:30', 'seconds_unsupported'],
+      ['2026-11-20 10:00 → 2026-11-20 12:00:01', 'seconds_unsupported'],
+      ['2026년 11월 20일 오전 10:00 → 오후 12:00:00', 'seconds_unsupported'],
+      ['2026-11-20 10:00:99', 'seconds_unsupported'], // 초가 있으면 값이 틀렸는지 보기 전에 거절
       ['2026-11-20 10:00 → 2026-11-21', 'range_time_one_side'],
       ['2026-11-20 → 2026-11-21 10:00', 'range_time_one_side'],
       ['2026-11-22 → 2026-11-20', 'end_before_start'],
@@ -158,9 +172,12 @@ describe('날짜 칸 읽기(§4-1)', () => {
       ['2026-11-20~2026-11-22', 'unsupported_format'], // 공백 없는 ~는 구분자가 아니다
     ];
     for (const [raw, code] of bad) expect(parseLectureDate(raw), JSON.stringify(raw)).toEqual({ ok: false, code });
-    // 종료가 시작과 같으면 범위가 아니라 단일 값
-    expect(parseLectureDate('2026-11-20 10:00 → 2026-11-20 10:00')).toEqual({ ok: true, start: { date: '2026-11-20', time: '10:00' } });
-    expect(parseLectureDate('2026-11-20 → 2026-11-20')).toEqual({ ok: true, start: { date: '2026-11-20' } });
+    // 종료가 시작과 같아도 읽기 단계는 줄이지 않고 양 끝을 넘긴다(종료 쪽 표기를 검사 없이 버리지 않기 위함)
+    expect(parseLectureDate('2026-11-20 10:00 → 2026-11-20 10:00')).toEqual({ ok: true, start: { date: '2026-11-20', time: '10:00' }, end: { date: '2026-11-20', time: '10:00' } });
+    expect(parseLectureDate('2026-11-20 → 2026-11-20')).toEqual({ ok: true, start: { date: '2026-11-20' }, end: { date: '2026-11-20' } });
+    expect(parseLectureDate('2026-11-20 10:00 (GMT+9) → 2026-11-20 10:00 (GMT+0)')).toEqual({
+      ok: true, start: { date: '2026-11-20', time: '10:00', zone: { offsetMinutes: 540, named: false } }, end: { date: '2026-11-20', time: '10:00', zone: { offsetMinutes: 0, named: false } },
+    });
   });
 });
 
@@ -184,7 +201,15 @@ describe('시간대 판정(§4-2)', () => {
     expect(wallClockOffsets('2026-10-25', '01:30', LON)).toEqual([0, 60]);
     expect(wallClockOffsets('2026-11-20', '10:00', 'Nowhere/Zone')).toBeNull();
     expect(isKnownTimeZone('Asia/Seoul')).toBe(true);
-    for (const z of ['Nowhere/Zone', '', 'GMT+9 ']) expect(isKnownTimeZone(z), z).toBe(false);
+    for (const z of ['UTC', 'Asia/Seoul', 'America/New_York', 'Europe/London']) expect(isKnownTimeZone(z), z).toBe(true);
+    // 원시 오프셋·고정 오프셋 이름은 런타임 포매터가 받아 주더라도 고를 수 없다
+    expect(() => new Intl.DateTimeFormat('en-US', { timeZone: '+09:00' })).not.toThrow();
+    for (const z of ['Nowhere/Zone', '', 'GMT+9 ', '+09:00', '-05:00', '+0900', 'GMT+9', 'UTC+9', 'Etc/GMT-9', 'Etc/UTC', 'GMT', ' Asia/Seoul', 'Asia/Seoul ', 'asia/seoul', 'KST']) {
+      expect(isKnownTimeZone(z), JSON.stringify(z)).toBe(false);
+      expect(wallClockOffsets('2026-11-20', '10:00', z), JSON.stringify(z)).toBeNull();
+      expect(resolveLectureDate({ start: { date: '2026-11-20', time: '10:00' } }, z), JSON.stringify(z)).toEqual({ ok: false, code: 'zone_invalid' });
+    }
+    for (const z of [undefined, null, 540, {}] as unknown as string[]) expect(isKnownTimeZone(z)).toBe(false);
   });
 
   it('시각은 옮기지 않는다 — 어느 시간대를 골라도 벽시계 값 그대로, time_zone은 고른 값 하나', () => {
@@ -258,6 +283,33 @@ describe('시간대 판정(§4-2)', () => {
     expect(resolveLectureDate(P('2026-11-20 (GMT+9)'), 'UTC', { wallClock: true })).toEqual({ ok: true, wallClock: true, value: { type: 'date', start_date: '2026-11-20' } });
   });
 
+  it('벽시계가 같은 범위: 양 끝 표기를 각각 검사한 뒤에 한 값으로 줄인다', () => {
+    const single = { type: 'datetime', start_date: '2026-11-20', start_time: '10:00', time_zone: 'Asia/Seoul' };
+    // 표기 없음·양 끝 다 맞음·한쪽만 있고 맞음 → 단일 값, 표시 없음
+    for (const raw of ['2026-11-20 10:00 → 2026-11-20 10:00', '2026-11-20 10:00 (GMT+9) → 2026-11-20 10:00 (GMT+9)', '2026-11-20 10:00 → 2026-11-20 10:00 (KST)', '2026년 11월 20일 오전 10:00 → 오전 10:00']) {
+      expect(resolveLectureDate(P(raw), 'Asia/Seoul'), raw).toEqual({ ok: true, wallClock: false, value: single });
+    }
+    // 종료에만 틀린 표기: 벽시계가 같다는 이유로 검사 없이 사라지지 않는다
+    const endWrong = '2026-11-20 10:00 (GMT+9) → 2026-11-20 10:00 (GMT+0)';
+    expect(resolveLectureDate(P(endWrong), 'Asia/Seoul')).toEqual({ ok: false, code: 'tz_mismatch', side: 'end' });
+    expect(resolveLectureDate(P('2026-11-20 10:00 → 2026-11-20 10:00 (UTC)'), 'Asia/Seoul')).toEqual({ ok: false, code: 'tz_mismatch', side: 'end' });
+    expect(resolveLectureDate(P('2026-11-20 10:00 (GMT+0) → 2026-11-20 10:00 (GMT+9)'), 'Asia/Seoul')).toEqual({ ok: false, code: 'tz_mismatch', side: 'start' });
+    expect(resolveLectureDate(P('2026-11-20 10:00 (GMT+0) → 2026-11-20 10:00 (GMT+1)'), 'Asia/Seoul')).toEqual({ ok: false, code: 'tz_mismatch', side: 'both' });
+    // 명시 벽시계 예외: 줄인 단일 값으로 저장하고 표시한다(시각은 그대로)
+    expect(resolveLectureDate(P(endWrong), 'Asia/Seoul', { wallClock: true })).toEqual({ ok: true, wallClock: true, value: single });
+    // 없는 시각·두 번 있는 시각은 같은 벽시계 범위에서도, 예외로도 막힌다
+    for (const wallClock of [false, true]) {
+      expect(resolveLectureDate(P('2026-03-08 02:30 → 2026-03-08 02:30'), NY, { wallClock })).toEqual({ ok: false, code: 'time_nonexistent', side: 'start' });
+      expect(resolveLectureDate(P('2026-11-01 01:30 (GMT-4) → 2026-11-01 01:30 (GMT-5)'), NY, { wallClock })).toEqual({ ok: false, code: 'time_ambiguous', side: 'start' });
+    }
+    // 하루 종일 값도 같다: 검사 뒤 단일 날짜
+    expect(resolveLectureDate(P('2026-11-20 → 2026-11-20'), NY)).toEqual({ ok: true, wallClock: false, value: { type: 'date', start_date: '2026-11-20' } });
+    expect(resolveLectureDate(P('2026-11-20 (GMT+9) → 2026-11-20 (GMT+0)'), 'Asia/Seoul')).toEqual({ ok: false, code: 'tz_mismatch', side: 'end' });
+    expect(resolveLectureDate(P('2026-11-20 (GMT+9) → 2026-11-20 (GMT+0)'), 'Asia/Seoul', { wallClock: true })).toEqual({ ok: true, wallClock: true, value: { type: 'date', start_date: '2026-11-20' } });
+    // 벽시계가 다른 범위는 그대로 범위다
+    expect(resolveLectureDate(P('2026-11-20 10:00 → 2026-11-20 10:01'), 'Asia/Seoul')).toMatchObject({ ok: true, value: { type: 'datetimerange', end_time: '10:01' } });
+  });
+
   it('벽시계로는 종료가 뒤여도 실제 순간이 앞서면 실패(양 끝이 각각 유일한 시각일 때만 비교)', () => {
     // 뉴욕 11월 1일: 00:30(−4)은 04:30Z, 02:10(−5)은 07:10Z → 정상
     expect(resolveLectureDate(P('2026-11-01 00:30 → 2026-11-01 02:10'), NY).ok).toBe(true);
@@ -326,5 +378,62 @@ describe('중복 판정(§6-1)', () => {
     expect(second[2].reason).toBe('dup_table_end_differs');
     // 입력을 바꾸지 않는다, 같은 입력이면 같은 결과
     expect(judgeDuplicates(rows, created)).toEqual(second);
+  });
+
+  it('기존 행의 자릿수 없는 시각(9:00)은 비교에서만 09:00으로 맞춘다 — 원본은 고치지 않는다', () => {
+    expect([comparableTime('9:00'), comparableTime('09:00'), comparableTime('0:05'), comparableTime('23:59'), comparableTime(undefined), comparableTime('')]).toEqual(['09:00', '09:00', '00:05', '23:59', '', '']);
+    for (const bad of ['24:00', '9:60', '9시', '9:0', '09:00:00', ' 9:00', 'abc']) expect(comparableTime(bad), bad).toBeNull();
+    expect(dedupeKey('A', { start_date: '2026-11-20', start_time: '9:00' })).toBe(dedupeKey('A', { start_date: '2026-11-20', start_time: '09:00' }));
+    const existing = [
+      { id: 'e1', title: '강의 A', value: { type: 'datetimerange', start_date: '2026-11-20', start_time: '9:00', end_date: '2026-11-20', end_time: '9:30' } as any },
+      { id: 'e2', title: '강의 B', value: { type: 'datetimerange', start_date: '2026-11-20', start_time: '9:00', end_date: '2026-11-20', end_time: '9:30' } as any },
+    ];
+    const frozen = JSON.stringify(existing);
+    expect(judgeDuplicates([
+      { line: 2, title: '강의 A', value: dt('2026-11-20', '09:00', ['2026-11-20', '09:30']) }, // 시작·종료 모두 표기만 다름 → 같은 행
+      { line: 3, title: '강의 B', value: dt('2026-11-20', '09:00', ['2026-11-20', '10:00']) }, // 종료가 실제로 다름
+      { line: 4, title: '강의 A', value: dt('2026-11-20', '19:00') }, // 9:00 ≠ 19:00
+    ], existing)).toEqual([
+      { line: 2, result: 'duplicate', reason: 'dup_table', dupOf: 'e1' },
+      { line: 3, result: 'duplicate', reason: 'dup_table_end_differs', dupOf: 'e2' },
+      { line: 4, result: 'created' },
+    ]);
+    expect(JSON.stringify(existing)).toBe(frozen); // 입력을 바꾸지 않는다
+  });
+
+  it('중복의 근거는 실제로 저장된 유효한 행뿐이다 — 깨진 기존 행과는 키가 같아 보여도 새로 넣는다', () => {
+    const good = dt('2026-11-20', '10:00');
+    const broken = [
+      { id: 'x1', title: '   ', value: good }, // 제목 없음
+      { id: 'x2', title: '강의 A', value: undefined as any }, // 날짜 값 없음
+      { id: 'x3', title: '강의 A', value: { type: 'datetime', start_date: '2026/11/20', start_time: '10:00' } as any }, // 날짜 형식 깨짐
+      { id: 'x4', title: '강의 A', value: { type: 'datetime', start_date: '2026-11-20', start_time: '25:00' } as any }, // 시각 깨짐
+      { id: 'x5', title: '강의 A', value: { type: 'datetimerange', start_date: '2026-11-20', start_time: '10:00', end_date: '2026-11-20', end_time: '10시' } as any }, // 종료 시각 깨짐
+      { id: 'x6', title: '강의 A', value: { type: 'daterange', start_date: '2026-11-20', start_time: '10:00', end_date: 20261121 } as any }, // 종료 날짜 깨짐
+    ];
+    for (const e of broken) expect(isComparable(e.title, e.value), e.id).toBe(false);
+    expect(isComparable('강의 A', good)).toBe(true);
+    expect(judgeDuplicates([{ line: 2, title: '강의 A', value: good }], broken)).toEqual([{ line: 2, result: 'created' }]);
+    // 유효한 행이 하나라도 있으면 그 행이 근거가 된다(깨진 행은 근거로 들지 않는다)
+    expect(judgeDuplicates([{ line: 2, title: '강의 A', value: good }], [...broken, { id: 'ok1', title: '강의 A', value: good }])).toEqual([{ line: 2, result: 'duplicate', reason: 'dup_table', dupOf: 'ok1' }]);
+  });
+
+  it('다시 보내도 판정이 흔들리지 않는다: 저장된 줄만 duplicate, 저장된 적 없는 줄은 근거가 되지 않는다', () => {
+    // 첫 실행: 2·4번 줄만 앞 단계를 통과해 판정에 들어온다(3번 줄은 날짜 해석 실패로 여기 오지 않는다)
+    const passed = [
+      { line: 2, title: 'A', value: dt('2026-11-20', '10:00') },
+      { line: 4, title: 'B', value: dt('2026-11-21', '10:00') },
+    ];
+    const first = judgeDuplicates(passed, []);
+    expect(first.map((v) => v.result)).toEqual(['created', 'created']);
+    const stored = passed.map((r) => ({ id: `row-${r.line}`, title: r.title, value: r.value }));
+    // 재시도: 같은 줄들이 다시 온다 → 저장된 두 줄만 duplicate. 실패했던 3번 줄은 여전히 판정 대상이 아니다
+    const second = judgeDuplicates(passed, stored);
+    expect(second).toEqual([
+      { line: 2, result: 'duplicate', reason: 'dup_table', dupOf: 'row-2' },
+      { line: 4, result: 'duplicate', reason: 'dup_table', dupOf: 'row-4' },
+    ]);
+    // 실패했던 줄과 키가 같은 줄이 나중에 유효해져도, 저장된 적이 없으므로 새로 들어간다
+    expect(judgeDuplicates([{ line: 3, title: 'C', value: dt('2026-11-22', '10:00') }], stored)).toEqual([{ line: 3, result: 'created' }]);
   });
 });

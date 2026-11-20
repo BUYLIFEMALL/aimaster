@@ -26,6 +26,7 @@ export type DateParseError =
   | 'unsupported_format' // 지원 표에 없는 표기
   | 'invalid_date' // 달력에 없는 날짜
   | 'invalid_time' // 00:00~23:59 밖, 12시간 표기 오류
+  | 'seconds_unsupported' // 초가 적힌 시각 — 저장 정밀도가 분이라 받지 않는다(조용히 버리지 않음)
   | 'zone_unsupported' // KST·UTC·GMT·GMT±H 밖의 시간대 표기
   | 'range_time_one_side' // 범위의 한쪽에만 시각
   | 'end_before_start';
@@ -47,8 +48,10 @@ function ymd(y: number, m: number, d: number): string | null {
   return `${String(y).padStart(4, '0')}-${pad2(m)}-${pad2(d)}`;
 }
 
-/** 시각 글자열 → HH:mm. 못 읽는 모양이면 undefined(형식 아님), 모양은 맞는데 값이 틀리면 null */
-function parseTime(src: string): string | null | undefined {
+type TimeRead = { time: string } | { code: 'invalid_time' | 'seconds_unsupported' } | undefined;
+
+/** 시각 글자열 → HH:mm. 못 읽는 모양이면 undefined(형식 아님), 모양은 맞는데 받지 않는 값이면 사유 */
+function parseTime(src: string): TimeRead {
   const s = src.trim();
   // 오전/오후 h:mm, AM/PM h:mm(앞) 또는 h:mm AM/PM(뒤)
   let m = /^(오전|오후|AM|PM)\s*(\d{1,2}):(\d{2})(?::(\d{2}))?$/i.exec(s);
@@ -69,14 +72,18 @@ function parseTime(src: string): string | null | undefined {
     sec = m[3];
     ampm = m[4];
   }
-  if (mi > 59 || (sec !== undefined && Number(sec) > 59)) return null;
+  if (sec !== undefined) return { code: 'seconds_unsupported' }; // 10:00:30은 물론 10:00:00도 받지 않는다
+  if (mi > 59) return { code: 'invalid_time' };
   if (ampm) {
-    if (h < 1 || h > 12) return null; // 13:00 PM, 0:30 AM
+    if (h < 1 || h > 12) return { code: 'invalid_time' }; // 13:00 PM, 0:30 AM
     const pm = /^(pm|오후)$/i.test(ampm);
     h = (h % 12) + (pm ? 12 : 0);
-  } else if (h > 23) return null; // 24:00
-  return `${pad2(h)}:${pad2(mi)}`; // 초는 버린다
+  } else if (h > 23) return { code: 'invalid_time' }; // 24:00
+  return { time: `${pad2(h)}:${pad2(mi)}` };
 }
+
+/** 표기 오프셋의 절댓값 상한(분) — 14:00 */
+export const MAX_MARK_OFFSET_MINUTES = 14 * 60;
 
 /** 끝의 "(GMT+9)" 같은 표기를 떼어 낸다 */
 function splitZone(src: string): { rest: string; zone?: ZoneMark } | 'zone_unsupported' {
@@ -89,8 +96,10 @@ function splitZone(src: string): { rest: string; zone?: ZoneMark } | 'zone_unsup
   if (!o) return 'zone_unsupported';
   const hh = Number(o[2]);
   const mm = o[3] === undefined ? 0 : Number(o[3]);
-  if (hh > 14 || mm > 59) return 'zone_unsupported';
-  return { rest: m[1], zone: { offsetMinutes: (o[1] === '-' ? -1 : 1) * (hh * 60 + mm), named: false } };
+  // 절댓값 14:00까지(GMT+14·GMT-14:00은 받고 GMT+14:01은 받지 않는다). 실제로 맞는 값인지는 시간대 판정이 가린다
+  if (mm > 59 || hh * 60 + mm > MAX_MARK_OFFSET_MINUTES) return 'zone_unsupported';
+  const minutes = hh * 60 + mm;
+  return { rest: m[1], zone: { offsetMinutes: o[1] === '-' && minutes ? -minutes : minutes, named: false } }; // GMT-0은 0(음의 0이 아님)
 }
 
 /** 한쪽 끝을 읽는다. dateFrom이 있으면 「시각만」 표기를 그 날짜로 본다(같은 날 범위의 종료) */
@@ -116,15 +125,15 @@ function parseEndpoint(src: string, dateFrom?: string): { ok: true; value: Endpo
   } else if (dateFrom) {
     const t = parseTime(s); // 시각만: 같은 날 범위의 종료
     if (t === undefined) return { ok: false, code: 'unsupported_format' };
-    if (t === null) return { ok: false, code: 'invalid_time' };
-    return { ok: true, value: { date: dateFrom, time: t, ...(z.zone ? { zone: z.zone } : {}) } };
+    if ('code' in t) return { ok: false, code: t.code };
+    return { ok: true, value: { date: dateFrom, time: t.time, ...(z.zone ? { zone: z.zone } : {}) } };
   } else return { ok: false, code: 'unsupported_format' };
   if (!date) return { ok: false, code: 'invalid_date' };
   if (!timePart) return { ok: true, value: { date, ...(z.zone ? { zone: z.zone } : {}) } };
   const t = parseTime(timePart);
   if (t === undefined) return { ok: false, code: 'unsupported_format' };
-  if (t === null) return { ok: false, code: 'invalid_time' };
-  return { ok: true, value: { date, time: t, ...(z.zone ? { zone: z.zone } : {}) } };
+  if ('code' in t) return { ok: false, code: t.code };
+  return { ok: true, value: { date, time: t.time, ...(z.zone ? { zone: z.zone } : {}) } };
 }
 
 /** 범위 구분자: →, 양쪽에 공백이 있는 ~ · – · - */
@@ -133,7 +142,9 @@ const RANGE_SEP = /\s*→\s*|\s+~\s+|\s+–\s+|\s+-\s+/;
 /**
  * 날짜 칸 하나를 읽는다(시간대 판정 전 단계). 시작과 종료를 각각 따로 검증한다.
  * - 한쪽에만 시각이 있는 범위는 실패(빠진 시각을 채우지 않는다). 단 종료가 「시각만」이면 시작 날짜의 그 시각.
- * - 종료가 시작보다 앞서면 실패, 같으면 단일 일시(범위 아님).
+ * - 종료가 시작보다 앞서면 실패.
+ * - 벽시계 값이 같은 범위도 여기서 줄이지 않고 양 끝을 그대로 돌려준다. 종료에만 적힌 시간대 표기를 검사 없이
+ *   버리지 않기 위함이다 — 한 값으로 줄이는 것은 시간대 판정(resolveLectureDate)이 양 끝을 검사한 뒤에 한다.
  */
 export function parseLectureDate(raw: string): DateParse {
   const s = (raw ?? '').trim();
@@ -148,7 +159,6 @@ export function parseLectureDate(raw: string): DateParse {
   if (!!a.value.time !== !!b.value.time) return { ok: false, code: 'range_time_one_side' };
   const key = (e: Endpoint) => `${e.date}T${e.time ?? '00:00'}`;
   if (key(b.value) < key(a.value)) return { ok: false, code: 'end_before_start' };
-  if (key(b.value) === key(a.value)) return { ok: true, start: a.value };
   return { ok: true, start: a.value, end: b.value };
 }
 
@@ -167,9 +177,18 @@ function fmtFor(timeZone: string): Intl.DateTimeFormat | null {
   return f;
 }
 
-/** 이 시간대 이름을 런타임이 아는가 */
+let supportedZones: Set<string> | null = null;
+
+/**
+ * 고를 수 있는 시간대인가 — `UTC`와 런타임이 지원 목록으로 내주는 IANA 지역 이름만.
+ * 날짜 포매터는 `+09:00` 같은 원시 오프셋과 `Etc/GMT-9` 같은 고정 오프셋 이름도 받아 주지만, 오프셋은 지역이 아니라서
+ * 서머타임 판정이 무의미해지므로 여기서 막는다. 목록에 없는 값(옛 별칭·대소문자 다른 것·앞뒤 공백)도 받지 않는다.
+ */
 export function isKnownTimeZone(timeZone: string): boolean {
-  return typeof timeZone === 'string' && !!timeZone && !!fmtFor(timeZone);
+  if (typeof timeZone !== 'string' || !timeZone) return false;
+  if (timeZone === 'UTC') return true;
+  supportedZones ??= new Set(Intl.supportedValuesOf('timeZone'));
+  return supportedZones.has(timeZone) && !!fmtFor(timeZone);
 }
 
 /** 그 순간(UTC ms)에 이 시간대가 UTC보다 앞선 분 */
@@ -185,7 +204,7 @@ function offsetAt(utcMs: number, f: Intl.DateTimeFormat): number {
  * 길이 0 = 없는 시각(시계를 앞으로 돌린 구간), 1 = 보통, 2 = 두 번 있는 시각(뒤로 돌린 구간).
  */
 export function wallClockOffsets(date: string, time: string, timeZone: string): number[] | null {
-  const f = fmtFor(timeZone);
+  const f = isKnownTimeZone(timeZone) ? fmtFor(timeZone) : null;
   if (!f) return null;
   const [y, mo, d] = date.split('-').map(Number);
   const [h, mi] = time.split(':').map(Number);
@@ -217,6 +236,7 @@ export type Resolved =
  * - 없는 시각·두 번 있는 시각은 저장하지 않는다(`DateValue`에 어느 쪽인지 적을 칸이 없다). 예외 선택으로도 살리지 않는다.
  * - 표기는 시작·종료를 각자의 일시 오프셋과 비교한다. 서머타임 경계를 넘어 양 끝 오프셋이 달라도 각자 맞으면 정상.
  * - `wallClock: true`(명시 선택)면 표기 불일치만 그대로 저장한다.
+ * - 벽시계 값이 같은 범위는 위 검사를 양 끝에 모두 한 뒤에 한 값으로 줄인다.
  */
 export function resolveLectureDate(parsed: { start: Endpoint; end?: Endpoint }, timeZone: string, opts: { wallClock?: boolean } = {}): Resolved {
   if (!isKnownTimeZone(timeZone)) return { ok: false, code: 'zone_invalid' };
@@ -244,7 +264,9 @@ export function resolveLectureDate(parsed: { start: Endpoint; end?: Endpoint }, 
   if (instants.length === 2 && instants[1] < instants[0]) return { ok: false, code: 'end_before_start' };
   if (mismatched.length && !opts.wallClock) return { ok: false, code: 'tz_mismatch', side: mismatched.length === 2 ? 'both' : mismatched[0] };
   const hasTime = !!start.time;
-  const value: DateValue = end
+  // 양 끝 검사가 끝난 뒤에만 줄인다: 종료가 시작과 같은 벽시계 값이면 범위가 아니라 단일 값
+  const range = !!end && !(end.date === start.date && (end.time ?? '') === (start.time ?? ''));
+  const value: DateValue = range && end
     ? hasTime
       ? { type: 'datetimerange', start_date: start.date, start_time: start.time, end_date: end.date, end_time: end.time, time_zone: timeZone }
       : { type: 'daterange', start_date: start.date, end_date: end.date }
