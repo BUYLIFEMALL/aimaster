@@ -50,13 +50,28 @@ export interface Ctx {
    * 부르는 쪽(import.ts)이 소유·완료·경로를 먼저 확인한다. 이 칸이 없으면 그런 파일은 읽지 못한다(예전과 같음).
    */
   loadStoredUpload?: (file: { id: string; storagePath: string }, maxBytes: number) => Promise<Buffer | null>;
+  /**
+   * 2026-11-20(WS-LECTURE-PREVIEW-ONLY): 강의 일정 미리보기(`previewLectureImport`) 전용 서명 키.
+   * 지금은 시험이 주입할 때만 채워진다(runtime.ts `setLecturePreviewTestOverrides`) — 환경변수를 읽는 연결은 아직 없다.
+   * 없으면 미리보기는 표식 없이 판정만 돌려준다.
+   */
+  lecturePreviewKey?: Uint8Array;
+  /** 같은 명령 전용: 응답 예산을 시험이 바꿀 때만 채워진다(없으면 3,000,000바이트) */
+  lectureResponseBudget?: number;
 }
 
+/**
+ * 2026-11-20(WS-LECTURE-PREVIEW-ONLY, 플랜 §19-2): `extra`는 화면이 사유를 고르는 선택 칸 `code`·`detail`·`limit`이다.
+ * 실행기(runtime.ts)가 허용 목록(`content/lectureImport/publicError.ts`)으로 걸러서만 응답에 싣는다 — 500 이상에는 싣지 않는다.
+ * `extra`를 주지 않는 기존 오류는 응답이 예전과 같다.
+ */
 export class ApiError extends Error {
   status: number;
-  constructor(message: string, status = 400) {
+  extra?: { code?: string; detail?: unknown; limit?: unknown };
+  constructor(message: string, status = 400, extra?: { code?: string; detail?: unknown; limit?: unknown }) {
     super(message);
     this.status = status;
+    if (extra) this.extra = extra;
   }
 }
 

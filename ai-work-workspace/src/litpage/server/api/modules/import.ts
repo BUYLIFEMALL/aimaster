@@ -29,6 +29,11 @@ import { pdfToSpecs } from '../../content/pdf.ts';
 import { opmlToSpecs, tsvToRows, xlsxToRows } from '../../content/sheets.ts';
 import { enexToDb, trelloToDb } from '../../content/apps.ts';
 import { hit, RateLimitError } from '../../ratelimit.ts';
+import { assembleLectureImport, buildLectureResponse, LECTURE_RESPONSE_BUDGET, responseBytes, type AssembleFileError } from '../../content/lectureImport/assemble.ts';
+import type { ExistingRow } from '../../content/lectureImport/dedupe.ts';
+import { issuePreviewToken, PREVIEW_KEY_MIN_BYTES, sha256Hex, type PreviewIntent, type PreviewStructure } from '../../content/lectureImport/previewToken.ts';
+import { visibleRows } from '../../ai/visibility.ts';
+import type { DateValue, RichText } from '#shared/richtext.ts';
 import { ZIP_IMAGE_EXT, ZIP_IMPORT_LIMITS, ZIP_PAGE_EXT, normalizeZipName, slashZipName, zipNameHidden, zipNameSkipped, zipPathTooLong } from '#shared/zipPath.ts';
 
 type Handler = (ctx: Ctx, body: any) => any;
@@ -538,6 +543,93 @@ function csvRowsOf(name: string, data: Buffer): string[][] {
 
 const MERGEABLE: PropertyType[] = ['title', 'text', 'number', 'select', 'multi_select', 'status', 'date', 'checkbox', 'url', 'email', 'phone_number'];
 
+
+// ── 강의 일정 한 번 가져오기 — 미리보기(쓰기 0) ────────────────────────────────────────────────────────
+// 2026-11-20 WS-LECTURE-PREVIEW-ONLY(플랜 docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md §19). 확정 저장 명령은 아직 없다.
+
+const LECTURE_FIELD_MAX = 512;
+/** 미리보기 전용 요청 한도(§19-5 제안 1안): 회원당 10분 30회. 가져오기 횟수(`import:`)와 따로 센다 */
+export const LECTURE_PREVIEW_LIMIT = { max: 30, windowMs: 10 * 60_000 };
+
+type LectureTarget = { kind: 'new' } | { kind: 'table'; blockId: string };
+interface LecturePreviewRequest {
+  spaceId: string; url: string; name: string; target: LectureTarget;
+  mapping: { title: string; date: string }; timeZone: string; wallClock: boolean;
+}
+
+const lectureText = (x: unknown): x is string => typeof x === 'string' && x.length > 0 && x.length <= LECTURE_FIELD_MAX;
+
+/** 요청 칸의 형·길이만 본다(§19-2 「경계」 — 400, 공개 code 없음). 내용의 옳고 그름은 뒤 단계가 본다 */
+function lecturePreviewRequest(body: any): LecturePreviewRequest {
+  const bad = () => new ApiError('요청 형식이 올바르지 않습니다.', 400);
+  const b = body && typeof body === 'object' ? body : {};
+  const t = b.target;
+  if (!lectureText(b.spaceId) || !lectureText(b.url) || !lectureText(b.timeZone)) throw bad();
+  if (b.name !== undefined && !lectureText(b.name)) throw bad();
+  if (!b.mapping || typeof b.mapping !== 'object' || !lectureText(b.mapping.title) || !lectureText(b.mapping.date)) throw bad();
+  if (typeof b.wallClock !== 'boolean') throw bad();
+  if (!t || typeof t !== 'object' || (t.kind !== 'new' && t.kind !== 'table')) throw bad();
+  if (t.kind === 'table' && !lectureText(t.blockId)) throw bad();
+  return {
+    spaceId: b.spaceId, url: b.url, name: b.name ?? 'lecture.csv',
+    target: t.kind === 'table' ? { kind: 'table', blockId: t.blockId } : { kind: 'new' },
+    mapping: { title: b.mapping.title, date: b.mapping.date }, timeZone: b.timeZone, wallClock: b.wallClock,
+  };
+}
+
+/** 파일 전체 오류 → 공개 오류(§19-2): 행 수 초과는 413 too_many_rows, 나머지는 400 file_invalid + 그 파일에 대한 사유만 */
+function lectureFileError(e: AssembleFileError): ApiError {
+  if (e.code === 'too_many_rows') return new ApiError('한 번에 가져올 수 있는 줄 수를 넘었습니다.', 413, { code: 'too_many_rows', limit: e.limit });
+  const detail: { reason: string; line?: number; column?: number } = { reason: e.code };
+  if ('line' in e && typeof e.line === 'number') detail.line = e.line;
+  if ('column' in e && typeof e.column === 'number') detail.column = e.column;
+  return new ApiError('파일을 읽을 수 없습니다. 파일 형식을 확인해 주세요.', 400, { code: 'file_invalid', detail });
+}
+
+const plainText = (rt: unknown) => (Array.isArray(rt) ? rt.map((d) => (Array.isArray(d) && typeof d[0] === 'string' ? d[0] : '')).join('') : '');
+/** 날짜 속성 칸에 든 날짜 값(언급 `['d', 값]`) — 없으면 undefined */
+function dateOfCell(rt: unknown): DateValue | undefined {
+  if (!Array.isArray(rt)) return undefined;
+  for (const seg of rt as RichText) {
+    const marks = Array.isArray(seg) ? (seg as any)[1] : undefined;
+    if (!Array.isArray(marks)) continue;
+    for (const m of marks) if (Array.isArray(m) && m[0] === 'd' && m[1] && typeof m[1] === 'object') return m[1] as DateValue;
+  }
+  return undefined;
+}
+
+/**
+ * 대상 표에서 중복 판정에 쓸 기존 행(§19-4): 이 회원에게 보이는 살아 있는 행만(`visibleRows` — 휴지통·템플릿·가려진 행 제외,
+ * 가려진 속성은 지워진 채). 날짜 속성은 날짜 열 이름과 같은 이름의 날짜 속성, 없으면 표에 날짜 속성이 하나뿐일 때 그것.
+ * 둘 다 아니면 비교할 행이 없다(빈 배열). 제목이나 날짜 값이 없는 행은 넣지 않는다 — 값의 옳고 그름은 순수 모듈이 다시 본다.
+ */
+function lectureExistingRows(col: CollectionRecord, dateColumnName: string, uid: string): ExistingRow[] {
+  const dates = Object.entries(col.schema ?? {}).filter(([, p]) => p?.type === 'date');
+  const named = dates.filter(([, p]) => String(p.name ?? '').trim() === dateColumnName.trim());
+  const dateProp = named.length === 1 ? named[0][0] : dates.length === 1 ? dates[0][0] : null;
+  if (!dateProp) return [];
+  const out: ExistingRow[] = [];
+  for (const row of visibleRows(col.id, uid)) {
+    const props = (row.properties ?? {}) as Record<string, unknown>;
+    const title = plainText(props.title);
+    const value = dateOfCell(props[dateProp]);
+    if (!title || !value) continue;
+    out.push({ id: row.id, title, value });
+  }
+  return out;
+}
+
+const lectureStructure = (block: BlockRecord | undefined, col: CollectionRecord | undefined): PreviewStructure =>
+  block && col
+    ? { columns: Object.entries(col.schema ?? {}).map(([id, p]) => ({ id, name: String(p?.name ?? ''), type: String(p?.type ?? '') })), viewIds: [...(block.view_ids ?? [])] }
+    : { columns: [], viewIds: [] };
+
+/** 덧붙는 칸이 응답 끝에 붙을 때 늘어나는 정확한 바이트(본문은 항상 칸이 있는 객체라 쉼표 하나가 붙는다) */
+const suffixBytes = (extra: Record<string, unknown>) => {
+  const keys = Object.keys(extra);
+  return keys.length ? responseBytes(extra) - 2 + 1 : 0;
+};
+
 export const handlers: Record<string, Handler> = {
   async importFiles(ctx, { spaceId, parent, files, csvTypes }) {
     const uid = requireUser(ctx);
@@ -663,6 +755,56 @@ export const handlers: Record<string, Handler> = {
       target = { blockId: block.id, name: (col.name ?? []).map((d) => d[0]).join(''), properties: Object.entries(col.schema).filter(([, p]) => MERGEABLE.includes(p.type)).map(([id, p]) => ({ id, name: p.name, type: p.type })) };
     }
     return { columns, rows: body.length, types: CSV_COLUMN_TYPES, target };
+  },
+
+  /**
+   * 강의 일정 미리보기(§19-1·§19-3): 올린 CSV를 판정해 돌려준다. **DB 쓰기 0** — 회원 레코드도 만들지 않는다(실행기 READ_ONLY_MEMBER_RPCS).
+   * 서명 키(ctx.lecturePreviewKey)가 있으면 표식(token·expiresAt)을 함께, 없으면 판정 칸만(저장할 수 없음을 화면이 안다).
+   * 응답 상한은 표식 칸까지 넣은 최종 본문으로 잰다.
+   */
+  async previewLectureImport(ctx, body) {
+    // 1. 로그인 → 요청 칸의 형
+    const uid = requireUser(ctx);
+    const req = lecturePreviewRequest(body);
+    // 2. 공간 구성원 → 대상 표 편집 권한(파일을 읽기 전에). 다른 공간의 표는 볼 수 없는 표와 같은 404
+    const space = spaceOrThrow(req.spaceId, uid);
+    if (req.target.kind === 'table') {
+      const { block } = databaseOrThrow(req.target.blockId, uid);
+      if (block.space_id !== space.id) throw new ApiError('Not found', 404);
+    }
+    // 3. 미리보기 전용 요청 한도(권한을 통과한 요청만 센다 — 메모리 카운터, DB 쓰기 아님)
+    if (!hit(`lecture-preview:${uid}`, LECTURE_PREVIEW_LIMIT.max, LECTURE_PREVIEW_LIMIT.windowMs)) throw new RateLimitError('미리보기를 짧은 시간에 너무 많이 했습니다. 잠시 후 다시 시도해 주세요.');
+    // 4. 올린 파일 읽기(소유·완료·경로·크기 — 남의 파일은 없는 파일과 같은 404) → 내용 해시
+    const { file } = await uploadOf({ url: req.url, name: req.name }, uid, space, ctx);
+    const fileId = fileIdFromUrl(req.url) ?? (UUID.test(req.url) ? req.url : '');
+    // 5. 파일을 읽는 동안 권한이 빠졌으면 내용을 돌려주지 않는다(캐시를 거치지 않고 다시 확인), 최신 표를 읽는다
+    const target = withoutRequestCache(() => {
+      const sp = spaceOrThrow(req.spaceId, uid);
+      if (req.target.kind !== 'table') return undefined;
+      const t = databaseOrThrow(req.target.blockId, uid);
+      if (t.block.space_id !== sp.id) throw new ApiError('Not found', 404);
+      return t;
+    });
+    // 6. 구조 → 행 수 → 시간대 → 열 지정 → 줄별 해석(순수 모듈)
+    const existing = target ? withoutRequestCache(() => lectureExistingRows(target.col, req.mapping.date, uid)) : [];
+    const judged = assembleLectureImport({ csv: decodeText(file.data), mapping: req.mapping, timeZone: req.timeZone, wallClock: req.wallClock, existing });
+    if (!judged.ok) throw lectureFileError(judged.error);
+    // 7. 서명 키가 있으면 표식 → 최종 본문으로 예산 확인. 32바이트 미만 키는 없는 키와 같다(표식 없이 판정만)
+    const extra: Record<string, unknown> = {};
+    const key = ctx.lecturePreviewKey instanceof Uint8Array && ctx.lecturePreviewKey.byteLength >= PREVIEW_KEY_MIN_BYTES ? ctx.lecturePreviewKey : undefined;
+    if (key) {
+      const intent: PreviewIntent = { userId: uid, spaceId: space.id, target: req.target, fileId, fileSha256: sha256Hex(file.data), mapping: req.mapping, timeZone: req.timeZone, wallClock: req.wallClock };
+      const issued = issuePreviewToken(key, intent, lectureStructure(target?.block, target?.col), Date.now());
+      if (!issued.ok) throw new Error(`lecture preview token: ${issued.code}`); // 앞 단계가 막았어야 하는 값 → 500(사유는 서버 기록에만)
+      extra.token = issued.token;
+      extra.expiresAt = issued.expiresAt;
+    }
+    const budget = ctx.lectureResponseBudget ?? LECTURE_RESPONSE_BUDGET;
+    const built = buildLectureResponse(judged, { budget: budget - suffixBytes(extra) });
+    if (!built.ok) throw new Error(`lecture preview response: ${built.error.code}`); // 500, 크기 값은 응답에 싣지 않는다
+    const final = { ...built.body, ...extra };
+    if (responseBytes(final) > budget) throw new Error('lecture preview response over budget');
+    return final;
   },
 
   /** "Merge with CSV": append the CSV's rows to an existing database (no updates of existing rows, as expected). */

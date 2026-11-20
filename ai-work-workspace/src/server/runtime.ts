@@ -31,6 +31,7 @@ import { memberSpaceIds } from './workInbox';
 import './agentRuns'; // U12: 에이전트 백그라운드 실행을 주인 회원 본인 키로 감싸는 연결(불러오면 바로 설치됨)
 import { notifyPrefHandlers } from './externalNotify';
 import { aiModelPrefHandlers } from './aiModelPrefs'; // 2026-11-13: 자동화 알림·리마인더를 회원 본인 메일·카카오톡으로도(불러오면 바로 설치됨)
+import { publicErrorFields } from '@/litpage/server/content/lectureImport/publicError.ts';
 import { searchPrefHandlers } from './searchPrefs'; // 2026-11-15 AI 비서 검색 도구 고르기
 
 type Handler = (ctx: Ctx, body: any) => any | Promise<any>;
@@ -175,7 +176,23 @@ export interface RpcResult {
 
 /** 원본 /api/rpc/:name 과 같은 응답 모양({errorId, name, message})으로 처리한다. */
 const PAGE_READ_RPCS = new Set(['getSite', 'getPublishedPage', 'loadPage', 'loadPageCached']); // publicPages.ts PUBLIC_RPCS와 같게
-const IMPORT_RPCS = new Set(['importFiles', 'previewCsv', 'mergeCsv']); // 올린 파일을 읽는 가져오기 명령(import.ts uploadOf)
+const IMPORT_RPCS = new Set(['importFiles', 'previewCsv', 'mergeCsv', 'previewLectureImport']); // 올린 파일을 읽는 가져오기 명령(import.ts uploadOf)
+/**
+ * 2026-11-20(WS-LECTURE-PREVIEW-ONLY): DB에 한 줄도 쓰지 않아야 하는 명령. 회원 레코드를 만들거나(`ensureMember`) 이메일을 맞추거나
+ * 메인 사이트 이름을 읽지 않고, 이미 준비된 회원인지만 읽어서 확인한다. 준비되지 않은 회원은 403(평소 권한 오류와 같은 모양)으로 거절한다 —
+ * 이 명령이 회원을 만들어 주지 않으므로, 워크스페이스를 한 번 열면(다른 명령) 준비된다. 다른 명령은 예전과 같다.
+ */
+const READ_ONLY_MEMBER_RPCS = new Set(['previewLectureImport']);
+
+/**
+ * 시험 전용 주입(강의 일정 미리보기): 서명 키·응답 예산. 운영 코드는 부르지 않는다 — 운영에서는 둘 다 비어 있어
+ * 미리보기가 표식 없이 판정만 돌려준다(서명 키를 환경변수에서 읽는 연결은 아직 없다). 운영(`NODE_ENV=production`)에서 부르면 멈춘다.
+ */
+let lectureTestOverrides: { key?: Uint8Array; budget?: number } = {};
+export function setLecturePreviewTestOverrides(o: { key?: Uint8Array; budget?: number }) {
+  if (process.env.NODE_ENV === 'production') throw new Error('test-only');
+  lectureTestOverrides = { ...o };
+}
 
 export async function runRpc(name: string, body: unknown, member: Member, clientId?: string): Promise<RpcResult> {
   init();
@@ -190,8 +207,13 @@ export async function runRpc(name: string, body: unknown, member: Member, client
   if (blockedBody) return { status: blockedBody.status, body: { errorId: newId(), name: 'PermissionError', message: blockedBody.message } };
   try {
     const result = await withRequestCache(async () => {
-      if (member.resolveName && !getRecord<UserRecord>('lit_user', member.id)) member = { ...member, name: await member.resolveName() };
-      ensureMember(member);
+      if (READ_ONLY_MEMBER_RPCS.has(name)) {
+        // 읽기만: 회원 레코드가 이미 있어야 한다(만들지도, 이메일을 맞추지도 않는다)
+        if (!getRecord<UserRecord>('lit_user', member.id)) throw new ApiError('먼저 워크스페이스를 한 번 열어 계정을 준비한 뒤 다시 시도해 주세요.', 403);
+      } else {
+        if (member.resolveName && !getRecord<UserRecord>('lit_user', member.id)) member = { ...member, name: await member.resolveName() };
+        ensureMember(member);
+      }
       // 2026-11-15: 남의 게시 페이지를 회원 화면으로 열 때도 관리자 내리기·게시자 이용 기간 종료를 적용(publicPages.ts가 runtime을 불러오므로 여기서는 필요할 때만 동적으로 불러옴)
       if (PAGE_READ_RPCS.has(name)) {
         const { closedForOutsider } = await import('./publicPages');
@@ -215,6 +237,10 @@ export async function runRpc(name: string, body: unknown, member: Member, client
         const uid = member.id;
         ctx.loadStoredUpload = async (file, maxBytes) => (await import('./fileStorage')).readImportUpload(uid, file.storagePath, maxBytes);
       }
+      if (name === 'previewLectureImport') {
+        if (lectureTestOverrides.key) ctx.lecturePreviewKey = lectureTestOverrides.key;
+        if (lectureTestOverrides.budget !== undefined) ctx.lectureResponseBudget = lectureTestOverrides.budget;
+      }
       return handler(ctx, input);
     });
     return { status: 200, body: result ?? {} };
@@ -225,7 +251,9 @@ export async function runRpc(name: string, body: unknown, member: Member, client
     else if (status === 403 || (status === 400 && name === 'applyChanges')) console.warn(`[authz] ${name} ${status} user=${member.id}: ${String(e?.message ?? '').slice(0, 300)}`);
     const kind = status === 401 ? 'UnauthorizedError' : status === 403 ? 'PermissionError' : status === 429 ? 'RateLimitedError' : status >= 500 ? 'InternalError' : 'ValidationError';
     // 내부 오류는 기록만 하고 SQL·스택은 보내지 않는다(원본과 같음)
-    return { status, body: { errorId: newId(), name: kind, message: status >= 500 ? '요청을 처리하는 중 문제가 생겼습니다. 잠시 후 다시 시도해 주세요.' : (e?.message ?? 'Error') } };
+    // 2026-11-20(플랜 §19-2): 선택 칸 code·detail·limit은 허용 목록으로 거른 것만, 500 이상에는 없음. extra가 없는 기존 오류는 예전과 같다
+    const pub = publicErrorFields(status, e instanceof ApiError ? e.extra : undefined);
+    return { status, body: { errorId: newId(), name: kind, message: status >= 500 ? '요청을 처리하는 중 문제가 생겼습니다. 잠시 후 다시 시도해 주세요.' : (e?.message ?? 'Error'), ...pub } };
   }
 }
 
