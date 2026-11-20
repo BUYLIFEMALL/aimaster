@@ -1,10 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { cookieDomainForHost } from "@/lib/supabase/cookieDomain";
+import { isNoticeFile } from "./lib/noticeFiles";
 
 const PUBLIC_PATHS = ["/login", "/signup"];
 
 export async function proxy(request: NextRequest) {
+  // 고지 파일(/robots.txt·/ai.txt)은 로그인 검사 없이 그대로 보낸다(0번 규칙).
+  if (isNoticeFile(request.nextUrl.pathname)) {
+    return NextResponse.next();
+  }
+
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", request.nextUrl.pathname + request.nextUrl.search);
 
