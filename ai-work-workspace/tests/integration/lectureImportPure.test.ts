@@ -436,4 +436,97 @@ describe('중복 판정(§6-1)', () => {
     // 실패했던 줄과 키가 같은 줄이 나중에 유효해져도, 저장된 적이 없으므로 새로 들어간다
     expect(judgeDuplicates([{ line: 3, title: 'C', value: dt('2026-11-22', '10:00') }], stored)).toEqual([{ line: 3, result: 'created' }]);
   });
+
+  // 2026-11-20 A23 보완(Mac msg_c08218089f80): 기존 행은 제품 DateValue의 유형별 정상 표현인지 먼저 보고,
+  // 실제 달력 날짜·필수 시각·종료 순서까지 맞는 값만 중복의 근거로 쓴다. 원본은 고치지 않는다.
+  it('기존 행 날짜 값 검증 — 반례 둘: 달력에 없는 종료일, 시작 시각 없는 datetime은 근거가 되지 않는다', () => {
+    const file = [{ line: 2, title: '강의 A', value: dt('2026-11-20', '10:00', ['2026-11-21', '12:00']) }];
+    // 반례 1: 종료일이 달력에 없다(형식은 YYYY-MM-DD라 모양만 보면 통과한다)
+    const badEnd = { id: 'b1', title: '강의 A', value: { type: 'datetimerange', start_date: '2026-11-20', start_time: '10:00', end_date: '2026-11-31', end_time: '12:00' } as any };
+    expect(isComparable(badEnd.title, badEnd.value)).toBe(false);
+    expect(judgeDuplicates(file, [badEnd])).toEqual([{ line: 2, result: 'created' }]);
+    // 반례 2: datetime인데 시작 시각이 없다(키는 하루 종일 값과 같아 보인다)
+    const noTime = { id: 'b2', title: '특강', value: { type: 'datetime', start_date: '2026-11-21' } as any };
+    expect(isComparable(noTime.title, noTime.value)).toBe(false);
+    expect(judgeDuplicates([{ line: 3, title: '특강', value: dt('2026-11-21') }], [noTime])).toEqual([{ line: 3, result: 'created' }]);
+    // 정상 대조: 같은 자리에 유효한 값이 있으면 근거가 된다
+    const goodEnd = { id: 'g1', title: '강의 A', value: { type: 'datetimerange', start_date: '2026-11-20', start_time: '10:00', end_date: '2026-11-21', end_time: '12:00' } as any };
+    expect(judgeDuplicates(file, [badEnd, goodEnd])).toEqual([{ line: 2, result: 'duplicate', reason: 'dup_table', dupOf: 'g1' }]);
+    const allDay = { id: 'g2', title: '특강', value: { type: 'date', start_date: '2026-11-21' } as any };
+    expect(judgeDuplicates([{ line: 3, title: '특강', value: dt('2026-11-21') }], [noTime, allDay])).toEqual([{ line: 3, result: 'duplicate', reason: 'dup_table', dupOf: 'g2' }]);
+  });
+
+  it('기존 행 날짜 값 검증 — 유형별 정상 표현과 달력·시각·순서', () => {
+    const v = (x: Record<string, unknown>) => x as any;
+    const valid: [string, any][] = [
+      ['date', v({ type: 'date', start_date: '2026-11-20' })],
+      ['date, 윤년 2월 29일', v({ type: 'date', start_date: '2028-02-29' })],
+      ['datetime', v({ type: 'datetime', start_date: '2026-11-20', start_time: '10:00', time_zone: 'Asia/Seoul' })],
+      ['datetime, 9:00 legacy', v({ type: 'datetime', start_date: '2026-11-20', start_time: '9:00' })],
+      ['daterange', v({ type: 'daterange', start_date: '2026-11-20', end_date: '2026-11-22' })],
+      ['daterange, 같은 날', v({ type: 'daterange', start_date: '2026-11-20', end_date: '2026-11-20' })],
+      ['daterange, end_date 생략(제품은 시작일로 본다)', v({ type: 'daterange', start_date: '2026-11-20' })],
+      ['datetimerange', v({ type: 'datetimerange', start_date: '2026-11-20', start_time: '10:00', end_date: '2026-11-20', end_time: '12:00' })],
+      ['datetimerange, end_date 생략(같은 날)', v({ type: 'datetimerange', start_date: '2026-11-20', start_time: '10:00', end_time: '12:00' })],
+      ['datetimerange, end_time 생략(제품은 시작 시각으로 본다)', v({ type: 'datetimerange', start_date: '2026-11-20', start_time: '10:00', end_date: '2026-11-21' })],
+      ['datetimerange, 9:00 legacy 양 끝', v({ type: 'datetimerange', start_date: '2026-11-20', start_time: '9:00', end_date: '2026-11-20', end_time: '9:30' })],
+      ['datetimerange, 다른 날 이른 시각', v({ type: 'datetimerange', start_date: '2026-11-20', start_time: '22:00', end_date: '2026-11-21', end_time: '01:00' })],
+      ['date, 표시 형식 등 다른 칸이 붙음', v({ type: 'date', start_date: '2026-11-20', date_format: 'YYYY/MM/DD', reminder: { unit: 'day', value: 1 } })],
+    ];
+    for (const [label, value] of valid) expect(isComparable('강의', value), label).toBe(true);
+    const invalid: [string, any][] = [
+      ['유형 없음', v({ start_date: '2026-11-20' })],
+      ['모르는 유형', v({ type: 'timestamp', start_date: '2026-11-20' })],
+      ['시작일 없음', v({ type: 'date' })],
+      ['시작일이 달력에 없음', v({ type: 'date', start_date: '2026-02-30' })],
+      ['시작일 13월', v({ type: 'date', start_date: '2026-13-01' })],
+      ['시작일 자릿수 부족', v({ type: 'date', start_date: '2026-1-5' })],
+      ['평년 2월 29일', v({ type: 'date', start_date: '2026-02-29' })],
+      ['date인데 시각이 있음', v({ type: 'date', start_date: '2026-11-20', start_time: '10:00' })],
+      ['date인데 종료일이 있음', v({ type: 'date', start_date: '2026-11-20', end_date: '2026-11-21' })],
+      ['datetime인데 시작 시각 없음', v({ type: 'datetime', start_date: '2026-11-20' })],
+      ['datetime인데 시작 시각 빈 값', v({ type: 'datetime', start_date: '2026-11-20', start_time: '' })],
+      ['datetime인데 종료가 있음', v({ type: 'datetime', start_date: '2026-11-20', start_time: '10:00', end_date: '2026-11-21' })],
+      ['datetime 시각 범위 밖', v({ type: 'datetime', start_date: '2026-11-20', start_time: '24:00' })],
+      ['daterange인데 시각이 있음', v({ type: 'daterange', start_date: '2026-11-20', start_time: '10:00', end_date: '2026-11-21' })],
+      ['daterange 종료일이 달력에 없음', v({ type: 'daterange', start_date: '2026-11-20', end_date: '2026-11-31' })],
+      ['daterange 종료가 시작보다 앞', v({ type: 'daterange', start_date: '2026-11-22', end_date: '2026-11-20' })],
+      ['datetimerange인데 시작 시각 없음', v({ type: 'datetimerange', start_date: '2026-11-20', end_date: '2026-11-21', end_time: '10:00' })],
+      ['datetimerange 종료일이 달력에 없음', v({ type: 'datetimerange', start_date: '2026-11-20', start_time: '10:00', end_date: '2026-11-31', end_time: '12:00' })],
+      ['datetimerange 종료 시각 깨짐', v({ type: 'datetimerange', start_date: '2026-11-20', start_time: '10:00', end_date: '2026-11-20', end_time: '25:00' })],
+      ['datetimerange 같은 날 종료가 시작보다 앞', v({ type: 'datetimerange', start_date: '2026-11-20', start_time: '10:00', end_date: '2026-11-20', end_time: '9:59' })],
+      ['datetimerange end_date 생략인데 종료가 앞', v({ type: 'datetimerange', start_date: '2026-11-20', start_time: '10:00', end_time: '09:00' })],
+      ['값이 글자열', '2026-11-20' as any],
+      ['값이 배열', [] as any],
+    ];
+    for (const [label, value] of invalid) expect(isComparable('강의', value), label).toBe(false);
+  });
+
+  it('기존 행의 생략된 종료는 제품과 같은 뜻으로 비교한다 — 같은 날 범위와 9:00 legacy 보존, 원본 무수정', () => {
+    const existing = [
+      // end_date 생략 = 같은 날, 시각은 자릿수 없는 legacy
+      { id: 'e1', title: '강의 A', value: { type: 'datetimerange', start_date: '2026-11-20', start_time: '9:00', end_time: '9:30' } as any },
+      // end_time 생략 = 시작 시각과 같은 시각
+      { id: 'e2', title: '강의 B', value: { type: 'datetimerange', start_date: '2026-11-20', start_time: '10:00', end_date: '2026-11-21' } as any },
+      // daterange에서 end_date 생략 = 그날 하루
+      { id: 'e3', title: '강의 C', value: { type: 'daterange', start_date: '2026-11-20' } as any },
+    ];
+    const frozen = JSON.stringify(existing);
+    expect(judgeDuplicates([
+      { line: 2, title: '강의 A', value: dt('2026-11-20', '09:00', ['2026-11-20', '09:30']) }, // 생략된 종료일 = 시작일 → 종료까지 같음
+      { line: 3, title: '강의 A', value: dt('2026-11-20', '09:00', ['2026-11-21', '09:30']) }, // 키는 같고 종료일이 실제로 다름
+      { line: 4, title: '강의 B', value: dt('2026-11-20', '10:00', ['2026-11-21', '10:00']) }, // 생략된 종료 시각 = 시작 시각
+      { line: 5, title: '강의 B', value: dt('2026-11-20', '10:00', ['2026-11-21', '11:00']) },
+      { line: 6, title: '강의 C', value: dt('2026-11-20', undefined, ['2026-11-20']) }, // 그날 하루짜리 범위
+      { line: 7, title: '강의 C', value: dt('2026-11-20', undefined, ['2026-11-22']) },
+    ], existing)).toEqual([
+      { line: 2, result: 'duplicate', reason: 'dup_table', dupOf: 'e1' },
+      { line: 3, result: 'duplicate', reason: 'dup_table_end_differs', dupOf: 'e1' },
+      { line: 4, result: 'duplicate', reason: 'dup_table', dupOf: 'e2' },
+      { line: 5, result: 'duplicate', reason: 'dup_table_end_differs', dupOf: 'e2' },
+      { line: 6, result: 'duplicate', reason: 'dup_table', dupOf: 'e3' },
+      { line: 7, result: 'duplicate', reason: 'dup_table_end_differs', dupOf: 'e3' },
+    ]);
+    expect(JSON.stringify(existing)).toBe(frozen);
+  });
 });

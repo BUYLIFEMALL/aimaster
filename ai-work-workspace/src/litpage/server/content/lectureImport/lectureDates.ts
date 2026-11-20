@@ -50,6 +50,13 @@ function ymd(y: number, m: number, d: number): string | null {
 
 type TimeRead = { time: string } | { code: 'invalid_time' | 'seconds_unsupported' } | undefined;
 
+/** `YYYY-MM-DD` 모양이고 달력에 실제로 있는 날짜인가(중복 판정이 기존 행의 값을 볼 때도 쓴다) */
+export function isCalendarDate(s: unknown): s is string {
+  if (typeof s !== 'string') return false;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+  return !!m && ymd(Number(m[1]), Number(m[2]), Number(m[3])) === s;
+}
+
 /** 시각 글자열 → HH:mm. 못 읽는 모양이면 undefined(형식 아님), 모양은 맞는데 받지 않는 값이면 사유 */
 function parseTime(src: string): TimeRead {
   const s = src.trim();
