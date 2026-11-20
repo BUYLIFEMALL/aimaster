@@ -532,3 +532,4 @@ WS-LECTURE-API-CONTRACT A3 CC-WORKSPACE-01: Master msg_7a4f6effd0c8. ai-work-wor
 
 WS-LECTURE-API-CONTRACT A3 점유 해제 CC-WORKSPACE-01: 문서 68878aed3(PLAN 한 파일). 코드·env·운영 무변경. CX-QA-01 검수 대기.
 MOV-SVS-PROMPT-COPY-ALL A4 CC-MOVIE-01: Master msg_d095d351c57b(기준 10c6921b1). shorts-viral-studio/src/lib/promptCopy.ts·src/components/studio/PromptsStep.tsx·tests/promptCopy.test.mjs·docs/IMPROVEMENTS.md만. 빌드·배포 0.
+MOV-SVS-PROMPT-COPY-ALL A4 CC-MOVIE-01 해제: cfce3a0f8 (tsc 0·복사 시험 18/18·17/17).
