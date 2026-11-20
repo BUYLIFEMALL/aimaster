@@ -487,3 +487,5 @@ MOV-ILV-COMMON-PREP CC-MOVIE-01(자율, 알림 msg_4b00cda35b42): infinite-loop-
 MOV-ILV-COMMON-PREP CC-MOVIE-01 해제: 4c9a4af5a (tsc 0·19/19·공통 경고 0).
 MOV-SHOTS-AVS-LOGIN-PREP CC-MOVIE-01(자율, 알림 msg_9416d7738410): shots/src/lib/actions/auth.ts·src/lib/supabase/server.ts·docs/IMPROVEMENTS.md, ai-video-studio/lib/actions/auth.ts·lib/supabase/server.ts·docs/IMPROVEMENTS.md, docs/PENDING_DEPLOYS.md. 빌드·배포 0.
 MOV-SHOTS-AVS-LOGIN-PREP CC-MOVIE-01 해제: 756c51b93 (tsc 0/0, shots 34/34, ai-video 113/113, 공통 경고 0).
+
+WS-20261118-02 A5 점유 해제 CC-WORKSPACE-01: 문서 aa46c8f0f(PLAN A5 +30/-8, 인수 조건 A1~A24) · 모듈 수정 57714aca3(lectureDates.ts·dedupe.ts·lectureImportPure.test.ts 23개·IMPROVEMENTS). 기존 csv.ts·import.ts 무변경, 호출처 0. Mac 재검수 대기.
