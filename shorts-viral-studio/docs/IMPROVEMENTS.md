@@ -10,6 +10,7 @@
 
 > **⏳ 미배포 대기 (2026-11-20, 영상 담당 `claude-win-video`, MOV-SVS-YVS-LOCAL-DEPS)** — Next.js 보안 업그레이드: `next`·`eslint-config-next` `^16.4.2` → `^16.4.6`(`package.json`·`package-lock.json`만, 커밋 `77987f7f2`, 권고 7건 영향 범위 16.4.4 이하 해소). 내 PC `npm run build` exit 0(16.4.2 때 `SecurityFatalError` 정지 해소)·`npm test` 17/17·`tsc` 0, 맥미니 정적 검수 PASS. 운영 배포·Vercel 빌드 미실행 — **다음 SVS 배포 때 함께**(결과 `.ai/results/MOV-SVS-YVS-LOCAL-DEPS-CC-MOVIE-01.md`).
 > **⏳ 미배포 대기 (2026-11-20, MOV-SVS-COMMON-PREP)** — 배포 공통 3가지 미리 반영: 저장공간 위젯 한 줄(`src/app/layout.tsx`), 로그아웃 `signOut({ scope: "local" })`(`src/lib/actions/auth.ts`, 비밀번호 재설정 화면 없음), 서버 Supabase `User-Agent` 전달(`src/lib/supabase/server.ts`). `tsc` 0·`npm test` 17/17·`pending-check` 공통 경고 0. 다음 SVS 배포 때 함께(버전은 그 배포에 포함).
+> **⏳ 미배포 대기 (2026-11-20, MOV-SVS-PROMPT-COPY-ALL)** — 프롬프트 단계에 「🖼️ 이미지 프롬프트 전체 복사」「🎥 영상 프롬프트 전체 복사」 버튼(씬 번호 순서, 빈 프롬프트 건너뜀, 누르면 2초간 「복사됨」). 순수 함수 `src/lib/promptCopy.ts` `formatScenePrompts`, 화면 `PromptsStep.tsx`. 시험 `node --test tests/promptCopy.test.mjs` 4/4, `npm test` 17/17, `tsc` 0. AI·외부 호출 변화 없음. 실화면(복사 동작·좁은 화면)은 배포 뒤 확인.
 
 ## 1. 2026-10-18 디자인 리뉴얼 작업 완료 내역
 - **플로우 위저드 스타일 (다크 차콜)** 전면 일관 적용 (`#0d1117` 배경, `#161b22` 카드, `#30363d` 보더, `#ef4444` 쇼츠 레드 포인트).

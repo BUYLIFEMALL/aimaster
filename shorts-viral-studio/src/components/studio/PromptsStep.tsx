@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { generatePromptsAction } from "@/lib/actions/svs";
 import { savePromptSetAction } from "@/lib/actions/savedPrompts";
 import { downloadMarkdown } from "@/lib/export";
+import { PROMPT_COPY_LABEL, formatScenePrompts, type PromptKind } from "@/lib/promptCopy";
 import { useStudio } from "@/components/studio/StudioProvider";
 import {
   Card,
@@ -29,6 +30,20 @@ export function PromptsStep() {
   const autoRan = useRef(false);
   const [vault, setVault] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [vaultError, setVaultError] = useState<string | null>(null);
+  const [copiedKind, setCopiedKind] = useState<PromptKind | null>(null);
+
+  // 씬별 프롬프트를 한 종류씩 모아 한 번에 복사(외부 생성 도구에 붙여 넣기용)
+  async function copyAll(kind: PromptKind) {
+    const text = formatScenePrompts(data.promptsResult?.prompts, kind);
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedKind(kind);
+      setTimeout(() => setCopiedKind((k) => (k === kind ? null : k)), 2000);
+    } catch {
+      setError("복사하지 못했습니다. 브라우저의 클립보드 권한을 확인해 주세요.");
+    }
+  }
 
   // 프롬프트를 새로 만들면 다시 저장할 수 있게 상태를 초기화
   useEffect(() => {
@@ -157,6 +172,17 @@ export function PromptsStep() {
               )}
             </Card>
           )}
+
+          <div className="flex flex-wrap items-center gap-2">
+            {(["image", "video"] as const).map((kind) =>
+              formatScenePrompts(result.prompts, kind) ? (
+                <GhostButton key={kind} onClick={() => copyAll(kind)}>
+                  {copiedKind === kind ? "✅ 복사됨" : PROMPT_COPY_LABEL[kind]}
+                </GhostButton>
+              ) : null,
+            )}
+            <span className="text-[11px] text-[#8b949e]">씬 번호 순서로 모아 복사합니다.</span>
+          </div>
 
           <div className="space-y-3">
             {result.prompts.map((p) => (
