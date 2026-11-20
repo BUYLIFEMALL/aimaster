@@ -6,6 +6,7 @@ import type { YouTubeVideoItem } from "@/lib/youtube/types";
 import { Flame, RefreshCw, AlertCircle, Key } from "lucide-react";
 import Link from "next/link";
 import { errorMessage } from "@/lib/errors";
+import { SETTINGS_LINK_LABEL } from "@/lib/aiKeyNotice";
 
 export default function TrendingVideosPage() {
   const [activeTab, setActiveTab] = useState<"shorts" | "long" | "all">("shorts");
@@ -102,7 +103,7 @@ export default function TrendingVideosPage() {
             href="/settings"
             className="btn-create-key shrink-0"
           >
-            <span>보안 키 금고에서 등록 →</span>
+            <span>{SETTINGS_LINK_LABEL}</span>
           </Link>
         </div>
       )}

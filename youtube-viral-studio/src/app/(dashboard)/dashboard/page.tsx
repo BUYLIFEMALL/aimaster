@@ -3,6 +3,7 @@ import { Sparkles, TrendingUp, Flame, Link2, Bookmark, KeyRound, BookOpen, BarCh
 import { requireProgramAccess } from "@/lib/access";
 import { getRegisteredApiKeys } from "@/lib/apiKeys";
 import { FavoriteCounts } from "@/components/dashboard/FavoriteCounts";
+import { AI_ENGINE_LABEL, AI_ENGINE_NOTE_MISSING, AI_ENGINE_NOTE_READY, CONNECTION_STATUS_TITLE, SETTINGS_PAGE_TITLE } from "@/lib/aiKeyNotice";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -80,7 +81,7 @@ export default async function DashboardPage() {
 
   const connections = [
     { label: "YouTube Data API v3", ok: hasYtKey, note: hasYtKey ? "연동 완료 (영상·채널 조회 가능)" : "미등록 (트렌드 탐색 필수)" },
-    { label: "Claude / Gemini AI 엔진", ok: hasAiKey, note: hasAiKey ? "연동 완료 (11대 바이럴 심리 분석)" : "미등록 (선택: AI 대본 분석 시 필요)" },
+    { label: AI_ENGINE_LABEL, ok: hasAiKey, note: hasAiKey ? AI_ENGINE_NOTE_READY : AI_ENGINE_NOTE_MISSING },
   ];
 
   return (
@@ -234,7 +235,7 @@ export default async function DashboardPage() {
         <div className="rounded-2xl border border-amber-500/25 bg-[#131B2A] p-5 shadow-lg shadow-black/30">
           <h2 className="mb-3 flex items-center gap-1.5 text-sm font-black text-[#FBBF24]">
             <KeyRound size={16} />
-            <span>보안 키 금고 연결 상태</span>
+            <span>{CONNECTION_STATUS_TITLE}</span>
           </h2>
           <ul className="space-y-2.5">
             {connections.map((c) => (
@@ -249,7 +250,7 @@ export default async function DashboardPage() {
           </ul>
           <Link href="/settings" className="btn-3d-slate mt-4 flex w-full items-center justify-center text-xs">
             <KeyRound size={14} />
-            <span>보안 키 금고 관리</span>
+            <span>{SETTINGS_PAGE_TITLE}</span>
           </Link>
         </div>
 
