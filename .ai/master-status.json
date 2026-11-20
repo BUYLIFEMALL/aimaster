@@ -6125,10 +6125,10 @@
       "reviewer": "CX-QA-01",
       "title": "쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내",
       "status": "queued",
-      "delivery": "0076_applied_0077_readonly_preflight_delivered",
-      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md·msg_f995f8db2740·msg_b03bc930a0b2·0073 및 삭제 호출 소스 대조·msg_42a884229750·56ff56a5c·cc25a7cc1·0073/0076 함수 본문 대조·msg_c7919fb9f259·msg_81907d673c17·msg_f5b822c01b10·.ai/results/B2B-20261119-MALL-STORAGE-CX-QA-01.md·63b858413·Master 문서 대조 및 SQL·합성 시험 동일 확인·msg_3ed0e1d3e2de·705316994·msg_b549fb254462·msg_acab1bb8aef3·d96833385·msg_6963287c7e03·msg_adcf99e721c6·msg_166e6742290d·msg_eda2a13b267a·msg_5a61b112ea91·msg_e129da023cda·msg_3451b6e4345d·msg_928c0432c619·592b7484a·msg_d1a67c523d5c·msg_2adc74d93607·Master 호출 경로 대조·msg_c2a22bc17a99·msg_c41e662cebfa·055b38a7c·SQL/시험 변경 0 대조·msg_9846c713b97f·msg_0224f781379f",
-      "next": "0076 운영 적용 1회 성공(msg_9846c713b97f, 이력 20261120015854). 제외 규칙·함수 속성·ACL 보존 사후 보고 수락. 실제 cron 미확인. 0077 읽기 사전 점검만 CC-ECOM-01에 전달(msg_0224f781379f), 수락·착수 미확인. 0077 적용·SNS D2 쓰기는 후속 순번.",
-      "lastReviewedAt": "2026-11-20T02:01:22.562Z",
+      "delivery": "0076_applied_0077_readonly_preflight_verified",
+      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md·msg_f995f8db2740·msg_b03bc930a0b2·0073 및 삭제 호출 소스 대조·msg_42a884229750·56ff56a5c·cc25a7cc1·0073/0076 함수 본문 대조·msg_c7919fb9f259·msg_81907d673c17·msg_f5b822c01b10·.ai/results/B2B-20261119-MALL-STORAGE-CX-QA-01.md·63b858413·Master 문서 대조 및 SQL·합성 시험 동일 확인·msg_3ed0e1d3e2de·705316994·msg_b549fb254462·msg_acab1bb8aef3·d96833385·msg_6963287c7e03·msg_adcf99e721c6·msg_166e6742290d·msg_eda2a13b267a·msg_5a61b112ea91·msg_e129da023cda·msg_3451b6e4345d·msg_928c0432c619·592b7484a·msg_d1a67c523d5c·msg_2adc74d93607·Master 호출 경로 대조·msg_c2a22bc17a99·msg_c41e662cebfa·055b38a7c·SQL/시험 변경 0 대조·msg_9846c713b97f·msg_0224f781379f·msg_decba1798677·592b7484a",
+      "next": "0076 운영 적용 완료(이력 20261120015854), 실제 cron 미확인. CC-ECOM-01의 0077 고정판 592b7484a 읽기 사전 점검 PASS(msg_decba1798677). 운영 미적용, 적용 도구의 파일 내부 트랜잭션 처리·해당 호출 권한 확인 뒤 1회 적용 배정. SNS D2는 후속 순번.",
+      "lastReviewedAt": "2026-11-20T02:02:49.995Z",
       "sha": "592b7484a"
     },
     {
