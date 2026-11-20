@@ -53,9 +53,9 @@ export default async function AdminResellersPage({
       {ok && <p className="mb-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{msg || "처리했습니다."}</p>}
       <h2 className="text-lg font-semibold">🤝 리셀러</h2>
       <p className="mt-1 text-sm text-gray-600">리셀러 링크로 30일 안 들어온 주문에 리셀러가 기록되고, 결제되면 품목마다 (판매가 − 쿠폰 나눔) × (상품 리셀러율 + 리셀러 추가율)이 「지급 예정」 → 구매 확정 때 「지급 완료」(잔고 적립). 확정 전 취소·반품은 보류, 확정 뒤 반품은 직권 차감으로 처리합니다.</p>
-      <nav className="mt-4 flex gap-1 overflow-x-auto border-b" data-reseller-tabs>
+      <nav aria-label="리셀러 관리 탭" className="mt-4 flex gap-1 overflow-x-auto border-b" data-reseller-tabs>
         {TABS.map((t) => (
-          <Link key={t.id} href={here(t.id)} className={`whitespace-nowrap border-b-2 px-3 py-2 text-sm ${tab === t.id ? "border-gray-900 font-semibold" : "border-transparent text-gray-500"}`}>
+          <Link key={t.id} href={here(t.id)} aria-current={tab === t.id ? "page" : undefined} className={`whitespace-nowrap border-b-2 px-3 py-2 text-sm ${tab === t.id ? "border-gray-900 font-semibold" : "border-transparent text-gray-500"}`}>
             {t.label}
           </Link>
         ))}

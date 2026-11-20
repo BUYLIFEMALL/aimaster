@@ -29,21 +29,21 @@ export default async function AdminCustomersPage({
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/customers">
-      <nav className="flex flex-wrap gap-1 text-sm" data-customer-tabs>
-        <Link href={customerListHref(base, f, tab)} className={`rounded px-3 py-1.5 ${!f.approval && !f.member ? "bg-gray-900 text-white" : "bg-gray-100"}`}>전체 {counts.all}</Link>
+      <nav aria-label="고객 상태 필터" className="flex flex-wrap gap-1 text-sm" data-customer-tabs>
+        <Link href={customerListHref(base, f, tab)} aria-current={!f.approval && !f.member ? "page" : undefined} className={`rounded px-3 py-1.5 ${!f.approval && !f.member ? "bg-gray-900 text-white" : "bg-gray-100"}`}>전체 {counts.all}</Link>
         {MEMBER_TABS.map((m) => {
           const n = counts.member[m];
-          return n || (closed.enabled && m === "pending") ? (
-            <Link key={m} href={customerListHref(base, f, { ...tab, member: m })} className={`rounded px-3 py-1.5 ${f.member === m ? "bg-amber-600 text-white" : "bg-amber-50 text-amber-800"}`} data-member-tab={m}>
-              {MEMBER_STATUS_LABEL[m]} {n}
+          return n || (closed.enabled && m === "pending") || f.member === m ? (
+            <Link key={m} href={customerListHref(base, f, { ...tab, member: m })} aria-current={f.member === m ? "page" : undefined} className={`rounded px-3 py-1.5 ${f.member === m ? "bg-amber-600 text-white" : "bg-amber-50 text-amber-800"}`} data-member-tab={m}>
+              {MEMBER_STATUS_LABEL[m]} {n ?? 0}
             </Link>
           ) : null;
         })}
         {APPROVAL_TABS.map((t) => {
           const n = counts.approval[t];
-          return n ? (
-            <Link key={t} href={customerListHref(base, f, { ...tab, approval: t })} className={`rounded px-3 py-1.5 ${f.approval === t ? "bg-gray-900 text-white" : "bg-gray-100"}`}>
-              {APPROVAL_LABEL[t]} {n}
+          return n || f.approval === t ? (
+            <Link key={t} href={customerListHref(base, f, { ...tab, approval: t })} aria-current={f.approval === t ? "page" : undefined} className={`rounded px-3 py-1.5 ${f.approval === t ? "bg-gray-900 text-white" : "bg-gray-100"}`}>
+              {APPROVAL_LABEL[t]} {n ?? 0}
             </Link>
           ) : null;
         })}
