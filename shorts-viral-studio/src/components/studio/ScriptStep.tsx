@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { generateScriptAction } from "@/lib/actions/svs";
 import { downloadMarkdown } from "@/lib/export";
 import { refHandoffHash } from "@/lib/reference";
+import { sceneSpeechLabel, totalSpeech } from "@/lib/speechEstimate";
 import type { Scene } from "@/types/svs";
 
 const THUMBNAIL_SEO_URL = "https://thumbnail-master.buylife.xyz/seo";
@@ -189,14 +190,22 @@ export function ScriptStep() {
               </a>
             </div>
           </div>
-          <p className="mb-4 text-xs font-medium text-slate-500">문구를 직접 눌러 수정할 수 있습니다. 수정한 내용은 프로젝트 저장 시 함께 보존됩니다.</p>
+          <p className="mb-2 text-xs font-medium text-slate-500">문구를 직접 눌러 수정할 수 있습니다. 수정한 내용은 프로젝트 저장 시 함께 보존됩니다.</p>
+          {(() => {
+            const t = totalSpeech(data.scenes.map((s) => s.narration), cfg.durationSec);
+            return (
+              <p className={`mb-4 text-xs font-bold ${t.over ? "text-amber-600" : "text-slate-600"}`}>
+                🗣️ {t.label} <span className="font-medium text-slate-400">(초당 약 6자 기준 어림값 — 실제 음성 길이는 목소리·속도에 따라 다릅니다)</span>
+              </p>
+            );
+          })()}
 
           <div className="space-y-3.5">
             {data.scenes.map((s, i) => (
               <div key={i} className="rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-2xs">
                 <div className="mb-2 flex items-center justify-between border-b border-slate-200 pb-2">
                   <span className="rounded-md border border-red-200 bg-red-50 px-2 py-0.5 font-mono text-xs font-black text-red-600">SCENE {s.sceneNumber}</span>
-                  <span className="font-mono text-xs font-bold text-slate-500">⏱️ {s.time}</span>
+                  <span className="font-mono text-xs font-bold text-slate-500">⏱️ {s.time}{sceneSpeechLabel(s.narration) ? ` · ${sceneSpeechLabel(s.narration)}` : ""}</span>
                 </div>
                 <div className="grid gap-3 md:grid-cols-[1.2fr_1fr]">
                   <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-2xs">
