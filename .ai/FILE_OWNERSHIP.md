@@ -476,3 +476,4 @@ WS-20261118-02 A4 CC-WORKSPACE-01: Master msg_743d6b2a9b47. (1) ai-work-workspac
 
 WS-20261118-02 A4 점유 해제 CC-WORKSPACE-01: 문서 17d2e1c70(PLAN A4 +45/-7) · 순수 모듈 993c0991e(content/lectureImport/ 새 파일 3 + tests/integration/lectureImportPure.test.ts 19개 + IMPROVEMENTS 1줄). 기존 csv.ts·import.ts diff 0, 호출처 0. Mac 재검수 대기.
 MOV-YVS-FAVORITES-TEST-FAKE CC-MOVIE-01(자율, Master 알림): youtube-viral-studio/tests/favorites.test.mjs 가짜 DB profiles 응답·예외 회원 시험, docs/IMPROVEMENTS.md 98줄 상태만. src·빌드·배포 0.
+MOV-YVS-FAVORITES-TEST-FAKE CC-MOVIE-01 해제: acc122786 (시험 9/9·전체 72/72, src 0).
