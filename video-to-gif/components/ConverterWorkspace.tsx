@@ -28,7 +28,7 @@ import { createZip, uniqueNames } from "@/lib/zip";
 import { APP_VERSION } from "@/lib/version";
 import TrimBar from "@/components/TrimBar";
 import ScreenRecorder from "@/components/ScreenRecorder";
-import { gifOutputError, videoInputArgs } from "@/lib/gifArgs";
+import { SCRATCH_FILES, gifOutputError, stepExitError, videoInputArgs } from "@/lib/gifArgs";
 import { CANDIDATES, MAX_OUTPUT_BYTES, canSinglePass, nextCandidateIndex, progressRatio, runLadder } from "@/lib/gifLadder";
 import { LocalRendererPool, checkRendererUpdate, detectLocalRenderer, localSlots, type RendererStatus, type RendererUpdate } from "@/lib/localRenderer";
 import { ACCEPT, pickFiles, skippedNote } from "@/lib/videoFiles";
@@ -427,19 +427,25 @@ export default function ConverterWorkspace() {
       let stepFps: number = fps;
       const filterBase = (w: number) => `fps=${stepFps},scale=${w}:-1:flags=lanczos`;
       // 예전 방식: 색상표 만들기 → GIF 만들기(영상을 두 번 해석)
+      // A2(맥미니 P2): 단계마다 종료코드를 확인 — 0이 아니면 그 단계 이름으로 실패(예전엔 결과를 그대로 읽어 0바이트 「완료」)
       const twoPass = async (w: number, colors: number) => {
         phase = { from: 0, to: 0.5 };
-        await ffmpeg.exec([
+        const genCode = await ffmpeg.exec([
           ...videoInputArgs(trim.args, inputName),
           "-vf", `${filterBase(w)},palettegen=max_colors=${colors}:stats_mode=diff`,
           "palette.png",
         ]);
+        const genErr = stepExitError(genCode, "palettegen");
+        if (genErr) throw new Error(genErr);
         phase = { from: 0.5, to: 1 };
-        return ffmpeg.exec([
+        const useCode = await ffmpeg.exec([
           ...videoInputArgs(trim.args, inputName), "-i", "palette.png",
           "-lavfi", `${filterBase(w)} [x]; [x][1:v] paletteuse=dither=sierra2_4a:diff_mode=rectangle`,
           "output.gif",
         ]);
+        const useErr = stepExitError(useCode, "paletteuse");
+        if (useErr) throw new Error(useErr);
+        return 0;
       };
       // v1.15: 한 번에 만들기(영상을 한 번만 해석). 결과 화질은 예전 방식과 같은 필터.
       const singlePass = (w: number, colors: number) => {
@@ -460,6 +466,8 @@ export default function ConverterWorkspace() {
         const base = Math.min(85, 10 + attempt * 25);
         setProgress(base);
         const scaledWidth = Math.max(1, Math.floor(width * candidate.scale));
+        // A2: 앞 시도의 결과·색상표가 남아 다음 시도 결과로 잘못 읽히지 않게 지우고 시작
+        for (const name of SCRATCH_FILES) await ffmpeg.deleteFile(name).catch(() => {});
 
         // v1.16: 출력 시간 기준 비율(lib/gifLadder.ts progressRatio)을 지금 구간에 그리고, 시도 안에서는 줄어들지 않게
         let shown = 0;
@@ -508,6 +516,12 @@ export default function ConverterWorkspace() {
 
       finishJob(job.id, outputBytes, stepFps);
     } catch (error) {
+      // A2: 실패해도 엔진 안 임시 파일(입력·결과·색상표)을 정리한다(다음 변환이 남은 파일을 읽지 않게)
+      const engine = ffmpegRef.current;
+      if (engine) {
+        for (const name of SCRATCH_FILES) await engine.deleteFile(name).catch(() => {});
+        await engine.deleteFile(`input${job.file!.name.lastIndexOf(".") > -1 ? job.file!.name.slice(job.file!.name.lastIndexOf(".")) : ".mp4"}`).catch(() => {});
+      }
       setJobs((current) =>
         current.map((j) =>
           j.id === job.id

@@ -18,9 +18,73 @@ export function videoInputArgs(trimArgs: readonly string[], inputName: string): 
 export const EMPTY_OUTPUT_MESSAGE =
   "GIF를 만들지 못했습니다(결과가 비어 있음). 녹화 중 창 크기가 바뀌었거나 영상을 해석하지 못했을 수 있습니다. ↺(재시도)를 누르거나 다른 영상으로 시도해 주세요.";
 
-/** GIF 결과 검사: 비었거나(0바이트) GIF 머리글(GIF87a/GIF89a)이 아니면 오류 문구, 정상이면 null */
-export function gifOutputError(bytes: Uint8Array | null | undefined): string | null {
-  if (!bytes || bytes.byteLength < 6) return EMPTY_OUTPUT_MESSAGE;
+/**
+ * A2(맥미니 P2): GIF 최소 구조 검사 — 머리글만 보지 않고 파일 끝까지 블록을 따라가며 확인한다.
+ * 머리글(GIF87a/GIF89a) → 화면 서술자 7바이트 → (전역 색표) → 확장(0x21)·이미지(0x2C) 블록 → 끝 표시(0x3B).
+ * 이미지는 서술자 9바이트 → (지역 색표) → LZW 최소 코드 크기 1바이트 → 데이터 묶음(길이 n + n바이트, 길이 0으로 끝).
+ * 반환: 문제가 없으면 { ok: true, images }, 있으면 { ok: false, reason }.
+ */
+export function inspectGif(bytes: Uint8Array | null | undefined): { ok: true; images: number } | { ok: false; reason: string } {
+  if (!bytes || bytes.byteLength === 0) return { ok: false, reason: "empty" };
+  if (bytes.byteLength < 13) return { ok: false, reason: "truncated-header" };
   const head = String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5]);
-  return head === "GIF87a" || head === "GIF89a" ? null : EMPTY_OUTPUT_MESSAGE;
+  if (head !== "GIF87a" && head !== "GIF89a") return { ok: false, reason: "not-gif" };
+  let p = 13;
+  const packed = bytes[10];
+  if (packed & 0x80) p += 3 * (1 << ((packed & 0x07) + 1));
+  // 길이 0으로 끝나는 데이터 묶음을 건너뛴다. 끝을 못 찾으면 -1
+  const skipSubBlocks = (q: number): { at: number; dataBytes: number } | null => {
+    let total = 0;
+    while (q < bytes.byteLength) {
+      const n = bytes[q];
+      q += 1;
+      if (n === 0) return { at: q, dataBytes: total };
+      q += n;
+      total += n;
+    }
+    return null;
+  };
+  let images = 0;
+  while (p < bytes.byteLength) {
+    const tag = bytes[p];
+    if (tag === 0x3b) return images > 0 ? { ok: true, images } : { ok: false, reason: "no-image" };
+    if (tag === 0x21) {
+      if (p + 2 > bytes.byteLength) return { ok: false, reason: "truncated-extension" };
+      const r = skipSubBlocks(p + 2);
+      if (!r) return { ok: false, reason: "truncated-extension" };
+      p = r.at;
+      continue;
+    }
+    if (tag === 0x2c) {
+      if (p + 10 > bytes.byteLength) return { ok: false, reason: "truncated-image" };
+      const lp = bytes[p + 9];
+      p += 10;
+      if (lp & 0x80) p += 3 * (1 << ((lp & 0x07) + 1));
+      if (p + 1 > bytes.byteLength) return { ok: false, reason: "truncated-image" };
+      p += 1; // LZW 최소 코드 크기
+      const r = skipSubBlocks(p);
+      if (!r) return { ok: false, reason: "truncated-image" };
+      if (r.dataBytes === 0) return { ok: false, reason: "empty-image-data" };
+      p = r.at;
+      images += 1;
+      continue;
+    }
+    return { ok: false, reason: "bad-block" };
+  }
+  return { ok: false, reason: "no-trailer" };
 }
+
+/** GIF 결과 검사: 최소 구조(이미지 1장 이상 + 끝 표시)를 못 갖추면 오류 문구, 정상이면 null */
+export function gifOutputError(bytes: Uint8Array | null | undefined): string | null {
+  return inspectGif(bytes).ok ? null : EMPTY_OUTPUT_MESSAGE;
+}
+
+/** A2: ffmpeg 단계 종료코드 — 0이 아니면 단계 이름을 담은 오류 문구, 0이면 null */
+export function stepExitError(code: number | null | undefined, step: "palettegen" | "paletteuse"): string | null {
+  if (code === 0) return null;
+  const name = step === "palettegen" ? "색상표 만들기" : "GIF 만들기";
+  return `GIF 변환 중 「${name}」 단계가 실패했습니다(종료코드 ${code ?? "없음"}). ↺(재시도)를 누르거나 다른 영상으로 시도해 주세요.`;
+}
+
+/** A2: 시도 전·실패 뒤 정리할 엔진 안 임시 파일 */
+export const SCRATCH_FILES = ["output.gif", "palette.png"] as const;
