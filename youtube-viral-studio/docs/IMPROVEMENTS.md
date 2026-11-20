@@ -95,7 +95,7 @@
   - 매뉴얼(`/guide`)에 새 메뉴 설명 추가 — 다음 손볼 때.
   - `youtubeData.ts` 머리 주석의 기준 프로그램 표기(옛 consultant) 정정 — 고치면 다른 담당 사본 5곳이 함께 바뀌므로 다음 공용 모듈 수정 때 묶어서.
   - 2·3단계(쇼츠 공식 분석기·사본 4곳 검색 품질, 썸네일·원스톱 연결)는 별도 배정.
-- **발견(다른 세션 몫)**: `tests/favorites.test.mjs` 4건 실패 — 커밋 `0a91cba19`(정책 담당)가 보관함 API에 `isRetentionExempt`(profiles 조회)를 넣었는데 시험의 가짜 DB가 `profiles`를 모름. 시험 가짜 DB에 `profiles` 응답 추가 필요. 정책 담당께.
+- **발견(다른 세션 몫)**: `tests/favorites.test.mjs` 4건 실패 — 커밋 `0a91cba19`(정책 담당)가 보관함 API에 `isRetentionExempt`(profiles 조회)를 넣었는데 시험의 가짜 DB가 `profiles`를 모름. 시험 가짜 DB에 `profiles` 응답 추가 필요. 정책 담당께. **→ 처리함(2026-11-20, 영상 담당 `claude-win-video`)**: `tests/favorites.test.mjs` 가짜 DB에 `profiles.retention_exempt` 응답 추가 + 예외 회원은 30일 지난 자료가 보이고 저장 때 지워지지 않는 시험 1개 추가 → 보관함 시험 9/9, 전체 72/72. 소스 변경 없음(시험만, 배포 불필요).
 
 ### 2026-11-16 v1.30 운영 배포 (영상 담당)
 - 주인님 「유튜브 떡상 분석 v1.30 배포 진행해」 → 빌드 1회 `youtube-viral-studio-i71hni371`(`dpl_6ZW5BA88C1vb6cfUtmUY2u5QcJR3`) Ready, 운영 https://youtube-viral-studio.buylife.xyz , DB `programs.version` v1.29→v1.30, 프로그램 비교표 버전 갱신. 커밋 `87ebcae7d`(기능) + `1fe195bdf`(버전·저장공간 위젯·로그아웃 local·서버 User-Agent — `pending-check` 대기 0).
