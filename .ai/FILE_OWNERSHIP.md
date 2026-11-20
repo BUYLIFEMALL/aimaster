@@ -520,3 +520,4 @@ WS-20261118-02 표식 만료 P3 점유 해제 CC-WORKSPACE-01: 모듈 3b8dd71d2(
 MOV-SVS-SPEECH-ESTIMATE CC-MOVIE-01(자율, 알림 msg_523e20669db0): shorts-viral-studio/src/lib/speechEstimate.ts(새)·src/components/studio/ScriptStep.tsx·tests/speechEstimate.test.mjs(새)·docs/IMPROVEMENT_BACKLOG.md·docs/IMPROVEMENTS.md + docs/PENDING_DEPLOYS.md SVS 줄. 빌드·배포 0.
 MOV-SVS-SPEECH-ESTIMATE CC-MOVIE-01 해제: 2390790bd (tsc 0·새 시험 6/6·17/17).
 MOV-SVS-PROMPT-COPY-ALL A2 CC-MOVIE-01: Master msg_271990619273(P3 보완, 기준 ae5793f8f). shorts-viral-studio/src/lib/promptCopy.ts·src/components/studio/PromptsStep.tsx·tests/promptCopy.test.mjs·docs/IMPROVEMENTS.md만. 빌드·배포 0.
+MOV-SVS-PROMPT-COPY-ALL A2 CC-MOVIE-01 해제: 044fc7948 (tsc 0·복사 시험 9/9·17/17).
