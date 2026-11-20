@@ -74,7 +74,9 @@
 - 대본이 여러 개면 회원이 「이 대본에 넣기」로 고른 뒤 올림(AI 음악 링크와 같은 방식). 대본이 없으면 「먼저 대본을 만든 뒤 다시 보내 주세요」.
 - 실물 시험(보내는 쪽 배포 뒤): **맥미니에 요청함** — `shorts-onestop-studio/docs/MAC_MINI_TEST_REQUEST_20261109_FMS_BGM.md`(주인님 지시 「테스트해볼 건 맥미니에게 전달」).
 
-## 10. 보내는 쪽 완료 — 미배포 대기 (2026-11-09 [역할: music])
+## 10. 보내는 쪽 완료 — ~~미배포 대기~~ ✅ v1.62 배포 `free-music-studio-5vb945ol9` (2026-11-09 [역할: music])
+
+> 2026-11-20 음악 담당 정리: 보내는 쪽 코드(`4e7326e6b`)는 v1.62 버전 커밋 `9ed3ad3a4`에 포함, AGENTS.md v1.62 「(배포됨) 이미지 스토리 쇼츠 배경음악으로 → `/fms-bgm`」. 받는 쪽(§12)은 영상 담당 몫이라 이 정리에서 제외. 운영 화면 직접 사용은 미검증.
 
 - `src/lib/videoHandoff.ts`: `TARGETS.shorts = { origin: SHORTS_URL, path: "/render", readyType: "sos-ready", hash: true, mp3: true }` — 받는 쪽이 해시(`#fms=`)로 읽으므로 받는 곳마다 주소 형식을 고르게 함(다른 세 곳은 그대로 `?fms=`), 음원은 MP3 320k(`fetchLibraryFile(id, "mp3")`), `name`은 `<곡 제목>.mp3`.
 - 「모든 음악」 곡 메뉴에 「쇼츠 배경음악으로」(뮤직비디오 아래).
