@@ -76,6 +76,40 @@ test("세 결과 분리 — 0행(lost)·확정 DB 거절(rejected)·응답 미�
   ]) assert.equal(await run(r), "uncertain", JSON.stringify(r));
 });
 
+test("4xx 거절 범위 제한 — 408·429·출처 불명 4xx는 미확정, DB·검증 형식 코드만 거절(Mac msg_8eb13f97c147)", async () => {
+  const run = async (r) => promote(makeRemixCas(fakePgClient([r]).client), ctx());
+  for (const r of [
+    { data: null, error: { code: "57014", message: "timeout" }, status: 408 }, // 408은 코드 형식이 맞아도 미확정
+    { data: null, error: { code: "PGRST000", message: "x" }, status: 408 },
+    { data: null, error: { code: "53300", message: "too many connections" }, status: 429 },
+    { data: null, error: { code: "rate_limited", message: "Too Many Requests" }, status: 429 },
+    { data: null, error: { code: "ECONNRESET", message: "proxy" }, status: 400 }, // 형식 불일치(소문자 아님이지만 5자리 아님)
+    { data: null, error: { code: "invalid_request", message: "gateway" }, status: 400 },
+    { data: null, error: { code: "4000", message: "x" }, status: 403 }, // 4자리
+    { data: null, error: { code: "PGRST20", message: "x" }, status: 400 }, // 숫자 2자리
+    { data: null, error: { code: "pgrst204", message: "x" }, status: 400 }, // 소문자
+    { data: null, error: { code: 42501, message: "x" }, status: 403 }, // 문자열 아님
+  ]) assert.equal(await run(r), "uncertain", JSON.stringify(r));
+  for (const r of [
+    { data: null, error: { code: "42501", message: "permission denied" }, status: 403 },
+    { data: null, error: { code: "23514", message: "check violation" }, status: 400 },
+    { data: null, error: { code: "PGRST204", message: "x" }, status: 400 },
+    { data: null, error: { code: "PGRST116", message: "x" }, status: 406 },
+    { data: null, error: { code: "22P02", message: "invalid input" }, status: 400 },
+  ]) assert.equal(await run(r), "rejected", JSON.stringify(r));
+});
+
+test("불확실하면 잠금 유지·추가 쓰기 0 — 승격 단계 408·429에서 해제·insert 없음", async () => {
+  for (const res of [{ data: null, error: { code: "57014", message: "x" }, status: 408 }, { data: null, error: { code: "53300", message: "x" }, status: 429 }]) {
+    const { client, calls } = fakePgClient([ONE, res]);
+    let inserts = 0;
+    const r = await runRemixSave(makeRemixCas(client), ctx(), async () => { inserts++; return "ok"; });
+    assert.equal(r.promoted, "uncertain");
+    assert.equal(inserts, 0);
+    assert.equal(calls.length, 2, "해제 시도 없음 → 잠금 유지");
+  }
+});
+
 test("승격 단계 — 확정 거절이면 insert 0·해제 시도, 5xx·모순 응답이면 insert 0·해제 0", async () => {
   const flow = async (promoteRes) => {
     const { client, calls } = fakePgClient([ONE, promoteRes, ZERO]);
