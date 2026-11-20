@@ -4900,15 +4900,15 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "워크스페이스 캘린더 업그레이드 계획",
-      "status": "waiting_human",
-      "delivery": "calendar_upgrade_plan_received_scope_decisions_pending",
+      "status": "queued",
+      "delivery": "notion_one_time_import_approved",
       "sha": "699b2d6a6",
       "scopeRef": "ai-work-workspace/docs/PLAN_20261118_NOTION_CALENDAR_PARITY.md",
       "constraints": "계획 문서만, 구현·가져오기·동기화·빌드/배포 미승인",
       "completion": "데이터 이관과 화면 동작을 구분하고 동작 검수/우선순위 확정",
       "evidence": "주인님 Workspace 직접 지시 보고·699b2d6a6 1파일 문서",
-      "next": "화면 기능/데이터 범위 및 데이터 포함 시 일회 가져오기/동기화 결정. 중복 메뉴는 v1.59부터 운영 반영.",
-      "lastReviewedAt": "2026-11-18T13:37:47.042Z"
+      "next": "CMD-20261120-012: 오른쪽 달력 UI와 노션 강의 일정 1회 가져오기 확정. v1.64 뒤 Workspace 설계, 실제 데이터 쓰기 전 검토.",
+      "lastReviewedAt": "2026-11-20T02:15:07.919Z"
     },
     {
       "task_id": "WS-20261118-03",
@@ -5979,10 +5979,10 @@
       "reviewer": "CX-MASTER-01",
       "title": "Website Scraper 백업 태그 원격 보관 요청",
       "status": "waiting_human",
-      "delivery": "local_tag_and_remote_absence_verified_push_pending",
+      "delivery": "tag_upload_approved_tool_denied",
       "evidence": "msg_58fe6af49afa·3bc3013c3·2706fc0b5",
-      "next": "로컬 태그와 원격 부재, 대상 커밋 origin/master 포함 확인. 태그 1개 업로드 승인 전 대기.",
-      "lastReviewedAt": "2026-11-18T19:06:38.079Z"
+      "next": "CMD-20261120-014 태그 한 개 업로드 승인. CC-BLOG-01 도구 자동 검토가 해당 git push를 거부(msg_a83a9655a779), 전송 0. 해당 정확한 호출 허용 시 재개.",
+      "lastReviewedAt": "2026-11-20T02:15:07.919Z"
     },
     {
       "task_id": "B2B-20261119-MAKER-M2",
@@ -6187,10 +6187,11 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단",
-      "status": "waiting_human",
-      "delivery": "zip_response_candidate_closed_pending_live_retry_and_release",
-      "next": "54183605c 전체 격리 1,084 통과·진단 1 제외, Windows 독립 DOM 6/6. v1.64 배포 빌드 1회 승인 대기. 실제 브라우저·570쪽 운영 처리 시간 미확인.",
-      "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a·4f801102a·msg_188d5f946fe6·msg_d48ab4279b48·msg_6a8c40f8d884·.ai/results/WS-20261119-03-CX-QA-01.md·080d30733·5900bdee4·msg_81e5f70393f6·9b6cf6f43·862a3f744·msg_18677013088e·msg_e3da08ce301c·msg_81884a8c4c54·ad9f6e443·73e846195·msg_9cfa5b749036·msg_e77dc726848f·v1.63 1회 승인 보고·담당 배포 전 변경 경로 대조·msg_80ea9fa320d8·msg_e62063905385·de8326242·845d62331·msg_0bcf3ac363cd·msg_61592856a873·msg_6a32a57772c5·addc48085·주인님 보완판 커밋·푸시·배포 직접 지시 보고·6de15de60·dpl_CxEYSzDhnScbAL5zdmiToQy3HB4n·msg_dbdc16360cb8·msg_652436d7b405·7053d5879·msg_cc823e8bdd96·msg_0094fd736d91·msg_b9c03dffb58d·3d446effa·msg_66f223d06e95·msg_0726003c8bcb·msg_3b04b47cad53·bc814dc28·feb1587a0"
+      "status": "running",
+      "delivery": "v164_approved_pinned_preflight_pass_slot_released",
+      "next": "CMD-20261120-010 빌드 1회. 54183605c 고정 사본 + 버전 8f93d4a8f, 타이머 제외. Workspace 착수·사전 점검 통과. 첫 빌드 순번 신호 msg_49940f9d5b77. 운영 ZIP 실검증 별도.",
+      "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a·4f801102a·msg_188d5f946fe6·msg_d48ab4279b48·msg_6a8c40f8d884·.ai/results/WS-20261119-03-CX-QA-01.md·080d30733·5900bdee4·msg_81e5f70393f6·9b6cf6f43·862a3f744·msg_18677013088e·msg_e3da08ce301c·msg_81884a8c4c54·ad9f6e443·73e846195·msg_9cfa5b749036·msg_e77dc726848f·v1.63 1회 승인 보고·담당 배포 전 변경 경로 대조·msg_80ea9fa320d8·msg_e62063905385·de8326242·845d62331·msg_0bcf3ac363cd·msg_61592856a873·msg_6a32a57772c5·addc48085·주인님 보완판 커밋·푸시·배포 직접 지시 보고·6de15de60·dpl_CxEYSzDhnScbAL5zdmiToQy3HB4n·msg_dbdc16360cb8·msg_652436d7b405·7053d5879·msg_cc823e8bdd96·msg_0094fd736d91·msg_b9c03dffb58d·3d446effa·msg_66f223d06e95·msg_0726003c8bcb·msg_3b04b47cad53·bc814dc28·feb1587a0",
+      "lastReviewedAt": "2026-11-20T02:15:07.919Z"
     },
     {
       "task_id": "WS-20261119-02",
@@ -6436,10 +6437,11 @@
       "owner": "CC-MUSIC-01",
       "reviewer": "CX-QA-01",
       "title": "음악 리믹스 → 플레이리스트 발신 링크",
-      "status": "waiting_human",
-      "delivery": "sender_normalization_mac_accepted_deploy_approval_pending",
-      "next": "56211df73 Mac 6/6 및 발신→수신 ID 일치 모의 수락. 실제 브라우저·계정 검증과 링크 공개 승인 대기.",
-      "evidence": "d6df77af9·msg_f175780a2b66·msg_129d96b11946·msg_65425ac205e0·msg_ce83069d59cf·msg_18059f9141ae·msg_596e2590a14b·msg_2d1033203682·msg_c6a117a2c57a"
+      "status": "queued",
+      "delivery": "sender_release_approved_waits_workspace",
+      "next": "CMD-20261120-011 운영 빌드 1회 승인. v1.59 af14ca3e0 사전 점검 통과, 미제출 확인 msg_c68019ddc79a. Workspace 회차 종료 후 순번 통지.",
+      "evidence": "d6df77af9·msg_f175780a2b66·msg_129d96b11946·msg_65425ac205e0·msg_ce83069d59cf·msg_18059f9141ae·msg_596e2590a14b·msg_2d1033203682·msg_c6a117a2c57a",
+      "lastReviewedAt": "2026-11-20T02:15:07.919Z"
     },
     {
       "task_id": "MOV-20261119-01",
@@ -6457,10 +6459,11 @@
       "owner": "CC-BLOG-01",
       "reviewer": "CX-MASTER-01",
       "title": "T03 회원별 캐시 전환 검증 준비",
-      "status": "waiting_human",
-      "delivery": "cutover_runbook_ready_execution_decision_pending",
-      "next": "4d616adae 전환표 준비 수락. 신규 접수 차단은 운영 DB 승인 필요. 무차단 전환 중 신규 건이 남으면 2단계 중단. 원격 실행 승인 대기.",
-      "evidence": "msg_d2eee3033b4f·83bc1192e·msg_f595aae937a0·4d616adae·msg_ad7e9afb5a0a"
+      "status": "queued",
+      "delivery": "render_approved_intake_pause_waiting_exact_release_path",
+      "next": "CMD-20261120-014 Render 1단계·새 요청 일시 차단 승인. is_active=true 보존. a7ef59164가 origin/master에 없고 담당자가 특정 커밋 배포 권한 없음(msg_a83a9655a779). Master가 자동 배포와 복원 시점을 묶어 확정한 뒤 진행.",
+      "evidence": "msg_d2eee3033b4f·83bc1192e·msg_f595aae937a0·4d616adae·msg_ad7e9afb5a0a",
+      "lastReviewedAt": "2026-11-20T02:15:07.919Z"
     }
   ],
   "programOverrides": [

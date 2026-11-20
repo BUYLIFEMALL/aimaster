@@ -129,22 +129,24 @@ Master 마지막 실제 점검: 2026-11-20 11:01:22 KST · 11:00 Orca 수신, Wo
 | CC-SNS-01 | R1 SQL 후보 670c4f6b3 실행 승인 수신을 담당자가 보고 | 마이그레이션 이름·번호·적용 순번 및 운영 사전 점검 대기. 적용 전. | msg_6da0372c9622 |
 | CC-SUPPORT-01 | 주인님 직접 키트 작업 전담 | 기존 전담 완료 신호만 회수 | SUP-20261116-05 |
 
+### 11:14 KST 관리자 결정과 실행 순번
+
+- Workspace v1.64 운영 빌드 1회 승인. 고정판 배포 사전 점검 통과 및 첫 순번 전달 msg_49940f9d5b77. 타이머 후보는 별도.
+- 음악 발신 링크 v1.59 및 부동산 첫 묶음 실거래 v1.62를 각각 1회 승인. 순번은 Workspace → 음악 → 실거래. 매물 알림·고객관리 배포는 별도.
+- Workspace 오른쪽 달력과 노션 강의 일정 **1회 가져오기** 확정. 지속 동기화 없이 설계.
+- 고객관리 내부 매물 후보 상태 구현 승인. 적용 전 단계(마이그레이션 파일과 로컬 검증)까지만, 운영 DB·배포 별도. 전달 msg_22e9279bb4a2, 승인 문서 반영 전 수락·차단 회신 msg_c1c2c084dff0.
+- 블로그 T08 태그 1개 업로드·T03 Render 전환·신규 수집 일시 차단 승인. T08 자동 권한 검토 거부, T03 배포 경로 미확보로 접수 계속 열림.
+- 쇼츠·떡상 분석과 주문 리포트·상품 라벨 의존성 수정 및 로컬 빌드 승인. 각각 msg_5646e6b28061·msg_0849ea963d3d 전달. 영상 수락·착수 msg_d04b5be98102. 로컬 빌드는 순번 배정 뒤.
+- MacMini Lab 29·ESM+ 19·11번가 33 재요청 전달 msg_cd88ca7ef4d0, 착수 msg_a69dfaf07ac4. 세 공간 모두 사용자 제어 상태 확인 msg_5d39a13b5d5a. 기존 로그인 상태는 미확인.
+
 ## 주인님께 한 번에 드리는 요청
 
 | 구분 | 묶음 | 요청과 완료 신호 |
 |---|---|---|
 | 사후 관측 | B2B 운영 SQL 0076 | 적용 완료(이력 20261120015854). 다음 중앙 정리 실행 결과 확인 대기. |
-| 실행 승인 | Workspace v1.64 | 가져오기 응답 크기 보완 후보 배포 빌드 1회 승인 여부를 알려주십시오. 배포 후 Edge에서 실제 응답·화면·570쪽 수행 시간을 확인합니다. |
-| 실행 승인 | 음악 플레이리스트 링크 | 고정 패치 3파일의 공개 배포 빌드 1회 승인 여부. 수신 플레이리스트 운영 확인과 맥미니 국소 검수는 완료. |
-| 실행 승인 | 부동산 배포 후보 | 실거래 v1.62, 매물 알림 v1.47, 고객관리 v1.12 가운데 먼저 내보낼 묶음을 선택해 주십시오. 프로그램별 빌드 1회. 상가 v1.36 매뉴얼은 다음 기능 묶음에 포함하는 후보입니다. 근거 0c2a9c767. |
-| 범위 결정 | 고객관리 매물 후보 | 광고나 발송으로 이어지지 않는 ‘후보’ 상태를 DB에 추가하는 설계의 구현 여부를 결정해 주십시오. 설계 beeeaa463의 창 간 통신은 맥미니 문서 검수 통과, 실제 브라우저와 운영 적용은 별도 검증입니다. |
-| 범위 결정 | 쇼츠 분석·떡상 분석 의존성 정비 | SVS는 설치된 Next 보안 검사에서 빌드 종료 1, YVS는 미실행. 두 앱부터 의존성·잠금 파일 정비와 로컬 빌드 확인을 진행할지 결정해 주십시오. |
-| 범위 결정 | 주문 리포트·상품 라벨 의존성 정비 | 주문 리포트 빌드가 보안 검사에서 종료 1, 상품 라벨은 미실행. 담당 공식 공지 대조 보고 msg_a5874310f6d2의 패치 후보를 두 앱에만 반영하고 로컬 빌드를 순차 확인할지 결정해 주십시오. 운영 배포는 별도입니다. |
 | 직접 시험 | Workspace | v1.63에서 570쪽 ZIP 재시도 후 결과를 알려주십시오. Gmail은 시험 계정 동의 창이 열렸을 때 한 번 동의해 주십시오. |
 | 직접 조작 | 맥미니·상품 등록 | B2B Lab ego 29와 ESM+ ego 19, 11번가 ego 33의 지정 시험 계정에 로그인하고 제어를 반환해 주십시오. 음악 ego 20에 기존 저장 창이 열려 있으면 MP4를 저장하고 제어를 반환해 주십시오. |
 | 직접 조작 | 블로그·CRM | 기존 블로그 확장 회차에서 지정 A/B 조작을 각 1회 진행하고 제어를 반환해 주십시오. 기존 CRM 폼의 알림 설정·시트 v2 조건을 맞춘 뒤 응답을 1회 제출하고 알려주십시오. |
-| 결정 | Workspace 우측 캘린더 | 업무 현황판 오른쪽 캘린더의 화면과 동작만 맞출지, 노션 강의 일정도 가져올지 결정해 주십시오. 일정을 포함하면 일회 가져오기 또는 지속 동기화를 정해 주십시오. |
-| 결정 | 블로그 전환 | T08 백업 태그 1개 업로드 승인 여부와 T03 전환 시 신규 접수를 차단할지 각각 알려주십시오. |
 | 승인 수신 | B2B·SNS | 0076·0077 운영 적용, S70 격리 적용·빌드, D2 한도 SQL과 shadow 승인. 운영 SQL은 B2B 적용 검증 뒤 SNS 순번. |
 
 음악 공개 배포는 사전 점검 결과가 돌아오면 승인 묶음에 넣는다. B2B 테스트 결제는 Lab 읽기 검수 뒤 요청한다. SNS R1 운영 SQL과 상품영상 수신용 표 추가는 승인 수신이 보고되어 다음 실행 조건을 Master가 확인한다.
@@ -423,7 +425,7 @@ Master 마지막 실제 점검: 2026-11-20 11:01:22 KST · 11:00 Orca 수신, Wo
 | QA-20261118-042 | CX-QA-01 | done / integrated | emotion-writer 메뉴·키설정 독립검수 | DES02 반환시 두건 재검수·실375/위젯/회원키는 미검수 |
 | DES-20261118-02 | AG-UI-01 | done / accepted_pending_batch_deploy | 키보기 키보드 접근·키발급 링크 hover 대비 보완 | 다음 emotion-writer 묶음배포에 포함·운영반영 전까지 미배포 유지 |
 | WS-20261118-01 | CC-WORKSPACE-01 | done / accepted_pending_batch_deploy | 예약요일 칩·busy·키보드 국소UI 보완 | v1.58묶음포함·375/390·다크/:has포커스실화면은배포후 |
-| WS-20261118-02 | CC-WORKSPACE-01 | waiting_human / calendar_upgrade_plan_received_scope_decisions_pending | 워크스페이스 캘린더 업그레이드 계획 | 화면 기능/데이터 범위 및 데이터 포함 시 일회 가져오기/동기화 결정. 중복 메뉴는 v1.59부터 운영 반영. |
+| WS-20261118-02 | CC-WORKSPACE-01 | queued / notion_one_time_import_approved | 워크스페이스 캘린더 업그레이드 계획 | CMD-20261120-012: 오른쪽 달력 UI와 노션 강의 일정 1회 가져오기 확정. v1.64 뒤 Workspace 설계, 실제 데이터 쓰기 전 검토. |
 | WS-20261118-03 | CC-WORKSPACE-01 | done / sidebar_trim_production_screen_verified | 사이드바 예정된 일정 메뉴 숨김 | v1.59 운영 시험 화면에서 메뉴 숨김 확인. |
 | WS-20261118-04 | CC-WORKSPACE-01 | done / four_views_production_desktop_verified | 워크스페이스 내부 네 화면 연결 | 네 화면·좌측 유지·본문 스크롤·뒤로가기 운영 확인. 767px 이하·주소 새로고침·타 공간은 운영 미검증. |
 | WS-20261118-05 | CC-WORKSPACE-01 | done / production_ready_owner_desktop_checks_accepted | 워크스페이스 v1.59 승인 묶음 운영 배포 | 운영 v1.59 확인. 프로그램 목록 DB v1.58 보고는 운영 쓰기 범위 결정 대기. |
@@ -433,7 +435,7 @@ Master 마지막 실제 점검: 2026-11-20 11:01:22 KST · 11:00 Orca 수신, Wo
 | WS-20261119-01 | CC-WORKSPACE-01 | done / saved_notion_html_recursive_fix_independent_review_accepted | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | v1.61 배포 완료, 기존 가져온 본문 읽기 확인. 운영에서 노션 저장 HTML 다시 가져오기 시험은 미실행. v1.61 완료분 점유 해제(5b2f56408). |
 | WS-20261119-REL | CC-WORKSPACE-01 | done / production_v161_live_verified_catalog_version_synced | Workspace v1.61 기존 중단 빌드 로그 진단 | 운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음. 완료분 점유 해제(5b2f56408). |
 | WS-20261119-02 | CC-WORKSPACE-01 | done / workspace_v162_production_ready_live_import_pending | Workspace 대용량 ZIP | dfcee1584 운영 v1.62 READY·공식 alias 확인, 빌드 1회. 첫 요청 DDL 확인(담당). DB 표시 v1.61, 재로그인·실제 ZIP/Storage 검증 대기. |
-| WS-20261119-ZIP-504 | CC-WORKSPACE-01 | waiting_human / zip_response_candidate_closed_pending_live_retry_and_release | Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단 | 54183605c 전체 격리 1,084 통과·진단 1 제외, Windows 독립 DOM 6/6. v1.64 배포 빌드 1회 승인 대기. 실제 브라우저·570쪽 운영 처리 시간 미확인. |
+| WS-20261119-ZIP-504 | CC-WORKSPACE-01 | running / v164_approved_pinned_preflight_pass_slot_released | Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단 | CMD-20261120-010 빌드 1회. 54183605c 고정 사본 + 버전 8f93d4a8f, 타이머 제외. Workspace 착수·사전 점검 통과. 첫 빌드 순번 신호 msg_49940f9d5b77. 운영 ZIP 실검증 별도. |
 | MUSIC-20261119-IMG-COMPAT | CC-MUSIC-01 | done / five_music_flows_read_only_accepted | 무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토 | 고정 2131089b7 음악 5경로·146/146 검토 수락. 새 범위 미사용 시 파일 미생성 정정. 실제 엔진은 미검증. |
 | MUSIC-20261119-BACKLOG-SWEEP | CC-MUSIC-01 | done / music_backlog_review_accepted_followup_dispatched | 음악 7개 프로그램 다음 작업 후보 대조 | 음악 7개 웹의 미배포 코드 0. L5·U3를 우선 로컬 착수, 리믹스→플레이리스트 및 유료 영상 실검증은 별도 조건 대기. |
 | MUSIC-20261119-REMIX-PLAYLIST-REVIEW | CC-MUSIC-01 | done / remix_playlist_review_accepted_implementation_scope_pending | 리믹스에서 플레이리스트 연계 사전 검토 | d6df77af9 사전 검토 수락. 두 테이블 모두 회원 범위 확인, 플레이리스트 수신 기능을 먼저 배포한 뒤 음악 링크를 공개해야 함. 구현 범위·배포 승인 대기. |
@@ -519,7 +521,7 @@ Master 마지막 실제 점검: 2026-11-20 11:01:22 KST · 11:00 Orca 수신, Wo
 | AIF-20261118-W01i | CC-SNS-01 | done / exact_signed_object_read_route_specified_mock_review_pass_accepted | 원본 자산 조회 OFF 기본 경로·모의시험 | A1 OFF소스완료표/운영보관정리 선행조건 취합 |
 | BLOG-20261118-02 | CC-BLOG-01 | done / three_releases_complete_existing_data_screen_review_limited_accepted | 승인된 블로그3프로그램 순차묶음 배포 | T08승인정리정확백업/삭제범위검토·실Excel/폴러/T05분석·새생성효과미검수별도 |
 | BLOG-20261118-03 | CC-BLOG-01 | done / approved_19_file_cleanup_backup_tag_static_and_limited_local_validation_accepted | T08 구형 ghost-scraper 백업후정리 승인범위 구체화 | 미배포유지·기존Next보안후속/실runtime미검수·T03회원캐시플랜진행 |
-| BLOG-20261119-T08-TAG | CC-BLOG-01 | waiting_human / local_tag_and_remote_absence_verified_push_pending | Website Scraper 백업 태그 원격 보관 요청 | 로컬 태그와 원격 부재, 대상 커밋 origin/master 포함 확인. 태그 1개 업로드 승인 전 대기. |
+| BLOG-20261119-T08-TAG | CC-BLOG-01 | waiting_human / tag_upload_approved_tool_denied | Website Scraper 백업 태그 원격 보관 요청 | CMD-20261120-014 태그 한 개 업로드 승인. CC-BLOG-01 도구 자동 검토가 해당 git push를 거부(msg_a83a9655a779), 전송 0. 해당 정확한 호출 허용 시 재개. |
 | BLOG-20261118-04 | CC-BLOG-01 | done / member_cache_design_accepted_local_phase_one_separately_assigned | T03 도메인 구조 캐시 회원별 격리 결정 반영 | BLOG-20261118-06 로컬 1단계. 운영 전 기존 공용 인스턴스·진행 요청 배출 증거 필요. |
 | BLOG-20261118-06 | CC-BLOG-01 | done / local_phase_one_and_mac_targeted_checks_accepted_undeployed | T03 1단계 캐시 우회·작업 소유자 확인 | 운영 전 사용자 AI 호출 증가·Render 이전 인스턴스와 작업 배출 확인 및 별도 승인. |
 | AIF-20261118-W01j | CC-SNS-01 | done / OFF_source_completion_and_activation_blockers_reconciled | A1 OFF소스완료표·운영선행 보관/정리 조건 취합 | W01k 30일보관정리 첫계약·운영ON차단유지 |
@@ -574,9 +576,9 @@ Master 마지막 실제 점검: 2026-11-20 11:01:22 KST · 11:00 Orca 수신, Wo
 | FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | done / mobile_quickbar_and_preview_mac_accepted_undeployed | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 고정 51d4b2207 Mac 28/28. 모바일 버튼·포커스 및 미리보기 빈 줄 제거 수락. 미배포 묶음 대기, 고정판 실제 편집기 미확인. |
 | FRONT-20261119-QUICKBAR-TABLET | CC-B2B-FRONT-01 | running / isolated_candidate_fixture_contract_ready_runtime_blocked | B2B몰 태블릿 폭 빠른 메뉴 상품 가림 | 기준 51d4b2207·3파일 지문 확인, 공개 몰/상품 6개·편집기 합성 데이터 요건 수신. 로컬 서버 실행 정책 차단, URL 미생성. |
 | BLOG-20261119-SAFE-FETCH-SOURCE | CC-BLOG-01 | done / canonical_reference_repointed_read_check_passed | 공용 safe-fetch 검사 기준 경로 복구 | fa125184f·6b7c31b14 기준을 티스토리 경로로 변경. Master 전체 읽기 점검 종료 0·사본 3개 일치, 제품 코드·sync·배포 0. |
-| MUSIC-20261119-REMIX-PLAYLIST-SENDER | CC-MUSIC-01 | waiting_human / sender_normalization_mac_accepted_deploy_approval_pending | 음악 리믹스 → 플레이리스트 발신 링크 | 56211df73 Mac 6/6 및 발신→수신 ID 일치 모의 수락. 실제 브라우저·계정 검증과 링크 공개 승인 대기. |
+| MUSIC-20261119-REMIX-PLAYLIST-SENDER | CC-MUSIC-01 | queued / sender_release_approved_waits_workspace | 음악 리믹스 → 플레이리스트 발신 링크 | CMD-20261120-011 운영 빌드 1회 승인. v1.59 af14ca3e0 사전 점검 통과, 미제출 확인 msg_c68019ddc79a. Workspace 회차 종료 후 순번 통지. |
 | MOV-20261119-01 | CC-MOVIE-01 | reviewing / video_return_receiver_contract_pending | 원스톱 상품 영상 주소 반환 연동 | 3feb2bd85 정적 검토. 수신 저장·상품 소유 계약 협의 후 구현, 로컬 MP4 별도. |
-| BLOG-20261119-T03-CUTOVER-PREP | CC-BLOG-01 | waiting_human / cutover_runbook_ready_execution_decision_pending | T03 회원별 캐시 전환 검증 준비 | 4d616adae 전환표 준비 수락. 신규 접수 차단은 운영 DB 승인 필요. 무차단 전환 중 신규 건이 남으면 2단계 중단. 원격 실행 승인 대기. |
+| BLOG-20261119-T03-CUTOVER-PREP | CC-BLOG-01 | queued / render_approved_intake_pause_waiting_exact_release_path | T03 회원별 캐시 전환 검증 준비 | CMD-20261120-014 Render 1단계·새 요청 일시 차단 승인. is_active=true 보존. a7ef59164가 origin/master에 없고 담당자가 특정 커밋 배포 권한 없음(msg_a83a9655a779). Master가 자동 배포와 복원 시점을 묶어 확정한 뒤 진행. |
 
 ## 현재 담당 회신이 확보된 프로젝트
 
