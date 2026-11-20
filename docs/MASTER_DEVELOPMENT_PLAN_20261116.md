@@ -380,7 +380,7 @@ Master 마지막 실제 점검: 2026-11-20 12:31:27 KST · 12:30 Orca 수신, �
 - Workspace 미리보기 Mac 순수 26/26 msg_05fa09ab08a1, DB fixture/Vitest 미실행. 공개 RPC의 모델 키·예열·afterRpc 배제, 직접 파일 소유/완료, 모호한 날짜 속성의 400 보완 배정 msg_e9dda18e3075.
 - 블로그 4종 직접 승인 보고 msg_1b8a18b3cfd5, 티스토리 승인 ZIP 삭제 652a61dc1 대조. 고정 사본 준비만, 부동산 운영 순번이 끝나기 전 빌드 제출 보류 msg_cbfa9ee7dc8d.
 - 원스톱 승인 범위 착수 msg_ba497b2f1074. 상품 상세 Unicode 9243d0edd msg_d58b4636527d 및 Mac 6/6(부모 3/6) msg_f99ba078521c, 국소 수락·미배포.
-- 리믹스 W1~W8 범위문서 bc052296d 접수 msg_1485e428d9b4. 구형 요청/연장 위험은 연결 차단, CAS 및 두 호출부 격리 대역만 전달 msg_4c67f242e1aa. SNS 이미지 선택 0ba9bbec7 검토 msg_9031e8a8cc87, 모델 선택 연결 전 합성 시험만 배정 msg_4dac33eded74.
+- 리믹스 W1~W8 범위문서 bc052296d 접수 msg_1485e428d9b4. 구형 요청/연장 위험은 연결 차단, CAS 및 두 호출부 격리 대역만 전달 msg_4c67f242e1aa. cfbb2c631 제출 msg_42844cd7767f, 작성자 국소 8/8. Mac 독립 msg_1360ff2a5752(HTTP 오류/유실·필터 대조). 실제 PostgREST 미검증, 호환 선행 릴리스는 제안·미승인. SNS 이미지 선택 0ba9bbec7 검토 msg_9031e8a8cc87, 모델 선택 연결 전 합성 시험만 배정 msg_4dac33eded74.
 
 - 부동산 순차 배포 완료 보고 msg_418d0c040932. 고객관리 v1.13 dpl_62fXhZjS25V2JmktBP2jjtiM2sTy READY·R2 재저장 PASS, 매물 알림 v1.47 dpl_Bxe4ovrZUF15SkkCFDkX2rSvkX1H READY·DB/ZIP 버전 일치. 유지 매물 버튼 없음 확인, 변동 매물·지역 제안 미검증. 블로그 기존 승인 순번 첫 티스토리 전달 msg_e026c2ffcd6a, 결과 미수신.
 - Workspace 운영 시간 초과 읽기 정정 msg_23e85f8880ff: 가져오기 뒤 collabPoll 4건·markPageVisited 1건 504, 과거 모델 오류와 별개. 반복 동기 DB 조회는 추정. A2 이후 전용 합성 계측 배정 msg_d5c28b92e40d.
