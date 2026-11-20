@@ -60,3 +60,6 @@ Next.js 16(App Router, `src/proxy.ts`) + Tailwind 4 + 공용 Supabase(권한 판
 - 바꾸지 않은 것: 쿠키·권한 판정(`src/lib/auth.ts`·`src/proxy.ts`)·DB·의존성·버전(v1.04 그대로, 버전은 배포 때 한 번).
 - 검수: tsc 0 · 시험 28/28 · `pending-check` 공통 줄 0 · 세 파일은 주문 리포트 적용본과 글자 단위 동일. 린트는 이 폴더에 ESLint 설정이 없어 실행 못 함. 빌드·실제 로그인/로그아웃·위젯 표시는 미실행 — 다음 배포 뒤 ego에서 확인.
 - 2026-11-20 Next 보안 패치(미배포 대기, `12057155d`, Master `msg_0849ea963d3d`): `next` 16.4.3 → 16.4.6(공지 `GHSA-mfr8-8qww-v76h`·`GHSA-vc7v-qv4w-wrv8`, `package.json` 한 줄 + 잠금의 next 계열 10개만). 로컬 `tsc` 0 · 시험 통과 · `npm run build` 종료 0(16.4.3에서 나던 `SecurityFatalError` 없음). Vercel 운영 빌드·실화면은 미확인, 버전은 배포 때 한 번.
+
+## 2026-11-20 ✅ v1.05 배포 (Claud(ecommerce) `claude-win-sdp` [역할: ecommerce-image], 주인님 「진행해」 빌드 1회)
+- 위 미배포 대기분 전부 나감: 바코드 30mm 경고·내 라벨 틀·HEIC 시도 안내 `88bd874e2`, heic-to HEIC 열기 `29bac1649`, 흐름 띠 단계 `48b67dd5c`, 공통 3건 `cb33591ae`, Next 16.4.6 `12057155d`. 커밋본만 배포 `seller-label-docs-nulyi6r3u` Ready, DB v1.05, 버전 커밋 `5db71776a`. 운영 확인(ego, 시험 계정): `/label` v1.05·「내 라벨 틀」·💾 위젯 표시, 가로 넘침 없음. **미확인**: 아이폰 HEIC 실물 1장 「사진 → PDF」(주인님 사진 대기), 30mm 경고 실제 인쇄 크기, 로그아웃 뒤 다른 프로그램 로그인 유지. 발견(기존 상태): `/robots.txt`·`/ai.txt`가 프록시에 걸려 로그인 화면으로 넘어감 — 같은 뼈대 앱 공통, Master에 보고.
