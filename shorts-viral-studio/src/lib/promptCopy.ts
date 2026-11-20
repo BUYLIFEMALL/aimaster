@@ -39,3 +39,28 @@ export function copyFailed(seq: number): CopyState {
 export function copyExpired(state: CopyState, seq: number): CopyState {
   return state.seq === seq && state.kind !== null ? { ...state, kind: null } : state;
 }
+
+// 2026-11-20 A3(맥미니): 복사 요청을 「대상 결과」에 묶는다. 프롬프트 결과가 바뀌거나 초기화되면 invalidate()로
+// 진행 중이던 복사를 무효로 만들어, 늦게 끝난 성공·실패가 새 화면에 상태를 쓰지 못하게 한다.
+export type CopyGate = { begin(): number; invalidate(): void; isCurrent(seq: number): boolean };
+export function createCopyGate(): CopyGate {
+  let seq = 0;
+  return {
+    begin: () => ++seq,
+    invalidate: () => {
+      seq += 1;
+    },
+    isCurrent: (n) => n === seq,
+  };
+}
+
+/** 복사가 끝났을 때의 다음 상태. 최신 요청이 아니면(다시 눌렀거나 결과가 바뀌었으면) 상태를 그대로 둔다. */
+export function settleCopy(
+  state: CopyState,
+  gate: CopyGate,
+  seq: number,
+  outcome: { ok: true; kind: PromptKind } | { ok: false },
+): CopyState {
+  if (!gate.isCurrent(seq)) return state;
+  return outcome.ok ? copySucceeded(seq, outcome.kind) : copyFailed(seq);
+}

@@ -72,3 +72,55 @@ test("복사 상태에는 생성 오류가 들어가지 않는다(별도 상태)
   assert.deepEqual(Object.keys(COPY_IDLE).sort(), ["error", "kind", "seq"]);
   assert.deepEqual(COPY_IDLE, { kind: null, error: null, seq: 0 });
 });
+
+// A3(맥미니) 결과 교체 뒤 늦게 끝난 복사 무효화 — 양방향(늦은 성공·늦은 실패)
+const { createCopyGate, settleCopy } = await import("../src/lib/promptCopy.ts");
+
+test("결과가 바뀐 뒤 늦게 성공한 이전 복사는 새 화면 상태를 바꾸지 않는다", () => {
+  const gate = createCopyGate();
+  const seq = gate.begin(); // 이전 결과에서 복사 시작
+  gate.invalidate(); // 프롬프트 결과 교체/초기화
+  const after = settleCopy(COPY_IDLE, gate, seq, { ok: true, kind: "image" });
+  assert.equal(after, COPY_IDLE);
+  assert.equal(gate.isCurrent(seq), false);
+});
+
+test("결과가 바뀐 뒤 늦게 실패한 이전 복사는 새 화면에 오류를 띄우지 않는다", () => {
+  const gate = createCopyGate();
+  const seq = gate.begin();
+  gate.invalidate();
+  const after = settleCopy(COPY_IDLE, gate, seq, { ok: false });
+  assert.equal(after, COPY_IDLE);
+  assert.equal(after.error, null);
+});
+
+test("교체 뒤 새로 누른 복사는 정상 반영되고, 이전 복사의 늦은 결과가 그것을 덮지 않는다", () => {
+  const gate = createCopyGate();
+  const oldSeq = gate.begin();
+  gate.invalidate();
+  const newSeq = gate.begin();
+  let s = settleCopy(COPY_IDLE, gate, newSeq, { ok: true, kind: "video" });
+  assert.deepEqual(s, { kind: "video", error: null, seq: newSeq });
+  s = settleCopy(s, gate, oldSeq, { ok: false }); // 이전 복사의 늦은 실패
+  assert.deepEqual(s, { kind: "video", error: null, seq: newSeq });
+  s = settleCopy(s, gate, oldSeq, { ok: true, kind: "image" }); // 이전 복사의 늦은 성공
+  assert.equal(s.kind, "video");
+});
+
+test("교체가 없으면 최신 요청의 성공·실패는 그대로 반영되고, 다시 누르면 앞 요청은 무효", () => {
+  const gate = createCopyGate();
+  const a = gate.begin();
+  assert.deepEqual(settleCopy(COPY_IDLE, gate, a, { ok: false }), { kind: null, error: COPY_ERROR_MESSAGE, seq: a });
+  const b = gate.begin();
+  assert.deepEqual(settleCopy(COPY_IDLE, gate, b, { ok: true, kind: "image" }), { kind: "image", error: null, seq: b });
+  assert.equal(settleCopy(COPY_IDLE, gate, a, { ok: true, kind: "video" }), COPY_IDLE);
+});
+
+test("교체 뒤에는 이전 성공 표시의 타이머도 새 상태를 바꾸지 않는다", () => {
+  const gate = createCopyGate();
+  const oldSeq = gate.begin();
+  const shown = settleCopy(COPY_IDLE, gate, oldSeq, { ok: true, kind: "image" });
+  assert.equal(shown.kind, "image");
+  gate.invalidate(); // 화면은 COPY_IDLE로 초기화됨
+  assert.equal(copyExpired(COPY_IDLE, oldSeq), COPY_IDLE);
+});

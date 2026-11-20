@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { generatePromptsAction } from "@/lib/actions/svs";
 import { savePromptSetAction } from "@/lib/actions/savedPrompts";
 import { downloadMarkdown } from "@/lib/export";
-import { COPY_IDLE, COPY_SHOWN_MS, PROMPT_COPY_LABEL, copyExpired, copyFailed, copySucceeded, formatScenePrompts, type CopyState, type PromptKind } from "@/lib/promptCopy";
+import { COPY_IDLE, COPY_SHOWN_MS, PROMPT_COPY_LABEL, copyExpired, createCopyGate, formatScenePrompts, settleCopy, type CopyState, type PromptKind } from "@/lib/promptCopy";
 import { useStudio } from "@/components/studio/StudioProvider";
 import {
   Card,
@@ -32,21 +32,21 @@ export function PromptsStep() {
   const [vaultError, setVaultError] = useState<string | null>(null);
   // 복사 표시·복사 오류는 프롬프트 생성 오류(error)와 따로 둔다
   const [copy, setCopy] = useState<CopyState>(COPY_IDLE);
-  const copySeq = useRef(0);
+  const copyGate = useRef(createCopyGate());
 
   // 씬별 프롬프트를 한 종류씩 모아 한 번에 복사(외부 생성 도구에 붙여 넣기용)
   async function copyAll(kind: PromptKind) {
     const text = formatScenePrompts(data.promptsResult?.prompts, kind);
     if (!text) return;
-    const seq = ++copySeq.current;
+    const gate = copyGate.current;
+    const seq = gate.begin();
+    // 끝났을 때 최신 요청일 때만 반영: 다시 눌렀거나 프롬프트 결과가 바뀌었으면(아래 초기화) 버린다
     try {
       await navigator.clipboard.writeText(text);
-      if (seq !== copySeq.current) return; // 그 사이 다시 눌렀으면 최신 복사의 결과만 반영
-      setCopy(copySucceeded(seq, kind));
-      setTimeout(() => setCopy((s) => copyExpired(s, seq)), COPY_SHOWN_MS);
+      setCopy((s) => settleCopy(s, gate, seq, { ok: true, kind }));
+      if (gate.isCurrent(seq)) setTimeout(() => setCopy((s) => copyExpired(s, seq)), COPY_SHOWN_MS);
     } catch {
-      if (seq !== copySeq.current) return;
-      setCopy(copyFailed(seq));
+      setCopy((s) => settleCopy(s, gate, seq, { ok: false }));
     }
   }
 
@@ -54,6 +54,7 @@ export function PromptsStep() {
   useEffect(() => {
     setVault("idle");
     setVaultError(null);
+    copyGate.current.invalidate(); // 이전 결과에 대한 진행 중 복사를 무효화
     setCopy(COPY_IDLE);
   }, [data.promptsResult]);
 
