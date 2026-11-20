@@ -141,7 +141,9 @@ export function judgeDuplicates(rows: ImportRow[], existing: ExistingRow[]): Ded
   for (const e of existing) {
     if (!isComparable(e.title, e.value)) continue;
     const k = dedupeKey(e.title, e.value);
-    if (!inTable.has(k)) inTable.set(k, e); // 표에 이미 같은 키가 여럿이면 첫 행을 근거로 든다
+    // 표에 이미 같은 키가 여럿이면 id가 가장 앞서는 행을 근거로 든다(기존 행을 읽어 온 순서에 좌우되지 않게)
+    const held = inTable.get(k);
+    if (!held || e.id < held.id) inTable.set(k, e);
     const d = dayKey(e.title, e.value);
     (allDayOrTimedInTable.get(d) ?? allDayOrTimedInTable.set(d, new Set()).get(d)!).add(!!e.value.start_time);
   }
