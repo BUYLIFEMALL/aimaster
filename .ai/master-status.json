@@ -6125,10 +6125,10 @@
       "reviewer": "CX-QA-01",
       "title": "쇼핑몰 사진 중앙 사용량 집계와 추가 용량 안내",
       "status": "queued",
-      "delivery": "approval_delivered_production_preflight_pending",
-      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md·msg_f995f8db2740·msg_b03bc930a0b2·0073 및 삭제 호출 소스 대조·msg_42a884229750·56ff56a5c·cc25a7cc1·0073/0076 함수 본문 대조·msg_c7919fb9f259·msg_81907d673c17·msg_f5b822c01b10·.ai/results/B2B-20261119-MALL-STORAGE-CX-QA-01.md·63b858413·Master 문서 대조 및 SQL·합성 시험 동일 확인·msg_3ed0e1d3e2de·705316994·msg_b549fb254462·msg_acab1bb8aef3·d96833385·msg_6963287c7e03·msg_adcf99e721c6·msg_166e6742290d·msg_eda2a13b267a·msg_5a61b112ea91·msg_e129da023cda·msg_3451b6e4345d·msg_928c0432c619·592b7484a·msg_d1a67c523d5c·msg_2adc74d93607·Master 호출 경로 대조·msg_c2a22bc17a99·msg_c41e662cebfa·055b38a7c·SQL/시험 변경 0 대조",
-      "next": "CMD-20261120-008 승인 수신. 0076 메인 적용 호출은 세션 자동 권한 검토에서 거부, 전후 함수·권한·이력 동일로 미적용 확인(msg_ee90452b662c). 해당 호출 허용 대기. 0077·SNS D2 운영 쓰기는 후속 순번.",
-      "lastReviewedAt": "2026-11-19T06:18:28.673Z",
+      "delivery": "0076_applied_0077_readonly_preflight_delivered",
+      "evidence": "msg_cc8479621f27·msg_6ff23a7de0fc·msg_98f16d65b7d9·mall-builder/docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md·msg_f995f8db2740·msg_b03bc930a0b2·0073 및 삭제 호출 소스 대조·msg_42a884229750·56ff56a5c·cc25a7cc1·0073/0076 함수 본문 대조·msg_c7919fb9f259·msg_81907d673c17·msg_f5b822c01b10·.ai/results/B2B-20261119-MALL-STORAGE-CX-QA-01.md·63b858413·Master 문서 대조 및 SQL·합성 시험 동일 확인·msg_3ed0e1d3e2de·705316994·msg_b549fb254462·msg_acab1bb8aef3·d96833385·msg_6963287c7e03·msg_adcf99e721c6·msg_166e6742290d·msg_eda2a13b267a·msg_5a61b112ea91·msg_e129da023cda·msg_3451b6e4345d·msg_928c0432c619·592b7484a·msg_d1a67c523d5c·msg_2adc74d93607·Master 호출 경로 대조·msg_c2a22bc17a99·msg_c41e662cebfa·055b38a7c·SQL/시험 변경 0 대조·msg_9846c713b97f·msg_0224f781379f",
+      "next": "0076 운영 적용 1회 성공(msg_9846c713b97f, 이력 20261120015854). 제외 규칙·함수 속성·ACL 보존 사후 보고 수락. 실제 cron 미확인. 0077 읽기 사전 점검만 CC-ECOM-01에 전달(msg_0224f781379f), 수락·착수 미확인. 0077 적용·SNS D2 쓰기는 후속 순번.",
+      "lastReviewedAt": "2026-11-20T02:01:22.562Z",
       "sha": "592b7484a"
     },
     {
@@ -6979,19 +6979,18 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-20T01:31:07.092Z",
+      "at": "2026-11-20T02:01:22.562Z",
       "timezone": "Asia/Seoul",
-      "trigger": "10:30 Orca 수신 msg_1938dcce251b",
-      "scope": "10:00 이후 작업표·담당 12명 체크포인트·요청함·점유·미배포·Git·결과/인수인계 증분 및 B2B 관리자 필터 고정판 근거 대조",
+      "trigger": "11:00 Orca 수신 msg_70a9d39e9f0f",
+      "scope": "10:30 이후 Master 수신·Git·작업표·담당 체크포인트 증분 대조 및 Workspace/B2B 결과 인수",
       "evidence": [
-        "10:30 예약 전달 수락 및 기존 Master 터미널 직접 수신. c05e4038e 이후 새 커밋·결과·인수인계·담당 기록 변경 없음. Master 요청함 0건.",
-        "B2B 관리자 필터 A3의 54cf7e0e3 Git 차이와 MacMini 독립 보고 msg_63a696ec0349 대조. 주문 시험 7/7 및 실제 분기 대조 7/7, 격리 범위 수락.",
-        "전체 380건 중 진행 4·검수 8·순번 6·사람 대기 15."
+        "Workspace 기록 acf024732 한 줄·점유 해제 20038c92a 검증. 53add833c 후보가 v1.64 승인 범위와 분리되어 기록됨.",
+        "0076 운영 적용 1회 성공(msg_9846c713b97f, 이력 20261120015854). 제외 규칙·함수 속성·ACL 보존 사후 보고 수락. 실제 cron 미확인. 0077 읽기 사전 점검만 CC-ECOM-01에 전달(msg_0224f781379f), 수락·착수 미확인. 0077 적용·SNS D2 쓰기는 후속 순번."
       ],
-      "judgment": "B2B 주문 필터 고정판의 로컬 검수 근거를 기존 작업에 보강. Lab 전체 검수·기존 배정 상태 유지. 신규 배정 0.",
-      "nextAction": "Master가 필터 후보가 포함된 Lab SHA와 직원 세션·제어 상태를 확인하면 MacMini가 375px 및 키보드·화면 낭독을 각각 검수. 기존 담당 수락·결과 회수, Sub 연결·0076 도구 권한·Workspace 배포 승인 대기는 기존 순서.",
+      "judgment": "Workspace 기록 작업과 0076 보고 수락. 공유 문서 미커밋 보존.",
+      "nextAction": "CC-ECOM-01의 0077 읽기 사전 점검 회수 후 적용 순번 판정. Workspace는 v1.64 승인 및 공유 문서 점유 해소 대기.",
       "unverified": [
-        "B2B 필터 후보의 Lab 적용·직원 로그인 화면·키보드·화면 낭독, 기존 배정의 실제 수락·착수. 원격 연결은 이번 회차 재조회하지 않음."
+        "0077 점검 수락·착수, 0076 실제 cron, Workspace 운영 타이머·실화면, 기존 원격 담당의 착수."
       ]
     },
     "notifications": [
