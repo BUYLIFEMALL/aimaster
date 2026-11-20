@@ -23,8 +23,23 @@ export const PRODUCT_CARDS = 4;
 // 2026-11-20(MOV-ONESTOP-HANDOFF-UNICODE): 상품 넘기기 값 자르기 — 보낼 때 URIError, 받을 때 깨진 글자 방지(같은 함수가 reference.ts에도 있음)
 // JS slice는 UTF-16 단위라 이모지 한가운데서 자르면 반쪽(U+D800~U+DBFF)이 남고, 그대로 encodeURIComponent하면 URIError로 멈춘다.
 // → 자른 끝이 반쪽 글자면 그 한 칸을 뺀다(제한 길이 값은 그대로).
+// A2(맥미니 P2): 입력 안 어디든 원래부터 짝 없는 반쪽(고립 high/low)도 encodeURIComponent를 멈추게 하므로, 자르기 전에 모두 뺀다(정상 쌍은 그대로).
+export function dropLoneSurrogates(s: string): string {
+  let out = "";
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    if (c >= 0xd800 && c <= 0xdbff) {
+      const n = s.charCodeAt(i + 1);
+      if (n >= 0xdc00 && n <= 0xdfff) { out += s[i] + s[i + 1]; i++; }
+      continue; // 짝 없는 앞쪽 반은 버림
+    }
+    if (c >= 0xdc00 && c <= 0xdfff) continue; // 앞 짝 없는 뒤쪽 반은 버림
+    out += s[i];
+  }
+  return out;
+}
 export function cutText(s: string, max: number): string {
-  const t = s.slice(0, Math.max(0, max));
+  const t = dropLoneSurrogates(s).slice(0, Math.max(0, max));
   const last = t.charCodeAt(t.length - 1);
   return last >= 0xd800 && last <= 0xdbff ? t.slice(0, -1) : t;
 }

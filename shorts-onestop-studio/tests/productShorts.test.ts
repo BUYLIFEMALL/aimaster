@@ -181,3 +181,48 @@ test("크기·필드·주소 형식은 그대로(경계에 이모지 없을 때 
   assert.equal(hash, `#${PRODUCT_HASH}=${encodeURIComponent("가".repeat(100))}&product-point=a&product-offer=b&product-from=${encodeURIComponent("AI 상세페이지 자동화")}`);
   assert.deepEqual({ ...PRODUCT_LIMITS }, { name: 100, point: 60, points: 3, offer: 80, from: 40 });
 });
+
+// A2(맥미니 P2): 입력 안 어디든 원래 짝 없는 반쪽(고립 high/low) — 자르기와 무관하게 예전엔 encodeURIComponent가 URIError
+const { dropLoneSurrogates } = await import("../src/lib/productShorts.ts");
+const HI = String.fromCharCode(0xd83d); // 짝 없는 앞쪽 반
+const LO = String.fromCharCode(0xde00); // 짝 없는 뒤쪽 반
+const SMILE = "😀"; // 정상 쌍(앞+뒤)
+const hasLone = (s: string) => dropLoneSurrogates(s) !== s;
+const place = (core: string, bad: string) => [bad + core, core.slice(0, 2) + bad + core.slice(2), core + bad];
+
+test("A2 짝 없는 반쪽만 빼고 정상 이모지는 그대로", () => {
+  assert.equal(dropLoneSurrogates(`가${HI}나${LO}다${SMILE}라`), `가나다${SMILE}라`);
+  assert.equal(dropLoneSurrogates(`${LO}${HI}`), "", "순서가 뒤집힌 짝은 둘 다 고립");
+  assert.equal(dropLoneSurrogates(`${HI}${HI}${LO}`), `${HI}${LO}`, "앞의 고립만 빼고 뒤 정상 쌍은 유지");
+  assert.equal(dropLoneSurrogates(`👨‍👩‍👧 ✅🔥`), `👨‍👩‍👧 ✅🔥`, "조합 이모지·여러 이모지 보존");
+  assert.equal(cutText(`${LO}${"가".repeat(5)}`, 5), "가".repeat(5), "고립을 먼저 빼고 자르므로 글자 손실 없음");
+});
+
+test("A2 상품명·장점·혜택·보낸 곳 앞·가운데·끝의 고립 high/low — 보내기 예외 없음, 왕복에 고립 없음, 정상 이모지 보존", () => {
+  for (const bad of [HI, LO]) {
+    for (const [name, point, offer, from] of place("상품명이에요", bad).map((n, i) => [n, place("장점이에요", bad)[i], place("혜택이에요", bad)[i], place("보낸곳이에요", bad)[i]])) {
+      let hash = "";
+      assert.doesNotThrow(() => { hash = productHandoffHash({ name: name + SMILE, points: [point, point + SMILE], offer }, from); });
+      const r = readProductHandoff(hash);
+      assert.ok(r, "왕복");
+      for (const v of [r.product.name, ...r.product.points, r.product.offer, r.from]) assert.equal(hasLone(v), false, JSON.stringify(v));
+      assert.ok(r.product.name.endsWith(SMILE) && r.product.points[1].endsWith(SMILE), "정상 이모지 보존");
+      assert.equal(r.product.name, "상품명이에요" + SMILE);
+      assert.equal(r.from, "보낸곳이에요");
+    }
+  }
+});
+
+test("A2 추가 필드(설명·옵션)의 고립 반쪽도 보내기·받기 안전", () => {
+  let extra = "";
+  assert.doesNotThrow(() => { extra = productExtraHash({ desc: `설명${HI}입니다${SMILE}`, option: `${LO}옵션` }); });
+  const e = readProductExtra(`#${PRODUCT_HASH}=a${extra}`);
+  assert.equal(e?.desc, `설명입니다${SMILE}`);
+  assert.equal(e?.option, "옵션");
+});
+
+test("A2 손상 안내 경계는 그대로: 상품명이 고립 반쪽뿐이면 상품명 없음", () => {
+  assert.equal(productHandoffHash({ name: `${LO}${LO}${HI}`, points: [], offer: "" }), "", "앞뒤가 맞지 않는 반쪽만 있으면 다 빠져 이름 없음 → 넘기기 아님");
+  assert.equal(readProductHandoff(productHandoffHash({ name: `${HI}${LO}`, points: [], offer: "" }))?.product.name, String.fromCharCode(0xd83d, 0xde00), "정상 쌍(앞+뒤)은 이모지로 유지");
+  assert.equal(readProductHandoff(`#${PRODUCT_HASH}=%ED%A0%BD`), null, "UTF-8로 인코딩된 반쪽(%ED%A0%BD)은 디코딩 실패 → 이름 없음(안내 대상)");
+});

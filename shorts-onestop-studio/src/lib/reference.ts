@@ -4,8 +4,23 @@
 // 2026-11-20(MOV-ONESTOP-HANDOFF-UNICODE): 대사·보낸 곳 이름 자르기(같은 함수가 productShorts.ts에도 있음 — 확장자 없는 import를 피하려고 각 파일에 둠)
 // JS slice는 UTF-16 단위라 이모지 한가운데서 자르면 반쪽(U+D800~U+DBFF)이 남고, 그대로 encodeURIComponent하면 URIError로 멈춘다.
 // → 자른 끝이 반쪽 글자면 그 한 칸을 뺀다(제한 길이 값은 그대로).
+// A2(맥미니 P2): 입력 안의 짝 없는 반쪽도 자르기 전에 모두 뺀다(정상 쌍은 그대로) — productShorts.ts dropLoneSurrogates와 같은 동작
+function dropLoneSurrogates(s: string): string {
+  let out = "";
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    if (c >= 0xd800 && c <= 0xdbff) {
+      const n = s.charCodeAt(i + 1);
+      if (n >= 0xdc00 && n <= 0xdfff) { out += s[i] + s[i + 1]; i++; }
+      continue;
+    }
+    if (c >= 0xdc00 && c <= 0xdfff) continue;
+    out += s[i];
+  }
+  return out;
+}
 function cutText(s: string, max: number): string {
-  const t = s.slice(0, Math.max(0, max));
+  const t = dropLoneSurrogates(s).slice(0, Math.max(0, max));
   const last = t.charCodeAt(t.length - 1);
   return last >= 0xd800 && last <= 0xdbff ? t.slice(0, -1) : t;
 }

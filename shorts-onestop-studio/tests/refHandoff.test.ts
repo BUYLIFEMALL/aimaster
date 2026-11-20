@@ -123,3 +123,38 @@ test("대사 넘기기: 경계 이모지에서도 멈추지 않고 보관·꺼�
   assert.equal(got.from, "가".repeat(39));
   assert.equal(rh.takeRefHandoff("").text, "", "1회만");
 });
+
+test("A2 참조 대사·대사 보낸 곳의 고립 반쪽(앞·가운데·끝) — 보내기 예외 없음, 보관·꺼내기 왕복에 고립 없음, 정상 이모지 보존", async () => {
+  const ref = await import("../src/lib/reference.ts");
+  const HI = String.fromCharCode(0xd83d), LO = String.fromCharCode(0xde00), SMILE = "😀";
+  const lone = (s: string) => /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/.test(s);
+  for (const bad of [HI, LO]) {
+    for (const [text, from] of [[`${bad}대사입니다${SMILE}`, `${bad}보낸곳`], [`대사${bad}입니다${SMILE}`, `보낸${bad}곳`], [`대사입니다${SMILE}${bad}`, `보낸곳${bad}`]]) {
+      reset();
+      let hash = "";
+      assert.doesNotThrow(() => { hash = ref.refHandoffHash(text, from); });
+      assert.equal(rh.stashRefHandoff(hash), true);
+      const got = rh.takeRefHandoff("");
+      assert.equal(got.text, `대사입니다${SMILE}`);
+      assert.equal(got.from, "보낸곳");
+      assert.equal(lone(got.text) || lone(got.from), false);
+    }
+  }
+});
+
+test("A2 상품 넘기기 보관·꺼내기에서도 고립 반쪽이 없고 손상 안내 판정은 그대로", async () => {
+  const HI = String.fromCharCode(0xd83d);
+  reset();
+  const hash = ps.productHandoffHash({ name: `물병${HI}😀`, points: [`가볍다${HI}`], offer: "" }, `보낸${HI}곳`);
+  assert.equal(rh.stashProductHandoff(hash), true);
+  const r = rh.takeProductHandoffResult("");
+  assert.equal(r.status, "ok");
+  if (r.status === "ok") {
+    assert.equal(r.product.name, "물병😀");
+    assert.deepEqual(r.product.points, ["가볍다"]);
+    assert.equal(r.from, "보낸곳");
+  }
+  reset();
+  assert.equal(rh.stashProductHandoff("#product-name=%ED%A0%BD"), true);
+  assert.deepEqual(rh.takeProductHandoffResult(""), { status: "broken" }, "깨진 상품명은 여전히 안내 대상");
+});
