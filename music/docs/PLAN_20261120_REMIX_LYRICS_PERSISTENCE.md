@@ -374,3 +374,10 @@ alter table public.music_track_remix_variants
 - **자동 연장은 지금 동작 그대로**: 연장 때 `task_id` 덮어쓰기·잠금 경합(0-3·0-7, 부록 A2 RACE)은 1차에서 고치지 않는다. 1차에서는 저장 시점의 `taskId`를 변주별 `suno_task_id`로 남겨 **앞 단계 변주의 작업 번호를 잃지 않게만** 한다. 경합으로 중복 행이 생기면 가사도 중복 저장될 수 있다(새로 생기는 결함 아님). 연장 예약 경계(맥미니 `msg_75ff01a68199`)는 후속.
 - **스키마·순번**: 6절 칸 3개(`suno_task_id`·`lyrics`·`lyrics_status`, `provided`는 실측 전 미사용)만 필요. 마이그레이션 번호와 적용은 별도 확정·승인.
 - **배포 영향(실행 아님)**: music·lyric-video-studio 빌드 각 1회 + 공용 사본 2곳(`ai-music-studio`·`shots`)은 다음 배포 때 합류.
+
+## 부록 PHASE1-COMPAT-MOCK A1 (2026-11-20, Master `msg_3981bfcb17a1`, 검수 CX-QA-01)
+- 표본: [`music/docs/fixtures/remix-lyrics-compat-mock-20261120.json`](fixtures/remix-lyrics-compat-mock-20261120.json) — 22개(insert 0회 1·1회 14·2회 7, 최대 2회). 인계표 A3 「구형 DB 회귀」의 시험 설계만, 코드·DB 연결 없음.
+- 재시도 조건: 응답을 받았고 + `42703`(실측 형식 「column "칸" does not exist」) 또는 `PGRST204`(문서 형식, 저장소 실측 없음) + 문구에서 뽑은 칸 이름이 이번 3칸 중 하나와 **전체 일치** + 표 이름이 있으면 `music_track_remix_variants` → 3칸을 뺀 같은 insert **1회**. 그 밖(다른 칸·부분 문자열·다른 표·권한·RLS·중복·표 없음·코드 없음·응답 없음)과 첫 성공은 재실행 0. 재시도 뒤 실패·응답 없음도 세 번째 없음.
+- 응답 없음(시간 초과·연결 끊김)은 이미 저장됐을 수 있어 「불확실」로 끝내고 재실행하지 않는다.
+- 새로 찾은 기존 동작: 지금 `remixSync.ts` 83줄은 insert 결과를 확인하지 않아 저장 실패가 조용히 넘어간다. 1차 구현은 오류를 호출부에 돌려주되, 그때 리믹스를 어떻게 표시할지는 별도 확정(표본 `_undecided`).
+- 미확정으로 분리: 공용 Suno 클라이언트 사본 동기화 결정, Suno `prompt`의 실제 의미.

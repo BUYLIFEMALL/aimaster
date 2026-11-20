@@ -1,0 +1,57 @@
+{
+ "_about": "리믹스 가사 1차 — 새 변주 저장의 구형 스키마 호환 격리 모의 표본(PHASE1-COMPAT-MOCK A1, 2026-11-20 Claud(Music), Master msg_3981bfcb17a1, 검수 CX-QA-01). 시험 설계 자료일 뿐 코드·DB에 연결하지 않았다. 가사 문자열은 지어낸 짧은 표본.",
+ "_basisLegend": {
+  "OBS": "저장소에 실제로 본 기록 — Postgres 42703 문구 「column \"<칸>\" does not exist」(docs/DISTRIBUTION_KIT_GUIDE.md 174줄, docs/ERROR_LESSONS.md 2737줄)",
+  "DOC": "PostgREST 문서 형식 — PGRST204 「Could not find the '<칸>' column of '<표>' in the schema cache」. 우리 저장소에서 실제로 본 기록 없음",
+  "CODE": "우리 코드 동작(현재 music/lib/remixSync.ts 83줄은 insert 결과를 확인하지 않음)",
+  "SYNTH": "경계 검증용 합성 입력"
+ },
+ "_rules": {
+  "newColumns": ["suno_task_id", "lyrics", "lyrics_status"],
+  "table": "music_track_remix_variants",
+  "retryOnlyIf": "첫 insert가 응답을 받았고 + error.code가 42703 또는 PGRST204이고 + 오류 문구(message, 없으면 details)에서 뽑은 칸 이름이 newColumns 중 하나와 정확히 같고 + 문구에 표 이름이 있으면 table과 같을 때만, 새 3칸을 뺀 같은 행들로 insert 1회",
+  "noRetry": "첫 성공 / 다른 칸 이름 / 칸 이름을 못 뽑음 / 다른 표 / 권한·RLS(42501) / 중복(23505) / 표 없음(42P01) / 그 밖 코드 / 응답 없음(시간 초과·연결 끊김 = 결과 불확실, 이미 저장됐을 수 있음) → 재실행 0",
+  "maxInsertCalls": 2,
+  "secondPayload": "첫 payload와 행 수·순서·나머지 칸이 같고 새 3칸만 없음",
+  "matchColumnName": "칸 이름은 따옴표로 둘러싼 이름만 뽑아 전체 일치 비교(부분 문자열 금지 — lyrics_status_x·lyric 등은 불일치)",
+  "errorSurface": "재시도하지 않은 오류·재시도 뒤 오류는 호출부에 오류로 돌려준다(지금처럼 조용히 넘어가지 않음 — 처리 방식은 1차 구현 때 별도 확정)"
+ },
+ "_undecided": [
+  "공용 Suno 클라이언트(suno-api-client) 사본 동기화 시점·방식(ai-music-studio·shots) — 이 표본과 무관, 별도 결정",
+  "Suno prompt의 실제 의미(가사인지) — 실측 전, 이 표본은 저장 호환만 다룸",
+  "재시도 뒤에도 실패했을 때 리믹스를 failed로 둘지·지금처럼 진행할지 — 1차 구현 때 확정"
+ ],
+ "_mockDesign": {
+  "client": "가짜 Supabase: from(table).insert(rows)가 호출마다 (table, rows 깊은 복사)를 기록하고, 사례의 responses 배열을 순서대로 돌려준다(응답 없음은 예외를 던짐)",
+  "assertions": ["insert 호출 수", "각 호출의 표 이름", "두 번째 payload에 새 3칸이 없음", "두 번째 payload의 나머지 칸·행 수·순서가 첫 payload와 같음", "최종 결과(ok·error·uncertain)", "외부 호출(Suno·fetch) 0"],
+  "isolation": "네트워크·DB·키 없음. 시험 출력에 가사 원문을 찍지 않음(길이·해시만)"
+ },
+ "basePayload": [
+  { "remix_id": "R1", "user_id": "U1", "suno_audio_id": "A1", "audio_url": "U1/remix/R1/h0-0.mp3", "image_url": null, "duration_seconds": 176, "suno_task_id": "T0", "lyrics": "표본 가사 가", "lyrics_status": "provided_unverified" },
+  { "remix_id": "R1", "user_id": "U1", "suno_audio_id": "A2", "audio_url": "U1/remix/R1/h0-1.mp3", "image_url": null, "duration_seconds": 175, "suno_task_id": "T0", "lyrics": null, "lyrics_status": "unknown" }
+ ],
+ "cases": [
+  { "id": "C01", "theme": "첫 insert 성공", "basis": ["CODE"], "responses": [ { "error": null } ], "expected": { "insertCalls": 1, "outcome": "ok", "secondPayload": null } },
+  { "id": "C02", "theme": "42703 — lyrics 칸 없음", "basis": ["OBS"], "responses": [ { "error": { "code": "42703", "message": "column \"lyrics\" of relation \"music_track_remix_variants\" does not exist" } }, { "error": null } ], "expected": { "insertCalls": 2, "outcome": "ok_without_lyrics_columns", "secondPayloadDropped": ["suno_task_id", "lyrics", "lyrics_status"] } },
+  { "id": "C03", "theme": "42703 — suno_task_id 칸 없음(표 이름 없는 문구)", "basis": ["OBS"], "responses": [ { "error": { "code": "42703", "message": "column \"suno_task_id\" does not exist" } }, { "error": null } ], "expected": { "insertCalls": 2, "outcome": "ok_without_lyrics_columns" } },
+  { "id": "C04", "theme": "42703 — lyrics_status 칸 없음", "basis": ["OBS"], "responses": [ { "error": { "code": "42703", "message": "column \"lyrics_status\" of relation \"music_track_remix_variants\" does not exist" } }, { "error": null } ], "expected": { "insertCalls": 2, "outcome": "ok_without_lyrics_columns" } },
+  { "id": "C05", "theme": "PGRST204 — 스키마 캐시에 lyrics 없음", "basis": ["DOC"], "responses": [ { "error": { "code": "PGRST204", "message": "Could not find the 'lyrics' column of 'music_track_remix_variants' in the schema cache" } }, { "error": null } ], "expected": { "insertCalls": 2, "outcome": "ok_without_lyrics_columns" } },
+  { "id": "C06", "theme": "PGRST204 — 다른 칸(duration_seconds)", "basis": ["DOC", "SYNTH"], "responses": [ { "error": { "code": "PGRST204", "message": "Could not find the 'duration_seconds' column of 'music_track_remix_variants' in the schema cache" } } ], "expected": { "insertCalls": 1, "outcome": "error" } },
+  { "id": "C07", "theme": "42703 — 다른 칸(image_url)", "basis": ["OBS", "SYNTH"], "responses": [ { "error": { "code": "42703", "message": "column \"image_url\" of relation \"music_track_remix_variants\" does not exist" } } ], "expected": { "insertCalls": 1, "outcome": "error" } },
+  { "id": "C08", "theme": "42703 — 칸 이름을 뽑을 수 없는 문구", "basis": ["SYNTH"], "responses": [ { "error": { "code": "42703", "message": "undefined column" } } ], "expected": { "insertCalls": 1, "outcome": "error" } },
+  { "id": "C09", "theme": "42703 — 같은 칸 이름이지만 다른 표", "basis": ["SYNTH"], "responses": [ { "error": { "code": "42703", "message": "column \"lyrics\" of relation \"music_track_remixes\" does not exist" } } ], "expected": { "insertCalls": 1, "outcome": "error" } },
+  { "id": "C10", "theme": "부분 문자열 칸(lyrics_status_x)", "basis": ["SYNTH"], "responses": [ { "error": { "code": "42703", "message": "column \"lyrics_status_x\" does not exist" } } ], "expected": { "insertCalls": 1, "outcome": "error" } },
+  { "id": "C11", "theme": "부분 문자열 칸(lyric)", "basis": ["SYNTH"], "responses": [ { "error": { "code": "PGRST204", "message": "Could not find the 'lyric' column of 'music_track_remix_variants' in the schema cache" } } ], "expected": { "insertCalls": 1, "outcome": "error" } },
+  { "id": "C12", "theme": "권한 없음(42501)", "basis": ["SYNTH"], "responses": [ { "error": { "code": "42501", "message": "permission denied for table music_track_remix_variants" } } ], "expected": { "insertCalls": 1, "outcome": "error" } },
+  { "id": "C13", "theme": "RLS 위반(42501)", "basis": ["SYNTH"], "responses": [ { "error": { "code": "42501", "message": "new row violates row-level security policy for table \"music_track_remix_variants\"" } } ], "expected": { "insertCalls": 1, "outcome": "error" } },
+  { "id": "C14", "theme": "중복(23505)", "basis": ["SYNTH"], "responses": [ { "error": { "code": "23505", "message": "duplicate key value violates unique constraint" } } ], "expected": { "insertCalls": 1, "outcome": "error" } },
+  { "id": "C15", "theme": "표 없음(42P01)", "basis": ["SYNTH"], "responses": [ { "error": { "code": "42P01", "message": "relation \"music_track_remix_variants\" does not exist" } } ], "expected": { "insertCalls": 1, "outcome": "error" } },
+  { "id": "C16", "theme": "응답 없음 — 시간 초과(결과 불확실)", "basis": ["SYNTH"], "responses": [ { "throw": "AbortError: The operation was aborted due to timeout" } ], "expected": { "insertCalls": 1, "outcome": "uncertain" } },
+  { "id": "C17", "theme": "응답 없음 — 연결 끊김", "basis": ["SYNTH"], "responses": [ { "throw": "TypeError: fetch failed" } ], "expected": { "insertCalls": 1, "outcome": "uncertain" } },
+  { "id": "C18", "theme": "서버 오류·코드 없음", "basis": ["SYNTH"], "responses": [ { "error": { "code": "", "message": "Internal Server Error" } } ], "expected": { "insertCalls": 1, "outcome": "error" } },
+  { "id": "C19", "theme": "재시도도 실패(같은 42703) — 세 번째 없음", "basis": ["OBS", "SYNTH"], "responses": [ { "error": { "code": "42703", "message": "column \"lyrics\" does not exist" } }, { "error": { "code": "42703", "message": "column \"lyrics\" does not exist" } } ], "expected": { "insertCalls": 2, "outcome": "error" } },
+  { "id": "C20", "theme": "재시도 응답 없음 — 세 번째 없음", "basis": ["SYNTH"], "responses": [ { "error": { "code": "PGRST204", "message": "Could not find the 'lyrics_status' column of 'music_track_remix_variants' in the schema cache" } }, { "throw": "TypeError: fetch failed" } ], "expected": { "insertCalls": 2, "outcome": "uncertain" } },
+  { "id": "C21", "theme": "칸 이름이 message에 없고 details에 있음", "basis": ["SYNTH"], "responses": [ { "error": { "code": "42703", "message": "undefined column", "details": "column \"lyrics\" does not exist" } }, { "error": null } ], "expected": { "insertCalls": 2, "outcome": "ok_without_lyrics_columns" } },
+  { "id": "C22", "theme": "저장할 변주 0개", "basis": ["CODE"], "payloadOverride": [], "responses": [], "expected": { "insertCalls": 0, "outcome": "skipped" }, "note": "지금 코드도 variants 0개면 insert 전에 돌아감(remixSync.ts 81줄)" }
+ ]
+}
