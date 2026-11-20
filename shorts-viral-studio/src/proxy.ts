@@ -1,12 +1,18 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { cookieDomainForHost } from "@/lib/supabase/cookieDomain";
+import { isNoticeFile } from "./lib/noticeFiles";
 
 const PUBLIC_PATHS = ["/login", "/signup"];
 
 // 도메인 로그인 공유(docs/DOMAIN_SSO_POLICY.md): 요청 호스트가 *.buylife.xyz 일 때만 로그인 쿠키를 .buylife.xyz 로 갱신해
 // 다른 프로그램에서 한 로그인이 이 프로그램에서도 이어지게 한다. 이용 권한 확인은 각 페이지·서버 액션의 requireProgramAccess()가 한다.
 export async function proxy(request: NextRequest) {
+  // 고지 파일(/robots.txt·/ai.txt)은 로그인 검사 없이 그대로 보낸다(0번 규칙).
+  if (isNoticeFile(request.nextUrl.pathname)) {
+    return NextResponse.next();
+  }
+
   // 딥링크로 들어왔다가 로그인 화면으로 갈 때 로그인 후 원래 페이지로 돌아오도록 현재 경로를 헤더로 전달한다(lib/auth.ts).
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", request.nextUrl.pathname + request.nextUrl.search);

@@ -102,3 +102,5 @@
 - 운영 확인: 비로그인 `/viral-finder` → 로그인으로 이동(307), `/api/youtube/viral-finder`·`/api/ai/viral-plan` 401. ego lite 로그인 화면에서 v1.30·새 메뉴·위젯 스크립트 확인.
 - **미검수**: ego에 로그인된 계정이 관리자 계정이라 시험 계정 규칙대로 실제 YouTube 검색·차트 실행은 하지 않음 → 시험 계정(`buylifemall@naver.com`)으로 다시 로그인되면 인기 차트(검색 횟수 0, 약 80유닛) → 키워드 검색 순서로 확인. AI 기획안 실호출 1회는 그 뒤 승인 받아서.
 - DB SQL 적용 대기 그대로(요청함 DB 항목).
+
+- **미배포 대기(2026-11-20, 영상 담당 `claude-win-video`, MOV-VIDEO-NOTICE-307)**: 0번 규칙 고지 파일 `/robots.txt`·`/ai.txt`가 미들웨어 로그인 검사에 걸려 `/login`으로 307 되던 문제 — `src/lib/noticeFiles.ts`(정확히 두 경로만) + `src/proxy.ts` 맨 앞에서 통과(기준 방식 `f8b31fde9`, ECOM 확인 msg_56591af3321f). 비슷한 이름·하위 경로·대소문자는 통과하지 않음, 로그인·API·공개 경로 경계는 그대로. 시험 `node --test tests/noticeFiles.test.mjs` 4/4. 운영 확인(두 주소가 200·검색 로봇 허용)은 다음 배포 뒤.

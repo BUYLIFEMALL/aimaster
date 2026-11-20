@@ -1,10 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { cookieDomainForHost } from "@/lib/supabase/cookieDomain";
+import { isNoticeFile } from "./lib/noticeFiles";
 
 const PUBLIC_PATHS = ["/login", "/signup"];
 
 export async function proxy(request: NextRequest) {
+  // 고지 파일(/robots.txt·/ai.txt)은 로그인 검사 없이 그대로 보낸다(0번 규칙).
+  if (isNoticeFile(request.nextUrl.pathname)) {
+    return NextResponse.next();
+  }
+
   // 딥링크로 바로 들어왔다가 로그인이 필요해서 /login으로 튕겨나갈 때, 로그인 후 원래
   // 보려던 그 페이지로 바로 돌아올 수 있게 현재 경로를 헤더에 실어둔다. 이 proxy가 대부분의
   // 경로에서 미리 걸러주지만, requireUser()의 자체 백스톱(예: "/" 페이지)에서도 같은 값을
