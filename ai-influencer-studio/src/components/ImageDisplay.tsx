@@ -187,6 +187,17 @@ export function ImageDisplay({
                 </div>
               </div>
 
+              {/* 캡션 사유(R2 3단계): 기본 문구로 대신했거나 캡션을 만들지 못했을 때만 한 줄. 없으면 예전과 같다 */}
+              {result.captionNotice && !result.loading && (
+                <p
+                  role="status"
+                  data-caption-notice
+                  className="px-3 py-2 rounded-lg border text-[11px] leading-relaxed bg-amber-500/10 border-amber-500/30 text-amber-200"
+                >
+                  ⚠️ {result.captionNotice}
+                </p>
+              )}
+
               {/* 캡션 본문 & 복사 버튼 */}
               <div className="p-3.5 rounded-lg bg-[#141721] border border-[#282e42] relative group">
                 <div className="text-xs text-slate-200 whitespace-pre-wrap leading-relaxed max-h-[180px] overflow-y-auto">

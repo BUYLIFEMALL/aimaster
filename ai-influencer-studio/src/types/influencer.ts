@@ -59,6 +59,8 @@ export interface GenerationResult {
   loading: boolean;
   error: string | null;
   finalPrompt?: string;
+  /** 캡션을 AI가 만들지 못해 기본 문구를 넣었거나 캡션을 만들지 못했을 때의 사유(2026-11-20, R2 3단계). 없으면 화면은 예전과 같다 */
+  captionNotice?: string | null;
   /** 방금 생성한 결과의 원본 저장 안내(W01v). 생성 응답에 저장 결과가 실렸을 때만 있다 — 없으면 화면은 예전과 같다 */
   assetNotice?: import("@/lib/assets/saveNotice").AssetSaveNotice | null;
   /** 자산 번호 흐름(W01-UII, 서버 모드가 on일 때만): 방금 결과의 자산 번호. 화면 메모리에만 있다(저장하지 않는다) */

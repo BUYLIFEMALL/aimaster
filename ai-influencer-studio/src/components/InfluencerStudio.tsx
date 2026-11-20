@@ -9,6 +9,7 @@ import { GuideView } from "@/components/GuideView";
 import { HistoryDrawer } from "@/components/HistoryDrawer";
 import type { InfluencerConfig, GenerationResult, HistoryItem } from "@/types/influencer";
 import { assetSaveNotice } from "@/lib/assets/saveNotice";
+import { CAPTION_REQUEST_FAILED, readCaptionResponse } from "@/lib/captionNotice";
 import { readGenerateResponse } from "@/lib/assets/generateResponse";
 import { collectReferences, fitReferencesForSend, prepareLastResultForRefine, referenceErrorMessage } from "@/lib/referenceImage";
 import { AccountScope, AssetFlowSession, CLIENT_MESSAGES, SESSION_MESSAGES, bootstrapHistory, keepPhotosIfLocked, runViewGeneration, stripPhotoFields } from "@/lib/assets/clientFlow";
@@ -396,18 +397,17 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
 
       // 2) 캡션 생성 병렬 호출
       let generatedCaptions: string[] = [];
+      let captionNotice: string | null = null;   // 기본 문구로 대신했거나 만들지 못한 사유(R2 3단계) — 캡션 칸 위에 한 줄로 보인다
       try {
         const capRes = await fetch("/api/generate-caption", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ config: configToSubmit, refinementRequest: refinementFeedback }),
         });
-        const capData = await capRes.json();
-        if (capData.success) {
-          generatedCaptions = capData.captions;
-        }
+        ({ captions: generatedCaptions, notice: captionNotice } = readCaptionResponse(await capRes.json()));
       } catch (capErr) {
         console.warn("캡션 생성 실패:", capErr);
+        captionNotice = CAPTION_REQUEST_FAILED;
       }
       if (!stillMine()) return;
 
@@ -415,6 +415,7 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
       setResult({
         imageUrl: generatedImageUrl,
         captions: generatedCaptions,
+        captionNotice,
         loading: false,
         error: null,
         ...(assetNotice ? { assetNotice } : {}),
@@ -449,13 +450,20 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
     }
     if (session.busy) return;   // 이미 진행 중 — 두 번 보내지 않는다
 
-    setResult((prev) => ({ ...prev, loading: true, error: null, imageUrl: null, captions: [], assetNotice: null, assetId: null, needsReload: false, reloadMessage: null, fileExt: undefined }));
+    setResult((prev) => ({ ...prev, loading: true, error: null, imageUrl: null, captions: [], captionNotice: null, assetNotice: null, assetId: null, needsReload: false, reloadMessage: null, fileExt: undefined }));
+    let flowCaptionNotice: string | null = null;   // 캡션 사유(R2 3단계) — 공용 흐름 모듈은 캡션 배열만 받으므로 여기서 따로 들고 있는다
     const done = await runViewGeneration(session, configToSubmit as unknown as Record<string, unknown>, {
       // 캡션: 기존과 같은 호출. 캡션은 사진을 쓰지 않으므로 글자 설정만 보낸다
       captions: async (textConfig) => {
-        const capRes = await fetch("/api/generate-caption", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ config: textConfig }) });
-        const capData = await capRes.json();
-        return capData.success ? capData.captions : [];
+        try {
+          const capRes = await fetch("/api/generate-caption", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ config: textConfig }) });
+          const { captions, notice } = readCaptionResponse(await capRes.json());
+          flowCaptionNotice = notice;
+          return captions;
+        } catch {
+          flowCaptionNotice = CAPTION_REQUEST_FAILED;
+          return [];
+        }
       },
       // 히스토리용 축소본(긴 변 1440 JPEG data URL) — 화면의 임시 주소(blob:)와 무관한 독립 사본
       reduce: (src) => toHistoryJpeg(src).catch(() => null),
@@ -479,6 +487,7 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
     setResult({
       imageUrl: done.imageUrl,
       captions: done.captions,
+      captionNotice: flowCaptionNotice,
       loading: false,
       error: null,
       assetId: done.assetId,
@@ -541,13 +550,13 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ config, refinementRequest: captionFeedback }),
       });
-      const data = await res.json();
+      const { captions, notice } = readCaptionResponse(await res.json());
       if (!alive()) return;
-      if (data.success && data.captions) {
-        setResult((prev) => ({ ...prev, captions: data.captions }));
-      }
+      // 실패하면 지금 캡션은 그대로 두고 사유만 보인다. 받은 캡션이 있으면 바꾸고 그 사유(없으면 지움)를 함께 둔다
+      setResult((prev) => ({ ...prev, ...(captions.length ? { captions } : {}), captionNotice: notice }));
     } catch (err) {
       console.error("캡션 재생성 실패:", err);
+      if (alive()) setResult((prev) => ({ ...prev, captionNotice: CAPTION_REQUEST_FAILED }));
     } finally {
       setIsGeneratingCaption(false);
     }

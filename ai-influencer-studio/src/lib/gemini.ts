@@ -14,6 +14,48 @@ import {
   AD_TYPES,
 } from "@/data/influencer-options";
 import type { InfluencerConfig, TimelineScenario } from "@/types/influencer";
+import {
+  allowsCaptionFallback,
+  buildScenarioOptionSets,
+  captionFallbackNotice,
+  classifyTextFailure,
+  parseCaptions,
+  parseScenarios,
+  textFailureMessage,
+  type TextFailureKind,
+} from "./textOutput";
+
+/** 글 생성 실패(회원에게 보일 문장과 종류). 라우트가 종류로 응답 상태를 정한다. 원문 오류 글·키는 담지 않는다(2026-11-20, R2 3단계). */
+export class TextGenerationError extends Error {
+  readonly kind: TextFailureKind;
+  constructor(kind: TextFailureKind) {
+    super(textFailureMessage(kind, "Google Gemini"));
+    this.name = "TextGenerationError";
+    this.kind = kind;
+  }
+}
+
+/** 기획 결과의 선택지 값을 화면 목록과 대조할 때 쓰는 허용 값 묶음 */
+const SCENARIO_OPTION_SETS = buildScenarioOptionSets({
+  lightings: LIGHTINGS, cameraGroups: CAMERA_MODES, filmStocks: FILM_STOCKS,
+  hairStyles: HAIR_STYLES, faceStyles: FACE_STYLES, skinTextures: SKIN_TEXTURES,
+});
+
+/** 기획 호출 한 번 + 응답 검사. 실패는 종류를 가려 TextGenerationError로 던진다(자동 재시도 없음) */
+async function runPlan(call: () => Promise<{ text?: string }>): Promise<TimelineScenario[]> {
+  let raw: unknown;
+  try {
+    const res = await call();
+    raw = JSON.parse(res.text || "null");
+  } catch (err) {
+    const kind = classifyTextFailure(err);
+    console.error("Plan generation error:", kind);
+    throw new TextGenerationError(kind);
+  }
+  const scenarios = parseScenarios(raw, SCENARIO_OPTION_SETS);
+  if (!scenarios) throw new TextGenerationError("format");
+  return scenarios as TimelineScenario[];
+}
 
 /** 글 생성(캡션·하루 일과 기획·이벤트 변형) 모델 — docs/AI_MODEL_CATALOG.md의 Gemini 「중가 균형(기본값)」.
  *  2026-11-20 주인님 지시로 미리보기 모델 gemini-3-flash-preview(선택표에 없음)에서 교체. 실제 호출 시험은 하지 않았다. */
@@ -74,7 +116,7 @@ export async function generateInstagramCaption(
   apiKey: string,
   config: InfluencerConfig,
   refinementRequest?: string
-): Promise<string[]> {
+): Promise<{ captions: string[]; notice: string | null }> {
   if (!apiKey || !apiKey.trim()) {
     throw new Error("Gemini API 키가 필요합니다.");
   }
@@ -134,13 +176,15 @@ General Rules:
       },
     });
 
-    const parsed = JSON.parse(res.text || "[]");
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed;
-    }
-    throw new Error("Invalid caption format");
+    const captions = parseCaptions(JSON.parse(res.text || "null"));
+    if (captions) return { captions, notice: null };
+    throw new Error("AI_RESPONSE_FORMAT");
   } catch (err) {
-    console.warn("Caption generation fallback triggered:", err);
+    // 키·인증 문제는 기본 문구로 감추지 않는다 — 회원이 키를 고쳐야 한다(2026-11-20, R2-상세 라-1)
+    const kind = classifyTextFailure(err);
+    console.warn("Caption generation fallback triggered:", kind);
+    if (!allowsCaptionFallback(kind)) throw new TextGenerationError(kind);
+    const notice = captionFallbackNotice(kind);
     // 시간대별 안정적인 폴백 캡션
     const hour = new Date().getHours();
     const greeting =
@@ -148,17 +192,17 @@ General Rules:
     const tagBase = `#${config.ethnicity === "kr" ? "일상" : "Daily"} #OOTD #${locShort} #AI인플루언서`;
 
     if (config.isAdMode) {
-      return [
+      return { notice, captions: [
         `${greeting}\n\n${locShort} 분위기랑 찰떡인 ${prodName}! 💖\n여기서 이거 쓰고 있으니까 다들 뭐냐고 물어보네요 ㅎㅎ\n진짜 인생템 등극..✨\n\n#${prodName} #광고 #협찬 #${locShort}`,
         `${locShort} 필수템 ${prodName} 📸\n이거 하나면 오늘 촬영 끝! 😎\n\n#${prodName} #추천`,
         `${locShort} 뷰 맛집인 거 아시죠? 👀\n근데 저 뭐 들고 있게요?\n맞추는 분께 하트 날려드림! 💕 (${prodName}인 건 비밀)\n\n#${prodName} #이벤트`,
-      ];
+      ] };
     } else {
-      return [
+      return { notice, captions: [
         `${greeting}\n\n${locShort}에서 ${config.outfit || "예쁜 착장"} 입고 기분 전환 중이에요! 📸\n분위기 너무 좋아서 시간 가는 줄 모르겠네 ㅎㅎ\n다들 오늘 하루 어떠셨나요?\n\n${tagBase}`,
         `${locShort} 바이브 ✨\n오늘 룩 맘에 들어서 박제! 😎\n\n${tagBase}`,
         `${locShort} 왔는데 여기 아시는 분? 🙋‍♀️\n다음에 또 오고 싶은데 근처 맛집 추천해주세요!\n\n${tagBase}`,
-      ];
+      ] };
     }
   }
 }
@@ -190,7 +234,7 @@ export async function planInfluencerDay(
 
   const ai = new GoogleGenAI({ apiKey });
 
-  const res = await ai.models.generateContent({
+  return runPlan(() => ai.models.generateContent({
     model: TEXT_MODEL,
     contents: `Plan 5 Instagrammable moments across a full day based on: "${routinePrompt}". Persona info: "${persona}". Ensure realistic time progression (Morning to Night).`,
     config: {
@@ -230,9 +274,7 @@ export async function planInfluencerDay(
         },
       },
     },
-  });
-
-  return JSON.parse(res.text || "[]");
+  }));
 }
 
 /**
@@ -249,7 +291,7 @@ export async function planEventVariations(
 
   const ai = new GoogleGenAI({ apiKey });
 
-  const res = await ai.models.generateContent({
+  return runPlan(() => ai.models.generateContent({
     model: TEXT_MODEL,
     contents: `Create 5 distinct and creative visual variations for this specific event: "${eventPrompt}". Ensure varied camera angles, moods (selfie, full body, detail, editorial). Persona: "${persona}".`,
     config: {
@@ -289,7 +331,5 @@ export async function planEventVariations(
         },
       },
     },
-  });
-
-  return JSON.parse(res.text || "[]");
+  }));
 }
