@@ -481,3 +481,4 @@ MOV-YVS-FAVORITES-TEST-FAKE CC-MOVIE-01 해제: acc122786 (시험 9/9·전체 72
 WS-20261118-02 A5 CC-WORKSPACE-01: Master msg_f94b90ed0f8c(Mac msg_28f272418d4a). (1) ai-work-workspace/docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md A5 (2) 별도 커밋으로 src/litpage/server/content/lectureImport/(lectureDates.ts·dedupe.ts)와 tests/integration/lectureImportPure.test.ts 수정 + IMPROVEMENTS 한 줄. API·DB·설정·화면 편집 없음, 운영·빌드·배포 없음.
 MOV-VIDEO-PENDING-RECONCILE CC-MOVIE-01(자율, Master 알림 msg_35f4699cc7b7): docs/PENDING_DEPLOYS.md에 SVS·YVS 빠진 대기 2줄 추가 + .ai/results/MOV-VIDEO-PENDING-RECONCILE-CC-MOVIE-01.md. 빌드·배포 0.
 MOV-VIDEO-PENDING-RECONCILE CC-MOVIE-01 해제: PENDING_DEPLOYS +2줄, 결과 문서 커밋.
+MOV-SVS-COMMON-PREP CC-MOVIE-01(자율, 알림 msg_e77de9b1cc59): shorts-viral-studio/src/app/layout.tsx(위젯 한 줄)·src/lib/actions/auth.ts(signOut local)·src/lib/supabase/server.ts(User-Agent)·docs/IMPROVEMENTS.md 한 줄. 빌드·배포·push 0.
