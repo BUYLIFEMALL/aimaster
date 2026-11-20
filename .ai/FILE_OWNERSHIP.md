@@ -464,3 +464,4 @@ WS-20261118-02 설계 문서 점유 해제 CC-WORKSPACE-01: 6f6459b88(새 PLAN_2
 WS-20261118-02 설계 A2 CC-WORKSPACE-01: Master msg_feea9c892bf0(Mac 독립 검수 P2·P3 보완). ai-work-workspace/docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md 한 파일만. 제품 코드·시험·공용 문서 편집 없음, 노션·운영·배포 없음.
 
 WS-20261118-02 설계 A2 점유 해제 CC-WORKSPACE-01: 2d5dff671(PLAN_20261120_NOTION_LECTURE_IMPORT.md +63/-9, 인수 조건 A1~A19, 변경표 12절). 설계만, 검수 대기.
+MOV-SVS-YVS-LOCAL-DEPS CC-MOVIE-01 해제: 결과 77987f7f2, SVS·YVS 로컬 빌드 exit 0, 결과 .ai/results/MOV-SVS-YVS-LOCAL-DEPS-CC-MOVIE-01.md (ready_review).
