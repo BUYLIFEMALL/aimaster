@@ -2,6 +2,12 @@
 
 양식: 발견 근거 · 영향 · 우선순위 · 상태 · 관련 파일 · 다음 단계. 미구현 제안을 완료로 적지 않는다.
 
+## 2026-11-20 [역할: realty] Claude(RealEstate) — Next.js 보안 패치 16.4.3 → 16.4.6 (**미배포 대기**, 주인님 「진행하고 MASTER에게 보고해」)
+
+- `next` `^16.3.5`(범위, 잠금 16.4.3) → **`16.4.6` 고정**, `eslint-config-next` 16.2.10 → 16.4.6(Next와 계열 맞춤). `package.json`·`package-lock.json`만(`lucide-react` 줄은 npm 정렬로 위치만 바뀜, 버전 같음).
+- `npm audit --omit=dev` 0건(전: moderate 7개 공지), tsc 0, 시험 131/131, `npm run build` 2회 모두 경고 없이 통과. 린트용 `unrs-resolver` 설치 후 스크립트는 npm 허용 목록 밖이라 막힘(빌드·시험 영향 없음).
+- 조사: `.ai/results/RE-NEXT-UPGRADE-READBACK-CC-REALTY-01.md`. v1.47 묶음과 함께 배포(확장 버전 맞춤 원칙 10).
+
 ## 2026-11-20 [역할: realty] Claude(RealEstate) — C-1 결과 줄 → 고객관리 「매물 후보」 (**미배포 대기**, 주인님 승인 CMD-20261120-013)
 
 - 결과 표(`app/dashboard/RecentResults.tsx`, `/results`·`/dashboard` 공통)의 새 매물·가격 변동 줄에 「🏠 후보로」 버튼. 순수 함수 `lib/deskCandidate.ts`(화이트리스트: 단지명·건물 동·거래 종류·가격·면적·층·방향 — 중개사·전화번호·특징·매물 주소·번호 없음, A6 보내는 단계), 계정 비교값 `lib/actions/handoff.ts`, 시험 `tests/deskCandidate.test.ts` 8개(`npm test` 131/131). 값은 주소에 넣지 않고 창 사이 메시지로 고객관리 주소 하나에만, 같은 계정만.
