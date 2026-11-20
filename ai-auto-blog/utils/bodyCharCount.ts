@@ -79,6 +79,10 @@ export function markdownBodyCharCount(markdown: unknown, attachments: unknown = 
     const original = typeof markdown === 'string' ? markdown : ''
     const direct = () => convertedCount(substituteAttachments(original, sources, (src) => src))
 
+    // 5차 보완(Mac msg_e76ff8708dd4): 첨부 주소 안에 표시 문자열이 들어 있으면 치환이 뒤 첨부의 표시를 새로 만든다(연쇄).
+    // 원고만 보고 센 표시 수가 틀어지므로 최적화하지 않고 서버와 같은 순서·실제 주소로 센다.
+    if (sources.some((src) => src.includes('[첨부이미지 '))) return direct()
+
     // 자리값을 쓸 첨부(일반 base64이고 원고에 표시가 있는 것)와 첨부별 자릿값
     const plan: { index: number; uses: number; weight: number }[] = []
     let spread = 1

@@ -156,6 +156,17 @@ test('첨부가 많거나 같은 표시를 여러 번 써도(자릿값 한도 �
   assert.equal(count(repeated, DB2), serverCount(repeated, DB2))
 })
 
+test('5차 반례 — 첨부 주소가 뒤 첨부의 표시를 새로 만드는 연쇄 치환도 서버 변환과 같은 숫자', () => {
+  const chain = (inner) => `<img src="data:image/svg+xml;utf8,<svg>${inner}</svg>"><img src="${IMG(40)}"><img src="${IMG(700)}">`
+  for (const inner of [`${M(2)}`, `${M(2)} ${M(3)}`, `${M(3)}${M(3)}`, `${M(2)} ${M(2)}`, `글 ${M(2)} *강조*`, `${M(1)}`]) {
+    const db = chain(inner)
+    // 마지막 두 원고: 연쇄로 늘어난 2번 표시 횟수가 3번 첨부의 자릿값으로 잘못 풀리던 조합(이전 판 불일치)
+    for (const md of [`앞 ${M(1)} 뒤`, `${M(1)} 그리고 ${M(2)}`, `![그림](${M(1)})\n\n${M(3)}`, `${M(2)} ${M(1)} ${M(3)} ${M(1)}`, `본문만`, `${M(1)} ${M(2)} ![a](${M(3)})`, `${M(1)} 글 ${M(2)}\n\n![a](${M(3)})\n\n끝`]) {
+      assert.equal(count(md, db), serverCount(md, db), `${inner} / ${md.slice(0, 30)}`)
+    }
+  }
+})
+
 test('긴 원고 + 큰 첨부: 서버 변환과 같은 숫자이고, 큰 주소를 변환기에 넣지 않아 빠르다', () => {
   const bigDb = `<img src="${IMG(500000)}"><img src="${IMG(300000)}">` // 약 2MB·1.2MB 주소
   const body = Array.from({ length: 400 }, (_, i) => `## 소제목 ${i}\n\n**강조** 문장 가나다 라마 [링크](https://example.com/${i})\n\n- 항목 ${i}`).join('\n\n')
