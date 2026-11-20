@@ -513,3 +513,4 @@ WS-20261118-02 응답 투영·미리보기 표식 점유 해제 CC-WORKSPACE-01:
 MOV-ONESTOP-LAYOUT-NOTICE CC-MOVIE-01 해제: f874762f9 (tsc 0·93/93).
 
 WS-20261118-02 표식 만료 P3 CC-WORKSPACE-01: Master msg_9ae7230258d4(Mac msg_487aac845d7b). ai-work-workspace/src/litpage/server/content/lectureImport/previewToken.ts(발급 시 만료 시각 검증)·tests/integration/lectureImportPreviewToken.test.ts·docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md 5-1절(현재 코드 동작 기준)·IMPROVEMENTS. API·DB·env 편집 없음, 운영·빌드 없음.
+MOV-SVS-PROMPT-COPY-ALL CC-MOVIE-01(자율): shorts-viral-studio/src/lib/promptCopy.ts(새)·src/components/studio/PromptsStep.tsx·tests/promptCopy.test.mjs(새)·docs/IMPROVEMENT_BACKLOG.md·docs/IMPROVEMENTS.md·package.json(test 목록에 필요 시) + docs/PENDING_DEPLOYS.md SVS 줄. 빌드·배포 0.
