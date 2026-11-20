@@ -10,9 +10,10 @@ import { OptimizeView } from "@/components/studio/OptimizeView";
 import { HistoryView } from "@/components/studio/HistoryView";
 import { ResearchView } from "@/components/studio/ResearchView";
 import { StyleView } from "@/components/studio/StyleView";
+import type { ExtensionLinkStatus } from "@/lib/extensionLinkStatus";
 
 // 2026-10-17 파일 나누기: 상태·처리 함수는 useStudio, 화면 5개는 components/studio/*View.tsx로 옮김(동작 변경 없음)
-export default function StudioPage({ email }: { email: string }) {
+export default function StudioPage({ email, extensionLink = null }: { email: string; extensionLink?: ExtensionLinkStatus | null }) {
   const s = useStudio();
   const { activeMenu, message, history, categoryManageOpen, setCategoryManageOpen, seoCategories, saveSeoCategories, openMenu, historyCategoryCounts } = s;
 
@@ -30,7 +31,7 @@ export default function StudioPage({ email }: { email: string }) {
           <div className="account" title={email}>👤 {email}</div>
         </div>
 
-        {activeMenu === "dashboard" && <DashboardView s={s} />}
+        {activeMenu === "dashboard" && <DashboardView s={s} extensionLink={extensionLink} />}
 
         {activeMenu === "title" && <TitleView s={s} />}
 

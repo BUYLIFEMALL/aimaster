@@ -2,9 +2,11 @@
 
 // StudioPage에서 옮긴 「dashboard」 화면 (2026-10-17 파일 나누기, 화면·동작 변경 없음)
 import type { Studio } from "./useStudio";
+import { extensionLinkLabel, type ExtensionLinkStatus } from "@/lib/extensionLinkStatus";
 
-export function DashboardView({ s }: { s: Studio }) {
+export function DashboardView({ s, extensionLink = null }: { s: Studio; extensionLink?: ExtensionLinkStatus | null }) {
   const { titleRecommendations, history, openMenu, loadTitleRecommendation, reuseDraft, completedInputCount } = s;
+  const link = extensionLinkLabel(extensionLink);
   return (
     <section className="dashboard-overview" id="dashboard">
           <section className="dashboard-intro card">
@@ -14,6 +16,10 @@ export function DashboardView({ s }: { s: Studio }) {
               <button type="button" className="btn-3d-blue px-5 py-3 rounded-xl text-sm font-bold shadow-md cursor-pointer" onClick={() => openMenu("title")}>🔎 제목 추천 시작</button>
               <button type="button" className="btn-3d-green px-6 py-3 rounded-xl text-sm font-bold shadow-md cursor-pointer" onClick={() => openMenu("new-draft")}>📝 새 글 만들기</button>
             </div>
+            <p className="dashboard-extension-link" data-connected={link.connected ? "true" : "false"}>
+              🔌 {link.text}{" "}
+              {!link.connected && <a href="/settings">설정으로 이동 →</a>}
+            </p>
           </section>
           <div className="dashboard-stats" aria-label="콘텐츠 제작 통계">
             <div><strong>{history.length}</strong><span>생성한 블로그(원문)</span></div>
