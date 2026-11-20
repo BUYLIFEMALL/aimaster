@@ -517,3 +517,4 @@ MOV-SVS-PROMPT-COPY-ALL CC-MOVIE-01(자율): shorts-viral-studio/src/lib/promptC
 MOV-SVS-PROMPT-COPY-ALL CC-MOVIE-01 해제: ae5793f8f (tsc 0·새 시험 4/4·17/17, package.json 미변경).
 
 WS-20261118-02 표식 만료 P3 점유 해제 CC-WORKSPACE-01: 모듈 3b8dd71d2(previewToken.ts 발급 시 만료 검증·lectureImportPreviewToken.test.ts 13개·IMPROVEMENTS) · 문서 aeefb7b7a(PLAN 5-1-1·A17·18절). API·DB·env 무변경, 호출처 0. CX-QA-01 검수 대기.
+MOV-SVS-SPEECH-ESTIMATE CC-MOVIE-01(자율, 알림 msg_523e20669db0): shorts-viral-studio/src/lib/speechEstimate.ts(새)·src/components/studio/ScriptStep.tsx·tests/speechEstimate.test.mjs(새)·docs/IMPROVEMENT_BACKLOG.md·docs/IMPROVEMENTS.md + docs/PENDING_DEPLOYS.md SVS 줄. 빌드·배포 0.
