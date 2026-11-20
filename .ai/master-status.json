@@ -6979,20 +6979,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-20T00:01:20.094Z",
+      "at": "2026-11-20T00:30:45.808Z",
       "timezone": "Asia/Seoul",
-      "trigger": "09:00 Orca 수신 msg_2884588bb6e9",
-      "scope": "08:30 이후 담당 12명 체크포인트·전체 작업표·Master 요청함·점유·미배포·Git·인수인계·Sub와 MacMini 연결 대조",
+      "trigger": "09:30 Orca 수신 msg_2aca7824263f",
+      "scope": "09:00 점검 이후 전체 작업표·담당 12명 체크포인트·Master 요청함·점유·미배포·Git·결과/인수인계·Controller 활동 로그 증분 대조",
       "evidence": [
-        "09:00 예약 전송 및 기존 Master 터미널 직접 수신 확인.",
-        "e1ff51d9d 이후 신규 커밋·결과·인수인계·관리자 요청 없음.",
-        "MacMini QA 등록 터미널 연결 확인. 기존 이커머스 독립 검수 수락·착수 근거 미회수. Sub는 remote_runtime_unavailable로 B2B 두 담당의 실제 상태 미확인.",
-        "전체 380건 중 진행 4·검수 8·순번 6·사람 대기 15."
+        "09:30 예약 전송 수락과 기존 Master 터미널 직접 수신 확인.",
+        "f76e0002f 이후 신규 커밋·결과·인수인계·역할 기록·점유·미배포표 변경 없음. Master 요청함 0건, Controller 신규 활동 기록 없음.",
+        "전체 380건 중 진행 4·검수 8·순번 6·사람 대기 15. 기존 전달 6개 역할의 실제 수락·착수 근거는 미회수."
       ],
-      "judgment": "신규 증거와 승인 없음. 기존 배정 유지, 중복 발송 0.",
+      "judgment": "기존 작업과 배정 유지. 신규 배정·중복 발송 0.",
       "nextAction": "Master는 MacMini QA의 기존 검수 수락·결과 회수, Sub는 연결 복구 뒤 B2B 기존 배정 상태 확인. 0076은 적용 도구 권한, Workspace v1.64는 배포 승인, 570쪽 ZIP은 주인님 실제 시험 신호 뒤 재개.",
       "unverified": [
-        "기존 전달 건의 실제 착수·수락, Sub 담당별 작업 상태, 운영 SQL·배포·실화면."
+        "현재 원격 연결 상태는 이번 회차에 재조회하지 않음. 09:00 당시 MacMini 연결, Sub 무응답.",
+        "기존 전달 건의 수락·실제 착수, 운영 SQL·배포·실화면."
       ]
     },
     "notifications": [
