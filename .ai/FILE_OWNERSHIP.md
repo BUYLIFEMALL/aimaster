@@ -471,3 +471,5 @@ MOV-SVS-YVS-DEPS-RECORD CC-MOVIE-01 해제: 두 IMPROVEMENTS 각 +1줄, 결과 �
 WS-20261118-02 설계 A3 CC-WORKSPACE-01: Master msg_835e76b4ae3c(잠금 선례 정정·공간 행 직렬화·HMAC 전용 키 옵션·Mac A2 msg_a54722f66247 반영). ai-work-workspace/docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md 한 파일만. 제품·운영·비밀값·환경변수·배포 변경 없음.
 
 WS-20261118-02 설계 A3 점유 해제 CC-WORKSPACE-01: c75524c63(PLAN_20261120_NOTION_LECTURE_IMPORT.md +92/-17, 변경표 13절). 설계만, Mac 재검수 대기. 환경변수·비밀값·제품 변경 0.
+
+WS-20261118-02 A4 CC-WORKSPACE-01: Master msg_743d6b2a9b47. (1) ai-work-workspace/docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md A4 보완 (2) 별도 커밋으로 새 순수 모듈 ai-work-workspace/src/litpage/server/content/lectureImport/(엄격 CSV·날짜/서머타임·중복 키 — 새 파일만)와 새 시험 tests/integration/lectureImportPure.test.ts. 기존 CSV 진입점(csv.ts)·import.ts·API·DB·화면·환경변수 편집 없음, 운영·노션·빌드·배포 없음.
