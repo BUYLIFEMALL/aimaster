@@ -3666,3 +3666,26 @@ DB: 해당 없음(읽기만) · 배포: 해당 없음
 - 비용: 없음.
 
 - (정정 기록) §14-BE ⑤의 첫 항목·④의 14번·16번을 2026-11-19 Mac 재검(c1c5c92e5, `.ai/results/AIF-20261119-D2-IT-CX-QA-01.md`)에 따라 고쳤다. 후보·원복 SQL과 시험은 바꾸지 않았다(문서만). Mac 판정: 원복 사전 확인의 인자·반환 칸·지문 네 개가 적용 파일 본문에서 독립 계산한 값과 일치, CR 정규화 일치, P2 해소.
+
+### 14-BF. 운영 사전 읽기 결과와 적용 회차용 읽기 전용 확인 조회문 (2026-11-20, Master `msg_c28c7880ae9b`·`msg_b591ba3ffe3d`)
+
+**① 운영 사전 읽기(2026-11-20, ref `esgxyikcnnvmlhygjkth`, 읽기 전용 조회만 — 쓰기 0)**
+- 주인님 승인(채팅): 「운영 DB SQL 실행 범위 승인할게 진행해」(R1, 요청함 `856c382d…` 승인완료) · 「진행해」(한도 판정 수정 SQL의 운영 적용도 승인으로 해석해 Master에 보고 `msg_96b632a1c3ba`). 실 cron·빌드·배포는 포함되지 않는다.
+- R1: `aif_member_scheduler` 1행·소유자 `postgres`·새 칸 0·같은 이름의 표/함수 0. `apply_migration` 1회 시도는 도구 확인 창이 10분 만료로 **실행되지 않았다**(재조회: 새 칸 0·표 0·함수 0 = 운영 무변경).
+- 한도 판정(§14-BD ③ 1~9, §14-BE ④ 10~17): 1~8·10·12·13·15 PASS / 14 정적 PASS·동작 NOT_RUN / 9·16 NOT_RUN(적용 뒤에만 가능) / 11 BLOCKED(공유 DB 순번) / 17 준비됨.
+  - 운영 세 함수의 본문 지문(CR 제거 md5)이 저장소 `20261118120000_aif_assets_a1.sql`과 일치: estimate `dbad09c5…`·precheck `99ba7931…`·reserve `22000b61…`. 중앙 `member_storage_policy` 지문 `1fcda993…` = 루트 0068.
+  - 소유자 셋 다 `postgres`, 실행 권한은 `postgres`·`service_role`뿐, 스냅샷 함수 이름 미사용. 참고 수치: `aif_assets` 9행·`aif_asset_deletions` 0행·`member_storage_usage` 19행.
+- 공유 DB 순번(Master `msg_b591ba3ffe3d`): 쇼핑몰 0076 적용 완료, 0077 사전 확인 PASS·미적용. 한도 → R1 운영 쓰기와 순번·마이그레이션 이름은 **Master 해제 전 대기**.
+
+**② 적용 회차용 읽기 전용 확인 조회문(새 파일 2개 — 후보·원복 파일은 바꾸지 않았다)**
+- `ai-influencer-studio/tests/sql/candidates/aif_quota_state_postcheck.sql`: 한 줄(jsonb). `state` = candidate / original / mixed, `candidate_ok`·`original_ok`, 함수별 지문·소유자·권한·표식, 스냅샷 함수를 부르는 함수 목록.
+- `ai-influencer-studio/tests/sql/candidates/aif_r1_scheduler_postcheck.sql`: 한 줄(jsonb). `state` = applied / not_applied / partial, `applied_ok`(두 칸 모양·두 표의 행 단위 보안·정책 0·API 역할 표 권한 0·함수 7개의 소유자 권한 실행·검색 경로·실행 권한·같은 머리글 함수 수·색인 2·제약·연쇄 삭제 참조), 기존 표 행 수.
+- 쓰임: 적용 직전(= 기대 `original`/`not_applied`) → 적용 직후(= 기대 `candidate`/`applied` + `*_ok` 참) → 원복했다면 그 뒤. 같은 조회문을 세 시점에 쓴다(§14-BE ④ 17번).
+- 둘 다 조회 문 하나이고 행 내용·메모·회원 번호를 읽지 않는다(개수·카탈로그만).
+
+**③ 격리 시험 `tests/sql/postcheck.test.mjs`(새 파일)** — 로컬 `aww-pg-test`의 새 DB `qa_aif_postcheck_20261120`만 만들고 지움(끝난 뒤 `qa_aif_%` DB 0개 확인). 운영·공유 DB 접속 0.
+- 명령 `node --test tests/sql/postcheck.test.mjs` — 1회차 9/10(종료코드 1), 2회차 **10/10(종료코드 0)**.
+  - 1회차 실패 1건은 **시험 결함**이다: 정적 검사가 조회문 안의 권한 이름 글자 값(`'insert'`·`'update'`·`'delete'`)을 쓰는 명령으로 셌다. 따옴표 안 글자를 빼고 보도록 시험만 고쳤다(조회문 무변경).
+- 확인한 것: 적용 전 판정 → 후보 적용 뒤 판정 → 고의로 어긋나게 한 8가지(한도: 회원 역할 실행 권한·표식 없음·본문 빈칸 하나 / R1: 표 권한·관리자 함수 권한·색인 없음·정책 생김·검색 경로 다름·같은 머리글의 다른 함수)를 모두 `*_ok` 거짓으로 잡음 → R1 새 칸 하나 없음 = `partial` → 원복 뒤 판정. 모든 조회는 `begin transaction read only` 안에서 실행했다.
+- 한계: 표는 대역(쓰는 칸만), 소유자는 격리 DB의 `postgres`(상위 권한). **운영에서 이 조회문을 실행하지 않았다** — 실행은 적용 회차의 일이다. 실제 호출 동작(§14-BE ④ 14번의 동작 부분)은 여전히 NOT_RUN.
+- 비용: 없음.
