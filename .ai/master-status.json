@@ -6979,17 +6979,17 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-20T00:30:45.808Z",
+      "at": "2026-11-20T01:01:08.396Z",
       "timezone": "Asia/Seoul",
-      "trigger": "09:30 Orca 수신 msg_2aca7824263f",
-      "scope": "09:00 점검 이후 전체 작업표·담당 12명 체크포인트·Master 요청함·점유·미배포·Git·결과/인수인계·Controller 활동 로그 증분 대조",
+      "trigger": "10:00 Orca 수신 msg_6eaa598aabd1",
+      "scope": "09:30 이후 전체 작업표·담당 12명 체크포인트·Master 요청함·점유·미배포·Git·결과/인수인계 증분 대조 및 Workspace v1.60 검수 근거 재대조",
       "evidence": [
-        "09:30 예약 전송 수락과 기존 Master 터미널 직접 수신 확인.",
-        "f76e0002f 이후 신규 커밋·결과·인수인계·역할 기록·점유·미배포표 변경 없음. Master 요청함 0건, Controller 신규 활동 기록 없음.",
-        "전체 380건 중 진행 4·검수 8·순번 6·사람 대기 15. 기존 전달 6개 역할의 실제 수락·착수 근거는 미회수."
+        "10:00 예약 전송 수락과 기존 Master 터미널 수신 확인. 6669ce681 이후 새 커밋·역할 기록·결과·인수인계·점유·미배포표 변경 없음. Master 요청함 0건.",
+        "전체 380건 중 진행 4·검수 8·순번 6·사람 대기 15. 기존 전달 6개 역할의 수락·착수 근거 미회수.",
+        "Workspace v1.60의 36af44608 / dpl_DC9Bifer8U1oZ67QFRJNkaAQ1Pj6 배포 및 달력 확인 기록은 일치. 업무 현황판 폭 검수는 기존 시험 페이지 부재로 남음."
       ],
-      "judgment": "기존 작업과 배정 유지. 신규 배정·중복 발송 0.",
-      "nextAction": "Master는 MacMini QA의 기존 검수 수락·결과 회수, Sub는 연결 복구 뒤 B2B 기존 배정 상태 확인. 0076은 적용 도구 권한, Workspace v1.64는 배포 승인, 570쪽 ZIP은 주인님 실제 시험 신호 뒤 재개.",
+      "judgment": "기존 선행 조건과 배정 유지. v1.60의 부분 검수 상태 유지, 신규 배정 0.",
+      "nextAction": "Master는 기존 담당 수락·결과 회수. Sub 연결 복구 뒤 B2B 상태 확인, 0076은 적용 도구 권한, Workspace v1.64는 배포 승인, 570쪽 ZIP은 주인님 시험 신호 뒤 재개. Workspace v1.60 폭 검수는 열 수 있는 업무 현황판이 확보되면 재개.",
       "unverified": [
         "현재 원격 연결 상태는 이번 회차에 재조회하지 않음. 09:00 당시 MacMini 연결, Sub 무응답.",
         "기존 전달 건의 수락·실제 착수, 운영 SQL·배포·실화면."
