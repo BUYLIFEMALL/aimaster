@@ -80,7 +80,8 @@ alter table public.music_track_remix_variants
   add column suno_task_id text,                 -- 이 변주를 만든 Suno 작업 번호(자동 연장 단계별)
   add column lyrics text,                        -- Suno가 돌려준 곡별 가사(5000자 이내)
   add column lyrics_status text not null default 'unknown'
-    check (lyrics_status in ('provided','empty','not_applicable','unknown'));
+    check (lyrics_status in ('provided','provided_unverified','empty','not_applicable','unknown'));
+-- provided_unverified: 문서상 칸(prompt)에서 받았지만 record-info 칸 이름이 실측으로 확인되기 전(부록 표본 계획 참고)
 ```
 - 새 정책 없음(기존 본인 읽기 정책이 행 전체에 적용). 인덱스 불필요(행 단위 조회만).
 - 운영 DB 공용이라 Lab 시험 DB가 없다 → 적용은 승인 뒤 운영에 한 번, 적용 직후 칸 존재·기본값만 읽기 확인.
@@ -182,3 +183,37 @@ alter table public.music_track_remix_variants
 | M12 | 보충 조회: `record-info(T0)` 응답에 A1·A2 있고 B1 고름 | B1 일치 없음 → `unknown` 유지, A1 가사를 B1에 넣지 않음 |
 
 각 시험은 가짜 Supabase(넣은 행 기록)와 가짜 `fetch`(정해진 `record-info` 본문)로 돌리고, 행마다 `(suno_audio_id, suno_task_id, lyrics_status, lyrics 길이)`만 비교한다(가사 원문을 시험 출력에 찍지 않음).
+
+## 부록 표본 계획 (REMIX-LYRICS-FIXTURE-PLAN A1, 2026-11-20, Master `msg_5002f80c1247`)
+
+합성 표본: [`music/docs/fixtures/remix-lyrics-fixtures-20261120.json`](fixtures/remix-lyrics-fixtures-20261120.json) — 사례 22개(P0 15·P1 4·P2 3). 시험 코드·제품에 연결하지 않은 설계 자료이고, 가사 문자열은 모두 지어낸 짧은 표본이다.
+
+### 근거 등급(표본마다 표시)
+| 등급 | 뜻 | 예 |
+|---|---|---|
+| OBS | 저장소에서 실제 응답으로 관찰된 형태 | `record-info` `sunoData[]` 낙타 표기 `id`·`audioUrl`·`imageUrl`·`duration`(`music/scripts/fix-stuck-track.mjs`) |
+| CODE | 우리 코드 동작으로 정해지는 기대값 | 웹훅 `task_id` 조회(`route.ts` 107줄)·잠금(117줄)·오디오 없는 항목 건너뜀(`remixSync.ts` 59줄) |
+| DOC | 문서에만 있음 | 콜백 `data.data[].prompt` |
+| ASSUME | 근거 없는 가정 | `lyrics`·`lyric` 같은 다른 칸 이름, 지시문 변형 형태 |
+
+### 안전 규칙(설계 3절 보정)
+1. 가사 후보 칸은 문서에 있는 `prompt` 하나만. 실측으로 칸 이름이 확인되기 전에는 `provided`가 아니라 **`provided_unverified`**로 저장한다(가사 영상은 채우되 「Suno가 준 가사입니다 — 확인해 주세요」 안내).
+2. `lyrics`·`lyric` 등 추측 칸의 문자열은 저장하지 않고 `unknown` + 진단 표시만(부록 A1 1절의 「여러 이름 읽기」를 이 규칙으로 좁힘).
+3. 가사 칸이 아예 없으면 `unknown`(실측 모양 그대로 — 표본 P0-ABSENT-01).
+4. 짝은 배열 순서가 아니라 항목 `id`.
+5. 시험 비교는 (오디오 번호, 작업 번호, 상태, 가사 길이)만, 원문 미출력.
+
+### 우선순위
+| 순위 | 막아야 할 것 | 표본 |
+|---|---|---|
+| P0 | ID 짝·순서 변경·건너뛴 항목 뒤 밀림·보충 불일치 | PAIR-01~04 |
+| P0 | 미제공(칸 없음)을 empty로 오인 | ABSENT-01 |
+| P0 | 추측 칸 문자열을 가사로 확정 | GUESS-01·02 |
+| P0 | 지시문 오인(그대로·구간 표시·혼성) / 회원 가사를 지시문으로 오인 | ECHO-01~04 |
+| P0 | 연장 경합(단계별 작업 번호, 늦은 이전 단계 콜백, 같은 단계 중복 콜백, 가사 영상 작업 번호) | EXT-01~04 |
+| P1 | 빈 값·가사 없는 종류·중복 id·id 없음 | EMPTY-01, NA-01, DUP-01, NOID-01 |
+| P2 | 표기 섞임·길이 제한·언어 의심 | CASE-01, LEN-01, SUSPECT-01 |
+
+### 구현 전제(표본이 드러낸 것)
+- 웹훅이 리믹스를 읽을 때(`route.ts` 104~106줄) 지금 `mode`·`lyrics`·`task_id`를 가져오지 않는다 → 저장 단계에서 종류·지시문 판정을 하려면 이 세 칸을 함께 읽어야 한다. 수동 동기화 경로(`remix.ts` 400줄 부근)도 같다.
+- EXT-04는 현재 가사 영상 코드(`lyric-video-studio/src/lib/suno.ts` 77줄 `remix.task_id`)로는 실패하는 것이 정상이다(고친 뒤 통과해야 하는 시험).
