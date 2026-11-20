@@ -102,6 +102,32 @@ function generateHashtags(topic: string, keywords: string[], parsedJson?: Record
   return tags.join(' ')
 }
 
+// AI 응답 형식 검사(2026-11-20, Master msg_00f267650a0d): 필수 칸이 빠졌거나 글자가 아니면 기본 문구로 채워
+// 저장하지 않고 거절한다. 문단은 예전 별칭(「1문단」)도 받는다. 이미지 생성 전에 검사해 이미지 비용도 쓰지 않는다.
+const REQUIRED_POST_FIELDS: readonly (readonly string[])[] = [
+  ['제목'], ['요약글'],
+  ['소제목 1'], ['소제목 2'], ['소제목 3'], ['소제목 4'],
+  ['문단 1', '1문단'], ['문단 2', '2문단'], ['문단 3', '3문단'], ['문단 4', '4문단'],
+]
+
+export type PostJsonCheck =
+  | { ok: true; data: Record<string, string> }
+  | { ok: false; problems: string[] }
+
+export function validatePostJson(value: unknown): PostJsonCheck {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return { ok: false, problems: ['응답 전체(JSON 객체 아님)'] }
+  const source = value as Record<string, unknown>
+  const data: Record<string, string> = {}
+  const problems: string[] = []
+  for (const keys of REQUIRED_POST_FIELDS) {
+    const present = keys.map((key) => source[key]).filter((item) => item !== undefined && item !== null)
+    const text = present.find((item): item is string => typeof item === 'string' && item.trim() !== '')
+    if (text !== undefined) data[keys[0]] = text
+    else problems.push(`${keys[0]}(${present.some((item) => typeof item !== 'string') ? '글자 아님' : '비어 있음'})`)
+  }
+  return problems.length ? { ok: false, problems } : { ok: true, data }
+}
+
 async function generateWithContentModel(
   newsData: CollectedNewsResult,
   options: AutoPostOptions,
@@ -188,22 +214,26 @@ ${koreaNowRule()}
   const provider = options.contentProvider ?? DEFAULT_CONTENT_PROVIDER
   const model = resolveContentModel(provider, options.contentModel)
   console.log(`[AI Post Generator] content model: ${provider} / ${model}`)
-  const parsed = (await generateContentJson({
+  const check = validatePostJson(await generateContentJson({
     provider,
     apiKey,
     model,
     system: '당신은 대한민국 최고의 SEO 블로그 전문 에디터입니다. 요청한 JSON 형식만 출력합니다.',
     user: prompt,
-  })) as Record<string, any> // eslint-disable-line @typescript-eslint/no-explicit-any
+  }))
+  if (!check.ok) {
+    throw new Error(`AI 응답 형식이 올바르지 않아 글을 저장하지 않았습니다(빠지거나 잘못된 칸: ${check.problems.join(', ')}). 다시 생성해 주세요.`)
+  }
+  const parsed = check.data
 
   // v1.86 (BLC-12): 공용 year-policy — 제목·태그의 과거 연도는 올해로, 요약·본문은 최신 정보 표기만 올해로(과거 사실은 보존)
-  const title = sanitizeYear(parsed['제목'] || `[SEO] ${options.topic} 완벽 가이드`)
-  const excerpt = sanitizeBodyYear(parsed['요약글'] || `${options.topic}에 관한 심층 분석 리포트입니다.`)
+  const title = sanitizeYear(parsed['제목'])
+  const excerpt = sanitizeBodyYear(parsed['요약글'])
 
-  const body1Text = sanitizeBodyYear(formatReadableParagraphs(parsed['문단 1'] || parsed['1문단'] || ''))
-  const body2Text = sanitizeBodyYear(formatReadableParagraphs(parsed['문단 2'] || parsed['2문단'] || ''))
-  const body3Text = sanitizeBodyYear(formatReadableParagraphs(parsed['문단 3'] || parsed['3문단'] || ''))
-  const body4Text = sanitizeBodyYear(formatReadableParagraphs(parsed['문단 4'] || parsed['4문단'] || ''))
+  const body1Text = sanitizeBodyYear(formatReadableParagraphs(parsed['문단 1']))
+  const body2Text = sanitizeBodyYear(formatReadableParagraphs(parsed['문단 2']))
+  const body3Text = sanitizeBodyYear(formatReadableParagraphs(parsed['문단 3']))
+  const body4Text = sanitizeBodyYear(formatReadableParagraphs(parsed['문단 4']))
 
   const hashtags = sanitizeYear(generateHashtags(options.topic, keywordsList, parsed))
 
