@@ -50,7 +50,7 @@ Orca run: `run_6e348395e1fe` · runtime `4c4b684f-d0e9-4878-97d5-ce1880c55b7d` �
 | CC-B2B-BACK-01 | **--on Sub** · term_79280560-c956-4d17-8fdd-a69b3a75d164 | 인수 msg_de84ea91930f / 수락 msg_254291ca1988 / 회신 msg_21bea4cf8521 |
 | CC-REALTY-01 | term_cd6b250d-2cdd-46f0-afe4-9377727d845d | REQ-STATUS-REALTY-01 msg_8f653629169e |
 | CC-MOVIE-01 | term_822b9d91-9a25-4d57-9c29-d69fc6de3d88 | IDENT msg_d5f24f5538d7 / 결과 msg_86b54902fdf7 |
-| CC-B2B-FRONT-01 | **--on Sub** · term_b394f9a9-06c6-4706-b4b3-610f648453ff | 인수 msg_1cc34028b4d9 / 전달 msg_46d9e2cb9bb4 |
+| CC-B2B-FRONT-01 | **--on Sub** · term_702b4152-b2bc-4152-835f-0c8b3c5a1d67 | 인수 msg_1cc34028b4d9 / 전달 msg_46d9e2cb9bb4 · 2026-11-20 현재 주소 msg_4192a6fa2aaf, Sub 연결 확인 |
 | CC-WORKSPACE-01 | term_d62d586f-e201-4b83-8d7b-8bace6a06049 | IDENT msg_ee909437f911 / 구현 msg_31beb6fd1c34 |
 | CC-BLOG-01 | term_78415ab7-52b8-49a9-adbf-c6450509ec54 | IDENT msg_196120a86386 / 결과 msg_b64aa460031c |
 | CC-SNS-01 | term_46946865-f9aa-4e38-a14f-daa1f320dd41 | 새 주소 확인 msg_ab5b76ba2021 / D1 후보 범위 msg_fe0626fbf3a1 |
