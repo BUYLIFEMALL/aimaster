@@ -4,6 +4,7 @@ import { trackMemberJobs } from "@/server/memberJobs";
 import { afterRpc } from "@/server/memberScheduling";
 import { checkProgramAccessApi } from "@/lib/access";
 import { runRpc } from "@/server/runtime";
+import { isReadOnlyMemberRpc } from "@/server/readOnlyRpcs";
 import { memberFromUser } from "@/server/member";
 import { createClient } from "@/lib/supabase/server";
 import { loadMemberAiKeys } from "@/server/memberAiKeys";
@@ -51,6 +52,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     body = text ? JSON.parse(text) : {};
   } catch {
     return NextResponse.json({ name: "ValidationError", message: "Invalid JSON" }, { status: 400 });
+  }
+  // 2026-11-20 WS-LECTURE-PREVIEW-ONLY A2: DB에 쓰지 않는 읽기 전용 명령(강의 일정 미리보기)은 인증·권한·계정 확인은 위와 같고,
+  // 회원 AI 키 조회·모델 목록 예열(외부 호출)·정시 작업 추적·응답 뒤 afterRpc(쓰기 가능)를 하지 않는다. 다른 명령은 아래 그대로.
+  if (isReadOnlyMemberRpc(name)) {
+    const ro = await runRpc(name, body, memberFromUser(access.user), request.headers.get("x-lit-client-id") ?? undefined);
+    return NextResponse.json(koErrorBody(ro.status, ro.body), { status: ro.status, headers: { "Cache-Control": "private, no-store" } });
   }
   // U3: 이 요청 동안(요청 뒤 이어지는 자동 채우기 포함) 회원 본인 AI 키만 쓴다. 키 확인 실패 시 AI만 꺼진 상태로 진행
   const aiKeys = await loadMemberAiKeys(access.user.id).catch(() => ({}));

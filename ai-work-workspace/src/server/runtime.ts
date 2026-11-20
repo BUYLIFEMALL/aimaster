@@ -32,6 +32,7 @@ import './agentRuns'; // U12: 에이전트 백그라운드 실행을 주인 회�
 import { notifyPrefHandlers } from './externalNotify';
 import { aiModelPrefHandlers } from './aiModelPrefs'; // 2026-11-13: 자동화 알림·리마인더를 회원 본인 메일·카카오톡으로도(불러오면 바로 설치됨)
 import { publicErrorFields } from '@/litpage/server/content/lectureImport/publicError.ts';
+import { READ_ONLY_MEMBER_RPCS } from './readOnlyRpcs';
 import { searchPrefHandlers } from './searchPrefs'; // 2026-11-15 AI 비서 검색 도구 고르기
 
 type Handler = (ctx: Ctx, body: any) => any | Promise<any>;
@@ -182,7 +183,7 @@ const IMPORT_RPCS = new Set(['importFiles', 'previewCsv', 'mergeCsv', 'previewLe
  * 메인 사이트 이름을 읽지 않고, 이미 준비된 회원인지만 읽어서 확인한다. 준비되지 않은 회원은 403(평소 권한 오류와 같은 모양)으로 거절한다 —
  * 이 명령이 회원을 만들어 주지 않으므로, 워크스페이스를 한 번 열면(다른 명령) 준비된다. 다른 명령은 예전과 같다.
  */
-const READ_ONLY_MEMBER_RPCS = new Set(['previewLectureImport']);
+// 목록은 ./readOnlyRpcs.ts(진입점과 함께 씀)
 
 /**
  * 시험 전용 주입(강의 일정 미리보기): 서명 키·응답 예산. 운영 코드는 부르지 않는다 — 운영에서는 둘 다 비어 있어

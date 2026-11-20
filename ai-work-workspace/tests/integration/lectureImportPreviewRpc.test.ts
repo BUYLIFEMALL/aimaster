@@ -81,9 +81,9 @@ async function zeroWrites<T>(fn: () => Promise<T>): Promise<T> {
 }
 
 /** importFiles로 「제목·날짜」 표를 만들고 블록 id와 행들을 돌려준다(시험 준비 — 미리보기 밖) */
-async function makeTable(m: M, rows: string[][]) {
-  const f = store(m, '기존 표.csv', 'Name,Date\n' + rows.map((r) => r.join(',')).join('\n') + '\n');
-  const r = await runtime.runRpc('importFiles', { spaceId: sp(m), parent: { kind: 'private' }, files: [{ name: '기존 표.csv', url: f.url }], csvTypes: { 1: 'date' } }, m);
+async function makeTable(m: M, rows: string[][], head = 'Name,Date', csvTypes: Record<number, string> = { 1: 'date' }) {
+  const f = store(m, '기존 표.csv', head + '\n' + rows.map((r) => r.join(',')).join('\n') + '\n');
+  const r = await runtime.runRpc('importFiles', { spaceId: sp(m), parent: { kind: 'private' }, files: [{ name: '기존 표.csv', url: f.url }], csvTypes }, m);
   expect(r.status).toBe(200);
   const blockId = (r.body as any).pageIds[0] as string;
   const block = db.withRequestCache(() => db.getRecord<any>('block', blockId));
@@ -161,18 +161,29 @@ describe('previewLectureImport — 요청 형식·권한·파일 소유', () => 
     expect(ratelimit.count(`lecture-preview:${kim.id}`, 600_000)).toBe(0);
   });
 
-  it('남의 파일 · 없는 파일 · 모양이 틀린 주소: errorId를 뺀 응답이 모두 같다(404), 0쓰기', async () => {
-    const leeFile = store(lee, 'lee.csv', csvOf(lessons(1)));
-    const urls = [leeFile.url, 'https://x.test/files/00000000-0000-4000-8000-000000000000/lecture.csv', 'not-a-file-url'];
+  it('남의 파일 · 올린 사람이 없는 파일 · 올리는 중인 파일 · 없는 파일 · 모양이 틀린 주소: errorId를 뺀 응답이 모두 같다(404), 파일 이름·경로·내용 미노출, 0쓰기', async () => {
+    const leeFile = store(lee, 'lee-secret-name.csv', csvOf([['비밀 내용 줄', '2026년 3월 1일']]));
+    const ownerless = db.withRequestCache(() => files.storeFile('ownerless-secret-name.csv', Buffer.from(csvOf([['비밀 내용 줄', '2026년 3월 1일']])), null as unknown as string, sp(kim), 'text/csv'));
+    const pending = store(kim, 'pending-secret-name.csv', csvOf([['비밀 내용 줄', '2026년 3월 1일']]));
+    db.db.prepare('UPDATE files SET pending = 1 WHERE id = ?').run(pending.id);
+    const urls = [leeFile.url, ownerless.url, pending.url, ownerless.id, 'https://x.test/files/00000000-0000-4000-8000-000000000000/lecture.csv', 'not-a-file-url'];
     const bodies = [];
     for (const url of urls) {
       const r = await zeroWrites(() => preview(kim, base(kim, url)));
       expect(r.status).toBe(404);
       bodies.push(noId(r.body));
     }
-    expect(bodies[1]).toEqual(bodies[0]);
-    expect(bodies[2]).toEqual(bodies[0]);
-    expect(JSON.stringify(bodies[0])).not.toContain(leeFile.id);
+    for (const b of bodies) expect(b).toEqual(bodies[0]);
+    expect(keysOf(bodies[0])).toEqual(['message', 'name']);
+    const text = JSON.stringify(bodies);
+    for (const leak of [leeFile.id, ownerless.id, pending.id, 'secret-name', '비밀 내용', 'files/']) expect(text).not.toContain(leak);
+  });
+
+  it('기존 다른 명령은 그대로: previewCsv는 올린 사람이 없는 파일을 예전처럼 읽는다', async () => {
+    const ownerless = db.withRequestCache(() => files.storeFile('ownerless.csv', Buffer.from('Name,Note\nA,b\n'), null as unknown as string, sp(kim), 'text/csv'));
+    const r = await runtime.runRpc('previewCsv', { spaceId: sp(kim), url: ownerless.url, name: 'ownerless.csv' }, kim);
+    expect(r.status).toBe(200);
+    expect((r.body as any).rows).toBe(1);
   });
 });
 
@@ -247,6 +258,27 @@ describe('previewLectureImport — 기존 표의 중복 근거', () => {
     const liveId = t.rowIds.find((id) => id !== trashedId);
     expect(b.dupOf.filter((x: unknown) => typeof x === 'string')).toEqual([liveId]);
     expect(JSON.stringify(b)).not.toContain(trashedId);
+  });
+
+  it('날짜 속성이 모호하면 몰래 「비교 행 없음」으로 계산하지 않고 400(공개 코드 없음) — 파일을 읽기 전, 한도를 세지 않음, 0쓰기', async () => {
+    const two = await makeTable(kim, [['두 날짜', '2026-06-01', '2026-06-02']], 'Name,Start,End', { 1: 'date', 2: 'date' });
+    const none = await makeTable(kim, [['날짜 없음', '메모']], 'Name,Note', { 1: 'text' });
+    const missing = 'https://x.test/files/00000000-0000-4000-8000-000000000000/a.csv';
+    const bodies = [];
+    for (const [t, date] of [[two, 'Date'], [none, 'Date'], [none, 'Note']] as const) {
+      const r = await zeroWrites(() => preview(kim, base(kim, missing, { target: { kind: 'table', blockId: t.blockId }, mapping: { title: '제목', date } })));
+      expect(r.status, `${date}`).toBe(400); // 없는 파일 주소인데 404가 아니다 = 파일을 읽기 전에 멈춤
+      expect(keysOf(r.body)).toEqual(['errorId', 'message', 'name']);
+      bodies.push(noId(r.body));
+    }
+    for (const b of bodies) expect(b).toEqual(bodies[0]);
+    expect(ratelimit.count(`lecture-preview:${kim.id}`, 600_000)).toBe(0);
+    // 같은 이름이 하나면 그 속성으로 비교한다(날짜 속성이 둘이어도)
+    const f = store(kim, 'two.csv', csvOf([['두 날짜', '2026년 6월 1일']], ['제목', 'Start']));
+    const ok = await zeroWrites(() => preview(kim, base(kim, f.url, { target: { kind: 'table', blockId: two.blockId }, mapping: { title: '제목', date: 'Start' } })));
+    expect(ok.status).toBe(200);
+    expect((ok.body as any).totals).toMatchObject({ rows: 1, duplicate: 1 });
+    expect((ok.body as any).dupOf.filter((x: unknown) => typeof x === 'string')).toEqual([two.rowIds[0]]);
   });
 
   it('키 있음 + 기존 표: 표식의 구조 지문은 그 표의 열·보기로 만들어진다', async () => {

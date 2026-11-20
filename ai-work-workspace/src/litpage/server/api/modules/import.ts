@@ -23,7 +23,7 @@ import { parseMarkdown } from '../../content/markdown.ts';
 import { parseHtml } from '../../content/html.ts';
 import { CSV_COLUMN_TYPES, csvToDb, inferColumnType, parseCsv, parseDateCell, rowsToDb } from '../../content/csv.ts';
 import { readZip, type ZipEntry } from '../../content/zip.ts';
-import { fileIdFromUrl, fileRow, readStoredFile, storeFile, mimeFor } from '../../content/files.ts';
+import { fileIdFromUrl, fileRow, readFileContent, readStoredFile, storeFile, mimeFor } from '../../content/files.ts';
 import { docxToSpecs } from '../../content/docx.ts';
 import { pdfToSpecs } from '../../content/pdf.ts';
 import { opmlToSpecs, tsvToRows, xlsxToRows } from '../../content/sheets.ts';
@@ -600,14 +600,9 @@ function dateOfCell(rt: unknown): DateValue | undefined {
 
 /**
  * 대상 표에서 중복 판정에 쓸 기존 행(§19-4): 이 회원에게 보이는 살아 있는 행만(`visibleRows` — 휴지통·템플릿·가려진 행 제외,
- * 가려진 속성은 지워진 채). 날짜 속성은 날짜 열 이름과 같은 이름의 날짜 속성, 없으면 표에 날짜 속성이 하나뿐일 때 그것.
- * 둘 다 아니면 비교할 행이 없다(빈 배열). 제목이나 날짜 값이 없는 행은 넣지 않는다 — 값의 옳고 그름은 순수 모듈이 다시 본다.
+ * 가려진 속성은 지워진 채). 날짜 속성은 `lectureDateProp`이 정한 것. 제목이나 날짜 값이 없는 행은 넣지 않는다 — 값의 옳고 그름은 순수 모듈이 다시 본다.
  */
-function lectureExistingRows(col: CollectionRecord, dateColumnName: string, uid: string): ExistingRow[] {
-  const dates = Object.entries(col.schema ?? {}).filter(([, p]) => p?.type === 'date');
-  const named = dates.filter(([, p]) => String(p.name ?? '').trim() === dateColumnName.trim());
-  const dateProp = named.length === 1 ? named[0][0] : dates.length === 1 ? dates[0][0] : null;
-  if (!dateProp) return [];
+function lectureExistingRows(col: CollectionRecord, dateProp: string, uid: string): ExistingRow[] {
   const out: ExistingRow[] = [];
   for (const row of visibleRows(col.id, uid)) {
     const props = (row.properties ?? {}) as Record<string, unknown>;
@@ -617,6 +612,44 @@ function lectureExistingRows(col: CollectionRecord, dateColumnName: string, uid:
     out.push({ id: row.id, title, value });
   }
   return out;
+}
+
+/**
+ * 대상 표에서 중복 비교에 쓸 날짜 속성(2026-11-20 A2, Master `msg_e9dda18e3075`): 날짜 열 이름과 같은 이름의 날짜 속성이 **정확히 하나**면 그것,
+ * 같은 이름이 하나도 없고 표의 날짜 속성이 **하나뿐**이면 그것. 그 밖(같은 이름이 둘 이상·날짜 속성이 없음·여럿인데 이름이 안 맞음)은
+ * 몰래 「비교할 행 없음」으로 계산하지 않고 400(공개 코드 없음, 고정 안내)으로 멈춘다. 직접 고르는 화면은 별도 단위.
+ */
+const LECTURE_DATE_AMBIGUOUS = '대상 표에서 비교할 날짜 열을 하나로 정할 수 없습니다. 날짜 열 이름을 표의 날짜 속성 이름과 같게 맞추거나 날짜 속성이 하나뿐인 표를 골라 주세요.';
+function lectureDateProp(col: CollectionRecord, dateColumnName: string): string {
+  const dates = Object.entries(col.schema ?? {}).filter(([, p]) => p?.type === 'date');
+  const named = dates.filter(([, p]) => String(p.name ?? '').trim() === dateColumnName.trim());
+  if (named.length === 1) return named[0][0];
+  if (named.length === 0 && dates.length === 1) return dates[0][0];
+  throw new ApiError(LECTURE_DATE_AMBIGUOUS, 400);
+}
+
+/**
+ * 미리보기가 읽는 올린 파일(2026-11-20 A2): **정확히 이 회원이 올렸고 올리기를 끝낸** 파일만. 올린 사람이 비어 있는 파일·남의 파일·
+ * 올리는 중인 파일·없는 파일·모양이 틀린 주소는 모두 같은 404·같은 문구(파일 이름·경로·내용을 싣지 않는다).
+ * 공용 `uploadOf`·`readStoredFile`은 올린 사람이 비어 있는 파일도 통과시키므로 이 명령만 따로 검증한다(다른 명령은 그대로).
+ * Storage에 둔 큰 파일은 기존 `storedUpload`(소유·완료·경로·크기 재확인, 큰 파일 읽기 한도)로 읽는다.
+ */
+const LECTURE_FILE_NOT_FOUND = '올린 파일을 찾을 수 없습니다. 파일을 다시 올려 주세요.';
+async function lectureUpload(url: string, name: string, uid: string, space: SpaceRecord, ctx: Ctx): Promise<{ id: string; data: Buffer }> {
+  const notFound = () => new ApiError(LECTURE_FILE_NOT_FOUND, 404);
+  const id = fileIdFromUrl(url) ?? (UUID.test(url) ? url : null);
+  const row = id ? fileRow(id) : undefined;
+  if (!row || typeof row.user_id !== 'string' || row.user_id !== uid || row.pending) throw notFound();
+  const max = maxBytesFor(space, name);
+  if (row.storage_path) {
+    const f = await storedUpload(row.id, name, uid, max, ctx, new Set());
+    if (!f) throw notFound();
+    return { id: row.id, data: f.data };
+  }
+  const data = readFileContent(row.id);
+  if (!data) throw notFound();
+  if (data.length > max) throw new ApiError(`${Math.round(max / MB)} MB보다 큰 파일은 가져올 수 없습니다.`, 413);
+  return { id: row.id, data };
 }
 
 const lectureStructure = (block: BlockRecord | undefined, col: CollectionRecord | undefined): PreviewStructure =>
@@ -769,14 +802,15 @@ export const handlers: Record<string, Handler> = {
     // 2. 공간 구성원 → 대상 표 편집 권한(파일을 읽기 전에). 다른 공간의 표는 볼 수 없는 표와 같은 404
     const space = spaceOrThrow(req.spaceId, uid);
     if (req.target.kind === 'table') {
-      const { block } = databaseOrThrow(req.target.blockId, uid);
+      const { block, col } = databaseOrThrow(req.target.blockId, uid);
       if (block.space_id !== space.id) throw new ApiError('Not found', 404);
+      lectureDateProp(col, req.mapping.date); // 모호하면 파일을 읽기 전에 400
     }
     // 3. 미리보기 전용 요청 한도(권한을 통과한 요청만 센다 — 메모리 카운터, DB 쓰기 아님)
     if (!hit(`lecture-preview:${uid}`, LECTURE_PREVIEW_LIMIT.max, LECTURE_PREVIEW_LIMIT.windowMs)) throw new RateLimitError('미리보기를 짧은 시간에 너무 많이 했습니다. 잠시 후 다시 시도해 주세요.');
-    // 4. 올린 파일 읽기(소유·완료·경로·크기 — 남의 파일은 없는 파일과 같은 404) → 내용 해시
-    const { file } = await uploadOf({ url: req.url, name: req.name }, uid, space, ctx);
-    const fileId = fileIdFromUrl(req.url) ?? (UUID.test(req.url) ? req.url : '');
+    // 4. 올린 파일 읽기 — 정확히 이 회원·올리기 완료만(그 밖은 모두 같은 404) → 내용 해시
+    const file = await lectureUpload(req.url, req.name, uid, space, ctx);
+    const fileId = file.id;
     // 5. 파일을 읽는 동안 권한이 빠졌으면 내용을 돌려주지 않는다(캐시를 거치지 않고 다시 확인), 최신 표를 읽는다
     const target = withoutRequestCache(() => {
       const sp = spaceOrThrow(req.spaceId, uid);
@@ -786,7 +820,7 @@ export const handlers: Record<string, Handler> = {
       return t;
     });
     // 6. 구조 → 행 수 → 시간대 → 열 지정 → 줄별 해석(순수 모듈)
-    const existing = target ? withoutRequestCache(() => lectureExistingRows(target.col, req.mapping.date, uid)) : [];
+    const existing = target ? withoutRequestCache(() => lectureExistingRows(target.col, lectureDateProp(target.col, req.mapping.date), uid)) : [];
     const judged = assembleLectureImport({ csv: decodeText(file.data), mapping: req.mapping, timeZone: req.timeZone, wallClock: req.wallClock, existing });
     if (!judged.ok) throw lectureFileError(judged.error);
     // 7. 서명 키가 있으면 표식 → 최종 본문으로 예산 확인. 32바이트 미만 키는 없는 키와 같다(표식 없이 판정만)
