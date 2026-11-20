@@ -569,3 +569,27 @@ alter table public.music_track_remix_variants
 - 문제: 형식만 맞는 임의 코드(400/`EDGE1`, 404/`PGRST999`)가 확정 거절로 분류됨.
 - 정정: `CONFIRMED_REJECTIONS` 명시 목록의 (status, code)만 확정 거절 — 403·401/`42501`, 409/`23503`·`23505`, 404/`42P01`·`42883`, 400/`PGRST204`, 400/`42703`. 근거: [PostgREST v12 errors](https://docs.postgrest.org/en/v12/_sources/references/errors.rst.txt)(2026-11-20 원본 확인), `42703`은 문서 「other → 400」+ 저장소 실측(`docs/ERROR_LESSONS.md` 2737줄). 「other → 400」에만 기대는 코드(`22P02`·`23514`)와 단건 응답 `PGRST116`은 넣지 않음, 목록 코드라도 다른 상태면 미확정.
 - 시험: 경계 2개·목록 밖 조합·상태 불일치 → 미확정, 목록 8조합 → 거절, 목록을 넓히면 깨지는 고정 시험. 전후: 직전 `fcab35748` → 400/EDGE1·404/PGRST999 오분류(거절), 현재 미확정. 잠금·어댑터 26, music 전체 155+11, tsc·eslint 0.
+
+## 통합 전 검증표와 격리 검증 가능성 (2026-11-20, Master `msg_f9da6af2c535`)
+문서만. 실호출·공용 경로 변경·DB 쓰기·이미지 내려받기·컨테이너 실행 없음.
+
+### 1. 미연결 구현 검증표
+| 모듈(고정 SHA) | 확인된 것(모의·로컬) | 확인 안 된 것(실제 환경 필요) |
+|---|---|---|
+| `music/lib/remixLyrics.ts`(`c0db0c035`) + 가사 영상 사본 | 판정·짝짓기·우선순위 16 시험(표본 기반), 코드 포인트·대괄호·충돌 반례 | Suno `prompt`가 실제 가사인지·지시문이 그대로 오는지(실응답) |
+| `music/lib/remixVariantInsert.ts`(`5329b77b9`) | 결과 7종·재시도 1회·원문 미출력 36 시험 | 실제 insert에서 칸 없음 오류의 코드·문구·status(PostgREST 버전별) |
+| `music/lib/remixRecordInfo.ts`(`c2f407d4f`) | 공용 함수와 요청·오류 계약 동일 11 시험 | `record-info` 응답에 `prompt` 칸이 있는지(실응답) |
+| `music/lib/remixSaveLock.ts`(`edc1931f8`→`443caca88`) | 토큰 잡기·승격·완료·해제, 응답 유실·옛/새 소유자 12 시험 | 실제 동시 실행 순서(여러 함수 인스턴스) |
+| `music/lib/remixSaveLockDb.ts`(`443caca88`) | 조건 체인·응답 분류(성공/0행/거절/미확정)·허용 목록 14 시험 | **`acquirableFilter`의 `_` escape·`and()` 해석**, supabase-js가 실제 돌려주는 status·code 조합, 0행일 때 data 모양 |
+| 가사 영상 `remixVariantView.ts`·`suno.ts` 리믹스 경로(`18cf482cd`) | 판정 12 시험, tsc | 구형 DB에서 select 오류 형식(`column 표.칸 does not exist` 가정), 새 칸 있을 때 실제 조회 |
+| 마이그레이션 후보(`18cf482cd`) | 문법 검토만 | 실제 적용·check 제약·기존 행 기본값 |
+
+### 2. 격리 검증 방법(제안, 각각 승인 필요)
+| 방법 | 확인할 수 있는 것 | 비용·영향 | 필요한 것 |
+|---|---|---|---|
+| A. 이 PC Docker: `postgres:17-alpine`(이미 있음) + `postgrest/postgrest` v12 이미지 + 리믹스 두 표 복제(마이그레이션 0010·0011·0019 + 후보 SQL) | 잡기 필터 해석·CAS 행 수·확정 거절 조합(권한 없는 역할로 42501, 없는 칸 42703·PGRST204)·insert 재시도·가사 영상 select 대체 경로를 supabase-js로 실제 실행 | 무료, 운영·Lab 무관. PostgREST 이미지 내려받기(약 수십 MB), 컨테이너 2개를 겹치지 않는 이름·포트로 띄웠다 지움(이미 돌고 있는 6개는 건드리지 않음) | 승인 + Docker 사용 범위 확인. PostgREST 버전을 Supabase 운영과 맞춰야 정확(운영 버전은 미확인) |
+| B. Lab DB(`AIMaster_dev`, Supabase 실제 환경)에 임시 표 | A와 같은 항목을 **Supabase가 실제로 쓰는 PostgREST**로 확인 | 무료 요금제, Lab DB 쓰기(임시 표 생성·삭제) | Lab DB 쓰기 승인, 끝나면 표 삭제 |
+| C. 운영 DB 읽기 | 현재 표 구조·칸 유무(이미 한 적 있음) | 읽기만 | 기존 읽기 승인 범위 |
+| D. 실제 Suno `record-info` 1회(시험 계정 본인 키, 상태 조회) | `prompt` 칸 유무·의미 | 생성 아님(크레딧 미차감 추정), 다만 기존 리믹스는 14일 보관 지나 응답이 없을 수 있음 → 새 보컬 추가 1회(유료)가 필요할 수 있음 | 실호출 승인 |
+- 권장 순서: A(무료·격리) → 결과가 운영 Supabase와 다를 수 있는 항목만 B → D는 1차 연결 전 마지막에 1회.
+- A·B 어느 쪽도 운영 DB·공용 코드 경로를 바꾸지 않는다. 결과는 이 문서에 표로 남기고 테스트 코드는 `music/tests/integration/`(기본 `npm test`에서 제외)로 분리 제안.
