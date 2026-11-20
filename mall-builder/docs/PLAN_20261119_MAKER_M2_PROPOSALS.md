@@ -470,3 +470,10 @@
 - 출처 판정: `sameOrigin`(Origin host = 요청 Host/X-Forwarded-Host) 삭제 → `originAllowed(headers, trustedOrigins)`. **서버가 신뢰하는 앱 출처 목록**(서버 설정·그 몰의 등록 도메인, 호출 쪽 route가 제공)과 Origin 머리글의 정확 일치로만 허용. Host·포워딩 머리글은 읽지 않음. 목록이 비었거나 한 건이라도 정규형(`https://host[:port]`, 개발용 http는 localhost·127.0.0.1만)이 아니면 전부 차단. sec-fetch-site는 없거나 same-origin만.
 - Content-Type: 정확히 `application/json`, 매개변수는 `charset=utf-8` 하나만. `application/json-seq`·`jsonp`·`ld+json`·다른 매개변수·앞뒤 공백 거절(415).
 - 남은 조건에 추가: ⑦ 활성 route가 신뢰 출처 목록을 어디서 만들지(플랫폼 기본 도메인 + 그 몰의 확인된 사용자 도메인 — `lib/host.ts`·`custom-domain.ts` 기준) 확정.
+
+### 19-2. R1 신뢰 출처 목록(Master msg_235604de02db, B2B-M3-R1-TRUSTED-ORIGINS — 순수 함수·국소 시험만)
+- 라우트 후보는 Mac 64/64 수락(`052441c03`, 계약 시험 2줄 추가 `85b77952e`).
+- 파일: `src/lib/mallPhotoApplyOrigins.ts`(`buildTrustedOrigins`), `tests/mallPhotoApplyOrigins.test.mjs`. 기존 `host.ts`·`slug.ts`·`custom-domain.ts`는 읽기·호출만(수정 0).
+- 입력은 서버 값뿐: 몰 이름(DB), `MALL_ROOT_DOMAIN`, 서버 설정의 플랫폼 앱 출처 목록, 그 몰 행의 `custom_domain`(0093), 개발 모드 여부와 개발용 로컬 출처. 요청 머리글은 입력이 아니다.
+- 규칙: 플랫폼 출처는 https 정규형만, 서브도메인은 `mallSubdomainUrl` 그대로(그 몰 것 하나), 커스텀 도메인은 `customDomainCandidate`를 통과하고 원문과 같은 이름만, localhost는 `dev === true`일 때 명시한 `http://localhost|127.0.0.1[:port]`만. **값이 하나라도 틀리면 빈 목록(전부 차단)** — 틀린 값을 빼고 나머지로 허용하지 않는다. 20건 초과도 차단.
+- 남은 결정(활성 route 단위): 플랫폼 앱 출처 목록을 담을 서버 설정 이름(새 환경변수 여부), 개발 모드 판정 기준, 몰 행 `custom_domain`을 route가 읽는 방법(회원 세션 select).
