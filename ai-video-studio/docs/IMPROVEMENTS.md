@@ -108,3 +108,4 @@
 - 남음: 매일 정리의 「멈춘 올리기」 찾기는 회원 폴더를 하나씩 훑으므로, 회원이 아주 많아지면(1천 명 넘게) 한 번에 다 못 볼 수 있음 — 그때 따로 표에 올리기 시작을 적는 방식으로 바꾸기 검토
 
 - **미배포 대기(2026-11-20, 영상 담당 `claude-win-video`, MOV-SHOTS-AVS-LOGIN-PREP)**: 로그아웃 `signOut({ scope: "local" })`(`lib/actions/auth.ts`, 비밀번호 재설정 화면 없음) + 서버 Supabase `User-Agent` 전달(`lib/supabase/server.ts`) — `docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md`. `tsc` 0·`npm test` 113/113·`pending-check` 공통 경고 0. 다음 배포 때 함께(급하지 않음).
+- **참고 실측(2026-11-20, 음악 담당 CC-MUSIC-01 공유 msg_6c59837e2e22, `9a3301245`)**: Gemini Omni Flash(`gemini-omni-1.1-flash`, 공용 `ai-video-providers` 사본) 운영 `music-video-studio` v1.31 — 이미지 1장 기반 4초 요청 → 4.03초·1280×720, 생성 35초, 루프 On일 때 첫↔끝 화면 차이 12.8(첫↔중간 35.4)로 끝이 시작으로 돌아옴(완전 동일은 아님). 어림 비용 이미지 1장+영상 4초 ≈ $0.44(공식 $0.10/초, 실청구는 콘솔). 영상 쪽 단가 표(`VIDEO_MODELS` perSec 0.1)와 일치. 후속 후보: 루프 이음매 끝 0.3초 교차 페이드(무료).
