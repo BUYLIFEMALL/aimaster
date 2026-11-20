@@ -84,6 +84,7 @@
 | `youtube-viral-studio` (운영 v1.30) | 거르기 함수 `relevanceFilter.ts` 분리(동작 변화 없음) + Next.js 16.4.2→16.4.6 보안(로컬 빌드 exit 0) · 시험 보정 `acc122786`(배포 불필요) | `b40b18f37` · `77987f7f2` | 2026-11-20 · [역할: video] `claude-win-video` | `youtube-viral-studio/docs/IMPROVEMENTS.md` 2026-11-20 절 | 버전 +0.01(v1.31) |
 | `infinite-loop-video` (운영 v1.10) | 배포 공통 3가지: 저장공간 위젯 한 줄 · `signOut` local 2곳 · 서버 `User-Agent` (+ Next 16.4.6은 승인 대기, 같은 배포로 묶기 권장) | `4c9a4af5a` | 2026-11-20 · [역할: video] `claude-win-video` | `infinite-loop-video/docs/IMPROVEMENTS.md` 19줄 | 버전 +0.01(v1.11), 배포 뒤 위젯 표시·로그아웃 확인 |
 | `shots` (운영 v1.51) · `ai-video-studio` (운영 v1.36) | 로그인 정책 2가지: `signOut` local 각 1곳 · 서버 `User-Agent` | `756c51b93` | 2026-11-20 · [역할: video] `claude-win-video` | 각 `docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 배포 뒤 로그아웃이 다른 프로그램을 끊지 않는지 확인 |
+| `shorts-onestop-studio` (운영 v1.59) | 글자 배치 안내: 상품 사진 대본에서 「하단 자막형」이 아닌 카드 레이아웃을 고르면 경고 한 줄(강제 없음) | `f874762f9` | 2026-11-20 · [역할: video] `claude-win-video` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 배포 뒤 상품 대본에서 배치 바꿔 안내 줄 확인 |
 | `emotion-writer` (운영 v1.26) | 사용 매뉴얼 사진 출처 「Unsplash」 → 「Pixabay·Pexels」 7곳·저작권 안내 문구 | `1965b2c6c` | 2026-10-23 · Claude Code(윈도우) | `emotion-writer/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, `/guide` 문구 확인 |
 
 ## 메인 사이트 — 다음 메인 빌드 때 할 일 (코드 미작성)
