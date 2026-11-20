@@ -48,3 +48,4 @@ Next.js 16 + Tailwind 4 + 공용 Supabase(권한 판정·회원 키 조회만). 
 - `pending-check`가 알리던 공통 3건을 기준 구현(`smartstore-register`, 같은 뼈대)과 같은 형태로 넣음: 저장공간 위젯 한 줄(`src/app/layout.tsx`), 로그아웃 범위 `signOut({ scope: "local" })` 2곳(`src/app/api/auth/logout/route.ts`·`src/lib/actions/auth.ts` — 이 브라우저만 로그아웃), 서버 로그인 기기 정보 `global.headers["User-Agent"]`(`src/lib/supabase/server.ts`).
 - 바꾸지 않은 것: 쿠키·권한 판정(`src/lib/auth.ts`·`src/proxy.ts`)·DB·의존성·버전(v1.06 그대로, 버전은 배포 때 한 번).
 - 검수: tsc 0 · 시험 25/25 · `pending-check` 공통 줄 0 · `server.ts`는 기준 구현과 글자 단위 동일. 린트는 이 폴더에 ESLint 설정이 없어 실행 못 함. 빌드·실제 로그인/로그아웃·위젯 표시는 미실행 — 다음 배포 뒤 ego에서 확인(로그아웃해도 다른 프로그램 로그인 유지, 💾 위젯 표시).
+- 2026-11-20 Next 보안 패치(미배포 대기, `12057155d`, Master `msg_0849ea963d3d`): `next` 16.4.3 → 16.4.6(공지 `GHSA-mfr8-8qww-v76h`·`GHSA-vc7v-qv4w-wrv8`, `package.json` 한 줄 + 잠금의 next 계열 10개만). 로컬 `tsc` 0 · 시험 통과 · `npm run build` 종료 0(16.4.3에서 나던 `SecurityFatalError` 없음). Vercel 운영 빌드·실화면은 미확인, 버전은 배포 때 한 번.
