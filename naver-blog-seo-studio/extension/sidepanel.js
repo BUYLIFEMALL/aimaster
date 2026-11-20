@@ -15,6 +15,7 @@ const randomDelay = (min, max) => Math.floor(Math.random() * (max - min + 1)) + 
 let webDrafts = [];
 let webDraftsToken = ""; // webDrafts를 불러온 연결 토큰(회원 계정 문맥) — 2026-11-20 P2
 let webDraftsEpoch = 0; // 계정 교체·새 조회마다 증가, 늦은 옛 응답 차단
+let webDraftsLoadedAt = 0; // 지금 목록을 받은 시각(메모리만) — 이보다 뒤에 갱신된 실행이면 「목록 새로고침」 안내(3차)
 let activeWebDraftId = "";
 let activeWebDraftTags = [];
 let activeWebDraftContentImages = [];
@@ -155,9 +156,17 @@ async function refreshWebDrafts() {
   // 이 응답(옛 계정 목록)은 버린다. 토큰 확인을 먼저 끝낸 뒤 순번·토큰을 함께 판정하고, 판정 뒤 반영까지 await 없음.
   const currentToken = await getToken();
   if (epoch !== webDraftsEpoch || currentToken !== token) return;
-  if (!response.ok) throw new Error(result.error || `웹 초안 조회 실패 (${response.status})`);
-  webDrafts = Array.isArray(result.drafts) ? result.drafts : [];
+  if (!response.ok) throw new Error(result?.error || `웹 초안 조회 실패 (${response.status})`);
+  // 2026-11-20 3차(Mac msg_81a964cf26e1): 성공(200)이어도 응답 모양이 다르면(null·비객체·배열·drafts가 배열 아님)
+  // 이전 목록·제목을 지금 것으로 쓰지 않는다. 늦은 옛 응답은 위 판정에서 이미 버려져 최신 화면을 지우지 않는다.
+  const drafts = result && typeof result === "object" && !Array.isArray(result) && Array.isArray(result.drafts) ? result.drafts : null;
+  if (!drafts) {
+    invalidateWebDraftCache("응답 형식이 올바르지 않습니다. 「전송된 콘텐츠 목록 새로고침」을 다시 눌러 주세요.");
+    throw new Error("웹 초안 응답 형식이 올바르지 않습니다. 잠시 뒤 다시 불러오세요.");
+  }
+  webDrafts = drafts;
   webDraftsToken = token;
+  webDraftsLoadedAt = Date.now();
   if (typeof showReconcileTarget === "function") showReconcileTarget().catch(() => {}); // 2026-11-20 결과 확인 대상 제목(auto-publish.js)
   const select = $("webDraftList");
   select.textContent = "";
@@ -987,10 +996,11 @@ $("autoLink").addEventListener("click", () => {
   $("status").textContent = "SEO 스튜디오 화면에서 연결 중... (로그인이 필요하면 로그인해 주세요)";
 });
 // 2026-11-20 P2: 연결 토큰(=회원 계정)이 바뀌거나 지워지면 이전 계정의 원고 목록·선택 원고·결과 확인 대상 제목을 즉시 버린다.
-function invalidateWebDraftCache() {
+function invalidateWebDraftCache(message = "연결이 바뀌었습니다. 전송된 콘텐츠를 다시 불러오세요.") {
   webDraftsEpoch += 1;
   webDrafts = [];
   webDraftsToken = "";
+  webDraftsLoadedAt = 0;
   cancelWebDraftLoad();
   resetActiveWebDraft();
   clearWebDraftPreview();
@@ -998,7 +1008,7 @@ function invalidateWebDraftCache() {
   select.textContent = "";
   const placeholder = document.createElement("option");
   placeholder.value = "";
-  placeholder.textContent = "연결이 바뀌었습니다. 전송된 콘텐츠를 다시 불러오세요.";
+  placeholder.textContent = message;
   select.append(placeholder);
   const target = $("reconcileTarget");
   if (target) { target.textContent = ""; target.hidden = true; }
