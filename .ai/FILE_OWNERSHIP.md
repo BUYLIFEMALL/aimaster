@@ -482,3 +482,4 @@ WS-20261118-02 A5 CC-WORKSPACE-01: Master msg_f94b90ed0f8c(Mac msg_28f272418d4a)
 MOV-VIDEO-PENDING-RECONCILE CC-MOVIE-01(자율, Master 알림 msg_35f4699cc7b7): docs/PENDING_DEPLOYS.md에 SVS·YVS 빠진 대기 2줄 추가 + .ai/results/MOV-VIDEO-PENDING-RECONCILE-CC-MOVIE-01.md. 빌드·배포 0.
 MOV-VIDEO-PENDING-RECONCILE CC-MOVIE-01 해제: PENDING_DEPLOYS +2줄, 결과 문서 커밋.
 MOV-SVS-COMMON-PREP CC-MOVIE-01(자율, 알림 msg_e77de9b1cc59): shorts-viral-studio/src/app/layout.tsx(위젯 한 줄)·src/lib/actions/auth.ts(signOut local)·src/lib/supabase/server.ts(User-Agent)·docs/IMPROVEMENTS.md 한 줄. 빌드·배포·push 0.
+MOV-SVS-COMMON-PREP CC-MOVIE-01 해제: 01bcdd6bb (tsc 0·17/17·공통 경고 0).
