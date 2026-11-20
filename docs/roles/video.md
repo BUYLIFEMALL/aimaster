@@ -21,6 +21,7 @@
 | `shorts-viral-studio`·`youtube-viral-studio` | Next 16.4.6 업그레이드(`77987f7f2`, 로컬 빌드 exit 0/0)·미배포 기록 `e75bb0348` | 2026-11-20 | ready_review — 다음 배포 묶음 대기(`docs/PENDING_DEPLOYS.md` `ec7fb5ff4`) |
 | `shots`·`infinite-loop-video`·`shorts-onestop-studio` | 남은 Next 업그레이드 사전 점검 `523e33704` | 2026-11-20 | 업그레이드 승인 대기 |
 | `youtube-viral-studio` | 보관함 시험 대역 보정 `acc122786`(72/72) · 미배포 대조 `e1d436790` | 2026-11-20 | ready_review |
+| `shorts-viral-studio`·`infinite-loop-video`·`shots`·`ai-video-studio` | 배포 공통 항목 미리 반영(위젯·signOut local·User-Agent) `01bcdd6bb`·`4c9a4af5a`·`756c51b93` — 영상 8개 앱 `pending-check` 공통 경고 0 | 2026-11-20 | ready_review — 각 앱 다음 배포 때 함께 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 - 2026-11-16 유튜브 떡상 분석 v1.30 — 배포 끝, DB 2표 SQL 운영 적용·읽기 확인 끝(11-17, 요청함 1c7b6dda 승인완료). 실제 검색·AI 기획안 운영 확인 끝(11-18, 아래 최근 완료). 1단계 검수 완료, 2·3단계는 별도 배정.
