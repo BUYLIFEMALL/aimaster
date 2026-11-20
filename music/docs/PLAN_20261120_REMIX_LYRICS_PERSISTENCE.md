@@ -355,3 +355,22 @@ alter table public.music_track_remix_variants
 - 문제: 정규화가 모든 `[...]`를 지워, 지시문 전문 + 대괄호 안 실제 가사가 지시문으로 오판(가사 손실).
 - 정정: 고정 목록 `SECTION_TAGS`의 구간 표시만 제거, 그 밖 대괄호는 안의 글을 비교에 보존. 애매하면 미검증 후보.
 - 전후: 직전 `60fb2d390` 함수에 같은 시험 → 16개 중 1개 실패(대괄호 반례), 현재 16/16. A1 네 반례(`b110a6d34` 기준 실패)도 계속 통과. music 전체 93/93, tsc·eslint 0.
+
+## 1차 연결 준비 인계표 (2026-11-20, Master `msg_e425c3cc0c30`, 검수 Master)
+
+읽기·설계만. 제품 연결·DB·실호출·키·스키마 적용 없음. 기준: 저장소 HEAD `fb67e669a`, 순수 모듈 `c0db0c035`(`music/lib/remixLyrics.ts`). 줄 번호는 아래 「파일 기준 커밋」 시점. 규칙은 다시 쓰지 않고 [0-2 상태](#0-2-가사-상태와-판정)·[0-5 소비처 계약](#0-5-소비처-계약)·[6 스키마](#6-필요한-스키마제안-적용하지-않음)·부록 PHASE1-PURE A1~A3를 따른다.
+
+| 번호 | 경로 | 위치(파일:줄 @기준 커밋) | 지금 | 1차 변경 | 본인 확인 | 구형 DB(새 칸 없음) 회귀 | 표본·시험 |
+|---|---|---|---|---|---|---|---|
+| A1 | 결과 읽기 | `music/lib/ai/suno.ts:758` `SunoCallbackItem`, `:825` `sunoData.map` @`237741cc3` | `prompt`를 읽지 않음 | 선택 칸 `prompt?: string` 추가, 문자열일 때만 전달. **공용 기준 코드** → `check-shared-modules.mjs --sync`로 `ai-music-studio`·`shots` 사본(동작 변화 없음, 급하지 않은 변경) | 해당 없음 | 해당 없음 | ABSENT·GUESS·CASE |
+| A2 | 리믹스 조회 | 웹훅 `music/app/api/webhooks/suno/route.ts:105`(select), `:107` `.eq("task_id", taskId)` / 수동 `music/lib/actions/remix.ts:408` @`237741cc3` | 웹훅 select에 `task_id`·`mode`·`lyrics` 없음, 수동은 `mode`·`lyrics` 없음 | 두 select에 `mode`·`lyrics`(·웹훅은 `task_id`) 추가 — 판정 맥락(`RemixLyricsContext`)용 | 웹훅: 관리자 연결 + `task_id` 일치 행의 `user_id` 그대로(현행) / 수동: `requireProgramAccess` + `.eq("user_id", user.id)`(현행) | 기존 칸이라 영향 없음 | ECHO·NA |
+| A3 | 새 변주 저장 | `music/lib/remixSync.ts:71~83` `variants.push`·`insert(variants)` @`237741cc3` | 오디오·커버·길이만 | 저장할 항목의 오디오 번호 목록으로 `matchRemixLyricsByAudioId` 1회 → 행마다 `suno_task_id`(= 지금 처리하는 `taskId`), `lyrics`, `lyrics_status` 추가. 오디오 없는 항목은 기존처럼 건너뜀(59줄) | 행의 `user_id: remix.user_id`(현행 72줄) | insert가 「칸 없음」(42703·PGRST204)으로 실패하면 **새 3칸을 뺀 같은 insert를 1회** 다시(외부 호출 아님, 첫 insert는 전부 실패라 중복 없음) → 오늘과 같은 결과 | PAIR·DUP·NOID·LEN·EXT-07 |
+| B1 | 가사 영상 변주 읽기 | `lyric-video-studio/src/lib/suno.ts:54~80` `ownVariant` @`fa3799a63` | 변주 `id·remix_id·suno_audio_id·audio_url·image_url`, 리믹스 `task_id·mode·source_title·lyrics·instrumental` | 변주 select에 `suno_task_id·lyrics·lyrics_status`, 리믹스 select에 `extend_hop_count` 추가 | `.eq("user_id", userId)` 두 번(현행 65·70줄) + 라우트 `guard(request)`(`src/app/api/suno/tracks/route.ts:14`, `timed-lyrics/route.ts`) @`237741cc3` | select가 42703이면 **지금 select로 1회 다시** → 오늘과 같은 결과(가사 글 = 회원 원문, 시간 가사 = `remix.task_id`) | PRIO-01~03 |
+| B2 | 가사 글·안내 | `lyric-video-studio/src/lib/suno.ts:85~92` `getSunoVariant` | `lyrics = music_tracks.prompt_text`(리믹스는 회원 원문 또는 빈 값) | `pickRemixLyricText(remix.lyrics, variant)` — 회원 원문 > Suno 미검증(「Suno가 준 가사입니다 — 확인해 주세요」) > 붙여 넣기 안내. 응답에 `lyricsNotice` 한 칸 추가, 카드(`SunoImportCard.tsx` 75줄 안내 자리)에 그대로 표시. 순수 모듈은 **공용 기준 코드로 등록**(기준 `music/lib/remixLyrics.ts`, 사본 `lyric-video-studio/src/lib/remixLyrics.ts`) | B1과 같음 | 새 칸이 없으면 `lyrics_status`를 `unknown`으로 보고 회원 원문만(오늘과 같음) | PRIO·SUSPECT |
+| B3 | 시간 가사 | `lyric-video-studio/src/lib/suno.ts:45`(목록 `canTime`)·`:91`·`:96~98` `fetchSunoTimedLines` | 작업 번호 = `remix.task_id` | 작업 번호 = `variant.suno_task_id`, 없으면 `extend_hop_count = 0`일 때만 `remix.task_id`, 그 밖(옛 연장 행)은 요청 안 함 + 「이 곡은 시간 가사를 받을 수 없습니다」(0-5) | B1과 같음 | 새 칸이 없으면 지금처럼 `remix.task_id` | EXT-04·TIMED-01 |
+
+**범위 밖(명시)**
+- **보충 0**: 1차는 `record-info` 보충 조회를 하지 않는다. 출처를 모르는 옛 행(새 칸이 없거나 `suno_task_id`가 비어 있는 행)은 `unknown` 그대로, 가사 영상은 회원 원문 또는 붙여 넣기 안내(0-4·0-8은 3차).
+- **자동 연장은 지금 동작 그대로**: 연장 때 `task_id` 덮어쓰기·잠금 경합(0-3·0-7, 부록 A2 RACE)은 1차에서 고치지 않는다. 1차에서는 저장 시점의 `taskId`를 변주별 `suno_task_id`로 남겨 **앞 단계 변주의 작업 번호를 잃지 않게만** 한다. 경합으로 중복 행이 생기면 가사도 중복 저장될 수 있다(새로 생기는 결함 아님). 연장 예약 경계(맥미니 `msg_75ff01a68199`)는 후속.
+- **스키마·순번**: 6절 칸 3개(`suno_task_id`·`lyrics`·`lyrics_status`, `provided`는 실측 전 미사용)만 필요. 마이그레이션 번호와 적용은 별도 확정·승인.
+- **배포 영향(실행 아님)**: music·lyric-video-studio 빌드 각 1회 + 공용 사본 2곳(`ai-music-studio`·`shots`)은 다음 배포 때 합류.
