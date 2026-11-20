@@ -37,7 +37,7 @@ export function bodyCharCount(html: unknown): number {
 // 겹칠 수 있는 「자리값 문자열 찾기」를 없앴다. 같은 원고를 자리값 길이만 다르게 두 번 변환해, 두 숫자의 차이로 「주소가 글자로 남은 횟수」를 구한다
 // (첨부마다 늘린 길이를 서로 다른 자릿값으로 두어 한 번의 차이에서 첨부별 횟수를 분리). 원고 안의 어떤 글자도 찾지 않으므로 충돌이 없다.
 // 계산이 맞지 않으면(자릿값이 너무 커지거나 차이가 설명되지 않으면) 실제 주소를 그대로 넣는 안전 경로로 센다. base64 형식이 아닌 주소는 항상 실제 값.
-const PLAIN_BASE64_SRC = /^data:image\/[a-z0-9.+-]+;base64,[A-Za-z0-9+/=]*$/i
+const PLAIN_BASE64_SRC = /^data:image\/[a-z0-9.+-]+;base64,[A-Za-z0-9+/]+={0,2}$/i
 const PLACEHOLDER_BASE = 8
 const PLACEHOLDER_SPREAD_LIMIT = 4096
 const occurrences = (text: string, key: string) => text.split(key).length - 1
@@ -79,9 +79,10 @@ export function markdownBodyCharCount(markdown: unknown, attachments: unknown = 
     const original = typeof markdown === 'string' ? markdown : ''
     const direct = () => convertedCount(substituteAttachments(original, sources, (src) => src))
 
-    // 5차 보완(Mac msg_e76ff8708dd4): 첨부 주소 안에 표시 문자열이 들어 있으면 치환이 뒤 첨부의 표시를 새로 만든다(연쇄).
-    // 원고만 보고 센 표시 수가 틀어지므로 최적화하지 않고 서버와 같은 순서·실제 주소로 센다.
-    if (sources.some((src) => src.includes('[첨부이미지 '))) return direct()
+    // 5차·6차 보완(Mac msg_e76ff8708dd4 · msg_835f8d5ed29b): 형식이 검증된 base64 주소가 아닌 첨부가 하나라도 있으면
+    // (주소 안의 글자나 주소 끝과 원고가 붙어 새 표시가 생길 수 있음) 최적화하지 않고 서버와 같은 순서·실제 주소로 센다.
+    // 검증된 base64 주소는 대괄호·한글·공백을 가질 수 없어 표시를 만들거나 이어 붙일 수 없다.
+    if (sources.some((src) => !PLAIN_BASE64_SRC.test(src))) return direct()
 
     // 자리값을 쓸 첨부(일반 base64이고 원고에 표시가 있는 것)와 첨부별 자릿값
     const plan: { index: number; uses: number; weight: number }[] = []

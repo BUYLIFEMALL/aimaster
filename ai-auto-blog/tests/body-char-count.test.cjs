@@ -167,6 +167,21 @@ test('5차 반례 — 첨부 주소가 뒤 첨부의 표시를 새로 만드는 
   }
 })
 
+test('6차 반례 — 비정규 원본 주소의 끝과 원고 글자가 붙어 표시가 되는 경우도 서버 변환과 같은 숫자', () => {
+  const tail = (end) => `<img src="data:image/svg+xml;utf8,<svg>글</svg>${end}"><img src="${IMG(40)}"><img src="${IMG(700)}">`
+  for (const [end, glue] of [['[첨부이미지', ' 2]'], ['[', '첨부이미지 2]'], ['[첨부', '이미지 3]'], ['[첨부이미지 ', '2]'], ['[첨부이미지 2', ']']]) {
+    const db = tail(end)
+    for (const md of [`${M(1)}${glue}`, `${M(1)}${glue} ${M(2)} ![a](${M(3)})`, `앞 ${M(1)}${glue}${M(1)}${glue} ${M(3)}`, `![a](${M(2)})\n\n${M(1)}${glue} 끝`]) {
+      assert.equal(count(md, db), serverCount(md, db), `${end}|${glue} / ${md.slice(0, 30)}`)
+    }
+  }
+  // 형식이 어긋난 base64 모양 주소(패딩 위치·빈 본문)는 최적화하지 않고 실제 주소로
+  for (const odd of ['data:image/png;base64,', 'data:image/png;base64,AB=CD', 'data:image/png;base64,ABCD===', 'data:image/png;base64,AB CD']) {
+    const db = `<img src="${odd}"><img src="${IMG(40)}">`
+    for (const md of [`${M(1)} ${M(2)}`, `![a](${M(1)}) ${M(2)}`]) assert.equal(count(md, db), serverCount(md, db), odd)
+  }
+})
+
 test('긴 원고 + 큰 첨부: 서버 변환과 같은 숫자이고, 큰 주소를 변환기에 넣지 않아 빠르다', () => {
   const bigDb = `<img src="${IMG(500000)}"><img src="${IMG(300000)}">` // 약 2MB·1.2MB 주소
   const body = Array.from({ length: 400 }, (_, i) => `## 소제목 ${i}\n\n**강조** 문장 가나다 라마 [링크](https://example.com/${i})\n\n- 항목 ${i}`).join('\n\n')
