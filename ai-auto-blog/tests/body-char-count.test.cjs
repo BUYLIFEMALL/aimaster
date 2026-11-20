@@ -138,6 +138,39 @@ test('코드 모드 혼합 입력(HTML이 섞인 원고)도 예외 없이 — �
   for (const odd of [null, undefined, 123, '```\n코드\n```', '#'.repeat(5000), '&#99999999;']) assert.doesNotThrow(() => markdownBodyCharCount(odd), String(odd).slice(0, 20))
 })
 
+test('4차 반례 — 원고에 이미 있는 자리값 모양 글자와 실제 첨부가 함께 있어도 서버 변환과 같은 숫자', () => {
+  const oldToken = (n) => `data:image/png;base64,ATT${n}ATT` // 이전 판(2d4fdd7be)이 찾던 자리값
+  const newShort = `data:image/png;base64,${'A'.repeat(8)}` // 현재 판 자리값과 같은 모양의 평문
+  for (const plain of [oldToken(1), oldToken(2), `data:image/png;base64,ATT1 ATT`, newShort, `data:image/png;base64,${'A'.repeat(9)}`, `${'A'.repeat(40)}`]) {
+    for (const md of [`평문 ${plain} 그리고 ${M(1)} 끝`, `${plain}\n\n![그림](${M(1)})\n\n${plain}`, `${plain} ${M(1)} ${M(2)} ${plain} ${M(2)}`, `${M(1)}${plain}`]) {
+      assert.equal(count(md, DB2), serverCount(md, DB2), `${plain.slice(0, 40)} / ${md.slice(0, 30)}`)
+    }
+  }
+})
+
+test('첨부가 많거나 같은 표시를 여러 번 써도(자릿값 한도 초과 시 안전 경로) 서버 변환과 같은 숫자', () => {
+  const many = Array.from({ length: 14 }, (_, i) => `<img src="${IMG(10 + i)}">`).join('')
+  const md = Array.from({ length: 14 }, (_, i) => `문단${i} ${M(i + 1)} ${i % 3 ? `![그림](${M(i + 1)})` : M(i + 1)}`).join('\n\n')
+  assert.equal(count(md, many), serverCount(md, many))
+  const repeated = `${`${M(1)} `.repeat(30)}\n\n${`![a](${M(2)})\n\n`.repeat(5)}끝`
+  assert.equal(count(repeated, DB2), serverCount(repeated, DB2))
+})
+
+test('긴 원고 + 큰 첨부: 서버 변환과 같은 숫자이고, 큰 주소를 변환기에 넣지 않아 빠르다', () => {
+  const bigDb = `<img src="${IMG(500000)}"><img src="${IMG(300000)}">` // 약 2MB·1.2MB 주소
+  const body = Array.from({ length: 400 }, (_, i) => `## 소제목 ${i}\n\n**강조** 문장 가나다 라마 [링크](https://example.com/${i})\n\n- 항목 ${i}`).join('\n\n')
+  const md = `![대표](${M(1)})\n\n${body}\n\n혼자 ${M(2)} 끝\n\ndata:image/png;base64,ATT2ATT`
+  const attachments = extractAttachmentSources(bigDb)
+  const expected = serverCount(md, bigDb)
+  const started = process.hrtime.bigint()
+  const got = markdownBodyCharCount(md, attachments)
+  const elapsedMs = Number(process.hrtime.bigint() - started) / 1e6
+  assert.equal(got, expected)
+  assert.ok(got > 1200000, '혼자 있는 큰 주소 길이가 반영됨')
+  for (let i = 0; i < 2; i++) assert.equal(markdownBodyCharCount(md, attachments), got)
+  assert.ok(elapsedMs < 1500, `한 번 계산 ${elapsedMs.toFixed(0)}ms`)
+})
+
 test('긴 원고도 같은 결과(윤곽 안정성): 같은 입력을 여러 번 세도 같은 값', () => {
   const big = '<p>' + '가나다 라마'.repeat(2000) + '</p>'
   const first = bodyCharCount(big)
