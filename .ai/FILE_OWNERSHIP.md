@@ -489,3 +489,5 @@ MOV-SHOTS-AVS-LOGIN-PREP CC-MOVIE-01(자율, 알림 msg_9416d7738410): shots/src
 MOV-SHOTS-AVS-LOGIN-PREP CC-MOVIE-01 해제: 756c51b93 (tsc 0/0, shots 34/34, ai-video 113/113, 공통 경고 0).
 
 WS-20261118-02 A5 점유 해제 CC-WORKSPACE-01: 문서 aa46c8f0f(PLAN A5 +30/-8, 인수 조건 A1~A24) · 모듈 수정 57714aca3(lectureDates.ts·dedupe.ts·lectureImportPure.test.ts 23개·IMPROVEMENTS). 기존 csv.ts·import.ts 무변경, 호출처 0. Mac 재검수 대기.
+
+WS-20261118-02 A23 보완 CC-WORKSPACE-01: Master msg_daa8fa889346(Mac msg_c08218089f80). src/litpage/server/content/lectureImport/dedupe.ts(기존 행 날짜 값 검증)·lectureDates.ts(달력 날짜 확인 함수 내보내기만)·tests/integration/lectureImportPure.test.ts + IMPROVEMENTS 한 줄. API·DB·화면·설정 편집 없음, 운영 없음.
