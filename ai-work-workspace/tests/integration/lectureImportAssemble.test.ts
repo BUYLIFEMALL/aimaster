@@ -375,4 +375,41 @@ describe('결과 계약(§5-2): 응답 모양과 예산', () => {
     expect(plain.rows).toEqual([[2, 'created', ''], [3, 'tz_mismatch', 'tz_start'], [4, 'tz_mismatch', 'tz_start'], [5, 'created', ''], [6, 'created', 'similar']]);
     expect(plain.totals).toEqual({ rows: 5, created: 3, duplicate: 0, failed: 0, tz_mismatch: 2, wall_clock: 0, similar: 1 });
   });
+
+  // 2026-11-20 P3(Mac msg_3616167b20cd): API에 잇기 전에 — 본문에는 정해 둔 칸만 실린다. 구조가 맞는 입력에 임의 칸을 끼워 넣어도 나가지 않는다
+  it('허용 칸만 투영: totals·written·rows·dupOf에 임의 칸을 넣어도 본문에 나오지 않고, 예산은 투영한 뒤의 실제 JSON으로 잰다', () => {
+    const big = 'SECRET-' + 'x'.repeat(5_000);
+    const totals = { rows: 3, created: 1, duplicate: 1, failed: 1, tz_mismatch: 0, wall_clock: 0, similar: 0, secret: big, toWrite: [{ title: 'SECRET-제목' }], userId: 'SECRET-user' } as any;
+    const rows = [[2, 'created', '', 'SECRET-칸', { title: 'SECRET-제목' }], [3, 'duplicate', 'dup_table'], [4, 'failed', 'invalid_date', big]] as any;
+    const dupOf = [null, 'row-1', { id: 'SECRET-객체' }] as any;
+    const written = { rows: 1, tableId: 'tbl-1', createdTable: false, userId: 'SECRET-user', token: big, key: 'SECRET-key' } as any;
+    const judged = { totals, rows, dupOf, toWrite: [{ line: 2, title: 'SECRET-제목', value: { type: 'date', start_date: '2026-11-20' } }], secret: big } as any;
+    const expected = {
+      totals: { rows: 3, created: 1, duplicate: 1, failed: 1, tz_mismatch: 0, wall_clock: 0, similar: 0 },
+      rows: [[2, 'created', ''], [3, 'duplicate', 'dup_table'], [4, 'failed', 'invalid_date']],
+      dupOf: [null, 'row-1', null], // 줄 번호·id가 아닌 값은 근거로 싣지 않는다
+      written: { rows: 1, tableId: 'tbl-1', createdTable: false },
+    };
+    const r = buildLectureResponse(judged, { written });
+    expect(r).toEqual({ ok: true, body: expected, bytes: responseBytes(expected) });
+    if (!r.ok) throw new Error('unreachable');
+    expect(JSON.stringify(r.body)).not.toMatch(/SECRET|toWrite|userId|token|key/);
+    expect(Object.keys(r.body.totals).sort()).toEqual(['created', 'duplicate', 'failed', 'rows', 'similar', 'tz_mismatch', 'wall_clock']);
+    expect(Object.keys(r.body.written!).sort()).toEqual(['createdTable', 'rows', 'tableId']);
+    expect(Object.keys(r.body).sort()).toEqual(['dupOf', 'rows', 'totals', 'written']);
+    // 예산은 투영한 뒤의 크기로 잰다: 임의 칸(수천 바이트)을 넣었어도 투영된 본문 크기만큼의 예산이면 잘리지 않는다
+    const S = responseBytes(expected);
+    expect(S).toBeLessThan(400);
+    expect(buildLectureResponse(judged, { written, budget: S })).toEqual({ ok: true, body: expected, bytes: S });
+    const cut = buildLectureResponse(judged, { written, budget: S - 1 });
+    expect(cut.ok && cut.body.rowsOmitted).toBeGreaterThan(0);
+    // 최소 본문과 실패 사유의 needed도 투영한 뒤의 크기다
+    const min = responseBytes({ totals: expected.totals, rows: [], dupOf: [], rowsOmitted: 3, written: expected.written });
+    expect(buildLectureResponse(judged, { written, budget: min })).toEqual({ ok: true, bytes: min, body: { totals: expected.totals, rows: [], dupOf: [], rowsOmitted: 3, written: expected.written } });
+    expect(buildLectureResponse(judged, { written, budget: min - 1 })).toEqual({ ok: false, error: { code: 'budget_too_small', needed: min, budget: min - 1 } });
+    // 미리보기(written 없음)에도 같다. 입력 객체는 그대로다
+    const preview = buildLectureResponse(judged);
+    expect(preview.ok && preview.body).toEqual({ totals: expected.totals, rows: expected.rows, dupOf: expected.dupOf });
+    expect([totals.secret, written.token, rows[0].length, dupOf[2].id]).toEqual([big, big, 5, 'SECRET-객체']);
+  });
 });

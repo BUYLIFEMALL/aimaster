@@ -204,13 +204,18 @@ export function buildLectureResponse(judged: Pick<Judged, 'totals' | 'rows' | 'd
   // 예산을 아예 주지 않았을 때만 기본값을 쓴다. null처럼 「준 값이 이상한」 경우는 기본값으로 덮지 않고 오류로 본다
   const budget = opts.budget === undefined ? LECTURE_RESPONSE_BUDGET : opts.budget;
   if (typeof budget !== 'number' || !Number.isSafeInteger(budget) || budget <= 0) return { ok: false, error: { code: 'budget_invalid' } };
-  const totals = { ...judged.totals };
+  // 본문에는 정해 둔 칸만 싣는다: 입력 객체를 통째로 펼치지 않고 칸을 하나씩 골라 옮긴다(임의 칸이 섞여 와도 나가지 않는다).
+  // 예산은 이렇게 투영한 본문의 실제 JSON으로 잰다
+  const t = judged.totals;
+  const totals: LectureTotals = { rows: t.rows, created: t.created, duplicate: t.duplicate, failed: t.failed, tz_mismatch: t.tz_mismatch, wall_clock: t.wall_clock, similar: t.similar };
+  const w = opts.written;
+  const written: WrittenInfo | undefined = w ? { rows: w.rows, tableId: w.tableId, createdTable: w.createdTable } : undefined;
   const make = (keep: number): LectureResponse => ({
     totals,
     rows: judged.rows.slice(0, keep).map((r) => [r[0], r[1], r[2]] as RowEntry),
-    dupOf: judged.dupOf.slice(0, keep),
+    dupOf: judged.dupOf.slice(0, keep).map((d) => (typeof d === 'number' || typeof d === 'string' ? d : null)), // 줄 번호·id만
     ...(keep < judged.rows.length ? { rowsOmitted: judged.rows.length - keep } : {}),
-    ...(opts.written ? { written: { ...opts.written } } : {}),
+    ...(written ? { written: { ...written } } : {}),
   });
   const done = (body: LectureResponse): LectureResponseResult => ({ ok: true, body, bytes: responseBytes(body) });
   const full = make(judged.rows.length);
