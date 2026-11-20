@@ -6982,20 +6982,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-20T03:02:21.539Z",
+      "at": "2026-11-20T03:31:27.997Z",
       "timezone": "Asia/Seoul",
-      "trigger": "12:00 Orca 수신 msg_9afa0246d261",
-      "scope": "11:30 이후 Git·결과/인수인계·점유·미배포·담당자 체크포인트·Master 요청함·수락/착수 증거 대조",
+      "trigger": "12:30 Orca 수신 msg_df26f2181c77",
+      "scope": "12:00 이후 Git·담당 체크포인트·수신·역할/결과/인수인계·미배포 및 관리자 요청 증분 대조",
       "evidence": [
         "380건 중 완료 340·취소 7·대체 1, 잔여 32(진행 4·검수 9·순번 7·관리자 대기 12). Master 요청함 0건.",
-        "기존 전달 6건의 실제 수락, 로컬 통과, 차단 또는 검수 제출을 Controller에 반영. Mac 19/29/33 사용자 제어, Workspace/T08 실행 거부 및 T03 배포 경로 차단 유지.",
-        "노션 A5 aa46c8f0f·57714aca3 접수 및 Mac 재검수 msg_e90e4950cb20. SNS R2 문서 d728a80dd 접수, 배포 사전 대조 msg_9c1030e240dd.",
-        "영상 4c9a4af5a·756c51b93 미배포표 대조. 이커머스 혼합 트리 빌드 성공과 배포 고정판 미검증 분리."
+        "Workspace 응답 상한 ceb2768bf 및 SEO 단일 조회 8a526d769 Mac 격리 통과 msg_3616167b20cd. Workspace 필드 투영과 표식 순수 단계 msg_d6a0b8726695.",
+        "자동 블로그 글자수 최종 후보 42fad456f 작성자 11/11 회신 msg_799b4bcbbe0d, 독립 재검수 msg_448514f9288b. 미배포.",
+        "Mac 기존 19/29/33 사용자 제어. Workspace 배포 자동 검토 및 블로그 T08 거부, T03 전환 경로 미확보 유지."
       ],
-      "judgment": "승인된 현 범위만 후속 검수 또는 읽기 진행. 새 배포·운영 DB 쓰기 승인 없음.",
-      "nextAction": "Mac A5/SEO 재검수와 기존 제어 반환 탭 확인. SNS v1.28 점검표 후 SQL 순번 별도. T03은 정확한 Render 배포 경로, Workspace/T08은 기존 세션 실행 권한 해소 시 재개.",
+      "judgment": "격리 검수 범위 수락 및 후속 검수 전달. 운영·배포 변경 없음.",
+      "nextAction": "글자수 Mac 검수와 Workspace 다음 순수 모듈 회수. 기존 사용자 제어 반환 뒤 실화면 재개. B2B·SNS 기존 순번/연결 상태 재확인.",
       "unverified": [
-        "A5 Mac 실제 Vitest 환경·실제 노션 표본·운영 키, B2B Lab 실화면, 운영 SQL 0077과 D2/R1, realm별 기존 장기 배정의 최신 착수."
+        "Workspace 실제 API·DB·노션 표본·운영 서명 키, SEO 실제 브라우저, 글자수 번들·브라우저, B2B Backend·SNS 기존 배정 최근 수락."
       ]
     },
     "notifications": [
