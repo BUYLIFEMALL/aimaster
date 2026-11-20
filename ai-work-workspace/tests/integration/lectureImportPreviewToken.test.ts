@@ -66,6 +66,31 @@ describe('미리보기 표식(§5-1): 발급과 확인', () => {
     for (const now of [0, -5, 1.5, NaN] as number[]) expect(issuePreviewToken(KEY, intent(), structure(), now), String(now)).toEqual({ ok: false, code: 'input_invalid' });
   });
 
+  // 2026-11-20 P3(Mac msg_487aac845d7b): 발급 시각이 아주 크면 만료 시각이 안전 정수를 벗어난다 — 그런 표식은 내주지 않는다
+  it('만료 시각이 안전 정수를 벗어나면 발급하지 않는다 — 내준 표식은 언제나 확인을 통과할 수 있는 값이다', () => {
+    const MAX = Number.MAX_SAFE_INTEGER;
+    const last = MAX - PREVIEW_TOKEN_TTL_MS; // 만료가 정확히 MAX가 되는 마지막 발급 시각
+    // 경계 안쪽: 발급되고, 발급 직후와 만료 직전에 확인을 통과한다
+    for (const now of [last - 1, last]) {
+      const t = issuePreviewToken(KEY, intent(), structure(), now);
+      expect(t, String(now)).toMatchObject({ ok: true, issuedAt: now, expiresAt: now + PREVIEW_TOKEN_TTL_MS });
+      if (!t.ok) throw new Error('unreachable');
+      expect(Number.isSafeInteger(t.expiresAt)).toBe(true);
+      expect(verifyPreviewToken(KEY, t.token, intent(), structure(), now)).toEqual({ ok: true, issuedAt: now, expiresAt: t.expiresAt });
+      expect(verifyPreviewToken(KEY, t.token, intent(), structure(), t.expiresAt - 1).ok).toBe(true);
+    }
+    expect(issue(intent(), structure(), last).expiresAt).toBe(MAX);
+    // 경계 바깥: 1ms만 넘어도 발급하지 않는다(발급에 성공한 뒤 확인에서 떨어지는 표식을 만들지 않는다)
+    for (const now of [last + 1, last + 1000, MAX - 1, MAX]) expect(issuePreviewToken(KEY, intent(), structure(), now), String(now)).toEqual({ ok: false, code: 'input_invalid' });
+    // 발급된 모든 표식의 두 시각은 표식 모양(16자리 이하 양의 정수)에 들어간다
+    expect(issue(intent(), structure(), last).token).toMatch(/^v1\.\d{1,16}\.\d{1,16}\./);
+    // 확인 쪽의 현재 시각은 안전 정수 끝까지 받는다(만료 판정만 한다)
+    expect(verifyPreviewToken(KEY, issue().token, intent(), structure(), MAX)).toEqual({ ok: false, code: 'expired' });
+    // 평소 시각에는 영향이 없다
+    expect(issue().expiresAt).toBe(NOW + PREVIEW_TOKEN_TTL_MS);
+    expect(issuePreviewToken(KEY, intent(), structure(), 1)).toMatchObject({ ok: true, issuedAt: 1, expiresAt: 1 + PREVIEW_TOKEN_TTL_MS });
+  });
+
   it('키가 없거나 짧으면 내주지도 받아 주지도 않는다(fail closed) — 다른 키로 만든 표식은 서명 불일치', () => {
     const t = issue();
     const bad = [undefined, null, '', 'x'.repeat(64), new Uint8Array(0), new Uint8Array(31).fill(1), [1, 2, 3], {}, 0] as unknown as Uint8Array[];

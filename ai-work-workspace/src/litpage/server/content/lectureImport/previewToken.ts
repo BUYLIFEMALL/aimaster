@@ -121,6 +121,8 @@ export function issuePreviewToken(key: Uint8Array, intent: PreviewIntent, struct
   const sh = structureHash(structure);
   if (!ih || !sh || !validTime(nowMs)) return { ok: false, code: 'input_invalid' };
   const expiresAt = nowMs + PREVIEW_TOKEN_TTL_MS;
+  // 만료 시각도 확인 쪽이 받는 값(양의 안전 정수)이어야 한다 — 발급에는 성공하고 확인에서 떨어지는 표식을 만들지 않는다
+  if (!validTime(expiresAt)) return { ok: false, code: 'input_invalid' };
   const mac = sign(k, nowMs, expiresAt, ih, sh).toString('base64url');
   return { ok: true, token: `${PREVIEW_TOKEN_VERSION}.${nowMs}.${expiresAt}.${ih}.${sh}.${mac}`, issuedAt: nowMs, expiresAt };
 }
