@@ -516,3 +516,21 @@ alter table public.music_track_remix_variants
 - 승격 응답 유실: insert 0·해제 0으로 멈춤. 실제로 승격됐으면 영속 표시라 영구 차단, 안 됐으면 잡기 잠금이 5분 뒤 만료돼 **아무것도 보내지 않은 상태에서** 재처리.
 - 시험 `music/tests/remixSaveLock.test.mjs` 12개(메모리 가짜 DB): 정상, 승격 응답 유실(승격됨/안 됨), 옛 요청 지연 → 새 소유자(승격·해제·완료 0행), 새 소유자 진행 중 → 지연된 옛 요청(0행), 영속 표시 뒤 종료(1초·5분·하루 뒤 재실행 0), insert 불확실·insert 뒤 예외(추가 쓰기·연장 0), 확정 실패·건너뜀 문구, 완료 갱신 응답 유실(연장 0·재실행 0), 다른 task·hop 못 잡음, 기존 값 `__syncing__` 전환 호환, 완료·실패 상태 못 잡음.
 - **삭제 변경 보류**(영속 표시는 실제 진행 중도 포함하므로 표시만으로 삭제를 열지 않음).
+
+## 호출부 연결 범위 제출 (2026-11-20, 주인님 「진행하고 MASTER에게 보고해」 — Master 판정 전 제출, 구현은 판정 뒤)
+기준 `237741cc3` 시점 줄 번호. 곡 생성 경로(`music_tracks`, 웹훅 76~95줄)·공용 `syncLock.ts`·공용 `suno.ts`·다른 3표는 바꾸지 않는다.
+
+| 번호 | 파일·위치 | 지금 | 바꿀 것 |
+|---|---|---|---|
+| W1 | 새 파일 `music/lib/remixSaveLockDb.ts` | — | `remixSaveLock.ts`의 `CasFn` 실제 구현: `update(set).eq(id).eq(task_id).eq(extend_hop_count).eq(status,'generating')` + 조건(정확 일치는 `.eq(error_message)`, 잡기 조건은 `.or(error_message.is.null, and(…not like __%…), and(like __rsync__:*, updated_at.lt.만료), and(eq __syncing__, updated_at.lt.만료))`) + `.select("id")`로 바뀐 행 수, 응답 없음(`status 0`·예외)은 예외로 → 「불확실」. 시험: 조건 문자열 생성 단위 시험 |
+| W2 | `music/lib/remixSaveLock.ts` | 잡기·승격·완료·해제 | `failFromLock`(승격 **전** 확정 실패 — Suno가 실패를 알려 온 경우, 내 잡기 잠금일 때만 `failed`)·`extendFromInserting`(insert ok 뒤 연장 요청 성공 시 내 영속 표시일 때만 `task_id`·hop+1·표시 비움) 추가 |
+| W3 | `music/lib/remixSync.ts:49~93` `saveSunoRemixResult` | 파일 복사 → insert(결과 미확인, 83) → 연장 판단(85) → 완료(87) | ① 파일 복사(61·68줄)는 **승격 전**에(실패하면 해제, 아무것도 안 보냄) ② 행 만들기 + `matchRemixLyricsByAudioId`로 `suno_task_id`·`lyrics`·`lyrics_status` ③ `promote` ok일 때만 `insertRemixVariantsWithFallback` ④ 결과 7종 분기: `ok` 계열 → 연장 필요 없으면 `finish(completed)`, 필요하면 연장 요청(유료) → 성공 `extendFromInserting` / 요청 실패·불확실 → `finish(completed)` + 「연장 결과 불확실/실패」 기록(재요청 0) · 확정 실패·건너뜀 → `finish(failed, 문구)` · 불확실·insert 뒤 예외 → 추가 쓰기 0 ⑤ 반환 형식: 결과 7종 + 단계 결과 |
+| W4 | `music/lib/remixSync.ts:99~151` `maybeAutoExtendRemix` | 저장 직후 무조건 판단, `task_id`·hop 갱신(140줄)은 `id`만 조건 | W3 ④의 `ok` 계열 경로에서만 부르고, 갱신은 `extendFromInserting`(토큰 조건)으로 대체 |
+| W5 | 웹훅 `music/app/api/webhooks/suno/route.ts:117~137`(리믹스 부분만) | `claimSyncLock` → `verifiedResult` → 성공 시 저장, 0개면 실패, 예외면 해제 | 잡기(W1 CAS, 토큰 새로 생성, 조회한 `task_id`·`extend_hop_count`로) → `requestRemixRecordInfo`(회원 키, 같은 대기 `waitForSettled`) → 진행 중이면 `release` / Suno 실패면 `failFromLock` / 완료면 W3. 예외는 단계로 구분: 승격 전 → `release`, 승격 뒤 → 추가 쓰기 0. 리믹스 select(104~106)에 `task_id`·`mode`·`lyrics` 추가 |
+| W6 | 수동 `music/lib/actions/remix.ts:401~450` `syncRemixStatusAction` | `checkSunoGenerationStatus`(421) → 실패 표시(425) → `claimSyncLock`(431) → 저장(434) → 0개면 실패(441) | W5와 같은 순서(잡기를 조회 **앞**으로 옮김 — 지금은 조회 뒤 잡기라 조회 중 다른 처리와 겹침). 실패 표시(425)도 `failFromLock`. 화면 결과는 `saving`·`uncertain`·`failed`·`completed` 4가지 |
+| W7 | `music/components/remix/RemixCard.tsx:146~165` | `failed`면 빨간 문구, `generating`이면 새로고침 버튼 | `generating` + `__rins__:` 표시면 새로고침 버튼 대신 「곡 저장 결과를 확인하지 못했습니다 — 아래에 곡이 보이면 정상 저장된 것입니다」(확정 실패 문구와 다름, U2). 삭제 버튼은 바꾸지 않음(보류) |
+| W8 | 시험 | — | 호출부 모의(가짜 Supabase + 가짜 `record-info`): T1~T14, 결과 7종 전이, 웹훅·수동 각각 재알림·5분 뒤·하루 뒤 insert 0·연장 0, 곡 생성 경로 회귀(기존 시험), lyric-video 시험 그대로 |
+
+- 운영 DB: 새 칸 3개(`docs/migration-candidates/20261120_remix_variant_lyrics.sql`). **잠금 토큰은 기존 `error_message` 칸을 그대로 써서 추가 칸 없음.** 칸 추가 전에 배포돼도 `insertRemixVariantsWithFallback`가 3칸을 빼고 저장(구형 호환).
+- 배포 순서(승인 필요, 그때 비용 다시 보고): DB 칸 추가 → music 빌드 1회 → lyric-video 빌드 1회. 공용 사본 동기화 없음.
+- 범위 밖 유지: 삭제 권한, 불확실 → 완료 전환(U3), 새 상태 칸, 0-7 연장 예약 세대(2차), 보충(3차).
