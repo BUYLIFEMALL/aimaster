@@ -454,7 +454,7 @@ POST 콜백을 보낸다. 이 라우트는:
 - 기획 상세 「📝 가사 만들기 · 수정」(`components/plannings/PlanningLyricsCard.tsx`, `lib/actions/planningLyrics.ts`): AI 가사 생성(본인 OpenAI 키, gpt-4o-mini, 기존 작사 프롬프트) → 수정 → 저장. **DB** `music_plannings.lyrics`(`supabase/migrations/20261113_v1_51_planning_lyrics.sql`, 운영 적용). 저장 가사가 있으면 생성 콘솔 「위에서 저장한 가사로 보컬 버전 만들기」(기본 켬, `useSavedLyrics`) → `generateTracksAction`이 보컬판에 그대로 사용(대량생성은 가사 같고 스타일만 다름). 비우면 예전처럼 자동 작사.
 - 정밀 기획 빌더: 가사 칸 바로 아래 「이 곡 가사 생성」(`Workspace.tsx` `builderLyrics` — 제목·Style 그대로, 곡 설명이 비면 곡 제목·요약으로).
 - 검수: 시험 61·tsc·lint·build, 배포 `music-qs47n803e` Ready, DB v1.51, ego lite 시험 계정으로 가사 생성 1회·수정·저장·새로고침 유지·콘솔 체크·스튜디오 버튼 확인. Suno 실제 생성은 하지 않음.
-- **미배포 대기 `d29041221`**: AI 가사의 `**`·줄 끝 공백 정리(`lib/lyricsClean.ts`, 시험 2개 — 자동 작사·연장 가사 포함, 예전부터 섞여 Suno로 가던 것), 스튜디오 버튼이 구간 표시만 있을 때 「이 곡 가사 생성」(`hasSungLyrics`). 다음 배포 때 v1.52로.
+- ~~미배포 대기~~ **`d29041221`** (✅ 2026-11-20 음악 담당 확인: v1.52와 함께 나감 — `docs/PENDING_DEPLOYS.md` 148줄 「v1.52 … DB v1.52 … `d29041221` — v1.52 세부 기획(`3a98fc4c6`)과 함께」·`docs/HANDOFF.md` 876·877줄. 배포 ID 기록 없음): AI 가사의 `**`·줄 끝 공백 정리(`lib/lyricsClean.ts`, 시험 2개 — 자동 작사·연장 가사 포함, 예전부터 섞여 Suno로 가던 것), 스튜디오 버튼이 구간 표시만 있을 때 「이 곡 가사 생성」(`hasSungLyrics`). 다음 배포 때 v1.52로.
 
 ## 2026-11-13 v1.52 — 세부 기획: 가사까지 기획 → 수정·확정 → 노래 생성 (Claude Code 윈도우 · 음악 담당)
 - 새 기획(`components/plannings/PlanningForm.tsx`): 장르·무드·악기·보컬톤·템포 칩, 후렴 구절·녹일 단어·쓰지 말 단어, 곡 길이(2·3·4분대). **DB** `music_plannings.plan_options` jsonb(`supabase/migrations/20261113_v1_52_planning_options.sql`, 운영 적용). 정리·비교·가사 지시문 `lib/planOptions.ts`(시험 `tests/planOptions.test.mjs`).
