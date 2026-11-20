@@ -400,3 +400,35 @@ alter table public.music_track_remix_variants
 | K2 | hop 0만 부모 작업 번호 | 시간 가사 작업 번호 = 변주 `suno_task_id`, 없으면 **리믹스 `extend_hop_count = 0`일 때만** `remix.task_id`. 그 밖(연장된 리믹스의 옛 행, 구형 DB 포함)은 Suno 호출 **전에** 차단하고 「이 곡은 시간 가사를 받을 수 없습니다」. 목록의 `canTime`도 같은 규칙 | 연장 리믹스 + 구형 DB 모의에서 외부 호출 0 단언. 지금(`remix.task_id` 사용)과 달라지는 점을 배포 메모에 명시 |
 | K3 | 조회 fallback 근거 제한 | 구형 select로 내려가는 것은 **이번 칸(`suno_task_id`·`lyrics`·`lyrics_status`, 리믹스 쪽은 `extend_hop_count` 아님)이 변주 표에 없다는 근거**가 있을 때만 — `parseMissingColumnError`와 같은 형식·칸·표 판정. 그 밖 오류는 그대로 오류. 내려간 조회도 `.eq("user_id", userId)` 두 조건을 그대로 유지 | 다른 칸·다른 표·권한 오류 모의에서 fallback 0, fallback 조회의 소유자 조건 단언 |
 | K4 | 미검증 안내는 실제로 채운 경우만 | 「Suno가 준 가사입니다 — 확인해 주세요」는 `pickRemixLyricText`가 `suno_unverified`로 **가사 글을 실제로 채운 일반 텍스트 경로**에서만. 회원 원문·빈 가사·가사 없는 종류·시간 가사만 받은 경우에는 표시 안 함 | 경로별 안내 유무 회귀 시험 |
+
+## 저장 호출부 인수 기준 — 결과 7종 분리와 「불확실」 상태 보존 경로 (2026-11-20, Master `msg_4dd25e54ff9f`, 맥미니 `msg_8d3dcca7c516`)
+승인 전 연결 없음. 근거는 `237741cc3` 시점 코드 읽기.
+
+### 지금 코드 근거
+| 근거 | 위치 | 뜻 |
+|---|---|---|
+| 재처리 차단 조건은 「생성 중이 아님」 하나 | 잠금 `music/lib/syncLock.ts:20` `.eq("status","generating")`, 수동 `music/lib/actions/remix.ts:414` | 리믹스가 `completed`·`failed`면 웹훅·수동 모두 다시 저장하지 않음 |
+| 저장 중 예외 → 잠금만 풀고 「생성 중」 유지 | 웹훅 `route.ts:134~136`, 수동 `remix.ts:433~436` | Suno 재알림·수동 새로고침이 **같은 결과를 다시 저장**할 수 있음 → 지금은 「불확실 = 재저장 0」이 보장되지 않음 |
+| 저장 0개 → 실패 하나로 | 웹훅 `route.ts:130~132`, 수동 `remix.ts:439~443` 「Suno가 오디오 URL을 반환하지 않았습니다」 | 건너뜀·확정 실패·불확실이 「오디오 없음」으로 합쳐짐 |
+| 유료 연장은 저장 직후 | `remixSync.ts:85` `maybeAutoExtendRemix` | 저장 결과와 무관하게 연장 판단이 이어짐(지금 insert 결과를 안 봄, 83줄) |
+| 상태 값 3개뿐 | `0010_track_remix.sql:19~20` | 새 상태 없이 기존 값으로 처리해야 스키마 변경이 없음 |
+| 실패 문구 표시 | `components/remix/RemixCard.tsx:146~150` | `failed`일 때만 `error_message`가 화면에 보임 |
+
+### 결과 7종 → 호출부 전이(두 호출부 같게)
+| `insertRemixVariantsWithFallback` 결과 | 리믹스 전이 | 유료 연장 | 자동 재저장 | 화면 문구 |
+|---|---|---|---|---|
+| `ok`·`ok_without_lyrics_columns` | 지금과 같은 성공 경로(연장 판단 → `completed`) — **성공 전이는 이 둘만** | 지금 규칙대로 | — | — |
+| `skipped`(오디오 있는 항목 0) | `failed` | 0 | 0 | 「Suno가 오디오 URL을 반환하지 않았습니다.」(지금 문구) |
+| `error`·`retry_failed`(확정 실패, 저장 안 됨) | `failed` | 0 | 0 | 「곡을 저장하지 못했습니다. 다시 만들거나 문의해 주세요.」 |
+| `uncertain`·`retry_uncertain` | `failed`(끝 상태로 고정, 「생성 중」으로 되돌리지 않음) | **0** | **0** | 「곡 저장 결과를 확인하지 못했습니다. 아래에 곡이 보이면 정상 저장된 것입니다.」 |
+
+- 「불확실」을 끝 상태(`failed`)로 두는 이유: 위 근거대로 「생성 중이 아님」이 유일한 재처리 차단 조건이라, 새 상태·칸 없이 웹훅·수동 재저장과 유료 연장을 모두 0으로 **지속**시킬 수 있다. 곡이 실제로 저장됐다면 카드는 곡 목록을 그대로 보여 준다(목록은 변주 행에서 읽음).
+- 전이 갱신 조건: `id` + `task_id = 처리한 taskId` + `status = 'generating'`(0-3의 잠금 토큰은 2차). 0행이면 아무것도 하지 않음.
+- **예외 위치 구분**: insert를 **보내기 전** 예외(파일 복사 실패 등)는 아무것도 쓰지 않았으므로 지금처럼 잠금 해제(재처리 허용). insert를 **보낸 뒤** 예외는 「불확실」과 같게 끝 상태. 이를 위해 `saveSunoRemixResult`가 「insert 전/후」를 결과에 담아 호출부에 돌려준다.
+- 결과 문자열은 7종을 그대로 호출부까지 전달하고, 호출부는 「저장 0개」 하나로 뭉치지 않는다(지금 `savedCount === 0` 분기 대체).
+
+### 열린 결정(Master)
+1. 「불확실」 직후 읽기 확인 1회(같은 `remix_id`·`suno_audio_id`·`user_id`로 변주 select — 쓰기·유료 아님)로 실제 저장 여부를 가려 `completed`로 바꿀지. 바꾸더라도 유료 연장은 0 유지 제안.
+2. 「확정 실패」에서 회원이 같은 결과를 다시 받아 저장하는 수동 버튼을 둘지(지금 `failed`는 새로고침 버튼이 없음).
+
+**범위 변화**: 위 전이는 가사 1차 인계표(A3·B1~B3)보다 넓다 — 두 호출부(`route.ts`·`remix.ts`)와 `saveSunoRemixResult` 반환 형식이 바뀐다. 구현을 열기 전에 이 범위로 Master 확인을 받는다.
