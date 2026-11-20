@@ -135,3 +135,5 @@
 - `shop-detail-page` 상품 화면에서 `/topic#product-name=…&product-point=…(최대 3)&product-offer=…&product-from=AI 상세페이지 자동화&product-id=<uuid>`로 새 창을 엽니다(`shop-detail-page/lib/shortsLink.ts`). 받는 쪽 코드는 고치지 않았습니다.
 - 형식 맞춤 시험 `shop-detail-page/tests/shortsLink.test.mjs`가 이 프로그램의 `readProductHandoff`·`readProductExtra`를 불러 씁니다 — 두 함수의 이름·형식을 바꾸시면 그 시험도 함께 맞춰 주세요.
 - 상품 사진(`product-image`)은 2단계가 준비되면 알려 주세요. 그때 보내는 쪽에 추가합니다.
+
+- **미배포 대기(2026-11-20, 영상 담당 `claude-win-video`, MOV-ONESTOP-LAYOUT-NOTICE)**: 글자 배치 안내 — 상품 사진이 있는 대본에서 「하단 자막형」이 아닌 카드 레이아웃을 고르면 「카드 레이아웃」 아래에 경고 한 줄(`src/lib/productShorts.ts` `productLayoutNotice`, `src/components/views/ScenesView.tsx`). 배치를 막거나 바꾸지 않음. `tsc` 0·`npm test` 93/93. 실화면(문구 줄바꿈·좁은 화면)은 배포 뒤 확인. 다음 원스톱 배포 때 함께.

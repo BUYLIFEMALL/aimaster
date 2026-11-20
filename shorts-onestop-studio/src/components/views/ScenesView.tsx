@@ -7,6 +7,7 @@ import { api, timeAgo, toMsg, type Item, type Msg } from "@/components/ui/api";
 import { useMedia } from "@/components/ui/useMedia";
 import { useAudio } from "@/components/ui/useAudio";
 import type { ShortsScript } from "@/lib/script";
+import { productLayoutNotice } from "@/lib/productShorts";
 import { EFFECTS, FONTS, FONT_CSS, H, LAYOUTS, THEMES, W, loadFontsFor, normalizeDesign, renderFrame, segmentAt, timeline, type Design } from "@/lib/render/scene";
 
 // 장면 편집·미리보기(크리에이티브 아틀리에): 가운데 9:16 캔버스 + 오른쪽 옵션 패널
@@ -132,7 +133,7 @@ export function ScenesView() {
               <div><p className="panel-label">테마</p><div className="swatches">{(Object.keys(THEMES) as (keyof typeof THEMES)[]).map((k) => (
                 <button key={k} type="button" title={THEMES[k].name} className={`swatch ${design.theme === k ? "on" : ""}`} style={{ background: `linear-gradient(135deg, ${THEMES[k].bg[0]}, ${THEMES[k].bg[2]})` }} onClick={() => change({ theme: k })}><span>{THEMES[k].name}</span></button>
               ))}</div></div>
-              <div><p className="panel-label">카드 레이아웃</p><div className="chips">{(Object.keys(LAYOUTS) as (keyof typeof LAYOUTS)[]).map((k) => <button key={k} type="button" className={`chip ${design.layout === k ? "on" : ""}`} onClick={() => change({ layout: k })}>{LAYOUTS[k]}</button>)}</div></div>
+              <div><p className="panel-label">카드 레이아웃</p><div className="chips">{(Object.keys(LAYOUTS) as (keyof typeof LAYOUTS)[]).map((k) => <button key={k} type="button" className={`chip ${design.layout === k ? "on" : ""}`} onClick={() => change({ layout: k })}>{LAYOUTS[k]}</button>)}</div>{productLayoutNotice(item?.data.product?.photos, design.layout) && <p className="notice warning" style={{ marginTop: 8 }}>{productLayoutNotice(item?.data.product?.photos, design.layout)}</p>}</div>
               <label>제목 글꼴<select value={design.font} onChange={(e) => change({ font: e.target.value as Design["font"] })}>{(Object.keys(FONTS) as (keyof typeof FONTS)[]).map((k) => <option key={k} value={k}>{FONTS[k].name}</option>)}</select></label>
               <div><p className="panel-label">제목 효과</p><div className="chips">{(Object.keys(EFFECTS) as (keyof typeof EFFECTS)[]).map((k) => <button key={k} type="button" className={`chip ${design.effect === k ? "on" : ""}`} onClick={() => change({ effect: k })}>{EFFECTS[k]}</button>)}</div></div>
               <label className="row" style={{ gap: 8, fontWeight: 500 }}><input type="checkbox" checked={design.badges} onChange={(e) => change({ badges: e.target.checked })} />카드 번호·태그 표시</label>

@@ -132,3 +132,14 @@ test("자료함 원본 번호는 형식이 맞을 때만, 복사 없이 ref로 �
   assert.equal(s.cards[1].bg?.path, undefined);
   assert.deepEqual(productPhotoList(s), [{ ref }, { path: "u1/product/a.jpg" }]);
 });
+
+import { PRODUCT_LAYOUT_NOTICE, productLayoutNotice } from "../src/lib/productShorts.ts";
+
+test("글자 배치 안내: 상품 사진이 있고 하단 자막형이 아닐 때만 한 줄", () => {
+  for (const layout of ["center", "number", "split", "minimal", "mix"]) assert.equal(productLayoutNotice(3, layout), PRODUCT_LAYOUT_NOTICE);
+  assert.equal(productLayoutNotice(3, "bottom"), "");
+  assert.equal(productLayoutNotice(0, "center"), "");
+  assert.equal(productLayoutNotice(undefined, "center"), "");
+  assert.equal(productLayoutNotice(2, undefined), "");
+  assert.match(PRODUCT_LAYOUT_NOTICE, /하단 자막형/);
+});

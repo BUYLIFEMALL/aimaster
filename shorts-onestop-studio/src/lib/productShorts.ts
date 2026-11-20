@@ -231,3 +231,12 @@ export function productPhotoList(s: ShortsScript): ProductPhoto[] {
   }
   return out.filter((x): x is ProductPhoto => !!x);
 }
+
+/** 2026-11-20 글자 배치 안내: 상품 사진이 들어간 대본의 카드 장면은 상품을 위쪽 상자(render/scene.ts PRODUCT_BOX)에 두고 글자를 아래에 놓는다.
+ *  그래서 「하단 자막형」이 아닌 배치를 고르면 글자가 상품과 겹칠 수 있다 — 막지 않고 화면에 한 줄로 알린다. 해당 없으면 빈 문자열. */
+export const PRODUCT_LAYOUT_NOTICE = "상품 사진이 있는 대본입니다. 「하단 자막형」이 아닌 배치는 카드 장면 글자가 상품 사진을 가릴 수 있어요. 미리보기에서 확인하거나 「하단 자막형」을 권장합니다.";
+export function productLayoutNotice(photos: number | undefined, layout: string | undefined): string {
+  if (!photos || photos <= 0) return "";
+  if (!layout || layout === "bottom") return "";
+  return PRODUCT_LAYOUT_NOTICE;
+}
