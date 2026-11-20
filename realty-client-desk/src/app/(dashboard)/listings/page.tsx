@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { deleteListingAction, updateListingStatusAction } from "@/lib/actions/listings";
-import { LISTING_STATUSES, matchReasons } from "@/lib/desk/adRules";
+import { deleteListingAction } from "@/lib/actions/listings";
+import { matchReasons } from "@/lib/desk/adRules";
+import { ListingStatusForm } from "@/components/desk/ListingStatusForm";
 import { priceText } from "@/lib/desk/format";
 import { ListingIntake } from "@/components/desk/ListingIntake";
 import { PageHero } from "@/components/ui/PageHero";
@@ -45,13 +46,7 @@ export default async function ListingsPage() {
                     {l.status === "광고 중" && (
                       <Link href={`/listings/${l.id}`} className="mx-btn-primary inline-flex min-h-[40px] items-center px-3 text-xs">👥 맞는 고객 {n}명 보기</Link>
                     )}
-                    <form action={updateListingStatusAction} className="flex items-center gap-1">
-                      <input type="hidden" name="id" value={l.id} />
-                      <select name="status" defaultValue={l.status} aria-label="상태" className="mx-input min-h-[40px] w-auto py-1">
-                        {LISTING_STATUSES.map((s) => <option key={s}>{s}</option>)}
-                      </select>
-                      <button type="submit" className="mx-btn-ghost min-h-[40px] px-3 text-xs">상태 저장</button>
-                    </form>
+                    <ListingStatusForm key={`${l.id}-${l.status}`} id={l.id} status={l.status} />
                     <form action={deleteListingAction}>
                       <input type="hidden" name="id" value={l.id} />
                       <button type="submit" className="mx-btn-danger min-h-[40px] px-3 text-xs">🗑 삭제</button>

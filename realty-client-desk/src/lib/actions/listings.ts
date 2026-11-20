@@ -106,13 +106,19 @@ export async function addCandidateListingAction(_prev: ListingState, fd: FormDat
   return { success: "「후보」로 저장했어요. 광고 준비가 끝나면 목록에서 상태를 「광고 중」으로 바꿔 주세요(그 전에는 안내 문자를 보내지 않아요)." };
 }
 
-export async function updateListingStatusAction(fd: FormData): Promise<void> {
+// 2026-11-20: 결과를 돌려준다 — 예전에는 update 오류(예: DB 상태 제약 거부)가 화면에 아무 문구 없이 이전 상태만 보였다(C-1 PLAN §6-2·E12).
+// 실제로 바뀐 행이 없으면(남의 매물·지워진 매물·제약 거부) 실패로 알린다.
+export async function updateListingStatusAction(_prev: ListingState, fd: FormData): Promise<ListingState> {
   const user = await requireProgramAccess();
   const status = String(fd.get("status") ?? "");
-  if (!(LISTING_STATUSES as readonly string[]).includes(status)) return;
+  if (!(LISTING_STATUSES as readonly string[]).includes(status)) return { error: "상태 값이 올바르지 않아요." };
   const db = (await createClient()) as unknown as SupabaseLike;
-  await db.from(LISTINGS).update({ status, updated_at: new Date().toISOString() }).eq("id", String(fd.get("id") ?? "")).eq("user_id", user.id);
+  const { data, error } = await db.from(LISTINGS).update({ status, updated_at: new Date().toISOString() })
+    .eq("id", String(fd.get("id") ?? "")).eq("user_id", user.id).select("id");
+  if (error) return { error: `상태를 바꾸지 못했어요: ${error.message}` };
+  if (!data || data.length === 0) return { error: "상태를 바꾸지 못했어요(매물을 찾지 못했어요). 새로고침해 주세요." };
   revalidatePath("/listings");
+  return { success: `「${status}」(으)로 바꿨어요.` };
 }
 
 export async function deleteListingAction(fd: FormData): Promise<void> {
