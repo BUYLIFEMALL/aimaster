@@ -697,8 +697,10 @@
    },
    "expected": {
     "rowsForA": 1,
-    "lyricsOfA": "첫 항목",
-    "warningLogged": true
+    "status": "unknown",
+    "conflict": true,
+    "lyricsHash": null,
+    "note": "PHASE1-PURE A1에서 정정: 같은 번호가 서로 다른 가사로 오면 어느 것도 고르지 않음(다른 곡 오매칭 금지)"
    }
   },
   {
@@ -726,9 +728,9 @@
      "audioId": null,
      "status": "provided_unverified",
      "lyricsLen": 7,
-     "backfillEligible": false,
      "lyricsHash": "d16415f3775c936f",
-     "hop": 0
+     "backfillEligible": false,
+     "matchedTo": null
     }
    ]
   },
