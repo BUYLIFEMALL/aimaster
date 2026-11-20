@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { deleteListingAction, updateListingStatusAction } from "@/lib/actions/listings";
 import { LISTING_STATUSES, matchReasons } from "@/lib/desk/adRules";
 import { priceText } from "@/lib/desk/format";
-import { AddListingForm } from "@/components/desk/AddListingForm";
+import { ListingIntake } from "@/components/desk/ListingIntake";
 import { PageHero } from "@/components/ui/PageHero";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +26,7 @@ export default async function ListingsPage() {
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-4">
       <PageHero badge="🏠 내 매물" title="내 매물과 맞는 고객" description="매물을 넣으면 관심고객 조건(거래·종류·지역·예산·면적)과 맞춰 후보를 보여 줘요. 안내 문자는 고객을 직접 골라 보내요." />
-      <AddListingForm />
+      <ListingIntake mine={listings.map((l) => ({ id: l.id, title: l.title, deal_type: l.deal_type, price: l.price, area_m2: l.area_m2 }))} />
       {listings.length === 0 ? (
         <p className="mx-card p-5 text-sm text-mx-muted">아직 매물이 없어요. 위 「➕ 매물 등록」에서 넣어 주세요.</p>
       ) : (
@@ -37,7 +37,7 @@ export default async function ListingsPage() {
               <li key={l.id} className="mx-card p-4 text-sm">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="text-base font-bold text-mx-text">{l.title} <span className={l.status === "광고 중" ? "mx-chip-blue ml-1" : "mx-chip ml-1"}>{l.status}</span></p>
+                    <p className="text-base font-bold text-mx-text">{l.title} <span className={l.status === "광고 중" ? "mx-chip-blue ml-1" : "mx-chip ml-1"}>{l.status === "후보" ? "후보 · 광고 전" : l.status}</span></p>
                     <p className="text-mx-text">{l.property_type} · {priceText(l)}{l.area_m2 ? ` · 전용 ${l.area_m2}㎡` : ""}{l.floor_info ? ` · ${l.floor_info}` : ""}</p>
                     <p className="text-mx-muted">{l.address}</p>
                   </div>

@@ -87,6 +87,25 @@ export async function addListingAction(_prev: ListingState, fd: FormData): Promi
   return { success: "매물을 저장했어요. 목록에서 「맞는 고객 보기」를 눌러 보세요." };
 }
 
+/**
+ * C-1(2026-11-20): 매물 알림에서 넘겨받은 미저장 후보 등록 — 일반 수동 등록(addListingAction)과 따로 둔다.
+ * 서버가 의뢰 확인값(mandateConfirmed = "1")을 강제하고, 상태는 서버가 「후보」로 정한다(광고·발송 대상 아님).
+ * 확인값은 회원의 의사 표시일 뿐 의뢰 사실의 증명이 아니다(법률 판단은 하지 않음). 광고 시작은 회원이 목록에서 따로.
+ */
+export async function addCandidateListingAction(_prev: ListingState, fd: FormData): Promise<ListingState> {
+  const user = await requireProgramAccess();
+  if (String(fd.get("mandateConfirmed") ?? "") !== "1") {
+    return { error: "「이 매물은 내 사무소가 직접 의뢰를 받았습니다」를 확인해야 후보로 저장할 수 있어요." };
+  }
+  const read = readListing(fd);
+  if ("error" in read) return read;
+  const db = (await createClient()) as unknown as SupabaseLike;
+  const { error } = await db.from(LISTINGS).insert({ ...read.row, status: "후보", user_id: user.id });
+  if (error) return { error: `저장하지 못했어요: ${error.message}` };
+  revalidatePath("/listings");
+  return { success: "「후보」로 저장했어요. 광고 준비가 끝나면 목록에서 상태를 「광고 중」으로 바꿔 주세요(그 전에는 안내 문자를 보내지 않아요)." };
+}
+
 export async function updateListingStatusAction(fd: FormData): Promise<void> {
   const user = await requireProgramAccess();
   const status = String(fd.get("status") ?? "");

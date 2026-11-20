@@ -4,7 +4,7 @@
 // 법 제50조③ 밤 9시~아침 8시는 별도 동의가 필요 — 이 프로그램은 별도 동의를 받지 않으므로 그 시간에는 보내지 않는다.
 // 시행령 제62조의3: 광고 수신 동의는 2년마다 다시 확인.
 
-export const LISTING_STATUSES = ["광고 중", "계약", "내림"] as const;
+export const LISTING_STATUSES = ["광고 중", "계약", "내림", "후보"] as const; // 후보(C-1): 매물 알림에서 넘겨받아 의뢰 확인 후 저장, 광고·발송 대상 아님
 
 export type MatchClient = {
   deal_type: string;
