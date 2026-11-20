@@ -80,7 +80,9 @@ export function SunoImportCard({ autoVariant }: { autoVariant?: string | null })
       }
       const plain = parseLyrics(plainSunoLyrics(v.lyrics)).lines;
       s.setLines(plain);
-      const base = `「${v.title || "곡"}」의 음악을 가져왔습니다. 가사 글 ${plain.length}줄을 넣었으니 「가사 싱크」에서 시간을 맞춰 주세요.`;
+      // K4: 리믹스에서 Suno가 준(미검증) 가사로 가사 글을 실제로 채웠을 때만 확인 안내
+      const notice = v.lyricsNotice && plain.length > 0 ? ` ${v.lyricsNotice}.` : "";
+      const base = `「${v.title || "곡"}」의 음악을 가져왔습니다. 가사 글 ${plain.length}줄을 넣었으니 「가사 싱크」에서 시간을 맞춰 주세요.${notice}`;
       setNote(timeError ? { ...timeError, text: `${base} (시간 가사: ${timeError.text})` } : { ok: true, text: base });
     } catch (e) {
       setNote({ text: e instanceof Error ? e.message : "곡을 가져오지 못했습니다. 다시 시도해 주세요." });

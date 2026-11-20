@@ -3,7 +3,7 @@
 // 곡 가져오기(SunoImportCard)와 보관함 작업 다시 열기(StudioContext)가 함께 쓴다. Suno 호출은 없다(저장소 파일만 받음).
 import { api } from "@/components/ui/api";
 
-export type SunoVariantInfo = { id: string; title: string; lyrics: string; audioUrl: string; coverUrl: string | null; canTime: boolean };
+export type SunoVariantInfo = { id: string; title: string; lyrics: string; audioUrl: string; coverUrl: string | null; canTime: boolean; lyricsNotice?: string | null };
 
 const extOf = (type: string) => (/wav/.test(type) ? "wav" : /ogg/.test(type) ? "ogg" : /mp4|m4a|aac/.test(type) ? "m4a" : "mp3");
 const safeName = (s: string) => s.replace(/[\\/:*?"<>|]/g, "_").trim().slice(0, 60) || "suno-song";

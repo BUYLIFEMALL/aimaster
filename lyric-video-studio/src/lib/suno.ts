@@ -2,6 +2,9 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { UserError } from "@/lib/errors";
 import { linesFromAlignedWords, type SunoWord, type TimedLine } from "@/lib/sunoAlign";
+import { pickRemixLyricText } from "@/lib/remixLyrics";
+import { isMissingLyricsColumnError } from "@/lib/remixVariantInsert";
+import { remixVariantView } from "@/lib/remixVariantView";
 
 // v1.05 음악(SUNO) 자동화(music/, slug music-automation)에서 회원 본인이 만든 곡을 가져온다.
 // 공용 DB의 music_tracks·music_track_variants를 읽기만 하고(쓰기 없음), 모든 조회를 회원 user_id로 거른다.
@@ -47,7 +50,12 @@ export async function listSunoTracks(userId: string): Promise<SunoTrack[]> {
   }).filter((t) => t.variants.length > 0);
 }
 
-type VariantRow = { id: string; suno_audio_id: string | null; audio_url: string; image_url: string | null; music_tracks: { title: string; prompt_text: string; task_id: string | null; mode: string } | null };
+// remix: 리믹스 변주일 때만 — 가사 안내(K4)·시간 가사 차단 사유(K2)
+type VariantRow = { id: string; suno_audio_id: string | null; audio_url: string; image_url: string | null; music_tracks: { title: string; prompt_text: string; task_id: string | null; mode: string } | null; remix?: { lyricsNotice: string | null; timedBlockedReason: string | null } };
+
+// 리믹스 변주 조회 칸 — 새 칸(2026-11-20 리믹스 가사 1차)이 없는 구형 DB면 그 근거가 있을 때만 예전 칸으로 1회 다시(K3)
+const REMIX_VARIANT_COLS = "id, remix_id, suno_audio_id, audio_url, image_url, suno_task_id, lyrics, lyrics_status";
+const REMIX_VARIANT_COLS_LEGACY = "id, remix_id, suno_audio_id, audio_url, image_url";
 
 const REMIX_MODE: Record<string, string> = { cover: "커버", add_vocals: "보컬 추가", add_instrumental: "반주 추가", mashup: "매시업" };
 
@@ -60,21 +68,27 @@ async function ownVariant(userId: string, variantId: string): Promise<VariantRow
   if (error) throw new Error(error.message);
   if (data) return data as unknown as VariantRow;
   // 음악(SUNO) 리믹스 결과(?remix=) — 회원 본인 것만. 반주 추가·연주곡은 가사가 없어 시간 가사를 받지 않는다
-  const { data: rv, error: rvErr } = await db
-    .from("music_track_remix_variants").select("id, remix_id, suno_audio_id, audio_url, image_url")
-    .eq("id", variantId).eq("user_id", userId).maybeSingle();
-  if (rvErr) throw new Error(rvErr.message);
+  const readRemixVariant = (cols: string) => db.from("music_track_remix_variants").select(cols).eq("id", variantId).eq("user_id", userId).maybeSingle();
+  let rvRes = await readRemixVariant(REMIX_VARIANT_COLS);
+  if (rvRes.error && isMissingLyricsColumnError(rvRes.error)) rvRes = await readRemixVariant(REMIX_VARIANT_COLS_LEGACY); // 소유자 조건 그대로
+  if (rvRes.error) throw new Error(rvRes.error.message);
+  const rv = rvRes.data as { id: string; remix_id: string; suno_audio_id: string | null; audio_url: string; image_url: string | null; suno_task_id?: string | null; lyrics?: string | null; lyrics_status?: string | null } | null;
   if (rv) {
     const { data: rm, error: rmErr } = await db
-      .from("music_track_remixes").select("task_id, mode, source_title, lyrics, instrumental")
+      .from("music_track_remixes").select("task_id, mode, source_title, lyrics, instrumental, extend_hop_count")
       .eq("id", rv.remix_id).eq("user_id", userId).maybeSingle();
     if (rmErr) throw new Error(rmErr.message);
     if (rm) {
-      const vocal = !rm.instrumental && rm.mode !== "add_instrumental";
+      const view = remixVariantView(
+        { task_id: rm.task_id as string | null, mode: rm.mode as string, lyrics: rm.lyrics as string | null, instrumental: !!rm.instrumental, extend_hop_count: (rm.extend_hop_count as number | null) ?? null },
+        { suno_audio_id: rv.suno_audio_id, suno_task_id: rv.suno_task_id, lyrics: rv.lyrics, lyrics_status: rv.lyrics_status },
+        pickRemixLyricText,
+      );
       const name = REMIX_MODE[rm.mode as string] ?? "리믹스";
       return {
-        id: rv.id, suno_audio_id: vocal ? rv.suno_audio_id : null, audio_url: rv.audio_url, image_url: rv.image_url,
-        music_tracks: { title: `${(rm.source_title as string) || "제목 없음"} (${name})`, prompt_text: vocal ? (rm.lyrics as string) ?? "" : "", task_id: vocal ? rm.task_id : null, mode: "remix" },
+        id: rv.id, suno_audio_id: view.vocal ? rv.suno_audio_id : null, audio_url: rv.audio_url, image_url: rv.image_url,
+        music_tracks: { title: `${(rm.source_title as string) || "제목 없음"} (${name})`, prompt_text: view.lyricText, task_id: view.timedTaskId, mode: "remix" },
+        remix: { lyricsNotice: view.lyricsNotice, timedBlockedReason: view.timedBlockedReason },
       };
     }
   }
@@ -89,12 +103,14 @@ export async function getSunoVariant(userId: string, variantId: string) {
   return {
     id: v.id, title: v.music_tracks?.title ?? "", lyrics: v.music_tracks?.prompt_text ?? "",
     audioUrl, coverUrl: await signed(v.image_url), canTime: !!(v.music_tracks?.task_id && v.suno_audio_id),
+    lyricsNotice: v.remix?.lyricsNotice ?? null, // K4: 리믹스에서 Suno 미검증 가사로 채웠을 때만
   };
 }
 
 /** 회원 본인 Suno 키로 시간 가사를 받아 줄 시간표로 바꾼다 */
 export async function fetchSunoTimedLines(userId: string, variantId: string): Promise<TimedLine[]> {
   const v = await ownVariant(userId, variantId);
+  if (v.remix?.timedBlockedReason) throw new UserError(400, v.remix.timedBlockedReason); // K2: Suno 키 조회·호출 전에 차단
   const taskId = v.music_tracks?.task_id, audioId = v.suno_audio_id;
   if (!taskId || !audioId) throw new UserError(400, "이 곡은 Suno 작업 번호가 없어 시간 가사를 받을 수 없습니다. 가사 글로 넣고 싱크 화면에서 맞춰 주세요.");
   const { data: key } = await createAdminClient().from("user_api_keys").select("api_key").eq("user_id", userId).eq("provider", "suno").maybeSingle();
