@@ -477,3 +477,69 @@
 - 입력은 서버 값뿐: 몰 이름(DB), `MALL_ROOT_DOMAIN`, 서버 설정의 플랫폼 앱 출처 목록, 그 몰 행의 `custom_domain`(0093), 개발 모드 여부와 개발용 로컬 출처. 요청 머리글은 입력이 아니다.
 - 규칙: 플랫폼 출처는 https 정규형만, 서브도메인은 `mallSubdomainUrl` 그대로(그 몰 것 하나), 커스텀 도메인은 `customDomainCandidate`를 통과하고 원문과 같은 이름만, localhost는 `dev === true`일 때 명시한 `http://localhost|127.0.0.1[:port]`만. **값이 하나라도 틀리면 빈 목록(전부 차단)** — 틀린 값을 빼고 나머지로 허용하지 않는다. 20건 초과도 차단.
 - 남은 결정(활성 route 단위): 플랫폼 앱 출처 목록을 담을 서버 설정 이름(새 환경변수 여부), 개발 모드 판정 기준, 몰 행 `custom_domain`을 route가 읽는 방법(회원 세션 select).
+
+## 20. R3 활성 route 조립 계약(Master msg_2aa0f0fe9e16, B2B-M3-R3-CONTRACT A1 — 읽기·설계만, route 연결·DB·빌드·배포 0)
+기준: 라우트 후보 `85b77952e`(Mac 64/64 수락판 `052441c03` + 계약 시험), R1 `051fec051`(Mac 검수 중). 아래는 「활성 `route.ts`가 무엇을 어디서 가져와 어떻게 조립하는가」의 계약이며, 근거는 지금 코드 읽기(2026-11-20)다.
+
+### 20-1. 위치와 껍데기
+- 경로: `src/app/s/[store]/admin/products/proposals/apply/route.ts`(§14-2 그대로). `export const dynamic = "force-dynamic"`, `fetchCache = "force-no-store"`(기존 admin route들과 같음), `runtime = "nodejs"`(sharp·`node:crypto` 때문에 Edge 불가), `maxDuration`은 S1 실측 뒤 확정(기존 사용 예: cron 120).
+- 내보내는 것은 `POST` 하나. 본문은 `handleApplyPost(req, routeDeps)` 호출뿐(판정 로직을 route에 다시 쓰지 않음). GET 등 다른 메서드는 Next 기본 405.
+- 공급사 화면도 같은 route를 부른다(경로가 `admin` 아래여도 권한은 DB가 판정 — 0107 begin의 `photo_proposal_actor`). 공급사 화면에서 이 주소를 부르는 것이 미들웨어·레이아웃 가드에 막히지 않는지는 연결 단위에서 확인(route handler에는 레이아웃이 적용되지 않음).
+
+### 20-2. 값의 출처(서버 값만, 요청은 `{proposalId, force}`와 URL의 몰 이름뿐)
+| 값 | 출처(기존 코드) | 실패 시 |
+|---|---|---|
+| 회원 | `createClient()`(`lib/supabase/server.ts`, 쿠키 세션) → `auth.getUser()` — admin excel route와 같은 방식 | 없음 = 401, 예외 = 502 unknown |
+| 몰 행 | URL `[store]` 이름 → 회원 세션 `mall_builder_stores` select `id, slug, custom_domain` `.eq("slug", …)`(admin excel route·settings 화면과 같은 읽기) | 없음 = 403(존재 여부 미노출), DB·Storage 호출 0 |
+| 신뢰 출처 목록 | `buildTrustedOrigins({ slug: 몰 행, rootDomain: MALL_ROOT_DOMAIN, platformOrigins: 서버 설정, customDomain: 몰 행, dev, devOrigins })`(R1) | 빈 목록 = 403 |
+| 서명 설정 | `readApplyConfig(process.env)` — `MALL_APPLY_SIGNING_KEY`·선택 `MALL_APPLY_KID`·`NEXT_PUBLIC_SUPABASE_URL` | 없음·형식 오류 = 503 config |
+| 디코더 | `makeSharpDecoder(sharp)` — sharp import는 별도 파일 한 곳(§19 남은 조건 ①②) | 디코드 불가 = 422, 게시 0 |
+| 적용 deps | `makeApplyDeps({ supabase: 같은 회원 세션 클라이언트, decode, fetch, origin: 설정, sha256: node:crypto, nowSeconds })` | — |
+- 순서 주의: `handleApplyPost`는 출처 판정이 회원·DB보다 먼저다. 신뢰 출처 목록에 몰 행(`custom_domain`)이 필요하므로 **몰 행 읽기 1회는 출처 판정 전에 일어난다**(읽기 전용·회원 세션·요청 본문 파싱 전). 이 읽기를 줄이려면 `trustedOrigins()`를 지연 계산으로 두고 Origin 머리글이 아예 없거나 정규형이 아닐 때는 DB를 읽지 않게 한다(조립 함수에서 처리, 판정 자체는 `originAllowed` 그대로).
+- 권한 확인을 route에서 `mall_builder_staff_can`으로 미리 하지 않는다: 공급사도 써야 하고, 판정은 0106/0107 함수가 매 호출 다시 한다(중복 판정이 어긋나면 한쪽만 고쳐지는 위험).
+
+### 20-3. 새로 필요한 것(구현 단위에서 추가 — 지금은 없음)
+1. **몰 일치 확인**: 지금 `applyProposal`은 제안 행의 몰이 URL의 몰과 같은지 보지 않는다. 다른 몰 주소로 자기 몰 제안을 적용해도 DB 권한상 결과는 같지만, 신뢰 출처 목록이 URL 몰 기준이므로 「출처는 A몰 기준으로 통과, 적용은 B몰 제안」이 가능하다. → `ApplyInput.expectedStoreId`를 추가해 제안 행 `storeId`와 다르면 begin 전에 forbidden(읽기·쓰기 0). 순수 함수 수정이라 Mac 재검수 대상.
+2. **플랫폼 앱 출처 설정**: 쇼핑몰 앱 자신의 주소를 담은 서버 설정이 지금 없다(`NEXT_PUBLIC_MAIN_SITE_URL`은 AIMaster 메인 사이트 주소, `MALL_ROOT_DOMAIN`은 서브도메인 뿌리). 안 A(추천): 새 서버 환경변수 `MALL_APP_ORIGINS`(쉼표 목록, https 정규형 — 운영·Lab 각각). 안 B: `https://mall-builder.<루트>`·`https://dev-mall-builder.<루트>`를 코드에서 조립(`slug.ts` 예약어와 `lab.json`의 프로젝트 이름에 기대는 추측이라 비추천). 환경변수 추가는 승인 항목.
+3. **개발 모드 판정**: `process.env.NODE_ENV === "development"`일 때만 `dev: true`, 개발 출처는 서버 설정(예: `MALL_APP_DEV_ORIGINS`) 또는 고정 `http://localhost:3000`. 운영·Lab 빌드(`production`)에서는 항상 false. Vercel 미리보기(`*.vercel.app`)는 목록에 넣지 않는다(§R1: 플랫폼 계열은 커스텀 도메인으로도 불가).
+4. **조립 함수**: `src/lib/mallPhotoApplyAssemble.ts`(가칭) — 「env·회원 세션 클라이언트·sharp 디코더·몰 이름」을 받아 `RouteDeps`를 돌려주는 함수. route.ts는 이 함수와 `handleApplyPost`만 부른다. 가짜 env·가짜 Supabase로 시험 가능(활성 route 없이).
+
+### 20-4. 실패 시 쓰기 0 경계(조립까지 포함한 표)
+| 단계 | 실패 예 | DB 쓰기 | Storage 쓰기 | 응답 |
+|---|---|---|---|---|
+| 몰 행 읽기 | 몰 없음·읽기 오류 | 0 | 0 | 403 / 502 |
+| 출처 | 목록 비었음·불일치·잘못된 설정 | 0 | 0 | 403 |
+| 본문·형식 | JSON 아님·다른 칸·512B 초과 | 0 | 0 | 400·413·415 |
+| 회원 | 로그인 없음 | 0 | 0 | 401 |
+| 서명 설정 | 열쇠 없음·형식 오류 | 0 | 0 | 503 |
+| 제안 읽기·몰 불일치·경로 불일치 | RLS 0행·다른 몰 | 0 | 0 | 403 / 500 |
+| begin | forbidden·stale·busy·not_proposed | 0(슬롯 0) | 0 | 403·409 |
+| 읽기·디코드 | 5MB 초과·디코드 불가 | 슬롯 1행(5분 뒤 만료)만 | 0 | 413·422 |
+| 쓰기 | 정책 거절·5xx | 슬롯만 | 0 또는 모름 | 500·502 |
+| 되읽기 | 불일치·실패 | 슬롯만 | 게시 객체 1(고아, 관리자 점검) | 409·502 |
+| commit | 거절·응답 유실 | 거절 = 상품 0 / 유실 = 모름 | 게시 객체 1 | 고정 코드·502 |
+- 상품 표가 바뀌는 곳은 commit 성공 한 곳뿐(0107 함수 안, 한 트랜잭션). 「슬롯만」 남는 경우는 상품·제안 상태 변화 0.
+
+### 20-5. 테스트 경계
+| 층 | 대상 | 방법 | 상태 |
+|---|---|---|---|
+| 순수 순서 | `applyProposal` | 가짜 deps | Mac 46/46 |
+| 처리기·연결 deps·디코더 후보 | `handleApplyPost`·`makeApplyDeps`·`makeSharpDecoder` | 가짜 Supabase·fetch·sharp | Mac 64/64 |
+| 신뢰 출처 | `buildTrustedOrigins` | 합성 값 | Mac 검수 중(`051fec051`) |
+| 조립 | 조립 함수(20-3-4)·몰 일치(20-3-1) | 가짜 env·가짜 Supabase — 활성 route 없이 | **다음 구현 단위** |
+| DB 계약 | 0107 begin/commit/revert | 격리 Docker 39/39(메인 PC) | 수락 |
+| 실 디코더 | sharp 설치·S1 | 설치 가능한 장비(맥·메인 PC) | 미실행 |
+| 실 연동 | Storage 정책 403/200·409 모양·CDN 되읽기·route 전체 | Lab(0106·0107 적용·열쇠 등록 뒤) | 미실행 |
+- 활성 `route.ts` 자체(껍데기 10줄 안팎)는 단위 시험 대상이 아니라 소스 계약 시험(내보내기 `POST`·`runtime`·조립 함수 호출만)과 Lab 실 연동으로 확인한다.
+
+### 20-6. 승인 선행조건(활성 연결 전)
+1. R1 Mac 수락, 20-3-1·20-3-4 구현과 Mac 검수.
+2. `sharp` 직접 의존성 추가(의존성 잠금 변경 — Master 점유 조정)와 S1 실측.
+3. 환경변수 승인: `MALL_APPLY_SIGNING_KEY`(값 입력은 주인님)·선택 `MALL_APPLY_KID`·새 `MALL_APP_ORIGINS`(20-3-2 안 A일 때). 운영·Lab 각각.
+4. Lab: 0106 → 0107 적용([PREP_20261119_0106_0107_LAB_APPLY.md](PREP_20261119_0106_0107_LAB_APPLY.md)), DB 열쇠 표 등록(주인님), Lab 빌드 1회, 실 연동 확인.
+5. 화면(R4) — 적용·거절·되돌리기 버튼. **거절은 DB 함수가 아직 없다**(0106 상태값 `rejected`는 있으나 전이 함수 없음 — §12 「M3·별도 결정」). 버튼을 만들려면 거절 함수(새 마이그레이션)가 선행.
+6. 운영 반영은 M2+M3 한 번에(결정 4), 관리자 점검 SQL(고아 객체) 준비.
+
+### 20-7. 확인이 필요한 항목(읽기로 닫지 못한 것)
+- 공급사 계정이 회원 세션으로 `mall_builder_stores`의 `custom_domain`을 읽을 수 있는지(RLS) — 못 읽으면 공급사 요청은 커스텀 도메인 출처가 목록에서 빠져 그 도메인에서 403이 된다. Lab 카탈로그 읽기 1회로 확인 가능(읽기 승인 필요).
+- `src/lib/supabase/admin.ts`가 서버 키(`SUPABASE_SERVICE_ROLE_KEY`·`SUPABASE_SECRET_KEY`)를 참조한다. 이 route는 그것을 쓰지 않는다(회원 세션만) — 「쇼핑몰 서버 키 없음」 전제(§15·§16)와 이 파일의 실제 사용처는 별도 확인 대상.
