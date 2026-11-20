@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { startTransition, useActionState, useEffect, useState } from "react";
 import { addCandidateListingAction, addListingAction, type ListingState } from "@/lib/actions/listings";
 import { DEAL_TYPES, PROPERTY_TYPES } from "@/lib/desk/consent";
 import { asInput, type PrefillDefaults } from "@/lib/desk/prefill";
@@ -32,7 +32,17 @@ export function AddListingForm({ candidate = null, onSaved }: { candidate?: Pref
   return (
     <details className="mx-card p-5" open={Boolean(state.error) || isCandidate}>
       <summary className="cursor-pointer text-base font-bold text-mx-text">{isCandidate ? "🏠 매물 알림에서 온 후보 등록" : "➕ 매물 등록"}</summary>
-      <form action={action} key={`${state.success ?? "form"}-${isCandidate ? "c" : "n"}`} className="mt-4 space-y-4">
+      {/* 2026-11-20: <form action>은 저장 결과와 상관없이 React가 폼을 자동 초기화해(React 19.2.4 startHostTransition → requestFormReset)
+          저장 실패·응답 불명 때 회원이 고친 값이 사라졌다(PLAN E9). 제출을 직접 처리해 실패 때 입력을 그대로 남긴다 — 성공 때는 key가 바뀌어 새 폼. */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          const fd = new FormData(e.currentTarget);
+          startTransition(() => action(fd));
+        }}
+        key={`${state.success ?? "form"}-${isCandidate ? "c" : "n"}`}
+        className="mt-4 space-y-4"
+      >
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="sm:col-span-2"><span className={field}>매물 이름 *</span>
             <input name="title" required maxLength={60} defaultValue={c?.title} placeholder="예: 백석동 동문굿모닝힐 84㎡ 남향" className="mx-input" /></label>
