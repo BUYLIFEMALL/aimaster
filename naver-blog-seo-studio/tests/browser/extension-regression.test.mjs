@@ -444,7 +444,13 @@ test("selects an OpenAI, Claude, or Gemini content model above representative im
   assert.match(models, /gemini-3\.8-flash/);
   assert.match(models, /gemini-3\.6-flash/);
   assert.match(models, /gemini-3\.5-flash/);
-  assert.match(models, /gemini-2\.5-pro/);
+  // 2026-11-20 정정(Master msg_6488ce02fa3b): gemini-2.5-pro는 6103af9a8(11-03, 종료 예정 대체)에서 선택지에서 빠지고
+  // 저장된 옛 값만 후속 모델로 이어받는다(v2.27 0dd8f34cc 배포 포함) — 선택지 재등장 금지·현재 분석형 모델·옛 값 연결을 확인한다.
+  assert.doesNotMatch(models, /value: "gemini-2\.5-pro"/);
+  assert.match(models, /value: "gemini-3\.1-pro-preview"/);
+  const openaiModels = readFileSync(new URL("../../lib/ai/openaiModels.ts", import.meta.url), "utf8");
+  assert.match(openaiModels, /"gemini-2\.5-pro": "gemini-3\.8-flash"/);
+  assert.match(models, /const current = currentModelName\(value\);/);
 });
 
 test("keeps the dashboard navigation aligned with the product workflow", () => {
