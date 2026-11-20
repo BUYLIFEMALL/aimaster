@@ -564,3 +564,8 @@ alter table public.music_track_remix_variants
 ## W1 잔여 P2 — 확정 거절 범위 제한 (2026-11-20, Master `msg_79f4977ffcf8`, 맥미니 `msg_8eb13f97c147`)
 - 확정 거절은 status 4xx 중 **408·429 제외** + 오류 코드가 DB·검증 형식(`isDbErrorCode`: Postgres SQLSTATE 5자리 `[0-9A-Z]` 또는 PostgREST `PGRST`+숫자 3자리) + data 없음일 때만. 출처를 알 수 없는 4xx(프록시·게이트웨이·요청 한도·형식 다른 코드·숫자 코드)는 미확정 → 잠금 유지·추가 쓰기 0.
 - 어댑터 머리 설명 갱신. 시험 2개 추가(미확정 10종·거절 5종, 승격 단계 408·429에서 해제·insert 0). 전후: 직전 `69dad308c` 모듈 → 새 시험 실패, 현재 잠금·어댑터 25 통과, music 전체 154+11, tsc·eslint 0.
+
+## W1 확정 거절 — 근거 있는 조합만 허용 (2026-11-20, Master `msg_2d6fe54020b7`, 맥미니 `msg_a14f320108a3`)
+- 문제: 형식만 맞는 임의 코드(400/`EDGE1`, 404/`PGRST999`)가 확정 거절로 분류됨.
+- 정정: `CONFIRMED_REJECTIONS` 명시 목록의 (status, code)만 확정 거절 — 403·401/`42501`, 409/`23503`·`23505`, 404/`42P01`·`42883`, 400/`PGRST204`, 400/`42703`. 근거: [PostgREST v12 errors](https://docs.postgrest.org/en/v12/_sources/references/errors.rst.txt)(2026-11-20 원본 확인), `42703`은 문서 「other → 400」+ 저장소 실측(`docs/ERROR_LESSONS.md` 2737줄). 「other → 400」에만 기대는 코드(`22P02`·`23514`)와 단건 응답 `PGRST116`은 넣지 않음, 목록 코드라도 다른 상태면 미확정.
+- 시험: 경계 2개·목록 밖 조합·상태 불일치 → 미확정, 목록 8조합 → 거절, 목록을 넓히면 깨지는 고정 시험. 전후: 직전 `fcab35748` → 400/EDGE1·404/PGRST999 오분류(거절), 현재 미확정. 잠금·어댑터 26, music 전체 155+11, tsc·eslint 0.

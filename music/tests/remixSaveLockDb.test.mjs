@@ -1,7 +1,7 @@
 // W1 CAS 어댑터(lib/remixSaveLockDb.ts) 미연결 모의 + W5/W6 대역 점검 — Master msg_4c67f242e1aa
 import test from "node:test";
 import assert from "node:assert/strict";
-import { makeRemixCas, acquirableFilter, REMIX_TABLE } from "../lib/remixSaveLockDb.ts";
+import { makeRemixCas, acquirableFilter, REMIX_TABLE, CONFIRMED_REJECTIONS, isConfirmedRejection } from "../lib/remixSaveLockDb.ts";
 import { acquire, promote, release, finish, runRemixSave, lockValue, insertingValue, isAcquirable } from "../lib/remixSaveLock.ts";
 import { requestRemixRecordInfo } from "../lib/remixRecordInfo.ts";
 import { insertRemixVariantsWithFallback } from "../lib/remixVariantInsert.ts";
@@ -89,14 +89,30 @@ test("4xx 거절 범위 제한 — 408·429·출처 불명 4xx는 미확정, DB�
     { data: null, error: { code: "PGRST20", message: "x" }, status: 400 }, // 숫자 2자리
     { data: null, error: { code: "pgrst204", message: "x" }, status: 400 }, // 소문자
     { data: null, error: { code: 42501, message: "x" }, status: 403 }, // 문자열 아님
-  ]) assert.equal(await run(r), "uncertain", JSON.stringify(r));
-  for (const r of [
-    { data: null, error: { code: "42501", message: "permission denied" }, status: 403 },
+    // Mac msg_a14f320108a3 경계 — 형식만 맞는 임의 코드
+    { data: null, error: { code: "EDGE1", message: "x" }, status: 400 },
+    { data: null, error: { code: "PGRST999", message: "x" }, status: 404 },
+    // 「other → 400」에만 기대는 코드·단건 응답 코드는 목록에 없음 → 미확정
     { data: null, error: { code: "23514", message: "check violation" }, status: 400 },
-    { data: null, error: { code: "PGRST204", message: "x" }, status: 400 },
-    { data: null, error: { code: "PGRST116", message: "x" }, status: 406 },
     { data: null, error: { code: "22P02", message: "invalid input" }, status: 400 },
-  ]) assert.equal(await run(r), "rejected", JSON.stringify(r));
+    { data: null, error: { code: "PGRST116", message: "x" }, status: 406 },
+    // 목록의 코드라도 문서와 다른 상태면 미확정
+    { data: null, error: { code: "42501", message: "x" }, status: 400 },
+    { data: null, error: { code: "23505", message: "x" }, status: 400 },
+    { data: null, error: { code: "PGRST204", message: "x" }, status: 404 },
+    { data: null, error: { code: "42703", message: "x" }, status: 404 },
+  ]) assert.equal(await run(r), "uncertain", JSON.stringify(r));
+  // 근거 있는 조합만 확정 거절
+  for (const [status, code] of [[403, "42501"], [401, "42501"], [409, "23503"], [409, "23505"], [404, "42P01"], [404, "42883"], [400, "PGRST204"], [400, "42703"]]) {
+    assert.equal(await run({ data: null, error: { code, message: "x" }, status }), "rejected", `${status}/${code}`);
+  }
+});
+
+test("허용 목록은 정확히 근거 있는 8조합 — 넓히면 이 시험이 먼저 깨진다", () => {
+  assert.deepEqual(CONFIRMED_REJECTIONS.map(([s, c]) => `${s}/${c}`).sort(), ["400/42703", "400/PGRST204", "401/42501", "403/42501", "404/42883", "404/42P01", "409/23503", "409/23505"]);
+  assert.equal(isConfirmedRejection(400, "EDGE1"), false);
+  assert.equal(isConfirmedRejection(404, "PGRST999"), false);
+  assert.equal(isConfirmedRejection(403, "42501"), true);
 });
 
 test("불확실하면 잠금 유지·추가 쓰기 0 — 승격 단계 408·429에서 해제·insert 없음", async () => {
