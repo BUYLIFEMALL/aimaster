@@ -15,7 +15,7 @@
     "@supabase/supabase-js": "2.117.3",
     "lucide-react": "1.48.0",
     "mp4-muxer": "^5.2.2",
-    "next": "16.4.1",
+    "next": "16.4.6",
     "onnxruntime-web": "1.20.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
