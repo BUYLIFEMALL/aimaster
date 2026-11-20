@@ -151,8 +151,10 @@ async function refreshWebDrafts() {
   status.textContent = "웹 초안을 불러오는 중...";
   const response = await fetch(`${BASE}/api/extension/drafts/library`, { headers: { Authorization: `Bearer ${token}` } });
   const result = await response.json().catch(() => ({}));
-  // 2026-11-20 P2(Mac msg_316d4de9fcca): 그사이 연결 계정이 바뀌었거나 더 새 조회가 시작됐으면 이 응답(옛 계정 목록)은 버린다.
-  if (epoch !== webDraftsEpoch || (await getToken()) !== token) return;
+  // 2026-11-20 P2(Mac msg_316d4de9fcca)·2차(msg_f134487d977d): 그사이 연결 계정이 바뀌었거나 더 새 조회가 시작됐으면
+  // 이 응답(옛 계정 목록)은 버린다. 토큰 확인을 먼저 끝낸 뒤 순번·토큰을 함께 판정하고, 판정 뒤 반영까지 await 없음.
+  const currentToken = await getToken();
+  if (epoch !== webDraftsEpoch || currentToken !== token) return;
   if (!response.ok) throw new Error(result.error || `웹 초안 조회 실패 (${response.status})`);
   webDrafts = Array.isArray(result.drafts) ? result.drafts : [];
   webDraftsToken = token;

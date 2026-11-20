@@ -37,6 +37,8 @@ export async function GET(request: Request) {
     const inputBlocked = manualInputBlockMessage(run) ?? reviewBlockMessage(draftReport(draft.seo_report), draft.title, draft.body);
     return {
       input_blocked: inputBlocked, auto_publish_state: typeof run.state === "string" ? run.state : null,
+      // 2026-11-20 SEO P2 2차: 확장이 저장한 직전 실행(runId)이 이 회원 원고의 실행인지 확인하는 표시 소유권 기준(회원 본인 목록에만).
+      auto_publish_run_id: typeof run.runId === "string" ? run.runId : null,
       publication_fingerprint: publicationFingerprint(draft), id: draft.id, topic: draft.topic, keywords: draft.keywords, strategy: draft.strategy, title: draft.title, body: draft.body,
       image_path: draft.image_path, image_model: draft.image_model, image_mime_type: draft.image_mime_type,
       extension_handoff_at: draft.extension_handoff_at, naver_input_status: draft.naver_input_status, naver_category: readNaverCategory(draft.naver_category), content_images: contentImages, content_blocks: contentBlocks,
