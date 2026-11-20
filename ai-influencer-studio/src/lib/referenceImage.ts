@@ -219,9 +219,23 @@ const BODY_MESSAGE = {
   BODY_INVALID: "요청 형식이 올바르지 않습니다. 화면을 새로고침한 뒤 다시 시도해 주세요.",
 } as const;
 
-/** 생성 요청 처리 — 본문·참고 이미지 검사를 통과한 경우에만 generate(유료)를 부른다. 원문(본문·이미지·주소·키)은 기록하지 않는다. */
-export async function handleGenerateImageRequest(req: Request, generate: (config: Record<string, unknown>) => Promise<string>): Promise<{ status: number; body: Record<string, unknown> }> {
-  const body = await readJsonBodyLimited(req, JSON_BODY_MAX_BYTES);
+/** 요청이 중간에 끊겼을 때의 안내(2026-11-20, Mac msg_d73efbf3e654·msg_3daea3d7aefc) */
+export const REQUEST_ABORTED_MESSAGE = "요청이 중간에 끊겼습니다. 화면을 새로고침한 뒤 다시 시도해 주세요.";
+
+/**
+ * 생성 요청 처리 — 본문·참고 이미지 검사를 통과한 경우에만 generate(유료)를 부른다. 원문(본문·이미지·주소·키)은 기록하지 않는다.
+ * opts.signal(선택, 2026-11-20): 주면 본문 읽기를 그 신호에 묶고, 끊기면 생성 직전에도 멈춘다(400, 생성 0). 주지 않으면 예전과 완전히 같다.
+ */
+export async function handleGenerateImageRequest(
+  req: Request,
+  generate: (config: Record<string, unknown>) => Promise<string>,
+  opts?: { signal?: AbortSignal },
+): Promise<{ status: number; body: Record<string, unknown> }> {
+  const signal = opts?.signal;
+  const aborted = () => ({ status: 400, body: { error: REQUEST_ABORTED_MESSAGE, code: "BODY_INVALID" } });
+  if (signal?.aborted) return aborted();
+  const body = await readJsonBodyLimited(req, JSON_BODY_MAX_BYTES, signal ? { signal } : undefined);
+  if (signal?.aborted) return aborted();
   if (!body.ok) return { status: body.status, body: { error: BODY_MESSAGE[body.code], code: body.code } };
   if (!body.value || typeof body.value !== "object" || Array.isArray(body.value)) return { status: 400, body: { error: BODY_MESSAGE.BODY_INVALID, code: "BODY_INVALID" } };
   const config = body.value as Record<string, unknown>;
@@ -229,6 +243,7 @@ export async function handleGenerateImageRequest(req: Request, generate: (config
   if (!refs.ok) {
     return { status: 400, body: { error: referenceErrorMessage(refs.code, refs.field), code: refs.code, field: refs.field, ...(refs.index !== undefined ? { index: refs.index } : {}) } };
   }
+  if (signal?.aborted) return aborted();   // 생성(유료) 직전 마지막 확인
   try {
     const imageUrl = await generate(config);
     return { status: 200, body: { success: true, imageUrl } };

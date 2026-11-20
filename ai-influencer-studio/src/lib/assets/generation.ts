@@ -124,10 +124,13 @@ export async function handleGenerateImagePost(req: Request, deps: GenerateImageP
   }
 
   const apiKey = await deps.getApiKey(userId);
+  // Mac msg_3daea3d7aefc(P2): 키를 조회하는 사이에 요청이 끊겼으면 여기서 멈춘다(본문 읽기·생성 0). 원본 읽기와 생성 직전에도 같은 신호를 본다(아래 signal).
+  if (req.signal.aborted) return { status: 400, body: { error: PRECHECK_ABORTED_MESSAGE, code: "BODY_INVALID" } };
   if (!apiKey) return { status: 400, body: { error: NEED_KEY_MESSAGE, needApiKey: true } };
+  const signal = req.signal;
 
-  // off: 예전과 완전히 같은 경로(요청 검증 → 생성 1회 → 응답). 자산 의존성은 만들지도 부르지도 않는다.
-  if (!assetsEnabled(deps.mode)) return limitResponseBody(await handleGenerateImageRequest(req, (config) => deps.generate(apiKey, config)));
+  // off: 예전과 같은 경로(요청 검증 → 생성 1회 → 응답). 자산 의존성은 만들지도 부르지도 않는다. 끊긴 요청은 본문 읽기·생성 직전에 멈춘다.
+  if (!assetsEnabled(deps.mode)) return limitResponseBody(await handleGenerateImageRequest(req, (config) => deps.generate(apiKey, config), { signal }));
 
   // shadow
   let stop: HandlerResult | null = null;
@@ -147,6 +150,8 @@ export async function handleGenerateImagePost(req: Request, deps: GenerateImageP
       : { status: "unavailable" as const };
     if (pre.status === "denied") { stop = { status: 507, body: { error: STORAGE_FULL_MESSAGE, code: "STORAGE_LIMIT" } }; throw new PrecheckStop(); }
     if (pre.status !== "allowed" || !assetDeps) { stop = { status: 503, body: { error: PRECHECK_UNAVAILABLE_MESSAGE, code: "ASSET_PRECHECK_UNAVAILABLE" } }; throw new PrecheckStop(); }
+    // 사전 검사를 기다리는 사이에 끊겼으면 생성하지 않는다(2026-11-20, Mac msg_3daea3d7aefc)
+    if (signal.aborted) { stop = { status: 400, body: { error: PRECHECK_ABORTED_MESSAGE, code: "BODY_INVALID" } }; throw new PrecheckStop(); }
 
     const imageUrl = await deps.generate(apiKey, config);   // 유료 생성 — 정확히 1회
 
@@ -162,7 +167,7 @@ export async function handleGenerateImagePost(req: Request, deps: GenerateImageP
       () => ({ assetSaved: false, code: "SAVE_TIMEOUT" }) as unknown as SaveResult,
     );
     return imageUrl;
-  });
+  }, { signal });
 
   if (stop) return stop;
   if (result.status !== 200 || !save) return limitResponseBody(result);

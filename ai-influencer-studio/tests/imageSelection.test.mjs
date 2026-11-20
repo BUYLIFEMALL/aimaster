@@ -251,3 +251,46 @@ test("사전 읽기: 기본 제한 시간은 30초, 정상 요청은 예전과 �
   const r = await handleGenerateImagePost(streamReq(JSON.stringify({ gender: "female", quality: "4K" })), d);
   assert.deepEqual(r, { status: 200, body: { success: true, imageUrl: IMAGE_URL } }); assert.deepEqual(n, { access: 1, key: 1, gen: 1 });
 });
+
+// ── 키 조회 뒤의 취소(Mac msg_3daea3d7aefc P2, Master msg_3f294510ef0a) ──
+test("키 조회 중 취소: 사전 읽기는 통과했어도 키 조회 직후 400 — 원본 읽기·생성 0 (선택 있음·없음 모두)", async () => {
+  for (const body of [{ gender: "female" }, { gender: "female", imageModel: "balanced", quality: "2K" }]) {
+    const ac = new AbortController();
+    const { n, d } = deps({ getApiKey: async () => { ac.abort(); return KEY; } });
+    const r = await handleGenerateImagePost(streamReq(JSON.stringify(body), ac.signal), d);
+    assert.equal(r.status, 400, JSON.stringify(body)); assert.equal(r.body.code, "BODY_INVALID");
+    assert.deepEqual(n, { access: 1, key: 0, gen: 0 }, "키 함수는 가짜로 바꿨으니 key 0 — 생성 0이 핵심");
+  }
+});
+
+test("원본 읽기 중 취소(사전 검사 없는 처리 — 끝나지 않는 본문): 바로 400, 생성 0", async () => {
+  const ac = new AbortController();
+  const { n, d } = deps({ precheckConfig: undefined });
+  setTimeout(() => ac.abort(), 80);
+  const r = await timed(handleGenerateImagePost(streamReq(openStream(), ac.signal), d));
+  assert.equal(r.status, 400); assert.equal(r.body.code, "BODY_INVALID"); assert.deepEqual(n, { access: 1, key: 1, gen: 0 });
+  assert.ok(r.ms < 2000, `${r.ms}ms`);
+});
+
+test("shadow: 저장공간 사전 검사를 기다리는 사이 취소되면 생성 직전에 멈춘다 — 생성 0", async () => {
+  const ac = new AbortController();
+  let rpc = 0;
+  const { n, d } = deps({
+    mode: "shadow",
+    getAssetDeps: () => ({ rpc: async () => { rpc++; ac.abort(); return { data: [{ allowed: true }], error: null }; }, storage: { upload: async () => ({ data: null, error: { message: "x" } }) } }),
+  });
+  const r = await handleGenerateImagePost(streamReq(JSON.stringify({ gender: "female" }), ac.signal), d);
+  assert.equal(r.status, 400); assert.equal(r.body.code, "BODY_INVALID"); assert.equal(rpc >= 1, true); assert.equal(n.gen, 0);
+});
+
+test("취소 신호가 없는 정상 요청은 예전과 같다 — 호출 수 고정(권한 1·키 1·생성 1), 3MiB 경계·기존 400/408 유지", async () => {
+  const { n, d } = deps();
+  const r = await handleGenerateImagePost(streamReq(JSON.stringify({ gender: "female", quality: "2K" })), d);
+  assert.deepEqual(r, { status: 200, body: { success: true, imageUrl: IMAGE_URL } }); assert.deepEqual(n, { access: 1, key: 1, gen: 1 });
+  // 끝난 요청 뒤 취소는 결과에 영향 없음(신호는 처리 중에만 본다)
+  const ac = new AbortController();
+  const x = deps();
+  const r2 = await handleGenerateImagePost(streamReq(JSON.stringify({ gender: "female" }), ac.signal), x.d);
+  ac.abort();
+  assert.equal(r2.status, 200); assert.deepEqual(x.n, { access: 1, key: 1, gen: 1 });
+});
