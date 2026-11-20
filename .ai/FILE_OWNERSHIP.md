@@ -473,3 +473,5 @@ WS-20261118-02 설계 A3 CC-WORKSPACE-01: Master msg_835e76b4ae3c(잠금 선례 
 WS-20261118-02 설계 A3 점유 해제 CC-WORKSPACE-01: c75524c63(PLAN_20261120_NOTION_LECTURE_IMPORT.md +92/-17, 변경표 13절). 설계만, Mac 재검수 대기. 환경변수·비밀값·제품 변경 0.
 
 WS-20261118-02 A4 CC-WORKSPACE-01: Master msg_743d6b2a9b47. (1) ai-work-workspace/docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md A4 보완 (2) 별도 커밋으로 새 순수 모듈 ai-work-workspace/src/litpage/server/content/lectureImport/(엄격 CSV·날짜/서머타임·중복 키 — 새 파일만)와 새 시험 tests/integration/lectureImportPure.test.ts. 기존 CSV 진입점(csv.ts)·import.ts·API·DB·화면·환경변수 편집 없음, 운영·노션·빌드·배포 없음.
+
+WS-20261118-02 A4 점유 해제 CC-WORKSPACE-01: 문서 17d2e1c70(PLAN A4 +45/-7) · 순수 모듈 993c0991e(content/lectureImport/ 새 파일 3 + tests/integration/lectureImportPure.test.ts 19개 + IMPROVEMENTS 1줄). 기존 csv.ts·import.ts diff 0, 호출처 0. Mac 재검수 대기.
