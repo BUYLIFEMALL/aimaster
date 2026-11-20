@@ -534,3 +534,22 @@ alter table public.music_track_remix_variants
 - 운영 DB: 새 칸 3개(`docs/migration-candidates/20261120_remix_variant_lyrics.sql`). **잠금 토큰은 기존 `error_message` 칸을 그대로 써서 추가 칸 없음.** 칸 추가 전에 배포돼도 `insertRemixVariantsWithFallback`가 3칸을 빼고 저장(구형 호환).
 - 배포 순서(승인 필요, 그때 비용 다시 보고): DB 칸 추가 → music 빌드 1회 → lyric-video 빌드 1회. 공용 사본 동기화 없음.
 - 범위 밖 유지: 삭제 권한, 불확실 → 완료 전환(U3), 새 상태 칸, 0-7 연장 예약 세대(2차), 보충(3차).
+
+## W1 어댑터 모의·W5/W6 대역과 출시 순서·혼재 방지 근거 (2026-11-20, Master `msg_4c67f242e1aa`)
+- 미연결 `music/lib/remixSaveLockDb.ts`(W1): `makeRemixCas(client)` — `update(set).eq(id).eq(task_id).eq(extend_hop_count).eq(status)` + 정확 일치는 `.eq(error_message)`, 잡기는 `.or(acquirableFilter)`(like의 `_`를 `_`로 escape, `__rins__`를 잡는 항목 없음) + `select("id")`. 판정: 1행 ok / 0행 lost(다른 소유자·조건 불일치) / 코드 있는 DB 오류 lost(단일 요청 트랜잭션이라 미적용) / status 0·코드 없는 오류·예외·data 없음·여러 행 = 불확실.
+- 대역 `music/tests/helpers/remixDoubles.mjs`: 가짜 PostgREST 클라이언트(체인 기록·응답 재생), 가짜 record-info, insert 기록기(칸 이름·가사 길이만), W5/W6 결과 7종 기대표 `CALLER_OUTCOMES`. 시험 `music/tests/remixSaveLockDb.test.mjs` 8개.
+- 한계(가정): `acquirableFilter`의 escape·`and(...)` 문법이 실제 PostgREST에서 그대로 해석되는지는 DB 없이 확인 불가 — 연결 전 Lab/로컬 Postgres로 1회 확인 필요.
+
+### 혼재 위험 근거
+| 근거 | 위치 | 뜻 |
+|---|---|---|
+| 기존 공용 잠금은 「`error_message`가 `__syncing__`이 아니면」 잡는다 | `music/lib/syncLock.ts:22` `.or(error_message.is.null,error_message.neq.__syncing__,updated_at.lt.…)` | 옛 코드는 새 표시 `__rsync__:`·`__rins__:`를 **잡아서 덮어쓴다** → 배포 전환 중 옛 웹훅·옛 수동 동기화가 돌면 영속 표시가 깨져 재삽입 가능 |
+| 옛 코드의 자동 연장 갱신은 `id`만 조건 | `music/lib/remixSync.ts:140` | 옛 코드가 새 흐름 행의 `task_id`·hop을 덮어쓸 수 있음(멱등 아님) |
+| 옛 코드 저장은 insert 결과를 안 봄 | `music/lib/remixSync.ts:83` | 옛 코드가 겹치면 중복 행 |
+
+### 출시 순서 제안(각 단계 승인·비용 재보고)
+1. **선행 1(호환 릴리스)**: 공용 `claimSyncLock`이 `__rsync__:`·`__rins__:`로 시작하는 값을 **잡지 않게** 하는 한 줄 + 자동 연장 갱신(140줄)에 `task_id`·`extend_hop_count` 조건 추가(멱등). 새 표시는 아직 아무도 쓰지 않으므로 이 단계만으로는 동작 변화 0 — 배포 후 옛 코드가 사라질 때까지(진행 중 요청 소진) 기다림.
+2. **선행 2**: DB 칸 3개 추가(구형 호환이라 순서 자유, 1 뒤 권장).
+3. **본 릴리스**: W1~W8 연결(새 표시 사용 시작). 이 시점에 돌아갈 수 있는 이전 코드는 1단계 코드뿐이라 새 표시를 덮어쓰지 않음.
+4. 가사 영상 릴리스(이미 `18cf482cd` 미배포) — 3 뒤.
+- 1단계는 공용 잠금 함수(4표 공용) 변경이라 별도 승인 필요. 다른 3표에는 `__r` 표시가 생기지 않으므로 결과 동일(시험 T14로 고정 예정).
