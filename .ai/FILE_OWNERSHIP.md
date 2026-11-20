@@ -510,3 +510,4 @@ WS-20261118-02 응답 투영·미리보기 표식 CC-WORKSPACE-01: Master msg_d6
 MOV-ONESTOP-LAYOUT-NOTICE CC-MOVIE-01(자율, 알림 msg_aa4e0be9c299): shorts-onestop-studio/src/lib/productShorts.ts(순수 판정)·src/components/views/ScenesView.tsx(안내 한 줄)·tests/productShorts.test.ts·docs/IMPROVEMENT_BACKLOG.md·docs/IMPROVEMENTS.md + docs/PENDING_DEPLOYS.md 한 줄. 빌드·배포 0.
 
 WS-20261118-02 응답 투영·미리보기 표식 점유 해제 CC-WORKSPACE-01: 투영 10a7107c6(assemble.ts·lectureImportAssemble.test.ts 14개) · 표식 fdc919590(새 previewToken.ts·새 lectureImportPreviewToken.test.ts 12개·IMPROVEMENTS). 환경변수·실제 키·API·DB·화면 무변경, 호출처 0. Mac 독립 검수 대기.
+MOV-ONESTOP-LAYOUT-NOTICE CC-MOVIE-01 해제: f874762f9 (tsc 0·93/93).
