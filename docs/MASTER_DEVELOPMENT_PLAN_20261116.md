@@ -189,7 +189,7 @@ Master 마지막 실제 점검: 2026-11-20 11:32:28 KST · 11:30 Orca 수신, �
 - SEO 계정 전환 제목 보완 e2cbaf150 제출, 작성자 11/11. 독립 재검수 msg_cef15f910aa8, 티스토리 사전 대조 재개 msg_6f36566506e2.
 
 - C1 A10 e85a5a8db 문서 접수. 동일 DB·시간 제한·불명 응답 차단·전환 후 확인 보강. 로컬 전용 Docker fixture 검증 전달 msg_6bc749b8c6fe, 운영 적용 없음.
-- 티스토리 v2.01 사전 대조 msg_6f5ca6fff088, 현재 alias 배포 ID만 읽기 확인 대기 msg_ef19c4d7ca38. 버전·manifest·ZIP은 승인된 고정 사본에서만 조작.
+- 티스토리 v2.01 사전 대조 msg_6f5ca6fff088. 현재 운영 alias READY dpl_3Mj72iMGgvNJJ2DaqdBnhywdXNmZ를 롤백 기준으로 기록(msg_57d96c043f9a). v2.00 추정은 생성 시각 근거이며 Git·화면·라이브 ZIP 버전은 미확인. 버전·manifest·ZIP은 승인된 고정 사본에서만 조작. 담당자는 SEO P2 수정 우선.
 - SEO e2cbaf150 독립 11/11 및 일반 계정 교체 통과, 두 추가 합성 반례 남음 msg_f134487d977d. P2 2차 수정 msg_98373ca99358. 88f6a3057 모델 시험은 독립 범위 4/4.
 
 ## 주인님께 한 번에 드리는 요청
