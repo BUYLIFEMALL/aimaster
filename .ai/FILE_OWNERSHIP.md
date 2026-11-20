@@ -524,3 +524,5 @@ MOV-SVS-PROMPT-COPY-ALL A2 CC-MOVIE-01 해제: 044fc7948 (tsc 0·복사 시험 9
 MOV-SVS-PROMPT-COPY-ALL A3 CC-MOVIE-01: Master msg_f6a385eadb55(기준 044fc7948). shorts-viral-studio/src/lib/promptCopy.ts·src/components/studio/PromptsStep.tsx·tests/promptCopy.test.mjs·docs/IMPROVEMENTS.md만. 빌드·배포 0.
 
 WS-LECTURE-API-CONTRACT A2 CC-WORKSPACE-01: Master msg_4f8a6fd09a90. ai-work-workspace/docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md(19절 API 계약·대역 시험 설계, A25) 한 파일만. 코드·env·운영 없음.
+
+WS-LECTURE-API-CONTRACT A2 점유 해제 CC-WORKSPACE-01: 문서 d7f8d1df9(PLAN 19절·A25, 한 파일). 코드·env·운영 무변경. CX-QA-01 검수 대기.
