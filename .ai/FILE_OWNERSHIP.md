@@ -545,3 +545,4 @@ MOV-VIDEO-NOTICE-307 CC-MOVIE-01 해제: b654c1017 (세 앱 tsc 0·notice 4/4·�
 
 WS-LECTURE-PREVIEW-ONLY A1 CC-WORKSPACE-01: Master msg_74897165e9e7(previewLectureImport 단위만, 로컬·격리 대역 시험). ai-work-workspace/src/litpage/server/api/handlers.ts(ApiError 선택 칸·Ctx 키 칸), ai-work-workspace/src/server/runtime.ts(IMPORT_RPCS·공개 칸 거르기·시험용 키 주입), ai-work-workspace/src/litpage/server/api/modules/import.ts(previewLectureImport), 새 ai-work-workspace/src/litpage/server/content/lectureImport/publicError.ts, 새 tests/integration/lectureImportPreviewRpc.test.ts, docs/IMPROVEMENTS.md 한 줄. commit RPC·UI·DB·env·빌드·배포·push 없음.
 MOV-ILV-NOTICE-307 CC-MOVIE-01: Master msg_39d6e32749ef. infinite-loop-video/src/proxy.ts·src/lib/noticeFiles.ts(새)·tests/noticeFiles.test.mjs(새)·docs/IMPROVEMENTS.md + docs/PENDING_DEPLOYS.md. 빌드·배포 0.
+MOV-ILV-NOTICE-307 CC-MOVIE-01 해제: d34965be2 (tsc 0·notice 4/4·npm test 19/19).
