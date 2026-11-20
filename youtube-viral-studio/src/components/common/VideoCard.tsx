@@ -18,6 +18,7 @@ import { useState } from "react";
 import { ScriptAnalysisModal } from "@/components/analysis/ScriptAnalysisModal";
 import type { ScriptAnalysisResult } from "@/lib/ai/scriptAnalyzer";
 import { errorMessage } from "@/lib/errors";
+import { AI_KEY_LINK_LABEL, AI_KEY_SETTINGS_URL } from "@/lib/aiKeyNotice";
 
 interface VideoCardProps {
   video: YouTubeVideoItem;
@@ -214,9 +215,9 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
               {analyzeError.needKey && (
                 <>
                   {" "}
-                  <Link href="/settings" className="font-bold text-amber-400 underline">
-                    API 키 등록하러 가기 →
-                  </Link>
+                  <a href={AI_KEY_SETTINGS_URL} target="_blank" rel="noopener noreferrer" className="font-bold text-amber-400 underline">
+                    {AI_KEY_LINK_LABEL}
+                  </a>
                 </>
               )}
             </p>

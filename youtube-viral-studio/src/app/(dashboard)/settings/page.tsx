@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { errorMessage } from "@/lib/errors";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
+import { SETTINGS_PAGE_TITLE } from "@/lib/aiKeyNotice";
 
 export default function SettingsPage() {
   const [keys, setKeys] = useState<Record<string, { registered: boolean; maskedKey?: string }>>({});
@@ -104,7 +105,7 @@ export default function SettingsPage() {
           </div>
           <div>
             <h1 className="text-xl font-black tracking-tight text-slate-100 md:text-2xl">
-              보안 키 금고 (Security Key Vault)
+              {SETTINGS_PAGE_TITLE}
             </h1>
             <p className="mt-0.5 text-xs text-slate-400">
               회원 본인 계정의 YouTube Data API v3 및 AI 엔진 키를 등록하고 관리합니다.

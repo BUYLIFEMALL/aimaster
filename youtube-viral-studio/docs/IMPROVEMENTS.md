@@ -56,7 +56,7 @@
 - 보관함 30일 정리가 관리자·시험 계정(`profiles.retention_exempt`)을 빼지 않습니다 — DB 정리 함수가 모든 행을 지우고(`supabase/migrations/20261017025253_yvs_member_favorites.sql:28`), 조회도 30일 이내만 보여 줍니다(`src/app/api/favorites/route.ts:14`). 우선순위 중간(2026-11-03 주인님 지시: 두 계정은 모든 프로그램에서 30일 열외). **상태: SQL 작성, 적용 대기 + 조회 코드 이번에 고침(미배포)**(2026-11-13) — `supabase/migrations/20261113120000_yvs_favorites_retention_exempt.sql`(정리 함수·조회 정책에서 예외 회원 제외, 운영 DB 미적용), `src/app/api/favorites/route.ts`·`src/components/favorites/FavoritesProvider.tsx`·`src/app/(dashboard)/favorites/page.tsx`가 예외 회원은 30일 지난 자료도 숨기지 않음(`src/lib/retentionExempt.ts`).
 ### 2) 화면·가독성·사용 편의
 - 설정 화면의 AI 엔진 칸이 Claude 키만 쓰는 것처럼 적혀 있었습니다(실제는 대본 분석 Gemini/OpenAI, 채널·키워드 분석 세 엔진 — `src/app/api/youtube/analyze-script/route.ts:25-26`, `src/lib/ai/models.ts`). 상태: 이번에 고침(미배포).
-- 설정 화면 맨 위 제목이 「보안 키 금고 (Security Key Vault)」라 좌측 메뉴 이름 「API키등록·플랫폼연동」과 다릅니다. 공통 표준 이름에 맞추면 찾기 쉽습니다. 우선순위 낮음. 상태: 제안.
+- 설정 화면 맨 위 제목이 「보안 키 금고 (Security Key Vault)」라 좌측 메뉴 이름 「API키등록·플랫폼연동」과 다릅니다. 공통 표준 이름에 맞추면 찾기 쉽습니다. 우선순위 낮음. **상태: 처리함(미배포, 2026-11-20 영상 담당 MOV-YVS-SETTINGS-WORDING)** — 제목을 「API키등록·플랫폼연동」으로(`src/lib/aiKeyNotice.ts` `SETTINGS_PAGE_TITLE`, 좌측 메뉴와 시험으로 일치 확인). 같은 작업에서 위 1) 첫 항목(대본 분석 키 없음 안내가 「[설정 > YouTube API 키]」로 틀림)도 「메인 사이트 「API 설정」에서 등록」으로 고치고, 영상 카드 링크를 메인 `/api-settings` 새 탭으로 바로 연결(전엔 이 앱 설정 화면을 한 번 거침). 시험 `tests/aiKeyNotice.test.mjs` 4/4, 전체 80/80, `tsc` 0. 대시보드·급상승 화면의 「보안 키 금고」 문구 3곳은 이번 범위 밖(남음).
 ### 3) 다른 자동화 프로그램과 연계
 - 「🎬 이 대사로 쇼츠 만들기」로 AI 쇼츠 원스톱 `/topic`에 대사를 넘기는 연계는 이미 있습니다(`src/components/ai/AiPanels.tsx:140`, `src/components/analysis/ScriptAnalysisModal.tsx:284`). 매뉴얼이 이 버튼 이름과 달랐던 것을 이번에 맞춤.
 - 「협업 크리에이터 찾기」 결과(공개 연락처)를 메일·알림 발송 프로그램으로 넘기는 흐름은 아직 없습니다. 마케팅 수집 예외 지정 여부부터 확인해야 하므로 아이디어로만 남깁니다. 상태: 제안(미확인).

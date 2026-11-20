@@ -4,6 +4,7 @@ import { getUserApiKey } from "@/lib/apiKeys";
 import { fetchVideoTranscript } from "@/lib/youtube/transcript";
 import { analyzeShortsScript } from "@/lib/ai/scriptAnalyzer";
 import { errorMessage } from "@/lib/errors";
+import { AI_KEY_REQUIRED_MESSAGE } from "@/lib/aiKeyNotice";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -28,8 +29,7 @@ export async function POST(request: Request) {
     if (!geminiKey && !openaiKey) {
       return NextResponse.json(
         {
-          error:
-            "쇼츠 AI 대본 분석을 실행하려면 본인의 Google Gemini 또는 OpenAI API 키가 필요합니다. [설정 > YouTube API 키] 메뉴에서 AI 키를 등록해주세요.",
+          error: AI_KEY_REQUIRED_MESSAGE,
           needAiKey: true,
         },
         { status: 400 }
