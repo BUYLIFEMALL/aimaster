@@ -483,3 +483,4 @@ MOV-VIDEO-PENDING-RECONCILE CC-MOVIE-01(자율, Master 알림 msg_35f4699cc7b7):
 MOV-VIDEO-PENDING-RECONCILE CC-MOVIE-01 해제: PENDING_DEPLOYS +2줄, 결과 문서 커밋.
 MOV-SVS-COMMON-PREP CC-MOVIE-01(자율, 알림 msg_e77de9b1cc59): shorts-viral-studio/src/app/layout.tsx(위젯 한 줄)·src/lib/actions/auth.ts(signOut local)·src/lib/supabase/server.ts(User-Agent)·docs/IMPROVEMENTS.md 한 줄. 빌드·배포·push 0.
 MOV-SVS-COMMON-PREP CC-MOVIE-01 해제: 01bcdd6bb (tsc 0·17/17·공통 경고 0).
+MOV-ILV-COMMON-PREP CC-MOVIE-01(자율, 알림 msg_4b00cda35b42): infinite-loop-video/src/app/layout.tsx·src/app/api/auth/logout/route.ts·src/lib/actions/auth.ts·src/lib/supabase/server.ts·docs/IMPROVEMENTS.md + docs/PENDING_DEPLOYS.md 한 줄. 빌드·배포 0.
