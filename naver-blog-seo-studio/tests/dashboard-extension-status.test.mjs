@@ -1,4 +1,4 @@
-// 2026-11-20 IMPROVEMENTS #9: 대시보드 확장 연결 상태 한 줄. 외부 요청 0.
+// 2026-11-20 IMPROVEMENTS #9 · P2(Mac msg_63d4ddd16bbd): 대시보드 「SEO 스튜디오 확장 연결 코드 사용 기록」 한 줄. 외부 요청 0.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -9,37 +9,49 @@ const js = ts.transpileModule(src, { compilerOptions: { module: ts.ModuleKind.Co
 const mod = { exports: {} };
 new Function("module", "exports", js)(mod, mod.exports);
 const { extensionLinkLabel } = mod.exports;
+const page = readFileSync(new URL("../app/dashboard/page.tsx", import.meta.url), "utf8");
+const view = readFileSync(new URL("../components/studio/DashboardView.tsx", import.meta.url), "utf8");
 
-test("연결 코드가 없으면 연결 전 안내", () => {
-  for (const status of [null, undefined, { tokenCount: 0, lastUsedAt: null }, { tokenCount: NaN, lastUsedAt: "2026-11-20T00:00:00Z" }]) {
+test("조회 실패는 「불러오지 못함」 — 코드 없음·사용 기록 없음과 구분", () => {
+  for (const status of [null, undefined, { state: "error" }]) {
     const r = extensionLinkLabel(status);
-    assert.equal(r.connected, false);
-    assert.match(r.text, /확장 연결 전/);
+    assert.match(r.text, /연결 기록을 불러오지 못했습니다/);
+    assert.equal(r.showSettingsLink, true);
   }
 });
 
-test("코드는 있지만 사용 기록이 없거나 잘못된 시각이면 미사용 안내", () => {
+test("코드 없음 / 코드는 있으나 사용 기록 없음은 각각 다른 문구", () => {
+  const none = extensionLinkLabel({ state: "ok", tokenCount: 0, lastUsedAt: null });
+  assert.match(none.text, /연결 코드가 없습니다/);
   for (const lastUsedAt of [null, "not-a-date"]) {
-    const r = extensionLinkLabel({ tokenCount: 1, lastUsedAt });
-    assert.equal(r.connected, false);
-    assert.match(r.text, /아직 사용하지 않았습니다/);
+    const unused = extensionLinkLabel({ state: "ok", tokenCount: 1, lastUsedAt });
+    assert.match(unused.text, /아직 사용 기록이 없습니다/);
+    assert.doesNotMatch(unused.text, /불러오지 못했습니다|연결 코드가 없습니다/);
   }
 });
 
-test("최근 사용 시각이 있으면 연결됨과 한국 시간 표시", () => {
-  const r = extensionLinkLabel({ tokenCount: 2, lastUsedAt: "2026-11-20T05:03:00Z" });
-  assert.equal(r.connected, true);
-  assert.match(r.text, /^확장 연결됨 · 최근 사용 /);
-  assert.match(r.text, /2026/);
+test("사용 기록은 과거 기록으로만 표기 — 「연결됨」 같은 실시간 문구 없음, 범위(SEO 스튜디오 확장) 명시", () => {
+  const r = extensionLinkLabel({ state: "ok", tokenCount: 2, lastUsedAt: "2026-11-20T05:03:00Z" });
+  assert.match(r.text, /^SEO 스튜디오 확장이 마지막으로 사용된 기록: /);
+  assert.match(r.text, /지금 연결 상태가 아닌 과거 기록/);
   assert.match(r.text, /2:03|14:03/);
+  assert.doesNotMatch(r.text, /연결됨/);
+  assert.equal(r.showSettingsLink, false);
+  for (const status of [{ state: "error" }, { state: "ok", tokenCount: 0, lastUsedAt: null }]) assert.match(extensionLinkLabel(status).text, /SEO 스튜디오 확장/);
 });
 
-test("대시보드가 회원 본인·이 프로그램·폐기 안 된 연결 코드만 읽고 화면에 넘긴다", () => {
-  const page = readFileSync(new URL("../app/dashboard/page.tsx", import.meta.url), "utf8");
-  assert.match(page, /\.from\("personal_access_tokens"\)\.select\("last_used_at"\)\.eq\("user_id", user\.id\)\.eq\("program_slug", "naver-blog-seo-studio"\)\.is\("revoked_at", null\)/);
-  assert.match(page, /<StudioPage email=\{user\.email \?\? ""\} extensionLink=\{extensionLink\} \/>/);
+test("대시보드 조회: 같은 조건(본인·SEO 전용 slug·폐기 안 됨)으로 최신 1건(사용 기록 없는 행 뒤로)과 개수 집계를 따로", () => {
+  assert.match(page, /const PROGRAM_SLUG = "naver-blog-seo-studio";/);
+  const cond = String.raw`\.eq\("user_id", user\.id\)\.eq\("program_slug", PROGRAM_SLUG\)\.is\("revoked_at", null\)`;
+  assert.match(page, new RegExp(String.raw`\.select\("last_used_at"\)` + cond + String.raw`\s*\.order\("last_used_at", \{ ascending: false, nullsFirst: false \}\)\.limit\(1\)`));
+  assert.match(page, new RegExp(String.raw`\.select\("id", \{ count: "exact", head: true \}\)` + cond));
+  assert.doesNotMatch(page, /\.sort\(/, "배열 정렬에 의존하지 않음");
+  assert.match(page, /let extensionLink: ExtensionLinkStatus = \{ state: "error" \};/);
   assert.match(page, /requireProgramAccess\(\)/);
-  const view = readFileSync(new URL("../components/studio/DashboardView.tsx", import.meta.url), "utf8");
+});
+
+test("화면: 실시간 상태 데이터 속성 없음, 설정 링크는 필요할 때만", () => {
+  assert.doesNotMatch(view, /data-connected|link\.connected/);
+  assert.match(view, /link\.showSettingsLink && <a href="\/settings">/);
   assert.match(view, /extensionLinkLabel\(extensionLink\)/);
-  assert.doesNotMatch(view, /api_key|token\b.*value/);
 });

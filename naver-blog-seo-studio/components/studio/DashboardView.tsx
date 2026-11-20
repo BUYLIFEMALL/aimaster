@@ -16,9 +16,9 @@ export function DashboardView({ s, extensionLink = null }: { s: Studio; extensio
               <button type="button" className="btn-3d-blue px-5 py-3 rounded-xl text-sm font-bold shadow-md cursor-pointer" onClick={() => openMenu("title")}>🔎 제목 추천 시작</button>
               <button type="button" className="btn-3d-green px-6 py-3 rounded-xl text-sm font-bold shadow-md cursor-pointer" onClick={() => openMenu("new-draft")}>📝 새 글 만들기</button>
             </div>
-            <p className="dashboard-extension-link" data-connected={link.connected ? "true" : "false"}>
+            <p className="dashboard-extension-link">
               🔌 {link.text}{" "}
-              {!link.connected && <a href="/settings">설정으로 이동 →</a>}
+              {link.showSettingsLink && <a href="/settings">설정으로 이동 →</a>}
             </p>
           </section>
           <div className="dashboard-stats" aria-label="콘텐츠 제작 통계">
