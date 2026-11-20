@@ -6982,18 +6982,20 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-20T02:01:22.562Z",
+      "at": "2026-11-20T02:32:28.591Z",
       "timezone": "Asia/Seoul",
-      "trigger": "11:00 Orca 수신 msg_70a9d39e9f0f",
-      "scope": "10:30 이후 Master 수신·Git·작업표·담당 체크포인트 증분 대조 및 Workspace/B2B 결과 인수",
+      "trigger": "11:30 Orca 수신 msg_0a38be47fc2b",
+      "scope": "11:00 이후 전체 작업표·담당 체크포인트·Orca 회신·Git·결과/점유·미배포·직접 승인 대조",
       "evidence": [
-        "Workspace 기록 acf024732 한 줄·점유 해제 20038c92a 검증. 53add833c 후보가 v1.64 승인 범위와 분리되어 기록됨.",
-        "0076 운영 적용 1회 성공(msg_9846c713b97f, 이력 20261120015854). 제외 규칙·함수 속성·ACL 보존 사후 보고 수락. 실제 cron 미확인. 0077 읽기 사전 점검만 CC-ECOM-01에 전달(msg_0224f781379f), 수락·착수 미확인. 0077 적용·SNS D2 쓰기는 후속 순번."
+        "380건 중 완료 340·취소 7·대체 1, 남은 32(진행 4·검수 9·순번 7·관리자 대기 12).",
+        "음악 v1.59 실제 연계 완료. 실거래 v1.62 READY, 로그인 지역 제안·다음 뉴스·DB 표시 버전 미확인.",
+        "MacMini 지정 탭 사용자 제어 상태. Workspace v1.64 자동 검토 거부로 빌드 미사용. T08 권한 거부·T03 전환 경로 미확보.",
+        "부동산 C1 b6bb2c4ae·7cc7d5a3c 및 블로그 SEO c39e6b6e8 제출, Mac 대기열 msg_75c5a21bd021. 노션 A2 2d5dff671 재검수 msg_37702fe28afb."
       ],
-      "judgment": "Workspace 기록 작업과 0076 보고 수락. 공유 문서 미커밋 보존.",
-      "nextAction": "CC-ECOM-01의 0077 읽기 사전 점검 회수 후 적용 순번 판정. Workspace는 v1.64 승인 및 공유 문서 점유 해소 대기.",
+      "judgment": "운영 배포와 실화면 결과 분리. 네 앱 의존성 로컬 빌드·정적 검수 통과. 추가 운영 빌드는 별도 승인.",
+      "nextAction": "Mac A2 → C1 → SEO, 사용자 제어가 반환된 기존 탭 우선. ECOM 두 앱 배포안은 승인 안건 취합. 가사 영상 L5/U3는 다음 기능 배포에 합침.",
       "unverified": [
-        "0077 점검 수락·착수, 0076 실제 cron, Workspace 운영 타이머·실화면, 기존 원격 담당의 착수."
+        "각 직접 전달의 실제 수락·착수 일부는 미회수. C1 브라우저·운영 SQL, SEO 실확장, 노션 표본, 기존 B2B Backend·SNS 배정 상태."
       ]
     },
     "notifications": [
