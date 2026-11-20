@@ -569,3 +569,4 @@ MOV-ONESTOP-HANDOFF-UNICODE A2 CC-MOVIE-01 해제: 389604fe9 (tsc 0·npm test 11
 ECOM-ACCESS-AUDIT CC-ECOM-01: 주인님 「순서대로 진행해」 후보 2. coupang-ops/src/lib/actions/dailyAlert.ts(alertStatus 본인 확인)·src/app/(dashboard)/alerts/page.tsx·connect/page.tsx(호출 2곳)만. 배포·push 없음. 2026-11-20 시작.
 ECOM-NEXT-PATCH-4 CC-ECOM-01: 주인님 「순서대로 진행해」 후보 4. smartstore-register·coupang-ops·esm-register·banana-canvas 의 package.json(next 한 줄)·package-lock.json 만 — next 16.4.6, 로컬 검증·커밋. 빌드는 Master 순번, 배포·push 없음. 2026-11-20 시작.
 MOV-GIF-V4-EMPTY-OUTPUT CC-MOVIE-01: Master msg_3fb0e14710a6(GIF V4 우선 조사) + 주인님 「랜더링 GIF 에러남 확인해」. video-to-gif/lib/gifArgs.ts(새)·lib/gifArgs.test.ts(새)·components/ConverterWorkspace.tsx·docs/IMPROVEMENTS.md + PENDING_DEPLOYS. local-renderer·빌드·배포 0.
+MOV-GIF-V4-EMPTY-OUTPUT CC-MOVIE-01 해제: 9d26cf18d (tsc 0·gifArgs 4/4·lib 45/45, 같은 녹화본 wasm 재현 1→0, 임시 녹화본 삭제).
