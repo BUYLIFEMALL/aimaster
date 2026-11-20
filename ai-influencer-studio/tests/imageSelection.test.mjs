@@ -171,3 +171,83 @@ test("두 경로 모두 같은 선택 검사 함수(checkImageSelection)를 쓴�
   assert.match(a, /const c = checkImageSelection\(config\);/);
   assert.match(b, /const selection = checkImageSelection\(config\);/);
 });
+
+// ── 사전 읽기의 취소·제한 시간(Mac msg_d73efbf3e654 P2, Master msg_2c1091248138) ──
+const { handleGenerateImagePost } = await import("../src/lib/assets/generation.ts");
+const MIB3 = 3 * 1024 * 1024;
+const IMAGE_URL = "data:image/png;base64," + PNG;
+function deps(over = {}) {
+  const n = { access: 0, key: 0, gen: 0 };
+  return {
+    n,
+    d: {
+      mode: "off",
+      checkAccess: async () => { n.access++; return { allowed: true, user: { id: U } }; },
+      getApiKey: async () => { n.key++; return KEY; },
+      generate: async () => { n.gen++; return IMAGE_URL; },
+      precheckConfig: (config) => { const c = M.checkImageSelection(config); return c.ok ? c : { ok: false, status: 400, body: { error: c.message, code: c.code } }; },
+      ...over,
+    },
+  };
+}
+/** 정확히 bytes 바이트인 JSON 본문 */
+const jsonOfSize = (bytes, fields) => {
+  const head = JSON.stringify({ ...fields, pad: "" });
+  const s = head.slice(0, -2) + "x".repeat(bytes - Buffer.byteLength(head)) + '"}';
+  assert.equal(Buffer.byteLength(s), bytes); JSON.parse(s);
+  return s;
+};
+/** 앞부분만 보내고 끝나지 않는 본문 */
+const openStream = (first = '{"imageModel":"top"') => new ReadableStream({ start(c) { c.enqueue(new TextEncoder().encode(first)); } });
+const streamReq = (body, signal) => new Request("http://local/api/generate-image", { method: "POST", body, duplex: "half", ...(signal ? { signal } : {}) });
+const timed = async (p) => { const t = Date.now(); const r = await p; return { ...r, ms: Date.now() - t }; };
+
+test("사전 읽기: 정확히 3MiB는 통과 — 허용된 선택은 생성까지, 잘못된 선택은 키 조회 전 400", async () => {
+  let { n, d } = deps();
+  let r = await handleGenerateImagePost(streamReq(jsonOfSize(MIB3, { imageModel: "balanced", quality: "2K" })), d);
+  assert.equal(r.status, 200); assert.deepEqual(n, { access: 1, key: 1, gen: 1 });
+  ({ n, d } = deps());
+  r = await handleGenerateImagePost(streamReq(jsonOfSize(MIB3, { imageModel: "ultra" })), d);
+  assert.equal(r.status, 400); assert.equal(r.body.code, "IMAGE_MODEL_INVALID"); assert.deepEqual(n, { access: 1, key: 0, gen: 0 });
+});
+
+test("사전 읽기: 3MiB 초과(길이 머리글 없이 흘려 보냄)는 사전 검사를 건너뛰고 기존처럼 413 — 멈추지 않는다", async () => {
+  const { n, d } = deps();
+  const big = jsonOfSize(MIB3 + 1, { imageModel: "ultra" });
+  const r = await timed(handleGenerateImagePost(streamReq(new ReadableStream({ start(c) { const b = new TextEncoder().encode(big); for (let i = 0; i < b.length; i += 65536) c.enqueue(b.subarray(i, i + 65536)); c.close(); } })), d));
+  assert.equal(r.status, 413); assert.equal(r.body.code, "BODY_TOO_LARGE"); assert.deepEqual(n, { access: 1, key: 1, gen: 0 });
+  assert.ok(r.ms < 5000, `${r.ms}ms`);
+});
+
+test("사전 읽기: 이미 취소된 요청 + 끝나지 않는 본문 → 바로 400, 키 조회 0·생성 0", async () => {
+  const { n, d } = deps();
+  const ac = new AbortController(); ac.abort();
+  const r = await timed(handleGenerateImagePost(streamReq(openStream(), ac.signal), d));
+  assert.equal(r.status, 400); assert.equal(r.body.code, "BODY_INVALID"); assert.deepEqual(n, { access: 1, key: 0, gen: 0 });
+  assert.ok(r.ms < 2000, `${r.ms}ms`);
+});
+
+test("사전 읽기: 읽는 중에 요청이 끊기면 바로 400, 키 조회 0·생성 0", async () => {
+  const { n, d } = deps();
+  const ac = new AbortController();
+  setTimeout(() => ac.abort(), 80);
+  const r = await timed(handleGenerateImagePost(streamReq(openStream(), ac.signal), d));
+  assert.equal(r.status, 400); assert.equal(r.body.code, "BODY_INVALID"); assert.deepEqual(n, { access: 1, key: 0, gen: 0 });
+  assert.ok(r.ms >= 60 && r.ms < 2000, `${r.ms}ms`);
+});
+
+test("사전 읽기: 본문이 끝나지 않으면 제한 시간 뒤 408, 키 조회 0·생성 0", async () => {
+  const { n, d } = deps({ timeouts: { precheckReadMs: 120 } });
+  const r = await timed(handleGenerateImagePost(streamReq(openStream()), d));
+  assert.equal(r.status, 408); assert.equal(r.body.code, "BODY_TIMEOUT"); assert.deepEqual(n, { access: 1, key: 0, gen: 0 });
+  assert.ok(r.ms >= 100 && r.ms < 2000, `${r.ms}ms`);
+  assert.equal(M.checkImageSelection({}).ok, true);
+});
+
+test("사전 읽기: 기본 제한 시간은 30초, 정상 요청은 예전과 같은 결과", async () => {
+  const G = await import("../src/lib/assets/generation.ts");
+  assert.equal(G.PRECHECK_READ_TIMEOUT_MS, 30_000);
+  const { n, d } = deps();
+  const r = await handleGenerateImagePost(streamReq(JSON.stringify({ gender: "female", quality: "4K" })), d);
+  assert.deepEqual(r, { status: 200, body: { success: true, imageUrl: IMAGE_URL } }); assert.deepEqual(n, { access: 1, key: 1, gen: 1 });
+});

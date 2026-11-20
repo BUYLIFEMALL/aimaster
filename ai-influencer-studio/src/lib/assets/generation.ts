@@ -43,7 +43,8 @@ export type GenerateImagePostDeps = {
   generate: (apiKey: string, config: Record<string, unknown>) => Promise<string>;
   /** shadow일 때만 불린다(off에서는 호출 0 → 관리자 클라이언트·저장소·RPC 생성 0) */
   getAssetDeps?: () => AssetStoreDeps;
-  timeouts?: { precheckMs?: number; saveMs?: number };
+  /** precheckReadMs: 선택 사전 검사의 본문 읽기 제한 시간(기본 PRECHECK_READ_TIMEOUT_MS) — 시험에서 줄여 쓴다 */
+  timeouts?: { precheckMs?: number; saveMs?: number; precheckReadMs?: number };
   /**
    * (선택, 2026-11-20 R3 1단계) 권한 확인 뒤·키 조회 전에 요청 설정을 미리 본다. 거절하면 키 조회·모델 호출 없이 그 응답으로 끝낸다.
    * 본문은 사본(req.clone())을 같은 상한으로 읽는다 — 읽지 못하거나 모양이 다르면 미리 보기를 건너뛰고 기존 처리에 맡긴다(기존 오류 응답 그대로).
@@ -51,6 +52,11 @@ export type GenerateImagePostDeps = {
   precheckConfig?: (config: Record<string, unknown>) => { ok: true } | { ok: false; status: number; body: Record<string, unknown> };
 };
 export type HandlerResult = { status: number; body: Record<string, unknown> };
+
+/** 선택 사전 검사의 본문 읽기 제한 시간 — 정상 요청(최대 3MiB)이 넉넉히 들어오고, 라우트 한도(300초) 안에서 끝나는 값 */
+export const PRECHECK_READ_TIMEOUT_MS = 30_000;
+const PRECHECK_READ_TIMEOUT_MESSAGE = "요청을 제한 시간 안에 다 받지 못했습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.";
+const PRECHECK_ABORTED_MESSAGE = "요청이 중간에 끊겼습니다. 화면을 새로고침한 뒤 다시 시도해 주세요.";
 
 export const NEED_KEY_MESSAGE = "Google Gemini API 키가 등록되어 있지 않습니다. 우측 상단 'API 키 설정'에서 본인 키를 등록해주세요.";
 const STORAGE_FULL_MESSAGE = "저장공간이 부족해 이미지를 생성하지 않았습니다. 저장공간을 정리하거나 용량을 늘린 뒤 다시 시도해 주세요.";
@@ -94,7 +100,23 @@ export async function handleGenerateImagePost(req: Request, deps: GenerateImageP
 
   if (deps.precheckConfig) {
     // 취소 신호를 넘겨 「상한 초과 때 취소를 기다리지 않는」 방식으로 읽는다 — 사본만 취소하면 원본이 남아 있어 취소가 끝나지 않는다(기다리면 멈춤).
-    const peek = await readJsonBodyLimited(req.clone(), JSON_BODY_MAX_BYTES, { signal: new AbortController().signal });
+    // Mac msg_d73efbf3e654(P2): 그 신호를 요청의 취소(req.signal)와 읽기 제한 시간에 이어, 본문이 끝없이 열려 있거나 요청이 끊겨도 기다리지 않게 한다.
+    //   끊겼거나 시간이 지나면 키 조회·생성 없이 바로 응답한다(기존 처리로 넘기지 않는다 — 넘기면 원본 읽기가 같은 이유로 기다린다).
+    const peekStop = new AbortController();
+    let stopReason: "aborted" | "timeout" | null = null;
+    const stop = (why: "aborted" | "timeout") => { if (!stopReason) { stopReason = why; peekStop.abort(); } };
+    const onAbort = () => stop("aborted");
+    if (req.signal.aborted) onAbort(); else req.signal.addEventListener("abort", onAbort, { once: true });
+    const timer = setTimeout(() => stop("timeout"), deps.timeouts?.precheckReadMs ?? PRECHECK_READ_TIMEOUT_MS);
+    let peek: Awaited<ReturnType<typeof readJsonBodyLimited>>;
+    try {
+      peek = await readJsonBodyLimited(req.clone(), JSON_BODY_MAX_BYTES, { signal: peekStop.signal });
+    } finally {
+      clearTimeout(timer);
+      req.signal.removeEventListener("abort", onAbort);
+    }
+    if (stopReason === "timeout") return { status: 408, body: { error: PRECHECK_READ_TIMEOUT_MESSAGE, code: "BODY_TIMEOUT" } };
+    if (stopReason === "aborted") return { status: 400, body: { error: PRECHECK_ABORTED_MESSAGE, code: "BODY_INVALID" } };
     if (peek.ok && peek.value && typeof peek.value === "object" && !Array.isArray(peek.value)) {
       const v = deps.precheckConfig(peek.value as Record<string, unknown>);
       if (!v.ok) return { status: v.status, body: v.body };
