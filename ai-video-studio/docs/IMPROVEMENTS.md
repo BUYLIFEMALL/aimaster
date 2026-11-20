@@ -106,3 +106,5 @@
 - ✅ 올리다 멈춘 파일: 화면 실패 시 즉시 지움(`step:"cancel"`, 줄이 없을 때만) + 매일 정리가 줄 없는 `video.mp4` 폴더(하루 지남)만 지움(`lib/uploadOrphans.ts`, 시험 2개)
 - ✅ 편집본·내 프롬프트 예외 계정 「보관 기간 제한 없음」(내 프롬프트는 만료일 지난 것도 예외 계정이면 목록에 보임)
 - 남음: 매일 정리의 「멈춘 올리기」 찾기는 회원 폴더를 하나씩 훑으므로, 회원이 아주 많아지면(1천 명 넘게) 한 번에 다 못 볼 수 있음 — 그때 따로 표에 올리기 시작을 적는 방식으로 바꾸기 검토
+
+- **미배포 대기(2026-11-20, 영상 담당 `claude-win-video`, MOV-SHOTS-AVS-LOGIN-PREP)**: 로그아웃 `signOut({ scope: "local" })`(`lib/actions/auth.ts`, 비밀번호 재설정 화면 없음) + 서버 Supabase `User-Agent` 전달(`lib/supabase/server.ts`) — `docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md`. `tsc` 0·`npm test` 113/113·`pending-check` 공통 경고 0. 다음 배포 때 함께(급하지 않음).
