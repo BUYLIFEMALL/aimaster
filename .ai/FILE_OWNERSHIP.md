@@ -552,3 +552,4 @@ MOV-YVS-SETTINGS-WORDING CC-MOVIE-01(자율, 알림 msg_1115183096d4): youtube-v
 
 WS-LECTURE-PREVIEW-ONLY A1 범위 추가 CC-WORKSPACE-01: Master msg_4f60953a8228(미리보기 DB 0쓰기 게이트). ai-work-workspace/docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md(19-3 단계 번호·실행기 게이트·확정 RPC 같은 게이트 설계, T3·T23 정정, 22절).
 MOV-YVS-SETTINGS-WORDING CC-MOVIE-01 해제: be6e475e3 (tsc 0·새 시험 4/4·전체 80/80).
+MOV-YVS-SETTINGS-WORDING A2 CC-MOVIE-01: Master msg_0a546e23b87e(기준 be6e475e3). youtube-viral-studio/src/lib/aiKeyNotice.ts·src/app/(dashboard)/settings/page.tsx·dashboard/page.tsx·trending-videos/page.tsx·tests/aiKeyNotice.test.mjs·docs/IMPROVEMENTS.md(문구만). 빌드·배포 0.
