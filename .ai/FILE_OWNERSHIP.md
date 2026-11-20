@@ -486,3 +486,4 @@ MOV-SVS-COMMON-PREP CC-MOVIE-01 해제: 01bcdd6bb (tsc 0·17/17·공통 경고 0
 MOV-ILV-COMMON-PREP CC-MOVIE-01(자율, 알림 msg_4b00cda35b42): infinite-loop-video/src/app/layout.tsx·src/app/api/auth/logout/route.ts·src/lib/actions/auth.ts·src/lib/supabase/server.ts·docs/IMPROVEMENTS.md + docs/PENDING_DEPLOYS.md 한 줄. 빌드·배포 0.
 MOV-ILV-COMMON-PREP CC-MOVIE-01 해제: 4c9a4af5a (tsc 0·19/19·공통 경고 0).
 MOV-SHOTS-AVS-LOGIN-PREP CC-MOVIE-01(자율, 알림 msg_9416d7738410): shots/src/lib/actions/auth.ts·src/lib/supabase/server.ts·docs/IMPROVEMENTS.md, ai-video-studio/lib/actions/auth.ts·lib/supabase/server.ts·docs/IMPROVEMENTS.md, docs/PENDING_DEPLOYS.md. 빌드·배포 0.
+MOV-SHOTS-AVS-LOGIN-PREP CC-MOVIE-01 해제: 756c51b93 (tsc 0/0, shots 34/34, ai-video 113/113, 공통 경고 0).
