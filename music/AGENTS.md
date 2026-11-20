@@ -487,3 +487,7 @@ POST 콜백을 보낸다. 이 라우트는:
 
 ## 2026-11-16 v1.58 — 미배포 메뉴 수정 배포 (Claud(Music) `claude-win-20261024-music`, 주인님 「미배포 묶음 배포 진행해」 승인 빌드 5회 중 1회)
 - 내보낸 것: 왼쪽 메뉴 두 개 동시 선택 수정 `db08afdd6`(`/plannings/new`에서 「빠른 음악 기획」 하나만). 시험 71·tsc 통과, 배포 `music-b8m2pihnu` Ready·DB v1.58. ego lite: 화면 v1.58·💾 위젯, 새 기획 화면 켜진 메뉴 1개(빠른 음악 기획)·목록 화면 1개(음악 생성) 확인.
+
+## 2026-11-20 v1.59 — 리믹스 카드 「플레이리스트 영상 만들기 →」 (Claud(Music) `claude-win-20261024-music`, 주인님 「배포해」 승인 빌드 1회)
+- `lib/remixShortcuts.ts` `playlistRemixUrl(status, variantId)`: 완료된 리믹스 + 올바른 변주 번호(소문자로 맞춤)일 때만 `https://playlist-channel-studio.buylife.xyz/video?remix=<번호>`(공식 app_url playlist-maker와 같은 프로젝트 별칭, 기획 화면 기존 링크와 같은 주소). `RemixCard.tsx` 가사 영상 링크 옆. 시험 `tests/remixShortcuts.test.mjs`(6), Mac 독립 검수 수락. 커밋 `fa1909039`·`56211df73`·버전 `af14ca3e0`.
+- 배포 `music-1l6k8gsjh` Ready, DB v1.59. 운영 ego(시험 계정): 화면 v1.59, 보컬 추가 리믹스 화면 변주 2개마다 「🎬 가사 영상」+「🎞️ 플레이리스트 영상 만들기 →」(새 창, `?remix=<소문자 변주 id>`), 플레이리스트 링크 실제 클릭 → 새 탭 playlist v1.43 「보낸 곡 1개 중 1개를 찾아 미리 선택」·선택 1. 유료 0. 생성 중·실패 리믹스 링크 숨김은 운영 해당 행 0이라 모의 시험만. 받는 쪽 플레이리스트 v1.43(2026-11-19).
