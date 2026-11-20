@@ -576,3 +576,4 @@ NOTICE-MW-CHECK CC-ECOM-01: Master msg_8dc62bec6b7d. scripts/apply-source-notice
 MOV-GIF-V4-EMPTY-OUTPUT A2 CC-MOVIE-01: Master msg_c0fca587f4c9(P2, 기준 9d26cf18d). video-to-gif/lib/gifArgs.ts·lib/gifArgs.test.ts·components/ConverterWorkspace.tsx·docs/IMPROVEMENTS.md만. 빌드·배포 0.
 
 WS-COLLABPOLL-LOCAL-MEASURE A1 CC-WORKSPACE-01: Master msg_d5c28b92e40d. 새 ai-work-workspace/tests/integration/collabPollPerfDiag.test.ts(COLLAB_PERF=1일 때만 도는 측정 시험, importPerfDiag 계측 재사용). 제품 코드·설치·운영·외부 호출·키·빌드 없음.
+MOV-GIF-V4-EMPTY-OUTPUT A2 CC-MOVIE-01 해제: e5c092a3f (tsc 0·gifArgs 8/8·lib 49/49, 실제 ffmpeg GIF 격리 확인, 임시 파일 삭제).
