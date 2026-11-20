@@ -391,3 +391,12 @@ alter table public.music_track_remix_variants
 - 근거 충돌: message·details가 둘 다 형식대로 해석되는데 칸이 다르거나 둘 다 적힌 표가 다르면 판정 불가 → 재시도 0.
 - 결과 라벨 제한: `error.code`는 42703·PGRST204·42501·23505·42P01·other·none, `column`은 이번 3칸 또는 null, `table`은 변주 표 또는 null — 밖의 식별자·비정규 코드·SDK 문구는 결과에 남지 않음.
 - 표본 34개(C26~C34 추가), 시험 36개. 전후: `9863cca32` 함수 → 15 실패(동작 6·라벨 9), 현재 36/36. music 전체 129/129, tsc·eslint 0. 증거 `music/docs/evidence/remix-lyrics-compat-mock-tests-20261120.txt`.
+
+## 1차 연결 인수 항목 — B1~B3 검수 고정 (2026-11-20, Master `msg_effc05d71532`, 맥미니 검수 `msg_7f1832f718cc`)
+1차 구현 승인 전까지 기록만. 구현 때 아래를 시험으로 고정한다(인계표 B1~B3 보정).
+| 번호 | 항목 | 내용 | 확인 방법 |
+|---|---|---|---|
+| K1 | 구형 DB에서도 부모 hop 유지 | 가사 영상 `ownVariant`의 리믹스 조회는 새 칸이 없는 구형 DB로 내려갈 때도 `extend_hop_count`를 계속 읽는다(이 칸은 마이그레이션 `0011_remix_auto_extend.sql` 이후 항상 있음) | 구형 select 모의에서 `extend_hop_count` 포함 단언 |
+| K2 | hop 0만 부모 작업 번호 | 시간 가사 작업 번호 = 변주 `suno_task_id`, 없으면 **리믹스 `extend_hop_count = 0`일 때만** `remix.task_id`. 그 밖(연장된 리믹스의 옛 행, 구형 DB 포함)은 Suno 호출 **전에** 차단하고 「이 곡은 시간 가사를 받을 수 없습니다」. 목록의 `canTime`도 같은 규칙 | 연장 리믹스 + 구형 DB 모의에서 외부 호출 0 단언. 지금(`remix.task_id` 사용)과 달라지는 점을 배포 메모에 명시 |
+| K3 | 조회 fallback 근거 제한 | 구형 select로 내려가는 것은 **이번 칸(`suno_task_id`·`lyrics`·`lyrics_status`, 리믹스 쪽은 `extend_hop_count` 아님)이 변주 표에 없다는 근거**가 있을 때만 — `parseMissingColumnError`와 같은 형식·칸·표 판정. 그 밖 오류는 그대로 오류. 내려간 조회도 `.eq("user_id", userId)` 두 조건을 그대로 유지 | 다른 칸·다른 표·권한 오류 모의에서 fallback 0, fallback 조회의 소유자 조건 단언 |
+| K4 | 미검증 안내는 실제로 채운 경우만 | 「Suno가 준 가사입니다 — 확인해 주세요」는 `pickRemixLyricText`가 `suno_unverified`로 **가사 글을 실제로 채운 일반 텍스트 경로**에서만. 회원 원문·빈 가사·가사 없는 종류·시간 가사만 받은 경우에는 표시 안 함 | 경로별 안내 유무 회귀 시험 |
