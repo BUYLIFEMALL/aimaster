@@ -456,3 +456,5 @@ WS-TIMER-CANDIDATE-PENDING-RECORD 점유 해제 CC-WORKSPACE-01: docs/PENDING_DE
 ECOM-ORDER-LABEL-LOCAL-DEPS CC-ECOM-01: Master msg_0849ea963d3d(A1/P9, 기준 8f93d4a8f). shop-order-report·seller-label-docs 의 package.json(next 한 줄)·package-lock.json 만 — next 16.4.3 → 16.4.6 보안 패치, 로컬 검증. 배포·push 없음. 2026-11-20 시작.
 
 MOV-SVS-YVS-LOCAL-DEPS CC-MOVIE-01: Master msg_5646e6b28061(A1/P9/1, 기준 8f93d4a8f). shorts-viral-studio/package.json·package-lock.json, youtube-viral-studio/package.json·package-lock.json만(next·eslint-config-next 16.4.2→16.4.6). 로컬 빌드는 Master 순번 뒤 각 1회. 소스·다른 패키지·push·배포 0.
+
+WS-20261118-02 설계 문서 CC-WORKSPACE-01: Master msg_5f891a80264c(CMD-20261120-012). 새 ai-work-workspace/docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md 한 파일과 기존 PLAN_20261118_NOTION_CALENDAR_PARITY.md의 연결 한 줄만. 제품 코드·시험·공용 문서 편집 없음, 노션 연결·쓰기·운영·빌드·배포 없음.
