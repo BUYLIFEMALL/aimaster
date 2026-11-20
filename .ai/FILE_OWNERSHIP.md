@@ -538,3 +538,4 @@ WS-LECTURE-API-CONTRACT A4 CC-WORKSPACE-01: Master msg_c1bc66743f17. ai-work-wor
 MOV-SHOTS-BGM-VOLUME CC-MOVIE-01(자율): shots/src/lib/render/story.ts·src/components/candidates/BrowserRenderPanel.tsx·src/lib/render/bgmVolume.ts(새)·tests/bgmVolume.test.mjs(새)·docs/IMPROVEMENT_BACKLOG.md·docs/IMPROVEMENTS.md + docs/PENDING_DEPLOYS.md shots 줄. 공용 mp4Encoder.ts·빌드·배포 0.
 
 WS-LECTURE-API-CONTRACT A4 점유 해제 CC-WORKSPACE-01: 문서 98244b1b9(PLAN 한 파일). 코드·env·운영 무변경. CX-QA-01 검수 대기.
+CRAWLER-NOTICE-REDIRECT-AUDIT CC-ECOM-01: Master msg_8110c3d29158(A1). 내 담당 6개 앱의 src/proxy.ts(고지 파일 정확한 두 경로 통과 한 블록)·src/lib/noticeFiles.ts(새)·tests/noticeFiles.test.mjs(새)만 — coupang-ops·elevenst-register·esm-register·seller-label-docs·shop-order-report·smartstore-register. 배포·push 없음. 2026-11-20 시작.
