@@ -556,3 +556,4 @@ MOV-YVS-SETTINGS-WORDING A2 CC-MOVIE-01: Master msg_0a546e23b87e(기준 be6e475e
 MOV-YVS-SETTINGS-WORDING A2 CC-MOVIE-01 해제: 7e7a4207e (tsc 0·국소 8/8·전체 84/84).
 
 WS-LECTURE-PREVIEW-ONLY A1 점유 해제 CC-WORKSPACE-01: 코드 94b60cc74(handlers.ts·runtime.ts·import.ts·새 publicError.ts·새 lectureImportPreviewRpc.test.ts·IMPROVEMENTS) · 문서 b2223c790(PLAN 19-3·19-4·T3a·T23·22절). 환경변수·운영·빌드·배포·push 없음. CX-QA-01 검수 대기.
+ECOM-SHORTSLINK-UNICODE CC-ECOM-01: Master msg_0b933c823983. shop-detail-page/lib/shortsLink.ts(clean 한 곳)·tests/shortsLink.test.mjs 만 — 이모지 경계 URIError. 원스톱·상품영상·공용 경로 불변, 빌드·배포·push 없음. 2026-11-20 시작.
