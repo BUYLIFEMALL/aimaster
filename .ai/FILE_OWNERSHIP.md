@@ -527,3 +527,5 @@ WS-LECTURE-API-CONTRACT A2 CC-WORKSPACE-01: Master msg_4f8a6fd09a90. ai-work-wor
 
 WS-LECTURE-API-CONTRACT A2 점유 해제 CC-WORKSPACE-01: 문서 d7f8d1df9(PLAN 19절·A25, 한 파일). 코드·env·운영 무변경. CX-QA-01 검수 대기.
 MOV-SVS-PROMPT-COPY-ALL A3 CC-MOVIE-01 해제: 10c6921b1 (tsc 0·복사 시험 14/14·17/17).
+
+WS-LECTURE-API-CONTRACT A3 CC-WORKSPACE-01: Master msg_7a4f6effd0c8. ai-work-workspace/docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md 한 파일(5-1·5-2·A17·19절 정합, 20절). 코드·env·운영 없음.
