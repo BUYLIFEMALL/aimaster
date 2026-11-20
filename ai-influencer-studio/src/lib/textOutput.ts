@@ -29,14 +29,19 @@ function unwrap(raw: unknown, key: string): unknown[] | null {
   return null;
 }
 
-/** 캡션 응답 검사: 빈 글·글자 아닌 값·너무 긴 글을 빼고 앞의 3개. 3개가 안 되면 null(화면에 적용하지 않는다) */
+/**
+ * 캡션 응답 검사: 빈 글·글자 아닌 값·너무 긴 글을 빼고 앞의 3개. 3개가 안 되면 null(화면에 적용하지 않는다).
+ * 길이는 **UTF-16 단위(`.length`)**로 잰다 — 즉시 게시(`api/instagram/publish`)·예약 등록(`api/instagram/posts`)·게시 화면이
+ * 이미 `.slice(0, MAX_INSTA_CAPTION)`(UTF-16)으로 자르기 때문에, 여기서 통과한 캡션은 게시 경로에서 잘리지 않는다.
+ * (입력 칸 상한 checkTextInputs는 글자(코드 포인트) 단위다 — 둘은 목적이 다르다. 게시 경로는 이번에 바꾸지 않았다.)
+ */
 export function parseCaptions(raw: unknown): string[] | null {
   const list = unwrap(raw, "captions");
   if (!list) return null;
   const ok = list
     .filter((v): v is string => typeof v === "string")
     .map((s) => s.trim())
-    .filter((s) => s.length > 0 && [...s].length <= CAPTION_MAX_CHARS);
+    .filter((s) => s.length > 0 && s.length <= CAPTION_MAX_CHARS);
   return ok.length >= CAPTION_COUNT ? ok.slice(0, CAPTION_COUNT) : null;
 }
 
@@ -69,7 +74,16 @@ export type ParsedScenario = {
   config: { outfit: string; location: string; expression: string; pose: string; lighting: string; hairStyle: string; faceStyle: string; camera: string; filmStock: string; skin: string[] };
 };
 
-const str = (v: unknown, max = TEXT_INPUT_LIMIT) => (typeof v === "string" ? v.trim().slice(0, max) : "");
+/** 글자(코드 포인트) 단위로 자른다 — UTF-16으로 자르면 이모지가 반쪽(외톨이 서로게이트)으로 남는다 */
+export function clipChars(s: string, max: number): string {
+  let n = 0, end = 0;
+  for (const ch of s) {
+    if (n === max) break;
+    n++; end += ch.length;
+  }
+  return s.slice(0, end);
+}
+const str = (v: unknown, max = TEXT_INPUT_LIMIT) => (typeof v === "string" ? clipChars(v.trim(), max) : "");
 /** 목록 밖 값은 빈 글로 — 화면(applyScenario)은 빈 값이면 지금 설정을 그대로 둔다 */
 const pick = (v: unknown, set: ReadonlySet<string>) => (typeof v === "string" && set.has(v) ? v : "");
 
@@ -83,6 +97,20 @@ export function parseScenarios(raw: unknown, sets: ScenarioOptionSets): ParsedSc
   if (!list) return null;
   const out: ParsedScenario[] = [];
   const seen = new Set<string>();
+  // 응답에 적힌 번호 전부(뒤 항목 것 포함) — 새로 붙이는 번호가 뒤 항목의 번호를 빼앗지 않게 한다
+  const claimed = new Set<string>();
+  for (const item of list) {
+    if (item && typeof item === "object" && !Array.isArray(item)) {
+      const raw = str((item as Record<string, unknown>).id, 80);
+      if (raw) claimed.add(raw);
+    }
+  }
+  const freshId = (n: number) => {
+    for (let k = n; ; k++) {
+      const id = `scenario-${k}`;
+      if (!seen.has(id) && !claimed.has(id)) return id;
+    }
+  };
   for (const item of list) {
     if (out.length >= SCENARIO_MAX) break;
     if (!item || typeof item !== "object" || Array.isArray(item)) continue;
@@ -94,7 +122,7 @@ export function parseScenarios(raw: unknown, sets: ScenarioOptionSets): ParsedSc
     if (!scene.outfit && !scene.location && !scene.expression && !scene.pose) continue;
     const n = out.length + 1;
     let id = str(s.id, 80);
-    if (!id || seen.has(id)) id = `scenario-${n}`;
+    if (!id || seen.has(id)) id = freshId(n);
     seen.add(id);
     const order = typeof s.timeOrder === "number" && Number.isInteger(s.timeOrder) && s.timeOrder >= 1 ? s.timeOrder : n;
     out.push({
@@ -119,21 +147,52 @@ export function parseScenarios(raw: unknown, sets: ScenarioOptionSets): ParsedSc
 
 export type TextFailureKind = "auth" | "quota" | "timeout" | "format" | "other";
 
-/** 호출 실패를 회원이 읽을 수 있는 종류로 가른다. 키·인증 문제는 기본 문구로 감추면 안 되는 종류다. */
+/**
+ * 구조적 코드 → 종류. **이 표에 있는 코드만** 믿는다(자유 문장 속 낱말로 판정하지 않는다 — 「authentication」 같은 낱말이 다른 오류 문장에 섞여도 흔들리지 않게).
+ * 출처: Google API 오류 형식(error.status 문자열·details[].reason) — Gemini는 잘못된 키를 HTTP 400 + reason API_KEY_INVALID로 돌려준다.
+ */
+const AUTH_CODES = new Set(["UNAUTHENTICATED", "PERMISSION_DENIED", "API_KEY_INVALID", "API_KEY_SERVICE_BLOCKED", "API_KEY_HTTP_REFERRER_BLOCKED", "API_KEY_IP_ADDRESS_BLOCKED"]);
+const QUOTA_CODES = new Set(["RESOURCE_EXHAUSTED", "RATE_LIMIT_EXCEEDED"]);
+const TIMEOUT_CODES = new Set(["DEADLINE_EXCEEDED"]);
+
+/** 숫자 상태: 숫자이거나 숫자만 든 글자일 때만 */
+function statusNumber(v: unknown): number | null {
+  if (typeof v === "number" && Number.isInteger(v)) return v;
+  if (typeof v === "string" && /^\d{3}$/.test(v.trim())) return Number(v.trim());
+  return null;
+}
+
+/** 오류에서 구조적 코드를 모은다: status·code 글자 값, 오류 문장 안 JSON의 "status"·"reason" 값, 그리고 대문자 코드 낱말 */
+function structuredCodes(e: Record<string, unknown>, msg: string): Set<string> {
+  const codes = new Set<string>();
+  for (const v of [e.status, e.code, e.reason]) if (typeof v === "string" && /^[A-Z_]+$/.test(v)) codes.add(v);
+  for (const m of msg.matchAll(/"(?:status|reason)"\s*:\s*"([A-Z_]+)"/g)) codes.add(m[1]);
+  for (const m of msg.matchAll(/\b([A-Z][A-Z_]{5,})\b/g)) codes.add(m[1]);
+  return codes;
+}
+
+/**
+ * 호출 실패를 회원이 읽을 수 있는 종류로 가른다. 키·인증 문제는 기본 문구로 감추면 안 되는 종류다.
+ * 순서: 인증 신호(숫자 401·403 또는 인증 코드)가 하나라도 있으면 auth — 다른 신호보다 먼저 본다(인증 문제를 놓치지 않는 쪽으로 기운다).
+ *       그다음 숫자 429·한도 코드 → quota, 숫자 408·504·시간 코드·시간 초과 오류 이름 → timeout, 응답 풀기 실패 → format, 나머지 other.
+ */
 export function classifyTextFailure(err: unknown): TextFailureKind {
-  const e = (err && typeof err === "object" ? err : {}) as { status?: unknown; code?: unknown; name?: unknown; message?: unknown };
-  const status = typeof e.status === "number" ? e.status : typeof e.code === "number" ? e.code : null;
+  const e = (err && typeof err === "object" ? err : {}) as Record<string, unknown>;
   const msg = typeof e.message === "string" ? e.message : typeof err === "string" ? err : "";
-  if (status === 401 || status === 403 || /API[_ ]?KEY[_ ]?INVALID|API key not valid|PERMISSION_DENIED|UNAUTHENTICATED|invalid[_ ]api[_ ]key|authentication/i.test(msg)) return "auth";
-  if (status === 429 || /RESOURCE_EXHAUSTED|quota|rate[_ ]?limit/i.test(msg)) return "quota";
-  if (e.name === "AbortError" || e.name === "TimeoutError" || /timed? ?out|DEADLINE_EXCEEDED/i.test(msg)) return "timeout";
-  if (e.name === "SyntaxError" || /AI_RESPONSE_FORMAT/.test(msg)) return "format";
+  const status = statusNumber(e.status) ?? statusNumber(e.code) ?? statusNumber(e.statusCode);
+  const codes = structuredCodes(e, msg);
+  const has = (set: Set<string>) => [...codes].some((c) => set.has(c));
+  if (status === 401 || status === 403 || has(AUTH_CODES)) return "auth";
+  if (status === 429 || has(QUOTA_CODES)) return "quota";
+  if (status === 408 || status === 504 || has(TIMEOUT_CODES) || e.name === "AbortError" || e.name === "TimeoutError") return "timeout";
+  if (e.name === "SyntaxError" || codes.has("AI_RESPONSE_FORMAT")) return "format";
   return "other";
 }
 
-/** 그 종류일 때 기본 문구로 대신해도 되는가 — 키·인증 문제는 아니다(회원이 고쳐야 하므로 오류로 보여 준다) */
+/** 기본 문구로 대신해도 되는 종류(허용 목록). auth는 절대 들어가지 않는다 — 회원이 키를 고쳐야 하므로 오류로 보여 준다 */
+const FALLBACK_KINDS: ReadonlySet<TextFailureKind> = new Set<TextFailureKind>(["quota", "timeout", "format", "other"]);
 export function allowsCaptionFallback(kind: TextFailureKind): boolean {
-  return kind !== "auth";
+  return kind !== "auth" && FALLBACK_KINDS.has(kind);
 }
 
 /** 기본 문구로 대신했을 때 화면에 함께 보일 사유 */

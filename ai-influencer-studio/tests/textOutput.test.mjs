@@ -90,16 +90,87 @@ test("선택지 묶음: 카메라는 묶음 안의 선택지 전부, 각 묶음�
 });
 
 // ── 실패 종류·대체 문구 ──
-test("실패 종류: 상태 번호와 글로 가른다", () => {
+// Google API 오류 형식을 흉내 낸 예(손으로 만든 것 — 실제 SDK 오류 원문으로 확인하지 않았다)
+const GOOGLE_KEY_INVALID = 'got status: 400 Bad Request. {"error":{"code":400,"message":"API key not valid. Please pass a valid API key.","status":"INVALID_ARGUMENT","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com"}]}}';
+
+test("실패 종류: 구조적 코드와 상태 번호로 가른다", () => {
   const cases = [
-    [{ status: 401 }, "auth"], [{ status: 403 }, "auth"], [new Error("API key not valid. Please pass a valid API key."), "auth"],
-    [{ message: "[400] API_KEY_INVALID" }, "auth"], [{ message: "PERMISSION_DENIED" }, "auth"], [{ code: 401 }, "auth"],
+    [{ status: 401 }, "auth"], [{ status: 403 }, "auth"], [{ status: "401" }, "auth"], [{ code: 401 }, "auth"], [{ statusCode: 403 }, "auth"],
+    [Object.assign(new Error(GOOGLE_KEY_INVALID), { status: 400 }), "auth"],
+    [{ message: "[400] API_KEY_INVALID" }, "auth"], [{ message: "PERMISSION_DENIED" }, "auth"], [{ status: "UNAUTHENTICATED" }, "auth"],
+    [{ message: '{"error":{"status":"PERMISSION_DENIED"}}' }, "auth"],
     [{ status: 429 }, "quota"], [new Error("RESOURCE_EXHAUSTED: quota exceeded"), "quota"],
     [Object.assign(new Error("x"), { name: "TimeoutError" }), "timeout"], [Object.assign(new Error("x"), { name: "AbortError" }), "timeout"], [new Error("DEADLINE_EXCEEDED"), "timeout"],
     [new SyntaxError("Unexpected token"), "format"], [new Error("AI_RESPONSE_FORMAT"), "format"],
     [new Error("boom"), "other"], [null, "other"], [undefined, "other"], ["문자열 오류", "other"], [{ status: 500 }, "other"],
   ];
   for (const [err, want] of cases) assert.equal(T.classifyTextFailure(err), want, JSON.stringify(err) + " " + String(err?.message ?? ""));
+});
+
+test("실패 종류(Mac 반례): 자유 문장 속 낱말로는 auth로 판정하지 않는다 — 표에 있는 코드만", () => {
+  for (const m of ["authentication service was slow", "invalid api key format in sample text", "Please check your Authentication settings", "unauthenticated user example"])
+    assert.equal(T.classifyTextFailure(new Error(m)), "other", m);
+  // 대문자 코드라도 표에 없으면 판정에 쓰지 않는다
+  assert.equal(T.classifyTextFailure(new Error("INVALID_ARGUMENT")), "other");
+  // 숫자 상태는 숫자이거나 숫자 세 자리 글자일 때만
+  for (const s of ["401abc", "4011", 401.5, "", true]) assert.equal(T.classifyTextFailure({ status: s }), "other", String(s));
+});
+
+test("실패 종류(Mac 반례): 인증 신호가 하나라도 있으면 다른 신호보다 먼저 auth", () => {
+  assert.equal(T.classifyTextFailure({ status: 429, message: '{"reason":"API_KEY_INVALID"}' }), "auth");
+  assert.equal(T.classifyTextFailure({ status: 401, message: "RESOURCE_EXHAUSTED" }), "auth");
+  assert.equal(T.classifyTextFailure(Object.assign(new Error("PERMISSION_DENIED"), { name: "TimeoutError" })), "auth");
+  assert.equal(T.classifyTextFailure(Object.assign(new SyntaxError("x"), { status: 403 })), "auth");
+});
+
+test("대체 허용(Mac 반례): auth는 어떤 경로로도 허용되지 않는다 — 허용 목록 밖 값도 거절", () => {
+  assert.equal(T.allowsCaptionFallback("auth"), false);
+  for (const k of ["AUTH", "", "unknown", undefined, null]) assert.equal(T.allowsCaptionFallback(k), false, String(k));
+  // 인증 신호가 있는 모든 예는 판정 → 허용 여부까지 이어서 거절된다
+  for (const err of [{ status: 401 }, { status: "403" }, new Error(GOOGLE_KEY_INVALID), { status: 429, message: "API_KEY_INVALID" }])
+    assert.equal(T.allowsCaptionFallback(T.classifyTextFailure(err)), false, JSON.stringify(err));
+});
+
+test("번호(Mac 반례): 새로 붙이는 번호가 앞·뒤 항목의 번호와 겹치지 않는다 — 결과 전체가 고유", () => {
+  // 1번 항목 번호가 비어 scenario-1을 붙이려 할 때 2번 항목이 이미 scenario-1을 쓰고 있다
+  const a = T.parseScenarios([sc({ id: "" }), sc({ id: "scenario-1" }), sc({ id: "scenario-2" }), sc({ id: "scenario-2" }), sc({ id: undefined })], SETS);
+  const ids = a.map((x) => x.id);
+  assert.equal(new Set(ids).size, ids.length, ids.join(","));
+  assert.equal(ids[1], "scenario-1", "뒤 항목은 자기 번호를 그대로 지킨다");
+  assert.equal(ids[2], "scenario-2");
+  // 어떤 섞임에서도 고유 — 번호 후보를 여러 모양으로 돌려 본다
+  const pool = ["", "scenario-1", "scenario-2", "scenario-3", "x", undefined, "scenario-6"];
+  for (let i = 0; i < 300; i++) {
+    const items = Array.from({ length: 1 + (i % 7) }, (_, j) => sc({ id: pool[(i * 7 + j * 3) % pool.length] }));
+    const r = T.parseScenarios(items, SETS).map((x) => x.id);
+    assert.equal(new Set(r).size, r.length, `${i}: ${r.join(",")}`);
+  }
+});
+
+const loneSurrogate = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
+test("자르기(Mac 반례): 79자 + 이모지·1999자 + 이모지에서 이모지를 반으로 자르지 않는다", () => {
+  const [s] = T.parseScenarios([sc({ id: "a".repeat(79) + "😀z", labelKo: "가".repeat(79) + "😀😀", story: "나".repeat(1999) + "😀😀" }, { outfit: "다".repeat(1999) + "😀끝" })], SETS);
+  for (const [name, v, want] of [["id", s.id, "a".repeat(79) + "😀"], ["labelKo", s.labelKo, "가".repeat(79) + "😀"], ["story", s.story, "나".repeat(1999) + "😀"], ["outfit", s.config.outfit, "다".repeat(1999) + "😀"]]) {
+    assert.doesNotMatch(v, loneSurrogate, name);
+    assert.equal(v, want, name);
+  }
+  assert.equal(T.clipChars("😀😀😀", 2), "😀😀");
+  assert.equal(T.clipChars("ab", 5), "ab");
+  assert.equal(T.clipChars("😀", 0), "");
+});
+
+test("캡션 길이 기준(Mac 지적): UTF-16 단위로 재서 게시 경로가 자르는 일이 없다", () => {
+  // 게시 경로(즉시 게시·예약 등록·게시 화면)는 이번에 바꾸지 않았고 지금처럼 UTF-16으로 자른다 — 그 사실을 고정해 둔다
+  for (const f of ["../src/app/api/instagram/publish/route.ts", "../src/app/api/instagram/posts/route.ts"]) {
+    const src = readFileSync(new URL(f, import.meta.url), "utf8");
+    assert.match(src, /body\.caption\.slice\(0, MAX_INSTA_CAPTION\)/, f);
+  }
+  const ok = "😀".repeat(1100);          // 1,100글자 = UTF-16 2,200
+  const over = "😀".repeat(1100) + "a";  // UTF-16 2,201
+  assert.deepEqual(T.parseCaptions([ok, "b", "c"]), [ok, "b", "c"]);
+  assert.equal(T.parseCaptions([over, "b", "c"]), null);
+  // 통과한 캡션은 게시 경로의 자르기에서 그대로 남는다
+  for (const c of T.parseCaptions([ok, "a".repeat(T.CAPTION_MAX_CHARS), "😀x"])) assert.equal(c.slice(0, T.CAPTION_MAX_CHARS), c);
 });
 
 test("대체 문구: 키·인증 문제는 대체하지 않고, 그 밖은 사유와 함께 대체한다", () => {
