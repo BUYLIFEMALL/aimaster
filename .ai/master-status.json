@@ -6982,20 +6982,23 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-20T03:31:27.997Z",
+      "at": "2026-11-20T04:01:47.365Z",
       "timezone": "Asia/Seoul",
-      "trigger": "12:30 Orca 수신 msg_df26f2181c77",
-      "scope": "12:00 이후 Git·담당 체크포인트·수신·역할/결과/인수인계·미배포 및 관리자 요청 증분 대조",
+      "trigger": "13:00 Orca 정기 점검 msg_9d809a5a0a89",
+      "scope": "12:30 실제 점검 이후 Orca 회신·작업/카테고리 표·CONTROL_ROOT 체크포인트·소유권·미배포·Git 결과/인계 증분 및 관리자 요청함 대조",
       "evidence": [
-        "380건 중 완료 340·취소 7·대체 1, 잔여 32(진행 4·검수 9·순번 7·관리자 대기 12). Master 요청함 0건.",
-        "Workspace 응답 상한 ceb2768bf 및 SEO 단일 조회 8a526d769 Mac 격리 통과 msg_3616167b20cd. Workspace 필드 투영과 표식 순수 단계 msg_d6a0b8726695.",
-        "자동 블로그 글자수 최종 후보 42fad456f 작성자 11/11 회신 msg_799b4bcbbe0d, 독립 재검수 msg_448514f9288b. 미배포.",
-        "Mac 기존 19/29/33 사용자 제어. Workspace 배포 자동 검토 및 블로그 T08 거부, T03 전환 경로 미확보 유지."
+        "Controller 기존 집계 잔여 32: 진행 4·검수 9·순번 7·사람 대기 12. 개별 최신 결과는 총괄 플랜 추가 기록 기준. Master 요청함 0.",
+        "Workspace A3 문서 독립 검수 msg_7d908944894d; 공개 오류·한도·최종 미리보기 응답 예산 A4 전달 msg_c1bc66743f17. v1.64는 승인 수신과 세션 실행 거부를 구분.",
+        "영상 cfce3a0f8 및 부동산 b2ea91b68·0feb07bc8 미배포, 독립 검수 전달 msg_afa1395052df·msg_54086e70782d. B2B 관리자 페이지네이션 격리 수락.",
+        "이커머스 승인 3회 모두 사용·READY 보고. 0077 공식 자료 읽기, 담당 B2BBackend 후속 전달. R1 DNS 보완·SNS 공유 DB 순번 각각 유지.",
+        "블로그 SEO ZIP 수동 생성 읽기 msg_b7bbbe29c700; 생성하지 않음. 자동 블로그 국소 수정 진행. 음악 합성 표본 22개 접수·운영 가사 스키마 미변경.",
+        "신규 결과 파일 RE-NEXT-UPGRADE-READBACK-CC-REALTY-01.md 및 공유 HANDOFF 변경 대조. Support 직접 지시 전담 경계 유지. Front 기존 주소·배정 확인, 최신 수락/실화면 증거 미확인."
       ],
-      "judgment": "격리 검수 범위 수락 및 후속 검수 전달. 운영·배포 변경 없음.",
-      "nextAction": "글자수 Mac 검수와 Workspace 다음 순수 모듈 회수. 기존 사용자 제어 반환 뒤 실화면 재개. B2B·SNS 기존 순번/연결 상태 재확인.",
+      "judgment": "보고 범위 판정·국소 수정과 독립 검수 전달. B2B Front, 사용자 제어 및 운영 승인 단계는 기존 재개 조건 유지. 신규 배포·운영 쓰기·유료호출 승인 없음.",
+      "nextAction": "Mac에서 영상·부동산 재검수 회수, Workspace 계약·블로그 카운터 보완 회수. 0077은 실행 도구의 이력 원자성과 고정 SQL 대조 뒤 Master가 순번을 결정.",
       "unverified": [
-        "Workspace 실제 API·DB·노션 표본·운영 서명 키, SEO 실제 브라우저, 글자수 번들·브라우저, B2B Backend·SNS 기존 배정 최근 수락."
+        "Front 최신 실제 착수, B2B 0077 실제 MCP 이력 동작·후속 공유 DB 순번, Mac 기존 로그인/제어 반환.",
+        "Workspace 실 API·DB·키·노션 표본, 영상 실제 React/클립보드, 부동산 실제 UI/빌드, 블로그 실제 저장·ZIP."
       ]
     },
     "notifications": [
