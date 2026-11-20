@@ -3,7 +3,7 @@
 // 판정 계약: 응답을 받고 오류가 없으면 바뀐 행 수(select("id") 길이), 응답을 받았고 오류 코드가 있으면 갱신이 일어나지 않은 것으로 0
 // (PostgREST 단일 요청은 트랜잭션이라 오류면 적용 안 됨), 전송 결과 불확실(status 0·예외·응답 형태 이상)이면 예외 → 잠금 단계 「불확실」.
 import type { CasFn, CasSet, CasWhere } from "./remixSaveLock";
-import { LEGACY_LOCK } from "./remixSaveLock";
+import { LEGACY_LOCK, CasRejectedError } from "./remixSaveLock";
 
 export const REMIX_TABLE = "music_track_remixes";
 
@@ -57,14 +57,31 @@ export function makeRemixCas(client: PgClientLike): CasFn {
     } catch {
       throw new CasUncertainError("전송 예외");
     }
-    if (!res || typeof res !== "object") throw new CasUncertainError("응답 형태 이상");
-    if (res.status === 0) throw new CasUncertainError("status 0");
-    if (res.error) {
-      if (!res.error.code) throw new CasUncertainError("코드 없는 오류"); // 원인을 모르면 적용 여부도 모름
-      return 0;
-    }
-    if (!Array.isArray(res.data)) throw new CasUncertainError("data 없음");
+    return classifyCasResponse(res);
+  };
+}
+
+/**
+ * 응답 → 바뀐 행 수 / 확정 거절(CasRejectedError) / 미확정(CasUncertainError). 성공은 상태·오류·데이터가 모두 맞을 때만.
+ * - 성공: status 2xx + error 없음 + data 배열(길이 0 또는 1)
+ * - 확정 거절: status 4xx + error.code 있음 + data 없음(null) — PostgREST 단일 요청은 오류면 적용되지 않음
+ * - 그 밖(응답 형태 이상·status 없음/0·5xx·프록시 오류·코드 없는 오류·2xx인데 오류·4xx인데 data·여러 행)은 모두 미확정
+ */
+export function classifyCasResponse(res: PgResponse | null | undefined): number {
+  if (!res || typeof res !== "object") throw new CasUncertainError("응답 형태 이상");
+  const status = typeof res.status === "number" ? res.status : NaN;
+  if (!(status >= 100 && status <= 599) || status === 0) throw new CasUncertainError("status 없음");
+  if (status >= 500) throw new CasUncertainError(`서버·프록시 ${status}`);
+  if (status >= 200 && status < 300) {
+    if (res.error) throw new CasUncertainError("성공 상태인데 오류");
+    if (!Array.isArray(res.data)) throw new CasUncertainError("성공 상태인데 data 없음");
     if (res.data.length > 1) throw new CasUncertainError("여러 행 변경"); // id 조건이 있어 불가능 — 생기면 정상 처리하지 않음
     return res.data.length;
-  };
+  }
+  if (status >= 400 && status < 500) {
+    const code = res.error?.code;
+    if (res.error && typeof code === "string" && code && res.data == null) throw new CasRejectedError(code);
+    throw new CasUncertainError(`${status} 근거 부족`);
+  }
+  throw new CasUncertainError(`예상 밖 상태 ${status}`); // 1xx·3xx
 }

@@ -28,13 +28,22 @@ export interface CasSet {
 /** 바뀐 행 수를 돌려준다. 응답을 받지 못하면(전송 결과 불확실) 예외를 던진다. */
 export type CasFn = (set: CasSet, where: CasWhere) => Promise<number>;
 
-export type StepResult = "ok" | "lost" | "uncertain"; // ok = 1행 바뀜, lost = 0행(조건 불일치), uncertain = 응답 유실
+// ok = 1행 바뀜 / lost = 0행(조건 불일치·다른 소유자) / rejected = 응답을 받았고 DB가 확정 거절(적용 안 됨) / uncertain = 응답 미확정
+export type StepResult = "ok" | "lost" | "rejected" | "uncertain";
+
+/** CasFn이 「응답을 받았고 DB가 분명히 거절해 적용되지 않았다」를 알릴 때 던진다(그 밖 예외는 모두 불확실) */
+export class CasRejectedError extends Error {
+  constructor(public readonly code: string) {
+    super(`잠금 갱신을 DB가 거절했습니다(${code}).`);
+    this.name = "CasRejectedError";
+  }
+}
 
 async function cas(fn: CasFn, set: CasSet, where: CasWhere): Promise<StepResult> {
   try {
     return (await fn(set, where)) === 1 ? "ok" : "lost";
-  } catch {
-    return "uncertain";
+  } catch (e) {
+    return e instanceof CasRejectedError ? "rejected" : "uncertain";
   }
 }
 
@@ -67,6 +76,7 @@ export function isAcquirable(errorMessage: string | null, updatedAt: string, sta
   if (errorMessage === null) return true;
   if (errorMessage.startsWith(INSERTING_PREFIX)) return false;
   if (errorMessage.startsWith(LOCK_PREFIX) || errorMessage === LEGACY_LOCK) return updatedAt < staleBefore;
+  if (errorMessage.startsWith("__")) return false; // 모르는 내부 표시(`__`로 시작)는 잡지 않음 — DB 어댑터 acquirableFilter와 같은 뜻
   return true; // 그 밖 문구(이전 실패 메시지 등)는 지금 공용 잠금과 같이 잡을 수 있음 — status=generating 조건이 함께 걸림
 }
 
@@ -90,7 +100,8 @@ export async function runRemixSave(fn: CasFn, c: LockCtx, insert: () => Promise<
   const acquired = await acquire(fn, c);
   if (acquired !== "ok") return { acquired, insertCalled: false, extendAllowed: false };
   const promoted = await promote(fn, c);
-  if (promoted === "lost") return { acquired, promoted, insertCalled: false, released: await release(fn, c), extendAllowed: false };
+  // 승격이 분명히 안 됐을 때(0행·확정 거절)만 내 잡기 잠금 해제 시도, 미확정이면 insert 0·해제 0
+  if (promoted === "lost" || promoted === "rejected") return { acquired, promoted, insertCalled: false, released: await release(fn, c), extendAllowed: false };
   if (promoted === "uncertain") return { acquired, promoted, insertCalled: false, extendAllowed: false };
   let insertOutcome: InsertOutcome;
   try {

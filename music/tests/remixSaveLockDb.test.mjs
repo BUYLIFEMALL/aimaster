@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { makeRemixCas, acquirableFilter, REMIX_TABLE } from "../lib/remixSaveLockDb.ts";
-import { acquire, promote, release, finish, runRemixSave, lockValue, insertingValue } from "../lib/remixSaveLock.ts";
+import { acquire, promote, release, finish, runRemixSave, lockValue, insertingValue, isAcquirable } from "../lib/remixSaveLock.ts";
 import { requestRemixRecordInfo } from "../lib/remixRecordInfo.ts";
 import { insertRemixVariantsWithFallback } from "../lib/remixVariantInsert.ts";
 import { fakePgClient, fakeRecordInfo, insertRecorder, CALLER_OUTCOMES } from "./helpers/remixDoubles.mjs";
@@ -50,14 +50,78 @@ test("행 수 — 1행 ok, 0행 lost(다른 소유자·조건 불일치), 여러
   assert.equal(await promote(makeRemixCas(fakePgClient([{ data: [{ id: "R1" }, { id: "R2" }], error: null, status: 200 }]).client), ctx()), "uncertain");
 });
 
-test("오류 — 코드 있는 DB 오류는 적용 안 됨(lost), 코드 없는 오류·status 0·예외·data 없음은 불확실", async () => {
+test("세 결과 분리 — 0행(lost)·확정 DB 거절(rejected)·응답 미확정(uncertain)", async () => {
   const run = async (r) => promote(makeRemixCas(fakePgClient([r]).client), ctx());
-  assert.equal(await run({ data: null, error: { code: "42501", message: "permission denied" }, status: 403 }), "lost");
-  assert.equal(await run({ data: null, error: { code: "42703", message: "column x does not exist" }, status: 400 }), "lost");
-  assert.equal(await run({ data: null, error: { code: "", message: "TypeError: fetch failed" }, status: 0 }), "uncertain");
-  assert.equal(await run({ data: null, error: { message: "?" }, status: 500 }), "uncertain");
-  assert.equal(await run({ throw: "network down" }), "uncertain");
-  assert.equal(await run({ data: null, error: null, status: 200 }), "uncertain");
+  // 0행: 성공 응답인데 바뀐 행 없음(다른 소유자·조건 불일치)
+  assert.equal(await run({ data: [], error: null, status: 200 }), "lost");
+  // 확정 거절: 4xx + 코드 있는 오류 + data 없음
+  assert.equal(await run({ data: null, error: { code: "42501", message: "permission denied" }, status: 403 }), "rejected");
+  assert.equal(await run({ data: null, error: { code: "42703", message: "column x does not exist" }, status: 400 }), "rejected");
+  assert.equal(await run({ data: null, error: { code: "PGRST204", message: "x" }, status: 400 }), "rejected");
+  // 미확정
+  for (const r of [
+    { data: null, error: { code: "", message: "TypeError: fetch failed" }, status: 0 },
+    { data: null, error: { message: "?" }, status: 500 },
+    { data: [{ id: "R1" }], error: null, status: 503 }, // 5xx인데 배열 — 모순
+    { data: null, error: { code: "57014", message: "statement timeout" }, status: 503 }, // 5xx는 코드가 있어도 미확정
+    { data: null, error: { code: "", message: "Bad Gateway" }, status: 502 },
+    { data: [{ id: "R1" }], error: { code: "42501", message: "x" }, status: 200 }, // 2xx인데 오류 — 모순
+    { data: [{ id: "R1" }], error: { code: "42501", message: "x" }, status: 403 }, // 4xx인데 data — 모순
+    { data: null, error: { code: "", message: "x" }, status: 400 }, // 4xx인데 코드 없음
+    { data: [{ id: "R1" }], error: null }, // status 없음
+    { data: [{ id: "R1" }], error: null, status: 304 },
+    { data: null, error: null, status: 200 },
+    { data: "R1", error: null, status: 200 },
+    { throw: "network down" },
+  ]) assert.equal(await run(r), "uncertain", JSON.stringify(r));
+});
+
+test("승격 단계 — 확정 거절이면 insert 0·해제 시도, 5xx·모순 응답이면 insert 0·해제 0", async () => {
+  const flow = async (promoteRes) => {
+    const { client, calls } = fakePgClient([ONE, promoteRes, ZERO]);
+    let inserts = 0;
+    const r = await runRemixSave(makeRemixCas(client), ctx(), async () => { inserts++; return "ok"; });
+    return { r, inserts, calls: calls.length };
+  };
+  const rej = await flow({ data: null, error: { code: "42501", message: "x" }, status: 403 });
+  assert.deepEqual([rej.r.promoted, rej.inserts, rej.calls], ["rejected", 0, 3], "거절은 분명히 미적용 → 내 잡기 잠금 해제 시도");
+  for (const res of [{ data: [{ id: "R1" }], error: null, status: 503 }, { data: null, error: { code: "", message: "x" }, status: 502 }]) {
+    const u = await flow(res);
+    assert.deepEqual([u.r.promoted, u.inserts, u.calls], ["uncertain", 0, 2], "미확정 → insert 0·해제 0");
+  }
+});
+
+test("잡기 단계 — 거절·미확정이면 아무것도 더 하지 않음", async () => {
+  for (const res of [{ data: null, error: { code: "42501", message: "x" }, status: 403 }, { data: [{ id: "R1" }], error: null, status: 503 }]) {
+    const { client, calls } = fakePgClient([res]);
+    let inserts = 0;
+    const r = await runRemixSave(makeRemixCas(client), ctx(), async () => { inserts++; return "ok"; });
+    assert.ok(["rejected", "uncertain"].includes(r.acquired));
+    assert.equal(inserts, 0);
+    assert.equal(calls.length, 1);
+  }
+});
+
+test("메모리 판정(isAcquirable)과 어댑터 필터(acquirableFilter)의 뜻이 같다", () => {
+  // 필터를 문자 그대로 해석하는 작은 평가기(우리가 만든 4항목 구조만): like의 \_는 문자 _, *는 아무 문자열
+  const likeToRe = (p) => new RegExp("^" + p.replace(/\\_/g, "\u0000").replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*").replace(/_/g, ".").replace(/\u0000/g, "_") + "$");
+  const evalFilter = (msg, updatedAt, stale) => {
+    const f = acquirableFilter(stale);
+    const notLike = f.match(/and\(error_message\.not\.like\.([^)]+)\)/)[1];
+    const rsync = f.match(/and\(error_message\.like\.([^,]+),updated_at\.lt\.([^)]+)\)/);
+    const legacy = f.match(/and\(error_message\.eq\.([^,]+),updated_at\.lt\.([^)]+)\)/);
+    if (msg === null) return true;
+    if (!likeToRe(notLike).test(msg)) return true;
+    if (likeToRe(rsync[1]).test(msg) && updatedAt < rsync[2]) return true;
+    if (msg === legacy[1] && updatedAt < legacy[2]) return true;
+    return false;
+  };
+  const stale = "2026-11-20T09:55:00.000Z";
+  const old = "2026-11-20T09:00:00.000Z", fresh = "2026-11-20T09:59:00.000Z";
+  const msgs = [null, "", "이전 실패 문구", "x__y", lockValue("A"), insertingValue("T0", "A"), "__syncing__", "__foo", "__rsyncX", "_rsync__:A", "__RSYNC__:A", "__rins__:T0:A"];
+  for (const m of msgs) for (const u of [old, fresh]) {
+    assert.equal(isAcquirable(m, u, stale), evalFilter(m, u, stale), `${JSON.stringify(m)} ${u === old ? "만료" : "신규"}`);
+  }
 });
 
 test("응답 유실 시 흐름 — 승격 유실이면 insert 0·해제 0(어댑터 경유)", async () => {
