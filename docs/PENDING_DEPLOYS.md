@@ -83,7 +83,7 @@
 | `shots` (운영 v1.51) · `ai-video-studio` (운영 v1.36) | 로그인 정책 2가지: `signOut` local 각 1곳 · 서버 `User-Agent` | `756c51b93` | 2026-11-20 · [역할: video] `claude-win-video` | 각 `docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 배포 뒤 로그아웃이 다른 프로그램을 끊지 않는지 확인 |
 | `shots` (운영 v1.51) | Next 16.4.2→16.4.6 `9446ef0b2`(로컬 빌드는 순번 뒤) · 「브라우저에서 만들기」 배경음악 크기 슬라이더(기본 50% 유지, 0%는 진짜 음소거, 목소리·자동 낮춤 그대로) | `67cc1eee8` | 2026-11-20 · [역할: video] `claude-win-video` | `shots/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 배포 뒤 0%·50%·100%로 MP4 소리 비교 |
 | `shots` · `shorts-viral-studio` · `youtube-viral-studio` | 고지 파일 /robots.txt·/ai.txt 로그인 307 해소(정확히 두 경로만 미들웨어 통과, 기준 방식 f8b31fde9) | `b654c1017` | 2026-11-20 · [역할: video] `claude-win-video` | 각 `docs/IMPROVEMENTS.md` | 각 앱 다음 배포 때 함께, 배포 뒤 두 주소 200·`node scripts/check-crawler-access.mjs --live <주소>` |
-| `shorts-onestop-studio` (운영 v1.59) | Next 16.4.1→16.4.6 `9446ef0b2`(로컬 빌드는 순번 뒤) · 글자 배치 안내: 상품 사진 대본에서 「하단 자막형」이 아닌 카드 레이아웃을 고르면 경고 한 줄(강제 없음) | `f874762f9` | 2026-11-20 · [역할: video] `claude-win-video` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 배포 뒤 상품 대본에서 배치 바꿔 안내 줄 확인 |
+| `shorts-onestop-studio` (운영 v1.59) | Next 16.4.1→16.4.6 `9446ef0b2`(로컬 빌드는 순번 뒤) · 넘겨받기 이모지 경계·보관 시험·깨진 넘기기 안내 `b3d9d62fa` · 글자 배치 안내: 상품 사진 대본에서 「하단 자막형」이 아닌 카드 레이아웃을 고르면 경고 한 줄(강제 없음) | `f874762f9` | 2026-11-20 · [역할: video] `claude-win-video` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 배포 뒤 상품 대본에서 배치 바꿔 안내 줄 확인 |
 | `emotion-writer` (운영 v1.26) | 사용 매뉴얼 사진 출처 「Unsplash」 → 「Pixabay·Pexels」 7곳·저작권 안내 문구 | `1965b2c6c` | 2026-10-23 · Claude Code(윈도우) | `emotion-writer/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, `/guide` 문구 확인 |
 
 ## 메인 사이트 — 다음 메인 빌드 때 할 일 (코드 미작성)
