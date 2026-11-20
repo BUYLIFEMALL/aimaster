@@ -15,7 +15,6 @@ const randomDelay = (min, max) => Math.floor(Math.random() * (max - min + 1)) + 
 let webDrafts = [];
 let webDraftsToken = ""; // webDrafts를 불러온 연결 토큰(회원 계정 문맥) — 2026-11-20 P2
 let webDraftsEpoch = 0; // 계정 교체·새 조회마다 증가, 늦은 옛 응답 차단
-let webDraftsLoadedAt = 0; // 지금 목록을 받은 시각(메모리만) — 이보다 뒤에 갱신된 실행이면 「목록 새로고침」 안내(3차)
 let activeWebDraftId = "";
 let activeWebDraftTags = [];
 let activeWebDraftContentImages = [];
@@ -157,16 +156,18 @@ async function refreshWebDrafts() {
   const currentToken = await getToken();
   if (epoch !== webDraftsEpoch || currentToken !== token) return;
   if (!response.ok) throw new Error(result?.error || `웹 초안 조회 실패 (${response.status})`);
-  // 2026-11-20 3차(Mac msg_81a964cf26e1): 성공(200)이어도 응답 모양이 다르면(null·비객체·배열·drafts가 배열 아님)
-  // 이전 목록·제목을 지금 것으로 쓰지 않는다. 늦은 옛 응답은 위 판정에서 이미 버려져 최신 화면을 지우지 않는다.
-  const drafts = result && typeof result === "object" && !Array.isArray(result) && Array.isArray(result.drafts) ? result.drafts : null;
+  // 2026-11-20 3차(Mac msg_81a964cf26e1)·4차(msg_186b1411bf68): 성공(200)이어도 응답 모양이 다르면(null·비객체·배열·drafts가
+  // 배열 아님·원소가 객체가 아니거나 id가 문자열 아님·실행 번호가 문자열/null 아님) 캐시·화면에 넣기 전에 거절하고 이전 목록·제목을
+  // 지금 것으로 쓰지 않는다. 늦은 옛 응답은 위 판정에서 이미 버려져 최신 화면을 지우지 않는다.
+  const validDraft = (item) => Boolean(item) && typeof item === "object" && !Array.isArray(item) && typeof item.id === "string" && item.id !== ""
+    && (item.auto_publish_run_id === undefined || item.auto_publish_run_id === null || typeof item.auto_publish_run_id === "string");
+  const drafts = result && typeof result === "object" && !Array.isArray(result) && Array.isArray(result.drafts) && result.drafts.every(validDraft) ? result.drafts : null;
   if (!drafts) {
     invalidateWebDraftCache("응답 형식이 올바르지 않습니다. 「전송된 콘텐츠 목록 새로고침」을 다시 눌러 주세요.");
     throw new Error("웹 초안 응답 형식이 올바르지 않습니다. 잠시 뒤 다시 불러오세요.");
   }
   webDrafts = drafts;
   webDraftsToken = token;
-  webDraftsLoadedAt = Date.now();
   if (typeof showReconcileTarget === "function") showReconcileTarget().catch(() => {}); // 2026-11-20 결과 확인 대상 제목(auto-publish.js)
   const select = $("webDraftList");
   select.textContent = "";
@@ -1000,7 +1001,6 @@ function invalidateWebDraftCache(message = "연결이 바뀌었습니다. 전송
   webDraftsEpoch += 1;
   webDrafts = [];
   webDraftsToken = "";
-  webDraftsLoadedAt = 0;
   cancelWebDraftLoad();
   resetActiveWebDraft();
   clearWebDraftPreview();

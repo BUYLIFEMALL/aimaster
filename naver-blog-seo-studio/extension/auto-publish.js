@@ -13,18 +13,13 @@ async function persistPublication() {
 // 2026-11-20 P2(Mac msg_316d4de9fcca)·2차(msg_f134487d977d): 제목은 지금 계정으로 불러온 원고 목록에서만 얻는다.
 // 저장된 직전 실행이 「지금 계정의 그 원고 실행」인지 서버 목록의 실행 번호(auto_publish_run_id)로 확인될 때만 표시 —
 // 확인할 수 없으면(실행 번호 없음·다름·원고 없음) 숨긴다. 토큰을 따로 저장하지 않고 실행 상태도 건드리지 않는다.
-// 3차(Mac msg_81a964cf26e1): 지금 계정 목록에 그 원고는 있지만 실행 번호가 아직 반영되지 않았고, 그 실행이 목록을 받은
-// 뒤에 갱신된 것이면(정상 수명 — 목록을 먼저 열고 실행을 시작) 제목 대신 「목록 새로고침」 안내만 낸다(자동 조회 없음).
-// 원고가 목록에 없거나(이전 계정·모르는 기록) 목록이 실행보다 새것인데도 다르면 조용히 숨긴다.
-function reconcileTargetState(saved, drafts, loadedAt) {
-  if (typeof saved?.runId !== "string" || !saved.runId || typeof saved.draftId !== "string" || !saved.draftId) return {};
-  const draft = Array.isArray(drafts) ? drafts.find((item) => item && typeof item === "object" && item.id === saved.draftId) : null;
-  if (!draft) return {};
-  if (draft.auto_publish_run_id === saved.runId) return draft.title ? { title: String(draft.title).trim() } : {};
-  return Number(saved.aliveAt || 0) > Number(loadedAt || 0) ? { refresh: true } : {};
-}
+// 4차(Mac msg_186b1411bf68): 소유 근거 없는 동적 안내(3차 「목록 새로고침」)는 제거 — 제목은 현재 검증된 회원 목록의
+// draftId+runId 일치일 때만, 그 밖에는 모두 조용히 숨긴다(다른 계정·실행 여부를 유추하게 하는 문구 없음).
 function reconcileTargetTitle(saved, drafts) {
-  return reconcileTargetState(saved, drafts, Infinity).title || "";
+  if (typeof saved?.runId !== "string" || !saved.runId || typeof saved.draftId !== "string" || !saved.draftId) return "";
+  const draft = Array.isArray(drafts) ? drafts.find((item) => item && typeof item === "object" && item.id === saved.draftId) : null;
+  if (!draft || draft.auto_publish_run_id !== saved.runId) return "";
+  return typeof draft.title === "string" ? draft.title.trim() : "";
 }
 async function showReconcileTarget() {
   const box = typeof document === "undefined" ? null : document.getElementById("reconcileTarget");
@@ -34,10 +29,9 @@ async function showReconcileTarget() {
   const token = await getToken();
   // 계정 문맥: 목록을 불러온 토큰이 지금 토큰과 같고, 기다리는 사이 계정 교체·새 조회가 없었을 때만.
   const sameAccount = Boolean(token) && token === webDraftsToken && epoch === webDraftsEpoch;
-  const state = sameAccount ? reconcileTargetState(saved, webDrafts, webDraftsLoadedAt) : {};
-  const text = state.title ? `확인 대상(직전 실행): ${state.title}` : state.refresh ? "확인 대상: 「전송된 콘텐츠 목록 새로고침」 뒤 표시됩니다." : "";
-  box.textContent = text;
-  box.hidden = !text;
+  const title = sameAccount ? reconcileTargetTitle(saved, webDrafts) : "";
+  box.textContent = title ? `확인 대상(직전 실행): ${title}` : "";
+  box.hidden = !title;
 }
 if (typeof IN_WORKER !== "undefined" && !IN_WORKER && chrome?.storage?.onChanged) {
   chrome.storage.onChanged.addListener((changes, area) => {

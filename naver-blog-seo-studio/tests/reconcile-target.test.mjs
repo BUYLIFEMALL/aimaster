@@ -57,7 +57,7 @@ function panel({ token = "tokA", saved, worker = false } = {}) {
     getToken: () => (holdToken ? new Promise((resolve) => heldTokens.push(() => resolve(store[KEY] || ""))) : Promise.resolve(store[KEY] || "")),
     resetActiveWebDraft() {}, clearWebDraftPreview() {}, cancelWebDraftLoad() {}, formatWebDraftLabel: (d) => d.title,
   });
-  vm.runInContext(`let webDrafts = []; let webDraftsToken = ""; let webDraftsEpoch = 0; let webDraftsLoadedAt = 0;\n${panelFunctions}\n${autoPublish}`, sandbox);
+  vm.runInContext(`let webDrafts = []; let webDraftsToken = ""; let webDraftsEpoch = 0;\n${panelFunctions}\n${autoPublish}`, sandbox);
   const reply = async (index, drafts) => {
     for (let i = 0; i < 20 && !pending[index]; i++) await tick();
     pending[index].resolve({ ok: true, json: async () => ({ drafts }) });
@@ -216,23 +216,23 @@ test("화면 구조: 결과 확인 버튼 바로 아래, 포커스를 받지 않
   assert.ok(!/tabindex|role="alert"|autofocus/.test(line));
 });
 
-// ── 3차(Master msg_42ca61066987 / Mac msg_81a964cf26e1): 정상 수명 안내 · 비정상 200 응답 ──
-const HINT = "확인 대상: 「전송된 콘텐츠 목록 새로고침」 뒤 표시됩니다.";
+// ── 3차(Master msg_42ca61066987)·4차(msg_fb2416f42ee8 / Mac msg_186b1411bf68): 미검증 안내 없음 · 비정상 200 응답 ──
 
-test("정상 수명: 목록을 연 뒤 새 실행이 시작되면 제목 대신 새로고침 안내, 새로고침 뒤 제목", async () => {
+test("새 실행이 목록에 아직 없으면 안내 문구 없이 숨김(소유 근거 없음), 새로고침 뒤 일치하면 제목", async () => {
   const p = panel({ saved: { runId: "r1", draftId: "a1" } });
   await load(p, 0, A);
   assert.equal(shown(p), "확인 대상(직전 실행): A 계정 원고");
   p.store[OUTBOX] = { runId: "r9", draftId: "a1", aliveAt: Date.now() + 1000 }; // 목록을 받은 뒤 갱신된 새 실행
   p.listeners[0]({ [OUTBOX]: { newValue: {} } }, "local");
   await settle();
-  assert.equal(shown(p), HINT);
+  assert.equal(shown(p), "(숨김)");
+  assert.equal(p.box.textContent, "", "동적 안내 문구 없음");
   assert.equal(p.fetches(), 1, "자동 조회 없음");
   await load(p, 1, [{ id: "a1", title: "A 계정 원고", auto_publish_run_id: "r9" }]);
   assert.equal(shown(p), "확인 대상(직전 실행): A 계정 원고");
 });
 
-test("목록이 실행보다 새것인데도 실행 번호가 다르면 안내 없이 숨김(끝난 옛 기록)", async () => {
+test("목록이 실행보다 새것인데도 실행 번호가 다르면 숨김(끝난 옛 기록)", async () => {
   const p = panel({ saved: { runId: "old", draftId: "a1", aliveAt: Date.now() - 60000 } });
   await load(p, 0, A);
   assert.equal(shown(p), "(숨김)");
@@ -284,4 +284,53 @@ test("서버 오류 응답 본문이 null이어도 원래 오류 문구로 실�
   for (let i = 0; i < 20 && !p.pending[0]; i++) await tick();
   p.pending[0].resolve({ ok: false, status: 500, json: async () => null });
   await assert.rejects(loading, /웹 초안 조회 실패 \(500\)/);
+});
+
+test("heartbeat만 새로 찍힌 기록(소유 근거 없음)도 안내·제목 없이 숨김", async () => {
+  const p = panel({ saved: { runId: "foreign", draftId: "a1" } });
+  await load(p, 0, A);
+  for (const aliveAt of [Date.now() + 1000, Date.now() + 60000]) {
+    p.store[OUTBOX] = { runId: "foreign", draftId: "a1", aliveAt };
+    p.listeners[0]({ [OUTBOX]: { newValue: {} } }, "local");
+    await settle();
+    assert.equal(shown(p), "(숨김)");
+    assert.equal(p.box.textContent, "");
+  }
+});
+
+test("응답 원소가 잘못되면(null·숫자·배열·id 없음/숫자/빈 문자열·실행 번호 숫자) 캐시·화면 반영 전에 거절하고 무효화", async () => {
+  const bad = [[null], [1], [[]], [{ title: "x" }], [{ id: 1 }], [{ id: "" }], [{ id: "a1", auto_publish_run_id: 7 }], [{ id: "a1", auto_publish_run_id: "r1" }, null]];
+  for (const [index, drafts] of bad.entries()) {
+    const p = panel({ saved: { runId: "r1", draftId: "a1" } });
+    await load(p, 0, A);
+    assert.equal(shown(p), "확인 대상(직전 실행): A 계정 원고");
+    const loading = p.sandbox.refreshWebDrafts();
+    await p.reply(1, drafts);
+    await assert.rejects(loading, /응답 형식이 올바르지 않습니다/, String(index));
+    await settle();
+    assert.equal(p.drafts().length, 0, String(index));
+    assert.equal(vm.runInContext("webDraftsToken", p.sandbox), "", String(index));
+    assert.equal(shown(p), "(숨김)", String(index));
+  }
+});
+
+test("잘못된 원소를 가진 늦은 옛 응답은 최신 정상 화면을 지우지 않는다", async () => {
+  const p = panel({ saved: { runId: "r1", draftId: "a1" } });
+  const older = p.sandbox.refreshWebDrafts(); await settle();
+  const newer = p.sandbox.refreshWebDrafts(); await settle();
+  await p.reply(1, A); await newer; await settle();
+  await p.reply(0, [null]); await older; await settle();
+  assert.equal(shown(p), "확인 대상(직전 실행): A 계정 원고");
+  assert.equal(p.drafts().length, 3);
+});
+
+test("정상 원소(실행 번호 null·없음 포함)는 그대로 받는다", async () => {
+  const p = panel({ saved: { runId: "r1", draftId: "a1" } });
+  await load(p, 0, [{ id: "a1", title: "A 계정 원고", auto_publish_run_id: "r1" }, { id: "a3", title: "x", auto_publish_run_id: null }, { id: "a4", title: "y" }]);
+  assert.equal(p.drafts().length, 3);
+  assert.equal(shown(p), "확인 대상(직전 실행): A 계정 원고");
+});
+
+test("auto-publish.js에 동적 새로고침 안내 문구가 남아 있지 않다", () => {
+  assert.doesNotMatch(autoPublish, /새로고침」 뒤 표시됩니다|refresh: true/);
 });
