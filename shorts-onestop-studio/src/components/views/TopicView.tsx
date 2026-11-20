@@ -14,7 +14,7 @@ import { modelName } from "@/lib/models";
 import { CATEGORIES, FORMATS, MAX_CARDS, MIN_CARDS, TONES, guessFromTopic, scriptFromLines, type Format, type ShortsScript, type Tone } from "@/lib/script";
 import { extractReel } from "@/lib/reelsMedia";
 import { guardText, hasCopy } from "@/lib/reference";
-import { takeProductHandoff, takeRefHandoff } from "@/lib/refHandoff";
+import { BROKEN_PRODUCT_HANDOFF_NOTICE, takeProductHandoffResult, takeRefHandoff } from "@/lib/refHandoff";
 import { EXTRA_LIMITS, MAX_PRODUCT_PHOTOS, PRODUCT_CARDS, PRODUCT_LIMITS, RIGHTS_LABEL, applyProduct, normalizeProductExtra, productBlock, productPhotoList, type ProductExtra, type ProductRights } from "@/lib/productShorts";
 import { PRODUCT_TEMPLATES, applyTemplate, checkProductScript, issuesFor, type Issue, type TemplateKey } from "@/lib/productTemplates";
 import { restoreVersion } from "@/lib/versions";
@@ -150,7 +150,13 @@ export function TopicView() {
       if (window.location.hash) window.history.replaceState(null, "", window.location.pathname + window.location.search);
     }
     // v1.44(V3) 다른 프로그램(상세페이지 등)이 넘긴 상품 정보 → 상품 홍보 구성으로 채움(형식: src/lib/productShorts.ts 맨 위)
-    const got = takeProductHandoff(window.location.hash);
+    // 2026-11-20: 상품 넘기기 주소인데 상품명을 읽지 못하면(잘림·깨짐) 안내 한 줄만 — 칸은 채우지 않는다
+    const res = takeProductHandoffResult(window.location.hash);
+    if (res.status === "broken") {
+      setMsg({ text: BROKEN_PRODUCT_HANDOFF_NOTICE });
+      if (window.location.hash) window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+    const got = res.status === "ok" ? res : null;
     if (got) {
       setProduct({ name: got.product.name, points: [...got.product.points, "", "", ""].slice(0, 3), offer: got.product.offer });
       setExtra(got.extra); setProductFrom(got.from);

@@ -143,3 +143,41 @@ test("글자 배치 안내: 상품 사진이 있고 하단 자막형이 아닐 �
   assert.equal(productLayoutNotice(2, undefined), "");
   assert.match(PRODUCT_LAYOUT_NOTICE, /하단 자막형/);
 });
+
+// 2026-11-20 MOV-ONESTOP-HANDOFF-UNICODE: 글자 수 제한 경계의 이모지(서로게이트 쌍) — 예전엔 보낼 때 URIError, 받을 때 반쪽 글자
+import { cutText, PRODUCT_LIMITS } from "../src/lib/productShorts.ts";
+const HALF = /[\uD800-\uDBFF]$/;
+
+test("자르기: 끝이 이모지 반쪽이면 그 한 칸을 빼고, 아니면 그대로", () => {
+  assert.equal(cutText("가".repeat(99) + "😀", 100), "가".repeat(99));
+  assert.equal(cutText("가".repeat(98) + "😀", 100), "가".repeat(98) + "😀");
+  assert.equal(cutText("abc", 10), "abc");
+  assert.equal(cutText("abc", 0), "");
+});
+
+test("보내기: 상품명·장점·혜택·보낸 곳 경계에 이모지가 있어도 멈추지 않고 왕복된다", () => {
+  const name = "가".repeat(PRODUCT_LIMITS.name - 1) + "😀";
+  const point = "나".repeat(PRODUCT_LIMITS.point - 1) + "🔥";
+  const offer = "다".repeat(PRODUCT_LIMITS.offer - 1) + "🎁";
+  const from = "라".repeat(PRODUCT_LIMITS.from - 1) + "✅🙂";
+  const hash = productHandoffHash({ name, points: [point, point, point], offer }, from);
+  const r = readProductHandoff(hash);
+  assert.ok(r);
+  assert.equal(r.product.name, "가".repeat(PRODUCT_LIMITS.name - 1));
+  assert.deepEqual(r.product.points, ["나".repeat(59), "나".repeat(59), "나".repeat(59)]);
+  assert.equal(r.product.offer, "다".repeat(79));
+  for (const v of [r.product.name, ...r.product.points, r.product.offer, r.from]) assert.doesNotMatch(v, HALF);
+});
+
+test("받기: 제한보다 긴 값의 경계가 이모지여도 반쪽 글자가 남지 않는다", () => {
+  const r = readProductHandoff(`#${PRODUCT_HASH}=${encodeURIComponent("가".repeat(99) + "😀😀")}`);
+  assert.equal(r?.product.name, "가".repeat(99));
+  const e = readProductExtra(`#${PRODUCT_HASH}=a${productExtraHash({ desc: "설".repeat(299) + "📦📦" })}`);
+  assert.equal(e?.desc, "설".repeat(299));
+});
+
+test("크기·필드·주소 형식은 그대로(경계에 이모지 없을 때 예전과 같은 주소)", () => {
+  const hash = productHandoffHash({ name: "가".repeat(100), points: ["a"], offer: "b" }, "AI 상세페이지 자동화");
+  assert.equal(hash, `#${PRODUCT_HASH}=${encodeURIComponent("가".repeat(100))}&product-point=a&product-offer=b&product-from=${encodeURIComponent("AI 상세페이지 자동화")}`);
+  assert.deepEqual({ ...PRODUCT_LIMITS }, { name: 100, point: 60, points: 3, offer: 80, from: 40 });
+});

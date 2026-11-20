@@ -20,7 +20,15 @@ export const PRODUCT_LIMITS = { name: 100, point: 60, points: 3, offer: 80, from
 /** 상품 홍보 구성의 카드 수(인트로 1 + 카드 4 + 아웃트로 1 = 6비트) */
 export const PRODUCT_CARDS = 4;
 
-const clean = (v: unknown, max: number) => (typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, max) : "");
+// 2026-11-20(MOV-ONESTOP-HANDOFF-UNICODE): 상품 넘기기 값 자르기 — 보낼 때 URIError, 받을 때 깨진 글자 방지(같은 함수가 reference.ts에도 있음)
+// JS slice는 UTF-16 단위라 이모지 한가운데서 자르면 반쪽(U+D800~U+DBFF)이 남고, 그대로 encodeURIComponent하면 URIError로 멈춘다.
+// → 자른 끝이 반쪽 글자면 그 한 칸을 뺀다(제한 길이 값은 그대로).
+export function cutText(s: string, max: number): string {
+  const t = s.slice(0, Math.max(0, max));
+  const last = t.charCodeAt(t.length - 1);
+  return last >= 0xd800 && last <= 0xdbff ? t.slice(0, -1) : t;
+}
+const clean = (v: unknown, max: number) => (typeof v === "string" ? cutText(v.replace(/\s+/g, " ").trim(), max) : "");
 
 /** 회원 입력·서버 요청을 같은 기준으로 정리. 상품명이 없으면 null */
 export function normalizeProduct(raw: unknown): ProductInfo | null {

@@ -1,6 +1,15 @@
 // v1.30 레퍼런스 문장 베끼기 방지(순수 함수) — 「🎬 레퍼런스 쇼츠에서 대본 따기」(v1.29)가 참고 자료에 넣은 블록만 대상.
 // 사실(숫자·고유명사)은 같아도 되지만, 연속 n어절 이상 같은 표현은 베낀 것으로 본다.
 
+// 2026-11-20(MOV-ONESTOP-HANDOFF-UNICODE): 대사·보낸 곳 이름 자르기(같은 함수가 productShorts.ts에도 있음 — 확장자 없는 import를 피하려고 각 파일에 둠)
+// JS slice는 UTF-16 단위라 이모지 한가운데서 자르면 반쪽(U+D800~U+DBFF)이 남고, 그대로 encodeURIComponent하면 URIError로 멈춘다.
+// → 자른 끝이 반쪽 글자면 그 한 칸을 뺀다(제한 길이 값은 그대로).
+function cutText(s: string, max: number): string {
+  const t = s.slice(0, Math.max(0, max));
+  const last = t.charCodeAt(t.length - 1);
+  return last >= 0xd800 && last <= 0xdbff ? t.slice(0, -1) : t;
+}
+
 export const REF_MARK = "[레퍼런스 쇼츠 대본";
 export const COPY_WORDS = 6;
 
@@ -69,11 +78,11 @@ const REF_FROM_MAX = 40;
 
 export function refHandoffHash(transcript: string, from?: string): string {
   const name = cleanFrom(from ?? "");
-  return `#${REF_HASH}=${encodeURIComponent(transcript.trim().slice(0, REF_HANDOFF_MAX))}${name ? `&${REF_FROM}=${encodeURIComponent(name)}` : ""}`;
+  return `#${REF_HASH}=${encodeURIComponent(cutText(transcript.trim(), REF_HANDOFF_MAX))}${name ? `&${REF_FROM}=${encodeURIComponent(name)}` : ""}`;
 }
 
 function cleanFrom(name: string): string {
-  return name.replace(/[\s\[\]「」]+/g, " ").trim().slice(0, REF_FROM_MAX);
+  return cutText(name.replace(/[\s\[\]「」]+/g, " ").trim(), REF_FROM_MAX);
 }
 
 function handoffPart(hash: string, key: string): string {
@@ -88,7 +97,7 @@ function handoffPart(hash: string, key: string): string {
 }
 
 export function readRefHandoff(hash: string): string {
-  return handoffPart(hash, REF_HASH).trim().slice(0, REF_HANDOFF_MAX);
+  return cutText(handoffPart(hash, REF_HASH).trim(), REF_HANDOFF_MAX);
 }
 
 /** 보낸 프로그램 이름(없으면 빈 문자열 — 이름 없는 옛 주소도 대사는 그대로 받음) */
