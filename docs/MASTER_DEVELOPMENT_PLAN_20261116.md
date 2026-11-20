@@ -342,6 +342,11 @@ Master 마지막 실제 점검: 2026-11-20 12:31:27 KST · 12:30 Orca 수신, �
 - 네이버 권한 안내 우선 보완 cdf926cce 작성자 10/10·안전 10/10 msg_9a70a0741caf, 맥미니 전달 msg_b9d1fe7455ff, 고정판 격리 21/21 및 복합 문구·프레임 16조합 msg_809ec7c514c2. 기존 거부 우선과 정상 프레임 유지 국소 수락. 실제 네이버 DOM·입력·발행 미검증, 미배포.
 - SNS 순수 보완 b6a26b833 작성자 20/20 msg_28dd37043136, ID 고유·인증 규칙·유니코드·게시 길이 호환. 맥미니 전달 msg_ba40ff178790, 연결 코드 미커밋·실호출 없음.
 
+- Workspace v1.64 완료 보고: dpl_77wfskxvNZj2BHGkaEAC9vmcpSye READY·운영 별칭·로그인 200, 기록 ef2ed1310·55ff11ffa. 타이머·강의 모듈 제외, 실제 화면·570쪽 미검증. 노션 표본 처리 집계만 확인, 원문 미기록.
+- Workspace 계약 98244b1b9 독립 문서 msg_068e698e2a02. 읽기 전용 preview 격리 배정 msg_74897165e9e7, 최초/이메일 변경에도 실행기 0쓰기 경계 보완 msg_4f60953a8228. 실제 키 설정 및 운영 변경 없음.
+- 음악 18cf482cd 읽기 경로 후보 및 c2f407d4f 조회 함수 msg_3a5e1d6248a2, 조회 모의 Mac 11/11 msg_fe46fbaf094b. 원문 오류 경계는 연결 때 검증. SNS b6a26b833 Mac 기본 20/20이나 소문자 인증 별칭 지적 msg_41c3cfcbe95c, 보완 msg_c699eaa100ef. 운영 미연결.
+- 영상 고지 3앱 b654c1017 Mac 격리 12/12 msg_1df39310544f, ILV d34965be2 담당 19/19 msg_886f4745f19b. 운영 미배포. 부동산 msg_1cf7ef7b473a 직접 승인 및 순차 운영 착수 보고, 결과 대기.
+
 ## 주인님께 한 번에 드리는 요청
 
 | 구분 | 묶음 | 요청과 완료 신호 |
@@ -350,7 +355,7 @@ Master 마지막 실제 점검: 2026-11-20 12:31:27 KST · 12:30 Orca 수신, �
 | 직접 시험 | Workspace | v1.63에서 570쪽 ZIP 재시도 후 결과를 알려주십시오. Gmail은 시험 계정 동의 창이 열렸을 때 한 번 동의해 주십시오. |
 | 직접 조작 | 맥미니·상품 등록 | B2B Lab ego 29와 ESM+ ego 19, 11번가 ego 33의 지정 시험 계정에 로그인하고 제어를 반환해 주십시오. 음악 ego 20에 기존 저장 창이 열려 있으면 MP4를 저장하고 제어를 반환해 주십시오. |
 | 직접 조작 | 블로그·CRM | 기존 블로그 확장 회차에서 지정 A/B 조작을 각 1회 진행하고 제어를 반환해 주십시오. 기존 CRM 폼의 알림 설정·시트 v2 조건을 맞춘 뒤 응답을 1회 제출하고 알려주십시오. |
-| 승인 대기 | 부동산 후보 상태 배포 | 후보 상태 제약 SQL 1회 → 고객관리 v1.12 → 매물 알림 v1.47(빌드 2회)의 순차 운영 실행 승인 여부. 롤백 배포 ID 읽기 확인 완료, 각 단계 검증 뒤 진행. 고객관리는 v1.12 배포 뒤 기존 v1.11 직접 승격을 보류하고 호환판 또는 전진 수정으로 대비. |
+| 승인 수신·착수 | 부동산 후보 상태 배포 | 담당자가 직접 승인 수신과 후보 상태 제약 SQL 1회 → 고객관리 v1.12 → 매물 알림 v1.47(빌드 2회) 착수를 보고. 롤백 배포 ID 읽기 확인 완료, 각 단계 검증 뒤 진행. 고객관리는 v1.12 배포 뒤 기존 v1.11 직접 승격을 보류하고 호환판 또는 전진 수정으로 대비. |
 | 로컬 승인 수신 | 음악 리믹스 가사 1차 | 담당자가 주인님 직접 승인 수신을 보고. 마이그레이션 후보와 격리 구현·시험 착수. 실제 운영 적용·Vercel 빌드 2회·실호출은 별도. 기존 곡 보충·자동 연장 경합 수정은 후속. |
 | 승인 대기 | 쇼츠 떡상 v2.02 | 격리 로컬 빌드 1회 재확인·운영 배포 1회 요청. 포함 범위는 프롬프트 일괄 복사, 기존 문구·필터 개선, 승인된 의존성 수정 및 공통 변경. 독립 검수 결과와 별도로 순번에서 처리. |
 | 승인 수신 | B2B·SNS | 0076·0077 운영 적용, S70 격리 적용·빌드, D2 한도 SQL과 shadow 승인. 운영 SQL은 B2B 적용 검증 뒤 SNS 순번. |
@@ -641,7 +646,7 @@ Master 마지막 실제 점검: 2026-11-20 12:31:27 KST · 12:30 Orca 수신, �
 | WS-20261119-01 | CC-WORKSPACE-01 | done / saved_notion_html_recursive_fix_independent_review_accepted | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | v1.61 배포 완료, 기존 가져온 본문 읽기 확인. 운영에서 노션 저장 HTML 다시 가져오기 시험은 미실행. v1.61 완료분 점유 해제(5b2f56408). |
 | WS-20261119-REL | CC-WORKSPACE-01 | done / production_v161_live_verified_catalog_version_synced | Workspace v1.61 기존 중단 빌드 로그 진단 | 운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음. 완료분 점유 해제(5b2f56408). |
 | WS-20261119-02 | CC-WORKSPACE-01 | done / workspace_v162_production_ready_live_import_pending | Workspace 대용량 ZIP | dfcee1584 운영 v1.62 READY·공식 alias 확인, 빌드 1회. 첫 요청 DDL 확인(담당). DB 표시 v1.61, 재로그인·실제 ZIP/Storage 검증 대기. |
-| WS-20261119-ZIP-504 | CC-WORKSPACE-01 | waiting_human / v164_approved_production_action_denied_no_build | Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단 | Workspace 운영 배포 명령 자동 검토 거부. 승인 빌드 미사용·운영 v1.63·고정 사본 보존. 정확한 배포 명령 허용 또는 해당 세션 직접 승인 필요. 달력 1회 가져오기 읽기 설계 착수 지시 msg_c65a835f44f3. |
+| WS-20261119-ZIP-504 | CC-WORKSPACE-01 | waiting_human / v164_production_ready_browser_and_large_zip_pending | Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단 | 담당자 직접 승인 수신 후 고정 사본으로 v1.64 1회 READY dpl_77wfskxvNZj2BHGkaEAC9vmcpSye, alias·로그인 200. 타이머·강의 모듈 미포함. 실제 브라우저·570쪽 ZIP·programs.version 갱신·push 미확인 또는 미실행. |
 | MUSIC-20261119-IMG-COMPAT | CC-MUSIC-01 | done / five_music_flows_read_only_accepted | 무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토 | 고정 2131089b7 음악 5경로·146/146 검토 수락. 새 범위 미사용 시 파일 미생성 정정. 실제 엔진은 미검증. |
 | MUSIC-20261119-BACKLOG-SWEEP | CC-MUSIC-01 | done / music_backlog_review_accepted_followup_dispatched | 음악 7개 프로그램 다음 작업 후보 대조 | 음악 7개 웹의 미배포 코드 0. L5·U3를 우선 로컬 착수, 리믹스→플레이리스트 및 유료 영상 실검증은 별도 조건 대기. |
 | MUSIC-20261119-REMIX-PLAYLIST-REVIEW | CC-MUSIC-01 | done / remix_playlist_review_accepted_implementation_scope_pending | 리믹스에서 플레이리스트 연계 사전 검토 | d6df77af9 사전 검토 수락. 두 테이블 모두 회원 범위 확인, 플레이리스트 수신 기능을 먼저 배포한 뒤 음악 링크를 공개해야 함. 구현 범위·배포 승인 대기. |
