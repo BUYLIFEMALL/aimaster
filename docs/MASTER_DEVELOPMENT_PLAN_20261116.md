@@ -139,6 +139,11 @@ Master 마지막 실제 점검: 2026-11-20 11:01:22 KST · 11:00 Orca 수신, Wo
 - 쇼츠·떡상 분석과 주문 리포트·상품 라벨 의존성 수정 및 로컬 빌드 승인. 각각 msg_5646e6b28061·msg_0849ea963d3d 전달. 영상 수락·착수 msg_d04b5be98102. 로컬 빌드는 순번 배정 뒤.
 - MacMini Lab 29·ESM+ 19·11번가 33 재요청 전달 msg_cd88ca7ef4d0, 착수 msg_a69dfaf07ac4. 세 공간 모두 사용자 제어 상태 확인 msg_5d39a13b5d5a. 기존 로그인 상태는 미확인.
 
+- Workspace v1.64 고정 사본 검증 통과. 운영 배포 명령 자동 검토 거부로 빌드 미제출. 음악이 순번 승계(msg_7e1f2d5cd656), 실거래는 음악 회차 뒤.
+- Workspace 노션 1회 가져오기 읽기 설계 지시 msg_c65a835f44f3. 부동산 후보 상태 승인 근거 재전달 msg_f26979d7f3d8.
+- 로컬 빌드 대기: 주문 리포트·상품 라벨 12057155d, 쇼츠·떡상 분석 77987f7f2. 영상 YVS 기존 favorites 4건 실패 보고, 회귀 여부 별도 확인.
+- 블로그 T08/T03 차단 중 티스토리 응답 검증 국소 구현 전달 msg_00f267650a0d.
+
 ## 주인님께 한 번에 드리는 요청
 
 | 구분 | 묶음 | 요청과 완료 신호 |
@@ -435,7 +440,7 @@ Master 마지막 실제 점검: 2026-11-20 11:01:22 KST · 11:00 Orca 수신, Wo
 | WS-20261119-01 | CC-WORKSPACE-01 | done / saved_notion_html_recursive_fix_independent_review_accepted | 노션 공개 페이지 브라우저 저장 HTML 가져오기 구조 보존 | v1.61 배포 완료, 기존 가져온 본문 읽기 확인. 운영에서 노션 저장 HTML 다시 가져오기 시험은 미실행. v1.61 완료분 점유 해제(5b2f56408). |
 | WS-20261119-REL | CC-WORKSPACE-01 | done / production_v161_live_verified_catalog_version_synced | Workspace v1.61 기존 중단 빌드 로그 진단 | 운영 v1.61·DB 버전 v1.61 확인. 수집 0.99초, 빌드 시간 DDL 0. 로그인 화면·inbox·위젯 읽기 확인. 실제 가져오기·cron/웹훅 남음. 완료분 점유 해제(5b2f56408). |
 | WS-20261119-02 | CC-WORKSPACE-01 | done / workspace_v162_production_ready_live_import_pending | Workspace 대용량 ZIP | dfcee1584 운영 v1.62 READY·공식 alias 확인, 빌드 1회. 첫 요청 DDL 확인(담당). DB 표시 v1.61, 재로그인·실제 ZIP/Storage 검증 대기. |
-| WS-20261119-ZIP-504 | CC-WORKSPACE-01 | running / v164_approved_pinned_preflight_pass_slot_released | Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단 | CMD-20261120-010 빌드 1회. 54183605c 고정 사본 + 버전 8f93d4a8f, 타이머 제외. Workspace 착수·사전 점검 통과. 첫 빌드 순번 신호 msg_49940f9d5b77. 운영 ZIP 실검증 별도. |
+| WS-20261119-ZIP-504 | CC-WORKSPACE-01 | waiting_human / v164_approved_production_action_denied_no_build | Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단 | Workspace 운영 배포 명령 자동 검토 거부. 승인 빌드 미사용·운영 v1.63·고정 사본 보존. 정확한 배포 명령 허용 또는 해당 세션 직접 승인 필요. 달력 1회 가져오기 읽기 설계 착수 지시 msg_c65a835f44f3. |
 | MUSIC-20261119-IMG-COMPAT | CC-MUSIC-01 | done / five_music_flows_read_only_accepted | 무료 이미지 엔진 변경의 기존 음악 흐름 호환 검토 | 고정 2131089b7 음악 5경로·146/146 검토 수락. 새 범위 미사용 시 파일 미생성 정정. 실제 엔진은 미검증. |
 | MUSIC-20261119-BACKLOG-SWEEP | CC-MUSIC-01 | done / music_backlog_review_accepted_followup_dispatched | 음악 7개 프로그램 다음 작업 후보 대조 | 음악 7개 웹의 미배포 코드 0. L5·U3를 우선 로컬 착수, 리믹스→플레이리스트 및 유료 영상 실검증은 별도 조건 대기. |
 | MUSIC-20261119-REMIX-PLAYLIST-REVIEW | CC-MUSIC-01 | done / remix_playlist_review_accepted_implementation_scope_pending | 리믹스에서 플레이리스트 연계 사전 검토 | d6df77af9 사전 검토 수락. 두 테이블 모두 회원 범위 확인, 플레이리스트 수신 기능을 먼저 배포한 뒤 음악 링크를 공개해야 함. 구현 범위·배포 승인 대기. |

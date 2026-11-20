@@ -6187,11 +6187,11 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "Workspace 일반 ZIP 다문서 가져오기 시간 초과 진단",
-      "status": "running",
-      "delivery": "v164_approved_pinned_preflight_pass_slot_released",
-      "next": "CMD-20261120-010 빌드 1회. 54183605c 고정 사본 + 버전 8f93d4a8f, 타이머 제외. Workspace 착수·사전 점검 통과. 첫 빌드 순번 신호 msg_49940f9d5b77. 운영 ZIP 실검증 별도.",
+      "status": "waiting_human",
+      "delivery": "v164_approved_production_action_denied_no_build",
+      "next": "Workspace 운영 배포 명령 자동 검토 거부. 승인 빌드 미사용·운영 v1.63·고정 사본 보존. 정확한 배포 명령 허용 또는 해당 세션 직접 승인 필요. 달력 1회 가져오기 읽기 설계 착수 지시 msg_c65a835f44f3.",
       "evidence": "CC-WORKSPACE-01 v1.62 운영 실사용 보고·msg_aa669ac3568e·db3af264c·a43def56c·msg_8465c125b33a·4f801102a·msg_188d5f946fe6·msg_d48ab4279b48·msg_6a8c40f8d884·.ai/results/WS-20261119-03-CX-QA-01.md·080d30733·5900bdee4·msg_81e5f70393f6·9b6cf6f43·862a3f744·msg_18677013088e·msg_e3da08ce301c·msg_81884a8c4c54·ad9f6e443·73e846195·msg_9cfa5b749036·msg_e77dc726848f·v1.63 1회 승인 보고·담당 배포 전 변경 경로 대조·msg_80ea9fa320d8·msg_e62063905385·de8326242·845d62331·msg_0bcf3ac363cd·msg_61592856a873·msg_6a32a57772c5·addc48085·주인님 보완판 커밋·푸시·배포 직접 지시 보고·6de15de60·dpl_CxEYSzDhnScbAL5zdmiToQy3HB4n·msg_dbdc16360cb8·msg_652436d7b405·7053d5879·msg_cc823e8bdd96·msg_0094fd736d91·msg_b9c03dffb58d·3d446effa·msg_66f223d06e95·msg_0726003c8bcb·msg_3b04b47cad53·bc814dc28·feb1587a0",
-      "lastReviewedAt": "2026-11-20T02:15:07.919Z"
+      "lastReviewedAt": "2026-11-20T02:16:29.284Z"
     },
     {
       "task_id": "WS-20261119-02",
