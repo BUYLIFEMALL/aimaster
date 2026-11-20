@@ -6416,9 +6416,9 @@
       "status": "running",
       "delivery": "isolated_candidate_fixture_contract_ready_runtime_blocked",
       "sha": "4fb95eaba",
-      "next": "기준 51d4b2207·3파일 지문 확인, 공개 몰/상품 6개·편집기 합성 데이터 요건 수신. 로컬 서버 실행 정책 차단, URL 미생성.",
-      "evidence": "msg_0597bc4779e7·msg_b34462da0d3d·msg_c5498076ef76·msg_e3bcf97a34e6·msg_4ec4b5380205·msg_03e422ed0613·msg_f077e01c19e9·msg_95a50f2bc24e·msg_fe8f26d97817·.ai/results/FRONT-20261119-QUICKBAR-CX-QA-01.md·msg_4ad0a080ef9b·msg_6053d81ba70c·msg_51b732881e82·msg_160c1fc11d31·격리 archive 3blob 확인·후보 서버 도구 정책 차단·msg_37be5566076d·msg_faeb01b6e675",
-      "lastReviewedAt": "2026-11-19T07:34:18.665Z"
+      "next": "고정 4fb95eaba 세 파일 일치 및 기존 Mac 30/30·12폭 근거 대조. 정책상 격리 URL 없는 실제 fixture·화면은 BLOCKED. Master가 승인된 실행 경로를 확보하면 CX-QA-01 검수 재개.",
+      "evidence": "msg_0597bc4779e7·msg_b34462da0d3d·msg_c5498076ef76·msg_e3bcf97a34e6·msg_4ec4b5380205·msg_03e422ed0613·msg_f077e01c19e9·msg_95a50f2bc24e·msg_fe8f26d97817·.ai/results/FRONT-20261119-QUICKBAR-CX-QA-01.md·msg_4ad0a080ef9b·msg_6053d81ba70c·msg_51b732881e82·msg_160c1fc11d31·격리 archive 3blob 확인·후보 서버 도구 정책 차단·msg_37be5566076d·msg_faeb01b6e675·msg_f0b83c5a06a2·msg_d58176c73ae3·80fcb07a1",
+      "lastReviewedAt": "2026-11-20T04:33:12.442Z"
     },
     {
       "task_id": "BLOG-20261119-SAFE-FETCH-SOURCE",
