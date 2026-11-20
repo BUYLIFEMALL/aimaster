@@ -497,3 +497,5 @@ WS-20261118-02 A23 보완 점유 해제 CC-WORKSPACE-01: ab9dda00c(dedupe.ts com
 WS-20261118-02 A23 문서 일치 CC-WORKSPACE-01: Master msg_d2cc6dae3f49. ai-work-workspace/docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md 6-1절·A23·변경표만. 제품·시험·API·설정·운영 변경 없음.
 
 WS-20261118-02 A23 문서 일치 점유 해제 CC-WORKSPACE-01: 0990bcb82(PLAN 6-1절·A23·16절 +29/-2). 제품·시험은 ab9dda00c 그대로. Mac 재검수 대기.
+
+WS-20261118-02 5-2 순수 조립 CC-WORKSPACE-01: Master msg_1c5ce221b1b2. 새 ai-work-workspace/src/litpage/server/content/lectureImport/assemble.ts·새 tests/integration/lectureImportAssemble.test.ts, dedupe.ts(같은 키 기존 행이 여럿일 때 근거를 결정적으로 고르는 한 곳)·lectureImportPure.test.ts(그 회귀) + IMPROVEMENTS 한 줄. API·DB·HMAC 키·화면 편집 없음, 노션·운영·빌드 없음.
