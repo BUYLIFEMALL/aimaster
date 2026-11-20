@@ -493,3 +493,5 @@ WS-20261118-02 A5 점유 해제 CC-WORKSPACE-01: 문서 aa46c8f0f(PLAN A5 +30/-8
 WS-20261118-02 A23 보완 CC-WORKSPACE-01: Master msg_daa8fa889346(Mac msg_c08218089f80). src/litpage/server/content/lectureImport/dedupe.ts(기존 행 날짜 값 검증)·lectureDates.ts(달력 날짜 확인 함수 내보내기만)·tests/integration/lectureImportPure.test.ts + IMPROVEMENTS 한 줄. API·DB·화면·설정 편집 없음, 운영 없음.
 
 WS-20261118-02 A23 보완 점유 해제 CC-WORKSPACE-01: ab9dda00c(dedupe.ts comparableValue·lectureDates.ts isCalendarDate 내보내기·lectureImportPure.test.ts 26개·IMPROVEMENTS). 기존 csv.ts·import.ts·shared 무변경, 호출처 0. Mac 재검수 대기.
+
+WS-20261118-02 A23 문서 일치 CC-WORKSPACE-01: Master msg_d2cc6dae3f49. ai-work-workspace/docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md 6-1절·A23·변경표만. 제품·시험·API·설정·운영 변경 없음.
