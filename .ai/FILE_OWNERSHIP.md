@@ -449,3 +449,5 @@ WS-TIMER-ERROR-BUCKETS 점유 해제 CC-WORKSPACE-01: 로컬 후보 53add833c(db
 ECOM-ORDER-REPORT-COMMON-RELEASE-PREP CC-ECOM-01: Master msg_3d2580a63591(A1/P9, 기준 87b29baa7). shop-order-report 공통 3건 국소 보완 — src/app/layout.tsx(저장공간 위젯 한 줄)·src/app/api/auth/logout/route.ts·src/lib/actions/auth.ts(signOut scope local 각 한 줄)·src/lib/supabase/server.ts(global.headers User-Agent 한 줄)·AGENTS.md(기록). 기준 구현 smartstore-register 동일 형태 재사용. 쿠키·권한·DB·의존성·버전·빌드·배포 없음. scratch/ 는 타 세션 미추적이라 손대지 않음.
 
 ECOM-SELLER-LABEL-COMMON-RELEASE-PREP CC-ECOM-01: Master msg_60066fd26e5e(A1/P9, 기준 659659e17). seller-label-docs 공통 3건 국소 보완 — src/app/layout.tsx(저장공간 위젯 한 줄)·src/app/api/auth/logout/route.ts·src/lib/actions/auth.ts(signOut scope local 각 한 줄)·src/lib/supabase/server.ts(global.headers User-Agent 한 줄)·AGENTS.md(기록). 기준 구현 smartstore-register·shop-order-report 659659e17 동일 형태. 쿠키·권한·DB·의존성·버전·빌드·배포 없음.
+
+WS-TIMER-CANDIDATE-PENDING-RECORD CC-WORKSPACE-01: Master msg_077f35e5fc28. docs/PENDING_DEPLOYS.md 대기 중 표에 ai-work-workspace 타이머 오류 분류 후보 53add833c 한 줄만 추가(기존 v1.64 줄과 분리). 다른 줄·다른 공용 문서 편집 없음, 운영·빌드·배포·push 없음.
