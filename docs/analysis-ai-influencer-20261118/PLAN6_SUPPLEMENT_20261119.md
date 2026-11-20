@@ -282,6 +282,54 @@
 
 **자. 비용**: 이 조사 0. 1단계 구현·모의 시험 0. P0 비교 약 $0.20(실행 직전 승인). 배포 빌드는 v1.28 묶음(별도 승인).
 
+**차. 진행 기록(2026-11-20)** — 주인님 결정: D7-1 「진행」(기본 최고 품질 유지) · D7-2 「같이해보자」 · D7-3 「가성비도 넣어」 · D7-4 「선택지를 넓혀서 다 추가해」. 1단계 구현: 순수 72f14b895 · 연결 f02278523 · 사전 읽기 취소·제한 시간 보완 03b0d181d(Mac P2). 미배포.
+
+#### R3-타사. 다른 회사 이미지 모델 — 공식 문서 대조표 (2026-11-20, CC-SNS-01, 주인님 D7-4 · Master `msg_094cde59381d`)
+
+조사만 했다. 키·SDK·운영·실제 호출 0. 출처는 각 회사 공식 문서(아래 「출처」). 표시: [문서] = 공식 문서 원문에서 확인 / [요약] = 문서 일부를 읽기 도구가 요약한 것(원문 대조 필요) / [미확인] = 찾지 못함. **이 프로그램의 조건**: 같은 인물을 지키려면 인물 사진을 **요청에 함께 보낼 수 있어야** 한다(참조 입력).
+
+| 회사·모델 | 참조 입력(장수·방식) | 인물 유지 언급 | 9:16 | 비용(장당) | 키 | 판정 |
+|---|---|---|---|---|---|---|
+| Google `gemini-3-pro-image` (지금 기본) | 최대 14장, 그중 인물 5장 [문서] · 요청 안 inlineData(지금 방식) | 「인물 5장까지 캐릭터 일관성」 [문서] | 지원 [요약] | 1K·2K $0.134, 4K $0.24 [요약] | 회원 Gemini 키(있음) | **연결됨** |
+| Google `gemini-nano-banana-2.1` | 물건 10장 + 인물 4장 [문서] · 같은 방식 | 「인물 4장까지 캐릭터 일관성」 [문서] | 지원 [요약] | 1K $0.0336·2K $0.0504·4K $0.113 [요약] | 같은 키 | **연결됨** · 구글이 「새 프로젝트 권장」 [문서] |
+| Google `gemini-3.1-flash-lite-image` | 장수 미기재 · **「여러 참조 입력에 최적화되지 않음」** [문서] | 없음 | [미확인] | 1K $0.0336, 2K·4K 가격 없음 [요약] | 같은 키 | **연결됨(주인님 D7-3)** — 인물 유지 위험이 가장 큼, 2단계 비교로 확인 |
+| Google `gemini-3.1-flash-image`(Nano Banana 2) | 물건 10 + 인물 4 [문서] | 위와 같음 | 지원 [요약] | 1K $0.067 [요약] | 같은 키 | 추가 가능 후보 — 2.1보다 비싸고 구글이 2.1 권장. **선택표(5절)엔 「종료 예고」로 적혀 있으나 구글 문서엔 Stable** — 선택표 갱신 필요(선택표 담당) |
+| OpenAI `gpt-image-2.6-sunburst`(편집 기본값)·`2.6-flare`·`2.5-sunburst`·`2.5-flare`·`gpt-image-2`·`gpt-image-1.5`·`gpt-image-1-mini` | `POST /v1/images/edits`, **최대 16장** [문서] · JSON의 `images[]`에 `image_url`(base64 data URL 허용) 또는 `file_id` [문서] · 여러 장 multipart 예시도 있음 | 없음(인물 유지 문구 없음). `input_fidelity`는 1.5에서 high/low, gpt-image-2는 「생략」 [문서] — 2.5·2.6은 언급 없음 | 1024x1536 고정 크기 + 2.x는 임의 크기(16 배수, 1:3~3:1) → 9:16 가능 추정 [문서·추정] | 토큰 단가만 공개(이미지 입력 $8·출력 $30 / 100만 토큰, 1.5는 출력 $32) [문서] · 장당은 「계산기」 → [미확인] | 회원 OpenAI 키(공용 `user_api_keys` provider `openai` — 다른 프로그램과 공유) | **추가 가능(참조 입력 확인됨)** · `gpt-image-1`은 2026-10-23 종료 [문서] → 제외. 조직 인증이 필요할 수 있음 [문서] |
+| xAI `grok-imagine-image-2.0` | `POST /v1/images/edits`, JSON, **최대 5장** [문서] · `images[]`에 `url`(공개 주소 또는 base64 data URL) 또는 `file_id` [문서] | 없음 | 지원(9:16 명시) [문서] | 출력 $0.04 + 입력 이미지도 과금(단가 미기재) [문서] | 회원 xAI 키 — 공용 provider 이름 확인 필요 [미확인] | **추가 가능(참조 입력 확인됨)** · 규정 위반 판정이어도 과금 [문서] |
+| Replicate `runwayml/gen4-image` | 1~3장 [문서] · 필드 이름·data URL 허용 [미확인] | **「얼굴 특징·정체성 유지」** [문서] | [미확인] | [미확인](2025 블로그 $0.05~0.08 — 낡음) | 회원 Replicate 키 | 후보 — 스키마 확인 뒤. 「Powered by Runway」 표기 의무 [문서] |
+| Replicate `ideogram-ai/ideogram-character` | **1장만** [문서] | **「실제·가상 인물의 핵심 정체성 유지」** [문서] | [미확인] | [미확인] | 같은 키 | 후보 — 인물 1장만이라 장소·상품 사진은 못 붙임 |
+| Replicate `black-forest-labs/flux-kontext-pro` | 장수 [미확인] | 「여러 번 편집해도 정체성 유지」 [문서] | [미확인] | [미확인](블로그 $0.04 — 낡음) | 같은 키 | 후보 — 스키마 확인 뒤 |
+| Replicate `black-forest-labs/flux-2-pro` | 최대 8장 [문서] | 「캐릭터 일관성」(인물 명시 없음) [문서] | [미확인] | [미확인] | 같은 키 | 후보 — 스키마 확인 뒤 |
+| Replicate `bytedance/seedream-4` | 여러 장 [문서] | 없음 · Replicate 비교 글에서 「인물 유지 실패」 사례 [문서] | [미확인] | [미확인] | 같은 키 | **제외 권장** |
+| Claude | 이미지 생성 없음 | — | — | — | — | 해당 없음 |
+
+**판정 요약**
+- **참조 입력이 공식 문서로 확인된 타사**: OpenAI(편집 호출, 최대 16장)·xAI(최대 5장). 둘 다 **JSON + base64 data URL**을 받아, 지금 이 앱이 사진을 다루는 방식(data URL)을 그대로 쓸 수 있다 — SDK 없이 `fetch` 한 번.
+- **Replicate**: 모델 페이지의 설명은 확인했으나 **입력 필드 이름·data URL 허용·화면 비율·가격(API 스키마)은 읽지 못했다**(스키마 페이지가 본문 없이 왔다) → 연결안에 넣지 않는다. 회원 키로 모델 정보를 조회하면 확인 가능(무료 조회지만 회원 키 사용 = 승인 필요).
+- **어느 타사도 「참조 사진의 인물을 지킨다」고 보장하지 않는다**(Runway·Ideogram만 문구 있음). → 2단계와 같은 비교를 타사에도 해야 한다.
+
+**단계별 연결안(제안)**
+1. **2단계(Gemini 3개 비교)** — Master 지시대로 준비만: 아래 「준비 상태」.
+2. **3-A단계: OpenAI 편집 호출**(1순위 — 참조 16장, 등급 선택지가 이미 선택표에 있음) — 이 앱 폴더에 `fetch` 호출 하나(공용 등록 없음) · 키는 공용 `user_api_keys` provider `openai` 조회(이미 다른 프로그램에서 넣은 키 재사용) · 모델은 문서에 있는 것만(`gpt-image-1` 제외) · 장당 가격 확인 뒤 화면 표기 · 키 없으면 호출 0·등록 안내 · 재시도 0.
+3. **3-B단계: xAI** — 같은 방식, 단 provider 이름을 공용 표에서 먼저 확인.
+4. **3-C단계: Replicate** — 스키마(필드·data URL·비율·가격) 확인 뒤에만.
+5. 각 회사는 연결 뒤 **2단계와 같은 인물 비교**를 통과한 모델만 화면에 둔다(주인님 「다 추가」와 「인물 유지」를 함께 지키는 방법 — 비교 전에는 화면에 「시험 중」 표시 제안).
+
+**필요한 승인·결정**: 타사 호출 코드 작성(Master — 지금 금지 범위), 회원 키 칸 추가(OpenAI·xAI·Replicate — 이미 공용 표에 있으면 재사용), 회사별 비교 비용(장당 약 $0.04~0.25, 실행 직전 주인님 승인).
+
+**출처**: OpenAI [이미지 편집 참조](https://developers.openai.com/api/reference/resources/images/methods/edit) · [이미지 생성 안내](https://developers.openai.com/api/docs/guides/image-generation) · [가격](https://developers.openai.com/api/docs/pricing) / xAI [이미지 편집](https://docs.x.ai/developers/model-capabilities/images/editing) · [이미지 API 참조](https://docs.x.ai/developers/rest-api-reference/inference/images) · [Imagine 개요](https://docs.x.ai/developers/model-capabilities/imagine) · [가격](https://docs.x.ai/developers/pricing) / Replicate [flux-2-pro](https://replicate.com/black-forest-labs/flux-2-pro) · [flux-kontext-pro](https://replicate.com/black-forest-labs/flux-kontext-pro) · [ideogram-character](https://replicate.com/ideogram-ai/ideogram-character) · [gen4-image](https://replicate.com/runwayml/gen4-image) · [seedream-4](https://replicate.com/bytedance/seedream-4) · [일관된 캐릭터 글](https://replicate.com/blog/generate-consistent-characters) · [편집 모델 비교 글](https://replicate.com/blog/compare-image-editing-models) / Google [이미지 생성](https://aistudio.google.com/docs/image-generation) · [모델](https://aistudio.google.com/docs/models) · [가격](https://aistudio.google.com/docs/pricing) — 모두 2026-11-20 읽음.
+
+#### R3-2단계 준비 상태 (Master `msg_094cde59381d` — 주인님 참여 없는 생성은 하지 않는다)
+
+| 항목 | 상태 |
+|---|---|
+| 로컬 환경 | `ai-influencer-studio`에서 `npm run dev`(`next dev`, 무료). 접속 설정 파일 형식 정상(`check-env-files`, 값은 보지 않음). 개발 서버는 아직 띄우지 않았다 |
+| 로그인 | 주인님이 시험 계정(`buylifemall@naver.com`)으로 직접 로그인 — 키는 그 계정의 Gemini 키(관리자·시험 계정 공유 키 규칙) |
+| 시험 자료 | 같은 인물 사진 1장(주인님이 고르실 사진 — 실존 인물이면 본인 동의가 있는 사진). 장면·옷·비율 9:16·화질 1K 고정, 참고 사진은 인물 1장만 |
+| 생성 횟수·비용 | 세 모델 각 1장 = 3장. 3 Pro $0.134 + 2.1 $0.0336 + Lite $0.0336 ≈ **$0.20**(구글 가격표 요약 기준) |
+| 판정 | 세 결과를 나란히 놓고 「같은 인물로 보이는가」(얼굴형·눈·코·입·피부톤)를 주인님과 함께 상·중·하로 기록 → D7-1(기본 모델)·가성비 노출 확정 |
+| 남은 승인 | 실행 직전 주인님 확인 + Master 검수 통과 |
+
 ### R4. 숏츠 영상
 
 **가져다 쓸 것** [보조 조사 — 파일 위치는 내가 열어 보지 않음, 릴스·유튜브·영상 모델 목록 파일만 일부 확인]
