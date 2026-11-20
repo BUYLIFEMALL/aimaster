@@ -1,6 +1,7 @@
 "use client";
 import { assertWebCodecs, encodeMp4, mixVoiceAndBgm, type ExportProgress, type VoiceClip } from "@/lib/render/mp4Encoder";
 import type { TtsVoice } from "@/lib/render/voices";
+import { bgmMixInput } from "./bgmVolume";
 
 // 「브라우저에서 만들기(무료)」 — 장면 이미지 + 본인 OpenAI 음성 + 노란 자막(JSON2Video 설정과 같은 모양)으로
 // 1080×1920·30fps MP4를 이 브라우저 안에서 만든다. 인코딩은 공용 기준 코드 mp4Encoder.ts(`browser-mp4-encoder`).
@@ -75,6 +76,8 @@ function drawSubtitle(ctx: CanvasRenderingContext2D, text: string) {
 
 export async function buildStoryMp4(o: {
   videoId: string; scenes: StoryScene[]; bgmUrl: string | null; voice: TtsVoice; speed: number;
+  /** 배경음악 평소 크기 0~1(기본 0.5, 목소리 구간 자동 낮춤은 그대로) */
+  bgmVolume?: number;
   onProgress: (p: ExportProgress) => void; signal: AbortSignal;
   /** v1.49 렌더링 중 미리보기 — 그리는 장면이 바뀔 때마다 장면 번호(0부터) */
   onScene?: (index: number) => void;
@@ -119,9 +122,10 @@ export async function buildStoryMp4(o: {
     const total = t;
 
     let bgm: { src: string; volume: number } | null = null;
-    if (o.bgmUrl) {
-      const r = await fetch(o.bgmUrl, { signal: o.signal }).catch(() => null);
-      if (r?.ok) { const src = URL.createObjectURL(await r.blob()); blobUrls.push(src); bgm = { src, volume: 0.5 }; }
+    // 크기 0(음소거)이면 음악 파일을 받지도 섞지도 않는다
+    if (bgmMixInput(o.bgmUrl, o.bgmVolume)) {
+      const r = await fetch(o.bgmUrl!, { signal: o.signal }).catch(() => null);
+      if (r?.ok) { const src = URL.createObjectURL(await r.blob()); blobUrls.push(src); bgm = bgmMixInput(src, o.bgmVolume); }
       else warnings.push("선택한 배경음악 파일을 불러오지 못해(만료된 주소일 수 있음) 음악 없이 만들었습니다. 배경음악을 다시 만들면 함께 넣을 수 있습니다.");
     }
     stop();

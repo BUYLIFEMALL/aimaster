@@ -8,12 +8,14 @@ import { buildStoryMp4, type StoryScene } from "@/lib/render/story";
 import { TTS_VOICES, type TtsVoice } from "@/lib/render/voices";
 import type { ExportProgress } from "@/lib/render/mp4Encoder";
 import { Play, Sparkles } from "lucide-react";
+import { BGM_VOLUME_DEFAULT, BGM_VOLUME_MAX, BGM_VOLUME_MIN, BGM_VOLUME_STEP, bgmVolumeLabel, clampBgmVolume, showBgmVolumeControl } from "@/lib/render/bgmVolume";
 
 // 「브라우저에서 만들기(무료)」 — 본인 OpenAI 음성 + 장면 이미지 + 자막을 이 브라우저에서 MP4로 만들고 저장소에 올린다.
 export function BrowserRenderPanel({ videoId, scenes, bgmUrl, hasOpenAiKey }: { videoId: string; scenes: StoryScene[]; bgmUrl: string | null; hasOpenAiKey: boolean }) {
   const router = useRouter();
   const [voice, setVoice] = useState<TtsVoice>("coral");
   const [speed, setSpeed] = useState(1.05);
+  const [bgmVolume, setBgmVolume] = useState(BGM_VOLUME_DEFAULT);
   const [progress, setProgress] = useState<ExportProgress | null>(null);
   // v1.49 렌더링 중 미리보기 — 지금 그리는 장면
   const [sceneNow, setSceneNow] = useState<number | null>(null);
@@ -27,7 +29,7 @@ export function BrowserRenderPanel({ videoId, scenes, bgmUrl, hasOpenAiKey }: { 
     setError(null); setWarnings([]);
     const ac = new AbortController(); abort.current = ac;
     try {
-      const { blob, warnings: w } = await buildStoryMp4({ videoId, scenes, bgmUrl, voice, speed, onProgress: setProgress, onScene: setSceneNow, signal: ac.signal });
+      const { blob, warnings: w } = await buildStoryMp4({ videoId, scenes, bgmUrl, voice, speed, bgmVolume, onProgress: setProgress, onScene: setSceneNow, signal: ac.signal });
       setWarnings(w);
       if (blob.size > 50 * 1048576) throw new Error(`영상이 ${(blob.size / 1048576).toFixed(1)}MB라 저장 한도(50MB)를 넘었습니다. 장면 대사를 줄여 다시 만들어 주세요.`);
       setProgress({ pct: 99, status: `저장소에 올리는 중… (${(blob.size / 1048576).toFixed(1)}MB)` });
@@ -68,6 +70,12 @@ export function BrowserRenderPanel({ videoId, scenes, bgmUrl, hasOpenAiKey }: { 
           말 빠르기 ({speed.toFixed(2)}배)
           <input type="range" min={0.8} max={1.4} step={0.05} value={speed} onChange={(e) => setSpeed(Number(e.target.value))} disabled={busy} className="mt-2 block w-40 accent-rose-500" />
         </label>
+        {showBgmVolumeControl(bgmUrl) && (
+          <label className="text-xs font-bold text-slate-400" title="목소리가 나오는 동안에는 자동으로 더 작아집니다">
+            배경음악 크기 ({bgmVolumeLabel(bgmVolume)})
+            <input type="range" min={BGM_VOLUME_MIN} max={BGM_VOLUME_MAX} step={BGM_VOLUME_STEP} value={bgmVolume} onChange={(e) => setBgmVolume(clampBgmVolume(Number(e.target.value)))} disabled={busy} aria-label="배경음악 크기" className="mt-2 block w-40 accent-amber-400" />
+          </label>
+        )}
         {busy ? (
           <button type="button" onClick={() => abort.current?.abort()} className="btn-3d-dark px-4 py-2 text-xs font-bold text-rose-400">
             만들기 멈추기
