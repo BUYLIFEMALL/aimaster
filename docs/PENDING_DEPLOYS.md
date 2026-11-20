@@ -83,6 +83,7 @@
 | `shorts-viral-studio` (운영 v2.01) | 쇼츠 검색 관련성·언어·종교 거르기(공용 `youtube-relevance-filter` 사본, 호출 수 그대로) + 안내 문구 A1·A2 + Next.js 16.4.2→16.4.6 보안(로컬 빌드 exit 0) | `929ff67bb` · `c31b91095` · `9b3d91af5` · `77987f7f2` · `01bcdd6bb`(공통 3가지: 위젯·signOut local·User-Agent) | 2026-11-20 · [역할: video] `claude-win-video` | `shorts-viral-studio/docs/IMPROVEMENTS.md` 맨 위 「미배포 대기」 2줄 | 버전 +0.01(v2.02), 배포 뒤 시험 계정 본인 키로 검색 1회(약 102유닛)·제외 줄 확인 |
 | `youtube-viral-studio` (운영 v1.30) | 거르기 함수 `relevanceFilter.ts` 분리(동작 변화 없음) + Next.js 16.4.2→16.4.6 보안(로컬 빌드 exit 0) · 시험 보정 `acc122786`(배포 불필요) | `b40b18f37` · `77987f7f2` | 2026-11-20 · [역할: video] `claude-win-video` | `youtube-viral-studio/docs/IMPROVEMENTS.md` 2026-11-20 절 | 버전 +0.01(v1.31) |
 | `infinite-loop-video` (운영 v1.10) | 배포 공통 3가지: 저장공간 위젯 한 줄 · `signOut` local 2곳 · 서버 `User-Agent` (+ Next 16.4.6은 승인 대기, 같은 배포로 묶기 권장) | `4c9a4af5a` | 2026-11-20 · [역할: video] `claude-win-video` | `infinite-loop-video/docs/IMPROVEMENTS.md` 19줄 | 버전 +0.01(v1.11), 배포 뒤 위젯 표시·로그아웃 확인 |
+| `shots` (운영 v1.51) · `ai-video-studio` (운영 v1.36) | 로그인 정책 2가지: `signOut` local 각 1곳 · 서버 `User-Agent` | `756c51b93` | 2026-11-20 · [역할: video] `claude-win-video` | 각 `docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 배포 뒤 로그아웃이 다른 프로그램을 끊지 않는지 확인 |
 | `emotion-writer` (운영 v1.26) | 사용 매뉴얼 사진 출처 「Unsplash」 → 「Pixabay·Pexels」 7곳·저작권 안내 문구 | `1965b2c6c` | 2026-10-23 · Claude Code(윈도우) | `emotion-writer/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, `/guide` 문구 확인 |
 
 ## 메인 사이트 — 다음 메인 빌드 때 할 일 (코드 미작성)
