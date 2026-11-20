@@ -518,3 +518,6 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 
 ## 2026-11-20 ✅ v1.48 배포 — sharp 보안 패치만 (Claud(ecommerce) `claude-win-sdp` [역할: ecommerce-image], 주인님 「진행해」 빌드 1회, Master 지시 「운영 트리 + sharp만」)
 - 배포 소스는 **고정 사본**: 운영 v1.47 트리(`0e418bab9`) + `b127e0042`의 `package.json`·`package-lock.json` + 버전 한 줄(`073b4410d`). 저장소 밖에서 조합해 운영 트리와 다른 파일이 정확히 3개임을 확인, 사본에서 `npm ci`·tsc·로컬 build 통과 뒤 `shop-detail-page-5wctig2ui` Ready, DB v1.48. **지금 master HEAD에는 상품 영상 코드(`6da8e5d8e`·`cb8e2230e`)가 있지만 운영에는 나가지 않았다** — 다음 배포 때 `--from-head`를 쓰면 함께 나가므로, 그 코드의 검수·운영 DB 표 적용 여부를 먼저 확인할 것. 운영 확인(ego, 시험 계정, AI 버튼 누르지 않음): `/api/image?…&w=860` JPEG 860×860, 섹션 ZIP(jpg·gif·webp 3개), 긴 PNG 860×3326 모두 정상 → 리눅스 런타임 sharp 0.35.5 동작 확인. 시험 상품 폴더 `merged/`에 PNG·ZIP 1개씩 저장됨(30일 정리 대상). 남은 사안: Next 14.2.35 자체 공지(같은 계열 수정판 없음, 팀 결정 대기).
+
+## 2026-11-20 (미배포 대기) — 쇼츠 넘기기 주소 이모지 경계 오류 수정 `9243d0edd` (Claud(ecommerce) `claude-win-sdp`, Master `msg_0b933c823983`)
+- `lib/shortsLink.ts` `clean()`이 길이 제한으로 이모지 가운데를 자르면 반쪽 글자가 남아 `encodeURIComponent`가 `URIError`로 멈추던 것(원스톱 조사 `dc52806a9` H8) — 자른 뒤 짝 없는 반쪽 글자를 뺀다. 길이 단위·제한(이름 100·장점 60·혜택 80)은 받는 쪽과 같고 그대로. 시험 3개 추가(수정 전 코드는 3개 모두 `URIError`로 실패 확인). **다음 배포 주의**: HEAD에는 미검수 상품 영상 코드가 있으므로 v1.48처럼 고정 사본으로 낼지 Master 결정.
