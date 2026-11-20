@@ -503,3 +503,5 @@ WS-20261118-02 5-2 순수 조립 CC-WORKSPACE-01: Master msg_1c5ce221b1b2. 새 a
 WS-20261118-02 5-2 순수 조립 점유 해제 CC-WORKSPACE-01: 7d2583321(새 assemble.ts·새 lectureImportAssemble.test.ts 10개·dedupe.ts 한 곳·IMPROVEMENTS). 기존 CSV·API·shared·화면 무변경, 호출처 0. Mac 검수 대기.
 
 WS-20261118-02 응답 상한 CC-WORKSPACE-01: Master msg_ca103dfd90e0. ai-work-workspace/src/litpage/server/content/lectureImport/assemble.ts·tests/integration/lectureImportAssemble.test.ts·docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md(5-2절·6-1절·A20)·IMPROVEMENTS 한 줄. HMAC·API·DB·설정 편집 없음, 운영·빌드 없음.
+
+WS-20261118-02 응답 상한 점유 해제 CC-WORKSPACE-01: 모듈 ceb2768bf(assemble.ts·lectureImportAssemble.test.ts 13개·IMPROVEMENTS) · 문서 cba0aac12(PLAN 5-2·6-1·A20·17절). 기존 CSV·API·shared·화면 무변경, 호출처 0. Mac 독립 검수 대기.
