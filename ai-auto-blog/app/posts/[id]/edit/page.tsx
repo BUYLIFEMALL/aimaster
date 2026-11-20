@@ -21,6 +21,7 @@ import {
 import { getBlogBasePath } from '@/blog/utils/basePath'
 import { stripImageGenerationSchema, splitImagePromptSection, removeImagePromptSection } from '@/blog/utils/stripImageSchema'
 import RichTextEditor from '@/blog/components/RichTextEditor'
+import { bodyCharCount } from '@/blog/utils/bodyCharCount'
 
 import { MAIN_SITE_URL } from '@/lib/deployment'
 
@@ -265,6 +266,12 @@ export default function PostEditPage() {
     () => splitImagePromptSection(rawContent),
     [rawContent],
   )
+  // 2026-11-20 편집기 글자수(공백 제외, 생성 목표와 같은 단위). 이미지 프롬프트 섹션·이미지 설명·[첨부이미지 N]은 세지 않는다.
+  // 이 화면에는 저장된 목표 글자수가 없으므로 목표 대비는 표시하지 않는다(targetPercent는 목표가 있을 때만 값).
+  const editorBodyChars = useMemo(
+    () => bodyCharCount(editorMode === 'code' ? removeImagePromptSection(codeContent) : visualMainContent),
+    [editorMode, codeContent, visualMainContent],
+  )
 
   if (loading) {
     return (
@@ -416,6 +423,9 @@ export default function PostEditPage() {
               </button>
             </div>
           </div>
+          <p className="px-4 py-1.5 text-xs text-neutral-500 border-b border-neutral-100" aria-live="polite" data-testid="editor-body-chars">
+            본문 글자수(공백 제외) {editorBodyChars.toLocaleString('ko-KR')}자
+          </p>
 
           {/* Visual Mode: kakao_auto_poster의 RichTextEditor(Tiptap) — 서식/색상/정렬/
               이미지 첨부/AI 이미지 생성/YouTube/표/실행취소까지 자체 툴바로 제공한다.
