@@ -501,3 +501,5 @@ WS-20261118-02 A23 문서 일치 점유 해제 CC-WORKSPACE-01: 0990bcb82(PLAN 6
 WS-20261118-02 5-2 순수 조립 CC-WORKSPACE-01: Master msg_1c5ce221b1b2. 새 ai-work-workspace/src/litpage/server/content/lectureImport/assemble.ts·새 tests/integration/lectureImportAssemble.test.ts, dedupe.ts(같은 키 기존 행이 여럿일 때 근거를 결정적으로 고르는 한 곳)·lectureImportPure.test.ts(그 회귀) + IMPROVEMENTS 한 줄. API·DB·HMAC 키·화면 편집 없음, 노션·운영·빌드 없음.
 
 WS-20261118-02 5-2 순수 조립 점유 해제 CC-WORKSPACE-01: 7d2583321(새 assemble.ts·새 lectureImportAssemble.test.ts 10개·dedupe.ts 한 곳·IMPROVEMENTS). 기존 CSV·API·shared·화면 무변경, 호출처 0. Mac 검수 대기.
+
+WS-20261118-02 응답 상한 CC-WORKSPACE-01: Master msg_ca103dfd90e0. ai-work-workspace/src/litpage/server/content/lectureImport/assemble.ts·tests/integration/lectureImportAssemble.test.ts·docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md(5-2절·6-1절·A20)·IMPROVEMENTS 한 줄. HMAC·API·DB·설정 편집 없음, 운영·빌드 없음.
