@@ -34,6 +34,9 @@
 
 ---
 
+## 2026-11-20 Claud(Music) — 고지 파일 307 수정(미배포 대기, Master msg_7161cd9efd5e)
+- `src/proxy.ts` matcher에서 `/robots.txt`·`/ai.txt` 두 경로만 정확히 제외(`robots\.txt$`·`ai\.txt$`) — 로그인 리다이렉트(307) 없이 정적 고지 파일 그대로. 비슷한 경로(`/robots.txt.bak`·`/ai.txt/x` 등)·화면·로그인 경로는 그대로 검사, API·정적 자원 제외는 기존과 같음. 시험 `tests/proxy-matcher.test.mjs`(고치기 전 matcher로는 고지 시험 실패 확인). 배포·push 없음 — 다음 배포 때 함께.
+
 ## ✅ 긴급 처리 완료 (2026-10-23, Claude Code 윈도우 — v1.12 배포)
 - **Gemini API Veo 3.1 Preview 종료로 장면 영상 생성 실패 가능**: Google 공식 문서(https://ai.google.dev/gemini-api/docs/video)에 「The Veo 3.1 Preview in the Gemini API has been shut down」, 종료일 **2026-10-22**. 종료 모델 ID `veo-3.1-generate-preview`·`veo-3.1-fast-generate-preview`·`veo-3.1-lite-generate-preview` — 이 프로그램이 그대로 사용 중(`src/lib/music/presets.ts:41-46`, 기본값 `src/lib/music/project.ts:21`).
 - **권장 대체**: `gemini-omni-1.1-flash`(같은 회원 Gemini 키, Interactions API) — 이미 공용 기준 코드 `ai-video-providers`(`ai-image-studio/lib/video/videoProviders.ts`, 사본 shots·shorts-onestop-studio)에 구현돼 있음. 연동 부분만 교체(이미지 프롬프트 규칙과 같이 프롬프트는 유지). 4·6·8초·16:9 등 옵션 차이 확인 필요.

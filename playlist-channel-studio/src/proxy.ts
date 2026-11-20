@@ -59,6 +59,7 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|api/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // 고지 파일(/robots.txt·/ai.txt)은 로그인 검사 없이 그대로 보낸다(0번 규칙, 2026-11-20 고지 307 수정) — 정확히 이 두 경로만 제외
+    "/((?!_next/static|_next/image|favicon.ico|robots\\.txt$|ai\\.txt$|api/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

@@ -22,6 +22,9 @@
 
 ---
 
+## 2026-11-20 Claud(Music) — 고지 파일 307 수정(미배포 대기, Master msg_7161cd9efd5e)
+- `src/proxy.ts` matcher에서 `/robots.txt`·`/ai.txt` 두 경로만 정확히 제외(`robots\.txt$`·`ai\.txt$`) — 로그인 리다이렉트(307) 없이 정적 고지 파일 그대로. 비슷한 경로(`/robots.txt.bak`·`/ai.txt/x` 등)·화면·로그인 경로는 그대로 검사, API·정적 자원 제외는 기존과 같음. 시험 `tests/proxy-matcher.test.mjs`(고치기 전 matcher로는 고지 시험 실패 확인). 배포·push 없음 — 다음 배포 때 함께.
+
 ## 1. 개선 항목 총괄 현황
 
 | ID | 구분 | 개선 항목 요약 | 우선순위 | 상태 | 최초 발견일 / CLI | 관련 파일 |

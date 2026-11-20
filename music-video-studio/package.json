@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node --import tsx --test tests/music.test.mjs tests/access.test.mjs"
+    "test": "node --import tsx --test tests/music.test.mjs tests/access.test.mjs tests/proxy-matcher.test.mjs"
   },
   "dependencies": {
     "@remotion/google-fonts": "4.0.538",
