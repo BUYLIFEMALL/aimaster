@@ -453,3 +453,4 @@ ECOM-SELLER-LABEL-COMMON-RELEASE-PREP CC-ECOM-01: Master msg_60066fd26e5e(A1/P9,
 WS-TIMER-CANDIDATE-PENDING-RECORD CC-WORKSPACE-01: Master msg_077f35e5fc28. docs/PENDING_DEPLOYS.md 대기 중 표에 ai-work-workspace 타이머 오류 분류 후보 53add833c 한 줄만 추가(기존 v1.64 줄과 분리). 다른 줄·다른 공용 문서 편집 없음, 운영·빌드·배포·push 없음.
 
 WS-TIMER-CANDIDATE-PENDING-RECORD 점유 해제 CC-WORKSPACE-01: docs/PENDING_DEPLOYS.md 대기 한 줄 acf024732(53add833c 별도 미배포 후보).
+ECOM-ORDER-LABEL-LOCAL-DEPS CC-ECOM-01: Master msg_0849ea963d3d(A1/P9, 기준 8f93d4a8f). shop-order-report·seller-label-docs 의 package.json(next 한 줄)·package-lock.json 만 — next 16.4.3 → 16.4.6 보안 패치, 로컬 검증. 배포·push 없음. 2026-11-20 시작.
