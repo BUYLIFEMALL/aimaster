@@ -108,6 +108,23 @@ test('다중 프레임: 정상 편집기가 없으면 실제 오류 화면은 �
   }
 });
 
+test('같은 프레임에 권한 거부와 삭제 문구가 함께 있으면 권한 거부가 우선 — 단독·정상 프레임 혼합 양쪽 순서',async()=>{
+  const DENIED_BOTH=['권한이 없습니다. '+MISSING, MISSING+' 접근이 제한된 블로그입니다.', '존재하지 않는 블로그입니다. 본인의 블로그만 글쓰기 가능합니다.', '잘못된 접근입니다. 존재하지 않는 게시물'];
+  for(const bodyText of DENIED_BOTH){
+    const single=await frame({bodyText});
+    assert.equal(single.status,'account_mismatch',bodyText);
+    assert.equal(single.pageSignal,undefined,'강한 신호(문구 근거 표시 없음): '+bodyText);
+    assert.equal(single.reason,'이 블로그의 계정으로 로그인해 주세요.');
+    for(const frames of [[{editor:true},{bodyText}],[{bodyText},{editor:true}],[{editor:true},{bodyText:MISSING},{bodyText}],[{bodyText},{bodyText:MISSING},{editor:true}]]){
+      const {picked}=await combined(frames);
+      assert.equal(picked.status,'account_mismatch',bodyText);
+      assert.equal(picked.reason,'이 블로그의 계정으로 로그인해 주세요.',bodyText);
+    }
+  }
+  // 삭제 문구만 있는 하위 프레임은 여전히 정상 편집기를 막지 않음(직전 보완 유지)
+  assert.equal((await combined([{editor:true},{bodyText:MISSING}])).picked.status,'valid');
+});
+
 test('다중 프레임: 정상 편집기가 있어도 기존 중단 조건은 그대로 먼저 멈춘다 — 주소 계정 불일치·로그인·보안·권한 문구',async()=>{
   const cases=[
     [{href:'https://blog.naver.com/PostWriteForm.naver?blogId=someoneelse'},'account_mismatch',/다른 블로그의 편집기/],
