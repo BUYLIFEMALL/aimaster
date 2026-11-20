@@ -469,3 +469,5 @@ MOV-SVS-YVS-DEPS-RECORD CC-MOVIE-01: Master msg_4bc0c9bce5be. shorts-viral-studi
 MOV-SVS-YVS-DEPS-RECORD CC-MOVIE-01 해제: 두 IMPROVEMENTS 각 +1줄, 결과 아래 SHA.
 
 WS-20261118-02 설계 A3 CC-WORKSPACE-01: Master msg_835e76b4ae3c(잠금 선례 정정·공간 행 직렬화·HMAC 전용 키 옵션·Mac A2 msg_a54722f66247 반영). ai-work-workspace/docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md 한 파일만. 제품·운영·비밀값·환경변수·배포 변경 없음.
+
+WS-20261118-02 설계 A3 점유 해제 CC-WORKSPACE-01: c75524c63(PLAN_20261120_NOTION_LECTURE_IMPORT.md +92/-17, 변경표 13절). 설계만, Mac 재검수 대기. 환경변수·비밀값·제품 변경 0.
