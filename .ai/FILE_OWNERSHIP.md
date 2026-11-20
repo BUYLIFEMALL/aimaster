@@ -458,3 +458,5 @@ ECOM-ORDER-LABEL-LOCAL-DEPS CC-ECOM-01: Master msg_0849ea963d3d(A1/P9, 기준 8f
 MOV-SVS-YVS-LOCAL-DEPS CC-MOVIE-01: Master msg_5646e6b28061(A1/P9/1, 기준 8f93d4a8f). shorts-viral-studio/package.json·package-lock.json, youtube-viral-studio/package.json·package-lock.json만(next·eslint-config-next 16.4.2→16.4.6). 로컬 빌드는 Master 순번 뒤 각 1회. 소스·다른 패키지·push·배포 0.
 
 WS-20261118-02 설계 문서 CC-WORKSPACE-01: Master msg_5f891a80264c(CMD-20261120-012). 새 ai-work-workspace/docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md 한 파일과 기존 PLAN_20261118_NOTION_CALENDAR_PARITY.md의 연결 한 줄만. 제품 코드·시험·공용 문서 편집 없음, 노션 연결·쓰기·운영·빌드·배포 없음.
+
+WS-20261118-02 설계 문서 점유 해제 CC-WORKSPACE-01: 6f6459b88(새 PLAN_20261120_NOTION_LECTURE_IMPORT.md 153줄 + 기존 플랜 연결 2줄). 설계만, 검수 대기. 미반영: docs/dev-docs/manifest.json 문서 목록 갱신(다른 세션 미커밋 변경이 있어 제외).
