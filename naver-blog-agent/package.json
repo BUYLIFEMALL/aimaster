@@ -20,6 +20,7 @@
     "test:extension-results": "node --test scripts/test-extension-results.cjs",
     "test:editor-safety": "node --test scripts/test-editor-safety.cjs",
     "test:editor-missing-blog": "node --test scripts/test-editor-missing-blog.cjs",
+    "test:proxy-session": "node --test scripts/test-proxy-session.cjs",
     "test:shared-input": "node --test scripts/test-shared-input-rules.cjs",
     "test:publishing": "node scripts/test-naver-publishing.cjs",
     "test:models": "node scripts/test-model-selection.cjs",
