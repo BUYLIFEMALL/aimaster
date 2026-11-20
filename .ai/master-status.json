@@ -6982,21 +6982,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-20T05:01:03.811Z",
+      "at": "2026-11-20T05:31:38.975Z",
       "timezone": "Asia/Seoul",
-      "trigger": "14:00 Orca 정기 점검 msg_768aef7c671e",
-      "scope": "13:31 KST 이후 역할·Orca 회신, Git·점유·미배포, 신규 결과/인계, 작업/카테고리 표, Controller 체크포인트 및 Master 요청함 증분",
+      "trigger": "14:30 Orca 정기 점검 msg_3781112877b7",
+      "scope": "14:00 이후 담당 회신, 작업·승인·미배포 표, Git 증분 및 인계/결과 파일, Controller 체크포인트·역할 커버리지·Master 요청함 대조",
       "evidence": [
-        "Controller 집계 잔여 32: 진행 4·검수 9·순번 7·사람 대기 12. Master 요청함 0. 개별 상태는 총괄 플랜 최신 회신 기준.",
-        "음악 c0db0c035·5329b77b9 맥미니 격리 수락 msg_8c0a767180dc·msg_16ef01e0dbdd. 인수 문서 8a0d98261·aa570f358, 1차 schema/연결 승인 항목 905267d5. 실제 호출·DB 미변경.",
-        "부동산 9b41d9853 배포 전 표·db1d7f53b 읽기 운영 검수 결과 확인. 운영 별칭 READY·롤백 제약 msg_60d511eee2c6, SQL 1·빌드 2 승인 대기. 작성자 코드/의존성과 Mac 정적 확인 구분.",
-        "B2B Front 세 파일·기제출 근거 재대조 msg_f0b83c5a06a2·msg_d58176c73ae3, 격리 URL 없어서 실화면 대기. Backend 0077 확인 뒤 SNS 공유 DB 순번, ECOM 기존 HEIC/인쇄 미검수.",
-        "Workspace A4·네이버 편집기 다중 프레임은 앞서 전달, 이번 증분에서 새 결과 SHA 없음. 영상 쇼츠 승인 대기, AG 격리 통과·실화면 대기, Support는 사용자 직접 지시 범위."
+        "Controller 기록상 잔여 32(진행 4·검수 9·순번 7·사람 대기 12), 새 Master 요청함 0. 현재 실진행·승인은 총괄표 증분 근거.",
+        "부동산 승인 실행의 결과 SQL 적용·v1.12 READY, R2 실화면 회귀로 v1.47 차단 msg_04f610e19716. 수정 38f29dbdc Mac 63/63, 준비 8bc1a2200. 추가 수정 빌드 1회 승인 대기, 잔여 1회는 매물 알림 전용.",
+        "Workspace v1.64 운영 READY 보고 반영, 실제 화면·대형 ZIP·programs.version 미확인 또는 미실행. 계약 98244b1b9의 실행기 DB 쓰기 차단 요구를 로컬 미리보기 구현에 배정 msg_4f60953a8228.",
+        "음악 독립 구현/모의 잠금 검수, SNS 입력 국소 통과, 영상 고지·의존성·YVS 문구, 블로그 두 후보 격리 수락, 이커머스 고지 확인 및 공지 배포 대기. Admin 무료 이미지 읽기 착수·AG 실화면 대기·Support 직접 지시 전담 유지.",
+        "B2B R1 격리 수락, 0077 검토서 c7469a147의 사전 조회 보완 msg_0dbcf6942504, R3 보완 SHA 미확인. Front 실제 격리 주소 없음, 0077 이후 SNS 공유 순번 유지."
       ],
-      "judgment": "실거래 기존 운영 읽기 근거와 다음 두 부동산 후보의 미배포 상태 구분. 승인된 운영 변경 실행은 이번 회차 0. 이미 준 지시의 재전송 및 중복 시험 없음.",
-      "nextAction": "음악과 부동산의 승인 범위 확인, Workspace·블로그 보완 고정 결과 대기. Front는 허용 실행 주소, B2B Backend는 0077 도구 근거, SNS는 Master 순번으로 재개.",
+      "judgment": "운영 회귀는 중단 유지. 수정 후보는 격리 수락 범위로만 기록하고 기존 배포와 구분. 이번 점검 자체가 추가 배포·SQL·실호출을 승인하지 않음.",
+      "nextAction": "고객관리 v1.13 추가 승인 뒤 R2 재검증, PASS 뒤 매물 알림 재개. B2B의 검토서 읽기 보완과 Workspace 실행기 0쓰기, YVS 문구 후속 msg_0a546e23b87e 회수.",
       "unverified": [
-        "Workspace/블로그 최신 수락·완료, Front 실제 화면·Mac 탭 제어 반환, 0077 실제 이력 처리, 부동산 업로드 트리 직접 연결 및 새 버전 운영, 리믹스 실제 응답/DB 저장."
+        "고객관리 v1.13 실제 화면·빌드(미실행), Workspace 실제 가져오기·버전 DB, Front 후보 URL, 0077 도구 실제 원자성, 음악 저장 통합과 실제 공급자, 고지 실제 배포."
       ]
     },
     "notifications": [
