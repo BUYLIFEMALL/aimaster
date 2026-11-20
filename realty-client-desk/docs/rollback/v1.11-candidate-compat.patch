@@ -1,0 +1,63 @@
+diff --git realty-client-desk/package.json realty-client-desk/package.json
+index d0444d7..34231ad 100644
+--- realty-client-desk/package.json
++++ realty-client-desk/package.json
+@@ -7,7 +7,7 @@
+     "build": "next build",
+     "start": "next start",
+     "lint": "eslint",
+-    "test": "node --no-warnings --experimental-strip-types --test tests/consent.test.mjs tests/adRules.test.mjs tests/eventRules.test.mjs tests/adCheck.test.mjs tests/fee.test.mjs tests/aiEngines.test.mjs tests/tradeHint.test.mjs tests/skipSummary.test.mjs tests/smsBytes.test.mjs"
++    "test": "node --no-warnings --experimental-strip-types --test tests/consent.test.mjs tests/adRules.test.mjs tests/eventRules.test.mjs tests/adCheck.test.mjs tests/fee.test.mjs tests/aiEngines.test.mjs tests/tradeHint.test.mjs tests/skipSummary.test.mjs tests/smsBytes.test.mjs tests/compatCandidate.test.mjs"
+   },
+   "dependencies": {
+     "@anthropic-ai/sdk": "^1.4.0",
+diff --git realty-client-desk/src/app/(dashboard)/listings/page.tsx realty-client-desk/src/app/(dashboard)/listings/page.tsx
+index 8b6d1d0..56dae0d 100644
+--- realty-client-desk/src/app/(dashboard)/listings/page.tsx
++++ realty-client-desk/src/app/(dashboard)/listings/page.tsx
+@@ -37,7 +37,7 @@ export default async function ListingsPage() {
+               <li key={l.id} className="mx-card p-4 text-sm">
+                 <div className="flex flex-wrap items-start justify-between gap-2">
+                   <div className="min-w-0">
+-                    <p className="text-base font-bold text-mx-text">{l.title} <span className={l.status === "광고 중" ? "mx-chip-blue ml-1" : "mx-chip ml-1"}>{l.status}</span></p>
++                    <p className="text-base font-bold text-mx-text">{l.title} <span className={l.status === "광고 중" ? "mx-chip-blue ml-1" : "mx-chip ml-1"}>{l.status === "후보" ? "후보 · 광고 전" : l.status}</span></p>
+                     <p className="text-mx-text">{l.property_type} · {priceText(l)}{l.area_m2 ? ` · 전용 ${l.area_m2}㎡` : ""}{l.floor_info ? ` · ${l.floor_info}` : ""}</p>
+                     <p className="text-mx-muted">{l.address}</p>
+                   </div>
+diff --git realty-client-desk/src/lib/desk/adRules.ts realty-client-desk/src/lib/desk/adRules.ts
+index 55bb7fb..72eb482 100644
+--- realty-client-desk/src/lib/desk/adRules.ts
++++ realty-client-desk/src/lib/desk/adRules.ts
+@@ -4,7 +4,7 @@
+ // 법 제50조③ 밤 9시~아침 8시는 별도 동의가 필요 — 이 프로그램은 별도 동의를 받지 않으므로 그 시간에는 보내지 않는다.
+ // 시행령 제62조의3: 광고 수신 동의는 2년마다 다시 확인.
+ 
+-export const LISTING_STATUSES = ["광고 중", "계약", "내림"] as const;
++export const LISTING_STATUSES = ["광고 중", "계약", "내림", "후보"] as const; // v1.11 호환판(C-1 롤백용): 「후보」 행이 상태 선택에서 「광고 중」으로 바뀌지 않게 보존 — 새 후보를 만드는 경로는 없음
+ 
+ export type MatchClient = {
+   deal_type: string;
+diff --git realty-client-desk/tests/compatCandidate.test.mjs realty-client-desk/tests/compatCandidate.test.mjs
+new file mode 100644
+index 0000000..4bf01b3
+--- /dev/null
++++ realty-client-desk/tests/compatCandidate.test.mjs
+@@ -0,0 +1,18 @@
++// v1.11 호환판(C-1 롤백용, 2026-11-20): 「후보」 행이 옛 화면에서 「광고 중」으로 바뀌지 않는지 — PLAN §6-2 (가)
++import { test } from "node:test";
++import assert from "node:assert/strict";
++import { LISTING_STATUSES } from "../src/lib/desk/adRules.ts";
++
++/** 브라우저 <select defaultValue>: 값이 목록에 있으면 그 값, 없으면 첫 값이 선택된다 */
++const selected = (value) => (LISTING_STATUSES.includes(value) ? value : LISTING_STATUSES[0]);
++
++test("후보 줄의 상태 선택은 「후보」로 보이고, 그대로 「상태 저장」하면 후보가 유지된다", () => {
++  assert.ok(LISTING_STATUSES.includes("후보"));
++  assert.equal(selected("후보"), "후보");
++  assert.notEqual(selected("후보"), "광고 중");
++});
++
++test("기존 세 상태는 그대로(순서·첫 값 「광고 중」 유지)", () => {
++  assert.deepEqual(LISTING_STATUSES.slice(0, 3), ["광고 중", "계약", "내림"]);
++  for (const s of ["광고 중", "계약", "내림"]) assert.equal(selected(s), s);
++});
