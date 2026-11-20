@@ -13,6 +13,8 @@ const $ = (id) => (IN_WORKER ? seoRunUiElement(id) : document.getElementById(id)
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const randomDelay = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 let webDrafts = [];
+let webDraftsToken = ""; // webDrafts를 불러온 연결 토큰(회원 계정 문맥) — 2026-11-20 P2
+let webDraftsEpoch = 0; // 계정 교체·새 조회마다 증가, 늦은 옛 응답 차단
 let activeWebDraftId = "";
 let activeWebDraftTags = [];
 let activeWebDraftContentImages = [];
@@ -144,12 +146,16 @@ async function refreshWebDrafts() {
   clearWebDraftPreview();
   const token = await getToken();
   if (!token) throw new Error("먼저 SEO Studio 연결 토큰을 입력해주세요.");
+  const epoch = ++webDraftsEpoch;
   const status = $("webDraftStatus");
   status.textContent = "웹 초안을 불러오는 중...";
   const response = await fetch(`${BASE}/api/extension/drafts/library`, { headers: { Authorization: `Bearer ${token}` } });
   const result = await response.json().catch(() => ({}));
+  // 2026-11-20 P2(Mac msg_316d4de9fcca): 그사이 연결 계정이 바뀌었거나 더 새 조회가 시작됐으면 이 응답(옛 계정 목록)은 버린다.
+  if (epoch !== webDraftsEpoch || (await getToken()) !== token) return;
   if (!response.ok) throw new Error(result.error || `웹 초안 조회 실패 (${response.status})`);
   webDrafts = Array.isArray(result.drafts) ? result.drafts : [];
+  webDraftsToken = token;
   if (typeof showReconcileTarget === "function") showReconcileTarget().catch(() => {}); // 2026-11-20 결과 확인 대상 제목(auto-publish.js)
   const select = $("webDraftList");
   select.textContent = "";
@@ -978,7 +984,25 @@ $("autoLink").addEventListener("click", () => {
   chrome.tabs.create({ url: `${BASE}/extension-connect?from=extension` });
   $("status").textContent = "SEO 스튜디오 화면에서 연결 중... (로그인이 필요하면 로그인해 주세요)";
 });
+// 2026-11-20 P2: 연결 토큰(=회원 계정)이 바뀌거나 지워지면 이전 계정의 원고 목록·선택 원고·결과 확인 대상 제목을 즉시 버린다.
+function invalidateWebDraftCache() {
+  webDraftsEpoch += 1;
+  webDrafts = [];
+  webDraftsToken = "";
+  cancelWebDraftLoad();
+  resetActiveWebDraft();
+  clearWebDraftPreview();
+  const select = $("webDraftList");
+  select.textContent = "";
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "연결이 바뀌었습니다. 전송된 콘텐츠를 다시 불러오세요.";
+  select.append(placeholder);
+  const target = $("reconcileTarget");
+  if (target) { target.textContent = ""; target.hidden = true; }
+}
 if (!IN_WORKER) chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && changes[KEY] && changes[KEY].newValue !== changes[KEY].oldValue) invalidateWebDraftCache();
   if (area === "local" && changes[KEY]?.newValue) renderStatus();
   if (area === "local" && changes[SEO_RUN_UI]?.newValue) applySeoRunUi(changes[SEO_RUN_UI].newValue);
 });

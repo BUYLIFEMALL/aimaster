@@ -10,17 +10,23 @@ async function persistPublication() {
 // 2026-11-20 (Master msg_f52899da64c0): 「발행 결과만 다시 확인」이 어느 원고를 확인하는지 보여 준다.
 // 새로 조회하지 않고 이미 가진 값만 쓴다 — 같은 실행(runId)의 진행 중 제목, 아니면 저장된 직전 실행의 draftId와
 // 이미 불러온 본인 원고 목록(webDrafts)의 제목. 어느 쪽도 없으면 빈 값 → 지금 화면 그대로(줄 숨김).
+// 2026-11-20 P2(Mac msg_316d4de9fcca): 실행 번호와 원고 번호가 모두 맞고, 그 원고가 지금 계정으로 불러온 목록에 있을 때만 쓴다.
 function reconcileTargetTitle(saved, current, drafts) {
-  if (!saved?.runId) return "";
-  if (current?.runId === saved.runId && current.title) return String(current.title).trim();
+  if (!saved?.runId || !saved.draftId) return "";
   const draft = Array.isArray(drafts) ? drafts.find((item) => item && item.id === saved.draftId) : null;
-  return draft?.title ? String(draft.title).trim() : "";
+  if (!draft) return "";
+  if (current?.runId === saved.runId && current.draftId === saved.draftId && current.title) return String(current.title).trim();
+  return draft.title ? String(draft.title).trim() : "";
 }
 async function showReconcileTarget() {
   const box = typeof document === "undefined" ? null : document.getElementById("reconcileTarget");
   if (!box) return;
+  const epoch = webDraftsEpoch;
   const saved = (await chrome.storage.local.get(SEO_PUBLISH_OUTBOX))[SEO_PUBLISH_OUTBOX];
-  const title = reconcileTargetTitle(saved, seoPublication, webDrafts);
+  const token = await getToken();
+  // 계정 문맥: 목록을 불러온 토큰이 지금 토큰과 같고, 기다리는 사이 계정 교체·새 조회가 없었을 때만.
+  const sameAccount = Boolean(token) && token === webDraftsToken && epoch === webDraftsEpoch;
+  const title = sameAccount ? reconcileTargetTitle(saved, seoPublication, webDrafts) : "";
   box.textContent = title ? `확인 대상(직전 실행): ${title}` : "";
   box.hidden = !title;
 }
