@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-11-20 임시 사본의 정션(node_modules 연결) 해제가 실패했는데 다음 삭제 명령이 실행됨 — 실제 node_modules가 지워질 뻔함 (`ai-influencer-studio` 변형 시험, [역할: sns])
+- **증상**: 저장소 밖 임시 사본에 `node_modules` 정션을 만들어 변형 시험을 한 뒤, `powershell -Command "Remove-Item <정션> -Force; (Test-Path …)" && rm -rf <임시 폴더>`로 정리했다. `Remove-Item`이 NullReferenceException으로 실패했는데, 마지막 `Test-Path`가 성공해 PowerShell 종료코드가 0이라 `&&` 뒤의 `rm -rf`가 **정션이 남은 채로** 실행됐다.
+- **결과**: 이번에는 피해 없음 — Git Bash의 `rm -rf`는 정션을 링크로 보고 링크만 지웠다. 확인: `npm ls --depth=0` 종료코드 0, `tsc` 통과, 전체 시험 393/393, `find node_modules -newer <직전 파일>`로 바뀐 폴더 0개. 하지만 다른 삭제 도구(예: `Remove-Item -Recurse`, 탐색기)였다면 연결 너머의 실제 `node_modules`가 지워질 수 있었다.
+- **원인**: 「해제 → 확인 → 삭제」를 한 줄에 묶고, 해제 결과가 아니라 **마지막 명령의 종료코드**로 다음 단계를 진행했다.
+- **다음부터**: ① 정션·심볼릭 링크가 든 임시 폴더는 **해제와 삭제를 따로 실행**한다. ② 삭제 직전에 링크가 정말 없어졌는지 따로 본다(PowerShell `(Get-Item <경로> -ErrorAction SilentlyContinue).LinkType`이 비었는지, 또는 `fsutil reparsepoint query` 실패). ③ 정션 해제는 `cmd /c rmdir <정션>`(대상은 지우지 않음)을 쓰고, `Remove-Item -Recurse`는 쓰지 않는다. ④ 가능하면 정션 대신 사본 안에서 필요한 것만 복사한다.
+
 ## 2026-11-20 저작권 고지 `robots.txt`·`ai.txt`를 넣었는데 로그인 미들웨어가 막아 바깥에서 못 읽음 (claude-win-sdp, CRAWLER-NOTICE-REDIRECT-AUDIT)
 - 증상: 운영 82개 주소 중 19개에서 `/robots.txt`·`/ai.txt`가 `307 → /login?redirect=…`. 검색엔진·외부 AI가 고지를 읽지 못함(0번 규칙 고지 목적 불충족). 14개는 404 — 11-11 고지 커밋 뒤 아직 배포 안 된 앱(규칙대로 다음 배포 동행).
 - 원인: 같은 뼈대 앱의 `src/proxy.ts`(Next 미들웨어) matcher 가 이미지 확장자만 빼고 `.txt`는 잡음 → 비로그인 요청을 `/login`으로 보냄. `apply-source-notice.mjs --check`는 파일 존재만 보고, 실제로 열리는지는 보지 않아 놓침.
