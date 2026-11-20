@@ -381,3 +381,7 @@ alter table public.music_track_remix_variants
 - 응답 없음(시간 초과·연결 끊김)은 이미 저장됐을 수 있어 「불확실」로 끝내고 재실행하지 않는다.
 - 새로 찾은 기존 동작: 지금 `remixSync.ts` 83줄은 insert 결과를 확인하지 않아 저장 실패가 조용히 넘어간다. 1차 구현은 오류를 호출부에 돌려주되, 그때 리믹스를 어떻게 표시할지는 별도 확정(표본 `_undecided`).
 - 미확정으로 분리: 공용 Suno 클라이언트 사본 동기화 결정, Suno `prompt`의 실제 의미.
+
+## 부록 PHASE1-COMPAT-MOCK A2 (2026-11-20, Master `msg_588297d118e7`, 검수 CX-QA-01)
+- 미연결 순수 모듈 `music/lib/remixVariantInsert.ts`(넘겨받은 insert 함수만 사용): `parseMissingColumnError`(형식 3가지만 — 42703 따옴표·따옴표+표·「표.칸」, PGRST204 schema cache; 코드와 형식 불일치·앞뒤 다른 글은 판정 불가), `isMissingLyricsColumnError`(새 3칸 전체 일치 + 표 이름 있으면 변주 표), `stripLyricsColumns`, `insertRemixVariantsWithFallback`(최대 2회, 결과 7종 ok·ok_without_lyrics_columns·error·uncertain·retry_failed·retry_uncertain·skipped, 결과에는 코드·뽑은 칸·표만).
+- 시험 `music/tests/remixVariantInsert.test.mjs` 27개(표본 25 + 형식·복사 2), 증거 `music/docs/evidence/remix-lyrics-compat-mock-tests-20261120.txt`. 표본: C19·C20 결과를 `retry_failed`·`retry_uncertain`으로 구분, C23~C25(「표.칸」 형식 2, 자유 문구 1) 추가.

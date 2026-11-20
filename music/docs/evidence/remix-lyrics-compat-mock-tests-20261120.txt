@@ -1,0 +1,38 @@
+# PHASE1-COMPAT-MOCK A2 로컬 증거 2026-11-20 13:43 — 가사·행 값·오류 원문 미출력
+## node --import tsx --test tests/remixVariantInsert.test.mjs  (종료 코드 0)
+✔ C01 첫 insert 성공 (1.4301ms)
+✔ C02 42703 — lyrics 칸 없음 (0.4113ms)
+✔ C03 42703 — suno_task_id 칸 없음(표 이름 없는 문구) (0.1968ms)
+✔ C04 42703 — lyrics_status 칸 없음 (0.1388ms)
+✔ C05 PGRST204 — 스키마 캐시에 lyrics 없음 (0.178ms)
+✔ C06 PGRST204 — 다른 칸(duration_seconds) (0.1405ms)
+✔ C07 42703 — 다른 칸(image_url) (0.1094ms)
+✔ C08 42703 — 칸 이름을 뽑을 수 없는 문구 (0.14ms)
+✔ C09 42703 — 같은 칸 이름이지만 다른 표 (0.1072ms)
+✔ C10 부분 문자열 칸(lyrics_status_x) (0.1335ms)
+✔ C11 부분 문자열 칸(lyric) (0.1231ms)
+✔ C12 권한 없음(42501) (0.0637ms)
+✔ C13 RLS 위반(42501) (0.0485ms)
+✔ C14 중복(23505) (0.0618ms)
+✔ C15 표 없음(42P01) (0.085ms)
+✔ C16 응답 없음 — 시간 초과(결과 불확실) (0.097ms)
+✔ C17 응답 없음 — 연결 끊김 (0.0526ms)
+✔ C18 서버 오류·코드 없음 (0.0401ms)
+✔ C19 재시도도 실패(같은 42703) — 세 번째 없음 (0.0779ms)
+✔ C20 재시도 응답 없음 — 세 번째 없음 (0.0708ms)
+✔ C21 칸 이름이 message에 없고 details에 있음 (0.0557ms)
+✔ C22 저장할 변주 0개 (0.0292ms)
+✔ C23 42703 표.칸 형식 — 변주 표의 lyrics (0.0535ms)
+✔ C24 42703 표.칸 형식 — 다른 표 (0.0584ms)
+✔ C25 42703 자유 문구에 칸 이름 포함 (0.0377ms)
+✔ 형식 판정 — 세 형식만 인정, 칸·표 정확히 (0.0844ms)
+✔ stripLyricsColumns — 새 3칸만 빼고 원본은 그대로 (0.0925ms)
+ℹ tests 27
+ℹ pass 27
+ℹ fail 0
+## npm test (music 전체, 종료 코드 0)
+ℹ tests 120
+ℹ pass 120
+ℹ fail 0
+## npx tsc --noEmit: exit 0 / npx eslint lib/remixVariantInsert.ts tests/remixVariantInsert.test.mjs: exit 0
+## 연결 확인: music/app·lib·components에서 remixVariantInsert를 부르는 파일 = 자기 파일만, remixSync.ts 변경 없음
