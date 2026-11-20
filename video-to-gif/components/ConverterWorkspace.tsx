@@ -28,6 +28,7 @@ import { createZip, uniqueNames } from "@/lib/zip";
 import { APP_VERSION } from "@/lib/version";
 import TrimBar from "@/components/TrimBar";
 import ScreenRecorder from "@/components/ScreenRecorder";
+import { gifOutputError, videoInputArgs } from "@/lib/gifArgs";
 import { CANDIDATES, MAX_OUTPUT_BYTES, canSinglePass, nextCandidateIndex, progressRatio, runLadder } from "@/lib/gifLadder";
 import { LocalRendererPool, checkRendererUpdate, detectLocalRenderer, localSlots, type RendererStatus, type RendererUpdate } from "@/lib/localRenderer";
 import { ACCEPT, pickFiles, skippedNote } from "@/lib/videoFiles";
@@ -312,6 +313,12 @@ export default function ConverterWorkspace() {
   }
 
   function finishJob(jobId: string, outputBytes: Uint8Array, usedFps: number) {
+    // 2026-11-20(MOV-GIF-V4-EMPTY-OUTPUT): 비었거나 GIF가 아니면 오류 — 「완료 (0 KB)」·다운로드·상세페이지 보내기를 열지 않는다
+    const bad = gifOutputError(outputBytes);
+    if (bad) {
+      setJobs((current) => current.map((j) => (j.id === jobId ? { ...j, status: "error", error: bad } : j)));
+      return;
+    }
     const blob = new Blob([outputBytes.slice().buffer], { type: "image/gif" });
     const downloadUrl = URL.createObjectURL(blob);
     setJobs((current) =>
@@ -362,6 +369,9 @@ export default function ConverterWorkspace() {
         }
       );
       if (index === -1) throw new TooBigError(TOO_BIG_MESSAGE);
+      // 내 PC 렌더러 결과가 비었으면 오류를 던져 브라우저 변환으로 넘긴다(아래 convertOne의 기존 대체 흐름)
+      const localBad = gifOutputError(results.get(index));
+      if (localBad) throw new Error(localBad);
       finishJob(job.id, results.get(index)!, Math.min(fps, CANDIDATES[index].fps ?? fps));
     } finally {
       pool.close();
@@ -420,13 +430,13 @@ export default function ConverterWorkspace() {
       const twoPass = async (w: number, colors: number) => {
         phase = { from: 0, to: 0.5 };
         await ffmpeg.exec([
-          ...trim.args, "-i", inputName,
+          ...videoInputArgs(trim.args, inputName),
           "-vf", `${filterBase(w)},palettegen=max_colors=${colors}:stats_mode=diff`,
           "palette.png",
         ]);
         phase = { from: 0.5, to: 1 };
         return ffmpeg.exec([
-          ...trim.args, "-i", inputName, "-i", "palette.png",
+          ...videoInputArgs(trim.args, inputName), "-i", "palette.png",
           "-lavfi", `${filterBase(w)} [x]; [x][1:v] paletteuse=dither=sierra2_4a:diff_mode=rectangle`,
           "output.gif",
         ]);
@@ -435,7 +445,7 @@ export default function ConverterWorkspace() {
       const singlePass = (w: number, colors: number) => {
         phase = { from: 0, to: 1 };
         return ffmpeg.exec([
-          ...trim.args, "-i", inputName,
+          ...videoInputArgs(trim.args, inputName),
           "-lavfi",
           `${filterBase(w)},split[a][b];[a]palettegen=max_colors=${colors}:stats_mode=diff[p];[b][p]paletteuse=dither=sierra2_4a:diff_mode=rectangle`,
           "output.gif",
