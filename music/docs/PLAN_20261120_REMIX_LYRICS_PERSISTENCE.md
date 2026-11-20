@@ -473,3 +473,39 @@ alter table public.music_track_remix_variants
 | T8 | `remixSaveState` 4종 판정, 카드 문구가 확정 실패와 다름 | 문구·판정 구분 |
 | T9 | 불확실 리믹스 삭제 | 허용 |
 - 이 설계는 `syncLock.ts`·두 호출부·카드·삭제를 건드려 인계표보다 범위가 넓다 → 확인 뒤 구현. 그 사이 독립 부분(가사 영상 B1~B3·K1~K4, 미적용 마이그레이션 후보, 리믹스 전용 조회 함수)은 진행.
+
+## U1 증명 조건 — 표시를 insert **전에** 영속화하는 순서 (2026-11-20, Master `msg_5b192173fc65` 지적 대응, 제안·미구현)
+지적: 「응답 유실 → 그 뒤 불확실 표시 저장이 실패·중단」이면 `__syncing__` 잠금이 5분 뒤 만료돼(`syncLock.ts:15~25`) 다시 저장될 수 있다. → 표시를 **결과가 불확실해질 수 있는 단계(insert) 이전에** 써 두어 이 틈을 없앤다.
+
+| 순서 | 동작 | 실패하면 | U1 |
+|---|---|---|---|
+| 1 | `claimSyncLock` — `error_message = '__syncing__'` | 잡지 못함 → 아무것도 안 함 | 쓰기 없음 |
+| 2 | Suno 결과 조회(`record-info`) | 지금처럼 잠금 해제 → 재처리 허용 | insert 전이라 안전 |
+| 3 | **insert 직전 표시 전환**: 조건부 갱신 `error_message: '__syncing__' → '__inserting__:<taskId>'` (조건 `id`·`task_id = taskId`·`status = generating`·`error_message = '__syncing__'`) | 0행·오류 → **insert를 보내지 않고** 잠금 해제(재처리 허용) | 아직 아무것도 안 보냈으므로 안전 |
+| 4 | insert(`insertRemixVariantsWithFallback`) | — | 이 시점부터는 표시가 이미 영속 |
+| 5a | 결과 `ok` 계열 → 지금 성공 경로(연장 판단 → `completed`), 갱신 조건에 `error_message = '__inserting__:<taskId>'` | 갱신 실패·중단 → 표시가 남음 → 아래 6 | 재저장·연장 0 유지 |
+| 5b | 확정 실패(`error`·`retry_failed`·`skipped`) → `failed` | 갱신 실패·중단 → 표시가 남음 | 재저장 0 |
+| 5c | 불확실(`uncertain`·`retry_uncertain`)·insert 뒤 예외 → **아무것도 더 쓰지 않음**(표시가 이미 영속) | — | 재저장·연장 0 |
+| 6 | 잠금: `claimSyncLock`이 `error_message`가 `__inserting__:`로 시작하면 **5분이 지나도** 잡지 않음 | — | 만료로 풀리지 않음 |
+
+- 핵심: 「불확실」이 생길 수 있는 insert는 **영속 표시가 기록된 뒤에만** 보낸다 → 표시 저장 실패는 insert 전(3단계)에만 일어나고, 그때는 insert를 보내지 않으므로 재저장 위험이 없다.
+- 기계 판정: `status = generating` + `error_message` `__inserting__:` = 「저장 결과 불확실(또는 진행 중 중단)」, `failed` = 확정 실패. 화면은 둘을 다른 문구로(U2).
+- 연장: 5a에서만, 그리고 0-7 예약은 2차. 1차는 5a에서 지금처럼 `maybeAutoExtendRemix` — 단 `ok` 계열에서만.
+
+### 공용 잠금 함수·삭제 변경 범위 대조
+| 대상 | 지금 사용처 | 변경 | 다른 표 영향 |
+|---|---|---|---|
+| `claimSyncLock`(`syncLock.ts:14~26`) | `music_tracks`·`music_track_remixes`·`music_track_mr`·`music_track_media` | `.or(...)` 앞에 「`error_message`가 `__inserting__:`로 시작하지 않음」 조건 추가 | 표시는 리믹스 경로만 쓰므로 나머지 3표는 결과 동일 — 시험으로 고정 |
+| `releaseSyncLock`(`syncLock.ts:29~31`) | 같은 4표 | 변경 없음(`__syncing__`만 지움 → 표시 유지) | 없음 |
+| 새 함수 `markInsertingLock`(3단계) | 리믹스만 | 신규 | 없음 |
+| `deleteRemixAction`(`remix.ts:469`) | 리믹스 | `generating` 삭제 금지에 「`__inserting__:` 표시면 허용」 예외 | 없음(회원이 직접 누를 때만 — 자동 재저장·연장 경로 아님) |
+| 웹훅·수동 호출부 | 리믹스 | 3단계 호출, 5a~5c 분기, 결과 7종 전달 | 곡 생성 경로(`music_tracks`)는 그대로 |
+
+### 시험 추가(T1~T9에 더해)
+| 번호 | 시험 | 기대 |
+|---|---|---|
+| T10 | 3단계 전환 0행(다른 처리가 먼저 진행) | insert 0, 잠금 해제 |
+| T11 | 3단계 전환 오류 | insert 0, 잠금 해제 |
+| T12 | insert 응답 유실 뒤 프로세스 중단(이후 쓰기 없음) → 5분 뒤 웹훅 재알림·수동 새로고침 | claim 실패 → insert 0·연장 0 |
+| T13 | 5a 갱신 실패 | 표시 유지 → 이후 재저장 0 |
+| T14 | 다른 3표(`music_tracks` 등)의 5분 지난 `__syncing__` | 지금처럼 다시 잡힘 |
