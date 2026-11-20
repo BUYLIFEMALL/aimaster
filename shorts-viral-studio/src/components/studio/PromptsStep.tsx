@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { generatePromptsAction } from "@/lib/actions/svs";
 import { savePromptSetAction } from "@/lib/actions/savedPrompts";
 import { downloadMarkdown } from "@/lib/export";
-import { PROMPT_COPY_LABEL, formatScenePrompts, type PromptKind } from "@/lib/promptCopy";
+import { COPY_IDLE, COPY_SHOWN_MS, PROMPT_COPY_LABEL, copyExpired, copyFailed, copySucceeded, formatScenePrompts, type CopyState, type PromptKind } from "@/lib/promptCopy";
 import { useStudio } from "@/components/studio/StudioProvider";
 import {
   Card,
@@ -30,18 +30,23 @@ export function PromptsStep() {
   const autoRan = useRef(false);
   const [vault, setVault] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [vaultError, setVaultError] = useState<string | null>(null);
-  const [copiedKind, setCopiedKind] = useState<PromptKind | null>(null);
+  // 복사 표시·복사 오류는 프롬프트 생성 오류(error)와 따로 둔다
+  const [copy, setCopy] = useState<CopyState>(COPY_IDLE);
+  const copySeq = useRef(0);
 
   // 씬별 프롬프트를 한 종류씩 모아 한 번에 복사(외부 생성 도구에 붙여 넣기용)
   async function copyAll(kind: PromptKind) {
     const text = formatScenePrompts(data.promptsResult?.prompts, kind);
     if (!text) return;
+    const seq = ++copySeq.current;
     try {
       await navigator.clipboard.writeText(text);
-      setCopiedKind(kind);
-      setTimeout(() => setCopiedKind((k) => (k === kind ? null : k)), 2000);
+      if (seq !== copySeq.current) return; // 그 사이 다시 눌렀으면 최신 복사의 결과만 반영
+      setCopy(copySucceeded(seq, kind));
+      setTimeout(() => setCopy((s) => copyExpired(s, seq)), COPY_SHOWN_MS);
     } catch {
-      setError("복사하지 못했습니다. 브라우저의 클립보드 권한을 확인해 주세요.");
+      if (seq !== copySeq.current) return;
+      setCopy(copyFailed(seq));
     }
   }
 
@@ -49,6 +54,7 @@ export function PromptsStep() {
   useEffect(() => {
     setVault("idle");
     setVaultError(null);
+    setCopy(COPY_IDLE);
   }, [data.promptsResult]);
 
   async function saveToVault() {
@@ -177,12 +183,13 @@ export function PromptsStep() {
             {(["image", "video"] as const).map((kind) =>
               formatScenePrompts(result.prompts, kind) ? (
                 <GhostButton key={kind} onClick={() => copyAll(kind)}>
-                  {copiedKind === kind ? "✅ 복사됨" : PROMPT_COPY_LABEL[kind]}
+                  {copy.kind === kind ? "✅ 복사됨" : PROMPT_COPY_LABEL[kind]}
                 </GhostButton>
               ) : null,
             )}
             <span className="text-[11px] text-[#8b949e]">씬 번호 순서로 모아 복사합니다.</span>
           </div>
+          {copy.error && <p role="alert" className="text-xs font-semibold text-amber-400">{copy.error}</p>}
 
           <div className="space-y-3">
             {result.prompts.map((p) => (

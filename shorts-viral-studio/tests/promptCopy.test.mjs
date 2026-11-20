@@ -32,3 +32,43 @@ test("버튼 이름은 두 종류가 서로 다르다", () => {
   assert.match(PROMPT_COPY_LABEL.image, /이미지/);
   assert.match(PROMPT_COPY_LABEL.video, /영상/);
 });
+
+// A2(맥미니 P3) 복사 표시 상태 회귀
+const { COPY_IDLE, COPY_ERROR_MESSAGE, COPY_SHOWN_MS, copySucceeded, copyFailed, copyExpired } = await import("../src/lib/promptCopy.ts");
+
+test("실패 뒤 성공하면 복사 오류가 남지 않는다", () => {
+  const failed = copyFailed(1);
+  assert.deepEqual(failed, { kind: null, error: COPY_ERROR_MESSAGE, seq: 1 });
+  const ok = copySucceeded(2, "image");
+  assert.deepEqual(ok, { kind: "image", error: null, seq: 2 });
+});
+
+test("같은 종류를 연달아 복사하면 앞 타이머가 새 표시를 지우지 않는다", () => {
+  let s = copySucceeded(1, "image");
+  s = copySucceeded(2, "image"); // 2초 안에 다시 누름
+  s = copyExpired(s, 1); // 첫 번째 타이머가 먼저 끝남
+  assert.equal(s.kind, "image", "첫 타이머는 두 번째 표시를 지우면 안 됨");
+  s = copyExpired(s, 2); // 두 번째 타이머
+  assert.equal(s.kind, null);
+  assert.equal(COPY_SHOWN_MS, 2000);
+});
+
+test("다른 종류로 바꿔 복사해도 앞 타이머는 새 표시를 지우지 않는다", () => {
+  let s = copySucceeded(1, "image");
+  s = copySucceeded(2, "video");
+  s = copyExpired(s, 1);
+  assert.equal(s.kind, "video");
+});
+
+test("성공 표시가 끝나도 그 뒤 생긴 복사 오류는 지우지 않는다", () => {
+  let s = copySucceeded(1, "image");
+  s = copyFailed(2);
+  s = copyExpired(s, 1);
+  assert.equal(s.error, COPY_ERROR_MESSAGE);
+  assert.equal(copyExpired(s, 2), s, "오류 상태는 타이머로 바뀌지 않음(다음 성공 때 지워짐)");
+});
+
+test("복사 상태에는 생성 오류가 들어가지 않는다(별도 상태)", () => {
+  assert.deepEqual(Object.keys(COPY_IDLE).sort(), ["error", "kind", "seq"]);
+  assert.deepEqual(COPY_IDLE, { kind: null, error: null, seq: 0 });
+});

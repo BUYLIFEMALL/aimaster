@@ -18,3 +18,24 @@ export function formatScenePrompts(prompts: ScenePrompt[] | null | undefined, ki
     .map((b) => `[SCENE ${b.n}]\n${b.text}`);
   return blocks.join("\n\n");
 }
+
+// 2026-11-20 A2(맥미니 P3): 복사 표시 상태를 순수 함수로 — 프롬프트 생성 오류와 섞지 않는다.
+// seq는 복사를 누를 때마다 1씩 오르는 순번. 「복사됨」을 2초 뒤 지우는 타이머는 자기 순번일 때만 지운다
+// → 같은 버튼을 연달아 눌러도 앞 타이머가 새 표시를 일찍 지우지 않는다(표시 시간이 다시 2초).
+export type CopyState = { kind: PromptKind | null; error: string | null; seq: number };
+export const COPY_IDLE: CopyState = { kind: null, error: null, seq: 0 };
+export const COPY_SHOWN_MS = 2000;
+export const COPY_ERROR_MESSAGE = "복사하지 못했습니다. 브라우저의 클립보드 권한을 확인해 주세요.";
+
+/** 복사 성공: 그 종류에 「복사됨」, 이전 복사 오류는 지운다. */
+export function copySucceeded(seq: number, kind: PromptKind): CopyState {
+  return { kind, error: null, seq };
+}
+/** 복사 실패: 「복사됨」 표시는 없애고 복사 오류만 남긴다. */
+export function copyFailed(seq: number): CopyState {
+  return { kind: null, error: COPY_ERROR_MESSAGE, seq };
+}
+/** 표시 시간 끝: 자기 순번의 성공 표시만 지운다(그 사이 새 복사·실패가 있었으면 그대로 둔다). */
+export function copyExpired(state: CopyState, seq: number): CopyState {
+  return state.seq === seq && state.kind !== null ? { ...state, kind: null } : state;
+}
