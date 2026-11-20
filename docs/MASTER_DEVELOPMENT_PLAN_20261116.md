@@ -584,7 +584,7 @@ Master 마지막 실제 점검: 2026-11-20 11:01:22 KST · 11:00 Orca 수신, Wo
 | FRONT-20261119-QUICKBAR | CC-B2B-FRONT-01 | done / mobile_quickbar_and_preview_mac_accepted_undeployed | B2B몰 모바일 빠른 메뉴 상품 카드 가림 | 고정 51d4b2207 Mac 28/28. 모바일 버튼·포커스 및 미리보기 빈 줄 제거 수락. 미배포 묶음 대기, 고정판 실제 편집기 미확인. |
 | FRONT-20261119-QUICKBAR-TABLET | CC-B2B-FRONT-01 | running / isolated_candidate_fixture_contract_ready_runtime_blocked | B2B몰 태블릿 폭 빠른 메뉴 상품 가림 | 기준 51d4b2207·3파일 지문 확인, 공개 몰/상품 6개·편집기 합성 데이터 요건 수신. 로컬 서버 실행 정책 차단, URL 미생성. |
 | BLOG-20261119-SAFE-FETCH-SOURCE | CC-BLOG-01 | done / canonical_reference_repointed_read_check_passed | 공용 safe-fetch 검사 기준 경로 복구 | fa125184f·6b7c31b14 기준을 티스토리 경로로 변경. Master 전체 읽기 점검 종료 0·사본 3개 일치, 제품 코드·sync·배포 0. |
-| MUSIC-20261119-REMIX-PLAYLIST-SENDER | CC-MUSIC-01 | reviewing / sender_v159_ready_live_click_pending | 음악 리믹스 → 플레이리스트 발신 링크 | 음악 v1.59 운영 빌드 1회 READY, music-1l6k8gsjh 및 공식 alias 연결 담당 보고 msg_0d859c1abfc0. 운영 클릭·버전 반영 회신 대기. |
+| MUSIC-20261119-REMIX-PLAYLIST-SENDER | CC-MUSIC-01 | done / sender_v159_ready_live_click_verified | 음악 리믹스 → 플레이리스트 발신 링크 | v1.59 music-1l6k8gsjh READY·DB 버전 일치 담당 확인. 운영 링크 실제 클릭으로 playlist v1.43에서 1곡 자동 선택 PASS. 생성 중·실패 상태 링크 숨김은 운영 해당 행 없음(모의만). 추가 빌드·유료 호출 0. |
 | MOV-20261119-01 | CC-MOVIE-01 | reviewing / video_return_receiver_contract_pending | 원스톱 상품 영상 주소 반환 연동 | 3feb2bd85 정적 검토. 수신 저장·상품 소유 계약 협의 후 구현, 로컬 MP4 별도. |
 | BLOG-20261119-T03-CUTOVER-PREP | CC-BLOG-01 | queued / render_approved_intake_pause_waiting_exact_release_path | T03 회원별 캐시 전환 검증 준비 | CMD-20261120-014 Render 1단계·새 요청 일시 차단 승인. is_active=true 보존. a7ef59164가 origin/master에 없고 담당자가 특정 커밋 배포 권한 없음(msg_a83a9655a779). Master가 자동 배포와 복원 시점을 묶어 확정한 뒤 진행. |
 
