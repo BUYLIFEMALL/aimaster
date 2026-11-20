@@ -46,7 +46,7 @@ export default async function ListingsPage() {
                     {l.status === "광고 중" && (
                       <Link href={`/listings/${l.id}`} className="mx-btn-primary inline-flex min-h-[40px] items-center px-3 text-xs">👥 맞는 고객 {n}명 보기</Link>
                     )}
-                    <ListingStatusForm key={`${l.id}-${l.status}`} id={l.id} status={l.status} />
+                    <ListingStatusForm key={l.id} id={l.id} status={l.status} />
                     <form action={deleteListingAction}>
                       <input type="hidden" name="id" value={l.id} />
                       <button type="submit" className="mx-btn-danger min-h-[40px] px-3 text-xs">🗑 삭제</button>
