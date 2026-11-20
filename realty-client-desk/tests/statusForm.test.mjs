@@ -22,6 +22,13 @@ test("외부 갱신이 회원이 고르던 다른 값보다 우선, 상태가 �
   assert.equal(makeSyncUpdater("광고 중", "광고 중")("내림"), "내림");
 });
 
+test("상태 폼은 <form action>을 쓰지 않는다(저장 뒤 React 자동 초기화로 선택 상자가 첫 값 「광고 중」으로 보이던 운영 회귀)", () => {
+  const src = readFileSync(new URL("../src/components/desk/ListingStatusForm.tsx", import.meta.url), "utf8");
+  assert.doesNotMatch(src, /<form\s+action=/);
+  assert.match(src, /onSubmit=\{\(e\) => \{\s*e\.preventDefault\(\);/);
+  assert.match(src, /startTransition\(\(\) => action\(fd\)\)/);
+});
+
 test("컴포넌트는 붙잡은 값으로 만든 updater를 쓰고, updater 안에서 ref를 늦게 읽지 않는다", () => {
   const src = readFileSync(new URL("../src/components/desk/ListingStatusForm.tsx", import.meta.url), "utf8");
   assert.match(src, /setSelected\(makeSyncUpdater\(prev, status\)\)/);

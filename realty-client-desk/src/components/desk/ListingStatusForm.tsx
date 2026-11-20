@@ -4,7 +4,7 @@
 // 응답이 분명하지 않으면(연결 끊김) 자동으로 다시 보내지 않고 새로고침을 안내한다.
 // 보완(Mac 검수 msg_e76ff8708dd4): 부모는 key를 매물 ID로만 준다 — 상태가 바뀌어도 폼을 다시 만들지 않아 성공 문구가 남는다.
 // 선택 상자는 제어형으로 두고 lib/desk/statusForm.ts 규칙으로 실제 상태와 맞춘다(오류면 저장된 값으로 되돌림).
-import { useActionState, useEffect, useRef, useState } from "react";
+import { startTransition, useActionState, useEffect, useRef, useState } from "react";
 import { updateListingStatusAction, type ListingState } from "@/lib/actions/listings";
 import { LISTING_STATUSES } from "@/lib/desk/adRules";
 import { makeSyncUpdater, selectedAfter } from "@/lib/desk/statusForm";
@@ -37,7 +37,16 @@ export function ListingStatusForm({ id, status }: { id: string; status: string }
   }, [state]);
 
   return (
-    <form action={action} className="flex flex-wrap items-center gap-1">
+    // 2026-11-20 운영 실화면(v1.12 R2): <form action>은 저장이 끝나면 React가 폼을 초기화해 선택 상자가 첫 값 「광고 중」으로 보였다
+    // (상태는 「후보」인데 다시 「상태 저장」하면 광고 중으로 바뀔 위험). 제출을 직접 처리해 자동 초기화를 막는다.
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        const fd = new FormData(e.currentTarget);
+        startTransition(() => action(fd));
+      }}
+      className="flex flex-wrap items-center gap-1"
+    >
       <input type="hidden" name="id" value={id} />
       <select name="status" value={selected} onChange={(e) => setSelected(e.target.value)} aria-label="상태" className="mx-input min-h-[40px] w-auto py-1">
         {LISTING_STATUSES.map((s) => <option key={s}>{s}</option>)}
