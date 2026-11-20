@@ -9,6 +9,8 @@ import {
   parseMissingColumnError,
   stripLyricsColumns,
   REMIX_LYRICS_COLUMNS,
+  REMIX_VARIANTS_TABLE,
+  KNOWN_ERROR_CODES,
 } from "../lib/remixVariantInsert.ts";
 
 const fx = JSON.parse(readFileSync(new URL("../docs/fixtures/remix-lyrics-compat-mock-20261120.json", import.meta.url), "utf8"));
@@ -23,7 +25,7 @@ function fakeInsert(responses) {
     const r = responses[i++];
     if (!r) throw new Error("표본에 없는 추가 호출");
     if (r.throw) throw new Error(r.throw);
-    return { error: r.error ?? null };
+    return { error: r.error ?? null, status: r.status, transportLost: r.transportLost };
   };
   return { fn, calls };
 }
@@ -58,6 +60,17 @@ for (const c of fx.cases) {
       for (const s of [r.error?.message, r.error?.details]) if (s && s.length > 12) assert.ok(!out.includes(s), "오류 원문 미포함");
     }
     for (const row of fx.basePayload) for (const v of [row.lyrics, row.audio_url]) if (v) assert.ok(!out.includes(v), "행 값 미포함");
+    // 결과 라벨은 고정 값만
+    if (res.error) {
+      assert.ok([...KNOWN_ERROR_CODES, "other", "none"].includes(res.error.code), "코드 라벨");
+      assert.ok(res.error.column === null || NEW.has(res.error.column), "칸은 이번 3칸 또는 null");
+      assert.ok(res.error.table === null || res.error.table === REMIX_VARIANTS_TABLE, "표는 변주 표 또는 null");
+    }
+    if (c.expected.errorLabel) assert.deepEqual(res.error, c.expected.errorLabel, "고정 라벨");
+    // 원문 조각(밖의 식별자·비정규 코드·SDK 문구)이 결과에 없음
+    for (const frag of ["fetch failed", "secret_internal_col", "private_audit_log", "XX999", "duration_seconds", "image_url", "music_track_remixes\"", "Internal Server Error"]) {
+      assert.ok(!out.includes(frag), `원문 조각 미포함: ${frag}`);
+    }
   });
 }
 

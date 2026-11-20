@@ -385,3 +385,9 @@ alter table public.music_track_remix_variants
 ## 부록 PHASE1-COMPAT-MOCK A2 (2026-11-20, Master `msg_588297d118e7`, 검수 CX-QA-01)
 - 미연결 순수 모듈 `music/lib/remixVariantInsert.ts`(넘겨받은 insert 함수만 사용): `parseMissingColumnError`(형식 3가지만 — 42703 따옴표·따옴표+표·「표.칸」, PGRST204 schema cache; 코드와 형식 불일치·앞뒤 다른 글은 판정 불가), `isMissingLyricsColumnError`(새 3칸 전체 일치 + 표 이름 있으면 변주 표), `stripLyricsColumns`, `insertRemixVariantsWithFallback`(최대 2회, 결과 7종 ok·ok_without_lyrics_columns·error·uncertain·retry_failed·retry_uncertain·skipped, 결과에는 코드·뽑은 칸·표만).
 - 시험 `music/tests/remixVariantInsert.test.mjs` 27개(표본 25 + 형식·복사 2), 증거 `music/docs/evidence/remix-lyrics-compat-mock-tests-20261120.txt`. 표본: C19·C20 결과를 `retry_failed`·`retry_uncertain`으로 구분, C23~C25(「표.칸」 형식 2, 자유 문구 1) 추가.
+
+## 부록 PHASE1-COMPAT-MOCK A3 (2026-11-20, Master `msg_cfe322ab3108`, 맥미니 검수 `msg_b57bcee04130`)
+- 전송 결과 불확실: SDK(PostgREST 클라이언트)는 연결이 끊기면 예외 대신 `status: 0`과 빈 code를 돌려준다 → `status === 0` 또는 어댑터 `transportLost: true`만 첫·둘째 각각 `uncertain`·`retry_uncertain`. 빈 code만으로는 추정하지 않음(status 500 + 빈 code = `error`).
+- 근거 충돌: message·details가 둘 다 형식대로 해석되는데 칸이 다르거나 둘 다 적힌 표가 다르면 판정 불가 → 재시도 0.
+- 결과 라벨 제한: `error.code`는 42703·PGRST204·42501·23505·42P01·other·none, `column`은 이번 3칸 또는 null, `table`은 변주 표 또는 null — 밖의 식별자·비정규 코드·SDK 문구는 결과에 남지 않음.
+- 표본 34개(C26~C34 추가), 시험 36개. 전후: `9863cca32` 함수 → 15 실패(동작 6·라벨 9), 현재 36/36. music 전체 129/129, tsc·eslint 0. 증거 `music/docs/evidence/remix-lyrics-compat-mock-tests-20261120.txt`.

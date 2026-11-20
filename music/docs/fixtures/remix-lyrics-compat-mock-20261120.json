@@ -21,7 +21,10 @@
   "errorSurface": "재시도하지 않은 오류·재시도 뒤 오류는 호출부에 오류로 돌려준다(지금처럼 조용히 넘어가지 않음 — 처리 방식은 1차 구현 때 별도 확정)",
   "outcomes": "ok / ok_without_lyrics_columns / error(첫 오류, 재시도 대상 아님) / uncertain(첫 응답 없음) / retry_failed / retry_uncertain / skipped — A2에서 재시도 실패를 첫 오류와 구분",
   "formats": "42703: column \"칸\"[ of relation \"표\"] does not exist, column 표.칸 does not exist(OBS: ERROR_LESSONS 1908줄) / PGRST204: Could not find the 칸 column of 표 in the schema cache(DOC). 앞뒤 공백 외 다른 글이 붙으면 형식 불일치=재시도 0",
-  "errorOutput": "결과에는 오류 코드와 뽑은 칸·표만, message·details 원문과 행 값은 담지 않음"
+  "errorOutput": "결과에는 오류 코드와 뽑은 칸·표만, message·details 원문과 행 값은 담지 않음",
+  "transport": "SDK는 연결이 끊기면 예외 대신 {error:{code:\"\",message:\"TypeError: fetch failed\"}, status:0}을 돌려준다(SDK 형식, 실측 아님). status===0 또는 어댑터 transportLost:true만 불확실, 빈 code만으로는 추정하지 않음",
+  "conflict": "message·details 둘 다 형식대로 해석되는데 칸이 다르거나 둘 다 적힌 표가 다르면 판정 불가 → 재시도 0",
+  "resultLabels": "결과 error.code는 42703·PGRST204·42501·23505·42P01·other·none만, column은 이번 3칸 또는 null, table은 music_track_remix_variants 또는 null"
  },
  "_undecided": [
   "공용 Suno 클라이언트(suno-api-client) 사본 동기화 시점·방식(ai-music-studio·shots) — 이 표본과 무관, 별도 결정",
@@ -562,6 +565,208 @@
    "expected": {
     "insertCalls": 1,
     "outcome": "error"
+   }
+  },
+  {
+   "id": "C26",
+   "theme": "SDK 응답 유실 — 첫 insert status 0",
+   "basis": [
+    "DOC",
+    "SYNTH"
+   ],
+   "responses": [
+    {
+     "error": {
+      "code": "",
+      "message": "TypeError: fetch failed",
+      "details": "",
+      "hint": ""
+     },
+     "status": 0
+    }
+   ],
+   "expected": {
+    "insertCalls": 1,
+    "outcome": "uncertain"
+   }
+  },
+  {
+   "id": "C27",
+   "theme": "SDK 응답 유실 — 재시도 status 0",
+   "basis": [
+    "DOC",
+    "SYNTH"
+   ],
+   "responses": [
+    {
+     "error": {
+      "code": "42703",
+      "message": "column \"lyrics\" does not exist"
+     },
+     "status": 400
+    },
+    {
+     "error": {
+      "code": "",
+      "message": "TypeError: fetch failed",
+      "details": "",
+      "hint": ""
+     },
+     "status": 0
+    }
+   ],
+   "expected": {
+    "insertCalls": 2,
+    "outcome": "retry_uncertain"
+   }
+  },
+  {
+   "id": "C28",
+   "theme": "어댑터 전송 끊김 신호",
+   "basis": [
+    "SYNTH"
+   ],
+   "responses": [
+    {
+     "error": null,
+     "transportLost": true
+    }
+   ],
+   "expected": {
+    "insertCalls": 1,
+    "outcome": "uncertain"
+   }
+  },
+  {
+   "id": "C29",
+   "theme": "빈 code지만 status 500 — 불확실로 추정하지 않음",
+   "basis": [
+    "SYNTH"
+   ],
+   "responses": [
+    {
+     "error": {
+      "code": "",
+      "message": "Internal Server Error"
+     },
+     "status": 500
+    }
+   ],
+   "expected": {
+    "insertCalls": 1,
+    "outcome": "error"
+   }
+  },
+  {
+   "id": "C30",
+   "theme": "근거 충돌 — message lyrics, details image_url",
+   "basis": [
+    "SYNTH"
+   ],
+   "responses": [
+    {
+     "error": {
+      "code": "42703",
+      "message": "column \"lyrics\" does not exist",
+      "details": "column \"image_url\" does not exist"
+     }
+    }
+   ],
+   "expected": {
+    "insertCalls": 1,
+    "outcome": "error"
+   }
+  },
+  {
+   "id": "C31",
+   "theme": "근거 충돌 — 같은 칸, 다른 표",
+   "basis": [
+    "SYNTH"
+   ],
+   "responses": [
+    {
+     "error": {
+      "code": "42703",
+      "message": "column \"lyrics\" of relation \"music_track_remix_variants\" does not exist",
+      "details": "column \"lyrics\" of relation \"music_track_remixes\" does not exist"
+     }
+    }
+   ],
+   "expected": {
+    "insertCalls": 1,
+    "outcome": "error"
+   }
+  },
+  {
+   "id": "C32",
+   "theme": "근거 일치 — message 칸만, details 칸+표",
+   "basis": [
+    "SYNTH"
+   ],
+   "responses": [
+    {
+     "error": {
+      "code": "42703",
+      "message": "column \"lyrics\" does not exist",
+      "details": "column \"lyrics\" of relation \"music_track_remix_variants\" does not exist"
+     }
+    },
+    {
+     "error": null
+    }
+   ],
+   "expected": {
+    "insertCalls": 2,
+    "outcome": "ok_without_lyrics_columns"
+   }
+  },
+  {
+   "id": "C33",
+   "theme": "비정규 코드·밖의 식별자 — 결과는 고정 라벨",
+   "basis": [
+    "SYNTH"
+   ],
+   "responses": [
+    {
+     "error": {
+      "code": "XX999",
+      "message": "column \"secret_internal_col\" of relation \"private_audit_log\" does not exist"
+     }
+    }
+   ],
+   "expected": {
+    "insertCalls": 1,
+    "outcome": "error",
+    "errorLabel": {
+     "code": "other",
+     "column": null,
+     "table": null
+    }
+   }
+  },
+  {
+   "id": "C34",
+   "theme": "다른 칸 PGRST204 — 결과 칸 null·표만",
+   "basis": [
+    "DOC",
+    "SYNTH"
+   ],
+   "responses": [
+    {
+     "error": {
+      "code": "PGRST204",
+      "message": "Could not find the 'duration_seconds' column of 'music_track_remix_variants' in the schema cache"
+     }
+    }
+   ],
+   "expected": {
+    "insertCalls": 1,
+    "outcome": "error",
+    "errorLabel": {
+     "code": "PGRST204",
+     "column": null,
+     "table": "music_track_remix_variants"
+    }
    }
   }
  ]
