@@ -217,3 +217,41 @@ alter table public.music_track_remix_variants
 ### 구현 전제(표본이 드러낸 것)
 - 웹훅이 리믹스를 읽을 때(`route.ts` 104~106줄) 지금 `mode`·`lyrics`·`task_id`를 가져오지 않는다 → 저장 단계에서 종류·지시문 판정을 하려면 이 세 칸을 함께 읽어야 한다. 수동 동기화 경로(`remix.ts` 400줄 부근)도 같다.
 - EXT-04는 현재 가사 영상 코드(`lyric-video-studio/src/lib/suno.ts` 77줄 `remix.task_id`)로는 실패하는 것이 정상이다(고친 뒤 통과해야 하는 시험).
+
+## 부록 A2 보완 (REMIX-LYRICS-FIXTURE-PLAN A2, 2026-11-20, Master `msg_003c577436c1`, 검수 CX-QA-01)
+
+표본 파일을 36개로 늘렸다(P0 29·P1 4·P2 3). 문서·합성 JSON만, 제품·API·DB·키·실호출 없음.
+
+### 1. 경합 — 코드로 확인한 결함(미실측)
+`music/lib/syncLock.ts` 14~25줄 `claimSyncLock`은 `id`·`status=generating`·잠금 표시만 조건으로 건다. 작업 번호·연장 단계를 보지 않는다. 그래서:
+- **RACE-01(웹훅)·RACE-02(수동)**: T0 기준으로 리믹스를 먼저 읽은 처리가, 그사이 다른 처리가 T0를 저장하고 연장으로 `task_id=T1`·hop 1로 바꾸고 잠금을 푼 뒤에 잠금을 잡을 수 있다 → 같은 변주를 h0로 다시 저장하고, 읽어 둔 hop 0 기준으로 연장을 또 요청해 `task_id`가 T2로 덮이면 T1 결과가 고아가 된다.
+- **RACE-03**: `markRemixFailed`(`remixSync.ts` 마지막 함수)도 `id`만 조건이라, 늦은 T0 실패 결과가 진행 중 T1을 실패로 덮는다.
+- **RACE-05**: 완료 표시(`remixSync.ts` 87줄)도 `id`만 조건.
+- 웹훅 쪽 늦은 T0 콜백이 **조회 단계**에서 들어오면 `route.ts` 107줄 `.eq("task_id", T0)`가 행을 못 찾아 무시된다(EXT-02) — 결함은 「조회 뒤·잠금 전」 사이에 전환이 끼는 경우다.
+
+### 2. 인수 조건(구현이 통과해야 할 것)
+| 단계 | 조건 |
+|---|---|
+| 조회 | 처리할 `taskId`로 행을 찾고 그때의 `extend_hop_count`(= hop)를 함께 기억 |
+| 잠금 | `id` + `task_id = taskId` + `extend_hop_count = hop` + `status = generating` + 잠금 비어 있음(또는 5분 지남) — 하나라도 다르면 잠금 실패 → 무시 |
+| 저장 | 변주 행마다 `suno_task_id = taskId`, 가사·상태는 `id` 짝으로만. 같은 리믹스에 같은 `suno_audio_id`가 이미 있으면 새 행·가사 덮어쓰기 없음(EXT-07) |
+| 완료·실패·연장 갱신 | 잠금과 같은 (`id`, `task_id`, hop, generating) 조건. 바뀐 행이 0이면 아무것도 하지 않고 기록만 |
+| 연장 | 새 작업 번호로 바꾸는 갱신도 같은 조건 + `extend_hop_count = hop + 1`을 한 번에 |
+| 보충 | 고른 변주의 `suno_task_id`(없으면 리믹스 `task_id`)로 조회, 같은 `suno_audio_id`의 `prompt`만, 그 한 행만 갱신(FILL-01~03) |
+| 비교 | 모든 기대값은 (오디오 번호, 작업 번호, hop, 상태, 길이, 가사 해시) — 해시 = NFC 정규화 sha256 앞 16자, 원문 미출력 |
+
+### 3. 가사 계약 — 소비처별 같은 규칙
+| 상태 \ 소비처 | 가사 영상 본문 | 가사 영상 시간 가사 | 보충 | 음악 리믹스 카드 |
+|---|---|---|---|---|
+| 회원 원문 있음(`remix.lyrics`) | **회원 원문**(Suno 가사가 있어도 덮지 않음, PRIO-01) | `suno_task_id ?? remix.task_id` + 오디오 번호 | 안 함 | 지금과 같음 |
+| `provided_unverified` | 변주 가사 + 「Suno가 준 가사입니다 — 확인해 주세요」(PRIO-02) | 위와 같음 | 안 함 | (선택) 가사 보기 접기 |
+| `provided` | 변주 가사(실측으로 칸 이름 확정 뒤에만 쓰는 상태) | 위와 같음 | 안 함 | 같음 |
+| `unknown` | 빈 가사 + 「가사를 붙여 넣어 주세요」 | 위와 같음 | **1회**(같은 접속에서 다시 안 함) | 표시 없음 |
+| `empty` | 빈 가사 + 같은 안내 | 위와 같음 | 안 함 | 표시 없음 |
+| `not_applicable` | 가사 없음(지금처럼) | 받지 않음 | 안 함 | 표시 없음 |
+
+### 4. 관측과 가정의 구분(표본 `basis`)
+- 실측(OBS): `record-info` `sunoData[]` 낙타 표기 칸 — 가사 칸이 **없는** 모양만 관측됨.
+- 코드(CODE): 경합·조건·건너뜀·우선순위.
+- 문서(DOC): 콜백 `prompt`. `record-info`에 있다는 것은 가정 → 그래서 `provided_unverified`.
+- 가정(ASSUME)·합성(SYNTH): `lyrics`·`lyric` 칸, 같은 오디오 번호가 다른 hop에 다시 오는 경우 등 — 이 칸의 문자열은 가사로 확정하지 않는다.

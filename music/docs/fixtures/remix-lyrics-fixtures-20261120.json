@@ -1,170 +1,1298 @@
 {
-  "_about": "리믹스 가사 보존 합성 표본(REMIX-LYRICS-FIXTURE-PLAN A1, 2026-11-20 Claud(Music)). 시험 코드에 연결하지 않은 설계 자료다. 가사 문자열은 모두 지어낸 짧은 표본이며 실제 회원 가사가 아니다.",
-  "_basisLegend": {
-    "OBS": "저장소에서 실제 응답으로 관찰된 형태 — record-info sunoData[] 항목의 낙타 표기 id·audioUrl·streamAudioUrl·imageUrl·duration (music/scripts/fix-stuck-track.mjs 68~104)",
-    "CODE": "우리 코드 동작으로 정해지는 기대값(웹훅 task_id 조회·상태·잠금, remixSync 저장 순서)",
-    "DOC": "문서에만 있는 형태 — 콜백 data.data[].prompt (music/docs/SUNOAPI_REFERENCE.md 51줄). record-info에 같은 칸이 있는지는 미관측",
-    "ASSUME": "근거 없는 가정 — lyrics·lyric 같은 다른 칸 이름. 이 칸의 문자열은 가사로 확정하지 않는다"
-  },
-  "_rules": {
-    "acceptedLyricsField": "prompt 하나만 가사 후보로 인정(DOC). 실측 1회로 record-info 칸 이름이 확인되기 전까지 상태는 provided가 아니라 provided_unverified로 저장한다",
-    "guessedFields": "lyrics·lyric 등 다른 이름의 문자열은 저장하지 않고 상태 unknown, 진단 표시 guessedFieldSeen=true만 남긴다",
-    "absent": "가사 칸이 아예 없으면 unknown(empty 아님)",
-    "pairing": "가사와 행의 짝은 sunoData 배열 순서가 아니라 항목 id(= suno_audio_id) 기준",
-    "instructionEcho": "보낸 영어 지시문과 정규화 뒤 같거나 지시문 첫 문장으로 시작하면 empty",
-    "output": "시험 비교는 (audioId, taskId, status, lyricsLen)만. 가사 원문을 시험 출력에 찍지 않는다"
-  },
-  "_preconditions": [
-    "웹훅 리믹스 조회 select(music/app/api/webhooks/suno/route.ts 104~106줄)에 지금 mode·lyrics·task_id가 없다 → 저장 단계에서 종류·지시문 판정을 하려면 이 세 칸을 함께 읽어야 한다(구현 항목)",
-    "수동 동기화 경로(music/lib/actions/remix.ts 400줄 부근)도 같은 저장 함수를 쓰므로 같은 입력을 받아야 한다"
-  ],
-  "defaults": {
-    "lang": "한국어",
-    "instructionSolo": "Sing this song in 한국어, in the new style described above, keeping the same emotional theme and story as the original.",
-    "instructionDuet": "Sing this song in 한국어, in the new style described above, keeping the same emotional theme and story as the original. Alternate between male and female vocals across different sections (verses and chorus), like a duet.",
-    "extendInstruction": "Continue this remix naturally into a new section that fits the same style and mood as before, written in 한국어."
-  },
-  "cases": [
+ "_about": "리믹스 가사 보존 합성 표본(REMIX-LYRICS-FIXTURE-PLAN A1→A2, 2026-11-20 Claud(Music)). 시험 코드에 연결하지 않은 설계 자료다. 가사 문자열은 모두 지어낸 짧은 표본이며 실제 회원 가사가 아니다.",
+ "_basisLegend": {
+  "OBS": "저장소에서 실제 응답으로 관찰된 형태 — record-info sunoData[] 항목의 낙타 표기 id·audioUrl·streamAudioUrl·imageUrl·duration (music/scripts/fix-stuck-track.mjs 68~104)",
+  "CODE": "우리 코드 동작으로 정해지는 기대값(웹훅 task_id 조회·상태·잠금, remixSync 저장 순서)",
+  "DOC": "문서에만 있는 형태 — 콜백 data.data[].prompt (music/docs/SUNOAPI_REFERENCE.md 51줄). record-info에 같은 칸이 있는지는 미관측",
+  "ASSUME": "근거 없는 가정 — lyrics·lyric 같은 다른 칸 이름. 이 칸의 문자열은 가사로 확정하지 않는다",
+  "SYNTH": "합성 입력 — 실측·문서 근거 없이 경계 검증용으로 만든 값"
+ },
+ "_rules": {
+  "acceptedLyricsField": "prompt 하나만 가사 후보로 인정(DOC). 실측 1회로 record-info 칸 이름이 확인되기 전까지 상태는 provided가 아니라 provided_unverified로 저장한다",
+  "guessedFields": "lyrics·lyric 등 다른 이름의 문자열은 저장하지 않고 상태 unknown, 진단 표시 guessedFieldSeen=true만 남긴다",
+  "absent": "가사 칸이 아예 없으면 unknown(empty 아님)",
+  "pairing": "가사와 행의 짝은 sunoData 배열 순서가 아니라 항목 id(= suno_audio_id) 기준",
+  "instructionEcho": "보낸 영어 지시문과 정규화 뒤 같거나 지시문 첫 문장으로 시작하면 empty",
+  "output": "시험 비교는 (audioId, taskId, hop, status, lyricsLen, lyricsHash)만. lyricsHash = NFC 정규화 문자열 sha256 앞 16자. 가사 원문을 시험 출력·로그에 찍지 않는다",
+  "memberPriority": "회원이 직접 넣은 가사(music_track_remixes.lyrics)가 있으면 가사 영상 본문은 항상 회원 원문 — Suno prompt(provided_unverified)는 저장만 하고 본문을 덮지 않는다",
+  "casConditions": "잠금·저장·완료·실패·연장 갱신은 모두 (id, task_id = 처리 중인 taskId, extend_hop_count = 읽은 hop, status = generating) 조건을 함께 건다. 조건이 맞지 않으면 아무것도 바꾸지 않고 ignored"
+ },
+ "_preconditions": [
+  "웹훅 리믹스 조회 select(music/app/api/webhooks/suno/route.ts 104~106줄)에 지금 mode·lyrics·task_id가 없다 → 저장 단계에서 종류·지시문 판정을 하려면 이 세 칸을 함께 읽어야 한다(구현 항목)",
+  "수동 동기화 경로(music/lib/actions/remix.ts 400줄 부근)도 같은 저장 함수를 쓰므로 같은 입력을 받아야 한다"
+ ],
+ "defaults": {
+  "lang": "한국어",
+  "instructionSolo": "Sing this song in 한국어, in the new style described above, keeping the same emotional theme and story as the original.",
+  "instructionDuet": "Sing this song in 한국어, in the new style described above, keeping the same emotional theme and story as the original. Alternate between male and female vocals across different sections (verses and chorus), like a duet.",
+  "extendInstruction": "Continue this remix naturally into a new section that fits the same style and mood as before, written in 한국어."
+ },
+ "cases": [
+  {
+   "id": "P0-PAIR-01",
+   "priority": "P0",
+   "theme": "ID 짝",
+   "basis": [
+    "OBS",
+    "DOC"
+   ],
+   "input": {
+    "mode": "add_vocals",
+    "instrumental": false,
+    "userLyrics": null,
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "id": "A",
+      "audioUrl": "https://x/a.mp3",
+      "prompt": "표본 가사 가"
+     },
+     {
+      "id": "B",
+      "audioUrl": "https://x/b.mp3",
+      "prompt": "표본 가사 나"
+     }
+    ]
+   },
+   "expected": [
     {
-      "id": "P0-PAIR-01", "priority": "P0", "theme": "ID 짝", "basis": ["OBS", "DOC"],
-      "input": { "mode": "add_vocals", "instrumental": false, "userLyrics": null, "taskId": "T0", "hop": 0,
-        "sunoData": [ { "id": "A", "audioUrl": "https://x/a.mp3", "prompt": "표본 가사 가" }, { "id": "B", "audioUrl": "https://x/b.mp3", "prompt": "표본 가사 나" } ] },
-      "expected": [ { "audioId": "A", "taskId": "T0", "status": "provided_unverified", "lyricsLen": 7 }, { "audioId": "B", "taskId": "T0", "status": "provided_unverified", "lyricsLen": 7 } ],
-      "assumedPart": "record-info에 prompt가 있다는 것(DOC→ASSUME)"
+     "audioId": "A",
+     "taskId": "T0",
+     "status": "provided_unverified",
+     "lyricsLen": 7,
+     "lyricsHash": "d16415f3775c936f"
     },
     {
-      "id": "P0-PAIR-02", "priority": "P0", "theme": "순서 변경", "basis": ["OBS", "DOC"],
-      "input": { "mode": "add_vocals", "instrumental": false, "userLyrics": null, "taskId": "T0", "hop": 0,
-        "sunoData": [ { "id": "B", "audioUrl": "https://x/b.mp3", "prompt": "표본 가사 나" }, { "id": "A", "audioUrl": "https://x/a.mp3", "prompt": "표본 가사 가" } ] },
-      "expected": [ { "audioId": "B", "taskId": "T0", "status": "provided_unverified", "lyricsLen": 7 }, { "audioId": "A", "taskId": "T0", "status": "provided_unverified", "lyricsLen": 7 } ],
-      "check": "A행의 가사 = 「표본 가사 가」(길이가 같아 길이 비교로는 못 잡으므로 이 표본만 해시 비교)"
-    },
-    {
-      "id": "P0-PAIR-03", "priority": "P0", "theme": "건너뛴 항목 뒤 밀림", "basis": ["OBS", "CODE"],
-      "input": { "mode": "mashup", "instrumental": false, "userLyrics": null, "taskId": "T0", "hop": 0,
-        "sunoData": [ { "id": "A", "prompt": "표본 가사 가" }, { "id": "B", "audioUrl": "https://x/b.mp3", "prompt": "표본 가사 나나" } ] },
-      "expected": [ { "audioId": "B", "taskId": "T0", "status": "provided_unverified", "lyricsLen": 8 } ],
-      "note": "A는 오디오 주소가 없어 저장 안 함(remixSync 59줄 continue와 같은 동작). B행에 A 가사가 들어가면 실패"
-    },
-    {
-      "id": "P0-PAIR-04", "priority": "P0", "theme": "보충 조회 불일치", "basis": ["CODE", "ASSUME"],
-      "input": { "backfill": true, "pickedAudioId": "B1", "recordInfoTaskId": "T0", "sunoData": [ { "id": "A1", "prompt": "표본 가사 가" }, { "id": "A2", "prompt": "표본 가사 나" } ] },
-      "expected": [ { "audioId": "B1", "status": "unknown", "lyricsLen": 0, "recallSameSession": false } ]
-    },
-    {
-      "id": "P0-ABSENT-01", "priority": "P0", "theme": "미제공(칸 없음)", "basis": ["OBS"],
-      "input": { "mode": "add_vocals", "instrumental": false, "userLyrics": null, "taskId": "T0", "hop": 0,
-        "sunoData": [ { "id": "A", "audioUrl": "https://x/a.mp3", "imageUrl": "https://x/a.jpg", "duration": 176 } ] },
-      "expected": [ { "audioId": "A", "taskId": "T0", "status": "unknown", "lyricsLen": 0 } ],
-      "note": "OBS 형태 그대로(가사 칸이 없는 실측 모양). empty로 바꾸면 실패"
-    },
-    {
-      "id": "P0-GUESS-01", "priority": "P0", "theme": "추측 칸 문자열", "basis": ["ASSUME"],
-      "input": { "mode": "add_vocals", "instrumental": false, "userLyrics": null, "taskId": "T0", "hop": 0,
-        "sunoData": [ { "id": "A", "audioUrl": "https://x/a.mp3", "lyrics": "표본 가사 가" }, { "id": "B", "audioUrl": "https://x/b.mp3", "lyric": "표본 가사 나" } ] },
-      "expected": [ { "audioId": "A", "status": "unknown", "lyricsLen": 0, "guessedFieldSeen": true }, { "audioId": "B", "status": "unknown", "lyricsLen": 0, "guessedFieldSeen": true } ]
-    },
-    {
-      "id": "P0-GUESS-02", "priority": "P0", "theme": "추측 칸 + 문서 칸 동시", "basis": ["DOC", "ASSUME"],
-      "input": { "mode": "add_vocals", "instrumental": false, "userLyrics": null, "taskId": "T0", "hop": 0,
-        "sunoData": [ { "id": "A", "audioUrl": "https://x/a.mp3", "prompt": "표본 가사 가", "lyrics": "다른 문자열" } ] },
-      "expected": [ { "audioId": "A", "status": "provided_unverified", "lyricsLen": 7, "guessedFieldSeen": true } ],
-      "note": "prompt만 쓰고 lyrics 문자열은 버림"
-    },
-    {
-      "id": "P0-ECHO-01", "priority": "P0", "theme": "지시문 그대로", "basis": ["DOC", "CODE"],
-      "input": { "mode": "add_vocals", "instrumental": false, "userLyrics": null, "vocalGender": "여성", "taskId": "T0", "hop": 0,
-        "sunoData": [ { "id": "A", "audioUrl": "https://x/a.mp3", "promptRef": "defaults.instructionSolo" } ] },
-      "expected": [ { "audioId": "A", "status": "empty", "lyricsLen": 0 } ]
-    },
-    {
-      "id": "P0-ECHO-02", "priority": "P0", "theme": "지시문 + 구간 표시·줄바꿈", "basis": ["ASSUME"],
-      "input": { "mode": "add_vocals", "instrumental": false, "userLyrics": null, "taskId": "T0", "hop": 0,
-        "sunoData": [ { "id": "A", "audioUrl": "https://x/a.mp3", "prompt": "[Verse]\nSing this song in 한국어,\nin the new style described above" } ] },
-      "expected": [ { "audioId": "A", "status": "empty", "lyricsLen": 0 } ],
-      "note": "구간 표시 제거 뒤 지시문 첫 문장으로 시작 → empty"
-    },
-    {
-      "id": "P0-ECHO-03", "priority": "P0", "theme": "혼성 지시문", "basis": ["CODE"],
-      "input": { "mode": "mashup", "instrumental": false, "userLyrics": null, "vocalGender": "혼성", "taskId": "T0", "hop": 0,
-        "sunoData": [ { "id": "A", "audioUrl": "https://x/a.mp3", "promptRef": "defaults.instructionDuet" } ] },
-      "expected": [ { "audioId": "A", "status": "empty", "lyricsLen": 0 } ]
-    },
-    {
-      "id": "P0-ECHO-04", "priority": "P0", "theme": "회원 가사 + 듀엣 줄(오인 금지)", "basis": ["CODE"],
-      "input": { "mode": "cover", "instrumental": false, "userLyrics": "회원 표본 가사", "vocalGender": "혼성", "taskId": "T0", "hop": 0,
-        "sunoData": [ { "id": "A", "audioUrl": "https://x/a.mp3", "prompt": "회원 표본 가사\n\n[Sing as a male and female duet, alternating vocals between sections.]" } ] },
-      "expected": [ { "audioId": "A", "status": "provided_unverified", "lyricsLenMin": 8 } ],
-      "note": "회원 가사가 있으면 지시문 비교를 하지 않는다"
-    },
-    {
-      "id": "P0-EXT-01", "priority": "P0", "theme": "연장 전후 작업 번호", "basis": ["CODE"],
-      "input": { "mode": "cover", "instrumental": false, "userLyrics": null, "targetDurationSeconds": 180, "steps": [
-        { "taskId": "T0", "hop": 0, "sunoData": [ { "id": "A1", "audioUrl": "https://x/a1.mp3", "duration": 60 }, { "id": "A2", "audioUrl": "https://x/a2.mp3", "duration": 58 } ], "extendRequestReturns": "T1" },
-        { "taskId": "T1", "hop": 1, "sunoData": [ { "id": "B1", "audioUrl": "https://x/b1.mp3", "duration": 170 }, { "id": "B2", "audioUrl": "https://x/b2.mp3", "duration": 168 } ] } ] },
-      "expected": [ { "audioId": "A1", "taskId": "T0", "status": "unknown" }, { "audioId": "A2", "taskId": "T0", "status": "unknown" }, { "audioId": "B1", "taskId": "T1", "status": "unknown" }, { "audioId": "B2", "taskId": "T1", "status": "unknown" } ],
-      "expectedRemix": { "taskId": "T1", "extendHopCount": 1, "status": "completed" }
-    },
-    {
-      "id": "P0-EXT-02", "priority": "P0", "theme": "연장 경합 — 늦게 온 이전 단계 콜백", "basis": ["CODE"],
-      "input": { "afterStep": "P0-EXT-01 step 0 저장·task_id=T1 갱신 직후", "duplicateCallbackTaskId": "T0" },
-      "expected": { "webhookResponse": "ignored: unknown task_id", "newRows": 0 },
-      "note": "route.ts 107줄 .eq(task_id, T0)가 행을 못 찾음. T0 가사가 T1 단계 행에 들어가면 실패"
-    },
-    {
-      "id": "P0-EXT-03", "priority": "P0", "theme": "연장 경합 — 같은 단계 중복 콜백", "basis": ["CODE"],
-      "input": { "taskId": "T1", "concurrentCallbacks": 2 },
-      "expected": { "savedOnce": true, "secondResponse": "already processing 또는 already processed" },
-      "note": "claimSyncLock(route.ts 117줄)으로 한 번만 저장"
-    },
-    {
-      "id": "P0-EXT-04", "priority": "P0", "theme": "가사 영상 시간 가사 작업 번호", "basis": ["CODE"],
-      "input": { "pickedVariant": { "audioId": "A1", "sunoTaskId": "T0" }, "remixTaskId": "T1" },
-      "expected": { "timedLyricsRequest": { "taskId": "T0", "audioId": "A1" } },
-      "note": "현재 lyric-video-studio/src/lib/suno.ts 77줄은 remix.task_id(T1)를 씀 → 고친 뒤 통과해야 하는 시험"
-    },
-    {
-      "id": "P1-EMPTY-01", "priority": "P1", "theme": "빈 값·공백", "basis": ["DOC"],
-      "input": { "mode": "add_vocals", "instrumental": false, "userLyrics": null, "taskId": "T0", "hop": 0,
-        "sunoData": [ { "id": "A", "audioUrl": "https://x/a.mp3", "prompt": "" }, { "id": "B", "audioUrl": "https://x/b.mp3", "prompt": "  \n " } ] },
-      "expected": [ { "audioId": "A", "status": "empty", "lyricsLen": 0 }, { "audioId": "B", "status": "empty", "lyricsLen": 0 } ]
-    },
-    {
-      "id": "P1-NA-01", "priority": "P1", "theme": "가사 없는 종류", "basis": ["CODE"],
-      "input": { "mode": "add_instrumental", "instrumental": false, "userLyrics": null, "taskId": "T0", "hop": 0,
-        "sunoData": [ { "id": "A", "audioUrl": "https://x/a.mp3", "prompt": "원곡 보컬 가사일 수 있는 문자열" } ] },
-      "expected": [ { "audioId": "A", "status": "not_applicable", "lyricsLen": 0 } ]
-    },
-    {
-      "id": "P1-DUP-01", "priority": "P1", "theme": "같은 id 두 번", "basis": ["ASSUME"],
-      "input": { "mode": "add_vocals", "instrumental": false, "userLyrics": null, "taskId": "T0", "hop": 0,
-        "sunoData": [ { "id": "A", "audioUrl": "https://x/a.mp3", "prompt": "표본 가사 가" }, { "id": "A", "audioUrl": "https://x/a2.mp3", "prompt": "표본 가사 나" } ] },
-      "expected": { "rowsForA": 1, "lyricsOfA": "첫 항목", "warningLogged": true }
-    },
-    {
-      "id": "P1-NOID-01", "priority": "P1", "theme": "id 없음", "basis": ["OBS"],
-      "input": { "mode": "add_vocals", "instrumental": false, "userLyrics": null, "taskId": "T0", "hop": 0,
-        "sunoData": [ { "audioUrl": "https://x/a.mp3", "prompt": "표본 가사 가" } ] },
-      "expected": [ { "audioId": null, "status": "provided_unverified", "lyricsLen": 7, "backfillEligible": false } ]
-    },
-    {
-      "id": "P2-CASE-01", "priority": "P2", "theme": "표기 섞임", "basis": ["OBS", "DOC"],
-      "input": { "mode": "add_vocals", "instrumental": false, "userLyrics": null, "taskId": "T0", "hop": 0,
-        "sunoData": [ { "id": "A", "audio_url": "https://x/a.mp3", "prompt": "표본 가사 가" }, { "id": "B", "audioUrl": "https://x/b.mp3", "prompt": "표본 가사 나" } ] },
-      "expected": [ { "audioId": "A", "status": "provided_unverified", "lyricsLen": 7 }, { "audioId": "B", "status": "provided_unverified", "lyricsLen": 7 } ]
-    },
-    {
-      "id": "P2-LEN-01", "priority": "P2", "theme": "5,000자 초과", "basis": ["DOC"],
-      "input": { "mode": "add_vocals", "instrumental": false, "userLyrics": null, "taskId": "T0", "hop": 0,
-        "sunoData": [ { "id": "A", "audioUrl": "https://x/a.mp3", "promptRepeat": { "char": "가", "count": 5001 } } ] },
-      "expected": [ { "audioId": "A", "status": "provided_unverified", "lyricsLen": 5000 } ]
-    },
-    {
-      "id": "P2-SUSPECT-01", "priority": "P2", "theme": "한국어 리믹스인데 영어뿐인 가사", "basis": ["ASSUME"],
-      "input": { "mode": "add_vocals", "instrumental": false, "userLyrics": null, "lang": "한국어", "taskId": "T0", "hop": 0,
-        "sunoData": [ { "id": "A", "audioUrl": "https://x/a.mp3", "prompt": "Walking in the rain tonight" } ] },
-      "expected": [ { "audioId": "A", "status": "provided_unverified", "lyricsLen": 27, "suspectLanguage": true } ],
-      "note": "자동으로 empty로 바꾸지 않고 의심 표시만"
+     "audioId": "B",
+     "taskId": "T0",
+     "status": "provided_unverified",
+     "lyricsLen": 7,
+     "lyricsHash": "90587ff44a15ede7"
     }
-  ]
+   ],
+   "assumedPart": "record-info에 prompt가 있다는 것(DOC→ASSUME)"
+  },
+  {
+   "id": "P0-PAIR-02",
+   "priority": "P0",
+   "theme": "순서 변경",
+   "basis": [
+    "OBS",
+    "DOC"
+   ],
+   "input": {
+    "mode": "add_vocals",
+    "instrumental": false,
+    "userLyrics": null,
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "id": "B",
+      "audioUrl": "https://x/b.mp3",
+      "prompt": "표본 가사 나"
+     },
+     {
+      "id": "A",
+      "audioUrl": "https://x/a.mp3",
+      "prompt": "표본 가사 가"
+     }
+    ]
+   },
+   "expected": [
+    {
+     "audioId": "B",
+     "taskId": "T0",
+     "status": "provided_unverified",
+     "lyricsLen": 7,
+     "lyricsHash": "90587ff44a15ede7"
+    },
+    {
+     "audioId": "A",
+     "taskId": "T0",
+     "status": "provided_unverified",
+     "lyricsLen": 7,
+     "lyricsHash": "d16415f3775c936f"
+    }
+   ],
+   "check": "A행의 가사 = 「표본 가사 가」(길이가 같아 길이 비교로는 못 잡으므로 이 표본만 해시 비교)"
+  },
+  {
+   "id": "P0-PAIR-03",
+   "priority": "P0",
+   "theme": "건너뛴 항목 뒤 밀림",
+   "basis": [
+    "OBS",
+    "CODE"
+   ],
+   "input": {
+    "mode": "mashup",
+    "instrumental": false,
+    "userLyrics": null,
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "id": "A",
+      "prompt": "표본 가사 가"
+     },
+     {
+      "id": "B",
+      "audioUrl": "https://x/b.mp3",
+      "prompt": "표본 가사 나나"
+     }
+    ]
+   },
+   "expected": [
+    {
+     "audioId": "B",
+     "taskId": "T0",
+     "status": "provided_unverified",
+     "lyricsLen": 8,
+     "lyricsHash": "4f9ebd28d370c970"
+    }
+   ],
+   "note": "A는 오디오 주소가 없어 저장 안 함(remixSync 59줄 continue와 같은 동작). B행에 A 가사가 들어가면 실패"
+  },
+  {
+   "id": "P0-PAIR-04",
+   "priority": "P0",
+   "theme": "보충 조회 불일치",
+   "basis": [
+    "CODE",
+    "ASSUME"
+   ],
+   "input": {
+    "backfill": true,
+    "pickedAudioId": "B1",
+    "recordInfoTaskId": "T0",
+    "sunoData": [
+     {
+      "id": "A1",
+      "prompt": "표본 가사 가"
+     },
+     {
+      "id": "A2",
+      "prompt": "표본 가사 나"
+     }
+    ]
+   },
+   "expected": [
+    {
+     "audioId": "B1",
+     "status": "unknown",
+     "lyricsLen": 0,
+     "recallSameSession": false,
+     "lyricsHash": null
+    }
+   ]
+  },
+  {
+   "id": "P0-ABSENT-01",
+   "priority": "P0",
+   "theme": "미제공(칸 없음)",
+   "basis": [
+    "OBS"
+   ],
+   "input": {
+    "mode": "add_vocals",
+    "instrumental": false,
+    "userLyrics": null,
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "id": "A",
+      "audioUrl": "https://x/a.mp3",
+      "imageUrl": "https://x/a.jpg",
+      "duration": 176
+     }
+    ]
+   },
+   "expected": [
+    {
+     "audioId": "A",
+     "taskId": "T0",
+     "status": "unknown",
+     "lyricsLen": 0,
+     "lyricsHash": null
+    }
+   ],
+   "note": "OBS 형태 그대로(가사 칸이 없는 실측 모양). empty로 바꾸면 실패"
+  },
+  {
+   "id": "P0-GUESS-01",
+   "priority": "P0",
+   "theme": "추측 칸 문자열",
+   "basis": [
+    "ASSUME"
+   ],
+   "input": {
+    "mode": "add_vocals",
+    "instrumental": false,
+    "userLyrics": null,
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "id": "A",
+      "audioUrl": "https://x/a.mp3",
+      "lyrics": "표본 가사 가"
+     },
+     {
+      "id": "B",
+      "audioUrl": "https://x/b.mp3",
+      "lyric": "표본 가사 나"
+     }
+    ]
+   },
+   "expected": [
+    {
+     "audioId": "A",
+     "status": "unknown",
+     "lyricsLen": 0,
+     "guessedFieldSeen": true,
+     "lyricsHash": null
+    },
+    {
+     "audioId": "B",
+     "status": "unknown",
+     "lyricsLen": 0,
+     "guessedFieldSeen": true,
+     "lyricsHash": null
+    }
+   ]
+  },
+  {
+   "id": "P0-GUESS-02",
+   "priority": "P0",
+   "theme": "추측 칸 + 문서 칸 동시",
+   "basis": [
+    "DOC",
+    "ASSUME"
+   ],
+   "input": {
+    "mode": "add_vocals",
+    "instrumental": false,
+    "userLyrics": null,
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "id": "A",
+      "audioUrl": "https://x/a.mp3",
+      "prompt": "표본 가사 가",
+      "lyrics": "다른 문자열"
+     }
+    ]
+   },
+   "expected": [
+    {
+     "audioId": "A",
+     "status": "provided_unverified",
+     "lyricsLen": 7,
+     "guessedFieldSeen": true,
+     "lyricsHash": "d16415f3775c936f"
+    }
+   ],
+   "note": "prompt만 쓰고 lyrics 문자열은 버림"
+  },
+  {
+   "id": "P0-ECHO-01",
+   "priority": "P0",
+   "theme": "지시문 그대로",
+   "basis": [
+    "DOC",
+    "CODE"
+   ],
+   "input": {
+    "mode": "add_vocals",
+    "instrumental": false,
+    "userLyrics": null,
+    "vocalGender": "여성",
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "id": "A",
+      "audioUrl": "https://x/a.mp3",
+      "promptRef": "defaults.instructionSolo"
+     }
+    ]
+   },
+   "expected": [
+    {
+     "audioId": "A",
+     "status": "empty",
+     "lyricsLen": 0,
+     "lyricsHash": null
+    }
+   ]
+  },
+  {
+   "id": "P0-ECHO-02",
+   "priority": "P0",
+   "theme": "지시문 + 구간 표시·줄바꿈",
+   "basis": [
+    "ASSUME"
+   ],
+   "input": {
+    "mode": "add_vocals",
+    "instrumental": false,
+    "userLyrics": null,
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "id": "A",
+      "audioUrl": "https://x/a.mp3",
+      "prompt": "[Verse]\nSing this song in 한국어,\nin the new style described above"
+     }
+    ]
+   },
+   "expected": [
+    {
+     "audioId": "A",
+     "status": "empty",
+     "lyricsLen": 0,
+     "lyricsHash": null
+    }
+   ],
+   "note": "구간 표시 제거 뒤 지시문 첫 문장으로 시작 → empty"
+  },
+  {
+   "id": "P0-ECHO-03",
+   "priority": "P0",
+   "theme": "혼성 지시문",
+   "basis": [
+    "CODE"
+   ],
+   "input": {
+    "mode": "mashup",
+    "instrumental": false,
+    "userLyrics": null,
+    "vocalGender": "혼성",
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "id": "A",
+      "audioUrl": "https://x/a.mp3",
+      "promptRef": "defaults.instructionDuet"
+     }
+    ]
+   },
+   "expected": [
+    {
+     "audioId": "A",
+     "status": "empty",
+     "lyricsLen": 0,
+     "lyricsHash": null
+    }
+   ]
+  },
+  {
+   "id": "P0-ECHO-04",
+   "priority": "P0",
+   "theme": "회원 가사 + 듀엣 줄(오인 금지)",
+   "basis": [
+    "CODE"
+   ],
+   "input": {
+    "mode": "cover",
+    "instrumental": false,
+    "userLyrics": "회원 표본 가사",
+    "vocalGender": "혼성",
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "id": "A",
+      "audioUrl": "https://x/a.mp3",
+      "prompt": "회원 표본 가사\n\n[Sing as a male and female duet, alternating vocals between sections.]"
+     }
+    ]
+   },
+   "expected": [
+    {
+     "audioId": "A",
+     "status": "provided_unverified",
+     "lyricsLenMin": 8,
+     "lyricsHash": "a9ed36b38ea03adc"
+    }
+   ],
+   "note": "회원 가사가 있으면 지시문 비교를 하지 않는다"
+  },
+  {
+   "id": "P0-EXT-01",
+   "priority": "P0",
+   "theme": "연장 전후 작업 번호",
+   "basis": [
+    "CODE"
+   ],
+   "input": {
+    "mode": "cover",
+    "instrumental": false,
+    "userLyrics": null,
+    "targetDurationSeconds": 180,
+    "steps": [
+     {
+      "taskId": "T0",
+      "hop": 0,
+      "sunoData": [
+       {
+        "id": "A1",
+        "audioUrl": "https://x/a1.mp3",
+        "duration": 60
+       },
+       {
+        "id": "A2",
+        "audioUrl": "https://x/a2.mp3",
+        "duration": 58
+       }
+      ],
+      "extendRequestReturns": "T1"
+     },
+     {
+      "taskId": "T1",
+      "hop": 1,
+      "sunoData": [
+       {
+        "id": "B1",
+        "audioUrl": "https://x/b1.mp3",
+        "duration": 170
+       },
+       {
+        "id": "B2",
+        "audioUrl": "https://x/b2.mp3",
+        "duration": 168
+       }
+      ]
+     }
+    ]
+   },
+   "expected": [
+    {
+     "audioId": "A1",
+     "taskId": "T0",
+     "status": "unknown",
+     "lyricsHash": null
+    },
+    {
+     "audioId": "A2",
+     "taskId": "T0",
+     "status": "unknown",
+     "lyricsHash": null
+    },
+    {
+     "audioId": "B1",
+     "taskId": "T1",
+     "status": "unknown",
+     "lyricsHash": null
+    },
+    {
+     "audioId": "B2",
+     "taskId": "T1",
+     "status": "unknown",
+     "lyricsHash": null
+    }
+   ],
+   "expectedRemix": {
+    "taskId": "T1",
+    "extendHopCount": 1,
+    "status": "completed"
+   }
+  },
+  {
+   "id": "P0-EXT-02",
+   "priority": "P0",
+   "theme": "연장 경합 — 늦게 온 이전 단계 콜백",
+   "basis": [
+    "CODE"
+   ],
+   "input": {
+    "afterStep": "P0-EXT-01 step 0 저장·task_id=T1 갱신 직후",
+    "duplicateCallbackTaskId": "T0"
+   },
+   "expected": {
+    "webhookResponse": "ignored: unknown task_id",
+    "newRows": 0
+   },
+   "note": "route.ts 107줄 .eq(task_id, T0)가 행을 못 찾음. T0 가사가 T1 단계 행에 들어가면 실패"
+  },
+  {
+   "id": "P0-EXT-03",
+   "priority": "P0",
+   "theme": "연장 경합 — 같은 단계 중복 콜백",
+   "basis": [
+    "CODE"
+   ],
+   "input": {
+    "taskId": "T1",
+    "concurrentCallbacks": 2
+   },
+   "expected": {
+    "savedOnce": true,
+    "secondResponse": "already processing 또는 already processed"
+   },
+   "note": "claimSyncLock(route.ts 117줄)으로 한 번만 저장"
+  },
+  {
+   "id": "P0-EXT-04",
+   "priority": "P0",
+   "theme": "가사 영상 시간 가사 작업 번호",
+   "basis": [
+    "CODE"
+   ],
+   "input": {
+    "pickedVariant": {
+     "audioId": "A1",
+     "sunoTaskId": "T0"
+    },
+    "remixTaskId": "T1"
+   },
+   "expected": {
+    "timedLyricsRequest": {
+     "taskId": "T0",
+     "audioId": "A1"
+    }
+   },
+   "note": "현재 lyric-video-studio/src/lib/suno.ts 77줄은 remix.task_id(T1)를 씀 → 고친 뒤 통과해야 하는 시험"
+  },
+  {
+   "id": "P1-EMPTY-01",
+   "priority": "P1",
+   "theme": "빈 값·공백",
+   "basis": [
+    "DOC"
+   ],
+   "input": {
+    "mode": "add_vocals",
+    "instrumental": false,
+    "userLyrics": null,
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "id": "A",
+      "audioUrl": "https://x/a.mp3",
+      "prompt": ""
+     },
+     {
+      "id": "B",
+      "audioUrl": "https://x/b.mp3",
+      "prompt": "  \n "
+     }
+    ]
+   },
+   "expected": [
+    {
+     "audioId": "A",
+     "status": "empty",
+     "lyricsLen": 0,
+     "lyricsHash": null
+    },
+    {
+     "audioId": "B",
+     "status": "empty",
+     "lyricsLen": 0,
+     "lyricsHash": null
+    }
+   ]
+  },
+  {
+   "id": "P1-NA-01",
+   "priority": "P1",
+   "theme": "가사 없는 종류",
+   "basis": [
+    "CODE"
+   ],
+   "input": {
+    "mode": "add_instrumental",
+    "instrumental": false,
+    "userLyrics": null,
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "id": "A",
+      "audioUrl": "https://x/a.mp3",
+      "prompt": "원곡 보컬 가사일 수 있는 문자열"
+     }
+    ]
+   },
+   "expected": [
+    {
+     "audioId": "A",
+     "status": "not_applicable",
+     "lyricsLen": 0,
+     "lyricsHash": null
+    }
+   ]
+  },
+  {
+   "id": "P1-DUP-01",
+   "priority": "P1",
+   "theme": "같은 id 두 번",
+   "basis": [
+    "ASSUME"
+   ],
+   "input": {
+    "mode": "add_vocals",
+    "instrumental": false,
+    "userLyrics": null,
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "id": "A",
+      "audioUrl": "https://x/a.mp3",
+      "prompt": "표본 가사 가"
+     },
+     {
+      "id": "A",
+      "audioUrl": "https://x/a2.mp3",
+      "prompt": "표본 가사 나"
+     }
+    ]
+   },
+   "expected": {
+    "rowsForA": 1,
+    "lyricsOfA": "첫 항목",
+    "warningLogged": true
+   }
+  },
+  {
+   "id": "P1-NOID-01",
+   "priority": "P1",
+   "theme": "id 없음",
+   "basis": [
+    "OBS"
+   ],
+   "input": {
+    "mode": "add_vocals",
+    "instrumental": false,
+    "userLyrics": null,
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "audioUrl": "https://x/a.mp3",
+      "prompt": "표본 가사 가"
+     }
+    ]
+   },
+   "expected": [
+    {
+     "audioId": null,
+     "status": "provided_unverified",
+     "lyricsLen": 7,
+     "backfillEligible": false,
+     "lyricsHash": "d16415f3775c936f"
+    }
+   ]
+  },
+  {
+   "id": "P2-CASE-01",
+   "priority": "P2",
+   "theme": "표기 섞임",
+   "basis": [
+    "OBS",
+    "DOC"
+   ],
+   "input": {
+    "mode": "add_vocals",
+    "instrumental": false,
+    "userLyrics": null,
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "id": "A",
+      "audio_url": "https://x/a.mp3",
+      "prompt": "표본 가사 가"
+     },
+     {
+      "id": "B",
+      "audioUrl": "https://x/b.mp3",
+      "prompt": "표본 가사 나"
+     }
+    ]
+   },
+   "expected": [
+    {
+     "audioId": "A",
+     "status": "provided_unverified",
+     "lyricsLen": 7,
+     "lyricsHash": "d16415f3775c936f"
+    },
+    {
+     "audioId": "B",
+     "status": "provided_unverified",
+     "lyricsLen": 7,
+     "lyricsHash": "90587ff44a15ede7"
+    }
+   ]
+  },
+  {
+   "id": "P2-LEN-01",
+   "priority": "P2",
+   "theme": "5,000자 초과",
+   "basis": [
+    "DOC"
+   ],
+   "input": {
+    "mode": "add_vocals",
+    "instrumental": false,
+    "userLyrics": null,
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "id": "A",
+      "audioUrl": "https://x/a.mp3",
+      "promptRepeat": {
+       "char": "가",
+       "count": 5001
+      }
+     }
+    ]
+   },
+   "expected": [
+    {
+     "audioId": "A",
+     "status": "provided_unverified",
+     "lyricsLen": 5000,
+     "lyricsHash": "60cd5154afeda8a5"
+    }
+   ]
+  },
+  {
+   "id": "P2-SUSPECT-01",
+   "priority": "P2",
+   "theme": "한국어 리믹스인데 영어뿐인 가사",
+   "basis": [
+    "ASSUME"
+   ],
+   "input": {
+    "mode": "add_vocals",
+    "instrumental": false,
+    "userLyrics": null,
+    "lang": "한국어",
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "id": "A",
+      "audioUrl": "https://x/a.mp3",
+      "prompt": "Walking in the rain tonight"
+     }
+    ]
+   },
+   "expected": [
+    {
+     "audioId": "A",
+     "status": "provided_unverified",
+     "lyricsLen": 27,
+     "suspectLanguage": true,
+     "lyricsHash": "2491a74483636fda"
+    }
+   ],
+   "note": "자동으로 empty로 바꾸지 않고 의심 표시만"
+  },
+  {
+   "id": "P0-RACE-01",
+   "priority": "P0",
+   "theme": "웹훅이 T0를 미리 읽은 뒤 T1 전환 후 잠금 시도",
+   "basis": [
+    "CODE"
+   ],
+   "steps": [
+    {
+     "who": "webhook#1",
+     "action": "T0 콜백 → remix 조회(task_id=T0)",
+     "remixSnapshot": {
+      "taskId": "T0",
+      "hop": 0,
+      "status": "generating",
+      "lock": null
+     }
+    },
+    {
+     "who": "webhook#2 또는 수동",
+     "action": "T0 처리 끝 → 연장 요청 성공 → task_id=T1·hop=1·generating·잠금 해제",
+     "remixSnapshot": {
+      "taskId": "T1",
+      "hop": 1,
+      "status": "generating",
+      "lock": null
+     }
+    },
+    {
+     "who": "webhook#1",
+     "action": "claimSyncLock(id) — 현재 코드는 id·status만 봄",
+     "remixSnapshot": {
+      "taskId": "T1",
+      "hop": 1,
+      "status": "generating",
+      "lock": "__syncing__"
+     }
+    }
+   ],
+   "currentBehavior": {
+    "claim": true,
+    "duplicateRows": "A1·A2를 h0로 다시 저장",
+    "secondExtend": "읽어 둔 hop 0 기준으로 연장 재요청 → task_id가 T2로 덮여 T1 결과 고아",
+    "verdict": "결함(코드 관찰, 미실측)"
+   },
+   "expected": {
+    "claim": false,
+    "response": "ignored: stale task",
+    "newRows": 0,
+    "remixAfter": {
+     "taskId": "T1",
+     "hop": 1,
+     "status": "generating",
+     "lock": null
+    }
+   }
+  },
+  {
+   "id": "P0-RACE-02",
+   "priority": "P0",
+   "theme": "수동 동기화가 T0를 미리 읽은 뒤 T1 전환",
+   "basis": [
+    "CODE"
+   ],
+   "steps": [
+    {
+     "who": "수동(syncRemixStatusAction)",
+     "action": "remix 조회 task_id=T0 → record-info(T0) ready",
+     "remixSnapshot": {
+      "taskId": "T0",
+      "hop": 0,
+      "status": "generating",
+      "lock": null
+     }
+    },
+    {
+     "who": "webhook",
+     "action": "T0 저장 → 연장 → T1",
+     "remixSnapshot": {
+      "taskId": "T1",
+      "hop": 1,
+      "status": "generating",
+      "lock": null
+     }
+    },
+    {
+     "who": "수동",
+     "action": "claimSyncLock 시도"
+    }
+   ],
+   "currentBehavior": {
+    "claim": true,
+    "verdict": "결함(코드 관찰, 미실측) — RACE-01과 같은 중복·재연장"
+   },
+   "expected": {
+    "claim": false,
+    "uiStatus": "generating",
+    "newRows": 0,
+    "remixAfter": {
+     "taskId": "T1",
+     "hop": 1
+    }
+   }
+  },
+  {
+   "id": "P0-RACE-03",
+   "priority": "P0",
+   "theme": "늦은 T0 실패 결과가 진행 중 T1을 실패로 덮음",
+   "basis": [
+    "CODE"
+   ],
+   "steps": [
+    {
+     "who": "수동",
+     "action": "T0 조회 결과 failed(읽기는 T0 시점)"
+    },
+    {
+     "who": "그사이",
+     "action": "task_id=T1 진행 중"
+    },
+    {
+     "who": "수동",
+     "action": "markRemixFailed(id) — 현재 코드는 id만 조건"
+    }
+   ],
+   "currentBehavior": {
+    "remixStatus": "failed",
+    "verdict": "결함(코드 관찰, 미실측)"
+   },
+   "expected": {
+    "updatedRows": 0,
+    "remixAfter": {
+     "taskId": "T1",
+     "hop": 1,
+     "status": "generating"
+    }
+   }
+  },
+  {
+   "id": "P0-RACE-04",
+   "priority": "P0",
+   "theme": "같은 T1을 웹훅과 수동이 동시에",
+   "basis": [
+    "CODE"
+   ],
+   "steps": [
+    {
+     "who": "webhook",
+     "action": "claim(T1, hop1)"
+    },
+    {
+     "who": "수동",
+     "action": "claim(T1, hop1)"
+    }
+   ],
+   "expected": {
+    "claimsSucceeded": 1,
+    "rowsForB1": 1,
+    "rowsForB2": 1,
+    "remixAfter": {
+     "taskId": "T1",
+     "hop": 1,
+     "status": "completed",
+     "lock": null
+    }
+   }
+  },
+  {
+   "id": "P0-RACE-05",
+   "priority": "P0",
+   "theme": "완료 표시도 같은 task/hop 조건",
+   "basis": [
+    "CODE"
+   ],
+   "steps": [
+    {
+     "who": "처리기 X",
+     "action": "T1 저장(연장 없음) 직후 completed 갱신"
+    }
+   ],
+   "expected": {
+    "completedOnlyIf": {
+     "taskId": "T1",
+     "hop": 1
+    },
+    "elseUpdatedRows": 0
+   }
+  },
+  {
+   "id": "P0-EXT-05",
+   "priority": "P0",
+   "theme": "연장 요청 실패",
+   "basis": [
+    "CODE"
+   ],
+   "input": {
+    "mode": "cover",
+    "targetDurationSeconds": 180,
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "id": "A1",
+      "audioUrl": "https://x/a1.mp3",
+      "duration": 60
+     }
+    ],
+    "extendRequest": "throws"
+   },
+   "expected": [
+    {
+     "audioId": "A1",
+     "taskId": "T0",
+     "hop": 0,
+     "status": "unknown",
+     "lyricsHash": null
+    }
+   ],
+   "expectedRemix": {
+    "taskId": "T0",
+    "hop": 0,
+    "status": "completed",
+    "lock": null
+   }
+  },
+  {
+   "id": "P0-EXT-06",
+   "priority": "P0",
+   "theme": "연장 상한(hop 3)",
+   "basis": [
+    "CODE"
+   ],
+   "input": {
+    "mode": "cover",
+    "targetDurationSeconds": 180,
+    "taskId": "T3",
+    "hop": 3,
+    "sunoData": [
+     {
+      "id": "D1",
+      "audioUrl": "https://x/d1.mp3",
+      "duration": 90
+     }
+    ]
+   },
+   "expected": [
+    {
+     "audioId": "D1",
+     "taskId": "T3",
+     "hop": 3,
+     "status": "unknown",
+     "lyricsHash": null
+    }
+   ],
+   "expectedRemix": {
+    "taskId": "T3",
+    "hop": 3,
+    "status": "completed",
+    "extendRequested": false
+   }
+  },
+  {
+   "id": "P0-EXT-07",
+   "priority": "P0",
+   "theme": "같은 오디오 id가 다른 hop 응답에 다시 옴",
+   "basis": [
+    "SYNTH"
+   ],
+   "input": {
+    "steps": [
+     {
+      "taskId": "T0",
+      "hop": 0,
+      "sunoData": [
+       {
+        "id": "A1",
+        "audioUrl": "https://x/a1.mp3",
+        "prompt": "표본 가사 가"
+       }
+      ]
+     },
+     {
+      "taskId": "T1",
+      "hop": 1,
+      "sunoData": [
+       {
+        "id": "A1",
+        "audioUrl": "https://x/a1b.mp3",
+        "prompt": "표본 가사 나"
+       },
+       {
+        "id": "B1",
+        "audioUrl": "https://x/b1.mp3",
+        "prompt": "표본 가사 나나"
+       }
+      ]
+     }
+    ]
+   },
+   "expected": [
+    {
+     "audioId": "A1",
+     "taskId": "T0",
+     "hop": 0,
+     "status": "provided_unverified",
+     "lyricsHash": "d16415f3775c936f",
+     "rows": 1
+    },
+    {
+     "audioId": "B1",
+     "taskId": "T1",
+     "hop": 1,
+     "status": "provided_unverified",
+     "lyricsHash": "4f9ebd28d370c970"
+    }
+   ],
+   "note": "hop 1의 A1은 새 행을 만들지 않고 hop 0 행의 가사도 덮지 않음(경고만)"
+  },
+  {
+   "id": "P0-FILL-01",
+   "priority": "P0",
+   "theme": "정확한 보충 쌍",
+   "basis": [
+    "DOC",
+    "SYNTH"
+   ],
+   "input": {
+    "backfill": true,
+    "picked": {
+     "audioId": "A1",
+     "sunoTaskId": "T0",
+     "status": "unknown"
+    },
+    "remixTaskId": "T1",
+    "sunoData": [
+     {
+      "id": "A1",
+      "prompt": "표본 가사 가"
+     },
+     {
+      "id": "A2",
+      "prompt": "표본 가사 나"
+     }
+    ]
+   },
+   "expected": {
+    "queriedTaskId": "T0",
+    "filled": {
+     "audioId": "A1",
+     "status": "provided_unverified",
+     "lyricsHash": "d16415f3775c936f"
+    },
+    "otherRowsTouched": 0
+   }
+  },
+  {
+   "id": "P0-FILL-02",
+   "priority": "P0",
+   "theme": "옛 행(suno_task_id 없음) 보충 — 연장된 리믹스",
+   "basis": [
+    "CODE",
+    "SYNTH"
+   ],
+   "input": {
+    "backfill": true,
+    "picked": {
+     "audioId": "A1",
+     "sunoTaskId": null,
+     "status": "unknown"
+    },
+    "remixTaskId": "T1",
+    "remixHop": 1,
+    "sunoData": [
+     {
+      "id": "B1",
+      "prompt": "표본 가사 나나"
+     }
+    ]
+   },
+   "expected": {
+    "queriedTaskId": "T1",
+    "filled": null,
+    "pickedAfter": {
+     "status": "unknown",
+     "lyricsHash": null
+    },
+    "retrySameSession": false
+   }
+  },
+  {
+   "id": "P0-FILL-03",
+   "priority": "P0",
+   "theme": "보충 응답에 가사 칸 없음·추측 칸만",
+   "basis": [
+    "OBS",
+    "ASSUME"
+   ],
+   "input": {
+    "backfill": true,
+    "picked": {
+     "audioId": "A1",
+     "sunoTaskId": "T0",
+     "status": "unknown"
+    },
+    "sunoData": [
+     {
+      "id": "A1",
+      "audioUrl": "https://x/a1.mp3",
+      "lyrics": "다른 문자열"
+     }
+    ]
+   },
+   "expected": {
+    "queriedTaskId": "T0",
+    "filled": null,
+    "pickedAfter": {
+     "status": "unknown",
+     "lyricsHash": null,
+     "guessedFieldSeen": true
+    }
+   }
+  },
+  {
+   "id": "P0-PRIO-01",
+   "priority": "P0",
+   "theme": "회원 원문 우선",
+   "basis": [
+    "CODE",
+    "DOC"
+   ],
+   "input": {
+    "consumer": "lyric-video",
+    "remixLyrics": "회원 표본 가사",
+    "variant": {
+     "status": "provided_unverified",
+     "lyrics": "표본 가사 가"
+    }
+   },
+   "expected": {
+    "lyricText": "remixLyrics",
+    "lyricTextHash": "44c39d5b3a740c46",
+    "notice": null
+   }
+  },
+  {
+   "id": "P0-PRIO-02",
+   "priority": "P0",
+   "theme": "회원 원문 없음 + Suno 미확인 가사",
+   "basis": [
+    "DOC"
+   ],
+   "input": {
+    "consumer": "lyric-video",
+    "remixLyrics": null,
+    "variant": {
+     "status": "provided_unverified",
+     "lyrics": "표본 가사 가"
+    }
+   },
+   "expected": {
+    "lyricText": "variant",
+    "lyricTextHash": "d16415f3775c936f",
+    "notice": "Suno가 준 가사입니다 — 확인해 주세요"
+   }
+  },
+  {
+   "id": "P0-PRIO-03",
+   "priority": "P0",
+   "theme": "회원 원문 없음 + unknown/empty",
+   "basis": [
+    "CODE"
+   ],
+   "input": {
+    "consumer": "lyric-video",
+    "remixLyrics": null,
+    "variants": [
+     {
+      "status": "unknown"
+     },
+     {
+      "status": "empty"
+     }
+    ]
+   },
+   "expected": {
+    "lyricText": null,
+    "notice": "가사를 붙여 넣어 주세요",
+    "backfillTriggered": {
+     "unknown": true,
+     "empty": false
+    }
+   }
+  }
+ ]
 }
