@@ -3,8 +3,10 @@
 // 📄 최근 수집 결과(2026-10-25 주인님 「여기서 수집했던 데이터가 있어야 하는거 아닌가?」).
 // 매물 데이터는 서버에 없다(§0) — 이 브라우저의 확장에 직접 물어(web-bridge 「lastResult」) 회원 PC 안에서만 받아 보여 준다.
 // 확장이 연결된 계정과 지금 로그인 계정이 같을 때만 확장이 답한다. 확장이 없는 브라우저(카톡 링크·휴대폰)에서는 안내 + 서버의 숫자 요약.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { askExtension } from "@/lib/extensionBridge";
+import { getHandoffAcct } from "@/lib/actions/handoff";
+import { SEND_TEXT, buildDeskFields, startDeskSend, type WindowLike } from "@/lib/deskCandidate";
 import PriceChange, { TradeGap } from "@/app/results/PriceChange";
 import { SORTS, floorText, sortFilterRows, type SortId } from "@/lib/resultSort";
 
@@ -24,6 +26,30 @@ export default function RecentResults({ email, summary }: { email: string; summa
   const [trade, setTrade] = useState("전체");
   const [bargainOnly, setBargainOnly] = useState(false);
   const [sort, setSort] = useState<SortId>("default");
+  // C-1(2026-11-20): 새 매물·가격 변동 줄 → 고객관리 「미저장 후보」(창 사이 메시지, 같은 계정만, 저장은 고객관리에서 회원이)
+  const [handoffNote, setHandoffNote] = useState<string | null>(null);
+  const handoff = useRef<null | (() => void)>(null);
+  useEffect(() => () => handoff.current?.(), []);
+  const sendToDesk = (columns: string[], row: unknown[]) => {
+    const fields = buildDeskFields(columns, row);
+    if (!fields) { setHandoffNote("이 줄은 단지 이름이 없어 보낼 수 없어요."); return; }
+    handoff.current?.(); // 앞선 보내기는 안내 없이 끝
+    setHandoffNote("고객관리 탭을 열고 후보를 보내는 중…(아직 저장 안 됨)");
+    handoff.current = startDeskSend(fields, {
+      open: (url) => window.open(url, "_blank") as WindowLike | null,
+      listen: (fn) => {
+        const h = (e: MessageEvent) => fn({ origin: e.origin, source: e.source, data: e.data });
+        window.addEventListener("message", h);
+        return () => window.removeEventListener("message", h);
+      },
+      setTimer: (fn, ms) => window.setTimeout(fn, ms),
+      clearTimer: (t) => window.clearTimeout(t as number),
+      now: () => Date.now(),
+      newId: () => crypto.randomUUID(),
+      getAcct: () => getHandoffAcct(),
+      notify: (r) => setHandoffNote(SEND_TEXT[r]),
+    });
+  };
 
   useEffect(() => {
     let alive = true;
@@ -83,12 +109,13 @@ export default function RecentResults({ email, summary }: { email: string; summa
                 <select aria-label="정렬" value={sort} onChange={(e) => setSort(e.target.value as SortId)}>{SORTS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}</select>
                 {view.shown !== view.base && <span className="card-caption">{view.shown.toLocaleString("ko-KR")}건 / {view.base.toLocaleString("ko-KR")}건</span>}
               </div>
+              {handoffNote && <p className="card-caption" role="status" aria-live="polite">🏠 {handoffNote}</p>}
               {view.rows.length === 0 ? (
                 <p className="card-caption">{view.base > 0 ? "조건에 맞는 매물이 없어요. 위 거르기를 바꿔 보세요." : "수집된 매물이 없어요."}</p>
               ) : (
                 <div className="ra-result-wrap">
                   <table className="ra-result">
-                    <thead><tr>{SHOW.map((c) => <th key={c}>{c === "네이버 매물 주소" ? "네이버" : c === "이전 가격" ? "가격 변동" : c === "층" ? "층(해당/전체)" : c}</th>)}</tr></thead>
+                    <thead><tr>{SHOW.map((c) => <th key={c}>{c === "네이버 매물 주소" ? "네이버" : c === "이전 가격" ? "가격 변동" : c === "층" ? "층(해당/전체)" : c}</th>)}<th>고객관리</th></tr></thead>
                     <tbody>
                       {view.rows.map((r, i) => (
                         <tr key={i}>
@@ -104,6 +131,11 @@ export default function RecentResults({ email, summary }: { email: string; summa
                             }
                             return <td key={k}>{v == null ? "" : String(v)}</td>;
                           })}
+                          <td className="ra-nowrap">
+                            {view.statusAt >= 0 && r[view.statusAt] && r[view.statusAt] !== "유지" ? (
+                              <button type="button" className="secondary" title="중개사·전화번호·매물 번호는 넘기지 않아요. 고객관리에서 확인하고 저장해요." onClick={() => sendToDesk(res.columns!, r)}>🏠 후보로</button>
+                            ) : ""}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
