@@ -572,3 +572,4 @@ MOV-GIF-V4-EMPTY-OUTPUT CC-MOVIE-01: Master msg_3fb0e14710a6(GIF V4 우선 조�
 MOV-GIF-V4-EMPTY-OUTPUT CC-MOVIE-01 해제: 9d26cf18d (tsc 0·gifArgs 4/4·lib 45/45, 같은 녹화본 wasm 재현 1→0, 임시 녹화본 삭제).
 
 WS-LECTURE-PREVIEW-ONLY A2 점유 해제 CC-WORKSPACE-01: 코드 30523f97d(route.ts·import.ts·runtime.ts·새 src/server/readOnlyRpcs.ts·lectureImportPreviewRpc.test.ts·새 lectureImportPreviewRoute.test.ts·IMPROVEMENTS) · 문서 e43f8df40(PLAN). 쓰기 RPC·키·env·운영·빌드·push 없음. 검수 대기.
+NOTICE-MW-CHECK CC-ECOM-01: Master msg_8dc62bec6b7d. scripts/apply-source-notice.mjs(noticeProblems 에 미들웨어 정적 추정 경고)·scripts/apply-source-notice.test.mjs(새)만. 배포 차단·공개 경로 변경 없음, push 없음. 2026-11-20 시작.
