@@ -6982,21 +6982,21 @@
     "outsideTurnAutomaticChecks": "configured_current_master_message",
     "messageCollection": "Orca 알림이 지정한 check만 실행, 메시지 소비용 주기 스크립트 없음",
     "lastInspection": {
-      "at": "2026-11-20T04:31:32.011Z",
+      "at": "2026-11-20T05:01:03.811Z",
       "timezone": "Asia/Seoul",
-      "trigger": "13:30 Orca 정기 점검 msg_9e6b66b5907a",
-      "scope": "13:01 KST 확인 이후 역할 회신, Git 증분·미배포·인계 및 결과 파일, 작업/카테고리 표, Controller 상태와 체크포인트, 관리자 요청함 대조",
+      "trigger": "14:00 Orca 정기 점검 msg_768aef7c671e",
+      "scope": "13:31 KST 이후 역할·Orca 회신, Git·점유·미배포, 신규 결과/인계, 작업/카테고리 표, Controller 체크포인트 및 Master 요청함 증분",
       "evidence": [
-        "Controller revision 18 및 lastSequence 356, 집계 잔여 32(진행 4·검수 9·순번 7·사람 대기 12), Master 요청함 0. 개별 작업의 최신 검수는 총괄 플랜 증분 기록.",
-        "음악 리믹스 단계 분리 후 b110a6d34. Mac 호환 기존 13/13, 독립 3/7 msg_baee60b9f06e. 순수 경계 수정 전달 msg_c0d595790bfa.",
-        "쇼츠 cfce3a0f8 격리 18/18, 자동 블로그 1635c8b87 격리 26/26, 부동산 8d6a92593 격리 62/62 수락. 실제 화면·배포 미확인. 네이버 다중 프레임 수정 msg_34a5986bd6f1, Workspace 문서 A4 msg_c1bc66743f17 기존 배정 유지.",
-        "B2B Backend R1·0077 자료, SNS 공유 DB 순번, 이커머스 HEIC·고지 경로, AG 관리자 화면 검수 및 Support 직접 지시 범위 대조. 신규 인계·결과 후보의 수정 시각과 공유 HANDOFF 변경량 확인, 작업자 변경 미편집.",
-        "Front의 Sub 구버전은 question 형식 거부로 송신 없음. 지원하는 status 형식으로 태블릿 기존 근거와 재개 조건 확인 메시지 msg_a595a4d68492 전송 성공, 작업자 수락/활동 미확인."
+        "Controller 집계 잔여 32: 진행 4·검수 9·순번 7·사람 대기 12. Master 요청함 0. 개별 상태는 총괄 플랜 최신 회신 기준.",
+        "음악 c0db0c035·5329b77b9 맥미니 격리 수락 msg_8c0a767180dc·msg_16ef01e0dbdd. 인수 문서 8a0d98261·aa570f358, 1차 schema/연결 승인 항목 905267d5. 실제 호출·DB 미변경.",
+        "부동산 9b41d9853 배포 전 표·db1d7f53b 읽기 운영 검수 결과 확인. 운영 별칭 READY·롤백 제약 msg_60d511eee2c6, SQL 1·빌드 2 승인 대기. 작성자 코드/의존성과 Mac 정적 확인 구분.",
+        "B2B Front 세 파일·기제출 근거 재대조 msg_f0b83c5a06a2·msg_d58176c73ae3, 격리 URL 없어서 실화면 대기. Backend 0077 확인 뒤 SNS 공유 DB 순번, ECOM 기존 HEIC/인쇄 미검수.",
+        "Workspace A4·네이버 편집기 다중 프레임은 앞서 전달, 이번 증분에서 새 결과 SHA 없음. 영상 쇼츠 승인 대기, AG 격리 통과·실화면 대기, Support는 사용자 직접 지시 범위."
       ],
-      "judgment": "국소 검수만 수락. 운영 0077·SNS는 기존 순번 유지. 쇼츠 v2.02 배포 승인 대기, Workspace v1.64 배포 실행 거부 상태, T08·T03 기존 차단 유지. 새 배포·운영 쓰기·유료 호출 없음.",
-      "nextAction": "음악 A2·Workspace A4·네이버 다중 프레임 결과 회수. Front는 실제 수락과 격리 URL이 확인되면 Mac 화면 검수 재개. 운영 SQL은 B2BBackend 증거와 Master 순번 판정 이후.",
+      "judgment": "실거래 기존 운영 읽기 근거와 다음 두 부동산 후보의 미배포 상태 구분. 승인된 운영 변경 실행은 이번 회차 0. 이미 준 지시의 재전송 및 중복 시험 없음.",
+      "nextAction": "음악과 부동산의 승인 범위 확인, Workspace·블로그 보완 고정 결과 대기. Front는 허용 실행 주소, B2B Backend는 0077 도구 근거, SNS는 Master 순번으로 재개.",
       "unverified": [
-        "Front 최신 착수·서버 경로, Mac 탭 로그인과 제어 반환, 0077 실제 적용 도구 이력 처리, 지정 격리 검수의 실제 화면 및 운영 증거."
+        "Workspace/블로그 최신 수락·완료, Front 실제 화면·Mac 탭 제어 반환, 0077 실제 이력 처리, 부동산 업로드 트리 직접 연결 및 새 버전 운영, 리믹스 실제 응답/DB 저장."
       ]
     },
     "notifications": [
