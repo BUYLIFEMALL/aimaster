@@ -123,6 +123,25 @@ test("실패 종류(Mac 반례): 인증 신호가 하나라도 있으면 다른 
   assert.equal(T.classifyTextFailure(Object.assign(new SyntaxError("x"), { status: 403 })), "auth");
 });
 
+test("실패 종류(Mac 2차 반례): 소문자 구조 코드 별칭 invalid_api_key·authentication_error·permission_error는 구조 칸에 있을 때만 auth", () => {
+  // 공개 문서의 오류 모양을 흉내 낸 예(손으로 만든 것 — 실제 호출로 확인하지 않음)
+  const OPENAI = '401 {"error":{"message":"Incorrect API key provided.","type":"invalid_request_error","param":null,"code":"invalid_api_key"}}';
+  const ANTHROPIC = '{"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"}}';
+  for (const err of [
+    { code: "invalid_api_key" }, { type: "authentication_error" }, { error: { code: "invalid_api_key" } }, { error: { type: "permission_error" } },
+    new Error(OPENAI), new Error(ANTHROPIC), { message: '{"code": "invalid_api_key"}' },
+  ]) {
+    assert.equal(T.classifyTextFailure(err), "auth", JSON.stringify(err) + String(err?.message ?? ""));
+    assert.equal(T.allowsCaptionFallback(T.classifyTextFailure(err)), false);
+  }
+  // 구조 칸이 아니거나 글자가 정확히 같지 않으면 쓰지 않는다(범위를 넓히지 않음)
+  for (const err of [
+    new Error("the invalid_api_key sample in docs"), new Error("authentication_error happened somewhere"),
+    { code: "invalid_api_key_x" }, { code: "Invalid_Api_Key" }, { type: "invalid_request_error" }, { error: { code: 401 } },
+    { message: '{"message":"invalid_api_key"}' }, { message: '{"param":"authentication_error"}' },
+  ]) assert.equal(T.classifyTextFailure(err), "other", JSON.stringify(err) + String(err?.message ?? ""));
+});
+
 test("대체 허용(Mac 반례): auth는 어떤 경로로도 허용되지 않는다 — 허용 목록 밖 값도 거절", () => {
   assert.equal(T.allowsCaptionFallback("auth"), false);
   for (const k of ["AUTH", "", "unknown", undefined, null]) assert.equal(T.allowsCaptionFallback(k), false, String(k));

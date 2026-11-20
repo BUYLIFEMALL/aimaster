@@ -155,6 +155,22 @@ const AUTH_CODES = new Set(["UNAUTHENTICATED", "PERMISSION_DENIED", "API_KEY_INV
 const QUOTA_CODES = new Set(["RESOURCE_EXHAUSTED", "RATE_LIMIT_EXCEEDED"]);
 const TIMEOUT_CODES = new Set(["DEADLINE_EXCEEDED"]);
 
+/**
+ * 소문자 구조 코드의 제한 별칭 → 인증. **구조 칸(code·type 값, 또는 오류 문장 속 JSON의 "code"·"type" 값)에 정확히 이 글자로 있을 때만** 쓴다.
+ * 근거(공개 문서 기준 — 실제 호출로 확인하지 않음): OpenAI 오류 code `invalid_api_key`, Anthropic 오류 type `authentication_error`(401)·`permission_error`(403).
+ * 지금 연결된 회사는 Gemini뿐이지만, 회사 선택을 붙일 때 같은 판정을 쓰므로 미리 둔다. 자유 문장 속 낱말은 보지 않는다.
+ */
+const AUTH_ALIASES = new Set(["invalid_api_key", "authentication_error", "permission_error"]);
+
+/** 구조 칸에서 소문자 코드 값을 모은다: e.code·e.type·e.error.code·e.error.type, 오류 문장 속 JSON의 "code"/"type" 값 */
+function structuredLowerCodes(e: Record<string, unknown>, msg: string): Set<string> {
+  const out = new Set<string>();
+  const inner = e.error && typeof e.error === "object" ? (e.error as Record<string, unknown>) : {};
+  for (const v of [e.code, e.type, inner.code, inner.type]) if (typeof v === "string" && /^[a-z_]+$/.test(v)) out.add(v);
+  for (const m of msg.matchAll(/"(?:code|type)"\s*:\s*"([a-z_]+)"/g)) out.add(m[1]);
+  return out;
+}
+
 /** 숫자 상태: 숫자이거나 숫자만 든 글자일 때만 */
 function statusNumber(v: unknown): number | null {
   if (typeof v === "number" && Number.isInteger(v)) return v;
@@ -182,7 +198,8 @@ export function classifyTextFailure(err: unknown): TextFailureKind {
   const status = statusNumber(e.status) ?? statusNumber(e.code) ?? statusNumber(e.statusCode);
   const codes = structuredCodes(e, msg);
   const has = (set: Set<string>) => [...codes].some((c) => set.has(c));
-  if (status === 401 || status === 403 || has(AUTH_CODES)) return "auth";
+  const aliasAuth = [...structuredLowerCodes(e, msg)].some((c) => AUTH_ALIASES.has(c));
+  if (status === 401 || status === 403 || has(AUTH_CODES) || aliasAuth) return "auth";
   if (status === 429 || has(QUOTA_CODES)) return "quota";
   if (status === 408 || status === 504 || has(TIMEOUT_CODES) || e.name === "AbortError" || e.name === "TimeoutError") return "timeout";
   if (e.name === "SyntaxError" || codes.has("AI_RESPONSE_FORMAT")) return "format";
