@@ -565,3 +565,4 @@ WS-LECTURE-PREVIEW-ONLY A2 CC-WORKSPACE-01: Master msg_e9dda18e3075(Mac msg_05fa
 WS-LECTURE-PREVIEW-ONLY A2 범위 추가 CC-WORKSPACE-01: ai-work-workspace/src/server/runtime.ts(읽기 전용 명령 판정 함수 내보내기 한 줄 — 진입점과 실행기가 같은 목록을 쓰게).
 MOV-ONESTOP-HANDOFF-UNICODE CC-MOVIE-01 해제: b3d9d62fa (tsc 0·npm test 105/105, textCut.ts는 만들었다 지움·shop-detail-page 변경 0).
 MOV-ONESTOP-HANDOFF-UNICODE A2 CC-MOVIE-01: Master msg_44be81a050b9(P2, 기준 b3d9d62fa). shorts-onestop-studio/src/lib/productShorts.ts·src/lib/reference.ts(cutText)·tests/productShorts.test.ts·tests/refHandoff.test.ts·docs/IMPROVEMENTS.md만. 빌드·배포 0.
+MOV-ONESTOP-HANDOFF-UNICODE A2 CC-MOVIE-01 해제: 389604fe9 (tsc 0·npm test 111/111).
