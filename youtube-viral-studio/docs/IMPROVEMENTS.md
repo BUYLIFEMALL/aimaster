@@ -81,6 +81,7 @@
 - `src/lib/youtube/boks/core.ts`의 `relevanceIssue`·`languageMismatch`·`isReligious`·`isReligiousQuery`와 보조 함수를 **그대로** 새 파일 `src/lib/youtube/relevanceFilter.ts`로 옮기고, core.ts는 같은 이름으로 다시 내보냄 → 동작·YouTube 호출 수 변화 0. 입력 타입 `RelevanceInput`만 `RawFinderVideo`에서 뽑던 것을 같은 필드의 독립 정의로.
 - 시험: `tests/relevanceFilter.test.mjs` 새 5개 + 기존 `boks.test.mjs` 11개(시험에서만 확장자 없는 경로를 `.ts`로 찾게 `registerHooks` — creatorFinder 시험과 같은 방식) 통과, `tsc --noEmit` 통과. 전체 71 중 67 통과·실패 4는 기존 `favorites.test.mjs`(11-16 기록, 정책 담당 몫).
 - 배포: 동작 변화가 없어 다음 YVS 배포 때 함께(버전은 그때 +0.01). 공용 등록·SVS 연결은 별도 배정.
+- **미배포 대기(2026-11-20, MOV-SVS-YVS-LOCAL-DEPS)**: Next.js 보안 업그레이드 `next`·`eslint-config-next` `16.4.2` → `16.4.6`(고정값 유지, `package.json`·`package-lock.json`만, 커밋 `77987f7f2`). 내 PC `npm run build` exit 0(`SecurityFatalError` 정지 해소)·`tsc` 0·단위 시험 67/71 — 실패 4건은 기존 `tests/favorites.test.mjs`(업그레이드 전과 동일, 정책 담당 `0a91cba19` 원인, 이번 변경과 무관)라 별도 처리. 맥미니 정적 검수 PASS. 운영 배포·Vercel 빌드 미실행 — 다음 YVS 배포 때 함께.
 
 ### 2026-11-16 처리 결과 (영상 담당 `video`, 세션 `claude-win-video`) — **미배포 대기(v1.30 예정)**
 - 주인님 결정(채팅 선택): 1단계만 · 평소 대비 중앙값을 기본 배수로 · 쇼츠 180초 통일 · 종교 기본 제외 · DB 표 2개 승인 · AI 기획안은 별도 버튼. 플랜: [`PLAN_20261116_BOKS_FINDER_PORT.md`](PLAN_20261116_BOKS_FINDER_PORT.md)
