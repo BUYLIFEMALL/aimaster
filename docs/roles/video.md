@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령) · 실제로 함께 맡아 온 폴더: `shorts-onestop-studio/`(v1.59) · `shots/`(v1.51) · `music-video-studio/`(v1.31, 음악 담당과 겹침) · `video-to-gif/`(v1.33) · `youtube-viral-studio/`(v1.30) — 버전은 2026-11-18 코드 `version.ts`·이 파일 배포 기록 기준
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-20 `claude-win-video` (작업지시 요청 지침 등록, MOV-20261119-01 계약 A3 `8af27a171` 제출)
+- 마지막 갱신: 2026-11-20 `claude-win-video` (SVS·YVS Next 16.4.6·로컬 빌드, 남은 Next 사전 점검, 보관함 시험 보정, 미배포 대조, 지시 없을 때 자율 진행 규칙)
 
 ## 작업지시 요청 지침 (2026-11-20 주인님 지시: 「왜 쉬고 있지 작업이 끝났으면 master에게 다음 작업지시 요청을 해서 작업을 할당 받거나 너가 해야될 다음 작업을 찾아서 master에게 작업지시 해달라고 요청해 작업지시 요청 지침으로 등록하고 앞으로 지키도록 해」)
 - **작업 결과를 Master에게 보고(ready_review)한 같은 턴 안에서 바로 다음 작업지시를 요청한다. 보고만 하고 대기 상태로 멈추지 않는다.**
@@ -18,6 +18,9 @@
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
 | `shorts-onestop-studio`↔`shop-detail-page` | MOV-20261119-01 상품영상 연결 계약 A3(`8af27a171`) | 2026-11-20 | ready_review — Master 확정 대기, 다음 작업 요청함 |
+| `shorts-viral-studio`·`youtube-viral-studio` | Next 16.4.6 업그레이드(`77987f7f2`, 로컬 빌드 exit 0/0)·미배포 기록 `e75bb0348` | 2026-11-20 | ready_review — 다음 배포 묶음 대기(`docs/PENDING_DEPLOYS.md` `ec7fb5ff4`) |
+| `shots`·`infinite-loop-video`·`shorts-onestop-studio` | 남은 Next 업그레이드 사전 점검 `523e33704` | 2026-11-20 | 업그레이드 승인 대기 |
+| `youtube-viral-studio` | 보관함 시험 대역 보정 `acc122786`(72/72) · 미배포 대조 `e1d436790` | 2026-11-20 | ready_review |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 - 2026-11-16 유튜브 떡상 분석 v1.30 — 배포 끝, DB 2표 SQL 운영 적용·읽기 확인 끝(11-17, 요청함 1c7b6dda 승인완료). 실제 검색·AI 기획안 운영 확인 끝(11-18, 아래 최근 완료). 1단계 검수 완료, 2·3단계는 별도 배정.
