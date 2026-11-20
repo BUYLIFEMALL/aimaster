@@ -94,12 +94,12 @@
 - `lib/peaks.ts`(`peaksFromChannels`·`peakToHeight`, 시험 `tests/peaks.test.mjs` 4개 — 전체 44개), `components/player/usePeaks.ts`, `Waveform.tsx`(`peaks`·`progress` 선택값), `TrackRow.tsx`.
 - 사전 확인(운영 v1.11 보관함, 크롬): Stable Audio 30초 곡 서명 주소를 브라우저에서 받아 디코딩·막대 계산 0.8초, 끝부분 소리 줄어듦까지 반영 — 저장소 서명 주소는 다른 출처에서도 받아짐. 화면 표시는 배포 뒤 확인.
 
-## 2026-10-23 「이 설정으로 다시 만들기」 (Claude Code 윈도우 · 세션 claude-win-20261023-bgm, **미배포 대기** — 배포 때 v1.12에 함께)
+## 2026-10-23 「이 설정으로 다시 만들기」 (Claude Code 윈도우 · 세션 claude-win-20261023-bgm, ~~미배포 대기~~ (✅ 2026-11-20 음악 담당 확인: v1.12 배포 `ai-music-studio-brcpsck8j`·버전 커밋 `9d6df8bef`에 실림, 기능 커밋 `abb7cb4cf`) — 버전은 v1.12)
 - 제안 다. 곡 카드(보관함·곡 만들기 결과)에 「🔁 이 설정으로 다시 만들기 →」 → `/create?from=<곡 번호>`. 페이지(서버)가 곡 번호 형식 검사 후 **본인 곡만**(`user_id` 조건, 관리자 키) 읽어 모델·제목·곡 설명·가사·보컬/연주곡·언어·길이·WAV 여부를 미리 채움. 안내 띠 「설정을 불러왔습니다… 누르기 전에는 만들지 않습니다」, 쓸 수 없는 모델(숨김 Mureka 등)이면 기본 모델 + 안내. 자동 생성 없음(비용은 회원이 「만들기」를 눌러야). 곡 번호가 바뀌면 화면을 새로 그림(`key`).
 - `lib/preset.ts`(`presetFromRow`·`isGenerationId`, 시험 `tests/preset.test.mjs` 5개 — 전체 49개), `app/(dashboard)/create/page.tsx`, `CreateStudio.tsx`(`preset` 선택값), `GenerationCard.tsx`(링크). 이미지 첨부는 다시 채우지 않음(원본 이미지를 저장하지 않음).
 - 검수: 시험 49개·tsc·build 통과. 화면 확인은 배포 뒤.
 
-## 2026-10-23 보관함 공급자별 색 필터 (Claude Code 윈도우 · 세션 claude-win-20261023-bgm, **미배포 대기** — 배포 때 v1.12에 함께)
+## 2026-10-23 보관함 공급자별 색 필터 (Claude Code 윈도우 · 세션 claude-win-20261023-bgm, ~~미배포 대기~~ (✅ 2026-11-20 음악 담당 확인: v1.12 배포 `ai-music-studio-brcpsck8j`·버전 커밋 `9d6df8bef`에 실림, 기능 커밋 `a7b5deef4`) — 버전은 v1.12)
 - 제안 라. 보관함 상태 버튼 줄 아래에 공급자 버튼 줄(「모든 공급자」 + 곡이 있는 공급자만, 공급자 색 점·라벨·곡 수 — 개수는 지금 상태 필터 기준). 공급자가 2개 이상일 때만 보임, 같은 버튼을 다시 누르면 해제. 「플레이리스트 영상 만들기」 곡도 고른 공급자 곡만.
 - `lib/libraryFilter.ts`(`matches`·`providerCounts`·`isStarred`, 시험 `tests/libraryFilter.test.mjs` 4개 — 전체 53개), `components/studio/LibraryView.tsx`. 공급자 단위라 fal(Stable Audio 등)·Replicate는 각각 한 묶음.
 - 검수: 시험 53개·tsc·build 통과. 화면 확인은 배포 뒤.
