@@ -1,22 +1,40 @@
-// 2026-11-20 편집기 글자수 표시(Master msg_b877863aba09) + 반례 보완(Mac msg_85d453cbcc0f · Master msg_4481ff5a213f).
-// 기존 countChars 기준(공백 제외) 재사용, HTML은 cheerio/slim으로 판독, 코드 모드는 mdLiteToHtml 변환 뒤 계수. 외부 요청 0.
+// 2026-11-20 편집기 글자수 표시(Master msg_b877863aba09) + 반례 보완(Mac msg_85d453cbcc0f · msg_c48da43bc6ab · msg_9910402d9a22).
+// 기존 countChars 기준(공백 제외) 재사용, HTML은 cheerio/slim으로 판독, 코드 모드는 서버 저장 변환과 같은 의미로 계수. 외부 요청 0.
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
 const ts = require('typescript')
 
-const compile = (file) => ts.transpileModule(fs.readFileSync(path.join(__dirname, '..', file), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText
+const transpile = (source) => ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText
+const read = (file) => fs.readFileSync(path.join(__dirname, '..', file), 'utf8')
 const load = (file, requireMap = {}) => {
   const mod = { exports: {} }
-  new Function('module', 'exports', 'require', compile(file))(mod, mod.exports, (name) => (name in requireMap ? requireMap[name] : require(name)))
+  new Function('module', 'exports', 'require', transpile(read(file)))(mod, mod.exports, (name) => (name in requireMap ? requireMap[name] : require(name)))
   return mod.exports
 }
 const promptRules = load('utils/news/promptRules.ts')
 const markdown = load('utils/markdown.ts')
 const stripImageSchema = load('utils/stripImageSchema.ts')
 const counter = load('utils/bodyCharCount.ts', { './news/promptRules': promptRules, './markdown': markdown, './stripImageSchema': stripImageSchema, 'cheerio/slim': require('cheerio/slim') })
-const { bodyCharCount, markdownBodyCharCount, htmlToCountText, targetPercent, countDataImages } = counter
+const { bodyCharCount, markdownBodyCharCount, htmlToCountText, targetPercent, extractAttachmentSources } = counter
+
+// 서버 PUT(app/api/posts/[id]/route.ts)의 실제 추출 함수 원문을 잘라 와 기준으로 쓴다.
+const route = read('app/api/posts/[id]/route.ts').replace(/\r\n/g, '\n')
+const fnStart = route.indexOf('function extractBase64ImagesPureString')
+assert.ok(fnStart >= 0, '서버 추출 함수를 찾지 못함')
+const serverExtract = new Function(`${transpile(route.slice(fnStart, route.indexOf('\n}\n', fnStart) + 2))}; return extractBase64ImagesPureString`)()
+// 서버 저장 변환 그대로: DB 원본에서 뽑은 주소로 정확한 표시만 바꾸고 mdLiteToHtml → (화면과 같은) 프롬프트 섹션 제외 → 계수
+const serverCount = (md, dbContent) => {
+  let final = md
+  serverExtract(dbContent).forEach((src, idx) => { final = final.split(`[첨부이미지 ${idx + 1}]`).join(src) })
+  return bodyCharCount(stripImageSchema.removeImagePromptSection(markdown.mdLiteToHtml(final)))
+}
+const count = (md, dbContent) => markdownBodyCharCount(md, extractAttachmentSources(dbContent))
+const IMG = (n) => `data:image/png;base64,${'QUJD'.repeat(n)}`
+const DB1 = `<p>글</p><img src="${IMG(40)}">`
+const DB2 = `<img src="${IMG(40)}"><p>글</p><img src="${IMG(700)}">`
+const M = (n) => `[첨부이미지 ${n}]`
 
 test('공백·줄바꿈은 세지 않고 한글 한 음절은 1자 — 생성기 countChars와 같은 결과', () => {
   assert.equal(bodyCharCount('<p>안녕 하세요<br>반갑습니다</p>'), 10)
@@ -56,18 +74,49 @@ test('코드 모드: 서버 저장과 같은 변환(mdLiteToHtml) 뒤 계수 —
   assert.equal(markdownBodyCharCount(md), promptRules.countChars('소제목강조문장링크항목1항목2인용'))
 })
 
-test('알려진 첨부 표시(이미지 문법 안)는 실제 저장처럼 이미지가 되어 설명 글까지 세지 않는다', () => {
-  assert.equal(markdownBodyCharCount('![대표 비주얼 설명]([첨부이미지 1])\n\n본문', 1), 2)
-  assert.equal(markdownBodyCharCount('![가]([첨부이미지 1])\n\n![나]([첨부이미지 2])\n\n끝', 2), 1)
-  const md = '![설명]([첨부이미지 1])'
-  assert.doesNotMatch(markdown.mdLiteToHtml(md.replace('[첨부이미지 1]', 'data:image/gif;base64,R0lGODlhAQABAAAAACw=')), /https?:/, '자리값은 외부 주소가 아님')
+test('서버 추출과 같은 목록: extractAttachmentSources = route.ts extractBase64ImagesPureString', () => {
+  for (const content of ['', DB1, DB2, `![a](${IMG(3)}) 뒤 "x"`, `data:image/png;base64,끝없는주소`, `<img src='${IMG(2)}'> ) "`, `a ${'data:image/x;base64,' + 'A'.repeat(12000)}`]) {
+    assert.deepEqual(extractAttachmentSources(content), serverExtract(content), content.slice(0, 40))
+  }
+  for (const odd of [null, undefined, 5, {}]) assert.deepEqual(extractAttachmentSources(odd), [])
 })
 
-test('알 수 없는 첨부 표시(번호가 이미지 수 밖·형식 다름)는 서버처럼 그대로 — 의미를 바꾸지 않음', () => {
-  for (const [md, known] of [['![설명]([첨부이미지 2])', 1], ['![설명]([첨부이미지 1])', 0], ['앞 [첨부이미지1] 뒤', 5], ['앞 [첨부이미지  1] 뒤', 5], ['앞 [첨부이미지 0] 뒤', 5]]) {
-    assert.equal(markdownBodyCharCount(md, known), bodyCharCount(markdown.mdLiteToHtml(md)), `${md} / ${known}`)
+test('반례 1 — 비정규 표기(01·공백 다름·0)는 서버처럼 그대로 보존', () => {
+  for (const marker of ['[첨부이미지 01]', '[첨부이미지 001]', '[첨부이미지1]', '[첨부이미지  1]', '[첨부이미지 0]', '[첨부이미지 +1]']) {
+    for (const md of [`![설명](${marker})\n\n본문`, `앞 ${marker} 뒤`]) {
+      assert.equal(count(md, DB1), serverCount(md, DB1), md)
+      assert.equal(count(md, DB1), bodyCharCount(markdown.mdLiteToHtml(md)), `${md} — 치환 없음`)
+    }
   }
-  for (const known of [-1, 1.5, 'x', null]) assert.equal(markdownBodyCharCount('![설명]([첨부이미지 1])', known), bodyCharCount(markdown.mdLiteToHtml('![설명]([첨부이미지 1])')))
+})
+
+test('반례 2 — 혼자 있는 첨부 표시는 실제 저장 변환과 같은 숫자(주소 글자가 본문 글자가 됨)', () => {
+  for (const md of [`앞 ${M(1)} 뒤`, `${M(1)}`, `- 목록 ${M(1)}\n- 둘 ${M(2)}`, `<img src="${M(1)}">\n\n글`, `${M(1)}${M(1)} 두 번`, `## 제목 ${M(2)}\n\n> 인용 ${M(1)}`]) {
+    assert.equal(count(md, DB2), serverCount(md, DB2), md)
+  }
+  assert.ok(count(`앞 ${M(2)} 뒤`, DB2) > 2800, '큰 주소 길이가 반영됨')
+})
+
+test('이미지 문법 안의 첨부 표시는 그림이 되어 설명 글까지 세지 않는다 — 서버 변환과 같은 숫자', () => {
+  for (const md of [`![대표 비주얼 설명](${M(1)})\n\n본문`, `![가](${M(1)})\n\n![나](${M(2)})\n\n끝`, `![가](${M(2)}) 그리고 혼자 ${M(1)}`]) {
+    assert.equal(count(md, DB2), serverCount(md, DB2), md)
+  }
+  assert.equal(count(`![대표 비주얼 설명](${M(1)})\n\n본문`, DB1), 2)
+})
+
+test('반례 3 — 기준은 DB 원본 첨부 목록: 미저장 추가·삭제와 무관, 범위 밖 번호는 보존', () => {
+  const attachments = extractAttachmentSources(DB1) // 편집 진입 시 DB 원본(이미지 1개)
+  const edited = `![새로 추가](${M(2)})\n\n![기존](${M(1)})\n\n본문` // 편집 중 2번을 써도 DB에는 없음
+  assert.equal(markdownBodyCharCount(edited, attachments), serverCount(edited, DB1))
+  const removed = '본문만 남김' // 편집 중 이미지를 지워도 목록은 그대로
+  assert.equal(markdownBodyCharCount(removed, attachments), serverCount(removed, DB1))
+  assert.equal(markdownBodyCharCount(`앞 ${M(1)} 뒤`, []), bodyCharCount(markdown.mdLiteToHtml(`앞 ${M(1)} 뒤`)), 'DB에 첨부가 없으면 표시는 그대로')
+  for (const odd of [undefined, null, 3, 'x', [1, null]]) assert.doesNotThrow(() => markdownBodyCharCount(`앞 ${M(1)} 뒤`, odd))
+})
+
+test('base64 형식이 아닌 주소(예: svg 문자)도 서버 변환과 같은 숫자', () => {
+  const db = '<img src="data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><text>글 *자*</text></svg>">'
+  for (const md of [`앞 ${M(1)} 뒤`, `![설명](${M(1)})`]) assert.equal(count(md, db), serverCount(md, db), md)
 })
 
 test('마크다운 제목으로 쓴 이미지 프롬프트 섹션은 변환 뒤 기존 분리 규칙으로 제외', () => {
@@ -77,12 +126,9 @@ test('마크다운 제목으로 쓴 이미지 프롬프트 섹션은 변환 뒤 
 })
 
 test('같은 본문이면 비주얼(HTML)과 코드(Markdown)가 같은 숫자 — 이미지·프롬프트 섹션 포함', () => {
-  const visual = '<h2>소제목</h2><figure><img src="data:image/png;base64,AAAA" alt="그림"><figcaption>📷 그림 (클릭하여 고화질 확대)</figcaption></figure><p><strong>강조</strong> 문장</p><ul><li>항목1</li><li>항목2</li></ul>'
-  const code = '## 소제목\n\n![그림]([첨부이미지 1])\n\n**강조** 문장\n\n- 항목1\n- 항목2\n\n---\n\n### 🎨 생성 이미지 AI 프롬프트\n\n설명'
-  assert.equal(markdownBodyCharCount(code, countDataImages(visual)), bodyCharCount(visual))
-  assert.equal(countDataImages(visual), 1)
-  assert.equal(countDataImages('<img src="data:image/a"><img src="data:image/b">'), 2)
-  assert.equal(countDataImages(null), 0)
+  const visual = `<h2>소제목</h2><figure><img src="${IMG(40)}" alt="그림"><figcaption>📷 그림 (클릭하여 고화질 확대)</figcaption></figure><p><strong>강조</strong> 문장</p><ul><li>항목1</li><li>항목2</li></ul>`
+  const code = `## 소제목\n\n![그림](${M(1)})\n\n**강조** 문장\n\n- 항목1\n- 항목2\n\n---\n\n### 🎨 생성 이미지 AI 프롬프트\n\n설명`
+  assert.equal(count(code, visual), bodyCharCount(visual))
 })
 
 test('코드 모드 혼합 입력(HTML이 섞인 원고)도 예외 없이 — 서버가 실제로 저장할 의미대로 계수', () => {
@@ -106,13 +152,15 @@ test('목표 대비는 목표가 있을 때만', () => {
   assert.equal(targetPercent(NaN, 2000), null)
 })
 
-test('편집 화면 연결: 비주얼은 bodyCharCount, 코드는 markdownBodyCharCount — 저장 흐름·목표 대비 없음', () => {
-  const page = fs.readFileSync(path.join(__dirname, '../app/posts/[id]/edit/page.tsx'), 'utf8')
-  assert.match(page, /import \{ bodyCharCount, markdownBodyCharCount, countDataImages \} from '@\/blog\/utils\/bodyCharCount'/)
-  assert.match(page, /editorMode === 'code' \? markdownBodyCharCount\(removeImagePromptSection\(codeContent\), countDataImages\(rawContent\)\) : bodyCharCount\(visualMainContent\)/)
+test('편집 화면 연결: DB 원본 첨부는 불러올 때 한 번만 보관하고 코드 모드 계수에 전달 — 저장 흐름·목표 대비 없음', () => {
+  const page = read('app/posts/[id]/edit/page.tsx')
+  assert.match(page, /import \{ bodyCharCount, markdownBodyCharCount, extractAttachmentSources \} from '@\/blog\/utils\/bodyCharCount'/)
+  assert.match(page, /setDbAttachments\(extractAttachmentSources\(postData\.content \|\| ''\)\)/)
+  assert.equal((page.match(/setDbAttachments\(/g) || []).length, 1, '편집 중에는 목록을 바꾸지 않음')
+  assert.match(page, /editorMode === 'code' \? markdownBodyCharCount\(removeImagePromptSection\(codeContent\), dbAttachments\) : bodyCharCount\(visualMainContent\)/)
   assert.match(page, /본문 글자수\(공백 제외\) \{editorBodyChars\.toLocaleString\('ko-KR'\)\}자/)
   assert.doesNotMatch(page, /targetPercent\(|import \{[^}]*targetPercent/)
-  const src = fs.readFileSync(path.join(__dirname, '../utils/bodyCharCount.ts'), 'utf8')
+  const src = read('utils/bodyCharCount.ts')
   assert.match(src, /from 'cheerio\/slim'/, '네트워크 모듈 없는 파싱 전용 입구')
   assert.doesNotMatch(src, /document\.|innerHTML|DOMParser|fetch\(|eval\(/, '원고를 실제 문서에 넣거나 실행하지 않음')
 })

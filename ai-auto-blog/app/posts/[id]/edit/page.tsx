@@ -21,7 +21,7 @@ import {
 import { getBlogBasePath } from '@/blog/utils/basePath'
 import { stripImageGenerationSchema, splitImagePromptSection, removeImagePromptSection } from '@/blog/utils/stripImageSchema'
 import RichTextEditor from '@/blog/components/RichTextEditor'
-import { bodyCharCount, markdownBodyCharCount, countDataImages } from '@/blog/utils/bodyCharCount'
+import { bodyCharCount, markdownBodyCharCount, extractAttachmentSources } from '@/blog/utils/bodyCharCount'
 
 import { MAIN_SITE_URL } from '@/lib/deployment'
 
@@ -83,6 +83,8 @@ export default function PostEditPage() {
   const [rawContent, setRawContent] = useState('')
   // codeContent: [첨부이미지 N] 태그로 치환된 경량 텍스트 — 코드 모드용
   const [codeContent, setCodeContent] = useState('')
+  // 글자수 계산용: 편집 화면에 들어올 때의 DB 원본 첨부 이미지 주소(서버 저장이 쓰는 것과 같은 목록). 편집 중에는 바꾸지 않는다.
+  const [dbAttachments, setDbAttachments] = useState<string[]>([])
 
   const [categories, setCategories] = useState<Category[]>([])
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([])
@@ -131,6 +133,7 @@ export default function PostEditPage() {
         setRawContent(original)
         // 코드 모드: Base64 이미지를 [첨부이미지 N] 으로 치환.
         setCodeContent(replaceBase64WithImageTags(original))
+        setDbAttachments(extractAttachmentSources(postData.content || ''))
 
         setSelectedCategoryIds(postData.category_ids || [])
         setCategories(postData.all_categories || [])
@@ -269,8 +272,8 @@ export default function PostEditPage() {
   // 2026-11-20 편집기 글자수(공백 제외, 생성 목표와 같은 단위). 이미지 프롬프트 섹션·이미지 설명·[첨부이미지 N]은 세지 않는다.
   // 이 화면에는 저장된 목표 글자수가 없으므로 목표 대비는 표시하지 않는다(targetPercent는 목표가 있을 때만 값).
   const editorBodyChars = useMemo(
-    () => (editorMode === 'code' ? markdownBodyCharCount(removeImagePromptSection(codeContent), countDataImages(rawContent)) : bodyCharCount(visualMainContent)),
-    [editorMode, codeContent, visualMainContent, rawContent],
+    () => (editorMode === 'code' ? markdownBodyCharCount(removeImagePromptSection(codeContent), dbAttachments) : bodyCharCount(visualMainContent)),
+    [editorMode, codeContent, visualMainContent, dbAttachments],
   )
 
   if (loading) {
