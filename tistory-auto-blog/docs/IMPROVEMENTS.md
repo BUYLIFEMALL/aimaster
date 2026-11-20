@@ -2,7 +2,9 @@
 
 > **✅ 배포됨(2026-11-19 v1.99, 커밋 71b4dcff1, CC-BLOG-01 묶음 배포 · Next.js 16.4.6 보안 업데이트는 같은 날 v2.00 f334bd4d9) — 본문 모델 목록 최신화 (2026-11-19, CC-BLOG-01, 주인님 지시 「나머지 블로그 프로그램 모델 목록도 같은 기준으로 맞춰줘」, 기준: ai-auto-blog `f8f4520f9`·`c213647a4`)**: 플랫폼마다 최신 모델을 위로(GPT-6.2 Astra·Sol, GPT-6.1 Terra·Sol, Claude Fable 5.2·Opus/Sonnet/Haiku 5.5, Gemini 4 Carbon·Neon·Argon·Hydrogen), 종료 예정·자동 연결 모델(gpt-4.1·gpt-4o·gpt-4o-mini·claude-haiku-4-5·gemini-3.5-flash·gemini-3.7-flash) 제거, 저장돼 있던 옛 값은 대체 모델로 읽음. 기본값: OpenAI gpt-6.1-terra · Claude claude-sonnet-5-5 · Gemini gemini-3.8-flash(모델 선택표 「중가 균형」). 새 모델 ID는 공식 문서와 ai-auto-blog 실제 호출 확인(모델 조회 23개 200·생성 9회 성공, `docs/AI_MODEL_CATALOG.md` 0-1절)으로 검증. 유료 호출·빌드·배포 없음. **다음 배포 때 버전 +0.01·확장 ZIP·DB 함께, 이 줄을 「배포됨」으로.** 파일: `utils/ai/contentModels.ts`. 시험: tsc·extension-api 44·shorts 18·post-source 8·blc12 3·collect-safety 3 통과. 참고: 이 프로그램의 OpenAI Responses 대체 조건(`utils/ai/contentJson.ts`)은 ai-auto-blog에서 엄격하게 고친 판정(`720efa08c`)이 아직 반영되지 않음 — 다음 작업 후보.
 
-## 2026-11-16 [역할: blog] Claude(Blog) — B-4 P2 소제목 「##」 글자 잔류 수정 (미배포 대기)
+> **⏳ 미배포 대기·맥미니 독립 검수 대기 (2026-11-20, CC-BLOG-01, Master msg_00f267650a0d) — AI 응답 형식 검사 `49f136fe4`**: `utils/news/generator.ts` `validatePostJson()` — 필수 10칸(제목·요약글·소제목 1~4·문단 1~4, 문단은 「1문단」 별칭 허용)이 빠졌거나 글자가 아니거나 비었으면 저장·이미지 생성 전에 거절하고 문제 칸을 화면에 알린다(예전엔 기본 문구로 채워 저장). 시험 `npm run test:generator-response` 6개(수정 전 코드에서 4개 실패 재현), tsc·기존 시험 통과. 외부 호출·새 의존성 0. 다음 티스토리 배포(v2.01) 때 코드·manifest·ZIP·DB 함께(확장 코드 변경 없음).
+
+## 2026-11-16 [역할: blog] Claude(Blog) — B-4 P2 소제목 「##」 글자 잔류 수정 (✅ v1.98로 배포됨, 2026-11-20 정정: a27861137 → 97ee4acbb)
 
 - **원인 확정:** AI가 「소제목 1~4」 값 앞에 「## 」를 붙여 주면 `utils/news/generator.ts`의 `renderSection`이 「## 」를 한 번 더 붙여 「## ## 제목」이 됐고, 화면 H2에 「##」가 글자로 남았다(맥미니 원고 25). 지시문이 「소제목은 ## 태그로 표현됩니다」라고만 해 AI가 기호를 값에 넣도록 유도한 것도 원인이다.
 - **수정:** `utils/news/headingDedupe.ts`에 `plainHeading()`을 추가해 앞뒤의 「# 」 기호를 지운다. 띄어쓰기 없는 `#해시태그`는 남긴다. `generator.ts`는 소제목을 이 함수로 정리한 뒤 조립하고, 지시문에는 「소제목 값에는 # 기호 없이 글자만」을 추가했다.

@@ -13,11 +13,11 @@
 
 ---
 
-## 2026-11-07 🟡 미배포 대기 — 「📨 업무 워크스페이스로 보내기」 (U10 2차, [역할: workspace] Claude Code 윈도우)
+## 2026-11-07 ✅ v1.88로 배포됨(2026-11-20 정정: c44499682 → bfd56fcd1) — 「📨 업무 워크스페이스로 보내기」 (U10 2차, [역할: workspace] Claude Code 윈도우)
 - 글 보기(`app/posts/[id]/page.tsx`) 관리 버튼 줄에 버튼(`components/SendToWorkspaceButton.tsx`, 독립 설치본은 숨김) → `POST /api/work-inbox`(출처 확인 → `checkProgramAccessApi` → 회원 본인 `blog_posts` 다시 읽기 → 공용 사본 `lib/workInbox.ts`(`work-inbox-client`, **직접 고치지 말 것** — 기준 `ai-work-workspace/src/lib/workInbox.ts` 수정 후 `--sync`)). 연결 파일 `lib/supabase/admin.ts`(사본이 부르는 경로, 기존 서버 클라이언트 재내보내기).
 - 내용: `utils/workInboxContent.ts` — 제목, 본문(요약 첫 줄 + HTML → 마크다운, 이미지·이미지 프롬프트 구역 제외), 구조 데이터 `{ 채널: 네이버 블로그, 상태: draft|failed, 예약일 }`. 이 프로그램은 네이버 발행을 회원이 직접 누르고 발행 주소가 없어 「발행 완료」로 보내지 않는다 — 날짜는 네이버 입력일(없으면 작성일), 워크스페이스 캘린더에서 회원이 상태를 고친다.
 - 검수: `npm run test:work-inbox` 4개, `test:extension-api` 38, tsc 0, 새 파일 eslint 0. 다음 배포 때 함께(버전 +0.01·DB·확장 ZIP 버전 맞춤, 화면에서 버튼 → 워크스페이스 받은 업무 → 캘린더 넣기 확인).
-- 발견(기존, 이번 변경과 무관): `npm run test:security`의 카테고리 시험 6개가 실패 — v1.84에서 카테고리를 회원별(관리자 분기 제거)로 바꾼 뒤 시험이 옛 「관리자만 변경」 기대값으로 남아 있음. 시험 기대값을 새 규칙으로 고쳐야 함(blog 역할).
+- 발견(기존, 이번 변경과 무관): `npm run test:security`의 카테고리 시험 6개가 실패 — v1.84에서 카테고리를 회원별(관리자 분기 제거)로 바꾼 뒤 시험이 옛 「관리자만 변경」 기대값으로 남아 있음. 시험 기대값을 새 규칙으로 고쳐야 함(blog 역할). → ✅ 해결(2026-11-20 정정: 15f5fa64e 시험 기대값 수정, 재실행 security 39/39 통과)
 
 ---
 
@@ -60,11 +60,11 @@
 3. **26번 네이버 블로그 올인원 (`naver-blog-allinone`) 및 29번 네이버 블로그 에이전트 (`naver-blog-agent`) 연계**:
    - 완성된 원문 블로그 글을 크롬 확장 프로그램 또는 네이버 에이전트 큐로 자동 발송하여 원클릭 예약 발행 연동.
 
-## 2026-10-23 (Claude Code 윈도우) — 소제목 반복 제거 적용(미배포 대기)
+## 2026-10-23 (Claude Code 윈도우) — 소제목 반복 제거 적용(✅ v1.79로 배포됨, 2026-11-20 정정: c9a09ce45 → 873da1202)
 - 티스토리 글 18번에서 찾은 「### 작은 제목이 바로 위 ## 소제목을 그대로 되풀이」 문제가 같은 생성기 구조인 이 프로그램에도 해당되어 같은 방식으로 고쳤습니다(지시문 1줄 + 조립 때 `dropRepeatedHeading`). 티스토리는 고친 뒤 실검수(글 19번)에서 반복 0건이었습니다.
 - 이 프로그램의 실제 생성 확인은 다음 배포 뒤 글 1편으로 합니다(AI 비용은 그때 주인님께 먼저 여쭙기).
 
-## 2026-10-23 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-seo-bg`) — ⏳ 미배포 대기: 30일 정리 회원별 기록
+## 2026-10-23 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-seo-bg`) — ✅ v1.80으로 배포됨(2026-11-20 정정: 6cd2b9783 → b83d352e3): 30일 정리 회원별 기록
 - 매일 30일 정리 크론이 **실제로 지운 것만** 회원별로 세어 `usage_logs`(action `cleanup_expired`)에 한 줄씩 남김 — 메인 관리자 「30일 자동 정리」 표·「운영 상태」 진행률용. 공용 기준 `cleanup-usage-log`(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`) 사본을 `check-shared-modules.mjs --sync`로 받음(직접 고치지 않음). 미리 보기(`?dry=1`)는 기록 안 함, 기록 실패해도 정리는 계속. 다음 배포 때 함께(버전 +0.01).
 
 ## 2026-10-26 v1.83 — 보안 업데이트·운영 반영(Codex)
@@ -75,7 +75,7 @@
 - [세 앱 공통 근거](../../docs/analysis-blog-consolidation-20261020/evidence/blog-security-batch-20261026.json)·[이 앱 검사](../../docs/analysis-blog-consolidation-20261020/evidence/ai-auto-blog-security-tests-20261026.json). 실제 회원 화면/확장 설치본 검수는 별도입니다.
 
 ## 2026-10-30 배포 키트 작업 중 발견 (Claude Code 윈도우, 세션 `claude-win-20261029-statusbar`)
-- **시험 기대값 낡음(미처리)**: `npm run test:security` 6개(categories POST/PATCH/DELETE·GET canManage·관리자 이름 바꾸기·관리자 조회 실패)와 `npm run test:shorts` 1개(analyze 저장)가 실패 — v1.84(10-28) 카테고리 회원별 전환으로 「관리자만 수정·공용 카테고리」 기대가 맞지 않게 됨. 코드 결함이 아니라 시험 기대값을 회원 본인 소유 규칙으로 고쳐야 함(기대값만 수정, 시험 삭제 금지). 우선순위 중간.
+- **시험 기대값 낡음(✅ 처리 2026-11-10 15f5fa64e, 재실행 security 39·shorts 18 통과 — 2026-11-20 정정)**: `npm run test:security` 6개(categories POST/PATCH/DELETE·GET canManage·관리자 이름 바꾸기·관리자 조회 실패)와 `npm run test:shorts` 1개(analyze 저장)가 실패 — v1.84(10-28) 카테고리 회원별 전환으로 「관리자만 수정·공용 카테고리」 기대가 맞지 않게 됨. 코드 결함이 아니라 시험 기대값을 회원 본인 소유 규칙으로 고쳐야 함(기대값만 수정, 시험 삭제 금지). 우선순위 중간.
 - **독립 모드(배포 키트) 스위치 추가**: `lib/deployment.ts` — 자세한 내용은 `AGENTS.md` 맨 위와 `KIT/README.md`.
 
 ## 2026-11-01 v1.85 사용법 「✨ 새로 생긴 기능」 카드 (맥미니 `claude-mac-20261101-blog`, 주인님 승인 바로 배포)
