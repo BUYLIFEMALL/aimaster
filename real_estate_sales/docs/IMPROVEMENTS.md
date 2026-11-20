@@ -2,6 +2,9 @@
 
 > ~~미배포 대기(2026-11-04)~~ → **✅ v1.48에 함께 배포됨(2026-11-04 18:50, 2026-11-10 커밋 시각으로 확인)**: 빌라 매매 주소 `RHTrade` → `RHTrade2`(`src/lib/publicdata/molit.ts`, 시험 35개·tsc 통과). 승인(10-31)된 새 서비스에 맞춤 — 지금은 빌라 매매만 24시간 13번 403. 다음 배포 때 함께 내보내고, 배포 뒤 `vercel logs --project real-estate-sales --level error`에서 「빌라 … 건수 조회 실패」가 사라졌는지 확인. 응답 칸 이름(`mhouseNm` 등)이 옛 판과 같은지도 그때 첫 수집 결과로 확인.
 
+## 2026-11-20 [역할: realty] Claude(RealEstate) — Next.js 보안 패치 16.4.2 → 16.4.6 (**미배포 대기**, 주인님 「진행해」)
+- `00d3e589b`: `next`·`eslint-config-next` 16.4.6 고정, `package.json`·`package-lock.json`만. `npm audit --omit=dev` 0건(전: moderate 7개 공지 ≤16.4.4), tsc 0, 시험 77/77, `npm run build` 2회 모두 `SecurityFatalError` 없이 통과. 조사 `.ai/results/RE-NEXT-UPGRADE-READBACK-CC-REALTY-01.md`. 다음 배포 때 함께(이것만으로 따로 배포하지 않음).
+
 ## 2026-11-20 [역할: realty] Claude(RealEstate) — ✅ v1.62 배포(주인님 승인 빌드 1회, Master `msg_90f2484de2f0` 순번)
 - 대상: `8767db0a8`(뉴스 사설·칼럼 뒤로·AI 요약 입력 지역당 상한)·`63e7c429f`·`e7084ca24`(요약 입력 지역 코드 기준 순서·켜진 감시만 제안)·`a6544db4e`(다른 부동산 프로그램에 켠 지역 제안) + 버전 커밋 `7c0601126`(`src/lib/version.ts` v1.62, `supabase/migrations/20261120000100_version_v1_62.sql` **미적용**). v1.61(`493d87855`) 이후 앱 코드 변경은 이 4개뿐(나머지는 docs·`scripts/news-noise-sim.mjs`).
 - 배포: `dpl_A7LLnZzinTziZmws3PHFRepaY6DB`(`real-estate-sales-fce0h3jqu-buylife.vercel.app`) Ready·production, 별칭 `real-estate-sales.buylife.xyz`. 직전 운영 `real-estate-sales-bl0k0qu46`(v1.61). 배포 전 팀 빌드 0, tsc 0, 대상 시험 27/27, 로컬 빌드 0.

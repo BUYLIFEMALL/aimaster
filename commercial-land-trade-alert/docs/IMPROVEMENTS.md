@@ -1,5 +1,8 @@
 # 개선사항 기록 — 상업용지·토지 실거래가 레이더 (`commercial-land-trade-alert`)
 
+## 2026-11-20 [역할: realty] Claude(RealEstate) — Next.js 보안 패치 16.4.2 → 16.4.6 (**미배포 대기**, 주인님 「진행해」)
+- `3c823239c`: `next`·`eslint-config-next` 16.4.6 고정, `package.json`·`package-lock.json`만. `npm audit --omit=dev` 0건(전: moderate 7개 공지 ≤16.4.4), tsc 0, 시험 84/84, `npm run build` 2회 모두 `SecurityFatalError` 없이 통과. 조사 `.ai/results/RE-NEXT-UPGRADE-READBACK-CC-REALTY-01.md`. 다음 배포 때 함께(이것만으로 따로 배포하지 않음).
+
 ## 2026-11-19 [역할: realty] Claude(RealEstate) — 매뉴얼에 확장 새 버전 받기·「이전 회차」 설명 추가 (**미배포 대기**, 주인님 지시 「사용자 매뉴얼에도 관련 내용 정리해서 보시 쉽게 추가해놔」)
 - `src/app/(dashboard)/guide/page.tsx`: 「🔄 확장 새 버전 받기」 3단계 카드(받아 덮어쓰기 → chrome://extensions 새로고침 → 팝업 버전 확인) + 「⬇ 확장 vX.YY 받기」 버튼(최신 ZIP) + 💡 같은 폴더면 연결·설정·통계 그대로 안내, 자주 묻는 질문 2개(새 버전 아는 법, 「⏸ 이전 회차 결과」 뜻). 팝업에 새 버전 알림 기능은 없어 「팝업 버전 vs 왼쪽 메뉴 버전 비교」로 안내. tsc 0·시험 84/84·eslint 0. 다음 상가 배포 때 함께(문구만이라 단독 빌드 안 함).
 
