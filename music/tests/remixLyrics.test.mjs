@@ -1,5 +1,5 @@
-// 리믹스 가사 1차 순수 함수(lib/remixLyrics.ts) — REMIX-LYRICS-PHASE1-PURE A1, 합성 표본 docs/fixtures/remix-lyrics-fixtures-20261120.json
-// 가사 원문은 시험 출력에 찍지 않는다(길이·해시만 비교).
+// 리믹스 가사 1차 순수 함수(lib/remixLyrics.ts) — REMIX-LYRICS-PHASE1-PURE A1·A2, 합성 표본 docs/fixtures/remix-lyrics-fixtures-20261120.json
+// 가사 원문은 시험 출력에 찍지 않는다(길이·해시만 비교). 길이는 유니코드 코드 포인트 기준.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -10,11 +10,14 @@ import {
   pickRemixLyricText,
   remixInstructionCandidates,
   isInstructionEcho,
+  normalizeForCompare,
+  codePointLength,
   REMIX_LYRICS_MAX,
 } from "../lib/remixLyrics.ts";
 
 const fx = JSON.parse(readFileSync(new URL("../docs/fixtures/remix-lyrics-fixtures-20261120.json", import.meta.url), "utf8"));
 const hash = (s) => createHash("sha256").update(String(s).normalize("NFC")).digest("hex").slice(0, 16);
+const VOCAL = { mode: "add_vocals", instrumental: false, userLyrics: null, lang: "한국어", vocalGender: null };
 const get = (id) => {
   const c = fx.cases.find((x) => x.id === id);
   assert.ok(c, `표본 ${id} 없음`);
@@ -45,14 +48,15 @@ function runCase(id) {
     const r = rows[i];
     assert.equal(r.audioId, e.audioId, `${id} 행 순서`);
     assert.equal(r.status, e.status, `${id} ${e.audioId} 상태`);
-    if ("lyricsLen" in e) assert.equal(r.lyrics ? r.lyrics.length : 0, e.lyricsLen, `${id} ${e.audioId} 길이`);
-    if ("lyricsLenMin" in e) assert.ok((r.lyrics ?? "").length >= e.lyricsLenMin, `${id} 최소 길이`);
+    if ("lyricsLen" in e) assert.equal(r.lyrics ? codePointLength(r.lyrics) : 0, e.lyricsLen, `${id} ${e.audioId} 길이(코드 포인트)`);
+    if ("lyricsLenMin" in e) assert.ok(codePointLength(r.lyrics ?? "") >= e.lyricsLenMin, `${id} 최소 길이`);
     if ("lyricsHash" in e) assert.equal(r.lyrics ? hash(r.lyrics) : null, e.lyricsHash, `${id} ${e.audioId} 해시`);
     if ("guessedFieldSeen" in e) assert.equal(r.guessedFieldSeen, e.guessedFieldSeen, `${id} 추측 칸 표시`);
     if ("suspectLanguage" in e) assert.equal(r.suspectLanguage, e.suspectLanguage, `${id} 언어 의심`);
   });
   return rows;
 }
+const LONE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
 
 test("지시문 후보가 실제 요청 코드 문구와 같다(remix.ts·remixSync.ts) — 문구가 바뀌면 이 시험이 먼저 깨진다", () => {
   const actions = readFileSync(new URL("../lib/actions/remix.ts", import.meta.url), "utf8");
@@ -86,7 +90,7 @@ test("P0 가사 칸 자체가 없으면 unknown(empty 아님)·추측 칸 문자
   runCase("P0-GUESS-02");
 });
 
-test("P0 지시문 오인 — 그대로·구간 표시·혼성은 empty, 회원 가사+듀엣 줄은 가사(ECHO-01~04)", () => {
+test("P0 지시문 — 전문 그대로·혼성은 empty, 앞부분+구간 표시(ECHO-02)·회원 가사+듀엣 줄(ECHO-04)은 미검증 가사", () => {
   runCase("P0-ECHO-01");
   runCase("P0-ECHO-02");
   runCase("P0-ECHO-03");
@@ -99,7 +103,7 @@ test("P1 빈 값·공백 → empty, 가사 없는 종류 → not_applicable(EMPT
   assert.equal(na[0].lyrics, null, "반주 추가는 응답에 글이 있어도 저장하지 않음");
 });
 
-test("P1 같은 번호가 다른 가사로 두 번 → 어느 것도 고르지 않음(DUP-01, 정정된 기대값)", () => {
+test("P1 같은 번호가 다른 가사로 두 번 → 어느 것도 고르지 않음(DUP-01)", () => {
   const c = get("P1-DUP-01");
   const { rows, duplicateIds } = matchRemixLyricsByAudioId(ctxOf(c.input), materialize(c.input.sunoData), ["A"]);
   assert.deepEqual(duplicateIds, ["A"]);
@@ -107,7 +111,6 @@ test("P1 같은 번호가 다른 가사로 두 번 → 어느 것도 고르지 �
   assert.equal(rows[0].status, c.expected.status);
   assert.equal(rows[0].conflict, true);
   assert.equal(rows[0].lyrics, null);
-  // 같은 가사로 두 번이면 하나로 인정
   const same = matchRemixLyricsByAudioId(ctxOf(c.input), [{ id: "A", prompt: "표본 가사 가" }, { id: "A", prompt: "표본 가사 가" }], ["A"]);
   assert.equal(same.rows[0].status, "provided_unverified");
   assert.equal(same.rows[0].conflict, false);
@@ -124,27 +127,73 @@ test("P1 번호 없는 항목은 어떤 곡에도 매칭 안 됨(NOID-01)", () =
   assert.equal(hash(own.lyrics), c.expected[0].lyricsHash);
 });
 
-test("P2 표기 섞임·5,000자 제한·한국어 리믹스의 영어 가사 의심(CASE-01·LEN-01·SUSPECT-01)", () => {
+test("P2 표기 섞임·5,000 상한·한국어 리믹스의 영어 가사 의심(CASE-01·LEN-01·SUSPECT-01)", () => {
   runCase("P2-CASE-01");
   const len = runCase("P2-LEN-01");
-  assert.equal(len[0].lyrics.length, REMIX_LYRICS_MAX);
+  assert.equal(codePointLength(len[0].lyrics), REMIX_LYRICS_MAX);
   runCase("P2-SUSPECT-01");
 });
 
 test("응답에 없는 곡 번호는 unknown, 가사 없는 종류면 not_applicable", () => {
-  const vocal = matchRemixLyricsByAudioId({ mode: "add_vocals", instrumental: false, userLyrics: null, lang: "한국어", vocalGender: null }, [], ["Z"]);
+  const vocal = matchRemixLyricsByAudioId(VOCAL, [], ["Z"]);
   assert.equal(vocal.rows[0].status, "unknown");
   assert.equal(vocal.rows[0].matched, false);
-  const inst = matchRemixLyricsByAudioId({ mode: "cover", instrumental: true, userLyrics: null, lang: "한국어", vocalGender: null }, [], ["Z"]);
+  const inst = matchRemixLyricsByAudioId({ ...VOCAL, mode: "cover", instrumental: true }, [], ["Z"]);
   assert.equal(inst.rows[0].status, "not_applicable");
 });
 
-test("지시문 판정 경계 — 다른 영어 가사·짧은 앞부분은 지시문으로 보지 않음", () => {
+test("지시문 판정 — 정규화 뒤 전문 일치만 지시문(A2 반례)", () => {
   const c = remixInstructionCandidates("한국어", null);
-  assert.equal(isInstructionEcho("Sing", c), false);
+  const solo = fx.defaults.instructionSolo;
+  // 전문 일치(대소문자·문장부호·줄바꿈·구간 표시 차이는 정규화로 흡수) → 지시문
+  assert.equal(isInstructionEcho(solo, c), true);
+  assert.equal(isInstructionEcho("[Verse 1]\n  " + solo.toUpperCase().replace(/,/g, " ;\n") + "!!", c), true);
+  assert.equal(isInstructionEcho(fx.defaults.extendInstruction, c), true);
+  // A1에서 지시문으로 잘못 보던 것 → 이제 아님
+  assert.equal(isInstructionEcho("Sing this song in 한국어", c), false, "다섯 단어 접두만");
+  assert.equal(isInstructionEcho("  SING THIS SONG IN 한국어 , in the new style described above  ", c), false, "앞부분 일부");
+  assert.equal(isInstructionEcho("[Intro]\nContinue this remix naturally into a new section", c), false, "연장 지시문 앞부분");
+  assert.equal(isInstructionEcho(solo + "\n비 오는 거리 위로 걸어가", c), false, "지시문 + 실제 가사 혼합");
+  assert.equal(isInstructionEcho(solo.replace("song", "songbird"), c), false, "단어 부분 일치");
   assert.equal(isInstructionEcho("Sing me a song tonight", c), false);
-  assert.equal(isInstructionEcho("  SING THIS SONG IN 한국어 , in the new style described above  ", c), true);
-  assert.equal(isInstructionEcho("[Intro]\nContinue this remix naturally into a new section", c), true);
+  assert.equal(isInstructionEcho("", c), false);
+  for (const p of ["Sing this song in 한국어", solo + "\n비 오는 거리 위로 걸어가"]) {
+    assert.equal(classifyRemixLyrics(VOCAL, { prompt: p }).status, "provided_unverified");
+  }
+  assert.equal(classifyRemixLyrics(VOCAL, { prompt: solo }).status, "empty");
+  // 정규화 규칙 명시
+  assert.equal(normalizeForCompare("  [Chorus]\nA,  b!\n\tC  "), "a b c");
+});
+
+test("5,000 상한은 코드 포인트 기준 — 이모지 경계에서 고립 서로게이트 없음(A2 반례)", () => {
+  const emoji = "😀";
+  const a = classifyRemixLyrics(VOCAL, { prompt: "가".repeat(4999) + emoji + "나나" }).lyrics;
+  assert.equal(codePointLength(a), 5000);
+  assert.equal(a.length, 5001, "UTF-16 길이 5,001 — UTF-16 기준으로 자르면 이모지가 반으로 갈림");
+  assert.ok(a.endsWith(emoji));
+  assert.equal(LONE.test(a), false);
+  const b = classifyRemixLyrics(VOCAL, { prompt: emoji.repeat(5001) }).lyrics;
+  assert.equal(codePointLength(b), 5000);
+  assert.equal(LONE.test(b), false);
+  const exact = "가".repeat(4998) + emoji + emoji;
+  assert.equal(classifyRemixLyrics(VOCAL, { prompt: exact }).lyrics, exact, "정확히 5,000이면 그대로");
+});
+
+test("같은 번호 충돌은 자르기 전 원문으로 판정 — 5,000 뒤에서만 달라도 unknown(A2 반례)", () => {
+  const head = "가".repeat(5000);
+  const r = matchRemixLyricsByAudioId(VOCAL, [{ id: "A", prompt: head + "나" }, { id: "A", prompt: head + "다" }], ["A"]).rows[0];
+  assert.equal(r.conflict, true, "잘린 결과는 같아도 원문이 다르면 충돌");
+  assert.equal(r.status, "unknown");
+  assert.equal(r.lyrics, null);
+  const same = matchRemixLyricsByAudioId(VOCAL, [{ id: "A", prompt: head + "나" }, { id: "A", prompt: head + "나" }], ["A"]).rows[0];
+  assert.equal(same.conflict, false);
+  assert.equal(codePointLength(same.lyrics), 5000);
+  const mixed = matchRemixLyricsByAudioId(VOCAL, [{ id: "A", prompt: "표본 가사 가" }, { id: "A" }], ["A"]).rows[0];
+  assert.equal(mixed.conflict, true, "가사 있음과 칸 없음이 섞이면 충돌");
+  assert.equal(mixed.status, "unknown");
+  const other = matchRemixLyricsByAudioId(VOCAL, [{ id: "A", prompt: "x" }, { id: "A", prompt: "y" }, { id: "B", prompt: "표본 가사 나" }], ["A", "B"]).rows;
+  assert.equal(other[1].status, "provided_unverified", "다른 번호의 가사는 영향 없음");
+  assert.equal(hash(other[1].lyrics), hash("표본 가사 나"));
 });
 
 test("P0 회원 원문 우선(PRIO-01~03)", () => {
@@ -171,10 +220,9 @@ test("P0 회원 원문 우선(PRIO-01~03)", () => {
 });
 
 test("결과 값에 provided(검증됨)는 나오지 않는다 — 실측 전", () => {
-  const ctx = { mode: "add_vocals", instrumental: false, userLyrics: null, lang: "한국어", vocalGender: null };
   for (const it of [{ prompt: "표본 가사 가" }, { prompt: "" }, {}, { lyrics: "x" }, { prompt: 3 }]) {
-    assert.notEqual(classifyRemixLyrics(ctx, it).status, "provided");
+    assert.notEqual(classifyRemixLyrics(VOCAL, it).status, "provided");
   }
-  assert.equal(classifyRemixLyrics(ctx, { prompt: 3 }).status, "unknown", "문자열이 아닌 prompt");
-  assert.equal(classifyRemixLyrics(ctx, null).status, "unknown");
+  assert.equal(classifyRemixLyrics(VOCAL, { prompt: 3 }).status, "unknown", "문자열이 아닌 prompt");
+  assert.equal(classifyRemixLyrics(VOCAL, null).status, "unknown");
 });

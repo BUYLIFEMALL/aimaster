@@ -12,7 +12,7 @@
   "guessedFields": "lyrics·lyric 등 다른 이름의 문자열은 저장하지 않고 상태 unknown, 진단 표시 guessedFieldSeen=true만 남긴다",
   "absent": "가사 칸이 아예 없으면 unknown(empty 아님)",
   "pairing": "가사와 행의 짝은 sunoData 배열 순서가 아니라 항목 id(= suno_audio_id) 기준",
-  "instructionEcho": "보낸 영어 지시문과 정규화 뒤 같거나 지시문 첫 문장으로 시작하면 empty",
+  "instructionEcho": "보낸 영어 지시문과 정규화(NFC→[...] 제거→문장부호 제거→공백 하나→앞뒤 공백 제거→소문자) 뒤 전문이 같을 때만 empty. 접두·일부·혼합은 provided_unverified",
   "output": "시험 비교는 (audioId, taskId, hop, status, lyricsLen, lyricsHash)만. lyricsHash = NFC 정규화 문자열 sha256 앞 16자. 가사 원문을 시험 출력·로그에 찍지 않는다",
   "memberPriority": "회원이 직접 넣은 가사(music_track_remixes.lyrics)가 있으면 가사 영상 본문은 항상 회원 원문 — Suno prompt(provided_unverified)는 저장만 하고 본문을 덮지 않는다",
   "casConditions": "잠금·저장·완료·실패·연장 갱신은 모두 (id, task_id = 처리 중인 taskId, extend_hop_count = 읽은 hop, status = generating) 조건을 함께 건다. 조건이 맞지 않으면 아무것도 바꾸지 않고 ignored",
@@ -21,7 +21,9 @@
   "extend": "연장은 예약(세대 gen+1·소유 토큰·만료 시각) → 전송 → 확정(task_id 기록, 조건 gen·토큰·task_id null·만료 전). 분명한 거절 근거가 있을 때만 extendFailed, 그 밖(시간 초과·연결 끊김·5xx·본문 해석 불가·문서 불일치 코드·taskId 없는 성공 응답·만료된 예약)은 모두 extendUncertain. 어느 경우에도 자동 재발송 0",
   "backfill": "완료 리믹스의 본인 unknown 변주만. 출처 = suno_task_id, 없으면 hop 0 리믹스의 task_id만. suno_task_id 없는 옛 연장 행은 조회 0회·unknown 유지(오디오 id가 겹쳐도). 갱신 조건 id + user_id + lyrics_status = unknown",
   "definiteRejection": "HTTP 응답을 받았고 + 본문 JSON을 해석했고 + 본문 code가 400·401·404·413 중 하나이며 HTTP 상태와 같고 + 본문에 taskId가 없을 때만. 405·429·430·455는 문서끼리 뜻이 엇갈려(SUNOAPI_REFERENCE 59줄) 불확실로 본다",
-  "backfillGuard": "보충 UPDATE 한 문장의 WHERE에 모두: variant.id·user_id(본인)·remix_id 일치, lyrics_status='unknown', 리믹스 user_id 본인·status='completed'·lyrics(회원 원문) 비어 있음, 출처 = (variant.suno_task_id = 조회한 taskId) 또는 (variant.suno_task_id is null and remix.extend_hop_count = 0 and remix.task_id = 조회한 taskId), variant.suno_audio_id = 응답 항목 id. 하나라도 어긋나면 0행"
+  "backfillGuard": "보충 UPDATE 한 문장의 WHERE에 모두: variant.id·user_id(본인)·remix_id 일치, lyrics_status='unknown', 리믹스 user_id 본인·status='completed'·lyrics(회원 원문) 비어 있음, 출처 = (variant.suno_task_id = 조회한 taskId) 또는 (variant.suno_task_id is null and remix.extend_hop_count = 0 and remix.task_id = 조회한 taskId), variant.suno_audio_id = 응답 항목 id. 하나라도 어긋나면 0행",
+  "lengthUnit": "5,000 상한은 유니코드 코드 포인트 기준. lyricsLen도 코드 포인트 수",
+  "duplicate": "같은 번호가 여러 번 오면 자르기 전 원문·상태가 모두 같을 때만 하나로, 다르면(5,000 뒤에서만 달라도) unknown+conflict"
  },
  "_preconditions": [
   "웹훅 리믹스 조회 select(music/app/api/webhooks/suno/route.ts 104~106줄)에 지금 mode·lyrics·task_id가 없다 → 저장 단계에서 종류·지시문 판정을 하려면 이 세 칸을 함께 읽어야 한다(구현 항목)",
@@ -361,7 +363,7 @@
   {
    "id": "P0-ECHO-02",
    "priority": "P0",
-   "theme": "지시문 + 구간 표시·줄바꿈",
+   "theme": "지시문 앞부분만 + 구간 표시 — 전문 일치가 아니므로 미검증 후보 유지",
    "basis": [
     "ASSUME"
    ],
@@ -382,13 +384,13 @@
    "expected": [
     {
      "audioId": "A",
-     "status": "empty",
-     "lyricsLen": 0,
-     "lyricsHash": null,
-     "hop": 0
+     "hop": 0,
+     "status": "provided_unverified",
+     "lyricsLen": 63,
+     "lyricsHash": "569565f0fa30c202"
     }
    ],
-   "note": "구간 표시 제거 뒤 지시문 첫 문장으로 시작 → empty"
+   "note": "PHASE1-PURE A2 정정: 지시문 판정은 정규화 뒤 전문 일치만 empty. 다섯 단어 접두·일부 일치·가사 혼합은 provided_unverified"
   },
   {
    "id": "P0-ECHO-03",
