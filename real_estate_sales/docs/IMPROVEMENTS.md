@@ -6,7 +6,8 @@
 - 대상: `8767db0a8`(뉴스 사설·칼럼 뒤로·AI 요약 입력 지역당 상한)·`63e7c429f`·`e7084ca24`(요약 입력 지역 코드 기준 순서·켜진 감시만 제안)·`a6544db4e`(다른 부동산 프로그램에 켠 지역 제안) + 버전 커밋 `7c0601126`(`src/lib/version.ts` v1.62, `supabase/migrations/20261120000100_version_v1_62.sql` **미적용**). v1.61(`493d87855`) 이후 앱 코드 변경은 이 4개뿐(나머지는 docs·`scripts/news-noise-sim.mjs`).
 - 배포: `dpl_A7LLnZzinTziZmws3PHFRepaY6DB`(`real-estate-sales-fce0h3jqu-buylife.vercel.app`) Ready·production, 별칭 `real-estate-sales.buylife.xyz`. 직전 운영 `real-estate-sales-bl0k0qu46`(v1.61). 배포 전 팀 빌드 0, tsc 0, 대상 시험 27/27, 로컬 빌드 0.
 - **확인함(공개 읽기)**: `/` 307→`/login`, `/login` 200(저장공간 위젯 포함), `/districts` 307→`/login?redirect=%2Fdistricts`, 응답 지역 icn1. 배포 뒤 폴더 미커밋 0(올린 소스 = `7c0601126` 트리).
-- **아직 확인 안 함**: 로그인 뒤 사이드바 v1.62 표기·`/districts` 「🔗 다른 부동산 프로그램에 등록한 지역」 실화면(점검표 `.ai/results/RE-REGION-LINKAGE-LIVE-QA-CHECKLIST-CC-REALTY-01.md` B1·B2), 다음 08:00 뉴스 회차의 사설 뒤로·요약 지역당 상한 실제 반영, DB `programs.version`은 **v1.62로 적용 완료(2026-11-20 03:45 UTC, 주인님 채팅 승인, 갱신 전 v1.61 확인·갱신 뒤 다시 읽어 v1.62 확인)**.
+- **로그인 실화면 확인(2026-11-20, ego lite·시험 계정, 클릭·쓰기 0)**: 사이드바 v1.62(B2), `/districts` 제안 강남구(상가)·사상구(상가·매물 알림)(B1), 시험 계정 본인 켜진 행과 정확히 일치(X1) — 모두 PASS, `.ai/results/RE-REAL-V162-LIVE-B1B2-CC-REALTY-01.md`.
+- **아직 확인 안 함**: 다음 08:00 뉴스 회차의 사설 뒤로·요약 지역당 상한 실제 반영, DB `programs.version`은 **v1.62로 적용 완료(2026-11-20 03:45 UTC, 주인님 채팅 승인, 갱신 전 v1.61 확인·갱신 뒤 다시 읽어 v1.62 확인)**.
 
 ## 2026-11-19 [역할: realty] Claude(RealEstate) — 지역 뉴스 사설·칼럼 뒤로·알림 요약 지역당 상한 (✅ **v1.62 배포(2026-11-20)** ~~미배포 대기~~, 주인님 「순서대로 진행해」)
 - 플랜·결과: `docs/PLAN_20261119_NEWS_CAP_OPINION.md`(6절). `radarCore.ts` `isOpinionTitle`·`capPerRegion`, `runner.ts` AI 요약 입력만 지역당 15건·번갈아. 저장·화면·알림 글 제목 수 변화 없음.
