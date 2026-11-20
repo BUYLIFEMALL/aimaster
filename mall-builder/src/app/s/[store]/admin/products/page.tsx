@@ -231,12 +231,12 @@ export default async function ProductsPage({
       )}
 
       {pages > 1 && (
-        <nav className="mt-4 flex items-center justify-center gap-2 text-sm" data-product-pages>
-          {f.page > 1 ? <Link href={productListHref(base, f, { page: f.page - 1 })} className="rounded bg-gray-100 px-3 py-1.5">‹ 이전</Link> : <span className="px-3 py-1.5 text-gray-300">‹ 이전</span>}
-          <span className="text-gray-600">
+        <nav aria-label="상품 목록 페이지" className="mt-4 flex items-center justify-center gap-2 text-sm" data-product-pages>
+          {f.page > 1 ? <Link href={productListHref(base, f, { page: f.page - 1 })} className="rounded bg-gray-100 px-3 py-1.5">‹ 이전</Link> : <span aria-disabled="true" className="px-3 py-1.5 text-gray-300">‹ 이전</span>}
+          <span aria-current="page" aria-label={`현재 ${f.page}페이지 / 전체 ${pages}페이지`} className="text-gray-600">
             {f.page} / {pages}
           </span>
-          {f.page < pages ? <Link href={productListHref(base, f, { page: f.page + 1 })} className="rounded bg-gray-100 px-3 py-1.5">다음 ›</Link> : <span className="px-3 py-1.5 text-gray-300">다음 ›</span>}
+          {f.page < pages ? <Link href={productListHref(base, f, { page: f.page + 1 })} className="rounded bg-gray-100 px-3 py-1.5">다음 ›</Link> : <span aria-disabled="true" className="px-3 py-1.5 text-gray-300">다음 ›</span>}
         </nav>
       )}
     </AdminShell>
