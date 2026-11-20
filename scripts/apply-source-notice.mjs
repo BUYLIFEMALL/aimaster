@@ -113,7 +113,69 @@ export function noticeProblems(folder) {
     if (blocks.some((b) => /user-agent:\s*\*/i.test(b) && /^\s*disallow:\s*\/\s*$/im.test(b) && !/^\s*allow:\s*\//im.test(b)))
       problems.push(`검색엔진 차단: ${join(folder, pub, "robots.txt")} — User-agent: * 를 막지 말고 AI 학습 크롤러만 막을 것(REA·비공개 프로그램은 예외)`);
   }
+  const mw = middlewareNoticeProblem(folder);
+  if (mw) problems.push(mw);
   return problems;
+}
+
+// ── 로그인 미들웨어가 고지 파일을 막는지(정적 추정, 2026-11-20 CRAWLER-NOTICE-REDIRECT-AUDIT) ──
+// 운영 82개 주소 중 19개에서 /robots.txt·/ai.txt 가 /login 으로 307 됐다(파일은 있는데 바깥에서 못 읽음).
+// 코드만 보고 추정하므로 경고로만 알리고 막지 않는다. 확정은 배포 뒤 `curl -sI <주소>/robots.txt` 가 200·text/plain 인지로 본다.
+const MIDDLEWARE_FILES = ["src/proxy.ts", "src/middleware.ts", "proxy.ts", "middleware.ts", "web/src/proxy.ts", "web/src/middleware.ts", "web/proxy.ts", "web/middleware.ts"];
+const NOTICE_PATHS = ["/robots.txt", "/ai.txt"];
+
+/** 주석을 지운다 — 판정 단어(isNoticeFile·/login 등)가 주석에만 있으면 없는 것으로 본다. 「https://」의 // 는 남긴다. */
+function stripComments(src) {
+  return src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/\/.*$/gm, "$1");
+}
+
+/** matcher 값을 글자 목록으로. 없으면 [](모든 경로에 돈다), 글자로 못 읽으면 null(판정 불가). */
+function readMatchers(code) {
+  const at = code.search(/\bmatcher\s*:/);
+  if (at < 0) return [];
+  const rest = code.slice(at).replace(/^matcher\s*:\s*/, "");
+  const one = rest.match(/^(["'`])((?:\\.|(?!\1).)*)\1/);
+  if (one) return [one[2]];
+  const arr = rest.match(/^\[([\s\S]*?)\]\s*[,}]/);
+  if (!arr) return null;
+  const items = [...arr[1].matchAll(/(["'`])((?:\\.|(?!\1).)*)\1/g)].map((m) => m[2]);
+  const leftover = arr[1].replace(/(["'`])((?:\\.|(?!\1).)*)\1/g, "").replace(/[\s,]/g, "");
+  return items.length && !leftover ? items : null; // 글자가 아닌 값(변수·객체)이 섞이면 판정 불가
+}
+
+/**
+ * 미들웨어 소스 하나를 판정한다(순수 함수 — 시험용).
+ * blocks: 거부 기본(공개 경로 밖이면 /login) + matcher 가 고지 경로를 잡음 + 통과 처리 없음
+ * unknown: 거부 기본 + 통과 처리 없음인데 matcher 를 글자로 못 읽음
+ * ok: 그 밖(허용 기본 방식, 통과 처리 있음, matcher 가 .txt 를 뺌 등)
+ */
+export function classifyMiddleware(src) {
+  const code = stripComments(src);
+  const denyDefault = /redirect\([^)]*login|new URL\(\s*["'`]\/login/.test(code) && /!\s*is(Public|Open|Allowed)\w*|!\s*PUBLIC_\w+\.(some|includes)/.test(code);
+  if (!denyDefault) return { verdict: "ok", reason: "공개 경로 밖을 로그인으로 보내는 방식이 아님" };
+  const exempt = /\bisNoticeFile\s*\(/.test(code) || NOTICE_PATHS.some((p) => new RegExp(`["'\`]${p.replace(".", "\\.")}["'\`]`).test(code));
+  if (exempt) return { verdict: "ok", reason: "고지 경로 통과 처리 있음" };
+  const matchers = readMatchers(code);
+  if (matchers === null) return { verdict: "unknown", reason: "matcher 를 글자로 읽지 못함" };
+  if (!matchers.length) return { verdict: "blocks", reason: "matcher 없음(모든 경로에 돈다)" };
+  let unreadable = false;
+  for (const m of matchers) {
+    let re;
+    try { re = new RegExp("^" + m.replace(/\\\\/g, "\\") + "$"); } catch { unreadable = true; continue; }
+    if (NOTICE_PATHS.some((p) => re.test(p))) return { verdict: "blocks", reason: `matcher 「${m.slice(0, 60)}」가 고지 경로를 잡음` };
+  }
+  return unreadable ? { verdict: "unknown", reason: "matcher 정규식을 해석하지 못함" } : { verdict: "ok", reason: "matcher 가 고지 경로를 뺌" };
+}
+
+/** 그 폴더의 미들웨어 경고 한 줄(없으면 null). noticeProblems 가 붙인다. */
+export function middlewareNoticeProblem(folder) {
+  const rel = MIDDLEWARE_FILES.find((f) => existsSync(join(ROOT, folder, f)));
+  if (!rel) return null;
+  const file = join(folder, rel).replace(/\\/g, "/");
+  const { verdict, reason } = classifyMiddleware(readFileSync(join(ROOT, folder, rel), "utf8"));
+  if (verdict === "blocks") return `[정적 추정] 로그인 미들웨어가 고지 파일을 막을 수 있음: ${file} — ${reason}. /robots.txt·/ai.txt 를 로그인 검사 전에 통과시키고, 배포 뒤 curl -sI <주소>/robots.txt 가 200 인지 확인`;
+  if (verdict === "unknown") return `[정적 추정·판정 불가] ${file} — ${reason}. 배포 뒤 curl -sI <주소>/robots.txt 가 200 인지 직접 확인`;
+  return null;
 }
 
 const isMain = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
