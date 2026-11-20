@@ -548,3 +548,4 @@ MOV-ILV-NOTICE-307 CC-MOVIE-01: Master msg_39d6e32749ef. infinite-loop-video/src
 MOV-ILV-NOTICE-307 CC-MOVIE-01 해제: d34965be2 (tsc 0·notice 4/4·npm test 19/19).
 MOV-NEXT-REMAINING CC-MOVIE-01: 주인님 채팅 승인(2026-11-20 「순서대로 진행해」), Master 알림 msg_79288185556f. infinite-loop-video·shorts-onestop-studio·shots 각 package.json·package-lock.json만(next 16.4.6, shots는 eslint-config-next도). 빌드는 Master 순번 뒤 각 1회. 소스·push·배포 0.
 MOV-NEXT-REMAINING CC-MOVIE-01 해제: 9446ef0b2 (ILV 19/19·onestop 93/93·shots 45/45, tsc 0×3), 결과 b6910e9e6.
+MOV-YVS-SETTINGS-WORDING CC-MOVIE-01(자율, 알림 msg_1115183096d4): youtube-viral-studio/src/app/api/youtube/analyze-script/route.ts(문구)·src/app/(dashboard)/settings/page.tsx(제목)·src/lib/aiKeyNotice.ts(새)·tests/aiKeyNotice.test.mjs(새)·docs/IMPROVEMENTS.md + PENDING_DEPLOYS. 빌드·배포 0.
