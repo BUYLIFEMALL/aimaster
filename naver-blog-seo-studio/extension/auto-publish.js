@@ -7,6 +7,29 @@ async function persistPublication() {
   const { draftId, runId, tabId } = seoPublication;
   await chrome.storage.local.set({ [SEO_PUBLISH_OUTBOX]: { draftId, runId, tabId, aliveAt: Date.now() } });
 }
+// 2026-11-20 (Master msg_f52899da64c0): 「발행 결과만 다시 확인」이 어느 원고를 확인하는지 보여 준다.
+// 새로 조회하지 않고 이미 가진 값만 쓴다 — 같은 실행(runId)의 진행 중 제목, 아니면 저장된 직전 실행의 draftId와
+// 이미 불러온 본인 원고 목록(webDrafts)의 제목. 어느 쪽도 없으면 빈 값 → 지금 화면 그대로(줄 숨김).
+function reconcileTargetTitle(saved, current, drafts) {
+  if (!saved?.runId) return "";
+  if (current?.runId === saved.runId && current.title) return String(current.title).trim();
+  const draft = Array.isArray(drafts) ? drafts.find((item) => item && item.id === saved.draftId) : null;
+  return draft?.title ? String(draft.title).trim() : "";
+}
+async function showReconcileTarget() {
+  const box = typeof document === "undefined" ? null : document.getElementById("reconcileTarget");
+  if (!box) return;
+  const saved = (await chrome.storage.local.get(SEO_PUBLISH_OUTBOX))[SEO_PUBLISH_OUTBOX];
+  const title = reconcileTargetTitle(saved, seoPublication, webDrafts);
+  box.textContent = title ? `확인 대상(직전 실행): ${title}` : "";
+  box.hidden = !title;
+}
+if (typeof IN_WORKER !== "undefined" && !IN_WORKER && chrome?.storage?.onChanged) {
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "local" && changes[SEO_PUBLISH_OUTBOX]) showReconcileTarget().catch(() => {});
+  });
+  showReconcileTarget().catch(() => {});
+}
 const SEO_ALIVE_TIMEOUT_MS = 60 * 1000;
 // 2026-10-23: the run lives in this side panel, so closing or reloading it stops
 // the code without any report. On open, close out such a run right away instead

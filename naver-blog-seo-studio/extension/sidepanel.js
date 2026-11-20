@@ -150,6 +150,7 @@ async function refreshWebDrafts() {
   const result = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(result.error || `웹 초안 조회 실패 (${response.status})`);
   webDrafts = Array.isArray(result.drafts) ? result.drafts : [];
+  if (typeof showReconcileTarget === "function") showReconcileTarget().catch(() => {}); // 2026-11-20 결과 확인 대상 제목(auto-publish.js)
   const select = $("webDraftList");
   select.textContent = "";
   const placeholder = document.createElement("option");
