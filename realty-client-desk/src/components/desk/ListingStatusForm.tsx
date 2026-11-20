@@ -7,7 +7,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { updateListingStatusAction, type ListingState } from "@/lib/actions/listings";
 import { LISTING_STATUSES } from "@/lib/desk/adRules";
-import { selectedAfter, syncSelected } from "@/lib/desk/statusForm";
+import { makeSyncUpdater, selectedAfter } from "@/lib/desk/statusForm";
 
 export function ListingStatusForm({ id, status }: { id: string; status: string }) {
   const [selected, setSelected] = useState(status);
@@ -24,12 +24,16 @@ export function ListingStatusForm({ id, status }: { id: string; status: string }
 
   // 서버가 목록을 새로 그려 실제 상태가 바뀌면 선택값을 맞춘다
   useEffect(() => {
-    setSelected((sel) => syncSelected(lastStatus.current, status, sel));
+    const prev = lastStatus.current; // updater가 늦게 실행돼도 쓰도록 지금 값을 붙잡는다
     lastStatus.current = status;
+    setSelected(makeSyncUpdater(prev, status));
   }, [status]);
   // 응답이 오면 오류는 저장된 값으로 되돌리고, 성공은 고른 값 유지
   useEffect(() => {
-    if (state.error || state.success) setSelected(selectedAfter(state, lastStatus.current, chosen.current));
+    if (state.error || state.success) {
+      const next = selectedAfter(state, lastStatus.current, chosen.current); // 지금 값으로 바로 계산(늦게 읽지 않음)
+      setSelected(next);
+    }
   }, [state]);
 
   return (

@@ -2,7 +2,31 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { selectedAfter, syncSelected } from "../src/lib/desk/statusForm.ts";
+import { makeSyncUpdater, selectedAfter, syncSelected } from "../src/lib/desk/statusForm.ts";
+
+// Mac 재검수 msg_6f15eb6e4df2: React는 setState updater를 나중에 실행할 수 있다 — 그사이 ref가 새 값으로 바뀌어도 동기화돼야 함
+test("늦게 실행되는 updater: 만들 때 붙잡은 이전·새 상태로 판단(외부 갱신 반영)", () => {
+  const ref = { current: "광고 중" };
+  const updater = makeSyncUpdater(ref.current, "계약");
+  ref.current = "계약"; // effect가 ref를 먼저 바꾼 뒤
+  assert.equal(updater("광고 중"), "계약", "늦게 실행돼도 새 상태로 맞춤");
+  // 예전 방식(updater 안에서 ref를 늦게 읽음)은 같은 순서에서 동기화에 실패했다 — 회귀 기준
+  const ref2 = { current: "광고 중" };
+  const buggy = (sel) => syncSelected(ref2.current, "계약", sel);
+  ref2.current = "계약";
+  assert.equal(buggy("광고 중"), "광고 중");
+});
+
+test("외부 갱신이 회원이 고르던 다른 값보다 우선, 상태가 그대로면 회원 편집 보존", () => {
+  assert.equal(makeSyncUpdater("광고 중", "계약")("내림"), "계약");
+  assert.equal(makeSyncUpdater("광고 중", "광고 중")("내림"), "내림");
+});
+
+test("컴포넌트는 붙잡은 값으로 만든 updater를 쓰고, updater 안에서 ref를 늦게 읽지 않는다", () => {
+  const src = readFileSync(new URL("../src/components/desk/ListingStatusForm.tsx", import.meta.url), "utf8");
+  assert.match(src, /setSelected\(makeSyncUpdater\(prev, status\)\)/);
+  assert.doesNotMatch(src, /setSelected\(\([^)]*\)\s*=>[^;]*lastStatus\.current/);
+});
 
 test("오류·응답 불명이면 선택값을 저장된 상태로 되돌린다", () => {
   assert.equal(selectedAfter({ error: "상태를 바꾸지 못했어요" }, "광고 중", "후보"), "광고 중");

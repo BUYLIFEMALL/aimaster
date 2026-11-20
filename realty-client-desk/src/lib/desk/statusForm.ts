@@ -16,3 +16,11 @@ export function selectedAfter(result: { error?: string; success?: string }, curr
 export function syncSelected(prevCurrent: string, nextCurrent: string, selected: string): string {
   return prevCurrent === nextCurrent ? selected : nextCurrent;
 }
+
+/**
+ * setSelected에 넘길 updater. 이전·새 상태를 **만드는 순간에 붙잡아** 둔다 — React가 updater를 나중에 실행해도
+ * (그사이 ref가 새 값으로 바뀌어도) 붙잡은 값으로 판단한다(Mac 재검수 msg_6f15eb6e4df2).
+ */
+export function makeSyncUpdater(prevCurrent: string, nextCurrent: string): (selected: string) => string {
+  return (selected) => syncSelected(prevCurrent, nextCurrent, selected);
+}
