@@ -495,3 +495,5 @@ WS-20261118-02 A23 보완 CC-WORKSPACE-01: Master msg_daa8fa889346(Mac msg_c0821
 WS-20261118-02 A23 보완 점유 해제 CC-WORKSPACE-01: ab9dda00c(dedupe.ts comparableValue·lectureDates.ts isCalendarDate 내보내기·lectureImportPure.test.ts 26개·IMPROVEMENTS). 기존 csv.ts·import.ts·shared 무변경, 호출처 0. Mac 재검수 대기.
 
 WS-20261118-02 A23 문서 일치 CC-WORKSPACE-01: Master msg_d2cc6dae3f49. ai-work-workspace/docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md 6-1절·A23·변경표만. 제품·시험·API·설정·운영 변경 없음.
+
+WS-20261118-02 A23 문서 일치 점유 해제 CC-WORKSPACE-01: 0990bcb82(PLAN 6-1절·A23·16절 +29/-2). 제품·시험은 ab9dda00c 그대로. Mac 재검수 대기.
