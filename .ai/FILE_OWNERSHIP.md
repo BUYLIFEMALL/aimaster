@@ -467,3 +467,5 @@ WS-20261118-02 설계 A2 점유 해제 CC-WORKSPACE-01: 2d5dff671(PLAN_20261120_
 MOV-SVS-YVS-LOCAL-DEPS CC-MOVIE-01 해제: 결과 77987f7f2, SVS·YVS 로컬 빌드 exit 0, 결과 .ai/results/MOV-SVS-YVS-LOCAL-DEPS-CC-MOVIE-01.md (ready_review).
 MOV-SVS-YVS-DEPS-RECORD CC-MOVIE-01: Master msg_4bc0c9bce5be. shorts-viral-studio/docs/IMPROVEMENTS.md·youtube-viral-studio/docs/IMPROVEMENTS.md 각 한 줄(Next 16.4.6 미배포 기록)만. 의존성·빌드·배포 0.
 MOV-SVS-YVS-DEPS-RECORD CC-MOVIE-01 해제: 두 IMPROVEMENTS 각 +1줄, 결과 아래 SHA.
+
+WS-20261118-02 설계 A3 CC-WORKSPACE-01: Master msg_835e76b4ae3c(잠금 선례 정정·공간 행 직렬화·HMAC 전용 키 옵션·Mac A2 msg_a54722f66247 반영). ai-work-workspace/docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md 한 파일만. 제품·운영·비밀값·환경변수·배포 변경 없음.
