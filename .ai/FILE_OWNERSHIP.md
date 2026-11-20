@@ -554,3 +554,5 @@ WS-LECTURE-PREVIEW-ONLY A1 범위 추가 CC-WORKSPACE-01: Master msg_4f60953a822
 MOV-YVS-SETTINGS-WORDING CC-MOVIE-01 해제: be6e475e3 (tsc 0·새 시험 4/4·전체 80/80).
 MOV-YVS-SETTINGS-WORDING A2 CC-MOVIE-01: Master msg_0a546e23b87e(기준 be6e475e3). youtube-viral-studio/src/lib/aiKeyNotice.ts·src/app/(dashboard)/settings/page.tsx·dashboard/page.tsx·trending-videos/page.tsx·tests/aiKeyNotice.test.mjs·docs/IMPROVEMENTS.md(문구만). 빌드·배포 0.
 MOV-YVS-SETTINGS-WORDING A2 CC-MOVIE-01 해제: 7e7a4207e (tsc 0·국소 8/8·전체 84/84).
+
+WS-LECTURE-PREVIEW-ONLY A1 점유 해제 CC-WORKSPACE-01: 코드 94b60cc74(handlers.ts·runtime.ts·import.ts·새 publicError.ts·새 lectureImportPreviewRpc.test.ts·IMPROVEMENTS) · 문서 b2223c790(PLAN 19-3·19-4·T3a·T23·22절). 환경변수·운영·빌드·배포·push 없음. CX-QA-01 검수 대기.
