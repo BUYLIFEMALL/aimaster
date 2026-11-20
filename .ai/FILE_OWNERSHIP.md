@@ -507,3 +507,4 @@ WS-20261118-02 응답 상한 CC-WORKSPACE-01: Master msg_ca103dfd90e0. ai-work-w
 WS-20261118-02 응답 상한 점유 해제 CC-WORKSPACE-01: 모듈 ceb2768bf(assemble.ts·lectureImportAssemble.test.ts 13개·IMPROVEMENTS) · 문서 cba0aac12(PLAN 5-2·6-1·A20·17절). 기존 CSV·API·shared·화면 무변경, 호출처 0. Mac 독립 검수 대기.
 
 WS-20261118-02 응답 투영·미리보기 표식 CC-WORKSPACE-01: Master msg_d6a0b8726695. (1) ai-work-workspace/src/litpage/server/content/lectureImport/assemble.ts(응답 totals·written 허용 칸 투영)·tests/integration/lectureImportAssemble.test.ts (2) 별도 커밋으로 새 lectureImport/previewToken.ts·새 tests/integration/lectureImportPreviewToken.test.ts + IMPROVEMENTS 줄. 실제 env·키 생성/열람/설정·API·DB·UI 편집 없음, 운영·빌드 없음.
+MOV-ONESTOP-LAYOUT-NOTICE CC-MOVIE-01(자율, 알림 msg_aa4e0be9c299): shorts-onestop-studio/src/lib/productShorts.ts(순수 판정)·src/components/views/ScenesView.tsx(안내 한 줄)·tests/productShorts.test.ts·docs/IMPROVEMENT_BACKLOG.md·docs/IMPROVEMENTS.md + docs/PENDING_DEPLOYS.md 한 줄. 빌드·배포 0.
