@@ -407,7 +407,7 @@ alter table public.music_track_remix_variants
 ### 지금 코드 근거
 | 근거 | 위치 | 뜻 |
 |---|---|---|
-| 재처리 차단 조건은 「생성 중이 아님」 하나 | 잠금 `music/lib/syncLock.ts:20` `.eq("status","generating")`, 수동 `music/lib/actions/remix.ts:414` | 리믹스가 `completed`·`failed`면 웹훅·수동 모두 다시 저장하지 않음 |
+| 재처리 차단 조건은 「생성 중이 아님」 하나 | 잠금 `music/lib/syncLock.ts:21` `.eq("status","generating")`, 수동 `music/lib/actions/remix.ts:414` | 리믹스가 `completed`·`failed`면 웹훅·수동 모두 다시 저장하지 않음 |
 | 저장 중 예외 → 잠금만 풀고 「생성 중」 유지 | 웹훅 `route.ts:134~136`, 수동 `remix.ts:433~436` | Suno 재알림·수동 새로고침이 **같은 결과를 다시 저장**할 수 있음 → 지금은 「불확실 = 재저장 0」이 보장되지 않음 |
 | 저장 0개 → 실패 하나로 | 웹훅 `route.ts:130~132`, 수동 `remix.ts:439~443` 「Suno가 오디오 URL을 반환하지 않았습니다」 | 건너뜀·확정 실패·불확실이 「오디오 없음」으로 합쳐짐 |
 | 유료 연장은 저장 직후 | `remixSync.ts:85` `maybeAutoExtendRemix` | 저장 결과와 무관하게 연장 판단이 이어짐(지금 insert 결과를 안 봄, 83줄) |
