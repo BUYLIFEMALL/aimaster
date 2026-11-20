@@ -8,6 +8,8 @@ export async function createClient() {
   const cookieDomain = cookieDomainForHost(
     headerStore.get("x-forwarded-host") ?? headerStore.get("host")
   );
+  // 서버가 대신 로그인할 때 브라우저 기기 정보를 넘김(동시 접속 제한 기록) — docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md 2-2
+  const ua = headerStore.get("user-agent") ?? "";
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,6 +33,7 @@ export async function createClient() {
           }
         },
       },
+      global: { headers: { "User-Agent": ua } },
     }
   );
 }
