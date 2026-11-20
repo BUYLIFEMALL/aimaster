@@ -83,7 +83,7 @@ export default async function MessageLogPage({ params, searchParams }: { params:
       {pages > 1 && (
         <nav aria-label="알림 발송 기록 페이지" className="mt-4 flex items-center justify-center gap-2 text-sm" data-log-pages>
           {f.page > 1 ? <Link href={messageLogHref(base, f, { page: f.page - 1 })} className="rounded bg-gray-100 px-3 py-1.5">‹ 이전</Link> : <span aria-disabled="true" className="px-3 py-1.5 text-gray-300">‹ 이전</span>}
-          <span aria-current="page" aria-label={`현재 ${f.page}페이지 / 전체 ${pages}페이지`} className="text-gray-600">{f.page} / {pages}</span>
+          <span aria-current="page" className="text-gray-600"><span aria-hidden="true">{f.page} / {pages}</span><span className="sr-only">현재 {f.page}페이지 / 전체 {pages}페이지</span></span>
           {f.page < pages ? <Link href={messageLogHref(base, f, { page: f.page + 1 })} className="rounded bg-gray-100 px-3 py-1.5">다음 ›</Link> : <span aria-disabled="true" className="px-3 py-1.5 text-gray-300">다음 ›</span>}
         </nav>
       )}
