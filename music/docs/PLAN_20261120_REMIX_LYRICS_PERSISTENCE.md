@@ -440,3 +440,36 @@ alter table public.music_track_remix_variants
 | U2 | 화면에서 「확정 실패」(저장 안 됨)와 「저장 결과 불확실」을 **구분해** 보여 준다 | 표현 방식(문구·표식)은 구현 플랜에서 제안, 새 상태 칸은 이번 배정 아님 |
 | U3 | 「불확실」을 「완료」로 바꾸는 것은 **이미 저장됐음을 보여 주는 조회 근거**가 있을 때만 검토 | 실조회는 이번 배정 아님. 앞 열린 결정 1번은 이 조건으로 대체 |
 - 이번 배정에서 하지 않는 것: 수동 재저장 버튼(열린 결정 2번 보류), 새 상태 스키마, 실제 조회.
+
+## 1차 구현 — 공용 사본 필요성과 「불확실」 국소 설계·시험 계획 (2026-11-20, Master `msg_66e3a3384a9e`)
+### 공용 사본(`suno-api-client`) 동기화가 연결에 필수인가
+- 곡별 가사(`prompt`)는 `checkSunoGenerationStatus`(`music/lib/ai/suno.ts:806~832`, 공용 기준 코드)가 버린다 → 이 함수를 고치면 기준과 사본(`ai-music-studio`·`shots`)이 어긋나 동기화가 필요해진다.
+- **대안(공용 파일 무변경)**: 리믹스 경로 전용 조회 함수를 음악 전용 새 파일(`music/lib/remixRecordInfo.ts`)에 둔다 — 같은 `record-info` 요청 **1회**(지금 `verifiedResult`가 하는 요청을 리믹스일 때만 이것으로 바꿈, 추가 호출 아님)로 오디오·커버·길이 + `prompt`를 함께 읽는다. 곡 생성 경로·공용 사본은 그대로.
+- 제안: 1차는 대안으로 가고 공용 사본 동기화는 하지 않는다(→ `ai-music-studio`·`shots` 점유 조정 불필요). 공용 함수 통합은 나중에 사본 담당과 조정.
+
+### 「불확실」 국소 설계(기존 `failed` 사용 안 함, 새 상태 칸 없음)
+근거: 잠금 `claimSyncLock`(`music/lib/syncLock.ts:15~25`)은 `status = generating` 이고 「`error_message`가 비었거나 `__syncing__`이 아니거나 5분 지남」이면 잡힌다. 즉 `__syncing__`이 아닌 다른 표시는 지금 그대로면 **잠금을 막지 못한다**.
+| 항목 | 설계 |
+|---|---|
+| 표시 | 리믹스 `status`는 `generating` 그대로, `error_message`에 영속 표시 `__save_uncertain__`(기존 잠금도 `error_message` 표시를 쓰는 같은 방식) |
+| 재처리 차단(U1) | `claimSyncLock`에 「`error_message`가 `__save_uncertain__`로 시작하면 **5분이 지나도** 잡지 않음」 조건 추가 → 웹훅 재알림·수동 새로고침 모두 저장·연장 0. `releaseSyncLock`은 `__syncing__`만 지우므로 표시가 지워지지 않음(현행 30줄) |
+| 기계 판정(U2) | 확정 실패 = `status = failed` / 불확실 = `status = generating` + 표시. 판정 함수 `remixSaveState(row)` → `"saving" · "uncertain" · "failed" · "completed"` |
+| 화면(U2) | 리믹스 카드: 불확실이면 「생성 중」 회전·새로고침 버튼 대신 「곡 저장 결과를 확인하지 못했습니다 — 아래에 곡이 보이면 정상 저장된 것입니다」, 확정 실패는 지금 빨간 문구 그대로 |
+| 삭제 | `deleteRemixAction`(`remix.ts:469`)은 `generating`을 막는다 → 불확실 표시가 있으면 삭제 허용 |
+| 30일 정리 | `cron/cleanup`(119~130줄)은 상태와 무관하게 날짜로 지움 → 변경 없음 |
+| 완료 전환(U3) | 이번에 없음 |
+| 영향 범위 | `syncLock.ts`는 `music_tracks`·`music_track_mr`·`music_track_media`도 쓴다 → 새 조건은 표시가 있을 때만 작동하므로 다른 표는 동작 같음(시험으로 확인) |
+
+### 시험 계획(국소, 가짜 Supabase)
+| 번호 | 시험 | 기대 |
+|---|---|---|
+| T1 | 불확실 표시 행에 `claimSyncLock` — 방금 / 5분 뒤 | 둘 다 잡지 못함 |
+| T2 | `__syncing__` 행 5분 뒤 | 지금처럼 잡힘(회귀) |
+| T3 | 불확실 표시 행에 `releaseSyncLock` | 표시 유지 |
+| T4 | 웹훅: 불확실 리믹스에 같은 task 재알림 | 저장 함수 호출 0, 연장 0 |
+| T5 | 수동 새로고침: 불확실 리믹스 | `record-info` 뒤 잠금 실패 → 저장 0·연장 0, 화면 결과 「불확실」 |
+| T6 | 저장 결과 `uncertain`·`retry_uncertain` → 표시 기록, `error`·`retry_failed`·`skipped` → `failed`, `ok` 계열만 성공 경로 | 7종 각각 기대 전이, 연장 함수는 `ok` 계열에서만 |
+| T7 | insert **전** 예외 | 잠금 해제(재처리 허용) / insert **후** 예외 → 불확실 표시 |
+| T8 | `remixSaveState` 4종 판정, 카드 문구가 확정 실패와 다름 | 문구·판정 구분 |
+| T9 | 불확실 리믹스 삭제 | 허용 |
+- 이 설계는 `syncLock.ts`·두 호출부·카드·삭제를 건드려 인계표보다 범위가 넓다 → 확인 뒤 구현. 그 사이 독립 부분(가사 영상 B1~B3·K1~K4, 미적용 마이그레이션 후보, 리믹스 전용 조회 함수)은 진행.
