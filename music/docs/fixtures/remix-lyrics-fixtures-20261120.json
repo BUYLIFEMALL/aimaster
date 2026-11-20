@@ -1,21 +1,25 @@
 {
- "_about": "리믹스 가사 보존 합성 표본(REMIX-LYRICS-FIXTURE-PLAN A1→A2, 2026-11-20 Claud(Music)). 시험 코드에 연결하지 않은 설계 자료다. 가사 문자열은 모두 지어낸 짧은 표본이며 실제 회원 가사가 아니다.",
+ "_about": "리믹스 가사 보존 합성 표본(REMIX-LYRICS-FIXTURE-PLAN A1→A2→A3, 2026-11-20 Claud(Music)). 시험 코드에 연결하지 않은 설계 자료다. 가사 문자열은 모두 지어낸 짧은 표본이며 실제 회원 가사가 아니다.",
  "_basisLegend": {
-  "OBS": "저장소에서 실제 응답으로 관찰된 형태 — record-info sunoData[] 항목의 낙타 표기 id·audioUrl·streamAudioUrl·imageUrl·duration (music/scripts/fix-stuck-track.mjs 68~104)",
+  "OBS": "저장소에 남은 실제 응답 처리 기록 — record-info sunoData[]에서 id·audioUrl·streamAudioUrl·imageUrl·duration을 읽은 기록뿐(fix-stuck-track.mjs 68~104). 다른 칸(가사 포함)의 있고 없음은 미관측",
   "CODE": "우리 코드 동작으로 정해지는 기대값(웹훅 task_id 조회·상태·잠금, remixSync 저장 순서)",
   "DOC": "문서에만 있는 형태 — 콜백 data.data[].prompt (music/docs/SUNOAPI_REFERENCE.md 51줄). record-info에 같은 칸이 있는지는 미관측",
   "ASSUME": "근거 없는 가정 — lyrics·lyric 같은 다른 칸 이름. 이 칸의 문자열은 가사로 확정하지 않는다",
   "SYNTH": "합성 입력 — 실측·문서 근거 없이 경계 검증용으로 만든 값"
  },
  "_rules": {
-  "acceptedLyricsField": "prompt 하나만 가사 후보로 인정(DOC). 실측 1회로 record-info 칸 이름이 확인되기 전까지 상태는 provided가 아니라 provided_unverified로 저장한다",
+  "acceptedLyricsField": "prompt 하나만 가사 후보(DOC). 실측 전 상태는 provided_unverified. prompt 칸 자체가 없으면 unknown",
   "guessedFields": "lyrics·lyric 등 다른 이름의 문자열은 저장하지 않고 상태 unknown, 진단 표시 guessedFieldSeen=true만 남긴다",
   "absent": "가사 칸이 아예 없으면 unknown(empty 아님)",
   "pairing": "가사와 행의 짝은 sunoData 배열 순서가 아니라 항목 id(= suno_audio_id) 기준",
   "instructionEcho": "보낸 영어 지시문과 정규화 뒤 같거나 지시문 첫 문장으로 시작하면 empty",
   "output": "시험 비교는 (audioId, taskId, hop, status, lyricsLen, lyricsHash)만. lyricsHash = NFC 정규화 문자열 sha256 앞 16자. 가사 원문을 시험 출력·로그에 찍지 않는다",
   "memberPriority": "회원이 직접 넣은 가사(music_track_remixes.lyrics)가 있으면 가사 영상 본문은 항상 회원 원문 — Suno prompt(provided_unverified)는 저장만 하고 본문을 덮지 않는다",
-  "casConditions": "잠금·저장·완료·실패·연장 갱신은 모두 (id, task_id = 처리 중인 taskId, extend_hop_count = 읽은 hop, status = generating) 조건을 함께 건다. 조건이 맞지 않으면 아무것도 바꾸지 않고 ignored"
+  "casConditions": "잠금·저장·완료·실패·연장 갱신은 모두 (id, task_id = 처리 중인 taskId, extend_hop_count = 읽은 hop, status = generating) 조건을 함께 건다. 조건이 맞지 않으면 아무것도 바꾸지 않고 ignored",
+  "lock": "잠금은 처리마다 새 토큰. 조건 = id + task_id + extend_hop_count + generating + (잠금 비었거나 5분 지남). 모든 쓰기는 같은 조건 + 토큰 일치, 다르면 0행",
+  "atomic": "변주 넣기 + 리믹스 상태 변경(완료·연장 예약·잠금 해제)은 DB 함수 하나(트랜잭션). 실패 시 전부 되돌림",
+  "extend": "연장 외부 호출 전에 연장 예약(hop+1, task_id=null, 예약 시각)을 원자적으로 건 처리만 호출. 결과 불확실(시간 초과·연결 끊김)이면 재호출 없이 현재 결과로 완료 + extendUncertain 기록. 4xx 거절만 extendFailed",
+  "backfill": "완료 리믹스의 본인 unknown 변주만. 출처 = suno_task_id, 없으면 hop 0 리믹스의 task_id만. suno_task_id 없는 옛 연장 행은 조회 0회·unknown 유지(오디오 id가 겹쳐도). 갱신 조건 id + user_id + lyrics_status = unknown"
  },
  "_preconditions": [
   "웹훅 리믹스 조회 select(music/app/api/webhooks/suno/route.ts 104~106줄)에 지금 mode·lyrics·task_id가 없다 → 저장 단계에서 종류·지시문 판정을 하려면 이 세 칸을 함께 읽어야 한다(구현 항목)",
@@ -61,14 +65,16 @@
      "taskId": "T0",
      "status": "provided_unverified",
      "lyricsLen": 7,
-     "lyricsHash": "d16415f3775c936f"
+     "lyricsHash": "d16415f3775c936f",
+     "hop": 0
     },
     {
      "audioId": "B",
      "taskId": "T0",
      "status": "provided_unverified",
      "lyricsLen": 7,
-     "lyricsHash": "90587ff44a15ede7"
+     "lyricsHash": "90587ff44a15ede7",
+     "hop": 0
     }
    ],
    "assumedPart": "record-info에 prompt가 있다는 것(DOC→ASSUME)"
@@ -106,14 +112,16 @@
      "taskId": "T0",
      "status": "provided_unverified",
      "lyricsLen": 7,
-     "lyricsHash": "90587ff44a15ede7"
+     "lyricsHash": "90587ff44a15ede7",
+     "hop": 0
     },
     {
      "audioId": "A",
      "taskId": "T0",
      "status": "provided_unverified",
      "lyricsLen": 7,
-     "lyricsHash": "d16415f3775c936f"
+     "lyricsHash": "d16415f3775c936f",
+     "hop": 0
     }
    ],
    "check": "A행의 가사 = 「표본 가사 가」(길이가 같아 길이 비교로는 못 잡으므로 이 표본만 해시 비교)"
@@ -150,7 +158,8 @@
      "taskId": "T0",
      "status": "provided_unverified",
      "lyricsLen": 8,
-     "lyricsHash": "4f9ebd28d370c970"
+     "lyricsHash": "4f9ebd28d370c970",
+     "hop": 0
     }
    ],
    "note": "A는 오디오 주소가 없어 저장 안 함(remixSync 59줄 continue와 같은 동작). B행에 A 가사가 들어가면 실패"
@@ -165,8 +174,18 @@
    ],
    "input": {
     "backfill": true,
-    "pickedAudioId": "B1",
-    "recordInfoTaskId": "T0",
+    "remix": {
+     "status": "completed",
+     "taskId": "T0",
+     "hop": 0
+    },
+    "targetVariant": {
+     "variantId": "v-B1",
+     "audioId": "B1",
+     "sunoTaskId": "T0",
+     "hop": 0,
+     "status": "unknown"
+    },
     "sunoData": [
      {
       "id": "A1",
@@ -178,22 +197,24 @@
      }
     ]
    },
-   "expected": [
-    {
-     "audioId": "B1",
+   "expected": {
+    "externalCalls": 1,
+    "queriedTaskId": "T0",
+    "updatedRows": 0,
+    "targetAfter": {
+     "variantId": "v-B1",
      "status": "unknown",
-     "lyricsLen": 0,
-     "recallSameSession": false,
      "lyricsHash": null
-    }
-   ]
+    },
+    "recallSameSession": false
+   }
   },
   {
    "id": "P0-ABSENT-01",
    "priority": "P0",
    "theme": "미제공(칸 없음)",
    "basis": [
-    "OBS"
+    "SYNTH"
    ],
    "input": {
     "mode": "add_vocals",
@@ -216,10 +237,11 @@
      "taskId": "T0",
      "status": "unknown",
      "lyricsLen": 0,
-     "lyricsHash": null
+     "lyricsHash": null,
+     "hop": 0
     }
    ],
-   "note": "OBS 형태 그대로(가사 칸이 없는 실측 모양). empty로 바꾸면 실패"
+   "note": "가사 칸이 없는 응답은 실측된 적 없는 합성 입력(0-1). 칸이 없을 때 empty로 바꾸면 실패"
   },
   {
    "id": "P0-GUESS-01",
@@ -253,14 +275,16 @@
      "status": "unknown",
      "lyricsLen": 0,
      "guessedFieldSeen": true,
-     "lyricsHash": null
+     "lyricsHash": null,
+     "hop": 0
     },
     {
      "audioId": "B",
      "status": "unknown",
      "lyricsLen": 0,
      "guessedFieldSeen": true,
-     "lyricsHash": null
+     "lyricsHash": null,
+     "hop": 0
     }
    ]
   },
@@ -293,7 +317,8 @@
      "status": "provided_unverified",
      "lyricsLen": 7,
      "guessedFieldSeen": true,
-     "lyricsHash": "d16415f3775c936f"
+     "lyricsHash": "d16415f3775c936f",
+     "hop": 0
     }
    ],
    "note": "prompt만 쓰고 lyrics 문자열은 버림"
@@ -326,7 +351,8 @@
      "audioId": "A",
      "status": "empty",
      "lyricsLen": 0,
-     "lyricsHash": null
+     "lyricsHash": null,
+     "hop": 0
     }
    ]
   },
@@ -356,7 +382,8 @@
      "audioId": "A",
      "status": "empty",
      "lyricsLen": 0,
-     "lyricsHash": null
+     "lyricsHash": null,
+     "hop": 0
     }
    ],
    "note": "구간 표시 제거 뒤 지시문 첫 문장으로 시작 → empty"
@@ -388,7 +415,8 @@
      "audioId": "A",
      "status": "empty",
      "lyricsLen": 0,
-     "lyricsHash": null
+     "lyricsHash": null,
+     "hop": 0
     }
    ]
   },
@@ -419,7 +447,8 @@
      "audioId": "A",
      "status": "provided_unverified",
      "lyricsLenMin": 8,
-     "lyricsHash": "a9ed36b38ea03adc"
+     "lyricsHash": "a9ed36b38ea03adc",
+     "hop": 0
     }
    ],
    "note": "회원 가사가 있으면 지시문 비교를 하지 않는다"
@@ -477,25 +506,29 @@
      "audioId": "A1",
      "taskId": "T0",
      "status": "unknown",
-     "lyricsHash": null
+     "lyricsHash": null,
+     "hop": 0
     },
     {
      "audioId": "A2",
      "taskId": "T0",
      "status": "unknown",
-     "lyricsHash": null
+     "lyricsHash": null,
+     "hop": 0
     },
     {
      "audioId": "B1",
      "taskId": "T1",
      "status": "unknown",
-     "lyricsHash": null
+     "lyricsHash": null,
+     "hop": 1
     },
     {
      "audioId": "B2",
      "taskId": "T1",
      "status": "unknown",
-     "lyricsHash": null
+     "lyricsHash": null,
+     "hop": 1
     }
    ],
    "expectedRemix": {
@@ -591,13 +624,15 @@
      "audioId": "A",
      "status": "empty",
      "lyricsLen": 0,
-     "lyricsHash": null
+     "lyricsHash": null,
+     "hop": 0
     },
     {
      "audioId": "B",
      "status": "empty",
      "lyricsLen": 0,
-     "lyricsHash": null
+     "lyricsHash": null,
+     "hop": 0
     }
    ]
   },
@@ -627,7 +662,8 @@
      "audioId": "A",
      "status": "not_applicable",
      "lyricsLen": 0,
-     "lyricsHash": null
+     "lyricsHash": null,
+     "hop": 0
     }
    ]
   },
@@ -689,7 +725,8 @@
      "status": "provided_unverified",
      "lyricsLen": 7,
      "backfillEligible": false,
-     "lyricsHash": "d16415f3775c936f"
+     "lyricsHash": "d16415f3775c936f",
+     "hop": 0
     }
    ]
   },
@@ -725,13 +762,15 @@
      "audioId": "A",
      "status": "provided_unverified",
      "lyricsLen": 7,
-     "lyricsHash": "d16415f3775c936f"
+     "lyricsHash": "d16415f3775c936f",
+     "hop": 0
     },
     {
      "audioId": "B",
      "status": "provided_unverified",
      "lyricsLen": 7,
-     "lyricsHash": "90587ff44a15ede7"
+     "lyricsHash": "90587ff44a15ede7",
+     "hop": 0
     }
    ]
   },
@@ -764,7 +803,8 @@
      "audioId": "A",
      "status": "provided_unverified",
      "lyricsLen": 5000,
-     "lyricsHash": "60cd5154afeda8a5"
+     "lyricsHash": "60cd5154afeda8a5",
+     "hop": 0
     }
    ]
   },
@@ -796,7 +836,8 @@
      "status": "provided_unverified",
      "lyricsLen": 27,
      "suspectLanguage": true,
-     "lyricsHash": "2491a74483636fda"
+     "lyricsHash": "2491a74483636fda",
+     "hop": 0
     }
    ],
    "note": "자동으로 empty로 바꾸지 않고 의심 표시만"
@@ -1129,12 +1170,6 @@
    ],
    "input": {
     "backfill": true,
-    "picked": {
-     "audioId": "A1",
-     "sunoTaskId": "T0",
-     "status": "unknown"
-    },
-    "remixTaskId": "T1",
     "sunoData": [
      {
       "id": "A1",
@@ -1144,12 +1179,26 @@
       "id": "A2",
       "prompt": "표본 가사 나"
      }
-    ]
+    ],
+    "remix": {
+     "status": "completed",
+     "taskId": "T1",
+     "hop": 1
+    },
+    "targetVariant": {
+     "variantId": "v-A1",
+     "audioId": "A1",
+     "sunoTaskId": "T0",
+     "hop": 0,
+     "status": "unknown"
+    }
    },
    "expected": {
+    "externalCalls": 1,
     "queriedTaskId": "T0",
-    "filled": {
-     "audioId": "A1",
+    "updatedRows": 1,
+    "targetAfter": {
+     "variantId": "v-A1",
      "status": "provided_unverified",
      "lyricsHash": "d16415f3775c936f"
     },
@@ -1159,35 +1208,33 @@
   {
    "id": "P0-FILL-02",
    "priority": "P0",
-   "theme": "옛 행(suno_task_id 없음) 보충 — 연장된 리믹스",
+   "theme": "옛 연장 행(suno_task_id 없음, hop 1) — 조회 안 함",
    "basis": [
     "CODE",
     "SYNTH"
    ],
    "input": {
     "backfill": true,
-    "picked": {
+    "remix": {
+     "status": "completed",
+     "taskId": "T1",
+     "hop": 1
+    },
+    "targetVariant": {
+     "variantId": "v-A1",
      "audioId": "A1",
      "sunoTaskId": null,
+     "hop": null,
      "status": "unknown"
-    },
-    "remixTaskId": "T1",
-    "remixHop": 1,
-    "sunoData": [
-     {
-      "id": "B1",
-      "prompt": "표본 가사 나나"
-     }
-    ]
+    }
    },
    "expected": {
-    "queriedTaskId": "T1",
-    "filled": null,
-    "pickedAfter": {
+    "externalCalls": 0,
+    "updatedRows": 0,
+    "targetAfter": {
      "status": "unknown",
      "lyricsHash": null
-    },
-    "retrySameSession": false
+    }
    }
   },
   {
@@ -1200,23 +1247,31 @@
    ],
    "input": {
     "backfill": true,
-    "picked": {
-     "audioId": "A1",
-     "sunoTaskId": "T0",
-     "status": "unknown"
-    },
     "sunoData": [
      {
       "id": "A1",
       "audioUrl": "https://x/a1.mp3",
       "lyrics": "다른 문자열"
      }
-    ]
+    ],
+    "remix": {
+     "status": "completed",
+     "taskId": "T0",
+     "hop": 0
+    },
+    "targetVariant": {
+     "variantId": "v-A1",
+     "audioId": "A1",
+     "sunoTaskId": "T0",
+     "hop": 0,
+     "status": "unknown"
+    }
    },
    "expected": {
+    "externalCalls": 1,
     "queriedTaskId": "T0",
-    "filled": null,
-    "pickedAfter": {
+    "updatedRows": 0,
+    "targetAfter": {
      "status": "unknown",
      "lyricsHash": null,
      "guessedFieldSeen": true
@@ -1293,6 +1348,501 @@
      "empty": false
     }
    }
+  },
+  {
+   "id": "P0-LOCK-01",
+   "priority": "P0",
+   "theme": "잠금 교체 — 옛 소유자 쓰기 0행",
+   "basis": [
+    "CODE",
+    "SYNTH"
+   ],
+   "steps": [
+    {
+     "t": "00:00",
+     "who": "처리 A",
+     "action": "claim(T1, hop1) 토큰 tokA",
+     "remixSnapshot": {
+      "taskId": "T1",
+      "hop": 1,
+      "status": "generating",
+      "lock": "tokA"
+     }
+    },
+    {
+     "t": "05:01",
+     "who": "처리 B",
+     "action": "5분 지난 잠금 교체 claim → 토큰 tokB",
+     "remixSnapshot": {
+      "taskId": "T1",
+      "hop": 1,
+      "status": "generating",
+      "lock": "tokB"
+     }
+    },
+    {
+     "t": "05:02",
+     "who": "처리 A",
+     "action": "save_remix_result(T1, hop1, tokA, [B1,B2])"
+    },
+    {
+     "t": "05:03",
+     "who": "처리 B",
+     "action": "save_remix_result(T1, hop1, tokB, [B1,B2])"
+    }
+   ],
+   "expected": {
+    "writesByA": {
+     "variantsInserted": 0,
+     "remixUpdated": 0,
+     "lockReleased": 0
+    },
+    "writesByB": {
+     "variantsInserted": 2,
+     "remixAfter": {
+      "taskId": "T1",
+      "hop": 1,
+      "status": "completed",
+      "lock": null
+     }
+    },
+    "rowsForB1": 1
+   }
+  },
+  {
+   "id": "P0-LOCK-02",
+   "priority": "P0",
+   "theme": "옛 요청(T0) 모든 쓰기 0행",
+   "basis": [
+    "CODE"
+   ],
+   "input": {
+    "staleRead": {
+     "taskId": "T0",
+     "hop": 0,
+     "token": null
+    },
+    "remixNow": {
+     "taskId": "T1",
+     "hop": 1,
+     "status": "generating",
+     "lock": null
+    }
+   },
+   "expected": {
+    "claim": 0,
+    "saveVariants": 0,
+    "markCompleted": 0,
+    "markFailed": 0,
+    "extendReserve": 0,
+    "externalCalls": 0,
+    "remixAfter": {
+     "taskId": "T1",
+     "hop": 1,
+     "status": "generating",
+     "lock": null
+    }
+   }
+  },
+  {
+   "id": "P0-ATOM-01",
+   "priority": "P0",
+   "theme": "원자 반영 — 중간 실패 시 전부 되돌림",
+   "basis": [
+    "SYNTH"
+   ],
+   "steps": [
+    {
+     "who": "처리 A",
+     "action": "claim(T0, hop0) tokA"
+    },
+    {
+     "who": "처리 A",
+     "action": "save_remix_result 안에서 두 번째 변주 넣기 실패(가정)"
+    }
+   ],
+   "expected": {
+    "variantsAfter": 0,
+    "remixAfter": {
+     "taskId": "T0",
+     "hop": 0,
+     "status": "generating",
+     "lock": "tokA"
+    },
+    "note": "잠금은 5분 뒤 교체 가능 → 다음 처리가 처음부터 다시 저장",
+    "forbiddenStatesSeen": []
+   }
+  },
+  {
+   "id": "P0-ATOM-02",
+   "priority": "P0",
+   "theme": "단계별 중간 상태 점검",
+   "basis": [
+    "CODE",
+    "SYNTH"
+   ],
+   "input": {
+    "mode": "cover",
+    "targetDurationSeconds": 180,
+    "steps": [
+     {
+      "taskId": "T0",
+      "hop": 0,
+      "sunoData": [
+       {
+        "id": "A1",
+        "audioUrl": "https://x/a1.mp3",
+        "duration": 60
+       }
+      ]
+     }
+    ]
+   },
+   "expectedAfterEachStep": [
+    {
+     "step": "claim",
+     "remix": {
+      "taskId": "T0",
+      "hop": 0,
+      "status": "generating",
+      "lock": "tok"
+     },
+     "variants": 0
+    },
+    {
+     "step": "save+연장 예약(한 함수)",
+     "remix": {
+      "taskId": null,
+      "hop": 1,
+      "status": "generating",
+      "lock": null,
+      "extendReservedAt": "set"
+     },
+     "variants": 1
+    },
+    {
+     "step": "연장 요청 성공 → 새 task_id 기록",
+     "remix": {
+      "taskId": "T1",
+      "hop": 1,
+      "status": "generating",
+      "lock": null
+     },
+     "variants": 1
+    }
+   ],
+   "expected": {
+    "forbiddenStatesSeen": []
+   }
+  },
+  {
+   "id": "P0-EXTDUP-01",
+   "priority": "P0",
+   "theme": "외부 연장 중복 — 예약 하나만 성공",
+   "basis": [
+    "CODE",
+    "SYNTH"
+   ],
+   "steps": [
+    {
+     "who": "처리 A",
+     "action": "T0 hop0 저장 후 연장 예약 시도"
+    },
+    {
+     "who": "처리 B(잠금 교체 뒤 같은 결과)",
+     "action": "같은 조건 연장 예약 시도"
+    }
+   ],
+   "expected": {
+    "reservationsSucceeded": 1,
+    "externalExtendCalls": 1,
+    "remixAfter": {
+     "hop": 1
+    }
+   }
+  },
+  {
+   "id": "P0-EXTUNC-01",
+   "priority": "P0",
+   "theme": "연장 결과 불확실 — 재호출 금지",
+   "basis": [
+    "CODE"
+   ],
+   "input": {
+    "mode": "cover",
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "id": "A1",
+      "audioUrl": "https://x/a1.mp3",
+      "duration": 60
+     }
+    ],
+    "extendRequest": "timeout(보냈는지 모름)"
+   },
+   "expected": {
+    "externalExtendCalls": 1,
+    "retries": 0,
+    "variants": [
+     {
+      "audioId": "A1",
+      "taskId": "T0",
+      "hop": 0,
+      "status": "unknown",
+      "lyricsHash": null
+     }
+    ],
+    "remixAfter": {
+     "status": "completed",
+     "hop": 1,
+     "taskId": null,
+     "note": "extendUncertain 기록"
+    }
+   }
+  },
+  {
+   "id": "P0-EXTREJ-01",
+   "priority": "P0",
+   "theme": "연장 분명히 거절(4xx)",
+   "basis": [
+    "CODE"
+   ],
+   "input": {
+    "mode": "cover",
+    "taskId": "T0",
+    "hop": 0,
+    "sunoData": [
+     {
+      "id": "A1",
+      "audioUrl": "https://x/a1.mp3",
+      "duration": 60
+     }
+    ],
+    "extendRequest": "400"
+   },
+   "expected": {
+    "externalExtendCalls": 1,
+    "retries": 0,
+    "remixAfter": {
+     "status": "completed",
+     "note": "extendFailed 기록"
+    }
+   }
+  },
+  {
+   "id": "P0-FILL-04",
+   "priority": "P0",
+   "theme": "생성 중 리믹스는 보충 안 함",
+   "basis": [
+    "CODE"
+   ],
+   "input": {
+    "backfill": true,
+    "remix": {
+     "status": "generating",
+     "taskId": "T1",
+     "hop": 1
+    },
+    "targetVariant": {
+     "variantId": "v-A1",
+     "audioId": "A1",
+     "sunoTaskId": "T0",
+     "hop": 0,
+     "status": "unknown"
+    }
+   },
+   "expected": {
+    "externalCalls": 0,
+    "updatedRows": 0
+   }
+  },
+  {
+   "id": "P0-FILL-05",
+   "priority": "P0",
+   "theme": "옛 행이지만 연장 없던 리믹스(hop 0) — remix.task_id 출처 인정",
+   "basis": [
+    "CODE",
+    "DOC"
+   ],
+   "input": {
+    "backfill": true,
+    "remix": {
+     "status": "completed",
+     "taskId": "T0",
+     "hop": 0
+    },
+    "targetVariant": {
+     "variantId": "v-A1",
+     "audioId": "A1",
+     "sunoTaskId": null,
+     "hop": null,
+     "status": "unknown"
+    },
+    "sunoData": [
+     {
+      "id": "A1",
+      "prompt": "표본 가사 가"
+     },
+     {
+      "id": "A2",
+      "prompt": "표본 가사 나"
+     }
+    ]
+   },
+   "expected": {
+    "externalCalls": 1,
+    "queriedTaskId": "T0",
+    "updatedRows": 1,
+    "targetAfter": {
+     "variantId": "v-A1",
+     "status": "provided_unverified",
+     "lyricsHash": "d16415f3775c936f"
+    },
+    "otherRowsTouched": 0
+   }
+  },
+  {
+   "id": "P0-FILL-06",
+   "priority": "P0",
+   "theme": "옛 연장 행 — 오디오 id가 겹쳐도 채우지 않음",
+   "basis": [
+    "CODE",
+    "SYNTH"
+   ],
+   "input": {
+    "backfill": true,
+    "remix": {
+     "status": "completed",
+     "taskId": "T1",
+     "hop": 1
+    },
+    "targetVariant": {
+     "variantId": "v-A1",
+     "audioId": "A1",
+     "sunoTaskId": null,
+     "hop": null,
+     "status": "unknown"
+    },
+    "wouldBeResponseOfT1": [
+     {
+      "id": "A1",
+      "prompt": "표본 가사 나"
+     }
+    ]
+   },
+   "expected": {
+    "externalCalls": 0,
+    "updatedRows": 0,
+    "targetAfter": {
+     "status": "unknown",
+     "lyricsHash": null
+    }
+   }
+  },
+  {
+   "id": "P0-FILL-07",
+   "priority": "P0",
+   "theme": "대상 변주가 이미 다른 상태(다른 창이 먼저 채움)",
+   "basis": [
+    "SYNTH"
+   ],
+   "input": {
+    "backfill": true,
+    "remix": {
+     "status": "completed",
+     "taskId": "T0",
+     "hop": 0
+    },
+    "targetVariant": {
+     "variantId": "v-A1",
+     "audioId": "A1",
+     "sunoTaskId": "T0",
+     "hop": 0,
+     "status": "unknown"
+    },
+    "concurrentChange": {
+     "variantId": "v-A1",
+     "statusBecame": "provided_unverified"
+    },
+    "sunoData": [
+     {
+      "id": "A1",
+      "prompt": "표본 가사 가"
+     }
+    ]
+   },
+   "expected": {
+    "externalCalls": 1,
+    "updatedRows": 0
+   }
+  },
+  {
+   "id": "P0-FILL-08",
+   "priority": "P0",
+   "theme": "키 없음·이번 접속 이미 시도",
+   "basis": [
+    "CODE"
+   ],
+   "input": {
+    "backfill": true,
+    "remix": {
+     "status": "completed",
+     "taskId": "T0",
+     "hop": 0
+    },
+    "targetVariant": {
+     "variantId": "v-A1",
+     "audioId": "A1",
+     "sunoTaskId": "T0",
+     "hop": 0,
+     "status": "unknown"
+    },
+    "cases": [
+     {
+      "sunoKey": null
+     },
+     {
+      "triedThisSession": true
+     }
+    ]
+   },
+   "expected": {
+    "externalCalls": 0,
+    "updatedRows": 0
+   }
+  },
+  {
+   "id": "P0-TIMED-01",
+   "priority": "P0",
+   "theme": "옛 연장 행의 시간 가사",
+   "basis": [
+    "CODE"
+   ],
+   "input": {
+    "consumer": "lyric-video",
+    "remix": {
+     "taskId": "T1",
+     "hop": 1
+    },
+    "targetVariant": {
+     "variantId": "v-A1",
+     "audioId": "A1",
+     "sunoTaskId": null
+    }
+   },
+   "expected": {
+    "timedLyricsRequest": null,
+    "externalCalls": 0,
+    "notice": "이 곡은 시간 가사를 받을 수 없습니다"
+   }
   }
+ ],
+ "_contract": "설계 문서 PLAN_20261120_REMIX_LYRICS_PERSISTENCE.md 0절(통일 계약)을 따른다. 이 파일의 앞선 규칙과 다르면 0절이 우선",
+ "_forbiddenStates": [
+  "변주 행은 들어갔는데 리믹스가 generating이고 잠금이 없음(다음 처리가 같은 결과를 또 저장)",
+  "리믹스 completed인데 변주 0개(결과가 있던 경우)",
+  "task_id = null(연장 예약)인데 예약 시각도 없음",
+  "잠금 토큰이 남은 채 completed/failed"
  ]
 }

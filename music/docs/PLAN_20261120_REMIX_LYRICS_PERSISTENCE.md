@@ -5,6 +5,47 @@
 - 범위: **설계 문서만.** 새 유료 호출·실데이터 재조회·SQL 적용·제품 코드 변경 없음. 아래 SQL은 제안이며 파일로 만들지 않았다.
 - 계기: `lyric-video-studio/docs/IMPROVEMENTS.md` 2026-11-20 항목 — 운영에서 「보컬 추가」 리믹스를 가사 영상으로 넘기자 Suno 시간 가사가 빈 값이고 가사 글도 0자였다(증거 `lyric-video-studio/docs/evidence/remix-timed-lyrics-live-20261120.png`).
 
+## 0. 통일 계약 (A3, 2026-11-20 Master `msg_503e2239aa81` — **이 절이 아래 본문·부록보다 우선**)
+
+아래 1~10절과 부록 A1·A2는 작업 순서대로 쌓인 기록이다. 서로 다른 말이 있으면 이 절을 따른다(어긋났던 줄은 그 자리에 「→ 0절」로 표시).
+
+### 0-1. 관측 범위(정정)
+- 우리 저장소에는 Suno 응답의 **가사 칸이 있는지 없는지 관측한 기록이 없다.** `music/scripts/fix-stuck-track.mjs`는 `record-info` `sunoData[]`에서 `id`·`audioUrl`·`streamAudioUrl`·`imageUrl`·`duration`만 **읽었을** 뿐이라, 다른 칸(가사 포함)의 있고 없음을 보여 주지 않는다. 앞선 「가사 칸이 없는 모양만 관측됨」 표현은 틀렸다.
+- 가사 칸은 문서(콜백 `data.data[].prompt`)에만 있다. `record-info`의 가사 칸은 **미관측**.
+
+### 0-2. 가사 상태와 판정
+| 상태 | 정하는 조건 |
+|---|---|
+| `provided_unverified` | 보컬 종류 + 문서 칸 `prompt`가 비어 있지 않음 + 보낸 지시문과 다름(부록 A1 2절 정규화). **실측 전 Suno 가사의 유일한 「있음」 상태** |
+| `provided` | 실측 1회로 `record-info` 가사 칸 이름이 확정된 뒤에만 쓰는 상태(그 전 구현은 이 값을 쓰지 않음) |
+| `empty` | 보컬 종류 + `prompt`가 빈 값·공백 또는 보낸 지시문과 같음 |
+| `not_applicable` | `add_instrumental`·연주곡 커버 |
+| `unknown` | `prompt` 칸 자체가 없음, 추측 칸(`lyrics`·`lyric` 등)만 있음, 이 변경 전 기존 행, 보충 출처를 검증할 수 없음 |
+- 추측 칸의 문자열은 저장하지 않는다(진단 표시만). `prompt` 외 이름을 가사로 쓰지 않는다.
+
+### 0-3. 생성 동기화(웹훅·수동 공통)
+1. **같은 작업·단계**: 처리 시작 때 읽은 `task_id`(= 처리할 taskId)와 `extend_hop_count`(= hop)를 끝까지 들고 다닌다.
+2. **잠금 소유권**: 잠금은 지금의 고정 표시(`__syncing__`) 대신 **처리마다 새 토큰**(예: `__syncing__:<무작위>`)으로 잡는다. 잠금 조건 = `id` + `task_id = taskId` + `extend_hop_count = hop` + `status = generating` + (잠금 비어 있음 또는 5분 지남). 5분 지난 잠금을 다른 처리가 **교체**하면, 옛 소유자의 이후 모든 쓰기는 토큰이 달라 **0행**이 된다.
+3. **원자적 반영**: 변주 행 넣기와 리믹스 상태 바꾸기(완료·연장 전환·잠금 해제)를 **한 DB 함수(트랜잭션)**로 한다. 조건 = 위 잠금 조건 + 잠금 토큰 일치. 중간 상태(변주는 있는데 리믹스가 `generating`인 채 잠금 없음, 또는 `completed`인데 변주 0개)를 남기지 않는다. 같은 리믹스에 같은 `suno_audio_id`가 이미 있으면 그 항목은 넣지 않는다.
+4. **외부 연장 중복 방지**: 연장 요청(유료 외부 호출)을 보내기 **전에** 같은 조건으로 「연장 예약」(예: `extend_hop_count = hop + 1`, `task_id = null`, 상태 `generating`, 예약 시각 기록)을 먼저 원자적으로 걸고, 예약에 성공한 처리만 요청을 보낸다. 요청 성공 → 새 `task_id`를 예약과 같은 조건으로 기록. 
+5. **결과 불확실 시 재호출 금지**: 연장 요청이 시간 초과·연결 끊김처럼 **보냈는지 모르는** 상태로 끝나면 자동으로 다시 보내지 않는다(최상위 「결과가 불확실하면 자동 재실행 금지」). 그때까지 저장한 변주로 리믹스를 `completed` 처리하고 「연장 결과 불확실」을 기록한다. 분명히 거절된 요청(4xx 응답)만 「연장 실패 → 현재 결과로 완료」. 재시도는 회원이 직접 누를 때만.
+6. **실패 표시**도 같은 조건·토큰. 늦게 온 옛 작업의 실패는 0행.
+
+### 0-4. 보충(생성과 별개)
+- 대상: **완료된(`completed`) 리믹스의 본인 변주**이고 상태가 `unknown`인 것만. 회원이 가사 영상에서 그 변주를 고를 때 1회, 회원 본인 Suno 키. 관리자 일괄 보충 없음.
+- **검증된 출처**가 있을 때만 조회:
+  - 변주에 `suno_task_id`가 있으면 그 작업 번호(저장 때 기록한 출처).
+  - `suno_task_id`가 없는 옛 행은 리믹스의 `extend_hop_count = 0`일 때만 `remix.task_id`를 출처로 인정(연장이 없었으니 작업 번호가 바뀐 적 없음).
+  - **`suno_task_id`가 없고 `extend_hop_count > 0`인 옛 연장 행은 조회하지 않고 `unknown` 유지** — 응답에 같은 오디오 번호가 있더라도 출처를 검증할 수 없으므로 채우지 않는다.
+- 조회 결과에서 **같은 `suno_audio_id`** 항목의 `prompt`만, **그 한 행만** 바꾼다(조건: `id` + `user_id` + `lyrics_status = unknown`). 이미 다른 상태면 0행.
+- 조회 안 함(키 없음·출처 미검증·14일 지남 추정·이번 접속에서 이미 시도) → 호출 0, 변경 0행.
+
+### 0-5. 소비처 계약
+회원 원문(`remix.lyrics`) > `provided`/`provided_unverified`(확인 안내) > 빈 가사(붙여 넣기 안내). 시간 가사 작업 번호 = `variant.suno_task_id`, 없으면 0-4와 같은 출처 규칙(옛 연장 행은 `remix.task_id`도 믿지 않고 시간 가사 요청 안 함 — 「이 곡은 시간 가사를 받을 수 없습니다」).
+
+### 0-6. 스키마 보정(제안, 적용 안 함)
+6절 제안에 더해 `music_track_remixes`에 `extend_reserved_at timestamptz`, 잠금 토큰은 기존 `error_message` 칸을 그대로 쓰거나 `sync_lock text` 칸 추가 중 구현 때 택1. 원자적 반영용 DB 함수 1개(`save_remix_result(...)`, `security definer`, 위 조건 검사). 모두 승인 뒤.
+
 ## 1. 지금 구조(코드 근거)
 
 | 단계 | 위치 | 하는 일 | 가사 처리 |
@@ -39,10 +80,10 @@ Suno 문서 근거(`music/docs/SUNOAPI_REFERENCE.md`): 51줄 「성공 `data.dat
 
 | 상태 | 뜻 | 정하는 때 | 가사 영상에서 |
 |---|---|---|---|
-| `provided` | Suno가 준 곡별 가사를 저장함 | 보컬 종류 + 응답 `prompt`가 비어 있지 않고 우리 지시문과 다름 | 가사 글로 채움 |
+| ~~`provided`~~ → 0절: 실측 전에는 `provided_unverified` | Suno가 준 곡별 가사를 저장함 | 보컬 종류 + 응답 `prompt`가 비어 있지 않고 우리 지시문과 다름 | 가사 글로 채움(회원 원문이 있으면 회원 원문 — 0-5) |
 | `empty` | 보컬 종류인데 Suno가 가사를 안 주거나 빈 값·우리 지시문 그대로 | 저장 시 판정 | 회원 가사(`remix.lyrics`)가 있으면 그것, 없으면 「가사를 붙여 넣어 주세요」 |
 | `not_applicable` | 가사가 원래 없는 종류(`add_instrumental`·연주곡 커버) | 저장 시 종류로 판정 | 지금처럼 가사·시간 가사 모두 받지 않음 |
-| `unknown` | 이 변경 전에 저장된 기존 행 | 칸 기본값 | `remix.lyrics`(지금 동작 그대로) + 4절의 1회 보충 |
+| `unknown` | 이 변경 전 기존 행, `prompt` 칸 없음, 추측 칸만(→ 0-2) | 칸 기본값 | `remix.lyrics`(지금 동작 그대로) + 0-4 조건을 만족할 때만 1회 보충 |
 
 판정 규칙(순수 함수 하나로, 시험 가능하게):
 ```
@@ -50,7 +91,8 @@ classifyRemixLyrics(mode, instrumental, returnedPrompt, sentPrompt) →
   instrumental || mode === "add_instrumental"        → not_applicable
   returnedPrompt 공백 제거 후 빈 값                     → empty
   returnedPrompt === sentPrompt(공백·대소문자 정규화)   → empty   (지시문이 그대로 돌아온 경우)
-  그 밖                                              → provided (5000자에서 자름)
+  prompt 칸 자체가 없음(추측 칸만 있어도)              → unknown  (→ 0-2)
+  그 밖                                              → provided_unverified (5000자에서 자름, → 0-2)
 ```
 `sentPrompt`는 요청 때 보낸 영어 지시문이다. 리믹스 행에 따로 저장하지 않아도 `buildDefaultRemixPrompt(lang, vocal_gender)`로 다시 만들 수 있다(두 값 모두 리믹스 행에 있음).
 
@@ -58,9 +100,9 @@ classifyRemixLyrics(mode, instrumental, returnedPrompt, sentPrompt) →
 
 - **스키마는 더하기만** 한다(널 허용 칸 + 기본값). 지금 배포된 코드는 새 칸을 모르고 넣지도 않으므로 그대로 동작하고, 그 행은 `unknown`이 된다. 배포 순서는 「DB 칸 추가 → 코드 배포」. 반대로 해도 깨지지 않게, 새 코드는 칸이 없을 때(조회 오류 42703) 예전 방식으로 내려간다.
 - **연장 단계 작업 번호 보존**: 변주마다 자기를 만든 Suno 작업 번호(`suno_task_id`)를 저장한다. 시간 가사 요청은 `variant.suno_task_id ?? remix.task_id`. 기존 행은 비어 있으니 지금과 같다.
-- **기존 행 가사 보충(선택, 회원 동작 때만)**: 회원이 가사 영상에서 `unknown` 리믹스 변주를 고를 때, 서버가 **그 회원 본인 Suno 키**로 `record-info?taskId=<remix.task_id>`를 1회 조회해 같은 `suno_audio_id`의 `prompt`를 찾으면 채운다. 생성이 아니라 상태 조회다.
+- **기존 행 가사 보충(선택, 회원 동작 때만)**: 회원이 가사 영상에서 `unknown` 리믹스 변주를 고를 때, 서버가 **그 회원 본인 Suno 키**로 **0-4의 검증된 출처**(변주 `suno_task_id`, 없으면 연장 없던 리믹스의 `remix.task_id`만)를 1회 조회해 같은 `suno_audio_id`의 `prompt`를 찾으면 채운다. 생성이 아니라 상태 조회다.
   - 관리자가 회원 키로 한꺼번에 돌리는 일괄 보충은 하지 않는다(회원 본인 계정·키 최상위 규칙 — 회원이 하지 않은 호출).
-  - 연장된 cover의 앞 단계 변주는 `remix.task_id`가 마지막 연장 작업이라 찾지 못할 수 있다 → 찾지 못하면 `empty`가 아니라 `unknown` 그대로 둔다(다시 시도하지 않음, 같은 접속 안에서는 기억).
+  - ~~연장된 cover의 앞 단계 변주는 `remix.task_id`로 조회~~ → 0-4: `suno_task_id` 없는 옛 연장 행은 **조회하지 않고** `unknown` 유지(오디오 번호가 겹쳐도 채우지 않음).
   - Suno 결과 보관은 **14일**로 기록돼 있다(`music/docs/PLAN_20261021_ADD_VOCALS_MASHUP.md` 11줄 「결과 14일 보관」, 원출처 sunoapi.org 문서 요약 — 우리 실측은 아님). 그래서 보충은 만든 지 14일 이내 리믹스에만 의미가 있고, 2026-10-21~22에 만든 기존 리믹스 6+건은 대상이 아니다(부록 A1 1-3). 못 찾는 옛 리믹스는 회원이 가사를 붙여 넣는다.
 - **되돌리기**: 코드만 되돌리면 새 칸은 쓰이지 않을 뿐 남아 있어도 해가 없다. 칸 삭제는 필요하지 않다.
 
@@ -92,7 +134,7 @@ alter table public.music_track_remix_variants
 |---|---|---|
 | `music/lib/ai/suno.ts` | `SunoCallbackItem`에 `prompt?: string` 추가, `checkSunoGenerationStatus`가 `t.prompt` 읽기 | **공용 기준 코드 `suno-api-client`** → `check-shared-modules.mjs --sync`로 `ai-music-studio`·`shots` 사본 반영. 선택 칸 추가라 사본 쪽 동작 변화 없음 → 급하지 않은 변경, 다음 배포 때 함께 |
 | `music/lib/remixSync.ts` | 변주 행에 `suno_task_id`(현재 `remix.task_id`), `lyrics`, `lyrics_status`(`classifyRemixLyrics`) 저장 | 판정 함수는 새 파일 `music/lib/remixLyrics.ts`(순수 함수) |
-| `lyric-video-studio/src/lib/suno.ts` | `ownVariant` 리믹스 분기: 가사 글 = `provided`면 변주 가사, 아니면 `remix.lyrics` / 시간 가사 작업 번호 = `variant.suno_task_id ?? remix.task_id` / `unknown`이면 4절 1회 보충 | 가사 영상 버전 +0.01 |
+| `lyric-video-studio/src/lib/suno.ts` | `ownVariant` 리믹스 분기: 가사 글·시간 가사 작업 번호·보충은 **0-4·0-5 계약대로**(회원 원문 우선, `provided_unverified` 확인 안내, 옛 연장 행은 `remix.task_id`도 쓰지 않음) | 가사 영상 버전 +0.01 |
 | `music/components/remix/RemixCard.tsx` | (선택) 가사가 있는 변주에 「가사 보기」 접기 | 범위 확대라 별도 판단 |
 
 ## 8. 합성 검증 계획(유료 호출 0)
@@ -133,7 +175,7 @@ alter table public.music_track_remix_variants
 | 1-4 | `music/AGENTS.md` 364줄(10-22 실호출 3회) | 보컬 추가(MR 반주·여성)·반주 추가·매시업 각각 2곡씩 저장됨 | 무엇이 불렸는지(가사·지시문) 기록 없음. 보컬 추가는 회원 가사 없이 영어 지시문 `prompt`로 보냈음(운영 `lyrics` 0자, 11-20 읽기) |
 | 1-5 | 타입 `music/lib/ai/suno.ts` 806~817줄 | 우리가 기대하는 `sunoData` 칸 목록 | 우리 코드가 정한 모양일 뿐, Suno가 실제로 주는 칸의 전부가 아님 |
 
-결론: **`prompt`가 `record-info`에 있다는 것은 미확인**이다. 구현은 `prompt`·`lyric`·`lyrics` 어느 이름이든 읽고, 모두 없으면 `empty`가 아니라 `unknown`으로 둔다(「안 왔다」와 「모르는 이름으로 왔다」를 구분할 수 없으므로). 실제 칸 이름은 승인된 실확인 1회에서 응답 키 목록만 기록해 확정한다(가사 원문은 기록하지 않음).
+결론: **`prompt`가 `record-info`에 있다는 것은 미확인**이다. ~~구현은 `prompt`·`lyric`·`lyrics` 어느 이름이든 읽고~~ → 0-2: 가사 후보는 `prompt` 하나만, 추측 칸 문자열은 저장하지 않으며, `prompt` 칸이 없으면 `unknown`.
 
 ### 2. 영어 생성 지시문 구분의 한계
 
@@ -171,7 +213,7 @@ alter table public.music_track_remix_variants
 |---|---|---|
 | M1 | `[{id:A, prompt:"가사 가"}, {id:B, prompt:"가사 나"}]` | A행 「가사 가」, B행 「가사 나」 |
 | M2 | 순서 뒤바뀜 `[{id:B,…나}, {id:A,…가}]` | 위와 같음 — 저장 짝은 배열 순서가 아니라 `id` 기준 |
-| M3 | A만 `prompt`, B는 칸 없음 | A `provided`, B `unknown`(1절 결론) |
+| M3 | A만 `prompt`, B는 칸 없음 | A `provided_unverified`, B `unknown`(→ 0-2) |
 | M4 | B `prompt:""`·공백만 | B `empty` |
 | M5 | A 오디오 주소 없음(건너뜀), B 정상 | B행만 저장되고 가사도 B 것 — 건너뛴 A의 가사가 B로 밀리지 않음(지금 코드는 `i` 인덱스로 파일 이름을 만들므로 주의) |
 | M6 | 두 항목 `id` 같음(비정상) | 두 번째 저장 거절 또는 경고 기록, 가사 덮어쓰기 없음 |
@@ -237,7 +279,7 @@ alter table public.music_track_remix_variants
 | 저장 | 변주 행마다 `suno_task_id = taskId`, 가사·상태는 `id` 짝으로만. 같은 리믹스에 같은 `suno_audio_id`가 이미 있으면 새 행·가사 덮어쓰기 없음(EXT-07) |
 | 완료·실패·연장 갱신 | 잠금과 같은 (`id`, `task_id`, hop, generating) 조건. 바뀐 행이 0이면 아무것도 하지 않고 기록만 |
 | 연장 | 새 작업 번호로 바꾸는 갱신도 같은 조건 + `extend_hop_count = hop + 1`을 한 번에 |
-| 보충 | 고른 변주의 `suno_task_id`(없으면 리믹스 `task_id`)로 조회, 같은 `suno_audio_id`의 `prompt`만, 그 한 행만 갱신(FILL-01~03) |
+| 보충 | → 0-4: 완료 리믹스의 `unknown` 변주만, 출처 = `suno_task_id`, 없으면 연장 없던(hop 0) 리믹스의 `task_id`만, 옛 연장 행은 조회 안 함. 같은 `suno_audio_id`의 `prompt`만, 그 한 행만(`lyrics_status = unknown` 조건) (FILL-01~06) |
 | 비교 | 모든 기대값은 (오디오 번호, 작업 번호, hop, 상태, 길이, 가사 해시) — 해시 = NFC 정규화 sha256 앞 16자, 원문 미출력 |
 
 ### 3. 가사 계약 — 소비처별 같은 규칙
@@ -251,7 +293,14 @@ alter table public.music_track_remix_variants
 | `not_applicable` | 가사 없음(지금처럼) | 받지 않음 | 안 함 | 표시 없음 |
 
 ### 4. 관측과 가정의 구분(표본 `basis`)
-- 실측(OBS): `record-info` `sunoData[]` 낙타 표기 칸 — 가사 칸이 **없는** 모양만 관측됨.
+- 실측(OBS): `record-info` `sunoData[]` 낙타 표기 칸(`id`·`audioUrl`·`streamAudioUrl`·`imageUrl`·`duration`)을 **읽은 기록**만 있음. ~~가사 칸이 없는 모양만 관측됨~~ → 0-1: 가사 칸은 있고 없음 모두 **미관측**.
 - 코드(CODE): 경합·조건·건너뜀·우선순위.
 - 문서(DOC): 콜백 `prompt`. `record-info`에 있다는 것은 가정 → 그래서 `provided_unverified`.
 - 가정(ASSUME)·합성(SYNTH): `lyrics`·`lyric` 칸, 같은 오디오 번호가 다른 hop에 다시 오는 경우 등 — 이 칸의 문자열은 가사로 확정하지 않는다.
+
+## 부록 A3 보완 기록 (2026-11-20, Master `msg_503e2239aa81`, 검수 CX-QA-01)
+
+- 통일 계약은 **0절**로 옮겼다(본문·부록과 다르면 0절 우선). 어긋났던 본문 3·4·7절, 부록 A1 결론·M3, A2 보충·관측 표현 10곳에 「→ 0절」 표시·취소선.
+- 관측 표현 정정(0-1): 가사 칸은 있고 없음 모두 **미관측**. 표본 P0-ABSENT-01 근거를 SYNTH로 바꿈.
+- 표본 49개(P0 42·P1 4·P2 3). 새 사례: LOCK-01(5분 뒤 잠금 교체 → 옛 소유자 쓰기 0행), LOCK-02(옛 T0 요청의 잠금·저장·완료·실패·연장 예약·외부 호출 모두 0), ATOM-01(원자 반영 중간 실패 → 전부 되돌림), ATOM-02(단계별 리믹스 스냅숏과 금지 상태 점검), EXTDUP-01(연장 예약 하나만 → 외부 호출 1회), EXTUNC-01(결과 불확실 → 재호출 0, 완료+기록), EXTREJ-01(4xx 거절), FILL-04(생성 중은 보충 0), FILL-05(연장 없던 옛 행은 `remix.task_id` 출처 인정), FILL-06(옛 연장 행은 오디오 id가 겹쳐도 조회 0·`unknown`), FILL-07(다른 창이 먼저 채움 → 0행), FILL-08(키 없음·이미 시도 → 0), TIMED-01(옛 연장 행 시간 가사 요청 0). 기존 FILL-01·02·03·PAIR-04는 대상 변주(`variantId`)·hop·리믹스 상태를 명시하는 형식으로 바꿈(FILL-02는 「조회 0회」로 정정).
+- 점검(스크립트): `provided_unverified` 기대값 전부 해시 있음, 오디오 번호가 있는 기대 행 전부 hop 있음, 기대값에 `provided` 0개(실측 전 사용 금지), 금지 상태 목록 `_forbiddenStates` 4개.
