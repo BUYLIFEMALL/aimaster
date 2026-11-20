@@ -566,3 +566,4 @@ WS-LECTURE-PREVIEW-ONLY A2 범위 추가 CC-WORKSPACE-01: ai-work-workspace/src/
 MOV-ONESTOP-HANDOFF-UNICODE CC-MOVIE-01 해제: b3d9d62fa (tsc 0·npm test 105/105, textCut.ts는 만들었다 지움·shop-detail-page 변경 0).
 MOV-ONESTOP-HANDOFF-UNICODE A2 CC-MOVIE-01: Master msg_44be81a050b9(P2, 기준 b3d9d62fa). shorts-onestop-studio/src/lib/productShorts.ts·src/lib/reference.ts(cutText)·tests/productShorts.test.ts·tests/refHandoff.test.ts·docs/IMPROVEMENTS.md만. 빌드·배포 0.
 MOV-ONESTOP-HANDOFF-UNICODE A2 CC-MOVIE-01 해제: 389604fe9 (tsc 0·npm test 111/111).
+ECOM-ACCESS-AUDIT CC-ECOM-01: 주인님 「순서대로 진행해」 후보 2. coupang-ops/src/lib/actions/dailyAlert.ts(alertStatus 본인 확인)·src/app/(dashboard)/alerts/page.tsx·connect/page.tsx(호출 2곳)만. 배포·push 없음. 2026-11-20 시작.
