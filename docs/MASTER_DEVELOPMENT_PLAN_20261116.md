@@ -149,6 +149,8 @@ Master 마지막 실제 점검: 2026-11-20 11:01:22 KST · 11:00 Orca 수신, Wo
 
 - 티스토리 AI 응답 검증 49f136fe4 제출(작성자 국소 6/6·tsc PASS, 실제 AI 미실행). MacMini 독립 검수 msg_716493368aa0, 블로그 담당 문서 정리 msg_b7aef8dcbe60 전달. 기존 ZIP 미커밋 변경 별도 보존.
 
+- 음악 개선 문서 2곳 efde3a8ef 근거 접수. ai-music-studio 역할 문서 옛 표시 두 줄 정정 전달 msg_738a5e0a88c5.
+
 ## 주인님께 한 번에 드리는 요청
 
 | 구분 | 묶음 | 요청과 완료 신호 |
@@ -435,7 +437,7 @@ Master 마지막 실제 점검: 2026-11-20 11:01:22 KST · 11:00 Orca 수신, Wo
 | QA-20261118-042 | CX-QA-01 | done / integrated | emotion-writer 메뉴·키설정 독립검수 | DES02 반환시 두건 재검수·실375/위젯/회원키는 미검수 |
 | DES-20261118-02 | AG-UI-01 | done / accepted_pending_batch_deploy | 키보기 키보드 접근·키발급 링크 hover 대비 보완 | 다음 emotion-writer 묶음배포에 포함·운영반영 전까지 미배포 유지 |
 | WS-20261118-01 | CC-WORKSPACE-01 | done / accepted_pending_batch_deploy | 예약요일 칩·busy·키보드 국소UI 보완 | v1.58묶음포함·375/390·다크/:has포커스실화면은배포후 |
-| WS-20261118-02 | CC-WORKSPACE-01 | queued / notion_one_time_import_approved | 워크스페이스 캘린더 업그레이드 계획 | CMD-20261120-012: 오른쪽 달력 UI와 노션 강의 일정 1회 가져오기 확정. v1.64 뒤 Workspace 설계, 실제 데이터 쓰기 전 검토. |
+| WS-20261118-02 | CC-WORKSPACE-01 | reviewing / one_time_notion_design_review_dispatched | 워크스페이스 캘린더 업그레이드 계획 | 노션 1회 가져오기 문서 6f6459b88 제출, 제품 변경 없음. MacMini 독립 설계 검수 msg_ed341e99951d, 현행 달력·좁은 화면 조사 msg_e8fdabfcd025 전달. 실제 내보내기 표본·공용 manifest 미커밋 해소 대기. |
 | WS-20261118-03 | CC-WORKSPACE-01 | done / sidebar_trim_production_screen_verified | 사이드바 예정된 일정 메뉴 숨김 | v1.59 운영 시험 화면에서 메뉴 숨김 확인. |
 | WS-20261118-04 | CC-WORKSPACE-01 | done / four_views_production_desktop_verified | 워크스페이스 내부 네 화면 연결 | 네 화면·좌측 유지·본문 스크롤·뒤로가기 운영 확인. 767px 이하·주소 새로고침·타 공간은 운영 미검증. |
 | WS-20261118-05 | CC-WORKSPACE-01 | done / production_ready_owner_desktop_checks_accepted | 워크스페이스 v1.59 승인 묶음 운영 배포 | 운영 v1.59 확인. 프로그램 목록 DB v1.58 보고는 운영 쓰기 범위 결정 대기. |

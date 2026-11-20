@@ -4900,15 +4900,15 @@
       "owner": "CC-WORKSPACE-01",
       "reviewer": "CX-MASTER-01",
       "title": "워크스페이스 캘린더 업그레이드 계획",
-      "status": "queued",
-      "delivery": "notion_one_time_import_approved",
+      "status": "reviewing",
+      "delivery": "one_time_notion_design_review_dispatched",
       "sha": "699b2d6a6",
       "scopeRef": "ai-work-workspace/docs/PLAN_20261118_NOTION_CALENDAR_PARITY.md",
       "constraints": "계획 문서만, 구현·가져오기·동기화·빌드/배포 미승인",
       "completion": "데이터 이관과 화면 동작을 구분하고 동작 검수/우선순위 확정",
-      "evidence": "주인님 Workspace 직접 지시 보고·699b2d6a6 1파일 문서",
-      "next": "CMD-20261120-012: 오른쪽 달력 UI와 노션 강의 일정 1회 가져오기 확정. v1.64 뒤 Workspace 설계, 실제 데이터 쓰기 전 검토.",
-      "lastReviewedAt": "2026-11-20T02:15:07.919Z"
+      "evidence": "주인님 Workspace 직접 지시 보고·699b2d6a6 1파일 문서·6f6459b88·msg_ed341e99951d·msg_e8fdabfcd025",
+      "next": "노션 1회 가져오기 문서 6f6459b88 제출, 제품 변경 없음. MacMini 독립 설계 검수 msg_ed341e99951d, 현행 달력·좁은 화면 조사 msg_e8fdabfcd025 전달. 실제 내보내기 표본·공용 manifest 미커밋 해소 대기.",
+      "lastReviewedAt": "2026-11-20T02:22:29.366Z"
     },
     {
       "task_id": "WS-20261118-03",
