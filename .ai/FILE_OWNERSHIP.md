@@ -446,9 +446,9 @@ WS-TIMER-ERROR-BUCKETS CC-WORKSPACE-01: Master msg_f768111041fc. ai-work-workspa
 
 WS-TIMER-ERROR-BUCKETS 점유 해제 CC-WORKSPACE-01: 로컬 후보 53add833c(db.ts timerErrorBucket·pages.ts·agents/triggers.ts catch 각 한 줄·startupBoundary.test.ts 21개·문서). 전체 1,088/1,089·tsc 0. 미배포, v1.64 후보와 별도. 독립 검수 CX-QA-01 대기.
 
-ECOM-ORDER-REPORT-COMMON-RELEASE-PREP CC-ECOM-01: Master msg_3d2580a63591(A1/P9, 기준 87b29baa7). shop-order-report 공통 3건 국소 보완 — src/app/layout.tsx(저장공간 위젯 한 줄)·src/app/api/auth/logout/route.ts·src/lib/actions/auth.ts(signOut scope local 각 한 줄)·src/lib/supabase/server.ts(global.headers User-Agent 한 줄)·AGENTS.md(기록). 기준 구현 smartstore-register 동일 형태 재사용. 쿠키·권한·DB·의존성·버전·빌드·배포 없음. scratch/ 는 타 세션 미추적이라 손대지 않음.
+ECOM-ORDER-REPORT-COMMON-RELEASE-PREP CC-ECOM-01: Master msg_3d2580a63591(A1/P9, 기준 87b29baa7). shop-order-report 공통 3건 국소 보완 — src/app/layout.tsx(저장공간 위젯 한 줄)·src/app/api/auth/logout/route.ts·src/lib/actions/auth.ts(signOut scope local 각 한 줄)·src/lib/supabase/server.ts(global.headers User-Agent 한 줄)·AGENTS.md(기록). 기준 구현 smartstore-register 동일 형태 재사용. 쿠키·권한·DB·의존성·버전·빌드·배포 없음. scratch/ 는 타 세션 미추적이라 손대지 않음. → **해제 2026-11-20**(seller-label-docs v1.05·shop-order-report v1.07 배포 완료).
 
-ECOM-SELLER-LABEL-COMMON-RELEASE-PREP CC-ECOM-01: Master msg_60066fd26e5e(A1/P9, 기준 659659e17). seller-label-docs 공통 3건 국소 보완 — src/app/layout.tsx(저장공간 위젯 한 줄)·src/app/api/auth/logout/route.ts·src/lib/actions/auth.ts(signOut scope local 각 한 줄)·src/lib/supabase/server.ts(global.headers User-Agent 한 줄)·AGENTS.md(기록). 기준 구현 smartstore-register·shop-order-report 659659e17 동일 형태. 쿠키·권한·DB·의존성·버전·빌드·배포 없음.
+ECOM-SELLER-LABEL-COMMON-RELEASE-PREP CC-ECOM-01: Master msg_60066fd26e5e(A1/P9, 기준 659659e17). seller-label-docs 공통 3건 국소 보완 — src/app/layout.tsx(저장공간 위젯 한 줄)·src/app/api/auth/logout/route.ts·src/lib/actions/auth.ts(signOut scope local 각 한 줄)·src/lib/supabase/server.ts(global.headers User-Agent 한 줄)·AGENTS.md(기록). 기준 구현 smartstore-register·shop-order-report 659659e17 동일 형태. 쿠키·권한·DB·의존성·버전·빌드·배포 없음. → **해제 2026-11-20**(seller-label-docs v1.05·shop-order-report v1.07 배포 완료).
 
 WS-TIMER-CANDIDATE-PENDING-RECORD CC-WORKSPACE-01: Master msg_077f35e5fc28. docs/PENDING_DEPLOYS.md 대기 중 표에 ai-work-workspace 타이머 오류 분류 후보 53add833c 한 줄만 추가(기존 v1.64 줄과 분리). 다른 줄·다른 공용 문서 편집 없음, 운영·빌드·배포·push 없음.
 
