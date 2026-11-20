@@ -165,6 +165,38 @@ test("지시문 판정 — 정규화 뒤 전문 일치만 지시문(A2 반례)",
   assert.equal(normalizeForCompare("  [Chorus]\nA,  b!\n\tC  "), "a b c");
 });
 
+test("대괄호 실제 가사 보존 — 허용 구간 표시만 비교에서 제거(A3 반례)", () => {
+  const c = remixInstructionCandidates("한국어", null);
+  const solo = fx.defaults.instructionSolo;
+  // 허용 표시가 붙은 지시문 전문 → 여전히 지시문(empty)
+  for (const p of [
+    "[Verse 1]\n" + solo + "\n[Chorus]",
+    "[ chorus 2 ]\n" + solo,
+    "[Pre-Chorus]\n" + solo + "\n[Outro]",
+    "[INTRO]" + solo + "[end]",
+  ]) {
+    assert.equal(isInstructionEcho(p, c), true, "허용 표시 + 지시문 전문");
+    assert.equal(classifyRemixLyrics(VOCAL, { prompt: p }).status, "empty");
+  }
+  // 지시문 전문 + 대괄호 안 실제 가사 → 지시문 아님(가사 보존)
+  for (const p of [
+    solo + "\n[비 오는 거리 위로 걸어가]",
+    "[밤하늘 아래]\n" + solo,
+    solo + " [Walking in the rain]",
+  ]) {
+    assert.equal(isInstructionEcho(p, c), false, "대괄호 가사가 비교에 남아야 함");
+    const r = classifyRemixLyrics(VOCAL, { prompt: p });
+    assert.equal(r.status, "provided_unverified");
+    assert.equal(hash(r.lyrics), hash(p), "원문 그대로 저장");
+  }
+  // 목록에 없거나 다른 글이 붙은 표시 → 애매 → 미검증 후보
+  for (const p of ["[Verse 1: 여자]\n" + solo, "[Rap]\n" + solo, "[Chorus x2]\n" + solo]) {
+    assert.equal(classifyRemixLyrics(VOCAL, { prompt: p }).status, "provided_unverified", "목록 밖 표시는 지우지 않음");
+  }
+  assert.equal(normalizeForCompare("[비 오는 밤] [Verse 2]"), "비 오는 밤");
+  assert.equal(normalizeForCompare("[Verse 1: 여자]"), "verse 1 여자");
+});
+
 test("5,000 상한은 코드 포인트 기준 — 이모지 경계에서 고립 서로게이트 없음(A2 반례)", () => {
   const emoji = "😀";
   const a = classifyRemixLyrics(VOCAL, { prompt: "가".repeat(4999) + emoji + "나나" }).lyrics;

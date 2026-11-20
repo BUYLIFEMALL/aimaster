@@ -39,13 +39,21 @@ export function remixInstructionCandidates(lang: string, vocalGender: string | n
 }
 
 /**
- * 비교용 정규화(명시 규칙, 이 순서): ① NFC ② 구간 표시 `[...]` 제거 ③ 글자·숫자·공백이 아닌 문자(문장부호·기호) 제거
- * ④ 모든 공백(줄바꿈 포함)을 공백 하나로 ⑤ 앞뒤 공백 제거 ⑥ 소문자.
+ * 비교에서 지우는 구간 표시 — **이 고정 목록만**(대소문자 무시, 뒤에 번호 1~2자리 허용, 대괄호 안 앞뒤 공백 허용).
+ * 예: [Verse 1] [Chorus] [pre-chorus] [Outro]. 목록에 없거나 다른 글이 붙은 대괄호([Verse 1: 여자], [비 오는 밤])는
+ * 실제 가사일 수 있으므로 지우지 않고 안의 글을 비교에 남긴다(애매하면 지시문이 아니라 미검증 후보로).
+ */
+export const SECTION_TAGS = ["intro", "verse", "pre-chorus", "pre chorus", "chorus", "post-chorus", "post chorus", "bridge", "hook", "refrain", "interlude", "break", "instrumental", "outro", "end"] as const;
+const SECTION_TAG_RE = new RegExp(`\\[\\s*(?:${SECTION_TAGS.map((t) => t.replace(/[-\s]/g, "[-\\s]")).join("|")})(?:\\s*\\d{1,2})?\\s*\\]`, "giu");
+
+/**
+ * 비교용 정규화(명시 규칙, 이 순서): ① NFC ② 허용 구간 표시(SECTION_TAGS)만 제거 ③ 글자·숫자·공백이 아닌 문자(문장부호·기호,
+ * 남은 대괄호 기호 포함) 제거 — 대괄호 **안의 글은 남는다** ④ 모든 공백(줄바꿈 포함)을 공백 하나로 ⑤ 앞뒤 공백 제거 ⑥ 소문자.
  */
 export function normalizeForCompare(s: string): string {
   return s
     .normalize("NFC")
-    .replace(/\[[^\]]*\]/g, " ")
+    .replace(SECTION_TAG_RE, " ")
     .replace(/[^\p{L}\p{N}\s]/gu, " ")
     .replace(/\s+/g, " ")
     .trim()

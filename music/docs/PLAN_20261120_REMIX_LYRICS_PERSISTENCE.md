@@ -22,7 +22,7 @@
 | `not_applicable` | `add_instrumental`·연주곡 커버 |
 | `unknown` | `prompt` 칸 자체가 없음, 추측 칸(`lyrics`·`lyric` 등)만 있음, 이 변경 전 기존 행, 보충 출처를 검증할 수 없음 |
 - 추측 칸의 문자열은 저장하지 않는다(진단 표시만). `prompt` 외 이름을 가사로 쓰지 않는다.
-- 정규화(명시): NFC → 구간 표시 `[...]` 제거 → 문장부호·기호 제거 → 모든 공백을 하나로 → 앞뒤 공백 제거 → 소문자.
+- 정규화(명시): NFC → **허용 구간 표시만** 제거(고정 목록 `SECTION_TAGS`: intro·verse·pre-chorus·chorus·post-chorus·bridge·hook·refrain·interlude·break·instrumental·outro·end, 대소문자 무시·번호 1~2자리 허용) → 문장부호·기호 제거(그 밖 대괄호는 기호만 빠지고 **안의 글은 남음**) → 모든 공백을 하나로 → 앞뒤 공백 제거 → 소문자. 목록 밖 표시([Verse 1: 여자]·[Rap]·[Chorus x2])는 애매하므로 지우지 않아 미검증 후보로 남는다(PHASE1-PURE A3).
 - 5,000 상한은 **유니코드 코드 포인트** 기준(서로게이트 쌍을 가르지 않음).
 - 같은 오디오 번호가 여러 번 오면 **자르기 전 원문**과 상태가 모두 같을 때만 하나로, 다르면(5,000 뒤에서만 달라도) `unknown` + 충돌.
 
@@ -350,3 +350,8 @@ alter table public.music_track_remix_variants
 - 구현: `music/lib/remixLyrics.ts`, 시험 `music/tests/remixLyrics.test.mjs`(15개), 증거 `music/docs/evidence/remix-lyrics-phase1-tests-20261120.txt`.
 - 정정 3가지: 지시문은 정규화 뒤 **전문 일치만** `empty`(다섯 단어 접두·단어 부분 일치·가사 혼합은 `provided_unverified`), 5,000 상한은 **코드 포인트**(이모지 경계에서 고립 서로게이트 없음), 같은 번호 충돌은 **자르기 전 원문**으로 판정.
 - 전후: 옛 `b110a6d34` 함수에 같은 시험 → 15개 중 4개 실패(지시문 2·상한 1·충돌 1), 현재 함수 → 15/15. music 전체 92/92, tsc·eslint 0. 표본 ECHO-02 기대값을 `provided_unverified`로 정정.
+
+## 부록 PHASE1-PURE A3 (2026-11-20, Master `msg_8fec5e88b623`, 맥미니 검수 `msg_89092dac336b`)
+- 문제: 정규화가 모든 `[...]`를 지워, 지시문 전문 + 대괄호 안 실제 가사가 지시문으로 오판(가사 손실).
+- 정정: 고정 목록 `SECTION_TAGS`의 구간 표시만 제거, 그 밖 대괄호는 안의 글을 비교에 보존. 애매하면 미검증 후보.
+- 전후: 직전 `60fb2d390` 함수에 같은 시험 → 16개 중 1개 실패(대괄호 반례), 현재 16/16. A1 네 반례(`b110a6d34` 기준 실패)도 계속 통과. music 전체 93/93, tsc·eslint 0.
