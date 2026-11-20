@@ -15,6 +15,10 @@ import {
 } from "@/data/influencer-options";
 import type { InfluencerConfig, TimelineScenario } from "@/types/influencer";
 
+/** 글 생성(캡션·하루 일과 기획·이벤트 변형) 모델 — docs/AI_MODEL_CATALOG.md의 Gemini 「중가 균형(기본값)」.
+ *  2026-11-20 주인님 지시로 미리보기 모델 gemini-3-flash-preview(선택표에 없음)에서 교체. 실제 호출 시험은 하지 않았다. */
+export const TEXT_MODEL = "gemini-3.8-flash";
+
 /** Korea-time current month rule (prevents season mistakes, docs/ERROR_LESSONS.md 2026-10-14). */
 function koreaNowRule(now: Date = new Date()): string {
   const label = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Seoul", year: "numeric", month: "long" }).format(now);
@@ -64,7 +68,7 @@ export async function generateInfluencerImage(
 }
 
 /**
- * 2. 인스타그램 맞춤형 3종 캡션 자동 생성 (Gemini 3 Flash Preview)
+ * 2. 인스타그램 맞춤형 3종 캡션 자동 생성 (Gemini 3.8 Flash)
  */
 export async function generateInstagramCaption(
   apiKey: string,
@@ -119,7 +123,7 @@ General Rules:
 
   try {
     const res = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: TEXT_MODEL,
       contents: promptText,
       config: {
         responseMimeType: "application/json",
@@ -173,7 +177,7 @@ For 'outfit', 'location', 'expression', and 'pose', provide descriptive English 
 Return a JSON array of scenarios.`;
 
 /**
- * 3. 인플루언서의 하루 일과 5대 타임라인 자동 기획 (Gemini 3 Flash Preview)
+ * 3. 인플루언서의 하루 일과 5대 타임라인 자동 기획 (Gemini 3.8 Flash)
  */
 export async function planInfluencerDay(
   apiKey: string,
@@ -187,7 +191,7 @@ export async function planInfluencerDay(
   const ai = new GoogleGenAI({ apiKey });
 
   const res = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: TEXT_MODEL,
     contents: `Plan 5 Instagrammable moments across a full day based on: "${routinePrompt}". Persona info: "${persona}". Ensure realistic time progression (Morning to Night).`,
     config: {
       systemInstruction: PLANNER_SYSTEM_INSTRUCTION,
@@ -232,7 +236,7 @@ export async function planInfluencerDay(
 }
 
 /**
- * 4. 단일 이벤트 5각 변형 자동 기획 (Gemini 3 Flash Preview)
+ * 4. 단일 이벤트 5각 변형 자동 기획 (Gemini 3.8 Flash)
  */
 export async function planEventVariations(
   apiKey: string,
@@ -246,7 +250,7 @@ export async function planEventVariations(
   const ai = new GoogleGenAI({ apiKey });
 
   const res = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: TEXT_MODEL,
     contents: `Create 5 distinct and creative visual variations for this specific event: "${eventPrompt}". Ensure varied camera angles, moods (selfie, full body, detail, editorial). Persona: "${persona}".`,
     config: {
       systemInstruction: PLANNER_SYSTEM_INSTRUCTION,
