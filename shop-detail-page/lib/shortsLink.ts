@@ -10,7 +10,11 @@ export const SHORTS_TOPIC_URL = "https://shorts-onestop-studio.buylife.xyz/topic
 const FROM = "AI 상세페이지 자동화";
 const LIMITS = { name: 100, point: 60, points: 3, offer: 80, id: 64 } as const;
 
-const clean = (v: string | null | undefined, max: number) => (v ?? "").replace(/\s+/g, " ").trim().slice(0, max);
+// 짝 없는 반쪽 글자(서로게이트) — 길이 제한(UTF-16 단위, 받는 쪽과 같은 단위)으로 이모지 가운데가 잘리면 생기고,
+// 그대로 encodeURIComponent 하면 URIError 로 멈춘다(2026-11-20 원스톱 조사 dc52806a9 H8). 잘린 반쪽은 통째로 뺀다.
+const LONE_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
+const clean = (v: string | null | undefined, max: number) =>
+  (v ?? "").replace(/\s+/g, " ").trim().slice(0, max).replace(LONE_SURROGATE, "").trim();
 
 export interface ShortsProduct {
   id: string;
