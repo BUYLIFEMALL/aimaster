@@ -18,6 +18,7 @@ export type RowReason =
   | '' // 새로 넣음(특이 사항 없음)
   | 'wall_clock' // 새로 넣음: 표기와 다른 시간대로, 벽시계 값 그대로(명시 선택)
   | 'similar' // 새로 넣음: 같은 제목·같은 날에 하루 종일/시각 있는 일정이 따로 있음
+  | 'wall_clock_similar' // 새로 넣음: 위 두 가지가 함께(어느 쪽 경고도 잃지 않게 한 낱말로 싣는다)
   | 'column_count'
   | 'title_missing'
   | 'empty'
@@ -47,8 +48,10 @@ export interface LectureTotals {
   duplicate: number;
   failed: number;
   tz_mismatch: number;
-  /** 부분집계: created 가운데 명시 벽시계 예외로 넣는 행(created에 이미 포함) */
+  /** 부분집계: created 가운데 명시 벽시계 예외로 넣는 행(created에 이미 포함). 사유가 wall_clock·wall_clock_similar인 행 */
   wall_clock: number;
+  /** 부분집계: created 가운데 「비슷한 일정」 경고가 붙은 행(created에 이미 포함). 사유가 similar·wall_clock_similar인 행 */
+  similar: number;
 }
 
 /** 파일 전체를 판정하지 않고 멈추는 오류(0쓰기) */
@@ -134,19 +137,20 @@ export function assembleLectureImport(input: AssembleInput): AssembleResult {
     const row = passed[i];
     if (d.result === 'duplicate') put(d.line, 'duplicate', d.reason ?? 'dup_table', d.dupOf ?? null);
     else {
-      put(d.line, 'created', row.wallClock ? 'wall_clock' : d.similar ? 'similar' : '');
+      put(d.line, 'created', row.wallClock ? (d.similar ? 'wall_clock_similar' : 'wall_clock') : d.similar ? 'similar' : '');
       toWrite.push({ line: row.line, title: row.title, value: row.value });
     }
   });
 
   const lines = [...verdict.keys()].sort((a, b) => a - b);
-  const totals: LectureTotals = { rows: lines.length, created: 0, duplicate: 0, failed: 0, tz_mismatch: 0, wall_clock: 0 };
+  const totals: LectureTotals = { rows: lines.length, created: 0, duplicate: 0, failed: 0, tz_mismatch: 0, wall_clock: 0, similar: 0 };
   const rows: RowEntry[] = [];
   const dupOf: (number | string | null)[] = [];
   for (const line of lines) {
     const v = verdict.get(line)!;
     totals[v.result]++;
-    if (v.result === 'created' && v.reason === 'wall_clock') totals.wall_clock++;
+    if (v.result === 'created' && (v.reason === 'wall_clock' || v.reason === 'wall_clock_similar')) totals.wall_clock++;
+    if (v.result === 'created' && (v.reason === 'similar' || v.reason === 'wall_clock_similar')) totals.similar++;
     rows.push([line, v.result, v.reason]);
     dupOf.push(v.dupOf);
   }
@@ -177,25 +181,44 @@ export function responseBytes(body: unknown): number {
   return Buffer.byteLength(JSON.stringify(body), 'utf8');
 }
 
+/** 응답 본문을 만들지 못한 까닭 — 성공 본문과 섞이지 않는 별도 모양이다 */
+export type ResponseBuildError =
+  | { code: 'budget_invalid' } // 예산이 양의 정수가 아님(0·음수·소수·NaN·무한대·숫자 아님)
+  | { code: 'budget_too_small'; /** 줄별 상세를 모두 뺀 최소 본문의 크기 */ needed: number; budget: number };
+
 /**
- * 판정 결과를 응답 본문으로 만든다. 본문 전체의 실제 직렬화 크기가 예산을 넘으면 `rows`·`dupOf`를 **뒤에서부터** 같은 수만큼
- * 잘라 내고 `rowsOmitted`를 붙인다. `totals`와 `written`은 절대 자르지 않는다.
- * 예산이 봉투(합계·written)보다도 작으면 `rows`를 모두 빼고 돌려준다 — 그때는 본문이 예산을 넘을 수 있으며 `responseBytes`로 확인한다
- * (기본 예산 3,000,000바이트에서는 일어나지 않는다).
+ * 성공이면 `ok: true`와 본문·실제 크기, 실패면 `ok: false`와 사유. 부르는 쪽은 `ok`를 보지 않고는 본문을 꺼낼 수 없다.
+ * 성공한 본문은 **항상** 예산 이하다(`bytes <= budget`).
  */
-export function buildLectureResponse(judged: Pick<Judged, 'totals' | 'rows' | 'dupOf'>, opts: { written?: WrittenInfo; budget?: number } = {}): LectureResponse {
-  const budget = opts.budget ?? LECTURE_RESPONSE_BUDGET;
+export type LectureResponseResult = { ok: true; body: LectureResponse; bytes: number } | { ok: false; error: ResponseBuildError };
+
+/**
+ * 판정 결과를 응답 본문으로 만든다. 본문 전체의 실제 직렬화 크기(UTF-8 바이트)가 예산을 넘으면 `rows`·`dupOf`를
+ * **뒤에서부터** 같은 수만큼 행 단위로 잘라 내고(행의 중간이나 글자의 중간에서 자르지 않는다) `rowsOmitted`를 붙인다.
+ * `totals`와 `written`은 절대 자르지 않는다.
+ * 줄별 상세를 모두 뺀 최소 본문(합계·written·rowsOmitted)조차 예산에 들어가지 않으면 예산을 넘는 본문을 성공으로 돌려주지 않고
+ * `budget_too_small`로 실패한다. 예산 값이 양의 정수가 아니면 `budget_invalid`.
+ * 기본 예산(3,000,000바이트)과 최대 10,000행에서는 실패하지 않는다.
+ */
+export function buildLectureResponse(judged: Pick<Judged, 'totals' | 'rows' | 'dupOf'>, opts: { written?: WrittenInfo; budget?: number } = {}): LectureResponseResult {
+  // 예산을 아예 주지 않았을 때만 기본값을 쓴다. null처럼 「준 값이 이상한」 경우는 기본값으로 덮지 않고 오류로 본다
+  const budget = opts.budget === undefined ? LECTURE_RESPONSE_BUDGET : opts.budget;
+  if (typeof budget !== 'number' || !Number.isSafeInteger(budget) || budget <= 0) return { ok: false, error: { code: 'budget_invalid' } };
   const totals = { ...judged.totals };
   const make = (keep: number): LectureResponse => ({
     totals,
-    rows: judged.rows.slice(0, keep),
+    rows: judged.rows.slice(0, keep).map((r) => [r[0], r[1], r[2]] as RowEntry),
     dupOf: judged.dupOf.slice(0, keep),
     ...(keep < judged.rows.length ? { rowsOmitted: judged.rows.length - keep } : {}),
     ...(opts.written ? { written: { ...opts.written } } : {}),
   });
+  const done = (body: LectureResponse): LectureResponseResult => ({ ok: true, body, bytes: responseBytes(body) });
   const full = make(judged.rows.length);
-  if (responseBytes(full) <= budget) return full;
-  // 들어가는 가장 긴 앞부분을 찾는다(행이 늘수록 크기도 늘므로 이분 탐색)
+  if (responseBytes(full) <= budget) return done(full);
+  // 줄별 상세를 모두 뺀 최소 본문도 들어가지 않으면 실패(예산을 넘는 성공 본문은 없다)
+  const needed = responseBytes(make(0));
+  if (needed > budget) return { ok: false, error: { code: 'budget_too_small', needed, budget } };
+  // 들어가는 가장 긴 앞부분을 찾는다(행이 늘수록 크기도 늘므로 이분 탐색). keep = 0은 위에서 들어감을 확인했다
   let lo = 0;
   let hi = judged.rows.length - 1;
   while (lo < hi) {
@@ -203,5 +226,5 @@ export function buildLectureResponse(judged: Pick<Judged, 'totals' | 'rows' | 'd
     if (responseBytes(make(mid)) <= budget) lo = mid;
     else hi = mid - 1;
   }
-  return make(lo);
+  return done(make(lo));
 }

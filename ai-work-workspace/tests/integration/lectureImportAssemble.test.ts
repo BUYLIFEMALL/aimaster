@@ -20,6 +20,15 @@ const fileError = (input: AssembleInput) => {
   return (r as Extract<typeof r, { ok: false }>).error;
 };
 const sum = (t: Judged['totals']) => t.created + t.duplicate + t.failed + t.tz_mismatch;
+/** 응답 만들기가 성공해야 하는 자리: 본문을 꺼내고, 본문이 예산 이하이며 bytes가 실제 크기와 같은지 함께 확인한다 */
+const built = (...args: Parameters<typeof buildLectureResponse>) => {
+  const r = buildLectureResponse(...args);
+  expect(r.ok, JSON.stringify(r).slice(0, 200)).toBe(true);
+  const okR = r as Extract<typeof r, { ok: true }>;
+  expect(okR.bytes).toBe(responseBytes(okR.body));
+  expect(okR.bytes).toBeLessThanOrEqual(args[1]?.budget ?? LECTURE_RESPONSE_BUDGET);
+  return okR.body;
+};
 
 describe('판정 조립(§5-2): 단계 순서와 집계', () => {
   const CSV = [
@@ -55,7 +64,7 @@ describe('판정 조립(§5-2): 단계 순서와 집계', () => {
       [14, 'failed', 'title_missing'],
     ] satisfies RowEntry[]);
     expect(r.dupOf).toEqual([null, null, null, null, null, 2, null, null, null, null, null]);
-    expect(r.totals).toEqual({ rows: 11, created: 4, duplicate: 1, failed: 5, tz_mismatch: 1, wall_clock: 0 });
+    expect(r.totals).toEqual({ rows: 11, created: 4, duplicate: 1, failed: 5, tz_mismatch: 1, wall_clock: 0, similar: 1 });
     expect(sum(r.totals)).toBe(r.totals.rows);
     // 넣을 행: created만, 제목은 앞뒤 공백만 뗀 원문, 값은 저장 형식
     expect(r.toWrite).toEqual([
@@ -69,7 +78,7 @@ describe('판정 조립(§5-2): 단계 순서와 집계', () => {
   it('명시 벽시계 예외: 불일치 줄이 created(wall_clock)가 되고 부분집계에 잡힌다 — 합계는 그대로', () => {
     const r = ok(base(CSV, { wallClock: true }));
     expect(r.rows.find((x) => x[0] === 6)).toEqual([6, 'created', 'wall_clock']);
-    expect(r.totals).toEqual({ rows: 11, created: 5, duplicate: 1, failed: 5, tz_mismatch: 0, wall_clock: 1 });
+    expect(r.totals).toEqual({ rows: 11, created: 5, duplicate: 1, failed: 5, tz_mismatch: 0, wall_clock: 1, similar: 1 });
     expect(sum(r.totals)).toBe(r.totals.rows);
     expect(r.totals.wall_clock).toBeLessThanOrEqual(r.totals.created);
     expect(r.toWrite.find((x) => x.line === 6)?.value).toEqual({ type: 'datetime', start_date: '2026-11-20', start_time: '10:00', time_zone: 'Asia/Seoul' }); // 시각을 옮기지 않는다
@@ -106,7 +115,7 @@ describe('판정 조립(§5-2): 단계 순서와 집계', () => {
     ]);
     expect(second.dupOf).toEqual(['row-02', null, null, null, null, 'row-02', null, 'row-09', 'row-10', 'row-12', null]);
     expect(second.dupOf.length).toBe(second.rows.length);
-    expect(second.totals).toEqual({ rows: 11, created: 0, duplicate: 5, failed: 5, tz_mismatch: 1, wall_clock: 0 });
+    expect(second.totals).toEqual({ rows: 11, created: 0, duplicate: 5, failed: 5, tz_mismatch: 1, wall_clock: 0, similar: 0 });
     expect(second.toWrite).toEqual([]);
     // 실패·보류 줄은 첫 실행과 같은 판정·같은 사유
     for (const line of [3, 4, 5, 6, 8, 14]) expect(second.rows.find((x) => x[0] === line)).toEqual(first.rows.find((x) => x[0] === line));
@@ -139,7 +148,7 @@ describe('판정 조립(§5-2): 단계 순서와 집계', () => {
     expect(ok(base(' 제목 , 날짜 \nA,2026-11-20')).totals.created).toBe(1);
     expect(fileError(base('Title,Date\nA,2026-11-20', { mapping: { title: 'title', date: 'Date' } }))).toEqual({ code: 'title_column_missing' });
     // 머리줄만 있는 파일은 오류가 아니라 0행
-    expect(ok(base('제목,날짜\n')).totals).toEqual({ rows: 0, created: 0, duplicate: 0, failed: 0, tz_mismatch: 0, wall_clock: 0 });
+    expect(ok(base('제목,날짜\n')).totals).toEqual({ rows: 0, created: 0, duplicate: 0, failed: 0, tz_mismatch: 0, wall_clock: 0, similar: 0 });
   });
 
   it('결정적: 같은 입력이면 같은 결과, 기존 행을 읽어 온 순서에 좌우되지 않고, 입력을 바꾸지 않는다', () => {
@@ -157,23 +166,23 @@ describe('판정 조립(§5-2): 단계 순서와 집계', () => {
     expect(a.dupOf[0]).toBe('r-1'); // 같은 키의 기존 행 가운데 id가 가장 앞서는 것
     expect(judgeDuplicates([{ line: 2, title: '강의 A', value: existing[0].value }], existing)[0].dupOf).toBe('r-1');
     expect(JSON.stringify(existing)).toBe(frozen);
-    expect(JSON.stringify(buildLectureResponse(a))).toBe(JSON.stringify(buildLectureResponse(reversed)));
+    expect(JSON.stringify(built(a))).toBe(JSON.stringify(built(reversed)));
   });
 });
 
 describe('결과 계약(§5-2): 응답 모양과 예산', () => {
   it('미리보기와 확정 응답은 같은 모양 — 확정에만 written이 붙고, 서버가 계산한 「달라진 것」 칸은 없다', () => {
     const judged = ok(base('제목,날짜\nA,2026-11-20\nA,2026-11-20\nB,어제'));
-    const preview = buildLectureResponse(judged);
-    expect(preview).toEqual({ totals: { rows: 3, created: 1, duplicate: 1, failed: 1, tz_mismatch: 0, wall_clock: 0 }, rows: [[2, 'created', ''], [3, 'duplicate', 'dup_file'], [4, 'failed', 'unsupported_format']], dupOf: [null, 2, null] });
+    const preview = built(judged);
+    expect(preview).toEqual({ totals: { rows: 3, created: 1, duplicate: 1, failed: 1, tz_mismatch: 0, wall_clock: 0, similar: 0 }, rows: [[2, 'created', ''], [3, 'duplicate', 'dup_file'], [4, 'failed', 'unsupported_format']], dupOf: [null, 2, null] });
     const written = { rows: judged.totals.created, tableId: 'tbl-1', createdTable: true };
-    const committed = buildLectureResponse(judged, { written });
+    const committed = built(judged, { written });
     expect(committed).toEqual({ ...preview, written });
     expect(Object.keys(committed).sort()).toEqual(['dupOf', 'rows', 'totals', 'written']);
     expect(Object.keys(preview).sort()).toEqual(['dupOf', 'rows', 'totals']);
     // written.rows는 벽시계 예외로 넣은 행을 포함한 전체 삽입 수 = totals.created
     const wc = ok(base('제목,날짜\nA,2026-11-20 10:00 (GMT+0)\nB,2026-11-20 11:00', { wallClock: true }));
-    expect(wc.totals).toMatchObject({ created: 2, wall_clock: 1 });
+    expect(wc.totals).toMatchObject({ created: 2, wall_clock: 1, similar: 0 });
     expect(wc.toWrite.length).toBe(wc.totals.created);
     // 응답은 판정 결과의 사본이다(응답을 고쳐도 판정 결과가 바뀌지 않는다)
     committed.totals.created = 999;
@@ -184,13 +193,13 @@ describe('결과 계약(§5-2): 응답 모양과 예산', () => {
   it('내용 미노출: 응답에는 줄 번호·코드·중복 근거만 — 제목·칸 내용·날짜 원문·넣을 값이 없다', () => {
     const csv = ['제목,비밀 메모,날짜,담당', 'SECRET-제목-가,SECRET-메모-1,2026-11-20 10:00,SECRET-담당-1', 'SECRET-제목-가,SECRET-메모-2,2026-11-20 10:00,x', 'SECRET-제목-나,SECRET-메모-3,SECRET-날짜-원문,x', 'SECRET-제목-다,,2026-11-21 10:00 (GMT+0),x'].join('\n');
     const judged = ok(base(csv, { existing: [{ id: 'row-기존-1', title: 'SECRET-제목-라', value: { type: 'date', start_date: '2026-11-25' } as any }] }));
-    const body = buildLectureResponse(judged, { written: { rows: 1, tableId: 'tbl-1', createdTable: false } });
+    const body = built(judged, { written: { rows: 1, tableId: 'tbl-1', createdTable: false } });
     const text = JSON.stringify(body);
     expect(text).not.toMatch(/SECRET|메모|담당|2026-11-2|Asia\/Seoul|start_date|title/);
     expect(body.rows.every((r) => r.length === 3 && Number.isInteger(r[0]) && typeof r[1] === 'string' && typeof r[2] === 'string')).toBe(true);
     expect('toWrite' in body).toBe(false);
     // 중복 근거로 나가는 식별자는 줄 번호 또는 대상 표의 기존 행 id뿐이다
-    const dup = buildLectureResponse(ok(base('제목,날짜\nSECRET-제목-라,2026-11-25', { existing: [{ id: 'row-기존-1', title: 'SECRET-제목-라', value: { type: 'date', start_date: '2026-11-25' } as any }] })));
+    const dup = built(ok(base('제목,날짜\nSECRET-제목-라,2026-11-25', { existing: [{ id: 'row-기존-1', title: 'SECRET-제목-라', value: { type: 'date', start_date: '2026-11-25' } as any }] })));
     expect(dup.dupOf).toEqual(['row-기존-1']);
     expect(JSON.stringify(dup)).not.toContain('SECRET');
   });
@@ -205,9 +214,9 @@ describe('결과 계약(§5-2): 응답 모양과 예산', () => {
       existing.push({ id: id(i), title: `강의 ${i}`, value: { type: 'datetimerange', start_date: '2026-11-20', start_time: '10:00', end_date: '2026-11-20', end_time: '13:00' } as any });
     }
     const judged = ok(base(lines.join('\n'), { existing }));
-    expect(judged.totals).toEqual({ rows: 10_000, created: 0, duplicate: 10_000, failed: 0, tz_mismatch: 0, wall_clock: 0 });
+    expect(judged.totals).toEqual({ rows: 10_000, created: 0, duplicate: 10_000, failed: 0, tz_mismatch: 0, wall_clock: 0, similar: 0 });
     expect(judged.rows[9_999]).toEqual([10_001, 'duplicate', 'dup_table_end_differs']);
-    const body = buildLectureResponse(judged, { written: { rows: 0, tableId: id(0), createdTable: false } });
+    const body = built(judged, { written: { rows: 0, tableId: id(0), createdTable: false } });
     expect(body.rowsOmitted).toBeUndefined();
     expect(body.rows.length).toBe(10_000);
     const bytes = responseBytes(body);
@@ -224,22 +233,22 @@ describe('결과 계약(§5-2): 응답 모양과 예산', () => {
       rows.push([i + 2, i % 3 === 0 ? 'duplicate' : 'created', i % 3 === 0 ? 'dup_table' : '']);
       dupOf.push(i % 3 === 0 ? `행-${i}-가나다` : null);
     }
-    const totals = { rows: 400, created: 266, duplicate: 134, failed: 0, tz_mismatch: 0, wall_clock: 7 };
+    const totals = { rows: 400, created: 266, duplicate: 134, failed: 0, tz_mismatch: 0, wall_clock: 7, similar: 3 };
     const written = { rows: 266, tableId: '표-1', createdTable: true };
     const judged = { totals, rows, dupOf };
-    const full = buildLectureResponse(judged, { written });
+    const full = built(judged, { written });
     const S = responseBytes(full);
     expect(JSON.stringify(full).length).toBeLessThan(S); // 글자 수 < 바이트 수(한글)
-    expect(buildLectureResponse(judged, { written, budget: S })).toEqual(full);
-    expect(buildLectureResponse(judged, { written, budget: S }).rowsOmitted).toBeUndefined();
-    const oneShort = buildLectureResponse(judged, { written, budget: S - 1 });
+    expect(built(judged, { written, budget: S })).toEqual(full);
+    expect(built(judged, { written, budget: S }).rowsOmitted).toBeUndefined();
+    const oneShort = built(judged, { written, budget: S - 1 });
     expect(oneShort.rowsOmitted).toBeGreaterThan(0);
     expect(responseBytes(oneShort)).toBeLessThanOrEqual(S - 1);
     // 예산을 여러 값으로 바꿔 가며: 본문 ≤ 예산, 앞부분 그대로, 빠진 수 = 전체 − 남은 수, 한 행 더 넣으면 넘는다(가장 긴 앞부분)
     const envelope = responseBytes({ totals, rows: [], dupOf: [], rowsOmitted: 400, written });
     let cut = 0;
     for (let budget = envelope; budget < S; budget += 97) {
-      const b = buildLectureResponse(judged, { written, budget });
+      const b = built(judged, { written, budget });
       const kept = b.rows.length;
       expect(responseBytes(b), `budget ${budget}`).toBeLessThanOrEqual(budget);
       expect(b.rows).toEqual(rows.slice(0, kept));
@@ -250,19 +259,120 @@ describe('결과 계약(§5-2): 응답 모양과 예산', () => {
       expect(b.written).toEqual(written);
       const oneMore = { totals, rows: rows.slice(0, kept + 1), dupOf: dupOf.slice(0, kept + 1), rowsOmitted: 400 - kept - 1, written };
       expect(responseBytes(oneMore), `budget ${budget} +1`).toBeGreaterThan(budget);
-      expect(buildLectureResponse(judged, { written, budget })).toEqual(b); // 같은 예산이면 같은 결과
+      expect(built(judged, { written, budget })).toEqual(b); // 같은 예산이면 같은 결과
       cut++;
     }
     expect(cut).toBeGreaterThan(50);
-    // 예산이 봉투보다 작으면 행을 모두 빼고 합계·written만 남긴다(자르지 않는 칸은 끝까지 온전)
-    const tiny = buildLectureResponse(judged, { written, budget: 10 });
-    expect(tiny).toEqual({ totals, rows: [], dupOf: [], rowsOmitted: 400, written });
+    // 예산이 최소 본문과 정확히 같으면 줄별 상세 0개로 성공(합계·written 온전), 1바이트라도 모자라면 성공이 아니다
+    expect(built(judged, { written, budget: envelope })).toEqual({ totals, rows: [], dupOf: [], rowsOmitted: 400, written });
+    expect(buildLectureResponse(judged, { written, budget: envelope - 1 })).toEqual({ ok: false, error: { code: 'budget_too_small', needed: envelope, budget: envelope - 1 } });
     // 미리보기(written 없음)도 같은 규칙
-    const preview = buildLectureResponse(judged, { budget: 2_000 });
+    const preview = built(judged, { budget: 2_000 });
     expect(preview.written).toBeUndefined();
     expect(responseBytes(preview)).toBeLessThanOrEqual(2_000);
     expect(preview.rowsOmitted! + preview.rows.length).toBe(400);
     // 판정 결과는 잘라도 바뀌지 않는다
     expect([rows.length, dupOf.length, totals.rows]).toEqual([400, 400, 400]);
+  });
+
+  it('예산을 넘는 성공 본문은 없다: 최소 본문 미만·비정상 예산은 성공과 구별되는 실패로 돌아온다', () => {
+    const judged = ok(base('제목,날짜\nA,2026-11-20\nA,2026-11-20\nB,어제'));
+    const written = { rows: 1, tableId: 'tbl-1', createdTable: true };
+    for (const w of [undefined, written]) {
+      const opts = w ? { written: w } : {};
+      const min = responseBytes({ totals: judged.totals, rows: [], dupOf: [], rowsOmitted: 3, ...(w ? { written: w } : {}) });
+      // 정확히 최소: 성공, 줄별 상세 0개, 합계·written 온전
+      const atMin = buildLectureResponse(judged, { ...opts, budget: min });
+      expect(atMin).toEqual({ ok: true, bytes: min, body: { totals: judged.totals, rows: [], dupOf: [], rowsOmitted: 3, ...(w ? { written: w } : {}) } });
+      // 최소 미만: 1바이트만 모자라도 실패 — 본문이 없고, 필요한 크기를 알려 준다
+      for (const budget of [min - 1, Math.floor(min / 2), 10, 1]) {
+        const r = buildLectureResponse(judged, { ...opts, budget });
+        expect(r, `budget ${budget}`).toEqual({ ok: false, error: { code: 'budget_too_small', needed: min, budget } });
+        expect('body' in r).toBe(false);
+      }
+    }
+    // 비정상 예산: 0·음수·소수·NaN·무한대·숫자 아님
+    for (const budget of [0, -1, -3_000_000, 1.5, 2_999_999.9, NaN, Infinity, -Infinity, Number.MAX_SAFE_INTEGER + 2, '3000000', null, {}, [], true] as unknown as number[]) {
+      expect(buildLectureResponse(judged, { budget }), String(budget)).toEqual({ ok: false, error: { code: 'budget_invalid' } });
+    }
+    // 예산을 주지 않으면 기본값, 아주 큰 정상 예산도 성공
+    expect(buildLectureResponse(judged).ok).toBe(true);
+    expect(buildLectureResponse(judged, { budget: Number.MAX_SAFE_INTEGER }).ok).toBe(true);
+    // 행이 없는 판정: 자를 것이 없으므로 본문 전체가 최소 본문이다
+    const empty = ok(base('제목,날짜\n'));
+    const emptyMin = responseBytes({ totals: empty.totals, rows: [], dupOf: [] });
+    expect(buildLectureResponse(empty, { budget: emptyMin })).toEqual({ ok: true, bytes: emptyMin, body: { totals: empty.totals, rows: [], dupOf: [] } });
+    expect(buildLectureResponse(empty, { budget: emptyMin - 1 })).toEqual({ ok: false, error: { code: 'budget_too_small', needed: emptyMin, budget: emptyMin - 1 } });
+    // 성공 결과에서만 본문을 꺼낼 수 있다(타입으로 강제)
+    const r = buildLectureResponse(judged, { budget: 5 });
+    // @ts-expect-error 성공 여부를 보지 않고는 body에 닿을 수 없다
+    void r.body;
+    if (r.ok) throw new Error('성공하면 안 된다');
+    expect(r.error.code).toBe('budget_too_small');
+  });
+
+  it('잘리는 순서와 UTF-8 경계: 뒤에서부터 행 단위로만 — 1바이트씩 예산을 바꿔도 본문은 예산 이하이고 온전한 JSON이다', () => {
+    // 근거 id에 한글(3바이트)·이모지(4바이트, 대리쌍)를 섞는다
+    const rows: RowEntry[] = [];
+    const dupOf: (number | string | null)[] = [];
+    for (let i = 0; i < 24; i++) {
+      rows.push([i + 2, 'duplicate', i % 2 ? 'dup_table' : 'dup_table_end_differs']);
+      dupOf.push(i % 3 === 0 ? `행-${i}-가나다` : i % 3 === 1 ? `row-${i}-📅📌` : i + 1);
+    }
+    const totals = { rows: 24, created: 0, duplicate: 24, failed: 0, tz_mismatch: 0, wall_clock: 0, similar: 0 };
+    const written = { rows: 0, tableId: '표-📅', createdTable: false };
+    const judged = { totals, rows, dupOf };
+    const full = built(judged, { written });
+    const S = responseBytes(full);
+    const min = responseBytes({ totals, rows: [], dupOf: [], rowsOmitted: 24, written });
+    let lastKept = -1;
+    const keptSeen = new Set<number>();
+    for (let budget = min; budget <= S; budget++) {
+      const r = buildLectureResponse(judged, { written, budget });
+      if (!r.ok) throw new Error(`budget ${budget}: ${JSON.stringify(r.error)}`);
+      const text = JSON.stringify(r.body);
+      expect(Buffer.byteLength(text, 'utf8'), `budget ${budget}`).toBeLessThanOrEqual(budget);
+      expect(r.bytes).toBe(Buffer.byteLength(text, 'utf8'));
+      // 온전한 JSON이고 글자가 깨지지 않았다(대리쌍 반쪽·잘린 다중 바이트 없음)
+      expect(JSON.parse(text)).toEqual(r.body);
+      expect(Buffer.from(text, 'utf8').toString('utf8')).toBe(text);
+      expect(text).not.toContain('\uFFFD');
+      const kept = r.body.rows.length;
+      // 앞에서부터 그대로, 뒤에서만 빠진다
+      expect(r.body.rows).toEqual(rows.slice(0, kept));
+      expect(r.body.dupOf).toEqual(dupOf.slice(0, kept));
+      if (kept < 24) expect(r.body.rowsOmitted).toBe(24 - kept);
+      else expect('rowsOmitted' in r.body).toBe(false);
+      expect(r.body.totals).toEqual(totals);
+      expect(r.body.written).toEqual(written);
+      // 예산이 늘면 남는 행 수는 줄지 않는다
+      expect(kept).toBeGreaterThanOrEqual(lastKept);
+      lastKept = kept;
+      keptSeen.add(kept);
+    }
+    expect(lastKept).toBe(24);
+    expect(keptSeen.size).toBe(25); // 0개부터 24개까지 모든 길이가 한 번씩은 나온다(행 단위로만 잘린다)
+    expect(buildLectureResponse(judged, { written, budget: min - 1 }).ok).toBe(false);
+  });
+
+  it('벽시계 예외와 비슷한 일정이 겹치면 한 낱말(wall_clock_similar)로 싣고 두 부분집계에 모두 잡힌다 — 어느 경고도 잃지 않는다', () => {
+    const csv = ['제목,날짜', 'A,2026-11-20', 'A,2026-11-20 10:00 (GMT+0)', 'B,2026-11-21 10:00 (GMT+0)', 'C,2026-11-22', 'C,2026-11-22 09:00'].join('\n');
+    const r = ok(base(csv, { wallClock: true }));
+    expect(r.rows).toEqual([
+      [2, 'created', ''],
+      [3, 'created', 'wall_clock_similar'], // 표기 불일치를 그대로 넣었고, 같은 날 하루 종일 일정도 있다
+      [4, 'created', 'wall_clock'],
+      [5, 'created', ''],
+      [6, 'created', 'similar'],
+    ]);
+    expect(r.totals).toEqual({ rows: 5, created: 5, duplicate: 0, failed: 0, tz_mismatch: 0, wall_clock: 2, similar: 2 });
+    expect(sum(r.totals)).toBe(r.totals.rows);
+    // 부분집계는 사유 코드에서 다시 셀 수 있다(집계와 줄별 상세가 어긋나지 않는다)
+    const count = (...reasons: string[]) => r.rows.filter((x) => x[1] === 'created' && reasons.includes(x[2])).length;
+    expect([count('wall_clock', 'wall_clock_similar'), count('similar', 'wall_clock_similar')]).toEqual([r.totals.wall_clock, r.totals.similar]);
+    // 예외를 고르지 않으면 불일치 줄은 보류이고, 보류 줄은 비슷한 일정의 근거가 되지 않는다
+    const plain = ok(base(csv));
+    expect(plain.rows).toEqual([[2, 'created', ''], [3, 'tz_mismatch', 'tz_start'], [4, 'tz_mismatch', 'tz_start'], [5, 'created', ''], [6, 'created', 'similar']]);
+    expect(plain.totals).toEqual({ rows: 5, created: 3, duplicate: 0, failed: 0, tz_mismatch: 2, wall_clock: 0, similar: 1 });
   });
 });
