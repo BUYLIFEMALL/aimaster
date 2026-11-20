@@ -542,3 +542,5 @@ CRAWLER-NOTICE-REDIRECT-AUDIT CC-ECOM-01: Master msg_8110c3d29158(A1). 내 담�
 MOV-SHOTS-BGM-VOLUME CC-MOVIE-01 해제: 67cc1eee8 (tsc 0·회귀 7/7·전체 41/41·공용 인코더 불변).
 MOV-VIDEO-NOTICE-307 CC-MOVIE-01: Master msg_5b9e61779b0f. shots·shorts-viral-studio·youtube-viral-studio 각 src/proxy.ts·src/lib/noticeFiles.ts(새)·tests/noticeFiles.test.mjs(새)·docs/IMPROVEMENTS.md + docs/PENDING_DEPLOYS.md. 빌드·배포 0.
 MOV-VIDEO-NOTICE-307 CC-MOVIE-01 해제: b654c1017 (세 앱 tsc 0·notice 4/4·전체 45/55/76).
+
+WS-LECTURE-PREVIEW-ONLY A1 CC-WORKSPACE-01: Master msg_74897165e9e7(previewLectureImport 단위만, 로컬·격리 대역 시험). ai-work-workspace/src/litpage/server/api/handlers.ts(ApiError 선택 칸·Ctx 키 칸), ai-work-workspace/src/server/runtime.ts(IMPORT_RPCS·공개 칸 거르기·시험용 키 주입), ai-work-workspace/src/litpage/server/api/modules/import.ts(previewLectureImport), 새 ai-work-workspace/src/litpage/server/content/lectureImport/publicError.ts, 새 tests/integration/lectureImportPreviewRpc.test.ts, docs/IMPROVEMENTS.md 한 줄. commit RPC·UI·DB·env·빌드·배포·push 없음.
