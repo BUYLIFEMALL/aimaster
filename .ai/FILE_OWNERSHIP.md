@@ -563,3 +563,4 @@ MOV-ONESTOP-HANDOFF-UNICODE 범위 추가 CC-MOVIE-01: shorts-onestop-studio/src
 WS-LECTURE-PREVIEW-ONLY A2 CC-WORKSPACE-01: Master msg_e9dda18e3075(Mac msg_05fa09ab08a1). ai-work-workspace/src/app/api/rpc/[name]/route.ts(previewLectureImport만 키 조회·모델 목록 예열·afterRpc 없이), ai-work-workspace/src/litpage/server/api/modules/import.ts(미리보기 전용 파일 소유·완료 검증, 모호한 날짜 속성 400), tests/integration/lectureImportPreviewRpc.test.ts·새 tests/integration/lectureImportPreviewRoute.test.ts, docs/PLAN 해당 절·IMPROVEMENTS. 다른 RPC 동작 변경·쓰기 RPC·키·운영 없음.
 
 WS-LECTURE-PREVIEW-ONLY A2 범위 추가 CC-WORKSPACE-01: ai-work-workspace/src/server/runtime.ts(읽기 전용 명령 판정 함수 내보내기 한 줄 — 진입점과 실행기가 같은 목록을 쓰게).
+MOV-ONESTOP-HANDOFF-UNICODE CC-MOVIE-01 해제: b3d9d62fa (tsc 0·npm test 105/105, textCut.ts는 만들었다 지움·shop-detail-page 변경 0).
