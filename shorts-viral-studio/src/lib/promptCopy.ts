@@ -19,48 +19,51 @@ export function formatScenePrompts(prompts: ScenePrompt[] | null | undefined, ki
   return blocks.join("\n\n");
 }
 
-// 2026-11-20 A2(맥미니 P3): 복사 표시 상태를 순수 함수로 — 프롬프트 생성 오류와 섞지 않는다.
-// seq는 복사를 누를 때마다 1씩 오르는 순번. 「복사됨」을 2초 뒤 지우는 타이머는 자기 순번일 때만 지운다
-// → 같은 버튼을 연달아 눌러도 앞 타이머가 새 표시를 일찍 지우지 않는다(표시 시간이 다시 2초).
-export type CopyState = { kind: PromptKind | null; error: string | null; seq: number };
-export const COPY_IDLE: CopyState = { kind: null, error: null, seq: 0 };
+// ── 복사 표시 상태(순수 함수) — 프롬프트 생성 오류와 섞지 않는다 ─────────────────────────
+// seq: 복사를 누를 때마다 1씩 오르는 순번(A2). 「복사됨」을 지우는 타이머와 완료 처리는 자기 순번이 최신일 때만 반영한다
+//      → 같은 버튼을 연달아 눌러도 앞 타이머·늦게 끝난 앞 복사가 새 표시를 건드리지 않는다.
+// target: 그 복사가 대상으로 삼은 프롬프트 결과(A4). 화면은 visibleCopy()로 「지금 보이는 결과」의 상태만 보여 준다
+//      → 결과가 바뀌면 효과(effect)를 기다리지 않고 첫 렌더부터 이전 성공·오류가 숨겨진다.
+//      식별값은 결과 객체 참조다: 같은 결과의 재렌더·다른 칸 수정에서는 참조가 유지되고, 새로 만들거나 불러올 때만 바뀐다.
+export type CopyTarget = object | null;
+export type CopyState = { kind: PromptKind | null; error: string | null; seq: number; target: CopyTarget };
+export const COPY_IDLE: CopyState = { kind: null, error: null, seq: 0, target: null };
 export const COPY_SHOWN_MS = 2000;
 export const COPY_ERROR_MESSAGE = "복사하지 못했습니다. 브라우저의 클립보드 권한을 확인해 주세요.";
 
 /** 복사 성공: 그 종류에 「복사됨」, 이전 복사 오류는 지운다. */
-export function copySucceeded(seq: number, kind: PromptKind): CopyState {
-  return { kind, error: null, seq };
+export function copySucceeded(seq: number, kind: PromptKind, target: CopyTarget): CopyState {
+  return { kind, error: null, seq, target };
 }
 /** 복사 실패: 「복사됨」 표시는 없애고 복사 오류만 남긴다. */
-export function copyFailed(seq: number): CopyState {
-  return { kind: null, error: COPY_ERROR_MESSAGE, seq };
+export function copyFailed(seq: number, target: CopyTarget): CopyState {
+  return { kind: null, error: COPY_ERROR_MESSAGE, seq, target };
 }
 /** 표시 시간 끝: 자기 순번의 성공 표시만 지운다(그 사이 새 복사·실패가 있었으면 그대로 둔다). */
 export function copyExpired(state: CopyState, seq: number): CopyState {
   return state.seq === seq && state.kind !== null ? { ...state, kind: null } : state;
 }
 
-// 2026-11-20 A3(맥미니): 복사 요청을 「대상 결과」에 묶는다. 프롬프트 결과가 바뀌거나 초기화되면 invalidate()로
-// 진행 중이던 복사를 무효로 만들어, 늦게 끝난 성공·실패가 새 화면에 상태를 쓰지 못하게 한다.
-export type CopyGate = { begin(): number; invalidate(): void; isCurrent(seq: number): boolean };
+/** 복사 요청 순번 문: begin()으로 받은 순번이 가장 최근 요청인지 isCurrent()로 확인한다. */
+export type CopyGate = { begin(): number; isCurrent(seq: number): boolean };
 export function createCopyGate(): CopyGate {
   let seq = 0;
-  return {
-    begin: () => ++seq,
-    invalidate: () => {
-      seq += 1;
-    },
-    isCurrent: (n) => n === seq,
-  };
+  return { begin: () => ++seq, isCurrent: (n) => n === seq };
 }
 
-/** 복사가 끝났을 때의 다음 상태. 최신 요청이 아니면(다시 눌렀거나 결과가 바뀌었으면) 상태를 그대로 둔다. */
+/** 복사가 끝났을 때의 다음 상태. 최신 요청이 아니면 그대로 두고, 최신이면 그 복사의 대상 결과(target)를 찍어 둔다. */
 export function settleCopy(
   state: CopyState,
   gate: CopyGate,
   seq: number,
   outcome: { ok: true; kind: PromptKind } | { ok: false },
+  target: CopyTarget,
 ): CopyState {
   if (!gate.isCurrent(seq)) return state;
-  return outcome.ok ? copySucceeded(seq, outcome.kind) : copyFailed(seq);
+  return outcome.ok ? copySucceeded(seq, outcome.kind, target) : copyFailed(seq, target);
+}
+
+/** 화면에 보일 상태: 지금 보이는 결과(current)에 대한 복사 상태만. 다른 결과의 성공·오류는 숨긴다(상태 자체는 건드리지 않음). */
+export function visibleCopy(state: CopyState, current: CopyTarget): CopyState {
+  return current !== null && state.target === current ? state : COPY_IDLE;
 }

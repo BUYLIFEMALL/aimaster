@@ -1,9 +1,13 @@
-// 프롬프트 「전체 복사」 글 만들기 시험 — 2026-11-20 영상 담당(MOV-SVS-PROMPT-COPY-ALL). 네트워크 없음.
+// 프롬프트 「전체 복사」 글 만들기·복사 표시 상태 시험 — 2026-11-20 영상 담당(MOV-SVS-PROMPT-COPY-ALL A1~A4). 네트워크 없음.
 // 실행: node --test tests/promptCopy.test.mjs
 import test from "node:test";
 import assert from "node:assert/strict";
 
-const { formatScenePrompts, PROMPT_COPY_LABEL } = await import("../src/lib/promptCopy.ts");
+const {
+  formatScenePrompts, PROMPT_COPY_LABEL,
+  COPY_IDLE, COPY_ERROR_MESSAGE, COPY_SHOWN_MS,
+  copySucceeded, copyFailed, copyExpired, createCopyGate, settleCopy, visibleCopy,
+} = await import("../src/lib/promptCopy.ts");
 
 const P = [
   { sceneNumber: 2, sceneSummary: "둘", imagePrompt: "image two", videoPrompt: "video two" },
@@ -33,94 +37,120 @@ test("버튼 이름은 두 종류가 서로 다르다", () => {
   assert.match(PROMPT_COPY_LABEL.video, /영상/);
 });
 
-// A2(맥미니 P3) 복사 표시 상태 회귀
-const { COPY_IDLE, COPY_ERROR_MESSAGE, COPY_SHOWN_MS, copySucceeded, copyFailed, copyExpired } = await import("../src/lib/promptCopy.ts");
+// ── 복사 표시 상태 ─────────────────────────────────────────────────────────────
+// 프롬프트 결과는 객체 참조로 구분한다(화면의 data.promptsResult). A = 이전 결과, B = 새로 만든 결과.
+const A = { bgmPrompt: null, prompts: P };
+const B = { bgmPrompt: null, prompts: P }; // 내용이 같아도 다른 결과
 
-test("실패 뒤 성공하면 복사 오류가 남지 않는다", () => {
-  const failed = copyFailed(1);
-  assert.deepEqual(failed, { kind: null, error: COPY_ERROR_MESSAGE, seq: 1 });
-  const ok = copySucceeded(2, "image");
-  assert.deepEqual(ok, { kind: "image", error: null, seq: 2 });
+// A2: 같은 결과 안에서의 동작(보존 대상)
+test("A2 실패 뒤 성공하면 복사 오류가 남지 않는다", () => {
+  assert.deepEqual(copyFailed(1, A), { kind: null, error: COPY_ERROR_MESSAGE, seq: 1, target: A });
+  assert.deepEqual(copySucceeded(2, "image", A), { kind: "image", error: null, seq: 2, target: A });
 });
 
-test("같은 종류를 연달아 복사하면 앞 타이머가 새 표시를 지우지 않는다", () => {
-  let s = copySucceeded(1, "image");
-  s = copySucceeded(2, "image"); // 2초 안에 다시 누름
+test("A2 같은 종류를 연달아 복사하면 앞 타이머가 새 표시를 지우지 않는다", () => {
+  let s = copySucceeded(1, "image", A);
+  s = copySucceeded(2, "image", A); // 2초 안에 다시 누름
   s = copyExpired(s, 1); // 첫 번째 타이머가 먼저 끝남
-  assert.equal(s.kind, "image", "첫 타이머는 두 번째 표시를 지우면 안 됨");
-  s = copyExpired(s, 2); // 두 번째 타이머
-  assert.equal(s.kind, null);
+  assert.equal(visibleCopy(s, A).kind, "image", "첫 타이머는 두 번째 표시를 지우면 안 됨");
+  s = copyExpired(s, 2);
+  assert.equal(visibleCopy(s, A).kind, null);
   assert.equal(COPY_SHOWN_MS, 2000);
 });
 
-test("다른 종류로 바꿔 복사해도 앞 타이머는 새 표시를 지우지 않는다", () => {
-  let s = copySucceeded(1, "image");
-  s = copySucceeded(2, "video");
-  s = copyExpired(s, 1);
-  assert.equal(s.kind, "video");
+test("A2 다른 종류로 바꿔 복사해도 앞 타이머는 새 표시를 지우지 않는다", () => {
+  let s = copySucceeded(1, "image", A);
+  s = copySucceeded(2, "video", A);
+  assert.equal(copyExpired(s, 1).kind, "video");
 });
 
-test("성공 표시가 끝나도 그 뒤 생긴 복사 오류는 지우지 않는다", () => {
-  let s = copySucceeded(1, "image");
-  s = copyFailed(2);
+test("A2 성공 표시가 끝나도 그 뒤 생긴 복사 오류는 지우지 않는다", () => {
+  let s = copySucceeded(1, "image", A);
+  s = copyFailed(2, A);
   s = copyExpired(s, 1);
-  assert.equal(s.error, COPY_ERROR_MESSAGE);
+  assert.equal(visibleCopy(s, A).error, COPY_ERROR_MESSAGE);
   assert.equal(copyExpired(s, 2), s, "오류 상태는 타이머로 바뀌지 않음(다음 성공 때 지워짐)");
 });
 
-test("복사 상태에는 생성 오류가 들어가지 않는다(별도 상태)", () => {
-  assert.deepEqual(Object.keys(COPY_IDLE).sort(), ["error", "kind", "seq"]);
-  assert.deepEqual(COPY_IDLE, { kind: null, error: null, seq: 0 });
+test("A2 복사 상태에는 생성 오류가 들어가지 않는다(별도 상태)", () => {
+  assert.deepEqual(Object.keys(COPY_IDLE).sort(), ["error", "kind", "seq", "target"]);
+  assert.deepEqual(COPY_IDLE, { kind: null, error: null, seq: 0, target: null });
 });
 
-// A3(맥미니) 결과 교체 뒤 늦게 끝난 복사 무효화 — 양방향(늦은 성공·늦은 실패)
-const { createCopyGate, settleCopy } = await import("../src/lib/promptCopy.ts");
-
-test("결과가 바뀐 뒤 늦게 성공한 이전 복사는 새 화면 상태를 바꾸지 않는다", () => {
-  const gate = createCopyGate();
-  const seq = gate.begin(); // 이전 결과에서 복사 시작
-  gate.invalidate(); // 프롬프트 결과 교체/초기화
-  const after = settleCopy(COPY_IDLE, gate, seq, { ok: true, kind: "image" });
-  assert.equal(after, COPY_IDLE);
-  assert.equal(gate.isCurrent(seq), false);
-});
-
-test("결과가 바뀐 뒤 늦게 실패한 이전 복사는 새 화면에 오류를 띄우지 않는다", () => {
-  const gate = createCopyGate();
-  const seq = gate.begin();
-  gate.invalidate();
-  const after = settleCopy(COPY_IDLE, gate, seq, { ok: false });
-  assert.equal(after, COPY_IDLE);
-  assert.equal(after.error, null);
-});
-
-test("교체 뒤 새로 누른 복사는 정상 반영되고, 이전 복사의 늦은 결과가 그것을 덮지 않는다", () => {
-  const gate = createCopyGate();
-  const oldSeq = gate.begin();
-  gate.invalidate();
-  const newSeq = gate.begin();
-  let s = settleCopy(COPY_IDLE, gate, newSeq, { ok: true, kind: "video" });
-  assert.deepEqual(s, { kind: "video", error: null, seq: newSeq });
-  s = settleCopy(s, gate, oldSeq, { ok: false }); // 이전 복사의 늦은 실패
-  assert.deepEqual(s, { kind: "video", error: null, seq: newSeq });
-  s = settleCopy(s, gate, oldSeq, { ok: true, kind: "image" }); // 이전 복사의 늦은 성공
-  assert.equal(s.kind, "video");
-});
-
-test("교체가 없으면 최신 요청의 성공·실패는 그대로 반영되고, 다시 누르면 앞 요청은 무효", () => {
+test("A2 다시 누르면 앞 요청의 늦은 결과는 반영하지 않는다", () => {
   const gate = createCopyGate();
   const a = gate.begin();
-  assert.deepEqual(settleCopy(COPY_IDLE, gate, a, { ok: false }), { kind: null, error: COPY_ERROR_MESSAGE, seq: a });
   const b = gate.begin();
-  assert.deepEqual(settleCopy(COPY_IDLE, gate, b, { ok: true, kind: "image" }), { kind: "image", error: null, seq: b });
-  assert.equal(settleCopy(COPY_IDLE, gate, a, { ok: true, kind: "video" }), COPY_IDLE);
+  const s = settleCopy(COPY_IDLE, gate, b, { ok: true, kind: "image" }, A);
+  assert.equal(settleCopy(s, gate, a, { ok: false }, A), s);
+  assert.equal(settleCopy(s, gate, a, { ok: true, kind: "video" }, A), s);
 });
 
-test("교체 뒤에는 이전 성공 표시의 타이머도 새 상태를 바꾸지 않는다", () => {
+// A4: 같은 결과의 일반 재렌더에서는 그대로 보인다(보존)
+test("A4 같은 결과로 다시 렌더해도 성공·오류 표시는 유지된다", () => {
+  const ok = copySucceeded(1, "image", A);
+  assert.equal(visibleCopy(ok, A), ok);
+  assert.equal(visibleCopy(ok, A), ok, "여러 번 렌더해도 같은 상태");
+  const bad = copyFailed(2, A);
+  assert.equal(visibleCopy(bad, A).error, COPY_ERROR_MESSAGE);
+});
+
+// A4: 결과 교체 — 복사가 「교체 전에」 끝난 경우. 효과(effect) 없이 교체 직후 첫 렌더부터 숨겨져야 한다
+test("A4 교체 전에 성공한 복사는 새 결과의 첫 렌더에서 보이지 않는다", () => {
   const gate = createCopyGate();
-  const oldSeq = gate.begin();
-  const shown = settleCopy(COPY_IDLE, gate, oldSeq, { ok: true, kind: "image" });
-  assert.equal(shown.kind, "image");
-  gate.invalidate(); // 화면은 COPY_IDLE로 초기화됨
-  assert.equal(copyExpired(COPY_IDLE, oldSeq), COPY_IDLE);
+  const seq = gate.begin();
+  const state = settleCopy(COPY_IDLE, gate, seq, { ok: true, kind: "image" }, A); // A 화면에서 성공
+  assert.equal(visibleCopy(state, A).kind, "image");
+  // 결과가 B로 바뀐 바로 그 렌더: 상태(state)는 아직 그대로지만 화면에는 숨겨진다
+  assert.equal(visibleCopy(state, B), COPY_IDLE);
+});
+
+test("A4 교체 전에 실패한 복사의 오류는 새 결과의 첫 렌더에서 보이지 않는다", () => {
+  const gate = createCopyGate();
+  const seq = gate.begin();
+  const state = settleCopy(COPY_IDLE, gate, seq, { ok: false }, A);
+  assert.equal(visibleCopy(state, A).error, COPY_ERROR_MESSAGE);
+  assert.equal(visibleCopy(state, B), COPY_IDLE);
+  assert.equal(visibleCopy(state, B).error, null);
+});
+
+// A4: 결과 교체 — 복사가 「교체 뒤에」 늦게 끝난 경우(A3의 양방향)
+test("A4 교체 뒤 늦게 성공한 이전 복사는 새 결과 화면에 보이지 않는다", () => {
+  const gate = createCopyGate();
+  const seq = gate.begin(); // A 화면에서 누름(대상 A)
+  // …결과가 B로 바뀜… 그 뒤 클립보드가 늦게 성공
+  const state = settleCopy(COPY_IDLE, gate, seq, { ok: true, kind: "image" }, A);
+  assert.equal(visibleCopy(state, B), COPY_IDLE);
+});
+
+test("A4 교체 뒤 늦게 실패한 이전 복사는 새 결과 화면에 오류를 띄우지 않는다", () => {
+  const gate = createCopyGate();
+  const seq = gate.begin();
+  const state = settleCopy(COPY_IDLE, gate, seq, { ok: false }, A);
+  assert.equal(visibleCopy(state, B), COPY_IDLE);
+});
+
+test("A4 새 결과에서 새로 누른 복사는 보이고, 이전 복사의 늦은 성공·실패가 그것을 덮지 않는다", () => {
+  const gate = createCopyGate();
+  const oldSeq = gate.begin(); // 대상 A, 아직 안 끝남
+  const newSeq = gate.begin(); // B 화면에서 새로 누름
+  let s = settleCopy(COPY_IDLE, gate, newSeq, { ok: true, kind: "video" }, B);
+  assert.deepEqual(visibleCopy(s, B), { kind: "video", error: null, seq: newSeq, target: B });
+  s = settleCopy(s, gate, oldSeq, { ok: false }, A);
+  assert.equal(visibleCopy(s, B).kind, "video");
+  s = settleCopy(s, gate, oldSeq, { ok: true, kind: "image" }, A);
+  assert.equal(visibleCopy(s, B).kind, "video");
+  assert.equal(visibleCopy(s, B).error, null);
+});
+
+test("A4 이전 결과의 성공 표시 타이머가 끝나도 새 결과 화면은 그대로다", () => {
+  const old = copySucceeded(1, "image", A);
+  assert.equal(visibleCopy(copyExpired(old, 1), B), COPY_IDLE);
+  const fresh = copySucceeded(2, "video", B);
+  assert.equal(copyExpired(fresh, 1), fresh, "이전 순번 타이머는 새 표시를 지우지 않음");
+});
+
+test("A4 결과가 없으면(null) 아무 상태도 보이지 않는다", () => {
+  assert.equal(visibleCopy(copySucceeded(1, "image", A), null), COPY_IDLE);
+  assert.equal(visibleCopy(COPY_IDLE, null), COPY_IDLE);
 });

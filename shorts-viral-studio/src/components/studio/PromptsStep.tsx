@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { generatePromptsAction } from "@/lib/actions/svs";
 import { savePromptSetAction } from "@/lib/actions/savedPrompts";
 import { downloadMarkdown } from "@/lib/export";
-import { COPY_IDLE, COPY_SHOWN_MS, PROMPT_COPY_LABEL, copyExpired, createCopyGate, formatScenePrompts, settleCopy, type CopyState, type PromptKind } from "@/lib/promptCopy";
+import { COPY_IDLE, COPY_SHOWN_MS, PROMPT_COPY_LABEL, copyExpired, createCopyGate, formatScenePrompts, settleCopy, visibleCopy, type CopyState, type PromptKind } from "@/lib/promptCopy";
 import { useStudio } from "@/components/studio/StudioProvider";
 import {
   Card,
@@ -40,13 +40,14 @@ export function PromptsStep() {
     if (!text) return;
     const gate = copyGate.current;
     const seq = gate.begin();
-    // 끝났을 때 최신 요청일 때만 반영: 다시 눌렀거나 프롬프트 결과가 바뀌었으면(아래 초기화) 버린다
+    const target = data.promptsResult; // 이 복사가 대상으로 삼은 결과 — 상태에 찍어 두고, 다른 결과 화면에서는 보이지 않게 한다
+    // 끝났을 때 최신 요청일 때만 반영(다시 눌렀으면 버림)
     try {
       await navigator.clipboard.writeText(text);
-      setCopy((s) => settleCopy(s, gate, seq, { ok: true, kind }));
+      setCopy((s) => settleCopy(s, gate, seq, { ok: true, kind }, target));
       if (gate.isCurrent(seq)) setTimeout(() => setCopy((s) => copyExpired(s, seq)), COPY_SHOWN_MS);
     } catch {
-      setCopy((s) => settleCopy(s, gate, seq, { ok: false }));
+      setCopy((s) => settleCopy(s, gate, seq, { ok: false }, target));
     }
   }
 
@@ -54,8 +55,6 @@ export function PromptsStep() {
   useEffect(() => {
     setVault("idle");
     setVaultError(null);
-    copyGate.current.invalidate(); // 이전 결과에 대한 진행 중 복사를 무효화
-    setCopy(COPY_IDLE);
   }, [data.promptsResult]);
 
   async function saveToVault() {
@@ -122,6 +121,8 @@ export function PromptsStep() {
   }
 
   const result = data.promptsResult;
+  // 지금 보이는 결과에 대한 복사 상태만 보인다 — 결과가 바뀌면 첫 렌더부터 이전 성공·오류가 숨겨진다
+  const shownCopy = visibleCopy(copy, result);
 
   return (
     <div className="space-y-5">
@@ -184,13 +185,13 @@ export function PromptsStep() {
             {(["image", "video"] as const).map((kind) =>
               formatScenePrompts(result.prompts, kind) ? (
                 <GhostButton key={kind} onClick={() => copyAll(kind)}>
-                  {copy.kind === kind ? "✅ 복사됨" : PROMPT_COPY_LABEL[kind]}
+                  {shownCopy.kind === kind ? "✅ 복사됨" : PROMPT_COPY_LABEL[kind]}
                 </GhostButton>
               ) : null,
             )}
             <span className="text-[11px] text-[#8b949e]">씬 번호 순서로 모아 복사합니다.</span>
           </div>
-          {copy.error && <p role="alert" className="text-xs font-semibold text-amber-400">{copy.error}</p>}
+          {shownCopy.error && <p role="alert" className="text-xs font-semibold text-amber-400">{shownCopy.error}</p>}
 
           <div className="space-y-3">
             {result.prompts.map((p) => (
