@@ -314,3 +314,6 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## 2026-11-06 수시 알림 실제 실행 확인([역할: ecommerce-image] `claude-win-sdp`, 운영 DB 읽기만)
 - 시험 계정 `coupang_ops_prefs.data.urgent`: `runKey` `2026-11-06T09`, 기록 시각 09:00:36(한국), `stop` 0·`inquiries` 0, `lastResult` 「새 건이 없어 보내지 않았습니다.」 → 회원 cron-job.org가 맞는 토큰으로 `/api/cron/coupang-urgent`를 불렀고, 토큰 해시 조회(jsonb 경로)·회차 중복 막기·쿠팡 조회·결과 저장까지 동작함.
 - 미확인: 새 건이 있을 때의 실제 발송(출고중지·문의가 생기면 확인). 플랜 A(A1~A4)는 10-30 완료 상태(위 10-30 항목).
+
+## 2026-11-20 (미배포 대기) — `alertStatus` 본인만 읽기 (Claud(ecommerce) `claude-win-sdp`, ECOM-ACCESS-AUDIT)
+- `lib/actions/dailyAlert.ts`는 "use server" 파일이라 내보낸 함수는 브라우저에서도 부를 수 있는데, `alertStatus(userId)`가 넘어온 회원 ID로 관리자 연결을 써서 그 회원의 알림 설정·이메일을 읽어 돌려줬다. 인자를 없애고 함수 안에서 `requireProgramAccess()`로 본인만 읽게 했다(호출 2곳 `alerts/page.tsx`·`connect/page.tsx` 함께). 실제 악용 흔적·가능성은 미확인(Next 가 쓰지 않는 서버 동작 번호를 브라우저 코드에 넣지 않으면 외부에서 부르기 어려움). tsc 0·시험 134/134. `2730a1749`. 같은 모양(서버 동작이 회원 ID를 인자로 받음)은 내 담당 10개 앱에서 이 1곳뿐.
