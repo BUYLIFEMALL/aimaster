@@ -8,6 +8,7 @@
 import { load } from 'cheerio/slim'
 import { countChars } from './news/promptRules'
 import { mdLiteToHtml } from './markdown'
+import { removeImagePromptSection } from './stripImageSchema'
 
 export function htmlToCountText(html: unknown): string {
   try {
@@ -27,14 +28,33 @@ export function bodyCharCount(html: unknown): number {
   }
 }
 
-/** 코드 모드 원고(마크다운 라이트) — 서버 PUT과 같은 변환(첨부 표시 → 이미지, mdLiteToHtml)을 거친 본문 의미로 센다. */
-export function markdownBodyCharCount(markdown: unknown): number {
+// 2차 보완(Mac msg_c48da43bc6ab · Master msg_3fd2a05716f5): 알려진 첨부 표시는 실제 저장처럼 「이미지」가 되게, 요청이 생기지 않는
+// 1px data 이미지 자리값으로 바꾼 뒤 변환한다(이미지 문법 안이면 그림+설명 칸이 되어 대체 글까지 세지 않음).
+// 「알려진」 = 서버 PUT(app/api/posts/[id]/route.ts)이 바꾸는 것과 같은 정확한 형식 `[첨부이미지 N]`(공백 한 칸)이면서
+// N이 1..knownAttachments(원본 글의 data:image 수) 안. 그 밖의 표시는 서버처럼 그대로 두어 의미를 바꾸지 않는다.
+const ATTACHMENT_PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAAAAACw='
+
+/** 코드 모드 원고(마크다운 라이트) — 서버 PUT과 같은 변환(첨부 표시 → 이미지, mdLiteToHtml)을 거친 뒤,
+ *  변환된 HTML에 기존 프롬프트 섹션 분리 규칙(removeImagePromptSection)을 적용한 본문 의미로 센다. */
+export function markdownBodyCharCount(markdown: unknown, knownAttachments: unknown = 0): number {
   try {
-    const source = (typeof markdown === 'string' ? markdown : '').replace(/\[첨부이미지\s*\d+\]/g, ' ')
-    return bodyCharCount(mdLiteToHtml(source))
+    const known = Number.isInteger(knownAttachments) && (knownAttachments as number) > 0 ? (knownAttachments as number) : 0
+    const source = (typeof markdown === 'string' ? markdown : '').replace(/\[첨부이미지 (\d+)\]/g, (whole, n: string) => {
+      const index = Number(n)
+      return index >= 1 && index <= known ? ATTACHMENT_PLACEHOLDER : whole
+    })
+    return bodyCharCount(removeImagePromptSection(mdLiteToHtml(source)))
   } catch {
     return 0
   }
+}
+
+/** 원본 글(HTML)에 들어 있는 data:image 수 — 코드 모드 첨부 표시 번호의 범위(편집 화면 replaceBase64WithImageTags와 같은 세기). */
+export function countDataImages(html: unknown): number {
+  const text = typeof html === 'string' ? html : ''
+  let count = 0
+  for (let pos = text.indexOf('data:image/'); pos !== -1; pos = text.indexOf('data:image/', pos + 1)) count += 1
+  return count
 }
 
 /** 목표가 정해져 있을 때만 목표 대비 비율(정수 %). 목표가 없거나 이상하면 null — 화면은 목표 대비를 그리지 않는다. */
