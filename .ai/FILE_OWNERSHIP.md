@@ -511,3 +511,5 @@ MOV-ONESTOP-LAYOUT-NOTICE CC-MOVIE-01(자율, 알림 msg_aa4e0be9c299): shorts-o
 
 WS-20261118-02 응답 투영·미리보기 표식 점유 해제 CC-WORKSPACE-01: 투영 10a7107c6(assemble.ts·lectureImportAssemble.test.ts 14개) · 표식 fdc919590(새 previewToken.ts·새 lectureImportPreviewToken.test.ts 12개·IMPROVEMENTS). 환경변수·실제 키·API·DB·화면 무변경, 호출처 0. Mac 독립 검수 대기.
 MOV-ONESTOP-LAYOUT-NOTICE CC-MOVIE-01 해제: f874762f9 (tsc 0·93/93).
+
+WS-20261118-02 표식 만료 P3 CC-WORKSPACE-01: Master msg_9ae7230258d4(Mac msg_487aac845d7b). ai-work-workspace/src/litpage/server/content/lectureImport/previewToken.ts(발급 시 만료 시각 검증)·tests/integration/lectureImportPreviewToken.test.ts·docs/PLAN_20261120_NOTION_LECTURE_IMPORT.md 5-1절(현재 코드 동작 기준)·IMPROVEMENTS. API·DB·env 편집 없음, 운영·빌드 없음.
