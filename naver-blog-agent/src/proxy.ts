@@ -1,4 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { cookieDomainForHost } from "@/lib/supabase/cookieDomain";
 
@@ -15,7 +15,11 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(`${NEW_ORIGIN}${request.nextUrl.pathname}${request.nextUrl.search}`, 308);
   }
   const cookieDomain = cookieDomainForHost(reqHost);
-  let response = NextResponse.next({ request });
+  // 2026-11-20 P2(Mac msg_b686ef72ba0d): @supabase/ssr 0.12.x는 setAll(cookies, headers)의 두 번째 인수로 캐시 금지 헤더
+  // (Cache-Control·Expires·Pragma)를 「첫 쿠키 쓰기 때만」 준다. 호출마다 응답을 새로 만들면 앞 호출의 헤더·쿠키가 빠지므로,
+  // 쿠키(청크 삭제용 빈 쿠키 포함)와 헤더를 모아 두었다가 세션 확인 뒤 최종 응답 하나에 한꺼번에 반영한다.
+  const cookiesToWrite = new Map<string, { value: string; options: CookieOptions }>();
+  const headersToWrite = new Map<string, string>();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim())!,
@@ -24,15 +28,20 @@ export async function proxy(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, cookieDomain ? { ...options, domain: cookieDomain } : options));
+        setAll(cookiesToSet, headers) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            request.cookies.set(name, value);
+            cookiesToWrite.set(name, { value, options: cookieDomain ? { ...options, domain: cookieDomain } : options });
+          });
+          Object.entries(headers ?? {}).forEach(([key, value]) => headersToWrite.set(key, value));
         },
       },
     },
   );
   await supabase.auth.getUser();
+  const response = NextResponse.next({ request });
+  cookiesToWrite.forEach(({ value, options }, name) => response.cookies.set(name, value, options));
+  headersToWrite.forEach((value, key) => response.headers.set(key, value));
   return response;
 }
 
