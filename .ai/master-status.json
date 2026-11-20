@@ -6437,11 +6437,11 @@
       "owner": "CC-MUSIC-01",
       "reviewer": "CX-QA-01",
       "title": "음악 리믹스 → 플레이리스트 발신 링크",
-      "status": "queued",
-      "delivery": "sender_release_approved_waits_workspace",
-      "next": "CMD-20261120-011 운영 빌드 1회 승인. v1.59 af14ca3e0 사전 점검 통과, 미제출 확인 msg_c68019ddc79a. Workspace 회차 종료 후 순번 통지.",
-      "evidence": "d6df77af9·msg_f175780a2b66·msg_129d96b11946·msg_65425ac205e0·msg_ce83069d59cf·msg_18059f9141ae·msg_596e2590a14b·msg_2d1033203682·msg_c6a117a2c57a",
-      "lastReviewedAt": "2026-11-20T02:15:07.919Z"
+      "status": "reviewing",
+      "delivery": "sender_v159_ready_live_click_pending",
+      "next": "음악 v1.59 운영 빌드 1회 READY, music-1l6k8gsjh 및 공식 alias 연결 담당 보고 msg_0d859c1abfc0. 운영 클릭·버전 반영 회신 대기.",
+      "evidence": "d6df77af9·msg_f175780a2b66·msg_129d96b11946·msg_65425ac205e0·msg_ce83069d59cf·msg_18059f9141ae·msg_596e2590a14b·msg_2d1033203682·msg_c6a117a2c57a·msg_0d859c1abfc0",
+      "lastReviewedAt": "2026-11-20T02:18:41.689Z"
     },
     {
       "task_id": "MOV-20261119-01",
