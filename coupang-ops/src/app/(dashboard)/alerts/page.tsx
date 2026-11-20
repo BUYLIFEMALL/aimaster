@@ -9,7 +9,7 @@ export const fetchCache = "force-no-store";
 
 export default async function AlertsPage() {
   const user = await requireProgramAccess();
-  const status = await alertStatus(user.id);
+  const status = await alertStatus();
   return (
     <div className="space-y-5">
       <PageHeader emoji="🔔" title="아침 요약 알림" description="매일 정한 시각에 처리할 건수를 텔레그램·이메일·카카오톡으로 받습니다." />

@@ -52,7 +52,7 @@ export default async function ConnectPage({ searchParams }: { searchParams: Prom
     getProxyStatus(user.id),
     getKeyExpiry(user.id).catch(() => ""),
     getAiModels(user.id).catch(() => ({})),
-    alertStatus(user.id),
+    alertStatus(),
   ]);
   const expiryNotice = keyExpiryNotice(expiry, Date.now());
 

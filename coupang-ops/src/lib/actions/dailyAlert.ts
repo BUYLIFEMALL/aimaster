@@ -216,7 +216,10 @@ export async function disableUrgentAlertAction(): Promise<Done> {
 
 export type AlertStatus = { resendKeySaved: boolean; emailTo: string; enabled: boolean; hour: number; channels: AlertChannel[]; ready: Record<AlertChannel, boolean>; lastRunDate: string; lastResult: string; telegram: string; kakaoOk: boolean; kakaoHasKey: boolean; kakaoNickname: string; kakaoMessage: string; cronKeySaved: boolean; wingKeysSaved: boolean; urgent: { enabled: boolean; hours: number[]; channels: AlertChannel[]; lastResult: string } };
 
-export async function alertStatus(userId: string): Promise<AlertStatus> {
+// 2026-11-20: 이 파일은 "use server"라 내보낸 함수는 브라우저에서도 부를 수 있다. 예전에는 회원 ID를 인자로 받아
+// 관리자 연결로 그 회원의 알림 설정·이메일을 읽었으므로, 인자를 없애고 로그인한 본인만 읽게 했다(ECOM-ACCESS-AUDIT).
+export async function alertStatus(): Promise<AlertStatus> {
+  const userId = (await requireProgramAccess()).id;
   const [row, t, key, keys, prefRow] = await Promise.all([
 
     createAdminClient().from("coupang_ops_alerts").select("enabled,hour,channels,last_run_date,last_result").eq("user_id", userId).maybeSingle().then((r) => r.data),
