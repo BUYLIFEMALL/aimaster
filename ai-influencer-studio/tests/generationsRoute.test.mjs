@@ -965,3 +965,25 @@ test("처리되지 않은 거부가 하나도 없다(늦게 온 오류·취소 �
   await sleep(150);
   assert.deepEqual(unhandled, []);
 });
+
+// ── 이미지 모델 선택(2026-11-20, R3 1단계) ──
+test("이미지 모델 선택(shadow): 허용 목록 밖·모델이 받지 않는 화질이면 400 — 참고 자산·저장소·생성 0", async () => {
+  for (const [cfg, code] of [
+    [{ ...CONFIG, imageModel: "ultra" }, "IMAGE_MODEL_INVALID"], [{ ...CONFIG, imageModel: "" }, "IMAGE_MODEL_INVALID"], [{ ...CONFIG, imageModel: 3 }, "IMAGE_MODEL_INVALID"],
+    [{ ...CONFIG, imageModel: "value", quality: "2K" }, "IMAGE_QUALITY_UNSUPPORTED"], [{ ...CONFIG, imageModel: "top", quality: "8K" }, "IMAGE_QUALITY_UNSUPPORTED"],
+  ]) {
+    const w = world();
+    const r = await post(w, { config: cfg });
+    assert.equal(r.status, 400, JSON.stringify(cfg)); assert.equal(r.body.code, code, JSON.stringify(cfg));
+    assert.equal(w.n.rows, 0); assert.equal(w.n.deps, 0); assertNothingPaid(w);
+  }
+});
+
+test("이미지 모델 선택(shadow): 허용된 선택·고르지 않음은 그대로 생성까지 가고 선택값이 생성 함수에 전달된다", async () => {
+  for (const cfg of [{ ...CONFIG }, { ...CONFIG, imageModel: "balanced", quality: "4K" }, { ...CONFIG, imageModel: "value", quality: "1K" }, { ...CONFIG, imageModel: null }]) {
+    const w = world();
+    const r = await post(w, { config: cfg });
+    assert.equal(r.status, 200, JSON.stringify(cfg)); assert.equal(w.n.generate, 1);
+    assert.equal(w.lastGenerate.config.imageModel, cfg.imageModel, JSON.stringify(cfg));
+  }
+});

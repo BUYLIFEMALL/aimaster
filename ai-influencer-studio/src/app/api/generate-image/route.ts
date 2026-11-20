@@ -5,6 +5,7 @@ import { generateInfluencerImage } from "@/lib/gemini";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { AIF_ASSETS_MODE, handleGenerateImagePost } from "@/lib/assets/generation";
 import { ASSET_BUCKET } from "@/lib/assets/paths";
+import { checkImageSelection } from "@/lib/imageModels";
 import type { InfluencerConfig } from "@/types/influencer";
 
 export const maxDuration = 300; // 2026-10-18: Pro 이미지 모델 시간 초과 방지(60 → 300초)
@@ -18,6 +19,11 @@ export async function POST(req: Request) {
     checkAccess: checkProgramAccessApi,
     getApiKey: getUserGeminiApiKey,
     generate: (apiKey, config) => generateInfluencerImage(apiKey, config as unknown as InfluencerConfig),
+    // 2026-11-20(R3 1단계): 이미지 모델 선택을 키 조회 전에 검사 — 허용 목록 밖·모델이 받지 않는 화질이면 400, 키 조회·생성 0
+    precheckConfig: (config) => {
+      const c = checkImageSelection(config);
+      return c.ok ? c : { ok: false, status: 400, body: { error: c.message, code: c.code } };
+    },
     // shadow일 때만 실행 시점에 만든다(지연 생성)
     getAssetDeps: () => {
       const admin = createAdminClient();

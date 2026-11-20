@@ -23,6 +23,7 @@
 // 1차에서 받지 않는 것: role "base_result"(보정용 직전 결과). 직전 결과 원본은 20MiB까지일 수 있고 서버에는 줄일 수단이 없다 — 방법이 정해질 때까지 400.
 //   (보정은 기존 경로가 지금처럼 처리한다. 화면을 이 경로로 바꾸는 단위에서도 기존 보정 흐름은 유지해야 한다.)
 import { collectReferences, readJsonBodyLimited, sniffImageKind } from "../referenceImage";
+import { checkImageSelection } from "../imageModels";
 import { assetsEnabled, limitResponseBody, NEED_KEY_MESSAGE, type AssetsMode } from "./generation";
 import { ASSET_BUCKET, REF_MAX_BYTES, buildAssetPath, isCanonicalUuid, parseAssetPath } from "./paths";
 import { SIGNED_URL_TTL_SECONDS, validSignedUrl } from "./read";
@@ -276,6 +277,10 @@ export async function handlePostGeneration(req: Request, deps: GenerationsDeps):
   if (!isObject(body.value) || !isObject(body.value.config)) return fail(400, "BODY_INVALID");
   const config = body.value.config;
   for (const k of PHOTO_KEYS) if (own(config, k)) return fail(400, "REFERENCE_INLINE_NOT_ALLOWED");
+  // 2026-11-20(R3 1단계): 이미지 모델 선택 검사 — 참고 자산 읽기·저장소·모델 호출 전에 거절한다.
+  //   ★ 이 경로는 본문보다 본인 키 조회(③)가 먼저라 여기서 거절해도 키 조회는 이미 일어났다(지금은 스위치 off라 이 줄까지 오지 않는다).
+  const selection = checkImageSelection(config);
+  if (!selection.ok) return out(400, { error: selection.message, code: selection.code });
   const parsed = parseReferences(body.value.references, config);
   if (!parsed.ok) return fail(parsed.status, parsed.code);
   if (!isCanonicalUuid(userId)) return fail(503, "ASSET_UNAVAILABLE");

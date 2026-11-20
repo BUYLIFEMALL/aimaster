@@ -4,6 +4,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { buildInfluencerPrompt } from "./influencer-engine";
 import { generateGeminiImage } from "./geminiImage";
 import { buildReferenceParts, collectReferences, referenceErrorMessage } from "./referenceImage";
+import { resolveImageSelection } from "./imageModels";
 import {
   LIGHTINGS,
   CAMERA_MODES,
@@ -92,13 +93,16 @@ export async function generateInfluencerImage(
   // 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio).
   // 생성 라우트 함수 한도 300초(2026-10-18 60초에서 상향) → 시간 제한 240초, 유료 생성이라 재시도 없음(이중 과금 방지). 실패하면 한국어 안내(키 가림)를
   // 담은 오류를 던지고 라우트가 그 문구를 보여 준다. 모델·비율·화질·프롬프트는 그대로.
+  // 2026-11-20(R3 1단계, 주인님 「진행해보자」): 회원이 고른 Gemini 이미지 모델(src/lib/imageModels.ts). 고르지 않았으면 지금까지와 같은 3 Pro·같은 화질.
+  //   선택 검사는 라우트가 키 조회 전에 하고, 여기서 한 번 더 확인한다(통과하지 못하면 호출 전에 던진다).
+  const selection = resolveImageSelection(config as unknown as Record<string, unknown>);
   try {
     const image = await generateGeminiImage({
       apiKey,
-      modelName: "gemini-3-pro-image",
+      modelName: selection.modelName,
       parts,
       aspectRatio: config.aspectRatio || "9:16",
-      imageSize: config.quality || "1K",
+      imageSize: selection.imageSize,
       timeoutMs: 240_000,
       retries: 0,
     });

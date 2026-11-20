@@ -32,7 +32,7 @@ export const RESPONSE_TOO_LARGE_STATUS = 422;
 export const RESPONSE_TOO_LARGE_MESSAGE =
   "이미지는 생성됐지만 파일이 너무 커서 지금 화면으로 전달할 수 없습니다. 생성은 이미 진행됐으며, 사용량이 차감됐을 수 있습니다. 같은 설정으로 다시 생성하면 같은 일이 생길 수 있습니다.";
 
-import { handleGenerateImageRequest } from "../referenceImage";
+import { handleGenerateImageRequest, JSON_BODY_MAX_BYTES, readJsonBodyLimited } from "../referenceImage";
 import { decodeGeneratedDataUrl, precheckGenerated, saveGeneratedOriginal, type AssetStoreDeps, type SaveResult } from "./store";
 
 export type AccessResult = { allowed: true; user: { id: string } } | { allowed: false; error: string; status: number };
@@ -44,6 +44,11 @@ export type GenerateImagePostDeps = {
   /** shadow일 때만 불린다(off에서는 호출 0 → 관리자 클라이언트·저장소·RPC 생성 0) */
   getAssetDeps?: () => AssetStoreDeps;
   timeouts?: { precheckMs?: number; saveMs?: number };
+  /**
+   * (선택, 2026-11-20 R3 1단계) 권한 확인 뒤·키 조회 전에 요청 설정을 미리 본다. 거절하면 키 조회·모델 호출 없이 그 응답으로 끝낸다.
+   * 본문은 사본(req.clone())을 같은 상한으로 읽는다 — 읽지 못하거나 모양이 다르면 미리 보기를 건너뛰고 기존 처리에 맡긴다(기존 오류 응답 그대로).
+   */
+  precheckConfig?: (config: Record<string, unknown>) => { ok: true } | { ok: false; status: number; body: Record<string, unknown> };
 };
 export type HandlerResult = { status: number; body: Record<string, unknown> };
 
@@ -86,6 +91,15 @@ export async function handleGenerateImagePost(req: Request, deps: GenerateImageP
   const auth = await deps.checkAccess();
   if (!auth.allowed) return { status: auth.status, body: { error: auth.error } };
   const userId = auth.user.id;
+
+  if (deps.precheckConfig) {
+    // 취소 신호를 넘겨 「상한 초과 때 취소를 기다리지 않는」 방식으로 읽는다 — 사본만 취소하면 원본이 남아 있어 취소가 끝나지 않는다(기다리면 멈춤).
+    const peek = await readJsonBodyLimited(req.clone(), JSON_BODY_MAX_BYTES, { signal: new AbortController().signal });
+    if (peek.ok && peek.value && typeof peek.value === "object" && !Array.isArray(peek.value)) {
+      const v = deps.precheckConfig(peek.value as Record<string, unknown>);
+      if (!v.ok) return { status: v.status, body: v.body };
+    }
+  }
 
   const apiKey = await deps.getApiKey(userId);
   if (!apiKey) return { status: 400, body: { error: NEED_KEY_MESSAGE, needApiKey: true } };

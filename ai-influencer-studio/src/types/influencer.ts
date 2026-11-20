@@ -2,6 +2,8 @@ export interface InfluencerConfig {
   gender: string;
   ethnicity: string;
   age: string;
+  /** 이미지 모델 등급(2026-11-20, src/lib/imageModels.ts): "top" | "balanced" | "value". 없으면 최고 품질 */
+  imageModel?: string;
   hairStyle: string;
   faceStyle: string;
   expression: string;

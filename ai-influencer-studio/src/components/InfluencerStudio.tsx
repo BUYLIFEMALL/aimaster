@@ -10,6 +10,7 @@ import { HistoryDrawer } from "@/components/HistoryDrawer";
 import type { InfluencerConfig, GenerationResult, HistoryItem } from "@/types/influencer";
 import { assetSaveNotice } from "@/lib/assets/saveNotice";
 import { CAPTION_REQUEST_FAILED, readCaptionResponse } from "@/lib/captionNotice";
+import { imageSizesOf, loadImageTier, saveImageTier } from "@/lib/imageModels";
 import { readGenerateResponse } from "@/lib/assets/generateResponse";
 import { collectReferences, fitReferencesForSend, prepareLastResultForRefine, referenceErrorMessage } from "@/lib/referenceImage";
 import { AccountScope, AssetFlowSession, CLIENT_MESSAGES, SESSION_MESSAGES, bootstrapHistory, keepPhotosIfLocked, runViewGeneration, stripPhotoFields } from "@/lib/assets/clientFlow";
@@ -125,6 +126,16 @@ export function InfluencerStudio({ userEmail, routineScheduleEnabled = false, as
   const sessionRef = useRef<AssetFlowSession | null>(null);
   const hadSessionRef = useRef(false);
   const [isReloadingAsset, setIsReloadingAsset] = useState(false);
+  // 이미지 모델 선택 보관(2026-11-20, R3 1단계): 회원이 고른 값만 이 브라우저에 둔다. 읽기·쓰기에 실패해도 화면은 기본(최고 품질)으로 정상 동작한다
+  const imageTierLoadedRef = useRef(false);
+  useEffect(() => {
+    const saved = loadImageTier();   // 등급 값만 읽는다(src/lib/imageModels.ts) — 실패하면 null
+    if (saved) setConfig((prev) => ({ ...prev, imageModel: saved, quality: (imageSizesOf(saved) as readonly string[]).includes(prev.quality) ? prev.quality : "1K" }));
+    imageTierLoadedRef.current = true;
+  }, []);
+  useEffect(() => {
+    if (imageTierLoadedRef.current && config.imageModel) saveImageTier(config.imageModel);   // 등급 값만 쓴다 — 실패해도 이번 화면은 고른 값 그대로
+  }, [config.imageModel]);
   useEffect(() => {
     if (!assetFlow) return;
     const session = new AssetFlowSession({

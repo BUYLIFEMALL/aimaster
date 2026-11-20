@@ -45,6 +45,7 @@ import {
 import type { InfluencerConfig, TimelineScenario } from "@/types/influencer";
 import { IMAGE_READ_FAIL_MESSAGE, splitReadableImages } from "@/lib/imageFileCheck";
 import { fileToReferenceDataUrl } from "@/lib/referenceImage";
+import { IMAGE_MODELS, currentImageTier, imageSizesOf } from "@/lib/imageModels";
 
 interface ControlPanelProps {
   config: InfluencerConfig;
@@ -1050,22 +1051,57 @@ export function ControlPanel({
             })}
           </div>
 
-          {/* 화질 (3분할 버튼: 1K / 2K / 4K) */}
+          {/* 화질 (3분할 버튼: 1K / 2K / 4K) — 고른 이미지 모델이 받지 않는 화질은 누를 수 없다(가성비는 1K만) */}
           <div className="grid grid-cols-3 gap-2">
             {QUALITY_OPTIONS.map((q) => {
               const isSelected = config.quality === q.id;
+              const supported = (imageSizesOf(config.imageModel) as readonly string[]).includes(q.id);
               return (
                 <button
                   key={q.id}
                   type="button"
+                  disabled={!supported}
+                  title={supported ? undefined : "고른 이미지 모델은 이 화질을 지원하지 않습니다"}
                   onClick={() => setConfig({ ...config, quality: q.id })}
-                  className={`py-2 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
-                    isSelected
-                      ? "btn-3d btn-3d-amber text-white shadow-xs"
-                      : "bg-[#1c202e] border-[#282e42] text-slate-400 hover:text-slate-100 hover:border-slate-600"
+                  className={`py-2 rounded-lg text-xs font-bold border transition-all ${
+                    !supported
+                      ? "bg-[#1c202e] border-[#282e42] text-slate-600 opacity-50 cursor-not-allowed"
+                      : isSelected
+                        ? "btn-3d btn-3d-amber text-white shadow-xs cursor-pointer"
+                        : "bg-[#1c202e] border-[#282e42] text-slate-400 hover:text-slate-100 hover:border-slate-600 cursor-pointer"
                   }`}
                 >
                   {q.id}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 이미지 모델 (2026-11-20, R3 1단계): 최고 품질(기본·지금까지 쓰던 모델) / 균형 / 가성비 — 모두 회원 본인 Gemini 키 */}
+          <div className="space-y-1.5" role="radiogroup" aria-label="이미지 모델">
+            <p className="text-[11px] font-bold text-slate-300">🎨 이미지 모델</p>
+            {IMAGE_MODELS.map((m) => {
+              const isSelected = currentImageTier(config.imageModel) === m.tier;
+              return (
+                <button
+                  key={m.tier}
+                  type="button"
+                  role="radio"
+                  aria-checked={isSelected}
+                  data-image-tier={m.tier}
+                  onClick={() => {
+                    // 그 모델이 받지 않는 화질이면 1K로 맞춘다(가성비는 1K만)
+                    const sizes = imageSizesOf(m.tier) as readonly string[];
+                    setConfig({ ...config, imageModel: m.tier, quality: sizes.includes(config.quality) ? config.quality : "1K" });
+                  }}
+                  className={`w-full text-left px-3 py-2 rounded-lg border transition-all cursor-pointer ${
+                    isSelected
+                      ? "bg-rose-500/15 border-rose-500/50 text-rose-200"
+                      : "bg-[#1c202e] border-[#282e42] text-slate-400 hover:text-slate-100 hover:border-slate-600"
+                  }`}
+                >
+                  <span className="block text-xs font-bold">{m.label}{m.tier === "top" ? " (기본)" : ""}</span>
+                  <span className="block text-[10px] text-slate-500">{m.note} · 결제 연결된 키 필요</span>
                 </button>
               );
             })}

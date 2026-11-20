@@ -79,10 +79,14 @@ test("고정 기본값: 키가 비면 이미지 호출 전에 멈춘다", async 
   }
 });
 
-test("고정 기본값: 생성 함수 소스에 모델 이름이 한 곳에만 글자로 박혀 있고, 공용 모델 목록을 쓰지 않는다", () => {
+// 2026-11-20 R3 1단계 연결 뒤 바뀐 기준(설계대로): 생성 함수는 모델 이름을 직접 적지 않고 선택 해석(imageModels.ts)을 거친다.
+//   위 「고정 기본값」 시험들은 그대로 통과해야 한다 — 모델을 고르지 않은 요청은 예전과 같은 3 Pro·같은 화질 값.
+test("연결 뒤: 생성 함수는 모델 이름을 직접 적지 않고 resolveImageSelection을 거친다", () => {
   const src = lf(join(APP, "src/lib/gemini.ts"));
-  assert.equal(src.split('modelName: "gemini-3-pro-image"').length - 1, 1);
-  assert.equal(/nanoBananaModels|getNanoBananaConfig|resolveImageSize/.test(src), false);
+  assert.equal(src.includes('modelName: "gemini-3-pro-image"'), false);
+  assert.match(src, /const selection = resolveImageSelection\(/);
+  assert.match(src, /modelName: selection\.modelName,/);
+  assert.match(src, /imageSize: selection\.imageSize,/);
 });
 
 // ── 나. 공용 사본 목록 ──
@@ -93,12 +97,12 @@ test("공용 사본 nanoBananaModels.ts는 기준(ai-image-studio)과 같고 사
   assert.equal(lf(join(APP, "src/lib/geminiImage.ts")), lf(join(ROOT, "ai-image-studio/lib/providers/geminiImage.ts")));
 });
 
-test("공용 사본은 지금 이 앱 어디에서도 불러오지 않는다(쓰이지 않는 사본)", () => {
+test("연결 뒤: 공용 사본을 부르는 곳은 이 앱의 선택 파일 src/lib/imageModels.ts 하나뿐이다", () => {
   const files = [];
   const walk = (d) => { for (const f of readdirSync(d)) { const p = join(d, f); if (statSync(p).isDirectory()) walk(p); else if (/\.(ts|tsx)$/.test(f)) files.push(p); } };
   walk(join(APP, "src"));
   const users = files.filter((p) => !p.endsWith("nanoBananaModels.ts") && /nanoBananaModels/.test(readFileSync(p, "utf8")));
-  assert.deepEqual(users.map((p) => relative(APP, p)), []);
+  assert.deepEqual(users.map((p) => relative(APP, p).replace(/\\/g, "/")), ["src/lib/imageModels.ts"]);
 });
 
 test("공용 사본의 모델 이름이 모델 선택표 2절 Gemini 칸(저가·중가·최상급)과 같다", () => {
